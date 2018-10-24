@@ -8,16 +8,16 @@
 #define MBEDTLS_X509_H
 
 #if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
+    #include "config.h"
 #else
-#include MBEDTLS_CONFIG_FILE
+    #include MBEDTLS_CONFIG_FILE
 #endif
 
 #include "asn1.h"
 #include "pk.h"
 
 #if defined(MBEDTLS_RSA_C)
-#include "rsa.h"
+    #include "rsa.h"
 #endif
 
 /**
@@ -26,15 +26,15 @@
  */
 
 #if !defined(MBEDTLS_X509_MAX_INTERMEDIATE_CA)
-/**
- * Maximum number of intermediate CAs in a verification chain.
- * That is, maximum length of the chain, excluding the end-entity certificate
- * and the trusted root certificate.
- *
- * Set this to a low value to prevent an adversary from making you waste
- * resources verifying an overlong certificate chain.
- */
-#define MBEDTLS_X509_MAX_INTERMEDIATE_CA   8
+    /**
+    * Maximum number of intermediate CAs in a verification chain.
+    * That is, maximum length of the chain, excluding the end-entity certificate
+    * and the trusted root certificate.
+    *
+    * Set this to a low value to prevent an adversary from making you waste
+    * resources verifying an overlong certificate chain.
+    */
+    #define MBEDTLS_X509_MAX_INTERMEDIATE_CA   8
 #endif
 
 /**
@@ -187,8 +187,7 @@ typedef mbedtls_asn1_named_data mbedtls_x509_name;
 typedef mbedtls_asn1_sequence mbedtls_x509_sequence;
 
 /** Container for date and time (precision in seconds). */
-typedef struct mbedtls_x509_time
-{
+typedef struct mbedtls_x509_time {
     int year, mon, day;         /**< Date. */
     int hour, min, sec;         /**< Time. */
 }
@@ -208,7 +207,7 @@ mbedtls_x509_time;
  * \return         The length of the string written (not including the
  *                 terminated nul byte), or a negative error code.
  */
-DLL_EXPORT_API int mbedtls_x509_dn_gets( char *buf, size_t size, const mbedtls_x509_name *dn );
+DLL_TLS_API int mbedtls_x509_dn_gets(char *buf, size_t size, const mbedtls_x509_name *dn);
 
 /**
  * \brief          Store the certificate serial in printable form into buf;
@@ -221,7 +220,7 @@ DLL_EXPORT_API int mbedtls_x509_dn_gets( char *buf, size_t size, const mbedtls_x
  * \return         The length of the string written (not including the
  *                 terminated nul byte), or a negative error code.
  */
-DLL_EXPORT_API int mbedtls_x509_serial_gets( char *buf, size_t size, const mbedtls_x509_buf *serial );
+DLL_TLS_API int mbedtls_x509_serial_gets(char *buf, size_t size, const mbedtls_x509_buf *serial);
 
 /**
  * \brief          Check a given mbedtls_x509_time against the system time
@@ -235,7 +234,7 @@ DLL_EXPORT_API int mbedtls_x509_serial_gets( char *buf, size_t size, const mbedt
  * \return         1 if the given time is in the past or an error occured,
  *                 0 otherwise.
  */
-DLL_EXPORT_API int mbedtls_x509_time_is_past( const mbedtls_x509_time *time );
+DLL_TLS_API int mbedtls_x509_time_is_past(const mbedtls_x509_time *time);
 
 /**
  * \brief          Check a given mbedtls_x509_time against the system time
@@ -249,61 +248,61 @@ DLL_EXPORT_API int mbedtls_x509_time_is_past( const mbedtls_x509_time *time );
  * \return         1 if the given time is in the future or an error occured,
  *                 0 otherwise.
  */
-DLL_EXPORT_API int mbedtls_x509_time_is_future( const mbedtls_x509_time *time );
+DLL_TLS_API int mbedtls_x509_time_is_future(const mbedtls_x509_time *time);
 
 /**
  * \brief          Checkup routine
  *
  * \return         0 if successful, or 1 if the test failed
  */
-DLL_EXPORT_API int mbedtls_x509_self_test( int verbose );
+DLL_TLS_API int mbedtls_x509_self_test(int verbose);
 
 /*
  * Internal module functions. You probably do not want to use these unless you
  * know you do.
  */
-DLL_EXPORT_API int mbedtls_x509_get_name( unsigned char **p, const unsigned char *end,
-                   mbedtls_x509_name *cur );
-DLL_EXPORT_API int mbedtls_x509_get_alg_null( unsigned char **p, const unsigned char *end,
-                       mbedtls_x509_buf *alg );
-DLL_EXPORT_API int mbedtls_x509_get_alg( unsigned char **p, const unsigned char *end,
-                  mbedtls_x509_buf *alg, mbedtls_x509_buf *params );
+DLL_TLS_API int mbedtls_x509_get_name(unsigned char **p, const unsigned char *end,
+                                      mbedtls_x509_name *cur);
+DLL_TLS_API int mbedtls_x509_get_alg_null(unsigned char **p, const unsigned char *end,
+        mbedtls_x509_buf *alg);
+DLL_TLS_API int mbedtls_x509_get_alg(unsigned char **p, const unsigned char *end,
+                                     mbedtls_x509_buf *alg, mbedtls_x509_buf *params);
 #if defined(MBEDTLS_X509_RSASSA_PSS_SUPPORT)
-DLL_EXPORT_API int mbedtls_x509_get_rsassa_pss_params( const mbedtls_x509_buf *params,
-                                mbedtls_md_type_t *md_alg, mbedtls_md_type_t *mgf_md,
-                                int *salt_len );
+DLL_TLS_API int mbedtls_x509_get_rsassa_pss_params(const mbedtls_x509_buf *params,
+        mbedtls_md_type_t *md_alg, mbedtls_md_type_t *mgf_md,
+        int *salt_len);
 #endif
-DLL_EXPORT_API int mbedtls_x509_get_sig( unsigned char **p, const unsigned char *end, mbedtls_x509_buf *sig );
-DLL_EXPORT_API int mbedtls_x509_get_sig_alg( const mbedtls_x509_buf *sig_oid, const mbedtls_x509_buf *sig_params,
-                      mbedtls_md_type_t *md_alg, mbedtls_pk_type_t *pk_alg,
-                      void **sig_opts );
-DLL_EXPORT_API int mbedtls_x509_get_time( unsigned char **p, const unsigned char *end,
-                   mbedtls_x509_time *time );
-DLL_EXPORT_API int mbedtls_x509_get_serial( unsigned char **p, const unsigned char *end,
-                     mbedtls_x509_buf *serial );
-DLL_EXPORT_API int mbedtls_x509_get_ext( unsigned char **p, const unsigned char *end,
-                  mbedtls_x509_buf *ext, int tag );
-DLL_EXPORT_API int mbedtls_x509_sig_alg_gets( char *buf, size_t size, const mbedtls_x509_buf *sig_oid,
-                       mbedtls_pk_type_t pk_alg, mbedtls_md_type_t md_alg,
-                       const void *sig_opts );
-DLL_EXPORT_API int mbedtls_x509_key_size_helper( char *buf, size_t buf_size, const char *name );
-DLL_EXPORT_API int mbedtls_x509_string_to_names( mbedtls_asn1_named_data **head, const char *name );
-DLL_EXPORT_API int mbedtls_x509_set_extension( mbedtls_asn1_named_data **head, const char *oid, size_t oid_len,
-                        int critical, const unsigned char *val,
-                        size_t val_len );
-DLL_EXPORT_API int mbedtls_x509_write_extensions( unsigned char **p, unsigned char *start,
-                           mbedtls_asn1_named_data *first );
-DLL_EXPORT_API int mbedtls_x509_write_names( unsigned char **p, unsigned char *start,
-                      mbedtls_asn1_named_data *first );
-DLL_EXPORT_API int mbedtls_x509_write_sig( unsigned char **p, unsigned char *start,
-                    const char *oid, size_t oid_len,
-                    unsigned char *sig, size_t size );
+DLL_TLS_API int mbedtls_x509_get_sig(unsigned char **p, const unsigned char *end, mbedtls_x509_buf *sig);
+DLL_TLS_API int mbedtls_x509_get_sig_alg(const mbedtls_x509_buf *sig_oid, const mbedtls_x509_buf *sig_params,
+        mbedtls_md_type_t *md_alg, mbedtls_pk_type_t *pk_alg,
+        void **sig_opts);
+DLL_TLS_API int mbedtls_x509_get_time(unsigned char **p, const unsigned char *end,
+                                      mbedtls_x509_time *time);
+DLL_TLS_API int mbedtls_x509_get_serial(unsigned char **p, const unsigned char *end,
+                                        mbedtls_x509_buf *serial);
+DLL_TLS_API int mbedtls_x509_get_ext(unsigned char **p, const unsigned char *end,
+                                     mbedtls_x509_buf *ext, int tag);
+DLL_TLS_API int mbedtls_x509_sig_alg_gets(char *buf, size_t size, const mbedtls_x509_buf *sig_oid,
+        mbedtls_pk_type_t pk_alg, mbedtls_md_type_t md_alg,
+        const void *sig_opts);
+DLL_TLS_API int mbedtls_x509_key_size_helper(char *buf, size_t buf_size, const char *name);
+DLL_TLS_API int mbedtls_x509_string_to_names(mbedtls_asn1_named_data **head, const char *name);
+DLL_TLS_API int mbedtls_x509_set_extension(mbedtls_asn1_named_data **head, const char *oid, size_t oid_len,
+        int critical, const unsigned char *val,
+        size_t val_len);
+DLL_TLS_API int mbedtls_x509_write_extensions(unsigned char **p, unsigned char *start,
+        mbedtls_asn1_named_data *first);
+DLL_TLS_API int mbedtls_x509_write_names(unsigned char **p, unsigned char *start,
+        mbedtls_asn1_named_data *first);
+DLL_TLS_API int mbedtls_x509_write_sig(unsigned char **p, unsigned char *start,
+                                       const char *oid, size_t oid_len,
+                                       unsigned char *sig, size_t size);
 
 #define MBEDTLS_X509_SAFE_SNPRINTF                          \
     do {                                                    \
         if( ret < 0 || (size_t) ret >= n )                  \
             return( MBEDTLS_ERR_X509_BUFFER_TOO_SMALL );    \
-                                                            \
+        \
         n -= (size_t) ret;                                  \
         p += (size_t) ret;                                  \
     } while( 0 )

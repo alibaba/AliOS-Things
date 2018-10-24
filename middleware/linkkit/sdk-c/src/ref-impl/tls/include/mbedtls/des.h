@@ -8,9 +8,9 @@
 #define MBEDTLS_DES_H
 
 #if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
+    #include "config.h"
 #else
-#include MBEDTLS_CONFIG_FILE
+    #include MBEDTLS_CONFIG_FILE
 #endif
 
 #include <stddef.h>
@@ -34,8 +34,7 @@ extern "C" {
 /**
  * \brief          DES context structure
  */
-typedef struct
-{
+typedef struct {
     uint32_t sk[32];            /*!<  DES subkeys       */
 }
 mbedtls_des_context;
@@ -43,8 +42,7 @@ mbedtls_des_context;
 /**
  * \brief          Triple-DES context structure
  */
-typedef struct
-{
+typedef struct {
     uint32_t sk[96];            /*!<  3DES subkeys      */
 }
 mbedtls_des3_context;
@@ -54,28 +52,28 @@ mbedtls_des3_context;
  *
  * \param ctx      DES context to be initialized
  */
-DLL_EXPORT_API void mbedtls_des_init( mbedtls_des_context *ctx );
+DLL_TLS_API void mbedtls_des_init(mbedtls_des_context *ctx);
 
 /**
  * \brief          Clear DES context
  *
  * \param ctx      DES context to be cleared
  */
-DLL_EXPORT_API void mbedtls_des_free( mbedtls_des_context *ctx );
+DLL_TLS_API void mbedtls_des_free(mbedtls_des_context *ctx);
 
 /**
  * \brief          Initialize Triple-DES context
  *
  * \param ctx      DES3 context to be initialized
  */
-DLL_EXPORT_API void mbedtls_des3_init( mbedtls_des3_context *ctx );
+DLL_TLS_API void mbedtls_des3_init(mbedtls_des3_context *ctx);
 
 /**
  * \brief          Clear Triple-DES context
  *
  * \param ctx      DES3 context to be cleared
  */
-DLL_EXPORT_API void mbedtls_des3_free( mbedtls_des3_context *ctx );
+DLL_TLS_API void mbedtls_des3_free(mbedtls_des3_context *ctx);
 
 /**
  * \brief          Set key parity on the given key to odd.
@@ -85,7 +83,7 @@ DLL_EXPORT_API void mbedtls_des3_free( mbedtls_des3_context *ctx );
  *
  * \param key      8-byte secret key
  */
-DLL_EXPORT_API void mbedtls_des_key_set_parity( unsigned char key[MBEDTLS_DES_KEY_SIZE] );
+DLL_TLS_API void mbedtls_des_key_set_parity(unsigned char key[MBEDTLS_DES_KEY_SIZE]);
 
 /**
  * \brief          Check that key parity on the given key is odd.
@@ -97,7 +95,7 @@ DLL_EXPORT_API void mbedtls_des_key_set_parity( unsigned char key[MBEDTLS_DES_KE
  *
  * \return         0 is parity was ok, 1 if parity was not correct.
  */
-DLL_EXPORT_API int mbedtls_des_key_check_key_parity( const unsigned char key[MBEDTLS_DES_KEY_SIZE] );
+DLL_TLS_API int mbedtls_des_key_check_key_parity(const unsigned char key[MBEDTLS_DES_KEY_SIZE]);
 
 /**
  * \brief          Check that key is not a weak or semi-weak DES key
@@ -106,7 +104,7 @@ DLL_EXPORT_API int mbedtls_des_key_check_key_parity( const unsigned char key[MBE
  *
  * \return         0 if no weak key was found, 1 if a weak key was identified.
  */
-DLL_EXPORT_API int mbedtls_des_key_check_weak( const unsigned char key[MBEDTLS_DES_KEY_SIZE] );
+DLL_TLS_API int mbedtls_des_key_check_weak(const unsigned char key[MBEDTLS_DES_KEY_SIZE]);
 
 /**
  * \brief          DES key schedule (56-bit, encryption)
@@ -116,7 +114,7 @@ DLL_EXPORT_API int mbedtls_des_key_check_weak( const unsigned char key[MBEDTLS_D
  *
  * \return         0
  */
-DLL_EXPORT_API int mbedtls_des_setkey_enc( mbedtls_des_context *ctx, const unsigned char key[MBEDTLS_DES_KEY_SIZE] );
+DLL_TLS_API int mbedtls_des_setkey_enc(mbedtls_des_context *ctx, const unsigned char key[MBEDTLS_DES_KEY_SIZE]);
 
 /**
  * \brief          DES key schedule (56-bit, decryption)
@@ -126,7 +124,7 @@ DLL_EXPORT_API int mbedtls_des_setkey_enc( mbedtls_des_context *ctx, const unsig
  *
  * \return         0
  */
-DLL_EXPORT_API int mbedtls_des_setkey_dec( mbedtls_des_context *ctx, const unsigned char key[MBEDTLS_DES_KEY_SIZE] );
+DLL_TLS_API int mbedtls_des_setkey_dec(mbedtls_des_context *ctx, const unsigned char key[MBEDTLS_DES_KEY_SIZE]);
 
 /**
  * \brief          Triple-DES key schedule (112-bit, encryption)
@@ -136,8 +134,8 @@ DLL_EXPORT_API int mbedtls_des_setkey_dec( mbedtls_des_context *ctx, const unsig
  *
  * \return         0
  */
-DLL_EXPORT_API int mbedtls_des3_set2key_enc( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] );
+DLL_TLS_API int mbedtls_des3_set2key_enc(mbedtls_des3_context *ctx,
+        const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2]);
 
 /**
  * \brief          Triple-DES key schedule (112-bit, decryption)
@@ -147,8 +145,8 @@ DLL_EXPORT_API int mbedtls_des3_set2key_enc( mbedtls_des3_context *ctx,
  *
  * \return         0
  */
-DLL_EXPORT_API int mbedtls_des3_set2key_dec( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] );
+DLL_TLS_API int mbedtls_des3_set2key_dec(mbedtls_des3_context *ctx,
+        const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2]);
 
 /**
  * \brief          Triple-DES key schedule (168-bit, encryption)
@@ -158,8 +156,8 @@ DLL_EXPORT_API int mbedtls_des3_set2key_dec( mbedtls_des3_context *ctx,
  *
  * \return         0
  */
-DLL_EXPORT_API int mbedtls_des3_set3key_enc( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] );
+DLL_TLS_API int mbedtls_des3_set3key_enc(mbedtls_des3_context *ctx,
+        const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3]);
 
 /**
  * \brief          Triple-DES key schedule (168-bit, decryption)
@@ -169,8 +167,8 @@ DLL_EXPORT_API int mbedtls_des3_set3key_enc( mbedtls_des3_context *ctx,
  *
  * \return         0
  */
-DLL_EXPORT_API int mbedtls_des3_set3key_dec( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] );
+DLL_TLS_API int mbedtls_des3_set3key_dec(mbedtls_des3_context *ctx,
+        const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3]);
 
 /**
  * \brief          DES-ECB block encryption/decryption
@@ -181,9 +179,9 @@ DLL_EXPORT_API int mbedtls_des3_set3key_dec( mbedtls_des3_context *ctx,
  *
  * \return         0 if successful
  */
-DLL_EXPORT_API int mbedtls_des_crypt_ecb( mbedtls_des_context *ctx,
-                    const unsigned char input[8],
-                    unsigned char output[8] );
+DLL_TLS_API int mbedtls_des_crypt_ecb(mbedtls_des_context *ctx,
+                                      const unsigned char input[8],
+                                      unsigned char output[8]);
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
 /**
@@ -204,12 +202,12 @@ DLL_EXPORT_API int mbedtls_des_crypt_ecb( mbedtls_des_context *ctx,
  * \param input    buffer holding the input data
  * \param output   buffer holding the output data
  */
-DLL_EXPORT_API int mbedtls_des_crypt_cbc( mbedtls_des_context *ctx,
-                    int mode,
-                    size_t length,
-                    unsigned char iv[8],
-                    const unsigned char *input,
-                    unsigned char *output );
+DLL_TLS_API int mbedtls_des_crypt_cbc(mbedtls_des_context *ctx,
+                                      int mode,
+                                      size_t length,
+                                      unsigned char iv[8],
+                                      const unsigned char *input,
+                                      unsigned char *output);
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
 /**
@@ -221,9 +219,9 @@ DLL_EXPORT_API int mbedtls_des_crypt_cbc( mbedtls_des_context *ctx,
  *
  * \return         0 if successful
  */
-DLL_EXPORT_API int mbedtls_des3_crypt_ecb( mbedtls_des3_context *ctx,
-                     const unsigned char input[8],
-                     unsigned char output[8] );
+DLL_TLS_API int mbedtls_des3_crypt_ecb(mbedtls_des3_context *ctx,
+                                       const unsigned char input[8],
+                                       unsigned char output[8]);
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
 /**
@@ -246,12 +244,12 @@ DLL_EXPORT_API int mbedtls_des3_crypt_ecb( mbedtls_des3_context *ctx,
  *
  * \return         0 if successful, or MBEDTLS_ERR_DES_INVALID_INPUT_LENGTH
  */
-DLL_EXPORT_API int mbedtls_des3_crypt_cbc( mbedtls_des3_context *ctx,
-                     int mode,
-                     size_t length,
-                     unsigned char iv[8],
-                     const unsigned char *input,
-                     unsigned char *output );
+DLL_TLS_API int mbedtls_des3_crypt_cbc(mbedtls_des3_context *ctx,
+                                       int mode,
+                                       size_t length,
+                                       unsigned char iv[8],
+                                       const unsigned char *input,
+                                       unsigned char *output);
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
 /**
@@ -262,8 +260,8 @@ DLL_EXPORT_API int mbedtls_des3_crypt_cbc( mbedtls_des3_context *ctx,
  * \param SK       Round keys
  * \param key      Base key
  */
-DLL_EXPORT_API void mbedtls_des_setkey( uint32_t SK[32],
-                         const unsigned char key[MBEDTLS_DES_KEY_SIZE] );
+DLL_TLS_API void mbedtls_des_setkey(uint32_t SK[32],
+                                    const unsigned char key[MBEDTLS_DES_KEY_SIZE]);
 #ifdef __cplusplus
 }
 #endif
@@ -281,7 +279,7 @@ extern "C" {
  *
  * \return         0 if successful, or 1 if the test failed
  */
-DLL_EXPORT_API int mbedtls_des_self_test( int verbose );
+DLL_TLS_API int mbedtls_des_self_test(int verbose);
 
 #ifdef __cplusplus
 }

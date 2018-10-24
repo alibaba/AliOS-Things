@@ -8,16 +8,16 @@
 #define MBEDTLS_RSA_H
 
 #if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
+    #include "config.h"
 #else
-#include MBEDTLS_CONFIG_FILE
+    #include MBEDTLS_CONFIG_FILE
 #endif
 
 #include "bignum.h"
 #include "md.h"
 
 #if defined(MBEDTLS_THREADING_C)
-#include "threading.h"
+    #include "threading.h"
 #endif
 
 /*
@@ -60,8 +60,7 @@ extern "C" {
 /**
  * \brief          RSA context structure
  */
-typedef struct
-{
+typedef struct {
     int ver;                    /*!<  always 0          */
     size_t len;                 /*!<  size(N) in chars  */
 
@@ -118,9 +117,9 @@ mbedtls_rsa_context;
  *                 but can be overriden (and always is, if set to
  *                 MBEDTLS_MD_NONE) for verifying them.
  */
-DLL_EXPORT_API void mbedtls_rsa_init( mbedtls_rsa_context *ctx,
-               int padding,
-               int hash_id);
+DLL_TLS_API void mbedtls_rsa_init(mbedtls_rsa_context *ctx,
+                                  int padding,
+                                  int hash_id);
 
 /**
  * \brief          Set padding for an already initialized RSA context
@@ -130,7 +129,7 @@ DLL_EXPORT_API void mbedtls_rsa_init( mbedtls_rsa_context *ctx,
  * \param padding  MBEDTLS_RSA_PKCS_V15 or MBEDTLS_RSA_PKCS_V21
  * \param hash_id  MBEDTLS_RSA_PKCS_V21 hash identifier
  */
-DLL_EXPORT_API void mbedtls_rsa_set_padding( mbedtls_rsa_context *ctx, int padding, int hash_id);
+DLL_TLS_API void mbedtls_rsa_set_padding(mbedtls_rsa_context *ctx, int padding, int hash_id);
 
 /**
  * \brief          Generate an RSA keypair
@@ -146,10 +145,10 @@ DLL_EXPORT_API void mbedtls_rsa_set_padding( mbedtls_rsa_context *ctx, int paddi
  *
  * \return         0 if successful, or an MBEDTLS_ERR_RSA_XXX error code
  */
-DLL_EXPORT_API int mbedtls_rsa_gen_key( mbedtls_rsa_context *ctx,
-                 int (*f_rng)(void *, unsigned char *, size_t),
-                 void *p_rng,
-                 unsigned int nbits, int exponent );
+DLL_TLS_API int mbedtls_rsa_gen_key(mbedtls_rsa_context *ctx,
+                                    int (*f_rng)(void *, unsigned char *, size_t),
+                                    void *p_rng,
+                                    unsigned int nbits, int exponent);
 
 /**
  * \brief          Check a public RSA key
@@ -158,7 +157,7 @@ DLL_EXPORT_API int mbedtls_rsa_gen_key( mbedtls_rsa_context *ctx,
  *
  * \return         0 if successful, or an MBEDTLS_ERR_RSA_XXX error code
  */
-DLL_EXPORT_API int mbedtls_rsa_check_pubkey( const mbedtls_rsa_context *ctx );
+DLL_TLS_API int mbedtls_rsa_check_pubkey(const mbedtls_rsa_context *ctx);
 
 /**
  * \brief          Check a private RSA key
@@ -167,7 +166,7 @@ DLL_EXPORT_API int mbedtls_rsa_check_pubkey( const mbedtls_rsa_context *ctx );
  *
  * \return         0 if successful, or an MBEDTLS_ERR_RSA_XXX error code
  */
-DLL_EXPORT_API int mbedtls_rsa_check_privkey( const mbedtls_rsa_context *ctx );
+DLL_TLS_API int mbedtls_rsa_check_privkey(const mbedtls_rsa_context *ctx);
 
 /**
  * \brief          Check a public-private RSA key pair.
@@ -178,7 +177,7 @@ DLL_EXPORT_API int mbedtls_rsa_check_privkey( const mbedtls_rsa_context *ctx );
  *
  * \return         0 if successful, or an MBEDTLS_ERR_RSA_XXX error code
  */
-DLL_EXPORT_API int mbedtls_rsa_check_pub_priv( const mbedtls_rsa_context *pub, const mbedtls_rsa_context *prv );
+DLL_TLS_API int mbedtls_rsa_check_pub_priv(const mbedtls_rsa_context *pub, const mbedtls_rsa_context *prv);
 
 /**
  * \brief          Do an RSA public key operation
@@ -196,9 +195,9 @@ DLL_EXPORT_API int mbedtls_rsa_check_pub_priv( const mbedtls_rsa_context *pub, c
  * \note           The input and output buffers must be large
  *                 enough (eg. 128 bytes if RSA-1024 is used).
  */
-DLL_EXPORT_API int mbedtls_rsa_public( mbedtls_rsa_context *ctx,
-                const unsigned char *input,
-                unsigned char *output );
+DLL_TLS_API int mbedtls_rsa_public(mbedtls_rsa_context *ctx,
+                                   const unsigned char *input,
+                                   unsigned char *output);
 
 /**
  * \brief          Do an RSA private key operation
@@ -214,11 +213,11 @@ DLL_EXPORT_API int mbedtls_rsa_public( mbedtls_rsa_context *ctx,
  * \note           The input and output buffers must be large
  *                 enough (eg. 128 bytes if RSA-1024 is used).
  */
-DLL_EXPORT_API int mbedtls_rsa_private( mbedtls_rsa_context *ctx,
-                 int (*f_rng)(void *, unsigned char *, size_t),
-                 void *p_rng,
-                 const unsigned char *input,
-                 unsigned char *output );
+DLL_TLS_API int mbedtls_rsa_private(mbedtls_rsa_context *ctx,
+                                    int (*f_rng)(void *, unsigned char *, size_t),
+                                    void *p_rng,
+                                    const unsigned char *input,
+                                    unsigned char *output);
 
 /**
  * \brief          Generic wrapper to perform a PKCS#1 encryption using the
@@ -239,12 +238,12 @@ DLL_EXPORT_API int mbedtls_rsa_private( mbedtls_rsa_context *ctx,
  * \note           The output buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-DLL_EXPORT_API int mbedtls_rsa_pkcs1_encrypt( mbedtls_rsa_context *ctx,
-                       int (*f_rng)(void *, unsigned char *, size_t),
-                       void *p_rng,
-                       int mode, size_t ilen,
-                       const unsigned char *input,
-                       unsigned char *output );
+DLL_TLS_API int mbedtls_rsa_pkcs1_encrypt(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode, size_t ilen,
+        const unsigned char *input,
+        unsigned char *output);
 
 /**
  * \brief          Perform a PKCS#1 v1.5 encryption (RSAES-PKCS1-v1_5-ENCRYPT)
@@ -262,12 +261,12 @@ DLL_EXPORT_API int mbedtls_rsa_pkcs1_encrypt( mbedtls_rsa_context *ctx,
  * \note           The output buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-DLL_EXPORT_API int mbedtls_rsa_rsaes_pkcs1_v15_encrypt( mbedtls_rsa_context *ctx,
-                                 int (*f_rng)(void *, unsigned char *, size_t),
-                                 void *p_rng,
-                                 int mode, size_t ilen,
-                                 const unsigned char *input,
-                                 unsigned char *output );
+DLL_TLS_API int mbedtls_rsa_rsaes_pkcs1_v15_encrypt(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode, size_t ilen,
+        const unsigned char *input,
+        unsigned char *output);
 
 /**
  * \brief          Perform a PKCS#1 v2.1 OAEP encryption (RSAES-OAEP-ENCRYPT)
@@ -288,14 +287,14 @@ DLL_EXPORT_API int mbedtls_rsa_rsaes_pkcs1_v15_encrypt( mbedtls_rsa_context *ctx
  * \note           The output buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-DLL_EXPORT_API int mbedtls_rsa_rsaes_oaep_encrypt( mbedtls_rsa_context *ctx,
-                            int (*f_rng)(void *, unsigned char *, size_t),
-                            void *p_rng,
-                            int mode,
-                            const unsigned char *label, size_t label_len,
-                            size_t ilen,
-                            const unsigned char *input,
-                            unsigned char *output );
+DLL_TLS_API int mbedtls_rsa_rsaes_oaep_encrypt(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode,
+        const unsigned char *label, size_t label_len,
+        size_t ilen,
+        const unsigned char *input,
+        unsigned char *output);
 
 /**
  * \brief          Generic wrapper to perform a PKCS#1 decryption using the
@@ -317,13 +316,13 @@ DLL_EXPORT_API int mbedtls_rsa_rsaes_oaep_encrypt( mbedtls_rsa_context *ctx,
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used) otherwise
  *                 an error is thrown.
  */
-DLL_EXPORT_API int mbedtls_rsa_pkcs1_decrypt( mbedtls_rsa_context *ctx,
-                       int (*f_rng)(void *, unsigned char *, size_t),
-                       void *p_rng,
-                       int mode, size_t *olen,
-                       const unsigned char *input,
-                       unsigned char *output,
-                       size_t output_max_len );
+DLL_TLS_API int mbedtls_rsa_pkcs1_decrypt(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode, size_t *olen,
+        const unsigned char *input,
+        unsigned char *output,
+        size_t output_max_len);
 
 /**
  * \brief          Perform a PKCS#1 v1.5 decryption (RSAES-PKCS1-v1_5-DECRYPT)
@@ -343,13 +342,13 @@ DLL_EXPORT_API int mbedtls_rsa_pkcs1_decrypt( mbedtls_rsa_context *ctx,
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used) otherwise
  *                 an error is thrown.
  */
-DLL_EXPORT_API int mbedtls_rsa_rsaes_pkcs1_v15_decrypt( mbedtls_rsa_context *ctx,
-                                 int (*f_rng)(void *, unsigned char *, size_t),
-                                 void *p_rng,
-                                 int mode, size_t *olen,
-                                 const unsigned char *input,
-                                 unsigned char *output,
-                                 size_t output_max_len );
+DLL_TLS_API int mbedtls_rsa_rsaes_pkcs1_v15_decrypt(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode, size_t *olen,
+        const unsigned char *input,
+        unsigned char *output,
+        size_t output_max_len);
 
 /**
  * \brief          Perform a PKCS#1 v2.1 OAEP decryption (RSAES-OAEP-DECRYPT)
@@ -371,15 +370,15 @@ DLL_EXPORT_API int mbedtls_rsa_rsaes_pkcs1_v15_decrypt( mbedtls_rsa_context *ctx
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used) otherwise
  *                 an error is thrown.
  */
-DLL_EXPORT_API int mbedtls_rsa_rsaes_oaep_decrypt( mbedtls_rsa_context *ctx,
-                            int (*f_rng)(void *, unsigned char *, size_t),
-                            void *p_rng,
-                            int mode,
-                            const unsigned char *label, size_t label_len,
-                            size_t *olen,
-                            const unsigned char *input,
-                            unsigned char *output,
-                            size_t output_max_len );
+DLL_TLS_API int mbedtls_rsa_rsaes_oaep_decrypt(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode,
+        const unsigned char *label, size_t label_len,
+        size_t *olen,
+        const unsigned char *input,
+        unsigned char *output,
+        size_t output_max_len);
 
 /**
  * \brief          Generic wrapper to perform a PKCS#1 signature using the
@@ -405,14 +404,14 @@ DLL_EXPORT_API int mbedtls_rsa_rsaes_oaep_decrypt( mbedtls_rsa_context *ctx,
  * \note           In case of PKCS#1 v2.1 encoding, see comments on
  * \note           \c mbedtls_rsa_rsassa_pss_sign() for details on md_alg and hash_id.
  */
-DLL_EXPORT_API int mbedtls_rsa_pkcs1_sign( mbedtls_rsa_context *ctx,
-                    int (*f_rng)(void *, unsigned char *, size_t),
-                    void *p_rng,
-                    int mode,
-                    mbedtls_md_type_t md_alg,
-                    unsigned int hashlen,
-                    const unsigned char *hash,
-                    unsigned char *sig );
+DLL_TLS_API int mbedtls_rsa_pkcs1_sign(mbedtls_rsa_context *ctx,
+                                       int (*f_rng)(void *, unsigned char *, size_t),
+                                       void *p_rng,
+                                       int mode,
+                                       mbedtls_md_type_t md_alg,
+                                       unsigned int hashlen,
+                                       const unsigned char *hash,
+                                       unsigned char *sig);
 
 /**
  * \brief          Perform a PKCS#1 v1.5 signature (RSASSA-PKCS1-v1_5-SIGN)
@@ -432,14 +431,14 @@ DLL_EXPORT_API int mbedtls_rsa_pkcs1_sign( mbedtls_rsa_context *ctx,
  * \note           The "sig" buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-DLL_EXPORT_API int mbedtls_rsa_rsassa_pkcs1_v15_sign( mbedtls_rsa_context *ctx,
-                               int (*f_rng)(void *, unsigned char *, size_t),
-                               void *p_rng,
-                               int mode,
-                               mbedtls_md_type_t md_alg,
-                               unsigned int hashlen,
-                               const unsigned char *hash,
-                               unsigned char *sig );
+DLL_TLS_API int mbedtls_rsa_rsassa_pkcs1_v15_sign(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode,
+        mbedtls_md_type_t md_alg,
+        unsigned int hashlen,
+        const unsigned char *hash,
+        unsigned char *sig);
 
 /**
  * \brief          Perform a PKCS#1 v2.1 PSS signature (RSASSA-PSS-SIGN)
@@ -465,14 +464,14 @@ DLL_EXPORT_API int mbedtls_rsa_rsassa_pkcs1_v15_sign( mbedtls_rsa_context *ctx,
  *                 that is encoded. According to RFC 3447 it is advised to
  *                 keep both hashes the same.
  */
-DLL_EXPORT_API int mbedtls_rsa_rsassa_pss_sign( mbedtls_rsa_context *ctx,
-                         int (*f_rng)(void *, unsigned char *, size_t),
-                         void *p_rng,
-                         int mode,
-                         mbedtls_md_type_t md_alg,
-                         unsigned int hashlen,
-                         const unsigned char *hash,
-                         unsigned char *sig );
+DLL_TLS_API int mbedtls_rsa_rsassa_pss_sign(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode,
+        mbedtls_md_type_t md_alg,
+        unsigned int hashlen,
+        const unsigned char *hash,
+        unsigned char *sig);
 
 /**
  * \brief          Generic wrapper to perform a PKCS#1 verification using the
@@ -497,14 +496,14 @@ DLL_EXPORT_API int mbedtls_rsa_rsassa_pss_sign( mbedtls_rsa_context *ctx,
  * \note           In case of PKCS#1 v2.1 encoding, see comments on
  *                 \c mbedtls_rsa_rsassa_pss_verify() about md_alg and hash_id.
  */
-DLL_EXPORT_API int mbedtls_rsa_pkcs1_verify( mbedtls_rsa_context *ctx,
-                      int (*f_rng)(void *, unsigned char *, size_t),
-                      void *p_rng,
-                      int mode,
-                      mbedtls_md_type_t md_alg,
-                      unsigned int hashlen,
-                      const unsigned char *hash,
-                      const unsigned char *sig );
+DLL_TLS_API int mbedtls_rsa_pkcs1_verify(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode,
+        mbedtls_md_type_t md_alg,
+        unsigned int hashlen,
+        const unsigned char *hash,
+        const unsigned char *sig);
 
 /**
  * \brief          Perform a PKCS#1 v1.5 verification (RSASSA-PKCS1-v1_5-VERIFY)
@@ -524,14 +523,14 @@ DLL_EXPORT_API int mbedtls_rsa_pkcs1_verify( mbedtls_rsa_context *ctx,
  * \note           The "sig" buffer must be as large as the size
  *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
  */
-DLL_EXPORT_API int mbedtls_rsa_rsassa_pkcs1_v15_verify( mbedtls_rsa_context *ctx,
-                                 int (*f_rng)(void *, unsigned char *, size_t),
-                                 void *p_rng,
-                                 int mode,
-                                 mbedtls_md_type_t md_alg,
-                                 unsigned int hashlen,
-                                 const unsigned char *hash,
-                                 const unsigned char *sig );
+DLL_TLS_API int mbedtls_rsa_rsassa_pkcs1_v15_verify(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode,
+        mbedtls_md_type_t md_alg,
+        unsigned int hashlen,
+        const unsigned char *hash,
+        const unsigned char *sig);
 
 /**
  * \brief          Perform a PKCS#1 v2.1 PSS verification (RSASSA-PSS-VERIFY)
@@ -558,14 +557,14 @@ DLL_EXPORT_API int mbedtls_rsa_rsassa_pkcs1_v15_verify( mbedtls_rsa_context *ctx
  *                 keep both hashes the same. If hash_id in the RSA context is
  *                 unset, the md_alg from the function call is used.
  */
-DLL_EXPORT_API int mbedtls_rsa_rsassa_pss_verify( mbedtls_rsa_context *ctx,
-                           int (*f_rng)(void *, unsigned char *, size_t),
-                           void *p_rng,
-                           int mode,
-                           mbedtls_md_type_t md_alg,
-                           unsigned int hashlen,
-                           const unsigned char *hash,
-                           const unsigned char *sig );
+DLL_TLS_API int mbedtls_rsa_rsassa_pss_verify(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode,
+        mbedtls_md_type_t md_alg,
+        unsigned int hashlen,
+        const unsigned char *hash,
+        const unsigned char *sig);
 
 /**
  * \brief          Perform a PKCS#1 v2.1 PSS verification (RSASSA-PSS-VERIFY)
@@ -591,16 +590,16 @@ DLL_EXPORT_API int mbedtls_rsa_rsassa_pss_verify( mbedtls_rsa_context *ctx,
  *
  * \note           The hash_id in the RSA context is ignored.
  */
-DLL_EXPORT_API int mbedtls_rsa_rsassa_pss_verify_ext( mbedtls_rsa_context *ctx,
-                               int (*f_rng)(void *, unsigned char *, size_t),
-                               void *p_rng,
-                               int mode,
-                               mbedtls_md_type_t md_alg,
-                               unsigned int hashlen,
-                               const unsigned char *hash,
-                               mbedtls_md_type_t mgf1_hash_id,
-                               int expected_salt_len,
-                               const unsigned char *sig );
+DLL_TLS_API int mbedtls_rsa_rsassa_pss_verify_ext(mbedtls_rsa_context *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng,
+        int mode,
+        mbedtls_md_type_t md_alg,
+        unsigned int hashlen,
+        const unsigned char *hash,
+        mbedtls_md_type_t mgf1_hash_id,
+        int expected_salt_len,
+        const unsigned char *sig);
 
 /**
  * \brief          Copy the components of an RSA context
@@ -611,21 +610,21 @@ DLL_EXPORT_API int mbedtls_rsa_rsassa_pss_verify_ext( mbedtls_rsa_context *ctx,
  * \return         0 on success,
  *                 MBEDTLS_ERR_MPI_ALLOC_FAILED on memory allocation failure
  */
-DLL_EXPORT_API int mbedtls_rsa_copy( mbedtls_rsa_context *dst, const mbedtls_rsa_context *src );
+DLL_TLS_API int mbedtls_rsa_copy(mbedtls_rsa_context *dst, const mbedtls_rsa_context *src);
 
 /**
  * \brief          Free the components of an RSA key
  *
  * \param ctx      RSA Context to free
  */
-DLL_EXPORT_API void mbedtls_rsa_free( mbedtls_rsa_context *ctx );
+DLL_TLS_API void mbedtls_rsa_free(mbedtls_rsa_context *ctx);
 
 /**
  * \brief          Checkup routine
  *
  * \return         0 if successful, or 1 if the test failed
  */
-DLL_EXPORT_API int mbedtls_rsa_self_test( int verbose );
+DLL_TLS_API int mbedtls_rsa_self_test(int verbose);
 
 #ifdef __cplusplus
 }

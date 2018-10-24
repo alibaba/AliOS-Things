@@ -8,9 +8,9 @@
 #define MBEDTLS_NET_SOCKETS_H
 
 #if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
+    #include "config.h"
 #else
-#include MBEDTLS_CONFIG_FILE
+    #include MBEDTLS_CONFIG_FILE
 #endif
 
 #include "ssl.h"
@@ -46,8 +46,7 @@ extern "C" {
  * (eg two file descriptors for combined IPv4 + IPv6 support, or additional
  * structures for hand-made UDP demultiplexing).
  */
-typedef struct
-{
+typedef struct {
     int fd;             /**< The underlying file descriptor                 */
 }
 mbedtls_net_context;
@@ -58,7 +57,7 @@ mbedtls_net_context;
  *
  * \param ctx      Context to initialize
  */
-DLL_EXPORT_API void mbedtls_net_init( mbedtls_net_context *ctx );
+DLL_TLS_API void mbedtls_net_init(mbedtls_net_context *ctx);
 
 /**
  * \brief          Initiate a connection with host:port in the given protocol
@@ -75,7 +74,7 @@ DLL_EXPORT_API void mbedtls_net_init( mbedtls_net_context *ctx );
  *
  * \note           Sets the socket in connected mode even with UDP.
  */
-DLL_EXPORT_API int mbedtls_net_connect( mbedtls_net_context *ctx, const char *host, const char *port, int proto );
+DLL_TLS_API int mbedtls_net_connect(mbedtls_net_context *ctx, const char *host, const char *port, int proto);
 
 /**
  * \brief          Create a receiving socket on bind_ip:port in the chosen
@@ -94,7 +93,7 @@ DLL_EXPORT_API int mbedtls_net_connect( mbedtls_net_context *ctx, const char *ho
  * \note           Regardless of the protocol, opens the sockets and binds it.
  *                 In addition, make the socket listening if protocol is TCP.
  */
-DLL_EXPORT_API int mbedtls_net_bind( mbedtls_net_context *ctx, const char *bind_ip, const char *port, int proto );
+DLL_TLS_API int mbedtls_net_bind(mbedtls_net_context *ctx, const char *bind_ip, const char *port, int proto);
 
 /**
  * \brief           Accept a connection from a remote client
@@ -111,9 +110,9 @@ DLL_EXPORT_API int mbedtls_net_bind( mbedtls_net_context *ctx, const char *bind_
  *                  MBEDTLS_ERR_SSL_WANT_READ if bind_fd was set to
  *                  non-blocking and accept() would block.
  */
-DLL_EXPORT_API int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
-                        mbedtls_net_context *client_ctx,
-                        void *client_ip, size_t buf_size, size_t *ip_len );
+DLL_TLS_API int mbedtls_net_accept(mbedtls_net_context *bind_ctx,
+                                   mbedtls_net_context *client_ctx,
+                                   void *client_ip, size_t buf_size, size_t *ip_len);
 
 /**
  * \brief          Set the socket blocking
@@ -122,7 +121,7 @@ DLL_EXPORT_API int mbedtls_net_accept( mbedtls_net_context *bind_ctx,
  *
  * \return         0 if successful, or a non-zero error code
  */
-DLL_EXPORT_API int mbedtls_net_set_block( mbedtls_net_context *ctx );
+DLL_TLS_API int mbedtls_net_set_block(mbedtls_net_context *ctx);
 
 /**
  * \brief          Set the socket non-blocking
@@ -131,7 +130,7 @@ DLL_EXPORT_API int mbedtls_net_set_block( mbedtls_net_context *ctx );
  *
  * \return         0 if successful, or a non-zero error code
  */
-DLL_EXPORT_API int mbedtls_net_set_nonblock( mbedtls_net_context *ctx );
+DLL_TLS_API int mbedtls_net_set_nonblock(mbedtls_net_context *ctx);
 
 /**
  * \brief          Portable usleep helper
@@ -141,7 +140,7 @@ DLL_EXPORT_API int mbedtls_net_set_nonblock( mbedtls_net_context *ctx );
  * \note           Real amount of time slept will not be less than
  *                 select()'s timeout granularity (typically, 10ms).
  */
-DLL_EXPORT_API void mbedtls_net_usleep( unsigned long usec );
+DLL_TLS_API void mbedtls_net_usleep(unsigned long usec);
 
 /**
  * \brief          Read at most 'len' characters. If no error occurs,
@@ -155,7 +154,7 @@ DLL_EXPORT_API void mbedtls_net_usleep( unsigned long usec );
  *                 or a non-zero error code; with a non-blocking socket,
  *                 MBEDTLS_ERR_SSL_WANT_READ indicates read() would block.
  */
-DLL_EXPORT_API int mbedtls_net_recv( void *ctx, unsigned char *buf, size_t len );
+DLL_TLS_API int mbedtls_net_recv(void *ctx, unsigned char *buf, size_t len);
 
 /**
  * \brief          Write at most 'len' characters. If no error occurs,
@@ -169,7 +168,7 @@ DLL_EXPORT_API int mbedtls_net_recv( void *ctx, unsigned char *buf, size_t len )
  *                 or a non-zero error code; with a non-blocking socket,
  *                 MBEDTLS_ERR_SSL_WANT_WRITE indicates write() would block.
  */
-DLL_EXPORT_API int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len );
+DLL_TLS_API int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len);
 
 /**
  * \brief          Read at most 'len' characters, blocking for at most
@@ -192,15 +191,15 @@ DLL_EXPORT_API int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t
  *                 non-blocking. Handling timeouts with non-blocking reads
  *                 requires a different strategy.
  */
-DLL_EXPORT_API int mbedtls_net_recv_timeout( void *ctx, unsigned char *buf, size_t len,
-                      uint32_t timeout );
+DLL_TLS_API int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
+        uint32_t timeout);
 
 /**
  * \brief          Gracefully shutdown the connection and free associated data
  *
  * \param ctx      The context to free
  */
-DLL_EXPORT_API void mbedtls_net_free( mbedtls_net_context *ctx );
+DLL_TLS_API void mbedtls_net_free(mbedtls_net_context *ctx);
 
 #ifdef __cplusplus
 }
