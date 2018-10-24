@@ -2,10 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -20,7 +16,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <memory.h>
-#include <pthread.h>
 #include "iotx_hal_internal.h"
 
 #define __DEMO__
