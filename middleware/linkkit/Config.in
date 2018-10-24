@@ -1,0 +1,11 @@
+menuconfig AOS_LINKKIT
+    bool "Linkkit Configuration"
+    default n
+
+if AOS_LINKKIT
+    config SRCPATH
+        string
+        default "middleware/linkkit/sdk-c"
+
+    source "$SRCPATH/Config.linkkit"
+endif
