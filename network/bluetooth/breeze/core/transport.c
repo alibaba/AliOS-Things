@@ -287,16 +287,6 @@ ret_code_t transport_tx(uint8_t tx_type, uint8_t cmd,
     return BZ_SUCCESS;
 }
 
-static void data_notify(uint8_t type, uint8_t *data, uint16_t len)
-{
-    ali_event_t evt;
-
-    evt.type = type;
-    evt.data.rx_data.p_data = data;
-    evt.data.rx_data.length = len;
-    g_core->event_handler(&evt);
-}
-
 void transport_rx(uint8_t *p_data, uint16_t length)
 {
     uint16_t len, buff_left;
@@ -376,9 +366,9 @@ void transport_rx(uint8_t *p_data, uint16_t length)
         }
         if (g_transport.rx.bytes_received != 0) {
             if (g_transport.rx.cmd == BZ_CMD_QUERY) {
-                data_notify(BZ_EVENT_RX_QUERY, g_transport.rx.buff, g_transport.rx.bytes_received);
+                event_notify(BZ_EVENT_RX_QUERY, g_transport.rx.buff, g_transport.rx.bytes_received);
             } else if (g_transport.rx.cmd == BZ_CMD_CTRL) {
-                data_notify(BZ_EVENT_RX_CTRL, g_transport.rx.buff, g_transport.rx.bytes_received);
+                event_notify(BZ_EVENT_RX_CTRL, g_transport.rx.buff, g_transport.rx.bytes_received);
             }
         }
 
@@ -390,8 +380,7 @@ void transport_rx(uint8_t *p_data, uint16_t length)
         reset_rx();
     } else {
         if (g_transport.timeout != 0) {
-            err_code = os_timer_start(&g_transport.rx.timer);
-            VERIFY_SUCCESS_VOID(err_code);
+            os_timer_start(&g_transport.rx.timer);
         }
     }
 }
@@ -410,7 +399,7 @@ void transport_txdone(uint16_t pkt_sent)
         if (!is_valid_tx_command(g_transport.tx.cmd)) {
             return;
         }
-        event_notify(BZ_EVENT_TX_DONE);
+        event_notify(BZ_EVENT_TX_DONE, NULL, 0);
         // TODO: move ota to upper layer
         notify_ota_event(ALI_OTA_ON_TX_DONE, g_transport.tx.cmd);
         reset_tx();

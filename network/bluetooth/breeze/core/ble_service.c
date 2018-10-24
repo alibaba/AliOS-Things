@@ -29,7 +29,7 @@ static void connected()
 #if BZ_ENABLE_AUTH
     auth_connected();
 #endif
-    event_notify(BZ_EVENT_CONNECTED);
+    event_notify(BZ_EVENT_CONNECTED, NULL, 0);
 }
 
 static void disconnected()
@@ -37,7 +37,7 @@ static void disconnected()
     g_ais.conn_handle = BLE_CONN_HANDLE_INVALID;
     g_ais.is_indication_enabled = false;
     g_ais.is_notification_enabled = false;
-    event_notify(BZ_EVENT_DISCONNECTED);
+    event_notify(BZ_EVENT_DISCONNECTED, NULL, 0);
 }
 
 static void ic_ccc_handler(ais_ccc_value_t val)
