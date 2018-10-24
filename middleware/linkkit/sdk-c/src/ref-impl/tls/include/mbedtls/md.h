@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    MBEDTLS_MD_NONE=0,
+    MBEDTLS_MD_NONE = 0,
     MBEDTLS_MD_MD2,
     MBEDTLS_MD_MD4,
     MBEDTLS_MD_MD5,
@@ -62,7 +62,7 @@ typedef struct {
  * \return          a statically allocated array of digests, the last entry
  *                  is 0.
  */
-const int *mbedtls_md_list( void );
+DLL_EXPORT_API const int *mbedtls_md_list(void);
 
 /**
  * \brief           Returns the message digest information associated with the
@@ -73,7 +73,7 @@ const int *mbedtls_md_list( void );
  * \return          The message digest information associated with md_name or
  *                  NULL if not found.
  */
-const mbedtls_md_info_t *mbedtls_md_info_from_string( const char *md_name );
+DLL_EXPORT_API const mbedtls_md_info_t *mbedtls_md_info_from_string(const char *md_name);
 
 /**
  * \brief           Returns the message digest information associated with the
@@ -84,21 +84,21 @@ const mbedtls_md_info_t *mbedtls_md_info_from_string( const char *md_name );
  * \return          The message digest information associated with md_type or
  *                  NULL if not found.
  */
-const mbedtls_md_info_t *mbedtls_md_info_from_type( mbedtls_md_type_t md_type );
+DLL_EXPORT_API const mbedtls_md_info_t *mbedtls_md_info_from_type(mbedtls_md_type_t md_type);
 
 /**
  * \brief           Initialize a md_context (as NONE)
  *                  This should always be called first.
  *                  Prepares the context for mbedtls_md_setup() or mbedtls_md_free().
  */
-DLL_EXPORT_API void mbedtls_md_init( mbedtls_md_context_t *ctx );
+DLL_EXPORT_API void mbedtls_md_init(mbedtls_md_context_t *ctx);
 
 /**
  * \brief           Free and clear the internal structures of ctx.
  *                  Can be called at any time after mbedtls_md_init().
  *                  Mandatory once mbedtls_md_setup() has been called.
  */
-DLL_EXPORT_API void mbedtls_md_free( mbedtls_md_context_t *ctx );
+DLL_EXPORT_API void mbedtls_md_free(mbedtls_md_context_t *ctx);
 
 #if ! defined(MBEDTLS_DEPRECATED_REMOVED)
 #if defined(MBEDTLS_DEPRECATED_WARNING)
@@ -120,7 +120,7 @@ DLL_EXPORT_API void mbedtls_md_free( mbedtls_md_context_t *ctx );
  *                  \c MBEDTLS_ERR_MD_BAD_INPUT_DATA on parameter failure,
  *                  \c MBEDTLS_ERR_MD_ALLOC_FAILED memory allocation failure.
  */
-DLL_EXPORT_API int mbedtls_md_init_ctx( mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info ) MBEDTLS_DEPRECATED;
+DLL_EXPORT_API int mbedtls_md_init_ctx(mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info) MBEDTLS_DEPRECATED;
 #undef MBEDTLS_DEPRECATED
 #endif /* MBEDTLS_DEPRECATED_REMOVED */
 
@@ -138,7 +138,7 @@ DLL_EXPORT_API int mbedtls_md_init_ctx( mbedtls_md_context_t *ctx, const mbedtls
  *                  \c MBEDTLS_ERR_MD_BAD_INPUT_DATA on parameter failure,
  *                  \c MBEDTLS_ERR_MD_ALLOC_FAILED memory allocation failure.
  */
-DLL_EXPORT_API int mbedtls_md_setup( mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info, int hmac );
+DLL_EXPORT_API int mbedtls_md_setup(mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info, int hmac);
 
 /**
  * \brief           Clone the state of an MD context
@@ -154,8 +154,8 @@ DLL_EXPORT_API int mbedtls_md_setup( mbedtls_md_context_t *ctx, const mbedtls_md
  * \return          \c 0 on success,
  *                  \c MBEDTLS_ERR_MD_BAD_INPUT_DATA on parameter failure.
  */
-DLL_EXPORT_API int mbedtls_md_clone( mbedtls_md_context_t *dst,
-                      const mbedtls_md_context_t *src );
+DLL_EXPORT_API int mbedtls_md_clone(mbedtls_md_context_t *dst,
+                                    const mbedtls_md_context_t *src);
 
 /**
  * \brief           Returns the size of the message digest output.
@@ -164,7 +164,7 @@ DLL_EXPORT_API int mbedtls_md_clone( mbedtls_md_context_t *dst,
  *
  * \return          size of the message digest output in bytes.
  */
-unsigned char mbedtls_md_get_size( const mbedtls_md_info_t *md_info );
+unsigned char mbedtls_md_get_size(const mbedtls_md_info_t *md_info);
 
 /**
  * \brief           Returns the type of the message digest output.
@@ -173,7 +173,7 @@ unsigned char mbedtls_md_get_size( const mbedtls_md_info_t *md_info );
  *
  * \return          type of the message digest output.
  */
-mbedtls_md_type_t mbedtls_md_get_type( const mbedtls_md_info_t *md_info );
+mbedtls_md_type_t mbedtls_md_get_type(const mbedtls_md_info_t *md_info);
 
 /**
  * \brief           Returns the name of the message digest output.
@@ -182,7 +182,7 @@ mbedtls_md_type_t mbedtls_md_get_type( const mbedtls_md_info_t *md_info );
  *
  * \return          name of the message digest output.
  */
-const char *mbedtls_md_get_name( const mbedtls_md_info_t *md_info );
+DLL_EXPORT_API const char *mbedtls_md_get_name(const mbedtls_md_info_t *md_info);
 
 /**
  * \brief           Prepare the context to digest a new message.
@@ -194,7 +194,7 @@ const char *mbedtls_md_get_name( const mbedtls_md_info_t *md_info );
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-DLL_EXPORT_API int mbedtls_md_starts( mbedtls_md_context_t *ctx );
+DLL_EXPORT_API int mbedtls_md_starts(mbedtls_md_context_t *ctx);
 
 /**
  * \brief           Generic message digest process buffer
@@ -208,7 +208,7 @@ DLL_EXPORT_API int mbedtls_md_starts( mbedtls_md_context_t *ctx );
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-DLL_EXPORT_API int mbedtls_md_update( mbedtls_md_context_t *ctx, const unsigned char *input, size_t ilen );
+DLL_EXPORT_API int mbedtls_md_update(mbedtls_md_context_t *ctx, const unsigned char *input, size_t ilen);
 
 /**
  * \brief           Generic message digest final digest
@@ -221,7 +221,7 @@ DLL_EXPORT_API int mbedtls_md_update( mbedtls_md_context_t *ctx, const unsigned 
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-DLL_EXPORT_API int mbedtls_md_finish( mbedtls_md_context_t *ctx, unsigned char *output );
+DLL_EXPORT_API int mbedtls_md_finish(mbedtls_md_context_t *ctx, unsigned char *output);
 
 /**
  * \brief          Output = message_digest( input buffer )
@@ -234,8 +234,8 @@ DLL_EXPORT_API int mbedtls_md_finish( mbedtls_md_context_t *ctx, unsigned char *
  * \returns        0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                 verification fails.
  */
-DLL_EXPORT_API int mbedtls_md( const mbedtls_md_info_t *md_info, const unsigned char *input, size_t ilen,
-        unsigned char *output );
+DLL_EXPORT_API int mbedtls_md(const mbedtls_md_info_t *md_info, const unsigned char *input, size_t ilen,
+                              unsigned char *output);
 
 #if defined(MBEDTLS_FS_IO)
 /**
@@ -249,8 +249,8 @@ DLL_EXPORT_API int mbedtls_md( const mbedtls_md_info_t *md_info, const unsigned 
  *                 MBEDTLS_ERR_MD_FILE_IO_ERROR if file input failed,
  *                 MBEDTLS_ERR_MD_BAD_INPUT_DATA if md_info was NULL.
  */
-DLL_EXPORT_API int mbedtls_md_file( const mbedtls_md_info_t *md_info, const char *path,
-                     unsigned char *output );
+DLL_EXPORT_API int mbedtls_md_file(const mbedtls_md_info_t *md_info, const char *path,
+                                   unsigned char *output);
 #endif /* MBEDTLS_FS_IO */
 
 /**
@@ -264,8 +264,8 @@ DLL_EXPORT_API int mbedtls_md_file( const mbedtls_md_info_t *md_info, const char
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-DLL_EXPORT_API int mbedtls_md_hmac_starts( mbedtls_md_context_t *ctx, const unsigned char *key,
-                    size_t keylen );
+DLL_EXPORT_API int mbedtls_md_hmac_starts(mbedtls_md_context_t *ctx, const unsigned char *key,
+        size_t keylen);
 
 /**
  * \brief           Generic HMAC process buffer.
@@ -280,8 +280,8 @@ DLL_EXPORT_API int mbedtls_md_hmac_starts( mbedtls_md_context_t *ctx, const unsi
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-DLL_EXPORT_API int mbedtls_md_hmac_update( mbedtls_md_context_t *ctx, const unsigned char *input,
-                    size_t ilen );
+DLL_EXPORT_API int mbedtls_md_hmac_update(mbedtls_md_context_t *ctx, const unsigned char *input,
+        size_t ilen);
 
 /**
  * \brief           Output HMAC.
@@ -295,7 +295,7 @@ DLL_EXPORT_API int mbedtls_md_hmac_update( mbedtls_md_context_t *ctx, const unsi
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-DLL_EXPORT_API int mbedtls_md_hmac_finish( mbedtls_md_context_t *ctx, unsigned char *output);
+DLL_EXPORT_API int mbedtls_md_hmac_finish(mbedtls_md_context_t *ctx, unsigned char *output);
 
 /**
  * \brief           Prepare to authenticate a new message with the same key.
@@ -307,7 +307,7 @@ DLL_EXPORT_API int mbedtls_md_hmac_finish( mbedtls_md_context_t *ctx, unsigned c
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-DLL_EXPORT_API int mbedtls_md_hmac_reset( mbedtls_md_context_t *ctx );
+DLL_EXPORT_API int mbedtls_md_hmac_reset(mbedtls_md_context_t *ctx);
 
 /**
  * \brief          Output = Generic_HMAC( hmac key, input buffer )
@@ -322,12 +322,12 @@ DLL_EXPORT_API int mbedtls_md_hmac_reset( mbedtls_md_context_t *ctx );
  * \returns        0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                 verification fails.
  */
-DLL_EXPORT_API int mbedtls_md_hmac( const mbedtls_md_info_t *md_info, const unsigned char *key, size_t keylen,
-                const unsigned char *input, size_t ilen,
-                unsigned char *output );
+DLL_EXPORT_API int mbedtls_md_hmac(const mbedtls_md_info_t *md_info, const unsigned char *key, size_t keylen,
+                                   const unsigned char *input, size_t ilen,
+                                   unsigned char *output);
 
 /* Internal use */
-DLL_EXPORT_API int mbedtls_md_process( mbedtls_md_context_t *ctx, const unsigned char *data );
+DLL_EXPORT_API int mbedtls_md_process(mbedtls_md_context_t *ctx, const unsigned char *data);
 
 #ifdef __cplusplus
 }
