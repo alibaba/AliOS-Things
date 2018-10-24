@@ -863,7 +863,7 @@ static int _iotx_linkkit_master_connect(void)
     iotx_dm_init_params_t dm_init_params;
 
     if (ctx->is_connected) {
-        return ERROR_ALREADY_CONNECTED;
+        return FAIL_RETURN;
     }
     ctx->is_connected = 1;
 
@@ -1134,13 +1134,6 @@ int IOT_Linkkit_Connect(int devid)
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
         res = _iotx_linkkit_master_connect();
-        if (res == FAIL_RETURN) {
-            _iotx_linkkit_mutex_unlock();
-            iotx_dm_close();
-            return FAIL_RETURN;
-        } else if (res < SUCCESS_RETURN) {
-            res = FAIL_RETURN;
-        }
     } else {
 #ifdef DEVICE_MODEL_GATEWAY
         res = _iotx_linkkit_slave_connect(devid);
