@@ -469,6 +469,11 @@ int iotx_dm_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
     return dm_fota_perform_sync(buffer, buffer_len);
 }
 
+int iotx_dm_fota_request_image(const char *version)
+{
+    return dm_fota_request_image(version);
+}
+
 #ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_query_topo_list(void)
 {

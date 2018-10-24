@@ -53,6 +53,12 @@ typedef enum {
     /* only for master device, qurey config ota data */
     ITM_MSG_QUERY_COTA_DATA,
 
+    /* only for master device, request config ota data from clould */
+    ITM_MSG_REQUEST_COTA,
+
+    /* only for master device, request fota image from clould */
+    ITM_MSG_REQUEST_FOTA_IMAGE,
+
     IOTX_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
 

@@ -1419,6 +1419,14 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
             res = iotx_dm_cota_perform_sync((char *)payload, payload_len);
         }
         break;
+        case ITM_MSG_REQUEST_COTA: {
+            res = iotx_dm_cota_get_config("product", "file", "");
+        }
+        break;
+        case ITM_MSG_REQUEST_FOTA_IMAGE: {
+            res = iotx_dm_fota_request_image((const char *)payload);
+        }
+        break;
         default: {
             sdk_err("Unknown Message Type");
             res = FAIL_RETURN;

@@ -200,6 +200,7 @@ int iotx_dm_send_aos_active(int devid);
 int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
 int iotx_dm_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys);
 int iotx_dm_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
+int iotx_dm_fota_request_image(_IN_ const char *version);
 
 #ifdef DEVICE_MODEL_GATEWAY
 int iotx_dm_query_topo_list(void);

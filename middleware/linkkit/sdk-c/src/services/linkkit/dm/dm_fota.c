@@ -171,7 +171,7 @@ int dm_fota_status_check(void)
         if (ota_type == IOT_OTAT_FOTA) {
             /* Send New Config Information To User */
             if (ctx->is_report_new_config == 0) {
-                dm_log_debug("Cota Status Check");
+                dm_log_debug("Fota Status Check");
                 res = _dm_fota_send_new_config_to_user(ota_handle);
                 if (res == SUCCESS_RETURN) {
                     ctx->is_report_new_config = 1;
