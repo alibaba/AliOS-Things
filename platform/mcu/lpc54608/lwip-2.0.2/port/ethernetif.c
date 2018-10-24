@@ -1194,6 +1194,7 @@ err_t tcpip_dhcpc_start(struct netif *pstnetif)
     }
 
     netif_set_status_callback(pstnetif, tcpip_dhcpc_cb);
+    return 0;
 }
 
 static void tcpip_init_done(void *arg) {
