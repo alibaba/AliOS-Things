@@ -15,5 +15,6 @@ int dm_fota_init(void);
 int dm_fota_deinit(void);
 int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len);
 int dm_fota_status_check(void);
+int dm_fota_request_image(const char *version);
 
 #endif
