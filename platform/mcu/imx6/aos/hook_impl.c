@@ -3,7 +3,7 @@
  */
 
 #include <k_api.h>
-
+#include "k_arch.h"
 
 void soc_hw_timer_init()
 {

@@ -34,7 +34,6 @@ static void sys_init(void)
     extern void os_load_slavecpu(void);
     os_load_slavecpu();
     #endif
-
     /*
     aos_cli_init();
 	#ifdef OSAL_RHINO
@@ -81,13 +80,18 @@ void sys_start(void)
 {
     int ret;
 	platform_init();
+
+    
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    extern void smp_cpu_init(void);
+    smp_cpu_init();
+#endif    
+
     k_cpu_vectable_set();
 	//isr_stk_init();
     aos_init();
     
     #if (RHINO_CONFIG_CPU_NUM > 1)
-    extern void smp_cpu_init(void);
-    smp_cpu_init();
     /*bind 0 core*/
     ret = krhino_task_cpu_dyn_create(&g_aos_init, "aos-init", 0, 2, 0, AOS_START_STACK, sys_init, 0,1);
   
