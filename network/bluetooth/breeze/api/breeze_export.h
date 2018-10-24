@@ -143,8 +143,6 @@ struct device_config
     char            product_secret[STR_PROD_SEC_LEN];
     uint8_t         product_secret_len;
     char            version[STR_VER_LEN];
-    bool            enable_ota;
-    bool            enable_auth;
     dev_status_changed_cb status_changed_cb;
     set_dev_status_cb     set_cb;
     get_dev_status_cb     get_cb;

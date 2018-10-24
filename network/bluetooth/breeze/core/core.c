@@ -29,7 +29,7 @@
 #define BZ_PROTOCOL_ID 0x05
 #define MAC_ASCII_LEN 6
 
-core_t *g_core;
+core_t g_core;
 
 #ifdef CONFIG_AIS_SECURE_ADV
 #define AIS_SEQ_KV_KEY      "ais_adv_seq"
@@ -37,12 +37,14 @@ core_t *g_core;
 static uint32_t g_seq = 0;
 #endif
 
-void event_notify(uint8_t event_type)
+void event_notify(uint8_t event_type, uint8_t *data, uint16_t length)
 {
-    ali_event_t evt;
+    ali_event_t event;
 
-    evt.type = event_type;
-    g_core->event_handler(&evt);
+    event.type = event_type;
+    event.data.rx_data.p_data = data;
+    event.data.rx_data.length = length;
+    g_core.event_handler(&event);
 }
 
 breeze_otainfo_t g_ota_info;
@@ -63,7 +65,7 @@ void notify_ota_command(uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t 
     evt.type                = BZ_EVENT_OTAINFO;
     evt.data.rx_data.p_data = &g_ota_info;
     evt.data.rx_data.length = sizeof(breeze_otainfo_t);
-    g_core->event_handler(&evt);
+    g_core.event_handler(&evt);
 }
 
 void notify_ota_event(uint8_t ota_evt, uint8_t sub_evt)
@@ -83,38 +85,38 @@ void notify_ota_event(uint8_t ota_evt, uint8_t sub_evt)
     evt.type                = BZ_EVENT_OTAINFO;
     evt.data.rx_data.p_data = &g_ota_info;
     evt.data.rx_data.length = sizeof(breeze_otainfo_t);
-    g_core->event_handler(&evt);
+    g_core.event_handler(&evt);
 }
 
-static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin, bool enable_ota)
+static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin)
 {
     uint16_t i;
     uint8_t  fmsk = 0;
 
-    SET_U16_LE(g_core->adv_data, ALI_COMPANY_ID);
+    SET_U16_LE(g_core.adv_data, ALI_COMPANY_ID);
     i = sizeof(uint16_t);
-    g_core->adv_data[i++] = BZ_PROTOCOL_ID;
+    g_core.adv_data[i++] = BZ_PROTOCOL_ID;
     fmsk = BZ_BLUETOOTH_VER << FMSK_BLUETOOTH_VER_Pos;
 #if BZ_ENABLE_AUTH
     fmsk |= 1 << FMSK_SECURITY_Pos;
 #endif
-    if (enable_ota) {
-        fmsk |= 1 << FMSK_OTA_Pos;
-    }
+#if BZ_ENABLE_OTA
+    fmsk |= 1 << FMSK_OTA_Pos;
+#endif
 #ifndef CONFIG_MODEL_SECURITY
     fmsk |= 1 << FMSK_SECRET_TYPE_Pos;
 #endif
 #ifdef CONFIG_AIS_SECURE_ADV
     fmsk |= 1 << FMSK_SIGNED_ADV_Pos;
 #endif
-    g_core->adv_data[i++] = fmsk;
+    g_core.adv_data[i++] = fmsk;
 
-    SET_U32_LE(g_core->adv_data + i, model_id);
+    SET_U32_LE(g_core.adv_data + i, model_id);
     i += sizeof(uint32_t);
 
-    memcpy(&g_core->adv_data[i], mac_bin, 6);
+    memcpy(&g_core.adv_data[i], mac_bin, 6);
     i += 6;
-    g_core->adv_data_len = i;
+    g_core.adv_data_len = i;
 }
 
 static uint32_t tx_func_indicate(uint8_t cmd, uint8_t *p_data, uint16_t length)
@@ -122,11 +124,9 @@ static uint32_t tx_func_indicate(uint8_t cmd, uint8_t *p_data, uint16_t length)
     return transport_tx(TX_INDICATION, cmd, p_data, length);
 }
 
-static uint32_t ais_init(core_t *p_ali, ali_init_t const *p_init)
+static uint32_t ais_init(ali_init_t const *p_init)
 {
     ble_ais_init_t init_ais;
-
-    g_core = p_ali;
 
     memset(&init_ais, 0, sizeof(ble_ais_init_t));
     init_ais.mtu = p_init->max_mtu;
@@ -158,11 +158,9 @@ static void init_seq_number(uint32_t *seq)
 }
 #endif
 
-ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
+ret_code_t core_init(ali_init_t const *p_init)
 {
-    core_t *p_ali = (core_t *)p_ali_ext;
     uint8_t  mac_be[BLE_MAC_LEN];
-    uint32_t err_code;
     uint32_t size;
 
     ais_adv_init_t adv_data = {
@@ -170,21 +168,14 @@ ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
         .name = { .ntype = AIS_ADV_NAME_FULL, .name = "AZ" },
     };
 
-    if (p_ali == NULL || ((uint32_t)p_ali & 0x3) != 0) {
-        return BZ_EINVALIDADDR;
-    }
-
-    memset(p_ali, 0, sizeof(core_t));
-    p_ali->event_handler = p_init->event_handler;
+    memset(&g_core, 0, sizeof(core_t));
+    g_core.event_handler = p_init->event_handler;
 
 #ifdef CONFIG_AIS_SECURE_ADV
     init_seq_number(&g_seq);
 #endif
 
-    /* Initialize Alibaba Information Service (AIS). */
-    err_code = ais_init(p_ali, p_init);
-    VERIFY_SUCCESS(err_code);
-
+    ais_init(p_init);
     ble_get_mac(mac_be);
 
     transport_init(p_init);
@@ -193,10 +184,9 @@ ret_code_t core_init(void *p_ali_ext, ali_init_t const *p_init)
 #endif
 
     extcmd_init(p_init, tx_func_indicate);
-    create_bz_adv_data(p_init->model_id, mac_be, p_init->enable_ota);
+    create_bz_adv_data(p_init->model_id, mac_be);
     adv_data.vdata.len = sizeof(adv_data.vdata.data);
-    err_code = get_bz_adv_data(adv_data.vdata.data, &(adv_data.vdata.len));
-    if (err_code) {
+    if (get_bz_adv_data(adv_data.vdata.data, &(adv_data.vdata.len))) {
         BREEZE_LOG_ERR("%s %d fail.\r\n", __func__, __LINE__);
         return AIS_ERR_INVALID_ADV_DATA;
     }
@@ -271,9 +261,9 @@ void core_handle_err(uint8_t src, uint8_t code)
 ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)
 {
 #ifdef CONFIG_AIS_SECURE_ADV
-    if (*length < (g_core->adv_data_len + 4 + 4)) {
+    if (*length < (g_core.adv_data_len + 4 + 4)) {
 #else
-    if (*length < g_core->adv_data_len) {
+    if (*length < g_core.adv_data_len) {
 #endif
         return BZ_ENOMEM;
     }
@@ -284,13 +274,13 @@ ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)
 
     seq = (++g_seq);
     auth_calc_adv_sign(seq, sign);
-    memcpy(p_data, g_core->adv_data, g_core->adv_data_len);
-    memcpy(p_data + g_core->adv_data_len, sign, 4);
-    memcpy(p_data + g_core->adv_data_len + 4, &seq, 4);
-    *length = g_core->adv_data_len + 4 + 4;
+    memcpy(p_data, g_core.adv_data, g_core.adv_data_len);
+    memcpy(p_data + g_core.adv_data_len, sign, 4);
+    memcpy(p_data + g_core.adv_data_len + 4, &seq, 4);
+    *length = g_core.adv_data_len + 4 + 4;
 #else
-    memcpy(p_data, g_core->adv_data, g_core->adv_data_len);
-    *length = g_core->adv_data_len;
+    memcpy(p_data, g_core.adv_data, g_core.adv_data_len);
+    *length = g_core.adv_data_len;
 #endif
 
     return BZ_SUCCESS;

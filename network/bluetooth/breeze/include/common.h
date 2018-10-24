@@ -12,50 +12,6 @@
 
 #include "bzopt.h"
 
-#define VERIFY_PARAM_NOT_NULL(p)                                       \
-    do {                                                               \
-        if (p == NULL) {                                               \
-            BREEZE_LOG_ERR("Error: VERIFY_PARAM_NOT_NULL failed (%s %d).\r\n", \
-                   __func__, __LINE__);                                \
-            assert(0);                                                 \
-        }                                                              \
-    } while (0)
-
-#define VERIFY_SUCCESS(e)                                           \
-    do {                                                            \
-        if (e) {                                                    \
-            BREEZE_LOG_ERR("Error: VERIFY_SUCCESS failed (e: %d).\r\n", e); \
-            assert(0);                                              \
-        }                                                           \
-    } while (0)
-
-#define VERIFY_PARAM_NOT_NULL_VOID(p)                                       \
-    do {                                                                    \
-        if (p == NULL) {                                                    \
-            BREEZE_LOG_ERR("Error: VERIFY_PARAM_NOT_NULL_VOID failed (%s %d).\r\n", \
-                   __func__, __LINE__);                                     \
-            assert(0);                                                      \
-        }                                                                   \
-    } while (0)
-
-#define VERIFY_SUCCESS_VOID(e)                                        \
-    do {                                                              \
-        if (e) {                                                      \
-            BREEZE_LOG_ERR("Error: %s %d VERIFY_SUCCESS failed (e: %d).\r\n", \
-                   __func__, __LINE__, e);                            \
-            assert(0);                                                \
-        }                                                             \
-    } while (0)
-
-#define APP_ERROR_CHECK(e)                                             \
-    do {                                                               \
-        if (e) {                                                       \
-            BREEZE_LOG_ERR("Error: %s %d APP_ERROR_CHECK failed (e: %d).\r\n", \
-                   __func__, __LINE__, e);                             \
-            assert(0);                                                 \
-        }                                                              \
-    } while (0)
-
 #define BZ_CMD_TYPE_MASK 0xf0
 
 #define BZ_CMD_CTRL 0x0
@@ -164,10 +120,8 @@ typedef struct {
 typedef void (*ali_event_handler_t)(ali_event_t *p_event);
 
 typedef struct {
-    uint16_t context_size;  // Size of context
     ali_event_handler_t event_handler;
     uint32_t   model_id;
-    ali_data_t mac;  // mac address
     ali_data_t secret;   // secret 16 to 40 bytes
     ali_data_t product_secret; // secret 16 to 40 bytes
     ali_data_t product_key; // PK 11 to 20 bytes). */
@@ -175,7 +129,6 @@ typedef struct {
     ali_data_t sw_ver;  // Software version
     uint32_t transport_timeout; /**< Timeout of Tx/Rx, in number of ms. Fill
                                    0 if not used. */
-    bool     enable_ota;
     uint16_t max_mtu;           /**< Maximum MTU. */
     uint8_t  *user_adv_data;    /**< User's adv data, if any. */
     uint32_t user_adv_len;      /**< User's adv data length */
