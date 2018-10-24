@@ -26,18 +26,9 @@ void configure_cpu(uint32_t cpu)
 {
     const unsigned int all_ways = 0xf;
 
-
-    //disable_strict_align_check();
-
     // Enable branch prediction
     arm_branch_target_cache_invalidate();
     arm_branch_prediction_enable();
-
-    // Enable L1 caches
-    //arm_dcache_enable();
-    //arm_icache_enable();    
-    //arm_dcache_invalidate();
-    //arm_icache_invalidate();
 
     // Invalidate SCU copy of TAG RAMs
     scu_secure_invalidate(cpu, all_ways);
@@ -69,21 +60,12 @@ void smp_cpu_init(void)
 
         /*uart have not inited*/
         /*printf("Using %d CPU core(s)\n", num_cpus);*/
-
-        //scu_enable();
-        
-        //configure_cpu(cpu_id);
-        
-
     }
     else
     {
+    
         platform_init();
         
-        //scu_enable();
-        
-        //configure_cpu(cpu_id);
-
         k_cpu_vectable_set();
         //isr_stk_init();
 
@@ -111,7 +93,6 @@ void os_load_slavecpu(void)
     int i;
     os_crosscore_int_init();
 
-    //k_cpu_dcache_clean_invalidate_all();
     
     // start all cpus
     for (i = 1; i < num_cpus; i++)
