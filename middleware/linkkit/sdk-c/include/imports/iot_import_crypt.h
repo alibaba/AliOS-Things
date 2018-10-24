@@ -47,7 +47,7 @@ p_HAL_Aes128_t HAL_Aes128_Init(
  * @see None.
  * @note None.
  */
-int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
+DLL_HAL_API int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
 
 /**
  * @brief   以`AES-CBC-128`方式, 根据`HAL_Aes128_Init()`时传入的密钥加密指定的明文
@@ -64,7 +64,7 @@ int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
  * @see None.
  * @note None.
  */
-int HAL_Aes128_Cbc_Encrypt(
+DLL_HAL_API int HAL_Aes128_Cbc_Encrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t blockNum,
@@ -85,7 +85,7 @@ int HAL_Aes128_Cbc_Encrypt(
  * @see None.
  * @note None.
  */
-int HAL_Aes128_Cbc_Decrypt(
+DLL_HAL_API int HAL_Aes128_Cbc_Decrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t blockNum,
@@ -107,7 +107,7 @@ int HAL_Aes128_Cbc_Decrypt(
  * @note None.
  */
 
-int HAL_Aes128_Cfb_Encrypt(
+DLL_HAL_API int HAL_Aes128_Cfb_Encrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t length,
@@ -128,7 +128,7 @@ int HAL_Aes128_Cfb_Encrypt(
  * @see None.
  * @note None.
  */
-int HAL_Aes128_Cfb_Decrypt(
+DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t length,

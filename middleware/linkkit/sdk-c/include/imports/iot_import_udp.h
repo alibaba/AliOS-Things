@@ -15,7 +15,7 @@
  * @retval >= 0 : Success, the value is handle of this UDP connection.
  * @see None.
  */
-intptr_t HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port);
+DLL_HAL_API intptr_t HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port);
 
 /**
  * @brief Destroy the specific UDP connection.
@@ -24,7 +24,7 @@ intptr_t HAL_UDP_create(_IN_ char *host, _IN_ unsigned short port);
  * @return None.
  * @see None .
  */
-void HAL_UDP_close(_IN_ intptr_t p_socket);
+DLL_HAL_API void HAL_UDP_close(_IN_ intptr_t p_socket);
 
 /**
  * @brief Write data into the specific UDP connection.
@@ -37,7 +37,7 @@ void HAL_UDP_close(_IN_ intptr_t p_socket);
  * @retval [0,datalen ] : The number of bytes sent.
  * @see None.
  */
-int HAL_UDP_write(
+DLL_HAL_API int HAL_UDP_write(
             _IN_ intptr_t p_socket,
             _IN_ const unsigned char *p_data,
             _IN_ unsigned int datalen);
@@ -55,7 +55,7 @@ int HAL_UDP_write(
  * @retval > 0 : The number of byte read.
  * @see None.
  */
-int HAL_UDP_read(
+DLL_HAL_API int HAL_UDP_read(
             _IN_ intptr_t p_socket,
             _OU_ unsigned char *p_data,
             _OU_ unsigned int datalen);
@@ -77,7 +77,7 @@ int HAL_UDP_read(
  * @retval (0,datalen] : The number of byte read.
  * @see None.
  */
-int HAL_UDP_readTimeout(
+DLL_HAL_API int HAL_UDP_readTimeout(
             _IN_ intptr_t p_socket,
             _OU_ unsigned char *p_data,
             _OU_ unsigned int datalen,
@@ -96,7 +96,7 @@ int HAL_UDP_readTimeout(
  * @retval  -1 : 创建失败
  * @retval  其它 : 创建成功, 返回值是UDP socket的句柄
  */
-intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port);
+DLL_HAL_API intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port);
 
 /**
  * @brief   设置UDP socket的目的地址和目的端口
@@ -107,9 +107,9 @@ intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned sho
  * @retval  -1 : 失败
  * @retval  0 : 设置成功
  */
-int HAL_UDP_connect(_IN_ intptr_t sockfd,
-                    _IN_ const char *host,
-                    _IN_ unsigned short port);
+DLL_HAL_API int HAL_UDP_connect(_IN_ intptr_t sockfd,
+                                _IN_ const char *host,
+                                _IN_ unsigned short port);
 
 
 /**
@@ -125,11 +125,11 @@ int HAL_UDP_connect(_IN_ intptr_t sockfd,
  * @retval  0 : 在指定的'timeout_ms'时间间隔内, 没有任何数据被成功发送
  * @retval  (0, len] : 在指定的'timeout_ms'时间间隔内, 被成功发送的数据长度, 单位是字节(Byte)
  */
-int HAL_UDP_sendto(_IN_ intptr_t sockfd,
-                   _IN_ const NetworkAddr *p_remote,
-                   _IN_ const unsigned char *p_data,
-                   _IN_ unsigned int datalen,
-                   _IN_ unsigned int timeout_ms);
+DLL_HAL_API int HAL_UDP_sendto(_IN_ intptr_t sockfd,
+                               _IN_ const NetworkAddr *p_remote,
+                               _IN_ const unsigned char *p_data,
+                               _IN_ unsigned int datalen,
+                               _IN_ unsigned int timeout_ms);
 
 /**
  * @brief   在指定的UDP socket上发送指定缓冲区的指定长度, 阻塞时间不超过指定时长, 且指定长度若发送完需提前返回
@@ -144,10 +144,10 @@ int HAL_UDP_sendto(_IN_ intptr_t sockfd,
  *
  * @note    调用该接口之前需要调用HAL_UDP_connect设置好目的地址和端口。
  */
-int HAL_UDP_send(_IN_ intptr_t sockfd,
-                 _IN_ const unsigned char *p_data,
-                 _IN_ unsigned int datalen,
-                 _IN_ unsigned int timeout_ms);
+DLL_HAL_API int HAL_UDP_send(_IN_ intptr_t sockfd,
+                             _IN_ const unsigned char *p_data,
+                             _IN_ unsigned int datalen,
+                             _IN_ unsigned int timeout_ms);
 
 /**
  * @brief   从指定的UDP句柄接收指定长度数据到缓冲区, 阻塞时间不超过指定时长, 且指定长度若接收完需提前返回, 源地址保存在出参中
@@ -162,11 +162,11 @@ int HAL_UDP_send(_IN_ intptr_t sockfd,
  * @retval  0 : 在指定的'timeout_ms'时间间隔内, 没有任何数据被成功接收
  * @retval  (0, len] : 在指定的'timeout_ms'时间间隔内, 被成功接收的数据长度, 单位是字节(Byte)
  */
-int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
-                     _OU_ NetworkAddr *p_remote,
-                     _OU_ unsigned char *p_data,
-                     _IN_ unsigned int datalen,
-                     _IN_ unsigned int timeout_ms);
+DLL_HAL_API int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
+                                 _OU_ NetworkAddr *p_remote,
+                                 _OU_ unsigned char *p_data,
+                                 _IN_ unsigned int datalen,
+                                 _IN_ unsigned int timeout_ms);
 
 /**
 * @brief   从指定的UDP句柄接收指定长度数据到缓冲区, 阻塞时间不超过指定时长, 且指定长度若接收完需提前返回, 源地址保存在出参中
@@ -180,10 +180,10 @@ int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
 * @retval  0 : 在指定的'timeout_ms'时间间隔内, 没有任何数据被成功接收
 * @retval  (0, len] : 在指定的'timeout_ms'时间间隔内, 被成功接收的数据长度, 单位是字节(Byte)
 */
-int HAL_UDP_recv(_IN_ intptr_t sockfd,
-                 _OU_ unsigned char *p_data,
-                 _IN_ unsigned int datalen,
-                 _IN_ unsigned int timeout_ms);
+DLL_HAL_API int HAL_UDP_recv(_IN_ intptr_t sockfd,
+                             _OU_ unsigned char *p_data,
+                             _IN_ unsigned int datalen,
+                             _IN_ unsigned int timeout_ms);
 
 
 /**
@@ -194,8 +194,8 @@ int HAL_UDP_recv(_IN_ intptr_t sockfd,
  * @retval  < 0 : 发送过程中出现异常或失败
  * @retval  0 : 发送成功
  */
-int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
-                          _IN_ char *p_group);
+DLL_HAL_API int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
+                                      _IN_ char *p_group);
 
 /**
  * @brief   绑定UDP socket到指定接口，只接收来自该接口的数据包
@@ -206,8 +206,8 @@ int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
  * @retval  < 0 : 绑定异常或失败
  * @retval  0 : 发送成功
  */
-int HAL_UDP_bindtodevice(_IN_ intptr_t fd,
-                         _IN_ const char *ifname);
+DLL_HAL_API int HAL_UDP_bindtodevice(_IN_ intptr_t fd,
+                                     _IN_ const char *ifname);
 
 /**
  * @brief   销毁指定的UDP socket, 回收资源
@@ -218,6 +218,6 @@ int HAL_UDP_bindtodevice(_IN_ intptr_t fd,
  * @retval  < 0 : 操作失败
  * @retval  0 : 操作成功
  */
-int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd);
+DLL_HAL_API int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd);
 
 #endif
