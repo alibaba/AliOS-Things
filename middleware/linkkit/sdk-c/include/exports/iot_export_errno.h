@@ -217,6 +217,7 @@ typedef enum IOT_RETURN_CODES {
     ERROR_MALLOC = -1014,
     ERROR_NO_ENOUGH_MEM = -1013,               /**< Writes more than size value. */
 
+    ERROR_ALREADY_CONNECTED = -13,
     ERROR_NO_SUPPORT = -12,
     ERROR_NO_PERSISTENCE = -11,
     ERROR_HTTP_BREAK = -10,

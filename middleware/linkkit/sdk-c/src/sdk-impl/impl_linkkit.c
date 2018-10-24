@@ -45,7 +45,7 @@ typedef struct {
     void *mutex;
     void *upstream_mutex;
     int is_opened;
-    int is_started;
+    int is_connected;
     struct list_head upstream_sync_callback_list;
 } iotx_linkkit_ctx_t;
 
@@ -862,10 +862,10 @@ static int _iotx_linkkit_master_connect(void)
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
     iotx_dm_init_params_t dm_init_params;
 
-    if (ctx->is_started) {
-        return FAIL_RETURN;
+    if (ctx->is_connected) {
+        return ERROR_ALREADY_CONNECTED;
     }
-    ctx->is_started = 1;
+    ctx->is_connected = 1;
 
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
     dm_init_params.event_callback = _iotx_linkkit_event_callback;
@@ -873,14 +873,14 @@ static int _iotx_linkkit_master_connect(void)
     res = iotx_dm_connect(&dm_init_params);
     if (res != SUCCESS_RETURN) {
         sdk_err("DM Start Failed");
-        ctx->is_started = 0;
+        ctx->is_connected = 0;
         return FAIL_RETURN;
     }
 
     res = iotx_dm_subscribe(IOTX_DM_LOCAL_NODE_DEVID);
     if (res != SUCCESS_RETURN) {
         sdk_err("DM Subscribe Failed");
-        ctx->is_started = 0;
+        ctx->is_connected = 0;
         return FAIL_RETURN;
     }
 
@@ -898,7 +898,7 @@ static int _iotx_linkkit_slave_connect(int devid)
     iotx_linkkit_upstream_sync_callback_node_t *node = NULL;
     void *semaphore = NULL;
 
-    if (ctx->is_started == 0) {
+    if (ctx->is_connected == 0) {
         sdk_err("master isn't start");
         return FAIL_RETURN;
     }
@@ -1134,10 +1134,12 @@ int IOT_Linkkit_Connect(int devid)
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
         res = _iotx_linkkit_master_connect();
-        if (res < SUCCESS_RETURN) {
+        if (res == FAIL_RETURN) {
             _iotx_linkkit_mutex_unlock();
             iotx_dm_close();
             return FAIL_RETURN;
+        } else if (res < SUCCESS_RETURN) {
+            res = FAIL_RETURN;
         }
     } else {
 #ifdef DEVICE_MODEL_GATEWAY
@@ -1160,7 +1162,7 @@ void IOT_Linkkit_Yield(int timeout_ms)
         return;
     }
 
-    if (ctx->is_opened == 0 || ctx->is_started == 0) {
+    if (ctx->is_opened == 0 || ctx->is_connected == 0) {
         return;
     }
 
@@ -1307,7 +1309,7 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
         return FAIL_RETURN;
     }
 
-    if (ctx->is_opened == 0 || ctx->is_started == 0) {
+    if (ctx->is_opened == 0 || ctx->is_connected == 0) {
         return FAIL_RETURN;
     }
 
@@ -1393,7 +1395,7 @@ int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char
         return FAIL_RETURN;
     }
 
-    if (ctx->is_opened == 0 || ctx->is_started == 0) {
+    if (ctx->is_opened == 0 || ctx->is_connected == 0) {
         return FAIL_RETURN;
     }
 
@@ -1447,7 +1449,7 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
         return FAIL_RETURN;
     }
 
-    if (ctx->is_opened == 0 || ctx->is_started == 0) {
+    if (ctx->is_opened == 0 || ctx->is_connected == 0) {
         return FAIL_RETURN;
     }
 
