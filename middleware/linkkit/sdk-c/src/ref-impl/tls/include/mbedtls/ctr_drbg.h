@@ -100,7 +100,7 @@ mbedtls_ctr_drbg_context;
  *
  * \param ctx           CTR_DRBG context to be initialized
  */
-void mbedtls_ctr_drbg_init( mbedtls_ctr_drbg_context *ctx );
+DLL_EXPORT_API void mbedtls_ctr_drbg_init( mbedtls_ctr_drbg_context *ctx );
 
 /**
  * \brief               CTR_DRBG initial seeding
@@ -120,7 +120,7 @@ void mbedtls_ctr_drbg_init( mbedtls_ctr_drbg_context *ctx );
  * \return              0 if successful, or
  *                      MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED
  */
-int mbedtls_ctr_drbg_seed( mbedtls_ctr_drbg_context *ctx,
+DLL_EXPORT_API int mbedtls_ctr_drbg_seed( mbedtls_ctr_drbg_context *ctx,
                    int (*f_entropy)(void *, unsigned char *, size_t),
                    void *p_entropy,
                    const unsigned char *custom,
@@ -131,7 +131,7 @@ int mbedtls_ctr_drbg_seed( mbedtls_ctr_drbg_context *ctx,
  *
  * \param ctx           CTR_DRBG context to clear
  */
-void mbedtls_ctr_drbg_free( mbedtls_ctr_drbg_context *ctx );
+DLL_EXPORT_API void mbedtls_ctr_drbg_free( mbedtls_ctr_drbg_context *ctx );
 
 /**
  * \brief               Enable / disable prediction resistance (Default: Off)
@@ -142,7 +142,7 @@ void mbedtls_ctr_drbg_free( mbedtls_ctr_drbg_context *ctx );
  * \param ctx           CTR_DRBG context
  * \param resistance    MBEDTLS_CTR_DRBG_PR_ON or MBEDTLS_CTR_DRBG_PR_OFF
  */
-void mbedtls_ctr_drbg_set_prediction_resistance( mbedtls_ctr_drbg_context *ctx,
+DLL_EXPORT_API void mbedtls_ctr_drbg_set_prediction_resistance( mbedtls_ctr_drbg_context *ctx,
                                          int resistance );
 
 /**
@@ -152,7 +152,7 @@ void mbedtls_ctr_drbg_set_prediction_resistance( mbedtls_ctr_drbg_context *ctx,
  * \param ctx           CTR_DRBG context
  * \param len           Amount of entropy to grab
  */
-void mbedtls_ctr_drbg_set_entropy_len( mbedtls_ctr_drbg_context *ctx,
+DLL_EXPORT_API void mbedtls_ctr_drbg_set_entropy_len( mbedtls_ctr_drbg_context *ctx,
                                size_t len );
 
 /**
@@ -162,7 +162,7 @@ void mbedtls_ctr_drbg_set_entropy_len( mbedtls_ctr_drbg_context *ctx,
  * \param ctx           CTR_DRBG context
  * \param interval      Reseed interval
  */
-void mbedtls_ctr_drbg_set_reseed_interval( mbedtls_ctr_drbg_context *ctx,
+DLL_EXPORT_API void mbedtls_ctr_drbg_set_reseed_interval( mbedtls_ctr_drbg_context *ctx,
                                    int interval );
 
 /**
@@ -175,7 +175,7 @@ void mbedtls_ctr_drbg_set_reseed_interval( mbedtls_ctr_drbg_context *ctx,
  * \return              0 if successful, or
  *                      MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED
  */
-int mbedtls_ctr_drbg_reseed( mbedtls_ctr_drbg_context *ctx,
+DLL_EXPORT_API int mbedtls_ctr_drbg_reseed( mbedtls_ctr_drbg_context *ctx,
                      const unsigned char *additional, size_t len );
 
 /**
@@ -189,7 +189,7 @@ int mbedtls_ctr_drbg_reseed( mbedtls_ctr_drbg_context *ctx,
  *                      only the first MBEDTLS_CTR_DRBG_MAX_SEED_INPUT bytes are used,
  *                      the remaining ones are silently discarded.
  */
-void mbedtls_ctr_drbg_update( mbedtls_ctr_drbg_context *ctx,
+DLL_EXPORT_API void mbedtls_ctr_drbg_update( mbedtls_ctr_drbg_context *ctx,
                       const unsigned char *additional, size_t add_len );
 
 /**
@@ -207,7 +207,7 @@ void mbedtls_ctr_drbg_update( mbedtls_ctr_drbg_context *ctx,
  *                      MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED, or
  *                      MBEDTLS_ERR_CTR_DRBG_REQUEST_TOO_BIG
  */
-int mbedtls_ctr_drbg_random_with_add( void *p_rng,
+DLL_EXPORT_API int mbedtls_ctr_drbg_random_with_add( void *p_rng,
                               unsigned char *output, size_t output_len,
                               const unsigned char *additional, size_t add_len );
 
@@ -224,7 +224,7 @@ int mbedtls_ctr_drbg_random_with_add( void *p_rng,
  *                      MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED, or
  *                      MBEDTLS_ERR_CTR_DRBG_REQUEST_TOO_BIG
  */
-int mbedtls_ctr_drbg_random( void *p_rng,
+DLL_EXPORT_API int mbedtls_ctr_drbg_random( void *p_rng,
                      unsigned char *output, size_t output_len );
 
 #if defined(MBEDTLS_FS_IO)
@@ -238,7 +238,7 @@ int mbedtls_ctr_drbg_random( void *p_rng,
  *                      MBEDTLS_ERR_CTR_DRBG_FILE_IO_ERROR on file error, or
  *                      MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED
  */
-int mbedtls_ctr_drbg_write_seed_file( mbedtls_ctr_drbg_context *ctx, const char *path );
+DLL_EXPORT_API int mbedtls_ctr_drbg_write_seed_file( mbedtls_ctr_drbg_context *ctx, const char *path );
 
 /**
  * \brief               Read and update a seed file. Seed is added to this
@@ -252,7 +252,7 @@ int mbedtls_ctr_drbg_write_seed_file( mbedtls_ctr_drbg_context *ctx, const char 
  *                      MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED or
  *                      MBEDTLS_ERR_CTR_DRBG_INPUT_TOO_BIG
  */
-int mbedtls_ctr_drbg_update_seed_file( mbedtls_ctr_drbg_context *ctx, const char *path );
+DLL_EXPORT_API int mbedtls_ctr_drbg_update_seed_file( mbedtls_ctr_drbg_context *ctx, const char *path );
 #endif /* MBEDTLS_FS_IO */
 
 /**
@@ -260,10 +260,10 @@ int mbedtls_ctr_drbg_update_seed_file( mbedtls_ctr_drbg_context *ctx, const char
  *
  * \return              0 if successful, or 1 if the test failed
  */
-int mbedtls_ctr_drbg_self_test( int verbose );
+DLL_EXPORT_API int mbedtls_ctr_drbg_self_test( int verbose );
 
 /* Internal functions (do not call directly) */
-int mbedtls_ctr_drbg_seed_entropy_len( mbedtls_ctr_drbg_context *,
+DLL_EXPORT_API int mbedtls_ctr_drbg_seed_entropy_len( mbedtls_ctr_drbg_context *,
                                int (*)(void *, unsigned char *, size_t), void *,
                                const unsigned char *, size_t, size_t );
 
