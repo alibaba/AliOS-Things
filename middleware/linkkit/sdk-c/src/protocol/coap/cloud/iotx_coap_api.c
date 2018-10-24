@@ -658,7 +658,10 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
         return IOTX_ERR_INVALID_PARAM;
     }
 
-
+    /* as this function only support POST request message, type ACK and RST shall be considered error parameters */
+    if (p_message->msg_type == IOTX_MESSAGE_ACK || p_message->msg_type == IOTX_MESSAGE_RST) {
+        return IOTX_ERR_INVALID_PARAM;
+    }
 
     if (p_message->payload_len >= COAP_MSG_MAX_PDU_LEN) {
         COAP_ERR("The payload length %d is too loog", p_message->payload_len);
