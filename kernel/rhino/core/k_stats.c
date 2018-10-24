@@ -227,11 +227,21 @@ void krhino_total_cpu_usage_show()
     ktask_t *task;
     const char* task_name;
     lr_timer_t task_cpu_usage;
-    uint32_t total_cpu_usage;
+    uint32_t corenum;
+    uint32_t total_cpu_usage[RHINO_CONFIG_CPU_NUM];
 
-    total_cpu_usage = krhino_total_cpu_usage_get();
     printf("-----------------------\n");
-    printf("CPU usage :%3d.%02d%%  \n", (int)total_cpu_usage/100, (int)total_cpu_usage%100);
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    for (corenum = 0; corenum < RHINO_CONFIG_CPU_NUM; corenum++) {
+        total_cpu_usage[corenum] = krhino_total_cpu_usage_get(corenum);
+        printf("CPU usage :%3d.%02d%%  \n", (int)total_cpu_usage[corenum]/100, (int)total_cpu_usage[corenum]%100);
+    }
+
+#else
+    total_cpu_usage[0] = krhino_total_cpu_usage_get(0);
+    printf("CPU usage :%3d.%02d%%  \n", (int)total_cpu_usage[0]/100, (int)total_cpu_usage[0]%100);
+
+#endif
     printf("-----------------------\n");
 
     printf("Name               %%CPU\n");
@@ -265,10 +275,10 @@ uint32_t krhino_task_cpu_usage_get(ktask_t *task)
 }
 
 /* one in ten thousand */
-uint32_t krhino_total_cpu_usage_get()
+uint32_t krhino_total_cpu_usage_get(uint32_t cpuid)
 {
     printf("cpu usage period = %d\n", (int)task_cpu_usage_period/80000000);
-    return (10000 - krhino_task_cpu_usage_get(&g_idle_task[0]));
+    return (10000 - krhino_task_cpu_usage_get(&g_idle_task[cpuid]));
 }
 
 #if (RHINO_CONFIG_CPU_USAGE_PERIOD > 0)
