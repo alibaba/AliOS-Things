@@ -24,6 +24,16 @@ extern "C" {
 #define h2stream_info(...)     log_info("h2stream", __VA_ARGS__)
 #define h2stream_debug(...)    log_debug("h2stream", __VA_ARGS__)
 
+#define MAKE_HEADER(NAME, VALUE)                                             \
+    {                                                                        \
+        (char *) NAME, (char *)VALUE, sizeof(NAME) - 1, sizeof(VALUE) - 1    \
+    }
+
+#define MAKE_HEADER_CS(NAME, VALUE)                                          \
+    {                                                                        \
+        (char *) NAME, (char *)VALUE, strlen(NAME) , strlen(VALUE)           \
+    }
+    
 typedef struct {
     char  *product_key;
     char  *device_name;
