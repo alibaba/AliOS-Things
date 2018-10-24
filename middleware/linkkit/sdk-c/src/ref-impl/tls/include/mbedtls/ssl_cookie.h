@@ -10,7 +10,7 @@
 #include "ssl.h"
 
 #if defined(MBEDTLS_THREADING_C)
-#include "threading.h"
+    #include "threading.h"
 #endif
 
 /**
@@ -21,7 +21,7 @@
  * \{
  */
 #ifndef MBEDTLS_SSL_COOKIE_TIMEOUT
-#define MBEDTLS_SSL_COOKIE_TIMEOUT     60 /**< Default expiration delay of DTLS cookies, in seconds if HAVE_TIME, or in number of cookies issued */
+    #define MBEDTLS_SSL_COOKIE_TIMEOUT     60 /**< Default expiration delay of DTLS cookies, in seconds if HAVE_TIME, or in number of cookies issued */
 #endif
 
 /* \} name SECTION: Module settings */
@@ -33,8 +33,7 @@ extern "C" {
 /**
  * \brief          Context for the default cookie functions.
  */
-typedef struct
-{
+typedef struct {
     mbedtls_md_context_t    hmac_ctx;   /*!< context for the HMAC portion   */
 #if !defined(MBEDTLS_HAVE_TIME)
     unsigned long   serial;     /*!< serial number for expiration   */
@@ -50,14 +49,14 @@ typedef struct
 /**
  * \brief          Initialize cookie context
  */
-DLL_EXPORT_API void mbedtls_ssl_cookie_init( mbedtls_ssl_cookie_ctx *ctx );
+DLL_TLS_API void mbedtls_ssl_cookie_init(mbedtls_ssl_cookie_ctx *ctx);
 
 /**
  * \brief          Setup cookie context (generate keys)
  */
-DLL_EXPORT_API int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
-                      int (*f_rng)(void *, unsigned char *, size_t),
-                      void *p_rng );
+DLL_TLS_API int mbedtls_ssl_cookie_setup(mbedtls_ssl_cookie_ctx *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng);
 
 /**
  * \brief          Set expiration delay for cookies
@@ -68,12 +67,12 @@ DLL_EXPORT_API int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
  *                 issued in the meantime.
  *                 0 to disable expiration (NOT recommended)
  */
-DLL_EXPORT_API void mbedtls_ssl_cookie_set_timeout( mbedtls_ssl_cookie_ctx *ctx, unsigned long delay );
+DLL_TLS_API void mbedtls_ssl_cookie_set_timeout(mbedtls_ssl_cookie_ctx *ctx, unsigned long delay);
 
 /**
  * \brief          Free cookie context
  */
-DLL_EXPORT_API void mbedtls_ssl_cookie_free( mbedtls_ssl_cookie_ctx *ctx );
+DLL_TLS_API void mbedtls_ssl_cookie_free(mbedtls_ssl_cookie_ctx *ctx);
 
 /**
  * \brief          Generate cookie, see \c mbedtls_ssl_cookie_write_t

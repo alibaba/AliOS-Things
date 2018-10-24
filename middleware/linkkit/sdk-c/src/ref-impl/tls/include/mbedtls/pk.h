@@ -156,17 +156,17 @@ typedef size_t (*mbedtls_pk_rsa_alt_key_len_func)(void *ctx);
  *
  * \return          The PK info associated with the type or NULL if not found.
  */
-DLL_EXPORT_API const mbedtls_pk_info_t *mbedtls_pk_info_from_type(mbedtls_pk_type_t pk_type);
+DLL_TLS_API const mbedtls_pk_info_t *mbedtls_pk_info_from_type(mbedtls_pk_type_t pk_type);
 
 /**
  * \brief           Initialize a mbedtls_pk_context (as NONE)
  */
-DLL_EXPORT_API void mbedtls_pk_init(mbedtls_pk_context *ctx);
+DLL_TLS_API void mbedtls_pk_init(mbedtls_pk_context *ctx);
 
 /**
  * \brief           Free a mbedtls_pk_context
  */
-DLL_EXPORT_API void mbedtls_pk_free(mbedtls_pk_context *ctx);
+DLL_TLS_API void mbedtls_pk_free(mbedtls_pk_context *ctx);
 
 /**
  * \brief           Initialize a PK context with the information given
@@ -182,7 +182,7 @@ DLL_EXPORT_API void mbedtls_pk_free(mbedtls_pk_context *ctx);
  * \note            For contexts holding an RSA-alt key, use
  *                  \c mbedtls_pk_setup_rsa_alt() instead.
  */
-DLL_EXPORT_API int mbedtls_pk_setup(mbedtls_pk_context *ctx, const mbedtls_pk_info_t *info);
+DLL_TLS_API int mbedtls_pk_setup(mbedtls_pk_context *ctx, const mbedtls_pk_info_t *info);
 
 #if defined(MBEDTLS_PK_RSA_ALT_SUPPORT)
 /**
@@ -199,7 +199,7 @@ DLL_EXPORT_API int mbedtls_pk_setup(mbedtls_pk_context *ctx, const mbedtls_pk_in
  *
  * \note            This function replaces \c mbedtls_pk_setup() for RSA-alt.
  */
-DLL_EXPORT_API int mbedtls_pk_setup_rsa_alt(mbedtls_pk_context *ctx, void *key,
+DLL_TLS_API int mbedtls_pk_setup_rsa_alt(mbedtls_pk_context *ctx, void *key,
         mbedtls_pk_rsa_alt_decrypt_func decrypt_func,
         mbedtls_pk_rsa_alt_sign_func sign_func,
         mbedtls_pk_rsa_alt_key_len_func key_len_func);
@@ -212,7 +212,7 @@ DLL_EXPORT_API int mbedtls_pk_setup_rsa_alt(mbedtls_pk_context *ctx, void *key,
  *
  * \return          Key size in bits, or 0 on error
  */
-DLL_EXPORT_API size_t mbedtls_pk_get_bitlen(const mbedtls_pk_context *ctx);
+DLL_TLS_API size_t mbedtls_pk_get_bitlen(const mbedtls_pk_context *ctx);
 
 /**
  * \brief           Get the length in bytes of the underlying key
@@ -234,7 +234,7 @@ static inline size_t mbedtls_pk_get_len(const mbedtls_pk_context *ctx)
  * \return          0 if context can't do the operations,
  *                  1 otherwise.
  */
-DLL_EXPORT_API int mbedtls_pk_can_do(const mbedtls_pk_context *ctx, mbedtls_pk_type_t type);
+DLL_TLS_API int mbedtls_pk_can_do(const mbedtls_pk_context *ctx, mbedtls_pk_type_t type);
 
 /**
  * \brief           Verify signature (including padding if relevant).
@@ -260,9 +260,9 @@ DLL_EXPORT_API int mbedtls_pk_can_do(const mbedtls_pk_context *ctx, mbedtls_pk_t
  *
  * \note            md_alg may be MBEDTLS_MD_NONE, only if hash_len != 0
  */
-DLL_EXPORT_API int mbedtls_pk_verify(mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
-                                     const unsigned char *hash, size_t hash_len,
-                                     const unsigned char *sig, size_t sig_len);
+DLL_TLS_API int mbedtls_pk_verify(mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
+                                  const unsigned char *hash, size_t hash_len,
+                                  const unsigned char *sig, size_t sig_len);
 
 /**
  * \brief           Verify signature, with options.
@@ -293,10 +293,10 @@ DLL_EXPORT_API int mbedtls_pk_verify(mbedtls_pk_context *ctx, mbedtls_md_type_t 
  *                  to a mbedtls_pk_rsassa_pss_options structure,
  *                  otherwise it must be NULL.
  */
-DLL_EXPORT_API int mbedtls_pk_verify_ext(mbedtls_pk_type_t type, const void *options,
-        mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
-        const unsigned char *hash, size_t hash_len,
-        const unsigned char *sig, size_t sig_len);
+DLL_TLS_API int mbedtls_pk_verify_ext(mbedtls_pk_type_t type, const void *options,
+                                      mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
+                                      const unsigned char *hash, size_t hash_len,
+                                      const unsigned char *sig, size_t sig_len);
 
 /**
  * \brief           Make signature, including padding if relevant.
@@ -322,10 +322,10 @@ DLL_EXPORT_API int mbedtls_pk_verify_ext(mbedtls_pk_type_t type, const void *opt
  * \note            For RSA, md_alg may be MBEDTLS_MD_NONE if hash_len != 0.
  *                  For ECDSA, md_alg may never be MBEDTLS_MD_NONE.
  */
-DLL_EXPORT_API int mbedtls_pk_sign(mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
-                                   const unsigned char *hash, size_t hash_len,
-                                   unsigned char *sig, size_t *sig_len,
-                                   int (*f_rng)(void *, unsigned char *, size_t), void *p_rng);
+DLL_TLS_API int mbedtls_pk_sign(mbedtls_pk_context *ctx, mbedtls_md_type_t md_alg,
+                                const unsigned char *hash, size_t hash_len,
+                                unsigned char *sig, size_t *sig_len,
+                                int (*f_rng)(void *, unsigned char *, size_t), void *p_rng);
 
 /**
  * \brief           Decrypt message (including padding if relevant).
@@ -343,10 +343,10 @@ DLL_EXPORT_API int mbedtls_pk_sign(mbedtls_pk_context *ctx, mbedtls_md_type_t md
  *
  * \return          0 on success, or a specific error code.
  */
-DLL_EXPORT_API int mbedtls_pk_decrypt(mbedtls_pk_context *ctx,
-                                      const unsigned char *input, size_t ilen,
-                                      unsigned char *output, size_t *olen, size_t osize,
-                                      int (*f_rng)(void *, unsigned char *, size_t), void *p_rng);
+DLL_TLS_API int mbedtls_pk_decrypt(mbedtls_pk_context *ctx,
+                                   const unsigned char *input, size_t ilen,
+                                   unsigned char *output, size_t *olen, size_t osize,
+                                   int (*f_rng)(void *, unsigned char *, size_t), void *p_rng);
 
 /**
  * \brief           Encrypt message (including padding if relevant).
@@ -364,10 +364,10 @@ DLL_EXPORT_API int mbedtls_pk_decrypt(mbedtls_pk_context *ctx,
  *
  * \return          0 on success, or a specific error code.
  */
-DLL_EXPORT_API int mbedtls_pk_encrypt(mbedtls_pk_context *ctx,
-                                      const unsigned char *input, size_t ilen,
-                                      unsigned char *output, size_t *olen, size_t osize,
-                                      int (*f_rng)(void *, unsigned char *, size_t), void *p_rng);
+DLL_TLS_API int mbedtls_pk_encrypt(mbedtls_pk_context *ctx,
+                                   const unsigned char *input, size_t ilen,
+                                   unsigned char *output, size_t *olen, size_t osize,
+                                   int (*f_rng)(void *, unsigned char *, size_t), void *p_rng);
 
 /**
  * \brief           Check if a public-private pair of keys matches.
@@ -377,7 +377,7 @@ DLL_EXPORT_API int mbedtls_pk_encrypt(mbedtls_pk_context *ctx,
  *
  * \return          0 on success or MBEDTLS_ERR_PK_BAD_INPUT_DATA
  */
-DLL_EXPORT_API int mbedtls_pk_check_pair(const mbedtls_pk_context *pub, const mbedtls_pk_context *prv);
+DLL_TLS_API int mbedtls_pk_check_pair(const mbedtls_pk_context *pub, const mbedtls_pk_context *prv);
 
 /**
  * \brief           Export debug information
@@ -387,7 +387,7 @@ DLL_EXPORT_API int mbedtls_pk_check_pair(const mbedtls_pk_context *pub, const mb
  *
  * \return          0 on success or MBEDTLS_ERR_PK_BAD_INPUT_DATA
  */
-DLL_EXPORT_API int mbedtls_pk_debug(const mbedtls_pk_context *ctx, mbedtls_pk_debug_item *items);
+DLL_TLS_API int mbedtls_pk_debug(const mbedtls_pk_context *ctx, mbedtls_pk_debug_item *items);
 
 /**
  * \brief           Access the type name
@@ -396,7 +396,7 @@ DLL_EXPORT_API int mbedtls_pk_debug(const mbedtls_pk_context *ctx, mbedtls_pk_de
  *
  * \return          Type name on success, or "invalid PK"
  */
-DLL_EXPORT_API const char *mbedtls_pk_get_name(const mbedtls_pk_context *ctx);
+DLL_TLS_API const char *mbedtls_pk_get_name(const mbedtls_pk_context *ctx);
 
 /**
  * \brief           Get the key type
@@ -427,9 +427,9 @@ mbedtls_pk_type_t mbedtls_pk_get_type(const mbedtls_pk_context *ctx);
  *
  * \return          0 if successful, or a specific PK or PEM error code
  */
-DLL_EXPORT_API int mbedtls_pk_parse_key(mbedtls_pk_context *ctx,
-                                        const unsigned char *key, size_t keylen,
-                                        const unsigned char *pwd, size_t pwdlen);
+DLL_TLS_API int mbedtls_pk_parse_key(mbedtls_pk_context *ctx,
+                                     const unsigned char *key, size_t keylen,
+                                     const unsigned char *pwd, size_t pwdlen);
 
 /** \ingroup pk_module */
 /**
@@ -448,7 +448,7 @@ DLL_EXPORT_API int mbedtls_pk_parse_key(mbedtls_pk_context *ctx,
  *
  * \return          0 if successful, or a specific PK or PEM error code
  */
-DLL_EXPORT_API int mbedtls_pk_parse_public_key(mbedtls_pk_context *ctx,
+DLL_TLS_API int mbedtls_pk_parse_public_key(mbedtls_pk_context *ctx,
         const unsigned char *key, size_t keylen);
 
 #if defined(MBEDTLS_FS_IO)
@@ -468,7 +468,7 @@ DLL_EXPORT_API int mbedtls_pk_parse_public_key(mbedtls_pk_context *ctx,
  *
  * \return          0 if successful, or a specific PK or PEM error code
  */
-DLL_EXPORT_API int mbedtls_pk_parse_keyfile(mbedtls_pk_context *ctx,
+DLL_TLS_API int mbedtls_pk_parse_keyfile(mbedtls_pk_context *ctx,
         const char *path, const char *password);
 
 /** \ingroup pk_module */
@@ -487,7 +487,7 @@ DLL_EXPORT_API int mbedtls_pk_parse_keyfile(mbedtls_pk_context *ctx,
  *
  * \return          0 if successful, or a specific PK or PEM error code
  */
-DLL_EXPORT_API int mbedtls_pk_parse_public_keyfile(mbedtls_pk_context *ctx, const char *path);
+DLL_TLS_API int mbedtls_pk_parse_public_keyfile(mbedtls_pk_context *ctx, const char *path);
 #endif /* MBEDTLS_FS_IO */
 #endif /* MBEDTLS_PK_PARSE_C */
 
@@ -505,7 +505,7 @@ DLL_EXPORT_API int mbedtls_pk_parse_public_keyfile(mbedtls_pk_context *ctx, cons
  * \return          length of data written if successful, or a specific
  *                  error code
  */
-DLL_EXPORT_API int mbedtls_pk_write_key_der(mbedtls_pk_context *ctx, unsigned char *buf, size_t size);
+DLL_TLS_API int mbedtls_pk_write_key_der(mbedtls_pk_context *ctx, unsigned char *buf, size_t size);
 
 /**
  * \brief           Write a public key to a SubjectPublicKeyInfo DER structure
@@ -520,7 +520,7 @@ DLL_EXPORT_API int mbedtls_pk_write_key_der(mbedtls_pk_context *ctx, unsigned ch
  * \return          length of data written if successful, or a specific
  *                  error code
  */
-DLL_EXPORT_API int mbedtls_pk_write_pubkey_der(mbedtls_pk_context *ctx, unsigned char *buf, size_t size);
+DLL_TLS_API int mbedtls_pk_write_pubkey_der(mbedtls_pk_context *ctx, unsigned char *buf, size_t size);
 
 #if defined(MBEDTLS_PEM_WRITE_C)
 /**
@@ -532,7 +532,7 @@ DLL_EXPORT_API int mbedtls_pk_write_pubkey_der(mbedtls_pk_context *ctx, unsigned
  *
  * \return          0 if successful, or a specific error code
  */
-DLL_EXPORT_API int mbedtls_pk_write_pubkey_pem(mbedtls_pk_context *ctx, unsigned char *buf, size_t size);
+DLL_TLS_API int mbedtls_pk_write_pubkey_pem(mbedtls_pk_context *ctx, unsigned char *buf, size_t size);
 
 /**
  * \brief           Write a private key to a PKCS#1 or SEC1 PEM string
@@ -543,7 +543,7 @@ DLL_EXPORT_API int mbedtls_pk_write_pubkey_pem(mbedtls_pk_context *ctx, unsigned
  *
  * \return          0 if successful, or a specific error code
  */
-DLL_EXPORT_API int mbedtls_pk_write_key_pem(mbedtls_pk_context *ctx, unsigned char *buf, size_t size);
+DLL_TLS_API int mbedtls_pk_write_key_pem(mbedtls_pk_context *ctx, unsigned char *buf, size_t size);
 #endif /* MBEDTLS_PEM_WRITE_C */
 #endif /* MBEDTLS_PK_WRITE_C */
 
@@ -562,7 +562,7 @@ DLL_EXPORT_API int mbedtls_pk_write_key_pem(mbedtls_pk_context *ctx, unsigned ch
  *
  * \return          0 if successful, or a specific PK error code
  */
-DLL_EXPORT_API int mbedtls_pk_parse_subpubkey(unsigned char **p, const unsigned char *end,
+DLL_TLS_API int mbedtls_pk_parse_subpubkey(unsigned char **p, const unsigned char *end,
         mbedtls_pk_context *pk);
 #endif /* MBEDTLS_PK_PARSE_C */
 
@@ -577,8 +577,8 @@ DLL_EXPORT_API int mbedtls_pk_parse_subpubkey(unsigned char **p, const unsigned 
  *
  * \return          the length written or a negative error code
  */
-DLL_EXPORT_API int mbedtls_pk_write_pubkey(unsigned char **p, unsigned char *start,
-        const mbedtls_pk_context *key);
+DLL_TLS_API int mbedtls_pk_write_pubkey(unsigned char **p, unsigned char *start,
+                                        const mbedtls_pk_context *key);
 #endif /* MBEDTLS_PK_WRITE_C */
 
 /*
@@ -586,7 +586,7 @@ DLL_EXPORT_API int mbedtls_pk_write_pubkey(unsigned char **p, unsigned char *sta
  * know you do.
  */
 #if defined(MBEDTLS_FS_IO)
-DLL_EXPORT_API int mbedtls_pk_load_file(const char *path, unsigned char **buf, size_t *n);
+DLL_TLS_API int mbedtls_pk_load_file(const char *path, unsigned char **buf, size_t *n);
 #endif
 
 #ifdef __cplusplus
