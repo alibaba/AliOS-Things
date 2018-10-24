@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <breeze_export.h>
+
+#include "breeze_export.h"
+#include "bzopt.h"
 
 extern int awss_success_notify();
 
@@ -38,7 +40,6 @@ static void breeze_awss_init_helper
     init->get_cb            = get_dev_status_handler;
     init->apinfo_cb         = cb;
 
-    init->enable_auth = true;
     init->product_id = dinfo->product_id;
 
     init->product_key_len = strlen(dinfo->product_key);
@@ -72,16 +73,12 @@ void breeze_awss_init
     breeze_dev_info_t *info
 )
 {
-    int ret;
     struct device_config brzinit;
 
     breeze_awss_init_helper(&brzinit, cb, info);
 
-    ret = breeze_start(&brzinit);
-    if (ret != 0) {
-        printf("breeze_start failed (ret = %d).\r\n", ret);
-    } else {
-        printf("breeze_start succeed.\r\n");
+    if  (breeze_start(&brzinit) != 0) {
+        BREEZE_LOG_ERR("breeze_start failed\r\n");
     }
 }
 

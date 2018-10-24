@@ -2,13 +2,14 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "core.h"
-#include "breeze_export.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <breeze_hal_ble.h>
-#include <breeze_hal_os.h>
+
+#include "core.h"
+#include "breeze_export.h"
+#include "breeze_hal_ble.h"
+#include "breeze_hal_os.h"
 #include "bzopt.h"
 
 static dev_status_changed_cb m_status_handler;
@@ -16,8 +17,6 @@ static set_dev_status_cb m_ctrl_handler;
 static get_dev_status_cb m_query_handler;
 static apinfo_ready_cb m_apinfo_handler;
 static ota_dev_cb m_ota_dev_handler;
-
-uint32_t m_ali_context[BZ_CONTEXT_SIZE]; 
 
 struct adv_data_s {
     uint8_t data[MAX_VENDOR_DATA_LEN];
@@ -31,7 +30,7 @@ static void notify_status(breeze_event_t event)
     }
 }
 
-static void ali_event_handler(ali_event_t *p_event)
+static void event_handler(ali_event_t *p_event)
 {
     uint32_t err_code;
 
@@ -94,7 +93,7 @@ static void ali_event_handler(ali_event_t *p_event)
 
 int breeze_start(struct device_config *dev_conf)
 {
-    uint32_t   err_code;
+    uint32_t err_code;
     ali_init_t init_ali;
 
     if ((dev_conf == NULL) || (dev_conf->status_changed_cb == NULL) ||
@@ -110,11 +109,8 @@ int breeze_start(struct device_config *dev_conf)
     m_ota_dev_handler = dev_conf->ota_cb;
 
     memset(&init_ali, 0, sizeof(ali_init_t));
-    init_ali.context_size  = sizeof(m_ali_context);
-    init_ali.event_handler = ali_event_handler;
+    init_ali.event_handler = event_handler;
     init_ali.model_id      = dev_conf->product_id;
-    init_ali.mac.p_data    = NULL;
-    init_ali.mac.length    = BD_ADDR_LEN;
 
     init_ali.product_key.p_data = (uint8_t *)dev_conf->product_key;
     init_ali.product_key.length = dev_conf->product_key_len;
@@ -128,12 +124,11 @@ int breeze_start(struct device_config *dev_conf)
     init_ali.sw_ver.p_data         = (uint8_t *)dev_conf->version;
     init_ali.sw_ver.length         = strlen(dev_conf->version);
     init_ali.transport_timeout     = BZ_TRANSPORT_TIMEOUT;
-    init_ali.enable_ota            = dev_conf->enable_ota;
     init_ali.max_mtu               = BZ_MAX_SUPPORTED_MTU;
     init_ali.user_adv_data         = user_adv.data;
     init_ali.user_adv_len          = user_adv.len;
 
-    err_code = core_init(m_ali_context, &init_ali);
+    err_code = core_init(&init_ali);
     return ((err_code == BZ_SUCCESS) ? 0 : -1);
 }
 
