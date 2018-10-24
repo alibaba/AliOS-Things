@@ -90,6 +90,8 @@ void cpu_start_secondary(uint8_t coreNumber, cpu_entry_point_t entryPoint, void 
     assert(coreNumber < MAX_CORE_COUNT);
     s_core_info[coreNumber].entry = entryPoint;
     s_core_info[coreNumber].arg = arg;
+
+    k_cpu_dcache_clean_all();
     
     // Prepare pointers for ROM code. The entry point is always _start, which does some
     // basic preparatory work and then calls the common_cpu_entry function, which itself
