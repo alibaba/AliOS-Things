@@ -1,0 +1,143 @@
+
+config MQTT_COMM_ENABLED
+    bool "FEATURE_MQTT_COMM_ENABLED"
+    default y
+    help
+        Establish persistent connection with AliCloud via MQTT-based protocol
+
+        Switching to "y" leads to building MQTT related implementation into SDK and MQTT_COMM_ENABLED included into CFLAGS
+        Switching to "n" seldom happens unless you're connecting to AliCloud via CoAP/HTTP channel
+
+menu "MQTT Configurations"
+    depends on MQTT_COMM_ENABLED
+
+    config MQTT_DIRECT
+        bool "FEATURE_MQTT_DIRECT"
+        default y
+        help
+            Directly connect MQTT server without perform HTTP authenticate to another HTTP server ahead
+
+            Switching to "y" leads to connect MQTT server directly and MQTT_DIRECT included into CFLAGS
+            Switching to "n" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
+
+    config MQTT_SHADOW
+        bool "FEATURE_MQTT_SHADOW"
+        default n
+        help
+            Enable providing cache data of IoT device at cloud via "IOT_Shadow_XXX" APIs declared in include/exports/iot_export_shadow.h
+
+endmenu
+
+config OTA_ENABLED
+    bool "FEATURE_OTA_ENABLED"
+    default y
+
+    help
+        OTA (Over The Air) means upgrade device's firmware or configuration remotely via Internet
+
+        Switching to "y" leads to providing such capability via IOT_OTA_XXX() APIs
+
+config DEVICE_MODEL_ENABLED
+    bool "FEATURE_DEVICE_MODEL_ENABLED"
+    default y
+    help
+        Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
+
+        Switching to "y" leads to SDK being able to interpret JSON payload in MQTT channel, which also called "Advanced Version Protocol"
+        Those capabilities are provided via IOT_Linkkit_XXX() APIs or being_deprecated linkkit_xxx() + linkkit_gateway_xxx() APIs
+
+menu "Device Model Configurations"
+    depends on DEVICE_MODEL_ENABLED
+
+    config DEVICE_MODEL_GATEWAY
+        bool "FEATURE_DEVICE_MODEL_GATEWAY"
+        default n
+        help
+            Switching Thing-Model related implementations provided in gateway oriented way
+
+    config ALCS_ENABLED
+        bool "FEATURE_ALCS_ENABLED"
+        depends on (DEVICE_MODEL_ENABLED && WIFI_PROVISION_ENABLED)
+        default y
+        help
+            ALCS(Alibaba Local Communication Service) enable customers communicate with IoT devices from cellphone without Internet
+
+    # FEATURE_ALCS_CLIENT_ENABLED
+    # FEATURE_ALCS_SERVER_ENABLED
+    source "$SRCPATH/src/protocol/alcs/Config.in"
+
+    config DEPRECATED_LINKKIT
+        bool "FEATURE_DEPRECATED_LINKKIT"
+        default n
+        help
+            Enable providing Thing-Model related functions via being_deprecated/old/obsoleted APIs
+            They are named as linkkit_xxx() or linkkit_gateway_xxx(), declared in linkkit_export.h and linkkit_gateway_export.h
+
+            Switching to "y" leads to SDK providing APIs in linkkit_export.h + linkkit_gateway_export.h
+            Switching to "n" leads to SDK providing APIs in iot_export_linkkit.h
+
+    config DEV_BIND_ENABLED
+        bool "FEATURE_DEV_BIND_ENABLED"
+        default y
+        help
+            Enable customers to bind device to current user
+
+endmenu
+
+config HTTP2_COMM_ENABLED
+    bool "FEATURE_HTTP2_COMM_ENABLED"
+    default n
+    help
+        Establish persistent connection with AliCloud via HTTP2-based protocol
+
+menu "HTTP2 Configurations"
+    depends on HTTP2_COMM_ENABLED
+
+    config FS_ENABLED
+        bool "FEATURE_FS_ENABLED"
+        default y
+        help
+            USE HAL fs api to enable file upload feature 
+
+endmenu
+
+config COAP_COMM_ENABLED
+    bool "FEATURE_COAP_COMM_ENABLED"
+    default n
+    help
+        Establish non-persistent connection with AliCloud via CoAP-based protocol
+
+        Switching to "y" leads to building CoAP related implementation into SDK and COAP_COMM_ENABLED included into CFLAGS
+        Switching to "n" leads to keeping CoAP-based cloud connection implementations out of SDK
+
+config HTTP_COMM_ENABLED
+    bool "FEATURE_HTTP_COMM_ENABLED"
+    depends on (!MQTT_COMM_ENABLED && !COAP_COMM_ENABLED)
+    default n
+    help
+        Establish persistent connection with AliCloud via HTTP-based protocol
+
+config SUPPORT_TLS
+    bool "FEATURE_SUPPORT_TLS"
+    default y
+    help
+        This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
+
+config SUPPORT_ITLS
+    bool "FEATURE_SUPPORT_ITLS"
+    depends on !SUPPORT_TLS
+    default n
+    help
+        This option is mutually exclusive with SUPPORT_TLS, only less than one of them can be switched to "y"
+
+        iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
+
+source "$SRCPATH/src/services/awss/Config.in"
+config SUBDEVICE_ENABLED
+    bool "FEATURE_SUBDEVICE_ENABLED"
+    depends on !DEVICE_MODEL_ENABLED
+    default n
+    help
+        Deprecated APIs of "IOT_Subdevice_XXX()" and "IOT_Gateway_XXX()", try to avoid using them unless you have to
+
+source "$SRCPATH/src/services/mdal/Config.in"
