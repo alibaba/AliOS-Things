@@ -32,7 +32,7 @@ typedef enum {
 	I2C_CMD_RECORD,
 	I2C_CMD_PLAYBACK,
 	I2C_CMD_AUDIOSTOP,
-
+	
 	I2C_CMD_END
 } I2C_PROC_CMD;
 
@@ -46,15 +46,15 @@ typedef enum {
 	RESP_UPG_PAYLOAD_SUCCESS,
 	RESP_UPG_PAYLOAD_FAILED,
 	RESP_UPG_PAYLOAD_CRC,
-
+	
 	RESP_LB_OPENED,
 	RESP_LB_CLOSED,
 	RESP_LB_FAILED,
-
+	
 	RESP_AUDIO_RECORD,
 	RESP_AUDIO_PLAYBACK,
 	RESP_AUDIO_STOP,
-
+	
 	RESP_FLAG_NORMAL
 } RESPONSE_FLAG;
 
@@ -110,8 +110,8 @@ static const UPG_FLASH_MAP g_isd9160_map_table[BINTYPE_END] = {
 };
 
 static const char *g_slprt_hint_matching[] = {
-	"isd9160 software version: ",
-	"isd9160 Voice Recognition: ",
+    "isd9160 software version: ",
+    "isd9160 Voice Recognition: ",
 };
 
 static FLASH_UPG_HEAD g_upg_head;
@@ -223,7 +223,7 @@ static int ready_for_upgrade(int fd)
 		KIDS_A10_PRT("file_num is invalid.\n");
 		return -1;
 	}
-
+	
 	for (i = 0; i < g_upg_head.file_num; ++i) {
 		ret_size = aos_read(fd, &g_file_head[i], sizeof(FLASH_FILE_HEAD));
 		if (ret_size != sizeof(FLASH_FILE_HEAD)) {
@@ -245,7 +245,7 @@ static int ready_for_upgrade(int fd)
 		KIDS_A10_PRT("bin_size_total exceeds ISD9160_ROM_SIZE.\n");
 		return -1;
 	}
-
+	
 	return 0;
 }
 
@@ -254,19 +254,19 @@ static int isd9160_slprt_size(uint32_t *size)
 	int ret = 0;
 	uint8_t data = I2C_CMD_SLPRT;
 	uint8_t size_data[4] = {0};
-
+	
 	ret = hal_i2c_master_send(&brd_i2c4_dev, ISD9160_I2C_ADDR, &data, 1, ISD9160_I2C_TIMEOUT);
 	if (ret != 0) {
 		return ret;
 	}
-
+	
 	ret = hal_i2c_master_recv(&brd_i2c4_dev, ISD9160_I2C_ADDR, size_data, 4, ISD9160_I2C_TIMEOUT);
 	if (ret != 0) {
 		return ret;
 	}
-
+	
 	ntoh_4(size_data, size);
-
+	
 	return 0;
 }
 
@@ -339,7 +339,7 @@ static int handle_slprt(void)
 		KIDS_A10_PRT("ISD9160 is very busy now.\n");
 		return -1;
 	}
-
+	
 	while (1) {
 		ret = isd9160_slprt_size(&size);
 		if (ret != 0) {
@@ -386,13 +386,13 @@ static int handle_slprt(void)
 
 		++slprt_num;
 	}
-
+	
 	ret = aos_mutex_unlock(&isd9160_mutex);
 	if (ret != 0) {
 		KIDS_A10_PRT("ISD9160 release failed.\n");
 		ret = -1;
 	}
-
+	
 	return ret;
 }
 
@@ -400,12 +400,12 @@ static int get_cmdresp(uint8_t cmd, uint8_t *resp)
 {
 	uint8_t data = cmd;
 	int ret = 0;
-
+	
 	ret = hal_i2c_master_send(&brd_i2c4_dev, ISD9160_I2C_ADDR, &data, 1, ISD9160_I2C_TIMEOUT);
 	if (ret != 0) {
 		return ret;
 	}
-
+	
 	return hal_i2c_master_recv(&brd_i2c4_dev, ISD9160_I2C_ADDR, resp, 1, ISD9160_I2C_TIMEOUT);
 }
 
@@ -413,7 +413,7 @@ static int request_binsize(uint8_t *resp, uint32_t type, uint32_t size)
 {
 	uint8_t data[5] = {0};
 	int ret = 0;
-
+	
 	data[0] = I2C_CMD_UPGRADE;
 	ret = hal_i2c_master_send(&brd_i2c4_dev, ISD9160_I2C_ADDR, data, 1, ISD9160_I2C_TIMEOUT);
 	if (ret != 0) {
@@ -429,7 +429,7 @@ static int request_binsize(uint8_t *resp, uint32_t type, uint32_t size)
 	if (ret != 0) {
 		return ret;
 	}
-
+	
 	return 0;
 }
 
@@ -437,7 +437,7 @@ static int request_framehead(uint8_t *resp, uint8_t fsize)
 {
 	uint8_t data[2] = {0};
 	int ret = 0;
-
+	
 	data[0] = UPG_FRAME_MAGIC;
 	data[1] = fsize;
 	ret = hal_i2c_master_send(&brd_i2c4_dev, ISD9160_I2C_ADDR, data, 2, ISD9160_I2C_TIMEOUT);
@@ -448,7 +448,7 @@ static int request_framehead(uint8_t *resp, uint8_t fsize)
 	if (ret != 0) {
 		return ret;
 	}
-
+	
 	return 0;
 }
 
@@ -460,11 +460,11 @@ static int request_payload(uint8_t *resp, uint32_t bintype, int fd, uint32_t off
 	uint16_t crc = 0;
 	ssize_t ret_size = 0;
 	int ret = 0;
-
+	
 	if (size > UPG_PAYLOAD_DATA_SIZE || offset + size > g_isd9160_map_table[bintype].size) {
 		return -1;
 	}
-
+	
 	isd9160_addr = g_isd9160_map_table[bintype].addr + offset;
 	hton_4(&data[2], isd9160_addr);
 	ret_size = aos_read(fd, &data[UPG_PAYLOAD_HAED_SIZE], size);
@@ -490,7 +490,7 @@ static int request_payload(uint8_t *resp, uint32_t bintype, int fd, uint32_t off
 	if (ret != 0) {
 		return ret;
 	}
-
+	
 	return 0;
 }
 
@@ -499,7 +499,7 @@ static void hint_percent(uint32_t now_bytes, uint32_t total_bytes, int bintype)
 	static uint32_t last_quotient = 0;
 	uint32_t now_quotient = 0;
 	const char *str_type[] = {"LDROM", "APROM", "DATAROM"};
-
+	
 	if (now_bytes == 0 || total_bytes == 0) {
 		printf("isd9160 upgrade %s current progress is 0%%\n", str_type[bintype]);
 		last_quotient = 0;
@@ -520,7 +520,7 @@ static int send_upgrade(int fd, FLASH_FILE_HEAD *file_head)
 	uint8_t resp = RESP_FLAG_NORMAL;
 	int last_flag = 0;
 	int ret = 0;
-
+	
 	ret = request_binsize(&resp, file_head->bintype, file_head->size);
 	if (ret != 0) {
 		KIDS_A10_PRT("request_binsize return failed.\n");
@@ -556,7 +556,7 @@ RESEND:
 		}
 		if (resp != RESP_UPG_PAYLOAD_SUCCESS) {
 			if (resp == RESP_UPG_ALL_SUCCESS) {
-
+				
 			} else if (resp == RESP_UPG_PAYLOAD_CRC) {
 				printf("CRC checksum error, send_bytes %u, resend data.\n", send_bytes);
 				aos_lseek(fd, -(frame_size - UPG_PAYLOAD_HAED_SIZE), SEEK_CUR);
@@ -570,12 +570,12 @@ RESEND:
 		remain_bytes = file_head->size - send_bytes;
 		hint_percent(send_bytes, file_head->size, file_head->bintype);
 	}
-
+	
 	if (resp != RESP_UPG_ALL_SUCCESS) {
 		KIDS_A10_PRT("unknow error. resp = 0x%02x\n", resp);
 		return -1;
 	}
-
+	
 	return 0;
 }
 
@@ -586,7 +586,7 @@ int handle_upgrade(const char *file_in_sd)
 	char file[MAX_PATH_SIZE] = {0};
 	int fd = 0;
 	int i;
-
+	
 	sprintf(file, "/sdcard/%s", file_in_sd);
 	fd = aos_open(file, O_RDONLY);
 	if (fd < 0) {
@@ -607,7 +607,7 @@ int handle_upgrade(const char *file_in_sd)
 		KIDS_A10_PRT("ISD9160 is very busy now.\n");
 		goto END;
 	}
-
+	
 	aos_lseek(fd, sizeof(FLASH_UPG_HEAD), SEEK_SET);
 	for (i = 0; i < g_upg_head.file_num; ++i) {
 		aos_lseek(fd, sizeof(FLASH_FILE_HEAD), SEEK_CUR);
@@ -616,7 +616,7 @@ int handle_upgrade(const char *file_in_sd)
 			break;
 		}
 	}
-
+	
 	uret = aos_mutex_unlock(&isd9160_mutex);
 	if (uret != 0) {
 		KIDS_A10_PRT("ISD9160 release failed.\n");
@@ -626,7 +626,7 @@ END:
 	if (uret != 0) {
 		KIDS_A10_PRT("aos_close return failed.\n");
 	}
-
+	
 	return ret;
 }
 
@@ -760,6 +760,6 @@ int isd9160_i2c_init(void)
 		return -1;
 	}
 	isd9160_reset();
-
+	
 	return 0;
 }
