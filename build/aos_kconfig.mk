@@ -3,7 +3,7 @@
 #
 
 export AOS_CONFIG := $(SOURCE_ROOT).config
-export AOS_CONFIG_IN := Config.in
+export AOS_CONFIG_IN := build/Config.in
 export AOS_CONFIG_DIR := $(BUILD_DIR)/config
 
 export KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig
