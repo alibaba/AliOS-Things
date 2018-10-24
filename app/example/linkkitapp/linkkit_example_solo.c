@@ -373,7 +373,7 @@ void user_post_property(void)
     static int example_index = 0;
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-    char *property_payload = NULL;
+    char *property_payload = "NULL";
 
     if (example_index == 0) {
         /* Normal Example */
@@ -417,7 +417,7 @@ void user_post_event(void)
     int res = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     char *event_id = "Error";
-    char *event_payload = NULL;
+    char *event_payload = "NULL";
 
     if (example_index == 0) {
         /* Normal Example */
