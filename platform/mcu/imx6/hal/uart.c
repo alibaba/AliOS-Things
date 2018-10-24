@@ -49,7 +49,9 @@ void uart_interrupt_handler(void)
     uint8_t read_char;
 
     read_char = uart_getchar(g_debug_uart_port);
-    
+    if(NONE_CHAR == read_char){
+        return;
+    }
     krhino_buf_queue_send(&g_buf_queue_uart, &read_char, 1);
 
 }

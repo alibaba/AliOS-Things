@@ -174,6 +174,15 @@ void mmu_init()
     }
 
 	k_cpu_mmu_enable();
+
+    
+#if (RHINO_CONFIG_CPU_NUM > 1)
+
+    scu_enable();
+    
+    configure_cpu(cpu_get_current());
+#endif    
+    
 	k_cpu_icache_enable();
 	k_cpu_dcache_enable();
 

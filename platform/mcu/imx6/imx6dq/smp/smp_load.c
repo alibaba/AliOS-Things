@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "k_api.h"
+#include "k_arch.h"
+
 #include <hal/soc/soc.h>
 #include <aos/aos.h>
 
@@ -24,17 +26,18 @@ void configure_cpu(uint32_t cpu)
 {
     const unsigned int all_ways = 0xf;
 
-    disable_strict_align_check();
+
+    //disable_strict_align_check();
 
     // Enable branch prediction
     arm_branch_target_cache_invalidate();
     arm_branch_prediction_enable();
 
     // Enable L1 caches
-    arm_dcache_enable();
-    arm_dcache_invalidate();
-    arm_icache_enable();
-    arm_icache_invalidate();
+    //arm_dcache_enable();
+    //arm_icache_enable();    
+    //arm_dcache_invalidate();
+    //arm_icache_invalidate();
 
     // Invalidate SCU copy of TAG RAMs
     scu_secure_invalidate(cpu, all_ways);
@@ -42,6 +45,10 @@ void configure_cpu(uint32_t cpu)
     // Join SMP
     scu_join_smp();
     scu_enable_maintenance_broadcast();
+
+    OS_DSB();
+    OS_ISB();
+
 }
 
 void smp_cpu_init(void)
@@ -63,15 +70,19 @@ void smp_cpu_init(void)
         /*uart have not inited*/
         /*printf("Using %d CPU core(s)\n", num_cpus);*/
 
-        scu_enable();
-        configure_cpu(cpu_id);
+        //scu_enable();
+        
+        //configure_cpu(cpu_id);
+        
 
     }
     else
     {
         platform_init();
-        scu_enable();
-        configure_cpu(cpu_id);
+        
+        //scu_enable();
+        
+        //configure_cpu(cpu_id);
 
         k_cpu_vectable_set();
         //isr_stk_init();
@@ -100,7 +111,7 @@ void os_load_slavecpu(void)
     int i;
     os_crosscore_int_init();
 
-    k_cpu_dcache_clean_invalidate_all();
+    //k_cpu_dcache_clean_invalidate_all();
     
     // start all cpus
     for (i = 1; i < num_cpus; i++)
