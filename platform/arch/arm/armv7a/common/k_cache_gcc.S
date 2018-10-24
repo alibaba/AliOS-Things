@@ -7,6 +7,14 @@
 @******************************************************************************
 @                            EXPORT FUNCTIONS
 @******************************************************************************
+
+/*
+not useful in muticore
+Cache maintenance by set/way does not happen on multiple processors, and cannot be made to happen atomically
+for each address on each processor. Therefore in multiprocessor systems, the use of cache maintenance to clean, or
+clean and invalidate, the entire cache for coherency management with very large buffers or with buffers with
+unknown address can fail to provide the expected coherency results because of speculation by other processors.
+*/
 .global k_cpu_dcache_clean_all
 .global k_cpu_dcache_invalidate_all
 .global k_cpu_dcache_clean_invalidate_all
