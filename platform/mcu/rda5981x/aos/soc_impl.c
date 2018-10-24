@@ -55,8 +55,14 @@ tick_t soc_elapsed_ticks_get(void)
 extern void         *heap_start;
 extern void         *heap_end;
 extern void         *heap_len;
+extern void         *__IramLeft;
+extern void         *__IramLeftLen;
+extern void         *__SmemLeft;
+extern void         *__SmemLeftLen;
 
-k_mm_region_t g_mm_region[] = {(uint8_t*)&heap_start,(size_t)&heap_len};
+
+k_mm_region_t g_mm_region[] = 
+    {{(uint8_t*)&heap_start,(size_t)&heap_len},{(uint8_t*)&__SmemLeft,(size_t)&__SmemLeftLen},{(uint8_t*)&__IramLeft,(size_t)&__IramLeftLen}};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
 #if (RHINO_CONFIG_MM_LEAKCHECK > 0 )

@@ -475,6 +475,22 @@ typedef struct
   __IO uint32_t PKCNT2;              /* 0X308:packet count epnum 1                     */
 }RDA_USB_TypeDef;
 
+/*------------- Random Number Generator (RNG) --------------------------------*/
+typedef struct
+{
+  __IO uint32_t TCTRL;                          /* 0x00 : TRNG ctrl           */
+  __IO uint32_t PCTRL;                          /* 0x04 : PRNG ctrl           */
+  __IO uint32_t PSEED;                          /* 0x08 : PRNG seed           */
+  __IO uint32_t PTMRINIT;                       /* 0x0C : PRNG timer init     */
+  __I  uint32_t PTMR;                           /* 0x10 : PRNG timer          */
+  __I  uint32_t TD0;                            /* 0x14 : TRNG data 0         */
+  __I  uint32_t TD0MSK;                         /* 0x18 : TRNG data 0 mask    */
+  __I  uint32_t TD1;                            /* 0x1C : TRNG data 1         */
+  __I  uint32_t TD1MSK;                         /* 0x20 : TRNG data 1 mask    */
+  __I  uint32_t PD;                             /* 0x24 : PRNG data           */
+  __I  uint32_t THC;                            /* 0x28 : TRNG h/c value      */
+} RDA_RNG_TypeDef;
+
 #if defined ( __CC_ARM   )
 #pragma no_anon_unions
 #endif
@@ -494,7 +510,7 @@ typedef struct
 #define RDA_FLASH_BASE        (0x14000000UL)
 #define RDA_ICACHE_BASE       (0x18000000UL)
 #if (0 == RDA_PARTITION_INDEX)
-#define RDA_PADDR_OFST        (0x00001000UL)
+#define RDA_PADDR_OFST        (0x00001000UL)//(0x00004000UL)
 #elif (1 == RDA_PARTITION_INDEX)
 #define RDA_PADDR_OFST        (0x0007E000UL)
 #else
@@ -538,6 +554,7 @@ typedef struct
 #define RDA_MEMC_BASE         (RDA_AHB1_BASE + 0x00000)
 #define RDA_UART1_BASE        (RDA_AHB1_BASE + 0x80000)
 #define RDA_DMACFG_BASE       (RDA_AHB1_BASE + 0x81000)
+#define RDA_RNG_BASE          (RDA_AHB1_BASE + 0x81100)
 
 /* EXIF peripherals                                                           */
 #define RDA_SPI0_BASE         (RDA_EXIF_BASE + 0x00000)
@@ -566,6 +583,8 @@ typedef struct
 #define RDA_PINCFG            ((RDA_PINCFG_TypeDef    *) RDA_PINCFG_BASE   )
 #define RDA_DMACFG            ((RDA_DMACFG_TypeDef    *) RDA_DMACFG_BASE   )
 #define RDA_USB               ((RDA_USB_TypeDef       *) RDA_USB_BASE      )
+#define RDA_RNG               ((RDA_RNG_TypeDef       *) RDA_RNG_BASE      )
+
 
 #ifdef USE_STDPERIPH_DRIVER
  // #include "rda5981_conf.h"
