@@ -235,7 +235,7 @@ void ethernetif_recv(struct netif *netif, int total_len)
 	// Copy received packet to scatter list from wrapper rx skb
   	//printf("\n\rwlan:%c: Recv sg_len: %d, tot_len:%d", netif->name[1],sg_len, total_len);
 #if CONFIG_WLAN
-    if (sg_len >= sizeof(sg_list)) {
+    if (sg_len >= MAX_ETH_DRV_SG) {
         return;
     }
 
