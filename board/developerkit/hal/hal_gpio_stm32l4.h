@@ -163,16 +163,17 @@
 #define HAL_GPIO_127               ((uint8_t)127)      /* represent GPIOH pin 15 */
 
 #define ALS_INT                    HAL_GPIO_15
+#define ALS_LED                    HAL_GPIO_22
 #define AUDIO_CTL                  HAL_GPIO_53
 #define AUDIO_RST                  HAL_GPIO_54
 #define AUDIO_WU                   HAL_GPIO_52
 #define CAM_PD                     HAL_GPIO_77
 #define CAM_RST                    HAL_GPIO_24
+#define COMPASS_LED                HAL_GPIO_63
+#define GS_LED                     HAL_GPIO_67
+#define HTS_LED                    HAL_GPIO_59
 #define IR_IN                      HAL_GPIO_73
 #define IR_OUT                     HAL_GPIO_25
-#define LED_1                      HAL_GPIO_22
-#define LED_2                      HAL_GPIO_67
-#define LED_3                      HAL_GPIO_63
 #define KEY_1                      HAL_GPIO_75
 #define KEY_2                      HAL_GPIO_78
 #define KEY_3                      HAL_GPIO_74
@@ -180,6 +181,7 @@
 #define LCD_PWR                    HAL_GPIO_71
 #define LCD_RST                    HAL_GPIO_18
 #define PCIE_RST                   HAL_GPIO_45
+#define PS_LED                     HAL_GPIO_62
 #define SECURE_CLK                 HAL_GPIO_79
 #define SECURE_IO                  HAL_GPIO_0
 #define SECURE_RST                 HAL_GPIO_1

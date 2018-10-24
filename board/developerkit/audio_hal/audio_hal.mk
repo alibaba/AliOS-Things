@@ -1,8 +1,8 @@
 NAME := audio_hal
 
-$(NAME)_SOURCES := isd9160.c audio.c crc16.c
+$(NAME)_SOURCES := isd9160.c audio.c
 
-$(NAME)_COMPONENTS := 3rdparty.experimental.fs.fatfs
+$(NAME)_COMPONENTS := digest_algorithm 3rdparty.experimental.fs.fatfs
 
 GLOBAL_INCLUDES += include
 
