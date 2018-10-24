@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "iot_import_dtls.h"
+#include "iot_import.h"
 #ifdef COAP_DTLS_SUPPORT
 #include "mbedtls/ssl.h"
 #include "mbedtls/platform.h"

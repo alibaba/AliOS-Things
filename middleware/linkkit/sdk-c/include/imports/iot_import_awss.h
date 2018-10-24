@@ -27,7 +27,7 @@ extern "C" {
  * @return  超时时长, 单位是毫秒
  * @note    推荐时长是60,0000毫秒
  */
-int HAL_Awss_Get_Timeout_Interval_Ms(void);
+DLL_HAL_API int HAL_Awss_Get_Timeout_Interval_Ms(void);
 
 /**
  * @brief   获取在每个信道(`channel`)上扫描的时间长度, 单位是毫秒
@@ -35,7 +35,7 @@ int HAL_Awss_Get_Timeout_Interval_Ms(void);
  * @return  时间长度, 单位是毫秒
  * @note    推荐时长是200毫秒到400毫秒
  */
-int HAL_Awss_Get_Channelscan_Interval_Ms(void);
+DLL_HAL_API int HAL_Awss_Get_Channelscan_Interval_Ms(void);
 
 /* link type */
 enum AWSS_LINK_TYPE {
@@ -81,12 +81,12 @@ typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
  *
  * @param[in] cb @n A function pointer, called back when wifi receive a frame.
  */
-void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb);
+DLL_HAL_API void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb);
 
 /**
  * @brief   设置Wi-Fi网卡离开监听(Monitor)模式, 并开始以站点(Station)模式工作
  */
-void HAL_Awss_Close_Monitor(void);
+DLL_HAL_API void HAL_Awss_Close_Monitor(void);
 
 /**
  * @brief   设置Wi-Fi网卡切换到指定的信道(channel)上
@@ -97,7 +97,7 @@ void HAL_Awss_Close_Monitor(void);
  * @param[in] bssid @n A pointer to wifi BSSID on which awss lock the channel, most HAL
  *              may ignore it.
  */
-void HAL_Awss_Switch_Channel(
+DLL_HAL_API void HAL_Awss_Switch_Channel(
             _IN_ char primary_channel,
             _IN_OPT_ char secondary_channel,
             _IN_OPT_ uint8_t bssid[ETH_ALEN]);
@@ -146,7 +146,7 @@ enum AWSS_ENC_TYPE {
  *      If the STA connects the old AP, HAL should disconnect from the old AP firstly.
  *      If bssid specifies the dest AP, HAL should use bssid to connect dest AP.
  */
-int HAL_Awss_Connect_Ap(
+DLL_HAL_API int HAL_Awss_Connect_Ap(
             _IN_ uint32_t connection_timeout_ms,
             _IN_ char ssid[HAL_MAX_SSID_LEN],
             _IN_ char passwd[HAL_MAX_PASSWD_LEN],
@@ -186,8 +186,8 @@ typedef enum HAL_Awss_Frame_Type {
  * @see None.
  * @note awss use this API send raw frame in wifi monitor mode & station mode
  */
-int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
-                                  _IN_ uint8_t *buffer, _IN_ int len);
+DLL_HAL_API int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
+        _IN_ uint8_t *buffer, _IN_ int len);
 
 /**
  * @brief   管理帧的处理回调函数
@@ -222,7 +222,7 @@ typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *buffer, _IN_ int len,
  * @see None.
  * @note awss use this API to filter specific mgnt frame in wifi station mode
  */
-int HAL_Wifi_Enable_Mgmt_Frame_Filter(
+DLL_HAL_API int HAL_Wifi_Enable_Mgmt_Frame_Filter(
             _IN_ uint32_t filter_mask,
             _IN_OPT_ uint8_t vendor_oui[3],
             _IN_ awss_wifi_mgmt_frame_cb_t callback);
@@ -275,7 +275,7 @@ typedef int (*awss_wifi_scan_result_cb_t)(
  *      ...
  *      HAL_Wifi_Scan() exit...
  */
-int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);
+DLL_HAL_API int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);
 
 /**
  * @brief   获取所连接的热点(Access Point)的信息
@@ -292,7 +292,7 @@ int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);
  * @note
  *     If the STA dosen't connect AP successfully, HAL should return -1 and not touch the ssid/passwd/bssid buffer.
  */
-int HAL_Wifi_Get_Ap_Info(
+DLL_HAL_API int HAL_Wifi_Get_Ap_Info(
             _OU_ char ssid[HAL_MAX_SSID_LEN],
             _OU_ char passwd[HAL_MAX_PASSWD_LEN],
             _OU_ uint8_t bssid[ETH_ALEN]);
@@ -313,7 +313,7 @@ int HAL_Wifi_Get_Ap_Info(
    @endverbatim
  * @see None.
  */
-int HAL_Awss_Get_Encrypt_Type(void);
+DLL_HAL_API int HAL_Awss_Get_Encrypt_Type(void);
 
 /**
  * @brief    Get Security level for wifi configuration with connection.
@@ -329,7 +329,7 @@ int HAL_Awss_Get_Encrypt_Type(void);
    @endverbatim
  * @see None.
  */
-int HAL_Awss_Get_Conn_Encrypt_Type(void);
+DLL_HAL_API int HAL_Awss_Get_Conn_Encrypt_Type(void);
 
 #ifdef __cplusplus
 }
