@@ -284,7 +284,7 @@ int rda_ccfg_boot(void)
     if(!abort_flag) {
         rda_ccfg_pdi2c();
     }
-    //rda_ccfg_ck();
+    rda_ccfg_ck();
 #endif /* RDA5991H_HW_VER */
     /* Set flash clock */
     rda_ccfg_spifck();

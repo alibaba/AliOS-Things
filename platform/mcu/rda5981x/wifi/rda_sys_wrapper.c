@@ -57,6 +57,7 @@ r_s32 rda_alarm_delete(r_void *handle)
 {
     if (NULL != handle) {
         aos_timer_free((aos_timer_t *)handle);
+        r_free(handle);
         handle = NULL;
         return  NO_ERR;
     } else {
@@ -144,6 +145,7 @@ r_s32 rda_sem_delete(r_void *sem)
     if ((sem != NULL)) {
         aos_sem_free((aos_sem_t *)sem);
         r_free(sem);
+        sem = NULL;
         return NO_ERR;
     } else {
         return ERR;
