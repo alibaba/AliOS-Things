@@ -5,6 +5,6 @@ HDR_REFS    += src/infra
 LIB_SRC_PATTERN := *.c */*.c
 
 define Extra_CMake_Head
-    echo 'ADD_DEFINITIONS (-DDLL_API_EXPORTS)' $(1)
+    echo 'ADD_DEFINITIONS (-DDLL_TLS_EXPORTS)' $(1)
     echo '' $(1)
 endef

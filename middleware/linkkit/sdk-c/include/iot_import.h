@@ -8,6 +8,16 @@
 extern "C" {
 #endif
 
+#ifdef _WIN32
+#ifdef DLL_HAL_EXPORTS
+#define DLL_HAL_API __declspec(dllexport)
+#else
+#define DLL_HAL_API __declspec(dllimport)
+#endif
+#else
+#define DLL_HAL_API
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
@@ -50,7 +60,7 @@ extern "C" {
  * @see None.
  * @note None.
  */
-void *HAL_MutexCreate(void);
+DLL_HAL_API void *HAL_MutexCreate(void);
 
 /**
  * @brief Destroy the specified mutex object, it will release related resource.
@@ -60,7 +70,7 @@ void *HAL_MutexCreate(void);
  * @see None.
  * @note None.
  */
-void HAL_MutexDestroy(_IN_ void *mutex);
+DLL_HAL_API void HAL_MutexDestroy(_IN_ void *mutex);
 
 
 
@@ -72,7 +82,7 @@ void HAL_MutexDestroy(_IN_ void *mutex);
  * @see None.
  * @note None.
  */
-void HAL_MutexLock(_IN_ void *mutex);
+DLL_HAL_API void HAL_MutexLock(_IN_ void *mutex);
 
 /**
  * @brief Releases ownership of the specified mutex object..
@@ -82,7 +92,7 @@ void HAL_MutexLock(_IN_ void *mutex);
  * @see None.
  * @note None.
  */
-void HAL_MutexUnlock(_IN_ void *mutex);
+DLL_HAL_API void HAL_MutexUnlock(_IN_ void *mutex);
 
 #define PLATFORM_WAIT_INFINITE (~0)
 
@@ -122,7 +132,7 @@ typedef struct _hal_os_thread {
  * @see None.
  * @note None.
  */
-int HAL_ThreadCreate(
+DLL_HAL_API int HAL_ThreadCreate(
             _OU_ void **thread_handle,
             _IN_ void *(*work_routine)(void *),
             _IN_ void *arg,
@@ -137,7 +147,7 @@ int HAL_ThreadCreate(
  * @see None.
  * @note None.
  */
-void HAL_ThreadDetach(_IN_ void *thread_handle);
+DLL_HAL_API void HAL_ThreadDetach(_IN_ void *thread_handle);
 
 /**
  * @brief   杀死指定的线程
@@ -147,7 +157,7 @@ void HAL_ThreadDetach(_IN_ void *thread_handle);
  * @see None.
  * @note None.
  */
-void HAL_ThreadDelete(_IN_ void *thread_handle);
+DLL_HAL_API void HAL_ThreadDelete(_IN_ void *thread_handle);
 
 /**
  * @brief   创建一个计数信号量
@@ -156,7 +166,7 @@ void HAL_ThreadDelete(_IN_ void *thread_handle);
  * @see None.
  * @note The recommended value of maximum count of the semaphore is 255.
  */
-void *HAL_SemaphoreCreate(void);
+DLL_HAL_API void *HAL_SemaphoreCreate(void);
 
 /**
  * @brief   销毁一个计数信号量, 回收其所占用的资源
@@ -166,7 +176,7 @@ void *HAL_SemaphoreCreate(void);
  * @see None.
  * @note None.
  */
-void HAL_SemaphoreDestroy(_IN_ void *sem);
+DLL_HAL_API void HAL_SemaphoreDestroy(_IN_ void *sem);
 
 /**
  * @brief   在指定的计数信号量上做自减操作并等待
@@ -182,7 +192,7 @@ void HAL_SemaphoreDestroy(_IN_ void *sem);
  * @see None.
  * @note None.
  */
-int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms);
+DLL_HAL_API int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms);
 
 /**
  * @brief   在指定的计数信号量上做自增操作, 解除其它线程的等待
@@ -192,7 +202,7 @@ int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms);
  * @see None.
  * @note None.
  */
-void HAL_SemaphorePost(_IN_ void *sem);
+DLL_HAL_API void HAL_SemaphorePost(_IN_ void *sem);
 
 /** @} */ /* end of platform_mutex */
 
@@ -209,7 +219,7 @@ void HAL_SemaphorePost(_IN_ void *sem);
  * @see None.
  * @note Block value is indeterminate.
  */
-void *HAL_Malloc(_IN_ uint32_t size);
+DLL_HAL_API void *HAL_Malloc(_IN_ uint32_t size);
 
 /**
  * @brief Changes the size of the memory block pointed to by ptr to size bytes.
@@ -220,7 +230,7 @@ void *HAL_Malloc(_IN_ uint32_t size);
  * @see None.
  * @note Block value is indeterminate.
  */
-void *HAL_Realloc(_IN_ void *ptr, _IN_ uint32_t size);
+DLL_HAL_API void *HAL_Realloc(_IN_ void *ptr, _IN_ uint32_t size);
 
 /**
  * @brief Allocates memory for an array of nmemb elements of size bytes each and returns a pointer to the allocated memory.
@@ -231,7 +241,7 @@ void *HAL_Realloc(_IN_ void *ptr, _IN_ uint32_t size);
  * @see None.
  * @note Block value is indeterminate.
  */
-void *HAL_Calloc(_IN_ uint32_t nmemb, _IN_ uint32_t size);
+DLL_HAL_API void *HAL_Calloc(_IN_ uint32_t nmemb, _IN_ uint32_t size);
 
 /**
  * @brief Deallocate memory block
@@ -241,7 +251,7 @@ void *HAL_Calloc(_IN_ uint32_t nmemb, _IN_ uint32_t size);
  * @see None.
  * @note None.
  */
-void HAL_Free(_IN_ void *ptr);
+DLL_HAL_API void HAL_Free(_IN_ void *ptr);
 
 
 /** @} */ /* end of platform_memory_manage */
@@ -257,7 +267,7 @@ void HAL_Free(_IN_ void *ptr);
  * @see None.
  * @note None.
  */
-uint64_t HAL_UptimeMs(void);
+DLL_HAL_API uint64_t HAL_UptimeMs(void);
 
 /**
  * @brief Retrieves the timer string.
@@ -268,7 +278,7 @@ uint64_t HAL_UptimeMs(void);
  * @see None.
  * @note None.
  */
-char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len);
+DLL_HAL_API char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len);
 
 /**
  * @brief Sleep thread itself.
@@ -278,7 +288,7 @@ char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len);
  * @see None.
  * @note None.
  */
-void HAL_SleepMs(_IN_ uint32_t ms);
+DLL_HAL_API void HAL_SleepMs(_IN_ uint32_t ms);
 
 /**
  * @brief Set seed for a sequence of pseudo-random integers, which will be returned by HAL_Random()
@@ -288,7 +298,7 @@ void HAL_SleepMs(_IN_ uint32_t ms);
  * @see None.
  * @note None.
  */
-void HAL_Srandom(_IN_ uint32_t seed);
+DLL_HAL_API void HAL_Srandom(_IN_ uint32_t seed);
 
 /**
  * @brief Get a random integer
@@ -298,7 +308,7 @@ void HAL_Srandom(_IN_ uint32_t seed);
  * @see None.
  * @note None.
  */
-uint32_t HAL_Random(_IN_ uint32_t region);
+DLL_HAL_API uint32_t HAL_Random(_IN_ uint32_t region);
 
 /**
  * @brief Writes formatted data to stream.
@@ -310,7 +320,7 @@ uint32_t HAL_Random(_IN_ uint32_t region);
  * @see None.
  * @note None.
  */
-void HAL_Printf(_IN_ const char *fmt, ...);
+DLL_HAL_API void HAL_Printf(_IN_ const char *fmt, ...);
 
 /**
  * @brief Writes formatted data to string.
@@ -324,7 +334,7 @@ void HAL_Printf(_IN_ const char *fmt, ...);
  * @see None.
  * @note None.
  */
-int HAL_Snprintf(_OU_ char *str, _IN_ const int len, _IN_ const char *fmt, ...);
+DLL_HAL_API int HAL_Snprintf(_OU_ char *str, _IN_ const int len, _IN_ const char *fmt, ...);
 
 /**
  * @brief Writes formatted data to string.
@@ -337,7 +347,7 @@ int HAL_Snprintf(_OU_ char *str, _IN_ const int len, _IN_ const char *fmt, ...);
  * @see None.
  * @note None.
  */
-int HAL_Vsnprintf(_OU_ char *str, _IN_ const int len, _IN_ const char *fmt, _IN_ va_list ap);
+DLL_HAL_API int HAL_Vsnprintf(_OU_ char *str, _IN_ const int len, _IN_ const char *fmt, _IN_ va_list ap);
 
 /** @} */ /* end of group_platform_other */
 
@@ -360,7 +370,7 @@ typedef struct _network_addr_t {
  * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
  * @return  指向缓冲区数组起始位置的字符指针
  */
-char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
+DLL_HAL_API char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
 
 /**
  * @brief   获取Wi-Fi网口的IP地址, 点分十进制格式保存在字符串数组出参, 二进制格式则作为返回值, 并以网络字节序(大端)表达
@@ -369,7 +379,7 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
  * @param   ip_str : 存放点分十进制格式的IP地址字符串的数组
  * @return  二进制形式的IP地址, 以网络字节序(大端)组织
  */
-uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[NETWORK_ADDR_LEN], _IN_ const char *ifname);
+DLL_HAL_API uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[NETWORK_ADDR_LEN], _IN_ const char *ifname);
 
 /**
  * @brief check system network is ready(get ip address) or not.
@@ -379,7 +389,7 @@ uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[NETWORK_ADDR_LEN], _IN_ const char *if
  * @see None.
  * @note None.
  */
-int HAL_Sys_Net_Is_Ready();
+DLL_HAL_API int HAL_Sys_Net_Is_Ready();
 
 /**
  * @brief reboot system immediately.
@@ -389,16 +399,16 @@ int HAL_Sys_Net_Is_Ready();
  * @see None.
  * @note None.
  */
-void    HAL_Reboot(void);
+DLL_HAL_API void    HAL_Reboot(void);
 
-int     HAL_Kv_Set(const char *key, const void *val, int len, int sync);
-int     HAL_Kv_Get(const char *key, void *buffer, int *buffer_len);
-int     HAL_Kv_Del(const char *key);
+DLL_HAL_API int     HAL_Kv_Set(const char *key, const void *val, int len, int sync);
+DLL_HAL_API int     HAL_Kv_Get(const char *key, void *buffer, int *buffer_len);
+DLL_HAL_API int     HAL_Kv_Del(const char *key);
 
-void   *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data);
-int     HAL_Timer_Start(void *t, int ms);
-int     HAL_Timer_Stop(void *t);
-int     HAL_Timer_Delete(void *timer);
+DLL_HAL_API void   *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data);
+DLL_HAL_API int     HAL_Timer_Start(void *t, int ms);
+DLL_HAL_API int     HAL_Timer_Stop(void *t);
+DLL_HAL_API int     HAL_Timer_Delete(void *timer);
 
 /**
  * @brief Set the UTC time in milliseconds.
@@ -408,7 +418,7 @@ int     HAL_Timer_Delete(void *timer);
  * @see None.
  * @note None.
  */
-void HAL_UTC_Set(long long ms);
+DLL_HAL_API void HAL_UTC_Set(long long ms);
 
 /**
  * @brief Get the UTC time in milliseconds.
@@ -418,12 +428,12 @@ void HAL_UTC_Set(long long ms);
  * @see None.
  * @note None.
  */
-long long HAL_UTC_Get(void);
+DLL_HAL_API long long HAL_UTC_Get(void);
 
 typedef enum {
     HAL_SEEK_SET,
     HAL_SEEK_CUR,
-    HAL_SEEK_END   
+    HAL_SEEK_END
 } hal_fs_seek_type_t;
 
 /**
@@ -431,15 +441,15 @@ typedef enum {
  *  with a stream that can be identified in future operations by the void pointer returned.
  *
  * @param [in] path: @n The file path to open.With reference to fopen
- * @param [in] mode: @n C string containing a file access mode. 
- * @return If the file is successfully opened, the function returns a pointer to void object that can be used to 
+ * @param [in] mode: @n C string containing a file access mode.
+ * @return If the file is successfully opened, the function returns a pointer to void object that can be used to
  * identify the stream on future operations.Otherwise, a null pointer is returned.
  * @see None.
  * @note None.
  */
-void *HAL_Fopen(const char *path, const char *mode);
+DLL_HAL_API void *HAL_Fopen(const char *path, const char *mode);
 /**
- * @brief Reads an array of count elements, each one with a size of size bytes, from the stream and 
+ * @brief Reads an array of count elements, each one with a size of size bytes, from the stream and
  * stores them in the block of memory specified by ptr.
  *
  * @param [in] buff: @n Pointer to a block of memory with a size of at least (size*count) bytes, converted to a void*.
@@ -450,10 +460,10 @@ void *HAL_Fopen(const char *path, const char *mode);
  * @see None.
  * @note None.
  */
-size_t HAL_Fread(void * buff,size_t size, size_t count, void *stream);
+DLL_HAL_API size_t HAL_Fread(void *buff, size_t size, size_t count, void *stream);
 
 /**
- * @brief Writes an array of count elements, each one with a size of size bytes, from the block of memory pointed 
+ * @brief Writes an array of count elements, each one with a size of size bytes, from the block of memory pointed
  * by ptr to the current position in the stream.
  *
  * @param [in] ptr: @n Pointer to the array of elements to be written, converted to a const void*.
@@ -464,7 +474,7 @@ size_t HAL_Fread(void * buff,size_t size, size_t count, void *stream);
  * @see None.
  * @note None.
  */
-size_t HAL_Fwrite(const void * ptr, size_t size, size_t count, void * stream);
+DLL_HAL_API size_t HAL_Fwrite(const void *ptr, size_t size, size_t count, void *stream);
 
 /**
  * @brief Sets the position indicator associated with the stream to a new position.
@@ -472,34 +482,34 @@ size_t HAL_Fwrite(const void * ptr, size_t size, size_t count, void * stream);
  * @param [in] stream: @n Pointer to void that identifies the stream.
  * @param [in] offset: @n Binary files: Number of bytes to offset from origin.
  * @param [in] origin: @n Position used as reference for the offset. It is specified by one of value enum in hal_fs_seek_type_t.
- * 
+ *
  * @return If successful, the function returns zero.Otherwise, it returns non-zero value.
  * @see None.
  * @note None.
  */
-int HAL_Fseek(void *stream,long offset,int origin);
+DLL_HAL_API int HAL_Fseek(void *stream, long offset, int origin);
 
 /**
  * @brief Closes the file associated with the stream and disassociates it.
  *
  * @param [in] stream: @n Pointer to void that identifies the stream.
- * 
+ *
  * @return If the stream is successfully closed, a zero value is returned.On failure, non-zero is returned.
  * @see None.
  * @note None.
  */
-int HAL_Fclose(FILE *stream);
+DLL_HAL_API int HAL_Fclose(FILE *stream);
 
 /**
  * @brief Returns the current value of the position indicator of the stream.
  *
  * @param [in] stream: @n Pointer to void that identifies the stream.
- * 
+ *
  * @return On success, the current value of the position indicator is returned.On failure, -1L is returned.
  * @see None.
  * @note None.
  */
-long HAL_Ftell(void *stream);
+DLL_HAL_API long HAL_Ftell(void *stream);
 
 #include "iot_export.h"
 #include "imports/iot_import_config.h"
