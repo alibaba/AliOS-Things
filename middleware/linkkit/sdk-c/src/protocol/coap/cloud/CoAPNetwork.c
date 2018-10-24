@@ -159,7 +159,7 @@ unsigned int Cloud_CoAPNetwork_init(const coap_network_init_t *p_param, coap_net
     if (COAP_ENDPOINT_NOSEC == p_param->ep_type
             || COAP_ENDPOINT_PSK == p_param->ep_type) {
         /*Create udp socket*/
-        p_network->context = (void *)HAL_UDP_create_without_connect(p_param->p_host, p_param->port);
+        p_network->context = (void *)HAL_UDP_create(p_param->p_host, p_param->port);
         if ((void *) - 1 == p_network->context) {
             return COAP_ERROR_NET_INIT_FAILED;
         }
