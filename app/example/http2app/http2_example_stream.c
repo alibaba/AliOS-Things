@@ -333,7 +333,13 @@ static int http2_stream_test()
     if(handle == NULL) {
         return -1;
     }
-
+    header_ext_info_t my_header_info = {
+        { 
+            MAKE_HEADER("test_name", "test_http2_header"),
+            MAKE_HEADER_CS("hello", "world"),
+        },
+        2
+    };
     stream_data_info_t info_upload, info_download;
     memset(&info_upload,0,sizeof(stream_data_info_t));
     info_upload.stream = (char *)UPLOAD_STRING;
@@ -345,7 +351,7 @@ static int http2_stream_test()
     memset(&info_download, 0, sizeof(stream_data_info_t));
     info_download.identify = "iotx/vision/voice/intercom/live";
 
-    ret = IOT_HTTP2_Stream_Open(handle, &info_download, NULL);
+    ret = IOT_HTTP2_Stream_Open(handle, &info_download, &my_header_info);
     if (ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_downstream_open failed %d!!!!!\n", ret);
         IOT_HTTP2_Stream_Disconnect(handle);
@@ -359,7 +365,7 @@ static int http2_stream_test()
         return -1; 
     }
 
-    ret = IOT_HTTP2_Stream_Open(handle, &info_upload, NULL);
+    ret = IOT_HTTP2_Stream_Open(handle, &info_upload, &my_header_info);
     if(ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_upstream_open failed %d!!!!!\n", ret);
         IOT_HTTP2_Stream_Disconnect(handle);
