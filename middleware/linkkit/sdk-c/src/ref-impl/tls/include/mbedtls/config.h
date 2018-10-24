@@ -7,12 +7,12 @@
 
 #ifdef _WIN32
     #ifdef DLL_TLS_EXPORTS
-        #define DLL_EXPORT_API __declspec(dllexport)
+        #define DLL_TLS_API __declspec(dllexport)
     #else
-        #define DLL_EXPORT_API __declspec(dllimport)
+        #define DLL_TLS_API __declspec(dllimport)
     #endif
 #else
-    #define DLL_EXPORT_API
+    #define DLL_TLS_API
 #endif
 
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_DEPRECATE)
