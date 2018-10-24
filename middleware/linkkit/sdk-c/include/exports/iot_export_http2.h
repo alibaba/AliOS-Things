@@ -46,13 +46,7 @@ typedef struct {
 typedef struct http2_connection {
     void           *network;       /* iot network ptr */
     void           *session;       /* http2 session */
-    char           *file_id;       /* file id length */
-    char           *buffer;        /* receive buffer */
-    int            buffer_len;     /* receive buffer length */
-    int            *len;           /* receive data length */
     int            flag;           /* check the stream is end or not */
-    char           *statuscode;    /* receive response for check is correct */
-    char           *store_id;      /* store file id */
     int            status;
     http2_user_cb_t *cbs;
 } http2_connection_t;

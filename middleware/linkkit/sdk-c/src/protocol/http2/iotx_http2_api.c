@@ -14,8 +14,7 @@
 #include "iotx_utils.h"
 #include "h2_debug.h"
 #include "iot_export_http2.h"
-#include "iot_export.h"
-#include "utils_httpc.h"
+
 
 #define MAX_HTTP2_HOST_LEN                   (128)
 
@@ -237,7 +236,7 @@ static int on_frame_recv_callback(nghttp2_session *session,
 *              and `nghttp2_session_mem_send()` functions immediately return :enum:
 *              `NGHTTP2_ERR_CALLBACK_FAILURE`.
  */
-static int on_stream_close_callback(nghttp2_session *session, int32_t stream_id,
+static int on_h2_stream_close_callback(nghttp2_session *session, int32_t stream_id,
                                     uint32_t error_code,
                                     void *user_data)
 {
@@ -284,7 +283,6 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
                                        void *user_data)
 {
     http2_request *req;
-    int rlen = 0;
     http2_connection_t *connection = (http2_connection_t *)user_data;
 
     if (connection == NULL) {
@@ -298,14 +296,6 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
     NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk) stream_id [%d]\n" "%lu bytes\n", stream_id, (unsigned long int)len);
     NGHTTP2_DBG("data chunk: %s\n", data);
 
-    rlen = connection->buffer_len;
-    if (len < rlen) {
-        rlen = len;
-    }
-    if (connection->buffer != NULL) {
-        memcpy(connection->buffer, data, rlen);
-        *(connection->len) = rlen;
-    }
     if (connection->cbs && connection->cbs->on_user_chunk_recv_cb) {
         connection->cbs->on_user_chunk_recv_cb(stream_id, data, len, flags);
     }
@@ -350,16 +340,6 @@ static int on_header_callback(nghttp2_session *session,
                 http2_connection_t *connection  = (http2_connection_t *)user_data;
                 /* Print response headers for the initiated request. */
                 NGHTTP2_DBG("< %s: %s\n", name, value);
-
-                if (strncmp((char *)name, "x-file-upload-id", (int)namelen) == 0 &&  connection->file_id[0] == '\0') {
-                    strncpy(connection->file_id, (char *)value, (int)valuelen);
-                }
-                if (strncmp((char *)name, ":status", (int)namelen) == 0) {
-                    strncpy(connection->statuscode, (char *)value, (int)valuelen);
-                }
-                if (strncmp((char *)name, "x-file-store-id", (int)namelen) == 0 && connection->store_id[0] == '\0') {
-                    strncpy(connection->store_id, (char *)value, (int)valuelen);
-                }
 
                 if (connection->cbs && connection->cbs->on_user_header_cb) {
                     connection->cbs->on_user_header_cb(frame->hd.stream_id, (int)frame->headers.cat, name, namelen, value, valuelen, flags);
@@ -417,7 +397,7 @@ static void setup_nghttp2_callbacks(nghttp2_session_callbacks *callbacks)
             on_frame_recv_callback);
 
     nghttp2_session_callbacks_set_on_stream_close_callback(
-                callbacks, on_stream_close_callback);
+                callbacks, on_h2_stream_close_callback);
 
     nghttp2_session_callbacks_set_on_data_chunk_recv_callback(
                 callbacks, on_data_chunk_recv_callback);
@@ -472,44 +452,7 @@ static int http2_nv_copy_nghttp2_nv(nghttp2_nv *nva, int start, http2_header *nv
     return i;
 }
 
-/**
-* @brief         Pares URL to host.
-* @param[in]     url: destination url.
-* @param[in]     host. destination host.
-* @param[in]     maxHostLen: Maximun length of host.
-* @return        None.
-*/
-#if 0
-static int http2_parse_host(char *url, char *host, size_t maxHostLen)   //Parse URL
-{
-    size_t hostLen = 0;
-    char *hostPtr = NULL;
-    char *pathPtr = NULL;
 
-    hostPtr = (char *) strstr(url, "://");
-    if (hostPtr == NULL) {
-        NGHTTP2_DBG("Could not find host");
-        return 0; /*URL is invalid*/
-    }
-    hostPtr += 3;
-
-    pathPtr = strchr(hostPtr, '/');
-    if (pathPtr == NULL) {
-        int len = strlen(url);
-        hostLen = len - 3;
-    } else {
-        hostLen = pathPtr - hostPtr;
-    }
-    if (maxHostLen < hostLen + 1) {  /*including NULL-terminating char*/
-        NGHTTP2_DBG("Host str is too small (%d >= %d)", (int)maxHostLen, (int)hostLen + 1);
-        return 0;
-    }
-    memcpy(host, hostPtr, hostLen);
-    host[hostLen] = '\0';
-
-    return 1;
-}
-#endif
 /**
 * @brief          Connect the SSL client.
 * @param[in]      pclient: http client.
@@ -594,9 +537,6 @@ int iotx_http2_client_recv(http2_connection_t *conn, char *data, int data_len, i
     if (conn == NULL) {
         return -1;
     }
-    conn->buffer = data;
-    conn->len = len;
-    conn->buffer_len = data_len;
 
     set_http2_recv_timeout(timeout);
     read_flag = nghttp2_session_want_read(conn->session);
