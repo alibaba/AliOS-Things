@@ -167,7 +167,7 @@ done)
         \$(CFLAGS) \\
         \$(filter-out %.a,\$^) \\
         -L${OUTPUT_DIR}/usr/lib \\
-        ${LFLAGS}
+        ${LFLAGS} $( if [ "${i}" = "sdk-testsuites" ]; then echo "-lcurl"; fi )
 
 EOB
 done

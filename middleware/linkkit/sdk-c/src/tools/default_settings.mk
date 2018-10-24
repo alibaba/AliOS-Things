@@ -28,6 +28,7 @@ EXTRA_INCLUDE_DIRS  := \
     src/ref-impl/tls \
     src/security/pro \
     src/tools/linkkit_tsl_convert/include \
+    tests/external/utils \
     build-rules \
     src/ref-impl/hal \
 
