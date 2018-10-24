@@ -145,6 +145,10 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
     passwd_check_utf8(in + 1 + ssid_len, &passwd_len);
     cal_crc = zconfig_checksum_v3(in, 1 + ssid_len + passwd_len);
     if (crc != cal_crc) {
+        memset(zc_android_src, 0, sizeof(zconfig_data->android_src));
+        memset(zc_pre_ssid, 0, sizeof(zconfig_data->android_pre_ssid));
+        memset(zc_android_ssid, 0, sizeof(zconfig_data->android_ssid));
+        memset(zc_android_bssid, 0, sizeof(zconfig_data->android_bssid));
         awss_debug("wps crc check error: recv 0x%x != 0x%x\r\n", crc, cal_crc);
         awss_event_post(AWSS_CS_ERR);
         /*
@@ -197,7 +201,12 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
             aes_decrypt_string((char *)passwd_cipher, (char *)tmp_passwd, passwd_len, os_get_encrypt_type(), 0);
             os_free(passwd_cipher);
             if (is_utf8((const char *)tmp_passwd, passwd_len) == 0) {
-                memset(zconfig_data, 0, sizeof(*zconfig_data));
+                //memset(zconfig_data, 0, sizeof(*zconfig_data));
+                memset(zc_android_src, 0, sizeof(zconfig_data->android_src));
+                memset(zc_pre_ssid, 0, sizeof(zconfig_data->android_pre_ssid));
+                memset(zc_android_ssid, 0, sizeof(zconfig_data->android_ssid));
+                memset(zc_android_bssid, 0, sizeof(zconfig_data->android_bssid));
+
                 awss_warn("p2p decrypt passwd content err\r\n");
                 awss_event_post(AWSS_PASSWD_ERR);
                 return GOT_NOTHING;
