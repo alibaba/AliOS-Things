@@ -41,7 +41,7 @@ extern "C" {
 /**
  * \brief           Platform-specific entropy poll callback
  */
-int mbedtls_platform_entropy_poll( void *data,
+DLL_EXPORT_API int mbedtls_platform_entropy_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen );
 #endif
 
@@ -51,7 +51,7 @@ int mbedtls_platform_entropy_poll( void *data,
  *
  * Requires an HAVEGE state as its data pointer.
  */
-int mbedtls_havege_poll( void *data,
+DLL_EXPORT_API int mbedtls_havege_poll( void *data,
                  unsigned char *output, size_t len, size_t *olen );
 #endif
 
@@ -59,7 +59,7 @@ int mbedtls_havege_poll( void *data,
 /**
  * \brief           mbedtls_timing_hardclock-based entropy poll callback
  */
-int mbedtls_hardclock_poll( void *data,
+DLL_EXPORT_API int mbedtls_hardclock_poll( void *data,
                     unsigned char *output, size_t len, size_t *olen );
 #endif
 
@@ -72,7 +72,7 @@ int mbedtls_hardclock_poll( void *data,
  *
  * \note            This must accept NULL as its first argument.
  */
-int mbedtls_hardware_poll( void *data,
+DLL_EXPORT_API int mbedtls_hardware_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen );
 #endif
 
@@ -82,7 +82,7 @@ int mbedtls_hardware_poll( void *data,
  *
  * \note            This must accept NULL as its first argument.
  */
-int mbedtls_nv_seed_poll( void *data,
+DLL_EXPORT_API int mbedtls_nv_seed_poll( void *data,
                           unsigned char *output, size_t len, size_t *olen );
 #endif
 
