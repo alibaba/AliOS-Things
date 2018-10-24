@@ -281,7 +281,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 	obj->I2Cx = I2C_DEV_TABLE[i2c_idx].I2Cx;
 	
 	/* Set I2C Device Number */
-    if (obj->i2c_idx >= sizeof(I2CInitDat)) {
+    if (obj->i2c_idx >= (sizeof(I2CInitDat)/sizeof(I2C_InitTypeDef))) {
         return;
     }
 
