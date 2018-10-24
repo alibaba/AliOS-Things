@@ -247,11 +247,7 @@ end:
     *p_blen = sizeof(rsp);
 
     if (ready_flag & ALL_READY) {
-        ali_event_t event;
-        event.type = BZ_EVENT_APINFO;
-        event.data.rx_data.p_data = &comboinfo;
-        event.data.rx_data.length = sizeof(comboinfo);
-        g_core->event_handler(&event);
+        event_notify(BZ_EVENT_APINFO, &comboinfo, sizeof(comboinfo));
     }
 
     return err_code;

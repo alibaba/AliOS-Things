@@ -125,7 +125,7 @@ void auth_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
     }
 
     if (g_auth.state == AUTH_STATE_DONE) {
-        event_notify(BZ_EVENT_AUTHENTICATED);
+        event_notify(BZ_EVENT_AUTHENTICATED, NULL, 0);
         os_timer_stop(&g_auth.timer);
     } else if (g_auth.state == AUTH_STATE_FAILED) {
         os_timer_stop(&g_auth.timer);
