@@ -357,8 +357,8 @@ void *user_dispatch_yield(void *args)
 }
 
 int linkkit_main(void *paras)
-{
-#ifndef WIFI_PROVISION_ENABLED
+{ 
+#if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
 #endif
     int res = 0;

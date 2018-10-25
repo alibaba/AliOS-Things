@@ -504,13 +504,15 @@ void set_iotx_info()
 
 int linkkit_main(void *paras)
 {
-#ifndef WIFI_PROVISION_ENABLED
-    set_iotx_info();
-#endif
+
     int res = 0;
     uint64_t time_prev_sec = 0, time_now_sec = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     iotx_linkkit_dev_meta_info_t master_meta_info;
+    
+#if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
+    set_iotx_info();
+#endif
 
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
 
