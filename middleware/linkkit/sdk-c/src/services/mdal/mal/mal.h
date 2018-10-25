@@ -37,4 +37,6 @@ typedef struct Client {
     iotx_mqtt_event_handle_t        handle_event;                               /* event handle */
 } iotx_mc_client_t, *iotx_mc_client_pt;
 
+#define iotx_mc_publish mal_mc_publish
+int mal_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg);
 #endif

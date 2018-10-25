@@ -39,11 +39,10 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/os \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/utility \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/awss \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/mal \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/cm \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/ref-impl \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/sal \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/mal \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/mal/ica \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/sal/include \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/sal/include/internal \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota \
@@ -68,8 +67,10 @@ GLOBAL_DEFINES  += \
 #    middleware/linkkit/sdk-c/src/ref-impl/hal
 
 ifeq (y,$(FEATURE_MAL_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/mdal/mal \
-middleware/linkkit/sdk-c/src/services/mdal/ref-impl
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/mdal/mal
+ifeq (y,$(FEATURE_MAL_ICA_ENABLED))
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/mdal/mal/ica
+endif
 endif
 ifeq (y,$(FEATURE_SUPPORT_TLS))
 #$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/ref-impl/tls
