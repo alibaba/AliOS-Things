@@ -706,8 +706,6 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
             /* remove */
             h_ota->cota_url = NULL;
         }
-        h_ota->size_fetched = 0;
-
     }
 
     return ret;
@@ -924,7 +922,10 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
                 }
                 return 0;
             }
-
+        case IOT_OTAG_RESET_FETCHED_SIZE: {
+            h_ota->size_fetched = 0;
+            return 0;
+        }
         default:
             OTA_LOG_ERROR("invalid cmd type");
             h_ota->err = IOT_OTAE_INVALID_PARAM;
