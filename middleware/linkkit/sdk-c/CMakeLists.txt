@@ -32,6 +32,7 @@ ELSE (WIN32)
 ENDIF (WIN32)
 MESSAGE ("---------------------------------------------------------------------")
 
+ADD_DEFINITIONS (-DDLL_IOT_EXPORTS)
 
 ADD_DEFINITIONS (-DALCS_ENABLED)
 ADD_DEFINITIONS (-DALCS_SERVER_ENABLED)
