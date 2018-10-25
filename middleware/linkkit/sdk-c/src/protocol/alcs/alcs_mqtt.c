@@ -285,7 +285,7 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
                 prefix[prefix_len] = 0;
                 back2 = secret[secret_len];
                 secret[secret_len] = 0;
-                alcs_add_svr_key(alcs_mqtt_ctx->coap_ctx, prefix, secret, FROMCLOUDSVR);
+                alcs_add_svr_key(alcs_mqtt_ctx->coap_ctx, prefix, secret);
                 prefix[prefix_len] = back1;
                 secret[secret_len] = back2;
 
@@ -305,9 +305,11 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
                     iotx_alcs_subdev_remove(alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
                     if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_set(ALCS_MQTT_JSON_KEY_PREFIX, prefix, prefix_len, 1)) {
                         COAP_ERR("ALCS KV Set Prefix Fail");
+                        ;
                     }
                     if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_set(ALCS_MQTT_JSON_KEY_SECRET, secret, secret_len, 1)) {
                         COAP_ERR("ALCS KV Set Secret Fail");
+                        ;
                     }
                 }
             }
@@ -315,7 +317,7 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
             if (ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_PREFIX, prefix, &prefix_len) &&
                 ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_SECRET, secret, &secret_len)) {
                 if (NULL != alcs_mqtt_ctx->coap_ctx && prefix_len && secret_len) {
-                    alcs_add_svr_key(alcs_mqtt_ctx->coap_ctx, prefix, secret, FROMCLOUDSVR);
+                    alcs_add_svr_key(alcs_mqtt_ctx->coap_ctx, prefix, secret);
                 }
             }
         }
@@ -502,7 +504,7 @@ alcs_mqtt_status_e alcs_mqtt_deinit(void *handle, char *product_key, char *devic
 void alcs_mqtt_add_srv_key(const char *prefix, const char *secret)
 {
     alcs_mqtt_ctx_t *alcs_mqtt_ctx = __alcs_mqtt_get_ctx();
-    alcs_add_svr_key(alcs_mqtt_ctx->coap_ctx, prefix, secret, FROMCLOUDSVR);
+    alcs_add_svr_key(alcs_mqtt_ctx->coap_ctx, prefix, secret);
 }
 
 alcs_mqtt_status_e alcs_mqtt_blacklist_update(void *ctx)
@@ -543,7 +545,7 @@ alcs_mqtt_status_e alcs_mqtt_prefixkey_update(void *ctx)
         ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_SECRET, secret, &secret_len)) {
         COAP_INFO("The prefix is  %.*s, deviceSecret is %.*s", prefix_len, prefix, secret_len, secret);
         if (prefix_len && secret_len) {
-            alcs_add_svr_key(context, prefix, secret, FROMCLOUDSVR);
+            alcs_add_svr_key(context, prefix, secret);
             return ALCS_MQTT_STATUS_SUCCESS;
         }
     }
