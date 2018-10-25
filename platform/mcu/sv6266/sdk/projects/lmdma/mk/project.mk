@@ -173,22 +173,23 @@ ifeq ($(strip $(ROM_MODE)), 1)
 else
 endif
 
-IMPORT_DIR 		+=  components/drv/common
-IMPORT_DIR 		+=  components/drv/idmanage
-IMPORT_DIR 		+=  components/drv/mbox
-IMPORT_DIR 		+=  components/drv/hwmac
-IMPORT_DIR 		+=  components/drv/phy
-IMPORT_DIR 		+=  components/drv/security
-IMPORT_DIR 		+=  components/softmac
-IMPORT_DIR 		+=  components/iotapi
-IMPORT_DIR 		+=  components/net/udhcp
-IMPORT_DIR 		+=  components/drv/pinmux
-IMPORT_DIR 		+=  components/drv/efuse
-IMPORT_DIR 		+=  components/drv/wdt
-IMPORT_DIR 		+=  components/drv/tmr
-IMPORT_DIR 		+=  components/drv/uart
-IMPORT_DIR 		+=  components/drv/hsuart
-IMPORT_DIR 		+=  components/drv/lmdma
+IMPORT_DIR += components/drv/common
+IMPORT_DIR += components/drv/idmanage
+IMPORT_DIR += components/drv/mbox
+IMPORT_DIR += components/drv/hwmac
+IMPORT_DIR += components/drv/phy
+IMPORT_DIR += components/drv/security
+IMPORT_DIR += components/softmac
+IMPORT_DIR += components/iotapi
+IMPORT_DIR += components/net/udhcp
+IMPORT_DIR += components/drv/pinmux
+IMPORT_DIR += components/drv/efuse
+IMPORT_DIR += components/drv/wdt
+IMPORT_DIR += components/drv/tmr
+IMPORT_DIR += components/drv/uart
+IMPORT_DIR += components/drv/hsuart
+IMPORT_DIR += components/drv/lmdma
+IMPORT_DIR += components/drv/rf
 
 ifeq ($(strip $(TINY_LIBC)), 1)
 IMPORT_DIR 		+=  components/third_party/rtos-comm/libc

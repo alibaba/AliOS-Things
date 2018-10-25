@@ -13,6 +13,8 @@
 #define IO_REG_MANUAL_PU (IO_REG_BASE+0x4)
 #define IO_REG_MANUAL_PD (IO_REG_BASE+0x8)
 #define IO_REG_MANUAL_DS (IO_REG_BASE+0xC)
+#define IO_REG_IO_PUE (IO_REG_BASE+0x20)
+#define IO_REG_IO_PDE (IO_REG_BASE+0x24)
 #define IO_REG_IO_FUNC_SEL (IO_REG_BASE+0x2C)
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -44,11 +46,15 @@
 
 #define	READ_STATUS1_CMD	0x05
 #define	READ_STATUS1_TLEN	0x01
-#define	READ_STATUS1_RLEN	0x03
+#define	READ_STATUS1_RLEN	0x01
 
 #define	READ_STATUS2_CMD	0x35
 #define	READ_STATUS2_TLEN	0x01
-#define	READ_STATUS2_RLEN	0x03
+#define	READ_STATUS2_RLEN	0x01
+
+#define	WRITE_STATUS2_CMD	0x31
+#define	WRITE_STATUS2_TLEN	0x02
+#define	WRITE_STATUS2_RLEN	0x00
 
 #define	WRITE_STATUS1_CMD	0x01
 #define	WRITE_STATUS1_TLEN	0x02

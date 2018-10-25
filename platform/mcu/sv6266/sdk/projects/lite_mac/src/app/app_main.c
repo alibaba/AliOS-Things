@@ -28,8 +28,8 @@ void temperature_compensation_task(void *pdata)
 {
     printf("%s\n", __func__);
     OS_MsDelay(1*1000);
-    load_rf_table_from_flash();
-    write_reg_rf_table();
+    //load_rf_table_from_flash();
+    //write_reg_rf_table();
     while(1)
     {
         OS_MsDelay(3*1000);
@@ -63,6 +63,9 @@ void APP_Init(void)
 	OS_StatInit();
 	OS_MemInit();
 	OS_PsramInit();
+
+        load_rf_table_from_flash();
+        write_reg_rf_table();
 
 	fs_handle = FS_init();
 	if(fs_handle)

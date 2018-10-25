@@ -188,6 +188,7 @@ IMPORT_DIR 		+=  components/drv/wdt
 IMPORT_DIR 		+=  components/drv/tmr
 IMPORT_DIR 		+=  components/drv/uart
 IMPORT_DIR 		+=  components/drv/hsuart
+IMPORT_DIR 		+=  components/drv/rf
 
 ifeq ($(strip $(TINY_LIBC)), 1)
 IMPORT_DIR 		+=  components/third_party/rtos-comm/libc

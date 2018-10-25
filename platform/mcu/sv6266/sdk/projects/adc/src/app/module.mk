@@ -1,9 +1,5 @@
 
-ifeq ($(strip $(WAC_EN)), 1)
-LIB_SRC := hk_main.c
-else
 LIB_SRC := main.c
-endif
 
 LIB_ASRC :=
 LIBRARY_NAME := application

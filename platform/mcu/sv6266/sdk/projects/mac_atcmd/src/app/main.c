@@ -87,8 +87,6 @@ void temperature_compensation_task(void *pdata)
 {
     printf("temperature compensation task\n");
     OS_MsDelay(1*1000);
-    load_rf_table_from_flash();
-    write_reg_rf_table();
     while(1)
     {
         OS_MsDelay(3*1000);
@@ -112,23 +110,26 @@ extern void drv_uart_init(void);
 void APP_Init(void)
 {
 #ifdef XIP_MODE
-	xip_init();
-	xip_enter();
+    xip_init();
+    xip_enter();
 #endif
-	drv_uart_init();
+    drv_uart_init();
     drv_uart_set_fifo(UART_INT_RXFIFO_TRGLVL_1, 0x0);
-	drv_uart_set_format(115200, UART_WORD_LEN_8, UART_STOP_BIT_1, UART_PARITY_DISABLE);
+    drv_uart_set_format(115200, UART_WORD_LEN_8, UART_STOP_BIT_1, UART_PARITY_DISABLE);
 
-	OS_Init();
-	OS_StatInit();
-	OS_MemInit();
-	OS_PsramInit();
+    OS_Init();
+    OS_StatInit();
+    OS_MemInit();
+    OS_PsramInit();
 
-	fs_handle = FS_init();
-	if(fs_handle)
-	{
-		FS_remove_prevota(fs_handle);
-	}
+    load_rf_table_from_flash();
+    write_reg_rf_table();
+
+    fs_handle = FS_init();
+    if(fs_handle)
+    {
+        FS_remove_prevota(fs_handle);
+    }
 
 #if 1
     OS_TaskCreate(Cli_Task, "cli", 1024, NULL, 1, NULL);

@@ -6,11 +6,22 @@
 void flash_init(void)
 {
 	// set io pad
+	/*
 	outw(IO_REG_MANUAL_IO, 0x000fc000);
     outw(IO_REG_MANUAL_PU, 0x000fc000);
     outw(IO_REG_MANUAL_PD, 0x000fc000);
     outw(IO_REG_MANUAL_DS, 0x000fc000);
     outw(IO_REG_IO_FUNC_SEL, 0x00000400);
+*/
+    	outw(IO_REG_MANUAL_IO, 0x000fe000);
+    outw(IO_REG_MANUAL_PU, 0x000fe000);
+    outw(IO_REG_MANUAL_PD, 0x000fe000);
+    outw(IO_REG_MANUAL_DS, 0x000fe000);
+    outw(IO_REG_IO_FUNC_SEL, 0x00000400);
+    
+    outw(IO_REG_IO_PUE, 0x2000);  //PIN13 enable pull up
+    outw(IO_REG_IO_PDE, 0x0);  //PIN13 disable pull down
+        
 	
 	// set SPI FLASH CONTROLLER back to onebit mode
 #if defined(FLASH_CTL_v1)
@@ -142,6 +153,28 @@ unsigned int flash_get_jedec(void)
 	return manufacture_id;
 }
 
+unsigned int flash_get_jedec_ex(void)
+{
+	unsigned int reg_val;
+	unsigned int manufacture_id;
+	
+	flash_write_cmd(0x9f,0x1,0x3);
+	flash_wait_spi_busy();
+	reg_val = flash_read_spimc_data();
+#if defined(FLASH_CTL_v1)
+#warning "FLASH_CTL_v1"
+	reg_val = (reg_val>>8) & 0x00FFFFFF;
+#elif defined(FLASH_CTL_v2)
+	reg_val = (reg_val>>0) & 0xFFFFFFFF;
+#else
+#error unsupported flash controller.
+#endif
+	//manufacture_id = ((reg_val>>0) & 0xFF);
+	
+	printf("jedec: (Manufacturer,DeviceType,Capacity)=(0x%x,0x%x,0x%x,0x%x)\n",((reg_val>>0) & 0xFF),((reg_val>>8) & 0xFF),((reg_val>>16) & 0xFF),((reg_val>>24) & 0xFF));
+	return reg_val;
+}
+
 void flash_set_status1(unsigned int status1)
 {
 	unsigned int cmd;
@@ -149,6 +182,18 @@ void flash_set_status1(unsigned int status1)
 	cmd = ((status1 & 0xff) << 8);
 	cmd = ( (WRITE_STATUS1_CMD | cmd));// cmd=0x2,24bit address: 0x001000
 	flash_write_cmd(WRITE_STATUS1_CMD, WRITE_STATUS1_TLEN, WRITE_STATUS1_RLEN);
+	
+	flash_wait_spi_busy();
+	flash_wait_spi_status_register();
+}
+
+void flash_set_status2(unsigned int status)
+{
+	unsigned int cmd;
+	flash_write_enable();
+	cmd = ((status & 0xff) << 8);
+	cmd = ( (WRITE_STATUS2_CMD | cmd));// cmd=0x31,
+	flash_write_cmd(cmd, WRITE_STATUS2_TLEN, WRITE_STATUS2_RLEN);
 	
 	flash_wait_spi_busy();
 	flash_wait_spi_status_register();
@@ -188,11 +233,39 @@ void flash_set_qe_type1(void)
 	flash_set_status1_and_2(status1,status2);
 }
 
+void flash_set_qe_type2(void)
+{
+	unsigned int status;
+	status = flash_read_spi_status_register(READ_STATUS2_CMD, READ_STATUS2_TLEN,READ_STATUS2_RLEN);
+	status = 0x02;	 //qe is S9 -> status2 bit1 
+	
+	flash_set_status2(status);
+	
+	//double check QE status
+	status = flash_read_spi_status_register(READ_STATUS2_CMD, READ_STATUS2_TLEN,READ_STATUS2_RLEN);	
+	printf("after flash_set_status2, value = 0x%x\n", status);
+}
+
 void flash_set_quadbit(void)
 {
 	unsigned int manufacture_id;
-	manufacture_id = flash_get_jedec();
-	if(manufacture_id==0xC2)//MXIC
+	unsigned int device_id;
+	unsigned int capacity;
+			 
+	//manufacture_id = flash_get_jedec();
+	int jedec_value = flash_get_jedec_ex();
+	printf("jedec value = 0x%x\n", jedec_value);
+	
+	manufacture_id = (jedec_value>>0) & 0xFF;
+	device_id = (jedec_value>>8) & 0xFF;
+	capacity =  (jedec_value>>16) & 0xFF;
+	printf("(manufacture, device, capacity) = (0x%x, 0x%x, 0x%x)\n", manufacture_id, device_id, capacity);
+	
+	if(manufacture_id == 0xC8 && device_id == 0x40 && capacity == 0x17) 
+	{
+		flash_set_qe_type2();		
+	}
+	else if(manufacture_id==0xC2)//MXIC
 	{
 		flash_set_qe_type0();
 	}

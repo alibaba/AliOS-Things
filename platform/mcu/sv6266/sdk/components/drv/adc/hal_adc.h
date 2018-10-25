@@ -10,7 +10,11 @@ typedef enum{
     ADC_EXT_VOLTAGE_GPIO_GPIO00 = 3    
 }ADC_EXT_VOLTAGE_GPIO;
 
+#if defined(CONFIG_OS_RHINO)
+void _hal_adc_init (uint8_t aio_source);
+#else
 void hal_adc_init (uint8_t aio_source);
+#endif
 
 void hal_adc_deinit (uint8_t aio_source);
 

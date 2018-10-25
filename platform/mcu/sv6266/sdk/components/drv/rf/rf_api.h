@@ -124,4 +124,10 @@ int write_reg_tempe_5g_table(struct st_tempe_5g_table config);
 
 int rf_tone_gen(uint8_t bStart);
 
+int read_reg_band_gain_config(u8 *value);
+int read_reg_5g_bbscale_5100_config(u8 *value);
+int read_reg_5g_bbscale_5500_config(u8 *value);
+int read_reg_5g_bbscale_5700_config(u8 *value);
+int read_reg_5g_bbscale_5900_config(u8 *value);
+int read_reg_freq_offset_config(u8 *freq_xi, u8 *freq_xo);
 #endif

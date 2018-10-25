@@ -1,5 +1,6 @@
 
 LIB_SRC := drv_phy.c
+LIB_SRC += turismo_common.c
 
 LIB_ASRC :=
 LIBRARY_NAME := phy

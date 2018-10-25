@@ -24,6 +24,7 @@ void drv_phy_on(void);
 void drv_phy_b_only(void);
 void drv_phy_bgn(void);
 s32 drv_phy_clean_dpd_cali(void);
+extern void drv_pmu_tu3 (u32 t_us);
 
 
 
