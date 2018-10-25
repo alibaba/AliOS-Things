@@ -363,7 +363,10 @@ static void uData_service_dispatcher(input_event_t *event, void *priv_data)
         } break;
 
         case CODE_UDATA_SERVICE_PROCESS: {
-            uData_service_process(event->value, addr, len);
+            ret = uData_service_process(event->value, addr, len);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case CODE_UDATA_DEV_IOCTL: {
@@ -378,26 +381,41 @@ static void uData_service_dispatcher(input_event_t *event, void *priv_data)
         } break;
 
         case CODE_UDATA_DEV_OPEN: {
-            abs_data_open(priv_data);
+            ret = abs_data_open(priv_data);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case CODE_UDATA_DEV_ENABLE: {
-            uData_dev_enable(event->value);
+            ret = uData_dev_enable(event->value);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case CODE_UDATA_DEV_DISABLE: {
         } break;
 
         case CODE_UDATA_SERVICE_SUBSRIBE: {
-            uData_service_subscribe(event->value);
+            ret = uData_service_subscribe(event->value);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case CODE_UDATA_SERVICE_UNSUBSRIBE: {
-            uData_service_unsubscribe(event->value);
+            ret = uData_service_unsubscribe(event->value);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case CODE_UDATA_DEV_CLOSE: {
-            abs_data_close(event->value);
+            ret = abs_data_close(event->value);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         default:
@@ -435,7 +453,10 @@ void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
         } break;
 
         case UDATA_MSG_SERVICE_PROCESS: {
-            uData_service_process(msg->value, addr, len);
+            ret = uData_service_process(msg->value, addr, len);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case UDATA_MSG_DEV_IOCTL: {
@@ -443,29 +464,44 @@ void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
             if (service == NULL) {
                 return;
             }
-            abs_data_ioctl(msg->value, service->payload);
+            ret = abs_data_ioctl(msg->value, service->payload);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case UDATA_MSG_DEV_OPEN: {
         } break;
 
         case UDATA_MSG_DEV_ENABLE: {
-            uData_dev_enable(msg->value);
+            ret = uData_dev_enable(msg->value);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case UDATA_MSG_DEV_DISABLE: {
         } break;
 
         case UDATA_MSG_SERVICE_SUBSRIBE: {
-            uData_service_subscribe(msg->value);
+            ret = uData_service_subscribe(msg->value);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case UDATA_MSG_SERVICE_UNSUBSRIBE: {
-            uData_service_unsubscribe(msg->value);
+            ret = uData_service_unsubscribe(msg->value);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         case UDATA_MSG_DEV_CLOSE: {
-            abs_data_close(msg->value);
+            ret = abs_data_close(msg->value);
+            if(unlikely(ret)){
+                return;
+            }
         } break;
 
         default:
