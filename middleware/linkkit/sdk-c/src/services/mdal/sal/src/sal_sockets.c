@@ -4,10 +4,6 @@
 
 #include "internal/sal_sockets_internal.h"
 
-
-
-
-
 static int  sal_selscan(int maxfdp1, fd_set *readset_in, fd_set *writeset_in,
                         fd_set *exceptset_in, fd_set *readset_out,
                         fd_set *writeset_out, fd_set *exceptset_out);
