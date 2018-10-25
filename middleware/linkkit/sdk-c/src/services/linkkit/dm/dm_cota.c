@@ -131,6 +131,8 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
         return FAIL_RETURN;
     }
 
+    /* reset the size_fetched in ota_handle to be 0 */
+    IOT_OTA_Ioctl(ota_handle, IOT_OTAG_RESET_FETCHED_SIZE, ota_handle, 4);
     /* Prepare Write Data To Storage */
     HAL_Firmware_Persistence_Start();
     ctx->is_report_new_config = 0;
