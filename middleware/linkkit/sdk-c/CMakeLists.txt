@@ -100,3 +100,4 @@ if(WIN32)
     TARGET_LINK_LIBRARIES (iot_sdk ws2_32)
 endif(WIN32)
 
+TARGET_LINK_LIBRARIES (iot_sdk iot_hal)
