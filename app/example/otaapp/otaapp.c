@@ -61,6 +61,9 @@ static void handle_ota_cmd(char *buf, int blen, int argc, char **argv)
     strncpy(ctx.dn, argv[2], sizeof(ctx.dn)-1);
     strncpy(ctx.ds, argv[3], sizeof(ctx.ds)-1);
     strncpy(ctx.ps, argv[4], sizeof(ctx.ps)-1);
+    HAL_SetProductKey(ctx.pk);
+    HAL_SetDeviceName(ctx.dn);
+    HAL_SetDeviceSecret(ctx.ds);
     HAL_SetProductSecret(ctx.ps);
     ctx.trans_protcol = 0;
     ctx.dl_protcol = 3;
