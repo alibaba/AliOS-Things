@@ -162,23 +162,23 @@ typedef struct {
 #define IOT_MQTT_Publish           MAL_MQTT_Publish
 #define IOT_MQTT_Publish_Simple    MAL_MQTT_Publish_Simple
 
-void *MAL_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
-int MAL_MQTT_Destroy(void **phandle);
-int MAL_MQTT_Yield(void *handle, int timeout_ms);
-int MAL_MQTT_Subscribe(void *handle,
-                       const char *topic_filter,
-                       iotx_mqtt_qos_t qos,
-                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                       void *pcontext);
-int MAL_MQTT_Subscribe_Sync(void *handle,
-                            const char *topic_filter,
-                            iotx_mqtt_qos_t qos,
-                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                            void *pcontext,
-                            int timeout_ms);
-int MAL_MQTT_Unsubscribe(void *handle, const char *topic_filter);
-int MAL_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
-int MAL_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
+DLL_IOT_API void *MAL_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
+DLL_IOT_API int MAL_MQTT_Destroy(void **phandle);
+DLL_IOT_API int MAL_MQTT_Yield(void *handle, int timeout_ms);
+DLL_IOT_API int MAL_MQTT_Subscribe(void *handle,
+                                   const char *topic_filter,
+                                   iotx_mqtt_qos_t qos,
+                                   iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                   void *pcontext);
+DLL_IOT_API int MAL_MQTT_Subscribe_Sync(void *handle,
+                                        const char *topic_filter,
+                                        iotx_mqtt_qos_t qos,
+                                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                        void *pcontext,
+                                        int timeout_ms);
+DLL_IOT_API int MAL_MQTT_Unsubscribe(void *handle, const char *topic_filter);
+DLL_IOT_API int MAL_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
+DLL_IOT_API int MAL_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
 #else /* MAL_ENABLED */
 /** @defgroup group_api api
  *  @{
@@ -198,7 +198,7 @@ int MAL_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
  * @retval NOT_NULL : The handle of MQTT client.
  * @see None.
  */
-void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
+DLL_IOT_API void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
 
 
 /**
@@ -211,7 +211,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
  * @retval -1 : Deconstruct failed.
  * @see None.
  */
-int IOT_MQTT_Destroy(void **phandle);
+DLL_IOT_API int IOT_MQTT_Destroy(void **phandle);
 
 
 /**
@@ -224,7 +224,7 @@ int IOT_MQTT_Destroy(void **phandle);
  * @return status.
  * @see None.
  */
-int IOT_MQTT_Yield(void *handle, int timeout_ms);
+DLL_IOT_API int IOT_MQTT_Yield(void *handle, int timeout_ms);
 
 
 /**
@@ -239,7 +239,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms);
  * @retval -1 : Post fail.
  * @see None.
  */
-int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const char *msg);
+DLL_IOT_API int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const char *msg);
 
 /**
  * @brief check whether MQTT connection is established or not.
@@ -250,7 +250,7 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
  * @retval false : MQTT in abnormal state.
  * @see None.
  */
-int IOT_MQTT_CheckStateNormal(void *handle);
+DLL_IOT_API int IOT_MQTT_CheckStateNormal(void *handle);
 
 
 /**
@@ -268,11 +268,11 @@ int IOT_MQTT_CheckStateNormal(void *handle);
           The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
  * @see None.
  */
-int IOT_MQTT_Subscribe(void *handle,
-                       const char *topic_filter,
-                       iotx_mqtt_qos_t qos,
-                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                       void *pcontext);
+DLL_IOT_API int IOT_MQTT_Subscribe(void *handle,
+                                   const char *topic_filter,
+                                   iotx_mqtt_qos_t qos,
+                                   iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                   void *pcontext);
 
 /**
  * @brief Subscribe MQTT topic and wait suback.
@@ -290,12 +290,12 @@ int IOT_MQTT_Subscribe(void *handle,
           The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
  * @see None.
  */
-int IOT_MQTT_Subscribe_Sync(void *handle,
-                            const char *topic_filter,
-                            iotx_mqtt_qos_t qos,
-                            iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                            void *pcontext,
-                            int timeout_ms);
+DLL_IOT_API int IOT_MQTT_Subscribe_Sync(void *handle,
+                                        const char *topic_filter,
+                                        iotx_mqtt_qos_t qos,
+                                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                        void *pcontext,
+                                        int timeout_ms);
 
 
 /**
@@ -310,7 +310,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
           The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
  * @see None.
  */
-int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
+DLL_IOT_API int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
 
 
 /**
@@ -327,7 +327,7 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
         The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
  * @see None.
  */
-int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
+DLL_IOT_API int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
 /**
  * @brief Publish message to specific topic.
  *
@@ -344,7 +344,7 @@ int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_
         The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
  * @see None.
  */
-int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
+DLL_IOT_API int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
 /* From mqtt_client.h */
 /** @} */ /* end of api_mqtt */
 

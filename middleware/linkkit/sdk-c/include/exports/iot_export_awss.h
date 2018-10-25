@@ -6,8 +6,7 @@
 #define __IOT_EXPORT_AWSS_H__
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -17,7 +16,7 @@ extern "C"
  * @retval  0 : sucess
  * @note: awss_report_cloud must been called to enable wifi setup service
  */
-int awss_start();
+DLL_IOT_API int awss_start();
 
 /**
  * @brief   stop wifi setup service
@@ -27,7 +26,7 @@ int awss_start();
  * @note
  *      if awss_stop is called before exit of awss_start, awss and notify will stop.
  */
-int awss_stop();
+DLL_IOT_API int awss_stop();
 
 /**
  * @brief   make sure user touches device belong to themselves
@@ -36,7 +35,7 @@ int awss_stop();
  * @retval  0 : sucess
  * @note: AWSS dosen't parse awss packet until user touch device using this api.
  */
-int awss_config_press();
+DLL_IOT_API int awss_config_press();
 
 /**
  * @brief   report token to cloud after wifi setup success
@@ -44,7 +43,7 @@ int awss_config_press();
  * @retval  -1 : failure
  * @retval  0 : sucess
  */
-int awss_report_cloud();
+DLL_IOT_API int awss_report_cloud();
 
 /**
  * @brief   report reset to cloud.
@@ -55,7 +54,7 @@ int awss_report_cloud();
  *      device will save reset flag if device dosen't connect cloud, device will fails to send reset to cloud.
  *      when connection between device and cloud is ready, device will retry to report reset to cloud.
  */
-int awss_report_reset();
+DLL_IOT_API int awss_report_reset();
 
 enum awss_event_t {
     AWSS_START = 0x1000,       // AWSS start without enbale, just supports device discover
