@@ -74,7 +74,7 @@ typedef enum {
  *
  * @return void*
  */
-void *linkkit_dispatch(void);
+DLL_IOT_API void *linkkit_dispatch(void);
 
 typedef enum {
     linkkit_opt_property_post_reply,  /* data type: int */
@@ -88,7 +88,7 @@ typedef enum {
  *
  * @return int,0 no leave signal, 1 get a leave signal
  */
-int being_deprecated linkkit_is_try_leave();
+DLL_IOT_API int being_deprecated linkkit_is_try_leave();
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
@@ -98,7 +98,7 @@ int being_deprecated linkkit_is_try_leave();
  *
  * @return int, 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_set_opt(linkkit_opt_t opt, void *data);
+DLL_IOT_API int being_deprecated linkkit_set_opt(linkkit_opt_t opt, void *data);
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
@@ -112,9 +112,10 @@ int being_deprecated linkkit_set_opt(linkkit_opt_t opt, void *data);
  *
  * @return int, 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level,
-                             linkkit_ops_t *ops,
-                             linkkit_cloud_domain_type_t domain_type, void *user_context);
+DLL_IOT_API int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
+        linkkit_loglevel_t log_level,
+        linkkit_ops_t *ops,
+        linkkit_cloud_domain_type_t domain_type, void *user_context);
 
 /**
  * @brief stop linkkit routines.
@@ -122,7 +123,7 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_end(void);
+DLL_IOT_API int being_deprecated linkkit_end(void);
 
 /**
  * @brief install user tsl.
@@ -132,7 +133,7 @@ int being_deprecated linkkit_end(void);
  *
  * @return pointer to thing object, NULL when fails.
  */
-void *linkkit_set_tsl(const char *tsl, int tsl_len);
+DLL_IOT_API void *linkkit_set_tsl(const char *tsl, int tsl_len);
 
 /* patterns: */
 /* method:
@@ -167,8 +168,9 @@ typedef enum {
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
-                                 const void *value, const char *value_str);
+DLL_IOT_API int being_deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id,
+        const char *identifier,
+        const void *value, const char *value_str);
 
 typedef enum {
     linkkit_method_get_property_value = 0,
@@ -202,8 +204,9 @@ typedef enum {
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, const char *identifier,
-                                 void *value, char **value_str);
+DLL_IOT_API int being_deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id,
+        const char *identifier,
+        void *value, char **value_str);
 
 
 /**
@@ -218,7 +221,8 @@ int being_deprecated linkkit_get_value(linkkit_method_get_t method_get, const vo
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code);
+DLL_IOT_API int being_deprecated linkkit_answer_service(const void *thing_id, const char *service_identifier,
+        int response_id, int code);
 
 /**
  * @brief answer a down raw service when a raw service requested by cloud, or invoke a up raw service to cloud.
@@ -230,7 +234,8 @@ int being_deprecated linkkit_answer_service(const void *thing_id, const char *se
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length);
+DLL_IOT_API int being_deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data,
+        int raw_data_length);
 
 /**
  * @brief trigger extended info update procedure.
@@ -242,7 +247,7 @@ int being_deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_
  * @return 0 when success, -1 when fail.
  */
 
-int being_deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
+DLL_IOT_API int being_deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
         linkkit_extended_info_operate_t linkkit_extended_info_operation);
 
 /**
@@ -254,7 +259,8 @@ int being_deprecated linkkit_trigger_extended_info_operate(const void *thing_id,
  *
  * @return >=0 when success, -1 when fail.
  */
-int being_deprecated linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb);
+DLL_IOT_API int being_deprecated linkkit_trigger_event(const void *thing_id, const char *event_identifier,
+        handle_post_cb_fp_t cb);
 
 /**
  * @brief post property to cloud.
@@ -265,7 +271,8 @@ int being_deprecated linkkit_trigger_event(const void *thing_id, const char *eve
  *
  * @return >=0 when success, -1 when fail.
  */
-int being_deprecated linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb);
+DLL_IOT_API int being_deprecated linkkit_post_property(const void *thing_id, const char *property_identifier,
+        handle_post_cb_fp_t cb);
 
 /**
  * @brief this function used to yield when want to receive or send data.
@@ -275,7 +282,7 @@ int being_deprecated linkkit_post_property(const void *thing_id, const char *pro
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_yield(int timeout_ms);
+DLL_IOT_API int being_deprecated linkkit_yield(int timeout_ms);
 
 typedef enum {
     service_cota_callback_type_new_version_detected = 10,
@@ -297,7 +304,7 @@ typedef void (*handle_service_cota_callback_fp_t)(service_cota_callback_type_t c
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp);
+DLL_IOT_API int being_deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp);
 
 /**
  * @brief this function used to execute cota process.
@@ -307,7 +314,7 @@ int being_deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callbac
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length);
+DLL_IOT_API int being_deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length);
 
 /**
  * @brief this function used to trigger cota process.
@@ -318,7 +325,7 @@ int being_deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_le
  * @param option, reserved.
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_invoke_cota_get_config(const char *config_scope, const char *get_type,
+DLL_IOT_API int being_deprecated linkkit_invoke_cota_get_config(const char *config_scope, const char *get_type,
         const char *attribute_Keys, void *option);
 
 typedef enum {
@@ -336,7 +343,7 @@ typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t c
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp);
+DLL_IOT_API int being_deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp);
 
 /**
  * @brief this function used to execute fota process.
@@ -346,7 +353,7 @@ int being_deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callbac
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length);
+DLL_IOT_API int being_deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length);
 
 /**
  * @brief this function used to get NTP time from cloud.
@@ -356,7 +363,7 @@ int being_deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_le
  *
  * @return 0 when success, -1 when fail.
  */
-int being_deprecated linkkit_ntp_time_request(void (*ntp_reply_cb)(const char *ntp_offset_time_ms));
+DLL_IOT_API int being_deprecated linkkit_ntp_time_request(void (*ntp_reply_cb)(const char *ntp_offset_time_ms));
 
 #ifdef __cplusplus
 }

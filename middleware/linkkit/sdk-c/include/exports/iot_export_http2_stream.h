@@ -33,7 +33,7 @@ extern "C" {
     {                                                                        \
         (char *) NAME, (char *)VALUE, strlen(NAME) , strlen(VALUE)           \
     }
-    
+
 typedef struct {
     char  *product_key;
     char  *device_name;
@@ -50,7 +50,7 @@ typedef struct {
 typedef enum {
     STREAM_TYPE_DOWNLOAD,
     STREAM_TYPE_UPLOAD,
-    STREAM_TYPE_AUXILIARY,    
+    STREAM_TYPE_AUXILIARY,
     STREAM_TYPE_NUM
 } stream_type_t;
 
@@ -105,7 +105,7 @@ typedef struct {
 } http2_stream_node_t;
 
 #ifdef FS_ENABLED
-typedef enum{
+typedef enum {
     UPLOAD_FILE_NOT_EXIST     = -9,
     UPLOAD_FILE_READ_FAILED   = -8,
     UPLOAD_STREAM_OPEN_FAILED = -7,
@@ -114,18 +114,19 @@ typedef enum{
     UPLOAD_NULL_POINT         = -2,
     UPLOAD_ERROR_COMMON       = -1,
     UPLOAD_SUCCESS            = 0,
-}http2_file_upload_result_t;
+} http2_file_upload_result_t;
 
-typedef void (* upload_file_result_cb)(const char *path,int result, void *user_data);
-int IOT_HTTP2_Stream_UploadFile(stream_handle_t *handle,const char *file_path,const char *identify,header_ext_info_t *header, 
-                                upload_file_result_cb cb, void *user_data);
+typedef void (* upload_file_result_cb)(const char *path, int result, void *user_data);
+DLL_IOT_API int IOT_HTTP2_Stream_UploadFile(stream_handle_t *handle, const char *file_path, const char *identify,
+        header_ext_info_t *header,
+        upload_file_result_cb cb, void *user_data);
 #endif
 stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb);
-int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header);
-int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info);
-int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info);
-int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info);
-int IOT_HTTP2_Stream_Disconnect(stream_handle_t *handle);
+DLL_IOT_API int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header);
+DLL_IOT_API int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info);
+DLL_IOT_API int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info);
+DLL_IOT_API int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info);
+DLL_IOT_API int IOT_HTTP2_Stream_Disconnect(stream_handle_t *handle);
 
 #ifdef __cplusplus
 }
