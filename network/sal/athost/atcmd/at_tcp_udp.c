@@ -641,8 +641,8 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen,
         goto err;
     }
 
-    if (insert_uart_send_msg(sendbuf, (uint8_t *) databuf, strlen(sendbuf), datalen) != 0) {
-        LOGE(TAG, "Error insert uart send msg fail\r\n");
+    if (at_write(sendbuf, (uint8_t *) databuf, strlen(sendbuf), datalen) != 0) {
+        LOGE(TAG, "Error send msg fail\r\n");
         goto err;
     }
 
