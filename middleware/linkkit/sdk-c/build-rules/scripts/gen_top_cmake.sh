@@ -53,6 +53,7 @@ ELSE (WIN32)
 ENDIF (WIN32)
 MESSAGE ("---------------------------------------------------------------------")
 
+ADD_DEFINITIONS (-DDLL_IOT_EXPORTS)
 $(for i in $(grep 'PKG_SOURCE' \
                 $(find ${TOP_DIR} -name ${MAKE_SEGMENT} -not -path "*.O*") \
                     | ${SED} "s:${TOP_DIR}/\(.*\)/${MAKE_SEGMENT}.*= *\(.*\):\1~\2:g"); do

@@ -12,7 +12,7 @@ extern "C" {
 #define being_deprecated
 
 #ifdef _WIN32
-#ifdef DLL_API_EXPORTS
+#ifdef DLL_IOT_EXPORTS
 #define DLL_IOT_API __declspec(dllexport)
 #else
 #define DLL_IOT_API __declspec(dllimport)
