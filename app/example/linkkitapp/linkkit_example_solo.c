@@ -22,8 +22,8 @@
 #define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
 
 #if USE_CUSTOME_DOMAIN
-#define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
-#define CUSTOME_DOMAIN_HTTP     "iot-auth.cn-shanghai.aliyuncs.com"
+    #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
+    #define CUSTOME_DOMAIN_HTTP     "iot-auth.cn-shanghai.aliyuncs.com"
 #endif
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
@@ -251,6 +251,26 @@ static int user_property_get_event_handler(const int devid, const char *request,
             cJSON_AddStringToObject(response_root, "PropertyCharacter", "testprop");
         } else if (strcmp("Propertypoint", item_propertyid->valuestring) == 0) {
             cJSON_AddNumberToObject(response_root, "Propertypoint", 50);
+        } else if (strcmp("LocalTimer", item_propertyid->valuestring) == 0) {
+            cJSON *array_localtimer = cJSON_CreateArray();
+            if (array_localtimer == NULL) {
+                cJSON_Delete(request_root);
+                cJSON_Delete(response_root);
+                return -1;
+            }
+
+            cJSON *item_localtimer = cJSON_CreateObject();
+            if (item_localtimer == NULL) {
+                cJSON_Delete(request_root);
+                cJSON_Delete(response_root);
+                cJSON_Delete(array_localtimer);
+                return -1;
+            }
+            cJSON_AddStringToObject(item_localtimer, "Timer", "10 11 * * * 1 2 3 4 5");
+            cJSON_AddNumberToObject(item_localtimer, "Enable", 1);
+            cJSON_AddNumberToObject(item_localtimer, "IsValid", 1);
+            cJSON_AddItemToArray(array_localtimer, item_localtimer);
+            cJSON_AddItemToObject(response_root, "LocalTimer", array_localtimer);
         }
     }
     cJSON_Delete(request_root);
@@ -509,7 +529,7 @@ int linkkit_main(void *paras)
     uint64_t time_prev_sec = 0, time_now_sec = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     iotx_linkkit_dev_meta_info_t master_meta_info;
-    
+
 #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
 #endif
