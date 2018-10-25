@@ -220,7 +220,7 @@ static int user_property_set_event_handler(const int devid, const char *request,
     EXAMPLE_TRACE("Property Set Received, Devid: %d, Request: %s", devid, request);
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
-                           (unsigned char *)request, request_len);
+                             (unsigned char *)request, request_len);
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 
     return 0;
@@ -276,7 +276,7 @@ void user_post_property(void)
     char *property_payload = "{\"LightSwitch\":1}";
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
-                           (unsigned char *)property_payload, strlen(property_payload));
+                             (unsigned char *)property_payload, strlen(property_payload));
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 }
 
@@ -287,7 +287,7 @@ void user_deviceinfo_update(void)
     char *device_info_update = "[{\"attrKey\":\"abc\",\"attrValue\":\"hello,world\"}]";
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_DEVICEINFO_UPDATE,
-                           (unsigned char *)device_info_update, strlen(device_info_update));
+                             (unsigned char *)device_info_update, strlen(device_info_update));
     EXAMPLE_TRACE("Device Info Update Message ID: %d", res);
 }
 
@@ -298,7 +298,7 @@ void user_deviceinfo_delete(void)
     char *device_info_delete = "[{\"attrKey\":\"abc\"}]";
 
     res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_DEVICEINFO_DELETE,
-                           (unsigned char *)device_info_delete, strlen(device_info_delete));
+                             (unsigned char *)device_info_delete, strlen(device_info_delete));
     EXAMPLE_TRACE("Device Info Delete Message ID: %d", res);
 }
 
@@ -336,14 +336,14 @@ int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
         EXAMPLE_TRACE("subdev connect Failed\n");
         return res;
     }
-    EXAMPLE_TRACE("subdev connect success: devid = %d\n",devid);
+    EXAMPLE_TRACE("subdev connect success: devid = %d\n", devid);
 
     res = IOT_Linkkit_Report(devid, ITM_MSG_LOGIN, NULL, 0);
     if (res == FAIL_RETURN) {
         EXAMPLE_TRACE("subdev login Failed\n");
         return res;
     }
-    EXAMPLE_TRACE("subdev login success: devid = %d\n",devid);
+    EXAMPLE_TRACE("subdev login success: devid = %d\n", devid);
     return res;
 }
 
@@ -357,7 +357,7 @@ void *user_dispatch_yield(void *args)
 }
 
 int linkkit_main(void *paras)
-{ 
+{
 #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
 #endif
@@ -405,11 +405,7 @@ int linkkit_main(void *paras)
     int dynamic_register = 0;
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
-    /* Choose Whether You Need Post Property Reply */
-    int post_property_reply = 0;
-    IOT_Ioctl(IOTX_IOCTL_RECV_PROP_REPLY, (void *)&post_property_reply);
-
-    /* Choose Whether You Need Post Event Reply */
+    /* Choose Whether You Need Post Property/Event Reply */
     int post_event_reply = 0;
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
