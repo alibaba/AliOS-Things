@@ -59,9 +59,9 @@ done)
 
 $(for i in \
     $(echo ${LDFLAGS} | grep -o '\-l[^ ]*' | sort -u | sed 's:^-l::g'); do
-        if [ "${i}" = "pthread" ]; then echo "IF (NOT MSVC)"; fi
+        if [ "${i}" = "pthread" -o "${i}" = "rt" ]; then echo "IF (NOT MSVC)"; fi
         echo "TARGET_LINK_LIBRARIES (${TARGET} ${i})"
-        if [ "${i}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
+        if [ "${i}" = "pthread" -o "${i}" = "rt" ]; then echo "ENDIF (NOT MSVC)"; fi
 done)
 EOB
     if grep -qw ${TARGET} <<< ${WIN32_CMAKE_SKIP}; then
@@ -96,9 +96,9 @@ $(for i in ${TARGET}; do
     fi
     echo "TARGET_LINK_LIBRARIES (${i} ${COMP_LIB_NAME})"
     for j in $(echo ${LDFLAGS} | grep -o '\-l[^ ]*' | sort -u | sed 's:^-l::g' | grep -vw ${COMP_LIB_NAME}); do
-        if [ "${j}" = "pthread" ]; then echo "IF (NOT MSVC)"; fi
+        if [ "${j}" = "pthread" -o "${j}" = "rt" ]; then echo "IF (NOT MSVC)"; fi
         echo "TARGET_LINK_LIBRARIES (${i} ${j})"
-        if [ "${j}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
+        if [ "${j}" = "pthread" -o "${j}" = "rt" ]; then echo "ENDIF (NOT MSVC)"; fi
     done
     if echo ${WIN32_CMAKE_SKIP} | grep -qw ${i}; then
         echo "ENDIF (NOT WIN32)"
