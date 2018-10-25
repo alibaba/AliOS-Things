@@ -210,6 +210,11 @@ int64_t k_uptime_get()
     return aos_now_ms();
 }
 
+u32_t k_uptime_get_32()
+{
+    return (u32_t)aos_now_ms();
+}
+
 typedef void (*task_entry_t)(void *args);
 int k_thread_create(struct k_thread *new_thread, k_thread_stack_t *stack,
                     size_t stack_size, k_thread_entry_t entry, void *p1,

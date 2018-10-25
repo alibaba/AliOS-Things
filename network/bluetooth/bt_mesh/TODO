@@ -16,7 +16,7 @@ Bluetooth Mesh implementation tasks
 
  * os layer porting move to here
 
- * api (crypto/gatt/conn) encapsulation
+ * port (crypto/gatt/conn) encapsulation (Done)
 
- * name: ble_mesh -> bt_mesh; mesh_profile -> bt_mesh_profile
+ * name: ble_mesh -> bt_mesh; mesh_profile -> bt_mesh_profile (Done)
 
