@@ -2,14 +2,22 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef LINKKIT_GATEWAY_EXPORT_H
 #define LINKKIT_GATEWAY_EXPORT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+#ifdef _WIN32
+#ifdef DLL_IOT_EXPORTS
+#define DLL_IOT_API __declspec(dllexport)
+#else
+#define DLL_IOT_API __declspec(dllimport)
+#endif
+#else
+#define DLL_IOT_API
+#endif
 
 #if defined (__CC_ARM)
 #define ssize_t int
