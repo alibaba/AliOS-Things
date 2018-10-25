@@ -108,13 +108,9 @@ typedef struct {
     uint16_t length;
 } ali_data_t;
 
-typedef ali_data_t ali_rx_data_evt_t;
-
 typedef struct {
-    uint8_t type; /**< Event type. */
-    union {
-        ali_rx_data_evt_t rx_data; /**< Data provided for rx-data event. */
-    } data;
+    uint8_t type;
+    ali_data_t rx_data;
 } ali_event_t;
 
 typedef void (*ali_event_handler_t)(ali_event_t *p_event);
@@ -126,7 +122,6 @@ typedef struct {
     ali_data_t product_secret; // secret 16 to 40 bytes
     ali_data_t product_key; // PK 11 to 20 bytes). */
     ali_data_t device_key;  // DN 20 to 32 bytes
-    ali_data_t sw_ver;  // Software version
     uint32_t transport_timeout; /**< Timeout of Tx/Rx, in number of ms. Fill
                                    0 if not used. */
     uint16_t max_mtu;           /**< Maximum MTU. */
