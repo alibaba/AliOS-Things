@@ -8,20 +8,13 @@
 #include <stdarg.h>
 #include "app_entry.h"
 
-void __attribute__((weak)) set_iotx_info()
-{
-
-}
 
 int main(int argc, char **argv)
 {
     app_main_paras_t paras;
     paras.argc = argc;
-    paras.argv = argv;
-
-#ifdef WIFI_PROVISION_ENABLED
-    set_iotx_info();
-#endif  
+    paras.argv = argv; 
+    
     linkkit_main((void *)&paras);
     return 0;
 }
