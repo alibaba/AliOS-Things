@@ -2,14 +2,13 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef _MDAL_ICA_AT_MQTT_CLIENT_H_
-#define _MDAL_ICA_AT_MQTT_CLIENT_H_
+#ifndef _MDAL_ICA_AT_CLIENT_H_
+#define _MDAL_ICA_AT_CLIENT_H_
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
 {
 #endif
-
 #define AT_ICA_MQTT_MQTTMODE        "AT+IMQTTMODE"
 #define AT_ICA_MQTT_MQTTOPEN        "AT+IMQTTOPEN"
 #define AT_ICA_MQTT_MQTTAUTH        "AT+IMQTTAUTH"
@@ -37,27 +36,26 @@ extern "C"
 
 #define AT_ICA_MQTT_POSTFIX         "\r\n"
 
+#define AT_MQTT_MAX_MSG_LEN     512
+#define AT_MQTT_MAX_TOPIC_LEN   128
+#define AT_MQTT_WAIT_FOREVER 0xffffffffu
+
+#define AT_MQTT_CMD_MAX_LEN             512
+#define AT_MQTT_CMD_SUCCESS_RSP         "OK"
+#define AT_MQTT_CMD_FAIL_RSP            "FAIL"
+#define AT_MQTT_CMD_ERROR_RSP           "ERROR"
+#define AT_MQTT_SUBSCRIBE_FAIL          128
+#define AT_MQTT_RSP_MAX_LEN             1500
+
+#define AT_MQTT_WAIT_TIMEOUT            10*1000
+
+#define mdal_err(...)               log_err("MAL", __VA_ARGS__)
+
+
 typedef struct mqtt_state_s {
     uint8_t  auto_report_flag;
     uint8_t  mqtt_state;
 } mqtt_state_t;
-
-int at_ica_mqtt_client_init(void);
-int at_ica_mqtt_client_deinit(void);
-int at_ica_mqtt_client_disconn(void);
-int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, uint8_t tlsEnable);
-int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, uint8_t tlsEnable);
-int at_ica_mqtt_client_subscribe(char *topic,
-                                 uint8_t qos,
-                                 int *mqtt_packet_id,
-                                 int *mqtt_status,
-                                 int timeout_ms);
-int at_ica_mqtt_client_unsubscribe(char *topic,
-                                   int *mqtt_packet_id,
-                                   int *mqtt_status);
-int at_ica_mqtt_client_publish(char *topic, uint8_t qos, char *message);
-int at_ica_mqtt_client_state(void);
-int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms);
 
 #ifdef __cplusplus
 }

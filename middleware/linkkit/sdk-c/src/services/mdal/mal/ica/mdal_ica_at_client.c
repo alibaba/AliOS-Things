@@ -5,22 +5,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include "mdal_at_mqtt_client.h"
-#include "mdal_at_ica_mqtt_client.h"
-#include "mdal_at_client.h"
+#include "mdal_ica_at_client.h"
+#include "mdal_mal_import.h"
 #include "iotx_log.h"
-
-#define AT_MQTT_CMD_MAX_LEN             512
-#define AT_MQTT_CMD_SUCCESS_RSP         "OK"
-#define AT_MQTT_CMD_FAIL_RSP            "FAIL"
-#define AT_MQTT_CMD_ERROR_RSP           "ERROR"
-#define AT_MQTT_SUBSCRIBE_FAIL          128
-#define AT_MQTT_RSP_MAX_LEN             1500
-
-#define AT_MQTT_WAIT_TIMEOUT            10*1000
-
-#define mdal_err(...)               log_err("MAL", __VA_ARGS__)
 
 typedef enum {
     AT_MQTT_IDLE = 0,
@@ -31,12 +18,125 @@ typedef enum {
     AT_MQTT_PUB,
 } at_mqtt_send_type_t;
 
-static char        *g_ica_rsp_buff = NULL;
-static volatile uint8_t   g_mqtt_connect_state = 0;
+recv_cb g_recv_cb;
+
+int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms);
+int at_ica_mqtt_client_deinit(void);
+int at_ica_mqtt_client_init(void);
+int at_ica_mqtt_client_state(void);
+int at_ica_mqtt_client_publish(const char *topic, int qos, const char *message);
+int at_ica_mqtt_client_unsubscribe(const char *topic,
+                                   unsigned int *mqtt_packet_id,
+                                   int *mqtt_status);
+int at_ica_mqtt_client_subscribe(const char *topic,
+                                        int qos,
+                                        unsigned int *mqtt_packet_id,
+                                        int *mqtt_status,
+                                        int timeout_ms);
+int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int tlsEnable);
+int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int tlsEnable);
+int at_ica_mqtt_client_disconn(void);
+
+int HAL_MDAL_MAL_Init()
+{
+#ifdef MAL_ICA_ENABLED
+    g_recv_cb = NULL;
+    return at_ica_mqtt_client_init();
+#endif
+    return -1;
+}
+
+int HAL_MDAL_MAL_Deinit()
+{
+#ifdef MAL_ICA_ENABLED
+    g_recv_cb = NULL;
+    return at_ica_mqtt_client_deinit();
+#endif
+    return -1;
+}
+
+int HAL_MDAL_MAL_Connect(char *proKey, char *devName, char *devSecret)
+{
+#ifdef MAL_ICA_ENABLED
+    return at_ica_mqtt_client_conn(proKey, devName, devSecret, 0);
+#endif
+    return -1;
+}
+
+int HAL_MDAL_MAL_Disconnect(void)
+{
+#ifdef MAL_ICA_ENABLED
+    return at_ica_mqtt_client_disconn();
+#endif
+    return -1;
+}
+
+int HAL_MDAL_MAL_Subscribe(const char *topic, int qos, unsigned int *mqtt_packet_id, int *mqtt_status, int timeout_ms)
+{
+#ifdef MAL_ICA_ENABLED
+    return at_ica_mqtt_client_subscribe(topic, qos, mqtt_packet_id, mqtt_status, timeout_ms);
+#endif
+    return -1;
+}
+
+int HAL_MDAL_MAL_Unsubscribe(const char *topic, unsigned int *mqtt_packet_id, int *mqtt_status)
+{
+#ifdef MAL_ICA_ENABLED
+    return at_ica_mqtt_client_unsubscribe(topic, mqtt_packet_id, mqtt_status);
+#endif
+    return -1;
+}
+
+int HAL_MDAL_MAL_Publish(const char *topic, int qos, const char *message)
+{
+#ifdef MAL_ICA_ENABLED
+    return at_ica_mqtt_client_publish(topic, qos, message);
+#endif
+    return -1;
+}
+
+
+int HAL_MDAL_MAL_State(void)
+{
+#ifdef MAL_ICA_ENABLED
+    return at_ica_mqtt_client_state();
+#endif
+    return -1;
+}
+
+void HAL_MDAL_MAL_RegRecvCb(recv_cb cb)
+{
+    g_recv_cb = cb;    
+}
+
+int HAL_MDAL_MAL_Connectwifi(char *at_conn_wifi)
+{
+#ifdef MAL_ICA_ENABLED
+    char  at_cmd[64];
+    // disconnect before connect to the network
+    if(at_ica_mqtt_client_disconn() != 0)
+    {
+        return -1;
+    }
+
+    memcpy(at_cmd, at_conn_wifi, 64);
+    // connect to the network
+    if(at_ica_mqtt_atsend(at_cmd, AT_MQTT_WAIT_FOREVER) != 0)
+    {
+        return -1;
+    }
+
+    return 0;
+#endif
+    return -1;
+}
+
+static char              *g_ica_rsp_buff = NULL;
+static volatile int       g_mqtt_connect_state = 0;
 static volatile at_mqtt_send_type_t   g_ica_at_response = AT_MQTT_IDLE;
 static volatile int       g_at_response_result = 0;
-static void*          g_sem_response;
-static volatile uint8_t   g_response_msg_number = 0;
+static void*              g_sem_response;
+static volatile int       g_response_msg_number = 0;
 static int                g_response_packetid = 0;
 static int                g_response_status = 0;
 static int                g_public_qos = 0;
@@ -264,8 +364,8 @@ static void recv_data_callback(char *at_rsp)
     char     *temp = NULL;
     char     *topic_ptr = NULL;
     char     *msg_ptr = NULL;
-    uint32_t  msg_len = 0;
-    uint32_t  packet_id = 0;
+    unsigned int  msg_len = 0;
+    //unsinged int  packet_id = 0;
 
     if (NULL == at_rsp) {
         return;
@@ -278,7 +378,7 @@ static void recv_data_callback(char *at_rsp)
         temp  = strtok(NULL, ",");
 
         if (temp != NULL) {
-            packet_id = strtol(temp, NULL, 0);
+            //packet_id = strtol(temp, NULL, 0);
         } else {
             mdal_err("packet id error");
 
@@ -315,7 +415,7 @@ static void recv_data_callback(char *at_rsp)
 
         msg_ptr[msg_len] = '\0';
 
-        HAL_AT_MQTT_Savemsg(topic_ptr, msg_ptr);
+        g_recv_cb(topic_ptr, msg_ptr);
 
         return;
     } else {
@@ -437,7 +537,7 @@ int at_ica_mqtt_client_disconn(void)
     return 0;
 }
 
-int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, uint8_t tlsEnable)
+int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int tlsEnable)
 {
     char        at_cmd[AT_MQTT_CMD_MAX_LEN];
 
@@ -485,7 +585,7 @@ int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, uint8_
     return 0;
 }
 
-int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, uint8_t tlsEnable)
+int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int tlsEnable)
 {
     char  at_cmd[64];
 
@@ -523,9 +623,9 @@ int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, uint8_
     return 0;
 }
 
-int at_ica_mqtt_client_subscribe(char *topic,
-                                        uint8_t qos,
-                                        int *mqtt_packet_id,
+int at_ica_mqtt_client_subscribe(const char *topic,
+                                        int qos,
+                                        unsigned int *mqtt_packet_id,
                                         int *mqtt_status,
                                         int timeout_ms)
 {
@@ -556,8 +656,8 @@ int at_ica_mqtt_client_subscribe(char *topic,
     return 0;
 }
 
-int at_ica_mqtt_client_unsubscribe(char *topic,
-                                   int *mqtt_packet_id,
+int at_ica_mqtt_client_unsubscribe(const char *topic,
+                                   unsigned int *mqtt_packet_id,
                                    int *mqtt_status)
 {
     char    at_cmd[AT_MQTT_CMD_MAX_LEN];
@@ -586,7 +686,7 @@ int at_ica_mqtt_client_unsubscribe(char *topic,
     return 0;
 }
 
-int at_ica_mqtt_client_publish(char *topic, uint8_t qos, char *message)
+int at_ica_mqtt_client_publish(const char *topic, int qos, const char *message)
 {
 //    int     packet_id;
 //    int     status;
@@ -657,21 +757,21 @@ int at_ica_mqtt_client_init(void)
 
     g_mqtt_connect_state = 0;
 
-    mdal_at_client_init();
+    HAL_MDAL_MAL_ICA_Init();
 
-    mdal_at_client_oob(AT_ICA_MQTT_MQTTRCV,
+    HAL_MDAL_MAL_ICA_Oob(AT_ICA_MQTT_MQTTRCV,
            AT_ICA_MQTT_POSTFIX,
            AT_MQTT_CMD_MAX_LEN,
            at_ica_mqtt_client_rsp_callback,
            NULL);
 
-    mdal_at_client_oob(AT_ICA_MQTT_MQTTERROR,
+    HAL_MDAL_MAL_ICA_Oob(AT_ICA_MQTT_MQTTERROR,
            AT_ICA_MQTT_POSTFIX,
            AT_MQTT_CMD_MAX_LEN,
            at_ica_mqtt_client_rsp_callback,
            NULL);
 
-    mdal_at_client_oob(AT_ICA_MQTT_MQTTOK,
+    HAL_MDAL_MAL_ICA_Oob(AT_ICA_MQTT_MQTTOK,
            AT_ICA_MQTT_POSTFIX,
            AT_MQTT_CMD_MAX_LEN,
            at_ica_mqtt_client_rsp_callback,
@@ -721,7 +821,7 @@ int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms)
         g_ica_at_response = AT_MQTT_SEND_TYPE_SIMPLE;
     }
 
-    if (0 != mdal_at_client_write(at_cmd)) {
+    if (0 != HAL_MDAL_MAL_ICA_Write(at_cmd)) {
 
         mdal_err("at send raw api fail");
 
@@ -734,6 +834,7 @@ int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms)
 
     return g_at_response_result;
 }
+
 
 
 
