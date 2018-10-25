@@ -17,7 +17,6 @@ extern "C"
 #define STR_MODEL_LEN    (20 + 1) /**< Reserved. */
 #define STR_SEC_LEN      (40 + 1) /**< Length of device secret. */
 #define STR_PROD_SEC_LEN (32 + 1) /**< Length of product secret. */
-#define STR_VER_LEN      (8 + 1)  /**< Length of version. */
 #define STR_PROD_KEY_LEN (20 + 1) /**< Length of product key. */
 #define STR_DEV_KEY_LEN  (32 + 1) /**< Length of device name */
 
@@ -142,7 +141,6 @@ struct device_config
     uint8_t         secret_len;
     char            product_secret[STR_PROD_SEC_LEN];
     uint8_t         product_secret_len;
-    char            version[STR_VER_LEN];
     dev_status_changed_cb status_changed_cb;
     set_dev_status_cb     set_cb;
     get_dev_status_cb     get_cb;

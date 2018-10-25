@@ -59,15 +59,13 @@ static void event_handler(ali_event_t *p_event)
 
         case BZ_EVENT_RX_CTRL:
             if (m_ctrl_handler != NULL) {
-                m_ctrl_handler(p_event->data.rx_data.p_data,
-                               p_event->data.rx_data.length);
+                m_ctrl_handler(p_event->rx_data.p_data, p_event->rx_data.length);
             }
             break;
 
         case BZ_EVENT_RX_QUERY:
             if (m_query_handler != NULL) {
-                m_query_handler(p_event->data.rx_data.p_data,
-                                p_event->data.rx_data.length);
+                m_query_handler(p_event->rx_data.p_data, p_event->rx_data.length);
             }
             break;
 
@@ -77,19 +75,18 @@ static void event_handler(ali_event_t *p_event)
 
         case BZ_EVENT_APINFO:
             if (m_apinfo_handler != NULL) {
-                m_apinfo_handler(p_event->data.rx_data.p_data);
+                m_apinfo_handler(p_event->rx_data.p_data);
             }
             break;
         case BZ_EVENT_OTAINFO:
 	    if (m_ota_dev_handler != NULL){
-                m_ota_dev_handler(p_event->data.rx_data.p_data);
+                m_ota_dev_handler(p_event->rx_data.p_data);
             }
             break;
         default:
             break;
     }
 }
-
 
 int breeze_start(struct device_config *dev_conf)
 {
@@ -110,7 +107,7 @@ int breeze_start(struct device_config *dev_conf)
 
     memset(&init_ali, 0, sizeof(ali_init_t));
     init_ali.event_handler = event_handler;
-    init_ali.model_id      = dev_conf->product_id;
+    init_ali.model_id = dev_conf->product_id;
 
     init_ali.product_key.p_data = (uint8_t *)dev_conf->product_key;
     init_ali.product_key.length = dev_conf->product_key_len;
@@ -121,8 +118,6 @@ int breeze_start(struct device_config *dev_conf)
     init_ali.secret.length         = dev_conf->secret_len;
     init_ali.product_secret.p_data = (uint8_t *)dev_conf->product_secret;
     init_ali.product_secret.length = dev_conf->product_secret_len;
-    init_ali.sw_ver.p_data         = (uint8_t *)dev_conf->version;
-    init_ali.sw_ver.length         = strlen(dev_conf->version);
     init_ali.transport_timeout     = BZ_TRANSPORT_TIMEOUT;
     init_ali.max_mtu               = BZ_MAX_SUPPORTED_MTU;
     init_ali.user_adv_data         = user_adv.data;
