@@ -242,11 +242,18 @@ static int ota_callback(void *pcontext, const char *msg, uint32_t msg_len, iotx_
     return 0;
 }
 
+static int g_ota_is_initialized = 0;
 
 /* Initialize OTA module */
 void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal)
 {
     OTA_Struct_pt h_ota = NULL;
+
+    if (1 == g_ota_is_initialized) {
+        OTA_LOG_ERROR("iot ota has been initialized");
+        return NULL;
+    }
+    g_ota_is_initialized = 1;
 
     if ((NULL == product_key) || (NULL == device_name)) {
         OTA_LOG_ERROR("one or more parameters is invalid");
