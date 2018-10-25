@@ -66,9 +66,9 @@ ifneq (,$(filter -DDEVICE_MODEL_ENABLED,$(CFLAGS)))
         TARGET      += linkkit-example-sched
         endif
 
-        SRCS_linkkit-example-solo       := app_entry.c linkkit/linkkit_example_solo.c
-        SRCS_linkkit-example-countdown  := app_entry.c linkkit/linkkit_example_cntdown.c
-        SRCS_linkkit-example-sched      := app_entry.c linkkit/linkkit_example_sched.c
+        SRCS_linkkit-example-solo       := app_entry.c cJSON.c linkkit/linkkit_example_solo.c
+        SRCS_linkkit-example-countdown  := app_entry.c cJSON.c linkkit/linkkit_example_cntdown.c
+        SRCS_linkkit-example-sched      := app_entry.c cJSON.c linkkit/linkkit_example_sched.c
 
     else
     

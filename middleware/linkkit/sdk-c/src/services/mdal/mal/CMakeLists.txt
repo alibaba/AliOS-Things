@@ -9,14 +9,9 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system/facility)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/ref-impl)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include/internal)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/src)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/ica)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/ica/test)
 
 ADD_LIBRARY (iot_mal OBJECT
     ${PROJECT_SOURCE_DIR}/src/services/mdal/mal/mal.c
