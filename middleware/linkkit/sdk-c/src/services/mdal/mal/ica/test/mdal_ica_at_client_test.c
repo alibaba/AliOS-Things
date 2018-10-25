@@ -3,11 +3,12 @@
  */
 
 #include <atparser.h>
-#include "mdal_at_client.h"
+#include "mdal_ica_at_client_test.h"
+#include "mdal_mal_import.h"
 
-#define TAG "mdal_at_client"
+#define TAG "mdal_ica_at_client"
 
-int mdal_at_client_init()
+int HAL_MDAL_MAL_ICA_Init()
 {
 /* At module initialization has done when mk3060 boot.
    If at module is not initialized when system is booting up,
@@ -30,14 +31,14 @@ int mdal_at_client_init()
 #endif
 }
 
-int mdal_at_client_oob(const char *prefix, const char *postfix, int maxlen,
+int HAL_MDAL_MAL_ICA_Oob(const char *prefix, const char *postfix, int maxlen,
                   oob_cb cb, void *arg)
 {
     at.oob(prefix, postfix, maxlen, cb, arg);
     return 0;
 }
 
-int mdal_at_client_write(const char* at_cmd)
+int HAL_MDAL_MAL_ICA_Write(const char* at_cmd)
 {
     return at.send_raw_no_rsp(at_cmd);
 }

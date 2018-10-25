@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef _MDAL_AT_CLIENT_H_
-#define _MDAL_AT_CLIENT_H_
+#ifndef _MDAL_ICA_AT_CLIENT_TEST_H_
+#define _MDAL_ICA_AT_CLIENT_TEST_H_
 
 #ifndef AT_RECV_PREFIX
 #define AT_RECV_PREFIX "\r\n"
@@ -21,10 +21,4 @@
 #define AT_SEND_DELIMITER "\r"
 #endif
 
-typedef void (*oob_cb)(void *arg, char *buf, int buflen);
-
-int  mdal_at_client_init();
-int  mdal_at_client_oob(const char *prefix, const char *postfix, int maxlen,
-                  oob_cb cb, void *arg);
-int  mdal_at_client_write(const char* at_cmd);
 #endif
