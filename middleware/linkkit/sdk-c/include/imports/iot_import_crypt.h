@@ -30,7 +30,7 @@ typedef void *p_HAL_Aes128_t;
  * @see None.
  * @note None.
  */
-p_HAL_Aes128_t HAL_Aes128_Init(
+DLL_HAL_API p_HAL_Aes128_t HAL_Aes128_Init(
             _IN_ const uint8_t *key,
             _IN_ const uint8_t *iv,
             _IN_ AES_DIR_t dir);
