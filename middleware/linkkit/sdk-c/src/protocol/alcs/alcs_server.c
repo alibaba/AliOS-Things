@@ -13,7 +13,6 @@
 #define RES_FORMAT "{\"id\":\"%.*s\",\"code\":%d,\"data\":{%s}}"
 
 #ifdef ALCS_SERVER_ENABLED
-
 int sessionid_seed = 0xff;
 static int default_heart_expire = 120000;
 
@@ -267,30 +266,7 @@ void alcs_rec_auth (CoAPContext *ctx, const char *paths, NetworkAddr* from, CoAP
     alcs_sendrsp (ctx, from, &message, 1, resMsg->header.msgid, &token);
 }
 
-static int alcs_remove_low_priority_key (CoAPContext *ctx, ServerKeyPriority priority)
-{
-    auth_list* lst = get_list(ctx);
-    if (!lst) {
-        return COAP_ERROR_NULL;
-    }
-
-    svr_key_item *node = NULL, *next = NULL;
-    HAL_MutexLock(lst->list_mutex);
-
-    list_for_each_entry_safe(node, next, &lst->lst_svr, lst, svr_key_item) {
-        if(node->keyInfo.priority < priority){
-            coap_free(node->keyInfo.secret);
-            list_del(&node->lst);
-            coap_free(node);
-            --lst->svr_count;
-        }
-    }
-    HAL_MutexUnlock(lst->list_mutex);
-
-    return COAP_SUCCESS;
-}
-
-static int add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret, bool isGroup, ServerKeyPriority priority)
+int add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret, bool isGroup)
 {
     COAP_INFO("add_svr_key\n");
 
@@ -298,33 +274,22 @@ static int add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* sec
     if (!lst || lst->svr_count >= KEY_MAXCOUNT || strlen(keyprefix) != KEYPREFIX_LEN) {
         return COAP_ERROR_INVALID_LENGTH;
     }
-    alcs_remove_low_priority_key (ctx, priority);
 
-    HAL_MutexLock(lst->list_mutex);
-    svr_key_item *node = NULL, *next = NULL;
-    list_for_each_entry_safe(node, next, &lst->lst_svr, lst, svr_key_item) {
-        if(node->keyInfo.priority > priority){
-            //find high priority key
-        HAL_MutexUnlock(lst->list_mutex);
-            return COAP_ERROR_UNSUPPORTED;
-        }
-    }
-
+    COAP_INFO("call coap_malloc\n");
     svr_key_item* item = (svr_key_item*) coap_malloc(sizeof(svr_key_item));
     if (!item) {
-        HAL_MutexUnlock(lst->list_mutex);
         return COAP_ERROR_MALLOC;
     }
 
     item->keyInfo.secret = (char*) coap_malloc(strlen(secret) + 1);
     if (!item->keyInfo.secret) {
-        HAL_MutexUnlock(lst->list_mutex);
         coap_free (item);
         return COAP_ERROR_MALLOC;
     }
     strcpy (item->keyInfo.secret, secret);
     strcpy (item->keyInfo.keyprefix, keyprefix);
 
+    HAL_MutexLock(lst->list_mutex);
     list_add_tail(&item->lst, &lst->lst_svr);
     ++lst->svr_count;
     HAL_MutexUnlock(lst->list_mutex);
@@ -332,10 +297,10 @@ static int add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* sec
     return COAP_SUCCESS;
 }
 
-int alcs_add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret, ServerKeyPriority priority)
+int alcs_add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret)
 {
-    COAP_INFO("alcs_add_svr_key, priority=%d", priority);
-    return add_svr_key (ctx, keyprefix, secret, 0, priority);
+    COAP_INFO("alcs_add_svr_key");
+    return add_svr_key (ctx, keyprefix, secret, 0);
 }
 
 
@@ -354,7 +319,6 @@ int alcs_remove_svr_key (CoAPContext *ctx, const char* keyprefix)
             coap_free(node->keyInfo.secret);
             list_del(&node->lst);
             coap_free(node);
-            --lst->svr_count;
             break;
         }
     }
