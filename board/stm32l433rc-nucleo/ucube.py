@@ -22,4 +22,4 @@ if aos_global_config.get('sal', 1) == 1:
 
 component.set_enable_vfp()
 
-linux_only_targets="hdlcapp.hdlcclient coapapp mqttapp blink hdlcapp.hdlcserver alinkapp wifihalapp acapp uDataapp helloworld netmgrapp linuxapp helloworld_nocli nano atapp vflashdemo tls networkapp otaapp i2c_hts221_test cryptotest yts kernel_test ldapp http2app"
+linux_only_targets="hdlcapp.hdlcclient coapapp mqttapp blink hdlcapp.hdlcserver alinkapp wifihalapp acapp udataapp helloworld netmgrapp linuxapp helloworld_nocli nano atapp vflashdemo tls networkapp otaapp i2c_hts221_test cryptotest yts kernel_test ldapp http2app"
