@@ -64,17 +64,17 @@ typedef struct {
     char                *channel_id;        /* string return by server to identify a specific stream channel, different from stream identifier which is a field in HTTP2 frame */
 } stream_data_info_t;
 
-typedef void (*on_stream_header_callback)(char *stream_id, int cat, const uint8_t *name, size_t namelen,
+typedef void (*on_stream_header_callback)(uint32_t stream_id, char *channel_id, int cat, const uint8_t *name, size_t namelen,
         const uint8_t *value, size_t valuelen, uint8_t flags);
 
-typedef void (*on_stream_chunk_recv_callback)(char *stream_id,
+typedef void (*on_stream_chunk_recv_callback)(uint32_t stream_id, char *channel_id,
         const uint8_t *data, size_t len, uint8_t flags);
 
-typedef void (*on_stream_close_callback)(char *stream_id, uint32_t error_code);
+typedef void (*on_stream_close_callback)(uint32_t stream_id, char *channel_id, uint32_t error_code);
 
-typedef void (*on_stream_frame_send_callback)(char *stream_id, int type, uint8_t flags);
+typedef void (*on_stream_frame_send_callback)(uint32_t stream_id, char *channel_id, int type, uint8_t flags);
 
-typedef void (*on_stream_frame_recv_callback)(char *stream_id, int type, uint8_t flags);
+typedef void (*on_stream_frame_recv_callback)(uint32_t stream_id, char *channel_id, int type, uint8_t flags);
 
 typedef struct {
     on_stream_header_callback       on_stream_header_cb;
