@@ -485,3 +485,195 @@ int HAL_GetNetifInfo(char *nif_str)
     return strlen(nif_str);
 }
 
+uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[NETWORK_ADDR_LEN], _IN_ const char *ifname)
+{
+	return 0;
+}
+
+void   *HAL_Timer_Create(const char *name, void(*func)(void *), void *user_data)
+{
+	return 0;
+}
+
+int     HAL_Timer_Start(void *t, int ms)
+{
+	return 0;
+}
+
+
+int     HAL_Timer_Stop(void *t)
+{
+	return 0;
+}
+
+int     HAL_Timer_Delete(void *timer)
+{
+	return 0;
+}
+
+intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port)
+{
+	return 0;
+}
+
+int HAL_UDP_sendto(_IN_ intptr_t sockfd,
+	_IN_ const NetworkAddr *p_remote,
+	_IN_ const unsigned char *p_data,
+	_IN_ unsigned int datalen,
+	_IN_ unsigned int timeout_ms)
+{
+	return 0;
+}
+
+int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
+	_OU_ NetworkAddr *p_remote,
+	_OU_ unsigned char *p_data,
+	_IN_ unsigned int datalen,
+	_IN_ unsigned int timeout_ms)
+{
+	return 0;
+}
+
+int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
+	_IN_ char *p_group)
+{
+	return 0;
+}
+
+int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
+{
+	return 0;
+}
+
+int HAL_Awss_Connect_Ap(
+	_IN_ uint32_t connection_timeout_ms,
+	_IN_ char ssid[HAL_MAX_SSID_LEN],
+	_IN_ char passwd[HAL_MAX_PASSWD_LEN],
+	_IN_OPT_ enum AWSS_AUTH_TYPE auth,
+	_IN_OPT_ enum AWSS_ENC_TYPE encry,
+	_IN_OPT_ uint8_t bssid[ETH_ALEN],
+	_IN_OPT_ uint8_t channel)
+{
+	return 0;
+}
+
+int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
+{
+	return 0;
+}
+
+int HAL_Wifi_Get_Ap_Info(
+	_OU_ char ssid[HAL_MAX_SSID_LEN],
+	_OU_ char passwd[HAL_MAX_PASSWD_LEN],
+	_OU_ uint8_t bssid[ETH_ALEN])
+{
+	return 0;
+}
+
+int HAL_Awss_Get_Conn_Encrypt_Type(void)
+{
+	return 0;
+}
+
+
+int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
+	_IN_ uint8_t *buffer, _IN_ int len)
+{
+	return 0;
+}
+
+int HAL_Awss_Get_Encrypt_Type(void)
+{
+	return 0;
+}
+
+int HAL_Awss_Get_Timeout_Interval_Ms(void)
+{
+	return 0;
+}
+
+int HAL_Awss_Get_Channelscan_Interval_Ms(void)
+{
+	return 0;
+}
+
+void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
+{
+	return;
+}
+
+void HAL_Awss_Switch_Channel(
+	_IN_ char primary_channel,
+	_IN_OPT_ char secondary_channel,
+	_IN_OPT_ uint8_t bssid[ETH_ALEN])
+{
+	return;
+}
+
+void HAL_Awss_Close_Monitor(void)
+{
+	return;
+}
+
+int HAL_Sys_Net_Is_Ready()
+{
+	return 0;
+}
+
+p_HAL_Aes128_t HAL_Aes128_Init(
+	_IN_ const uint8_t *key,
+	_IN_ const uint8_t *iv,
+	_IN_ AES_DIR_t dir)
+{
+	return 0;
+}
+
+int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes)
+{
+	return 0;
+}
+
+int HAL_Aes128_Cbc_Decrypt(
+	_IN_ p_HAL_Aes128_t aes,
+	_IN_ const void *src,
+	_IN_ size_t blockNum,
+	_OU_ void *dst)
+{
+	return 0;
+}
+
+
+int HAL_Aes128_Cfb_Decrypt(
+	_IN_ p_HAL_Aes128_t aes,
+	_IN_ const void *src,
+	_IN_ size_t length,
+	_OU_ void *dst)
+
+{
+	return 0;
+}
+
+void    HAL_Reboot(void)
+{
+	return;
+}
+
+char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
+{
+	return 0;
+}
+
+int     HAL_Kv_Del(const char *key)
+{
+	return 0;
+}
+
+
+int HAL_Aes128_Cbc_Encrypt(
+	_IN_ p_HAL_Aes128_t aes,
+	_IN_ const void *src,
+	_IN_ size_t blockNum,
+	_OU_ void *dst)
+{
+	return 0;
+}
