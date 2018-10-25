@@ -153,7 +153,6 @@ static void alink_work(void *arg)
 #else
     init_bzlink.ota_cb = ota_handler;
 #endif
-    memcpy(init_bzlink.version, SOFTWARE_VERSION, strlen(SOFTWARE_VERSION));
     ret = breeze_start(&init_bzlink);
     if (ret != 0) {
         printf("breeze_start failed.\r\n");
