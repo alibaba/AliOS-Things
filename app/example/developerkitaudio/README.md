@@ -10,6 +10,7 @@
     - [Run](#run)
 
 ### Overview
+> 中文版见这里。Please see [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6) to find usage guide in chinese.  
 
 `developerkitaudio` is a the specific example for developerkit, It demonstrate how to operate the codec called ISD9160. developerkitaudio source files:
 
@@ -30,36 +31,41 @@ developerkitaudio
 
 ### Build
 
-using [aos-cube](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-uCube) to build developerkitaudio for [developerkit](../../board/developerkit/README.md):
+using [aos-cube](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-uCube) to build developerkitaudio for [developerkit](../../board/developerkit/README.md)
+More details for [Environment Setup](https://linkdevelop.aliyun.com/device-doc#dev-prepare.html)  
 
 ```sh
 aos make developerkitaudio@developerkit
 ```
 
-### Run
+### Prepare and Flash
 
-You can take the ISD9160 firmware from [http://www.notioni.com/#/source](http://www.notioni.com/#/source). The firmware comes 2 versions:
+ You can get ISD9160 firmware which is for codec from [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6).   
+ Two different firmware version as below:
 
 `v1.xx` ---- record and playback via I2S.
 `v2.xx` ---- voice recognition.
 
-Please copy the firmware on a sdcard, rename it to `isd9160_fw.bin`, and install the sdcard to developerkit.
+Please copy firmware for voice codec on a sdcard, rename it to `isd9160_fw.bin` one by one, and install the sdcard to developerkit.
+E.g, if you want to record or playback voice, please use v1.xx.
 
-Connect Developerkit ST-LINK USB port to PC.
-
+Connect Developerkit ST-LINK USB port to PC to flash image to MCU.
 ```sh
 aos upload developerkitaudio@developerkit
 ```
 
-Then open the developerkit ST-LINK uart, and you can:
+### Run
 
-Press `key B` to upgrade firmware of codec(ISD9160) that is stored on SD card.
+Press `key B` to upgrade firmware of codec(ISD9160) that is stored on SD card, there are some logs from terminal.
 
-Press `key M` to record to file that is stored on SD card.                                     *---- for v1.xx*
+* If using v1.xx codec firmware, please follow below to record/playback voice:  
+  Press `key M` to record to file that is stored on SD card.     
+   
+  Press `key A` to playback from file that is stored on SD card. 
+ 
+* If using v2.xx codec firmware, please follow below to recognize the meaning of voice: 
 
-Press `key A` to playback from file that is stored on SD card.                                 *---- for v1.xx*
+Try to speak the wakeup command "Xiao Te Xiao Te", the LED1 will be turn on for about 10 seconds if waked up, then you can speak special commands at this moment that LED1 is on-line.
+When the LED1 is off, you need to wake it up again.
 
-Try speak the command "Xiao Te Xiao Te" to awake, and the ST-LINK uart will echo the command, while the LED1 will be lit on for 10 seconds, then you can speak other commands during the time.
-When the LED1 is off, you need to awake it again.                                              *---- for v2.xx*
-
-Recognition command list and more details are available in [http://www.notioni.com/#/source](http://www.notioni.com/#/source).
+[Recognition command list](https://github.com/Notioni/Codes/blob/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6/readme.txt), currently only support chinese.
