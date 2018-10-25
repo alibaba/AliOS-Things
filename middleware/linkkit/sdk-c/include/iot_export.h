@@ -135,8 +135,8 @@ typedef enum {
 #define ITE_COTA                   (0x000F)
 
 #define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb);
-#define DECLARE_EVENT_CALLBACK(evt, cb)     int iotx_register_for_##evt(cb);
-#define DEFINE_EVENT_CALLBACK(evt, cb)      int iotx_register_for_##evt(cb) { \
+#define DECLARE_EVENT_CALLBACK(evt, cb)         DLL_IOT_API int iotx_register_for_##evt(cb);
+#define DEFINE_EVENT_CALLBACK(evt, cb)          DLL_IOT_API int iotx_register_for_##evt(cb) { \
         if (evt < 0 || evt >= sizeof(g_impl_event_map)/sizeof(impl_event_map_t)) {return -1;} \
         g_impl_event_map[evt].callback = callback;return 0;}
 
