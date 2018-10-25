@@ -25,4 +25,4 @@ global_macros =Split('''
 for i in global_macros:
     component.add_global_macros(i)
 
-linux_only_targets="netmgrapp nano helloworld bluetooth.blemesh_srv wifihalapp bluetooth.blemesh_cli hdlcapp.hdlcserver acapp uDataapp bluetooth.bleperipheral vflashdemo bluetooth.breezeapp bluetooth.bleadv bluetooth.blemesh bluetooth.ble_bqb helloworld_nocli i2c_hts221_test kernel_test yts bluetooth.blemesh_tmall pwr_test cryptotest blink"
+linux_only_targets="netmgrapp nano helloworld bluetooth.blemesh_srv wifihalapp bluetooth.blemesh_cli hdlcapp.hdlcserver acapp udataapp bluetooth.bleperipheral vflashdemo bluetooth.breezeapp bluetooth.bleadv bluetooth.blemesh bluetooth.ble_bqb helloworld_nocli i2c_hts221_test kernel_test yts bluetooth.blemesh_tmall pwr_test cryptotest blink"
