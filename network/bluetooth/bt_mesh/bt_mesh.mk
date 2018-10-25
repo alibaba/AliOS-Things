@@ -2,9 +2,9 @@ NAME := bt_mesh
 
 $(NAME)_TYPE := kernel
 
-$(NAME)_INCLUDES += ./api/adv/ \
-                    ./api/crypto/ \
-                    ./api/gatt/ \
+$(NAME)_INCLUDES += ./port/adv/ \
+                    ./port/crypto/ \
+                    ./port/gatt/ \
                     ./inc/ \
                     ./inc/api/mesh/ \
                     ../bt/common/tinycrypt/include/ \
@@ -13,9 +13,9 @@ $(NAME)_INCLUDES += ./api/adv/ \
 
 $(NAME)_COMPONENTS += yloop
 
-$(NAME)_SOURCES := ./api/adv/bt_mesh_adv.c \
-                   ./api/crypto/bt_mesh_crypto.c \
-                   ./api/gatt/bt_mesh_gatt.c \
+$(NAME)_SOURCES := ./port/adv/bt_mesh_adv.c \
+                   ./port/crypto/bt_mesh_crypto.c \
+                   ./port/gatt/bt_mesh_gatt.c \
                    ./src/access.c \
                    ./src/adv.c \
                    ./src/beacon.c \
@@ -32,4 +32,4 @@ $(NAME)_SOURCES := ./api/adv/bt_mesh_adv.c \
 
 GLOBAL_INCLUDES += ./inc/ \
                    ./inc/api/ \
-                   ./api/
+                   ./port/
