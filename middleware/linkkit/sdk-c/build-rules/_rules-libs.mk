@@ -13,6 +13,7 @@ ifdef Extra_CMake_Head
 	@rm -f $(OUTPUT_DIR)/$(STAMP_CMAKE)
 	@$(call Extra_CMake_Head, >> $(OUTPUT_DIR)/$(STAMP_CMAKE))
 	@cat $(TOP_DIR)/${MODULE_NAME}/CMakeLists.txt >> $(OUTPUT_DIR)/$(STAMP_CMAKE)
+	@$(call Extra_CMake_Foot, >> $(OUTPUT_DIR)/$(STAMP_CMAKE))
 	@mv $(OUTPUT_DIR)/$(STAMP_CMAKE) $(TOP_DIR)/${MODULE_NAME}/CMakeLists.txt
 endif
 
