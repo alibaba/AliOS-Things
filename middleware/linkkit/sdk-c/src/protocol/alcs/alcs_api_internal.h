@@ -24,20 +24,19 @@ typedef struct
 } ctl_key_item;
 #endif
 
-#ifdef ALCS_SERVER_ENABLED
-
 typedef struct
 {
     char              keyprefix[KEYPREFIX_LEN + 1];
     char*             secret;
-    ServerKeyPriority priority;
 } svr_key_info;
 
+#ifdef ALCS_SERVER_ENABLED
 typedef struct
 {
     svr_key_info keyInfo;
     struct list_head  lst;
 } svr_key_item;
+#endif
 
 typedef struct
 {
@@ -46,7 +45,6 @@ typedef struct
     svr_key_info keyInfo;
     struct list_head  lst;
 } svr_group_item;
-#endif
 
 typedef struct
 {

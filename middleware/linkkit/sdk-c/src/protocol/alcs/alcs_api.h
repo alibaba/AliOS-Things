@@ -133,15 +133,9 @@ bool alcs_device_online (CoAPContext *context, AlcsDeviceKey* devKey);
 #endif
 
 #ifdef ALCS_SERVER_ENABLED
-typedef enum
-{
-    LOCALDEFAULT,
-    LOCALSETUP,
-    FROMCLOUDSVR
-} ServerKeyPriority;
-
-int alcs_add_svr_key (CoAPContext *context, const char* keyprefix, const char* secret, ServerKeyPriority priority);
+int alcs_add_svr_key (CoAPContext *context, const char* keyprefix, const char* secret);
 int alcs_remove_svr_key (CoAPContext *context, const char* keyprefix);
+
  /*  设置吊销列表*
  *  context：   为当前设备生成的CoAPContext对象指针
  *  seqlist：   吊销列表字符串，每个被吊销设备占用三字节
