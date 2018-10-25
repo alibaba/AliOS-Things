@@ -191,7 +191,7 @@ int mqtt_client(void)
     mqtt_params.pub_key = pconn_info->pub_key;
 
     mqtt_params.request_timeout_ms = 2000;
-    mqtt_params.clean_session = 0;
+    mqtt_params.clean_session = 1;
     mqtt_params.keepalive_interval_ms = 60000;
     mqtt_params.read_buf_size = MQTT_MSGLEN;
     mqtt_params.write_buf_size = MQTT_MSGLEN;
