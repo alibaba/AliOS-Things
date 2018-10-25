@@ -163,7 +163,8 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, si
                 strncmp((char *)value, "200", (int)valuelen)) {
                     strncpy(node->status_code, (char *)value, (int)valuelen);
                     HAL_SemaphorePost(node->semaphore);
-            }
+            } 
+
     }
 
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_header_cb) {
@@ -458,13 +459,12 @@ int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, hea
         HAL_MutexUnlock(handle->mutex);
         return FAIL_RETURN;
     }
-
     info->channel_id = node->channel_id;
 
     return SUCCESS_RETURN;
 }
 
-int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
+int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header)
 {
     int rv = 0;
     http2_data h2_data;
@@ -473,6 +473,7 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
     int windows_size;
     int count = 0;
     http2_stream_node_t *node = NULL;
+    http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
 
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
@@ -504,8 +505,12 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
 
         int header_count = sizeof(static_header) / sizeof(static_header[0]);
         
+        header_count = http2_nv_copy(nva, 0, (http2_header *)static_header, sizeof(static_header) / sizeof(static_header[0]));
+        if (header != NULL) {
+            header_count = http2_nv_copy(nva, header_count, (http2_header *)header->nva, header->num);
+        }
         memset(&h2_data, 0, sizeof(h2_data));
-        h2_data.header = (http2_header *)static_header;
+        h2_data.header = (http2_header *)nva;
         h2_data.header_count = header_count;
         h2_data.data = info->stream;
         h2_data.len = info->packet_len;
@@ -572,12 +577,14 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info)
     return rv;
 }
 
-int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info)
+int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header)
 {
     int rv = 0;
     http2_data h2_data;
     http2_stream_node_t *node = NULL;
     char path[128] = {0};
+    int header_count = 0;
+    http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
 
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
@@ -591,9 +598,12 @@ int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info)
                                            MAKE_HEADER("x-test-downstream", "1"),
                                          };
 
-    int header_count = sizeof(static_header) / sizeof(static_header[0]);
-
-    h2_data.header = (http2_header *)static_header;
+    header_count = sizeof(static_header) / sizeof(static_header[0]);
+    header_count = http2_nv_copy(nva, 0, (http2_header *)static_header, sizeof(static_header) / sizeof(static_header[0]));
+    if (header != NULL) {
+        header_count = http2_nv_copy(nva, header_count, (http2_header *)header->nva, header->num);
+    }
+    h2_data.header = (http2_header *)nva;
     h2_data.header_count = header_count;
     h2_data.data = NULL;
     h2_data.len = 0;
