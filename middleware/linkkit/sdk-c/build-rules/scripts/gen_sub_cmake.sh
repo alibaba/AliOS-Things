@@ -106,6 +106,7 @@ $(for i in ${TARGET}; do
     echo ""
 done)
 
+SET (EXECUTABLE_OUTPUT_PATH ../out)
 EOB
 
 fi

@@ -8,3 +8,8 @@ define Extra_CMake_Head
     echo 'ADD_DEFINITIONS (-DDLL_TLS_EXPORTS)' $(1)
     echo '' $(1)
 endef
+
+define Extra_CMake_Foot
+    echo 'SET (LIBRARY_OUTPUT_PATH ../../../out)' $(1)
+    echo '' $(1)
+endef
