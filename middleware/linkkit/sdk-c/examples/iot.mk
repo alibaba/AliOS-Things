@@ -82,4 +82,3 @@ ifneq (,$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS)))
     TARGET          := mqtt-example
     SRCS            := mqtt/mqtt_example.c
 endif
-

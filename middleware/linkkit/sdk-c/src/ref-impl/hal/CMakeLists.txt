@@ -45,3 +45,5 @@ ADD_LIBRARY (iot_hal SHARED
 
 TARGET_LINK_LIBRARIES (iot_hal iot_tls)
 
+SET (LIBRARY_OUTPUT_PATH ../../../out)
+

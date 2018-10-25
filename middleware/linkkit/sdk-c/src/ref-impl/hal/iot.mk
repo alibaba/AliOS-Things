@@ -28,4 +28,6 @@ endef
 define Extra_CMake_Foot
     echo 'TARGET_LINK_LIBRARIES (iot_hal iot_tls)' $(1)
     echo '' $(1)
+    echo 'SET (LIBRARY_OUTPUT_PATH ../../../out)' $(1)
+    echo '' $(1)
 endef

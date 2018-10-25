@@ -51,3 +51,5 @@ ADD_LIBRARY (iot_tls SHARED
     ${EXTRA_C_SOURCES}
 )
 
+SET (LIBRARY_OUTPUT_PATH ../../../out)
+

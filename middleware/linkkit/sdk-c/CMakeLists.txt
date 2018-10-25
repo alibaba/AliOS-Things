@@ -102,3 +102,5 @@ if(WIN32)
 endif(WIN32)
 
 TARGET_LINK_LIBRARIES (iot_sdk iot_hal)
+
+SET (LIBRARY_OUTPUT_PATH ./out)
