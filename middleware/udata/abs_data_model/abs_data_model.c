@@ -527,7 +527,7 @@ int abs_data_open(uData_service_t *service)
 int abs_data_close(sensor_tag_e tag)
 {
     int      ret   = 0;
-    uint32_t index = 0;
+    int      index = 0;
     if (g_sensor_node[tag].fd <= 0) {
         return -1;
     }
