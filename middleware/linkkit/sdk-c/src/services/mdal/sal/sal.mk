@@ -2,8 +2,13 @@ NAME := sal
 
 GLOBAL_DEFINES += WITH_SAL
 
-$(NAME)_SOURCES := sal_sockets.c sal_err.c sal_arch.c sal_util.c ip4_addr.c
-GLOBAL_INCLUDES += ./include
+$(NAME)_SOURCES := ./src/sal_sockets.c \
+                   ./src/sal_err.c     \
+                   ./src/sal_arch.c    \
+                   ./src/sal_util.c    \
+                   ./src/ip4_addr.c
+GLOBAL_INCLUDES += ./                  \
+                   ./include
 
 ifeq (wifi.gt202,$(module))
 $(NAME)_COMPONENTS += sal.wifi.gt202
