@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef LINKKIT_EXPORT_H
 #define LINKKIT_EXPORT_H
 
