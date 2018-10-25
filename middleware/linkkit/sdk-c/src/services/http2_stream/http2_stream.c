@@ -156,21 +156,27 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, si
                 }
                 memset(node->channel_id, 0, (int)valuelen + 1);
                 memcpy(node->channel_id, (char *)value, (int)valuelen);
-            } 
+                if (++node->rcv_hd_cnt == 2) {
+                    HAL_SemaphorePost(node->semaphore);
+                }
+            }
             // else if (strncmp((char *)name, "x-response-status", (int)namelen) == 0) {
             //     strncpy(node->status_code, (char *)value, (int)valuelen);
             //     HAL_SemaphorePost(node->semaphore);
             // }
-             else if (strncmp((char *)name, ":status", (int)namelen) == 0 && 
-                strncmp((char *)value, "200", (int)valuelen) == 0) {
-                    strncpy(node->status_code, (char *)value, (int)valuelen);
+            else if (strncmp((char *)name, ":status", (int)namelen) == 0 &&
+                     strncmp((char *)value, "200", (int)valuelen) == 0) {
+                strncpy(node->status_code, (char *)value, (int)valuelen);
+                if (++node->rcv_hd_cnt == 2) {
                     HAL_SemaphorePost(node->semaphore);
-            } 
+                }
+            }
 
     }
 
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_header_cb) {
-        g_stream_handle->cbs->on_stream_header_cb(node->stream_id, node->channel_id, cat, name, namelen, value, valuelen, flags);
+        g_stream_handle->cbs->on_stream_header_cb(node->stream_id, node->channel_id, cat, name, namelen, value, valuelen,
+                flags);
     }
 }
 
@@ -202,7 +208,7 @@ static void on_stream_close(int32_t stream_id, uint32_t error_code)
     http2_stream_node_search(g_stream_handle, stream_id, &node);
     if (node == NULL) {
         return;
-    }    
+    }
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_close_cb) {
         g_stream_handle->cbs->on_stream_close_cb(node->stream_id, node->channel_id, error_code);
     }
@@ -331,11 +337,11 @@ stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_s
 
     POINTER_SANITY_CHECK(conn_info, NULL);
     POINTER_SANITY_CHECK(conn_info->product_key, NULL);
-    POINTER_SANITY_CHECK(conn_info->device_name, NULL);    
+    POINTER_SANITY_CHECK(conn_info->device_name, NULL);
     POINTER_SANITY_CHECK(conn_info->device_secret, NULL);
 
     memset(&g_client, 0, sizeof(httpclient_t));
-    
+
     stream_handle = malloc(sizeof(stream_handle_t));
     if (stream_handle == NULL) {
         return NULL;
@@ -481,8 +487,8 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info, hea
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info->stream, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info->channel_id, NULL_VALUE_ERROR);
-    ARGUMENT_SANITY_CHECK(info->stream_len !=0, FAIL_RETURN);
-    ARGUMENT_SANITY_CHECK(info->packet_len !=0, FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(info->stream_len != 0, FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(info->packet_len != 0, FAIL_RETURN);
 
     windows_size = iotx_http2_get_available_window_size(handle->http2_connect);
     while (windows_size < info->packet_len) {
@@ -506,7 +512,7 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info, hea
                                              };
 
         int header_count = sizeof(static_header) / sizeof(static_header[0]);
-        
+
         header_count = http2_nv_copy(nva, 0, (http2_header *)static_header, sizeof(static_header) / sizeof(static_header[0]));
         if (header != NULL) {
             header_count = http2_nv_copy(nva, header_count, (http2_header *)header->nva, header->num);
@@ -559,16 +565,16 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info, hea
     }
 
     if (h2_data.flag == 1) {
-        http2_stream_node_t *node =NULL;
+        http2_stream_node_t *node = NULL;
         HAL_MutexLock(handle->mutex);
-        http2_stream_node_search(handle, h2_data.stream_id ,&node);
+        http2_stream_node_search(handle, h2_data.stream_id, &node);
         HAL_MutexUnlock(handle->mutex);
         if (node == NULL) {
             return FAIL_RETURN;
         }
         rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
         if (rv < 0 || memcmp(node->status_code, "200", 3)) {
-            h2stream_err("semaphore wait overtime or status code error,h2_data.stream_id %d\n", h2_data.stream_id );
+            h2stream_err("semaphore wait overtime or status code error,h2_data.stream_id %d\n", h2_data.stream_id);
             HAL_MutexLock(handle->mutex);
             http2_stream_node_remove(handle, node->stream_id);
             HAL_MutexUnlock(handle->mutex);
@@ -590,7 +596,7 @@ int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info, he
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info->channel_id, NULL_VALUE_ERROR);
-    
+
     HAL_Snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
     const http2_header static_header[] = { MAKE_HEADER(":method", "GET"),
                                            MAKE_HEADER_CS(":path", path),
@@ -623,7 +629,7 @@ int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info, he
 
     if (node == NULL) {
         return FAIL_RETURN;
-    }    
+    }
 
     node->stream_type = STREAM_TYPE_DOWNLOAD;
     rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
@@ -633,7 +639,7 @@ int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info, he
         http2_stream_node_remove(handle, node->stream_id);
         HAL_MutexUnlock(handle->mutex);
         return FAIL_RETURN;
-    }    
+    }
 
     return rv;
 }
@@ -685,7 +691,7 @@ int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
             HAL_SemaphoreDestroy(node->semaphore);
             HAL_Free(node);
             continue;
-        }       
+        }
         if ((node->channel_id != NULL) && (len == strlen(node->channel_id) && !memcmp(node->channel_id, stream_id, len))) {
             h2stream_info("stream_node found: %s, Delete It", node->channel_id);
             list_del((list_head_t *)&node->list);
@@ -737,7 +743,7 @@ typedef struct {
     upload_file_result_cb cb;
     header_ext_info_t *header;
     void *data;
-}http2_stream_file_t;
+} http2_stream_file_t;
 
 static int http2_stream_get_file_size(const char *file_name)
 {
@@ -771,81 +777,82 @@ static int http2_stream_get_file_data(const char *file_name, char *data, int len
     return len;
 }
 
-static void * http_upload_file_func(void *user) {
+static void *http_upload_file_func(void *user)
+{
 
     stream_data_info_t info;
     int ret;
-    if(user == NULL) {
+    if (user == NULL) {
         return NULL;
     }
-    
-    http2_stream_file_t *user_data = (http2_stream_file_t *)user; 
+
+    http2_stream_file_t *user_data = (http2_stream_file_t *)user;
 
     int file_size = http2_stream_get_file_size(user_data->path);
 
-    if(file_size<=0) {
-        if(user_data->cb) {
-            user_data->cb(user_data->path,UPLOAD_FILE_NOT_EXIST,user_data->data);
+    if (file_size <= 0) {
+        if (user_data->cb) {
+            user_data->cb(user_data->path, UPLOAD_FILE_NOT_EXIST, user_data->data);
         }
         HAL_Free(user_data);
         return NULL;
     }
 
-    h2stream_info("file_size=%d",file_size);
-    
+    h2stream_info("file_size=%d", file_size);
+
     char *data = HAL_Malloc(PACKET_LEN);
-    if(data == NULL) {
-        user_data->cb(user_data->path,UPLOAD_MALLOC_FAILED,user_data->data);
+    if (data == NULL) {
+        user_data->cb(user_data->path, UPLOAD_MALLOC_FAILED, user_data->data);
         HAL_Free(user_data);
         return NULL;
     }
 
-    memset(&info,0,sizeof(stream_data_info_t));
+    memset(&info, 0, sizeof(stream_data_info_t));
     info.stream = data;
-    info.stream_len= file_size;
-    info.packet_len=PACKET_LEN;
+    info.stream_len = file_size;
+    info.packet_len = PACKET_LEN;
     //info.identify = "com/aliyun/iotx/vision/picture/device/upstream";
     info.identify = user_data->identify;
 
     ret = IOT_HTTP2_Stream_Open(user_data->handle, &info, user_data->header);
-    if(ret < 0) {
+    if (ret < 0) {
         h2stream_err("IOT_HTTP2_Stream_Open failed %d\n", ret);
-        if(user_data->cb) {
-            user_data->cb(user_data->path,UPLOAD_STREAM_OPEN_FAILED,user_data->data);
+        if (user_data->cb) {
+            user_data->cb(user_data->path, UPLOAD_STREAM_OPEN_FAILED, user_data->data);
         }
         HAL_Free(user_data);
         return NULL;
     }
-    
-    while(info.send_len<info.stream_len) {
+
+    while (info.send_len < info.stream_len) {
 
         ret = http2_stream_get_file_data(user_data->path, data, PACKET_LEN, info.send_len);
-        if(ret <= 0) {
+        if (ret <= 0) {
             ret = -1;
             h2stream_err("read file err %d\n", ret);
             break;
         }
         info.packet_len = ret;
         h2stream_debug("get data len =%d\n", ret);
-        if(info.stream_len-info.send_len<info.packet_len) {
-            info.packet_len = info.stream_len-info.send_len;
+        if (info.stream_len - info.send_len < info.packet_len) {
+            info.packet_len = info.stream_len - info.send_len;
         }
 
         ret = IOT_HTTP2_Stream_Send(user_data->handle, &info, user_data->header);
-        if(ret < 0) {
+        if (ret < 0) {
             h2stream_err("send err %d\n", ret);
             break;
         }
     }
-       
-    if(user_data->cb) {
 
-        if(ret < 0) {
+    if (user_data->cb) {
+
+        if (ret < 0) {
             ret = UPLOAD_STREAM_SEND_FAILED;
         } else {
             ret = UPLOAD_SUCCESS;
         }
-        user_data->cb(user_data->path,ret,user_data->data);
+        user_data->cb(user_data->path, ret, user_data->data);
     }
     IOT_HTTP2_Stream_Close(user_data->handle, &info);
 
@@ -853,8 +860,9 @@ static void * http_upload_file_func(void *user) {
     return NULL;
 }
 
-void * file_thread = NULL;
-int IOT_HTTP2_Stream_UploadFile(stream_handle_t *handle,const char *file_path,const char *identify,header_ext_info_t *header, 
+void *file_thread = NULL;
+int IOT_HTTP2_Stream_UploadFile(stream_handle_t *handle, const char *file_path, const char *identify,
+                                header_ext_info_t *header,
                                 upload_file_result_cb cb, void *user_data)
 {
 
@@ -863,10 +871,10 @@ int IOT_HTTP2_Stream_UploadFile(stream_handle_t *handle,const char *file_path,co
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(file_path, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(identify, NULL_VALUE_ERROR);
-    
+
 
     http2_stream_file_t *file_data = (http2_stream_file_t *)HAL_Malloc(sizeof(http2_stream_file_t));
-    if(file_data == NULL) {
+    if (file_data == NULL) {
         return -1;
     }
 

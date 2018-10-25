@@ -101,6 +101,7 @@ typedef struct {
     void *semaphore;                /* semaphore for http2 response sync */
     char status_code[4];            /* http2 response status code */
     http2_list_t list;              /* list_head */
+    uint8_t  rcv_hd_cnt;            /* the number of concerned heads received*/                    
 } http2_stream_node_t;
 
 #ifdef FS_ENABLED
