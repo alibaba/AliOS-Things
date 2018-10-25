@@ -1,1 +1,1 @@
-linux_only_targets="kernel_test helloworld_nocli linkkit_gateway yts cryptotest helloworld networkapp linkkitapp wifimonitor linuxapp wifihalapp uDataapp acapp meshapp vflashdemo mqttapp netmgrapp nano otaapp hdlcapp.hdlcserver coapapp tls athostapp i2c_hts221_test alinkapp ldapp http2app"
+linux_only_targets="kernel_test helloworld_nocli linkkit_gateway yts cryptotest helloworld networkapp linkkitapp wifimonitor linuxapp wifihalapp udataapp acapp meshapp vflashdemo mqttapp netmgrapp nano otaapp hdlcapp.hdlcserver coapapp tls athostapp i2c_hts221_test alinkapp ldapp http2app"
