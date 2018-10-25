@@ -11,6 +11,16 @@ extern "C" {
 #undef  being_deprecated
 #define being_deprecated
 
+#ifdef _WIN32
+#ifdef DLL_API_EXPORTS
+#define DLL_IOT_API __declspec(dllexport)
+#else
+#define DLL_IOT_API __declspec(dllimport)
+#endif
+#else
+#define DLL_IOT_API
+#endif
+
 #include <stdint.h>
 
 /* From device.h */
@@ -135,17 +145,20 @@ DECLARE_EVENT_CALLBACK(ITE_CONNECT_SUCC,         int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_CONNECT_FAIL,         int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*cb)(void))
 DECLARE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*cb)(const int, const unsigned char *, const int))
-DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUST,       int (*cb)(const int, const char *, const int, const char *, const int, char **, int *))
+DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUST,       int (*cb)(const int, const char *, const int, const char *, const int,
+                       char **, int *))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*cb)(const int, const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*cb)(const int, const char *, const int, char **, int *))
 DECLARE_EVENT_CALLBACK(ITE_REPORT_REPLY,         int (*cb)(const int, const int, const int, const char *, const int))
-DECLARE_EVENT_CALLBACK(ITE_TRIGGER_EVENT_REPLY,  int (*cb)(const int, const int, const int, const char *, const int, const char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_TRIGGER_EVENT_REPLY,  int (*cb)(const int, const int, const int, const char *, const int,
+                       const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_TIMESTAMP_REPLY,      int (*cb)(const char *))
 DECLARE_EVENT_CALLBACK(ITE_TOPOLIST_REPLY,       int (*cb)(const int, const int, const int, const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PERMIT_JOIN,          int (*cb)(const char *, int))
 DECLARE_EVENT_CALLBACK(ITE_INITIALIZE_COMPLETED, int (*cb)(const int))
 DECLARE_EVENT_CALLBACK(ITE_FOTA,                 int (*cb)(const int, const char *))
-DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char *, int, const char *, const char *, const char *, const char *))
+DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char *, int, const char *, const char *,
+                       const char *, const char *))
 
 /** @defgroup group_api api
  *  @{
@@ -163,7 +176,7 @@ DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char
  * @return None.
  * @see None.
  */
-void    IOT_SetLogLevel(IOT_LogLevel level);
+DLL_IOT_API void IOT_SetLogLevel(IOT_LogLevel level);
 
 /**
  * @brief Print the memory usage statistics.
@@ -173,7 +186,7 @@ void    IOT_SetLogLevel(IOT_LogLevel level);
  * @return None.
  * @see None.
  */
-void    IOT_DumpMemoryStats(IOT_LogLevel level);
+DLL_IOT_API void IOT_DumpMemoryStats(IOT_LogLevel level);
 
 /** @} */ /* end of api_log */
 
@@ -194,10 +207,10 @@ void    IOT_DumpMemoryStats(IOT_LogLevel level);
  * @retval  0 : Success.
  * @see None.
  */
-int     IOT_SetupConnInfo(const char *product_key,
-                          const char *device_name,
-                          const char *device_secret,
-                          void **info_ptr);
+DLL_IOT_API int IOT_SetupConnInfo(const char *product_key,
+                                  const char *device_name,
+                                  const char *device_secret,
+                                  void **info_ptr);
 
 /**
  * @brief Setup Demain type, should be called before MQTT connection.
@@ -207,7 +220,7 @@ int     IOT_SetupConnInfo(const char *product_key,
  * @return None.
  * @see None.
  */
-int     IOT_Ioctl(int option, void *data);
+DLL_IOT_API int IOT_Ioctl(int option, void *data);
 
 /** @} */ /* end of api_conninfo */
 
