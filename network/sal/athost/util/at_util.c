@@ -249,6 +249,20 @@ int at_read(char *outbuf, uint32_t len)
     return athost_at_read(outbuf, len);
 }
 
+int at_write(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
+             uint16_t datalen)
+{
+    char * tail = NULL;
+
+    if (dataptr && datalen > 0) {
+        tail = AT_RECV_PREFIX;
+    }
+
+    LOGD(TAG, "at going to directly send %s! datelen %d\n", cmdptr, datalen);
+
+    return  athost_at_write((const char *)cmdptr, dataptr, datalen, tail);
+}
+
 int insert_uart_send_msg(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
                          uint16_t datalen)
 {
