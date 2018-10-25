@@ -43,19 +43,19 @@
 
 
 static int upload_end = 0;
-static void on_header(char *stream_id,int cat,const uint8_t *name,size_t namelen, 
+static void on_header(uint32_t stream_id, char *channel_id,int cat,const uint8_t *name,size_t namelen, 
                               const uint8_t *value,size_t valuelen, uint8_t flags)
 {
-    EXAMPLE_TRACE("~~~~~name = %s namelen=%d ,value =%s ,valuelen =%d flag =%d\n", name,namelen,value,valuelen,flags);
+    EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, name = %s, value = %s, flag = %d\n", stream_id,channel_id,name,value,flags);
 }
 
-static void on_chunk_recv(char *stream_id,const uint8_t *data, size_t len,uint8_t flags)
+static void on_chunk_recv(uint32_t stream_id, char *channel_id,const uint8_t *data, size_t len,uint8_t flags)
 {
-     EXAMPLE_TRACE("~~~~~stream_id = %s data=%s ,len =%d flag =%d\n", stream_id,data,len,flags);
+     EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, data = %s ,len = %d flag = %d\n", stream_id,channel_id,data,len,flags);
 }
-static void on_stream_close(char *stream_id,uint32_t error_code)
+static void on_stream_close(uint32_t stream_id, char *channel_id,uint32_t error_code)
 {
-     EXAMPLE_TRACE("~~~~~stream_id = %s error_code =%d\n", stream_id,error_code);
+     EXAMPLE_TRACE("~~~~~stream_id = %d channel_id=%s, error_code = %d\n", stream_id,channel_id,error_code);
 }
 
 static http2_stream_cb_t my_cb = {
