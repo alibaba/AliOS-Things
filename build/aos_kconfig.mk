@@ -15,6 +15,10 @@ export SYSCONFIG_H := $(SOURCE_ROOT)build/configs/sysconfig.h
 
 ifeq ($(HOST_OS),Linux64)
 KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-linux.git
+else
+ifeq ($(HOST_OS),OSX)
+KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-mac.git
+endif
 endif
 
 # Don't read in .config for these targets
