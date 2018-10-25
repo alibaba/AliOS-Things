@@ -20,6 +20,7 @@
 #define MAX_DOMAIN_LEN 256
 #define DATA_LEN_MAX 10
 #define LINK_ID_MAX 5
+#define SEM_WAIT_DURATION 5000
 
 #define STOP_CMD "AT+CIPSTOP"
 #define STOP_CMD_LEN (sizeof(STOP_CMD)+1+1+5+1)
@@ -657,7 +658,7 @@ int HAL_SAL_Start(sal_conn_t *c)
     }
 #endif
 
-    if (aos_sem_wait(&g_link[link_id].sem_start, AOS_WAIT_FOREVER) != 0) {
+    if (aos_sem_wait(&g_link[link_id].sem_start, SEM_WAIT_DURATION) != 0) {
         LOGE(TAG, "%s sem_wait failed", __func__);
         goto err;
     }
@@ -837,7 +838,7 @@ int HAL_SAL_Close(int fd,
         goto err;
     }
 
-    if (aos_sem_wait(&g_link[link_id].sem_close, AOS_WAIT_FOREVER) != 0) {
+    if (aos_sem_wait(&g_link[link_id].sem_close, SEM_WAIT_DURATION) != 0) {
         LOGE(TAG, "%s sem_wait failed", __func__);
         goto err;
     }
