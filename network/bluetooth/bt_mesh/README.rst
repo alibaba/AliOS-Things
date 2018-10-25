@@ -2,7 +2,7 @@ Source Code Structure Overview
 ******************************
 
 bt_mesh/
-+-- api
++-- port
 |     +-- adv
 |     |     +-- bt_mesh_adv.h
 |     |     +-- bt_mesh_adv.c
@@ -57,7 +57,7 @@ bt_mesh/
 
 Detailed description for each directory
 ***************************************
-api:bt mesh APIs exposed for the third party or developer. Including 4 sub-directories: adv, crypto, gatt and os.
+port: APIs between ble mesh layer and ble core stack are needed to port by the third party or developer. Including 4 sub-directories: adv, crypto, gatt and os.
     +-- adv: ble advertise and scan APIs.
     +-- crypto: aes128 encrypt, aes128-cmac, aes128-ccm, random generator and ECC key managements.
     +-- gatt: ble gatt connection APIs.
