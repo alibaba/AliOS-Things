@@ -659,7 +659,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
     }
 
     /* as this function only support POST request message, type ACK and RST shall be considered error parameters */
-    if (p_message->msg_type == IOTX_MESSAGE_ACK || p_message->msg_type == IOTX_MESSAGE_RST) {
+    if (p_message->msg_type != IOTX_MESSAGE_CON && p_message->msg_type != IOTX_MESSAGE_NON) {
         return IOTX_ERR_INVALID_PARAM;
     }
 
@@ -672,7 +672,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
     if (p_iotx_coap->is_authed) {
 
         Cloud_CoAPMessage_init(&message);
-        Cloud_CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
+        Cloud_CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);     /* p_message->msg_type is ignored */
         Cloud_CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
         Cloud_CoAPMessageId_set(&message, Cloud_CoAPMessageId_gen(p_coap_ctx));
         len = iotx_get_coap_token(p_iotx_coap, token);
