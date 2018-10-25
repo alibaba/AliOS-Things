@@ -59,10 +59,9 @@ typedef struct {
     uint32_t            stream_len;         /* file content length */
     uint32_t            send_len;           /* data had sent length */
     uint32_t            packet_len;         /* one packet length */
-    const char          *identify;           /* path string to identify a stream service */
-    int                 h2_stream_id;
-    char
-    *channel_id;          /* string return by server to identify a specific stream channel, different from stream identifier which is a field in HTTP2 frame */
+    const char          *identify;          /* path string to identify a stream service */
+    int                 h2_stream_id;       /* stream identifier which is a field in HTTP2 frame */
+    char                *channel_id;        /* string return by server to identify a specific stream channel, different from stream identifier which is a field in HTTP2 frame */
 } stream_data_info_t;
 
 typedef void (*on_stream_header_callback)(char *stream_id, int cat, const uint8_t *name, size_t namelen,
@@ -123,8 +122,8 @@ DLL_IOT_API int IOT_HTTP2_Stream_UploadFile(stream_handle_t *handle, const char 
 #endif
 stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb);
 DLL_IOT_API int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header);
-DLL_IOT_API int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info);
-DLL_IOT_API int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info);
+DLL_IOT_API int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header);
+DLL_IOT_API int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header);
 DLL_IOT_API int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info);
 DLL_IOT_API int IOT_HTTP2_Stream_Disconnect(stream_handle_t *handle);
 
