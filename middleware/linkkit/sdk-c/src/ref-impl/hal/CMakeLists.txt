@@ -1,7 +1,5 @@
 ADD_DEFINITIONS (-DDLL_HAL_EXPORTS)
 
-TARGET_LINK_LIBRARIES (iot_hal iot_tls)
-
 IF (WIN32)
     SET (OS_DIR win7)
 ELSE (WIN32)
@@ -44,4 +42,6 @@ ADD_LIBRARY (iot_hal SHARED
     ${PROJECT_SOURCE_DIR}/src/ref-impl/hal/ssl/mbedtls/HAL_TLS_mbedtls.c
     ${EXTRA_C_SOURCES}
 )
+
+TARGET_LINK_LIBRARIES (iot_hal iot_tls)
 
