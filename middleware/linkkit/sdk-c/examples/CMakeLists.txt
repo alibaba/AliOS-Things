@@ -33,7 +33,8 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/ntp)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/ref-impl)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/ica)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/ica/test)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include/internal)
@@ -61,14 +62,17 @@ ADD_EXECUTABLE (ota_mqtt-example
 )
 ADD_EXECUTABLE (linkkit-example-solo
     app_entry.c
+    cJSON.c
     linkkit/linkkit_example_solo.c
 )
 ADD_EXECUTABLE (linkkit-example-countdown
     app_entry.c
+    cJSON.c
     linkkit/linkkit_example_cntdown.c
 )
 ADD_EXECUTABLE (linkkit-example-sched
     app_entry.c
+    cJSON.c
     linkkit/linkkit_example_sched.c
 )
 
