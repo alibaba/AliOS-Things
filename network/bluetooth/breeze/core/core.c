@@ -42,8 +42,8 @@ void event_notify(uint8_t event_type, uint8_t *data, uint16_t length)
     ali_event_t event;
 
     event.type = event_type;
-    event.data.rx_data.p_data = data;
-    event.data.rx_data.length = length;
+    event.rx_data.p_data = data;
+    event.rx_data.length = length;
     g_core.event_handler(&event);
 }
 
@@ -63,8 +63,8 @@ void notify_ota_command(uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t 
     g_ota_info.cmd_evt.m_cmd.len = len;
     /* send event to higher layer. */
     evt.type                = BZ_EVENT_OTAINFO;
-    evt.data.rx_data.p_data = &g_ota_info;
-    evt.data.rx_data.length = sizeof(breeze_otainfo_t);
+    evt.rx_data.p_data = &g_ota_info;
+    evt.rx_data.length = sizeof(breeze_otainfo_t);
     g_core.event_handler(&evt);
 }
 
@@ -83,8 +83,8 @@ void notify_ota_event(uint8_t ota_evt, uint8_t sub_evt)
 
     /* send event to higher layer. */
     evt.type                = BZ_EVENT_OTAINFO;
-    evt.data.rx_data.p_data = &g_ota_info;
-    evt.data.rx_data.length = sizeof(breeze_otainfo_t);
+    evt.rx_data.p_data = &g_ota_info;
+    evt.rx_data.length = sizeof(breeze_otainfo_t);
     g_core.event_handler(&evt);
 }
 
