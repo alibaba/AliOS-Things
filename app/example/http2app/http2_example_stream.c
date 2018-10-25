@@ -342,9 +342,7 @@ static int http2_stream_test()
     };
     stream_data_info_t info_upload, info_download;
     memset(&info_upload,0,sizeof(stream_data_info_t));
-    info_upload.stream = (char *)UPLOAD_STRING;
-    info_upload.stream_len= sizeof(UPLOAD_STRING);
-    info_upload.packet_len=2048;
+
     //info_upload.identify = "com/aliyun/iotx/vision/picture/device/upstream";
     info_upload.identify = "iotx/vision/voice/intercom/live";
 
@@ -371,6 +369,30 @@ static int http2_stream_test()
         IOT_HTTP2_Stream_Disconnect(handle);
         return -1;
     }
+    //send request 1
+    info_upload.stream = (char *)UPLOAD_STRING;
+    info_upload.stream_len= sizeof(UPLOAD_STRING);
+    info_upload.send_len = 0;
+    info_upload.packet_len=2048;
+
+    while(info_upload.send_len<info_upload.stream_len) {
+        info_upload.stream = (char *)UPLOAD_STRING + info_upload.send_len;
+        if(info_upload.stream_len-info_upload.send_len<info_upload.packet_len) {
+            info_upload.packet_len = info_upload.stream_len-info_upload.send_len;
+        }
+        ret = IOT_HTTP2_Stream_Send(handle, &info_upload);
+        if(ret <0 ) {
+            EXAMPLE_TRACE("send err, ret = %d\n",ret);
+            break;
+        }
+        EXAMPLE_TRACE("iotx_http2_stream_send info_upload.send_len =%d ret = %d\n", info_upload.send_len,ret);
+    }
+
+    //send request 2
+    info_upload.stream = (char *)UPLOAD_STRING;
+    info_upload.stream_len= sizeof(UPLOAD_STRING);
+    info_upload.send_len = 0;
+    info_upload.packet_len=1024;
 
     while(info_upload.send_len<info_upload.stream_len) {
         info_upload.stream = (char *)UPLOAD_STRING + info_upload.send_len;
