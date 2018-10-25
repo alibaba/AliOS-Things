@@ -63,8 +63,6 @@ static void breeze_awss_init_helper
     } else {
         init->secret_len = 0;
     }
-
-    memcpy(init->version, "1.0.0", strlen("1.0.0"));
 }
 
 void breeze_awss_init
