@@ -356,7 +356,7 @@ static int http2_stream_test()
         return -1;
     }
 
-    ret = IOT_HTTP2_Stream_Query(handle, &info_download);
+    ret = IOT_HTTP2_Stream_Query(handle, &info_download, &my_header_info);
     if (ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_downstream_query failed %d!!!!!\n", ret);
         IOT_HTTP2_Stream_Disconnect(handle);
@@ -380,7 +380,7 @@ static int http2_stream_test()
         if(info_upload.stream_len-info_upload.send_len<info_upload.packet_len) {
             info_upload.packet_len = info_upload.stream_len-info_upload.send_len;
         }
-        ret = IOT_HTTP2_Stream_Send(handle, &info_upload);
+        ret = IOT_HTTP2_Stream_Send(handle, &info_upload, &my_header_info);
         if(ret <0 ) {
             EXAMPLE_TRACE("send err, ret = %d\n",ret);
             break;
@@ -399,7 +399,7 @@ static int http2_stream_test()
         if(info_upload.stream_len-info_upload.send_len<info_upload.packet_len) {
             info_upload.packet_len = info_upload.stream_len-info_upload.send_len;
         }
-        ret = IOT_HTTP2_Stream_Send(handle, &info_upload);
+        ret = IOT_HTTP2_Stream_Send(handle, &info_upload, &my_header_info);
         if(ret <0 ) {
             EXAMPLE_TRACE("send err, ret = %d\n",ret);
             break;
