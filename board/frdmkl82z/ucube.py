@@ -1,1 +1,1 @@
-linux_only_targets="cryptotest wifihalapp hdlcapp.hdlcserver helloworld netmgrapp vflashdemo uDataapp helloworld_nocli i2c_hts221_test nano kernel_test"
+linux_only_targets="cryptotest wifihalapp hdlcapp.hdlcserver helloworld netmgrapp vflashdemo udataapp helloworld_nocli i2c_hts221_test nano kernel_test"
