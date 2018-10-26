@@ -331,6 +331,8 @@ int IOT_OTA_Deinit(void *handle)
         return -1;
     }
 
+    g_ota_is_initialized = 0;
+
     if (NULL != h_ota->ch_signal) {
         osc_Deinit(h_ota->ch_signal);
     }
