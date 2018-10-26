@@ -121,9 +121,6 @@ static int on_frame_send_callback(nghttp2_session *session,
 {
     size_t i;
 
-    if (!nghttp2_session_get_stream_user_data(session, frame->hd.stream_id)) {
-        NGHTTP2_DBG("stream user data is not exit");
-    }
     http2_connection_t *connection  = (http2_connection_t *)user_data;
 
     if (connection == NULL) {
@@ -510,22 +507,26 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
         data_prd.source.len = len;
         data_prd.read_callback = data_read_callback;
         if (nva_size != 0) {
-            stream_id = nghttp2_submit_request(conn->session, NULL, nva, nva_size, &data_prd, NULL);
+            rv = nghttp2_submit_request(conn->session, NULL, nva, nva_size, &data_prd, NULL);
+            h2_data->stream_id = rv;
         } else {
-            nghttp2_submit_data(conn->session, flags, stream_id, &data_prd);
+            rv = nghttp2_submit_data(conn->session, flags, stream_id, &data_prd);
         }
     } else {
-        stream_id = nghttp2_submit_request(conn->session, NULL, nva, nva_size, NULL, NULL);
+        rv = nghttp2_submit_request(conn->session, NULL, nva, nva_size, NULL, NULL);
+        h2_data->stream_id = rv;
     }
-    h2_data->stream_id = stream_id;
+
+    if(rv < 0) {
+        return rv;
+    }
+
     send_flag = nghttp2_session_want_write(conn->session);
     if (send_flag) {
         rv = nghttp2_session_send(conn->session);
         NGHTTP2_DBG("nghttp2_session_send %d\r\n", rv);
-        if (rv < 0) {
-            return -1;
-        }
     }
+    
     return rv;
 }
 
