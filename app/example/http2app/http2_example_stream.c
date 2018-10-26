@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <pthread.h>
 #include "iot_export.h"
 #include "iot_export_http2_stream.h"
 #include "app_entry.h"
