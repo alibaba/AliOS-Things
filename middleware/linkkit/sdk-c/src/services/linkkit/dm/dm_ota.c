@@ -41,6 +41,7 @@ int dm_ota_deinit(void)
 
     if (ctx->ota_handle) {
         IOT_OTA_Deinit(ctx->ota_handle);
+        ctx->ota_handle = NULL;
     }
 #endif
     return SUCCESS_RETURN;
