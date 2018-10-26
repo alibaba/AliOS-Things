@@ -10,13 +10,13 @@
 static ktask_t demo_task_obj;
 cpu_stack_t demo_task_buf[AOS_START_STACK];
 
-extern int aos_app_init(void);
+extern int aos_run_app(void);
 
 static void sys_init(void)
 {
     stm32_soc_init();
 
-    aos_app_init();
+    aos_run_app();
 }
 
 
