@@ -931,9 +931,11 @@ fail:
         hooks->deallocate(buffer->buffer);
     }
 
+#if 0
     if (printed != NULL) {
         hooks->deallocate(printed);
     }
+#endif
 
     return NULL;
 }
