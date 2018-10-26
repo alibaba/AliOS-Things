@@ -79,6 +79,10 @@ static void iotx_post_data_to_server(void *param)
     char               path[IOTX_URI_MAX_LEN + 1] = {0};
     iotx_message_t     message;
     iotx_deviceinfo_t  devinfo;
+
+    memset(&message, 0, sizeof(iotx_message_t));
+    memset(devinfo, 0, sizeof(iotx_deviceinfo_t));
+
     message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
     message.payload_len = strlen("{\"name\":\"hello world\"}");
     message.resp_callback = iotx_response_handler;
