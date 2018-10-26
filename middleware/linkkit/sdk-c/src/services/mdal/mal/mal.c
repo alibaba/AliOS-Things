@@ -23,6 +23,7 @@
 #define MAL_MC_MAX_TOPIC_LEN   128
 #define MAL_MC_MAX_MSG_LEN     512
 
+#define MAL_MC_DEAFULT_TIMEOUT   (5000)
 #define GUIDER_SIGN_LEN             (66)
 #define GUIDER_TS_LEN               (16)
 
@@ -47,7 +48,7 @@ typedef struct at_mqtt_msg_buff_s{
 static at_mqtt_msg_buff_t    g_at_mqtt_buff_mgr;
 
 static int mal_mc_check_state_normal(iotx_mc_client_t *c);
-
+static int mal_mc_release(iotx_mc_client_t *c);
 static iotx_mc_state_t mal_mc_get_client_state(iotx_mc_client_t *pClient);
 static void mal_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t newState);
 int mal_mc_data_copy_from_buf(char *topic, char *message);
@@ -372,12 +373,10 @@ static int mal_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         return MQTT_STATE_ERROR;
     }
 
-#if 0
     if ((state = HAL_MDAL_MAL_State()) != IOTX_MC_STATE_CONNECTED) {
-        mal_mc_set_client_state(c, state);
-        return MQTT_STATE_ERROR;
+        mal_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
+        return MQTT_NETWORK_ERROR;
     }
-#endif
 
     /* read the buf, see what work is due */
     rc = mal_mc_data_copy_from_buf(topic, msg);
@@ -584,6 +583,34 @@ void mal_mc_recv_buf_deinit()
     HAL_MutexDestroy(g_at_mqtt_buff_mgr.buffer_mutex);
 }
 
+int mal_mc_wait_for_result()
+{
+    iotx_time_t         time;
+    int state = 0;
+    int timeout_ms = MAL_MC_DEAFULT_TIMEOUT;
+    iotx_time_init(&time);
+    utils_time_countdown_ms(&time, timeout_ms);
+    do {
+        unsigned int left_t;
+        left_t = iotx_time_left(&time);
+        if (left_t < 100) {
+            HAL_SleepMs(left_t);
+        } else {
+            HAL_SleepMs(100);
+        }
+
+        state = HAL_MDAL_MAL_State();
+    }while (!utils_time_is_expired(&time) &&  (state != IOTX_MC_STATE_CONNECTED));
+
+    if(state == IOTX_MC_STATE_CONNECTED)
+    {
+        return SUCCESS_RETURN;
+    }
+    else
+    {
+        return FAIL_RETURN;
+    }
+}
 /* connect */
 int mal_mc_connect(iotx_mc_client_t *pClient)
 {
@@ -597,6 +624,11 @@ int mal_mc_connect(iotx_mc_client_t *pClient)
     if (rc  != SUCCESS_RETURN) {
         mal_err("send connect packet failed");
         return  rc;
+    }
+    if(SUCCESS_RETURN != mal_mc_wait_for_result())
+    {
+       mal_err("current state is not connected");
+       return FAIL_RETURN;
     }
 
     mal_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
@@ -844,35 +876,6 @@ int mal_mc_data_copy_from_buf(char *topic, char *message)
 
 }
 
-/* AOS activation data report */
-// aos will implement this function
-#ifndef BUILD_AOS
-unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
-                                  unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE],
-                                  unsigned char chip_code[CHIP_CODE_SIZE], unsigned char *output_buffer, unsigned int output_buffer_size)
-{
-    char *p = (char *)output_buffer;
-
-    if (output_buffer_size < AOS_ACTIVE_INFO_LEN) {
-        return 1;
-    }
-
-    memset(p, 0, output_buffer_size);
-
-    LITE_hexbuf_convert(version_num, p, VERSION_NUM_SIZE, 1);
-    p += VERSION_NUM_SIZE * 2;
-    LITE_hexbuf_convert(random_num, p, RANDOM_NUM_SIZE, 1);
-    p += RANDOM_NUM_SIZE * 2;
-    LITE_hexbuf_convert(mac_address, p, MAC_ADDRESS_SIZE, 1);
-    p += MAC_ADDRESS_SIZE * 2;
-    LITE_hexbuf_convert(chip_code, p, CHIP_CODE_SIZE, 1);
-    p += CHIP_CODE_SIZE * 2;
-    strcat(p, "1111111111222222222233333333334444444444");
-
-    return 0;
-}
-#endif
-
 // aos will implement this function
 #if defined(BUILD_AOS)
 extern void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
@@ -959,7 +962,6 @@ static int mal_mc_report_devinfo(iotx_mc_client_t *pclient)
     output: output_buffer store the version info process. length at least OUTPUT_SPACE_SIZE
     return: 0 success, 1 failed
     */
-    show_mm();
     // Get aos active info
     ret = aos_get_version_info((unsigned char *)version, (unsigned char *)random_num, (unsigned char *)mac,
                                (unsigned char *)chip_code, (unsigned char *)output, AOS_ACTIVE_INFO_LEN);
@@ -1214,6 +1216,7 @@ void *MAL_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     mal_mc_recv_buf_init();
     HAL_MDAL_MAL_RegRecvCb(mal_mc_data_copy_to_buf);
 
+    mal_mc_set_client_state(pclient, IOTX_MC_STATE_INITIALIZED);
     err = mal_mc_connect(pclient);
     if (SUCCESS_RETURN != err) {
         mal_mc_release(pclient);

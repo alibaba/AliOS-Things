@@ -3300,6 +3300,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     pclient->mqtt_auth = iotx_guider_authenticate;
 
+#ifndef ATHOST_MQTT_REPORT_DISBALED
     /* report module id */
     err = iotx_mc_report_mid(pclient);
     if (SUCCESS_RETURN != err) {
@@ -3323,6 +3324,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_err("failed to report firmware version");
 #endif
     }
+#endif
 
     g_mqtt_client = pclient;
     return pclient;
