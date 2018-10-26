@@ -1,4 +1,4 @@
-NAME := uapp1
+NAME := uapp2
 
 $(NAME)_TYPE := app
 $(NAME)_MBINS_TYPE := app
@@ -8,7 +8,7 @@ $(NAME)_SOURCES := system/entry.c \
                    system/app_mm.c \
                    src/app.c
 
-GLOBAL_INCLUDES += system \
+GLOBAL_INCLUDES += system
 
 ifeq ($(MBINS),app)
 GLOBAL_DEFINES += AOS_APP_MM
