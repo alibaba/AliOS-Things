@@ -177,7 +177,8 @@ int awss_notify_dev_info(int type, int count)
     char *buf = NULL;
     char *dev_info = NULL;
     int i;
-    platform_netaddr_t notify_sa = {0};
+    platform_netaddr_t notify_sa;
+    memset(&notify_sa, 0, sizeof(notify_sa));
 
     do {
         void *cb = NULL;
@@ -390,8 +391,9 @@ static int __awss_dev_bind_notify()
         }
     }
 
-    if (dev_bind_cnt == 0)
+    if (dev_bind_cnt == 0) {
         awss_event_post(AWSS_BIND_NOTIFY);
+    }
 
     HAL_MutexLock(dev_bind_notify_mutex);
 
@@ -487,26 +489,30 @@ static int __awss_suc_notify()
 
     if (success_notify_mutex == NULL) {
         success_notify_mutex = HAL_MutexCreate();
-        if (success_notify_mutex == NULL)
+        if (success_notify_mutex == NULL) {
             return -1;
+        }
     }
 
-    if (suc_cnt == 0)
+    if (suc_cnt == 0) {
         awss_event_post(AWSS_SUC_NOTIFY);
+    }
 
     HAL_MutexLock(success_notify_mutex);
 
     do {
-        if (awss_notify_resp[AWSS_NOTIFY_SUCCESS] != 0)
+        if (awss_notify_resp[AWSS_NOTIFY_SUCCESS] != 0) {
             break;
+        }
 
         awss_notify_dev_info(AWSS_NOTIFY_SUCCESS, 1);
 
         suc_interval += 100;
         if (suc_cnt++ < AWSS_NOTIFY_CNT_MAX &&
             awss_notify_resp[AWSS_NOTIFY_SUCCESS] == 0) {
-            if (success_notify_timer == NULL)
+            if (success_notify_timer == NULL) {
                 success_notify_timer = HAL_Timer_Create("awss_suc", (void (*)(void *))__awss_suc_notify, NULL);
+            }
             HAL_Timer_Stop(success_notify_timer);
             HAL_Timer_Start(success_notify_timer, suc_interval);
             HAL_MutexUnlock(success_notify_mutex);
@@ -540,14 +546,16 @@ int awss_suc_notify()
 
 int awss_suc_notify_stop()
 {
-    if (success_notify_mutex)
+    if (success_notify_mutex) {
         HAL_MutexLock(success_notify_mutex);
+    }
 
     do {
         awss_notify_resp[AWSS_NOTIFY_SUCCESS] = 1;
         suc_cnt = AWSS_NOTIFY_CNT_MAX;
-        if (success_notify_timer == NULL)
+        if (success_notify_timer == NULL) {
             break;
+        }
 
         awss_stop_timer(success_notify_timer);
         success_notify_timer = NULL;
@@ -568,22 +576,25 @@ static int __awss_devinfo_notify()
 {
     if (devinfo_notify_mutex == NULL) {
         devinfo_notify_mutex = HAL_MutexCreate();
-        if (devinfo_notify_mutex == NULL)
+        if (devinfo_notify_mutex == NULL) {
             return -1;
+        }
     }
     HAL_MutexLock(devinfo_notify_mutex);
 
     do {
-        if (awss_notify_resp[AWSS_NOTIFY_DEV_RAND_SIGN] != 0)
+        if (awss_notify_resp[AWSS_NOTIFY_DEV_RAND_SIGN] != 0) {
             break;
+        }
 
         awss_notify_dev_info(AWSS_NOTIFY_DEV_RAND_SIGN, 1);
 
         devinfo_interval += 100;
         if (devinfo_cnt++ < AWSS_NOTIFY_CNT_MAX &&
             awss_notify_resp[AWSS_NOTIFY_DEV_RAND_SIGN] == 0) {
-            if (devinfo_notify_timer == NULL)
+            if (devinfo_notify_timer == NULL) {
                 devinfo_notify_timer = HAL_Timer_Create("devinfo", (void (*)(void *))__awss_devinfo_notify, NULL);
+            }
             HAL_Timer_Stop(devinfo_notify_timer);
             HAL_Timer_Start(devinfo_notify_timer, devinfo_interval);
             HAL_MutexUnlock(devinfo_notify_mutex);
@@ -623,8 +634,9 @@ int awss_devinfo_notify_stop()
     do {
         awss_notify_resp[AWSS_NOTIFY_DEV_RAND_SIGN] = 1;
         devinfo_cnt = AWSS_NOTIFY_CNT_MAX;
-        if (devinfo_notify_timer == NULL)
+        if (devinfo_notify_timer == NULL) {
             break;
+        }
         awss_stop_timer(devinfo_notify_timer);
         devinfo_notify_timer = NULL;
     } while (0);
