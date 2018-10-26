@@ -29,8 +29,10 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
         return;
     }
 
+#if !defined(_WIN32)
     LITE_printf("%s%s", "\033", lvl_color[level]);
     LITE_printf(LOG_PREFIX_FMT, lvl_names[level], f, l);
+#endif  /* #if !defined(_WIN32) */
 
     memset(tmpbuf, 0, sizeof(logcb.text_buf));
 
@@ -54,7 +56,9 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
         LITE_printf("\r\n");
     }
 
+#if !defined(_WIN32)
     LITE_printf("%s", "\033[0m");
+#endif  /* #if !defined(_WIN32) */
     return;
 }
 
