@@ -81,7 +81,7 @@ static void iotx_post_data_to_server(void *param)
     iotx_deviceinfo_t  devinfo;
 
     memset(&message, 0, sizeof(iotx_message_t));
-    memset(devinfo, 0, sizeof(iotx_deviceinfo_t));
+    memset(&devinfo, 0, sizeof(iotx_deviceinfo_t));
 
     message.p_payload = (unsigned char *)"{\"name\":\"hello world\"}";
     message.payload_len = strlen("{\"name\":\"hello world\"}");
