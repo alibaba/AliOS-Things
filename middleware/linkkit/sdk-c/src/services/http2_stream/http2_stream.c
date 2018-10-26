@@ -39,9 +39,9 @@ static httpclient_t g_client;
 
 static int _set_device_info(char *pk, char *dn, char *ds)
 {
-    memcpy(g_device_info.product_key, pk, PRODUCT_KEY_LEN);
-    memcpy(g_device_info.device_name, dn, DEVICE_NAME_LEN);
-    memcpy(g_device_info.device_secret, ds, DEVICE_SECRET_LEN);
+    memcpy(g_device_info.product_key, pk, strlen(pk));
+    memcpy(g_device_info.device_name, dn, strlen(dn));
+    memcpy(g_device_info.device_secret, ds, strlen(ds));
 
     return 0;
 }
@@ -182,9 +182,6 @@ static void on_stream_chunk_recv(int32_t stream_id, const uint8_t *data, size_t 
     }
     http2_stream_node_search(g_stream_handle, stream_id, &node);
     if (node == NULL) {
-        return;
-    }
-    if (STREAM_TYPE_DOWNLOAD != node->stream_type) {
         return;
     }
 
