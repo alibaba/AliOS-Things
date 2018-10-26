@@ -160,18 +160,12 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, si
                     HAL_SemaphorePost(node->semaphore);
                 }
             }
-            // else if (strncmp((char *)name, "x-response-status", (int)namelen) == 0) {
-            //     strncpy(node->status_code, (char *)value, (int)valuelen);
-            //     HAL_SemaphorePost(node->semaphore);
-            // }
-            else if (strncmp((char *)name, ":status", (int)namelen) == 0 &&
-                     strncmp((char *)value, "200", (int)valuelen) == 0) {
-                strncpy(node->status_code, (char *)value, (int)valuelen);
+            else if (strncmp((char *)name, ":status", (int)namelen) == 0) {
+                strncpy(node->status_code, (char *)value, sizeof(node->status_code) - 1);
                 if (++node->rcv_hd_cnt == 2) {
                     HAL_SemaphorePost(node->semaphore);
                 }
             }
-
     }
 
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_header_cb) {
@@ -389,7 +383,6 @@ stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_s
         IOT_HTTP2_Stream_Disconnect(stream_handle);
         return NULL;
     }
-
 
     return stream_handle;
 }
