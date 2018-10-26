@@ -3,6 +3,7 @@
 
 import sys, os
 import shutil
+import replace
 
 from copy_map import copy_map
 
@@ -36,6 +37,9 @@ def main(argv):
         else:
             shutil.copyfile(tmp_src, tmp_dest)
 
+    # replace ip address
+    print("[INFO]: replace test information")
+    replace.replace_ip()
     # Generate tarball
     root_dir = build_dir
     base_dir = SDKNAME
