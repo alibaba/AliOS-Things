@@ -132,12 +132,22 @@ int linkkit_main(void *paras)
 #if !defined(_WIN32) && !defined(BUILD_AOS)
     while ((opt = getopt(argc, argv, "e:s:lhr")) != -1) {
         switch (opt) {
-            case 's':
-                strncpy(secur, optarg, strlen(optarg));
-                break;
-            case 'e':
-                strncpy(env, optarg, strlen(optarg));
-                break;
+            case 's': {
+                if (strlen(optarg) > 31) {
+                    memcpy(secur, optarg, 31);
+                } else {
+                    memcpy(secur, optarg, strlen(optarg));
+                }
+            }
+            break;
+            case 'e': {
+                if (strlen(optarg) > 31) {
+                    memcpy(env, optarg, 31);
+                } else {
+                    memcpy(env, optarg, strlen(optarg));
+                }
+            }
+            break;
             case 'l':
                 m_coap_client_running = 1;
                 break;
