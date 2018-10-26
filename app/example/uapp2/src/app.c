@@ -15,8 +15,6 @@ static void app_run(void *arg)
     int cnt = 0;
 
     ktask_t *cur = krhino_cur_task_get();
-    int pid = cur->pid;
-
 
     while (1) {
         printf("uapp2 app cnt 0x%x\r\n", cnt);
@@ -31,7 +29,7 @@ int application_start(int argc, char *argv[])
 
     printf("uapp2 start to run\r\n");
 
-    krhino_utask_create(&app_obj, "app", 0,
+    krhino_utask_create(&app_obj, "application2", 0,
                         AOS_DEFAULT_APP_PRI,
                         (tick_t)0, app_stack,
                         APP_STACK_SIZE,
@@ -40,8 +38,8 @@ int application_start(int argc, char *argv[])
                         1);
 
     while (1) {
-        printf("uapp2 main cnt 0x%x\r\n", cnt++);
         krhino_task_sleep(200);
+        printf("uapp2 main cnt 0x%x\r\n", cnt++);
     }
 
     return 0;
