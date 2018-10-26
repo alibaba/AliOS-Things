@@ -305,71 +305,31 @@ int HAL_GetFirmwareVesion(_OU_ char *version)
 }
 
 #if 1
+
 void *HAL_SemaphoreCreate(void)
 {
-#if 0
-    sem_t *sem = (sem_t *)malloc(sizeof(sem_t));
-    if (NULL == sem) {
-        return NULL;
-    }
-
-    if (0 != sem_init(sem, 0, 0)) {
-        free(sem);
-        return NULL;
-    }
-
-    return sem;
-#endif
-    return NULL;
+	return CreateSemaphore(NULL, 0, 1, NULL);
 }
 
 void HAL_SemaphoreDestroy(_IN_ void *sem)
 {
-#if 0
-    sem_destroy((sem_t *)sem);
-    free(sem);
-#endif
+	CloseHandle(sem);
 }
 
 void HAL_SemaphorePost(_IN_ void *sem)
 {
-#if 0
-    sem_post((sem_t *)sem);
-#endif
+	ReleaseSemaphore(sem, 1, NULL);
+
 }
 
 int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
 {
-#if 0
-    if (PLATFORM_WAIT_INFINITE == timeout_ms) {
-        sem_wait(sem);
-        return 0;
-    } else {
-        struct timespec ts;
-        int s;
-        /* Restart if interrupted by handler */
-        do {
-            if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-                return -1;
-            }
-
-            s = 0;
-            ts.tv_nsec += (timeout_ms % 1000) * 1000000;
-            if (ts.tv_nsec >= 1000000000) {
-                ts.tv_nsec -= 1000000000;
-                s = 1;
-            }
-
-            ts.tv_sec += timeout_ms / 1000 + s;
-
-        } while (((s = sem_timedwait(sem, &ts)) != 0) && errno == EINTR);
-
-        return (s == 0) ? 0 : -1;
-    }
-#endif
-    return 0;
+	uint32_t timeout = timeout_ms;
+	if (timeout == (uint32_t) - 1)
+		timeout = INFINITE;
+	return WaitForSingleObject(sem, timeout);
 }
-
+#define DEFAULT_THREAD_SIZE 4096
 int HAL_ThreadCreate(
             _OU_ void **thread_handle,
             _IN_ void *(*work_routine)(void *),
@@ -377,36 +337,32 @@ int HAL_ThreadCreate(
             _IN_ hal_os_thread_param_t *hal_os_thread_param,
             _OU_ int *stack_used)
 {
-#if 0
-    int ret = -1;
-    if (stack_used) {
-        *stack_used = 0;
-    }
+	SIZE_T stack_size;
+	(void)stack_used;
 
-    ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
-
-    return ret;
-#endif
-    return 0;
+	if (!hal_os_thread_param || hal_os_thread_param->stack_size == 0) {
+		stack_size = DEFAULT_THREAD_SIZE;
+	}
+	else {
+		stack_size = hal_os_thread_param->stack_size;
+	}
+	thread_handle = CreateThread(NULL, stack_size,
+		           (LPTHREAD_START_ROUTINE)work_routine,
+		            arg,0,NULL);
+	if (thread_handle == NULL) {
+		return -1;
+	}
+	return 0;
 }
 
 void HAL_ThreadDetach(_IN_ void *thread_handle)
 {
-#if 0
-    pthread_detach((pthread_t)thread_handle);
-#endif
+	(void)thread_handle;
 }
 
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
-#if 0
-    if (NULL == thread_handle) {
-        pthread_exit(0);
-    } else {
-        /*main thread delete child thread*/
-        pthread_cancel((pthread_t)thread_handle);
-    }
-#endif
+	CloseHandle(thread_handle);
 }
 #endif  /* #if 0 */
 
@@ -680,25 +636,29 @@ int HAL_Aes128_Cbc_Encrypt(
 
 void *HAL_Fopen(const char *path, const char *mode)
 {
-	return;
+	return (void *)fopen(path, mode);
 }
 
-size_t HAL_Fread(void *buff, size_t size, size_t count, void *stream)
+size_t HAL_Fread(void * buff, size_t size, size_t count, void *stream)
 {
-	return 0;
+	return fread(buff, size, count, (FILE *)stream);
+}
+size_t HAL_Fwrite(const void * ptr, size_t size, size_t count, void * stream)
+{
+	return fwrite(ptr, size, count, (FILE *)stream);
 }
 
-int HAL_Fseek(void *stream, long offset, int origin)
+int HAL_Fseek(void *stream, long offset, int framewhere)
 {
-	return 0;
+	return fseek((FILE *)stream, offset, framewhere);
 }
 
 int HAL_Fclose(FILE *stream)
 {
-	return 0;
+	return fclose((FILE *)stream);
 }
 
 long HAL_Ftell(void *stream)
 {
-	return 0;
+	return ftell((FILE *)stream);
 }
