@@ -39,6 +39,10 @@ static httpclient_t g_client;
 
 static int _set_device_info(char *pk, char *dn, char *ds)
 {
+    memset(g_device_info.product_key, 0, PRODUCT_KEY_LEN + 1);
+    memset(g_device_info.device_name, 0, DEVICE_NAME_LEN + 1);
+    memset(g_device_info.device_secret, 0, DEVICE_SECRET_LEN + 1);
+
     memcpy(g_device_info.product_key, pk, strlen(pk));
     memcpy(g_device_info.device_name, dn, strlen(dn));
     memcpy(g_device_info.device_secret, ds, strlen(ds));
@@ -671,9 +675,9 @@ int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
     /* just delete stream node */
     char *stream_id = info->channel_id;
     int len = strlen(stream_id);
-    http2_stream_node_t *node;
+    http2_stream_node_t *node, *next;
     HAL_MutexLock(handle->mutex);
-    list_for_each_entry(node, &handle->stream_list, list, http2_stream_node_t) {
+    list_for_each_entry_safe(node, next, &handle->stream_list, list, http2_stream_node_t) {
         if (info->h2_stream_id == node->stream_id) {
             h2stream_info("stream_node found:stream_id= %d, Delete It", node->stream_id);
             list_del((list_head_t *)&node->list);
@@ -705,9 +709,9 @@ int IOT_HTTP2_Stream_Disconnect(stream_handle_t *handle)
         h2stream_err("semaphore wait overtime\n");
         return FAIL_RETURN;
     }
-    http2_stream_node_t *node;
+    http2_stream_node_t *node, *next;
     HAL_MutexLock(handle->mutex);
-    list_for_each_entry(node, &handle->stream_list, list, http2_stream_node_t) {
+    list_for_each_entry_safe(node, next, &handle->stream_list, list, http2_stream_node_t) {
         list_del((list_head_t *)&node->list);
         HAL_Free(node->channel_id);
         HAL_SemaphoreDestroy(node->semaphore);
@@ -759,6 +763,7 @@ static int http2_stream_get_file_data(const char *file_name, char *data, int len
     }
     ret = HAL_Fseek(fp, offset, HAL_SEEK_SET);
     if (ret != 0) {
+        HAL_Fclose(fp);
         h2stream_err("The file %s can not move offset.\n", file_name);
         return -1;
     }
