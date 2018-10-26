@@ -6,8 +6,8 @@
 #include <aos/aos.h>
 #include <aos/kernel.h>
 #include <k_api.h>
-#include <arch_mpu.h>
 #include <uapp.h>
+#include <arch_mpu.h>
 
 extern char  app_info_addr;
 extern char  app2_info_addr;
@@ -15,12 +15,21 @@ extern char  app3_info_addr;
 
 extern k_mm_head  *g_kmm_head;
 
+/*
+ * to match nature number,
+ * valid app bin starts from 1
+ */
 uapp_info_t *g_app_info[MAX_APP_BINS] =  {
-    (uapp_info_t *) &app_info_addr,
-    (uapp_info_t *) &app2_info_addr,
-    (uapp_info_t *) &app3_info_addr,
+    (uapp_info_t*) &app_info_addr,
+    (uapp_info_t*) &app2_info_addr,
+    (uapp_info_t*) &app3_info_addr,
 };
 
+/*
+ * Why g_pid starts from 1?
+ * PID 0 is reserved for kernel,
+ * so user process starts from 1
+ */
 static uint32_t g_pid = 1;
 
 static void app_pre_init(uapp_info_t *app_info)
@@ -35,54 +44,46 @@ static void app_pre_init(uapp_info_t *app_info)
 
 static int app_init(void)
 {
-    int i;
-    int ret;
-
-    ret = arch_app_init(g_app_info);
-
-    if (ret < 0)
-        return ret;
-
-    // init app data, bss section
-    for (i = 0; i < MAX_APP_BINS; i++) {
-        if (g_app_info[i]->magic == APP_INFO_MAGIC) {
-            app_pre_init(g_app_info[i]);
-        }
-    }
-
-    return 0;
-}
-
-static void app_entry_enter(void *arg)
-{
-    int ret;
-    uapp_info_t **app_info = arg;
-    int pid = g_pid;
-
-    g_pid++;
-
-    ret = arch_app_prepare(app_info- g_app_info);
-
-    if (!ret) {
-        if ((*app_info)->app_entry) {
-            // jump to uapp, it will never return
-            (*app_info)->app_entry(pid, 0, NULL);
-        }
-    }
-
-    aos_task_exit(0);
+    return arch_app_init();
 }
 
 static void app_start(void)
 {
     int i;
+    int ret;
+    int pid;
+    uapp_info_t *app_info;
 
     for (i = 0; i < MAX_APP_BINS; i++) {
-        aos_task_new("app", app_entry_enter, &g_app_info[i], 0x400);
+        app_info = g_app_info[i];
+
+        if (app_info == NULL ||
+            app_info->magic != APP_INFO_MAGIC) {
+            continue;
+        }
+
+        /* init data, bss section */
+        app_pre_init(app_info);
+
+        pid = g_pid;
+
+        ret = arch_app_prepare(app_info, pid);
+        if (ret != 0)
+            continue;
+
+        krhino_uprocess_create(app_info->app_task_struct, "utask", 0,
+                               AOS_DEFAULT_APP_PRI,(tick_t)0,
+                               app_info->app_stack,
+                               app_info->app_stack_size, // ustasck size
+                               0x100, // kstack size
+                               (task_entry_t)app_info->app_entry,
+                               pid, 1);
+
+        g_pid++;
     }
 }
 
-int aos_app_init(void)
+int aos_run_app(void)
 {
     int ret;
 
