@@ -36,7 +36,7 @@ int application_start(int argc, char *argv[])
 
     run_test_case();
 
-    krhino_utask_create(&app_obj, "app", 0,
+    krhino_utask_create(&app_obj, "application1", 0,
                         AOS_DEFAULT_APP_PRI,
                         (tick_t)0, app_stack,
                         APP_STACK_SIZE,
