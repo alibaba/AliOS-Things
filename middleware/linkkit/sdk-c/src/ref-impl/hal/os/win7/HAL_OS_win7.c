@@ -677,3 +677,28 @@ int HAL_Aes128_Cbc_Encrypt(
 {
 	return 0;
 }
+
+void *HAL_Fopen(const char *path, const char *mode)
+{
+	return;
+}
+
+size_t HAL_Fread(void *buff, size_t size, size_t count, void *stream)
+{
+	return 0;
+}
+
+int HAL_Fseek(void *stream, long offset, int origin)
+{
+	return 0;
+}
+
+int HAL_Fclose(FILE *stream)
+{
+	return 0;
+}
+
+long HAL_Ftell(void *stream)
+{
+	return 0;
+}
