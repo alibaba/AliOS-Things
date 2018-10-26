@@ -21,12 +21,11 @@
 #include "awss.h"
 
 #ifdef AWSS_SUPPORT_HT40
-#include "awss_ht40.h"
+    #include "awss_ht40.h"
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 /* broadcast mac address */
@@ -53,8 +52,9 @@ struct zconfig_data *zconfig_data;
 void encode_chinese(uint8_t *in, uint8_t in_len,
                     uint8_t *out, uint8_t *out_len, uint8_t bits)
 {
-    if (bits == 0 || bits > 7)
+    if (bits == 0 || bits > 7) {
         return;
+    }
 
     do {
         uint8_t i, j;
@@ -63,18 +63,21 @@ void encode_chinese(uint8_t *in, uint8_t in_len,
 
         // char to bit stream
         for (i = 0; i < in_len; i ++) {
-            for (j = 0; j < 8; j ++)
+            for (j = 0; j < 8; j ++) {
                 bit[i * 8 + j] = (in[i] >> j) & 0x01;
+            }
         }
 
         out[output_len] = '\0'; /* NULL-terminated */
         for (i = 0; i < output_len; i ++) {
-            for (j = 0, out[i] = 0; j < bits; j ++)
+            for (j = 0, out[i] = 0; j < bits; j ++) {
                 out[i] |= bit[i * bits + j] << j;
+            }
         }
 
-        if (out_len)
+        if (out_len) {
             *out_len = output_len;
+        }
     } while (0);
 }
 
@@ -82,8 +85,9 @@ void encode_chinese(uint8_t *in, uint8_t in_len,
 void decode_chinese(uint8_t *in, uint8_t in_len,
                     uint8_t *out, uint8_t *out_len, uint8_t bits)
 {
-    if (bits == 0 || bits > 7 || in_len == 0)
+    if (bits == 0 || bits > 7 || in_len == 0) {
         return;
+    }
 
     do {
         uint8_t i, j;
@@ -97,19 +101,22 @@ void decode_chinese(uint8_t *in, uint8_t in_len,
 
         // char to bit stream
         for (i = 0; i < in_len; i ++) {
-            for (j = 0; j < bits; j ++)
+            for (j = 0; j < bits; j ++) {
                 bit[i * bits + j] = (in[i] >> j) & 0x01;
+            }
         }
 
         out[output_len] = '\0'; /* NULL-terminated */
         for (i = 0; i < output_len; i++) {
-            for (j = 0, out[i] = 0; j < 8; j ++)
+            for (j = 0, out[i] = 0; j < 8; j ++) {
                 out[i] |= bit[i * 8 + j] << j;
+            }
         }
 
         os_free(bit);
-        if (out_len)
+        if (out_len) {
             *out_len = output_len;
+        }
     } while (0);
 }
 
@@ -149,8 +156,9 @@ uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid)
     awss_trace("zconfig done. ssid:%s, mac:%02x%02x%02x%02x%02x%02x\r\n",
                ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
-    if (zconfig_finished)
+    if (zconfig_finished) {
         return 0;
+    }
 
 #ifdef AWSS_SUPPORT_APLIST
     awss_get_auth_info(ssid, bssid, &auth, &encry, &channel);
@@ -186,8 +194,9 @@ void zconfig_set_state(uint8_t state, uint8_t tods, uint8_t channel)
              * in case of p2p/router, direct into RCV_DONE state,
              * skiped the chn lock state, so better to call channel lock here
              */
-            if (!is_channel_locked())
+            if (!is_channel_locked()) {
                 zconfig_callback_channel_locked(channel);
+            }
             zconfig_callback_over(zc_ssid, zc_passwd, zc_bssid);
             break;
         default:
@@ -205,10 +214,12 @@ void zconfig_set_state(uint8_t state, uint8_t tods, uint8_t channel)
      * watch out zc_state rolling back.
      * zconfig_set_state(CHN_LOCKED) will be called more than once,
      */
-    if (zc_state < state)
+    if (zc_state < state) {
         zc_state = state;
-    if (state == STATE_RCV_DONE)
+    }
+    if (state == STATE_RCV_DONE) {
         os_mutex_unlock(zc_mutex);
+    }
 }
 
 /*
@@ -226,8 +237,9 @@ int is_invalid_pkg(void *pkt_data, uint32_t pkt_length)
 {
 #define MIN_PKG         (33)
 #define MAX_PKG         (1480 + 56 + 200)
-    if (pkt_length < MIN_PKG || pkt_length > MAX_PKG)
+    if (pkt_length < MIN_PKG || pkt_length > MAX_PKG) {
         return 1;
+    }
     return 0;
 }
 
@@ -243,15 +255,18 @@ int zconfig_recv_callback(void *pkt_data, uint32_t pkt_length, uint8_t channel,
                           int link_type, int with_fcs, signed char rssi)
 {
     int pkt_type = PKG_INVALID;
-    struct parser_res res = {0};
+    struct parser_res res;
+    memset(&res, 0, sizeof(res));
 
     /* remove FCS filed */
-    if (with_fcs)
+    if (with_fcs) {
         pkt_length -= 4;
+    }
 
     /* useless, will be removed */
-    if (is_invalid_pkg(pkt_data, pkt_length))
+    if (is_invalid_pkg(pkt_data, pkt_length)) {
         return PKG_INVALID;
+    }
 
     res.channel = channel;
 
@@ -269,19 +284,23 @@ void zconfig_init()
     zconfig_finished = 0;
 
     zconfig_data = (struct zconfig_data *)os_zalloc(sizeof(struct zconfig_data));
-    if (zconfig_data == NULL)
+    if (zconfig_data == NULL) {
         goto ZCONFIG_INIT_FAIL;
+    }
     zc_mutex = os_mutex_init();
-    if (zc_mutex == NULL)
+    if (zc_mutex == NULL) {
         goto ZCONFIG_INIT_FAIL;
+    }
 
 #ifdef AWSS_SUPPORT_APLIST
-    if (awss_init_ieee80211_aplist())
+    if (awss_init_ieee80211_aplist()) {
         goto ZCONFIG_INIT_FAIL;
+    }
 #endif
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-    if (awss_init_adha_aplist())
+    if (awss_init_adha_aplist()) {
         goto ZCONFIG_INIT_FAIL;
+    }
 #endif
 
 #ifdef AWSS_SUPPORT_HT40
@@ -305,8 +324,9 @@ ZCONFIG_INIT_FAIL:
 void zconfig_destroy(void)
 {
     if (zconfig_data) {
-        if (zc_mutex)
+        if (zc_mutex) {
             os_mutex_destroy(zc_mutex);
+        }
         os_free((void *)zconfig_data);
         zconfig_data = NULL;
     }
