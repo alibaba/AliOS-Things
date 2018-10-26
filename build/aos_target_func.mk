@@ -10,7 +10,7 @@ $(eval _defconfig := $(1))
 $(eval include $(_defconfig))
 $(eval $(3) += $(_defconfig))
 $(eval $(NAME)_DEFCONFIG := $(_defconfig))
-$(eval $(2) += $($(NAME)_COMPONENTS))
+$(eval $(2) += $($(NAME)_COMPONENTS) $($(NAME)_COMPONENTS-y))
 endef
 
 #####################################################################################
