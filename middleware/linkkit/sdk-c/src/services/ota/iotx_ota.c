@@ -253,7 +253,6 @@ void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_si
         OTA_LOG_ERROR("iot ota has been initialized");
         return NULL;
     }
-    g_ota_is_initialized = 1;
 
     if ((NULL == product_key) || (NULL == device_name)) {
         OTA_LOG_ERROR("one or more parameters is invalid");
@@ -288,7 +287,7 @@ void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_si
     h_ota->product_key = product_key;
     h_ota->device_name = device_name;
     h_ota->state = IOT_OTAS_INITED;
-
+    g_ota_is_initialized = 1;
     return h_ota;
 
 do_exit:
