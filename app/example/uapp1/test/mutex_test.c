@@ -6,7 +6,7 @@
 
 static char stack[STACK_SIZE];
 
-static ktask_t task_obj;
+static ktask_t mutex_task_obj;
 static kmutex_t test_mutex;
 
 static bool loop_exit;
@@ -42,7 +42,7 @@ int mutex_test(void)
 
     krhino_mutex_create(&test_mutex, "test_mutex");
 
-    stat = krhino_utask_create(&task_obj, "mutex_test_task", 0,
+    stat = krhino_utask_create(&mutex_task_obj, "mutex_test_task", 0,
                         AOS_DEFAULT_APP_PRI,
                         (tick_t)0, stack,
                         STACK_SIZE,
