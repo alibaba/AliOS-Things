@@ -196,7 +196,9 @@ static void sub_callback(char *at_rsp)
                 temp            = strtok(NULL, ",");
             } else {
                 mdal_err("subscribe rsp param invalid 1");
+                g_at_response_result = -1;
 
+                HAL_SemaphorePost(g_sem_response);
                 return;
             }
 
@@ -206,7 +208,9 @@ static void sub_callback(char *at_rsp)
                 temp            = strtok(NULL, "\r\n");
             } else {
                 mdal_err("subscribe rsp param invalid 2");
+                g_at_response_result = -1;
 
+                HAL_SemaphorePost(g_sem_response);
                 return;
             }
 
@@ -214,7 +218,9 @@ static void sub_callback(char *at_rsp)
                 g_response_status = strtol(temp, NULL, 0);
             } else {
                 mdal_err("subscribe rsp param invalid 3");
+                g_at_response_result = -1;
 
+                HAL_SemaphorePost(g_sem_response);
                 return;
             }
 
@@ -457,7 +463,7 @@ static void at_ica_mqtt_client_rsp_callback(void *arg, char *rspinfo, int rsplen
         recv_data_callback(g_ica_rsp_buff);
     } else if (0 == memcmp(g_ica_rsp_buff,
                            AT_ICA_MQTT_MQTTSTATERSP,
-                           sizeof(AT_ICA_MQTT_MQTTSTATERSP))) {  // Receive Mqtt Status Change
+                           strlen(AT_ICA_MQTT_MQTTSTATERSP))) {  // Receive Mqtt Status Change
 
         state_change_callback(g_ica_rsp_buff);
     } else {
