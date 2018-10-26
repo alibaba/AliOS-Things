@@ -51,7 +51,7 @@ int __awss_start(void)
     do {
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
         char awss_notify_needed = 1;
-        char adha = 0;
+        int adha = 0;
 #endif
 
         if (awss_stop_connecting)
