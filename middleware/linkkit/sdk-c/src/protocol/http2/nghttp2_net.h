@@ -27,7 +27,7 @@
    dependeny on that lib. */
 
 #ifdef _MSC_VER
-#define STIN static __inline
+#define STIN
 #else
 #define STIN
 #endif

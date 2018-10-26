@@ -14,6 +14,7 @@
    libcurl) */
 #if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32)
 #define WIN32
+#define ssize_t unsigned int
 #endif
 
 #ifdef __cplusplus
