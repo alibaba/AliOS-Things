@@ -58,9 +58,9 @@ endif
 MAKECMDGOALS += $(APP)@$(TARGET_BOARD)
 
 include $(LIB_OUT_DIR)$(LIB_NAME).mk
-TARGET_CFLAGS := $(addprefix -I$(LIB_OUT_DIR),$(GLOBAL_INCLUDES)) $(addprefix -D,$(GLOBAL_DEFINES)) $(addprefix -I$(LIB_OUT_DIR),$($(NAME)_INCLUDES)) $(addprefix -D,$($(NAME)_DEFINES)) $($(NAME)_CFLAGS)
+TARGET_CFLAGS := $(addprefix -I$(LIB_OUT_DIR),$(GLOBAL_INCLUDES) $(GLOBAL_INCLUDES-y)) $(addprefix -D,$(GLOBAL_DEFINES) $(GLOBAL_DEFINES-y)) $(addprefix -I$(LIB_OUT_DIR),$($(NAME)_INCLUDES) $($(NAME)_INCLUDES-y)) $(addprefix -D,$($(NAME)_DEFINES) $($(NAME)_DEFINES-y)) $($(NAME)_CFLAGS) $($(NAME)_CFLAGS-y)
 
-SOURCES := $(addprefix $(LIB_OUT_DIR),$($(NAME)_SOURCES))
+SOURCES := $(addprefix $(LIB_OUT_DIR),$($(NAME)_SOURCES) $($(NAME)_SOURCES-y))
 
 CFLAGS :=
 AOS_SDK_CFLAGS :=

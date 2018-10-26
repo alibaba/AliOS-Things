@@ -149,6 +149,7 @@ endif
 # $(1) is component name
 define BUILD_COMPONENT_RULES
 
+$(eval $(1)_SOURCES += $($(1)_SOURCES-y))
 $(eval LINK_LIBS +=$(if $($(1)_SOURCES),$(LIBS_DIR)/$(1).a))
 $(eval LINK_LIBS +=$(if $($(1)_SELF_BUIlD_COMP_targets),$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets) )))
 
@@ -225,6 +226,7 @@ $(eval PRECOMPILED_FILES += $(OUTPUT_DIR)/precompile/$(3)/$(call GET_BARE_LOCATI
 endef
 
 define PRECOMPILED_RESOURCE_FILE
+$(eval $(1)_SOURCES += $($(1)_SOURCES-y))
 $(foreach src, $(filter %.c, $($(1)_SOURCES)),$(eval $(call PROCESS_C_FILE,$(1),$(src),$(2))))
 $(foreach src, $(filter %.s %.S, $($(1)_SOURCES)),$(eval $(call PROCESS_S_FILE,$(1),$(src),$(2))))
 endef
