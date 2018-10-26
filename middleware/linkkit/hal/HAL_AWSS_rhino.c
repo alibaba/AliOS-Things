@@ -165,10 +165,6 @@ extern "C"
      * @param[in] with_fcs @n 80211 frame buffer include fcs(4 byte) or not
      * @param[in] rssi @n rssi of packet
      */
-    typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
-                                              enum AWSS_LINK_TYPE link_type,
-                                              int with_fcs, signed char rssi);
-
     awss_recv_80211_frame_cb_t g_ieee80211_handler;
 
     static void monitor_data_handler(uint8_t *buf, int len,
