@@ -97,6 +97,7 @@ NetworkContext *CoAPNetwork_init (const NetworkInit   *p_param)
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_NETWORK_DTLS == network->type) {
         // TODO:
+        coap_free(network);
         return NULL;
     }else{
 #endif
