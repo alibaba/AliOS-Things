@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2015-2018 Alibaba Group Holding Limited
- */
+* Copyright (C) 2015-2018 Alibaba Group Holding Limited
+*/
 
 #include <stdio.h>
 
@@ -72,28 +72,28 @@ int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
 }
 
 int iotx_calc_sign_with_seq(const char *p_device_secret, const char *p_client_id,
-                  const char *p_device_name, const char *p_product_key, unsigned int seq, char sign[IOTX_SIGN_LENGTH])
+                            const char *p_device_name, const char *p_product_key, unsigned int seq, char sign[IOTX_SIGN_LENGTH])
 {
-   char *p_msg = NULL;
+    char *p_msg = NULL;
 
-   p_msg = (char *)coap_malloc(IOTX_SIGN_SOURCE_LEN);
-   if (NULL == p_msg) {
-       return IOTX_ERR_NO_MEM;
-   }
-   memset(sign,  0x00, IOTX_SIGN_LENGTH);
-   memset(p_msg, 0x00, IOTX_SIGN_SOURCE_LEN);
+    p_msg = (char *)coap_malloc(IOTX_SIGN_SOURCE_LEN);
+    if (NULL == p_msg) {
+        return IOTX_ERR_NO_MEM;
+    }
+    memset(sign,  0x00, IOTX_SIGN_LENGTH);
+    memset(p_msg, 0x00, IOTX_SIGN_SOURCE_LEN);
 
-   HAL_Snprintf(p_msg, IOTX_SIGN_SOURCE_LEN,
-                IOTX_SIGN_SRC_STR_WITH_SEQ,
-                p_client_id,
-                p_device_name,
-                p_product_key, seq);
-   COAP_DEBUG("The source string: %s", p_msg);
-   utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
+    HAL_Snprintf(p_msg, IOTX_SIGN_SOURCE_LEN,
+                 IOTX_SIGN_SRC_STR_WITH_SEQ,
+                 p_client_id,
+                 p_device_name,
+                 p_product_key, seq);
+    COAP_DEBUG("The source string: %s", p_msg);
+    utils_hmac_md5(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
 
-   coap_free(p_msg);
-   COAP_DEBUG("The device name sign with seq: %s", sign);
-   return IOTX_SUCCESS;
+    coap_free(p_msg);
+    COAP_DEBUG("The device name sign with seq: %s", sign);
+    return IOTX_SUCCESS;
 }
 
 
@@ -128,46 +128,46 @@ static int iotx_parse_auth_from_json(char *p_str, iotx_coap_t *p_iotx_coap)
     unsigned char buff[128] = {0};
     unsigned char random[32]   = {0};
 
-    if(NULL == p_str || NULL == p_iotx_coap){
-       return IOTX_ERR_INVALID_PARAM;
+    if (NULL == p_str || NULL == p_iotx_coap) {
+        return IOTX_ERR_INVALID_PARAM;
     }
 
     memset(&root, 0x00, sizeof(lite_cjson_t));
     memset(&node, 0x00, sizeof(lite_cjson_t));
     ret = lite_cjson_parse(p_str, strlen(p_str), &root);
-    if(-1 == ret){
+    if (-1 == ret) {
         return IOTX_ERR_AUTH_FAILED;
     }
 
     ret = lite_cjson_object_item(&root, "token", strlen("token"), &node);
-    if(-1 == ret){
+    if (-1 == ret) {
         return IOTX_ERR_AUTH_FAILED;
     }
     if (p_iotx_coap->auth_token_len - 1 < node.value_length) {
         return IOTX_ERR_BUFF_TOO_SHORT;
     }
     memset(p_iotx_coap->p_auth_token, 0x00, node.value_length);
-    strncpy(p_iotx_coap->p_auth_token, node.value , node.value_length);
+    strncpy(p_iotx_coap->p_auth_token, node.value, node.value_length);
 
     memset(&node, 0x00, sizeof(lite_cjson_t));
     ret = lite_cjson_object_item(&root, "seqOffset", strlen("seqOffset"), &node);
-    if(-1 == ret){
+    if (-1 == ret) {
         return IOTX_ERR_AUTH_FAILED;
     }
     p_iotx_coap->seq = node.value_int;
 
     memset(&node, 0x00, sizeof(lite_cjson_t));
     ret = lite_cjson_object_item(&root, "random", strlen("random"), &node);
-    if(-1 == ret){
+    if (-1 == ret) {
         return IOTX_ERR_AUTH_FAILED;
     }
 
     memcpy(random, node.value, node.value_length);
     HAL_Snprintf((char *)buff, sizeof(buff), "%s,%s",
-            p_iotx_coap->p_devinfo->device_secret,  random);
-    COAP_DEBUG("The src:%s",buff);
+                 p_iotx_coap->p_devinfo->device_secret,  random);
+    COAP_DEBUG("The src:%s", buff);
     utils_sha256(buff,  strlen((char *)buff), key);
-    memcpy(p_iotx_coap->key, key+8, 16);
+    memcpy(p_iotx_coap->key, key + 8, 16);
     COAP_DEBUG("The key is:");
     HEXDUMP_DEBUG(key, 32);
     COAP_DEBUG("The short key:");
@@ -198,10 +198,9 @@ static void iotx_device_name_auth_callback(void *user, void *p_message)
 
     switch (message->header.code) {
         case COAP_MSG_CODE_205_CONTENT: {
-            if(COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type){
+            if (COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type) {
                 ret_code = iotx_parse_auth_from_json((char *)message->payload, p_iotx_coap);
-            }
-            else{
+            } else {
                 ret_code = iotx_get_token_from_json((char *)message->payload, p_iotx_coap->p_auth_token, p_iotx_coap->auth_token_len);
             }
 
@@ -412,9 +411,9 @@ static int iotx_coap_report_mid(iotx_coap_context_t *p_context)
 }
 
 
-int iotx_aes_cbc_encrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
+int iotx_aes_cbc_encrypt(const unsigned char *src, int len, const unsigned char *key, void *out)
 {
-    char* iv = "543yhjy97ae7fyfg";
+    char *iv = "543yhjy97ae7fyfg";
 
     int len1 = len & 0xfffffff0;
     int len2 = len1 + 16;
@@ -427,28 +426,28 @@ int iotx_aes_cbc_encrypt (const unsigned char* src, int len, const unsigned char
     }
     if (!ret && pad) {
         char buf[16] = {0};
-        memcpy (buf, src + len1, len - len1);
-        memset (buf + len - len1, pad, pad);
+        memcpy(buf, src + len1, len - len1);
+        memset(buf + len - len1, pad, pad);
         ret = HAL_Aes128_Cbc_Encrypt(aes_e_h, buf, 1, (unsigned char *)out + len1);
 
     }
 
-    HAL_Aes128_Destroy (aes_e_h);
+    HAL_Aes128_Destroy(aes_e_h);
 
-    COAP_DEBUG ("to encrypt src: %s, len: %d", src, len2);
-    return ret == 0? len2 : 0;
+    COAP_DEBUG("to encrypt src: %s, len: %d", src, len2);
+    return ret == 0 ? len2 : 0;
 }
 
-int iotx_aes_cbc_decrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
+int iotx_aes_cbc_decrypt(const unsigned char *src, int len, const unsigned char *key, void *out)
 {
-    char* iv = "543yhjy97ae7fyfg";
+    char *iv = "543yhjy97ae7fyfg";
 
     p_HAL_Aes128_t aes_d_h;
     int ret = 0;
     int n = len >> 4;
 
-    aes_d_h  = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_DECRYPTION);
-    if(!aes_d_h){
+    aes_d_h  = HAL_Aes128_Init((uint8_t *)key, (uint8_t *)iv, HAL_AES_DECRYPTION);
+    if (!aes_d_h) {
         COAP_INFO("fail to decrypt");
         return  0;
     }
@@ -457,22 +456,22 @@ int iotx_aes_cbc_decrypt (const unsigned char* src, int len, const unsigned char
     }
 
     if (ret == 0) {
-        char* out_c = (char*)out;
-        int offset = n > 0? ((n - 1) << 4) : 0;
+        char *out_c = (char *)out;
+        int offset = n > 0 ? ((n - 1) << 4) : 0;
         out_c[offset] = 0;
 
         if (aes_d_h) {
             ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src + offset, 1, out_c + offset);
         } else {
-            COAP_ERR ("fail to decrypt remain data");
+            COAP_ERR("fail to decrypt remain data");
         }
 
         if (ret == 0) {
             char pad = out_c[len - 1];
             out_c[len - pad] = 0;
-            COAP_DEBUG ("decrypt data:%s, len:%d", out_c, len - pad);
+            COAP_DEBUG("decrypt data:%s, len:%d", out_c, len - pad);
             HAL_Aes128_Destroy(aes_d_h);
-            return ret == 0? len - pad : 0;
+            return len - pad;
         }
     }
     HAL_Aes128_Destroy(aes_d_h);
@@ -482,23 +481,23 @@ int iotx_aes_cbc_decrypt (const unsigned char* src, int len, const unsigned char
 
 
 #if AES_CFB_NOPADDING
-static int iotx_aes_cfb_encrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
+static int iotx_aes_cfb_encrypt(const unsigned char *src, int len, const unsigned char *key, void *out)
 {
     int ret = -1;
-    char* iv = "543yhjy97ae7fyfg";
+    char *iv = "543yhjy97ae7fyfg";
 
     p_HAL_Aes128_t aes_e_h = HAL_Aes128_Init((unsigned char *)key, (unsigned char *)iv, HAL_AES_ENCRYPTION);
     ret = HAL_Aes128_Cfb_Encrypt(aes_e_h, src, len, out);
-    HAL_Aes128_Destroy (aes_e_h);
+    HAL_Aes128_Destroy(aes_e_h);
 
-    COAP_DEBUG ("to encrypt src:%s, len:%d", src, len);
+    COAP_DEBUG("to encrypt src:%s, len:%d", src, len);
     return len;
 }
 
-int iotx_aes_cfb_decrypt (const unsigned char* src, int len, const unsigned char* key, void* out)
+int iotx_aes_cfb_decrypt(const unsigned char *src, int len, const unsigned char *key, void *out)
 {
     int ret = -1;
-    char* iv = "543yhjy97ae7fyfg";
+    char *iv = "543yhjy97ae7fyfg";
 
     p_HAL_Aes128_t aes_d_h = HAL_Aes128_Init((unsigned char *)key, (unsigned char *)iv, HAL_AES_ENCRYPTION);
     ret = HAL_Aes128_Cfb_Decrypt(aes_d_h, src, len, out);
@@ -549,25 +548,25 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     }
     memset(p_payload, 0x00, COAP_MSG_MAX_PDU_LEN);
 
-    if(COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type){
+    if (COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type) {
         iotx_calc_sign_with_seq(p_iotx_coap->p_devinfo->device_secret, p_iotx_coap->p_devinfo->device_id,
-                       p_iotx_coap->p_devinfo->device_name, p_iotx_coap->p_devinfo->product_key, p_iotx_coap->seq, sign);
+                                p_iotx_coap->p_devinfo->device_name, p_iotx_coap->p_devinfo->product_key, p_iotx_coap->seq, sign);
         HAL_Snprintf((char *)p_payload, COAP_MSG_MAX_PDU_LEN,
-                    IOTX_AUTH_DEVICENAME_STR_WITH_SEQ,
-                    p_iotx_coap->p_devinfo->product_key,
-                    p_iotx_coap->p_devinfo->device_name,
-                    p_iotx_coap->p_devinfo->device_id,
-                    sign, p_iotx_coap->seq);
+                     IOTX_AUTH_DEVICENAME_STR_WITH_SEQ,
+                     p_iotx_coap->p_devinfo->product_key,
+                     p_iotx_coap->p_devinfo->device_name,
+                     p_iotx_coap->p_devinfo->device_id,
+                     sign, p_iotx_coap->seq);
 
-    }else{
+    } else {
         iotx_calc_sign(p_iotx_coap->p_devinfo->device_secret, p_iotx_coap->p_devinfo->device_id,
                        p_iotx_coap->p_devinfo->device_name, p_iotx_coap->p_devinfo->product_key, sign);
         HAL_Snprintf((char *)p_payload, COAP_MSG_MAX_PDU_LEN,
-                    IOTX_AUTH_DEVICENAME_STR,
-                    p_iotx_coap->p_devinfo->product_key,
-                    p_iotx_coap->p_devinfo->device_name,
-                    p_iotx_coap->p_devinfo->device_id,
-                    sign);
+                     IOTX_AUTH_DEVICENAME_STR,
+                     p_iotx_coap->p_devinfo->product_key,
+                     p_iotx_coap->p_devinfo->device_name,
+                     p_iotx_coap->p_devinfo->device_id,
+                     sign);
     }
     Cloud_CoAPMessagePayload_set(&message, p_payload, strlen((char *)p_payload));
     COAP_DEBUG("The payload is: %s", message.payload);
@@ -588,13 +587,13 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     }
 
     /* report module id */
-    if(0){
-    ret = iotx_coap_report_mid(p_context);
-    if (SUCCESS_RETURN != ret) {
-        COAP_DEBUG("Send ModuleId message to server(CoAP) failed ret = %d", ret);
-        return IOTX_ERR_SEND_MSG_FAILED;
-    }
+    if (0) {
+        ret = iotx_coap_report_mid(p_context);
+        if (SUCCESS_RETURN != ret) {
+            COAP_DEBUG("Send ModuleId message to server(CoAP) failed ret = %d", ret);
+            return IOTX_ERR_SEND_MSG_FAILED;
         }
+    }
     return IOTX_SUCCESS;
 }
 
@@ -621,7 +620,7 @@ static int iotx_split_path_2_option(char *uri, Cloud_CoAPMessage *message)
                 strncpy(path, pstr, ptr - pstr);
                 COAP_DEBUG("path: %s,len=%d", path, (int)(ptr - pstr));
                 Cloud_CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
-                                  (unsigned char *)path, (int)strlen(path));
+                                        (unsigned char *)path, (int)strlen(path));
             }
             pstr = ptr + 1;
 
@@ -631,7 +630,7 @@ static int iotx_split_path_2_option(char *uri, Cloud_CoAPMessage *message)
             strncpy(path, pstr, sizeof(path) - 1);
             COAP_DEBUG("path: %s,len=%d", path, (int)strlen(path));
             Cloud_CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
-                              (unsigned char *)path, (int)strlen(path));
+                                    (unsigned char *)path, (int)strlen(path));
         }
         ptr ++;
     }
@@ -693,27 +692,26 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
             Cloud_CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_OCTET_STREAM);
         }
         Cloud_CoAPStrOption_add(&message,  COAP_OPTION_AUTH_TOKEN,
-                          (unsigned char *)p_iotx_coap->p_auth_token, strlen(p_iotx_coap->p_auth_token));
-        if(COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type){
+                                (unsigned char *)p_iotx_coap->p_auth_token, strlen(p_iotx_coap->p_auth_token));
+        if (COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type) {
             unsigned char buff[32] = {0};
             unsigned char seq[33] = {0};
-            HAL_Snprintf((char *)buff, sizeof(buff)-1, "%d", p_iotx_coap->seq++);
+            HAL_Snprintf((char *)buff, sizeof(buff) - 1, "%d", p_iotx_coap->seq++);
             len = iotx_aes_cbc_encrypt(buff, strlen((char *)buff), p_iotx_coap->key, seq);
-            if(0 < len){
+            if (0 < len) {
                 Cloud_CoAPStrOption_add(&message,  COAP_OPTION_SEQ, (unsigned char *)seq, len);
-            }
-            else{
+            } else {
                 COAP_INFO("Encrypt seq failed");
             }
             HEXDUMP_DEBUG(seq, len);
 
             payload = (unsigned char *)coap_malloc(COAP_MSG_MAX_PDU_LEN);
-            if(NULL == payload){
+            if (NULL == payload) {
                 return IOTX_ERR_NO_MEM;
             }
             memset(payload, 0x00, COAP_MSG_MAX_PDU_LEN);
             len = iotx_aes_cbc_encrypt(p_message->p_payload, p_message->payload_len, p_iotx_coap->key, payload);
-            if(0 == len){
+            if (0 == len) {
                 coap_free(payload);
                 payload = NULL;
                 return IOTX_ERR_INVALID_PARAM;
@@ -721,12 +719,12 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
 
             HEXDUMP_DEBUG(payload, len);
             Cloud_CoAPMessagePayload_set(&message, payload, len);
-        }else{
+        } else {
             Cloud_CoAPMessagePayload_set(&message, p_message->p_payload, p_message->payload_len);
         }
         ret = Cloud_CoAPMessage_send(p_coap_ctx, &message);
         Cloud_CoAPMessage_destory(&message);
-        if(NULL != payload){
+        if (NULL != payload) {
             coap_free(payload);
             payload = NULL;
         }
@@ -757,12 +755,12 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
     p_iotx_coap = (iotx_coap_t *)g_coap_context;
     message = (Cloud_CoAPMessage *)p_message;
 
-    if(COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type
-        && 0 < message->payloadlen){
+    if (COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type
+        && 0 < message->payloadlen) {
         int len = 0;
         unsigned char *payload = NULL;
         payload = coap_malloc(COAP_MSG_MAX_PDU_LEN);
-        if(NULL == payload){
+        if (NULL == payload) {
             return IOTX_ERR_NO_MEM;
         }
         memset(payload, 0x00, COAP_MSG_MAX_PDU_LEN);
@@ -771,7 +769,7 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
         HEXDUMP_DEBUG(message->payload, message->payloadlen);
 
         COAP_DEBUG("payload: %s, len %d", payload, len);
-        if(len != 0){
+        if (len != 0) {
             memcpy(message->payload, payload, len);
             message->payloadlen = len;
         }
@@ -803,7 +801,7 @@ int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code
 static unsigned int iotx_get_seq(void)
 {
     HAL_Srandom((unsigned int)HAL_UptimeMs());
-    return HAL_Random (0xffffffff) % 10000;
+    return HAL_Random(0xffffffff) % 10000;
 }
 
 iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
