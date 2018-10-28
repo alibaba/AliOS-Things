@@ -317,7 +317,7 @@ except_from_task
         STR     SP, [R4]
 
         LDR     R3, =except_stack_top                             ; Switch to except stack.
-        MOV     SP, R3
+        LDR     SP, [R3]
 
         BLX     aos_cpu_except_handler                             ; aos_cpu_except_handler(except_type = R0)
 

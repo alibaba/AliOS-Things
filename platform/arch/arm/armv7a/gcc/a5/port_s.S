@@ -195,7 +195,7 @@ _interrupt_while_task:
     STR     SP, [R4]
 
     LDR     R3, =sys_stack_top                          @ Switch to system stack.
-    MOV     SP, R3
+    LDR     SP, [R3]
 
     BL      cpu_interrupt_handler                       @ cpu_interrupt_handler(except_type = R0)
 _interrupt_return_address:
