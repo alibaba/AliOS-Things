@@ -159,6 +159,7 @@ void breeze_append_adv_data(uint8_t *data, uint32_t len)
 {
     if (data == NULL || len == 0 || len > MAX_VENDOR_DATA_LEN) {
         BREEZE_LOG_DEBUG("invalid adv data\r\n");
+        return;
     }
 
     memcpy(user_adv.data, data, len);
