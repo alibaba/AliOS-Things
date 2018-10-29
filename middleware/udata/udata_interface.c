@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <fcntl.h>
-#include <aos/yloop.h>
 #include "uData_com_desc.h"
 #include "service_mgr.h"
 
