@@ -459,6 +459,7 @@ static void mqtt_yield_task()
     }
 
     m_yield_task_start = true;
+    m_connect_time = aos_now_ms();
     LOGD(TAG, "New mqtt yield task starts\n");
     notify_mqtt_state(MQTT_STATE_CONNEC);
 
