@@ -204,7 +204,9 @@ static ret_code_t send_fragment(void)
     if ((bytes_left != 0) && (g_transport.timeout != 0)) {
         os_timer_start(&g_transport.tx.timer);
     }
-    os_post_event(OS_EV_BLE, OS_EV_CODE_BLE_TX_COMPLETED, pkt_sent);
+    if (g_transport.tx.active_func == ble_ais_send_notification) {
+        transport_txdone(pkt_sent);
+    }
     return ret;
 }
 
@@ -399,10 +401,13 @@ void transport_txdone(uint16_t pkt_sent)
         if (!is_valid_tx_command(g_transport.tx.cmd)) {
             return;
         }
+        reset_tx();
         event_notify(BZ_EVENT_TX_DONE, NULL, 0);
         // TODO: move ota to upper layer
         notify_ota_event(ALI_OTA_ON_TX_DONE, g_transport.tx.cmd);
-        reset_tx();
+#if BZ_ENABLE_AUTH
+        auth_tx_done();
+#endif
     } else if (g_transport.tx.pkt_req < g_transport.tx.pkt_cfm) {
         reset_tx();
         core_handle_err(ALI_ERROR_SRC_TRANSPORT_PKT_CFM_SENT, BZ_EINTERNAL);
