@@ -175,7 +175,7 @@ static bool linkedListInit( MacCommandsList_t* list )
  */
 static bool linkedListAdd( MacCommandsList_t* list, MacCommand_t* element )
 {
-    if( ( list == 0 ) && ( element == 0 ) )
+    if( ( list == 0 ) || ( element == 0 ) )
     {
         return false;
     }
