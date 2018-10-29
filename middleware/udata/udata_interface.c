@@ -13,22 +13,6 @@
 #include "uData_com_desc.h"
 #include "service_mgr.h"
 
-#ifdef UDATA_YLOOP
-int uData_report_publish(input_event_t *event, void *pdata)
-{
-    if (event == NULL) {
-        return -1;
-    }
-    if (pdata == NULL) {
-        return -1;
-    }
-    if (event->value >= UDATA_MAX_CNT) {
-        return -1;
-    }
-
-    return uData_get_report_pkg(pdata, event->value);
-}
-#else
 
 int uData_report_publish(sensor_msg_pkg_t *msg, void *pdata)
 {
@@ -44,7 +28,7 @@ int uData_report_publish(sensor_msg_pkg_t *msg, void *pdata)
 
     return uData_get_report_pkg(pdata, msg->index);
 }
-#endif
+
 int uData_dev_ioctl(udata_t *pkg, uint8_t cmd, void *parm)
 {
     /* set the udata_type and related info here */
