@@ -291,9 +291,10 @@ ais_err_t ble_send_notification(uint8_t *p_data, uint16_t length);
  * API to send data via AIS's Indicate Characteristics.
  * @parma[in]  p_data  data buffer.
  * @parma[in]  length  data length.
+ * @parma[in]  txdone  txdone callback.
  * @return     0 on success, erro code if failure.
  */
-ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length);
+ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length, void (*txdone)(uint8_t res));
 
 /**
  * API to disconnect BLE connection.

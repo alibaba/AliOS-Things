@@ -7,8 +7,7 @@
 
 #include <stdint.h>
 
-typedef struct
-{
+typedef struct {
     void *hdl;
 } os_hdl_t;
 
@@ -16,34 +15,6 @@ typedef os_hdl_t os_timer_t;
 
 /* Timer callback */
 typedef void (*os_timer_cb_t)(void *, void *);
-
-typedef enum
-{
-    OS_EV_BLE,
-    OS_EV_COMBO,
-    /* Add more event type hereafter */
-} os_event_type_t;
-
-typedef enum
-{
-    /* BLE event code, reserved 0 to 0x000f */
-    OS_EV_CODE_BLE_TX_COMPLETED = 0,
-    /* Add more event code hereafter */
-    OS_EV_CODE_MAX = 0xffff
-} os_event_code_t;
-
-typedef struct
-{
-    /* Event type, os_event_type_t */
-    uint16_t type;
-    /* Event code, os_event_code_t */
-    uint16_t code;
-    /* User data, defined according to type/code */
-    unsigned long value;
-} os_event_t;
-
-/* Asynchronous event callback */
-typedef void (*os_event_cb_t)(os_event_t *event, void *private_data);
 
 /**
  * This function will create a timer.
@@ -102,35 +73,6 @@ void os_msleep(int ms);
  * @return  elapsed time in mini seconds from system starting.
  */
 long long os_now_ms();
-
-/**
- * Post an asynchronous event. The implementation must ensure
- * the event can be receviced by the event filter.
- *
- * @param[in]  type   event type.
- * @param[in]  code   event code.
- * @param[in]  value  event value.
- *
- * @return  the operation status, 0 is OK, others is error.
- */
-int os_post_event(os_event_type_t type, os_event_code_t code,
-                  unsigned long value);
-
-/**
- * Register system event filter callback. The callback is expected to be
- * called once the event is post/triggered.
- *
- * Note: it's implementation dependent how the events are dispatched.
- *       e.g. event dispatcher as a distinguished thread, or in a main loop.
- *
- * @param[in]  type  event type interested.
- * @param[in]  cb    system event callback.
- * @param[in]  priv  private data past to cb.
- *
- * @return  the operation status, 0 is OK, others is error.
- */
-int os_register_event_filter(os_event_type_t type, os_event_cb_t cb,
-                             void *priv);
 
 /**
  * Post a delayed action to be executed in event thread.
