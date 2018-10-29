@@ -12,7 +12,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <fcntl.h>
-#include <aos/yloop.h>
 #include "sensor.h"
 #include "abs_data_model.h"
 #include "service_mgr.h"
