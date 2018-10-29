@@ -86,15 +86,8 @@ LoRaMacParserStatus_t LoRaMacParserData( LoRaMacMessageData_t* macMsg )
     macMsg->FHDR.FCnt = macMsg->Buffer[bufItr++];
     macMsg->FHDR.FCnt |= macMsg->Buffer[bufItr++] << 8;
 
-    if( macMsg->FHDR.FCtrl.Bits.FOptsLen <= 15 )
-    {
-        memcpy1( macMsg->FHDR.FOpts, &macMsg->Buffer[bufItr], macMsg->FHDR.FCtrl.Bits.FOptsLen );
-        bufItr = bufItr + macMsg->FHDR.FCtrl.Bits.FOptsLen;
-    }
-    else
-    {
-        return LORAMAC_PARSER_FAIL;
-    }
+    memcpy1( macMsg->FHDR.FOpts, &macMsg->Buffer[bufItr], macMsg->FHDR.FCtrl.Bits.FOptsLen );
+    bufItr = bufItr + macMsg->FHDR.FCtrl.Bits.FOptsLen;
 
     // Initialize anyway with zero.
     macMsg->FPort = 0;
