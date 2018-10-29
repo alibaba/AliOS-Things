@@ -10962,6 +10962,7 @@ void radio_rx_dequeue(void)
 	link = memq_dequeue(_radio.link_rx_tail, &_radio.link_rx_head,
 			    (void **)&radio_pdu_node_rx);
 	LL_ASSERT(link);
+        LL_ASSERT(radio_pdu_node_rx);
 
 	mem_release(link, &_radio.link_rx_free);
 
