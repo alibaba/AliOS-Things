@@ -308,11 +308,24 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
         return FAIL_RETURN;
     }
     mal_debug("iotx_mc_handle_recv_PUBLISH topic=%s msg=%s", topic, msg);
+    /* flowControl for specific topic */
+    static uint64_t time_prev = 0;
+    uint64_t time_curr = 0;
     char *filterStr = "{\"method\":\"thing.service.property.set\"";
     int filterLen = strlen(filterStr);
+
     if (0 == memcmp(msg, filterStr, filterLen)) {
-	    mal_debug("iotx_mc_handle_recv_PUBLISH match filterstring");
-        return SUCCESS_RETURN;
+        mal_debug("iotx_mc_handle_recv_PUBLISH match filterstring");
+        time_curr = HAL_UptimeMs();
+        if (time_curr < time_prev) {
+            time_curr = time_prev;
+        }
+        if ((time_curr - time_prev) <= (uint64_t)50) {
+            mal_info("mal over threshould");
+            return SUCCESS_RETURN;
+        } else {
+            time_prev = time_curr;
+        }
     }
 
     /* we have to find the right message handler - indexed by topic */
