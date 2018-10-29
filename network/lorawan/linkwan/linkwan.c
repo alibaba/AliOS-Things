@@ -989,7 +989,7 @@ bool get_lora_report_mode(void)
 
 bool set_lora_report_mode(int8_t mode)
 {
-    if (mode != 0 || mode != 1) {
+    if ((mode != 0) && (mode != 1)) {
         return false;
     }
     if (mode == 1) {
