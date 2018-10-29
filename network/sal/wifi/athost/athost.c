@@ -722,7 +722,7 @@ int HAL_SAL_Send(int fd,
     LOGD(TAG, "%s on fd %d", __func__, fd);
 
     link_id = fd_to_linkid(fd);
-    if (link_id >= LINK_ID_MAX) {
+    if (link_id < 0 || link_id >= LINK_ID_MAX) {
         LOGE(TAG, "No connection found for fd (%d) in %s", fd, __func__);
         return -1;
     }
@@ -823,7 +823,7 @@ int HAL_SAL_Close(int fd,
     char cmd[STOP_CMD_LEN] = {0}, out[64];
 
     link_id = fd_to_linkid(fd);
-    if (link_id >= LINK_ID_MAX) {
+    if (link_id < 0 || link_id >= LINK_ID_MAX) {
         LOGE(TAG, "No connection found for fd (%d) in %s", fd, __func__);
         return -1;
     }
