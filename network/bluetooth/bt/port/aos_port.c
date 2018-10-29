@@ -112,7 +112,6 @@ int k_sem_init(struct k_sem *sem, unsigned int initial_count,
                unsigned int limit)
 {
     int ret;
-
     if (NULL == sem) {
         BT_ERR("sem is NULL\n");
         return -EINVAL;
@@ -171,13 +170,16 @@ unsigned int k_sem_count_get(struct k_sem *sem)
 
 void k_mutex_init(struct k_mutex *mutex)
 {
-
+    int stat;
     if (NULL == mutex) {
         BT_ERR("mutex is NULL\n");
         return;
     }
 
-    krhino_mutex_create(&mutex->mutex, "ble");
+    stat = krhino_mutex_create(&mutex->mutex, "ble");
+    if(stat){
+        BT_ERR("mutex buffer over\n");
+    }
     sys_dlist_init(&mutex->poll_events);
     return;
 }
