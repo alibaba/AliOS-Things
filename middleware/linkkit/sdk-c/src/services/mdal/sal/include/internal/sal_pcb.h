@@ -107,56 +107,6 @@ struct tcp_pcb {
     void *recv_arg;
 };
 
-struct udp_pcb;
-
-/** Function prototype for udp pcb receive callback functions
- * addr and port are in same byte order as in the pcb
- * The callback is responsible for freeing the pbuf
- * if it's not used any more.
- *
- * ATTENTION: Be aware that 'addr' might point into the pbuf 'p' so freeing this pbuf
- *            can make 'addr' invalid, too.
- *
- * @param arg user supplied argument (udp_pcb.recv_arg)
- * @param pcb the udp_pcb which received data
- * @param p the packet buffer that was received
- * @param addr the remote IP address from which the packet was received
- * @param port the remote port from which the packet was received
- */
-typedef void (*udp_recv_fn)(void *arg, struct udp_pcb *pcb, struct pbuf *p,
-                            const ip_addr_t *addr, u16_t port);
-
-/** the UDP protocol control block */
-struct udp_pcb {
-    /** Common members of all PCB types */
-    IP_PCB;
-
-    /* Protocol specific PCB members */
-
-    struct udp_pcb *next;
-
-    u8_t flags;
-    /** ports are in host byte order */
-    u16_t local_port, remote_port;
-
-#if SAL_MULTICAST_TX_OPTIONS
-    /** outgoing network interface for multicast packets */
-    ip_addr_t multicast_ip;
-    /** TTL for outgoing multicast packets */
-    u8_t mcast_ttl;
-#endif /* SAL_MULTICAST_TX_OPTIONS */
-
-#if SAL_UDPLITE
-    /** used for UDP_LITE only */
-    u16_t chksum_len_rx, chksum_len_tx;
-#endif /* SAL_UDPLITE */
-
-    /** receive callback function */
-    udp_recv_fn recv;
-    /** user-supplied argument for the recv callback */
-    void *recv_arg;
-};
-
 #ifdef __cplusplus
 }
 #endif
