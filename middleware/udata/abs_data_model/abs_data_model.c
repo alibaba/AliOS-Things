@@ -349,13 +349,6 @@ void abs_sensor_irq_callback(sensor_tag_e tag)
         return;
     }
 
-#ifdef UDATA_YLOOP
-    ret = aos_post_event(EV_UDATA, CODE_UDATA_DEV_READ, tag);
-    if (unlikely(ret)) {
-        LOG("abs_sensor_irq_callback post event fail ret = %d tag = %d\n", ret,
-            tag);
-    }
-#else
     sensor_msg_pkg_t data_msg;
     memset(&data_msg, 0, sizeof(data_msg));
     data_msg.cmd   = UDATA_MSG_DEV_READ;
@@ -365,7 +358,6 @@ void abs_sensor_irq_callback(sensor_tag_e tag)
         LOG("abs_sensor_irq_callback post msg fail ret = %d tag = %d\n", ret,
             tag);
     }
-#endif
 }
 
 int abs_sensor_irq_callback_reg(sensor_tag_e tag, SENSOR_IRQ_CALLBACK cb)
@@ -593,12 +585,6 @@ int abs_data_read(sensor_tag_e tag, void *pdata, uint32_t nbyte)
         g_abs_data_db[index]->calibrated_algo_process_cb(pdata);
     }
 
-#ifdef UDATA_YLOOP
-    ret = aos_post_event(EV_UDATA, CODE_UDATA_SERVICE_PROCESS, tag);
-    if (ret < 0) {
-        return -1;
-    }
-#else
     sensor_msg_pkg_t data_msg;
     memset(&data_msg, 0, sizeof(data_msg));
     data_msg.cmd   = UDATA_MSG_SERVICE_PROCESS;
@@ -607,7 +593,6 @@ int abs_data_read(sensor_tag_e tag, void *pdata, uint32_t nbyte)
     if (unlikely(ret)) {
         return -1;
     }
-#endif
 
     return (int)size;
 }

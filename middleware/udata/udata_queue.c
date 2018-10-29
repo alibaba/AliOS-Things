@@ -125,12 +125,10 @@ int own_task_post_msg(sensor_msg_pkg_t msg)
 
 int uData_post_msg(sensor_msg_pkg_t msg)
 {
-#ifndef UDATA_YLOOP
     if(msg.cmd == UDATA_MSG_SERVICE_PROCESS)
     {
         own_task_post_msg(msg);
     }
-#endif
     aos_queue_send(&g_uData_queue, (void *)&msg, sizeof(msg));
     return 0;
 }

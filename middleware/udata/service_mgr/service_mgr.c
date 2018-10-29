@@ -12,11 +12,7 @@
 #include "service_process.h"
 #include "abs_data_model.h"
 
-#ifdef UDATA_YLOOP
-#include <aos/yloop.h>
-#else
 #include "uData_queue.h"
-#endif
 
 
 static uData_service_t *g_service_db[UDATA_MAX_CNT];
@@ -263,10 +259,6 @@ int uData_data_publish(int index)
 {
     if (g_service_db[index]->subscribe == true) {
 
-#ifdef UDATA_YLOOP
-        aos_post_event(EV_UDATA, CODE_UDATA_REPORT_PUBLISH, index);
-
-#else
         sensor_msg_pkg_t data_msg;
         memset(&data_msg, 0, sizeof(data_msg));
         data_msg.cmd   = UDATA_MSG_REPORT_PUBLISH;
@@ -276,7 +268,6 @@ int uData_data_publish(int index)
         if (unlikely(ret)) {
             return -1;
         }
-#endif
     }
     return 0;
 }
@@ -335,95 +326,6 @@ int uData_service_ioctl(udata_type_e type, void *parm)
     return 0;
 }
 
-#ifdef UDATA_YLOOP
-static void uData_service_dispatcher(input_event_t *event, void *priv_data)
-{
-    int      ret  = 0;
-    void *   addr = NULL;
-    uint32_t len  = 0;
-    /* all the cmd of sensorhub will be sent to be handled here;
-       the dispatcher will asign the new sub task to the fitted model */
-    if ((event == NULL) || (event->type != EV_UDATA)) {
-        return;
-    }
-
-    ret = uData_service_get_payload(event->value, &addr, &len);
-    if (unlikely(ret)) {
-        return;
-    }
-
-    switch (event->code) {
-        case CODE_UDATA_DEV_READ: {
-            memset(addr, 0, len);
-            ret = abs_data_read(event->value, addr, len);
-            if (ret <= 0) {
-                LOG("%s %s fail line:%d \n", uDATA_STR, __func__, __LINE__);
-                return;
-            }
-        } break;
-
-        case CODE_UDATA_SERVICE_PROCESS: {
-            ret = uData_service_process(event->value, addr, len);
-            if(unlikely(ret)){
-                return;
-            }
-        } break;
-
-        case CODE_UDATA_DEV_IOCTL: {
-            uData_service_t *service = uData_get_service_obj(event->value);
-            if (service == NULL) {
-                return;
-            }
-            ret = abs_data_ioctl(event->value, service->payload);
-            if(unlikely(ret)){
-                return;
-            }
-        } break;
-
-        case CODE_UDATA_DEV_OPEN: {
-            ret = abs_data_open(priv_data);
-            if(unlikely(ret)){
-                return;
-            }
-        } break;
-
-        case CODE_UDATA_DEV_ENABLE: {
-            ret = uData_dev_enable(event->value);
-            if(unlikely(ret)){
-                return;
-            }
-        } break;
-
-        case CODE_UDATA_DEV_DISABLE: {
-        } break;
-
-        case CODE_UDATA_SERVICE_SUBSRIBE: {
-            ret = uData_service_subscribe(event->value);
-            if(unlikely(ret)){
-                return;
-            }
-        } break;
-
-        case CODE_UDATA_SERVICE_UNSUBSRIBE: {
-            ret = uData_service_unsubscribe(event->value);
-            if(unlikely(ret)){
-                return;
-            }
-        } break;
-
-        case CODE_UDATA_DEV_CLOSE: {
-            ret = abs_data_close(event->value);
-            if(unlikely(ret)){
-                return;
-            }
-        } break;
-
-        default:
-            break;
-    }
-}
-
-#else  // UDATA_YLOOP
 
 void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
 {
@@ -508,7 +410,6 @@ void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
             break;
     }
 }
-#endif // UDATA_YLOOP
 
 
 int uData_service_init(void)
@@ -527,20 +428,12 @@ int uData_service_mgr_init(void)
     int ret       = 0;
     g_service_cnt = 0;
 
-#ifdef UDATA_YLOOP
-    ret = aos_register_event_filter(EV_UDATA, uData_service_dispatcher, NULL);
-    if (unlikely(ret)) {
-        return -1;
-    }
-
-#else
 
     ret = uData_register_msg_handler(uData_dispatcher_handle);
     if (ret == -1) {
         LOG("error occur reg uData_dispatcher_process \n");
         return ret;
     }
-#endif
 
     LOG("%s %s successfully \n", uDATA_STR, __func__);
     return 0;

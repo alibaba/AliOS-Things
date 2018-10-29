@@ -36,7 +36,6 @@
 #define HZ_2_TIMESTAMP(hz) HZ_2_INTERVAL(hz)
 #define TIMESTAMP_2_HZ(t) INTERVAL_2_HZ(t)
 
-#ifndef UDATA_YLOOP
 /** uData queue msg tag */
 #define UDATA_MSG_DEV_READ 1
 #define UDATA_MSG_DEV_IOCTL 2
@@ -49,7 +48,6 @@
 #define UDATA_MSG_SERVICE_PROCESS 9
 #define UDATA_MSG_SERVICE_IOCTL 10
 #define UDATA_MSG_REPORT_PUBLISH 11
-#endif
 
 
 typedef bool b_subscribed;
