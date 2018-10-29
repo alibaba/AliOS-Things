@@ -106,25 +106,8 @@ ais_bt_init_t ais_attr_info = {
     disconnected
 };
 
-static void ble_event_handler(os_event_t *event, void *priv_data)
-{
-    if (event->type != OS_EV_BLE) return;
-    switch (event->code) {
-        case OS_EV_CODE_BLE_TX_COMPLETED:
-            transport_txdone(event->value);
-#if BZ_ENABLE_AUTH
-            auth_tx_done();
-#endif
-            break;
-        default:
-            break;
-    }
-}
-
 uint32_t ble_ais_init(const ble_ais_init_t *p_ais_init)
 {
-    os_register_event_filter(OS_EV_BLE, ble_event_handler, NULL);
-
     memset(&g_ais, 0, sizeof(ble_ais_t));
     g_ais.conn_handle = BLE_CONN_HANDLE_INVALID;
     g_ais.is_indication_enabled = false;
@@ -155,6 +138,13 @@ uint32_t ble_ais_send_notification(uint8_t *p_data, uint16_t length)
     }
 }
 
+static void send_indication_done(uint8_t res)
+{
+    if (res == BZ_SUCCESS) {
+        transport_txdone(1);
+    }
+}
+
 uint32_t ble_ais_send_indication(uint8_t *p_data, uint16_t length)
 {
     int err;
@@ -167,7 +157,7 @@ uint32_t ble_ais_send_indication(uint8_t *p_data, uint16_t length)
     if (length > g_ais.max_pkt_size) {
         return BZ_EDATASIZE;
     }
-    err = ble_send_indication(p_data, length);
+    err = ble_send_indication(p_data, length, send_indication_done);
 
     if (err) {
         return BZ_EGATTINDICATE;
