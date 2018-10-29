@@ -20,11 +20,7 @@
 #include "service_mgr.h"
 #include "service_data_to_cloud.h"
 
-#ifdef UDATA_YLOOP
-#include <aos/yloop.h>
-#else
 #include "uData_queue.h"
-#endif
 
 
 #define DTC_PARA_NUM_1 (1)
@@ -941,38 +937,6 @@ static int service_dtc_publish(udata_type_e type, void *pdata)
 }
 
 
-#ifdef UDATA_YLOOP
-void service_dtc_handle(input_event_t *event, void *priv_data)
-{
-    udata_pkg_t buf;
-    int         ret   = 0;
-    int         mtype = uData_find_type(event->value);
-    if ((event == NULL) || (event->type != EV_UDATA)) {
-        return;
-    }
-    if ((false == service_dtc_is_connect()) ||
-        (false == service_dtc_is_publish(mtype))) {
-        return;
-    }
-    switch (event->code) {
-        case CODE_UDATA_REPORT_PUBLISH: {
-            ret = uData_report_publish(event, &buf);
-            if (ret != 0) {
-                return;
-            }
-
-            ret = service_dtc_publish(buf.type, (void *)&buf.payload[0]);
-            if (ret != 0) {
-                return;
-            }
-
-            break;
-        }
-        default:
-            break;
-    }
-}
-#else
 
 int uData_msg_report_publish(sensor_msg_pkg_t *msg)
 {
@@ -1015,7 +979,6 @@ void service_dtc_handle(sensor_msg_pkg_t *msg)
             break;
     }
 }
-#endif
 
 void service_dtc_connect_set(bool flag)
 {
@@ -1471,13 +1434,6 @@ int service_dtc_register(void *thing_id, SET_VALUE_FUNC set_value,
     }
 
 
-#ifdef UDATA_YLOOP
-    ret = aos_register_event_filter(EV_UDATA, service_dtc_handle, NULL);
-    if (ret != 0) {
-        LOG("error occur reg service_dtc_handle \n");
-        return ret;
-    }
-#else
     ret = uData_register_msg_handler(service_dtc_handle);
     LOG("uData_queue_registerslot service_dtc_handle ret=%d\n", ret);
 
@@ -1485,7 +1441,6 @@ int service_dtc_register(void *thing_id, SET_VALUE_FUNC set_value,
         LOG("error occur reg service_dtc_handle \n");
         return ret;
     }
-#endif
 
     g_dtc_thing_id           = thing_id;
     g_dtc_set_value_func     = set_value;
