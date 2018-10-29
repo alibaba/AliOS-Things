@@ -135,7 +135,7 @@ static uint8_t CountNbOfEnabledChannels(bool joined, uint8_t datarate,
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTransmission = 0;
 
-    for (uint8_t j = 0; j < 16; j++) {
+    for (uint8_t j = 0; j < CN470A_MAX_NB_CHANNELS; j++) {
         if ((channelsMask[0] & (1 << j)) != 0) {
             // Check if the channel is enabled
             if (channels[j].Frequency == 0) {
