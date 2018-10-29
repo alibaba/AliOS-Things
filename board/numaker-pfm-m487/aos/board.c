@@ -190,14 +190,24 @@ gpio_dev_t board_gpio_table[] =
 };
 
 /* Logic partition on flash devices */
-#define DEF_APPLICATION_START_ADDR	FMC_APROM_BASE
-#define DEF_APPLICATION_SIZE				(0x3E000)			//248k bytes
-#define DEF_PARAMETER_1_START_ADDR	(DEF_APPLICATION_START_ADDR+DEF_APPLICATION_SIZE)
-#define DEF_PARAMETER_1_SIZE				(FMC_FLASH_PAGE_SIZE*2)				//8k bytes
-#define DEF_OTATEMP_START_ADDR			(DEF_PARAMETER_1_START_ADDR+DEF_PARAMETER_1_SIZE)
-#define DEF_OTATEMP_SIZE						(DEF_APPLICATION_SIZE)
-#define DEF_PARAMETER_2_START_ADDR	(DEF_OTATEMP_START_ADDR+DEF_OTATEMP_SIZE)
-#define DEF_PARAMETER_2_SIZE				(FMC_FLASH_PAGE_SIZE*2)		//8k bytes
+#if defined(USE_OTA_SPIM_FLASH)
+	#define DEF_APPLICATION_START_ADDR	FMC_APROM_BASE
+	#define DEF_APPLICATION_SIZE				(0x80000-FMC_FLASH_PAGE_SIZE*2-FMC_FLASH_PAGE_SIZE*2-FMC_FLASH_PAGE_SIZE*4)	// 480k bytes
+	#define DEF_PARAMETER_1_START_ADDR	(DEF_APPLICATION_START_ADDR+DEF_APPLICATION_SIZE)
+	#define DEF_PARAMETER_1_SIZE				(FMC_FLASH_PAGE_SIZE*2)		//8k bytes
+	#define DEF_PARAMETER_2_START_ADDR	(DEF_PARAMETER_1_START_ADDR+DEF_PARAMETER_1_SIZE)
+	#define DEF_PARAMETER_2_SIZE				(FMC_FLASH_PAGE_SIZE*2)		//8k bytes
+#else
+	#define DEF_APPLICATION_START_ADDR	FMC_APROM_BASE
+	#define DEF_APPLICATION_SIZE				(0x3E000)			//248k bytes
+	#define DEF_PARAMETER_1_START_ADDR	(DEF_APPLICATION_START_ADDR+DEF_APPLICATION_SIZE)
+	#define DEF_PARAMETER_1_SIZE				(FMC_FLASH_PAGE_SIZE*2)				//8k bytes
+	#define DEF_OTATEMP_START_ADDR			(DEF_PARAMETER_1_START_ADDR+DEF_PARAMETER_1_SIZE)
+	#define DEF_OTATEMP_SIZE						(DEF_APPLICATION_SIZE)
+	#define DEF_PARAMETER_2_START_ADDR	(DEF_OTATEMP_START_ADDR+DEF_OTATEMP_SIZE)
+	#define DEF_PARAMETER_2_SIZE				(FMC_FLASH_PAGE_SIZE*2)		//8k bytes
+#endif
+
 #if 0
 #define DEF_PARAMETER_3_START_ADDR	(DEF_PARAMETER_2_START_ADDR+DEF_PARAMETER_2_SIZE)
 #define DEF_PARAMETER_3_SIZE				(FMC_FLASH_PAGE_SIZE*2)		//8k bytes
@@ -224,6 +234,7 @@ const hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX] = {
 		.partition_length           = DEF_PARAMETER_1_SIZE,
     .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN
 	},
+#if !defined(USE_OTA_SPIM_FLASH)	
 	[HAL_PARTITION_OTA_TEMP] = {
 		.partition_owner          	= HAL_FLASH_EMBEDDED,
 		.partition_description      = "OTA",
@@ -231,6 +242,7 @@ const hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX] = {
     	.partition_length           = DEF_OTATEMP_SIZE,
     	.partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN
 	},
+#endif
 	[HAL_PARTITION_PARAMETER_2] = {
 		.partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "PARAMETER2",
@@ -277,17 +289,21 @@ const hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX] = {
 extern struct hal_ota_module_s numicro_ota_module;
 #endif
 
-#if defined(DEV_SAL_MK3060)
-extern hal_wifi_module_t aos_wifi_module_mk3060;
-#endif
-
 void board_init(void)
 {
     board_cli_init();
 
 #if defined(DEV_SAL_MK3060)
+	extern hal_wifi_module_t aos_wifi_module_mk3060;
 	hal_wifi_register_module(&aos_wifi_module_mk3060);	
 	hal_wifi_init();
+#endif
+
+#if defined(WITH_LWIP)    
+    extern hal_wifi_module_t numicro_eth_m487;
+    extern int lwip_tcpip_init(void);
+    hal_wifi_register_module(&numicro_eth_m487);
+    lwip_tcpip_init();
 #endif
 
 #if defined(WITH_SAL) || defined(WITH_LWIP)

@@ -107,7 +107,9 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    hal/hal_flash.c \
                    hal/hal_qspi.c \
                    hal/hal_dma.c \
-                   hal/ota_port.c
+                   hal/eth_port.c \
+                   hal/ota_port.c \
+                   hal/ota_spimflash.c
                    
 ifeq ($(ETHERNET),1)
 $(NAME)_SOURCES += 	lwIP/netif/ethernetif.c \

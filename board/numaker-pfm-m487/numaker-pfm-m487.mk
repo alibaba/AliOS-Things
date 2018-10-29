@@ -24,10 +24,8 @@ $(NAME)_SOURCES += \
 $(NAME)_SOURCES += startup_M480.c 
 
 GLOBAL_INCLUDES += . \
-                   hal/ \
-                   aos/ \
-                   inc/
-				   
+                   aos
+           	   
 GLOBAL_CFLAGS += -DNUMICRO_M487
 
 GLOBAL_DEFINES += STDIO_UART=0
@@ -45,12 +43,13 @@ HW_CRYPTO_AES_NUVOTON := 1
 GLOBAL_DEFINES += WITH_LWIP
 GLOBAL_DEFINES += LWIP_MAILBOX_QUEUE
 GLOBAL_DEFINES += LWIP_TIMEVAL_PRIVATE=0
+GLOBAL_DEFINES += USE_OTA_SPIM_FLASH=1
 else ifeq ($(WIFI),1)
 SAL := 0
 press_test := 1
 no_with_lwip := 1
-$(NAME)_COMPONENTS  += sal sal.wifi.mk3060
 GLOBAL_DEFINES += WITH_SAL
+$(NAME)_COMPONENTS  += sal sal.wifi.mk3060
 GLOBAL_DEFINES += DEV_SAL_MK3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
@@ -67,3 +66,4 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_CFLAGS += -DSYSINFO_ARCH=\"$(HOST_ARCH)\"
 GLOBAL_CFLAGS += -DSYSINFO_MCU=\"$(HOST_MCU_FAMILY)\"
 
+EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
