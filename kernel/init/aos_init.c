@@ -9,10 +9,10 @@
 #include <hal/wifi.h>
 
 #include <aos/network.h>
-#ifdef CONFIG_NET_LWIP
+#ifdef WITH_LWIP_TFTP
 #include "lwip/ip_addr.h"
 #include "lwip/apps/tftp.h"
-#endif /* CONFIG_NET_LWIP */
+#endif /* WITH_LWIP_TFTP */
 
 extern int vfs_init(void);
 extern int vfs_device_init(void);
@@ -89,7 +89,7 @@ static void udp_cmd(char *buf, int len, int argc, char **argv)
     close(sockfd);
 }
 
-#ifdef CONFIG_NET_LWIP
+#ifdef WITH_LWIP_TFTP
 static void tftp_get_done(int error, int len)
 {
     if (error == 0) {
@@ -136,13 +136,13 @@ tftp_print_usage:
     aos_cli_printf("Usage: tftp server start/stop\r\n");
     aos_cli_printf("       tftp get path/to/file\r\n");
 }
-#endif /* CONFIG_NET_LWIP */
+#endif /* WITH_LWIP_TFTP */
 
 struct cli_command  tcpip_cli_cmd[] = {
     /* net */
-#ifdef CONFIG_NET_LWIP
+#ifdef WITH_LWIP_TFTP
     {"tftp",        "tftp server/client control", tftp_cmd},
-#endif /* CONFIG_NET_LWIP */
+#endif /* WITH_LWIP_TFTP */
     {"udp",         "[ip] [port] [string data] send udp data", udp_cmd},
 };
 
