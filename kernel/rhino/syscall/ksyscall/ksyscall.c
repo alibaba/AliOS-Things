@@ -252,31 +252,6 @@ static kstat_t sys_krhino_buf_queue_info_get_stub(void *arg)
 }
 
 
-/* ------------------- mm --------------------- */
-
-static void *sys_krhino_mm_alloc_stub(void *arg)
-{
-    krhino_mm_alloc_syscall_arg_t *_arg = arg;
-
-    return krhino_mm_alloc(_arg->size);
-}
-
-static void *sys_krhino_mm_free_stub(void *arg)
-{
-    krhino_mm_free_syscall_arg_t *_arg = arg;
-
-    krhino_mm_alloc(_arg->ptr);
-}
-
-static void *sys_krhino_mm_realloc_stub(void *arg)
-{
-    krhino_mm_realloc_syscall_arg_t *_arg = arg;
-
-    return krhino_mm_realloc(_arg->oldmem,
-                           _arg->newsize);
-}
-
-
 /* ----------------- hal uart ------------------- */
 
 static int32_t sys_hal_uart_init_stub(void *arg)
@@ -403,11 +378,6 @@ void *syscall_tbl[] = {
     [SYS_KRHINO_BUF_QUEUE_RECV] = sys_krhino_buf_queue_recv_stub,
     [SYS_KRHINO_BUF_QUEUE_FLUSH] = sys_krhino_buf_queue_flush_stub,
     [SYS_KRHINO_BUF_QUEUE_INFO_GET] = sys_krhino_buf_queue_info_get_stub,
-
-    /* ---------------------- mm -------------------------*/
-    [SYS_KRHINO_MM_ALLOC] = sys_krhino_mm_alloc_stub,
-    [SYS_KRHINO_MM_FREE] = sys_krhino_mm_free_stub,
-    [SYS_KRHINO_MM_REALLOC] = sys_krhino_mm_realloc_stub,
 
     /* ------------------- hal uart ----------------------*/
     [SYS_HAL_UART_INIT] = sys_hal_uart_init_stub,

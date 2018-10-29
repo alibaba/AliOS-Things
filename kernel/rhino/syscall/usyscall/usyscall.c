@@ -308,37 +308,6 @@ kstat_t krhino_buf_queue_info_get(kbuf_queue_t *queue,
 }
 
 
-/* ------------------ mm ------------------ */
-
-void *krhino_mm_alloc(size_t size)
-{
-    volatile krhino_mm_alloc_syscall_arg_t arg;
-
-    arg.size = size;
-
-    return SYSCALL(SYS_KRHINO_MM_ALLOC, &arg);
-}
-
-void krhino_mm_free(void *ptr)
-{
-    volatile krhino_mm_free_syscall_arg_t arg;
-
-    arg.ptr = ptr;
-
-    return SYSCALL(SYS_KRHINO_MM_FREE, &arg);
-}
-
-void *krhino_mm_realloc(void *oldmem, size_t newsize)
-{
-    volatile krhino_mm_realloc_syscall_arg_t arg;
-
-    arg.oldmem = oldmem;
-    arg.newsize = newsize;
-
-    return SYSCALL(SYS_KRHINO_MM_ALLOC, &arg);
-}
-
-
 /* ---------------- hal uart ---------------- */
 
 int32_t hal_uart_init(uart_dev_t *uart)
