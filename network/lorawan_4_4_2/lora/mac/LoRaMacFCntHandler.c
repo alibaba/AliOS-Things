@@ -180,7 +180,7 @@ LoRaMacFCntHandlerStatus_t LoRaMacGetFCntDown( AddressIdentifier_t addrID, FType
             break;
         case MULTICAST_2_ADDR:
             *fCntID = MC_FCNT_DOWN_2;
-            previousDown = FCntHandlerNvmCtx.FCntList.McFCntDown3;
+            previousDown = FCntHandlerNvmCtx.FCntList.McFCntDown2;
             break;
         case MULTICAST_3_ADDR:
             *fCntID = MC_FCNT_DOWN_3;
