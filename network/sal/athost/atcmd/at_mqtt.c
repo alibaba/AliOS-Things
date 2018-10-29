@@ -339,6 +339,7 @@ static void mqtt_handle_event(void *pcontext, void *pclient,
 
     if (NULL == pmsg) {
         LOGE(TAG, "mqtt handle event error NULL");
+        return;
     }
 
     switch (pmsg->event_type) {
@@ -1111,14 +1112,16 @@ static int         atcmd_imqtt_open()
                 LOGE(TAG, "Invalid port %s !\n", port_str);
                 goto err;
             }
-#if 1
+
             LOGW(TAG, "imqtt open is currently not supported!");
             goto err;
-#endif
+
+#if IMQTT_OPEN_SUPPORT
             // set hostname, port
             memset(m_mqtt_config.hostname, 0, sizeof(m_mqtt_config.hostname));
             memcpy(m_mqtt_config.hostname, hostname, strlen(hostname));
             m_mqtt_config.port = port;
+#endif
         }
     } else {
         LOGE(TAG, "Invalid mqtt mode prefix %c!\n", single);
