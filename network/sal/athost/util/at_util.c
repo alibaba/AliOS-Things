@@ -376,8 +376,8 @@ int send_over_uart(uart_send_info_t *msgptr)
 // all uart send should go through this task
 void uart_send_task()
 {
-    int              ret;
-    uint32_t         size, sent_size;
+    int              ret, sent_size;
+    uint32_t         size;
     uart_send_info_t msg;
 
     LOG("uart send task start!\r\n");
