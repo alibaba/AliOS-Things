@@ -128,6 +128,8 @@ typedef struct
 
     void (*set_worker_stack_size)(uint16_t size);
 
+    void (*set_worker_priority)(int prio);
+
     int (*send_raw_self_define_respone_formate)(const char *command, char *rsp,
                                                 uint32_t rsplen,
                                                 char *   rsp_prefix,

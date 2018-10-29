@@ -791,11 +791,35 @@ int HAL_SAL_Send(int fd,
         snprintf(cmd + strlen(cmd), 7, "%d,", remote_port);
     }
     /* data_length */
+#if AT_CHECK_SUM
+    snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len + 1);
+#else
     snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len);
+#endif
 
     LOGD(TAG, "\r\n%s %d - AT cmd to run: %s\r\n", __func__, __LINE__, cmd);
 
+#if AT_CHECK_SUM
+    uint8_t checksum = 0;
+    uint8_t* outdata = NULL;
+
+    if ((outdata = (uint8_t *)aos_malloc(len + 1)) == NULL) {
+        LOGE(TAG, "%s malloc failed!", __func__);
+        return -1;
+    }
+
+    for (int i = 0; i < len; i++) {
+       outdata[i] = data[i];
+       checksum += data[i];
+    }
+    outdata[len] = checksum;
+
+    at.send_data_2stage((const char *)cmd, (const char *)outdata, len + 1, out, sizeof(out));
+    aos_free(outdata);
+#else
     at.send_data_2stage((const char *)cmd, (const char *)data, len, out, sizeof(out));
+#endif
+
     LOGD(TAG, "\r\nThe AT response is: %s\r\n", out);
 
     if (strstr(out, CMD_FAIL_RSP) != NULL) {

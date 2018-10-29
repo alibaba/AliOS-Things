@@ -54,8 +54,6 @@ typedef struct link_s
 
     // used by broadcast udp
     struct sockaddr_in remoteaddr;
-    aos_sem_t          sem_start;
-    aos_sem_t          sem_close;
 } link_t;
 
 typedef struct
@@ -186,7 +184,7 @@ void free_sock_send_msg(sock_send_info_t *msgptr)
 // return total byte sent
 int send_over_sock(sock_send_info_t *msgptr)
 {
-    int                size = 0;
+    int                size = 0, sent_len = 0;
     int                type;
     struct sockaddr_in remote;
     int                remotelen;
@@ -221,9 +219,16 @@ int send_over_sock(sock_send_info_t *msgptr)
             return -1;
         }
     } else {
-        if (send(msgptr->sockfd, msgptr->dataptr, msgptr->datalen, 0) <= 0) {
+        if ((sent_len = send(msgptr->sockfd, msgptr->dataptr, msgptr->datalen, 0))
+            <= 0) {
             LOGE(TAG, "sock %d send data failed, errno = %d. \r\n",
                  msgptr->sockfd, errno);
+            return -1;
+        }
+
+        if (sent_len != msgptr->datalen) {
+            LOGE(TAG, "sock %d want %d only sent %d. \r\n",
+                 msgptr->sockfd, msgptr->datalen, sent_len);
             return -1;
         }
     }
@@ -470,22 +475,6 @@ static int add_link_info(int fd, int linkid, CONN_TYPE type)
             g_link[i].fd     = fd;
             g_link[i].type   = type;
             g_link[i].linkid = linkid;
-
-            if (aos_sem_new(&g_link[i].sem_start, 0) != 0) {
-                LOGE(TAG, "failed to allocate semaphore %s", __func__);
-                g_link[i].fd     = -1;
-                g_link[i].linkid = -1;
-                break;
-            }
-
-            if (aos_sem_new(&g_link[i].sem_close, 0) != 0) {
-                LOGE(TAG, "failed to allocate semaphore %s", __func__);
-                aos_sem_free(&g_link[i].sem_start);
-                g_link[i].fd     = -1;
-                g_link[i].linkid = -1;
-                break;
-            }
-
             ret = 0;
             break;
         }
@@ -513,15 +502,6 @@ static int delete_link_info_by_sockfd(int sockfd)
         if (g_link[i].fd == sockfd) {
             g_link[i].fd     = -1;
             g_link[i].linkid = -1;
-
-            if (aos_sem_is_valid(&g_link[i].sem_start)) {
-                aos_sem_free(&g_link[i].sem_start);
-            }
-
-            if (aos_sem_is_valid(&g_link[i].sem_close)) {
-                aos_sem_free(&g_link[i].sem_close);
-            }
-
             ret = 0;
         }
     }
@@ -712,7 +692,7 @@ exit:
     // need to close by task
     if (find_linkid_by_sockfd(fd) >= 0) {
         notify_cip_connect_status_events(fd, CIP_STATUS_CLOSED, 0);
-        // delete_link_info_by_sockfd(fd);
+        delete_link_info_by_sockfd(fd);
     }
 
     close(fd);
@@ -774,7 +754,7 @@ exit:
     // need to close by task
     if (find_linkid_by_sockfd(fd) >= 0) {
         notify_cip_connect_status_events(fd, CIP_STATUS_CLOSED, 0);
-        // delete_link_info_by_sockfd(fd);
+        delete_link_info_by_sockfd(fd);
     }
 
     close(fd);
@@ -1263,10 +1243,10 @@ int at_cip_send()
          linkid, datalen);
 
     // Prepare socket data
-    recvdata = (char *)aos_malloc(datalen + 1);
+    recvdata = (char *)aos_malloc(datalen);
     if (!recvdata) {
         LOGE(TAG, "Error: %s %d out of memory, len is %d. \r\n", __func__,
-             __LINE__, datalen + 1);
+             __LINE__, datalen);
         goto err;
     }
 
@@ -1274,6 +1254,27 @@ int at_cip_send()
         LOGE(TAG, "Error at read data \r\n");
         goto err;
     }
+
+    if (readsize != datalen) {
+        LOGE(TAG, "Error datalen: %d readsize: %d\n", datalen, readsize);
+        goto err;
+    }
+
+#if AT_CHECK_SUM
+    uint8_t checksum = 0;
+
+    for (int i = 0; i < datalen - 1; i++) {
+        checksum += (uint8_t)recvdata[i];
+    }
+
+    if (checksum != (uint8_t)recvdata[datalen - 1]) {
+        LOGE(TAG, "Error checksum exam fail!!! want %u but is %u",
+            checksum, recvdata[datalen - 1]);
+        goto err;
+    }
+
+    datalen -= 1;
+#endif
 
     LOGD(TAG, "CIPSend datalen: %d readsize: %d\n", datalen, readsize);
 
