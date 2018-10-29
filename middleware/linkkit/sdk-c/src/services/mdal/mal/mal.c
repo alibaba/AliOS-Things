@@ -23,7 +23,7 @@
 #define MAL_MC_MAX_TOPIC_LEN   128
 #define MAL_MC_MAX_MSG_LEN     512
 
-#define MAL_MC_DEAFULT_TIMEOUT   (5000)
+#define MAL_MC_DEAFULT_TIMEOUT   (8000)
 #define GUIDER_SIGN_LEN             (66)
 #define GUIDER_TS_LEN               (16)
 
@@ -368,12 +368,15 @@ static int mal_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         return FAIL_RETURN;
     }
 
-    iotx_mc_state_t state = mal_mc_get_client_state(c);
-    if (state != IOTX_MC_STATE_CONNECTED) {
+    if (HAL_MDAL_MAL_State() == IOTX_MC_STATE_CONNECTED) {
+        mal_mc_set_client_state(c, IOTX_MC_STATE_CONNECTED);
+    }
+
+    if (mal_mc_get_client_state(c) != IOTX_MC_STATE_CONNECTED) {
         return MQTT_STATE_ERROR;
     }
 
-    if ((state = HAL_MDAL_MAL_State()) != IOTX_MC_STATE_CONNECTED) {
+    if (HAL_MDAL_MAL_State() != IOTX_MC_STATE_CONNECTED) {
         mal_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         return MQTT_NETWORK_ERROR;
     }
@@ -1303,8 +1306,6 @@ int MAL_MQTT_Yield(void *handle, int timeout_ms)
 
         /* acquire package in cycle, such as PUBLISH */
         rc = mal_mc_cycle(pClient, &time);
-        if (SUCCESS_RETURN == rc) {
-        }
         _yield_unlock(pClient);
     } while (!utils_time_is_expired(&time));
 
