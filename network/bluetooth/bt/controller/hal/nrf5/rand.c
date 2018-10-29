@@ -56,7 +56,7 @@ void rand_isr_init(u8_t *context, u8_t context_len, u8_t threshold)
 	init(&rng_isr, context, context_len, threshold);
 }
 
-static size_t get(struct rand *rng, size_t octets, u8_t *rand)
+static size_t get(struct rand *rng, u8_t octets, u8_t *rand)
 {
 	u8_t first, last, remaining;
 
@@ -139,12 +139,12 @@ static size_t get(struct rand *rng, size_t octets, u8_t *rand)
 	return octets;
 }
 
-size_t rand_get(size_t octets, u8_t *rand)
+size_t rand_get(u8_t octets, u8_t *rand)
 {
 	return get(rng_thr, octets, rand);
 }
 
-size_t rand_isr_get(size_t octets, u8_t *rand)
+size_t rand_isr_get(u8_t octets, u8_t *rand)
 {
 	return get(rng_isr, octets, rand);
 }
