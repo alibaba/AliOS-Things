@@ -321,7 +321,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
             time_curr = time_prev;
         }
         if ((time_curr - time_prev) <= (uint64_t)50) {
-            mal_info("mal over threshould");
+            mal_debug("iotx_mc_handle_recv_PUBLISH mal over threshould");
             return SUCCESS_RETURN;
         } else {
             time_prev = time_curr;
@@ -398,7 +398,7 @@ static int mal_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     rc = mal_mc_data_copy_from_buf(topic, msg);
     if (rc != SUCCESS_RETURN) {
         /* mal_debug("wait data timeout"); */
-        return SUCCESS_RETURN;
+        return rc;
     }
 
     rc = iotx_mc_handle_recv_PUBLISH(c, topic, msg);
@@ -853,11 +853,11 @@ int mal_mc_data_copy_from_buf(char *topic, char *message)
         return -1;
     }
 
-    HAL_MutexLock(&g_at_mqtt_buff_mgr.buffer_mutex);
+    HAL_MutexLock(g_at_mqtt_buff_mgr.buffer_mutex);
     read_index = g_at_mqtt_buff_mgr.read_index;
 
     if (g_at_mqtt_buff_mgr.valid_flag[read_index] == 0) {
-        HAL_MutexUnlock(&g_at_mqtt_buff_mgr.buffer_mutex);
+        HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
         return -1;
     }
 
@@ -886,7 +886,7 @@ int mal_mc_data_copy_from_buf(char *topic, char *message)
 
     g_at_mqtt_buff_mgr.read_index = read_index;
 
-    HAL_MutexUnlock(&g_at_mqtt_buff_mgr.buffer_mutex);
+    HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
 
     return 0;
 
@@ -1308,7 +1308,7 @@ int MAL_MQTT_Yield(void *handle, int timeout_ms)
     do {
         if (SUCCESS_RETURN != rc) {
             unsigned int left_t = iotx_time_left(&time);
-            mal_info("error occur ");
+            mal_info("error occur or no data");
             if (left_t < 20) {
                 HAL_SleepMs(left_t);
             } else {
