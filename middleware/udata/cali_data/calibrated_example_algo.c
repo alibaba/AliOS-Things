@@ -8,7 +8,6 @@
 #include  <stdio.h> 
 #include <stdbool.h>
 #include <fcntl.h>
-#include <aos/yloop.h>
 
 int cali_example_process_cb(void* pdata)
 {   
