@@ -43,9 +43,9 @@ static int _set_device_info(char *pk, char *dn, char *ds)
     memset(g_device_info.device_name, 0, DEVICE_NAME_LEN + 1);
     memset(g_device_info.device_secret, 0, DEVICE_SECRET_LEN + 1);
 
-    memcpy(g_device_info.product_key, pk, strlen(pk));
-    memcpy(g_device_info.device_name, dn, strlen(dn));
-    memcpy(g_device_info.device_secret, ds, strlen(ds));
+    strncpy(g_device_info.product_key, pk, PRODUCT_KEY_LEN);
+    strncpy(g_device_info.device_name, dn, DEVICE_NAME_LEN);
+    strncpy(g_device_info.device_secret, ds, DEVICE_SECRET_LEN);
 
     return 0;
 }
