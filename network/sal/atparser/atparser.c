@@ -23,6 +23,7 @@
 static uint8_t    inited = 0;
 static uart_dev_t at_uart;
 static uint32_t   at_worker_stacksize = 1024;
+static int        at_worker_priority  = 0;
 
 #ifdef HDLC_UART
 static encode_context_t hdlc_encode_ctx;
@@ -65,6 +66,11 @@ static int at_init_uart()
 static void at_set_worker_stack_size(uint16_t size)
 {
     at_worker_stacksize = size;
+}
+
+static void at_set_worker_priority(int prio)
+{
+    at_worker_priority = prio;
 }
 
 static void at_set_timeout(int timeout)
@@ -146,6 +152,8 @@ static int at_init(const char *recv_prefix, const char *recv_success_postfix,
                    const char *recv_fail_postfix, const char *send_delimiter,
                    int timeout)
 {
+    aos_task_t  task;
+
     if (!recv_prefix || !recv_success_postfix || !recv_fail_postfix ||
         !send_delimiter || (timeout < 0)) {
         LOGE(MODULE_NAME, "%s: invalid argument", __func__);
@@ -191,15 +199,15 @@ static int at_init(const char *recv_prefix, const char *recv_success_postfix,
         LOGE(MODULE_NAME, "fail to creat at worker sem\r\n");
     }
 
-    if (aos_task_new("at_worker", at_worker, NULL, at_worker_stacksize)) {
+    if (aos_task_new_ext(&task, "at_worker", at_worker,
+                         NULL, at_worker_stacksize,
+                         AOS_DEFAULT_APP_PRI + at_worker_priority) != 0) {
         at_uinit_at_mutex();
         at_uinit_task_mutex();
         at_worker_uart_send_mutex_uinit();
         LOGE(MODULE_NAME, "fail to creat at task\r\n");
         return -1;
     }
-
-    inited = 1;
 
     return 0;
 }
@@ -860,6 +868,7 @@ static void at_worker(void *arg)
     }
 
     memset(buf, 0, RECV_BUFFER_SIZE);
+    inited = 1;
 
     while (true) {
         // read from uart and store buf
@@ -1031,6 +1040,7 @@ at_parser_t at = { ._oobs                 = { { 0 } },
                    .set_timeout           = at_set_timeout,
                    .set_recv_delimiter    = at_set_recv_delimiter,
                    .set_worker_stack_size = at_set_worker_stack_size,
+                   .set_worker_priority   = at_set_worker_priority,
                    .set_send_delimiter    = at_set_send_delimiter,
                    .send_raw_self_define_respone_formate =
                      at_send_raw_self_define_respone_formate,
