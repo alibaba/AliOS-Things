@@ -346,6 +346,8 @@ static uint8_t get_freqband_num(void)
             g_freqband_num++;
         }
     }
+
+    return g_freqband_num;
 }
 
 static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
