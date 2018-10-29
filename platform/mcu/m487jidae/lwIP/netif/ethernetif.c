@@ -90,7 +90,7 @@ struct netif lwip_netif;
 tcpip_ip_info_t eth_ip_info = {0};
 
 struct netif *_netif;
-//extern u8_t my_mac_addr[6];
+extern u8_t my_mac_addr[6];
 
 /**
  * Helper struct to hold private data used to operate your ethernet interface.
@@ -104,6 +104,61 @@ struct ethernetif
     /* Add whatever per-interface state that is needed here. */
 };
 
+extern uint32_t uid_hash_value ;
+ #if 0
+
+/**
+  * @brief  Read the PRNG key.
+  * @param[in]   crpt        Reference to Crypto module.
+  * @param[out]  u32RandKey  The key buffer to store newly generated PRNG key.
+  * @return None
+  */
+static void numicro_prng_recv(CRPT_T *crpt, uint32_t u32RandKey[], int expect_size)
+{
+    uint32_t  i, wcnt;
+
+	/* start PRNG with seed 0x55 */
+	PRNG_Open(CRPT, PRNG_KEY_SIZE_256, PRNG_SEED_RELOAD, uid_hash_value);
+	PRNG_Start(CRPT);
+
+	while ( crpt->PRNG_CTL & CRPT_PRNG_CTL_BUSY_Msk );
+
+    wcnt = (((crpt->PRNG_CTL & CRPT_PRNG_CTL_KEYSZ_Msk) >> CRPT_PRNG_CTL_KEYSZ_Pos) + 1U) * 2U;
+	wcnt = ( wcnt > expect_size ) ? expect_size: wcnt;
+	
+    for (i = 0U; i < wcnt; i++)
+        u32RandKey[i] = crpt->PRNG_KEY[i];
+
+    crpt->PRNG_CTL &= ~CRPT_PRNG_CTL_SEEDRLD_Msk;
+}
+
+void numicro_prng( int * buf, int size )
+{
+	int offset=0;
+	int mission_len=0;
+
+	/* Unlock register lock protect */
+	SYS_UnlockReg();                   
+
+	/* Enable CRYPTO module clock */
+	CLK_EnableModuleClock(CRPT_MODULE);
+		
+	while ( size > 0 )
+	{
+		mission_len = ( size >= 32 ) ? 32: size;
+
+		numicro_prng_recv( CRPT, buf, mission_len );
+
+		size -= mission_len;
+		offset += mission_len;
+		
+	} //while
+	
+	/* Enable CRYPTO module clock */
+	CLK_DisableModuleClock(CRPT_MODULE);
+
+}
+#endif
 
 /**
  * In this function, the hardware should be initialized.
@@ -115,18 +170,28 @@ struct ethernetif
 static void
 low_level_init(struct netif *netif)
 {
-	uint8_t my_mac_addr[6]= { 0x00, 0x0c, 0x29, 0xcd, 0x94, 0x38 };
-
+	int random = uid_hash_value;
+	//numicro_prng( &random, 1 );
+	
     /* set MAC hardware address length */
     netif->hwaddr_len = ETHARP_HWADDR_LEN;
 
     /* set MAC hardware address */
+    #if 0
     netif->hwaddr[0] = my_mac_addr[0];
     netif->hwaddr[1] = my_mac_addr[1];
     netif->hwaddr[2] = my_mac_addr[2];
     netif->hwaddr[3] = my_mac_addr[3];
     netif->hwaddr[4] = my_mac_addr[4];
-    netif->hwaddr[5] = my_mac_addr[5];
+	netif->hwaddr[5] = my_mac_addr[5];
+	#endif
+
+    netif->hwaddr[0] = my_mac_addr[0];
+    netif->hwaddr[1] = my_mac_addr[1];
+    netif->hwaddr[2] = (random >> 24) & 0xFF;
+    netif->hwaddr[3] = (random >> 16) & 0xFF;
+    netif->hwaddr[4] = (random >>  8) & 0xFF;
+    netif->hwaddr[5] = (random >>  0) & 0xFF;
 
     /* maximum transfer unit */
     netif->mtu = 1500;
@@ -281,13 +346,14 @@ void EMAC_Rx_Callback(void)
  *
  * @param netif the lwip network interface structure for this ethernetif
  */
+void EMAC_CheckLink(void);
 err_t ethernetif_input(struct netif *netif)
 {
   struct pbuf *p;
 
   for( ;; )
   {
-    if (aos_sem_wait( &s_xSemaphore, TIME_WAITING_FOR_INPUT) == 0)
+    if (aos_sem_wait( &s_xSemaphore, 1000 /*TIME_WAITING_FOR_INPUT*/ ) == 0)
     {
       do
       {
@@ -300,7 +366,8 @@ err_t ethernetif_input(struct netif *netif)
           }
         }
       }while(p!=NULL);
-    }
+    } else
+		EMAC_CheckLink();
   }
 }
 
@@ -387,7 +454,14 @@ ethernetif_init(struct netif *netif)
      * You can instead declare your own function an call etharp_output()
      * from it if you have to do some checks before sending (e.g. if link
      * is available...) */
+#if LWIP_IPV4
     netif->output = etharp_output;
+#endif
+
+#if LWIP_IPV6
+//    netif->output_ip6 = ethip6_output;
+#endif /* LWIP_IPV6 */
+
     netif->linkoutput = low_level_output;
 
     ethernetif->ethaddr = (struct eth_addr *)&(netif->hwaddr[0]);
@@ -399,7 +473,33 @@ ethernetif_init(struct netif *netif)
 }
 
 
+/**
+ * netif_set_rs_count.
+ *
+ * @param NULL
+ *
+ */
 
+void netif_set_rs_count(struct netif *netif, uint8_t value)
+{
+#if LWIP_IPV6
+    netif->rs_count = value;
+#endif
+}
+
+/**
+ * get network link status.
+ *
+ * @param NULL
+ *
+ */
+extern volatile int EMAC_plugged; 
+int yoc_net_get_link_status(void)
+{
+    return EMAC_plugged;
+}
+
+#if 0
 static void tcpip_dhcpc_cb(struct netif *pstnetif)
 {
     long long ts = aos_now();
@@ -423,7 +523,6 @@ static void tcpip_dhcpc_cb(struct netif *pstnetif)
     return;
 }
 
-
 err_t tcpip_dhcpc_start(struct netif *pstnetif)
 {
     if (NULL == pstnetif){
@@ -443,11 +542,51 @@ err_t tcpip_dhcpc_start(struct netif *pstnetif)
 
 static void tcpip_init_done(void *arg)
 {
+	printf("[%s@%s %d]\r\n", __func__, __FILE__, __LINE__ );
+
 #if LWIP_IPV4
+	printf("[%s@%s %d]\r\n", __func__, __FILE__, __LINE__ );
+
     ip4_addr_t ipaddr, netmask, gw;
     memset(&ipaddr, 0, sizeof(ipaddr));
     memset(&netmask, 0, sizeof(netmask));
     memset(&gw, 0, sizeof(gw));
+    netif_add(&lwip_netif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);
+
+   	printf("[%s@%s %d]\r\n", __func__, __FILE__, __LINE__ );
+
+#endif
+	printf("[%s@%s %d]\r\n", __func__, __FILE__, __LINE__ );
+#if LWIP_IPV6
+#if !LWIP_IPV4
+    netif_add(&lwip_netif, NULL, ethernetif_init, tcpip_input);
+#endif
+    netif_create_ip6_linklocal_address(&lwip_netif, 1);
+    lwip_netif.ip6_autoconfig_enabled = 1;
+#endif
+    netif_set_default(&lwip_netif);
+    netif_set_up(&lwip_netif);
+    tcpip_dhcpc_start(&lwip_netif);
+}
+#else
+static void tcpip_init_done(void *arg)
+{
+#if LWIP_IPV4
+    ip4_addr_t ipaddr, netmask, gw;
+#endif
+
+#if LWIP_IPV4
+#ifdef CONFIG_CLI_NET_IPADDR
+    ipaddr.addr = CONFIG_CLI_NET_IPADDR;
+    netmask.addr = 0x00ffffff;
+    gw.addr = ((CONFIG_CLI_NET_IPADDR & 0x00ffffff) | 0x01000000);
+#else /* SET default IP */
+    IP4_ADDR(&ipaddr, 192, 168, 103, 150);
+    IP4_ADDR(&netmask, 255, 255, 255, 0);
+    IP4_ADDR(&gw, 192, 168, 103, 1);
+#endif
+    //printf("default ip addr: %d.%d.%d.%d\n", ((ipaddr.addr) & 0xff), ((ipaddr.addr >> 8) & 0xff),
+    //      ((ipaddr.addr >> 16) & 0xff), ((ipaddr.addr >> 24) & 0xff));
     netif_add(&lwip_netif, &ipaddr, &netmask, &gw, NULL, ethernetif_init, tcpip_input);
 #endif
 
@@ -461,8 +600,8 @@ static void tcpip_init_done(void *arg)
 
     netif_set_default(&lwip_netif);
     netif_set_up(&lwip_netif);
-    tcpip_dhcpc_start(&lwip_netif);
 }
+#endif
 
 int lwip_tcpip_init(void)
 {
