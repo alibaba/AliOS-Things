@@ -24,7 +24,7 @@ char __device_secret[DEVICE_SECRET_LEN + 1];
 #define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
 #define TOPIC_ERROR             "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
 #define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
-#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
+#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/data" /* This topic should be created by user manually in the console of IoT cloud */
 
 /* These are pre-defined topics format*/
 #define TOPIC_UPDATE_FMT            "/%s/%s/update"
