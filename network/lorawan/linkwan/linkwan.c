@@ -1325,6 +1325,8 @@ bool init_lora_join(uint8_t bJoin, uint8_t bAutoJoin, uint16_t joinInterval,
     } else {
         return false;
     }
+
+    return ret;
 }
 
 bool lora_tx_data_payload(uint8_t confirm, uint8_t Nbtrials, uint8_t *payload,
