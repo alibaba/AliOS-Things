@@ -145,7 +145,6 @@ typedef struct sal_netconn {
     union {
         struct ip_pcb  *ip;
         struct tcp_pcb *tcp;
-        struct udp_pcb *udp;
     } pcb;
     /** the last error this netconn had */
     err_t last_err;
