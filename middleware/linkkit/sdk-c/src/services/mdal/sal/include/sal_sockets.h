@@ -235,8 +235,6 @@ void sal_freeaddrinfo(struct addrinfo *ai);
 int sal_getaddrinfo(const char *nodename, const char *servname,
                     const struct addrinfo *hints, struct addrinfo **res);
 
-
-
 void sal_freeaddrinfo(struct addrinfo *ai);
 
 int sal_shutdown(int s, int how);
@@ -259,9 +257,6 @@ int sal_fcntl(int s, int cmd, int val);
 
 #define bind(s,name,namelen) \
         sal_bind(s,name,namelen)
-
-#define listen(s, backlog) \
-        sal_listen(s, backlog)
 
 #define shutdown(s,how) \
         sal_shutdown(s,how)
