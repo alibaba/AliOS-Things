@@ -40,11 +40,6 @@ long long os_now_ms()
     return aos_now_ms();
 }
 
-void os_post_delayed_action(int ms, void (*action)(void *arg), void *arg)
-{
-    aos_post_delayed_action(ms, action, arg);
-}
-
 void os_start_event_dispatcher()
 {
     aos_loop_run();
