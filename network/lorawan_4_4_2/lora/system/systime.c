@@ -135,7 +135,7 @@ SysTime_t SysTimeGetMcuTime( void )
 {
     SysTime_t calendarTime = { .Seconds = 0, .SubSeconds = 0 };
 
-    calendarTime.Seconds = RtcGetCalendarTime( ( uint16_t* )&calendarTime.SubSeconds );
+    calendarTime.Seconds = HW_RTC_GetCalendarTime( ( uint16_t* )&calendarTime.SubSeconds );
 
     return calendarTime;
 }

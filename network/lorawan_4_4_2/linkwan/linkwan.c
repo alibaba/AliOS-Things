@@ -23,6 +23,8 @@
 #include <k_task.h>
 #include <port.h>
 
+#define LORAWAN_DEFAULT_PING_SLOT_PERIODICITY       4
+
 static uint8_t        tx_buf[LORAWAN_APP_DATA_BUFF_SIZE];
 static lora_AppData_t tx_data = { tx_buf, 1, 0 };
 static uint8_t        rx_buf[LORAWAN_APP_DATA_BUFF_SIZE];
@@ -414,7 +416,31 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
         }
         case MLME_BEACON_ACQUISITION:
         {
-            DBG_LINKWAN("beacon aquisition confirm\r\n");
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+            {
+                device_state = DEVICE_STATE_REQ_PINGSLOT_ACK;
+
+                next_tx = true;
+            }
+
+            break;
+        }
+        case MLME_PING_SLOT_INFO:
+        {
+            MibRequestConfirm_t mibReq;
+
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+            {
+                mibReq.Type = MIB_DEVICE_CLASS;
+                mibReq.Param.Class = CLASS_B;
+                LoRaMacMibSetRequestConfirm( &mibReq );
+
+                DBG_LINKWAN( "\r\n\r\n###### ===== Switch to Class B done. ==== ######\r\n\r\n" );
+
+                device_state = DEVICE_STATE_SEND;
+
+                is_tx_confirmed = 0;
+            }
             break;
         }
         default:
@@ -694,11 +720,26 @@ void lora_fsm(void)
 
                     LoRaMacMlmeRequest( &mlmeReq );
 
-                    DBG_LINKWAN("MLME_BEACON_ACQUISITION\r\n");
-
                     next_tx = false;
                 }
                 device_state = DEVICE_STATE_SEND;
+                break;
+            }
+            case DEVICE_STATE_REQ_PINGSLOT_ACK: {
+                MlmeReq_t mlmeReq;
+
+                if (true == next_tx) {
+                    mlmeReq.Type = MLME_LINK_CHECK;
+                    LoRaMacMlmeRequest(&mlmeReq);
+
+                    mlmeReq.Type = MLME_PING_SLOT_INFO;
+                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Periodicity = LORAWAN_DEFAULT_PING_SLOT_PERIODICITY;
+                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.RFU = 0;
+
+                    if (LORAMAC_STATUS_OK == LoRaMacMlmeRequest(&mlmeReq)) {
+                        device_state = DEVICE_STATE_SEND;
+                    }
+                }
                 break;
             }
             case DEVICE_STATE_SEND: {
