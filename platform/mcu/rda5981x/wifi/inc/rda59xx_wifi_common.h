@@ -13,7 +13,8 @@
 #define AID_LEN                         2
 #define IE_HDR_LEN                      2
 #define MAC_HDR_ADDR2_OFFSET            10
-#define MAX_SSID_LEN                    32
+#define MAX_SSID_LEN                    32+1
+#define MAX_PW_LEN                      64+1
 #define ETH_ALEN                        6
 
 #define MACDBG                          "%02x:%02x:%02x:%02x:%02x:%02x"
@@ -31,6 +32,8 @@
 #define READ_REG32(REG)          *((volatile unsigned int*)(REG))
 #define WRITE_REG32(REG, VAL)    ((*(volatile unsigned int*)(REG)) = (unsigned int)(VAL))
 
+#define MAKE_WORD16(lsb, msb)    (((r_u16)(msb) << 8)  & 0xFF00) | (lsb)
+#define MAKE_WORD32(lsw, msw)    (((r_u32)(msw) << 16) & 0xFFFF0000) | (lsw)
 
 typedef struct {
     unsigned int type;
@@ -115,28 +118,44 @@ enum SCANTYPE_T {
  *
  * Return true if the address is all zeroes.
  */
-inline r_s32 is_same_ether_addr(const r_u8 *addr1, const r_u8 *addr2)
+static inline r_s32 is_same_ether_addr(const r_u8 *addr1, const r_u8 *addr2)
 {
     return (addr1[0] == addr2[0] && addr1[1] == addr2[1] && addr1[2] == addr2[2] \
         && addr1[3] == addr2[3] && addr1[4] == addr2[4] && addr1[5] == addr2[5]);
 }
 
-
-inline r_s32 is_zero_ether_addr(const r_u8 *addr)
+/**
+ * is_zero_ether_addr - Determine if give Ethernet address is all zeros.
+ * @addr: Pointer to a six-byte array containing the Ethernet address
+ *
+ * Return true if the address is all zeroes.
+ */
+static inline r_s32 is_zero_ether_addr(const r_u8 *addr)
 {
-    return !(addr[5] | addr[4] | addr[3] | addr[2] | addr[1] | addr[0]);
+    return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
 }
 
-
-inline r_s32 is_multicast_ether_addr(const r_u8 *addr)
+/**
+ * is_multicast_ether_addr - Determine if the Ethernet address is a multicast.
+ * @addr: Pointer to a six-byte array containing the Ethernet address
+ *
+ * Return true if the address is a multicast address.
+ * By definition the broadcast address is also a multicast address.
+ */
+static inline r_s32 is_multicast_ether_addr(const r_u8 *addr)
 {
-    return (addr[0] & 0x01);
+    return (0x01 & addr[0]);
 }
 
-
-inline r_s32 is_broadcast_ether_addr(const r_u8 *addr)
+/**
+ * is_broadcast_ether_addr - Determine if the Ethernet address is broadcast
+ * @addr: Pointer to a six-byte array containing the Ethernet address
+ *
+ * Return true if the address is the broadcast address.
+ */
+static inline r_s32 is_broadcast_ether_addr(const r_u8 *addr)
 {
-    return (addr[5] & addr[4] & addr[3] & addr[2] & addr[1] & addr[0]) == 0xff;
+    return (addr[0] & addr[1] & addr[2] & addr[3] & addr[4] & addr[5]) == 0xff;
 }
 
 #endif /* _RDA59XX_WIFI_COMMON_H_ */
