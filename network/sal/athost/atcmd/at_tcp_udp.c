@@ -570,7 +570,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen,
         type_str = "UDP_BROADCAST";
 
         remoteip = inet_ntoa(remote->sin_addr);
-        memcpy(addr_str, remoteip, strlen(remoteip));
+        strncpy(addr_str, remoteip, sizeof(addr_str));
         port = ntohs(remote->sin_port);
     } else {
         type_str = "SOCKET";
@@ -1416,12 +1416,12 @@ int atcmd_cip_domain_dns()
     const char      *prefix_cipdomain = "+CIPDOMAIN:";
     char             single;
     char             domain[MAX_ATCMD_DOMAIN_LEN];
-    char             addr_str[16]; // ipv4 only
+    char             addr_str[16] = {0}; // ipv4 only
     char             response[MAX_ATCMD_DOMAIN_RSP_LEN] = { 0 };
     int              ret;
     struct hostent  *host;
     struct in_addr **addrlist;
-    int              i, offset = 0;
+    int              offset = 0;
     char            *index;
 
     if (!inited) {
@@ -1450,11 +1450,8 @@ int atcmd_cip_domain_dns()
     }
 
     addrlist = (struct in_addr **)host->h_addr_list;
-    for (i = 0; addrlist[i] != NULL; i++) {
-        // return the first one
-        strcpy(addr_str, inet_ntoa(*addrlist[i]));
-        break;
-    }
+    // return the first one
+    strncpy(addr_str, inet_ntoa(*addrlist[0]), sizeof(addr_str));
 
     // AT_RECV_PREFIX
     if (offset + strlen(AT_RECV_PREFIX) < MAX_ATCMD_DOMAIN_RSP_LEN) {
