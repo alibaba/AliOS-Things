@@ -74,6 +74,7 @@ def main():
     fout.write(reserve)
     fin.close()
     fout.close()
+    os.rename(OUTPUT_FILE,INPUT_FILE)
 
 if __name__ == "__main__":
     try:
