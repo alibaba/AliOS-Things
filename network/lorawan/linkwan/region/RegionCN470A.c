@@ -926,6 +926,7 @@ bool RegionCN470ANextChannel(NextChanParams_t *nextChanParams, uint8_t *channel,
     static uint8_t      RxFreqBandNum   = 0;
     uint16_t            chMask          = 0;
     int8_t              freqband_offset = 0;
+    LoRaMacStatus_t     status;
 
     if (RegionCommonCountChannels(ChannelsMask, 0, 1) ==
         0) { // Reactivate default channels
@@ -1025,9 +1026,9 @@ bool RegionCN470ANextChannel(NextChanParams_t *nextChanParams, uint8_t *channel,
     }
 
     mib_req.Type = MIB_NETWORK_JOINED;
-    LoRaMacMibGetRequestConfirm(&mib_req);
+    status = LoRaMacMibGetRequestConfirm(&mib_req);
 
-    if (mib_req.Param.IsNetworkJoined == false) {
+    if ((status == LORAMAC_STATUS_OK) &&(mib_req.Param.IsNetworkJoined == false)) {
         if (nextChanParams->joinmethod == STORED_JOIN_METHOD) {
             if (nextChanParams->freqband > 15) {
                 nextChanParams->freqband = 1; // reset to defautl value
