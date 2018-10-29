@@ -143,7 +143,14 @@ SysTime_t SysTimeGetMcuTime( void )
 uint32_t SysTime2Ms( SysTime_t sysTime )
 {
     SysTime_t deltaTime;
-    HW_RTC_BkupRead( &deltaTime.Seconds, ( uint32_t* )&deltaTime.SubSeconds );
+    uint32_t  deltaSeconds;
+    uint32_t  deltaSubSeconds;
+
+    HW_RTC_BkupRead( &deltaSeconds, &deltaSubSeconds );
+
+    deltaTime.Seconds = deltaSeconds;
+    deltaTime.SubSeconds = (int16_t)deltaSubSeconds;
+
     SysTime_t calendarTime = SysTimeSub( sysTime, deltaTime );
     return calendarTime.Seconds * 1000 + calendarTime.SubSeconds;
 }
