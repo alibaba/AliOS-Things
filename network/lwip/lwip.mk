@@ -21,8 +21,12 @@ $(NAME)_SOURCES += $(CORE4FILES)
 $(NAME)_SOURCES += $(CORE6FILES)
 $(NAME)_SOURCES += $(APIFILES)
 $(NAME)_SOURCES += $(NETIFFILES)
+
+use_lwip_tftp := 0
+ifeq ($(use_lwip_tftp), 1)
+GLOBAL_DEFINES += WITH_LWIP_TFPT
 $(NAME)_SOURCES += $(TFTPFILES)
-$(NAME)_SOURCES += $(HTTPDFILES)
+endif
 
 use_private_telnetd ?= 1
 ifneq ($(use_private_telnetd), 1)
