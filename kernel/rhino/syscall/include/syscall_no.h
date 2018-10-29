@@ -83,20 +83,8 @@
 #define K_BUF_QUEUE_END     (SYS_KRHINO_BUF_QUEUE_INFO_GET)
 
 
-/* ------------------- mm --------------------*/
-#define K_MM_BASE      (K_BUF_QUEUE_END + 1)
-
-#define SYS_KRHINO_MM_ALLOC (K_MM_BASE + 0)
-
-#define SYS_KRHINO_MM_FREE (K_MM_BASE + 1)
-
-#define SYS_KRHINO_MM_REALLOC (K_MM_BASE + 2)
-
-#define K_MM_END       (SYS_KRHINO_MM_REALLOC)
-
-
 /* ----------------- hal uart -----------------*/
-#define HAL_UART_BASE   (K_MM_END + 1)
+#define HAL_UART_BASE   (K_BUF_QUEUE_END + 1)
 
 #define SYS_HAL_UART_INIT (HAL_UART_BASE +0)
 
