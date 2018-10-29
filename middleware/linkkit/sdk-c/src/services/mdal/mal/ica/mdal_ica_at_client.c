@@ -748,6 +748,7 @@ int at_ica_mqtt_client_init(void)
 {
     g_ica_rsp_buff = HAL_Malloc(AT_MQTT_RSP_MAX_LEN);
     if (NULL == g_ica_rsp_buff) {
+        mdal_err("at ica mqtt client malloc buff failed");
         return -1;
     }
 
@@ -757,6 +758,7 @@ int at_ica_mqtt_client_init(void)
 
             g_ica_rsp_buff = NULL;
         }
+        mdal_err("at ica mqtt client create sem failed");
 
         return -1;
     }
