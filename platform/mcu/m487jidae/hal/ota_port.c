@@ -240,8 +240,13 @@ static int numicro_ota_set_boot(hal_ota_module_t *m, void *something)
 		memcpy( &flag.m_ota_info, &ota_info, sizeof(ota_reboot_info_t) );
 		ret = set_ota_flag(&flag);
 		
-		aos_reboot();
-
+		//Test aos_reboot();
+		if(1)
+		{
+			/* To show memory footprint size */
+			extern k_mm_head  *g_kmm_head;
+			dump_kmm_statistic_info(g_kmm_head);
+		}
 		memset(&ota_info, 0 , sizeof ota_info);
 	} else if (param->result_type==OTA_BREAKPOINT) {
 		LOG("OTA package is incomplete!\n");
