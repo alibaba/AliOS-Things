@@ -333,11 +333,7 @@ int send_over_uart(uart_send_info_t *msgptr)
     int ret;
     int size = 0;
 
-    if (!msgptr) {
-        return -1;
-    }
-
-    if (!msgptr->cmdptr && !msgptr->dataptr) {
+    if (!msgptr || !msgptr->cmdptr) {
         return -1;
     }
 
