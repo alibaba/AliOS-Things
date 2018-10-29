@@ -3,12 +3,33 @@
 
 import sys, os
 import shutil
-import replace
+import re
 
 from copy_map import copy_map
 
 SDKNAME = "linkkit-sdk-c"
 
+targetFilename= './out/export/linkkit-sdk-c/src/infra/system/guider.c'
+new_ip='10.10.10.10'
+replace_ip_rules = {
+    '10.125.3.189': new_ip,
+    '100.67.80.75': new_ip,
+    '106.15.166.168': new_ip,
+    '10.125.7.82': new_ip,
+}
+
+def replace(filename, replace_dict):
+        tmp_str = ""
+        with open(filename, 'r') as f:
+            for line in f:
+                for key in replace_dict:
+                    value = replace_dict[key]
+                    if re.search(key, line):
+                        line=re.sub(key, value, line)
+                tmp_str+=line
+
+        with open(filename, 'w') as of:
+            of.write(tmp_str)
 
 def main(argv):
     source_dir = os.path.abspath(sys.argv[1])
@@ -39,7 +60,7 @@ def main(argv):
 
     # replace ip address
     print("[INFO]: replace test information")
-    replace.replace_ip()
+    replace(targetFilename, replace_ip_rules)
     # Generate tarball
     root_dir = build_dir
     base_dir = SDKNAME
