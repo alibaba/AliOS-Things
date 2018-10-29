@@ -888,19 +888,14 @@ static void at_worker(void *arg)
                 LOGD(MODULE_NAME, "AT! %s\r\n", oob->prefix);
                 if (oob->postfix == NULL) {
                     oob->cb(oob->arg, NULL, 0);
-#if 0
-                    memset(buf + offset - strlen(oob->prefix), 0,
-                           strlen(oob->prefix));
-                    offset -= strlen(oob->prefix);
-#endif
                     memset(buf, 0, offset);
                     offset = 0;
                 } else {
                     if (oob->reallen == 0) {
                         memset(oob->oobinputdata, 0, oob->maxlen);
                         memcpy(oob->oobinputdata, oob->prefix,
-                               strlen(oob->prefix) - 1);
-                        oob->reallen += strlen(oob->prefix) - 1;
+                               strlen(oob->prefix));
+                        oob->reallen += strlen(oob->prefix);
                     }
 
                     if (oob->reallen < oob->maxlen) {
