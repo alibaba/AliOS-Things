@@ -75,15 +75,6 @@ void os_msleep(int ms);
 long long os_now_ms();
 
 /**
- * Post a delayed action to be executed in event thread.
- *
- * @param[in]  ms      milliseconds to wait, -1 means don't care.
- * @param[in]  action  action to be executed.
- * @param[in]  arg     private data past to action.
- */
-void os_post_delayed_action(int ms, void (*action)(void *arg), void *arg);
-
-/**
  * Start a event thread.
  */
 void os_start_event_dispatcher();

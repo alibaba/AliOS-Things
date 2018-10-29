@@ -35,6 +35,7 @@ core_t g_core;
 #define AIS_SEQ_KV_KEY      "ais_adv_seq"
 #define AIS_SEQ_UPDATE_FREQ (1 * 60 * 60) /* in second uint */
 static uint32_t g_seq = 0;
+static os_timer_t g_secadv_timer;
 #endif
 
 void event_notify(uint8_t event_type, uint8_t *data, uint16_t length)
@@ -134,12 +135,11 @@ static uint32_t ais_init(ali_init_t const *p_init)
 }
 
 #ifdef CONFIG_AIS_SECURE_ADV
-static void update_seq(void *arg)
+static void update_seq(void *arg1, void *arg2)
 {
     os_kv_set(AIS_SEQ_KV_KEY, &g_seq, sizeof(g_seq), 1);
-    os_post_delayed_action(AIS_SEQ_UPDATE_FREQ, update_seq, NULL);
+    os_timer_start(&g_secadv_timer);
 }
-
 
 static void init_seq_number(uint32_t *seq)
 {
@@ -154,7 +154,8 @@ static void init_seq_number(uint32_t *seq)
         os_kv_set(AIS_SEQ_KV_KEY, seq, len, 1);
     }
 
-    os_post_delayed_action(AIS_SEQ_UPDATE_FREQ, update_seq, NULL);
+    os_timer_new(&g_secadv_timer, update_seq, NULL, AIS_SEQ_UPDATE_FREQ);
+    os_timer_start(&g_secadv_timer);
 }
 #endif
 
