@@ -18,6 +18,10 @@
 #include "bt_mesh_profile.h"
 #include "bt_mesh_profile_config.h"
 
+#define PID_STRING_LEN 4
+#define DEVICE_NAME_LEN 6
+#define STATIC_VALUE_LEN 100
+
 static struct bt_mesh_prov prov;
 static struct bt_mesh_comp comp;
 
@@ -28,7 +32,7 @@ static struct bt_mesh_model_pub lightness_setup_srv_pub;
 static gpio_dev_t gpio_led1;
 static struct tc_sha256_state_struct sha256_ctx;
 
-static char static_value [100] = { 0x00 }; // pid + ',' + mac + ',' + secret
+static char static_value[STATIC_VALUE_LEN] = { 0x00 }; // pid + ',' + mac + ',' + secret
 
 struct onoff_state {
     u8_t current;
@@ -116,6 +120,7 @@ static void gen_onoff_set_unack(struct bt_mesh_model *model,
     } else {
        hal_gpio_output_high(&gpio_led1);
     }
+
     /*
      * If a server has a publish address, it is required to
      * publish status on a state change
@@ -361,17 +366,24 @@ void bt_mesh_profile_calculate_digest(const uint8_t *digest, const uint8_t *pid,
     char pid_string[16] = "";
     char mac_addr_string[16] = "";
 
-    // convert the byte stream to hex string
-    hextostring(pid, pid_string, 4);
+    // convert the hex byte stream to hex string
+    hextostring(pid, pid_string, PID_STRING_LEN);
     printk("pid string: %s\n", pid_string);
-    hextostring(mac_addr, mac_addr_string, 6);
+    hextostring(mac_addr, mac_addr_string, DEVICE_NAME_LEN);
     printk("mac_addr_string: %s\n", mac_addr_string);
 
     strcat(static_value, pid_string);
     strcat(static_value, ",");
     strcat(static_value, mac_addr_string);
     strcat(static_value, ",");
-    strcat(static_value, secret);
+
+    // generally we should ensure the secret lenght won't exceed the STATIC_VALUE_LEN
+    if (strlen(secret) > (STATIC_VALUE_LEN - PID_STRING_LEN - DEVICE_NAME_LEN - 2)) {
+        printk("secret length over size\n");
+        return;
+    } else {
+        strcat(static_value, secret);
+    }
 
     printk("static oob: %s\n", static_value);
 
