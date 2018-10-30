@@ -8,7 +8,7 @@ sub-mods: toolchain
 	    JOBS_NUM=32; \
 	    if [ "$${CORE_NUM}" != "" ]; then JOBS_NUM=$${CORE_NUM}; fi; \
 	    if [ "$(Q)" != "@" ]; then JOBS_NUM=0; fi; \
-	    rm -f $(OUTPUT_DIR)${bindir}/* && \
+	    rm -rf $(OUTPUT_DIR)${bindir}/* && \
 	    if [ -f $(STAMP_LCOV) ] && [ "$(WITH_LCOV)" != "1" ]; then \
 	        $(MAKE) --no-print-directory clean; \
 	    fi && \
