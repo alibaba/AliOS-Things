@@ -18,8 +18,9 @@ export RADIXPOINT
 
 export MBINSTYPE_UPPER
 export MBINSTYPE_LOWER
+export BIN2BOOTTYPE_LOWER
 
-MAKEFILE_TARGETS := clean Help # targets used by makefile 
+MAKEFILE_TARGETS := clean Help # targets used by makefile
 
 BINS ?=
 MBINS ?=
@@ -134,6 +135,7 @@ else
 $(error ***** MBINS Error, Valid MBINS: [MBINS=app MBINS=kernel] ***** ***)
 endif
 
+BIN2BOOTTYPE_LOWER := .2boot
 
 ############################
 # Extra options:
@@ -262,7 +264,7 @@ PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) exp
 $(PASSDOWN_TARGETS):
 	@:
 
-$(BUILD_STRING): main_app $(if $(SUB_BUILD),,.gdbinit .gdbinit$(BINSTYPE_LOWER))
+$(BUILD_STRING): main_app $(if $(SUB_BUILD),,.gdbinit .gdbinit$(BINSTYPE_LOWER)) 2boot
 
 ifeq (,$(MBINS))
 main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/aos_target_build.mk
@@ -289,6 +291,29 @@ main_app: $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_target_build_mbins.mk
 	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_auto_code.py $(OUTPUT_DIR)/config.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build_mbins.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
 	$(QUIET)$(ECHO) Build complete
+endif
+
+ifeq (yes,$(AOS_SDK_2BOOT_SUPPORT))
+$(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/$(TOOLCHAIN_MK) $(AOS_SDK_2BOOT_MAKEFILES) $(AUTO_COMPONENT)
+	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/precompile))
+	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call PARSE_RESOURSE_TO_SYSCALL_FILE, $(OUTPUT_DIR), pre-create))
+	$(QUIET)$(ECHO) $(if $(AOS_SDK_2BOOT_MAKEFILES),Applying changes made to: $?,Making config file for first time)
+	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(CLEANED_BUILD_STRING)
+
+2boot: $(OUTPUT_DIR)/config_2boot.mk $(MAKEFILES_PATH)/aos_target_build_2boot.mk
+	$(if $(BINS_ERROR), $(call BINS_EXIT))
+	$(QUIET)$(ECHO) Build AOS Second Boot Now
+	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
+	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
+	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/modules)
+	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
+	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/resources)
+	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_auto_code.py $(OUTPUT_DIR)/config_2boot.mk $(AUTO_COMPONENT_DIR)
+	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build_2boot.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
+	$(QUIET)$(ECHO) Build 2boot complete
+else
+2boot:
+	@
 endif
 
 ifeq (littlevgl_simulate@linuxhost,$(CLEANED_BUILD_STRING))
@@ -324,9 +349,9 @@ endif
 export_linkkit_sdk:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR))
 	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
-    
+
 restore_linkkit_sdk:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR))
 	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/restore_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
-    
-    
+
+
