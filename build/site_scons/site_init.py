@@ -309,7 +309,7 @@ class base_process_impl(process):
         
         #temporarily add include path aos.h need
         aos_global_config.component_includes.append('#kernel/rhino/fs/kv/include')
-        aos_global_config.component_includes.append('#kernel/yloop/include')
+        aos_global_config.component_includes.append('#network/yloop/include')
         aos_global_config.component_includes.append('#network/include')
 
 def pre_config(config):
