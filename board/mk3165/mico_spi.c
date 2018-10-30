@@ -45,7 +45,7 @@ OSStatus MicoSpiFinalize( const platforom_spi_device_t* spi )
 {
   OSStatus err = kNoErr;
 
-  if ( spi->port >= MICO_SPI_NONE )
+  if ( spi->port >= MICO_SPI_MAX )
     return kUnsupportedErr;
 
 #ifdef MICO_WIFI_SHARE_SPI_BUS

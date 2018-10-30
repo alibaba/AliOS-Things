@@ -154,6 +154,7 @@ static void http_server_serve(struct netconn *conn)
                     {
                         /* web page error */
                         http_transmit_err(conn);
+						netbuf_delete(inbuf);
                         return; 								
                     }
                     else
