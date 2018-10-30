@@ -74,7 +74,7 @@ static struct nvm_configuration _nvm
 static struct _flash_device *_nvm_dev = NULL;
 
 static void _flash_erase_block(void *const hw, const uint32_t dst_addr);
-static void _flash_program(void *const hw, const uint32_t dst_addr, const uint8_t *buffer, const uint16_t size);
+void _flash_program(void *const hw, const uint32_t dst_addr, const uint8_t *buffer, const uint16_t size);
 
 /**
  * \brief Initialize NVM
@@ -267,7 +267,7 @@ void _flash_erase(struct _flash_device *const device, uint32_t dst_addr, uint32_
 
 	while (page_nums >= NVMCTRL_BLOCK_PAGES) {
 		_flash_erase_block(device->hw, block_start_addr);
-		block_start_addr += NVMCTRL_PAGE_SIZE;
+		block_start_addr += NVMCTRL_BLOCK_SIZE;
 		page_nums -= NVMCTRL_BLOCK_PAGES;
 	}
 
@@ -384,7 +384,7 @@ static void _flash_erase_block(void *const hw, const uint32_t dst_addr)
  *                           write is stored
  * \param[in] size           The size of data to write to a page
  */
-static void _flash_program(void *const hw, const uint32_t dst_addr, const uint8_t *buffer, const uint16_t size)
+void _flash_program(void *const hw, const uint32_t dst_addr, const uint8_t *buffer, const uint16_t size)
 {
 	uint32_t *ptr_read    = (uint32_t *)buffer;
 	uint32_t  nvm_address = dst_addr / 4;
