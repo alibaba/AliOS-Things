@@ -768,8 +768,9 @@ static void le_rand(struct net_buf *buf, struct net_buf **evt)
 	rp = cmd_complete(evt, sizeof(*rp));
 	rp->status = 0x00;
 
-	bt_rand_c(rp->rand, count);
-    
+        // whitescan-587467, out-of-bounds access
+        // length should not equals the array's upper index
+	bt_rand_c(rp->rand, count - 1);
 }
 
 static void le_read_supp_states(struct net_buf *buf, struct net_buf **evt)
