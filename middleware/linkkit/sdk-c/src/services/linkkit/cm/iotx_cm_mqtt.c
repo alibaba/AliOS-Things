@@ -24,13 +24,7 @@ static void _set_common_handlers();
 
 void *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
 {
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[DEVICE_NAME_LEN + 1] = {0};
-    char device_secret[DEVICE_SECRET_LEN + 1] = {0};
-    char device_id[DEVICE_ID_LEN + 1] = {0};
-
-    iotx_mqtt_param_t *mqtt_param = NULL;
-    iotx_conn_info_pt pconn_info = NULL;
+     iotx_mqtt_param_t *mqtt_param = NULL;
 
     if (_mqtt_conncection != NULL) {
         CM_WARN("mqtt connection is opened already,return it");
@@ -38,15 +32,6 @@ void *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
     }
 
     POINTER_SANITY_CHECK(params, NULL);
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-    HAL_GetDeviceID(device_id);
-    HAL_GetDeviceSecret(device_secret);
-
-    ARGUMENT_SANITY_CHECK(strlen(device_name), NULL);
-    ARGUMENT_SANITY_CHECK(strlen(product_key), NULL);
-    ARGUMENT_SANITY_CHECK(strlen(device_id), NULL);
 
     _mqtt_conncection = (iotx_cm_connection_t *)cm_malloc(sizeof(iotx_cm_connection_t));
     if (_mqtt_conncection == NULL) {
@@ -66,23 +51,6 @@ void *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
         goto failed;
     }
     _mqtt_conncection->open_params = mqtt_param;
-
-    /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
-        CM_ERR("IOT_SetupConnInfo failed");
-        goto failed;
-    }
-
-    /* Initialize MQTT parameter */
-    memset(mqtt_param, 0, sizeof(iotx_mqtt_param_t));
-
-
-    mqtt_param->port = pconn_info->port;
-    mqtt_param->host = pconn_info->host_name;
-    mqtt_param->client_id = pconn_info->client_id;
-    mqtt_param->username = pconn_info->username;
-    mqtt_param->password = pconn_info->password;
-    mqtt_param->pub_key = pconn_info->pub_key;
 
     mqtt_param->request_timeout_ms = params->request_timeout_ms;
     mqtt_param->clean_session = 0;
@@ -278,7 +246,39 @@ static int  _mqtt_connect(uint32_t timeout)
 {
     void *pclient;
     iotx_time_t timer;
+    iotx_mqtt_param_t *mqtt_param = NULL;
+    iotx_conn_info_pt pconn_info = NULL;
+
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[DEVICE_SECRET_LEN + 1] = {0};
+    char device_id[DEVICE_ID_LEN + 1] = {0};
+
     POINTER_SANITY_CHECK(_mqtt_conncection, NULL_VALUE_ERROR);
+
+    mqtt_param = _mqtt_conncection->open_params;
+    POINTER_SANITY_CHECK(mqtt_param, NULL_VALUE_ERROR);
+
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    HAL_GetDeviceID(device_id);
+    HAL_GetDeviceSecret(device_secret);
+
+    ARGUMENT_SANITY_CHECK(strlen(device_name), FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(strlen(product_key), FAIL_RETURN);
+    ARGUMENT_SANITY_CHECK(strlen(device_id), FAIL_RETURN);
+    /* Device AUTH */
+    if (0 != IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&pconn_info)) {
+        CM_ERR("IOT_SetupConnInfo failed");
+        return -1;
+    }
+
+    mqtt_param->port = pconn_info->port;
+    mqtt_param->host = pconn_info->host_name;
+    mqtt_param->client_id = pconn_info->client_id;
+    mqtt_param->username = pconn_info->username;
+    mqtt_param->password = pconn_info->password;
+    mqtt_param->pub_key = pconn_info->pub_key;
 
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout);
