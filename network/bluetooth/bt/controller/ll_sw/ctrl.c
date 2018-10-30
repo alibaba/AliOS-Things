@@ -9101,9 +9101,12 @@ static u8_t enc_rsp_send(struct connection *conn)
 		+ sizeof(struct pdu_data_llctrl_enc_rsp);
 	pdu_ctrl_tx->payload.llctrl.opcode = PDU_DATA_LLCTRL_TYPE_ENC_RSP;
 	/* NOTE: if not sufficient random numbers, ignore waiting */
-	rand_isr_get(sizeof(pdu_ctrl_tx->payload.llctrl.ctrldata.enc_rsp.skds),
+        /* whitescan-587424: out-of-bounds access,
+           length should not equals the array's upper index.
+         */
+	rand_isr_get(sizeof(pdu_ctrl_tx->payload.llctrl.ctrldata.enc_rsp.skds) - 1,
 		     pdu_ctrl_tx->payload.llctrl.ctrldata.enc_rsp.skds);
-	rand_isr_get(sizeof(pdu_ctrl_tx->payload.llctrl.ctrldata.enc_rsp.ivs),
+	rand_isr_get(sizeof(pdu_ctrl_tx->payload.llctrl.ctrldata.enc_rsp.ivs) - 1,
 		     pdu_ctrl_tx->payload.llctrl.ctrldata.enc_rsp.ivs);
 
 	/* things from slave stored for session key calculation */
