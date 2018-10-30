@@ -255,7 +255,7 @@ static void radio_rw_dis()
  */
 static uint16_t radio_rw(uint16_t tx_data)
 {
-	HW_SPI_InOut(tx_data);
+	return HW_SPI_InOut(tx_data);
 }
 
 static uint8_t get_battery_level(void)
