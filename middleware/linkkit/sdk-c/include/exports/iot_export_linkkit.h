@@ -137,6 +137,8 @@ DLL_IOT_API int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, 
  *        ITM_MSG_QUERY_TOPOLIST
  *        ITM_MSG_QUERY_FOTA_DATA
  *        ITM_MSG_QUERY_COTA_DATA
+ *        ITM_MSG_REQUEST_COTA
+ *        ITM_MSG_REQUEST_FOTA_IMAGE
  *
  * @param payload. message payload.
  * @param payload_len. message payload length.
