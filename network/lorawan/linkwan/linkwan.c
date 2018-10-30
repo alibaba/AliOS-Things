@@ -739,11 +739,12 @@ bool set_lora_adr(int state)
 
 int get_lora_adr(void)
 {
+    LoRaMacStatus_t     status;
     MibRequestConfirm_t mib_req;
 
     mib_req.Type = MIB_ADR;
-    LoRaMacMibGetRequestConfirm(&mib_req);
-    if (mib_req.Param.AdrEnable == true) {
+    status = LoRaMacMibGetRequestConfirm(&mib_req);
+    if ((status == LORAMAC_STATUS_OK) && (mib_req.Param.AdrEnable == true)) {
         return 1;
     }
     return 0;
