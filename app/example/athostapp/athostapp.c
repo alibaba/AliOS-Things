@@ -67,6 +67,7 @@ int application_start(int argc, char *argv[])
     at.set_mode(ASYN);
     // mk3060: 4096 mk3165: 1024
     at.set_worker_stack_size(4096);
+    at.set_worker_priority(-2);
     at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
             AT_SEND_DELIMITER, 1000);
 #endif
