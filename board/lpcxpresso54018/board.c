@@ -106,7 +106,7 @@ codec_config_t boardCodecConfig = {
 /* Initialize debug console. */
 status_t BOARD_InitDebugConsole(void)
 {
-    status_t result;
+    status_t result = kStatus_Success;
     /* attach 12 MHz clock to FLEXCOMM0 (debug console) */
     CLOCK_AttachClk(BOARD_DEBUG_UART_CLK_ATTACH);
     RESET_PeripheralReset(BOARD_DEBUG_UART_RST);
