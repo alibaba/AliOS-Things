@@ -1150,7 +1150,7 @@ bool RegionCN470AChannelsRemove(ChannelRemoveParams_t *channelRemove)
 {
     uint8_t id = channelRemove->ChannelId;
 
-    if (id < CN470A_NUMB_DEFAULT_CHANNELS) {
+    if (id >= CN470A_MAX_NB_CHANNELS) {
         return false;
     }
 
