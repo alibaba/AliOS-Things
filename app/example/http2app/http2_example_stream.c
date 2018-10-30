@@ -302,7 +302,7 @@ static void on_header(uint32_t stream_id, char *channel_id,int cat,const uint8_t
 
 static void on_chunk_recv(uint32_t stream_id, char *channel_id,const uint8_t *data, size_t len,uint8_t flags)
 {
-     EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, data = %s ,len = %d flag = %d\n", stream_id,channel_id,data,len,flags);
+     EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, data = %.*s, len = %d flag = %d\n", stream_id, channel_id, len, data, len, flags);
 }
 static void on_stream_close(uint32_t stream_id, char *channel_id,uint32_t error_code)
 {
