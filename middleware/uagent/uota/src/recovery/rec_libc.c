@@ -113,10 +113,31 @@ char* uitoa_16(uint32_t value, char *str){
     return str;
 }
 
+char* uitoa_10(uint32_t value, char *str){
+    char reverse[36];
+    char *p = reverse;
+
+    *p++ = '\0';
+    do{
+        *p++ = "0123456789"[value%10];
+        value /= 10;
+    }while(value != 0);
+    p--;
+
+    while (p >= reverse){
+        *str++ = *p--;
+    }
+
+    return str;
+}
+
 /* only support %x %p %d %c %s */
 void vsprint(char *buf, const char *fmt, va_list args)
 {
-    char *p;
+    char *p = NULL;
+    char *s = NULL;
+    int i   = 0;
+    int len = 0;
     int   waiting_fmt = 0;
     va_list next_arg = args;
 
@@ -136,8 +157,12 @@ void vsprint(char *buf, const char *fmt, va_list args)
         fmt++;
         switch (*fmt){
             case 'd':
-                *p++ = '0';
-                *p++ = 'x';
+            case 'u':
+                uitoa_10(va_arg(next_arg, unsigned int),p);
+                p += strlen(p);
+                waiting_fmt = 0;
+                fmt++;
+                break;
             case 'x':
             case 'p':
                 uitoa_16(va_arg(next_arg, unsigned int),p);
@@ -152,8 +177,14 @@ void vsprint(char *buf, const char *fmt, va_list args)
                 break;
             case 's':
                 *p = '\0';
-                strcat(p, va_arg(next_arg, char *));
-                p += strlen(p);
+                s = va_arg(args, char *);
+                if (!s) {
+					s = "<NULL>";
+					len = 7;
+                } else {
+	                len = (strlen(s) > 128 ? 128 : strlen(s));
+                }
+                for (i = 0; i < len; ++i) *p++ = *s++;
                 waiting_fmt = 0;
                 fmt++;
                 break;
@@ -239,7 +270,8 @@ static void heap_init(void)
 	freelist_head.next = (void *) REC_HEAP_BASE;
 	freelist_head.magic_size = (size_t) 0;
 
-	freelist_tail = (void *)(REC_HEAP_BASE + REC_HEAP_SIZE - REC_HEAP_BLK_HEAD_SIZE);
+	freelist_tail = (void *)(REC_HEAP_BASE + ALIGN(REC_HEAP_SIZE, REC_HEAP_ALIGNMENT) -
+                             REC_HEAP_BLK_HEAD_SIZE);
 	freelist_tail->next = NULL;
 	freelist_tail->magic_size = 0;
 

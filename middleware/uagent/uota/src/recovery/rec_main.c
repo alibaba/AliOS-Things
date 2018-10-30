@@ -1,88 +1,136 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#include "k_api.h"
-#include "rec_pub.h"
-
-#define OTA_RECOVERY_FLAG   0xFFFFFFFF
-#define OTA_UPGRADE_FLAG    0xAAAAAAAA
-
-//0 recovery start, 1 normal start, 2 upgrade to another partion
-#define RECOVERY_START      0
-#define NORMAL_START        1
-#define UPGRADE_START       2
-#define REC_MAX_NUM         3
-
-extern int nbpatch_main();
-
 #if (defined IS_ESP8266)
-unsigned int *reg_flash_flags;
-#else
-extern int reg_flash_flags[512];
+#include "k_api.h"
 #endif
+#include "rec_pub.h"
+#include "nbpatch.h"
+
+unsigned int *reg_flash_flags = NULL;
 
 #if (defined IS_ESP8266)
 extern void vPortETSIntrLock(void);
 extern void vPortETSIntrUnlock(void);
 #endif
 ////////////////////////////////////////////////////////////////////////////////////////////////
-void recovery_get_flag_info(REC_FLAG_INFO_STRU *rec_flag_info)
+
+void recovery_get_flag_info(rec_flag_info_t *rec_flag_info)
 {
-    rec_flash_read_data((unsigned char *)rec_flag_info, rec_flash_addr2ofst((unsigned long)&reg_flash_flags[0]), sizeof(REC_FLAG_INFO_STRU));
+	PatchStatus pstatus;
+	memset(&pstatus, 0, sizeof(PatchStatus));
+
+    (void)patch_flash_read(HAL_PARTITION_PARAMETER_1,
+            (unsigned char *) &pstatus, 0, sizeof(PatchStatus));
+	rec_flag_info->flag = pstatus.rec_flag_info.flag;
+    rec_flag_info->num  = pstatus.rec_flag_info.num;
 }
 
-void recovery_set_flag_info(REC_FLAG_INFO_STRU *rec_flag_info)
+void recovery_set_flag_info(rec_flag_info_t *rec_flag_info)
 {
-    uint32_t reg_flag_addr = (unsigned long)&reg_flash_flags[0];
+    int ret;
+    PatchStatus pstatus;
 
-    rec_flash_erase(rec_flash_addr2ofst(reg_flag_addr));
-    rec_flash_write_data((unsigned char *)rec_flag_info, rec_flash_addr2ofst(reg_flag_addr), sizeof(REC_FLAG_INFO_STRU));
+    memset(&pstatus, 0, sizeof(PatchStatus));
+
+	ret = patch_flash_read(HAL_PARTITION_PARAMETER_1,
+            (unsigned char *) &pstatus, 0, sizeof(PatchStatus));
+    if(ret < 0) {
+        LOG("patch_flash_read error\r\n");
+        return;
+    }
+
+    pstatus.rec_flag_info.flag = rec_flag_info->flag;
+    pstatus.rec_flag_info.num  = rec_flag_info->num;
+
+    save_patch_status(&pstatus);
 }
 
 /* return value: 0 recovery start, 1 normal start, 2 upgrade to another partion  */
-#if (defined IS_ESP8266)
 int recovery_check()
 {
-    REC_FLAG_INFO_STRU rec_flag_info = {0, 0};
+	int flag = REC_NORMAL_START;
+    rec_flag_info_t rec_flag_info = {0, 0};
+
+	rec_flash_init();
+
     recovery_get_flag_info(&rec_flag_info);
 
-    if(rec_flag_info.flag == OTA_RECOVERY_FLAG)
-    {
-        if(rec_flag_info.num <= REC_MAX_NUM)
-        {
-            rec_flag_info.num ++; //将recovery次数加1
-            recovery_set_flag_info(&rec_flag_info);
-            return RECOVERY_START;
-        }
-        else
-        {
-            rec_flag_info.flag = 0;
-            rec_flag_info.num  = 0;
-            recovery_set_flag_info(&rec_flag_info);
+    switch (rec_flag_info.flag)
+	{
+		case REC_RECOVERY_FLAG :
+		    flag = REC_RECOVERY_START;
+		break;
 
-            return NORMAL_START;
-        }
-    } else if (rec_flag_info.flag == OTA_UPGRADE_FLAG)
-    {
-        rec_flag_info.flag = 0;
-        rec_flag_info.num  = 0;
-        recovery_set_flag_info(&rec_flag_info);
+		case REC_RECOVERY_VERIFY_FLAG :
+			if(rec_flag_info.num <= REC_MAX_NUM) {
+				rec_flag_info.num += 1;
+				recovery_set_flag_info(&rec_flag_info);
+		        flag = REC_NORMAL_START;
+			} else { // 超过3次启动失败，自动回滚
+				rec_flag_info.flag = REC_ROLLBACK_FLAG;
+				rec_flag_info.num  = 0;
+				recovery_set_flag_info(&rec_flag_info);
+				flag = REC_ROLLBACK_START;
+			}
+		break;
 
-        return UPGRADE_START;
+		case REC_ROLLBACK_FLAG :
+			flag = REC_ROLLBACK_START;
+		break;
+
+	    #if (defined IS_ESP8266)
+	    case REC_UPGRADE_FLAG :
+	        flag = REC_UPGRADE_START;
+	    break;
+	    #endif
+
+		default:
+			flag = REC_NORMAL_START;
+		break;
     }
 
-    return NORMAL_START;
+    return flag;
 }
-#else
-int recovery_check()
+
+int recovery_flag_update()
 {
-    REC_FLAG_INFO_STRU rec_flag_info = {0, 0};
+	int flag = REC_NORMAL_START;
+    rec_flag_info_t rec_flag_info = {0, 0};
+	rec_flag_info_t rec_flag_set  = {REC_NORMAL_FLAG, 0};
 
-    recovery_get_flag_info((REC_FLAG_INFO_STRU *)&rec_flag_info);
+    recovery_get_flag_info(&rec_flag_info);
 
-    return (rec_flag_info.flag == OTA_RECOVERY_FLAG) ? RECOVERY_START : NORMAL_START;
+	printf("rec_flag_info.flag = 0x%x\n", rec_flag_info.flag);
+
+	switch (rec_flag_info.flag)
+	{
+		case REC_RECOVERY_FLAG :
+			if(rec_flag_info.num <= REC_MAX_NUM) {
+				rec_flag_set.flag = REC_RECOVERY_FLAG;
+				rec_flag_set.num  = rec_flag_info.num + 1;
+			}
+		    flag = REC_RECOVERY_START;
+		break;
+
+		case REC_ROLLBACK_FLAG :
+			flag = REC_ROLLBACK_START;
+		break;
+
+	    #if (defined IS_ESP8266)
+	    case REC_UPGRADE_FLAG :
+	        flag = REC_UPGRADE_START;
+	    break;
+	    #endif
+
+		default:
+			flag = REC_RECOVERY_START;
+		break;
+    }
+
+	recovery_set_flag_info(&rec_flag_set);
+    return flag;
 }
-#endif
 
 void recovery_error(void *errinfo)
 {
@@ -92,13 +140,14 @@ void recovery_error(void *errinfo)
 
 void rec_success()
 {
-    REC_FLAG_INFO_STRU rec_flag_info = {0, 0};
+    rec_flag_info_t rec_flag_info = {0, 0};
 
 #if (defined IS_ESP8266)
-    rec_flag_info.flag = OTA_UPGRADE_FLAG;
+    rec_flag_info.flag = REC_UPGRADE_FLAG;
 #else
-    rec_flag_info.flag = 0;
+	rec_flag_info.flag = REC_RECOVERY_VERIFY_FLAG;
 #endif
+
     recovery_set_flag_info(&rec_flag_info);
 
     rec_delayms(500);
@@ -108,9 +157,9 @@ void rec_success()
 
 void rec_start()
 {
-    REC_FLAG_INFO_STRU rec_flag_info = {0, 0};
+    rec_flag_info_t rec_flag_info = {0, 0};
 
-    rec_flag_info.flag = OTA_RECOVERY_FLAG;
+    rec_flag_info.flag = REC_RECOVERY_FLAG;
     recovery_set_flag_info(&rec_flag_info);
 
     rec_delayms(500);
@@ -121,16 +170,16 @@ void rec_start()
 void recovery_process()
 {
 	int ret;
+
 	/* recovery start */
-   ret = nbpatch_main();
-   /* recovery end */
-#if (!defined IS_ESP8266)
-    ret = 0; // 只有8266判断结果，其它平台默认成功
+    ret = nbpatch_main();
+    /* recovery end */
+#if (OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_DIRECT)  //
+    ret = 0;
 #endif
     if(ret == 0) {
         LOG("rec succ!\r\n");
         rec_success();
-        
     }
     else {
         LOG("rec fail!\r\n");
@@ -140,31 +189,28 @@ void recovery_process()
 
 void recovery_main()
 {
+	int flag = 0;
+
+	rec_hal_init();
+
+	flag = recovery_flag_update();
+
 #if (defined IS_ESP8266)
-    int flag = 0;
-
-    reg_flash_flags = (unsigned int *)rec_get_recflag_addr();
-
-    RHINO_CPU_INTRPT_DISABLE_NMI();
-    vPortETSIntrLock();
-    flag = recovery_check();
-    if(flag == NORMAL_START)
-    {
-        vPortETSIntrUnlock();
-        RHINO_CPU_INTRPT_ENABLE_NMI();
-        return;
-    }
-    else if(flag == UPGRADE_START)
-    {
-        rec_hal_init();
+    if((REC_UPGRADE_START == flag) || (REC_ROLLBACK_START == flag)) {
         rec_upgrade_reboot();
         return;
     }
-    // 后面肯定会复位，强行切换栈空间
+	// switch the stack space, it's very important for esp8266
     __asm__ volatile("movi a1, 0x3FFFFFF0" : : : "memory");
+#else
+	rec_wdt_init(REC_WDT_TIMEOUT_MS);
+	rec_wdt_feed();
+	if(REC_ROLLBACK_START == flag) {
+		rec_2boot_rollback();
+		return;
+	}
 #endif
-    rec_hal_init();
-    LOG("rec init\r\n");
+
     recovery_process();
 }
 

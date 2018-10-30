@@ -14,7 +14,8 @@
 #define HEADER_SIZE 48
 
 #define PARTITION_PARAM HAL_PARTITION_PARAMETER_1
-#define PARTITION_OTA   HAL_PARTITION_OTA_TEMP 
+#define PARTITION_OTA   HAL_PARTITION_OTA_TEMP
+#define PARTITION_BACKUP_PARAM   HAL_PARTITION_RECOVERY_BACK_PARA
 
 #define NBDIFF_PARAMS_INPUT_ERROR   1
 #define NBDIFF_MEM_OP_FAIL          2
@@ -33,7 +34,11 @@ int nbpatch_read(unsigned long src, const unsigned char  *buffer, unsigned long 
 
 int nbpatch_write(unsigned long dst, const unsigned char *buffer, unsigned long pos, size_t size);
 
+int nbpatch_main();
+
 off_t offtin(u_char *buf) ;
+
+PatchStatus *nbpatch_get_pstatus(void);
 
 int save_patch_status(PatchStatus *status);
 
