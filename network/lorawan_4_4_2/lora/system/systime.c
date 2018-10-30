@@ -121,10 +121,15 @@ SysTime_t SysTimeGet( void )
     SysTime_t calendarTime = { .Seconds = 0, .SubSeconds = 0 };
     SysTime_t sysTime = { .Seconds = 0, .SubSeconds = 0 };
     SysTime_t deltaTime;
+    uint32_t  deltaSeconds;
+    uint32_t  deltaSubSeconds;
 
     calendarTime.Seconds = HW_RTC_GetCalendarTime( ( uint16_t* )&calendarTime.SubSeconds );
 
-    HW_RTC_BkupRead( &deltaTime.Seconds, ( uint32_t* )&deltaTime.SubSeconds );
+    HW_RTC_BkupRead( &deltaSeconds, &deltaSubSeconds );
+
+    deltaTime.Seconds    = deltaSeconds;
+    deltaTime.SubSeconds = (int16_t)deltaSubSeconds;
 
     sysTime = SysTimeAdd( deltaTime, calendarTime );
 
@@ -152,6 +157,7 @@ uint32_t SysTime2Ms( SysTime_t sysTime )
     deltaTime.SubSeconds = (int16_t)deltaSubSeconds;
 
     SysTime_t calendarTime = SysTimeSub( sysTime, deltaTime );
+
     return calendarTime.Seconds * 1000 + calendarTime.SubSeconds;
 }
 
