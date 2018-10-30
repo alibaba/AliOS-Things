@@ -126,13 +126,13 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
             EXAMPLE_TRACE("----");
             EXAMPLE_TRACE("PacketId: %d", ptopic_info->packet_id);
             EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)",
-                        ptopic_info->topic_len,
-                        ptopic_info->ptopic,
-                        ptopic_info->topic_len);
+                          ptopic_info->topic_len,
+                          ptopic_info->ptopic,
+                          ptopic_info->topic_len);
             EXAMPLE_TRACE("Payload: '%.*s' (Length: %d)",
-                        ptopic_info->payload_len,
-                        ptopic_info->payload,
-                        ptopic_info->payload_len);
+                          ptopic_info->payload_len,
+                          ptopic_info->payload,
+                          ptopic_info->payload_len);
             EXAMPLE_TRACE("----");
             break;
         default:
@@ -269,13 +269,12 @@ int mqtt_client(void)
     IOT_MQTT_Yield(pclient, 200);
 
     IOT_MQTT_Destroy(&pclient);
-    
+
     return 0;
 }
 
 int linkkit_main(void *paras)
 {
-    IOT_OpenLog("mqtt");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     user_argc = 0;
@@ -303,7 +302,7 @@ int linkkit_main(void *paras)
 
     mqtt_client();
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
+    IOT_SetLogLevel(IOT_LOG_NONE);
 
     EXAMPLE_TRACE("out of sample!");
 
