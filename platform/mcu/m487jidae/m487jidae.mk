@@ -107,13 +107,13 @@ $(NAME)_SOURCES += aos/soc_impl.c \
                    hal/hal_flash.c \
                    hal/hal_qspi.c \
                    hal/hal_dma.c \
-                   hal/eth_port.c \
                    hal/ota_port.c \
                    hal/ota_spimflash.c
                    
 ifeq ($(ETHERNET),1)
 $(NAME)_SOURCES += 	lwIP/netif/ethernetif.c \
-					lwIP/netif/m480_eth.c
+					lwIP/netif/m480_eth.c \
+                    hal/eth_port.c 
 endif
 
 ifeq ($(COMPILER),armcc)
