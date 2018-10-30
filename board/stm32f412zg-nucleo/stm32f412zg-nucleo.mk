@@ -22,6 +22,10 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
 
 $(NAME)_SOURCES += drv/board_drv_led.c
 
+GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=262144 #256kb
+GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=17 #(1 << 17) = 128kb
+
+
 sal ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
