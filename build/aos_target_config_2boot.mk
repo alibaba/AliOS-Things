@@ -1,16 +1,13 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_target_func.mk
-include $(MAKEFILES_PATH)/aos_kconfig.mk
 
 APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
-CONFIG_FILE := $(CONFIG_FILE_DIR)/config.mk
+CONFIG_FILE := $(CONFIG_FILE_DIR)/config_2boot.mk
 FEATURE_DIR := $(SOURCE_ROOT)build/configs
-DEFCONFIG_LIST :=
 
 COMPONENT_DIRECTORIES := . \
                          app/example   \
-                         app/profile   \
                          board     \
                          kernel    \
                          platform  \
@@ -56,7 +53,7 @@ define FIND_VARIOUS_COMPONENT
 $(eval COMP := $(word 1,$(1)))
 $(if $(findstring feature, $(COMP)), \
     $(info Processing feature: $(COMP)) \
-    $(call PARSE_FEATURE, $(COMP), COMPONENTS, DEFCONFIG_LIST), \
+    $(call PARSE_FEATURE, $(COMP), COMPONENTS), \
     $(call FIND_ONE_COMPONENT, $(COMP)))
 
 $(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
@@ -73,24 +70,23 @@ define FIND_ONE_COMPONENT
 
 $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
-$(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
+$(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION))_2boot)
 # Find the component makefile in directory list
-$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk $(dir)/$(COMP_LOCATION)/aos.mk))))
+$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 # Check if component makefile was found - if not try downloading it and re-doing the makefile search
 $(if $(TEMP_MAKEFILE),,\
-    $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk or aos.mk) \
+    $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk) \
     $(info Below is a list of valid local components (Some are internal): ) \
     $(call FIND_VALID_COMPONENTS, VALID_COMPONENT_LIST,$(COMPONENT_DIRECTORIES)) \
      $(foreach comp,$(VALID_COMPONENT_LIST),$(info $(comp))) \
      $(info Below is a list of valid components from the internet: ) \
      $(info $(call DOWNLOAD_COMPONENT_LIST)) \
-     $(error Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk or aos.mk))
+     $(error Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk))
 $(if $(filter 1,$(words $(TEMP_MAKEFILE))),,$(error More than one component with the name "$(COMP)". See $(TEMP_MAKEFILE)))
 
 $(eval TEMP_MAKEFILE := $(subst ././,./,$(TEMP_MAKEFILE)))
 $(eval include $(TEMP_MAKEFILE))
 $(eval deps :=)
-$(eval $(NAME)_COMPONENTS += $($(NAME)_COMPONENTS-y))
 $(eval deps_src := $($(NAME)_COMPONENTS))
 $(eval components_cube := $(subst .,/,$(COMPONENTS)))
 $(eval deps_cube := $(subst .,/,$($(NAME)_COMPONENTS)))
@@ -111,7 +107,7 @@ $(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
 	$(eval iotx_check_RET:=0)\
 	$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS)) \
 	DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',)
-    
+
 endef
 
 #####################################################################################
@@ -120,9 +116,9 @@ endef
 define PROCESS_ONE_COMPONENT
 $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
-$(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
+$(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION))_2boot)
 # Find the component makefile in directory list
-$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR)/$(comp),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk $(dir)/$(COMP_LOCATION)/aos.mk))))
+$(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR)/$(comp),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 
 # Clear all the temporary variables
 $(eval GLOBAL_INCLUDES:=)
@@ -135,22 +131,9 @@ $(eval GLOBAL_CXXFLAGS:=)
 $(eval GLOBAL_ASMFLAGS:=)
 $(eval GLOBAL_LDFLAGS:=)
 $(eval GLOBAL_LDS_FILES:=)
-$(eval GLOBAL_LDS_INCLUDES:=)
+$(eval GLOBAL_2BBOT_LDS_INCLUDES:=)
+$(eval GLOBAL_2BOOT_LDS_FILES:=)
 $(eval GLOBAL_CERTIFICATES:=)
-
-$(eval GLOBAL_INCLUDES-y:=)
-$(eval GLOBAL_LINK_SCRIPT-y:=)
-$(eval DEFAULT_LINK_SCRIPT-y:=)
-$(eval DCT_LINK_SCRIPT-y:=)
-$(eval GLOBAL_DEFINES-y:=)
-$(eval GLOBAL_CFLAGS-y:=)
-$(eval GLOBAL_CXXFLAGS-y:=)
-$(eval GLOBAL_ASMFLAGS-y:=)
-$(eval GLOBAL_LDFLAGS-y:=)
-$(eval GLOBAL_LDS_FILES-y:=)
-$(eval GLOBAL_LDS_INCLUDES-y:=)
-$(eval GLOBAL_CERTIFICATES-y:=)
-
 $(eval WIFI_CONFIG_DCT_H:=)
 $(eval BT_CONFIG_DCT_H:=)
 $(eval APPLICATION_DCT:=)
@@ -162,8 +145,8 @@ $(eval BIN_OUTPUT_FILE:=)
 $(eval OLD_CURDIR := $(CURDIR))
 $(eval CURDIR := $(CURDIR)$(dir $(TEMP_MAKEFILE)))
 $(eval TEST_COMPONENTS :=)
-$(eval CPLUSPLUS_FLAGS:=)
-$(eval AOS_2BOOT_SUPPORT :=)
+
+
 # Cache the last valid RTOS/NS combination for iterative filtering.
 $(eval TEMP_VALID_OSNS_COMBOS := $(VALID_OSNS_COMBOS))
 
@@ -187,37 +170,36 @@ $(eval CURDIR := $(OLD_CURDIR))
 
 $(eval $(NAME)_LOCATION := $(dir $(TEMP_MAKEFILE)))
 $(eval $(NAME)_MAKEFILE := $(TEMP_MAKEFILE))
-AOS_SDK_MAKEFILES     += $($(NAME)_MAKEFILE)
+AOS_SDK_2BOOT_MAKEFILES     += $($(NAME)_MAKEFILE)
 
 # Set debug/release specific options
 $(eval $(NAME)_BUILD_TYPE := $(BUILD_TYPE))
 $(eval $(NAME)_BUILD_TYPE := $(if $($(NAME)_NEVER_OPTIMISE),  debug,   $($(NAME)_BUILD_TYPE)))
 $(eval $(NAME)_BUILD_TYPE := $(if $($(NAME)_ALWAYS_OPTIMISE), release, $($(NAME)_BUILD_TYPE)))
 
-$(NAME)_ASMFLAGS += $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_ASFLAGS),  $(COMPILER_SPECIFIC_RELEASE_ASFLAGS)) $($(NAME)_ASMFLAGS-y)
-$(NAME)_LDFLAGS  += $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_LDFLAGS),  $(COMPILER_SPECIFIC_RELEASE_LDFLAGS)) $($(NAME)_LDFLAGS-y)
+$(NAME)_ASMFLAGS += $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_ASFLAGS),  $(COMPILER_SPECIFIC_RELEASE_ASFLAGS))
+$(NAME)_LDFLAGS  += $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_LDFLAGS),  $(COMPILER_SPECIFIC_RELEASE_LDFLAGS))
 
-$(NAME)_OPTIM_CFLAGS   ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_CFLAGS), $(if $(findstring release_log,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_RELEASE_LOG_CFLAGS), $(COMPILER_SPECIFIC_RELEASE_CFLAGS))) $($(NAME)_OPTIM_CFLAGS-y)
+$(NAME)_OPTIM_CFLAGS   ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_CFLAGS), $(if $(findstring release_log,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_RELEASE_LOG_CFLAGS), $(COMPILER_SPECIFIC_RELEASE_CFLAGS)))
 
-$(NAME)_OPTIM_CXXFLAGS ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_CXXFLAGS), $(if $(findstring release_log,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_RELEASE_LOG_CXXFLAGS), $(COMPILER_SPECIFIC_RELEASE_CXXFLAGS))) $($(NAME)_OPTIM_CXXFLAGS-y)
+$(NAME)_OPTIM_CXXFLAGS ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_CXXFLAGS), $(if $(findstring release_log,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_RELEASE_LOG_CXXFLAGS), $(COMPILER_SPECIFIC_RELEASE_CXXFLAGS)))
 
-AOS_SDK_INCLUDES           +=$(addprefix -I$($(NAME)_LOCATION),$(GLOBAL_INCLUDES) $(GLOBAL_INCLUDES-y))
-AOS_SDK_LINK_SCRIPT        +=$(if $(GLOBAL_LINK_SCRIPT),$(GLOBAL_LINK_SCRIPT),) $(if $(GLOBAL_LINK_SCRIPT-y),$(GLOBAL_LINK_SCRIPT-y),)
-AOS_SDK_DEFAULT_LINK_SCRIPT+=$(if $(DEFAULT_LINK_SCRIPT),$(addprefix $($(NAME)_LOCATION),$(DEFAULT_LINK_SCRIPT)),) $(if $(DEFAULT_LINK_SCRIPT-y),$(addprefix $($(NAME)_LOCATION),$(DEFAULT_LINK_SCRIPT-y)),)
-$(eval AOS_SDK_DEFINES            +=$(GLOBAL_DEFINES) $(GLOBAL_DEFINES-y))
-AOS_SDK_CFLAGS             +=$(GLOBAL_CFLAGS) $(GLOBAL_CFLAGS-y)
-AOS_SDK_CXXFLAGS           +=$(GLOBAL_CXXFLAGS) $(GLOBAL_CXXFLAGS-y)
-AOS_SDK_ASMFLAGS           +=$(GLOBAL_ASMFLAGS) $(GLOBAL_ASMFLAGS-y)
-AOS_SDK_LDFLAGS            +=$(GLOBAL_LDFLAGS) $(GLOBAL_LDFLAGS-y)
-AOS_SDK_LDS_FILES          +=$(GLOBAL_LDS_FILES) $(GLOBAL_LDS_FILES-y)
-AOS_SDK_LDS_INCLUDES       +=$(GLOBAL_LDS_INCLUDES) $(GLOBAL_LDS_INCLUDES-y)
+AOS_SDK_INCLUDES           +=$(addprefix -I$($(NAME)_LOCATION),$(GLOBAL_INCLUDES))
+AOS_SDK_LINK_SCRIPT        +=$(if $(GLOBAL_LINK_SCRIPT),$(GLOBAL_LINK_SCRIPT),)
+AOS_SDK_DEFAULT_LINK_SCRIPT+=$(if $(DEFAULT_LINK_SCRIPT),$(addprefix $($(NAME)_LOCATION),$(DEFAULT_LINK_SCRIPT)),)
+$(eval AOS_SDK_DEFINES            +=$(GLOBAL_DEFINES))
+AOS_SDK_CFLAGS             +=$(GLOBAL_CFLAGS)
+AOS_SDK_CXXFLAGS           +=$(GLOBAL_CXXFLAGS)
+AOS_SDK_ASMFLAGS           +=$(GLOBAL_ASMFLAGS)
+AOS_SDK_LDFLAGS            +=$(GLOBAL_LDFLAGS)
+AOS_SDK_2BOOT_LDS_FILES          +=$(GLOBAL_2BOOT_LDS_FILES)
+
 AOS_SDK_CHIP_SPECIFIC_SCRIPT += $(CHIP_SPECIFIC_SCRIPT)
 AOS_SDK_CONVERTER_OUTPUT_FILE += $(CONVERTER_OUTPUT_FILE)
 AOS_SDK_FINAL_OUTPUT_FILE += $(BIN_OUTPUT_FILE)
-AOS_SDK_2BOOT_SUPPORT +=$(AOS_2BOOT_SUPPORT)
-AOS_CPLUSPLUS_FLAGS += $(CPLUSPLUS_FLAGS)
+
 $(eval PROCESSED_COMPONENTS += $(NAME))
-$(eval $(NAME)_SOURCES := $(sort $($(NAME)_SOURCES) $($(NAME)_SOURCES-y)) )
+$(eval $(NAME)_SOURCES := $(sort $($(NAME)_SOURCES)) )
 
 endef
 
@@ -229,7 +211,6 @@ define PROCESS_COMPONENT
 AOS_SDK_DEFINES += MCU_FAMILY=\"$(PLATFORM_MCU_BOARD)\"
 $(info all components: $(REAL_COMPONENTS_LOCS))
 $(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
-
 endef
 
 ##################################
@@ -237,13 +218,7 @@ endef
 ##################################
 
 # Separate the build string into components
-COMPONENTS := $(subst @, ,$(MAKECMDGOALS))
-
-ifneq (,$(filter mk3060,$(COMPONENTS)))
-ifneq (,$(filter bootloader,$(COMPONENTS)))
-$(error mk3060 doesn't support bootlaoder option)
-endif
-endif
+BUILD_APP := $(subst @, ,$(MAKECMDGOALS))
 
 #Dependency python dict start
 DEPENDENCY := "{
@@ -253,8 +228,9 @@ BUILD_TYPE_LIST := debug \
                    release
 
 # Extract out: the debug/release option, OTA option, and the lint option
-BUILD_TYPE          := $(if $(filter $(BUILD_TYPE_LIST),$(COMPONENTS)),$(firstword $(filter $(BUILD_TYPE_LIST),$(COMPONENTS))),release_log)
-COMPONENTS          := $(filter-out $(BUILD_TYPE_LIST), $(COMPONENTS))
+BUILD_TYPE          := $(if $(filter $(BUILD_TYPE_LIST),$(BUILD_APP)),$(firstword $(filter $(BUILD_TYPE_LIST),$(BUILD_APP))),release_log)
+BUILD_APP          := $(filter-out $(BUILD_TYPE_LIST), $(BUILD_APP))
+COMPONENTS          :=
 
 # Set debug/release specific options
 ifeq ($(BUILD_TYPE),release)
@@ -266,11 +242,11 @@ endif
 
 # Check if there are any unknown components; output error if so.
 $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) ),,$(error Unknown component: $(comp))))
-
+$(info wgj $(COMPONENTS))
 # Find the matching platform and application from the build string components
-PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
-
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)app/profile/$(comp) $(SOURCE_ROOT)$(comp)),$(comp),)))
+PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(BUILD_APP)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
+$(info PLATFORM_FULL $(PLATFORM_FULL))
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(BUILD_APP)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)$(comp)),$(comp),)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 APP         :=$(notdir $(APP_FULL))
@@ -283,17 +259,15 @@ EXTRA_CFLAGS :=    -DAOS_SDK_VERSION_MAJOR=$(AOS_SDK_VERSION_MAJOR) \
                    -I$(OUTPUT_DIR)/resources/  \
                    -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END)
 
-# Append -include/--preinclude args to EXTRA_CFLAGS
-EXTRA_CFLAGS += $(call INCLUDE_AUTOCONF_H) $(call INCLUDE_SYSCONFIG_H)
-
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
 $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
 
-include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/$(notdir $(PLATFORM_DIRECTORY)).mk
+include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/$(notdir $(PLATFORM_DIRECTORY))_2boot.mk
 
 PLATFORM_MCU_BOARD	:=$(subst .,/,$(HOST_MCU_FAMILY))
 PLATFORM_MCU_BD :=$(subst ., ,$(HOST_MCU_FAMILY))
 PLATFORM_MCU_MK :=$(if ($(words $(PLATFORM_MCU_BD)):1= $(PLATFORM_MCU_BD)),$(word $(words $(PLATFORM_MCU_BD)),$(PLATFORM_MCU_BD)))
+AOS_SDK_2BOOT_LDS_INCLUDES       :=$(GLOBAL_2BOOT_LDS_INCLUDES)
 
 $(eval CURDIR := $(SOURCE_ROOT)/platform/mcu/$(PLATFORM_MCU_BOARD)/)
 include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/$(PLATFORM_MCU_MK).mk
@@ -320,51 +294,20 @@ endif
 
 # Process all the components + AOS
 
-COMPONENTS += platform/mcu/$(PLATFORM_MCU_BOARD) osal init
+COMPONENTS += platform/mcu/$(PLATFORM_MCU_BOARD) board/$(PLATFORM_DIRECTORY)
 
-ifneq ($(ONLY_BUILD_LIBRARY), yes)
-COMPONENTS += auto_component
-endif
-
-
-
-ifeq ($(BINS),app)
-COMPONENTS += syscall_kapi syscall_fapi ksyscall fsyscall
-AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall/syscall_kapi -I$(OUTPUT_DIR)/syscall/syscall_fapi
-AOS_SDK_DEFINES += BUILD_APP
+AOS_SDK_DEFINES += BUILD_2BOOT
 AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush
-else ifeq ($(BINS),framework)
-COMPONENTS += fsyscall syscall_kapi ksyscall
-AOS_SDK_DEFINES += BUILD_FRAMEWORK
-AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall/syscall_kapi -I$(OUTPUT_DIR)/syscall/syscall_fapi
-AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush
-else ifeq ($(BINS),kernel)
-COMPONENTS += ksyscall
-AOS_SDK_DEFINES += BUILD_KERNEL
-AOS_SDK_INCLUDES += -I$(OUTPUT_DIR)/syscall/syscall_kapi
-else ifeq (,$(BINS))
-AOS_SDK_DEFINES += BUILD_BIN
-endif
 
 ALL_MAKEFILES :=
-ifneq ($(CUBE_MAKEFILE), )
-include $(CUBE_MAKEFILE)
-COMPONENTS += $(CUBE_ADD_COMPONENTS)
-COMPONENT_DIRECTORIES += $(CUBE_AOS_DIR)
-endif
 
 CURDIR :=
-$(info processing components: $(COMPONENTS))
 $(eval $(call FIND_VARIOUS_COMPONENT, $(COMPONENTS)))
 # remove repeat component
 $(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
-
-# Include feature defconfig files
-reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
-$(foreach defconfig, $(call reverse,$(DEFCONFIG_LIST)), $(eval include $(defconfig)))
 
 # Add some default values
 AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/network/include -I$(SOURCE_ROOT)app/example/$(APP_FULL)
@@ -375,10 +318,11 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
                     -I$(SOURCE_ROOT)kernel/hal/include/hal \
                     -I$(SOURCE_ROOT)kernel/hal/include/hal/soc \
                     -I$(SOURCE_ROOT)kernel/rhino/vfs/include \
-                    -I$(SOURCE_ROOT)network/yloop/include \
+                    -I$(SOURCE_ROOT)kernel/yloop/include \
                     -I$(SOURCE_ROOT)kernel/rhino/fs/kv/include \
                     -I$(SOURCE_ROOT)tools/cli/include \
-                    -I$(SOURCE_ROOT)utility/log/include
+                    -I$(SOURCE_ROOT)utility/log/include \
+		    -I$(SOURCE_ROOT)kernel/rhino
 
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
@@ -456,12 +400,14 @@ endif
 .PHONY: $(MAKECMDGOALS)
 $(MAKECMDGOALS): $(CONFIG_FILE) $(TOOLCHAIN_HOOK_TARGETS)
 
-$(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
-	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_FILE) ,AOS_SDK_MAKEFILES           		+= $(AOS_SDK_MAKEFILES))
+$(CONFIG_FILE): $(AOS_SDK_2BOOT_MAKEFILES) | $(CONFIG_FILE_DIR)
+	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_FILE) ,AOS_SDK_2BOOT_MAKEFILES           		+= $(AOS_SDK_2BOOT_MAKEFILES))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,TOOLCHAIN_NAME            		:= $(TOOLCHAIN_NAME))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDFLAGS             		+= $(strip $(AOS_SDK_LDFLAGS)))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDS_FILES                     += $(strip $(AOS_SDK_LDS_FILES)))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDS_INCLUDES                  += $(strip $(AOS_SDK_LDS_INCLUDES)))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDS_FILES                 += $(strip $(AOS_SDK_LDS_FILES)))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDS_INCLUDES              += $(strip $(AOS_SDK_LDS_INCLUDES)))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_2BOOT_LDS_INCLUDES        += $(strip $(AOS_SDK_2BOOT_LDS_INCLUDES)))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_2BOOT_LDS_FILES           += $(strip $(AOS_SDK_2BOOT_LDS_FILES)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_2BOOT_SUPPORT             += $(strip $(AOS_SDK_2BOOT_SUPPORT)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,RESOURCE_CFLAGS					+= $(strip $(AOS_SDK_CFLAGS)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LINK_SCRIPT         		+= $(strip $(if $(strip $(AOS_SDK_LINK_SCRIPT)),$(AOS_SDK_LINK_SCRIPT),$(AOS_SDK_DEFAULT_LINK_SCRIPT))))
@@ -499,8 +445,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_TYPE             := $($(comp)_TYPE)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_targets  := $($(comp)_SELF_BUIlD_COMP_targets)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_scripts  := $($(comp)_SELF_BUIlD_COMP_scripts)))
-	$(QUIET)$(foreach var,$(sort $(FEATURE_SHOW_VARS)), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(var) := $($(var))))
-	
+
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_UNIT_TEST_SOURCES   		:= $(AOS_SDK_UNIT_TEST_SOURCES))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,ALL_RESOURCES             		:= $(call unique,$(ALL_RESOURCES)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,INTERNAL_MEMORY_RESOURCES 		:= $(call unique,$(INTERNAL_MEMORY_RESOURCES)))
@@ -519,9 +464,6 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_CONVERTER_OUTPUT_FILE	:= $(AOS_SDK_CONVERTER_OUTPUT_FILE))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_FINAL_OUTPUT_FILE 		:= $(AOS_SDK_FINAL_OUTPUT_FILE))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_RAM_STUB_LIST_FILE 			:= $(AOS_RAM_STUB_LIST_FILE))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,PING_PONG_OTA 					:= $(PING_PONG_OTA))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_CPLUSPLUS_FLAGS:= $(AOS_CPLUSPLUS_FLAGS))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,DEVELOPERKIT_ENABLE_OTA			:= $(DEVELOPERKIT_ENABLE_OTA))
 endif
 
 CONFIG_PY_FILE := build/scripts/config_mk.py
@@ -557,7 +499,7 @@ $(PROJECT_GEN): build/scripts/iar.py build/aos_target_config.mk $(CONFIG_FILE)
 	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/iar_project)
 	$(QUIET)cp -f  build/scripts/template.ewd $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewd
 	python build/scripts/iar.py $(CLEANED_BUILD_STRING)
-	$(QUIET)echo ----------- iar project has generated in $(PROJ_GEN_DIR)/iar_project ----------- 
+	$(QUIET)echo ----------- iar project has generated in $(PROJ_GEN_DIR)/iar_project -----------
 endif
 
 ifeq ($(IDE),keil)
@@ -570,6 +512,6 @@ $(PROJECT_GEN): build/scripts/keil.py build/aos_target_config.mk $(CONFIG_FILE)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
 	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/keil_project)
 	python build/scripts/keil.py $(CLEANED_BUILD_STRING)
-	$(QUIET)echo ----------- keil project has generated in $(PROJ_GEN_DIR)/keil_project ----------- 
+	$(QUIET)echo ----------- keil project has generated in $(PROJ_GEN_DIR)/keil_project -----------
 endif
 
