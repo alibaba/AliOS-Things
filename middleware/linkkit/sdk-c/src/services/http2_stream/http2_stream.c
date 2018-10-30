@@ -33,6 +33,26 @@ typedef struct _device_info_struct_ {
     char        device_secret[DEVICE_SECRET_LEN + 1];
 } device_info;
 
+typedef struct {
+    http2_connection_t   *http2_connect;
+    void                 *mutex;
+    void                 *semaphore;
+    void                 *thread_handle;
+    http2_list_t         stream_list;
+    int                  init_state;
+    http2_stream_cb_t    *cbs;
+} stream_handle_t;
+
+typedef struct {
+    unsigned int stream_id;         /* http2 protocol stream id */
+    char *channel_id;               /* string return by server to identify a specific stream channel, different from stream identifier which is a field in http2 frame */
+    stream_type_t stream_type;      /* check @stream_type_t */
+    void *semaphore;                /* semaphore for http2 response sync */
+    char status_code[4];            /* http2 response status code */
+    http2_list_t list;              /* list_head */
+    uint8_t  rcv_hd_cnt;            /* the number of concerned heads received*/                    
+} http2_stream_node_t;
+
 static device_info g_device_info;
 static stream_handle_t *g_stream_handle = NULL;
 static httpclient_t g_client;
@@ -322,7 +342,7 @@ static int http2_stream_node_remove(stream_handle_t *handle, unsigned int id)
     return FAIL_RETURN;
 }
 
-stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb)
+void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb)
 {
     stream_handle_t *stream_handle = NULL;
     http2_connection_t *conn = NULL;
@@ -388,7 +408,7 @@ stream_handle_t *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_s
     return stream_handle;
 }
 
-int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header)
+int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t *header)
 {
     char client_id[64 + 1] = {0};
     char sign_str[256 + 1] = {0};
@@ -398,6 +418,7 @@ int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, hea
     int rv = 0;
     http2_data h2_data;
     http2_stream_node_t *node = NULL;
+    stream_handle_t * handle = (stream_handle_t *)hd;
     http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
 
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
@@ -466,7 +487,7 @@ int IOT_HTTP2_Stream_Open(stream_handle_t *handle, stream_data_info_t *info, hea
     return SUCCESS_RETURN;
 }
 
-int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header)
+int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t *header)
 {
     int rv = 0;
     http2_data h2_data;
@@ -475,6 +496,7 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info, hea
     int windows_size;
     int count = 0;
     http2_stream_node_t *node = NULL;
+    stream_handle_t * handle = (stream_handle_t *)hd;
     http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
 
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
@@ -578,13 +600,14 @@ int IOT_HTTP2_Stream_Send(stream_handle_t *handle, stream_data_info_t *info, hea
     return rv;
 }
 
-int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info, header_ext_info_t *header)
+int IOT_HTTP2_Stream_Query(void *hd, stream_data_info_t *info, header_ext_info_t *header)
 {
     int rv = 0;
     http2_data h2_data;
     http2_stream_node_t *node = NULL;
     char path[128] = {0};
     int header_count = 0;
+    stream_handle_t * handle = (stream_handle_t *)hd;
     http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
 
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
@@ -638,11 +661,12 @@ int IOT_HTTP2_Stream_Query(stream_handle_t *handle, stream_data_info_t *info, he
     return rv;
 }
 
-int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
+int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
 {
     int rv = 0;
     http2_data h2_data;
     char path[128] = {0};
+    stream_handle_t * handle = (stream_handle_t *)hd;
 
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
@@ -698,9 +722,11 @@ int IOT_HTTP2_Stream_Close(stream_handle_t *handle, stream_data_info_t *info)
     return rv;
 }
 
-int IOT_HTTP2_Stream_Disconnect(stream_handle_t *handle)
+int IOT_HTTP2_Stream_Disconnect(void *hd)
 {
     int ret;
+    stream_handle_t * handle = (stream_handle_t *)hd;
+
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     handle->init_state = 0;
 
@@ -856,13 +882,15 @@ static void *http_upload_file_func(void *user)
 }
 
 void *file_thread = NULL;
-int IOT_HTTP2_Stream_UploadFile(stream_handle_t *handle, const char *file_path, const char *identify,
+int IOT_HTTP2_Stream_UploadFile(void *hd, const char *file_path, const char *identify,
                                 header_ext_info_t *header,
                                 upload_file_result_cb cb, void *user_data)
 {
 
     int ret;
     hal_os_thread_param_t thread_parms = {0};
+    stream_handle_t *handle = (stream_handle_t *)hd;
+
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(file_path, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(identify, NULL_VALUE_ERROR);
