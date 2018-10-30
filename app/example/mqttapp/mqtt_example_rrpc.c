@@ -98,10 +98,10 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
             EXAMPLE_TRACE("topic message arrived but without any related handle: topic=%.*s, topic_msg=%.*s\n",
-                       topic_info->topic_len,
-                       topic_info->ptopic,
-                       topic_info->payload_len,
-                       topic_info->payload);
+                          topic_info->topic_len,
+                          topic_info->ptopic,
+                          topic_info->payload_len,
+                          topic_info->payload);
             break;
 
         default:
@@ -129,8 +129,7 @@ void mqtt_rrpc_msg_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
         case IOTX_MQTT_EVENT_SUBCRIBE_NACK:
             EXAMPLE_TRACE("subscribe nack, packet-id=%u", (unsigned int)packet_id);
             break;
-        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED:
-        {
+        case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             iotx_mqtt_topic_info_t      topic_msg;
             char                        msg_pub[RRPC_MQTT_MSGLEN] = {0};
             char                        topic[TOPIC_LEN_MAX] = {0};
@@ -139,19 +138,19 @@ void mqtt_rrpc_msg_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
             /* print topic name and topic message */
             EXAMPLE_TRACE("----\n");
             EXAMPLE_TRACE("Topic: '%.*s' (Length: %d)\n",
-                    ptopic_info->topic_len,
-                    ptopic_info->ptopic,
-                    ptopic_info->topic_len);
+                          ptopic_info->topic_len,
+                          ptopic_info->ptopic,
+                          ptopic_info->topic_len);
             EXAMPLE_TRACE("Payload: '%.*s' (Length: %d)\n",
-                    ptopic_info->payload_len,
-                    ptopic_info->payload,
-                    ptopic_info->payload_len);
+                          ptopic_info->payload_len,
+                          ptopic_info->payload,
+                          ptopic_info->payload_len);
             EXAMPLE_TRACE("----\n");
 
             if (snprintf(msg_id,
-                        ptopic_info->topic_len - strlen(TOPIC_RRPC_REQ) + 1,
-                        "%s",
-                        ptopic_info->ptopic + strlen(TOPIC_RRPC_REQ))
+                         ptopic_info->topic_len - strlen(TOPIC_RRPC_REQ) + 1,
+                         "%s",
+                         ptopic_info->ptopic + strlen(TOPIC_RRPC_REQ))
                 > sizeof(msg_id)) {
                 EXAMPLE_TRACE("snprintf error!\n");
                 return;
@@ -175,7 +174,7 @@ void mqtt_rrpc_msg_arrive(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt 
                 EXAMPLE_TRACE("error occur when publish!\n");
             }
         }
-            break;
+        break;
 
         case IOTX_MQTT_EVENT_BUFFER_OVERFLOW:
             EXAMPLE_TRACE("buffer overflow, %s", msg->msg);
@@ -299,7 +298,6 @@ int linkkit_main(void *paras)
         argv = p->argv;
     }
 
-    IOT_OpenLog("mqtt");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     if (argc == 2 && !strcmp(argv[1], "unittest")) {

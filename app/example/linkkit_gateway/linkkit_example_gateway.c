@@ -373,7 +373,6 @@ int linkkit_main(void *paras)
     cJSON_Hooks cjson_hooks = {example_malloc, example_free};
     cJSON_InitHooks(&cjson_hooks);
 
-    IOT_OpenLog("iot_linkkit");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     /* Register Callback */
