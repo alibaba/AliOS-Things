@@ -1253,6 +1253,8 @@ bool lora_del_multicast(uint32_t dev_addr)
         }
         multiCastNode = multiCastNode->Next;
     }
+
+    return false;
 }
 
 uint8_t get_lora_mulitcast_num(void)
