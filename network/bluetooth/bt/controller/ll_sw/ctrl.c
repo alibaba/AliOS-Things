@@ -10554,8 +10554,11 @@ u32_t ll_enc_req_send(u16_t handle, u8_t *rand, u8_t *ediv, u8_t *ltk)
 			memcpy(enc_req->rand, rand, sizeof(enc_req->rand));
 			enc_req->ediv[0] = ediv[0];
 			enc_req->ediv[1] = ediv[1];
-			bt_rand_c(enc_req->skdm, sizeof(enc_req->skdm));
-			bt_rand_c(enc_req->ivm, sizeof(enc_req->ivm));
+
+                        //whitescan-587482:Out-of-bounds access
+                        //length should not equals the array's upper index
+			bt_rand_c(enc_req->skdm, sizeof(enc_req->skdm) - 1);
+			bt_rand_c(enc_req->ivm, sizeof(enc_req->ivm) - 1);
 		} else if ((conn->enc_rx != 0) && (conn->enc_tx != 0)) {
 			memcpy(&conn->llcp.encryption.rand[0], rand,
 			       sizeof(conn->llcp.encryption.rand));
