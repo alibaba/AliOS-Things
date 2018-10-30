@@ -92,6 +92,10 @@ static volatile int select_cb_ctr;
 #define LOCAL_PORT_RANGE_END    0xffff
 #define ENSURE_LOCAL_PORT_RANGE(port) ((u16_t)(((port) & ~LOCAL_PORT_RANGE_START) + LOCAL_PORT_RANGE_START))
 
+#if SAL_UDP_CLIENT_ENABLED
+struct udp_pcb *sal_udp_pcbs;
+#endif
+
 struct tcp_pcb *sal_tcp_pcbs;
 
 sal_mutex_t    lock_sal_core;
@@ -201,6 +205,109 @@ static void sal_tcp_remove(struct tcp_pcb *pcb)
 
 }
 
+#if SAL_UDP_CLIENT_ENABLED
+static u16_t sal_udp_new_port(void)
+{
+    static u16_t   udp_port = 0;
+    u16_t          n = 0;
+    struct udp_pcb *pcb;
+
+    if (udp_port == 0) {
+        udp_port = ENSURE_LOCAL_PORT_RANGE(rand());
+    }
+again:
+    if (udp_port++ == LOCAL_PORT_RANGE_END) {
+        udp_port = LOCAL_PORT_RANGE_START;
+    }
+
+    for (pcb = sal_udp_pcbs; pcb != NULL; pcb = pcb->next) {
+        if (pcb->local_port == udp_port) {
+            if (++n > (LOCAL_PORT_RANGE_END - LOCAL_PORT_RANGE_START)) {
+                return 0;
+            }
+
+            goto again;
+        }
+    }
+
+    return udp_port;
+}
+
+static err_t sal_udp_bind(struct udp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port)
+{
+    struct udp_pcb *pstpcb = NULL;
+    u8_t            rebind = 0;
+
+    /*for local ip addr is not used for now,
+      if ip addr is used there is something else need to check link udp_bind*/
+    if (pcb == NULL) {
+        return ERR_VAL;
+    }
+
+    for (pstpcb = sal_udp_pcbs; pstpcb != NULL; pstpcb = pstpcb->next) {
+        if (pstpcb == pcb) {
+            rebind = 1;
+            break;
+        }
+    }
+
+    if (port == 0) {
+        port = sal_udp_new_port();
+        if (port == 0) {
+            SAL_ERROR("sal_udp_bind: out of free udp ports\n");
+            return ERR_BUF;
+        }
+    } else {
+        for (pstpcb = sal_udp_pcbs; pstpcb != NULL; pstpcb = pstpcb->next) {
+            if (pcb != pstpcb) {
+                /*By default, we don't allow to bind a port that any other udp pcb is already bound to.
+                  ip add port are matches */
+                if (pstpcb->local_port == port) {
+                    return ERR_USE;
+                }
+            }
+        }
+    }
+    /*TODO ipaddr = null means any addr*/
+    if (NULL != ipaddr) {
+        ip_addr_set_ipaddr(&(pcb->local_ip), ipaddr);
+    }
+
+    pcb->local_port = port;
+    /* pcb not active yet? */
+    if (rebind == 0) {
+        /* place the PCB on the active list if not already there */
+        pcb->next = sal_udp_pcbs;
+        sal_udp_pcbs = pcb;
+    }
+
+    return ERR_OK;
+
+}
+
+static void sal_udp_remove(struct udp_pcb *pcb)
+{
+    struct udp_pcb *pstpcb;
+    /* pcb to be removed is first in list? */
+    if (sal_udp_pcbs == pcb) {
+        /* make list start at 2nd pcb */
+        sal_udp_pcbs = sal_udp_pcbs->next;
+        /* pcb not 1st in list */
+    } else {
+        for (pstpcb = sal_udp_pcbs; pstpcb != NULL; pstpcb = pstpcb->next) {
+            /* find pcb in udp_pcbs list */
+            if (pstpcb->next != NULL && pstpcb->next == pcb) {
+                /* remove pcb from list */
+                pstpcb->next = pcb->next;
+                break;
+            }
+        }
+    }
+    sal_free(pcb);
+
+}
+#endif
+
 static void sockaddr_to_ipaddr_port(const struct sockaddr *sockaddr, ip_addr_t *ipaddr, u16_t *port)
 {
     SOCKADDR4_TO_IP4ADDR_PORT((const struct sockaddr_in *)(const void *)(sockaddr), ipaddr, *port);
@@ -305,6 +412,15 @@ static int salpcb_new(sal_netconn_t *conn)
             }
             memset(conn->pcb.tcp, 0, sizeof(struct tcp_pcb));
             break;
+#if SAL_UDP_CLIENT_ENABLED
+        case NETCONN_UDP:
+            conn->pcb.udp = sal_malloc(sizeof(struct udp_pcb));
+            if (NULL == conn->pcb.udp) {
+                return ERR_MEM;
+            }
+            memset(conn->pcb.udp, 0, sizeof(struct udp_pcb));
+            break;
+#endif
         default:
             return ERR_VAL;
     }
@@ -420,6 +536,11 @@ static err_t salnetconn_delete(sal_netconn_t *conn)
             case NETCONN_TCP:
                 sal_tcp_remove(conn->pcb.tcp);
                 break;
+#if SAL_UDP_CLIENT_ENABLED
+            case NETCONN_UDP:
+                sal_udp_remove(conn->pcb.udp);
+                break;
+#endif
             default:
                 SAL_ERROR("Unsupported connect type 0x%x\n", conn->type);
                 break;
@@ -468,6 +589,38 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
     }
 
     switch (NETCONNTYPE_GROUP(conn->type)) {
+#if SAL_UDP_CLIENT_ENABLED
+        case NETCONN_UDP:
+            if (strcmp (IPADDR_BROADCAST_STRING, statconn.addr) != 0) {
+                statconn.type = UDP_UNICAST;
+            } else {
+                statconn.type = UDP_BROADCAST;
+            }
+
+            if (conn->pcb.udp->local_port == 0) {
+                statconn.l_port = sal_udp_new_port();
+            } else {
+                statconn.l_port = conn->pcb.udp->local_port;
+            }
+            err = HAL_SAL_Start(&statconn);
+            if (ERR_OK != err) {
+                SAL_ERROR("fail to setup udp connect, remote is %s port is %d.\n", statconn.addr, port);
+                return -1;
+            }
+
+            if (conn->pcb.udp->local_port == 0) {
+                err = sal_udp_bind(conn->pcb.udp, NULL, statconn.l_port);
+                if (err != ERR_OK) {
+                    SAL_ERROR("sal_connect udp pcb %p bind local port %d fail.\n", conn->pcb.udp, statconn.l_port);
+                    return err;
+                }
+            }
+            ipstr_to_u32(statconn.addr, &(remoteipaddr.u_addr.ip4.addr));
+            ip_addr_set_ipaddr(&(conn->pcb.udp->remote_ip), &remoteipaddr);
+            conn->pcb.udp->remote_port = port;
+            break;
+#endif
+
         case NETCONN_TCP:
             statconn.type = TCP_CLIENT;
             err = HAL_SAL_Start(&statconn);
@@ -509,6 +662,15 @@ static err_t salnetconn_bind(sal_netconn_t *conn, const ip_addr_t *addr, u16_t p
     }
 
     switch (NETCONNTYPE_GROUP(conn->type)) {
+#if SAL_UDP_CLIENT_ENABLED
+        case NETCONN_UDP:
+            err = sal_udp_bind(conn->pcb.udp, addr, port);
+            if (err != ERR_OK) {
+                SAL_ERROR("salnetconn_bind sock %d udp bind fail\n.", conn->socket);
+                return err;
+            }
+            break;
+#endif
         case NETCONN_TCP:
             err = sal_tcp_bind(conn->pcb.tcp, addr, port);
             if (err != ERR_OK) {
@@ -983,6 +1145,29 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
         }
     }
 
+#if SAL_UDP_CLIENT_ENABLED
+    if (NETCONNTYPE_GROUP(pstsalsock->conn->type) == NETCONN_UDP) {
+        /*TO DO if to != NULL, check sockaddr match socket type or not*/
+        if (to) {
+            if (pstsalsock->conn->state == NETCONN_NONE) {
+                sockaddr_to_ipaddr_port(to, &remote_addr, &remote_port);
+                ip4_sockaddr_to_ipstr_port(to, (char *)ip_str);
+                err = salnetconn_connect(pstsalsock->conn, ip_str, remote_port);
+                if (ERR_OK != err) {
+                    SAL_ERROR("sal_sendto fail to connect socket %d\n", s);
+                    return err;
+                }
+            }
+        } else {
+            if (pstsalsock->conn->state == NETCONN_NONE) {
+                SAL_ERROR("sal_sendto  socket %d is not connected and "
+                          "input addr is null, cannot send packet\n", s);
+                return ERR_ARG;
+            }
+        }
+    }
+#endif
+
 #if SAL_PACKET_SEND_MODE_ASYNC
     buf = (sal_outputbuf_t *)sal_malloc(sizeof(sal_outputbuf_t));
     if (NULL == buf) {
@@ -1262,6 +1447,11 @@ int sal_socket(int domain, int type, int protocol)
     LOCK_SAL_CORE;
     /* create a netconn */
     switch (type) {
+#if SAL_UDP_CLIENT_ENABLED
+        case SOCK_DGRAM:
+            conn = salnetconn_new(NETCONN_UDP);
+            break;
+#endif
         case SOCK_STREAM:
             conn = salnetconn_new(NETCONN_TCP);
             break;
