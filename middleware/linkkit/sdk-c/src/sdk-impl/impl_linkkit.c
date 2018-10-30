@@ -1054,32 +1054,6 @@ static int _iotx_linkkit_master_close(void)
     return SUCCESS_RETURN;
 }
 
-int impl_linkkit_ioctl(int devid, impl_linkkit_ioctl_cmd_t cmd, void *arg)
-{
-    int res = 0;
-    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
-
-    if (devid < 0 || cmd < 0 || cmd >= IMPL_LINKKIT_IOCTL_MAX) {
-        sdk_err("Invalid Parameter");
-        return FAIL_RETURN;
-    }
-
-    if (ctx->is_opened == 0) {
-        return FAIL_RETURN;
-    }
-
-    _iotx_linkkit_mutex_lock();
-    if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
-        res = iotx_dm_set_opt(cmd, arg);
-    } else {
-        res = FAIL_RETURN;
-    }
-
-    _iotx_linkkit_mutex_unlock();
-
-    return res;
-}
-
 int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info)
 {
     int res = 0;
