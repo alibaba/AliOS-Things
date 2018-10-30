@@ -4,6 +4,10 @@
 
 #include "sdk-impl_internal.h"
 
+#if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
+    #include "iotx_dm.h"
+#endif
+
 #define KV_KEY_DEVICE_SECRET            "DyncRegDeviceSecret"
 
 static sdk_impl_ctx_t g_sdk_impl_ctx = {0};
