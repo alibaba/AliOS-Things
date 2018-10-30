@@ -159,7 +159,7 @@ void *thread_subscribe2(void *pclient)
             return NULL;
         }
         HAL_SleepMs(30);
-        ret = IOT_MQTT_Subscribe_Sync(pclient, TOPIC_GET, IOTX_MQTT_QOS1, _demo_message_arrive, NULL,500);
+        ret = IOT_MQTT_Subscribe_Sync(pclient, TOPIC_GET, IOTX_MQTT_QOS1, _demo_message_arrive, NULL, 500);
         if (ret < 0) {
             EXAMPLE_TRACE("subscribe error");
             return NULL;
@@ -274,7 +274,7 @@ void CASE1(void *pclient)
         EXAMPLE_TRACE("pthread_create failed!\n");
         return;
     }
-    
+
     hal_os_thread_param_t task_parms2 = {0};
     task_parms2.stack_size = 4096;
     task_parms2.name = "thread_publish2";
@@ -385,7 +385,6 @@ do_exit:
 
 int linkkit_main(void *paras)
 {
-    IOT_OpenLog("mqtt");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
     /**< set device info*/
     HAL_SetProductKey(PRODUCT_KEY);
@@ -394,7 +393,7 @@ int linkkit_main(void *paras)
     /**< end*/
     mqtt_client();
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
+    IOT_SetLogLevel(IOT_LOG_NONE);
 
     EXAMPLE_TRACE("out of sample!");
 
