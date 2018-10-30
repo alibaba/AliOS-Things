@@ -22,10 +22,6 @@
     #include "mal.h"
 #endif
 
-#if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
-    #include "iotx_dm.h"
-#endif
-
 #define sdk_emerg(...)          log_emerg("sdk", __VA_ARGS__)
 #define sdk_crit(...)           log_crit("sdk", __VA_ARGS__)
 #define sdk_err(...)            log_err("sdk", __VA_ARGS__)
