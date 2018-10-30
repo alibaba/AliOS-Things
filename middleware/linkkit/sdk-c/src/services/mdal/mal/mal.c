@@ -19,7 +19,7 @@
 #define MAL_TIMEOUT_FOREVER -1
 #define MAL_MC_PACKET_ID_MAX (65535)
 #define MAL_MC_TOPIC_NAME_MAX_LEN (128)
-#define MAL_MC_MAX_BUFFER_NUM  10
+#define MAL_MC_MAX_BUFFER_NUM  1
 #define MAL_MC_MAX_TOPIC_LEN   128
 #define MAL_MC_MAX_MSG_LEN     512
 
@@ -102,7 +102,7 @@ static int mal_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
     }
 
     if (strlen(topicName) > MAL_MC_TOPIC_NAME_MAX_LEN) {
-        mal_err("len of topicName exceeds 64");
+        mal_err("len of topicName(%d) exceeds 64", strlen(topicName));
         return FAIL_RETURN;
     }
 
@@ -804,7 +804,7 @@ int mal_mc_data_copy_to_buf(char *topic, char *message)
 
     if ((strlen(topic) >= MAL_MC_MAX_TOPIC_LEN)||
         (strlen(message) >= MAL_MC_MAX_MSG_LEN)) {
-        mal_err("topic or message too large");
+        mal_err("topic(%d) or message(%d) too large", strlen(topic), strlen(message));
         return -1;
     }
 
@@ -1308,7 +1308,7 @@ int MAL_MQTT_Yield(void *handle, int timeout_ms)
     do {
         if (SUCCESS_RETURN != rc) {
             unsigned int left_t = iotx_time_left(&time);
-            mal_info("error occur or no data");
+            /*mal_info("error occur or no data");*/
             if (left_t < 20) {
                 HAL_SleepMs(left_t);
             } else {
