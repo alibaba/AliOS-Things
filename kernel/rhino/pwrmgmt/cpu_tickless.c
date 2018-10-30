@@ -36,7 +36,7 @@ static int          is_current_tickless = FALSE;
 
 static uint32_t          cStateConfig[CPUS_NUM_MAX];
 static uint32_t          cStateLatency[CPUS_NUM_MAX][CPU_CSTATE_MAX + 1];
-static one_shot_timer_t *cStateOneShotTimer[CPU_CSTATE_MAX];
+static one_shot_timer_t *cStateOneShotTimer[CPU_CSTATE_MAX + 1];
 
 /*
  * tickless_live_cpu_set, after tickless module is initialized,

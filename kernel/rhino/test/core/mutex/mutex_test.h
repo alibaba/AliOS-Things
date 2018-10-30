@@ -10,6 +10,9 @@
 
 #define MYASSERT(value) do {if ((int)(value) == 0) { printf("line:%d\n", __LINE__);return 1; }} while (0)
 
+#define MYASSERT_VOID(value) do {if ((int)(value) == 0) { printf("line:%d\n", __LINE__);return ; }} while (0)
+
+
 extern ktask_t  *task_mutex;
 extern ktask_t  *task_mutex_co1;
 extern ktask_t  *task_mutex_co2;
