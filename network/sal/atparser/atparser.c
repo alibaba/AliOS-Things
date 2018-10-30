@@ -901,10 +901,11 @@ static void at_worker(void *arg)
                     offset = 0;
                 } else {
                     if (oob->reallen == 0) {
+                        int len = strlen(oob->prefix) - 1;
+                        len = len > 0 ? len : 0;
                         memset(oob->oobinputdata, 0, oob->maxlen);
-                        memcpy(oob->oobinputdata, oob->prefix,
-                               strlen(oob->prefix));
-                        oob->reallen += strlen(oob->prefix);
+                        memcpy(oob->oobinputdata, oob->prefix, len);
+                        oob->reallen += len;
                     }
 
                     if (oob->reallen < oob->maxlen) {
