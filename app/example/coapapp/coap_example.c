@@ -130,7 +130,6 @@ int linkkit_main(void *paras)
     HAL_SetDeviceName(IOTX_DEVICE_NAME);
     HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
     /**< end*/
-    IOT_OpenLog("coap");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
 #if !defined(_WIN32) && !defined(BUILD_AOS)
@@ -189,7 +188,7 @@ int linkkit_main(void *paras)
 
         } else {
             HAL_Printf("Online environment must access with DTLS/PSK\r\n");
-            IOT_CloseLog();
+            IOT_SetLogLevel(IOT_LOG_NONE);
             return -1;
         }
     } else if (0 == strncmp(env, "daily", strlen("daily"))) {
@@ -233,7 +232,7 @@ reconnect:
         goto reconnect;
     }
 
-    IOT_CloseLog();
+    IOT_SetLogLevel(IOT_LOG_NONE);
     HAL_Printf("[COAP-Client]: Exit Coap Client\r\n");
     return 0;
 }

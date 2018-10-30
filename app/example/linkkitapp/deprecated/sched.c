@@ -676,7 +676,7 @@ int linkkit_main(void *paras)
     linkkit_example();
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
+    IOT_SetLogLevel(IOT_LOG_NONE);
 
     EXAMPLE_TRACE("out of sample!\n");
 
