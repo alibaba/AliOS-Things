@@ -1110,7 +1110,7 @@ static int         atcmd_imqtt_open()
 
             ret = atcmd_socket_data_info_get(port_str, sizeof(port_str),
                                              &atcmd_socket_data_len_check);
-            if (ret < 0 || (port = atoi(port_str)) < 0) {
+            if (ret < 0 || strlen(port_str) <= 0 || (port = atoi(port_str)) < 0) {
                 LOGE(TAG, "Invalid port %s !\n", port_str);
                 goto err;
             }
@@ -1418,7 +1418,7 @@ int update_imqtt_para()
                 } else {
                     memset(body, 0, sizeof(body));
                     ret = atcmd_socket_data_info_get(body, sizeof(body), &atcmd_socket_data_len_check);
-                    if (ret < 0 || (val[j] = atoi(body)) < 0){
+                    if (ret < 0 || strlen(body) <= 0 || (val[j] = atoi(body)) < 0){
                        LOGE(TAG, "Invalid %s: %s !\n", TAG_PARA_ARRAY[j], body);
                        goto err;
                     }
@@ -1815,7 +1815,7 @@ static int atcmd_imqtt_pub()
             memset(body, 0, sizeof(body));
             ret = atcmd_socket_data_info_get(body, sizeof(body),
                                              &atcmd_socket_data_len_check);
-            if (ret < 0 || (m_attempt_pub_msg.qos = atoi(body)) < 0 ||
+            if (ret < 0 || strlen(body) <= 0 || (m_attempt_pub_msg.qos = atoi(body)) < 0 ||
                 m_attempt_pub_msg.qos > 2) {
                 LOGE(TAG, "Invalid qos %s !\n", body);
                 error_no = CME_ERROR_INCORRECT_PARA;
@@ -1849,7 +1849,8 @@ static int atcmd_imqtt_pub()
                 memset(body, 0, sizeof(body));
                 ret = atcmd_socket_data_info_get(body, sizeof(body),
                                                  &atcmd_socket_data_len_check);
-                if (ret < 0 || (m_attempt_pub_msg.msg_format = atoi(body)) < 0 ||
+                if (ret < 0 || strlen(body) <= 0 ||
+                    (m_attempt_pub_msg.msg_format = atoi(body)) < 0 ||
                     m_attempt_pub_msg.msg_format > 1) {
                     LOGE(TAG, "Invalid format %s !\n", body);
                     error_no = CME_ERROR_INCORRECT_PARA;
@@ -1861,7 +1862,8 @@ static int atcmd_imqtt_pub()
                 memset(body, 0, sizeof(body));
                 ret = atcmd_socket_data_info_get(body, sizeof(body),
                                                  &atcmd_socket_data_len_check);
-                if (ret <= 0 || (m_attempt_pub_msg.fragment_id = atoi(body)) < 0) {
+                if (ret <= 0 ||  strlen(body) <= 0 ||
+                    (m_attempt_pub_msg.fragment_id = atoi(body)) < 0) {
                     LOGE(TAG, "Invalid frag_id %s !\n", body);
                     error_no = CME_ERROR_INCORRECT_PARA;
                     goto err;
@@ -2054,7 +2056,8 @@ static int atcmd_imqtt_sub()
             memset(body, 0, sizeof(body));
             ret = atcmd_socket_data_info_get(body, sizeof(body),
                                              &atcmd_socket_data_len_check);
-            if (ret <= 0 || (m_attempt_sub_topic.qos = atoi(body)) < 0 ||
+            if (ret <= 0 || strlen(body) <= 0 ||
+                (m_attempt_sub_topic.qos = atoi(body)) < 0 ||
                 m_attempt_sub_topic.qos > 2) {
                 LOGE(TAG, "Invalid qos %s !\n", body);
                 error_no = CME_ERROR_INCORRECT_PARA;
