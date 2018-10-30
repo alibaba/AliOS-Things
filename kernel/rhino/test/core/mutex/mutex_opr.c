@@ -114,8 +114,10 @@ void task_mutex_coopr1_co1_entry(void *arg)
 void task_mutex_coopr1_co2_entry(void *arg)
 {
     uint8_t pri;
+    kstat_t ret;
 
-    krhino_mutex_create(&test_mutex, MODULE_NAME_CO1);
+    ret = krhino_mutex_create(&test_mutex, MODULE_NAME_CO1);
+    MYASSERT_VOID(ret == RHINO_SUCCESS);
 
     while (1) {
         krhino_mutex_lock(&test_mutex, RHINO_WAIT_FOREVER);
@@ -207,9 +209,12 @@ static void task_mutex_coopr2_co2_entry(void *arg)
 static void task_mutex_coopr2_co3_entry(void *arg)
 {
     uint8_t pri;
+    kstat_t ret;
 
-    krhino_mutex_create(&test_mutex_co1, MODULE_NAME_CO2);
-    krhino_mutex_create(&test_mutex_co2, MODULE_NAME_CO2);
+    ret = krhino_mutex_create(&test_mutex_co1, MODULE_NAME_CO2);
+    MYASSERT_VOID(ret == RHINO_SUCCESS);
+    ret = krhino_mutex_create(&test_mutex_co2, MODULE_NAME_CO2);
+    MYASSERT_VOID(ret == RHINO_SUCCESS);
 
     while (1) {
         krhino_mutex_lock(&test_mutex_co1, RHINO_WAIT_FOREVER);
