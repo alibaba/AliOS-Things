@@ -176,13 +176,9 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
-        case IOTX_IOCTL_RECV_PROP_REPLY: {
-            res = impl_linkkit_ioctl(0, IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_POST_REPLY, data);
-        }
-        break;
         case IOTX_IOCTL_RECV_EVENT_REPLY:
         case IOTX_IOCTL_SEND_PROP_REPLY: {
-            res = impl_linkkit_ioctl(0, IMPL_LINKKIT_IOCTL_SWITCH_EVENT_POST_REPLY, data);
+            res = iotx_dm_set_opt(IMPL_LINKKIT_IOCTL_SWITCH_EVENT_POST_REPLY, data);
         }
         break;
         case IOTX_IOCTL_SET_SUBDEV_SIGN: {
