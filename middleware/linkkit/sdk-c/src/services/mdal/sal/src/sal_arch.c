@@ -8,7 +8,11 @@
 #include "sal_err.h"
 #include "sal_arch.h"
 #include "internal/sal_arch_internal.h"
+#if SAL_USE_AOS_QUEUE
+#include <aos/aos.h>
+#else
 #include "internal/sal_util.h"
+#endif
 
 static sal_mutex_t sal_arch_mutex;
 
@@ -142,10 +146,6 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
     return ret;
 }
 
-#define USE_AOS_QUEUE 0
-#if USE_AOS_QUEUE
-#include <aos/aos.h>
-#endif
 /*-----------------------------------------------------------------------------------*/
 /*
     err_t sys_mbox_new(sys_mbox_t *mbox, int size)
@@ -160,7 +160,7 @@ err_t sal_mbox_new(sal_mbox_t *mb, int size)
         return  ERR_MEM;
     }
 
-#if USE_AOS_QUEUE
+#if SAL_USE_AOS_QUEUE
     void *msg_start;
     msg_start = (void*)HAL_Malloc(size * sizeof(void *));
     if (msg_start == NULL) {
@@ -189,7 +189,7 @@ err_t sal_mbox_new(sal_mbox_t *mb, int size)
 */
 void sal_mbox_free(sal_mbox_t *mb)
 {
-#if USE_AOS_QUEUE
+#if SAL_USE_AOS_QUEUE
     void *start;
 
     if ((mb != NULL)) {
@@ -214,7 +214,7 @@ void sal_mbox_free(sal_mbox_t *mb)
 */
 void sal_mbox_post(sal_mbox_t *mb, void *msg)
 {
-#if USE_AOS_QUEUE
+#if SAL_USE_AOS_QUEUE
     aos_queue_send(mb, &msg,sizeof(void*));
 #else
     HAL_QueueSend(mb->hdl, &msg,sizeof(void*));
@@ -228,7 +228,7 @@ void sal_mbox_post(sal_mbox_t *mb, void *msg)
 */
 err_t sal_mbox_trypost(sal_mbox_t *mb, void *msg)
 {
-#if USE_AOS_QUEUE
+#if SAL_USE_AOS_QUEUE
     if (aos_queue_send(mb,&msg,sizeof(void*)) != 0)
 #else
     if (HAL_QueueSend(mb->hdl,&msg,sizeof(void*)) != 0)
@@ -279,7 +279,7 @@ u32_t sal_arch_mbox_fetch(sal_mbox_t *mb, void **msg, u32_t timeout)
     begin_ms = sal_now();
 
     if( timeout != 0UL ) {
-#if USE_AOS_QUEUE
+#if SAL_USE_AOS_QUEUE
         if(aos_queue_recv(mb,timeout,msg,&len) == 0) {
 #else
         if(HAL_QueueRecv(mb->hdl,timeout,msg,&len) == 0) {
@@ -291,7 +291,7 @@ u32_t sal_arch_mbox_fetch(sal_mbox_t *mb, void **msg, u32_t timeout)
             ret = SAL_ARCH_TIMEOUT;
         }
     } else {
-#if USE_AOS_QUEUE
+#if SAL_USE_AOS_QUEUE
         while(aos_queue_recv(mb,SAL_ARCH_TIMEOUT,msg,&len) != 0);
 #else
         while(HAL_QueueRecv(mb->hdl,SAL_ARCH_TIMEOUT,msg,&len) != 0);
@@ -322,7 +322,7 @@ u32_t sal_arch_mbox_tryfetch(sal_mbox_t *mb, void **msg)
     if (mb == NULL)
        return ERR_MEM;
 
-#if USE_AOS_QUEUE
+#if SAL_USE_AOS_QUEUE
     if(aos_queue_recv(mb,0u,msg,&len) != 0) {
 #else
     if(HAL_QueueRecv(mb->hdl,0u,msg,&len) != 0 ) {

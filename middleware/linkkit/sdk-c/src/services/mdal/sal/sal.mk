@@ -1,6 +1,10 @@
 NAME := sal
 
 GLOBAL_DEFINES += WITH_SAL
+# OPTION:
+# udp client:      SAL_UDP_CLIENT_ENABLED
+# async send mode: SAL_PACKET_SEND_MODE_ASYNC
+# use aos queue:   SAL_USE_AOS_QUEUE
 
 $(NAME)_SOURCES := ./src/sal_sockets.c \
                    ./src/sal_err.c     \

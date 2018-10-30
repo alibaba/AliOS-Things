@@ -23,8 +23,6 @@ extern "C" {
 #define SAL_DEFAULT_INPUTMBOX_SIZE        8
 #define SAL_DEFAULT_OUTPUTMBOX_SIZE       8
 
-#define SAL_PACKET_SEND_MODE_ASYNC   0
-
 typedef struct
 {
   void *hdl;
