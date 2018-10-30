@@ -1,3 +1,6 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
 #include "nbpatch.h"
 
 extern void * nbpatch_buffer_get();
@@ -7,13 +10,13 @@ int nbpatch_eof(unsigned long src)
     return 0;
 }
 
-#if !(defined RECOVERY_FLASH_COPY)
+#if (OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_DIRECT)
 int nbpatch_read(unsigned long src, const unsigned char *buffer, unsigned long pos, size_t size, u_char is_old)
 {
     unsigned long base = pos;
     size_t read_size = 0;
     int ret = 0;
- 
+
     while(size > 0) {
         read_size = size > SECTOR_SIZE ? SECTOR_SIZE : size;
         ret = patch_flash_read(src, buffer+pos-base, pos, read_size);
@@ -38,17 +41,17 @@ int nbpatch_read(unsigned long src, const unsigned char *buffer, unsigned long p
 		read_size = size > SECTOR_SIZE ? SECTOR_SIZE : size;
                 if(is_old) {
 			if (nbpatch_flash_status_check(pos) == 2){
-                                if (SPLICT_SIZE - pos % SPLICT_SIZE < read_size){
-                                        read_size = SPLICT_SIZE - pos % SPLICT_SIZE;
-                                }
+                if (SPLICT_SIZE - pos % SPLICT_SIZE < read_size){
+                    read_size = SPLICT_SIZE - pos % SPLICT_SIZE;
+                }
 				new_src = PARTITION_OTA;
 			}else{
 				new_src = src;
 			}
 		} else {
-                        if (SPLICT_SIZE - pos % SPLICT_SIZE < read_size){
-                                read_size = SPLICT_SIZE - pos % SPLICT_SIZE;
-                        }
+            if (SPLICT_SIZE - pos % SPLICT_SIZE < read_size){
+                    read_size = SPLICT_SIZE - pos % SPLICT_SIZE;
+            }
 			new_src = src;
 		}
 
@@ -118,14 +121,14 @@ int save_patch_status(PatchStatus *status)
     }
 
     //bakeup patchstatus
-    ret = patch_flash_erase(PARTITION_OTA, DIFF_CONF2_OFFSET, sizeof(PatchStatus));
+    ret = patch_flash_erase(PARTITION_BACKUP_PARAM, DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if (ret < 0) {
         LOG("er err\r\n");
         return ret;
     }
 
-    ret = patch_flash_write(PARTITION_OTA, (unsigned char *) status,
-            DIFF_CONF2_OFFSET, sizeof(PatchStatus));
+    ret = patch_flash_write(PARTITION_BACKUP_PARAM, (unsigned char *) status,
+            DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if (ret < 0) {
         LOG("w err\r\n");
         return ret;
@@ -141,6 +144,7 @@ int read_patch_status(PatchStatus *status)
         LOG("st err\r\n");
         return -1;
     }
+
     int ret = patch_flash_read(PARTITION_PARAM,
             (unsigned char *) status, DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if(ret < 0) {
@@ -153,8 +157,9 @@ int read_patch_status(PatchStatus *status)
     if(patch_crc == patch_crc2) {
         return 0;
     }
-    ret = patch_flash_read(PARTITION_OTA, (unsigned char *) status,
-            DIFF_CONF2_OFFSET, sizeof(PatchStatus));
+
+    ret = patch_flash_read(PARTITION_BACKUP_PARAM, (unsigned char *) status,
+            DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if (ret < 0) {
         LOG("read2 err\r\n");
         return ret;
@@ -213,7 +218,7 @@ off_t save_bakeup_data(unsigned long src, off_t size)
     return 0;
 }
 
-#if !(defined RECOVERY_FLASH_COPY)
+#if (OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_DIRECT)
 off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
     u_char buffer[SECTOR_SIZE];
     unsigned long pos = offset;
@@ -258,7 +263,7 @@ off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
     int ret = 0;
     off_t free_offset = 0xFFFFFFFF;
     void *buf = nbpatch_buffer_get();
-	
+
     size -= offset;
     memset(buffer, 0, sizeof(buffer));
 
@@ -275,7 +280,7 @@ off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
             return -1;
         }
         patch_flash_copy(PARTITION_OTA, free_offset, dst, SPLICT_SIZE);
-        nbpatch_ota_status_set(free_offset, 1);
+        nbpatch_ota_status_set(free_offset, OTA_FLASH_STATUS_USED);
         nbpatch_ota_addr_set(dst, free_offset);
     }
 
@@ -293,7 +298,7 @@ off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
         size -= bsiz;
     }
     CRC16_Final(&crc_context, &crc);
-    nbpatch_ota_status_set(dst, 2);
+    nbpatch_ota_status_set(dst, OTA_FLASH_STATUS_REVY);
     LOG("load data, off:0x%x, len:0x%x pos:0x%x \n", offset, size, pos);
     return pos;
 }
