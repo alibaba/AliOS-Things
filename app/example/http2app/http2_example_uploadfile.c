@@ -73,7 +73,7 @@ static int http2_stream_test()
 {
     int ret;
     device_conn_info_t conn_info;
-    stream_handle_t *handle;
+    void *handle;
     memset(&conn_info, 0, sizeof( device_conn_info_t));
     conn_info.product_key = HTTP2_PRODUCT_KEY;
     conn_info.device_name = HTTP2_DEVICE_NAME;
