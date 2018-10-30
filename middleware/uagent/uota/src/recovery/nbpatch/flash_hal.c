@@ -38,7 +38,9 @@ int patch_flash_write(int par, const unsigned char *buffer, unsigned long offset
     }
 
     start_addr = partition_info->partition_start_addr + offset;
+    rec_wdt_feed();
     rec_flash_write_data((unsigned char *)buffer, start_addr, len);
+    rec_wdt_feed();
     return  len;
 }
 
@@ -55,7 +57,9 @@ int patch_flash_read(int par, const unsigned char *buffer, unsigned long offset,
     }
 
     start_addr = partition_info->partition_start_addr + offset;
+    rec_wdt_feed();
     rec_flash_read_data((unsigned char *)buffer, start_addr, len);
+    rec_wdt_feed();
 
     return  len;
 }
@@ -69,7 +73,7 @@ int patch_flash_erase(int par, unsigned long offset, size_t esize)
     partition_info = patch_flash_get_info( par );
     if ( partition_info == NULL || offset + esize > partition_info->partition_length )
     {
-        LOG("erase %d, err\r\n", par);
+        LOG("erase %d, 0x%x 0x%x err\r\n", par, offset, esize);
         return -1;
     }
 
@@ -78,12 +82,14 @@ int patch_flash_erase(int par, unsigned long offset, size_t esize)
 
     for(addr = start_addr; addr <= end_addr; addr += SECTOR_SIZE)
     {
+        rec_wdt_feed();
         rec_flash_erase(addr);
+        rec_wdt_feed();
     }
     return esize;
 }
 
-#if (defined RECOVERY_FLASH_COPY)
+#if (OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
 int patch_flash_copy(int par, unsigned long dst_offset, unsigned long src_offset, size_t size) {
     hal_logic_partition_t *partition_info;
     unsigned char tmp_buf[SECTOR_SIZE];
@@ -108,6 +114,7 @@ int patch_flash_copy(int par, unsigned long dst_offset, unsigned long src_offset
         }
         pos += SECTOR_SIZE;
     }
+
     return 0;
 }
 
@@ -135,6 +142,7 @@ int patch_flash_copy_par(int dst_par, int src_par, unsigned long offset, size_t 
         }
         pos += SECTOR_SIZE;
     }
+
     return 0;
 }
 #endif

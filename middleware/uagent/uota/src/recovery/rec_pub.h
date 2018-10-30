@@ -4,11 +4,7 @@
 #ifndef _REC_PUB_H_
 #define _REC_PUB_H_
 
-#include <stddef.h>
-#include <stdint.h>
-#include "typedef.h"
-#include "hal/soc/flash.h"
-#include "rec_hal.h"
+#include "rec_define.h"
 
 #ifndef FALSE
 #define	FALSE			    (0)
@@ -20,12 +16,7 @@
 typedef unsigned char       u_char;
 typedef signed long         off_t;
 
-typedef struct REC_FLAG_INFO {
-    unsigned int flag;    // recovery标志
-    unsigned int num;     // recovery序号
-}REC_FLAG_INFO_STRU;
-
-#define LOG(fmt, ...) printf("%d"fmt"\r\n", __LINE__, ##__VA_ARGS__)
+#define LOG(fmt, ...) printf("%d: "fmt"\r\n", __LINE__, ##__VA_ARGS__)
 
 /* !!!attention!!! do not use any libc func in fota update process */
 #define memset              rec_memset
@@ -63,7 +54,6 @@ void rec_CRC16_Init( CRC16_Context *inContext );
 void rec_CRC16_Update( CRC16_Context *inContext, const void *inSrc, size_t inLen );
 void rec_CRC16_Final( CRC16_Context *inContext, uint16_t *outResult );
 
-
 /* hal api for fota update process, defined by soc */
 void rec_start();
 void rec_hal_init();
@@ -74,6 +64,7 @@ void rec_delayms(volatile int ms);
 
 void rec_uart_send(unsigned char *buff, int len);
 void rec_uart_send_string(char *buff);
+unsigned char uart_recv_byte(unsigned char *c);
 
 void rec_flash_init(void);
 unsigned long rec_flash_addr2ofst(unsigned long addr);
@@ -81,8 +72,14 @@ void rec_flash_erase(unsigned long offset);
 void rec_flash_read_data(unsigned char *buffer, unsigned long offset, unsigned long len);
 void rec_flash_write_data(unsigned char *buffer, unsigned long offset, unsigned long len);
 hal_logic_partition_t *rec_flash_get_info(hal_partition_t pno);
-uint32_t rec_get_recflag_addr();
 
 uint32_t get_partion_length(int par);
+
+void rec_wdt_init(unsigned int timeout_ms);
+void rec_wdt_start();
+void rec_wdt_feed();
+void rec_wdt_stop();
+
+void rec_2boot_rollback();
 
 #endif //_REC_PUB_H_

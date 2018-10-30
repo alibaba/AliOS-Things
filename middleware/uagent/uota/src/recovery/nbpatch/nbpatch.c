@@ -30,17 +30,19 @@ int err_code;
 extern PatchStatus * nbpatch_get_pstatus();
 static void *nbpatch_buffer;
 
-void nbpatch_buffer_init(){
+void nbpatch_buffer_init()
+{
     nbpatch_buffer = NULL;
 }
 
-void * nbpatch_buffer_alloc(size_t size) {
+void * nbpatch_buffer_alloc(size_t size)
+{
     if(nbpatch_buffer != NULL) {
-#if (!defined RECOVERY_FLASH_COPY)
+#if (!defined IS_ESP8266)
         free(nbpatch_buffer);
 #endif
     }
-#if (!defined RECOVERY_FLASH_COPY)
+#if (!defined IS_ESP8266)
     nbpatch_buffer = malloc(size);
 #else
     nbpatch_buffer = (void *)IRAM_HEAP_BASE;
@@ -48,13 +50,15 @@ void * nbpatch_buffer_alloc(size_t size) {
     return nbpatch_buffer;
 }
 
-void * nbpatch_buffer_get(){
+void * nbpatch_buffer_get()
+{
     return nbpatch_buffer;
 }
 
-void nbpatch_buffer_free(){
+void nbpatch_buffer_free()
+{
     if(nbpatch_buffer != NULL) {
-#if (!defined RECOVERY_FLASH_COPY)
+#if (!defined IS_ESP8266)
         free(nbpatch_buffer);
 #endif
     }
@@ -86,7 +90,7 @@ off_t offtin(u_char *buf) {
     return y;
 }
 
-static off_t nbpatch_section(const unsigned long src, off_t old_end, unsigned long dst, off_t *seek_pos, off_t splict_size) ;
+static off_t nbpatch_section(const unsigned long src, off_t old_end, unsigned long dst, off_t *seek_pos, off_t splict_size, int num) ;
 
 off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, off_t new_size, off_t splict_size) {
     int ret = -1;
@@ -123,18 +127,20 @@ off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, of
 
     while (seekpos < new_size || pstatus->status != 0) {
         if(!pstatus->status) {
-            pendingsize = nbpatch_section(old_t, old_size, new_t, &seekpos, splict_size);
+            pendingsize = nbpatch_section(old_t, old_size, new_t, &seekpos, splict_size, num);
             if (err_code) {
                 LOG("sec err:%d\n", err_code);
                 nbpatch_buffer_free();
                 goto nbpatch_error;
             }
+            #if (OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_DIRECT)
             pstatus->num = ++num;
             pstatus->seekpos = seekpos;
             pstatus->patched_size = patchsize;
             pstatus->pending_size = pendingsize;
             pstatus->status = 1;
             save_patch_status(pstatus);
+            #endif
         }
 
         if (patchsize + pendingsize > old_size) {
@@ -152,14 +158,16 @@ off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, of
         }
 
         patchsize += pendingsize;
-        pstatus->patched_size = patchsize;
-        pstatus->status      = 0;
-#if (defined IS_ESP8266)
+        pstatus->status       = 0;
+#if (OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
+        pstatus->pending_size = pendingsize;
+        pstatus->seekpos = seekpos;
         nbpatch_ota_addr_free(seekpos);  // 已经解压过的OTA包，flash空间可以释放掉。
+        pstatus->num = ++num;
 #endif
+        pstatus->patched_size = patchsize;
         nbpatch_buffer_free();
         save_patch_status(pstatus);
-        //LOG("seekpos %d, newsize %d status %d", seekpos, new_size, pstatus->status);
     }
 
     if(patchsize < old_size) {
@@ -181,7 +189,7 @@ nbpatch_error:
     return ret;
 }
 
-static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned long dst, off_t *seek_pos, off_t splict_size)
+static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned long dst, off_t *seek_pos, off_t splict_size, int num)
 {
     if(!src || !dst || !seek_pos ) {
         LOG("nb sec err:%d! ", err_code = NBDIFF_PARAMS_INPUT_ERROR);
@@ -199,10 +207,10 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
     off_t lenread;
     off_t i;
     off_t seekpos = *seek_pos;
-	static int nbpatch_index = 0;
 
     oldsize = splict_size;
-	LOG("nb num:%d begin\n", nbpatch_index++);
+	LOG("nb num:%d begin\n", num);
+    rec_wdt_feed();
 
     old = (u_char *)(malloc(SECTOR_SIZE));
     if (old == NULL){
@@ -347,7 +355,7 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
                 newbuf[newpos + i] += old[i - base_pos];
             }
         }
-
+        rec_wdt_feed();
         //LOG("oldpos %ld, newpos %ld",oldpos, newpos);
         /* Adjust pointers */
         newpos += ctrl[0];
@@ -369,6 +377,7 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
         /* Adjust pointers */
         newpos += ctrl[1];
         oldpos += ctrl[2];
+        rec_wdt_feed();
     };
 
     if(newsize > splict_size) {
@@ -388,13 +397,13 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
     }
 
     //如果有主备分区
-    if(rec_get_ota_mode() != 2) {
+#if (OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_DIRECT)
         ret = save_bakeup_data((unsigned long )newbuf, newsize);
         if(ret < 0) {
             LOG("save bakeup data, err_code %d", err_code = NBDIFF_FILE_OP_FAIL);
             goto patch_error;
         }
-    }
+#endif
 
     seekpos += HEADER_SIZE;
     seekpos += bzctrllen;
@@ -407,6 +416,6 @@ patch_error:
     xz_end(diff_dec);
     xz_end(extra_dec);
     free(old);
-    LOG("nbpatch err:%d\n", err_code);
+    LOG("nbpatch %d end\n", num);
     return newsize;
 }
