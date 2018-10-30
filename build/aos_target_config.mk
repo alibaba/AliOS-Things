@@ -374,7 +374,7 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
                     -I$(SOURCE_ROOT)kernel/hal/include/hal \
                     -I$(SOURCE_ROOT)kernel/hal/include/hal/soc \
                     -I$(SOURCE_ROOT)kernel/rhino/vfs/include \
-                    -I$(SOURCE_ROOT)kernel/yloop/include \
+                    -I$(SOURCE_ROOT)network/yloop/include \
                     -I$(SOURCE_ROOT)kernel/rhino/fs/kv/include \
                     -I$(SOURCE_ROOT)tools/cli/include \
                     -I$(SOURCE_ROOT)utility/log/include
