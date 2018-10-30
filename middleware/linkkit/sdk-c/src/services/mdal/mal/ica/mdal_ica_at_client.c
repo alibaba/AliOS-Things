@@ -444,7 +444,7 @@ static void at_ica_mqtt_client_rsp_callback(void *arg, char *rspinfo, int rsplen
     }
 
     if (rsplen > AT_MQTT_RSP_MAX_LEN) {
-        mdal_err("rsp len exceed max len");
+        mdal_err("rsp len(%d) exceed max len", rsplen);
         return;
     }
 
