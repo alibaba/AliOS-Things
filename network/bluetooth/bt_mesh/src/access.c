@@ -168,6 +168,10 @@ static int publish_retransmit(struct bt_mesh_model *mod)
 	}
 
 	tx.sub = bt_mesh_subnet_get(key->net_idx);
+        if (!tx.sub) {
+            BT_ERR("No available subnet found");
+            return -EINVAL;
+        }
 
 	ctx.net_idx = key->net_idx;
 	ctx.app_idx = key->app_idx;
@@ -602,6 +606,11 @@ int bt_mesh_model_send(struct bt_mesh_model *model,
 		.friend_cred = 0,
 	};
 
+        if (!tx.sub) {
+            BT_ERR("No available subnet found");
+            return -EINVAL;
+        }
+
 	return model_send(model, &tx, false, msg, cb, cb_data);
 }
 
@@ -653,7 +662,11 @@ int bt_mesh_model_publish(struct bt_mesh_model *model)
 	ctx.app_idx = key->app_idx;
 
 	tx.friend_cred = pub->cred;
-	tx.sub = bt_mesh_subnet_get(ctx.net_idx),
+	tx.sub = bt_mesh_subnet_get(ctx.net_idx);
+        if (!tx.sub) {
+            BT_ERR("No available subnet found");
+            return -EINVAL;
+        }
 
 	pub->count = BT_MESH_PUB_TRANSMIT_COUNT(pub->retransmit);
 
