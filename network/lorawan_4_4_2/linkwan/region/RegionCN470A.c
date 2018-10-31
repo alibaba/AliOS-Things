@@ -711,7 +711,7 @@ uint8_t RegionCN470ALinkAdrReq(LinkAdrReqParams_t *linkAdrReq, int8_t *drOut,
                                  linkAdrParams.Datarate, CN470A_TX_MIN_DATARATE,
                                  CN470A_TX_MAX_DATARATE, Channels) == false) {
         if ((chMask & 0xff00) != 0) {
-            int tempMask = ((chMask & 0xff00) >> 8);
+            uint16_t tempMask = ((chMask & 0xff00) >> 8);
             if (RegionCommonChanVerifyDr(
                   CN470A_MAX_NB_CHANNELS, &tempMask, linkAdrParams.Datarate,
                   CN470A_TX_MIN_DATARATE, CN470A_TX_MAX_DATARATE,
