@@ -31,7 +31,7 @@ int HAL_MDAL_MAL_ICA_Init()
 #endif
 }
 
-int HAL_MDAL_MAL_ICA_Oob(const char *prefix, const char *postfix, int maxlen,
+int HAL_MDAL_MAL_ICA_InputCb(const char *prefix, const char *postfix, int maxlen,
                   oob_cb cb, void *arg)
 {
     at.oob(prefix, postfix, maxlen, cb, arg);
