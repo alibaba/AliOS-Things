@@ -117,22 +117,24 @@ typedef enum {
     IOTX_IOCTL_GET_SUBDEV_LOGIN         /* value(int*): 0 - SubDev is logout; 1 - SubDev is login */
 } iotx_ioctl_option_t;
 
-#define ITE_AWSS_STATUS            (0x0000)
-#define ITE_CONNECT_SUCC           (0x0001)
-#define ITE_CONNECT_FAIL           (0x0002)
-#define ITE_DISCONNECTED           (0x0003)
-#define ITE_RAWDATA_ARRIVED        (0x0004)
-#define ITE_SERVICE_REQUST         (0x0005)
-#define ITE_PROPERTY_SET           (0x0006)
-#define ITE_PROPERTY_GET           (0x0007)
-#define ITE_REPORT_REPLY           (0x0008)
-#define ITE_TRIGGER_EVENT_REPLY    (0x0009)
-#define ITE_TIMESTAMP_REPLY        (0x000A)
-#define ITE_TOPOLIST_REPLY         (0x000B)
-#define ITE_PERMIT_JOIN            (0x000C)
-#define ITE_INITIALIZE_COMPLETED   (0x000D)
-#define ITE_FOTA                   (0x000E)
-#define ITE_COTA                   (0x000F)
+typedef enum {
+    ITE_AWSS_STATUS,
+    ITE_CONNECT_SUCC,
+    ITE_CONNECT_FAIL,
+    ITE_DISCONNECTED,
+    ITE_RAWDATA_ARRIVED,
+    ITE_SERVICE_REQUST,
+    ITE_PROPERTY_SET,
+    ITE_PROPERTY_GET,
+    ITE_REPORT_REPLY,
+    ITE_TRIGGER_EVENT_REPLY,
+    ITE_TIMESTAMP_REPLY,
+    ITE_TOPOLIST_REPLY,
+    ITE_PERMIT_JOIN,
+    ITE_INITIALIZE_COMPLETED,
+    ITE_FOTA,
+    ITE_COTA
+} iotx_ioctl_event_t;
 
 #define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb);
 #define DECLARE_EVENT_CALLBACK(evt, cb)         DLL_IOT_API int iotx_register_for_##evt(cb);
