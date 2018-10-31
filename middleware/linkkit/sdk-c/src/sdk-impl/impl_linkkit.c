@@ -776,7 +776,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             callback = impl_event_cb(ITE_PERMIT_JOIN);
             if (callback) {
-                ((int (*)(const char *, int))callback)((const char *)product_key, lite_item_time.value_int);
+                ((int (*)(const char *, int))callback)((const char *)product_key, (const int)lite_item_time.value_int);
             }
 
             HAL_Free(product_key);
