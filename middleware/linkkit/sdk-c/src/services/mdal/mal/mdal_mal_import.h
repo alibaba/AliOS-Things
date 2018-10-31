@@ -25,7 +25,7 @@ void HAL_MDAL_MAL_RegRecvCb(recv_cb);
 typedef void (*mal_ica_cb)(void *arg, char *buf, int buflen);
 
 int HAL_MDAL_MAL_ICA_Init();
-int HAL_MDAL_MAL_ICA_Oob(const char *prefix, const char *postfix, int maxlen,
+int HAL_MDAL_MAL_ICA_InputCb(const char *prefix, const char *postfix, int maxlen,
                   mal_ica_cb cb, void *arg);
 int HAL_MDAL_MAL_ICA_Write(const char* at_cmd);
 #endif
