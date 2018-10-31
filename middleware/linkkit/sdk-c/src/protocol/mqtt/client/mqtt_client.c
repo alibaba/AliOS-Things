@@ -2798,7 +2798,8 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
     HAL_MutexDestroy(pClient->lock_list_sub);
     HAL_MutexDestroy(pClient->lock_list_pub);
     HAL_MutexDestroy(pClient->lock_write_buf);
-
+    HAL_MutexDestroy(pClient->lock_yield);
+ 
     list_destroy(pClient->list_pub_wait_ack);
     list_destroy(pClient->list_sub_wait_ack);
 
