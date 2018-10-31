@@ -767,19 +767,19 @@ int at_ica_mqtt_client_init(void)
 
     HAL_MDAL_MAL_ICA_Init();
 
-    HAL_MDAL_MAL_ICA_Oob(AT_ICA_MQTT_MQTTRCV,
+    HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTRCV,
            AT_ICA_MQTT_POSTFIX,
            AT_MQTT_CMD_MAX_LEN,
            at_ica_mqtt_client_rsp_callback,
            NULL);
 
-    HAL_MDAL_MAL_ICA_Oob(AT_ICA_MQTT_MQTTERROR,
+    HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTERROR,
            AT_ICA_MQTT_POSTFIX,
            AT_MQTT_CMD_MAX_LEN,
            at_ica_mqtt_client_rsp_callback,
            NULL);
 
-    HAL_MDAL_MAL_ICA_Oob(AT_ICA_MQTT_MQTTOK,
+    HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTOK,
            AT_ICA_MQTT_POSTFIX,
            AT_MQTT_CMD_MAX_LEN,
            at_ica_mqtt_client_rsp_callback,
