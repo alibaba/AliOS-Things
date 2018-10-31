@@ -1,0 +1,1 @@
+source "$HARMONY_VERSION_PATH/framework/driver/spi/config/drv_spi_pic32m.hconfig"

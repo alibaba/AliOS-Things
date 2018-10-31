@@ -1,0 +1,38 @@
+
+config USE_CRYPTO_RANDOM_NEEDED
+    bool
+
+menu "Random Numbers"
+    depends on USE_CRYPTO_LIBRARY
+
+config USE_CRYPTO_RANDOM
+    bool "Use Random Number Functions?"
+    depends on USE_CRYPTO_LIBRARY
+    default n if !USE_CRYPTO_RANDOM_NEEDED
+    default y if USE_CRYPTO_RANDOM_NEEDED
+    select USE_CRYPTO_SHA_256_NEEDED
+    select USE_CRYPTO_HMAC_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+endmenu
+
+
+ifblock USE_CRYPTO_LIBRARY && USE_CRYPTO_RANDOM
+
+    file RANDOM_H "$HARMONY_VERSION_PATH/framework/crypto/src/random.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/random.h"
+
+    ifblock !(PIC32MX || PIC32MZ || PIC32MK)
+        file RANDOM_C_PIC32CZ "$HARMONY_VERSION_PATH/framework/crypto/src/random_pic32c.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/random_pic32c.c"
+    endif
+
+    file RANDOM_C "$HARMONY_VERSION_PATH/framework/crypto/src/random.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/random.c"
+
+endif
+
+
+ifblock USE_CRYPTO_RANDOM && !USE_CRYPTO_ECC
+    file CRYPTO_RND_ARC4_H "$HARMONY_VERSION_PATH/framework/crypto/src/arc4.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/arc4.h"
+    file CRYPTO_RND_ARC4_C "$HARMONY_VERSION_PATH/framework/crypto/src/arc4.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/arc4.c"
+endif

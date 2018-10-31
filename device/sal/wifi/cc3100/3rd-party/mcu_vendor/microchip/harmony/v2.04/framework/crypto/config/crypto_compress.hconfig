@@ -1,0 +1,47 @@
+config USE_CRYPTO_COMPRESS_NEEDED
+    bool
+    
+menu "Data Compression"
+    depends on USE_CRYPTO_LIBRARY
+
+config USE_CRYPTO_COMPRESS
+    depends on USE_CRYPTO_LIBRARY
+    bool "Use Huffman Compression functions?"
+    default n if !USE_CRYPTO_COMPRESS_NEEDED
+    default y if USE_CRYPTO_COMPRESS_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+endmenu    
+
+ifblock USE_CRYPTO_LIBRARY
+file COMPRESS_H "$HARMONY_VERSION_PATH/framework/crypto/src/compress.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/compress.h"
+file COMPRESS_C "$HARMONY_VERSION_PATH/framework/crypto/src/compress.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/compress.c"
+ifblock !USE_3RDPARTY_WOLFSSL
+file CRYPTO_ZLIB_ADLER32_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/adler32.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/adler32.c"
+file CRYPTO_ZLIB_COMPRESS_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/compress.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/compress.c"
+file CRYPTO_ZLIB_CRC32_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/crc32.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/crc32.c"
+file CRYPTO_ZLIB_CRC32_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/crc32.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/crc32.h"
+file CRYPTO_ZLIB_DEFLATE_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/deflate.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/deflate.c"
+file CRYPTO_ZLIB_DEFLATE_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/deflate.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/deflate.h"
+file CRYPTO_ZLIB_INFBACK_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/infback.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/infback.c"
+file CRYPTO_ZLIB_INFFAST_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/inffast.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/inffast.c"
+file CRYPTO_ZLIB_INFFAST_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/inffast.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/inffast.h"
+file CRYPTO_ZLIB_INFFIXED_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/inffixed.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/inffixed.h"
+file CRYPTO_ZLIB_INFLATE_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/inflate.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/inflate.c"
+file CRYPTO_ZLIB_INFLATE_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/inflate.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/inflate.h"
+file CRYPTO_ZLIB_INFTREES_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/inftrees.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/inftrees.c"
+file CRYPTO_ZLIB_INFTREES_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/inftrees.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/inftrees.h"
+file CRYPTO_ZLIB_TREES_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/trees.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/trees.c"
+file CRYPTO_ZLIB_TREES_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/trees.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/trees.h"
+file CRYPTO_ZLIB_UNCOMPR_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/uncompr.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/uncompr.c"
+file CRYPTO_ZLIB_ZCONF_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/zconf.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/zconf.h"
+file CRYPTO_ZLIB_ZLIB_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/zlib.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/zlib.h"
+file CRYPTO_ZLIB_ZUTIL_C "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/zutil.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/zlib-1.2.7/zutil.c"
+file CRYPTO_ZLIB_ZUTIL_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/zutil.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/zutil.h"
+file CRYPTO_GZLOG_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/examples/gzlog.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/examples/gzlog.h"
+file CRYPTO_GZGUTS_H "$HARMONY_VERSION_PATH/framework/crypto/src/zlib-1.2.7/gzguts.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/zlib-1.2.7/gzguts.h"
+
+endif
+endif

@@ -1,0 +1,1 @@
+source "$HARMONY_VERSION_PATH/framework/driver/usart/config/drv_usart_pic32c.hconfig"

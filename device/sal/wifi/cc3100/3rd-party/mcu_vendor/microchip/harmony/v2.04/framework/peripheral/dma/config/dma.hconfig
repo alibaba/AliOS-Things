@@ -1,0 +1,8 @@
+source "$HARMONY_VERSION_PATH/framework/peripheral/dma/processor/dma_$DEVICE.hconfig"
+
+ifblock PROJECT_STANDALONE
+file PLIB_DMA_H "$HARMONY_VERSION_PATH/framework/peripheral/dma/plib_dma.h" to "$PROJECT_HEADER_FILES/framework/peripheral/dma/plib_dma.h"
+file PLIB_DMA_P32XXXX_H "$HARMONY_VERSION_PATH/framework/peripheral/dma/processor/dma_p32xxxx.h" to "$PROJECT_HEADER_FILES/framework/peripheral/dma/processor/dma_p32xxxx.h"
+file PLIB_DMA_PROCESSOR_H "$HARMONY_VERSION_PATH/framework/peripheral/dma/processor/dma_processor.h" to "$PROJECT_HEADER_FILES/framework/peripheral/dma/processor/dma_processor.h"
+file PLIB_DMA_REGISTERS_H "$HARMONY_VERSION_PATH/framework/peripheral/dma/templates/dma_Registers.h" to "$PROJECT_HEADER_FILES/framework/peripheral/dma/templates/dma_Registers.h"
+endif

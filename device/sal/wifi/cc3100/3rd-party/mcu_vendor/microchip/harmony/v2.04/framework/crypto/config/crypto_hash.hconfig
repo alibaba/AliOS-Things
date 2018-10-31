@@ -1,0 +1,209 @@
+config USE_CRYPTO_HASH_NEEDED
+    bool
+
+config USE_CRYPTO_MD5_NEEDED
+    bool
+
+config USE_CRYPTO_SHA1_NEEDED
+    bool
+
+config USE_CRYPTO_SHA_256_NEEDED
+    bool
+
+config USE_CRYPTO_SHA_384_NEEDED
+    bool
+
+config USE_CRYPTO_SHA_512_NEEDED
+    bool
+
+config USE_CRYPTO_HMAC_NEEDED
+    bool
+
+menu "Hashes"
+    depends on USE_CRYPTO_LIBRARY
+
+config USE_CRYPTO_MD5_SW
+    depends on USE_CRYPTO_LIBRARY
+    depends on !USE_CRYPTO_HW || !(PIC32MX || PIC32MZ || PIC32MK)
+    bool "Use MD5?"
+    default n if !USE_CRYPTO_MD5_NEEDED
+    default y if USE_CRYPTO_MD5_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_MD5_HW
+    depends on USE_CRYPTO_LIBRARY
+    depends on USE_CRYPTO_HW
+    depends on (PIC32MX || PIC32MZ || PIC32MK)
+    bool "Use MD5 (HW Accelerated)?"
+    default n if !USE_CRYPTO_MD5_NEEDED
+    default y if USE_CRYPTO_MD5_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_MD5
+    depends on USE_CRYPTO_LIBRARY
+    bool
+    default y if USE_CRYPTO_MD5_SW = y
+    default y if USE_CRYPTO_MD5_HW = y
+    default y if USE_CRYPTO_ECC = y
+    default n
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_SHA_SW
+    depends on USE_CRYPTO_LIBRARY
+    depends on !USE_CRYPTO_HW
+    bool "Use SHA-1?"
+    default y if USE_CRYPTO_ECC = y
+    default n if !USE_CRYPTO_SHA1_NEEDED
+    default y if USE_CRYPTO_SHA1_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_SLOW_SHA
+    depends on USE_CRYPTO_LIBRARY
+    depends on !USE_CRYPTO_HW
+    depends on USE_CRYPTO_SHA_SW
+    depends on (PIC32MX || PIC32MZ || PIC32MK)
+    bool "Use smaller algorithm (slower speed)?"
+    default n
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+
+config USE_CRYPTO_SHA_HW
+    depends on USE_CRYPTO_LIBRARY
+    depends on USE_CRYPTO_HW
+    bool "Use SHA-1 (HW Accelerated)?"
+    default n if !USE_CRYPTO_SHA1_NEEDED
+    default y if USE_CRYPTO_SHA1_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_SHA
+    depends on USE_CRYPTO_LIBRARY
+    bool
+    default y if USE_CRYPTO_SHA_SW = y
+    default y if USE_CRYPTO_SHA_HW = y
+    default n
+
+
+config USE_CRYPTO_SHA_256_SW
+    depends on USE_CRYPTO_LIBRARY
+    depends on !USE_CRYPTO_HW
+    bool "Use SHA-256?"
+    default n if !USE_CRYPTO_SHA_256_NEEDED
+    default y if USE_CRYPTO_SHA_256_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_SHA_256_HW
+    depends on USE_CRYPTO_LIBRARY
+    depends on USE_CRYPTO_HW
+    bool "Use SHA-256 (HW Accelerated)?"
+    default n if !USE_CRYPTO_SHA_256_NEEDED
+    default y if USE_CRYPTO_SHA_256_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_SHA_256
+    depends on USE_CRYPTO_LIBRARY
+    bool
+    default y if USE_CRYPTO_SHA_256_SW = y
+    default y if USE_CRYPTO_SHA_256_HW = y
+    default n
+
+config USE_CRYPTO_SHA_384
+    depends on USE_CRYPTO_LIBRARY
+    bool "Use SHA-384?"
+    default n if !USE_CRYPTO_SHA_384_NEEDED
+    default y if USE_CRYPTO_SHA_384_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_SHA_512
+    depends on USE_CRYPTO_LIBRARY
+    bool "Use SHA-512?"
+    default n if !USE_CRYPTO_SHA_512_NEEDED
+    default y if USE_CRYPTO_SHA_512_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_SLOW_SHA2
+    depends on USE_CRYPTO_LIBRARY
+    depends on USE_CRYPTO_SHA_512
+    depends on (PIC32MX || PIC32MZ || PIC32MK)
+    bool "Use smaller algorithm (slower speed)?"
+    default n
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_HMAC_SW
+    depends on USE_CRYPTO_LIBRARY
+    depends on !USE_CRYPTO_HW || !(PIC32MX || PIC32MZ || PIC32MK)
+    bool "Use HMAC?"
+    select USE_CRYPTO_SHA_256_NEEDED
+    default n if !USE_CRYPTO_HMAC_NEEDED
+    default y if USE_CRYPTO_HMAC_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_HMAC_HW
+    depends on USE_CRYPTO_LIBRARY
+    depends on USE_CRYPTO_HW
+    depends on (PIC32MX || PIC32MZ || PIC32MK)
+    bool "Use HMAC (HW Accelerated)?"
+    select USE_CRYPTO_SHA_256_NEEDED
+    default n if !USE_CRYPTO_HMAC_NEEDED
+    default y if USE_CRYPTO_HMAC_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_HMAC
+    depends on USE_CRYPTO_LIBRARY
+    bool
+    default y if USE_CRYPTO_HMAC_SW = y
+    default y if USE_CRYPTO_HMAC_HW = y
+    default n
+
+endmenu
+
+ifblock USE_CRYPTO_LIBRARY
+    file MD5_H "$HARMONY_VERSION_PATH/framework/crypto/src/md5.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/md5.h"
+    file MD5_C "$HARMONY_VERSION_PATH/framework/crypto/src/md5.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/md5.c"
+
+    ifblock !(PIC32MX || PIC32MZ || PIC32MK) && (USE_CRYPTO_HW)
+        file HASH_H_PIC32C "$HARMONY_VERSION_PATH/framework/crypto/src/pic32c-hash.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/pic32c-hash.h"
+        file SHA_C_PIC32C "$HARMONY_VERSION_PATH/framework/crypto/src/sha_pic32c.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/sha_pic23c.c"
+        file SHA256_C_PIC32C "$HARMONY_VERSION_PATH/framework/crypto/src/sha256_pic32c.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/sha256_pic32c.c"
+    endif
+
+    ifblock (PIC32MX || PIC32MZ || PIC32MK) || !(USE_CRYPTO_HW)
+        file SHA_C "$HARMONY_VERSION_PATH/framework/crypto/src/sha.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/sha.c"
+        file SHA256_C "$HARMONY_VERSION_PATH/framework/crypto/src/sha256.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/sha256.c"
+    endif
+
+    file SHA_H "$HARMONY_VERSION_PATH/framework/crypto/src/sha.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/sha.h"
+    file SHA256_H "$HARMONY_VERSION_PATH/framework/crypto/src/sha256.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/sha256.h"
+    file SHA512_H "$HARMONY_VERSION_PATH/framework/crypto/src/sha512.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/sha512.h"
+    file SHA512_C "$HARMONY_VERSION_PATH/framework/crypto/src/sha512.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/sha512.c"
+    file HMAC_H "$HARMONY_VERSION_PATH/framework/crypto/src/hmac.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/hmac.h"
+    file HMAC_C "$HARMONY_VERSION_PATH/framework/crypto/src/hmac.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/hmac.c"
+    file CRYPTO_HASH_H "$HARMONY_VERSION_PATH/framework/crypto/src/hash.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/hash.h"
+    file CRYPTO_HASH_C "$HARMONY_VERSION_PATH/framework/crypto/src/hash.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/hash.c"
+endif
+

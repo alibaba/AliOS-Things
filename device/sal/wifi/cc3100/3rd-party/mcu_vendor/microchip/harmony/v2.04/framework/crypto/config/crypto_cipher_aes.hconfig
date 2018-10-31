@@ -1,0 +1,115 @@
+config USE_CRYPTO_AES_NEEDED
+    bool
+
+config USE_CRYPTO_AES_CBC_NEEDED
+    bool
+
+config USE_CRYPTO_AES_COUNTER_NEEDED
+    bool
+
+config USE_CRYPTO_AES_DIRECT_NEEDED
+    bool
+
+config USE_CRYPTO_AES_SW
+    bool "Use AES?"
+    depends on !USE_CRYPTO_HW
+    default n if !USE_CRYPTO_AES_NEEDED
+    default y if USE_CRYPTO_AES_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_AES_CBC_SW
+    bool "Use Cipher Block Chaining (CBC) Mode?"
+    depends on USE_CRYPTO_AES_SW
+    default n if !USE_CRYPTO_AES_CBC_NEEDED
+    default y if USE_CRYPTO_AES_CBC_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_AES_COUNTER_SW
+    bool "Use Counter (CTR) Mode?"
+    depends on USE_CRYPTO_AES_SW
+    default n if !USE_CRYPTO_AES_COUNTER_NEEDED
+    default y if USE_CRYPTO_AES_COUNTER_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_AES_DIRECT_SW
+    bool "Use Direct Encrypt/Decrypt?"
+    depends on USE_CRYPTO_AES_SW
+    default n if !USE_CRYPTO_AES_DIRECT_NEEDED
+    default y if USE_CRYPTO_AES_DIRECT_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_AES_HW
+    bool "Use AES (HW Accelerated)?"
+    depends on USE_CRYPTO_HW
+    default n if !USE_CRYPTO_AES_NEEDED
+    default y if USE_CRYPTO_AES_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_AES_CBC_HW
+    bool "Use Cipher Block Chaining (CBC) Mode?"
+    depends on USE_CRYPTO_AES_HW
+    default n if !USE_CRYPTO_AES_CBC_NEEDED
+    default y if USE_CRYPTO_AES_CBC_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_AES_COUNTER_HW
+    bool "Use Counter (CTR) Mode?"
+    depends on USE_CRYPTO_AES_HW
+    default n if !USE_CRYPTO_AES_COUNTER_NEEDED
+    default y if USE_CRYPTO_AES_COUNTER_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_AES_DIRECT_HW
+    bool "Use Direct Encrypt/Decrypt?"
+    depends on USE_CRYPTO_AES_HW
+    default n if !USE_CRYPTO_AES_DIRECT_NEEDED
+    default y if USE_CRYPTO_AES_DIRECT_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+
+config USE_CRYPTO_AES
+    bool
+    default y if USE_CRYPTO_AES_SW = y
+    default y if USE_CRYPTO_AES_HW = y
+    default n if !USE_CRYPTO_AES_NEEDED
+    default y if USE_CRYPTO_AES_NEEDED
+
+config USE_CRYPTO_AES_CBC
+    bool
+    depends on USE_CRYPTO_AES
+    default y if USE_CRYPTO_AES_CBC_SW = y
+    default y if USE_CRYPTO_AES_CBC_HW = y
+    default n
+
+config USE_CRYPTO_AES_COUNTER
+    bool
+    depends on USE_CRYPTO_AES
+    default y if USE_CRYPTO_AES_COUNTER_SW = y
+    default y if USE_CRYPTO_AES_COUNTER_HW = y
+    default n
+
+config USE_CRYPTO_AES_DIRECT
+    bool
+    depends on USE_CRYPTO_AES
+    default y if USE_CRYPTO_AES_DIRECT_SW = y
+    default y if USE_CRYPTO_AES_DIRECT_HW = y
+    default n
+
+
+

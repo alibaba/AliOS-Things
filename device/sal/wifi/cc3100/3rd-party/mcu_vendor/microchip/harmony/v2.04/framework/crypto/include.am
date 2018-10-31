@@ -1,0 +1,44 @@
+# vim:ft=automake
+# All paths should be given relative to the root
+
+nobase_include_HEADERS+= \
+                         aes.h \
+                         arc4.h \
+                         asn.h \
+                         asn_public.h \
+                         camellia.h \
+                         coding.h \
+                         compress.h \
+                         des3.h \
+                         dh.h \
+                         dsa.h \
+                         ecc.h \
+                         error.h \
+                         hc128.h \
+                         hmac.h \
+                         integer.h \
+                         md2.h \
+                         md4.h \
+                         md5.h \
+                         misc.h \
+                         pkcs7.h \
+                         port.h \
+                         pwdbased.h \
+                         rabbit.h \
+                         random.h \
+                         ripemd.h \
+                         rsa.h \
+                         settings.h \
+                         sha256.h \
+                         sha512.h \
+                         sha.h \
+                         blake2.h \
+                         blake2-int.h \
+                         blake2-impl.h \
+                         tfm.h \
+                         types.h \
+                         visibility.h \
+                         logging.h \
+                         memory.h \
+                         mpi_class.h \
+                         mpi_superclass.h

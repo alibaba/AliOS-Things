@@ -1,0 +1,155 @@
+menu "Ports"
+
+  enum SYS_PORTS_IMPL
+    "STATIC"
+
+  config USE_SYS_PORTS_NEEDED
+    bool
+
+  config USE_SYS_PORTS
+    bool "Use Ports System Service?"
+    default y
+    ---help---
+    IDH_HTML_Ports_System_Service_Library
+    ---endhelp---
+
+  config SYS_PORTS_IMPLEMENTATION
+    string "Select Service Implementation"
+    depends on USE_SYS_PORTS
+    range SYS_PORTS_IMPL
+    default "STATIC"
+    persistent
+    ---help---
+    IDH_HTML_Ports_System_Service_Library
+    ---endhelp---
+
+  config SYS_PORTS_CN
+    bool "Use Change Notification?"
+    depends on USE_SYS_PORTS && !HAVE_PPS
+    default n
+    ---help---
+    IDH_HTML_SYSTEM_PORTS_Change_Notification
+    ---endhelp---
+
+  config USE_SYS_PORTS_CN_INTERRUPT
+    bool "Use Interrupt for Change Notification?"
+    depends on USE_SYS_PORTS
+    select USE_SYS_INT_NEEDED
+    select SYS_PORTS_CN if !HAVE_PPS
+    default n
+    ---help---
+    IDH_HTML_SYSTEM_PORTS_Change_Notification
+    ---endhelp---
+
+  config SYS_PORTS_CN_INTERRUPT_PRIORITY
+    string "Interrupt Priority"
+    depends on USE_SYS_PORTS && USE_SYS_PORTS_CN_INTERRUPT
+    range INT_PRIORITY_LEVEL
+    default "INT_PRIORITY_LEVEL1"
+    ---help---
+    IDH_HTML_INT_PRIORITY_LEVEL
+    ---endhelp---
+
+  config SYS_PORTS_CN_INTERRUPT_SUB_PRIORITY
+    string "Interrupt Sub-priority"
+    depends on USE_SYS_PORTS && USE_SYS_PORTS_CN_INTERRUPT
+    range INT_SUBPRIORITY_LEVEL
+    default "INT_SUBPRIORITY_LEVEL0"
+    ---help---
+    IDH_HTML_INT_SUBPRIORITY_LEVEL
+    ---endhelp---
+
+  config SYS_PORTS_CN_INTERRUPT_PRIORITY_NUM
+    string
+    depends on USE_SYS_PORTS && USE_SYS_PORTS_CN_INTERRUPT
+    default "0" if SYS_PORTS_CN_INTERRUPT_PRIORITY = "INT_DISABLE_INTERRUPT"
+    default "1" if SYS_PORTS_CN_INTERRUPT_PRIORITY = "INT_PRIORITY_LEVEL1"
+    default "2" if SYS_PORTS_CN_INTERRUPT_PRIORITY = "INT_PRIORITY_LEVEL2"
+    default "3" if SYS_PORTS_CN_INTERRUPT_PRIORITY = "INT_PRIORITY_LEVEL3"
+    default "4" if SYS_PORTS_CN_INTERRUPT_PRIORITY = "INT_PRIORITY_LEVEL4"
+    default "5" if SYS_PORTS_CN_INTERRUPT_PRIORITY = "INT_PRIORITY_LEVEL5"
+    default "6" if SYS_PORTS_CN_INTERRUPT_PRIORITY = "INT_PRIORITY_LEVEL6"
+    default "7" if SYS_PORTS_CN_INTERRUPT_PRIORITY = "INT_PRIORITY_LEVEL7"
+
+  config SYS_PORTS_CN_INTERRUPT_SUB_PRIORITY_NUM
+    string
+    depends on USE_SYS_PORTS && USE_SYS_PORTS_CN_INTERRUPT
+    default "0" if SYS_PORTS_CN_INTERRUPT_SUB_PRIORITY = "INT_SUBPRIORITY_LEVEL0"
+    default "1" if SYS_PORTS_CN_INTERRUPT_SUB_PRIORITY = "INT_SUBPRIORITY_LEVEL1"
+    default "2" if SYS_PORTS_CN_INTERRUPT_SUB_PRIORITY = "INT_SUBPRIORITY_LEVEL2"
+    default "3" if SYS_PORTS_CN_INTERRUPT_SUB_PRIORITY = "INT_SUBPRIORITY_LEVEL3"
+
+  execute SYS_PORTS_PIN_EXEC
+    depends on USE_SYS_PORTS
+      prompt "Launch Pin Manager"
+      default "pin"
+
+  comment "**** Use Pin Manager to configure CN, Pull-Up, Open Drain, Digital & Analog functionality ****"
+    depends on USE_SYS_PORTS && !HAVE_PPS
+
+  comment "**** Use Pin Manager to configure PPS, CN, Pull-Up, Pull-Down, Open Drain, Digital & Analog functionality ****"
+    depends on USE_SYS_PORTS && HAVE_PPS
+
+  menu "Port Configuration Settings"
+    depends on USE_SYS_PORTS
+    comment "**** All settings listed here can be configured using the Pin Manager ****"
+
+    enum SYS_PORTS_PULLUP_PULLDOWN_STATUS
+      "SYS_PORTS_PULLUP_DISABLE"
+      || "SYS_PORTS_PULLUP_ENABLE"
+
+    enum SYS_PORTS_PIN_DIRECTION
+      "SYS_PORTS_DIRECTION_OUTPUT"
+      || "SYS_PORTS_DIRECTION_INPUT"
+
+    config SYS_PORT_ADPCFG
+      hex
+      default 0x00000000
+
+    config SYS_PORT_CNEN
+      hex
+      default 0x00000000
+
+    config SYS_PORT_CNPU
+      hex
+      default 0x00000000
+
+    ifblock USE_SYS_PORTS
+      config COMPONENT_PACKAGE
+        string "Package"
+        default "Module" if PIC32WK
+        depends on USE_SYS_PORTS
+
+      menu "Port Registers Configuration"
+        source "$HARMONY_VERSION_PATH/framework/system/ports/config/sys_ports_idx_pic32m.ftl" 10 instances
+      endmenu
+
+      menu "PPS Input Configuration"
+        source "$HARMONY_VERSION_PATH/framework/system/ports/config/sys_ports_pps_input_idx_pic32m.ftl" 60 instances
+      endmenu
+
+      menu "PPS Output Configuration"
+        source "$HARMONY_VERSION_PATH/framework/system/ports/config/sys_ports_pps_output_idx_pic32m.ftl" 60 instances
+      endmenu
+
+      menu "Pins Configuration"
+        source "$HARMONY_VERSION_PATH/framework/system/ports/config/sys_ports_pins_pic32m.ftl" 324 instances
+      endmenu
+
+      menu "Pin Types"
+        source "$HARMONY_VERSION_PATH/framework/system/ports/config/sys_ports_pin_functions_pic32m.ftl" 20 instances
+      endmenu
+    endif
+
+  endmenu
+endmenu
+
+ifblock USE_SYS_PORTS
+    add "<#include \"/framework/system/ports/templates/sys_ports.h.ftl\">"  to list SYSTEM_CONFIG_H_SYSTEM_SERVICE_CONFIGURATION
+    add "<#include \"/framework/system/ports/templates/sys_ports_init.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_CORE
+    add "<#include \"/framework/system/ports/templates/sys_ports_interrupt.c.ftl\">"  to list SYSTEM_INTERRUPT_C_VECTORS
+    
+    template SYS_PORTS_STATIC_C "$HARMONY_VERSION_PATH/framework/system/ports/templates/sys_ports_static.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/system/ports/src/sys_ports_static.c"
+    file SYS_PORTS_H "$HARMONY_VERSION_PATH/framework/system/ports/sys_ports.h" to "$PROJECT_HEADER_FILES/framework/system/ports/sys_ports.h"
+	file SYS_PORTS_DEFINITIONS_H "$HARMONY_VERSION_PATH/framework/system/ports/sys_ports_definitions.h" to "$PROJECT_HEADER_FILES/framework/system/ports/sys_ports_definitions.h"
+endif

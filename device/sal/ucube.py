@@ -22,3 +22,5 @@ elif aos_global_config.get('module') == 'wifi.bk7231':
     component.add_comp_deps('device/sal/wifi/bk7231')
 elif aos_global_config.get('module') == 'gprs.sim800':
     component.add_comp_deps('device/sal/gprs/sim800')
+elif aos_global_config.get('module') == 'wifi.cc3100':
+    component.add_comp_deps('device/sal/wifi/cc3100')

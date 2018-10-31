@@ -1,0 +1,25 @@
+menu "System Services"
+source "$HARMONY_VERSION_PATH/framework/system/common/config/sys_common.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/clk/config/sys_clk.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/devcon/config/sys_devcon.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/ports/config/sys_ports.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/command/config/sys_command.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/console/config/sys_console.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/debug/config/sys_debug.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/dma/config/sys_dma.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/fs/config/sys_fs.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/int/config/sys_int.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/memory/config/sys_memory.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/msg/config/sys_msg.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/random/config/sys_random.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/reset/config/sys_reset.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/rtcc/config/sys_rtcc.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/touch/config/sys_touch.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/tmr/config/sys_tmr.hconfig"
+source "$HARMONY_VERSION_PATH/framework/system/wdt/config/sys_wdt.hconfig"
+
+
+endmenu
+
+file SYSTEM_H "$HARMONY_VERSION_PATH/framework/system/system.h" to "$PROJECT_HEADER_FILES/framework/system/system.h"
+

@@ -1,0 +1,7 @@
+source "$HARMONY_VERSION_PATH/framework/peripheral/devcon/processor/devcon_$DEVICE.hconfig"
+
+ifblock PROJECT_STANDALONE
+file PLIB_DEVCON_H "$HARMONY_VERSION_PATH/framework/peripheral/devcon/plib_devcon.h" to "$PROJECT_HEADER_FILES/framework/peripheral/devcon/plib_devcon.h"
+file PLIB_DEVCON_P32XXXX_H "$HARMONY_VERSION_PATH/framework/peripheral/devcon/processor/devcon_p32xxxx.h" to "$PROJECT_HEADER_FILES/framework/peripheral/devcon/processor/devcon_p32xxxx.h"
+file PLIB_DEVCON_PROCESSOR_H "$HARMONY_VERSION_PATH/framework/peripheral/devcon/processor/devcon_processor.h" to "$PROJECT_HEADER_FILES/framework/peripheral/devcon/processor/devcon_processor.h"
+endif

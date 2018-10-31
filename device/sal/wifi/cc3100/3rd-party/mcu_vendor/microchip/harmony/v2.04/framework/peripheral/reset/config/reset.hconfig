@@ -1,0 +1,7 @@
+source "$HARMONY_VERSION_PATH/framework/peripheral/reset/processor/reset_$DEVICE.hconfig"
+
+ifblock PROJECT_STANDALONE
+file PLIB_RESET_H "$HARMONY_VERSION_PATH/framework/peripheral/reset/plib_reset.h" to "$PROJECT_HEADER_FILES/framework/peripheral/reset/plib_reset.h"
+file PLIB_RESET_P32XXXX_H "$HARMONY_VERSION_PATH/framework/peripheral/reset/processor/reset_p32xxxx.h" to "$PROJECT_HEADER_FILES/framework/peripheral/reset/processor/reset_p32xxxx.h"
+file PLIB_RESET_PROCESSOR_H "$HARMONY_VERSION_PATH/framework/peripheral/reset/processor/reset_processor.h" to "$PROJECT_HEADER_FILES/framework/peripheral/reset/processor/reset_processor.h"
+endif

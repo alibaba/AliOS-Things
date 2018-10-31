@@ -1,6 +1,18 @@
 NAME := armv7m
 
-ifeq ($(HOST_ARCH),Cortex-M4)
+ifeq ($(HOST_ARCH),Cortex-M3)
+ifeq ($(COMPILER),armcc)
+
+else ifeq ($(COMPILER),iar)
+
+else
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_SOURCES := gcc/m3/port_c.c
+$(NAME)_SOURCES += gcc/m3/port_s.S
+GLOBAL_INCLUDES += gcc/m3/
+endif
+
+else ifeq ($(HOST_ARCH),Cortex-M4)
 
 ifeq ($(COMPILER),armcc)
 $(NAME)_SOURCES := armcc/m4/port_c.c

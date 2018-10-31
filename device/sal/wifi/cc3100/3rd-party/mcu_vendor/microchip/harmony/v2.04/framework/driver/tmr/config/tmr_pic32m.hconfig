@@ -1,0 +1,159 @@
+menu "Timer"
+    depends on HAVE_TMR
+
+enum TMR_SOURCE_CLOCK
+	"TMR_CLOCK_SOURCE_PERIPHERAL_CLOCK"
+	|| "TMR_CLOCK_SOURCE_EXTERNAL_INPUT_PIN"
+    
+enum DRV_TMR_CLK_SOURCES_1
+    "DRV_TMR_CLKSOURCE_INTERNAL"
+    || "DRV_TMR_CLKSOURCE_EXTERNAL_SYNCHRONOUS"
+    || "DRV_TMR_CLKSOURCE_EXTERNAL_ASYNCHRONOUS"
+    || "DRV_TMR_CLKSOURCE_SECONDARY_OSCILLATOR_SYNCHRONOUS"
+    || "DRV_TMR_CLKSOURCE_SECONDARY_OSCILLATOR_ASYNCHRONOUS"
+	|| "DRV_TMR_CLKSOURCE_LPRC_OSCILLATOR_SYNCHRONOUS"
+    || "DRV_TMR_CLKSOURCE_LPRC_OSCILLATOR_ASYNCHRONOUS"
+	
+enum DRV_TMR_CLK_SOURCES_2
+    "DRV_TMR_CLKSOURCE_INTERNAL"
+    || "DRV_TMR_CLKSOURCE_EXTERNAL_SYNCHRONOUS"
+    || "DRV_TMR_CLKSOURCE_EXTERNAL_ASYNCHRONOUS"
+    || "DRV_TMR_CLKSOURCE_SECONDARY_OSCILLATOR_SYNCHRONOUS"
+    || "DRV_TMR_CLKSOURCE_SECONDARY_OSCILLATOR_ASYNCHRONOUS"
+    
+enum DRV_TMR_CLK_SOURCES_3
+    "DRV_TMR_CLKSOURCE_INTERNAL"
+    || "DRV_TMR_CLKSOURCE_EXTERNAL_SYNCHRONOUS"
+    
+enum DRV_TMR_CLK_SOURCES_4
+    "DRV_TMR_CLKSOURCE_INTERNAL"
+
+enum DRV_TMR_SYNC_MODE
+    "DRV_TMR_SYNC_MODE_SYNCHRONOUS_INTERNAL"
+    || "DRV_TMR_SYNC_MODE_SYNCHRONOUS_INTERNAL_GATED"
+    || "DRV_TMR_SYNC_MODE_SYNCHRONOUS_EXTERNAL_WITHOUT_CLKSYNC"
+    || "DRV_TMR_SYNC_MODE_SYNCHRONOUS_EXTERNAL_WITH_CLKSYNC"
+    || "DRV_TMR_SYNC_MODE_ASYNCHRONOUS_EXTERNAL_WITHOUT_CLKSYNC"
+    || "DRV_TMR_SYNC_MODE_ASYNCHRONOUS_EXTERNAL_WITH_CLKSYNC"
+    || "DRV_TMR_SYNC_MODE_IDLE"
+
+enum DRV_TMR_ALARM_TYPE
+    "DRV_TMR_ALARM_TYPE_ONE_SHOT"
+    || "DRV_TMR_ALARM_TYPE_PERIODIC"
+
+enum DRV_TMR_OPERATION_MODE
+    "DRV_TMR_OPERATION_MODE_NONE"
+    || "DRV_TMR_OPERATION_MODE_16_BIT"
+    || "DRV_TMR_OPERATION_MODE_32_BIT"
+    
+enum DRV_TMR_MODE
+    "STATIC"
+    || "DYNAMIC"
+    
+config USE_DRV_TMR_NEEDED
+    bool
+
+config USE_DRV_TMR
+    depends on HAVE_TMR
+    bool "Use Timer Driver?"
+    select DRIVER
+    default y if USE_DRV_TMR_NEEDED
+    default n
+    ---help---
+    IDH_HTML_DRV_TMR_Timer_Driver_Library
+    ---endhelp---
+
+config DRV_TMR_DRIVER_MODE
+    string "Driver Implementation"
+    depends on USE_DRV_TMR
+    range DRV_TMR_MODE
+    default "DYNAMIC"
+    ---help---
+    IDH_HTML_DRV_TMR_Timer_Driver_Library
+    ---endhelp---
+
+ifblock  DRV_TMR_DRIVER_MODE = "DYNAMIC"
+config DRV_TMR_CLIENTS_NUMBER
+    int "Number of Clients"
+    depends on USE_DRV_TMR
+    default 1
+    persistent
+endif    
+
+config DRV_TMR_INTERRUPT_MODE
+    bool "Interrupt Mode"
+    depends on USE_DRV_TMR
+    select USE_SYS_INT_NEEDED
+    default y
+    ---help---
+    IDH_HTML_DRV_TMR_INTERRUPT_MODE
+    ---endhelp---
+
+config DRV_TMR_INCLUDE_DRIVER
+    bool
+    depends on USE_DRV_TMR
+    depends on DRV_TMR_DRIVER_MODE = "DYNAMIC"
+    default y
+
+config DRV_TMR_INCLUDE_INTERRUPT_SERVICE
+    bool
+    depends on USE_DRV_TMR
+    depends on DRV_TMR_DRIVER_MODE = "DYNAMIC"
+    depends on DRV_TMR_INTERRUPT_MODE
+    default y
+
+config DRV_TMR_INSTANCES_NUMBER
+    int "Number of Timer Driver Instances"
+    depends on USE_DRV_TMR
+    range 1 TMR_NUMBER_OF_MODULES
+    default 1
+    ---help---
+    IDH_HTML_DRV_TMR_INSTANCES_NUMBER
+    ---endhelp---
+    
+source "$HARMONY_VERSION_PATH/framework/driver/tmr/config/drv_tmr_idx_pic32m.ftl" 12 instances
+
+endmenu
+
+enum DRV_TMR_INDEX
+    "DRV_TMR_INDEX_0"
+    || "DRV_TMR_INDEX_1"
+    || "DRV_TMR_INDEX_2"
+    || "DRV_TMR_INDEX_3"
+    || "DRV_TMR_INDEX_4"
+    || "DRV_TMR_INDEX_5"
+    || "DRV_TMR_INDEX_6"
+    || "DRV_TMR_INDEX_7"
+    || "DRV_TMR_INDEX_8"
+    || "DRV_TMR_INDEX_9"
+
+ifblock USE_DRV_TMR
+
+file DRV_TMR_H "$HARMONY_VERSION_PATH/framework/driver/tmr/drv_tmr.h" to "$PROJECT_HEADER_FILES/framework/driver/tmr/drv_tmr.h"
+file DRV_TMR_MAPPING_H "$HARMONY_VERSION_PATH/framework/driver/tmr/drv_tmr_mapping.h" to "$PROJECT_HEADER_FILES/framework/driver/tmr/drv_tmr_mapping.h"
+file DRV_TMR_VAR_MAPPING_H "$HARMONY_VERSION_PATH/framework/driver/tmr/src/drv_tmr_variant_mapping.h" to "$PROJECT_HEADER_FILES/framework/driver/tmr/src/drv_tmr_variant_mapping.h"
+file DRV_TMR_COMPAT_H "$HARMONY_VERSION_PATH/framework/driver/tmr/drv_tmr_compatibility.h" to "$PROJECT_HEADER_FILES/framework/driver/tmr/drv_tmr_compatibility.h"
+file TMR_DEFINITIONS_PIC32M_H "$HARMONY_VERSION_PATH/framework/driver/tmr/tmr_definitions_pic32m.h" to "$PROJECT_HEADER_FILES/framework/driver/tmr/tmr_definitions_pic32m.h"
+
+add "<#include \"/framework/driver/tmr/templates/drv_tmr.c.ftl\">"  to list SYSTEM_INIT_C_DRIVER_INITIALIZATION_DATA
+add "<#include \"/framework/driver/tmr/templates/drv_tmr_tasks.c.ftl\">"  to list SYSTEM_TASKS_C_CALL_DRIVER_TASKS
+add "<#include \"/framework/driver/tmr/templates/drv_tmr.h.ftl\">" to list SYSTEM_CONFIG_H_DRIVER_CONFIGURATION 
+
+ifblock DRV_TMR_DRIVER_MODE = "DYNAMIC"
+
+add "<#include \"/framework/driver/tmr/templates/drv_tmr_init.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_DRIVERS
+
+file DRV_TMR_C "$HARMONY_VERSION_PATH/framework/driver/tmr/src/dynamic/drv_tmr.c" to "$PROJECT_SOURCE_FILES/framework/driver/tmr/src/dynamic/drv_tmr.c"
+file DRV_TMR_LOCAL_H "$HARMONY_VERSION_PATH/framework/driver/tmr/src/drv_tmr_local.h" to "$PROJECT_HEADER_FILES/framework/driver/tmr/src/drv_tmr_local.h"
+endif
+
+ifblock DRV_TMR_DRIVER_MODE = "STATIC"
+
+add "<#include \"/framework/driver/tmr/templates/drv_tmr_static_init.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_DRIVERS
+
+template TMR_DRV_STATIC_H "$HARMONY_VERSION_PATH/framework/driver/tmr/templates/drv_tmr_static.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/tmr/drv_tmr_static.h"
+template TMR_DRV_STATIC_C "$HARMONY_VERSION_PATH/framework/driver/tmr/templates/drv_tmr_static.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/tmr/src/drv_tmr_static.c"
+template TMR_DRV_STATIC_MAPPING_C "$HARMONY_VERSION_PATH/framework/driver/tmr/templates/drv_tmr_mapping.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/tmr/src/drv_tmr_mapping.c"
+endif
+
+endif

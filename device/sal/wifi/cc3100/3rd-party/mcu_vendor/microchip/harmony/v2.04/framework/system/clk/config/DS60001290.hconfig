@@ -1,0 +1,318 @@
+menu "Clock"
+    depends on HAVE_OSC
+    ---help---
+    IDH_HTML_Oscillator_System_Service_Library
+    ---endhelp---
+
+enum CLK_MODES
+    "STATIC"
+    || "DYNAMIC"
+
+enum CLK_PBDIV_MX
+	"DIV_1"
+	|| "DIV_2"
+	|| "DIV_4"
+	|| "DIV_8"
+
+enum CLK_REFCLK_SOURCE_MX
+    "System Clock SYSCLK"
+    || "Peripheral Clock PBCLK"
+    || "Primary Oscillator POSC"
+    || "Internal Fast Oscillator FRC"
+    || "Low-Power Oscillator LPRC"
+    || "Secondary Oscillator SOSC"
+    || "USB PLL UPLL"
+    || "System PLL output SPLL"
+    || "Reference Clock Input REFCLKI"
+
+config USE_SYS_CLK
+    bool "Use Clock System Service?"
+    default y
+    ---help---
+    IDH_HTML_Oscillator_System_Service_Library
+    ---endhelp---
+
+config SYS_CLK_MANAGER_PLUGIN_SELECT
+	string
+	depends on USE_SYS_CLK
+	default "mx1:MX1ClockModel"		
+
+config USE_SYS_CLK_DYNAMIC_NEEDED
+	depends on USE_SYS_CLK
+    bool
+    default n
+
+config SYS_CLK_MODE
+    string "Select Service Mode"
+    default "DYNAMIC" if USE_SYS_CLK_DYNAMIC_NEEDED
+    default "STATIC"
+    depends on USE_SYS_CLK
+    range CLK_MODES
+    ---help---
+    IDH_HTML_SYSTEM_CLK_Introduction
+    ---endhelp---
+
+execute CLOCK_EXEC
+	depends on USE_SYS_CLK
+    prompt "Launch Clock Configurator"
+    default "clock"
+    ---help---
+    IDH_HTML_CONFIGURATOR_Configuring_the_Oscillator_Module_Using_the_MHC_Clock_Configurator
+    ---endhelp---
+
+menu "Clock Configurator Settings"
+	depends on USE_SYS_CLK
+    ---help---
+    IDH_HTML_CONFIGURATOR_Configuring_the_Oscillator_Module_Using_the_MHC_Clock_Configurator
+    ---endhelp---
+
+comment "**** All settings listed here can be configured using the Clock Configurator ****"
+	depends on USE_SYS_CLK
+    ---help---
+    IDH_HTML_CONFIGURATOR_Configuring_the_Oscillator_Module_Using_the_MHC_Clock_Configurator
+    ---endhelp---
+    
+config SYS_CLK_FSOSCEN_OVERRIDE
+    bool
+    depends on USE_SYS_CLK
+    default n
+
+config SYS_CLK_FRCDIV
+	string "FRC Clock Divider"
+    range OSC_FRC_DIV
+	depends on USE_SYS_CLK
+	default "OSC_FRC_DIV_2"
+
+config SYS_CLK_PBCLK0_ENABLE
+    bool
+    depends on USE_SYS_CLK
+    default y
+
+config SYS_CLK_PBDIV0_OVERRIDE
+    bool "Set PBDIV (Override FPBDIV)"
+    depends on USE_SYS_CLK
+    default n
+    ---help---
+	IDH_HTML_CONFIGURATOR_Configuring_the_Peripheral_Bus_Clocks_MX
+    ---endhelp---
+    
+config SYS_CLK_PBDIV0_MX
+    string "Peripheral Clock Bus Divisor (1-8)"
+    depends on USE_SYS_CLK
+    persistent if SYS_CLK_PBDIV0_OVERRIDE = n
+    default "DIV_1"
+    range CLK_PBDIV_MX
+    ---help---
+	IDH_HTML_CONFIGURATOR_Configuring_the_Peripheral_Bus_Clocks_MX
+    ---endhelp---
+
+config SYS_CLK_PBDIV0
+    int
+    depends on USE_SYS_CLK
+    default 1 if PIC32MX && SYS_CLK_PBDIV0_MX = "DIV_1"
+    default 2 if PIC32MX && SYS_CLK_PBDIV0_MX = "DIV_2"
+    default 4 if PIC32MX && SYS_CLK_PBDIV0_MX = "DIV_4"
+    default 8 if PIC32MX && SYS_CLK_PBDIV0_MX = "DIV_8"
+
+config SYS_CLK_MPLL_ENABLE
+
+config SYS_CLK_REFCLK_ENABLE
+    bool "Enable Reference Clock REFCLKO"
+    default n
+    depends on USE_SYS_CLK && PIC32MX
+    ---help---
+	IDH_HTML_CONFIGURATOR_Configuring_the_Reference_Clocks_MX
+    ---endhelp---
+
+config SYS_CLK_REFCLK_OE
+	bool "Reference Clock Output Enable OE"
+	default n 
+	depends on USE_SYS_CLK && SYS_CLK_REFCLK_ENABLE  
+    ---help---
+	IDH_HTML_CONFIGURATOR_Configuring_the_Reference_Clocks_MX
+    ---endhelp---
+
+config SYS_CLK_REFCLK_SOURCE
+    string "Reference Clock Source Select ROSEL"
+    default "System Clock SYSCLK"
+    depends on USE_SYS_CLK && SYS_CLK_REFCLK_ENABLE
+    range CLK_REFCLK_SOURCE_MX
+    ---help---
+	IDH_HTML_CONFIGURATOR_Configuring_the_Reference_Clocks_MX
+    ---endhelp---
+
+config SYS_CLK_REFCLK_ROSEL
+    int
+    depends on USE_SYS_CLK && SYS_CLK_REFCLK_ENABLE    
+    default 0 if SYS_CLK_REFCLK_SOURCE = "System Clock SYSCLK"
+    default 1 if SYS_CLK_REFCLK_SOURCE = "Peripheral Clock PBCLK"
+    default 2 if SYS_CLK_REFCLK_SOURCE = "Primary Oscillator POSC"
+    default 3 if SYS_CLK_REFCLK_SOURCE = "Internal Fast Oscillator FRC"
+    default 4 if SYS_CLK_REFCLK_SOURCE = "Low-Power Oscillator LPRC"
+    default 5 if SYS_CLK_REFCLK_SOURCE = "Secondary Oscillator SOSC"
+    default 6 if SYS_CLK_REFCLK_SOURCE = "USB PLL UPLL"
+    default 7 if SYS_CLK_REFCLK_SOURCE = "System PLL output SPLL"
+    default 8 if SYS_CLK_REFCLK_SOURCE = "Reference Clock Input REFCLKI"
+    default 9 if SYS_CLK_REFCLK_SOURCE = "Internal Backup FRC BFRC"
+    
+config SYS_CLK_RODIV
+    int "Select Reference Clock Output Divider RODIV (0-65534)"
+    depends on USE_SYS_CLK && SYS_CLK_REFCLK_ENABLE
+    default 0
+    range 0 65534
+    ---help---
+	IDH_HTML_CONFIGURATOR_Configuring_the_Reference_Clocks_MX
+    ---endhelp---
+
+config SYS_CLK_ROTRIM
+    int "Select Reference Clock Trim Value ROTRIM (0-511)"
+    depends on USE_SYS_CLK && SYS_CLK_REFCLK_ENABLE
+    default 0
+    range 0 511
+    ---help---
+	IDH_HTML_CONFIGURATOR_Configuring_the_Reference_Clocks_MX
+    ---endhelp---
+
+config SYS_CLK_REFCLK1_ENABLE
+	depends on USE_SYS_CLK
+
+config SYS_CLK_REFCLK4_ENABLE
+	depends on USE_SYS_CLK
+	
+config SYS_CLK_RODIV1
+	depends on USE_SYS_CLK
+
+config SYS_CLK_RODIV4
+	depends on USE_SYS_CLK
+
+config SYS_CLK_CONFIG_PRIMARY_XTAL
+    string "Primary Oscillator Input Frequency (Hz)"
+    depends on USE_SYS_CLK
+    default "8000000"
+    ---help---
+	IDH_HTML_SYS_CLK_CONFIG_PRIMARY_XTAL
+    ---endhelp---
+	
+config SYS_CLK_CONFIG_SECONDARY_XTAL
+    string "Secondary Oscillator Input Frequency (Hz)"
+    depends on USE_SYS_CLK
+    default "32768"
+    ---help---
+	IDH_HTML_SYS_CLK_CONFIG_SECONDARY_XTAL
+    ---endhelp---
+
+config SYS_CLK_CONFIG_SOSCEN
+    string
+    depends on USE_SYS_CLK
+    range DEVCFG_FSOSCEN
+    ---help---
+    IDH_HTML_PLIB_OSC_SecondaryEnable_OSC_MODULE_ID
+    ---endhelp---
+	
+config SYS_CLK_CONFIG_UFRCEN
+    string
+    depends on USE_SYS_CLK && PIC32MX
+    range DEVCFG_FSOSCEN
+    ---help---
+    IDH_HTML_PLIB_OSC_UsbClockSourceSelect_OSC_MODULE_ID_OSC_USBCLOCK_SOURCE
+    ---endhelp---
+
+menu "Calculated Clock Frequencies"
+    depends on USE_SYS_CLK
+
+config SYS_CLK_FREQ
+    string "System Clock Frequency (Hz)"
+    depends on USE_SYS_CLK
+    persistent
+    default "40000000"
+    ---help---
+	IDH_HTML_SYS_CLK_SystemFrequencyGet
+    ---endhelp---
+
+config SYS_CLK_PBCLK_FREQ
+    string "Peripheral Bus Clock Frequency (Hz)"
+    depends on USE_SYS_CLK && PIC32MX && !DS60001404
+    persistent
+    default "40000000"
+	---help---
+	IDH_HTML_SYS_CLK_PeripheralFrequencyGet_CLK_BUSES_PERIPHERAL
+    ---endhelp---
+
+config SYS_CLK_PBCLK0_FREQ
+    string "Peripheral Bus Clock #1 Frequency (Hz)"
+    depends on USE_SYS_CLK && SYS_CLK_PBCLK0_ENABLE && (PIC32MZ || PIC32MK || PIC32WK || DS60001404)
+    persistent
+    default "40000000"
+    ---help---
+	IDH_HTML_SYS_CLK_PeripheralFrequencyGet_CLK_BUSES_PERIPHERAL
+    ---endhelp---
+
+config SYS_CLK_REFCLK_FREQ
+    string "Reference Clock Frequency (Hz)"
+    depends on USE_SYS_CLK && SYS_CLK_REFCLK_ENABLE
+    persistent
+    default "40000000"
+    ---help---
+	IDH_HTML_SYS_CLK_ReferenceClockFrequencyGet_CLK_BUSES_REFERENCE
+    ---endhelp---
+
+config SYS_CLK_UPLL_BEFORE_DIV2_FREQ
+    string "USB PLL Clock Frequency (HZ)"
+    depends on USE_SYS_CLK
+    persistent
+    default "48000000"
+    ---help---
+	IDH_HTML_CONFIGURATOR_Configuring_the_USB_PLL_MX
+    ---endhelp---
+	
+endmenu
+
+endmenu
+
+ifblock SYS_CLK_MODE = "DYNAMIC"
+
+config SYS_CLK_WAIT_FOR_SWITCH
+    bool
+    depends on USE_SYS_CLK
+    default y
+
+config SYS_CLK_ON_WAIT
+    string
+    depends on USE_SYS_CLK
+    range OSC_OPERATION_ON_WAIT
+    default "OSC_ON_WAIT_IDLE"
+
+config SYS_CLK_CONFIG_FREQ_ERROR_LIMIT
+	int
+	depends on USE_SYS_CLK
+	default 10
+    
+endif
+    
+endmenu
+
+ifblock USE_SYS_CLK
+add "<#include \"/framework/system/clk/templates/system_config.h.ftl\">"  to list SYSTEM_CONFIG_H_SYSTEM_SERVICE_CONFIGURATION
+
+file SYS_CLK_H "$HARMONY_VERSION_PATH/framework/system/clk/sys_clk.h" to "$PROJECT_HEADER_FILES/framework/system/clk/sys_clk.h"
+file SYS_CLK_COMPATIBILITY_H "$HARMONY_VERSION_PATH/framework/system/clk/sys_clk_compatibility.h" to "$PROJECT_HEADER_FILES/framework/system/clk/sys_clk_compatibility.h"
+
+ifblock SYS_CLK_MODE = "STATIC"
+
+template SYS_CLK_STATIC_C_FTL "$HARMONY_VERSION_PATH/framework/system/clk/templates/sys_clk_pic32mx.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/system/clk/src/sys_clk_pic32mx.c"
+file SYS_CLK_MAPPING_H "$HARMONY_VERSION_PATH/framework/system/clk/sys_clk_mapping.h" to "$PROJECT_HEADER_FILES/framework/system/clk/sys_clk_mapping.h"
+
+endif
+
+ifblock SYS_CLK_MODE = "DYNAMIC"
+
+add "<#include \"/framework/system/clk/templates/sys_clk.c.ftl\">"  to list SYSTEM_INIT_C_MODULE_INITIALIZATION_DATA
+
+file SYS_CLK_C "$HARMONY_VERSION_PATH/framework/system/clk/src/sys_clk.c" to "$PROJECT_SOURCE_FILES/framework/system/clk/src/sys_clk.c"
+file SYS_CLK_LOCAL_H "$HARMONY_VERSION_PATH/framework/system/clk/src/sys_clk_local.h" to "$PROJECT_HEADER_FILES/framework/system/clk/src/sys_clk_local.h"
+file SYS_CLK_VAR_MAPPING_H "$HARMONY_VERSION_PATH/framework/system/clk/src/sys_clk_variant_mapping.h" to "$PROJECT_HEADER_FILES/framework/system/clk/src/sys_clk_variant_mapping.h"
+file SYS_CLK_PIC32MX_H "$HARMONY_VERSION_PATH/framework/system/clk/src/sys_clk_pic32mx.h" to "$PROJECT_HEADER_FILES/framework/system/clk/src/sys_clk_pic32mx.h"
+file SYS_CLK_PIC32MX_C "$HARMONY_VERSION_PATH/framework/system/clk/src/sys_clk_pic32mx.c" to "$PROJECT_SOURCE_FILES/framework/system/clk/src/sys_clk_pic32mx.c"
+endif
+
+endif

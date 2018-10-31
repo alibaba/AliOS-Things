@@ -1,0 +1,42 @@
+menu "Random"
+
+config USE_SYS_RANDOM_NEEDED
+    bool
+
+config USE_SYS_RANDOM
+    bool "Use Random System Service?"
+    default n if !USE_SYS_RANDOM_NEEDED
+    default y if USE_SYS_RANDOM_NEEDED
+    ---help---
+    IDH_HTML_Random_Number_Generator_System_Service_Library
+    ---endhelp---
+
+config SYS_RANDOM_CRYPTO_SEED_SIZE
+    int "Crypto Seed Size"
+    depends on USE_SYS_RANDOM
+    default 32
+    ---help---
+    IDH_HTML_SYS_RANDOM_CRYPTO_SEED_SIZE
+    ---endhelp---
+
+config SYS_RANDOM_USE_CRYPTO_STRENGTH
+    bool "Use Cryptographic Strength Random Numbers?"
+    depends on USE_SYS_RANDOM
+    select USE_CRYPTO_LIB_NEEDED
+    select USE_CRYPTO_RANDOM_NEEDED
+    default n
+    ---help---
+    IDH_HTML_Random_Number_Generator_System_Service_Library
+    ---endhelp---
+
+endmenu
+
+ifblock USE_SYS_RANDOM
+
+add "<#include \"/framework/system/random/config/sys_random_init.c.ftl\">"  to list SYSTEM_INIT_C_INITIALIZE_SYSTEM_SERVICES
+add "<#include \"/framework/system/random/config/sys_random.h.ftl\">"  to list SYSTEM_CONFIG_H_SYSTEM_SERVICE_CONFIGURATION
+
+file SYS_RANDOM_H "$HARMONY_VERSION_PATH/framework/system/random/sys_random.h" to "$PROJECT_HEADER_FILES/framework/system/random/sys_random.h"
+file SYS_RANDOM_C "$HARMONY_VERSION_PATH/framework/system/random/src/sys_random.c"  to "$PROJECT_SOURCE_FILES/framework/system/random/src/sys_random.c"
+file SYS_RANDOM_LOCAL_H "$HARMONY_VERSION_PATH/framework/system/random/src/sys_random_local.h" to "$PROJECT_HEADER_FILES/framework/system/random/src/sys_random_local.h"
+endif

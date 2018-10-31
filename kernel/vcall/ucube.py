@@ -23,7 +23,8 @@ def vcall_pre(comp):
             comp.add_comp_deps('kernel/vcall/espos')
 
         if aos_global_config.board == 'linuxhost' or aos_global_config.board == 'mk3060' \
-                or aos_global_config.board == 'mk3239' or aos_global_config.board == 'mk3166' or aos_global_config.board == 'mk3165':
+                or aos_global_config.board == 'mk3239' or aos_global_config.board == 'mk3166' or aos_global_config.board == 'mk3165' \
+                or aos_global_config.board == 'bosch_xdk':
             comp.add_sources('mico/mico_rhino.c')
         comp.add_sources('aos/aos_rhino.c')
 vcall_pre(component)

@@ -17,4 +17,6 @@ else ifeq (gprs.sim800,$(module))
 $(NAME)_COMPONENTS += sal.gprs.sim800
 else ifeq (wifi.esp8266,$(module))
 $(NAME)_COMPONENTS += sal.wifi.esp8266
+else ifeq (wifi.cc3100,$(module))
+$(NAME)_COMPONENTS += sal.wifi.cc3100
 endif

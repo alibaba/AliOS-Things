@@ -1,0 +1,128 @@
+menu "MIIM"
+    depends on HAVE_ETH
+
+config DRV_MIIM_USE_DRIVER
+    depends on HAVE_ETH && TCPIP_EMAC_PHY_TYPE != "SMSC_LAN9303"
+    bool "Use MIIM Driver?"
+    default y if TCPIP_USE_ETH_MAC
+    default n if !TCPIP_USE_ETH_MAC
+    ---help---
+    IDH_HTML_DRV_MIIM_Introduction
+    ---endhelp---
+
+config DRV_MIIM_ETH_MODULE_ID
+    string "ETH Module ID"
+    depends on DRV_MIIM_USE_DRIVER
+    default "ETH_ID_0" if TCPIP_EMAC_MODULE_ID = "ETH_ID_0"
+    default "GMAC_ID_0" if TCPIP_EMAC_MODULE_ID = "GMAC_ID_0"
+    ---help---
+    ---endhelp---
+    
+	
+config DRV_MIIM_INSTANCES_NUMBER
+	depends on DRV_MIIM_USE_DRIVER
+	int "Number of Driver Instances"
+	default 1
+	---help---
+	IDH_HTML_DRV_MIIM_INSTANCES_NUMBER
+	---endhelp---
+	
+config DRV_MIIM_INSTANCE_OPERATIONS
+	depends on DRV_MIIM_USE_DRIVER
+	int "Number of Instance Operations"
+	default 4
+	---help---
+	IDH_HTML_DRV_MIIM_INSTANCE_OPERATIONS
+	---endhelp---
+	
+config DRV_MIIM_INSTANCE_CLIENTS
+	depends on DRV_MIIM_USE_DRIVER
+	int "Maximum Number of Clients per Instance"
+	default 2
+	---help---
+	IDH_HTML_DRV_MIIM_INSTANCE_CLIENTS
+	---endhelp---
+	
+config DRV_MIIM_CLIENT_OP_PROTECTION
+	depends on DRV_MIIM_USE_DRIVER
+	bool "Enable Client Operation Protection Feature"
+	default n
+	---help---
+	IDH_HTML_DRV_MIIM_CLIENT_OP_PROTECTION
+	---endhelp---
+
+config DRV_MIIM_COMMANDS
+	depends on DRV_MIIM_USE_DRIVER
+	bool "Enable MIIM Commands"
+	default n
+	---help---
+	IDH_HTML_DRV_MIIM_COMMANDS
+	---endhelp---
+	
+config DRV_MIIM_DRIVER_OBJECT
+	depends on DRV_MIIM_USE_DRIVER
+	string "MIIM Driver Object"
+	default "DRV_MIIM_OBJECT_BASE_Default"
+	---help---
+	---endhelp---
+
+config DRV_MIIM_DRIVER_INDEX
+	depends on DRV_MIIM_USE_DRIVER
+	int "MIIM Driver Object Index"
+	default 0
+	---help---
+	---endhelp---
+	
+menu "RTOS Configuration"
+    depends on DRV_MIIM_USE_DRIVER
+    depends on USE_3RDPARTY_RTOS
+
+config DRV_MIIM_RTOS
+    string "Run This Driver Instance As"
+    range 3RDPARTY_RTOS_SYS_TASKS_OPTIONS
+    default "Combined with System Tasks"
+
+config DRV_MIIM_RTOS_TASK_SIZE
+    int "Task Size"
+    depends on DRV_MIIM_RTOS = "Standalone"
+    default 1024
+
+config DRV_MIIM_RTOS_TASK_PRIORITY
+    int "Task Priority"
+    depends on DRV_MIIM_RTOS = "Standalone"
+    default 1
+
+config DRV_MIIM_RTOS_USE_DELAY
+    bool "Use Task Delay?"
+    depends on DRV_MIIM_RTOS = "Standalone"
+    default y
+
+config DRV_MIIM_RTOS_DELAY
+    int "Task Delay"
+    depends on DRV_MIIM_RTOS = "Standalone"
+    depends on DRV_MIIM_RTOS_USE_DELAY
+    default 100
+endmenu
+	
+
+
+ifblock DRV_MIIM_USE_DRIVER
+
+file DRV_MIIM_H "$HARMONY_VERSION_PATH/framework/driver/miim/drv_miim.h" to "$PROJECT_HEADER_FILES/framework/driver/miim/drv_miim.h"
+file DRV_MIIM_CONFIG_H "$HARMONY_VERSION_PATH/framework/driver/miim/config/drv_miim_config.h" to "$PROJECT_HEADER_FILES/framework/driver/miim/config/drv_miim_config.h"
+file DRV_MIIM_LOCAL_H "$HARMONY_VERSION_PATH/framework/driver/miim/src/drv_miim_local.h" to "$PROJECT_HEADER_FILES/framework/driver/miim/src/drv_miim_local.h"
+file DRV_MIIM_MAPPING_H "$HARMONY_VERSION_PATH/framework/driver/miim/src/dynamic/drv_miim_mapping.h" to "$PROJECT_HEADER_FILES/framework/driver/miim/src/dynamic/drv_miim_mapping.h"
+file DRV_MIIM_C "$HARMONY_VERSION_PATH/framework/driver/miim/src/dynamic/drv_miim.c" to "$PROJECT_SOURCE_FILES/framework/driver/miim/src/dynamic/drv_miim.c"
+    
+
+add "<#include \"/framework/driver/miim/config/drv_miim.c.ftl\">"  to list SYSTEM_INIT_C_DRIVER_INITIALIZATION_DATA
+add "<#include \"/framework/driver/miim/config/drv_miim_init.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_DRIVERS
+add "<#include \"/framework/driver/miim/config/drv_miim_tasks.c.ftl\">"  to list SYSTEM_TASKS_C_CALL_DRIVER_TASKS
+add "<#include \"/framework/driver/miim/config/drv_miim.h.ftl\">"  to list SYSTEM_CONFIG_H_DRIVER_CONFIGURATION 
+
+
+endif
+
+    
+    
+endmenu

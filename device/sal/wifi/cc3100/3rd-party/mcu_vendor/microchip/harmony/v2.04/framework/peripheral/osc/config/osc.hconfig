@@ -1,0 +1,7 @@
+source "$HARMONY_VERSION_PATH/framework/peripheral/osc/processor/osc_$DEVICE.hconfig"
+
+ifblock PROJECT_STANDALONE
+file PLIB_OSC_H "$HARMONY_VERSION_PATH/framework/peripheral/osc/plib_osc.h" to "$PROJECT_HEADER_FILES/framework/peripheral/osc/plib_osc.h"
+file PLIB_OSC_P32XXXX_H "$HARMONY_VERSION_PATH/framework/peripheral/osc/processor/osc_p32xxxx.h" to "$PROJECT_HEADER_FILES/framework/peripheral/osc/processor/osc_p32xxxx.h"
+file PLIB_OSC_PROCESSOR_H "$HARMONY_VERSION_PATH/framework/peripheral/osc/processor/osc_processor.h" to "$PROJECT_HEADER_FILES/framework/peripheral/osc/processor/osc_processor.h"
+endif

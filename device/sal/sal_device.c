@@ -35,6 +35,10 @@ int sal_device_init()
     ret = esp8266_sal_init();
 #endif
 
+#ifdef DEV_SAL_CC3100
+        extern int cc3100_sal_init(void);
+        ret = cc3100_sal_init();
+#endif
     /*
     * Add extern wifi module BK7231 support for starterkit/developerkit.
     * Currently it follow mk3060 module implementation only removing

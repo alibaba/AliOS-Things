@@ -1,0 +1,93 @@
+config USE_CRYPTO_CIPHERS_NEEDED
+    bool
+
+config USE_CRYPTO_ECC_NEEDED
+    bool
+
+config USE_CRYPTO_3DES_NEEDED
+    bool
+
+config USE_CRYPTO_RSA_NEEDED
+    bool
+
+menu "Ciphers"
+    depends on USE_CRYPTO_LIBRARY
+
+config USE_CRYPTO_ECC
+    bool "Use ECC?"
+    depends on USE_CRYPTO_LIBRARY
+    default n
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_3DES_SW
+    bool "Use DES/3DES?"
+    depends on USE_CRYPTO_LIBRARY
+    depends on !USE_CRYPTO_HW || !(PIC32MX || PIC32MZ || PIC32MK)
+    default n if !USE_CRYPTO_3DES_NEEDED
+    default y if USE_CRYPTO_3DES_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_3DES_HW
+    bool "Use DES/3DES (HW Accelerated)?"
+    depends on USE_CRYPTO_LIBRARY
+    depends on USE_CRYPTO_HW
+    depends on (PIC32MX || PIC32MZ || PIC32MK)
+    default n if !USE_CRYPTO_3DES_NEEDED
+    default y if USE_CRYPTO_3DES_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+config USE_CRYPTO_3DES
+    bool
+    depends on USE_CRYPTO_LIBRARY
+    default y if USE_CRYPTO_3DES_SW = y
+    default y if USE_CRYPTO_3DES_HW = y
+    default n if !USE_CRYPTO_3DES_NEEDED
+    default y if USE_CRYPTO_3DES_NEEDED
+
+config USE_CRYPTO_RSA
+    bool "Use RSA?"
+    depends on USE_CRYPTO_LIBRARY
+    default n if !USE_CRYPTO_RSA_NEEDED
+    default y if USE_CRYPTO_RSA_NEEDED
+    ---help---
+      IDH_HTML_CRYPTO_Library_Interface
+    ---endhelp---
+
+source "$HARMONY_VERSION_PATH/framework/crypto/config/crypto_cipher_aes.hconfig"
+
+endmenu
+
+
+ifblock USE_CRYPTO_LIBRARY
+file ECC_H "$HARMONY_VERSION_PATH/framework/crypto/src/ecc.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/ecc.h"
+file ECC_C "$HARMONY_VERSION_PATH/framework/crypto/src/ecc.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/ecc.c"
+file ARC4_H "$HARMONY_VERSION_PATH/framework/crypto/src/arc4.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/arc4.h"
+file ARC4_C "$HARMONY_VERSION_PATH/framework/crypto/src/arc4.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/arc4.c"
+file PWDBASED_H "$HARMONY_VERSION_PATH/framework/crypto/src/pwdbased.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/pwdbased.h"
+file PWDBASED_C "$HARMONY_VERSION_PATH/framework/crypto/src/pwdbased.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/pwdbased.c"
+file TFM_H "$HARMONY_VERSION_PATH/framework/crypto/src/tfm.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/tfm.h"
+file TFM_C "$HARMONY_VERSION_PATH/framework/crypto/src/tfm.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/tfm.c"
+file ASN_H "$HARMONY_VERSION_PATH/framework/crypto/src/asn.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/asn.h"
+file ASN_C "$HARMONY_VERSION_PATH/framework/crypto/src/asn.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/asn.c"
+file DES3_H "$HARMONY_VERSION_PATH/framework/crypto/src/des3.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/des3.h"
+file DES3_C "$HARMONY_VERSION_PATH/framework/crypto/src/des3.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/des3.c"
+file RSA_H "$HARMONY_VERSION_PATH/framework/crypto/src/rsa.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/rsa.h"
+file RSA_C "$HARMONY_VERSION_PATH/framework/crypto/src/rsa.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/rsa.c"
+
+file AES_H "$HARMONY_VERSION_PATH/framework/crypto/src/aes.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/aes.h"
+
+ifblock !(PIC32MX || PIC32MZ || PIC32MK) && USE_CRYPTO_HW
+    file AES_C_PIC32CZ "$HARMONY_VERSION_PATH/framework/crypto/src/aes_pic32c.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/aes_pic32c.c"
+endif
+
+ifblock (PIC32MX || PIC32MZ || PIC32MK) || !USE_CRYPTO_HW
+    file AES_C "$HARMONY_VERSION_PATH/framework/crypto/src/aes.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/aes.c"
+endif
+
+endif

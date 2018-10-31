@@ -1,0 +1,484 @@
+menu "Console"
+    ---help---
+    IDH_HTML_Console_System_Service_Library
+    ---endhelp---
+
+enum CONSOLE_MODES
+    "STATIC"
+    || "DYNAMIC"
+
+enum CONSOLE_SOURCE
+    "APPIO_CONSOLE"
+    || "UART_CONSOLE"
+    || "USB_CDC_CONSOLE"
+
+enum CONSOLE_USB_CDC_FUNCTION_INSTANCE_1
+    "USB_DEVICE_CDC_INDEX_0"
+
+enum CONSOLE_USB_CDC_FUNCTION_INSTANCE_2
+    "USB_DEVICE_CDC_INDEX_0"
+    || "USB_DEVICE_CDC_INDEX_1"
+
+enum CONSOLE_USB_CDC_FUNCTION_INSTANCE_3
+    "USB_DEVICE_CDC_INDEX_0"
+    || "USB_DEVICE_CDC_INDEX_1"
+    || "USB_DEVICE_CDC_INDEX_2"
+    || "USB_DEVICE_CDC_INDEX_3"
+    || "USB_DEVICE_CDC_INDEX_4"
+    || "USB_DEVICE_CDC_INDEX_5"
+    || "USB_DEVICE_CDC_INDEX_6"
+    || "USB_DEVICE_CDC_INDEX_7"
+
+enum CONSOLE_USB_CDC_FUNCTION_INSTANCE_4
+    "USB_DEVICE_CDC_INDEX_0"
+    || "USB_DEVICE_CDC_INDEX_1"
+    || "USB_DEVICE_CDC_INDEX_2"
+    || "USB_DEVICE_CDC_INDEX_3"
+    || "USB_DEVICE_CDC_INDEX_4"
+
+enum CONSOLE_USB_CDC_FUNCTION_INSTANCE_5
+    "USB_DEVICE_CDC_INDEX_0"
+    || "USB_DEVICE_CDC_INDEX_1"
+    || "USB_DEVICE_CDC_INDEX_2"
+    || "USB_DEVICE_CDC_INDEX_3"
+    || "USB_DEVICE_CDC_INDEX_4"
+    || "USB_DEVICE_CDC_INDEX_5"
+
+enum CONSOLE_USB_CDC_FUNCTION_INSTANCE_6
+    "USB_DEVICE_CDC_INDEX_0"
+    || "USB_DEVICE_CDC_INDEX_1"
+    || "USB_DEVICE_CDC_INDEX_2"
+    || "USB_DEVICE_CDC_INDEX_3"
+    || "USB_DEVICE_CDC_INDEX_4"
+    || "USB_DEVICE_CDC_INDEX_5"
+    || "USB_DEVICE_CDC_INDEX_6"
+
+enum CONSOLE_USB_CDC_FUNCTION_INSTANCE_7
+    "USB_DEVICE_CDC_INDEX_0"
+    || "USB_DEVICE_CDC_INDEX_1"
+    || "USB_DEVICE_CDC_INDEX_2"
+    || "USB_DEVICE_CDC_INDEX_3"
+    || "USB_DEVICE_CDC_INDEX_4"
+    || "USB_DEVICE_CDC_INDEX_5"
+    || "USB_DEVICE_CDC_INDEX_6"
+    || "USB_DEVICE_CDC_INDEX_7"
+
+enum CONSOLE_USB_CDC_COMM_BAUD_RATE
+    "921600"
+    || "460800"
+    || "230400"
+    || "460800"
+    || "115200"
+    || "57600"
+    || "38400"
+    || "19200"
+    || "14400"
+    || "9600"
+
+config USE_SYS_CONSOLE_NEEDED
+    bool
+
+config USE_SYS_CONSOLE_APPIO
+    bool
+    default n
+
+config SYS_CONSOLE_SET_DEBUG_APPIO
+    bool
+    default y if USE_SYS_CONSOLE_APPIO && HAVE_APPIO
+    default n
+
+config USE_SYS_CONSOLE
+    bool "Use Console System Service?"
+    default n if !USE_SYS_CONSOLE_NEEDED
+    default y if USE_SYS_CONSOLE_NEEDED
+    ---help---
+    IDH_HTML_Console_System_Service_Library
+    ---endhelp---
+
+config SYS_CONSOLE_MODE
+    string "Select Service Mode"
+    depends on USE_SYS_CONSOLE
+    default "DYNAMIC"    
+    range CONSOLE_MODES
+    ---help---
+    IDH_HTML_Console_System_Service_Library
+    ---endhelp---
+
+config SYS_CONSOLE_OVERRIDE_STDIO
+    bool "Override STDIO?"
+    depends on USE_SYS_CONSOLE
+    default y
+    ---help---
+    IDH_HTML_Console_System_Service_Library
+    ---endhelp---
+
+config SYS_CONSOLE_IDX0_USE_APPIO
+    bool
+    depends on USE_SYS_CONSOLE
+    depends on SYS_CONSOLE_SOURCE_IDX0 = "APPIO_CONSOLE"
+    select USE_SYS_CONSOLE_APPIO
+    default y
+	
+config SYS_CONSOLE_IDX1_USE_APPIO
+    bool
+    depends on USE_SYS_CONSOLE
+    depends on SYS_CONSOLE_SOURCE_IDX1 = "APPIO_CONSOLE"
+    select USE_SYS_CONSOLE_APPIO
+    default y
+	
+config SYS_CONSOLE_IDX0_USE_UART
+    bool
+    depends on USE_SYS_CONSOLE
+    depends on SYS_CONSOLE_SOURCE_IDX0 = "UART_CONSOLE"
+    select USE_DRV_USART_NEEDED
+	select USE_SYS_INT_NEEDED
+    set DRV_USART_BYTE_MODEL_SUPPORT to n if SYS_CONSOLE_MODE = "DYNAMIC"
+    set DRV_USART_READ_WRITE_MODEL_SUPPORT to y if SYS_CONSOLE_MODE = "DYNAMIC"
+    set DRV_USART_BUFFER_QUEUE_SUPPORT to y if SYS_CONSOLE_MODE = "DYNAMIC"
+    default y
+	
+config SYS_CONSOLE_IDX1_USE_UART
+    bool
+    depends on USE_SYS_CONSOLE
+    depends on SYS_CONSOLE_SOURCE_IDX1 = "UART_CONSOLE"
+    select USE_DRV_USART_NEEDED
+	select USE_SYS_INT_NEEDED
+    set DRV_USART_BYTE_MODEL_SUPPORT to n if SYS_CONSOLE_MODE = "DYNAMIC"
+    set DRV_USART_READ_WRITE_MODEL_SUPPORT to y if SYS_CONSOLE_MODE = "DYNAMIC"
+    set DRV_USART_BUFFER_QUEUE_SUPPORT to y if SYS_CONSOLE_MODE = "DYNAMIC"
+    default y
+	
+config SYS_CONSOLE_IDX0_USE_STATIC_UART
+    bool
+    depends on USE_SYS_CONSOLE
+    depends on SYS_CONSOLE_SOURCE_IDX0 = "UART_CONSOLE"
+    depends on SYS_CONSOLE_MODE = "STATIC"
+    select USE_DRV_USART_STATIC_NEEDED
+    set DRV_USART_INTERRUPT_MODE to n if SYS_CONSOLE_MODE = "STATIC"
+    default y
+
+config SYS_CONSOLE_IDX0_USE_USB
+    bool
+    depends on USE_SYS_CONSOLE
+    depends on SYS_CONSOLE_SOURCE_IDX0 = "USB_CDC_CONSOLE"
+    select USE_USB_STACK_NEEDED
+    select DRV_USB_DEVICE_SUPPORT_NEEDED
+	select USE_SYS_INT_NEEDED
+	select USE_SYS_TMR_NEEDED
+    select USB_DEVICE_USE_CDC_NEEDED
+	select USE_SYS_CLK
+    default y
+	
+config SYS_CONSOLE_IDX1_USE_USB
+    bool
+    depends on USE_SYS_CONSOLE
+    depends on SYS_CONSOLE_SOURCE_IDX1 = "USB_CDC_CONSOLE"
+    select USE_USB_STACK_NEEDED
+    select DRV_USB_DEVICE_SUPPORT_NEEDED
+	select USE_SYS_INT_NEEDED
+	select USE_SYS_TMR_NEEDED
+    select USB_DEVICE_USE_CDC_NEEDED
+	select USE_SYS_CLK
+    default y
+	
+config SYS_CONSOLE_INSTANCES_NUMBER_DYNAMIC
+    int "Number of Console Instances - (1-2)"
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+    range 1 2
+    default 1
+    ---help---
+    IDH_HTML_SYS_CONSOLE_Configuring_the_Library
+    ---endhelp---
+
+config SYS_CONSOLE_INSTANCES_NUMBER_STATIC
+    int
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "STATIC"
+    default 1
+
+config SYS_CONSOLE_INSTANCES_NUMBER
+    int
+    depends on USE_SYS_CONSOLE
+    default 1 if SYS_CONSOLE_INSTANCES_NUMBER_DYNAMIC = 1
+    default 2 if SYS_CONSOLE_INSTANCES_NUMBER_DYNAMIC = 2
+    default 1 if SYS_CONSOLE_INSTANCES_NUMBER_STATIC = 1
+
+config SYS_CONSOLE_INST_IDX0
+    bool
+    depends on USE_SYS_CONSOLE
+    default y if SYS_CONSOLE_INSTANCES_NUMBER = 1
+    default y if SYS_CONSOLE_INSTANCES_NUMBER = 2
+    default n
+
+config SYS_CONSOLE_INST_IDX1
+    bool
+    depends on USE_SYS_CONSOLE
+    default y if SYS_CONSOLE_INSTANCES_NUMBER = 2
+    default n
+
+config SYS_CONSOLE_SOURCE_IDX0
+    string "Select Peripheral For Console Instance"
+    depends on USE_SYS_CONSOLE
+    depends on SYS_CONSOLE_INST_IDX0
+    range CONSOLE_SOURCE
+    default "APPIO_CONSOLE"
+    ---help---
+    IDH_HTML_SYS_CONSOLE_Configuring_the_Library
+    ---endhelp---
+
+menu "RTOS Configuration (Instance 0)"
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+    depends on USE_3RDPARTY_RTOS
+    depends on SYS_CONSOLE_INST_IDX0
+
+config SYS_CONSOLE_RTOS_IDX0
+    string "Run Library Tasks As"
+    range 3RDPARTY_RTOS_SYS_TASKS_OPTIONS
+    default "Combined with System Tasks"
+
+config SYS_CONSOLE_IDX0_RTOS_TASK_SIZE
+    int "Task Size"
+    depends on SYS_CONSOLE_RTOS_IDX0 = "Standalone"
+    default 1024
+
+config SYS_CONSOLE_IDX0_RTOS_TASK_PRIORITY
+    int "Task Priority"
+    depends on SYS_CONSOLE_RTOS_IDX0 = "Standalone"
+    default 1
+
+config SYS_CONSOLE_IDX0_RTOS_USE_DELAY
+    bool "Use Task Delay?"
+    depends on SYS_CONSOLE_RTOS_IDX0 = "Standalone"
+    default y
+
+config SYS_CONSOLE_IDX0_RTOS_DELAY
+    int "Task Delay"
+    depends on SYS_CONSOLE_RTOS_IDX0 = "Standalone"
+    depends on SYS_CONSOLE_IDX0_RTOS_USE_DELAY
+    default 1000
+endmenu
+
+config SYS_CONSOLE_SOURCE_IDX1
+    string "Select Peripheral For Console Instance 1"
+    depends on USE_SYS_CONSOLE
+    depends on SYS_CONSOLE_INST_IDX1
+    range CONSOLE_SOURCE
+    default "UART_CONSOLE"
+    ---help---
+    IDH_HTML_SYS_CONSOLE_Configuring_the_Library
+    ---endhelp---
+
+menu "RTOS Configuration (Instance 1)"
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+    depends on USE_3RDPARTY_RTOS
+    depends on SYS_CONSOLE_INST_IDX1
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+
+config SYS_CONSOLE_RTOS_IDX1
+    string "Run Library Tasks As"
+    range 3RDPARTY_RTOS_SYS_TASKS_OPTIONS
+    default "Standalone"
+
+config SYS_CONSOLE_IDX1_RTOS_TASK_SIZE
+    int "Task Size"
+    depends on SYS_CONSOLE_RTOS_IDX1 = "Standalone"
+    default 1024
+
+config SYS_CONSOLE_IDX1_RTOS_TASK_PRIORITY
+    int "Task Priority"
+    depends on SYS_CONSOLE_RTOS_IDX1 = "Standalone"
+    default 1
+
+config SYS_CONSOLE_IDX1_RTOS_USE_DELAY
+    bool "Use Task Delay?"
+    depends on SYS_CONSOLE_RTOS_IDX1 = "Standalone"
+    default y
+
+config SYS_CONSOLE_IDX1_RTOS_DELAY
+    int "Task Delay"
+    depends on SYS_CONSOLE_RTOS_IDX1 = "Standalone"
+    depends on SYS_CONSOLE_IDX1_RTOS_USE_DELAY
+    default 1000
+endmenu
+
+ifblock	(USE_SYS_CONSOLE) && ((SYS_CONSOLE_SOURCE_IDX0 = "APPIO_CONSOLE") || (SYS_CONSOLE_SOURCE_IDX1 = "APPIO_CONSOLE"))
+
+comment "**** NOTE: APPIO is currently not supported for this device ****"
+    depends on !HAVE_APPIO
+
+	
+# added dependency on HAVE_APPIO so that APPIO config choices are only displayed with devices having APPIO
+# tried adding a new config variable and new enum but backward compatibility with existing projects could not be maintained
+# hence adding the dependency on HAVE_APPIO choice	
+config SYS_CONSOLE_APPIO_RD_QUEUE_DEPTH
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	int "Read APPIO Buffer Queue Size (1-128)"
+	depends on HAVE_APPIO
+	default 8
+	range 1 128
+    ---help---
+    IDH_HTML_SYS_CONSOLE_UART_Console_Device_Configuration_Options
+    ---endhelp---
+
+config SYS_CONSOLE_APPIO_WR_QUEUE_DEPTH
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	int "Write APPIO Buffer Queue Size (1-256)"
+	depends on HAVE_APPIO
+	default 128
+	range 1 256
+    ---help---
+    IDH_HTML_SYS_CONSOLE_UART_Console_Device_Configuration_Options
+    ---endhelp---
+	
+endif
+
+ifblock	(USE_SYS_CONSOLE) && ((SYS_CONSOLE_SOURCE_IDX0 = "UART_CONSOLE") || (SYS_CONSOLE_SOURCE_IDX1 = "UART_CONSOLE"))
+
+config SYS_CONSOLE_USE_UART_INSTANCE
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+    int "Use UART Instance"
+    range 0 DRV_USART_INSTANCES_NUMBER
+    default 0
+    
+config SYS_CONSOLE_UART_RD_QUEUE_DEPTH
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	int "Read UART Buffer Queue Size (1-128)"
+	default 1
+	range 1 128
+    ---help---
+    IDH_HTML_SYS_CONSOLE_UART_Console_Device_Configuration_Options
+    ---endhelp---
+
+config SYS_CONSOLE_UART_WR_QUEUE_DEPTH
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	int "Write UART Buffer Queue Size (1-128)"
+	default 64
+	range 1 128
+    ---help---
+    IDH_HTML_SYS_CONSOLE_UART_Console_Device_Configuration_Options
+    ---endhelp---
+	
+endif
+
+ifblock	(USE_SYS_CONSOLE) && ((SYS_CONSOLE_SOURCE_IDX0 = "USB_CDC_CONSOLE") || (SYS_CONSOLE_SOURCE_IDX1 = "USB_CDC_CONSOLE"))
+
+comment "**** NOTE: USB CDC is currently not supported for STATIC console mode ****"
+    depends on SYS_CONSOLE_MODE = "STATIC"
+
+ifblock (USB_DEVICE_FUNCTION_1_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_2_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_3_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_4_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_5_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_6_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_7_DEVICE_CLASS_CDC_IDX0)
+config SYS_CONSOLE_USB_CDC_INSTANCE_1
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	string "USB CDC Function Instance Index"
+	default "USB_DEVICE_CDC_INDEX_0"
+	range CONSOLE_USB_CDC_FUNCTION_INSTANCE_1
+endif
+
+ifblock (USB_DEVICE_FUNCTION_1_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_2_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_3_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_4_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_5_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_6_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_7_DEVICE_CLASS_CDC_IDX0)
+config SYS_CONSOLE_USB_CDC_INSTANCE_2
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	string "USB CDC Function Instance Index"
+	default "USB_DEVICE_CDC_INDEX_0"
+	range CONSOLE_USB_CDC_FUNCTION_INSTANCE_2
+endif
+
+ifblock (USB_DEVICE_FUNCTION_1_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_2_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_3_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_4_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_5_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_6_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_7_DEVICE_CLASS_CDC_IDX0)
+config SYS_CONSOLE_USB_CDC_INSTANCE_3
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	string "USB CDC Function Instance Index"
+	default "USB_DEVICE_CDC_INDEX_0"
+	range CONSOLE_USB_CDC_FUNCTION_INSTANCE_3
+endif
+
+ifblock (USB_DEVICE_FUNCTION_1_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_2_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_3_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_4_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_5_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_6_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_7_DEVICE_CLASS_CDC_IDX0)
+config SYS_CONSOLE_USB_CDC_INSTANCE_4
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	string "USB CDC Function Instance Index"
+	default "USB_DEVICE_CDC_INDEX_0"
+	range CONSOLE_USB_CDC_FUNCTION_INSTANCE_4
+endif
+
+ifblock (USB_DEVICE_FUNCTION_1_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_2_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_3_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_4_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_5_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_6_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_7_DEVICE_CLASS_CDC_IDX0)
+config SYS_CONSOLE_USB_CDC_INSTANCE_5
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	string "USB CDC Function Instance Index"
+	default "USB_DEVICE_CDC_INDEX_0"
+	range CONSOLE_USB_CDC_FUNCTION_INSTANCE_5
+endif
+
+ifblock (USB_DEVICE_FUNCTION_1_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_2_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_3_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_4_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_5_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_6_DEVICE_CLASS_CDC_IDX0) && (!USB_DEVICE_FUNCTION_7_DEVICE_CLASS_CDC_IDX0)
+config SYS_CONSOLE_USB_CDC_INSTANCE_6
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	string "USB CDC Function Instance Index"
+	default "USB_DEVICE_CDC_INDEX_0"
+	range CONSOLE_USB_CDC_FUNCTION_INSTANCE_6
+endif
+
+ifblock (USB_DEVICE_FUNCTION_1_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_2_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_3_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_4_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_5_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_6_DEVICE_CLASS_CDC_IDX0) && (USB_DEVICE_FUNCTION_7_DEVICE_CLASS_CDC_IDX0)
+config SYS_CONSOLE_USB_CDC_INSTANCE_7
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	string "USB CDC Function Instance Index"
+	default "USB_DEVICE_CDC_INDEX_0"
+	range CONSOLE_USB_CDC_FUNCTION_INSTANCE_7
+endif
+
+config SYS_CONSOLE_USB_CDC_COMM_BAUD_RATE
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	string "USB CDC Communication Baud Rate"
+	default "921600"
+	range CONSOLE_USB_CDC_COMM_BAUD_RATE
+
+config SYS_CONSOLE_USB_CDC_RD_QUEUE_DEPTH
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	int "Read USB Buffer Queue Size (1-128)"
+	default 1
+	range 1 128
+    ---help---
+    IDH_HTML_SYS_CONSOLE_USB_CDC_Console_Device_Configuration_Options
+    ---endhelp---
+
+config SYS_CONSOLE_USB_CDC_WR_QUEUE_DEPTH
+    depends on USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC"
+	int "Write USB Buffer Queue Size (1-128)"
+	default 128
+	range 1 128
+    ---help---
+    IDH_HTML_SYS_CONSOLE_USB_CDC_Console_Device_Configuration_Options
+    ---endhelp---
+
+endif
+
+endmenu
+
+ifblock USE_SYS_CONSOLE
+
+add "<#include \"/framework/system/console/templates/sys_console.c.ftl\">"  to list SYSTEM_INIT_C_MODULE_INITIALIZATION_DATA
+add "<#include \"/framework/system/console/templates/sys_console_init.c.ftl\">"  to list SYSTEM_INIT_C_INITIALIZE_SYSTEM_SERVICES
+add "<#include \"/framework/system/console/templates/sys_console.h.ftl\">"  to list SYSTEM_CONFIG_H_SYSTEM_SERVICE_CONFIGURATION
+add "<#assign SYS_CONSOLE_TASKS = \"TASK_CALL_NO_RTOS\"><#include \"/framework/system/console/templates/sys_console_tasks.c.ftl\">"  to list SYSTEM_TASKS_C_CALL_SYSTEM_TASKS
+
+file SYS_CONSOLE_H "$HARMONY_VERSION_PATH/framework/system/console/sys_console.h" to "$PROJECT_HEADER_FILES/framework/system/console/sys_console.h"
+file SYS_CONSOLE_LOCAL_H "$HARMONY_VERSION_PATH/framework/system/console/src/sys_console_local.h" to "$PROJECT_HEADER_FILES/framework/system/console/src/sys_console_local.h"
+file SYS_CONSOLE_DRV_COMMON_H "$HARMONY_VERSION_PATH/framework/driver/driver_common.h" to "$PROJECT_HEADER_FILES/framework/driver/driver_common.h"
+endif
+
+ifblock (USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC")
+file SYS_CONSOLE_C "$HARMONY_VERSION_PATH/framework/system/console/src/sys_console.c" to "$PROJECT_SOURCE_FILES/framework/system/console/src/sys_console.c"
+endif
+
+ifblock	(USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "STATIC")
+template SYS_CONSOLE_STATIC_C_FTL "$HARMONY_VERSION_PATH/framework/system/console/templates/sys_console_static.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/system/console/src/sys_console_static.c"
+endif
+
+ifblock	(USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC") && ((SYS_CONSOLE_SOURCE_IDX0 = "APPIO_CONSOLE") || (SYS_CONSOLE_SOURCE_IDX1 = "APPIO_CONSOLE"))
+file SYS_CONSOLE_APPIO_H "$HARMONY_VERSION_PATH/framework/system/console/src/sys_console_appio.h" to "$PROJECT_HEADER_FILES/framework/system/console/src/sys_console_appio.h" 
+file SYS_CONSOLE_APPIO_C "$HARMONY_VERSION_PATH/framework/system/console/src/sys_console_appio.c" to "$PROJECT_SOURCE_FILES/framework/system/console/src/sys_console_appio.c"
+endif
+
+ifblock	(USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC") && ((SYS_CONSOLE_SOURCE_IDX0 = "UART_CONSOLE") || (SYS_CONSOLE_SOURCE_IDX1 = "UART_CONSOLE"))
+file SYS_CONSOLE_UART_H "$HARMONY_VERSION_PATH/framework/system/console/src/sys_console_uart.h" to "$PROJECT_HEADER_FILES/framework/system/console/src/sys_console_uart.h" 
+file SYS_CONSOLE_UART_C "$HARMONY_VERSION_PATH/framework/system/console/src/sys_console_uart.c" to "$PROJECT_SOURCE_FILES/framework/system/console/src/sys_console_uart.c"
+endif
+
+ifblock	(USE_SYS_CONSOLE && SYS_CONSOLE_MODE = "DYNAMIC") && ((SYS_CONSOLE_SOURCE_IDX0 = "USB_CDC_CONSOLE") || (SYS_CONSOLE_SOURCE_IDX1 = "USB_CDC_CONSOLE")) 
+file SYS_CONSOLE_USB_CDC_H "$HARMONY_VERSION_PATH/framework/system/console/src/sys_console_usb_cdc_local.h" to "$PROJECT_HEADER_FILES/framework/system/console/src/sys_console_usb_cdc_local.h" 
+file SYS_CONSOLE_USB_CDC_C "$HARMONY_VERSION_PATH/framework/system/console/src/sys_console_usb_cdc.c" to "$PROJECT_SOURCE_FILES/framework/system/console/src/sys_console_usb_cdc.c"
+endif

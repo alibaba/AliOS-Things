@@ -1,0 +1,143 @@
+menu "DMA"
+
+enum SYS_DMA_CHANNEL_CHAIN_PRIO
+    "SYS_DMA_CHANNEL_CHAIN_PRIO_HIGH"
+    || "SYS_DMA_CHANNEL_CHAIN_PRIO_LOW"
+    
+enum SYS_DMA_CHANNEL_IGNORE_MATCH
+    "SYS_DMA_CHANNEL_IGNORE_MATCH_DISABLE"
+    || "SYS_DMA_CHANNEL_IGNORE_MATCH_ENABLE"
+    
+enum SYS_DMA_CHANNEL_CRC_MODE
+    "SYS_DMA_CHANNEL_CRC_MODE_BACKGROUND"
+    || "SYS_DMA_CHANNEL_CRC_MODE_APPEND"
+    
+enum SYS_DMA_CRC_WRITE_ORDER
+    "SYS_DMA_CRC_WRITE_ORDER_MAINTAIN"
+    || "SYS_DMA_CRC_WRITE_ORDER_CHANGE"
+    
+enum SYS_DMA_CHANNEL_OP_MODE
+    "SYS_DMA_CHANNEL_OP_MODE_BASIC"
+    || "SYS_DMA_CHANNEL_OP_MODE_MATCH_ABORT"
+    || "SYS_DMA_CHANNEL_OP_MODE_CHAIN"
+    || "SYS_DMA_CHANNEL_OP_MODE_AUTO"
+    || "SYS_DMA_CHANNEL_OP_MODE_CRC"
+
+config USE_SYS_DMA_NEEDED
+    bool
+
+config USE_SYS_DMA
+	bool "Use DMA System Service?"
+	depends on HAVE_DMA
+    default n if !USE_SYS_DMA_NEEDED && !DRV_SPI_USE_DMA
+    default y if USE_SYS_DMA_NEEDED || DRV_SPI_USE_DMA
+    set SYS_CLK_PMC_ID_XDMAC optionally to y if USE_SYS_DMA
+	---help---
+	  IDH_HTML_DMA_System_Service_Library
+	---endhelp---
+
+menu "RTOS Configuration"
+    depends on USE_SYS_DMA
+    depends on USE_3RDPARTY_RTOS
+
+config SYS_DMA_RTOS
+    string "Run Library Tasks As"
+    range 3RDPARTY_RTOS_SYS_TASKS_OPTIONS
+    default "Combined with System Tasks"
+
+config SYS_DMA_RTOS_TASK_SIZE
+    int "Task Size"
+    depends on SYS_DMA_RTOS = "Standalone"
+    default 1024
+
+config SYS_DMA_RTOS_TASK_PRIORITY
+    int "Task Priority"
+    depends on SYS_DMA_RTOS = "Standalone"
+    default 1
+
+config SYS_DMA_RTOS_USE_DELAY
+    bool "Use Task Delay?"
+    depends on SYS_DMA_RTOS = "Standalone"
+    default y
+
+config SYS_DMA_RTOS_DELAY
+    int "Task Delay"
+    depends on SYS_DMA_RTOS = "Standalone"
+    depends on SYS_DMA_RTOS_USE_DELAY
+    default 1000
+
+endmenu
+
+config SYS_DMA_SIDL
+	bool "Stop DMA Transfers When In Idle/Sleep Mode?"
+	depends on USE_SYS_DMA
+    depends on (PIC32MX || PIC32MZ || PIC32MK || PIC32WK)
+	default n
+	---help---
+	  IDH_HTML_SYS_DMA_SIDL
+	---endhelp---
+
+config SYS_DMA_INTERRUPT_HANDLER_NAME
+	string "Interrupt handler name"
+	depends on USE_SYS_DMA
+    depends on !(PIC32MX || PIC32MZ || PIC32MK || PIC32WK)
+	default "XDMAC_Handler"
+    
+config SYS_DMA_INTERRUPT_PRIORITY
+	string "Interrupt Priority"
+	depends on USE_SYS_DMA
+    depends on !(PIC32MX || PIC32MZ || PIC32MK || PIC32WK)
+    range INT_PRIORITY_LEVEL_PIC32C
+	default "INT_PRIORITY_LEVEL7"
+	---help---
+	  IDH_HTML_INT_PRIORITY_LEVEL
+	---endhelp---
+
+config DRV_DMA_INSTANCES_NUMBER
+    int "Number of DMA Channel Instances"
+    depends on USE_SYS_DMA
+    range 1 DMA_NUMBER_OF_CHANNELS
+    default 2 if USE_SYS_DMA_NEEDED && DRV_SPI_USE_DMA
+    default 1 
+    ---help---
+    Sets up the maximum number of hardware channels that can be supported. 
+    ---endhelp---
+	
+source "$HARMONY_VERSION_PATH/framework/system/dma/config/sys_dma_chx.ftl" 24 instances
+
+endmenu
+
+
+ifblock USE_SYS_DMA
+
+file SYS_DMA_H "$HARMONY_VERSION_PATH/framework/system/dma/sys_dma.h" to "$PROJECT_HEADER_FILES/framework/system/dma/sys_dma.h"
+
+ifblock (PIC32MX || PIC32MZ || PIC32MK || PIC32WK)
+add "<#include \"/framework/system/dma/templates/sys_dma_init.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_DEPENDENT_DRIVERS
+add "<#include \"/framework/system/dma/templates/sys_dma_tasks.c.ftl\">"  to list SYSTEM_TASKS_C_CALL_SYSTEM_TASKS
+add "<#include \"/framework/system/dma/templates/sys_dma_interrupt.c.ftl\">"  to list SYSTEM_INTERRUPT_C_VECTORS
+add "<#include \"/framework/system/dma/templates/sys_dma.c.ftl\">"  to list SYSTEM_INIT_C_MODULE_INITIALIZATION_DATA
+
+file SYS_DMA_DEFINITIONS_H "$HARMONY_VERSION_PATH/framework/system/dma/sys_dma_definitions.h" to "$PROJECT_HEADER_FILES/framework/system/dma/sys_dma_definitions.h"
+file SYS_DMA_LOCAL_H "$HARMONY_VERSION_PATH/framework/system/dma/src/sys_dma_local.h" to "$PROJECT_HEADER_FILES/framework/system/dma/src/sys_dma_local.h"
+file SYS_DMA_C "$HARMONY_VERSION_PATH/framework/system/dma/src/sys_dma.c" to "$PROJECT_SOURCE_FILES/framework/system/dma/sys_dma.c"
+endif
+
+ifblock !(PIC32MX || PIC32MZ || PIC32MK || PIC32WK)
+add "pfnXDMAC_Handler ${CONFIG_SYS_DMA_INTERRUPT_HANDLER_NAME}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS
+add "<#include \"/framework/system/dma/templates/sys_dma_init_pic32c.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_DEPENDENT_DRIVERS
+add "<#include \"/framework/system/dma/templates/sys_dma_interrupt_pic32c.c.ftl\">"  to list SYSTEM_INTERRUPT_C_VECTORS
+add "<#include \"/framework/system/dma/templates/sys_dma_pic32c.c.ftl\">"  to list SYSTEM_INIT_C_MODULE_INITIALIZATION_DATA
+
+file SYS_DMA_DEFINITIONS_PIC32C_H "$HARMONY_VERSION_PATH/framework/system/dma/sys_dma_definitions_pic32c.h" to "$PROJECT_HEADER_FILES/framework/system/dma/sys_dma_definitions_pic32c.h"
+file SYS_DMA_LOCAL_PIC32C_H "$HARMONY_VERSION_PATH/framework/system/dma/src/sys_dma_local_pic32c.h" to "$PROJECT_HEADER_FILES/framework/system/dma/src/sys_dma_local_pic32c.h"
+file SYS_DMA_PIC32C_C "$HARMONY_VERSION_PATH/framework/system/dma/src/sys_dma_pic32c.c" to "$PROJECT_SOURCE_FILES/framework/system/dma/src/sys_dma_pic32c.c"
+endif
+
+endif
+
+ifblock !USE_SYS_DMA
+ifblock !(PIC32MX || PIC32MZ || PIC32MK || PIC32WK)
+add "pfnXDMAC_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS
+endif
+endif
