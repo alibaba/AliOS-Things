@@ -52,7 +52,7 @@ static ssize_t send_callback(nghttp2_session *session, const uint8_t *data,
     int rv;
     connection = (http2_connection_t *)user_data;
 
-    NGHTTP2_DBG("send_callback data begins %s * %d,session->remote_window_size=%d!\r\n", (char *)data, (int)length,
+    NGHTTP2_DBG("send_callback data len %d, session->remote_window_size=%d!\r\n", (int)length,
                 session->remote_window_size);
     if (session->remote_window_size < length * 2) {
         HAL_SleepMs(50);
