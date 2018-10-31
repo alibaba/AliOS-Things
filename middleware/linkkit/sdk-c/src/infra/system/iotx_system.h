@@ -58,6 +58,7 @@ iotx_conn_info_pt iotx_conn_info_get(void);
 #define LINKKIT_VERSION_MSG_LEN     (192)
 #define FIRMWARE_VERSION_MSG_LEN    (64)
 
+int     iotx_report_id(void);
 int     iotx_midreport_reqid(char *requestId, char *product_key, char *device_name);
 int     iotx_midreport_payload(char *msg, char *requestId, char *mid, char *pid);
 int     iotx_midreport_topic(char *topic_name, char *topic_head, char *product_key, char *device_name);

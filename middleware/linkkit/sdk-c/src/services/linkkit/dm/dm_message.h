@@ -87,7 +87,6 @@ typedef struct {
 
 int dm_msg_init(void);
 int dm_msg_deinit(void);
-int dm_msg_get_id(void);
 int _dm_msg_send_to_user(iotx_dm_event_types_t type, char *message);
 int dm_msg_send_msg_timeout_to_user(int msg_id, int devid, iotx_dm_event_types_t type);
 int dm_msg_uri_parse_pkdn(_IN_ char *uri, _IN_ int uri_len, _IN_ int start_deli, _IN_ int end_deli,
