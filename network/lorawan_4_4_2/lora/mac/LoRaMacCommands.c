@@ -249,7 +249,7 @@ static MacCommand_t* linkedListGetPrevious( MacCommandsList_t* list, MacCommand_
  */
 static bool linkedListRemove( MacCommandsList_t* list, MacCommand_t* element )
 {
-    if( ( list == 0 ) && ( element == 0 ) )
+    if( ( list == 0 ) || ( element == 0 ) )
     {
         return false;
     }
