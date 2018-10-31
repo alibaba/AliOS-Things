@@ -415,15 +415,18 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
     char sign[41 + 1] = {0};
     char path[128] = {0};
     int header_count = 0;
+    int header_num;
     int rv = 0;
     http2_data h2_data;
     http2_stream_node_t *node = NULL;
     stream_handle_t * handle = (stream_handle_t *)hd;
-    http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
+    http2_header *nva = NULL;
+
 
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info->identify, NULL_VALUE_ERROR);
+
 
     memset(&h2_data, 0, sizeof(http2_data));
 
@@ -444,7 +447,16 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
                                            MAKE_HEADER_CS("x-auth-param-sign", sign),
                                            MAKE_HEADER("content-length", "0"),
                                          };
-    header_count = sizeof(static_header) / sizeof(static_header[0]);
+    header_num = sizeof(static_header) / sizeof(static_header[0]);
+    if (header != NULL) {
+        header_num += header->num;
+    }
+    nva = (http2_header *)HAL_Malloc(sizeof(http2_header)* header_num);
+    if(nva == NULL) {
+        h2stream_err("nva malloc failed\n");
+        return FAIL_RETURN;
+    }
+
 
     /* add external header if it's not NULL */
     header_count = http2_nv_copy(nva, 0, (http2_header *)static_header, sizeof(static_header) / sizeof(static_header[0]));
@@ -463,13 +475,15 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
     rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
     http2_stream_node_insert(handle, h2_data.stream_id, &node);
     HAL_MutexUnlock(handle->mutex);
+    HAL_Free(nva);
 
     if (rv < 0) {
         h2stream_err("client send error\n");
-        return rv;
+        return FAIL_RETURN;
     }
 
     if (node == NULL) {
+        h2stream_err("node insert failed!");
         return FAIL_RETURN;
     }
 
@@ -497,7 +511,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
     int count = 0;
     http2_stream_node_t *node = NULL;
     stream_handle_t * handle = (stream_handle_t *)hd;
-    http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
+    http2_header *nva = NULL;
 
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
@@ -511,7 +525,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
         h2stream_warning("windows_size < info->packet_len ,wait ...\n");
         HAL_SleepMs(100);
         if (++count > 50) {
-            return -1;
+            return FAIL_RETURN;
         }
         windows_size = iotx_http2_get_available_window_size(handle->http2_connect);
     }
@@ -520,6 +534,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
     //snprintf(stream_id_str, sizeof(stream_id_str), "%d", info->stream_id);
     snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
     if (info->send_len == 0) { //first send,need header
+        int header_count,header_num;
         const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
                                                MAKE_HEADER_CS(":path", path),
                                                MAKE_HEADER(":scheme", "https"),
@@ -527,8 +542,17 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
                                                MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
                                              };
 
-        int header_count = sizeof(static_header) / sizeof(static_header[0]);
+        header_num = sizeof(static_header) / sizeof(static_header[0]);
+        if (header != NULL) {
+            header_num += header->num;
+        }
+        nva = (http2_header *)HAL_Malloc(sizeof(http2_header)* header_num);
+        if(nva == NULL) {
+            h2stream_err("nva malloc failed\n");
+            return FAIL_RETURN;
+        }
 
+        /* add external header if it's not NULL */
         header_count = http2_nv_copy(nva, 0, (http2_header *)static_header, sizeof(static_header) / sizeof(static_header[0]));
         if (header != NULL) {
             header_count = http2_nv_copy(nva, header_count, (http2_header *)header->nva, header->num);
@@ -549,12 +573,15 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
         rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
         http2_stream_node_insert(handle, h2_data.stream_id, &node);
         HAL_MutexUnlock(handle->mutex);
+        HAL_Free(nva);
 
-        if (rv < 0) {
-            return -1;
+        if (rv < 0) { 
+            h2stream_err("send failed!");
+            return FAIL_RETURN;
         }
 
         if (node == NULL) {
+            h2stream_err("node insert failed!");
             return FAIL_RETURN;
         }
 
@@ -586,6 +613,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
         http2_stream_node_search(handle, h2_data.stream_id, &node);
         HAL_MutexUnlock(handle->mutex);
         if (node == NULL) {
+            h2stream_err("node search failed!");
             return FAIL_RETURN;
         }
         rv = HAL_SemaphoreWait(node->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
@@ -606,9 +634,9 @@ int IOT_HTTP2_Stream_Query(void *hd, stream_data_info_t *info, header_ext_info_t
     http2_data h2_data;
     http2_stream_node_t *node = NULL;
     char path[128] = {0};
-    int header_count = 0;
+    int header_count,header_num;
     stream_handle_t * handle = (stream_handle_t *)hd;
-    http2_header nva[MAX_HTTP2_HEADER_NUM] = {{0}};
+    http2_header *nva = NULL;
 
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
@@ -622,7 +650,17 @@ int IOT_HTTP2_Stream_Query(void *hd, stream_data_info_t *info, header_ext_info_t
                                            MAKE_HEADER("x-test-downstream", "1"),
                                          };
 
-    header_count = sizeof(static_header) / sizeof(static_header[0]);
+    header_num = sizeof(static_header) / sizeof(static_header[0]);
+    if (header != NULL) {
+        header_num += header->num;
+    }
+    nva = (http2_header *)HAL_Malloc(sizeof(http2_header)* header_num);
+    if(nva == NULL) {
+        h2stream_err("nva malloc failed\n");
+        return FAIL_RETURN;
+    }
+
+    /* add external header if it's not NULL */
     header_count = http2_nv_copy(nva, 0, (http2_header *)static_header, sizeof(static_header) / sizeof(static_header[0]));
     if (header != NULL) {
         header_count = http2_nv_copy(nva, header_count, (http2_header *)header->nva, header->num);
@@ -638,6 +676,7 @@ int IOT_HTTP2_Stream_Query(void *hd, stream_data_info_t *info, header_ext_info_t
     rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
     http2_stream_node_insert(handle, h2_data.stream_id, &node);
     HAL_MutexUnlock(handle->mutex);
+    HAL_Free(nva);
 
     if (rv < 0) {
         h2stream_err("client send error\n");
@@ -645,6 +684,7 @@ int IOT_HTTP2_Stream_Query(void *hd, stream_data_info_t *info, header_ext_info_t
     }
 
     if (node == NULL) {
+        h2stream_err("node insert failed!");
         return FAIL_RETURN;
     }
 
