@@ -2916,7 +2916,7 @@ void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
 }
 #endif
 
-const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"version\":\"1.0\",\"params\":["
+const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"10001\",\"version\":\"1.0\",\"params\":["       /* check the requestId */
                                      "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
                                      "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
                                      "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"},"
@@ -3067,7 +3067,7 @@ static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
     ret = HAL_Snprintf(msg,
                        FIRMWARE_VERSION_MSG_LEN,
                        "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}",
-                       3,
+                       10002,       /* check the requestId */
                        version
                       );
     if (ret <= 0) {
