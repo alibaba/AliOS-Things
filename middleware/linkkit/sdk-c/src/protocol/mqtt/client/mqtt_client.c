@@ -2916,7 +2916,7 @@ void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
 }
 #endif
 
-const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"10001\",\"version\":\"1.0\",\"params\":["       /* check the requestId */
+const char *DEVICE_INFO_UPDATE_FMT = "{\"id\":\"%d\",\"version\":\"1.0\",\"params\":["
                                      "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
                                      "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
                                      "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"},"
@@ -2988,7 +2988,7 @@ static int iotx_mc_report_devinfo(iotx_mc_client_t *pclient)
         strncpy(network_interfaces, default_network_info, strlen(default_network_info));
     }
 
-    msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN + \
+    msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + 10 + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN + \
               + strlen(network_interfaces) + 1;
     msg = (char *)mqtt_malloc(msg_len);
     if (msg == NULL) {
@@ -3001,6 +3001,7 @@ static int iotx_mc_report_devinfo(iotx_mc_client_t *pclient)
     ret = HAL_Snprintf(msg,
                        msg_len,
                        DEVICE_INFO_UPDATE_FMT,
+                       iotx_report_id(),
                        output,
                        LINKKIT_VERSION,
                        network_interfaces
@@ -3067,7 +3068,7 @@ static int iotx_mc_report_firmware_version(iotx_mc_client_t *pclient)
     ret = HAL_Snprintf(msg,
                        FIRMWARE_VERSION_MSG_LEN,
                        "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}",
-                       10002,       /* check the requestId */
+                       iotx_report_id(),
                        version
                       );
     if (ret <= 0) {

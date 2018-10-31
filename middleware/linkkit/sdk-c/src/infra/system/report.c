@@ -10,6 +10,13 @@
 
 #include "iotx_utils.h"
 
+static unsigned int g_report_id = 0;
+
+int iotx_report_id(void)
+{
+    return g_report_id++;
+}
+
 int iotx_midreport_reqid(char *requestId, char *product_key, char *device_name)
 {
     int ret;
