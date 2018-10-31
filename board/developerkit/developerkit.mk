@@ -70,9 +70,12 @@ GLOBAL_LDFLAGS += -L --scatter=board/developerkit/STM32L496.sct
 else ifeq ($(COMPILER),iar)
 GLOBAL_LDFLAGS += --config board/developerkit/STM32L496.icf
 else
-#DEVELOPERKIT_ENABLE_OTA is defined at platform/mcu/stm32l4xx_cube/stm32l4xx_cube.mk
+#AOS_DEVELOPERKIT_ENABLE_OTA is used for ctl the  developerkit OTA function
+#if AOS_DEVELOPERKIT_ENABLE_OTA := 1, it will enable OTA function
+#if AOS_DEVELOPERKIT_ENABLE_OTA := 0, it will disable OTA function
+AOS_DEVELOPERKIT_ENABLE_OTA :=0
 
-ifeq ($(DEVELOPERKIT_ENABLE_OTA),1)
+ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_OTA.ld
 GLOBAL_DEFINES += VECT_TAB_OFFSET=0x4000
 GLOBAL_DEFINES += USING_FLAT_FLASH
@@ -109,3 +112,7 @@ CONFIG_SYSINFO_DEVICE_NAME := developerkit
 
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
+
+ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
+EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
+endif
