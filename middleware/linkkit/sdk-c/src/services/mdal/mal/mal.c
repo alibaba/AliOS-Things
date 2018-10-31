@@ -89,6 +89,40 @@ static int mal_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
     return SUCCESS_RETURN;
 }
 
+/* check whether the topic is matched or not */
+static char mal_mc_is_topic_matched(char *topicFilter, const char *topicName)
+{
+    if (!topicFilter || !topicName) {
+        return 0;
+    }
+    char *curf = topicFilter;
+    char *curn = topicName;
+    char *curn_end = curn + strlen(topicName);
+
+    while (*curf && curn < curn_end) {
+        if (*curn == '/' && *curf != '/') {
+            break;
+        }
+
+        if (*curf != '+' && *curf != '#' && *curf != *curn) {
+            break;
+        }
+
+        if (*curf == '+') {
+            /* skip until we meet the next separator, or end of string */
+            char *nextpos = curn + 1;
+            while (nextpos < curn_end && *nextpos != '/') {
+                nextpos = ++curn + 1;
+            }
+        } else if (*curf == '#') {
+            curn = curn_end - 1;    /* skip until end of string */
+        }
+        curf++;
+        curn++;
+    }
+
+    return (curn == curn_end) && (*curf == '\0');
+}
 /* Check topic name */
 /* 0, topic name is valid; NOT 0, topic name is invalid */
 static int mal_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
@@ -267,7 +301,9 @@ static int MALMQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsi
 
     iotx_mc_topic_handle_t *h;
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
-        if ((strlen(topicFilter) == strlen(h->topic_filter)) && (strcmp(topicFilter, (char *)h->topic_filter) == 0)) {
+        if (((strlen(topicFilter) == strlen(h->topic_filter))
+        && (strcmp(topicFilter, (char *)h->topic_filter) == 0))
+        || (mal_mc_is_topic_matched((char *)h->topic_filter, topicFilter))) {
             remove_handle_from_list(c, h);
         }
     }
@@ -301,10 +337,10 @@ static int mal_mc_get_next_packetid(iotx_mc_client_t *c)
 /* handle PUBLISH packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *msg)
 {
-    iotx_mqtt_topic_info_t topic_msg;
+    iotx_mqtt_topic_info_t topic_msg = {0};
     int flag_matched = 0;
 
-    if (!c) {
+    if (!c || !topic || !msg) {
         return FAIL_RETURN;
     }
     mal_debug("iotx_mc_handle_recv_PUBLISH topic=%s msg=%s", topic, msg);
@@ -332,16 +368,20 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
     HAL_MutexLock(c->lock_generic);
     iotx_mc_topic_handle_t *h;
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
-        if ((strlen(topic) == strlen(h->topic_filter)) && (strcmp(topic, (char *)h->topic_filter) == 0)) {
+        if (((strlen(topic) == strlen(h->topic_filter))
+           && (strcmp(topic, (char *)h->topic_filter) == 0))
+           ||(mal_mc_is_topic_matched((char *)h->topic_filter, topic))) {
             mal_debug("iotx_mc_handle_recv_PUBLISH topic be matched");
 
             iotx_mc_topic_handle_t *msg_handle = h;
             HAL_MutexUnlock(c->lock_generic);
 
             if (NULL != msg_handle->handle.h_fp) {
-                iotx_mqtt_event_msg_t event_msg;
+                iotx_mqtt_event_msg_t event_msg = {0};
                 topic_msg.payload = msg;
+                topic_msg.payload_len = strlen(msg);
                 topic_msg.ptopic = topic;
+                topic_msg.topic_len = strlen(topic);
                 event_msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
                 event_msg.msg = &topic_msg;
                 msg_handle->handle.h_fp(msg_handle->handle.pcontext, c, &event_msg);
@@ -358,12 +398,16 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
         mal_debug("NO matching any topic, call default handle function");
 
         if (NULL != c->handle_event.h_fp) {
-            iotx_mqtt_event_msg_t msg;
+            iotx_mqtt_event_msg_t event_msg = {0};
 
-            msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
-            msg.msg = &topic_msg;
+            topic_msg.payload = msg;
+            topic_msg.payload_len = strlen(msg);
+            topic_msg.ptopic = topic;
+            topic_msg.topic_len = strlen(topic);
+            event_msg.event_type = IOTX_MQTT_EVENT_PUBLISH_RECEIVED;
+            event_msg.msg = &topic_msg;
 
-            c->handle_event.h_fp(c->handle_event.pcontext, c, &msg);
+            c->handle_event.h_fp(c->handle_event.pcontext, c, &event_msg);
         }
     }
 
