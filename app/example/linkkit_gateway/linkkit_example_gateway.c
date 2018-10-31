@@ -31,14 +31,14 @@
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
 
-#define EXAMPLE_TRACE(...)                               \
-    do {                                                     \
-        HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__);  \
-        HAL_Printf(__VA_ARGS__);                                 \
-        HAL_Printf("\033[0m\r\n");                                   \
+#define EXAMPLE_TRACE(...) \
+    do { \
+        HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__); \
+        HAL_Printf(__VA_ARGS__); \
+        HAL_Printf("\033[0m\r\n"); \
     } while (0)
 
-#define EXAMPLE_SUBDEV_MAX_NUM          6
+#define EXAMPLE_SUBDEV_MAX_NUM          20
 const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
     {
         "a1YRfb9bepk",
