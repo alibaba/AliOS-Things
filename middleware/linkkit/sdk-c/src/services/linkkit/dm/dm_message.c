@@ -28,18 +28,6 @@ int dm_msg_deinit(void)
     return SUCCESS_RETURN;
 }
 
-int dm_msg_get_id(void)
-{
-    dm_msg_ctx_t *ctx = _dm_msg_get_ctx();
-
-    ctx->id++;
-    if (ctx->id <= 0) {
-        ctx->id = 1;
-    }
-
-    return ctx->id;
-}
-
 int _dm_msg_send_to_user(iotx_dm_event_types_t type, char *message)
 {
     int res = 0;
