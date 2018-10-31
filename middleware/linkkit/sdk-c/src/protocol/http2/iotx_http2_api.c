@@ -291,7 +291,6 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
         NGHTTP2_DBG("stream user data is not exist\n");
     }
     NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk) stream_id [%d]\n" "%lu bytes\n", stream_id, (unsigned long int)len);
-    NGHTTP2_DBG("data chunk: %.*s\n", len, data);
 
     if (connection->cbs && connection->cbs->on_user_chunk_recv_cb) {
         connection->cbs->on_user_chunk_recv_cb(stream_id, data, len, flags);
@@ -489,7 +488,7 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
     int send_flag = 0;
     int rv = 0;
     nghttp2_data_provider data_prd;
-    nghttp2_nv nva[15];
+    nghttp2_nv *nva = NULL;
     int nva_size = 0;
     http2_header *header = h2_data->header;
     int header_count = h2_data->header_count;
@@ -498,7 +497,12 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
     int stream_id = h2_data->stream_id;
     int flags = h2_data->flag;
 
+
     if (header != NULL && header_count != 0) {
+        nva = (nghttp2_nv *)HAL_Malloc(sizeof(nghttp2_nv) * header_count);
+        if(nva == NULL) {
+            return -1;
+        }
         nva_size = http2_nv_copy_nghttp2_nv(nva, nva_size, header, header_count);
     }
     /*upload to server*/
@@ -516,6 +520,7 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
         rv = nghttp2_submit_request(conn->session, NULL, nva, nva_size, NULL, NULL);
         h2_data->stream_id = rv;
     }
+    HAL_Free(nva);
 
     if(rv < 0) {
         return rv;
