@@ -12,8 +12,6 @@
 extern "C" {
 #endif
 
-#define MAX_HTTP2_HEADER_NUM                    (16)
-#define EXT_HTTP2_HEADER_NUM                    (5)
 #define IOT_HTTP2_RES_OVERTIME_MS               (10000)
 
 
@@ -43,7 +41,7 @@ typedef struct {
 } device_conn_info_t;
 
 typedef struct {
-    http2_header      nva[EXT_HTTP2_HEADER_NUM];
+    http2_header      *nva;
     int               num;
 } header_ext_info_t;
 
