@@ -1161,7 +1161,7 @@ int iotx_dm_deprecated_legacy_set_property_value(_IN_ int devid, _IN_ char *key,
         }
         break;
         case DM_SHW_DATA_TYPE_DOUBLE: {
-            double value_double = (value == NULL) ? (atof(value_str)) : (*(float *)value);
+            double value_double = (value == NULL) ? (atof(value_str)) : (*(double *)value);
             res = dm_mgr_deprecated_set_property_value(devid, key, key_len, &value_double, sizeof(double));
         }
         break;
@@ -1321,7 +1321,7 @@ int iotx_dm_deprecated_legacy_set_event_output_value(_IN_ int devid, _IN_ char *
         }
         break;
         case DM_SHW_DATA_TYPE_DOUBLE: {
-            double value_double = (value == NULL) ? (atof(value_str)) : (*(float *)value);
+            double value_double = (value == NULL) ? (atof(value_str)) : (*(double *)value);
             res = dm_mgr_deprecated_set_event_output_value(devid, key, key_len, &value_double, sizeof(double));
         }
         break;
@@ -1581,7 +1581,7 @@ int iotx_dm_deprecated_legacy_set_service_output_value(_IN_ int devid, _IN_ char
         }
         break;
         case DM_SHW_DATA_TYPE_DOUBLE: {
-            double value_double = (value == NULL) ? (atof(value_str)) : (*(float *)value);
+            double value_double = (value == NULL) ? (atof(value_str)) : (*(double *)value);
             res = dm_mgr_deprecated_set_service_output_value(devid, key, key_len, &value_double, sizeof(double));
         }
         break;
