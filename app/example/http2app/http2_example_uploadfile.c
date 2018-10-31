@@ -31,7 +31,7 @@
 	#define HTTP2_DEVICE_SECRET           "q4tiwQuICYfr6JQ8aUFjWxocuXJ5ruEx"
 #endif
 
-#define FILE_NAME "test.tar.gz"
+//#define FILE_NAME "test.tar.gz2"
 
 #define EXAMPLE_TRACE(fmt, ...)                        \
     do {                                               \
@@ -69,7 +69,7 @@ void upload_file_result(const char * path,int result, void * user_data)
     upload_end =1;
 }
 
-static int http2_stream_test()
+static int http2_stream_test(char * file_path)
 {
     int ret;
     device_conn_info_t conn_info;
@@ -86,7 +86,7 @@ static int http2_stream_test()
         return -1;
     }
     
-    ret = IOT_HTTP2_Stream_UploadFile(handle,FILE_NAME,"iotx/vision/voice/intercom/live",NULL, 
+    ret = IOT_HTTP2_Stream_UploadFile(handle,file_path,"iotx/vision/voice/intercom/live",NULL, 
                                 upload_file_result, NULL);
     if(ret < 0) {
         return -1;
@@ -102,9 +102,23 @@ static int http2_stream_test()
 int linkkit_main(void *paras)
 {
     int ret;
+    int argc = 0;
+    char **argv = NULL;
+    char * file_name;
+    if (paras != NULL) {
+        app_main_paras_t *p = (app_main_paras_t *)paras;
+        argc = p->argc;
+        argv = p->argv;
+    }
+    if(argc > 1) {
+        file_name = argv[1];
+    } else {
+        printf("no file name input!\n");
+        return 0;
+    }
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    ret = http2_stream_test();
+    ret = http2_stream_test(file_name);
     return ret;
 }
