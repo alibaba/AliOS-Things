@@ -38,7 +38,7 @@
         HAL_Printf("\033[0m\r\n");                                   \
     } while (0)
 
-#define EXAMPLE_SUBDEV_MAX_NUM          20
+#define EXAMPLE_SUBDEV_MAX_NUM          6
 const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
     {
         "a1YRfb9bepk",
@@ -423,6 +423,8 @@ int linkkit_main(void *paras)
     }
 
     while (1) {
+        HAL_SleepMs(200);
+
         time_now_sec = user_update_sec();
         if (time_prev_sec == time_now_sec) {
             continue;
