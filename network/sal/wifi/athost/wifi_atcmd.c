@@ -204,6 +204,7 @@ static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_p
 }
 
 #define AT_CMD_OBTAIN_MAC "AT+WMAC?"
+#define AT_RSP_MAC_PREFIX "+WMAC"
 // mac string, e.g. "BF01ADE2F5CE"
 static int get_mac_helper(char *mac)
 {
@@ -214,9 +215,6 @@ static int get_mac_helper(char *mac)
     if (!mac) {
         return -1;
     }
-
-    memcpy(mac, "b0f893105825", sizeof("b0f893105825"));
-    return 0;
 
     if (mac_saved) {
         memcpy(mac, saved_mac, MAC_STR_LEN + 1);
@@ -230,7 +228,7 @@ static int get_mac_helper(char *mac)
         return -1;
     }
 
-    if (strstr(out, AT_RSP_FAIL)) {
+    if (strstr(out, AT_RSP_FAIL) || !strstr(out, AT_RSP_MAC_PREFIX)) {
         LOGE(TAG, "Command %s executed with ERROR.", AT_CMD_OBTAIN_MAC);
         return -1;
     }
@@ -245,6 +243,7 @@ static int get_mac_helper(char *mac)
 }
 
 #define AT_CMD_OBTAIN_IP "AT+WJAPIP?"
+#define AT_RSP_IP_PREFIX "+WJAPIP"
 static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
 {
     char out[128] = {0};
@@ -261,7 +260,7 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
         return -1;
     }
 
-    if (strstr(out, AT_RSP_FAIL)) {
+    if (strstr(out, AT_RSP_FAIL) || !strstr(out, AT_RSP_IP_PREFIX)) {
         LOGE(TAG, "Command  %s executed with ERROR", AT_CMD_OBTAIN_IP);
         return -1;
     }

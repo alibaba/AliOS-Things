@@ -297,7 +297,7 @@ static void bk7231_get_local_ip_addr()
         return ;
     }
     LOGD(TAG, "local ip is %s \r\n", ip_stat.ip);
-    strcpy(localipaddr, ip_stat.ip);
+    strncpy(localipaddr, ip_stat.ip, sizeof(localipaddr));
 }
 /*
  * Wifi station event handler. include:
