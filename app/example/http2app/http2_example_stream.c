@@ -144,11 +144,14 @@ static int http2_stream_test()
     if(handle == NULL) {
         return -1;
     }
+
+    http2_header header[] = {
+        MAKE_HEADER("test_name", "test_http2_header"),
+        MAKE_HEADER_CS("hello", "world"),
+    };
+    
     header_ext_info_t my_header_info = {
-        { 
-            MAKE_HEADER("test_name", "test_http2_header"),
-            MAKE_HEADER_CS("hello", "world"),
-        },
+        header,
         2
     };
     stream_data_info_t info_upload, info_download;
