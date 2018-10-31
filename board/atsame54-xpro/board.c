@@ -32,9 +32,9 @@
 
 /* Logic partition on flash devices */
 hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX];
+extern void BTN_SW0_IRQ_0_init(void);
 
-
-void board_init(void)
+void board_partition_init(void)
 {
     hal_partitions[HAL_PARTITION_APPLICATION].partition_owner            = HAL_FLASH_EMBEDDED;
     hal_partitions[HAL_PARTITION_APPLICATION].partition_description      = "Application";
@@ -71,4 +71,23 @@ void board_init(void)
     hal_partitions[HAL_PARTITION_PARAMETER_4].partition_start_addr       = 0x000FE000;
     hal_partitions[HAL_PARTITION_PARAMETER_4].partition_length           = 0x1000; //4k bytes
     hal_partitions[HAL_PARTITION_PARAMETER_4].partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN;
+}
+
+void board_init(void)
+{
+    board_partition_init();
+    BTN_SW0_IRQ_0_init();
+}
+/**
+ * Example of using EXTERNAL_IRQ_0
+ */
+static void button_on_PB31_pressed(void)
+{
+    gpio_toggle_pin_level(LED0);
+}
+
+void BTN_SW0_IRQ_0_init(void)
+{
+    ext_irq_register(PIN_PB31, button_on_PB31_pressed);
+    ext_irq_enable(PIN_PB31);
 }
