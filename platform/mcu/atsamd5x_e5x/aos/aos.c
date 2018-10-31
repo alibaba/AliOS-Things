@@ -9,17 +9,18 @@
 #include <hal/soc/soc.h>
 #include <hal/wifi.h>
 
-#define AOS_START_STACK 1024
+#define AOS_START_STACK 1536
 
 ktask_t *g_aos_init;
 static kinit_t kinit;
 
 static void sys_init(void);
-extern uart_dev_t uart_cli;
 
 #if defined(DEV_SAL_MK3060)
 extern hal_wifi_module_t aos_wifi_module_mk3060;
 #endif
+
+extern struct hal_ota_module_s aos_ota_module_atsamd5x_e5x;
 
 static void sys_init(void)
 {
@@ -28,17 +29,18 @@ static void sys_init(void)
     kinit.cli_enable = 1;
 
     atmel_start_init();
-    hal_uart_init(&uart_cli);
+    board_init();
 
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
     hal_wifi_init();
 #endif
 
-    board_init();
+    hal_ota_register_module(&aos_ota_module_atsamd5x_e5x);
+
     aos_kernel_init(&kinit);
 
-    application_start(0, NULL);	
+    application_start(0, NULL);
 }
 
 int main(void)
