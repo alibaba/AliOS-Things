@@ -575,7 +575,7 @@ alcs_mqtt_status_e alcs_prefixkey_get(const char *product_key, const char *devic
 
     snprintf(msg_pub, msg_len, ALCS_MQTT_THING_ALCS_REQUEST, id);
 
-    COAP_ERR("ALCS Prefix Get, Topic: %s, Payload: %s", topic, msg_pub);
+    COAP_INFO("ALCS Prefix Get, Topic: %s, Payload: %s", topic, msg_pub);
     status = __alcs_mqtt_publish(topic, 1, msg_pub, strlen(msg_pub));
 
     LITE_free(msg_pub);

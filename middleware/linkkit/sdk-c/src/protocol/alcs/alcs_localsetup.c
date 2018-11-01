@@ -111,7 +111,7 @@ static localsetup_status __alcs_localsetup_ac_as_save(const char *pk, uint16_t p
     HAL_Snprintf(&value[2], prefix_len + secret_len + 1, "%.*s%.*s", prefix_len, prefix, secret_len, secret);
 
     if (ALCS_LOCALSETUP_SUCCESS != __alcs_localsetup_kv_set(key_md5_hexstr, value, prefix_len + secret_len + 3, 1)) {
-        COAP_ERR("ALCS KV Set Prefix And Secret Fail");
+        COAP_WRN("ALCS KV Set Prefix And Secret Fail");
         LITE_free(value);
         return ALCS_LOCALSETUP_ERROR;
     }
@@ -141,7 +141,7 @@ localsetup_status alcs_localsetup_ac_as_load(const char *pk, uint16_t pk_len,
 
     //Get Value
     if (ALCS_LOCALSETUP_SUCCESS != __alcs_localsetup_kv_get(key_md5_hexstr, value, &value_len)) {
-        COAP_ERR("ALCS KV Get local Prefix And Secret Fail");
+        COAP_WRN("ALCS KV Get local Prefix And Secret Fail");
         return ALCS_LOCALSETUP_ERROR;
     }
 
