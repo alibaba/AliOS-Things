@@ -12,7 +12,6 @@
 #include <hal/ota.h>
 #include <hal/trace.h>
 #include <hal/wifi.h>
-#include <hal/atcmd.h>
 
 #include <hal/soc/soc.h>
 
