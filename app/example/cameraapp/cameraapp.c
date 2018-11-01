@@ -4,12 +4,12 @@
 #include <k_api.h>
 #include <aos/aos.h>
 #include "fatfs.h"
-#include "st7789.h"
-#include "gc0329.h"
+#include "st7789.h" // LCD
+#include "gc0329.h" // camera
 #include "camera_demo.h"
 #include "fatfs.h"
 
-static uint8_t sd_on = 0;
+uint8_t g_sd_valid = 0;
 static uint8_t keyB = 0;
 uint16_t pBuffer[ST7789_WIDTH * ST7789_HEIGHT];
 uint8_t pBuffer_t[3 * ST7789_WIDTH];
@@ -147,7 +147,7 @@ static uint8_t SavePicture(void)
         }
     }
     ret = HAL_OK;
-    //printf("image_%lu.bmp saved ok\n", counter);
+    LOG("image_%lu.bmp saved ok\n", counter);
     counter++;
 
 end:
@@ -184,42 +184,40 @@ int camera_to_sd(void)
 static void app_delayed_action(void *arg)
 {
     int ret = 0;
-    if (sd_on == 0) {
+    if (g_sd_valid == 0) {
+        LOG("sd card is off-line, no images be stored.\n");
         return;
     }
-    while (1) {
-        if (keyB) {
-            //printf("key3 pressed\n");
-            ret = camera_to_sd();
-            if (ret == HAL_OK) {
-                hal_gpio_output_low(&brd_gpio_table[GPIO_GS_LED]);
-                krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND * 2);
-                hal_gpio_output_high(&brd_gpio_table[GPIO_GS_LED]);
-            }
-            keyB = 0;
-        }
-        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND / 2);
+    if (keyB) {
+      LOG("Button B pressed, begin to store image\n");
+      hal_gpio_output_low(&brd_gpio_table[GPIO_GS_LED]);
+      ret = camera_to_sd();
+      if (ret == HAL_OK) {
+        hal_gpio_output_high(&brd_gpio_table[GPIO_GS_LED]);
+        LOG("Image stored.\n");
+      }
+      keyB = 0;
     }
+    aos_post_delayed_action(500, app_delayed_action, NULL);
 }
 
 int application_start(int argc, char *argv[])
 {
     int ret;
-
     LOG("camera application started.");
-    /* init LCD */
-    ret = fatfs_register();
+
+    ret = fatfs_register(); // check SD card storage is ready or not
     if (ret == 0) {
-        sd_on = 1;
+        g_sd_valid = 1;
         init_dcmi_dir();
         get_images_index(counter);
     }
-    LOG("sd_on = %d\n", sd_on);
+    LOG("SD card flag = %d\n", g_sd_valid);
     ret = hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_3], IRQ_TRIGGER_RISING_EDGE, keyB_handle, NULL);
     if (ret != 0) {
-        printf("hal_gpio_enable_irq key return failed.\n");
+        LOG("hal_gpio_enable_irq key return failed.\n");
     }
-    st7789_init();
+    st7789_init(); // init LCD
     enable_camera_display(1);
     CameraDEMO_Init(pBuffer, sizeof(pBuffer));
     aos_post_delayed_action(500, app_delayed_action, NULL);
