@@ -8,7 +8,7 @@ LWIP := 0
 SAL  := 1
 
 #$(NAME)_COMPONENTS += platform/arch/csky/cskyv2-l
-$(NAME)_COMPONENTS += rhino hal middleware.common cjson cli
+$(NAME)_COMPONENTS += rhino hal halwifi middleware.common cjson cli
 $(NAME)_COMPONENTS += platform/mcu/csky/hal_init
 
 ifeq ($(LWIP),1)
