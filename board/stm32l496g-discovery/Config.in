@@ -1,0 +1,4 @@
+config AOS_STM32L496G-DISCOVERY
+    bool "stm32l496g-discovery"
+    default n
+    help

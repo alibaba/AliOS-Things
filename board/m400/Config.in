@@ -1,0 +1,4 @@
+config AOS_BOARD_M400
+    bool "board_m400"
+    default n
+    help

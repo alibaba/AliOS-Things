@@ -1,0 +1,4 @@
+config AOS_AUDIO_HAL
+    bool "audio_hal"
+    default n
+    help

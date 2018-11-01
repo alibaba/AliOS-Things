@@ -1,0 +1,78 @@
+menuconfig AOS_DEVELOPERKIT
+    bool "developerkit"
+    default y
+    select AOS_MCU_STM32L4XX_CUBE
+    select AOS_SENSOR
+    help
+      Developer Kit is hardware development board base on [AliOS-Things]
+      (https://github.com/alibaba/AliOS-Things), with a variety of
+      peripherals. Hardware is equipped with Audio Codec eight sensors,
+      8-bits digital camera, LCD display, sixes LEDs, PCIe module, USB 
+      OTG FS, and Wi-Fi module. Because the software is embedded with the
+      AliOS system, the local data uploading to the Ali-cloud can be
+      realized through Wi-Fi. It is convenience to the developer to learn
+      about the development environment in combination with practical
+      applications.
+
+if AOS_DEVELOPERKIT
+
+config ENABLE_VFP
+    int "ENABLE_VFP"
+    default 1
+
+config ENABLE_USPACE
+    int "ENABLE_USPACE"
+    default 0
+
+config STM32L496xx
+    bool "STM32L496xx"
+    default y
+
+config STDIO_UART
+    int "STDIO_UART"
+    default 0
+
+config CONFIG_AOS_CLI_BOARD
+    bool "CONFIG_AOS_CLI_BOARD"
+    default y
+
+config AOS_SENSOR_BARO_BOSCH_BMP280
+    bool "AOS_SENSOR_BARO_BOSCH_BMP280"
+    default y
+
+config AOS_SENSOR_ALS_LITEON_LTR553
+    bool "AOS_SENSOR_ALS_LITEON_LTR553"
+    default y
+
+config AOS_SENSOR_PS_LITEON_LTR553
+    bool "AOS_SENSOR_PS_LITEON_LTR553"
+    default y
+
+config AOS_SENSOR_HUMI_SENSIRION_SHTC1
+    bool "AOS_SENSOR_HUMI_SENSIRION_SHTC1"
+    default y
+
+config AOS_SENSOR_TEMP_SENSIRION_SHTC1
+    bool "AOS_SENSOR_TEMP_SENSIRION_SHTC1"
+    default y
+
+config AOS_SENSOR_ACC_ST_LSM6DSL
+    bool "AOS_SENSOR_ACC_ST_LSM6DSL"
+    default y
+
+config AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
+    bool "AOS_SENSOR_MAG_MEMSIC_MMC3680KJ"
+    default y
+
+config AOS_SENSOR_GYRO_ST_LSM6DSL
+    bool "AOS_SENSOR_GYRO_ST_LSM6DSL"
+    default y
+
+config SYSINFO_PRODUCT_MODEL
+    string "SYSINFO_PRODUCT_MODEL"
+    default "ALI_AOS_developerkit"
+
+config SYSINFO_DEVICE_NAME
+    string "SYSINFO_DEVICE_NAME"
+    default "developerkit"
+endif

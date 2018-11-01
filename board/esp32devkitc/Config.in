@@ -1,0 +1,4 @@
+config AOS_BOARD_ESP32DEVKITC
+    bool "board_esp32devkitc"
+    default n
+    help

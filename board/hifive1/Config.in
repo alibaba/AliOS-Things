@@ -1,0 +1,4 @@
+config AOS_BOARD_HIFIVE1
+    bool "board_hifive1"
+    default n
+    help

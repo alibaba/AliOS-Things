@@ -1,0 +1,4 @@
+config AOS_BOARD_IMX6DQ
+    bool "board_imx6dq"
+    default n
+    help

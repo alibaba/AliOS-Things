@@ -1,0 +1,4 @@
+config AOS_BOARD_MK3239
+    bool "board_mk3239"
+    default n
+    help

@@ -1,0 +1,4 @@
+config AOS_BOARD_FRDMKL27Z
+    bool "board_frdmkl27z"
+    default n
+    help

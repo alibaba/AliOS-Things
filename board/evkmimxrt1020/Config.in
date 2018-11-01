@@ -1,0 +1,4 @@
+config AOS_BOARD_EVKMIMXRT1020
+    bool "board_evkmimxrt1020"
+    default n
+    help
