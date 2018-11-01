@@ -2443,10 +2443,20 @@ int32_t Api_httpc_method(void *pCxt, uint32_t command, uint8_t *url, uint8_t *da
     memset(&httpc, 0, sizeof(httpc));
 
     httpc.command = A_CPU2LE32(command);
-    if (url)
+    if (url){
+		if(strlen((const char *)url) > sizeof(httpc.url)){
+			return A_ERROR;
+	    }
+		
         A_MEMCPY(httpc.url, url, strlen((const char *)url));
-    if (data)
-        A_MEMCPY(httpc.data, data, strlen((const char *)data));
+    }	
+    if (data){
+		if(strlen((const char *)data) > sizeof(httpc.data)){
+			return A_ERROR;
+	    }
+
+		A_MEMCPY(httpc.data, data, strlen((const char *)data));
+    }	
 
     SOCK_EV_MASK_SET(ath_sock_context[index], SOCK_HTTPC);
     if (wmi_socket_cmd(pDCxt->pWmiCxt, SOCK_HTTPC, (void *)(&httpc), sizeof(SOCK_HTTPC_T)) != A_OK)
@@ -3128,6 +3138,10 @@ int32_t Api_ota_upgrade(void *pCxt,
     }
     A_MEMZERO(&sock_ota_upgrade, sizeof(SOCK_OTA_UPGRADE_T));
     sock_ota_upgrade.ipaddress = addr;
+	if(strlen(filename) > sizeof(sock_ota_upgrade.filename)){
+        return A_ERROR;
+    }
+	
     A_MEMCPY(sock_ota_upgrade.filename, filename, strlen(filename));
     sock_ota_upgrade.mode = mode;
     sock_ota_upgrade.preserve_last = preserve_last;

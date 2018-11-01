@@ -471,7 +471,8 @@ static int_fast16_t primeConvert(ADCBuf_Handle handle,
 #endif
             break;
         default:
-            break;
+			return (ADCBuf_STATUS_ERROR);
+            //break;
         }
 
         MAP_REF_A_setReferenceVoltage(refVoltsDef);

@@ -580,7 +580,7 @@ status_t I2C_MasterTransferAbort(I2C_Type *base, i2c_master_handle_t *handle)
             base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
 
             /* Wait until the STOP is completed */
-            I2C_PendingStatusWait(base);
+            status = I2C_PendingStatusWait(base);
             if (status == kStatus_I2C_Timeout)
             {
                 return kStatus_I2C_Timeout;
