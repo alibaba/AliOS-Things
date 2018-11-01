@@ -37,10 +37,14 @@ typedef struct {
     http2_connection_t   *http2_connect;
     void                 *mutex;
     void                 *semaphore;
-    void                 *thread_handle;
+    void                 *rw_thread;
     http2_list_t         stream_list;
     int                  init_state;
     http2_stream_cb_t    *cbs;
+#ifdef FS_ENABLED
+    http2_list_t         file_list;
+    void                 *file_thread;
+#endif
 } stream_handle_t;
 
 typedef struct {
@@ -376,6 +380,9 @@ void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t 
     }
 
     INIT_LIST_HEAD((list_head_t *) & (stream_handle->stream_list));
+#ifdef FS_ENABLED    
+    INIT_LIST_HEAD((list_head_t *) & (stream_handle->file_list));
+#endif
 
     _set_device_info(conn_info->product_key, conn_info->device_name, conn_info->device_secret);
     g_stream_handle = stream_handle;
@@ -398,13 +405,13 @@ void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t 
     hal_os_thread_param_t thread_parms = {0};
     thread_parms.stack_size = 6144;
     thread_parms.name = "http2_io";
-    ret = HAL_ThreadCreate(&stream_handle->thread_handle, http2_io, stream_handle, &thread_parms, NULL);
+    ret = HAL_ThreadCreate(&stream_handle->rw_thread, http2_io, stream_handle, &thread_parms, NULL);
     if (ret != 0) {
         h2stream_err("thread create error\n");
         IOT_HTTP2_Stream_Disconnect(stream_handle);
         return NULL;
     }
-
+    HAL_ThreadDetach(stream_handle->rw_thread);
     return stream_handle;
 }
 
@@ -775,6 +782,7 @@ int IOT_HTTP2_Stream_Disconnect(void *hd)
         h2stream_err("semaphore wait overtime\n");
         return FAIL_RETURN;
     }
+
     http2_stream_node_t *node, *next;
     HAL_MutexLock(handle->mutex);
     list_for_each_entry_safe(node, next, &handle->stream_list, list, http2_stream_node_t) {
@@ -803,6 +811,7 @@ typedef struct {
     upload_file_result_cb cb;
     header_ext_info_t *header;
     void *data;
+    http2_list_t list;        
 } http2_stream_file_t;
 
 static int http2_stream_get_file_size(const char *file_name)
@@ -838,7 +847,7 @@ static int http2_stream_get_file_data(const char *file_name, char *data, int len
     return len;
 }
 
-static void *http_upload_file_func(void *user)
+static void *http_upload_one(void *user)
 {
 
     stream_data_info_t info;
@@ -848,7 +857,8 @@ static void *http_upload_file_func(void *user)
     }
 
     http2_stream_file_t *user_data = (http2_stream_file_t *)user;
-
+    stream_handle_t * handle = (stream_handle_t *)user_data->handle;
+    
     int file_size = http2_stream_get_file_size(user_data->path);
 
     if (file_size <= 0) {
@@ -861,15 +871,15 @@ static void *http_upload_file_func(void *user)
 
     h2stream_info("file_size=%d", file_size);
 
-    char *data = HAL_Malloc(PACKET_LEN);
-    if (data == NULL) {
+    char *data_buffer = HAL_Malloc(PACKET_LEN);
+    if (data_buffer == NULL) {
         user_data->cb(user_data->path, UPLOAD_MALLOC_FAILED, user_data->data);
         HAL_Free(user_data);
         return NULL;
     }
 
     memset(&info, 0, sizeof(stream_data_info_t));
-    info.stream = data;
+    info.stream = data_buffer;
     info.stream_len = file_size;
     info.packet_len = PACKET_LEN;
     //info.identify = "com/aliyun/iotx/vision/picture/device/upstream";
@@ -882,12 +892,17 @@ static void *http_upload_file_func(void *user)
             user_data->cb(user_data->path, UPLOAD_STREAM_OPEN_FAILED, user_data->data);
         }
         HAL_Free(user_data);
+        HAL_Free(data_buffer);
         return NULL;
     }
+    
+    while (info.send_len < info.stream_len ) {
 
-    while (info.send_len < info.stream_len) {
-
-        ret = http2_stream_get_file_data(user_data->path, data, PACKET_LEN, info.send_len);
+        if(!handle->init_state) {
+            ret = -1;
+            break;
+        }
+        ret = http2_stream_get_file_data(user_data->path, data_buffer, PACKET_LEN, info.send_len);
         if (ret <= 0) {
             ret = -1;
             h2stream_err("read file err %d\n", ret);
@@ -904,6 +919,7 @@ static void *http_upload_file_func(void *user)
             h2stream_err("send err %d\n", ret);
             break;
         }
+        h2stream_debug("send len =%d\n", info.send_len);
     }
 
     if (user_data->cb) {
@@ -916,12 +932,43 @@ static void *http_upload_file_func(void *user)
         user_data->cb(user_data->path, ret, user_data->data);
     }
     IOT_HTTP2_Stream_Close(user_data->handle, &info);
-
+    HAL_Free(data_buffer);
     HAL_Free(user_data);
     return NULL;
 }
 
-void *file_thread = NULL;
+
+static void *http_upload_file_func(void *user)
+{
+    if (user == NULL) {
+        return NULL;
+    }
+    stream_handle_t *handle = (stream_handle_t *)user;
+    while(handle->init_state) {    
+        http2_stream_file_t *node, *next;
+        HAL_MutexLock(handle->mutex);
+        list_for_each_entry_safe(node, next, &handle->file_list, list, http2_stream_file_t) {
+            list_del((list_head_t *)&node->list);
+            HAL_MutexUnlock(handle->mutex);
+            http_upload_one((void *)node);
+            break;
+        }
+
+        HAL_MutexLock(handle->mutex);
+        if(list_empty((list_head_t *)&handle->file_list)) {
+            h2stream_debug("no file left,file upload thread exit\n");
+            handle->file_thread = NULL;
+             HAL_MutexUnlock(handle->mutex);
+            break;
+        }
+        HAL_MutexUnlock(handle->mutex);
+    }
+
+    return NULL;
+}
+
+
+//void *file_thread = NULL;
 int IOT_HTTP2_Stream_UploadFile(void *hd, const char *file_path, const char *identify,
                                 header_ext_info_t *header,
                                 upload_file_result_cb cb, void *user_data)
@@ -934,7 +981,6 @@ int IOT_HTTP2_Stream_UploadFile(void *hd, const char *file_path, const char *ide
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(file_path, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(identify, NULL_VALUE_ERROR);
-
 
     http2_stream_file_t *file_data = (http2_stream_file_t *)HAL_Malloc(sizeof(http2_stream_file_t));
     if (file_data == NULL) {
@@ -950,12 +996,21 @@ int IOT_HTTP2_Stream_UploadFile(void *hd, const char *file_path, const char *ide
 
     thread_parms.stack_size = 6144;
     thread_parms.name = "file_upload";
-    ret = HAL_ThreadCreate(&file_thread, http_upload_file_func, file_data, &thread_parms, NULL);
-    if (ret != 0) {
-        h2stream_err("thread create error\n");
-        HAL_Free(file_data);
-        return -1;
+    
+    INIT_LIST_HEAD((list_head_t *)&file_data->list);
+    HAL_MutexUnlock(handle->mutex);
+    list_add((list_head_t *)&file_data->list, (list_head_t *)&handle->file_list);
+    if(handle->file_thread == NULL) {
+        ret = HAL_ThreadCreate(&handle->file_thread, http_upload_file_func, handle, &thread_parms, NULL);
+        if (ret != 0) {
+            h2stream_err("thread create error\n");
+            HAL_Free(file_data);
+            HAL_MutexUnlock(handle->mutex);
+            return -1;
+        }
+        HAL_ThreadDetach(handle->file_thread);
     }
+    HAL_MutexUnlock(handle->mutex);
     return 0;
 }
 #endif
