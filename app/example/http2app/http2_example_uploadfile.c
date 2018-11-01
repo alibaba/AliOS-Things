@@ -24,7 +24,7 @@
 	#define HTTP2_DEVICE_NAME             "YvhjziEQmKusCFUgRpeo"
 	#define HTTP2_DEVICE_SECRET           "QjkhCrAX0SbNWgKpIamuiDdLkk23Q1r7"
 #else
-	#define HTTP2_ONLINE_SERVER_URL       NULL
+	#define HTTP2_ONLINE_SERVER_URL       NULL  
 	#define HTTP2_ONLINE_SERVER_PORT      443
 	#define HTTP2_PRODUCT_KEY             "DM5b8zbTWJs"
 	#define HTTP2_DEVICE_NAME             "mydevice1"
@@ -65,15 +65,18 @@ static http2_stream_cb_t my_cb = {
 
 void upload_file_result(const char * path,int result, void * user_data)
 {
-    EXAMPLE_TRACE("===========path = %s,result =%d=========", path,result);
-    upload_end =1;
+    upload_end ++;
+    EXAMPLE_TRACE("===========path = %s,result =%d,finish num =%d=========", path,result,upload_end);
+    
 }
 
-static int http2_stream_test(char * file_path)
+static int http2_stream_test(char **argv,int argc)
 {
     int ret;
     device_conn_info_t conn_info;
     void *handle;
+    int goal_num = 0;
+    int i;
     memset(&conn_info, 0, sizeof( device_conn_info_t));
     conn_info.product_key = HTTP2_PRODUCT_KEY;
     conn_info.device_name = HTTP2_DEVICE_NAME;
@@ -85,13 +88,24 @@ static int http2_stream_test(char * file_path)
     if(handle == NULL) {
         return -1;
     }
+   http2_header header[] = {
+        MAKE_HEADER("test_name", "test_http2_header"),
+        MAKE_HEADER_CS("hello", "world"),
+    };
     
-    ret = IOT_HTTP2_Stream_UploadFile(handle,file_path,"iotx/vision/voice/intercom/live",NULL, 
-                                upload_file_result, NULL);
-    if(ret < 0) {
-        return -1;
-    }                        
-    while(!upload_end) {
+    header_ext_info_t my_header_info = {
+        header,
+        2
+    };
+
+    for (i=1;i< argc;i++) {
+        ret = IOT_HTTP2_Stream_UploadFile(handle,argv[i],"iotx/vision/voice/intercom/live",&my_header_info, 
+                                    upload_file_result, NULL);
+        if(ret == 0) {
+            goal_num++;
+        }  
+    }                      
+    while(upload_end != goal_num) {
         HAL_SleepMs(200);
     }
     ret = IOT_HTTP2_Stream_Disconnect(handle);
@@ -104,21 +118,23 @@ int linkkit_main(void *paras)
     int ret;
     int argc = 0;
     char **argv = NULL;
-    char * file_name;
+
     if (paras != NULL) {
         app_main_paras_t *p = (app_main_paras_t *)paras;
         argc = p->argc;
         argv = p->argv;
     }
-    if(argc > 1) {
-        file_name = argv[1];
-    } else {
+
+    if(argc >1) {
+
+    }  else {
         printf("no file name input!\n");
         return 0;
     }
 
+
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    ret = http2_stream_test(file_name);
+    ret = http2_stream_test(argv,argc);
     return ret;
 }
