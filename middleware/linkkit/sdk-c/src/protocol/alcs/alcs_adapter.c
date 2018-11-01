@@ -452,7 +452,7 @@ int iotx_alcs_subdev_update_stage(iotx_alcs_subdev_item_t *item)
                          item->product_key, item->device_name, &subdev_item);
 
     if (subdev_item == NULL) {
-        COAP_ERR("No Matched Item");
+        COAP_WRN("No Matched Item");
         return FAIL_RETURN;
     }
 
@@ -509,7 +509,7 @@ void *iotx_alcs_construct(iotx_alcs_param_t *params)
 
 int iotx_alcs_cloud_init(void *handle)
 {
-    COAP_ERR("Start ALCS Cloud Init");
+    COAP_INFO("Start ALCS Cloud Init");
     int res = 0;
     iotx_alcs_adapter_t *adapter = __iotx_alcs_get_ctx();
     char product_key[PRODUCT_KEY_MAXLEN] = {0};

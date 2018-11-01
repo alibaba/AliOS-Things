@@ -145,8 +145,8 @@ static void recv_msg_handler (CoAPContext *context, const char *path, NetworkAdd
 int alcs_resource_register(CoAPContext *context, const char* pk, const char* dn, const char *path, unsigned short permission,
             unsigned int ctype, unsigned int maxage, char needAuth, CoAPRecvMsgHandler callback)
 {
-    COAP_INFO("alcs_resource_register, ctx:%p", context);
-	COAP_INFO("ALCS Resource Register: %s",path);
+    COAP_DEBUG("alcs_resource_register, ctx:%p", context);
+	COAP_DEBUG("ALCS Resource Register: %s",path);
 
     if (!needAuth) {
         resource_cb_item* item = (resource_cb_item*)coap_malloc (sizeof(resource_cb_item));
