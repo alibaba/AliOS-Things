@@ -27,9 +27,9 @@ FEATURE_SAL_UDP_CLIENT_ENABLED = y
 FEATURE_SAL_PACKET_SEND_MODE_ASYNC = y
 
 ##
-## FEATURE_SAL_USE_AOS_QUEUE
-## Brief:    SAL provides option to use aos queue API which is closed by default
-## Usage:    If the value is "y", it enables aos queue API and the SAL_USE_AOS_QUEUE compile option will be defined
+## FEATURE_SAL_USE_AOS_HAL
+## Brief:    SAL provides option to use aos hal which is opened by default
+## Usage:    If the value is "y", it enables aos hal and the SAL_USE_AOS_HAL compile option will be defined
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_SAL_USE_AOS_QUEUE = n
+FEATURE_SAL_USE_AOS_HAL = y
