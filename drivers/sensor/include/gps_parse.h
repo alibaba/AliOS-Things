@@ -7,9 +7,18 @@
 #ifndef GPS_PARSE_H
 #define GPS_PARSE_H
 
-#include "gps_hal.h"
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <limits.h>
+#include <aos/aos.h>
+#include <hal/base.h>
+#include "sensor.h"
 
-    
+#define GPS_RCV_DATA_LEN        (256)
 #define GPS_CONV_DATA_LEN       (64)
 #define GPS_CALC_BUF_LEN        (256)
 #define GPS_CALC_STR_LEN        (GPS_CALC_BUF_LEN-1)
@@ -86,9 +95,8 @@ static inline char* gps_strtok(char* src, char** ret, char c,int len)
     return src;
 }
 
-static inline int gps_utc_get(const char *str, int len, gps_time_t* res)
+static inline int gps_utc_get(char *str, int len, gps_time_t* res)
 {
-    int success = 0;
     char* str_tmp = NULL;
 
     switch(len){

@@ -5,6 +5,8 @@
 #ifndef SENSOR_HAL_H
 #define SENSOR_HAL_H
 
+#include "sensor.h"
+
 extern int sensor_hal_init(void);
 extern int sensor_create_obj(sensor_obj_t *sensor);
 
@@ -81,6 +83,8 @@ extern   int drv_mag_memsic_mmc3680kj_init(void);
 extern   int drv_temp_memsic_mmc3680kj_init(void);
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
 
-
+#ifdef AOS_SENSOR_GPS_SIMCON_SIM868
+extern   int drv_gps_simcom_sim868_init(void);
+#endif
 
 #endif /* SENSOR_HAL_H */
