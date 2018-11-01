@@ -1,0 +1,4 @@
+config AOS_STARTERKIT
+    bool "starterkit"
+    default n
+    help

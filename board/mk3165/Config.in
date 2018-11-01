@@ -1,0 +1,4 @@
+config AOS_BOARD_MK3165
+    bool "board_mk3165"
+    default n
+    help

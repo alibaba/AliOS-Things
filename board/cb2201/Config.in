@@ -1,0 +1,4 @@
+config AOS_BOARD_CB2201
+    bool "board_cb2201"
+    default n
+    help

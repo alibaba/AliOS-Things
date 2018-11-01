@@ -1,0 +1,4 @@
+config AOS_BOARD_RK1108
+    bool "board_rk1108"
+    default n
+    help

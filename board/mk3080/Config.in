@@ -1,0 +1,4 @@
+config AOS_BOARD_MK3080
+    bool "board_mk3080"
+    default n
+    help

@@ -1,0 +1,4 @@
+config AOS_BOARD_BK7231
+    bool "board_bk7231"
+    default n
+    help

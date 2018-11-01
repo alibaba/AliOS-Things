@@ -1,0 +1,4 @@
+config AOS_BOARD_AMEBAZ_DEV
+    bool "board_amebaz_dev"
+    default n
+    help
