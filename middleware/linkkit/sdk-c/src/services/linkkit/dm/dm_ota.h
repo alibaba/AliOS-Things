@@ -14,6 +14,7 @@ typedef struct {
 } dm_ota_ctx_t;
 
 int dm_ota_init(void);
+int dm_ota_sub(void);
 int dm_ota_deinit(void);
 int dm_ota_get_ota_handle(void **handle);
 
