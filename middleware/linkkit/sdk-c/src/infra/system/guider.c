@@ -12,6 +12,8 @@
     #define CONFIG_GUIDER_DUMP_SECRET   (0)
 #endif
 
+#define CUSTOME_DOMAIN_LEN_MAX          (60)
+
 const char *secmode_str[] = {
     "TCP + Guider + Plain",
     "TCP + Guider + ID2-Crypto",
@@ -57,7 +59,7 @@ const char *domain_http_auth_pre[] = {
 
 static int iotx_guider_region = 0;
 static int iotx_guider_authed = 0;
-const char *iotx_domain_custom[GUIDER_DOMAIN_MAX] = {NULL};
+char iotx_domain_custom[GUIDER_DOMAIN_MAX][CUSTOME_DOMAIN_LEN_MAX] = {0};
 
 int iotx_guider_set_region(int region_type)
 {
@@ -102,11 +104,19 @@ const char *iotx_guider_get_domain(int domain_type)
 
 int iotx_guider_set_custom_domain(int domain_type, const char *domain)
 {
+    int len = strlen(domain);
+
     if ((domain_type >= GUIDER_DOMAIN_MAX) || (domain == NULL)) {
         return FAIL_RETURN;
     }
 
-    iotx_domain_custom[domain_type] = domain;
+    if (len >= CUSTOME_DOMAIN_LEN_MAX) {
+        return FAIL_RETURN;
+    }
+
+    memset(iotx_domain_custom[domain_type], 0, CUSTOME_DOMAIN_LEN_MAX);
+    memcpy(iotx_domain_custom[domain_type], domain, len);
+
     return SUCCESS_RETURN;
 }
 
