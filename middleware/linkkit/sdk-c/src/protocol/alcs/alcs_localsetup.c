@@ -39,7 +39,10 @@ static localsetup_status __alcs_localsetup_kv_set(const char *key, const void *v
 
 static localsetup_status __alcs_localsetup_kv_get(const char *key, void *buffer, int *buffer_len)
 {
-    if (HAL_Kv_Get(key, buffer, buffer_len) != 0) {
+    int     rc = -1;
+
+    if ((rc = HAL_Kv_Get(key, buffer, buffer_len)) != 0) {
+        COAP_WRN("HAL_Kv_Get('%s') = %d (!= 0), return %d", key, rc, ALCS_LOCALSETUP_ERROR);
         return ALCS_LOCALSETUP_ERROR;
     }
 
