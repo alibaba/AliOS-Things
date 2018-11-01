@@ -522,13 +522,26 @@ void set_iotx_info()
     HAL_SetDeviceSecret(DEVICE_SECRET);
 }
 
+static int max_running_seconds = 0;
 int linkkit_main(void *paras)
 {
 
-    int res = 0;
-    uint64_t time_prev_sec = 0, time_now_sec = 0;
-    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-    iotx_linkkit_dev_meta_info_t master_meta_info;
+    uint64_t                        time_prev_sec = 0, time_now_sec = 0;
+    uint64_t                        time_begin_sec = 0;
+    int                             res = 0;
+    iotx_linkkit_dev_meta_info_t    master_meta_info;
+    user_example_ctx_t             *user_example_ctx = user_example_get_ctx();
+    int                             argc = ((app_main_paras_t *)paras)->argc;
+    char                          **argv = ((app_main_paras_t *)paras)->argv;
+
+    if (argc > 1) {
+        int     tmp = atoi(argv[1]);
+
+        if (tmp >= 60) {
+            max_running_seconds = tmp;
+            EXAMPLE_TRACE("set [max_running_seconds] = %d seconds\n", max_running_seconds);
+        }
+    }
 
 #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
@@ -595,12 +608,17 @@ int linkkit_main(void *paras)
         return -1;
     }
 
+    time_begin_sec = user_update_sec();
     while (1) {
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
 
         time_now_sec = user_update_sec();
         if (time_prev_sec == time_now_sec) {
             continue;
+        }
+        if (max_running_seconds && (time_now_sec - time_begin_sec > max_running_seconds)) {
+            EXAMPLE_TRACE("Example Run for Over %d Seconds, Break Loop!\n", max_running_seconds);
+            break;
         }
 
         /* Post Proprety Example */
