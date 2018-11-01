@@ -522,6 +522,9 @@ int sensor_init(void)
     drv_temp_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
 
+#ifdef AOS_SENSOR_GPS_SIMCON_SIM868
+	drv_gps_simcom_sim868_init();
+#endif
 
 #ifdef UDATA_MODBUS
     modbus_init();

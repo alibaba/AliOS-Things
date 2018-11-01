@@ -18,7 +18,6 @@ component =aos_component('sensor', src)
 
 global_includes =Split('''
     ./include
-    ./hal
 ''')
 for i in global_includes:
     component.add_global_includes(i)

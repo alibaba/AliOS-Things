@@ -10,9 +10,7 @@
 #include <aos/aos.h>
 #include <atparser.h>
 #include "sensor.h"
-#include "gps_hal.h"
 #include "gps_parse.h"
-
 
 typedef enum{
     GPNON   = 0x0000,
@@ -229,7 +227,7 @@ static int gps_gp_parse(char* str, int len, gps_data_t* pgpsdata)
     return 0;
 }
 
-static int gps_gp_check(const char* str, int len)
+static int gps_gp_check(char* str, int len)
 {
     int i;
     int crc_calc = 0;
@@ -259,7 +257,6 @@ int gps_gp_proc(const char* str, gps_data_t* pgpsdata)
 {
     int ret;
     int len;
-    int ptype;
     char  gpsdata[GPS_CALC_BUF_LEN];
 
     if(0 == str){
@@ -274,11 +271,6 @@ int gps_gp_proc(const char* str, gps_data_t* pgpsdata)
     if(len >= GPS_RCV_DATA_LEN){
         return -1;
     }
-#if 0    
-    if(!(gps_gp_type_filter((str+1), len-1))){
-        return -1;
-    }
-#endif
     
     memcpy(&gpsdata[0], str, len);
     gpsdata[len] = '\0';
