@@ -109,9 +109,8 @@ int awss_dict_crypt(char tab_idx, uint8_t *data, uint8_t len)
     if (table == NULL || data == NULL)
         return -1;
 
-    for (i = 0; i < len; i++) {
+    for (i = 0; i < len; i++)
         data[i] = table[data[i]];
-    }
 
     return 0;
 }
