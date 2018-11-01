@@ -785,7 +785,7 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
     }
 
     linkid = fd_to_linkid(fd);
-    if (link_id < 0 || linkid >= SIM800_MAX_LINK_NUM) {
+    if (linkid < 0 || linkid >= SIM800_MAX_LINK_NUM) {
         LOGE(TAG, "No connection found for fd (%d) in %s \r\n", fd, __func__);
         return -1;
     }
@@ -821,7 +821,7 @@ int HAL_SAL_Send(int fd,
     }
 
     linkid = fd_to_linkid(fd);
-    if (link_id < 0 || linkid >= SIM800_MAX_LINK_NUM) {
+    if (linkid < 0 || linkid >= SIM800_MAX_LINK_NUM) {
         LOGE(TAG, "No connection found for fd (%d) in %s \r\n", fd, __func__);
         return -1;
     }
