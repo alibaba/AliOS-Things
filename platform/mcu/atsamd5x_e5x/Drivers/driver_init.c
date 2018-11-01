@@ -25,6 +25,27 @@ struct usart_os_descriptor USART_2;
 static uint8_t USART_0_buffer[USART_0_BUFFER_SIZE];
 static uint8_t USART_2_buffer[USART_2_BUFFER_SIZE];
 
+void EXTERNAL_IRQ_0_init(void)
+{
+	hri_gclk_write_PCHCTRL_reg(GCLK, EIC_GCLK_ID, CONF_GCLK_EIC_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_mclk_set_APBAMASK_EIC_bit(MCLK);
+
+	// Set pin direction to input
+	gpio_set_pin_direction(PB31, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(PB31,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_OFF);
+
+	gpio_set_pin_function(PB31, PINMUX_PB31A_EIC_EXTINT15);
+
+	ext_irq_init();
+}
+
 /**
  * \brief USART Clock initialization function
  *
@@ -133,6 +154,7 @@ void system_init(void)
 
 	gpio_set_pin_function(LED0, GPIO_PIN_FUNCTION_OFF);
 
+	EXTERNAL_IRQ_0_init();
 	FLASH_0_init();
 
 	USART_0_init();
