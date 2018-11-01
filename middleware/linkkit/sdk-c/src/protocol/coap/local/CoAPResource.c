@@ -134,10 +134,10 @@ int CoAPResource_register(CoAPContext *context, const char *path,
     if (0 == exist) {
         newnode = CoAPResource_create(path, permission, ctype, maxage, callback);
         if (NULL != newnode) {
-            COAP_INFO("CoAPResource_register, context:%p, new node", ctx);
+            COAP_DEBUG("CoAPResource_register, context:%p, new node", ctx);
             list_add_tail(&newnode->reslist, &ctx->resource.list);
             ctx->resource.count++;
-            COAP_INFO("Register new resource %s success, count: %d", path, ctx->resource.count);
+            COAP_DEBUG("Register new resource %s success, count: %d", path, ctx->resource.count);
         } else {
             COAP_ERR("New resource create failed");
         }
