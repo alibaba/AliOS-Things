@@ -18,6 +18,7 @@
 #include "CoAPServer.h"
 #include "alcs_adapter.h"
 #include "alcs_mqtt.h"
+#include "alcs_localsetup.h"
 #include "CoAPPlatform.h"
 
 static iotx_alcs_adapter_t g_alcs_adapter;
@@ -331,6 +332,8 @@ int iotx_alcs_adapter_init(iotx_alcs_adapter_t *adapter, iotx_alcs_param_t *para
         return FAIL_RETURN;
     }
 
+    alcs_localsetup_init (adapter, coap_ctx, product_key, device_name);
+
     return SUCCESS_RETURN;
 }
 
@@ -363,7 +366,7 @@ int iotx_alcs_subdev_insert(iotx_alcs_subdev_item_t *item)
     }
 
     linked_list_insert(adapter->alcs_subdev_list, item);
-
+    alcs_localsetup_add_sub_device (adapter, item->product_key, item->device_name);
     return SUCCESS_RETURN;
 }
 
