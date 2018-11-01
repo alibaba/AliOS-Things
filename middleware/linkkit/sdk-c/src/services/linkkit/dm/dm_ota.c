@@ -19,17 +19,27 @@ int dm_ota_init(void)
 {
 #ifdef OTA_ENABLED
     dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
-
     memset(ctx, 0, sizeof(dm_ota_ctx_t));
 
     HAL_GetProductKey(ctx->product_key);
     HAL_GetDeviceName(ctx->device_name);
+#endif
+    return SUCCESS_RETURN;
+}
+
+int dm_ota_sub(void)
+{
+#ifdef OTA_ENABLED
+    dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
+    void *handle = NULL;
 
     /* Init OTA Handle */
-    ctx->ota_handle = IOT_OTA_Init(ctx->product_key, ctx->device_name, NULL);
-    if (ctx->ota_handle == NULL) {
+    handle = IOT_OTA_Init(ctx->product_key, ctx->device_name, NULL);
+    if (handle == NULL) {
         return FAIL_RETURN;
     }
+
+    ctx->ota_handle = handle;
 #endif
     return SUCCESS_RETURN;
 }
