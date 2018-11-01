@@ -43,10 +43,9 @@ env_monitor
     ```
     #define PROP_POST_FORMAT_HUMITEMP    "{\"report_sensor\":{\"Humi\":%f,\"Temp\":%f}}"
     ```
-* 设备模型创建完成后，新增一个测试设备，记下如下所示的四元组信息。
+* 设备模型创建完成后，新增一个测试设备，记下如下所示的三元组信息。
   该组信息会用于烧写到实际设备中，而这个测试设备，则会是实际设备在云端的一个影子。
 	* PRODUCT_KEY
-	* PRODUCT_SECRET
 	* DEVICE_NAME
 	* DEVICE_SECRET
 
