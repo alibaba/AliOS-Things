@@ -4,11 +4,13 @@ GLOBAL_DEFINES += WITH_SAL
 
 $(NAME)_SOURCES := ./src/sal_sockets.c \
                    ./src/sal_err.c     \
-                   ./src/sal_arch.c    \
                    ./src/ip4_addr.c
 
-ifneq (y,$(FEATURE_SAL_USE_AOS_QUEUE))
-$(NAME)_SOURCES += ./src/sal_util.c
+ifeq (y,$(FEATURE_SAL_USE_AOS_HAL))
+$(NAME)_SOURCES += ./src/sal_arch_aos.c
+else
+$(NAME)_SOURCES += ./src/sal_arch.c    \
+                   ./src/sal_util.c
 endif
 
 GLOBAL_INCLUDES += ./                  \
