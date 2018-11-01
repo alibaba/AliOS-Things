@@ -7,6 +7,7 @@ $(NAME)_TYPE := kernel
 $(NAME)_COMPONENTS := middleware.common yloop rhino.fs.kv libc
 $(NAME)_COMPONENTS += network.lwip alicrypto hal
 $(NAME)_COMPONENTS += middleware/uagent/uota/src/recovery digest_algorithm
+$(NAME)_COMPONENTS += halwifi
 
 use_private_lwip := 1
 
