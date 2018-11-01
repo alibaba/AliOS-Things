@@ -18,6 +18,7 @@ $(NAME)_DEFINES += WIFI_PWD=\"$(pwd)\"
 endif
 $(NAME)_SOURCES += interfaces/netmgr_wifi.c
 GLOBAL_DEFINES += NET_WITH_WIFI
+$(NAME)_COMPONENTS += halwifi
 else
 $(NAME)_SOURCES += hal/net.c
 $(NAME)_SOURCES += interfaces/netmgr_net.c
