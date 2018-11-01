@@ -18,7 +18,7 @@ $(NAME)_TYPE := kernel
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 #$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common cli digest_algorithm network.lwip
-
+$(NAME)_COMPONENTS += halwifi
 
 $(NAME)_COMPONENTS += platform/mcu/rtl8710bn/sdk
 $(NAME)_COMPONENTS += platform/mcu/rtl8710bn/peripherals

@@ -252,7 +252,7 @@ void hw_start_hal(options_t *poptions)
         hal_uart_init(&uart_0);
 #endif
 
-#ifdef AOS_HAL
+#ifdef AOS_HAL_WIFI
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 #elif defined(DEV_SAL_ATHOST)

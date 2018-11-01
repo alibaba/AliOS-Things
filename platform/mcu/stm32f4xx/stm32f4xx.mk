@@ -9,7 +9,7 @@ HOST_OPENOCD := stm32f4x
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal halwifi netmgr middleware.common mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += platform/mcu/stm32f4xx/spi_flash
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE

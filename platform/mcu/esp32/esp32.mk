@@ -6,6 +6,7 @@ $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS := hal rhino.fs.kv
 $(NAME)_COMPONENTS += network.lwip alicrypto
+$(NAME)_COMPONENTS += halwifi
 
 ESP_INC_PATH    := bsp/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)

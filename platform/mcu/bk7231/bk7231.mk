@@ -12,6 +12,7 @@ $(NAME)_COMPONENTS += platform/mcu/bk7231/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/bk7231/aos/app_runtime
 $(NAME)_COMPONENTS += prov
 $(NAME)_COMPONENTS += hal
+$(NAME)_COMPONENTS += halwifi
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
