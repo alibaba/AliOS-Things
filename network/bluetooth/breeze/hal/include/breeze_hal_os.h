@@ -75,11 +75,6 @@ void os_msleep(int ms);
 long long os_now_ms();
 
 /**
- * Start a event thread.
- */
-void os_start_event_dispatcher();
-
-/**
  * Add a new KV pair.
  *
  * @param[in]  key    the key of the KV pair.
@@ -114,5 +109,12 @@ int os_kv_get(const char *key, void *buffer, int *buffer_len);
  * @return  0 on success, negative error on failure.
  */
 int os_kv_del(const char *key);
+
+/**
+ * Generate random number.
+ *
+ * @return  random value implemented by platform.
+ */
+int os_rand(void);
 
 #endif

@@ -167,6 +167,27 @@ int breeze_start(struct device_config *dev_conf);
 int breeze_end(void);
 
 /**
+ * @brief Initialize breeze awss module.
+ *
+ * @param[in] cb    The callback to be called by breeze SDK when AP info ready.
+ * @param[in] info  The device information required by breeze SDK.
+ * @return None.
+ * @see None.
+ */
+void breeze_awss_init(apinfo_ready_cb cb, breeze_dev_info_t *info);
+
+/**
+ * @brief Start breeze awss process.
+ *
+ * @param None.
+ * @return None.
+ * @see None.
+ *
+ * @note When this API is called, do not call breeze_start anymore.
+ */
+void breeze_awss_start();
+
+/**
  * @brief Post device status.
  *
  * @param[in] cmd @n cmda to post.0:default, other:for internal use
@@ -193,13 +214,6 @@ uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length);
 uint32_t breeze_post_fast(uint8_t cmd, uint8_t *buffer, uint32_t length);
 
 /**
- * @brief Start event dispatcher. Note that:
- *        1. This API blocks (never return).
- *        2. This API should be called after breeze_start called.
- */
-void breeze_event_dispatcher();
-
-/**
  * @brief Append user specific data to the tail of the breeze adv data.
  *
  * @param[in] Data to append.
@@ -222,38 +236,6 @@ void breeze_append_adv_data(uint8_t *data, uint32_t len);
  *       content from time to time.
  */
 void breeze_restart_advertising();
-
-/**
- * @brief Disconnect BLE connection if needed by user.
- *  *
- * @param None.
- * @return None.
- * @see None.
- * @note This API will disconnect BLE link.
- *
- */
-void breeze_disconnect_ble();
-
-/**
- * @brief Initialize breeze awss module.
- *
- * @param[in] cb    The callback to be called by breeze SDK when AP info ready.
- * @param[in] info  The device information required by breeze SDK.
- * @return None.
- * @see None.
- */
-void breeze_awss_init(apinfo_ready_cb cb, breeze_dev_info_t *info);
-
-/**
- * @brief Start breeze awss process.
- *
- * @param None.
- * @return None.
- * @see None.
- *
- * @note When this API is called, do not call breeze_start anymore.
- */
-void breeze_awss_start();
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 }
