@@ -999,7 +999,7 @@ int IOT_HTTP2_Stream_UploadFile(void *hd, const char *file_path, const char *ide
     
     INIT_LIST_HEAD((list_head_t *)&file_data->list);
     HAL_MutexLock(handle->mutex);
-    list_add((list_head_t *)&file_data->list, (list_head_t *)&handle->file_list);
+    list_add_tail((list_head_t *)&file_data->list, (list_head_t *)&handle->file_list);
     if(handle->file_thread == NULL) {
         ret = HAL_ThreadCreate(&handle->file_thread, http_upload_file_func, handle, &thread_parms, NULL);
         if (ret != 0) {
