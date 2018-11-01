@@ -31,7 +31,8 @@
 #endif
 
 
-ENTRY(_start)
+ENTRY(OTA_BOOT)
+EXTERN(_start)
 EXTERN(retention_boot)
 EXTERN(OTA_BOOT)
 EXTERN(g_sa_cfg)

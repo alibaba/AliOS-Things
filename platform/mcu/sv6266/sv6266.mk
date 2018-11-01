@@ -50,6 +50,8 @@ $(NAME)_PREBUILT_LIBRARY += lib/tmr.a
 $(NAME)_PREBUILT_LIBRARY += lib/gpio.a
 $(NAME)_PREBUILT_LIBRARY += lib/drv_uart.a
 $(NAME)_PREBUILT_LIBRARY += lib/lowpower.a
+$(NAME)_PREBUILT_LIBRARY += lib/pwm.a
+$(NAME)_PREBUILT_LIBRARY += lib/adc.a
 
 
 GLOBAL_INCLUDES += port
@@ -60,8 +62,6 @@ GLOBAL_INCLUDES += $(SDKDIR)/components/bsp/soc/ssv6006
 GLOBAL_INCLUDES += $(SDKDIR)/components/osal
 GLOBAL_INCLUDES += $(SDKDIR)/components/inc
 GLOBAL_INCLUDES += $(SDKDIR)/components
-GLOBAL_INCLUDES += $(SDKDIR)/projects/mac_atcmd/src/inc
-GLOBAL_INCLUDES += $(SDKDIR)/projects/mac_atcmd/src/inc/custom
 GLOBAL_INCLUDES += $(SDKDIR)/components/tools/atcmd
 GLOBAL_INCLUDES += $(SDKDIR)/components/inc/crypto \
                    $(SDKDIR)/components/softmac \
@@ -72,7 +72,8 @@ GLOBAL_INCLUDES += $(SDKDIR)/components/inc/crypto \
 				   inc
 GLOBAL_INCLUDES += ../../../tools/cli/
 GLOBAL_INCLUDES += $(SDKDIR)/components/drv/rf/
-GLOBAL_INCLUDES += cfg/
+GLOBAL_INCLUDES += cfg
+GLOBAL_INCLUDES += inc/custom
 ################################################################
 # Project header
 ################################################################
@@ -187,5 +188,7 @@ $(NAME)_SOURCES :=	aos.c \
 					hal/ota_port.c \
                     hal/wifi_port.c \
                     hal/rf_cmd.c \
+                    hal/pwm.c \
+                    hal/adc.c \
                     $(SDKDIR)/components/net/tcpip/lwip-1.4.0/src/netif/ethernetif.c \
 					hal/hw.c

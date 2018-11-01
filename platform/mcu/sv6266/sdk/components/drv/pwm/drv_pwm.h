@@ -39,7 +39,7 @@ int8_t drv_pwm_deinit(void);
  *              0x03 - PWM_3.
  *              0x04 - PWM_4.
  * @param   freq_hz         freq_hz range (5 ~ 2000000 - AHB bus 40M)(5 ~ 4000000 - AHB bus 80M).
- * @param   duty            range 0 ~ 100 
+ * @param   duty            range 0 ~ 4096
  * @param   is_invert       invert the waveform
  *
  * @return  -1              The operation error.
