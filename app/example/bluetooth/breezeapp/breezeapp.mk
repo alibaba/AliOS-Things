@@ -14,7 +14,7 @@ GLOBAL_DEFINES += CONFIG_BLE_LINK_PARAMETERS
 
 GLOBAL_DEFINES += BUILD_AOS
 
-breeze_ota ?= 1
+breeze_ota ?= 0
 ifeq ($(breeze_ota),1)
 GLOBAL_DEFINES += CONFIG_AIS_OTA
 $(NAME)_COMPONENTS += middleware.uagent.uota.src.device.ble
