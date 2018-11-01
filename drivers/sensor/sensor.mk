@@ -122,13 +122,20 @@ $(NAME)_COMPONENTS  += rhino.bus.mbmaster
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
 
+ifeq (gps.sim868,$(module))
+$(NAME)_COMPONENTS += network.sal network.sal.atparser
+$(NAME)_COMPONENTS += network.sal.gprs.sim800
+$(NAME)_SOURCES += drv/drv_gps_simcom_sim868.c
+GLOBAL_DEFINES += AOS_SENSOR_GPS_SIMCON_SIM868
+endif
+
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS      += -Wall -Werror
 else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-GLOBAL_INCLUDES +=  ./include ./hal
+GLOBAL_INCLUDES +=  ./include
 GLOBAL_DEFINES      += AOS_SENSOR
 
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_BOSCH_BME280

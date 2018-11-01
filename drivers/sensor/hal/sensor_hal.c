@@ -623,6 +623,7 @@ int sensor_init(void)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 056ff03e6 (updata sensitivity definition for sensor I3G4250D and L3GD20H)
 #ifdef AOS_SENSOR_ALS_AMS_TCS3400
@@ -662,6 +663,11 @@ int sensor_init(void)
 #endif /* AOS_SENSOR_BARO_ROHM_BM1422A */
 >>>>>>> 3bc5a1ce8 (rohm sensor)
 =======
+=======
+#ifdef AOS_SENSOR_GPS_SIMCON_SIM868
+	drv_gps_simcom_sim868_init();
+#endif
+>>>>>>> e1b7036a7 (BugID:17115493: merge gps into sensor)
 
 #ifdef UDATA_MODBUS
     modbus_init();
