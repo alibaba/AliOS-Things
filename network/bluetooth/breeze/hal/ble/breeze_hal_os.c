@@ -40,11 +40,6 @@ long long os_now_ms()
     return aos_now_ms();
 }
 
-void os_start_event_dispatcher()
-{
-    aos_loop_run();
-}
-
 int os_kv_set(const char *key, const void *value, int len, int sync)
 {
     return 0;
@@ -56,6 +51,11 @@ int os_kv_get(const char *key, void *buffer, int *buffer_len)
 }
 
 int os_kv_del(const char *key)
+{
+    return 0;
+}
+
+int os_rand(void)
 {
     return 0;
 }

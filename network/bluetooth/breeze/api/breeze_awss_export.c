@@ -82,5 +82,5 @@ void breeze_awss_init
 
 void breeze_awss_start()
 {
-    breeze_event_dispatcher();
+    return;
 }
