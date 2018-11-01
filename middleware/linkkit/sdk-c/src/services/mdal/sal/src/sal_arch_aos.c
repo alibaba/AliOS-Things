@@ -3,28 +3,27 @@
  */
 
 /* system includes */
-#include "iot_import.h"
+#include <aos/aos.h>
 
 #include "sal_err.h"
 #include "sal_arch.h"
 #include "internal/sal_arch_internal.h"
-#include "internal/sal_util.h"
 
 static sal_mutex_t sal_arch_mutex;
 
 void *sal_malloc(uint32_t size)
 {
-    return HAL_Malloc(size);
+    return aos_malloc(size);
 }
 
 void sal_free(void *ptr)
 {
-    HAL_Free(ptr);
+    aos_free(ptr);
 }
 
 void sal_msleep(uint32_t ms)
 {
-    HAL_SleepMs(ms);
+    aos_msleep(ms);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -34,18 +33,13 @@ void sal_msleep(uint32_t ms)
 */
 err_t sal_sem_new(sal_sem_t *sem, uint8_t count)
 {
-    void *hdl = NULL;
+    err_t ret = ERR_MEM;
+    int stat = aos_sem_new(sem, count);
 
-    if (sem == NULL)
-        return ERR_MEM;
-
-    hdl = HAL_SemaphoreCreate();
-    if (hdl == NULL)
-        return ERR_MEM;
-
-    sem->hdl = hdl;
-
-    return ERR_OK;
+    if (stat == 0) {
+        ret = ERR_OK;
+    }
+    return ret;
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -57,7 +51,7 @@ err_t sal_sem_new(sal_sem_t *sem, uint8_t count)
 void sal_sem_free(sal_sem_t *sem)
 {
     if (sem != NULL) {
-        HAL_SemaphoreDestroy(sem->hdl);
+        aos_sem_free(sem);
     }
 }
 
@@ -70,9 +64,7 @@ void sal_sem_free(sal_sem_t *sem)
 */
 void sal_sem_signal(sal_sem_t *sem)
 {
-    if (sem != NULL) {
-        HAL_SemaphorePost(sem->hdl);
-    }
+    aos_sem_signal(sem)
 }
 
 int sal_sem_valid(sal_sem_t *sem)
@@ -116,7 +108,7 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
     begin_ms = sal_now();
 
     if ( timeout != 0UL ) {
-        ret = HAL_SemaphoreWait(sem->hdl, timeout);
+        ret = aos_sem_wait(sem, timeout);
         if (ret == 0) {
             end_ms = sal_now();
 
@@ -127,7 +119,7 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
             ret = SAL_ARCH_TIMEOUT;
         }
     } else {
-        while ( !(HAL_SemaphoreWait(sem->hdl, SAL_ARCH_TIMEOUT) == 0));
+        while ( !(aos_sem_wait(sem, AOS_WAIT_FOREVER) == 0));
         end_ms = sal_now();
 
         elapsed_ms = end_ms - begin_ms;
@@ -150,17 +142,19 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
 */
 err_t sal_mbox_new(sal_mbox_t *mb, int size)
 {
-    void *hdl = NULL;
-
     if (mb == NULL) {
         return  ERR_MEM;
     }
 
-    hdl = HAL_QueueCreate(NULL,size * sizeof(void *),sizeof(void *));
-    if (hdl == NULL) {
+    void *msg_start;
+    msg_start = (void*)sal_malloc(size * sizeof(void *));
+    if (msg_start == NULL) {
         return ERR_MEM;
     }
-    mb->hdl = hdl;
+
+    if (aos_queue_new(mb,msg_start,size * sizeof(void *),sizeof(void *)) != 0) {
+        return ERR_MEM;
+    }
 
     return ERR_OK;
 }
@@ -173,10 +167,16 @@ err_t sal_mbox_new(sal_mbox_t *mb, int size)
 */
 void sal_mbox_free(sal_mbox_t *mb)
 {
+    void *start;
+
     if ((mb != NULL)) {
-        HAL_QueueDestroy(mb->hdl);
+        start = aos_queue_buf_ptr(mb);
+        if(start != NULL)
+            sal_free(start);
+        aos_queue_free(mb);
     }
 }
+
 
 /*-----------------------------------------------------------------------------------*/
 /*
@@ -186,7 +186,7 @@ void sal_mbox_free(sal_mbox_t *mb)
 */
 void sal_mbox_post(sal_mbox_t *mb, void *msg)
 {
-    HAL_QueueSend(mb->hdl, &msg,sizeof(void*));
+    aos_queue_send(mb, &msg,sizeof(void*));
 }
 
 /*
@@ -196,7 +196,7 @@ void sal_mbox_post(sal_mbox_t *mb, void *msg)
 */
 err_t sal_mbox_trypost(sal_mbox_t *mb, void *msg)
 {
-    if (HAL_QueueSend(mb->hdl,&msg,sizeof(void*)) != 0)
+    if (aos_queue_send(mb,&msg,sizeof(void*)) != 0)
         return ERR_MEM;
     else
         return ERR_OK;
@@ -243,7 +243,7 @@ u32_t sal_arch_mbox_fetch(sal_mbox_t *mb, void **msg, u32_t timeout)
     begin_ms = sal_now();
 
     if( timeout != 0UL ) {
-        if(HAL_QueueRecv(mb->hdl,timeout,msg,&len) == 0) {
+        if(aos_queue_recv(mb,timeout,msg,&len) == 0) {
             end_ms = sal_now();
             elapsed_ms = end_ms - begin_ms;
             ret = elapsed_ms;
@@ -251,7 +251,7 @@ u32_t sal_arch_mbox_fetch(sal_mbox_t *mb, void **msg, u32_t timeout)
             ret = SAL_ARCH_TIMEOUT;
         }
     } else {
-        while(HAL_QueueRecv(mb->hdl,SAL_ARCH_TIMEOUT,msg,&len) != 0);
+        while(aos_queue_recv(mb,SAL_ARCH_TIMEOUT,msg,&len) != 0);
         end_ms = sal_now();
         elapsed_ms = end_ms - begin_ms;
 
@@ -278,7 +278,7 @@ u32_t sal_arch_mbox_tryfetch(sal_mbox_t *mb, void **msg)
     if (mb == NULL)
        return ERR_MEM;
 
-    if(HAL_QueueRecv(mb->hdl,0u,msg,&len) != 0 ) {
+    if(aos_queue_recv(mb,0u,msg,&len) != 0) {
         return SAL_MBOX_EMPTY;
     } else {
         return ERR_OK;
@@ -293,18 +293,13 @@ u32_t sal_arch_mbox_tryfetch(sal_mbox_t *mb, void **msg)
  **/
 err_t sal_mutex_new(sal_mutex_t *mutex)
 {
-    void *hdl = NULL;
+    err_t ret = ERR_MEM;
+    int stat = aos_mutex_new(mutex);
 
-    if (mutex == NULL)
-        return ERR_MEM;
-
-    hdl = HAL_MutexCreate();
-    if (hdl == NULL)
-        return ERR_MEM;
-
-    mutex->hdl = hdl;
-
-    return ERR_OK;
+    if (stat == 0) {
+        ret = ERR_OK;
+    }
+    return ret;
 }
 
 /** Lock a mutex
@@ -312,18 +307,14 @@ err_t sal_mutex_new(sal_mutex_t *mutex)
  **/
 void sal_mutex_lock(sal_mutex_t *mutex)
 {
-    if (mutex != NULL) {
-        HAL_MutexLock(mutex->hdl);
-    }
+    aos_mutex_lock(mutex, AOS_WAIT_FOREVER);
 }
 
 /** Unlock a mutex
  * @param mutex the mutex to unlock */
 void sal_mutex_unlock(sal_mutex_t *mutex)
 {
-    if (mutex != NULL) {
-        HAL_MutexUnlock(mutex->hdl);
-    }
+    aos_mutex_unlock(mutex);
 }
 
 /** Delete a semaphore
@@ -331,9 +322,7 @@ void sal_mutex_unlock(sal_mutex_t *mutex)
  **/
 void sal_mutex_free(sal_mutex_t *mutex)
 {
-    if (mutex != NULL) {
-        HAL_MutexDestroy(mutex->hdl);
-    }
+    aos_mutex_free(mutex);
 }
 
 int sal_mutex_valid(sal_mutex_t *mutex)
@@ -353,26 +342,11 @@ int sal_mutex_valid(sal_mutex_t *mutex)
 err_t sal_task_new_ext(sal_task_t *task, char *name, void *(*fn)(void *),
                        void *arg, int stack_size, int prio)
 {
-    void *hdl = NULL;
-    int stack_used;
-    hal_os_thread_param_t task_parms = {0};
-
     if (task == NULL)
         return ERR_MEM;
 
-    task_parms.priority = prio;
-    task_parms.stack_size = stack_size;
-    task_parms.name = name;
-
-    if (HAL_ThreadCreate(&hdl, fn, arg, &task_parms, &stack_used) != ERR_OK)
-        return ERR_MEM;
-
-    if (hdl == NULL)
-        return ERR_MEM;
-
-    task->hdl = hdl;
-
-    return ERR_OK;
+    return aos_task_new_ext(task, name, fn, arg, stack_size,
+                            AOS_DEFAULT_APP_PRI - prio);
 }
 #endif
 
@@ -384,7 +358,7 @@ err_t sal_task_new_ext(sal_task_t *task, char *name, void *(*fn)(void *),
 */
 uint32_t sal_now(void)
 {
-    return HAL_UptimeMs();
+    return aos_now_ms();
 }
 
 #if SAL_LIGHTWEIGHT_PROT
@@ -417,6 +391,7 @@ void sal_arch_unprotect(sal_prot_t pval)
 {
     sal_mutex_unlock(&sal_arch_mutex);
 }
+
 #endif
 
 /*
