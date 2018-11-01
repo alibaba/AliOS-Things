@@ -57,6 +57,7 @@ IFLAGS  := \\
 ${IFLAGS}
 
 CFLAGS  := \\
+    ${EXTRA_CFLAGS} \\
 ${CFLAGS}
 
 STAMP_LCOV  := ${STAMP_LCOV}
