@@ -10,7 +10,8 @@ $(NAME)_COMPONENTS += \
                       digest_algorithm \
                       utility/log \
                       activation \
-                      chip_code
+                      chip_code \
+                      network/netmgr
 
 ifneq (,$(filter ywss4linkkit,$(COMPONENTS)))
 $(NAME)_SOURCES  +=  HAL_AWSS_rhino.c
