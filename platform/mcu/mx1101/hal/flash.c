@@ -652,6 +652,8 @@ int platform_flash_erase( uint32_t StartAddress, uint32_t EndAddress  )
 
         StartAddress += erase_len;
     }
+
+    return 0;
 }
 
 int platform_flash_write( volatile uint32_t* FlashAddress, uint8_t* Data ,uint32_t DataLength  )
@@ -671,6 +673,8 @@ int platform_flash_write( volatile uint32_t* FlashAddress, uint8_t* Data ,uint32
         *FlashAddress += write_len;
         Data += write_len;
     }
+
+    return 0;
 }
 
 int platform_flash_read( volatile uint32_t* FlashAddress, uint8_t* Data ,uint32_t DataLength  )
@@ -690,4 +694,6 @@ int platform_flash_read( volatile uint32_t* FlashAddress, uint8_t* Data ,uint32_
         *FlashAddress += read_len;
         Data += read_len;
     }
+
+    return 0;
 }
