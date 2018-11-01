@@ -62,6 +62,11 @@ int iotx_dm_open(void)
         return DM_MEMORY_NOT_ENOUGH;
     }
 
+    /* DM OTA Module Init */
+    res = dm_ota_init();
+    if (res != SUCCESS_RETURN) {
+        goto ERROR;
+    }
     /* DM Message Cache Init */
     res = dm_msg_cache_init();
     if (res != SUCCESS_RETURN) {
@@ -111,6 +116,7 @@ ERROR:
     dm_ipc_deinit();
     dm_msg_deinit();
     dm_msg_cache_deinit();
+    dm_ota_deinit();
 
     if (ctx->mutex) {
         HAL_MutexDestroy(ctx->mutex);
