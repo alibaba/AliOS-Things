@@ -123,6 +123,7 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
     if (ret) {
         printf("i2c init fail in %d mode \r\n", i2c->config.mode);
     }
+	return ret;
 }
 
 int32_t hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *data,
@@ -277,6 +278,7 @@ int32_t hal_i2c_slave_recv(i2c_dev_t *i2c, uint8_t *data, uint16_t size, uint32_
         printf("I2CSlaveMSP432_read return false\r\n");
         return -1;
     }
+	return 0;
 }
 
 int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
@@ -456,6 +458,7 @@ int32_t hal_i2c_finalize(i2c_dev_t *i2c)
     if (ret) {
         printf("i2c init fail in %d mode \r\n", i2c->config.mode);
     }
+	return ret;
 }
 
 
