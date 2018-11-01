@@ -325,6 +325,7 @@ int application_start(int argc, char **argv)
     }
 
     breeze_awss_start();
+    aos_loop_run();
 
     return 0;
 }
