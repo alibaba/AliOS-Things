@@ -231,9 +231,6 @@ int iotx_report_devinfo(void *pclient)
 /* report Firmware version */
 int iotx_report_firmware_version(void *pclient)
 {
-#if defined(BUILD_AOS)
-    return SUCCESS_RETURN;
-#else
     int ret;
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
     char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
@@ -290,7 +287,6 @@ int iotx_report_firmware_version(void *pclient)
 
     VERSION_DEBUG("firmware version report finished, iotx_publish() = %d", ret);
     return SUCCESS_RETURN;
-#endif
 }
 
 /* report ModuleID */
