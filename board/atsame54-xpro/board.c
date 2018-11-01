@@ -28,7 +28,6 @@
  */
 #include "hal/soc/soc.h"
 #include <aos/kernel.h>
-#include <atmel_start.h>
 
 /* Logic partition on flash devices */
 hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX];
@@ -76,18 +75,4 @@ void board_partition_init(void)
 void board_init(void)
 {
     board_partition_init();
-    BTN_SW0_IRQ_0_init();
-}
-/**
- * Example of using EXTERNAL_IRQ_0
- */
-static void button_on_PB31_pressed(void)
-{
-    gpio_toggle_pin_level(LED0);
-}
-
-void BTN_SW0_IRQ_0_init(void)
-{
-    ext_irq_register(PIN_PB31, button_on_PB31_pressed);
-    ext_irq_enable(PIN_PB31);
 }
