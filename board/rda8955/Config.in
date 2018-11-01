@@ -1,0 +1,4 @@
+config AOS_BOARD_RDA8955
+    bool "board_rda8955"
+    default n
+    help

@@ -1,0 +1,4 @@
+config AOS_MSP432P4111LAUNCHPAD
+    bool "msp432p4111launchpad"
+    default n
+    help

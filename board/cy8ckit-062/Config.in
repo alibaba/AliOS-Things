@@ -1,0 +1,4 @@
+config AOS_BOARD_CY8CKIT-062
+    bool "board_cy8ckit-062"
+    default n
+    help

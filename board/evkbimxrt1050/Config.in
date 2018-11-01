@@ -1,0 +1,4 @@
+config AOS_BOARD_EVKBIMXRT1050
+    bool "board_evkbimxrt1050"
+    default n
+    help

@@ -1,0 +1,4 @@
+config AOS_BOARD_M100C
+    bool "board_m100c"
+    default n
+    help

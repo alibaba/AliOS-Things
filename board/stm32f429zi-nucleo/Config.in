@@ -1,0 +1,4 @@
+config AOS_STM32F429ZI-NUCLEO
+    bool "stm32f429zi-nucleo"
+    default n
+    help

@@ -1,0 +1,4 @@
+config AOS_BOARD_UNO-91H
+    bool "board_uno-91h"
+    default n
+    help
