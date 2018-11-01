@@ -325,9 +325,13 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
    	     LOGD(LOG_TAG, "%s: recv %u bytes timeout !", __func__, expect_size);
    	     USART_TransferAbortReceive(base, uart_handle[uart->port]);
    	     krhino_sem_count_set(&uart_recv_sem[uart->port], 0);
-   	     *recv_size = 0;
+         if(recv_size != NULL) {
+   	         *recv_size = 0;
+         }
    	  } else {
-   	     *recv_size = expect_size;
+   	      if(recv_size != NULL) {
+   	         *recv_size = expect_size;
+          }
    	  }
    	  krhino_mutex_unlock(&uart_recv_lock[uart->port]);
    } else {

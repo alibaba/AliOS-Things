@@ -196,7 +196,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   {
     hpcd->OUT_ep[index].is_in = 0;
     hpcd->OUT_ep[index].num = index;
-    hpcd->IN_ep[index].tx_fifo_num = index;
+    hpcd->OUT_ep[index].tx_fifo_num = index;
     /* Control until ep is activated */
     hpcd->OUT_ep[index].type = EP_TYPE_CTRL;
     hpcd->OUT_ep[index].maxpacket = 0;

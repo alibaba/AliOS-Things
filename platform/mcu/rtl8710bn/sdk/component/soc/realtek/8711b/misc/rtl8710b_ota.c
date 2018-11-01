@@ -370,7 +370,7 @@ s32 download_new_fw_from_server(u32 addr, int socket, update_ota_target_hdr * pO
 	u8 * buf;
 	s32 size = 0;
 	int read_bytes;
-	int read_bytes_buf;
+	int read_bytes_buf = 0;
 	u32 TempLen;
 	flash_t flash;
 	u32 ImageCnt;
@@ -382,7 +382,7 @@ s32 download_new_fw_from_server(u32 addr, int socket, update_ota_target_hdr * pO
 	u32 SigCnt = 0;
 	u32 TempCnt = 0;	
 	u32 i;
-	s32 OtaImgSize;
+	s32 OtaImgSize = -1;
 
 	/*acllocate buffer for downloading image from server*/
 	alloc = ota_update_malloc(BUF_SIZE);
