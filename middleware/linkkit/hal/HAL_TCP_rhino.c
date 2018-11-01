@@ -223,7 +223,7 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     return (0 != len_recv) ? len_recv : err_code;
 }
 #else
-intptr_t HAL_TCP_Establish(const char *host, uint16_t port)
+uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_ uint16_t port)
 {
     return 0;
 }
