@@ -1,0 +1,4 @@
+config AOS_BOARD_B_F769
+    bool "board_b_f769"
+    default n
+    help

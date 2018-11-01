@@ -1,0 +1,4 @@
+config AOS_DEVELOPERKIT_SYSCALL
+    bool "developerkit_syscall"
+    default n
+    help

@@ -1,0 +1,4 @@
+config AOS_BOARD_ESP8266
+    bool "board_esp8266"
+    default n
+    help

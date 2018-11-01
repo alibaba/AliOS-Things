@@ -1,0 +1,4 @@
+config AOS_STM32L433RC-NUCLEO
+    bool "stm32l433rc-nucleo"
+    default n
+    help

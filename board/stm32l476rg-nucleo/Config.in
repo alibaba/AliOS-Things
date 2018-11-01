@@ -1,0 +1,4 @@
+config AOS_STM32L476RG-NUCLEO
+    bool "stm32l476rg-nucleo"
+    default n
+    help

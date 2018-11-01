@@ -1,0 +1,4 @@
+config AOS_BOARD_XM510
+    bool "board_xm510"
+    default n
+    help

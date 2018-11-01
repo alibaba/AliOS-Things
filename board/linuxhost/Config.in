@@ -1,0 +1,4 @@
+config AOS_BOARD_LINUXHOST
+    bool "board_linuxhost"
+    default n
+    help

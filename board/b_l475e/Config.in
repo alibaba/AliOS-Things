@@ -1,0 +1,4 @@
+config AOS_BOARD_B_L475E
+    bool "board_b_l475e"
+    default n
+    help

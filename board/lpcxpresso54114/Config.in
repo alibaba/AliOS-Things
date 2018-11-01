@@ -1,0 +1,4 @@
+config AOS_BOARD_LPCXPRESSO54114
+    bool "board_lpcxpresso54114"
+    default n
+    help

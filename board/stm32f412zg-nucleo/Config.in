@@ -1,0 +1,4 @@
+config AOS_STM32F412ZG-NUCLEO
+    bool "stm32f412zg-nucleo"
+    default n
+    help

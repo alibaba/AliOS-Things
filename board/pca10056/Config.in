@@ -1,0 +1,4 @@
+config AOS_BOARD_PCA10056
+    bool "board_pca10056"
+    default n
+    help
