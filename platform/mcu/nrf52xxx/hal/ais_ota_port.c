@@ -310,7 +310,7 @@ static ssize_t storage_read(const bt_addr_le_t *addr, u16_t key, void *data,
 
 static int storage_clear(const bt_addr_le_t *addr)
 {
-
+    return 0;
 }
 
 int ais_ota_bt_storage_init(void)
