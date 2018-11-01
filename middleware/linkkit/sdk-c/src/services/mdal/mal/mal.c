@@ -96,7 +96,7 @@ static char mal_mc_is_topic_matched(char *topicFilter, const char *topicName)
         return 0;
     }
     char *curf = topicFilter;
-    char *curn = topicName;
+    char *curn = (char *)topicName;
     char *curn_end = curn + strlen(topicName);
 
     while (*curf && curn < curn_end) {
@@ -936,305 +936,6 @@ int mal_mc_data_copy_from_buf(char *topic, char *message)
 
 }
 
-// aos will implement this function
-#if defined(BUILD_AOS)
-extern void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
-#else
-void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE])
-{
-    const char *p_version = LINKKIT_VERSION;
-    int i = 0, j = 0;
-    unsigned char res = 0;
-
-    for (j = 0; j < 3; j++) {
-        for (res = 0; p_version[i] <= '9' && p_version[i] >= '0'; i++) {
-            res = res * 10 + p_version[i] - '0';
-        }
-        version[j] = res;
-        i++;
-    }
-    version[3] = 0x00;
-}
-#endif
-
-// aos will implement this function
-#if defined(BUILD_AOS)
-extern void aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE]);
-#else
-void aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE])
-{
-    memcpy(mac, "\x01\x02\x03\x04\x05\x06\x07\x08", MAC_ADDRESS_SIZE);
-}
-#endif
-
-// aos will implement this function
-#if defined(BUILD_AOS)
-extern void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE]);
-#else
-void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
-{
-    memcpy(chip_code, "\x01\x02\x03\x04", CHIP_CODE_SIZE);
-}
-#endif
-/* Report AOS Version */
-const char *MAL_DEVICE_INFO_UPDATE_FMT = "{\"id\":\"2\",\"version\":\"1.0\",\"params\":["
-        "{\"attrKey\":\"SYS_ALIOS_ACTIVATION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"},"
-                                    "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"%s\",\"domain\":\"SYSTEM\"}"
-        "],\"method\":\"thing.deviceinfo.update\"}";
-static int mal_mc_report_devinfo(iotx_mc_client_t *pclient)
-{
-    int ret = 0;
-    int i;
-    char mac[MAC_ADDRESS_SIZE] = {0};
-    char version[VERSION_NUM_SIZE] = {0};
-    char random_num[RANDOM_NUM_SIZE];
-    char chip_code[CHIP_CODE_SIZE] = {0};
-    char output[AOS_ACTIVE_INFO_LEN] = {0};
-    char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
-    char *msg = NULL;
-    int  msg_len = 0;
-    iotx_mqtt_topic_info_t topic_info;
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[DEVICE_NAME_LEN + 1] = {0};
-
-    mal_debug("devinfo report in MQTT");
-
-    // Get AOS kernel version: AOS-R-1.3.0, transform to hex format
-    aos_get_version_hex((unsigned char *)version);
-
-    // Get Mac address
-    aos_get_mac_hex((unsigned char *)mac);
-
-    mac[6] = ACTIVE_SINGLE_GW;
-#ifdef BUILD_AOS
-    mac[7] = ACTIVE_LINKKIT_AOS;
-#else
-    mac[7] = ACTIVE_LINKKIT_ONLY;
-#endif
-    // Get Random
-    HAL_Srandom(HAL_UptimeMs());
-    for (i = 0; i < 4; i ++) {
-        random_num[i] = (char)HAL_Random(0xFF);
-    }
-    aos_get_chip_code((unsigned char *)chip_code);
-    /*
-    input: version 4byte + random 4 byte + mac 4byte + chip_code 4byte
-    output: output_buffer store the version info process. length at least OUTPUT_SPACE_SIZE
-    return: 0 success, 1 failed
-    */
-    // Get aos active info
-    ret = aos_get_version_info((unsigned char *)version, (unsigned char *)random_num, (unsigned char *)mac,
-                               (unsigned char *)chip_code, (unsigned char *)output, AOS_ACTIVE_INFO_LEN);
-    if (ret) {
-        mal_err("aos_get_version_info failed");
-        return FAIL_RETURN;
-    }
-    mal_debug("get aos avtive info: %s", output);
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    /* linkkit version topic name */
-    ret = HAL_Snprintf(topic_name,
-                       IOTX_URI_MAX_LEN,
-                       "/sys/%s/%s/thing/deviceinfo/update",
-                       product_key,
-                       device_name);
-    if (ret <= 0) {
-        mal_err("topic generate err");
-        return FAIL_RETURN;
-    }
-    mal_debug("devinfo report topic: %s", topic_name);
-
-    msg_len = strlen(MAL_DEVICE_INFO_UPDATE_FMT) + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN+1;
-    msg = (char *)mal_malloc(msg_len);
-    if (msg == NULL) {
-        mal_err("malloc err");
-        return FAIL_RETURN;
-    }
-    memset(msg, 0, msg_len);
-    /* generate linkkit version json data */
-    ret = HAL_Snprintf(msg,
-                       msg_len,
-                       MAL_DEVICE_INFO_UPDATE_FMT,
-                       output,
-                       LINKKIT_VERSION
-                      );
-    if (ret <= 0) {
-        mal_err("topic msg generate err");
-        mal_free(msg);
-        return FAIL_RETURN;
-    }
-    mal_debug("devinfo report data: %s", msg);
-
-    topic_info.qos = IOTX_MQTT_QOS1;
-    topic_info.payload = (void *)msg;
-    topic_info.payload_len = strlen(msg);
-    topic_info.retain = 0;
-    topic_info.dup = 0;
-
-    // publish message
-    ret = mal_mc_publish(pclient, topic_name, &topic_info);
-    mal_free(msg);
-    if (ret < 0) {
-        mal_err("publish failed");
-        return FAIL_RETURN;
-    }
-    mal_debug("devinfo report succeed");
-
-    return SUCCESS_RETURN;
-}
-
-/* report Firmware version */
-static int mal_mc_report_firmware_version(iotx_mc_client_t *pclient)
-{
-#if defined(BUILD_AOS)
-    return SUCCESS_RETURN;
-#else
-    int ret;
-    char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
-    char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
-    iotx_mqtt_topic_info_t topic_info;
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[DEVICE_NAME_LEN + 1] = {0};
-    char version[FIRMWARE_VERSION_MAXLEN] = {0};
-
-    ret = HAL_GetFirmwareVesion(version);
-    if (ret <= 0) {
-        mal_err("firmware version does not implement");
-        return FAIL_RETURN;
-    }
-
-    mal_debug("firmware version report start in MQTT");
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    /* firmware report topic name generate */
-    ret = HAL_Snprintf(topic_name,
-                       IOTX_URI_MAX_LEN,
-                       "/ota/device/inform/%s/%s",
-                       product_key,
-                       device_name
-                      );
-    if (ret <= 0) {
-        mal_err("firmware report topic generate err");
-        return FAIL_RETURN;
-    }
-    mal_debug("firmware report topic: %s", topic_name);
-
-    /* firmware report message json data generate */
-    ret = HAL_Snprintf(msg,
-                       FIRMWARE_VERSION_MSG_LEN,
-                       "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}",
-                       3,
-                       version
-                      );
-    if (ret <= 0) {
-        mal_err("firmware report message json data generate err");
-        return FAIL_RETURN;
-    }
-    mal_debug("firmware report data: %s", msg);
-
-    topic_info.qos = IOTX_MQTT_QOS1;
-    topic_info.payload = (void *)msg;
-    topic_info.payload_len = strlen(msg);
-    topic_info.retain = 0;
-    topic_info.dup = 0;
-
-    // publish message
-    ret = mal_mc_publish(pclient, topic_name, &topic_info);
-    if (ret < 0) {
-        mal_err("publish failed");
-        return FAIL_RETURN;
-    }
-
-    mal_debug("firmware version report finished, mal_mc_publish() = %d", ret);
-    return SUCCESS_RETURN;
-#endif
-}
-
-/* report ModuleID */
-static int mal_mc_report_mid(iotx_mc_client_t *pclient)
-{
-    int                         ret;
-    char                        topic_name[IOTX_URI_MAX_LEN + 1];
-    iotx_mqtt_topic_info_t      topic_info;
-    char                        requestId[MIDREPORT_REQID_LEN + 1] = {0};
-    char product_key[PRODUCT_KEY_LEN + 1] = {0};
-    char device_name[DEVICE_NAME_LEN + 1] = {0};
-    char                        pid[PID_STRLEN_MAX + 1] = {0};
-    char                        mid[MID_STRLEN_MAX + 1] = {0};
-
-    memset(pid, 0, sizeof(pid));
-    memset(mid, 0, sizeof(mid));
-
-    if (0 == HAL_GetPartnerID(pid)) {
-        mal_debug("PartnerID is Null");
-        return SUCCESS_RETURN;
-    }
-    if (0 == HAL_GetModuleID(mid)) {
-        mal_debug("ModuleID is Null");
-        return SUCCESS_RETURN;
-    }
-
-    mal_debug("MID Report: started in MQTT");
-
-    HAL_GetProductKey(product_key);
-    HAL_GetDeviceName(device_name);
-
-    iotx_midreport_reqid(requestId,
-                         product_key,
-                         device_name);
-    /* 1,generate json data */
-    char *msg = mal_malloc(MIDREPORT_PAYLOAD_LEN);
-    if (NULL == msg) {
-        mal_err("allocate mem failed");
-        return FAIL_RETURN;
-    }
-
-    iotx_midreport_payload(msg,
-                           requestId,
-                           mid,
-                           pid);
-
-    mal_debug("MID Report: json data = '%s'", msg);
-
-    memset(&topic_info, 0, sizeof(iotx_mqtt_topic_info_t));
-
-    topic_info.qos = IOTX_MQTT_QOS0;
-    topic_info.payload = (void *)msg;
-    topic_info.payload_len = strlen(msg);
-    topic_info.retain = 0;
-    topic_info.dup = 0;
-
-    /* 2,generate topic name */
-    ret = iotx_midreport_topic(topic_name,
-                               "",
-                               product_key,
-                               device_name);
-
-    mal_debug("MID Report: topic name = '%s'", topic_name);
-
-    if (ret < 0) {
-        mal_err("generate topic name of info failed");
-        mal_free(msg);
-        return FAIL_RETURN;
-    }
-
-    ret = MAL_MQTT_Publish(pclient, topic_name, &topic_info);
-    if (ret < 0) {
-        mal_err("publish failed");
-        mal_free(msg);
-        return FAIL_RETURN;
-    }
-
-    mal_free(msg);
-
-    mal_debug("MID Report: finished, IOT_MQTT_Publish() = %d", ret);
-    return SUCCESS_RETURN;
-}
-
 static struct list_head g_mqtt_sub_list = LIST_HEAD_INIT(g_mqtt_sub_list);
 
 static int yielding = 0;
@@ -1285,7 +986,9 @@ void *MAL_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
 #if 1
-    err = mal_mc_report_mid(pclient);
+    iotx_set_report_func(MAL_MQTT_Publish_Simple);
+
+    err = iotx_report_mid(pclient);
     if (SUCCESS_RETURN != err) {
         mal_mc_release(pclient);
         mal_free(pclient);
@@ -1293,14 +996,14 @@ void *MAL_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     /* report device info */
-    err = mal_mc_report_devinfo(pclient);
+    err = iotx_report_devinfo(pclient);
     if (SUCCESS_RETURN != err) {
         mal_mc_release(pclient);
         mal_free(pclient);
         return NULL;
     }
 
-    err = mal_mc_report_firmware_version(pclient);
+    err = iotx_report_firmware_version(pclient);
     if (SUCCESS_RETURN != err) {
         mal_mc_release(pclient);
         mal_free(pclient);
@@ -1438,4 +1141,3 @@ int MAL_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_
 
     return mal_mc_publish(client, topic_name, topic_msg);
 }
-
