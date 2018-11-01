@@ -168,7 +168,7 @@ int application_start(void)
 #ifdef CONTINUE_BEL_ADV
     aos_post_delayed_action(5000, adv_work, NULL);
 #endif
+    aos_loop_run();
 
-    breeze_event_dispatcher();
     return 0;
 }
