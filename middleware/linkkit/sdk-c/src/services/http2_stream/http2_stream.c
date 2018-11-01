@@ -858,7 +858,7 @@ static void *http_upload_one(void *user)
 
     http2_stream_file_t *user_data = (http2_stream_file_t *)user;
     stream_handle_t * handle = (stream_handle_t *)user_data->handle;
-    
+
     int file_size = http2_stream_get_file_size(user_data->path);
 
     if (file_size <= 0) {
@@ -951,10 +951,10 @@ static void *http_upload_file_func(void *user)
             list_del((list_head_t *)&node->list);
             HAL_MutexUnlock(handle->mutex);
             http_upload_one((void *)node);
+            HAL_MutexLock(handle->mutex);
             break;
         }
-
-        HAL_MutexLock(handle->mutex);
+        
         if(list_empty((list_head_t *)&handle->file_list)) {
             h2stream_debug("no file left,file upload thread exit\n");
             handle->file_thread = NULL;
@@ -998,7 +998,7 @@ int IOT_HTTP2_Stream_UploadFile(void *hd, const char *file_path, const char *ide
     thread_parms.name = "file_upload";
     
     INIT_LIST_HEAD((list_head_t *)&file_data->list);
-    HAL_MutexUnlock(handle->mutex);
+    HAL_MutexLock(handle->mutex);
     list_add((list_head_t *)&file_data->list, (list_head_t *)&handle->file_list);
     if(handle->file_thread == NULL) {
         ret = HAL_ThreadCreate(&handle->file_thread, http_upload_file_func, handle, &thread_parms, NULL);
