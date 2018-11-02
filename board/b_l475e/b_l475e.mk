@@ -17,7 +17,7 @@ GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=1
 
 sal ?= 1
 ifeq (1,$(sal))
-$(NAME)_COMPONENTS += sal
+$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
