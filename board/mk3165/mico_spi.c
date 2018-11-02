@@ -16,7 +16,7 @@ OSStatus MicoSpiInitialize( const platforom_spi_device_t* spi )
   platform_spi_config_t config;
   OSStatus              err = kNoErr;
 
-  if ( spi->port >= MICO_SPI_NONE )
+  if ( spi->port >= MICO_SPI_MAX )
     return kUnsupportedErr;
 
 #ifdef MICO_WIFI_SHARE_SPI_BUS
@@ -71,7 +71,7 @@ OSStatus MicoSpiTransfer( const platforom_spi_device_t* spi, const platform_spi_
   platform_spi_config_t config;
   OSStatus err = kNoErr;
 
-  if ( spi->port >= MICO_SPI_NONE )
+  if ( spi->port >= MICO_SPI_MAX )
     return kUnsupportedErr;
 
 #ifdef MICO_WIFI_SHARE_SPI_BUS
