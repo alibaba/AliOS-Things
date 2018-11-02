@@ -531,6 +531,7 @@ int linkkit_main(void *paras)
     int                             res = 0;
     iotx_linkkit_dev_meta_info_t    master_meta_info;
     user_example_ctx_t             *user_example_ctx = user_example_get_ctx();
+#if defined(__UBUNTU_SDK_DEMO__)
     int                             argc = ((app_main_paras_t *)paras)->argc;
     char                          **argv = ((app_main_paras_t *)paras)->argv;
 
@@ -542,6 +543,7 @@ int linkkit_main(void *paras)
             EXAMPLE_TRACE("set [max_running_seconds] = %d seconds\n", max_running_seconds);
         }
     }
+#endif
 
 #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
