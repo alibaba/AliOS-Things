@@ -630,7 +630,6 @@ static kv_file_t *kvfile = NULL;
 
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
 {
-    int ret;
     if (!kvfile) {
         kvfile = kv_open("/tmp/kvfile.db");
         if (!kvfile) {
@@ -638,14 +637,11 @@ int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
         }
     }
 
-    ret = kv_set_blob(kvfile, (char *)key, (char *)val, len);
-    kv_close(kvfile);
-    return ret;
+    return kv_set_blob(kvfile, (char *)key, (char *)val, len);
 }
 
 int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
 {
-    int ret;
     if (!kvfile) {
         kvfile = kv_open("/tmp/kvfile.db");
         if (!kvfile) {
@@ -653,14 +649,11 @@ int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
         }
     }
 
-    ret = kv_get_blob(kvfile, (char *)key, buffer, buffer_len);
-    kv_close(kvfile);
-    return ret;    
+    return kv_get_blob(kvfile, (char *)key, buffer, buffer_len);
 }
 
 int HAL_Kv_Del(const char *key)
 {
-    int ret;
     if (!kvfile) {
         kvfile = kv_open("/tmp/kvfile.db");
         if (!kvfile) {
@@ -668,9 +661,7 @@ int HAL_Kv_Del(const char *key)
         }
     }
 
-    ret = kv_del(kvfile, (char *)key);
-    kv_close(kvfile);
-    return ret;
+    return kv_del(kvfile, (char *)key);
 }
 
 static long long os_time_get(void)
