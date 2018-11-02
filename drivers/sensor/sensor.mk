@@ -4,6 +4,7 @@ $(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_SOURCES += \
         hal/sensor_hal.c \
+<<<<<<< HEAD
         hal/sensor_drv_api.c \
         drv/drv_humi_bosch_bme280.c \
         drv/drv_acc_bosch_bma253.c \
@@ -116,6 +117,25 @@ $(NAME)_SOURCES += \
 >>>>>>> 24c274278 (BugID:16179547: optimize industry gateway canbus sensor receive data mode)
 
         
+=======
+        hal/sensor_drv_api.c 
+
+
+CONFIG_SENSOR =  $(addsuffix .c,$(CONFIG_SENSOR_DRV_NAME))
+SENSOR_ALL_FILE=$(notdir $(wildcard device/sensor/drv/*.c))
+
+FILTER_FILE=$(foreach defines_var,$(1),$(filter $(defines_var),$(2)))
+SENSOR_SRC_FILE=$(call FILTER_FILE,$(CONFIG_SENSOR),$(SENSOR_ALL_FILE))
+
+$(NAME)_SOURCES += $(addprefix drv/,$(SENSOR_SRC_FILE)) 
+
+CONFIG_DRV_SET = $(word 1,$(CONFIG_SENSOR_DRV_NAME))
+
+ifneq ($(CONFIG_DRV_SET),)
+GLOBAL_DEFINES += SENSOR_DRV_AUTO_INIT
+endif
+
+>>>>>>> 0cac3b6d8 (BugID:17115375: sensor driver initialize dynamically)
 ifeq ($(modbus_sensor_enable),1)
 $(NAME)_SOURCES += drv/drv_modbus_sensors.c
 $(NAME)_COMPONENTS  += rhino.bus.mbmaster
@@ -138,6 +158,7 @@ endif
 GLOBAL_INCLUDES +=  ./include
 GLOBAL_DEFINES      += AOS_SENSOR
 
+<<<<<<< HEAD
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_BOSCH_BME280
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA253
 #GLOBAL_DEFINES      += AOS_SENSOR_BARO_BOSCH_BMP280
@@ -240,5 +261,7 @@ GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA4XY
 #GLOBAL_DEFINES      += AOS_SENSOR_PM_SENSIRION_SPS30
 >>>>>>> 6ad7c776d (I2C HAL for ESP32 fixed, native sensor support for Sensirion SPS30 and Bosch BME680 added. (#840))
 =======
+=======
+>>>>>>> 0cac3b6d8 (BugID:17115375: sensor driver initialize dynamically)
 
 >>>>>>> 24c274278 (BugID:16179547: optimize industry gateway canbus sensor receive data mode)

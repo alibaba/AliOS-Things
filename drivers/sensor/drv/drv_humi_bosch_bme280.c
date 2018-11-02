@@ -847,32 +847,38 @@ int drv_humi_bosch_bme280_init(void)
 
     ret = sensor_create_obj(&sensor);
     if (unlikely(ret)) {
+            LOG("line = %d\n",__LINE__);
         return -1;
     }
 
     ret = drv_humi_bosch_bme280_io_init(sensor.io_port);
     if (unlikely(ret)) {
+            LOG("line = %d\n",__LINE__);
         return -1;
     }
 
     ret = drv_humi_bosch_bme280_validate_id(BME280_CHIP_ID);
     if (unlikely(ret)) {
+            LOG("line = %d\n",__LINE__);
         return -1;
     }
 
     ret = drv_humi_bosch_bme280_soft_reset();
     if (unlikely(ret)) {
+            LOG("line = %d\n",__LINE__);
         return -1;
     }
 
 
     ret = drv_humi_bosch_bme280_set_default_config();
     if (unlikely(ret)) {
+            LOG("line = %d\n",__LINE__);
         return -1;
     }
 
     ret = drv_humi_bosch_bme280_get_cali_parm();
     if (unlikely(ret)) {
+            LOG("line = %d\n",__LINE__);
         return -1;
     }
 
@@ -880,3 +886,6 @@ int drv_humi_bosch_bme280_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_humi_bosch_bme280_init);
+

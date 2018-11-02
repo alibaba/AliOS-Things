@@ -307,3 +307,6 @@ int drv_temp_adi_adt7410_init(void)
 
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_temp_adi_adt7410_init);
+

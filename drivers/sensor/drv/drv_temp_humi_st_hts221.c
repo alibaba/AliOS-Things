@@ -581,3 +581,6 @@ int drv_humi_st_hts221_init(void)
 
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_temp_st_hts221_init);
+SENSOR_DRV_ADD(drv_humi_st_hts221_init);

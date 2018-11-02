@@ -667,3 +667,6 @@ int drv_gs_liteon_ltr91100_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_gs_liteon_ltr91100_init);
+

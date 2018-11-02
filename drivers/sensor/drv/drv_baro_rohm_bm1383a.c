@@ -435,3 +435,5 @@ int drv_baro_rohm_bm1383a_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_baro_rohm_bm1383a_init);
+

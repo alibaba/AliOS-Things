@@ -542,3 +542,6 @@ int drv_mag_sen_st350_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_mag_sen_st350_init);
+
+

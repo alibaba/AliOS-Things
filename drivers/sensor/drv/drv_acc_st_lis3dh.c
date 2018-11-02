@@ -681,3 +681,6 @@ int drv_acc_st_lis3dh_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_acc_st_lis3dh_init);
+
+
