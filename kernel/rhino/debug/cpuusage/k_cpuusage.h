@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-#if (RHINO_CONFIG_BACKTRACE > 0)
+#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
 
 void     krhino_task_cpu_usage_stats();
 uint32_t krhino_task_cpu_usage_get(ktask_t *task);
