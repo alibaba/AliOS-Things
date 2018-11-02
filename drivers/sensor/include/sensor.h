@@ -13,7 +13,7 @@
 #include "hal/soc/gpio.h"
 #include "hal/soc/i2c.h"
 
-#if defined __GNUC__
+#if defined ( __CC_ARM )//KEIL
 #ifndef UNUSED
 #define UNUSED    __attribute__((unused))
 #endif
@@ -21,7 +21,7 @@
 #ifndef UNUSED
 #define UNUSED    __attribute__((unused))
 #endif
-#elif defined ( __CC_ARM ) //KEIL
+#elif defined ( __GNUC__ ) 
 #ifndef UNUSED
 #define UNUSED    __attribute__((unused))
 #endif

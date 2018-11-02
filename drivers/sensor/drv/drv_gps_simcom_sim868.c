@@ -698,4 +698,5 @@ int drv_gps_simcom_sim868_init(void)
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_gps_simcom_sim868_init);
 

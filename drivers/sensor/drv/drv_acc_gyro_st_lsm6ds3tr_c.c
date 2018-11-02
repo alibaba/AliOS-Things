@@ -1281,6 +1281,6 @@ int drv_gyro_st_lsm6ds3tr_c_init(void){
 }
 
 
-
-
+SENSOR_DRV_ADD(drv_acc_st_lsm6ds3tr_c_init);
+SENSOR_DRV_ADD(drv_gyro_st_lsm6ds3tr_c_init);
 

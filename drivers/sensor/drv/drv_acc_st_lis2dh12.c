@@ -681,3 +681,5 @@ int drv_acc_st_lis2dh12_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_acc_st_lis2dh12_init);
+

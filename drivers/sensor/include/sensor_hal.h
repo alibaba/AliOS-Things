@@ -7,6 +7,21 @@
 
 #include "sensor.h"
 
+
+typedef int (*SENSOR_INIT_FUN)(void);
+
+#if defined(__CC_ARM) && defined(SENSOR_DRV_AUTO_INIT)
+#define SENSOR_DRV_ADD(func) \
+__attribute__((used)) __attribute__((section("init_sensor"))) SENSOR_INIT_FUN __sensor_##func##__  = func;
+#elif defined(__ICCARM__) && defined(SENSOR_DRV_AUTO_INIT)
+#define SENSOR_DRV_ADD(func)
+#elif defined(__GNUC__) && defined(SENSOR_DRV_AUTO_INIT)
+#define SENSOR_DRV_ADD(func) \
+__attribute__((used)) __attribute__((section(".init_sensor"))) SENSOR_INIT_FUN __sensor_##func##__  = func;
+#else
+#define SENSOR_DRV_ADD(func)
+#endif 
+
 extern int sensor_hal_init(void);
 extern int sensor_create_obj(sensor_obj_t *sensor);
 
@@ -16,7 +31,7 @@ extern int modbus_sensor_read(void *buffer, size_t length, int index);
 extern void modbus_sensor_drv_init();
 #endif
 
-
+#if (!defined (SENSOR_DRV_AUTO_INIT)) || defined(__ICCARM__) 
 #ifdef AOS_SENSOR_HUMI_BOSCH_BME280
 extern int drv_humi_bosch_bme280_init(void);
 #endif /* AOS_SENSOR_HUMI_BOSCH_BME280 */
@@ -85,6 +100,7 @@ extern   int drv_temp_memsic_mmc3680kj_init(void);
 
 #ifdef AOS_SENSOR_GPS_SIMCON_SIM868
 extern   int drv_gps_simcom_sim868_init(void);
+#endif
 #endif
 
 #endif /* SENSOR_HAL_H */

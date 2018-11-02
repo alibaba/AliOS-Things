@@ -644,3 +644,6 @@ int drv_gs_pixart_paj7620_init(void)
 
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_gs_pixart_paj7620_init);
+

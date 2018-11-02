@@ -671,3 +671,6 @@ int drv_als_ams_tcs3400_init(void)
     }
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_als_ams_tcs3400_init);
+

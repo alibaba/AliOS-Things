@@ -875,3 +875,6 @@ int drv_baro_bosch_bmp280_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_baro_bosch_bmp280_init);
+

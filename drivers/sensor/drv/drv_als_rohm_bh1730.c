@@ -419,3 +419,8 @@ int drv_als_rohm_bh1730_init(void)
 
     return 0;
 }
+
+
+
+SENSOR_DRV_ADD(drv_als_rohm_bh1730_init);
+
