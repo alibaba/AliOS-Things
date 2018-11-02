@@ -64,7 +64,7 @@ void sal_sem_free(sal_sem_t *sem)
 */
 void sal_sem_signal(sal_sem_t *sem)
 {
-    aos_sem_signal(sem)
+    aos_sem_signal(sem);
 }
 
 int sal_sem_valid(sal_sem_t *sem)
