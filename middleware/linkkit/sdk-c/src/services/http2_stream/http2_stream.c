@@ -52,7 +52,7 @@ typedef struct {
     char *channel_id;               /* string return by server to identify a specific stream channel, different from stream identifier which is a field in http2 frame */
     stream_type_t stream_type;      /* check @stream_type_t */
     void *semaphore;                /* semaphore for http2 response sync */
-    char status_code[4];            /* http2 response status code */
+    char status_code[5];            /* http2 response status code */
     http2_list_t list;              /* list_head */
     uint8_t  rcv_hd_cnt;            /* the number of concerned heads received*/                    
 } http2_stream_node_t;
@@ -162,8 +162,8 @@ static int http2_stream_node_search(stream_handle_t *handle, unsigned int stream
     return FAIL_RETURN;
 }
 
-static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, size_t namelen,
-                             const uint8_t *value, size_t valuelen, uint8_t flags)
+static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, uint32_t namelen,
+                             const uint8_t *value, uint32_t valuelen, uint8_t flags)
 {
     http2_stream_node_t *node = NULL;
 
@@ -202,7 +202,7 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, si
     }
 }
 
-static void on_stream_chunk_recv(int32_t stream_id, const uint8_t *data, size_t len, uint8_t flags)
+static void on_stream_chunk_recv(int32_t stream_id, const uint8_t *data, uint32_t len, uint8_t flags)
 {
     http2_stream_node_t *node;
     if (g_stream_handle == NULL) {
@@ -346,6 +346,20 @@ static int http2_stream_node_remove(stream_handle_t *handle, unsigned int id)
     return FAIL_RETURN;
 }
 
+static int get_version_int()
+{
+    const char *p_version = LINKKIT_VERSION;
+    int v_int = 0;
+
+    while(*p_version != 0) {
+        if(*p_version <= '9' && *p_version >= '0'){
+            v_int = v_int * 10 + *p_version - '0';
+        }
+        p_version ++;
+    }
+    return v_int;
+}
+
 void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb)
 {
     stream_handle_t *stream_handle = NULL;
@@ -365,6 +379,8 @@ void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t 
     if (stream_handle == NULL) {
         return NULL;
     }
+
+    memset(stream_handle, 0 ,sizeof(stream_handle_t));
     stream_handle->mutex = HAL_MutexCreate();
     if (stream_handle->mutex == NULL) {
         HAL_Free(stream_handle);
@@ -429,7 +445,6 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
     stream_handle_t * handle = (stream_handle_t *)hd;
     http2_header *nva = NULL;
 
-
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info->identify, NULL_VALUE_ERROR);
@@ -442,7 +457,9 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
     file_upload_gen_string(client_id, CID_STRING_ENUM, NULL, 0);
     file_upload_gen_string(sign_str, ORI_SIGN_STR_ENUM, client_id, 0);
     file_upload_gen_string(sign, REAL_SIGN_STR_ENUM, sign_str, 0);
-
+    
+    char version[33] = {0};
+    HAL_Snprintf(version,sizeof(version),"%d",get_version_int());
     const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
                                            MAKE_HEADER_CS(":path", path),
                                            MAKE_HEADER(":scheme", "https"),
@@ -452,6 +469,9 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
                                            MAKE_HEADER_CS("x-auth-param-product-key", g_device_info.product_key),
                                            MAKE_HEADER_CS("x-auth-param-device-name", g_device_info.device_name),
                                            MAKE_HEADER_CS("x-auth-param-sign", sign),
+                                           MAKE_HEADER_CS("x-sdk-version", version),
+                                           MAKE_HEADER_CS("x-sdk-version-name", LINKKIT_VERSION),
+                                           MAKE_HEADER("x-sdk-platform", "c"),
                                            MAKE_HEADER("content-length", "0"),
                                          };
     header_num = sizeof(static_header) / sizeof(static_header[0]);
@@ -503,7 +523,16 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
         HAL_MutexUnlock(handle->mutex);
         return FAIL_RETURN;
     }
-    info->channel_id = node->channel_id;
+    info->channel_id = HAL_Malloc(strlen(node->channel_id) +1);
+    if(info->channel_id == NULL) {
+        h2stream_err("channel_id malloc failed\n");
+        HAL_MutexLock(handle->mutex);
+        http2_stream_node_remove(handle, node->stream_id);
+        HAL_MutexUnlock(handle->mutex);
+        return FAIL_RETURN;
+    }
+    memset(info->channel_id, 0 ,strlen(node->channel_id) +1);
+    strcpy(info->channel_id,node->channel_id);
 
     return SUCCESS_RETURN;
 }
@@ -537,16 +566,20 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
         windows_size = iotx_http2_get_available_window_size(handle->http2_connect);
     }
 
-    snprintf(data_len_str, sizeof(data_len_str), "%d", info->stream_len);
-    //snprintf(stream_id_str, sizeof(stream_id_str), "%d", info->stream_id);
-    snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
+    HAL_Snprintf(data_len_str, sizeof(data_len_str), "%d", info->stream_len);
+    HAL_Snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
     if (info->send_len == 0) { //first send,need header
         int header_count,header_num;
+        char version[33] = {0};
+        HAL_Snprintf(version,sizeof(version),"%d",get_version_int());
         const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
                                                MAKE_HEADER_CS(":path", path),
                                                MAKE_HEADER(":scheme", "https"),
                                                MAKE_HEADER_CS("content-length", data_len_str),
                                                MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
+                                               MAKE_HEADER_CS("x-sdk-version", version),
+                                               MAKE_HEADER_CS("x-sdk-version-name", LINKKIT_VERSION),
+                                               MAKE_HEADER("x-sdk-platform", "c"),                                               
                                              };
 
         header_num = sizeof(static_header) / sizeof(static_header[0]);
@@ -648,13 +681,17 @@ int IOT_HTTP2_Stream_Query(void *hd, stream_data_info_t *info, header_ext_info_t
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info->channel_id, NULL_VALUE_ERROR);
-
+    char version[33] = {0};
+    HAL_Snprintf(version,sizeof(version),"%d",get_version_int());
     HAL_Snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
     const http2_header static_header[] = { MAKE_HEADER(":method", "GET"),
                                            MAKE_HEADER_CS(":path", path),
                                            MAKE_HEADER(":scheme", "https"),
                                            MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
                                            MAKE_HEADER("x-test-downstream", "1"),
+                                           MAKE_HEADER_CS("x-sdk-version", version),
+                                           MAKE_HEADER_CS("x-sdk-version-name", LINKKIT_VERSION),
+                                           MAKE_HEADER("x-sdk-platform", "c"),
                                          };
 
     header_num = sizeof(static_header) / sizeof(static_header[0]);
@@ -718,12 +755,16 @@ int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
     POINTER_SANITY_CHECK(info, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(info->channel_id, NULL_VALUE_ERROR);
-
-    snprintf(path, sizeof(path), "/stream/close/%s", info->identify);
+    char version[33] = {0};
+    HAL_Snprintf(version,sizeof(version),"%d",get_version_int());
+    HAL_Snprintf(path, sizeof(path), "/stream/close/%s", info->identify);
     const http2_header static_header[] = { MAKE_HEADER(":method", "POST"),
                                            MAKE_HEADER_CS(":path", path),
                                            MAKE_HEADER(":scheme", "https"),
                                            MAKE_HEADER_CS("x-data-stream-id", info->channel_id),
+                                           MAKE_HEADER_CS("x-sdk-version", version),
+                                           MAKE_HEADER_CS("x-sdk-version-name", LINKKIT_VERSION),
+                                           MAKE_HEADER("x-sdk-platform", "c"),
                                          };
 
     int header_count = sizeof(static_header) / sizeof(static_header[0]);
@@ -745,7 +786,7 @@ int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
 
     /* just delete stream node */
     char *stream_id = info->channel_id;
-    int len = strlen(stream_id);
+   int len = strlen(stream_id);
     http2_stream_node_t *node, *next;
     HAL_MutexLock(handle->mutex);
     list_for_each_entry_safe(node, next, &handle->stream_list, list, http2_stream_node_t) {
@@ -757,14 +798,16 @@ int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
             HAL_Free(node);
             continue;
         }
-        if ((node->channel_id != NULL) && (len == strlen(node->channel_id) && !memcmp(node->channel_id, stream_id, len))) {
-            h2stream_info("stream_node found: %s, Delete It", node->channel_id);
+        if ((node->channel_id != NULL) && (stream_id != NULL) &&
+        (len == strlen(node->channel_id) && !strncmp(node->channel_id, stream_id, len))) {
             list_del((list_head_t *)&node->list);
             HAL_Free(node->channel_id);
             HAL_SemaphoreDestroy(node->semaphore);
             HAL_Free(node);
         }
     }
+    HAL_Free(info->channel_id);
+    info->channel_id = NULL;
     HAL_MutexUnlock(handle->mutex);
     return rv;
 }
@@ -909,7 +952,7 @@ static void *http_upload_one(void *user)
             break;
         }
         info.packet_len = ret;
-        h2stream_debug("get data len =%d\n", ret);
+
         if (info.stream_len - info.send_len < info.packet_len) {
             info.packet_len = info.stream_len - info.send_len;
         }
