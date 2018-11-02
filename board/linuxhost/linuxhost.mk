@@ -35,7 +35,7 @@ GLOBAL_INCLUDES += .
 sal ?= 0
 
 ifeq (1,$(sal))
-$(NAME)_COMPONENTS += sal
+$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.mk3060
 endif
 

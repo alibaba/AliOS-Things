@@ -32,7 +32,7 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=14 #(1 << 14) = 16kb
 #depends on sal module if select sal function via build option "sal=1"
 #sal ?= 1
 ifeq (1,$(sal))
-$(NAME)_COMPONENTS += sal
+$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.mk3060
 else
 $(NAME)_SOURCES += ethernetif.c

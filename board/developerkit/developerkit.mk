@@ -96,7 +96,7 @@ endif
 
 sal ?= 1
 ifeq (1,$(sal))
-$(NAME)_COMPONENTS += sal
+$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.bk7231
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
