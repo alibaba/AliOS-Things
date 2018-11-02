@@ -104,12 +104,11 @@ const char *iotx_guider_get_domain(int domain_type)
 
 int iotx_guider_set_custom_domain(int domain_type, const char *domain)
 {
-    int len = strlen(domain);
-
     if ((domain_type >= GUIDER_DOMAIN_MAX) || (domain == NULL)) {
         return FAIL_RETURN;
     }
-
+    
+    int len = strlen(domain);
     if (len >= CUSTOME_DOMAIN_LEN_MAX) {
         return FAIL_RETURN;
     }
