@@ -43,8 +43,6 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/cm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/mal \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/mal/ica \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/sal/include \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/sal/include/internal \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota/impl \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/utils/misc  \
@@ -125,11 +123,6 @@ ifeq (y,$(FEATURE_HTTP2_COMM_ENABLED))
 $(NAME)_COMPONENTS += \
     middleware/linkkit/sdk-c/src/protocol/http2  \
     middleware/linkkit/sdk-c/src/services/http2_stream
-endif
-
-ifeq (y,$(FEATURE_SAL_ENABLED))
-$(NAME)_COMPONENTS += \
-    middleware/linkkit/sdk-c/src/services/mdal/sal
 endif
 
 #####################################################################
