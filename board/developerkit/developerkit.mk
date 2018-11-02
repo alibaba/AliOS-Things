@@ -113,6 +113,12 @@ CONFIG_SYSINFO_DEVICE_NAME := developerkit
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 
+# Enable/Disable Arduino SPI/I2C interface support, Disable as default
+#arduino_io ?= 1
+ifeq (1,$(arduino_io))
+GLOBAL_DEFINES += ARDUINO_SPI_I2C_ENABLED
+endif
+
 ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
 EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
 endif
