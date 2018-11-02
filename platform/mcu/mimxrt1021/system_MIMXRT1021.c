@@ -190,6 +190,7 @@ void SystemCoreClockUpdate (void) {
             /* Pll2_bypass_clk ---> Periph_clk2_clk ---> Periph_clk ---> Core_clock */
             case CCM_CBCMR_PERIPH_CLK2_SEL(2U):
                 freq = CPU_XTAL_CLK_HZ;
+                break;
 
             case CCM_CBCMR_PERIPH_CLK2_SEL(3U):
             default:
