@@ -1,17 +1,14 @@
 NAME := sal
 
-GLOBAL_DEFINES += WITH_SAL
+GLOBAL_DEFINES += WITH_SAL                   \
+                  SAL_USE_AOS_HAL            \
+                  SAL_UDP_CLIENT_ENABLED     \
+                  SAL_PACKET_SEND_MODE_ASYNC
 
 $(NAME)_SOURCES := ./src/sal_sockets.c \
                    ./src/sal_err.c     \
-                   ./src/ip4_addr.c
-
-ifeq (y,$(FEATURE_SAL_USE_AOS_HAL))
-$(NAME)_SOURCES += ./src/sal_arch_aos.c
-else
-$(NAME)_SOURCES += ./src/sal_arch.c    \
-                   ./src/sal_util.c
-endif
+                   ./src/ip4_addr.c    \
+                   ./src/sal_arch_aos.c
 
 GLOBAL_INCLUDES += ./                  \
                    ./include
