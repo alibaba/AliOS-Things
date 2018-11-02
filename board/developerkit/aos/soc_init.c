@@ -67,7 +67,9 @@ void stm32_soc_init(void)
     hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
     MX_DMA_Init();
     MX_ADC3_Init();
+#ifndef ARDUINO_SPI_I2C_ENABLED
     MX_DCMI_Init();
+#endif
     MX_SAI2_Init();
     MX_SPI1_Init();
     MX_USB_OTG_FS_USB_Init();
@@ -134,6 +136,9 @@ gpio_dev_t brd_gpio_table[] = {
 i2c_dev_t brd_i2c2_dev = {AOS_PORT_I2C2, {0}, NULL};
 i2c_dev_t brd_i2c3_dev = {AOS_PORT_I2C3, {0}, NULL};
 i2c_dev_t brd_i2c4_dev = {AOS_PORT_I2C4, {0}, NULL};
+#ifdef ARDUINO_SPI_I2C_ENABLED
+spi_dev_t brd_spi2_dev = {PORT_SPI2, {0}, NULL};
+#endif
 
 static void brd_peri_init(void)
 {
@@ -146,6 +151,9 @@ static void brd_peri_init(void)
     hal_i2c_init(&brd_i2c2_dev);
     hal_i2c_init(&brd_i2c3_dev);
     hal_i2c_init(&brd_i2c4_dev);
+#ifdef ARDUINO_SPI_I2C_ENABLED
+    hal_spi_init(&brd_spi2_dev);
+#endif
 }
 /**
 * @brief This function handles System tick timer.
