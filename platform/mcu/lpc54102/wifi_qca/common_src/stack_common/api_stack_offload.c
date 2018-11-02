@@ -497,6 +497,7 @@ A_STATUS Api_SockResponseEventRx(void *pCxt, uint8_t devId, uint8_t *datap, uint
                 /*unlock the thread*/
                 unblock_flag = 1;
             }
+            break;
         case SOCK_DNS_SRVR_CFG_ADDR:
             index = GLOBAL_SOCK_INDEX;
             /*Check if a socket is waiting on the response*/
@@ -2759,7 +2760,7 @@ int32_t Api_ip_sntp_srvr_addr(void *pCxt, int32_t command, char *sntp_srvr_addr)
     {
         return A_ERROR;
     }
-    strcpy(sock_ip_sntp_srvr_addr.addr, sntp_srvr_addr);
+    strncpy(sock_ip_sntp_srvr_addr.addr, sntp_srvr_addr, sizeof(sock_ip_sntp_srvr_addr.addr));
     sock_ip_sntp_srvr_addr.command = A_CPU2LE32(command);
     if (wmi_socket_cmd(pDCxt->pWmiCxt, SOCK_IP_SNTP_SRVR_ADDR, (void *)(&sock_ip_sntp_srvr_addr),
                        sizeof(SOCK_IP_CFG_SNTP_SRVR_ADDR)) != A_OK)
