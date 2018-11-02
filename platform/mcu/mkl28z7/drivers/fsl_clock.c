@@ -454,7 +454,6 @@ uint32_t CLOCK_GetSysOscFreq(void)
     if (SCG->SOSCCSR & SCG_SOSCCSR_SOSCVLD_MASK) /* System OSC clock is valid. */
     {
         /* Please call CLOCK_SetXtal0Freq base on board setting before using OSC0 clock. */
-        assert(g_xtal0Freq);
         return g_xtal0Freq;
     }
     else
