@@ -257,7 +257,7 @@ int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...))
     task = krhino_task_find(taskname);
     if (task == NULL) {
         print_func("Task not found : %s\n", taskname);
-        return;
+        return 0;
     }
 
     getPLSfromCtx(task->task_stack, &PC, &LR, &SP);
