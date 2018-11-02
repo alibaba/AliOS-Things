@@ -19,7 +19,11 @@
 #include "sal_import.h"
 #include "sal_sockets.h"
 
+#ifdef SAL_USE_AOS_HAL
+#include <aos/aos.h>
+#else
 #include "iotx_log.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,6 +33,18 @@ extern "C" {
 
 #define SAL_TAG  "sal"
 
+#ifdef SAL_USE_AOS_HAL
+#ifdef SAL_USE_DEBUG
+#define SAL_DEBUG(format, ...)  LOGD(SAL_TAG, format, ##__VA_ARGS__)
+#else
+#define SAL_DEBUG(format, ...)
+#endif
+
+#define SAL_ERROR(format, ...)  LOGE(SAL_TAG, format, ##__VA_ARGS__)
+#define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
+        LOGE(SAL_TAG, msg);} \
+    } while (0)
+#else
 #ifdef SAL_USE_DEBUG
 #define SAL_DEBUG(format, ...)  log_debug(SAL_TAG, format, ##__VA_ARGS__)
 #else
@@ -39,7 +55,7 @@ extern "C" {
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
         log_err(SAL_TAG, msg);} \
     } while (0)
-
+#endif
 
 /* Helpers to process several netconn_types by the same code */
 #define NETCONNTYPE_GROUP(t)         ((t)&0xF0)
