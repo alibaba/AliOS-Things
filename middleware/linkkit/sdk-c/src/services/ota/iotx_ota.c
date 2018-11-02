@@ -356,6 +356,26 @@ int IOT_OTA_Deinit(void *handle)
         OTA_FREE(h_ota->version);
     }
 
+    if (NULL != h_ota->configId) {
+        OTA_FREE(h_ota->configId);
+    }
+
+    if (NULL != h_ota->sign) {
+        OTA_FREE(h_ota->sign);
+    }
+
+    if (NULL != h_ota->signMethod) {
+        OTA_FREE(h_ota->signMethod);
+    }
+
+    if (NULL != h_ota->cota_url) {
+        OTA_FREE(h_ota->cota_url);
+    }
+
+    if (NULL != h_ota->getType) {
+        OTA_FREE(h_ota->getType);
+    }
+
     OTA_FREE(h_ota);
     return 0;
 }
