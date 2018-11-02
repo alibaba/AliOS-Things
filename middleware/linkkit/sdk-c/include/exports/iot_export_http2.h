@@ -23,11 +23,11 @@ typedef struct http2_list_s {
     struct http2_list_s *next;
 } http2_list_t;
 
-typedef void (*on_user_header_callback)(int32_t stream_id, int cat, const uint8_t *name, size_t namelen,
-                                        const uint8_t *value, size_t valuelen, uint8_t flags);
+typedef void (*on_user_header_callback)(int32_t stream_id, int cat, const uint8_t *name, uint32_t namelen,
+                                        const uint8_t *value, uint32_t valuelen, uint8_t flags);
 
 typedef void (*on_user_chunk_recv_callback)(int32_t stream_id,
-        const uint8_t *data, size_t len, uint8_t flags);
+        const uint8_t *data, uint32_t len, uint8_t flags);
 
 typedef void (*on_user_stream_close_callback)(int32_t stream_id, uint32_t error_code);
 

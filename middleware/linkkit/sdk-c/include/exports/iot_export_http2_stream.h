@@ -52,11 +52,11 @@ typedef enum {
     STREAM_TYPE_NUM
 } stream_type_t;
 
-typedef void (*on_stream_header_callback)(uint32_t stream_id, char *channel_id, int cat, const uint8_t *name, size_t namelen,
-        const uint8_t *value, size_t valuelen, uint8_t flags);
+typedef void (*on_stream_header_callback)(uint32_t stream_id, char *channel_id, int cat, const uint8_t *name, uint32_t namelen,
+        const uint8_t *value, uint32_t valuelen, uint8_t flags);
 
 typedef void (*on_stream_chunk_recv_callback)(uint32_t stream_id, char *channel_id,
-        const uint8_t *data, size_t len, uint8_t flags);
+        const uint8_t *data, uint32_t len, uint8_t flags);
 
 typedef void (*on_stream_close_callback)(uint32_t stream_id, char *channel_id, uint32_t error_code);
 
