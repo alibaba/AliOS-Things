@@ -443,3 +443,6 @@ int drv_acc_mir3_da217_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_acc_mir3_da217_init);
+

@@ -439,3 +439,5 @@ int drv_baro_st_lps35hb_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_baro_st_lps35hb_init);
+

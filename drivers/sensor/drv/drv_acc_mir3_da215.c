@@ -334,3 +334,5 @@ int drv_acc_mir3_da215_init(void)
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_acc_mir3_da215_init);
+

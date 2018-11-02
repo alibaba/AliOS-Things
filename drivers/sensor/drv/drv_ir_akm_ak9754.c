@@ -492,7 +492,7 @@ int drv_ir_akm_ak9754_ioctl(
     return ret;
 }
 
-int16_t drv_ir_akm_ak9754_init(void)
+int drv_ir_akm_ak9754_init(void)
 {
     int16_t      ret = 0;
     sensor_obj_t sensor;
@@ -511,24 +511,27 @@ int16_t drv_ir_akm_ak9754_init(void)
 
     ret = sensor_create_obj(&sensor);
     if (unlikely(ret)) {
-        return ret;
+        return (int)ret;
     }
 
     ret = drv_ir_akm_ak9754_valid_id(&ak9754_dev);
     if (unlikely(ret)) {
-        return ret;
+        return (int)ret;
     }
 
     ret = drv_ir_akm_ak9754_soft_reset(&ak9754_dev);
     if (unlikely(ret)) {
-        return ret;
+        return (int)ret;
     }
 
     ret = drv_ir_akm_ak9754_set_default_config(&ak9754_dev);
     if (unlikely(ret)) {
-        return ret;
+        return (int)ret;
     }
 
     AKM_LOG("successfully.\n");
-    return ret;
+    return (int)ret;
 }
+
+SENSOR_DRV_ADD(drv_ir_akm_ak9754_init);
+

@@ -378,3 +378,5 @@ int drv_mag_sen_st480_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_mag_sen_st480_init);
+

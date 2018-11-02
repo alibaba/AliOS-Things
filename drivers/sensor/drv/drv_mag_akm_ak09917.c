@@ -657,7 +657,7 @@ int drv_mag_akm_ak09917_ioctl(
     return ret;
 }
 
-int16_t drv_mag_akm_ak09917_init(void)
+int drv_mag_akm_ak09917_init(void)
 {
     int16_t      ret = 0;
     sensor_obj_t sensor;
@@ -676,24 +676,27 @@ int16_t drv_mag_akm_ak09917_init(void)
 
     ret = sensor_create_obj(&sensor);
     if (unlikely(ret)) {
-        return ret;
+        return (int)ret;
     }
 
     ret = drv_mag_akm_ak09917_valid_id(&ak09917_dev);
     if (unlikely(ret)) {
-        return ret;
+        return (int)ret;
     }
 
     ret = drv_mag_akm_ak09917_soft_reset(&ak09917_dev);
     if (unlikely(ret)) {
-        return ret;
+        return (int)ret;
     }
 
     ret = drv_mag_akm_ak09917_set_default_config(&ak09917_dev);
     if (unlikely(ret)) {
-        return ret;
+        return (int)ret;
     }
 
     AKM_LOG("successfully.\n");
-    return ret;
+    return (int)ret;
 }
+
+SENSOR_DRV_ADD(drv_mag_akm_ak09917_init);
+

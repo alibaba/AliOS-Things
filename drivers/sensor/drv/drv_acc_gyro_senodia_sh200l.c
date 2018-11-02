@@ -1136,5 +1136,6 @@ int drv_gyro_senodia_sh200l_init(void){
 
 
 
-
+SENSOR_DRV_ADD(drv_acc_senodia_sh200l_init);
+SENSOR_DRV_ADD(drv_gyro_senodia_sh200l_init);
 

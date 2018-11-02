@@ -29,6 +29,22 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len);
 static ssize_t sensor_write(file_t *f, const void *buf, size_t len);
 static int sensor_ioctl(file_t *f, int cmd, unsigned long arg);
 
+
+#if defined(__CC_ARM) && defined(SENSOR_DRV_AUTO_INIT)
+extern unsigned int Image$$RW_SENSOR$$Base;
+extern unsigned int Image$$RW_SENSOR$$Limit;
+void* g_sensor_start = (void*)&(Image$$RW_SENSOR$$Base);
+void* g_sensor_end = (void*)&(Image$$RW_SENSOR$$Limit);
+#elif defined(__ICCARM__) && defined(SENSOR_DRV_AUTO_INIT)
+
+#elif defined(__GNUC__) && defined(SENSOR_DRV_AUTO_INIT)
+extern unsigned int  _sensor_start;
+extern unsigned int  _sensor_limit;
+void* g_sensor_start = (void*)&(_sensor_start);
+void* g_sensor_end = (void*)&(_sensor_limit);
+#endif
+
+
 file_ops_t sensor_fops = {
     .open  = sensor_open,
     .close = sensor_close,
@@ -456,6 +472,7 @@ int sensor_init(void)
     int ret      = 0;
     g_sensor_cnt = 0;
 
+#if (!defined (SENSOR_DRV_AUTO_INIT)) || defined(__ICCARM__) 
 #ifdef AOS_SENSOR_HUMI_BOSCH_BME280
     drv_humi_bosch_bme280_init();
 #endif /* AOS_SENSOR_HUMI_BOSCH_BME280 */
@@ -665,7 +682,34 @@ int sensor_init(void)
 =======
 =======
 #ifdef AOS_SENSOR_GPS_SIMCON_SIM868
-	drv_gps_simcom_sim868_init();
+    drv_gps_simcom_sim868_init();
+#endif
+
+
+#else
+#if defined(__CC_ARM) ||  defined(__GNUC__)
+
+    SENSOR_INIT_FUN* func;
+    SENSOR_INIT_FUN* start = (SENSOR_INIT_FUN *)g_sensor_start;
+    SENSOR_INIT_FUN* end = (SENSOR_INIT_FUN *)g_sensor_end;
+
+    if(end != start){
+        for(func = start; func < end; func++){
+            if(func == NULL){
+                continue;
+            }
+
+            if(*func == NULL){
+                continue;
+            }
+
+            ret = (*func)();
+            if(unlikely(ret)){
+                LOG("sensor init function addr (%x) fail\n", (uint32_t)(*func));
+            }
+        }
+    }
+#endif
 #endif
 >>>>>>> e1b7036a7 (BugID:17115493: merge gps into sensor)
 

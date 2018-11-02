@@ -345,6 +345,7 @@ int drv_gyro_st_a3g4250d_init(void){
 }
 
 
+SENSOR_DRV_ADD(drv_gyro_st_a3g4250d_init);
 
 
 
