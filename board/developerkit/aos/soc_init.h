@@ -47,6 +47,10 @@
 #include "hal/hal_gpio_stm32l4.h"
 #include "hal/hal_i2c_stm32l4.h"
 #include "hal/hal_uart_stm32l4.h"
+
+#ifdef ARDUINO_SPI_I2C_ENABLED
+#include "hal/hal_spi_stm32l4.h"
+#endif
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
