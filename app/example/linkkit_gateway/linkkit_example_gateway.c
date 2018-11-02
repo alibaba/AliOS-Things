@@ -38,6 +38,7 @@
         HAL_Printf("\033[0m\r\n"); \
     } while (0)
 
+#define EXAMPLE_SUBDEV_ADD_NUM          3
 #define EXAMPLE_SUBDEV_MAX_NUM          20
 const iotx_linkkit_dev_meta_info_t subdevArr[EXAMPLE_SUBDEV_MAX_NUM] = {
     {
@@ -432,7 +433,7 @@ int linkkit_main(void *paras)
 
         /* Add subdev */
         if (user_example_ctx->master_initialized && user_example_ctx->subdev_index >= 0) {
-            if (user_example_ctx->subdev_index < EXAMPLE_SUBDEV_MAX_NUM) {
+            if (user_example_ctx->subdev_index < EXAMPLE_SUBDEV_ADD_NUM) {
                 /* Add next subdev */
                 if (example_add_subdev((iotx_linkkit_dev_meta_info_t *)&subdevArr[user_example_ctx->subdev_index]) == SUCCESS_RETURN) {
                     EXAMPLE_TRACE("subdev %s add succeed", subdevArr[user_example_ctx->subdev_index].device_name);
