@@ -329,6 +329,7 @@ static void iotx_coap_mid_rsphdl(void *arg, void *p_response)
 static int coap_report_func(void *handle, const char *topic_name,int req_ack,void *data, int len)
 {
     iotx_message_t          message;
+    memset(&message ,0 , sizeof(iotx_message_t));
     message.p_payload = (unsigned char *)data;
     message.payload_len = len;
     message.resp_callback = iotx_coap_mid_rsphdl;
