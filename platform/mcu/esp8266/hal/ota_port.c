@@ -38,7 +38,7 @@ int hal_ota_switch_to_new_fw(ota_reboot_info_t *ota_info_t)
     }
     uint32_t offset;
     hal_logic_partition_t* ota_partition;
-    int parti;
+    int parti = HAL_PARTITION_PARAMETER_1;
 
     ota_partition = hal_flash_get_info( HAL_PARTITION_OTA_TEMP );
     memset( &ota_hdl, 0x00, sizeof(ota_hdl_t) );
