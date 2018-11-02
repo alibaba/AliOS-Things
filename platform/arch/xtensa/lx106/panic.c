@@ -15,7 +15,7 @@ int print_str(const char *fmt, ...)
     char prt_info[128];
 
     strncpy(prt_info, fmt, sizeof(prt_info));
-    prt_info[127] = '0';
+    prt_info[127] = '\0';
     
     return PANIC_PRINT(prt_info);
 }
