@@ -413,3 +413,5 @@ int drv_acc_st_ais328dq_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_acc_st_ais328dq_init);
+

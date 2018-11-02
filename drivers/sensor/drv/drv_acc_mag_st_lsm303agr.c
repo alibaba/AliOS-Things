@@ -1388,3 +1388,8 @@ int drv_mag_st_lsm303agr_init(void){
     return 0;
 }
 
+
+SENSOR_DRV_ADD(drv_acc_st_lsm303agr_init);
+SENSOR_DRV_ADD(drv_mag_st_lsm303agr_init);
+
+

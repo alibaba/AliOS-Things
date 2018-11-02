@@ -930,3 +930,8 @@ int drv_ps_ams_tmd2725_init(void)
     }
     return 0;
 }
+
+
+SENSOR_DRV_ADD(drv_als_ams_tmd2725_init);
+SENSOR_DRV_ADD(drv_ps_ams_tmd2725_init);
+

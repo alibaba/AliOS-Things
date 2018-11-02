@@ -851,6 +851,7 @@ int drv_gyro_st_lsm6dsr_init(void){
 }
 
 
-
+SENSOR_DRV_ADD(drv_acc_st_lsm6dsr_init);
+SENSOR_DRV_ADD(drv_gyro_st_lsm6dsr_init);
 
 

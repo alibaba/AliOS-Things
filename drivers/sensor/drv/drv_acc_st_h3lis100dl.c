@@ -322,3 +322,5 @@ int drv_acc_st_h3lis100dl_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_acc_st_h3lis100dl_init);
+

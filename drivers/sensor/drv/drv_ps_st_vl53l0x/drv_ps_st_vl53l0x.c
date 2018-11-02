@@ -330,3 +330,6 @@ int drv_ps_st_vl53l0x_init(void)
 
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_ps_st_vl53l0x_init);
+

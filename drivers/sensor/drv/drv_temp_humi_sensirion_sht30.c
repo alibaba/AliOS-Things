@@ -342,3 +342,6 @@ int drv_humi_sensirion_sht30_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_humi_sensirion_sht30_init);
+SENSOR_DRV_ADD(drv_temp_sensirion_sht30_init);

@@ -675,3 +675,6 @@ int drv_mag_rohm_bm1422a_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_mag_rohm_bm1422a_init);
+
+

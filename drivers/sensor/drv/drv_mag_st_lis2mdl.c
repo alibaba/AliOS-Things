@@ -722,3 +722,6 @@ int drv_mag_st_lis2mdl_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_mag_st_lis2mdl_init);
+
+

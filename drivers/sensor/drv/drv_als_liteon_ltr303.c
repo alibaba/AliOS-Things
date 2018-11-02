@@ -620,3 +620,7 @@ int drv_als_liteon_ltr303_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
+
+
+SENSOR_DRV_ADD(drv_als_liteon_ltr303_init);
+

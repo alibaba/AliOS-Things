@@ -267,3 +267,6 @@ int drv_rtc_maxim_ds1307_init(void)
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_rtc_maxim_ds1307_init);
+
+

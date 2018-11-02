@@ -147,4 +147,5 @@ int drv_canbus_gyro_inv_mpu9250_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_canbus_gyro_inv_mpu9250_init);
 

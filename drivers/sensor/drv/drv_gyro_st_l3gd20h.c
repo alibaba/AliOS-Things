@@ -455,6 +455,5 @@ int drv_gyro_st_l3gd20h_init(void){
 }
 
 
-
-
+SENSOR_DRV_ADD(drv_gyro_st_l3gd20h_init);
 

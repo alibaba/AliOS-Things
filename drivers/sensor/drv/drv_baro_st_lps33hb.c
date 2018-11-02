@@ -439,3 +439,6 @@ int drv_baro_st_lps33hb_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_baro_st_lps33hb_init);
+
+
