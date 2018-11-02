@@ -69,7 +69,7 @@ endif
 # yloop needs sal or lwip, module means the Plug-in module Type
 sal ?= 1
 ifeq (1,$(sal))
-$(NAME)_COMPONENTS += sal
+$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
