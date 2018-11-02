@@ -443,7 +443,7 @@ gpio_pin_handle_t csi_gpio_pin_initialize(int32_t gpio_pin, gpio_event_cb_t cb_e
 
     if (idx >= CONFIG_GPIO_PIN_NUM)
     {
-        return;
+        return NULL;
     }
 
     dw_gpio_pin_priv_t *gpio_pin_priv = &(gpio_pin_handle[idx]);
