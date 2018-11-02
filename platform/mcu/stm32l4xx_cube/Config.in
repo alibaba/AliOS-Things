@@ -1,0 +1,18 @@
+config AOS_MCU_STM32L4XX_CUBE
+    bool "stm32l4xx_cube"
+    default n
+    help
+      STM32L4 series shatters performance limits in the ultra-low-power
+      world. It delivers 100 DMIPS based on its Arm Cortex-M4 core with
+      FPU and ST ART Accelerator at 80 MHz.
+
+      STM32L4 microcontrollers offer dynamic voltage scaling to balance
+      power consumption with processing demand, low-power peripherals (
+      LP UART, LP timers) available in Stop mode, safety and security
+      features, smart and numerous peripherals, advanced and low-power
+      analog peripherals such as op amps, comparators, LCD, 12-bit DACs
+      and 16-bit ADCs (hardware oversampling).
+
+      The series are available in different lines: STM32L4x1 (Access line),
+      STM32L4x2 (USB Device), STM32L4x3 (USB Device, LCD), STM32L4x5 (USB
+      OTG) and STM32L4x6 (USB OTG, LCD).
