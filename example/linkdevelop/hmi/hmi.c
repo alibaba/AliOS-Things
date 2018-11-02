@@ -33,7 +33,6 @@
 #define DEVICE_NAME             "QSUvUO7V5lxwJsOHgyHc"
 #define DEVICE_SECRET           "O6iyf0lnZXJQEyHdyMGPASkEamb5cDEi"
 
-
 #define ALINK_BODY_FORMAT         "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post"
 #define ALINK_TOPIC_PROP_POSTRSP  "/sys/"PRODUCT_KEY"/"DEVICE_NAME"/thing/event/property/post_reply"
@@ -54,6 +53,7 @@ iotx_mqtt_topic_info_t msg;
 char *msg_buf = NULL, *msg_readbuf = NULL;
 int mqtt_setup(void);
 char str_output[256];
+
 /*
  * MQTT Subscribe handler
  * topic: ALINK_TOPIC_PROP_SET
@@ -125,6 +125,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     LOG("wifi_service_event!");
     mqtt_setup();
 }
+
 
 /*
  * MQTT subscribe, from fixed topic, alink protocol format
@@ -381,6 +382,9 @@ int application_start(int argc, char *argv[])
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
     netmgr_init();
+#ifdef ATSAME54_XPRO_BOARD
+    same54brd_button0_irq_init();
+#endif
 #if 0
     netmgr_ap_config_t apconfig;
     memset(&apconfig, 0, sizeof(apconfig));
