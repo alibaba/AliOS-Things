@@ -14,16 +14,16 @@
 
 #include "iotx_ota_config.h"
 
-#define OTA_MALLOC          LITE_malloc
-#define OTA_FREE            LITE_free
-#define OTA_ASSERT          LITE_ASSERT
-#define OTA_SNPRINTF        HAL_Snprintf
+#define OTA_MALLOC              LITE_malloc
+#define OTA_FREE                LITE_free
+#define OTA_ASSERT              LITE_ASSERT
+#define OTA_SNPRINTF            HAL_Snprintf
 
-#define OTA_LOG_CRIT(...)     log_crit("ota", __VA_ARGS__)
-#define OTA_LOG_ERROR(...)    log_err("ota", __VA_ARGS__)
-#define OTA_LOG_WRN(...)      log_warning("ota", __VA_ARGS__)
-#define OTA_LOG_INFO(...)     log_info("ota", __VA_ARGS__)
-#define OTA_LOG_DEBUG(...)    log_debug("ota", __VA_ARGS__)
+#define OTA_LOG_CRIT(...)       log_crit("ota", __VA_ARGS__)
+#define OTA_LOG_ERROR(...)      log_err("ota", __VA_ARGS__)
+#define OTA_LOG_WRN(...)        log_warning("ota", __VA_ARGS__)
+#define OTA_LOG_INFO(...)       log_info("ota", __VA_ARGS__)
+#define OTA_LOG_DEBUG(...)      log_debug("ota", __VA_ARGS__)
 
 typedef enum {
     IOTX_OTA_TOPIC_TYPE_DEVICE_REQUEST  = 1,

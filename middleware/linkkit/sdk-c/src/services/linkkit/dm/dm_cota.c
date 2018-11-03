@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include "iotx_dm_internal.h"
 
 #ifdef OTA_ENABLED
@@ -197,7 +195,7 @@ int dm_cota_get_config(const char *config_scope, const char *get_type, const cha
         return FAIL_RETURN;
     }
 
-    return IOT_OTA_GetConfig(ota_handle, config_scope, get_type, attribute_keys);
+    return iotx_ota_get_config(ota_handle, config_scope, get_type, attribute_keys);
 #else
     return SUCCESS_RETURN;
 #endif
