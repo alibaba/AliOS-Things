@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef _IOTX_DM_INTERNAL_H_
 #define _IOTX_DM_INTERNAL_H_
 
@@ -22,11 +20,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iotx_utils.h"
-#include "lite-list.h"
-#include "lite-cjson.h"
-#include "utils_hmac.h"
-#include "utils_sha256.h"
-#include "utils_sysinfo.h"
+#include "iotx_ota.h"
 #include "iotx_system.h"
 
 #ifdef DEV_BIND_ENABLED
