@@ -18,12 +18,12 @@ endif
 SRCS_mqtt-example-rrpc          := app_entry.c mqtt/mqtt_example_rrpc.c
 SRCS_mqtt-example               := app_entry.c mqtt/mqtt_example.c
 SRCS_mqtt-example-multithread   := app_entry.c mqtt/mqtt_example_multithread.c
-SRCS_http2_uploadfile           := http2/http2_example_uploadfile.c app_entry.c
+SRCS_http2-example-uploadfile   := http2/http2_example_uploadfile.c app_entry.c
 SRCS_http2-example              := http2/http2_example_stream.c app_entry.c
 SRCS_coap-example               := coap/coap_example.c app_entry.c
 SRCS_http-example               := http/http_example.c app_entry.c
-SRCS_ota_mqtt-example           := ota/ota_mqtt-example.c
-SRCS_active-cota                := app_entry.c ota/active_cota.c
+SRCS_ota-example-mqtt           := ota/ota_example_mqtt.c
+SRCS_linkkit-example-cota       := app_entry.c linkkit/linkkit_example_cota.c
 SRCS_linkkit-example-sched      := app_entry.c cJSON.c linkkit/linkkit_example_sched.c
 SRCS_linkkit-example-solo       := app_entry.c cJSON.c linkkit/linkkit_example_solo.c
 SRCS_linkkit-example-countdown  := app_entry.c cJSON.c linkkit/linkkit_example_cntdown.c
@@ -55,10 +55,10 @@ $(call Append_Conditional, TARGET, coap-example,                COAP_COMM_ENABLE
 $(call Append_Conditional, TARGET, http-example,                HTTP_COMM_ENABLED)
 
 $(call Append_Conditional, TARGET, http2-example,               HTTP2_COMM_ENABLED)
-$(call Append_Conditional, TARGET, http2_uploadfile,            HTTP2_COMM_ENABLED FS_ENABLED)
+$(call Append_Conditional, TARGET, http2-example-uploadfile,    HTTP2_COMM_ENABLED FS_ENABLED)
 
-$(call Append_Conditional, TARGET, ota_mqtt-example,            OTA_ENABLED MQTT_COMM_ENABLED)
-$(call Append_Conditional, TARGET, active-cota, \
+$(call Append_Conditional, TARGET, ota-example-mqtt,            OTA_ENABLED MQTT_COMM_ENABLED)
+$(call Append_Conditional, TARGET, linkkit-example-cota, \
     OTA_ENABLED DEVICE_MODEL_ENABLED, \
     DEPRECATED_LINKKIT \
 )

@@ -58,11 +58,6 @@ ifeq (y,$(strip $(FEATURE_OTA_ENABLED)))
     endif # MQTT
 endif # FEATURE_OTA_ENABLED
 
-ifeq (y,$(strip $(FEATURE_MAL_ENABLED)))
-    ifeq (n,$(strip $(FEATURE_MQTT_COMM_ENABLED)))
-        CFLAGS += -DMAL_ENABLED
-    endif
-endif #FEATURE_MAL_ENABLED
 include build-rules/settings.mk
 sinclude $(CONFIG_TPL)
 
@@ -70,4 +65,9 @@ SUBDIRS += src/ref-impl/hal
 SUBDIRS += examples
 SUBDIRS += tests
 SUBDIRS += src/ref-impl/tls
+
+ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_ENABLED)))
+ifeq (y,$(strip $(FEATURE_DEPRECATED_LINKKIT)))
 SUBDIRS += src/tools/linkkit_tsl_convert
+endif
+endif
