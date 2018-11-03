@@ -1,6 +1,7 @@
 CONFIG_ENV_CFLAGS   += \
     -Os -Wall -Werror \
     -DDLL_TLS_EXPORTS \
+    -DCC_IS_MINGW32 \
     -D_PLATFORM_IS_WINDOWS_ \
 
 CROSS_PREFIX        := i686-w64-mingw32-
