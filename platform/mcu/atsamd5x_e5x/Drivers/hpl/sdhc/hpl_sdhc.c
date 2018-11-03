@@ -172,7 +172,9 @@ static bool _mci_send_cmd_execute(const void *const hw, uint32_t cmdr, uint32_t 
 	}
 
 	hri_sdhc_write_ARG1R_reg(hw, arg);
+	delay_us(10);
 	hri_sdhc_write_CR_reg(hw, cmdr);
+	delay_us(10);
 
 	/* Wait end of command */
 	do {
