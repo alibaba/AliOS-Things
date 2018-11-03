@@ -1,3 +1,12 @@
+define Append_Conditional
+$(if $(strip $(foreach V,$(4),$(filter -D$(V),$(CFLAGS)))),, \
+    $(if \
+        $(findstring $(foreach U,$(3),-D$(U)),$(foreach U,$(3),$(filter -D$(U),$(CFLAGS)))), \
+            $(eval $(strip $(1)) += $(2)) \
+    ) \
+)
+endef
+
 define Dump_Var
 	NUM=`echo "$(strip $($(1)))"|awk '{ print NF }'`; \
 	if (( $${NUM} \> 1 )); then \
