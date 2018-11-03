@@ -16,8 +16,8 @@
 #include "lwip/apps/telnetserver.h"
 #endif
 
-#ifdef AOS_APP_MM
-#include <app_mm.h>
+#ifdef AOS_UMM
+#include <u_mm.h>
 #endif
 
 #define FD_VFS_START AOS_CONFIG_VFS_FD_OFFSET
@@ -252,8 +252,8 @@ void *_malloc_r(struct _reent *ptr, size_t size)
 {
     void *mem;
 
-#ifdef AOS_APP_MM
-    mem = app_mm_malloc(size);
+#ifdef AOS_UMM
+    mem = umm_malloc(size);
 #else
 #if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
     mem = aos_malloc(size | AOS_UNSIGNED_INT_MSB);
@@ -270,8 +270,8 @@ void *_realloc_r(struct _reent *ptr, void *old, size_t newlen)
 {
     void *mem;
 
-#ifdef AOS_APP_MM
-    mem = app_mm_realloc(old, newlen);
+#ifdef AOS_UMM
+    mem = umm_realloc(old, newlen);
 #else
 #if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
     mem = aos_realloc(old, newlen | AOS_UNSIGNED_INT_MSB);
@@ -288,8 +288,8 @@ void *_calloc_r(struct _reent *ptr, size_t size, size_t len)
 {
     void *mem;
 
-#ifdef AOS_APP_MM
-    mem = app_mm_malloc(size * len);
+#ifdef AOS_UMM
+    mem = umm_malloc(size * len);
 #else
 #if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
     mem = aos_malloc((size * len) | AOS_UNSIGNED_INT_MSB);
@@ -308,8 +308,8 @@ void *_calloc_r(struct _reent *ptr, size_t size, size_t len)
 
 void _free_r(struct _reent *ptr, void *addr)
 {
-#ifdef AOS_APP_MM
-    app_mm_free(addr);
+#ifdef AOS_UMM
+    umm_free(addr);
 #else
     aos_free(addr);
 #endif
