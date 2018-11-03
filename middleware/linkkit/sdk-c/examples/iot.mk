@@ -65,8 +65,10 @@ endif
 
 ifneq (,$(filter -DDEVICE_MODEL_ENABLED,$(CFLAGS)))
     ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
+    ifeq (,$(filter -DDEPRECATED_LINKKIT,$(CFLAGS)))
         TARGET      += active-cota
         SRCS_active-cota:= app_entry.c ota/active_cota.c
+    endif
     endif
 
     ifeq (,$(filter -DDEVICE_MODEL_GATEWAY,$(CFLAGS)))
