@@ -209,7 +209,7 @@ int dm_fota_request_image(const char *version, int buffer_len)
     memset(version_str, 0, buffer_len + 1);
     memcpy(version_str, version, buffer_len);
 
-    int ret = IOT_OTA_RequestImage(ota_handle, version_str);
+    int ret = iotx_req_image(ota_handle, version_str);
     DM_free(version_str);
     return ret;
 #else

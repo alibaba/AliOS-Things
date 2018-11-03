@@ -442,7 +442,7 @@ do_exit:
 #undef MSG_INFORM_LEN
 }
 
-int IOT_OTA_RequestImage(void *handle, const char *version)
+int iotx_req_image(void *handle, const char *version)
 {
 #define MSG_REQUEST_LEN  (128)
 
@@ -562,7 +562,7 @@ do_exit:
 #undef MSG_REPORT_LEN
 }
 
-int IOT_OTA_GetConfig(void *handle, const char *configScope, const char *getType, const char *attributeKeys)
+int iotx_ota_get_config(void *handle, const char *configScope, const char *getType, const char *attributeKeys)
 {
 #define MSG_REPORT_LEN  (256)
 
