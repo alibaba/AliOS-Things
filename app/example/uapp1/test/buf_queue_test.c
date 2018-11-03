@@ -1,6 +1,5 @@
 #include <k_api.h>
 #include <hal/hal.h>
-#include <app_mm.h>
 
 #define BUFQ_STACK_SIZE 0x400
 
@@ -45,9 +44,9 @@ static void bufq_run(void *arg)
         if (bufq_send_exit)
             break;
 
-        recv_buf = app_mm_malloc(MSG_SIZE + 1);
+        recv_buf = malloc(MSG_SIZE + 1);
         if (NULL == recv_buf) {
-            printf("app_mm_malloc recv_buf failr\r\n");
+            printf("malloc recv_buf failr\r\n");
             break;
         }
         memset(recv_buf, 0, MSG_SIZE+1);
@@ -64,7 +63,7 @@ static void bufq_run(void *arg)
         }
         recv_buf[num] = 0;
         printf("\t\t\trecv: %s\r\n", recv_buf);
-        app_mm_free(recv_buf);
+        free(recv_buf);
         recv_buf = NULL;
     }
 
@@ -121,9 +120,9 @@ int buf_queue_test(void)
     send_crc = 0;
     char ch = 'a';
     for (int i = 0; i < LOOP_ROUND; i++) {
-        send_buf = app_mm_malloc(MSG_SIZE + 1);
+        send_buf = malloc(MSG_SIZE + 1);
         if (NULL == send_buf) {
-            printf("app_mm_malloc send_buf fail\r\n");
+            printf("malloc send_buf fail\r\n");
             krhino_sem_give(&bufq_sem);
             bufq_send_exit=1;
             ret = -4;
@@ -141,7 +140,7 @@ int buf_queue_test(void)
         send_buf[MSG_SIZE] = 0;
         printf(" send: %s\r\n", send_buf);
         krhino_buf_queue_send(&bufq, send_buf, MSG_SIZE);
-        app_mm_free(send_buf);
+        free(send_buf);
         send_buf = NULL;
         krhino_sem_give(&bufq_sem);
 

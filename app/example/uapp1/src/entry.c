@@ -5,7 +5,7 @@
 #include <aos/aos.h>
 #include "hal/soc/soc.h"
 #include <uapp.h>
-#include <app_mm.h>
+#include <u_mm.h>
 
 extern unsigned int _app_text_flash_begin;
 extern unsigned int _app_text_flash_end;
@@ -20,7 +20,7 @@ extern unsigned int app_type;
 
 #define UTASK_STACK_SIZE 0x200
 
-static cpu_stack_t app_stack[UTASK_STACK_SIZE * sizeof(cpu_stack_t)];
+static cpu_stack_t app_stack[UTASK_STACK_SIZE];
 static ktask_t app_task_struct;
 
 extern int application_start(int argc, char **argv);
@@ -34,11 +34,13 @@ static void app_entry(int argc, char *argv[])
     /* init app private heap */
     mm_start = &_app_heap_start;
     mm_size = (size_t)&_app_heap_end - (size_t)&_app_heap_start;
-    if (NULL == app_mm_init(mm_start, mm_size)) {
+    if (NULL == umm_init(mm_start, mm_size)) {
         return;
     }
 
     // Note: printf doesn't work in app untill app_mm_init is done
+
+    timer_init();
 
     application_start(argc, argv);
 }
