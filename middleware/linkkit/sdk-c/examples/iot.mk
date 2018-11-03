@@ -64,6 +64,10 @@ ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
 endif
 
 ifneq (,$(filter -DDEVICE_MODEL_ENABLED,$(CFLAGS)))
+    ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
+        TARGET      += active-cota
+        SRCS_active-cota:= app_entry.c ota/active_cota.c
+    endif
 
     ifeq (,$(filter -DDEVICE_MODEL_GATEWAY,$(CFLAGS)))
         TARGET      += linkkit-example-solo linkkit-example-countdown
