@@ -95,3 +95,4 @@ CMAKE_EXPORT_LIBS   := \
     src/ref-impl/hal \
     src/ref-impl/tls \
 
+include  $(RULE_DIR)/funcs.mk
