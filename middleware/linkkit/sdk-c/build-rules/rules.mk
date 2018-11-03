@@ -1,6 +1,5 @@
 include  $(RULE_DIR)/settings.mk
 sinclude $(CONFIG_TPL)
-include  $(RULE_DIR)/funcs.mk
 
 export PATH := $(PATH):$(TOOLCHAIN_DLDIR)/main/bin
 unexport VERBOSE
