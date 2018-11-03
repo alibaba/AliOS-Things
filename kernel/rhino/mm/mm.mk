@@ -1,6 +1,6 @@
 NAME := mm
 
-$(NAME)_MBINS_TYPE := share
+$(NAME)_MBINS_TYPE := app
 
 
 $(NAME)_CFLAGS += -Wall -Werror
@@ -14,4 +14,3 @@ $(NAME)_SOURCES := tlsf/tlsf.c
 GLOBAL_INCLUDES += tlsf/
 endif
 
-GLOBAL_DEFINES += AOS_BINS
