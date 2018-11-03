@@ -27,9 +27,9 @@ ADD_LIBRARY (iot_alcs OBJECT
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_api.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_adapter.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_client.c
+    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_localsetup.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_server.c
     ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_coap.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_localsetup.c
     ${EXTRA_C_SOURCES}
 )
 
