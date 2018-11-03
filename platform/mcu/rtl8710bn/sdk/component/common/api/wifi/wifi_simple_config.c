@@ -797,7 +797,7 @@ enum sc_result SC_connect_to_AP(void)
 	u8 scan_channel;
 	u8 pscan_config;
 	int max_retry = 5, retry = 0;
-	rtw_security_t security_mode;
+	rtw_security_t security_mode = RTW_SECURITY_UNKNOWN;
 	rtw_network_info_t wifi = {0};
 	if(!(fixed_channel_num == 0)){
 		scan_channel = fixed_channel_num;
