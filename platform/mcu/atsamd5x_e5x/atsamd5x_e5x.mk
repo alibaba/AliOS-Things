@@ -42,6 +42,7 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/hal/src/hal_rtos.c \
                    Drivers/hal/src/hal_sleep.c   \
                    Drivers/hal/src/hal_usart_os.c \
+                   Drivers/hal/src/hal_ext_irq.c    \
                    Drivers/hal/utils/src/utils_assert.c    \
                    Drivers/hal/utils/src/utils_event.c \
                    Drivers/hal/utils/src/utils_list.c    \
@@ -60,6 +61,7 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/hpl/sercom/hpl_sercom.c    \
                    Drivers/hpl/systick/hpl_systick.c    \
                    Drivers/hpl/sdhc/hpl_sdhc.c  \
+                   Drivers/hpl/eic/hpl_eic.c    \
                    Drivers/hal/src/hal_mci_sync.c   \
                    hal/hal_flash_port.c        \
                    hal/hal_timer_port.c        \
