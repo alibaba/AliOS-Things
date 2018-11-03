@@ -1,6 +1,7 @@
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/coap)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/http)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/http2)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/linkkit)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/examples/linkkit/data)
@@ -45,20 +46,24 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/prot)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/shadow)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/subdev)
 
-ADD_EXECUTABLE (mqtt-example
-    app_entry.c
-    mqtt/mqtt_example.c
-)
 ADD_EXECUTABLE (mqtt-example-rrpc
     app_entry.c
     mqtt/mqtt_example_rrpc.c
+)
+ADD_EXECUTABLE (mqtt-example
+    app_entry.c
+    mqtt/mqtt_example.c
 )
 ADD_EXECUTABLE (mqtt-example-multithread
     app_entry.c
     mqtt/mqtt_example_multithread.c
 )
-ADD_EXECUTABLE (ota_mqtt-example
-    ota/ota_mqtt-example.c
+ADD_EXECUTABLE (ota-example-mqtt
+    ota/ota_example_mqtt.c
+)
+ADD_EXECUTABLE (linkkit-example-cota
+    app_entry.c
+    linkkit/linkkit_example_cota.c
 )
 ADD_EXECUTABLE (linkkit-example-solo
     app_entry.c
@@ -76,16 +81,6 @@ ADD_EXECUTABLE (linkkit-example-sched
     linkkit/linkkit_example_sched.c
 )
 
-TARGET_LINK_LIBRARIES (mqtt-example iot_sdk)
-TARGET_LINK_LIBRARIES (mqtt-example iot_hal)
-TARGET_LINK_LIBRARIES (mqtt-example iot_tls)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (mqtt-example pthread)
-ENDIF (NOT MSVC)
-IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (mqtt-example rt)
-ENDIF (NOT MSVC)
-
 TARGET_LINK_LIBRARIES (mqtt-example-rrpc iot_sdk)
 TARGET_LINK_LIBRARIES (mqtt-example-rrpc iot_hal)
 TARGET_LINK_LIBRARIES (mqtt-example-rrpc iot_tls)
@@ -94,6 +89,16 @@ TARGET_LINK_LIBRARIES (mqtt-example-rrpc pthread)
 ENDIF (NOT MSVC)
 IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (mqtt-example-rrpc rt)
+ENDIF (NOT MSVC)
+
+TARGET_LINK_LIBRARIES (mqtt-example iot_sdk)
+TARGET_LINK_LIBRARIES (mqtt-example iot_hal)
+TARGET_LINK_LIBRARIES (mqtt-example iot_tls)
+IF (NOT MSVC)
+TARGET_LINK_LIBRARIES (mqtt-example pthread)
+ENDIF (NOT MSVC)
+IF (NOT MSVC)
+TARGET_LINK_LIBRARIES (mqtt-example rt)
 ENDIF (NOT MSVC)
 
 TARGET_LINK_LIBRARIES (mqtt-example-multithread iot_sdk)
@@ -106,14 +111,24 @@ IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (mqtt-example-multithread rt)
 ENDIF (NOT MSVC)
 
-TARGET_LINK_LIBRARIES (ota_mqtt-example iot_sdk)
-TARGET_LINK_LIBRARIES (ota_mqtt-example iot_hal)
-TARGET_LINK_LIBRARIES (ota_mqtt-example iot_tls)
+TARGET_LINK_LIBRARIES (ota-example-mqtt iot_sdk)
+TARGET_LINK_LIBRARIES (ota-example-mqtt iot_hal)
+TARGET_LINK_LIBRARIES (ota-example-mqtt iot_tls)
 IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (ota_mqtt-example pthread)
+TARGET_LINK_LIBRARIES (ota-example-mqtt pthread)
 ENDIF (NOT MSVC)
 IF (NOT MSVC)
-TARGET_LINK_LIBRARIES (ota_mqtt-example rt)
+TARGET_LINK_LIBRARIES (ota-example-mqtt rt)
+ENDIF (NOT MSVC)
+
+TARGET_LINK_LIBRARIES (linkkit-example-cota iot_sdk)
+TARGET_LINK_LIBRARIES (linkkit-example-cota iot_hal)
+TARGET_LINK_LIBRARIES (linkkit-example-cota iot_tls)
+IF (NOT MSVC)
+TARGET_LINK_LIBRARIES (linkkit-example-cota pthread)
+ENDIF (NOT MSVC)
+IF (NOT MSVC)
+TARGET_LINK_LIBRARIES (linkkit-example-cota rt)
 ENDIF (NOT MSVC)
 
 TARGET_LINK_LIBRARIES (linkkit-example-solo iot_sdk)

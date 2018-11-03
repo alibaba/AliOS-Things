@@ -79,7 +79,6 @@ ADD_SUBDIRECTORY (src/protocol/alcs)
 ADD_SUBDIRECTORY (src/ref-impl/hal)
 ADD_SUBDIRECTORY (examples)
 ADD_SUBDIRECTORY (src/ref-impl/tls)
-ADD_SUBDIRECTORY (src/tools/linkkit_tsl_convert)
 
 ADD_LIBRARY (iot_sdk SHARED
     $<TARGET_OBJECTS:iot_utils>
