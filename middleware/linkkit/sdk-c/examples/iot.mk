@@ -15,81 +15,63 @@ LDFLAGS             += -lws2_32
 CFLAGS              := $(filter-out -DCOAP_COMM_ENABLED,$(CFLAGS))
 endif
 
-ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))
-TARGET                          += mqtt-example mqtt-example-rrpc mqtt-example-multithread
-SRCS_mqtt-example               := app_entry.c mqtt/mqtt_example.c
 SRCS_mqtt-example-rrpc          := app_entry.c mqtt/mqtt_example_rrpc.c
+SRCS_mqtt-example               := app_entry.c mqtt/mqtt_example.c
 SRCS_mqtt-example-multithread   := app_entry.c mqtt/mqtt_example_multithread.c
+SRCS_http2_uploadfile           := http2/http2_example_uploadfile.c app_entry.c
+SRCS_http2-example              := http2/http2_example_stream.c app_entry.c
+SRCS_coap-example               := coap/coap_example.c app_entry.c
+SRCS_http-example               := http/http_example.c app_entry.c
+SRCS_ota_mqtt-example           := ota/ota_mqtt-example.c
+SRCS_active-cota                := app_entry.c ota/active_cota.c
+SRCS_linkkit-example-sched      := app_entry.c cJSON.c linkkit/linkkit_example_sched.c
+SRCS_linkkit-example-solo       := app_entry.c cJSON.c linkkit/linkkit_example_solo.c
+SRCS_linkkit-example-countdown  := app_entry.c cJSON.c linkkit/linkkit_example_cntdown.c
+SRCS_linkkit-example-gw         := app_entry.c cJSON.c linkkit/linkkit_example_gateway.c
 
-    ifneq (,$(filter -DSUPPORT_ITLS,$(CFLAGS)))
-    LDFLAGS += \
-        -litls \
-        -lid2client \
-        -lkm \
-        -lplat_gen \
-        -lalicrypto \
-        -lmbedcrypto
-    endif
+# Syntax of Append_Conditional
+# ---
+#
+# $(call Append_Conditional, TARGET, \  <-- Operated Variable
+#   member1 member2 ...            , \  <-- Appended Members
+#   switch1 switch2 ...            , \  <-- All These Switches are Defined
+#   switch3 switch4 ...)                <-- All These Switches are Not Defined (Optional)
 
+
+$(call Append_Conditional, TARGET, mqtt-example-rrpc,           MQTT_COMM_ENABLED)
+$(call Append_Conditional, TARGET, mqtt-example,                MQTT_COMM_ENABLED)
+$(call Append_Conditional, TARGET, mqtt-example-multithread,    MQTT_COMM_ENABLED)
+$(call Append_Conditional, LDFLAGS, \
+    -litls \
+    -lid2client \
+    -lkm \
+    -lplat_gen \
+    -lalicrypto \
+    -lmbedcrypto \
+, \
+SUPPORT_ITLS)
+
+$(call Append_Conditional, TARGET, coap-example,                COAP_COMM_ENABLED)
+$(call Append_Conditional, TARGET, http-example,                HTTP_COMM_ENABLED)
+
+$(call Append_Conditional, TARGET, http2-example,               HTTP2_COMM_ENABLED)
+$(call Append_Conditional, TARGET, http2_uploadfile,            HTTP2_COMM_ENABLED FS_ENABLED)
+
+$(call Append_Conditional, TARGET, ota_mqtt-example,            OTA_ENABLED MQTT_COMM_ENABLED)
+$(call Append_Conditional, TARGET, active-cota, \
+    OTA_ENABLED DEVICE_MODEL_ENABLED, \
+    DEPRECATED_LINKKIT \
+)
+
+$(call Append_Conditional, TARGET, linkkit-example-solo,        DEVICE_MODEL_ENABLED, DEVICE_MODEL_GATEWAY)
+$(call Append_Conditional, TARGET, linkkit-example-countdown,   DEVICE_MODEL_ENABLED, DEVICE_MODEL_GATEWAY)
+ifneq (Darwin,$(shell uname))
+$(call Append_Conditional, TARGET, linkkit-example-sched,       DEVICE_MODEL_ENABLED, DEVICE_MODEL_GATEWAY)
 endif
+$(call Append_Conditional, TARGET, linkkit-example-gw,          DEVICE_MODEL_ENABLED  DEVICE_MODEL_GATEWAY)
 
-ifneq (,$(filter -DCOAP_COMM_ENABLED,$(CFLAGS)))
-TARGET              += coap-example
-SRCS_coap-example   := coap/coap_example.c app_entry.c
-endif
-
-
-ifneq (,$(filter -DHTTP_COMM_ENABLED,$(CFLAGS)))
-TARGET              += http-example
-SRCS_http-example   := http/http_example.c app_entry.c
-endif
-
-ifneq (,$(filter -DHTTP2_COMM_ENABLED,$(CFLAGS)))
-TARGET              += http2-example 
-SRCS_http2-example   := http2/http2_example_stream.c app_entry.c
-    ifneq (,$(filter -DFS_ENABLED,$(CFLAGS)))
-    TARGET              += http2_uploadfile
-    SRCS_http2_uploadfile   := http2/http2_example_uploadfile.c app_entry.c
-
-    endif
-endif
-
-ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
-
-    ifneq (,$(filter -DMQTT_COMM_ENABLED,$(CFLAGS)))
-    TARGET                  += ota_mqtt-example
-    SRCS_ota_mqtt-example   := ota/ota_mqtt-example.c
-    endif
-
-endif
-
-ifneq (,$(filter -DDEVICE_MODEL_ENABLED,$(CFLAGS)))
-    ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
-    ifeq (,$(filter -DDEPRECATED_LINKKIT,$(CFLAGS)))
-        TARGET      += active-cota
-        SRCS_active-cota:= app_entry.c ota/active_cota.c
-    endif
-    endif
-
-    ifeq (,$(filter -DDEVICE_MODEL_GATEWAY,$(CFLAGS)))
-        TARGET      += linkkit-example-solo linkkit-example-countdown
-
-        ifneq (Darwin,$(shell uname))
-        TARGET      += linkkit-example-sched
-        endif
-
-        SRCS_linkkit-example-solo       := app_entry.c cJSON.c linkkit/linkkit_example_solo.c
-        SRCS_linkkit-example-countdown  := app_entry.c cJSON.c linkkit/linkkit_example_cntdown.c
-        SRCS_linkkit-example-sched      := app_entry.c cJSON.c linkkit/linkkit_example_sched.c
-
-    else
-    
-        TARGET      += linkkit-example-gw
-        SRCS_linkkit-example-gw         := app_entry.c linkkit/linkkit_example_gateway.c cJSON.c
-    endif 
-
-endif
-
+# Clear All Above when Build for Windows
+#
 ifneq (,$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS)))
     TARGET          := mqtt-example
     SRCS            := mqtt/mqtt_example.c
