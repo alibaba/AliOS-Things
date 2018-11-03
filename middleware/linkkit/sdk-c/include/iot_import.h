@@ -9,10 +9,14 @@ extern "C" {
 #endif
 
 #ifdef _WIN32
+#if !defined(CC_IS_MINGW32)
 #ifdef DLL_HAL_EXPORTS
 #define DLL_HAL_API __declspec(dllexport)
 #else
 #define DLL_HAL_API __declspec(dllimport)
+#endif
+#else
+#define DLL_HAL_API
 #endif
 #else
 #define DLL_HAL_API

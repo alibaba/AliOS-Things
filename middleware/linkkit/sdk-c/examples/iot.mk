@@ -73,6 +73,5 @@ $(call Append_Conditional, TARGET, linkkit-example-gw,          DEVICE_MODEL_ENA
 # Clear All Above when Build for Windows
 #
 ifneq (,$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS)))
-    TARGET          := mqtt-example
-    SRCS            := mqtt/mqtt_example.c
+    TARGET          := mqtt-example linkkit-example-solo
 endif
