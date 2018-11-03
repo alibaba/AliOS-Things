@@ -26,10 +26,13 @@ GLOBAL_INCLUDES += \
                    Drivers/hri \
                    Drivers/CMSIS/Include \
                    Drivers/include \
+                   Drivers/sd_mmc   \
                    src/ATSAME54-XPRO/runapp
 
 $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/driver_init.c  \
+                   Drivers/sd_mmc_start.c   \
+                   Drivers/sd_mmc/sd_mmc.c  \
                    Drivers/hal/src/hal_atomic.c \
                    Drivers/hal/src/hal_delay.c \
                    Drivers/hal/src/hal_flash.c \
@@ -56,6 +59,8 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/hpl/ramecc/hpl_ramecc.c    \
                    Drivers/hpl/sercom/hpl_sercom.c    \
                    Drivers/hpl/systick/hpl_systick.c    \
+                   Drivers/hpl/sdhc/hpl_sdhc.c  \
+                   Drivers/hal/src/hal_mci_sync.c   \
                    hal/hal_flash_port.c        \
                    hal/hal_timer_port.c        \
                    hal/hal_uart_start.c        \
