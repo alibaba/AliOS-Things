@@ -44,7 +44,7 @@ $(TARGET): $(OBJS) FORCE
 	$(call Inspect_Env,$(WATCHED_VARS))
 	$(Q) \
 ( \
-	if [ "$(strip $(CC))" = "gcc" ] \
+	if [ "$(strip $(CC))" = "gcc" -o "$(strip $(CC))" = "i686-w64-mingw32-gcc" ] \
         || [ "$(filter -D_PLATFORM_IS_LINUX_,$(CFLAGS))" != "" ] \
 	    || [ "$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS))" != "" ]; then \
 	    $(call Brief_Log,"LD"); \
