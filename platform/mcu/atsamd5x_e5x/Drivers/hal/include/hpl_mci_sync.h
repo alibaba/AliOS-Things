@@ -183,6 +183,9 @@ void _mci_sync_get_response_128(struct _mci_sync_device *const mci_dev, uint8_t 
  */
 bool _mci_sync_adtc_start(struct _mci_sync_device *const mci_dev, uint32_t cmd, uint32_t arg, uint16_t block_size,
                           uint16_t nb_block, bool access_block);
+bool _mci_sync_adtc_start_dma(struct _mci_sync_device *const mci_dev, uint32_t cmd, uint32_t arg, uint16_t block_size,
+						  uint16_t nb_block, bool access_block, uint32_t sys_add);
+
 
 /**
  *  \brief Send a command to stop an ADTC command on the selected slot.
@@ -222,7 +225,8 @@ bool _mci_sync_write_word(struct _mci_sync_device *const mci_dev, uint32_t value
  *  \return true if started, otherwise false
  */
 bool _mci_sync_start_read_blocks(struct _mci_sync_device *const mci_dev, void *dst, uint16_t nb_block);
-
+bool _mci_sync_start_read_blocks_dma(struct _mci_sync_device *const mci_dev, void *dst, uint16_t nb_block);
+ 
 /**
  *  \brief Start a write blocks transfer on the line
  *  Note: The driver will use the DMA available to speed up the transfer.
@@ -233,6 +237,7 @@ bool _mci_sync_start_read_blocks(struct _mci_sync_device *const mci_dev, void *d
  *  \return true if started, otherwise false
  */
 bool _mci_sync_start_write_blocks(struct _mci_sync_device *const mci_dev, const void *src, uint16_t nb_block);
+bool _mci_sync_start_write_blocks_dma(struct _mci_sync_device *const mci_dev, const void *src, uint16_t nb_block);
 
 /**
  *  \brief Wait the end of transfer initiated by mci_start_read_blocks()

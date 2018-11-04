@@ -102,6 +102,7 @@
 #define driver_get_response ATPASTE2(driver, _sync_get_response)
 #define driver_get_response_128 ATPASTE2(driver, _sync_get_response_128)
 #define driver_adtc_start ATPASTE2(driver, _sync_adtc_start)
+#define driver_adtc_start_dma ATPASTE2(driver, _sync_adtc_start_dma)
 #define driver_adtc_stop ATPASTE2(driver, _sync_send_cmd)
 #define driver_read_word ATPASTE2(driver, _sync_read_word)
 #define driver_write_word ATPASTE2(driver, _sync_write_word)

@@ -397,8 +397,8 @@ void _mci_sync_get_response_128(struct _mci_sync_device *const mci_dev, uint8_t 
  *         An ADTC (Addressed Data Transfer Commands)
  *         command is used for read/write access.
  */
-bool _mci_sync_adtc_start(struct _mci_sync_device *const mci_dev, uint32_t cmd, uint32_t arg, uint16_t block_size,
-                          uint16_t nb_block, bool access_block)
+bool _mci_sync_adtc_start_dma(struct _mci_sync_device *const mci_dev, uint32_t cmd, uint32_t arg, uint16_t block_size,
+                          uint16_t nb_block, bool access_block, uint32_t sys_addr)
 {
 	uint32_t tmr;
 	void *   hw;
@@ -430,6 +430,52 @@ bool _mci_sync_adtc_start(struct _mci_sync_device *const mci_dev, uint32_t cmd, 
 	} else {
 		return false;
 	}
+	tmr |= SDHC_TMR_DMAEN;
+	hri_sdhc_write_SSAR_ADDR_bf(hw, sys_addr);
+	hri_sdhc_write_TMR_reg(hw, tmr);
+	hri_sdhc_write_BSR_reg(hw, SDHC_BSR_BLOCKSIZE(block_size) | SDHC_BSR_BOUNDARY_256K);
+	hri_sdhc_write_BCR_reg(hw, SDHC_BCR_BCNT(nb_block));
+
+	mci_dev->mci_sync_trans_pos  = 0;
+	mci_dev->mci_sync_block_size = block_size;
+	mci_dev->mci_sync_nb_block   = nb_block;
+
+	return _mci_send_cmd_execute(hw, SDHC_CR_DPSEL_DATA, cmd, arg);
+}
+
+bool _mci_sync_adtc_start(struct _mci_sync_device *const mci_dev, uint32_t cmd, uint32_t arg, uint16_t block_size,
+uint16_t nb_block, bool access_block)
+{
+	uint32_t tmr;
+	void *   hw;
+	ASSERT(mci_dev && mci_dev->hw);
+	hw = mci_dev->hw;
+
+	/* No use without dma support */
+	(void)access_block;
+
+	/* Check Command Inhibit (CMD/DAT) in the Present State register */
+	if (hri_sdhc_get_PSR_CMDINHC_bit(hw) || hri_sdhc_get_PSR_CMDINHD_bit(hw)) {
+		return false;
+	}
+
+	if (cmd & MCI_CMD_WRITE) {
+		tmr = SDHC_TMR_DTDSEL_WRITE;
+		} else {
+		tmr = SDHC_TMR_DTDSEL_READ;
+	}
+
+	if (cmd & MCI_CMD_SDIO_BYTE) {
+		tmr |= SDHC_TMR_MSBSEL_SINGLE;
+		} else if (cmd & MCI_CMD_SDIO_BLOCK) {
+		tmr |= SDHC_TMR_BCEN | SDHC_TMR_MSBSEL_MULTIPLE;
+		} else if (cmd & MCI_CMD_SINGLE_BLOCK) {
+		tmr |= SDHC_TMR_MSBSEL_SINGLE;
+		} else if (cmd & MCI_CMD_MULTI_BLOCK) {
+		tmr |= SDHC_TMR_BCEN | SDHC_TMR_MSBSEL_MULTIPLE;
+		} else {
+		return false;
+	}
 	hri_sdhc_write_TMR_reg(hw, tmr);
 	hri_sdhc_write_BSR_reg(hw, SDHC_BSR_BLOCKSIZE(block_size) | SDHC_BSR_BOUNDARY_4K);
 	hri_sdhc_write_BCR_reg(hw, SDHC_BCR_BCNT(nb_block));
@@ -440,7 +486,6 @@ bool _mci_sync_adtc_start(struct _mci_sync_device *const mci_dev, uint32_t cmd, 
 
 	return _mci_send_cmd_execute(hw, SDHC_CR_DPSEL_DATA, cmd, arg);
 }
-
 /**
  *  \brief Send a command to stop an ADTC command on the selected slot.
  */
@@ -591,6 +636,39 @@ bool _mci_sync_start_read_blocks(struct _mci_sync_device *const mci_dev, void *d
 	return true;
 }
 
+bool _mci_sync_start_read_blocks_dma(struct _mci_sync_device *const mci_dev, void *dst, uint16_t nb_block)
+{
+	void *   hw;
+	uint32_t sr;
+	ASSERT(mci_dev && mci_dev->hw);
+	ASSERT(nb_block);
+	ASSERT(dst);
+	ASSERT(mci_dev && mci_dev->hw);
+	hw = mci_dev->hw;
+
+	/* Wait end of transfer */
+	do {
+		sr = hri_sdhc_read_EISTR_reg(hw);
+
+		if (sr & (SDHC_EISTR_DATTEO | SDHC_EISTR_DATCRC | SDHC_EISTR_DATEND)) {
+			_mci_reset(hw);
+			return false;
+		}
+	} while (!hri_sdhc_get_NISTR_TRFC_bit(hw) && !hri_sdhc_get_NISTR_DMAINT_bit(hw));
+	if(hri_sdhc_get_NISTR_TRFC_bit(hw))
+	{
+		hri_sdhc_set_NISTR_TRFC_bit(hw);
+		hri_sdhc_set_NISTR_DMAINT_bit(hw);
+	}
+	if(hri_sdhc_get_NISTR_DMAINT_bit(hw))
+	{
+		hri_sdhc_set_NISTR_DMAINT_bit(hw);
+	}
+
+	hri_sdhc_clear_TMR_DMAEN_bit(hw);
+	return true;
+}
+
 /**
  *  \brief Start a write blocks transfer on the line
  *  Note: The driver will use the DMA available to speed up the transfer.
@@ -615,6 +693,40 @@ bool _mci_sync_start_write_blocks(struct _mci_sync_device *const mci_dev, const 
 		nb_data -= nbytes;
 		ptr += nbytes;
 	}
+
+	return true;
+}
+
+bool _mci_sync_start_write_blocks_dma(struct _mci_sync_device *const mci_dev, const void *src, uint16_t nb_block)
+{
+	uint32_t sr;
+	void *   hw;
+
+	ASSERT(mci_dev && mci_dev->hw);
+	ASSERT(nb_block);
+	ASSERT(src);
+	ASSERT(mci_dev && mci_dev->hw);
+
+	hw = mci_dev->hw;
+
+	/* Wait end of transfer */
+	do {
+		sr = hri_sdhc_read_EISTR_reg(hw);
+
+		if (sr & (SDHC_EISTR_DATTEO | SDHC_EISTR_DATCRC | SDHC_EISTR_DATEND)) {
+			_mci_reset(hw);
+			return false;
+		}
+	}  while (!hri_sdhc_get_NISTR_TRFC_bit(hw) && !hri_sdhc_get_NISTR_DMAINT_bit(hw));
+	if(hri_sdhc_get_NISTR_TRFC_bit(hw))
+	{
+		hri_sdhc_set_NISTR_TRFC_bit(hw);
+		hri_sdhc_set_NISTR_DMAINT_bit(hw);
+	}
+	if(hri_sdhc_get_NISTR_DMAINT_bit(hw))
+	hri_sdhc_set_NISTR_DMAINT_bit(hw);
+
+	hri_sdhc_clear_TMR_DMAEN_bit(hw);
 
 	return true;
 }

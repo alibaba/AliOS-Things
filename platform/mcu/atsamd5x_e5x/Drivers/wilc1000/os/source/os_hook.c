@@ -96,16 +96,16 @@ static void os_hif_task(void *pv)
 			
 			/* Incoming data packet. */
 			else if (msg.id == MSG_RX) {
-				aos_sem_wait(&os_isr_sem, AOS_WAIT_FOREVER);
+				//aos_sem_wait(&os_isr_sem, AOS_WAIT_FOREVER);
 				m2m_wifi_handle_events(NULL);
-				aos_sem_signal(&os_isr_sem);
+				//aos_sem_signal(&os_isr_sem);
 
 			} 
 			/* Outgoing data packet. */
 			else if ((msg.id == MSG_TX_STA) || (msg.id == MSG_TX_AP)) {
-				aos_sem_wait(&os_isr_sem, AOS_WAIT_FOREVER);
+				//aos_sem_wait(&os_isr_sem, AOS_WAIT_FOREVER);
 				wilc_netif_tx_from_queue(&msg);
-				aos_sem_signal(&os_isr_sem);
+				//aos_sem_signal(&os_isr_sem);
 			}
 			/* WiFi command. */
 			else if (msg.id == MSG_CMD) {
@@ -150,13 +150,13 @@ void os_hook_init(void)
 
 	if (!has_init) {
 		aos_sem_new(&hif_notify_sem, 1);
-		aos_sem_new(&sdio_rw_sem, 1);
-		aos_sem_new(&os_isr_sem, 1);
+		//aos_sem_new(&sdio_rw_sem, 1);
+		//aos_sem_new(&os_isr_sem, 1);
 		aos_sem_wait(&hif_notify_sem, AOS_WAIT_FOREVER);
 		ret = aos_queue_new(&hif_queue, queue_buf, QUEUE_SIZE, QUEUE_MAX_MSG_SIZE);
 		
 		//xTaskCreate(os_hif_task, (const signed char *)"WiFiHIF", 1024, NULL, (configMAX_PRIORITIES - 1), &hif_thread);		
-		aos_task_new_ext(&hif_task, "WiFiHIF", os_hif_task, NULL, 1024, RHINO_CONFIG_USER_PRI_MAX-1);	
+		aos_task_new_ext(&hif_task, "WiFiHIF", os_hif_task, NULL, 1024, RHINO_CONFIG_USER_PRI_MAX);	
 		
 		has_init = 1;
 	}

@@ -138,6 +138,13 @@ void mci_sync_get_response_128(struct mci_sync_desc *mci, uint8_t *response)
  *         An ADTC (Addressed Data Transfer Commands)
  *         command is used for read/write access.
  */
+bool mci_sync_adtc_start_dma(struct mci_sync_desc *mci, uint32_t cmd, uint32_t arg, uint16_t block_size, uint16_t nb_block,
+                         bool access_block, uint32_t sys_add)
+{
+	ASSERT(mci);
+	return _mci_sync_adtc_start_dma(&mci->device, cmd, arg, block_size, nb_block, access_block, sys_add);
+}
+
 bool mci_sync_adtc_start(struct mci_sync_desc *mci, uint32_t cmd, uint32_t arg, uint16_t block_size, uint16_t nb_block,
                          bool access_block)
 {
@@ -182,14 +189,30 @@ bool mci_sync_start_read_blocks(struct mci_sync_desc *mci, void *dst, uint16_t n
 	return _mci_sync_start_read_blocks(&mci->device, dst, nb_block);
 }
 
+bool mci_sync_start_read_blocks_dma(struct mci_sync_desc *mci, void *dst, uint16_t nb_block)
+{
+	ASSERT(mci && dst);
+	return _mci_sync_start_read_blocks_dma(&mci->device, dst, nb_block);
+}
+
 /**
  *  \brief Start a write blocks transfer on the line
  */
+
 bool mci_sync_start_write_blocks(struct mci_sync_desc *mci, const void *src, uint16_t nb_block)
 {
 	ASSERT(mci && src);
 	return _mci_sync_start_write_blocks(&mci->device, src, nb_block);
 }
+
+
+bool mci_sync_start_write_blocks_dma(struct mci_sync_desc *mci, const void *src, uint16_t nb_block)
+{
+	ASSERT(mci && src);
+	return _mci_sync_start_write_blocks_dma(&mci->device, src, nb_block);
+}
+
+
 
 /**
  *  \brief Wait the end of transfer initiated by mci_start_read_blocks()

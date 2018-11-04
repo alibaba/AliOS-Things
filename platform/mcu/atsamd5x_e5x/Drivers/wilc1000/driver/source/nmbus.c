@@ -135,9 +135,9 @@ uint32 nm_read_reg(uint32 u32Addr)
 #elif defined (CONF_WILC_USE_I2C)
 	return nm_i2c_read_reg(u32Addr);
 #elif defined (CONF_WILC_USE_SDIO)
-	aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
+	//aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
 	ret = nm_sdio_read_reg(u32Addr);
-	aos_sem_signal(&sdio_rw_sem);
+	//aos_sem_signal(&sdio_rw_sem);
 	return ret;
 #else
 #error "Please define bus usage"
@@ -165,9 +165,9 @@ sint8 nm_read_reg_with_ret(uint32 u32Addr, uint32* pu32RetVal)
 #elif defined (CONF_WILC_USE_I2C)
 	return nm_i2c_read_reg_with_ret(u32Addr,pu32RetVal);
 #elif defined (CONF_WILC_USE_SDIO)
-	aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
+	//aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
 	ret = nm_sdio_read_reg_with_ret(u32Addr,pu32RetVal);
-	aos_sem_signal(&sdio_rw_sem);
+	//aos_sem_signal(&sdio_rw_sem);
 	return ret;
 #else
 #error "Please define bus usage"
@@ -194,9 +194,9 @@ sint8 nm_write_reg(uint32 u32Addr, uint32 u32Val)
 #elif defined (CONF_WILC_USE_I2C)
 	return nm_i2c_write_reg(u32Addr,u32Val);
 #elif defined (CONF_WILC_USE_SDIO)
-	aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
+	//aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
 	ret = nm_sdio_write_reg(u32Addr,u32Val);
-	aos_sem_signal(&sdio_rw_sem);
+	//aos_sem_signal(&sdio_rw_sem);
 	return ret;
 #else
 #error "Please define bus usage"
@@ -235,7 +235,7 @@ sint8 nm_read_block(uint32 u32Addr, uint8 *puBuf, uint32 u32Sz)
 	uint16 u16MaxTrxSz = egstrNmBusCapabilities.u16MaxTrxSz - MAX_TRX_CFG_SZ;
 	uint32 off = 0;
 	sint8 s8Ret = M2M_SUCCESS;
-	aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
+	//aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
 	for(;;)
 	{
 		if(u32Sz <= u16MaxTrxSz)
@@ -252,7 +252,7 @@ sint8 nm_read_block(uint32 u32Addr, uint8 *puBuf, uint32 u32Sz)
 			u32Addr += u16MaxTrxSz;
 		}
 	}
-	aos_sem_signal(&sdio_rw_sem);
+	//aos_sem_signal(&sdio_rw_sem);
 	return s8Ret;
 }
 
@@ -290,7 +290,7 @@ sint8 nm_write_block(uint32 u32Addr, uint8 *puBuf, uint32 u32Sz)
 	uint32 off = 0;
 	sint8 s8Ret = M2M_SUCCESS;
 	
-	aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
+	//aos_sem_wait(&sdio_rw_sem, AOS_WAIT_FOREVER);
 	for(;;)
 	{
 		if(u32Sz <= u16MaxTrxSz)
@@ -307,7 +307,7 @@ sint8 nm_write_block(uint32 u32Addr, uint8 *puBuf, uint32 u32Sz)
 			u32Addr += u16MaxTrxSz;
 		}
 	}
-	aos_sem_signal(&sdio_rw_sem);
+	//aos_sem_signal(&sdio_rw_sem);
 	return s8Ret;
 }
 

@@ -41,7 +41,7 @@
 
 
 extern struct mci_sync_desc IO_BUS;
-//struct mci_sync_desc IO_BUS;
+
 /* Card Detect (CD) pin settings */
 static sd_mmc_detect_t SDMMC_ACCESS_0_cd[CONF_SD_MMC_MEM_CNT] = {
 
@@ -69,14 +69,14 @@ static void check_card_exist (void){
 }
 
 static int8_t wilc_cmd53(uint8_t rw_flag, uint8_t func_nb, uint32_t reg_addr,
-uint8_t inc_addr,uint8_t BlkMode ,uint32_t Blksize, uint32_t count,uint32_t nb_block,bool access_block)
+uint8_t inc_addr,uint8_t BlkMode ,uint32_t Blksize, uint32_t count,uint32_t nb_block,bool access_block, uint32_t sys_add)
 {
 	if (Blksize >512)
 	{
 		return M2M_ERR_BUS_FAIL;
 	}
 
-	bool ret = mci_sync_adtc_start(&IO_BUS, (rw_flag == SDIO_CMD53_READ_FLAG)?
+	bool ret = mci_sync_adtc_start_dma(&IO_BUS, (rw_flag == SDIO_CMD53_READ_FLAG)?
 	SDIO_CMD53_IO_R_BLOCK_EXTENDED :
 	SDIO_CMD53_IO_W_BLOCK_EXTENDED,
 	(count    << SDIO_CMD53_COUNT)
@@ -85,7 +85,7 @@ uint8_t inc_addr,uint8_t BlkMode ,uint32_t Blksize, uint32_t count,uint32_t nb_b
 	| ((uint32_t)BlkMode  << SDIO_CMD53_BLOCK_MODE)
 	| ((uint32_t)func_nb  << SDIO_CMD53_FUNCTION_NUM)
 	| ((uint32_t)rw_flag  << SDIO_CMD53_RW_FLAG),
-	Blksize, nb_block, access_block);
+	Blksize, nb_block, access_block, sys_add);
 	
 	if (ret){
 		return M2M_SUCCESS;
@@ -96,14 +96,14 @@ uint8_t inc_addr,uint8_t BlkMode ,uint32_t Blksize, uint32_t count,uint32_t nb_b
 }
 
 static int8_t wilc_cmd53_compact(uint8_t rw_flag, uint8_t func_nb, uint32_t reg_addr,
-uint8_t inc_addr, uint32_t size, bool access_block)
+uint8_t inc_addr, uint32_t size, bool access_block, uint32_t sys_add)
 {
 	if (size >512)
 	{
 		return M2M_ERR_BUS_FAIL;
 	}
 
-	bool ret =  mci_sync_adtc_start(&IO_BUS, (rw_flag == SDIO_CMD53_READ_FLAG)?
+	bool ret =  mci_sync_adtc_start_dma(&IO_BUS, (rw_flag == SDIO_CMD53_READ_FLAG)?
 	SDIO_CMD53_IO_R_BYTE_EXTENDED :
 	SDIO_CMD53_IO_W_BYTE_EXTENDED,
 	((size % 512) << SDIO_CMD53_COUNT)
@@ -112,7 +112,7 @@ uint8_t inc_addr, uint32_t size, bool access_block)
 	| ((uint32_t)0 << SDIO_CMD53_BLOCK_MODE)
 	| ((uint32_t)func_nb << SDIO_CMD53_FUNCTION_NUM)
 	| ((uint32_t)rw_flag << SDIO_CMD53_RW_FLAG),
-	size, 1, access_block);
+	size, 1, access_block, sys_add);
 	
 	if (ret){
 	return M2M_SUCCESS;
@@ -188,7 +188,7 @@ int8_t nmi_sdio_cmd53(tstrNmSdioCmd53* cmd){
 	{
 		/* begin CMD53 command */
 
-		if (wilc_cmd53_compact(flag, cmd->function,cmd->address ,cmd->increment, cmd->count, false)){
+		if (wilc_cmd53_compact(flag, cmd->function,cmd->address ,cmd->increment, cmd->count, false, cmd->buffer)){
 			sd_mmc_deselect_slot();
 			return -1;
 		 }
@@ -196,7 +196,7 @@ int8_t nmi_sdio_cmd53(tstrNmSdioCmd53* cmd){
 		if (flag == SDIO_CMD53_READ_FLAG)
 		{
 			/* start using DMA to read the data from the register */
-			if (!mci_sync_start_read_blocks(&IO_BUS, cmd->buffer, 1)){
+			if (!mci_sync_start_read_blocks_dma(&IO_BUS, cmd->buffer, 1)){
 				sd_mmc_deselect_slot();
 				return -2;
 			 }
@@ -209,7 +209,7 @@ int8_t nmi_sdio_cmd53(tstrNmSdioCmd53* cmd){
 		else if (flag == SDIO_CMD53_WRITE_FLAG)
 		{
 			/* start using DMA to read the data from the register */
-			if (!mci_sync_start_write_blocks(&IO_BUS, cmd->buffer, 1)){
+			if (!mci_sync_start_write_blocks_dma(&IO_BUS, cmd->buffer, 1)){
 				sd_mmc_deselect_slot();
 				return -2;
 			}
@@ -222,16 +222,16 @@ int8_t nmi_sdio_cmd53(tstrNmSdioCmd53* cmd){
 		}
 	}
 	else{
-		/* begin CMD53 command */
-		if (wilc_cmd53(flag, cmd->function, cmd->address,cmd->increment,cmd->block_mode,cmd->block_size,cmd->count,/*cmd->block_size*/cmd->count, true)){
-			 sd_mmc_deselect_slot();
-			 return -4;
-		}
+			if (wilc_cmd53(flag, cmd->function, cmd->address,cmd->increment,cmd->block_mode,cmd->block_size,cmd->count,cmd->count, true, cmd->buffer)){
+
+				sd_mmc_deselect_slot();
+				return -4;
+			}
 
 		if (flag == SDIO_CMD53_READ_FLAG)
 		{
 			/* start using DMA to read the data from the register */
-			if (!mci_sync_start_read_blocks(&IO_BUS, cmd->buffer, cmd->count)){
+			if (!mci_sync_start_read_blocks_dma(&IO_BUS, cmd->buffer, cmd->count)){
 				sd_mmc_deselect_slot();
 				return -5;
 			 }
@@ -244,7 +244,7 @@ int8_t nmi_sdio_cmd53(tstrNmSdioCmd53* cmd){
 		else if (flag == SDIO_CMD53_WRITE_FLAG)
 		{
 			/* start using DMA to read the data from the register */
-			if (!mci_sync_start_write_blocks(&IO_BUS, cmd->buffer, cmd->count)){
+			if (!mci_sync_start_write_blocks_dma(&IO_BUS, cmd->buffer, cmd->count)){
 				sd_mmc_deselect_slot();
 				return -5;
 			 }
