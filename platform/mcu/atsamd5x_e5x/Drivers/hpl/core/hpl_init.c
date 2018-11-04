@@ -50,11 +50,11 @@
 
 extern void _system_time_init(void);
 /* Referenced GCLKs (out of 0~11), should be initialized firstly
-* - GCLK 3 for DFLL
-*/
-#define _GCLK_INIT_1ST 0x00000008
+ * - GCLK 1 for FDPLL0
+ */
+#define _GCLK_INIT_1ST 0x00000002
 /* Not referenced GCLKs, initialized last */
-#define _GCLK_INIT_LAST 0x00000FF7
+#define _GCLK_INIT_LAST 0x00000FFD
 
 /**
  * \brief Initialize the hardware abstraction layer

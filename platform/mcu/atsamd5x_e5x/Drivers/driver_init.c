@@ -28,7 +28,7 @@ struct usart_os_descriptor USART_2;
 static uint8_t USART_0_buffer[USART_0_BUFFER_SIZE];
 static uint8_t USART_2_buffer[USART_2_BUFFER_SIZE];
 
-struct mci_sync_desc IO_BUS;
+struct mci_sync_desc IO_MCI;
 /**
  * \brief USART Clock initialization function
  *
@@ -132,7 +132,7 @@ void EXTIRQ_INSTANCE_init(void)
 }
 
 
-void IO_BUS_PORT_init(void)
+void IO_MCI_PORT_init(void)
 {
 
 	gpio_set_pin_direction(PA21,
@@ -406,18 +406,18 @@ void IO_BUS_PORT_init(void)
 	                      PINMUX_PB21I_SDHC1_SDDAT3);
 }
 
-void IO_BUS_CLOCK_init(void)
+void IO_MCI_CLOCK_init(void)
 {
 	hri_mclk_set_AHBMASK_SDHC1_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, SDHC1_GCLK_ID, CONF_GCLK_SDHC1_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 	hri_gclk_write_PCHCTRL_reg(GCLK, SDHC1_GCLK_ID_SLOW, CONF_GCLK_SDHC1_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 }
 
-void IO_BUS_init(void)
+void IO_MCI_init(void)
 {
-	IO_BUS_CLOCK_init();
-	mci_sync_init(&IO_BUS, SDHC1);
-	IO_BUS_PORT_init();
+	IO_MCI_CLOCK_init();
+	mci_sync_init(&IO_MCI, SDHC1);
+	IO_MCI_PORT_init();
 }
 
 
@@ -466,11 +466,7 @@ void system_init(void)
 
 	gpio_set_pin_function(WRITE_PROTECT_0, GPIO_PIN_FUNCTION_OFF);
 
-
 	// GPIO on PC18
-
-	// Set pin direction to output
-	gpio_set_pin_direction(LED0, GPIO_DIRECTION_OUT);
 
 	gpio_set_pin_level(LED0,
 	                   // <y> Initial level
@@ -479,6 +475,8 @@ void system_init(void)
 	                   // <true"> High
 	                   true);
 
+	// Set pin direction to output
+	gpio_set_pin_direction(LED0, GPIO_DIRECTION_OUT);
 	gpio_set_pin_function(LED0, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PA06
@@ -530,6 +528,6 @@ void system_init(void)
 	USART_0_init();
 	USART_2_init();
 
-	IO_BUS_init();
+	IO_MCI_init();
 
 }

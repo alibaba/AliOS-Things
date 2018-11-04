@@ -122,6 +122,8 @@ void _oscctrl_init_referenced_generators(void)
 
 #if CONF_DFLL_CONFIG == 1
 	hri_gclk_write_GENCTRL_SRC_bf(GCLK, 0, GCLK_GENCTRL_SRC_OSCULP32K);
+	while (hri_gclk_get_SYNCBUSY_GENCTRL0_bit(GCLK))
+		;
 	uint8_t tmp;
 	hri_oscctrl_write_DFLLCTRLA_reg(hw, 0);
 #if CONF_DFLL_USBCRM != 1 && CONF_DFLL_MODE != 0
@@ -245,6 +247,8 @@ void _oscctrl_init_referenced_generators(void)
 	while (hri_gclk_read_SYNCBUSY_reg(GCLK))
 		;
 	hri_gclk_write_GENCTRL_SRC_bf(GCLK, 0, CONF_GCLK_GEN_0_SOURCE);
+	while (hri_gclk_get_SYNCBUSY_GENCTRL0_bit(GCLK))
+		;
 #endif
 	(void)hw;
 }

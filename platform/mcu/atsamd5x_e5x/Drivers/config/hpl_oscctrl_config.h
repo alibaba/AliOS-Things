@@ -121,7 +121,7 @@
 // <i> Indicates whether configuration for XOSC1 is enabled or not
 // <id> enable_xosc1
 #ifndef CONF_XOSC1_CONFIG
-#define CONF_XOSC1_CONFIG 0
+#define CONF_XOSC1_CONFIG 1
 #endif
 
 // <o> Frequency <8000000-48000000>
@@ -136,7 +136,7 @@
 // <i> Indicates whether External Multipurpose Crystal Oscillator is enabled or not
 // <id> xosc1_arch_enable
 #ifndef CONF_XOSC1_ENABLE
-#define CONF_XOSC1_ENABLE 0
+#define CONF_XOSC1_ENABLE 1
 #endif
 
 // <o> Start-Up Time
@@ -332,7 +332,7 @@
 // <1=>Closed Loop Mode
 // <id> dfll_mode
 #ifndef CONF_DFLL_MODE
-#define CONF_DFLL_MODE 0x0
+#define CONF_DFLL_MODE 0x1
 #endif
 
 // <o> Coarse Maximum Step <0x0-0x1F>
@@ -350,7 +350,7 @@
 // <o> DFLL Multiply Factor <0x0-0xFFFF>
 //  <id> dfll_mul
 #ifndef CONF_DFLL_MUL
-#define CONF_DFLL_MUL 0x0
+#define CONF_DFLL_MUL 0x5b8
 #endif
 
 // <e> DFLL Calibration Overwrite
@@ -404,7 +404,7 @@
 // <i> Select the clock source.
 // <id> fdpll0_ref_clock
 #ifndef CONF_FDPLL0_GCLK
-#define CONF_FDPLL0_GCLK GCLK_GENCTRL_SRC_XOSC32K
+#define CONF_FDPLL0_GCLK GCLK_PCHCTRL_GEN_GCLK1_Val
 #endif
 
 // <h> Digital Phase Locked Loop Control
@@ -432,13 +432,13 @@
 // <o> Loop Divider Ratio Fractional Part <0x0-0x1F>
 // <id> fdpll0_ldrfrac
 #ifndef CONF_FDPLL0_LDRFRAC
-#define CONF_FDPLL0_LDRFRAC 0x12
+#define CONF_FDPLL0_LDRFRAC 0x0
 #endif
 
 // <o> Loop Divider Ratio Integer Part <0x0-0x1FFF>
 // <id> fdpll0_ldr
 #ifndef CONF_FDPLL0_LDR
-#define CONF_FDPLL0_LDR 0xe4c
+#define CONF_FDPLL0_LDR 0x3b
 #endif
 
 // <o> Clock Divider <0x0-0x7FF>
@@ -485,7 +485,7 @@
 // <0x3=>XOSC1 clock reference
 // <id> fdpll0_arch_refclk
 #ifndef CONF_FDPLL0_REFCLK
-#define CONF_FDPLL0_REFCLK 0x1
+#define CONF_FDPLL0_REFCLK 0x0
 #endif
 
 // <q> Wake Up Fast

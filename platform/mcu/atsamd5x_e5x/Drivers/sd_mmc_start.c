@@ -48,7 +48,7 @@ void SDMMC_ACCESS_0_example(void)
 void sd_mmc_stack_init(void)
 {
 
-	sd_mmc_init(&IO_BUS, SDMMC_ACCESS_0_cd, SDMMC_ACCESS_0_wp);
+	sd_mmc_init(&IO_MCI, SDMMC_ACCESS_0_cd, SDMMC_ACCESS_0_wp);
 
 	#if 1
     //printf("Card install checking\n\r");
