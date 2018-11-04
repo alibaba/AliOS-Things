@@ -40,7 +40,7 @@
 #include "hal_mci_sync.h"
 
 
-extern struct mci_sync_desc IO_BUS;
+extern struct mci_sync_desc IO_MCI;
 
 /* Card Detect (CD) pin settings */
 static sd_mmc_detect_t SDMMC_ACCESS_0_cd[CONF_SD_MMC_MEM_CNT] = {
@@ -76,7 +76,7 @@ uint8_t inc_addr,uint8_t BlkMode ,uint32_t Blksize, uint32_t count,uint32_t nb_b
 		return M2M_ERR_BUS_FAIL;
 	}
 
-	bool ret = mci_sync_adtc_start_dma(&IO_BUS, (rw_flag == SDIO_CMD53_READ_FLAG)?
+	bool ret = mci_sync_adtc_start_dma(&IO_MCI, (rw_flag == SDIO_CMD53_READ_FLAG)?
 	SDIO_CMD53_IO_R_BLOCK_EXTENDED :
 	SDIO_CMD53_IO_W_BLOCK_EXTENDED,
 	(count    << SDIO_CMD53_COUNT)
@@ -103,7 +103,7 @@ uint8_t inc_addr, uint32_t size, bool access_block, uint32_t sys_add)
 		return M2M_ERR_BUS_FAIL;
 	}
 
-	bool ret =  mci_sync_adtc_start_dma(&IO_BUS, (rw_flag == SDIO_CMD53_READ_FLAG)?
+	bool ret =  mci_sync_adtc_start_dma(&IO_MCI, (rw_flag == SDIO_CMD53_READ_FLAG)?
 	SDIO_CMD53_IO_R_BYTE_EXTENDED :
 	SDIO_CMD53_IO_W_BYTE_EXTENDED,
 	((size % 512) << SDIO_CMD53_COUNT)
@@ -130,7 +130,7 @@ uint32_t reg_addr, uint8_t rd_after_wr, uint8_t *io_data)
 		return M2M_ERR_BUS_FAIL;
 	}
 
-	if (!mci_sync_send_cmd(&IO_BUS,SDIO_CMD52_IO_RW_DIRECT,
+	if (!mci_sync_send_cmd(&IO_MCI,SDIO_CMD52_IO_RW_DIRECT,
 	((uint32_t)*io_data << SDIO_CMD52_WR_DATA)
 	| ((uint32_t)rw_flag << SDIO_CMD52_RW_FLAG)
 	| ((uint32_t)func_nb << SDIO_CMD52_FUNCTION_NUM)
@@ -138,7 +138,7 @@ uint32_t reg_addr, uint8_t rd_after_wr, uint8_t *io_data)
 	| ((uint32_t)reg_addr << SDIO_CMD52_REG_ADRR))) {
 		return M2M_ERR_BUS_FAIL;
 	}
-	*io_data = mci_sync_get_response(&IO_BUS) & 0xFF;
+	*io_data = mci_sync_get_response(&IO_MCI) & 0xFF;
 	return M2M_SUCCESS;
 }
 
@@ -196,12 +196,12 @@ int8_t nmi_sdio_cmd53(tstrNmSdioCmd53* cmd){
 		if (flag == SDIO_CMD53_READ_FLAG)
 		{
 			/* start using DMA to read the data from the register */
-			if (!mci_sync_start_read_blocks_dma(&IO_BUS, cmd->buffer, 1)){
+			if (!mci_sync_start_read_blocks_dma(&IO_MCI, cmd->buffer, 1)){
 				sd_mmc_deselect_slot();
 				return -2;
 			 }
 			/* wait for dma to finish reading */
-			if (!mci_sync_wait_end_of_read_blocks(&IO_BUS)){
+			if (!mci_sync_wait_end_of_read_blocks(&IO_MCI)){
 				sd_mmc_deselect_slot();
 				return -3;
 			 }
@@ -209,12 +209,12 @@ int8_t nmi_sdio_cmd53(tstrNmSdioCmd53* cmd){
 		else if (flag == SDIO_CMD53_WRITE_FLAG)
 		{
 			/* start using DMA to read the data from the register */
-			if (!mci_sync_start_write_blocks_dma(&IO_BUS, cmd->buffer, 1)){
+			if (!mci_sync_start_write_blocks_dma(&IO_MCI, cmd->buffer, 1)){
 				sd_mmc_deselect_slot();
 				return -2;
 			}
 			/* wait for dma to finish writing */
-			if (!mci_sync_wait_end_of_write_blocks(&IO_BUS)){
+			if (!mci_sync_wait_end_of_write_blocks(&IO_MCI)){
 				sd_mmc_deselect_slot();
 				return -3;
 			}
@@ -231,12 +231,12 @@ int8_t nmi_sdio_cmd53(tstrNmSdioCmd53* cmd){
 		if (flag == SDIO_CMD53_READ_FLAG)
 		{
 			/* start using DMA to read the data from the register */
-			if (!mci_sync_start_read_blocks_dma(&IO_BUS, cmd->buffer, cmd->count)){
+			if (!mci_sync_start_read_blocks_dma(&IO_MCI, cmd->buffer, cmd->count)){
 				sd_mmc_deselect_slot();
 				return -5;
 			 }
 			/* wait for dma to finish reading */
-			if (!mci_sync_wait_end_of_read_blocks(&IO_BUS)) {
+			if (!mci_sync_wait_end_of_read_blocks(&IO_MCI)) {
 				sd_mmc_deselect_slot();
 				return -6;
 			}
@@ -244,12 +244,12 @@ int8_t nmi_sdio_cmd53(tstrNmSdioCmd53* cmd){
 		else if (flag == SDIO_CMD53_WRITE_FLAG)
 		{
 			/* start using DMA to read the data from the register */
-			if (!mci_sync_start_write_blocks_dma(&IO_BUS, cmd->buffer, cmd->count)){
+			if (!mci_sync_start_write_blocks_dma(&IO_MCI, cmd->buffer, cmd->count)){
 				sd_mmc_deselect_slot();
 				return -5;
 			 }
 			/* wait for dma to finish writing */
-			if (!mci_sync_wait_end_of_write_blocks(&IO_BUS)){
+			if (!mci_sync_wait_end_of_write_blocks(&IO_MCI)){
 				 sd_mmc_deselect_slot();
 				 return -6;
 			}
@@ -303,7 +303,7 @@ static void main_display_info_card(uint8_t slot)
 int8_t same54_sdio_init(void)
 {
 	// Initialize SDIO on SAME54
-	sd_mmc_init(&IO_BUS, SDMMC_ACCESS_0_cd, SDMMC_ACCESS_0_wp);
+	sd_mmc_init(&IO_MCI, SDMMC_ACCESS_0_cd, SDMMC_ACCESS_0_wp);
 
 	//Wait for a card and ready
 	check_card_exist();

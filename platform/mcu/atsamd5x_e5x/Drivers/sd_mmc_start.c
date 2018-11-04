@@ -47,27 +47,6 @@ void SDMMC_ACCESS_0_example(void)
 
 void sd_mmc_stack_init(void)
 {
-
 	sd_mmc_init(&IO_MCI, SDMMC_ACCESS_0_cd, SDMMC_ACCESS_0_wp);
 
-	#if 1
-    //printf("Card install checking\n\r");
-    sd_mmc_err_t err;
-	uint8_t slot = 0;
-		do {
-		//printf("log, sd_mmc_check\n\r", err);
-		err = sd_mmc_check(slot);
-		//printf("log, err=%d\n\r", err);
-		if ((SD_MMC_ERR_NO_CARD != err)
-		&& (SD_MMC_INIT_ONGOING != err)
-		&& (SD_MMC_OK != err)) {
-			//printf("Card install FAILED\n\r");
-			//printf("Please unplug and re-plug the card.\n\r");
-			delay_ms(1000);
-		}
-	} while (SD_MMC_OK != err);
-	delay_ms(1000);
-	//while (1) {};
-    //printf("Card install success\n\r");
-#endif
 }

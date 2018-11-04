@@ -22,7 +22,6 @@ $(NAME)_COMPONENTS += sal
 module ?= wifi.mk3060
 else
 module ?= wifi.wilc1000
-#$(NAME)_COMPONENTS += device.sal.wifi.wilc1000
 $(NAME)_COMPONENTS += mcu/atsamd5x_e5x/Drivers/wilc1000
 $(NAME)_COMPONENTS += protocols.net
 GLOBAL_DEFINES += WITH_LWIP

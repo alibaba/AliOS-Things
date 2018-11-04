@@ -6,11 +6,11 @@
 #include "hal/hal.h"
 #include "k_config.h"
 #include "board.h"
-if defined(DEV_SAL_WILC1000)
+#if defined(DEV_SAL_WILC1000)
 #include <lwip/tcpip.h>
 #endif
 
-if defined(DEV_SAL_WILC1000)
+#if defined(DEV_SAL_WILC1000)
 struct netif lwip_netif;
 static void tcpip_init_done(void *arg)
 {
