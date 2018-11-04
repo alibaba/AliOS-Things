@@ -231,7 +231,7 @@ static void _ext_irq_handler(void)
 
 	ASSERT(callback);
 
-	while (flags) {
+	//while (flags) {
 		pos = ffs(flags) - 1;
 		while (-1 != pos) {
 			uint8_t lower = 0, middle, upper = EXT_IRQ_AMOUNT;
@@ -255,9 +255,9 @@ static void _ext_irq_handler(void)
 			flags &= ~(1ul << pos);
 			pos = ffs(flags) - 1;
 		}
-		flags = hri_eic_read_INTFLAG_reg(EIC);
+		//flags = hri_eic_read_INTFLAG_reg(EIC);
 		hri_eic_clear_INTFLAG_reg(EIC, flags);
-	}
+	//}
 }
 
 /**

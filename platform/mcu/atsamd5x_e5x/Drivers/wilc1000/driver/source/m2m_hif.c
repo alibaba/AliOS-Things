@@ -92,6 +92,7 @@ static void isr(void)
 	gu8Interrupt++;
 #ifdef NM_LEVEL_INTERRUPT
 	nm_bsp_interrupt_ctrl(0);
+	DRIVER_SIGNAL_ISR();
 #else
 
 	DRIVER_SIGNAL_ISR();

@@ -9,6 +9,13 @@
 #define CONF_GCLK_EIC_SRC GCLK_PCHCTRL_GEN_GCLK0_Val
 #endif
 
+/**
+ * \def CONF_GCLK_EIC_FREQUENCY
+ * \brief EIC's Clock frequency
+ */
+#ifndef CONF_GCLK_EIC_FREQUENCY
+#define CONF_GCLK_EIC_FREQUENCY 120000000
+#endif
 
 
 /**

@@ -53,7 +53,8 @@
 #include "conf_wilc.h"
 #include "math.h"
 
-#define NM_EDGE_INTERRUPT (1)
+//#define NM_EDGE_INTERRUPT (1)
+#define NM_LEVEL_INTERRUPT (1)
 
 #define NM_DEBUG CONF_WILC_DEBUG
 #define NM_BSP_PRINTF CONF_WILC_PRINTF

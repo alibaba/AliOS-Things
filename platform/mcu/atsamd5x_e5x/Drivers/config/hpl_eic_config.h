@@ -440,7 +440,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense7
 #ifndef CONF_EIC_SENSE7
-#define CONF_EIC_SENSE7 EIC_NMICTRL_NMISENSE_FALL_Val
+#define CONF_EIC_SENSE7 EIC_NMICTRL_NMISENSE_LOW_Val
 #endif
 
 // <q> External Interrupt 7 Asynchronous Edge Detection Mode

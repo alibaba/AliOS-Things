@@ -122,7 +122,7 @@ void EXTIRQ_INSTANCE_init(void)
 	                       // <GPIO_PULL_OFF"> Off
 	                       // <GPIO_PULL_UP"> Pull-up
 	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_OFF);
+	                       GPIO_PULL_UP);
 
 	gpio_set_pin_function(CONF_WINC_EXT_INT_PIN, PINMUX_PC23A_EIC_EXTINT7);
 	
