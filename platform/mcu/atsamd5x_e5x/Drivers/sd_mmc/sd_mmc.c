@@ -200,9 +200,8 @@ static bool sd_acmd51(void);
 
 /** \name Internal function to process the initialization and install */
 /** @{ */
-static sd_mmc_err_t sd_mmc_select_slot(uint8_t slot);
+
 static void         sd_mmc_configure_slot(void);
-static void         sd_mmc_deselect_slot(void);
 static bool         sd_mmc_mci_card_init(void);
 #if CONF_MMC_SUPPORT
 static bool sd_mmc_mci_install_mmc(void);
@@ -1015,7 +1014,7 @@ static bool sd_acmd51(void)
  * \retval SD_MMC_INIT_ONGOING Card initialization requested
  * \retval SD_MMC_OK           Card present
  */
-static sd_mmc_err_t sd_mmc_select_slot(uint8_t slot)
+sd_mmc_err_t sd_mmc_select_slot(uint8_t slot)
 {
 	if (slot >= CONF_SD_MMC_MEM_CNT) {
 		return SD_MMC_ERR_SLOT;
@@ -1086,7 +1085,7 @@ static void sd_mmc_configure_slot(void)
 /**
  * \brief Deselect the current card slot
  */
-static void sd_mmc_deselect_slot(void)
+void sd_mmc_deselect_slot(void)
 {
 	if (sd_mmc_slot_sel < CONF_SD_MMC_MEM_CNT) {
 		driver_deselect_device(sd_mmc_hal, sd_mmc_slot_sel);

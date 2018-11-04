@@ -18,8 +18,9 @@ static void sys_init(void);
 
 #if defined(DEV_SAL_MK3060)
 extern hal_wifi_module_t aos_wifi_module_mk3060;
+#else if defined(DEV_SAL_WILC1000)
+extern hal_wifi_module_t aos_wifi_module_wilc1000;
 #endif
-
 extern struct hal_ota_module_s aos_ota_module_atsamd5x_e5x;
 
 static void sys_init(void)
@@ -34,8 +35,15 @@ static void sys_init(void)
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
     hal_wifi_init();
-#endif
+#else if defined(DEV_SAL_WILC1000)
 
+    printf("TCP/IP initialized\r\n");
+    same5x_wilc1000_init();
+
+    hal_wifi_register_module(&aos_wifi_module_wilc1000);
+    hal_wifi_init();
+
+#endif
     hal_ota_register_module(&aos_ota_module_atsamd5x_e5x);
 
     aos_kernel_init(&kinit);

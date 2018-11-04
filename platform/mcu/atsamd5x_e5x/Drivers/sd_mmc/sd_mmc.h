@@ -110,7 +110,8 @@ typedef struct sd_mmc_detect {
 
 /** This SD MMC stack uses the maximum block size autorized (512 bytes) */
 #define SD_MMC_BLOCK_SIZE 512
-
+void         sd_mmc_deselect_slot(void);
+sd_mmc_err_t sd_mmc_select_slot(uint8_t slot);
 /**
  * \brief Initialize the SD/MMC stack and low level driver required
  * \param[in] hal Pointer to HAL instance
