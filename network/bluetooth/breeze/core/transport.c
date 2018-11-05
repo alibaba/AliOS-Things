@@ -14,9 +14,6 @@
 #include "breeze_hal_sec.h"
 #include "breeze_hal_os.h"
 
-// TODO: rm ota related code
-#include "breeze_export.h"
-
 #define HEADER_SIZE 4
 #define AES_BLK_SIZE 16
 
@@ -403,10 +400,8 @@ void transport_txdone(uint16_t pkt_sent)
         if (!is_valid_tx_command(g_transport.tx.cmd)) {
             return;
         }
+        event_notify(BZ_EVENT_TX_DONE, &g_transport.tx.cmd, sizeof(g_transport.tx.cmd));
         reset_tx();
-        event_notify(BZ_EVENT_TX_DONE, NULL, 0);
-        // TODO: move ota to upper layer
-        notify_ota_event(ALI_OTA_ON_TX_DONE, g_transport.tx.cmd);
 #if BZ_ENABLE_AUTH
         auth_tx_done();
 #endif
