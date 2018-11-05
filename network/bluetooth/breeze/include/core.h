@@ -31,11 +31,8 @@ typedef struct {
 
 ret_code_t core_init(ali_init_t const *p_init);
 void core_reset(void);
-// TODO: rm transport_packet from core
-ret_code_t transport_packet(uint8_t type, uint8_t cmd, uint8_t *p_data, uint16_t length);
 ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length);
 void event_notify(uint8_t evt_type, uint8_t *data, uint16_t length);
-
 void core_handle_err(uint8_t src, uint8_t code);
 
 #ifdef __cplusplus
