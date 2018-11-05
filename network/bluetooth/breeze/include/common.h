@@ -101,6 +101,7 @@ typedef enum {
     BZ_EVENT_RX_QUERY,
     BZ_EVENT_APINFO,
     BZ_EVENT_OTAINFO,
+    BZ_EVENT_ERR_DISCONT,
 };
 
 typedef struct {
