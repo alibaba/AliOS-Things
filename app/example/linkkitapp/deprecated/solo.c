@@ -640,6 +640,12 @@ int trigger_deviceinfo(sample_context_t *sample)
 }
 #endif
 
+void ntp_time_reply(const char *offset_time)
+{
+    EXAMPLE_TRACE("ntp time: %s\n", offset_time);
+}
+
+
 int linkkit_example()
 {
     sample_context_t    sample_ctx = { 0 };
@@ -724,19 +730,23 @@ int linkkit_example()
 
 #ifdef POST_WIFI_STATUS
         if (now % 10 == 0) {
+            linkkit_ntp_time_request(ntp_time_reply);
             post_property_wifi_status_once(&sample_ctx);
         }
 #endif
         if (now % 30 == 0 && is_active(&sample_ctx)) {
+            linkkit_ntp_time_request(ntp_time_reply);
             post_all_prop(&sample_ctx);
         }
 
         if (now % 45 == 0 && is_active(&sample_ctx)) {
+            linkkit_ntp_time_request(ntp_time_reply);
             trigger_event(&sample_ctx);
         }
 
 #ifdef EXTENDED_INFO_ENABLED
         if (now % 50 == 0 && is_active(&sample_ctx)) {
+            linkkit_ntp_time_request(ntp_time_reply);
             trigger_deviceinfo(&sample_ctx);
         }
 #endif
