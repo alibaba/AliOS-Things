@@ -10,16 +10,17 @@
 extern "C" {
 #endif
 
+#include "iotx_utils.h"
 #include "iot_export_mqtt.h"
 #include "CoAPExport.h"
 #include "alcs_mqtt.h"
-#include "linked_list.h"
 #include "iotx_alcs.h"
 
 typedef struct iotx_alcs_send_msg_st {
     uint8_t token_len;
     uint8_t *token;
     char *uri;
+    struct list_head linked_list;
 } iotx_alcs_send_msg_t, *iotx_alcs_send_msg_pt;
 
 typedef enum {
@@ -36,6 +37,7 @@ typedef struct iotx_alcs_subdev_item_st {
     char secret[ALCS_MQTT_SECRET_MAX_LEN];
     uint8_t stage;
     uint64_t retry_ms;
+    struct list_head linked_list;
 } iotx_alcs_subdev_item_t, *iotx_alcs_subdev_item_pt;
 
 typedef void (*iotx_alcs_auth_timer_fnuc_t)(CoAPContext *);
@@ -48,8 +50,8 @@ typedef struct iotx_alcs_adapter_st {
     iotx_alcs_auth_timer_fnuc_t alcs_client_auth_timer_func;
     iotx_alcs_auth_timer_fnuc_t alcs_server_auth_timer_func;
     iotx_alcs_event_handle_t *alcs_event_handle;
-    linked_list_t *alcs_send_list;
-    linked_list_t *alcs_subdev_list;
+    struct list_head alcs_send_list;
+    struct list_head alcs_subdev_list;
     char local_ip[NETWORK_ADDR_LEN];
     uint16_t local_port;
 } iotx_alcs_adapter_t, *iotx_alcs_adapter_pt;
