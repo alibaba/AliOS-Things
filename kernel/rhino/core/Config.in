@@ -1,0 +1,12 @@
+
+menuconfig RHINO_ENABLED
+    bool "FEATURE_RHINO_ENABLE"
+    default y
+    help
+        AliOS things kernel core
+
+if RHINO_ENABLED
+menu "RHINO Configurations"
+
+endmenu
+endif
