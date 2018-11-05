@@ -216,18 +216,6 @@ void core_reset(void)
     transport_reset();
 }
 
-ret_code_t transport_packet(uint8_t type, uint8_t cmd, uint8_t *p_data, uint16_t length)
-{
-    if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
-        return BZ_EDATASIZE;
-    }
-
-    if (cmd == 0) {
-        cmd = BZ_CMD_STATUS;
-    }
-    return transport_tx(type, cmd, p_data, length);
-}
-
 void core_handle_err(uint8_t src, uint8_t code)
 {
     uint8_t err;
