@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef _IOTX_COMMON_LIST_H
 #define _IOTX_COMMON_LIST_H
 
