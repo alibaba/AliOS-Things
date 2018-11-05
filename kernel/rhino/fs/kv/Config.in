@@ -1,0 +1,13 @@
+
+menuconfig KV_ENABLED
+#    depends on RHINO_ENABLED
+    bool "FEATURE_KV_ENABLE"
+    default y
+    help
+        AliOS things KV
+
+if KV_ENABLED
+menu "KV Configurations"
+
+endmenu
+endif
