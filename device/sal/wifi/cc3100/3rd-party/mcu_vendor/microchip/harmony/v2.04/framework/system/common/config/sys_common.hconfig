@@ -1,0 +1,43 @@
+menu "Common"
+
+  config USE_SYS_COMMON
+    bool "Include Common System Services?"
+    default y
+    ---help---
+      IDH_HTML_System_Service_Overview
+    ---endhelp---
+
+  config SYS_BUFFER
+    bool "System Buffer"
+    depends on USE_SYS_COMMON
+    default n
+    ---help---
+      Say 'y' if you want the System Buffer API included in your project.
+    ---endhelp---
+
+  config SYS_QUEUE
+    bool "System Queue"
+    depends on USE_SYS_COMMON
+    default n
+    ---help---
+      Say 'y' if you want the System Queue API included in your project.
+    ---endhelp---
+endmenu
+
+enum SYS_MODULE_POWER_STATE
+  "SYS_MODULE_POWER_OFF"
+  || "SYS_MODULE_POWER_SLEEP"
+  || "SYS_MODULE_POWER_IDLE_STOP"
+  || "SYS_MODULE_POWER_IDLE_RUN"
+  || "SYS_MODULE_POWER_RUN_FULL"
+
+ifblock USE_SYS_COMMON
+  add "<#include \"/framework/system/common/templates/sys_common.h.ftl\">"  to list SYSTEM_CONFIG_H_SYSTEM_SERVICE_CONFIGURATION
+
+  file SYS_COMMON_H "$HARMONY_VERSION_PATH/framework/system/common/sys_common.h" to "$PROJECT_HEADER_FILES/framework/system/common/sys_common.h"
+  file SYS_MODULE_H "$HARMONY_VERSION_PATH/framework/system/common/sys_module.h" to "$PROJECT_HEADER_FILES/framework/system/common/sys_module.h"
+  file SYS_BUFFER_C "$HARMONY_VERSION_PATH/framework/system/common/src/sys_buffer.c" to "$PROJECT_SOURCE_FILES/framework/system/common/src/sys_buffer.c" if SYS_BUFFER
+  file SYS_BUFFER_H "$HARMONY_VERSION_PATH/framework/system/common/sys_buffer.h" to "$PROJECT_HEADER_FILES/framework/system/common/sys_buffer.h"
+  file SYS_QUEUE_C "$HARMONY_VERSION_PATH/framework/system/common/src/sys_queue.c" to "$PROJECT_SOURCE_FILES/framework/system/common/src/sys_queue.c" if SYS_QUEUE
+  file SYS_QUEUE_H "$HARMONY_VERSION_PATH/framework/system/common/sys_queue.h" to "$PROJECT_HEADER_FILES/framework/system/common/sys_queue.h"
+endif

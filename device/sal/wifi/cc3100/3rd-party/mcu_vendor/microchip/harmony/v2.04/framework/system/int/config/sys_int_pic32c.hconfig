@@ -1,0 +1,46 @@
+
+enum INT_EXTERNAL_EDGE_TRIGGER
+   "INT_EDGE_TRIGGER_RISING"
+   || "INT_EDGE_TRIGGER_FALLING"
+
+  enum INT_PRIORITY_LEVEL_PIC32C
+    "INT_PRIORITY_LEVEL0"
+    || "INT_PRIORITY_LEVEL1"
+    || "INT_PRIORITY_LEVEL2"
+    || "INT_PRIORITY_LEVEL3"
+    || "INT_PRIORITY_LEVEL4"
+    || "INT_PRIORITY_LEVEL5"
+    || "INT_PRIORITY_LEVEL6"
+    || "INT_PRIORITY_LEVEL7"
+
+menu "Interrupts"
+  depends on HAVE_INT
+
+  config USE_SYS_INT_NEEDED
+    bool
+
+  config USE_EXT_INT_NEEDED
+    bool
+
+  config USE_SYS_INT
+    bool "Use Interrupt System Service?"
+    default n if !USE_SYS_INT_NEEDED
+    default y if USE_SYS_INT_NEEDED
+    ---help---
+    IDH_HTML_Interrupt_System_Service_Library
+    ---endhelp---
+
+endmenu
+
+ifblock USE_SYS_INT
+  add "<#include \"/framework/system/int/templates/sys_int_init.c.ftl\">"  to list SYSTEM_INIT_C_INITIALIZE_SYSTEM_SERVICES
+  add "<#include \"/framework/system/int/config/sys_int.h.ftl\">"  to list SYSTEM_CONFIG_H_SYSTEM_SERVICE_CONFIGURATION
+
+  file SYS_INT_H "$HARMONY_VERSION_PATH/framework/system/int/sys_int.h" to "$PROJECT_HEADER_FILES/framework/system/int/sys_int.h"
+
+  file SYS_INT_MAPPING_PIC32C_H "$HARMONY_VERSION_PATH/framework/system/int/sys_int_mapping_pic32c.h" to "$PROJECT_HEADER_FILES/framework/system/int/sys_int_mapping_pic32c.h"
+  file SYS_INT_PIC32C_H "$HARMONY_VERSION_PATH/framework/system/int/sys_int_pic32c.h" to "$PROJECT_HEADER_FILES/framework/system/int/sys_int_pic32c.h"
+  file SYS_INT_PIC32C_C "$HARMONY_VERSION_PATH/framework/system/int/src/sys_int_pic32c.c"  to "$PROJECT_SOURCE_FILES/framework/system/int/src/sys_int_pic32c.c"
+
+endif
+

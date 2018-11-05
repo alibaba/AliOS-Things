@@ -1,0 +1,333 @@
+menu "SPI"
+    depends on HAVE_SPI
+
+enum DRV_SPI_MODE_ENUM
+    "DYNAMIC" || "STATIC"
+
+enum DRV_SPI_TASK_MODE
+    "DRV_SPI_TASK_MODE_POLLED" || "DRV_SPI_TASK_MODE_ISR"
+
+enum DRV_SPI_MODE
+    "DRV_SPI_MODE_MASTER" || "DRV_SPI_MODE_SLAVE"
+
+enum DRV_SPI_BUFFER_MODE
+    "DRV_SPI_BUFFER_TYPE_STANDARD" || "DRV_SPI_BUFFER_TYPE_ENHANCED"
+
+enum DRV_SPI_PROTOCOL_TYPE
+    "DRV_SPI_PROTOCOL_TYPE_STANDARD" || "DRV_SPI_PROTOCOL_TYPE_FRAMED" || "DRV_SPI_PROTOCOL_TYPE_AUDIO"
+
+enum DRV_SPI_CLOCK_MODE
+    "DRV_SPI_CLOCK_MODE_IDLE_LOW_EDGE_RISE" || "DRV_SPI_CLOCK_MODE_IDLE_LOW_EDGE_FALL" || "DRV_SPI_CLOCK_MODE_IDLE_HIGH_EDGE_FALL" || "DRV_SPI_CLOCK_MODE_IDLE_HIGH_EDGE_RISE"
+
+config DRV_SPI_USE_DRIVER_NEEDED
+    bool
+
+config DRV_SPI_USE_DRIVER
+    depends on HAVE_SPI
+    bool "Use SPI Driver?"
+    default n if !DRV_SPI_USE_DRIVER_NEEDED
+    default y if DRV_SPI_USE_DRIVER_NEEDED
+	select DRIVER
+    ---help---
+    IDH_HTML_SPI_Driver_Library
+    ---endhelp---
+
+config DRV_SPI_DRIVER_MODE
+    string "Driver Implementation"
+    depends on DRV_SPI_USE_DRIVER
+    range DRV_SPI_MODE_ENUM
+    default "DYNAMIC"
+    ---help---
+    IDH_HTML_SPI_Driver_Library
+    ---endhelp---
+
+config DRV_SPI_STATIC_MODE
+    bool
+    depends on DRV_SPI_USE_DRIVER
+    default y if DRV_SPI_DRIVER_MODE = "STATIC"
+    default n if DRV_SPI_DRIVER_MODE = "DYNAMIC"
+
+config DRV_SPI_DYNAMIC_MODE
+    bool
+    depends on DRV_SPI_USE_DRIVER
+    default n if DRV_SPI_DRIVER_MODE = "STATIC"
+    default y if DRV_SPI_DRIVER_MODE = "DYNAMIC"
+
+config DRV_SPI_USE_BLOCKING
+    bool "Use Blocking Mode?"
+    depends on DRV_SPI_STATIC_MODE
+    default n
+    ---help---
+    IDH_HTML_SPI_Driver_Library
+    ---endhelp---
+
+
+# variable to distinguish between masks with persistent SPI interrupt and non-persistent interrupt. daytona (DS60001143) has non-persistent interrupt.
+config DRV_SPI_INTERRUPT_TYPE_SELECT
+	string
+	depends on DRV_SPI_USE_DRIVER
+	default "non-persistent" if DS60001143
+    default "persistent"
+
+config DRV_SPI_USE_ISR_MODE
+    depends on DRV_SPI_USE_DRIVER
+        select USE_SYS_INT_NEEDED
+    bool "Use Interrupt Mode?"
+    default n if DRV_SPI_STATIC_INSTANCES_NUMBER !="0"
+    default y
+    ---help---
+    IDH_HTML_DRV_SPI_ISR
+    ---endhelp---
+
+config DRV_SPI_USE_POLLED_MODE
+    depends on DRV_SPI_USE_DRIVER
+    bool "Use Polled Mode?"
+    default y if DRV_SPI_STATIC_INSTANCES_NUMBER !="0" || !DRV_SPI_USE_ISR_MODE
+    default n
+    ---help---
+    IDH_HTML_DRV_SPI_POLLED
+    ---endhelp---
+
+config DRV_SPI_USE_MASTER_MODE
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_ISR_MODE || DRV_SPI_USE_POLLED_MODE
+    bool "Use Master Mode?"
+    default y
+    ---help---
+    IDH_HTML_DRV_SPI_MASTER
+    ---endhelp---
+
+config DRV_SPI_USE_SLAVE_MODE
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_ISR_MODE || DRV_SPI_USE_POLLED_MODE
+    bool "Use Slave Mode?"
+    default y if DRV_SPI_STATIC_INSTANCES_NUMBER !="0"
+    default n
+    ---help---
+    IDH_HTML_DRV_SPI_SLAVE
+    ---endhelp---
+
+comment "**** Warning: Either standard buffer mode or enhanced buffer mode should be selected ****"
+	depends on DRV_SPI_USE_DRIVER
+	depends on !DRV_SPI_USE_STANDARD_BUFFER_MODE && !DRV_SPI_USE_ENHANCED_BUFFER_MODE
+
+config DRV_SPI_USE_STANDARD_BUFFER_MODE
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_MASTER_MODE || DRV_SPI_USE_SLAVE_MODE
+    bool "Use Standard Buffer Mode?"
+    default y if DRV_SPI_STATIC_INSTANCES_NUMBER !="0" || !DRV_SPI_USE_ENHANCED_BUFFER_MODE
+    default n
+    ---help---
+    IDH_HTML_DRV_SPI_RM
+    ---endhelp---
+
+config DRV_SPI_USE_ENHANCED_BUFFER_MODE
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_MASTER_MODE || DRV_SPI_USE_SLAVE_MODE
+    depends on ENHANCED_BUFFER_MODE_SUPPORT
+    bool "Use Enhanced Buffer (FIFO) Mode?"
+    default n if DS60001143 #these devices have only standard buffer mode, no enhanced buffer mode
+
+    default y
+    ---help---
+    IDH_HTML_DRV_SPI_EBM
+    ---endhelp---
+
+config DRV_SPI_USE_8BIT_MODE
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_STANDARD_BUFFER_MODE || DRV_SPI_USE_ENHANCED_BUFFER_MODE
+    bool "Use 8-bit Mode?"
+    default y
+    ---help---
+    IDH_HTML_DRV_SPI_8BIT
+    ---endhelp---
+
+config DRV_SPI_USE_16BIT_MODE
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_STANDARD_BUFFER_MODE || DRV_SPI_USE_ENHANCED_BUFFER_MODE
+    bool "Use 16-bit Mode?"
+    default y if DRV_SPI_STATIC_INSTANCES_NUMBER !="0"
+    default n
+    ---help---
+    IDH_HTML_DRV_SPI_16BIT
+    ---endhelp---
+
+config DRV_SPI_USE_32BIT_MODE
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_STANDARD_BUFFER_MODE || DRV_SPI_USE_ENHANCED_BUFFER_MODE
+    bool "Use 32-bit Mode?"
+    default y if DRV_SPI_STATIC_INSTANCES_NUMBER !="0"
+    default n
+    ---help---
+    IDH_HTML_DRV_SPI_32BIT
+    ---endhelp---
+
+config DRV_SPI_USE_DMA
+    depends on DRV_SPI_USE_DRIVER
+    depends on (DRV_SPI_USE_8BIT_MODE || DRV_SPI_USE_16BIT_MODE || DRV_SPI_USE_32BIT_MODE) && HAVE_DMA
+    bool "Use DMA?"
+    select USE_SYS_DMA_NEEDED
+    default n
+    ---help---
+    IDH_HTML_DRV_SPI_DMA
+    ---endhelp---
+
+config DRV_SPI_USE_CLIENT_CONFIG_FUCNTION
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_DRIVER_MODE = "STATIC"
+    bool "Using Client Configure Function In Application?"
+    default y
+    ---help---
+    IDH_HTML_DRV_SPI_CLIENT_DATA
+    ---endhelp---
+
+config DRV_SPI_INSTANCES_NUMBER
+    int "Number of SPI Driver Instances"
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_8BIT_MODE || DRV_SPI_USE_16BIT_MODE || DRV_SPI_USE_32BIT_MODE
+    range 1 SPI_NUMBER_OF_MODULES
+    default DRV_SPI_STATIC_INSTANCES_NUMBER if DRV_SPI_STATIC_INSTANCES_NUMBER !="0"
+    default 1
+    ---help---
+    IDH_HTML_DRV_SPI_INSTANCES_NUMBER
+    ---endhelp---
+
+comment "**** Each instance can have only one client in STATIC driver mode ****"
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_DRIVER_MODE = "STATIC"
+
+config DRV_SPI_CLIENT_NUMBER
+    int "Number of SPI Driver Clients"
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_8BIT_MODE || DRV_SPI_USE_16BIT_MODE || DRV_SPI_USE_32BIT_MODE
+    range 1 12 if DRV_SPI_DRIVER_MODE = "DYNAMIC"
+    default DRV_SPI_INSTANCES_NUMBER
+    persistent if DRV_SPI_DRIVER_MODE = "STATIC"
+    ---help---
+    IDH_HTML_DRV_SPI_CLIENTS_NUMBER
+    ---endhelp---
+
+config DRV_SPI_NUM_ELEMENTS_PER_INSTANCE
+    int "Number of job elements created per instance"
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_8BIT_MODE || DRV_SPI_USE_16BIT_MODE || DRV_SPI_USE_32BIT_MODE
+    range 1 30
+    default 10
+    ---help---
+       This definition along with DRV_SPI_INSTANCES_NUMBER and DRV_SPI_CLIENT_NUMBER
+    controls how many buffer queue elements are created.
+    ---endhelp---
+
+config DRV_SPI_DMA_TXFER_SIZE
+    int "DMA Block Transfer Size"
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_DMA
+    default 256
+    ---help---
+    IDH_HTML_DRV_SPI_DMA_TXFER_SIZE
+    ---endhelp---
+
+config DRV_SPI_DMA_DUMMY_BUFFER_SIZE
+    int "Size of DMA Buffer for dummy data"
+    depends on DRV_SPI_USE_DRIVER
+    depends on DRV_SPI_USE_DMA
+    default 256
+    ---help---
+    IDH_HTML_DRV_SPI_DMA_DUMMY_BUFFER_SIZE
+    ---endhelp---
+
+source "$HARMONY_VERSION_PATH/framework/driver/spi/config/drv_spi_pic32m_idx.ftl" 6 instances
+
+ifblock DRV_SPI_USE_DRIVER
+
+add "<#include \"/framework/driver/spi/config/drv_spi.c.ftl\">"  to list SYSTEM_INIT_C_DRIVER_INITIALIZATION_DATA
+add "<#include \"/framework/driver/spi/config/drv_spi_init.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_DRIVERS
+add "<#include \"/framework/driver/spi/config/drv_spi_tasks.c.ftl\">"  to list SYSTEM_TASKS_C_CALL_DRIVER_TASKS
+add "<#include \"/framework/driver/spi/config/drv_spi.h.ftl\">"  to list SYSTEM_CONFIG_H_DRIVER_CONFIGURATION
+
+endif
+
+ifblock DRV_SPI_DRIVER_MODE = "STATIC"
+
+template DRV_SPI_STATIC_H_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/drv_spi_static.h"
+template DRV_SPI_STATIC_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static.c"
+template DRV_SPI_MAPPING_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_mapping.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_mapping.c"
+template DRV_SPI_STATIC_LOCAL_H_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_local.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_local.h"
+template DRV_SPI_STATIC_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_tasks.c"
+template DRV_SPI_STATIC_SYS_QUEUE_H "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_sys_queue.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_sys_queue.h"
+template DRV_SPI_STATIC_SYS_QUEUE_C "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_sys_queue.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_sys_queue.c"
+
+ifblock DRV_SPI_USE_ENHANCED_BUFFER_MODE
+template DRV_SPI_STATIC_EBM_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_ebm_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_ebm_tasks.c"
+endif
+
+ifblock DRV_SPI_USE_STANDARD_BUFFER_MODE
+template DRV_SPI_STATIC_RM_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_rm_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_rm_tasks.c"
+endif
+
+ifblock DRV_SPI_USE_DMA
+template DRV_SPI_STATIC_DMA_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_dma_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_dma_tasks.c"
+endif
+
+endif
+
+ifblock DRV_SPI_DRIVER_MODE = "DYNAMIC"
+template DRV_SPI_DYNAMIC_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_dynamic_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/dynamic/drv_spi_tasks.c"
+template DRV_SPI_DYNAMIC_API_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_dynamic_api.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/dynamic/drv_spi_api.c"
+
+ifblock DRV_SPI_USE_ENHANCED_BUFFER_MODE && DRV_SPI_USE_MASTER_MODE
+template DRV_SPI_DYNAMIC_MASTER_EBM_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_dynamic_master_ebm_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/dynamic/drv_spi_master_ebm_tasks.c"
+endif
+
+ifblock DRV_SPI_USE_STANDARD_BUFFER_MODE && DRV_SPI_USE_MASTER_MODE
+template DRV_SPI_DYNAMIC_MASTER_RM_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_dynamic_master_rm_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/dynamic/drv_spi_master_rm_tasks.c"
+endif
+
+ifblock DRV_SPI_USE_ENHANCED_BUFFER_MODE && DRV_SPI_USE_SLAVE_MODE
+template DRV_SPI_DYNAMIC_SLAVE_EBM_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_dynamic_slave_ebm_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/dynamic/drv_spi_slave_ebm_tasks.c"
+endif
+
+ifblock DRV_SPI_USE_STANDARD_BUFFER_MODE && DRV_SPI_USE_SLAVE_MODE
+template DRV_SPI_DYNAMIC_SLAVE_RM_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_dynamic_slave_rm_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/dynamic/drv_spi_slave_rm_tasks.c"
+endif
+
+ifblock DRV_SPI_USE_DMA && DRV_SPI_USE_MASTER_MODE
+template DRV_SPI_DYNAMIC_MASTER_DMA_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_dynamic_master_dma_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/dynamic/drv_spi_master_dma_tasks.c"
+endif
+
+ifblock DRV_SPI_USE_DMA && DRV_SPI_USE_SLAVE_MODE
+template DRV_SPI_DYNAMIC_SLAVE_DMA_TASKS_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_dynamic_slave_dma_tasks.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/dynamic/drv_spi_slave_dma_tasks.c"
+endif
+
+endif
+
+ifblock DRV_SPI_USE_DRIVER
+file DRV_SPI_H "$HARMONY_VERSION_PATH/framework/driver/spi/drv_spi.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/drv_spi.h"
+file DRV_SPI_DEFINITIONS "$HARMONY_VERSION_PATH/framework/driver/spi/drv_spi_definitions.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/drv_spi_definitions.h"
+file DRV_SPI_SYS_INT_H "$HARMONY_VERSION_PATH/framework/system/int/sys_int.h" to "$PROJECT_HEADER_FILES/framework/system/int/sys_int.h"
+file DRV_SPI_SYS_INT_MAPPING_H "$HARMONY_VERSION_PATH/framework/system/int/sys_int_mapping.h" to "$PROJECT_HEADER_FILES/framework/system/int/sys_int_mapping.h"
+file DRV_SPI_SYS_DMA_H "$HARMONY_VERSION_PATH/framework/system/dma/sys_dma.h" to "$PROJECT_HEADER_FILES/framework/system/dma/sys_dma.h"
+file DRV_SPI_QUEUE_H "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_sys_queue.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/src/drv_spi_sys_queue.h"
+file DRV_SPI_QUEUE_FIFO_H "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_sys_queue_local_fifo.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/src/drv_spi_sys_queue_local_fifo.h"
+file DRV_SPI_INTERNAL_H "$HARMONY_VERSION_PATH/framework/driver/spi/src/dynamic/drv_spi_internal.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/src/dynamic/drv_spi_internal.h"
+file DRV_SPI_VAR_MAPPING_H "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_variant_mapping.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/src/drv_spi_variant_mapping.h"
+endif
+
+ifblock ((DRV_SPI_USE_8BIT_MODE || DRV_SPI_USE_16BIT_MODE || DRV_SPI_USE_32BIT_MODE) && (DRV_SPI_DRIVER_MODE = "DYNAMIC"))
+file DRV_SPI_C "$HARMONY_VERSION_PATH/framework/driver/spi/src/dynamic/drv_spi.c" to "$PROJECT_SOURCE_FILES/framework/driver/spi/src/dynamic/drv_spi.c"
+file DRV_SPI_QUEUE_C "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_sys_queue_fifo.c" to "$PROJECT_SOURCE_FILES/framework/driver/spi/src/drv_spi_sys_queue_fifo.c"
+#file DRV_SPI_API_C "$HARMONY_VERSION_PATH/framework/driver/spi/src/dynamic/drv_spi_api.c" to "$PROJECT_SOURCE_FILES/framework/driver/spi/src/dynamic/drv_spi_api.c"
+endif
+
+#This menu is for the old static driver compatibility and is not visible.
+menu "SPI_OLD_STATIC"
+visible if 0
+
+config DRV_SPI_STATIC_INSTANCES_NUMBER
+int "Deprecated Option"
+depends on DRV_SPI_USE_DRIVER
+default 0
+
+endmenu
+
+endmenu

@@ -1,0 +1,461 @@
+menu "Ports"
+
+enum SYS_PORTS_IMPL
+    "STATIC"
+
+config USE_SYS_PORTS_NEEDED
+    bool
+
+config USE_SYS_PORTS
+    bool "Use Ports System Service?"
+    default y
+    ---help---
+    IDH_HTML_Ports_System_Service_Library
+    ---endhelp---
+	
+config SYS_PORTS_IMPLEMENTATION
+    string "Select Service Implementation"
+    depends on USE_SYS_PORTS
+    range SYS_PORTS_IMPL
+    default "STATIC"
+    persistent
+    ---help---
+    IDH_HTML_Ports_System_Service_Library
+    ---endhelp---
+    
+config USE_SYS_PORTS_INTERRUPT
+    bool "Use Port Interrupts?"
+    depends on USE_SYS_PORTS
+    select USE_SYS_INT_NEEDED
+    default n
+    ---help---
+    IDH_HTML_TODO
+    ---endhelp---
+
+config SYS_PORTS_CCFG_SYSIO_VALUE
+    hex
+    default 0x00000000
+    
+ifblock USE_SYS_PORTS_INTERRUPT
+
+comment "*** Priority can be selected if atleast 1 pin of the port channel is configured for interrupts ***"
+    depends on !(USE_SYS_PORTS_INTERRUPT_A || USE_SYS_PORTS_INTERRUPT_B || USE_SYS_PORTS_INTERRUPT_C || USE_SYS_PORTS_INTERRUPT_D ||USE_SYS_PORTS_INTERRUPT_E)
+    
+config USE_SYS_PORTS_INTERRUPT_A
+    bool "PORT A"
+    default n
+config SYS_PORT_A_INTERRUPT_HANDLER_NAME
+    string "Interrupt handler name"
+    depends on USE_SYS_PORTS_INTERRUPT_A
+    default "PORTA_Handler"
+config SYS_PORT_A_INTERRUPT_PRIORITY
+    string "Interrupt Priority"
+    depends on USE_SYS_PORTS_INTERRUPT_A
+    range INT_PRIORITY_LEVEL_PIC32C
+    default "INT_PRIORITY_LEVEL7"
+    ---help---
+    IDH_HTML_INT_PRIORITY_LEVEL
+    ---endhelp---
+
+config USE_SYS_PORTS_INTERRUPT_B
+    bool "PORT B"
+    default n
+config SYS_PORT_B_INTERRUPT_HANDLER_NAME
+    string "Interrupt handler name"
+    depends on USE_SYS_PORTS_INTERRUPT_B
+    default "PORTB_Handler"
+config SYS_PORT_B_INTERRUPT_PRIORITY
+    string "Interrupt Priority"
+    depends on USE_SYS_PORTS_INTERRUPT_B
+    range INT_PRIORITY_LEVEL_PIC32C
+    default "INT_PRIORITY_LEVEL7"
+    ---help---
+    IDH_HTML_INT_PRIORITY_LEVEL
+    ---endhelp---
+
+config USE_SYS_PORTS_INTERRUPT_C
+    bool "PORT C"
+    default n
+config SYS_PORT_C_INTERRUPT_HANDLER_NAME
+    string "Interrupt handler name"
+    depends on USE_SYS_PORTS_INTERRUPT_C
+    default "PORTC_Handler"
+config SYS_PORT_C_INTERRUPT_PRIORITY
+    string "Interrupt Priority"
+    depends on USE_SYS_PORTS_INTERRUPT_C
+    range INT_PRIORITY_LEVEL_PIC32C
+    default "INT_PRIORITY_LEVEL7"
+    ---help---
+    IDH_HTML_INT_PRIORITY_LEVEL
+    ---endhelp---
+
+config USE_SYS_PORTS_INTERRUPT_D
+    bool "PORT D"
+    default n
+config SYS_PORT_D_INTERRUPT_HANDLER_NAME
+    string "Interrupt handler name"
+    depends on USE_SYS_PORTS_INTERRUPT_D
+    default "PORTD_Handler"
+config SYS_PORT_D_INTERRUPT_PRIORITY
+    string "Interrupt Priority"
+    depends on USE_SYS_PORTS_INTERRUPT_D
+    range INT_PRIORITY_LEVEL_PIC32C
+    default "INT_PRIORITY_LEVEL7"
+    ---help---
+    IDH_HTML_INT_PRIORITY_LEVEL
+    ---endhelp---
+    
+config USE_SYS_PORTS_INTERRUPT_E
+    bool "PORT E"
+    default n
+config SYS_PORT_E_INTERRUPT_HANDLER_NAME
+    string "Interrupt handler name"
+    depends on USE_SYS_PORTS_INTERRUPT_E
+    default "PORTE_Handler"
+config SYS_PORT_E_INTERRUPT_PRIORITY
+    string "Interrupt Priority of Port E"
+    depends on USE_SYS_PORTS_INTERRUPT_E
+    range INT_PRIORITY_LEVEL_PIC32C
+    default "INT_PRIORITY_LEVEL7"
+    ---help---
+    IDH_HTML_INT_PRIORITY_LEVEL
+    ---endhelp---
+    
+endif
+
+execute SYS_PORTS_PIN_EXEC
+	depends on USE_SYS_PORTS
+    prompt "Launch Pin Manager"
+    default "pin"
+
+comment "**** Use Pin Manager to configure GPIO, Peripheral and Analog functionality ****"
+	depends on USE_SYS_PORTS
+    
+menu "Port Configuration Settings"
+depends on USE_SYS_PORTS
+comment "**** All settings listed here can be configured using the Pin Manager ****"
+
+enum SYS_PORTS_PULLUP_PULLDOWN_STATUS
+    "SYS_PORTS_PULLUP_DISABLE"
+    || "SYS_PORTS_PULLUP_ENABLE"
+
+enum SYS_PORTS_PIN_DIRECTION
+    "SYS_PORTS_DIRECTION_OUTPUT"
+    || "SYS_PORTS_DIRECTION_INPUT"
+
+config SYS_PORT_ADPCFG
+    hex
+    default 0x00000000
+
+config SYS_PORT_CNEN
+    hex
+    default 0x00000000
+
+config SYS_PORT_CNPU
+    hex
+    default 0x00000000
+
+ifblock USE_SYS_PORTS
+
+config COMPONENT_PACKAGE
+	string "Package"
+	default "Module" if PIC32WK
+	depends on USE_SYS_PORTS
+
+config AFEC0_CHER_VALUE
+    hex
+    default 0x00000000
+
+config AFEC1_CHER_VALUE
+    hex
+    default 0x00000000
+
+config DACC_CHER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOA_PER_VALUE
+    hex
+    default 0x00000000
+
+config PIOA_ABCDSR1_VALUE
+    hex
+    default 0x00000000
+
+config PIOA_ABCDSR2_VALUE
+    hex
+    default 0x00000000
+	
+config PIOA_IER_VALUE
+    hex
+    default 0x00000000
+
+config PIOA_AIMER_VALUE
+    hex
+    default 0x00000000
+
+config PIOA_ESR_VALUE
+    hex
+    default 0x00000000
+
+config PIOA_REHLSR_VALUE
+    hex
+    default 0x00000000
+
+config PIOA_OER_VALUE
+    hex
+    default 0x00000000
+
+config PIOA_PUER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOA_PPDEN_VALUE
+    hex
+    default 0x00000000
+	
+config PIOA_MDER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOA_SODR_VALUE
+    hex
+    default 0x00000000
+	
+config PIOB_PER_VALUE
+    hex
+    default 0x00000000
+
+config PIOB_ABCDSR1_VALUE
+    hex
+    default 0x00000000
+
+config PIOB_ABCDSR2_VALUE
+    hex
+    default 0x00000000	
+
+config PIOB_IER_VALUE
+    hex
+    default 0x00000000
+
+config PIOB_AIMER_VALUE
+    hex
+    default 0x00000000
+
+config PIOB_ESR_VALUE
+    hex
+    default 0x00000000
+
+config PIOB_REHLSR_VALUE
+    hex
+    default 0x00000000
+
+config PIOB_OER_VALUE
+    hex
+    default 0x00000000
+
+config PIOB_PUER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOB_PPDEN_VALUE
+    hex
+    default 0x00000000
+	
+config PIOB_MDER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOB_SODR_VALUE
+    hex
+    default 0x00000000
+
+config PIOC_PER_VALUE
+    hex
+    default 0x00000000
+
+config PIOC_ABCDSR1_VALUE
+    hex
+    default 0x00000000
+
+config PIOC_ABCDSR2_VALUE
+    hex
+    default 0x00000000
+	
+config PIOC_IER_VALUE
+    hex
+    default 0x00000000
+
+config PIOC_AIMER_VALUE
+    hex
+    default 0x00000000
+
+config PIOC_ESR_VALUE
+    hex
+    default 0x00000000
+
+config PIOC_REHLSR_VALUE
+    hex
+    default 0x00000000
+
+config PIOC_OER_VALUE
+    hex
+    default 0x00000000
+
+config PIOC_PUER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOC_PPDEN_VALUE
+    hex
+    default 0x00000000
+	
+config PIOC_MDER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOC_SODR_VALUE
+    hex
+    default 0x00000000
+
+config PIOD_PER_VALUE
+    hex
+    default 0x00000000
+
+config PIOD_ABCDSR1_VALUE
+    hex
+    default 0x00000000
+
+config PIOD_ABCDSR2_VALUE
+    hex
+    default 0x00000000
+	
+config PIOD_IER_VALUE
+    hex
+    default 0x00000000
+
+config PIOD_AIMER_VALUE
+    hex
+    default 0x00000000
+
+config PIOD_ESR_VALUE
+    hex
+    default 0x00000000
+
+config PIOD_REHLSR_VALUE
+    hex
+    default 0x00000000
+
+config PIOD_OER_VALUE
+    hex
+    default 0x00000000
+
+config PIOD_PUER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOD_PPDEN_VALUE
+    hex
+    default 0x00000000
+	
+config PIOD_MDER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOD_SODR_VALUE
+    hex
+    default 0x00000000
+
+config PIOE_PER_VALUE
+    hex
+    default 0x00000000
+
+config PIOE_ABCDSR1_VALUE
+    hex
+    default 0x00000000
+
+config PIOE_ABCDSR2_VALUE
+    hex
+    default 0x00000000
+	
+config PIOE_IER_VALUE
+    hex
+    default 0x00000000
+
+config PIOE_AIMER_VALUE
+    hex
+    default 0x00000000
+
+config PIOE_ESR_VALUE
+    hex
+    default 0x00000000
+
+config PIOE_REHLSR_VALUE
+    hex
+    default 0x00000000
+
+config PIOE_OER_VALUE
+    hex
+    default 0x00000000
+
+config PIOE_PUER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOE_PPDEN_VALUE
+    hex
+    default 0x00000000
+	
+config PIOE_MDER_VALUE
+    hex
+    default 0x00000000
+	
+config PIOE_SODR_VALUE
+    hex
+    default 0x00000000
+	
+menu "Port Registers Configuration"
+source "$HARMONY_VERSION_PATH/framework/system/ports/config/sys_ports_idx_pic32c.ftl" 5 instances
+endmenu
+	
+menu "Pins Configuration"
+source "$HARMONY_VERSION_PATH/framework/system/ports/config/sys_ports_pins_pic32c.ftl" 324 instances
+endmenu
+
+menu "Pin Types"
+source "$HARMONY_VERSION_PATH/framework/system/ports/config/sys_ports_pin_functions_pic32c.ftl" 20 instances
+endmenu
+
+endif
+
+endmenu
+endmenu
+
+ifblock USE_SYS_PORTS
+add "pfnPORTA_Handler ${CONFIG_SYS_PORT_A_INTERRUPT_HANDLER_NAME}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if USE_SYS_PORTS_INTERRUPT_A
+add "pfnPORTA_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if !USE_SYS_PORTS_INTERRUPT_A
+add "pfnPORTB_Handler ${CONFIG_SYS_PORT_B_INTERRUPT_HANDLER_NAME}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if USE_SYS_PORTS_INTERRUPT_B
+add "pfnPORTB_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if !USE_SYS_PORTS_INTERRUPT_B
+add "pfnPORTC_Handler ${CONFIG_SYS_PORT_C_INTERRUPT_HANDLER_NAME}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if USE_SYS_PORTS_INTERRUPT_C
+add "pfnPORTC_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if !USE_SYS_PORTS_INTERRUPT_C
+add "pfnPORTD_Handler ${CONFIG_SYS_PORT_D_INTERRUPT_HANDLER_NAME}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if USE_SYS_PORTS_INTERRUPT_D
+add "pfnPORTD_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if !USE_SYS_PORTS_INTERRUPT_D
+add "pfnPORTE_Handler ${CONFIG_SYS_PORT_E_INTERRUPT_HANDLER_NAME}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if USE_SYS_PORTS_INTERRUPT_E
+add "pfnPORTE_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if !USE_SYS_PORTS_INTERRUPT_E
+
+add "<#include \"/framework/system/ports/templates/sys_ports_pic32c.h.ftl\">"  to list SYSTEM_CONFIG_H_SYSTEM_SERVICE_CONFIGURATION
+add "<#include \"/framework/system/ports/templates/sys_ports_init_pic32c.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_CORE
+add "<#include \"/framework/system/ports/templates/sys_ports_interrupt_pic32c.c.ftl\">"  to list SYSTEM_INTERRUPT_C_VECTORS
+
+template SYS_PORTS_STATIC_PIC32C_C "$HARMONY_VERSION_PATH/framework/system/ports/templates/sys_ports_static_pic32c.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/system/ports/src/sys_ports_static_pic32c.c"
+file SYS_PORTS_H "$HARMONY_VERSION_PATH/framework/system/ports/sys_ports.h" to "$PROJECT_HEADER_FILES/framework/system/ports/sys_ports.h"
+endif
+
+ifblock !USE_SYS_PORTS
+add "pfnPORTA_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS
+add "pfnPORTB_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS
+add "pfnPORTC_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS
+add "pfnPORTD_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS
+add "pfnPORTE_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS
+endif
+

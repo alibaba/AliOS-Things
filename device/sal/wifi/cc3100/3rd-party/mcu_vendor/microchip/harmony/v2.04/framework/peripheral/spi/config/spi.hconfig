@@ -1,0 +1,8 @@
+source "$HARMONY_VERSION_PATH/framework/peripheral/spi/processor/spi_$DEVICE.hconfig"
+
+ifblock PROJECT_STANDALONE
+file PLIB_SPI_H "$HARMONY_VERSION_PATH/framework/peripheral/spi/plib_spi.h" to "$PROJECT_HEADER_FILES/framework/peripheral/spi/plib_spi.h"
+file PLIB_SPI_P32XXXX_H "$HARMONY_VERSION_PATH/framework/peripheral/spi/processor/spi_p32xxxx.h" to "$PROJECT_HEADER_FILES/framework/peripheral/spi/processor/spi_p32xxxx.h"
+file PLIB_SPI_PROCESSOR_H "$HARMONY_VERSION_PATH/framework/peripheral/spi/processor/spi_processor.h" to "$PROJECT_HEADER_FILES/framework/peripheral/spi/processor/spi_processor.h"
+file PLIB_SPI_REGISTERS_H "$HARMONY_VERSION_PATH/framework/peripheral/spi/templates/spi_registers.h" to "$PROJECT_HEADER_FILES/framework/peripheral/spi/templates/spi_registers.h"
+endif

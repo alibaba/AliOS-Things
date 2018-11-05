@@ -1,0 +1,30 @@
+# file: sys_reset.hconfig
+
+menu "Reset"
+  depends on HAVE_RESET
+
+config USE_SYS_RESET_NEEDED
+  bool
+
+config USE_SYS_RESET
+  bool "Use Reset System Service?"
+  default n if !USE_SYS_RESET_NEEDED
+  default y if USE_SYS_RESET_NEEDED
+  ---help---
+    IDH_HTML_Reset_System_Service_Library
+  ---endhelp---
+endmenu
+
+ifblock USE_SYS_RESET
+  template SYS_RESET_H "$HARMONY_VERSION_PATH/framework/system/reset/templates/sys_reset.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/system/reset/sys_reset.h"
+  add "#include \"system/reset/sys_reset.h\"" to list SYSTEM_DEFINITIONS_H_INCLUDES
+
+  ifblock (PIC32MX || PIC32MZ || PIC32WK || PIC32MK )
+    template SYS_RESET_MIPS_C "$HARMONY_VERSION_PATH/framework/system/reset/templates/sys_reset_pic32m.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/system/reset/src/sys_reset.c"
+  endif
+
+  ifblock (ARCH_ARM)
+    template SYS_RESET_ARM_C "$HARMONY_VERSION_PATH/framework/system/reset/templates/sys_reset_pic32c.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/system/reset/src/sys_reset.c"
+  endif
+endif
+

@@ -798,21 +798,21 @@
 // <e> Interrupt 15 Settings
 // <id> eic_arch_enable_irq_setting15
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING15
-#define CONF_EIC_ENABLE_IRQ_SETTING15 0
+#define CONF_EIC_ENABLE_IRQ_SETTING15 1
 #endif
 
 // <q> External Interrupt 15 Filter Enable
 // <i> Indicates whether the external interrupt 15 filter is enabled or not
 // <id> eic_arch_filten15
 #ifndef CONF_EIC_FILTEN15
-#define CONF_EIC_FILTEN15 0
+#define CONF_EIC_FILTEN15 1
 #endif
 
 // <q> External Interrupt 15 Debounce Enable
 // <i> Indicates whether the external interrupt 15 debounce is enabled or not
 // <id> eic_arch_debounce_enable15
 #ifndef CONF_EIC_DEBOUNCE_ENABLE15
-#define CONF_EIC_DEBOUNCE_ENABLE15 0
+#define CONF_EIC_DEBOUNCE_ENABLE15 1
 #endif
 
 // <q> External Interrupt 15 Event Output Enable
@@ -832,7 +832,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense15
 #ifndef CONF_EIC_SENSE15
-#define CONF_EIC_SENSE15 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE15 EIC_NMICTRL_NMISENSE_RISE_Val
 #endif
 
 // <q> External Interrupt 15 Asynchronous Edge Detection Mode
@@ -906,9 +906,7 @@
 
 // </h>
 
-//#define CONFIG_EIC_EXTINT_MAP {7, PIN_PA07},
-#define CONFIG_EIC_EXTINT_MAP {7, PIN_PC23},
-
+#define CONFIG_EIC_EXTINT_MAP {7, PIN_PC23}, {15, PIN_PB31},
 
 // <<< end of configuration section >>>
 

@@ -1,0 +1,8 @@
+source "$HARMONY_VERSION_PATH/framework/peripheral/pcache/processor/pcache_$DEVICE.hconfig"
+
+ifblock PROJECT_STANDALONE
+file PLIB_PCACHE_H "$HARMONY_VERSION_PATH/framework/peripheral/pcache/plib_pcache.h" to "$PROJECT_HEADER_FILES/framework/peripheral/pcache/plib_pcache.h"
+file PLIB_PCACHE_P32XXXX_H "$HARMONY_VERSION_PATH/framework/peripheral/pcache/processor/pcache_p32xxxx.h" to "$PROJECT_HEADER_FILES/framework/peripheral/pcache/processor/pcache_p32xxxx.h"
+file PLIB_PCACHE_PROCESSOR_H "$HARMONY_VERSION_PATH/framework/peripheral/pcache/processor/pcache_processor.h" to "$PROJECT_HEADER_FILES/framework/peripheral/pcache/processor/pcache_processor.h"
+file PLIB_PCACHE_REGISTERS_H "$HARMONY_VERSION_PATH/framework/peripheral/pcache/templates/pcache_Registers.h" to "$PROJECT_HEADER_FILES/framework/peripheral/pcache/templates/pcache_Registers.h"
+endif

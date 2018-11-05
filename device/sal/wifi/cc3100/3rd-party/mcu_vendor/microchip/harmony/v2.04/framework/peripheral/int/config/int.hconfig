@@ -1,0 +1,8 @@
+source "$HARMONY_VERSION_PATH/framework/peripheral/int/processor/int_$DEVICE.hconfig"
+
+ifblock PROJECT_STANDALONE
+file PLIB_INT_H "$HARMONY_VERSION_PATH/framework/peripheral/int/plib_int.h" to "$PROJECT_HEADER_FILES/framework/peripheral/int/plib_int.h"
+file PLIB_INT_PRIVATE_PIC32_H "$HARMONY_VERSION_PATH/framework/peripheral/int/plib_int_private_pic32.h" to "$PROJECT_HEADER_FILES/framework/peripheral/int/plib_int_private_pic32.h"
+file PLIB_INT_P32XXXX_H "$HARMONY_VERSION_PATH/framework/peripheral/int/processor/int_p32xxxx.h" to "$PROJECT_HEADER_FILES/framework/peripheral/int/processor/int_p32xxxx.h"
+file PLIB_INT_PROCESSOR_H "$HARMONY_VERSION_PATH/framework/peripheral/int/processor/int_processor.h" to "$PROJECT_HEADER_FILES/framework/peripheral/int/processor/int_processor.h"
+endif

@@ -29,6 +29,43 @@ static uint8_t USART_0_buffer[USART_0_BUFFER_SIZE];
 static uint8_t USART_2_buffer[USART_2_BUFFER_SIZE];
 
 struct mci_sync_desc IO_MCI;
+void EXTIRQ_INSTANCE_init(void)
+{
+	hri_gclk_write_PCHCTRL_reg(GCLK, EIC_GCLK_ID, CONF_GCLK_EIC_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_mclk_set_APBAMASK_EIC_bit(MCLK);
+
+	// Set pin direction to input
+	gpio_set_pin_direction(PB31, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(PB31,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_OFF);
+
+	gpio_set_pin_function(PB31, PINMUX_PB31A_EIC_EXTINT15);
+
+
+	// Set pin direction to input
+	gpio_set_pin_direction(CARD_CONF_WINC_EXT_INT_PIN, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(CARD_CONF_WINC_EXT_INT_PIN,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_UP);
+
+	gpio_set_pin_function(CARD_CONF_WINC_EXT_INT_PIN, PINMUX_PC23A_EIC_EXTINT7);
+	
+
+	ext_irq_init();
+	NVIC_SetPriority(EIC_7_IRQn, PERIPHERAL_INTERRUPT_PRIORITY);
+}
+
 /**
  * \brief USART Clock initialization function
  *
@@ -106,31 +143,6 @@ void USART_2_init(void)
 	usart_os_init(&USART_2, SERCOM2, USART_2_buffer, USART_2_BUFFER_SIZE, (void *)NULL);
 	USART_2_PORT_init();
 }
-
-
-void EXTIRQ_INSTANCE_init(void)
-{
-	hri_gclk_write_PCHCTRL_reg(GCLK, EIC_GCLK_ID, CONF_GCLK_EIC_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_mclk_set_APBAMASK_EIC_bit(MCLK);
-
-	// Set pin direction to input
-	gpio_set_pin_direction(CARD_CONF_WINC_EXT_INT_PIN, GPIO_DIRECTION_IN);
-
-	gpio_set_pin_pull_mode(CARD_CONF_WINC_EXT_INT_PIN,
-	                       // <y> Pull configuration
-	                       // <id> pad_pull_config
-	                       // <GPIO_PULL_OFF"> Off
-	                       // <GPIO_PULL_UP"> Pull-up
-	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_UP);
-
-	gpio_set_pin_function(CARD_CONF_WINC_EXT_INT_PIN, PINMUX_PC23A_EIC_EXTINT7);
-	
-
-	ext_irq_init();
-	NVIC_SetPriority(EIC_7_IRQn, PERIPHERAL_INTERRUPT_PRIORITY);
-}
-
 
 void IO_MCI_PORT_init(void)
 {
@@ -521,8 +533,8 @@ void system_init(void)
 
 	gpio_set_pin_function(CARD_CS_PIN, GPIO_PIN_FUNCTION_OFF);
 
-	EXTIRQ_INSTANCE_init();
 
+	EXTIRQ_INSTANCE_init();
 	FLASH_0_init();
 
 	USART_0_init();

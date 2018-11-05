@@ -1,0 +1,103 @@
+menu "Operating System Abstraction Layer (OSAL)"
+
+config USE_OSAL
+    bool "Use OSAL"
+    default y
+    persistent
+	select USE_SYS_INT_NEEDED
+    ---help---
+    IDH_HTML_Operating_System_Abstraction_Layer__OSAL__Library
+    ---endhelp---
+
+comment "OSAL is configured for no RTOS (bare metal) environment"
+    depends on OSAL_RTOS = 0
+
+comment "OSAL is configured for latest version FreeRTOS (now v9.x.x)" 
+    depends on OSAL_RTOS = 9
+
+comment "OSAL is configured for FreeRTOS_V8.x.x"
+    depends on OSAL_RTOS = 1
+
+comment "OSAL is configured for FreeRTOS_V7.x.x"
+    depends on OSAL_RTOS = 2
+
+comment "OSAL is configured for OpenRTOS_V8.x.x"
+    depends on OSAL_RTOS = 3
+
+comment "OSAL is configured for OpenRTOS_V7.x.x"
+    depends on OSAL_RTOS = 4
+
+comment "OSAL is configured for uC/OS-III"
+    depends on OSAL_RTOS = 5
+
+comment "OSAL is configured for uC/OS-II"
+    depends on OSAL_RTOS = 6
+
+comment "OSAL is configured for ThreadX"
+    depends on OSAL_RTOS = 7
+
+comment "OSAL is configured for embOS"
+    depends on OSAL_RTOS = 8
+
+config OSAL_RTOS
+    int
+    default 0 if !USE_3RDPARTY_RTOS
+    default 9 if 3RDPARTY_RTOS_USED = "FreeRTOS"
+    default 1 if 3RDPARTY_RTOS_USED = "FreeRTOS_V8.x.x"
+    default 2 if 3RDPARTY_RTOS_USED = "FreeRTOS_V7.x.x"
+    default 3 if 3RDPARTY_RTOS_USED = "OpenRTOS_V8.x.x"
+    default 4 if 3RDPARTY_RTOS_USED = "OpenRTOS_V7.x.x"
+    default 5 if 3RDPARTY_RTOS_USED = "uC/OS-III"
+    default 6 if 3RDPARTY_RTOS_USED = "uC/OS-II"
+    default 7 if 3RDPARTY_RTOS_USED = "ThreadX"
+    default 8 if 3RDPARTY_RTOS_USED = "embOS"
+endmenu
+
+ifblock USE_OSAL
+add "<#include \"/framework/osal/config/osal.ftl\">"  to list SYSTEM_CONFIG_H_MIDDLEWARE_CONFIGURATION 
+
+file OSAL_H "$HARMONY_VERSION_PATH/framework/osal/osal.h" to "$PROJECT_HEADER_FILES/framework/osal/osal.h"
+file OSAL_DEFINITIONS_H "$HARMONY_VERSION_PATH/framework/osal/osal_definitions.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_definitions.h"
+endif
+
+ifblock (OSAL_RTOS = 9)
+file OSAL_FREERTOS_V8SRC_C "$HARMONY_VERSION_PATH/framework/osal/src/osal_freertos.c" to "$PROJECT_SOURCE_FILES/framework/osal/src/osal_freertos.c" 
+file OSAL_FREERTOS_V8SRC_H "$HARMONY_VERSION_PATH/framework/osal/osal_freertos.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_freertos.h"
+endif
+
+ifblock (OSAL_RTOS = 2)
+file OSAL_FREERTOS_V7SRC_C "$HARMONY_VERSION_PATH/framework/osal/src/osal_freertos_v7xx.c" to "$PROJECT_SOURCE_FILES/framework/osal/src/osal_freertos_v7xx.c"
+file OSAL_FREERTOS_V7SRC_H "$HARMONY_VERSION_PATH/framework/osal/osal_freertos_v7xx.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_freertos_v7xx.h"
+endif
+
+ifblock (OSAL_RTOS = 3)
+file OSAL_OPENRTOS_V8SRC_C "$HARMONY_VERSION_PATH/framework/osal/src/osal_openrtos.c" to "$PROJECT_SOURCE_FILES/framework/osal/src/osal_openrtos.c"
+file OSAL_OPENRTOS_V8SRC_H "$HARMONY_VERSION_PATH/framework/osal/osal_openrtos.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_openrtos.h"
+endif
+
+ifblock (OSAL_RTOS = 4)
+file OSAL_OPENRTOS_V7SRC_C "$HARMONY_VERSION_PATH/framework/osal/src/osal_openrtos_v7xx.c" to "$PROJECT_SOURCE_FILES/framework/osal/src/osal_openrtos_v7xx.c"
+file OSAL_OPENRTOS_V7SRC_H "$HARMONY_VERSION_PATH/framework/osal/osal_openrtos_v7xx.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_openrtos_v7xx.h"
+endif
+
+ifblock (OSAL_RTOS = 5)
+file OSAL_UCOSIII_SRC_C "$HARMONY_VERSION_PATH/framework/osal/src/osal_ucos3.c" to "$PROJECT_SOURCE_FILES/framework/osal/src/osal_ucos3.c"
+file OSAL_UCOSIII_SRC_H "$HARMONY_VERSION_PATH/framework/osal/osal_ucos3.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_ucos3.h"
+endif
+
+ifblock (OSAL_RTOS = 6)
+file OSAL_UCOSII_SRC_C "$HARMONY_VERSION_PATH/framework/osal/src/osal_ucos2.c" to "$PROJECT_SOURCE_FILES/framework/osal/src/osal_ucos2.c"
+file OSAL_UCOSII_SRC_H "$HARMONY_VERSION_PATH/framework/osal/osal_ucos2.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_ucos2.h"
+endif
+
+ifblock (OSAL_RTOS = 7)
+file OSAL_THREADX_SRC_C "$HARMONY_VERSION_PATH/framework/osal/src/osal_threadx.c" to "$PROJECT_SOURCE_FILES/framework/osal/src/osal_threadx.c"
+file OSAL_THREADX_SRC_H "$HARMONY_VERSION_PATH/framework/osal/osal_threadx.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_threadx.h"
+endif
+
+ifblock (OSAL_RTOS = 8)
+file OSAL_EMBOS_SRC_C "$HARMONY_VERSION_PATH/framework/osal/src/osal_embos.c" to "$PROJECT_SOURCE_FILES/framework/osal/src/osal_embos.c"
+file OSAL_EMBOS_SRC_H "$HARMONY_VERSION_PATH/framework/osal/osal_embos.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_embos.h"
+endif
+
+file OSAL_IMPL_BASIC_H "$HARMONY_VERSION_PATH/framework/osal/osal_impl_basic.h" to "$PROJECT_HEADER_FILES/framework/osal/osal_impl_basic.h" if (!OSAL_RTOS)

@@ -17,3 +17,6 @@ else:
     elif aos_global_config.arch == 'Cortex-M7':
         component.add_sources('gcc/m7/port_c.c', 'gcc/m7/port_s.S')
         component.add_global_includes('gcc/m7')
+    elif aos_global_config.arch == 'Cortex-M3':
+        component.add_sources('gcc/m3/port_c.c', 'gcc/m3/port_s.S')
+        component.add_global_includes('gcc/m3')

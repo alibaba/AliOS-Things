@@ -1,0 +1,119 @@
+menu "Cryptographic (Crypto) Library"
+
+config USE_CRYPTO_LIB_NEEDED
+  bool
+
+config USE_CRYPTO_HW_NEEDED
+  bool
+
+config USE_CRYPTO_LIBRARY
+    bool "Use Cryptographic Library?"
+    default n if !USE_CRYPTO_LIB_NEEDED
+    default y if USE_CRYPTO_LIB_NEEDED
+    ---help---
+      IDH_HTML_Cryptographic__Crypto__Library
+    ---endhelp---
+
+config USE_CRYPTO_HW
+    bool "Use Hardware Acceleration?"
+    depends on USE_CRYPTO_LIBRARY && CRYPTO
+    default n if !USE_CRYPTO_HW_NEEDED
+    default y if USE_CRYPTO_HW_NEEDED
+
+source "$HARMONY_VERSION_PATH/framework/crypto/config/crypto_cipher.hconfig"
+source "$HARMONY_VERSION_PATH/framework/crypto/config/crypto_hash.hconfig"
+source "$HARMONY_VERSION_PATH/framework/crypto/config/crypto_compress.hconfig"
+source "$HARMONY_VERSION_PATH/framework/crypto/config/crypto_random.hconfig"
+
+menu "Legacy Options"
+
+config USE_CRYPTO_LIB
+    bool "Use Cryptographic Library"
+    default n
+    select USE_CRYPTO_LIB_NEEDED
+
+comment "*** This option is deprecated. Do not change this setting! Use the other option above. ***"
+
+endmenu
+
+endmenu
+
+
+ifblock USE_CRYPTO_LIBRARY
+add "<#include \"/framework/crypto/config/crypto_config.h.ftl\">"  to list SYSTEM_CONFIG_H_MIDDLEWARE_CONFIGURATION
+file CRYPTO_H "$HARMONY_VERSION_PATH/framework/crypto/crypto.h" to "$PROJECT_HEADER_FILES/framework/crypto/crypto.h"
+file CRYPTO_C "$HARMONY_VERSION_PATH/framework/crypto/src/crypto.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/crypto.c"
+
+
+file CRYPTO_CODING_H "$HARMONY_VERSION_PATH/framework/crypto/src/coding.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/coding.h"
+file CRYTPO_CODING_C "$HARMONY_VERSION_PATH/framework/crypto/src/coding.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/coding.c"
+
+file CRYPTO_ERROR_H "$HARMONY_VERSION_PATH/framework/crypto/src/error-crypt.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/error-crypt.h"
+file CRYPTO_ERROR_C "$HARMONY_VERSION_PATH/framework/crypto/src/error.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/error.c"
+
+file CRYPTO_INTEGER_H "$HARMONY_VERSION_PATH/framework/crypto/src/integer.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/integer.h"
+file CRYPTO_INTEGER_C "$HARMONY_VERSION_PATH/framework/crypto/src/integer.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/integer.c"
+
+
+file CRYPTO_LOGGING_H "$HARMONY_VERSION_PATH/framework/crypto/src/logging.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/logging.h"
+file CRYPTO_LOGGING_C "$HARMONY_VERSION_PATH/framework/crypto/src/logging.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/logging.c"
+
+file CRYPTO_MEMORY_H "$HARMONY_VERSION_PATH/framework/crypto/src/memory.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/memory.h"
+file CRYPTO_MEMORY_C "$HARMONY_VERSION_PATH/framework/crypto/src/memory.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/memory.c"
+
+    file CRYPTO_MISC_H "$HARMONY_VERSION_PATH/framework/crypto/src/misc.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/misc.h"
+    file CRYPTO_MISC_C "$HARMONY_VERSION_PATH/framework/crypto/src/misc.c" to "$PROJECT_HEADER_FILES/framework/crypto/src/misc.c"
+
+    file CRYPTO_PORT_H "$HARMONY_VERSION_PATH/framework/crypto/src/wc_port.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/wc_port.h"
+    file CRYPTO_PORT_C "$HARMONY_VERSION_PATH/framework/crypto/src/wc_port.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/wc_port.c"
+
+    file CRYPTO_WOLFMATH_H "$HARMONY_VERSION_PATH/framework/crypto/src/wolfmath.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/wolfmath.h"
+    file CRYPTO_WOLFMATH_C "$HARMONY_VERSION_PATH/framework/crypto/src/wolfmath.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/wolfmath.c"
+
+file CRYPTO_SETTINGS_H "$HARMONY_VERSION_PATH/framework/crypto/src/settings.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/settings.h"
+
+file CRYPTO_TYPES_H "$HARMONY_VERSION_PATH/framework/crypto/src/types.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/types.h"
+
+file CRYPTO_VERSION_H "$HARMONY_VERSION_PATH/framework/crypto/src/version.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/version.h"
+
+file CRYPTO_VISIBILITY_H "$HARMONY_VERSION_PATH/framework/crypto/src/visibility.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/visibility.h"
+
+file CRYPTO_ASN_PUBLIC_H "$HARMONY_VERSION_PATH/framework/crypto/src/asn_public.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/asn_public.h"
+
+
+file CRYPTO_CHACHA_H "$HARMONY_VERSION_PATH/framework/crypto/src/chacha.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/chacha.h"
+file CRYPTO_CHACHA2_H "$HARMONY_VERSION_PATH/framework/crypto/src/chacha20_poly1305.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/chacha20_poly1305.h"
+file CRYPTO_CMAC_H "$HARMONY_VERSION_PATH/framework/crypto/src/cmac.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/cmac.h"
+file CRYPTO_CURVE_H "$HARMONY_VERSION_PATH/framework/crypto/src/curve25519.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/curve25519.h"
+file CRYPTO_ED_H "$HARMONY_VERSION_PATH/framework/crypto/src/ed25519.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/ed25519.h"
+file CRYPTO_FE_H "$HARMONY_VERSION_PATH/framework/crypto/src/fe_operations.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/fe_operations.h"
+file CRYPTO_FIPSTE_H "$HARMONY_VERSION_PATH/framework/crypto/src/fips_test.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/fips_test.h"
+file CRYPTO_GE_H "$HARMONY_VERSION_PATH/framework/crypto/src/ge_operations.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/ge_operations.h"
+file CRYPTO_IDEA_H "$HARMONY_VERSION_PATH/framework/crypto/src/idea.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/idea.h"
+file CRYPTO_MEMT_H "$HARMONY_VERSION_PATH/framework/crypto/src/mem_track.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/mem_track.h"
+file CRYPTO_PKPC_H "$HARMONY_VERSION_PATH/framework/crypto/src/pkcs12.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/pkcs12.h"
+file CRYPTO_PKPC7_H "$HARMONY_VERSION_PATH/framework/crypto/src/pkcs7.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/pkcs7.h"
+file CRYPTO_POLY1_H "$HARMONY_VERSION_PATH/framework/crypto/src/poly1305.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/poly1305.h"
+file CRYPTO_SIGN1_H "$HARMONY_VERSION_PATH/framework/crypto/src/signature.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/signature.h"
+file CRYPTO_SRC1_H "$HARMONY_VERSION_PATH/framework/crypto/src/srp.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/srp.h"
+file CRYPTO_WCE_H "$HARMONY_VERSION_PATH/framework/crypto/src/wc_encrypt.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/wc_encrypt.h"
+file CRYPTO_WE_H "$HARMONY_VERSION_PATH/framework/crypto/src/wolfevent.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/wolfevent.h"
+file CRYPTO_DH_H "$HARMONY_VERSION_PATH/framework/crypto/src/dh.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/dh.h"
+file CRYPTO_DSA_H "$HARMONY_VERSION_PATH/framework/crypto/src/dsa.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/dsa.h"
+file CRYPTO_HC128_H "$HARMONY_VERSION_PATH/framework/crypto/src/hc128.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/hc128.h"
+file CRYPTO_MD2_H "$HARMONY_VERSION_PATH/framework/crypto/src/md2.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/md2.h"
+file CRYPTO_MD4_H "$HARMONY_VERSION_PATH/framework/crypto/src/md4.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/md4.h"
+file CRYPTO_MPI_CLASS_H "$HARMONY_VERSION_PATH/framework/crypto/src/mpi_class.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/mpi_class.h"
+file CRYPTO_MPI_SUPERCLASS_H "$HARMONY_VERSION_PATH/framework/crypto/src/mpi_superclass.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/mpi_superclass.h"
+file CRYPTO_RABBIT_H "$HARMONY_VERSION_PATH/framework/crypto/src/rabbit.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/rabbit.h"
+file CRYPTO_RIPEMD_H "$HARMONY_VERSION_PATH/framework/crypto/src/ripemd.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/ripemd.h"
+file CRYPTO_SSL_H "$HARMONY_VERSION_PATH/framework/crypto/src/ssl.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/ssl.h"
+
+endif
+
+
+ifblock USE_CRYPTO_HW
+file CRYPTO_HW_H "$HARMONY_VERSION_PATH/framework/crypto/src/pic32mz-crypt.h" to "$PROJECT_HEADER_FILES/framework/crypto/src/pic32mz-crypt.h"
+file CRYPTO_HW_C "$HARMONY_VERSION_PATH/framework/crypto/src/pic32mz-crypt.c" to "$PROJECT_SOURCE_FILES/framework/crypto/src/pic32mz-crypt.c"
+endif
+

@@ -1,0 +1,86 @@
+menu "Command"
+    ---help---
+    IDH_HTML_Command_Processor_System_Service_Library
+    ---endhelp---
+
+config USE_SYS_COMMAND_NEEDED
+    bool
+
+config USE_SYS_COMMAND
+    bool "Use Command Processor System Service?"
+    select USE_SYS_RESET_NEEDED
+    select USE_SYS_CONSOLE_NEEDED
+    default n if !USE_SYS_COMMAND_NEEDED
+    default y if USE_SYS_COMMAND_NEEDED
+    ---help---
+    IDH_HTML_Command_Processor_System_Service_Library
+    ---endhelp---
+
+menu "RTOS Configuration"
+    depends on USE_SYS_COMMAND
+    depends on USE_3RDPARTY_RTOS
+
+config SYS_COMMAND_RTOS
+    string "Run Library Tasks As"
+    range 3RDPARTY_RTOS_SYS_TASKS_OPTIONS
+    default "Combined with System Tasks"
+
+config SYS_COMMAND_RTOS_TASK_SIZE
+    int "Task Size"
+    depends on SYS_COMMAND_RTOS = "Standalone"
+    default 1024
+
+config SYS_COMMAND_RTOS_TASK_PRIORITY
+    int "Task Priority"
+    depends on SYS_COMMAND_RTOS = "Standalone"
+    default 1
+
+config SYS_COMMAND_RTOS_USE_DELAY
+    bool "Use Task Delay?"
+    depends on SYS_COMMAND_RTOS = "Standalone"
+    default y
+
+config SYS_COMMAND_RTOS_DELAY
+    int "Task Delay"
+    depends on SYS_COMMAND_RTOS = "Standalone"
+    depends on SYS_COMMAND_RTOS_USE_DELAY
+    default 1000
+endmenu
+
+config COMMAND_PRINT_BUFFER_SIZE
+	int "Command Print Buffer Size (512-8192)"
+	depends on USE_SYS_COMMAND
+	default 8192
+	range 512 8192
+    ---help---
+    IDH_HTML_Command_Processor_System_Service_Library
+    ---endhelp---
+    
+config REMAP_SYS_DEBUG_MESSAGE
+    bool "Re-route Debug Message/Print through Command Service"
+	depends on USE_SYS_COMMAND && USE_SYS_DEBUG
+    default y
+    ---help---
+    IDH_HTML_SYSTEM_COMMAND_Abstraction_Model
+    ---endhelp---
+    
+config REMAP_SYS_CONSOLE_MESSAGE
+    bool "Re-route Console Message/Print through Command Service"
+	depends on USE_SYS_COMMAND
+    default y
+    ---help---
+    IDH_HTML_SYSTEM_COMMAND_Abstraction_Model
+    ---endhelp---
+	
+endmenu
+
+ifblock USE_SYS_COMMAND
+
+add "<#include \"/framework/system/command/config/sys_command.c.ftl\">"  to list SYSTEM_INIT_C_MODULE_INITIALIZATION_DATA
+add "<#include \"/framework/system/command/config/sys_command_init.c.ftl\">"  to list SYSTEM_INIT_C_INITIALIZE_SYSTEM_SERVICES
+add "<#include \"/framework/system/command/config/sys_command.h.ftl\">"  to list SYSTEM_CONFIG_H_SYSTEM_SERVICE_CONFIGURATION
+add "<#assign SYS_COMMAND_TASKS = \"TASK_CALL_NO_RTOS\"><#include \"/framework/system/command/config/sys_command_tasks.c.ftl\">"  to list SYSTEM_TASKS_C_CALL_SYSTEM_TASKS
+
+file SYS_COMMAND_H "$HARMONY_VERSION_PATH/framework/system/command/sys_command.h" to "$PROJECT_HEADER_FILES/framework/system/command/sys_command.h"
+file SYS_COMMAND_C "$HARMONY_VERSION_PATH/framework/system/command/src/sys_command.c" to "$PROJECT_SOURCE_FILES/framework/system/command/src/sys_command.c"
+endif

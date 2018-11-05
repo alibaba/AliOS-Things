@@ -1,0 +1,151 @@
+menu "SPI"
+    depends on HAVE_SPI
+
+enum DRV_SPI_MODE_ENUM
+    "DYNAMIC" || "STATIC"
+
+enum DRV_SPI_MODE
+    "MASTER" || "SLAVE"
+    
+enum DRV_SPI_COMMUNICATION_WIDTH
+    "8" || "16"
+
+enum DRV_SPI_CLOCK_MODE
+    "DRV_SPI_CLOCK_MODE_IDLE_LOW_EDGE_RISE" || "DRV_SPI_CLOCK_MODE_IDLE_LOW_EDGE_FALL" || "DRV_SPI_CLOCK_MODE_IDLE_HIGH_EDGE_FALL" || "DRV_SPI_CLOCK_MODE_IDLE_HIGH_EDGE_RISE"
+    
+config DRV_SPI_USE_DRIVER_NEEDED
+    bool
+
+config DRV_SPI_USE_DRIVER
+    depends on HAVE_SPI
+    bool "Use SPI Driver?"
+    default n if !DRV_SPI_USE_DRIVER_NEEDED
+    default y if DRV_SPI_USE_DRIVER_NEEDED
+	select DRIVER
+    ---help---
+    IDH_HTML_SPI_Driver_Library
+    ---endhelp---
+
+ifblock DRV_SPI_USE_DRIVER
+
+config DRV_SPI_DRIVER_MODE
+    string "Driver Implementation"
+    range DRV_SPI_MODE_ENUM
+    default "DYNAMIC"
+    ---help---
+    IDH_HTML_SPI_Driver_Library
+    ---endhelp---
+    
+config DRV_SPI_INTERRUPT_MODE
+    bool "Interrupt Mode"
+    default y
+    ---help---
+    IDH_HTML_DRV_SPI_ISR
+    ---endhelp---
+
+config DRV_SPI_USE_BLOCKING
+    bool "Use Blocking Mode?"
+    depends on DRV_SPI_DRIVER_MODE = "STATIC"
+    default n
+    ---help---
+    IDH_HTML_SPI_Driver_Library
+    ---endhelp---
+
+# This flag is set true if atleast one instance is in DMA mode.
+config DRV_SPI_USE_DMA
+    depends on HAVE_DMA
+    bool
+    select USE_SYS_DMA_NEEDED
+    default n
+    ---help---
+    IDH_HTML_DRV_SPI_DMA
+    ---endhelp---
+   
+config DRV_SPI_USE_CLIENT_CONFIG_FUCNTION
+    depends on DRV_SPI_DRIVER_MODE = "STATIC"
+    bool "Using Client Configure Function In Application?"
+    default y
+    ---help---
+    IDH_HTML_DRV_SPI_CLIENT_DATA
+    ---endhelp---
+
+config DRV_SPI_INSTANCES_NUMBER
+    int "Number of SPI Driver Instances"
+    range 1 SPI_NUMBER_OF_MODULES
+    default 1
+    ---help---
+    IDH_HTML_DRV_SPI_INSTANCES_NUMBER
+    ---endhelp---
+
+comment "**** Each instance can have only one client in STATIC driver mode ****"
+    depends on DRV_SPI_DRIVER_MODE = "STATIC"
+
+config DRV_SPI_CLIENT_NUMBER
+    int "Number of SPI Driver Clients"
+    range 1 2 if DRV_SPI_DRIVER_MODE = "DYNAMIC"
+    default DRV_SPI_INSTANCES_NUMBER
+    persistent if DRV_SPI_DRIVER_MODE = "STATIC"
+    ---help---
+    IDH_HTML_DRV_SPI_CLIENTS_NUMBER
+    ---endhelp---
+
+source "$HARMONY_VERSION_PATH/framework/driver/spi/config/drv_spi_pic32c_idx.ftl" 6 instances
+
+
+
+endif
+endmenu
+
+#File generation logic
+ifblock DRV_SPI_USE_DRIVER
+
+add "<#include \"/framework/driver/spi/template/drv_spi_config_pic32c.h.ftl\">"  to list SYSTEM_CONFIG_H_DRIVER_CONFIGURATION
+add "<#include \"/framework/driver/spi/template/drv_spi_definitions_pic32c.h.ftl\">"  to list  SYSTEM_DEFINITIONS_H_OBJECTS
+add "<#include \"/framework/driver/spi/template/drv_spi_init_struct_pic32c.c.ftl\">"  to list SYSTEM_INIT_C_DRIVER_INITIALIZATION_DATA
+add "<#include \"/framework/driver/spi/template/drv_spi_init_pic32c.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_DRIVERS
+add "<#include \"/framework/driver/spi/template/drv_spi_tasks_pic32c.c.ftl\">"  to list SYSTEM_TASKS_C_CALL_DRIVER_TASKS
+add "<#include \"/framework/driver/spi/template/drv_spi_interrupt_pic32c.c.ftl\">"  to list SYSTEM_INTERRUPT_C_VECTORS
+
+add "pfnSPI0_Handler ${CONFIG_DRV_SPI_INTERRUPT_HANDLER_NAME_IDX0}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if (DRV_SPI_INTERRUPT_MODE && DRV_SPI_SPI_ID_IDX0 = "SPI_ID_0")
+add "pfnSPI1_Handler ${CONFIG_DRV_SPI_INTERRUPT_HANDLER_NAME_IDX0}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if (DRV_SPI_INTERRUPT_MODE && DRV_SPI_SPI_ID_IDX0 = "SPI_ID_1")
+add "pfnSPI0_Handler ${CONFIG_DRV_SPI_INTERRUPT_HANDLER_NAME_IDX1}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if (DRV_SPI_INTERRUPT_MODE && DRV_SPI_SPI_ID_IDX1 = "SPI_ID_0")
+add "pfnSPI1_Handler ${CONFIG_DRV_SPI_INTERRUPT_HANDLER_NAME_IDX1}" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS if (DRV_SPI_INTERRUPT_MODE && DRV_SPI_SPI_ID_IDX1 = "SPI_ID_1")
+
+file DRV_SPI_H "$HARMONY_VERSION_PATH/framework/driver/spi/drv_spi.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/drv_spi.h"
+file DRV_SPI_DEFINITIONS_PIC32C_H "$HARMONY_VERSION_PATH/framework/driver/spi/drv_spi_definitions_pic32c.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/drv_spi_definitions_pic32c.h"
+file DRV_SPI_QUEUE_FIFO_H "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_sys_queue_local_fifo.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/src/drv_spi_sys_queue_local_fifo.h"
+#file DRV_SPI_VAR_MAPPING_H "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_variant_mapping.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/src/drv_spi_variant_mapping.h"
+
+ifblock (DRV_SPI_DRIVER_MODE = "DYNAMIC")
+
+file DRV_SPI_QUEUE_H "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_sys_queue.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/src/drv_spi_sys_queue.h"
+file DRV_SPI_QUEUE_C "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_sys_queue_fifo.c" to "$PROJECT_SOURCE_FILES/framework/driver/spi/src/drv_spi_sys_queue_fifo.c"
+
+ifblock !DRV_SPI_USE_DMA
+file DRV_SPI_LOCAL_PIC32C_H "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_local_pic32c.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/src/drv_spi_local_pic32c.h"
+file DRV_SPI_PIC32C_C "$HARMONY_VERSION_PATH/framework/driver/spi/src/dynamic/drv_spi_pic32c.c" to "$PROJECT_SOURCE_FILES/framework/driver/spi/src/dynamic/drv_spi_pic32c.c"
+endif
+ifblock DRV_SPI_USE_DMA
+file DRV_SPI_LOCAL_DMA_PIC32C_H "$HARMONY_VERSION_PATH/framework/driver/spi/src/drv_spi_local_dma_pic32c.h" to "$PROJECT_HEADER_FILES/framework/driver/spi/src/drv_spi_local_dma_pic32c.h"
+file DRV_SPI_DMA_PIC32C_C "$HARMONY_VERSION_PATH/framework/driver/spi/src/dynamic/drv_spi_dma_pic32c.c" to "$PROJECT_SOURCE_FILES/framework/driver/spi/src/dynamic/drv_spi_dma_pic32c.c"
+endif
+
+endif
+
+
+ifblock (DRV_SPI_DRIVER_MODE = "STATIC")
+template DRV_SPI_STATIC_H_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static.h.ftl" to                                 "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/drv_spi_static.h"
+template DRV_SPI_STATIC_SYS_QUEUE_H "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_sys_queue.h.ftl" to                 "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_sys_queue.h"
+template DRV_SPI_STATIC_SYS_QUEUE_C "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_sys_queue.c.ftl" to                 "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_sys_queue.c"
+template DRV_SPI_MAPPING_C_FTL "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_mapping.c.ftl" to                               "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_mapping.c"
+template DRV_SPI_STATIC_DMA_PIC32C_C "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_pic32c.c.ftl" to               "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_pic32c.c"
+template DRV_SPI_STATIC_LOCAL_DMA_PIC32C_H "$HARMONY_VERSION_PATH/framework/driver/spi/template/drv_spi_static_local_pic32c.h.ftl" to   "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/spi/static/src/drv_spi_static_local_pic32c.h"
+endif
+
+endif
+
+ifblock !DRV_SPI_USE_DRIVER
+add "pfnSPI0_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS
+add "pfnSPI1_Handler Dummy_Handler" to list SYSTEM_STARTUP_PIC32C_INTERRUPT_HANDLERS
+endif
+

@@ -1,0 +1,370 @@
+/*
+ * Copyright (c) 2015-2017, Texas Instruments Incorporated
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * *  Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * *  Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * *  Neither the name of Texas Instruments Incorporated nor the names of
+ *    its contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/*
+ *  ======== package.bld ========
+ */
+
+/* Top level drivers */
+var genericDriverSrc = [
+    "ADC.c",
+    "ADCBuf.c",
+    "Camera.c",
+    "Capture.c",
+    "I2C.c",
+    "I2CSlave.c",
+    "I2S.c",
+    "NVS.c",
+    "./nvs/NVSSPI25X.c",
+    "PWM.c",
+    "SDSPI.c",
+    "SD.c",
+    "SDFatFS.c",
+    "SPI.c",
+    "Timer.c",
+    "UART.c",
+    "Watchdog.c",
+    "./utils/List.c",
+    "./utils/RingBuf.c"
+];
+
+var genericDriverHdrs = [
+    "ADC.h",
+    "ADCBuf.h",
+    "Camera.h",
+    "Capture.h",
+    "GPIO.h",
+    "I2C.h",
+    "I2CSlave.h",
+    "I2S.h",
+    "NVS.h",
+    "./nvs/NVSSPI25X.h",
+    "PIN.h",
+    "Power.h",
+    "PWM.h",
+    "SDSPI.h",
+    "SD.h",
+    "SDFatFS.h",
+    "SPI.h",
+    "Timer.h",
+    "UART.h",
+    "Watchdog.h",
+    "./dpl/ClockP.h",
+    "./dpl/DebugP.h",
+    "./dpl/HwiP.h",
+    "./dpl/MutexP.h",
+    "./dpl/SemaphoreP.h",
+    "./dpl/SwiP.h",
+    "./dpl/SystemP.h",
+    "./utils/List.h",
+    "./utils/RingBuf.h"
+];
+
+var cc26xxSrcList = genericDriverSrc.concat([
+    "./adc/ADCCC26XX.c",
+    "./adcbuf/ADCBufCC26XX.c",
+    "./crypto/CryptoCC26XX.c",
+    "./dma/UDMACC26XX.c",
+    "./gpio/GPIOCC26XX.c",
+    "./i2c/I2CCC26XX.c",
+    "./nvs/NVSCC26XX.c",
+    "./pdm/Codec1.c",
+    "./pdm/PDMCC26XX.c",
+    "./pdm/PDMCC26XX_util.c",
+    "./pin/PINCC26XX.c",
+    "./power/PowerCC26XX.c",
+    "./power/PowerCC26XX_calibrateRCOSC.c",
+    "./pwm/PWMTimerCC26XX.c",
+    "./spi/SPICC26XXDMA.c",
+    "./timer/GPTimerCC26XX.c",
+    "./uart/UARTCC26XX.c",
+    "./watchdog/WatchdogCC26XX.c"
+]);
+
+var cc26xxHdrList = genericDriverHdrs.concat([
+    "./adc/ADCCC26XX.h",
+    "./adcbuf/ADCBufCC26XX.h",
+    "./crypto/CryptoCC26XX.h",
+    "./dma/UDMACC26XX.h",
+    "./gpio/GPIOCC26XX.h",
+    "./i2c/I2CCC26XX.h",
+    "./nvs/NVSCC26XX.h",
+    "./pdm/Codec1.h",
+    "./pdm/PDMCC26XX.h",
+    "./pdm/PDMCC26XX_util.h",
+    "./pin/PINCC26XX.h",
+    "./power/PowerCC26XX.h",
+    "./pwm/PWMTimerCC26XX.h",
+    "./spi/SPICC26XXDMA.h",
+    "./timer/GPTimerCC26XX.h",
+    "./uart/UARTCC26XX.h",
+    "./watchdog/WatchdogCC26XX.h"
+]);
+
+var cc26x2SrcList = genericDriverSrc.concat([
+    "./adc/ADCCC26XX.c",
+    "./adcbuf/ADCBufCC26XX.c",
+    "./crypto/CryptoCC26XX.c",
+    "./dma/UDMACC26XX.c",
+    "./gpio/GPIOCC26XX.c",
+    "./i2c/I2CCC26XX.c",
+    "./nvs/NVSCC26XX.c",
+    "./pdm/Codec1.c",
+    "./pdm/PDMCC26XX.c",
+    "./pdm/PDMCC26XX_util.c",
+    "./pin/PINCC26XX.c",
+    "./power/PowerCC26X2.c",
+    "./power/PowerCC26X2_calibrateRCOSC.c",
+    "./pwm/PWMTimerCC26XX.c",
+    "./spi/SPICC26XXDMA.c",
+    "./timer/GPTimerCC26XX.c",
+    "./uart/UARTCC26XX.c",
+    "./watchdog/WatchdogCC26XX.c"
+]);
+
+var cc26x2HdrList = genericDriverHdrs.concat([
+    "./adc/ADCCC26XX.h",
+    "./adcbuf/ADCBufCC26XX.h",
+    "./crypto/CryptoCC26XX.h",
+    "./crypto/CryptoCC26XX.h",
+    "./dma/UDMACC26XX.h",
+    "./gpio/GPIOCC26XX.h",
+    "./i2c/I2CCC26XX.h",
+    "./nvs/NVSCC26XX.h",
+    "./pdm/Codec1.h",
+    "./pdm/PDMCC26XX.h",
+    "./pdm/PDMCC26XX_util.h",
+    "./pin/PINCC26XX.h",
+    "./power/PowerCC26X2.h",
+    "./pwm/PWMTimerCC26XX.h",
+    "./spi/SPICC26XXDMA.h",
+    "./timer/GPTimerCC26XX.h",
+    "./uart/UARTCC26XX.h",
+    "./watchdog/WatchdogCC26XX.h"
+]);
+
+var cc32xxSrcList = genericDriverSrc.concat([
+    "./adc/ADCCC32XX.c",
+    "./camera/CameraCC32XXDMA.c",
+    "./capture/CaptureCC32XX.c",
+    "./crypto/CryptoCC32XX.c",
+    "./dma/UDMACC32XX.c",
+    "./gpio/GPIOCC32XX.c",
+    "./i2c/I2CCC32XX.c",
+    "./i2s/I2SCC32XXDMA.c",
+    "./power/PowerCC32XX.c",
+    "./power/PowerCC32XX_asm",
+    "./pwm/PWMTimerCC32XX.c",
+    "./sdspi/SDSPICC32XX.c",
+    "./sd/SDHostCC32XX.c",
+    "./spi/SPICC32XXDMA.c",
+    "./timer/TimerCC32XX.c",
+    "./uart/UARTCC32XX.c",
+    "./uart/UARTCC32XXDMA.c",
+    "./watchdog/WatchdogCC32XX.c"
+]);
+
+var cc32xxHdrList = genericDriverHdrs.concat([
+    "./adc/ADCCC32XX.h",
+    "./camera/CameraCC32XXDMA.h",
+    "./capture/CaptureCC32XX.h",
+    "./crypto/CryptoCC32XX.h",
+    "./dma/UDMACC32XX.h",
+    "./gpio/GPIOCC32XX.h",
+    "./i2c/I2CCC32XX.h",
+    "./i2s/I2SCC32XXDMA.h",
+    // "./nvs/NVSCC32XX.c",     // .c file here so we don't build it!
+    // "./nvs/NVSCC32XX.h",
+    "./power/PowerCC32XX.h",
+    "./pwm/PWMTimerCC32XX.h",
+    "./sdspi/SDSPICC32XX.h",
+    "./sd/SDHostCC32XX.h",
+    "./spi/SPICC32XXDMA.h",
+    "./timer/TimerCC32XX.h",
+    "./uart/UARTCC32XX.h",
+    "./uart/UARTCC32XXDMA.h",
+    "./watchdog/WatchdogCC32XX.h"
+]);
+
+var msp432SrcList = genericDriverSrc.concat([
+    "./adc/ADCMSP432.c",
+    "./adcbuf/ADCBufMSP432.c",
+    "./capture/CaptureMSP432.c",
+    "./dma/UDMAMSP432.c",
+    "./gpio/GPIOMSP432.c",
+    "./i2c/I2CMSP432.c",
+    "./i2cslave/I2CSlaveMSP432.c",
+    "./nvs/NVSMSP432.c",
+    "./power/PowerMSP432.c",
+    "./pwm/PWMTimerMSP432.c",
+    "./sdspi/SDSPIMSP432.c",
+    "./spi/SPIMSP432DMA.c",
+    "./timer/TimerMSP432.c",
+    "./uart/UARTMSP432.c",
+    "./watchdog/WatchdogMSP432.c"
+]);
+
+var msp432HdrList = genericDriverHdrs.concat([
+    "./adc/ADCMSP432.h",
+    "./adcbuf/ADCBufMSP432.h",
+    "./capture/CaptureMSP432.h",
+    "./dma/UDMAMSP432.h",
+    "./gpio/GPIOMSP432.h",
+    "./i2c/I2CMSP432.h",
+    "./i2cslave/I2CSlaveMSP432.h",
+    "./nvs/NVSMSP432.h",
+    "./power/PowerMSP432.h",
+    "./pwm/PWMTimerMSP432.h",
+    "./sdspi/SDSPIMSP432.h",
+    "./spi/SPIMSP432DMA.h",
+    "./timer/TimerMSP432.h",
+    "./uart/UARTMSP432.h",
+    "./watchdog/WatchdogMSP432.h"
+]);
+
+/* Get deviceWare directories from XDCARGS */
+var xdcArgs = java.lang.System.getenv("XDCARGS");
+var deviceWareOpts =
+    xdc.loadCapsule("ti/drivers/xdcArgParser.xs").getDeviceWareOpts(xdcArgs);
+var libBuilder = xdc.loadCapsule("ti/drivers/libBuilder.xs");
+
+/* List of files (besides *.c files) which need to be packaged with drivers */
+var packageFiles = [
+    "Config.xml",
+    "libBuilder.xs",
+    "package.bld",
+    "xdcArgParser.xs"
+];
+
+function getDirectories(directory) {
+    var File = xdc.module("xdc.services.io.File");
+    var directoryList = [];
+
+    for each (var item in File.ls(directory, "")) {
+        if (File.isDirectory(directory + "/" + item)) {
+            directoryList.push(item);
+        }
+    }
+
+    return (directoryList);
+}
+
+/* Generate libraries for products which have been defined */
+if (deviceWareOpts.cc26xxware) {
+    /* optimize IAR object files for size (not speed) */
+    var iarM3 = xdc.module('iar.targets.arm.M3');
+    iarM3.profiles["release"].compileOpts.copts =
+        iarM3.profiles["release"].compileOpts.copts.replace("Ohs", "Ohz");
+
+    var iarM4F = xdc.module('iar.targets.arm.M4F');
+    var iarM4FCopts = iarM4F.profiles["release"].compileOpts.copts; /* must restore after use */
+    iarM4F.profiles["release"].compileOpts.copts =
+        iarM4F.profiles["release"].compileOpts.copts.replace("Ohs", "Ohz");
+
+    /* optimize TI object files for size (not speed) & set -O3 */
+    var tiM3 = xdc.module('ti.targets.arm.elf.M3');
+    tiM3.profiles["release"].compileOpts.copts =
+        tiM3.profiles["release"].compileOpts.copts.replace("-O2", "-O3");
+
+    if ((tiM3.profiles["release"].compileOpts.copts).indexOf(" --opt_for_speed=0") < 0) {
+        tiM3.profiles["release"].compileOpts.copts += " --opt_for_speed=0";
+    }
+
+    var tiM4F = xdc.module('ti.targets.arm.elf.M4F');
+    var tiM4FCopts = tiM4F.profiles["release"].compileOpts.copts; /* must restore after use */
+    tiM4F.profiles["release"].compileOpts.copts =
+        tiM4F.profiles["release"].compileOpts.copts.replace("-O2", "-O3");
+
+    if ((tiM4F.profiles["release"].compileOpts.copts).indexOf(" --opt_for_speed=0") < 0) {
+        tiM4F.profiles["release"].compileOpts.copts += " --opt_for_speed=0";
+    }
+
+    packageFiles = packageFiles.concat(cc26xxHdrList);
+    packageFiles = packageFiles.concat(cc26x2HdrList);
+
+    var deviceFamilyList = getDirectories(deviceWareOpts.cc26xxware + "/source/ti/devices");
+    for each (var deviceFamily in deviceFamilyList) {
+        var targets;
+        var sources;
+
+        if (deviceFamily.match("cc26x2")) {
+            /* agama M4F devices */
+            targets = libBuilder.m4fTargets;
+            sources = cc26x2SrcList;
+        }
+        else {
+            targets = libBuilder.m3Targets;
+            sources = cc26xxSrcList;
+        }
+
+        libBuilder.makeLibs("lib/drivers_" + deviceFamily, targets, sources,
+            " -DDeviceFamily_" + deviceFamily.toUpperCase());
+    }
+
+    /* restore M4F profile options for subsequent users */
+    iarM4F.profiles["release"].compileOpts.copts = iarM4FCopts;
+    tiM4F.profiles["release"].compileOpts.copts = tiM4FCopts;
+}
+
+if (deviceWareOpts.cc32xxware) {
+    var copts = " -DUSE_CC3220_ROM_DRV_API";
+
+    packageFiles = packageFiles.concat(cc32xxHdrList);
+
+    var deviceFamilyList = getDirectories(deviceWareOpts.cc32xxware + "/source/ti/devices");
+    for each (var deviceFamily in deviceFamilyList) {
+        libBuilder.makeLibs("lib/drivers_" + deviceFamily,
+            libBuilder.m4Targets, cc32xxSrcList, copts);
+    }
+}
+
+if (deviceWareOpts.msp432DriverLib) {
+    packageFiles = packageFiles.concat(msp432HdrList);
+
+    var deviceFamilyList = getDirectories(deviceWareOpts.msp432DriverLib + "/source/ti/devices");
+    for each (var deviceFamily in deviceFamilyList) {
+        /* Build library for backwards compatibility */
+        libBuilder.makeLibs("lib/drivers_" + deviceFamily, libBuilder.m4fTargets,
+            msp432SrcList, " -DDeviceFamily_MSP432P401x");
+
+        /* Build library for MSP432P401x devices */
+        libBuilder.makeLibs("lib/drivers_msp432p401x", libBuilder.m4fTargets,
+            msp432SrcList, " -DDeviceFamily_MSP432P401x");
+
+        /* Build library for MSP432P4 devices */
+        libBuilder.makeLibs("lib/drivers_msp432p4x1xi", libBuilder.m4fTargets,
+            msp432SrcList, " -DDeviceFamily_MSP432P4x1xI");
+    }
+}
+
+Pkg.otherFiles = packageFiles;
+Pkg.attrs.exportSrc = true;

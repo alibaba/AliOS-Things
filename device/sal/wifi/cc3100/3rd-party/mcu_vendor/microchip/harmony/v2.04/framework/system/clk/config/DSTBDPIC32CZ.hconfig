@@ -1,0 +1,936 @@
+menu "Clock"
+	depends on HAVE_OSC
+
+  enum PMC_CKGR_MOR_MOSCRCF
+    "4_MHz"
+    ||"8_MHz"
+    ||"12_MHz"
+
+  enum SUPC_CR_XTALSEL
+    "SLOW_RC_OSC"
+    ||"32.768k_CRYSTAL_OSC"
+
+  enum PMC_CKGR_MOR_MOSCSEL
+    "MAIN_RC_OSC"
+    ||"MAIN_CRYSTAL_OSC"
+
+  enum PMC_MCKR_CSS
+    "SLOW_CLK"
+    ||"MAIN_CLK"
+    ||"PLLA_CLK"
+    ||"UPLL_CLK"
+
+  enum PMC_MCKR_PRES
+    "DIV_1"
+    ||"DIV_2"
+    ||"DIV_3"
+    ||"DIV_4"
+    ||"DIV_8"
+    ||"DIV_16"
+    ||"DIV_32"
+    ||"DIV_64"
+
+  enum PMC_MCKR_MDIV
+    "DIV_1"
+    ||"DIV_2"
+    ||"DIV_3"
+    ||"DIV_4"
+
+  enum PMC_MCKR_UPLLDIV2
+    "DIV_1"
+    ||"DIV_2"
+
+  enum UTMI_CKTRIM_FREQ
+    "12_MHz"
+    ||"16_MHz"
+
+  enum PMC_USB_USBS
+    "PLLA_CLK"
+    ||"UPLL_CLK"
+
+  enum PMC_PCKx_CSS
+    "SLOW_CLK"
+    ||"MAIN_CLK"
+    ||"PLLA_CLK"
+    ||"UPLL_CLK"
+    ||"MCK"
+
+  enum PMC_PCR_PID
+    "I2SC0"
+    ||"I2SC1"
+
+  enum PMC_SCER_PCKx
+    "PCK0"
+    ||"PCK1"
+    ||"PCK2"
+    ||"PCK3"
+    ||"PCK4"
+    ||"PCK5"
+    ||"PCK6"
+    ||"PCK7"
+
+enum CLK_MODES
+    "STATIC"
+    || "DYNAMIC"
+
+  config USE_SYS_CLK
+    bool "Use Clock System Service?"
+    default y
+    #---help---
+    #IDH_HTML_Oscillator_System_Service_Library
+    #---endhelp---
+
+config USE_SYS_CLK_DYNAMIC_NEEDED
+	depends on USE_SYS_CLK
+    bool
+    default n
+
+  config SYS_CLK_MODE
+    string "Select Service Mode"
+    default "STATIC"
+    depends on USE_SYS_CLK
+    range CLK_MODES
+
+  config SYS_CLK_MANAGER_PLUGIN_SELECT
+    string
+    depends on USE_SYS_CLK
+    default "pic32cz:PIC32CZClockModel"
+
+  execute CLOCK_EXEC
+    depends on USE_SYS_CLK
+    prompt "Launch Clock Configurator"
+    default "clock"
+    #---help---
+    #IDH_HTML_CONFIGURATOR_Configuring_the_Oscillator_Module_Using_the_MHC_Clock_Configurator
+    #---endhelp---
+
+  menu "Clock Configurator Settings"
+    depends on USE_SYS_CLK
+    #---help---
+    #IDH_HTML_CONFIGURATOR_Configuring_the_Oscillator_Module_Using_the_MHC_Clock_Configurator
+    #---endhelp---
+
+    comment "**** All settings listed here can be configured using the Clock Configurator ****"
+      depends on USE_SYS_CLK
+      #---help---
+      #IDH_HTML_CONFIGURATOR_Configuring_the_Oscillator_Module_Using_the_MHC_Clock_Configurator
+      #---endhelp---
+
+    # Main Clock Configuration
+    menu "Main Clock Configuration"
+
+      config SYS_CLK_CKGR_MOR_MOSCXTEN
+        bool "Main Crystal Oscillator Enable"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_CONFIG_MAINCLK_XTAL
+        string "External Main Clock Input Frequency (Hz)"
+        depends on USE_SYS_CLK
+        default "12000000"
+
+      config SYS_CLK_CKGR_MOSCXTST
+        int "Main Crystal Oscillator Startup Time"
+        depends on USE_SYS_CLK
+        range 0 255
+        default 255
+
+      config SYS_CLK_CKGR_MOR_MOSCXTBY
+        bool "Main Crystal Oscillator Bypass"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_CKGR_MOR_MOSCRCEN
+        bool "Main RC Oscillator Enable"
+        depends on USE_SYS_CLK
+        default y
+
+      config SYS_CLK_CKGR_MOR_MOSCRCF
+        string "Main RC oscillator Frequency (Hz)"
+        depends on USE_SYS_CLK
+        range PMC_CKGR_MOR_MOSCRCF
+        default "12_MHz"
+
+      config SYS_CLK_CKGR_MOR_MOSCRCF_VALUE
+        string
+        depends on USE_SYS_CLK
+        depends on SYS_CLK_CKGR_MOR_MOSCRCEN
+        default "SYS_CLK_RC_FREQUENCY_4_MHZ" if SYS_CLK_CKGR_MOR_MOSCRCF = "4_MHz"
+        default "SYS_CLK_RC_FREQUENCY_8_MHZ" if SYS_CLK_CKGR_MOR_MOSCRCF = "8_MHz"
+        default "SYS_CLK_RC_FREQUENCY_12_MHZ" if SYS_CLK_CKGR_MOR_MOSCRCF = "12_MHz"
+
+      config SYS_CLK_CKGR_MOR_MOSCSEL
+        string "Main Clock Source"
+        depends on USE_SYS_CLK
+        range PMC_CKGR_MOR_MOSCSEL
+        default "MAIN_RC_OSC"
+
+      config SYS_CLK_CKGR_MOR_MOSCSEL_VALUE
+        string
+        depends on USE_SYS_CLK
+        default "SYS_CLK_MAIN_SOURCE_RC" if SYS_CLK_CKGR_MOR_MOSCSEL = "MAIN_RC_OSC"
+        default "SYS_CLK_MAIN_SOURCE_XTAL" if SYS_CLK_CKGR_MOR_MOSCSEL = "MAIN_CRYSTAL_OSC"
+
+    endmenu
+
+    # Slow Clock Configuration
+    menu "Slow Clock Configuration"
+
+      config SYS_CLK_CONFIG_SLOWCLK_XTAL
+        string "External Slow Clock Input Frequency (Hz)"
+        depends on USE_SYS_CLK
+        default "32768"
+
+      config SYS_CLK_SUPC_MR_OSCBYPASS
+        bool "Crystal Oscillator Bypass"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_SUPC_CR_XTALSEL
+        string "Slow Clock Source"
+        depends on USE_SYS_CLK
+        range SUPC_CR_XTALSEL
+        default "SLOW_RC_OSC"
+
+      config SYS_CLK_SUPC_CR_XTALSEL_VALUE
+        bool
+        depends on USE_SYS_CLK
+        default n if SYS_CLK_SUPC_CR_XTALSEL = "SLOW_RC_OSC"
+        default y if SYS_CLK_SUPC_CR_XTALSEL = "32.768k_CRYSTAL_OSC"
+
+    endmenu
+
+    # PLLA configuration
+    menu "Clock PLL configuration"
+
+      config SYS_CLK_CKGR_PLLAR_DIVA0_MULA0
+        bool "Enable PLLA Clock"
+        depends on USE_SYS_CLK
+        default y
+
+      config SYS_CLK_CKGR_PLLAR_DIVA
+        int "PLL Divider"
+        depends on SYS_CLK_CKGR_PLLAR_DIVA0_MULA0
+        range 0 255
+        default 1
+
+      config SYS_CLK_CKGR_PLLAR_MULA
+        int "PLL Multiplier"
+        depends on SYS_CLK_CKGR_PLLAR_DIVA0_MULA0
+        range 0 63
+        default 25
+
+    endmenu
+
+    # Processor and Master clock configuration
+    menu "Processor and Master Clock Configuration"
+      config SYS_CLK_PMC_MCKR_CSS
+        string "Processor and Master Clock"
+        depends on USE_SYS_CLK
+        range PMC_MCKR_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_MCKR_CSS_VALUE
+        string
+        depends on USE_SYS_CLK
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_MCKR_CSS = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_MCKR_CSS = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_MCKR_CSS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_MCKR_CSS = "UPLL_CLK"
+
+      config SYS_CLK_PMC_MCKR_PRES
+        string "Processor Clock Prescaler"
+        depends on USE_SYS_CLK
+        range PMC_MCKR_PRES
+        default "DIV_1"
+
+      config SYS_CLK_PMC_MCKR_PRES_VALUE
+        string
+        depends on USE_SYS_CLK
+        default "SYS_CLK_MASTER_PRESCALER_1" if SYS_CLK_PMC_MCKR_PRES = "DIV_1"
+        default "SYS_CLK_MASTER_PRESCALER_2" if SYS_CLK_PMC_MCKR_PRES = "DIV_2"
+        default "SYS_CLK_MASTER_PRESCALER_3" if SYS_CLK_PMC_MCKR_PRES = "DIV_3"
+        default "SYS_CLK_MASTER_PRESCALER_4" if SYS_CLK_PMC_MCKR_PRES = "DIV_4"
+        default "SYS_CLK_MASTER_PRESCALER_8" if SYS_CLK_PMC_MCKR_PRES = "DIV_8"
+        default "SYS_CLK_MASTER_PRESCALER_16" if SYS_CLK_PMC_MCKR_PRES = "DIV_16"
+        default "SYS_CLK_MASTER_PRESCALER_32" if SYS_CLK_PMC_MCKR_PRES = "DIV_32"
+        default "SYS_CLK_MASTER_PRESCALER_64" if SYS_CLK_PMC_MCKR_PRES = "DIV_64"
+
+      config SYS_CLK_PMC_MCKR_MDIV
+        string "Master Clock Divider"
+        depends on USE_SYS_CLK
+        range PMC_MCKR_MDIV
+        default "DIV_2"
+
+      config SYS_CLK_PMC_MCKR_MDIV_VALUE
+        string
+        depends on USE_SYS_CLK
+        default "SYS_CLK_MASTER_DIVIDER_1" if SYS_CLK_PMC_MCKR_MDIV = "DIV_1"
+        default "SYS_CLK_MASTER_DIVIDER_2" if SYS_CLK_PMC_MCKR_MDIV = "DIV_2"
+        default "SYS_CLK_MASTER_DIVIDER_3" if SYS_CLK_PMC_MCKR_MDIV = "DIV_3"
+        default "SYS_CLK_MASTER_DIVIDER_4" if SYS_CLK_PMC_MCKR_MDIV = "DIV_4"
+
+    endmenu
+
+    # USB Clock configuration
+    menu "USB Clock Configuration"
+
+      config SYS_CLK_CKGR_UCKR_UPLLEN
+        bool "Enable USB HS Clock"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_UTMI_CKTRIM_FREQ
+        string
+        depends on SYS_CLK_CKGR_UCKR_UPLLEN
+        range UTMI_CKTRIM_FREQ
+        default "12_MHz"
+
+      config SYS_CLK_UTMI_CKTRIM_FREQ_VALUE
+        int
+        depends on SYS_CLK_CKGR_UCKR_UPLLEN
+        default 40 if SYS_CLK_UTMI_CKTRIM_FREQ = "12_MHz"
+        default 30 if SYS_CLK_UTMI_CKTRIM_FREQ = "16_MHz"
+
+      config SYS_CLK_PMC_MCKR_UPLLDIV2
+        string "UPLL Divider"
+        depends on SYS_CLK_CKGR_UCKR_UPLLEN
+        range PMC_MCKR_UPLLDIV2
+        default "DIV_1"
+
+      config SYS_CLK_PMC_MCKR_UPLLDIV2_VALUE
+        int
+        depends on SYS_CLK_CKGR_UCKR_UPLLEN
+        default 1 if SYS_CLK_PMC_MCKR_UPLLDIV2 = "DIV_1"
+        default 2 if SYS_CLK_PMC_MCKR_UPLLDIV2 = "DIV_2"
+
+      config SYS_CLK_PMC_SCER_USBCLK
+        bool "Enable USB FS Clock"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_USB_USBS
+        string "USB Input Clock"
+        depends on SYS_CLK_PMC_SCER_USBCLK
+        range PMC_USB_USBS
+        default "UPLL_CLK"
+
+      config SYS_CLK_PMC_USB_USBS_VALUE
+        string
+        depends on SYS_CLK_PMC_SCER_USBCLK
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_USB_USBS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_USB_USBS = "UPLL_CLK"
+
+      config SYS_CLK_PMC_USB_USBDIV
+        int "USB_48M Clock Divider"
+        depends on SYS_CLK_PMC_SCER_USBCLK
+        range 1 16
+        default 1
+		persistent
+    endmenu
+
+    # Peripheral Clock Generator configuration options
+    menu "Peripheral Clock Generator Configuration"
+
+      config SYS_CLK_PMC_PCR_EN0
+        bool "Enable Peripheral Clock 0"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCR_GCLKEN0
+        bool "Enable Generic Clock 0"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCR_GCLKDIV0
+        depends on SYS_CLK_PMC_PCR_GCLKEN0
+        int "Generic Clock Divider 0"
+        range 1 256
+        default 1
+
+      config SYS_CLK_PMC_PCR_GCLKCSS0
+        depends on SYS_CLK_PMC_PCR_GCLKEN0
+        string "Generic Clock Source (I2S0)"
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCR_GCLKCSS0_VALUE
+        string
+        depends on USE_SYS_CLK
+        depends on SYS_CLK_PMC_PCR_GCLKEN0
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCR_GCLKCSS0 = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCR_GCLKCSS0 = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCR_GCLKCSS0 = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCR_GCLKCSS0 = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCR_GCLKCSS0 = "MCK"
+
+      config SYS_CLK_PMC_PCR_EN1
+        bool "Enable Peripheral Clock 1"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCR_GCLKEN1
+        bool "Enable Generic Clock 1"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCR_GCLKDIV1
+        depends on SYS_CLK_PMC_PCR_GCLKEN1
+        int "Generic Clock Divider 1"
+        range 1 256
+        default 1
+
+      config SYS_CLK_PMC_PCR_GCLKCSS1
+        depends on SYS_CLK_PMC_PCR_GCLKEN1
+        string "Generic Clock Source (I2S1)"
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCR_GCLKCSS1_VALUE
+        string
+        depends on USE_SYS_CLK
+        depends on SYS_CLK_PMC_PCR_GCLKEN1
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCR_GCLKCSS1 = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCR_GCLKCSS1 = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCR_GCLKCSS1 = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCR_GCLKCSS1 = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCR_GCLKCSS1 = "MCK"
+
+      config SYS_CLK_PMC_PCR_PID0
+        int
+        depends on USE_SYS_CLK
+        default 69
+
+      config SYS_CLK_PMC_PCR_PID1
+        int
+        depends on USE_SYS_CLK
+        default 70
+	  
+	  config SYS_CLK_PMC_ID_UART0
+		bool  
+		default n
+		
+	  config SYS_CLK_PMC_ID_UART1
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_SMC
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_PORTA
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_PORTB
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_PORTC
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_USART0
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_USART1
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_USART2
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_PORTD
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_PORTE
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_HSMCI
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_TWI0
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_TWI1
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_SPI0
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_SSC
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_TC0_CHANNEL0
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_TC0_CHANNEL1
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_TC0_CHANNEL2
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_TC1_CHANNEL0
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_TC1_CHANNEL1
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_TC1_CHANNEL2
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_AFEC0
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_DACC
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_PWM0
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_ICM
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_ACC
+		bool 
+		default n
+	
+	config SYS_CLK_PMC_ID_USBHS
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_MCAN0
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_MCAN1
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_GMAC
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_AFEC1
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_TWIHS2
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_SPI1
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_QSPI
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_UART2
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_UART3
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_UART4
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_TC2_CHANNEL0
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_TC2_CHANNEL1
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_TC2_CHANNEL2
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_TC3_CHANNEL0
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_TC3_CHANNEL1
+		bool	  
+		default n
+	
+	config SYS_CLK_PMC_ID_TC3_CHANNEL2
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_MLB
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_AES
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_TRNG
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_XDMAC
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_ISI
+		bool	  
+		default n
+		
+	config SYS_CLK_PMC_ID_PWM1
+		bool	  
+		default n
+		
+	  config SYS_CLK_PMC_PCER0
+	    hex
+	    default 0x00000000
+
+	  config SYS_CLK_PMC_PCER1
+		hex
+		default 0x00000000
+
+    endmenu
+
+    # Programmable Clock Generator configuration options
+    menu "Programmable Clock Generator Configuration"
+      config SYS_CLK_PMC_SCER_PCK0
+        bool "Enable PCK0"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCK0_CSS
+        string "Clock Source"
+        depends on SYS_CLK_PMC_SCER_PCK0
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCK0_CSS_VALUE
+        string
+        depends on SYS_CLK_PMC_SCER_PCK0
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCK0_CSS = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCK0_CSS = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCK0_CSS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCK0_CSS = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCK0_CSS = "MCK"
+
+      config SYS_CLK_PMC_PCK0_PRES
+        int "Prescaler"
+        depends on SYS_CLK_PMC_SCER_PCK0
+        range 1 256
+        default 1
+
+      config SYS_CLK_PMC_SCER_PCK1
+        bool "Enable PCK1"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCK1_CSS
+        string "Clock Source"
+        depends on SYS_CLK_PMC_SCER_PCK1
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCK1_CSS_VALUE
+        string
+        depends on SYS_CLK_PMC_SCER_PCK1
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCK1_CSS = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCK1_CSS = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCK1_CSS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCK1_CSS = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCK1_CSS = "MCK"
+
+      config SYS_CLK_PMC_PCK1_PRES
+        int "Prescaler"
+        depends on SYS_CLK_PMC_SCER_PCK1
+        range 1 256
+        default 1
+
+      config SYS_CLK_PMC_SCER_PCK2
+        bool "Enable PCK2"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCK2_CSS
+        string "Clock Source"
+        depends on SYS_CLK_PMC_SCER_PCK2
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCK2_CSS_VALUE
+        string
+        depends on SYS_CLK_PMC_SCER_PCK2
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCK2_CSS = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCK2_CSS = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCK2_CSS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCK2_CSS = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCK2_CSS = "MCK"
+
+      config SYS_CLK_PMC_PCK2_PRES
+        int "Prescaler"
+        depends on SYS_CLK_PMC_SCER_PCK2
+        range 1 256
+        default 1
+
+      config SYS_CLK_PMC_SCER_PCK3
+        bool "Enable PCK3"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCK3_CSS
+        string "Clock Source"
+        depends on SYS_CLK_PMC_SCER_PCK3
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCK3_CSS_VALUE
+        string
+        depends on SYS_CLK_PMC_SCER_PCK3
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCK3_CSS = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCK3_CSS = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCK3_CSS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCK3_CSS = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCK3_CSS = "MCK"
+
+      config SYS_CLK_PMC_PCK3_PRES
+        int "Prescaler"
+        depends on SYS_CLK_PMC_SCER_PCK3
+        range 1 256
+        default 1
+
+      config SYS_CLK_PMC_SCER_PCK4
+        bool "Enable PCK4"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCK4_CSS
+        string "Clock Source"
+        depends on SYS_CLK_PMC_SCER_PCK4
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCK4_CSS_VALUE
+        string
+        depends on SYS_CLK_PMC_SCER_PCK4
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCK4_CSS = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCK4_CSS = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCK4_CSS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCK4_CSS = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCK4_CSS = "MCK"
+
+      config SYS_CLK_PMC_PCK4_PRES
+        int "Prescaler"
+        depends on SYS_CLK_PMC_SCER_PCK4
+        range 1 256
+        default 1
+
+      config SYS_CLK_PMC_SCER_PCK5
+        bool "Enable PCK5"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCK5_CSS
+        string "Clock Source"
+        depends on SYS_CLK_PMC_SCER_PCK5
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCK5_CSS_VALUE
+        string
+        depends on SYS_CLK_PMC_SCER_PCK5
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCK5_CSS = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCK5_CSS = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCK5_CSS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCK5_CSS = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCK5_CSS = "MCK"
+
+      config SYS_CLK_PMC_PCK5_PRES
+        int "Prescaler"
+        depends on SYS_CLK_PMC_SCER_PCK5
+        range 1 256
+        default 1
+
+      config SYS_CLK_PMC_SCER_PCK6
+        bool "Enable PCK6"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCK6_CSS
+        string "Clock Source"
+        depends on SYS_CLK_PMC_SCER_PCK6
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCK6_CSS_VALUE
+        string
+        depends on SYS_CLK_PMC_SCER_PCK6
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCK6_CSS = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCK6_CSS = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCK6_CSS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCK6_CSS = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCK6_CSS = "MCK"
+
+      config SYS_CLK_PMC_PCK6_PRES
+        int "Prescaler"
+        depends on SYS_CLK_PMC_SCER_PCK6
+        range 1 256
+        default 1
+
+      config SYS_CLK_PMC_SCER_PCK7
+        bool "Enable PCK7"
+        depends on USE_SYS_CLK
+        default n
+
+      config SYS_CLK_PMC_PCK7_CSS
+        string "Clock Source"
+        depends on SYS_CLK_PMC_SCER_PCK7
+        range PMC_PCKx_CSS
+        default "SLOW_CLK"
+
+      config SYS_CLK_PMC_PCK7_CSS_VALUE
+        string
+        depends on SYS_CLK_PMC_SCER_PCK7
+        default "SYS_CLK_SOURCE_SLOW" if SYS_CLK_PMC_PCK7_CSS = "SLOW_CLK"
+        default "SYS_CLK_SOURCE_MAIN" if SYS_CLK_PMC_PCK7_CSS = "MAIN_CLK"
+        default "SYS_CLK_SOURCE_PLLA" if SYS_CLK_PMC_PCK7_CSS = "PLLA_CLK"
+        default "SYS_CLK_SOURCE_USB_PLL" if SYS_CLK_PMC_PCK7_CSS = "UPLL_CLK"
+        default "SYS_CLK_SOURCE_MASTER" if SYS_CLK_PMC_PCK7_CSS = "MCK"
+
+      config SYS_CLK_PMC_PCK7_PRES
+        int "Prescaler"
+        depends on SYS_CLK_PMC_SCER_PCK7
+        range 1 256
+        default 8
+    endmenu
+
+    menu "Calculated Clock Frequencies"
+      depends on USE_SYS_CLK
+
+      config SYS_CLK_SYSTICK
+        string "System Tick Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "37500000"
+
+      config SYS_CLK_PROCESSORCLK_FREQ
+        string "Processor Clock Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "300000000"
+
+      config SYS_CLK_MASTERCLK_FREQ
+        string "Master Clock Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "150000000"
+
+      config SYS_CLK_I2S0_FREQ
+        string "I2S0 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "75000000"
+
+      config SYS_CLK_I2S1_FREQ
+        string "I2S1 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "100000000"
+
+      config SYS_CLK_PCK0_FREQ
+        string "Programmable clock #0 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "12000000"
+
+      config SYS_CLK_PCK1_FREQ
+        string "Programmable clock #1 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "6000000"
+
+      config SYS_CLK_PCK2_FREQ
+        string "Programmable clock #2 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "4000000"
+
+      config SYS_CLK_PCK3_FREQ
+        string "Programmable clock #3 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "3000000"
+
+      config SYS_CLK_PCK4_FREQ
+        string "Programmable clock #4 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "2400000"
+
+      config SYS_CLK_PCK5_FREQ
+        string "Programmable clock #5 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "2000000"
+
+      config SYS_CLK_PCK6_FREQ
+        string "Programmable clock #6 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "1714285"
+
+      config SYS_CLK_PCK7_FREQ
+        string "Programmable clock #7 Frequency (Hz)"
+        depends on USE_SYS_CLK
+        persistent
+        default "1500000"
+
+      config SYS_CLK_USBFS_FREQ
+        string "USB Clock Frequency (Hz)"
+        depends on USE_SYS_CLK && SYS_CLK_CKGR_UCKR_UPLLEN
+        persistent
+        default "48000000"
+
+      config SYS_CLK_USBHS_FREQ
+        string "USB High Speed Clock Frequency (Hz)"
+        depends on USE_SYS_CLK && SYS_CLK_PMC_SCER_USBCLK
+        persistent
+        default "480000000"
+
+    endmenu
+  endmenu
+
+  ifblock USE_SYS_CLK
+    file SYS_CLK_H "$HARMONY_VERSION_PATH/framework/system/clk/sys_clk.h" to "$PROJECT_HEADER_FILES/framework/system/clk/sys_clk.h"
+    file SYS_CLK_COMPATIBILITY_H "$HARMONY_VERSION_PATH/framework/system/clk/sys_clk_compatibility.h" to "$PROJECT_HEADER_FILES/framework/system/clk/sys_clk_compatibility.h"
+
+    ifblock SYS_CLK_MODE = "STATIC"
+      template SYS_CLK_STATIC_C_FTL "$HARMONY_VERSION_PATH/framework/system/clk/templates/sys_clk_static_pic32cz.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/system/clk/src/sys_clk_static.c"
+      file SYS_CLK_MAPPING_H "$HARMONY_VERSION_PATH/framework/system/clk/sys_clk_mapping.h" to "$PROJECT_HEADER_FILES/framework/system/clk/sys_clk_mapping.h"
+    endif
+  endif
+
+endmenu

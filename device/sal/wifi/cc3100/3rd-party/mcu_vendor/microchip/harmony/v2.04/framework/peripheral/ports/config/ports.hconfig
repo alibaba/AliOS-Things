@@ -1,0 +1,8 @@
+source "$HARMONY_VERSION_PATH/framework/peripheral/ports/processor/ports_$DEVICE.hconfig"
+
+ifblock PROJECT_STANDALONE
+file PLIB_PORTS_H "$HARMONY_VERSION_PATH/framework/peripheral/ports/plib_ports.h" to "$PROJECT_HEADER_FILES/framework/peripheral/ports/plib_ports.h"
+file PLIB_PORTS_COMPATIBLITY_H "$HARMONY_VERSION_PATH/framework/peripheral/ports/plib_ports_compatibility.h" to "$PROJECT_HEADER_FILES/framework/peripheral/ports/plib_ports_compatibility.h"
+file PLIB_PORTS_P32XXXX_H "$HARMONY_VERSION_PATH/framework/peripheral/ports/processor/ports_p32xxxx.h" to "$PROJECT_HEADER_FILES/framework/peripheral/ports/processor/ports_p32xxxx.h"
+file PLIB_PORTS_PROCESSOR_H "$HARMONY_VERSION_PATH/framework/peripheral/ports/processor/ports_processor.h" to "$PROJECT_HEADER_FILES/framework/peripheral/ports/processor/ports_processor.h"
+endif

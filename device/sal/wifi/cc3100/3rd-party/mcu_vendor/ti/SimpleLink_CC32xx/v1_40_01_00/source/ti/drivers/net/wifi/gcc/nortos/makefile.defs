@@ -1,0 +1,70 @@
+
+SIMPLELINK_CC32XX_SDK_INSTALL_DIR ?= $(abspath ../../../../../../..)
+
+include $(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/imports.mak
+
+ROOT=$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source/ti/drivers/net/wifi
+
+#
+# Source path
+#
+VPATH = VPATH = $(ROOT):$(ROOT)/source:$(ROOT)/porting:$(ROOT)/sys
+
+CC = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-gcc"
+AR = "$(GCC_ARMCOMPILER)/bin/arm-none-eabi-ar"
+
+STDINC = "$(GCC_ARMCOMPILER)/include"
+
+#
+# Include path
+#
+IPATH  = -I$(ROOT)
+IPATH += -I$(ROOT)/source
+IPATH += -I$(ROOT)/bsd/sys
+IPATH += -I$(SIMPLELINK_CC32XX_SDK_INSTALL_DIR)/source
+ifdef SIMPLELINK_MSP432_SDK_INSTALL_DIR
+IPATH += -I$(SIMPLELINK_MSP432_SDK_INSTALL_DIR)/source
+endif
+IPATH += -I$(STDINC)
+
+CFLAGS = -c -Wunused -Wunknown-pragmas -ffunction-sections -fdata-sections -mcpu=cortex-m4 -mthumb -mabi=aapcs -I$(IPATH)
+ifdef SIMPLELINK_MSP432_SDK_INSTALL_DIR
+CFLAGS += -mfloat-abi=hard
+else
+CFLAGS += -mfloat-abi=soft
+endif
+CFLAGS += -DSL_SUPPORT_IPV6
+CFLAGS += -DDISABLE_DEBUGGER_RECONNECT
+
+CFILES = \
+    device.c \
+    driver.c \
+    flowcont.c \
+    fs.c \
+    netapp.c \
+    netcfg.c \
+    netutil.c \
+    nonos.c \
+    sl_socket.c \
+    spawn.c \
+    wlan.c \
+    cc_pal.c \
+    eventreg.c \
+    socket.c \
+    netdb.c
+
+OBJCFILES = $(CFILES:.c=.obj)
+
+simplelink.a: $(OBJCFILES)
+	@ echo ar $@ ...
+	@ $(RM) $@ > $(DEVNULL) 2>&1
+	@ $(AR) -cr $@ $(OBJCFILES)
+
+%.obj:%.c
+	@ echo cc $@ ...
+	@ $(CC) $(CFLAGS) $< -o $@
+
+clean:
+	@ echo cleaning ...
+	@ $(RM) *.obj > $(DEVNULL) 2>&1
+	@ $(RM) *.a > $(DEVNULL) 2>&1

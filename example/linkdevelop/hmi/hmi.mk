@@ -13,3 +13,8 @@ GLOBAL_DEFINES += LITTLEVGL_DISPLAY LITTLEVGL_DEVELOPERKIT
 $(NAME)_COMPONENTS += framework.GUI.littlevGL
 GLOBAL_INCLUDES     += ../../framework/GUI/littlevGL/ devkit_display/
 endif
+
+ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),ATSAME54-XPRO)
+$(NAME)_SOURCES    += brd_same54_press_report.c
+$(NAME)_DEFINES += ATSAME54_XPRO_BOARD
+endif

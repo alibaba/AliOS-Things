@@ -1,0 +1,277 @@
+menu "USART"
+    depends on HAVE_USART
+
+enum DRV_USART_OPERATION_MODE
+    "DRV_USART_OPERATION_MODE_IRDA"
+    || "DRV_USART_OPERATION_MODE_NORMAL"
+    || "DRV_USART_OPERATION_MODE_ADDRESSED"
+    || "DRV_USART_OPERATION_MODE_LOOPBACK"
+
+enum DRV_USART_LINE_CONTROL
+    "DRV_USART_LINE_CONTROL_8NONE1"
+    || "DRV_USART_LINE_CONTROL_9NONE1"
+    || "DRV_USART_LINE_CONTROL_8EVEN1"
+    || "DRV_USART_LINE_CONTROL_8EVEN2"
+    || "DRV_USART_LINE_CONTROL_8ODD1"
+    || "DRV_USART_LINE_CONTROL_8ODD2"
+    || "DRV_USART_LINE_CONTROL_8NONE2"
+    || "DRV_USART_LINE_CONTROL_9NONE2"
+
+enum DRV_USART_HANDSHAKE
+    "DRV_USART_HANDSHAKE_FLOWCONTROL"
+    || "DRV_USART_HANDSHAKE_SIMPLEX"
+    || "DRV_USART_HANDSHAKE_NONE"
+
+enum DRV_USART_MODE
+    "STATIC"
+    || "DYNAMIC"
+
+config USE_DRV_USART_NEEDED
+    bool
+
+config USE_DRV_USART_STATIC_NEEDED
+    bool
+
+config USE_DRV_USART
+    bool "Use USART Driver?"
+    default y if USE_DRV_USART_NEEDED
+    default n
+    ---help---
+    IDH_HTML_USART_Driver_Library
+    ---endhelp---
+
+config DRV_USART_DRIVER_MODE
+    string "Driver Implementation"
+    depends on USE_DRV_USART
+    range DRV_USART_MODE
+    default "STATIC" if USE_DRV_USART_STATIC_NEEDED
+    default "DYNAMIC"
+    ---help---
+    IDH_HTML_USART_Driver_Library
+    ---endhelp---
+
+config DRV_USART_INCLUDE_DRIVER
+    bool
+    depends on USE_DRV_USART
+    select DRIVER
+    default y
+
+config DRV_USART_INTERRUPT_MODE
+    bool "Interrupt Mode"
+    depends on USE_DRV_USART
+    select USE_SYS_INT_NEEDED
+    default y if DRV_USART_SUPPORT_TRANSMIT_DMA
+    default y if DRV_USART_SUPPORT_RECEIVE_DMA
+    default y
+    ---help---
+    IDH_HTML_DRV_USART_INTERRUPT_MODE
+    ---endhelp---
+config DRV_USART_BYTE_MODEL_SUPPORT
+    bool "Byte Model Support"
+    depends on USE_DRV_USART
+    default y
+    ---help---
+    IDH_HTML_DRV_USART_BYTE_MODEL_SUPPORT
+    ---endhelp---
+
+ifblock DRV_USART_BYTE_MODEL_SUPPORT
+config DRV_USART_BYTE_MODEL_BLOCKING
+    bool "Use Blocking Operation?"
+    depends on USE_DRV_USART
+    depends on DRV_USART_DRIVER_MODE = "STATIC"
+    default y
+    ---help---
+    IDH_HTML_DRV_USART_BYTE_MODEL_BLOCKING
+    ---endhelp---
+comment "** This option will be deprecated in future releases**"
+    depends on DRV_USART_BYTE_MODEL_BLOCKING
+comment "** User should call DRV_USART_TransmitBufferIsFull prior to calling DRV_USART_WriteByte function **"
+    depends on DRV_USART_BYTE_MODEL_BLOCKING
+config DRV_USART_BYTE_MODEL_CALLBACK
+    bool "Use Callback Operation?"
+    depends on USE_DRV_USART
+    depends on DRV_USART_DRIVER_MODE = "STATIC"
+    default n
+    ---help---
+    IDH_HTML_DRV_USART_BYTE_MODEL_CALLBACK
+    ---endhelp---
+endif
+
+comment "** Read/Write model is not supported when Buffer Queue model with DMA is selected **"
+    depends on USE_DRV_USART
+    depends on USE_DRV_USART_DMA_SUPPORT
+    depends on (DRV_USART_READ_WRITE_MODEL_SUPPORT && DRV_USART_BUFFER_QUEUE_SUPPORT)
+
+config DRV_USART_READ_WRITE_MODEL_SUPPORT
+    bool "Read/Write Model Support"
+    depends on USE_DRV_USART
+    depends on !DRV_USART_BYTE_MODEL_SUPPORT
+    default n
+    persistent if USE_DRV_USART_DMA_SUPPORT
+    ---help---
+    IDH_HTML_DRV_USART_READ_WRITE_MODEL_SUPPORT
+    ---endhelp---
+
+ifblock DRV_USART_READ_WRITE_MODEL_SUPPORT
+config DRV_USART_READ_WRITE_BLOCKING
+    bool "Use Blocking Operation?"
+    depends on USE_DRV_USART
+    depends on DRV_USART_DRIVER_MODE = "STATIC"
+    depends on (USE_3RDPARTY_RTOS || DRV_USART_INTERRUPT_MODE)
+    default n
+    ---help---
+    IDH_HTML_DRV_USART_READ_WRITE_MODEL_SUPPORT
+    ---endhelp---
+
+comment "** Blocking operation is not supported for the Polled mode in a non-RTOS application **"
+    depends on USE_DRV_USART
+    depends on DRV_USART_DRIVER_MODE = "STATIC"
+    depends on !(USE_3RDPARTY_RTOS || DRV_USART_INTERRUPT_MODE)
+endif
+
+config DRV_USART_BUFFER_QUEUE_SUPPORT
+    bool "Buffer Queue Support"
+    depends on USE_DRV_USART
+    depends on !DRV_USART_BYTE_MODEL_SUPPORT
+    default n
+    ---help---
+    IDH_HTML_DRV_USART_BUFFER_QUEUE_SUPPORT
+    ---endhelp---
+
+#Local DMA hconfig macro to generate files and is set by instance specific DMA options
+config USE_DRV_USART_DMA_SUPPORT
+    bool
+    depends on USE_DRV_USART && DRV_USART_BUFFER_QUEUE_SUPPORT
+    select USE_SYS_DMA_NEEDED
+    default n
+
+config DRV_USART_INSTANCES_NUMBER
+    int "Number of USART Driver Instances"
+    depends on USE_DRV_USART
+    range 1 USART_NUMBER_OF_MODULES
+    default 1
+    ---help---
+    IDH_HTML_DRV_USART_INSTANCES_NUMBER
+    ---endhelp---
+
+comment "**** Each instance can have only one client in STATIC driver mode ****"
+    depends on USE_DRV_USART
+    depends on DRV_USART_DRIVER_MODE = "STATIC"
+
+config DRV_USART_CLIENTS_NUMBER
+    int "Number of USART Driver Clients"
+    depends on USE_DRV_USART
+    default DRV_USART_INSTANCES_NUMBER if DRV_USART_DRIVER_MODE = "STATIC"
+    persistent if DRV_USART_DRIVER_MODE = "STATIC"
+    default 1
+    ---help---
+    IDH_HTML_DRV_USART_CLIENTS_NUMBER
+    ---endhelp---
+
+source "$HARMONY_VERSION_PATH/framework/driver/usart/config/drv_usart_pic32mz_mk_wk_idx.ftl" 6 instances
+
+endmenu
+
+#Keeping these options for backward compatibility, and this menu is not visible in MHC
+menu "USART_BACKWARD_COMPATIBILITY"
+visible if 0
+ifblock DRV_USART_BUFFER_QUEUE_SUPPORT
+
+config DRV_USART_SUPPORT_RECEIVE_DMA
+    bool "Receive DMA support"
+    depends on USE_DRV_USART
+    default n
+    ---help---
+    IDH_HTML_DRV_USART_RECEIVE_DMA
+    ---endhelp---
+
+config DRV_USART_SUPPORT_TRANSMIT_DMA
+    bool "Transmit DMA support"
+    depends on USE_DRV_USART
+    default n
+    ---help---
+    IDH_HTML_DRV_USART_TRANSMIT_DMA
+    ---endhelp---
+
+endif
+endmenu
+ifblock USE_DRV_USART
+
+file DRV_USART_H "$HARMONY_VERSION_PATH/framework/driver/usart/drv_usart.h" to "$PROJECT_HEADER_FILES/framework/driver/usart/drv_usart.h"
+file DRV_USART_H_DEFS "$HARMONY_VERSION_PATH/framework/driver/usart/drv_usart_definitions.h" to "$PROJECT_HEADER_FILES/framework/driver/usart/drv_usart_definitions.h"
+file DRV_UDART_SYS_DMA_H "$HARMONY_VERSION_PATH/framework/system/dma/sys_dma.h" to "$PROJECT_HEADER_FILES/framework/system/dma/sys_dma.h"
+file DRV_USART_SYS_DMA_DEFS_H "$HARMONY_VERSION_PATH/framework/system/dma/sys_dma_definitions.h" to "$PROJECT_HEADER_FILES/framework/system/dma/sys_dma_definitions.h"
+file DRV_USART_SYS_INT_H "$HARMONY_VERSION_PATH/framework/system/int/sys_int.h" to "$PROJECT_HEADER_FILES/framework/system/int/sys_int.h"
+file DRV_USART_SYS_INT_MAPPING_H "$HARMONY_VERSION_PATH/framework/system/int/sys_int_mapping.h" to "$PROJECT_HEADER_FILES/framework/system/int/sys_int_mapping.h"
+file DRV_USART_VAR_MAPPING_H "$HARMONY_VERSION_PATH/framework/driver/usart/src/drv_usart_variant_mapping.h" to "$PROJECT_HEADER_FILES/framework/driver/usart/src/drv_usart_variant_mapping.h"
+file DRV_USART_DMA_H "$HARMONY_VERSION_PATH/framework/system/dma/sys_dma.h" to "$PROJECT_HEADER_FILES/framework/system/dma/sys_dma.h"
+add "<#include \"/framework/driver/usart/templates/drv_usart.c.ftl\">"  to list SYSTEM_INIT_C_DRIVER_INITIALIZATION_DATA
+add "<#include \"/framework/driver/usart/templates/drv_usart_init.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_DRIVERS
+add "<#include \"/framework/driver/usart/templates/drv_usart_tasks.c.ftl\">"  to list SYSTEM_TASKS_C_CALL_DRIVER_TASKS
+add "<#include \"/framework/driver/usart/templates/drv_usart_int.c.ftl\">"  to list SYSTEM_INTERRUPT_C_VECTORS
+add "<#include \"/framework/driver/usart/templates/drv_usart.h.ftl\">"  to list SYSTEM_CONFIG_H_DRIVER_CONFIGURATION
+
+ifblock DRV_USART_DRIVER_MODE = "STATIC"
+template DRV_USART_STATIC_H_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_static.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/drv_usart_static.h"
+template DRV_USART_MAPPING_C_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_mapping.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/src/drv_usart_mapping.c"
+
+ifblock !USE_DRV_USART_DMA_SUPPORT
+template DRV_USART_STATIC_C_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_static.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/src/drv_usart_static.c"
+template DRV_USART_STATIC_LOCAL_H_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_static_local.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/src/drv_usart_static_local.h"
+endif
+
+ifblock (DRV_USART_BUFFER_QUEUE_SUPPORT && !USE_DRV_USART_DMA_SUPPORT)
+template DRV_USART_STATIC_BUFFER_QUEUE_C_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_static_buffer_queue.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/src/drv_usart_static_buffer_queue.c"
+endif
+
+ifblock DRV_USART_BYTE_MODEL_SUPPORT
+template DRV_USART_STATIC_BYTE_MODEL_C_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_static_byte_model.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/src/drv_usart_static_byte_model.c"
+endif
+
+ifblock DRV_USART_READ_WRITE_MODEL_SUPPORT
+template DRV_USART_STATIC_READ_WRITE_C_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_static_read_write.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/src/drv_usart_static_read_write.c"
+endif
+
+ifblock USE_DRV_USART_DMA_SUPPORT
+template DRV_USART_STATIC_DMA_C_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_static_dma.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/src/drv_usart_static_dma.c"
+template DRV_USART_STATIC_LOCAL_DMA_H_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_static_local_dma.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/src/drv_usart_static_local_dma.h"
+endif
+
+ifblock (USE_DRV_USART_DMA_SUPPORT && DRV_USART_BUFFER_QUEUE_SUPPORT)
+template DRV_USART_STATIC_BUFFER_QUEUE_DMA_C_FTL "$HARMONY_VERSION_PATH/framework/driver/usart/templates/drv_usart_static_buffer_queue_dma.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/usart/src/drv_usart_static_buffer_queue_dma.c"
+endif
+
+endif
+
+
+
+ifblock DRV_USART_DRIVER_MODE = "DYNAMIC"
+
+file DRV_USART_LOCAL_H "$HARMONY_VERSION_PATH/framework/driver/usart/src/drv_usart_local.h" to "$PROJECT_HEADER_FILES/framework/driver/usart/src/drv_usart_local.h"
+ifblock !USE_DRV_USART_DMA_SUPPORT
+file DRV_USART_C "$HARMONY_VERSION_PATH/framework/driver/usart/src/dynamic/drv_usart.c" to "$PROJECT_SOURCE_FILES/framework/driver/usart/src/dynamic/drv_usart.c"
+endif
+
+ifblock (DRV_USART_BUFFER_QUEUE_SUPPORT && !USE_DRV_USART_DMA_SUPPORT)
+file DRV_USART_BQ_C "$HARMONY_VERSION_PATH/framework/driver/usart/src/dynamic/drv_usart_buffer_queue.c" to "$PROJECT_SOURCE_FILES/framework/driver/usart/src/dynamic/drv_usart_buffer_queue.c"
+endif
+
+ifblock DRV_USART_BYTE_MODEL_SUPPORT
+file DRV_USART_BM_C "$HARMONY_VERSION_PATH/framework/driver/usart/src/dynamic/drv_usart_byte_model.c" to "$PROJECT_SOURCE_FILES/framework/driver/usart/src/dynamic/drv_usart_byte_model.c"
+endif
+
+ifblock DRV_USART_READ_WRITE_MODEL_SUPPORT
+file DRV_USART_RW_C "$HARMONY_VERSION_PATH/framework/driver/usart/src/dynamic/drv_usart_read_write.c" to "$PROJECT_SOURCE_FILES/framework/driver/usart/src/dynamic/drv_usart_read_write.c"
+endif
+
+ifblock USE_DRV_USART_DMA_SUPPORT
+file DRV_USART_DMA_C "$HARMONY_VERSION_PATH/framework/driver/usart/src/dynamic/drv_usart_dma.c" to "$PROJECT_SOURCE_FILES/framework/driver/usart/src/dynamic/drv_usart_dma.c"
+file DRV_USART_LOCAL_DMA_H "$HARMONY_VERSION_PATH/framework/driver/usart/src/drv_usart_local_dma.h" to "$PROJECT_HEADER_FILES/framework/driver/usart/src/drv_usart_local_dma.h"
+endif
+
+ifblock (USE_DRV_USART_DMA_SUPPORT && DRV_USART_BUFFER_QUEUE_SUPPORT)
+file DRV_USART_BQ_DMA_C "$HARMONY_VERSION_PATH/framework/driver/usart/src/dynamic/drv_usart_buffer_queue_dma.c" to "$PROJECT_SOURCE_FILES/framework/driver/usart/src/dynamic/drv_usart_buffer_queue_dma.c"
+endif
+
+endif
+endif

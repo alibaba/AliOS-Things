@@ -1,0 +1,2 @@
+source "$HARMONY_VERSION_PATH/framework/system/clk/config/$DATA_SHEET_ID.hconfig"
+

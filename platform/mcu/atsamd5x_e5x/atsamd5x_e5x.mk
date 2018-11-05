@@ -39,6 +39,7 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/hal/src/hal_gpio.c    \
                    Drivers/hal/src/hal_init.c \
                    Drivers/hal/src/hal_io.c    \
+                   Drivers/hal/src/hal_ext_irq.c \
                    Drivers/hal/src/hal_rtos.c \
                    Drivers/hal/src/hal_sleep.c   \
                    Drivers/hal/src/hal_usart_os.c \
@@ -51,6 +52,7 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
                    Drivers/hpl/core/hpl_core_m4.c    \
                    Drivers/hpl/core/hpl_init.c   \
                    Drivers/hpl/dmac/hpl_dmac.c  \
+                   Drivers/hpl/eic/hpl_eic.c \
                    Drivers/hpl/gclk/hpl_gclk.c   \
                    Drivers/hpl/mclk/hpl_mclk.c    \
                    Drivers/hpl/nvmctrl/hpl_nvmctrl.c    \
