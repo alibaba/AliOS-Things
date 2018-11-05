@@ -23,7 +23,7 @@
 #include <k_task.h>
 #include <port.h>
 
-#define LORAWAN_DEFAULT_PING_SLOT_PERIODICITY       4
+#define LORAWAN_DEFAULT_PING_SLOT_PERIODICITY       2
 
 static uint8_t        tx_buf[LORAWAN_APP_DATA_BUFF_SIZE];
 static lora_AppData_t tx_data = { tx_buf, 1, 0 };
