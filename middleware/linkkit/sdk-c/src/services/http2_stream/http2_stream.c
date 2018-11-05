@@ -312,7 +312,6 @@ static void *http2_io(void *user_data)
             HAL_MutexLock(handle->mutex);
             rv = iotx_http2_exec_io(handle->http2_connect);
             HAL_MutexUnlock(handle->mutex);
-            utils_time_countdown_ms(&timer, IOT_HTTP2_KEEP_ALIVE_TIME);
         }
         if(utils_time_is_expired(&timer) && handle->connect_state) {
             HAL_MutexLock(handle->mutex);
@@ -701,11 +700,14 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
         } else {
             h2_data.flag = 0;
         }
+        
+        HAL_MutexLock(handle->mutex);
         rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
-
-        if (rv >= 0) {
-            info->send_len += info->packet_len;
+        HAL_MutexUnlock(handle->mutex);
+        if(rv < 0) {
+            return FAIL_RETURN;
         }
+        info->send_len += info->packet_len;
     }
 
     if (h2_data.flag == 1) {
@@ -726,6 +728,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
             return FAIL_RETURN;
         }
     }
+
     return rv;
 }
 
