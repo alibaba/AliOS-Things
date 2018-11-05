@@ -773,6 +773,7 @@ static void OnRadioRxError( void )
 
 static void OnRadioRxTimeout( void )
 {
+    DBG_LINKWAN("rx timeout\r\n");
     LoRaMacRadioEvents.Events.RxTimeout = 1;
 }
 
