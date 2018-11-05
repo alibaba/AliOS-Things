@@ -488,7 +488,7 @@ int CoAPMessage_send(CoAPContext *context, NetworkAddr *remote, CoAPMessage *mes
         }
     } else {
         coap_free(buff);
-        COAP_ERR("CoAP transoprt write failed, send message %d return %d", message->header.msgid, ret);
+        COAP_ERR("CoAP transport write failed, send message %d return %d", message->header.msgid, ret);
         return COAP_ERROR_WRITE_FAILED;
     }
 

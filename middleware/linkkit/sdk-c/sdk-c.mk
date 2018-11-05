@@ -33,7 +33,6 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/include/imports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/alcs \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/coap/local \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/ntp \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dev_reset \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/os \
@@ -76,7 +75,6 @@ endif
 
 ifeq (y,$(FEATURE_DEVICE_MODEL_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/dev_reset
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/ntp
 endif
 
 ifeq (y,$(FEATURE_DEV_BIND_ENABLED))
