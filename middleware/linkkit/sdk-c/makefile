@@ -22,7 +22,6 @@ $(call CompLib_Map, FEATURE_MQTT_SHADOW,        src/services/shadow)
 $(call CompLib_Map, FEATURE_SUBDEVICE_ENABLED,  src/services/subdev)
 
 $(call CompLib_Map, FEATURE_DEVICE_MODEL_ENABLED, \
-    src/services/linkkit/ntp \
     src/services/linkkit/cm \
     src/services/linkkit/dm \
     src/services/linkkit/dev_reset \

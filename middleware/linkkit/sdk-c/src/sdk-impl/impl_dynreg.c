@@ -43,7 +43,8 @@ static int _calc_dynreg_sign(
     return SUCCESS_RETURN;
 }
 
-static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *response_payload, _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
+static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *response_payload,
+                                   _OU_ char device_secret[DEVICE_SECRET_MAXLEN])
 {
     int                 res = 0;
     const char         *domain = NULL;
@@ -63,7 +64,7 @@ static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *respon
         return FAIL_RETURN;
     }
     url_len = strlen(url_format) + strlen(domain) + 1;
-    url = (char*)LITE_malloc(url_len);
+    url = (char *)LITE_malloc(url_len);
     if (NULL == url) {
         sdk_err("Not Enough Memory");
         return FAIL_RETURN;
