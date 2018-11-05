@@ -62,6 +62,7 @@ void ble_command(char *pwbuf, int blen, int argc, char **argv)
 {
     if (argc >= 6 || argv == NULL) {
         printk("Invalid command\n");
+        return;
     }
 
     const char *cmd_main = argc >= 1 ? argv[1] : "";
