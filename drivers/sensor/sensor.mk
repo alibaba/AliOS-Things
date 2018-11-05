@@ -5,12 +5,16 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_SOURCES += \
         hal/sensor_hal.c \
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b7b8639a0 (BugID: 17115493:add sensor compile file)
         hal/sensor_drv_api.c \
         drv/drv_humi_bosch_bme280.c \
         drv/drv_acc_bosch_bma253.c \
         drv/drv_baro_bosch_bmp280.c \
         drv/drv_acc_gyro_st_lsm6dsl.c\
         drv/drv_baro_st_lps22hb.c \
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -21,11 +25,14 @@ $(NAME)_SOURCES += \
 >>>>>>> 056ff03e6 (updata sensitivity definition for sensor I3G4250D and L3GD20H)
 =======
 >>>>>>> 08bc8fba1 (release aos2.0.0)
+=======
+>>>>>>> b7b8639a0 (BugID: 17115493:add sensor compile file)
         drv/drv_acc_mir3_da217.c \
         drv/drv_als_ps_liteon_ltr553.c \
         drv/drv_temp_humi_sensirion_shtc1.c \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         drv/drv_mag_temp_memsic_mmc3680kj.c \
@@ -119,6 +126,9 @@ $(NAME)_SOURCES += \
         
 =======
         hal/sensor_drv_api.c 
+=======
+        drv/drv_mag_temp_memsic_mmc3680kj.c 
+>>>>>>> b7b8639a0 (BugID: 17115493:add sensor compile file)
 
 
 CONFIG_SENSOR =  $(addsuffix .c,$(CONFIG_SENSOR_DRV_NAME))
