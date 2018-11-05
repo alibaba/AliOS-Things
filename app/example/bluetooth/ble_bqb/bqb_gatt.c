@@ -89,6 +89,8 @@ void process_cl_gac_bv_01_c(int argc, char *argv[])
     struct bt_att_req req;
     struct bt_gatt_exchange_params param;
 
+    memset(&req, 0, sizeof(struct bt_att_req));
+    memset(&param, 0, sizeof(struct bt_gatt_exchange_params));
     param._req = req;
     param.func = get_mtu_response;
 
