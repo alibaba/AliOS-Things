@@ -35,6 +35,7 @@ static LoRaMacPrimitives_t LoRaMacPrimitives;
 static LoRaMacCallback_t   LoRaMacCallbacks;
 static LoRaMainCallback_t *app_callbacks;
 static MibRequestConfirm_t mibReq;
+static app_class_type_t    app_classType;
 
 static int8_t  is_tx_confirmed = 1;
 static bool    next_tx         = true;
@@ -494,10 +495,12 @@ void lora_reboot(int8_t mode)
 }
 
 
-void lora_init(LoRaMainCallback_t *callbacks)
+void lora_init(LoRaMainCallback_t *callbacks, app_class_type_t class_type)
 {
     device_state  = DEVICE_STATE_INIT;
     app_callbacks = callbacks;
+
+    app_classType = class_type;
 
 #ifdef AOS_KV
     assert(aos_kv_init() == 0);
@@ -693,8 +696,12 @@ void lora_fsm(void)
             case DEVICE_STATE_JOINED: {
                 DBG_LINKWAN("Joined\n\r");
                 store_lora_config();
-                //device_state = DEVICE_STATE_SEND;
-                device_state = DEVICE_STATE_REQ_DEVICE_TIME;
+                if (app_classType == LORA_APP_CLASS_B) {
+                    device_state = DEVICE_STATE_REQ_DEVICE_TIME;
+                } else {
+                    device_state = DEVICE_STATE_SEND;
+                }
+
                 break;
             }
             case DEVICE_STATE_REQ_DEVICE_TIME: {
