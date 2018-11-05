@@ -302,9 +302,10 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf , u
 
 int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t buf_size)
 {
-    uint32_t start_addr;
+    uint32_t start_addr, len;
     hal_logic_partition_t *partition_info;
     hal_partition_t real_pno;
+    uint64_t *pdata;
 
     real_pno = pno;
 
@@ -319,8 +320,19 @@ int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t 
     start_addr = FLASH_flat_addr(start_addr);
 #endif
 
-    FLASH_read_at(start_addr, buf, buf_size);
+    len = (((buf_size % 8) == 0) ? (buf_size / 8) : (buf_size / 8 + 1));
+    pdata = (uint64_t *)krhino_mm_alloc(len);
+    if (pdata == NULL) {
+        return -1;
+    }
+    memset(pdata, 0, len);
+
+    FLASH_read_at(start_addr, pdata, len);
+    memcpy((uint8_t *)buf, (uint8_t *)pdata, buf_size);
+    
     *poff += buf_size;
+    krhino_mm_free(pdata);
+    pdata = NULL;
 
     return 0;
 }
