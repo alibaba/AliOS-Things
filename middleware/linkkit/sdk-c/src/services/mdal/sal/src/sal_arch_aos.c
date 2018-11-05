@@ -34,7 +34,7 @@ void sal_msleep(uint32_t ms)
 err_t sal_sem_new(sal_sem_t *sem, uint8_t count)
 {
     err_t ret = ERR_MEM;
-    int stat = aos_sem_new(sem, count);
+    int stat = aos_sem_new((aos_sem_t *)sem, count);
 
     if (stat == 0) {
         ret = ERR_OK;
@@ -51,7 +51,7 @@ err_t sal_sem_new(sal_sem_t *sem, uint8_t count)
 void sal_sem_free(sal_sem_t *sem)
 {
     if (sem != NULL) {
-        aos_sem_free(sem);
+        aos_sem_free((aos_sem_t *)sem);
     }
 }
 
@@ -64,7 +64,7 @@ void sal_sem_free(sal_sem_t *sem)
 */
 void sal_sem_signal(sal_sem_t *sem)
 {
-    aos_sem_signal(sem);
+    aos_sem_signal((aos_sem_t *)sem);
 }
 
 int sal_sem_valid(sal_sem_t *sem)
@@ -108,7 +108,7 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
     begin_ms = sal_now();
 
     if ( timeout != 0UL ) {
-        ret = aos_sem_wait(sem, timeout);
+        ret = aos_sem_wait((aos_sem_t *)sem, timeout);
         if (ret == 0) {
             end_ms = sal_now();
 
@@ -119,7 +119,7 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
             ret = SAL_ARCH_TIMEOUT;
         }
     } else {
-        while ( !(aos_sem_wait(sem, AOS_WAIT_FOREVER) == 0));
+        while ( !(aos_sem_wait((aos_sem_t *)sem, AOS_WAIT_FOREVER) == 0));
         end_ms = sal_now();
 
         elapsed_ms = end_ms - begin_ms;
@@ -152,7 +152,7 @@ err_t sal_mbox_new(sal_mbox_t *mb, int size)
         return ERR_MEM;
     }
 
-    if (aos_queue_new(mb,msg_start,size * sizeof(void *),sizeof(void *)) != 0) {
+    if (aos_queue_new((aos_queue_t *)mb,msg_start,size * sizeof(void *),sizeof(void *)) != 0) {
         return ERR_MEM;
     }
 
@@ -170,10 +170,10 @@ void sal_mbox_free(sal_mbox_t *mb)
     void *start;
 
     if ((mb != NULL)) {
-        start = aos_queue_buf_ptr(mb);
+        start = aos_queue_buf_ptr((aos_queue_t *)mb);
         if(start != NULL)
             sal_free(start);
-        aos_queue_free(mb);
+        aos_queue_free((aos_queue_t *)mb);
     }
 }
 
@@ -186,7 +186,7 @@ void sal_mbox_free(sal_mbox_t *mb)
 */
 void sal_mbox_post(sal_mbox_t *mb, void *msg)
 {
-    aos_queue_send(mb, &msg,sizeof(void*));
+    aos_queue_send((aos_queue_t *)mb, &msg,sizeof(void*));
 }
 
 /*
@@ -196,7 +196,7 @@ void sal_mbox_post(sal_mbox_t *mb, void *msg)
 */
 err_t sal_mbox_trypost(sal_mbox_t *mb, void *msg)
 {
-    if (aos_queue_send(mb,&msg,sizeof(void*)) != 0)
+    if (aos_queue_send((aos_queue_t *)mb,&msg,sizeof(void*)) != 0)
         return ERR_MEM;
     else
         return ERR_OK;
@@ -243,7 +243,7 @@ u32_t sal_arch_mbox_fetch(sal_mbox_t *mb, void **msg, u32_t timeout)
     begin_ms = sal_now();
 
     if( timeout != 0UL ) {
-        if(aos_queue_recv(mb,timeout,msg,&len) == 0) {
+        if(aos_queue_recv((aos_queue_t *)mb,timeout,msg,&len) == 0) {
             end_ms = sal_now();
             elapsed_ms = end_ms - begin_ms;
             ret = elapsed_ms;
@@ -251,7 +251,7 @@ u32_t sal_arch_mbox_fetch(sal_mbox_t *mb, void **msg, u32_t timeout)
             ret = SAL_ARCH_TIMEOUT;
         }
     } else {
-        while(aos_queue_recv(mb,SAL_ARCH_TIMEOUT,msg,&len) != 0);
+        while(aos_queue_recv((aos_queue_t *)mb,SAL_ARCH_TIMEOUT,msg,&len) != 0);
         end_ms = sal_now();
         elapsed_ms = end_ms - begin_ms;
 
@@ -278,7 +278,7 @@ u32_t sal_arch_mbox_tryfetch(sal_mbox_t *mb, void **msg)
     if (mb == NULL)
        return ERR_MEM;
 
-    if(aos_queue_recv(mb,0u,msg,&len) != 0) {
+    if(aos_queue_recv((aos_queue_t *)mb,0u,msg,&len) != 0) {
         return SAL_MBOX_EMPTY;
     } else {
         return ERR_OK;
@@ -294,7 +294,7 @@ u32_t sal_arch_mbox_tryfetch(sal_mbox_t *mb, void **msg)
 err_t sal_mutex_new(sal_mutex_t *mutex)
 {
     err_t ret = ERR_MEM;
-    int stat = aos_mutex_new(mutex);
+    int stat = aos_mutex_new((aos_mutex_t *)mutex);
 
     if (stat == 0) {
         ret = ERR_OK;
@@ -307,14 +307,14 @@ err_t sal_mutex_new(sal_mutex_t *mutex)
  **/
 void sal_mutex_lock(sal_mutex_t *mutex)
 {
-    aos_mutex_lock(mutex, AOS_WAIT_FOREVER);
+    aos_mutex_lock((aos_mutex_t *)mutex, AOS_WAIT_FOREVER);
 }
 
 /** Unlock a mutex
  * @param mutex the mutex to unlock */
 void sal_mutex_unlock(sal_mutex_t *mutex)
 {
-    aos_mutex_unlock(mutex);
+    aos_mutex_unlock((aos_mutex_t *)mutex);
 }
 
 /** Delete a semaphore
@@ -322,7 +322,7 @@ void sal_mutex_unlock(sal_mutex_t *mutex)
  **/
 void sal_mutex_free(sal_mutex_t *mutex)
 {
-    aos_mutex_free(mutex);
+    aos_mutex_free((aos_mutex_t *)mutex);
 }
 
 int sal_mutex_valid(sal_mutex_t *mutex)
@@ -339,13 +339,14 @@ int sal_mutex_valid(sal_mutex_t *mutex)
 }
 
 #if SAL_PACKET_SEND_MODE_ASYNC
+typedef void (*sal_async_send_cb_t)(void *);
 err_t sal_task_new_ext(sal_task_t *task, char *name, void *(*fn)(void *),
                        void *arg, int stack_size, int prio)
 {
     if (task == NULL)
         return ERR_MEM;
 
-    return aos_task_new_ext(task, name, fn, arg, stack_size,
+    return aos_task_new_ext((aos_task_t *)task, name, (sal_async_send_cb_t) fn, arg, stack_size,
                             AOS_DEFAULT_APP_PRI - prio);
 }
 #endif
