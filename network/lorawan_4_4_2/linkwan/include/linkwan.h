@@ -64,6 +64,13 @@ typedef enum join_method_s
     JOIN_METHOD_NUM
 } join_method_t;
 
+typedef enum app_class_type_s
+{
+    LORA_APP_CLASS_A = 0,
+    LORA_APP_CLASS_B,
+    LORA_APP_CLASS_C,
+} app_class_type_t;
+
 #ifdef CONFIG_DEBUG_LINKWAN
 #include "debug.h"
 #define DBG_LINKWAN(...) PRINTF(__VA_ARGS__)
