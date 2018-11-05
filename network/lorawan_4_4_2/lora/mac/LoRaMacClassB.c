@@ -690,6 +690,14 @@ static void LoRaMacClassBProcessBeacon( void )
                             Ctx.NvmCtx->BeaconState = BEACON_STATE_ACQUISITION;
                         }
                         Ctx.NvmCtx->BeaconCtx.BeaconTimingDelay = 0;
+
+                        /* start work around for the initial Beacon Aquisition */
+                        activateTimer = false;
+                        Ctx.NvmCtx->BeaconCtx.Ctrl.BeaconDelaySet = 0;
+                        Ctx.NvmCtx->BeaconCtx.Ctrl.AcquisitionPending = 1;
+
+                        RxBeaconSetup( 0, false );
+                        /* end work around for the initial Beacon Aquisition */
                     }
                     else
                     {

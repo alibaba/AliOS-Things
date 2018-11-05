@@ -28,8 +28,6 @@
 #define __GPIO_H__
 
 #include <stdint.h>
-#include "pinName-board.h"
-#include "pinName-ioe.h"
 
 /*!
  * Board GPIO pin names
