@@ -141,18 +141,26 @@ int breeze_end(void)
 
 uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length)
 {
-    return transport_packet(TX_INDICATION, cmd, buffer, length);
+    if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
+        return BZ_EDATASIZE;
+    }
+
+    if (cmd == 0) {
+        cmd = BZ_CMD_STATUS;
+    }
+    return transport_tx(TX_INDICATION, cmd, buffer, length);
 }
 
 uint32_t breeze_post_fast(uint8_t cmd,uint8_t *buffer, uint32_t length)
 {
-    return transport_packet(TX_NOTIFICATION, cmd, buffer, length);
-}
-
-void breeze_event_dispatcher()
-{
-    os_start_event_dispatcher();
-    while (1);
+    if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
+        return BZ_EDATASIZE;
+    }
+    
+    if (cmd == 0) {
+        cmd = BZ_CMD_STATUS;
+    }
+    return transport_tx(TX_NOTIFICATION, cmd, buffer, length);
 }
 
 void breeze_append_adv_data(uint8_t *data, uint32_t len)

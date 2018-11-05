@@ -374,7 +374,9 @@ void transport_rx(uint8_t *p_data, uint16_t length)
             }
         }
 
+#if BZ_ENABLE_AUTH
         auth_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
+#endif
         extern void notify_ota_command(uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len);
         notify_ota_command(g_transport.rx.cmd, g_transport.rx.frame_seq + 1,
                            g_transport.rx.buff, g_transport.rx.bytes_received);
