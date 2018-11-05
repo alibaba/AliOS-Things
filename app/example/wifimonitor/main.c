@@ -13,5 +13,6 @@ int application_start(int argc, char *argv[])
     netmgr_start(false);
     wifimonitor_start(false);
     aos_loop_run();
+    return 0;
 }
 
