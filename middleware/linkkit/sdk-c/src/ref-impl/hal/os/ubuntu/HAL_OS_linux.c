@@ -429,6 +429,9 @@ int HAL_ThreadCreate(
     }
 
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
+    if(ret == 0) {
+        pthread_detach((pthread_t)thread_handle);
+    }
 
     return ret;
 }
