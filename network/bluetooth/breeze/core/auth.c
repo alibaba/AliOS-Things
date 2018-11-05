@@ -194,7 +194,7 @@ void auth_tx_done(void)
     uint32_t err_code;
 
     if (g_auth.state == AUTH_STATE_SVC_ENABLED) {
-#ifdef CONFIG_MODEL_SECURITY
+#if BZ_AUTH_MODEL_SEC
         g_auth.state = AUTH_STATE_RAND_SENT;
         return;
 #else
@@ -207,7 +207,7 @@ void auth_tx_done(void)
         return;
 #endif
     } else if (g_auth.state == AUTH_STATE_RAND_SENT) {
-#ifdef CONFIG_MODEL_SECURITY
+#if BZ_AUTH_MODEL_SEC
         return;
 #else
         update_aes_key(true);
