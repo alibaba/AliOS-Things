@@ -62,19 +62,21 @@ static float acc_val_limit(float val);
 /* LED1 gpio config */
 static int als_led1_gpio_config(uint8_t led_config)
 {
+    int ret = 0;
     do {
         switch (led_config) {
             case LED_ON_LOW_DEFAULT:
-                hal_gpio_output_low(&brd_gpio_table[GPIO_LED_1]);
+                ret = hal_gpio_output_low(&brd_gpio_table[GPIO_ALS_LED]);
                 break;
             case LED_OFF_HIGH:
-                hal_gpio_output_high(&brd_gpio_table[GPIO_LED_1]);
+                ret = hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
                 break;
             default:
-                hal_gpio_output_high(&brd_gpio_table[GPIO_LED_1]);
+                ret = hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
                 break;
         }
     } while (0);
+    return ret;
 }
 
 static int get_als_data(uint32_t *lux)
