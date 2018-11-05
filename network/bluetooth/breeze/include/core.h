@@ -24,7 +24,6 @@ extern "C"
 
 typedef struct {
     ali_event_handler_t event_handler;
-
     uint8_t adv_data[MAX_ADV_DATA_LEN];
     uint16_t adv_data_len;
 } core_t;

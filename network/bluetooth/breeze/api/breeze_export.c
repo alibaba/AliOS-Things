@@ -33,6 +33,8 @@ static void notify_status(breeze_event_t event)
 static void event_handler(ali_event_t *p_event)
 {
     uint32_t err_code;
+    bool b_notify_upper = false;
+    breeze_otainfo_t m_disc_evt;
 
     switch (p_event->type) {
         case BZ_EVENT_CONNECTED:
@@ -42,19 +44,18 @@ static void event_handler(ali_event_t *p_event)
         case BZ_EVENT_DISCONNECTED:
             core_reset();
             notify_status(DISCONNECTED);
-            if (m_ota_dev_handler != NULL){
-                breeze_otainfo_t m_disc_evt;
-                m_disc_evt.type = OTA_EVT;
-                m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_DISCONNECTED;
-                m_disc_evt.cmd_evt.m_evt.d = 0;
-                m_ota_dev_handler(&m_disc_evt);
-            }
+            m_disc_evt.type = OTA_EVT;
+            m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_DISCONNECTED;
+            m_disc_evt.cmd_evt.m_evt.d = 0;
+            b_notify_upper = true;
             break;
 
         case BZ_EVENT_AUTHENTICATED:
             notify_status(AUTHENTICATED);
-            extern void notify_ota_event(uint8_t ota_evt, uint8_t sub_evt);
-            notify_ota_event(ALI_OTA_ON_AUTH_EVT, true);
+            m_disc_evt.type = OTA_EVT;
+            m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_AUTH_EVT;
+            m_disc_evt.cmd_evt.m_evt.d = 1;
+            b_notify_upper = true;
             break;
 
         case BZ_EVENT_RX_CTRL:
@@ -71,20 +72,37 @@ static void event_handler(ali_event_t *p_event)
 
         case BZ_EVENT_TX_DONE:
             notify_status(TX_DONE);
+            uint8_t cmd = *p_event->rx_data.p_data;
+            if (cmd == BZ_CMD_OTA_CHECK_RESULT || cmd == BZ_CMD_ERR || cmd == BZ_CMD_OTA_PUB_SIZE) {
+                m_disc_evt.type = OTA_EVT;
+                m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_TX_DONE;
+                m_disc_evt.cmd_evt.m_evt.d = cmd;
+                b_notify_upper = true;
+            }
             break;
 
         case BZ_EVENT_APINFO:
-            if (m_apinfo_handler != NULL) {
+            if(m_apinfo_handler != NULL){
                 m_apinfo_handler(p_event->rx_data.p_data);
-            }
+	    }
             break;
         case BZ_EVENT_OTAINFO:
 	    if (m_ota_dev_handler != NULL){
                 m_ota_dev_handler(p_event->rx_data.p_data);
             }
             break;
+        case BZ_EVENT_ERR_DISCONT:
+            m_disc_evt.type = OTA_EVT;
+            m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_DISCONTINUE_ERR;
+            m_disc_evt.cmd_evt.m_evt.d = 0;
+            b_notify_upper = true;
+	    break;
+
         default:
             break;
+    }
+    if(b_notify_upper && (m_ota_dev_handler != NULL)){
+	m_ota_dev_handler(&m_disc_evt);
     }
 }
 
