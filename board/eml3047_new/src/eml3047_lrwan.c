@@ -184,22 +184,7 @@ void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
     HW_GPIO_SetIrq( RADIO_DIO_2_PORT, RADIO_DIO_2_PIN, IRQ_HIGH_PRIORITY, irqHandlers[2] );
     HW_GPIO_SetIrq( RADIO_DIO_3_PORT, RADIO_DIO_3_PIN, IRQ_HIGH_PRIORITY, irqHandlers[3] );
 }
-#if 0
-void SX1276Reset( void )
-{
-    // Set RESET pin to 0
-    aos_lrwan_radio_ctrl.radio_reset();
 
-    // Wait 1 ms
-    DelayMs( 1 );
-
-    // Configure RESET as input
-    aos_lrwan_radio_ctrl.radio_reset_cfg_input();
-
-    // Wait 6 ms
-    DelayMs( 6 );
-}
-#endif
 void SX1276IoDeInit( void )
 {
     GPIO_InitTypeDef initStruct = {0};
