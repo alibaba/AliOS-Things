@@ -15,7 +15,7 @@
 #include "linkkit_export.h"
 #include "app_entry.h"
 #if defined(OTA_ENABLED)
-#include "ota_service.h"
+    #include "ota_service.h"
 #endif
 /*
  * please modify this string follow as product's TSL.
@@ -540,8 +540,8 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
     int   rx_rate = 0;
 
     if (is_active(sample_ctx) && 0 == is_post) {
-        get_wireless_info(&wireless_info);  
-#ifdef WIFI_PROVISION_ENABLED              
+        get_wireless_info(&wireless_info);
+#ifdef WIFI_PROVISION_ENABLED
         HAL_Wifi_Get_Ap_Info(NULL, NULL, bssid);
 #endif
 
@@ -630,11 +630,8 @@ int trigger_event(sample_context_t *sample)
     linkkit_set_value(linkkit_method_set_event_output_value, sample->thing,
                       event_output_identifier, &errorCode, NULL);
 
-    return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER,
-                                 post_property_cb);
-
     /* please modify the event_id by TSL */
-    return linkkit_trigger_event(sample->thing, "TemperatureAlarm",
+    return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER,
                                  post_property_cb);
 }
 
