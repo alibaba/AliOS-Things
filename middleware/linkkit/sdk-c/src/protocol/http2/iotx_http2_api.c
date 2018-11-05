@@ -521,7 +521,7 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
         h2_data->stream_id = rv;
     }
     HAL_Free(nva);
-
+    
     if(rv < 0) {
         return rv;
     }
@@ -735,8 +735,8 @@ int iotx_http2_update_window_size(http2_connection_t *conn)
  */
 int iotx_http2_exec_io(http2_connection_t *connection)
 {
-    if (nghttp2_session_want_read(connection->session) ||
-        nghttp2_session_want_write(connection->session)) {
+    if (nghttp2_session_want_read(connection->session) /*||
+        nghttp2_session_want_write(connection->session)*/) {
 
         int rv;
         rv = nghttp2_session_recv(connection->session);
@@ -744,13 +744,11 @@ int iotx_http2_exec_io(http2_connection_t *connection)
             NGHTTP2_DBG("nghttp2_session_recv error");
             return -1;
         }
-        rv = nghttp2_session_send(connection->session);
-        if (rv < 0) {
-            NGHTTP2_DBG("nghttp2_session_send error");
-            return -1;
-        }
-
+        // rv = nghttp2_session_send(connection->session);
+        // if (rv < 0) {
+        //     NGHTTP2_DBG("nghttp2_session_send error");
+        //     return -1;
+        // }
     } 
-
     return 0;
 }
