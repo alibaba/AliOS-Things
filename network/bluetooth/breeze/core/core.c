@@ -69,26 +69,6 @@ void notify_ota_command(uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t 
     g_core.event_handler(&evt);
 }
 
-void notify_ota_event(uint8_t ota_evt, uint8_t sub_evt)
-{
-    ali_event_t evt;
-    if(ota_evt == ALI_OTA_ON_TX_DONE){
-         uint8_t cmd = sub_evt;
-         if (!(cmd == BZ_CMD_OTA_CHECK_RESULT || cmd == BZ_CMD_ERR || cmd == BZ_CMD_OTA_PUB_SIZE)) {
-             return;
-	 }
-    }
-    g_ota_info.type      =  OTA_EVT;
-    g_ota_info.cmd_evt.m_evt.evt =  ota_evt;
-    g_ota_info.cmd_evt.m_evt.d   =  sub_evt;
-
-    /* send event to higher layer. */
-    evt.type                = BZ_EVENT_OTAINFO;
-    evt.rx_data.p_data = &g_ota_info;
-    evt.rx_data.length = sizeof(breeze_otainfo_t);
-    g_core.event_handler(&evt);
-}
-
 static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin)
 {
     uint16_t i;
@@ -225,7 +205,7 @@ void core_handle_err(uint8_t src, uint8_t code)
         case BZ_TRANS_ERR:
             if (code != BZ_EINTERNAL) {
                 if (src == ALI_ERROR_SRC_TRANSPORT_FW_DATA_DISC) {
-                    notify_ota_event(ALI_OTA_ON_DISCONTINUE_ERR, 0);
+                    event_notify(BZ_EVENT_ERR_DISCONT, NULL, 0);
                 }
                 err = transport_tx(TX_NOTIFICATION, BZ_CMD_ERR, NULL, 0);
                 if (err != BZ_SUCCESS) {
