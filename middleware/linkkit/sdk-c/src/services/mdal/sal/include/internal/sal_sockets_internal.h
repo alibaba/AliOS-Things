@@ -6,9 +6,13 @@
 #define _SAL_SOCKETS_INTERNAL_H_
 
 #include <stdio.h>
-#include <sys/time.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef SAL_USE_AOS_HAL
+#include <aos/aos.h>
+#else
+#include "iotx_log.h"
+#endif
 
 #include "sal_arch.h"
 #include "sal_def.h"
@@ -19,11 +23,6 @@
 #include "sal_import.h"
 #include "sal_sockets.h"
 
-#ifdef SAL_USE_AOS_HAL
-#include <aos/aos.h>
-#else
-#include "iotx_log.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
