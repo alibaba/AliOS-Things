@@ -611,7 +611,7 @@ http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port
         LITE_free(connection);
         return NULL;
     }
-
+    connection->status = 1;
     return connection;
 }
 
@@ -671,7 +671,7 @@ http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, 
         LITE_free(connection);
         return NULL;
     }
-
+    connection->status = 1;
     return connection;
 }
 
@@ -679,7 +679,7 @@ int iotx_http2_client_disconnect(http2_connection_t *conn)
 {
     /* Resource cleanup */
     if (conn == NULL) {
-        return 0;
+        return -1;
     }
     httpclient_close((httpclient_t *)conn->network);
     nghttp2_session_del(conn->session);
@@ -691,14 +691,19 @@ int iotx_http2_client_send_ping(http2_connection_t *conn)
 {
     int rv = 0;
     int send_flag;
-
-    nghttp2_submit_ping(conn->session, NGHTTP2_FLAG_NONE, NULL);
+    if (conn == NULL) {
+        return -1;
+    }
+    rv = nghttp2_submit_ping(conn->session, NGHTTP2_FLAG_NONE, NULL);
+    if(rv < 0) {
+        return rv;
+    }
     send_flag = nghttp2_session_want_write(conn->session);
     if (send_flag) {
         rv = nghttp2_session_send(conn->session);
         NGHTTP2_DBG("nghttp2_session_send %d\r\n", rv);
         if (rv < 0) {
-            return -1;
+            return rv;
         }
     }
     return 0;
@@ -744,7 +749,8 @@ int iotx_http2_exec_io(http2_connection_t *connection)
             NGHTTP2_DBG("nghttp2_session_send error");
             return -1;
         }
-    }
+
+    } 
 
     return 0;
 }

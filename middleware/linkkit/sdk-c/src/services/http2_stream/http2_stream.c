@@ -12,9 +12,7 @@
 #include "iot_export_http2_stream.h"
 #include "lite-list.h"
 
-#define KEEP_ALIVE_TIMES                     (60) /*seconds*/
-#define MAX_HTTP2_INTERVAL_TIMES             (3)  /*seconds*/
-
+#define URL_MAX_LEN                             (100) 
 
 typedef enum {
     NUM_STRING_ENUM      = 0,
@@ -30,7 +28,9 @@ typedef enum {
 typedef struct _device_info_struct_ {
     char        product_key[PRODUCT_KEY_LEN + 1];
     char        device_name[DEVICE_NAME_LEN + 1];
-    char        device_secret[DEVICE_SECRET_LEN + 1];
+    char        device_secret[DEVICE_SECRET_LEN + 1]; 
+    char        url[URL_MAX_LEN+1];
+    int         port;   
 } device_info;
 
 typedef struct {
@@ -45,6 +45,8 @@ typedef struct {
     http2_list_t         file_list;
     void                 *file_thread;
 #endif
+    uint8_t              connect_state;
+    uint8_t              retry_cnt;
 } stream_handle_t;
 
 typedef struct {
@@ -58,21 +60,27 @@ typedef struct {
 } http2_stream_node_t;
 
 static device_info g_device_info;
+
 static stream_handle_t *g_stream_handle = NULL;
 static httpclient_t g_client;
 
-static int _set_device_info(char *pk, char *dn, char *ds)
+static int _set_device_info(device_conn_info_t *device_info)
 {
     memset(g_device_info.product_key, 0, PRODUCT_KEY_LEN + 1);
     memset(g_device_info.device_name, 0, DEVICE_NAME_LEN + 1);
     memset(g_device_info.device_secret, 0, DEVICE_SECRET_LEN + 1);
+    memset(g_device_info.url, 0, URL_MAX_LEN + 1);
 
-    strncpy(g_device_info.product_key, pk, PRODUCT_KEY_LEN);
-    strncpy(g_device_info.device_name, dn, DEVICE_NAME_LEN);
-    strncpy(g_device_info.device_secret, ds, DEVICE_SECRET_LEN);
+    strncpy(g_device_info.product_key, device_info->product_key, PRODUCT_KEY_LEN);
+    strncpy(g_device_info.device_name, device_info->device_name , DEVICE_NAME_LEN);
+    strncpy(g_device_info.device_secret, device_info->device_secret , DEVICE_SECRET_LEN);
+    strncpy(g_device_info.url, device_info->url , URL_MAX_LEN);
+    g_device_info.port = device_info->port;
 
     return 0;
 }
+
+
 
 static int http2_nv_copy(http2_header *nva, int start, http2_header *nva_copy, int num)
 {
@@ -88,6 +96,10 @@ static int http2_nv_copy(http2_header *nva, int start, http2_header *nva_copy, i
 
 static int iotx_http2_get_url(char *buf, char *productkey)
 {
+    if(strlen(g_device_info.url) != 0) {
+        strncpy(buf, g_device_info.url , URL_MAX_LEN);
+        return g_device_info.port;
+    }
 #if defined(ON_DAILY)
     sprintf(buf, "%s", "10.101.12.205");
     return 9999;
@@ -272,18 +284,69 @@ static http2_user_cb_t my_cb = {
     .on_user_frame_recv_cb = on_stream_frame_recv,
 };
 
+static int  reconnect(stream_handle_t *handle)
+{
+    char buf[100] = {0};
+    http2_connection_t *conn = NULL;
+   
+    iotx_http2_client_disconnect(handle->http2_connect);
+    handle->http2_connect = NULL;
+    int port = iotx_http2_get_url(buf, g_device_info.product_key);
+    conn = iotx_http2_client_connect_with_cb((void *)&g_client, buf, port, &my_cb);
+    if(conn == NULL) {
+        return -1;
+    }
+    handle->http2_connect = conn;
+    return 0;
+}
+
 static void *http2_io(void *user_data)
 {
     stream_handle_t *handle = (stream_handle_t *)user_data;
+    int rv = 0;
     POINTER_SANITY_CHECK(handle, NULL);
-
+    iotx_time_t timer;
+    iotx_time_init(&timer);
     while (handle->init_state) {
-        HAL_MutexLock(handle->mutex);
-        iotx_http2_exec_io(handle->http2_connect);
-        HAL_MutexUnlock(handle->mutex);
+        if(handle->connect_state) {
+            HAL_MutexLock(handle->mutex);
+            rv = iotx_http2_exec_io(handle->http2_connect);
+            HAL_MutexUnlock(handle->mutex);
+        }
+        if(utils_time_is_expired(&timer) && handle->connect_state) {
+            HAL_MutexLock(handle->mutex);
+            rv = iotx_http2_client_send_ping(handle->http2_connect);
+            HAL_MutexUnlock(handle->mutex);
+            utils_time_countdown_ms(&timer, IOT_HTTP2_KEEP_ALIVE_TIME );
+        }
+
+        if(rv < 0) {
+            if(handle->retry_cnt == IOT_HTTP2_KEEP_ALIVE_CNT - 1) {
+                h2stream_info("rv =%d, try reconnect\n",rv);
+                if(handle->connect_state != 0) {
+                    handle->connect_state = 0;
+                    if (handle->cbs && handle->cbs->on_disconnect_cb) {
+                        handle->cbs->on_disconnect_cb();
+                    }
+                }
+                rv = reconnect(handle);
+                continue;
+            }else {
+                handle->retry_cnt++;
+            }
+        } else {
+            if(handle->connect_state == 0) {
+                handle->connect_state = 1;
+                handle->retry_cnt = 0;
+                if (handle->cbs && handle->cbs->on_reconnect_cb) {
+                    handle->cbs->on_reconnect_cb();
+                }
+            }                
+        }
         HAL_SleepMs(100);
     }
     HAL_SemaphorePost(handle->semaphore);
+
     return NULL;
 }
 
@@ -364,7 +427,7 @@ void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t 
 {
     stream_handle_t *stream_handle = NULL;
     http2_connection_t *conn = NULL;
-    char buf[100] = {0};
+    char buf[URL_MAX_LEN+1] = {0};
     int port = 0;
     int ret = 0;
 
@@ -400,15 +463,12 @@ void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t 
     INIT_LIST_HEAD((list_head_t *) & (stream_handle->file_list));
 #endif
 
-    _set_device_info(conn_info->product_key, conn_info->device_name, conn_info->device_secret);
+    _set_device_info(conn_info);
     g_stream_handle = stream_handle;
     g_stream_handle->cbs = user_cb;
-    if (conn_info->url == NULL || conn_info->port == 0) {
-        port = iotx_http2_get_url(buf, conn_info->product_key);
-        conn = iotx_http2_client_connect_with_cb((void *)&g_client, buf, port, &my_cb);
-    } else {
-        conn = iotx_http2_client_connect_with_cb((void *)&g_client, conn_info->url, conn_info->port, &my_cb);
-    }
+
+    port = iotx_http2_get_url(buf, conn_info->product_key);
+    conn = iotx_http2_client_connect_with_cb((void *)&g_client, buf, port, &my_cb);
     if (conn == NULL) {
         HAL_MutexDestroy(stream_handle->mutex);
         HAL_SemaphoreDestroy(stream_handle->semaphore);

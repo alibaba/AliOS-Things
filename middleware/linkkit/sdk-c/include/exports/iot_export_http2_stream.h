@@ -12,7 +12,9 @@
 extern "C" {
 #endif
 
-#define IOT_HTTP2_RES_OVERTIME_MS               (10000)
+#define IOT_HTTP2_RES_OVERTIME_MS                 (10000)
+#define IOT_HTTP2_KEEP_ALIVE_TIME                     (30*1000) /*seconds*/
+#define IOT_HTTP2_KEEP_ALIVE_CNT                       (2) 
 
 
 #include "iotx_log.h"
@@ -64,12 +66,17 @@ typedef void (*on_stream_frame_send_callback)(uint32_t stream_id, char *channel_
 
 typedef void (*on_stream_frame_recv_callback)(uint32_t stream_id, char *channel_id, int type, uint8_t flags);
 
+typedef void (*on_reconnect_callback)();
+typedef void (*on_disconnect_callback)();
+
 typedef struct {
     on_stream_header_callback       on_stream_header_cb;
     on_stream_chunk_recv_callback   on_stream_chunk_recv_cb;
     on_stream_close_callback        on_stream_close_cb;
     on_stream_frame_send_callback   on_stream_frame_send_cb;
     on_stream_frame_recv_callback   on_stream_frame_recv_cb;
+    on_reconnect_callback           on_reconnect_cb;
+    on_disconnect_callback          on_disconnect_cb;
 } http2_stream_cb_t;
 
 typedef struct {
