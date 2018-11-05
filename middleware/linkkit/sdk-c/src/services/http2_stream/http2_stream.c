@@ -312,6 +312,7 @@ static void *http2_io(void *user_data)
             HAL_MutexLock(handle->mutex);
             rv = iotx_http2_exec_io(handle->http2_connect);
             HAL_MutexUnlock(handle->mutex);
+            utils_time_countdown_ms(&timer, IOT_HTTP2_KEEP_ALIVE_TIME);
         }
         if(utils_time_is_expired(&timer) && handle->connect_state) {
             HAL_MutexLock(handle->mutex);
