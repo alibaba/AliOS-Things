@@ -615,7 +615,7 @@ ERR1:
 
 /**
 *	@fn		hif_handle_isr(void)
-*	@brief	Handle interrupt received from NMC1500 firmware.
+*	@brief	Handle interrupt received from WILC1000 firmware.
 *   @return     The function SHALL return 0 for success and a negative value otherwise.
 */
 

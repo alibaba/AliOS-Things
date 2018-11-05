@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief NMC1500 Peripherals Application Interface.
+ * \brief WILC1000 Peripherals Application Interface.
  *
  * Copyright (c) 2016-2018 Atmel Corporation. All rights reserved.
  *
@@ -213,7 +213,7 @@ FUNCTION PROTOTYPES
 	NMI_API sint8 m2m_periph_init(tstrPerphInitParam * param);
 
 @brief
-	Initialize the NMC1500 peripheral driver module. 
+	Initialize the WILC1000 peripheral driver module. 
 
 @param [in]	param
 				Peripheral module initialization structure. See members of tstrPerphInitParam.
@@ -231,7 +231,7 @@ NMI_API sint8 m2m_periph_init(tstrPerphInitParam * param);
 	NMI_API sint8 m2m_periph_gpio_set_dir(uint8 u8GpioNum, uint8 u8GpioDir);
 
 @brief
-	Configure a specific NMC1500 pad as a GPIO and sets its direction (input or output).  
+	Configure a specific WILC1000 pad as a GPIO and sets its direction (input or output).  
 
 @param [in]	u8GpioNum
 				GPIO number. Allowed values are defined in tenuGpioNum.
@@ -252,7 +252,7 @@ NMI_API sint8 m2m_periph_gpio_set_dir(uint8 u8GpioNum, uint8 u8GpioDir);
 	NMI_API sint8 m2m_periph_gpio_set_val(uint8 u8GpioNum, uint8 u8GpioVal);
 
 @brief
-	Set an NMC1500 GPIO output level high or low.  
+	Set an WILC1000 GPIO output level high or low.  
 
 @param [in]	u8GpioNum
 				GPIO number. Allowed values are defined in tenuGpioNum.
@@ -273,7 +273,7 @@ NMI_API sint8 m2m_periph_gpio_set_val(uint8 u8GpioNum, uint8 u8GpioVal);
 	NMI_API sint8 m2m_periph_gpio_get_val(uint8 u8GpioNum, uint8 * pu8GpioVal);
 
 @brief
-	Read an NMC1500 GPIO input level.  
+	Read an WILC1000 GPIO input level.  
 
 @param [in]	u8GpioNum
 				GPIO number. Allowed values are defined in tenuGpioNum.
@@ -294,7 +294,7 @@ NMI_API sint8 m2m_periph_gpio_get_val(uint8 u8GpioNum, uint8 * pu8GpioVal);
 	NMI_API sint8 m2m_periph_gpio_pullup_ctrl(uint8 u8GpioNum, uint8 u8PullupEn);
 
 @brief
-	Set an NMC1500 GPIO pullup resisitor enable or disable.  
+	Set an WILC1000 GPIO pullup resisitor enable or disable.  
 
 @param [in]	u8GpioNum
 				GPIO number. Allowed values are defined in tenuGpioNum.
@@ -315,7 +315,7 @@ NMI_API sint8 m2m_periph_gpio_pullup_ctrl(uint8 u8GpioNum, uint8 u8PullupEn);
 	NMI_API sint8 m2m_periph_i2c_master_init(tstrI2cMasterInitParam * param);
 
 @brief
-	Initialize and configure the NMC1500 I2C master peripheral.
+	Initialize and configure the WILC1000 I2C master peripheral.
 
 @param [in]	param
 				I2C master initialization structure. See members of tstrI2cMasterInitParam.

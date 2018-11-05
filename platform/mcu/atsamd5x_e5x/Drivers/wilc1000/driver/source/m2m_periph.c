@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief NMC1500 Peripherials Application Interface.
+ * \brief WILC1000 Peripherials Application Interface.
  *
  * Copyright (c) 2016-2018 Atmel Corporation. All rights reserved.
  *

@@ -5,9 +5,9 @@
 
 #include "driver/include/m2m_wifi.h"
 
-#define CONF_WINC_PIN_CHIP_SELECT CS_PIN
-#define CONF_WINC_PIN_CHIP_ENABLE CE_PIN
-#define CONF_WINC_PIN_RESET RESET_PIN
+#define CONF_WINC_PIN_CHIP_SELECT CARD_CS_PIN
+#define CONF_WINC_PIN_CHIP_ENABLE CARD_CE_PIN
+#define CONF_WINC_PIN_RESET CARD_RESET_PIN
 
 void wifi_init(tstrWifiInitParam *params);
 

@@ -1,6 +1,6 @@
 /** \defgroup m2m_wifi WLAN
  *
- * \brief NMC1500 IoT Application Interface.
+ * \brief WILC1000 IoT Application Interface.
  *
  * Copyright (c) 2016-2018 Atmel Corporation. All rights reserved.
  *
@@ -741,7 +741,7 @@ NMI_API sint8 m2m_wifi_wps(uint8 u8TriggerType,const char  *pcPinNumber);
  /**@}*/
 /** @defgroup WifiWpsDisableFn m2m_wifi_wps_disable
  *   @ingroup WLANAPI
- * Disable the NMC1500 WPS operation.
+ * Disable the WILC1000 WPS operation.
  */
  /**@{*/
 /*!
@@ -837,7 +837,7 @@ NMI_API sint8 m2m_wifi_p2p(uint8 u8Channel);
  /**@}*/
 /** @defgroup WifiP2PDisconnectFn m2m_wifi_p2p_disconnect
  *   @ingroup WLANAPI
- * Disable the NMC1500 device Wi-Fi direct mode (P2P). 
+ * Disable the WILC1000 device Wi-Fi direct mode (P2P). 
  */
  /**@{*/
 /*!
@@ -1643,7 +1643,7 @@ NMI_API sint8 m2m_wifi_get_mac_address(uint8 *pu8MacAddr0, uint8 *pu8MacAddr1);
 /**@}*/
 /** @defgroup SetSleepModeFn m2m_wifi_set_sleep_mode
  *   @ingroup WLANAPI
- *  Synchronous power-save mode setting function for the NMC1500. 
+ *  Synchronous power-save mode setting function for the WILC1000. 
  */
  /**@{*/
 /*!
@@ -1860,7 +1860,7 @@ NMI_API sint8 m2m_wifi_send_wlan_pkt(uint8 *pu8WlanPacket, uint16 u16WlanHeaderL
  * @fn           NMI_API sint8 m2m_wifi_send_ethernet_pkt(uint8* pu8Packet, uint16 u16PacketSize, uint8	u8IfcId)
  * @param [in]     pu8Packet
  *                  Pointer to a buffer holding the whole Ethernet frame at an offset of M2M_ETHERNET_HDR_OFFSET + M2M_ETH_PAD_SIZE bytes.
- *                  This buffer has to be aligned appropriately for DMA operations according to the host's constraints (Word Aligned, cache line aligned… etc)
+ *                  This buffer has to be aligned appropriately for DMA operations according to the host's constraints (Word Aligned, cache line alignedï¿½ etc)
  * @param [in]     u16PacketSize
  * 		            The size of the whole bytes in packet.
  * @param [in]     u8IfcId

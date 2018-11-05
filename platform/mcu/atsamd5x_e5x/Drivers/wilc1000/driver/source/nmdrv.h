@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief This module contains NMC1500 M2M driver APIs declarations.
+ * \brief This module contains WILC1000 M2M driver APIs declarations.
  *
  * Copyright (c) 2016-2018 Atmel Corporation. All rights reserved.
  *
@@ -52,7 +52,7 @@
 
 /*
 *	@fn		nm_drv_init
-*	@brief	Initialize NMC1000 driver
+*	@brief	Initialize WILC1000 driver
 *	@return	M2M_SUCCESS in case of success and Negative error code in case of failure
 *   @param [in]	arg
 *				Generic argument TBD
@@ -63,7 +63,7 @@ sint8 nm_drv_init(void * arg);
 
 /**
 *	@fn		nm_drv_deinit
-*	@brief	Deinitialize NMC1000 driver
+*	@brief	Deinitialize WILC1000 driver
 *	@author	M. Abdelmawla
 *   @param [in]	arg
 *				Generic argument TBD

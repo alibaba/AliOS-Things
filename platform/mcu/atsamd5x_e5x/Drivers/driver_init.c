@@ -114,9 +114,9 @@ void EXTIRQ_INSTANCE_init(void)
 	hri_mclk_set_APBAMASK_EIC_bit(MCLK);
 
 	// Set pin direction to input
-	gpio_set_pin_direction(CONF_WINC_EXT_INT_PIN, GPIO_DIRECTION_IN);
+	gpio_set_pin_direction(CARD_CONF_WINC_EXT_INT_PIN, GPIO_DIRECTION_IN);
 
-	gpio_set_pin_pull_mode(CONF_WINC_EXT_INT_PIN,
+	gpio_set_pin_pull_mode(CARD_CONF_WINC_EXT_INT_PIN,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -124,7 +124,7 @@ void EXTIRQ_INSTANCE_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_UP);
 
-	gpio_set_pin_function(CONF_WINC_EXT_INT_PIN, PINMUX_PC23A_EIC_EXTINT7);
+	gpio_set_pin_function(CARD_CONF_WINC_EXT_INT_PIN, PINMUX_PC23A_EIC_EXTINT7);
 	
 
 	ext_irq_init();
@@ -454,9 +454,9 @@ void system_init(void)
 	// GPIO on PA01
 
 	// Set pin direction to input
-	gpio_set_pin_direction(WRITE_PROTECT_0, GPIO_DIRECTION_IN);
+	gpio_set_pin_direction(CARD_WRITE_PROTECT_0, GPIO_DIRECTION_IN);
 
-	gpio_set_pin_pull_mode(WRITE_PROTECT_0,
+	gpio_set_pin_pull_mode(CARD_WRITE_PROTECT_0,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -464,7 +464,7 @@ void system_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_OFF);
 
-	gpio_set_pin_function(WRITE_PROTECT_0, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(CARD_WRITE_PROTECT_0, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PC18
 
@@ -482,44 +482,44 @@ void system_init(void)
 	// GPIO on PA06
 
 	// Set pin direction to output
-	gpio_set_pin_direction(RESET_PIN, GPIO_DIRECTION_OUT);
+	gpio_set_pin_direction(CARD_RESET_PIN, GPIO_DIRECTION_OUT);
 
-	gpio_set_pin_level(RESET_PIN,
+	gpio_set_pin_level(CARD_RESET_PIN,
 	                   // <y> Initial level
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
 	                   false);
 
-	gpio_set_pin_function(RESET_PIN, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(CARD_RESET_PIN, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PA27
 
 	// Set pin direction to output
-	gpio_set_pin_direction(CE_PIN, GPIO_DIRECTION_OUT);
+	gpio_set_pin_direction(CARD_CE_PIN, GPIO_DIRECTION_OUT);
 
-	gpio_set_pin_level(CE_PIN,
+	gpio_set_pin_level(CARD_CE_PIN,
 	                   // <y> Initial level
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
 	                   false);
 
-	gpio_set_pin_function(CE_PIN, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(CARD_CE_PIN, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PB28
 
 	// Set pin direction to output
-	gpio_set_pin_direction(CS_PIN, GPIO_DIRECTION_OUT);
+	gpio_set_pin_direction(CARD_CS_PIN, GPIO_DIRECTION_OUT);
 
-	gpio_set_pin_level(CS_PIN,
+	gpio_set_pin_level(CARD_CS_PIN,
 	                   // <y> Initial level
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
 	                   true);
 
-	gpio_set_pin_function(CS_PIN, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(CARD_CS_PIN, GPIO_PIN_FUNCTION_OFF);
 
 	EXTIRQ_INSTANCE_init();
 

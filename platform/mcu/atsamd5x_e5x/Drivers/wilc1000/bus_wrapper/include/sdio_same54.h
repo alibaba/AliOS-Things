@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief This module contains SAM4S BSP APIs implementation.
+ * \brief This module contains SAME54 BSP APIs implementation.
  *
  * Copyright (c) 2016-2018 Microchip Technology Inc. and its subsidiaries.
  *

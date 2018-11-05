@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief This module contains NMC1500 ASIC specific internal APIs.
+ * \brief This module contains WILC1000 ASIC specific internal APIs.
  *
  * Copyright (c) 2016-2018 Atmel Corporation. All rights reserved.
  *

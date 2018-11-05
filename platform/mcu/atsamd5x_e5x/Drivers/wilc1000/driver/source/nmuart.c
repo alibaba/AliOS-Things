@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief This module contains NMC1000 UART protocol bus APIs implementation.
+ * \brief This module contains WILC1000 UART protocol bus APIs implementation.
  *
  * Copyright (c) 2016-2018 Atmel Corporation. All rights reserved.
  *

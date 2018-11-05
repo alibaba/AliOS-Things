@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief This module contains SAMD21 BSP APIs implementation.
+ * \brief This module contains SAME54 BSP APIs implementation.
  *
  * Copyright (c) 2018 Atmel Corporation. All rights reserved.
  *
@@ -81,7 +81,7 @@ sint8 nm_bsp_deinit(void)
 
 /**
  *	@fn		nm_bsp_reset
- *	@brief	Reset NMC1500 SoC by setting CHIP_EN and RESET_N signals low,
+ *	@brief	Reset WILC1000 SoC by setting CHIP_EN and RESET_N signals low,
  *           CHIP_EN high then RESET_N high
  */
 void nm_bsp_reset(void)
@@ -126,7 +126,7 @@ void nm_bsp_register_isr(tpfNmBspIsr pfIsr)
 {
 	gpfIsr = pfIsr;
 
-	ext_irq_register(CONF_WINC_EXT_INT_PIN, chip_isr);
+	ext_irq_register(CARD_CONF_WINC_EXT_INT_PIN, chip_isr);
 }
 
 /*
@@ -138,7 +138,7 @@ void nm_bsp_register_isr(tpfNmBspIsr pfIsr)
 void nm_bsp_interrupt_ctrl(uint8 u8Enable)
 {
 
-	_ext_irq_enable(CONF_WINC_EXT_INT_PIN, u8Enable);
+	_ext_irq_enable(CARD_CONF_WINC_EXT_INT_PIN, u8Enable);
 }
 /*
 *	@fn		nm_bsp_malloc

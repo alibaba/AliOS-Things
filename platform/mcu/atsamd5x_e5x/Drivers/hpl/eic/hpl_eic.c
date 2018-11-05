@@ -226,12 +226,13 @@ static void _ext_irq_handler(void)
 	volatile uint32_t flags = hri_eic_read_INTFLAG_reg(EIC);
 	int8_t            pos;
 	uint32_t          pin = INVALID_PIN_NUMBER;
+	int8_t			  skip_wilc_flag = 0;
 
 	hri_eic_clear_INTFLAG_reg(EIC, flags);
 
 	ASSERT(callback);
 
-	//while (flags) {
+	while (flags) {
 		pos = ffs(flags) - 1;
 		while (-1 != pos) {
 			uint8_t lower = 0, middle, upper = EXT_IRQ_AMOUNT;
@@ -251,13 +252,17 @@ static void _ext_irq_handler(void)
 
 			if (INVALID_PIN_NUMBER != pin) {
 				callback(pin);
+				if (pin == PIN_PC23)	// skip wilc irq pin detection in next checking 
+					skip_wilc_flag = 1;
 			}
 			flags &= ~(1ul << pos);
 			pos = ffs(flags) - 1;
 		}
-		//flags = hri_eic_read_INTFLAG_reg(EIC);
+		flags = hri_eic_read_INTFLAG_reg(EIC);
+		if (skip_wilc_flag)
+			flags &=(~0x80); 
 		hri_eic_clear_INTFLAG_reg(EIC, flags);
-	//}
+	}
 }
 
 /**

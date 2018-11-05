@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief This module contains NMC1000 SPI protocol bus APIs implementation.
+ * \brief This module contains WILC1000 SPI protocol bus APIs implementation.
  *
  * Copyright (c) 2016-2018 Atmel Corporation. All rights reserved.
  *
@@ -908,7 +908,7 @@ _RETRY_:
 	if (addr <= 0x10) 
 	{
 		/**
-		NMC1000 clockless registers.
+		WILC1000 clockless registers.
 		**/
 		cmd = CMD_INTERNAL_WRITE;
 		clockless = 1;
@@ -916,7 +916,7 @@ _RETRY_:
 	else if (addr <= 0xff) 
 	{	
 		/**
-		NMC1000 clockless registers.
+		WILC1000 clockless registers.
 		**/
 		cmd = CMD_INTERNAL_WRITE;
 		clockless = 0;
@@ -1044,7 +1044,7 @@ _RETRY_:
 	if (addr <= 0x10) 
 	{
 		/**
-		NMC1000 clockless registers.
+		WILC1000 clockless registers.
 		**/
 		cmd = CMD_INTERNAL_READ;
 		clockless = 1;
@@ -1052,7 +1052,7 @@ _RETRY_:
 	else if (addr <= 0xff) 
 	{	
 		/**
-		NMC1000 clockless registers.
+		WILC1000 clockless registers.
 		**/
 		cmd = CMD_INTERNAL_READ;
 		clockless = 0;

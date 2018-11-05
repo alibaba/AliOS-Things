@@ -276,7 +276,7 @@ NMI_API sint8 hif_Resp_handler(uint8 *pu8Buffer, uint16 u16BufferSize);
 /**
 *	@fn		hif_handle_isr(void)
 *	@brief
-			Handle interrupt received from NMC1500 firmware.
+			Handle interrupt received from WILC1000 firmware.
 *   @return     
 			The function SHALL return 0 for success and a negative value otherwise.
 */
@@ -285,7 +285,7 @@ NMI_API sint8 hif_handle_isr(void);
 /**
 *	@fn		hif_set_receive_buffer(void* pvBuffer,uint16 u16BufferLen)
 *	@brief
-			Handle interrupt received from NMC1500 firmware.
+			Handle interrupt received from WILC1000 firmware.
 *	@param [in]	pvBuffer
 				Pointer to the buffer.
 *	@param [in]	u16BufferLen

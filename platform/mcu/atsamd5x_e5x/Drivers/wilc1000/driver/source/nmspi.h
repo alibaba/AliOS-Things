@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief This module contains NMC1000 SPI protocol bus APIs implementation.
+ * \brief This module contains WILC1000 SPI protocol bus APIs implementation.
  *
  * Copyright (c) 2015 - 2017 Atmel Corporation. All rights reserved.
  *

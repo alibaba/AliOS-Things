@@ -22,7 +22,6 @@ char g_wifikey[64+1];
 
 static void wifi_cb(uint8 msg_type, void *msg)
 {
-    LOG("Callback Enter, type=%d\r\n", msg_type);
 	switch (msg_type) {
 		case M2M_WIFI_RESP_CON_STATE_CHANGED : {
 			tstrM2mWifiStateChanged *ctx = (tstrM2mWifiStateChanged*)msg;
@@ -79,14 +78,11 @@ static void wifi_cb(uint8 msg_type, void *msg)
 
 static int wifi_init(hal_wifi_module_t *m)
 {
-    printf("wifi_init() In\r\n");
-
     tstrWifiInitParam param;
 	memset(&param, 0, sizeof(param));
 	param.pfAppWifiCb = wifi_cb;
 	os_m2m_wifi_init(&param);
 
-    //m2m_wifi_connect((char *)MAIN_WLAN_SSID, sizeof(MAIN_WLAN_SSID), MAIN_WLAN_AUTH, (void *)MAIN_WLAN_PSK, M2M_WIFI_CH_ALL);
     return 0;
 };
 

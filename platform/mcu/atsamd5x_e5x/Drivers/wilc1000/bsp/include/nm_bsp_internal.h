@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief This module contains NMC1500 BSP APIs declarations.
+ * \brief This module contains WILC1000 BSP APIs declarations.
  *
  * Copyright (c) 2018 Atmel Corporation. All rights reserved.
  *

@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief NMC1500 IoT Application Interface Internal Types.
+ * \brief WILC1000 IoT Application Interface Internal Types.
  *
  * Copyright (c) 2016-2018 Atmel Corporation. All rights reserved.
  *

@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief WINC BSP API Declarations.
+ * \brief WILC BSP API Declarations.
  *
  * Copyright (c) 2015 - 2018 Atmel Corporation. All rights reserved.
  *

@@ -2,7 +2,7 @@
  *
  * \file
  *
- * \brief This module contains NMC1000 bus wrapper APIs implementation.
+ * \brief This module contains WILC1000 bus wrapper APIs implementation.
  *
  * Copyright (c) 2015 Atmel Corporation. All rights reserved.
  *
