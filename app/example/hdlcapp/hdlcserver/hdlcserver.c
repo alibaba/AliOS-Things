@@ -45,6 +45,9 @@ static void net_event_handler()
         if (!len_exist && memcmp(buf, atprefix, strlen(atprefix)) == 0) {
             len_exist = true;
             len_start = i + 1;
+
+            if (len_start + sizeof(len_str) >= sizeof(buf))
+                break;
         }
 
         // end of message then echo
@@ -54,7 +57,8 @@ static void net_event_handler()
 
             LOGD(TAG, "Echo server recv msg len %d\n", strlen(buf));
 
-            if (len_exist && (i - len_start) > 0 &&
+            if (len_exist &&
+                (i - len_start) > 0 &&
                 (i - len_start) < sizeof(len_str)) {
                 memcpy(len_str, buf + len_start, i - len_start);
                 len = atoi(len_str);
