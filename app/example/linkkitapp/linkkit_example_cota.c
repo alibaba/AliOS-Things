@@ -13,10 +13,11 @@
     #include "ota_service.h"
 #endif
 
-#define PRODUCT_KEY                     "a1Zd7n5yTt8"
-#define PRODUCT_SECRET                  "1P0lUzaTRJEYwTQc"
-#define DEVICE_NAME                     "t1102_v2"
-#define DEVICE_SECRET                   "JlhR7SvXAWAVqU3xVJg9YcCnCagkkBvt"
+#define PRODUCT_KEY      "a1ybTpus98a"
+#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
+#define DEVICE_NAME      "t1_kj"
+#define DEVICE_SECRET    "wQw2zpRCXCY8ymnMrxiUgL1l5V9Q493Y"
+
 #define USE_CUSTOME_DOMAIN              (0)
 
 #if USE_CUSTOME_DOMAIN
@@ -130,7 +131,7 @@ int linkkit_main(void *paras)
         return -1;
     }
 
-    IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_REQUEST_COTA, NULL, 0);
+    //IOT_Linkkit_Query(user_example_ctx->master_devid, ITM_MSG_REQUEST_COTA, NULL, 0);
 
     while (1) {
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
