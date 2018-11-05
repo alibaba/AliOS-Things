@@ -3,7 +3,7 @@
 typedef struct {
     int eventid;
     void *callback;
-}impl_event_map_t;
+} impl_event_map_t;
 
 static impl_event_map_t g_impl_event_map[] = {
     {ITE_AWSS_STATUS,          NULL},
@@ -24,9 +24,9 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_COTA,                 NULL},
 };
 
-void* impl_event_cb(int evt)
+void *impl_event_cb(int evt)
 {
-    if (evt < 0 || evt >= sizeof(g_impl_event_map)/sizeof(impl_event_map_t)) {
+    if (evt < 0 || evt >= sizeof(g_impl_event_map) / sizeof(impl_event_map_t)) {
         return NULL;
     }
     return g_impl_event_map[evt].callback;
@@ -37,14 +37,20 @@ DEFINE_EVENT_CALLBACK(ITE_CONNECT_SUCC,         int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_CONNECT_FAIL,         int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_DISCONNECTED,         int (*callback)(void))
 DEFINE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*callback)(const int, const unsigned char *, const int))
-DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUST,       int (*callback)(const int, const char *, const int, const char *, const int, char **, int *))
+DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUST,       int (*callback)(const int, const char *, const int, const char *,
+                      const int, char **, int *))
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*callback)(const int, const char *, const int))
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*callback)(const int, const char *, const int, char **, int *))
-DEFINE_EVENT_CALLBACK(ITE_REPORT_REPLY,         int (*callback)(const int, const int, const int, const char *, const int))
-DEFINE_EVENT_CALLBACK(ITE_TRIGGER_EVENT_REPLY,  int (*callback)(const int, const int, const int, const char *, const int, const char *, const int))
+DEFINE_EVENT_CALLBACK(ITE_REPORT_REPLY,         int (*callback)(const int, const int, const int, const char *,
+                      const int))
+DEFINE_EVENT_CALLBACK(ITE_TRIGGER_EVENT_REPLY,  int (*callback)(const int, const int, const int, const char *,
+                      const int, const char *, const int))
 DEFINE_EVENT_CALLBACK(ITE_TIMESTAMP_REPLY,      int (*callback)(const char *))
-DEFINE_EVENT_CALLBACK(ITE_TOPOLIST_REPLY,       int (*callback)(const int, const int, const int, const char *, const int))
+DEFINE_EVENT_CALLBACK(ITE_TOPOLIST_REPLY,       int (*callback)(const int, const int, const int, const char *,
+                      const int))
 DEFINE_EVENT_CALLBACK(ITE_PERMIT_JOIN,          int (*callback)(const char *, int))
 DEFINE_EVENT_CALLBACK(ITE_INITIALIZE_COMPLETED, int (*callback)(const int))
 DEFINE_EVENT_CALLBACK(ITE_FOTA,                 int (*callback)(const int, const char *))
-DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const char *, int, const char *, const char *, const char *, const char *))
+DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const char *, int, const char *,
+                      const char *, const char *, const char *))
+

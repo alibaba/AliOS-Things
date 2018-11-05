@@ -7,7 +7,7 @@
 #include "json_parser.h"
 #include "iot_export.h"
 #include "iotx_log.h"
-#include "ntp.h"
+#include "impl_ntp.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
