@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #include "iot_import.h"
 #include "iotx_log.h"
 #include "iotx_utils_internal.h"
