@@ -26,6 +26,7 @@
 
 extern bool g_dn_complete;
 transport_t g_transport;
+struct rx_cmd_post_t rx_cmd_post;
 
 static void reset_tx(void)
 {
@@ -374,9 +375,15 @@ void transport_rx(uint8_t *p_data, uint16_t length)
 #if BZ_ENABLE_AUTH
         auth_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
 #endif
-        extern void notify_ota_command(uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len);
-        notify_ota_command(g_transport.rx.cmd, g_transport.rx.frame_seq + 1,
-                           g_transport.rx.buff, g_transport.rx.bytes_received);
+#if BZ_ENABLE_OTA
+	if((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_TYPE_OTA){
+            rx_cmd_post.cmd = cmd;
+            rx_cmd_post.frame_seq = g_transport.rx.frame_seq + 1;
+            rx_cmd_post.p_rx_buf =  g_transport.rx.buff;
+            rx_cmd_post.buf_sz = g_transport.rx.bytes_received;
+            event_notify(BZ_EVENT_OTAINFO, &rx_cmd_post, sizeof(rx_cmd_post));
+	}
+#endif
         extcmd_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
         reset_rx();
     } else {
