@@ -142,17 +142,18 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
 */
 err_t sal_mbox_new(sal_mbox_t *mb, int size)
 {
+    void *msg_start = NULL;
+    int ptr_size = sizeof(void *);
     if (mb == NULL) {
         return  ERR_MEM;
     }
 
-    void *msg_start;
-    msg_start = (void*)sal_malloc(size * sizeof(void *));
+    msg_start = sal_malloc(size * ptr_size);
     if (msg_start == NULL) {
         return ERR_MEM;
     }
 
-    if (aos_queue_new((aos_queue_t *)mb,msg_start,size * sizeof(void *),sizeof(void *)) != 0) {
+    if (aos_queue_new((aos_queue_t *)mb,msg_start,size * ptr_size,ptr_size) != 0) {
         return ERR_MEM;
     }
 
