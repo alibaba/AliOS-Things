@@ -118,6 +118,7 @@ int modbus_sensor_init(modbus_sensor_t modbus_sensor)
 
     sensor.io_port = MODBUS_PORT;
     sensor.tag     = tag;
+    sensor.instance = modbus_sensor.instance;
     sensor.open    = modbus_sensor_open;
     sensor.close   = modbus_sensor_close;
     sensor.path    = modbus_sensor.path;
