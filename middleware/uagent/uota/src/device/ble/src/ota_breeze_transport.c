@@ -44,7 +44,7 @@ void ota_breeze_send_error()
 {
     uint32_t err_code = 0;
 
-    err_code = breeze_post( OTA_BREEZE_CMD_ERROR, NULL, 0);
+    err_code = breeze_post_ext( OTA_BREEZE_CMD_ERROR, NULL, 0);
     if (err_code != OTA_BREEZE_SUCCESS) {
         OTA_LOG_E("ota breeze send error failed");
     }
@@ -56,7 +56,7 @@ uint32_t ota_breeze_send_fw_version_rsp(uint8_t ota_cmd, uint8_t *buffer, uint32
         OTA_LOG_E("ota breeze send fw version, input parameters error!");
         return OTA_BREEZE_ERROR_INVALID_PARAM;
     }
-    return breeze_post(OTA_BREEZE_CMD_FW_VERSION_RSP, buffer, length);
+    return breeze_post_ext(OTA_BREEZE_CMD_FW_VERSION_RSP, buffer, length);
 }
 
 int ota_breeze_split_sw_ver(char *data, uint32_t *v0, uint32_t *v1, uint32_t *v2)
@@ -143,7 +143,7 @@ static uint32_t ota_breeze_send_fw_upgrade_rsp(uint8_t allow_upgrade)
     uint32_t err_code;
     uint8_t tx_buf[2] = {0, 0};
     tx_buf[0] = (allow_upgrade) ? 1 : 0;
-    err_code = breeze_post(OTA_BREEZE_CMD_FW_UPGRADE_RSP, tx_buf, 1);
+    err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_UPGRADE_RSP, tx_buf, 1);
     return err_code;
 }
 
@@ -153,7 +153,7 @@ static void ota_breeze_send_fwup_success()
     uint32_t err_code;
     uint8_t tx_buf[2] = {0x00, 0x00};
     tx_buf[0] = 1;
-    err_code = breeze_post(OTA_BREEZE_CMD_FW_UPDATE_PROCESS, tx_buf, 1);
+    err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_UPDATE_PROCESS, tx_buf, 1);
     if (err_code != OTA_BREEZE_SUCCESS) {
         OTA_LOG_E("ota breeze send fwup failed");
     }
@@ -173,7 +173,7 @@ static void ota_breeze_send_bytes_received()
     ENCODE_U32(tx_buff + sizeof(uint16_t), p_ota->bytes_recvd);
     printf("\n frames_recvd = %d, bytes_recvd = %d\n", p_ota->frames_recvd, p_ota->bytes_recvd);
 
-    err_code = breeze_post(OTA_BREEZE_CMD_FW_BYTES_RECEIVED, tx_buff, sizeof(uint16_t) + sizeof(uint32_t));
+    err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_BYTES_RECEIVED, tx_buff, sizeof(uint16_t) + sizeof(uint32_t));
     if (err_code != OTA_BREEZE_SUCCESS) {
         OTA_LOG_E("ota breeze send bytes recvd failed");
     }
@@ -186,7 +186,7 @@ static uint32_t ota_breeze_send_crc_result(uint8_t crc_ok)
     uint32_t err_code;
     uint8_t tx_buff[2] = {0x00, 0x00};
     tx_buff[0] = (crc_ok) ? 1 : 0;
-    err_code = breeze_post(OTA_BREEZE_CMD_FW_CHECK_RESULT, tx_buff, 1);
+    err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_CHECK_RESULT, tx_buff, 1);
     if (err_code != OTA_BREEZE_SUCCESS) {
         OTA_LOG_E("ota breeze send crc result failed");
     }
