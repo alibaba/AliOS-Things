@@ -335,6 +335,27 @@ int dm_utils_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ c
     return SUCCESS_RETURN;
 }
 
+int dm_utils_uri_add_prefix(_IN_ const char *prefix, _IN_ char *uri, _OU_ char **new_uri)
+{
+    int new_uri_len = 0;
+
+    if (prefix == NULL || uri == NULL || new_uri == NULL || *new_uri != NULL) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    new_uri_len = strlen(prefix) + strlen(uri) + 1;
+    *new_uri = DM_malloc(new_uri_len);
+    if (*new_uri == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(*new_uri, 0, new_uri_len);
+
+    memcpy(*new_uri, prefix, strlen(prefix));
+    memcpy(*new_uri + strlen(*new_uri), uri, strlen(uri));
+
+    return SUCCESS_RETURN;
+}
+
 int dm_utils_json_parse(_IN_ const char *payload, _IN_ int payload_len, _IN_ int type, _OU_ lite_cjson_t *lite)
 {
     int res = 0;
