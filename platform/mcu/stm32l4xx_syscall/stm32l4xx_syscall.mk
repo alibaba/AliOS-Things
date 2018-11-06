@@ -1,19 +1,13 @@
-NAME := stm32l4xx_cube
+NAME := stm32l4xx_syscall
 HOST_OPENOCD := stm32l4xx
 $(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal rhino.vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal rhino.vfs
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
-GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += USE_HAL_DRIVER
 
-GLOBAL_INCLUDES += \
-                   Drivers/STM32L4xx_HAL_Driver/Inc \
+GLOBAL_INCLUDES += Drivers/STM32L4xx_HAL_Driver/Inc \
                    Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
                    Drivers/CMSIS/Include \
                    Drivers/CMSIS/Device/ST/STM32L4xx/Include
@@ -143,3 +137,4 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
                   -mfloat-abi=hard \
                   -mfpu=fpv4-sp-d16 \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
+
