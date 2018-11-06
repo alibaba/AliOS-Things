@@ -336,7 +336,7 @@ static void TimerSetTimeout( TimerEvent_t *obj )
 
 TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature )
 {
-    return HW_RTC_TempCompensation( period, temperature );
+    return aos_lrwan_time_itf.get_temp_compensation(period, temperature);
 }
 
 
