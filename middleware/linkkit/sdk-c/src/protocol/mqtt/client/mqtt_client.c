@@ -42,6 +42,8 @@ static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt
 
 static void *g_mqtt_client = NULL;
 
+static offline_sub_list_t *_mqtt_offline_subs_list = NULL;
+
 #if WITH_MQTT_ZIP_TOPIC
 #define MQTT_MD5_PATH_DEFAULT_LEN (16)
 
@@ -1929,12 +1931,11 @@ int iotx_mc_subscribe(iotx_mc_client_t *c,
                       void *pcontext)
 {
     int rc = FAIL_RETURN;
-    unsigned int msgId = iotx_mc_get_next_packetid(c);
-
+    unsigned int msgId;
     if (NULL == c || NULL == topicFilter || !topic_handle_func) {
         return NULL_VALUE_ERROR;
     }
-
+    msgId = iotx_mc_get_next_packetid(c);
 
     if (!iotx_mc_check_state_normal(c)) {
         mqtt_err("mqtt client state is error,state = %d", iotx_mc_get_client_state(c));
@@ -2314,6 +2315,162 @@ RETURN :
     }
 
     return rc;
+}
+
+static int _offline_subs_list_init()
+{
+    if(_mqtt_offline_subs_list != NULL) {
+        return 0;
+    }
+
+     _mqtt_offline_subs_list = mqtt_malloc(sizeof(offline_sub_list_t));
+    
+    if(_mqtt_offline_subs_list == NULL) {
+        return ERROR_MALLOC;
+    }
+
+    memset(_mqtt_offline_subs_list, 0 ,sizeof(offline_sub_list_t));
+    _mqtt_offline_subs_list->list = list_new(); 
+
+    if(_mqtt_offline_subs_list->list == NULL) {
+        mqtt_free(_mqtt_offline_subs_list);
+        _mqtt_offline_subs_list = NULL;
+        return ERROR_MALLOC;
+    }
+
+    _mqtt_offline_subs_list->mutex = HAL_MutexCreate();
+
+    if(_mqtt_offline_subs_list->mutex == NULL) {
+        list_destroy(_mqtt_offline_subs_list->list);
+        mqtt_free(_mqtt_offline_subs_list);
+        _mqtt_offline_subs_list = NULL;
+        return ERROR_MALLOC;
+    }
+
+    return 0;
+}
+
+static int _offline_subs_list_deinit()
+{
+    POINTER_SANITY_CHECK(_mqtt_offline_subs_list, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(_mqtt_offline_subs_list->list, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(_mqtt_offline_subs_list->mutex, NULL_VALUE_ERROR);
+    
+    list_iterator_t *iter;
+    list_node_t *node = NULL;
+    iotx_mc_offline_subs_t *subInfo = NULL;
+    if (NULL != (iter = list_iterator_new(_mqtt_offline_subs_list->list, LIST_HEAD))) {
+        for (;;) {
+            node = list_iterator_next(iter);
+
+            if (NULL == node) {
+                break;
+            }
+
+            subInfo = (iotx_mc_offline_subs_t *) node->val;
+            if (NULL == subInfo) {
+                mqtt_err("node's value is invalid!");
+                continue;
+            }
+            list_remove(_mqtt_offline_subs_list->list, node);
+            mqtt_free(subInfo->topic_filter);
+            mqtt_free(subInfo);
+        }
+        list_iterator_destroy(iter);
+    }
+
+    list_destroy(_mqtt_offline_subs_list->list);
+    HAL_MutexDestroy(_mqtt_offline_subs_list->mutex);
+    mqtt_free(_mqtt_offline_subs_list);
+    _mqtt_offline_subs_list = NULL;
+    return 0;
+
+}
+
+static int iotx_mqtt_offline_subscribe(const char *topic_filter,
+                                        iotx_mqtt_qos_t qos,
+                                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                        void *pcontext)
+{
+    int ret;
+    POINTER_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
+    POINTER_SANITY_CHECK(topic_handle_func, NULL_VALUE_ERROR);
+    
+    ret = _offline_subs_list_init();
+    
+    if(ret != 0) {
+        return ret;
+    }
+    iotx_mc_offline_subs_t * sub_info = mqtt_malloc(sizeof(iotx_mc_offline_subs_t));
+    if(sub_info == NULL) {
+        return ERROR_MALLOC;
+    }
+    
+    memset(sub_info, 0 ,sizeof(iotx_mc_offline_subs_t));
+    sub_info->topic_filter = mqtt_malloc(strlen(topic_filter) + 1);
+    if(sub_info->topic_filter == NULL) {
+        mqtt_free(sub_info);
+        return ERROR_MALLOC;
+    }
+    memset(sub_info->topic_filter, 0 ,strlen(topic_filter) + 1);
+    strncpy(sub_info->topic_filter, topic_filter, strlen(topic_filter));
+    sub_info->qos = qos;
+    sub_info->handle = topic_handle_func;
+    sub_info->user_data = pcontext;
+
+    list_node_t *node =list_node_new(sub_info);
+    if(node == NULL) {
+        mqtt_free(sub_info->topic_filter);
+        mqtt_free(sub_info);
+        return ERROR_MALLOC;
+    }
+    
+    HAL_MutexLock(_mqtt_offline_subs_list->mutex);
+    list_rpush(_mqtt_offline_subs_list->list, node);
+    HAL_MutexUnlock(_mqtt_offline_subs_list->mutex);
+
+    return 0;
+}
+
+
+static int iotx_mqtt_deal_offline_subs(void * client)
+{
+    if(_mqtt_offline_subs_list == NULL){
+        return SUCCESS_RETURN;
+    }
+    if (_mqtt_offline_subs_list->list != NULL && _mqtt_offline_subs_list->list->len) {
+        list_iterator_t *iter;
+        list_node_t *node = NULL;
+        iotx_mc_offline_subs_t *subInfo = NULL;
+
+        if (NULL == (iter = list_iterator_new(_mqtt_offline_subs_list->list, LIST_HEAD))) {
+            return SUCCESS_RETURN;
+        }
+
+        HAL_MutexLock(_mqtt_offline_subs_list->mutex);
+        for (;;) {
+            node = list_iterator_next(iter);
+
+            if (NULL == node) {
+                break;
+            }
+
+            subInfo = (iotx_mc_offline_subs_t *) node->val;
+            if (NULL == subInfo) {
+                mqtt_err("node's value is invalid!");
+                continue;
+            }
+            list_remove(_mqtt_offline_subs_list->list, node);
+            iotx_mc_subscribe(client, subInfo->topic_filter, subInfo->qos, subInfo->handle, subInfo->user_data);
+            mqtt_free(subInfo->topic_filter);
+            mqtt_free(subInfo);
+        }
+
+        list_iterator_destroy(iter);
+    }
+    HAL_MutexUnlock(_mqtt_offline_subs_list->mutex);
+    _offline_subs_list_deinit();
+    return SUCCESS_RETURN;
 }
 
 #define CONFIG_SUBINFO_LIFE         (10)
@@ -2997,6 +3154,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     pclient->mqtt_auth = iotx_guider_authenticate;
+    
+    iotx_mqtt_deal_offline_subs(pclient);
 
 #ifndef ATHOST_MQTT_REPORT_DISBALED
     iotx_set_report_func(IOT_MQTT_Publish_Simple);
@@ -3115,7 +3274,10 @@ int IOT_MQTT_Subscribe(void *handle,
 {
     iotx_mc_client_t *client = (iotx_mc_client_t *)(handle ? handle : g_mqtt_client);
 
-    POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
+    if (client == NULL) { //do offline subscribe
+        return iotx_mqtt_offline_subscribe(topic_filter, qos, topic_handle_func, pcontext);
+    } 
+    //POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
     POINTER_SANITY_CHECK(topic_handle_func, NULL_VALUE_ERROR);
     STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
 
@@ -3146,7 +3308,9 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
 
     iotx_mc_client_t *client = (iotx_mc_client_t *)(handle ? handle : g_mqtt_client);
 
-    POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
+    if (client == NULL) { //do offline subscribe
+        return iotx_mqtt_offline_subscribe(topic_filter, qos, topic_handle_func, pcontext);
+    } 
     STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
 
     if (timeout_ms > SUBSCRIBE_SYNC_TIMEOUT_MAX) {
