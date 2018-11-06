@@ -418,6 +418,11 @@ typedef struct sLoRaMacParams
      * Indicates if the node supports repeaters
      */
     bool RepeaterSupport;
+#ifdef CONFIG_LINKWAN
+    join_method_t method;
+    uint32_t      freqband;
+    bool          update_freqband;
+#endif
 }LoRaMacParams_t;
 
 /*!

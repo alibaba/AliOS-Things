@@ -40,6 +40,7 @@ typedef struct {
     TimerTime_t (*compute_elapsed_time)(TimerTime_t time);
     TimerTime_t (*get_current_time)(void );
     void (*set_timer_val)(TimerEvent_t *obj, uint32_t value);
+    TimerTime_t (*get_temp_compensation)( TimerTime_t period, float temperature );
 
 } hal_lrwan_time_itf_t;
 
