@@ -9,8 +9,11 @@
 #include "timer.h"
 #include "sx1276.h"
 #include "port_mcu.h"
+#include "lorawan_port.h"
 
-#define BOARD_WAKEUP_TIME 5
+#define BOARD_WAKEUP_TIME           5
+
+#define BOARD_TCXO_WAKEUP_TIME      0
 
 void SX1276SetXO( uint8_t state );
 
@@ -220,14 +223,12 @@ void SX1276SetAntSw(uint8_t opMode)
     switch (opMode) {
         case RFLR_OPMODE_TRANSMITTER:
             GPIO_PinOutClear(gpioPortC, 8);
-            SX1276.RxTx = 1;
             break;
         case RFLR_OPMODE_RECEIVER:
         case RFLR_OPMODE_RECEIVER_SINGLE:
         case RFLR_OPMODE_CAD:
         default:
             GPIO_PinOutSet(gpioPortC, 8);
-            SX1276.RxTx = 0;
             break;
     }
 }
@@ -235,6 +236,26 @@ void SX1276SetAntSw(uint8_t opMode)
 bool SX1276CheckRfFrequency( uint32_t frequency )
 {
     return true;
+}
+
+void SX1276Reset( void )
+{
+    // Set RESET pin to 0
+    aos_lrwan_radio_ctrl.radio_reset();
+
+    // Wait 1 ms
+    DelayMs( 1 );
+
+    // Configure RESET as input
+    aos_lrwan_radio_ctrl.radio_reset_cfg_input();
+
+    // Wait 6 ms
+    DelayMs( 6 );
+}
+
+uint32_t SX1276GetBoardTcxoWakeupTime( void )
+{
+    return BOARD_TCXO_WAKEUP_TIME;
 }
 
 const struct Radio_s Radio = {
@@ -261,7 +282,7 @@ const struct Radio_s Radio = {
     SX1276Read,
     SX1276WriteBuffer,
     SX1276ReadBuffer,
-    SX1276SetSyncWord,
     SX1276SetMaxPayloadLength,
-    SX1276GetRadioWakeUpTime
+    SX1276SetPublicNetwork,
+    SX1276GetWakeupTime
 };

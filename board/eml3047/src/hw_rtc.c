@@ -666,6 +666,70 @@ static TimerTime_t HW_RTC_GetCalendarValue( HW_RTC_DateTypeDef *RTC_DateStruct, 
     return (calendarValue);
 }
 
+uint32_t HW_RTC_GetCalendarTime( uint16_t *milliseconds )
+{
+    HW_RTC_TimeTypeDef RTC_TimeStruct ;
+    HW_RTC_DateTypeDef RTC_DateStruct;
+    uint32_t ticks;
+
+    uint64_t calendarValue = HW_RTC_GetCalendarValue( &RTC_DateStruct, &RTC_TimeStruct );
+
+    uint32_t seconds = ( uint32_t )calendarValue >> N_PREDIV_S;
+
+    ticks =  ( uint32_t )calendarValue & PREDIV_S;
+
+    *milliseconds = HW_RTC_Tick2ms( ticks );
+
+    return seconds;
+}
+
+TimerTime_t HW_RTC_TempCompensation( TimerTime_t period, float temperature )
+{
+    float k = RTC_TEMP_COEFFICIENT;
+    float kDev = RTC_TEMP_DEV_COEFFICIENT;
+    float t = RTC_TEMP_TURNOVER;
+    float tDev = RTC_TEMP_DEV_TURNOVER;
+    float interim = 0.0;
+    float ppm = 0.0;
+
+    if( k < 0.0 )
+    {
+        ppm = ( k - kDev );
+    }
+    else
+    {
+        ppm = ( k + kDev );
+    }
+    interim = ( temperature - ( t - tDev ) );
+    ppm *=  interim * interim;
+
+    // Calculate the drift in time
+    interim = ( ( float ) period * ppm ) / 1e6;
+    // Calculate the resulting time period
+    interim += period;
+    interim = floor( interim );
+
+    if( interim < 0.0 )
+    {
+        interim = ( float )period;
+    }
+
+    // Calculate the resulting period
+    return ( TimerTime_t ) interim;
+}
+
+void HW_RTC_BkupWrite( uint32_t data0, uint32_t data1 )
+{
+    LL_RTC_BAK_SetRegister(RTC, RTC_BKP_DR0, data0);
+    LL_RTC_BAK_SetRegister(RTC, RTC_BKP_DR1, data1);
+}
+
+void HW_RTC_BkupRead( uint32_t *data0, uint32_t *data1 )
+{
+    *data0 = LL_RTC_BAK_GetRegister(RTC, RTC_BKP_DR0);
+    *data1 = LL_RTC_BAK_GetRegister(RTC, RTC_BKP_DR1);
+}
+
 static uint8_t HW_RTC_ByteToBcd2( uint8_t Value )
 {
     return __LL_RTC_CONVERT_BIN2BCD( Value );

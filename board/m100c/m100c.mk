@@ -10,7 +10,7 @@ HOST_MCU_FAMILY := efm32gxx
 SUPPORT_BINS    := no
 
 #$(NAME)_COMPONENTS += rhino.fs.kv
-$(NAME)_COMPONENTS += network.lorawan.lorachip
+$(NAME)_COMPONENTS += network.lorawan_4_4_2.lorachip
 LORACHIP := sx1276
 
 GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0 RHINO_CONFIG_NORMAL_PRT=0
@@ -29,7 +29,7 @@ GLOBAL_INCLUDES += .
 $(NAME)_SOURCES := board.c
 $(NAME)_SOURCES += hw.c
 $(NAME)_SOURCES += debug.c
-$(NAME)_SOURCES += spi.c
-$(NAME)_SOURCES += rtc.c
+$(NAME)_SOURCES += hw_spi.c
+$(NAME)_SOURCES += hw_rtc.c
 $(NAME)_SOURCES += lorawan_port.c
 $(NAME)_SOURCES += board_sx1278.c
