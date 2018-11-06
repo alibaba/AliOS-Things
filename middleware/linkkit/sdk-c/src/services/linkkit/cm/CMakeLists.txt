@@ -16,9 +16,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/include)
 
+FILE (GLOB src_services_linkkit_cm_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/*.c
+)
+
 ADD_LIBRARY (iot_cm OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/iotx_cm.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/cm/iotx_cm_mqtt.c
+    ${src_services_linkkit_cm_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

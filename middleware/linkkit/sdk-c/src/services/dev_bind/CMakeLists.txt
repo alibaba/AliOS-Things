@@ -21,18 +21,13 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os/product)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dev_reset/)
 
+FILE (GLOB src_services_dev_bind_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/*.c
+    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/os/*.c
+)
+
 ADD_LIBRARY (iot_bind OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_bind.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_event.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_notify.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_timer.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/passwd.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_cmp_coap.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_cmp_mqtt.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/sha256.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_report.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/awss_packet.c
-    ${PROJECT_SOURCE_DIR}/src/services/dev_bind/os/os_misc.c
+    ${src_services_dev_bind_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

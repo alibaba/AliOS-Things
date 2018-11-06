@@ -3,6 +3,10 @@ TARGET_FILE=$1
 SRC_LIST=$(for i in ${LIB_SRCS}; do
     echo ${i}|${SED} "s:${TOP_DIR}:    \${PROJECT_SOURCE_DIR}:g"
 done)
+DIR_LIST=$(for i in ${LIB_SRCS}; do
+    dirname ${i}|sed "s:${TOP_DIR}/*::g"
+done|sort -u)
+MOD_NAME=$(echo ${MODULE_NAME}|sed 's:/:_:g')
 
 rm -f ${TARGET_FILE}
 
@@ -29,8 +33,12 @@ if [ "${LIBA_TARGET}" != "" ]; then
     LNAME=${LNAME%.a}
 
     cat << EOB >> ${TARGET_FILE}
+FILE (GLOB ${MOD_NAME}_SRCS
+$(for i in ${DIR_LIST}; do echo "    \${PROJECT_SOURCE_DIR}/${i}/*.c"; done)
+)
+
 ADD_LIBRARY (${LNAME} ${TYPE}
-${SRC_LIST}
+    \${${MOD_NAME}_SRCS}
     \${EXTRA_C_SOURCES}
 )
 

@@ -58,7 +58,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dev_reset)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/client)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/ntp)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/ica)
@@ -77,8 +76,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 
+FILE (GLOB src_services_http2_stream_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/http2_stream/*.c
+)
+
 ADD_LIBRARY (http2_stream OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/http2_stream/http2_stream.c
+    ${src_services_http2_stream_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

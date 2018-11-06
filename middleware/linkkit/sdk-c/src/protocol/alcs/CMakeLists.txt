@@ -22,14 +22,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client)
 
+FILE (GLOB src_protocol_alcs_SRCS
+    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/*.c
+)
+
 ADD_LIBRARY (iot_alcs OBJECT
-    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_mqtt.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_api.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_adapter.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_client.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_localsetup.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_server.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/alcs/alcs_coap.c
+    ${src_protocol_alcs_SRCS}
     ${EXTRA_C_SOURCES}
 )
 
