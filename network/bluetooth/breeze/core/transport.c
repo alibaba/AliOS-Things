@@ -208,6 +208,27 @@ static ret_code_t send_fragment(void)
     return ret;
 }
 
+static void trans_rx_dispatcher(void)
+{
+    if (!is_valid_rx_command(g_transport.rx.cmd)) {
+            return;
+    }
+
+    if((g_transport.rx.cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH){
+#if BZ_ENABLE_AUTH
+        auth_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
+#endif
+    } else if(g_transport.rx.cmd == BZ_CMD_EXT_DOWN){
+        extcmd_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
+    } else {
+        rx_cmd_post.cmd = g_transport.rx.cmd;
+        rx_cmd_post.frame_seq = g_transport.rx.frame_seq + 1;
+        rx_cmd_post.p_rx_buf =  g_transport.rx.buff;
+        rx_cmd_post.buf_sz = g_transport.rx.bytes_received;
+        event_notify(BZ_CMD_CTX_INFO, &rx_cmd_post, sizeof(rx_cmd_post));
+    }
+}
+
 ret_code_t transport_init(ali_init_t const *p_init)
 {
     /* Initialize context */
@@ -359,32 +380,8 @@ void transport_rx(uint8_t *p_data, uint16_t length)
         memcpy(g_transport.rx.buff + g_transport.rx.bytes_received, p_data + HEADER_SIZE, len);
         g_transport.rx.bytes_received += len;
     }
-
     if (!rx_frames_left()) {
-        if (!is_valid_rx_command(g_transport.rx.cmd)) {
-            return;
-        }
-        if (g_transport.rx.bytes_received != 0) {
-            if (g_transport.rx.cmd == BZ_CMD_QUERY) {
-                event_notify(BZ_EVENT_RX_QUERY, g_transport.rx.buff, g_transport.rx.bytes_received);
-            } else if (g_transport.rx.cmd == BZ_CMD_CTRL) {
-                event_notify(BZ_EVENT_RX_CTRL, g_transport.rx.buff, g_transport.rx.bytes_received);
-            }
-        }
-
-#if BZ_ENABLE_AUTH
-        auth_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
-#endif
-#if BZ_ENABLE_OTA
-	if((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_TYPE_OTA){
-            rx_cmd_post.cmd = cmd;
-            rx_cmd_post.frame_seq = g_transport.rx.frame_seq + 1;
-            rx_cmd_post.p_rx_buf =  g_transport.rx.buff;
-            rx_cmd_post.buf_sz = g_transport.rx.bytes_received;
-            event_notify(BZ_EVENT_OTAINFO, &rx_cmd_post, sizeof(rx_cmd_post));
-	}
-#endif
-        extcmd_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
+        trans_rx_dispatcher();
         reset_rx();
     } else {
         if (g_transport.timeout != 0) {
