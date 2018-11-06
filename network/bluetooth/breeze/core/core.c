@@ -17,9 +17,6 @@
 #include "sha256.h"
 #endif
 
-// TODO: rm from bz core
-#include "breeze_export.h"
-
 #define FMSK_BLUETOOTH_VER_Pos 0
 #define FMSK_OTA_Pos 2
 #define FMSK_SECURITY_Pos 3
@@ -46,27 +43,6 @@ void event_notify(uint8_t event_type, uint8_t *data, uint16_t length)
     event.rx_data.p_data = data;
     event.rx_data.length = length;
     g_core.event_handler(&event);
-}
-
-breeze_otainfo_t g_ota_info;
-void notify_ota_command(uint8_t cmd, uint8_t num_frame, uint8_t *data, uint16_t len)
-{
-    ali_event_t evt;
-
-    if ((cmd & BZ_CMD_TYPE_MASK) != BZ_CMD_TYPE_OTA) {
-        return;
-    }
-
-    g_ota_info.type = OTA_CMD;
-    g_ota_info.cmd_evt.m_cmd.cmd = cmd;
-    g_ota_info.cmd_evt.m_cmd.frame = num_frame;
-    memcpy(g_ota_info.cmd_evt.m_cmd.data, data, len);
-    g_ota_info.cmd_evt.m_cmd.len = len;
-    /* send event to higher layer. */
-    evt.type                = BZ_EVENT_OTAINFO;
-    evt.rx_data.p_data = &g_ota_info;
-    evt.rx_data.length = sizeof(breeze_otainfo_t);
-    g_core.event_handler(&evt);
 }
 
 static void create_bz_adv_data(uint32_t model_id, uint8_t *mac_bin)

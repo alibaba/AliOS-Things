@@ -57,6 +57,13 @@ typedef struct transport_s {
     void *p_aes_ctx;
 } transport_t;
 
+struct rx_cmd_post_t{
+    uint8_t cmd;
+    uint8_t frame_seq;
+    uint8_t *p_rx_buf;
+    uint16_t buf_sz;
+};
+
 ret_code_t transport_init(ali_init_t const *p_init);
 void transport_reset(void);
 ret_code_t transport_tx(uint8_t tx_type, uint8_t cmd,
