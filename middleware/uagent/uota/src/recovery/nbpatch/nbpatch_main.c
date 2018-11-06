@@ -19,7 +19,7 @@ void nbpatch_flash_status_init(uint32_t ota_len) {
     uint32_t i   = 0;
     uint32_t num = 0;
     PatchStatus* pstatus = nbpatch_get_pstatus();
-    uint32_t     par_len = get_partion_length(HAL_PARTITION_OTA_TEMP);
+    uint32_t     par_len = patch_flash_get_partion_length(HAL_PARTITION_OTA_TEMP);
 
     //将空间状态初始化为OTA_FLASH_STATUS_NULL
     memset(pstatus->ota_flash_status, OTA_FLASH_STATUS_NULL, SPLISE_NUM);
@@ -134,7 +134,7 @@ void nbpatch_copy_app2ota() {
     int i   = 0;
     int num = 0;
     PatchStatus* pstatus = nbpatch_get_pstatus();
-    unsigned int par_len = get_partion_length(HAL_PARTITION_OTA_TEMP);
+    unsigned int par_len = patch_flash_get_partion_length(HAL_PARTITION_OTA_TEMP);
 
     pstatus->recovery_phase = REC_PHASE_COPY;
     save_patch_status(pstatus);
@@ -150,7 +150,6 @@ void nbpatch_copy_app2ota() {
     }
     save_patch_status(pstatus);
 }
-
 #endif
 
 #if (OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBACK)
@@ -218,7 +217,7 @@ int nbpatch_swap_app2ota(BOOL all_flag)   // AB分区差异部分互换，完成
     unsigned int i   = 0;
     unsigned int sec = 0;
     char version[MAX_VERSION_LEN];
-	unsigned int par_len = get_partion_length(HAL_PARTITION_APPLICATION);
+	unsigned int par_len = patch_flash_get_partion_length(HAL_PARTITION_APPLICATION);
     PatchStatus* pstatus = nbpatch_get_pstatus();
 
     read_patch_status(pstatus);
@@ -258,7 +257,6 @@ int nbpatch_swap_app2ota(BOOL all_flag)   // AB分区差异部分互换，完成
 
     return 0;
 }
-
 #endif
 
 int nbpatch_main(void)
@@ -288,7 +286,7 @@ int nbpatch_main(void)
         return -1;
     }
 
-    uint32_t old_size = get_partion_length(pstatus->dst_adr);
+    uint32_t old_size = patch_flash_get_partion_length(pstatus->dst_adr);
     if(pstatus->patch_size > old_size || pstatus->patch_size == 0) {
         LOG("p overflow \r\n");
         return -1;
@@ -335,13 +333,13 @@ int nbpatch_main(void)
     }
 #if (OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
     else{
-        LOG("nbpatch_size 0x%x\r\n", nbpatch_size);
+        LOG("nbpatch size 0x%x\r\n", nbpatch_size);
         nbpatch_copy_lable:
         nbpatch_copy_app2ota();
         LOG("copy app text to ota end\r\n");
 
         ret = rec_verify_firmware(pstatus->src_adr, nbpatch_size);
-        LOG("nbpatch success adr:0x%x len:0x%x verify:0x%x\r\n", pstatus->src_adr, nbpatch_size,ret);
+        LOG("nbpatch success adr:0x%x len:0x%x verify:0x%x\r\n", pstatus->src_adr, nbpatch_size, ret);
 
         #if (OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBACK)
         nbpatch_swap_lable:
