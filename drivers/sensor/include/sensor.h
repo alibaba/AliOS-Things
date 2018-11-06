@@ -27,6 +27,8 @@
 #endif
 #endif 
 
+#define SENSOR_MAX_NUM      (16)
+#define SENSOR_NAME_LEN     (32)
 #define I2C_REG_LEN 1
 #define I2C_DATA_LEN 1
 #define I2C_OP_RETRIES AOS_WAIT_FOREVER
@@ -276,7 +278,7 @@ typedef struct _dev_humidity_data_t
 typedef struct _dev_integer_data_t
 {
     uint64_t timestamp;
-    uint32_t data;
+    int32_t data;
 } integer_data_t;
 
 typedef struct _dev_als_data_t
@@ -351,23 +353,26 @@ typedef struct _dev_gs_data_t
     gs_type_e   gs_type;
 } gs_data_t;
 
-typedef void (*SENSOR_IRQ_CALLBACK)(sensor_tag_e tag);
+typedef void (*SENSOR_IRQ_CALLBACK)(sensor_tag_e tag, uint8_t instance);
 typedef struct _dev_sensor_config_t
 {
     uint8_t             id;
     uint32_t            range;
-    uint32_t            dtc_cycle; // ms
-    uint32_t            odr;
+    uint32_t            inerval;  //polling interval
     work_mode_e         mode;
     void *              data_buf;
     uint32_t            data_len;
     SENSOR_IRQ_CALLBACK irq_callback;
 } dev_sensor_config_t;
 
+typedef struct _sensor_identity_t{
+    sensor_tag_e    tag;
+    uint8_t         instance;
+}sensor_identity_t;
 typedef struct _sensor_list_t
 {
     uint32_t cnt;
-    uint8_t  list[TAG_DEV_SENSOR_NUM_MAX];
+    sensor_identity_t   list[SENSOR_MAX_NUM];
 } sensor_list_t;
 
 typedef struct _dev_sensor_info_t {
@@ -408,6 +413,7 @@ typedef struct _sensor_obj_t
 {
     char *                 path;
     sensor_tag_e           tag;
+    uint8_t                instance;
     dev_io_port_e          io_port;
     work_mode_e            mode;
     void *                 data_buf;
