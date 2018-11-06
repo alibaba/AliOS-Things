@@ -50,7 +50,7 @@ static void lora_task_entry(void *arg)
     LoRaMainCallbacks.LoraTxData = LoraTxData;
     LoRaMainCallbacks.LoraRxData = LoraRxData;
 
-    lora_init(&LoRaMainCallbacks, LORA_APP_CLASS_C);
+    lora_init(&LoRaMainCallbacks, LORA_APP_CLASS_B);
     lora_fsm();
 }
 
