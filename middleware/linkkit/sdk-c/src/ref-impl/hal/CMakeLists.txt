@@ -37,9 +37,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/id2)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/itls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/km)
 
+FILE (GLOB src_ref-impl_hal_SRCS
+    ${PROJECT_SOURCE_DIR}/src/ref-impl/hal/ssl/mbedtls/*.c
+)
+
 ADD_LIBRARY (iot_hal SHARED
-    ${PROJECT_SOURCE_DIR}/src/ref-impl/hal/ssl/mbedtls/HAL_DTLS_mbedtls.c
-    ${PROJECT_SOURCE_DIR}/src/ref-impl/hal/ssl/mbedtls/HAL_TLS_mbedtls.c
+    ${src_ref-impl_hal_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

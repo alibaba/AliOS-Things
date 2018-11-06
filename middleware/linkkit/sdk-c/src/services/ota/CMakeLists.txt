@@ -13,10 +13,13 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/impl)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/prot)
 
+FILE (GLOB src_services_ota_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/ota/*.c
+    ${PROJECT_SOURCE_DIR}/src/services/ota/impl/*.c
+)
+
 ADD_LIBRARY (iot_ota OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/ota/iotx_ota.c
-    ${PROJECT_SOURCE_DIR}/src/services/ota/impl/ota_fetch.c
-    ${PROJECT_SOURCE_DIR}/src/services/ota/impl/ota_lib.c
+    ${src_services_ota_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

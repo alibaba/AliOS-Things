@@ -34,7 +34,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/client)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/ntp)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/ica)
@@ -49,24 +48,14 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/ota/prot)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/shadow)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/subdev)
 
+FILE (GLOB src_services_linkkit_dm_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/*.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/client/*.c
+    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server/*.c
+)
+
 ADD_LIBRARY (iot_dm OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_api.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_cota.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_fota.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_ipc.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_manager.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_message.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_message_cache.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_msg_process.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_opt.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_ota.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_shadow.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_tsl_alink.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/dm_utils.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server/dm_server_adapter.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server/dm_server.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/client/dm_client_adapter.c
-    ${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/client/dm_client.c
+    ${src_services_linkkit_dm_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

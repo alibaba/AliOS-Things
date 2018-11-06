@@ -13,8 +13,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/ica)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/ica/test)
 
+FILE (GLOB src_services_mdal_mal_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/mdal/mal/*.c
+)
+
 ADD_LIBRARY (iot_mal OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/mdal/mal/mal.c
+    ${src_services_mdal_mal_SRCS}
     ${EXTRA_C_SOURCES}
 )
 
