@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include <string.h>
 #include "iot_import.h"
 #include "mbedtls/aes.h"
@@ -13,6 +11,7 @@
 typedef struct {
     mbedtls_aes_context ctx;
     uint8_t iv[16];
+    uint8_t key[16];
 } platform_aes_t;
 
 p_HAL_Aes128_t HAL_Aes128_Init(
@@ -23,10 +22,10 @@ p_HAL_Aes128_t HAL_Aes128_Init(
     int ret = 0;
     platform_aes_t *p_aes128 = NULL;
 
-    if(!key || !iv) return p_aes128;
+    if (!key || !iv) return p_aes128;
 
     p_aes128 = (platform_aes_t *)calloc(1, sizeof(platform_aes_t));
-    if(!p_aes128) return p_aes128;
+    if (!p_aes128) return p_aes128;
 
     mbedtls_aes_init(&p_aes128->ctx);
 
@@ -38,7 +37,8 @@ p_HAL_Aes128_t HAL_Aes128_Init(
 
     if (ret == 0) {
         memcpy(p_aes128->iv, iv, 16);
-    }else {
+        memcpy(p_aes128->key, key, 16);
+    } else {
         free(p_aes128);
         p_aes128 = NULL;
     }
@@ -48,7 +48,7 @@ p_HAL_Aes128_t HAL_Aes128_Init(
 
 int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes)
 {
-    if(!aes) return -1;
+    if (!aes) return -1;
 
     mbedtls_aes_free(&((platform_aes_t *)aes)->ctx);
     free(aes);
@@ -66,7 +66,7 @@ int HAL_Aes128_Cbc_Encrypt(
     int ret = ret;
     platform_aes_t *p_aes128 = (platform_aes_t *)aes;
 
-    if(!aes || !src || !dst) return -1;
+    if (!aes || !src || !dst) return -1;
 
     for (i = 0; i < blockNum; ++i) {
         ret = mbedtls_aes_crypt_cbc(&p_aes128->ctx, MBEDTLS_AES_ENCRYPT, AES_BLOCK_SIZE,
@@ -88,7 +88,7 @@ int HAL_Aes128_Cbc_Decrypt(
     int ret = -1;
     platform_aes_t *p_aes128 = (platform_aes_t *)aes;
 
-    if(!aes || !src || !dst) return ret;
+    if (!aes || !src || !dst) return ret;
 
     for (i = 0; i < blockNum; ++i) {
         ret = mbedtls_aes_crypt_cbc(&p_aes128->ctx, MBEDTLS_AES_DECRYPT, AES_BLOCK_SIZE,
@@ -110,7 +110,7 @@ int HAL_Aes128_Cfb_Encrypt(
     int ret = -1;
     platform_aes_t *p_aes128 = (platform_aes_t *)aes;
 
-    if(!aes || !src || !dst) return ret;
+    if (!aes || !src || !dst) return ret;
 
     ret = mbedtls_aes_crypt_cfb128(&p_aes128->ctx, MBEDTLS_AES_ENCRYPT, length,
                                    &offset, p_aes128->iv, src, dst);
@@ -129,8 +129,9 @@ int HAL_Aes128_Cfb_Decrypt(
     int ret = -1;
     platform_aes_t *p_aes128 = (platform_aes_t *)aes;
 
-    if(!aes || !src || !dst) return ret;
+    if (!aes || !src || !dst) return ret;
 
+    ret = mbedtls_aes_setkey_enc(&p_aes128->ctx, p_aes128->key, 128);
     ret = mbedtls_aes_crypt_cfb128(&p_aes128->ctx, MBEDTLS_AES_DECRYPT, length,
                                    &offset, p_aes128->iv, src, dst);
     return ret;
