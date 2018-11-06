@@ -191,12 +191,18 @@ void recovery_main()
 {
 	int flag = 0;
 
+#if (defined IS_ESP8266)
+	RHINO_CPU_INTRPT_DISABLE_NMI();
+    vPortETSIntrLock();
+#endif
 	rec_hal_init();
 
 	flag = recovery_flag_update();
 
 #if (defined IS_ESP8266)
     if((REC_UPGRADE_START == flag) || (REC_ROLLBACK_START == flag)) {
+		vPortETSIntrUnlock();
+        RHINO_CPU_INTRPT_ENABLE_NMI();
         rec_upgrade_reboot();
         return;
     }
