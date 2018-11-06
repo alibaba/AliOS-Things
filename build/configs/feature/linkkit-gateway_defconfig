@@ -91,7 +91,7 @@ FEATURE_SUBDEVICE_ENABLED   = y
 ## Usage:    If the value is "y", it support alcs feature and the ALCS_ENABLED compile option will be defined.
 ## Note:     Switchable (value is y or n)
 ##
-FEATURE_ALCS_ENABLED        = y
+FEATURE_ALCS_ENABLED = n
 
 ##
 ## FEATURE_DEVICE_MODEL_GATEWAY
