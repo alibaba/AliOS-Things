@@ -190,6 +190,30 @@ void breeze_awss_start();
 /**
  * @brief Post device status.
  *
+ * @param[in] buffer @n Data to post.
+ * @param[in] model @n Length of the data.
+ * @return result 0: success; others:err code.
+ * @see None.
+ * @note This API can be used to update date to server, in non-blocked way.
+ *       This API uses ble indicate way to send the data.
+ */
+uint32_t breeze_post(uint8_t *buffer, uint32_t length);
+
+/**
+ * @brief Post device status, in a fast way.
+ *
+ * @param[in] buffer @n Data to post.
+ * @param[in] model @n Length of the data.
+ * @return result 0: success; others:err code.
+ * @see None.
+ * @note This API is similiar with breeze_post. The difference is that
+ *       ble notify way is used to post the data.
+ */
+uint32_t breeze_post_fast(uint8_t *buffer, uint32_t length);
+
+/**
+ * @brief Post device status with cmd.
+ *
  * @param[in] cmd @n cmda to post.0:default, other:for internal use
  * @param[in] buffer @n Data to post.
  * @param[in] model @n Length of the data.
@@ -198,20 +222,7 @@ void breeze_awss_start();
  * @note This API can be used to update date to server, in non-blocked way.
  *       This API uses ble indicate way to send the data.
  */
-uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length);
-
-/**
- * @brief Post device status, in a fast way.
- *
- * @param[in] cmd @n cmda to post.0:default, other:for internal use
- * @param[in] buffer @n Data to post.
- * @param[in] model @n Length of the data.
- * @return result 0: success; others:err code.
- * @see None.
- * @note This API is similiar with breeze_post. The difference is that
- *       ble notify way is used to post the data.
- */
-uint32_t breeze_post_fast(uint8_t cmd, uint8_t *buffer, uint32_t length);
+uint32_t breeze_post_ext(uint8_t cmd, uint8_t *buffer, uint32_t length);
 
 /**
  * @brief Append user specific data to the tail of the breeze adv data.
