@@ -2231,6 +2231,10 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     }
     nextChan.LastAggrTx = MacCtx.AggregatedLastTxDoneTime;
 
+#ifdef CONFIG_LINKWAN
+    nextChan.freqband        = MacCtx.NvmCtx->MacParams.freqband;
+#endif
+
     // Select channel
     status = RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &MacCtx.NvmCtx->Channel, &dutyCycleTimeOff, &MacCtx.AggregatedTimeOff );
 
@@ -4075,6 +4079,8 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
 
             MacCtx.NvmCtx->MacParams.ChannelsDatarate = RegionAlternateDr( MacCtx.NvmCtx->Region, mlmeRequest->Req.Join.Datarate );
 
+            MacCtx.NvmCtx->MacParams.freqband = mlmeRequest->Req.Join.freqband;
+
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
             queueElement.RestrictCommonReadyToHandle = false;
             LoRaMacConfirmQueueAdd( &queueElement );
@@ -4354,3 +4360,4 @@ void LoRaMacTestSetDutyCycleOn( bool enable )
         MacCtx.NvmCtx->DutyCycleOn = enable;
     }
 }
+

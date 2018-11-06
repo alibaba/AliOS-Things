@@ -520,9 +520,11 @@ void lora_fsm(void)
     lora_abp_id_t lora_abp_id;
 
 #ifdef AOS_KV
+    len = sizeof(lora_dev);
     memset(&lora_dev, 0, sizeof(lora_dev));
     aos_kv_get("lora_dev", &lora_dev, &len);
 
+    len = sizeof(lora_abp_id);
     memset(&lora_abp_id, 0, sizeof(lora_abp_id));
     aos_kv_get("lora_abp", &lora_abp_id, &len);
 #else
@@ -657,6 +659,10 @@ void lora_fsm(void)
                         mlmeReq.Req.Join.Datarate = lora_dev.datarate;
                         mlmeReq.Req.Join.NbTrials = 3;
                     } else {
+                        mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+                        LoRaMacMibGetRequestConfirm(&mibReq);
+                        mlmeReq.Req.Join.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+
                         mlmeReq.Req.Join.NbTrials = num_trials;
                     }
                     if (next_tx == true && rejoin_flag == true) {
