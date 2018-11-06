@@ -8,6 +8,7 @@
 #include "hal/soc/wdg.h"
 #include "CheckSumUtils.h"
 #include "rec_define.h"
+#include "rec_common.h"
 
 void rec_read_status(PatchStatus *status)
 {
