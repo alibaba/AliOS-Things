@@ -1,5 +1,6 @@
 #include "hal/soc/soc.h"
 #include <aos/kernel.h>
+#include "stm32l0xx.h"
 
 /* Logic partition on flash devices */
 hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX] =
@@ -17,3 +18,16 @@ hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX] =
 void board_init(void)
 {
 }
+
+void BoardCriticalSectionBegin( uint32_t *mask )
+{
+    *mask = __get_PRIMASK( );
+    __disable_irq( );
+}
+
+void BoardCriticalSectionEnd( uint32_t *mask )
+{
+    __set_PRIMASK( *mask );
+}
+
+

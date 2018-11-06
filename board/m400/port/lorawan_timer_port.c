@@ -131,6 +131,13 @@ static void set_alarm(uint32_t timeout);
  */
 static void stop_alarm(void);
 
+/**
+ * \brief stop alarm
+ * \return none
+ */
+static TimerTime_t get_temp_compensation(TimerTime_t period, float temperature);
+
+
 /*******************************************************************************
  * GLOBAL VARIABLES
  */
@@ -148,7 +155,8 @@ hal_lrwan_time_itf_t aos_lrwan_time_itf = {
     .set_timeout = set_timeout,
     .compute_elapsed_time = compute_elapsed_time,
     .get_current_time = get_current_time,
-    .set_timer_val = set_timer_val
+    .set_timer_val = set_timer_val,
+    .get_temp_compensation = get_temp_compensation
 };
 
 /*******************************************************************************
@@ -272,3 +280,9 @@ void stop_alarm(void)
 {
     HW_RTC_StopAlarm();
 }
+
+TimerTime_t get_temp_compensation( TimerTime_t period, float temperature )
+{
+    return HW_RTC_TempCompensation(period, temperature);
+}
+

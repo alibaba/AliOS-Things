@@ -60,6 +60,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "eml3047_lrwan.h"
 #include "delay.h"
 #include "timeServer.h"
+#include "lorawan_port.h"
 
 #define IRQ_HIGH_PRIORITY  0
 
@@ -69,6 +70,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define TCXO_ON()   //HW_GPIO_Write( RADIO_TCXO_VCC_PORT, RADIO_TCXO_VCC_PIN, 1) 
 
 #define TCXO_OFF()  //HW_GPIO_Write( RADIO_TCXO_VCC_PORT, RADIO_TCXO_VCC_PIN, 0) 
+
+#define BOARD_TCXO_WAKEUP_TIME                      0
+
 
 static void SX1276AntSwInit( void );
 
@@ -96,6 +100,7 @@ void SX1276SetAntSw( uint8_t opMode );
  *
  * \param [IN] opMode Current radio operating mode
  */
+
 static LoRaBoardCallback_t BoardCallbacks = { SX1276SetXO,
                                               SX1276GetWakeTime,
                                               SX1276IoIrqInit,
@@ -131,9 +136,9 @@ const struct Radio_s Radio = {
     SX1276Read,
     SX1276WriteBuffer,
     SX1276ReadBuffer,
-    SX1276SetSyncWord,
     SX1276SetMaxPayloadLength,
-    SX1276GetRadioWakeUpTime
+    SX1276SetPublicNetwork,
+    SX1276GetWakeupTime
 };
 
 uint32_t SX1276GetWakeTime( void )
@@ -179,7 +184,6 @@ void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
     HW_GPIO_SetIrq( RADIO_DIO_2_PORT, RADIO_DIO_2_PIN, IRQ_HIGH_PRIORITY, irqHandlers[2] );
     HW_GPIO_SetIrq( RADIO_DIO_3_PORT, RADIO_DIO_3_PIN, IRQ_HIGH_PRIORITY, irqHandlers[3] );
 }
-
 
 void SX1276IoDeInit( void )
 {
@@ -297,13 +301,11 @@ void SX1276SetAntSw( uint8_t opMode )
     switch ( opMode ) {
         case RFLR_OPMODE_TRANSMITTER:
             HW_GPIO_Write( RADIO_ANT_SWITCH_PORT, RADIO_ANT_SWITCH_PIN, 0 );
-            SX1276.RxTx = 1;
             break;
         case RFLR_OPMODE_RECEIVER:
         case RFLR_OPMODE_RECEIVER_SINGLE:
         case RFLR_OPMODE_CAD:
         default:
-            SX1276.RxTx = 0;
             HW_GPIO_Write( RADIO_ANT_SWITCH_PORT, RADIO_ANT_SWITCH_PIN, 1 );
             break;
     }
@@ -311,12 +313,31 @@ void SX1276SetAntSw( uint8_t opMode )
 }
 
 
-
-
-
 bool SX1276CheckRfFrequency( uint32_t frequency )
 {
     // Implement check. Currently all frequencies are supported
     return true;
 }
+
+void SX1276Reset( void )
+{
+    // Set RESET pin to 0
+    aos_lrwan_radio_ctrl.radio_reset();
+
+    // Wait 1 ms
+    DelayMs( 1 );
+
+    // Configure RESET as input
+    aos_lrwan_radio_ctrl.radio_reset_cfg_input();
+
+    // Wait 6 ms
+    DelayMs( 6 );
+}
+
+uint32_t SX1276GetBoardTcxoWakeupTime( void )
+{
+    return BOARD_TCXO_WAKEUP_TIME;
+}
+
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

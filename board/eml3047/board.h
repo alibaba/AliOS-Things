@@ -8,3 +8,17 @@
 #define STDIO_UART 0
 #define STDIO_UART_BUADRATE 115200
 #endif
+
+
+/*!
+ * Begins critical section
+ */
+#define CRITICAL_SECTION_BEGIN( ) uint32_t mask; BoardCriticalSectionBegin( &mask )
+
+/*!
+ * Ends critical section
+ */
+#define CRITICAL_SECTION_END( ) BoardCriticalSectionEnd( &mask )
+
+
+

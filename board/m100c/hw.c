@@ -11,8 +11,8 @@
 #include "em_gpio.h"
 #include "em_chip.h"
 
-#include "spi.h"
-#include "rtc.h"
+#include "hw_spi.h"
+#include "hw_rtc.h"
 #include "debug.h"
 #include "radio.h"
 
