@@ -15,7 +15,12 @@
 typedef struct uapp_info {
      unsigned int magic;
      unsigned int bin_type;
-     void (*app_entry)(int argc, char *argv[]);
+     ktask_t *task_struct;
+     void (*main_entry)(int argc, char *argv[]);
+     cpu_stack_t *ustack;
+     unsigned int ustack_size;
+     unsigned int kstack_size;
+     unsigned int priority;
      unsigned int text_flash_begin;
      unsigned int text_flash_end;
      unsigned int data_ram_start;
@@ -25,10 +30,6 @@ typedef struct uapp_info {
      unsigned int bss_end;
      unsigned int heap_start;
      unsigned int heap_end;
-     unsigned int app_task_struct;
-     unsigned int app_stack;
-     unsigned int app_stack_size;
-     unsigned int priority;
      unsigned int reserve[4];
 } uapp_info_t;
 
