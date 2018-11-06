@@ -54,7 +54,8 @@ file_ops_t sensor_fops = {
 };
 
 static SENSOR_IRQ_CALLBACK g_sensor_irq_cb = NULL;
-static sensor_obj_t       *g_sensor_obj[TAG_DEV_SENSOR_NUM_MAX];
+static sensor_obj_t *      g_sensor_obj[SENSOR_MAX_NUM];
+static char                g_sensor_path[SENSOR_MAX_NUM][SENSOR_NAME_LEN];
 static uint32_t            g_sensor_cnt = 0;
 
 UNUSED static void sensor_set_power_mode(dev_power_mode_e power, int index)
@@ -97,7 +98,7 @@ static void sensor_irq_handle(void *arg)
 {
     uint32_t index = (uint32_t)arg;
 
-    if (index >= TAG_DEV_SENSOR_NUM_MAX) {
+    if (index >= SENSOR_MAX_NUM) {
         return;
     }
 
@@ -111,7 +112,7 @@ static void sensor_irq_handle(void *arg)
         g_sensor_obj[index]->irq_handle();
 
         if (NULL != g_sensor_irq_cb) {
-            g_sensor_irq_cb(g_sensor_obj[index]->tag);
+            g_sensor_irq_cb(g_sensor_obj[index]->tag, g_sensor_obj[index]->instance);
         }
     }
     return;
@@ -143,7 +144,10 @@ static int find_selected_sensor(char *path)
     }
 
     for (i = 0; i < g_sensor_cnt; i++) {
-        if (strncmp(g_sensor_obj[i]->path, path, strlen(path)) == 0) {
+        if(strlen(path) != strlen(g_sensor_path[i])){
+            continue;
+        }
+        if (strncmp(g_sensor_path[i], path, strlen(path)) == 0) {
             return i;
         }
     }
@@ -173,7 +177,7 @@ static int sensor_obj_register(int index )
         }
     }
 
-    ret = aos_register_driver(g_sensor_obj[index]->path, &sensor_fops, NULL);
+    ret = aos_register_driver(g_sensor_path[index], &sensor_fops, NULL);
     if (unlikely(ret)) {
         return -1;
     }
@@ -183,71 +187,90 @@ static int sensor_obj_register(int index )
 int sensor_create_obj(sensor_obj_t* sensor)
 {
     int ret = 0;
+    int index;
 
-    g_sensor_obj[g_sensor_cnt] =
-      (sensor_obj_t *)aos_malloc(sizeof(sensor_obj_t));
-    if (g_sensor_obj[g_sensor_cnt] == NULL) {
+    index = g_sensor_cnt;
+    if(index >= SENSOR_MAX_NUM){
         return -1;
     }
-    memset(g_sensor_obj[g_sensor_cnt], 0, sizeof(sensor_obj_t));
+
+    g_sensor_obj[index] =
+      (sensor_obj_t *)aos_malloc(sizeof(sensor_obj_t));
+    if (g_sensor_obj[index] == NULL) {
+        return -1;
+    }
+
+    memset(g_sensor_obj[index], 0, sizeof(sensor_obj_t));
+    memset(g_sensor_path[index], 0, SENSOR_NAME_LEN);
 
     /* install the phy sensor info into the sensor object datebase here */
-    g_sensor_obj[g_sensor_cnt]->io_port    = sensor->io_port;
-    g_sensor_obj[g_sensor_cnt]->path       = sensor->path;
-    g_sensor_obj[g_sensor_cnt]->tag        = sensor->tag;
-    g_sensor_obj[g_sensor_cnt]->open       = sensor->open;
-    g_sensor_obj[g_sensor_cnt]->close      = sensor->close;
-    g_sensor_obj[g_sensor_cnt]->ioctl      = sensor->ioctl;
-    g_sensor_obj[g_sensor_cnt]->read       = sensor->read;
-    g_sensor_obj[g_sensor_cnt]->write      = sensor->write;
-    g_sensor_obj[g_sensor_cnt]->irq_handle = sensor->irq_handle;
-    g_sensor_obj[g_sensor_cnt]->mode       = sensor->mode;
-    g_sensor_obj[g_sensor_cnt]->data_buf   = 0;
-    g_sensor_obj[g_sensor_cnt]->data_len   = sensor->data_len;
-    g_sensor_obj[g_sensor_cnt]->power =
+    ret = snprintf(g_sensor_path[index], SENSOR_NAME_LEN, "%s/%d", sensor->path, sensor->instance);
+    if(ret < 0){
+        goto error;
+    }
+
+    ret = find_selected_sensor(g_sensor_path[index]);
+    if(ret >= 0){
+        goto error;
+    }
+    
+    g_sensor_obj[index]->io_port    = sensor->io_port;
+    g_sensor_obj[index]->tag        = sensor->tag;
+    g_sensor_obj[index]->instance   = sensor->instance;
+    g_sensor_obj[index]->open       = sensor->open;
+    g_sensor_obj[index]->close      = sensor->close;
+    g_sensor_obj[index]->ioctl      = sensor->ioctl;
+    g_sensor_obj[index]->read       = sensor->read;
+    g_sensor_obj[index]->write      = sensor->write;
+    g_sensor_obj[index]->irq_handle = sensor->irq_handle;
+    g_sensor_obj[index]->mode       = sensor->mode;
+    g_sensor_obj[index]->data_buf   = 0;
+    g_sensor_obj[index]->data_len   = sensor->data_len;
+    g_sensor_obj[index]->power =
       DEV_POWER_OFF;                     // will update the status later
-    g_sensor_obj[g_sensor_cnt]->ref = 0; // count the ref of this sensor
+    g_sensor_obj[index]->ref = 0; // count the ref of this sensor
 
     if ((sensor->mode == DEV_INT) || (sensor->mode == DEV_DATA_READY) ||
         (sensor->mode == DEV_FIFO)) {
-        g_sensor_obj[g_sensor_cnt]->gpio.port   = sensor->gpio.port;
-        g_sensor_obj[g_sensor_cnt]->gpio.config = sensor->gpio.config;
-        g_sensor_obj[g_sensor_cnt]->gpio.priv   = sensor->gpio.priv;
+        g_sensor_obj[index]->gpio.port   = sensor->gpio.port;
+        g_sensor_obj[index]->gpio.config = sensor->gpio.config;
+        g_sensor_obj[index]->gpio.priv   = sensor->gpio.priv;
     }
 
     /* register the sensor object into the irq list and vfs */
-
-    ret = sensor_obj_register(g_sensor_cnt);
+    ret = sensor_obj_register(index);
     if (unlikely(ret)) {
         goto error;
     }
 
     g_sensor_cnt++;
-    LOGD(SENSOR_STR, "%s successfully \n", __func__);
     return 0;
 
 error:
-    free(g_sensor_obj[g_sensor_cnt]);
+    if(g_sensor_obj[index] != NULL){
+        aos_free(g_sensor_obj[index]);
+    }
     return -1;
 }
 
 static int sensor_hal_get_dev_list(void* buf)
 {
-    sensor_list_t *list = buf;
+    sensor_list_t *sensor_list = buf;
     if (buf == NULL)
         return -1;
 
     /* load the sensor count and tag list here */
 
-    if (list->cnt >= TAG_DEV_SENSOR_NUM_MAX) {
+    if (sensor_list->cnt != 0) {
         return -1;
     }
 
-    for(int index = 0; index < g_sensor_cnt; index++){
-        list->list[list->cnt+index] = g_sensor_obj[index]->tag;
+    for(int index = 0; (index < g_sensor_cnt) && (index < SENSOR_MAX_NUM); index++){
+        sensor_list->list[sensor_list->cnt + index].tag    = g_sensor_obj[index]->tag;
+        sensor_list->list[sensor_list->cnt + index].instance  = g_sensor_obj[index]->instance;
     }
 
-    list->cnt += g_sensor_cnt;
+    sensor_list->cnt = g_sensor_cnt;
 
     return 0;
 }
@@ -267,7 +290,7 @@ static int sensor_open(inode_t *node, file_t *file)
     }
 
     index = find_selected_sensor(node->i_name);
-    if ((index < 0) || (index >= TAG_DEV_SENSOR_NUM_MAX)){
+    if ((index < 0) || (index >= SENSOR_MAX_NUM)){
         return -1;
     }
     if( g_sensor_obj[index]->open == NULL){
@@ -293,7 +316,7 @@ static int sensor_close(file_t *file)
     }
 
     index = find_selected_sensor(file->node->i_name);
-    if ((index < 0) || (index >= TAG_DEV_SENSOR_NUM_MAX)){
+    if ((index < 0) || (index >= SENSOR_MAX_NUM)){
         return -1;
     }
     if( g_sensor_obj[index]->close == NULL){
@@ -320,9 +343,13 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len)
     if (f == NULL) {
         return -1;
     }
+
+    index = find_selected_sensor(f->node->i_name);
+    if ((index < 0) || (index >= SENSOR_MAX_NUM)){
+        goto error;
+    }
 #ifdef UDATA_MODBUS
-    index = find_ModbusSensors(f->node->i_name);
-    if (index >= 0) {
+    if(g_sensor_obj[index]->io_port = MODBUS_PORT){
         ret = modbus_sensor_read(buf, len, index);
         if (ret <= 0) {
             goto error;
@@ -330,10 +357,6 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len)
         return ret;
     }
 #endif
-    index = find_selected_sensor(f->node->i_name);
-    if ((index < 0) || (index >= TAG_DEV_SENSOR_NUM_MAX)){
-        goto error;
-    }
 
     if ((g_sensor_obj[index]->read == NULL)) {
         goto error;
