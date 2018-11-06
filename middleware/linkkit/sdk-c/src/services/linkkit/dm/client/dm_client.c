@@ -102,21 +102,6 @@ static void _dm_client_event_cloud_connected_handle(void)
     awss_report_cloud();
 #endif
     dm_msg_cloud_connected();
-
-#ifdef OTA_ENABLED
-    int res = 0;
-
-    /* DM OTA Module Init */
-    res = dm_ota_sub();
-    if (res == SUCCESS_RETURN) {
-        /* DM Config OTA Module Init */
-        dm_cota_init();
-
-        /* DM Firmware OTA Mudule Init */
-        dm_fota_init();
-    }
-#endif
-
 }
 
 static void _dm_client_event_cloud_disconnect_handle(void)
