@@ -49,6 +49,14 @@ typedef struct iotx_mc_topic_handle_s {
     struct iotx_mc_topic_handle_s *next;
 } iotx_mc_topic_handle_t;
 
+/* Handle structure of subscribed topic */
+typedef struct  {
+    char *topic_filter;
+    iotx_mqtt_event_handle_func_fpt handle;
+    void *user_data;
+    iotx_mqtt_qos_t qos;
+} iotx_mc_offline_subs_t;
+
 /* Information structure of subscribed topic */
 typedef struct SUBSCRIBE_INFO {
     enum msgTypes               type;               /* type, (sub or unsub) */
@@ -59,7 +67,6 @@ typedef struct SUBSCRIBE_INFO {
     uint16_t                    len;                /* length of subscribe message */
     unsigned char              *buf;                /* subscribe message */
 } iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
-
 
 /* Information structure of published topic */
 typedef struct REPUBLISH_INFO {
@@ -112,6 +119,11 @@ typedef struct {
     iotx_mqtt_qos_t                                qos;
     iotx_mqtt_event_handle_func_fpt                messageHandler;
 } iotx_mutli_sub_info_t, *iotx_mutli_sub_info_pt;
+
+typedef struct {
+    list_t * list;
+    void * mutex;
+}offline_sub_list_t;
 
 int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams);
 int iotx_mc_connect(iotx_mc_client_t *pClient);
