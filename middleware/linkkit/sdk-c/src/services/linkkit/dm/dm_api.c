@@ -98,6 +98,17 @@ int iotx_dm_open(void)
         goto ERROR;
     }
 #endif
+#ifdef OTA_ENABLED
+    /* DM OTA Module Init */
+    res = dm_ota_sub();
+    if (res == SUCCESS_RETURN) {
+        /* DM Config OTA Module Init */
+        dm_cota_init();
+
+        /* DM Firmware OTA Mudule Init */
+        dm_fota_init();
+    }
+#endif
 
     /* Open Cloud Connection */
     res = dm_client_open();
