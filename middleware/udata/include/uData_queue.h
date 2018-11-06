@@ -8,6 +8,6 @@ int uData_register_msg_handler(void *func);
 int uData_start();
 int uData_new_servicetask(const char *name, void (*fn)(void *),void *arg,int stack_size, int prio);
 int aos_msg_recv(int task_id, unsigned int ms, void *msg,unsigned int *size);
-int uData_observe_servicetask_tag(int taskid,sensor_tag_e tag);
+int uData_observe_servicetask_tag(int taskid,sensor_tag_e tag, uint8_t instance);
 
 #endif

@@ -12,20 +12,24 @@
 #define ABS_SENSOR_MODEL_H
 
 #include "uData_com_desc.h"
+#include "uData_parse.h"
 
 int         abs_data_cali_init(void);
 int         abs_data_model_init(void);
 int         abs_data_open(uData_service_t *service);
-int         abs_data_close(sensor_tag_e tag);
-int         abs_data_read(sensor_tag_e tag, void *pdata, uint32_t nbyte);
-int         abs_data_ioctl(sensor_tag_e tag, void *config);
-int         abs_cali_data_register(sensor_tag_e tag, void *cb);
-int         abs_cali_data_unregister(udata_type_e type);
-bool        abs_data_check_dev_tree(sensor_tag_e tag);
-work_mode_e abs_sensor_mode_get(sensor_tag_e tag);
-void *      abs_sensor_buff_addr_get(sensor_tag_e tag);
-uint32_t    abs_sensor_buff_len_get(sensor_tag_e tag);
-int         abs_data_dev_enable(sensor_tag_e tag);
-
+int         abs_data_close(uint32_t abs_index);
+int         abs_data_read(uint32_t abs_index, void *pdata, uint32_t nbyte);
+int         abs_data_ioctl(uint32_t abs_index, void *config);
+int         abs_cali_data_register(uint32_t abs_index, void *cb);
+int         abs_cali_data_unregister(uint32_t abs_index);
+bool        abs_data_check_dev_tree(uint32_t abs_index);
+work_mode_e abs_sensor_mode_get(uint32_t abs_index);
+void *      abs_sensor_buff_addr_get(uint32_t abs_index);
+uint32_t    abs_sensor_buff_len_get(uint32_t abs_index);
+int         abs_data_dev_enable(uint32_t abs_index);
+uint32_t    abs_data_get_maxmum(void);
+int         abs_data_get_abs_index(sensor_tag_e tag, uint8_t instance, uint32_t* pindex);
+int         abs_data_get_sensor_tag(uint32_t abs_index, sensor_tag_e* ptag);
+int         abs_data_get_sensor_instance(uint32_t abs_index, uint8_t* pinstance);
 
 #endif /*ABS_SENSOR_MODEL_H*/
