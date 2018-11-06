@@ -52,7 +52,7 @@ typedef struct {
 } CRC16_Context;
 void rec_CRC16_Init( CRC16_Context *inContext );
 void rec_CRC16_Update( CRC16_Context *inContext, const void *inSrc, size_t inLen );
-void rec_CRC16_Final( CRC16_Context *inContext, uint16_t *outResult );
+void rec_CRC16_Final( CRC16_Context *inContext, unsigned short *outResult );
 
 /* hal api for fota update process, defined by soc */
 void rec_start();
@@ -67,13 +67,10 @@ void rec_uart_send_string(char *buff);
 unsigned char uart_recv_byte(unsigned char *c);
 
 void rec_flash_init(void);
-unsigned long rec_flash_addr2ofst(unsigned long addr);
 void rec_flash_erase(unsigned long offset);
 void rec_flash_read_data(unsigned char *buffer, unsigned long offset, unsigned long len);
 void rec_flash_write_data(unsigned char *buffer, unsigned long offset, unsigned long len);
 hal_logic_partition_t *rec_flash_get_info(hal_partition_t pno);
-
-uint32_t get_partion_length(int par);
 
 void rec_wdt_init(unsigned int timeout_ms);
 void rec_wdt_start();

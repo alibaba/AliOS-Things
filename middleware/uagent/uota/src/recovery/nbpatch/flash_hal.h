@@ -16,4 +16,6 @@ int patch_flash_read(int par, const unsigned char *buffer, unsigned long address
 
 int patch_flash_erase(int par, unsigned long address, size_t splict_size);
 
+uint32_t patch_flash_get_partion_length(int par);
+
 #endif /* FLASH_HAL_H_ */

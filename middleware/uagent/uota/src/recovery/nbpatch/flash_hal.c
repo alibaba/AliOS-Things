@@ -7,7 +7,7 @@
 #include "flash_hal.h"
 #include "nbpatch.h"
 
-uint32_t get_partion_length(int par)
+uint32_t patch_flash_get_partion_length(int par)
 {
     hal_logic_partition_t *logic_partition;
 
