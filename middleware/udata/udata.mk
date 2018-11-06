@@ -8,10 +8,12 @@ $(NAME)_SOURCES += \
     abs_data_model/abs_data_model.c \
     service/service_process.c \
     udata_queue.c \
-    udata_service_task.c
+    udata_service_task.c \
+    uData_parse.c
 
-ifeq ($(dtc),1)
+ifneq ($(dtc),)
 $(NAME)_SOURCES += service/service_data_to_cloud.c
+GLOBAL_DEFINES  += DATA_TO_CLOUD
 endif
 
 

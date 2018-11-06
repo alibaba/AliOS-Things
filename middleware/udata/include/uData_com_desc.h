@@ -16,6 +16,15 @@
 #include "sensor.h"
 #include "aos/log.h"
 
+#define UDATA_SENSOR_ALL                (0XFFFFFFFF)
+#define UDATA_DTC_NAME_LEN              (32)
+        
+#define UDATA_CONV_DATA_LEN             (64)
+#define UDATA_TYPE_NAME_LEN             (16)
+#define UDATA_ABS_BITMAP_UNIT           (8)
+#define ABS_DATA_BITMAP_SUM             SENSOR_MAX_NUM
+#define UDATA_SENSOR_BITMAP_MAX         ((SENSOR_MAX_NUM+(UDATA_ABS_BITMAP_UNIT-1))/(UDATA_ABS_BITMAP_UNIT))
+
 
 #define DO_FOREVER 1
 
@@ -115,6 +124,7 @@ typedef struct _abs_cali_cb_t abs_cali_cb_t;
 struct _abs_data_pkg_t
 {
     sensor_tag_e tag;
+    uint8_t         instance;
     uint8_t srv_cnt;   /* count of the registed service base on this sensor */
     bool    poweron;   /* the power status of the registed service base on this
                           sensor */
@@ -122,7 +132,7 @@ struct _abs_data_pkg_t
     uint64_t cur_timestamp; /* the current timestamp for every sensor, the unit
                                is ms */
     int (*calibrated_algo_process_cb)(
-      void *pData); /* callback for calibrated algo */
+      void *pData, size_t size); /* callback for calibrated algo */
     dev_sensor_full_info_t full_info;
 };
 typedef struct _abs_data_pkg_t abs_data_pkg_t;
@@ -131,18 +141,21 @@ typedef struct _abs_data_pkg_t abs_data_pkg_t;
 struct _uData_service_t
 {
     udata_type_e        type;
-    sensor_tag_e        tag;
     b_subscribed        subscribe; /* subscribe only from aliyun side */
     b_enbled            running;
+    bool                task_flag;
+    uint8_t             queue_id;
+    uint8_t             abs_bitmap[UDATA_SENSOR_BITMAP_MAX];
+    uint32_t            interval[SENSOR_MAX_NUM];
+    uint64_t            time[SENSOR_MAX_NUM];
     dev_sensor_config_t config;
     uint8_t             payload[DATA_SIZE];
     size_t (*service_process_cb)(
-      sensor_tag_e tag, void *pdata,
+      uint32_t abs_index, void *pdata,
       uint32_t len); /* process callback for udata service handle */
 
     int (*service_ioctl_cb)(
-      udata_type_e type,
-      sensor_tag_e tag); /* ioclt callback for udata service handle */
+      udata_type_e type,uint32_t abs_index); /* ioclt callback for udata service handle */
 };
 typedef struct _uData_service_t uData_service_t;
 
