@@ -93,6 +93,7 @@ int dm_client_unsubscribe(char *uri)
 int dm_client_publish(char *uri, unsigned char *payload, int payload_len)
 {
     int res = 0;
+    char *pub_uri = NULL;
     dm_client_ctx_t *ctx = dm_client_get_ctx();
     iotx_cm_ext_params_t pub_param;
 
@@ -102,8 +103,21 @@ int dm_client_publish(char *uri, unsigned char *payload, int payload_len)
     pub_param.sync_timeout = 0;
     pub_param.ack_cb = NULL;
 
-    res = iotx_cm_pub(ctx->fd, &pub_param, (const char *)uri, (const char *)payload, (unsigned int)payload_len);
+#if defined(COAP_COMM_ENABLED) && !defined(MQTT_COMM_ENABLED)
+    res = dm_utils_uri_add_prefix("/topic", uri, &pub_uri);
+    if (res < SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+#else
+    pub_uri = uri;
+#endif
+
+    res = iotx_cm_pub(ctx->fd, &pub_param, (const char *)pub_uri, (const char *)payload, (unsigned int)payload_len);
     dm_log_info("Publish Result: %d", res);
+
+#if defined(COAP_COMM_ENABLED) && !defined(MQTT_COMM_ENABLED)
+    DM_free(pub_uri);
+#endif
 
     return res;
 }

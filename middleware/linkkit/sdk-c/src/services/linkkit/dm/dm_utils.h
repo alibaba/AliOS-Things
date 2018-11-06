@@ -42,6 +42,7 @@ int dm_utils_memtok(_IN_ char *input, _IN_ int input_len, _IN_ char delimiter, _
 int dm_utils_replace_char(_IN_ char *input, _IN_ int input_len, _IN_ char src, _IN_ char dest);
 int dm_utils_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ char product_key[PRODUCT_KEY_MAXLEN],
                           _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char **service_name);
+int dm_utils_uri_add_prefix(_IN_ const char *prefix, _IN_ char *uri, _OU_ char **new_uri);
 int dm_utils_json_parse(_IN_ const char *payload, _IN_ int payload_len, _IN_ int type, _OU_ lite_cjson_t *lite);
 int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN_ int key_len, _IN_ int type,
                               _OU_ lite_cjson_t *lite_item);
