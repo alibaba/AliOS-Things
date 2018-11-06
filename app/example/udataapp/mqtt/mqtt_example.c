@@ -21,15 +21,21 @@
 
 #include "hal/hal.h"
 #include "sensor.h"
+#include "aos/uData.h"
+#include "service_data_to_cloud.h"
+
 
 #ifdef LITTLEVGL_DISPLAY
 #include "sensor_display.h"
 #endif
 
+#define MQTT_APP_MSG_LEN     (256)
+#define MQTT_APP_PARAMS_LEN  (128)
 
-#define PRODUCT_KEY   "a1W1ZBPEeM9"
-#define DEVICE_NAME   "stm32f412zg-nucleo"
-#define DEVICE_SECRET "WaqjbXXX3vHbOhWFIoeS7QOsmdlQakJH"
+
+#define PRODUCT_KEY   "b1GadfPW0om"
+#define DEVICE_NAME   "AliOS_Things_Sensor_09"
+#define DEVICE_SECRET "eBBXNm370dq6xpKmRiELjMeiYcrwBlgI"
 
 typedef void (*task_fun)(void *);
 
@@ -38,7 +44,7 @@ char __device_name[DEVICE_NAME_LEN + 1];
 char __device_secret[DEVICE_SECRET_LEN + 1];
 
 #define ALINK_BODY_FORMAT \
-    "{\"id\":\"%d\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
+    "{\"id\":\"%u\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST \
     "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/event/property/post"
 #define ALINK_TOPIC_PROP_POSTRSP \
@@ -49,21 +55,33 @@ char __device_secret[DEVICE_SECRET_LEN + 1];
 /*
 * Please check below item which in feature self-definition from "https://linkdevelop.aliyun.com/"
 */
-#define PROP_POST_FORMAT_ACC         "{\"Accelerometer\":{\"X\":%f,\"Y\":%f, \"Z\":%f}}"
-#define PROP_POST_FORMAT_HUMITEMP    "{\"report_sensor\":{\"Humi\":%f,\"Temp\":%f}}"
-#define PROP_SET_FORMAT_CMDLED       "\"cmd_led\":"
+#define PROP_POST_FORMAT_ACC        "{\"Accelerometer\":{\"x\":%f,\"y\":%f, \"z\":%f}}"
+#define PROP_POST_FORMAT_GYRO       "{\"Gyroscope\":{\"x_dps\":%f,\"y_dps\":%f, \"z_dps\":%f}}"
+#define PROP_POST_FORMAT_MAG        "{\"Magnetometer\":{\"x_gs\":%f,\"y_gs\":%f, \"z_gs\":%f}}"
+#define PROP_POST_FORMAT_GPS        "{\"Gps\":{\"Latitude\":%f,\"Longitude\":%f, \"Elevation\":%f}}"
+#define PROP_POST_FORMAT_HUMI       "{\"CurrentHumidity\":%f}"
+#define PROP_POST_FORMAT_TEMP       "{\"CurrentTemperature\":%f}"
+#define PROP_POST_FORMAT_HALL       "{\"Hall_level\":%d}"
+#define PROP_POST_FORMAT_BARO       "{\"Barometer\":%u}"
+#define PROP_POST_FORMAT_ALS        "{\"LightLux\":%u}"
+#define PROP_POST_FORMAT_PS         "{\"Proximity\":%u}"
+#define PROP_POST_FORMAT_UV         "{\"Ultraviolet\":%d}"
+#define PROP_POST_FORMAT_HR         "{\"Heart_rate\":%d}"
 
-#define MQTT_MSGLEN             (1024)
+#define PROP_SET_FORMAT_CMDLED      "\"cmd_led\":"
+#define DATA_CONVERT_FLOAT(a,b)  (((float)(a))/((float)(b)))
+#define DATA_CONVERT_INT(a,b)    (((int32_t)(a))/((int32_t)(b)))
+
+
+#define MQTT_MSGLEN                 (1024)
 
 uint32_t        cnt           = 0;
 
-void *gpclient;
+void *gpclient = NULL;
 
-static int             fd_acc  = -1;
-static int             fd_als  = -1;
-static int             fd_humi = -1;
-static int             fd_temp = -1;
 static char            linkkit_started = 0;
+
+static int g_mqtt_con_flag = 0;
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -75,100 +93,6 @@ static char            linkkit_started = 0;
 
 int mqtt_client_example(void);
 int linkkit_main(void *paras);
-
-
-static int sensor_all_open(void)
-{
-    int fd = -1;
-    char name[SENSOR_NAME_LEN];
-    int index = 0;
-
-    index = 0;
-    snprintf(name,SENSOR_NAME_LEN,"%s/%d",dev_acc_path,index);
-    fd = aos_open(name, O_RDWR);
-    if (fd < 0) {
-        printf("Off-line: aos_open %s fd = %d.\n", name, fd);
-    }
-    fd_acc = fd;
-
-
-    index = 0;
-    snprintf(name,SENSOR_NAME_LEN,"%s/%d",dev_als_path,index);
-    fd = aos_open(name, O_RDWR);
-    if (fd < 0) {
-        printf("Off-line: aos_open %s fd = %d.\n", name, fd);
-    }
-    fd_als = fd;
-
-    index = 0;
-    snprintf(name,SENSOR_NAME_LEN,"%s/%d",dev_humi_path,index);
-
-    fd = aos_open(name, O_RDWR);
-    if (fd < 0) {
-        printf("Off-line: aos_open %s fd = %d.\n", name, fd);
-    }
-    fd_humi = fd;
-
-    index = 0;
-    snprintf(name,SENSOR_NAME_LEN,"%s/%d",dev_temp_path,index);
-    fd = aos_open(name, O_RDWR);
-    if (fd < 0) {
-        printf("Off-line: aos_open %s fd = %d.\n", name, fd);
-    }
-    fd_temp = fd;
-
-    return 0;
-}
-
-static int get_acc_data(int32_t *x, int32_t *y, int32_t *z)
-{
-    accel_data_t data = { 0 };
-    ssize_t      size = 0;
-    if (fd_acc < 0)
-        return 0;
-    size = aos_read(fd_acc, &data, sizeof(data));
-    if (size != sizeof(data)) {
-        printf("aos_read return error.\n");
-    }
-
-    *x = data.data[0];
-    *y = data.data[1];
-    *z = data.data[2];
-
-    return 0;
-}
-
-static int get_humi_data(uint32_t *humi, uint64_t *timestamp)
-{
-    humidity_data_t data = { 0 };
-    ssize_t size = 0;
-    if (fd_humi < 0)
-        return 0;
-    size = aos_read(fd_humi, &data, sizeof(data));
-    if (size != sizeof(data)) {
-        printf("aos_read humi sensor return error.\n");
-    }
-
-    *humi      = data.h;
-    *timestamp = data.timestamp;
-    return 0;
-}
-
-static int get_temp_data(uint32_t *temp, uint64_t *timestamp)
-{
-    temperature_data_t data = { 0 };
-    ssize_t            size = 0;
-    if (fd_temp < 0)
-        return 0;
-    size = aos_read(fd_temp, &data, sizeof(data));
-    if (size != sizeof(data)) {
-        printf("aos_read humi sensor return error.\n");
-    }
-
-    *temp      = data.t;
-    *timestamp = data.timestamp;
-    return 0;
-}
 
 /*
  * MQTT Subscribe handler
@@ -207,10 +131,10 @@ static void handle_prop_set(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
 static void handle_prop_postrsp(void *pcontext, void *pclient,
                                 iotx_mqtt_event_msg_pt msg)
 {
+#if 0
+
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt)msg->msg;
 
-#if 0
-    // print topic name and topic message
     LOG("----");
     LOG("Topic: '%.*s' (Length: %d)", ptopic_info->topic_len,
         ptopic_info->ptopic, ptopic_info->topic_len);
@@ -234,62 +158,6 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
         aos_task_new("iotx_mqtt",(task_fun)linkkit_main, NULL,1024*6);
         linkkit_started = 1;
     }
-}
-
-static void mqtt_publish(void *psttimer, void *pclient)
-{
-    int      rc         = -1;
-    char     param[128] = { 0 };
-    char     msg_pub[256] = { 0 };
-    int      x, y, z;
-    uint32_t humi_data      = 0;
-    uint32_t temp_data      = 0;
-    uint64_t humi_timestamp = 0;
-    uint64_t temp_timestamp = 0;
-    float    acc_nkg[3]     = { 0 };
-    iotx_mqtt_topic_info_t topic_msg;
-
-    /* Initialize topic information */
-    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
-
-    topic_msg.qos    = IOTX_MQTT_QOS0;
-    topic_msg.retain = 0;
-    topic_msg.dup    = 0;
-    memset(param, 0, sizeof(param));
-    memset(msg_pub, 0, sizeof(msg_pub));
-#ifdef DEV_BOARD_DEVELOPERKIT
-    /* read sensor data */
-    get_acc_data(&x, &y, &z);
-    acc_nkg[0] = (float)x * 9.8 / 1024;
-    acc_nkg[1] = (float)y * 9.8 / 1024;
-    acc_nkg[2] = (float)z * 9.8 / 1024;
-    sprintf(param, PROP_POST_FORMAT_ACC,
-            acc_nkg[0], acc_nkg[1], acc_nkg[2]);
-
-#elif defined DEV_HUMI_TEMP_SUPPORT
-    get_humi_data(&humi_data, &humi_timestamp);
-    get_temp_data(&temp_data, &temp_timestamp);
-    sprintf(param, PROP_POST_FORMAT_HUMITEMP,
-            (float)humi_data, (float)temp_data * 0.1);
-
-#endif
-    int msg_len = sprintf(msg_pub, ALINK_BODY_FORMAT, cnt,
-                          ALINK_METHOD_PROP_POST, param);
-    if (msg_len < 0) {
-        LOG("Error occur! Exit program");
-    }
-
-    topic_msg.payload     = (void *)msg_pub;
-    topic_msg.payload_len = msg_len;
-
-    rc = IOT_MQTT_Publish(pclient, ALINK_TOPIC_PROP_POST, &topic_msg);
-    if (rc < 0) {
-        LOG("error occur when publish. %d", rc);
-    }
-
-    LOG("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
-
-    ++cnt;
 }
 
 void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
@@ -366,11 +234,10 @@ void event_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 
 int mqtt_client(void)
 {
-    int rc, msg_len, cnt = 0;
+    int rc;
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
-    aos_timer_t  publish_timer;
-
+    
     HAL_GetProductKey(__product_key);
     HAL_GetDeviceName(__device_name);
     HAL_GetDeviceSecret(__device_secret);
@@ -400,7 +267,6 @@ int mqtt_client(void)
     mqtt_params.handle_event.h_fp = event_handle;
     mqtt_params.handle_event.pcontext = NULL;
 
-
     /* Construct a MQTT client with specify parameter */
     gpclient = IOT_MQTT_Construct(&mqtt_params);
     if (NULL == gpclient) {
@@ -429,13 +295,22 @@ int mqtt_client(void)
     }
     IOT_MQTT_Yield(gpclient, 200);
     HAL_SleepMs(1000);
+#if 0
     rc = aos_timer_new(&publish_timer, mqtt_publish, gpclient, 2000, 1);
     if (rc < 0) {
         IOT_MQTT_Destroy(&gpclient);
         EXAMPLE_TRACE("ldapp creat timer failed, rc = %d", rc);
         return -1;
     }
+#endif
 
+    if(g_mqtt_con_flag == 0){
+        rc = service_dtc_connect_set(true);
+        if(0 == rc){
+            g_mqtt_con_flag = 1;
+        }
+    }
+    
     while (1) {
         IOT_MQTT_Yield(gpclient, 200);
     }
@@ -447,6 +322,7 @@ int mqtt_client(void)
     IOT_MQTT_Destroy(&gpclient);
     return 0;
 }
+
 
 int linkkit_main(void *paras)
 {
@@ -476,10 +352,8 @@ int linkkit_main(void *paras)
     return 0;
 }
 
-
-int application_start(int argc, char *argv[])
+int mqtt_sample_start(void)
 {
-    netmgr_ap_config_t apconfig;
 
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
@@ -493,8 +367,6 @@ int application_start(int argc, char *argv[])
     aos_set_log_level(AOS_LL_DEBUG);
 
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
-
-    sensor_all_open();
     
     netmgr_init();
 #if 0
@@ -505,11 +377,58 @@ int application_start(int argc, char *argv[])
 #endif
     netmgr_start(false);
 
-#ifdef LITTLEVGL_DISPLAY
-    sensor_display_init();
-#endif
-
-    aos_loop_run();
-
     return 0;
 }
+
+int udata_cloud_report(void* pdata, uint32_t len)
+{
+    int      rc         = -1;
+    char     msg_pub[MQTT_APP_MSG_LEN]  = {0};
+    iotx_mqtt_topic_info_t topic_msg;
+
+    if(pdata == NULL){
+        return -1;
+    }
+
+    if(strlen(pdata) >= MQTT_APP_PARAMS_LEN){
+        return -1;
+    }
+
+    LOG("mqtt = %s\n",(char*)pdata);
+
+    
+    if(NULL == gpclient){
+        return -1;
+    }
+    /* Initialize topic information */
+    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
+
+    topic_msg.qos    = IOTX_MQTT_QOS0;
+    topic_msg.retain = 0;
+    topic_msg.dup    = 0;
+    memset(msg_pub, 0, sizeof(msg_pub));
+
+
+    int msg_len = snprintf(msg_pub, MQTT_APP_MSG_LEN,ALINK_BODY_FORMAT, (unsigned int)cnt,
+                          ALINK_METHOD_PROP_POST, (char*)pdata);
+    if (msg_len < 0) {
+        LOG("Error occur! Exit program");
+        return -1;
+    }
+
+    topic_msg.payload     = (void *)msg_pub;
+    topic_msg.payload_len = msg_len;
+
+    rc = IOT_MQTT_Publish(gpclient, ALINK_TOPIC_PROP_POST, &topic_msg);
+    if (rc < 0) {
+        LOG("error occur when publish. %d", rc);
+        return -1;
+    }
+
+    LOG("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
+    cnt++;
+    
+    return 0;
+}
+
+

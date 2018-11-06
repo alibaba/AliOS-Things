@@ -52,7 +52,7 @@ else
 
 $(NAME)_SOURCES := gateway.c
 
-$(NAME)_COMPONENTS :=  middleware/common network/netmgr middleware/udata device/sensor rhino.bus.mbmaster
+$(NAME)_COMPONENTS :=  middleware/common network/netmgr middleware/udata device/sensor rhino.bus.mbmaster utility/cjson 
 
 GLOBAL_INCLUDES += .
 

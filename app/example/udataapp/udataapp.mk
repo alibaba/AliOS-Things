@@ -1,42 +1,54 @@
 NAME := udataapp
 $(NAME)_SOURCES :=   udata_example.c
 
+$(NAME)_COMPONENTS := cli yloop middleware.common device.sensor middleware.udata
+#GLOBAL_DEFINES += LITTLEVGL_DEVELOPERKIT
+GLOBAL_INCLUDES += ./
+GLOBAL_INCLUDES += ../../../device/sensor/include
 
-ifeq ($(dtc),1)
+udata_cjson_support := 1
+ifeq ($(udata_cjson_support),1)
+GLOBAL_DEFINES += UDATA_CJSON_SUPPORTED
+$(NAME)_COMPONENTS += utility.cjson
+endif
 
-ifeq ($(COMPILER),iar)
-$(NAME)_COMPONENTS += feature.linkkit-noawss
-else
+
+ifeq ($(dtc),linkkit)
+
+$(NAME)_SOURCES +=   linkkit/app_entry.c
+
 $(NAME)_COMPONENTS += feature.linkkit
-endif    
-
 
 $(NAME)_COMPONENTS += network/netmgr \
                       middleware/common \
-                      middleware/uagent/uota  \
-                      utility/cjson   \
-                      device/sensor \
-                      middleware/udata					  
-                                        
-$(NAME)_INCLUDES += \
-    ../../../middleware/uagent/uota/src/service
+                      utility/cjson
+
+##ifeq ($(COMPILER),iar)
+##$(NAME)_COMPONENTS += feature.linkkit-nouota
+##else
+$(NAME)_COMPONENTS += middleware/uagent/uota
+##endif
 
 ifeq ($(case),sched)
-$(NAME)_SOURCES += linkkit_example_sched.c 
-GLOBAL_DEFINES += DEPRECATED_LINKKIT 
-else ifeq ($(case),cntdown)
-ifneq ($(newapi),)
-$(NAME)_SOURCES += newapi/cntdown.c 
+ifneq ($(deprecated),)
+$(NAME)_SOURCES += linkkit/deprecated/sched.c
+GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else
-$(NAME)_SOURCES += linkkit_example_cntdown.c 
-GLOBAL_DEFINES += DEPRECATED_LINKKIT 
+$(NAME)_SOURCES += linkkit/linkkit_example_sched.c
+endif
+else ifeq ($(case),cntdown)
+ifneq ($(deprecated),)
+$(NAME)_SOURCES += linkkit/deprecated/cntdown.c
+GLOBAL_DEFINES += DEPRECATED_LINKKIT
+else
+$(NAME)_SOURCES += linkkit/linkkit_example_cntdown.c
 endif
 else
-ifneq ($(newapi),)
-$(NAME)_SOURCES += newapi/solo.c 
+ifneq ($(deprecated),)
+$(NAME)_SOURCES += linkkit/deprecated/solo.c
+GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else
-$(NAME)_SOURCES += linkkit_example_solo.c 
-GLOBAL_DEFINES += DEPRECATED_LINKKIT 
+$(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 endif
 endif
 
@@ -53,32 +65,18 @@ ifneq ($(HOST_MCU_FAMILY),esp8266)
 $(NAME)_COMPONENTS  += cli
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 else
-GLOBAL_DEFINES += FOTA_RAM_LIMIT_MODE
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
 GLOBAL_INCLUDES += ./
-GLOBAL_INCLUDES += ../../../device/sensor/include
-GLOBAL_DEFINES  += DATA_TO_CLOUD
+GLOBAL_DEFINES += DTC_LINKKIT
 
-else
+else ifeq ($(dtc),mqtt)
 
-$(NAME)_COMPONENTS := cli network.netmgr middleware.common device.sensor middleware.udata
-ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),developerkit)
-$(NAME)_COMPONENTS += 3rdparty.experimental.gui.littlevGL
-$(NAME)_SOURCES    += house.c
-$(NAME)_SOURCES    += weather.c
-$(NAME)_SOURCES    += AliOS_Things_logo.c
-$(NAME)_SOURCES    += sensor_display.c
-#GLOBAL_DEFINES += LITTLEVGL_DISPLAY
-GLOBAL_DEFINES += BONE_ENGINE_NOT_NEED
-endif
+$(NAME)_SOURCES    += mqtt/mqtt_example.c
 
+$(NAME)_COMPONENTS += sensor middleware.uagent.uota netmgr feature.linkkit-mqtt  utility.cjson
+GLOBAL_DEFINES     += CONFIG_AOS_CLI USE_LPTHREAD
 
-
-GLOBAL_DEFINES += LITTLEVGL_DEVELOPERKIT
-
-GLOBAL_INCLUDES += ./
-GLOBAL_INCLUDES += ../../../device/sensor/include
-
+GLOBAL_DEFINES     += DTC_MQTT
 endif
