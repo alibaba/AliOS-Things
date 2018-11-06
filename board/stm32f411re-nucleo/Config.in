@@ -1,0 +1,4 @@
+config AOS_STM32F411RE-NUCLEO
+    bool "stm32f411re-nucleo"
+    default n
+    help
