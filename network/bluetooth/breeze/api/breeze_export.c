@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 #include "core.h"
+#include "transport.h"
 #include "breeze_export.h"
 #include "breeze_hal_ble.h"
 #include "breeze_hal_os.h"
@@ -88,7 +89,13 @@ static void event_handler(ali_event_t *p_event)
             break;
         case BZ_EVENT_OTAINFO:
 	    if (m_ota_dev_handler != NULL){
-                m_ota_dev_handler(p_event->rx_data.p_data);
+		struct rx_cmd_post_t *r_cmd = (struct rx_cmd_post_t*) p_event->rx_data.p_data;
+		m_disc_evt.type = OTA_CMD;
+		m_disc_evt.cmd_evt.m_cmd.cmd = r_cmd->cmd;
+		m_disc_evt.cmd_evt.m_cmd.frame = r_cmd->frame_seq;
+		m_disc_evt.cmd_evt.m_cmd.len = r_cmd->buf_sz;
+		memcpy(m_disc_evt.cmd_evt.m_cmd.data, r_cmd->p_rx_buf, r_cmd->buf_sz);
+                b_notify_upper = true;
             }
             break;
         case BZ_EVENT_ERR_DISCONT:
