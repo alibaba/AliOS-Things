@@ -48,11 +48,8 @@ static void notify_wifi_status(void *arg)
     /* tlv response */
     uint8_t rsp[] = { 0x01, 0x01, 0x01 };
 
-    /* status cmd*/
-    uint8_t cmd = 0x01;
-
     /* tx_cmd is defaulted to ALI_CMD_STATUS so we don't worry here. */
-    breeze_post(cmd ,rsp, sizeof(rsp));
+    breeze_post(rsp, sizeof(rsp));
 }
 
 #ifdef CONFIG_PRINT_HEAP
