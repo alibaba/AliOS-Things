@@ -11,16 +11,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/coap/local/)
 
+FILE (GLOB src_protocol_coap_local_SRCS
+    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/*.c
+)
+
 ADD_LIBRARY (iot_coap_local OBJECT
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPSerialize.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPObserve.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPPlatform.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPExport.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPNetwork.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPResource.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPServer.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPDeserialize.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/CoAPMessage.c
+    ${src_protocol_coap_local_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

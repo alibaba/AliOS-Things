@@ -16,13 +16,13 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/id2)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/itls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/km)
 
+FILE (GLOB src_infra_system_SRCS
+    ${PROJECT_SOURCE_DIR}/src/infra/system/*.c
+    ${PROJECT_SOURCE_DIR}/src/infra/system/facility/*.c
+)
+
 ADD_LIBRARY (iot_system OBJECT
-    ${PROJECT_SOURCE_DIR}/src/infra/system/aos_support.c
-    ${PROJECT_SOURCE_DIR}/src/infra/system/guider.c
-    ${PROJECT_SOURCE_DIR}/src/infra/system/report.c
-    ${PROJECT_SOURCE_DIR}/src/infra/system/device.c
-    ${PROJECT_SOURCE_DIR}/src/infra/system/ca.c
-    ${PROJECT_SOURCE_DIR}/src/infra/system/facility/fac_string.c
+    ${src_infra_system_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

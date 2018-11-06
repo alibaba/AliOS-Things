@@ -18,14 +18,13 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/client)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server)
 
+FILE (GLOB src_sdk-impl_SRCS
+    ${PROJECT_SOURCE_DIR}/src/sdk-impl/*.c
+    ${PROJECT_SOURCE_DIR}/src/sdk-impl/deprecated_linkkit/*.c
+)
+
 ADD_LIBRARY (sdk_impl OBJECT
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/sdk-impl.c
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_linkkit.c
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_logpost.c
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_dynreg.c
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_event.c
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/deprecated_linkkit/impl_solo.c
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/deprecated_linkkit/impl_gateway.c
+    ${src_sdk-impl_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

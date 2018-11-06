@@ -34,8 +34,6 @@ MESSAGE ("---------------------------------------------------------------------"
 
 ADD_DEFINITIONS (-DDLL_IOT_EXPORTS)
 
-ADD_DEFINITIONS (-DALCS_ENABLED)
-ADD_DEFINITIONS (-DALCS_SERVER_ENABLED)
 ADD_DEFINITIONS (-DAWSS_DISABLE_ENROLLEE)
 ADD_DEFINITIONS (-DAWSS_DISABLE_REGISTRAR)
 ADD_DEFINITIONS (-DAWSS_SUPPORT_ADHA)
@@ -67,14 +65,12 @@ ADD_SUBDIRECTORY (src/infra/system)
 ADD_SUBDIRECTORY (src/sdk-impl)
 ADD_SUBDIRECTORY (src/protocol/mqtt)
 ADD_SUBDIRECTORY (src/services/ota)
-ADD_SUBDIRECTORY (src/services/linkkit/ntp)
 ADD_SUBDIRECTORY (src/services/linkkit/cm)
 ADD_SUBDIRECTORY (src/services/linkkit/dm)
 ADD_SUBDIRECTORY (src/services/linkkit/dev_reset)
 ADD_SUBDIRECTORY (src/protocol/coap/local)
 ADD_SUBDIRECTORY (src/services/awss)
 ADD_SUBDIRECTORY (src/services/dev_bind)
-ADD_SUBDIRECTORY (src/protocol/alcs)
 
 ADD_SUBDIRECTORY (src/ref-impl/hal)
 ADD_SUBDIRECTORY (examples)
@@ -87,14 +83,12 @@ ADD_LIBRARY (iot_sdk SHARED
     $<TARGET_OBJECTS:sdk_impl>
     $<TARGET_OBJECTS:iot_mqtt>
     $<TARGET_OBJECTS:iot_ota>
-    $<TARGET_OBJECTS:iot_ntp>
     $<TARGET_OBJECTS:iot_cm>
     $<TARGET_OBJECTS:iot_dm>
     $<TARGET_OBJECTS:iot_reset>
     $<TARGET_OBJECTS:iot_coap_local>
     $<TARGET_OBJECTS:iot_awss>
     $<TARGET_OBJECTS:iot_bind>
-    $<TARGET_OBJECTS:iot_alcs>
 )
 if(WIN32)
     TARGET_LINK_LIBRARIES (iot_sdk ws2_32)

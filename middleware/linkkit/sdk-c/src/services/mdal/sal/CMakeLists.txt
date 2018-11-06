@@ -14,12 +14,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/include/internal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/sal/src)
 
+FILE (GLOB src_services_mdal_sal_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/./src/*.c
+)
+
 ADD_LIBRARY (iot_sal OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/./src/sal_sockets.c
-    ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/./src/sal_err.c
-    ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/./src/ip4_addr.c
-    ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/./src/sal_arch.c
-    ${PROJECT_SOURCE_DIR}/src/services/mdal/sal/./src/sal_util.c
+    ${src_services_mdal_sal_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

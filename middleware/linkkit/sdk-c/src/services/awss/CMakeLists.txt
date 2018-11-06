@@ -19,23 +19,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/dev_bind/os/product)
 
+FILE (GLOB src_services_awss_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/awss/*.c
+)
+
 ADD_LIBRARY (iot_awss OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_wifimgr.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_main.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/zconfig_ieee80211.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_enrollee.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_adha.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_aplist.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_smartconfig.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/zconfig_vendor_common.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/zconfig_utils.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_aha.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/zconfig_protocol.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_crypt.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_wps.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_ht40.c
-    ${PROJECT_SOURCE_DIR}/src/services/awss/awss_registrar.c
+    ${src_services_awss_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

@@ -11,8 +11,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/http/)
 
+FILE (GLOB src_protocol_http_SRCS
+    ${PROJECT_SOURCE_DIR}/src/protocol/http/*.c
+)
+
 ADD_LIBRARY (iot_http OBJECT
-    ${PROJECT_SOURCE_DIR}/src/protocol/http/iotx_http_api.c
+    ${src_protocol_http_SRCS}
     ${EXTRA_C_SOURCES}
 )
 
