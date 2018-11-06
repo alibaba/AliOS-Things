@@ -68,7 +68,7 @@ static void get_dev_status_handler(uint8_t *buffer, uint32_t length)
 {
     /* echo the receiving data */
     uint8_t cmd = 0x03;
-    breeze_post(cmd, buffer, length);
+    breeze_post_ext(cmd, buffer, length);
 }
 
 #ifdef CONTINUE_BEL_ADV
