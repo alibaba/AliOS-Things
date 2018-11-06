@@ -163,7 +163,18 @@ int breeze_end(void)
     return 0;
 }
 
-uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length)
+uint32_t breeze_post(uint8_t *buffer, uint32_t length)
+{
+    return transport_tx(TX_INDICATION, BZ_CMD_STATUS, buffer, length);
+}
+
+
+uint32_t breeze_post_fast(uint8_t *buffer, uint32_t length)
+{
+    return transport_tx(TX_NOTIFICATION, BZ_CMD_STATUS, buffer, length);
+}
+
+uint32_t breeze_post_ext(uint8_t cmd, uint8_t *buffer, uint32_t length)
 {
     if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
         return BZ_EDATASIZE;
@@ -173,18 +184,6 @@ uint32_t breeze_post(uint8_t cmd, uint8_t *buffer, uint32_t length)
         cmd = BZ_CMD_STATUS;
     }
     return transport_tx(TX_INDICATION, cmd, buffer, length);
-}
-
-uint32_t breeze_post_fast(uint8_t cmd,uint8_t *buffer, uint32_t length)
-{
-    if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
-        return BZ_EDATASIZE;
-    }
-    
-    if (cmd == 0) {
-        cmd = BZ_CMD_STATUS;
-    }
-    return transport_tx(TX_NOTIFICATION, cmd, buffer, length);
 }
 
 void breeze_append_adv_data(uint8_t *data, uint32_t len)
