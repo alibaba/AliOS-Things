@@ -354,6 +354,8 @@ static int sdio_set_func0_csa_address(uint32_t adr)
 	cmd.data = (uint8_t)adr;
 	if (nm_bus_ioctl(NM_BUS_IOCTL_CMD_52, &cmd)) {
 		M2M_ERR( "[nmi sdio]: Failed cmd52, set 0x10c data...\n");
+		M2M_ERR( "Card detection Fail\n");
+		while (1) {};	// stop running
 		goto _fail_;
 	}
 
@@ -361,6 +363,8 @@ static int sdio_set_func0_csa_address(uint32_t adr)
 	cmd.data = (uint8_t)(adr>>8);
 	if (nm_bus_ioctl(NM_BUS_IOCTL_CMD_52, &cmd)) {
 		M2M_ERR( "[nmi sdio]: Failed cmd52, set 0x10d data...\n");
+		M2M_ERR( "Card detection Fail\n");
+		while (1) {};	// stop running
 		goto _fail_;
 	}
 
@@ -368,6 +372,8 @@ static int sdio_set_func0_csa_address(uint32_t adr)
 	cmd.data = (uint8_t)(adr>>16);
 	if (nm_bus_ioctl(NM_BUS_IOCTL_CMD_52, &cmd)) {
 		M2M_ERR( "[nmi sdio]: Failed cmd52, set 0x10e data...\n");
+		M2M_ERR( "Card detection Fail\n");
+		while (1) {};	// stop running
 		goto _fail_;
 	}
 

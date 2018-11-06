@@ -57,7 +57,6 @@ static void sys_init(void)
     hal_wifi_init();
 #else if defined(DEV_SAL_WILC1000)
 
-    printf("TCP/IP initialized\r\n");
     same5x_wilc1000_init();
 
     hal_wifi_register_module(&aos_wifi_module_wilc1000);
