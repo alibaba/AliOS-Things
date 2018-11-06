@@ -9,18 +9,16 @@
 #include <uapp.h>
 #include <arch_mpu.h>
 
-extern char  app_info_addr;
+extern char  app1_info_addr;
 extern char  app2_info_addr;
 extern char  app3_info_addr;
-
-extern k_mm_head  *g_kmm_head;
 
 /*
  * to match nature number,
  * valid app bin starts from 1
  */
 uapp_info_t *g_app_info[MAX_APP_BINS] =  {
-    (uapp_info_t*) &app_info_addr,
+    (uapp_info_t*) &app1_info_addr,
     (uapp_info_t*) &app2_info_addr,
     (uapp_info_t*) &app3_info_addr,
 };
@@ -71,12 +69,12 @@ static void app_start(void)
         if (ret != 0)
             continue;
 
-        krhino_uprocess_create(app_info->app_task_struct, "utask", 0,
-                               AOS_DEFAULT_APP_PRI,(tick_t)0,
-                               app_info->app_stack,
-                               app_info->app_stack_size, // ustasck size
-                               0x100, // kstack size
-                               (task_entry_t)app_info->app_entry,
+        krhino_uprocess_create(app_info->task_struct, "utask", 0,
+                               app_info->priority, (tick_t)0,
+                               app_info->ustack,
+                               app_info->ustack_size, // ustasck size
+                               app_info->kstack_size, // kstasck size
+                               (task_entry_t)app_info->main_entry,
                                pid, 1);
 
         g_pid++;

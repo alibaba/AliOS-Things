@@ -33,7 +33,7 @@ else ifeq ($(MBINS),kernel)
 GLOBAL_LDFLAGS += -T board/developerkit_syscall/STM32L496VGTx_FLASH_kernel.ld
 endif
 
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
+GLOBAL_DEFINES += CONFIG_NO_TCPIP
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_developerkit
 CONFIG_SYSINFO_DEVICE_NAME := developerkit_syscall
