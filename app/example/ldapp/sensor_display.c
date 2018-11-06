@@ -138,14 +138,21 @@ static void littlevgl_refresh_task(void *arg)
 
 void app_init(void)
 {
+    char name[SENSOR_NAME_LEN];
+    int index = 0;
+
     /* open acc sensor */
-    fd_acc = aos_open(dev_acc_path, O_RDWR);
+    index = 0;
+    snprintf(name,SENSOR_NAME_LEN,"%s/%d",dev_acc_path,index);
+    fd_acc = aos_open(name, O_RDWR);
 
     if (fd_acc < 0) {
         printf("acc sensor open failed !\n");
     }
-
-    fd_als = aos_open(dev_als_path, O_RDWR);
+    
+    index = 0;
+    snprintf(name,SENSOR_NAME_LEN,"%s/%d",dev_als_path,index);
+    fd_als = aos_open(name, O_RDWR);
     if (fd_als < 0) {
         printf("als sensor open failed !\n");
     }
