@@ -11,11 +11,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/shadow/)
 
+FILE (GLOB src_services_shadow_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/shadow/*.c
+)
+
 ADD_LIBRARY (iot_shadow OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/shadow/shadow_update.c
-    ${PROJECT_SOURCE_DIR}/src/services/shadow/shadow_delta.c
-    ${PROJECT_SOURCE_DIR}/src/services/shadow/shadow.c
-    ${PROJECT_SOURCE_DIR}/src/services/shadow/shadow_common.c
+    ${src_services_shadow_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

@@ -57,7 +57,6 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dev_reset)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/client)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/ntp)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/mdal/mal/ica)
@@ -77,9 +76,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/tools/linkkit_tsl_convert/src)
 
+FILE (GLOB src_services_subdev_SRCS
+    ${PROJECT_SOURCE_DIR}/src/services/subdev/*.c
+)
+
 ADD_LIBRARY (iot_subdev OBJECT
-    ${PROJECT_SOURCE_DIR}/src/services/subdev/iotx_subdev_api.c
-    ${PROJECT_SOURCE_DIR}/src/services/subdev/iotx_subdev_common.c
+    ${src_services_subdev_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

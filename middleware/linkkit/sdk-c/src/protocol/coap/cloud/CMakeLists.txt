@@ -11,14 +11,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/)
 
+FILE (GLOB src_protocol_coap_cloud_SRCS
+    ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/*.c
+)
+
 ADD_LIBRARY (iot_coap_cloud OBJECT
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/CoAPSerialize.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/CoAPExport.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/CoAPNetwork.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/CoAPDeserialize.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/iotx_coap_api.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/CoAPMessage.c
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/cloud/iotx_ca_cert.c
+    ${src_protocol_coap_cloud_SRCS}
     ${EXTRA_C_SOURCES}
 )
 
