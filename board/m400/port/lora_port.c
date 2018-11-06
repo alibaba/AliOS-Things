@@ -60,6 +60,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "lora_port.h"
 #include "delay.h"
 #include "timeServer.h"
+#include "lorawan_port.h"
 
 #define IRQ_HIGH_PRIORITY  0
 
@@ -69,6 +70,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define TCXO_ON()   //HW_GPIO_Write( RADIO_TCXO_VCC_PORT, RADIO_TCXO_VCC_PIN, 1)
 
 #define TCXO_OFF()  //HW_GPIO_Write( RADIO_TCXO_VCC_PORT, RADIO_TCXO_VCC_PIN, 0)
+
+#define BOARD_TCXO_WAKEUP_TIME                      0
 
 static void SX1276AntSwInit( void );
 
@@ -89,6 +92,11 @@ void SX1276SetAntSwLowPower( bool status );
 void SX1276SetRfTxPower( int8_t power );
 
 void SX1276SetAntSw( uint8_t opMode );
+
+void SX1276SetPublicNetwork( bool enable );
+
+uint32_t SX1276GetWakeupTime( void );
+
 /*!
  * \brief Controls the antena switch if necessary.
  *
@@ -131,9 +139,9 @@ const struct Radio_s Radio =
   SX1276Read,
   SX1276WriteBuffer,
   SX1276ReadBuffer,
-  SX1276SetSyncWord,
   SX1276SetMaxPayloadLength,
-  SX1276GetRadioWakeUpTime
+  SX1276SetPublicNetwork,
+  SX1276GetWakeupTime,
 };
 
 uint32_t SX1276GetWakeTime( void )
@@ -202,31 +210,7 @@ void SX1276IoDeInit( void )
   HW_GPIO_Init( RADIO_DIO_4_PORT, RADIO_DIO_4_PIN, &initStruct );
   HW_GPIO_Init( RADIO_DIO_5_PORT, RADIO_DIO_5_PIN, &initStruct );
 }
-#if 0
-void SX1276Reset( void )
-{
-    GPIO_InitTypeDef initStruct={0};
 
-    initStruct.Mode =GPIO_MODE_OUTPUT_PP;
-    initStruct.Pull = GPIO_NOPULL;
-    initStruct.Speed = GPIO_SPEED_HIGH;
-
-    // Set RESET pin to 0
-    HW_GPIO_Init( RADIO_RESET_PORT, RADIO_RESET_PIN, &initStruct);
-    HW_GPIO_Write( RADIO_RESET_PORT, RADIO_RESET_PIN, 0 );
-
-
-    // Wait 1 ms
-    DelayMs( 1 );
-
-    // Configure RESET as input
-    initStruct.Mode = GPIO_NOPULL;
-    HW_GPIO_Init( RADIO_RESET_PORT, RADIO_RESET_PIN, &initStruct);
-
-    // Wait 6 ms
-    DelayMs( 6 );
-}
-#endif
 void SX1276SetRfTxPower( int8_t power )
 {
     uint8_t paConfig = 0;
@@ -357,13 +341,11 @@ void SX1276SetAntSw( uint8_t opMode )
     case RFLR_OPMODE_TRANSMITTER:
       HW_GPIO_Write( RADIO_ANT_SWITCH_PORT, RADIO_ANT_SWITCH_PIN, 0 );
       HW_GPIO_Write( RADIO_RF_FEM_CPS_PORT, RADIO_RF_FEM_CPS_PIN, 1 );
-      SX1276.RxTx = 1;
     break;
     case RFLR_OPMODE_RECEIVER:
     case RFLR_OPMODE_RECEIVER_SINGLE:
     case RFLR_OPMODE_CAD:
     default:
-     SX1276.RxTx = 0;
      HW_GPIO_Write( RADIO_ANT_SWITCH_PORT, RADIO_ANT_SWITCH_PIN, 1 );
      HW_GPIO_Write( RADIO_RF_FEM_CPS_PORT, RADIO_RF_FEM_CPS_PIN, 0 );
      break;
@@ -371,13 +353,30 @@ void SX1276SetAntSw( uint8_t opMode )
 
 }
 
-
-
-
-
 bool SX1276CheckRfFrequency( uint32_t frequency )
 {
     // Implement check. Currently all frequencies are supported
     return true;
 }
+
+void SX1276Reset( void )
+{
+    // Set RESET pin to 0
+    aos_lrwan_radio_ctrl.radio_reset();
+
+    // Wait 1 ms
+    DelayMs( 1 );
+
+    // Configure RESET as input
+    aos_lrwan_radio_ctrl.radio_reset_cfg_input();
+
+    // Wait 6 ms
+    DelayMs( 6 );
+}
+
+uint32_t SX1276GetBoardTcxoWakeupTime( void )
+{
+    return BOARD_TCXO_WAKEUP_TIME;
+}
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

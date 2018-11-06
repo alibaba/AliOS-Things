@@ -907,6 +907,35 @@ static TimerTime_t HW_RTC_GetCalendarValue( HW_RTC_DateTypeDef *RTC_DateStruct, 
     return (calendarValue);
 }
 
+uint32_t HW_RTC_GetCalendarTime( uint16_t *milliseconds )
+{
+    HW_RTC_TimeTypeDef RTC_TimeStruct ;
+    HW_RTC_DateTypeDef RTC_DateStruct;
+    uint32_t ticks;
+
+    uint64_t calendarValue = HW_RTC_GetCalendarValue( &RTC_DateStruct, &RTC_TimeStruct );
+
+    uint32_t seconds = ( uint32_t )calendarValue >> N_PREDIV_S;
+
+    ticks =  ( uint32_t )calendarValue & PREDIV_S;
+
+    *milliseconds = HW_RTC_Tick2ms( ticks );
+
+    return seconds;
+}
+
+void HW_RTC_BkupWrite( uint32_t data0, uint32_t data1 )
+{
+    LL_RTC_BAK_SetRegister(RTC, RTC_BKP_DR0, data0);
+    LL_RTC_BAK_SetRegister(RTC, RTC_BKP_DR1, data1);
+}
+
+void HW_RTC_BkupRead( uint32_t *data0, uint32_t *data1 )
+{
+    *data0 = LL_RTC_BAK_GetRegister(RTC, RTC_BKP_DR0);
+    *data1 = LL_RTC_BAK_GetRegister(RTC, RTC_BKP_DR1);
+}
+
 static uint8_t HW_RTC_ByteToBcd2( uint8_t Value )
 {
     return __LL_RTC_CONVERT_BIN2BCD( Value );

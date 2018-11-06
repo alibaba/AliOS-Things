@@ -170,6 +170,11 @@ static void set_timer_val(TimerEvent_t *obj, uint32_t value)
     obj->ReloadValue = ticks;
 }
 
+static TimerTime_t get_temp_compensation( TimerTime_t period, float temperature )
+{
+    return 0;
+}
+
 static TimerTime_t get_current_time(void)
 {
     uint32_t ticks = RTC_COUNTERGET();
@@ -300,6 +305,8 @@ hal_lrwan_time_itf_t aos_lrwan_time_itf = {
     .compute_elapsed_time = compute_elapsed_time,
     .get_current_time = get_current_time,
     .set_timer_val = set_timer_val,
+
+    .get_temp_compensation = get_temp_compensation,
 };
 
 /* LoRaWan radio control */
@@ -327,7 +334,29 @@ hal_manufactory_itf_t aos_mft_itf = {
     .get_mft_baud = get_mft_baud,
 };
 
-uint32_t get_rtc_counter(void)
+uint32_t HW_RTC_GetCalendarTime( uint16_t *milliseconds )
 {
-    return RTC_COUNTERGET();
+    uint32_t seconds = get_current_time();
+
+    *milliseconds = seconds % 1000;
+
+    seconds = seconds / 1000;
+
+    return seconds;
 }
+
+static uint32_t g_rtc_bkup_data0;
+static uint32_t g_rtc_bkup_data1;
+void HW_RTC_BkupWrite( uint32_t data0, uint32_t data1 )
+{
+    g_rtc_bkup_data0 = data0;
+    g_rtc_bkup_data1 = data1;
+}
+
+void HW_RTC_BkupRead( uint32_t *data0, uint32_t *data1 )
+{
+    *data0 = g_rtc_bkup_data0;
+    *data1 = g_rtc_bkup_data1;
+}
+
+

@@ -24,7 +24,7 @@ ifeq ($(linkwan), 1)
 $(NAME)_SOURCES += src/lorawan_port.c	\
                    src/eml3047_lrwan.c 
 
-$(NAME)_COMPONENTS += network.lorawan.lorachip network.lorawan
+$(NAME)_COMPONENTS += network.lorawan_4_4_2.lorachip network.lorawan_4_4_2
 LORACHIP := sx1276
 
 GLOBAL_DEFINES += EML3047_LORAWAN
@@ -43,12 +43,10 @@ GLOBAL_DEFINES += \
 USE_HAL_DRIVER \
 STM32L071xx
 
-GLOBAL_INCLUDES +=  ../../device/lora/eml3047_lrwan    \
-                    ../../device/lora/sx1276   \
-					../../network/lorawan/lora/system  \
-					../../network/lorawan/lora/mac  \
-					../../network/lorawan/lora/radio  \
-					../../network/lorawan/linkwan\include
+GLOBAL_INCLUDES +=  ../../network/lorawan_4_4_2/lora/system  \
+		    ../../network/lorawan_4_4_2/lora/mac  \
+		    ../../network/lorawan_4_4_2/lora/radio  \
+		    ../../network/lorawan_4_4_2/linkwan\include
 
 GLOBAL_DEFINES += STDIO_UART=0 CONFIG_NO_TCPIP
 GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0 RHINO_CONFIG_NORMAL_PRT=0
@@ -57,10 +55,11 @@ GLOBAL_DEFINES += USE_FULL_LL_DRIVER USE_B_EML3047
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_EML3047
 CONFIG_SYSINFO_DEVICE_NAME := EML3047
 
+GLOBAL_CFLAGS += -DSYSINFO_OS_VERSION=\"$(CONFIG_SYSINFO_OS_VERSION)\"
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 
-GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/eml3047
+GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/eml3047_new
 
 # Global defines
 # HSE_VALUE = STM32 crystal frequency = 26MHz (needed to make UART work correctly)
