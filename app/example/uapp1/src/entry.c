@@ -7,21 +7,22 @@
 #include <uapp.h>
 #include <u_mm.h>
 
-extern unsigned int _app_text_flash_begin;
+extern unsigned int _app_text_flash_start;
 extern unsigned int _app_text_flash_end;
-extern unsigned int _app_data_ram_begin;
+extern unsigned int _app_data_flash_start;
+extern unsigned int _app_data_ram_start;
 extern unsigned int _app_data_ram_end;
-extern unsigned int _app_data_flash_begin;
 extern unsigned int _app_bss_start;
 extern unsigned int _app_bss_end;
 extern unsigned int _app_heap_start;
 extern unsigned int _app_heap_end;
-extern unsigned int app_type;
+extern unsigned int _app_type;
 
-#define UTASK_STACK_SIZE 0x200
+#define UTASK_USTACK_SIZE 0x200
+#define UTASK_KSTACK_SIZE 0x200
 
-static cpu_stack_t app_stack[UTASK_STACK_SIZE];
-static ktask_t app_task_struct;
+static cpu_stack_t ustack[UTASK_USTACK_SIZE];
+static ktask_t task_struct;
 
 extern int application_start(int argc, char **argv);
 
@@ -47,21 +48,22 @@ static void app_entry(int argc, char *argv[])
 
 __attribute__ ((used, section(".app_info"))) uapp_info_t app_info = {
     APP_INFO_MAGIC,
-    &app_type,
+    &_app_type,
+    &task_struct,
     app_entry,
-    &_app_text_flash_begin,
+    ustack,
+    UTASK_USTACK_SIZE,
+    UTASK_KSTACK_SIZE,
+    AOS_DEFAULT_APP_PRI,
+    &_app_text_flash_start,
     &_app_text_flash_end,
-    &_app_data_ram_begin,
+    &_app_data_ram_start,
     &_app_data_ram_end,
-    &_app_data_flash_begin,
+    &_app_data_flash_start,
     &_app_bss_start,
     &_app_bss_end,
     &_app_heap_start,
     &_app_heap_end,
-    &app_task_struct,
-    app_stack,
-    UTASK_STACK_SIZE,
-    AOS_DEFAULT_APP_PRI,
     0, 0, 0, 0
 };
 
