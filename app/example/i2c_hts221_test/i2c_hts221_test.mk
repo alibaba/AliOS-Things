@@ -6,7 +6,7 @@ GLOBAL_DEFINES += AOS_NO_WIFI
 GLOBAL_DEFINES += AOS_SENSOR_HUMI_SENSIRION_HTS221
 GLOBAL_DEFINES += UDATA_YLOOP
 
-$(NAME)_COMPONENTS := yloop cli  netmgr middleware.common device.sensor middleware.udata
+$(NAME)_COMPONENTS := yloop cli  netmgr middleware.common device.sensor middleware.udata utility.cjson
 
 ifeq ($(BENCHMARKS),1)
 $(NAME)_COMPONENTS  += benchmarks

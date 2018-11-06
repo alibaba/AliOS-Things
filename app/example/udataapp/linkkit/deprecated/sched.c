@@ -1,9 +1,6 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifndef DEPRECATED_LINKKIT
-#include "newapi/cntdown.c"
-#else
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,56 +10,34 @@
 #include "iot_export.h"
 #include "linkkit_export.h"
 #include "app_entry.h"
-
-#if defined(OTA_ENABLED)
-#include "ota_service.h"
+123
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+    #include "ota_service.h"
 #endif
 /*
  * please modify this string follow as product's TSL.
  */
-#include "data/cntdown_tsl.data"
+#include "data/sched_tsl.data"
 
 // for demo only
-#define PRODUCT_KEY      "a1ikrQdGiG8"
-#define PRODUCT_SECRET   "UgqWfzL5B2zNvglF"
-#define DEVICE_NAME      "test_cd_02"
-#define DEVICE_SECRET    "O0wxZBV3AEL5SKCpXmc6vGr2B6eMFxdS"
+#define PRODUCT_KEY      "a1X2bEnP82z"
+#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
+#define DEVICE_NAME      "test_06"
+#define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
 
-#define APP_TRACE(fmt, ...)  \
+#define EXAMPLE_TRACE(fmt, ...)  \
     do { \
         HAL_Printf("%s|%03d :: ", __func__, __LINE__); \
         HAL_Printf(fmt, ##__VA_ARGS__); \
         HAL_Printf("%s", "\r\n"); \
     } while(0)
 
-/* Properties used define */
-#define PROPERTY_POWERSWITCH            "PowerSwitch"
-#define PROPERTY_COUNTDOWN              "CountDown"
-#define PROPERTY_COUNTDOWN_POWERSWITCH  "CountDown.PowerSwitch"
-#define PROPERTY_COUNTDOWN_TIMELEFT     "CountDown.TimeLeft"
-#define PROPERTY_COUNTDOWN_ISRUNNING    "CountDown.IsRunning"
-
-/* app context type define */
-typedef struct _app_context {
-    const void *thing;
-    const char *prop_powerswitch;
-    const char *prop_countdown;
-    const char *prop_countdown_pwrsw;
-    const char *prop_countdown_timelf;
-    const char *prop_countdown_isrun;
-    void       *timerHandle;
-    int        powerSwitch_Actual;
-    int        powerSwitch_Target;
-    int        cloud_connected;
-    int        local_connected;
-    int        thing_enabled;
-} app_context_t;
-
-/* json data of property "CountDown", used for debugging in AliCloud console
-{
-  "CountDown": {"IsRunning":1,"TimeLeft":10,"PowerSwitch":1,"Timestamp":"1534314100000"}
-}
-*/
+typedef struct _sample_context {
+    const void   *thing;
+    int           cloud_connected;
+    int           local_connected;
+    int           thing_enabled;
+} sample_context_t;
 
 /*
  * the callback of linkkit_post_property.
@@ -71,8 +46,8 @@ typedef struct _app_context {
  */
 void post_property_cb(const void *thing_id, int response_id, int code, const char *response_message, void *ctx)
 {
-    APP_TRACE("thing@%p: response arrived: {id:%d, code:%d, message:%s}\n", thing_id, response_id, code,
-              response_message == NULL ? "NULL" : response_message);
+    EXAMPLE_TRACE("thing@%p: response arrived:\nid:%d\tcode:%d\tmessage:%s\n", thing_id, response_id, code,
+                  response_message == NULL ? "NULL" : response_message);
 
     /* do user's post property callback process logical here. */
 
@@ -81,84 +56,6 @@ void post_property_cb(const void *thing_id, int response_id, int code, const cha
     /* user's post property callback process logical complete */
 }
 
-/*
- * Timer expired handle funciton, trigger powerswitch action and post specific property here
- */
-static void app_timer_expired_handle(void *ctx)
-{
-    int ret = -1;
-    app_context_t *app_ctx = (app_context_t *)ctx;
-    int timeLeft = 0;
-    int isrunning = 0;
-
-    APP_TRACE("app timer expired!\r\n");
-
-    if (NULL == app_ctx) {
-        APP_TRACE("can't get app context, just return\r\n");
-        return;
-    }
-    /* Trigger powerswitch action, just set value here */
-    app_ctx->powerSwitch_Actual = app_ctx->powerSwitch_Target;
-
-    /* Set PowerSwitch property then post */
-    ret = linkkit_set_value(linkkit_method_set_property_value, app_ctx->thing, app_ctx->prop_powerswitch,
-                            &app_ctx->powerSwitch_Target, NULL);
-    if (ret != SUCCESS_RETURN) {
-        APP_TRACE("app set property \"%s\" failed", app_ctx->prop_powerswitch);
-        return;
-    }
-
-    ret = linkkit_post_property(app_ctx->thing, app_ctx->prop_powerswitch, post_property_cb);
-    if (ret != SUCCESS_RETURN) {
-        APP_TRACE("app post property \"%s\" failed", app_ctx->prop_powerswitch);
-        return;
-    }
-    APP_TRACE("app post property \"%s\" succeed", app_ctx->prop_powerswitch);
-
-    /* Set CountDown property then post */
-    ret = linkkit_set_value(linkkit_method_set_property_value, app_ctx->thing, app_ctx->prop_countdown_timelf, &timeLeft,
-                            NULL);
-    if (ret != SUCCESS_RETURN) {
-        APP_TRACE("app set property \"%s\" failed", app_ctx->prop_countdown);
-        return;
-    }
-
-    ret = linkkit_set_value(linkkit_method_set_property_value, app_ctx->thing, app_ctx->prop_countdown_isrun, &isrunning,
-                            NULL);
-    if (ret != SUCCESS_RETURN) {
-        APP_TRACE("app set property \"%s\" failed", app_ctx->prop_countdown);
-        return;
-    }
-
-    ret = linkkit_post_property(app_ctx->thing, app_ctx->prop_countdown, post_property_cb);
-    if (ret != SUCCESS_RETURN) {
-        APP_TRACE("app post property \"%s\" failed", app_ctx->prop_countdown);
-        return;
-    }
-    APP_TRACE("app post property \"%s\" succeed", app_ctx->prop_countdown);
-}
-
-static void *app_timer_open(void *ctx)
-{
-    return HAL_Timer_Create("App_CountDown", app_timer_expired_handle, ctx);
-}
-
-static void app_timer_close(void *timer)
-{
-    HAL_Timer_Delete(timer);
-}
-
-static void app_timer_stop(void *timer)
-{
-    HAL_Timer_Stop(timer);
-    APP_TRACE("app timer stop");
-}
-
-static void app_timer_start(void *timer, int s)
-{
-    HAL_Timer_Start(timer, s * 1000);
-    APP_TRACE("app timer start");
-}
 
 /* connect handle
  * cloud and local
@@ -169,20 +66,20 @@ static void app_timer_start(void *timer, int s)
     static int on_connect(void *ctx)
 #endif
 {
-    app_context_t *app_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
 #ifdef LOCAL_CONN_ENABLE
     if (cloud) {
-        app_ctx->cloud_connected = 1;
+        sample_ctx->cloud_connected = 1;
     } else {
-        app_ctx->local_connected = 1;
+        sample_ctx->local_connected = 1;
     }
-    APP_TRACE("%s is connected\n", cloud ? "cloud" : "local");
+    EXAMPLE_TRACE("%s is connected\n", cloud ? "cloud" : "local");
 #else
-    app_ctx->cloud_connected = 1;
-    APP_TRACE("%s is connected\n", "cloud");
+    sample_ctx->cloud_connected = 1;
+    EXAMPLE_TRACE("%s is connected\n", "cloud");
 #endif
-#if defined(OTA_ENABLED)
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
     ota_service_init(NULL);
 #endif
     /* do user's connect process logical here. */
@@ -204,18 +101,18 @@ static void app_timer_start(void *timer, int s)
     static int on_disconnect(void *ctx)
 #endif
 {
-    app_context_t *app_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
 #ifdef LOCAL_CONN_ENABLE
     if (cloud) {
-        app_ctx->cloud_connected = 0;
+        sample_ctx->cloud_connected = 0;
     } else {
-        app_ctx->local_connected = 0;
+        sample_ctx->local_connected = 0;
     }
-    APP_TRACE("%s is disconnect\n", cloud ? "cloud" : "local");
+    EXAMPLE_TRACE("%s is disconnect\n", cloud ? "cloud" : "local");
 #else
-    app_ctx->cloud_connected = 0;
-    APP_TRACE("%s is disconnect\n", "cloud");
+    sample_ctx->cloud_connected = 0;
+    EXAMPLE_TRACE("%s is disconnect\n", "cloud");
 #endif
 
     /* do user's disconnect process logical here. */
@@ -226,7 +123,7 @@ static void app_timer_start(void *timer, int s)
     return 0;
 }
 
-
+// TODO:
 /*
  * receive raw data handler
  */
@@ -234,7 +131,7 @@ static int raw_data_arrived(const void *thing_id, const void *data, int len, voi
 {
     char raw_data[128] = {0};
 
-    APP_TRACE("raw data arrived,len:%d\n", len);
+    EXAMPLE_TRACE("raw data arrived,len:%d\n", len);
 
     /* do user's raw data process logical here. */
 
@@ -257,10 +154,10 @@ static int raw_data_arrived(const void *thing_id, const void *data, int len, voi
 /* thing create succuss */
 static int thing_create(const void *thing_id, void *ctx)
 {
-    app_context_t *app_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
-    APP_TRACE("new thing@%p created.\n", thing_id);
-    app_ctx->thing = thing_id;
+    EXAMPLE_TRACE("new thing@%p created.\n", thing_id);
+    sample_ctx->thing = thing_id;
 
     /* do user's thing create process logical here. */
 
@@ -277,9 +174,9 @@ static int thing_create(const void *thing_id, void *ctx)
  */
 static int thing_enable(const void *thing_id, void *ctx)
 {
-    app_context_t *app_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
-    app_ctx->thing_enabled = 1;
+    sample_ctx->thing_enabled = 1;
 
     /* do user's thing enable process logical here. */
 
@@ -296,9 +193,9 @@ static int thing_enable(const void *thing_id, void *ctx)
  */
 static int thing_disable(const void *thing_id, void *ctx)
 {
-    app_context_t *app_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
-    app_ctx->thing_enabled = 0;
+    sample_ctx->thing_enabled = 0;
 
     /* do user's thing disable process logical here. */
 
@@ -309,17 +206,16 @@ static int thing_disable(const void *thing_id, void *ctx)
     return 0;
 }
 
-
 /*
  * this is the "custom" service handler
  * alink method: thing.service.Custom
  * please follow TSL modify the idendifier
  */
 #ifdef RRPC_ENABLED
-static int handle_service_custom(app_context_t *_app_ctx, const void *thing, const char *service_identifier,
+static int handle_service_custom(sample_context_t *_sample_ctx, const void *thing, const char *service_identifier,
                                  int request_id, int rrpc)
 #else
-static int handle_service_custom(app_context_t *_app_ctx, const void *thing, const char *service_identifier,
+static int handle_service_custom(sample_context_t *_sample_ctx, const void *thing, const char *service_identifier,
                                  int request_id)
 #endif /* RRPC_ENABLED */
 {
@@ -337,7 +233,7 @@ static int handle_service_custom(app_context_t *_app_ctx, const void *thing, con
      */
     snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier, "transparency");
     linkkit_get_value(linkkit_method_get_service_input_value, thing, identifier, &transparency_value, NULL);
-    APP_TRACE("identifier: %s value is %d.\n", identifier, transparency_value);
+    EXAMPLE_TRACE("identifier: %s value is %d.\n", identifier, transparency_value);
 
     /*
      * set output value according to user's process result.
@@ -377,17 +273,17 @@ static int handle_service_custom(app_context_t *_app_ctx, const void *thing, con
     static int thing_call_service(const void *thing_id, const char *service, int request_id, void *ctx)
 #endif /* RRPC_ENABLED */
 {
-    app_context_t *app_ctx = ctx;
+    sample_context_t *sample_ctx = ctx;
 
-    APP_TRACE("service(%s) requested, id: thing@%p, request id:%d\n",
-              service, thing_id, request_id);
+    EXAMPLE_TRACE("service(%s) requested, id: thing@%p, request id:%d\n",
+                  service, thing_id, request_id);
 
     /* please follow TSL modify the idendifier --- Custom */
     if (strcmp(service, "Custom") == 0) {
 #ifdef RRPC_ENABLED
-        handle_service_custom(app_ctx, thing_id, service, request_id, rrpc);
+        handle_service_custom(sample_ctx, thing_id, service, request_id, rrpc);
 #else
-        handle_service_custom(app_ctx, thing_id, service, request_id);
+        handle_service_custom(sample_ctx, thing_id, service, request_id);
 #endif /* RRPC_ENABLED */
     }
 
@@ -401,93 +297,52 @@ static int handle_service_custom(app_context_t *_app_ctx, const void *thing, con
  */
 static int thing_prop_changed(const void *thing_id, const char *property, void *ctx)
 {
-    int ret = -1;
-    app_context_t *app_ctx = (app_context_t *)ctx;
-    APP_TRACE("property \"%s\" changed", property);
+    /*char property_buf[64] = {0};*/
+    int response_id = -1;
 
-    if (strstr(property, app_ctx->prop_countdown) != 0) {
-        /* post property
-        * result is response_id; if response_id = -1, it is fail, else it is success.
-        * response_id by be compare in post_property_cb.
-        */
-        int powerSwitch[1] = {0};
-        int timeLeft[1] = {0};
-        int isRunning[1] = {0};
+    if (strstr(property, "LocalTimer") != 0) {
+        int id = 0;
+        char *timer = NULL;
+        int enable = 0;
+        uint64_t utc = 0;
 
-        /* Get property value of "CountDown" */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id, app_ctx->prop_countdown_pwrsw, powerSwitch, NULL);
-        APP_TRACE("app get property value, PowerSwitch = %d", powerSwitch[0]);
+        /* Get LocalTimer[0] */
+        id = 0;
+        timer = NULL;
+        enable = 0;
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].ID", &id, NULL);
+        EXAMPLE_TRACE("LocalTimer[0].ID: %d\n", id);
 
-        linkkit_get_value(linkkit_method_get_property_value, thing_id, app_ctx->prop_countdown_timelf, timeLeft, NULL);
-        APP_TRACE("app get property value, TimeLeft = %d", timeLeft[0]);
-
-        linkkit_get_value(linkkit_method_get_property_value, thing_id, app_ctx->prop_countdown_isrun, isRunning, NULL);
-        APP_TRACE("app get property value, IsRunning = %d", isRunning[0]);
-
-        /* Start or stop timer according to "IsRunning" */
-        if (isRunning[0] == 1) {
-            app_timer_start(app_ctx->timerHandle, timeLeft[0]);
-            /* temp powerswitch value to app context */
-            app_ctx->powerSwitch_Target = powerSwitch[0];
-        } else if (isRunning[0] == 0) {
-            app_timer_stop(app_ctx->timerHandle);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Timer", NULL, &timer);
+        EXAMPLE_TRACE("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
+        if (timer) {
+            free(timer);
+            timer = NULL;
         }
 
-        /* Post property "CountDown" to response request from cloud*/
-        ret = linkkit_post_property(thing_id, property, post_property_cb);
-        if (ret != SUCCESS_RETURN) {
-            APP_TRACE("app post property \"%s\" failed", property);
-            return ret;
-        }
-        APP_TRACE("app post property \"%s\" succeed", property);
+        linkkit_get_value(linkkit_method_set_property_value, thing_id, "LocalTimer[0].Enable", &enable, NULL);
+        EXAMPLE_TRACE("LocalTimer[0].Enable: %d\n", enable);
 
-        /* Set property "PowerSwitch" then post */
-        ret = linkkit_set_value(linkkit_method_set_property_value, app_ctx->thing, app_ctx->prop_powerswitch,
-                                &app_ctx->powerSwitch_Actual, NULL);
-        if (ret != SUCCESS_RETURN) {
-            APP_TRACE("app set property \"%s\" failed", app_ctx->prop_powerswitch);
-            return ret;
-        }
-
-        ret = linkkit_post_property(app_ctx->thing, app_ctx->prop_powerswitch, post_property_cb);
-        if (ret != SUCCESS_RETURN) {
-            APP_TRACE("app post property \"%s\" failed", app_ctx->prop_powerswitch);
-            return ret;
-        }
-        APP_TRACE("app post property \"%s\" succeed", app_ctx->prop_powerswitch);
-    } else if (strstr(property, app_ctx->prop_powerswitch) != 0) {
-        int powerSwitch[1] = {0};
-
-        /* Get property value of "PowerSwitch" */
-        linkkit_get_value(linkkit_method_get_property_value, thing_id, app_ctx->prop_powerswitch, powerSwitch, NULL);
-        APP_TRACE("app get property value, PowerSwitch = %d", powerSwitch[0]);
-
-        /* Trigger powerswitch action, just set value here */
-        app_ctx->powerSwitch_Actual = powerSwitch[0];
-
-        /* Set property "PowerSwitch" then post */
-        ret = linkkit_set_value(linkkit_method_set_property_value, app_ctx->thing, app_ctx->prop_powerswitch,
-                                &app_ctx->powerSwitch_Actual, NULL);
-        if (ret != SUCCESS_RETURN) {
-            APP_TRACE("app set property \"%s\" failed", app_ctx->prop_powerswitch);
-            return ret;
-        }
-
-        ret = linkkit_post_property(app_ctx->thing, app_ctx->prop_powerswitch, post_property_cb);
-        if (ret != SUCCESS_RETURN) {
-            APP_TRACE("app post property \"%s\" failed", app_ctx->prop_powerswitch);
-            return ret;
-        }
-        APP_TRACE("app post property \"%s\" succeed", app_ctx->prop_powerswitch);
+        utc = HAL_UTC_Get();
+        EXAMPLE_TRACE("Current UTC: %lld\n", utc);
     }
+
+    /* post property
+     * result is response_id; if response_id = -1, it is fail, else it is success.
+     * response_id by be compare in post_property_cb.
+     */
+    response_id = linkkit_post_property(thing_id, property, post_property_cb);
+
+    EXAMPLE_TRACE("post property(%s) response id: %d\n", property, response_id);
 
     return 0;
 }
 
+
 /* there is some data transparent transmission by linkkit */
 static int linkit_data_arrived(const void *thing_id, const void *params, int len, void *ctx)
 {
-    APP_TRACE("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id, len, (const char *)params);
+    EXAMPLE_TRACE("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id, len, (const char *)params);
 
     /* do user's data arrived process logical here. */
 
@@ -497,10 +352,9 @@ static int linkit_data_arrived(const void *thing_id, const void *params, int len
     return 0;
 }
 
-
 #ifdef POST_WIFI_STATUS
 
-static int is_active(app_context_t *sample_ctx)
+static int is_active(sample_context_t *sample_ctx)
 {
 #ifdef LOCAL_CONN_ENABLE
     return (sample_ctx->cloud_connected /* && sample_ctx->thing_enabled*/) ||
@@ -539,7 +393,7 @@ static int get_wireless_info(user_wireless_info_t *wireless_info)
     return 0;
 }
 
-static int post_property_wifi_status_once(app_context_t *sample_ctx)
+static int post_property_wifi_status_once(sample_context_t *sample_ctx)
 {
     int                 ret     = -1;
     int                 i       = 0;
@@ -557,8 +411,7 @@ static int post_property_wifi_status_once(app_context_t *sample_ctx)
 
     if (is_active(sample_ctx) && 0 == is_post) {
         get_wireless_info(&wireless_info);
-
-#ifdef WIFI_PROVISION_ENABLED              
+#ifdef WIFI_PROVISION_ENABLED
         HAL_Wifi_Get_Ap_Info(NULL, NULL, bssid);
 #endif
 
@@ -630,15 +483,79 @@ static unsigned long long uptime_sec(void)
 }
 
 
+int set_scheduler_prop(sample_context_t *sample)
+{
+    int res = 0, id = 0;
+    char *timer = NULL;
+    int enable = 0;
+
+    /* Set LocalTimer[0] */
+    id = 0;
+    timer = "10 11 * * * 1 2 3 4 5";
+    enable = 1;
+    res = linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
+    if (res < 0) {
+        printf("linkkit_set_value error: %d\n", res);
+    }
+
+    res = linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", timer, NULL);
+    if (res < 0) {
+        printf("linkkit_set_value error: %d\n", res);
+    }
+
+    res = linkkit_set_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
+    if (res < 0) {
+        printf("linkkit_set_value error: %d\n", res);
+    }
+
+    return 0;
+}
+
+int get_scheduler_prop(sample_context_t *sample)
+{
+    int id = 0;
+    char *timer = NULL;
+    int enable = 0;
+
+    /* Get LocalTimer[0] */
+    id = 0;
+    timer = NULL;
+    enable = 0;
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].ID", &id, NULL);
+    printf("LocalTimer[0].ID: %d\n", id);
+
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Timer", NULL, &timer);
+    printf("LocalTimer[0].Timer: %s\n", (timer == NULL) ? ("NULL") : (timer));
+    if (timer) {
+        free(timer);
+        timer = NULL;
+    }
+
+    linkkit_get_value(linkkit_method_set_property_value, sample->thing, "LocalTimer[0].Enable", &enable, NULL);
+    printf("LocalTimer[0].Enable: %d\n", enable);
+
+    return 0;
+}
+
+int get_scheduler_post_event(sample_context_t *sample)
+{
+    int res = 0;
+    res = linkkit_post_property(sample->thing, "LocalTimer", post_property_cb);
+    if (res < 0) {
+        printf("linkkit_post_property error: %d", res);
+    }
+
+    return res;
+}
+
 int linkkit_example()
 {
-    app_context_t app_ctx = {0};
+    sample_context_t sample_ctx = {0};
     int execution_time = 20;
     int exit = 0;
     unsigned long long now = 0;
     unsigned long long prev_sec = 0;
     int get_tsl_from_cloud = 0;                        /* the param of whether it is get tsl from cloud */
-    int option = 1;
     linkkit_ops_t linkkit_ops = {
         .on_connect           = on_connect,            /* connect handler */
         .on_disconnect        = on_disconnect,         /* disconnect handler */
@@ -651,22 +568,7 @@ int linkkit_example()
         .linkit_data_arrived  = linkit_data_arrived,   /* transparent transmission data handler */
     };
 
-
-    /* init app context */
-    app_ctx.prop_powerswitch = PROPERTY_POWERSWITCH;
-    app_ctx.prop_countdown = PROPERTY_COUNTDOWN;
-    app_ctx.prop_countdown_pwrsw = PROPERTY_COUNTDOWN_POWERSWITCH;
-    app_ctx.prop_countdown_timelf = PROPERTY_COUNTDOWN_TIMELEFT;
-    app_ctx.prop_countdown_isrun = PROPERTY_COUNTDOWN_ISRUNNING;
-    app_ctx.timerHandle = app_timer_open(&app_ctx);
-    app_ctx.powerSwitch_Actual = 0;     /* assume initial status of PowerSwitch is 0 */
-
-    APP_TRACE("linkkit start");
-
-    /*
-     * set linkkit_opt_property_post_reply option to ture, so we can obtain set property reply through callback function.
-     */
-    linkkit_set_opt(linkkit_opt_property_post_reply, &option);
+    EXAMPLE_TRACE("linkkit start");
 
     /*
      * linkkit start
@@ -675,8 +577,8 @@ int linkkit_example()
      * if get_tsl_from_cloud = 0, it will use the default tsl [TSL_STRING]; if get_tsl_from_cloud =1, it will get tsl from cloud.
      */
     if (-1 == linkkit_start(16, get_tsl_from_cloud, linkkit_loglevel_debug, &linkkit_ops, linkkit_cloud_domain_shanghai,
-                            &app_ctx)) {
-        APP_TRACE("linkkit start fail");
+                            &sample_ctx)) {
+        EXAMPLE_TRACE("linkkit start fail");
         return -1;
     }
 
@@ -688,7 +590,7 @@ int linkkit_example()
         linkkit_set_tsl(TSL_STRING, strlen(TSL_STRING));
     }
 
-    APP_TRACE("linkkit enter loop");
+    EXAMPLE_TRACE("linkkit enter loop");
     while (1) {
         /*
          * if linkkit is support Multi-thread, the linkkit_dispatch and linkkit_yield with callback by linkkit,
@@ -701,10 +603,11 @@ int linkkit_example()
         HAL_SleepMs(100);
 #endif /* CONFIG_SDK_THREAD_COST */
         now = uptime_sec();
+        EXAMPLE_TRACE("CONFIG_SDK_THREAD_COST 0 now=%d", now);
         if (prev_sec == now) {
             continue;
         }
-
+        EXAMPLE_TRACE("CONFIG_SDK_THREAD_COST 1");
         /*
          * do user's process logical here.
          * example rule:
@@ -716,9 +619,22 @@ int linkkit_example()
 
 #ifdef POST_WIFI_STATUS
         if (now % 10 == 0) {
-            post_property_wifi_status_once(&app_ctx);
+            post_property_wifi_status_once(&sample_ctx);
         }
 #endif
+
+        /* if (now == 10 && is_active(&sample_ctx)) {
+            set_scheduler_prop(&sample_ctx);
+        }
+
+        if (now == 15 && is_active(&sample_ctx)) {
+            get_scheduler_prop(&sample_ctx);
+        }
+
+        if (now == 20 && is_active(&sample_ctx)) {
+            get_scheduler_post_event(&sample_ctx);
+        } */
+
         if (exit) {
             break;
         }
@@ -732,11 +648,8 @@ int linkkit_example()
         prev_sec = now;
     }
 
-    /* app end */
+    /* linkkit end */
     linkkit_end();
-    app_timer_stop(app_ctx.timerHandle);
-    app_timer_close(app_ctx.timerHandle);
-
     return 0;
 }
 
@@ -750,15 +663,13 @@ void set_iotx_info()
 
 int linkkit_main(void *paras)
 {
-#ifndef WIFI_PROVISION_ENABLED
+#if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
 #endif
-    IOT_OpenLog("linkkit");
-    IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-    APP_TRACE("start!\n");
+    EXAMPLE_TRACE("start!\n");
     /*
-     * linkkit timer countdown demo
+     * linkkit demo
      * please check document: https://help.aliyun.com/document_detail/73708.html?spm=a2c4g.11174283.6.560.zfcQ3y
      *         API introduce:  https://help.aliyun.com/document_detail/68687.html?spm=a2c4g.11186623.6.627.RJcT3F
      */
@@ -767,8 +678,7 @@ int linkkit_main(void *paras)
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_CloseLog();
 
-    APP_TRACE("out of example!\n");
+    EXAMPLE_TRACE("out of sample!\n");
 
     return 0;
 }
-#endif

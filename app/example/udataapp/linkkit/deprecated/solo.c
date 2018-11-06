@@ -1,10 +1,6 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifndef DEPRECATED_LINKKIT
-#include "newapi/solo.c"
-#else
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,11 +10,9 @@
 #include "iot_export.h"
 #include "linkkit_export.h"
 #include "app_entry.h"
-#if defined(OTA_ENABLED)
-#include "ota_service.h"
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+    #include "ota_service.h"
 #endif
-#include "aos/uData.h"
-#include "service_data_to_cloud.h"
 /*
  * please modify this string follow as product's TSL.
  */
@@ -28,10 +22,10 @@
 #define EVENT_ERROR_OUTPUT_INFO_IDENTIFIER "ErrorCode"
 
 // for demo only
-#define PRODUCT_KEY             "b1GadfPW0om"
-#define PRODUCT_SECRET          "V3wlnzQsouSxk34S"
-#define DEVICE_NAME             "AliOS_Things_Sensor_01"
-#define DEVICE_SECRET           "mMB0Dy0tnbSIy95Z3dNT1iFZIW7sDEOs"
+#define PRODUCT_KEY     "a1X2bEnP82z"
+#define PRODUCT_SECRET  "7jluWm1zql7bt8qK"
+#define DEVICE_NAME     "test_06"
+#define DEVICE_SECRET   "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
 
 
 #define EXAMPLE_TRACE(fmt, ...)                        \
@@ -47,28 +41,6 @@ typedef struct _sample_context {
     int         local_connected;
     int         thing_enabled;
 } sample_context_t;
-
-
-void  *g_thing_id = NULL;
-
-int dtc_set_value(const void *thing_id, const char *identifier, const void *value,  const void *value_str)
-{
-    int ret = linkkit_set_value(linkkit_method_set_property_value, thing_id, identifier, value, value_str);
-    if (0 != ret) {
-        return ret;
-    }
-    return 0;
-}
-
-int dtc_post_property(const void *thing_id, const char *identifier)
-{
-    int ret = linkkit_post_property(thing_id, identifier, NULL);
-    if ( ret < 0 ) {
-        return ret;
-    }
-    return 0;
-}
-
 
 
 /*
@@ -112,7 +84,7 @@ void post_property_cb(const void *thing_id, int response_id, int code,
     sample_ctx->cloud_connected = 1;
     EXAMPLE_TRACE("%s is connected\n", "cloud");
 #endif
-#if defined(OTA_ENABLED)
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
     ota_service_init(NULL);
 #endif
     /* do user's connect process logical here. */
@@ -194,10 +166,6 @@ static int thing_create(const void *thing_id, void *ctx)
     EXAMPLE_TRACE("new thing@%p created.\n", thing_id);
     sample_ctx->thing = thing_id;
 
-    int ret = service_dtc_register((void*)thing_id, dtc_set_value, dtc_post_property);
-	if (unlikely(ret)){
-		LOG("%s %d fail\n",__func__,__LINE__);
-	}
     /* do user's thing create process logical here. */
 
     /* ............................... */
@@ -568,8 +536,8 @@ static int post_property_wifi_status_once(sample_context_t *sample_ctx)
     int   rx_rate = 0;
 
     if (is_active(sample_ctx) && 0 == is_post) {
-        get_wireless_info(&wireless_info);  
-#ifdef WIFI_PROVISION_ENABLED              
+        get_wireless_info(&wireless_info);
+#ifdef WIFI_PROVISION_ENABLED
         HAL_Wifi_Get_Ap_Info(NULL, NULL, bssid);
 #endif
 
@@ -660,10 +628,6 @@ int trigger_event(sample_context_t *sample)
 
     return linkkit_trigger_event(sample->thing, EVENT_ERROR_IDENTIFIER,
                                  post_property_cb);
-
-    /* please modify the event_id by TSL */
-    return linkkit_trigger_event(sample->thing, "TemperatureAlarm",
-                                 post_property_cb);
 }
 
 #ifdef EXTENDED_INFO_ENABLED
@@ -675,16 +639,16 @@ int trigger_deviceinfo(sample_context_t *sample)
                        linkkit_extended_info_operate_update);
 }
 #endif
-int g_dtc_reg_flag = 0;
+
 int linkkit_example()
 {
-    sample_context_t sample_ctx = { 0 };
-    // int execution_time = 20;
-    int                exit     = 0;
-    unsigned long long now      = 0;
-    unsigned long long prev_sec = 0;
-    int                get_tsl_from_cloud =
-                0; /* the param of whether it is get tsl from cloud */
+    sample_context_t    sample_ctx = { 0 };
+    int                 exit = 0;
+    int                 cnt = 0;
+    unsigned long long  now = 0;
+    unsigned long long  prev_sec = 0;
+    int                 get_tsl_from_cloud = 0; /* the param of whether it is get tsl from cloud */
+
     linkkit_ops_t linkkit_ops = {
         .on_connect       = on_connect,       /* connect handler */
         .on_disconnect    = on_disconnect,    /* disconnect handler */
@@ -692,11 +656,9 @@ int linkkit_example()
         .thing_create     = thing_create,     /* thing created handler */
         .thing_enable     = thing_enable,     /* thing enabled handler */
         .thing_disable    = thing_disable,    /* thing disabled handler */
-        .thing_call_service =
-        thing_call_service, /* self-defined service handler */
+        .thing_call_service = thing_call_service, /* self-defined service handler */
         .thing_prop_changed = thing_prop_changed, /* property set handler */
-        .linkit_data_arrived =
-        linkit_data_arrived, /* transparent transmission data handler */
+        .linkit_data_arrived = linkit_data_arrived, /* transparent transmission data handler */
     };
 
     EXAMPLE_TRACE("linkkit start");
@@ -732,6 +694,10 @@ int linkkit_example()
          */
 #if (CONFIG_SDK_THREAD_COST == 0)
         linkkit_yield(100);
+        if (++cnt % 10 == 0) {
+            EXAMPLE_TRACE(".");
+            cnt = 0;
+        }
         linkkit_dispatch();
 #else
         HAL_SleepMs(100);
@@ -802,13 +768,10 @@ void set_iotx_info()
 }
 
 int linkkit_main(void *paras)
-{
-#ifndef WIFI_PROVISION_ENABLED
+{  
+#if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
     set_iotx_info();
 #endif
-
-    IOT_OpenLog("linkkit");
-    IOT_SetLogLevel(IOT_LOG_INFO);
 
     EXAMPLE_TRACE("start!\n");
     /*
@@ -819,10 +782,8 @@ int linkkit_main(void *paras)
     linkkit_example();
 
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
 
     EXAMPLE_TRACE("out of sample!\n");
 
     return 0;
 }
-#endif
