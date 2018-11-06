@@ -3,7 +3,7 @@
  */
 
 #include "em_device.h"
-#include "spi.h"
+#include "hw_spi.h"
 #include "em_gpio.h"
 #include "em_usart.h"
 #include "em_cmu.h"

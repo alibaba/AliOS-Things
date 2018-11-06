@@ -10,7 +10,7 @@ src =Split('''
     src/lorawan_port.c
     src/lora.c
 ''')
-component =aos_component('board_eml3047', src)
+component =aos_component('board_eml3047_new', src)
 
 
 global_includes =Split('''
@@ -47,4 +47,4 @@ macros =Split('''
 for i in macros:
     component.add_macros(i)
 
-linux_only_targets="nano lorawan.linkwan"
+linux_only_targets="nano lorawan.classb"

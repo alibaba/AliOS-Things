@@ -1,4 +1,0 @@
-config AOS_BOARD_EML3047_NEW
-    bool "board_eml3047_new"
-    default n
-    help

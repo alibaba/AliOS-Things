@@ -74,6 +74,27 @@ extern "C" {
 /* Exported macros -----------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
+/*!
+ * \brief Temperature coefficient of the clock source
+ */
+#define RTC_TEMP_COEFFICIENT                            ( -0.035 )
+
+/*!
+ * \brief Temperature coefficient deviation of the clock source
+ */
+#define RTC_TEMP_DEV_COEFFICIENT                        ( 0.0035 )
+
+/*!
+ * \brief Turnover temperature of the clock source
+ */
+#define RTC_TEMP_TURNOVER                               ( 25.0 )
+
+/*!
+ * \brief Turnover temperature deviation of the clock source
+ */
+#define RTC_TEMP_DEV_TURNOVER                           ( 5.0 )
+
+
 /**
  * @brief  Initializes the RTC timer
  * @note   The timer is based on the RTC
@@ -167,6 +188,8 @@ uint32_t HW_RTC_ms2Tick(TimerTime_t timeMicroSec);
  * @retval Time in timer milliseconds
  */
 TimerTime_t HW_RTC_Tick2ms(uint32_t tick);
+
+TimerTime_t HW_RTC_TempCompensation( TimerTime_t period, float temperature );
 
 #ifdef __cplusplus
 }

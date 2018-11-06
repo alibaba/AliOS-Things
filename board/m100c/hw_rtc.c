@@ -1,4 +1,4 @@
-#include "rtc.h"
+#include "hw_rtc.h"
 #include "em_cmu.h"
 #include "em_rtc.h"
 #include "timeServer.h"
@@ -66,4 +66,11 @@ void RTC_IRQHandler(void)
         RTC_IntClear(RTC_IFC_COMP1);
     }
 }
+
+TimerTime_t HW_RTC_TempCompensation( TimerTime_t period, float temperature )
+{
+    return 0;
+}
+
+
 
