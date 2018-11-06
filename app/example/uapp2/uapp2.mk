@@ -10,10 +10,3 @@ else
 $(NAME)_SOURCES := src/app.c
 endif
 
-GLOBAL_INCLUDES += .
-
-
-GLOBAL_DEFINES += AOS_NO_WIFI
-
-$(NAME)_COMPONENTS := yloop cli
-
