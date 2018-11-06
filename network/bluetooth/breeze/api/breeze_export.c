@@ -59,18 +59,6 @@ static void event_handler(ali_event_t *p_event)
             b_notify_upper = true;
             break;
 
-        case BZ_EVENT_RX_CTRL:
-            if (m_ctrl_handler != NULL) {
-                m_ctrl_handler(p_event->rx_data.p_data, p_event->rx_data.length);
-            }
-            break;
-
-        case BZ_EVENT_RX_QUERY:
-            if (m_query_handler != NULL) {
-                m_query_handler(p_event->rx_data.p_data, p_event->rx_data.length);
-            }
-            break;
-
         case BZ_EVENT_TX_DONE:
             notify_status(TX_DONE);
             uint8_t cmd = *p_event->rx_data.p_data;
@@ -87,17 +75,28 @@ static void event_handler(ali_event_t *p_event)
                 m_apinfo_handler(p_event->rx_data.p_data);
 	    }
             break;
-        case BZ_EVENT_OTAINFO:
-	    if (m_ota_dev_handler != NULL){
-		struct rx_cmd_post_t *r_cmd = (struct rx_cmd_post_t*) p_event->rx_data.p_data;
-		m_disc_evt.type = OTA_CMD;
-		m_disc_evt.cmd_evt.m_cmd.cmd = r_cmd->cmd;
-		m_disc_evt.cmd_evt.m_cmd.frame = r_cmd->frame_seq;
-		m_disc_evt.cmd_evt.m_cmd.len = r_cmd->buf_sz;
-		memcpy(m_disc_evt.cmd_evt.m_cmd.data, r_cmd->p_rx_buf, r_cmd->buf_sz);
-                b_notify_upper = true;
-            }
-            break;
+	case BZ_CMD_CTX_INFO:
+	    if(p_event != NULL){
+                struct rx_cmd_post_t *r_cmd  = (struct rx_cmd_post_t*) p_event->rx_data.p_data;
+                uint8_t cmd = r_cmd ->cmd;	
+		if(cmd == BZ_CMD_QUERY){
+	            if (m_query_handler != NULL) {
+                        m_query_handler(r_cmd->p_rx_buf, r_cmd->buf_sz);
+                    }
+		} else if(cmd == BZ_CMD_CTRL){
+		    if (m_ctrl_handler != NULL) {
+                        m_ctrl_handler (r_cmd->p_rx_buf, r_cmd->buf_sz);
+                    }
+		}else if((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_TYPE_OTA){
+                    m_disc_evt.type = OTA_CMD;
+                    m_disc_evt.cmd_evt.m_cmd.cmd = r_cmd->cmd;
+                    m_disc_evt.cmd_evt.m_cmd.frame = r_cmd->frame_seq;
+                    m_disc_evt.cmd_evt.m_cmd.len = r_cmd->buf_sz;
+                    memcpy(m_disc_evt.cmd_evt.m_cmd.data, r_cmd->p_rx_buf, r_cmd->buf_sz);
+                    b_notify_upper = true;
+		}
+	    }
+	    break;
         case BZ_EVENT_ERR_DISCONT:
             m_disc_evt.type = OTA_EVT;
             m_disc_evt.cmd_evt.m_evt.evt = ALI_OTA_ON_DISCONTINUE_ERR;

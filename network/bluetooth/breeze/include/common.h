@@ -97,11 +97,9 @@ typedef enum {
     BZ_EVENT_DISCONNECTED,
     BZ_EVENT_AUTHENTICATED,
     BZ_EVENT_TX_DONE,
-    BZ_EVENT_RX_CTRL,
-    BZ_EVENT_RX_QUERY,
     BZ_EVENT_APINFO,
-    BZ_EVENT_OTAINFO,
     BZ_EVENT_ERR_DISCONT,
+    BZ_CMD_CTX_INFO,
 };
 
 typedef struct {
@@ -123,8 +121,7 @@ typedef struct {
     ali_data_t product_secret; // secret 16 to 40 bytes
     ali_data_t product_key; // PK 11 to 20 bytes). */
     ali_data_t device_key;  // DN 20 to 32 bytes
-    uint32_t transport_timeout; /**< Timeout of Tx/Rx, in number of ms. Fill
-                                   0 if not used. */
+    uint32_t transport_timeout; /**< Timeout of Tx/Rx, in number of ms. 0 if not used. */
     uint16_t max_mtu;           /**< Maximum MTU. */
     uint8_t  *user_adv_data;    /**< User's adv data, if any. */
     uint32_t user_adv_len;      /**< User's adv data length */
