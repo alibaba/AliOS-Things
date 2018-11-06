@@ -8,6 +8,7 @@
 #include "abs_data_model.h"
 #include "service_mgr.h"
 #include "uData_queue.h"
+#include "service_data_to_cloud.h"
 extern     int uData_service_own_task_start(void);
 
 int uData_main(void)
@@ -35,7 +36,12 @@ int uData_main(void)
     if (unlikely(ret)) {
         return -1;
     }
-
+#ifdef DATA_TO_CLOUD
+    ret = service_dtc_init();
+    if (unlikely(ret)) {
+        return -1;
+    }
+#endif
     ret = abs_data_cali_init();
     if (unlikely(ret)) {
         return -1;

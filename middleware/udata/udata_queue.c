@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "uData_queue.h"
+#include "abs_data_model.h"
 
 
 #define UDATA_QUEUE_MAXSLOTS 8
@@ -19,7 +20,7 @@
 
 struct _servicetask_related_tag_t
 {
-    sensor_tag_e related_tag[UDATA_SERVICE_TAG_NUM];
+    uint32_t index[SENSOR_MAX_NUM];
     int actual_num;
 };
 typedef struct _servicetask_related_tag_t servicetask_related_tag_t;
@@ -111,7 +112,7 @@ int own_task_post_msg(sensor_msg_pkg_t msg)
     {
         for(int j =0; j< g_uData_own_task_tag[i].actual_num;j++)
         {
-            if(g_uData_own_task_tag[i].related_tag[j] == msg.value)
+            if(g_uData_own_task_tag[i].index[j] == msg.value)
             {
                 aos_queue_send(&g_uData_own_task_queue[i],(void *)&msg, sizeof(msg));
                 break;
@@ -161,9 +162,12 @@ int uData_new_servicetask(const char *name, void (*fn)(void *),void *arg,
     return taskid;
 }
 
-int uData_observe_servicetask_tag(int taskid,sensor_tag_e tag)
+int uData_observe_servicetask_tag(int taskid,sensor_tag_e tag, uint8_t instance)
 {
     int i = 0;
+    int ret;
+    uint32_t index;
+    
     if(taskid >= g_uData_own_task_cnt || taskid < 0) 
     {
         return -1;
@@ -173,15 +177,20 @@ int uData_observe_servicetask_tag(int taskid,sensor_tag_e tag)
     {
         return -1;
     }
+    ret = abs_data_get_abs_index(tag, instance, &index);
+    if(unlikely(ret)){
+        return -1;
+    }
+    
     LOG("uData_set_servicetask_tag taskid=%d,actual_num=%d,tag=%d,g_uData_own_task_cnt=%d\n",taskid,actual_num,tag,g_uData_own_task_cnt);
     for(i=0; i < actual_num; i++)
     {
-        if(g_uData_own_task_tag[taskid].related_tag[i] == tag)
+        if(g_uData_own_task_tag[taskid].index[i] == index)
         {
             return -1;
         }
     }
-    g_uData_own_task_tag[taskid].related_tag[actual_num] = tag;
+    g_uData_own_task_tag[taskid].index[actual_num] = index;
     g_uData_own_task_tag[taskid].actual_num++;
     LOG("uData_set_servicetask_tag sucessfull\n");
     return 0;

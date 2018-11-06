@@ -26,7 +26,7 @@ void process_example(void *arg)
         if (msg->cmd != CODE_UDATA_SERVICE_PROCESS) {
             continue;
         }
-        LOG("algo own task tag=%d\n",msg->value);
+        LOG("algo own task abs index %d\n",msg->value);
         
     }
     
@@ -41,8 +41,8 @@ int uData_service_own_task_start(void)
     {
     	return -1;
     }
-    uData_observe_servicetask_tag(g_taskid,TAG_DEV_HUMI);
-    uData_observe_servicetask_tag(g_taskid,TAG_DEV_TEMP);
+    uData_observe_servicetask_tag(g_taskid,TAG_DEV_HUMI, 0);
+    uData_observe_servicetask_tag(g_taskid,TAG_DEV_TEMP, 0);
     
     return 0;
 }
