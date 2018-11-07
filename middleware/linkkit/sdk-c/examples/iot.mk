@@ -9,7 +9,6 @@ LDFLAGS             += -liot_sdk
 
 LDFLAGS             += -liot_hal
 CFLAGS              := $(filter-out -ansi,$(CFLAGS))
-LDFLAGS             += -liot_tls
 ifneq (,$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS)))
 LDFLAGS             += -lws2_32
 CFLAGS              := $(filter-out -DCOAP_COMM_ENABLED,$(CFLAGS))
@@ -41,6 +40,12 @@ SRCS_linkkit-example-gw         := app_entry.c cJSON.c linkkit/linkkit_example_g
 $(call Append_Conditional, TARGET, mqtt-example-rrpc,           MQTT_COMM_ENABLED)
 $(call Append_Conditional, TARGET, mqtt-example,                MQTT_COMM_ENABLED)
 $(call Append_Conditional, TARGET, mqtt-example-multithread,    MQTT_COMM_ENABLED)
+
+$(call Append_Conditional, LDFLAGS, \
+    -liot_tls, \
+SUPPORT_TLS, \
+SUPPORT_ITLS)
+
 $(call Append_Conditional, LDFLAGS, \
     -litls \
     -lid2client \
@@ -49,7 +54,8 @@ $(call Append_Conditional, LDFLAGS, \
     -lalicrypto \
     -lmbedcrypto \
 , \
-SUPPORT_ITLS)
+SUPPORT_ITLS, \
+SUPPORT_TLS)
 
 $(call Append_Conditional, TARGET, coap-example,                COAP_COMM_ENABLED)
 $(call Append_Conditional, TARGET, http-example,                HTTP_COMM_ENABLED)
