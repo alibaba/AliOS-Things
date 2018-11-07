@@ -14,7 +14,6 @@
 #include "app_entry.h"
 
 #define IOTX_DAILY_DTLS_SERVER_URI      "coaps://11.239.164.238:5684"
-//#define IOTX_DAILY_DTLS_SERVER_URI      "coaps://iot-as-coap.alibaba.net:5684"
 #define IOTX_DAILY_PSK_SERVER_URI       "coap-psk://10.101.83.159:5682"
 
 #define IOTX_PRE_DTLS_SERVER_URI        "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
@@ -44,15 +43,14 @@ static void iotx_response_handler(void *arg, void *p_response)
     #define IOTX_PRODUCT_KEY         "zPygj0yP3UF"
     #define IOTX_DEVICE_NAME         "device_2"
     #define IOTX_DEVICE_SECRET       "5FQbVOPWNwhEuCvnVcP1Mvyjmvt8ECQi"
-    #define IOTX_DEVICE_ID           "device_2"
 #else
     #define IOTX_PRODUCT_KEY         "a1RP1qZfrEi"
+    #define IOTX_PRODUCT_SECRET      "wzrh2iC7CcN2Askq"
     #define IOTX_DEVICE_NAME         "example1"
     #define IOTX_DEVICE_SECRET       "fPloaszb6saUFJte4EhyuBHQpR9SuKHb"
-    #define IOTX_DEVICE_ID           "example1.1"
 #endif
 
-int iotx_set_devinfo(iotx_deviceinfo_t *p_devinfo)
+int iotx_get_devinfo(iotx_deviceinfo_t *p_devinfo)
 {
     if (NULL == p_devinfo) {
         return IOTX_ERR_INVALID_PARAM;
@@ -90,7 +88,7 @@ static void iotx_post_data_to_server(void *param)
     message.content_type = IOTX_CONTENT_TYPE_JSON;
     iotx_coap_context_t *p_ctx = (iotx_coap_context_t *)param;
 
-    iotx_set_devinfo(&devinfo);
+    iotx_get_devinfo(&devinfo);
     snprintf(path, IOTX_URI_MAX_LEN, "/topic/%s/%s/update/", (char *)devinfo.product_key,
              (char *)devinfo.device_name);
 
@@ -109,7 +107,6 @@ void show_usage()
 
 int linkkit_main(void *paras)
 {
-
     int                     count = 0;
     char                    secur[32] = {0};
     char                    env[32] = {0};
@@ -125,11 +122,12 @@ int linkkit_main(void *paras)
         argv = p->argv;
     }
 
-    /**< set device info*/
+    /* set device info use HAL function */
     HAL_SetProductKey(IOTX_PRODUCT_KEY);
+    HAL_SetProductSecret(IOTX_PRODUCT_SECRET);
     HAL_SetDeviceName(IOTX_DEVICE_NAME);
     HAL_SetDeviceSecret(IOTX_DEVICE_SECRET);
-    /**< end*/
+
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
 #if !defined(_WIN32) && !defined(BUILD_AOS)
@@ -164,6 +162,15 @@ int linkkit_main(void *paras)
                 break;
         }
     }
+#else
+    /* Just use psk security mode, online environment */
+    (void)argc;
+    (void)argv;
+    (void)opt;
+    memcpy(secur, "psk", 4);
+    memcpy(env, "online", 7);
+    m_coap_client_running = 1;
+    m_coap_reconnect = 1;
 #endif
 
     HAL_Printf("[COAP-Client]: Enter Coap Client\r\n");
@@ -200,11 +207,18 @@ int linkkit_main(void *paras)
         }
     }
 
-#ifdef TEST_COAP_DAILY
-    //config.p_url = IOTX_DAILY_DTLS_SERVER_URI;
-#endif
+    /* setup dynamic_register to 1 if dynamic register feature used */
+    int dynamic_register = 0;
+    int ret = 0;
 
-    iotx_set_devinfo(&deviceinfo);
+    IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
+    ret = IOT_SetupConnInfo(IOTX_PRODUCT_KEY, IOTX_DEVICE_NAME, IOTX_DEVICE_SECRET, NULL);
+    if (ret == FAIL_RETURN) {
+        HAL_Printf("IoTx CoAP setup info failed\r\n");
+        return 0;
+    }
+
+    iotx_get_devinfo(&deviceinfo);
     config.p_devinfo = (iotx_device_info_t *)&deviceinfo;
     config.wait_time_ms = 3000;
 
