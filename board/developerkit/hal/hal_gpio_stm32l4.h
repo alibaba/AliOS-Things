@@ -25,7 +25,7 @@
 #define GROUP_GPIOF    5
 #define GROUP_GPIOG    6
 #define GROUP_GPIOH    7
-	 
+
 #define HAL_GPIO_0                 ((uint8_t)0)        /* represent GPIOA pin 0 */
 #define HAL_GPIO_1                 ((uint8_t)1)        /* represent GPIOA pin 1 */
 #define HAL_GPIO_2                 ((uint8_t)2)        /* represent GPIOA pin 2 */
@@ -42,7 +42,7 @@
 #define HAL_GPIO_13                ((uint8_t)13)       /* represent GPIOA pin 13 */
 #define HAL_GPIO_14                ((uint8_t)14)       /* represent GPIOA pin 14 */
 #define HAL_GPIO_15                ((uint8_t)15)       /* represent GPIOA pin 15 */
-	 
+
 #define HAL_GPIO_16                ((uint8_t)16)       /* represent GPIOB pin 0 */
 #define HAL_GPIO_17                ((uint8_t)17)       /* represent GPIOB pin 1 */
 #define HAL_GPIO_18                ((uint8_t)18)       /* represent GPIOB pin 2 */
@@ -162,35 +162,35 @@
 #define HAL_GPIO_126               ((uint8_t)126)      /* represent GPIOH pin 14 */
 #define HAL_GPIO_127               ((uint8_t)127)      /* represent GPIOH pin 15 */
 
-#define ALS_INT                    HAL_GPIO_15
-#define ALS_LED                    HAL_GPIO_22
-#define AUDIO_CTL                  HAL_GPIO_53
-#define AUDIO_RST                  HAL_GPIO_54
-#define AUDIO_WU                   HAL_GPIO_52
-#define CAM_PD                     HAL_GPIO_77
-#define CAM_RST                    HAL_GPIO_24
-#define COMPASS_LED                HAL_GPIO_63
-#define GS_LED                     HAL_GPIO_67
-#define HTS_LED                    HAL_GPIO_59
-#define IR_IN                      HAL_GPIO_73
-#define IR_OUT                     HAL_GPIO_25
-#define KEY_1                      HAL_GPIO_75
-#define KEY_2                      HAL_GPIO_78
-#define KEY_3                      HAL_GPIO_74
-#define LCD_DCX                    HAL_GPIO_6
-#define LCD_PWR                    HAL_GPIO_71
-#define LCD_RST                    HAL_GPIO_18
-#define PCIE_RST                   HAL_GPIO_45
-#define PS_LED                     HAL_GPIO_62
-#define SECURE_CLK                 HAL_GPIO_79
-#define SECURE_IO                  HAL_GPIO_0
-#define SECURE_RST                 HAL_GPIO_1
-#define SIM_DET                    HAL_GPIO_66
-#define USB_PCIE_SW                HAL_GPIO_21
-#define WIFI_RST                   HAL_GPIO_16
-#define WIFI_WU                    HAL_GPIO_17
-#define ZIGBEE_INT                 HAL_GPIO_72
-#define ZIGBEE_RST                 HAL_GPIO_55
+#define ALS_INT                    HAL_GPIO_15     /*PA15*/
+#define ALS_LED                    HAL_GPIO_22     /*PB6*/
+#define AUDIO_CTL                  HAL_GPIO_53     /*PD5*/
+#define AUDIO_RST                  HAL_GPIO_54     /*PD6*/
+#define AUDIO_WU                   HAL_GPIO_52     /*PD4*/
+#define CAM_PD                     HAL_GPIO_77     /*PE13*/
+#define CAM_RST                    HAL_GPIO_24     /*PB8*/
+#define COMPASS_LED                HAL_GPIO_63     /*PD15*/
+#define GS_LED                     HAL_GPIO_67     /*PE3*/
+#define HTS_LED                    HAL_GPIO_59     /*PD11*/
+#define IR_IN                      HAL_GPIO_73     /*PE9*/
+#define IR_OUT                     HAL_GPIO_25     /*PB9*/
+#define KEY_1                      HAL_GPIO_75     /*PE11*/
+#define KEY_2                      HAL_GPIO_78     /*PE14*/
+#define KEY_3                      HAL_GPIO_74     /*PE10*/
+#define LCD_DCX                    HAL_GPIO_6      /*PA5*/
+#define LCD_PWR                    HAL_GPIO_71     /*PE7*/
+#define LCD_RST                    HAL_GPIO_18     /*PB2*/
+#define PCIE_RST                   HAL_GPIO_45     /*PC13*/
+#define PS_LED                     HAL_GPIO_62     /*PD14*/
+#define SECURE_CLK                 HAL_GPIO_79     /*PE15*/
+#define SECURE_IO                  HAL_GPIO_0      /*PA0*/
+#define SECURE_RST                 HAL_GPIO_1      /*PA1*/
+#define SIM_DET                    HAL_GPIO_66     /*PE2*/
+#define USB_PCIE_SW                HAL_GPIO_21     /*PB5*/
+#define WIFI_RST                   HAL_GPIO_16     /*PB0*/
+#define WIFI_WU                    HAL_GPIO_17     /*PB1*/
+#define ZIGBEE_INT                 HAL_GPIO_72     /*PE8*/
+#define ZIGBEE_RST                 HAL_GPIO_55     /*PD7*/
 
 #define GPIOA_SPEED	 GPIO_SPEED_FREQ_VERY_HIGH
 

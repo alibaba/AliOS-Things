@@ -56,7 +56,11 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
+void USART2_IRQHandler(void);
 void OTG_FS_IRQHandler(void);
+void DMA2_Channel6_IRQHandler(void);
+void DMA2_Channel7_IRQHandler(void);
+void LPUART1_IRQHandler(void);
 
 #ifdef __cplusplus
 }

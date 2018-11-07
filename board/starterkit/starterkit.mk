@@ -14,8 +14,8 @@ $(NAME)_SOURCES += aos/board.c \
                    aos/st7789.c \
                    aos/soc_init.c
                    
-$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c 
-                   
+$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c \
+                   Src/main.c 
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup_stm32l433xx_keil.s    
 else ifeq ($(COMPILER), iar)

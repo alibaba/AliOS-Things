@@ -5,9 +5,10 @@
 #include <stdint.h>
 #include "hal/hal.h"
 #include "k_config.h"
+#include "board.h"
 
-#define main st_main
-#include "Src/main.c"
+#include "stm32l4xx_hal.h"
+#include "hal_uart_stm32l4.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -22,9 +23,21 @@
 #define GETCHAR_PROTOTYPE int __io_getchar(void)
 #endif /* defined (__CC_ARM) && defined(__MICROLIB) */
 
+#if defined (__CC_ARM)
+size_t g_iram1_start = 0x20000000;
+size_t g_iram1_total_size = 0x00010000;
+#endif
+
 uart_dev_t uart_0;
 
 static void stduart_init(void);
+
+UART_MAPPING UART_MAPPING_TABLE[] =
+{
+    { PORT_UART_STD,     USART2, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 512} },
+    { PORT_UART_AT,      USART1,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 512} }
+};
+
 
 void stm32_soc_init(void)
 {
@@ -33,13 +46,18 @@ void stm32_soc_init(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /**Configure the Systick interrupt time 
-    */
+    /**Configure the Systick interrupt time */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
 
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
-    
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    MX_DMA_Init();
+}
+
+void stm32_soc_peripheral_init(void)
+{
     /*default uart init*/
     stduart_init();
 }
@@ -62,8 +80,8 @@ static void stduart_init(void)
 */
 void SysTick_Handler(void)
 {
-  HAL_IncTick();
   krhino_intrpt_enter();
+  HAL_IncTick();
   krhino_tick_proc();
   krhino_intrpt_exit();
 }
