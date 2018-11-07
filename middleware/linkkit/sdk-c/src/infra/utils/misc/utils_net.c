@@ -30,7 +30,7 @@ static int disconnect_tcp(utils_network_pt pNetwork)
     }
 
     HAL_TCP_Destroy(pNetwork->handle);
-    pNetwork->handle = 0;
+    pNetwork->handle = -1;
     return 0;
 }
 
