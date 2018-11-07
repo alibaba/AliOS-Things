@@ -41,6 +41,10 @@ int iotx_device_info_set(
     strncpy(iotx_device_info.device_name, device_name, DEVICE_NAME_LEN);
     strncpy(iotx_device_info.device_secret, device_secret, DEVICE_SECRET_LEN);
 
+    HAL_SetProductKey((char *)product_key);
+    HAL_SetDeviceName((char *)device_name);
+    HAL_SetDeviceSecret((char *)device_secret);
+    
     /* construct device-id(@product_key+@device_name) */
     ret = HAL_Snprintf(iotx_device_info.device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
     if ((ret < 0) || (ret >= DEVICE_ID_LEN)) {
