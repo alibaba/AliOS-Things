@@ -168,7 +168,7 @@ typedef struct {
 #define WAIT_FOREVER  -1
 #define SKTPT_SOCKET_OFFSET     34
 #define CONFIG_NETM_RDBUFSIZE   4096
-#define CONFIG_NETM_BAUD        750000
+#define CONFIG_NETM_BAUD        115200
 #define LINE_LEN 128
 #define ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
 
