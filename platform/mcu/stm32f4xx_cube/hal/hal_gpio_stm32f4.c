@@ -529,7 +529,7 @@ void enable_gpio_clk(GPIO_TypeDef *GPIOx)
     }
 #endif
     else {
-        return -1;
+        return ;
     }
 }
 
