@@ -13,6 +13,7 @@
 #include "sha256.h"
 #include "breeze_export.h"
 #include "chip_code.h"
+#include "bzopt.h"
 
 #define RANDOM_LEN 16
 #define SHA256_DATA_LEN 32
@@ -32,7 +33,6 @@ enum {
 };
 
 breeze_apinfo_t comboinfo;
-
 #define CLIENTID_STR "clientId"
 #define DEVICE_NAME_STR "deviceName"
 #define DEVICE_SECRET_STR "deviceSecret"
@@ -339,6 +339,7 @@ static void get_os_info(void)
 #endif
     g_extcmd.tlv_01_rsp_len = suffix_len;
 }
+
 
 ret_code_t extcmd_init(ali_init_t const *p_init, tx_func_t tx_func)
 {
