@@ -466,6 +466,7 @@ static void *wifi_stat_chg(hal_wifi_module_t *m, hal_wifi_event_t stat, void *ar
         default:
             break;
     }
+    return NULL;
 }
 
 static void start_mngt_monitor(char *ssid, char *pw)
