@@ -76,7 +76,7 @@ static void event_handler(ali_event_t *p_event)
 	    }
             break;
 	case BZ_CMD_CTX_INFO:
-	    if(p_event != NULL){
+	    if(p_event->rx_data.p_data != NULL){
                 struct rx_cmd_post_t *r_cmd  = (struct rx_cmd_post_t*) p_event->rx_data.p_data;
                 uint8_t cmd = r_cmd ->cmd;	
 		if(cmd == BZ_CMD_QUERY){
