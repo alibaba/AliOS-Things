@@ -43,7 +43,6 @@ void IOT_DumpMemoryStats(IOT_LogLevel level)
     LITE_dump_malloc_free_stats(lvl);
 }
 
-#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
 int IOT_SetupConnInfo(const char *product_key,
                       const char *device_name,
                       const char *device_secret,
@@ -127,8 +126,6 @@ int IOT_SetupConnInfo(const char *product_key,
 
     return rc;
 }
-
-#endif  /* #if defined(MQTT_COMM_ENABLED)   */
 
 int IOT_Ioctl(int option, void *data)
 {
