@@ -59,7 +59,7 @@ struct mac_hash_t {
 static struct mac_hash_t *g_mac_table[MAC_HASH_TABLE_SIZE] = {NULL};
 
 struct remote_conf {
-    char remote_ip[16];
+    char remote_ip[17];
     in_port_t remote_port;
 };
 
@@ -263,7 +263,7 @@ static void handle_set_server_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     if (argc != 3) return;
     memset(svr_conf_p->remote_ip, 0, sizeof(svr_conf_p->remote_ip));
-    strncpy(svr_conf_p->remote_ip, argv[1], sizeof(svr_conf_p->remote_ip));
+    strncpy(svr_conf_p->remote_ip, argv[1], sizeof(svr_conf_p->remote_ip) - 1);
     svr_conf_p->remote_port = (in_port_t)atol(argv[2]);
     aos_kv_set("server_ip", (const void *)svr_conf_p->remote_ip,
       sizeof(svr_conf_p->remote_ip), 1);
