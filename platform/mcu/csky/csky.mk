@@ -18,8 +18,8 @@ GLOBAL_DEFINES += WITH_LWIP
 endif
 
 ifeq ($(SAL),1)
-$(NAME)_COMPONENTS  += linkkit/sdk-c/src/services/mdal/sal \
-                       sal.wifi.esp8266
+$(NAME)_COMPONENTS  += sal.wifi.esp8266
+$(NAME)_COMPONENTS  += sal
 GLOBAL_DEFINES += WITH_SAL
 endif
 
@@ -52,6 +52,7 @@ GLOBAL_CFLAGS += $(INCLUDEDIRS)
 GLOBAL_LDFLAGS += -mcpu=ck802
 
 $(NAME)_PREBUILT_LIBRARY += ./csi/csi_driver/csky/common/tee/ck802/libcsiteeca.a
+$(NAME)_PREBUILT_LIBRARY += ./csi/csi_driver/csky/common/tee/ck802/libtee_client.a
 $(NAME)_INCLUDE := csi/csi_driver/include
 
 $(NAME)_SOURCES := hal/uart.c
