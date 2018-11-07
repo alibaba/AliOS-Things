@@ -199,6 +199,7 @@ int iotx_cm_close(int fd)
         while (!yield_task_leave) {
             HAL_SleepMs(10);
         }
+        HAL_ThreadDelete(yield_thread);
 #endif
     }
 
@@ -219,6 +220,7 @@ int iotx_cm_close(int fd)
             fd_lock = NULL;
         }
     }
+
     return 0;
 }
 
