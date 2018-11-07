@@ -694,10 +694,8 @@ int at_ica_mqtt_client_unsubscribe(const char *topic,
 
 int at_ica_mqtt_client_publish(const char *topic, int qos, const char *message)
 {
-//    int     packet_id;
-//    int     status;
-    char    at_cmd[AT_MQTT_CMD_MAX_LEN];
-    char    msg_convert[AT_MQTT_CMD_MAX_LEN];
+    char    at_cmd[AT_MQTT_CMD_MAX_LEN] = {0};
+    char    msg_convert[AT_MQTT_CMD_MAX_LEN] = {0};
     char   *temp;
     if ((topic == NULL)||(message == NULL)) {
 
@@ -705,9 +703,6 @@ int at_ica_mqtt_client_publish(const char *topic, int qos, const char *message)
 
         return -1;
     }
-
-    memset(at_cmd, 0, AT_MQTT_CMD_MAX_LEN);
-    memset(msg_convert, 0, AT_MQTT_CMD_MAX_LEN);
 
     temp = msg_convert;
 
