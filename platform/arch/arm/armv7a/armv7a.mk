@@ -1,5 +1,8 @@
 NAME := armv7a
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_TYPE := kernel
+
 $(NAME)_SOURCES := common/k_vector.c
 $(NAME)_SOURCES += common/k_cache.c
 $(NAME)_SOURCES += common/k_mmu_sd.c
@@ -63,10 +66,19 @@ $(NAME)_SOURCES += gcc/a7/port_s.S
 $(NAME)_SOURCES += gcc/a7/port_c.c
 GLOBAL_INCLUDES += gcc/a7
 else ifeq ($(HOST_ARCH),Cortex-A9)
+ifeq ($(ENABLE_USPACE),1)
+$(NAME)_SOURCES += gcc/syscall/a9/port_s.S
+$(NAME)_SOURCES += gcc/syscall/a9/vector_s.S
+$(NAME)_SOURCES += gcc/syscall/a9/port_c.c
+$(NAME)_SOURCES += gcc/syscall/svc/svc.S
+GLOBAL_INCLUDES += gcc/syscall/a9
+GLOBAL_INCLUDES += gcc/syscall/include
+else
 $(NAME)_SOURCES += gcc/a9/port_s.S
 $(NAME)_SOURCES += gcc/a9/vector_s.S
 $(NAME)_SOURCES += gcc/a9/port_c.c
 GLOBAL_INCLUDES += gcc/a9
+endif
 endif
 
 endif
