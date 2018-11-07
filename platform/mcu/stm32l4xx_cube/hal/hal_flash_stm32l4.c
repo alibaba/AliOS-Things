@@ -320,7 +320,7 @@ int32_t hal_flash_read(hal_partition_t pno, uint32_t *poff, void *buf, uint32_t 
     start_addr = FLASH_flat_addr(start_addr);
 #endif
 
-    len = (((buf_size % 8) == 0) ? (buf_size / 8) : (buf_size / 8 + 1));
+    len = (((buf_size % 8) == 0) ? buf_size : (ROUND_DOWN(buf_size, 8) + 8));
     pdata = (uint64_t *)krhino_mm_alloc(len);
     if (pdata == NULL) {
         return -1;
