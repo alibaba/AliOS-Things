@@ -19,7 +19,8 @@
 #define MAL_TIMEOUT_FOREVER -1
 #define MAL_MC_PACKET_ID_MAX (65535)
 #define MAL_MC_TOPIC_NAME_MAX_LEN (128)
-#define MAL_MC_MAX_BUFFER_NUM  1
+#define MAL_MC_DEFAULT_BUFFER_NUM  1
+#define MAL_MC_MAX_BUFFER_NUM  14
 #define MAL_MC_MAX_TOPIC_LEN   128
 #define MAL_MC_MAX_MSG_LEN     512
 
@@ -40,12 +41,16 @@
 typedef struct at_mqtt_msg_buff_s{
     uint8_t  write_index;
     uint8_t  read_index;
+    uint8_t  last_write_index;
     uint8_t  valid_flag[MAL_MC_MAX_BUFFER_NUM];
-    char     topic[MAL_MC_MAX_BUFFER_NUM][MAL_MC_MAX_TOPIC_LEN];
-    char     msg_data[MAL_MC_MAX_BUFFER_NUM][MAL_MC_MAX_MSG_LEN];
+    uint8_t  buffer_num;
+    char*    topic[MAL_MC_MAX_BUFFER_NUM];
+    char*    msg_data[MAL_MC_MAX_BUFFER_NUM];
     void*    buffer_mutex;
 } at_mqtt_msg_buff_t;
 static at_mqtt_msg_buff_t    g_at_mqtt_buff_mgr;
+static char g_at_mqtt_topic[MAL_MC_DEFAULT_BUFFER_NUM][MAL_MC_TOPIC_NAME_MAX_LEN];
+static char g_at_mqtt_msg_data[MAL_MC_DEFAULT_BUFFER_NUM][MAL_MC_MAX_MSG_LEN];
 
 static int mal_mc_check_state_normal(iotx_mc_client_t *c);
 static int mal_mc_release(iotx_mc_client_t *c);
@@ -96,7 +101,7 @@ static char mal_mc_is_topic_matched(char *topicFilter, const char *topicName)
         return 0;
     }
     char *curf = topicFilter;
-    char *curn = (char *)topicName;
+    char *curn = topicName;
     char *curn_end = curn + strlen(topicName);
 
     while (*curf && curn < curn_end) {
@@ -343,7 +348,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
     if (!c || !topic || !msg) {
         return FAIL_RETURN;
     }
-    mal_debug("iotx_mc_handle_recv_PUBLISH topic=%s msg=%s", topic, msg);
+    mal_debug("recv pub topic=%s msg=%s", topic, msg);
     /* flowControl for specific topic */
     static uint64_t time_prev = 0;
     uint64_t time_curr = 0;
@@ -351,13 +356,13 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
     int filterLen = strlen(filterStr);
 
     if (0 == memcmp(msg, filterStr, filterLen)) {
-        mal_debug("iotx_mc_handle_recv_PUBLISH match filterstring");
+        //mal_debug("iotx_mc_handle_recv_PUBLISH match filterstring");
         time_curr = HAL_UptimeMs();
         if (time_curr < time_prev) {
             time_curr = time_prev;
         }
         if ((time_curr - time_prev) <= (uint64_t)50) {
-            mal_debug("iotx_mc_handle_recv_PUBLISH mal over threshould");
+            mal_debug("pub over threshould");
             return SUCCESS_RETURN;
         } else {
             time_prev = time_curr;
@@ -371,7 +376,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
         if (((strlen(topic) == strlen(h->topic_filter))
            && (strcmp(topic, (char *)h->topic_filter) == 0))
            ||(mal_mc_is_topic_matched((char *)h->topic_filter, topic))) {
-            mal_debug("iotx_mc_handle_recv_PUBLISH topic be matched");
+            mal_debug("pub topic is matched");
 
             iotx_mc_topic_handle_t *msg_handle = h;
             HAL_MutexUnlock(c->lock_generic);
@@ -430,10 +435,12 @@ static int mal_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
     }
 
     if (mal_mc_get_client_state(c) != IOTX_MC_STATE_CONNECTED) {
+        mal_err("mal state = %d error", mal_mc_get_client_state(c));
         return MQTT_STATE_ERROR;
     }
 
     if (HAL_MDAL_MAL_State() != IOTX_MC_STATE_CONNECTED) {
+        mal_err("hal mal state = %d error", HAL_MDAL_MAL_State());
         mal_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         return MQTT_NETWORK_ERROR;
     }
@@ -614,11 +621,23 @@ int mal_mc_recv_buf_init()
 {
     g_at_mqtt_buff_mgr.read_index  = 0;
     g_at_mqtt_buff_mgr.write_index = 0;
+    g_at_mqtt_buff_mgr.last_write_index = 0;
+    g_at_mqtt_buff_mgr.buffer_num = MAL_MC_DEFAULT_BUFFER_NUM;
 
     for (int i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
+        if(i < MAL_MC_DEFAULT_BUFFER_NUM)
+        {
+            g_at_mqtt_buff_mgr.topic[i] = g_at_mqtt_topic[i];
+            g_at_mqtt_buff_mgr.msg_data[i] = g_at_mqtt_msg_data[i];
         memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
         memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
+        }
+        else
+        {
+           g_at_mqtt_buff_mgr.topic[i] = NULL;
+           g_at_mqtt_buff_mgr.msg_data[i] = NULL;
+        }
     }
 
     if (NULL == (g_at_mqtt_buff_mgr.buffer_mutex = HAL_MutexCreate())) {
@@ -633,11 +652,29 @@ void mal_mc_recv_buf_deinit()
 {
     g_at_mqtt_buff_mgr.read_index  = 0;
     g_at_mqtt_buff_mgr.write_index = 0;
+    g_at_mqtt_buff_mgr.last_write_index = 0;
 
     for (int i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
+        if(i < MAL_MC_DEFAULT_BUFFER_NUM)
+        {
         memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
         memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
+        }
+        else
+        {
+           if(i < g_at_mqtt_buff_mgr.buffer_num)
+           {
+               if(g_at_mqtt_buff_mgr.topic[i] != NULL)
+               {
+                   mal_free(g_at_mqtt_buff_mgr.topic[i]);
+               }
+               if(g_at_mqtt_buff_mgr.msg_data[i] != NULL)
+               {
+                   mal_free(g_at_mqtt_buff_mgr.msg_data[i]);
+               }
+           }
+        }
     }
 
     HAL_MutexDestroy(g_at_mqtt_buff_mgr.buffer_mutex);
@@ -855,33 +892,59 @@ int mal_mc_data_copy_to_buf(char *topic, char *message)
     HAL_MutexLock(g_at_mqtt_buff_mgr.buffer_mutex);
     write_index     = g_at_mqtt_buff_mgr.write_index;
 
-    if (g_at_mqtt_buff_mgr.valid_flag[write_index]) {
+    if ((g_at_mqtt_buff_mgr.valid_flag[write_index]) 
+         && (g_at_mqtt_buff_mgr.buffer_num == MAL_MC_MAX_BUFFER_NUM)) {
         mal_err("buffer is full");
 
         HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
         return -1;
     }
+    if(g_at_mqtt_buff_mgr.valid_flag[write_index])
+    {
+        int last_write_index = write_index;
+        g_at_mqtt_buff_mgr.last_write_index = last_write_index;
+        write_index = g_at_mqtt_buff_mgr.buffer_num;
+        mal_err("increase buffer to %d", g_at_mqtt_buff_mgr.buffer_num);
+        g_at_mqtt_buff_mgr.topic[write_index] = mal_malloc(MAL_MC_MAX_TOPIC_LEN);
+        if(g_at_mqtt_buff_mgr.topic[write_index] == NULL)
+        {
+            mal_err("increase buffer failed, drop it");
+            return -1;
+        }
+        g_at_mqtt_buff_mgr.msg_data[write_index] = mal_malloc(MAL_MC_MAX_MSG_LEN);
+        if(g_at_mqtt_buff_mgr.msg_data[write_index] == NULL)
+        {
+            mal_err("increase buffer failed, drop it");
+            mal_free(g_at_mqtt_buff_mgr.topic[write_index]);
+            return -1;
+        }
+        g_at_mqtt_buff_mgr.buffer_num ++;
+    }
+    else
+    {
+        g_at_mqtt_buff_mgr.last_write_index = 0;
+    }
 
     copy_ptr = g_at_mqtt_buff_mgr.topic[write_index];
-
-    while (*topic) {
-        *copy_ptr++ = *topic++;
-    }
-
+    memcpy(copy_ptr, topic, strlen(topic));
     copy_ptr = g_at_mqtt_buff_mgr.msg_data[write_index];
-
-    while (*message) {
-        *copy_ptr++ = *message++;
-    }
+    memcpy(copy_ptr, message, strlen(message));
 
     g_at_mqtt_buff_mgr.valid_flag[write_index] = 1;
     write_index++;
 
-    if (write_index >= MAL_MC_MAX_BUFFER_NUM) {
+    if (write_index >= g_at_mqtt_buff_mgr.buffer_num) {
         write_index = 0;
     }
 
+    if(g_at_mqtt_buff_mgr.last_write_index != 0)
+    {
+        g_at_mqtt_buff_mgr.write_index = g_at_mqtt_buff_mgr.last_write_index;
+    }
+    else
+    {
     g_at_mqtt_buff_mgr.write_index  = write_index;
+    }
     HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
 
     return 0;
@@ -906,23 +969,16 @@ int mal_mc_data_copy_from_buf(char *topic, char *message)
     }
 
     copy_ptr = g_at_mqtt_buff_mgr.topic[read_index];
-
-    while (*copy_ptr) {
-        *topic++ = *copy_ptr++;
-    }
-
+    memcpy(topic, copy_ptr, strlen(copy_ptr));
     copy_ptr = g_at_mqtt_buff_mgr.msg_data[read_index];
-
-    while (*copy_ptr) {
-        *message++ = *copy_ptr++;
-    }
+    memcpy(message, copy_ptr, strlen(copy_ptr));
 
     memset(g_at_mqtt_buff_mgr.topic[read_index], 0, MAL_MC_MAX_TOPIC_LEN);
     memset(g_at_mqtt_buff_mgr.msg_data[read_index], 0, MAL_MC_MAX_MSG_LEN);
     g_at_mqtt_buff_mgr.valid_flag[read_index] = 0;
     read_index++;
 
-    if (read_index >= MAL_MC_MAX_BUFFER_NUM) {
+    if (read_index >= g_at_mqtt_buff_mgr.buffer_num) {
 
         read_index = 0;
 
