@@ -820,12 +820,14 @@ static int iotx_mc_mask_pubInfo_from(iotx_mc_client_t *c, uint16_t msgId)
 /* return: 0, success; NOT 0, fail; */
 static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, iotx_mc_pub_info_t **node)
 {
-    int list_number = list_entry_number(&c->list_pub_wait_ack);
+    int list_number;
 
     if (!c || !node) {
         mqtt_err("the param of c is error!");
         return FAIL_RETURN;
     }
+
+    list_number = list_entry_number(&c->list_pub_wait_ack);
 
     if ((len < 0) || (len > c->buf_size_send)) {
         mqtt_err("the param of len is error!");
