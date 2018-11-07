@@ -112,9 +112,9 @@ int IOT_SetupConnInfo(const char *product_key,
         return SUCCESS_RETURN;
     }
 
-    if (0 == iotx_guider_auth_get()) {
-        rc = iotx_guider_authenticate();
-    }
+    //if (0 == iotx_guider_auth_get()) {
+    rc = iotx_guider_authenticate();
+    //}
     if (rc == 0) {
         iotx_guider_auth_set(1);
         *info_ptr = (void *)iotx_conn_info_get();
@@ -123,7 +123,6 @@ int IOT_SetupConnInfo(const char *product_key,
         *info_ptr = NULL;
     }
 #endif
-
     return rc;
 }
 
