@@ -54,6 +54,13 @@ int iotx_device_info_set(
 
 iotx_device_info_pt iotx_device_info_get(void)
 {
+    if (iotx_devinfo_inited == 0) {
+        memset(&iotx_device_info, 0x0, sizeof(iotx_device_info_t));
+        HAL_GetProductKey(iotx_device_info.product_key);
+        HAL_GetDeviceName(iotx_device_info.device_name);
+        HAL_GetDeviceSecret(iotx_device_info.device_secret);
+        HAL_GetDeviceID(iotx_device_info.device_id);
+    }
     return &iotx_device_info;
 }
 
