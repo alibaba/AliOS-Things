@@ -28,6 +28,12 @@
 #define BZ_ENABLE_OTA 0
 #endif
 
+#ifdef  EN_COMBO_NET
+#define BZ_ENABLE_COMBO_NET 1
+#else 
+#define BZ_ENABLE_COMBO_NET 0
+#endif
+
 #ifndef BZ_AUTH_MODEL_SEC
 #ifdef  BZ_ENABLE_AUTH
 #define BZ_AUTH_MODEL_SEC 0
