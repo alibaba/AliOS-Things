@@ -20,8 +20,11 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iotx_utils.h"
-#include "iotx_ota.h"
 #include "iotx_system.h"
+
+#ifdef OTA_ENABLED
+    #include "iotx_ota.h"
+#endif
 
 #ifdef DEV_BIND_ENABLED
     #include "awss.h"
