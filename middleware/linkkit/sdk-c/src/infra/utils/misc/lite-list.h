@@ -182,7 +182,7 @@ static inline int dlist_empty(const dlist_t *head)
  *
  * @param[in]  queue  the head for your list.
  */
-static inline int dlist_entry_number(dlist_t *queue)
+static inline int __dlist_entry_number(dlist_t *queue)
 {
     int num;
     dlist_t *cur = queue;
@@ -192,7 +192,13 @@ static inline int dlist_entry_number(dlist_t *queue)
     return num;
 }
 
-
+/*
+ * Get the list length.
+ *
+ * @param[in]  queue  the head for your list.
+ */
+#define dlist_entry_number(head) \
+    __dlist_entry_number(head)
 
 /*
  * Initialise the list.
