@@ -329,6 +329,8 @@ static void iotx_coap_mid_rsphdl(void *arg, void *p_response)
 static int coap_report_func(void *handle, const char *topic_name,int req_ack,void *data, int len)
 {
     iotx_message_t          message;
+    char coap_topic[100] = {0};
+
     memset(&message ,0 , sizeof(iotx_message_t));
     message.p_payload = (unsigned char *)data;
     message.payload_len = len;
@@ -339,8 +341,9 @@ static int coap_report_func(void *handle, const char *topic_name,int req_ack,voi
         message.msg_type = IOTX_MESSAGE_CON;
     }
     message.content_type = IOTX_CONTENT_TYPE_JSON;
-
-    return IOT_CoAP_SendMessage(handle, (char *)topic_name, &message);
+    
+    HAL_Snprintf(coap_topic,100,"/topic%s",topic_name);                 
+    return IOT_CoAP_SendMessage(handle, (char *)coap_topic, &message);
 }
 
 int iotx_aes_cbc_encrypt(const unsigned char *src, int len, const unsigned char *key, void *out)
