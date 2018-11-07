@@ -140,7 +140,7 @@ iotx_err_t IOT_Shadow_PushFormat_Finalize(void *pshadow, format_data_pt pformat)
 int IOT_Shadow_Push_Async(
             void *handle,
             char *data,
-            size_t data_len,
+            unsigned int data_len,
             uint16_t timeout_s,
             iotx_push_cb_fpt cb_fpt,
             void *pcontext)
