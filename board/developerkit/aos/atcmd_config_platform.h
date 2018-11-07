@@ -6,6 +6,6 @@
 #define _ATCMD_CONFIG_PLATFORM_H_
 
 // AT uart
-#define AT_UART_PORT 3
+#define AT_UART_PORT 1
 
 #endif

@@ -12,8 +12,8 @@ ENABLE_VFP           := 1
 $(NAME)_SOURCES += aos/board_partition.c \
                    aos/soc_init.c
                    
-$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c 
-                   
+$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c \
+                   Src/main.c 
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup_stm32l433xx_keil.s    
 else ifeq ($(COMPILER), iar)
@@ -29,7 +29,7 @@ GLOBAL_INCLUDES += . \
 				   
 GLOBAL_CFLAGS += -DSTM32L433xx 
 
-GLOBAL_DEFINES += STDIO_UART=2
+GLOBAL_DEFINES += STDIO_UART=0
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/stm32l433rc-nucleo/STM32L433.sct

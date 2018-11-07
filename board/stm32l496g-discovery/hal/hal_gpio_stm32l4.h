@@ -74,25 +74,6 @@
 #define HAL_GPIO_46                ((uint8_t)46)       /* represent GPIOC pin 14 */
 #define HAL_GPIO_47                ((uint8_t)47)       /* represent GPIOC pin 15 */	
 
-#define SW_FUNC_B HAL_GPIO_45
-#define LCD_PWR HAL_GPIO_0
-#define LCD_RST HAL_GPIO_1
-#define LCD_NSS HAL_GPIO_4
-#define LCD_SCK HAL_GPIO_5
-#define LCD_TX HAL_GPIO_7
-#define SW_WIFI HAL_GPIO_16
-#define LCD_DCX HAL_GPIO_17
-#define LED_GS HAL_GPIO_18
-#define AUDIO_EN HAL_GPIO_8
-#define SW_FUNC_A HAL_GPIO_11
-#define LED_PS HAL_GPIO_12
-#define LED_HTS HAL_GPIO_15
-#define WIFI_RST HAL_GPIO_20
-#define LED_ALS HAL_GPIO_21
-#define WIFI_TX HAL_GPIO_22
-#define WIFI_RX HAL_GPIO_23
-#define ALS_INT HAL_GPIO_24
-#define WIFI_WU HAL_GPIO_25
 
 #define GPIOA_SPEED	 GPIO_SPEED_FREQ_VERY_HIGH
 
