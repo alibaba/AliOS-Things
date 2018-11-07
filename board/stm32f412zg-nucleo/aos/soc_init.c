@@ -108,9 +108,6 @@ void stm32_soc_init(void)
     /**Configure the Systick interrupt time 
     */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
-
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
     
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -121,7 +118,11 @@ void stm32_soc_init(void)
     __HAL_RCC_GPIOG_CLK_ENABLE();
 
     MX_DMA_Init();
-    
+
+}
+
+void stm32_peripheral_init(void)
+{
     /*default uart init*/
     stduart_init();
     /*gpio init*/
@@ -131,7 +132,6 @@ void stm32_soc_init(void)
     /*i2c bus 1 init*/
     I2C1_init();
 }
-
 
 /**
 * @brief This function handles System tick timer.

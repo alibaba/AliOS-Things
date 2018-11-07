@@ -7,6 +7,9 @@
 #include "k_config.h"
 #include "soc_init.h"
 
+#include "stm32l4xx_hal.h"
+#include "hal_uart_stm32l4.h"
+
 #include "Inc/adc.h"
 #include "Inc/crc.h"
 #include "Inc/dcmi.h"
@@ -40,6 +43,13 @@ static void brd_peri_init(void);
 
 extern void SystemClock_Config(void);
 
+UART_MAPPING UART_MAPPING_TABLE[] =
+{
+    { PORT_UART_STD,     LPUART1, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} },
+    { PORT_UART_AT,      USART3,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} },
+    { PORT_UART_ARDUINO, USART2,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} }
+};
+
 void stm32_soc_init(void)
 {
     HAL_Init();
@@ -47,11 +57,9 @@ void stm32_soc_init(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /**Configure the Systick interrupt time 
-    */
+    /**Configure the Systick interrupt time */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
+
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -59,12 +67,7 @@ void stm32_soc_init(void)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
-    /*default uart init*/
-    stduart_init();
-    brd_peri_init();
-    //sufficient time to make the initial GPIO level works, especially wifi reset
-    aos_msleep(50);
-    hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
+
     MX_DMA_Init();
     MX_ADC3_Init();
 #ifndef ARDUINO_SPI_I2C_ENABLED
@@ -78,11 +81,24 @@ void stm32_soc_init(void)
     MX_TIM17_Init();
     MX_TIM16_Init();
     MX_IRTIM_Init();
+}
+
+void stm32_soc_peripheral_init(void)
+{
+    /*default uart init*/
+    stduart_init();
+    brd_peri_init();
+    //sufficient time to make the initial GPIO level works, especially wifi reset
+    aos_msleep(50);
+    hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
 
 #ifdef DEVELOPERKIT_IRDA
     irda_init();
 #endif
+
 }
+
+
 
 static void stduart_init(void)
 {
@@ -146,7 +162,7 @@ static void brd_peri_init(void)
     int gpcfg_num = sizeof(brd_gpio_table) / sizeof(brd_gpio_table[0]);
 
     for (i = 0; i < gpcfg_num; ++i) {
-    	hal_gpio_init(&brd_gpio_table[i]);
+        hal_gpio_init(&brd_gpio_table[i]);
     }
     hal_i2c_init(&brd_i2c2_dev);
     hal_i2c_init(&brd_i2c3_dev);

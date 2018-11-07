@@ -12,7 +12,9 @@ ENABLE_VFP           := 1
 $(NAME)_SOURCES += aos/board_partition.c \
                    aos/soc_init.c
                    
-$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c Src/board_drv_led.c
+$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c \
+                   Src/board_drv_led.c \
+                   Src/main.c
                    
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup_stm32l476xx_keil.s    
@@ -29,9 +31,10 @@ GLOBAL_INCLUDES += . \
 				   
 GLOBAL_CFLAGS += -DSTM32L476xx 
 
+GLOBAL_DEFINES += STDIO_UART=0
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=board/stm32l476rg-nucleo/stm32l476.sct
+GLOBAL_LDFLAGS += -L --scatter=board/stm32l476rg-nucleo/STM32L476RGTx_FLASH.sct
 else ifeq ($(COMPILER),iar)
 GLOBAL_LDFLAGS += --config stm32l476.icf
 else
@@ -47,8 +50,7 @@ GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
 
 ifeq ($(COMPILER),armcc)
-$(NAME)_LINK_FILES := startup_stm32l433xx_keil.o
-$(NAME)_LINK_FILES += Src/stm32l4xx_hal_msp.o
+$(NAME)_LINK_FILES := startup_stm32l476xx_keil.o
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_476-nucleo

@@ -49,6 +49,35 @@
 
 /* USER CODE BEGIN 1 */
 
+void DMA1_Channel3_IRQHandler(void)
+{
+    krhino_intrpt_enter();
+    USART_DMA_RX_IRQHandler(USART3);
+    krhino_intrpt_exit();
+}
+
+void DMA1_Channel2_IRQHandler(void)
+{
+    krhino_intrpt_enter();
+    USART_DMA_TX_IRQHandler(USART3);
+    krhino_intrpt_exit();
+}
+
+void DMA1_Channel6_IRQHandler(void)
+{
+    krhino_intrpt_enter();
+    USART_DMA_RX_IRQHandler(USART2);
+    krhino_intrpt_exit();
+}
+
+void DMA1_Channel7_IRQHandler(void)
+{
+    krhino_intrpt_enter();
+    USART_DMA_TX_IRQHandler(USART2);
+    krhino_intrpt_exit();
+}
+
+
 /* USER CODE END 1 */
 
 /** 
@@ -57,13 +86,25 @@
 void MX_DMA_Init(void) 
 {
   /* DMA controller clock enable */
-  __HAL_RCC_DMA2_CLK_ENABLE();
   __HAL_RCC_DMA1_CLK_ENABLE();
+  __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Channel2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
+  /* DMA1_Channel3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel3_IRQn);
   /* DMA1_Channel6_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
+  /* DMA1_Channel7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
+  /* DMA2_Channel3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Channel3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Channel3_IRQn);
   /* DMA2_Channel6_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Channel6_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Channel6_IRQn);
