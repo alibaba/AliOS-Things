@@ -12,12 +12,12 @@ ENABLE_VFP           := 1
 $(NAME)_SOURCES += aos/board_partition.c \
                    aos/soc_init.c
                    
-$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c 
-                   
+$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c \
+                   Src/main.c 
 ifeq ($(COMPILER), armcc)
-$(NAME)_SOURCES += CMSIS/Device/ST/STM32L4xx/Source/Templates/arm/startup_stm32l432xx.s    
+$(NAME)_SOURCES += startup_stm32l432xx_keil.s    
 else ifeq ($(COMPILER), iar)
-$(NAME)_SOURCES += CMSIS/Device/ST/STM32L4xx/Source/Templates/arm/startup_stm32l432xx.s   
+$(NAME)_SOURCES += startup_stm32l432xx_iar.s
 else
 $(NAME)_SOURCES += startup_stm32l432xx.s
 endif
@@ -29,14 +29,14 @@ GLOBAL_INCLUDES += . \
 				   
 GLOBAL_CFLAGS += -DSTM32L432xx 
 
-GLOBAL_DEFINES += STDIO_UART=2
+GLOBAL_DEFINES += STDIO_UART=0
 
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=
+GLOBAL_LDFLAGS += -L --scatter=board/stm32l432kc-nucleo/STM32L432KCUx_FLASH.sct
 else ifeq ($(COMPILER),iar)
 GLOBAL_LDFLAGS += --config 
 else
-GLOBAL_LDFLAGS += -T board/stm32l433rc-nucleo/STM32L433RCTxP_FLASH.ld
+GLOBAL_LDFLAGS += -T board/stm32l432kc-nucleo/STM32L432KCUx_FLASH.ld
 endif
 
 sal ?= 1
@@ -45,6 +45,10 @@ $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
+endif
+
+ifeq ($(COMPILER),armcc)
+$(NAME)_LINK_FILES := startup_stm32l432xx_keil.o
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_432-nucleo

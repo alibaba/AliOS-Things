@@ -6,9 +6,10 @@
 #include "hal/hal.h"
 #include "k_config.h"
 #include "board.h"
+
+#include "stm32l4xx_hal.h"
+#include "hal_uart_stm32l4.h"
 #include "hal/hal_i2c_stm32l4.h"
-#define main st_main
-#include "Src/main.c"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -23,10 +24,22 @@
 #define GETCHAR_PROTOTYPE int __io_getchar(void)
 #endif /* defined (__CC_ARM) && defined(__MICROLIB) */
 
+#if defined (__CC_ARM)
+size_t g_iram1_start = 0x20000000;
+size_t g_iram1_total_size = 0x00018000;
+#endif
+
 uart_dev_t uart_0;
 i2c_dev_t brd_i2c1_dev = {1, {0}, NULL};
 
 static void stduart_init(void);
+
+UART_MAPPING UART_MAPPING_TABLE[] =
+{
+    { PORT_UART_STD,     USART2, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 512} },
+    { PORT_UART_AT,      USART1,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} }
+};
+
 
 void stm32_soc_init(void)
 {
@@ -35,21 +48,24 @@ void stm32_soc_init(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /**Configure the Systick interrupt time 
-    */
+    /**Configure the Systick interrupt time */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
-    
-    /*default uart init*/
+
     MX_GPIO_Init();
+
+    MX_DMA_Init();
+}
+
+void stm32_soc_peripheral_init(void)
+{
+    /*default uart init*/
     stduart_init();
     hal_i2c_init(&brd_i2c1_dev);
 }
 
 static void stduart_init(void)
 {
-    uart_0.port = STDIO_UART;
+    uart_0.port = 0;
     uart_0.config.baud_rate = 115200;
     uart_0.config.data_width = DATA_WIDTH_8BIT;
     uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
@@ -60,14 +76,13 @@ static void stduart_init(void)
     hal_uart_init(&uart_0);
 }
 
-
 /**
 * @brief This function handles System tick timer.
 */
 void SysTick_Handler(void)
 {
-  HAL_IncTick();
   krhino_intrpt_enter();
+  HAL_IncTick();
   krhino_tick_proc();
   krhino_intrpt_exit();
 }

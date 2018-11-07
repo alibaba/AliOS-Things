@@ -7,8 +7,9 @@
 #include "k_config.h"
 #include "soc_init.h"
 
-#define main st_main
-#include "Src/main.c"
+#include "stm32l4xx_hal.h"
+#include "hal_uart_stm32l4.h"
+
 
 #ifdef LITTLEVGL_STARTERKIT
 #include "lvgl/lvgl.h"
@@ -17,8 +18,6 @@
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
-size_t g_iram1_start = 0x20000000;
-size_t g_iram1_total_size = 0x00010000;
 #elif defined(__ICCARM__)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
@@ -29,6 +28,11 @@ size_t g_iram1_total_size = 0x00010000;
 #define GETCHAR_PROTOTYPE int __io_getchar(void)
 #endif /* defined (__CC_ARM) && defined(__MICROLIB) */
 
+#if defined (__CC_ARM)
+size_t g_iram1_start = 0x20000000;
+size_t g_iram1_total_size = 0x00010000;
+#endif
+
 uart_dev_t uart_0;
 
 static void stduart_init(void);
@@ -38,6 +42,13 @@ static void MX_SAI1_Init(void);
 static void MX_CRC_Init(void);
 static void MX_DMA_Init(void);
 
+UART_MAPPING UART_MAPPING_TABLE[] =
+{
+    { PORT_UART_STD,     USART2, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 512} },
+    { PORT_UART_AT,      USART1,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} }
+};
+
+
 void stm32_soc_init(void)
 {
     HAL_Init();
@@ -45,32 +56,38 @@ void stm32_soc_init(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /**Configure the Systick interrupt time
-    */
+    /**Configure the Systick interrupt time */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
 
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0xf, 0xf);
-    /* SysTick_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(SysTick_IRQn, 0xf, 0xf);
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    MX_DMA_Init();
+    MX_SAI1_Init();
+    MX_SPI1_Init();
 
+    MX_CRC_Init();
+    
+}
+
+void stm32_soc_peripheral_init(void)
+{
     /*default uart init*/
     stduart_init();
     brd_peri_init();
     //sufficient time to make the initial GPIO level works, especially wifi reset
     aos_msleep(50);
     hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
-    MX_DMA_Init();
-    MX_SAI1_Init();
-    MX_SPI1_Init();
-
-    MX_CRC_Init();
 
 #ifdef STARTERKIT_AUDIO
     drv_codec_nau8810_init();
     audio_init();
 #endif
+
 }
+
+
 
 static void stduart_init(void)
 {
@@ -119,10 +136,10 @@ static void brd_peri_init(void)
     for (i = 0; i < gpcfg_num; ++i) {
         hal_gpio_init(&brd_gpio_table[i]);
     }
-
+    
     hal_i2c_init(&brd_i2c1_dev);
     hal_i2c_init(&brd_i2c2_dev);
-
+    
 }
 /**
 * @brief This function handles System tick timer.
@@ -174,7 +191,7 @@ GETCHAR_PROTOTYPE
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
   uint8_t ch = EOF;
   int32_t ret = -1;
-
+  
   uint32_t recv_size;
   ret = hal_uart_recv_II(&uart_0, &ch, 1, &recv_size, HAL_WAIT_FOREVER);
 
@@ -183,7 +200,6 @@ GETCHAR_PROTOTYPE
   } else {
       return -1;
   }
-
 }
 
 
