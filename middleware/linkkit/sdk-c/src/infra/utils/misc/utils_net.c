@@ -25,7 +25,7 @@ static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len
 
 static int disconnect_tcp(utils_network_pt pNetwork)
 {
-    if (pNetwork->handle < 0) {
+    if (pNetwork->handle == (uintptr_t)(-1)) {
         return -1;
     }
 
@@ -42,7 +42,7 @@ static int connect_tcp(utils_network_pt pNetwork)
     }
 
     pNetwork->handle = HAL_TCP_Establish(pNetwork->pHostAddress, pNetwork->port);
-    if (pNetwork->handle < 0) {
+    if (pNetwork->handle == (uintptr_t)(-1)) {
         return -1;
     }
 
