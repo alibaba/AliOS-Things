@@ -32,7 +32,7 @@ ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += startup_stm32f411xe_keil.s    
 $(NAME)_LINK_FILES := startup_stm32f411xe_keil.o
 else ifeq ($(COMPILER), iar)
-$(NAME)_SOURCES += startup_stm32f411xx_iar.s  
+$(NAME)_SOURCES += startup_stm32f411xe_iar.s  
 else
 $(NAME)_SOURCES += startup_stm32f411xe.s
 endif
@@ -48,7 +48,7 @@ GLOBAL_CFLAGS += -DSTM32F411xE -DSRAM1_SIZE_MAX=0x20000 -DCENTRALIZE_MAPPING
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/stm32f411re-nucleo/stm32f411xe.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config board/stm32f411re-nucleo/STM32L411.icf
+GLOBAL_LDFLAGS += --config board/stm32f411re-nucleo/STM32F411.icf
 else
 GLOBAL_LDFLAGS += -T board/stm32f411re-nucleo/STM32F411RETx_FLASH.ld
 endif
