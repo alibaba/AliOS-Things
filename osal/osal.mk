@@ -3,7 +3,7 @@ NAME := osal
 $(NAME)_MBINS_TYPE := share
 $(NAME)_COMPONENTS += middleware.common
 
-GLOBAL_INCLUDES += ./mico/include ./include
+GLOBAL_INCLUDES += ./mico/include ./aos/include
 
 #default gcc
 ifeq ($(COMPILER),)
@@ -23,28 +23,28 @@ ifeq ($(osal),freertos)
 GLOBAL_DEFINES += OSAL_FREERTOS
 
 $(NAME)_SOURCES += \
-    aos/aos_freertos.c
+    aos/ext/aos_freertos.c
 endif
 
 ifeq ($(osal),posix)
 GLOBAL_DEFINES += OSAL_POSIX
 
 $(NAME)_SOURCES += \
-    aos/aos_posix.c
+    aos/ext/aos_posix.c
 endif
 
 ifeq ($(osal),rhino_sxr)
 GLOBAL_DEFINES += OSAL_SXR
 
 $(NAME)_SOURCES += \
-    aos/aos_sxr.c
+    aos/ext/aos_sxr.c
 endif
 
 ifeq ($(osal),rhino_sxr_mutios)
 GLOBAL_DEFINES += OSAL_SXR_MUTIOS
 
 $(NAME)_SOURCES += \
-    aos/aos_rhino_rda8955.c
+    aos/ext/aos_rhino_rda8955.c
 endif
 
 ifeq ($(osal),rhino)
