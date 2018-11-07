@@ -223,7 +223,7 @@ int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY_MA
         return DM_INVALID_PARAMETER;
     }
 
-    if (device_secret != NULL && (strlen(device_secret) == 0 || strlen(device_secret) >= DEVICE_SECRET_MAXLEN)) {
+    if (device_secret != NULL && strlen(device_secret) >= DEVICE_SECRET_MAXLEN) {
         return DM_INVALID_PARAMETER;
     }
 
