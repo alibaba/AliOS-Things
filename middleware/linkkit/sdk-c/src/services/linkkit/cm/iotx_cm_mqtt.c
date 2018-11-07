@@ -465,7 +465,7 @@ static void _set_common_handlers()
         _mqtt_conncection->sub_func = _mqtt_sub;
         _mqtt_conncection->unsub_func = _mqtt_unsub;
         _mqtt_conncection->pub_func = _mqtt_publish;
-        _mqtt_conncection->yield_func = _mqtt_yield;
+        _mqtt_conncection->yield_func = (iotx_cm_yield_fp)_mqtt_yield;
         _mqtt_conncection->close_func = _mqtt_close;
     }
 }
