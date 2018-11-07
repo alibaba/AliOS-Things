@@ -140,6 +140,7 @@ int IOT_Ioctl(int option, void *data)
     switch (option) {
         case IOTX_IOCTL_SET_REGION: {
             ctx->domain_type = *(int *)data;
+            iotx_guider_auth_set(0);
             iotx_guider_set_region(*(int *)data);
 
             res = SUCCESS_RETURN;
@@ -153,6 +154,7 @@ int IOT_Ioctl(int option, void *data)
         break;
         case IOTX_IOCTL_SET_MQTT_DOMAIN: {
             ctx->domain_type = GUIDER_REGION_CUSTOM;
+            iotx_guider_auth_set(0);
             iotx_guider_set_region(GUIDER_REGION_CUSTOM);
 
             res = iotx_guider_set_custom_domain(GUIDER_DOMAIN_MQTT, (const char *)data);
@@ -160,6 +162,7 @@ int IOT_Ioctl(int option, void *data)
         break;
         case IOTX_IOCTL_SET_HTTP_DOMAIN: {
             ctx->domain_type = GUIDER_REGION_CUSTOM;
+            iotx_guider_auth_set(0);
             iotx_guider_set_region(GUIDER_REGION_CUSTOM);
 
             res = iotx_guider_set_custom_domain(GUIDER_DOMAIN_HTTP, (const char *)data);
