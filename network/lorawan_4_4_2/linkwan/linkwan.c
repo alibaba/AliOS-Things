@@ -660,8 +660,10 @@ void lora_fsm(void)
                         mlmeReq.Req.Join.NbTrials = 3;
                     } else {
                         mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
-                        LoRaMacMibGetRequestConfirm(&mibReq);
-                        mlmeReq.Req.Join.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+
+                        if (LORAMAC_STATUS_OK == LoRaMacMibGetRequestConfirm(&mibReq)) {
+                            mlmeReq.Req.Join.Datarate = mibReq.Param.ChannelsDefaultDatarate;
+                        }
 
                         mlmeReq.Req.Join.NbTrials = num_trials;
                     }
@@ -732,6 +734,8 @@ void lora_fsm(void)
                     mlmeReq.Type = MLME_BEACON_ACQUISITION;
 
                     LoRaMacMlmeRequest( &mlmeReq );
+
+                    DBG_LINKWAN("Searching Beacon, wait ......");
 
                     next_tx = false;
                 }
