@@ -1,8 +1,21 @@
 /*
- * Copyright (C) 2015-2018 Alibaba Group Holding Limited
- */
-
-
+Copyright (c) 2009-2017 Dave Gamble and cJSON contributors
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 
 #ifndef cJSON__h
 #define cJSON__h
@@ -17,6 +30,7 @@ extern "C"
 #define CJSON_VERSION_MINOR 5
 #define CJSON_VERSION_PATCH 3
 
+#include <stdint.h>
 #include <stddef.h>
 
 	/* cJSON Types: */
@@ -55,12 +69,6 @@ extern "C"
 		/* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
 		char *string;
 	} cJSON;
-
-	typedef struct cJSON_Hooks
-	{
-		void *(*malloc_fn)(size_t sz);
-		void(*free_fn)(void *ptr);
-	} cJSON_Hooks;
 
 	typedef int cJSON_bool;
 
@@ -110,9 +118,6 @@ extern "C"
 
 	/* returns the version of cJSON as a string */
 	CJSON_PUBLIC(const char*) cJSON_Version(void);
-
-	/* Supply malloc, realloc and free functions to cJSON */
-	CJSON_PUBLIC(void) cJSON_InitHooks(cJSON_Hooks* hooks);
 
 	/* Memory Management: the caller is always responsible to free the results from all variants of cJSON_Parse (with cJSON_Delete) and cJSON_Print (with stdlib free, cJSON_Hooks.free_fn, or cJSON_free as appropriate). The exception is cJSON_PrintPreallocated, where the caller has full responsibility of the buffer. */
 	/* Supply a block of JSON, and this returns a cJSON object you can interrogate. */
