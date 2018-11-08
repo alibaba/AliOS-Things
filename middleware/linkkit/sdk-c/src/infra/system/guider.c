@@ -58,7 +58,6 @@ const char *domain_http_auth_pre[] = {
 #define GUIDER_DIRECT_DOMAIN_ITLS       "itls.cn-shanghai.aliyuncs.com"
 
 static int iotx_guider_region = 0;
-static int iotx_guider_authed = 0;
 char iotx_domain_custom[GUIDER_DOMAIN_MAX][CUSTOME_DOMAIN_LEN_MAX] = {0};
 
 int iotx_guider_set_region(int region_type)
@@ -117,16 +116,6 @@ int iotx_guider_set_custom_domain(int domain_type, const char *domain)
     memcpy(iotx_domain_custom[domain_type], domain, len);
 
     return SUCCESS_RETURN;
-}
-
-void iotx_guider_auth_set(int authed)
-{
-    iotx_guider_authed = authed;
-}
-
-int iotx_guider_auth_get(void)
-{
-    return iotx_guider_authed;
 }
 
 static int _calc_hmac_signature(

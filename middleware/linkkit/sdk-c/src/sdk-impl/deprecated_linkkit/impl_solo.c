@@ -601,7 +601,6 @@ int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
     LITE_set_loglevel(log_level);
 
     /* Set Region */
-    iotx_guider_auth_set(0);
     iotx_guider_set_region(domain_type);
 
     /* Initialize Device Manager */
