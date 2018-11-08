@@ -7,5 +7,5 @@ menu "Kernel Configuration"
     source "kernel/rhino/mm/Config.in"
 
     # "This is memory management configuration"
-    source "kernel/rhino/fs/kv/Config.in"
+    source "kernel/fs/kv/Config.in"
 endmenu
