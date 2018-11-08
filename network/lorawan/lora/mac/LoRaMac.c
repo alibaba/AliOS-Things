@@ -39,7 +39,7 @@ Jaeckle ( STACKFORCE )
 
 #if defined(CONFIG_LINKWAN) && defined(AOS_KV)
 #include <assert.h>
-#include "kvmgr.h"
+#include <aos/kv.h>
 #endif
 
 /*!
