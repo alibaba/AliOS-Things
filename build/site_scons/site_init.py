@@ -308,7 +308,7 @@ class base_process_impl(process):
         aos_global_config.aos_env.Append(CPPDEFINES='BUILD_BIN')
         
         #temporarily add include path aos.h need
-        aos_global_config.component_includes.append('#kernel/rhino/fs/kv/include')
+        aos_global_config.component_includes.append('#kernel/fs/kv/include')
         aos_global_config.component_includes.append('#network/yloop/include')
         aos_global_config.component_includes.append('#network/include')
 

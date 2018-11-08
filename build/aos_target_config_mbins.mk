@@ -330,7 +330,7 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
                     -I$(SOURCE_ROOT)middleware/linkkit/sdk/hal-impl/refs \
                     -I$(SOURCE_ROOT)middleware/linkkit/sdk/sdk-encap \
                     -I$(SOURCE_ROOT)middleware/linkkit/sdk/sdk-encap/imports \
-                    -I$(SOURCE_ROOT)kernel/rhino/fs/kv/include \
+                    -I$(SOURCE_ROOT)kernel/fs/kv/include \
                     -I$(SOURCE_ROOT)tools/cli/include \
                     -I$(SOURCE_ROOT)utility/log/include
 
