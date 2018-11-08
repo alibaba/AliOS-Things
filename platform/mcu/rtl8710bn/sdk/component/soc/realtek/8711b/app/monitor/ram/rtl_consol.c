@@ -294,7 +294,7 @@ UartLogCmdExecuteRam(
 		if (cmd_handler != NULL) {
 			StrUpr(argv[0]);
 			cmd_handler((argc-1) , (argv+1));
-			ArrayInitialize(argv[0], sizeof(argv[0]) ,0);
+			ArrayInitialize((u8 *)argv[0], (u8)sizeof(argv[0]) ,0);
 			return TRUE;
 		}
 	}
