@@ -7,6 +7,7 @@
 
 
 #include "stdio.h"
+#include "iotx_system.h"
 #include "Cloud_CoAPExport.h"
 #include "Cloud_CoAPSerialize.h"
 #include "Cloud_CoAPDeserialize.h"
@@ -341,6 +342,9 @@ static int Cloud_CoAPRespMessage_handle(Cloud_CoAPContext *context, Cloud_CoAPMe
             && 0 == memcmp(node->token, message->token, message->header.tokenlen)) {
 
             COAP_DEBUG("Find the node by token");
+            COAP_INFO("Downstream Payload:");
+            iotx_facility_json_print((const char *)message->payload, LOG_INFO_LEVEL, '<');
+
             message->user  = node->user;
             if (COAP_MSG_CODE_400_BAD_REQUEST <= message->header.code) {
                 /* TODO:i */
