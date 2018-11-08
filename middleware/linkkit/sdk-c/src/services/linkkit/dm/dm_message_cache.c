@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 #include "iotx_dm_internal.h"
 
 dm_msg_cache_ctx_t g_dm_msg_cache_ctx;
@@ -174,4 +172,4 @@ void dm_msg_cache_tick(void)
     }
     _dm_msg_cache_mutex_unlock();
 }
-
+#endif

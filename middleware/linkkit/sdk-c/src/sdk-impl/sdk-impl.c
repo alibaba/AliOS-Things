@@ -180,6 +180,7 @@ int IOT_Ioctl(int option, void *data)
         }
         break;
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
         case IOTX_IOCTL_RECV_EVENT_REPLY:
         case IOTX_IOCTL_RECV_PROP_REPLY: {
             res = iotx_dm_set_opt(IMPL_LINKKIT_IOCTL_SWITCH_EVENT_POST_REPLY, data);
@@ -189,6 +190,7 @@ int IOT_Ioctl(int option, void *data)
             res = iotx_dm_set_opt(IMPL_LINKKIT_IOCTL_SWITCH_PROPERTY_SET_REPLY, data);
         }
         break;
+#endif
         case IOTX_IOCTL_SET_SUBDEV_SIGN: {
             /* todo */
         }

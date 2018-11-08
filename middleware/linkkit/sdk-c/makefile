@@ -55,6 +55,8 @@ $(call CompLib_Map, FEATURE_SAL_ENABLED, \
 $(call Conflict_Relation, FEATURE_SUPPORT_TLS, FEATURE_SUPPORT_ITLS)
 $(call Conflict_Relation, FEATURE_MAL_ENABLED, FEATURE_MQTT_COMM_ENABLED)
 $(call Conflict_Relation, FEATURE_MAL_ENABLED, FEATURE_SAL_ENABLED)
+$(call Conflict_Relation, FEATURE_DEVICE_MODEL_RAWDATA_SOLO, FEATURE_DEPRECATED_LINKKIT)
+$(call Conflict_Relation, FEATURE_DEVICE_MODEL_RAWDATA_SOLO, FEATURE_DEVICE_MODEL_GATEWAY)
 
 # 'Opt1 = n' and 'Opt2 = n' conflicts with each other
 #

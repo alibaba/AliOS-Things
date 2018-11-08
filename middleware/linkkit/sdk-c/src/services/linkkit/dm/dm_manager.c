@@ -572,31 +572,6 @@ int dm_mgr_dev_initialized(int devid)
     return SUCCESS_RETURN;
 }
 
-static int _dm_mgr_upstream_request_assemble(_IN_ int msgid, _IN_ int devid, _IN_ const char *service_prefix,
-        _IN_ const char *service_name,
-        _IN_ char *params, _IN_ int params_len, _IN_ char *method, _OU_ dm_msg_request_t *request)
-{
-    int res = 0;
-    dm_mgr_dev_node_t *node = NULL;
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    request->msgid = msgid;
-    request->devid = devid;
-    request->service_prefix = service_prefix;
-    request->service_name = service_name;
-    memcpy(request->product_key, node->product_key, strlen(node->product_key));
-    memcpy(request->device_name, node->device_name, strlen(node->device_name));
-    request->params = params;
-    request->params_len = params_len;
-    request->method = method;
-
-    return SUCCESS_RETURN;
-}
-
 #ifdef DEVICE_MODEL_GATEWAY
 int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
 {
@@ -959,6 +934,78 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
 }
 #endif
 
+int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0, res1 = 0;
+    dm_mgr_dev_node_t *node = NULL;
+    char *uri = NULL;
+    dm_msg_request_t request;
+
+    if (devid < 0 || payload == NULL || payload_len <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    memset(&request, 0, sizeof(dm_msg_request_t));
+    request.service_prefix = DM_URI_SYS_PREFIX;
+    request.service_name = DM_URI_THING_MODEL_UP_RAW;
+    memcpy(request.product_key, node->product_key, strlen(node->product_key));
+    memcpy(request.device_name, node->device_name, strlen(node->device_name));
+
+    /* Request URI */
+    res = dm_utils_service_name(request.service_prefix, request.service_name,
+                                request.product_key, request.device_name, &uri);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    dm_log_info("DM Send Raw Data:");
+    HEXDUMP_INFO(payload, payload_len);
+
+    res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
+#ifdef ALCS_ENABLED
+    res1 = dm_server_send(uri, (unsigned char *)payload, strlen(payload), NULL);
+#endif
+
+    if (res < SUCCESS_RETURN || res1 < SUCCESS_RETURN) {
+        DM_free(uri);
+        return FAIL_RETURN;
+    }
+
+    DM_free(uri);
+    return SUCCESS_RETURN;
+}
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+static int _dm_mgr_upstream_request_assemble(_IN_ int msgid, _IN_ int devid, _IN_ const char *service_prefix,
+        _IN_ const char *service_name,
+        _IN_ char *params, _IN_ int params_len, _IN_ char *method, _OU_ dm_msg_request_t *request)
+{
+    int res = 0;
+    dm_mgr_dev_node_t *node = NULL;
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    request->msgid = msgid;
+    request->devid = devid;
+    request->service_prefix = service_prefix;
+    request->service_name = service_name;
+    memcpy(request->product_key, node->product_key, strlen(node->product_key));
+    memcpy(request->device_name, node->device_name, strlen(node->device_name));
+    request->params = params;
+    request->params_len = params_len;
+    request->method = method;
+
+    return SUCCESS_RETURN;
+}
+
 int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {
     int res = 0;
@@ -1140,52 +1187,6 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
     return res;
 }
 
-int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
-{
-    int res = 0, res1 = 0;
-    dm_mgr_dev_node_t *node = NULL;
-    char *uri = NULL;
-    dm_msg_request_t request;
-
-    if (devid < 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    res = _dm_mgr_search_dev_by_devid(devid, &node);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    memset(&request, 0, sizeof(dm_msg_request_t));
-    request.service_prefix = DM_URI_SYS_PREFIX;
-    request.service_name = DM_URI_THING_MODEL_UP_RAW;
-    memcpy(request.product_key, node->product_key, strlen(node->product_key));
-    memcpy(request.device_name, node->device_name, strlen(node->device_name));
-
-    /* Request URI */
-    res = dm_utils_service_name(request.service_prefix, request.service_name,
-                                request.product_key, request.device_name, &uri);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    dm_log_info("DM Send Raw Data:");
-    HEXDUMP_INFO(payload, payload_len);
-
-    res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
-#ifdef ALCS_ENABLED
-    res1 = dm_server_send(uri, (unsigned char *)payload, strlen(payload), NULL);
-#endif
-
-    if (res < SUCCESS_RETURN || res1 < SUCCESS_RETURN) {
-        DM_free(uri);
-        return FAIL_RETURN;
-    }
-
-    DM_free(uri);
-    return SUCCESS_RETURN;
-}
-
 int dm_mgr_upstream_ntp_request(void)
 {
     int res = 0;
@@ -1358,6 +1359,7 @@ int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
 
     return SUCCESS_RETURN;
 }
+#endif
 
 #ifdef DEPRECATED_LINKKIT
 int dm_mgr_deprecated_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source)

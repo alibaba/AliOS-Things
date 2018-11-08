@@ -96,6 +96,11 @@ int dm_msg_response_parse(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_
 int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request);
 int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *request, _IN_ dm_msg_response_t *response,
                     _IN_ char *data, _IN_ int data_len, _IN_ void *user_data);
+int dm_msg_thing_model_down_raw(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
+                                _IN_ char *payload, _IN_ int payload_len);
+int dm_msg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
+                                    _IN_ char device_name[DEVICE_NAME_MAXLEN], char *payload, int payload_len);
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 int dm_msg_property_set(int devid, dm_msg_request_payload_t *request);
 #ifndef DEPRECATED_LINKKIT
 int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, _IN_ void *ctx);
@@ -107,8 +112,6 @@ int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_
                                  char *identifier, int identifier_len, dm_msg_request_payload_t *request);
 int dm_msg_rrpc_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                         char *messageid, int messageid_len, dm_msg_request_payload_t *request);
-int dm_msg_thing_model_down_raw(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
-                                _IN_ char *payload, _IN_ int payload_len);
 int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len,
                                   _IN_ dm_msg_response_payload_t *response);
@@ -116,10 +119,10 @@ int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response);
-int dm_msg_thing_model_up_raw_reply(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
-                                    _IN_ char device_name[DEVICE_NAME_MAXLEN], char *payload, int payload_len);
 int dm_msg_ntp_response(char *payload, int payload_len);
 int dm_msg_ext_error_reply(dm_msg_response_payload_t *response);
+#endif
+
 #ifdef DEVICE_MODEL_GATEWAY
     int dm_msg_topo_add_notify(_IN_ char *payload, _IN_ int payload_len);
     int dm_msg_thing_disable(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN]);
