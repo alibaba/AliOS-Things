@@ -70,12 +70,6 @@ extern "C"
 		char *string;
 	} cJSON;
 
-	typedef struct cJSON_Hooks
-	{
-		void *(*malloc_fn)(size_t sz);
-		void(*free_fn)(void *ptr);
-	} cJSON_Hooks;
-
 	typedef int cJSON_bool;
 
 #if !defined(__WINDOWS__) && (defined(WIN32) || defined(WIN64) || defined(_MSC_VER) || defined(_WIN32))
@@ -124,9 +118,6 @@ extern "C"
 
 	/* returns the version of cJSON as a string */
 	CJSON_PUBLIC(const char*) cJSON_Version(void);
-
-	/* Supply malloc, realloc and free functions to cJSON */
-	CJSON_PUBLIC(void) cJSON_InitHooks(cJSON_Hooks* hooks);
 
 	/* Memory Management: the caller is always responsible to free the results from all variants of cJSON_Parse (with cJSON_Delete) and cJSON_Print (with stdlib free, cJSON_Hooks.free_fn, or cJSON_free as appropriate). The exception is cJSON_PrintPreallocated, where the caller has full responsibility of the buffer. */
 	/* Supply a block of JSON, and this returns a cJSON object you can interrogate. */
