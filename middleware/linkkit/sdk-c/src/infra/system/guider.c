@@ -137,26 +137,29 @@ static int _calc_hmac_signature(
     char                    signature[64];
     char                    hmac_source[512];
     int                     rc = -1;
-    iotx_device_info_pt     dev;
+    iotx_device_info_t     dev;
 
-    dev = iotx_device_info_get();
-    LITE_ASSERT(dev);
+    rc = iotx_device_info_get(&dev);
+    if(rc < 0) {
+        sys_err("get device info err");
+        return rc;
+    }
 
     memset(signature, 0, sizeof(signature));
     memset(hmac_source, 0, sizeof(hmac_source));
     rc = HAL_Snprintf(hmac_source,
                       sizeof(hmac_source),
                       "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
-                      dev->device_id,
-                      dev->device_name,
-                      dev->product_key,
+                      dev.device_id,
+                      dev.device_name,
+                      dev.product_key,
                       timestamp_str);
     LITE_ASSERT(rc < sizeof(hmac_source));
 
     utils_hmac_sha1(hmac_source, strlen(hmac_source),
                     signature,
-                    dev->device_secret,
-                    strlen(dev->device_secret));
+                    dev.device_secret,
+                    strlen(dev.device_secret));
 
     memcpy(hmac_sigbuf, signature, hmac_buflen);
     return 0;
@@ -309,7 +312,7 @@ void guider_print_conn_info(iotx_conn_info_pt conn)
     sys_info("%s", "-----------------------------------------");
 }
 
-void guider_print_dev_guider_info(iotx_device_info_pt dev,
+void guider_print_dev_guider_info(iotx_device_info_t *dev,
                                   char *partner_id,
                                   char *module_id,
                                   char *guider_url,
@@ -382,11 +385,14 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
 #define AUTH_STRING_MAXLEN  (1024)
 
     char                   *ret = NULL;
-    iotx_device_info_pt     dev = NULL;
     int                     rc = -1;
+    iotx_device_info_t      dev;
 
-    dev = iotx_device_info_get();
-    LITE_ASSERT(dev);
+    rc = iotx_device_info_get(&dev);
+    if(rc < 0) {
+        sys_err("get device info err");
+        return rc;
+    }
 
     ret = LITE_malloc(AUTH_STRING_MAXLEN);
     LITE_ASSERT(ret);
@@ -395,11 +401,11 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     rc = sprintf(ret,
                  "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
                  "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt"
-                 , dev->product_key
-                 , dev->device_name
+                 , dev.product_key
+                 , dev.device_name
                  , SHA_METHOD
                  , sign
-                 , dev->device_id
+                 , dev.device_id
                  , ts
                 );
     LITE_ASSERT(rc < AUTH_STRING_MAXLEN);
@@ -544,13 +550,19 @@ int iotx_guider_authenticate(void)
     SECURE_MODE         secure_mode = MODE_TLS_GUIDER;
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
     char                timestamp_str[GUIDER_TS_LEN] = {0};
-    iotx_device_info_pt dev = iotx_device_info_get();
+
     iotx_conn_info_pt   conn = iotx_conn_info_get();
     char               *req_str = NULL;
     int                 gw = 0;
     int                 ext = 0;
+    iotx_device_info_t      dev;
+    int rc;
+    rc = iotx_device_info_get(&dev);
+    if(rc < 0) {
+        sys_err("get device info err");
+        return rc;
+    }
 
-    LITE_ASSERT(dev);
     LITE_ASSERT(conn);
 
     _ident_partner(partner_id, sizeof(partner_id));
@@ -574,7 +586,7 @@ int iotx_guider_authenticate(void)
     conn->port = 1883;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "%s.%s",
-                      dev->product_key,
+                      dev.product_key,
                       GUIDER_DIRECT_DOMAIN_ITLS);
 #endif  /* defined(ON_DAILY) */
 #else   /* defined(SUPPORT_ITLS) */
@@ -590,7 +602,7 @@ int iotx_guider_authenticate(void)
     conn->port = 1883;
     _fill_conn_string(conn->host_name, sizeof(conn->host_name),
                       "%s.%s",
-                      dev->product_key,
+                      dev.product_key,
                       iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
 #endif  /* defined(ON_DAILY) */
 #endif  /* defined(SUPPORT_ITLS) */
@@ -598,14 +610,14 @@ int iotx_guider_authenticate(void)
     /* calculate the sign */
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str);
 
-    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
+    guider_print_dev_guider_info(&dev, partner_id, module_id, guider_url, secure_mode,
                                  timestamp_str, guider_sign);
 
     /* fill up username and password */
     _fill_conn_string(conn->username, sizeof(conn->username),
                       "%s&%s",
-                      dev->device_name,
-                      dev->product_key);
+                      dev.device_name,
+                      dev.product_key);
     _fill_conn_string(conn->password, sizeof(conn->password),
                       "%s",
                       guider_sign);
@@ -621,7 +633,7 @@ int iotx_guider_authenticate(void)
     HAL_Snprintf(guider_url, sizeof(guider_url), "http://%s/auth/devicename", p_domain);
     _calc_hmac_signature(guider_sign, sizeof(guider_sign), timestamp_str);
 
-    guider_print_dev_guider_info(dev, partner_id, module_id, guider_url, secure_mode,
+    guider_print_dev_guider_info(&dev, partner_id, module_id, guider_url, secure_mode,
                                  timestamp_str, guider_sign);
 
     req_str = guider_set_auth_req_str(guider_sign, timestamp_str);
@@ -666,7 +678,7 @@ int iotx_guider_authenticate(void)
                       ",authtype=id2"
 #endif
                       "|"
-                      , dev->device_id
+                      , dev.device_id
                       , secure_mode
                       , timestamp_str
                       , gw

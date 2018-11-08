@@ -132,14 +132,19 @@ int iotx_report_devinfo(void *pclient)
     char network_interfaces[NIF_STRLEN_MAX] = {0};
     char *msg = NULL;
     int  msg_len = 0;
+ 
 
     if(info_report_func == NULL) {
         VERSION_ERR("report func not register!");
         return -1;
     }
-    //iotx_mqtt_topic_info_t topic_info;
-    iotx_device_info_pt dev = iotx_device_info_get();
 
+    iotx_device_info_t dev;
+    ret = iotx_device_info_get(&dev);
+    if(ret < 0) {
+        VERSION_ERR("get device info err");
+        return ret;
+    }
     VERSION_DEBUG("devinfo report");
 
     /* Construct aos activation data */
@@ -174,8 +179,8 @@ int iotx_report_devinfo(void *pclient)
     ret = HAL_Snprintf(topic_name,
                        IOTX_URI_MAX_LEN,
                        "/sys/%s/%s/thing/deviceinfo/update",
-                       dev->product_key,
-                       dev->device_name);
+                       dev.product_key,
+                       dev.device_name);
     if (ret <= 0) {
         VERSION_ERR("topic generate err");
         return FAIL_RETURN;
@@ -242,7 +247,12 @@ int iotx_report_firmware_version(void *pclient)
         return -1;
     }
 
-    iotx_device_info_pt dev = iotx_device_info_get();
+    iotx_device_info_t dev;
+    ret = iotx_device_info_get(&dev);
+    if(ret < 0) {
+        VERSION_ERR("get device info err");
+        return ret;
+    }
 
     ret = HAL_GetFirmwareVesion(version);
     if (ret <= 0) {
@@ -256,8 +266,8 @@ int iotx_report_firmware_version(void *pclient)
     ret = HAL_Snprintf(topic_name,
                        IOTX_URI_MAX_LEN,
                        "/ota/device/inform/%s/%s",
-                       dev->product_key,
-                       dev->device_name
+                       dev.product_key,
+                       dev.device_name
                       );
     if (ret <= 0) {
         VERSION_ERR("firmware report topic generate err");
@@ -296,13 +306,19 @@ int iotx_report_mid(void *pclient)
     char                        topic_name[IOTX_URI_MAX_LEN + 1];
     iotx_mqtt_topic_info_t      topic_info;
     char                        requestId[MIDREPORT_REQID_LEN + 1] = {0};
-    iotx_device_info_pt         dev  = iotx_device_info_get();
     char                        pid[PID_STRLEN_MAX + 1] = {0};
     char                        mid[MID_STRLEN_MAX + 1] = {0};
 
     if(info_report_func == NULL) {
         VERSION_ERR("report func not register!");
         return -1;
+    }
+
+    iotx_device_info_t dev;
+    ret = iotx_device_info_get(&dev);
+    if(ret < 0) {
+        VERSION_ERR("get device info err");
+        return ret;
     }
 
     memset(pid, 0, sizeof(pid));
@@ -320,8 +336,8 @@ int iotx_report_mid(void *pclient)
     VERSION_DEBUG("MID Report: started in MQTT");
 
     iotx_midreport_reqid(requestId,
-                         dev->product_key,
-                         dev->device_name);
+                         dev.product_key,
+                         dev.device_name);
     /* 1,generate json data */
     char *msg = HAL_Malloc(MIDREPORT_PAYLOAD_LEN);
     if (NULL == msg) {
@@ -340,8 +356,8 @@ int iotx_report_mid(void *pclient)
 
     ret = iotx_midreport_topic(topic_name,
                                "",
-                               dev->product_key,
-                               dev->device_name);
+                               dev.product_key,
+                               dev.device_name);
 
     VERSION_DEBUG("MID Report: topic name = '%s'", topic_name);
 

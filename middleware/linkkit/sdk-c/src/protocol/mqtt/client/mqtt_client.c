@@ -2052,19 +2052,16 @@ static int iotx_mc_set_connect_params(iotx_mc_client_t *pClient, MQTTPacket_conn
 
 static int32_t iotx_mc_calc_seed(uint32_t *p_seed)
 {
-    char                   *device_name;
-    iotx_device_info_pt     pdev = iotx_device_info_get();
+    char                    device_name[DEVICE_NAME_LEN+1] = {0};
     uint32_t                seed = 0;
-
+    char                    *pdevice_name = device_name;
     POINTER_SANITY_CHECK(p_seed, NULL_VALUE_ERROR);
-    POINTER_SANITY_CHECK(pdev, NULL_VALUE_ERROR);
 
-    device_name = pdev->device_name;
-    STRING_PTR_SANITY_CHECK(device_name, NULL_VALUE_ERROR);
+    HAL_GetDeviceName(device_name);
 
-    while ('\0' != *device_name) {
-        seed += *device_name;
-        device_name++;
+    while ('\0' != *pdevice_name) {
+        seed += *pdevice_name;
+        pdevice_name++;
     }
     seed += (HAL_UptimeMs() / 1000);
     seed %= UINT32_MAX;
@@ -2183,9 +2180,9 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
         goto RETURN;
     }
     memset(pClient->ipstack, 0x0, sizeof(utils_network_t));
-
-    rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key,
-                       iotx_device_info_get()->product_key);
+    char product_key[PRODUCT_KEY_LEN+1] = {0};
+    HAL_GetProductKey(product_key);
+    rc = iotx_net_init(pClient->ipstack, pInitParams->host, pInitParams->port, pInitParams->pub_key,product_key);
 
     if (SUCCESS_RETURN != rc) {
         mc_state = IOTX_MC_STATE_INVALID;
@@ -2881,6 +2878,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     int                 err;
     iotx_mc_client_t   *pclient;
     iotx_mqtt_param_t *mqtt_params = NULL;
+    
 
     if (pInitParams != NULL) {
         if (g_mqtt_client != NULL) {
@@ -2950,6 +2948,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     err = iotx_mc_init(pclient, pInitParams);
+
     if (SUCCESS_RETURN != err) {
         mqtt_free(pclient);
         if (mqtt_params != NULL) {
@@ -2963,6 +2962,8 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     err = iotx_mc_connect(pclient);
+    iotx_conn_info_delete();
+
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
         mqtt_free(pclient);
@@ -3014,8 +3015,9 @@ int IOT_MQTT_Destroy(void **phandler)
         client = g_mqtt_client;
     }
 
+    iotx_conn_info_delete();
     POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
-
+    
     iotx_mc_release((iotx_mc_client_t *)client);
     mqtt_free(client);
     g_mqtt_client = NULL;
