@@ -820,6 +820,10 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
         strncpy(p_iotx_coap->p_devinfo->product_key,  p_config->p_devinfo->product_key, IOTX_PRODUCT_KEY_LEN);
         strncpy(p_iotx_coap->p_devinfo->device_secret, p_config->p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
         strncpy(p_iotx_coap->p_devinfo->device_name,  p_config->p_devinfo->device_name, IOTX_DEVICE_NAME_LEN);
+
+        HAL_SetDeviceName(p_config->p_devinfo->device_name);
+        HAL_SetProductKey(p_config->p_devinfo->product_key);
+        HAL_SetDeviceSecret(p_config->p_devinfo->device_secret);
     }
 
     /*Init coap token*/
