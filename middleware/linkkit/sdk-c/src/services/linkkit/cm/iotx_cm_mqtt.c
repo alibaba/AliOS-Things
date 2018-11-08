@@ -22,7 +22,7 @@ static int _mqtt_unsub(const char *topic);
 static int _mqtt_close();
 static void _set_common_handlers();
 
-void *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
+iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params)
 {
      iotx_mqtt_param_t *mqtt_param = NULL;
 
@@ -74,6 +74,7 @@ failed:
             HAL_MutexDestroy(_mqtt_conncection->list_lock);
         }
         cm_free(_mqtt_conncection);
+        _mqtt_conncection = NULL;
     }
 
     if (mqtt_param != NULL) {
