@@ -9,6 +9,14 @@ $(foreach v, \
         $(eval CFLAGS += -D$(subst FEATURE_,,$(v)))) \
 )
 
+ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
+    CFLAGS += -DDM_MESSAGE_CACHE_DISABLED
+endif
+
+ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_RAWDATA_SOLO)))
+    CFLAGS += -DDM_MESSAGE_CACHE_DISABLED
+endif
+
 ifeq (y,$(strip $(FEATURE_WIFI_PROVISION_ENABLED)))
     CFLAGS += -DAWSS_SUPPORT_APLIST
 
