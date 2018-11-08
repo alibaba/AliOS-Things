@@ -15,7 +15,6 @@
 #include "aos/aos.h"
 #include "sensor.h"
 #include "aos/network.h"
-#include "kvmgr.h"
 #include "aos/uData.h"
 #include "iot_import.h"
 #include "iot_export.h"
