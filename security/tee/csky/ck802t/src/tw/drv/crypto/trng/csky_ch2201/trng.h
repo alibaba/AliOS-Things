@@ -16,7 +16,7 @@
 #define TRNG_H
 #include "tee_types.h"
 
-#define TRNG_BASEADDR 0x40015000
+#define TRNG_BASEADDR 0x40009000
 #define TRNG_TCR 0x0
 #define TRNG_TDR 0x4
 

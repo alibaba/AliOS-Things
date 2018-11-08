@@ -26,7 +26,9 @@
 #define MBEDTLS_SSL_PRINT(_f, _a ...)  \
         printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
 
+#if defined(CONFIG_KEY_OTP_ENABLED)
 static uint32_t otp_time = 0;
+#endif
 
 static unsigned char *mbedtls_hex_to_str(uint8_t *data, size_t len)
 {
