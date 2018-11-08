@@ -10,6 +10,7 @@ $(NAME)_COMPONENTS += kernel.init.mbins_entry
 endif
 endif
 
+$(NAME)_COMPONENTS += log
 
 $(NAME)_TYPE := kernel
 $(NAME)_MBINS_TYPE := kernel
