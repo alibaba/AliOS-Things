@@ -6,8 +6,8 @@ GLOBAL_DEFINES += LITTLEVGL_SIMULATE
 
 $(NAME)_COMPONENTS := yloop cli
 $(NAME)_COMPONENTS += 3rdparty.experimental.gui.littlevGL
-$(NAME)_COMPONENTS += example.littlevgl_simulate.lv_examples
-$(NAME)_COMPONENTS += example.littlevgl_simulate.lv_drivers
+$(NAME)_COMPONENTS += app.example.littlevgl_simulate.lv_examples
+$(NAME)_COMPONENTS += app.example.littlevgl_simulate.lv_drivers
 
 GLOBAL_LDFLAGS += -lSDL2
 

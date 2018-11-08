@@ -15,9 +15,9 @@ GLOBAL_INCLUDES     += include
 GLOBAL_DEFINES      += AOS_LV_APPS
 
 ifneq ($(IDE),keil)
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_apps.benchmark
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_apps.demo
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_apps.sysmon
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_apps.terminal
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_apps.tpcal
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_apps.benchmark
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_apps.demo
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_apps.sysmon
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_apps.terminal
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_apps.tpcal
 endif
