@@ -75,12 +75,17 @@ typedef enum IOTX_CM_EVENT_TYPES {
     IOTX_CM_EVENT_MAX
 } iotx_cm_event_types_t;
 
-
 /* The structure of cloud Connection event struct */
 typedef struct {
     iotx_cm_event_types_t                    type;
     void                                     *msg;
 } iotx_cm_event_msg_t;
+
+typedef struct {
+    char * topic;
+    uint8_t * payload;
+    uint32_t  payload_len;
+} event_msg_data_t;
 
 typedef void (*iotx_cm_data_handle_cb)(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                        void *context);
@@ -104,6 +109,7 @@ typedef struct {
     iotx_cm_sync_mode_types_t     sync_mode;
     uint32_t                      sync_timeout;
     iotx_cm_event_handle_cb       ack_cb;
+    void                          *cb_context;
 } iotx_cm_ext_params_t;
 
 int iotx_cm_open(iotx_cm_init_param_t *params);
