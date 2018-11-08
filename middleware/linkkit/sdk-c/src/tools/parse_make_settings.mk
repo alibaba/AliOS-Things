@@ -28,7 +28,7 @@ ifeq (y,$(strip $(FEATURE_WIFI_PROVISION_ENABLED)))
                   -DAWSS_SUPPORT_ADHA
     endif
 
-    ifeq (y,$(strip $(FEATURE_AWSS_SUPPORT_ZEROCONFIG)))
+    ifneq (y,$(strip $(FEATURE_AWSS_SUPPORT_ZEROCONFIG)))
         CFLAGS += -DAWSS_DISABLE_ENROLLEE \
                   -DAWSS_DISABLE_REGISTRAR
     endif
