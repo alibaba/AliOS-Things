@@ -57,6 +57,10 @@ int IOT_SetupConnInfo(const char *product_key,
     STRING_PTR_SANITY_CHECK(product_key, -1);
     STRING_PTR_SANITY_CHECK(device_name, -1);
 
+    HAL_SetProductKey((char *)product_key);
+    HAL_SetDeviceName((char *)device_name);
+    HAL_SetDeviceSecret((char *)device_secret);
+
     /* Dynamic Register Device If Need */
     if (ctx->dynamic_register == 0) {
 #if !defined(SUPPORT_ITLS)
