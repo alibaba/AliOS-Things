@@ -53,7 +53,7 @@ int iotx_dm_open(void)
     if (res != SUCCESS_RETURN) {
         goto ERROR;
     }
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
     /* DM Message Cache Init */
     res = dm_msg_cache_init();
     if (res != SUCCESS_RETURN) {
@@ -113,7 +113,7 @@ ERROR:
     dm_mgr_deinit();
     dm_ipc_deinit();
     dm_msg_deinit();
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_deinit();
 #endif
     dm_ota_deinit();
@@ -209,7 +209,7 @@ int iotx_dm_close(void)
     dm_mgr_deinit();
     dm_ipc_deinit();
     dm_msg_deinit();
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_deinit();
 #endif
     dm_cota_deinit();
@@ -241,7 +241,7 @@ void iotx_dm_dispatch(void)
     dm_api_ctx_t *ctx = _dm_api_get_ctx();
     void *data = NULL;
 
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_tick();
 #endif
     dm_cota_status_check();

@@ -3,7 +3,7 @@
  */
 
 
-#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
 #ifndef _DM_MESSAGE_CACHE_H_
 #define _DM_MESSAGE_CACHE_H_
 
