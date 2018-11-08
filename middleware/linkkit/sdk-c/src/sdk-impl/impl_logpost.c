@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
+#ifdef MQTT_COMM_ENABLED
 #include "sdk-impl_internal.h"
 
 #define LOG_PUBLISH_MSG_MAXLEN   (255)
@@ -99,3 +99,4 @@ static int iotx_mc_log_post(void *pclient, char *payload)
     return SUCCESS_RETURN;
 }
 
+#endif
