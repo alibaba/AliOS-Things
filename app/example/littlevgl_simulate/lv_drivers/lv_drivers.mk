@@ -17,6 +17,6 @@ GLOBAL_INCLUDES     += include
 GLOBAL_DEFINES      += AOS_LV_DRIVERS
 
 ifneq ($(IDE),keil)
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_drivers.display
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_drivers.indev
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_drivers.display
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_drivers.indev
 endif
