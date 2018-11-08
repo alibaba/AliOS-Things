@@ -6,7 +6,7 @@ HOST_OPENOCD := cy8c6347
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal rhino.fs.kv rhino.vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal kernel.fs.kv rhino.vfs digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6

@@ -5,7 +5,7 @@ HOST_OPENOCD := bk7231
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS := platform/arch/arm/armv5
-$(NAME)_COMPONENTS += libc rhino yloop rhino.fs.kv alicrypto digest_algorithm
+$(NAME)_COMPONENTS += libc rhino yloop kernel.fs.kv alicrypto digest_algorithm
 $(NAME)_COMPONENTS += network.lwip network.umesh
 $(NAME)_COMPONENTS += platform/mcu/bk7231/hal_init
 $(NAME)_COMPONENTS += platform/mcu/bk7231/aos/framework_runtime

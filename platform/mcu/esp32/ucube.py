@@ -93,7 +93,7 @@ dependencis = Split('''
         kernel/hal
         osal
         kernel/init
-        kernel/rhino/fs/kv
+        kernel/fs/kv
         network/lwip 
         security/alicrypto
 ''')

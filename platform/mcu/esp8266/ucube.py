@@ -34,7 +34,7 @@ local_includes = []
 
 dependencis = Split('''
         middleware/common 
-        kernel/rhino/fs/kv 
+        kernel/fs/kv 
         utility/libc
         network/lwip
         security/alicrypto
