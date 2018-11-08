@@ -20,7 +20,11 @@ int dm_client_open(void)
     cm_param.keepalive_interval_ms = IOTX_DM_CLIENT_KEEPALIVE_INTERVAL_MS;
     cm_param.write_buf_size = CONFIG_MQTT_TX_MAXLEN;
     cm_param.read_buf_size = CONFIG_MQTT_RX_MAXLEN;
+#if defined(COAP_COMM_ENABLED)
+    cm_param.protocol_type = IOTX_CM_PROTOCOL_TYPE_COAP;
+#else
     cm_param.protocol_type = IOTX_CM_PROTOCOL_TYPE_MQTT;
+#endif
     cm_param.handle_event = dm_client_event_handle;
 
     res = iotx_cm_open(&cm_param);
@@ -103,7 +107,7 @@ int dm_client_publish(char *uri, unsigned char *payload, int payload_len)
     pub_param.sync_timeout = 0;
     pub_param.ack_cb = NULL;
 
-#if defined(COAP_COMM_ENABLED) && !defined(MQTT_COMM_ENABLED)
+#if defined(COAP_COMM_ENABLED)
     res = dm_utils_uri_add_prefix("/topic", uri, &pub_uri);
     if (res < SUCCESS_RETURN) {
         return FAIL_RETURN;
