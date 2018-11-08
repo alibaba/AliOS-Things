@@ -224,10 +224,6 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
     strncpy(iotx_http_context->p_devinfo->device_secret, p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
     strncpy(iotx_http_context->p_devinfo->device_name,   p_devinfo->device_name,   IOTX_DEVICE_NAME_LEN);
 
-    iotx_device_info_init();
-    iotx_device_info_set(iotx_http_context->p_devinfo->product_key, iotx_http_context->p_devinfo->device_name,
-                         iotx_http_context->p_devinfo->device_secret);
-
     iotx_http_context->httpc = LITE_malloc(sizeof(httpclient_t));
     if (NULL == iotx_http_context->httpc) {
         http_err("Allocate memory for iotx_http_context->httpc failed");
