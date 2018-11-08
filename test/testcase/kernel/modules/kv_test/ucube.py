@@ -4,7 +4,7 @@ src = Split('''
 
 component = aos_component('kv_test', src)
 
-component.add_comp_deps('kernel/rhino/fs/kv')
+component.add_comp_deps('kernel/fs/kv')
 
 component.add_cflags('-Wall')
 component.add_cflags('-Werror')
