@@ -61,6 +61,11 @@ def main(argv):
     # replace ip address
     print("[INFO]: replace test information")
     replace(targetFilename, replace_ip_rules)
+
+    # remove tests directory
+    print("[INFO]: remove %s" % os.path.join(build_dir, SDKNAME, "tests"))
+    shutil.rmtree(os.path.join(build_dir, SDKNAME, "tests"))
+
     # Generate tarball
     root_dir = build_dir
     base_dir = SDKNAME
