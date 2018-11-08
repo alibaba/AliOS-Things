@@ -9,7 +9,6 @@ HOST_ARCH       := Cortex-M3
 HOST_MCU_FAMILY := efm32gxx
 SUPPORT_BINS    := no
 
-#$(NAME)_COMPONENTS += rhino.fs.kv
 $(NAME)_COMPONENTS += network.lorawan_4_4_2.lorachip
 LORACHIP := sx1276
 
