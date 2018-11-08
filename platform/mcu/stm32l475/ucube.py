@@ -87,7 +87,7 @@ component.add_comp_deps('kernel/rhino')
 component.add_comp_deps('osal')
 component.add_comp_deps('kernel/init')
 component.add_comp_deps('kernel/hal')
-component.add_comp_deps('kernel/rhino/fs/kv')
+component.add_comp_deps('kernel/fs/kv')
 component.add_comp_deps('kernel/vfs')
 component.add_comp_deps('utility/digest_algorithm')
 

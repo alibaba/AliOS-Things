@@ -4,7 +4,7 @@ NAME := esp32
 
 $(NAME)_TYPE := kernel 
 
-$(NAME)_COMPONENTS := hal rhino.fs.kv
+$(NAME)_COMPONENTS := hal kernel.fs.kv
 $(NAME)_COMPONENTS += network.lwip alicrypto
 $(NAME)_COMPONENTS += halwifi
 
