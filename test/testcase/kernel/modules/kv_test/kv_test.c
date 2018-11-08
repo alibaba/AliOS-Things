@@ -9,7 +9,6 @@
 #include <yts.h>
 #include <aos/aos.h>
 #include <hal/soc/soc.h>
-#include "kvmgr.h"
 
 static char *g_key_1 = "key_1";
 static char *g_key_2 = "key_2";

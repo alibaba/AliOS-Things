@@ -1,6 +1,6 @@
 NAME := ramfs_test
 
-$(NAME)_COMPONENTS  += kernel.rhino.fs.ramfs
+$(NAME)_COMPONENTS  += kernel.fs.ramfs
 
 $(NAME)_SOURCES     += ramfs_test.c
 
