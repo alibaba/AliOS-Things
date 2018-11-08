@@ -34,5 +34,5 @@ $(NAME)_SOURCES += src/osa/aos/sst_osa.c \
 				  src/wrapper/km/sst_wrapper.c \
 				  src/sst.c
 
-$(NAME)_COMPONENTS := irot alicrypto rhino.fs.kv
+$(NAME)_COMPONENTS := irot alicrypto kernel.fs.kv
 

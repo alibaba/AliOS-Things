@@ -18,19 +18,19 @@ inline uint32_t _kv_to_sst_res(int32_t err)
     uint32_t ret;
 
     switch (err) {
-        case KV_OK:
+        case 0:
             ret = SST_SUCCESS;
             break;
-        case KV_ERR_ITEM_NOT_FOUND:
+        case -ENOENT:
             ret = SST_ERROR_ITEM_NOT_FOUND;
             break;
-        case KV_ERR_NO_SPACE:
+        case -ENOSPC:
             ret = SST_ERROR_STORAGE_NO_SPACE;
             break;
-        case KV_ERR_INVALID_PARAM:
+        case -EINVAL:
             ret = SST_ERROR_BAD_PARAMETERS;
             break;
-        case KV_ERR_MALLOC_FAILED:
+        case -ENOMEM:
             ret = SST_ERROR_OUT_OF_MEMORY;
             break;
         default:

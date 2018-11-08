@@ -22,6 +22,6 @@ incs = Split('''
 component.add_global_includes('include')
 component.add_includes(*incs)
 
-component.add_comp_deps('security/irot', 'security/alicrypto', 'kernel/rhino/fs/kv')
+component.add_comp_deps('security/irot', 'security/alicrypto', 'kernel/fs/kv')
 
 
