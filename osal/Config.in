@@ -1,0 +1,12 @@
+
+menuconfig OSAL_ENABLED
+    bool "FEATURE_OSAL_ENABLE"
+    default y
+    help
+        AliOS things OSAL -- interface adaptation layer
+
+if OSAL_ENABLED
+menu "OSAL Configurations"
+
+endmenu
+endif
