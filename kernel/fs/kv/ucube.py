@@ -1,11 +1,10 @@
 src     = Split('''
-        kvmgr.c
-        kv_osal.c
+        kv_core.c
+        kv_adapt.c
+        kv_cli.c
 ''')
 
 component = aos_component('kv', src)
-
-component.add_comp_deps('utility/log')
 
 component.add_global_includes('include')
 
