@@ -11,6 +11,10 @@ endif
 $(NAME)_SOURCES += iotx_cm_mqtt.c  
 endif
 
+ifeq (y,$(FEATURE_MAL_ENABLED))
+$(NAME)_SOURCES += iotx_cm_mqtt.c  
+endif
+
 $(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/infra/utils \
 middleware/linkkit/sdk-c/src/infra/log \
 middleware/linkkit/sdk-c/src/infra/system \
