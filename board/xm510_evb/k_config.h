@@ -206,14 +206,5 @@
 #define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x4000
 #endif
 
-#ifndef RHINO_CONFIG_BACKTRACE
-#define RHINO_CONFIG_BACKTRACE               1
-#endif
-
-/* If AliOS task over the Exception/Fatal Error */
-#ifndef RHINO_CONFIG_PANIC
-#define RHINO_CONFIG_PANIC                   1
-#endif
-
 #endif /* CONFIG_H */
 

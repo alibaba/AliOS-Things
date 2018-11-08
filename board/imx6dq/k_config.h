@@ -204,10 +204,5 @@
 #define RHINO_EACHCORE_SYSTEM_STACK_SIZE     (RHINO_CONFIG_SYSTEM_STACK_SIZE/RHINO_CONFIG_CPU_NUM)
 #endif
 
-/* If AliOS task over the Exception/Fatal Error */
-#ifndef RHINO_CONFIG_PANIC
-#define RHINO_CONFIG_PANIC                   1
-#endif
-
 #endif /* CONFIG_H */
 
