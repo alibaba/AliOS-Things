@@ -169,6 +169,9 @@ static int  _coap_connect(uint32_t timeout)
     
     HAL_Snprintf(url, 100, IOTX_COAP_SERVER_URI, product_key);
     config->p_url = url;
+    
+    iotx_time_init(&timer);
+    utils_time_countdown_ms(&timer, timeout);
     do {
         if(p_ctx == NULL) {
             p_ctx = IOT_CoAP_Init(config);
