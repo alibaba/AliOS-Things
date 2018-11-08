@@ -1,9 +1,12 @@
 NAME := osal
 
 $(NAME)_MBINS_TYPE := share
+$(NAME)_VERSION := 0.0.1.0
+$(NAME)_SUMMARY := os interface adaptation layer
+
 $(NAME)_COMPONENTS += middleware.common
 
-GLOBAL_INCLUDES += ./mico/include ./aos/include
+GLOBAL_INCLUDES += ./mico/include ./aos/include ./aos
 
 #default gcc
 ifeq ($(COMPILER),)
@@ -52,10 +55,10 @@ GLOBAL_DEFINES += OSAL_RHINO
 $(NAME)_COMPONENTS += rhino
 
 ifeq ($(HOST_MCU_FAMILY),esp32)
-$(NAME)_COMPONENTS += osal.espos
+include osal/espos/espos.mk
 else
 ifeq ($(HOST_MCU_FAMILY),esp8266)
-$(NAME)_COMPONENTS += osal.espos
+include osal/espos/espos.mk
 endif
 endif
 
