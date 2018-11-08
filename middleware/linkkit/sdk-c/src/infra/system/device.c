@@ -9,67 +9,33 @@
 
 #include "iotx_system_internal.h"
 
-static iotx_conn_info_t     iotx_conn_info;
-static iotx_device_info_t   iotx_device_info;
-static int                  iotx_devinfo_inited = 0;
+static iotx_conn_info_t     *iotx_conn_info = NULL;
 
-int iotx_device_info_init(void)
+int iotx_device_info_get(iotx_device_info_t *device_info)
 {
-    if (iotx_devinfo_inited) {
-        sys_debug("device_info already created, return!");
-        return 0;
+    if(device_info == NULL) {
+        return -1;
     }
-
-    memset(&iotx_device_info, 0x0, sizeof(iotx_device_info_t));
-    memset(&iotx_conn_info, 0x0, sizeof(iotx_conn_info_t));
-    iotx_devinfo_inited = 1;
-
-    sys_info("device_info created successfully!");
-    return SUCCESS_RETURN;
-}
-
-int iotx_device_info_set(
-            const char *product_key,
-            const char *device_name,
-            const char *device_secret)
-{
-    int ret;
-    sys_debug("start to set device info!");
-
-    memset(&iotx_device_info, 0x0, sizeof(iotx_device_info));
-    strncpy(iotx_device_info.product_key, product_key, PRODUCT_KEY_LEN);
-    strncpy(iotx_device_info.device_name, device_name, DEVICE_NAME_LEN);
-    strncpy(iotx_device_info.device_secret, device_secret, DEVICE_SECRET_LEN);
-
-    HAL_SetProductKey((char *)product_key);
-    HAL_SetDeviceName((char *)device_name);
-    HAL_SetDeviceSecret((char *)device_secret);
+    memset(device_info, 0x0, sizeof(iotx_device_info_t));
+    HAL_GetProductKey(device_info->product_key);
+    HAL_GetDeviceName(device_info->device_name);
+    HAL_GetDeviceSecret(device_info->device_secret);
+    HAL_GetDeviceID(device_info->device_id);
     
-    /* construct device-id(@product_key+@device_name) */
-    ret = HAL_Snprintf(iotx_device_info.device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
-    if ((ret < 0) || (ret >= DEVICE_ID_LEN)) {
-        sys_err("set device info failed");
-        return FAIL_RETURN;
-    }
-
-    sys_debug("device_info set successfully!");
-    return SUCCESS_RETURN;
-}
-
-iotx_device_info_pt iotx_device_info_get(void)
-{
-    if (iotx_devinfo_inited == 0) {
-        memset(&iotx_device_info, 0x0, sizeof(iotx_device_info_t));
-        HAL_GetProductKey(iotx_device_info.product_key);
-        HAL_GetDeviceName(iotx_device_info.device_name);
-        HAL_GetDeviceSecret(iotx_device_info.device_secret);
-        HAL_GetDeviceID(iotx_device_info.device_id);
-    }
-    return &iotx_device_info;
+    return 0;
 }
 
 iotx_conn_info_pt iotx_conn_info_get(void)
 {
-    return &iotx_conn_info;
+    if(iotx_conn_info == NULL) {
+        iotx_conn_info = LITE_malloc(sizeof(iotx_conn_info_t));
+        memset(iotx_conn_info, 0, sizeof(iotx_conn_info_t));
+    }
+    return iotx_conn_info;
 }
 
+void iotx_conn_info_delete(void)
+{
+    LITE_free(iotx_conn_info);
+    iotx_conn_info = NULL;
+}

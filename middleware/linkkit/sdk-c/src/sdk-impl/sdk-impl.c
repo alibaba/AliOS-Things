@@ -104,8 +104,7 @@ int IOT_SetupConnInfo(const char *product_key,
         }
     }
 
-    iotx_device_info_init();
-    iotx_device_info_set(product_key, device_name, device_secret_actual);
+    //iotx_device_info_set(product_key, device_name, device_secret_actual);
 
 #if defined MQTT_COMM_ENABLED
     if (NULL == info_ptr) {
@@ -116,10 +115,10 @@ int IOT_SetupConnInfo(const char *product_key,
     rc = iotx_guider_authenticate();
     //}
     if (rc == 0) {
-        iotx_guider_auth_set(1);
+        //iotx_guider_auth_set(1);
         *info_ptr = (void *)iotx_conn_info_get();
     } else {
-        iotx_guider_auth_set(0);
+        //iotx_guider_auth_set(0);
         *info_ptr = NULL;
     }
 #endif
@@ -139,7 +138,7 @@ int IOT_Ioctl(int option, void *data)
     switch (option) {
         case IOTX_IOCTL_SET_REGION: {
             ctx->domain_type = *(int *)data;
-            iotx_guider_auth_set(0);
+            //iotx_guider_auth_set(0);
             iotx_guider_set_region(*(int *)data);
 
             res = SUCCESS_RETURN;
@@ -153,7 +152,7 @@ int IOT_Ioctl(int option, void *data)
         break;
         case IOTX_IOCTL_SET_MQTT_DOMAIN: {
             ctx->domain_type = GUIDER_REGION_CUSTOM;
-            iotx_guider_auth_set(0);
+            //iotx_guider_auth_set(0);
             iotx_guider_set_region(GUIDER_REGION_CUSTOM);
 
             res = iotx_guider_set_custom_domain(GUIDER_DOMAIN_MQTT, (const char *)data);
@@ -161,7 +160,7 @@ int IOT_Ioctl(int option, void *data)
         break;
         case IOTX_IOCTL_SET_HTTP_DOMAIN: {
             ctx->domain_type = GUIDER_REGION_CUSTOM;
-            iotx_guider_auth_set(0);
+            //iotx_guider_auth_set(0);
             iotx_guider_set_region(GUIDER_REGION_CUSTOM);
 
             res = iotx_guider_set_custom_domain(GUIDER_DOMAIN_HTTP, (const char *)data);
