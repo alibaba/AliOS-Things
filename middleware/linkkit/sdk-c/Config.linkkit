@@ -82,6 +82,15 @@ menu "Device Model Configurations"
         help
             Enable customers to bind device to current user
 
+    config DEVICE_MODEL_RAWDATA_SOLO
+        bool "FEATURE_DEVICE_MODEL_RAWDATA_SOLO"
+        depends on DEVICE_MODEL_ENABLED && !DEVICE_MODEL_GATEWAY && !DEPRECATED_LINKKIT
+        default n
+        help
+            Enable only raw data function via IOT_Linkkit_xxx new APIs
+
+            Switching to "y" leads to SDK being compiled only raw data function
+            Switching to "n" leads to SDK being compiled both raw data and thing model function
 endmenu
 
 config HTTP2_COMM_ENABLED
