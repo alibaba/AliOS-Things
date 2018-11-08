@@ -1,10 +1,17 @@
 NAME := libiot_system
 
-$(NAME)_SOURCES := ./guider.c \
-./device.c \
-./ca.c \
-./report.c \
-./aos_support.c \
+# $(NAME)_SOURCES := ./guider.c \
+# ./device.c \
+# ./ca.c \
+# ./report.c \
+# ./aos_support.c \
+
+LINKKIT_MODULE  := middleware/linkkit/sdk-c/src/infra/system
+
+$(NAME)_SOURCES := $(wildcard $(SOURCE_ROOT)/$(LINKKIT_MODULE)/*.c)
+$(NAME)_SOURCES += $(wildcard $(SOURCE_ROOT)/$(LINKKIT_MODULE)/*/*.c)
+
+$(NAME)_SOURCES := $(foreach S,$($(NAME)_SOURCES),$(subst $(SOURCE_ROOT)/$(LINKKIT_MODULE),.,$(S)))
  
 $(NAME)_COMPONENTS := 
 
