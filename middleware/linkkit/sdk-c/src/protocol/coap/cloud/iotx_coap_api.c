@@ -574,6 +574,15 @@ static int iotx_split_path_2_option(char *uri, Cloud_CoAPMessage *message)
     return IOTX_SUCCESS;
 }
 
+uint32_t IOT_CoAP_GetCurToken(iotx_coap_context_t *p_context)
+{
+    if(p_context == NULL) {
+        return IOTX_ERR_INVALID_PARAM;
+    }
+    iotx_coap_t *p_iotx_coap = (iotx_coap_t *)p_context;
+
+    return p_iotx_coap->coap_token;
+}
 int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_message_t *p_message)
 {
 
@@ -718,6 +727,24 @@ int IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int 
     *p_len         =  message->payloadlen;
 
     return IOTX_SUCCESS;
+}
+
+int  IOT_CoAP_GetMessageToken(void *p_message, unsigned int *token)
+{
+
+    Cloud_CoAPMessage *message = NULL;
+
+    if (NULL == p_message || NULL == token) {
+        COAP_ERR("Invalid paramter p_message %p, token= %p", p_message, token);
+        return -1;
+    }
+    message = (Cloud_CoAPMessage *)p_message;
+
+    *token = ((unsigned int)(message->token[3]) & 0xff) << 24; 
+    *token += ((unsigned int)(message->token[2]) & 0xff) << 16; 
+    *token += ((unsigned int)(message->token[1]) & 0xff) << 8; 
+    *token += ((unsigned int)(message->token[0]) & 0xff); 
+    return 0;
 }
 
 int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code)
