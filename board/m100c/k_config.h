@@ -212,13 +212,5 @@
 #define RHINO_CONFIG_TRACE                   0
 #endif
 
-#ifndef RHINO_CONFIG_BACKTRACE
-#define RHINO_CONFIG_BACKTRACE               1
-#endif
-
-#ifndef RHINO_CONFIG_PANIC
-#define RHINO_CONFIG_PANIC                   1
-#endif
-
 #endif /* CONFIG_H */
 
