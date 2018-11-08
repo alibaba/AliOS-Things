@@ -29,7 +29,7 @@ $(NAME)_SOURCES     := gateway.c gateway_app.c gateway_tsl.c
 $(NAME)_COMPONENTS := feature.linkkit-noawss device/sensor middleware/common utility/cjson network/netmgr middleware/udata rhino.bus.mbmaster
 
 ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS  += protocols.net
+$(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
