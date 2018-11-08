@@ -429,9 +429,6 @@ int HAL_ThreadCreate(
     }
 
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
-    if(ret == 0) {
-        pthread_detach((pthread_t)thread_handle);
-    }
 
     return ret;
 }
@@ -447,6 +444,7 @@ void HAL_ThreadDelete(_IN_ void *thread_handle)
         pthread_exit(0);
     } else {
         /*main thread delete child thread*/
+        pthread_kill((pthread_t)thread_handle, SIGKILL);
         pthread_cancel((pthread_t)thread_handle);
         pthread_join((pthread_t)thread_handle, 0);
     }
