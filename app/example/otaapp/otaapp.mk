@@ -14,7 +14,7 @@ $(NAME)_COMPONENTS += feature.linkkit-mqtt \
 		      tools/cli  \
 
 ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS  += protocols.net
+$(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
