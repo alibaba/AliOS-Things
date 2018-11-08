@@ -17,7 +17,6 @@ $(NAME)_SOURCES := board.c                 \
 		   src/eml3047_it.c        \
 		   src/vcom.c
 
-#$(NAME)_COMPONENTS += rhino.fs.kv
 
 linkwan ?= 1
 ifeq ($(linkwan), 1)
