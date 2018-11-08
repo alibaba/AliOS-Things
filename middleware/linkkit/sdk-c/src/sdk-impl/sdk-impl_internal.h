@@ -17,7 +17,9 @@
 #include "iotx_utils.h"
 #include "iotx_system.h"
 #ifndef MAL_ENABLED
+#ifdef MQTT_COMM_ENABLED
     #include "iotx_mqtt.h"
+#endif
 #else
     #include "mal.h"
 #endif
