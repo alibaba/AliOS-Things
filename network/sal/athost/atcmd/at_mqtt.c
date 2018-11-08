@@ -796,7 +796,6 @@ static void mqtt_authenticate()
     HAL_GetDeviceName(devicename);
     HAL_GetDeviceSecret(devicesecret);
 
-    iotx_guider_auth_set(0);
     if (0 != IOT_SetupConnInfo(
                productkey, devicename,
                devicesecret, (void **)&m_mqtt_conn_info)) {
