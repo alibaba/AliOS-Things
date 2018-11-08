@@ -5,8 +5,6 @@ typedef struct {
     int fd;
     iotx_conn_info_t *conn_info;
     void *callback;
-    char read_buff[CONFIG_MQTT_RX_MAXLEN];
-    char write_buff[CONFIG_MQTT_TX_MAXLEN];
 } dm_client_ctx_t;
 
 int dm_client_open(void);
