@@ -493,14 +493,17 @@ int iotx_gateway_subscribe_unsubscribe_topic(iotx_gateway_pt gateway,
 int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
         int is_subscribe)
 {
-    iotx_device_info_pt pdevice_info = iotx_device_info_get();
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
 
     PARAMETER_GATEWAY_CHECK(gateway, FAIL_RETURN);
 
     /* register_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SESSION_SUB_FMT,
             "register_reply",
             is_subscribe)) {
@@ -509,8 +512,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* unregister_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SESSION_SUB_FMT,
             "unregister_reply",
             is_subscribe)) {
@@ -519,8 +522,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* topo_add_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SESSION_TOPO_FMT,
             "add_reply",
             is_subscribe)) {
@@ -529,8 +532,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* topo_delete_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SESSION_TOPO_FMT,
             "delete_reply",
             is_subscribe)) {
@@ -539,8 +542,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* topo_get_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SESSION_TOPO_FMT,
             "get_reply",
             is_subscribe)) {
@@ -549,8 +552,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* config_get_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SESSION_CONFIG_FMT,
             "get_reply",
             is_subscribe)) {
@@ -559,8 +562,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* list_found_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SESSION_LIST_FOUND_FMT,
             "found_reply",
             is_subscribe)) {
@@ -569,8 +572,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* login_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SESSION_COMBINE_FMT,
             "login_reply",
             is_subscribe)) {
@@ -579,8 +582,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* logout_reply */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SESSION_COMBINE_FMT,
             "logout_reply",
             is_subscribe)) {
@@ -589,8 +592,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* RRPC request */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SYS_RRPC_FMT,
             "request",
             is_subscribe)) {
@@ -599,8 +602,8 @@ int iotx_gateway_subscribe_unsubscribe_default(iotx_gateway_pt gateway,
 
     /* DSL Template */
     if (FAIL_RETURN == iotx_gateway_subscribe_unsubscribe_topic(gateway,
-            pdevice_info->product_key,
-            pdevice_info->device_name,
+            product_key,
+            device_name,
             TOPIC_SYS_DSL_TEMPLATE_FMT,
             "get_reply",
             is_subscribe)) {

@@ -37,21 +37,15 @@ int     iotx_guider_authenticate(void);
 int     iotx_guider_set_region(int region_type);
 int     iotx_guider_get_region(void);
 int     iotx_guider_set_custom_domain(int domain_type, const char *domain);
-void    iotx_guider_auth_set(int authed);
-int     iotx_guider_auth_get(void);
+
 int     iotx_facility_json_print(const char *str, int level, ...);
 
 const char     *iotx_guider_get_domain(int domain_type);
 
-int     iotx_device_info_init(void);
-int     iotx_device_info_set(
-            const char *product_key,
-            const char *device_name,
-            const char *device_secret);
+int iotx_device_info_get(iotx_device_info_t *device_info);
 
-iotx_device_info_pt iotx_device_info_get(void);
 iotx_conn_info_pt iotx_conn_info_get(void);
-
+void iotx_conn_info_delete(void);
 
 const char *iotx_ca_get(void);
 
