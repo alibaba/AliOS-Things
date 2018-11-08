@@ -18,8 +18,6 @@ $(NAME)_SOURCES := hal/board.c                 \
 				   port/dbg_port.c         \
 				   component/debug/debug.c
 
-#$(NAME)_COMPONENTS += rhino.fs.kv
-
 linkwan ?= 0
 ifeq ($(linkwan), 0)
 $(NAME)_SOURCES += app/lora.c
