@@ -1,3 +1,4 @@
+#ifdef COAP_COMM_ENABLED
 #include "iot_import.h"
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
@@ -296,7 +297,7 @@ static int _coap_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
     message.resp_callback = _coap_response_default;  
     message.msg_type = qos;  
     message.content_type = IOTX_CONTENT_TYPE_JSON;
-
+     
     token = IOT_CoAP_GetCurToken((iotx_coap_context_t *)_coap_conncection->context);
     ret = IOT_CoAP_SendMessage((iotx_coap_context_t *)_coap_conncection->context, (char *)topic, &message);
 
@@ -401,3 +402,4 @@ static void _set_common_handlers()
         _coap_conncection->close_func = _coap_close;
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#ifdef MQTT_COMM_ENABLED
 #include "iot_import.h"
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"
@@ -505,3 +506,4 @@ static int _cm_is_topic_matched(char *topic1, char *topic2, int len)
 
     return (curn == curn_end) && (*curf == '\0');
 }
+#endif
