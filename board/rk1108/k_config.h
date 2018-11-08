@@ -187,7 +187,7 @@
 
 /* kernel trace conf */
 #ifndef RHINO_CONFIG_TRACE
-#define RHINO_CONFIG_TRACE                   1
+#define RHINO_CONFIG_TRACE                   0
 #endif
 
 #ifndef RHINO_CONFIG_CPU_NUM
