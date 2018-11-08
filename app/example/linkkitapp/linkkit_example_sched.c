@@ -444,12 +444,6 @@ int linkkit_main(void *paras)
 
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
 
-    /* Init cJSON Hooks */
-    cJSON_Hooks cjson_hooks;
-    cjson_hooks.malloc_fn = example_malloc;
-    cjson_hooks.free_fn = example_free;
-    cJSON_InitHooks(&cjson_hooks);
-
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     /* Register Callback */
