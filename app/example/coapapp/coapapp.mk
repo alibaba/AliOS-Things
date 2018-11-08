@@ -15,7 +15,7 @@ $(NAME)_COMPONENTS += feature.linkkit-coap \
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 
 ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS  += protocols.net
+$(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
