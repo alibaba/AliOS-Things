@@ -39,8 +39,8 @@ aos make developerkitaudio@developerkit
 ```
 
 ### Prepare and Flash
-
- You can get ISD9160 firmware which is for codec from [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6).   
+> 中文版请参考[这里](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4)
+ You can get ISD9160 firmware which is for codec from [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6/ISD9160_FW_2018.10.26).   
  Two different firmware version as below:
 
 `v1.xx` ---- record and playback via I2S.
@@ -68,4 +68,4 @@ Press `key B` to upgrade firmware of codec(ISD9160) that is stored on SD card, t
 Try to speak the wakeup command "Xiao Te Xiao Te", the LED1 will be turn on for about 10 seconds if waked up, then you can speak special commands at this moment that LED1 is on-line.
 When the LED1 is off, you need to wake it up again.
 
-[Recognition command list](https://github.com/Notioni/Codes/blob/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6/readme.txt), currently only support chinese.
+[Recognition command list](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6#version-update-record), currently only support chinese.
