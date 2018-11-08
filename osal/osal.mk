@@ -64,6 +64,6 @@ $(NAME)_SOURCES += mico/mico_rhino.c
 endif
 
 $(NAME)_SOURCES += \
-    aos/aos_rhino.c
+    aos/aos_rhino.c aos/aos_kv.c
 endif
 
