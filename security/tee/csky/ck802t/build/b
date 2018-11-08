@@ -88,6 +88,7 @@ then
     ln -sf ntw.lpmapi.test.o    ../src/ntw/lpm/ntw.lpmapi.o
     ln -sf tststub.test.o       ../src/ntw/stub/tst_stub/tststub.o
     ln -sf built-in.test.o      ../src/app/id2/tw/built-in.o
+    ln -sf built-in.test.o      ../src/app/crypto/tw/built-in.o
 else
 ## link release object
     echo "prepare RELEASE environment!"
@@ -102,6 +103,7 @@ else
     ln -sf ntw.lpmapi.rel.o    ../src/ntw/lpm/ntw.lpmapi.o
     ln -sf tststub.rel.o       ../src/ntw/stub/tst_stub/tststub.o
     ln -sf built-in.rel.o      ../src/app/id2/tw/built-in.o
+    ln -sf built-in.rel.o      ../src/app/crypto/tw/built-in.o
 fi
 
 ################################################################################
@@ -122,6 +124,10 @@ done < $SRV_PATH_LIST
 if [ "$CLEAN" == "clean" ];
 then
     pushd $TOP/src/app/id2/tw
+    rm -f built-in.bin  built-in.elf  built-in.lds
+    popd
+	
+	pushd $TOP/src/app/crypto/tw
     rm -f built-in.bin  built-in.elf  built-in.lds
     popd
 fi
@@ -150,6 +156,7 @@ then
 
     ### append the default apps here
     cmd=$cmd" -a $TOP/src/app/id2/tw/built-in.o"
+    cmd=$cmd" -a $TOP/src/app/crypto/tw/built-in.o"
 
     while IFS='' read -r line || [[ -n "$line" ]];
     do
