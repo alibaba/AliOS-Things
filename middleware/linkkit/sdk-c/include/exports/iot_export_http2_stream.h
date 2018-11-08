@@ -13,16 +13,8 @@ extern "C" {
 #endif
 
 #define IOT_HTTP2_RES_OVERTIME_MS                 (10000)
-#define IOT_HTTP2_KEEP_ALIVE_TIME                     (30*1000) /*seconds*/
-#define IOT_HTTP2_KEEP_ALIVE_CNT                       (2) 
-
-
-#include "iotx_log.h"
-
-#define h2stream_err(...)      log_err("h2stream", __VA_ARGS__)
-#define h2stream_warning(...)  log_warning("h2stream", __VA_ARGS__)
-#define h2stream_info(...)     log_info("h2stream", __VA_ARGS__)
-#define h2stream_debug(...)    log_debug("h2stream", __VA_ARGS__)
+#define IOT_HTTP2_KEEP_ALIVE_CNT                  (2)
+#define IOT_HTTP2_KEEP_ALIVE_TIME                 (30*1000) /* in seconds */
 
 #define MAKE_HEADER(NAME, VALUE)                                             \
     {                                                                        \
@@ -54,7 +46,8 @@ typedef enum {
     STREAM_TYPE_NUM
 } stream_type_t;
 
-typedef void (*on_stream_header_callback)(uint32_t stream_id, char *channel_id, int cat, const uint8_t *name, uint32_t namelen,
+typedef void (*on_stream_header_callback)(uint32_t stream_id, char *channel_id, int cat, const uint8_t *name,
+        uint32_t namelen,
         const uint8_t *value, uint32_t valuelen, uint8_t flags);
 
 typedef void (*on_stream_chunk_recv_callback)(uint32_t stream_id, char *channel_id,
@@ -86,7 +79,8 @@ typedef struct {
     uint32_t            packet_len;         /* one packet length */
     const char          *identify;          /* path string to identify a stream service */
     int                 h2_stream_id;       /* stream identifier which is a field in HTTP2 frame */
-    char                *channel_id;        /* string return by server to identify a specific stream channel, different from stream identifier which is a field in HTTP2 frame */
+    char
+    *channel_id;        /* string return by server to identify a specific stream channel, different from stream identifier which is a field in HTTP2 frame */
 } stream_data_info_t;
 
 #ifdef FS_ENABLED

@@ -4,6 +4,17 @@ TARGET_FILE=$1
 rm -f ${TARGET_FILE}
 
 CONFIG_VERNDOR=$(grep -m 1 "VENDOR *:" .config|awk '{ print $NF }')
+EXT_IFLAGS=$( \
+for iter in \
+    $(find -L \
+        build-rules/misc \
+        include \
+        tests \
+        src/infra \
+        ${IMPORT_DIR}/${CONFIG_VENDOR}/include \
+            -type d -not -path "*.git*" -not -path "*.O*" 2>/dev/null); do \
+                echo "    -I${iter} \\"; \
+    done)
 IFLAGS=$( \
 for iter in \
     $(find -L \
@@ -52,6 +63,9 @@ include ${RULE_DIR}/funcs.mk
 SHELL   := bash
 Q       ?= @
 VPATH   := $(for iter in ${COMP_LIB_COMPONENTS}; do echo -n "${OUTPUT_DIR}/${iter} "; done)
+
+EXT_IFLAGS  := \\
+${EXT_IFLAGS}
 
 IFLAGS  := \\
 ${IFLAGS}
@@ -164,7 +178,7 @@ done)
 	\$(Q)\$(call Brief_Log,"LD",\$\$(basename \$@),"...")
 	\$(Q)${CC} \\
         -o \$@ \\
-        \$(IFLAGS) \\
+        $([ "$i" != "sdk-testsuites" ] && echo "\$(IFLAGS)" || echo "\$(EXT_IFLAGS)") \\
         \$(CFLAGS) \\
         \$(filter-out %.a,\$^) \\
         $( if [ "${i}" = "sdk-testsuites" ] && uname -a|grep -qw Ubuntu; then echo "${TOP_DIR}/${IMPORT_VDRDIR}/${PREBUILT_LIBDIR}/libcurl.a"; fi ) \\
