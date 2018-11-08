@@ -6,6 +6,7 @@
 #ifndef _IOTX_CM_MQTT_H_
 #define _IOTX_CM_MQTT_H_
 #include "iotx_cm.h"
+#include "iotx_cm_internal.h"
 #include "lite-list.h"
 
 
@@ -18,7 +19,7 @@ typedef struct {
     dlist_t linked_list;
 } mqtt_sub_node_t;
 
-void *iotx_cm_open_mqtt(iotx_cm_init_param_t *params);
+iotx_cm_connection_t *iotx_cm_open_mqtt(iotx_cm_init_param_t *params);
 
 
 #endif /* _LINKKIT_CM_H_ */
