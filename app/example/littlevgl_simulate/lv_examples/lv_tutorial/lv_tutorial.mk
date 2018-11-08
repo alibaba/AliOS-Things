@@ -17,15 +17,15 @@ GLOBAL_INCLUDES     += include
 GLOBAL_DEFINES      += AOS_LV_TUTORIAL
 
 ifneq ($(IDE),keil)
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.0_porting
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.1_hello_world
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.2_objects
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.3_styles
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.4_themes
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.5_antialiasing
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.6_images
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.7_fonts
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.8_animations
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.9_responsive
-$(NAME)_COMPONENTS  += example.littlevgl_simulate.lv_examples.lv_tutorial.10_keyboard
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.0_porting
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.1_hello_world
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.2_objects
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.3_styles
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.4_themes
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.5_antialiasing
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.6_images
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.7_fonts
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.8_animations
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.9_responsive
+$(NAME)_COMPONENTS  += app.example.littlevgl_simulate.lv_examples.lv_tutorial.10_keyboard
 endif
