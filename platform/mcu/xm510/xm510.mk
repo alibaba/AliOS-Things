@@ -27,7 +27,7 @@ $(NAME)_COMPONENTS += 3rdparty.experimental.fs.jffs2
 $(NAME)_COMPONENTS += 3rdparty.experimental.fs.cramfs
 
 #ramfs
-$(NAME)_COMPONENTS += kernel.rhino.fs.ramfs
+$(NAME)_COMPONENTS += kernel.fs.ramfs
 
 # kv related if kv is enabled
 GLOBAL_DEFINES      += CONFIG_AOS_KV_BLKBITS=16
