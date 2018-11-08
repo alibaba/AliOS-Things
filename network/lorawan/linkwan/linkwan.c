@@ -12,7 +12,7 @@
 #include "radio.h"
 #ifdef AOS_KV
 #include <assert.h>
-#include "kvmgr.h"
+#include <aos/kv.h>
 #endif
 #include <k_config.h>
 #include <k_types.h>
