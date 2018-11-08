@@ -225,7 +225,7 @@ int iotx_report_devinfo(void *pclient)
 
     HAL_Free(msg);
     if (ret < 0) {
-        VERSION_ERR("publish failed");
+        VERSION_ERR("publish failed, ret = %d", ret);
         return FAIL_RETURN;
     }
     VERSION_DEBUG("devinfo report succeed");
@@ -369,7 +369,7 @@ int iotx_report_mid(void *pclient)
 
     ret = info_report_func(pclient, topic_name, 1, msg, strlen(msg));
     if (ret < 0) {
-        VERSION_ERR("publish failed");
+        VERSION_ERR("publish failed, ret = %d", ret);
         HAL_Free(msg);
         return FAIL_RETURN;
     }
