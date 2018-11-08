@@ -405,10 +405,6 @@ int linkkit_main(void *paras)
 
     user_example_ctx->subdev_index = -1;
 
-    /* Init cJSON Hooks */
-    cJSON_Hooks cjson_hooks = {example_malloc, example_free};
-    cJSON_InitHooks(&cjson_hooks);
-
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
     /* Register Callback */
