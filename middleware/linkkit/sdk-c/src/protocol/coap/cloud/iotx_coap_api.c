@@ -326,23 +326,23 @@ static void iotx_coap_mid_rsphdl(void *arg, void *p_response)
     }
 }
 
-static int coap_report_func(void *handle, const char *topic_name,int req_ack,void *data, int len)
+static int coap_report_func(void *handle, const char *topic_name, int req_ack, void *data, int len)
 {
     iotx_message_t          message;
     char coap_topic[100] = {0};
 
-    memset(&message ,0 , sizeof(iotx_message_t));
+    memset(&message, 0, sizeof(iotx_message_t));
     message.p_payload = (unsigned char *)data;
     message.payload_len = len;
     message.resp_callback = iotx_coap_mid_rsphdl;
-    if(req_ack == 0)
+    if (req_ack == 0) {
         message.msg_type = IOTX_MESSAGE_NON;
-    else {
+    } else {
         message.msg_type = IOTX_MESSAGE_CON;
     }
     message.content_type = IOTX_CONTENT_TYPE_JSON;
-    
-    HAL_Snprintf(coap_topic,100,"/topic%s",topic_name);                 
+
+    HAL_Snprintf(coap_topic, 100, "/topic%s", topic_name);
     return IOT_CoAP_SendMessage(handle, (char *)coap_topic, &message);
 }
 
@@ -530,7 +530,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
         COAP_DEBUG("Send ModuleId message to server(CoAP) failed ret = %d", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
     }
-    
+
     return IOTX_SUCCESS;
 }
 
@@ -576,7 +576,7 @@ static int iotx_split_path_2_option(char *uri, Cloud_CoAPMessage *message)
 
 uint32_t IOT_CoAP_GetCurToken(iotx_coap_context_t *p_context)
 {
-    if(p_context == NULL) {
+    if (p_context == NULL) {
         return IOTX_ERR_INVALID_PARAM;
     }
     iotx_coap_t *p_iotx_coap = (iotx_coap_t *)p_context;
@@ -602,6 +602,10 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
                  p_context, p_path, p_message);
         return IOTX_ERR_INVALID_PARAM;
     }
+
+    COAP_INFO("Upstream Topic: '%s'", p_path);
+    COAP_INFO("Upstream Payload:");
+    iotx_facility_json_print((const char *)p_message->p_payload, LOG_INFO_LEVEL, '>');
 
     /* as this function only support POST request message, type ACK and RST shall be considered error parameters */
     if (p_message->msg_type != IOTX_MESSAGE_CON && p_message->msg_type != IOTX_MESSAGE_NON) {
@@ -740,10 +744,10 @@ int  IOT_CoAP_GetMessageToken(void *p_message, unsigned int *token)
     }
     message = (Cloud_CoAPMessage *)p_message;
 
-    *token = ((unsigned int)(message->token[3]) & 0xff) << 24; 
-    *token += ((unsigned int)(message->token[2]) & 0xff) << 16; 
-    *token += ((unsigned int)(message->token[1]) & 0xff) << 8; 
-    *token += ((unsigned int)(message->token[0]) & 0xff); 
+    *token = ((unsigned int)(message->token[3]) & 0xff) << 24;
+    *token += ((unsigned int)(message->token[2]) & 0xff) << 16;
+    *token += ((unsigned int)(message->token[1]) & 0xff) << 8;
+    *token += ((unsigned int)(message->token[0]) & 0xff);
     return 0;
 }
 
