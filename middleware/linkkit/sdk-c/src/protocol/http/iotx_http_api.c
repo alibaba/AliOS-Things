@@ -137,11 +137,11 @@ static int construct_full_http_upstream_url(char *buf, const char *topic_path)
     return 0;
 }
 
-static int http_report_func(void *handle, const char *topic_name,int req_ack,void *data, int len)
+static int http_report_func(void *handle, const char *topic_name, int req_ack, void *data, int len)
 {
     iotx_http_message_param_t   msg_param;
     char                        request_buf[1024];
-    if(handle == NULL ||topic_name== NULL || data==NULL ) {
+    if (handle == NULL || topic_name == NULL || data == NULL) {
         http_err("params err");
         return -1;
     }
@@ -353,15 +353,15 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     http_debug("allocate req_payload: len = %d", len);
 
     len = HAL_Snprintf(req_payload, len + 1,
-                        IOTX_HTTP_AUTH_DEVICENAME_STR,
-                        "default",
-                        iotx_http_context->p_devinfo->device_id,
-                        IOTX_SHA_METHOD,
-                        sign,
-                        iotx_http_context->p_devinfo->product_key,
-                        iotx_http_context->p_devinfo->device_name,
-                        timestamp
-                       );
+                       IOTX_HTTP_AUTH_DEVICENAME_STR,
+                       "default",
+                       iotx_http_context->p_devinfo->device_id,
+                       IOTX_SHA_METHOD,
+                       sign,
+                       iotx_http_context->p_devinfo->product_key,
+                       iotx_http_context->p_devinfo->device_name,
+                       timestamp
+                      );
     http_debug("len = %d, req_payload: \r\n%s", len, req_payload);
 
     /* Malloc Http Response Payload */
@@ -480,7 +480,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     // /* report module id */
     // ret = iotx_http_report_mid(iotx_http_context);
     if (SUCCESS_RETURN != ret) {
-        http_err("Send ModuleId message to server(Http) failed ret = %d", ret);
+        http_err("Send ModuleId message to server(Http) failed, ret = %d", ret);
         goto do_exit;
     }
 

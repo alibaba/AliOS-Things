@@ -511,7 +511,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     Cloud_CoAPMessage_destory(&message);
 
     if (COAP_SUCCESS != ret) {
-        COAP_DEBUG("Send authentication message to server failed ret = %d", ret);
+        COAP_DEBUG("Send authentication message to server failed, ret = %d", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
     }
 
@@ -527,7 +527,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     ret = iotx_report_mid(p_context);
     // ret = iotx_coap_report_mid(p_context);
     if (SUCCESS_RETURN != ret) {
-        COAP_DEBUG("Send ModuleId message to server(CoAP) failed ret = %d", ret);
+        COAP_DEBUG("Send ModuleId message to server(CoAP) failed, ret = %d", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
     }
 
