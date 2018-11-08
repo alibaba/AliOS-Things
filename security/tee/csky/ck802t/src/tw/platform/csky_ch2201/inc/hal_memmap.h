@@ -37,7 +37,7 @@
 
 #if CONFIG_TEST
 #define HAL_TW_RO_SIZE (_SIZE_64K) /* 64K Flash */
-#define HAL_TW_RW_SIZE (_SIZE_16K) /* 16K ISRAM */
+#define HAL_TW_RW_SIZE (_SIZE_8K)  /* 8K ISRAM */
 #else
 #define HAL_TW_RO_SIZE (_SIZE_32K) /* 32K Flash */
 #define HAL_TW_RW_SIZE (_SIZE_8K)  /* 8K ISRAM */

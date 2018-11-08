@@ -5,7 +5,7 @@
 #include "tee_trm.h"
 #include "tee_trm_priv.h"
 
-#define CONFIG_ID2_TEST
+//#define CONFIG_ID2_TEST
 
 #if CONFIG_ID2_RSA_KEY
 extern void _convert_buf_to_bndata(const uint8_t *src, int32_t src_bytes,
