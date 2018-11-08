@@ -514,10 +514,9 @@ const char DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT[] DM_READ_ONLY =
             "{\"id\":%d,\"code\":%d,\"devid\":%d,\"payload\":%.*s}";
 int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
 {
-    int res = 0, id = 0, message_len = 0, payload_len = 0;
+    int res = 0, devid = 0, id = 0, message_len = 0, payload_len = 0;
     char *message = NULL, *payload = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-    dm_msg_cache_node_t *node = NULL;
 
     /* Message ID */
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -528,10 +527,14 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
 
     /* dm_log_debug("Current ID: %d", id); */
 
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+    devid = node->devid;
+#endif
 
     if ((strlen("success") == response->message.value_length) &&
         (memcmp("success", response->message.value, response->message.value_length) == 0)) {
@@ -549,7 +552,7 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response)
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT, id, response->code.value_int, node->devid,
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_POST_REPLY_FMT, id, response->code.value_int, devid,
                  payload_len, payload);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY, message);
@@ -566,10 +569,9 @@ const char DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT[] DM_READ_ONLY =
 int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len,
                                   _IN_ dm_msg_response_payload_t *response)
 {
-    int res = 0, id = 0, message_len = 0;
+    int res = 0, devid = 0, id = 0, message_len = 0;
     char *message = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-    dm_msg_cache_node_t *node = NULL;
 
     /* Message ID */
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -580,10 +582,14 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
 
     /* dm_log_debug("Current ID: %d", id); */
 
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+    devid = node->devid;
+#endif
 
     message_len = strlen(DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + strlen(
                               identifier) + response->message.value_length + 1;
@@ -592,7 +598,7 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT, id, response->code.value_int, node->devid,
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_SPECIFIC_POST_REPLY_FMT, id, response->code.value_int, devid,
                  identifier_len, identifier, response->message.value_length, response->message.value);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_EVENT_SPECIFIC_POST_REPLY, message);
@@ -607,10 +613,9 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
 const char DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
 {
-    int res = 0, id = 0, message_len = 0;
+    int res = 0, devid = 0, id = 0, message_len = 0;
     char *message = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-    dm_msg_cache_node_t *node = NULL;
 
     /* Message ID */
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -621,10 +626,14 @@ int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
 
     /* dm_log_debug("Current ID: %d", id); */
 
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+    devid = node->devid;
+#endif
 
     message_len = strlen(DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
@@ -632,7 +641,7 @@ int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT, id, response->code.value_int, node->devid);
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT, id, response->code.value_int, devid);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY, message);
     if (res != SUCCESS_RETURN) {
@@ -646,10 +655,9 @@ int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
 const char DM_MSG_EVENT_DEVICEINFO_DELETE_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
 {
-    int res = 0, id = 0, message_len = 0;
+    int res = 0, devid = 0, id = 0, message_len = 0;
     char *message = NULL;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-    dm_msg_cache_node_t *node = NULL;
 
     /* Message ID */
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -660,10 +668,14 @@ int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
 
     /* dm_log_debug("Current ID: %d", id); */
 
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+    devid = node->devid;
+#endif
 
     message_len = strlen(DM_MSG_EVENT_DEVICEINFO_DELETE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
@@ -671,7 +683,7 @@ int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_DEVICEINFO_DELETE_REPLY_FMT, id, response->code.value_int, node->devid);
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_DEVICEINFO_DELETE_REPLY_FMT, id, response->code.value_int, devid);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY, message);
     if (res != SUCCESS_RETURN) {
@@ -684,9 +696,9 @@ int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response)
 
 int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response)
 {
-    int res = 0, id = 0;
+#ifdef DEPRECATED_LINKKIT
+    int res = 0, devid = 0, id = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-    dm_msg_cache_node_t *node = NULL;
 
     if (response == NULL) {
         return DM_INVALID_PARAMETER;
@@ -701,13 +713,16 @@ int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response)
 
     /* dm_log_debug("Current ID: %d", id); */
 
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+    devid = node->devid;
+#endif
 
-#ifdef DEPRECATED_LINKKIT
-    dm_mgr_deprecated_set_tsl(node->devid, IOTX_DM_TSL_TYPE_ALINK, (const char *)response->data.value,
+    dm_mgr_deprecated_set_tsl(devid, IOTX_DM_TSL_TYPE_ALINK, (const char *)response->data.value,
                               response->data.value_length);
 #endif
 
@@ -716,9 +731,9 @@ int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response)
 
 int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
 {
-    int res = 0, id = 0;
+#ifdef DEPRECATED_LINKKIT
+    int res = 0, devid = 0, id = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-    dm_msg_cache_node_t *node = NULL;
 
     if (response == NULL) {
         return DM_INVALID_PARAMETER;
@@ -733,15 +748,18 @@ int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response)
 
     /* dm_log_debug("Current ID: %d", id); */
 
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+    devid = node->devid;
+#endif
 
-#ifdef DEPRECATED_LINKKIT
-    dm_mgr_deprecated_set_tsl(node->devid, IOTX_DM_TSL_TYPE_ALINK, (const char *)response->data.value,
+    dm_mgr_deprecated_set_tsl(devid, IOTX_DM_TSL_TYPE_ALINK, (const char *)response->data.value,
                               response->data.value_length);
-    dm_mgr_dev_initialized(node->devid);
+    dm_mgr_dev_initialized(devid);
 #endif
     return SUCCESS_RETURN;
 }
@@ -1169,10 +1187,9 @@ int dm_msg_thing_sub_register_reply(dm_msg_response_payload_t *response)
 const char DM_MSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
 {
-    int res = 0, id, message_len = 0;
+    int res = 0, devid = 0, id, message_len = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
     char *message = NULL;
-    dm_msg_cache_node_t *node = NULL;
 
     if (response == NULL) {
         return DM_INVALID_PARAMETER;
@@ -1186,10 +1203,14 @@ int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
 
     /* dm_log_debug("Current ID: %d", id); */
 
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+    devid = node->devid;
+#endif
 
     message_len = strlen(DM_MSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
@@ -1197,7 +1218,7 @@ int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT, id, response->code.value_int, node->devid);
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_SUBDEV_UNREGISTER_REPLY_FMT, id, response->code.value_int, devid);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_SUBDEV_UNREGISTER_REPLY, message);
     if (res != SUCCESS_RETURN) {
@@ -1210,9 +1231,8 @@ int dm_msg_thing_sub_unregister_reply(dm_msg_response_payload_t *response)
 const char DM_MSG_EVENT_THING_TOPO_ADD_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
 {
-    int res = 0, id = 0, message_len = 0;
+    int res = 0, devid = 0, id = 0, message_len = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-    dm_msg_cache_node_t *node = NULL;
     char *message = NULL;
 
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -1223,10 +1243,14 @@ int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
 
     /* dm_log_debug("Current ID: %d", id); */
 
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+    devid = node->devid;
+#endif
 
     /* Update State Machine */
     if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS) {
@@ -1239,7 +1263,7 @@ int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_THING_TOPO_ADD_REPLY_FMT, id, response->code.value_int, node->devid);
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_THING_TOPO_ADD_REPLY_FMT, id, response->code.value_int, devid);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_TOPO_ADD_REPLY, message);
     if (res != SUCCESS_RETURN) {
@@ -1253,9 +1277,8 @@ int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
 const char DM_MSG_EVENT_THING_TOPO_DELETE_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int dm_msg_thing_topo_delete_reply(dm_msg_response_payload_t *response)
 {
-    int res = 0, id = 0, message_len = 0;
+    int res = 0, devid = 0, id = 0, message_len = 0;
     char int_id[DM_UTILS_UINT32_STRLEN] = {0};
-    dm_msg_cache_node_t *node = NULL;
     char *message = NULL;
 
     if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
@@ -1266,10 +1289,14 @@ int dm_msg_thing_topo_delete_reply(dm_msg_response_payload_t *response)
 
     /* dm_log_debug("Current ID: %d", id); */
 
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
     res = dm_msg_cache_search(id, &node);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+    devid = node->devid;
+#endif
 
     /* Update State Machine */
     if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS) {
@@ -1282,7 +1309,7 @@ int dm_msg_thing_topo_delete_reply(dm_msg_response_payload_t *response)
         return DM_MEMORY_NOT_ENOUGH;
     }
     memset(message, 0, message_len);
-    HAL_Snprintf(message, message_len, DM_MSG_EVENT_THING_TOPO_DELETE_REPLY_FMT, id, response->code.value_int, node->devid);
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_THING_TOPO_DELETE_REPLY_FMT, id, response->code.value_int, devid);
 
     res = _dm_msg_send_to_user(IOTX_DM_EVENT_TOPO_DELETE_REPLY, message);
     if (res != SUCCESS_RETURN) {
