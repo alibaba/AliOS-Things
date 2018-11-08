@@ -119,7 +119,7 @@ deps = Split('''
         utility/digest_algorithm
         osal
         kernel/init
-        kernel/modules/fs/kv
+        kernel/fs/kv
 ''')
 
 global_macros = Split('''
