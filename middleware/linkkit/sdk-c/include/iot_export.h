@@ -84,7 +84,7 @@ typedef struct {
     char        device_id[DEVICE_ID_LEN + 1];
     char        device_secret[DEVICE_SECRET_LEN + 1];
     char        module_vendor_id[MODULE_VENDOR_ID + 1];
-} iotx_device_info_t, *iotx_device_info_pt;
+} iotx_device_info_t;
 
 typedef struct {
     uint16_t        port;

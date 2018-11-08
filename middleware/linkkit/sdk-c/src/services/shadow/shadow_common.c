@@ -140,6 +140,8 @@ iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt
 #define UPDATE_JSON_STR_END         ",\"clientToken\":\"%s-%d\",\"version\":%d}"
 
     int ret;
+    char device_id[DEVICE_ID_LEN + 1] = {0};
+
     uint16_t size_free_space = pformat->buf_size - pformat->offset;
 
     if (NULL != tail_str) {
@@ -147,13 +149,13 @@ iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt
         CHECK_SNPRINTF_RET(ret, size_free_space);
         pformat->offset += ret;
     }
-
+    HAL_GetDeviceID(device_id);
     size_free_space = pformat->buf_size - pformat->offset;
-
+    
     ret = HAL_Snprintf(pformat->buf + pformat->offset,
                        size_free_space,
                        UPDATE_JSON_STR_END,
-                       iotx_device_info_get()->device_id,
+                       device_id,
                        iotx_ds_common_get_tokennum(pshadow),
                        iotx_ds_common_get_version(pshadow));
 
@@ -341,7 +343,8 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
 
     int len, ret;
     char *topic_full = NULL;
-    iotx_device_info_pt pdevice_info = iotx_device_info_get();
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
 
     len = SHADOW_TOPIC_LEN + sizeof(SHADOW_TOPIC_FMT);
 
@@ -351,12 +354,15 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
         return NULL;
     }
 
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+
     ret = HAL_Snprintf(topic_full,
                        len,
                        SHADOW_TOPIC_FMT,
                        topic,
-                       pdevice_info->product_key,
-                       pdevice_info->device_name);
+                       product_key,
+                       device_name);
     if (ret < 0) {
         LITE_free(topic_full);
         return NULL;

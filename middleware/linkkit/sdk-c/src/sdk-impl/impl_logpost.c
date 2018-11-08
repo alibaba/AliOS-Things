@@ -62,8 +62,14 @@ static int iotx_mc_log_post(void *pclient, char *payload)
 {
     int ret;
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
+
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+
     iotx_mqtt_topic_info_t topic_info;
-    iotx_device_info_pt dev = iotx_device_info_get();
+    
 
     if (!payload || !pclient) {
         return FAIL_RETURN;
@@ -73,8 +79,8 @@ static int iotx_mc_log_post(void *pclient, char *payload)
     ret = HAL_Snprintf(topic_name,
                        IOTX_URI_MAX_LEN,
                        "/sys/%s/%s/thing/log/post",
-                       dev->product_key,
-                       dev->device_name);
+                       product_key,
+                       device_name);
     if (ret <= 0) {
         log_err("logpost", "log topic generate err");
         return FAIL_RETURN;
