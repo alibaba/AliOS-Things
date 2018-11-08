@@ -1,4 +1,4 @@
-#ifdef MQTT_COMM_ENABLED
+#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
 #include "iot_import.h"
 #include "iotx_cm.h"
 #include "iotx_cm_internal.h"

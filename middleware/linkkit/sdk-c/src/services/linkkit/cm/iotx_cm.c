@@ -34,7 +34,7 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 
     switch (params->protocol_type) {
         case IOTX_CM_PROTOCOL_TYPE_MQTT:
-#ifdef MQTT_COMM_ENABLED
+#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
             connection = iotx_cm_open_mqtt(params);
 #endif
             break;
