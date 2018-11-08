@@ -62,6 +62,8 @@ int dm_mgr_dev_initialized(int devid);
     int dm_mgr_upstream_combine_login(_IN_ int devid);
     int dm_mgr_upstream_combine_logout(_IN_ int devid);
 #endif
+int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *method,
                                      _IN_ char *payload, _IN_ int payload_len);
@@ -69,7 +71,6 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
 int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_thing_dsltemplate_get(_IN_ int devid);
 int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid);
-int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_ntp_request(void);
 int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
         _IN_ iotx_dm_error_code_t code,
@@ -79,6 +80,7 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
         _IN_ char *payload, _IN_ int payload_len, _IN_ void *ctx);
 int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len);
+#endif
 #ifdef DEPRECATED_LINKKIT
 int dm_mgr_deprecated_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source);
 int dm_mgr_deprecated_get_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t *tsl_source);

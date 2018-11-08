@@ -169,14 +169,18 @@ typedef enum {
 
 #define IOTX_DM_POST_PROPERTY_ALL (NULL)
 
-int iotx_dm_set_opt(int opt, void *data);
-int iotx_dm_get_opt(int opt, void *data);
 int iotx_dm_open(void);
 int iotx_dm_connect(_IN_ iotx_dm_init_params_t *init_params);
 int iotx_dm_subscribe(_IN_ int devid);
 int iotx_dm_close(void);
+int iotx_dm_yield(int timeout_ms);
+void iotx_dm_dispatch(void);
 
+int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+int iotx_dm_set_opt(int opt, void *data);
+int iotx_dm_get_opt(int opt, void *data);
 int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,
                        _IN_ int payload_len);
@@ -189,14 +193,12 @@ int iotx_dm_send_property_get_response(_IN_ int devid, _IN_ char *msgid, _IN_ in
                                        _IN_ char *payload, _IN_ int payload_len, _IN_ void *ctx);
 int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len);
-int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
-
 int iotx_dm_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
-int iotx_dm_yield(int timeout_ms);
-void iotx_dm_dispatch(void);
 int iotx_dm_qurey_ntp(void);
 int iotx_dm_send_aos_active(int devid);
+#endif
+
 int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);
 int iotx_dm_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys);
 int iotx_dm_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len);

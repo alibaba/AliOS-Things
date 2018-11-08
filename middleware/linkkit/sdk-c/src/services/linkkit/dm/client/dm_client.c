@@ -1,17 +1,19 @@
 #include "iotx_dm_internal.h"
 
 static dm_client_uri_map_t g_dm_client_uri_map[] = {
+    {DM_URI_THING_MODEL_DOWN_RAW,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_model_down_raw               },
+    {DM_URI_THING_MODEL_UP_RAW_REPLY,         DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_model_up_raw_reply           },
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     {DM_URI_THING_SERVICE_PROPERTY_SET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_service_property_set         },
     {DM_URI_THING_SERVICE_REQUEST_WILDCARD,   DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_service_request              },
     {DM_URI_THING_EVENT_POST_REPLY_WILDCARD,  DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_event_post_reply             },
-    {DM_URI_THING_MODEL_DOWN_RAW,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_model_down_raw               },
     {DM_URI_THING_DEVICEINFO_UPDATE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_deviceinfo_update_reply      },
     {DM_URI_THING_DEVICEINFO_DELETE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_deviceinfo_delete_reply      },
     {DM_URI_THING_DYNAMICTSL_GET_REPLY,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_dynamictsl_get_reply         },
-    {DM_URI_THING_MODEL_UP_RAW_REPLY,         DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_thing_model_up_raw_reply           },
     {DM_URI_RRPC_REQUEST_WILDCARD,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     dm_client_rrpc_request_wildcard              },
     {DM_URI_NTP_RESPONSE,                     DM_URI_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_ALL,     dm_client_ntp_response                       },
     {NULL,                                    DM_URI_EXT_ERROR_PREFIX,   IOTX_DM_DEVICE_ALL,     dm_client_ext_error                          },
+#endif
 #ifdef DEVICE_MODEL_GATEWAY
     {DM_URI_THING_TOPO_ADD_NOTIFY,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, dm_client_thing_topo_add_notify              },
     {DM_URI_THING_GATEWAY_PERMIT,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, dm_client_thing_gateway_permit               },
@@ -32,12 +34,12 @@ static dm_client_uri_map_t g_dm_client_uri_map[] = {
 static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_key[PRODUCT_KEY_MAXLEN],
                                        char device_name[DEVICE_NAME_MAXLEN])
 {
-    int res = 0;
-
     if (uri_name == NULL) {
         return SUCCESS_RETURN;
     }
 
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    int res = 0;
     if (strlen(uri_name) == strlen(DM_URI_THING_EVENT_POST_REPLY_WILDCARD) &&
         memcmp(uri_name, DM_URI_THING_EVENT_POST_REPLY_WILDCARD, strlen(uri_name)) == 0) {
         int event_post_reply_opt = 0;
@@ -47,6 +49,7 @@ static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_k
             return FAIL_RETURN;
         }
     }
+#endif
 
     return SUCCESS_RETURN;
 }
@@ -131,6 +134,37 @@ void dm_client_event_handle(int fd, iotx_cm_event_msg_t *event, void *context)
     }
 }
 
+void dm_client_thing_model_down_raw(int fd, const char *topic, const char *payload, unsigned int payload_len,
+                                    void *context)
+{
+    dm_msg_source_t source;
+
+    memset(&source, 0, sizeof(dm_msg_source_t));
+
+    source.uri = topic;
+    source.payload = (unsigned char *)payload;
+    source.payload_len = payload_len;
+    source.context = NULL;
+
+    dm_msg_proc_thing_model_down_raw(&source);
+}
+
+void dm_client_thing_model_up_raw_reply(int fd, const char *topic, const char *payload, unsigned int payload_len,
+                                        void *context)
+{
+    dm_msg_source_t source;
+
+    memset(&source, 0, sizeof(dm_msg_source_t));
+
+    source.uri = topic;
+    source.payload = (unsigned char *)payload;
+    source.payload_len = payload_len;
+    source.context = NULL;
+
+    dm_msg_proc_thing_model_up_raw_reply(&source);
+}
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 void dm_client_thing_service_property_set(int fd, const char *topic, const char *payload, unsigned int payload_len,
         void *context)
 {
@@ -196,21 +230,6 @@ void dm_client_thing_event_post_reply(int fd, const char *topic, const char *pay
     dm_msg_proc_thing_event_post_reply(&source);
 }
 
-void dm_client_thing_model_down_raw(int fd, const char *topic, const char *payload, unsigned int payload_len,
-                                    void *context)
-{
-    dm_msg_source_t source;
-
-    memset(&source, 0, sizeof(dm_msg_source_t));
-
-    source.uri = topic;
-    source.payload = (unsigned char *)payload;
-    source.payload_len = payload_len;
-    source.context = NULL;
-
-    dm_msg_proc_thing_model_down_raw(&source);
-}
-
 void dm_client_thing_deviceinfo_update_reply(int fd, const char *topic, const char *payload, unsigned int payload_len,
         void *context)
 {
@@ -256,21 +275,6 @@ void dm_client_thing_dynamictsl_get_reply(int fd, const char *topic, const char 
     dm_msg_proc_thing_dynamictsl_get_reply(&source);
 }
 
-void dm_client_thing_model_up_raw_reply(int fd, const char *topic, const char *payload, unsigned int payload_len,
-                                        void *context)
-{
-    dm_msg_source_t source;
-
-    memset(&source, 0, sizeof(dm_msg_source_t));
-
-    source.uri = topic;
-    source.payload = (unsigned char *)payload;
-    source.payload_len = payload_len;
-    source.context = NULL;
-
-    dm_msg_proc_thing_model_up_raw_reply(&source);
-}
-
 void dm_client_rrpc_request_wildcard(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                      void *context)
 {
@@ -313,6 +317,7 @@ void dm_client_ext_error(int fd, const char *topic, const char *payload, unsigne
 
     dm_disp_ext_error_response(&source);
 }
+#endif
 
 #ifdef DEVICE_MODEL_GATEWAY
 void dm_client_thing_topo_add_notify(int fd, const char *topic, const char *payload, unsigned int payload_len,
