@@ -790,7 +790,7 @@ struct awss_protocol_couple_type awss_protocol_couple_array[] = {
  * @Return:
  *     @see enum ALINK_TYPE
  *
- * @Note: howto deal with radio SSI signal
+ * @Note: howto deal with radio RSSI signal
  */
 int ieee80211_data_extract(uint8_t *in, int len, int link_type, struct parser_res *res, signed char rssi)
 {

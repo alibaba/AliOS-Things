@@ -26,10 +26,6 @@
     #include "iotx_ota.h"
 #endif
 
-#ifdef DEV_BIND_ENABLED
-    #include "awss.h"
-#endif
-
 /* CM Header File */
 #include "iotx_cm.h"
 
