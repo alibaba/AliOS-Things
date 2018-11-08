@@ -12,44 +12,45 @@ const char DM_URI_EXT_NTP_PREFIX[]                    DM_READ_ONLY = "/ext/ntp/%
 const char DM_URI_EXT_ERROR_PREFIX[]                  DM_READ_ONLY = "/ext/error/%s/%s";
 const char DM_URI_REPLY_SUFFIX[]                      DM_READ_ONLY = "_reply";
 
-const char DM_URI_RRPC_REQUEST_WILDCARD[]             DM_READ_ONLY = "rrpc/request/+";
-
 /* From Cloud To Local Request And Response*/
-const char DM_URI_THING_SERVICE_PROPERTY_SET[]        DM_READ_ONLY = "thing/service/property/set";
-const char DM_URI_THING_SERVICE_PROPERTY_SET_REPLY[]  DM_READ_ONLY = "thing/service/property/set_reply";
-const char DM_URI_THING_SERVICE_PROPERTY_GET[]        DM_READ_ONLY = "thing/service/property/get";
-const char DM_URI_THING_SERVICE_PROPERTY_GET_REPLY[]  DM_READ_ONLY = "thing/service/property/get_reply";
-const char DM_URI_THING_SERVICE_REQUEST_WILDCARD[]    DM_READ_ONLY = "thing/service/+";
-const char DM_URI_THING_SERVICE_REQUEST[]             DM_READ_ONLY = "thing/service/%s";
-const char DM_URI_THING_SERVICE_RESPONSE[]            DM_READ_ONLY = "thing/service/%.*s_reply";
 const char DM_URI_THING_MODEL_DOWN_RAW[]              DM_READ_ONLY = "thing/model/down_raw";
 const char DM_URI_THING_MODEL_DOWN_RAW_REPLY[]        DM_READ_ONLY = "thing/model/down_raw_reply";
 
 /* From Local To Cloud Request And Response*/
-const char DM_URI_THING_EVENT_PROPERTY_POST[]         DM_READ_ONLY = "thing/event/property/post";
-const char DM_URI_THING_EVENT_PROPERTY_POST_REPLY[]   DM_READ_ONLY = "thing/event/property/post_reply";
-const char DM_URI_THING_EVENT_POST[]                  DM_READ_ONLY = "thing/event/%.*s/post";
-const char DM_URI_THING_EVENT_POST_REPLY[]            DM_READ_ONLY = "thing/event/%s/post_reply";
-const char DM_URI_THING_EVENT_POST_REPLY_WILDCARD[]   DM_READ_ONLY = "thing/event/+/post_reply";
-const char DM_URI_THING_DEVICEINFO_UPDATE[]           DM_READ_ONLY = "thing/deviceinfo/update";
-const char DM_URI_THING_DEVICEINFO_UPDATE_REPLY[]     DM_READ_ONLY = "thing/deviceinfo/update_reply";
-const char DM_URI_THING_DEVICEINFO_DELETE[]           DM_READ_ONLY = "thing/deviceinfo/delete";
-const char DM_URI_THING_DEVICEINFO_DELETE_REPLY[]     DM_READ_ONLY = "thing/deviceinfo/delete_reply";
-const char DM_URI_THING_DSLTEMPLATE_GET[]             DM_READ_ONLY = "thing/dsltemplate/get";
-const char DM_URI_THING_DSLTEMPLATE_GET_REPLY[]       DM_READ_ONLY = "thing/dsltemplate/get_reply";
-const char DM_URI_THING_DYNAMICTSL_GET[]              DM_READ_ONLY = "thing/dynamicTsl/get";
-const char DM_URI_THING_DYNAMICTSL_GET_REPLY[]        DM_READ_ONLY = "thing/dynamicTsl/get_reply";
 const char DM_URI_THING_MODEL_UP_RAW[]                DM_READ_ONLY = "thing/model/up_raw";
 const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY = "thing/model/up_raw_reply";
-const char DM_URI_NTP_REQUEST[]                       DM_READ_ONLY = "request";
-const char DM_URI_NTP_RESPONSE[]                      DM_READ_ONLY = "response";
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    const char DM_URI_RRPC_REQUEST_WILDCARD[]             DM_READ_ONLY = "rrpc/request/+";
+
+    /* From Cloud To Local Request And Response*/
+    const char DM_URI_THING_SERVICE_PROPERTY_SET[]        DM_READ_ONLY = "thing/service/property/set";
+    const char DM_URI_THING_SERVICE_PROPERTY_SET_REPLY[]  DM_READ_ONLY = "thing/service/property/set_reply";
+    const char DM_URI_THING_SERVICE_PROPERTY_GET[]        DM_READ_ONLY = "thing/service/property/get";
+    const char DM_URI_THING_SERVICE_PROPERTY_GET_REPLY[]  DM_READ_ONLY = "thing/service/property/get_reply";
+    const char DM_URI_THING_SERVICE_REQUEST_WILDCARD[]    DM_READ_ONLY = "thing/service/+";
+    const char DM_URI_THING_SERVICE_REQUEST[]             DM_READ_ONLY = "thing/service/%s";
+    const char DM_URI_THING_SERVICE_RESPONSE[]            DM_READ_ONLY = "thing/service/%.*s_reply";
+
+    /* From Local To Cloud Request And Response*/
+    const char DM_URI_THING_EVENT_PROPERTY_POST[]         DM_READ_ONLY = "thing/event/property/post";
+    const char DM_URI_THING_EVENT_PROPERTY_POST_REPLY[]   DM_READ_ONLY = "thing/event/property/post_reply";
+    const char DM_URI_THING_EVENT_POST[]                  DM_READ_ONLY = "thing/event/%.*s/post";
+    const char DM_URI_THING_EVENT_POST_REPLY[]            DM_READ_ONLY = "thing/event/%s/post_reply";
+    const char DM_URI_THING_EVENT_POST_REPLY_WILDCARD[]   DM_READ_ONLY = "thing/event/+/post_reply";
+    const char DM_URI_THING_DEVICEINFO_UPDATE[]           DM_READ_ONLY = "thing/deviceinfo/update";
+    const char DM_URI_THING_DEVICEINFO_UPDATE_REPLY[]     DM_READ_ONLY = "thing/deviceinfo/update_reply";
+    const char DM_URI_THING_DEVICEINFO_DELETE[]           DM_READ_ONLY = "thing/deviceinfo/delete";
+    const char DM_URI_THING_DEVICEINFO_DELETE_REPLY[]     DM_READ_ONLY = "thing/deviceinfo/delete_reply";
+    const char DM_URI_THING_DSLTEMPLATE_GET[]             DM_READ_ONLY = "thing/dsltemplate/get";
+    const char DM_URI_THING_DSLTEMPLATE_GET_REPLY[]       DM_READ_ONLY = "thing/dsltemplate/get_reply";
+    const char DM_URI_THING_DYNAMICTSL_GET[]              DM_READ_ONLY = "thing/dynamicTsl/get";
+    const char DM_URI_THING_DYNAMICTSL_GET_REPLY[]        DM_READ_ONLY = "thing/dynamicTsl/get_reply";
+    const char DM_URI_NTP_REQUEST[]                       DM_READ_ONLY = "request";
+    const char DM_URI_NTP_RESPONSE[]                      DM_READ_ONLY = "response";
+#endif
+
 const char DM_URI_DEV_CORE_SERVICE_DEV[]              DM_READ_ONLY = "/dev/core/service/dev";
-const char DM_URI_THING_LAN_PREFIX_GET[]              DM_READ_ONLY = "thing/lan/prefix/get";
-const char DM_URI_THING_LAN_PREFIX_GET_REPLY[]        DM_READ_ONLY = "thing/lan/prefix/get_reply";
-const char DM_URI_THING_LAN_PREFIX_UPDATE[]           DM_READ_ONLY = "thing/lan/prefix/update";
-const char DM_URI_THING_LAN_PREFIX_UPDATE_REPLY[]     DM_READ_ONLY = "thing/lan/prefix/update_reply";
-const char DM_URI_THING_LAN_BLACKLIST_UPDATE[]        DM_READ_ONLY = "thing/lan/blacklist/update";
-const char DM_URI_THING_LAN_BLACKLIST_UPDATE_REPLY[]  DM_READ_ONLY = "thing/lan/blacklist/update_reply";
 
 #ifdef DEVICE_MODEL_GATEWAY
     /* From Cloud To Local Request And Response*/
@@ -83,6 +84,44 @@ const char DM_URI_THING_LAN_BLACKLIST_UPDATE_REPLY[]  DM_READ_ONLY = "thing/lan/
     const char DM_URI_COMBINE_LOGOUT_REPLY[]              DM_READ_ONLY = "combine/logout_reply";
 #endif
 
+int dm_msg_proc_thing_model_down_raw(_IN_ dm_msg_source_t *source)
+{
+    int res = 0;
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+
+    /* Parse Product Key And Device Name */
+    res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2, 4, product_key, device_name);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return dm_msg_thing_model_down_raw(product_key, device_name, (char *)source->payload, source->payload_len);
+}
+
+int dm_msg_proc_thing_model_up_raw_reply(_IN_ dm_msg_source_t *source)
+{
+    int res = 0;
+    char product_key[PRODUCT_KEY_MAXLEN] = {0};
+    char device_name[DEVICE_NAME_MAXLEN] = {0};
+
+    dm_log_info(DM_URI_THING_MODEL_UP_RAW_REPLY);
+
+    res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2, 4, product_key, device_name);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Operation */
+    res = dm_msg_thing_model_up_raw_reply(product_key, device_name, (char *)source->payload, source->payload_len);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 int dm_msg_proc_thing_service_property_set(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,
         _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response)
 {
@@ -279,21 +318,6 @@ int dm_msg_proc_thing_event_post_reply(_IN_ dm_msg_source_t *source)
     return SUCCESS_RETURN;
 }
 
-int dm_msg_proc_thing_model_down_raw(_IN_ dm_msg_source_t *source)
-{
-    int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-
-    /* Parse Product Key And Device Name */
-    res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2, 4, product_key, device_name);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return dm_msg_thing_model_down_raw(product_key, device_name, (char *)source->payload, source->payload_len);
-}
-
 int dm_msg_proc_thing_deviceinfo_update_reply(_IN_ dm_msg_source_t *source)
 {
     int res = 0;
@@ -366,28 +390,6 @@ int dm_msg_proc_thing_dynamictsl_get_reply(_IN_ dm_msg_source_t *source)
     return SUCCESS_RETURN;
 }
 
-int dm_msg_proc_thing_model_up_raw_reply(_IN_ dm_msg_source_t *source)
-{
-    int res = 0;
-    char product_key[PRODUCT_KEY_MAXLEN] = {0};
-    char device_name[DEVICE_NAME_MAXLEN] = {0};
-
-    dm_log_info(DM_URI_THING_MODEL_UP_RAW_REPLY);
-
-    res = dm_msg_uri_parse_pkdn((char *)source->uri, strlen(source->uri), 2, 4, product_key, device_name);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    /* Operation */
-    res = dm_msg_thing_model_up_raw_reply(product_key, device_name, (char *)source->payload, source->payload_len);
-    if (res != SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-
-    return SUCCESS_RETURN;
-}
-
 int dm_msg_proc_rrpc_request(_IN_ dm_msg_source_t *source)
 {
     int res = 0, rrpcid_pos = 0;
@@ -443,6 +445,7 @@ int dm_disp_ext_error_response(_IN_ dm_msg_source_t *source)
     /* Operation */
     return dm_msg_ext_error_reply(&response);
 }
+#endif
 
 #ifdef DEVICE_MODEL_GATEWAY
 int dm_msg_proc_thing_topo_add_notify(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,

@@ -29,20 +29,6 @@ static void _dm_api_unlock(void)
     }
 }
 
-int iotx_dm_set_opt(int opt, void *data)
-{
-    return dm_opt_set(opt, data);
-}
-
-int iotx_dm_get_opt(int opt, void *data)
-{
-    if (data == NULL) {
-        return FAIL_RETURN;
-    }
-
-    return dm_opt_get(opt, data);
-}
-
 int iotx_dm_open(void)
 {
     int res = 0;
@@ -67,12 +53,13 @@ int iotx_dm_open(void)
     if (res != SUCCESS_RETURN) {
         goto ERROR;
     }
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     /* DM Message Cache Init */
     res = dm_msg_cache_init();
     if (res != SUCCESS_RETURN) {
         goto ERROR;
     }
-
+#endif
     /* DM Cloud Message Parse And Assemble Module Init */
     res = dm_msg_init();
     if (res != SUCCESS_RETURN) {
@@ -126,7 +113,9 @@ ERROR:
     dm_mgr_deinit();
     dm_ipc_deinit();
     dm_msg_deinit();
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     dm_msg_cache_deinit();
+#endif
     dm_ota_deinit();
 
     if (ctx->mutex) {
@@ -220,7 +209,9 @@ int iotx_dm_close(void)
     dm_mgr_deinit();
     dm_ipc_deinit();
     dm_msg_deinit();
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     dm_msg_cache_deinit();
+#endif
     dm_cota_deinit();
     dm_fota_deinit();
     dm_ota_deinit();
@@ -229,6 +220,80 @@ int iotx_dm_close(void)
         HAL_MutexDestroy(ctx->mutex);
     }
     return SUCCESS_RETURN;
+}
+
+int iotx_dm_yield(int timeout_ms)
+{
+    if (timeout_ms <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    dm_client_yield(timeout_ms);
+#ifdef ALCS_ENABLED
+    dm_server_yield();
+#endif
+
+    return SUCCESS_RETURN;
+}
+
+void iotx_dm_dispatch(void)
+{
+    dm_api_ctx_t *ctx = _dm_api_get_ctx();
+    void *data = NULL;
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    dm_msg_cache_tick();
+#endif
+    dm_cota_status_check();
+    dm_fota_status_check();
+    if (dm_ipc_msg_next(&data) == SUCCESS_RETURN) {
+        dm_ipc_msg_t *msg = (dm_ipc_msg_t *)data;
+
+        if (ctx->event_callback) {
+            ctx->event_callback(msg->type, msg->data);
+        }
+
+        if (msg->data) {
+            DM_free(msg->data);
+        }
+        DM_free(msg);
+        data = NULL;
+    }
+}
+
+int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    if (devid < 0 || payload == NULL || payload_len <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    _dm_api_lock();
+
+    res = dm_mgr_upstream_thing_model_up_raw(devid, payload, payload_len);
+    if (res != SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return SUCCESS_RETURN;
+}
+
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+int iotx_dm_set_opt(int opt, void *data)
+{
+    return dm_opt_set(opt, data);
+}
+
+int iotx_dm_get_opt(int opt, void *data)
+{
+    if (data == NULL) {
+        return FAIL_RETURN;
+    }
+
+    return dm_opt_get(opt, data);
 }
 
 int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
@@ -363,63 +428,6 @@ int iotx_dm_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, _IN_ int paylo
     return res;
 }
 
-int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
-{
-    int res = 0;
-
-    if (devid < 0 || payload == NULL || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    _dm_api_lock();
-
-    res = dm_mgr_upstream_thing_model_up_raw(devid, payload, payload_len);
-    if (res != SUCCESS_RETURN) {
-        _dm_api_unlock();
-        return FAIL_RETURN;
-    }
-
-    _dm_api_unlock();
-    return SUCCESS_RETURN;
-}
-
-int iotx_dm_yield(int timeout_ms)
-{
-    if (timeout_ms <= 0) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    dm_client_yield(timeout_ms);
-#ifdef ALCS_ENABLED
-    dm_server_yield();
-#endif
-
-    return SUCCESS_RETURN;
-}
-
-void iotx_dm_dispatch(void)
-{
-    dm_api_ctx_t *ctx = _dm_api_get_ctx();
-    void *data = NULL;
-
-    dm_msg_cache_tick();
-    dm_cota_status_check();
-    dm_fota_status_check();
-    if (dm_ipc_msg_next(&data) == SUCCESS_RETURN) {
-        dm_ipc_msg_t *msg = (dm_ipc_msg_t *)data;
-
-        if (ctx->event_callback) {
-            ctx->event_callback(msg->type, msg->data);
-        }
-
-        if (msg->data) {
-            DM_free(msg->data);
-        }
-        DM_free(msg);
-        data = NULL;
-    }
-}
-
 int iotx_dm_qurey_ntp(void)
 {
     int res = 0;
@@ -470,6 +478,25 @@ int iotx_dm_send_aos_active(int devid)
 
     return SUCCESS_RETURN;
 }
+
+int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
+                               _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    if (devid < 0 || msgid == NULL || msgid_len <= 0 || rrpcid == NULL || rrpcid_len <= 0 || payload == NULL
+        || payload_len <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    _dm_api_lock();
+
+    res = dm_mgr_upstream_rrpc_response(devid, msgid, msgid_len, code, rrpcid, rrpcid_len, payload, payload_len);
+
+    _dm_api_unlock();
+    return res;
+}
+#endif
 
 int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
 {
@@ -733,23 +760,6 @@ int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
     return res;
 }
 #endif
-int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
-                               _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len)
-{
-    int res = 0;
-
-    if (devid < 0 || msgid == NULL || msgid_len <= 0 || rrpcid == NULL || rrpcid_len <= 0 || payload == NULL
-        || payload_len <= 0) {
-        return DM_INVALID_PARAMETER;
-    }
-
-    _dm_api_lock();
-
-    res = dm_mgr_upstream_rrpc_response(devid, msgid, msgid_len, code, rrpcid, rrpcid_len, payload, payload_len);
-
-    _dm_api_unlock();
-    return res;
-}
 
 #ifdef DEPRECATED_LINKKIT
 int iotx_dm_deprecated_set_tsl(_IN_ int devid, _IN_ iotx_dm_tsl_source_t source, _IN_ const char *tsl, _IN_ int tsl_len)
