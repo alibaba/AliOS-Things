@@ -26,7 +26,7 @@ static ktask_t task_struct;
 
 extern int application_start(int argc, char **argv);
 
-static void app_entry(int argc, char *argv[])
+void app_entry(int argc, char *argv[])
 {
     ktask_t *cur;
     unsigned int mm_start;
