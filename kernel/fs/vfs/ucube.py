@@ -7,7 +7,7 @@ src     = Split('''
 component = aos_component('vfs', src)
 
 if aos_global_config.ide != 'keil':
-    component.add_comp_deps('kernel/rhino/vfs/device')
+    component.add_comp_deps('kernel/fs/vfs/device')
 
 component.add_global_includes('include')
 
