@@ -20,7 +20,7 @@ extern "C" {
 
 #define SAL_LIGHTWEIGHT_PROT  1
 
-#define SAL_DEFAULT_INPUTMBOX_SIZE        8
+#define SAL_DEFAULT_INPUTMBOX_SIZE        32
 #define SAL_DEFAULT_OUTPUTMBOX_SIZE       8
 
 typedef struct
