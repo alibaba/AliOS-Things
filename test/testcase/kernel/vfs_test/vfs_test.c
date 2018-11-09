@@ -23,8 +23,8 @@
 // #include "device/vfs_device.h"
 // #include "hal/soc/soc.h"
 
-static const char *test_path = "/ramfs/dir00";
-static const char *test_file = "/ramfs/abc0";
+//static const char *test_path = "/ramfs/dir00";
+//static const char *test_file = "/ramfs/abc0";
 
 static int test_ioctl(file_t *node, int cmd, unsigned long arg)
 {
@@ -257,7 +257,7 @@ static void test_vfs_fs_case(void)
 //     close(fd_send);
 //     close(fd_recv);
 // }
-
+/*
 static void test_vfs_opendir(void)
 {
     int ret;
@@ -266,7 +266,7 @@ static void test_vfs_opendir(void)
 
     ret = mkdir(test_path, 1);
     printf("test_vfs_opendir mkdir return is %d\n", ret);
-    if (mkdir(test_path, 1) == NULL)
+    if (mkdir(test_path, 1) != 0)
     {
         YUNIT_FAIL("mkdir fail");
         return;
@@ -274,21 +274,16 @@ static void test_vfs_opendir(void)
         // return 1;
     }
 
-    /* Try to generate a FIFO.  */
     // if (mknod(tmpname, 0600 | S_IFIFO, 0) < 0)
     // {
     //     perror ("mknod");
-    //     /* We cannot make this an error.  */
     //     return 0;
     // }
 
-    /* This should not block for an FIFO.  */
     dirp = opendir (test_path);
 
-    /* Successful.  */
     if (dirp == NULL)
     {
-        /* Oh, oh, how can this work?  */
         // fputs ("`opendir' succeeded on a FIFO???\n", stdout);
         YUNIT_FAIL("opendir fail");
         closedir (dirp);
@@ -367,7 +362,6 @@ static void test_vfs_seekdir(void)
     long int save3 = 0;
     long int cur;
     int i = 0;
-    int result = 0;
     struct dirent *dp;
     long int save0;
     long int rewind;
@@ -386,64 +380,51 @@ static void test_vfs_seekdir(void)
     {
         YUNIT_FAIL("telldir failed\r\n");
         // printf ("telldir failed: %m\n");
-        result = 1;
     }
 
     for (dp = readdir (dirp); dp != NULL; dp = readdir (dirp))
     {
-        /* save position 3 (after fourth entry) */
         if (i++ == 3)
             save3 = telldir (dirp);
 
         // printf ("%s\n", dp->d_name);
 
-        /* stop at 400 (just to make sure dirp->__offset and dirp->__size are
-        scrambled */
         if (i == 400)
             break;
     }
 
     // printf ("going back past 4-th entry...\n");
 
-    /* go back to saved entry */
     seekdir(dirp, save3);
 
-    /* Check whether telldir equals to save3 now.  */
     cur = telldir (dirp);
     if (cur != save3)
     {
         // printf ("seekdir (d, %ld); telldir (d) == %ld\n", save3, cur);
-        result = 1;
     }
 
-    /* print remaining files (3-last) */
     for (dp = readdir (dirp); dp != NULL; dp = readdir (dirp))
         printf ("%s\n", dp->d_name);
 
-    /* Check rewinddir */
     rewinddir (dirp);
     rewind = telldir (dirp);
     if (rewind == -1)
     {
         // printf ("telldir failed: %m\n");
-        result = 1;
     }
     else if (save0 != rewind)
     {
         // prisntf ("rewinddir didn't reset directory stream\n");
-        result = 1;
     }
 
     closedir (dirp);
-    return result;
+    return;
 }
 
 #define BUF "davef"
 static void test_vfs_open_write_sync_close(void)
 {
     // static char fname[255];
-    static int fd;
-    int ret;
 
     // sprintf(fname, "/tmp/tfile_%d", getpid());
 	// fd = open(test_file, 1);
@@ -511,7 +492,7 @@ static void test_vfs_lseek()
         // fd = open(test_file, 2);
 
         ret = lseek(fd, tc->off, tc->whence);
-        printf("tc->exp_off = %d, ret = %d\n", tc->exp_off, ret);
+        printf("tc->exp_off = %d, ret = %d\n", (int)tc->exp_off, ret);
         YUNIT_ASSERT_EQUAL(tc->exp_off, ret);
     
         memset(read_buf, 0, sizeof(read_buf));
@@ -571,18 +552,20 @@ static void test_vfs_unlink()
     }
 	
 }
-
+*/
 
 static yunit_test_case_t aos_vfs_testcases[] = {
     { "register", test_aos_vfs_case },
     // { "poll", test_aos_poll_case },
     { "fs_register", test_vfs_fs_case},
+/*
     { "vfs_opendir", test_vfs_opendir},
     { "vfs_readdir", test_vfs_readdir},
     { "vfs_seekdir", test_vfs_seekdir},
     { "vfs_fsync", test_vfs_open_write_sync_close},
     { "vfs_lseek", test_vfs_lseek},
     { "vfs_unlink", test_vfs_unlink},
+*/
     YUNIT_TEST_CASE_NULL
 };
 
@@ -629,7 +612,7 @@ static yunit_test_suite_t suites[] = {
 */
 void test_vfs(void)
 {
-    ramfs_register();
+    //ramfs_register();
     yunit_add_test_suites(suites);
 }
 AOS_TESTCASE(test_vfs);

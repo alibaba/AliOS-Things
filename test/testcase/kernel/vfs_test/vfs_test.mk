@@ -1,6 +1,6 @@
 NAME := vfs_test
 
-$(NAME)_COMPONENTS  += vfs
+$(NAME)_COMPONENTS  += kernel.fs.vfs
 
 $(NAME)_SOURCES     += vfs_test.c
 
