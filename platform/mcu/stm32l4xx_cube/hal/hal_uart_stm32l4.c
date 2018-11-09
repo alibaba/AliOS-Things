@@ -275,16 +275,17 @@ static int32_t uart_receive_start_dma(PORT_UART_TYPE uart_port, uint32_t max_buf
     uint32_t temp_reg;
 
     pstuarthandle = &stm32_uart[uart_port].hal_uart_handle;
+    printf("uart %d enter uart_receive_start_dma instance 0x%x", 
+        uart_port, pstuarthandle->Instance);
     //enable IDLE interrupt
-    temp_reg = READ_REG(pstuarthandle->Instance->CR1);
-    temp_reg |= USART_CR1_IDLEIE;
-    WRITE_REG(pstuarthandle->Instance->CR1, temp_reg);
-
     if(HAL_UART_Receive_DMA(pstuarthandle,(uint8_t*)&stm32_uart[uart_port].UartRxBuf[0],max_buffer_size/2)!= HAL_OK)
     {
         return -1;
     }
 
+    temp_reg = READ_REG(pstuarthandle->Instance->CR1);
+    temp_reg |= USART_CR1_IDLEIE;
+    WRITE_REG(pstuarthandle->Instance->CR1, temp_reg);
     stm32_uart[uart_port].previous_dma_leftbyte = max_buffer_size/2;
 
     return 0;
