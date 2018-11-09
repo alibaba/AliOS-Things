@@ -2,7 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "k_dbg_api.h"
+#ifdef AOS_DEBUG_PANIC
+#include "debug_api.h"
+#endif
 
 #if (RHINO_CONFIG_BACKTRACE > 0)
 
@@ -114,7 +116,7 @@ int backtraceFromStack(int **pSP, char **pPC,
     unsigned int   framesize = 0;
     unsigned int   offset    = 1;
 
-    if (SP == krhino_task_stack_bottom(NULL)) {
+    if (SP == debug_task_stack_bottom(NULL)) {
         if (print_func != NULL) {
             print_func("backtrace : ^task entry^\r\n");
         }
@@ -266,7 +268,7 @@ int backtraceFromLR(int **pSP, char **pPC, char *LR,
 }
 
 /* printf call stack */
-int backtraceNow(int (*print_func)(const char *fmt, ...))
+int backtrace_now(int (*print_func)(const char *fmt, ...))
 {
     char *LR;
     char *PC;
@@ -278,7 +280,7 @@ int backtraceNow(int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    /* find PC when 'backtraceNow' is called */
+    /* find PC when 'backtrace_now' is called */
     /* compiler specific */
 #if defined(__CC_ARM)
     LR = (char *)__return_address();
@@ -290,7 +292,7 @@ int backtraceNow(int (*print_func)(const char *fmt, ...))
 
     PC = LR_2_ADDR(LR);
 
-    /* find SP when 'backtraceNow' is called */
+    /* find SP when 'backtrace_now' is called */
     for (lvl = 1; lvl < 32; lvl++) {
         if ((&LR)[lvl] == LR) {
             SP = &(&LR)[lvl + 1];
@@ -314,7 +316,7 @@ int backtraceNow(int (*print_func)(const char *fmt, ...))
     return lvl;
 }
 
-int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...))
+int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
 {
     char    *PC;
     char    *LR;
@@ -327,13 +329,13 @@ int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    task = krhino_task_find(taskname);
+    task = debug_task_find(taskname);
     if (task == NULL) {
         print_func("Task not found : %s\n", taskname);
         return 0;
     }
 
-    if (krhino_is_task_ready(task)) {
+    if (debug_task_is_ready(task)) {
         print_func("Status of task \"%s\" is 'Ready', Can not backtrace!\n",
                    taskname);
         return 0;

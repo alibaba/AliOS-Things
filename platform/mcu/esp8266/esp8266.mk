@@ -4,7 +4,7 @@ NAME := esp8266
 
 $(NAME)_TYPE := kernel 
 
-$(NAME)_COMPONENTS := middleware.common yloop kernel.fs.kv libc
+$(NAME)_COMPONENTS := middleware.common yloop kernel.fs.kv libc debug
 $(NAME)_COMPONENTS += network.lwip alicrypto hal
 $(NAME)_COMPONENTS += middleware/uagent/uota/src/recovery digest_algorithm
 $(NAME)_COMPONENTS += halwifi

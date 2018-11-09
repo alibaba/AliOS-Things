@@ -10,9 +10,9 @@ int backtraceContext(char *PC, char *LR, int *SP,
                      int (*print_func)(const char *fmt, ...));
 
 /* printf call stack */
-int backtraceNow(int (*print_func)(const char *fmt, ...));
+int backtrace_now(int (*print_func)(const char *fmt, ...));
 
 /* printf call stack for task */
-int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...));
+int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...));
 
 #endif /* BACKTRACE_H */
