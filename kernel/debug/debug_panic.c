@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include <stdarg.h>
-#include "k_dbg_api.h"
+#include "debug_api.h"
 #include "aos/cli.h"
 
 /* ARMCC and ICCARM do not use heap when printf a string, but gcc dose*/
@@ -50,25 +50,7 @@ volatile uint32_t g_crash_steps = 0;
    reture 1 YES, 0 NO*/
 int panicRestoreCheck(void)
 {
-#ifdef CONFIG_AOS_CLI
-    void *task;
-
-    /* in ISR, no restore */
-    if (g_intrpt_nested_level[cpu_cur_get()] > 0u) {
-        return 0;
-    }
-
-    /* in CLI task, restore the task and exception */
-    task = aos_cli_task_get();
-    if (task == g_active_task[cpu_cur_get()]) {
-        aos_cli_task_create();
-        krhino_task_dyn_del(task);
-        print_str("Fatal error, CLI task will be restored!\r\n");
-        return 1;
-    }
-#endif
-
-    return 0;
+   return 0;
 }
 
 /* fault/exception entry
@@ -143,29 +125,29 @@ void panicHandler(void *context)
         case 5:
 #if (RHINO_CONFIG_MM_TLF > 0)
             print_str("========== Heap Info  ==========\r\n");
-            krhino_mm_overview(print_str);
+            debug_mm_overview(print_str);
 #endif
             g_crash_steps++;
         case 6:
             print_str("========== Task Info  ==========\r\n");
-            krhino_task_overview(print_str);
+            debug_task_overview(print_str);
             g_crash_steps++;
         case 7:
 #if (RHINO_CONFIG_QUEUE > 0)
             print_str("========== Queue Info ==========\r\n");
-            krhino_queue_overview(print_str);
+            debug_queue_overview(print_str);
 #endif
             g_crash_steps++;
         case 8:
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
             print_str("======== Buf Queue Info ========\r\n");
-            krhino_buf_queue_overview(print_str);
+            debug_buf_queue_overview(print_str);
 #endif
             g_crash_steps++;
         case 9:
 #if (RHINO_CONFIG_SEM > 0)
             print_str("=========== Sem Info ===========\r\n");
-            krhino_sem_overview(print_str);
+            debug_sem_overview(print_str);
 #endif
             g_crash_steps++;
         case 10:
