@@ -9,23 +9,23 @@
 extern "C" {
 #endif
 
+#include <time.h>
 #include <k_api.h>
 #include <posix_signal.h>
 
-#define NANOSECONDS_PER_SECOND          1000000000LL
-#define MICROSECONDS_PER_SECOND         1000000LL
-#define MILLISECONDS_PER_SECOND         1000LL
-#define NANOSECONDS_PER_MICROSECONDS    1000000LL
+#define NANOSECONDS_PER_SECOND       1000000000LL
+#define MICROSECONDS_PER_SECOND      1000000LL
+#define MILLISECONDS_PER_SECOND      1000LL
+#define NANOSECONDS_PER_MICROSECONDS 1000000LL
 
-#define CLOCK_REALTIME    1
-#define CLOCK_MONOTONIC   2
+#define CLOCK_REALTIME  1
+#define CLOCK_MONOTONIC 2
 
 #define POSIX_TIMER_ID_MIN 1
 
-typedef struct timer_list_s
-{
-    timer_t id;
-    ktimer_t *ktimer;
+typedef struct timer_list_s {
+    timer_t             id;
+    ktimer_t            *ktimer;
     struct timer_list_s *next;
 } timer_list_t;
 
@@ -39,9 +39,9 @@ int timer_getoverrun(timer_t timerid);
 int clock_getres(clockid_t clock_id, struct timespec *res);
 int clock_gettime(clockid_t clock_id, struct timespec *tp);
 int clock_settime(clockid_t clock_id, const struct timespec *tp);
-unsigned int sleep(unsigned int seconds);
-
 int nanosleep(const struct timespec *rqtp, struct timespec *rmtp);
+
+unsigned int sleep(unsigned int seconds);
 
 #ifdef __cplusplus
 }

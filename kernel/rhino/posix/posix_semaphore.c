@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <semaphore.h>
+#include <posix_semaphore.h>
 
 int sem_init(sem_t *sem, int pshared, unsigned int value)
 {
