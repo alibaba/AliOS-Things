@@ -4,7 +4,7 @@ NAME := mimxrt1052impl
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += rhino libc kernel.fs.kv middleware.common cli rhino.vfs digest_algorithm
+$(NAME)_COMPONENTS += rhino libc kernel.fs.kv middleware.common cli kernel.fs.vfs digest_algorithm
 
 GLOBAL_CFLAGS += -DA_LITTLE_ENDIAN
 GLOBAL_CFLAGS += -DCPU_MIMXRT1052DVL6B
