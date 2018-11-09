@@ -36,6 +36,9 @@ iotx_conn_info_pt iotx_conn_info_get(void)
 
 void iotx_conn_info_delete(void)
 {
+    if(iotx_conn_info == NULL) {
+        return;
+    }
     LITE_free(iotx_conn_info);
     iotx_conn_info = NULL;
 }
