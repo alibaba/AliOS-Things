@@ -10,8 +10,8 @@ $(NAME)_SOURCES     += pthread_mutex.c
 $(NAME)_SOURCES     += pthread_sched.c
 $(NAME)_SOURCES     += pthread_tsd.c
 $(NAME)_SOURCES     += posix_timer.c
-$(NAME)_SOURCES     += semaphore.c
-$(NAME)_SOURCES     += mqueue.c
+$(NAME)_SOURCES     += posix_semaphore.c
+$(NAME)_SOURCES     += posix_mqueue.c
 
 #default gcc
 ifeq ($(COMPILER),)
