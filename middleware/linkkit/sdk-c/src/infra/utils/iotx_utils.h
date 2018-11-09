@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef __IOTX_UTILS_H__
 #define __IOTX_UTILS_H__
 
@@ -95,7 +92,7 @@
 #define LITE_free(ptr)              \
     do { \
         if(!ptr) { \
-            log_err("%s == NULL! LITE_free(%s) aborted.", #ptr, #ptr); \
+            log_err("utils", "%s == NULL! LITE_free(%s) aborted.", #ptr, #ptr); \
             break; \
         } \
         \
