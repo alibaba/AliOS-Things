@@ -170,10 +170,11 @@ typedef struct {
     int master_initialized;
     int subdev_index;
     int permit_join;
+    void *g_user_dispatch_thread;
+    int g_user_dispatch_thread_running;
 } user_example_ctx_t;
 
 static user_example_ctx_t g_user_example_ctx;
-static void *g_user_dispatch_thread;
 
 void *example_malloc(size_t size)
 {
@@ -361,7 +362,9 @@ int user_permit_join_event_handler(const char *product_key, const int time)
 
 void *user_dispatch_yield(void *args)
 {
-    while (1) {
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
+    while (user_example_ctx->g_user_dispatch_thread_running) {
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
     }
 
@@ -448,7 +451,8 @@ int linkkit_main(void *paras)
         return -1;
     }
 
-    res = HAL_ThreadCreate(&g_user_dispatch_thread, user_dispatch_yield, NULL, NULL, NULL);
+    user_example_ctx->g_user_dispatch_thread_running = 1;
+    res = HAL_ThreadCreate(&user_example_ctx->g_user_dispatch_thread, user_dispatch_yield, NULL, NULL, NULL);
     if (res < 0) {
         EXAMPLE_TRACE("HAL_ThreadCreate Failed\n");
         IOT_Linkkit_Close(user_example_ctx->master_devid);
@@ -501,8 +505,9 @@ int linkkit_main(void *paras)
         time_prev_sec = time_now_sec;
     }
 
+    user_example_ctx->g_user_dispatch_thread_running = 0;
     IOT_Linkkit_Close(user_example_ctx->master_devid);
-    HAL_ThreadDelete(g_user_dispatch_thread);
+    HAL_ThreadDelete(user_example_ctx->g_user_dispatch_thread);
 
     return 0;
 }
