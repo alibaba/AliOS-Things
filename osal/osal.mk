@@ -68,5 +68,10 @@ endif
 
 $(NAME)_SOURCES += \
     aos/aos_rhino.c aos/aos_kv.c
+
+ifeq ($(AOS_DEBUG_PANIC),1)
+$(NAME)_SOURCES += aos/aos_debug.c
+endif
+
 endif
 
