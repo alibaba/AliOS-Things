@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "k_dbg_api.h"
+#include "debug_api.h"
 
 /* convert int to ascii(HEX)
    while using format % in libc, malloc/free is involved.
@@ -33,7 +33,7 @@ char *k_int2str(int num, char *str)
 }
 
 #if (K_MM_STATISTIC > 0)
-void krhino_mm_overview(int (*print_func)(const char *fmt, ...))
+void debug_mm_overview(int (*print_func)(const char *fmt, ...))
 {
 #if (RHINO_CONFIG_MM_BLK > 0)
     mblk_pool_t *mm_pool;
@@ -84,7 +84,7 @@ void krhino_mm_overview(int (*print_func)(const char *fmt, ...))
 #endif
 }
 #else
-void krhino_mm_overview(int (*print_func)(const char *fmt, ...))
+void debug_mm_overview(int (*print_func)(const char *fmt, ...))
 {
     if (print_func == NULL) {
         print_func = printf;
@@ -94,7 +94,7 @@ void krhino_mm_overview(int (*print_func)(const char *fmt, ...))
 #endif
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
-void krhino_task_overview(int (*print_func)(const char *fmt, ...))
+void debug_task_overview(int (*print_func)(const char *fmt, ...))
 {
     size_t        free_size;
     klist_t      *listnode;
@@ -167,7 +167,7 @@ void krhino_task_overview(int (*print_func)(const char *fmt, ...))
     }
 }
 #else
-void krhino_task_overview(int (*print_func)(const char *fmt, ...))
+void debug_task_overview(int (*print_func)(const char *fmt, ...))
 {
     if (print_func == NULL) {
         print_func = printf;
@@ -179,7 +179,7 @@ void krhino_task_overview(int (*print_func)(const char *fmt, ...))
 
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
-void krhino_buf_queue_overview(int (*print_func)(const char *fmt, ...))
+void debug_buf_queue_overview(int (*print_func)(const char *fmt, ...))
 {
     int           i;
     klist_t      *listnode;
@@ -241,7 +241,7 @@ void krhino_buf_queue_overview(int (*print_func)(const char *fmt, ...))
     }
 }
 #else
-void krhino_buf_queue_overview(int (*print_func)(const char *fmt, ...))
+void debug_buf_queue_overview(int (*print_func)(const char *fmt, ...))
 {
     if (print_func == NULL) {
         print_func = printf;
@@ -254,7 +254,7 @@ void krhino_buf_queue_overview(int (*print_func)(const char *fmt, ...))
 
 #if (RHINO_CONFIG_QUEUE > 0)
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
-void krhino_queue_overview(int (*print_func)(const char *fmt, ...))
+void debug_queue_overview(int (*print_func)(const char *fmt, ...))
 {
     int           i;
     klist_t      *listnode;
@@ -312,7 +312,7 @@ void krhino_queue_overview(int (*print_func)(const char *fmt, ...))
     }
 }
 #else
-void krhino_queue_overview(int (*print_func)(const char *fmt, ...))
+void debug_queue_overview(int (*print_func)(const char *fmt, ...))
 {
     if (print_func == NULL) {
         print_func = printf;
@@ -325,7 +325,7 @@ void krhino_queue_overview(int (*print_func)(const char *fmt, ...))
 
 #if (RHINO_CONFIG_SEM > 0)
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
-void krhino_sem_overview(int (*print_func)(const char *fmt, ...))
+void debug_sem_overview(int (*print_func)(const char *fmt, ...))
 {
     int           i;
     ksem_t       *sem;
@@ -382,7 +382,7 @@ void krhino_sem_overview(int (*print_func)(const char *fmt, ...))
     }
 }
 #else
-void krhino_sem_overview(int (*print_func)(const char *fmt, ...))
+void debug_sem_overview(int (*print_func)(const char *fmt, ...))
 {
     if (print_func == NULL) {
         print_func = printf;
@@ -393,7 +393,7 @@ void krhino_sem_overview(int (*print_func)(const char *fmt, ...))
 #endif
 #endif /* RHINO_CONFIG_SEM */
 
-void krhino_overview()
+void debug_overview()
 {
     int (*print_func)(const char *fmt, ...);
 
@@ -401,20 +401,20 @@ void krhino_overview()
 
 #if (RHINO_CONFIG_MM_TLF > 0)
     print_func("========== Heap Info  ==========\r\n");
-    krhino_mm_overview(print_func);
+    debug_mm_overview(print_func);
 #endif
     print_func("========== Task Info  ==========\r\n");
-    krhino_task_overview(print_func);
+    debug_task_overview(print_func);
 #if (RHINO_CONFIG_QUEUE > 0)
     print_func("========== Queue Info ==========\r\n");
-    krhino_queue_overview(print_func);
+    debug_queue_overview(print_func);
 #endif
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
     print_func("======== Buf Queue Info ========\r\n");
-    krhino_buf_queue_overview(print_func);
+    debug_buf_queue_overview(print_func);
 #endif
 #if (RHINO_CONFIG_SEM > 0)
     print_func("=========== Sem Info ===========\r\n");
-    krhino_sem_overview(print_func);
+    debug_sem_overview(print_func);
 #endif
 }
