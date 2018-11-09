@@ -16,6 +16,9 @@ typedef struct {
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
     klist_t        buf_queue_item;
 #endif
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    uint32_t       key;
+#endif
     uint8_t        mm_alloc_flag;
 } kbuf_queue_t;
 
