@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 #include <pthread.h>
 
 int pthread_mutex_init(pthread_mutex_t *p_mutex, const pthread_mutexattr_t *attr)

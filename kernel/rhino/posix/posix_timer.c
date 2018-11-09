@@ -7,9 +7,9 @@
 
 timer_list_t *timer_list_head;
 
-static int64_t timespec_to_nanosecond(struct timespec *value);
+static int64_t         timespec_to_nanosecond(struct timespec *value);
+static int             timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_relate);
 static struct timespec nanosecond_to_timespec(int64_t value);
-static int timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_relate);
 
 int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *restrict timerid)
 {
@@ -58,10 +58,9 @@ int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *rest
 
     /* create a timer */
     ret = krhino_timer_dyn_create(&timer_list_m->ktimer, "posix_timer", evp->sigev_notify_function,
-    	                          1, 1, NULL, 0);
+                                  1, 1, NULL, 0);
     if (ret != 0) {
-    	return -1;
-
+        return -1;
     }
 
     /* update the timerid */
@@ -77,7 +76,7 @@ int timer_delete(timer_t timerid)
     timer_list_t *timer_list;
     timer_list_t *timer_list_l;
     int ret = -1;
-    
+
     /* if no timer in the list return error */
     if (timer_list_head == NULL) {
         return -1;
@@ -106,9 +105,9 @@ int timer_delete(timer_t timerid)
             timer_list_l->next = timer_list->next;
         }
 
-        krhino_mm_free(timer_list);
-
         RHINO_CRITICAL_EXIT();
+
+        krhino_mm_free(timer_list);
     }
 
     return ret;
