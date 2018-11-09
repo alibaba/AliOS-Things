@@ -343,7 +343,7 @@ static iotx_linkkit_event_handler_t user_event_handler = {
     .property_set          = user_property_set_event_handler,
     .property_get          = user_property_get_event_handler,
     .post_reply            = user_post_reply_event_handler,
-    .query_ntp_response    = user_ntp_response_event_handler,
+    .ntp_response          = user_ntp_response_event_handler,
     .initialized           = user_initialized
 };
 

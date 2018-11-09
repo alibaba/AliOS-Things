@@ -419,7 +419,7 @@ int linkkit_example()
         .sync_service_request   = NULL,
         .property_set           = property_set_handle,
         .post_reply             = post_reply_handle,
-        .query_ntp_response     = NULL,
+        .ntp_response           = NULL,
         .permit_join            = NULL,
         .initialized            = initialized_handle,
     };
