@@ -5,6 +5,7 @@ APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
 CONFIG_FILE := $(CONFIG_FILE_DIR)/config_2boot.mk
 FEATURE_DIR := $(SOURCE_ROOT)build/configs
+AOS_2BOOT_SUPPORT := yes
 
 COMPONENT_DIRECTORIES := . \
                          app/example   \
@@ -70,7 +71,7 @@ define FIND_ONE_COMPONENT
 
 $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
-$(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION))_2boot)
+$(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 # Find the component makefile in directory list
 $(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 # Check if component makefile was found - if not try downloading it and re-doing the makefile search
@@ -116,7 +117,7 @@ endef
 define PROCESS_ONE_COMPONENT
 $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
-$(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION))_2boot)
+$(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 # Find the component makefile in directory list
 $(eval TEMP_MAKEFILE := $(strip $(wildcard $(foreach dir, $(if $(filter-out out, $(BUILD_DIR)),$(OUTPUT_DIR) $(OUTPUT_DIR)/syscall,) $(if $(APPDIR),$(APPDIR)/$(comp),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk))))
 
@@ -262,7 +263,7 @@ EXTRA_CFLAGS :=    -DAOS_SDK_VERSION_MAJOR=$(AOS_SDK_VERSION_MAJOR) \
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
 $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
 
-include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/$(notdir $(PLATFORM_DIRECTORY))_2boot.mk
+include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/$(notdir $(PLATFORM_DIRECTORY)).mk
 
 PLATFORM_MCU_BOARD	:=$(subst .,/,$(HOST_MCU_FAMILY))
 PLATFORM_MCU_BD :=$(subst ., ,$(HOST_MCU_FAMILY))
