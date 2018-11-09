@@ -1,6 +1,6 @@
 NAME := yloop
 
-$(NAME)_COMPONENTS := log rhino.vfs
+$(NAME)_COMPONENTS := log kernel.fs.vfs
 
 $(NAME)_TYPE := kernel
 $(NAME)_MBINS_TYPE := kernel
