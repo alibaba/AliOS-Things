@@ -254,8 +254,24 @@ void alcs_auth_subdev_init(CoAPContext *ctx, const char* productKey, const char*
 
 void alcs_auth_deinit(void)
 {
+#ifdef SUPPORT_MULTI_DEVICES
+    device_auth_list *node = NULL, *next = NULL;
+#endif
+
     alcs_resource_cb_deinit();
     alcs_auth_list_deinit();
+
+#ifdef SUPPORT_MULTI_DEVICES
+    list_for_each_entry_safe(node, next, &device_list, lst, device_auth_list) {
+        if (node->lst_auth.list_mutex){
+            HAL_MutexDestroy(node->lst_auth.list_mutex);
+        }   
+    }   
+#else
+    if (_device.lst_auth.list_mutex){
+        HAL_MutexDestroy(_device.lst_auth.list_mutex);
+    }   
+#endif
 }
 
 bool is_networkadd_same (NetworkAddr* addr1, NetworkAddr* addr2)
