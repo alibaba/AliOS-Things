@@ -4,9 +4,12 @@
 
 #include <stdio.h>
 #include <k_api.h>
-#include <k_dbg_api.h>
 #include <assert.h>
 #include "hal/soc/uart.h"
+
+#ifdef AOS_DEBUG_PANIC
+#include <debug_api.h>
+#endif
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
 extern unsigned long long system_clock(void);

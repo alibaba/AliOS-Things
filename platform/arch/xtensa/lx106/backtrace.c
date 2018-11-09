@@ -1,4 +1,9 @@
-#include "k_dbg_api.h"
+#include <stdio.h>
+#include "k_api.h"
+
+#ifdef AOS_DEBUG_PANIC
+#include "debug_api.h"
+#endif
 
 #define BACK_TRACE_LIMIT 64
 
@@ -209,7 +214,7 @@ int backtraceContext(char *PC, char *LR, int *SP,
 }
 
 /* printf call stack */
-int backtraceNow(int (*print_func)(const char *fmt, ...))
+int backtrace_now(int (*print_func)(const char *fmt, ...))
 {
     char *PC;
     int  *SP;
@@ -243,7 +248,7 @@ int backtraceNow(int (*print_func)(const char *fmt, ...))
 }
 
 /* printf call stack for task */
-int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...))
+int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
 {
     char    *PC;
     char    *LR;
@@ -254,7 +259,7 @@ int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...))
         print_func = ets_printf;
     }
 
-    task = krhino_task_find(taskname);
+    task = debug_task_find(taskname);
     if (task == NULL) {
         print_func("Task not found : %s\n", taskname);
         return 0;
