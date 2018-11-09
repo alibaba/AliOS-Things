@@ -2,7 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "k_dbg_api.h"
+#ifdef AOS_DEBUG_PANIC
+#include "debug_api.h"
+#endif
+
 #include "k_arch.h"
 
 #if (RHINO_CONFIG_BACKTRACE > 0)
@@ -58,7 +61,7 @@ static void getRLfromCtx(void *context, int **FP, int **LR)
 }
 
 /* printf call stack */
-int backtraceNow(int (*print_func)(const char *fmt, ...))
+int backtrace_now(int (*print_func)(const char *fmt, ...))
 {
     int  lvl;
     int *FP;
@@ -98,7 +101,7 @@ int backtraceNow(int (*print_func)(const char *fmt, ...))
     return lvl;
 }
 
-int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...))
+int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
 {
     int  lvl;
     int *FP;
@@ -110,13 +113,13 @@ int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    task = krhino_task_find(taskname);
+    task = debug_task_find(taskname);
     if (task == NULL) {
         print_func("Task not found : %s\n", taskname);
         return 0;
     }
 
-    if (krhino_is_task_ready(task)) {
+    if (debug_task_is_ready(task)) {
         print_func("Status of task \"%s\" is 'Ready', Can not backtrace!\n",
                    taskname);
         return 0;
@@ -316,4 +319,9 @@ int panicBacktraceCallee(char *PC, int *SP, char *LR,
 }
 #endif
 
+#else   /*#if (RHINO_CONFIG_PANIC > 0)*/
+void exceptionHandler(void *context)
+{
+    while(1);
+}
 #endif

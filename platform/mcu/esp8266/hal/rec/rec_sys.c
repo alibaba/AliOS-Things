@@ -15,7 +15,9 @@ extern void vPortETSIntrUnlock(void);
 
 unsigned int rec_xz_backup_flash_addr;
 unsigned int rec_conf_backup_flash_addr;
+#if (RHINO_CONFIG_PANIC > 0)
 extern volatile uint32_t g_crash_steps;
+#endif
 
 void rec_delayms(volatile int timesMS)
 {
@@ -51,12 +53,11 @@ void rec_hal_flashmap_init()
     }
 
     rec_xz_backup_flash_addr   = logic_partition->partition_length - FLASH_SECTOR_SIZE - 64*1024; // 注意，该变量无用，此处仅为了保持跟其它平台定义统一
-    rec_conf_backup_flash_addr = logic_partition->partition_length - FLASH_SECTOR_SIZE;
 }
 
 void rec_hal_init()
 {
-    aos_wdt_disable();
+    rec_wdt_stop();
     rec_flash_init();
     rec_uart_init();
     rec_hal_flashmap_init();
@@ -72,23 +73,16 @@ void rec_reboot(void)
     printf("reboot!\n");
 
     vPortETSIntrLock();
+#if (RHINO_CONFIG_PANIC > 0)
     g_crash_steps = 0x87654321;
-    aos_watchdog_init();
+#endif
+    rec_wdt_stop();
+    rec_wdt_init(2000);
 }
 
 unsigned int rec_get_boot_addr()
 {
     return system_get_userbin_addr();
-}
-
-unsigned int rec_get_ota_mode()
-{
-    if(SYS_BOOT_NORMAL_MODE == system_get_boot_mode())
-    {
-        return 2;  //TODO: 需要定义成枚举，2表示双分区主备模式
-    }
-
-    return 1; //TODO: 需要定义成枚举，1表示单分区主备模式
 }
 
 // 获取备区启动地址
@@ -114,7 +108,7 @@ void rec_upgrade_reboot()
     system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
 
     vPortETSIntrLock();
-    aos_wdt_disable();
+    rec_wdt_stop();
     krhino_sched_disable();
     printf("upgrade reboot...\n");
     system_upgrade_reboot();
