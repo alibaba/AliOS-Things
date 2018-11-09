@@ -4,7 +4,7 @@ NAME := mkl43z4impl
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv6m
-$(NAME)_COMPONENTS += rhino libc kernel.fs.kv middleware.common cli rhino.vfs digest_algorithm
+$(NAME)_COMPONENTS += rhino libc kernel.fs.kv middleware.common cli kernel.fs.vfs digest_algorithm
 
 GLOBAL_CFLAGS += -DCPU_MKL43Z256VLH4
 GLOBAL_CFLAGS += -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99

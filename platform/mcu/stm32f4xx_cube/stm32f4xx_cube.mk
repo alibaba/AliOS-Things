@@ -3,7 +3,7 @@ HOST_OPENOCD := stm32f4xx
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal halwifi rhino.vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal halwifi kernel.fs.vfs digest_algorithm
 
 GLOBAL_DEFINES += USE_HAL_DRIVER
 

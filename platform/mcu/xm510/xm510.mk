@@ -14,11 +14,11 @@ $(NAME)_COMPONENTS += libc rhino hal middleware.common network.lwip rhino.cplusp
 $(NAME)_COMPONENTS += rhino.posix
 
 #add the following lines to the code if POSIX DEVICE IO is needed
-$(NAME)_COMPONENTS += rhino.vfs.posix
+$(NAME)_COMPONENTS += kernel.fs.vfs.posix
 GLOBAL_DEFINES     += POSIX_DEVICE_IO_NEED
 
 #sd card
-$(NAME)_COMPONENTS += rhino.vfs 3rdparty.experimental.fs.fatfs
+$(NAME)_COMPONENTS += kernel.fs.vfs 3rdparty.experimental.fs.fatfs
 GLOBAL_DEFINES     += CONFIG_AOS_FATFS_SUPPORT_MMC
 
 #jffs

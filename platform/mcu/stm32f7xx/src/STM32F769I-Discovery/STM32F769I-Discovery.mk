@@ -3,7 +3,7 @@ HOST_OPENOCD := stm32f769
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal rhino.vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal kernel.fs.vfs digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
