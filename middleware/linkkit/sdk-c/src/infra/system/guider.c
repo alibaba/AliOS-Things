@@ -380,7 +380,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     rc = iotx_device_info_get(&dev);
     if(rc < 0) {
         sys_err("get device info err");
-        return rc;
+        return NULL;
     }
 
     ret = LITE_malloc(AUTH_STRING_MAXLEN);
