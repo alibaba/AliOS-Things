@@ -36,11 +36,11 @@ extern "C"
 
 #define AT_ICA_MQTT_POSTFIX         "\r\n"
 
-#define AT_MQTT_MAX_MSG_LEN     512
-#define AT_MQTT_MAX_TOPIC_LEN   128
+#define AT_MQTT_MAX_MSG_LEN     1024
+#define AT_MQTT_MAX_TOPIC_LEN   256
 #define AT_MQTT_WAIT_FOREVER 0xffffffffu
 
-#define AT_MQTT_CMD_MAX_LEN             512
+#define AT_MQTT_CMD_MAX_LEN             1024
 #define AT_MQTT_CMD_SUCCESS_RSP         "OK"
 #define AT_MQTT_CMD_FAIL_RSP            "FAIL"
 #define AT_MQTT_CMD_ERROR_RSP           "ERROR"
