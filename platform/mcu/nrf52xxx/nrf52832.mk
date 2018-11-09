@@ -4,7 +4,7 @@ $(NAME)_TYPE := kernel
 $(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal rhino.vfs digest_algorithm network.bluetooth.bt kernel.fs.kv
+$(NAME)_COMPONENTS += libc rhino hal kernel.fs.vfs digest_algorithm network.bluetooth.bt kernel.fs.kv
 
 GLOBAL_DEFINES += CONFIG_ARM
 
