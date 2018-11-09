@@ -1,4 +1,8 @@
-#include <mqueue.h>
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
+#include <posix_mqueue.h>
 
 mqd_t mq_open(const char *name, int oflag, ...)
 {
@@ -42,9 +46,7 @@ int mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_prio)
     return msg_len;
 }
 
-int mq_setattr(mqd_t                 mqdes,
-               const struct mq_attr *mqstat,
-               struct mq_attr       *omqstat)
+int mq_setattr(mqd_t mqdes, const struct mq_attr *mqstat, struct mq_attr *omqstat)
 {
     return 0;
 }
@@ -54,11 +56,8 @@ int mq_getattr(mqd_t mqdes, struct mq_attr *mqstat)
     return 0;
 }
 
-ssize_t mq_timedreceive(mqd_t           mqdes,
-                        char                  *msg_ptr,
-                        size_t                 msg_len,
-                        unsigned              *msg_prio,
-                        const struct timespec *abs_timeout)
+ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
+                        unsigned *msg_prio, const struct timespec *abs_timeout)
 {
     size_t  msg_size;
     kstat_t ret;
@@ -78,11 +77,8 @@ ssize_t mq_timedreceive(mqd_t           mqdes,
     return msg_size;
 }
 
-int mq_timedsend(mqd_t                      mqdes,
-                 const char            *msg_ptr,
-                 size_t                 msg_len,
-                 unsigned               msg_prio,
-                 const struct timespec *abs_timeout)
+int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
+                 unsigned msg_prio, const struct timespec *abs_timeout)
 {
     kstat_t ret;
 
