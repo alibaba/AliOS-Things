@@ -274,9 +274,9 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
 #ifdef ON_PRE
     if (1 == iotx_guider_get_region()) {
         utils_warning("hacking HTTP auth requeset for singapore+pre-online to 'iot-auth.ap-southeast-1.aliyuncs.com'");
-        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, "iot-auth.ap-southeast-1.aliyuncs.com"); /* Write request */
-    }
-    else {
+        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path,
+                     "iot-auth.ap-southeast-1.aliyuncs.com"); /* Write request */
+    } else {
         HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
     }
 #else
@@ -529,7 +529,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
         }
 
         utils_debug("Total-Payload: %d Bytes; Read: %d Bytes", readLen, len);
-
+        int failureCount = 0;
         do {
             templen = HTTPCLIENT_MIN(len, readLen);
             if (count + templen < client_data->response_buf_len - 1) {
@@ -561,6 +561,16 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
                 ret = httpclient_recv(client, data, 1, max_len, &len, iotx_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
+                }
+                /* if failed to download for multiple times, exit */
+                if ((0 == len) && (0 == iotx_time_left(&timer)) && (FAIL_RETURN == ret)) {
+                    failureCount++;
+                    if (failureCount > 10) {
+                        utils_err("failed to download data multitimes, exit");
+                        return ret;
+                    }
+                } else {
+                    failureCount = 0;
                 }
             }
         } while (readLen);
