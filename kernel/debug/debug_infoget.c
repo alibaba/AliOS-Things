@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "k_dbg_api.h"
+#include "debug_api.h"
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
-ktask_t *krhino_task_find(char *name)
+ktask_t *debug_task_find(char *name)
 {
     klist_t *listnode;
     ktask_t *task;
@@ -20,14 +19,13 @@ ktask_t *krhino_task_find(char *name)
 
     return NULL;
 }
-#endif
 
-int krhino_is_task_ready(ktask_t *task)
+int debug_task_is_ready(ktask_t *task)
 {
     return (task->task_state == K_RDY);
 }
 
-void *krhino_task_stack_bottom(ktask_t *task)
+void *debug_task_stack_bottom(ktask_t *task)
 {
     if (task == NULL) {
         task = g_active_task[cpu_cur_get()];

@@ -5,7 +5,7 @@ $(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_COMPONENTS += rhino
 
-GLOBAL_INCLUDES += core/include debug/cpuusage debug/include hal/soc ./
+GLOBAL_INCLUDES += core/include  hal/soc ./
 
 #default gcc
 ifeq ($(COMPILER),)
@@ -38,12 +38,5 @@ $(NAME)_SOURCES := core/k_err.c          \
                    core/k_sem.c          \
                    core/k_task.c         \
                    core/k_time.c         \
-                   core/k_spin_lock.c    \
-                   debug/trace/k_fifo.c        \
-                   debug/trace/k_trace.c       \
-                   debug/cpuusage/k_cpuusage.c \
-                   debug/k_overview.c    \
-                   debug/k_panic.c       \
-                   debug/k_backtrace.c   \
-                   debug/k_infoget.c
+                   core/k_spin_lock.c
 
