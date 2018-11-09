@@ -22,11 +22,11 @@
 #include "mbedtls/net_sockets.h"
 #include "iotx_hal_internal.h"
 
-#define DTLS_TRC(...)    HAL_Printf("[trc] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define DTLS_DUMP(...)   HAL_Printf("[dump] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define DTLS_DEBUG(...)  HAL_Printf("[dbg] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define DTLS_INFO(...)   HAL_Printf("[inf] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
-#define DTLS_ERR(...)    HAL_Printf("[err] "), HAL_Printf(__VA_ARGS__), HAL_Printf("\r\n")
+#define DTLS_TRC(...)    HAL_Printf("[trc] "), HAL_Printf(__VA_ARGS__)
+#define DTLS_DUMP(...)   HAL_Printf("[dump] "), HAL_Printf(__VA_ARGS__)
+#define DTLS_DEBUG(...)  HAL_Printf("[dbg] "), HAL_Printf(__VA_ARGS__)
+#define DTLS_INFO(...)   HAL_Printf("[inf] "), HAL_Printf(__VA_ARGS__)
+#define DTLS_ERR(...)    HAL_Printf("[err] "), HAL_Printf(__VA_ARGS__)
 
 
 #ifdef DTLS_SESSION_SAVE
