@@ -4,7 +4,7 @@ NAME := lpc54114impl
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += rhino libc cli rhino.vfs
+$(NAME)_COMPONENTS += rhino libc cli kernel.fs.vfs
 
 GLOBAL_CFLAGS += -DA_LITTLE_ENDIAN
 GLOBAL_CFLAGS += -DCPU_LPC54114J256BD64_cm4

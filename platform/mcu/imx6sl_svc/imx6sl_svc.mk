@@ -10,7 +10,7 @@ HOST_ARCH := Cortex-A9
 
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7a
-$(NAME)_COMPONENTS += libc rhino hal rhino.vfs
+$(NAME)_COMPONENTS += libc rhino hal kernel.fs.vfs
 
 GLOBAL_INCLUDES += ../../../arch/arm/armv7a/gcc/syscall/a9
 GLOBAL_INCLUDES += ../../../../kernel/hal/include/soc/

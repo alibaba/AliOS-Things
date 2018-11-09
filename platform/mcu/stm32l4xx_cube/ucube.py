@@ -115,7 +115,7 @@ deps = Split('''
         utility/libc
         kernel/rhino
         kernel/hal
-        kernel/rhino/vfs
+        kernel/fs/vfs
         utility/digest_algorithm
         osal
         kernel/init
