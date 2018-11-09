@@ -4,9 +4,6 @@
 
 #include "rec_pub.h"
 
-//#define REG_READ(addr)                       *((volatile UINT32 *)(addr))
-//#define REG_WRITE(addr, _data) 	             (*((volatile UINT32 *)(addr)) = (_data))
-
 #define MODE_STD                             0
 #define MODE_DUAL                            1
 #define MODE_QUAD                            2
