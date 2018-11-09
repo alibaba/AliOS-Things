@@ -31,7 +31,7 @@ typedef struct {
 #endif
 
 #if (RHINO_CONFIG_USER_SPACE > 0)
-    void            *utask_stack;
+    void            *task_ustack;
     uint32_t         ustack_size;
     uint32_t         pid;
     uint8_t          mode;

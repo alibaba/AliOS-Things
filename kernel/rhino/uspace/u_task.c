@@ -80,7 +80,6 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     task->mm_alloc_flag = mm_alloc_flag;
     task->cpu_num       = cpu_num;
 
-    task->utask_stack   = ustack_buf;
     task->ustack_size   = ustack_size;
     task->mode          = 0x3;
     task->pid           = pid;
@@ -105,8 +104,9 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 #endif
 #endif
 
-    task->task_stack  = (void*)((uint32_t)(kstack_buf + kstack_size) & (~0x07u));
-    task->utask_stack = cpu_task_stack_init(ustack_buf, ustack_size, arg, entry);
+    cpu_utask_stack_init(task, kstack_buf, kstack_size,
+                         ustack_buf, ustack_size,
+                         arg, entry);
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
     krhino_task_create_hook(task);
