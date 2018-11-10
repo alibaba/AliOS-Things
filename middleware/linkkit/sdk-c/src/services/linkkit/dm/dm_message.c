@@ -1250,12 +1250,13 @@ int dm_msg_thing_topo_add_reply(dm_msg_response_payload_t *response)
         return FAIL_RETURN;
     }
     devid = node->devid;
-#endif
 
     /* Update State Machine */
     if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS) {
         dm_mgr_set_dev_status(node->devid, IOTX_DM_DEV_STATUS_ATTACHED);
     }
+
+#endif
 
     message_len = strlen(DM_MSG_EVENT_THING_TOPO_ADD_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
@@ -1296,12 +1297,13 @@ int dm_msg_thing_topo_delete_reply(dm_msg_response_payload_t *response)
         return FAIL_RETURN;
     }
     devid = node->devid;
-#endif
 
     /* Update State Machine */
     if (response->code.value_int == IOTX_DM_ERR_CODE_SUCCESS) {
         dm_mgr_set_dev_status(node->devid, IOTX_DM_DEV_STATUS_ATTACHED);
     }
+
+#endif
 
     message_len = strlen(DM_MSG_EVENT_THING_TOPO_DELETE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1;
     message = DM_malloc(message_len);
