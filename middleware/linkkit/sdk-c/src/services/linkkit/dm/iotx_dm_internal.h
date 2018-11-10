@@ -58,7 +58,7 @@
 
 #define DM_SUPPORT_MEMORY_MAGIC
 #ifdef DM_SUPPORT_MEMORY_MAGIC
-    #define DM_malloc(size) LITE_malloc(size, MEM_MAGIC, "DM")
+    #define DM_malloc(size) LITE_malloc(size, MEM_MAGIC, "dm")
 #else
     #define DM_malloc(size) LITE_malloc(size)
 #endif
