@@ -8,12 +8,9 @@
 #include "iot_import.h"
 #include "iotx_log.h"
 #include "iotx_utils.h"
-#ifdef CM_SUPPORT_MEMORY_MAGIC
-    #define cm_malloc(size) LITE_malloc(size, MEM_MAGIC, "cm")
-#else
-    #define cm_malloc(size) LITE_malloc(size)
-#endif
-#define cm_free(p) LITE_free(p)
+
+#define cm_malloc(size)     LITE_malloc(size, MEM_MAGIC, "cm")
+#define cm_free(p)          LITE_free(p)
 
 #ifdef ESP8266
     #include "esp_common.h"
