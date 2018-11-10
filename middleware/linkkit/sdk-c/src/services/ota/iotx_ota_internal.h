@@ -14,7 +14,7 @@
 
 #include "iotx_ota_config.h"
 
-#define OTA_MALLOC              LITE_malloc
+#define OTA_MALLOC(size)        LITE_malloc(size, MEM_MAGIC, "ota")
 #define OTA_FREE                LITE_free
 #define OTA_ASSERT              LITE_ASSERT
 #define OTA_SNPRINTF            HAL_Snprintf
