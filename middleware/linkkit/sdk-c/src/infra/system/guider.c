@@ -179,7 +179,7 @@ int _http_response(char *payload,
 
     httpc.header = "Accept: text/xml,text/javascript,text/html,application/json\r\n";
 
-    requ_payload = (char *)LITE_malloc(HTTP_POST_MAX_LEN);
+    requ_payload = (char *)LITE_malloc(HTTP_POST_MAX_LEN, MEM_MAGIC, "system.http_auth");
     if (NULL == requ_payload) {
         sys_err("Allocate HTTP request buf failed!");
         return ERROR_MALLOC;
@@ -193,7 +193,7 @@ int _http_response(char *payload,
     LITE_ASSERT(len < HTTP_POST_MAX_LEN);
     sys_debug("requ_payload: \r\n\r\n%s\r\n", requ_payload);
 
-    resp_payload = (char *)LITE_malloc(HTTP_RESP_MAX_LEN);
+    resp_payload = (char *)LITE_malloc(HTTP_RESP_MAX_LEN, MEM_MAGIC, "system.http_auth");
     if (!resp_payload) {
         goto RETURN;
     }
@@ -383,7 +383,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
         return NULL;
     }
 
-    ret = LITE_malloc(AUTH_STRING_MAXLEN);
+    ret = LITE_malloc(AUTH_STRING_MAXLEN, MEM_MAGIC, "system.http_auth");
     LITE_ASSERT(ret);
     memset(ret, 0, AUTH_STRING_MAXLEN);
 
@@ -445,7 +445,7 @@ static int guider_get_iotId_iotToken(
             "message":"success"
         }
     */
-    iotx_payload = LITE_malloc(PAYLOAD_STRING_MAXLEN);
+    iotx_payload = LITE_malloc(PAYLOAD_STRING_MAXLEN, MEM_MAGIC, "system.http_auth");
     LITE_ASSERT(iotx_payload);
     memset(iotx_payload, 0, PAYLOAD_STRING_MAXLEN);
     _http_response(iotx_payload,
@@ -461,7 +461,7 @@ static int guider_get_iotId_iotToken(
                   );
     sys_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
 
-    pvalue = LITE_json_value_of("code", iotx_payload);
+    pvalue = LITE_json_value_of("code", iotx_payload, MEM_MAGIC, "system.http_auth");
     if (!pvalue) {
         goto do_exit;
     }
@@ -477,7 +477,7 @@ static int guider_get_iotId_iotToken(
         goto do_exit;
     }
 
-    pvalue = LITE_json_value_of("data.iotId", iotx_payload);
+    pvalue = LITE_json_value_of("data.iotId", iotx_payload, MEM_MAGIC, "system.http_auth");
     if (NULL == pvalue) {
         goto do_exit;
     }
@@ -485,7 +485,7 @@ static int guider_get_iotId_iotToken(
     LITE_free(pvalue);
     pvalue = NULL;
 
-    pvalue = LITE_json_value_of("data.iotToken", iotx_payload);
+    pvalue = LITE_json_value_of("data.iotToken", iotx_payload, MEM_MAGIC, "system.http_auth");
     if (NULL == pvalue) {
         goto do_exit;
     }
@@ -493,7 +493,7 @@ static int guider_get_iotId_iotToken(
     LITE_free(pvalue);
     pvalue = NULL;
 
-    pvalue = LITE_json_value_of("data.resources.mqtt.host", iotx_payload);
+    pvalue = LITE_json_value_of("data.resources.mqtt.host", iotx_payload, MEM_MAGIC, "system.http_auth");
     if (NULL == pvalue) {
         goto do_exit;
     }
@@ -501,7 +501,7 @@ static int guider_get_iotId_iotToken(
     LITE_free(pvalue);
     pvalue = NULL;
 
-    pvalue = LITE_json_value_of("data.resources.mqtt.port", iotx_payload);
+    pvalue = LITE_json_value_of("data.resources.mqtt.port", iotx_payload, MEM_MAGIC, "system.http_auth");
     if (NULL == pvalue) {
         goto do_exit;
     }
