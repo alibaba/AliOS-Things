@@ -478,24 +478,26 @@ void LITE_dump_malloc_free_stats(int level)
         return;
     }
 
-    LITE_printf("\r\n");
-    LITE_printf("---------------------------------------------------\r\n");
-    LITE_printf(". bytes_total_allocated:    %d\r\n", bytes_total_allocated);
-    LITE_printf(". bytes_total_freed:        %d\r\n", bytes_total_freed);
-    LITE_printf(". bytes_total_in_use:       %d\r\n", bytes_total_in_use);
-    LITE_printf(". bytes_max_allocated:      %d\r\n", bytes_max_allocated);
-    LITE_printf(". bytes_max_in_use:         %d\r\n", bytes_max_in_use);
-    LITE_printf(". iterations_allocated:     %d\r\n", iterations_allocated);
-    LITE_printf(". iterations_freed:         %d\r\n", iterations_freed);
-    LITE_printf(". iterations_in_use:        %d\r\n", iterations_in_use);
-    LITE_printf(". iterations_max_in_use:    %d\r\n", iterations_max_in_use);
-    LITE_printf("---------------------------------------------------\r\n");
+    utils_debug("");
+    utils_debug("---------------------------------------------------");
+    utils_debug(". bytes_total_allocated:    %d", bytes_total_allocated);
+    utils_debug(". bytes_total_freed:        %d", bytes_total_freed);
+    utils_debug(". bytes_total_in_use:       %d", bytes_total_in_use);
+    utils_warning(". bytes_max_allocated:      %d", bytes_max_allocated);
+    utils_info(". bytes_max_in_use:         %d", bytes_max_in_use);
+    utils_debug(". iterations_allocated:     %d", iterations_allocated);
+    utils_debug(". iterations_freed:         %d", iterations_freed);
+    utils_debug(". iterations_in_use:        %d", iterations_in_use);
+    utils_debug(". iterations_max_in_use:    %d", iterations_max_in_use);
+    utils_debug("---------------------------------------------------");
+    utils_debug("");
 
 #if WITH_MEM_STATS_PER_MODULE
 
     module_mem_t *module_pos, *tmp;
     module_mem_t *unknown_mod = NULL;
 
+    LITE_printf("\r\n");
     list_for_each_entry_safe(module_pos, tmp, &mem_module_statis, list, module_mem_t) {
         if (module_pos) {
             LITE_printf("\x1B[1;32mMODULE_NAME: [%s]\x1B[0m\r\n", module_pos->mem_statis.module_name);
@@ -542,6 +544,9 @@ void LITE_dump_malloc_free_stats(int level)
         list_del(&module_pos->list);
         UTILS_free(module_pos);
     }
+
+    LITE_printf("\r\n");
+
 #endif
     if (LITE_get_loglevel() == level) {
         int         j;
