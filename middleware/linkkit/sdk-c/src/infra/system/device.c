@@ -13,7 +13,7 @@ static iotx_conn_info_t     *iotx_conn_info = NULL;
 
 int iotx_device_info_get(iotx_device_info_t *device_info)
 {
-    if(device_info == NULL) {
+    if (device_info == NULL) {
         return -1;
     }
     memset(device_info, 0x0, sizeof(iotx_device_info_t));
@@ -21,14 +21,14 @@ int iotx_device_info_get(iotx_device_info_t *device_info)
     HAL_GetDeviceName(device_info->device_name);
     HAL_GetDeviceSecret(device_info->device_secret);
     HAL_GetDeviceID(device_info->device_id);
-    
+
     return 0;
 }
 
 iotx_conn_info_pt iotx_conn_info_get(void)
 {
-    if(iotx_conn_info == NULL) {
-        iotx_conn_info = LITE_malloc(sizeof(iotx_conn_info_t));
+    if (iotx_conn_info == NULL) {
+        iotx_conn_info = LITE_malloc(sizeof(iotx_conn_info_t), MEM_MAGIC, "system");
         memset(iotx_conn_info, 0, sizeof(iotx_conn_info_t));
     }
     return iotx_conn_info;
@@ -36,7 +36,7 @@ iotx_conn_info_pt iotx_conn_info_get(void)
 
 void iotx_conn_info_delete(void)
 {
-    if(iotx_conn_info == NULL) {
+    if (iotx_conn_info == NULL) {
         return;
     }
     LITE_free(iotx_conn_info);

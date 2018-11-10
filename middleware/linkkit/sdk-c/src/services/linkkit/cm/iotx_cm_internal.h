@@ -9,7 +9,7 @@
 #include "iotx_log.h"
 #include "iotx_utils.h"
 #ifdef CM_SUPPORT_MEMORY_MAGIC
-    #define cm_malloc(size) LITE_malloc(size, MEM_MAGIC, "CM")
+    #define cm_malloc(size) LITE_malloc(size, MEM_MAGIC, "cm")
 #else
     #define cm_malloc(size) LITE_malloc(size)
 #endif
