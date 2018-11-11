@@ -32,4 +32,4 @@ aos_global_config.set('MESHLOWPOWER',1)
 
 build_types=""
 
-linux_only_targets="helloworld linuxapp meshapp tls linkkitapp acapp mqttapp id2_app hdlcapp.hdlcclient linkkit_gateway nano alinkapp networkapp helloworld_nocli itls_app wifihalapp hdlcapp.hdlcserver coapapp sst_app smpapp prov_app netmgrapp yts smpapp_4core kernel_test otaapp cryptotest http2app athostapp"
+linux_only_targets="helloworld meshapp tls linkkitapp acapp mqttapp id2_app hdlcapp.hdlcclient linkkit_gateway nano alinkapp networkapp helloworld_nocli itls_app wifihalapp hdlcapp.hdlcserver coapapp sst_app smpapp prov_app netmgrapp yts smpapp_4core kernel_test otaapp cryptotest http2app athostapp"
