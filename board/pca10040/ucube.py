@@ -1,16 +1,16 @@
-src =Split(''' 
+src =Split('''
     board.c
 ''')
 component =aos_component('board_pca10040', src)
 
 
-global_includes =Split(''' 
+global_includes =Split('''
     .
 ''')
 for i in global_includes:
     component.add_global_includes(i)
 
-global_macros =Split(''' 
+global_macros =Split('''
     STDIO_UART=0
     CONFIG_NO_TCPIP
     BOARD_PCA10040
@@ -25,4 +25,4 @@ global_macros =Split('''
 for i in global_macros:
     component.add_global_macros(i)
 
-linux_only_targets="netmgrapp nano helloworld bluetooth.blemesh_srv wifihalapp bluetooth.blemesh_cli hdlcapp.hdlcserver acapp udataapp bluetooth.bleperipheral vflashdemo bluetooth.breezeapp bluetooth.bleadv bluetooth.blemesh bluetooth.ble_bqb helloworld_nocli i2c_hts221_test kernel_test yts bluetooth.blemesh_tmall pwr_test cryptotest blink"
+linux_only_targets="netmgrapp nano helloworld bluetooth.blemesh_srv wifihalapp bluetooth.blemesh_cli hdlcapp.hdlcserver acapp udataapp bluetooth.bleperipheral vflashdemo bluetooth.breezeapp bluetooth.bleadv bluetooth.blemesh bluetooth.ble_bqb helloworld_nocli i2c_hts221_test kernel_test yts bluetooth.blemesh_tmall cryptotest blink"
