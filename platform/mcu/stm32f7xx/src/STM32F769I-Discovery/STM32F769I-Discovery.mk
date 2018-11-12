@@ -47,7 +47,6 @@ $(NAME)_SOURCES := $(RELATIVE_PATH_MCU)/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7
 				   
 
 $(NAME)_SOURCES += $(RELATIVE_PATH_MCU)/aos/soc_impl.c \
-                   $(RELATIVE_PATH_MCU)/aos/trace_impl.c
                    
 
 GLOBAL_CFLAGS += -DSTM32F769xx

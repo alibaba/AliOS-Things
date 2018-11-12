@@ -83,7 +83,6 @@ $(NAME)_SOURCES := src/pca10056/base_pro/soc_init.c \
                    Drivers/clock_control/nrf5_power_clock.c
 
 $(NAME)_SOURCES += aos/soc_impl.c \
-                   aos/trace_impl.c \
                    aos/aos.c
 
 ifeq ($(ble),1)

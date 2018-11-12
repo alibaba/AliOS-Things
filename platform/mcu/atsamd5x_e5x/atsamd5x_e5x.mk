@@ -65,7 +65,6 @@ $(NAME)_SOURCES := Drivers/atmel_start.c  \
 
 $(NAME)_SOURCES += aos/aos.c \
                    aos/soc_impl.c \
-                   aos/trace_impl.c
 
 GLOBAL_CFLAGS += -D__SAME54P20A__
 

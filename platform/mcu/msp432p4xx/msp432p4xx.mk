@@ -80,7 +80,6 @@ $(NAME)_SOURCES := ti/devices/msp432p4xx/driverlib/adc14.c \
                    ti/kernel/SemaphoreP_alios.c 
 
 $(NAME)_SOURCES += aos/soc_impl.c \
-                   aos/trace_impl.c \
                    aos/hook_impl.c \
                    aos/aos.c \
                    hal/hal_uart_msp432p4.c \
