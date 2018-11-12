@@ -1,13 +1,8 @@
-
-menuconfig MM_ENABLED
-#    depends on RHINO_ENABLED
-    bool "FEATURE_MM_ENABLE"
+menuconfig AOS_COMP_MM
+    bool "mm"
     default y
     help
-        AliOS things Memory Management
 
-if MM_ENABLED
-menu "MM Configurations"
-
-endmenu
+if AOS_COMP_MM
+# Configurations for component mm
 endif
