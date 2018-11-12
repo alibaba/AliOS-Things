@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ *From: andrew cooke <andrew@...>
+ *Date: Sat, 3 Aug 2013 15:13:39 -0400
+ *Title: CRC16
  */
 
 #include "crc16.h"
