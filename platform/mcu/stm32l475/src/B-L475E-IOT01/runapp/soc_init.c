@@ -614,4 +614,44 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
 {
     return 0;
 }
+
+extern int32_t hal_spi_init(spi_dev_t *spi);
+int32_t hal_spi_init(spi_dev_t *spi) {
+}
+
+extern int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t timeout) {
+}
+extern int32_t hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_t timeout) {
+}
+
+extern int32_t hal_spi_finalize(spi_dev_t *spi);
+int32_t hal_spi_finalize(spi_dev_t *spi) {
+}
+
+extern int32_t hal_gpio_init(gpio_dev_t *gpio);
+int32_t hal_gpio_init(gpio_dev_t *gpio) {
+}
+
+extern int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value);
+int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value) {
+};
+
+extern int32_t hal_gpio_output_high(gpio_dev_t *gpio);
+int32_t hal_gpio_output_high(gpio_dev_t *gpio) {
+}
+
+extern int32_t hal_gpio_output_low(gpio_dev_t *gpio);
+int32_t hal_gpio_output_low(gpio_dev_t *gpio) {
+}
+
+extern int32_t hal_gpio_output_toggle(gpio_dev_t *gpio);
+int32_t hal_gpio_output_toggle(gpio_dev_t *gpio) {
+}
+
+extern int32_t hal_gpio_finalize(gpio_dev_t *gpio);
+int32_t hal_gpio_finalize(gpio_dev_t *gpio) {
+}
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
