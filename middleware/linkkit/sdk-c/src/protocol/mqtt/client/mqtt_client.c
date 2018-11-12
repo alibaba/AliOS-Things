@@ -2978,7 +2978,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_free(pconn);
         return NULL;
     } 
-    if(strlen(pInitParams->client_id) == 0) {
+    if(pInitParams->client_id == NULL || strlen(pInitParams->client_id) == 0) {
         pInitParams->client_id = pconn->client_id;
     }
 
