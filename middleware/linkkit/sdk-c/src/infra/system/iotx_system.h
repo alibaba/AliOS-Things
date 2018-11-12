@@ -33,19 +33,16 @@ typedef enum _DOMAIN_TYPE {
     GUIDER_DOMAIN_MAX
 } domain_type_t;
 
-int     iotx_guider_authenticate(void);
+int     iotx_guider_authenticate(iotx_conn_real_info_t *conn);
 int     iotx_guider_set_region(int region_type);
 int     iotx_guider_get_region(void);
 int     iotx_guider_set_custom_domain(int domain_type, const char *domain);
-
+iotx_conn_info_pt iotx_conn_info_get(void);
 int     iotx_facility_json_print(const char *str, int level, ...);
 
 const char     *iotx_guider_get_domain(int domain_type);
 
 int iotx_device_info_get(iotx_device_info_t *device_info);
-
-iotx_conn_info_pt iotx_conn_info_get(void);
-void iotx_conn_info_delete(void);
 
 const char *iotx_ca_get(void);
 
