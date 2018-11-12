@@ -227,7 +227,6 @@ kstat_t krhino_fix_buf_queue_create(kbuf_queue_t *queue,
 
 }
 
-
 kstat_t krhino_buf_queue_del(kbuf_queue_t *queue)
 {
     volatile krhino_buf_queue_del_syscall_arg_t arg;
@@ -305,6 +304,48 @@ kstat_t krhino_buf_queue_info_get(kbuf_queue_t *queue,
     arg.info = info;
 
     return SYSCALL(SYS_KRHINO_BUF_QUEUE_INFO_GET, &arg);
+}
+
+
+/* ----------------- proc msg ----------------- */
+
+size_t krhino_msg_get(uint32_t key, uint32_t flg, size_t size)
+{
+    volatile krhino_msg_get_syscall_arg_t arg;
+
+    arg.key = key;
+    arg.flg = flg;
+    arg.size = size;
+
+    return SYSCALL(SYS_KRHINO_MSG_GET, &arg);
+}
+
+kstat_t krhino_msg_snd(size_t msg_id,
+                       void *msg,
+                       size_t msg_sz)
+{
+    volatile krhino_msg_snd_syscall_arg_t arg;
+
+    arg.msg_id = msg_id;
+    arg.msg = msg;
+    arg.msg_sz = msg_sz;
+
+    return SYSCALL(SYS_KRHINO_MSG_SND, &arg);
+}
+
+kstat_t krhino_msg_recv(size_t msg_id,
+                        tick_t ticks,
+                        void *msg,
+                        size_t *msg_sz)
+{
+    volatile krhino_msg_recv_syscall_arg_t arg;
+
+    arg.msg_id = msg_id;
+    arg.ticks = ticks;
+    arg.msg = msg;
+    arg.msg_sz = msg_sz;
+
+    return SYSCALL(SYS_KRHINO_MSG_RECV, &arg);
 }
 
 
