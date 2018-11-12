@@ -1,4 +1,0 @@
-config AOS_CAMERA_HAL
-    bool "camera_hal"
-    default n
-    help
