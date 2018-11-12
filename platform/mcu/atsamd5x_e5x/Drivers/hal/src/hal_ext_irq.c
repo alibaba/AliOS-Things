@@ -33,7 +33,7 @@
 
 #include "hal_ext_irq.h"
 
-#define EXT_IRQ_AMOUNT 1
+#define EXT_IRQ_AMOUNT 2
 
 /**
  * \brief Driver version

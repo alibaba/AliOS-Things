@@ -9,19 +9,24 @@ SUPPORT_BINS         := no
 HOST_MCU_NAME        := ATSAME54P20A
 
 $(NAME)_SOURCES += board.c
+$(NAME)_SOURCES += soc_init.c
 
 GLOBAL_INCLUDES += .
 
 GLOBAL_DEFINES += STDIO_UART=2
 
 ywss_support ?= 1
-sal ?= 1
+sal ?= 0
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal
 module ?= wifi.mk3060
 else
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
+module ?= wifi.wilc1000
+$(NAME)_COMPONENTS += mcu/atsamd5x_e5x/Drivers/wilc1000
+$(NAME)_COMPONENTS += protocols.net
+GLOBAL_DEFINES += WITH_LWIP
 endif
+
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_ATSAME54-XPRO
 CONFIG_SYSINFO_DEVICE_NAME := ATSAME54-XPRO

@@ -294,7 +294,11 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
   case PBUF_MBUF_RAW:
 #endif
     /* no offset (e.g. RX buffers or chain successors) */
+#if defined(DEV_SAL_WILC1000)
+    offset = PBUF_LINK_ENCAPSULATION_HLEN;
+#else
     offset = 0;
+#endif
     break;
   default:
     LWIP_ASSERT("pbuf_alloc: bad pbuf layer", 0);
