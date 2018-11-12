@@ -2,24 +2,47 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
-#include <hal/hal.h>
+#include <u_api.h>
+
+//#define ENABLE_PROC_MSG
 
 #define APP_STACK_SIZE 0x400
 
 static ktask_t app_obj;
+
 cpu_stack_t app_stack[APP_STACK_SIZE];
 
 static void app_run(void *arg)
 {
     int cnt = 0;
 
-    ktask_t *cur = krhino_cur_task_get();
+#ifdef ENABLE_PROC_MSG
+    size_t msg_id;
+    char msg[20];
+    size_t size;
+    msg_id = krhino_msg_get(0x1234, 0, 1024);
+#endif
 
     while (1) {
         printf("uapp2 app cnt 0x%x\r\n", cnt);
         cnt++;
+
+#ifdef ENABLE_PROC_MSG
+        if (msg_id) {
+            size = 0;
+            memset(msg, 0, 20);
+            krhino_msg_recv(msg_id,
+                             RHINO_WAIT_FOREVER,
+                             msg, &size);
+            if (size) {
+                printf("app2 recv %d bytes: %s\r\n",size, msg);
+            } else {
+                printf("app2 recv err\r\n");
+            }
+        }
+#else
         krhino_task_sleep(200);
+#endif
     }
 }
 
