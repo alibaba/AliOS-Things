@@ -2,10 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
-#include "hal/soc/soc.h"
+#include <u_api.h>
 #include <uapp.h>
-#include <u_mm.h>
 
 extern unsigned int _app_text_flash_start;
 extern unsigned int _app_text_flash_end;
