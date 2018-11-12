@@ -53,7 +53,7 @@ int IOT_SetupConnInfo(const char *product_key,
     char                product_secret[PRODUCT_SECRET_MAXLEN] = {0};
     int                 device_secret_len = DEVICE_SECRET_MAXLEN;
     sdk_impl_ctx_t     *ctx = sdk_impl_get_ctx();
-
+    
     STRING_PTR_SANITY_CHECK(product_key, -1);
     STRING_PTR_SANITY_CHECK(device_name, -1);
 
@@ -114,12 +114,16 @@ int IOT_SetupConnInfo(const char *product_key,
     if (NULL == info_ptr) {
         return SUCCESS_RETURN;
     }
-    rc = iotx_guider_authenticate();
-    if (rc == 0) {
-        *info_ptr = (void *)iotx_conn_info_get();
-    } else {
-        *info_ptr = NULL;
-    }
+    *info_ptr = iotx_conn_info_get();
+    // if (NULL == info_ptr) {
+    //     return SUCCESS_RETURN;
+    // }
+    // rc = iotx_guider_authenticate();
+    // if (rc == 0) {
+    //     *info_ptr = (void *)iotx_conn_info_get();
+    // } else {
+    //     *info_ptr = NULL;
+    // }
 #endif
     return rc;
 }
