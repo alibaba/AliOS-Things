@@ -167,19 +167,25 @@ typedef struct {
 } krhino_buf_queue_info_get_syscall_arg_t;
 
 
-/* ------------------- mm ------------------- */
+/* ------------------- proc msg -------------------- */
 typedef struct {
+    uint32_t key;
+    uint32_t flg;
     size_t size;
-} krhino_mm_alloc_syscall_arg_t;
+} krhino_msg_get_syscall_arg_t;
 
 typedef struct {
-    void *ptr;
-} krhino_mm_free_syscall_arg_t;
+    size_t msg_id;
+    void *msg;
+    size_t msg_sz;
+} krhino_msg_snd_syscall_arg_t;
 
 typedef struct {
-    void *oldmem;
-    size_t newsize;
-} krhino_mm_realloc_syscall_arg_t;
+    size_t msg_id;
+    tick_t ticks;
+    void *msg;
+    size_t *msg_sz;
+} krhino_msg_recv_syscall_arg_t;
 
 
 /* ------------------- hal uart ------------------- */
