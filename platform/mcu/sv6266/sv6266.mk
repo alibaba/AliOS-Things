@@ -190,5 +190,8 @@ $(NAME)_SOURCES :=	aos.c \
                     hal/rf_cmd.c \
                     hal/pwm.c \
                     hal/adc.c \
+		    hal/gpio.c \
+		    hal/i2c.c  \
+		    hal/spi.c  \
                     $(SDKDIR)/components/net/tcpip/lwip-1.4.0/src/netif/ethernetif.c \
 					hal/hw.c
