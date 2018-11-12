@@ -90,7 +90,7 @@ static int http2_stream_test(char **argv,int argc)
     }
    http2_header header[] = {
         MAKE_HEADER("test_name", "test_http2_header"),
-        MAKE_HEADER_CS("hello", "world"),
+        MAKE_HEADER("x-for-test", "hello world"),
     };
     
     header_ext_info_t my_header_info = {
