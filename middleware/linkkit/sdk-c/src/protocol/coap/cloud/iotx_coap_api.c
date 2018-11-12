@@ -302,7 +302,7 @@ int iotx_get_well_known(iotx_coap_context_t *p_context)
     return IOTX_SUCCESS;
 }
 
-static void iotx_coap_mid_rsphdl(void *arg, void *p_response)
+static void iotx_coap_report_rsphdl(void *arg, void *p_response)
 {
     int                     p_payload_len = 0;
     unsigned char          *p_payload = NULL;
@@ -311,18 +311,18 @@ static void iotx_coap_mid_rsphdl(void *arg, void *p_response)
 
     IOT_CoAP_GetMessageCode(p_response, &resp_code);
     IOT_CoAP_GetMessagePayload(p_response, &p_payload, &p_payload_len);
-    COAP_DEBUG("MID Report: CoAP response code = %d", resp_code);
-    COAP_DEBUG("MID Report: CoAP msg_len = %d", p_payload_len);
+    COAP_DEBUG("Report response: CoAP response code = %d", resp_code);
+    COAP_DEBUG("Report response: CoAP msg_len = %d", p_payload_len);
     if (p_payload_len > 0) {
-        COAP_DEBUG("MID Report: CoAP msg = '%s'", p_payload);
+        COAP_DEBUG("Report response: CoAP msg = '%s'", p_payload);
         msg = json_get_value_by_name((char *)p_payload, p_payload_len, "id", &p_payload_len, 0);
         if (NULL != msg) {
-            COAP_DEBUG("MID Report: CoAP mid_report responseID = '%s'", msg);
+            COAP_DEBUG("Report response: CoAP mid_report responseID = '%s'", msg);
         } else {
-            COAP_WRN("MID Report: CoAP mid_report responseID not found in msg");
+            COAP_WRN("Report response: CoAP mid_report responseID not found in msg");
         }
     } else {
-        COAP_WRN("MID Report: CoAP response payload_len = 0");
+        COAP_WRN("Report response: CoAP response payload_len = 0");
     }
 }
 
@@ -334,7 +334,7 @@ static int coap_report_func(void *handle, const char *topic_name, int req_ack, v
     memset(&message, 0, sizeof(iotx_message_t));
     message.p_payload = (unsigned char *)data;
     message.payload_len = len;
-    message.resp_callback = iotx_coap_mid_rsphdl;
+    message.resp_callback = iotx_coap_report_rsphdl;
     if (req_ack == 0) {
         message.msg_type = IOTX_MESSAGE_NON;
     } else {
@@ -525,11 +525,22 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     iotx_set_report_func(coap_report_func);
     /* report module id */
     ret = iotx_report_mid(p_context);
-    // ret = iotx_coap_report_mid(p_context);
     if (SUCCESS_RETURN != ret) {
         COAP_DEBUG("Send ModuleId message to server(CoAP) failed, ret = %d", ret);
         return IOTX_ERR_SEND_MSG_FAILED;
     }
+    /* report device information */
+    ret = iotx_report_devinfo(p_context);
+    if (SUCCESS_RETURN != ret) {
+        COAP_DEBUG("Send devinfo message to server(CoAP) failed, ret = %d", ret);
+        return IOTX_ERR_SEND_MSG_FAILED;
+    }
+    /* report firmware */
+    ret = iotx_report_firmware_version(p_context);
+    if (SUCCESS_RETURN != ret) {
+        COAP_DEBUG("Send firmware message to server(CoAP) failed, ret = %d", ret);
+        return IOTX_ERR_SEND_MSG_FAILED;
+    }    
 
     return IOTX_SUCCESS;
 }
@@ -621,7 +632,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
     if (p_iotx_coap->is_authed) {
 
         Cloud_CoAPMessage_init(&message);
-        Cloud_CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);     /* p_message->msg_type is ignored */
+        Cloud_CoAPMessageType_set(&message, p_message->msg_type);
         Cloud_CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
         Cloud_CoAPMessageId_set(&message, Cloud_CoAPMessageId_gen(p_coap_ctx));
         len = iotx_get_coap_token(p_iotx_coap, token);
