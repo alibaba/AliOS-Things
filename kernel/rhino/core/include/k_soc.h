@@ -24,10 +24,6 @@ lr_timer_t soc_lr_hw_cnt_get(void);
 void soc_intrpt_guard(void);
 #endif
 
-#if (RHINO_CONFIG_INTRPT_STACK_REMAIN_GET > 0)
-size_t soc_intrpt_stack_remain_get(void);
-#endif
-
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void);
 #endif

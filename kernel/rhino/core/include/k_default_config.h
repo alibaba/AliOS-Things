@@ -121,10 +121,6 @@
 #endif /* RHINO_CONFIG_MM_TLF */
 
 /* kernel task conf */
-#ifndef RHINO_CONFIG_TASK_PRI_CHG
-#define RHINO_CONFIG_TASK_PRI_CHG            1
-#endif
-
 #ifndef RHINO_CONFIG_TASK_INFO
 #define RHINO_CONFIG_TASK_INFO               0
 #endif
@@ -178,10 +174,6 @@
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
 #endif
 
-#ifndef RHINO_CONFIG_TIMER_RATE
-#define RHINO_CONFIG_TIMER_RATE              1
-#endif
-
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 #endif
@@ -191,10 +183,6 @@
 #endif
 
 /* kernel intrpt conf */
-#ifndef RHINO_CONFIG_INTRPT_STACK_REMAIN_GET
-#define RHINO_CONFIG_INTRPT_STACK_REMAIN_GET 0
-#endif
-
 #ifndef RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL
 #define RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL 188u
 #endif
@@ -218,11 +206,6 @@
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-
-#ifndef RHINO_CONFIG_K_DYN_QUEUE_MSG
-#define RHINO_CONFIG_K_DYN_QUEUE_MSG         30
-#endif
-
 #ifndef RHINO_CONFIG_K_DYN_TASK_STACK
 #define RHINO_CONFIG_K_DYN_TASK_STACK        256
 #endif
@@ -230,7 +213,6 @@
 #ifndef RHINO_CONFIG_K_DYN_MEM_TASK_PRI
 #define RHINO_CONFIG_K_DYN_MEM_TASK_PRI      RHINO_CONFIG_USER_PRI_MAX
 #endif
-
 #endif /* RHINO_CONFIG_KOBJ_DYN_ALLOC */
 
 /* kernel idle conf */
