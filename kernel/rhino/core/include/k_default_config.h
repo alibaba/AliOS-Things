@@ -183,10 +183,6 @@
 #endif
 
 /* kernel intrpt conf */
-#ifndef RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL
-#define RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL 188u
-#endif
-
 #ifndef RHINO_CONFIG_INTRPT_GUARD
 #define RHINO_CONFIG_INTRPT_GUARD            0
 #endif
