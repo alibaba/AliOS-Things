@@ -2016,9 +2016,6 @@ static void cb_recv(int fd, void *arg)
         // aos_cancel_poll_read_fd(HAL_SSL_GetFd(pClient->ipstack->handle), cb_recv, pClient);
         return;
     }
-    //LOG("system heap_size %d, iram mimi free heap size:%d,iram free heap size :%d", system_get_free_heap_size(), xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-    aos_cancel_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, arg);
-    aos_post_delayed_action( pClient->connect_data.keepAliveInterval * 1000, cb_recv_timeout, arg);
 }
 
 /* connect */
