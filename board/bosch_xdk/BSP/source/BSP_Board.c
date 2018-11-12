@@ -310,11 +310,11 @@ void BSP_Board_OSTickInitialize(BSP_Systick_Callback_T PreCallback, BSP_Systick_
         }
         if (RETCODE_OK == retcode)
         {
-            retcode = Board_I2C0_Init();
+            //retcode = Board_I2C0_Init();  
         }
         if (RETCODE_OK == retcode)
         {
-            retcode = Board_I2C1_Init();
+            //retcode = Board_I2C1_Init();  
         }
         if(RETCODE_OK == retcode)
         {

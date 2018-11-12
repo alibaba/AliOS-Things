@@ -386,7 +386,7 @@ Retcode_T MCU_I2C_ReadRegister(I2C_T i2c, uint16_t slaveAddr, uint8_t registerAd
         {
             pI2C->_DriverCtx.I2C_seq.flags |= I2C_FLAG_10BIT_ADDR;
         }
-        slaveAddr = slaveAddr << 1;
+        //slaveAddr = slaveAddr << 1;
         pI2C->_DriverCtx.I2C_seq.addr = slaveAddr;
 
         // Start the Transfer

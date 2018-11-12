@@ -131,21 +131,22 @@ void USART0_RX_IRQHandler(void)
 /*
  * Refer to interface header for description
  */
+ /*
 void I2C0_IRQHandler(void)
 {
     SensorNode_I2CISR();
 }
-
+*/
 #endif
 
 #if BCDS_FEATURE_BSP_EXTENSIONPORT
 /*
  * Refer header BSP_IrqHandler.h for description
  */
-void I2C1_IRQHandler(void)
-{
-    BSP_ExtensionPort_I2cIsr();
-}
+//void I2C1_IRQHandler(void)
+//{
+//    BSP_ExtensionPort_I2cIsr();
+//}
 
 /*
  * Refer header BSP_IrqHandler.h for description

@@ -9,6 +9,8 @@
 #include <em_emu.h>
 #include <em_gpio.h>
 #include <em_device.h>
+#include "BSP_BoardSettings.h"
+
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -38,6 +40,7 @@
 #define LedOrangePin      1
 
 uart_dev_t uart_0;
+//i2c_dev_t brd_i2c0_dev = {0, {0}, NULL};
 
 static void stduart_init(void)
 {
@@ -51,6 +54,37 @@ static void stduart_init(void)
 
     hal_uart_init(&uart_0);
 }
+
+void board_sensor_init()
+{
+    GPIO_PinModeSet(VDD_BMA280_PORT, VDD_BMA280_PIN, VDD_BMA280_MODE, 1);
+
+    GPIO_PinModeSet(VDD_BME280_PORT, VDD_BME280_PIN, VDD_BME280_MODE, 1);
+
+    GPIO_PinModeSet(VDD_BMG160_PORT, VDD_BMG160_PIN, VDD_BMG160_MODE, 1);
+
+    GPIO_PinModeSet(VDD_BMI160_PORT, VDD_BMI160_PIN, VDD_BMI160_MODE, 1);
+
+    GPIO_PinModeSet(VDD_BMM150_PORT, VDD_BMM150_PIN, VDD_BMM150_MODE, 1);
+
+    GPIO_PinModeSet(VDD_MAX44009_PORT, VDD_MAX44009_PIN, VDD_MAX44009_MODE, 1);
+
+    GPIO_PinModeSet(BMA280_INT1_PORT, BMA280_INT1_PIN, BMA280_INT1_MODE, 1);
+    GPIO_PinModeSet(BMA280_INT2_PORT, BMA280_INT2_PIN, BMA280_INT2_MODE, 1);
+
+    GPIO_PinModeSet(BMG160_INT1_PORT, BMG160_INT1_PIN, BMG160_INT1_MODE, 1);
+    GPIO_PinModeSet(BMG160_INT2_PORT, BMG160_INT2_PIN, BMG160_INT2_MODE, 1);
+
+    GPIO_PinModeSet(BMI160_INT1_PORT, BMI160_INT1_PIN, BMI160_INT1_MODE, 1);
+    GPIO_PinModeSet(BMI160_INT2_PORT, BMI160_INT2_PIN, BMI160_INT2_MODE, 1);
+
+    GPIO_PinModeSet(BMM150_DRDY_PORT, BMM150_DRDY_PIN, BMM150_DRDY_MODE, 1);
+    GPIO_PinModeSet(BMM150_INT_PORT, BMM150_INT_PIN, BMM150_INT_MODE, 1);
+
+    GPIO_PinModeSet(MAX44009_INTN_PORT, MAX44009_INTN_PIN, MAX44009_INTN_MODE, 1);
+
+}
+
 void bsp_init()
 {
     
@@ -85,8 +119,9 @@ void efm32_soc_init(void)
     GPIO_PinOutClear(LedOrangePort, LedOrangePin);
 
     bsp_init();
-    
     stduart_init();
+    
+    board_sensor_init();
 }
 
 /**

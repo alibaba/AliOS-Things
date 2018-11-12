@@ -2,6 +2,7 @@
 #include <k_api.h>
 #include <aos/aos.h>
 #include <aos/kernel.h>
+#include "hal/hal.h"
 
 #include <em_device.h>
 

@@ -34,9 +34,11 @@ $(NAME)_SOURCES := aos/aos.c \
                    aos/trace_impl.c \
 
 $(NAME)_SOURCES += Utils/UartTransceiver.c \
-				   Utils/RingBuffer.c
+				   Utils/RingBuffer.c \
+				   Utils/I2CTransceiver.c \
 
 $(NAME)_SOURCES += hal/efm32_hal_uart.c \
+				   hal/efm32_hal_i2c.c \
 	               hal/efm32_hal.c \
                    hal/system_efm32gg.c \
                    hal/hw.c \
@@ -79,8 +81,9 @@ $(NAME)_SOURCES += EMLib/em_lib/src/em_acmp.c \
 
 
 $(NAME)_SOURCES += Essentials/source/mcu/efm32/Timer.c \
-				   Essentials/source/mcu/efm32/SPI.c \
 				   Essentials/source/mcu/efm32/UART.c \
+				   Essentials/source/mcu/efm32/I2C.c \
+				   Essentials/source/mcu/efm32/SPI.c \
 				   Essentials/source/Retcode.c
 
 
