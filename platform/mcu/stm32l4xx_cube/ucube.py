@@ -91,7 +91,6 @@ src = Split('''
         Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_utils.c
         Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
         aos/soc_impl.c
-        aos/trace_impl.c
         aos/hook_impl.c       
         aos/aos.c
         aos/rttest_impl.c

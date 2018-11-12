@@ -126,7 +126,6 @@ else:
     dependencis.append('platform/arch/xtensa/lx6')
     src.append('aos/hook_impl.c')
     src.append('aos/soc_impl.c')
-    src.append('aos/trace_impl.c')
     src.append('aos/heap_wrapper.c')
 
 if aos_global_config.get('mesh'):

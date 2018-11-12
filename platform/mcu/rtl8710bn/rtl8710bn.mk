@@ -153,7 +153,6 @@ $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-var
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 
 #$(NAME)_SOURCES += aos/soc_impl.c
-#$(NAME)_SOURCES += aos/trace_impl.c
 #$(NAME)_SOURCES += aos/aos.c
 #$(NAME)_SOURCES += soc_impl.c
 #$(NAME)_INCLUDES += ../../../osal/mico/include
@@ -165,7 +164,6 @@ $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 #$(NAME)_INCLUDES += peripherals
 
 $(NAME)_SOURCES := aos/soc_impl.c          \
-                   aos/trace_impl.c \
                    aos/aos.c \
                    aos/aos_osdep.c \
                    aos/ethernetif.c \

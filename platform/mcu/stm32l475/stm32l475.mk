@@ -140,7 +140,6 @@ $(NAME)_SOURCES := src/B-L475E-IOT01/runapp/stm32l4xx_hal_msp.c      \
                    Drivers/BSP/Components/vl53l0x/vl53l0x_api_strings.c \
                    Drivers/BSP/Components/vl53l0x/vl53l0x_platform_log.c \
                    aos/soc_impl.c                \
-                   aos/trace_impl.c             \
                    src/B-L475E-IOT01/runapp/aos.c                    \
                    src/common/csp/wifi/src/es_wifi_io.c        \
                    src/common/csp/wifi/src/wifi.c              \

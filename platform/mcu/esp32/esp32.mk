@@ -113,7 +113,6 @@ else
 $(NAME)_COMPONENTS       += rhino platform/arch/xtensa/lx6
 $(NAME)_SOURCES          += aos/hook_impl.c
 $(NAME)_SOURCES          += aos/soc_impl.c
-$(NAME)_SOURCES          += aos/trace_impl.c
 $(NAME)_SOURCES          += aos/heap_wrapper.c
 endif
 

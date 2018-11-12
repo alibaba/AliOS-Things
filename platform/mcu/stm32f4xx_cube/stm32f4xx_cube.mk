@@ -98,7 +98,6 @@ $(NAME)_SOURCES := Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c  \
                    Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
 
 $(NAME)_SOURCES += aos/soc_impl.c \
-                   aos/trace_impl.c \
                    aos/aos.c \
                    hal/hal_uart_stm32f4.c \
                    hal/hw.c \

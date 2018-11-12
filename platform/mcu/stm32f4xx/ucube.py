@@ -6,7 +6,6 @@ src = Split('''
         wifi/wifi_port.c 
         GCC/platform_unhandled_isr.c
         aos/soc_impl.c               
-        aos/trace_impl.c            
         aos/aos.c                   
         hal/i2c.c                   
         hal/hw.c 
