@@ -1,6 +1,8 @@
 NAME := usb_device
 
 $(NAME)_MBINS_TYPE  := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES     +=  core/src/usb_device.c
 

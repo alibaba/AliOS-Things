@@ -1,6 +1,8 @@
 NAME := usb_host
 
-$(NAME)_TYPE        := kernel
+$(NAME)_MBINS_TYPE        := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES     +=  core/src/usb_host_core.c \
                         core/src/usb_host_device.c \

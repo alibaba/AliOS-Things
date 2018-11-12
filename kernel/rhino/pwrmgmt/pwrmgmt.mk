@@ -1,7 +1,8 @@
 NAME := pwrmgmt
 
-$(NAME)_TYPE 	    := kernel
 $(NAME)_MBINS_TYPE  := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES     := cpu_pwr_lib.c
 $(NAME)_SOURCES     += cpu_pwr_hal_lib.c
