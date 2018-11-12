@@ -2,10 +2,9 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "ota_log.h"
-#include "ota_download.h"
+#include "ota_service.h"
 #include "ota_public_key_config.h"
 #include "ota_base64.h"
-#include "ota_hexstr2hexbuf.h"
 #include "ota_hash.h"
 #include "ota_hal_os.h"
 
@@ -33,7 +32,7 @@ static const unsigned char *ota_get_pubkey_e()
 
 int ota_make_public_key(unsigned char* pub_key)
 {
-    ota_crypto_result ret = 0;
+    OTA_VERIFY_E ret = 0;
     int pubkey_n_size = 0;
     int pubkey_e_size = 0;
     int bitnumb = ota_get_public_key_bitnumb();
@@ -102,7 +101,7 @@ int ota_verify_rsa_sign(unsigned char* src_value, int src_len, int rsabitnumb, u
         return -1;
     }
     int ret = 0;
-    ota_hash_type_t hash_method;
+    OTA_HASH_E hash_method;
     bool result = false;
     ota_rsa_padding_t rsa_padding;
     unsigned int pub_key_len = 0;
@@ -174,7 +173,7 @@ OTA_RSA_OVER:
     return ret;
 }
 
-int ota_verify_download_rsa_sign(unsigned char* sign_dat, const char* src_hash_dat, ota_hash_type_t src_hash_method)
+int ota_verify_download_rsa_sign(unsigned char* sign_dat, const char* src_hash_dat, OTA_HASH_E src_hash_method)
 {
     char tmp_buf[32] = {0};
     int sign_bitnumb = 0;
@@ -194,8 +193,8 @@ int ota_verify_download_rsa_sign(unsigned char* sign_dat, const char* src_hash_d
             OTA_LOG_E("ota rsa sign input hash type error!");
             return -1;
     }
-    if(hexstringtohexbuf(src_hash_dat, tmp_buf, sizeof(tmp_buf)) < 0) {
-        OTA_LOG_E("rsa verify:hexstringtohexbuf translate failed!");
+    if(ota_hex_str2buf(src_hash_dat, tmp_buf, sizeof(tmp_buf)) < 0) {
+        OTA_LOG_E("rsa verify:str2buf translate failed!");
         return -1;
     }
     sign_bitnumb = ota_get_public_key_bitnumb();
