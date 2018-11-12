@@ -1,0 +1,10 @@
+
+config COAP_COMM_ENABLED
+    bool "FEATURE_COAP_COMM_ENABLED"
+    default n
+    help
+        Establish non-persistent connection with AliCloud via CoAP-based protocol
+
+        Switching to "y" leads to building CoAP related implementation into SDK and COAP_COMM_ENABLED included into CFLAGS
+        Switching to "n" leads to keeping CoAP-based cloud connection implementations out of SDK
+

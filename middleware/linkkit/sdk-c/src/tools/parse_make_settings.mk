@@ -1,7 +1,14 @@
 include $(CURDIR)/src/tools/internal_make_funcs.mk
 
-SWITCH_VARS := $(shell grep -o 'FEATURE_[_A-Z0-9]*' $(TOP_DIR)/Config.in $(TOP_DIR)/make.settings|grep -v FEATURE_SRCPATH|cut -d: -f2|uniq)
-SWITCH_VARS := $(sort $(SWITCH_VARS))
+SWITCH_VARS := \
+$(shell grep '''config [_A-Z]*''' \
+    $(wildcard $(TOP_DIR)/*/*/*/Config.in) $(wildcard $(TOP_DIR)/*/*/Config.in) \
+        | cut -d: -f2 \
+        | grep -v menuconfig \
+        | grep -v SRCPATH \
+        | awk '{ print $$NF }' \
+)
+SWITCH_VARS := $(foreach V,$(sort $(SWITCH_VARS)),FEATURE_$(V))
 
 $(foreach v, \
     $(SWITCH_VARS), \
