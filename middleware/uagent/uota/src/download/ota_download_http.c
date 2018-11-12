@@ -8,15 +8,12 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "utils_md5.h"
-#include "ota_download.h"
-#include "ota_util.h"
+#include "ota_service.h"
 #include "ota_log.h"
-#include "ota_manifest.h"
-#include "ota_verify.h"
 #include "ota_hal_os.h"
-#include "ota_rsa_verify.h"
+#include "ota_hal_plat.h"
 #include "ota_hash.h"
+#include "ota_verify.h"
 
 
 #ifndef EINTR
@@ -40,7 +37,7 @@ Connection: close\r\n\
 Range: bytes=%d-\r\n\
 Host:%s:%d\r\n\r\n"
 
-#if !defined ITLS_DOWNLOAD
+#if !defined AOS_OTA_ITLS
 static const char *ca = \
 {
     \
@@ -111,7 +108,7 @@ static void http_gethost_info(char *src, char **web, char **file, int *port)
     } else {
         (*web)[strlen(pa)] = 0;
     }
-#if defined HTTPS_DOWNLOAD || defined ITLS_DOWNLOAD
+#if defined AOS_OTA_HTTPS || defined AOS_OTA_ITLS
     isHttps = 1;
 #else
     isHttps = 0;
@@ -129,45 +126,44 @@ static void http_gethost_info(char *src, char **web, char **file, int *port)
     }
 }
 
-static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
+static int ota_download_start(char *url)
 {
-    if (!url || strlen(url) == 0 || wcb == NULL || cur_hash == NULL) {
-        OTA_LOG_E("ota_download parms error!\n");
-        return OTA_DOWNLOAD_URL_FAIL;
-    }
     int                  ret          = 0;
-    int                  sockfd       = 0;
+    void                 *sockfd      = NULL;
     int                  port         = 0;
     int                  nbytes       = 0;
     int                  send         = 0;
     int                  totalsend    = 0;
-    uint32_t             breakpoint   = 0;
+    int                  breakpoint   = 0;
     int                  size         = 0;
     int                  header_found = 0;
     char                *pos          = 0;
     int                  file_size    = 0;
-    ota_hash_params      last_hash;
-    ota_hash_ctx_params *hash_ctx                         = NULL;
-    char                *host_file                        = NULL;
-    char                *host_addr                        = NULL;
-    char                *http_buffer                      = NULL;
-    void                *ssl                              = NULL;
+    ota_hash_t           last_hash    = {0};
+    ota_hash_param_t    *hash_ctx     = NULL;
+    char                *host_file    = NULL;
+    char                *host_addr    = NULL;
+    char                *http_buffer  = NULL;
+    void                *ssl          = NULL;
     char                retry = 0;
-    uint32_t            ota_percent = 0;
-    uint32_t            divisor     = 10;
-    http_gethost_info(url, &host_addr, &host_file, &port);
+    unsigned int        ota_percent = 0;
+    unsigned int        divisor     = 10;
 
+    if (!url || strlen(url) == 0) {
+        OTA_LOG_E("ota_download parms error!\n");
+        return OTA_DOWNLOAD_URL_FAIL;
+    }
+    http_gethost_info(url, &host_addr, &host_file, &port);
     if (host_file == NULL || host_addr == NULL) {
-        ret = OTA_DOWNLOAD_URL_FAIL;
+        ret = OTA_DOWNLOAD_IP_FAIL;
         return ret;
     }
 
     if (isHttps) {
-#if defined ITLS_DOWNLOAD
+#if defined AOS_OTA_ITLS
         char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN] = {0};
-        ota_service_manager *ctx = (ota_service_manager *)get_ota_service_manager();
-        int len = strlen(ctx->pk);
-        strncpy(pkps, ctx->pk, len);
+        int len = strlen(ota_get_service()->pk);
+        strncpy(pkps, ota_get_service()->pk, len);
         HAL_GetProductSecret(pkps + len + 1);
         len += strlen(pkps + len + 1) + 2;
         ssl = ota_ssl_connect(host_addr, port, pkps,len);
@@ -176,78 +172,65 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
 #endif
         if (ssl == NULL) {
             OTA_LOG_E("ota_ssl_socket_connect error\n ");
-            ret = OTA_DOWNLOAD_SOCKET_FAIL;
+            ret = OTA_DOWNLOAD_CON_FAIL;
             return ret;
         }
     } else {
         sockfd = ota_socket_connect(host_addr, port);
         if (sockfd < 0) {
             OTA_LOG_E("ota_socket_connect error\n ");
-            ret = OTA_DOWNLOAD_SOCKET_FAIL;
+            ret = OTA_DOWNLOAD_CON_FAIL;
             return ret;
         }
     }
-    hash_ctx = ota_get_global_hash_context();
-    if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL ||
-        hash_ctx->ctx_size == 0) {
-        OTA_LOG_E("ota get sign ctx fail\n ");
-        if(sockfd)
-        ota_socket_close(sockfd);
-        ret = OTA_DOWNLOAD_FAIL;
-        return ret;
-    }
-    breakpoint = ota_get_update_breakpoint();
-    memset(&last_hash, 0x00, sizeof last_hash);
+    breakpoint = ota_get_break_point();
+    memset(&last_hash, 0x00, sizeof(last_hash));
     ota_get_last_hash((char *)&last_hash);
-
     http_buffer = ota_malloc(OTA_BUFFER_MAX_SIZE);
     if(NULL == http_buffer) {
         OTA_LOG_E("memory fail\n ");
-        if(sockfd)
-        ota_socket_close(sockfd);
         ret = OTA_DOWNLOAD_FAIL;
-        return ret;
+        goto END;
+    }
+    hash_ctx = ota_get_hash_ctx();
+    if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL || hash_ctx->ctx_size == 0) {
+        OTA_LOG_E("ota get hash ctx fail\n ");
+        ret = OTA_DOWNLOAD_FAIL;
+        goto END;;
     }
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    if (breakpoint && (ota_verify_hash_value(
-                         last_hash, (*((ota_hash_params *)cur_hash))) == 0)) {
-        OTA_LOG_I("----resume download,breakpoint=%d------", breakpoint);
-        sprintf(http_buffer, HTTP_HEADER_RESUME, host_file, breakpoint,
-                host_addr, port);
-        ota_get_last_hash_context(hash_ctx);
+    if (breakpoint && (strncmp((char*)&last_hash, ota_get_service()->h_tr->hash, OTA_HASH_LEN) == 0)) {
+        OTA_LOG_I("download start breakpoint:%d", breakpoint);
+        sprintf(http_buffer, HTTP_HEADER_RESUME, host_file, breakpoint, host_addr, port);
+        ota_get_last_hash_ctx(hash_ctx);
     } else {
         breakpoint = 0;
         sprintf(http_buffer, HTTP_HEADER, host_file, host_addr, port);
-        if (ota_hash_init(hash_ctx->hash_method, hash_ctx->ctx_hash) != 0) {
+        if (ota_hash_init(hash_ctx->hash_method, hash_ctx->ctx_hash) < 0) {
             OTA_LOG_E("ota sign init fail \n ");
-            ret = OTA_DOWNLOAD_SIGN_INIT_FAIL;
-            goto DOWNLOAD_END;
+            ret = OTA_DOWNLOAD_FAIL;
+            goto END;
         }
     }
-    ota_set_cur_hash((char *)cur_hash);
+    ota_set_cur_hash(ota_get_service()->h_tr->hash);
     send      = 0;
     totalsend = 0;
     nbytes    = strlen(http_buffer);
     OTA_LOG_I("send %s", http_buffer);
     while (totalsend < nbytes) {
-        send = ((isHttps) ? ota_ssl_send(ssl, (char *)(http_buffer + totalsend),
-                                         (int)(nbytes - totalsend))
-                          : ota_socket_send(sockfd, http_buffer + totalsend,
-                                            nbytes - totalsend));
+        send = ((isHttps) ? ota_ssl_send(ssl, (char *)(http_buffer + totalsend), (int)(nbytes - totalsend))
+                 :ota_socket_send(sockfd, http_buffer + totalsend, nbytes - totalsend));
         if (send < 0) {
-            OTA_LOG_E("send error!%s\n ", strerror(errno));
-            ret = OTA_DOWNLOAD_SEND_FAIL;
-            goto DOWNLOAD_END;
+            OTA_LOG_E("write error!%s\n ", strerror(errno));
+            ret = OTA_DOWNLOAD_WRITE_FAIL;
+            goto END;
         }
         totalsend += send;
         OTA_LOG_I("%d bytes send OK!\n ", totalsend);
     }
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE); 
-    while (
-      (nbytes =
-         ((isHttps) ? ota_ssl_recv(ssl, http_buffer, OTA_BUFFER_MAX_SIZE - 1)
-                    : ota_socket_recv(sockfd, http_buffer,
-                                      OTA_BUFFER_MAX_SIZE - 1))) != 0) {
+    while ((nbytes = ((isHttps) ? ota_ssl_recv(ssl, http_buffer, OTA_BUFFER_MAX_SIZE - 1)
+          :ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1))) != 0) {
         if((nbytes <= 0)&&(retry <= 5)){
              retry++;
              OTA_LOG_I("retry cn:%d",retry);
@@ -256,8 +239,9 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
              retry=0;
         }
         if (nbytes < 0) {
-            OTA_LOG_I("ota_socket_recv nbytes < 0");
+            OTA_LOG_I("ota read nbytes < 0");
             if (errno != EINTR) {
+                ret = OTA_DOWNLOAD_READ_FAIL;
                 break;
             } else {
                 continue;
@@ -279,47 +263,45 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
                 int len      = pos - http_buffer;
                 header_found = 1;
                 size         = nbytes - len;
-                if (OTA_CRYPTO_SUCCESS != ota_hash_update((const uint8_t *)pos,
-                                                          size,
-                                                          hash_ctx->ctx_hash)) {
-                    OTA_LOG_E("ota hash update fail\n ");
-                    ota_set_update_breakpoint(0);
-                    ret = OTA_DOWNLOAD_SEND_FAIL;
-                    goto DOWNLOAD_END;
+                OTA_LOG_I("http header found bp:%d", breakpoint);
+                if (ota_hash_update((const unsigned char *)pos, size, hash_ctx->ctx_hash) < 0) {
+                    OTA_LOG_E("ota hash update fail.\n ");
+		    ota_set_break_point(0);
+                    ret = OTA_UPGRADE_FAIL;
+                    goto END;
                 }
-                ret = wcb(OTA_BUFFER_MAX_SIZE, (uint8_t *)pos, size, 0);
+                ret = ota_hal_write(&breakpoint,pos, size);
                 if (ret < 0) {
                     OTA_LOG_I("write error:%d\n", ret);
-                    ret = OTA_DOWNLOAD_FAIL;
-                    goto DOWNLOAD_END;
+                    ret = OTA_UPGRADE_FAIL;
+                    goto END;
                 }
             }
             memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
             continue;
         }
         size += nbytes;
-        OTA_LOG_I("s:%d %d",size,nbytes);
-        if (OTA_CRYPTO_SUCCESS != ota_hash_update((const uint8_t *)http_buffer,
-                                                  nbytes, hash_ctx->ctx_hash)) {
-            OTA_LOG_E("ota hash update fail\n ");
-            ota_set_update_breakpoint(0);
-            ret = OTA_DOWNLOAD_SEND_FAIL;
-            goto DOWNLOAD_END;
+        if (ota_hash_update((const unsigned char *)http_buffer, nbytes, hash_ctx->ctx_hash) < 0) {
+            OTA_LOG_E("ota hash update fail2.\n ");
+	    ota_set_break_point(0);
+            ret = OTA_UPGRADE_FAIL;
+            goto END;
         }
-        ret = wcb(OTA_BUFFER_MAX_SIZE, (uint8_t *)http_buffer, nbytes, 0);
+        ret = ota_hal_write(NULL,http_buffer, nbytes);
         if (ret < 0) {
             OTA_LOG_I("write error:%d\n", ret);
-            ret = OTA_DOWNLOAD_FAIL;
-            goto DOWNLOAD_END;
+            ret = OTA_UPGRADE_FAIL;
+            goto END;
         }
-
         if(file_size) {
-            ota_percent = (size * 100) / file_size;
+            ota_percent = ((long long)size * 100) / (long long)file_size;
             if(ota_percent / divisor) {
-                divisor += 10;
-#if (!defined IS_ESP8266)
-                ota_status_post(ota_percent);
+                divisor += 5;
+#if (!defined BOARD_ESP8266)
+                ota_service_t* ctx = ota_get_service();
+                ctx->h_tr->status(ota_percent, ota_get_service()->pk, ota_get_service()->dn);
 #endif
+                OTA_LOG_I("s:%d %d per:%d",size,nbytes,ota_percent);
             }
         }
         if (size == file_size) {
@@ -332,17 +314,18 @@ static int ota_download_start(char *url, ota_write_cb_t wcb, void *cur_hash)
         }
     }
     if (nbytes < 0) {
-        OTA_LOG_E("download read error %s", strerror(errno));
+        OTA_LOG_I("download read error ret:%d.",ret);
         ota_save_state(size + breakpoint, hash_ctx);
-        ret = OTA_DOWNLOAD_FAILED;
+        ret = OTA_DOWNLOAD_FAIL;
     } else if (nbytes == 0) {
-        ota_set_update_breakpoint(0);
-        ret = OTA_DOWNLOAD_FINISH;
+        OTA_LOG_I("download finish ret:%d.",ret);
+        ota_set_break_point(0);
     } else {
+        OTA_LOG_I("download cancel ret:%d.",ret);
         ota_save_state(size + breakpoint, hash_ctx);
-        ret = OTA_DOWNLOAD_CANCEL;
+        ret = OTA_CANCEL;
     }
-DOWNLOAD_END:
+END:
     if(http_buffer)
         ota_free(http_buffer);
     if(sockfd)
@@ -350,24 +333,17 @@ DOWNLOAD_END:
     return ret;
 }
 
-
-static int ota_download_init(void)
-{
-    return 0;
-}
-
 static int ota_download_stop(void)
 {
     return 0;
 }
 
-static ota_download dl_http = {
-    .init  = ota_download_init,
+static ota_download_t dl_http = {
     .start = ota_download_start,
     .stop  = ota_download_stop,
 };
 
-const void *ota_get_download_http(void)
+ota_download_t *ota_get_download_http(void)
 {
     return &dl_http;
 }

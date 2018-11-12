@@ -3,72 +3,80 @@
  */
 
 #include <stdio.h>
+#include "ota_log.h"
 #include "ota_hal_plat.h"
 
-static hal_ota_module_t *ota_module;
+static ota_hal_module_t *ota_module = NULL;
 
-hal_ota_module_t *hal_ota_get_default_module(void)
-{
-    return ota_module;
-}
-
-void hal_ota_register_module(hal_ota_module_t *module)
+void ota_hal_register_module(ota_hal_module_t *module)
 {
     ota_module = module;
 }
 
-hal_stat_t hal_ota_init(void *something)
+int ota_hal_init(void *something)
 {
-    return ota_module->init(ota_module, something);
-}
-
-hal_stat_t hal_ota_write(hal_ota_module_t *m, volatile uint32_t *off_set, uint8_t *in_buf , uint32_t in_buf_len)
-{
-    if (m == NULL) {
-        m = hal_ota_get_default_module();
+    if (ota_module == NULL) {
+        OTA_LOG_I("ota init is NULL");
+        return -1;
     }
 
-    if (m != NULL && m->ota_write != NULL) {
-        return m->ota_write(m, off_set, in_buf, in_buf_len);
+    if (ota_module != NULL && ota_module->init != NULL) {
+        return ota_module->init(something);
+    }
+    return 0;
+}
+
+int ota_hal_write(int *off_set, char *in_buf , int in_buf_len)
+{
+    if (ota_module == NULL) {
+        OTA_LOG_I("ota write is NULL");
+        return -1;
+    }
+
+    if (ota_module != NULL && ota_module->write != NULL) {
+        return ota_module->write(off_set, in_buf, in_buf_len);
     }
 
     return 0;
 }
 
-hal_stat_t hal_ota_read(hal_ota_module_t *m, volatile uint32_t *off_set, uint8_t *out_buf, uint32_t out_buf_len)
+int ota_hal_read(int *off_set, char *out_buf, int out_buf_len)
 {
-    if (m == NULL) {
-        m = hal_ota_get_default_module();
+    if (ota_module == NULL) {
+        OTA_LOG_I("ota read is NULL");
+        return -1;
     }
 
-    if (m != NULL && m->ota_read != NULL) {
-        return m->ota_read(m, off_set, out_buf, out_buf_len);
+    if (ota_module != NULL && ota_module->read != NULL) {
+        return ota_module->read(off_set, out_buf, out_buf_len);
     }
 
     return 0;
 }
 
-hal_stat_t hal_ota_set_boot(hal_ota_module_t *m, void *something)
+int ota_hal_boot(void *something)
 {
-    if (m == NULL) {
-        m = hal_ota_get_default_module();
+    if (ota_module == NULL) {
+        OTA_LOG_I("ota boot is NULL");
+        return -1;
     }
 
-    if (m != NULL && m->ota_set_boot != NULL) {
-        return m->ota_set_boot(m, something);
+    if (ota_module != NULL && ota_module->boot != NULL) {
+        return ota_module->boot(something);
     }
 
     return 0;
 }
 
-hal_stat_t hal_ota_rollback(hal_ota_module_t *m, void *something)
+int ota_hal_rollback(void *something)
 {
-    if (m == NULL) {
-        m = hal_ota_get_default_module();
+    if (ota_module == NULL) {
+        OTA_LOG_I("ota rollback is NULL");
+        return -1;
     }
 
-    if (m != NULL && m->ota_set_boot != NULL) {
-        return m->ota_rollback(m, something);
+    if (ota_module != NULL && ota_module->rollback != NULL) {
+        return ota_module->rollback(something);
     }
 
     return 0;

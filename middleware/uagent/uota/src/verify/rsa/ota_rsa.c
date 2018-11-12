@@ -365,7 +365,7 @@ void ota_rsa_free( ota_rsa_context *ctx )
 
 
 /* tee rsa_key -> mbed rsa_key */
-static ota_crypto_result _ota_rsa_key_decode(
+static OTA_VERIFY_E _ota_rsa_key_decode(
                              unsigned int type, void *in_key, void *out_key)
 {
     int ret;
@@ -394,7 +394,7 @@ static ota_crypto_result _ota_rsa_key_decode(
     return OTA_CRYPTO_SUCCESS;
 }
 
-static unsigned int _ota_get_hash_size(ota_hash_type_t type)
+static unsigned int _ota_get_hash_size(OTA_HASH_E type)
 {
     unsigned int hash_size = 32;
     switch(type) {
@@ -411,7 +411,7 @@ static unsigned int _ota_get_hash_size(ota_hash_type_t type)
     return hash_size;
 }
 
-static ota_md_type_t _ota_get_hash_type(ota_hash_type_t type)
+static ota_md_type_t _ota_get_hash_type(OTA_HASH_E type)
 {
     ota_md_type_t hash_type = OTA_MD_SHA256;
     switch(type) {
@@ -427,7 +427,7 @@ static ota_md_type_t _ota_get_hash_type(ota_hash_type_t type)
     return hash_type;
 }
 
-ota_crypto_result ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size)
+OTA_VERIFY_E ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size)
 {
     if (size == NULL) {
         return OTA_CRYPTO_INVALID_ARG;
@@ -442,7 +442,7 @@ ota_crypto_result ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *si
     return OTA_CRYPTO_SUCCESS;
 }
 
-ota_crypto_result ota_rsa_init_pubkey(unsigned int keybits,
+OTA_VERIFY_E ota_rsa_init_pubkey(unsigned int keybits,
                       const unsigned char *n, unsigned int n_size,
                       const unsigned char *e, unsigned int e_size,
                       ota_rsa_pubkey_t *pubkey)
@@ -471,7 +471,7 @@ ota_crypto_result ota_rsa_init_pubkey(unsigned int keybits,
     return OTA_CRYPTO_SUCCESS;
 }
 
-ota_crypto_result ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
+OTA_VERIFY_E ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
                       const uint8_t *dig, size_t dig_size,
                       const uint8_t *sig, size_t sig_size,
                       ota_rsa_padding_t padding, bool *p_result)
@@ -479,10 +479,10 @@ ota_crypto_result ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
     int ret;
     unsigned int hash_size;
     unsigned int key_size;
-    ota_hash_type_t ali_hash_type;
+    OTA_HASH_E ali_hash_type;
     ota_md_type_t hash_type = OTA_MD_SHA256;
     ota_rsa_context ctx;
-    ota_crypto_result result = OTA_CRYPTO_SUCCESS;
+    OTA_VERIFY_E result = OTA_CRYPTO_SUCCESS;
 
     if (pub_key == NULL || NULL == p_result ||
         dig == NULL || dig_size == 0 ||
