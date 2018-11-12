@@ -13,6 +13,7 @@ endif
 
 ifeq ($(MBINS),kernel)
 $(NAME)_SOURCES := u_task.c
+$(NAME)_SOURCES += u_proc_msg.c
 else ifeq ($(MBINS),app)
 $(NAME)_SOURCES := u_timer.c
 $(NAME)_SOURCES += u_mm.c

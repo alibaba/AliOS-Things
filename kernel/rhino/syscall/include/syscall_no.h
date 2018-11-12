@@ -83,8 +83,20 @@
 #define K_BUF_QUEUE_END     (SYS_KRHINO_BUF_QUEUE_INFO_GET)
 
 
+/* ----------------- proc msg -----------------*/
+#define U_PROC_MSG_BASE   (K_BUF_QUEUE_END + 1)
+
+#define SYS_KRHINO_MSG_GET (U_PROC_MSG_BASE +0)
+
+#define SYS_KRHINO_MSG_SND (U_PROC_MSG_BASE + 1)
+
+#define SYS_KRHINO_MSG_RECV (U_PROC_MSG_BASE + 2)
+
+#define U_PROC_MSG_END      (SYS_KRHINO_MSG_RECV)
+
+
 /* ----------------- hal uart -----------------*/
-#define HAL_UART_BASE   (K_BUF_QUEUE_END + 1)
+#define HAL_UART_BASE   (U_PROC_MSG_END + 1)
 
 #define SYS_HAL_UART_INIT (HAL_UART_BASE +0)
 

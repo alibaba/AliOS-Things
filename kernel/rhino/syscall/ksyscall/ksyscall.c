@@ -2,8 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 #include <k_api.h>
-#include <aos/aos.h>
-#include <hal/soc/soc.h>
+#include <hal/hal.h>
+#include <u_task.h>
+#include <u_proc_msg.h>
 #include <syscall.h>
 #include <stdio.h>
 
@@ -252,6 +253,39 @@ static kstat_t sys_krhino_buf_queue_info_get_stub(void *arg)
 }
 
 
+/* ----------------- proc msg -------------------- */
+
+static size_t sys_krhino_msg_get_stub(void *arg)
+{
+    krhino_msg_get_syscall_arg_t *_arg = arg;
+
+    return krhino_msg_get(_arg->key,
+                          _arg->flg,
+                          _arg->size);
+}
+
+
+static kstat_t sys_krhino_msg_snd_stub(void *arg)
+{
+    krhino_msg_snd_syscall_arg_t *_arg = arg;
+
+    return krhino_msg_snd(_arg->msg_id,
+                          _arg->msg,
+                          _arg->msg_sz);
+}
+
+
+static kstat_t sys_krhino_msg_recv_stub(void *arg)
+{
+    krhino_msg_recv_syscall_arg_t *_arg = arg;
+
+    return krhino_msg_recv(_arg->msg_id,
+                           _arg->ticks,
+                           _arg->msg,
+                           _arg->msg_sz);
+}
+
+
 /* ----------------- hal uart ------------------- */
 
 static int32_t sys_hal_uart_init_stub(void *arg)
@@ -378,6 +412,11 @@ void *syscall_tbl[] = {
     [SYS_KRHINO_BUF_QUEUE_RECV] = sys_krhino_buf_queue_recv_stub,
     [SYS_KRHINO_BUF_QUEUE_FLUSH] = sys_krhino_buf_queue_flush_stub,
     [SYS_KRHINO_BUF_QUEUE_INFO_GET] = sys_krhino_buf_queue_info_get_stub,
+
+    /* --------------------- u_proc_msg ----------------------*/
+    [SYS_KRHINO_MSG_GET] = sys_krhino_msg_get_stub,
+    [SYS_KRHINO_MSG_SND] = sys_krhino_msg_snd_stub,
+    [SYS_KRHINO_MSG_RECV] = sys_krhino_msg_recv_stub,
 
     /* ------------------- hal uart ----------------------*/
     [SYS_HAL_UART_INIT] = sys_hal_uart_init_stub,
