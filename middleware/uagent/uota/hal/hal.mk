@@ -11,8 +11,17 @@ endif
 
 $(NAME)_SOURCES := \
     ota_hal_module.c \
-    ota_hal_os.c
+    ota_hal_os.c \
+
+ifneq (,$(filter linux,$(HOST_MCU_FAMILY)))
+$(NAME)_SOURCES += \
+    ota_hal_host.c
+else
+$(NAME)_SOURCES += \
+    ota_hal_plat.c
+endif
 
 GLOBAL_INCLUDES += . \
-                 ../inc \
-                 ../src/utility/crc
+    ../inc \
+    ../src/verify/crc \
+    ../src/2nd_boot \

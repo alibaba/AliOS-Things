@@ -15,8 +15,7 @@
 #define bool char
 #endif
 
-
-typedef enum __hash_type_t {
+typedef enum {
     HASH_NONE   = 0,
     SHA1        = 1,
     SHA224      = 2,
@@ -24,18 +23,9 @@ typedef enum __hash_type_t {
     SHA384      = 4,
     SHA512      = 5,
     MD5         = 6,
-} ota_hash_type_t;
+} OTA_HASH_E;
 
-/*
-typedef struct
-{
-    ota_hash_type_t hash_method;
-    int         ctx_size;
-    void *      ctx_hash;
-} ota_hash_ctx_params;
-*/
-
-typedef enum _ota_crypto_result {
+typedef enum {
     OTA_CRYPTO_ERROR = (int)0xffff0000, 
     OTA_CRYPTO_NOSUPPORT,               
     OTA_CRYPTO_INVALID_KEY,             
@@ -51,7 +41,7 @@ typedef enum _ota_crypto_result {
     OTA_CRYPTO_NULL,                    
     OTA_CRYPTO_ERR_STATE,               
     OTA_CRYPTO_SUCCESS = 0,            
-} ota_crypto_result;
+} OTA_VERIFY_E;
 
 
 typedef enum _rsa_pad_type_t {
@@ -70,13 +60,13 @@ typedef struct _rsa_padding_t {
     ota_rsa_pad_type_t type;
     union {
         struct {
-            ota_hash_type_t type;
+            OTA_HASH_E type;
         } rsaes_oaep;
         struct {
-            ota_hash_type_t type;   
+            OTA_HASH_E type;   
         } rsassa_v1_5;
         struct {
-            ota_hash_type_t type;   
+            OTA_HASH_E type;   
             unsigned int salt_len;
         } rsassa_pss;
     } pad;
@@ -93,15 +83,13 @@ typedef struct _ota_rsa_pubkey_t {
     uint8_t e[(TEE_MAX_RSA_KEY_SIZE >> 3)];
 } ota_rsa_pubkey_t;
 
-
-ota_crypto_result ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size);
-ota_crypto_result ota_rsa_init_pubkey(unsigned int keybits,
+OTA_VERIFY_E ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size);
+OTA_VERIFY_E ota_rsa_init_pubkey(unsigned int keybits,
                       const unsigned char *n, unsigned int n_size,
                       const unsigned char *e, unsigned int e_size,
                       ota_rsa_pubkey_t *pubkey);
-ota_crypto_result ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
+OTA_VERIFY_E ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
                       const uint8_t *dig, size_t dig_size,
                       const uint8_t *sig, size_t sig_size,
                       ota_rsa_padding_t padding, bool *p_result);
-
 #endif

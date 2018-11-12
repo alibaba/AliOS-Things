@@ -1,0 +1,49 @@
+
+config AOS_OTA_HTTPS
+    bool "AOS_OTA_HTTPS"
+    default y
+    help
+        Enable HTTPs download.
+
+config AOS_OTA_ITLS
+    bool "AOS_OTA_ITLS"
+    default y
+    help
+        Enable ITLS download.
+
+menu "MQTT Control channel"
+    depends on MQTT_COMM_ENABLED
+
+    config AOS_OTA_MQTT
+        bool "AOS_OTA_MQTT"
+        default y
+        help
+            Enable MQTT control channel.
+endmenu
+
+menu "CoAP Control channel"
+    depends on COAP_COMM_ENABLED
+
+    config AOS_OTA_COAP
+        bool "AOS_OTA_COAP"
+        default n
+        help
+            Enable CoAP control channel.
+endmenu
+
+menu "HTTP download channel"
+    config AOS_OTA_DL_HTTP
+        bool "AOS_OTA_DL_HTTP"
+        default y
+        help
+            Enable HTTP download channel.
+endmenu
+
+menu "CoAP download channel"
+    config AOS_OTA_DL_COAP
+        bool "AOS_OTA_DL_COAP"
+        default n
+        help
+            Enable CoAP download channel.
+endmenu
+

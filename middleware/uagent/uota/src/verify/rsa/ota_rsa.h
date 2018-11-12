@@ -40,7 +40,7 @@ ota_rsa_context;
 
 #define OTA_GO_RET(_ret, _f, _a ...) do {               \
     OTA_LOG_E(_f, ##_a);                           \
-    result =(ota_crypto_result)_ret;                \
+    result =(OTA_VERIFY_E)_ret;                \
     goto _OUT;                                      \
 } while (0);
 

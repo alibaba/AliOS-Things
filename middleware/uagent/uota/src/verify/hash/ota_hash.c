@@ -1,7 +1,7 @@
 #include "ota_rsa_param.h"
 #include "ota_hash.h"
 
-ota_crypto_result ota_hash_get_ctx_size(ota_hash_type_t type, unsigned int *size)
+OTA_VERIFY_E ota_hash_get_ctx_size(OTA_HASH_E type, unsigned int *size)
 {
     if (NULL == size) {
         OTA_LOG_E("get_ctx_size: bad input!\n");
@@ -23,7 +23,7 @@ ota_crypto_result ota_hash_get_ctx_size(ota_hash_type_t type, unsigned int *size
     return OTA_CRYPTO_SUCCESS;
 }
 
-ota_crypto_result ota_hash_init(ota_hash_type_t type, void *context)
+OTA_VERIFY_E ota_hash_init(OTA_HASH_E type, void *context)
 {
     ota_hash_ctx_t *hash_ctx;
     if (NULL == context) {
@@ -61,7 +61,7 @@ ota_crypto_result ota_hash_init(ota_hash_type_t type, void *context)
     return OTA_CRYPTO_SUCCESS;
 }
 
-ota_crypto_result ota_hash_update(const unsigned char *src, unsigned int size, void *context)
+OTA_VERIFY_E ota_hash_update(const unsigned char *src, unsigned int size, void *context)
 {
     ota_hash_ctx_t *hash_ctx;
     if (context == NULL) {
@@ -104,7 +104,7 @@ ota_crypto_result ota_hash_update(const unsigned char *src, unsigned int size, v
     return OTA_CRYPTO_SUCCESS;
 }
 
-ota_crypto_result ota_hash_final(unsigned char *dgst, void *context)
+OTA_VERIFY_E ota_hash_final(unsigned char *dgst, void *context)
 {
     ota_hash_ctx_t *hash_ctx;
     if (context == NULL) {
@@ -146,8 +146,7 @@ ota_crypto_result ota_hash_final(unsigned char *dgst, void *context)
     return OTA_CRYPTO_SUCCESS;
 }
 
-ota_crypto_result ota_hash_digest(ota_hash_type_t type,
-        const uint8_t *src, size_t size, uint8_t *dgst)
+OTA_VERIFY_E ota_hash_digest(OTA_HASH_E type, const unsigned char *src, unsigned int size, unsigned char *dgst)
 {
     ota_hash_ctx_t hash_ctx;
     if ((src == NULL && size != 0) || dgst == NULL) {

@@ -12,41 +12,45 @@
 #include <string.h>
 #include "ota_hal_os.h"
 #include "ota_log.h"
-#include "crc.h"
 
-#ifdef OTA_WITH_LINKKIT
+#if (OTA_SIGNAL_CHANNEL) == 1
 #include "iot_export.h"
 #include "iot_export_coap.h"
 #endif
+#if (OTA_SIGNAL_CHANNEL) == 2
+#include "iot_import.h"
+#endif
 
-#ifdef _PLATFORM_IS_LINUX_
+#ifdef OTA_LINUX
 #include <unistd.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <sys/reboot.h>
-#include "network.h"
 #else
 #include <aos/aos.h>
 #include <aos/yloop.h>
 #include <hal/hal.h>
 #endif
 
-#ifndef OTA_WITH_LINKKIT
 /*Memory realloc*/
-void *ota_realloc(void *ptr, uint32_t size)
+void *ota_realloc(void *ptr, int size)
 {
-#ifndef _PLATFORM_IS_LINUX_
-    return (void *)aos_realloc(ptr, size);
+#if defined OTA_WITH_LINKKIT
+    return HAL_Realloc(ptr, size);
+#elif !defined OTA_LINUX
+    return aos_realloc(ptr, size);
 #else
     return realloc(ptr, size);
 #endif
 }
 
 /*Memory calloc*/
-void *ota_calloc(uint32_t n, uint32_t size)
+void *ota_calloc(int n, int size)
 {
-#ifndef _PLATFORM_IS_LINUX_
-    return (void *)aos_calloc(n, size);
+#if defined OTA_WITH_LINKKIT
+    return HAL_Calloc(n, size);
+#elif !defined OTA_LINUX
+    return aos_calloc(n, size);
 #else
     return calloc(n, size);
 #endif
@@ -55,17 +59,27 @@ void *ota_calloc(uint32_t n, uint32_t size)
 /*Reboot*/
 void ota_reboot(void)
 {
-#ifndef _PLATFORM_IS_LINUX_
+#if defined OTA_WITH_LINKKIT
+    HAL_Reboot();
+#elif !defined OTA_LINUX
     aos_reboot();
 #else
     reboot(0x1234567);
 #endif
 }
 
-/*Memory malloc*/
-void *ota_malloc(uint32_t size)
+/*System version*/
+const char *ota_get_sys_version(void)
 {
-#ifndef _PLATFORM_IS_LINUX_
+    return SYSINFO_APP_VERSION;
+}
+
+/*Memory malloc*/
+void *ota_malloc(int size)
+{
+#if defined OTA_WITH_LINKKIT
+    return HAL_Malloc(size);
+#elif !defined OTA_LINUX
     return aos_malloc(size);
 #else
     return malloc(size);
@@ -75,98 +89,21 @@ void *ota_malloc(uint32_t size)
 /*Memory free*/
 void ota_free(void *ptr)
 {
-#ifndef _PLATFORM_IS_LINUX_
+#if defined OTA_WITH_LINKKIT
+    return HAL_Free(ptr);
+#elif !defined OTA_LINUX
     aos_free(ptr);
 #else
     free(ptr);
 #endif
 }
 
-/*Mutex init*/
-void *ota_mutex_init(void)
-{
-#ifndef _PLATFORM_IS_LINUX_
-    aos_mutex_t *mutex = (aos_mutex_t *)ota_malloc(sizeof(aos_mutex_t));
-    if (NULL == mutex) {
-        return NULL;
-    }
-
-    if (0 != aos_mutex_new(mutex)) {
-        ota_free(mutex);
-        return NULL;
-    }
-#else
-    pthread_mutex_t *mutex =
-      (pthread_mutex_t *)ota_malloc(sizeof(pthread_mutex_t));
-    if (NULL == mutex) {
-        return NULL;
-    }
-    if (0 != pthread_mutex_init(mutex, NULL)) {
-        ota_free(mutex);
-        return NULL;
-    }
-
-    OTA_LOG_I("HAL_MutexCreate:%p\n", mutex);
-#endif
-    return mutex;
-}
-
-/*Mutex lock*/
-void ota_mutex_lock(void *mutex)
-{
-    if (NULL == mutex) {
-        OTA_LOG_E("mutex is NULL");
-        return;
-    }
-#ifndef _PLATFORM_IS_LINUX_
-    aos_mutex_lock((aos_mutex_t *)mutex, AOS_WAIT_FOREVER);
-#else
-    if (0 != pthread_mutex_lock((pthread_mutex_t *)mutex)) {
-        OTA_LOG_E("lock mutex failed");
-    }
-#endif
-}
-
-/*Mutex unlock*/
-void ota_mutex_unlock(void *mutex)
-{
-    if (NULL == mutex) {
-        OTA_LOG_E("mutex is NULL");
-        return;
-    }
-#ifndef _PLATFORM_IS_LINUX_
-    aos_mutex_unlock((aos_mutex_t *)mutex);
-#else
-    if (0 != pthread_mutex_unlock((pthread_mutex_t *)mutex)) {
-        OTA_LOG_E("unlock mutex failed");
-    }
-#endif
-}
-
-/*Mutex destroy*/
-void ota_mutex_destroy(void *mutex)
-{
-    if (mutex == NULL) {
-        OTA_LOG_E("mutex null.");
-        return;
-    }
-#ifndef _PLATFORM_IS_LINUX_
-    aos_mutex_free((aos_mutex_t *)mutex);
-    aos_free(mutex);
-#else
-    if (0 != pthread_mutex_destroy((pthread_mutex_t *)mutex)) {
-        OTA_LOG_E("destroy mutex failed");
-    }
-
-    OTA_LOG_I("HAL_MutexDestroy:%p\n", mutex);
-    ota_free(mutex);
-#endif
-}
-
 /*Semaphore init*/
-void *ota_semaphore_init(void)
+void *ota_semaphore_create(void)
 {
-#ifndef _PLATFORM_IS_LINUX_
+#if defined OTA_WITH_LINKKIT
+    return HAL_SemaphoreCreate();
+#elif !defined OTA_LINUX
     aos_sem_t *sem = (aos_sem_t *)ota_malloc(sizeof(aos_sem_t));
     if (NULL == sem) {
         return NULL;
@@ -176,6 +113,7 @@ void *ota_semaphore_init(void)
         ota_free(sem);
         return NULL;
     }
+    return sem;
 #else
     sem_t *sem = (sem_t *)ota_malloc(sizeof(sem_t));
     if (NULL == sem) {
@@ -186,17 +124,19 @@ void *ota_semaphore_init(void)
         ota_free(sem);
         return NULL;
     }
-#endif
     return sem;
+#endif
 }
 
 /*Semaphore wait*/
-int ota_semaphore_wait(void *sem, uint32_t timeout_ms)
+int ota_semaphore_wait(void *sem, int ms)
 {
-#ifndef _PLATFORM_IS_LINUX_
-    return aos_sem_wait((aos_sem_t *)sem, timeout_ms);
+#if defined OTA_WITH_LINKKIT
+    return HAL_SemaphoreWait(sem, ms);
+#elif !defined OTA_LINUX
+    return aos_sem_wait((aos_sem_t *)sem, ms);
 #else
-    if ((~0) == timeout_ms) {
+    if ((~0) == ms) {
         sem_wait(sem);
         return 0;
     } else {
@@ -207,28 +147,26 @@ int ota_semaphore_wait(void *sem, uint32_t timeout_ms)
             if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
                 return -1;
             }
-
             s = 0;
-            ts.tv_nsec += (timeout_ms % 1000) * 1000000;
+            ts.tv_nsec += (ms % 1000) * 1000000;
             if (ts.tv_nsec >= 1000000000) {
                 ts.tv_nsec -= 1000000000;
                 s = 1;
             }
-
-            ts.tv_sec += timeout_ms / 1000 + s;
-
+            ts.tv_sec += ms / 1000 + s;
         } while (((s = sem_timedwait(sem, &ts)) != 0) && errno == EINTR);
-
         return (s == 0) ? 0 : -1;
     }
-#endif
     return 0;
+#endif
 }
 
 /*Semaphore post*/
 void ota_semaphore_post(void *sem)
 {
-#ifndef _PLATFORM_IS_LINUX_
+#if defined OTA_WITH_LINKKIT
+    return HAL_SemaphorePost(sem);
+#elif !defined OTA_LINUX
     aos_sem_signal((aos_sem_t *)sem);
 #else
     sem_post((sem_t *)sem);
@@ -238,7 +176,9 @@ void ota_semaphore_post(void *sem)
 /*Semaphore destroy*/
 void ota_semaphore_destroy(void *sem)
 {
-#ifndef _PLATFORM_IS_LINUX_
+#if defined OTA_WITH_LINKKIT
+    return HAL_SemaphoreDestroy(sem);
+#elif !defined OTA_LINUX
     aos_sem_free((aos_sem_t *)sem);
     aos_free(sem);
 #else
@@ -248,20 +188,24 @@ void ota_semaphore_destroy(void *sem)
 }
 
 /*Sleep ms*/
-void ota_msleep(uint32_t ms)
+void ota_msleep(int ms)
 {
-#ifndef _PLATFORM_IS_LINUX_
+#if defined OTA_WITH_LINKKIT
+    return HAL_SleepMs(ms);
+#elif !defined OTA_LINUX
     aos_msleep(ms);
 #else
     usleep(1000 * ms);
 #endif
 }
 
-#ifndef _PLATFORM_IS_LINUX_
+#if defined OTA_WITH_LINKKIT
+    ;
+#elif !defined OTA_LINUX
 typedef struct
 {
     aos_task_t task;
-    int        detached;
+    int       detached;
     void *     arg;
     void *(*routine)(void *arg);
 } task_context_t;
@@ -278,45 +222,27 @@ static void task_wrapper(void *arg)
     }
 }
 #endif
-#define DEFAULT_THREAD_NAME "AOSThread"
-#define DEFAULT_THREAD_SIZE 4096
-#define DEFAULT_THREAD_PRI 32
+#define OTA_THREAD_NAME "OTA_Thread"
+#define OTA_THREAD_SIZE 4096
+#define OTA_THREAD_PRI 30
 /*Thread create*/
-int ota_thread_create(void **thread_handle, void *(*work_routine)(void *),
-                      void *arg, hal_os_thread_param_t *param, int *stack_used)
+int ota_thread_create(void **thread_handle, void *(*work_routine)(void *), void *arg, void *pm, int *stack_used)
 {
     int ret = -1;
-#ifndef _PLATFORM_IS_LINUX_
-    char *                 tname;
-    uint32_t               ssiz;
-    int                    detach_state        = 0;
-    if (param) {
-        detach_state = param->detach_state;
-    }
-    if (!param || !param->name) {
-        tname = DEFAULT_THREAD_NAME;
-    } else {
-        tname = param->name;
-    }
-
-    if (!param || param->stack_size == 0) {
-        ssiz = DEFAULT_THREAD_SIZE;
-    } else {
-        ssiz = param->stack_size;
-    }
+#if defined OTA_WITH_LINKKIT
+    ret = HAL_ThreadCreate(thread_handle, work_routine, arg, NULL, 0);
+#elif !defined OTA_LINUX
+    char * tname = OTA_THREAD_NAME;
+    int    ssize = OTA_THREAD_SIZE;
     task_context_t *task = aos_malloc(sizeof(task_context_t));
     if (!task) {
         return -1;
     }
     memset(task, 0, sizeof(task_context_t));
-
     task->arg      = arg;
     task->routine  = work_routine;
-    task->detached = detach_state;
 
-    ret = aos_task_new_ext(&task->task, tname, task_wrapper, task, ssiz,
-                           DEFAULT_THREAD_PRI);
-
+    ret = aos_task_new_ext(&task->task, tname, task_wrapper, task, ssize,OTA_THREAD_PRI);
     *thread_handle = (void *)task;
 #else
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
@@ -327,14 +253,27 @@ int ota_thread_create(void **thread_handle, void *(*work_routine)(void *),
 /*Thread exit*/
 void ota_thread_exit(void *thread)
 {
-#ifndef _PLATFORM_IS_LINUX_
+#if defined OTA_WITH_LINKKIT
+    return HAL_ThreadDelete(thread);
+#elif !defined OTA_LINUX
     aos_task_exit(0);
 #else
     pthread_exit(0);
 #endif
 }
 
-#ifndef _PLATFORM_IS_LINUX_
+#if defined OTA_WITH_LINKKIT
+/*KV set*/
+int ota_kv_set(const char *key, const void *val, int len, int sync)
+{
+    return HAL_Kv_Set(key, val, len, sync);
+}
+/*KV get*/
+int ota_kv_get(const char *key, void *buffer, int *len)
+{
+    return HAL_Kv_Get(key, buffer, len);
+}
+#elif !defined OTA_LINUX
 /*KV set*/
 int ota_kv_set(const char *key, const void *val, int len, int sync)
 {
@@ -342,54 +281,9 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
 }
 
 /*KV get*/
-int ota_kv_get(const char *key, void *buffer, int *buffer_len)
+int ota_kv_get(const char *key, void *buffer, int *len)
 {
-    return aos_kv_get(key, buffer, buffer_len);
-}
-
-typedef struct
-{
-    const char *name;
-    int         ms;
-    aos_call_t  cb;
-    void *      data;
-} schedule_timer_t;
-
-static void schedule_timer(void *p)
-{
-    if (p == NULL) {
-        return;
-    }
-
-    schedule_timer_t *pdata = p;
-    aos_post_delayed_action(pdata->ms, pdata->cb, pdata->data);
-}
-
-/*Timer create*/
-void *ota_timer_create(const char *name, void (*func)(void *), void *user_data)
-{
-    schedule_timer_t *timer =
-      (schedule_timer_t *)aos_malloc(sizeof(schedule_timer_t));
-    if (timer == NULL) {
-        return NULL;
-    }
-
-    timer->name = name;
-    timer->cb   = func;
-    timer->data = user_data;
-
-    return timer;
-}
-
-/*Timer start*/
-int ota_timer_start(void *t, int ms)
-{
-    if (t == NULL) {
-        return -1;
-    }
-    schedule_timer_t *timer = t;
-    timer->ms               = ms;
-    return aos_schedule_call(schedule_timer, t);
+    return aos_kv_get(key, buffer, len);
 }
 #else
 #define KV_FILE_PATH "./uota.kv"
@@ -401,8 +295,6 @@ typedef struct
 {
     int flag;
     int val_len;
-    int crc32;
-    int reserved[ITEM_LEN - ITEM_MAX_KEY_LEN - ITEM_MAX_VAL_LEN - 12];
 } kv_state_t;
 
 typedef struct
@@ -421,22 +313,16 @@ static int hal_fopen(FILE **fp, int *size, int *num)
         OTA_LOG_E("fopen(create) %s error:%s\n", KV_FILE_PATH, strerror(errno));
         return -1;
     }
-
     fseek(*fp, 0L, SEEK_END);
-
     OTA_LOG_I("ftell:%d\n", (int)ftell(*fp));
     if ((*size = ftell(*fp)) % ITEM_LEN) {
         OTA_LOG_E("%s is not an kv file\n", KV_FILE_PATH);
         fclose(*fp);
         return -1;
     }
-
     *num = ftell(*fp) / ITEM_LEN;
-
     fseek(*fp, 0L, SEEK_SET);
-
     OTA_LOG_I("file size:%d, block num:%d\n", *size, *num);
-
     return 0;
 }
 /*KV set*/
@@ -446,25 +332,21 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
     int file_size = 0, block_num = 0, ret = 0, cur_pos = 0;
     kv_t kv_item;
     int i;
-
     /* check parameter */
     if (key == NULL || val == NULL) {
         return -1;
     }
-
     pthread_mutex_lock(&mutex_kv);
     if (hal_fopen(&fp, &file_size, &block_num) != 0) {
-        goto _hal_set_error;
+        goto ERR;
     }
-
     for (i = 0; i < block_num; i++) {
         memset(&kv_item, 0, sizeof(kv_t));
         cur_pos = ftell(fp);
         /* read an kv item(512 bytes) from file */
         if ((ret = fread(&kv_item, 1, ITEM_LEN, fp)) != ITEM_LEN) {
-            goto _hal_set_error;
+            goto ERR;
         }
-
         /* key compared */
         if (strcmp(kv_item.key, key) == 0) {
             OTA_LOG_I("HAL_Kv_Set@key compared:%s\n", key);
@@ -472,14 +354,9 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
             memset(kv_item.val, 0, ITEM_MAX_VAL_LEN);
             memcpy(kv_item.val, val, len);
             kv_item.state.val_len = len;
-            CRC32_Context ctx;
-            CRC32_Init(&ctx);
-            CRC32_Update(&ctx, val, len);
-            CRC32_Final(&ctx, (uint32_t *)&kv_item.state.crc32);
             fseek(fp, cur_pos, SEEK_SET);
             fwrite(&kv_item, 1, ITEM_LEN, fp);
-
-            goto _hal_set_ok;
+            goto END;
         }
     }
 
@@ -489,17 +366,10 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
     strcpy(kv_item.key, key);
     memcpy(kv_item.val, val, len);
     kv_item.state.val_len = len;
-    CRC32_Context ctx;
-    CRC32_Init(&ctx);
-    CRC32_Update(&ctx, val, len);
-    CRC32_Final(&ctx, (uint32_t *)&kv_item.state.crc32);
-
     fseek(fp, 0L, SEEK_END);
     fwrite(&kv_item, 1, ITEM_LEN, fp);
-
-    goto _hal_set_ok;
-
-_hal_set_error:
+    goto END;
+ERR:
     if (fp == NULL) {
         pthread_mutex_unlock(&mutex_kv);
         return -1;
@@ -510,7 +380,7 @@ _hal_set_error:
     pthread_mutex_unlock(&mutex_kv);
 
     return -1;
-_hal_set_ok:
+END:
     fflush(fp);
     fclose(fp);
     pthread_mutex_unlock(&mutex_kv);
@@ -518,7 +388,7 @@ _hal_set_ok:
 }
 
 /*KV get*/
-int ota_kv_get(const char *key, void *buffer, int *buffer_len)
+int ota_kv_get(const char *key, void *buffer, int *len)
 {
     FILE *fp = NULL;
     int i;
@@ -526,37 +396,31 @@ int ota_kv_get(const char *key, void *buffer, int *buffer_len)
     int file_size = 0, block_num = 0;
     kv_t kv_item;
     /* check parameter */
-    if (key == NULL || buffer == NULL || buffer_len == NULL) {
+    if (key == NULL || buffer == NULL || len == NULL) {
         return -1;
     }
-
     pthread_mutex_lock(&mutex_kv);
     if (hal_fopen(&fp, &file_size, &block_num) != 0) {
-        goto _hal_get_error;
+        goto ERR;
     }
-
     for (i = 0; i < block_num; i++) {
         memset(&kv_item, 0, sizeof(kv_t));
         /* read an kv item(512 bytes) from file */
         if (fread(&kv_item, 1, ITEM_LEN, fp) != ITEM_LEN) {
-            goto _hal_get_error;
+            goto ERR;
         }
-
         /* key compared */
         if (strcmp(kv_item.key, key) == 0) {
             OTA_LOG_I("HAL_Kv_Get@key compared:%s\n", key);
             /* set value and write to file */
-            *buffer_len = kv_item.state.val_len;
-            memcpy(buffer, kv_item.val, *buffer_len);
-
-            goto _hal_get_ok;
+            *len = kv_item.state.val_len;
+            memcpy(buffer, kv_item.val, *len);
+            goto END;
         }
     }
-
     OTA_LOG_I("can not find the key:%s\n", key);
-    goto _hal_get_ok;
-
-_hal_get_error:
+    goto END;
+ERR:
     if (fp == NULL) {
         pthread_mutex_unlock(&mutex_kv);
         return -1;
@@ -565,13 +429,11 @@ _hal_get_error:
     fflush(fp);
     fclose(fp);
     pthread_mutex_unlock(&mutex_kv);
-
     return -1;
-_hal_get_ok:
+END:
     fflush(fp);
     fclose(fp);
     pthread_mutex_unlock(&mutex_kv);
-
     return 0;
 }
 
@@ -594,7 +456,6 @@ void *ota_timer_create(const char *name, void (*func)(void *), void *user_data)
         OTA_LOG_E("timer_create");
         return NULL;
     }
-
     return (void *)timer;
 }
 
@@ -616,19 +477,18 @@ int ota_timer_start(void *timer, int ms)
     return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
 }
 #endif /*Linux end*/
-#endif/*Linkkit end*/
 
 /*Socket API*/
-int ota_socket_connect(char *host, int port)
+void* ota_socket_connect(char *host, int port)
 {
    #ifdef OTA_WITH_LINKKIT
-   return HAL_TCP_Establish(host, port);
+   return (void*)HAL_TCP_Establish(host, port);
    #else
    return 0;
    #endif
 }
 
-int ota_socket_send(int fd, char *buf, uint32_t len)
+int ota_socket_send(void* fd, char *buf, int len)
 {
    #ifdef OTA_WITH_LINKKIT
    return HAL_TCP_Write((uintptr_t)fd, buf, len, OTA_SSL_TIMEOUT);
@@ -637,7 +497,7 @@ int ota_socket_send(int fd, char *buf, uint32_t len)
    #endif
 }
 
-int ota_socket_recv(int fd,  char *buf, uint32_t len)
+int ota_socket_recv(void* fd, char *buf, int len)
 {
    #ifdef OTA_WITH_LINKKIT
    return HAL_TCP_Read((uintptr_t)fd, buf, len, OTA_SSL_TIMEOUT);
@@ -646,7 +506,7 @@ int ota_socket_recv(int fd,  char *buf, uint32_t len)
    #endif
 }
 
-void ota_socket_close(int fd)
+void ota_socket_close(void* fd)
 {
    #ifdef OTA_WITH_LINKKIT
    HAL_TCP_Destroy((uintptr_t)fd);
@@ -654,7 +514,7 @@ void ota_socket_close(int fd)
 }
 
 /*SSL connect*/
-void *ota_ssl_connect(const char *host, uint16_t port, const char *ca_crt, uint32_t ca_crt_len)
+void *ota_ssl_connect(const char *host, unsigned short port, const char *ca_crt, int ca_crt_len)
 {
     #ifdef OTA_WITH_LINKKIT
     return (void*)HAL_SSL_Establish(host, port, ca_crt, ca_crt_len);
@@ -664,7 +524,7 @@ void *ota_ssl_connect(const char *host, uint16_t port, const char *ca_crt, uint3
 }
 
 /*SSL send*/
-int32_t ota_ssl_send(void *ssl, char *buf, uint32_t len)
+int ota_ssl_send(void *ssl, char *buf, int len)
 {
     #ifdef OTA_WITH_LINKKIT
     return HAL_SSL_Write((uintptr_t)ssl, buf, len, OTA_SSL_TIMEOUT);
@@ -674,90 +534,10 @@ int32_t ota_ssl_send(void *ssl, char *buf, uint32_t len)
 }
 
 /*SSL recv*/
-int32_t ota_ssl_recv(void *ssl, char *buf, uint32_t len)
+int ota_ssl_recv(void *ssl, char *buf, int len)
 {
     #ifdef OTA_WITH_LINKKIT
     return HAL_SSL_Read((uintptr_t)ssl, buf, len, OTA_SSL_TIMEOUT);
-    #else
-    return 0;
-    #endif
-}
-
-/*Set PK*/
-int ota_HAL_SetProductKey(char pk[PRODUCT_KEY_MAXLEN])
-{
-    #ifdef OTA_WITH_LINKKIT
-    return HAL_SetProductKey(pk);
-    #else
-    return 0;
-    #endif
-}
-
-/*Set PS*/
-int ota_HAL_SetProductSecret(char ps[PRODUCT_SECRET_MAXLEN])
-{
-    #ifdef OTA_WITH_LINKKIT
-    return HAL_SetProductSecret(ps);
-    #else
-    return 0;
-    #endif
-}
-
-/*Set DN*/
-int ota_HAL_SetDeviceName(char dn[DEVICE_NAME_MAXLEN])
-{
-    #ifdef OTA_WITH_LINKKIT
-    return HAL_SetDeviceName(dn);
-    #else
-    return 0;
-    #endif
-}
-
-/*Set DS*/
-int ota_HAL_SetDeviceSecret(char ds[DEVICE_SECRET_MAXLEN])
-{
-    #ifdef OTA_WITH_LINKKIT
-    return HAL_SetDeviceSecret(ds);
-    #else
-    return 0;
-    #endif
-}
-
-/*Get PK*/
-int ota_HAL_GetProductKey(char pk[PRODUCT_KEY_MAXLEN])
-{
-    #ifdef OTA_WITH_LINKKIT
-    return HAL_GetProductKey(pk);
-    #else
-    return 0;
-    #endif
-}
-
-/*Get PS*/
-int ota_HAL_GetProductSecret(char ps[PRODUCT_SECRET_MAXLEN])
-{
-    #ifdef OTA_WITH_LINKKIT
-    return HAL_GetProductSecret(ps);
-    #else
-    return 0;
-    #endif
-}
-
-/*Get DN*/
-int ota_HAL_GetDeviceName(char dn[DEVICE_NAME_MAXLEN])
-{
-    #ifdef OTA_WITH_LINKKIT
-    return HAL_GetDeviceName(dn);
-    #else
-    return 0;
-    #endif
-}
-
-/*Get DS*/
-int ota_HAL_GetDeviceSecret(char ds[DEVICE_SECRET_MAXLEN])
-{
-    #ifdef OTA_WITH_LINKKIT
-    return HAL_GetDeviceSecret(ds);
     #else
     return 0;
     #endif
@@ -773,9 +553,7 @@ int ota_hal_mqtt_publish(char *topic, int qos, void *data, int len)
     #endif
 }
 
-int ota_hal_mqtt_subscribe(char *topic,
-                           iotx_mqtt_event_handle_func_fpt cb,
-                           void *ctx)
+int ota_hal_mqtt_subscribe(char *topic, void *cb, void *ctx)
 {
     #if (OTA_SIGNAL_CHANNEL) == 1
     return IOT_MQTT_Subscribe_Sync(NULL, topic, 0, cb, ctx, 1000);
@@ -784,7 +562,7 @@ int ota_hal_mqtt_subscribe(char *topic,
     #endif
 }
 
-int ota_hal_mqtt_deinit_instance(void)
+int ota_hal_mqtt_deinit(void)
 {
     #if (OTA_SIGNAL_CHANNEL) == 1
     return IOT_MQTT_Destroy(NULL);
@@ -793,8 +571,7 @@ int ota_hal_mqtt_deinit_instance(void)
     #endif
 }
 
-int ota_hal_mqtt_init_instance(char *productKey, char *deviceName,
-                               char *deviceSecret, int maxMsgSize)
+int ota_hal_mqtt_init(void)
 {
     #if (OTA_SIGNAL_CHANNEL) == 1
     return (IOT_MQTT_Construct(NULL) == NULL)? -1 : 0;
@@ -804,7 +581,7 @@ int ota_hal_mqtt_init_instance(char *productKey, char *deviceName,
 }
 
 /*CoAP API*/
-int ota_IOT_CoAP_SendMessage(void *p_context, char *p_path, void *p_message)
+int ota_coap_send(void *p_context, char *p_path, void *p_message)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_SendMessage(p_context, p_path, p_message);
@@ -812,20 +589,8 @@ int ota_IOT_CoAP_SendMessage(void *p_context, char *p_path, void *p_message)
     return 0;
     #endif
 }
-int ota_IOT_CoAP_SendMessage_block(void *p_context, char *p_path,
-                                   void *p_message, unsigned int block_type,
-                                   unsigned int num, unsigned int more,
-                                   unsigned int size)
-{
-    #if (OTA_SIGNAL_CHANNEL) == 2
-    return IOT_CoAP_SendMessage_block(p_context, p_path, p_message, block_type,
-                                      num, more, size);
-    #else
-    return 0;
-    #endif
-}
-int ota_IOT_CoAP_ParseOption_block(void *p_message, int type, unsigned int *num,
-                                   unsigned int *more, unsigned int *size)
+
+int ota_coap_parse_block(void *p_message, int type, int *num, int *more, int *size)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_ParseOption_block(p_message, type, num, more, size);
@@ -833,8 +598,16 @@ int ota_IOT_CoAP_ParseOption_block(void *p_message, int type, unsigned int *num,
     return 0;
     #endif
 }
-int ota_IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload,
-                                   int *p_len)
+
+int ota_coap_send_block(void *p_context, char *p_path, void *p_message, int block_type, int num, int more, int size)
+{
+    #if (OTA_SIGNAL_CHANNEL) == 2
+    return IOT_CoAP_SendMessage_block(p_context, p_path, p_message, block_type,num, more, size);
+    #else
+    return 0;
+    #endif
+}
+int ota_coap_get_payload(void *p_message, const char **pp_payload, int *p_len)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_GetMessagePayload(p_message, pp_payload, p_len);
@@ -842,7 +615,7 @@ int ota_IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload,
     return 0;
     #endif
 }
-int ota_IOT_CoAP_GetMessageCode(void *p_message, void *p_resp_code)
+int ota_coap_get_code(void *p_message, void *p_resp_code)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2
     return IOT_CoAP_GetMessageCode(p_message, p_resp_code);
@@ -850,26 +623,40 @@ int ota_IOT_CoAP_GetMessageCode(void *p_message, void *p_resp_code)
     return 0;
     #endif
 }
-void *ota_IOT_CoAP_Init(void *p_config)
+int ota_coap_init(void)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2
-    return (void *)IOT_CoAP_Init(p_config);
+    #define COAP_ONLINE_DTLS_SERVER_URL "coaps://%s.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
+    int ret = 0;
+    iotx_coap_config_t   config;
+    iotx_device_info_t   dev;
+    memset(&config, 0, sizeof(config));
+    memset(&dev, 0, sizeof(dev));
+    strncpy(dev.device_id, get_ota_service()->ps, sizeof(dev.device_id)-1);
+    strncpy(dev.product_key, get_ota_service()->pk, sizeof(dev.product_key)-1);
+    strncpy(dev.device_name, get_ota_service()->dn, sizeof(dev.device_name)-1);
+    strncpy(dev.device_secret, get_ota_service()->ds, sizeof(dev.device_secret)-1);
+    config.p_devinfo = &dev;
+    char url[256] = { 0 };
+    ota_snprintf(url, sizeof(url), COAP_ONLINE_DTLS_SERVER_URL,get_ota_service()->pk);
+    config.p_url = url;
+    get_ota_service()->h_ch = (void *)ota_IOT_CoAP_Init(&config);
+    if (get_ota_service()->h_ch) {
+        ret = ota_IOT_CoAP_DeviceNameAuth(get_ota_service()->h_ch);
+        if (ret < 0) {
+            OTA_LOG_E("COAP error");
+            return ret;
+        }
+        OTA_LOG_D("IOT_CoAP_DeviceNameAuth. success.");
+    }
     #else
     return 0;
     #endif
 }
-int ota_IOT_CoAP_DeviceNameAuth(void *p_context)
+int ota_coap_deinit(void)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2
-    return IOT_CoAP_DeviceNameAuth(p_context);
-    #else
-    return 0;
-    #endif
-}
-int ota_IOT_CoAP_Deinit(void **pp_context)
-{
-    #if (OTA_SIGNAL_CHANNEL) == 2
-    IOT_CoAP_Deinit(pp_context);
+    IOT_CoAP_Deinit(get_ota_service()->h_ch);
     #endif
     return 0;
 }

@@ -188,8 +188,7 @@ static uint32_t ota_breeze_start_task()
     int ret = 0;
     uint32_t error_code = 0;
     void *thread = NULL;
-    unsigned int stack_size = 4096;
-    ret = ota_thread_create(&thread, (void *)ota_breeze_start, (void *)NULL, stack_size, 0);
+    ret = ota_thread_create(&thread, (void *)ota_breeze_start, (void *)NULL, NULL, 0);
     if (ret != 0) {
         OTA_LOG_E("ota breeze creat task failed");
         error_code = OTA_BREEZE_ERROR_BUSY;
