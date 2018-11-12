@@ -5,6 +5,9 @@ $(NAME)_SOURCES := breezeapp.c
 GLOBAL_DEFINES += BLE_APP_RECONFIG_AISILOP
 
 ble = 1
+bz_en_auth = 1
+bz_en_awss = 1
+bz_en_ota = 0
 
 $(NAME)_COMPONENTS := yloop bluetooth.breeze cli
 
@@ -13,8 +16,8 @@ GLOBAL_DEFINES += CONFIG_BLE_LINK_PARAMETERS
 
 GLOBAL_DEFINES += BUILD_AOS
 
-breeze_ota ?= 0
-ifeq ($(breeze_ota),1)
+bz_en_ota ?= 0
+ifeq ($(bz_en_ota),1)
 GLOBAL_DEFINES += CONFIG_AIS_OTA
 $(NAME)_COMPONENTS += middleware.uagent.uota.src.device.ble
 endif
