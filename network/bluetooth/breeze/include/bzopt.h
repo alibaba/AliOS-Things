@@ -18,8 +18,10 @@
 #define ENCRYPT_DATA_SIZE 16
 #define BZ_MAX_PAYLOAD_SIZE 256
 
-#ifndef BZ_ENABLE_AUTH
+#ifdef  EN_AUTH
 #define BZ_ENABLE_AUTH 1
+#else
+#define BZ_ENABLE_AUTH 0
 #endif
 
 #ifdef  CONFIG_AIS_OTA

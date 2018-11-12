@@ -3,7 +3,6 @@ NAME := breeze
 
 $(NAME)_MBINS_TYPE := kernel
 
-$(NAME)_SOURCES += core/auth.c
 $(NAME)_SOURCES += core/core.c
 $(NAME)_SOURCES += core/transport.c
 $(NAME)_SOURCES += core/ble_service.c
@@ -26,11 +25,15 @@ endif
 
 $(NAME)_SOURCES += api/breeze_export.c
 
-breeze_awss ?= 1
-ifeq ($(breeze_awss), 1)
+bz_en_awss ?= 1
+ifeq ($(bz_en_awss), 1)
 GLOBAL_DEFINES += EN_COMBO_NET
 $(NAME)_SOURCES += core/extcmd.c
 $(NAME)_SOURCES += api/breeze_awss_export.c
 endif
 
-
+bz_en_auth ?= 1
+ifeq ($(bz_en_auth), 1)
+GLOBAL_DEFINES += EN_AUTH
+$(NAME)_SOURCES += core/auth.c
+endif
