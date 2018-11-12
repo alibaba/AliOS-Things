@@ -343,12 +343,12 @@ void *LITE_malloc_internal(const char *f, const int l, int size, ...)
     if (size > WITH_ALLOC_WARNING_THRESHOLD) {
         int             k;
 
-        log_warning("large allocating @ %s(%d) for %04d bytes!", f, l, size);
+        log_warning("utils", "large allocating @ %s(%d) for %04d bytes!", f, l, size);
         LITE_printf("\r\n");
 #if defined(_PLATFORM_IS_LINUX_)
         for (k = 0; k < pos->bt_level; ++k) {
             int             m;
-            const char     *p = LITE_strchr(pos->bt_symbols[k], '(');
+            const char     *p = strchr(pos->bt_symbols[k], '(');
 
             if (p[1] == ')') {
                 continue;
@@ -394,7 +394,7 @@ void LITE_free_internal(void *ptr)
     }
 
     if (NULL == pos) {
-        log_warning("Cannot find %p allocated! Skip stat ...", ptr);
+        log_warning("utils", "Cannot find %p allocated! Skip stat ...", ptr);
     } else {
         iterations_freed += 1;
         iterations_in_use -= 1;
