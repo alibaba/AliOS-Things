@@ -284,8 +284,9 @@ int _fill_conn_string(char *dst, int len, const char *fmt, ...)
     return 0;
 }
 
-void guider_print_conn_info(iotx_conn_info_pt conn)
+void guider_print_conn_info(iotx_conn_real_info_t *conn)
 {
+    LITE_ASSERT(conn);
     sys_info("%s", "-----------------------------------------");
     sys_info("%16s : %-s", "Host", conn->host_name);
     sys_info("%16s : %d",  "Port", conn->port);
@@ -414,12 +415,9 @@ static int guider_get_iotId_iotToken(
     char               *iotx_payload = NULL;
     int                 iotx_port = 443;
     int                 ret = -1;
-    iotx_conn_info_pt   usr = iotx_conn_info_get();
     int                 ret_code = 0;
     const char         *pvalue;
     char                port_str[6];
-
-    LITE_ASSERT(usr);
 
 #ifndef SUPPORT_TLS
     iotx_port = 80;
@@ -531,7 +529,7 @@ do_exit:
 }
 #endif  /* MQTT_DIRECT */
 
-int iotx_guider_authenticate(void)
+int iotx_guider_authenticate(iotx_conn_real_info_t *conn)
 {
     char                partner_id[PID_STRLEN_MAX + 16] = {0};
     char                module_id[MID_STRLEN_MAX + 16] = {0};
@@ -540,7 +538,6 @@ int iotx_guider_authenticate(void)
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
     char                timestamp_str[GUIDER_TS_LEN] = {0};
 
-    iotx_conn_info_pt   conn = iotx_conn_info_get();
     char               *req_str = NULL;
     int                 gw = 0;
     int                 ext = 0;
