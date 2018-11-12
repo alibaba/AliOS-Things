@@ -49,7 +49,7 @@ GLOBAL_INCLUDES += . \
                    hal/ \
                    aos/ \
                    Inc/
-				   
+
 GLOBAL_CFLAGS += -DSTM32L496xx 
 
 GLOBAL_DEFINES += STDIO_UART=0
@@ -79,6 +79,7 @@ ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_OTA.ld
 GLOBAL_DEFINES += VECT_TAB_OFFSET=0x4000
 GLOBAL_DEFINES += USING_FLAT_FLASH
+GLOBAL_DEFINES += AOS_OTA_BANK_DUAL
 else
 ifeq ($(MBINS),)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
