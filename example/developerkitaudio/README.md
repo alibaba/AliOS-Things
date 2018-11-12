@@ -39,8 +39,8 @@ aos make developerkitaudio@developerkit
 ```
 
 ### Prepare and Flash
-> 中文版请参考[这里](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4)
- You can get ISD9160 firmware which is for codec from [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6/ISD9160_FW_2018.10.26).   
+
+ You can get ISD9160 firmware which is for codec from [here](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6).
  Two different firmware version as below:
 
 `v1.xx` ---- record and playback via I2S.
@@ -56,16 +56,16 @@ aos upload developerkitaudio@developerkit
 
 ### Run
 
-Press `key B` to upgrade firmware of codec(ISD9160) that is stored on SD card, there are some logs from terminal.
+Press **`key B`** to **upgrade** firmware of codec(ISD9160) that is stored on SD card, there are some logs from terminal, **LED3** is online if upgrade firmware for about 5 seconds, then blink one time and off, this means audio firware upgraded successfully.
 
 * If using v1.xx codec firmware, please follow below to record/playback voice:  
-  Press `key M` to record to file that is stored on SD card.     
+  Press **`key M`** to **record** audio to files that are stored on SD card. **LED1** will be turned on(start recording) after press `Key M`, and be off(end of recording) after blink 2 times after press `Key M` again.    
    
-  Press `key A` to playback from file that is stored on SD card. 
+  Press **`key A`** to **play** from audio files that are stored on SD card. **LED2** will be on when playback last audio, be off(end of playback)
  
 * If using v2.xx codec firmware, please follow below to recognize the meaning of voice: 
 
-Try to speak the wakeup command "Xiao Te Xiao Te", the LED1 will be turn on for about 10 seconds if waked up, then you can speak special commands at this moment that LED1 is on-line.
-When the LED1 is off, you need to wake it up again.
+Try to speak the wakeup command "**Xiao Te Xiao Te**", the **LED1** will be turn on for about 10 seconds if waked up, then you can speak special commands at this moment that LED1 is on-line.
+When the LED1 is off, you need to wake it up again with wakeup command.
 
-[Recognition command list](https://github.com/Notioni/Codes/tree/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6#version-update-record), currently only support chinese.
+[Recognition command list](https://github.com/Notioni/Codes/blob/master/Developer%20Kit/Codec%E5%9B%BA%E4%BB%B6/readme.txt), currently only support chinese.
