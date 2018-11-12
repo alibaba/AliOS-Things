@@ -2,11 +2,11 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
+#include <k_api.h>
 #include <uapp.h>
 #include <mpu.h>
 
-//#define MPU_DEBUG
+#define MPU_DEBUG
 
 #ifdef MPU_DEBUG
 #define DEBUG(fmt, arg...) printf(fmt, ##arg)
@@ -29,8 +29,8 @@ typedef struct {
 mem_region_t *g_active_app_mem_region = NULL;
 
 // defined in linker script
-extern char text_start, text_size;
-extern char data_start, data_size;
+extern char kernel_text_start, kernel_text_size;
+extern char kernel_data_start, kernel_data_size;
 
 // the first one is kernel
 static mem_region_t g_mm_map[MAX_APP_BINS + 1];
@@ -54,8 +54,8 @@ static int kernel_mem_region_init(void)
     unsigned long addr, size;
 
     DEBUG("init kernel region\r\n");
-    addr = &text_start;
-    size = &text_size;
+    addr = &kernel_text_start;
+    size = &kernel_text_size;
     ret = mpu_region_check(addr, size);
     if (!ret) {
         g_mm_map[0].text_start_addr = addr;
@@ -64,8 +64,8 @@ static int kernel_mem_region_init(void)
         return ret;
     }
 
-    addr = &data_start;
-    size = &data_size;
+    addr = &kernel_data_start;
+    size = &kernel_data_size;
     ret = mpu_region_check(addr, size);
     if (!ret) {
         g_mm_map[0].data_start_addr = addr;
@@ -74,13 +74,12 @@ static int kernel_mem_region_init(void)
         return ret;
     }
 
-    DEBUG("kernel text addr 0x%x, mpusize 0x%x, data addr 0x%x, mpusize 0x%x\r\n",
+    DEBUG("kernel text addr 0x%x, mpusize 0x%x, "
+          "data addr 0x%x, mpusize 0x%x\r\n",
             g_mm_map[0].text_start_addr,
             g_mm_map[0].text_size,
             g_mm_map[0].data_start_addr,
             g_mm_map[0].data_size);
-
-
 
     return 0;
 }
@@ -125,7 +124,8 @@ static int app_mem_region_init(uapp_info_t *app_info, int id)
     g_mm_map[id].data_start_addr = data_start_addr;
     g_mm_map[id].data_size = data_mpusize;
 
-    DEBUG("%s: text addr 0x%x, mpusize 0x%x, data addr 0x%x, mpusize 0x%x\r\n",
+    DEBUG("%s: text addr 0x%x, mpusize 0x%x, "
+          "data addr 0x%x, mpusize 0x%x\r\n",
             __func__,
             g_mm_map[id].text_start_addr,
             g_mm_map[id].text_size,
@@ -141,6 +141,10 @@ static int enable_kernel_region(void)
     MPU_Region_Init_t init;
     mem_region_t *mem_region;
     int rng_no;
+
+    CPSR_ALLOC();
+
+    RHINO_CRITICAL_ENTER();
 
     rng_no = KERNEL_RNG_NO;
     mem_region = &g_mm_map[0];
@@ -173,6 +177,8 @@ static int enable_kernel_region(void)
 
     mpu_enable();
 
+    RHINO_CRITICAL_EXIT();
+
     return 0;
 }
 
@@ -181,10 +187,14 @@ static int enable_app_region(int id, int rng_no)
     MPU_Region_Init_t init;
     mem_region_t *mem_region;
 
+    CPSR_ALLOC();
+
     if ((rng_no > MAX_RNG_NO - 1)
         || (id > MAX_APP_BINS - 1)) {
         return -1;
     }
+
+    RHINO_CRITICAL_ENTER();
 
     mem_region = &g_mm_map[id];
 
@@ -220,6 +230,8 @@ static int enable_app_region(int id, int rng_no)
 
     g_active_app_mem_region = mem_region;
 
+    RHINO_CRITICAL_EXIT();
+
     return 0;
 }
 
@@ -230,6 +242,9 @@ static int disable_region(int rng_no)
     if (rng_no > MAX_RNG_NO - 1)
         return -1;
 
+    CPSR_ALLOC();
+
+    RHINO_CRITICAL_ENTER();
     mpu_disable();
 
     init.range_no = rng_no;
@@ -243,6 +258,8 @@ static int disable_region(int rng_no)
     mpu_enable();
 
     g_active_app_mem_region = NULL;
+
+    RHINO_CRITICAL_EXIT();
 
     return 0;
 }

@@ -74,6 +74,5 @@ void hw_start_hal(void)
     hal_wifi_register_module(&aos_wifi_module_bk7231);
 #endif
 
-    hal_ota_register_module(&stm32l4xx_ota_module);
     hal_wifi_init();
 }
