@@ -4,8 +4,10 @@ $(NAME)_SOURCES := cameraapp.c
 
 GLOBAL_DEFINES += AOS_NO_WIFI CONFIG_AOS_FATFS_SUPPORT_MMC
 
-$(NAME)_COMPONENTS := yloop cli board.developerkit.camera_hal
+$(NAME)_COMPONENTS := yloop cli
 $(NAME)_COMPONENTS += 3rdparty.experimental.fs.fatfs
+
+ENABLE_CAMERA_HAL := 1
 
 ifeq ($(BENCHMARKS),1)
 $(NAME)_COMPONENTS  += benchmarks

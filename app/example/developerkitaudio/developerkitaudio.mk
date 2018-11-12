@@ -6,7 +6,9 @@ endif
 
 GLOBAL_DEFINES += AOS_NO_WIFI
 
-$(NAME)_COMPONENTS := yloop cli board.developerkit.audio_hal
+$(NAME)_COMPONENTS := yloop cli
+
+ENABLE_AUDIO_HAL := 1
 
 ifeq ($(BENCHMARKS),1)
 $(NAME)_COMPONENTS  += benchmarks
