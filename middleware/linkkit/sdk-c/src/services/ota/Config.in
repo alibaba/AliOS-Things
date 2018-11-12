@@ -1,0 +1,11 @@
+
+config OTA_ENABLED
+    depends on MQTT_COMM_ENABLED
+    bool "FEATURE_OTA_ENABLED"
+    default y
+
+    help
+        OTA (Over The Air) means upgrade device's firmware or configuration remotely via Internet
+
+        Switching to "y" leads to providing such capability via IOT_OTA_XXX() APIs
+
