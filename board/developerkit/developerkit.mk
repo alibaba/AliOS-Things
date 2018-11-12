@@ -2,7 +2,9 @@ NAME := developerkit
 
 
 $(NAME)_MBINS_TYPE   := kernel
-SUPPORT_MBINS 	     := yes
+$(NAME)_VERSION      := 0.0.1.0
+$(NAME)_SUMMARY      := Developer Kit is hardware development board base on AliOS-Things
+SUPPORT_MBINS        := yes
 MODULE               := 1062
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := stm32l4xx_cube
@@ -38,11 +40,23 @@ $(NAME)_SOURCES += Src/gpio.c \
 
 
 ifeq ($(COMPILER), armcc)
-$(NAME)_SOURCES += startup_stm32l496xx_keil.s    
+$(NAME)_SOURCES += startup_stm32l496xx_keil.s
 else ifeq ($(COMPILER), iar)
-$(NAME)_SOURCES += startup_stm32l496xx_iar.s  
+$(NAME)_SOURCES += startup_stm32l496xx_iar.s
 else
 $(NAME)_SOURCES += startup_stm32l496xx.s
+endif
+
+ifeq ($(ENABLE_IRDA_HAL),1)
+include ./board/developerkit/irda_hal/irda_hal.mk
+endif
+
+ifeq ($(ENABLE_CAMERA_HAL),1)
+include ./board/developerkit/camera_hal/camera_hal.mk
+endif
+
+ifeq ($(ENABLE_AUDIO_HAL),1)
+include ./board/developerkit/audio_hal/audio_hal.mk
 endif
 
 GLOBAL_INCLUDES += . \
@@ -50,7 +64,7 @@ GLOBAL_INCLUDES += . \
                    aos/ \
                    Inc/
 
-GLOBAL_CFLAGS += -DSTM32L496xx 
+GLOBAL_CFLAGS += -DSTM32L496xx
 
 GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD

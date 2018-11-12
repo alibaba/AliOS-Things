@@ -1,4 +1,0 @@
-config AOS_IRDA_HAL
-    bool "irda_hal"
-    default n
-    help

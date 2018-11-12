@@ -1,4 +1,4 @@
-menuconfig AOS_DEVELOPERKIT
+menuconfig AOS_BOARD_DEVELOPERKIT
     bool "developerkit"
     default y
     select AOS_MCU_STM32L4XX_CUBE
@@ -7,7 +7,7 @@ menuconfig AOS_DEVELOPERKIT
       Developer Kit is hardware development board base on [AliOS-Things]
       (https://github.com/alibaba/AliOS-Things), with a variety of
       peripherals. Hardware is equipped with Audio Codec eight sensors,
-      8-bits digital camera, LCD display, sixes LEDs, PCIe module, USB 
+      8-bits digital camera, LCD display, sixes LEDs, PCIe module, USB
       OTG FS, and Wi-Fi module. Because the software is embedded with the
       AliOS system, the local data uploading to the Ali-cloud can be
       realized through Wi-Fi. It is convenience to the developer to learn
@@ -15,6 +15,18 @@ menuconfig AOS_DEVELOPERKIT
       applications.
 
 if AOS_DEVELOPERKIT
+
+config ENABLE_IRDA_HAL
+    bool "ENABLE_IRDA_HAL"
+    default n
+
+config ENABLE_CAMERA_HAL
+    bool "ENABLE_CAMERA_HAL"
+    default n
+
+config ENABLE_AUDIO_HAL
+    bool "ENABLE_AUDIO_HAL"
+    default n
 
 config ENABLE_VFP
     int "ENABLE_VFP"
