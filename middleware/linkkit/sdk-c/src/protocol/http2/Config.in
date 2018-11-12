@@ -1,0 +1,18 @@
+
+config HTTP2_COMM_ENABLED
+    bool "FEATURE_HTTP2_COMM_ENABLED"
+    default n
+    help
+        Establish persistent connection with AliCloud via HTTP2-based protocol
+
+menu "HTTP2 Configurations"
+    depends on HTTP2_COMM_ENABLED
+
+    config FS_ENABLED
+        bool "FEATURE_FS_ENABLED"
+        default y
+        help
+            USE HAL fs api to enable file upload feature 
+
+endmenu
+

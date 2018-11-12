@@ -1,5 +1,6 @@
 config MAL_ENABLED
     bool "FEATURE_MAL_ENABLED"
+    depends on !MQTT_COMM_ENABLED
     default n
     help
         Establish persistent connection with AliCloud via MAL(MQTT Adapter Layer).
@@ -56,3 +57,4 @@ menu "SAL Configurations"
             Switching to "n" leads to disable UDP client socket APIs.
 
 endmenu
+
