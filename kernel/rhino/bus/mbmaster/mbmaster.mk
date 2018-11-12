@@ -1,7 +1,8 @@
 NAME := mbmaster
 
-$(NAME)_TYPE 	    := kernel
 $(NAME)_MBINS_TYPE  := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES     := functions/mbfunccoils.c
 $(NAME)_SOURCES     += functions/mbfuncholding.c

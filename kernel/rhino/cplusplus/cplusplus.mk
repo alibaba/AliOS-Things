@@ -1,6 +1,9 @@
 NAME := cplusplus
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
+
 $(NAME)_SOURCES     := cpp_mem.cpp
 $(NAME)_SOURCES     += cpp_init.c
 $(NAME)_SOURCES     += thread.cpp
