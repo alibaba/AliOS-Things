@@ -61,7 +61,7 @@ void cli_loop(void)
         printf("waitting for input\r\n");
         char ch;
         if (cli_getchar(&ch)) {
-            printf("read char %c\r\n", ch);
+            printf("read char: %c\r\n", ch);
         }
     }
 }
