@@ -7,7 +7,7 @@ GLOBAL_DEFINES      +=  MQTT_DIRECT  ALIOT_DEBUG IOTX_DEBUG USE_LPTHREAD   COAP_
 
 $(NAME)_SOURCES     := uData-example.c uData_app.c linkkit_export.c lite_queue.c uData_tsl.c
 
-$(NAME)_COMPONENTS := protocol.linkkit.iotkit connectivity.mqtt fota netmgr framework.common  protocol.linkkit.cm protocol.linkkit.dm protocol.linkkit.alcs device.sensor uData
+$(NAME)_COMPONENTS := protocol.linkkit.iotkit connectivity.mqtt fota netmgr framework.common  protocol.linkkit.cm protocol.linkkit.dm protocol.linkkit.alcs ywss4linkkit device.sensor uData 
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net

@@ -10,7 +10,6 @@
 
 #include <hal/base.h>
 #include <hal/ota.h>
-#include <hal/sensor.h>
 #include <hal/trace.h>
 #include <hal/wifi.h>
 #include <hal/atcmd.h>

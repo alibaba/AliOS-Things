@@ -15,7 +15,7 @@ int cali_example_process_cb(void* pdata)
     /* just a simple example here
        show how to register inot the abs model */
 
-    LOG("%s %s successfully \n", uDATA_STR, __func__);
+    //LOG("%s %s successfully \n", uDATA_STR, __func__);
     return 0;
 }
 
