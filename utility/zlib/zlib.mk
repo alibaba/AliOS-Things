@@ -1,6 +1,9 @@
 NAME := zlib
 
-$(NAME)_TYPE := share
+$(NAME)_MBINS_TYPE := share
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
+
 $(NAME)_SOURCES :=  src/adler32.c \
                     src/compress.c \
                     src/crc32.c \
