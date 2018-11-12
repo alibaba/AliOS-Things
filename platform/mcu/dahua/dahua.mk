@@ -61,7 +61,6 @@ $(NAME)_SOURCES += aos/aos.c \
                    ../../arch/csky/cskyv2-l/port_s_novic.S \
                    ../../arch/csky/cskyv2-l/port_c.c \
                    ../../arch/csky/cskyv2-l/entry.S \
-                   aos/trace_impl.c \
                    modules/libc/minilibc_port.c \
                    hal/ringbuffer.c \
                    hal/i2c.c \

@@ -50,8 +50,7 @@ $(NAME)_SOURCES := Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c  \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_sdmmc.c    \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_fmc.c
 
-$(NAME)_SOURCES += aos/soc_impl.c \
-                   aos/trace_impl.c
+$(NAME)_SOURCES += aos/soc_impl.c
                    
 ifeq ($(HOST_MCU_NAME), STM32L433RC-Nucleo)
 GLOBAL_CFLAGS += -DSTM32L433xx

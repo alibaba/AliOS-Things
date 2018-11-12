@@ -105,7 +105,6 @@ else
 $(NAME)_COMPONENTS       += rhino platform/arch/xtensa/lx106
 $(NAME)_SOURCES          += aos/hook_impl.c
 $(NAME)_SOURCES          += aos/soc_impl.c
-$(NAME)_SOURCES          += aos/trace_impl.c
 endif
 
 ifneq ($(mesh),0)

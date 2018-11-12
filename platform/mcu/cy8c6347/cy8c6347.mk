@@ -103,7 +103,6 @@ $(NAME)_SOURCES := drivers/cy_ipc_config.c      \
 				   drivers/PSoC6/pdl/drivers/peripheral/systick/cy_systick.c \
 				   drivers/PSoC6/pdl/drivers/peripheral/wdt/cy_wdt.c      \
                    aos/soc_impl.c                \
-                   aos/trace_impl.c             \
 				   hal/hw.c                     \
                    hal/flash_port.c              \
 				   hal/uart_port.c             \

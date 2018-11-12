@@ -207,11 +207,6 @@
 #define RHINO_CONFIG_CPU_NUM                 1
 #endif
 
-/* kernel trace conf */
-#ifndef RHINO_CONFIG_TRACE
-#define RHINO_CONFIG_TRACE                   0
-#endif
-
 #if ((RHINO_CONFIG_MM_TLF >= 1) && (RHINO_CONFIG_MM_BLK == 0))
 #error  "RHINO_CONFIG_MM_BLK should be 1 when RHINO_CONFIG_MM_TLF is enabled."
 #endif
