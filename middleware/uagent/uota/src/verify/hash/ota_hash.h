@@ -6,10 +6,10 @@
 #include "ota_sha256.h"
 #include "ota_rsa.h"
 
-typedef struct ota_hash_ctx_t {
+typedef struct {
     unsigned int magic;
     unsigned int status;
-    ota_hash_type_t type;
+    OTA_HASH_E type;
     union {
         unsigned char sym_ctx[1];
         ota_md5_context md5_ctx;
@@ -36,9 +36,9 @@ typedef struct ota_md_info_t ota_hash_info_t;
 
 const ota_hash_info_t *ota_hash_info_from_type(ota_md_type_t md_type);
 unsigned char ota_hash_get_size(const struct ota_md_info_t *md_info);
-ota_crypto_result ota_hash_init(ota_hash_type_t type, void *context);
-ota_crypto_result ota_hash_update(const unsigned char *src, unsigned int size, void *context);
-ota_crypto_result ota_hash_final(unsigned char *dgst, void *context);
-ota_crypto_result ota_hash_get_ctx_size(ota_hash_type_t type, unsigned int *size);
-ota_crypto_result ota_hash_digest(ota_hash_type_t type, const uint8_t *src, size_t size, uint8_t *dgst);
+OTA_VERIFY_E ota_hash_init(OTA_HASH_E type, void *context);
+OTA_VERIFY_E ota_hash_update(const unsigned char *src, unsigned int size, void *context);
+OTA_VERIFY_E ota_hash_final(unsigned char *dgst, void *context);
+OTA_VERIFY_E ota_hash_get_ctx_size(OTA_HASH_E type, unsigned int *size);
+OTA_VERIFY_E ota_hash_digest(OTA_HASH_E type, const unsigned char *src, unsigned int size, unsigned char *dgst);
 #endif

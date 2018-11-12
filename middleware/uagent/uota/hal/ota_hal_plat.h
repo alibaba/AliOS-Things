@@ -5,87 +5,48 @@
 #ifndef HAL_OTA_H
 #define HAL_OTA_H
 
-#pragma once
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include "list.h"
-
-/*
- * HAL Module define
- */
-typedef struct {
-    dlist_t     list;
-    int         magic;
-    const char *name;
-    void       *priv_dev; /* Driver may want to describe it */
-} hal_module_base_t;
-
 typedef enum {
-    OTA_KERNEL,
-    OTA_APP,
-    OTA_ALL
-} OTA_ENUM_UPDATE_TYPE;
+    OTA_RAW = 0,
+    OTA_DIFF = 1,
+    OTA_KERNEL = 2,
+    OTA_APP = 4,
+} OTA_UPD_TYPE_E;
 
 typedef enum {
     OTA_FINISH,
     OTA_BREAKPOINT
-} OTA_ENUM_RESULT_TYPE;
-
-enum ota_parti_e {
-    OTA_PARTITION_KERNEL,
-    OTA_PARTITION_APP,
-    OTA_PARTITION_DEFAULT,
-};
-
-typedef enum {
-    OTA_RAW,
-    OTA_DIFF,
-} OTA_ENUM_FIRMWARE_TYPE;
+} OTA_RES_TYPE_E;
 
 typedef struct  {
-    OTA_ENUM_UPDATE_TYPE update_type;
-    OTA_ENUM_RESULT_TYPE result_type;
-    OTA_ENUM_FIRMWARE_TYPE  firmware_type;
-    uint32_t splict_size;
-    uint8_t diff_version;
-    uint8_t rollback;
-} ota_finish_param_t;
+    unsigned int dst_adr;
+    unsigned int src_adr;
+    unsigned int len;
+    unsigned short crc;
+    unsigned int  upg_flag;
+    unsigned char boot_count;
+    unsigned int  splict_size;
+    int off_bp;   /*Break point offset*/
+    OTA_RES_TYPE_E  res_type; /*result type: OTA_FINISH, OTA_BREAKPOINT*/
+    char  upg_status;/*Upgrade status info*/
+    unsigned short param_crc; /*Parameter crc*/
+} __attribute__((packed)) ota_boot_param_t;
 
-typedef struct {
-    uint32_t start_address; /* the address of the bin saved on flash. */
-    uint32_t length;        /* file real length */
-    uint8_t  version[8];
-    uint8_t  type;          /* B:bootloader, P:boot_table, A:application, D: 8782 driver */
-    uint8_t  upgrade_type;  /* u:upgrade */
-    uint16_t crc;
-    uint8_t  reserved[4];
-} boot_table_t;
-
-typedef struct hal_ota_module_s hal_ota_module_t;
-
-typedef int hal_stat_t;
-
-struct hal_ota_module_s {
-    hal_module_base_t base;
-
-    /* Link to HW */
-    int (*init)(hal_ota_module_t *m, void *something);
-    int (*ota_write)(hal_ota_module_t *m, volatile uint32_t *off_set,
-                     uint8_t *in_buf , uint32_t in_buf_len);
-    int (*ota_read)(hal_ota_module_t *m,  volatile uint32_t *off_set,
-                    uint8_t *out_buf , uint32_t out_buf_len);
-    int (*ota_set_boot)(hal_ota_module_t *m, void *something);
-    int (*ota_rollback)(hal_ota_module_t *m, void *something);
-};
+typedef struct ota_hal_module_s {
+    int (*init)(void *something);
+    int (*write)(int *off_set, char *in_buf , int in_buf_len);
+    int (*read)(int *off_set, char *out_buf , int out_buf_len);
+    int (*boot)(void *something);
+    int (*rollback)(void *something);
+}ota_hal_module_t;
 
 /**
  * Arch register a new module before HAL startup
  */
-void hal_ota_register_module(hal_ota_module_t *module);
+void ota_hal_register_module(ota_hal_module_t *module);
 
 /**
  * init ota partition
@@ -95,12 +56,11 @@ void hal_ota_register_module(hal_ota_module_t *module);
  *
  * @return  0 : On success, 1 : If an error occurred with any step
  */
-hal_stat_t hal_ota_init(void *something);
+int ota_hal_init(void *something);
 
 /**
  * Write data to an area on ota partition
  *
- * @param  m           Refer the ota module which will be used,default module will be used if value is NULL
  * @param  off_set     Point to the start address that the data is written to, and
  *                     point to the last unwritten address after this function is
  *                     returned, so you can call this function serval times without
@@ -110,13 +70,11 @@ hal_stat_t hal_ota_init(void *something);
  *
  * @return  0 : On success, 1 : If an error occurred with any step
  */
-hal_stat_t hal_ota_write(hal_ota_module_t *m, volatile uint32_t *off_set,
-                         uint8_t *in_buf , uint32_t in_buf_len);
+int ota_hal_write(int *off_set,char *in_buf , int in_buf_len);
 
 /**
  * Read data from an area on ota Flash to data buffer in RAM
  *
- * @param  m            Refer the ota module which will be used,default module will be used if value is NULL
  * @param  off_set      Point to the start address that the data is read, and
  *                      point to the last unread address after this function is
  *                      returned, so you can call this function serval times without
@@ -126,39 +84,27 @@ hal_stat_t hal_ota_write(hal_ota_module_t *m, volatile uint32_t *off_set,
  *
  * @return  0 : On success, 1 : If an error occurred with any step
  */
-hal_stat_t hal_ota_read(hal_ota_module_t *m, volatile uint32_t *off_set,
-                        uint8_t *out_buf, uint32_t out_buf_len);
+int ota_hal_read(int *off_set,char *out_buf, int out_buf_len);
 
 /**
  * Set boot options when ota reboot
  *
- * @param  m          Refer the ota module which will be used,default module will be used if value is NULL
  * @param  something  boot parms
  *
  * @return  kNoErr : On success. kGeneralErr : If an error occurred with any step
  */
-hal_stat_t hal_ota_set_boot(hal_ota_module_t *m, void *something);
+int ota_hal_boot(void *something);
 
 /**
  * Set rollback when failed to boot
  *
- * @param  m          Refer the ota module which will be used,default module will be used if value is NULL
- * @param  something  boot parms
+ * @param  something 
  *
  * @return  kNoErr : On success. kGeneralErr : If an error occurred with any step
  */
-hal_stat_t hal_ota_rollback(hal_ota_module_t *m, void *something);
-
-/**
- * Get the default ota module
- *
- * @return  the first registered ota module ,which is the head of module list
- */
-hal_ota_module_t *hal_ota_get_default_module(void);
-
+int ota_hal_rollback(void *something);
 #ifdef __cplusplus
 }
 #endif
-
 #endif /* HAL_OTA_H */
 
