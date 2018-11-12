@@ -153,7 +153,7 @@ typedef enum {
 #define DECLARE_EVENT_CALLBACK(evt, cb)         DLL_IOT_API int iotx_register_for_##evt(cb);
 #define DEFINE_EVENT_CALLBACK(evt, cb)          DLL_IOT_API int iotx_register_for_##evt(cb) { \
         if (evt < 0 || evt >= sizeof(g_impl_event_map)/sizeof(impl_event_map_t)) {return -1;} \
-        g_impl_event_map[evt].callback = callback;return 0;}
+        g_impl_event_map[evt].callback = (void *)callback;return 0;}
 
 DECLARE_EVENT_CALLBACK(ITE_AWSS_STATUS,          int (*cb)(int))
 DECLARE_EVENT_CALLBACK(ITE_CONNECT_SUCC,         int (*cb)(void))
