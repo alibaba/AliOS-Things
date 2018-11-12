@@ -1,0 +1,12 @@
+
+menuconfig LOG_ENABLED
+    bool "FEATURE_LOG_ENABLE"
+    default y
+    help
+        AliOS things log module
+
+if LOG_ENABLED
+menu "LOG Configurations"
+
+endmenu
+endif
