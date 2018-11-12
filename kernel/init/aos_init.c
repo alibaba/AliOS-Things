@@ -19,7 +19,6 @@ extern int vfs_device_init(void);
 extern int aos_kv_init(void);
 extern void ota_service_init(void);
 extern int aos_framework_init(void);
-extern void trace_start(void);
 extern void dumpsys_cli_init(void);
 extern int application_start(int argc, char **argv);
 //extern void aos_components_init(void);
@@ -258,10 +257,6 @@ int aos_kernel_init(kinit_t *kinit)
 #ifdef AOS_LOOP
     vfs_device_init();
     aos_loop_init();
-#endif
-
-#ifdef OSAL_RHINO
-    trace_start();
 #endif
 
 #ifdef AOS_UOTA 
