@@ -16,14 +16,14 @@ static void msg_dyn_create(kbuf_queue_t **queue, const name_t *name,
     queue_obj = krhino_mm_alloc(sizeof(kbuf_queue_t));
 
     if (queue_obj == NULL) {
-        *queue = 0;
+       *queue = NULL;
         return;
     }
 
     queue_obj->buf = krhino_mm_alloc(size);
 
     if (queue_obj->buf == NULL) {
-        *queue = 0;
+       *queue = NULL;
         krhino_mm_free(queue_obj);
         return;
     }
@@ -68,11 +68,11 @@ static void msg_dyn_create(kbuf_queue_t **queue, const name_t *name,
 
 size_t krhino_msg_get(uint32_t key, uint32_t flg, size_t size)
 {
-    kbuf_queue_t *queue = 0;
+    kbuf_queue_t *queue = NULL;
 
     msg_dyn_create(&queue, "buf_queue", size, MAX_MSG_SIZE, key);
 
-    if (queue == RHINO_SUCCESS) {
+    if (queue == NULL) {
         return 0;
     }
 
