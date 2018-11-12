@@ -1,11 +1,8 @@
+# "This is kernel core configuration"
+source "kernel/rhino/Config.in"
 
-menu "Kernel Configuration"
-    # "This is kernel core configuration"
-    source "kernel/rhino/core/Config.in"
+# "This is memory management configuration"
+source "kernel/rhino/mm/Config.in"
 
-    # "This is memory management configuration"
-    source "kernel/rhino/mm/Config.in"
-
-    # "This is memory management configuration"
-    source "kernel/fs/kv/Config.in"
-endmenu
+# "This is memory management configuration"
+source "kernel/fs/kv/Config.in"

@@ -1,13 +1,8 @@
-
-menuconfig KV_ENABLED
-#    depends on RHINO_ENABLED
-    bool "FEATURE_KV_ENABLE"
+menuconfig AOS_COMP_KV
+    bool "kv"
     default y
     help
-        AliOS things KV
 
-if KV_ENABLED
-menu "KV Configurations"
-
-endmenu
+if AOS_COMP_KV
+# Configurations for component kv
 endif
