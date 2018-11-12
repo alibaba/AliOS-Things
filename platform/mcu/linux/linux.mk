@@ -49,7 +49,6 @@ $(NAME)_SOURCES     :=
 ifneq ($(osal),posix)
 $(NAME)_SOURCES     += soc/soc_impl.c
 $(NAME)_SOURCES     += soc/hook_impl.c
-$(NAME)_SOURCES     += soc/trace_impl.c
 else
 $(NAME)_DEFINES     += CONFIG_OSAL_POSIX
 endif

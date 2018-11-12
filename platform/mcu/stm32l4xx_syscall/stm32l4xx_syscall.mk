@@ -105,7 +105,6 @@ $(NAME)_SOURCES := Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c  \
                    Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
 
 $(NAME)_SOURCES += aos/soc_impl.c \
-                   aos/trace_impl.c \
                    aos/hook_impl.c \
                    aos/rttest_impl.c \
                    hal/hal_uart_stm32l4.c \

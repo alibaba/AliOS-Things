@@ -105,7 +105,6 @@ else:
     dependencis.append('platform/arch/xtensa/lx106')
     src.append('aos/hook_impl.c')
     src.append('aos/soc_impl.c')
-    src.append('aos/trace_impl.c')
 
 component = aos_mcu_component('esp8266', 'xtensa-lx106-elf-', src)
 component.add_comp_deps(*dependencis)

@@ -23,7 +23,6 @@ GLOBAL_INCLUDES += \
 $(NAME)_SOURCES := \
     aos/soc_impl.c \
     main/main.c \
-    aos/trace_impl.c \
     system_efm32g.c \
     hal/hal_flash.c \
     hal/hal_uart.c \

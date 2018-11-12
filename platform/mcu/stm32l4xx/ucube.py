@@ -29,7 +29,6 @@ src =Split('''
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_sdmmc.c
     Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_fmc.c
     aos/soc_impl.c
-    aos/trace_impl.c
 ''')
 
 prefix = ''

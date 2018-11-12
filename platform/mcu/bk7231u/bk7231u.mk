@@ -59,8 +59,7 @@ GLOBAL_LDS_FILES += platform/mcu/bk7231u/bk7231u.ld.S
 $(NAME)_INCLUDES += aos
 
 $(NAME)_SOURCES :=  aos/aos_main.c
-$(NAME)_SOURCES +=  aos/soc_impl.c \
-                    aos/trace_impl.c
+$(NAME)_SOURCES +=  aos/soc_impl.c
                     
 $(NAME)_SOURCES	 += hal/gpio.c \
                     hal/wdg.c \

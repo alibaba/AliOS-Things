@@ -93,7 +93,6 @@ else:
 	src_tmp = Split('''
 		soc/soc_impl.c
 		soc/hook_impl.c
-		soc/trace_impl.c
 	''')
 	for s in src_tmp:
 		component.add_sources(s)
