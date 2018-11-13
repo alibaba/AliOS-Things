@@ -18,13 +18,10 @@ void   cpu_intrpt_restore(size_t cpsr);
 void   cpu_intrpt_switch(void);
 void   cpu_task_switch(void);
 void   cpu_first_task_start(void);
-void * cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg, task_entry_t entry);
-void cpu_utask_stack_init(ktask_t *task,
-                          cpu_stack_t *kstack_base,
-                          size_t kstack_size,
-                          cpu_stack_t *ustack_base,
-                          size_t ustack_size,
-                          void *arg, task_entry_t entry);
+void  *cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg, task_entry_t entry);
+void   cpu_utask_stack_init(ktask_t *task,  cpu_stack_t *kstack_base, size_t kstack_size,
+                            cpu_stack_t *ustack_base, size_t ustack_size, void *arg,
+                            task_entry_t entry);
 
 extern int cpu_get_cpuid(void);
 
@@ -62,22 +59,23 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
 
 static inline void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
 {
-	int oldval;
-	unsigned long res;
+    int oldval;
+    unsigned long res;
 
-	do {
-		__asm__ __volatile__("@ atomic_cmpxchg\n"
-		"ldrex	%1, [%3]\n"
-		"mov	%0, #0\n"
-		"teq	%1, %4\n"
-		"strexeq %0, %5, [%3]\n"
-		    : "=&r" (res), "=&r" (oldval), "+Qo" (*addr)
-		    : "r" (addr), "Ir" (compare), "r" (*set)
-		    : "cc");
-	} while (res);
+    do {
+        __asm__ __volatile__("@ atomic_cmpxchg\n"
+                             "ldrex %1, [%3]\n"
+                             "mov %0, #0\n"
+                             "teq %1, %4\n"
+                             "strexeq %0, %5, [%3]\n"
+                             : "=&r" (res), "=&r" (oldval), "+Qo" (*addr)
+                             : "r" (addr), "Ir" (compare), "r" (*set)
+                             : "cc");
+    } while (res);
 
     *set = oldval;
-	return ;
+
+    return ;
 }
 
 #else
@@ -88,3 +86,4 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
 #endif
 
 #endif /* PORT_H */
+

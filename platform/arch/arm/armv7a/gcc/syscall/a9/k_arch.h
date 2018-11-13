@@ -35,7 +35,7 @@
 #define CPSR_FIQ_DIS                        0x40
 #define CPSR_IRQ_DIS                        0x80        /* Disable IRQ. */
 #define CPSR_INT_DIS                        (CPSR_FIQ_DIS | CPSR_IRQ_DIS)
-#define CPSR_ARM							0x00
+#define CPSR_ARM                            0x00
 #define CPSR_THUMB                          0x20        /* Set Thumb mode */
 #define CPSR_SVC_THUMB                      (CPSR_Mode_SVC | CPSR_THUMB)
 #define CPSR_SVC_ARM                        (CPSR_Mode_SVC | CPSR_ARM)
@@ -62,27 +62,33 @@
     __asm volatile("mcr p15, " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : : "r" (Rt) : "memory" )
 
 
-/********** CP15 c0 register summary, identification registers **********/
+/* CP15 c0 register summary, identification registers */
 /* CSSELR, Cache Size Selection Register */
 RHINO_INLINE uint32_t os_get_CSSELR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(2, reg, 0, 0, 0);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_CSSELR(uint32_t reg)
 {
     OS_SET_CP15(2, reg, 0, 0, 0);
 }
 
-/********** CP15 c1 register summary, system control registers **********/
+/* CP15 c1 register summary, system control registers */
 /* SCTLR, System Control Register */
 RHINO_INLINE uint32_t os_get_SCTLR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 1, 0, 0);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_SCTLR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 1, 0, 0);
@@ -92,9 +98,12 @@ RHINO_INLINE void os_set_SCTLR(uint32_t reg)
 RHINO_INLINE uint32_t os_get_ACTLR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 1, 0, 1);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_ACTLR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 1, 0, 1);
@@ -104,22 +113,28 @@ RHINO_INLINE void os_set_ACTLR(uint32_t reg)
 RHINO_INLINE uint32_t os_get_CPACR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 1, 0, 2);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_CPACR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 1, 0, 2);
 }
 
-/********** CP15 c2 and c3 register summary, Memory protection and control registers **********/
+/* CP15 c2 and c3 register summary, Memory protection and control registers */
 /* TTBR0, Translation Table Base Register 0 */
 RHINO_INLINE uint32_t os_get_TTBR0(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 2, 0, 0);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_TTBR0(void *reg)
 {
     OS_SET_CP15(0, reg, 2, 0, 0);
@@ -129,9 +144,12 @@ RHINO_INLINE void os_set_TTBR0(void *reg)
 RHINO_INLINE void *os_get_TTBCR(void)
 {
     void *reg;
+
     OS_GET_CP15(0, reg, 2, 0, 2);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_TTBCR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 2, 0, 2);
@@ -141,22 +159,28 @@ RHINO_INLINE void os_set_TTBCR(uint32_t reg)
 RHINO_INLINE uint32_t os_get_DACR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 3, 0, 0);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_DACR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 3, 0, 0);
 }
 
-/********** CP15 c5 and c6 register summary, Memory system fault registers **********/
+/* CP15 c5 and c6 register summary, Memory system fault registers */
 /* DFSR, Data Fault Status Register */
 RHINO_INLINE uint32_t os_get_DFSR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 5, 0, 0);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_DFSR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 5, 0, 0);
@@ -166,9 +190,12 @@ RHINO_INLINE void os_set_DFSR(uint32_t reg)
 RHINO_INLINE uint32_t os_get_IFSR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 5, 0, 1);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_IFSR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 5, 0, 1);
@@ -178,9 +205,12 @@ RHINO_INLINE void os_set_IFSR(uint32_t reg)
 RHINO_INLINE uint32_t os_get_DFAR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 6, 0, 0);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_DFAR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 6, 0, 0);
@@ -190,15 +220,20 @@ RHINO_INLINE void os_set_DFAR(uint32_t reg)
 RHINO_INLINE uint32_t os_get_IFAR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 6, 0, 2);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_IFAR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 6, 0, 2);
 }
 
-/********** CP15 c7 register summary, Cache maintenance, address translation, and other functions **********/
+/** CP15 c7 register summary, Cache maintenance,
+ * address translation, and other functions
+ */
 /* ICIALLU, Invalidate all instruction caches to PoU */
 RHINO_INLINE void os_set_ICIALLU(uint32_t reg)
 {
@@ -247,21 +282,24 @@ RHINO_INLINE void os_set_DCCISW(uint32_t reg)
     OS_SET_CP15(0, reg, 7, 14, 2);
 }
 
-/********** CP15 c8 register summary, TLB maintenance operations **********/
+/* CP15 c8 register summary, TLB maintenance operations */
 /* TLBIALL, invalidate unified TLB */
 RHINO_INLINE void os_set_TLBIALL(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 8, 7, 0);
 }
 
-/********** CP15 c12 register summary, Security Extensions registers **********/
+/* CP15 c12 register summary, Security Extensions registers */
 /* VBAR, Vector Base Address Register */
 RHINO_INLINE uint32_t os_get_VBAR(void)
 {
     uint32_t reg;
+
     OS_GET_CP15(0, reg, 12, 0, 0);
+
     return reg;
 }
+
 RHINO_INLINE void os_set_VBAR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 12, 0, 0);
@@ -269,8 +307,10 @@ RHINO_INLINE void os_set_VBAR(uint32_t reg)
 
 typedef struct {
 #ifdef FPU_AVL
-	long FPEXC;
-	/* The Cortex-A5 FPU is a VFPv4-D16 implementation of the ARMv7 floating-point architecture */
+    long FPEXC;
+    /* The Cortex-A5 FPU is a VFPv4-D16 implementation of the ARMv7
+     * floating-point architecture
+     */
     long FPU[32];
     long FPSCR;
 #endif
@@ -294,8 +334,8 @@ typedef struct {
 }context_t;
 
 typedef struct {
-    long exc_type;  /* ARM exception IDs */
-    long SP;
+    long      exc_type;  /* ARM exception IDs */
+    long      SP;
     context_t cntx;
 }fault_context_t;
 

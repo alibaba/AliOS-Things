@@ -15,11 +15,15 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
     ctx_prev = (context_t *)((long)(stack_base + stack_size)&0xfffffff8);
     ctx = ctx_prev - 1;
 
-    if (((long)entry & 1u) == 1u) {     /* If task runs in Thumb or ARM mode                */
-       ctx->CPSR = CPSR_SVC_THUMB;      /* CPSR  (Enable IRQ and FIQ interrupts, THUMB-mode)    */
+    /* If task runs in Thumb or ARM mode */
+    if (((long)entry & 1u) == 1u) {
+        /* CPSR  (Enable IRQ and FIQ interrupts, THUMB-mode) */
+        ctx->CPSR = CPSR_SVC_THUMB;
     } else {
-       ctx->CPSR = CPSR_SVC_ARM;        /* CPSR  (Enable IRQ and FIQ interrupts, ARM-mode)      */
+        /* CPSR  (Enable IRQ and FIQ interrupts, ARM-mode) */
+        ctx->CPSR = CPSR_SVC_ARM;
     }
+
     ctx->R0     = (long)arg;
     ctx->R1     = 0x01010101u;
     ctx->R2     = 0x02020202u;
@@ -40,22 +44,24 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
 #if (FPU_AVL > 0)
     uint32_t i;
 
-    ctx->FPSCR = 0;                     /* Initialize Floating point status & control register  */
-    for (i = 0u; i < 32; i++) {         /* Initialize general-purpose Floating point registers  */
+    /* Initialize Floating point status & control register  */
+    ctx->FPSCR = 0;
+
+    /* Initialize general-purpose Floating point registers  */
+    for (i = 0u; i < 32; i++) {
         ctx->FPU[i] = 0;
     }
-    ctx->FPEXC = 0x40000000;            /* Initialize Floating-Point Exception Register (Enable)*/
+
+    /* Initialize Floating-Point Exception Register (Enable)*/
+    ctx->FPEXC = 0x40000000;
 #endif
 
     return (void *)ctx;
 }
 
-void cpu_utask_stack_init(ktask_t *task,
-                          cpu_stack_t *kstack_base,
-                          size_t kstack_size,
-                          cpu_stack_t *ustack_base,
-                          size_t ustack_size,
-                          void *arg, task_entry_t entry)
+void cpu_utask_stack_init(ktask_t *task, cpu_stack_t *kstack_base,
+                          size_t kstack_size, cpu_stack_t *ustack_base,
+                          size_t ustack_size, void *arg, task_entry_t entry)
 {
     context_t *ctx;
     context_t *ctx_prev;
@@ -68,10 +74,13 @@ void cpu_utask_stack_init(ktask_t *task,
     ctx_prev = (context_t *)((long)(kstack_base + kstack_size)&0xfffffff8);
     ctx = ctx_prev - 1;
 
-    if (((long)entry & 1u) == 1u) {     /* If task runs in Thumb or ARM mode                */
-       ctx->CPSR = CPSR_SVC_THUMB;      /* CPSR  (Enable IRQ and FIQ interrupts, THUMB-mode)    */
+    /* If task runs in Thumb or ARM mode */
+    if (((long)entry & 1u) == 1u) {
+        /* CPSR  (Enable IRQ and FIQ interrupts, THUMB-mode) */
+        ctx->CPSR = CPSR_SVC_THUMB;
     } else {
-       ctx->CPSR = CPSR_USR_ARM;        /* CPSR  (Enable IRQ and FIQ interrupts, ARM-mode)      */
+        /* CPSR  (Enable IRQ and FIQ interrupts, ARM-mode) */
+        ctx->CPSR = CPSR_USR_ARM;
     }
     ctx->R0     = (long)arg;
     ctx->R1     = 0x01010101u;
@@ -93,11 +102,16 @@ void cpu_utask_stack_init(ktask_t *task,
 #if (FPU_AVL > 0)
     uint32_t i;
 
-    ctx->FPSCR = 0;                     /* Initialize Floating point status & control register  */
-    for (i = 0u; i < 32; i++) {         /* Initialize general-purpose Floating point registers  */
+    /* Initialize Floating point status & control register  */
+    ctx->FPSCR = 0;
+
+    /* Initialize general-purpose Floating point registers  */
+    for (i = 0u; i < 32; i++) {
         ctx->FPU[i] = 0;
     }
-    ctx->FPEXC = 0x40000000;            /* Initialize Floating-Point Exception Register (Enable)*/
+
+    /* Initialize Floating-Point Exception Register (Enable)*/
+    ctx->FPEXC = 0x40000000;
 #endif
     task->task_stack = (void*)ctx;
 }
