@@ -83,6 +83,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     task->ustack_size   = ustack_size;
     task->mode          = 0x3;
     task->pid           = pid;
+    task->is_proc       = 1;
     cpu_binded          = cpu_binded;
     i                   = i;
 
