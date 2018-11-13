@@ -90,8 +90,9 @@ typedef struct Client {
     uint32_t                        packet_id;                                  /* packet id */
     uint32_t                        request_timeout_ms;                         /* request timeout in millisecond */
     uint32_t                        buf_size_send;                              /* send buffer size in byte */
-#if WITH_MQTT_DYN_TXBUF
-    uint32_t                        buf_size_send_max;                              /* send buffer size max limit in byte */
+#if WITH_MQTT_DYN_BUF
+    uint32_t                        buf_size_send_max;                          /* send buffer size max limit in byte */
+    uint32_t                        buf_size_read_max;                          /* recv buffer size max limit in byte */
 #endif
     uint32_t                        buf_size_read;                              /* read buffer size in byte */
     uint8_t                         keepalive_probes;                           /* keepalive probes */
@@ -109,6 +110,7 @@ typedef struct Client {
     void                           *lock_list_pub;                              /* lock for list of QoS1 pub */
     void                           *lock_list_sub;                              /* lock for list of sub/unsub */
     void                           *lock_write_buf;                             /* lock of write */
+    void                           *lock_read_buf;                             /* lock of write */
     void                           *lock_yield;
     iotx_mqtt_event_handle_t        handle_event;                               /* event handle */
     int (*mqtt_auth)(iotx_conn_real_info_t *conn);
