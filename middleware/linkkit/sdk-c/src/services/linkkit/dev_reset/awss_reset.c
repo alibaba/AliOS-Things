@@ -5,12 +5,15 @@
 #include <stdio.h>
 #include <string.h>
 #include "iot_export.h"
-#include "iotx_log.h"
+#include "iotx_utils.h"
 #include "awss_reset.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
+
+#define AWSS_RESET_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "dev_reset")
+#define AWSS_RESET_FREE(ptr)    LITE_free(ptr)
 
 static uint8_t awss_report_reset_suc = 0;
 static uint16_t awss_report_reset_id = 0;
@@ -45,8 +48,9 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
 
 static int awss_report_reset_to_cloud()
 {
-    if (awss_report_reset_suc)
+    if (awss_report_reset_suc) {
         return 0;
+    }
 
     int ret = -1;
     int final_len = 0;
@@ -55,8 +59,9 @@ static int awss_report_reset_to_cloud()
     int packet_len = AWSS_RESET_PKT_LEN;
     int topic_len = AWSS_RESET_TOPIC_LEN;
 
-    if (report_reset_timer == NULL)
+    if (report_reset_timer == NULL) {
         report_reset_timer = HAL_Timer_Create("report_rst", (void (*)(void *))awss_report_reset_to_cloud, NULL);
+    }
     HAL_Timer_Stop(report_reset_timer);
     HAL_Timer_Start(report_reset_timer, 3000);
     do {
@@ -66,23 +71,25 @@ static int awss_report_reset_to_cloud()
         HAL_GetProductKey(pk);
         HAL_GetDeviceName(dn);
 
-        topic = (char *)HAL_Malloc(topic_len + 1);
-        if (topic == NULL)
+        topic = (char *)AWSS_RESET_MALLOC(topic_len + 1);
+        if (topic == NULL) {
             goto REPORT_RST_ERR;
+        }
         memset(topic, 0, topic_len + 1);
 
         snprintf(topic, topic_len, TOPIC_RESET_REPORT_REPLY, pk, dn);
 
         ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0,
-                (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL, 1000);
-        if (ret < 0)
+                                      (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL, 1000);
+        if (ret < 0) {
             goto REPORT_RST_ERR;
+        }
 
         memset(topic, 0, topic_len + 1);
         snprintf(topic, topic_len, TOPIC_RESET_REPORT, pk, dn);
     } while (0);
 
-    packet = HAL_Malloc(packet_len + 1);
+    packet = AWSS_RESET_MALLOC(packet_len + 1);
     if (packet == NULL) {
         ret = -1;
         goto REPORT_RST_ERR;
@@ -101,8 +108,12 @@ static int awss_report_reset_to_cloud()
     log_debug("[RST]", "report reset result:%d\r\n", ret);
 
 REPORT_RST_ERR:
-    if (packet) HAL_Free(packet);
-    if (topic) HAL_Free(topic);
+    if (packet) {
+        AWSS_RESET_FREE(packet);
+    }
+    if (topic) {
+        AWSS_RESET_FREE(topic);
+    }
     return ret;
 }
 

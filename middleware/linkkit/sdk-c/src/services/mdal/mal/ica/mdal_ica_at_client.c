@@ -7,7 +7,10 @@
 #include <string.h>
 #include "mdal_ica_at_client.h"
 #include "mdal_mal_import.h"
-#include "iotx_log.h"
+#include "iotx_utils.h"
+
+#define MDAL_ICA_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "mdal.ica")
+#define MDAL_ICA_FREE(ptr)    LITE_free(ptr)
 
 typedef enum {
     AT_MQTT_IDLE = 0,
@@ -741,7 +744,7 @@ int at_ica_mqtt_client_state(void)
 
 int at_ica_mqtt_client_init(void)
 {
-    g_ica_rsp_buff = HAL_Malloc(AT_MQTT_RSP_MAX_LEN);
+    g_ica_rsp_buff = MDAL_ICA_MALLOC(AT_MQTT_RSP_MAX_LEN);
     if (NULL == g_ica_rsp_buff) {
         mdal_err("at ica mqtt client malloc buff failed");
         return -1;
@@ -749,7 +752,7 @@ int at_ica_mqtt_client_init(void)
 
     if (NULL == (g_sem_response = HAL_SemaphoreCreate())) {
         if (NULL != g_ica_rsp_buff) {
-            HAL_Free(g_ica_rsp_buff);
+            MDAL_ICA_FREE(g_ica_rsp_buff);
 
             g_ica_rsp_buff = NULL;
         }
@@ -786,7 +789,7 @@ int at_ica_mqtt_client_init(void)
 int at_ica_mqtt_client_deinit(void)
 {
     if (NULL != g_ica_rsp_buff) {
-        HAL_Free(g_ica_rsp_buff);
+        MDAL_ICA_FREE(g_ica_rsp_buff);
         g_ica_rsp_buff = NULL;
     }
 

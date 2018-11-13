@@ -3,11 +3,14 @@
  */
 
 #include "iot_import.h"
-#include "iotx_log.h"
+#include "iotx_utils.h"
 
 #include "sal_util.h"
 
 #define TAG "SAL_UTIL"
+
+#define SAL_UTILS_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sal.utils")
+#define SAL_UTILS_FREE(ptr)    LITE_free(ptr)
 
 static sal_ringbuf_t *sal_ringbuf_create(int length);
 static void sal_ringbuf_destroy(sal_ringbuf_t *buffer);
@@ -22,8 +25,8 @@ static int sal_ringbuf_empty(sal_ringbuf_t *buffer);
 
 void *HAL_QueueCreate(void *buf, unsigned int size, int max_msg)
 {
-	(void) buf;
-	(void) max_msg;
+    (void) buf;
+    (void) max_msg;
 
     return sal_ringbuf_create(size);
 }
@@ -54,10 +57,10 @@ static sal_ringbuf_t *sal_ringbuf_create(int length)
     sal_ringbuf_t *ringbuf = NULL;
 
     if (length <= 0) {
-    	return NULL;
+        return NULL;
     }
 
-    ringbuf = HAL_Malloc(sizeof(sal_ringbuf_t));
+    ringbuf = SAL_UTILS_MALLOC(sizeof(sal_ringbuf_t));
     if (ringbuf == NULL) {
         return NULL;
     }
@@ -69,26 +72,26 @@ static sal_ringbuf_t *sal_ringbuf_create(int length)
     }
 
     ringbuf->length = length;
-    ringbuf->buffer = HAL_Malloc((ringbuf->length + 1) * sizeof(void*));
+    ringbuf->buffer = SAL_UTILS_MALLOC((ringbuf->length + 1) * sizeof(void *));
     if (ringbuf->buffer == NULL) {
-       goto err;
+        goto err;
     }
 
     return ringbuf;
 
 err:
     if (ringbuf) {
-       if (ringbuf->buf_sem) {
-       	   HAL_SemaphoreDestroy(ringbuf->buf_sem);
-       	   ringbuf->buf_sem = NULL;
-       }
+        if (ringbuf->buf_sem) {
+            HAL_SemaphoreDestroy(ringbuf->buf_sem);
+            ringbuf->buf_sem = NULL;
+        }
 
-       if (ringbuf->buffer) {
-       	   HAL_Free(ringbuf->buffer);
-       	   ringbuf->buffer = NULL;
-       }
+        if (ringbuf->buffer) {
+            SAL_UTILS_FREE(ringbuf->buffer);
+            ringbuf->buffer = NULL;
+        }
 
-       HAL_Free(ringbuf);
+        SAL_UTILS_FREE(ringbuf);
     }
     return NULL;
 }
@@ -97,8 +100,8 @@ static void sal_ringbuf_clear_all(sal_ringbuf_t *ringbuf)
 {
     while (ringbuf->head != ringbuf->tail) {
         if (((void **)ringbuf->buffer)[ringbuf->head] != NULL) {
-            HAL_Free(((void **)ringbuf->buffer)[ringbuf->head]);
-            ((void **)ringbuf->buffer)[ringbuf->head] = NULL;   
+            SAL_UTILS_FREE(((void **)ringbuf->buffer)[ringbuf->head]);
+            ((void **)ringbuf->buffer)[ringbuf->head] = NULL;
         }
 
         ringbuf->head = (ringbuf->head + 1) % (ringbuf->length + 1);
@@ -111,18 +114,18 @@ static void sal_ringbuf_destroy(sal_ringbuf_t *ringbuf)
 {
     if (ringbuf) {
         if (ringbuf->buf_sem) {
-        	HAL_SemaphoreDestroy(ringbuf->buf_sem);
-        	ringbuf->buf_sem = NULL;
+            HAL_SemaphoreDestroy(ringbuf->buf_sem);
+            ringbuf->buf_sem = NULL;
         }
 
         if (ringbuf->buffer) {
             sal_ringbuf_clear_all(ringbuf);
 
-            HAL_Free(ringbuf->buffer);
+            SAL_UTILS_FREE(ringbuf->buffer);
             ringbuf->buffer = NULL;
         }
 
-        HAL_Free(ringbuf);
+        SAL_UTILS_FREE(ringbuf);
     }
 }
 
@@ -145,7 +148,7 @@ static int sal_ringbuf_write(sal_ringbuf_t *ringbuf, void *data, int size)
 
     if (sal_ringbuf_full(ringbuf)) {
         log_err(TAG, "sal ringbuf full!");
-        return -1; 
+        return -1;
     }
 
     memcpy(&(((void **) ringbuf->buffer)[ringbuf->tail]), data, size);
@@ -157,9 +160,9 @@ static int sal_ringbuf_write(sal_ringbuf_t *ringbuf, void *data, int size)
 }
 
 static int sal_ringbuf_read(sal_ringbuf_t *ringbuf, void *target,
-	                        unsigned int ms, unsigned int *size)
+                            unsigned int ms, unsigned int *size)
 {
-	*size = 0;
+    *size = 0;
 
     if (ringbuf == NULL || target == NULL) {
         return -1;
@@ -171,11 +174,11 @@ static int sal_ringbuf_read(sal_ringbuf_t *ringbuf, void *target,
         return -1;
     }
 
-    memcpy(((void **)target), &((void **)ringbuf->buffer)[ringbuf->head], sizeof(void*));
+    memcpy(((void **)target), &((void **)ringbuf->buffer)[ringbuf->head], sizeof(void *));
     ((void **)ringbuf->buffer)[ringbuf->head] = NULL;
-    *size = sizeof(void*);
+    *size = sizeof(void *);
     ringbuf->head = (ringbuf->head + 1) % (ringbuf->length + 1);
-    
+
     return 0;
 }
 

@@ -1115,10 +1115,10 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
 #if SAL_PACKET_SEND_MODE_ASYNC
     sal_outputbuf_t *buf = NULL;
 #endif
-    err_t           err = ERR_OK;
+    /* err_t           err = ERR_OK;
     ip_addr_t       remote_addr;
     u16_t           remote_port;
-    int8_t          ip_str[SAL_SOCKET_IP4_ADDR_LEN] = {0};
+    int8_t          ip_str[SAL_SOCKET_IP4_ADDR_LEN] = {0}; */
 
     if (NULL == data || size == 0 || size > SAL_SOCKET_MAX_PAYLOAD_SIZE) {
         SAL_ERROR("sal_send fail to data to send is %p or size is %d\n", data, size);
