@@ -1,15 +1,13 @@
 NAME := mbedtls
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
+
 DEBUG := no
 
 ifneq (,$(BINS))
-MBEDTLS_SHARE := 0
-ifeq ($(MBEDTLS_SHARE),1)
-$(NAME)_TYPE := framework&kernel
-else
-$(NAME)_TYPE := kernel
 GLOBAL_DEFINES     += MBEDTLS_IN_KERNEL
-endif
 endif
 
 GLOBAL_INCLUDES     += include

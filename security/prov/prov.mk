@@ -1,14 +1,10 @@
 NAME := libprov
 
-DEBUG := no
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
-ifneq (,$(BINS))
-ifeq ($(MBEDTLS_SHARE),1)
-$(NAME)_TYPE := framework&kernel
-else
-$(NAME)_TYPE := kernel
-endif
-endif
+DEBUG := no
 
 GLOBAL_INCLUDES     += include
 
