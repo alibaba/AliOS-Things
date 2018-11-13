@@ -95,3 +95,12 @@ kstat_t krhino_msg_recv(size_t msq_id, tick_t ticks, void *msg, size_t *msg_sz)
     return ret;
 }
 
+
+kstat_t krhino_msg_del(size_t msq_id)
+{
+    kstat_t ret;
+    ret = krhino_buf_queue_del((kbuf_queue_t *)msq_id);
+
+    return ret;
+}
+
