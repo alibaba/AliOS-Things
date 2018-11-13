@@ -2,7 +2,9 @@ HOST_OPENOCD := dahua
 
 NAME := dahua
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 LWIP := 1
 SAL  := 0

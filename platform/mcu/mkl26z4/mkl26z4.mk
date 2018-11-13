@@ -1,7 +1,9 @@
 HOST_OPENOCD := MKL26Z4
 NAME := mkl26z4impl
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv6m
 $(NAME)_COMPONENTS += rhino libc kernel.fs.kv cli kernel.fs.vfs

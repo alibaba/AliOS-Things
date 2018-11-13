@@ -2,7 +2,9 @@ HOST_OPENOCD := esp32
 
 NAME := esp32
 
-$(NAME)_TYPE := kernel 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS := hal kernel.fs.kv
 $(NAME)_COMPONENTS += network.lwip alicrypto
