@@ -1,17 +1,18 @@
-#include <k_api.h>
-#include <hal/hal.h>
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
+#include <u_api.h>
 
 #define LOOP_ROUND 50
 #define STACK_SIZE 0x400
 
-static char stack[STACK_SIZE];
-
-static ktask_t mutex_task_obj;
+static char     stack[STACK_SIZE];
+static ktask_t  mutex_task_obj;
 static kmutex_t test_mutex;
-
-static bool loop_exit;
-static bool del_mutex;
-static int mutex_cnt;
+static bool     loop_exit;
+static bool     del_mutex;
+static int      mutex_cnt;
 
 static void second_task_run(void *arg)
 {
@@ -43,11 +44,9 @@ int mutex_test(void)
     krhino_mutex_create(&test_mutex, "test_mutex");
 
     stat = krhino_utask_create(&mutex_task_obj, "mutex_test_task", 0,
-                        AOS_DEFAULT_APP_PRI,
-                        (tick_t)0, stack,
-                        STACK_SIZE,
-                        STACK_SIZE,
-                        (task_entry_t)second_task_run, 1);
+                               AOS_DEFAULT_APP_PRI, (tick_t)0, stack,
+                               STACK_SIZE, STACK_SIZE,
+                               (task_entry_t)second_task_run, 1);
 
     if (stat != RHINO_SUCCESS) {
         printf("%s create mutex_test task failed, ret code %d\r\n",
