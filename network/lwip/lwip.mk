@@ -1,6 +1,8 @@
 NAME := lwip
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 ifneq ($(no_with_lwip),1)
 GLOBAL_DEFINES += WITH_LWIP
