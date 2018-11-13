@@ -547,7 +547,7 @@ int nghttp2_submit_altsvc(nghttp2_session *session, uint8_t flags,
   return 0;
 
 fail_item_malloc:
-  free(buf);
+  nghttp2_mem_free(mem, buf);
 
   return rv;
 }
