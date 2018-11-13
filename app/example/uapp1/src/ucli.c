@@ -7,8 +7,8 @@
 
 int cli_getchar(char *ch)
 {
-    int ret;
-    uint32_t recv_size;
+    int        ret;
+    uint32_t   recv_size;
     uart_dev_t uart;
 
     memset(&uart, 0, sizeof(uart));
@@ -25,17 +25,17 @@ int cli_getchar(char *ch)
 
 int cli_init(void)
 {
-    int ret;
+    int        ret;
     uart_dev_t uart;
 
     memset(&uart, 0, sizeof(uart));
-    uart.port = 0;
-    uart.config.baud_rate = 115200;
-    uart.config.data_width = DATA_WIDTH_8BIT;
+    uart.port                = 0;
+    uart.config.baud_rate    = 115200;
+    uart.config.data_width   = DATA_WIDTH_8BIT;
     uart.config.flow_control = FLOW_CONTROL_DISABLED;
-    uart.config.mode = MODE_TX_RX;
-    uart.config.parity = NO_PARITY;
-    uart.config.stop_bits = STOP_BITS_1;
+    uart.config.mode         = MODE_TX_RX;
+    uart.config.parity       = NO_PARITY;
+    uart.config.stop_bits    = STOP_BITS_1;
 
     ret = hal_uart_init(&uart);
 
@@ -65,3 +65,4 @@ void cli_loop(void)
         }
     }
 }
+

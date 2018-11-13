@@ -1,38 +1,39 @@
-#include <k_api.h>
-#include <hal/hal.h>
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
+#include <u_api.h>
 
 #define BUFQ_STACK_SIZE 0x400
 
-static ktask_t bufq_obj;
-cpu_stack_t bufq_stack[BUFQ_STACK_SIZE];
+static ktask_t     bufq_obj;
+static cpu_stack_t bufq_stack[BUFQ_STACK_SIZE];
 
 #define MSG_SIZE  10
 #define MSG_NUM   50
 
-static char bufq_buf[MSG_SIZE*MSG_NUM];
-
+static char         bufq_buf[MSG_SIZE*MSG_NUM];
 static kbuf_queue_t bufq;
 
 #define LOOP_ROUND 10
 
 static ksem_t bufq_sem;
-
-static bool bufq_ready;
-static bool bufq_recv_done;
-static bool bufq_send_exit;
-
-static int send_crc;
-static int recv_crc;
+static bool   bufq_ready;
+static bool   bufq_recv_done;
+static bool   bufq_send_exit;
+static int    send_crc;
+static int    recv_crc;
 
 static void bufq_run(void *arg)
 {
-    arg = arg;
-    char *recv_buf = NULL;
-    unsigned int num = 0;
+    unsigned int  num;
+    char         *recv_buf;
 
-
+    arg            = arg;
     bufq_recv_done = 0;
-    recv_crc = 0;
+    recv_crc       = 0;
+    num            = 0;
+    recv_buf       = NULL;
 
     while (bufq_ready == 0) {
         krhino_task_sleep(1);
@@ -58,6 +59,7 @@ static void bufq_run(void *arg)
             printf("reev buf overflow, reev 0x%x bytes\r\n", num);
             break;
         }
+
         for (int j = 0; j < num; j++) {
             recv_crc += recv_buf[j];
         }
@@ -76,11 +78,11 @@ static void bufq_run(void *arg)
 
 int buf_queue_test(void)
 {
-    kstat_t stat;
-    int ret = 0;
-    char *send_buf = NULL;
+    kstat_t  stat;
+    int      ret      = 0;
+    char    *send_buf = NULL;
 
-    bufq_ready = 0;
+    bufq_ready     = 0;
     bufq_send_exit = 0;
 
     stat = krhino_sem_create(&bufq_sem, "bufq_sem", 0);
@@ -89,16 +91,10 @@ int buf_queue_test(void)
         goto out;
     }
 
-    stat = krhino_utask_create(&bufq_obj,
-                               "bufq_test",
-                               0,
-                               AOS_DEFAULT_APP_PRI - 1,
-                               (tick_t)0,
-                               bufq_stack,
-                               BUFQ_STACK_SIZE,
-                               BUFQ_STACK_SIZE,
-                               (task_entry_t)bufq_run,
-                               1);
+    stat = krhino_utask_create(&bufq_obj, "bufq_test", 0,
+                               AOS_DEFAULT_APP_PRI - 1, (tick_t)0,
+                               bufq_stack, BUFQ_STACK_SIZE, BUFQ_STACK_SIZE,
+                               (task_entry_t)bufq_run, 1);
 
     if (stat != RHINO_SUCCESS) {
         printf("create buf queue task failed, ret 0x%x\r\n",
@@ -106,9 +102,8 @@ int buf_queue_test(void)
         return -2;
     }
 
-    stat = krhino_fix_buf_queue_create(&bufq, "bufq_test",
-                                bufq_buf, MSG_SIZE,
-                                MSG_NUM);
+    stat = krhino_fix_buf_queue_create(&bufq, "bufq_test", bufq_buf,
+                                       MSG_SIZE, MSG_NUM);
     if (stat != RHINO_SUCCESS) {
         ret = -3;
         goto out;
@@ -117,8 +112,8 @@ int buf_queue_test(void)
     bufq_ready = 1;
     krhino_task_sleep(1);
 
+    char ch  = 'a';
     send_crc = 0;
-    char ch = 'a';
     for (int i = 0; i < LOOP_ROUND; i++) {
         send_buf = malloc(MSG_SIZE + 1);
         if (NULL == send_buf) {
@@ -178,3 +173,4 @@ int buf_queue_test(void)
 out:
     return ret;
 }
+
