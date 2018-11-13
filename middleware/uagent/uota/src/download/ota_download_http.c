@@ -139,7 +139,6 @@ static int ota_download_start(char *url)
     int                  header_found = 0;
     char                *pos          = 0;
     int                  file_size    = 0;
-    ota_hash_t           last_hash    = {0};
     ota_hash_param_t    *hash_ctx     = NULL;
     char                *host_file    = NULL;
     char                *host_addr    = NULL;
@@ -183,9 +182,6 @@ static int ota_download_start(char *url)
             return ret;
         }
     }
-    breakpoint = ota_get_break_point();
-    memset(&last_hash, 0x00, sizeof(last_hash));
-    ota_get_last_hash((char *)&last_hash);
     http_buffer = ota_malloc(OTA_BUFFER_MAX_SIZE);
     if(NULL == http_buffer) {
         OTA_LOG_E("memory fail\n ");
@@ -199,12 +195,13 @@ static int ota_download_start(char *url)
         goto END;;
     }
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    if (breakpoint && (strncmp((char*)&last_hash, ota_get_service()->h_tr->hash, OTA_HASH_LEN) == 0)) {
+    if(ota_breakpoint_is_valid() == 0) {
+        breakpoint = ota_get_break_point();
         OTA_LOG_I("download start breakpoint:%d", breakpoint);
         sprintf(http_buffer, HTTP_HEADER_RESUME, host_file, breakpoint, host_addr, port);
         ota_get_last_hash_ctx(hash_ctx);
-    } else {
-        breakpoint = 0;
+    }
+    else {
         sprintf(http_buffer, HTTP_HEADER, host_file, host_addr, port);
         if (ota_hash_init(hash_ctx->hash_method, hash_ctx->ctx_hash) < 0) {
             OTA_LOG_E("ota sign init fail \n ");
@@ -287,7 +284,7 @@ static int ota_download_start(char *url)
             ret = OTA_UPGRADE_FAIL;
             goto END;
         }
-        ret = ota_hal_write(NULL,http_buffer, nbytes);
+        ret = ota_hal_write(NULL, http_buffer, nbytes);
         if (ret < 0) {
             OTA_LOG_I("write error:%d\n", ret);
             ret = OTA_UPGRADE_FAIL;
