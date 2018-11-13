@@ -58,7 +58,7 @@ const char *domain_http_auth_pre[] = {
 #define GUIDER_DIRECT_DOMAIN_ITLS       "itls.cn-shanghai.aliyuncs.com"
 
 static int iotx_guider_region = 0;
-char iotx_domain_custom[GUIDER_DOMAIN_MAX][CUSTOME_DOMAIN_LEN_MAX] = {0};
+char iotx_domain_custom[GUIDER_DOMAIN_MAX][CUSTOME_DOMAIN_LEN_MAX] = {{0}};
 
 int iotx_guider_set_region(int region_type)
 {
