@@ -22,6 +22,9 @@
 #include "mbedtls/net_sockets.h"
 #include "iotx_hal_internal.h"
 
+#define HAL_DTLS_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "hal.dtls")
+#define HAL_DTLS_FREE(ptr)    LITE_free(ptr)
+
 #define DTLS_TRC(...)    HAL_Printf("[trc] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_DUMP(...)   HAL_Printf("[dump] "), HAL_Printf(__VA_ARGS__)
 #define DTLS_DEBUG(...)  HAL_Printf("[dbg] "), HAL_Printf(__VA_ARGS__)
@@ -69,7 +72,7 @@ void *_DTLSCalloc_wrapper( size_t n, size_t size )
         return NULL;
     }
 
-    buf = malloc(n * size + sizeof(mbedtls_mem_info_t));
+    buf = HAL_DTLS_MALLOC(n * size + sizeof(mbedtls_mem_info_t));
     if (NULL == buf) {
         return NULL;
     } else {
@@ -109,7 +112,7 @@ void _DTLSFree_wrapper( void *ptr )
     /* DTLS_TRC("INFO mbedtls free: %p %d  total used: %d  max used: %d\r\n",
                        ptr, mem_info->size, mbedtls_mem_used, mbedtls_max_mem_used);*/
 
-    free(mem_info);
+    HAL_DTLS_FREE(mem_info);
 }
 
 #else
@@ -117,7 +120,7 @@ static  void *_DTLSCalloc_wrapper(size_t n, size_t s)
 {
     void *ptr = NULL;
     size_t len = n * s;
-    ptr = HAL_Malloc(len);
+    ptr = HAL_DTLS_MALLOC(len);
     if (NULL != ptr) {
         memset(ptr, 0x00, len);
     }
@@ -127,7 +130,7 @@ static  void *_DTLSCalloc_wrapper(size_t n, size_t s)
 static  void _DTLSFree_wrapper(void *ptr)
 {
     if (NULL != ptr) {
-        HAL_Free(ptr);
+        HAL_DTLS_FREE(ptr);
         ptr = NULL;
     }
 }
@@ -265,7 +268,7 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
 #ifdef DTLS_SESSION_SAVE
         if(0 == result){
             if(NULL == saved_session){
-                saved_session = HAL_Malloc(sizeof(mbedtls_ssl_session));
+                saved_session = HAL_DTLS_MALLOC(sizeof(mbedtls_ssl_session));
             }
             if(NULL != saved_session){
                 memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
@@ -282,7 +285,7 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
 dtls_session_t *_DTLSSession_init()
 {
     dtls_session_t *p_dtls_session = NULL;
-    p_dtls_session = HAL_Malloc(sizeof(dtls_session_t));
+    p_dtls_session = HAL_DTLS_MALLOC(sizeof(dtls_session_t));
 
     mbedtls_debug_set_threshold(0);
 #ifdef MBEDTLS_MEM_TEST
@@ -329,7 +332,7 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
 
         mbedtls_ctr_drbg_free(&p_dtls_session->ctr_drbg);
         mbedtls_entropy_free(&p_dtls_session->entropy);
-        HAL_Free(p_dtls_session);
+        HAL_DTLS_FREE(p_dtls_session);
     }
 
     return DTLS_SUCCESS;
