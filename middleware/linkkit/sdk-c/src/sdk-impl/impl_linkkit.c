@@ -11,7 +11,7 @@
 #include "iotx_utils.h"
 #include "iotx_dm.h"
 
-#define IMPL_LINKKIT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "impl_linkkit")
+#define IMPL_LINKKIT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "impl.linkkit")
 #define IMPL_LINKKIT_FREE(ptr)    LITE_free(ptr)
 
 #define IOTX_LINKKIT_KEY_ID          "id"
