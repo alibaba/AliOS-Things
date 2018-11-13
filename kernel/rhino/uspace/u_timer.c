@@ -27,7 +27,7 @@ static void timer_list_pri_insert(klist_t *head, ktimer_t *timer)
     ktimer_t  *task_iter_temp;
 
     start = end = head;
-    val = timer->remain;
+    val   = timer->remain;
 
     for (q = start->next; q != end; q = q->next) {
         task_iter_temp = krhino_list_entry(q, ktimer_t, timer_list);
@@ -116,6 +116,7 @@ kstat_t krhino_timer_del(ktimer_t *timer)
     cb.cb_num = TIMER_CMD_DEL;
     err = krhino_buf_queue_send(&u_timer_queue, &cb,
                                 sizeof(k_timer_queue_cb));
+
     return err;
 }
 
@@ -156,8 +157,7 @@ kstat_t krhino_timer_dyn_del(ktimer_t *timer)
 
     cb.timer  = timer;
     cb.cb_num = TIMER_CMD_DYN_DEL;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb,
-                                sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
 
     return err;
 }
@@ -172,8 +172,8 @@ kstat_t krhino_timer_start(ktimer_t *timer)
 
     cb.timer  = timer;
     cb.cb_num = TIMER_CMD_START;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb,
-                                sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+
     return err;
 }
 
@@ -186,8 +186,8 @@ kstat_t krhino_timer_stop(ktimer_t *timer)
 
     cb.timer  = timer;
     cb.cb_num = TIMER_CMD_STOP;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb,
-                                sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+
     return err;
 }
 
@@ -215,8 +215,8 @@ kstat_t krhino_timer_change(ktimer_t *timer, sys_time_t first,
     cb.first   = first;
     cb.u.round = round;
     cb.cb_num  = TIMER_CMD_CHG;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb,
-                                sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+
     return err;
 }
 
@@ -230,8 +230,8 @@ kstat_t krhino_timer_arg_change(ktimer_t *timer, void *arg)
     cb.timer  = timer;
     cb.u.arg  = arg;
     cb.cb_num = TIMER_ARG_CHG;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb,
-                                sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+
     return err;
 }
 
@@ -242,12 +242,12 @@ kstat_t krhino_timer_arg_change_auto(ktimer_t *timer, void *arg)
 
     NULL_PARA_CHK(timer);
 
-    cb.timer   = timer;
+    cb.timer  = timer;
     cb.u.arg  = arg;
     cb.cb_num = TIMER_ARG_CHG_AUTO;
 
-    err = krhino_buf_queue_send(&u_timer_queue, &cb,
-                                sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+
     return err;
 }
 
@@ -287,6 +287,7 @@ static void timer_cb_proc(void)
 static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
 {
     ktimer_t *timer;
+
     timer = cb->timer;
 
     switch (cmd) {
@@ -458,21 +459,15 @@ void timer_init(void)
 {
     klist_init(&u_timer_head);
 
-    krhino_fix_buf_queue_create(&u_timer_queue,
-                                "timer_queue",
-                                u_timer_queue_cb,
-                                sizeof(u_timer_queue_cb),
+    krhino_fix_buf_queue_create(&u_timer_queue, "timer_queue",
+                                u_timer_queue_cb, sizeof(u_timer_queue_cb),
                                 RHINO_CONFIG_TIMER_MSG_NUM);
 
-    krhino_utask_create(&u_timer_task,
-                        "timer_task",
-                        NULL,
-                        RHINO_CONFIG_TIMER_TASK_PRI,
-                        (tick_t)0u,
+    krhino_utask_create(&u_timer_task, "timer_task", NULL,
+                        RHINO_CONFIG_TIMER_TASK_PRI, (tick_t)0u,
                         u_timer_task_stack,
                         RHINO_CONFIG_TIMER_TASK_STACK_SIZE, // ustack
                         RHINO_CONFIG_TIMER_TASK_STACK_SIZE, // kstack
-                        timer_task,
-                        1u);
+                        timer_task, 1u);
 }
 
