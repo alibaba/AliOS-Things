@@ -10,6 +10,9 @@
 #include "iotx_utils.h"
 #include "report.h"
 
+#define SYS_REPORT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys_report")
+#define SYS_REPORT_FREE(ptr)    LITE_free(ptr)
+
 #ifdef VERSION_REPORT_DEBUG
     #define VERSION_DEBUG(...) log_debug("version", __VA_ARGS__)
 #else
@@ -132,16 +135,16 @@ int iotx_report_devinfo(void *pclient)
     char network_interfaces[NIF_STRLEN_MAX] = {0};
     char *msg = NULL;
     int  msg_len = 0;
- 
 
-    if(info_report_func == NULL) {
+
+    if (info_report_func == NULL) {
         VERSION_ERR("report func not register!");
         return -1;
     }
 
     iotx_device_info_t dev;
     ret = iotx_device_info_get(&dev);
-    if(ret < 0) {
+    if (ret < 0) {
         VERSION_ERR("get device info err");
         return ret;
     }
@@ -196,7 +199,7 @@ int iotx_report_devinfo(void *pclient)
 
     msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + 10 + strlen(LINKKIT_VERSION) + AOS_ACTIVE_INFO_LEN + \
               + strlen(network_interfaces) + 1;
-    msg = (char *)HAL_Malloc(msg_len);
+    msg = (char *)SYS_REPORT_MALLOC(msg_len);
     if (msg == NULL) {
         VERSION_ERR("malloc err");
         return FAIL_RETURN;
@@ -214,16 +217,16 @@ int iotx_report_devinfo(void *pclient)
                       );
     if (ret <= 0) {
         VERSION_ERR("topic msg generate err");
-        HAL_Free(msg);
+        SYS_REPORT_FREE(msg);
         return FAIL_RETURN;
     }
     VERSION_DEBUG("devinfo report data: %s", msg);
 
-    if(info_report_func != NULL) {
+    if (info_report_func != NULL) {
         info_report_func(pclient, topic_name, 1, msg, strlen(msg));
     }
 
-    HAL_Free(msg);
+    SYS_REPORT_FREE(msg);
     if (ret < 0) {
         VERSION_ERR("publish failed, ret = %d", ret);
         return FAIL_RETURN;
@@ -241,15 +244,15 @@ int iotx_report_firmware_version(void *pclient)
     char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
     //iotx_mqtt_topic_info_t topic_info;
     char version[FIRMWARE_VERSION_MAXLEN] = {0};
-    
-    if(info_report_func == NULL) {
+
+    if (info_report_func == NULL) {
         VERSION_ERR("report func not register!");
         return -1;
     }
 
     iotx_device_info_t dev;
     ret = iotx_device_info_get(&dev);
-    if(ret < 0) {
+    if (ret < 0) {
         VERSION_ERR("get device info err");
         return ret;
     }
@@ -289,7 +292,7 @@ int iotx_report_firmware_version(void *pclient)
     VERSION_DEBUG("firmware report data: %s", msg);
 
     ret = info_report_func(pclient, topic_name, 1, msg, strlen(msg));
-  
+
     if (ret < 0) {
         VERSION_ERR("publish failed");
         return FAIL_RETURN;
@@ -309,14 +312,14 @@ int iotx_report_mid(void *pclient)
     char                        pid[PID_STRLEN_MAX + 1] = {0};
     char                        mid[MID_STRLEN_MAX + 1] = {0};
 
-    if(info_report_func == NULL) {
+    if (info_report_func == NULL) {
         VERSION_ERR("report func not register!");
         return -1;
     }
 
     iotx_device_info_t dev;
     ret = iotx_device_info_get(&dev);
-    if(ret < 0) {
+    if (ret < 0) {
         VERSION_ERR("get device info err");
         return ret;
     }
@@ -339,7 +342,7 @@ int iotx_report_mid(void *pclient)
                          dev.product_key,
                          dev.device_name);
     /* 1,generate json data */
-    char *msg = HAL_Malloc(MIDREPORT_PAYLOAD_LEN);
+    char *msg = SYS_REPORT_MALLOC(MIDREPORT_PAYLOAD_LEN);
     if (NULL == msg) {
         VERSION_ERR("allocate mem failed");
         return FAIL_RETURN;
@@ -363,18 +366,18 @@ int iotx_report_mid(void *pclient)
 
     if (ret < 0) {
         VERSION_ERR("generate topic name of info failed");
-        HAL_Free(msg);
+        SYS_REPORT_FREE(msg);
         return FAIL_RETURN;
     }
 
     ret = info_report_func(pclient, topic_name, 1, msg, strlen(msg));
     if (ret < 0) {
         VERSION_ERR("publish failed, ret = %d", ret);
-        HAL_Free(msg);
+        SYS_REPORT_FREE(msg);
         return FAIL_RETURN;
     }
 
-    HAL_Free(msg);
+    SYS_REPORT_FREE(msg);
 
     VERSION_DEBUG("MID Report: finished, IOT_MQTT_Publish() = %d", ret);
     return SUCCESS_RETURN;

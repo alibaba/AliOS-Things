@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 #define IMPL_NTP_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "impl_ntp")
-#define IMPL_NTP_FREE(ptr)    {LITE_free(ptr);ptr = NULL;}
+#define IMPL_NTP_FREE(ptr)    LITE_free(ptr)
 
 typedef void (*ntp_reply_cb_t)(const char *);
 static ntp_reply_cb_t g_ntp_reply_cb = NULL;
