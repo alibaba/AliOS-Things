@@ -863,7 +863,7 @@ int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
     INIT_LIST_HEAD(&subdev_item->linked_list);
 
     HAL_MutexLock(adapter->mutex);
-    list_add(&adapter->alcs_subdev_list, &subdev_item->linked_list);
+    list_add_tail(&subdev_item->linked_list, &adapter->alcs_subdev_list);
     HAL_MutexUnlock(adapter->mutex);
 
     alcs_localsetup_add_sub_device(adapter, subdev_item->product_key, subdev_item->device_name);
@@ -872,7 +872,7 @@ int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
     char prefix[ALCS_MQTT_PREFIX_MAX_LEN] = {0};
     char secret[ALCS_MQTT_SECRET_MAX_LEN] = {0};
 
-    res = alcs_mqtt_prefix_secret_laod(pk, strlen(pk), dn, strlen(dn), prefix, secret);
+    res = alcs_mqtt_prefix_secret_load(pk, strlen(pk), dn, strlen(dn), prefix, secret);
     if (res == SUCCESS_RETURN) {
         memcpy(subdev_item->prefix, prefix, strlen(prefix));
         memcpy(subdev_item->secret, secret, strlen(secret));
