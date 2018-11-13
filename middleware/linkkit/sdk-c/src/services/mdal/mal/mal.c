@@ -101,8 +101,8 @@ static char mal_mc_is_topic_matched(char *topicFilter, const char *topicName)
         return 0;
     }
     char *curf = topicFilter;
-    char *curn = topicName;
-    char *curn_end = curn + strlen(topicName);
+    const char *curn = topicName;
+    const char *curn_end = curn + strlen(topicName);
 
     while (*curf && curn < curn_end) {
         if (*curn == '/' && *curf != '/') {
@@ -115,7 +115,7 @@ static char mal_mc_is_topic_matched(char *topicFilter, const char *topicName)
 
         if (*curf == '+') {
             /* skip until we meet the next separator, or end of string */
-            char *nextpos = curn + 1;
+            const char *nextpos = curn + 1;
             while (nextpos < curn_end && *nextpos != '/') {
                 nextpos = ++curn + 1;
             }
@@ -788,8 +788,9 @@ static int mal_mc_release(iotx_mc_client_t *pClient)
     return SUCCESS_RETURN;
 }
 
-#define GUIDER_DEFAULT_TS_STR       "2524608000000"
+#ifndef MAL_ICA_ENABLED
 
+#define GUIDER_DEFAULT_TS_STR       "2524608000000"
 static void guider_get_timestamp_str(char *buf, int len)
 {
     HAL_Snprintf(buf, len, "%s", GUIDER_DEFAULT_TS_STR);
@@ -829,6 +830,7 @@ static int _calc_hmac_signature(
     memcpy(hmac_sigbuf, signature, hmac_buflen);
     return 0;
 }
+#endif /* MAL_ICA_ENABLED */
 
 int iotx_mdal_get_auth_username_passwd(char* username, char* password)
 {
