@@ -2,6 +2,8 @@ NAME := developerkit_syscall
 
 
 $(NAME)_MBINS_TYPE   := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 SUPPORT_MBINS 	     := yes
 MODULE               := 1062
 HOST_ARCH            := Cortex-M4

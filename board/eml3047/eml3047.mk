@@ -2,7 +2,9 @@ NAME := board_eml3047
 
 JTAG := jlink_swd
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 MODULE               := 1062
 HOST_ARCH            := Cortex-M0
 HOST_MCU_FAMILY      := stm32l0xx.stm32l071kb
