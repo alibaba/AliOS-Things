@@ -156,6 +156,26 @@ typedef void ( DioIrqHandler )( void );
  */
 #define XTAL_FREQ                                   32000000
 #define FREQ_STEP                                   61.03515625
+#define FREQ_STEP_8                                 15625 /* FREQ_STEP<<8 */
+
+/* Freq = channel * FREQ_STEP */
+#define SX_CHANNEL_TO_FREQ(channel, Freq) do{                                                                     \
+                                             uint32_t initialChanInt, initialChanFrac;                            \
+                                             initialChanInt = channel  >>8;                                       \
+                                             initialChanFrac= channel - (initialChanInt<<8);                      \
+                                             Freq = initialChanInt * FREQ_STEP_8 + ((initialChanFrac * FREQ_STEP_8 + (128))>>8); \
+                                            }while (0)
+
+
+/* channel = Freq / FREQ_STEP */
+#define SX_FREQ_TO_CHANNEL(channel, Freq) do{                                                                     \
+                                             uint32_t initialFreqInt, initialFreqFrac;                            \
+                                             initialFreqInt = Freq / FREQ_STEP_8;                                 \
+                                             initialFreqFrac= Freq - (initialFreqInt * FREQ_STEP_8);              \
+                                             channel = (initialFreqInt<<8)+ (((initialFreqFrac<<8)+(FREQ_STEP_8/2))/FREQ_STEP_8); \
+                                            }while (0)
+
+
 
 #define RX_BUFFER_SIZE                              256
 
