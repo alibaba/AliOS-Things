@@ -151,6 +151,7 @@ LoRaMacFCntHandlerStatus_t LoRaMacGetFCntDown( AddressIdentifier_t addrID, FType
     switch( addrID )
     {
         case UNICAST_DEV_ADDR:
+            #ifdef LORAWAN_VERSION_110
             if( lrWanVersion.Fields.Minor == 1 )
             {
                 if( ( fType == FRAME_TYPE_A ) || ( fType == FRAME_TYPE_D ) )
@@ -165,6 +166,7 @@ LoRaMacFCntHandlerStatus_t LoRaMacGetFCntDown( AddressIdentifier_t addrID, FType
                 }
             }
             else
+            #endif
             { // For LoRaWAN 1.0.X
                 *fCntID = FCNT_DOWN;
                 previousDown = FCntHandlerNvmCtx.FCntList.FCntDown;
