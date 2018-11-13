@@ -86,6 +86,21 @@ int ota_set_cur_hash(char *value)
     return ota_kv_set(KEY_OTA_HASH, value, 66, 1);
 }
 
+int ota_breakpoint_is_valid()
+{
+    int breakpoint_is_valid = -1;
+    int tmp_breakpoint = 0;
+    ota_hash_t last_hash  = {0};
+
+    tmp_breakpoint = ota_get_break_point();
+    memset(&last_hash, 0x00, sizeof(last_hash));
+    ota_get_last_hash((char *)&last_hash);
+    if (tmp_breakpoint && (strncmp((char*)&last_hash, ota_get_service()->h_tr->hash, OTA_HASH_LEN) == 0)) {
+        breakpoint_is_valid = 0;
+    }
+    return breakpoint_is_valid;
+}
+
 int ota_get_last_hash_ctx(ota_hash_param_t *hash_ctx)
 {
     int ret = 0;

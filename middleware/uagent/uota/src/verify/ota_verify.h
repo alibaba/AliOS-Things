@@ -39,6 +39,7 @@ int          ota_get_break_point(void);
 int          ota_malloc_hash_ctx(OTA_HASH_E type);
 int          ota_check_hash(OTA_HASH_E hash_type, char* hash);
 int          ota_set_break_point(int offset);
+int          ota_breakpoint_is_valid(void);
 int          ota_get_last_hash_ctx(ota_hash_param_t *hash_ctx);
 int          ota_set_cur_hash_ctx(ota_hash_param_t *hash_ctx);
 int          ota_get_last_hash(char *value);
