@@ -314,6 +314,6 @@ int linkkit_main(void *paras)
     mqtt_rrpc_client();
 
     EXAMPLE_TRACE("out of sample!\n");
-
-    return 0;
+    IOT_SetLogLevel(IOT_LOG_NONE);
+    return 0;   
 }
