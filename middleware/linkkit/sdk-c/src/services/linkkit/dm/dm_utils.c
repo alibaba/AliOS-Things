@@ -411,10 +411,10 @@ int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN
 
 void *dm_utils_malloc(unsigned int size)
 {
-    return DM_malloc(size);
+    return LITE_malloc(size, MEM_MAGIC, "lite_cjson");
 }
 
 void dm_utils_free(void *ptr)
 {
-    DM_free(ptr);
+    LITE_free(ptr);
 }
