@@ -1,5 +1,8 @@
 NAME := gatewayapp
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 
 ifeq ($(PT_SCANNER),1)

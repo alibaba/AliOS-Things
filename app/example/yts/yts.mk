@@ -1,5 +1,8 @@
 NAME := yts
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := main.c
 $(NAME)_COMPONENTS := testcase rhino.test log kernel.fs.vfs yloop hal
 

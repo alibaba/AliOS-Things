@@ -1,4 +1,9 @@
 NAME := http2app
+
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
+
 $(NAME)_SOURCES := app_entry.c   http2_example_stream.c
 
 $(NAME)_COMPONENTS += feature.linkkit-http2 \

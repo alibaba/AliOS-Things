@@ -1,5 +1,8 @@
 NAME := littlevgl_starterkit
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := littlevgl_starterkit.c AliOS_Things_logo.c
 
 GLOBAL_DEFINES += LITTLEVGL_STARTERKIT

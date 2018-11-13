@@ -1,5 +1,8 @@
 NAME := ldapp
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES    := ldapp.c
 
 $(NAME)_COMPONENTS := cli sensor cjson middleware.uagent.uota netmgr middleware.common feature.linkkit-mqtt

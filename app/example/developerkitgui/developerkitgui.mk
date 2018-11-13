@@ -1,5 +1,8 @@
 NAME := developerkitgui
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := developerkitgui.c AliOS_Things_logo.c sensor_display.c house.c weather.c
 
 $(NAME)_COMPONENTS := yloop cli

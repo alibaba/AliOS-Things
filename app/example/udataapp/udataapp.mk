@@ -1,6 +1,10 @@
 NAME := udataapp
-$(NAME)_SOURCES :=   udata_example.c
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
+
+$(NAME)_SOURCES :=   udata_example.c
 $(NAME)_COMPONENTS := cli yloop middleware.common device.sensor middleware.udata
 #GLOBAL_DEFINES += LITTLEVGL_DEVELOPERKIT
 GLOBAL_INCLUDES += ./
