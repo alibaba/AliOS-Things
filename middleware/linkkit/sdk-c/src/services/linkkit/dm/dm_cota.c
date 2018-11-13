@@ -5,6 +5,10 @@
 #include "iotx_dm_internal.h"
 
 #ifdef OTA_ENABLED
+
+#define DM_COTA_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "dm.cota")
+#define DM_COTA_FREE(ptr)    LITE_free(ptr)
+
 static dm_cota_ctx_t g_dm_cota_ctx;
 
 static dm_cota_ctx_t *_dm_cota_get_ctx(void)
@@ -80,19 +84,19 @@ static int _dm_cota_send_new_config_to_user(void *ota_handle)
     res = SUCCESS_RETURN;
 ERROR:
     if (config_id) {
-        free(config_id);
+        DM_COTA_FREE(config_id);
     }
     if (sign) {
-        free(sign);
+        DM_COTA_FREE(sign);
     }
     if (sign_method) {
-        free(sign_method);
+        DM_COTA_FREE(sign_method);
     }
     if (url) {
-        free(url);
+        DM_COTA_FREE(url);
     }
     if (get_type) {
-        free(get_type);
+        DM_COTA_FREE(get_type);
     }
 
     return res;

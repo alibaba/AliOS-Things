@@ -7,8 +7,14 @@
 
 #include "nghttp2_session.h"
 
+#include "iotx_utils.h"
+
+#define NGHTTP2_OPTION_MALLOC(size)         LITE_malloc(size, MEM_MAGIC, "nghttp2.option")
+#define NGHTTP2_OPTION_CALLOC(num, size)    LITE_calloc(num, size, MEM_MAGIC, "nghttp2.option")
+#define NGHTTP2_OPTION_FREE(ptr)            LITE_free(ptr)
+
 int nghttp2_option_new(nghttp2_option **option_ptr) {
-  *option_ptr = calloc(1, sizeof(nghttp2_option));
+  *option_ptr = NGHTTP2_OPTION_CALLOC(1, sizeof(nghttp2_option));
 
   if (*option_ptr == NULL) {
     return NGHTTP2_ERR_NOMEM;
@@ -17,7 +23,7 @@ int nghttp2_option_new(nghttp2_option **option_ptr) {
   return 0;
 }
 
-void nghttp2_option_del(nghttp2_option *option) { free(option); }
+void nghttp2_option_del(nghttp2_option *option) { NGHTTP2_OPTION_FREE(option); }
 
 void nghttp2_option_set_no_auto_window_update(nghttp2_option *option, int val) {
   option->opt_set_mask |= NGHTTP2_OPT_NO_AUTO_WINDOW_UPDATE;

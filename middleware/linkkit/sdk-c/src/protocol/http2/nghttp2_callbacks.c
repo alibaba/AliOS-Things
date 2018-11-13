@@ -6,9 +6,14 @@
 #include "nghttp2_callbacks.h"
 
 #include <stdlib.h>
+#include "iotx_utils.h"
+
+#define NGHTTP2_CB_MALLOC(size)         LITE_malloc(size, MEM_MAGIC, "nghttp2.cb")
+#define NGHTTP2_CB_CALLOC(num, size)    LITE_calloc(num, size, MEM_MAGIC, "nghttp2.cb")
+#define NGHTTP2_CB_FREE(ptr)    LITE_free(ptr)
 
 int nghttp2_session_callbacks_new(nghttp2_session_callbacks **callbacks_ptr) {
-  *callbacks_ptr = calloc(1, sizeof(nghttp2_session_callbacks));
+  *callbacks_ptr = NGHTTP2_CB_CALLOC(1, sizeof(nghttp2_session_callbacks));
 
   if (*callbacks_ptr == NULL) {
     return NGHTTP2_ERR_NOMEM;
@@ -18,7 +23,7 @@ int nghttp2_session_callbacks_new(nghttp2_session_callbacks **callbacks_ptr) {
 }
 
 void nghttp2_session_callbacks_del(nghttp2_session_callbacks *callbacks) {
-  free(callbacks);
+  NGHTTP2_CB_FREE(callbacks);
 }
 
 void nghttp2_session_callbacks_set_send_callback(

@@ -12,6 +12,9 @@
     #error "NOT support yet!"
 #endif
 
+#define OTA_API_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "ota.api")
+#define OTA_API_FREE(ptr)    LITE_free(ptr)
+
 typedef struct  {
     const char *product_key;    /* point to product key */
     const char *device_name;    /* point to device name */
@@ -762,7 +765,7 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
                 h_ota->err = IOT_OTAE_INVALID_PARAM;
                 return -1;
             } else {
-                *value = malloc(strlen(h_ota->configId) + 1);
+                *value = OTA_API_MALLOC(strlen(h_ota->configId) + 1);
                 if (*value == NULL) {
                     h_ota->err = IOT_OTAE_INVALID_PARAM;
                     return -1;
@@ -791,7 +794,7 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
                 h_ota->err = IOT_OTAE_INVALID_PARAM;
                 return -1;
             } else {
-                *value = malloc(strlen(h_ota->sign) + 1);
+                *value = OTA_API_MALLOC(strlen(h_ota->sign) + 1);
                 if (*value == NULL) {
                     h_ota->err = IOT_OTAE_INVALID_PARAM;
                     return -1;
@@ -809,7 +812,7 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
                 h_ota->err = IOT_OTAE_INVALID_PARAM;
                 return -1;
             } else {
-                *value = malloc(strlen(h_ota->signMethod) + 1);
+                *value = OTA_API_MALLOC(strlen(h_ota->signMethod) + 1);
                 if (*value == NULL) {
                     h_ota->err = IOT_OTAE_INVALID_PARAM;
                     return -1;
@@ -827,7 +830,7 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
                 h_ota->err = IOT_OTAE_INVALID_PARAM;
                 return -1;
             } else {
-                *value = malloc(strlen(h_ota->cota_url) + 1);
+                *value = OTA_API_MALLOC(strlen(h_ota->cota_url) + 1);
                 if (*value == NULL) {
                     h_ota->err = IOT_OTAE_INVALID_PARAM;
                     return -1;
@@ -845,7 +848,7 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
                 h_ota->err = IOT_OTAE_INVALID_PARAM;
                 return -1;
             } else {
-                *value = malloc(strlen(h_ota->getType) + 1);
+                *value = OTA_API_MALLOC(strlen(h_ota->getType) + 1);
                 if (*value == NULL) {
                     h_ota->err = IOT_OTAE_INVALID_PARAM;
                     return -1;

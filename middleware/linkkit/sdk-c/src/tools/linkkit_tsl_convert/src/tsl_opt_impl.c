@@ -271,13 +271,13 @@ int tsl_format_opt_convert(const char *src_filename, const char *dst_filename, i
     ret = 0;
 do_exit:
     if (p_unformat_json) {
-        free(p_unformat_json);
+        HAL_Free(p_unformat_json);
     }
     if (cjson) {
         cJSON_Delete(cjson);
     }
     if (src_buf) {
-        free(src_buf);
+        HAL_Free(src_buf);
     }
     return ret;
 }
@@ -293,7 +293,7 @@ int tsl_format_opt_dump(const char *filename)
     buf = tsl_read_from_file(filename, &size);
     if(buf) {
         TFormat_printf("[OK] conv tsl:\n%s\n", buf);
-        free(buf);
+        HAL_Free(buf);
         ret = 0;
     }else {
         TFormat_printf("[ERR] fopen(%s) failed\n", filename);
