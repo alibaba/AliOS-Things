@@ -348,7 +348,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &hue, &value_str);
         if (value_str) {
-            free(value_str);
+            HAL_Free(value_str);
             value_str = NULL;
         }
 
@@ -359,7 +359,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &saturation, &value_str);
         if (value_str) {
-            free(value_str);
+            HAL_Free(value_str);
             value_str = NULL;
         }
 
@@ -370,7 +370,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &value, &value_str);
         if (value_str) {
-            free(value_str);
+            HAL_Free(value_str);
             value_str = NULL;
         }
 
@@ -385,7 +385,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &hue, &value_str);
         if (value_str) {
-            free(value_str);
+            HAL_Free(value_str);
             value_str = NULL;
         }
 
@@ -396,7 +396,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &saturation, &value_str);
         if (value_str) {
-            free(value_str);
+            HAL_Free(value_str);
             value_str = NULL;
         }
 
@@ -407,7 +407,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &lightness, &value_str);
         if (value_str) {
-            free(value_str);
+            HAL_Free(value_str);
             value_str = NULL;
         }
 
@@ -422,7 +422,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &red, &value_str);
         if (value_str) {
-            free(value_str);
+            HAL_Free(value_str);
             value_str = NULL;
         }
 
@@ -433,7 +433,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &green, &value_str);
         if (value_str) {
-            free(value_str);
+            HAL_Free(value_str);
             value_str = NULL;
         }
 
@@ -443,7 +443,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &blue, &value_str);
         if (value_str) {
-            free(value_str);
+            HAL_Free(value_str);
             value_str = NULL;
         }
 
