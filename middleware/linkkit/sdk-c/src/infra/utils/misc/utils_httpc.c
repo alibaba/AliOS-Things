@@ -529,7 +529,10 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
         }
 
         utils_debug("Total-Payload: %d Bytes; Read: %d Bytes", readLen, len);
-        int failureCount = 0;
+        unsigned int deadLoopCount = 0;
+        unsigned int extendCount = 0;
+        const unsigned int EXTEND_TIMEOUT = 20;
+        const unsigned int MAX_RETRY_COUNT = 3000;
         do {
             templen = HTTPCLIENT_MIN(len, readLen);
             if (count + templen < client_data->response_buf_len - 1) {
@@ -558,20 +561,39 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
                 int ret;
                 int max_len = HTTPCLIENT_MIN(HTTPCLIENT_CHUNK_SIZE - 1, client_data->response_buf_len - 1 - count);
                 max_len = HTTPCLIENT_MIN(max_len, readLen);
+
+                /* if timeout reduce to zero, it will be translated into NULL for select function in TLS lib */
+                /* it would lead to indenfinite behavior, so we avoid it */
+                if (iotx_time_left(&timer) < EXTEND_TIMEOUT) {
+                    extendCount++;
+                    utils_time_countdown_ms(&timer, EXTEND_TIMEOUT);
+                    if (1 == extendCount % 100) {
+                        utils_debug("extend countdown_ms to avoid NULL input to select, tired %d times", extendCount);
+                    }
+                }
+
                 ret = httpclient_recv(client, data, 1, max_len, &len, iotx_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
                 }
-                /* if failed to download for multiple times, exit */
+
+                /* if it falls into deadloop before reconnected to internet, we just quit*/
                 if ((0 == len) && (0 == iotx_time_left(&timer)) && (FAIL_RETURN == ret)) {
-                    failureCount++;
-                    if (failureCount > 10) {
-                        utils_err("failed to download data multitimes, exit");
+                    deadLoopCount++;
+                    if (deadLoopCount > MAX_RETRY_COUNT) {
+                        utils_err("deadloop detected, exit");
                         return ret;
                     }
                 } else {
-                    failureCount = 0;
+                    deadLoopCount = 0;
                 }
+
+                /*if the internet connection is fixed during the loop, the download stream might be disconnected. we have to quit */
+                if ((0 == len) && (extendCount > 2 * MAX_RETRY_COUNT) && (FAIL_RETURN == ret)) {
+                    utils_err("extend timer for too many times, exit");
+                    return ERROR_HTTP_CONN;
+                }
+
             }
         } while (readLen);
 
