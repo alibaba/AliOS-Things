@@ -22,7 +22,6 @@ typedef struct {
 typedef struct {
     char module_name[32];
     calling_stack_t calling_stack;
-
     int bytes_total_allocated;
     int bytes_total_freed;
     int bytes_total_in_use;
@@ -42,6 +41,7 @@ typedef struct {
 #endif
 
 #if WITH_MEM_STATS
+    static void *mutex_mem_stats = NULL;
     static int bytes_total_allocated;
     static int bytes_total_freed;
     static int bytes_total_in_use;
@@ -296,6 +296,8 @@ void *LITE_malloc_internal(const char *f, const int l, int size, ...)
         return NULL;
     }
 
+    HAL_MutexLock(mutex_mem_stats);
+
     iterations_allocated += 1;
     bytes_total_allocated += size;
     bytes_total_in_use += size;
@@ -316,6 +318,7 @@ void *LITE_malloc_internal(const char *f, const int l, int size, ...)
     pos = UTILS_malloc(sizeof(OS_malloc_record));
     if (NULL == pos) {
         UTILS_free(ptr);
+        HAL_MutexUnlock(mutex_mem_stats);
         return NULL;
     }
     memset(pos, 0, sizeof(OS_malloc_record));
@@ -363,8 +366,8 @@ void *LITE_malloc_internal(const char *f, const int l, int size, ...)
         LITE_printf("\r\n");
     }
 #endif
-
     memset(ptr, 0, size);
+    HAL_MutexUnlock(mutex_mem_stats);
     return ptr;
 #else
     ptr = UTILS_malloc(size);
@@ -385,6 +388,8 @@ void LITE_free_internal(void *ptr)
     if (!ptr) {
         return;
     }
+
+    HAL_MutexLock(mutex_mem_stats);
 
     pos = NULL;
     list_for_each_entry_safe(pos, next, &mem_recs, list, OS_malloc_record) {
@@ -422,6 +427,7 @@ void LITE_free_internal(void *ptr)
         list_del(&pos->list);
         UTILS_free(pos);
     }
+    HAL_MutexUnlock(mutex_mem_stats);
 #endif
     UTILS_free(ptr);
 }
@@ -600,3 +606,9 @@ void LITE_dump_malloc_free_stats(int level)
     return;
 }
 
+#if WITH_MEM_STATS
+void **LITE_get_mem_mutex(void)
+{
+    return &mutex_mem_stats;
+}
+#endif
