@@ -20,10 +20,10 @@
 #define DEFAULT_TIMEOUT_MS 5000
 
 // on line
-#define IOTX_PRODUCT_KEY         "a1lf3jzTFAQ"
-#define IOTX_DEVICE_NAME         "test005"
-#define IOTX_DEVICE_SECRET       "OfsAtYGAE6llQYPMB74Xs2aB9N10pHmg"
-#define IOTX_DEVICE_ID           "a1lf3jzTFAQ.test005"
+#define IOTX_PRODUCT_KEY         "a13Npv1vjZ4"
+#define IOTX_DEVICE_NAME         "example_zc"
+#define IOTX_DEVICE_SECRET       "ZlexLJ4G0aXiSwkGmUFWuZBLLySKcG8h"
+#define IOTX_DEVICE_ID           "a13Npv1vjZ4.example_zc"
 
 static char request_buf[MAX_BUF_LEN];
 static char response_buf[MAX_BUF_LEN];
