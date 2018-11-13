@@ -3,7 +3,7 @@
 #include "iotx_cm_internal.h"
 #include "iot_export_event.h"
 
-#ifdef MQTT_COMM_ENABLED
+#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED) 
 #include "iotx_cm_mqtt.h"
 #endif
 #ifdef COAP_COMM_ENABLED
