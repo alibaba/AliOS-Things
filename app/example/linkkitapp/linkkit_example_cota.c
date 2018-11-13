@@ -139,6 +139,9 @@ int linkkit_main(void *paras)
     }
 
     IOT_Linkkit_Close(user_example_ctx->master_devid);
+
+    IOT_SetLogLevel(IOT_LOG_NONE);
+
     return 0;
 }
 #endif

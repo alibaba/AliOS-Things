@@ -506,6 +506,8 @@ int linkkit_main(void *paras)
 
     EXAMPLE_TRACE("out of example!\n");
 
+    IOT_SetLogLevel(IOT_LOG_NONE);
+
     return 0;
 }
 #endif

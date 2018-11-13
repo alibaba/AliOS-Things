@@ -509,6 +509,7 @@ int linkkit_main(void *paras)
     IOT_Linkkit_Close(user_example_ctx->master_devid);
     HAL_ThreadDelete(user_example_ctx->g_user_dispatch_thread);
 
+    IOT_SetLogLevel(IOT_LOG_NONE);
     return 0;
 }
 #endif
