@@ -242,9 +242,7 @@ int iotx_alcs_adapter_deinit(void)
         LITE_free(adapter->alcs_event_handle);
     }
 
-    if (adapter->mutex) {
-        HAL_MutexDestroy(adapter->mutex);
-    }
+    HAL_MutexDestroy(adapter->mutex);
 
     alcs_mqtt_deinit(adapter->coap_ctx, product_key, device_name);
 
