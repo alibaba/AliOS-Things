@@ -13,6 +13,9 @@ void dyn_mem_proc_task(void *arg)
     kstat_t     ret;
     res_free_t *res_free;
     res_free_t  tmp;
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    ktask_t    *task;
+#endif
 
     (void)arg;
 
@@ -28,6 +31,10 @@ void dyn_mem_proc_task(void *arg)
                 res_free = krhino_list_entry(g_res_list.next, res_free_t, res_list);
                 klist_rm(&res_free->res_list);
                 RHINO_CRITICAL_EXIT();
+#if (RHINO_CONFIG_USER_SPACE > 0)
+                task = (ktask_t *)(res_free->res[1]);
+                k_proc_unload(task->pid);
+#endif
                 memcpy(&tmp, res_free, sizeof(res_free_t));
                 for (i = 0; i < tmp.cnt; i++) {
                     krhino_mm_free(tmp.res[i]);
