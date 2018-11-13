@@ -1,5 +1,8 @@
 NAME := gpsapp
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := gpsapp_sample.c
 
 $(NAME)_COMPONENTS := cli network.sal.atparser cjson middleware.uagent.uota netmgr middleware.common device.gps middleware.udata connectivity.mqtt

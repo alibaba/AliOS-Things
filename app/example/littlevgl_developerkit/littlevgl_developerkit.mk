@@ -1,5 +1,8 @@
 NAME := littlevgl_developerkit
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := littlevgl_developerkit.c AliOS_Things_logo.c sensor_display.c
 
 GLOBAL_DEFINES += LITTLEVGL_DEVELOPERKIT

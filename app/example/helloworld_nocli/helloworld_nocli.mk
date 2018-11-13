@@ -1,5 +1,8 @@
 NAME := helloworld_nocli
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := helloworld_nocli.c
 
 GLOBAL_DEFINES += AOS_NO_WIFI

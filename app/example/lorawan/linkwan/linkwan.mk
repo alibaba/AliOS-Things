@@ -1,5 +1,8 @@
 NAME := linkwan
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 GLOBAL_INCLUDES += .
 
 linkwan := 1

@@ -1,5 +1,8 @@
 NAME := cpp_demo
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := cpp_demo.cpp
 $(NAME)_SOURCES += thread_test.cpp
 $(NAME)_SOURCES += timer_test.cpp

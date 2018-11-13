@@ -1,6 +1,10 @@
 NAME := comboapp
-$(NAME)_SOURCES := comboapp.c
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
+
+$(NAME)_SOURCES := comboapp.c
 $(NAME)_COMPONENTS += feature.linkkit
 
 $(NAME)_COMPONENTS += network/netmgr \

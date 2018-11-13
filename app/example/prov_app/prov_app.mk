@@ -1,5 +1,8 @@
 NAME := prov_app
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := prov_app.c
 
 $(NAME)_COMPONENTS := prov prov.test

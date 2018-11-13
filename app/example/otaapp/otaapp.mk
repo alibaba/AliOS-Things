@@ -1,4 +1,9 @@
 NAME := otaapp
+
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
+
 $(NAME)_SOURCES := otaapp.c \
 
 $(NAME)_COMPONENTS += feature.linkkit-mqtt \

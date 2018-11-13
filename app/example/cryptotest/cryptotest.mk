@@ -1,5 +1,8 @@
 NAME := cryptotest
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := cryptotest.c
 
 TESTPATH := ../../../security/alicrypto

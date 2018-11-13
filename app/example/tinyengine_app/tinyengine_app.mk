@@ -1,5 +1,8 @@
 NAME := tinyengine_app
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := tinyengine_app.c
 
 GLOBAL_DEFINES += OSAL_RHINO
