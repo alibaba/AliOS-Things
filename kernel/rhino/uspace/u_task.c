@@ -4,8 +4,6 @@
 
 #include <k_api.h>
 
-#if (RHINO_CONFIG_USER_SPACE > 0)
-
 static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
                            uint8_t prio, tick_t ticks, cpu_stack_t *ustack_buf,
                            size_t ustack_size, cpu_stack_t *kstack_buf, size_t kstack_size,
@@ -131,13 +129,15 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     }
 
     RHINO_CRITICAL_EXIT();
+
     return RHINO_SUCCESS;
 }
 
 static kstat_t utask_create(ktask_t *task, const name_t *name, void *arg,
-                        uint8_t pri, tick_t ticks, cpu_stack_t *ustack_buf,
-                        size_t ustack, size_t kstack, task_entry_t entry,
-                        uint8_t cpu_num, uint8_t cpu_binded, uint32_t pid, uint8_t autorun)
+                            uint8_t pri, tick_t ticks, cpu_stack_t *ustack_buf,
+                            size_t ustack, size_t kstack, task_entry_t entry,
+                            uint8_t cpu_num, uint8_t cpu_binded, uint32_t pid,
+                            uint8_t autorun)
 {
     kstat_t      ret;
     cpu_stack_t *ktask_stack;
@@ -166,10 +166,11 @@ static kstat_t utask_create(ktask_t *task, const name_t *name, void *arg,
 }
 
 kstat_t krhino_utask_create(ktask_t *task, const name_t *name, void *arg,
-                               uint8_t pri, tick_t ticks, cpu_stack_t *ustack_buf,
-                               size_t ustack, size_t kstack, task_entry_t entry, uint8_t autorun)
+                            uint8_t pri, tick_t ticks, cpu_stack_t *ustack_buf,
+                            size_t ustack, size_t kstack, task_entry_t entry, uint8_t autorun)
 {
     ktask_t *cur_task;
+
     cur_task = krhino_cur_task_get();
 
     return utask_create(task, name, arg, pri, ticks, ustack_buf,
@@ -184,7 +185,4 @@ kstat_t krhino_uprocess_create(ktask_t *task, const name_t *name, void *arg,
     return utask_create(task, name, arg, pri, ticks, ustack_buf,
                         ustack, kstack, entry, 0, 0, pid, autorun);
 }
-
-
-#endif // RHINO_CONFIG_USER_SPACE
 

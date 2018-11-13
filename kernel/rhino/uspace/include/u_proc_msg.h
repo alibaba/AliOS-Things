@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+
 #ifndef U_PROC_H
 #define U_PROC_H
 
@@ -9,5 +10,5 @@ kstat_t krhino_msg_snd(size_t msq_id, void *msg, size_t msg_sz);
 kstat_t krhino_msg_recv(size_t msq_id, tick_t ticks, void *msg, size_t *msg_sz);
 kstat_t krhino_msg_del(size_t msq_id);
 
-#endif
+#endif /* U_PROC_H */
 
