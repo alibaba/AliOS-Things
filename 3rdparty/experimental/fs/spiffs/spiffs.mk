@@ -1,6 +1,8 @@
 NAME := spiffs
 
-$(NAME)_TYPE        := kernel
+$(NAME)_MBINS_TYPE        := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES     +=  spiffs_port.c \
                         spiffs/spiffs_cache.c \
