@@ -126,7 +126,7 @@ void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...
     return temp;
 
 #else
-    return realloc(ptr, size);
+    return HAL_Realloc(ptr, size);
 #endif
 }
 
