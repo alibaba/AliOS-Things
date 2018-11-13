@@ -11,11 +11,21 @@
 #include <errno.h>
 
 #include "iot_import.h"
+#include "iotx_utils.h"
 #include "Cloud_CoAPExport.h"
 #include "iot_import_dtls.h"
 #include "Cloud_CoAPNetwork.h"
 
 #ifdef COAP_DTLS_SUPPORT
+static void *Cloud_CoAPDTLS_Malloc(uint32_t size)
+{
+    return LITE_malloc(size, MEM_MAGIC, "dtls");
+}
+static void Cloud_CoAPDTLS_Free(void *ptr)
+{
+    LITE_free(ptr);
+}
+
 static void Cloud_CoAPNetworkDTLS_freeSession(void *p_session);
 
 unsigned int Cloud_CoAPNetworkDTLS_read(void *p_session,
@@ -75,7 +85,14 @@ void *Cloud_CoAPNetworkDTLS_createSession(char *p_host,
         unsigned char         *p_ca_cert_pem)
 {
     DTLSContext *context = NULL;
+    dtls_hooks_t dtls_hooks;
     coap_dtls_options_t dtls_options;
+
+    memset(&dtls_hooks, 0, sizeof(dtls_hooks_t));
+    dtls_hooks.malloc = Cloud_CoAPDTLS_Malloc;
+    dtls_hooks.free = Cloud_CoAPDTLS_Free;
+
+    HAL_DTLSHooks_set(&dtls_hooks);
 
     memset(&dtls_options, 0x00, sizeof(coap_dtls_options_t));
     dtls_options.p_ca_cert_pem     = p_ca_cert_pem;

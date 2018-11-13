@@ -8,6 +8,7 @@
 
 #include "iot_import.h"
 #include "iot_export.h"
+#include "iotx_utils.h"
 #include "utils_net.h"
 #include "iotx_utils_internal.h"
 
@@ -51,6 +52,15 @@ static int connect_tcp(utils_network_pt pNetwork)
 
 /*** SSL connection ***/
 #ifdef SUPPORT_TLS
+static void *ssl_malloc(uint32_t size)
+{
+    return LITE_malloc(size, MEM_MAGIC, "tls");
+}
+static void ssl_free(void *ptr)
+{
+    LITE_free(ptr);
+}
+
 static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
@@ -86,10 +96,18 @@ static int disconnect_ssl(utils_network_pt pNetwork)
 
 static int connect_ssl(utils_network_pt pNetwork)
 {
+    ssl_hooks_t ssl_hooks;
+
     if (NULL == pNetwork) {
         utils_err("network is null");
         return 1;
     }
+
+    memset(&ssl_hooks, 0, sizeof(ssl_hooks_t));
+    ssl_hooks.malloc = ssl_malloc;
+    ssl_hooks.free = ssl_free;
+
+    HAL_SSLHooks_set(&ssl_hooks);
 
     if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
             pNetwork->pHostAddress,
