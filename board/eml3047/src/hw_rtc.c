@@ -707,7 +707,7 @@ TimerTime_t HW_RTC_TempCompensation( TimerTime_t period, float temperature )
     interim = ( ( float ) period * ppm ) / 1e6;
     // Calculate the resulting time period
     interim += period;
-    interim = floor( interim );
+    interim = floorf( interim );
 
     if( interim < 0.0 )
     {
