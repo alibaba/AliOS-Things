@@ -8,18 +8,17 @@
 
 #define APP_STACK_SIZE 0x400
 
-static ktask_t app_obj;
-
-cpu_stack_t app_stack[APP_STACK_SIZE];
+static ktask_t     app_obj;
+static cpu_stack_t app_stack[APP_STACK_SIZE];
 
 static void app_run(void *arg)
 {
-    int cnt = 0;
-
+    int    cnt = 0;
 #ifdef ENABLE_PROC_MSG
     size_t msg_id;
-    char msg[20];
+    char   msg[20];
     size_t size;
+
     msg_id = krhino_msg_get(0x1234, 0, 1024);
 #endif
 
@@ -31,9 +30,7 @@ static void app_run(void *arg)
         if (msg_id) {
             size = 0;
             memset(msg, 0, 20);
-            krhino_msg_recv(msg_id,
-                             RHINO_WAIT_FOREVER,
-                             msg, &size);
+            krhino_msg_recv(msg_id, RHINO_WAIT_FOREVER, msg, &size);
             if (size) {
                 printf("app2 recv %d bytes: %s\r\n",size, msg);
             } else {
@@ -52,13 +49,9 @@ int application_start(int argc, char *argv[])
 
     printf("uapp2 start to run\r\n");
 
-    krhino_utask_create(&app_obj, "application2", 0,
-                        AOS_DEFAULT_APP_PRI,
-                        (tick_t)0, app_stack,
-                        APP_STACK_SIZE,
-                        APP_STACK_SIZE,
-                        (task_entry_t)app_run,
-                        1);
+    krhino_utask_create(&app_obj, "application2", 0, AOS_DEFAULT_APP_PRI,
+                        (tick_t)0, app_stack, APP_STACK_SIZE,APP_STACK_SIZE,
+                        (task_entry_t)app_run, 1);
 
     while (1) {
         krhino_task_sleep(200);

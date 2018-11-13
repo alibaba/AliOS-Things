@@ -1,23 +1,22 @@
-#include <k_api.h>
-#include <hal/hal.h>
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
+#include <u_api.h>
 
 #define LOOP_ROUND 10
 #define STACK_SIZE 0x400
 
-static char stack[STACK_SIZE];
-
+static char    stack[STACK_SIZE];
 static ktask_t task_obj;
-ksem_t client_server_sem;
-
-static bool server_loop_exit;
-static bool client_loop_exit;
-
-static int client_loop_cnt;
+static ksem_t  client_server_sem;
+static bool    server_loop_exit;
+static bool    client_loop_exit;
+static int     client_loop_cnt;
 
 static int basic_test(void)
 {
-    int ret = 0;
-
+    int    ret = 0;
     ksem_t sem;
 
     if (RHINO_SUCCESS != krhino_sem_create(&sem, "test_sem", 1)) {
@@ -123,16 +122,10 @@ static int client_server_test(void)
         return -8;
     }
 
-    stat = krhino_utask_create(&task_obj,
-                               "sem_test_task",
-                               0,
-                               AOS_DEFAULT_APP_PRI,
-                               (tick_t)0,
-                               stack,
-                               STACK_SIZE,
-                               STACK_SIZE,
-                               (task_entry_t)client_task_run,
-                               1);
+    stat = krhino_utask_create(&task_obj, "sem_test_task", 0,
+                               AOS_DEFAULT_APP_PRI, (tick_t)0,
+                               stack, STACK_SIZE, STACK_SIZE,
+                               (task_entry_t)client_task_run, 1);
 
     if (RHINO_SUCCESS != stat) {
         ret = -9;
@@ -182,3 +175,4 @@ int semphore_test(void)
         return ret;
     }
 }
+

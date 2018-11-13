@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 #include <syscall_test.h>
 
 /* run function @f, compare the return value with @e */
@@ -26,3 +30,4 @@ void run_test_case(void)
     RUN_TEST_CASE(time_test, 0);
     RUN_TEST_CASE(buf_queue_test, 0);
 }
+

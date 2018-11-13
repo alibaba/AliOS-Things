@@ -1,6 +1,9 @@
 NAME := uapp2
 
+$(NAME)_TYPE := app
+
 $(NAME)_MBINS_TYPE := app
+
 $(NAME)_VERSION := 0.0.1
 $(NAME)_SUMMARY :=
 

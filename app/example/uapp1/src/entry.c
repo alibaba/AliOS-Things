@@ -20,7 +20,7 @@ extern unsigned int _app_type;
 #define UTASK_KSTACK_SIZE 0x200
 
 static cpu_stack_t ustack[UTASK_USTACK_SIZE];
-static ktask_t task_struct;
+static ktask_t     task_struct;
 
 extern int application_start(int argc, char **argv);
 
@@ -32,7 +32,7 @@ void app_entry(int argc, char *argv[])
 
     /* init app private heap */
     mm_start = &_app_heap_start;
-    mm_size = (size_t)&_app_heap_end - (size_t)&_app_heap_start;
+    mm_size  = (size_t)&_app_heap_end - (size_t)&_app_heap_start;
     if (NULL == umm_init(mm_start, mm_size)) {
         return;
     }
@@ -45,14 +45,14 @@ void app_entry(int argc, char *argv[])
 }
 
 __attribute__ ((used, section(".app_info"))) uapp_info_t app_info = {
-    APP_INFO_MAGIC,
+     APP_INFO_MAGIC,
     &_app_type,
     &task_struct,
-    app_entry,
-    ustack,
-    UTASK_USTACK_SIZE,
-    UTASK_KSTACK_SIZE,
-    AOS_DEFAULT_APP_PRI,
+     app_entry,
+     ustack,
+     UTASK_USTACK_SIZE,
+     UTASK_KSTACK_SIZE,
+     AOS_DEFAULT_APP_PRI,
     &_app_text_flash_start,
     &_app_text_flash_end,
     &_app_data_ram_start,
@@ -62,6 +62,6 @@ __attribute__ ((used, section(".app_info"))) uapp_info_t app_info = {
     &_app_bss_end,
     &_app_heap_start,
     &_app_heap_end,
-    0, 0, 0, 0
+     0, 0, 0, 0
 };
 

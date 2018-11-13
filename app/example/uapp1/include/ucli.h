@@ -13,4 +13,4 @@ int cli_deinit(void);
 
 void cli_loop(void);
 
-#endif // UCLI_H
+#endif /* UCLI_H */
