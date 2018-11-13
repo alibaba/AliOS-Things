@@ -287,13 +287,13 @@ ifneq ($(ONLY_BUILD_LIBRARY), yes)
 endif
 
 ifeq ($(MBINS),app)
-COMPONENTS += mbins.umbins rhino.syscall.usyscall
+COMPONENTS += mbins.umbins
 COMPONENTS += rhino.mm
 COMPONENTS += rhino.uspace
 AOS_SDK_DEFINES += BUILD_APP
 AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush -nostartfiles
 else ifeq ($(MBINS),kernel)
-COMPONENTS += mbins.kmbins rhino.syscall.ksyscall
+COMPONENTS += mbins.kmbins
 COMPONENTS += rhino.uspace
 AOS_SDK_DEFINES += BUILD_KERNEL
 else ifeq (,$(MBINS))
