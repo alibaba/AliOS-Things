@@ -1203,12 +1203,14 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     }
 
     // Is it a LoRaWAN 1.1.0 or later ?
+    #ifdef LORAWAN_VERSION_110
     if( macMsg->DLSettings.Bits.OptNeg == 1 )
     {
         CryptoCtx.LrWanVersion.Fields.Minor = 1;
         micComputationKeyID = J_S_INT_KEY;
     }
     else
+    #endif
     {
         CryptoCtx.LrWanVersion.Fields.Minor = 0;
         micComputationKeyID = APP_KEY;
@@ -1225,6 +1227,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
             return retval;
         }
     }
+    #ifdef LORAWAN_VERSION_110
     else
     {
         // For 1.1 and later:
@@ -1293,6 +1296,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         }
     }
     else
+    #endif
     {
         // prior LoRaWAN 1.1.0
 
@@ -1362,6 +1366,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
             return retval;
         }
 
+#ifdef LORAWAN_VERSION_110
         if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
         {
             // Encrypt FOpts
@@ -1371,6 +1376,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
                 return retval;
             }
         }
+#endif
     }
     CryptoCtx.NvmCtx->FCntUp = fCntUp;
     CryptoCtx.EventCryptoNvmCtxChanged( );
@@ -1382,6 +1388,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
     }
 
     // Compute mic
+#ifdef LORAWAN_VERSION_110
     if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
     {
         uint32_t cmacS = 0;
@@ -1403,6 +1410,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
         macMsg->MIC = ( ( cmacF << 16 ) & 0xFFFF0000 ) | ( cmacS & 0x0000FFFF );
     }
     else
+#endif
     {
         // MIC = cmacF[0..3]
         // The IsAck parameter is every time false since the ConfFCnt field is not used in legacy mode.
@@ -1486,6 +1494,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
         return retval;
     }
 
+    #ifdef LORAWAN_VERSION_110
     if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
     {
         // Decrypt FOpts
@@ -1495,6 +1504,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
             return retval;
         }
     }
+    #endif
 
     UpdateFCntDown( fCntID, fCntDown );
 
