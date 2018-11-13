@@ -2,7 +2,9 @@ NAME := board_mk3080
 
 JTAG := jlink_swd
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 MODULE               := AmebaZ
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := rtl8710bn

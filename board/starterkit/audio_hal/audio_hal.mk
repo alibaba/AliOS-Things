@@ -1,5 +1,8 @@
 NAME := audio_hal
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := nau8810.c audio.c
 
 GLOBAL_INCLUDES += include

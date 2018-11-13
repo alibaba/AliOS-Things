@@ -1,5 +1,8 @@
 NAME := board_evkbimxrt1050
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 MODULE              := 1050
 HOST_ARCH           := Cortex-M7
 HOST_MCU_FAMILY     := mimxrt1052
