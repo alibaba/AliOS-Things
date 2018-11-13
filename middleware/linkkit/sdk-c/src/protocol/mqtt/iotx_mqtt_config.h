@@ -11,8 +11,8 @@
     #define WITH_MQTT_JSON_FLOW                 (0)
 #endif
 
-#ifndef WITH_MQTT_DYN_TXBUF
-    #define WITH_MQTT_DYN_TXBUF                 (0)
+#ifndef WITH_MQTT_DYN_BUF
+    #define WITH_MQTT_DYN_BUF                 (0)
 #endif
 
 #ifndef WITH_MQTT_QOS2_PACKET
