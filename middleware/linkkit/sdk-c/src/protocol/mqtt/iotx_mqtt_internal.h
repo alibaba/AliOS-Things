@@ -22,41 +22,16 @@
 #define mqtt_info(...)              log_info("MQTT", __VA_ARGS__)
 #define mqtt_debug(...)             log_debug("MQTT", __VA_ARGS__)
 
-#define mqtt_malloc(...)            LITE_malloc(__VA_ARGS__, MEM_MAGIC, "mqtt")
-#define mqtt_free                   LITE_free
 
-#define MQTT_DYNBUF_MARGIN                      (64)
-#define MQTT_CONNECT_REQUIRED_BUFLEN            (256)
+#define mqtt_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")
+#define mqtt_realloc(p,size)         LITE_realloc(p ,size, MEM_MAGIC, "mqtt")
+#define mqtt_free                    LITE_free
 
-#if WITH_MQTT_DYN_TXBUF
-#define RESET_SERIALIZE_BUF(cli, b, s)          do { \
-        LITE_free(cli->b); \
-        cli->b = NULL; \
-        cli->s = 0; \
-    } while (0)
+#define MQTT_DYNBUF_SEND_MARGIN                      (64)
 
-#define ALLOC_SERIALIZE_BUF(cli, b, s, m, l, n)    do { \
-        int     tmpbuf_len = 0; \
-        tmpbuf_len = l + MQTT_DYNBUF_MARGIN; \
-        tmpbuf_len = tmpbuf_len < cli->m?tmpbuf_len:cli->m; \
-        if (cli->b) { \
-            mqtt_warning("NOT USING pre-malloced buf %p, malloc per packet", cli->b); \
-        } \
-        cli->b = LITE_malloc(tmpbuf_len, MEM_MAGIC, "mqtt"); \
-        if (NULL == cli->b) { \
-            mqtt_err("Unable to allocate %d bytes for '%s', abort!", tmpbuf_len, (n)?(n):""); \
-            break;  \
-        } \
-        cli->s = tmpbuf_len; \
-        mqtt_debug("ALLOC: (%d) / [%d] @ %p", l, cli->s, cli->b); \
-    } while (0)
+#define MQTT_DYNBUF_RECV_MARGIN                      (8)
 
-/* ALLOC: (required payload_len) / [allocated payload_len] @memory address */
-
-#else
-#define ALLOC_SERIALIZE_BUF(cli, b, s, m, l, n)
-#define RESET_SERIALIZE_BUF(cli, b, s)
-#endif
+#define MQTT_CONNECT_REQUIRED_BUFLEN                 (256)
 
 /* MQTT send publish packet */
 
