@@ -79,6 +79,22 @@ int LITE_get_loglevel(void)
 void LITE_set_loglevel(int pri)
 {
     logcb.priority = pri;
+
+#if WITH_MEM_STATS
+    void **mutex = LITE_get_mem_mutex();
+    if (pri != LOG_NONE_LEVEL) {
+        if (*mutex == NULL) {
+            *mutex = HAL_MutexCreate();
+            if (*mutex == NULL) {
+                LITE_printf("\nCreate memStats mutex error\n");
+            }
+        }
+    }
+    else if (*mutex != NULL){
+        HAL_MutexDestroy(*mutex);
+        *mutex = NULL;
+    }
+#endif
 }
 
 void LITE_rich_hexdump(const char *f, const int l,
