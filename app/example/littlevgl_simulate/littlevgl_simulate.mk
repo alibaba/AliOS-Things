@@ -1,5 +1,8 @@
 NAME := littlevgl_simulate
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := littlevgl_simulate.c
 
 GLOBAL_DEFINES += LITTLEVGL_SIMULATE
