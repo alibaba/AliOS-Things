@@ -2,7 +2,9 @@ NAME := bk7231
 
 HOST_OPENOCD := bk7231
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS := platform/arch/arm/armv5
 $(NAME)_COMPONENTS += libc rhino yloop kernel.fs.kv alicrypto digest_algorithm

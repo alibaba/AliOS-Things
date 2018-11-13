@@ -5,7 +5,9 @@ HOST_OPENOCD := imx6dq
 # Host architecture is ARM Cortex A9
 HOST_ARCH := Cortex-A9
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7a
 $(NAME)_COMPONENTS += libc rhino hal middleware.common

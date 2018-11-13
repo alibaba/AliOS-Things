@@ -5,7 +5,9 @@ HOST_OPENOCD := e310
 # Host architecture is RISC-V
 HOST_ARCH := RISC-V
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS += platform/arch/risc-v/risc_v32I
 $(NAME)_COMPONENTS += libc rhino hal middleware.common

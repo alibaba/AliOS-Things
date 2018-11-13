@@ -5,7 +5,9 @@ HOST_OPENOCD := mx1101
 
 SPI_WIFI_ENABLED := true
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 # $(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
