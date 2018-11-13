@@ -62,28 +62,27 @@
 /**********************************************
 *                        MACRO DEFINED
 **********************************************/
-// ortex-A9, ARMv7 VFPv4-D16
+/* ortex-A9, ARMv7 VFPv4-D16 */
 .macro POP_FP_REG reg
     POP     {\reg}
-    // Pop FPEXC.
+    /* Pop FPEXC. */
     VMSR    FPEXC, \reg
     VPOP    {D0-D15}
     POP     {\reg}
-    // Pop FPSCR.
+    /* Pop FPSCR. */
     VMSR    FPSCR, \reg
 .endm
 
 .macro PUSH_FP_REG reg
-    // Save FPSCR.
+    /* Save FPSCR. */
     VMRS    \reg, FPSCR
-    // Save floating-point registers.
+    /* Save floating-point registers. */
     PUSH    {\reg}
     VPUSH   {D0-D15}
-    // Save FPEXC.
+    /* Save FPEXC. */
     VMRS    \reg, FPEXC
     PUSH    {\reg}
 .endm
-
 
 .macro getcoreid reg
     mrc   p15, 0, \reg, c0, c0, 5
@@ -92,21 +91,21 @@
 
 .extern syscall_tbl
 
-
 .text
 .global SVC_Handler
 .type SVC_Handler, function
 SVC_Handler:
-    // which stack are we running on???
-    // we are using the task's kstack which was set
-    // when task are scheded in.
+    /* which stack are we running on???
+     * we are using the task's kstack which was set
+     * when task are scheded in.
+     */
 
-    // {spsr, r0 ... r12, sp, lr, pc}
+    /* {spsr, r0 ... r12, sp, lr, pc} */
     sub     sp, sp, #(REG_SIZE - REG_R0)
     stmia   sp, {r0-r12}
     mrs     r2, spsr
     push    {r2}
-    //       {spsr, r0 ... r12} is done
+    /*       {spsr, r0 ... r12} is done */
 
     mov     r4, sp
     add     r1, sp, #REG_SP
@@ -114,28 +113,26 @@ SVC_Handler:
     cmp     r2, #USER_MODE
     bne     .svc_enter_svc
 
-    // come from user mode
-    // save user mode sp and lr
+    /* come from user mode */
+    /* save user mode sp and lr */
     stmia   r1!, {sp, lr}^
     b       .store_pc
 
 .svc_enter_svc:
-    // save svc mode sp and lr
+    /* save svc mode sp and lr */
     add     r2, r4, #REG_SIZE
     stmia   r1!, {r2, lr}
 
 .store_pc:
-    //      stroe lr as pc
+    /* stroe lr as pc */
     stmia   r1!, {lr}
 
-
 #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    // Push task fpu register.
+    /* Push task fpu register. */
     PUSH_FP_REG r1
 #endif
 
-    // get svc intruction
-
+    /* get svc intruction */
     ldr     r1, [r4, #REG_PC]
     sub     r1, r1, #4
     ldrh    r1, [r1]
@@ -146,14 +143,14 @@ SVC_Handler:
     b       .bad_svc_no
 
 .svc_syscall:
-    // enable interrput
+    /* enable interrput */
     mrs     r1, cpsr
     bic     r1, #IRQ_DIS
     msr     cpsr_c, r1
 
     ldr     r0, [r4, #REG_R0]
     ldr     r1, [r4, #REG_R1]
-    // todo: align the stack to 8 bytes
+    /* align the stack to 8 bytes */
     mov     r5, sp
     push    {r5}
     bic     sp, sp, #0x07
@@ -164,7 +161,7 @@ SVC_Handler:
     str     r1, [r4, #REG_R1]
 
 #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    // Pop task fpu register.
+    /* Pop task fpu register. */
     POP_FP_REG r1
 #endif
 
@@ -175,8 +172,8 @@ SVC_Handler:
     cmp     r0, #USER_MODE
     bne     .ret_to_svc
 
-    // return to user mode
-    // need disable interrupt???
+    /* return to user mode */
+    /* need disable interrupt??? */
     mrs     r1, cpsr
     orr     r1, r1, #IRQ_DIS
     msr     cpsr_c, r1
@@ -189,13 +186,12 @@ SVC_Handler:
     ldmia   lr, {pc}^
 
 .ret_to_svc:
-    // don't worry sp is not poped properly,
-    // new sp will be restored to svc mode
+    /* don't worry sp is not poped properly,
+     * new sp will be restored to svc mode
+     */
     ldmia   sp, {r0-r15}^
 
-
 .size SVC_Handler, .-SVC_Handler
-
 
 .text
 .type do_syscall, function
