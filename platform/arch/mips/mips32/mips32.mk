@@ -1,5 +1,9 @@
 NAME := mips32
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION    := 0.0.1.0
+$(NAME)_SUMMARY    := arch for mips32
+
 ifeq ($(COMPILER),armcc)
 else ifeq ($(COMPILER),iar)
 else
