@@ -4,6 +4,9 @@
 
 NAME := atapp
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := atapp.c
 
 $(NAME)_COMPONENTS += cli network.sal.atparser netmgr

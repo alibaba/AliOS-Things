@@ -1,5 +1,8 @@
 NAME := pca_helloworld
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := pca_helloworld.c
 
 GLOBAL_DEFINES += AOS_NO_WIFI

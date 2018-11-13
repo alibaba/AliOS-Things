@@ -1,5 +1,8 @@
 NAME := developerkitaudio
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),developerkit)
 $(NAME)_SOURCES := developerkitaudio.c
 endif
