@@ -291,9 +291,7 @@ int linkkit_main(void *paras)
     HAL_SetProductKey(PRODUCT_KEY);
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
-#if defined(SUPPORT_ITLS)
     HAL_SetProductSecret(PRODUCT_SECRET);
-#endif
     /* Choose Login Server */
     int domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);
