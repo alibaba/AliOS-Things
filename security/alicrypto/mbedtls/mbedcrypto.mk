@@ -1,5 +1,8 @@
 NAME := mbedcrypto
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_CFLAGS      += -Wall -Werror -Os -W -Wdeclaration-after-statement -D_FILE_OFFSET_BITS=64
 GLOBAL_LDFLAGS      +=
 

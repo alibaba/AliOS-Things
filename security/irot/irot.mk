@@ -1,5 +1,8 @@
 NAME := irot
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 GLOBAL_INCLUDES     += include
 
 ifeq ($(findstring linuxhost, $(BUILD_STRING)), linuxhost)
