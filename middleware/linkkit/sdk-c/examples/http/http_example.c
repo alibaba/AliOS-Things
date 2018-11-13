@@ -32,7 +32,7 @@ void looptest(void *handle)
 {
     iotx_http_message_param_t msg;
     char path[IOTX_URI_MAX_LEN + 1] = { 0 };
-    int loop_cnt = 100;
+    int loop_cnt = 3;
     int success_cnt = 0;
     int cnt = 0;
 
