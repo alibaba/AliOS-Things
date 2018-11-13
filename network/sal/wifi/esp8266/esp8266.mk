@@ -1,5 +1,8 @@
 NAME := device_sal_esp8266
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 GLOBAL_DEFINES += DEV_SAL_ESP8266
 
 $(NAME)_COMPONENTS += yloop sal
