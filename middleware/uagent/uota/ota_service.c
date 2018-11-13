@@ -117,7 +117,12 @@ static void ota_download_thread(void *hand)
     krhino_task_dyn_del(h);
     ota_msleep(500);
 #endif
-    ota_param.off_bp = ota_get_break_point();
+    if(ota_breakpoint_is_valid() == 0) {
+        ota_param.off_bp = ota_get_break_point();
+    }
+    else {
+        ota_param.off_bp = 0;
+    }
     ota_param.res_type = OTA_FINISH;
     ret = ota_hal_init((void *)(&ota_param));
     if(ret < 0) {
@@ -188,7 +193,8 @@ ERR:
     ota_reboot();
 }
 
-static int ota_check_version(void) {
+static int ota_check_version(void)
+{
     int   ret = 0;
     int is_ota = strncmp(ctx->ota_ver,ota_get_sys_version(),strlen(ctx->ota_ver));
     if(is_ota > 0) {
@@ -202,13 +208,14 @@ static int ota_check_version(void) {
     return ret;
 }
 
-void ota_upgrade_cb(char *json) {
+void ota_upgrade_cb(char *json)
+{
     int ret = 0;
     if (!ctx || !ctx->h_tr || !json) {
         OTA_LOG_E("update parameter is null");
         return;
     }
-    
+
     OTA_LOG_I("ota upgrade start: pk:%s dn:%s app ver:%s", ctx->pk, ctx->dn, ota_get_sys_version());
     if (0 == ctx->h_tr->response(json)) {
         ret = ota_check_version();
@@ -221,7 +228,8 @@ void ota_upgrade_cb(char *json) {
     }
 }
 
-int ota_service_init(ota_service_t *pctx) {
+int ota_service_init(ota_service_t *pctx)
+{
     ota_hal_register_module(&ota_hal_module);
     if (!pctx) {
         pctx = ota_malloc(sizeof(ota_service_t));
@@ -262,7 +270,8 @@ int ota_service_init(ota_service_t *pctx) {
     return 0;
 }
 
-int ota_service_deinit(ota_service_t *pctx) {
+int ota_service_deinit(ota_service_t *pctx)
+{
     if(pctx->h_tr)
     pctx->h_tr->deinit();
     if(pctx->h_ch) {
@@ -281,6 +290,7 @@ int ota_service_deinit(ota_service_t *pctx) {
     return 0;
 }
 
-ota_service_t *ota_get_service(void) {
+ota_service_t *ota_get_service(void)
+{
     return ctx;
 }
