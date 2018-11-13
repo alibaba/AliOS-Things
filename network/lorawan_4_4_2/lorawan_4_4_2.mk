@@ -31,6 +31,9 @@ GLOBAL_INCLUDES +=  . \
                     lora/mac/region  \
                     lora/system
 
+GLOBAL_DEFINES += LORAMAC_CLASSB_ENABLED
+#GLOBAL_DEFINES += LORAWAN_VERSION_110
+
 linkwan?=0
 ifeq ($(linkwan), 1)
 GLOBAL_DEFINES += CONFIG_LINKWAN
@@ -49,7 +52,6 @@ linkwanat ?= 0
 ifeq ($(linkwanat), 1)
 GLOBAL_DEFINES += CONFIG_LINKWAN_AT
 GLOBAL_DEFINES += LOW_POWER_DISABLE
-GLOBAL_DEFINES += LORAMAC_CLASSB_ENABLED
 $(NAME)_SOURCES += linkwan/linkwan_ica_at.c
 #$(NAME)_SOURCES += linkwan/linkwan_at.c
 endif
