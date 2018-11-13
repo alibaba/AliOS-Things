@@ -1,6 +1,8 @@
 NAME := uffs
 
-$(NAME)_TYPE        := kernel
+$(NAME)_MBINS_TYPE        := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES     +=  uffs_aos.c uffs_port.c
 
