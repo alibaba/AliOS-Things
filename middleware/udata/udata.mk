@@ -31,7 +31,9 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-$(NAME)_TYPE := framework
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 GLOBAL_DEFINES += AOS_UDATA
 
 GLOBAL_DEFINES += AOS_UDATA_SERVICE_ACC
