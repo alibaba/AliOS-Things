@@ -1,0 +1,8 @@
+menuconfig AOS_ARCH_ARMV7M
+    bool "arch armv7m"
+    default n
+    help
+
+if AOS_ARCH_ARMV7M
+# Configurations for arch armv7m
+endif

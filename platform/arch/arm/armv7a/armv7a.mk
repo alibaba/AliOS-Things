@@ -1,7 +1,8 @@
 NAME := armv7a
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_TYPE := kernel
+$(NAME)_VERSION    := 0.0.1.0
+$(NAME)_SUMMARY    := arch for armv7a
 
 $(NAME)_SOURCES := common/k_vector.c
 $(NAME)_SOURCES += common/k_cache.c
