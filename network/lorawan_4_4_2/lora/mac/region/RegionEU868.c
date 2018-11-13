@@ -547,7 +547,7 @@ bool RegionEU868AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
 
 void RegionEU868ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols, uint32_t rxError, RxConfigParams_t *rxConfigParams )
 {
-    double tSymbol = 0.0;
+    DECIMAL tSymbol = 0.0;
     uint32_t radioWakeUpTime;
 
     rxConfigParams->Datarate = datarate;
