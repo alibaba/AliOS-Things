@@ -4,6 +4,7 @@
 
 /* system includes */
 #include "iot_import.h"
+#include "iotx_utils.h"
 
 #include "sal_err.h"
 #include "sal_arch.h"
@@ -14,12 +15,12 @@ static sal_mutex_t sal_arch_mutex;
 
 void *sal_malloc(uint32_t size)
 {
-    return HAL_Malloc(size);
+    return LITE_malloc(size, MEM_MAGIC, "sal.arch");
 }
 
 void sal_free(void *ptr)
 {
-    HAL_Free(ptr);
+    LITE_free(ptr);
 }
 
 void sal_msleep(uint32_t ms)
@@ -36,12 +37,14 @@ err_t sal_sem_new(sal_sem_t *sem, uint8_t count)
 {
     void *hdl = NULL;
 
-    if (sem == NULL)
+    if (sem == NULL) {
         return ERR_MEM;
+    }
 
     hdl = HAL_SemaphoreCreate();
-    if (hdl == NULL)
+    if (hdl == NULL) {
         return ERR_MEM;
+    }
 
     sem->hdl = hdl;
 
@@ -115,7 +118,7 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
 
     begin_ms = sal_now();
 
-    if ( timeout != 0UL ) {
+    if (timeout != 0UL) {
         ret = HAL_SemaphoreWait(sem->hdl, timeout);
         if (ret == 0) {
             end_ms = sal_now();
@@ -127,12 +130,12 @@ uint32_t sal_arch_sem_wait(sal_sem_t *sem, uint32_t timeout)
             ret = SAL_ARCH_TIMEOUT;
         }
     } else {
-        while ( !(HAL_SemaphoreWait(sem->hdl, SAL_ARCH_TIMEOUT) == 0));
+        while (!(HAL_SemaphoreWait(sem->hdl, SAL_ARCH_TIMEOUT) == 0));
         end_ms = sal_now();
 
         elapsed_ms = end_ms - begin_ms;
 
-        if ( elapsed_ms == 0UL ) {
+        if (elapsed_ms == 0UL) {
             elapsed_ms = 1UL;
         }
 
@@ -156,7 +159,7 @@ err_t sal_mbox_new(sal_mbox_t *mb, int size)
         return  ERR_MEM;
     }
 
-    hdl = HAL_QueueCreate(NULL,size * sizeof(void *),sizeof(void *));
+    hdl = HAL_QueueCreate(NULL, size * sizeof(void *), sizeof(void *));
     if (hdl == NULL) {
         return ERR_MEM;
     }
@@ -186,7 +189,7 @@ void sal_mbox_free(sal_mbox_t *mb)
 */
 void sal_mbox_post(sal_mbox_t *mb, void *msg)
 {
-    HAL_QueueSend(mb->hdl, &msg,sizeof(void*));
+    HAL_QueueSend(mb->hdl, &msg, sizeof(void *));
 }
 
 /*
@@ -196,10 +199,11 @@ void sal_mbox_post(sal_mbox_t *mb, void *msg)
 */
 err_t sal_mbox_trypost(sal_mbox_t *mb, void *msg)
 {
-    if (HAL_QueueSend(mb->hdl,&msg,sizeof(void*)) != 0)
+    if (HAL_QueueSend(mb->hdl, &msg, sizeof(void *)) != 0) {
         return ERR_MEM;
-    else
+    } else {
         return ERR_OK;
+    }
 }
 
 int sal_mbox_valid(sal_mbox_t *mbox)
@@ -237,13 +241,14 @@ u32_t sal_arch_mbox_fetch(sal_mbox_t *mb, void **msg, u32_t timeout)
     u32_t len;
     u32_t ret;
 
-    if (mb == NULL)
+    if (mb == NULL) {
         return SAL_ARCH_TIMEOUT;
+    }
 
     begin_ms = sal_now();
 
-    if( timeout != 0UL ) {
-        if(HAL_QueueRecv(mb->hdl,timeout,msg,&len) == 0) {
+    if (timeout != 0UL) {
+        if (HAL_QueueRecv(mb->hdl, timeout, msg, &len) == 0) {
             end_ms = sal_now();
             elapsed_ms = end_ms - begin_ms;
             ret = elapsed_ms;
@@ -251,11 +256,11 @@ u32_t sal_arch_mbox_fetch(sal_mbox_t *mb, void **msg, u32_t timeout)
             ret = SAL_ARCH_TIMEOUT;
         }
     } else {
-        while(HAL_QueueRecv(mb->hdl,SAL_ARCH_TIMEOUT,msg,&len) != 0);
+        while (HAL_QueueRecv(mb->hdl, SAL_ARCH_TIMEOUT, msg, &len) != 0);
         end_ms = sal_now();
         elapsed_ms = end_ms - begin_ms;
 
-        if( elapsed_ms == 0UL ) {
+        if (elapsed_ms == 0UL) {
             elapsed_ms = 1UL;
         }
 
@@ -275,10 +280,11 @@ u32_t sal_arch_mbox_tryfetch(sal_mbox_t *mb, void **msg)
 {
     u32_t len;
 
-    if (mb == NULL)
-       return ERR_MEM;
+    if (mb == NULL) {
+        return ERR_MEM;
+    }
 
-    if(HAL_QueueRecv(mb->hdl,0u,msg,&len) != 0 ) {
+    if (HAL_QueueRecv(mb->hdl, 0u, msg, &len) != 0) {
         return SAL_MBOX_EMPTY;
     } else {
         return ERR_OK;
@@ -295,12 +301,14 @@ err_t sal_mutex_new(sal_mutex_t *mutex)
 {
     void *hdl = NULL;
 
-    if (mutex == NULL)
+    if (mutex == NULL) {
         return ERR_MEM;
+    }
 
     hdl = HAL_MutexCreate();
-    if (hdl == NULL)
+    if (hdl == NULL) {
         return ERR_MEM;
+    }
 
     mutex->hdl = hdl;
 
@@ -357,18 +365,21 @@ err_t sal_task_new_ext(sal_task_t *task, char *name, void *(*fn)(void *),
     int stack_used;
     hal_os_thread_param_t task_parms = {0};
 
-    if (task == NULL)
+    if (task == NULL) {
         return ERR_MEM;
+    }
 
     task_parms.priority = prio;
     task_parms.stack_size = stack_size;
     task_parms.name = name;
 
-    if (HAL_ThreadCreate(&hdl, fn, arg, &task_parms, &stack_used) != ERR_OK)
+    if (HAL_ThreadCreate(&hdl, fn, arg, &task_parms, &stack_used) != ERR_OK) {
         return ERR_MEM;
+    }
 
-    if (hdl == NULL)
+    if (hdl == NULL) {
         return ERR_MEM;
+    }
 
     task->hdl = hdl;
 
