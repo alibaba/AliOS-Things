@@ -17,9 +17,9 @@
 #include <aos/cli.h>
 #endif
 
-#include <hal/ota.h>
-#include "mqtt_instance.h"
 #include "ota_service.h"
+
+static ota_service_t ctx = {0};
 
 static void usage(void)
 {
@@ -39,12 +39,13 @@ static void ota_work(void *ctx)
     IOT_OpenLog("mqtt");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 #endif
+    /*Main device*/
     ota_service_init(ctx);
 #ifdef OTA_WITH_LINKKIT
     IOT_CloseLog();
 #endif
     while (1) {
-        IOT_MQTT_Yield((void *)mqtt_get_instance(), 200);
+        IOT_MQTT_Yield(NULL,200);
         aos_msleep(1000);
     }
 }
@@ -56,7 +57,7 @@ static void handle_ota_cmd(char *buf, int blen, int argc, char **argv)
         usage();
         return;
     }
-    ota_service_manager ctx = { 0 };
+    memset(&ctx, 0, sizeof(ota_service_t));
     strncpy(ctx.pk, argv[1], sizeof(ctx.pk)-1);
     strncpy(ctx.dn, argv[2], sizeof(ctx.dn)-1);
     strncpy(ctx.ds, argv[3], sizeof(ctx.ds)-1);
@@ -92,8 +93,7 @@ static void handle_diff_cmd(char *pwbuf, int blen, int argc, char **argv)
         uint32_t splict_size = atoi(argv[2]);
         ota_reboot_info_t ota_info;
         ota_info.ota_len = ota_size;
-        ota_info.ota_type = OTA_DIFF;
-        ota_info.update_type = OTA_ALL;
+        ota_info.ota_type = 1;
         ota_info.diff_version = 1;
         ota_info.splict_size = splict_size;
         LOG("%s %d %d %p\n", rtype, ota_size, splict_size,&ota_info);
