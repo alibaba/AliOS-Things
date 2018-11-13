@@ -29,9 +29,6 @@
 #include "iot_import.h"
 #include "iotx_hal_internal.h"
 
-#define HAL_TLS_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "hal.tls")
-#define HAL_TLS_FREE(ptr)    LITE_free(ptr)
-
 #define SEND_TIMEOUT_SECONDS                (10)
 #define GUIDER_ONLINE_HOSTNAME              ("iot-auth.cn-shanghai.aliyuncs.com")
 #define GUIDER_PRE_ADDRESS                  ("100.67.80.107")
@@ -497,7 +494,7 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
     }
 
     _network_ssl_disconnect((TLSDataParams_t *)handle);
-    HAL_TLS_FREE((void *)handle);
+    HAL_Free((void *)handle);
     return 0;
 }
 
@@ -510,7 +507,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
     const char         *alter = host;
     TLSDataParams_pt    pTlsData;
 
-    pTlsData = HAL_TLS_MALLOC(sizeof(TLSDataParams_t));
+    pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
         return (uintptr_t)NULL;
     }
@@ -527,7 +524,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
 
     if (0 != _TLSConnectNetwork(pTlsData, alter, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
         _network_ssl_disconnect(pTlsData);
-        HAL_TLS_FREE((void *)pTlsData);
+        HAL_Free((void *)pTlsData);
         return (uintptr_t)NULL;
     }
 
