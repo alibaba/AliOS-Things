@@ -144,4 +144,8 @@ typedef struct _json_key_t {
         pos = list_next_entry((json_key_t *)pos, list, json_key_t))
 #endif
 
+#if WITH_MEM_STATS
+void **LITE_get_mem_mutex(void);
+#endif
+
 #endif  /* __LITE_UTILS_H__ */
