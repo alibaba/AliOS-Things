@@ -14,6 +14,7 @@
 #include <float.h>
 #include <ctype.h>
 
+#include "iotx_utils.h"
 #include "lite-cjson.h"
 
 typedef struct {
@@ -924,7 +925,7 @@ int lite_cjson_object_item_by_index(_IN_ lite_cjson_t *lite, _IN_ int index, _OU
 #define cjson_min(a, b) ((a < b) ? a : b)
 
 typedef struct internal_hooks {
-    void *(*allocate)(size_t size);
+    void *(*allocate)(uint32_t size);
     void (*deallocate)(void *pointer);
     void *(*reallocate)(void *pointer, size_t size);
 } internal_hooks;
@@ -939,38 +940,27 @@ typedef struct {
     internal_hooks hooks;
 } printbuffer;
 
-#define internal_malloc malloc
-#define internal_free free
-#define internal_realloc realloc
+static void *internal_malloc(uint32_t size)
+{
+    return HAL_Malloc(size);
+}
 
-static internal_hooks global_hooks = { internal_malloc, internal_free, internal_realloc };
+static void internal_free(void *ptr)
+{
+    HAL_Free(ptr);
+}
+
+static internal_hooks global_hooks = { internal_malloc, internal_free, NULL };
 static cJSON_bool print_value(const lite_cjson_item_t *const item, printbuffer *const output_buffer);
 
 void lite_cjson_init_hooks(lite_cjson_hooks *hooks)
 {
-    if (hooks == NULL) {
-        /* Reset hooks */
-        global_hooks.allocate = malloc;
-        global_hooks.deallocate = free;
-        global_hooks.reallocate = realloc;
+    if (hooks == NULL || hooks->malloc_fn == NULL || hooks->free_fn == NULL) {
         return;
     }
 
-    global_hooks.allocate = malloc;
-    if (hooks->malloc_fn != NULL) {
-        global_hooks.allocate = (void *(*)(size_t))hooks->malloc_fn;
-    }
-
-    global_hooks.deallocate = free;
-    if (hooks->free_fn != NULL) {
-        global_hooks.deallocate = hooks->free_fn;
-    }
-
-    /* use realloc only if both free and malloc are used */
-    global_hooks.reallocate = NULL;
-    if ((global_hooks.allocate == malloc) && (global_hooks.deallocate == free)) {
-        global_hooks.reallocate = realloc;
-    }
+    global_hooks.allocate = hooks->malloc_fn;
+    global_hooks.deallocate = hooks->free_fn;
 }
 
 static unsigned char *ensure(printbuffer *const p, size_t needed)

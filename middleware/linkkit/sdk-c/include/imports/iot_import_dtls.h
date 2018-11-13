@@ -22,6 +22,11 @@
 #define DTLS_READ_DATA_FAILED          (DTLS_ERROR_BASE | 8)
 
 typedef struct {
+    void *(*malloc)(uint32_t size);
+    void (*free)(void *ptr);
+} dtls_hooks_t;
+
+typedef struct {
     unsigned char             *p_ca_cert_pem;
     char                      *p_host;
     unsigned short             port;
@@ -38,6 +43,17 @@ typedef void DTLSContext;
  *  @{
  */
 
+/**
+ * @brief Set malloc/free function.
+ *
+ * @param [in] hooks: @n Specify malloc/free function you want to use
+ *
+ * @retval DTLS_SUCCESS : Success.
+   @retval        other : Fail.
+ * @see None.
+ * @note None.
+ */
+DLL_HAL_API int HAL_DTLSHooks_set(dtls_hooks_t *hooks);
 
 /**
  * @brief Establish a DSSL connection.

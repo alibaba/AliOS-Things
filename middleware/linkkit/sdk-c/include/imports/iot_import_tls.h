@@ -5,6 +5,26 @@
 #ifndef __IMPORT_TLS_H__
 #define __IMPORT_TLS_H__
 
+#include <stdint.h>
+
+typedef struct {
+    void *(*malloc)(uint32_t size);
+    void (*free)(void *ptr);
+} ssl_hooks_t;
+
+/**
+ * @brief Set malloc/free function.
+ *
+ * @param [in] hooks: @n Specify malloc/free function you want to use
+ *
+ * @retval < 0 : Fail.
+ * @retval   0 : Success.
+ *
+ * @see None.
+ * @note None.
+ */
+DLL_HAL_API int HAL_SSLHooks_set(ssl_hooks_t *hooks);
+
 /**
  * @brief Establish a SSL connection.
  *
