@@ -1,0 +1,8 @@
+menuconfig AOS_ARCH_LX106
+    bool "arch xtensa lx106"
+    default n
+    help
+
+if AOS_ARCH_LX106
+# Configurations for arch xtensa lx106
+endif

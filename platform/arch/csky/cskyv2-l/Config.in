@@ -1,0 +1,8 @@
+menuconfig AOS_ARCH_CSKYV2-L
+    bool "arch cskyv2-l"
+    default n
+    help
+
+if AOS_ARCH_CSKYV2-L
+# Configurations for arch cskyv2-l
+endif
