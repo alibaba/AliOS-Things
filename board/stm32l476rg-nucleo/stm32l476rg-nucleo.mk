@@ -36,7 +36,7 @@ GLOBAL_DEFINES += STDIO_UART=0
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/stm32l476rg-nucleo/STM32L476RGTx_FLASH.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config stm32l476.icf
+GLOBAL_LDFLAGS += --config board/stm32l476rg-nucleo/stm32l476xx_flash.icf
 else
 GLOBAL_LDFLAGS += -T board/stm32l476rg-nucleo/STM32L476RGTx_FLASH.ld
 endif
