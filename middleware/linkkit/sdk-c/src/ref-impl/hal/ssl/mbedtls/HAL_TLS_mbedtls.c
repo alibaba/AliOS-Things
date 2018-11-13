@@ -42,6 +42,16 @@ typedef struct _TLSDataParams {
     mbedtls_pk_context pkey;          /**< mbed TLS Client key. */
 } TLSDataParams_t, *TLSDataParams_pt;
 
+static unsigned int mbedtls_mem_used = 0;
+static unsigned int mbedtls_max_mem_used = 0;
+static ssl_hooks_t g_ssl_hooks = {HAL_Malloc, HAL_Free};
+
+#define MBEDTLS_MEM_INFO_MAGIC   0x12345678
+
+typedef struct {
+    int magic;
+    int size;
+} mbedtls_mem_info_t;
 
 static unsigned int _avRandom()
 {
@@ -262,6 +272,57 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
 }
 #endif
 
+void *_SSLCalloc_wrapper(size_t n, size_t size)
+{
+    void *buf = NULL;
+    mbedtls_mem_info_t *mem_info = NULL;
+
+    if (n == 0 || size == 0) {
+        return NULL;
+    }
+
+    buf = g_ssl_hooks.malloc(n * size + sizeof(mbedtls_mem_info_t));
+    if (NULL == buf) {
+        return NULL;
+    } else {
+        memset(buf, 0, n * size + sizeof(mbedtls_mem_info_t));
+    }
+
+    mem_info = (mbedtls_mem_info_t *)buf;
+    mem_info->magic = MBEDTLS_MEM_INFO_MAGIC;
+    mem_info->size = n * size;
+    buf += sizeof(mbedtls_mem_info_t);
+
+    mbedtls_mem_used += mem_info->size;
+    if (mbedtls_mem_used > mbedtls_max_mem_used) {
+        mbedtls_max_mem_used = mbedtls_mem_used;
+    }
+
+    /* hal_info("INFO -- mbedtls malloc: %p %d  total used: %d  max used: %d\r\n",
+                       buf, (int)size, mbedtls_mem_used, mbedtls_max_mem_used); */
+
+    return buf;
+}
+
+void _SSLFree_wrapper(void *ptr)
+{
+    mbedtls_mem_info_t *mem_info = NULL;
+    if (NULL == ptr) {
+        return;
+    }
+
+    mem_info = ptr - sizeof(mbedtls_mem_info_t);
+    if (mem_info->magic != MBEDTLS_MEM_INFO_MAGIC) {
+        hal_info("Warning - invalid mem info magic: 0x%x\r\n", mem_info->magic);
+        return;
+    }
+
+    mbedtls_mem_used -= mem_info->size;
+    /* hal_info("INFO mbedtls free: %p %d  total used: %d  max used: %d\r\n",
+                       ptr, mem_info->size, mbedtls_mem_used, mbedtls_max_mem_used);*/
+
+    g_ssl_hooks.free(mem_info);
+}
 
 /**
  * @brief This function connects to the specific SSL server with TLS, and returns a value that indicates whether the connection is create successfully or not. Call #NewNetwork() to initialize network structure before calling this function.
@@ -494,8 +555,20 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
     }
 
     _network_ssl_disconnect((TLSDataParams_t *)handle);
-    HAL_Free((void *)handle);
+    g_ssl_hooks.free((void *)handle);
     return 0;
+}
+
+int HAL_SSLHooks_set(ssl_hooks_t *hooks)
+{
+    if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
+        return DTLS_INVALID_PARAM;
+    }
+
+    g_ssl_hooks.malloc = hooks->malloc;
+    g_ssl_hooks.free = hooks->free;
+
+    return DTLS_SUCCESS;
 }
 
 uintptr_t HAL_SSL_Establish(const char *host,
@@ -507,7 +580,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
     const char         *alter = host;
     TLSDataParams_pt    pTlsData;
 
-    pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
+    pTlsData = g_ssl_hooks.malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
         return (uintptr_t)NULL;
     }
@@ -522,9 +595,11 @@ uintptr_t HAL_SSL_Establish(const char *host,
     }
 #endif
 
+    mbedtls_platform_set_calloc_free(_SSLCalloc_wrapper, _SSLFree_wrapper);
+
     if (0 != _TLSConnectNetwork(pTlsData, alter, port_str, ca_crt, ca_crt_len, NULL, 0, NULL, 0, NULL, 0)) {
         _network_ssl_disconnect(pTlsData);
-        HAL_Free((void *)pTlsData);
+        g_ssl_hooks.free((void *)pTlsData);
         return (uintptr_t)NULL;
     }
 
