@@ -2,11 +2,14 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
+#include "iotx_utils.h"
 #include "nghttp2_queue.h"
 
 #include <string.h>
 #include <assert.h>
+
+#define HTTP2_QUEUE_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "http2.queue")
+#define HTTP2_QUEUE_FREE(ptr)    LITE_free(ptr)
 
 void nghttp2_queue_init(nghttp2_queue *queue) {
   queue->front = queue->back = NULL;
@@ -19,7 +22,7 @@ void nghttp2_queue_free(nghttp2_queue *queue) {
     nghttp2_queue_cell *p = queue->front;
     while (p) {
       nghttp2_queue_cell *next = p->next;
-      free(p);
+      HTTP2_QUEUE_FREE(p);
       p = next;
     }
   }
@@ -27,7 +30,7 @@ void nghttp2_queue_free(nghttp2_queue *queue) {
 
 int nghttp2_queue_push(nghttp2_queue *queue, void *data) {
   nghttp2_queue_cell *new_cell =
-      (nghttp2_queue_cell *)malloc(sizeof(nghttp2_queue_cell));
+      (nghttp2_queue_cell *)HTTP2_QUEUE_MALLOC(sizeof(nghttp2_queue_cell));
   if (!new_cell) {
     return NGHTTP2_ERR_NOMEM;
   }
@@ -50,7 +53,7 @@ void nghttp2_queue_pop(nghttp2_queue *queue) {
   if (front == queue->back) {
     queue->back = NULL;
   }
-  free(front);
+  HTTP2_QUEUE_FREE(front);
 }
 
 void *nghttp2_queue_front(nghttp2_queue *queue) {

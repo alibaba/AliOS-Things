@@ -12,7 +12,7 @@ int dm_utils_copy_direct(_IN_ void *input, _IN_ int input_len, _OU_ void **outpu
         return DM_INVALID_PARAMETER;
     }
 
-    *output = malloc(output_len);
+    *output = HAL_Malloc(output_len);
     if (*output == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
     }
@@ -112,7 +112,7 @@ int dm_utils_itoa_direct(_IN_ int input, _OU_ char **output)
         return FAIL_RETURN;
     }
 
-    *output = malloc(strlen(temp_output) + 1);
+    *output = HAL_Malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
     }
@@ -160,7 +160,7 @@ int dm_utils_ftoa_direct(_IN_ double input, _OU_ char **output)
         return FAIL_RETURN;
     }
 
-    *output = malloc(strlen(temp_output) + 1);
+    *output = HAL_Malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
     }
