@@ -6,6 +6,9 @@
 #include "string_utils.h"
 #include "iotx_utils_internal.h"
 
+#define SYS_REPORT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys_report")
+#define SYS_REPORT_FREE(ptr)    LITE_free(ptr)
+
 char *LITE_strdup(const char *src, ...)
 {
     int             len = 0;
@@ -136,7 +139,7 @@ char *LITE_format_string(const char *fmt, ...)
     int             rc = -1;
 
     va_start(ap, fmt);
-    tmp = HAL_Malloc(TEMP_STRING_MAXLEN);
+    tmp = SYS_REPORT_MALLOC(TEMP_STRING_MAXLEN);
     LITE_ASSERT(tmp);
     memset(tmp, 0, TEMP_STRING_MAXLEN);
     rc = HAL_Vsnprintf(tmp, TEMP_STRING_MAXLEN, fmt, ap);
@@ -144,7 +147,7 @@ char *LITE_format_string(const char *fmt, ...)
     LITE_ASSERT(rc < 1024);
 
     dst = LITE_strdup(tmp);
-    HAL_Free(tmp);
+    SYS_REPORT_FREE(tmp);
 
     return dst;
 
