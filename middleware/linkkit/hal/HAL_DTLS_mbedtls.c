@@ -41,6 +41,8 @@
 #define DTLS_SESSION_CREATE_FAILED (DTLS_ERROR_BASE | 7)
 #define DTLS_READ_DATA_FAILED (DTLS_ERROR_BASE | 8)
 
+static dtls_hooks_t g_dtls_hooks = {HAL_Malloc, HAL_Free};
+
 #if defined(MBEDTLS_DEBUG_C)
 extern int  csp_printf(const char *fmt, ...);
 static void ssl_debug(void *ctx, int level, const char *file, int line,
@@ -389,6 +391,18 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
 #endif
         aos_free(p_dtls_session);
     }
+
+    return DTLS_SUCCESS;
+}
+
+DLL_HAL_API int HAL_DTLSHooks_set(dtls_hooks_t *hooks)
+{
+    if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
+        return DTLS_INVALID_PARAM;
+    }
+
+    g_dtls_hooks.malloc = hooks->malloc;
+    g_dtls_hooks.free = hooks->free;
 
     return DTLS_SUCCESS;
 }
