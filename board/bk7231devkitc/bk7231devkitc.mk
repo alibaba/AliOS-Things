@@ -2,7 +2,9 @@ NAME := board_bk7231
 
 JTAG := jlink
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 MODULE               := BK7231
 HOST_ARCH            := ARM968E-S
 HOST_MCU_FAMILY      := bk7231

@@ -2,7 +2,9 @@ NAME := board_uno-91h
 
 JTAG := jlink
 
-$(NAME)_TYPE 		 := kernel
+$(NAME)_MBINS_TYPE 		 := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 MODULE               := xxx
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := rda5981x

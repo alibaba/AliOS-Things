@@ -1,5 +1,8 @@
 NAME := board_hifive1
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 MODULE               := hifive1
 HOST_ARCH            := RISC-V
 HOST_MCU_FAMILY      := freedom-e.e310

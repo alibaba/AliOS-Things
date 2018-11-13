@@ -1,5 +1,8 @@
 NAME := board_evkmimxrt1020
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 MODULE              := 1020
 HOST_ARCH           := Cortex-M7
 HOST_MCU_FAMILY     := mimxrt1021

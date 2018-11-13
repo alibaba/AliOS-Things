@@ -1,5 +1,8 @@
 
 NAME := board_frdmkl26z
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 MODULE              := 26
 HOST_ARCH           := Cortex-M0

@@ -2,7 +2,9 @@ NAME := board_dh5021a_evb
 
 JTAG := jlink
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 MODULE               := DH5021A
 HOST_CHIP            := dh5021a
 HOST_ARCH            := ck803

@@ -1,5 +1,8 @@
 NAME := board_xm510
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 MODULE               := ipcxm510
 HOST_ARCH            := Cortex-A5
 HOST_MCU_FAMILY      := xm510
