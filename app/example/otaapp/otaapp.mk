@@ -19,16 +19,11 @@ no_with_lwip := 0
 endif
 
 ifeq ($(loop),1)
-$(NAME)_DEFINES      += TEST_LOOP
+$(NAME)_DEFINES     += TEST_LOOP
 endif
 
-ifeq ($(print_heap),1)
-$(NAME)_DEFINES += CONFIG_PRINT_HEAP
-endif
-
-ifeq ($(HOST_MCU_FAMILY),esp8266)
-GLOBAL_DEFINES += FOTA_RAM_LIMIT_MODE
-GLOBAL_DEFINES += ESP8266_CHIPSET
+ifeq ($(strip $(CONFIG_SYSINFO_DEVICE_NAME)), $(filter $(CONFIG_SYSINFO_DEVICE_NAME), developerkit))
+AOS_DEVELOPERKIT_ENABLE_OTA := 1
 endif
 
 GLOBAL_INCLUDES += ./
