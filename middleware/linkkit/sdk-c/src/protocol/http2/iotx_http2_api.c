@@ -15,6 +15,8 @@
 #include "h2_debug.h"
 #include "iot_export_http2.h"
 
+#define HTTP2_API_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "http2.api")
+#define HTTP2_API_FREE(ptr)    LITE_free(ptr)
 
 #define MAX_HTTP2_HOST_LEN                   (128)
 
@@ -499,7 +501,7 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
 
 
     if (header != NULL && header_count != 0) {
-        nva = (nghttp2_nv *)HAL_Malloc(sizeof(nghttp2_nv) * header_count);
+        nva = (nghttp2_nv *)HTTP2_API_MALLOC(sizeof(nghttp2_nv) * header_count);
         if(nva == NULL) {
             return -1;
         }
@@ -520,7 +522,7 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
         rv = nghttp2_submit_request(conn->session, NULL, nva, nva_size, NULL, NULL);
         h2_data->stream_id = rv;
     }
-    HAL_Free(nva);
+    HTTP2_API_FREE(nva);
     
     if(rv < 0) {
         return rv;

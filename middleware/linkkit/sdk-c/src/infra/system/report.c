@@ -10,7 +10,7 @@
 #include "iotx_utils.h"
 #include "report.h"
 
-#define SYS_REPORT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys_report")
+#define SYS_REPORT_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys.report")
 #define SYS_REPORT_FREE(ptr)    LITE_free(ptr)
 
 #ifdef VERSION_REPORT_DEBUG
