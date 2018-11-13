@@ -11,6 +11,7 @@
 #include "cJSON.h"
 #include "tsl_file.h"
 #include "tsl_opt_impl.h"
+#include "iot_import.h"
 
 static const char string_thing_service_property_set[] = "thing.service.property.set";
 static const char string_thing_service_property_get[] = "thing.service.property.get";

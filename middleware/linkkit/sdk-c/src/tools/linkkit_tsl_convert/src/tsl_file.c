@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include "tsl_file.h"
+#include "iot_import.h"
 
 long tsl_file_get_size(FILE *fp)
 {
