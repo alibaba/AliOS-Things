@@ -16,6 +16,10 @@
 #include "iotx_system.h"
 #include "http_debug.h"
 
+#define HTTP_API_MALLOC(size)             LITE_malloc(size, MEM_MAGIC, "http.api")
+#define HTTP_API_FREE(ptr)                LITE_free(ptr)
+#define HTTP_STRDUP(ptr)                  LITE_strdup(ptr, MEM_MAGIC, "http.api")
+#define HTTP_LITE_JSON_VALUE_OF(key, src) LITE_json_value_of(key, src, MEM_MAGIC, "http.api")
 /*
 #define IOTX_HTTP_TIMESTAMP_OPTIONAL_ENABLE
 */
@@ -189,7 +193,7 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
 
     p_devinfo = pInitParams->device_info;
 
-    iotx_http_context = (iotx_http_t *)LITE_malloc(sizeof(iotx_http_t));
+    iotx_http_context = (iotx_http_t *)HTTP_API_MALLOC(sizeof(iotx_http_t));
 
     if (NULL == iotx_http_context) {
         http_err("Allocate memory for iotx_http_context failed");
@@ -200,7 +204,7 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
 
     iotx_http_context->keep_alive = pInitParams->keep_alive;
     iotx_http_context->timeout_ms = pInitParams->timeout_ms;
-    iotx_http_context->p_auth_token = LITE_malloc(IOTX_HTTP_AUTH_TOKEN_LEN);
+    iotx_http_context->p_auth_token = HTTP_API_MALLOC(IOTX_HTTP_AUTH_TOKEN_LEN);
     if (NULL == iotx_http_context->p_auth_token) {
         http_err("Allocate memory for auth token failed");
         goto err;
@@ -210,7 +214,7 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
     iotx_http_context->auth_token_len = IOTX_HTTP_AUTH_TOKEN_LEN;
 
     /*Get deivce information*/
-    iotx_http_context->p_devinfo = (iotx_device_info_t *)LITE_malloc(sizeof(iotx_device_info_t));
+    iotx_http_context->p_devinfo = (iotx_device_info_t *)HTTP_API_MALLOC(sizeof(iotx_device_info_t));
     if (NULL == iotx_http_context->p_devinfo) {
         http_err("Allocate memory for iotx_http_context->p_devinfo failed");
         goto err;
@@ -224,7 +228,7 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
     strncpy(iotx_http_context->p_devinfo->device_secret, p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
     strncpy(iotx_http_context->p_devinfo->device_name,   p_devinfo->device_name,   IOTX_DEVICE_NAME_LEN);
 
-    iotx_http_context->httpc = LITE_malloc(sizeof(httpclient_t));
+    iotx_http_context->httpc = HTTP_API_MALLOC(sizeof(httpclient_t));
     if (NULL == iotx_http_context->httpc) {
         http_err("Allocate memory for iotx_http_context->httpc failed");
         goto err;
@@ -238,14 +242,14 @@ err:
     /* Error, release the memory */
     if (NULL != iotx_http_context) {
         if (NULL != iotx_http_context->p_devinfo) {
-            LITE_free(iotx_http_context->p_devinfo);
+            HTTP_API_FREE(iotx_http_context->p_devinfo);
         }
         if (NULL != iotx_http_context->p_auth_token) {
-            LITE_free(iotx_http_context->p_auth_token);
+            HTTP_API_FREE(iotx_http_context->p_auth_token);
         }
 
         iotx_http_context->auth_token_len = 0;
-        LITE_free(iotx_http_context);
+        HTTP_API_FREE(iotx_http_context);
     }
     return NULL;
 }
@@ -262,17 +266,17 @@ void IOT_HTTP_DeInit(void **handle)
     }
 
     if (NULL != iotx_http_context->p_devinfo) {
-        LITE_free(iotx_http_context->p_devinfo);
+        HTTP_API_FREE(iotx_http_context->p_devinfo);
     }
     if (NULL != iotx_http_context->p_auth_token) {
-        LITE_free(iotx_http_context->p_auth_token);
+        HTTP_API_FREE(iotx_http_context->p_auth_token);
     }
     if (NULL != iotx_http_context->httpc) {
-        LITE_free(iotx_http_context->httpc);
+        HTTP_API_FREE(iotx_http_context->httpc);
     }
 
     iotx_http_context->auth_token_len = 0;
-    LITE_free(iotx_http_context);
+    HTTP_API_FREE(iotx_http_context);
     iotx_http_context_bak = NULL;
 }
 
@@ -347,7 +351,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
         goto do_exit;
     }
 
-    req_payload = (char *)LITE_malloc(len + 1);
+    req_payload = (char *)HTTP_API_MALLOC(len + 1);
     memset(req_payload, 0, len + 1);
 
     http_debug("allocate req_payload: len = %d", len);
@@ -365,7 +369,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     http_debug("len = %d, req_payload: \r\n%s", len, req_payload);
 
     /* Malloc Http Response Payload */
-    rsp_payload = (char *)LITE_malloc(HTTP_AUTH_RESP_MAX_LEN);
+    rsp_payload = (char *)HTTP_API_MALLOC(HTTP_AUTH_RESP_MAX_LEN);
     if (NULL == rsp_payload) {
         http_err("Allocate HTTP rsp_payload buf failed!");
         goto do_exit;
@@ -430,23 +434,23 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     */
     http_info("http response: \r\n\r\n%s\r\n", httpc_data.response_buf);
 
-    pvalue = LITE_json_value_of("code", httpc_data.response_buf);
+    pvalue = HTTP_LITE_JSON_VALUE_OF("code", httpc_data.response_buf);
     if (!pvalue) {
         goto do_exit;
     }
     ret_code = atoi(pvalue);
     http_info("ret_code = %d", ret_code);
-    LITE_free(pvalue);
+    HTTP_API_FREE(pvalue);
     pvalue = NULL;
 
-    pvalue = LITE_json_value_of("message", httpc_data.response_buf);
+    pvalue = HTTP_LITE_JSON_VALUE_OF("message", httpc_data.response_buf);
     if (NULL == pvalue) {
         goto do_exit;
     }
     response_message = pvalue;
     http_info("response_message: %s", response_message);
     (void)response_message;
-    LITE_free(pvalue);
+    HTTP_API_FREE(pvalue);
     pvalue = NULL;
 
     switch (ret_code) {
@@ -462,7 +466,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
             goto do_exit;
     }
 
-    pvalue = LITE_json_value_of("info.token", httpc_data.response_buf);
+    pvalue = HTTP_LITE_JSON_VALUE_OF("info.token", httpc_data.response_buf);
     if (NULL == pvalue) {
         http_err("can't get token from json, Abort!");
         goto do_exit;
@@ -470,7 +474,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
 
     strcpy(iotx_http_context->p_auth_token, pvalue);
     iotx_http_context->is_authed = 1;
-    LITE_free(pvalue);
+    HTTP_API_FREE(pvalue);
     pvalue = NULL;
 
 
@@ -488,15 +492,15 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
 
 do_exit:
     if (pvalue) {
-        LITE_free(pvalue);
+        HTTP_API_FREE(pvalue);
         pvalue = NULL;
     }
     if (req_payload) {
-        LITE_free(req_payload);
+        HTTP_API_FREE(req_payload);
         req_payload = NULL;
     }
     if (rsp_payload) {
-        LITE_free(rsp_payload);
+        HTTP_API_FREE(rsp_payload);
         rsp_payload = NULL;
     }
 
@@ -570,7 +574,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
 
     len = strlen(IOTX_HTTP_HEADER_PASSWORD_STR) + strlen(iotx_http_context->p_auth_token) + strlen(
                       IOTX_HTTP_HEADER_KEEPALIVE_STR) + strlen(IOTX_HTTP_HEADER_END_STR);
-    httpc->header = LITE_malloc(len + 1);
+    httpc->header = HTTP_API_MALLOC(len + 1);
     if (NULL == httpc->header) {
         http_err("Allocate memory for httpc->header failed");
         goto do_exit;
@@ -622,23 +626,23 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
     */
     http_info("http response: \r\n\r\n%s\r\n", httpc_data.response_buf);
 
-    pvalue = LITE_json_value_of("code", httpc_data.response_buf);
+    pvalue = HTTP_LITE_JSON_VALUE_OF("code", httpc_data.response_buf);
     if (!pvalue) {
         goto do_exit_pre;
     }
 
     response_code = atoi(pvalue);
-    LITE_free(pvalue);
+    HTTP_API_FREE(pvalue);
     pvalue = NULL;
     http_info("response code: %d", response_code);
 
-    pvalue = LITE_json_value_of("message", httpc_data.response_buf);
+    pvalue = HTTP_LITE_JSON_VALUE_OF("message", httpc_data.response_buf);
     if (NULL == pvalue) {
         goto do_exit_pre;
     }
-    response_message = LITE_strdup(pvalue);
+    response_message = HTTP_STRDUP(pvalue);
     http_info("response_message: %s", response_message);
-    LITE_free(pvalue);
+    HTTP_API_FREE(pvalue);
     pvalue = NULL;
 
     switch (response_code) {
@@ -660,7 +664,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
     }
 
     /* info.messageId */
-    pvalue = LITE_json_value_of("info.messageId", httpc_data.response_buf);
+    pvalue = HTTP_LITE_JSON_VALUE_OF("info.messageId", httpc_data.response_buf);
     if (NULL == pvalue) {
         http_err("messageId: NULL");
         goto do_exit_pre;
@@ -668,11 +672,11 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
     messageId = pvalue;
     http_info("messageId: %s", messageId);
     (void)messageId;
-    LITE_free(pvalue);
+    HTTP_API_FREE(pvalue);
     pvalue = NULL;
 
     /* info.data */
-    pvalue = LITE_json_value_of("info.data", httpc_data.response_buf);
+    pvalue = HTTP_LITE_JSON_VALUE_OF("info.data", httpc_data.response_buf);
     user_data = pvalue;
 
     /* Maybe NULL */
@@ -682,7 +686,7 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
         http_info("user_data: %p", user_data);
     }
     if (NULL != pvalue) {
-        LITE_free(pvalue);
+        HTTP_API_FREE(pvalue);
     }
     pvalue = NULL;
 
@@ -691,15 +695,15 @@ int IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
 do_exit_pre:
 
     if (pvalue) {
-        LITE_free(pvalue);
+        HTTP_API_FREE(pvalue);
     }
 
     if (response_message) {
-        LITE_free(response_message);
+        HTTP_API_FREE(response_message);
     }
 
     if (httpc != NULL && httpc->header) {
-        LITE_free(httpc->header);
+        HTTP_API_FREE(httpc->header);
     }
 
 do_exit:
