@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "iotx_utils.h"
 #include "json_parser.h"
 #include "iot_export.h"
 #include "iotx_log.h"
@@ -12,6 +13,9 @@
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
 #endif
+
+#define IMPL_NTP_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "impl_ntp")
+#define IMPL_NTP_FREE(ptr)    {LITE_free(ptr);ptr = NULL;}
 
 typedef void (*ntp_reply_cb_t)(const char *);
 static ntp_reply_cb_t g_ntp_reply_cb = NULL;
@@ -126,7 +130,7 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
         HAL_GetProductKey(pk);
         HAL_GetDeviceName(dn);
 
-        topic = (char *)HAL_Malloc(topic_len + 1);
+        topic = (char *)IMPL_NTP_MALLOC(topic_len + 1);
         if (topic == NULL) {
             goto NTP_REQ_ERR;
         }
@@ -143,7 +147,7 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
         snprintf(topic, topic_len, TOPIC_NTP, pk, dn);
     } while (0);
 
-    packet = (char *)HAL_Malloc(packet_len + 1);
+    packet = (char *)IMPL_NTP_MALLOC(packet_len + 1);
     if (packet == NULL) {
         ret = -1;
         goto NTP_REQ_ERR;
@@ -160,10 +164,10 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
 
 NTP_REQ_ERR:
     if (topic) {
-        HAL_Free(topic);
+        IMPL_NTP_FREE(topic);
     }
     if (packet) {
-        HAL_Free(packet);
+        IMPL_NTP_FREE(packet);
     }
     return ret;
 }
