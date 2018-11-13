@@ -1,7 +1,9 @@
 HOST_OPENOCD := MIMXRT1052
 NAME := mimxrt1052impl
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS += rhino libc kernel.fs.kv middleware.common cli kernel.fs.vfs digest_algorithm

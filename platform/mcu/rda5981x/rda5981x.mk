@@ -3,7 +3,9 @@ NAME := RDA5981x
 
 HOST_OPENOCD := rda5981x
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS := libc rhino hal netmgr middleware.common cjson cli digest_algorithm network.lwip

@@ -3,7 +3,9 @@ NAME := RDA8955
 
 HOST_OPENOCD := rda8955
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS += platform/arch/mips/mips-I
 $(NAME)_COMPONENTS := libc rhino hal netmgr middleware.common cjson digest_algorithm network.lwip

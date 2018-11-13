@@ -2,7 +2,9 @@ HOST_OPENOCD := esp8266
 
 NAME := esp8266
 
-$(NAME)_TYPE := kernel 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS := middleware.common yloop kernel.fs.kv libc debug
 $(NAME)_COMPONENTS += network.lwip alicrypto hal
