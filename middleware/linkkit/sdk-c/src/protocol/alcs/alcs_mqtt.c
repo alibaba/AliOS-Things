@@ -142,7 +142,7 @@ alcs_mqtt_status_e __alcs_mqtt_prefix_secret_save(const char *pk, uint16_t pk_le
     return ALCS_MQTT_STATUS_SUCCESS;
 }
 
-alcs_mqtt_status_e alcs_mqtt_prefix_secret_laod(const char *pk, uint16_t pk_len,
+alcs_mqtt_status_e alcs_mqtt_prefix_secret_load(const char *pk, uint16_t pk_len,
         const char *dn, uint16_t dn_len,
         char *prefix, char *secret)
 {
