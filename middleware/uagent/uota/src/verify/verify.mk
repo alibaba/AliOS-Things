@@ -1,6 +1,8 @@
 NAME := ota_verify
 
-$(NAME)_TYPE := uota
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES := ota_verify.c \
                    ota_rsa_verify.c \

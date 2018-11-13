@@ -1,6 +1,8 @@
 NAME := ota
 
-$(NAME)_TYPE := framework
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 #default gcc
 ifeq ($(COMPILER),)

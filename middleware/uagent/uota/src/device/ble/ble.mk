@@ -1,6 +1,8 @@
 NAME := ota_ble
-$(info $(NAME))
-$(NAME)_TYPE := framework
+
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES += \
     src/ota_breeze.c \
