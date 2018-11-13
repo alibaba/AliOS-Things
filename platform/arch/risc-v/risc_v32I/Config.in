@@ -1,0 +1,8 @@
+menuconfig AOS_ARCH_RISC_V32I
+    bool "arch risc_v32I"
+    default n
+    help
+
+if AOS_ARCH_RISC_V32I
+# Configurations for arch risc_v32I
+endif

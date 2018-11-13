@@ -1,0 +1,15 @@
+menu "Arch Configuration"
+
+source "platform/arch/mips/mips32/Config.in"
+source "platform/arch/mips/mips-I/Config.in"
+source "platform/arch/risc-v/risc_v32I/Config.in"
+source "platform/arch/csky/cskyv2-l/Config.in"
+source "platform/arch/xtensa/lx6/Config.in"
+source "platform/arch/xtensa/lx106/Config.in"
+source "platform/arch/arm/armv5/Config.in"
+source "platform/arch/arm/armv6m/Config.in"
+source "platform/arch/arm/armv7m/Config.in"
+source "platform/arch/arm/armv7a/Config.in"
+source "platform/arch/linux/Config.in"
+
+endmenu
