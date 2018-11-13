@@ -1,5 +1,8 @@
 NAME := coap_test
 
+$(NAME)_MBINS_TYPE := app
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_COMPONENTS  += connectivity.coap
 
 $(NAME)_SOURCES     += coap_test.c
