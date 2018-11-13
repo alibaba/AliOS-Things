@@ -3,7 +3,7 @@
  */
 #include "stm32l4xx.h"
 #include "stm32l4xx_hal.h"
-
+#include <stdio.h>
 #ifdef HAL_FLASH_MODULE_ENABLED
 
 #include <k_api.h>
@@ -37,11 +37,11 @@ int flash_sw_bank(void)
     OBInit.USERType   = OB_USER_BFB2;
     do {
         if (((OBInit.USERConfig) & (OB_BFB2_ENABLE)) == OB_BFB2_ENABLE) {
-            LOG("switch to bank1.\n");
+            printf("switch to bank1.\n");
             OBInit.USERConfig = OB_BFB2_DISABLE;
         }
         else {
-            LOG("switch to bank2.\n");
+            printf("switch to bank2.\n");
             OBInit.USERConfig = OB_BFB2_ENABLE;
         }
         if(HAL_FLASHEx_OBProgram (&OBInit) != HAL_OK) {
@@ -50,7 +50,7 @@ int flash_sw_bank(void)
              User can add here some code to deal with this error.
              To know the code error, user can call function 'HAL_FLASH_GetError()'
             */
-            LOG("HAL_FLASHEx_OBProgram failed\n");
+            printf("HAL_FLASHEx_OBProgram failed\n");
             ret = -1;
             break;
         }
@@ -62,7 +62,7 @@ int flash_sw_bank(void)
                User can add here some code to deal with this error.
                To know the code error, user can call function 'HAL_FLASH_GetError()'
             */
-            LOG("HAL_FLASH_OB_Launch failed\n");
+            printf("HAL_FLASH_OB_Launch failed\n");
             ret = -1;
             break;
         }
