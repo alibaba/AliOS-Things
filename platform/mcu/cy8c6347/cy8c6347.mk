@@ -3,7 +3,9 @@ NAME := cy8c6347
 
 HOST_OPENOCD := cy8c6347
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS += libc rhino hal kernel.fs.kv kernel.fs.vfs digest_algorithm
