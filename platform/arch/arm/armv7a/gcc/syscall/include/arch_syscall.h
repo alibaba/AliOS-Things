@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+
 #ifndef ARCH_SYSCALL_H
 #define ARCH_SYSCALL_H
 
@@ -33,5 +34,5 @@
     })
 
 
-#endif // ARCH_SYSCALL_H
+#endif /* ARCH_SYSCALL_H */
 
