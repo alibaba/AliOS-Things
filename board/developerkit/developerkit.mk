@@ -87,7 +87,7 @@ else
 #AOS_DEVELOPERKIT_ENABLE_OTA is used for ctl the  developerkit OTA function
 #if AOS_DEVELOPERKIT_ENABLE_OTA := 1, it will enable OTA function
 #if AOS_DEVELOPERKIT_ENABLE_OTA := 0, it will disable OTA function
-AOS_DEVELOPERKIT_ENABLE_OTA :=0
+#AOS_DEVELOPERKIT_ENABLE_OTA :=1
 
 ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_OTA.ld
@@ -135,5 +135,5 @@ GLOBAL_DEFINES += ARDUINO_SPI_I2C_ENABLED
 endif
 
 ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
-EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
+EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/board/developerkit/gen_crc_bin.mk
 endif
