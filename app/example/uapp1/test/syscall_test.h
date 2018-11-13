@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 #ifndef SYSCALL_TEST_H
 #define SYSCALL_TEST_H
 
@@ -6,5 +10,6 @@ int semphore_test(void);
 int time_test(void);
 int buf_queue_test(void);
 
-#endif // SYSCALL_TEST_H
+#endif /* SYSCALL_TEST_H */
+
 

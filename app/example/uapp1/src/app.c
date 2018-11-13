@@ -6,13 +6,11 @@
 #include <ucli.h>
 
 //#define ENABLE_PROC_MSG
-
 #define APP_STACK_SIZE 0x400
 
-static ktask_t app_obj;
-cpu_stack_t app_stack[APP_STACK_SIZE];
-
-static ktimer_t app_timer;
+static ktask_t     app_obj;
+static cpu_stack_t app_stack[APP_STACK_SIZE];
+static ktimer_t    app_timer;
 
 #ifdef ENABLE_PROC_MSG
 static size_t msg_id;
@@ -60,12 +58,9 @@ int application_start(int argc, char *argv[])
                         10, 100, NULL, 1);
 
     krhino_utask_create(&app_obj, "application1", 0,
-                        AOS_DEFAULT_APP_PRI,
-                        (tick_t)0, app_stack,
-                        APP_STACK_SIZE,
-                        APP_STACK_SIZE,
-                        (task_entry_t)app_run,
-                        1);
+                        AOS_DEFAULT_APP_PRI, (tick_t)0, app_stack,
+                        APP_STACK_SIZE, APP_STACK_SIZE,
+                        (task_entry_t)app_run, 1);
 
     cli_loop();
 
