@@ -2,6 +2,8 @@
 NAME := breeze
 
 $(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES += core/core.c
 $(NAME)_SOURCES += core/transport.c

@@ -1,5 +1,8 @@
 NAME := lorawan
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := lora/system/crypto/aes.c                \
                    lora/system/crypto/cmac.c               \
                    lora/system/timeServer.c      \
