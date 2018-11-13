@@ -1,10 +1,14 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 #include <k_api.h>
 #include <u_proc_msg.h>
 
 #define MAX_MSG_SIZE 0xffffffffu
 
 static void msg_dyn_create(kbuf_queue_t **queue, const name_t *name,
-                                    size_t size, size_t max_msg, uint32_t key)
+                           size_t size, size_t max_msg, uint32_t key)
 {
     CPSR_ALLOC();
 
@@ -27,7 +31,6 @@ static void msg_dyn_create(kbuf_queue_t **queue, const name_t *name,
         krhino_mm_free(queue_obj);
         return;
     }
-
 
     /* init the queue blocked list */
     klist_init(&queue_obj->blk_obj.blk_list);
@@ -65,7 +68,6 @@ static void msg_dyn_create(kbuf_queue_t **queue, const name_t *name,
    *queue = queue_obj;
 }
 
-
 size_t krhino_msg_get(uint32_t key, uint32_t flg, size_t size)
 {
     kbuf_queue_t *queue = NULL;
@@ -76,31 +78,21 @@ size_t krhino_msg_get(uint32_t key, uint32_t flg, size_t size)
         return 0;
     }
 
-    return (size_t)queue;        
+    return (size_t)queue;
 }
 
 kstat_t krhino_msg_snd(size_t msq_id, void *msg, size_t msg_sz)
 {
-    kstat_t ret;
-
-    ret = krhino_buf_queue_send((kbuf_queue_t *)msq_id, msg, msg_sz);
-    return ret;
+    return krhino_buf_queue_send((kbuf_queue_t *)msq_id, msg, msg_sz);
 }
 
 kstat_t krhino_msg_recv(size_t msq_id, tick_t ticks, void *msg, size_t *msg_sz)
 {
-    kstat_t ret;
-
-    ret = krhino_buf_queue_recv((kbuf_queue_t *)msq_id, ticks, msg, msg_sz);
-    return ret;
+    return krhino_buf_queue_recv((kbuf_queue_t *)msq_id, ticks, msg, msg_sz);
 }
-
 
 kstat_t krhino_msg_del(size_t msq_id)
 {
-    kstat_t ret;
-    ret = krhino_buf_queue_del((kbuf_queue_t *)msq_id);
-
-    return ret;
+    return krhino_buf_queue_del((kbuf_queue_t *)msq_id);
 }
 
