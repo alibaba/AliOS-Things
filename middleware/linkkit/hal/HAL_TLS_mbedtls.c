@@ -25,6 +25,8 @@
 
 #define SEND_TIMEOUT_SECONDS (10)
 
+static ssl_hooks_t g_ssl_hooks = {HAL_Malloc, HAL_Free};
+
 typedef struct _TLSDataParams
 {
     mbedtls_ssl_context ssl;     /**< mbed TLS control context. */
@@ -543,6 +545,18 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
     _network_ssl_disconnect((TLSDataParams_t *)handle);
     HAL_Free((void *)handle);
     return 0;
+}
+
+int HAL_SSLHooks_set(ssl_hooks_t *hooks)
+{
+    if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
+        return DTLS_INVALID_PARAM;
+    }
+
+    g_ssl_hooks.malloc = hooks->malloc;
+    g_ssl_hooks.free = hooks->free;
+
+    return DTLS_SUCCESS;
 }
 
 uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt,
