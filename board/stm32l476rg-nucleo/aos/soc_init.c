@@ -10,6 +10,8 @@
 #include "stm32l4xx_hal.h"
 #include "hal_uart_stm32l4.h"
 #include "hal/hal_i2c_stm32l4.h"
+#include "hal_spi_stm32l4.h"
+#include "stm32l4xx_hal_spi.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -124,4 +126,18 @@ GETCHAR_PROTOTYPE
   }
 }
 
+extern int32_t hal_spi_init(spi_dev_t *spi);
+int32_t hal_spi_init(spi_dev_t *spi) {
+}
+
+extern int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t timeout) {
+}
+extern int32_t hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_t timeout) {
+}
+
+extern int32_t hal_spi_finalize(spi_dev_t *spi);
+int32_t hal_spi_finalize(spi_dev_t *spi) {
+}
 
