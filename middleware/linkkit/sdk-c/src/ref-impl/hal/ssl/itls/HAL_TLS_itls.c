@@ -26,9 +26,6 @@
 #include "iot_import.h"
 #include "iotx_hal_internal.h"
 
-#define HAL_ITLS_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "hal.itls")
-#define HAL_ITLS_FREE(ptr)    LITE_free(ptr)
-
 #define CONFIG_ITLS_TIME_TEST
 
 #define SEND_TIMEOUT_SECONDS (10)
@@ -43,8 +40,8 @@ typedef struct _TLSDataParams {
 #define DEBUG_LEVEL 0
 
 #if defined(CONFIG_ITLS_TIME_TEST)
-    #include <sys/time.h>
-    static struct timeval tv1, tv2;
+#include <sys/time.h>
+static struct timeval tv1, tv2;
 #endif
 
 static unsigned int _avRandom()
@@ -227,13 +224,13 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData,
 
     /* "OPTIONAL", token for id2 one-time provisioning */
     if ((ret = mbedtls_ssl_conf_auth_token(&(pTlsData->conf), product_secret, strlen(product_secret))) != 0) {
-        hal_err(" failed\n  ! mbedtls_ssl_conf_auth_token returned %d\n\n", ret);
+        hal_err( " failed\n  ! mbedtls_ssl_conf_auth_token returned %d\n\n", ret );
         goto _out;
     }
 
 #if defined(MBEDTLS_SSL_MAX_FRAGMENT_LENGTH)
     if ((ret = mbedtls_ssl_conf_max_frag_len(&(pTlsData->conf), MBEDTLS_SSL_MAX_FRAG_LEN_1024)) != 0) {
-        hal_err(" failed\n  ! mbedtls_ssl_conf_max_frag_len returned %d\n\n", ret);
+        hal_err( " failed\n  ! mbedtls_ssl_conf_max_frag_len returned %d\n\n", ret );
         goto _out;
     }
 #endif
@@ -263,7 +260,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData,
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv2, NULL);
     hal_info("=========================== iTLS handshake used time(usec): %d\n",
-             (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
+                   (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
 #endif
 
     hal_info(" ok");
@@ -321,7 +318,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv2, NULL);
     hal_info("=========================== iTLS receive data(%d bytes) used time(usec): %d\n",
-             readLen, (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
+                   readLen, (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
 #endif
 
     return (readLen > 0) ? readLen : net_status;
@@ -353,7 +350,7 @@ static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer, int
 #if defined(CONFIG_ITLS_TIME_TEST)
     gettimeofday(&tv2, NULL);
     hal_info("iTLS send data(%d bytes) used time(usec): %d\n",
-             writtenLen, (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
+                   writtenLen,  (int)((tv2.tv_sec - tv1.tv_sec) * 1000000 + (tv2.tv_usec - tv1.tv_usec)));
 #endif
 
     return writtenLen;
@@ -369,9 +366,9 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
 }
 
 uintptr_t HAL_SSL_Establish(const char *host,
-                            uint16_t port,
-                            const char *ca_crt,
-                            size_t ca_crt_len)
+                             uint16_t port,
+                             const char *ca_crt,
+                             size_t ca_crt_len)
 {
     char port_str[6];
     TLSDataParams_pt pTlsData;
@@ -386,7 +383,7 @@ uintptr_t HAL_SSL_Establish(const char *host,
     product_key = ca_crt;
     product_secret = ca_crt + strlen(product_key) + 1;
 
-    pTlsData = HAL_ITLS_MALLOC(sizeof(TLSDataParams_t));
+    pTlsData = HAL_Malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
         return (uintptr_t)NULL;
     }
@@ -396,8 +393,8 @@ uintptr_t HAL_SSL_Establish(const char *host,
     sprintf(port_str, "%u", port);
 
     if (0 != _TLSConnectNetwork(pTlsData, host, port_str, product_key, product_secret)) {
-        HAL_ITLS_FREE((void *)pTlsData);
-        return (uintptr_t)NULL;
+        HAL_Free((void *)pTlsData);
+        return (uintptr_t)NULL; 
     }
 
     return (uintptr_t)pTlsData;
@@ -411,7 +408,7 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
     }
 
     _network_ssl_disconnect((TLSDataParams_t *)handle);
-    HAL_ITLS_FREE((void *)handle);
+    HAL_Free((void *)handle);
 
     return 0;
 }
