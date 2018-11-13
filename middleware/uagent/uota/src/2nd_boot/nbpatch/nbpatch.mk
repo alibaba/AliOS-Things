@@ -1,6 +1,8 @@
 NAME := ota_2ndboot_nbpatch
 
-$(NAME)_TYPE := uota
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := nbpatch.c \
                    nbpatch_io.c \
                    xzdec.c \
