@@ -20,10 +20,7 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
 
 sal ?= 1
 ifeq (1,$(sal))
-$(NAME)_COMPONENTS += sal
-module ?= wifi.mk3060
-else ifeq (2,$(sal))
-$(NAME)_COMPONENTS += feature.linkkit-sal
+$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.mk3060
 endif
 
