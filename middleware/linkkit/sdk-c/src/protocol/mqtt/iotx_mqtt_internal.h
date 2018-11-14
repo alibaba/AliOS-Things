@@ -24,7 +24,6 @@
 
 
 #define mqtt_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")
-#define mqtt_realloc(p,size)         LITE_realloc(p ,size, MEM_MAGIC, "mqtt")
 #define mqtt_free                    LITE_free
 
 #define MQTT_DYNBUF_SEND_MARGIN                      (64)
