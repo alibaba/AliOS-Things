@@ -509,6 +509,8 @@ typedef struct t_IEEE80211STATUS
     s8 softap_ssid[CFG_SOFTAP_SSID_LENGTH+1];   //+1 to prevent printf core dump!!
     s8 softap_ssid_length;   //+1 to prevent printf core dump!!
     u8 run_channel;
+    u8 softap_beaconpkt_en;
+    u32 *softap_beacon_addr;
     u32 softap_ack_timeout;
     u32 softap_data_timeout;
 //>>config end

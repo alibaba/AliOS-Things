@@ -64,11 +64,11 @@ void Cmd_test_pwm_reconfig(s32 argc, char *argv[]) {
     duty = strtoul(argv[3], NULL, 10);
     is_invert = strtoul(argv[4], NULL, 10);
 
-    if ((argc != 5) || (pwm_id < 0) || (pwm_id > 4) || (freq_hz < 5) || (freq_hz > 4000000) || (duty < 0) || (duty > 100) || (is_invert < 0) || (is_invert > 1)) {
+    if ((argc != 5) || (pwm_id < 0) || (pwm_id > 4) || (freq_hz < 5) || (freq_hz > 4000000) || (duty < 0) || (duty > M_PWM_DUTY_STEP) || (is_invert < 0) || (is_invert > 1)) {
         printf("Usage   : test_pwm_reconfig <id> <freq> <duty> <inv>\n");
         printf("<id>    : pwm id(0-4)\n");
         printf("<freq>  : freq_hz(5-4M)\n");
-        printf("<duty>  : duty(0-100)\n");
+        printf("<duty>  : duty(0-4096)\n");
         printf("<inv>   : 0:none ; 1:invert the PWM polarity\n");
         return;
     }
@@ -156,7 +156,7 @@ static void Cmd_help (int32_t argc, char *argv[])
     printf ("Options:\n");
     printf ("<id>                       The PWM target number(0-4).\n");
     printf ("<freq>                     Freq_hz(5-4000000).\n");
-    printf ("<duty>                     Duty cycle(0-100).\n");
+    printf ("<duty>                     Duty cycle(0-4096).\n");
     printf ("<inv>                      PWM polarity. 0:none ; 1:invert\n");
 
     printf ("\n*************************************************************************\n");
@@ -167,7 +167,7 @@ static void Cmd_help (int32_t argc, char *argv[])
     printf ("Options:\n");
     printf ("<id>                       The PWM target number(0-4).\n");
     printf ("<freq>                     Freq_hz(5-4000000).\n");
-    printf ("<duty>                     Duty cycle(0-100).\n");
+    printf ("<duty>                     Duty cycle(0-4096).\n");
     printf ("<inv>                      PWM polarity. 0:none ; 1:invert\n");
 
     printf ("\n*************************************************************************\n");

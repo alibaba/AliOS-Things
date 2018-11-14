@@ -4,6 +4,8 @@
 #include "osal.h"
 #include <string.h>
 #include <stdio.h>
+#include "rf/rf_api.h"
+#include "error.h"
 
 #define CFG_ASSERT(cmp) \
     do { \
@@ -80,5 +82,31 @@ void cfg_sa_write_cfg(struct sa_cfg *new_cfg, uint16_t len) {
     }
     OS_ExitCritical();
     OS_MemFree(buf);
+}
+
+struct st_rf_table ssv_rf_table;
+    
+int load_rf_table_from_flash()
+{
+    volatile uint8_t *ptr = (volatile uint8_t *)&g_sa_cfg;
+
+    memcpy((uint8_t*)&ssv_rf_table, (uint8_t*)ptr, sizeof(ssv_rf_table));
+    return 0;    
+}
+
+int save_rf_table_to_flash()
+{
+    uint8_t *ptr = (uint8_t *)OS_MemAlloc(sizeof(g_sa_cfg));
+    if (ptr == NULL) 
+    {
+        printf("[%s] no memory, please check\n", __func__);
+        return ERROR_MEMORY_FAILED;
+    }
+    memset(ptr, 0, sizeof(g_sa_cfg));
+    memcpy(ptr, &ssv_rf_table, sizeof(ssv_rf_table));
+
+    cfg_sa_write_cfg((struct sa_cfg*)ptr, sizeof(g_sa_cfg));
+    OS_MemFree(ptr);
+    return 0;
 }
 

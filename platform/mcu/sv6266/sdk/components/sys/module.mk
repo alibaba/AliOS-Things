@@ -1,5 +1,6 @@
 
 LIB_SRC := intc.c systick.c proftick.c backtrace.c sys_clock.c exception_info.c
+LIB_SRC += sys_random.c
 ifeq ($(strip $(XIP_MODE)), 1)
 LIB_SRC += xip.c flash.c sys_boot.c
 endif

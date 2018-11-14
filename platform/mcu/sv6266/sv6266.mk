@@ -19,6 +19,7 @@ $(NAME)_COMPONENTS += protocols.net
 $(NAME)_COMPONENTS += libc
 
 $(NAME)_COMPONENTS += platform/mcu/sv6266/$(SDKDIR)/components/bsp/soc/soc_init
+$(NAME)_COMPONENTS += platform/mcu/sv6266/osal
 $(NAME)_COMPONENTS += platform/mcu/sv6266/cfg
 
 $(NAME)_PREBUILT_LIBRARY := lib/bootloader.a
@@ -28,7 +29,7 @@ $(NAME)_PREBUILT_LIBRARY += lib/crypto.a
 #$(NAME)_PREBUILT_LIBRARY += lib/ota.a
 $(NAME)_PREBUILT_LIBRARY += lib/n10.a
 #$(NAME)_PREBUILT_LIBRARY += lib/soc_init.a
-$(NAME)_PREBUILT_LIBRARY += lib/osal.a
+#$(NAME)_PREBUILT_LIBRARY += lib/osal.a
 $(NAME)_PREBUILT_LIBRARY += lib/sys.a
 $(NAME)_PREBUILT_LIBRARY += lib/timer.a
 $(NAME)_PREBUILT_LIBRARY += lib/common.a
@@ -137,11 +138,11 @@ GLOBAL_DEFINES += SETTING_PARTITION_MAIN_SIZE=$(SETTING_PARTITION_MAIN_SIZE)
 SETTING_FLASH_TOTAL_SIZE := 2M
 GLOBAL_DEFINES += SETTING_FLASH_TOTAL_SIZE=$(SETTING_FLASH_TOTAL_SIZE)
 
-# 0x18: psram heap base
+# 0x18: psram heap base, not supported
 SETTING_PSRAM_HEAP_BASE := 0
 GLOBAL_DEFINES += SETTING_PSRAM_HEAP_BASE=$(SETTING_PSRAM_HEAP_BASE)
 
-# 0x1c: psram heap size
+# 0x1c: psram heap size, not supported
 SETTING_PSRAM_HEAP_SIZE := 0
 GLOBAL_DEFINES += SETTING_PSRAM_HEAP_SIZE=$(SETTING_PSRAM_HEAP_SIZE)
 

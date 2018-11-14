@@ -14,7 +14,7 @@
 #include "wifinetstack.h"
 #include "idmanage/pbuf.h"
 #include "security/drv_security.h"
-#include "phy/drv_phy.h"
+//#include "phy/drv_phy.h"
 #include "soc_defs.h"
 #include "ieee80211_mgmt.h"
 #include "ieee80211_mac.h"
@@ -63,31 +63,20 @@ static void aos_wdt_process() {
 #endif
 }
 
-static void temperature_compensation_task(void *pdata)
-{
-    //drv_gpio_set_dir(GPIO_10, GPIO_DIR_OUT);
-    //drv_gpio_set_logic(GPIO_10, GPIO_LOGIC_LOW);
-    printf("%s\n", __func__);
-    OS_MsDelay(1*1000);
 #if defined(CONFIG_ENABLE_WDT)
+static void wdt_task(void *pdata)
+{
     drv_wdt_init();
     drv_wdt_enable(SYS_WDT, 6000);
     drv_wdt_register_isr(SYS_WDT, 255, aos_wdt_process);
-#endif
     while(1)
     {
-        //drv_gpio_set_logic(GPIO_10, GPIO_LOGIC_LOW);
-        //OS_MsDelay(1000);
-        //drv_gpio_set_logic(GPIO_10, GPIO_LOGIC_HIGH);
-        //OS_MsDelay(1000);
         OS_MsDelay(3*1000);
-        do_temerature_compensation();
-#if defined(CONFIG_ENABLE_WDT)
         drv_wdt_kick(SYS_WDT);
-#endif
     }
     OS_TaskDelete(NULL);
 }
+#endif
 
 ktask_t *g_aos_init;
 static kinit_t kinit;
@@ -146,7 +135,7 @@ static void app_start(void)
     
     OS_Init();
     OS_MemInit();
-    OS_PsramInit();
+    //OS_PsramInit();
 
     drv_gpio_set_dir(GPIO_12, GPIO_DIR_IN);
     drv_gpio_set_dir(GPIO_11, GPIO_DIR_IN);
@@ -160,7 +149,9 @@ static void app_start(void)
     drv_gpio_register_isr(GPIO_11, isr_gpio_11);
     
     OS_TaskCreate(ssvradio_init_task, "ssvradio_init", 512, NULL, 1, NULL);
-    OS_TaskCreate(temperature_compensation_task, "rf temperature compensation", 256+128, NULL, 15, NULL);
+#if defined(CONFIG_ENABLE_WDT)
+    OS_TaskCreate(wdt_task, "wdt", 256+128, NULL, 15, NULL);
+#endif
     krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)system_init, 1);
     
     OS_StartScheduler();

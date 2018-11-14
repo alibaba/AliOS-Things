@@ -291,11 +291,30 @@ int get_connectsta_info(CONNSTAINFO *info, u8 *number);
  */
 void set_sniffer_config(SNIFFER_RECVINDEX index, void (*sniffercb)(packetinfo *));
 void clear_rxque_buffer();
+
+/**
+ * @brief Configures the WIFI power saving mode
+ * @param enable	    [IN] 1: enable wifi power saving , 0: disable wifi power savng 
+ * @param opmode        [IN] 1: MCU off, 0:MCU ON. Now, Only support MCU on 
+ * @return 0:success, -1:fail
+ */
 int set_power_mode(u8 enable, u8 opmode);
 int set_highprio_sta(u8 staid);
 int register_wifi_ifname(u8 id, char *ifname);
 int get_local_mac(u8 staid, u8 *pmac, u8 len);
 u8 get_operation_mode();
+/**
+ * @brief Configures the channel settings of sniffer mode. 
+ * @param ch	    [IN] cannel number. 
+ *                  1,2,3,4,5,6,7,8,9,10,11,12,13 on 2.4G Band. 
+ *                  36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,and 165 on 5G Band
+ * @param type      [IN] channel type
+ *                  0: None HT
+ *                  1: HT20
+ *                  2: HT40 minus
+ *                  3. HT40 plus
+ * @return 0:success, -1:fail
+ */
 int wifi_set_channel(u32 ch, u32 type);
 int set_country_code(COUNTRY_CODE code);
 

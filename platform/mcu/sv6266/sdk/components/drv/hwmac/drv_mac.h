@@ -11,6 +11,8 @@
 #define PKT_IRQHANDLE 1
 #define KRACK 1
 
+#define FTYPE_BEACON         0x80
+
 typedef struct rx_info
 {
   u8* pbuf_addr;
@@ -346,6 +348,8 @@ int drv_mac_mib_on(void);
 int drv_mac_mib_off(void);
 int drv_mac_mib_rx(void);
 int drv_mac_mib_tx(void);
+
+void set_macisr_status(u8 stat) ATTRIBUTE_SECTION_FAST;
 
 #endif /* _DRV_MAC_H_ */
 

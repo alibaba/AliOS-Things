@@ -75,8 +75,8 @@
 #endif //ID_TRAP_SW_TXTPUT
 
 
-inline s32 drv_mailbox_send(u32 hw_number,u32 pktmsg) ATTRIBUTE_SECTION_FAST;
-s32 drv_mailbox_cpu_ff(u32 pktmsg, u32 hw_number) ATTRIBUTE_SECTION_FAST;
+s32 drv_mailbox_send(u32 hw_number,u32 pktmsg) ATTRIBUTE_SECTION_FAST;
+s32 drv_mailbox_cpu_ff(u32 pktmsg, u32 hw_number, u8 isprotect) ATTRIBUTE_SECTION_FAST;
 
 void dump_mailbox_dbg (int num);
 void enable_mailbox_dbg (void);

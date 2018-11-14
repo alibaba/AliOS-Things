@@ -473,6 +473,11 @@ int parseBuff2Param(char* bufCmd, stParam* pParam, uint8_t maxargu)
 
 
 ////RF AT Command
+#define SAVE_RF_TABLE() \
+    load_rf_table_to_mac(&ssv_rf_table); \
+    save_rf_table_to_flash()
+
+
 int At_RadioRFStart(stParam *param)
 {	
     printf("\n");
@@ -502,6 +507,20 @@ int At_RadioChannel(stParam *param)
     }
 
     ret = rf_set_ch(ch, 0, ch_type);
+
+    return ret;
+}
+int At_RadioChannelHT40(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;
+    
+    int ch_ht40 = atoi(param->argv[0]);
+    
+    if(param->argc <1)
+        return ERROR_INVALID_PARAMETER;
+    
+    ret = rf_set_ch_ht40(ch_ht40);
 
     return ret;
 }
@@ -761,7 +780,7 @@ int At_RadioRFFreqoffset(stParam *param)
     if(param->argc <1)
         return ERROR_INVALID_PARAMETER;
 
-    ret = write_reg_freq_xi_xo(atoi(param->argv[0]), atoi(param->argv[0]), 0x3);
+    ret = write_reg_freq_xi_xo(atoi(param->argv[0]), atoi(param->argv[1]), 0x3);
         
     return ret;
 }
@@ -871,7 +890,7 @@ int At_RadioRFLdo(stParam *param)
     if(param->argc <1)
         return ERROR_INVALID_PARAMETER;
 
-    ret = write_reg_rxafe(atoi(param->argv[0]));
+    ret = write_reg_rxfe(atoi(param->argv[0]));
         
     return ret;
 }     
@@ -946,7 +965,7 @@ int At_RadioRFTempBoundary(stParam *param)
 
     set_temper_value(atoi(param->argv[0]), atoi(param->argv[1]));
     
-    save_rf_table_to_flash();
+    SAVE_RF_TABLE();
     
     return ret;
 }
@@ -1008,13 +1027,13 @@ int At_RfTableRT(stParam *param)
         tempe_config.padpd_cali = atoi(param->argv[17]);
 
         if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 0 )
-            ret = write_reg_tempe_table(tempe_config);
+        ret = write_reg_tempe_table(tempe_config);
 
         if(ret != 0)
             return ret;
 
         memcpy(&ssv_rf_table.rt_config, &tempe_config, sizeof(tempe_config) );
-        save_rf_table_to_flash();
+        SAVE_RF_TABLE();
     }
         
     return ret;
@@ -1077,13 +1096,13 @@ int At_RfTableHT(stParam *param)
         tempe_config.padpd_cali = atoi(param->argv[17]);
 
         if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 1 )
-            ret = write_reg_tempe_table(tempe_config);
+        ret = write_reg_tempe_table(tempe_config);
 
         if(ret != 0)
             return ret;
 
         memcpy(&ssv_rf_table.ht_config, &tempe_config, sizeof(tempe_config) );
-        save_rf_table_to_flash();
+        SAVE_RF_TABLE();
     }
     return ret;
 }      
@@ -1145,13 +1164,13 @@ int At_RfTableLT(stParam *param)
         tempe_config.padpd_cali = atoi(param->argv[17]);
 
         if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 2 )
-            ret = write_reg_tempe_table(tempe_config);
+        ret = write_reg_tempe_table(tempe_config);
 
         if(ret != 0)
             return ret;
 
         memcpy(&ssv_rf_table.lt_config, &tempe_config, sizeof(tempe_config) );
-        save_rf_table_to_flash();
+        SAVE_RF_TABLE();
     }
     return ret;
 }      
@@ -1174,7 +1193,7 @@ int At_RfTableGain(stParam *param)
         if(ret != 0)
             return ret;
         ssv_rf_table.rf_gain = rf_gain;
-        save_rf_table_to_flash(); 
+        SAVE_RF_TABLE(); 
     }
     return ret;
 }
@@ -1197,7 +1216,7 @@ int At_RfTableBRateGain(stParam *param)
         if(ret != 0)
             return ret;
         ssv_rf_table.rate_gain_b = rate_gain;
-        save_rf_table_to_flash();
+        SAVE_RF_TABLE();
     }
     return ret;
 }   
@@ -1229,7 +1248,7 @@ int At_RfTableGRateGain(stParam *param)
             return ret;
 
         memcpy(&ssv_rf_table.rate_config_g, &g_rate_gain, sizeof(g_rate_gain));
-        save_rf_table_to_flash(); 
+        SAVE_RF_TABLE(); 
     }
     return ret;
 }   
@@ -1261,7 +1280,7 @@ int At_RfTable20NRateGain(stParam *param)
             return ret;
 
         memcpy(&ssv_rf_table.rate_config_20n, &rate_gain_20n, sizeof(rate_gain_20n));
-        save_rf_table_to_flash(); 
+        SAVE_RF_TABLE(); 
     }
     return ret;
 }   
@@ -1293,7 +1312,7 @@ int At_RfTable40NRateGain(stParam *param)
             return ret;
 
         memcpy(&ssv_rf_table.rate_config_40n, &rate_gain_40n, sizeof(rate_gain_40n));
-        save_rf_table_to_flash(); 
+        SAVE_RF_TABLE(); 
     }
     return ret;
 }   
@@ -1594,13 +1613,13 @@ int At_Rf5GTableRT(stParam *param)
     tempe_config.bias2 = ssv_rf_table.rt_5g_config.bias2;
 
     if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 0 )
-        ret = write_reg_tempe_5g_table(tempe_config);
+    ret = write_reg_tempe_5g_table(tempe_config);
 
     if(ret != 0)
         return ret;
         
     memcpy(&ssv_rf_table.rt_5g_config, &tempe_config, sizeof(tempe_config) );    
-    save_rf_table_to_flash(); 
+    SAVE_RF_TABLE(); 
 
     return ret;    
 }
@@ -1631,13 +1650,13 @@ int At_Rf5GTableHT(stParam *param)
     tempe_config.bias2 = ssv_rf_table.ht_5g_config.bias2;
 
     if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 1 )
-        ret = write_reg_tempe_5g_table(tempe_config);
+    ret = write_reg_tempe_5g_table(tempe_config);
 
     if(ret != 0)
         return ret;
         
     memcpy(&ssv_rf_table.ht_5g_config, &tempe_config, sizeof(tempe_config) );    
-    save_rf_table_to_flash(); 
+    SAVE_RF_TABLE(); 
 
     return ret;    
 }
@@ -1668,13 +1687,13 @@ int At_Rf5GTableLT(stParam *param)
     tempe_config.bias2 = ssv_rf_table.lt_5g_config.bias2;
 
     if( get_current_tempe_state( ssv_rf_table.low_boundary, ssv_rf_table.high_boundary ) == 2 )
-        ret = write_reg_tempe_5g_table(tempe_config);
+    ret = write_reg_tempe_5g_table(tempe_config);
 
     if(ret != 0)
         return ret;
         
     memcpy(&ssv_rf_table.lt_5g_config, &tempe_config, sizeof(tempe_config) );    
-    save_rf_table_to_flash(); 
+    SAVE_RF_TABLE(); 
 
     return ret; 
 }
@@ -1708,7 +1727,7 @@ int At_Rf5GTableBIAS1(stParam *param)
     ssv_rf_table.ht_5g_config.bias1 = ht_bias1;
     ssv_rf_table.lt_5g_config.bias1 = lt_bias1;
     
-    save_rf_table_to_flash(); 
+    SAVE_RF_TABLE(); 
 
     return ret;    
 }
@@ -1742,7 +1761,7 @@ int At_Rf5GTableBIAS2(stParam *param)
     ssv_rf_table.ht_5g_config.bias2 = ht_bias2;
     ssv_rf_table.lt_5g_config.bias2 = lt_bias2;
     
-    save_rf_table_to_flash(); 
+    SAVE_RF_TABLE(); 
 
     return ret; 
 }
@@ -1776,7 +1795,7 @@ int At_Rf5GBandThreshold(stParam *param)
     ssv_rf_table.band_f1_threshold = thr_f1;
     ssv_rf_table.band_f2_threshold = thr_f2;
     
-    save_rf_table_to_flash(); 
+    SAVE_RF_TABLE(); 
 
     return ret; 
 }
@@ -1786,12 +1805,29 @@ void At_RfSingleTone(stParam *param)
     printf("\n");
     int ret = ERROR_SUCCESS;
 
-    
     if(param->argc < 1)
         return ERROR_INVALID_PARAMETER;
 
     ret = rf_tone_gen(atoi(param->argv[0]));
 
+    return ret; 
+}
+void At_RfWorkMode(stParam *param)
+{
+    printf("\n");
+    int ret = ERROR_SUCCESS;
+
+    
+    if(param->argc < 1)
+        return ERROR_INVALID_PARAMETER;
+
+    if(atoi(param->argv[0]) == 1)
+            ssv_rf_table.work_mode = 1;
+    else
+            ssv_rf_table.work_mode = 0;
+    
+    SAVE_RF_TABLE(); 
+        
     return ret; 
 }
 void scan_cbfunc()

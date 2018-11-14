@@ -83,20 +83,6 @@ void wifi_auto_connect_task(void *pdata)
     OS_TaskDelete(NULL);
 }
 
-void temperature_compensation_task(void *pdata)
-{
-    printf("temperature compensation task\n");
-    OS_MsDelay(1*1000);
-    while(1)
-    {
-        OS_MsDelay(3*1000);
-        do_temerature_compensation();
-        
-    }
-    
-    OS_TaskDelete(NULL);
-}
-
 void ssvradio_init_task(void *pdata)
 {
     WIFI_INIT();
@@ -107,6 +93,7 @@ void ssvradio_init_task(void *pdata)
 }
 
 extern void drv_uart_init(void);
+extern struct st_rf_table ssv_rf_table;
 void APP_Init(void)
 {
 #ifdef XIP_MODE
@@ -123,7 +110,18 @@ void APP_Init(void)
     OS_PsramInit();
 
     load_rf_table_from_flash();
-    write_reg_rf_table();
+    if(ssv_rf_table.boot_flag == 0xFF)
+    {
+        build_default_rf_table(&ssv_rf_table);
+        load_rf_table_to_mac(&ssv_rf_table);
+        save_rf_table_to_flash();
+        dump_rf_table();
+    }
+    else
+    {
+        load_rf_table_to_mac(&ssv_rf_table);
+        dump_rf_table();
+    }
 
     fs_handle = FS_init();
     if(fs_handle)
@@ -136,10 +134,6 @@ void APP_Init(void)
 #endif
 
     OS_TaskCreate(ssvradio_init_task, "ssvradio_init", 512, NULL, tskIDLE_PRIORITY + 2, NULL);
-
-#if 1
-    OS_TaskCreate(temperature_compensation_task, "rf temperature compensation", 256, NULL, tskIDLE_PRIORITY + 2, NULL);
-#endif
 
     init_global_conf();
     OS_TaskCreate(wifi_auto_connect_task, "wifi_auto_connect", 1024, NULL, tskIDLE_PRIORITY + 2, NULL);

@@ -29,7 +29,6 @@ struct st_rate_gain
     uint8_t rate4;
 };
 
-#if 1
 struct st_tempe_5g_table 
 {
     uint8_t bbscale_band0;   //Band0 in 0xccb0ada8(31-24)
@@ -39,7 +38,6 @@ struct st_tempe_5g_table
     uint32_t bias1;                  // Band0 in 0xccb0a62c(15-0), Band1 in 0xccb0a62c(31-16)
     uint32_t bias2;                  // Band2 in 0xccb0a630(15-0), Band3 in 0xccb0a630(31-16)   
 };
-#endif
 
 struct st_rf_table 
 {
@@ -57,22 +55,32 @@ struct st_rf_table
     struct st_rate_gain rate_config_40n;
     int8_t low_boundary;
     int8_t high_boundary;
-#if 1
-    uint8_t reserv1;
-    uint8_t reserv2;
+    /*0xFF: EN_FIRST_BOOT, 0:EN_NOT_FIST_BOOT*/
+    uint8_t boot_flag;
+    /*0:EN_WORK_NOMAL, 1:EN_WORK_ENGINEER*/
+    uint8_t work_mode; 
     struct st_tempe_5g_table rt_5g_config;
     struct st_tempe_5g_table ht_5g_config;
     struct st_tempe_5g_table lt_5g_config;
     uint16_t band_f0_threshold;  
     uint16_t band_f1_threshold;
     uint16_t band_f2_threshold; 
-#endif
 };
-int load_phy_table();
+
+enum{
+    EN_FIRST_BOOT=0xFF,
+    EN_NOT_FIRST_BOOT=0,
+};
+
+enum{
+    EN_WORK_NOMAL=0,
+    EN_WORK_ENGINEER
+};
+
 int dump_rf_value();
 int dump_rf_table();
-int load_rf_table_from_flash();
-int save_rf_table_to_flash();
+int build_default_rf_table(struct st_rf_table *pTable);
+int load_rf_table_to_mac(struct st_rf_table *pTable);
 int get_current_temperature(int *pvalue);
 int get_current_tempe_state(int8_t low_boundary, int8_t high_boundary);
 int do_temerature_compensation();
@@ -80,7 +88,7 @@ int check_rate_gain_value(struct st_rate_gain rate_gain, uint8_t flag);
 uint32_t flag_to_mask(uint8_t flag);
 int write_reg_band_gain(uint8_t gain_index);
 int write_reg_freq_xi_xo(uint8_t xi, uint8_t xo, uint8_t mask);
-int write_reg_rxafe(uint8_t rxafe);
+int write_reg_rxfe(uint8_t rxafe);
 int write_reg_dcdc(uint8_t dcdc);
 int write_reg_xoldo(uint8_t xoldo);
 int write_reg_rxpad_ch13(uint8_t bflag);
@@ -110,7 +118,7 @@ int rf_freqoffset_readxo(uint32_t *xo_value);
 int rf_freqoffset_readxi(uint32_t *xi_value);
 int rf_manu_padpd_cali();
 int rf_enable_tcsr(uint8_t enable);
-
+int rf_set_ch_ht40(int32_t ch_ht40);
 #if 1
 int write_reg_5g_bbscale_5100(uint8_t scale);
 int write_reg_5g_bbscale_5500(uint8_t scale);

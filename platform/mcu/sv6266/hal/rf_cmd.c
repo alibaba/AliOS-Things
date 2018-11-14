@@ -413,7 +413,7 @@ int At_RadioRFLdo(s32 argc, char *argv[])
     if(argc <1)
         return ERROR_INVALID_PARAMETER;
 
-    ret = write_reg_rxafe(atoi(argv[0]));
+    ret = write_reg_rxfe(atoi(argv[0]));
         
     return ret;
 }     

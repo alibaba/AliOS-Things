@@ -20,7 +20,7 @@ struct tx_pktbuf {
 #define SOC_PBUF RX_BUF
 
 bool PBUF_is_reusable(void *old_packet, u32 new_packet_len);
-void        *PBUF_MAlloc_Raw(u32 size, u32 need_header, PBuf_Type_E buf_type, u8 isprotect) ATTRIBUTE_SECTION_FAST;
+void        *PBUF_MAlloc_Raw(u32 size, u32 need_header, PBuf_Type_E buf_type) ATTRIBUTE_SECTION_FAST;
 void		_PBUF_MFree(void *PKTMSG) ;
 void *_PBUF_MReAlloc(void **_pp, u32 new_size);
 
@@ -41,7 +41,7 @@ void *_PBUF_MReAlloc(void **_pp, u32 new_size);
                                 ((u32)(addr) <= (u32)PBUF_MapIDtoPkt(PBUF_ADDR_MAX-1)) && \
                                 ((((u32)(addr))&0xFFFF)==0))
 
-#define PBUF_MAlloc(size, type, isprotect)  PBUF_MAlloc_Raw(size, 1, type, isprotect);
+#define PBUF_MAlloc(size, type)  PBUF_MAlloc_Raw(size, 1, type);
 #define PBUF_MFree(PKTMSG) _PBUF_MFree(PKTMSG)
 
 /**
@@ -51,7 +51,7 @@ void *_PBUF_MReAlloc(void **_pp, u32 new_size);
 
 s32		PBUF_Init(void);
 s32 PBUF_Check_Init(void);
-s32 getpacketbuffer(struct tx_pktbuf *buf, int payload_len, u8 isprotect) ATTRIBUTE_SECTION_FAST;
+s32 getpacketbuffer(struct tx_pktbuf *buf, int payload_len) ATTRIBUTE_SECTION_FAST;
 void setpacketbuf_len(u32 *buf, int payload_len) ATTRIBUTE_SECTION_FAST;
 
 #endif /* _PBUF_H_ */
