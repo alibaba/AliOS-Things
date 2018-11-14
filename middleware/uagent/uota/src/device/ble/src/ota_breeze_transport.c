@@ -473,7 +473,19 @@ void ota_breeze_on_fw_data(uint8_t *buffer, uint32_t length, uint8_t num_frames)
     p_ota->ota_breeze_status = OTA_BREEZE_STATE_WRITE;
     p_ota->bytes_recvd += length;
     p_ota->frames_recvd += num_frames;
-
+    if((p_ota->bytes_recvd % ais_ota_get_page_size()) == 0) {
+        if(ota_breeze_g_page_erase_already <= ota_breeze_g_page_erase_total){
+            err_code = ais_ota_flash_erase(
+            (uint32_t const *)(p_ota->bank_1_addr + (ota_breeze_g_page_erase_already * ais_ota_get_page_size()) ), 1,  NULL);
+            if(err_code != ALI_OTA_FLASH_CODE_SUCCESS){
+                printf("sorry, erase flash failed\r\n");
+                return;
+            }
+            else{
+                ota_breeze_g_page_erase_already++;
+            }
+        }
+    }
     ota_breeze_flash_event_handler(OTA_BREEZE_FLASH_STORE_OK);
 
     /* Display progress, 5% as step */
