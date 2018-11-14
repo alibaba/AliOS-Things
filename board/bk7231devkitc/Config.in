@@ -2,3 +2,7 @@ config AOS_BOARD_BK7231
     bool "board_bk7231"
     default n
     help
+
+if AOS_BOARD_BK7231
+# Configurations for board bk7231
+endif
