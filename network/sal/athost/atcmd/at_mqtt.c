@@ -12,7 +12,6 @@
 #include "iot_export.h"
 #include "iot_export_mqtt.h"
 
-#include "athost_internal.h"
 #include "at_util.h"
 
 #define TAG "atmqtt"

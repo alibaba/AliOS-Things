@@ -9,7 +9,6 @@
 #include <aos/aos.h>
 #include <aos/network.h>
 
-#include "athost_internal.h"
 #include "at_util.h"
 
 #define TAG "attcpudp"

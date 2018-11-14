@@ -25,6 +25,26 @@
 #define AT_SEND_DELIMITER "\r"
 #endif
 
+/* Structure for registering at CLI commands */
+typedef struct atcmd_handler
+{
+    const char *name;
+    const char *help;
+
+    int (*function)(void);
+} atcmd_hdl_t, *atcmd_hdl_ptr_t;
+
+typedef struct atcmd_op_s
+{
+    const char *name;
+    const char *prefix;
+
+    int (*init)(void);
+    void (*deinit)(void);
+
+    atcmd_hdl_ptr_t (*get_atcmd_handler)(void);
+} atcmd_op_t, *atcmd_op_ptr_t;
+
 enum
 {
     ATCMD_FAIL    = 0,
@@ -81,11 +101,15 @@ int notify_atcmd_recv_status(int status);
  */
 int notify_atcmd_cme_error(int error_no);
 
+/*
+ * register functions for atcmd handlers
+ */
+int atcmd_register_handlers(atcmd_op_ptr_t handler);
 
 /*
  * entry of atcmd handle
  */
-void atcmd_handle();
+void atcmd_handle_entry();
 
 /*
  * Initialization of atcmd handle
