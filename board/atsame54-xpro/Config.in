@@ -2,3 +2,7 @@ config AOS_BOARD_ATSAME54-XPRO
     bool "board_atsame54-xpro"
     default n
     help
+
+if AOS_BOARD_ATSAME54-XPRO
+#Configurations for board atsame54-xpro
+endif

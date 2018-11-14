@@ -2,8 +2,9 @@ NAME := board_atsame54-xpro
 
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board atsame54-xpro
+
 MODULE               := 1062
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := atsamd5x_e5x
@@ -16,22 +17,20 @@ GLOBAL_INCLUDES += .
 
 GLOBAL_DEFINES += STDIO_UART=2
 
-ywss_support ?= 1
-sal ?= 1
+ywss_support       ?= 1
+sal                ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
-module ?= wifi.mk3060
+module             ?= wifi.mk3060
 else
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
+GLOBAL_DEFINES     += CONFIG_NO_TCPIP
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_ATSAME54-XPRO
-CONFIG_SYSINFO_DEVICE_NAME := ATSAME54-XPRO
+CONFIG_SYSINFO_DEVICE_NAME   := ATSAME54
 
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
-GLOBAL_DEFINES += SYSINFO_ARCH=\"$(HOST_ARCH)\"
-GLOBAL_DEFINES += SYSINFO_MCU=\"$(HOST_MCU_NAME)\"
 
 # Define default component testcase set
 ifneq (, $(findstring yts, $(BUILD_STRING)))
