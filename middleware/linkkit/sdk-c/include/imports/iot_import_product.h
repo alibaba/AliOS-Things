@@ -25,7 +25,7 @@
  * @param   version : 用来存放版本字符串的数组
  * @return  写到version[]数组中的字符长度, 单位是字节(Byte)
  */
-DLL_HAL_API int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN]);
+DLL_HAL_API int HAL_GetFirmwareVersion(_OU_ char version[FIRMWARE_VERSION_MAXLEN]);
 
 /**
  * @brief   获取设备的`Partner ID`, 仅用于紧密合作伙伴
