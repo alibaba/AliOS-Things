@@ -1,5 +1,9 @@
 NAME := libiot_log
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 $(NAME)_SOURCES := ./iotx_log.c \
  
 $(NAME)_COMPONENTS := 

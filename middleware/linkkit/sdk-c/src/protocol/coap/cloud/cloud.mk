@@ -1,5 +1,9 @@
 NAME := libiot_coap_cloud
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 $(NAME)_SOURCES := ./CoAPDeserialize.c \
                    ./iotx_coap_api.c \
                    ./CoAPNetwork.c \

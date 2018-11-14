@@ -1,5 +1,9 @@
 NAME := libiot_subdev
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 $(NAME)_SOURCES := ./iotx_subdev_api.c \
 ./iotx_subdev_common.c \
  
