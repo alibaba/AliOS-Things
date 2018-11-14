@@ -88,21 +88,12 @@ typedef struct {
 
 typedef struct {
     uint16_t        port;
-    char            host_name[1];
-    char            client_id[1];
-    char            username[1];
-    char            password[1];
-    const char     *pub_key;
+    char            *host_name;
+    char            *client_id;
+    char            *username;
+    char            *password;
+    const char      *pub_key;
 } iotx_conn_info_t, *iotx_conn_info_pt;
-
-typedef struct {
-    uint16_t        port;
-    char            host_name[HOST_ADDRESS_LEN + 1];
-    char            client_id[CLIENT_ID_LEN + 1];
-    char            username[USER_NAME_LEN + 1];
-    char            password[PASSWORD_LEN + 1];
-    const char     *pub_key;
-} iotx_conn_real_info_t;
 
 /* data srutct define for IOTX_IOCTL_SET_SUBDEV_SIGN */
 typedef struct {
