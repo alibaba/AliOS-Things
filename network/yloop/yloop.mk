@@ -1,15 +1,15 @@
 NAME := yloop
 
-$(NAME)_COMPONENTS := log kernel.fs.vfs
+$(NAME)_COMPONENTS := kernel.fs.vfs
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
 $(NAME)_SUMMARY :=
 
-$(NAME)_SOURCES     := yloop.c
-$(NAME)_SOURCES     += local_event.c
-$(NAME)_SOURCES     += select.c
-$(NAME)_SOURCES     += device.c
+$(NAME)_SOURCES     := src/yloop.c
+$(NAME)_SOURCES     += src/local_event.c
+$(NAME)_SOURCES     += src/select.c
+$(NAME)_SOURCES     += src/device.c
 
 #default gcc
 ifeq ($(COMPILER),)
