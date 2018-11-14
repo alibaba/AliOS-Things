@@ -125,8 +125,8 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
 
 void *thread_subscribe1(void *pclient)
 {
-    int   ret = -1;
-    int cnt = 400;
+    int     ret = -1;
+    int     cnt = 4;
 
     while (--cnt) {
         HAL_SleepMs(100);
@@ -148,8 +148,8 @@ void *thread_subscribe1(void *pclient)
 
 void *thread_subscribe2(void *pclient)
 {
-    int   ret = -1;
-    int cnt = 400;
+    int     ret = -1;
+    int     cnt = 4;
 
     while (--cnt) {
         HAL_SleepMs(300);
@@ -185,7 +185,7 @@ void CASE2(void *pclient)
     task_parms1.name = "thread_subscribe1";
     ret = HAL_ThreadCreate(&pid3, thread_subscribe1, (void *)pclient, &task_parms1, &stack_used);
     if (ret != 0) {
-        EXAMPLE_TRACE("pthread_create failed!\n");
+        EXAMPLE_TRACE("Thread created failed!\n");
         return;
     }
 
@@ -194,18 +194,17 @@ void CASE2(void *pclient)
     task_parms2.name = "thread_subscribe2";
     ret = HAL_ThreadCreate(&pid4, thread_subscribe2, (void *)pclient, &task_parms2, &stack_used);
     if (ret != 0) {
-        EXAMPLE_TRACE("pthread_create failed!\n");
+        EXAMPLE_TRACE("Thread created failed!\n");
         return;
     }
 }
 
-
-
 void *thread_publish1(void *pclient)
 {
-    int cnt = 400;
-    int ret = -1;
-    char msg_pub[MQTT_MSGLEN] = {0};
+    int         ret = -1;
+    int         cnt = 4;
+    char        msg_pub[MQTT_MSGLEN] = {0};
+
     iotx_mqtt_topic_info_t topic_msg;
 
     strcpy(msg_pub, "thread_publish1 message: hello! start!");
@@ -226,9 +225,9 @@ void *thread_publish1(void *pclient)
 
 void *thread_publish2(void *pclient)
 {
-    int cnt = 600;
-    int ret = -1;
-    char msg_pub[MQTT_MSGLEN] = {0};
+    int         ret = -1;
+    int         cnt = 6;
+    char        msg_pub[MQTT_MSGLEN] = {0};
     iotx_mqtt_topic_info_t topic_msg;
 
     strcpy(msg_pub, "thread_publish2 message: hello! start!");
@@ -269,9 +268,8 @@ void CASE1(void *pclient)
     task_parms1.stack_size = 4096;
     task_parms1.name = "thread_publish1";
     ret = HAL_ThreadCreate(&pid1, thread_publish1, (void *)pclient, &task_parms1, &stack_used);
-    //ret = pthread_create(&pid1, NULL, thread_publish1, (void*)pclient);
     if (ret != 0) {
-        EXAMPLE_TRACE("pthread_create failed!\n");
+        EXAMPLE_TRACE("Thread created failed!\n");
         return;
     }
 
@@ -279,13 +277,11 @@ void CASE1(void *pclient)
     task_parms2.stack_size = 4096;
     task_parms2.name = "thread_publish2";
     ret = HAL_ThreadCreate(&pid2, thread_publish2, (void *)pclient, &task_parms2, &stack_used);
-    //ret = pthread_create(&pid2, NULL, thread_publish2, (void*)pclient);
     if (ret != 0) {
-        EXAMPLE_TRACE("pthread_create failed!\n");
+        EXAMPLE_TRACE("Thread created failed!\n");
         return;
     }
 }
-
 
 // yield thread
 static int yield_exit = 0;
@@ -355,18 +351,18 @@ int mqtt_client(void)
     task_parms.stack_size = 6144;
     task_parms.name = "thread_yield";
     rc = HAL_ThreadCreate(&yield_thread, thread_yield, (void *)pclient, &task_parms, &stack_used);
-    //pthread_create(&pid1, NULL, thread_yield, (void*)pclient);
     if (rc != 0) {
         IOT_MQTT_Destroy(&pclient);
         goto do_exit;
     }
+
     // mutli thread publish
     CASE1(pclient);
 
     // mutli thread subscribe
     CASE2(pclient);
 
-    HAL_SleepMs(100000);
+    HAL_SleepMs(1000);
     IOT_MQTT_Unsubscribe(pclient, TOPIC_DATA);
     IOT_MQTT_Unsubscribe(pclient, TOPIC_GET);
 
@@ -374,10 +370,15 @@ int mqtt_client(void)
     yield_exit = 1;
     HAL_SleepMs(200);
 
-
     IOT_MQTT_Destroy(&pclient);
 
 do_exit:
+
+    HAL_ThreadDelete(pid1);
+    HAL_ThreadDelete(pid2);
+    HAL_ThreadDelete(pid3);
+    HAL_ThreadDelete(pid4);
+    HAL_ThreadDelete(yield_thread);
 
     return rc;
 }
