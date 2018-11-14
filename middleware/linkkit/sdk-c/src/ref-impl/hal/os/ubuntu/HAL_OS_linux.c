@@ -77,7 +77,7 @@ void HAL_MutexLock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
-        hal_err("lock mutex failed: '%s' (%d)", strerror(err_num), err_num);
+        hal_err("lock mutex failed: - '%s' (%d)", strerror(err_num), err_num);
     }
 }
 
@@ -85,7 +85,7 @@ void HAL_MutexUnlock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
-        hal_err("unlock mutex failed- '%s' (%d)", strerror(err_num), err_num);
+        hal_err("unlock mutex failed - '%s' (%d)", strerror(err_num), err_num);
     }
 }
 
