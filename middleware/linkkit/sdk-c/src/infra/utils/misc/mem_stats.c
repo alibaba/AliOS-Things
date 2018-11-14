@@ -562,12 +562,12 @@ void LITE_dump_malloc_free_stats(int level)
     module_mem_t *unknown_mod = NULL;
 
     LITE_printf("\r\n");
-    LITE_printf("|               | max_in_use          | max_allocated   | total_alloc         | total_free\r\n");
-    LITE_printf("|---------------|---------------------|-----------------|---------------------|--------------------\r\n");
+    LITE_printf("|               |  max_in_use          |  max_allocated   |  total_allocated      |  total_free\r\n");
+    LITE_printf("|---------------|----------------------|------------------|-----------------------|----------------------\r\n");
     list_for_each_entry_safe(module_pos, tmp, &mem_module_statis, list, module_mem_t) {
         if (module_pos) {
 
-            LITE_printf("| %-13s | %6d bytes / %-4d |    %5d bytes  | %5d bytes / %-4d  | %5d bytes / %-4d     \r\n",
+            LITE_printf("| %-13s | %6d bytes / %-5d |    %6d bytes  | %6d bytes / %-5d  | %6d bytes / %-5d     \r\n",
                         module_pos->mem_statis.module_name,
                         module_pos->mem_statis.bytes_max_in_use,
                         module_pos->mem_statis.iterations_max_in_use,
