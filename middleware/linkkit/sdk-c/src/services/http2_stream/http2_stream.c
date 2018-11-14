@@ -432,7 +432,7 @@ static int get_version_int()
     return v_int;
 }
 
-void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb)
+void *IOT_HTTP2_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb)
 {
     stream_handle_t *stream_handle = NULL;
     http2_connection_t *conn = NULL;
@@ -493,7 +493,7 @@ void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t 
     ret = HAL_ThreadCreate(&stream_handle->rw_thread, http2_io, stream_handle, &thread_parms, NULL);
     if (ret != 0) {
         h2stream_err("thread create error\n");
-        IOT_HTTP2_Stream_Disconnect(stream_handle);
+        IOT_HTTP2_Disconnect(stream_handle);
         return NULL;
     }
     HAL_ThreadDetach(stream_handle->rw_thread);
@@ -853,8 +853,7 @@ int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
     HAL_MutexUnlock(handle->mutex);
 
     if (rv < 0) {
-        h2stream_err("client send error\n");
-        return rv;
+        h2stream_warning("client send error\n");
     }
 
     /* just delete stream node */
@@ -885,7 +884,7 @@ int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
     return rv;
 }
 
-int IOT_HTTP2_Stream_Disconnect(void *hd)
+int IOT_HTTP2_Disconnect(void *hd)
 {
     int ret;
     stream_handle_t *handle = (stream_handle_t *)hd;
