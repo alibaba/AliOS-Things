@@ -1,5 +1,9 @@
-menu "Network Configuration"
+menuconfig AOS_NETWORK
+    bool "Network Configuration"
+    default n
 
-source "network/lorawan_4_4_2/Config.in"
-
-endmenu
+if AOS_NETWORK
+    source "network/netmgr/Config.in"
+    source "network/bluetooth/breeze/Config.in"
+    source "network/lorawan_4_4_2/Config.in"
+endif
