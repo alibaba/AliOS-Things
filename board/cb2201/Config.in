@@ -1,4 +1,9 @@
 config AOS_BOARD_CB2201
     bool "board_cb2201"
     default n
+    select AOS_MCU_CSKY
     help
+
+if AOS_BOARD_CB2201
+# Configurations for board cb2201
+endif
