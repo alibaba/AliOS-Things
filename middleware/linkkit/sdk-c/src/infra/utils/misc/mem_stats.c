@@ -38,25 +38,7 @@ typedef struct {
     list_head_t     list;
 } module_mem_t;
 
-#endif
-
 #if WITH_MEM_STATS
-    static void *mutex_mem_stats = NULL;
-    static int bytes_total_allocated;
-    static int bytes_total_freed;
-    static int bytes_total_in_use;
-    static int bytes_max_allocated;
-    static int bytes_max_in_use;
-    static int iterations_allocated;
-    static int iterations_freed;
-    static int iterations_in_use;
-    static int iterations_max_in_use;
-#endif
-
-#if defined(_PLATFORM_IS_LINUX_) && (WITH_MEM_STATS)
-
-static int tracking_malloc_callstack = 1;
-
 /* sort module used */
 static int _mem_cmp_max_used(list_head_t *a, list_head_t *b)
 {
@@ -113,6 +95,25 @@ static void _mem_sort_module_pos(list_head_t *head)
         }
     }
 }
+#endif /* WITH_MEM_STATS */
+#endif /* WITH_MEM_STATS_PER_MODULE */
+
+#if WITH_MEM_STATS
+    static void *mutex_mem_stats = NULL;
+    static int bytes_total_allocated;
+    static int bytes_total_freed;
+    static int bytes_total_in_use;
+    static int bytes_max_allocated;
+    static int bytes_max_in_use;
+    static int iterations_allocated;
+    static int iterations_freed;
+    static int iterations_in_use;
+    static int iterations_max_in_use;
+#endif
+
+#if defined(_PLATFORM_IS_LINUX_) && (WITH_MEM_STATS)
+
+static int tracking_malloc_callstack = 1;
 
 static int record_backtrace(int *level, char *** trace)
 {
