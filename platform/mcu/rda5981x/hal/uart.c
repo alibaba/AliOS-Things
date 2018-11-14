@@ -66,6 +66,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                          uint32_t *recv_size, uint32_t timeout)
 {
 
+    uint32_t size = 0;
     if (0 == is_inited[uart->port]) {
         hal_uart_init(uart);
         is_inited[uart->port] = 1;
@@ -77,10 +78,11 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
         *recv_data = (uint8_t)serial_getc(&serial_obj[uart->port]);
         recv_data++;
         expect_size--;
+        size++;
     }
 
     if (NULL != recv_size)
-        recv_size = expect_size;
+        *recv_size = size;
 
     return 0;
 }
