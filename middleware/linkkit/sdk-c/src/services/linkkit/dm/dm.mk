@@ -1,5 +1,9 @@
 NAME := libiot_dm
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 # $(NAME)_SOURCES := ./dm_api.c \
 # ./dm_cota.c \
 # ./dm_fota.c \

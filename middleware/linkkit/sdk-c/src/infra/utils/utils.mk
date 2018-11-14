@@ -1,5 +1,8 @@
 NAME := libiot_utils
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
 # $(NAME)_SOURCES := ./misc/linked_list.c \
 # ./misc/utils_epoch_time.c \
 # ./misc/utils_event.c \
