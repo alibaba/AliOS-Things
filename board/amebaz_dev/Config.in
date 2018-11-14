@@ -2,3 +2,7 @@ config AOS_BOARD_AMEBAZ_DEV
     bool "board_amebaz_dev"
     default n
     help
+
+if AOS_BOARD_AMEBAZ_DEV
+# Configurations for board amebaz_dev
+endif
