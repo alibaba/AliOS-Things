@@ -10,7 +10,6 @@
 #include <atparser.h>
 #include <hal/wifi.h>
 
-#include "athost_internal.h"
 #include "at_util.h"
 
 #if 0

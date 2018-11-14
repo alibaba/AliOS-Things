@@ -9,8 +9,8 @@
 #include <aos/aos.h>
 #include <hal/wifi.h>
 
-#include "athost_internal.h"
 #include "at_util.h"
+
 #define TAG "at_wifi_mgmt"
 
 static hal_wifi_event_cb_t wifi_events;
