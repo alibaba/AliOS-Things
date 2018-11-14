@@ -16,7 +16,7 @@
 #include "iot_export_http2.h"
 
 #define HTTP2_API_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "http2.api")
-#define HTTP2_API_FREE(ptr)    LITE_free(ptr)
+#define HTTP2_API_FREE(ptr)    do{if(ptr != NULL) LITE_free(ptr);}while(0)
 
 #define MAX_HTTP2_HOST_LEN                   (128)
 
