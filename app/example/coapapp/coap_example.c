@@ -246,6 +246,7 @@ reconnect:
         goto reconnect;
     }
 
+    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
     HAL_Printf("[COAP-Client]: Exit Coap Client\r\n");
     return 0;
