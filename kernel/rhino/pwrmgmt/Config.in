@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_PWRMGMT
+    bool "pwrmgmt"
+    default n
+    help
+
+if AOS_COMP_PWRMGMT
+# Configurations for component pwrmgmt
+endif
