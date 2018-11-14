@@ -1,5 +1,9 @@
 NAME := sal
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 GLOBAL_DEFINES += WITH_SAL                   \
                   SAL_USE_AOS_HAL            \
                   SAL_UDP_CLIENT_ENABLED     \

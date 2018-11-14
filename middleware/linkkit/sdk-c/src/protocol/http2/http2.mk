@@ -1,5 +1,9 @@
 NAME := libiot_http2
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 $(NAME)_SOURCES := ./nghttp2_version.c \
 ./nghttp2_hd_huffman.c \
 ./nghttp2_debug.c \
