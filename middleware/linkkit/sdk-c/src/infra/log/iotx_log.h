@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef __LITE_LOG_H__
 #define __LITE_LOG_H__
 #if defined(__cplusplus)
