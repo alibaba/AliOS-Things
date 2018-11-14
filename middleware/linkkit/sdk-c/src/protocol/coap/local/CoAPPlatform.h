@@ -13,7 +13,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define coap_malloc(size)       LITE_malloc(size, MEM_MAGIC, "local_coap")
+#define coap_malloc(size)       LITE_malloc(size, MEM_MAGIC, "coap.local")
 #define coap_free(ptr)          LITE_free(ptr)
 
 #define COAP_ERR(...)           log_err("coap_local", __VA_ARGS__)

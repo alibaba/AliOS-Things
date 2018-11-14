@@ -14,13 +14,11 @@
 #define UTILS_free                  HAL_Free
 
 #ifndef WITH_MEM_STATS
-    #ifdef __UBUNTU_SDK_DEMO__
-        #define WITH_MEM_STATS              0
-        #define WITH_MEM_STATS_PER_MODULE   0
-    #else
-        #define WITH_MEM_STATS              0
-        #define WITH_MEM_STATS_PER_MODULE   0
-    #endif
+    #define WITH_MEM_STATS                  0
+#endif
+
+#ifndef WITH_MEM_STATS_PER_MODULE
+    #define WITH_MEM_STATS_PER_MODULE       0
 #endif
 
 #ifndef WITH_JSON_KEYS_OF
