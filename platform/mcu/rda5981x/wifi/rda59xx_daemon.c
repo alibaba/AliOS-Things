@@ -7,6 +7,8 @@
 #include "maclib_task.h"
 #include "rda59xx_lwip.h"
 #include "dhcps.h"
+#include "rda5981_sys_data.h"
+#include "trng_api.h"
 
 //#define WIFISTACK_DEBUG
 #ifdef WIFISTACK_DEBUG
@@ -20,7 +22,7 @@
 //debug info
 //dbg level, 0 ~ close 1 ~ error 2 ~ info 3 ~ debug
 //dump, 0 ~ close 1 ~ open
-r_u32 rda_wland_dbg_level = 2;
+r_u32 rda_wland_dbg_level = 0;
 r_u32 rda_wpa_dbg_level = 0;
 r_u32 rda_maclib_dbg_level = 0;
 r_u32 rda_wland_dump = 0;
@@ -77,19 +79,35 @@ static r_s32 rda59xx_send_daemon_msg(rda_msg *msg, r_u32 wait_time)
 
 r_void rda59xx_get_macaddr(r_u8 *macaddr, r_u32 mode)
 {
+#if 0
     macaddr[0] = 0xD6;
     macaddr[1] = 0x71;
     macaddr[2] = 0x36;
     macaddr[3] = 0x60;
     macaddr[4] = 0xD8;
-    macaddr[5] = 0xF0;
-    
+    macaddr[5] = 0xF3;
+#else
+    r_s32 ret = 0;
+    ret = rda5981_read_sys_data(macaddr, 6, RDA5981_SYS_DATA_FLAG_MAC);
+    if((ret != 0) || (is_zero_ether_addr(macaddr))){
+        rda_get_random_bytes(macaddr, 6);
+        macaddr[0] &= 0xfe;
+        macaddr[0] |= 0x02;
+        rda5981_write_sys_data(macaddr, 6, RDA5981_SYS_DATA_FLAG_MAC);
+    }
+#endif
     if(mode == 1){
         if(macaddr[0] & 0x04)
            macaddr[0] &= 0xFB;
         else
            macaddr[0] |= 0x04;
     }
+    return;
+}
+
+r_void rda59xx_set_macaddr(r_u8 *macaddr, r_u32 mode)
+{
+    rda5981_write_sys_data(macaddr, 6, RDA5981_SYS_DATA_FLAG_MAC);
     return;
 }
 
@@ -218,7 +236,7 @@ static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info)
         }
 
         if (!netif_is_link_up(&lwip_sta_netif)) {
-            res_t = sys_arch_sem_wait(&lwip_sta_netif_linked, 60000);
+            res_t = sys_arch_sem_wait(&lwip_sta_netif_linked, 6000);
             if (res_t == SYS_ARCH_TIMEOUT) {
                 res = ERR_CONNECTION;
                 goto reconn;
@@ -376,7 +394,7 @@ r_s32 rda59xx_sniffer_disable()
 {
     rda_msg msg;
     msg.type = DAEMON_SNIFFER_DISABLE;
-    rda59xx_send_daemon_msg(&msg, RDA_WAIT_FOREVER);
+    rda59xx_send_daemon_msg(&msg, RDA_NO_WAIT);
     return 0;
 }
 
@@ -388,12 +406,13 @@ static r_void rda59xx_daemon(r_void *arg)
 
     while(1){
         rda_queue_recv(daemon_queue, (r_u32)&msg, RDA_WAIT_FOREVER);
-        if((msg.type != DAEMON_SCAN) && (msg.type != DAEMON_STA_RECONNECT) && (module_state & STATE_STA_RC)){
+        if((msg.type != DAEMON_SCAN) && (msg.type != DAEMON_STA_RECONNECT) && (module_state & STATE_STA_RC) && \
+            !((msg.type == DAEMON_STA_DISCONNECT) && (msg.arg1 == DISCONNECT_PASSIVE))){
             WIFISTACK_PRINT("set stop_reconnect!\r\n");
             stop_reconnect = 1;
         }
         switch(msg.type)
-        {   
+        {
             case DAEMON_SNIFFER_ENABLE:
                 WIFISTACK_PRINT("DAEMON_SNIFFER_ENABLE!\r\n");
                 if(module_state & STATE_SNIFFER){
@@ -409,11 +428,11 @@ static r_void rda59xx_daemon(r_void *arg)
                 WIFISTACK_PRINT("DAEMON_SNIFFER_DISABLE!\r\n");
                 if(!(module_state & STATE_SNIFFER)){
                     WIFISTACK_PRINT("SNIFFER has been disabled!\r\n");
-                    rda_sem_release((r_void *)msg.arg3);
+                    //rda_sem_release((r_void *)msg.arg3);
                     break;
                 }
                 res = rda59xx_sniffer_disable_internal();
-                rda_sem_release((r_void *)msg.arg3);
+                //rda_sem_release((r_void *)msg.arg3);
                 module_state &= ~(STATE_SNIFFER);
                 break;
             case DAEMON_SCAN:
@@ -427,7 +446,7 @@ static r_void rda59xx_daemon(r_void *arg)
                     WIFISTACK_PRINT("STA has been connected!\r\n");
                     rda_sem_release((r_void *)msg.arg3);
                     break;
-                }
+                }                    
                 if(module_state & STATE_AP){
                     rda59xx_ap_disable_internal();
                     module_state &= ~(STATE_AP);
@@ -457,7 +476,7 @@ static r_void rda59xx_daemon(r_void *arg)
                         module_state &= ~(STATE_SNIFFER);
                         rda59xx_sniffer_disable_internal();
                         monitor_restore = 1;
-                    }
+                    }    
                     msg.type = DAEMON_STA_RECONNECT;
                     res = rda_queue_send(daemon_queue, (r_u32)&msg, 1000);
                     module_state |= STATE_STA_RC;

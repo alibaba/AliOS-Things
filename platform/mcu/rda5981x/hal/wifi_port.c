@@ -165,6 +165,11 @@ static void wifi_get_mac_addr(hal_wifi_module_t *m, uint8_t *mac)
     rda59xx_get_macaddr(mac, 0);
 };
 
+static void wifi_set_mac_addr(hal_wifi_module_t *m, const uint8_t *mac)
+{
+    rda59xx_set_macaddr(mac, 0);
+};
+
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
     rda59xx_sta_info sta_info;
@@ -345,6 +350,7 @@ hal_wifi_module_t aos_wifi_rda59xx = {
     .base.name           = "aos_wifi_rda59xx",
     .init                =  wifi_init,
     .get_mac_addr        =  wifi_get_mac_addr,
+    .set_mac_addr        =  wifi_set_mac_addr,
     .start               =  wifi_start,
     .start_adv           =  wifi_start_adv,
     .get_ip_stat         =  get_ip_stat,
