@@ -105,7 +105,7 @@ static int iotx_get_token_from_json(char *p_str, char *p_token, int len)
         return IOTX_ERR_INVALID_PARAM;
     }
 
-    p_value = LITE_json_value_of("token", p_str);
+    p_value = LITE_json_value_of("token", p_str, MEM_MAGIC, "coap.cloud");
     if (NULL != p_value) {
         if (len - 1 < strlen(p_value)) {
             return IOTX_ERR_BUFF_TOO_SHORT;
