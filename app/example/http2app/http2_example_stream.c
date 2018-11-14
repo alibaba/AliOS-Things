@@ -140,7 +140,7 @@ static int http2_stream_test()
     conn_info.url = HTTP2_ONLINE_SERVER_URL;
     conn_info.port = HTTP2_ONLINE_SERVER_PORT;
 
-    handle = IOT_HTTP2_Stream_Connect(&conn_info,&my_cb);
+    handle = IOT_HTTP2_Connect(&conn_info,&my_cb);
     if(handle == NULL) {
         return -1;
     }
@@ -166,21 +166,22 @@ static int http2_stream_test()
     ret = IOT_HTTP2_Stream_Open(handle, &info_download, &my_header_info);
     if (ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_downstream_open failed %d!!!!!\n", ret);
-        IOT_HTTP2_Stream_Disconnect(handle);
+        IOT_HTTP2_Disconnect(handle);
         return -1;
     }
 
     ret = IOT_HTTP2_Stream_Query(handle, &info_download, &my_header_info);
     if (ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_downstream_query failed %d!!!!!\n", ret);
-        IOT_HTTP2_Stream_Disconnect(handle);
+        IOT_HTTP2_Stream_Close(handle, &info_upload);
+        IOT_HTTP2_Disconnect(handle);
         return -1; 
     }
 
     ret = IOT_HTTP2_Stream_Open(handle, &info_upload, &my_header_info);
     if(ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_upstream_open failed %d!!!!!\n", ret);
-        IOT_HTTP2_Stream_Disconnect(handle);
+        IOT_HTTP2_Disconnect(handle);
         return -1;
     }
     //send request 1
@@ -228,7 +229,7 @@ static int http2_stream_test()
     IOT_HTTP2_Stream_Close(handle, &info_download);
     HAL_SleepMs(2000);
 
-    ret = IOT_HTTP2_Stream_Disconnect(handle);
+    ret = IOT_HTTP2_Disconnect(handle);
     EXAMPLE_TRACE("close connect %d\n",ret);
     return 0;
 }
