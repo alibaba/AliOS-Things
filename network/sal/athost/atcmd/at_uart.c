@@ -8,7 +8,6 @@
 
 #include <aos/aos.h>
 
-#include "athost_internal.h"
 #include "at_util.h"
 
 #define MAX_ATCMD_ECHO_BUF_SIZE 1024

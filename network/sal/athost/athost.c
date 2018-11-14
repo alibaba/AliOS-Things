@@ -47,7 +47,7 @@ int athost_instance_init()
         goto err;
     }
 
-    if (athost_handle_register_cb(prefix_athost, atcmd_handle) < 0) {
+    if (athost_handle_register_cb(prefix_athost, atcmd_handle_entry) < 0) {
         LOGE(TAG, "atcmds handle resigister fail!\n");
         goto err;
     }
