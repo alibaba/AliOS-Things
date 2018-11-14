@@ -12,11 +12,15 @@
 #endif
 
 #ifndef WITH_MQTT_DYN_BUF
-    #define WITH_MQTT_DYN_BUF                 (0)
+    #define WITH_MQTT_DYN_BUF                   (0)
 #endif
 
 #ifndef WITH_MQTT_QOS2_PACKET
     #define WITH_MQTT_QOS2_PACKET               (0)
+#endif
+
+#ifndef WITH_MQTT_FLOW_CTRL
+    #define WITH_MQTT_FLOW_CTRL                 (0)
 #endif
 
 /* maximum republish elements in list */
