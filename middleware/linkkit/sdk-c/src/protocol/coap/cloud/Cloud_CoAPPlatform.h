@@ -12,7 +12,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define coap_malloc(size)       LITE_malloc(size, MEM_MAGIC, "cloud_coap")
+#define coap_malloc(size)       LITE_malloc(size, MEM_MAGIC, "coap.cloud")
 #define coap_free(ptr)          LITE_free(ptr)
 
 #ifdef __cplusplus
