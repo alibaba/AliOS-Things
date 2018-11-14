@@ -116,3 +116,8 @@ void cpu_utask_stack_init(ktask_t *task, cpu_stack_t *kstack_base,
     task->task_stack = (void*)ctx;
 }
 
+void k_proc_unload(uint32_t pid)
+{
+    return;
+}
+

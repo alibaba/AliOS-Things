@@ -83,3 +83,8 @@ void cpu_utask_stack_init(ktask_t *task,
     task->task_stack  = (void*)((uint32_t)(kstack_base + kstack_size) & (~0x07u));
 }
 
+void k_proc_unload(uint32_t pid)
+{
+    return;
+}
+
