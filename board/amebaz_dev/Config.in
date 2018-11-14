@@ -1,6 +1,7 @@
 config AOS_BOARD_AMEBAZ_DEV
     bool "board_amebaz_dev"
     default n
+    select AOS_MCU_RTL8710BN
     help
 
 if AOS_BOARD_AMEBAZ_DEV
