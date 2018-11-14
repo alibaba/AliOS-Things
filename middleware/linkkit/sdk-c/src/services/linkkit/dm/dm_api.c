@@ -238,26 +238,31 @@ int iotx_dm_yield(int timeout_ms)
 
 void iotx_dm_dispatch(void)
 {
-    dm_api_ctx_t *ctx = _dm_api_get_ctx();
+    int count = 0;
     void *data = NULL;
+    dm_api_ctx_t *ctx = _dm_api_get_ctx();
 
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_tick();
 #endif
     dm_cota_status_check();
     dm_fota_status_check();
-    if (dm_ipc_msg_next(&data) == SUCCESS_RETURN) {
-        dm_ipc_msg_t *msg = (dm_ipc_msg_t *)data;
+    while (CONFIG_DISPATCH_QUEUE_MAXLEN == 0 || count++ < CONFIG_DISPATCH_QUEUE_MAXLEN) {
+        if (dm_ipc_msg_next(&data) == SUCCESS_RETURN) {
+            dm_ipc_msg_t *msg = (dm_ipc_msg_t *)data;
 
-        if (ctx->event_callback) {
-            ctx->event_callback(msg->type, msg->data);
-        }
+            if (ctx->event_callback) {
+                ctx->event_callback(msg->type, msg->data);
+            }
 
-        if (msg->data) {
-            DM_free(msg->data);
+            if (msg->data) {
+                DM_free(msg->data);
+            }
+            DM_free(msg);
+            data = NULL;
+        } else {
+            break;
         }
-        DM_free(msg);
-        data = NULL;
     }
 }
 
