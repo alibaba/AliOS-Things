@@ -256,7 +256,7 @@ int HAL_SetDeviceSecret(_IN_ char device_secret[DEVICE_SECRET_MAXLEN])
     return strlen(DEMO_CASE_DEVICE_SECRET);
 }
 
-int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
+int HAL_GetFirmwareVersion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
 {
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
     strncpy(version, "1.0", FIRMWARE_VERSION_MAXLEN);
