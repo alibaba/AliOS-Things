@@ -57,6 +57,63 @@ typedef struct {
 
 static int tracking_malloc_callstack = 1;
 
+/* sort module used */
+static int _mem_cmp_max_used(list_head_t *a, list_head_t *b)
+{
+    if (a == NULL || b == NULL) {
+        return 0;
+    }
+
+    module_mem_t *temp_a = list_entry(a, module_mem_t, list);
+    module_mem_t *temp_b = list_entry(b, module_mem_t, list);
+
+    /* return true to swap if a < b */
+    return (temp_a->mem_statis.bytes_max_in_use < temp_b->mem_statis.bytes_max_in_use);
+}
+
+static void _mem_swap_module_pos(list_head_t *a, list_head_t *b)
+{
+    list_head_t temp = {NULL, NULL};
+
+    if (a == NULL || a == NULL) {
+        return;
+    }
+    
+    list_add(&temp, b);
+    list_del(b);
+    list_add(b, a);
+    list_del(a);
+    list_add(a, &temp);
+    list_del(&temp);
+}
+
+static void _mem_sort_module_pos(list_head_t *head)
+{
+    list_head_t *start = NULL;
+    list_head_t *end = NULL;
+
+    if (head == NULL) {
+        return;
+    }
+
+    for (end = head->prev; end != head; end = end->prev) {  /* list_for_each_prev */
+        list_for_each(start, head) {
+            if (start == end) {
+                break;
+            }
+
+            if (_mem_cmp_max_used(start, start->next)) {
+                _mem_swap_module_pos(start, start->next);
+                
+                start = start->prev;
+                if (start == end) {
+                    end = end->next;
+                }
+            }
+        }
+    }
+}
+
 static int record_backtrace(int *level, char *** trace)
 {
 #define MAX_BT_LEVEL    8
@@ -499,13 +556,28 @@ void LITE_dump_malloc_free_stats(int level)
     utils_debug("");
 
 #if WITH_MEM_STATS_PER_MODULE
+    _mem_sort_module_pos(&mem_module_statis);
 
     module_mem_t *module_pos, *tmp;
     module_mem_t *unknown_mod = NULL;
 
     LITE_printf("\r\n");
+    LITE_printf("|               | max_in_use          | max_allocated   | total_alloc         | total_free\r\n");
+    LITE_printf("|---------------|---------------------|-----------------|---------------------|--------------------\r\n");
     list_for_each_entry_safe(module_pos, tmp, &mem_module_statis, list, module_mem_t) {
         if (module_pos) {
+
+            LITE_printf("| %-13s | %6d bytes / %-4d |    %5d bytes  | %5d bytes / %-4d  | %5d bytes / %-4d     \r\n",
+                        module_pos->mem_statis.module_name,
+                        module_pos->mem_statis.bytes_max_in_use,
+                        module_pos->mem_statis.iterations_max_in_use,
+                        module_pos->mem_statis.bytes_max_allocated,
+                        module_pos->mem_statis.bytes_total_allocated,
+                        module_pos->mem_statis.iterations_allocated,
+                        module_pos->mem_statis.bytes_total_freed,
+                        module_pos->mem_statis.iterations_freed
+                        );
+/*
             LITE_printf("\x1B[1;32mMODULE_NAME: [%s]\x1B[0m\r\n", module_pos->mem_statis.module_name);
             LITE_printf("---------------------------------------------------\r\n");
             LITE_printf(". bytes_total_allocated:    %d\r\n", module_pos->mem_statis.bytes_total_allocated);
@@ -518,7 +590,7 @@ void LITE_dump_malloc_free_stats(int level)
             LITE_printf(". iterations_in_use:        %d\r\n", module_pos->mem_statis.iterations_in_use);
             LITE_printf(". iterations_max_in_use:    %d\r\n", module_pos->mem_statis.iterations_max_in_use);
             LITE_printf("---------------------------------------------------\r\n");
-
+*/
             if (!strcmp(module_pos->mem_statis.module_name, "unknown")) {
                 unknown_mod = module_pos;
             } else {
@@ -612,3 +684,5 @@ void **LITE_get_mem_mutex(void)
     return &mutex_mem_stats;
 }
 #endif
+
+
