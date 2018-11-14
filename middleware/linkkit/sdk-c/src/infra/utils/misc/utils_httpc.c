@@ -531,8 +531,8 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
         utils_debug("Total-Payload: %d Bytes; Read: %d Bytes", readLen, len);
         unsigned int deadLoopCount = 0;
         unsigned int extendCount = 0;
-        const unsigned int EXTEND_TIMEOUT = 20;
-        const unsigned int MAX_RETRY_COUNT = 3000;
+        const unsigned int MIN_TIMEOUT = 100;
+        const unsigned int MAX_RETRY_COUNT = 600;
         do {
             templen = HTTPCLIENT_MIN(len, readLen);
             if (count + templen < client_data->response_buf_len - 1) {
@@ -564,9 +564,9 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
 
                 /* if timeout reduce to zero, it will be translated into NULL for select function in TLS lib */
                 /* it would lead to indenfinite behavior, so we avoid it */
-                if (iotx_time_left(&timer) < EXTEND_TIMEOUT) {
+                if (iotx_time_left(&timer) < MIN_TIMEOUT) {
                     extendCount++;
-                    utils_time_countdown_ms(&timer, EXTEND_TIMEOUT);
+                    utils_time_countdown_ms(&timer, MIN_TIMEOUT);
                     if (1 == extendCount % 100) {
                         utils_debug("extend countdown_ms to avoid NULL input to select, tired %d times", extendCount);
                     }
