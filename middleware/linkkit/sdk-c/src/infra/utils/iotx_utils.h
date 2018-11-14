@@ -91,7 +91,7 @@
 #define LITE_realloc(ptr, size, ...)    LITE_realloc_internal(__func__, __LINE__, ptr, size, ##__VA_ARGS__)
 #define LITE_free(ptr)              \
     do { \
-        if(!ptr) { \
+        if (!ptr) { \
             log_warning("utils", "%s == NULL! LITE_free(%s) aborted.", #ptr, #ptr); \
             break; \
         } \
@@ -145,7 +145,7 @@ typedef struct _json_key_t {
 #endif
 
 #if WITH_MEM_STATS
-void **LITE_get_mem_mutex(void);
+    void **LITE_get_mem_mutex(void);
 #endif
 
 #endif  /* __LITE_UTILS_H__ */
