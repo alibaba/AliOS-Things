@@ -570,7 +570,7 @@ http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port
     int rv;
     int ret = 0;
 
-    connection = LITE_calloc(1, sizeof(http2_connection_t));
+    connection = LITE_calloc(1, sizeof(http2_connection_t), MEM_MAGIC, "http2.api");
     if (connection == NULL) {
         return NULL;
     }
@@ -629,7 +629,7 @@ http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, 
     int rv;
     int ret = 0;
 
-    connection = LITE_calloc(1, sizeof(http2_connection_t));
+    connection = LITE_calloc(1, sizeof(http2_connection_t), MEM_MAGIC, "http2.api");
     if (connection == NULL) {
         return NULL;
     }
