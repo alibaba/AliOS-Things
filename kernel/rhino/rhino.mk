@@ -4,8 +4,6 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
 $(NAME)_SUMMARY :=
 
-$(NAME)_COMPONENTS += rhino
-
 GLOBAL_INCLUDES += core/include  hal/soc ./
 
 #default gcc

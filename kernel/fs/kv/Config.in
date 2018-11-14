@@ -2,6 +2,7 @@ menuconfig AOS_COMP_KV
     bool "kv"
     default y
     help
+      lightweight key-value style storage module
 
 if AOS_COMP_KV
 # Configurations for component kv

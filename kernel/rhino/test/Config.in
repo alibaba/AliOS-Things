@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_TEST
+    bool "test"
+    default n
+    help
+
+if AOS_COMP_TEST
+# Configurations for component test
+endif
