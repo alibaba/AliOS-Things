@@ -1,5 +1,9 @@
 NAME := libiot_ota
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 LINKKIT_MODULE  := middleware/linkkit/sdk-c/src/services/ota
 
 $(NAME)_SOURCES := $(wildcard $(SOURCE_ROOT)/$(LINKKIT_MODULE)/*.c)

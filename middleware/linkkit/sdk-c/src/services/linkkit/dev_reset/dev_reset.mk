@@ -1,5 +1,9 @@
 NAME := libdev_reset
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 $(NAME)_DEFINES := USE_LPTHREAD
 
 $(NAME)_INCLUDES += .

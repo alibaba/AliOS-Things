@@ -1,5 +1,9 @@
 NAME := linkkit_sdk_c
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 $(NAME)_COMPONENTS := middleware/linkkit/hal
 
 GLOBAL_INCLUDES += \

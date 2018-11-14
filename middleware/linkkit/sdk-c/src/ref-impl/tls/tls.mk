@@ -1,5 +1,9 @@
 NAME := libiot_tls
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 2.3.0
+$(NAME)_SUMMARY :=
+
 $(NAME)_SOURCES := ./library/asn1parse.c \
 ./library/aes.c \
 ./library/cipher.c \
