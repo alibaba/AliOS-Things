@@ -14,9 +14,9 @@ endif
 
 #default gcc
 ifeq ($(COMPILER),)
-$(NAME)_CFLAGS      += -Wall -Werror
+$(NAME)_CFLAGS += -Wall -Werror
 else ifeq ($(COMPILER),gcc)
-$(NAME)_CFLAGS      += -Wall -Werror
+$(NAME)_CFLAGS += -Wall -Werror
 endif
 
 GLOBAL_INCLUDES += .
