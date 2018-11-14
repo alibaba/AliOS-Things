@@ -70,12 +70,12 @@ void hal_timer_stop(timer_dev_t *tmr)
 }
 #endif
 extern hal_wifi_module_t aos_wifi_rda59xx;
-//extern struct hal_ota_module_s stm32l475_ota_module;
+extern struct hal_ota_module_s rda59xx_ota_module;
 void hw_start_hal(void)
 {
     printf("start-----------hal\n");
     hal_wifi_register_module(&aos_wifi_rda59xx);
     aos_wifi_rda59xx.init(&aos_wifi_rda59xx);
-    //hal_ota_register_module(&stm32l475_ota_module);
+    hal_ota_register_module(&rda59xx_ota_module);
 }
 
