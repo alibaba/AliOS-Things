@@ -680,7 +680,7 @@ int IOT_OTA_IsFetchFinish(void *handle)
 }
 
 
-int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_ms)
+int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s)
 {
     int ret;
     OTA_Struct_pt h_ota = (OTA_Struct_pt) handle;
@@ -695,7 +695,7 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
         return IOT_OTAE_INVALID_STATE;
     }
 
-    ret = ofc_Fetch(h_ota->ch_fetch, buf, buf_len, timeout_ms);
+    ret = ofc_Fetch(h_ota->ch_fetch, buf, buf_len, timeout_s);
     if (ret < 0) {
         OTA_LOG_ERROR("Fetch firmware failed");
         h_ota->state = IOT_OTAS_FETCHED;
