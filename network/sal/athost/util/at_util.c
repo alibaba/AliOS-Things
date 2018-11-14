@@ -9,7 +9,6 @@
 #include <aos/aos.h>
 
 #include "at_util.h"
-#include "athost_internal.h"
 #include "athost_io.h"
 
 #define TAG "AT_UTIL"
@@ -609,7 +608,7 @@ int atcmd_register_handlers(atcmd_op_ptr_t handler)
     return 0;
 }
 
-void atcmd_handle()
+void atcmd_handle_entry()
 {
     char            single;
     char            one_more;

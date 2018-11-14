@@ -12,7 +12,6 @@
 #include "iot_export.h"
 #include "CoAPExport.h"
 
-#include "athost_internal.h"
 #include "at_util.h"
 
 #define TAG "atcoap"

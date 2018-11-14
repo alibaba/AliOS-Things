@@ -32,5 +32,6 @@ $(NAME)_COMPONENTS += feature.linkkit-mqtt
 GLOBAL_DEFINES +=  MQTT_TEST USE_LPTHREAD
 endif
 
-GLOBAL_INCLUDES += ./include \
+GLOBAL_INCLUDES += ./        \
+                   ./include \
                    ./include/internal
