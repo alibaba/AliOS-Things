@@ -3,7 +3,9 @@
 #
 
 export AOS_CONFIG := $(SOURCE_ROOT).config
-export AOS_CONFIG_IN := build/Config.in
+export AOS_DEFCONFIG ?= $(SOURCE_ROOT).defconfig
+export AOS_DEFCONFIG_DIR := $(SOURCE_ROOT)build/configs
+export AOS_CONFIG_IN := $(SOURCE_ROOT)build/Config.in
 export AOS_CONFIG_DIR := $(BUILD_DIR)/config
 
 export KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig
@@ -21,7 +23,9 @@ endif
 endif
 
 # Don't read in .config for these targets
-noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig
+noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \
+    defconfig savedefconfig %-defconfig list-defconfigs
+
 .PHONY: $(noconfig_targets)
 
 MAKEFILE_TARGETS += $(noconfig_targets)
@@ -47,14 +51,31 @@ COMMON_CONFIG_ENV = \
 	KCONFIG_TRISTATE=$(AOS_CONFIG_DIR)/tristate.conf
 
 $(KCONFIG_MCONF) $(KCONFIG_CONF):
-	@git clone $(KCONFIG_URL) $(KCONFIG_DIR)
+	$(QUIET)git clone $(KCONFIG_URL) $(KCONFIG_DIR)
 
 menuconfig: $(KCONFIG_MCONF)
-	@$(COMMON_CONFIG_ENV) $< $(AOS_CONFIG_IN)
+	$(QUIET)$(COMMON_CONFIG_ENV) $< $(AOS_CONFIG_IN)
 
 oldconfig silentoldconfig olddefconfig: $(KCONFIG_CONF)
-	@$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
-	@$(COMMON_CONFIG_ENV) $< --$@ $(AOS_CONFIG_IN)
+	$(QUIET)$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
+	$(QUIET)$(COMMON_CONFIG_ENV) $< --$@ $(AOS_CONFIG_IN)
+
+defconfig: $(KCONFIG_CONF)
+	$(QUIET)$(COMMON_CONFIG_ENV) $< --defconfig$(if $(AOS_DEFCONFIG),=$(AOS_DEFCONFIG)) $(AOS_CONFIG_IN)
+
+savedefconfig: $(KCONFIG_CONF)
+	$(QUIET)$(COMMON_CONFIG_ENV) $< \
+		--savedefconfig=$(if $(AOS_DEFCONFIG),$(AOS_DEFCONFIG),$(AOS_CONFIG_DIR)/defconfig) \
+		$(AOS_CONFIG_IN)
+
+%-defconfig: $(KCONFIG_CONF)
+	$(QUIET)$(COMMON_CONFIG_ENV) $< --defconfig=$(AOS_DEFCONFIG_DIR)/$@ $(AOS_CONFIG_IN)
+
+ECHO_DEFCONFIG = " $(notdir $(1)):\tBuild for $(subst -defconfig,,$(notdir $(1)))\n"
+list-defconfigs:
+	$(QUIET)$(ECHO) ""
+	$(QUIET)$(ECHO) "Valid defconfigs:"
+	$(QUIET)$(ECHO) " "$(foreach defconfig,$(wildcard $(AOS_DEFCONFIG_DIR)/*-defconfig),$(call ECHO_DEFCONFIG,$(defconfig)))
 
 $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(AOS_CONFIG)
-	@$(MAKE) silentoldconfig
+	$(QUIET)$(MAKE) silentoldconfig
