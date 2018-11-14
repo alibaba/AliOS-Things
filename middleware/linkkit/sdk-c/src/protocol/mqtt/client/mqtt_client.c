@@ -95,11 +95,14 @@ static int _alloc_recv_buffer(iotx_mc_client_t *c, int len)
         tmp_len = c->buf_size_read_max;
     }
     if (c->buf_read != NULL) { //do realloc
-        char *temp = mqtt_realloc((void *)c->buf_read, tmp_len);
+        char *temp = mqtt_malloc(tmp_len);
         if (temp == NULL) {
             mqtt_err("realloc err");
             return ERROR_MALLOC;
         }
+        memset(temp,0,tmp_len);
+        memcpy(temp,c->buf_read, c->buf_size_read);
+        mqtt_free(c->buf_read);
         c->buf_read = temp;
     } else {
         c->buf_read = mqtt_malloc(tmp_len);
@@ -1179,6 +1182,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
     left_t = (left_t == 0) ? 1 : left_t;
     if ((rc = iotx_mc_decode_packet(c, &rem_len, left_t)) < 0) {
         mqtt_err("decodePacket error,rc = %d", rc);
+        HAL_MutexUnlock(c->lock_read_buf);
         return rc;
     }
 
@@ -2101,7 +2105,7 @@ static void iotx_mc_set_client_state(iotx_mc_client_t *pClient, iotx_mc_state_t 
 }
 
 /* set MQTT connection parameter */
-static int iotx_mc_update_connect_params(iotx_mc_client_t *pClient, iotx_conn_real_info_t *pconn)
+static int iotx_mc_update_connect_params(iotx_mc_client_t *pClient, iotx_conn_info_t *pconn)
 {
 
     if (NULL == pClient || NULL == pconn) {
@@ -2234,7 +2238,6 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
         goto RETURN;
     }
 
-
     MQTTPacket_connectData connectdata = MQTTPacket_connectData_initializer;
 
     connectdata.MQTTVersion = IOTX_MC_MQTT_VERSION;
@@ -2246,7 +2249,6 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
     connectdata.password.cstring = (char *)pInitParams->password;
     connectdata.cleansession = pInitParams->clean_session;
 
-    pClient->packet_id = 0;
     if (pInitParams->request_timeout_ms < IOTX_MC_REQUEST_TIMEOUT_MIN_MS
         || pInitParams->request_timeout_ms > IOTX_MC_REQUEST_TIMEOUT_MAX_MS) {
 
@@ -2757,7 +2759,7 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 {
     int             rc = FAIL_RETURN;
     uint32_t        interval_ms = 0;
-    iotx_conn_real_info_t *pconn = NULL;
+    iotx_conn_info_t* pconn = NULL;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
@@ -2770,24 +2772,21 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     }
 
     mqtt_info("start to reconnect");
-    /* REDO AUTH before each reconnection */
-    pconn = mqtt_malloc(sizeof(iotx_conn_real_info_t));
-    if (pconn == NULL) {
-        mqtt_err("malloc error!");
-        return -1;
-    }
-    memset(pconn, 0, sizeof(iotx_conn_real_info_t));
 
+    pconn = iotx_conn_info_get();
+    if(pconn == NULL) {
+        return NULL_VALUE_ERROR;
+    }
     if (NULL != pClient->mqtt_auth && SUCCESS_RETURN != pClient->mqtt_auth(pconn)) {
         mqtt_err("redo authentication error!");
-        mqtt_free(pconn);
+        iotx_conn_info_release();
         return -1;
     }
 
     rc = iotx_mc_update_connect_params(pClient, pconn);
     if (SUCCESS_RETURN != rc) {
         mqtt_err("update connect info err");
-        mqtt_free(pconn);
+        iotx_conn_info_release();
         return -1;
     }
     char product_key[PRODUCT_KEY_LEN + 1] = {0};
@@ -2795,11 +2794,11 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     rc = iotx_net_init(pClient->ipstack, pconn->host_name, pconn->port, pconn->pub_key, product_key);
     if (SUCCESS_RETURN != rc) {
         mqtt_err("iotx_net_init err");
-        mqtt_free(pconn);
+        iotx_conn_info_release();
         return -1;
     }
     rc = iotx_mc_attempt_reconnect(pClient);
-    mqtt_free(pconn);
+    iotx_conn_info_release();
     if (SUCCESS_RETURN == rc) {
         iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
         return SUCCESS_RETURN;
@@ -2887,7 +2886,6 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
-
     /* iotx_delete_thread(pClient); */
     HAL_SleepMs(100);
 
@@ -2908,7 +2906,7 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
             handler = next_handler;
         }
     }
-
+    iotx_conn_info_release();
     HAL_MutexDestroy(pClient->lock_generic);
     HAL_MutexDestroy(pClient->lock_list_sub);
     HAL_MutexDestroy(pClient->lock_list_pub);
@@ -2930,7 +2928,6 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
     if (NULL != pClient->ipstack) {
         mqtt_free(pClient->ipstack);
     }
-
     mqtt_info("mqtt release!");
     return SUCCESS_RETURN;
 }
@@ -3031,7 +3028,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     int                 err;
     iotx_mc_client_t   *pclient;
     iotx_mqtt_param_t *mqtt_params = NULL;
-    iotx_conn_real_info_t *pconn = NULL;
+    iotx_conn_info_t *conn_info = NULL;
 
     if (pInitParams != NULL) {
         if (g_mqtt_client != NULL) {
@@ -3055,13 +3052,20 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         HAL_GetDeviceName(device_name);
         HAL_GetDeviceSecret(device_secret);
 
-        int ret = IOT_SetupConnInfo(product_key, device_name, device_secret, NULL);
+        int ret = IOT_SetupConnInfo(product_key, device_name, device_secret, (void **)&conn_info);
         if (ret != SUCCESS_RETURN) {
             mqtt_free(mqtt_params);
             return NULL;
         }
         /* Initialize MQTT parameter */
         memset(mqtt_params, 0x0, sizeof(iotx_mqtt_param_t));
+
+        mqtt_params->port = conn_info->port;
+        mqtt_params->host = conn_info->host_name;
+        mqtt_params->client_id = conn_info->client_id;
+        mqtt_params->username = conn_info->username;
+        mqtt_params->password = conn_info->password;
+        mqtt_params->pub_key = conn_info->pub_key;
 
         mqtt_params->request_timeout_ms    = 2000;
         mqtt_params->clean_session         = 0;
@@ -3073,35 +3077,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         pInitParams = mqtt_params;
     }
 
-
-    pconn = mqtt_malloc(sizeof(iotx_conn_real_info_t));
-    if (pconn == NULL) {
-        mqtt_err("malloc error!");
-        if (mqtt_params != NULL) {
-            mqtt_free(mqtt_params);
-        }
-        return NULL;
-    }
-    memset(pconn, 0, sizeof(iotx_conn_real_info_t));
-    err = iotx_guider_authenticate(pconn);
-    if (SUCCESS_RETURN != err) {
-        mqtt_err("get auth info error!");
-        if (mqtt_params != NULL) {
-            mqtt_free(mqtt_params);
-        }
-        mqtt_free(pconn);
-        return NULL;
-    }
-    if (pInitParams->client_id == NULL || strlen(pInitParams->client_id) == 0) {
-        pInitParams->client_id = pconn->client_id;
-    }
-
-    pInitParams->port      = pconn->port;
-    pInitParams->host      = pconn->host_name;
-    pInitParams->username  = pconn->username;
-    pInitParams->password  = pconn->password;
-    pInitParams->pub_key   = pconn->pub_key;
-
     if (pInitParams->host == NULL || pInitParams->client_id == NULL ||
         pInitParams->username == NULL || pInitParams->password == NULL) {
         mqtt_err("init params is not complete");
@@ -3109,7 +3084,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
             mqtt_free(mqtt_params);
 
         }
-        mqtt_free(pconn);
+        iotx_conn_info_release();
         return NULL;
     }
 
@@ -3119,7 +3094,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (mqtt_params != NULL) {
             mqtt_free(mqtt_params);
         }
-        mqtt_free(pconn);
+        iotx_conn_info_release();
         return NULL;
     }
 
@@ -3130,7 +3105,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (mqtt_params != NULL) {
             mqtt_free(mqtt_params);
         }
-        mqtt_free(pconn);
+        iotx_conn_info_release();
         return NULL;
     }
 
@@ -3139,7 +3114,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     err = iotx_mc_connect(pclient);
-    mqtt_free(pconn);
+    iotx_conn_info_release();
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
         mqtt_free(pclient);

@@ -70,7 +70,7 @@ void guider_print_dev_guider_info(iotx_device_info_t *dev,
                                   int secure_mode,
                                   char *time_stamp,
                                   char *guider_sign);
-void guider_print_conn_info(iotx_conn_real_info_t *conn);
+void guider_print_conn_info(iotx_conn_info_t *conn);
 
 #ifndef MQTT_DIRECT
 int _http_response(char *payload,
