@@ -1,0 +1,5 @@
+menu "Network Configuration"
+
+source "network/lorawan_4_4_2/Config.in"
+
+endmenu
