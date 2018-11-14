@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_VFS
+    bool "vfs"
+    default n
+    select AOS_COMP_VFS_DEVICE
+    help
+
+if AOS_COMP_VFS
+# Configurations for component vfs
+endif
