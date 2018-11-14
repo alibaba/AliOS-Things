@@ -192,6 +192,7 @@ void *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...
 void *_create_mem_table(char *module_name, struct list_head *list_head)
 {
     module_mem_t *pos = NULL;
+    int len = 0;
 
     if (!module_name || !list_head) {
         return NULL;
@@ -202,7 +203,8 @@ void *_create_mem_table(char *module_name, struct list_head *list_head)
         return NULL;
     }
     memset(pos, 0, sizeof(module_mem_t));
-    strncpy(pos->mem_statis.module_name, module_name, sizeof(pos->mem_statis.module_name));
+    len = strlen(module_name);
+    memcpy(pos->mem_statis.module_name, module_name, (len >= sizeof(pos->mem_statis.module_name)) ? (sizeof(pos->mem_statis.module_name) - 1) : len);
 
     INIT_LIST_HEAD(&pos->mem_statis.calling_stack.func_head);
 
