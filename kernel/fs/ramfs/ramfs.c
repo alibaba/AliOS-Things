@@ -2,624 +2,243 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <string.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <errno.h>
-#include "k_api.h"
-#include "ramfs.h"
+#include <string.h>
+#include <unistd.h>
 
-#define LL_NODE_META_SIZE      (sizeof(ll_node_t *) + sizeof(ll_node_t *))
-#define LL_PREV_P_OFFSET(ll_p) (ll_p->n_size)
-#define LL_NEXT_P_OFFSET(ll_p) (ll_p->n_size + sizeof(ll_node_t *))
+#include "ramfs_types.h"
+#include "ramfs_api.h"
+#include "ramfs_adapt.h"
 
-static ramfs_ent_t *ramfs_ent_get(const char *fn);
-static ramfs_ent_t *ramfs_ent_new(const char *fn);
-static void        *ll_ins_head(ll_t *ll_p);
-static void         ll_rem(ll_t *ll_p, void *node_p);
-static void        *ll_get_head(ll_t *ll_p);
-static void        *ll_get_tail(ll_t *ll_p);
-static void        *ll_get_next(ll_t *ll_p, void *n_act);
-static void        *ll_get_prev(ll_t *ll_p, void *n_act);
-static void         node_set_prev(ll_t *ll_p, ll_node_t *act, ll_node_t *prev);
-static void         node_set_next(ll_t *ll_p, ll_node_t *act, ll_node_t *next);
-static void         node_set_prev(ll_t *ll_p, ll_node_t *act, ll_node_t *prev);
-static void         node_set_next(ll_t *ll_p, ll_node_t *act, ll_node_t *next);
-static void         ll_init(ll_t *ll_p, uint32_t n_size);
-static ramfs_res_t  create_dir(const char *fn, const void *const_p,
-                               uint32_t len);
+#define RAMFS_LL_NODE_META_SIZE (sizeof(ramfs_ll_node_t *) + \
+                                 sizeof(ramfs_ll_node_t *))
 
-static ll_t file_ll;
-static bool inited = false;
+#define RAMFS_LL_PREV_OFFSET(ll) (ll->size)
+#define RAMFS_LL_NEXT_OFFSET(ll) (ll->size + sizeof(ramfs_ll_node_t *))
+
+#define RAMFS_LL_READ(ll, i) \
+    for (i = ramfs_ll_get_head(&ll); i != NULL; i = ramfs_ll_get_next(&ll, i))
+#define RAMFS_LL_READ_BACK(ll, i) \
+    for (i = ramfs_ll_get_tail(&ll); i != NULL, u = ramfs_ll_get_prev(&ll, i))
+
+static ramfs_ll_t g_file_ll;
+
+static uint8_t g_inited = 0;
 
 /**
- * Create a driver for ramfs and initialize it.
+ * @brief Set the previous node pointer of a node
+ *
+ * @param[in]  ll   pointer to linked list
+ * @param[out] act  pointer to a node which prev node pointer should be set
+ * @param[in]  prev pointer to the previous node before act
+ *
+ * @return None
  */
-void ramfs_init(void)
+static void ramfs_node_set_prev(ramfs_ll_t *ll, ramfs_ll_node_t *act,
+                                ramfs_ll_node_t *prev)
 {
-    ll_init(&file_ll, sizeof(ramfs_ent_t));
-
-    inited = true;
+    memcpy(act + RAMFS_LL_PREV_OFFSET(ll), &prev, sizeof(ramfs_ll_node_t *));
 }
 
 /**
- * Give the state of the ramfs
- * @return true if ramfs is initialized and can be used else false
+ * @brief Set the next node pointer of a node
+ *
+ * @param[in]  ll   pointer to linked list
+ * @param[out] act  poiner to a node which next node pointer should be set
+ * @param[in]  next poiner to the next node after act
+ *
+ * @return None
  */
-bool ramfs_ready(void)
+static void ramfs_node_set_next(ramfs_ll_t *ll, ramfs_ll_node_t *act,
+                                ramfs_ll_node_t *next)
 {
-    return inited;
+    memcpy(act + RAMFS_LL_NEXT_OFFSET(ll), &next, sizeof(ramfs_ll_node_t *));
 }
 
 /**
- * Open a file in ramfs
- * @param file_p pointer to a ramfs_file_t variable
- * @param fn name of the file. There are no directories so e.g. "myfile.txt"
- * @param mode element of 'fs_mode_t' enum or its 'OR' connection (e.g.
- * FS_MODE_WR | FS_MODE_RD)
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
+ * @brief Initialize ramfs linked list
+ *
+ * @param[out] ll   pointer to the ramfs linked list
+ * @param[in]  size the size of 1 node in bytes
+ *
+ * @return None
  */
-ramfs_res_t ramfs_open(void *file_p, const char *fn, ramfs_mode_t mode)
+static void ramfs_ll_init(ramfs_ll_t *ll, uint32_t size)
 {
-    ramfs_file_t *fp  = file_p; /*Convert type*/
-    ramfs_ent_t  *ent = ramfs_ent_get(fn);
+    ll->head = NULL;
+    ll->tail = NULL;
 
-    fp->ent = NULL;
-
-    /* if dir is got return error */
-    if ((ent != NULL) && (ent->is_dir == 1)) {
-        return RAMFS_RES_NOT_EX;
+    if (size & 0x3) {
+        size &= ~0x3;
+        size += 4;
     }
 
-    /*If the file not exists ...*/
-    if (ent == NULL) {
-        if ((mode & RAMFS_MODE_WR) !=
-            0) { /*Create the file if opened for write*/
-            ent = ramfs_ent_new(fn);
-            if (ent == NULL) {
-                return RAMFS_RES_FULL; /*No space for the new file*/
-            }
+    ll->size = size;
+}
+
+/**
+ * @brief Add a new head to the linked list
+ *
+ * @param[in] ll pointer to the linked list
+ *
+ * @return pointer to the new head, NULL if no memory
+ */
+static void *ramfs_ll_ins_head(ramfs_ll_t *ll)
+{
+    ramfs_ll_node_t *new;
+
+    new = ramfs_mm_alloc(ll->size + RAMFS_LL_NODE_META_SIZE);
+
+    if (new != NULL) {
+        ramfs_node_set_prev(ll, new, NULL);     /* No prev before the new head */
+        ramfs_node_set_next(ll, new, ll->head); /* After new comes the old head */
+
+        if (ll->head != NULL) { /* If there is old head then before it goes the new */
+            ramfs_node_set_prev(ll, ll->head, new);
+        }
+
+        ll->head = new; /* Set the new head in the linked list */
+        if (ll->tail == NULL) { /* If there is no tail, set the tail too */
+            ll->tail = new;
+        }
+    }
+
+    return new;
+}
+
+/**
+ * @brief Return with head node of the linked list
+ *
+ * @param[in] ll pointer to the linked list
+ *
+ * @return pointer to the head of linked list
+ */
+void *ramfs_ll_get_head(ramfs_ll_t *ll)
+{
+    void *head = NULL;
+
+    if (ll->head != NULL) {
+        head = ll->head;
+    }
+
+    return head;
+}
+
+/**
+ * @brief Return with tail node of the linked list
+ *
+ * @param[in] ll pointer to the linked list
+ *
+ * @return pointer to the tail of linked list
+ */
+void *ramfs_ll_get_tail(ramfs_ll_t *ll)
+{
+    void *tail = NULL;
+
+    if (ll->tail != NULL) {
+        tail = ll->tail;
+    }
+
+    return tail;
+}
+
+/**
+ * @brief Return with the pointer of the next node after act
+ *
+ * @param[in] ll  pointer to the linked list
+ * @param[in] act pointer to a node
+ *
+ * @return pointer to the next node
+ */
+void *ramfs_ll_get_next(ramfs_ll_t *ll, void *act)
+{
+    void *next = NULL;
+
+    ramfs_ll_node_t *node = act;
+
+    if (ll != NULL) {
+        memcpy(&next, node + RAMFS_LL_NEXT_OFFSET(ll), sizeof(void *));
+    }
+
+    return next;
+}
+
+/**
+ * @brief Return with the pointer of the previous node after act
+ *
+ * @param[in] ll  pointer to the linked list
+ * @param[in] act pointer to a node
+ *
+ * @return pointer to the previous node
+ */
+void *ramfs_ll_get_prev(ramfs_ll_t *ll, void *act)
+{
+    void *prev = NULL;
+
+    ramfs_ll_node_t *node = act;
+
+    if (ll != NULL) {
+        memcpy(&prev, node + RAMFS_LL_PREV_OFFSET(ll), sizeof(void *));
+    }
+
+    return prev;
+}
+
+/**
+ * @brief Remove the node from linked list
+ *
+ * @param[in] ll   pointer to the linked list of node
+ * @param[in] node pointer to the node in linked list
+ *
+ * @return None
+ */
+static void ramfs_ll_remove(ramfs_ll_t *ll, void *node)
+{
+    ramfs_ll_node_t *prev;
+    ramfs_ll_node_t *next;
+
+    if (ramfs_ll_get_head(ll) == node) {
+        ll->head = ramfs_ll_get_next(ll, node);
+
+        if (ll->head == NULL) {
+            ll->tail = NULL;
         } else {
-            return RAMFS_RES_NOT_EX; /*Can not read not existing file*/
-        }
-    }
-
-    /*Can not write already opened and const data files*/
-    if ((mode & RAMFS_MODE_WR) != 0) {
-        if (ent->oc != 0) {
-            return RAMFS_RES_LOCKED;
-        }
-        if (ent->const_data != 0) {
-            return RAMFS_RES_DENIED;
-        }
-    }
-
-    /*No error, the file can be opened*/
-    fp->ent     = ent;
-    fp->ent->ar = mode & RAMFS_MODE_RD ? 1 : 0;
-    fp->ent->aw = mode & RAMFS_MODE_WR ? 1 : 0;
-    fp->rwp     = 0;
-    ent->oc++;
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Create a file with a constant data
- * @param fn name of the file (directories are not supported)
- * @param const_p pointer to a constant data
- * @param len length of the data pointed by 'const_p' in bytes
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_create_const(const char *fn, const void *const_p,
-                               uint32_t len)
-{
-    ramfs_file_t file;
-    ramfs_res_t  res;
-
-    /*Error if the file already exists*/
-    res = ramfs_open(&file, fn, RAMFS_MODE_RD);
-    if (res == RAMFS_RES_OK) {
-        ramfs_close(&file);
-        return RAMFS_RES_DENIED;
-    }
-
-    ramfs_close(&file);
-
-    res = ramfs_open(&file, fn, RAMFS_MODE_WR);
-    if (res != RAMFS_RES_OK) {
-        return res;
-    }
-
-    ramfs_ent_t *ent = file.ent;
-
-    if (ent->data_d != NULL) {
-        return RAMFS_RES_DENIED;
-    }
-
-    ent->data_d     = (void *)const_p;
-    ent->size       = len;
-    ent->const_data = 1;
-    ent->ar         = 1;
-    ent->aw         = 0;
-
-    res = ramfs_close(&file);
-    if (res != RAMFS_RES_OK) {
-        return res;
-    }
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Close an opened file
- * @param file_p pointer to an 'ramfs_file_t' variable. (opened with ramfs_open)
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_close(void *file_p)
-{
-    ramfs_file_t *fp = file_p; /*Convert type*/
-
-    if (fp->ent == NULL) {
-        return RAMFS_RES_OK;
-    }
-
-    /*Decrement the Open counter*/
-    if (fp->ent->oc > 0) {
-        fp->ent->oc--;
-    }
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Remove a file. The file can not be opened.
- * @param fn '\0' terminated string
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_remove(const char *fn)
-{
-    ramfs_ent_t *ent = ramfs_ent_get(fn);
-
-    /*Can not be deleted is opened*/
-    if (ent->oc != 0) {
-        return RAMFS_RES_DENIED;
-    }
-
-    ll_rem(&file_ll, ent);
-    krhino_mm_free(ent->fn_d);
-    ent->fn_d = NULL;
-    if (ent->const_data == 0) {
-        krhino_mm_free(ent->data_d);
-        ent->data_d = NULL;
-    }
-
-    krhino_mm_free(ent);
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Read data from an opened file
- * @param file_p pointer to an 'ramfs_file_t' variable. (opened with ramfs_open
- * )
- * @param buf pointer to a memory block where to store the read data
- * @param btr number of Bytes To Read
- * @param br the real number of read bytes (Byte Read)
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_read(void *file_p, void *buf, uint32_t btr, uint32_t *br)
-{
-    ramfs_file_t *fp = file_p; /*Convert type*/
-
-    ramfs_ent_t *ent = fp->ent;
-    *br              = 0;
-
-    if (ent->data_d == NULL || ent->size == 0) { /*Don't read empty files*/
-        return RAMFS_RES_OK;
-    } else if (fp->ent->ar == 0) { /*The file is not opened for read*/
-        return RAMFS_RES_DENIED;
-    }
-
-    /*No error, read the file*/
-    if (fp->rwp + btr > ent->size) { /*Check too much bytes read*/
-        *br = ent->size - fp->rwp;
-    } else {
-        *br = btr;
-    }
-
-    /*Read the data*/
-    uint8_t *data8_p;
-    if (ent->const_data == 0) {
-        data8_p = (uint8_t *)ent->data_d;
-    } else {
-        data8_p = ent->data_d;
-    }
-
-    data8_p += fp->rwp;
-    memcpy(buf, data8_p, *br);
-
-    fp->rwp += *br; /*Refresh the read write pointer*/
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Write data to an opened file
- * @param file_p pointer to an 'ramfs_file_t' variable. (opened with ramfs_open)
- * @param buf pointer to a memory block which content will be written
- * @param btw the number Bytes To Write
- * @param bw The real number of written bytes (Byte Written)
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_write(void *file_p, const void *buf, uint32_t btw,
-                        uint32_t *bw)
-{
-    ramfs_file_t *fp = file_p; /*Convert type*/
-    *bw              = 0;
-
-    if (fp->ent->aw == 0) {
-        return RAMFS_RES_DENIED; /*Not opened for write*/
-    }
-
-    ramfs_ent_t *ent = fp->ent;
-
-    /*Reallocate data array if it necessary*/
-    uint32_t new_size = fp->rwp + btw;
-    if (new_size > ent->size) {
-        uint8_t *new_data = krhino_mm_realloc(ent->data_d, new_size);
-        if (new_data == NULL) {
-            return RAMFS_RES_FULL; /*Cannot allocate the new memory*/
+            ramfs_node_set_prev(ll, ll->head, NULL);
         }
 
-        ent->data_d = new_data;
-        ent->size   = new_size;
-    }
+    } else if (ramfs_ll_get_tail(ll) == node) {
+        ll->tail = ramfs_ll_get_prev(ll, node);
 
-    /*Write the file*/
-    uint8_t *data8_p = (uint8_t *)ent->data_d;
-    data8_p += fp->rwp;
-    memcpy(data8_p, buf, btw);
-    *bw = btw;
-    fp->rwp += *bw;
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Set the read write pointer. Also expand the file size if necessary.
- * @param file_p pointer to an 'ramfs_file_t' variable. (opened with ramfs_open
- * )
- * @param pos the new position of read write pointer
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_seek(void *file_p, uint32_t pos)
-{
-    ramfs_file_t *fp  = file_p; /*Convert type*/
-    ramfs_ent_t  *ent = fp->ent;
-
-    /*Simply move the rwp before EOF*/
-    if (pos < ent->size) {
-        fp->rwp = pos;
-    } else { /*Expand the file size*/
-        if (fp->ent->aw == 0) {
-            return RAMFS_RES_DENIED; /*Not opened for write*/
-        }
-
-        uint8_t *new_data = krhino_mm_realloc(ent->data_d, pos);
-        if (new_data == NULL) {
-            return RAMFS_RES_FULL; /*Out of memory*/
-        }
-
-        ent->data_d = new_data;
-        ent->size   = pos;
-        fp->rwp     = pos;
-    }
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Give the position of the read write pointer
- * @param file_p pointer to an 'ramfs_file_t' variable. (opened with ramfs_open
- * )
- * @param pos_p pointer to to store the result
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_tell(void *file_p, uint32_t *pos_p)
-{
-    ramfs_file_t *fp = file_p; /*Convert type*/
-
-    *pos_p = fp->rwp;
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Truncate the file size to the current position of the read write pointer
- * @param file_p pointer to an 'ramfs_file_t' variable. (opened with ramfs_open
- * )
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_trunc(void *file_p)
-{
-    ramfs_file_t *fp  = file_p; /*Convert type*/
-    ramfs_ent_t  *ent = fp->ent;
-
-    if (fp->ent->aw == 0) {
-        return RAMFS_RES_DENIED; /*Not opened for write*/
-    }
-
-    void *new_data = krhino_mm_realloc(ent->data_d, fp->rwp);
-    if (new_data == NULL) {
-        return RAMFS_RES_FULL; /*Out of memory*/
-    }
-
-    ent->data_d = new_data;
-    ent->size   = fp->rwp;
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Give the size of the file in bytes
- * @param file_p file_p pointer to an 'ramfs_file_t' variable. (opened with
- * ramfs_open )
- * @param size_p pointer to store the size
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_size(void *file_p, uint32_t *size_p)
-{
-    ramfs_file_t *fp  = file_p; /*Convert type*/
-    ramfs_ent_t  *ent = fp->ent;
-
-    *size_p = ent->size;
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * get access info
- * @param path The path of the file
- * @param mode the info to get
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_access(const char *path, int mode)
-{
-    ramfs_ent_t *ent = ramfs_ent_get(path);
-
-    if (mode == F_OK) {
-        if (ent == NULL) {
-            return RAMFS_RES_DENIED;
+        if (ll->tail == NULL) {
+            ll->head = NULL;
         } else {
-            return RAMFS_RES_OK;
-        }
-    }
-
-    if (mode == R_OK) {
-        if (ent == NULL) {
-            return RAMFS_RES_OK;
-        } else {
-            if (ent->ar == 1) {
-                return RAMFS_RES_OK;
-            } else {
-                return RAMFS_RES_DENIED;
-            }
-        }
-    }
-
-    if (mode == W_OK) {
-        if (ent == NULL) {
-            return RAMFS_RES_OK;
-        } else {
-            if (ent->aw == 1) {
-                return RAMFS_RES_OK;
-            } else {
-                return RAMFS_RES_DENIED;
-            }
-        }
-    }
-
-    if (mode == X_OK) {
-        return RAMFS_RES_OK;
-    }
-
-    return RAMFS_RES_DENIED;
-}
-
-/**
- * Create a directory
- * @param path the path of file
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_mkdir(const char *path)
-{
-    ramfs_res_t ret = 0;
-
-    ret = create_dir(path, NULL, 0);
-
-    return ret;
-}
-
-/**
- * Initialize a ramfs_read_dir_t variable to directory reading
- * @param rddir_p pointer to a 'ramfs_dir_t' variable
- * @param path the path of file
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_dir_open(void *rddir_p, const char *path)
-{
-    ramfs_dir_t *ramfs_rddir_p = rddir_p;
-    ramfs_ent_t *ent           = ramfs_ent_get(path);
-
-    if (ent == NULL) {
-        return RAMFS_RES_NOT_EX;
-    }
-
-    if (ent->is_dir == 1) {
-        ramfs_rddir_p->dir_name = krhino_mm_alloc(strlen(path));
-
-        if (ramfs_rddir_p->dir_name != NULL) {
-            strcpy(ramfs_rddir_p->dir_name, path);
+            ramfs_node_set_next(ll, ll->tail, NULL);
         }
 
-        ramfs_rddir_p->last_ent = NULL;
-
-        return RAMFS_RES_OK;
     } else {
-        return RAMFS_RES_NOT_EX;
+        prev = ramfs_ll_get_prev(ll, node);
+        next = ramfs_ll_get_next(ll, node);
+
+        ramfs_node_set_next(ll, prev, next);
+        ramfs_node_set_prev(ll, next, prev);
     }
 }
 
 /**
- * Read the next file name
- * @param dir_p pointer to an initialized 'ramfs_dir_t' variable
- * @param fn pointer to buffer to sore the file name
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
+ * @brief Give the ramfs entry from a filename
+ *
+ * @param[in] fn file name
+ *
+ * @return pointer to the dynamically allocated entry with 'fn'.
+ *         NULL if no entry found with that name
  */
-ramfs_res_t ramfs_dir_read(void *dir_p, char *fn)
+static ramfs_entry_t *ramfs_entry_get(const char *fn)
 {
-    ramfs_dir_t *ramfs_dir_p = dir_p;
-    char        *pname       = NULL;
-    char        *pdata       = NULL;
-    int          search_flag = 1;
-    int          len         = 0;
-    int          i           = 0;
+    ramfs_entry_t *fp;
 
-    if (ramfs_dir_p->last_ent == NULL) {
-        ramfs_dir_p->last_ent = ll_get_head(&file_ll);
-    } else {
-        ramfs_dir_p->last_ent = ll_get_next(&file_ll, ramfs_dir_p->last_ent);
-    }
-
-    while (search_flag == 1) {
-        if (ramfs_dir_p->last_ent != NULL) {
-            if (strcmp(ramfs_dir_p->dir_name, ramfs_dir_p->last_ent->fn_d) ==
-                0) {
-                search_flag = 1;
-            } else if (strncmp(ramfs_dir_p->dir_name,
-                               ramfs_dir_p->last_ent->fn_d,
-                               strlen(ramfs_dir_p->dir_name)) != 0) {
-                search_flag = 1;
-            } else if (*(ramfs_dir_p->last_ent->fn_d +
-                         strlen(ramfs_dir_p->dir_name)) != '/') {
-                search_flag = 1;
-            } else {
-                pname = ramfs_dir_p->last_ent->fn_d +
-                        strlen(ramfs_dir_p->dir_name) + 1;
-                pdata = pname;
-                len   = strlen(ramfs_dir_p->last_ent->fn_d) -
-                      strlen(ramfs_dir_p->dir_name);
-
-                search_flag = 0;
-
-                for (i = 0; i < len; i++) {
-                    if (*pname == '/') {
-                        search_flag = 1;
-                        break;
-                    }
-                    pname++;
-                }
-            }
-
-            if (search_flag == 1) {
-                ramfs_dir_p->last_ent =
-                  ll_get_next(&file_ll, ramfs_dir_p->last_ent);
-            }
-        } else {
-            search_flag = 0;
-        }
-    }
-
-    if (ramfs_dir_p->last_ent != NULL) {
-        strcpy(fn, pdata);
-    } else {
-        return RAMFS_RES_NOT_EX;
-    }
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Close the directory reading
- * @param rddir_p pointer to an initialized 'ramfs_dir_t' variable
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_dir_close(void *rddir_p)
-{
-    ramfs_dir_t *ramfs_rddir_p = rddir_p;
-
-    if (ramfs_rddir_p->dir_name != NULL) {
-        krhino_mm_free(ramfs_rddir_p->dir_name);
-    }
-
-    return RAMFS_RES_OK;
-}
-
-/**
- * Get file info
- * @param[in]   path  The path of the file to find information about
- * @param[out]  st    The stat buffer to write to.
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_stat(const char *path, ramfs_stat_t *st)
-{
-    ramfs_res_t  ret = 0;
-    ramfs_ent_t *ent = ramfs_ent_get(path);
-
-    if (st == NULL) {
-        return RAMFS_RES_INV_PARAM;
-    }
-
-    if (ent != NULL) {
-        st->st_size = ent->size;
-
-        if (ent->ar == 1) {
-            st->st_mode |= RAMFS_MODE_RD;
-        }
-
-        if (ent->aw == 1) {
-            st->st_mode |= RAMFS_MODE_WR;
-        }
-
-        if (ent->is_dir == 1) {
-            st->is_dir = 1;
-        }
-    } else {
-        ret = RAMFS_RES_NOT_EX;
-    }
-
-    return ret;
-}
-
-/**
- * Give the size of a drive
- * @param total_p pointer to store the total size [kB]
- * @param free_p pointer to store the free site [kB]
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
- */
-ramfs_res_t ramfs_free(uint32_t *total_p, uint32_t *free_p)
-{
-    return RAMFS_RES_OK;
-}
-
-/**********************
- *   STATIC FUNCTIONS
- **********************/
-
-/**
- * Gives the ramfs_entry from a filename
- * @param fn filename ('\0' terminated string)
- * @return pointer to the dynamically allocated entry with 'fn' filename.
- *         NULL if no entry found with that name.
- */
-static ramfs_ent_t *ramfs_ent_get(const char *fn)
-{
-    ramfs_ent_t *fp;
-
-    LL_READ(file_ll, fp)
-    {
-        if (strcmp(fp->fn_d, fn) == 0) {
+    RAMFS_LL_READ(g_file_ll, fp) {
+        if (strncmp(fp->fn, fn, strlen(fn)) == 0) {
             return fp;
         }
     }
@@ -628,335 +247,518 @@ static ramfs_ent_t *ramfs_ent_get(const char *fn)
 }
 
 /**
- * Create a new entry with 'fn' filename
- * @param fn filename ('\0' terminated string)
- * @return pointer to the dynamically allocated new entry.
- *         NULL if no space for the entry.
+ * @brief Create a new entry with 'fn' file name
+ *
+ * @param[in] fn file name
+ *
+ * @return poiner to the dynamically allocated new entry
+ *         NULL if no space for the entry
  */
-static ramfs_ent_t *ramfs_ent_new(const char *fn)
+static ramfs_entry_t *ramfs_entry_new(const char *fn)
 {
-    ramfs_ent_t *new_ent = NULL;
-    new_ent              = ll_ins_head(&file_ll); /*Create a new file*/
-    if (new_ent == NULL) {
+    ramfs_entry_t *new_entry = NULL;
+
+    new_entry = ramfs_ll_ins_head(&g_file_ll); /* Create a new file */
+    if (new_entry == NULL) {
         return NULL;
     }
 
-    new_ent->fn_d = krhino_mm_alloc(strlen(fn) + 1); /*Save the name*/
-    strcpy(new_ent->fn_d, fn);
-    new_ent->data_d     = NULL;
-    new_ent->size       = 0;
-    new_ent->oc         = 0;
-    new_ent->const_data = 0;
-    new_ent->is_dir     = 0;
+    new_entry->fn = ramfs_mm_alloc(strlen(fn) + 1);
+    strcpy(new_entry->fn, fn);
 
-    return new_ent;
+    new_entry->data       = NULL;
+    new_entry->size       = 0;
+    new_entry->refs       = 0;
+    new_entry->const_data = 0;
+    new_entry->is_dir     = 0;
+
+    return new_entry;
 }
 
 /**
- * Create a create_dir
- * @param fn name of the file (directories are not supported)
- * @param const_p pointer to a constant data
- * @param len length of the data pointed by 'const_p' in bytes
- * @return RAMFS_RES_OK: no error, or any error from ramfs_res_t enum
+ * @brief Create a directory
+ *
+ * @param[in] fn   name of the file
+ * @param[in] data pointer to a constant data
+ * @param[in] len  length of the data in bytes
+ *
+ * @return 0 on success, otherwise will be failed
  */
-ramfs_res_t create_dir(const char *fn, const void *const_p, uint32_t len)
+static int32_t ramfs_dir_create(const char *fn, const void *data, uint32_t len)
 {
-    ramfs_file_t file;
-    ramfs_res_t  res;
+    int32_t res;
 
-    /*Error if the file already exists*/
+    ramfs_file_t   file;
+    ramfs_entry_t *entry;
+
+    /* Error if the file already exist */
     res = ramfs_open(&file, fn, RAMFS_MODE_RD);
-    if (res == RAMFS_RES_OK) {
+    if (res == RAMFS_OK) {
         ramfs_close(&file);
-        return RAMFS_RES_DENIED;
+        return RAMFS_ERR_DENIED;
     }
-
-    ramfs_close(&file);
 
     res = ramfs_open(&file, fn, RAMFS_MODE_WR);
-    if (res != RAMFS_RES_OK) {
+    if (res != RAMFS_OK) {
         return res;
     }
 
-    ramfs_ent_t *ent = file.ent;
+    entry = file.entry;
 
-    if (ent->data_d != NULL) {
-        return RAMFS_RES_DENIED;
+    if (entry->data != NULL) {
+        return RAMFS_ERR_DENIED;
     }
 
-    ent->data_d = (void *)const_p;
-    ent->size   = len;
-    ent->is_dir = 1;
-    ent->ar     = 1;
-    ent->aw     = 1;
+    entry->data   = (void *)data;
+    entry->size   = len;
+    entry->is_dir = 1;
+    entry->ar     = 1;
+    entry->aw     = 1;
 
     res = ramfs_close(&file);
-    if (res != RAMFS_RES_OK) {
+    if (res != RAMFS_OK) {
         return res;
     }
 
-    return RAMFS_RES_OK;
+    return RAMFS_OK;
 }
 
-/**
- * Initialize linked list
- * @param ll_dsc pointer to ll_dsc variable
- * @param n_size the size of 1 node in bytes
- */
-void ll_init(ll_t *ll_p, uint32_t n_size)
+void ramfs_init(void)
 {
-    ll_p->head = NULL;
-    ll_p->tail = NULL;
+    ramfs_ll_init(&g_file_ll, sizeof(ramfs_entry_t));
 
-    if (n_size & 0x3) {
-        n_size &= ~0x3;
-        n_size += 4;
+    g_inited = 1;
+}
+
+int32_t ramfs_ready(void)
+{
+    return g_inited;
+}
+
+int32_t ramfs_open(void *fp, const char* fn, uint32_t mode)
+{
+    ramfs_file_t *file   = (ramfs_file_t *)fp;
+    ramfs_entry_t *entry = ramfs_entry_get(fn);
+
+    file->entry = NULL;
+
+    if ((entry != NULL) && (entry->is_dir == 1)) {
+        return RAMFS_ERR_NOT_EXIST;
     }
 
-    ll_p->n_size = n_size;
-}
-
-/**
- * Add a new head to a linked list
- * @param ll_p pointer to linked list
- * @return pointer to the new head
- */
-void *ll_ins_head(ll_t *ll_p)
-{
-    ll_node_t *n_new;
-
-    n_new = krhino_mm_alloc(ll_p->n_size + LL_NODE_META_SIZE);
-
-    if (n_new != NULL) {
-        node_set_prev(ll_p, n_new, NULL);       /*No prev. before the new head*/
-        node_set_next(ll_p, n_new, ll_p->head); /*After new comes the old head*/
-
-        if (ll_p->head !=
-            NULL) { /*If there is old head then before it goes the new*/
-            node_set_prev(ll_p, ll_p->head, n_new);
-        }
-
-        ll_p->head = n_new; /*Set the new head in the dsc.*/
-        if (ll_p->tail ==
-            NULL) { /*If there is no tail (1. node) set the tail too*/
-            ll_p->tail = n_new;
-        }
-    }
-
-    return n_new;
-}
-
-/**
- * Add a new tail to a linked list
- * @param ll_p pointer to linked list
- * @return pointer to the new tail
- */
-void *ll_ins_tail(ll_t *ll_p)
-{
-    ll_node_t *n_new;
-
-    n_new = krhino_mm_alloc(ll_p->n_size + LL_NODE_META_SIZE);
-
-    if (n_new != NULL) {
-        node_set_next(ll_p, n_new, NULL); /*No next after the new tail*/
-        node_set_prev(ll_p, n_new,
-                      ll_p->tail); /*The prev. before new is tho old tail*/
-        if (ll_p->tail !=
-            NULL) { /*If there is old tail then the new comes after it*/
-            node_set_next(ll_p, ll_p->tail, n_new);
-        }
-
-        ll_p->tail = n_new; /*Set the new tail in the dsc.*/
-        if (ll_p->head ==
-            NULL) { /*If there is no head (1. node) set the head too*/
-            ll_p->head = n_new;
-        }
-    }
-
-    return n_new;
-}
-
-
-/**
- * Remove the node 'node_p' from 'll_p' linked list.
- * It Dose not free the the memory of node.
- * @param ll_p pointer to the linked list of 'node_p'
- * @param node_p pointer to node in 'll_p' linked list
- */
-void ll_rem(ll_t *ll_p, void *node_p)
-{
-    if (ll_get_head(ll_p) == node_p) {
-        /*The new head will be the node after 'n_act'*/
-        ll_p->head = ll_get_next(ll_p, node_p);
-        if (ll_p->head == NULL) {
-            ll_p->tail = NULL;
+    if (entry == NULL) {
+        if ((mode & RAMFS_MODE_WR) != 0) {
+            entry = ramfs_entry_new(fn);
+            if (entry == NULL) {
+                return RAMFS_ERR_FULL;
+            }
         } else {
-            node_set_prev(ll_p, ll_p->head, NULL);
+            return RAMFS_ERR_NOT_EXIST;
         }
-    } else if (ll_get_tail(ll_p) == node_p) {
-        /*The new tail will be the  node before 'n_act'*/
-        ll_p->tail = ll_get_prev(ll_p, node_p);
-        if (ll_p->tail == NULL) {
-            ll_p->head = NULL;
+
+    }
+
+    file->entry     = entry;
+    file->entry->ar = mode & RAMFS_MODE_RD ? 1 : 0;
+    file->entry->aw = mode & RAMFS_MODE_WR ? 1 : 0;
+    file->rwp       = 0;
+
+    entry->refs++;
+
+    return RAMFS_OK;
+}
+int32_t ramfs_create_const(const char *fn, const void *data, uint32_t len)
+{
+    int32_t res;
+
+    ramfs_file_t   file;
+    ramfs_entry_t *entry;
+
+    res = ramfs_open(&file, fn, RAMFS_MODE_RD);
+    if (res == RAMFS_OK) {
+        ramfs_close(&file);
+        return RAMFS_ERR_DENIED;
+    }
+
+    res = ramfs_open(&file, fn, RAMFS_MODE_WR);
+    if (res != RAMFS_OK) {
+        return res;
+    }
+
+    entry = file.entry;
+
+    if (entry->data != NULL) {
+        return RAMFS_ERR_DENIED;
+    }
+
+    entry->data       = (void *)data;
+    entry->size       = len;
+    entry->const_data = 1;
+    entry->ar         = 1;
+    entry->aw         = 0;
+
+    res = ramfs_close(&file);
+
+    return res;
+}
+
+int32_t ramfs_close(void *fp)
+{
+    ramfs_file_t *file = (ramfs_file_t *)fp;
+
+    if (file->entry == NULL) {
+        return RAMFS_OK;
+    }
+
+    if (file->entry->refs > 0) {
+        file->entry->refs--;
+    }
+
+    return RAMFS_OK;
+}
+
+int32_t ramfs_remove(const char *fn)
+{
+    ramfs_entry_t *entry = ramfs_entry_get(fn);
+
+    if (entry->refs != 0) {
+        return RAMFS_ERR_DENIED;
+    }
+
+    ramfs_ll_remove(&g_file_ll, entry);
+    ramfs_mm_free(entry->fn);
+    entry->fn = NULL;
+
+    if (entry->const_data == 0) {
+        ramfs_mm_free(entry->data);
+        entry->data = NULL;
+    }
+
+    ramfs_mm_free(entry);
+
+    return RAMFS_OK;
+}
+
+int32_t ramfs_read(void *fp, void *buf, uint32_t btr, uint32_t *br)
+{
+    uint8_t       *data;
+    ramfs_file_t  *file;
+    ramfs_entry_t *entry;
+
+    file  = (ramfs_file_t *)fp;
+    entry = file->entry;
+    *br   = 0;
+
+    if (entry->data == NULL || entry->size == 0) {
+        return RAMFS_OK;
+    } else if (entry->ar == 0) {
+        return RAMFS_ERR_DENIED;
+    }
+
+    if (file->rwp + btr > entry->size) {
+        *br = entry->size - file->rwp;
+    } else {
+        *br = btr;
+    }
+
+    if (entry->const_data == 0) {
+        data = (uint8_t *)entry->data;
+    } else {
+        data = entry->data;
+    }
+
+    data += file->rwp;
+    memcpy(buf, data, *br);
+
+    file->rwp += *br;
+
+    return RAMFS_OK;
+}
+
+int32_t ramfs_write(void *fp, const void *buf, uint32_t btw, uint32_t *bw)
+{
+    uint32_t  new_size;
+    uint8_t  *new_data;
+    uint8_t  *rwp;
+
+    ramfs_file_t  *file;
+    ramfs_entry_t *entry;
+
+    file  = (ramfs_file_t *)fp;
+    entry = file->entry;
+    *bw   = 0;
+
+    if (entry->aw == 0) {
+        return RAMFS_ERR_DENIED;
+    }
+
+    new_size = file->rwp + btw;
+    if (new_size > entry->size) {
+        new_data = ramfs_mm_realloc(entry->data, new_size);
+        if (new_data == NULL) {
+            return RAMFS_ERR_FULL;
+        }
+
+        entry->data = new_data;
+        entry->size = new_size;
+    }
+
+    rwp = (uint8_t *)entry->data;
+    rwp += file->rwp;
+
+    memcpy(rwp, buf, btw);
+    *bw = btw;
+    file->rwp += *bw;
+
+    return RAMFS_OK;
+}
+
+int32_t ramfs_seek(void *fp, uint32_t pos)
+{
+    uint8_t *new_data;
+
+    ramfs_file_t  *file;
+    ramfs_entry_t *entry;
+
+    file  = (ramfs_file_t *)fp;
+    entry = file->entry;
+
+    if (pos < entry->size) {
+        file->rwp = pos;
+    } else {
+        if (entry->aw == 0) {
+            return RAMFS_ERR_DENIED;
+        }
+
+        new_data = ramfs_mm_realloc(entry->data, pos);
+        if (new_data == NULL) {
+            return RAMFS_ERR_FULL;
+        }
+
+        entry->data = new_data;
+        entry->size = pos;
+        file->rwp   = pos;
+    }
+
+    return RAMFS_OK;
+}
+
+int32_t ramfs_tell(void *fp, uint32_t *pos)
+{
+    *pos = ((ramfs_file_t *)fp)->rwp;
+
+    return RAMFS_OK;
+}
+
+int32_t ramfs_trunc(void *fp)
+{
+    void *new_data;
+
+    ramfs_file_t  *file;
+    ramfs_entry_t *entry;
+
+    file  = (ramfs_file_t *)fp;
+    entry = file->entry;
+
+    if (entry->aw == 0) {
+        return RAMFS_ERR_DENIED;
+    }
+
+    new_data = ramfs_mm_realloc(entry->data, file->rwp);
+    if (new_data == NULL) {
+        return RAMFS_ERR_FULL;
+    }
+
+    entry->data = new_data;
+    entry->size = file->rwp;
+
+    return RAMFS_OK;
+}
+
+int32_t ramfs_size(void *fp, uint32_t *size)
+{
+    *size = ((ramfs_file_t *)fp)->entry->size;
+
+    return RAMFS_OK;
+}
+
+int32_t ramfs_access(const char *path, int32_t mode)
+{
+    ramfs_entry_t *entry = ramfs_entry_get(path);
+
+    if (mode == F_OK) {
+        if (entry == NULL) {
+            return RAMFS_ERR_DENIED;
         } else {
-            node_set_next(ll_p, ll_p->tail, NULL);
+            return RAMFS_OK;
+        }
+    }
+
+    if (mode == R_OK) {
+        if (entry == NULL) {
+            return RAMFS_OK;
+        } else {
+            if (entry->ar == 1) {
+                return RAMFS_OK;
+            } else {
+                return RAMFS_ERR_DENIED;
+            }
+        }
+    }
+
+    if (mode == W_OK) {
+        if (entry == NULL) {
+            return RAMFS_OK;
+        } else {
+            if (entry->aw == 1) {
+                return RAMFS_OK;
+            } else {
+                return RAMFS_ERR_DENIED;
+            }
+        }
+    }
+
+    if (mode == X_OK) {
+        return RAMFS_OK;
+    }
+
+    return RAMFS_ERR_DENIED;
+}
+
+int32_t ramfs_mkdir(const char *path)
+{
+    return ramfs_dir_create(path, NULL, 0);
+}
+
+int32_t ramfs_opendir(void *dp, const char *path)
+{
+    ramfs_dir_t   *ramfs_dp;
+    ramfs_entry_t *entry;
+
+    ramfs_dp = (ramfs_dir_t *)dp;
+    entry    = ramfs_entry_get(path);
+
+    if (entry == NULL) {
+        return RAMFS_ERR_NOT_EXIST;
+    }
+
+    if (entry->is_dir == 1) {
+        ramfs_dp->dir_name = ramfs_mm_alloc(strlen(path));
+
+        if (ramfs_dp->dir_name == NULL) {
+            return RAMFS_ERR_FULL;
+        } else {
+            strcpy(ramfs_dp->dir_name, path);
+            ramfs_dp->last_entry = NULL;
+
+            return RAMFS_OK;
         }
     } else {
-        ll_node_t *n_prev = ll_get_prev(ll_p, node_p);
-        ll_node_t *n_next = ll_get_next(ll_p, node_p);
-
-        node_set_next(ll_p, n_prev, n_next);
-        node_set_prev(ll_p, n_next, n_prev);
+        return RAMFS_ERR_NOT_EXIST;
     }
 }
 
-/**
- * Remove and free all elements from a linked list. The list remain valid but
- * become empty.
- * @param ll_p pointer to linked list
- */
-void ll_clear(ll_t *ll_p)
+int32_t ramfs_readdir(void *dp, char *fn)
 {
-    void *i;
-    void *i_next;
+    int i      = 0;
+    int len    = 0;
+    int search = 1;
 
-    i      = ll_get_head(ll_p);
-    i_next = NULL;
+    char *name = NULL;
+    char *data = NULL;
 
-    while (i != NULL) {
-        i_next = ll_get_next(ll_p, i);
+    ramfs_dir_t *ramfs_dp = (ramfs_dir_t *)dp;
 
-        ll_rem(ll_p, i);
-        krhino_mm_free(i);
-
-        i = i_next;
-    }
-}
-
-/**
- * Move a node to a new linked list
- * @param ll_ori_p pointer to the original (old) linked list
- * @param ll_new_p pointer to the new linked list
- * @param node pointer to a node
- */
-void ll_chg_list(ll_t *ll_ori_p, ll_t *ll_new_p, void *node)
-{
-    ll_rem(ll_ori_p, node);
-
-    /*Set node as head*/
-    node_set_prev(ll_new_p, node, NULL);
-    node_set_next(ll_new_p, node, ll_new_p->head);
-
-    if (ll_new_p->head !=
-        NULL) { /*If there is old head then before it goes the new*/
-        node_set_prev(ll_new_p, ll_new_p->head, node);
+    if (ramfs_dp->last_entry == NULL) {
+        ramfs_dp->last_entry = ramfs_ll_get_head(&g_file_ll);
+    } else {
+        ramfs_dp->last_entry = ramfs_ll_get_next(&g_file_ll, ramfs_dp->last_entry);
     }
 
-    ll_new_p->head = node; /*Set the new head in the dsc.*/
-    if (ll_new_p->tail ==
-        NULL) { /*If there is no tail (first node) set the tail too*/
-        ll_new_p->tail = node;
-    }
-}
+    while (search == 1) {
+        if (ramfs_dp->last_entry != NULL) {
+            if (strcmp(ramfs_dp->dir_name, ramfs_dp->last_entry->fn) == 0) {
+                search = 1;
 
-/**
- * Return with head node of the linked list
- * @param ll_p pointer to linked list
- * @return pointer to the head of 'll_p'
- */
-void *ll_get_head(ll_t *ll_p)
-{
-    void *head = NULL;
+            } else if (strncmp(ramfs_dp->dir_name, ramfs_dp->last_entry->fn,
+                               strlen(ramfs_dp->dir_name)) != 0) {
+                search = 1;
 
-    if (ll_p != NULL) {
-        head = ll_p->head;
-    }
+            } else if (*(ramfs_dp->last_entry->fn + strlen(ramfs_dp->dir_name)) != '/') {
+                search = 1;
 
-    return head;
-}
+            } else {
+                name = ramfs_dp->last_entry->fn + strlen(ramfs_dp->dir_name) + 1;
+                data = name;
+                len  = strlen(ramfs_dp->last_entry->fn) - strlen(ramfs_dp->dir_name);
 
-/**
- * Return with tail node of the linked list
- * @param ll_p pointer to linked list
- * @return pointer to the head of 'll_p'
- */
-void *ll_get_tail(ll_t *ll_p)
-{
-    void *tail = NULL;
+                search = 0;
 
-    if (ll_p != NULL) {
-        tail = ll_p->tail;
-    }
+                for (i = 0; i < len; i++) {
+                    if (*name == '/') {
+                        search = 1;
+                        break;
+                    }
+                    name++;
+                }
+            }
 
-    return tail;
-}
-
-/**
- * Return with the pointer of the next node after 'n_act'
- * @param ll_p pointer to linked list
- * @param n_act pointer a node
- * @return pointer to the next node
- */
-void *ll_get_next(ll_t *ll_p, void *n_act)
-{
-    void *next = NULL;
-
-    if (ll_p != NULL) {
-        ll_node_t *n_act_d = n_act;
-        memcpy(&next, n_act_d + LL_NEXT_P_OFFSET(ll_p), sizeof(void *));
+            if (search == 1) {
+                ramfs_dp->last_entry = ramfs_ll_get_next(&g_file_ll, 
+                                                          ramfs_dp->last_entry);
+            }
+        } else {
+            search = 0;
+        }
     }
 
-    return next;
-}
-
-/**
- * Return with the pointer of the previous node after 'n_act'
- * @param ll_p pointer to linked list
- * @param n_act pointer a node
- * @return pointer to the previous node
- */
-void *ll_get_prev(ll_t *ll_p, void *n_act)
-{
-    void *prev = NULL;
-
-    if (ll_p != NULL) {
-        ll_node_t *n_act_d = n_act;
-        memcpy(&prev, n_act_d + LL_PREV_P_OFFSET(ll_p), sizeof(void *));
+    if (ramfs_dp->last_entry != NULL) {
+        strcpy(fn, data);
+    } else {
+        return RAMFS_ERR_NOT_EXIST;
     }
 
-    return prev;
+    return RAMFS_OK;
 }
 
-void ll_swap(ll_t *ll_p, void *n1_p, void *n2_p)
+int32_t ramfs_closedir(void *dp)
 {
-    (void)(ll_p);
-    (void)(n1_p);
-    (void)(n2_p);
-    /*TODO*/
+    ramfs_dir_t *ramfs_dp = (ramfs_dir_t *)dp;
+
+    if (ramfs_dp->dir_name != NULL) {
+        ramfs_mm_free(ramfs_dp->dir_name);
+    }
+
+    return RAMFS_OK;
 }
 
-/**********************
- *   STATIC FUNCTIONS
- **********************/
-
-/**
- * Set the 'pervious node pointer' of a node
- * @param ll_p pointer to linked list
- * @param act pointer to a node which prev. node pointer should be set
- * @param prev pointer to a node which should be the previous node before 'act'
- */
-static void node_set_prev(ll_t *ll_p, ll_node_t *act, ll_node_t *prev)
+int32_t ramfs_stat(const char *path, ramfs_stat_t *st)
 {
-    memcpy(act + LL_PREV_P_OFFSET(ll_p), &prev, sizeof(ll_node_t *));
+    ramfs_entry_t *entry = ramfs_entry_get(path);
+
+    if (st == NULL) {
+        return RAMFS_ERR_INV_PARAM;
+    }
+
+    if (entry != NULL) {
+        st->st_size = entry->size;
+
+        if (entry->ar == 1) {
+            st->st_mode |= RAMFS_MODE_RD;
+        }
+
+        if (entry->aw == 1) {
+            st->st_mode |= RAMFS_MODE_WR;
+        }
+
+        if (entry->is_dir == 1) {
+            st->is_dir = 1;
+        }
+
+    } else {
+        return RAMFS_ERR_NOT_EXIST;
+    }
+
+    return RAMFS_OK;
 }
 
-/**
- * Set the 'next node pointer' of a node
- * @param ll_p pointer to linked list
- * @param act pointer to a node which next node pointer should be set
- * @param next pointer to a node which should be the next node before 'act'
- */
-static void node_set_next(ll_t *ll_p, ll_node_t *act, ll_node_t *next)
-{
-    memcpy(act + LL_NEXT_P_OFFSET(ll_p), &next, sizeof(ll_node_t *));
-}
