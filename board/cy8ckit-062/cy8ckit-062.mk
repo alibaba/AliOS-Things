@@ -3,29 +3,29 @@ NAME := board_cy8ckit-062
 JTAG := jlink
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
-MODULE               := 1062
-HOST_ARCH            := Cortex-M4
-HOST_MCU_FAMILY      := cy8c6347
-SUPPORT_BINS         := no
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board cy8ckit-062
+MODULE             := 1062
+HOST_ARCH          := Cortex-M4
+HOST_MCU_FAMILY    := cy8c6347
+SUPPORT_BINS       := no
 
 $(NAME)_SOURCES := board.c
 
 GLOBAL_INCLUDES += .
-GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0
+GLOBAL_DEFINES  += RHINO_CONFIG_TICK_TASK=0
 
 sal ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
-module ?= wifi.mk3060
+module             ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
 
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_CY8C6347BZI
-CONFIG_SYSINFO_DEVICE_NAME := CY8C6347BZI
+CONFIG_SYSINFO_DEVICE_NAME   := CY8C6347BZI
 
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
@@ -33,7 +33,7 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 ifeq ($(COMPILER),armcc)
 else ifeq ($(COMPILER),iar)
 else
-GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/cy8ckit-062
+GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/board/cy8ckit-062
 endif
 
 # Global defines
@@ -50,8 +50,8 @@ EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
 
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))
-GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=1
+GLOBAL_DEFINES  += RHINO_CONFIG_WORKQUEUE=1
 TEST_COMPONENTS += basic api wifi_hal rhino osal kv yloop alicrypto cjson digest_algorithm hashtable
 else
-GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=0
+GLOBAL_DEFINES  += RHINO_CONFIG_WORKQUEUE=0
 endif

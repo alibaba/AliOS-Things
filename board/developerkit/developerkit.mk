@@ -12,31 +12,31 @@ ENABLE_VFP           := 1
 HOST_MCU_NAME        := STM32L496VGTx
 ENABLE_USPACE        := 0
 
-$(NAME)_SOURCES += aos/board.c \
-                   aos/board_cli.c \
-                   aos/soc_init.c \
-                   aos/st7789.c \
-                   pwrmgmt_hal/board_cpu_pwr.c \
-                   pwrmgmt_hal/board_cpu_pwr_rtc.c \
+$(NAME)_SOURCES += aos/board.c                         \
+                   aos/board_cli.c                     \
+                   aos/soc_init.c                      \
+                   aos/st7789.c                        \
+                   pwrmgmt_hal/board_cpu_pwr.c         \
+                   pwrmgmt_hal/board_cpu_pwr_rtc.c     \
                    pwrmgmt_hal/board_cpu_pwr_systick.c \
-                   pwrmgmt_hal/board_cpu_pwr_timer.c \
+                   pwrmgmt_hal/board_cpu_pwr_timer.c   \
                    mbmaster_hal/port_serial.c
 
-$(NAME)_SOURCES += Src/adc.c \
-$(NAME)_SOURCES += Src/crc.c \
-$(NAME)_SOURCES += Src/dcmi.c \
-$(NAME)_SOURCES += Src/dma.c \
-$(NAME)_SOURCES += Src/i2c.c \
-$(NAME)_SOURCES += Src/irtim.c \
-$(NAME)_SOURCES += Src/main.c \
-$(NAME)_SOURCES += Src/sai.c \
-$(NAME)_SOURCES += Src/sdmmc.c \
-$(NAME)_SOURCES += Src/spi.c \
-$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c \
-$(NAME)_SOURCES += Src/tim.c \
-$(NAME)_SOURCES += Src/usart.c \
-$(NAME)_SOURCES += Src/usb_otg.c \
-$(NAME)_SOURCES += Src/gpio.c \
+$(NAME)_SOURCES += Src/adc.c
+$(NAME)_SOURCES += Src/crc.c
+$(NAME)_SOURCES += Src/dcmi.c
+$(NAME)_SOURCES += Src/dma.c
+$(NAME)_SOURCES += Src/i2c.c
+$(NAME)_SOURCES += Src/irtim.c
+$(NAME)_SOURCES += Src/main.c
+$(NAME)_SOURCES += Src/sai.c
+$(NAME)_SOURCES += Src/sdmmc.c
+$(NAME)_SOURCES += Src/spi.c
+$(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c
+$(NAME)_SOURCES += Src/tim.c
+$(NAME)_SOURCES += Src/usart.c
+$(NAME)_SOURCES += Src/usb_otg.c
+$(NAME)_SOURCES += Src/gpio.c
 
 
 ifeq ($(COMPILER), armcc)
@@ -59,7 +59,7 @@ ifeq ($(ENABLE_AUDIO_HAL),1)
 include ./board/developerkit/audio_hal/audio_hal.mk
 endif
 
-GLOBAL_INCLUDES += . \
+GLOBAL_INCLUDES += .    \
                    hal/ \
                    aos/ \
                    Inc/
@@ -70,14 +70,14 @@ GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 
 $(NAME)_COMPONENTS += sensor
-GLOBAL_DEFINES += AOS_SENSOR_BARO_BOSCH_BMP280
-GLOBAL_DEFINES += AOS_SENSOR_ALS_LITEON_LTR553
-GLOBAL_DEFINES += AOS_SENSOR_PS_LITEON_LTR553
-GLOBAL_DEFINES += AOS_SENSOR_HUMI_SENSIRION_SHTC1
-GLOBAL_DEFINES += AOS_SENSOR_TEMP_SENSIRION_SHTC1
-GLOBAL_DEFINES += AOS_SENSOR_ACC_ST_LSM6DSL
-GLOBAL_DEFINES += AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
-GLOBAL_DEFINES += AOS_SENSOR_GYRO_ST_LSM6DSL
+GLOBAL_DEFINES     += AOS_SENSOR_BARO_BOSCH_BMP280
+GLOBAL_DEFINES     += AOS_SENSOR_ALS_LITEON_LTR553
+GLOBAL_DEFINES     += AOS_SENSOR_PS_LITEON_LTR553
+GLOBAL_DEFINES     += AOS_SENSOR_HUMI_SENSIRION_SHTC1
+GLOBAL_DEFINES     += AOS_SENSOR_TEMP_SENSIRION_SHTC1
+GLOBAL_DEFINES     += AOS_SENSOR_ACC_ST_LSM6DSL
+GLOBAL_DEFINES     += AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
+GLOBAL_DEFINES     += AOS_SENSOR_GYRO_ST_LSM6DSL
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/developerkit/STM32L496.sct
@@ -112,7 +112,7 @@ endif
 sal ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
-module ?= wifi.bk7231
+module             ?= wifi.bk7231
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
@@ -123,7 +123,7 @@ $(NAME)_LINK_FILES += Src/stm32l4xx_hal_msp.o
 endif
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_developerkit
-CONFIG_SYSINFO_DEVICE_NAME := developerkit
+CONFIG_SYSINFO_DEVICE_NAME   := developerkit
 
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
