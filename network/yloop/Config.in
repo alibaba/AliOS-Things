@@ -1,0 +1,12 @@
+
+menuconfig YLOOP_ENABLED
+    bool "FEATURE_YLOOP_ENABLE"
+    default y
+    help
+        AliOS things yloop -- event notifications
+
+if YLOOP_ENABLED
+menu "yloop Configurations"
+
+endmenu
+endif
