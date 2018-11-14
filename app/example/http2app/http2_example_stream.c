@@ -239,6 +239,8 @@ int linkkit_main(void *paras)
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
     ret = http2_stream_test();
+
+    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
     return ret;
 }
