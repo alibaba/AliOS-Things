@@ -292,7 +292,7 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
     if (req) {
         NGHTTP2_DBG("stream user data is not exist\n");
     }
-    NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk) stream_id [%d]\n" "%lu bytes\n", stream_id, (unsigned long int)len);
+    NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk) stream_id [%d] :: %lu bytes\n", stream_id, (unsigned long int)len);
 
     if (connection->cbs && connection->cbs->on_user_chunk_recv_cb) {
         connection->cbs->on_user_chunk_recv_cb(stream_id, data, len, flags);
