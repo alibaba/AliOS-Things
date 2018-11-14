@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #include "iotx_utils_internal.h"
 #include "mem_stats.h"
 
@@ -60,7 +57,7 @@ static void _mem_swap_module_pos(list_head_t *a, list_head_t *b)
     if (a == NULL || a == NULL) {
         return;
     }
-    
+
     list_add(&temp, b);
     list_del(b);
     list_add(b, a);
@@ -86,7 +83,7 @@ static void _mem_sort_module_pos(list_head_t *head)
 
             if (_mem_cmp_max_used(start, start->next)) {
                 _mem_swap_module_pos(start, start->next);
-                
+
                 start = start->prev;
                 if (start == end) {
                     end = end->next;
@@ -204,7 +201,8 @@ void *_create_mem_table(char *module_name, struct list_head *list_head)
     }
     memset(pos, 0, sizeof(module_mem_t));
     len = strlen(module_name);
-    memcpy(pos->mem_statis.module_name, module_name, (len >= sizeof(pos->mem_statis.module_name)) ? (sizeof(pos->mem_statis.module_name) - 1) : len);
+    memcpy(pos->mem_statis.module_name, module_name,
+           (len >= sizeof(pos->mem_statis.module_name)) ? (sizeof(pos->mem_statis.module_name) - 1) : len);
 
     INIT_LIST_HEAD(&pos->mem_statis.calling_stack.func_head);
 
@@ -321,7 +319,7 @@ int _count_malloc_internal(const char *f, const int l, OS_malloc_record *os_mall
     return ret;
 }
 
-void  _count_free_internal(void *ptr, OS_malloc_record *os_malloc_pos)
+void _count_free_internal(void *ptr, OS_malloc_record *os_malloc_pos)
 {
 
     module_mem_t *pos = NULL;
@@ -444,6 +442,7 @@ void LITE_free_internal(void *ptr)
 #if WITH_MEM_STATS
     OS_malloc_record       *pos;
     OS_malloc_record       *next;
+    int                     found = 0;
 
     if (!ptr) {
         return;
@@ -454,12 +453,20 @@ void LITE_free_internal(void *ptr)
     pos = NULL;
     list_for_each_entry_safe(pos, next, &mem_recs, list, OS_malloc_record) {
         if (pos->buf == ptr) {
+            found = 1;
             break;
         }
     }
 
+    if (!found) {
+        pos = NULL;
+    }
+
     if (NULL == pos) {
         log_warning("utils", "Cannot find %p allocated! Skip stat ...", ptr);
+
+        HAL_MutexUnlock(mutex_mem_stats);
+        return;
     } else {
         iterations_freed += 1;
         iterations_in_use -= 1;
@@ -579,21 +586,21 @@ void LITE_dump_malloc_free_stats(int level)
                         module_pos->mem_statis.iterations_allocated,
                         module_pos->mem_statis.bytes_total_freed,
                         module_pos->mem_statis.iterations_freed
-                        );
-/*
-            LITE_printf("\x1B[1;32mMODULE_NAME: [%s]\x1B[0m\r\n", module_pos->mem_statis.module_name);
-            LITE_printf("---------------------------------------------------\r\n");
-            LITE_printf(". bytes_total_allocated:    %d\r\n", module_pos->mem_statis.bytes_total_allocated);
-            LITE_printf(". bytes_total_freed:        %d\r\n", module_pos->mem_statis.bytes_total_freed);
-            LITE_printf(". bytes_total_in_use:       %d\r\n", module_pos->mem_statis.bytes_total_in_use);
-            LITE_printf(". bytes_max_allocated:      %d\r\n", module_pos->mem_statis.bytes_max_allocated);
-            LITE_printf(". bytes_max_in_use:         %d\r\n", module_pos->mem_statis.bytes_max_in_use);
-            LITE_printf(". iterations_allocated:     %d\r\n", module_pos->mem_statis.iterations_allocated);
-            LITE_printf(". iterations_freed:         %d\r\n", module_pos->mem_statis.iterations_freed);
-            LITE_printf(". iterations_in_use:        %d\r\n", module_pos->mem_statis.iterations_in_use);
-            LITE_printf(". iterations_max_in_use:    %d\r\n", module_pos->mem_statis.iterations_max_in_use);
-            LITE_printf("---------------------------------------------------\r\n");
-*/
+                       );
+            /*
+                        LITE_printf("\x1B[1;32mMODULE_NAME: [%s]\x1B[0m\r\n", module_pos->mem_statis.module_name);
+                        LITE_printf("---------------------------------------------------\r\n");
+                        LITE_printf(". bytes_total_allocated:    %d\r\n", module_pos->mem_statis.bytes_total_allocated);
+                        LITE_printf(". bytes_total_freed:        %d\r\n", module_pos->mem_statis.bytes_total_freed);
+                        LITE_printf(". bytes_total_in_use:       %d\r\n", module_pos->mem_statis.bytes_total_in_use);
+                        LITE_printf(". bytes_max_allocated:      %d\r\n", module_pos->mem_statis.bytes_max_allocated);
+                        LITE_printf(". bytes_max_in_use:         %d\r\n", module_pos->mem_statis.bytes_max_in_use);
+                        LITE_printf(". iterations_allocated:     %d\r\n", module_pos->mem_statis.iterations_allocated);
+                        LITE_printf(". iterations_freed:         %d\r\n", module_pos->mem_statis.iterations_freed);
+                        LITE_printf(". iterations_in_use:        %d\r\n", module_pos->mem_statis.iterations_in_use);
+                        LITE_printf(". iterations_max_in_use:    %d\r\n", module_pos->mem_statis.iterations_max_in_use);
+                        LITE_printf("---------------------------------------------------\r\n");
+            */
             if (!strcmp(module_pos->mem_statis.module_name, "unknown")) {
                 unknown_mod = module_pos;
             } else {
