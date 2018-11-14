@@ -8,11 +8,6 @@ $(NAME)_TYPE := kernel
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS := libc rhino hal netmgr framework.common cjson cli digest_algorithm protocols.net
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
-GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += DEVICE_SERIAL=1
 GLOBAL_DEFINES += DEVICE_STDIO_MESSAGES=1
 GLOBAL_DEFINES += DEVICE_SPI=1
@@ -32,7 +27,8 @@ GLOBAL_INCLUDES += include \
                    wifi/inc/arch \
                    wifi/inc/driver \
                    wifi/inc/lib \
-                   wifi/inc/wpa
+                   wifi/inc/wpa	\
+                   feature/sysdata
 
 
 GLOBAL_CFLAGS += -DRDA5981x
@@ -58,10 +54,9 @@ $(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uni
 $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 
-GLOBAL_LDFLAGS += -T platform/mcu/rda5981x/rda5981x.ld
+#GLOBAL_LDFLAGS += -T platform/mcu/rda5981x/rda5981x.ld
 
-$(NAME)_SOURCES := startup/startup_rda5981x.s \
-                   startup/soc_init.c \
+$(NAME)_SOURCES := startup/soc_init.c \
                    ../../arch/arm/armv7m/gcc/m4/port_c.c \
                    ../../arch/arm/armv7m/gcc/m4/port_s.S \
                    aos/aos.c \
@@ -75,7 +70,9 @@ $(NAME)_SOURCES := startup/startup_rda5981x.s \
                    hal/flash.c \
                    hal/rda_trng_api.c \
                    hal/wifi_port.c \
-                   hal/ota_port.c
+                   hal/ota_port.c \
+                   hal/hal_pwm.c \
+                   hal/trng_api.c
 
 $(NAME)_SOURCES += cmsis/cmsis_nvic.c \
                    driver/serial_api.c \
@@ -87,13 +84,13 @@ $(NAME)_SOURCES += cmsis/cmsis_nvic.c \
                    driver/flash_api.c \
                    driver/rda_flash.c \
                    driver/flash_common_algo.c \
+                   driver/pwmout_api.c \
                    middleware/mbed_assert.c \
                    middleware/mbed_board.c \
                    middleware/mbed_critical.c \
-                   middleware/mbed_error.c 
-				   
+                   middleware/mbed_error.c
+
 $(NAME)_SOURCES += wifi/rda_sys_wrapper.c \
                    wifi/rda59xx_daemon.c \
                    wifi/rda59xx_lwip.c \
-
-                   
+$(NAME)_SOURCES += feature/sysdata/rda5981_sys_data.c
