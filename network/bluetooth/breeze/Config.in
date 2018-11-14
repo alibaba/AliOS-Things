@@ -1,0 +1,14 @@
+
+config AOS_COMP_BREEZE
+    bool "FEATURE_BREEZE_ENALED"
+    default n
+    help
+        AliOS things NETMGR -- smart config support component
+
+if AOS_COMP_BREEZE
+
+menu "Breeze Configurations"
+
+endmenu
+
+endif

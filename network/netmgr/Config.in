@@ -1,0 +1,14 @@
+
+config AOS_COMP_NETMGR
+    bool "FEATURE_NETMGR_ENALED"
+    default n
+    help
+        AliOS things NETMGR -- smart config support component
+
+if AOS_COMP_NETMGR
+
+menu "Netmgr Configurations"
+
+endmenu
+
+endif
