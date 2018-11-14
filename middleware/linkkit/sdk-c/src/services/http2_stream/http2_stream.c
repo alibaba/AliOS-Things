@@ -84,7 +84,9 @@ static int _set_device_info(device_conn_info_t *device_info)
     strncpy(g_device_info.product_key, device_info->product_key, PRODUCT_KEY_LEN);
     strncpy(g_device_info.device_name, device_info->device_name, DEVICE_NAME_LEN);
     strncpy(g_device_info.device_secret, device_info->device_secret, DEVICE_SECRET_LEN);
-    strncpy(g_device_info.url, device_info->url, URL_MAX_LEN);
+    if(device_info->url != NULL) {
+        strncpy(g_device_info.url, device_info->url, URL_MAX_LEN);
+    }
     g_device_info.port = device_info->port;
 
     return 0;
