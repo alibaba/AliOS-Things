@@ -72,7 +72,7 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
         p_ctx->waittime = param->waittime;
     }
     p_ctx->mutex = HAL_MutexCreate();
-    if(NULL == p_ctx->mutex){
+    if (NULL == p_ctx->mutex) {
         COAP_ERR("Mutex Create failed");
         goto err;
     }
@@ -81,25 +81,33 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
     p_ctx->sendlist.list_mutex = HAL_MutexCreate();
     /*CoAP message send list*/
     INIT_LIST_HEAD(&p_ctx->sendlist.list);
-    p_ctx->sendlist.count = 0;
-    if(0 != param->send_maxcount)
-        p_ctx->sendlist.maxcount = param->send_maxcount;
-    else
-        p_ctx->sendlist.maxcount = COAP_DEFAULT_SENDLIST_MAXCOUNT;
 
-    if(0 == param->res_maxcount)
+    HAL_MutexLock(p_ctx->sendlist.list_mutex);
+    p_ctx->sendlist.count = 0;
+    HAL_MutexUnlock(p_ctx->sendlist.list_mutex);
+
+    if (0 != param->send_maxcount) {
+        p_ctx->sendlist.maxcount = param->send_maxcount;
+    } else {
+        p_ctx->sendlist.maxcount = COAP_DEFAULT_SENDLIST_MAXCOUNT;
+    }
+
+    if (0 == param->res_maxcount) {
         param->res_maxcount = COAP_DEFAULT_RES_MAXCOUNT;
+    }
     CoAPResource_init(p_ctx, param->res_maxcount);
 
 #ifndef COAP_OBSERVE_SERVER_DISABLE
-    if(0 == param->obs_maxcount)
+    if (0 == param->obs_maxcount) {
         param->obs_maxcount = COAP_DEFAULT_OBS_MAXCOUNT;
+    }
     CoAPObsServer_init(p_ctx, param->obs_maxcount);
 #endif
 
 #ifndef COAP_OBSERVE_CLIENT_DISABLE
-    if(0 == param->obs_maxcount)
+    if (0 == param->obs_maxcount) {
         param->obs_maxcount = COAP_DEFAULT_OBS_MAXCOUNT;
+    }
     CoAPObsClient_init(p_ctx, param->obs_maxcount);
 #endif
 
@@ -149,12 +157,12 @@ err:
 
     CoAPResource_deinit(p_ctx);
 
-    if(NULL != p_ctx->sendlist.list_mutex){
+    if (NULL != p_ctx->sendlist.list_mutex) {
         HAL_MutexDestroy(p_ctx->sendlist.list_mutex);
         p_ctx->sendlist.list_mutex = NULL;
     }
 
-    if(NULL != p_ctx->mutex){
+    if (NULL != p_ctx->mutex) {
         HAL_MutexDestroy(p_ctx->mutex);
         p_ctx->mutex = NULL;
     }
@@ -169,7 +177,7 @@ err:
 void *CoAPContextAppdata_get(CoAPContext *context)
 {
     CoAPIntContext *p_ctx = (CoAPIntContext *)context;
-    if(NULL == p_ctx){
+    if (NULL == p_ctx) {
         return NULL;
     }
 
