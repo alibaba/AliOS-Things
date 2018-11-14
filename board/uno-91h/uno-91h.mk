@@ -7,15 +7,17 @@ MODULE               := xxx
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := rda5981x
 
-$(NAME)_SOURCES := board.c
+$(NAME)_SOURCES := board.c	\
+		   startup_uno-91h.s
 
 GLOBAL_INCLUDES += .
-GLOBAL_DEFINES  += STDIO_UART=0 
+GLOBAL_DEFINES  += STDIO_UART=0
 GLOBAL_DEFINES  += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0
 
-CURRENT_TIME := $(shell $(DATE) +%Y%m%d.%H%M)
-#CURRENT_TIME = $(/bin/date +%Y%m%d.%H%M)
-#CURRENT_TIME = 20180425.2039
+ifeq ($(shell uname -o), Msys)
+	CURRENT_TIME = $(shell ${DATE} +%Y%m%d.%H%M)
+endif
+
 #CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.0.1
 
 CONFIG_SYSINFO_OS_VERSION := $(call get-os-version)
@@ -36,6 +38,9 @@ GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/uno-91h
 # Global defines
 GLOBAL_DEFINES += $$(if $$(NO_CRLF_STDIO_REPLACEMENT),,CRLF_STDIO_REPLACEMENT)
 GLOBAL_CFLAGS  += -DRDA5981X -mcpu=cortex-m4 -mthumb -mfloat-abi=soft
+GLOBAL_CFLAGS += -DRDA5981A
+
+GLOBAL_LDFLAGS += -T uno-91h.ld
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES  +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
