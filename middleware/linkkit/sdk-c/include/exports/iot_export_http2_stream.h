@@ -100,12 +100,12 @@ DLL_IOT_API int IOT_HTTP2_Stream_UploadFile(void *handle, const char *file_path,
         header_ext_info_t *header,
         upload_file_result_cb cb, void *user_data);
 #endif
-DLL_IOT_API void *IOT_HTTP2_Stream_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb);
+DLL_IOT_API void *IOT_HTTP2_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_cb);
 DLL_IOT_API int IOT_HTTP2_Stream_Open(void *handle, stream_data_info_t *info, header_ext_info_t *header);
 DLL_IOT_API int IOT_HTTP2_Stream_Send(void *handle, stream_data_info_t *info, header_ext_info_t *header);
 DLL_IOT_API int IOT_HTTP2_Stream_Query(void *handle, stream_data_info_t *info, header_ext_info_t *header);
 DLL_IOT_API int IOT_HTTP2_Stream_Close(void *handle, stream_data_info_t *info);
-DLL_IOT_API int IOT_HTTP2_Stream_Disconnect(void *handle);
+DLL_IOT_API int IOT_HTTP2_Disconnect(void *handle);
 
 #ifdef __cplusplus
 }
