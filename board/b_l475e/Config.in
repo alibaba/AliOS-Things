@@ -1,6 +1,7 @@
 config AOS_BOARD_B_L475E
     bool "board_b_l475e"
     default n
+    select AOS_MCU_STM32L475
     help
 
 if AOS_BOARD_B_L475E

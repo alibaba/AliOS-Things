@@ -1,6 +1,7 @@
 config AOS_BOARD_BK7231U
     bool "board_bk7231u"
     default n
+    select AOS_MCU_BK7231U
     help
 
 if AOS_BOARD_BK7231U
