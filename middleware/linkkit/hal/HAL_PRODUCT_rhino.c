@@ -21,10 +21,10 @@
 #define __DEMO__
 
 #ifdef __DEMO__
-char _product_key[PRODUCT_KEY_LEN + 1];
-char _product_secret[PRODUCT_SECRET_LEN + 1];
-char _device_name[DEVICE_NAME_LEN + 1];
-char _device_secret[DEVICE_SECRET_LEN + 1];
+    char _product_key[PRODUCT_KEY_LEN + 1];
+    char _product_secret[PRODUCT_SECRET_LEN + 1];
+    char _device_name[DEVICE_NAME_LEN + 1];
+    char _device_secret[DEVICE_SECRET_LEN + 1];
 #endif
 
 
@@ -189,7 +189,7 @@ int HAL_GetDeviceID(_OU_ char *device_id)
  * @param   version : 用来存放版本字符串的数组
  * @return  写到version[]数组中的字符长度, 单位是字节(Byte)
  */
-int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
+int HAL_GetFirmwareVersion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
 {
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
 #ifdef __DEMO__
