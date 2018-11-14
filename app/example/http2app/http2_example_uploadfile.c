@@ -84,7 +84,7 @@ static int http2_stream_test(char **argv,int argc)
     conn_info.url = HTTP2_ONLINE_SERVER_URL;
     conn_info.port = HTTP2_ONLINE_SERVER_PORT;
 
-    handle = IOT_HTTP2_Stream_Connect(&conn_info,&my_cb);
+    handle = IOT_HTTP2_Connect(&conn_info,&my_cb);
     if(handle == NULL) {
         return -1;
     }
@@ -108,7 +108,7 @@ static int http2_stream_test(char **argv,int argc)
     while(upload_end != goal_num) {
         HAL_SleepMs(200);
     }
-    ret = IOT_HTTP2_Stream_Disconnect(handle);
+    ret = IOT_HTTP2_Disconnect(handle);
     EXAMPLE_TRACE("close connect %d\n",ret);
     return 0;
 }
@@ -131,7 +131,6 @@ int linkkit_main(void *paras)
         printf("no file name input!\n");
         return 0;
     }
-
 
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
