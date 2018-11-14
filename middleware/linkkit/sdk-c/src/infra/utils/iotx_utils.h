@@ -92,7 +92,7 @@
 #define LITE_free(ptr)              \
     do { \
         if(!ptr) { \
-            log_err("utils", "%s == NULL! LITE_free(%s) aborted.", #ptr, #ptr); \
+            log_warning("utils", "%s == NULL! LITE_free(%s) aborted.", #ptr, #ptr); \
             break; \
         } \
         \
