@@ -4,8 +4,6 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    += 0.0.1.0
 $(NAME)_SUMMARY    += panic debug and cpuusage
 
-$(NAME)_COMPONENTS += debug
-
 GLOBAL_INCLUDES += ./ ./include
 
 GLOBAL_DEFINES  += AOS_DEBUG_PANIC

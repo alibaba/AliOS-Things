@@ -1,9 +1,9 @@
-menuconfig DEBUG_PANIC_ENABLED
-    bool "FEATURE_AOS_DEBUG_ENABLE"
+menuconfig AOS_COMP_DEBUG
+    bool "debug"
     default n
     help
-        Alios Things debug panic and cpuusage
+      panic debug and cpuusage
 
-if AOS_DEBUG_PANIC
+if AOS_COMP_DEBUG
 # Configurations for component debug
 endif

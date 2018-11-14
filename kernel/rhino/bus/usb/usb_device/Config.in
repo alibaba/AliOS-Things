@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_USB_DEVICE
+    bool "usb_device"
+    default n
+    help
+
+if AOS_COMP_USB_DEVICE
+# Configurations for component usb_device
+endif

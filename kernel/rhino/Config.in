@@ -1,7 +1,6 @@
 menuconfig AOS_COMP_RHINO
     bool "rhino"
     default y
-    select AOS_COMP_RHINO
     help
 
 if AOS_COMP_RHINO
