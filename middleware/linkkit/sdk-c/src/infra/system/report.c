@@ -257,7 +257,7 @@ int iotx_report_firmware_version(void *pclient)
         return ret;
     }
 
-    ret = HAL_GetFirmwareVesion(version);
+    ret = HAL_GetFirmwareVersion(version);
     if (ret <= 0) {
         VERSION_ERR("firmware version does not implement");
         return FAIL_RETURN;
