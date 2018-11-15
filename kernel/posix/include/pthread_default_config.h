@@ -16,4 +16,4 @@ extern "C"
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* PTHREAD_DEFAULT_CONFIG_H */

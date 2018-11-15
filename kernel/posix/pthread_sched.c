@@ -2,11 +2,12 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <pthread.h>
+#include "pthread.h"
 
 int sched_yield(void)
 {
     krhino_task_yield();
+
     return 0;
 }
 
@@ -24,4 +25,3 @@ int sched_setscheduler(pid_t pid, int policy)
 {
     return 0;
 }
-

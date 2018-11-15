@@ -2,8 +2,8 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#include <sys/prctl.h>
 #include <stdarg.h>
+#include "posix_prctl.h"
 
 int prctl(int option, ...)
 {

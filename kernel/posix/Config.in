@@ -1,6 +1,7 @@
 menuconfig AOS_COMP_POSIX
     bool "posix"
     default n
+    select AOS_COMP_RHINO
     help
 
 if AOS_COMP_POSIX

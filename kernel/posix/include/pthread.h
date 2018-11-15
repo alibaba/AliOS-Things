@@ -10,9 +10,10 @@ extern "C"
 {
 #endif
 
-#include <k_api.h>
 #include <time.h>
 #include <sys/time.h>
+
+#include "k_api.h"
 #include "pthread_default_config.h"
 
 typedef ktask_t *pthread_t;
@@ -29,9 +30,9 @@ typedef int      pthread_once_t;
 #define SCHED_FIFO  1
 #define SCHED_RR    2
 
-#define RH_LOW_PRI RHINO_CONFIG_PRI_MAX     /* low priority rhino numbering */
-#define RH_HIGH_PRI   0                     /* high priority rhino numbering */
-#define POSIX_LOW_PRI 0                     /* low priority POSIX numbering */
+#define RH_LOW_PRI     RHINO_CONFIG_PRI_MAX /* low priority rhino numbering */
+#define RH_HIGH_PRI    0                    /* high priority rhino numbering */
+#define POSIX_LOW_PRI  0                    /* low priority POSIX numbering */
 #define POSIX_HIGH_PRI RHINO_CONFIG_PRI_MAX /* high priority POSIX numbering */
 
 /* conversion pri between POSIX and RHINO */
@@ -40,8 +41,7 @@ typedef int      pthread_once_t;
 #define DEFAULT_THREAD_STACK_SIZE 2048
 #define DEFAULT_THREAD_PRIORITY   30
 
-enum
-{
+enum {
     PTHREAD_CANCEL_ASYNCHRONOUS,
     PTHREAD_CANCEL_ENABLE,
     PTHREAD_CANCEL_DEFERRED,
@@ -57,7 +57,7 @@ struct sched_param {
 
 typedef struct pthread_attr {
     unsigned char      is_initialized;
-    void *             stackaddr;
+    void              *stackaddr;
     size_t             stacksize;
     unsigned char      contentionscope;
     unsigned char      inheritsched;
@@ -70,10 +70,11 @@ typedef struct pthread_attr {
 #define PTHREAD_MAGIC 0x11223344
 
 typedef struct _pthread_cleanup {
-    void (*cleanup_routine)(void *para);
     void                    *para;
     int                      cancel_type;
     struct _pthread_cleanup *prev;
+
+    void (*cleanup_routine)(void *para);
 } _pthread_cleanup_t;
 
 typedef struct _pthread_tcb {
@@ -91,8 +92,8 @@ typedef struct _pthread_tcb {
     volatile unsigned char canceled;
 
     _pthread_cleanup_t *cleanup;
-    void **             tls;
 
+    void **tls;
     void *return_value;
 } _pthread_tcb_t;
 
@@ -105,7 +106,6 @@ RHINO_INLINE _pthread_tcb_t *_pthread_get_tcb(pthread_t thread)
     }
 
     ptcb = (_pthread_tcb_t *)thread->user_info[PTHREAD_USER_INFO_POS];
-
     if (ptcb != NULL) {
         if (ptcb->magic != PTHREAD_MAGIC) {
             ptcb = NULL;
@@ -126,8 +126,7 @@ int       pthread_setcancelstate(int state, int *oldstate);
 int       pthread_setcanceltype(int type, int *oldtype);
 int       pthread_kill(pthread_t thread, int sig);
 int       pthread_equal(pthread_t t1, pthread_t t2);
-int       pthread_setschedparam(pthread_t thread, int policy,
-                                const struct sched_param *pParam);
+int       pthread_setschedparam(pthread_t thread, int policy, const struct sched_param *pParam);
 void      pthread_cleanup_pop(int execute);
 void      pthread_cleanup_push(void (*routine)(void *), void *arg);
 pthread_t pthread_self(void);
@@ -167,17 +166,13 @@ typedef struct pthread_mutex {
 } pthread_mutex_t;
 
 #define PTHREAD_INITIALIZED_OBJ 0xABCDEFEF
-#define PTHREAD_UNUSED_YET_OBJ -1
-#define PTHREAD_ONCE_INIT 0
+#define PTHREAD_UNUSED_YET_OBJ  -1
+#define PTHREAD_ONCE_INIT       0
 
-#define PTHREAD_MUTEX_INITIALIZER    \
-    {                                \
-        NULL, PTHREAD_UNUSED_YET_OBJ \
-    }
+#define PTHREAD_MUTEX_INITIALIZER { NULL, PTHREAD_UNUSED_YET_OBJ }
 
 /* Mutex types */
-enum
-{
+enum {
     PTHREAD_MUTEX_NORMAL     = 0, /* Normal mutex        */
     PTHREAD_MUTEX_RECURSIVE  = 1, /* Recursive mutex     */
     PTHREAD_MUTEX_ERRORCHECK = 2, /* Error checking mutex*/
@@ -219,8 +214,7 @@ int pthread_cond_destroy(pthread_cond_t *cond);
 int pthread_cond_broadcast(pthread_cond_t *cond);
 int pthread_cond_signal(pthread_cond_t *cond);
 int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex);
-int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
-                           const struct timespec *abstime);
+int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime);
 
 /********* Thread Specific Data *********/
 typedef int pthread_key_t;
@@ -232,17 +226,20 @@ typedef struct key_value {
 
 typedef struct pthread_key_value {
     key_value_t key_value;
+
     struct pthread_key_value *next;
 } pthread_key_value_t;
 
 typedef struct pthread_key_value_head {
     void (*fun)(void*);
+
     pthread_key_value_t *next;
 } pthread_key_value_head_t;
 
 typedef struct pthread_key_list_s {
-    pthread_key_t key_num;
+    pthread_key_t            key_num;
     pthread_key_value_head_t head;
+
     struct pthread_key_list_s *next;
 } pthread_key_list_t;
 
@@ -255,4 +252,4 @@ int   pthread_key_delete(pthread_key_t key);
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* PTHREAD_H */
