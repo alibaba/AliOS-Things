@@ -1,8 +1,8 @@
 NAME := littlevGL
 
-$(NAME)_MBINS_TYPE 	    := framework
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_MBINS_TYPE := framework
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := a lightweight GUI lib
 
 #default gcc
 ifeq ($(COMPILER),)
@@ -16,6 +16,4 @@ endif
 GLOBAL_INCLUDES     += .
 GLOBAL_DEFINES      += AOS_LITTLEVGL
 
-ifneq ($(IDE),keil)
-$(NAME)_COMPONENTS  += 3rdparty.experimental.gui.littlevGL.lvgl
-endif
+include ./3rdparty/experimental/gui/littlevGL/lvgl/lvgl.mk
