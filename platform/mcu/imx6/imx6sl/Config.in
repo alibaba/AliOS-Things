@@ -1,0 +1,13 @@
+menuconfig AOS_MCU_IMX6SX
+    bool "imx6sx"
+    default n
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_COMMON
+    select AOS_ARCH_ARMV7A
+    select AOS_COMP_HAL
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_IMX6SX
+# Configurations for mcu imx6sx
+endif

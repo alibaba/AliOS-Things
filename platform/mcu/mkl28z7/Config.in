@@ -1,0 +1,14 @@
+menuconfig AOS_MCU_MKL28Z7IMPL
+    bool "mkl28z7impl"
+    default n
+    select AOS_COMP_CLI
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_ARCH_ARMV6M
+    select AOS_COMP_VFS
+    select AOS_COMP_RHINO
+    select AOS_COMP_KV
+    help
+
+if AOS_MCU_MKL28Z7IMPL
+# Configurations for mcu mkl28z7impl
+endif
