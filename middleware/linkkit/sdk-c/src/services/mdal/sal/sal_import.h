@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef _SAL_H_
-#define _SAL_H_
+#ifndef _SAL_IMPORT_H_
+#define _SAL_IMPORT_H_
 
 #include <stdint.h>
 
