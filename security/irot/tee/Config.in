@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_LIBKM_TEE
+    bool "libkm_tee"
+    default n
+    help
+
+if AOS_COMP_LIBKM_TEE
+# Configurations for comp libkm_tee
+endif

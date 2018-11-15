@@ -1,0 +1,11 @@
+menuconfig AOS_COMP_ID2
+    bool "id2"
+    default n
+    select AOS_COMP_BASE64
+    select AOS_COMP_IROT
+    select AOS_COMP_ALICRYPTO
+    help
+
+if AOS_COMP_ID2
+# Configurations for comp id2
+endif

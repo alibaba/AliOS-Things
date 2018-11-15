@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_MBEDTLS
+    bool "mbedtls"
+    default n
+    select AOS_COMP_ALICRYPTO
+    help
+
+if AOS_COMP_MBEDTLS
+# Configurations for comp mbedtls
+endif

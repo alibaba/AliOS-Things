@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_ALICRYPTO
+    bool "alicrypto"
+    default n
+    help
+
+if AOS_COMP_ALICRYPTO
+# Configurations for comp alicrypto
+endif

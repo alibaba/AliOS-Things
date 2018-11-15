@@ -1,0 +1,10 @@
+menuconfig AOS_COMP_IROT
+    bool "irot"
+    default n
+    select AOS_COMP_LIBKM_TEE if @CONDITION@
+    select AOS_COMP_LIBKM if @CONDITION@
+    help
+
+if AOS_COMP_IROT
+# Configurations for comp irot
+endif
