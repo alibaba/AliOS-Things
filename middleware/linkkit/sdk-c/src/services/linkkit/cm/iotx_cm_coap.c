@@ -238,15 +238,13 @@ static void _coap_response_default(void *p_arg, void *p_message)
         return;
     }
 
-    iotx_cm_event_msg_t msg;
-    event_msg_data_t data;
     coap_response_node_t *node = NULL;
     coap_response_node_t *next = NULL;
 
     HAL_MutexLock(_coap_conncection->list_lock);
     list_for_each_entry_safe(node, next, &g_coap_response_list, linked_list, coap_response_node_t) {
         if(node->token_num == token) {
-            iotx_cm_event_handle_cb recieve_cb = node->responce_cb;
+            iotx_cm_data_handle_cb recieve_cb = node->responce_cb;
             void * context = node->context;
             unsigned int topic_len = strlen(node->topic) + 1;
             char *topic = cm_malloc(topic_len);
@@ -260,19 +258,9 @@ static void _coap_response_default(void *p_arg, void *p_message)
             cm_free(node->topic);
             cm_free(node);
             HAL_MutexUnlock(_coap_conncection->list_lock); //do not lock while callback
-            
-            if(resp_code == IOTX_COAP_RESP_CODE_CONTENT) {
-                msg.type = IOTX_CM_EVENT_PUBLISH_SUCCESS;
-            } else {
-                msg.type = IOTX_CM_EVENT_PUBLISH_FAILED;
-            }
-            data.topic = topic;
-            data.payload = p_payload;
-            data.payload_len = len;
-            msg.msg = (void *)&data;
-            
-            recieve_cb(_coap_conncection->fd, &msg, context);
-            //recieve_cb(_coap_conncection->fd, topic, p_payload, len, NULL);
+        
+            recieve_cb(_coap_conncection->fd, topic, (const char *)p_payload, len, context);
+            //recieve_cb(_coap_conncection->fd, &msg, context);
             cm_free(topic);
             HAL_MutexLock(_coap_conncection->list_lock);
         }

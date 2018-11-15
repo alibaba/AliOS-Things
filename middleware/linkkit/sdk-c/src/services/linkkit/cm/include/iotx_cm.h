@@ -108,7 +108,7 @@ typedef struct {
     iotx_cm_ack_types_t           ack_type;
     iotx_cm_sync_mode_types_t     sync_mode;
     uint32_t                      sync_timeout;
-    iotx_cm_event_handle_cb       ack_cb;
+    iotx_cm_data_handle_cb        ack_cb;
     void                          *cb_context;
 } iotx_cm_ext_params_t;
 
