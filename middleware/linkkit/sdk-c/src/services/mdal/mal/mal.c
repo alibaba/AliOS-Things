@@ -832,7 +832,7 @@ static int _calc_hmac_signature(
 }
 #endif /* MAL_ICA_ENABLED */
 
-int iotx_mdal_get_auth_username_passwd(char* username, char* password)
+int iotx_mdal_get_auth_username_passwd(char* out_username, char* out_password)
 {
 #ifndef MAL_ICA_ENABLED
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
@@ -848,7 +848,7 @@ int iotx_mdal_get_auth_username_passwd(char* username, char* password)
     HAL_GetDeviceSecret(device_secret);
     HAL_GetDeviceID(device_id);
 
-    if((username == NULL) || (password == NULL))
+    if((out_username == NULL) || (out_password == NULL))
     {
         mal_err("username or passwd is null");
         return -1;
@@ -861,11 +861,11 @@ int iotx_mdal_get_auth_username_passwd(char* username, char* password)
                       sizeof(guider_sign), timestamp_str);
 
     /* fill up username and password */
-    _fill_conn_string(username, 64,
+    _fill_conn_string(out_username, 64,
                       "%s&%s",
                       device_name,
                       product_key);
-    _fill_conn_string(password, 64,
+    _fill_conn_string(out_password, 64,
                       "%s",
                       guider_sign);
     return 0;
