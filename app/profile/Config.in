@@ -1,0 +1,13 @@
+menuconfig AOS_APP_PROFILE
+    bool "Builtin Profiles"
+    default n
+    help
+
+if AOS_APP_PROFILE
+choice
+    prompt "Select Builtin Profile"
+
+source "app/profile/gatewayapp/Config.in"
+
+endchoice
+endif

@@ -1,0 +1,14 @@
+menuconfig AOS_APP_GATEWAYAPP
+    bool "gatewayapp"
+    select AOS_COMP_UDATA if @CONDITION@
+    select AOS_COMP_MBMASTER if @CONDITION@
+    select AOS_COMP_SENSOR if @CONDITION@
+    select AOS_COMP_CJSON if @CONDITION@
+    select AOS_COMP_COMMON if @CONDITION@
+    select AOS_COMP_NETMGR if @CONDITION@
+    select AOS_COMP_CLI if @CONDITION@
+    help
+
+if AOS_APP_GATEWAYAPP
+# Configurations for app gatewayapp
+endif

@@ -1,0 +1,11 @@
+menuconfig AOS_APP_PWR_TEST
+    bool "pwr_test"
+    select AOS_COMP_BENCHMARKS if @CONDITION@
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    select AOS_COMP_PWRMGMT
+    help
+
+if AOS_APP_PWR_TEST
+# Configurations for app pwr_test
+endif

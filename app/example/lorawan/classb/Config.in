@@ -1,0 +1,9 @@
+menuconfig AOS_APP_CLASSB
+    bool "classb"
+    select AOS_COMP_LORAWAN_4_4_2
+    select AOS_COMP_KV
+    help
+
+if AOS_APP_CLASSB
+# Configurations for app classb
+endif

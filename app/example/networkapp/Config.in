@@ -1,0 +1,11 @@
+menuconfig AOS_APP_NETWORKAPP
+    bool "networkapp"
+    select AOS_COMP_BENCHMARKS if @CONDITION@
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_NETWORKAPP
+# Configurations for app networkapp
+endif

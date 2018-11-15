@@ -1,0 +1,10 @@
+menuconfig AOS_APP_ID2_CLIENT
+    bool "id2_client"
+    select AOS_COMP_IROT
+    select AOS_COMP_ID2
+    select AOS_COMP_ALICRYPTO
+    help
+
+if AOS_APP_ID2_CLIENT
+# Configurations for app id2_client
+endif

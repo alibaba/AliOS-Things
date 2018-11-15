@@ -1,0 +1,12 @@
+menuconfig AOS_APP_WIFIMONITOR
+    bool "wifimonitor"
+    select AOS_COMP_UMESH
+    select AOS_COMP_NETMGR
+    select AOS_COMP_LWIP if @CONDITION@
+    select AOS_COMP_LOG
+    select AOS_COMP_CLI
+    help
+
+if AOS_APP_WIFIMONITOR
+# Configurations for app wifimonitor
+endif
