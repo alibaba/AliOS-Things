@@ -7,6 +7,22 @@ config AOS_BUILD
     bool
     default y
 
+config AOS_FTR_SUPPORT_SAL
+    int
+    default 1
+
+config MBINS
+    string
+    option env="MBINS"
+
+menu "Build Setup"
+config ENABLE_USPACE
+    int "ENABLE_USPACE"
+    default 1
+    help
+
+endmenu
+
 menu "BSP Configuration"
 source "board/Config.in"
 source "platform/arch/Config.in"
@@ -24,6 +40,8 @@ endmenu
 menu "Middleware Configuration"
 source "middleware/linkkit/Config.in"
 source "middleware/uagent/Config.in"
+source "middleware/udata/Config.in"
+source "middleware/tinyengine/Config.in"
 endmenu
 
 menu "Network Configuration"
