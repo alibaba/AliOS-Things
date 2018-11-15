@@ -1,0 +1,11 @@
+menuconfig AOS_APP_BLEPERIPHERAL
+    bool "bleperipheral"
+    select AOS_COMP_BT
+    select AOS_COMP_PROFILE
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_BLEPERIPHERAL
+# Configurations for app bleperipheral
+endif

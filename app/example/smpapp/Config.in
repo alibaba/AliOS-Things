@@ -1,0 +1,10 @@
+menuconfig AOS_APP_SMPAPP
+    bool "smpapp"
+    select AOS_COMP_BENCHMARKS if @CONDITION@
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_SMPAPP
+# Configurations for app smpapp
+endif

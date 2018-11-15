@@ -1,0 +1,11 @@
+menuconfig AOS_APP_KERNEL_TEST
+    bool "kernel_test"
+    select AOS_COMP_CERTIFICATE_TEST
+    select AOS_COMP_CLI
+    select AOS_COMP_BENCHMARKS if @CONDITION@
+    select AOS_COMP_LOG
+    help
+
+if AOS_APP_KERNEL_TEST
+# Configurations for app kernel_test
+endif

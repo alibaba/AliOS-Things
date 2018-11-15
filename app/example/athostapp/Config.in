@@ -1,0 +1,9 @@
+menuconfig AOS_APP_ATHOSTAPP
+    bool "athostapp"
+    select AOS_COMP_ATPARSER if @CONDITION@
+    select AOS_COMP_ATHOST
+    help
+
+if AOS_APP_ATHOSTAPP
+# Configurations for app athostapp
+endif

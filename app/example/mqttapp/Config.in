@@ -1,0 +1,7 @@
+menuconfig AOS_APP_MQTTAPP
+    bool "mqttapp"
+    help
+
+if AOS_APP_MQTTAPP
+# Configurations for app mqttapp
+endif

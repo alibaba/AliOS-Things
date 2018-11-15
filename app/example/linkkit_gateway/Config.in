@@ -1,0 +1,9 @@
+menuconfig AOS_APP_LINKKIT_GATEWAY
+    bool "linkkit_gateway"
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI if @CONDITION@
+    help
+
+if AOS_APP_LINKKIT_GATEWAY
+# Configurations for app linkkit_gateway
+endif

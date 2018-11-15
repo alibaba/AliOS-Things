@@ -1,0 +1,11 @@
+menuconfig AOS_APP_CPP_DEMO
+    bool "cpp_demo"
+    select AOS_COMP_BENCHMARKS if @CONDITION@
+    select AOS_COMP_CPLUSPLUS
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_CPP_DEMO
+# Configurations for app cpp_demo
+endif
