@@ -16,21 +16,10 @@
 #define DEVICE_NAME             "test_01"
 #define DEVICE_SECRET           "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
 
-char __product_key[PRODUCT_KEY_LEN + 1];
-char __device_name[DEVICE_NAME_LEN + 1];
-char __device_secret[DEVICE_SECRET_LEN + 1];
-
 /* These are pre-defined topics */
 #define TOPIC_UPDATE            "/"PRODUCT_KEY"/"DEVICE_NAME"/update"
 #define TOPIC_ERROR             "/"PRODUCT_KEY"/"DEVICE_NAME"/update/error"
 #define TOPIC_GET               "/"PRODUCT_KEY"/"DEVICE_NAME"/get"
-#define TOPIC_DATA              "/"PRODUCT_KEY"/"DEVICE_NAME"/data"
-
-/* These are pre-defined topics format*/
-#define TOPIC_UPDATE_FMT            "/%s/%s/update"
-#define TOPIC_ERROR_FMT             "/%s/%s/update/error"
-#define TOPIC_GET_FMT               "/%s/%s/get"
-#define TOPIC_DATA_FMT              "/%s/%s/data"
 
 #define MQTT_MSGLEN             (1024)
 
@@ -170,12 +159,8 @@ int mqtt_client(void)
     iotx_mqtt_topic_info_t topic_msg;
     char msg_pub[128];
 
-    HAL_GetProductKey(__product_key);
-    HAL_GetDeviceName(__device_name);
-    HAL_GetDeviceSecret(__device_secret);
-
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(__product_key, __device_name, __device_secret, (void **)&pconn_info)) {
+    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!");
         return -1;
     }

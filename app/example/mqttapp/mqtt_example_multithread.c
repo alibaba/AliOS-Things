@@ -25,11 +25,6 @@
 
 #define MQTT_MSGLEN             (1024)
 
-char g_product_key[PRODUCT_KEY_LEN + 1];
-char g_product_secret[PRODUCT_SECRET_LEN + 1];
-char g_device_name[DEVICE_NAME_LEN + 1];
-char g_device_secret[DEVICE_SECRET_LEN + 1];
-
 static void *g_thread_yield = NULL;
 static void *g_thread_sub_unsub_1 = NULL;
 static void *g_thread_sub_unsub_2 = NULL;
@@ -332,13 +327,8 @@ int mqtt_client(void *params)
         }
     }
 #endif
-    /**< get device info*/
-    HAL_GetProductKey(g_product_key);
-    HAL_GetDeviceName(g_device_name);
-    HAL_GetDeviceSecret(g_device_secret);
-    /**< end*/
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(g_product_key, g_device_name, g_device_secret, (void **)&pconn_info)) {
+    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!");
         rc = -1;
         goto do_exit;
