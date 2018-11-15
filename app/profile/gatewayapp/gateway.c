@@ -366,6 +366,11 @@ int gateway_sample(void)
 
 int application_start(int argc, char **argv)
 {
+    int ret;
+    ret = uData_main();
+    if (unlikely(ret)) {
+        return -1;
+    }
 
 #ifdef DATA_TO_CLOUD
 #ifdef CSP_LINUXHOST
