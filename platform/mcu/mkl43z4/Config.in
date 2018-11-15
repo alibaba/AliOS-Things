@@ -1,0 +1,16 @@
+menuconfig AOS_MCU_MKL43Z4IMPL
+    bool "mkl43z4impl"
+    default n
+    select AOS_COMP_COMMON
+    select AOS_COMP_CLI
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_ARCH_ARMV6M
+    select AOS_COMP_VFS
+    select AOS_COMP_RHINO
+    select AOS_COMP_KV
+    select AOS_COMP_DIGEST_ALGORITHM
+    help
+
+if AOS_MCU_MKL43Z4IMPL
+# Configurations for mcu mkl43z4impl
+endif

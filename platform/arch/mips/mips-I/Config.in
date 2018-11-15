@@ -1,7 +1,8 @@
 menuconfig AOS_ARCH_MIPS-I
-    bool "arch mips-I"
+    bool "mips-I"
     default n
     help
+      arch for mips-I
 
 if AOS_ARCH_MIPS-I
 # Configurations for arch mips-I

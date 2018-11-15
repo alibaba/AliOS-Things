@@ -1,0 +1,19 @@
+menuconfig AOS_MCU_ESP32
+    bool "esp32"
+    default n
+    select AOS_COMP_UMESH if @CONDITION@
+    select AOS_COMP_LWIP
+    select AOS_COMP_HCI_H4_NRF51822 if @CONDITION@
+    select AOS_COMP_ALICRYPTO
+    select AOS_ARCH_XTENSA if @CONDITION@
+    select AOS_COMP_HALWIFI
+    select AOS_COMP_HCI_H4_NRF52840 if @CONDITION@
+    select AOS_COMP_KV
+    select AOS_COMP_HAL
+    select AOS_COMP_BT if @CONDITION@
+    select AOS_COMP_RHINO if @CONDITION@
+    help
+
+if AOS_MCU_ESP32
+# Configurations for mcu esp32
+endif
