@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_UDATA
+    bool "udata"
+    default n
+    help
+
+if AOS_COMP_UDATA
+# Configurations for comp udata
+endif
