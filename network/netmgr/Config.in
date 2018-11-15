@@ -9,6 +9,10 @@ if AOS_COMP_NETMGR
 
 menu "Netmgr Configurations"
 
+    config AOS_NETMGR
+         bool "Enable AOS_NETMGR global define"
+         default y
+
 endmenu
 
 endif
