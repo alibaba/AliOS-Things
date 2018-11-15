@@ -1,9 +1,9 @@
-config AOS_BOARD_BK7231
+menuconfig AOS_BOARD_BK7231
     bool "board_bk7231"
-    default n
     select AOS_MCU_BK7231
     help
+      configuration for board bk7231
 
 if AOS_BOARD_BK7231
-# Configurations for board bk7231
+# Configurations for board board_bk7231
 endif

@@ -1,4 +1,9 @@
-config AOS_BOARD_LPCXPRESSO54102
+menuconfig AOS_BOARD_LPCXPRESSO54102
     bool "board_lpcxpresso54102"
-    default n
+    select AOS_MCU_LPC54102IMPL
+    select AOS_COMP_SAL if @CONDITION@
     help
+
+if AOS_BOARD_LPCXPRESSO54102
+# Configurations for board board_lpcxpresso54102
+endif

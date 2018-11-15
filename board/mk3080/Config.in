@@ -1,4 +1,8 @@
-config AOS_BOARD_MK3080
+menuconfig AOS_BOARD_MK3080
     bool "board_mk3080"
-    default n
+    select AOS_MCU_RTL8710BN
     help
+
+if AOS_BOARD_MK3080
+# Configurations for board board_mk3080
+endif

@@ -1,4 +1,8 @@
-config AOS_BOARD_RDA8955
+menuconfig AOS_BOARD_RDA8955
     bool "board_rda8955"
-    default n
+    select AOS_MCU_RDA8955
     help
+
+if AOS_BOARD_RDA8955
+# Configurations for board board_rda8955
+endif

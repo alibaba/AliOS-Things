@@ -1,9 +1,10 @@
-config AOS_BOARD_CY8CKIT-062
+menuconfig AOS_BOARD_CY8CKIT-062
     bool "board_cy8ckit-062"
-    default n
     select AOS_MCU_CY8C6347
+    select AOS_COMP_SAL if @CONDITION@
     help
+      configuration for board cy8ckit-062
 
 if AOS_BOARD_CY8CKIT-062
-# Configurations for board cy8ckit-062
+# Configurations for board board_cy8ckit-062
 endif

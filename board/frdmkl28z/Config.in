@@ -1,9 +1,8 @@
-config AOS_BOARD_FRDMKL28Z
+menuconfig AOS_BOARD_FRDMKL28Z
     bool "board_frdmkl28z"
-    default n
-    select AOS_MCU_CORTEX-M0
+    select AOS_MCU_MKL28Z7IMPL
     help
 
 if AOS_BOARD_FRDMKL28Z
-# AOS_BOARD_FRDMKL28Z
+# Configurations for board frdmkl28z
 endif

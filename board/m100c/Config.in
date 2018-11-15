@@ -1,4 +1,9 @@
-config AOS_BOARD_M100C
+menuconfig AOS_BOARD_M100C
     bool "board_m100c"
-    default n
+    select AOS_MCU_EFM32GXX
+    select AOS_COMP_LORACHIP
     help
+
+if AOS_BOARD_M100C
+# Configurations for board board_m100c
+endif

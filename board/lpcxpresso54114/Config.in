@@ -1,4 +1,8 @@
-config AOS_BOARD_LPCXPRESSO54114
+menuconfig AOS_BOARD_LPCXPRESSO54114
     bool "board_lpcxpresso54114"
-    default n
+    select AOS_MCU_LPC54114IMPL
     help
+
+if AOS_BOARD_LPCXPRESSO54114
+# Configurations for board board_lpcxpresso54114
+endif

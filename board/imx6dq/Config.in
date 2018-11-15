@@ -1,9 +1,8 @@
-config AOS_BOARD_IMX6DQ
+menuconfig AOS_BOARD_IMX6DQ
     bool "board_imx6dq"
-    default n
-    select AOS_MCU_CORTEX-A9
+    select AOS_MCU_IMX6DQ
     help
 
 if AOS_BOARD_IMX6DQ
-#Configurations for board imx6dq
+# Configurations for board imx6dq
 endif

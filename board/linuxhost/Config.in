@@ -1,9 +1,9 @@
-config AOS_BOARD_LINUXHOST
+menuconfig AOS_BOARD_LINUXHOST
     bool "board_linuxhost"
-    default n
-    select AOS_MCU_LINUX
+    select AOS_MCU_LINUXIMPL
+    select AOS_COMP_SAL if @CONDITION@
     help
 
 if AOS_BOARD_LINUXHOST
-# Configurations for board linux
+# Configurations for board linuxhost
 endif
