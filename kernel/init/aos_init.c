@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <aos/aos.h>
 #include <aos/kernel.h>
 #include <hal/wifi.h>
@@ -233,19 +234,36 @@ void cli_service_init(kinit_t *kinit)
 
 #endif
 
+void aos_show_welcome(void)
+{
+    puts("             Welcome to AliOS Things           ");
+    puts("       █████╗ ██╗     ██╗ ██████╗ ███████╗     ");
+    puts("      ██╔══██╗██║     ██║██╔═══██╗██╔════╝     ");
+    puts("      ███████║██║     ██║██║   ██║███████╗     ");
+    puts("      ██╔══██║██║     ██║██║   ██║╚════██║     ");
+    puts("      ██║  ██║███████╗██║╚██████╔╝███████║     ");
+    puts("      ╚═╝  ╚═╝╚══════╝╚═╝ ╚═════╝ ╚══════╝     ");
+    puts("████████╗██╗  ██╗██╗███╗   ██╗ ██████╗ ███████╗");
+    puts("╚══██╔══╝██║  ██║██║████╗  ██║██╔════╝ ██╔════╝");
+    puts("   ██║   ███████║██║██╔██╗ ██║██║  ███╗███████╗");
+    puts("   ██║   ██╔══██║██║██║╚██╗██║██║   ██║╚════██║");
+    puts("   ██║   ██║  ██║██║██║ ╚████║╚██████╔╝███████║");
+    puts("   ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝");
+}
+
 int aos_kernel_init(kinit_t *kinit)
 {
 #ifdef AOS_VFS
     vfs_init();
 #endif
-    
+
 #ifdef CONFIG_AOS_CLI
     cli_service_init(kinit);
 #else
     extern void log_no_cli_init(void);
     log_no_cli_init();
 #endif
-    
+
 #ifdef AOS_KV
     aos_kv_init();
 #endif
@@ -277,6 +295,8 @@ int aos_kernel_init(kinit_t *kinit)
     //aos_components_init();
 #endif
 
+    aos_show_welcome();
+
 #ifdef AOS_BINS
     app_pre_init();
 
@@ -298,5 +318,3 @@ int aos_kernel_init(kinit_t *kinit)
 
     return 0;
 }
-
-
