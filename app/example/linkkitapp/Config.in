@@ -1,0 +1,10 @@
+menuconfig AOS_APP_LINKKITAPP
+    bool "linkkitapp"
+    select AOS_COMP_CLI if @CONDITION@
+    select AOS_COMP_NETMGR
+    select AOS_COMP_OTA
+    help
+
+if AOS_APP_LINKKITAPP
+# Configurations for app linkkitapp
+endif

@@ -1,0 +1,9 @@
+menuconfig AOS_APP_SST_TEST
+    bool "sst_test"
+    select AOS_COMP_LIBSST
+    select AOS_COMP_ALICRYPTO
+    help
+
+if AOS_APP_SST_TEST
+# Configurations for app sst_test
+endif

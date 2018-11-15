@@ -1,0 +1,10 @@
+menuconfig AOS_APP_ACAPP
+    bool "acapp"
+    select AOS_COMP_ACTIVATION
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_ACAPP
+# Configurations for app acapp
+endif

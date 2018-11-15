@@ -1,0 +1,16 @@
+menuconfig AOS_APP_TINYENGINE_APP
+    bool "tinyengine_app"
+    select AOS_COMP_COMMON
+    select AOS_COMP_SPIFFS
+    select AOS_COMP_LOG
+    select AOS_COMP_CJSON
+    select AOS_COMP_NETMGR
+    select AOS_COMP_TINY_ENGINE
+    select AOS_COMP_YLOOP
+    select AOS_COMP_OTA
+    select AOS_COMP_CLI
+    help
+
+if AOS_APP_TINYENGINE_APP
+# Configurations for app tinyengine_app
+endif

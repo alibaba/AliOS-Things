@@ -1,0 +1,10 @@
+menuconfig AOS_APP_WIFIHALAPP
+    bool "wifihalapp"
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    select AOS_COMP_HALWIFI
+    help
+
+if AOS_APP_WIFIHALAPP
+# Configurations for app wifihalapp
+endif

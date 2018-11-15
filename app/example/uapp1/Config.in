@@ -1,0 +1,7 @@
+menuconfig AOS_APP_UAPP1
+    bool "uapp1"
+    help
+
+if AOS_APP_UAPP1
+# Configurations for app uapp1
+endif
