@@ -1,4 +1,9 @@
 config AOS_BOARD_ESP8266
     bool "board_esp8266"
     default n
+    select AOS_MCU_ESP8266
     help
+
+if AOS_BOARD_ESP8266
+# Configurations for board esp8266
+endif

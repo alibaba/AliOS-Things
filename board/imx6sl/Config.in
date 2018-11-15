@@ -1,4 +1,9 @@
 config AOS_BOARD_IMX6SL
     bool "board_imx6sl"
     default n
+    select AOS_MCU_CORTEX-A9
     help
+
+if AOS_BOARD_IMX6SL
+# Configurations for board imx6sl
+endif
