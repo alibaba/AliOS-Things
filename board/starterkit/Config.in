@@ -1,4 +1,10 @@
-config AOS_STARTERKIT
+menuconfig AOS_BOARD_STARTERKIT
     bool "starterkit"
-    default n
+    select AOS_MCU_STM32L4XX_CUBE
+    select AOS_COMP_SAL if @CONDITION@
+    select AOS_COMP_SENSOR
     help
+
+if AOS_BOARD_STARTERKIT
+# Configurations for board starterkit
+endif

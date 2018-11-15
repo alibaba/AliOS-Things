@@ -1,4 +1,7 @@
-config AOS_BOARD_PCA10056
+menuconfig AOS_BOARD_PCA10056
     bool "board_pca10056"
-    default n
     help
+
+if AOS_BOARD_PCA10056
+# Configurations for board board_pca10056
+endif

@@ -1,6 +1,6 @@
-config AOS_BOARD_FRDMKL26Z
+menuconfig AOS_BOARD_FRDMKL26Z
     bool "board_frdmkl26z"
-    default n
+    select AOS_MCU_MKL26Z4IMPL
     help
 
 if AOS_BOARD_FRDMKL26Z

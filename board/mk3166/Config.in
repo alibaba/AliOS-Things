@@ -1,4 +1,8 @@
-config AOS_BOARD_MK3166
+menuconfig AOS_BOARD_MK3166
     bool "board_mk3166"
-    default n
+    select AOS_MCU_STM32F4XX
     help
+
+if AOS_BOARD_MK3166
+# Configurations for board board_mk3166
+endif

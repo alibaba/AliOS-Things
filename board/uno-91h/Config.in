@@ -1,4 +1,8 @@
-config AOS_BOARD_UNO-91H
+menuconfig AOS_BOARD_UNO-91H
     bool "board_uno-91h"
-    default n
+    select AOS_MCU_RDA5981X
     help
+
+if AOS_BOARD_UNO-91H
+# Configurations for board board_uno-91h
+endif

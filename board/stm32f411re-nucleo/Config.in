@@ -1,4 +1,9 @@
-config AOS_STM32F411RE-NUCLEO
+menuconfig AOS_BOARD_STM32F411RE-NUCLEO
     bool "stm32f411re-nucleo"
-    default n
+    select AOS_MCU_STM32F4XX_CUBE
+    select AOS_COMP_SAL if @CONDITION@
     help
+
+if AOS_BOARD_STM32F411RE-NUCLEO
+# Configurations for board stm32f411re-nucleo
+endif

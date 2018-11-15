@@ -1,9 +1,10 @@
-config AOS_BOARD_ATSAME54-XPRO
+menuconfig AOS_BOARD_ATSAME54-XPRO
     bool "board_atsame54-xpro"
-    default n
-    select AOS_MCU_ATSAMD5X_E5X
+    select AOS_MCU_ATSAME54
+    select AOS_COMP_SAL if @CONDITION@
     help
+      configuration for board atsame54-xpro
 
 if AOS_BOARD_ATSAME54-XPRO
-#Configurations for board atsame54-xpro
+# Configurations for board board_atsame54-xpro
 endif
