@@ -24,10 +24,6 @@
 #define TEST_PAYLOAD          "hello world"
 #define TEST_TOPIC_PAYLOAD    "/sys/lLeATwv18gi/test1/rrpc/request/890192612580343808hello world"
 
-char g_product_key[PRODUCT_KEY_LEN + 1];
-char g_product_secret[PRODUCT_SECRET_LEN + 1];
-char g_device_name[DEVICE_NAME_LEN + 1];
-char g_device_secret[DEVICE_SECRET_LEN + 1];
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -197,14 +193,8 @@ int mqtt_rrpc_client(void)
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
 
-    /**< get device info */
-    HAL_GetProductKey(g_product_key);
-    HAL_GetDeviceName(g_device_name);
-    HAL_GetDeviceSecret(g_device_secret);
-    /**< end*/
-
     /* Device AUTH */
-    if (0 != IOT_SetupConnInfo(g_product_key, g_device_name, g_device_secret, (void **)&pconn_info)) {
+    if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!\n");
         return -1;
     }
