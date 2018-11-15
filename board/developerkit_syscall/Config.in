@@ -1,9 +1,9 @@
-config AOS_DEVELOPERKIT_SYSCALL
+menuconfig AOS_BOARD_DEVELOPERKIT_SYSCALL
     bool "developerkit_syscall"
-    default n
-    select AOS_MCU_STM32L4XX_CUBE
+    select AOS_MCU_STM32L4XX_SYSCALL
     help
+      configuration for board developerkit_syscall
 
-if AOS_DEVELOPERKIT_SYSCALL
+if AOS_BOARD_DEVELOPERKIT_SYSCALL
 # Configurations for board developerkit_syscall
 endif

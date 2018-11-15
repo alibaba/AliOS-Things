@@ -1,4 +1,9 @@
-config AOS_STM32L433RC-NUCLEO
+menuconfig AOS_BOARD_STM32L433RC-NUCLEO
     bool "stm32l433rc-nucleo"
-    default n
+    select AOS_MCU_STM32L4XX_CUBE
+    select AOS_COMP_SAL if @CONDITION@
     help
+
+if AOS_BOARD_STM32L433RC-NUCLEO
+# Configurations for board stm32l433rc-nucleo
+endif

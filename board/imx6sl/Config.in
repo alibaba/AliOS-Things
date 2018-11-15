@@ -1,7 +1,6 @@
-config AOS_BOARD_IMX6SL
+menuconfig AOS_BOARD_IMX6SL
     bool "board_imx6sl"
-    default n
-    select AOS_MCU_CORTEX-A9
+    select AOS_MCU_IMX6SX
     help
 
 if AOS_BOARD_IMX6SL

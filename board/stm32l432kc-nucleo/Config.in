@@ -1,4 +1,9 @@
-config AOS_STM32L432KC-NUCLEO
+menuconfig AOS_BOARD_STM32L432KC-NUCLEO
     bool "stm32l432kc-nucleo"
-    default n
+    select AOS_MCU_STM32L4XX_CUBE
+    select AOS_COMP_SAL if @CONDITION@
     help
+
+if AOS_BOARD_STM32L432KC-NUCLEO
+# Configurations for board stm32l432kc-nucleo
+endif

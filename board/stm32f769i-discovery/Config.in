@@ -1,4 +1,8 @@
-config AOS_BOARD_B_F769
+menuconfig AOS_BOARD_B_F769
     bool "board_b_f769"
-    default n
+    select AOS_MCU_STM32F7XX
     help
+
+if AOS_BOARD_B_F769
+# Configurations for board board_b_f769
+endif

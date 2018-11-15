@@ -1,6 +1,5 @@
-config AOS_BOARD_DH5021A_EVB
+menuconfig AOS_BOARD_DH5021A_EVB
     bool "board_dh5021a_evb"
-    default n
     select AOS_MCU_DAHUA
     help
 

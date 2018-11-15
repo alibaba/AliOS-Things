@@ -1,9 +1,10 @@
-config AOS_BOARD_B_L475E
+menuconfig AOS_BOARD_B_L475E
     bool "board_b_l475e"
-    default n
     select AOS_MCU_STM32L475
+    select AOS_COMP_SAL if @CONDITION@
     help
+      configuration for board b_l475e
 
 if AOS_BOARD_B_L475E
-# Configurations for board b_l475e
+# Configurations for board board_b_l475e
 endif
