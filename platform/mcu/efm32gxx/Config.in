@@ -1,0 +1,10 @@
+menuconfig AOS_MCU_EFM32GXX
+    bool "efm32gxx"
+    default n
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_EFM32GXX
+# Configurations for mcu efm32gxx
+endif

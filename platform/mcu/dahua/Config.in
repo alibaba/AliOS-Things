@@ -1,0 +1,26 @@
+menuconfig AOS_MCU_DAHUA
+    bool "dahua"
+    default n
+    select AOS_COMP_COMMON
+    select AOS_COMP_HAL
+    select AOS_COMP_CLI
+    select AOS_COMP_CJSON
+    select AOS_MCU_HAL_INIT
+    select AOS_COMP_RHINO
+    select AOS_COMP_SAL if AOS_MCU_DAHUA_SAL
+    select AOS_COMP_LWIP if AOS_MCU_DAHUA_LWIP
+    help
+
+if AOS_MCU_DAHUA
+# Configurations for mcu dahua
+config AOS_MCU_DAHUA_LWIP
+    int "LWIP Support"
+    default 1
+    help
+
+config AOS_MCU_DAHUA_SAL
+    int "SAL Support"
+    default 0
+    help
+
+endif

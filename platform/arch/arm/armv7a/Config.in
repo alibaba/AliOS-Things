@@ -1,7 +1,8 @@
 menuconfig AOS_ARCH_ARMV7A
-    bool "arch armv7a"
+    bool "armv7a"
     default n
     help
+      arch for armv7a
 
 if AOS_ARCH_ARMV7A
 # Configurations for arch armv7a
