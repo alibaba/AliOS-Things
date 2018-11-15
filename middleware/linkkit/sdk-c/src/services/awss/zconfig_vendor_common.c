@@ -155,9 +155,16 @@ static void aws_switch_dst_chan(int channel);
 static int aws_amend_dst_chan = 0;
 void aws_switch_channel(void)
 {
+    os_mutex_lock(zc_mutex);
     if (aws_amend_dst_chan != 0) {
         aws_switch_dst_chan(aws_amend_dst_chan);
         aws_amend_dst_chan = 0;
+        os_mutex_unlock(zc_mutex);
+        return;
+    }
+
+    if (aws_state == AWS_CHN_LOCKED) {
+        os_mutex_unlock(zc_mutex);
         return;
     }
 
@@ -167,11 +174,14 @@ void aws_switch_channel(void)
         os_awss_switch_channel(channel, 0, NULL);
         awss_trace("chan %d\r\n", channel);
     } while (0);
+    os_mutex_unlock(zc_mutex);
 }
 
 void aws_set_dst_chan(int channel)
 {
+    os_mutex_lock(zc_mutex);
     aws_amend_dst_chan = channel;
+    os_mutex_unlock(zc_mutex);
 }
 
 static void aws_switch_dst_chan(int channel)
