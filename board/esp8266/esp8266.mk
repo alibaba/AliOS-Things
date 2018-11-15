@@ -1,19 +1,19 @@
 NAME := board_esp8266
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
-MODULE              := 1062
-HOST_ARCH           := xtensa
-HOST_MCU_FAMILY     := esp8266
-SUPPORT_BINS        := no
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board esp8266
+MODULE             := 1062
+HOST_ARCH          := xtensa
+HOST_MCU_FAMILY    := esp8266
+SUPPORT_BINS       := no
 
 # todo: remove these after rhino/lwip ready
-osal               ?= rhino
+osal ?= rhino
 
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_ESP8266
-CONFIG_SYSINFO_DEVICE_NAME := ESP8266
+CONFIG_SYSINFO_DEVICE_NAME   := ESP8266
 
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"

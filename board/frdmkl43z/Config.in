@@ -1,4 +1,9 @@
 config AOS_BOARD_FRDMKL43Z
     bool "board_frdmkl43z"
     default n
+    select AOS_MCU_CORTEX-M0
     help
+
+if AOS_BOARD_FRDMKL43Z
+# Configurations for board frdmkl43z
+endif

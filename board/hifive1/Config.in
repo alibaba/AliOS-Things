@@ -1,4 +1,9 @@
 config AOS_BOARD_HIFIVE1
     bool "board_hifive1"
     default n
+    select AOS_MCU_E310
     help
+
+if AOS_BOARD_HIFIVE1
+# Configurations for board hifive1
+endif
