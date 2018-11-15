@@ -1,4 +1,9 @@
 config AOS_BOARD_EML3047
     bool "board_eml3047"
     default n
+    select AOS_MCU_STM32L071KB
     help
+
+if AOS_BOARD_EML3047
+# Configurations for board eml3047
+endif

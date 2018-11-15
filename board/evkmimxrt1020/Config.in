@@ -1,4 +1,9 @@
 config AOS_BOARD_EVKMIMXRT1020
     bool "board_evkmimxrt1020"
     default n
+    select AOS_MCU_CORTEX-M7
     help
+
+if AOS_BOARD_EVKMIMXRT1020
+# Configurations for board amebaz_dev
+endif
