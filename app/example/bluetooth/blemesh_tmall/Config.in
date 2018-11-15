@@ -1,0 +1,11 @@
+menuconfig AOS_APP_BLEMESH_TMALL
+    bool "blemesh_tmall"
+    select AOS_COMP_BT_MESH_PROFILE
+    select AOS_COMP_BT
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_BLEMESH_TMALL
+# Configurations for app blemesh_tmall
+endif

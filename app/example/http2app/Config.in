@@ -1,0 +1,7 @@
+menuconfig AOS_APP_HTTP2APP
+    bool "http2app"
+    help
+
+if AOS_APP_HTTP2APP
+# Configurations for app http2app
+endif

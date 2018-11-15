@@ -1,0 +1,7 @@
+menuconfig AOS_APP_COAPAPP
+    bool "coapapp"
+    help
+
+if AOS_APP_COAPAPP
+# Configurations for app coapapp
+endif

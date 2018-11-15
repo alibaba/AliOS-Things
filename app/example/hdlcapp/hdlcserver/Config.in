@@ -1,0 +1,9 @@
+menuconfig AOS_APP_HDLCSERVER
+    bool "hdlcserver"
+    select AOS_COMP_ATPARSER
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_HDLCSERVER
+# Configurations for app hdlcserver
+endif

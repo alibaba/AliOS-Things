@@ -1,0 +1,11 @@
+menuconfig AOS_APP_HDLCCLIENT
+    bool "hdlcclient"
+    select AOS_COMP_ATPARSER
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_HDLCCLIENT
+# Configurations for app hdlcclient
+endif

@@ -1,0 +1,7 @@
+menuconfig AOS_APP_OTAAPP
+    bool "otaapp"
+    help
+
+if AOS_APP_OTAAPP
+# Configurations for app otaapp
+endif

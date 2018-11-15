@@ -1,0 +1,18 @@
+menuconfig AOS_APP_UDATAAPP
+    bool "udataapp"
+    select AOS_COMP_COMMON
+    select AOS_COMP_CLI if @CONDITION@
+    select AOS_COMP_NETMGR if @CONDITION@
+    select AOS_COMP_SENSOR
+    select AOS_COMP_UDATA
+    select AOS_COMP_YLOOP
+    select AOS_COMP_CJSON if @CONDITION@
+    select AOS_COMP_NETMGR if @CONDITION@
+    select AOS_COMP_OTA if @CONDITION@
+    select AOS_COMP_OTA if @CONDITION@
+    select AOS_COMP_SENSOR if @CONDITION@
+    help
+
+if AOS_APP_UDATAAPP
+# Configurations for app udataapp
+endif
