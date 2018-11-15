@@ -23,6 +23,8 @@ endif
 ##################################
 # Filenames
 ##################################
+CONFIG_SYSINFO_APP_VERSION = app-1.0.0-$(CURRENT_TIME)
+$(info app_version:${CONFIG_SYSINFO_APP_VERSION})
 
 LINK_OUTPUT_FILE          :=$(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING)$(RADIXPOINT)$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX)
 # out/helloworld@xx/binary/helloworld@xx.elf
