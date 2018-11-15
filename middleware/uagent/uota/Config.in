@@ -1,4 +1,14 @@
+menuconfig AOS_COMP_OTA
+    bool "ota"
+    default n
+    select AOS_COMP_OTA_VERIFY
+    select AOS_COMP_OTA_TRANSPORT
+    select AOS_COMP_OTA_DOWNLOAD
+    select AOS_COMP_OTA_HAL
+    help
 
+if AOS_COMP_OTA
+# Configurations for comp ota
 config AOS_OTA_HTTPS
     bool "AOS_OTA_HTTPS"
     default y
@@ -46,4 +56,4 @@ menu "CoAP download channel"
         help
             Enable CoAP download channel.
 endmenu
-
+endif

@@ -1,0 +1,10 @@
+menuconfig AOS_COMP_OTA_2ND_BOOT
+    bool "ota_2nd_boot"
+    default n
+    select AOS_COMP_OTA_2NDBOOT_NBPATCH
+    select AOS_COMP_OTA_2BOOT_XZ
+    help
+
+if AOS_COMP_OTA_2ND_BOOT
+# Configurations for comp ota_2nd_boot
+endif
