@@ -2,18 +2,24 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <pthread.h>
+#include "pthread.h"
 
 int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
 {
-    krhino_mutex_dyn_create(&cond->lock, "mutex");
-    krhino_sem_dyn_create(&cond->wait_sem, "sem", 0);
-    krhino_sem_dyn_create(&cond->wait_done, "sem", 0);
-    cond->waiting = cond->signals = 0;
+    int ret = -1;
 
-    if (! cond->lock || ! cond->wait_sem || ! cond->wait_done) {
-        cond = 0;
+    if (cond == NULL) {
+        return -1;
     }
+
+    ret = krhino_mutex_dyn_create(&cond->lock, "mutex");
+    ret |= krhino_sem_dyn_create(&cond->wait_sem, "sem", 0);
+    ret |= krhino_sem_dyn_create(&cond->wait_done, "sem", 0);
+    if (ret != 0) {
+        return -1;
+    }
+
+    cond->waiting = cond->signals = 0;
 
     return 0;
 }
@@ -35,7 +41,9 @@ int pthread_cond_destroy(pthread_cond_t *cond)
 
 int pthread_cond_broadcast(pthread_cond_t *cond)
 {
-    int i, num_waiting;
+    int i           = 0;
+    int num_waiting = 0;
+
     /* If there are waiting threads not already signalled, then
     signal the condition and wait for the thread to respond.
     */
@@ -80,12 +88,10 @@ int pthread_cond_signal(pthread_cond_t *cond)
     return 0;
 }
 
-int pthread_cond_timedwait(pthread_cond_t        *cond,
-                           pthread_mutex_t       *mutex,
-                           const struct timespec *abstime)
+int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const struct timespec *abstime)
 {
-    kstat_t retval;
-    tick_t  ticks;
+    kstat_t        retval;
+    tick_t         ticks;
     struct timeval now;
 
     gettimeofday(&now, NULL);
@@ -114,6 +120,7 @@ int pthread_cond_timedwait(pthread_cond_t        *cond,
         http://www-classic.be.com/aboutbe/benewsletter/volume_III/Issue40.html
     */
     krhino_mutex_lock(cond->lock, RHINO_WAIT_FOREVER);
+
     if (cond->signals > 0) {
         /* If we timed out, we need to eat a condition signal */
         if (retval == RHINO_BLK_TIMEOUT) {
@@ -125,7 +132,9 @@ int pthread_cond_timedwait(pthread_cond_t        *cond,
         /* Signal handshake complete */
         --cond->signals;
     }
+
     --cond->waiting;
+
     krhino_mutex_unlock(cond->lock);
 
     /* Lock the mutex, as is required by condition variable semantics */
@@ -137,7 +146,6 @@ int pthread_cond_timedwait(pthread_cond_t        *cond,
 
 int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 {
-
     kstat_t retval;
 
     /* Obtain the protection mutex, and increment the number of waiters.
@@ -161,6 +169,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
         http://www-classic.be.com/aboutbe/benewsletter/volume_III/Issue40.html
     */
     krhino_mutex_lock(cond->lock, RHINO_WAIT_FOREVER);
+
     if (cond->signals > 0) {
         /* If we timed out, we need to eat a condition signal */
         if (retval == RHINO_BLK_TIMEOUT) {
@@ -172,7 +181,9 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
         /* Signal handshake complete */
         --cond->signals;
     }
+
     --cond->waiting;
+
     krhino_mutex_unlock(cond->lock);
 
     /* Lock the mutex, as is required by condition variable semantics */

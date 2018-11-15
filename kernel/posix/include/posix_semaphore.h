@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include <k_api.h>
+#include "k_api.h"
 #include <time.h>
 
 typedef ksem_t *sem_t;

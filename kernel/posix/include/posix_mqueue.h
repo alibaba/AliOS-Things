@@ -9,10 +9,13 @@
 extern "C" {
 #endif
 
-#include <k_api.h>
 #include <time.h>
+#include "k_api.h"
 
-#define DEFAULT_MQUEUE_SIZE (10 * 1024)
+#define DEFAULT_MQUEUE_SIZE  (10 * 1024)
+#define DEFAULT_MAX_MSG_SIZE (1024)
+
+#define NANOSECONDS_PER_SECOND       1000000000LL
 
 typedef kbuf_queue_t *mqd_t;
 
@@ -29,14 +32,12 @@ ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *msg_pri
 int     mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_prio);
 int     mq_setattr(mqd_t mqdes, const struct mq_attr *mqstat, struct mq_attr *omqstat);
 int     mq_getattr(mqd_t mqdes, struct mq_attr *mqstat);
-ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
-                        unsigned *msg_prio, const struct timespec *abs_timeout);
-int     mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
-                     unsigned msg_prio, const struct timespec *abs_timeout);
+ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *msg_prio, const struct timespec *abs_timeout);
+int     mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_prio, const struct timespec *abs_timeout);
 int     mq_unlink(const char *name);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* POSIX_MQUEUE_H */

@@ -2,20 +2,21 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <posix_timer.h>
-#include <posix_signal.h>
+#include "posix_timer.h"
+#include "posix_signal.h"
 
 timer_list_t *timer_list_head;
 
-static int64_t         timespec_to_nanosecond(struct timespec *value);
-static int             timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_relate);
+static int64_t timespec_to_nanosecond(struct timespec *value);
+static int     timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_relate);
+
 static struct timespec nanosecond_to_timespec(int64_t value);
 
 int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *restrict timerid)
 {
-    int ret = -1;
     timer_list_t *timer_list_m;
     timer_list_t *timer_list;
+    int ret = -1;
 
     if ((evp == NULL) || (timerid == NULL)) {
         return -1;
@@ -46,7 +47,7 @@ int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *rest
     } else {
         timer_list = timer_list_head;
         while(timer_list->next != NULL) {
-        	timer_list = timer_list->next;
+            timer_list = timer_list->next;
         }
 
         /* the id of new timer equel to last id plus one */
@@ -65,8 +66,6 @@ int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *rest
 
     /* update the timerid */
     *timerid = timer_list_m->id;
-
-    printf("timer_list_head->id %d\n", timer_list_head->id);
 
     return 0;
 }
@@ -92,9 +91,8 @@ int timer_delete(timer_t timerid)
 
     /* stop and detete the timer */
     krhino_timer_stop(timer_list->ktimer);
-    ret = krhino_timer_dyn_del(timer_list->ktimer);
-    printf("timer_list->id %d\n", timer_list->id);
 
+    ret = krhino_timer_dyn_del(timer_list->ktimer);
     if (ret == 0) {
         CPSR_ALLOC();
         RHINO_CRITICAL_ENTER();
@@ -116,14 +114,15 @@ int timer_delete(timer_t timerid)
 int timer_settime(timer_t timerid, int flags, const struct itimerspec *restrict value,
 	              struct itimerspec *restrict ovalue)
 {
-    int ret = -1;
-    int64_t value_ns = 0;
-    int64_t interval_ns = 0;
-    int64_t value_ticks = 0;
+    int     ret            = -1;
+    int64_t value_ns       = 0;
+    int64_t interval_ns    = 0;
+    int64_t value_ticks    = 0;
     int64_t interval_ticks = 0;
+
     struct timespec value_spec;
     struct timespec interval_spec;
-    timer_list_t *timer_list;
+    timer_list_t   *timer_list;
 
     if (value == NULL) {
         return -1;
@@ -138,7 +137,7 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec *restrict 
         ret = timespec_abs_to_relate(&value->it_value, &value_spec);
         ret |= timespec_abs_to_relate(&value->it_interval, &interval_spec);
         if (ret != 0) {
-        	return -1;
+            return -1;
         }
 
         value_ns = timespec_to_nanosecond(&value_spec);
@@ -150,11 +149,10 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec *restrict 
 
     /* get the old parameters of timer if ovalue is not NULL */
     if (ovalue != NULL) {
-    	ret = timer_gettime(timerid, ovalue);
-
-    	if (ret != 0) {
-    		return -1;
-    	}
+        ret = timer_gettime(timerid, ovalue);
+        if (ret != 0) {
+            return -1;
+        }
     }
 
     /* scan the list to find the timer according to timerid */
@@ -175,7 +173,7 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec *restrict 
 
 int timer_gettime(timer_t timerid, struct itimerspec *value)
 {
-    uint64_t time_ns = 0;
+    uint64_t      time_ns = 0;
     timer_list_t *timer_list;
 
     if (value == NULL) {
@@ -198,8 +196,7 @@ int timer_gettime(timer_t timerid, struct itimerspec *value)
 }
 
 int timer_getoverrun(timer_t timerid)
-{ 
-    /* not support */
+{
     return 0;
 }
 
@@ -209,7 +206,7 @@ int clock_getres(clockid_t clock_id, struct timespec *res)
         return -1;
     }
 
-	res->tv_sec = 0;
+    res->tv_sec = 0;
     res->tv_nsec = NANOSECONDS_PER_SECOND / RHINO_CONFIG_TICKS_PER_SECOND;
 
     return 0;
@@ -231,7 +228,6 @@ int clock_gettime(clockid_t clock_id, struct timespec *tp)
 
 int clock_settime(clockid_t clock_id, const struct timespec *tp)
 {
-    /* not support */
 	return -1;
 }
 
@@ -251,11 +247,11 @@ int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 
 int clock_nanosleep(clockid_t clock_id, int flags, const struct timespec *rqtp, struct timespec *rmtp)
 {
-    struct timespec value_spec;
-    int64_t value_ns = 0;
+    int     ret         = -1;
+    int64_t value_ns    = 0;
     int64_t value_ticks = 0;
-    int ret = -1;
 
+    struct timespec value_spec;
     /* if the time is absolute time transform it to relative time */
     if((flags & TIMER_ABSTIME) == TIMER_ABSTIME) {
         ret = timespec_abs_to_relate(rqtp, &value_spec);
@@ -298,20 +294,21 @@ struct timespec nanosecond_to_timespec(int64_t value)
 
 int timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_relate)
 {
-    struct timespec time;
     int64_t value = 0;
-    int ret = -1;
+    int     ret   = -1;
+
+    struct timespec time;
 
     memset(&time,0,sizeof(time));
 
     ret = clock_gettime(CLOCK_REALTIME, &time);
     if (ret != 0) {
-    	return -1;
+        return -1;
     }
 
     value = timespec_to_nanosecond(time_abs) - timespec_to_nanosecond(&time);
     if (value < 0) {
-    	return -1;
+        return -1;
     }
 
     *time_relate = nanosecond_to_timespec(value);

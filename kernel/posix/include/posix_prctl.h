@@ -2,14 +2,14 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#ifndef __INC_PRCTL_H__
-#define __INC_PRCTL_H__
-
-#include <k_api.h>
+#ifndef POSIX_PRCTL_H
+#define POSIX_PRCTL_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+#include "k_api.h"
 
 /*
  * PR_SET_NAME:
@@ -26,5 +26,5 @@ int prctl(int option, ...);
 }
 #endif /* __cplusplus */
 
-#endif /* __INC_PRCTL_H__ */
+#endif /* POSIX_PRCTL_H */
 
