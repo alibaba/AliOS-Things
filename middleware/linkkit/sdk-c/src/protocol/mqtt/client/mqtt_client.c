@@ -103,7 +103,7 @@ static int _alloc_recv_buffer(iotx_mc_client_t *c, int len)
             return ERROR_MALLOC;
         }
         memset(temp,0,tmp_len);
-        memcpy(temp,c->buf_read, c->buf_size_read);
+        memcpy(temp,c->buf_read, c->buf_size_read < tmp_len ?c->buf_size_read:tmp_len);
         mqtt_free(c->buf_read);
         c->buf_read = temp;
     } else {
@@ -451,7 +451,6 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     }
 
 #if WITH_MQTT_JSON_FLOW
-
     const char     *json_payload = (const char *)topic_msg->payload;
 
     mqtt_info("Upstream Topic: '%s'", topicName);
@@ -553,7 +552,6 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     MQTTString                  topic = MQTTString_initializer;
     /*iotx_mc_topic_handle_t handler = {topicFilter, {messageHandler, pcontext}};*/
     iotx_mc_topic_handle_t     *handler = NULL;
-    iotx_mc_subsribe_info_t    *node = NULL;
 
     if (!c || !topicFilter || !messageHandler) {
         return FAIL_RETURN;
@@ -632,6 +630,7 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
      * */
 #if !(WITH_MQTT_SUB_SHORTCUT)
     /* push the element to list of wait subscribe ACK */
+    iotx_mc_subsribe_info_t    *node = NULL;
     if (SUCCESS_RETURN != iotx_mc_push_subInfo_to(c, len, msgId, SUBSCRIBE, handler, &node)) {
         mqtt_err("push publish into to pubInfolist failed!");
         mqtt_free(handler->topic_filter);
@@ -652,10 +651,12 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 
     if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
         /* If send failed, remove it */
+#if !(WITH_MQTT_SUB_SHORTCUT)
         HAL_MutexLock(c->lock_list_sub);
         list_del(&node->linked_list);
         mqtt_free(node);
         HAL_MutexUnlock(c->lock_list_sub);
+#endif
         mqtt_err("run sendPacket error!");
         mqtt_free(handler->topic_filter);
         mqtt_free(handler);
@@ -1548,7 +1549,6 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
 #if WITH_MQTT_JSON_FLOW
 
     const char     *json_payload = (const char *)topic_msg.payload;
-
     mqtt_info("Downstream Topic: '%.*s'", topicName.lenstring.len, topicName.lenstring.data);
     mqtt_info("Downstream Payload:");
     iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '<');
@@ -1814,6 +1814,8 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         }
         default:
             mqtt_err("INVALID TYPE");
+            _reset_recv_buffer(c);
+            HAL_MutexUnlock(c->lock_read_buf);
             return FAIL_RETURN;
     }
     _reset_recv_buffer(c);
