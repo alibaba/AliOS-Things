@@ -17,13 +17,10 @@ GLOBAL_DEFINES  += DATA_TO_CLOUD
 endif
 
 
-$(NAME)_INCLUDES := \
-    ./include \
-    ../../include/aos \
-    ../../kernel/hal/include \
-    ../../device/sensor/include
+$(NAME)_INCLUDES := ../../device/sensor/include
 
-GLOBAL_INCLUDES += . include
+GLOBAL_INCLUDES += . include \
+                   ./include/aos
 
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS      += -Wall -Werror
