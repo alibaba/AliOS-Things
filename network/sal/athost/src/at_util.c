@@ -2,14 +2,10 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <aos/aos.h>
 
 #include "at_util.h"
-#include "athost_io.h"
+#include "athost_import.h"
 
 #define TAG "AT_UTIL"
 
@@ -245,7 +241,7 @@ void free_uart_send_msg(uart_send_info_t *msgptr)
 // at
 int at_read(char *outbuf, uint32_t len)
 {
-    return athost_at_read(outbuf, len);
+    return HAL_Athost_Read(outbuf, len);
 }
 
 int at_write(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
@@ -259,7 +255,7 @@ int at_write(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
 
     LOGD(TAG, "at going to directly send %s! datelen %d\n", cmdptr, datalen);
 
-    return  athost_at_write((const char *)cmdptr, dataptr, datalen, tail);
+    return  HAL_Athost_Write((const char *)cmdptr, dataptr, datalen, tail);
 }
 
 int insert_uart_send_msg(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
@@ -345,7 +341,7 @@ int send_over_uart(uart_send_info_t *msgptr)
     if (!msgptr->dataptr) {
         LOGD(TAG, "at going to send %s!\n", (char *)msgptr->cmdptr);
 
-        ret = athost_at_write((char *)msgptr->cmdptr, NULL, 0, NULL);
+        ret = HAL_Athost_Write((char *)msgptr->cmdptr, NULL, 0, NULL);
         if (ret != 0) {
             LOGE(TAG, "Error: cmd send fail!\r\n");
             return -1;
@@ -355,8 +351,8 @@ int send_over_uart(uart_send_info_t *msgptr)
         LOGD(TAG, "at going to send %s! datelen %d\n", (char *)msgptr->cmdptr,
              msgptr->datalen);
 
-        ret = athost_at_write((const char *)msgptr->cmdptr, msgptr->dataptr,
-                              msgptr->datalen, AT_RECV_PREFIX);
+        ret = HAL_Athost_Write((const char *)msgptr->cmdptr, msgptr->dataptr,
+                               msgptr->datalen, AT_RECV_PREFIX);
         if (ret != 0) {
             LOGE(TAG, "Error: cmd and data send fail!\r\n");
             return -1;
@@ -428,46 +424,6 @@ void uart_send_task()
 exit:
     LOG("Uart send task exits!\r\n");
     aos_task_exit(0);
-}
-
-void send_at_uart_task(void *arg)
-{
-    if (!arg) {
-        goto exit;
-    }
-
-    LOGD(TAG, "at going to send %s!\n", (char *)arg);
-
-    athost_at_write((char *)arg, NULL, 0, NULL);
-exit:
-    aos_free(arg);
-    aos_task_exit(0);
-}
-
-int post_send_at_uart_task(const char *cmd)
-{
-    int   size   = strlen(cmd) + 1;
-    char *tskarg = NULL;
-
-    tskarg = (char *)aos_malloc(size);
-    if (tskarg == NULL) {
-        LOGE(TAG, "Fail to allcate memory %d byte for uart send task arg\r\n",
-             size);
-        goto exit;
-    }
-    memcpy(tskarg, cmd, size);
-
-    if (aos_task_new("uart_send_task", send_at_uart_task, (void *)tskarg,
-                     1024) != 0) {
-        LOGE(TAG, "Fail to create uart send task\r\n");
-        goto exit;
-    }
-
-    return 0;
-
-exit:
-    aos_free(tskarg);
-    return -1;
 }
 
 #define MAX_ATCMD_RESPONSE_LEN 20
