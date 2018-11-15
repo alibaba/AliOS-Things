@@ -1,4 +1,9 @@
 config AOS_BOARD_FRDMKL81Z
     bool "board_frdmkl81z"
     default n
+    select AOS_MCU_CORTEX-M0
     help
+
+if AOS_BOARD_FRDMKL81Z
+# Configurations for board frdmkl81z
+endif

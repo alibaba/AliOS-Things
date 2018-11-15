@@ -1,14 +1,14 @@
 NAME := board_evkmimxrt1020
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
-MODULE              := 1020
-HOST_ARCH           := Cortex-M7
-HOST_MCU_FAMILY     := mimxrt1021
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board evkmimxrt1020
+MODULE             := 1020
+HOST_ARCH          := Cortex-M7
+HOST_MCU_FAMILY    := mimxrt1021
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_MIMXRT1021
-CONFIG_SYSINFO_DEVICE_NAME := MIMXRT1021
+CONFIG_SYSINFO_DEVICE_NAME   := MIMXRT1021
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=0x100000
 GLOBAL_DEFINES += SKIP_SYSCLK_INIT
@@ -26,11 +26,11 @@ GLOBAL_CFLAGS += -DCPU_MIMXRT1021DAG5A
 GLOBAL_INCLUDES += ./ \
                    boot
 
-$(NAME)_SOURCES := board.c \
-                   clock_config.c \
-                   pin_mux.c \
+$(NAME)_SOURCES := board.c                                 \
+                   clock_config.c                          \
+                   pin_mux.c                               \
                    boot/evkmimxrt1020_flexspi_nor_config.c \
-                   boot/evkmimxrt1020_mini_bl.c \
+                   boot/evkmimxrt1020_mini_bl.c            \
                    boot/evkmimxrt1020_sdram_ini_dcd.c
 
 TEST_COMPONENTS += certificate

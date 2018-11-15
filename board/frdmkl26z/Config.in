@@ -2,3 +2,7 @@ config AOS_BOARD_FRDMKL26Z
     bool "board_frdmkl26z"
     default n
     help
+
+if AOS_BOARD_FRDMKL26Z
+# Configurations for board frdmkl26z
+endif

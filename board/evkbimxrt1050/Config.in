@@ -1,4 +1,9 @@
 config AOS_BOARD_EVKBIMXRT1050
     bool "board_evkbimxrt1050"
     default n
+    select AOS_MCU_CORTEX-M7
     help
+
+if AOS_BOARD_EVKBIMXRT1050
+# Configurations for board evkbimxrt1050
+endif
