@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <pthread.h>
+#include "pthread.h"
 
 pthread_key_list_t pthread_key_list_head;
 
@@ -23,9 +23,8 @@ int pthread_key_create(pthread_key_t *key, void (*destructor)(void*))
         pthread_key_list_head.key_num = 1;
         pthread_key_list_head.head.fun = destructor;
         *key = pthread_key_list_head.key_num;
-    }
-    else/* if the key list is not empty find the last key and add key */
-    {
+    } else {
+        /* if the key list is not empty find the last key and add key */
         /* find the last key */
         pthread_key_list_s_c = pthread_key_list_head.next;
         pthread_key_list_s_l = &pthread_key_list_head;
@@ -36,7 +35,6 @@ int pthread_key_create(pthread_key_t *key, void (*destructor)(void*))
 
         /* malloc the new key */
         pthread_key_list_s_c = (pthread_key_list_t *)krhino_mm_alloc(sizeof(pthread_key_list_t));
-
         if (pthread_key_list_s_c == NULL) {
             RHINO_CRITICAL_EXIT();
             return -1;
@@ -61,12 +59,13 @@ int pthread_key_create(pthread_key_t *key, void (*destructor)(void*))
 
 int pthread_setspecific(pthread_key_t key, const void *value)
 {
-    pthread_key_list_t *pthread_key_list_s_c = NULL;
-    pthread_key_value_t *key_value_s_o = NULL;
-    pthread_key_value_t *key_value_s = NULL;
-    pthread_key_value_t *key_value_s_c = NULL;
-    pthread_key_value_t *key_value_s_l = NULL; 
-    int list_flag = 0;  
+    pthread_key_list_t  *pthread_key_list_s_c = NULL;
+    pthread_key_value_t *key_value_s_o        = NULL;
+    pthread_key_value_t *key_value_s          = NULL;
+    pthread_key_value_t *key_value_s_c        = NULL;
+    pthread_key_value_t *key_value_s_l        = NULL;
+
+    int list_flag  = 0;
     int value_flag = 0;
 
     if (value == NULL) {
@@ -97,7 +96,6 @@ int pthread_setspecific(pthread_key_t key, const void *value)
     /* if no value store in the key, create new pthread_key_value_t to save the value */
     if (key_value_s_o == NULL) {
         key_value_s = (pthread_key_value_t *)krhino_mm_alloc(sizeof(pthread_key_value_t));
-
         if (key_value_s == NULL) {
             RHINO_CRITICAL_EXIT();
             return -1;
@@ -112,9 +110,8 @@ int pthread_setspecific(pthread_key_t key, const void *value)
 
         /* and pthread_key_value_t to value list */
         pthread_key_list_s_c->head.next = key_value_s;
-    }
-    else /* if value store in the key, find the last value and add the new value */
-    {
+    } else {
+        /* if value store in the key, find the last value and add the new value */
         /* sreach the value list to find if same thread had save the value */
         key_value_s_c = key_value_s_o;
         while (key_value_s_c != NULL) {
@@ -133,7 +130,6 @@ int pthread_setspecific(pthread_key_t key, const void *value)
         /* if no same thread had save the value before create new pthread_key_value_t */
         if (value_flag == 0) {
             key_value_s = (pthread_key_value_t *)krhino_mm_alloc(sizeof(pthread_key_value_t));
-
             if (key_value_s == NULL) {
                 RHINO_CRITICAL_EXIT();
                 return -1;
@@ -158,9 +154,10 @@ int pthread_setspecific(pthread_key_t key, const void *value)
 
 void *pthread_getspecific(pthread_key_t key)
 {
-    pthread_key_list_t *pthread_key_list_s_c = NULL;
-    pthread_key_value_t *key_value_s_o = NULL;
-    pthread_key_value_t *key_value_s_c = NULL;
+    pthread_key_list_t  *pthread_key_list_s_c = NULL;
+    pthread_key_value_t *key_value_s_o        = NULL;
+    pthread_key_value_t *key_value_s_c        = NULL;
+
     int list_flag = 0; 
 
     CPSR_ALLOC();
@@ -202,11 +199,12 @@ void *pthread_getspecific(pthread_key_t key)
 
 int pthread_key_delete(pthread_key_t key)
 {
-    pthread_key_list_t *pthread_key_list_s_c = NULL;
-    pthread_key_list_t *pthread_key_list_s_l = NULL;
-    pthread_key_value_t *key_value_s_o = NULL;
-    pthread_key_value_t *key_value_s_c = NULL;
-    pthread_key_value_t *key_value_s_n = NULL;
+    pthread_key_list_t  *pthread_key_list_s_c = NULL;
+    pthread_key_list_t  *pthread_key_list_s_l = NULL;
+    pthread_key_value_t *key_value_s_o        = NULL;
+    pthread_key_value_t *key_value_s_c        = NULL;
+    pthread_key_value_t *key_value_s_n        = NULL;
+
     int list_flag = 0; 
 
     CPSR_ALLOC();

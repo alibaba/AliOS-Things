@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_VFS_POSIX
-    bool "vfs_posix"
-    default n
-    help
-
-if AOS_COMP_VFS_POSIX
-# Configurations for component vfs_posix
-endif

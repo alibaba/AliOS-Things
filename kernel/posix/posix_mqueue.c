@@ -2,15 +2,14 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <posix_mqueue.h>
+#include "posix_mqueue.h"
 
 mqd_t mq_open(const char *name, int oflag, ...)
 {
     kbuf_queue_t *mq;
     kstat_t       ret;
 
-    ret = krhino_buf_queue_dyn_create(&mq, "buf_queue", DEFAULT_MQUEUE_SIZE, 0xffffffffu);
-
+    ret = krhino_buf_queue_dyn_create(&mq, "buf_queue", DEFAULT_MQUEUE_SIZE, DEFAULT_MAX_MSG_SIZE);
     if (ret != RHINO_SUCCESS) {
         return 0;
     }
@@ -25,7 +24,6 @@ ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *msg_pri
 
     *msg_prio = 0;
     ret = krhino_buf_queue_recv(mqdes, 0, msg_ptr, &msg_size);
-
     if (ret != RHINO_SUCCESS) {
         return 0;
     }
@@ -38,7 +36,6 @@ int mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_prio)
     kstat_t ret;
 
     ret = krhino_buf_queue_send((kbuf_queue_t *)mqdes, (void *)msg_ptr, msg_len);
-
     if (ret != RHINO_SUCCESS) {
         return 0;
     }
@@ -66,10 +63,9 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
     *msg_prio = 0;
 
     ticks = abs_timeout->tv_sec * RHINO_CONFIG_TICKS_PER_SECOND +
-            (abs_timeout->tv_nsec / 1000000) / (1000 / RHINO_CONFIG_TICKS_PER_SECOND);
+            (abs_timeout->tv_nsec * RHINO_CONFIG_TICKS_PER_SECOND) / NANOSECONDS_PER_SECOND;
 
     ret = krhino_buf_queue_recv(mqdes, ticks, msg_ptr, &msg_size);
-
     if (ret != RHINO_SUCCESS) {
         return 0;
     }
@@ -85,11 +81,9 @@ int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
     (void)msg_prio;
 
     ret = krhino_buf_queue_send((kbuf_queue_t *)mqdes, (void *)msg_ptr, msg_len);
-
     if (ret != RHINO_SUCCESS) {
         return 0;
     }
 
     return msg_len;
 }
-
