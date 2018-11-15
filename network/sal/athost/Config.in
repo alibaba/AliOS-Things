@@ -1,0 +1,46 @@
+config ATHOST_ENABLED
+    bool "FEATURE_ATHOST_ENABLED"
+    default n
+
+menu "AThost Configurations"
+    depends on ATHOST_ENABLED
+
+    config ATHOST_WIFI_MGMT
+        bool "FEATURE_ATHOST_WIFI_MGMT"
+        default y
+        help
+            Provides AT command for wifi configuration 
+
+            Switching to "y" leads to wifi configuration AT enabled.
+            Switching to "n" leads to wifi configuration AT disabled.
+
+    config ATHOST_CIP
+        bool "FEATURE_ATHOST_CIP"
+        default y
+        help
+            Provides AT command for tcp/udp client
+
+            Switching to "y" leads to tcp/udp client AT enabled.
+            Switching to "n" leads to tcp/udp client AT disabled.
+
+    config ATHOST_MQTT
+        bool "FEATURE_ATHOST_MQTT"
+        default y
+        help
+            Provides AT command for MQTT
+
+            Switching to "y" leads to MQTT AT enabled.
+            Switching to "n" leads to MQTT AT disabled.
+
+    config ATHOST_COAP
+        bool "FEATURE_ATHOST_COAP"
+        depends on !ATHOST_MQTT
+        default n
+        help
+            Provides AT command for COAP
+
+            Switching to "y" leads to COAP AT enabled.
+            Switching to "n" leads to COAP AT disabled.
+
+endmenu
+
