@@ -1,18 +1,13 @@
-
-config AOS_COMP_NETMGR
-    bool "FEATURE_NETMGR_ENALED"
+menuconfig AOS_COMP_NETMGR
+    bool "netmgr"
     default n
+    select AOS_COMP_HAL
+    select AOS_COMP_KV
+    select AOS_COMP_YLOOP
+    select AOS_COMP_HALWIFI if @CONDITION@
     help
-        AliOS things NETMGR -- smart config support component
+      AliOS things NETMGR -- smart config support component
 
 if AOS_COMP_NETMGR
-
-menu "Netmgr Configurations"
-
-    config AOS_NETMGR
-         bool "Enable AOS_NETMGR global define"
-         default y
-
-endmenu
-
+# Configurations for comp netmgr
 endif

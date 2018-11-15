@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_BT_MESH
+    bool "bt_mesh"
+    default n
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_COMP_BT_MESH
+# Configurations for comp bt_mesh
+endif
