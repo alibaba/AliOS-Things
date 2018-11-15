@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_OTA_2BOOT_XZ
+    bool "ota_2boot_xz"
+    default n
+    help
+
+if AOS_COMP_OTA_2BOOT_XZ
+# Configurations for comp ota_2boot_xz
+endif
