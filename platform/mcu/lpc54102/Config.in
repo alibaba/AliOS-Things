@@ -4,6 +4,7 @@ menuconfig AOS_MCU_LPC54102IMPL
     select AOS_COMP_COMMON
     select AOS_COMP_HAL
     select AOS_COMP_CLI
+    select AOS_COMP_SAL
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_NETMGR
     select AOS_ARCH_ARMV7M
