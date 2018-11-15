@@ -1,4 +1,8 @@
-config AOS_BOARD_MK1101
+menuconfig AOS_BOARD_MK1101
     bool "board_mk1101"
-    default n
+    select AOS_MCU_MX1101
     help
+
+if AOS_BOARD_MK1101
+# Configurations for board board_mk1101
+endif

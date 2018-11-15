@@ -1,6 +1,5 @@
-config AOS_BOARD_ESP32DEVKITC
+menuconfig AOS_BOARD_ESP32DEVKITC
     bool "board_esp32devkitc"
-    default n
     select AOS_MCU_ESP32
     help
 

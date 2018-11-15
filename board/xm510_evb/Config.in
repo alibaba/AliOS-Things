@@ -1,4 +1,8 @@
-config AOS_BOARD_XM510
+menuconfig AOS_BOARD_XM510
     bool "board_xm510"
-    default n
+    select AOS_MCU_XM510
     help
+
+if AOS_BOARD_XM510
+# Configurations for board board_xm510
+endif

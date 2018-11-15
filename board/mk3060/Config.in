@@ -1,4 +1,8 @@
-config AOS_BOARD_MK3060
+menuconfig AOS_BOARD_MK3060
     bool "board_mk3060"
-    default n
+    select AOS_MCU_MOC108
     help
+
+if AOS_BOARD_MK3060
+# Configurations for board board_mk3060
+endif

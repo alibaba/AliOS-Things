@@ -1,4 +1,9 @@
-config AOS_STM32L476RG-NUCLEO
+menuconfig AOS_BOARD_STM32L476RG-NUCLEO
     bool "stm32l476rg-nucleo"
-    default n
+    select AOS_MCU_STM32L4XX_CUBE
+    select AOS_COMP_SAL if @CONDITION@
     help
+
+if AOS_BOARD_STM32L476RG-NUCLEO
+# Configurations for board stm32l476rg-nucleo
+endif
