@@ -230,6 +230,11 @@ int udata_sample(void)
 
 int application_start(int argc, char **argv)
 {
+    int ret;
+    ret = uData_main();
+    if (unlikely(ret)) {
+        return -1;
+    }
 
 #ifdef UDATA_CJSON_SUPPORTED
     cJSON_Hooks cjson_hooks;
