@@ -10,7 +10,7 @@ extern "C"
 {
 #endif
 
-int iotx_mdal_get_auth_username_passwd(char* username, char* password);
+int iotx_mdal_get_auth_username_passwd(char* out_username, char* out_password);
 
 #ifdef __cplusplus
 }
