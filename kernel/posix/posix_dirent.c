@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#include <dirent.h>
+#include "posix_dirent.h"
 #include "aos/network.h"
 
 DIR *opendir(const char *dirname)

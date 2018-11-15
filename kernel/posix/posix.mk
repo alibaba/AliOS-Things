@@ -13,6 +13,8 @@ $(NAME)_SOURCES     += pthread_tsd.c
 $(NAME)_SOURCES     += posix_timer.c
 $(NAME)_SOURCES     += posix_semaphore.c
 $(NAME)_SOURCES     += posix_mqueue.c
+$(NAME)_SOURCES     += posix_dirent.c
+$(NAME)_SOURCES     += posix_prctl.c
 
 #default gcc
 ifeq ($(COMPILER),)

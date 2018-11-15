@@ -2,13 +2,13 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <pthread.h>
+#include "pthread.h"
 
 void pthread_cleanup_pop(int execute)
 {
     CPSR_ALLOC();
 
-    _pthread_tcb_t *    ptcb;
+    _pthread_tcb_t     *ptcb;
     _pthread_cleanup_t *cleanup;
 
     ptcb = _pthread_get_tcb(krhino_cur_task_get());
@@ -21,7 +21,7 @@ void pthread_cleanup_pop(int execute)
         }
         RHINO_CRITICAL_EXIT();
 
-        if (cleanup != 0) {
+        if (cleanup != NULL) {
             cleanup->cleanup_routine(cleanup->para);
             krhino_mm_free(cleanup);
         }
@@ -32,13 +32,13 @@ void pthread_cleanup_push(void (*routine)(void *), void *arg)
 {
     CPSR_ALLOC();
 
-    _pthread_tcb_t *    ptcb;
+    _pthread_tcb_t     *ptcb;
     _pthread_cleanup_t *cleanup;
 
     ptcb = _pthread_get_tcb(krhino_cur_task_get());
 
     cleanup = (_pthread_cleanup_t *)krhino_mm_alloc(sizeof(_pthread_cleanup_t));
-    if (cleanup != 0) {
+    if (cleanup != NULL) {
         cleanup->cleanup_routine = routine;
         cleanup->para            = arg;
 
@@ -50,10 +50,10 @@ void pthread_cleanup_push(void (*routine)(void *), void *arg)
 }
 
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
-                   void *(*start_routine)(void *), void *   arg)
+                   void *(*start_routine)(void *), void *arg)
 {
     kstat_t         ret = 0;
-    void *          stack;
+    void           *stack;
     _pthread_tcb_t *ptcb;
 
     if (thread == NULL) {
@@ -74,7 +74,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     ptcb->magic        = PTHREAD_MAGIC;
 
     /* get pthread attr */
-    if (attr != 0) {
+    if (attr != NULL) {
         ptcb->attr = *attr;
     } else {
         pthread_attr_init(&ptcb->attr);
@@ -83,7 +83,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     /* get stack addr */
     if (ptcb->attr.stackaddr == 0) {
         stack = (void *)krhino_mm_alloc(ptcb->attr.stacksize);
-        if (stack == 0) {
+        if (stack == NULL) {
             krhino_mm_free(ptcb);
             return -1;
         }
@@ -93,7 +93,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 
     /* create ktask_t */
     ptcb->tid = krhino_mm_alloc(sizeof(ktask_t));
-    if (ptcb->tid == 0) {
+    if (ptcb->tid == NULL) {
         if (ptcb->attr.stackaddr == 0) {
             krhino_mm_free(stack);
         }
@@ -105,7 +105,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     if (ptcb->attr.detachstate == PTHREAD_CREATE_JOINABLE) {
         ret = krhino_sem_dyn_create(&ptcb->join_sem, "join_sem", 0);
         if (ret != RHINO_SUCCESS) {
-            if (ptcb->attr.stackaddr == 0) {
+            if (ptcb->attr.stackaddr == NULL) {
                 krhino_mm_free(stack);
             }
 
@@ -125,18 +125,18 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                              (task_entry_t)start_routine, 0);
 
     if (ret != RHINO_SUCCESS) {
-        if (ptcb->attr.stackaddr == 0) {
+        if (ptcb->attr.stackaddr == NULL) {
             krhino_mm_free(stack);
         }
 
-        if (ptcb->join_sem != 0) {
+        if (ptcb->join_sem != NULL) {
             krhino_sem_dyn_del(ptcb->join_sem);
         }
         krhino_mm_free(ptcb);
         return -1;
     }
 
-    *thread                                     = ptcb->tid;
+    *thread = ptcb->tid;
     ptcb->tid->user_info[PTHREAD_USER_INFO_POS] = ptcb;
 
     ret = krhino_task_resume(ptcb->tid);
@@ -144,7 +144,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         return RHINO_SUCCESS;
     }
 
-    if (ptcb->attr.stackaddr == 0) {
+    if (ptcb->attr.stackaddr == NULL) {
         krhino_mm_free(stack);
     }
 
@@ -303,15 +303,12 @@ int pthread_equal(pthread_t t1, pthread_t t2)
     return (int)(t1 == t2);
 }
 
-int pthread_setschedparam(pthread_t thread, /* thread               */
-                          int       policy, /* new policy           */
-                          const struct sched_param *param /* new parameters */
-)
+int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param *param)
 {
     kstat_t stat = RHINO_SUCCESS;
     uint8_t old_pri;
 
-    if (param == 0) {
+    if (param == NULL) {
         return -1;
     }
 
@@ -328,8 +325,7 @@ int pthread_setschedparam(pthread_t thread, /* thread               */
     }
 
     /* change the priority of pthread */
-    stat = krhino_task_pri_change(
-      (ktask_t *)thread, PRI_CONVERT_PX_RH(param->sched_priority), &old_pri);
+    stat = krhino_task_pri_change((ktask_t *)thread, PRI_CONVERT_PX_RH(param->sched_priority), &old_pri);
     if (stat != RHINO_SUCCESS) {
         return -1;
     }
