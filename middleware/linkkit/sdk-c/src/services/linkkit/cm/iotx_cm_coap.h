@@ -15,7 +15,7 @@ typedef struct {
     uint32_t token_num;
     void * user_data;
     char * topic;
-    iotx_cm_event_handle_cb responce_cb;
+    iotx_cm_data_handle_cb responce_cb;
     void * context;
     dlist_t linked_list;
 } coap_response_node_t;
