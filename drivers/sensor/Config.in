@@ -1,0 +1,12 @@
+menuconfig AOS_COMP_SENSOR
+    bool "sensor"
+    default n
+    select AOS_COMP_ATPARSER if @CONDITION@
+    select AOS_COMP_DEVICE_SAL_SIM800 if @CONDITION@
+    select AOS_COMP_MBMASTER if @CONDITION@
+    select AOS_COMP_SAL if @CONDITION@
+    help
+
+if AOS_COMP_SENSOR
+# Configurations for comp sensor
+endif
