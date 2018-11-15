@@ -12,9 +12,9 @@
 #include "app_entry.h"
 
 
-#define PRODUCT_KEY             "W9LchU2zAAK"
-#define DEVICE_NAME             "subdevice_2"
-#define DEVICE_SECRET           "Y8QN9QFGvbCVpJ23F2ZFuwhR4785NO5C"
+#define PRODUCT_KEY             "a1MZxOdcBnO"
+#define DEVICE_NAME             "test_02"
+#define DEVICE_SECRET           "kaavRFuVDjbeNOrl80EXle0gmymTawWA"
 
 
 /* These are pre-defined topics */
@@ -29,6 +29,18 @@ char g_product_key[PRODUCT_KEY_LEN + 1];
 char g_product_secret[PRODUCT_SECRET_LEN + 1];
 char g_device_name[DEVICE_NAME_LEN + 1];
 char g_device_secret[DEVICE_SECRET_LEN + 1];
+
+static void *g_thread_yield = NULL;
+static void *g_thread_sub_unsub_1 = NULL;
+static void *g_thread_sub_unsub_2 = NULL;
+static void *g_thread_pub_1 = NULL;
+static void *g_thread_pub_2 = NULL;
+
+static int g_thread_yield_running = 1;
+static int g_thread_sub_unsub_1_running = 1;
+static int g_thread_sub_unsub_2_running = 1;
+static int g_thread_pub_1_running = 1;
+static int g_thread_pub_2_running = 1;
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -126,9 +138,8 @@ static void _demo_message_arrive(void *pcontext, void *pclient, iotx_mqtt_event_
 void *thread_subscribe1(void *pclient)
 {
     int     ret = -1;
-    int     cnt = 4;
 
-    while (--cnt) {
+    while (g_thread_sub_unsub_1_running) {
         HAL_SleepMs(100);
         ret = IOT_MQTT_Subscribe(pclient, TOPIC_DATA, IOTX_MQTT_QOS1, _demo_message_arrive, NULL);
         if (ret < 0) {
@@ -149,9 +160,8 @@ void *thread_subscribe1(void *pclient)
 void *thread_subscribe2(void *pclient)
 {
     int     ret = -1;
-    int     cnt = 4;
 
-    while (--cnt) {
+    while (g_thread_sub_unsub_2_running) {
         HAL_SleepMs(300);
         ret = IOT_MQTT_Unsubscribe(pclient, TOPIC_DATA);
         if (ret < 0) {
@@ -169,7 +179,6 @@ void *thread_subscribe2(void *pclient)
     return NULL;
 }
 
-static void *pid3, *pid4;
 // subscribe
 void CASE2(void *pclient)
 {
@@ -183,7 +192,7 @@ void CASE2(void *pclient)
     hal_os_thread_param_t task_parms1 = {0};
     task_parms1.stack_size = 4096;
     task_parms1.name = "thread_subscribe1";
-    ret = HAL_ThreadCreate(&pid3, thread_subscribe1, (void *)pclient, &task_parms1, &stack_used);
+    ret = HAL_ThreadCreate(&g_thread_sub_unsub_1, thread_subscribe1, (void *)pclient, &task_parms1, &stack_used);
     if (ret != 0) {
         EXAMPLE_TRACE("Thread created failed!\n");
         return;
@@ -192,7 +201,7 @@ void CASE2(void *pclient)
     hal_os_thread_param_t task_parms2 = {0};
     task_parms2.stack_size = 4096;
     task_parms2.name = "thread_subscribe2";
-    ret = HAL_ThreadCreate(&pid4, thread_subscribe2, (void *)pclient, &task_parms2, &stack_used);
+    ret = HAL_ThreadCreate(&g_thread_sub_unsub_2, thread_subscribe2, (void *)pclient, &task_parms2, &stack_used);
     if (ret != 0) {
         EXAMPLE_TRACE("Thread created failed!\n");
         return;
@@ -202,7 +211,6 @@ void CASE2(void *pclient)
 void *thread_publish1(void *pclient)
 {
     int         ret = -1;
-    int         cnt = 4;
     char        msg_pub[MQTT_MSGLEN] = {0};
 
     iotx_mqtt_topic_info_t topic_msg;
@@ -214,7 +222,7 @@ void *thread_publish1(void *pclient)
     topic_msg.payload = (void *)msg_pub;
     topic_msg.payload_len = strlen(msg_pub);
 
-    while (--cnt) {
+    while (g_thread_pub_1_running) {
         ret = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
         EXAMPLE_TRACE("publish thread 1:ret = %d\n", ret);
         HAL_SleepMs(300);
@@ -226,7 +234,6 @@ void *thread_publish1(void *pclient)
 void *thread_publish2(void *pclient)
 {
     int         ret = -1;
-    int         cnt = 6;
     char        msg_pub[MQTT_MSGLEN] = {0};
     iotx_mqtt_topic_info_t topic_msg;
 
@@ -237,7 +244,7 @@ void *thread_publish2(void *pclient)
     topic_msg.payload = (void *)msg_pub;
     topic_msg.payload_len = strlen(msg_pub);
 
-    while (--cnt) {
+    while (g_thread_pub_2_running) {
         ret = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
         EXAMPLE_TRACE("publish thread 2:ret = %d\n", ret);
         HAL_SleepMs(200);
@@ -247,11 +254,9 @@ void *thread_publish2(void *pclient)
 }
 
 // publish
-static void *pid1, *pid2;
 void CASE1(void *pclient)
 {
     int   ret = -1;
-
 
     if (pclient == NULL) {
         EXAMPLE_TRACE("param error");
@@ -267,7 +272,7 @@ void CASE1(void *pclient)
     hal_os_thread_param_t task_parms1 = {0};
     task_parms1.stack_size = 4096;
     task_parms1.name = "thread_publish1";
-    ret = HAL_ThreadCreate(&pid1, thread_publish1, (void *)pclient, &task_parms1, &stack_used);
+    ret = HAL_ThreadCreate(&g_thread_pub_1, thread_publish1, (void *)pclient, &task_parms1, &stack_used);
     if (ret != 0) {
         EXAMPLE_TRACE("Thread created failed!\n");
         return;
@@ -276,7 +281,7 @@ void CASE1(void *pclient)
     hal_os_thread_param_t task_parms2 = {0};
     task_parms2.stack_size = 4096;
     task_parms2.name = "thread_publish2";
-    ret = HAL_ThreadCreate(&pid2, thread_publish2, (void *)pclient, &task_parms2, &stack_used);
+    ret = HAL_ThreadCreate(&g_thread_pub_2, thread_publish2, (void *)pclient, &task_parms2, &stack_used);
     if (ret != 0) {
         EXAMPLE_TRACE("Thread created failed!\n");
         return;
@@ -284,11 +289,9 @@ void CASE1(void *pclient)
 }
 
 // yield thread
-static int yield_exit = 0;
-
 void *thread_yield(void *pclient)
 {
-    while (yield_exit == 0) {
+    while (g_thread_yield_running) {
         IOT_MQTT_Yield(pclient, 200);
 
         HAL_SleepMs(200);
@@ -296,14 +299,39 @@ void *thread_yield(void *pclient)
 
     return NULL;
 }
-static void *yield_thread;
-int mqtt_client(void)
+
+static uint64_t user_update_sec(void)
+{
+    static uint64_t time_start_ms = 0;
+
+    if (time_start_ms == 0) {
+        time_start_ms = HAL_UptimeMs();
+    }
+
+    return (HAL_UptimeMs() - time_start_ms) / 1000;
+}
+
+int mqtt_client(void *params)
 {
     int rc = 0;//, msg_len, cnt = 0;
     void *pclient;
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
+    uint64_t max_running_seconds = 30;
 
+#if defined(__UBUNTU_SDK_DEMO__)
+    int                             argc = ((app_main_paras_t *)params)->argc;
+    char                          **argv = ((app_main_paras_t *)params)->argv;
+
+    if (argc > 1) {
+        int     tmp = atoi(argv[1]);
+
+        if (tmp >= 60) {
+            max_running_seconds = tmp;
+            EXAMPLE_TRACE("set [max_running_seconds] = %d seconds\n", max_running_seconds);
+        }
+    }
+#endif
     /**< get device info*/
     HAL_GetProductKey(g_product_key);
     HAL_GetDeviceName(g_device_name);
@@ -350,7 +378,7 @@ int mqtt_client(void)
     hal_os_thread_param_t task_parms = {0};
     task_parms.stack_size = 6144;
     task_parms.name = "thread_yield";
-    rc = HAL_ThreadCreate(&yield_thread, thread_yield, (void *)pclient, &task_parms, &stack_used);
+    rc = HAL_ThreadCreate(&g_thread_yield, thread_yield, (void *)pclient, &task_parms, &stack_used);
     if (rc != 0) {
         IOT_MQTT_Destroy(&pclient);
         goto do_exit;
@@ -362,29 +390,34 @@ int mqtt_client(void)
     // mutli thread subscribe
     CASE2(pclient);
 
-    HAL_SleepMs(1000);
-    IOT_MQTT_Unsubscribe(pclient, TOPIC_DATA);
-    IOT_MQTT_Unsubscribe(pclient, TOPIC_GET);
+    while (1) {
+        if (user_update_sec() > max_running_seconds) {
+            break;
+        }
+        HAL_SleepMs(1000);
+    }
 
-    HAL_SleepMs(200);
-    yield_exit = 1;
-    HAL_SleepMs(200);
+    g_thread_sub_unsub_1_running = 0;
+    g_thread_sub_unsub_2_running = 0;
+    g_thread_pub_1_running = 0;
+    g_thread_pub_2_running = 0;
+    g_thread_yield_running = 0;
 
     IOT_MQTT_Destroy(&pclient);
 
 do_exit:
 
-    HAL_ThreadDelete(pid1);
-    HAL_ThreadDelete(pid2);
-    HAL_ThreadDelete(pid3);
-    HAL_ThreadDelete(pid4);
-    HAL_ThreadDelete(yield_thread);
+    HAL_ThreadDelete(g_thread_sub_unsub_1);
+    HAL_ThreadDelete(g_thread_sub_unsub_2);
+    HAL_ThreadDelete(g_thread_pub_1);
+    HAL_ThreadDelete(g_thread_pub_2);
+    HAL_ThreadDelete(g_thread_yield);
 
     return rc;
 }
 
 
-int linkkit_main(void *paras)
+int linkkit_main(void *params)
 {
     IOT_SetLogLevel(IOT_LOG_DEBUG);
     /**< set device info*/
@@ -392,7 +425,7 @@ int linkkit_main(void *paras)
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
     /**< end*/
-    mqtt_client();
+    mqtt_client(params);
     IOT_DumpMemoryStats(IOT_LOG_DEBUG);
     IOT_SetLogLevel(IOT_LOG_NONE);
 
