@@ -6,7 +6,7 @@
 #ifndef UDATA_H
 #define UDATA_H
 
-#include "../uData_com_desc.h"
+#include "../../framework/uData/include/uData_com_desc.h"
 
 #ifdef UDATA_YLOOP
 int uData_report_publish(input_event_t *event, void *pdata);

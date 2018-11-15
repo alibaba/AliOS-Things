@@ -18,7 +18,7 @@ $(NAME)_SOURCES += \
         drv/drv_mag_temp_memsic_mmc3680kj.c 
 
 
-modbus_sensor_enable=1
+#modbus_sensor_enable=1
 
 ifeq ($(modbus_sensor_enable),1)
 $(NAME)_SOURCES += drv/drv_modbus_sensors.c
