@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_SE
+    bool "se"
+    default n
+    help
+
+if AOS_COMP_SE
+# Configurations for comp se
+endif
