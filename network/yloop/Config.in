@@ -1,12 +1,11 @@
-
-menuconfig YLOOP_ENABLED
-    bool "FEATURE_YLOOP_ENABLE"
-    default y
+menuconfig AOS_COMP_YLOOP
+    bool "yloop"
+    default n
+    select AOS_COMP_LOG
+    select AOS_COMP_VFS
     help
-        AliOS things yloop -- event notifications
+      AliOS things yloop -- event notifications
 
-if YLOOP_ENABLED
-menu "yloop Configurations"
-
-endmenu
+if AOS_COMP_YLOOP
+# Configurations for comp yloop
 endif

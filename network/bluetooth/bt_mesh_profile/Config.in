@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_BT_MESH_PROFILE
+    bool "bt_mesh_profile"
+    default n
+    help
+
+if AOS_COMP_BT_MESH_PROFILE
+# Configurations for comp bt_mesh_profile
+endif

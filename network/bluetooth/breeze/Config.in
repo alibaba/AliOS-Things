@@ -1,13 +1,13 @@
-
-config AOS_COMP_BREEZE
-    bool "FEATURE_BREEZE_ENALED"
+menuconfig AOS_COMP_BREEZE
+    bool "breeze"
     default n
+    select AOS_COMP_BLE if @CONDITION@
+    select AOS_COMP_CHIP_CODE
     help
-        AliOS things NETMGR -- smart config support component
+      AliOS things NETMGR -- smart config support component
 
 if AOS_COMP_BREEZE
-
-menu "Breeze Configurations"
+# Configurations for comp breeze
 
     config CONFIG_AIS_SECURE_ADV
         bool "Enable secure adv in Breeze"
@@ -20,7 +20,5 @@ menu "Breeze Configurations"
     config EN_AUTH
         bool "Enable authentication in Breeze"
         default y
-
-endmenu
 
 endif

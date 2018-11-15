@@ -1,33 +1,33 @@
-config LWIP_ENABLED
-    bool "FEATURE_LWIP_ENABLED"
+menuconfig AOS_COMP_LWIP
+    bool "lwip"
     default y
     help
-        Support LWIP protocol stack.
+      Support LWIP protocol stack.
 
-        Switch to "y" leads to support LWIP protocol stack.
-        Switch to "n" leads to not support LWIP protocol stacks.
+      Switch to "y" leads to support LWIP protocol stack.
+      Switch to "n" leads to not support LWIP protocol stacks.
 
-menu "LWIP Configurations"
-    depends on LWIP_ENABLED
+if AOS_COMP_LWIP
+# Configurations for comp lwip
 
-    config AOS_LWIP_ENABLED
-        bool "FEATURE_AOS_LWIP_ENABLED"
-        default y
-        help
-            Select aos lwip module or select other platform lwip or tcpip module.
+config AOS_LWIP_ENABLED
+    bool "FEATURE_AOS_LWIP_ENABLED"
+    default y
+    help
+      Select aos lwip module or select other platform lwip or tcpip module.
 
-            Switching to "y" leads to select aos lwip module
-            Switching to "n" leads to select other platform lwip or tcpip module.
+      Switching to "y" leads to select aos lwip module
+      Switching to "n" leads to select other platform lwip or tcpip module.
 
-    config AF_PACKET_ENABLED
-        depends on AOS_LWIP_ENABLED
-        bool "FEATURE_AF_PACKET_ENABLED"
-        default n
-        help
-            support AF_PACKET socket.
+config AF_PACKET_ENABLED
+    depends on AOS_LWIP_ENABLED
+    bool "FEATURE_AF_PACKET_ENABLED"
+    default n
+    help
+      support AF_PACKET socket.
 
-            Switching to "y" leads to support AF_PACKET socket.
-            Switching to "n" leads to not support AF_PACKET socket.
+      Switching to "y" leads to support AF_PACKET socket.
+      Switching to "n" leads to not support AF_PACKET socket.
    
 menu "LWIP App Configurations"
     depends on AOS_LWIP_ENABLED
@@ -36,82 +36,82 @@ menu "LWIP App Configurations"
         bool "FEATURE_SNMP_ENABLED"
         default n
         help
-            Support SNMP module
+          Support SNMP module
 
-            Switching to "y" leads to support SNMP module
-            Switching to "n" leads to not support SNMP module
+          Switching to "y" leads to support SNMP module
+          Switching to "n" leads to not support SNMP module
 
     config HTTPD_ENABLED
         bool "FEATURE_HTTPD_ENABLED"
         default n
         help
-            Support HTTPD module
+          Support HTTPD module
 
-            Switching to "y" leads to support HTTPD module
-            Switching to "n" leads to not support HTTPD module
+          Switching to "y" leads to support HTTPD module
+          Switching to "n" leads to not support HTTPD module
 
     config LWIPERF_ENABLED
         bool "FEATURE_LWIPERF_ENABLED"
         default n
         help
-            Support LWIPERF module
+          Support LWIPERF module
 
-            Switching to "y" leads to support LWIPERF module
-            Switching to "n" leads to not support LWIPERF module
+          Switching to "y" leads to support LWIPERF module
+          Switching to "n" leads to not support LWIPERF module
 
     config SNTP_ENABLED
         bool "FEATURE_SNTP_ENABLED"
         default n
         help
-            Support SNTP module
+          Support SNTP module
 
-            Switching to "y" leads to support SNTP module
-            Switching to "n" leads to not support SNTP module
+          Switching to "y" leads to support SNTP module
+          Switching to "n" leads to not support SNTP module
 
     config MDNS_ENABLED
         bool "FEATURE_MDNS_ENABLED"
         default n
         help
-            Support MDNS module
+          Support MDNS module
 
-            Switching to "y" leads to use MDNS module.
-            Switching to "n" leads to not use MDNS module.
+          Switching to "y" leads to use MDNS module.
+          Switching to "n" leads to not use MDNS module.
 
     config NETBIOSNS
         bool "FEATURE_NETBIOSNS_ENABLED"
         default n
         help
-            Support NETBIOSNS module
+          Support NETBIOSNS module
 
-            Switching to "y" leads to support NETBIOSNS module
-            Switching to "n" leads to not support NETBIOSNS module
+          Switching to "y" leads to support NETBIOSNS module
+          Switching to "n" leads to not support NETBIOSNS module
 
      config TFTP_ENABLED
         bool "FEATURE_TFTP_ENABLED"
         default y
         help
-            Support TFTP module
+          Support TFTP module
 
-            Switching to "y" leads to support TFTP module
-            Switching to "n" leads to not support TFTP module
+          Switching to "y" leads to support TFTP module
+          Switching to "n" leads to not support TFTP module
 
      config TELNETD_ENABLED
         bool "FEATURE_TELNETD_ENABLED"
         default y
         help
-            Support TELNETD module
+          Support TELNETD module
 
-            Switching to "y" leads to support TELNETD module
-            Switching to "n" leads to not support TELNETD module
+          Switching to "y" leads to support TELNETD module
+          Switching to "n" leads to not support TELNETD module
 
      config DHCPD_ENABLED
         bool "FEATURE_DHCPD_ENABLED"
         default y
         help
-            Support SNMP module
+          Support SNMP module
 
-            Switching to "y" leads to support DHCPD module
-            Switching to "n" leads to not support DHCPD module
+          Switching to "y" leads to support DHCPD module
+          Switching to "n" leads to not support DHCPD module
 
 endmenu
-endmenu
+endif
