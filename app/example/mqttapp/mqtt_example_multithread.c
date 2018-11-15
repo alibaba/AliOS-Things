@@ -392,9 +392,8 @@ int mqtt_client(void *params)
     g_thread_pub_1_running = 0;
     g_thread_pub_2_running = 0;
     g_thread_yield_running = 0;
-
+    HAL_SleepMs(5000);
     IOT_MQTT_Destroy(&pclient);
-
 do_exit:
 
     HAL_ThreadDelete(g_thread_sub_unsub_1);
