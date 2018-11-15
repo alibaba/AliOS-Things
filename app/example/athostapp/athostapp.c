@@ -11,12 +11,12 @@
 #include <atparser.h>
 #endif
 
-#include "athost_io.h"
-#include "athost.h"
+#include "athost_export.h"
+#include "athost_import.h"
 
 #define TAG "athostapp"
 
-static int at_read(char *outbuf, uint32_t len)
+int HAL_Athost_Read(char *outbuf, uint32_t len)
 {
     int ret = 0;
 
@@ -26,8 +26,8 @@ static int at_read(char *outbuf, uint32_t len)
     return ret;
 }
 
-static int at_write(const char *header, const uint8_t *data, uint32_t len,
-                    const char *tailer)
+int HAL_Athost_Write(const char *header, const uint8_t *data, uint32_t len,
+                     const char *tailer)
 {
     int ret = 0;
 
@@ -38,8 +38,8 @@ static int at_write(const char *header, const uint8_t *data, uint32_t len,
     return ret;
 }
 
-static int at_handle_register_cb(const char              *prefix,
-                                 athost_atcmd_handle_cb_t fn)
+int HAL_Athost_HandleRegisterCb(const char              *prefix,
+                                athost_atcmd_handle_cb_t fn)
 {
     int ret = 0;
 
@@ -49,10 +49,6 @@ static int at_handle_register_cb(const char              *prefix,
 
     return ret;
 }
-
-athost_io_t athost_io = { .at_read               = at_read,
-                          .at_write              = at_write,
-                          .at_handle_register_cb = at_handle_register_cb };
 
 static void app_delayed_action(void *arg)
 {
@@ -72,7 +68,6 @@ int application_start(int argc, char *argv[])
             AT_SEND_DELIMITER, 1000);
 #endif
 
-    athost_io_register(&athost_io);
     athost_instance_init();
 
     LOG("NEW AT host server start!\n");
