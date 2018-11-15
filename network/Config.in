@@ -6,4 +6,5 @@ if AOS_NETWORK
     source "network/netmgr/Config.in"
     source "network/bluetooth/breeze/Config.in"
     source "network/lorawan_4_4_2/Config.in"
+    source "network/lwip/Config.in"
 endif
