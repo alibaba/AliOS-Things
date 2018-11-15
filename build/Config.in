@@ -23,6 +23,7 @@ endmenu
 
 menu "Middleware Configuration"
 source "middleware/linkkit/Config.in"
+source "middleware/uagent/Config.in"
 endmenu
 
 menu "Network Configuration"
