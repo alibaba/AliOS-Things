@@ -1,10 +1,27 @@
-menuconfig AOS_NETWORK
+config AOS_NETWORK
     bool "Network Configuration"
-    default n
+    default y
 
 if AOS_NETWORK
-    source "network/netmgr/Config.in"
-    source "network/bluetooth/breeze/Config.in"
-    source "network/lorawan_4_4_2/Config.in"
-    source "network/lwip/Config.in"
+source "network/umesh/Config.in"
+source "network/halwifi/Config.in"
+source "network/bluetooth/bt/Config.in"
+source "network/bluetooth/breeze/Config.in"
+source "network/bluetooth/bt_mesh_profile/Config.in"
+source "network/bluetooth/bt_mesh/Config.in"
+source "network/lorawan_4_4_2/lorachip/Config.in"
+source "network/lorawan_4_4_2/Config.in"
+source "network/lorawan/lorachip/Config.in"
+source "network/lorawan/Config.in"
+source "network/sal/gprs/sim800/Config.in"
+source "network/sal/atparser/Config.in"
+source "network/sal/athost/Config.in"
+source "network/sal/wifi/bk7231/Config.in"
+source "network/sal/wifi/mk3060/Config.in"
+source "network/sal/wifi/gt202/Config.in"
+source "network/sal/wifi/athost/Config.in"
+source "network/sal/wifi/esp8266/Config.in"
+source "network/netmgr/Config.in"
+source "network/lwip/Config.in"
+source "network/yloop/Config.in"
 endif

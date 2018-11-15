@@ -1,19 +1,16 @@
-menu "LoRaWAN Support"
+menuconfig AOS_COMP_LORAWAN_4_4_2
+    bool "LoRaWAN Support"
+    default n
+    help
 
-config AOS_CONFIG_LORAWAN
-	bool "enable LoRaWAN"
-	default n
-
-comment "select to support LoRaWAN"
-
+if AOS_COMP_LORAWAN_4_4_2
+# Configurations for comp lorawan_4_4_2
 config AOS_CONFIG_ENABLE_CLASS_B
-	bool "This is config for LoRaWAN Class B feature"
-	depends on AOS_CONFIG_LORAWAN
-	default n
+    bool "This is config for LoRaWAN Class B feature"
+    default n
 
 config AOS_CONFIG_LORAWAN_VERSION_110
-	bool "This is config for LoRaWAN Specification Version 1.1.0"
-	depends on AOS_CONFIG_LORAWAN
-	default n
+    bool "This is config for LoRaWAN Specification Version 1.1.0"
+    default n
 
-endmenu
+endif
