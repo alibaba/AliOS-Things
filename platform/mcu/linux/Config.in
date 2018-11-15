@@ -1,0 +1,10 @@
+menuconfig AOS_MCU_LINUXIMPL
+    bool "linuximpl"
+    default n
+    select AOS_ARCH_ARCH_LINUX
+    select AOS_COMP_LOG
+    help
+
+if AOS_MCU_LINUXIMPL
+# Configurations for mcu linuximpl
+endif

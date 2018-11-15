@@ -1,0 +1,13 @@
+menuconfig AOS_MCU_LPC54114IMPL
+    bool "lpc54114impl"
+    default n
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_VFS
+    select AOS_COMP_CLI
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_LPC54114IMPL
+# Configurations for mcu lpc54114impl
+endif

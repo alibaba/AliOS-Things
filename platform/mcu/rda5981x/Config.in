@@ -1,0 +1,18 @@
+menuconfig AOS_MCU_RDA5981X
+    bool "RDA5981x"
+    default n
+    select AOS_COMP_COMMON
+    select AOS_COMP_HAL
+    select AOS_COMP_CLI
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_NETMGR
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    select AOS_COMP_CJSON
+    select AOS_COMP_LWIP
+    select AOS_COMP_DIGEST_ALGORITHM
+    help
+
+if AOS_MCU_RDA5981X
+# Configurations for mcu RDA5981x
+endif

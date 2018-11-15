@@ -1,0 +1,11 @@
+menuconfig AOS_MCU_MX1101
+    bool "MX1101"
+    default n
+    select AOS_MCU_MX1101_SDK
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_MX1101
+# Configurations for mcu MX1101
+endif

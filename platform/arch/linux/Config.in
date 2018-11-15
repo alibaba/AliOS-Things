@@ -1,8 +1,9 @@
 menuconfig AOS_ARCH_LINUX
-    bool "arch linux"
+    bool "arch_linux"
     default n
     help
+      arch for linux
 
 if AOS_ARCH_LINUX
-# Configurations for arch linux
+# Configurations for arch arch_linux
 endif

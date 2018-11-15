@@ -1,0 +1,17 @@
+menuconfig AOS_MCU_CSKY
+    bool "csky"
+    default n
+    select AOS_COMP_COMMON
+    select AOS_COMP_HAL
+    select AOS_COMP_CLI
+    select AOS_COMP_CJSON
+    select AOS_MCU_HAL_INIT
+    select AOS_COMP_HALWIFI
+    select AOS_COMP_LWIP if @CONDITION@
+    select AOS_COMP_RHINO
+    select AOS_COMP_DEVICE_SAL_ESP8266 if @CONDITION@
+    help
+
+if AOS_MCU_CSKY
+# Configurations for mcu csky
+endif

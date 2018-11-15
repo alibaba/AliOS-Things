@@ -1,16 +1,16 @@
-menuconfig AOS_MCU_STM32L4XX_CUBE
-    bool "stm32l4xx_cube"
+menuconfig AOS_MCU_STM32L475
+    bool "stm32l475"
     default n
     select AOS_COMP_HAL
     select AOS_COMP_NEWLIB_STUB
-    select AOS_COMP_VFS
-    select AOS_COMP_HALWIFI
     select AOS_ARCH_ARMV7M
+    select AOS_COMP_HALWIFI
+    select AOS_COMP_VFS
     select AOS_COMP_KV
     select AOS_COMP_RHINO
     select AOS_COMP_DIGEST_ALGORITHM
     help
 
-if AOS_MCU_STM32L4XX_CUBE
-# Configurations for mcu stm32l4xx_cube
+if AOS_MCU_STM32L475
+# Configurations for mcu stm32l475
 endif
