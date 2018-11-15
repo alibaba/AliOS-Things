@@ -86,7 +86,7 @@ static int parse_number(_IN_ lite_cjson_t *const item, _IN_ parse_buffer *const 
     /* copy the number into a temporary buffer and replace '.' with the decimal point
      * of the current locale (for strtod)
      * This also takes care of '\0' not necessarily being available for marking the end of the input */
-    for (i = 0; can_access_at_index(input_buffer, i); i++) {
+    for (i = 0; (i < (sizeof(number_c_string) - 1)) && can_access_at_index(input_buffer, i); i++) {
         switch (buffer_at_offset(input_buffer)[i]) {
             case '0':
             case '1':
@@ -476,7 +476,7 @@ static int parse_value(_IN_ lite_cjson_t *const lite, _IN_ parse_buffer *const i
 
 int lite_cjson_parse(_IN_ const char *src, _IN_ int src_len, _OU_ lite_cjson_t *lite)
 {
-    if (!lite || !src || !lite) {
+    if (!lite || !src || !lite || src_len <= 0) {
         return -1;
     }
 
