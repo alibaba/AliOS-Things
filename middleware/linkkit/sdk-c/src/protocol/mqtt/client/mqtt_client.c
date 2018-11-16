@@ -102,8 +102,8 @@ static int _alloc_recv_buffer(iotx_mc_client_t *c, int len)
             mqtt_err("realloc err");
             return ERROR_MALLOC;
         }
-        memset(temp,0,tmp_len);
-        memcpy(temp,c->buf_read, c->buf_size_read < tmp_len ?c->buf_size_read:tmp_len);
+        memset(temp, 0, tmp_len);
+        memcpy(temp, c->buf_read, c->buf_size_read < tmp_len ? c->buf_size_read : tmp_len);
         mqtt_free(c->buf_read);
         c->buf_read = temp;
     } else {
@@ -1440,7 +1440,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
         mqtt_free(messagehandler);
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
-#endif 
+#endif
 
     for (j = 0; j <  count; j++) {
         fail_flag = 0;
@@ -1451,7 +1451,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
         }
 
 #if !(WITH_MQTT_SUB_SHORTCUT)
-        flag_dup = 0;       
+        flag_dup = 0;
         HAL_MutexLock(c->lock_generic);
         iotx_mc_topic_handle_t *h;
         for (h = c->first_sub_handle; h; h = h->next) {
@@ -1495,21 +1495,24 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
     }
 
     mqtt_free(messagehandler);
-#else 
+#else
     }
 #endif
     /* call callback function to notify that SUBSCRIBE is successful */
     iotx_mqtt_event_msg_t msg;
     msg.msg = (void *)(uintptr_t)mypacketid;
-    if (fail_flag == 1) {
+    if (fail_flag == 1)
+    {
         msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_NACK;
-    } else {
+    } else
+    {
         msg.event_type = IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS;
     }
 
     _iotx_mqtt_event_handle_sub(c->handle_event.pcontext, c, &msg);
 
-    if (NULL != c->handle_event.h_fp) {
+    if (NULL != c->handle_event.h_fp)
+    {
         _handle_event(&c->handle_event, c, &msg);
     }
 
@@ -1636,6 +1639,7 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     HAL_MutexUnlock(c->lock_list_sub);
 
     if (NULL == messageHandler || NULL == messageHandler->topic_filter) {
+        mqtt_debug("------------------------------------------------");
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
 
@@ -2031,9 +2035,10 @@ int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_
     uint16_t msg_id = 0;
     int rc = FAIL_RETURN;
 
-    if (NULL == c || NULL == topicName || NULL == topic_msg) {
-        return NULL_VALUE_ERROR;
-    }
+    ARGUMENT_SANITY_CHECK(c, NULL_VALUE_ERROR);
+    ARGUMENT_SANITY_CHECK(topicName, NULL_VALUE_ERROR);
+    ARGUMENT_SANITY_CHECK(topic_msg, NULL_VALUE_ERROR);
+    ARGUMENT_SANITY_CHECK(topic_msg->payload, NULL_VALUE_ERROR);
 
     if (0 != iotx_mc_check_topic(topicName, TOPIC_NAME_TYPE)) {
         mqtt_err("topic format is error,topicFilter = %s", topicName);
@@ -2736,7 +2741,7 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
 {
     int             rc = FAIL_RETURN;
     uint32_t        interval_ms = 0;
-    iotx_conn_info_t* pconn = NULL;
+    iotx_conn_info_t *pconn = NULL;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
@@ -2751,7 +2756,7 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     mqtt_info("start to reconnect");
 
     pconn = iotx_conn_info_get();
-    if(pconn == NULL) {
+    if (pconn == NULL) {
         return NULL_VALUE_ERROR;
     }
     if (NULL != pClient->mqtt_auth && SUCCESS_RETURN != pClient->mqtt_auth(pconn)) {
@@ -2843,6 +2848,10 @@ static void iotx_sub_wait_ack_list_destroy(iotx_mc_client_t *pClient)
 
     list_for_each_entry_safe(node, next_node, &pClient->list_sub_wait_ack, linked_list, iotx_mc_subsribe_info_t) {
         list_del(&node->linked_list);
+        if (node->handler != NULL) {
+            mqtt_free(node->handler->topic_filter);
+            mqtt_free(node->handler);
+        }
         mqtt_free(node);
     }
 }
@@ -2879,7 +2888,7 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
                 mqtt_free(handler->topic_filter);
                 handler->topic_filter = NULL;
             }
-            
+
             mqtt_free(handler);
             handler = next_handler;
         }
@@ -3131,13 +3140,13 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 #endif
     g_mqtt_client = pclient;
-    
+
     /* MQTT Connected Callback */
     callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);
     if (callback) {
         ((int (*)(void))callback)();
     }
- 
+
     return pclient;
 }
 
