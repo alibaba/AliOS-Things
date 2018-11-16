@@ -18,7 +18,7 @@ int awss_event_post(int event)
 
     ret = iotx_event_post(event);
 
-    cb = (void *)impl_event_cb(ITE_AWSS_STATUS);
+    cb = (void *)iotx_event_callback(ITE_AWSS_STATUS);
     if (cb)
         ret = ((int (*)(int))cb)(event);
 
