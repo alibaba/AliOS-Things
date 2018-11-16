@@ -35,9 +35,9 @@ GLOBAL_LDFLAGS  += -m32
 
 GLOBAL_INCLUDES += .
 
-sal ?= 0
+AOS_NETWORK_SAL ?= n
 
-ifeq (1,$(sal))
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module             ?= wifi.mk3060
 endif

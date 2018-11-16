@@ -1,10 +1,14 @@
 menuconfig AOS_BOARD_ATSAME54-XPRO
     bool "board_atsame54-xpro"
     select AOS_MCU_ATSAME54
-    select AOS_COMP_SAL if @CONDITION@
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
     help
       configuration for board atsame54-xpro
 
 if AOS_BOARD_ATSAME54-XPRO
 # Configurations for board board_atsame54-xpro
+
+# Set default value of AOS_NETWORK_SAL
+config AOS_NETWORK_SAL
+    default y
 endif

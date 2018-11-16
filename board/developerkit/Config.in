@@ -1,11 +1,15 @@
 menuconfig AOS_BOARD_DEVELOPERKIT
     bool "developerkit"
     select AOS_MCU_STM32L4XX_CUBE
-    select AOS_COMP_SAL if @CONDITION@
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
     select AOS_COMP_SENSOR
     help
       Developer Kit is hardware development board base on AliOS-Things
 
 if AOS_BOARD_DEVELOPERKIT
 # Configurations for board developerkit
+
+# Set default value of AOS_NETWORK_SAL
+config AOS_NETWORK_SAL
+    default y
 endif

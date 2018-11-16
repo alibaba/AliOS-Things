@@ -28,8 +28,8 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=262144 #256kb
 GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=17 #(1 << 17) = 128kb
 
 
-sal ?= 1
-ifeq (1,$(sal))
+AOS_NETWORK_SAL ?= y
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.mk3060
 endif

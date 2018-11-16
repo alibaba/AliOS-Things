@@ -1,10 +1,14 @@
 menuconfig AOS_BOARD_CY8CKIT-062
     bool "board_cy8ckit-062"
     select AOS_MCU_CY8C6347
-    select AOS_COMP_SAL if @CONDITION@
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
     help
       configuration for board cy8ckit-062
 
 if AOS_BOARD_CY8CKIT-062
 # Configurations for board board_cy8ckit-062
+
+# Set default value of AOS_NETWORK_SAL
+config AOS_NETWORK_SAL
+    default y
 endif

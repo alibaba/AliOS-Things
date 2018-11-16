@@ -41,8 +41,8 @@ else
 GLOBAL_LDFLAGS += -T board/stm32l432kc-nucleo/STM32L432KCUx_FLASH.ld
 endif
 
-sal ?= 1
-ifeq (1,$(sal))
+AOS_NETWORK_SAL ?= y
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.mk3060
 else
