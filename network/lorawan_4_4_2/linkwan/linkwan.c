@@ -37,10 +37,11 @@ static LoRaMainCallback_t *app_callbacks;
 static MibRequestConfirm_t mibReq;
 static app_class_type_t    app_classType;
 
-static int8_t  is_tx_confirmed = 1;
-static bool    next_tx         = true;
-static uint8_t num_trials      = 8;
-static bool    rejoin_flag     = true;
+static int8_t  is_tx_confirmed      = 1;
+static bool    next_tx              = true;
+static uint8_t num_trials           = 8;
+static uint8_t join_trials_counter  = 0;
+static bool    rejoin_flag          = true;
 
 static uint8_t g_freqband_num = 0;
 
@@ -133,6 +134,7 @@ static void on_tx_next_packet_timer_event(void)
         } else {
             rejoin_flag  = true;
             device_state = DEVICE_STATE_JOIN;
+            next_tx      = true;
         }
     }
 }
@@ -345,12 +347,15 @@ static uint32_t generate_rejoin_delay(void)
 static uint8_t get_freqband_num(void)
 {
     uint16_t mask = get_lora_freqband_mask();
+    uint8_t  freqband_num = 0;
 
     for (uint8_t i = 0; i < 16; i++) {
         if ((mask & (1 << i)) && i != 1) {
-            g_freqband_num++;
+            freqband_num++;
         }
     }
+
+    return freqband_num;
 }
 
 static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
@@ -362,34 +367,45 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
             if (mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK) {
                 // Status is OK, node has joined the network
                 device_state = DEVICE_STATE_JOINED;
-                if (gJoinState) {
-                    GBG_LINKWAN("+CJOIN:OK");
-                }
+
+                join_trials_counter = 0;
+
+                g_freqband_num      = 0;
             } else {
                 // Join was not successful. Try to join again
-                reset_join_state();
-                if (g_join_method != SCAN_JOIN_METHOD) {
-                    g_join_method = (g_join_method + 1) % JOIN_METHOD_NUM;
-                    rejoin_delay  = generate_rejoin_delay();
+                //reset_join_state();
+                join_trials_counter++;
+
+                // try to num_trials times
+                if (join_trials_counter < num_trials) {
+                    rejoin_delay = generate_rejoin_delay();
+                } else {
+                    join_trials_counter = 0;
+
+                    if (g_join_method == STORED_JOIN_METHOD) {
+                        g_join_method = DEF_JOIN_METHOD;
+
+                        rejoin_delay = generate_rejoin_delay();
+                    } else if (g_join_method == DEF_JOIN_METHOD) {
+                        g_join_method = SCAN_JOIN_METHOD;
+
+                        g_freqband_num = get_freqband_num();
+                    }
+
                     if (g_join_method == SCAN_JOIN_METHOD) {
-                        get_freqband_num();
+                        if (g_freqband_num > 0) {
+                            g_freqband_num--;
+
+                            rejoin_delay = generate_rejoin_delay();
+                        } else {
+                            g_join_method = DEF_JOIN_METHOD;
+                            rejoin_delay  = 60 * 60 * 1000; // 1 hour
+
+                            DBG_LINKWAN("Wait 1 hour for new round of scan\r\n");
+                        }
                     }
                 }
 
-                if (g_freqband_num == 0) {
-                    if (g_join_method == DEF_JOIN_METHOD) {
-                        g_join_method = (g_join_method + 1) % JOIN_METHOD_NUM;
-                        rejoin_delay  = generate_rejoin_delay();
-                        get_freqband_num();
-                    } else {
-                        g_join_method = DEF_JOIN_METHOD;
-                        rejoin_delay  = 60 * 60 * 1000; // 1 hour
-                        DBG_LINKWAN("Wait 1 hour for new round of scan\r\n");
-                    }
-                } else {
-                    g_freqband_num--;
-                    rejoin_delay = gJoinInterval * 1000; // rejoin interval
-                }
                 TimerSetValue(&TxNextPacketTimer, rejoin_delay);
                 TimerStart(&TxNextPacketTimer);
                 rejoin_flag = false;
@@ -657,7 +673,7 @@ void lora_fsm(void)
                     if (g_join_method == STORED_JOIN_METHOD) {
                         mlmeReq.Req.Join.freqband = lora_dev.freqband;
                         mlmeReq.Req.Join.Datarate = lora_dev.datarate;
-                        mlmeReq.Req.Join.NbTrials = 3;
+                        mlmeReq.Req.Join.NbTrials = num_trials;
                     } else {
                         mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
 

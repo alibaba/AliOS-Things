@@ -2233,6 +2233,8 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
 
 #ifdef CONFIG_LINKWAN
     nextChan.freqband        = MacCtx.NvmCtx->MacParams.freqband;
+    nextChan.joinmethod      = MacCtx.NvmCtx->MacParams.method;
+    nextChan.update_freqband = MacCtx.NvmCtx->MacParams.update_freqband;
 #endif
 
     // Select channel
@@ -3357,6 +3359,12 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
             mibGet->Param.DefaultAntennaGain = MacCtx.NvmCtx->MacParamsDefaults.AntennaGain;
             break;
         }
+#ifdef CONFIG_LINKWAN
+        case MIB_FREQ_BAND: {
+            mibGet->Param.freqband = MacCtx.NvmCtx->MacParams.freqband;
+            break;
+        }
+#endif
         default:
         {
             status = LoRaMacClassBMibGetRequestConfirm( mibGet );
@@ -3919,6 +3927,12 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             MacCtx.NvmCtx->MacParams.AntennaGain = mibSet->Param.AntennaGain;
             break;
         }
+#ifdef CONFIG_LINKWAN
+        case MIB_FREQ_BAND: {
+            MacCtx.NvmCtx->MacParams.freqband = mibSet->Param.freqband;
+            break;
+        }
+#endif
         case MIB_DEFAULT_ANTENNA_GAIN:
         {
             MacCtx.NvmCtx->MacParamsDefaults.AntennaGain = mibSet->Param.DefaultAntennaGain;
@@ -4079,7 +4093,11 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
 
             MacCtx.NvmCtx->MacParams.ChannelsDatarate = RegionAlternateDr( MacCtx.NvmCtx->Region, mlmeRequest->Req.Join.Datarate );
 
+#ifdef CONFIG_LINKWAN
+            MacCtx.NvmCtx->MacParams.method = mlmeRequest->Req.Join.method;
             MacCtx.NvmCtx->MacParams.freqband = mlmeRequest->Req.Join.freqband;
+            MacCtx.NvmCtx->MacParams.update_freqband = true;
+#endif
 
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
             queueElement.RestrictCommonReadyToHandle = false;
