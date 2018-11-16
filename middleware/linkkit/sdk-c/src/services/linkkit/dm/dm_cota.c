@@ -1,10 +1,8 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
 #include "iotx_dm_internal.h"
-
-#ifdef OTA_ENABLED
 
 #define DM_COTA_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "dm.cota")
 #define DM_COTA_FREE(ptr)    LITE_free(ptr)
@@ -15,29 +13,25 @@ static dm_cota_ctx_t *_dm_cota_get_ctx(void)
 {
     return &g_dm_cota_ctx;
 }
-#endif
 
 int dm_cota_init(void)
 {
-#ifdef OTA_ENABLED
     dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
 
     memset(ctx, 0, sizeof(dm_cota_ctx_t));
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int dm_cota_deinit(void)
 {
-#ifdef OTA_ENABLED
     dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
 
     memset(ctx, 0, sizeof(dm_cota_ctx_t));
-#endif
+
     return SUCCESS_RETURN;
 }
 
-#ifdef OTA_ENABLED
 static int _dm_cota_send_new_config_to_user(void *ota_handle)
 {
     int res = 0, message_len = 0;
@@ -101,11 +95,9 @@ ERROR:
 
     return res;
 }
-#endif
 
 int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
 {
-#ifdef OTA_ENABLED
     int res = 0, file_download = 0;
     uint32_t file_size = 0, file_downloaded = 0;
     uint32_t percent_pre = 0, percent_now = 0;
@@ -183,13 +175,12 @@ int dm_cota_perform_sync(_OU_ char *output, _IN_ int output_len)
     }
 
     HAL_Firmware_Persistence_Stop();
-#endif
+
     return SUCCESS_RETURN;
 }
 
 int dm_cota_get_config(const char *config_scope, const char *get_type, const char *attribute_keys)
 {
-#ifdef OTA_ENABLED
     int res = 0;
     void *ota_handle = NULL;
 
@@ -200,14 +191,10 @@ int dm_cota_get_config(const char *config_scope, const char *get_type, const cha
     }
 
     return iotx_ota_get_config(ota_handle, config_scope, get_type, attribute_keys);
-#else
-    return SUCCESS_RETURN;
-#endif
 }
 
 int dm_cota_status_check(void)
 {
-#ifdef OTA_ENABLED
     int res = 0;
     dm_cota_ctx_t *ctx = _dm_cota_get_ctx();
     void *ota_handle = NULL;
@@ -234,6 +221,7 @@ int dm_cota_status_check(void)
             }
         }
     }
-#endif
+
     return SUCCESS_RETURN;
 }
+#endif

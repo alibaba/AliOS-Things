@@ -22,9 +22,10 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_INITIALIZE_COMPLETED, NULL},
     {ITE_FOTA,                 NULL},
     {ITE_COTA,                 NULL},
+    {ITE_MQTT_CONNECT_SUCC,    NULL}
 };
 
-void *impl_event_cb(int evt)
+void *iotx_event_callback(int evt)
 {
     if (evt < 0 || evt >= sizeof(g_impl_event_map) / sizeof(impl_event_map_t)) {
         return NULL;
@@ -53,4 +54,4 @@ DEFINE_EVENT_CALLBACK(ITE_INITIALIZE_COMPLETED, int (*callback)(const int))
 DEFINE_EVENT_CALLBACK(ITE_FOTA,                 int (*callback)(const int, const char *))
 DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const char *, int, const char *,
                       const char *, const char *, const char *))
-
+DEFINE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*callback)(void))

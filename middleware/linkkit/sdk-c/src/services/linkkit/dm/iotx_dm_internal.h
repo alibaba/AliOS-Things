@@ -22,7 +22,7 @@
 #include "iotx_utils.h"
 #include "iotx_system.h"
 
-#ifdef OTA_ENABLED
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     #include "iotx_ota.h"
 #endif
 
