@@ -1,30 +1,29 @@
-
 NAME := board_lpcxpresso54102
-$(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
 
-MODULE              := 1062
-HOST_ARCH           := Cortex-M4
-HOST_MCU_FAMILY     := lpc54102
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board lpcxpresso54102
+
+MODULE          := 1062
+HOST_ARCH       := Cortex-M4
+HOST_MCU_FAMILY := lpc54102
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_LPC54102
-CONFIG_SYSINFO_DEVICE_NAME := lpc54102
-GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
-GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
+CONFIG_SYSINFO_DEVICE_NAME   := lpc54102
+GLOBAL_CFLAGS                += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
+GLOBAL_CFLAGS                += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 #-DCONFIG_NO_TCPIP
-GLOBAL_CFLAGS += -DCPU_LPC54102J512BD64_cm4
-GLOBAL_CFLAGS += -D__USE_CMSIS -D__MULTICORE_MASTER
-GLOBAL_CFLAGS += -D__NEWLIB__
+GLOBAL_CFLAGS                += -DCPU_LPC54102J512BD64_cm4
+GLOBAL_CFLAGS                += -D__USE_CMSIS -D__MULTICORE_MASTER
+GLOBAL_CFLAGS                += -D__NEWLIB__
 
-sal ?= 1
+sal                ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
-module ?= wifi.mk3060
+module             ?= wifi.mk3060
 endif
 
-
-GLOBAL_LDFLAGS += 
+GLOBAL_LDFLAGS +=
 
 GLOBAL_INCLUDES += .
 GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/
@@ -36,10 +35,8 @@ GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/utilities/str
 GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/utilities/log
 GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/utilities/io
 
-
-
-$(NAME)_SOURCES     :=
-$(NAME)_SOURCES     += ./board.c
-$(NAME)_SOURCES     += ./clock_config.c
-$(NAME)_SOURCES     += ./pin_mux.c
+$(NAME)_SOURCES :=
+$(NAME)_SOURCES += ./board.c
+$(NAME)_SOURCES += ./clock_config.c
+$(NAME)_SOURCES += ./pin_mux.c
 
