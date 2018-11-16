@@ -61,7 +61,7 @@ struct aws_info {
 #define aws_start_timestamp          (aws_info->start_timestamp)
 #define aws_stop                     (aws_info->stop)
 
-#define aws_channel_lock_timeout_ms  (8 * 1000)
+#define aws_channel_lock_timeout_ms  (4 * 1000)
 
 static const uint8_t aws_fixed_scanning_channels[] = {
     1, 6, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
@@ -88,6 +88,11 @@ uint8_t aws_result_auth;
 uint8_t zconfig_get_lock_chn(void)
 {
     return aws_locked_chn;
+}
+
+void zconfig_force_rescan(void)
+{
+    if (aws_info) aws_state = AWS_SCANNING;
 }
 
 void zconfig_channel_locked_callback(uint8_t primary_channel,
@@ -359,7 +364,9 @@ rescanning:
     while (aws_state != AWS_SUCCESS) {
         /* 80211 frame handled by callback */
         os_msleep(300);
-
+#ifdef AWSS_SUPPORT_APLIST
+        aws_try_adjust_chan();
+#endif
         if (aws_is_chnscan_timeout() == CHNSCAN_TIMEOUT)
             goto timeout_recving;
 
