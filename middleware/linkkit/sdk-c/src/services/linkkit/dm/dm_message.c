@@ -206,7 +206,7 @@ int dm_msg_request(dm_msg_dest_type_t type, _IN_ dm_msg_request_t *request)
     dm_log_info("DM Send Message, URI: %s, Payload: %s", uri, payload);
 
     if (type & DM_MSG_DEST_CLOUD) {
-        dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
+        dm_client_publish(uri, (unsigned char *)payload, strlen(payload), request->callback);
     }
 
 #ifdef ALCS_ENABLED
@@ -262,7 +262,7 @@ int dm_msg_response(dm_msg_dest_type_t type, _IN_ dm_msg_request_payload_t *requ
     dm_log_info("Send URI: %s, Payload: %s", uri, payload);
 
     if (type & DM_MSG_DEST_CLOUD) {
-        dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
+        dm_client_publish(uri, (unsigned char *)payload, strlen(payload), NULL);
     }
 
 #ifdef ALCS_ENABLED
