@@ -1,5 +1,4 @@
-Contents:
-uAgent
+Contents
 OTA
 ├── Config.in
 ├── hal
@@ -28,7 +27,7 @@ OTA
 │   │   ├── rec_libc.c
 │   │   ├── rec_main.c
 │   │   ├── rec_pub.h
-│   │   └── xz-embedded
+│   │   └── xz
 │   ├── device
 │   │   └── ble
 │   ├── download
@@ -54,24 +53,20 @@ OTA
 └── uota.mk
 
 Introduction
-
 An over-the-air update is the wireless delivery of new software or data to smart devices, especially IoT devices. Wireless carriers and OEMs typically use over-the-air (OTA) updates to deploy the new operating systems and the software app to these devices.
 
 Features
 1. Differential incremental upgrade;
-2. Dual banker upgrade to support rollback to old version: AB partition 
-3. Secure download channel
+2. Dual banker:AB partition upgrade to support rollback to old version;
+3. Secure download channel;
 4. Firmware digital signature verification.
 
 Dependencies
-
-Linkkit MQTT channel 
+Linkkit MQTT channel
 Linkkit CoAP channel
 
 API
-
 User service APIs:
-
 typedef struct {
     unsigned char  inited;  /*If is inted*/
     char  pk[20+1];/*Product Key*/
@@ -85,7 +80,6 @@ typedef struct {
     char           sys_ver[OTA_MAX_VER_LEN];  /*OTA System version*/
     ota_transport_t *h_tr;    /*OTA tansport manager*/
     ota_download_t  *h_dl;    /*OTA download manager*/
-    void*    h_ver;           /*OTA verify manager*/
     void*    h_ch;            /*OTA channel handle:mqtt,coap*/
 } ota_service_t;
 
@@ -93,11 +87,13 @@ typedef struct {
 int ota_service_init(ota_service_t* ctx);
 int ota_service_deinit(ota_service_t* ctx);
 
-
-Usage
+Usage:
 ## RTOS build
 cd ROOT DIR;
 aos make otaapp@board;
 
-run
-./OTA_APP pk dn ds ps
+## run CLI CMDs
+## 1. connect network
+netmgr connect ssid passwd
+## 2. run ota demo
+OTA_APP pk dn ds ps

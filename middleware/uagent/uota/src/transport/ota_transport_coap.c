@@ -3,27 +3,24 @@
  */
 #include <string.h>
 #include <stdlib.h>
-#include <cJSON.h>
 
 #include "ota_log.h"
 #include "ota_service.h"
 #include "ota_verify.h"
 #include "ota_rsa_verify.h"
 #include "ota_hal_os.h"
-#include "ota_base64.h"
 
-static ota_cloud_cb_t ota_update;
 // Generate topic name according to @ota_topic_type, @product_key, @device_name
 // and then copy to @buf.
 // 0, successful; -1, failed
-static int otacoap_GenTopicName(char *buf, int len, char *topic)
+static int otacoap_GenTopicName(char *buf, int len, char *topic, char *pk, char *dn)
 {
     int ret = 0;
     if (buf == NULL || topic == NULL) {
         OTA_LOG_E("coap gen topic is null");
         return -1;
     }
-    ret = ota_snprintf(buf, len, "/topic/ota/device/%s/%s/%s", topic, ota_get_service()->pk, ota_get_service()->dn);
+    ret = ota_snprintf(buf, len, "/topic/ota/device/%s/%s/%s", topic, pk, dn);
     if (ret < 0) {
         OTA_LOG_E("coap topic failed");
         return -1;
@@ -67,50 +64,61 @@ static void otacoap_response_handler(void *arg, void *p_response)
     ota_coap_get_code(p_response, &resp_code);
     ota_coap_get_payload(p_response, (const char **)&p_payload, &len);
     OTA_LOG_D("coap res code = %d, len=%d, msg=%s", resp_code,len, p_payload ? p_payload : NULL);
-    if ((NULL != ota_get_service()->h_ch) && (NULL != p_payload)) {
-        ota_update(p_payload);
+
+    ota_service_t* ctx = (ota_service_t*)arg;
+    if (!ctx->upgrade_cb) {
+        OTA_LOG_E("mqtt cb is null.");
+        return;
+    }
+    if ((NULL != ctx->h_ch) && (NULL != p_payload)) {
+        ctx->upgrade_cb(ctx, p_payload);
     }
 }
 
 // report progress of OTA
-static int otacoap_Publish(char *topic, char *msg)
+static int otacoap_Publish(char *topic, char *msg, void* pctx)
 {
     int              ret = 0;
-    char             uri[OTA_MQTT_TOPIC_LEN + 1] = {0};
     ota_coap_message_t       message;
+    ota_service_t* ctx = pctx;
+    if (!ctx || !(ctx->h_ch)) {
+        OTA_LOG_E("coap invalid param.");
+        return -1;
+    }
     message.p_payload        = (unsigned char *)msg;
     message.payload_len      = (unsigned short)strlen(msg);
     message.resp_callback    = otacoap_response_handler;
     message.msg_type         = COAP_MESSAGE_CON;
     message.content_type     = COAP_CONTENT_TYPE_JSON;
-    ret = otacoap_GenTopicName(uri, OTA_COAP_URI_MAX_LEN, topic);
+    ret = otacoap_GenTopicName(ctx->url, OTA_COAP_URI_MAX_LEN, topic, ctx->pk, ctx->dn);
     if (ret < 0) {
         OTA_LOG_E("coap topic failed");
         return -1;
     }
-    OTA_LOG_I("coap pub url:%s msg:%s\n", uri, msg);
-    if (0 !=(ret = ota_coap_send(ota_get_service()->h_ch, (char *)uri, &message))) {
+    OTA_LOG_I("coap pub url:%s msg:%s\n", ctx->url, msg);
+    if (0 !=(ret = ota_coap_send(ctx->h_ch, ctx->url, &message))) {
         OTA_LOG_E("coap send failed:%d", ret);
         return -1;
     }
     return 0;
 }
 
-static int ota_trans_inform(const char* ver, char* pk, char* dn)
+static int ota_trans_inform(void *pctx)
 {
     int  ret = 0;
     char msg[OTA_MSG_INFORM_LEN] = {0};
-    if ((NULL == ota_get_service()->h_ch)) {
-        OTA_LOG_E("coap invalid parameter");
+    ota_service_t* ctx = pctx;
+    if (!ctx || !(ctx->h_ch)) {
+        OTA_LOG_E("coap invalid param.");
         return -1;
     }
-    ret = otalib_GenReqMsg(msg, OTA_MSG_INFORM_LEN, 0, ver);
+    ret = otalib_GenReqMsg(msg, OTA_MSG_INFORM_LEN, 0, ctx->sys_ver);
     if (ret != 0) {
         OTA_LOG_E("coap msg failed");
         return -1;
     }
     OTA_LOG_I("coap pub msg:%s\n", msg);
-    ret = otacoap_Publish("request", msg);
+    ret = otacoap_Publish("request", msg, ctx);
     if (0 != ret) {
         OTA_LOG_E("coap req failed");
         return -1;
@@ -134,18 +142,22 @@ int ota_trans_response(const char *response)
     return 0;
 }
 
-static int ota_trans_upgrade(ota_cloud_cb_t msg_cb, char* pk, char* dn)
+static int ota_trans_upgrade(void *pctx)
 {
-    ota_update = msg_cb;
     return 0;
 }
 
-static int ota_trans_status(int progress, char* pk, char* dn)
+static int ota_trans_status(int progress, void *pctx)
 {
     int  ret = -1;
-    int status = ota_get_status();
     char msg[OTA_MSG_REPORT_LEN] = {0};
     char err[32];
+    ota_service_t* ctx = pctx;
+    if (!ctx) {
+        OTA_LOG_E("parameter null.");
+        return -1;
+    }
+    int  status = ctx->upg_status;
     memset(err, 0x00, sizeof(err));
     if (status < 0) {
         progress = status;
@@ -202,13 +214,11 @@ static int ota_trans_status(int progress, char* pk, char* dn)
         OTA_LOG_E("coap report failed");
         return -1;
     }
-
-    ret = otacoap_Publish("progress", msg);
+    ret = otacoap_Publish("progress", msg, ctx);
     if (0 != ret) {
         OTA_LOG_E("coap progress failed");
         return -1;
     }
-
     return ret;
 }
 
@@ -220,7 +230,6 @@ static int ota_trans_deinit(void)
 static ota_transport_t trans_coap = {
     .init                  = ota_trans_init,
     .inform                = ota_trans_inform,
-    .response              = ota_trans_response,
     .upgrade               = ota_trans_upgrade,
     .status                = ota_trans_status,
     .deinit                = ota_trans_deinit,

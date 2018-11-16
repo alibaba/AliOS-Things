@@ -98,27 +98,19 @@ typedef struct {
     ota_mqtt_topic_t  *topic;
 } ota_mqtt_msg_t;
 
-typedef void (*ota_cloud_cb_t)(char *buf);
+typedef void (*ota_cloud_cb_t)(void* ctx, char *json);
 
 typedef struct
 {
-    char  hash_type;
-    char  sign_en;
-    char  sign_type;
-    int   sign_len;
-    char* url;         /*Dowdload URL*/
-    char* hash;        /*Dowdload hash*/
-    char* sign;        /*Dowdload signatue*/
     int  (*init)(void);
-    int  (*inform)(const char* ver, char* pk, char* dn);
-    int  (*response)(const char *buf);
-    int  (*upgrade)(ota_cloud_cb_t msg_cb, char* pk, char* dn);
-    int  (*status)(int per, char* pk, char* dn);
+    int  (*inform)(void* ctx);
+    int  (*upgrade)(void* ctx);
+    int  (*status)(int per, void* ctx);
     int  (*deinit)(void);
 } ota_transport_t;
 
 typedef struct {
-    int (*start)(char *url); /*start download*/
+    int (*start)(void *ctx); /*start download*/
     int (*stop)(void);       /*stop download*/
 }ota_download_t;
 
@@ -130,13 +122,22 @@ typedef struct {
     char  ds[64+1];/*Device secret*/
     OTA_PROTCOL_E  trans_protcol;  /*default:0--> MQTT 1-->COAP*/
     OTA_PROTCOL_E  dl_protcol;     /*default:3--> HTTPS 1-->COAP 2-->HTTP*/
-    unsigned char  sign_type;      /*default:0--> sha256 1--> md5 2-->RSA*/
     char           ota_ver[OTA_MAX_VER_LEN];  /*OTA FW version*/
     char           sys_ver[OTA_MAX_VER_LEN];  /*OTA System version*/
+    unsigned char  dev_type;   /*device type: 0-->main dev 1-->sub dev*/
+    unsigned char  hash_type;   /*Hash algor type*/
+    unsigned char  sign_en;     /*Sign is on/off*/
+    int            sign_len;    /*Sign len*/
+    unsigned char  sign_type;   /*default:0--> sha256 1--> md5 2-->RSA*/
+    unsigned char  upg_status;  /*Upgrade status in progress*/
+    char*          url;         /*Dowdload URL*/
+    char*          hash;        /*Dowdload hash*/
+    unsigned char* sign;        /*Dowdload signatue*/
     ota_transport_t *h_tr;    /*OTA tansport manager*/
     ota_download_t  *h_dl;    /*OTA download manager*/
-    void*    h_ver;           /*OTA verify manager*/
     void*    h_ch;            /*OTA channel handle:mqtt,coap*/
+    int (*upgrade_cb)(void* ctx, char *json);  /*upgrade callback*/
+    void*    boot_param;      /*Boot parameter*/
 } ota_service_t;
 
 /*OTA export service APIs*/
@@ -149,12 +150,6 @@ ota_transport_t *ota_get_transport_mqtt(void);
 ota_transport_t *ota_get_transport_coap(void);
 ota_download_t *ota_get_download_http(void);
 ota_download_t *ota_get_download_coap(void);
-void ota_set_splict_size(unsigned int size);
 const char *ota_to_capital(char *value, int len);
 int ota_hex_str2buf(const char* src, char* dest, unsigned int dest_len);
-void ota_set_ota_version(char* ver);
-void ota_set_firm_size(unsigned int size);
-void ota_set_upg_flag(unsigned int upd_flag);
-char ota_get_status(void);
-unsigned int ota_get_firm_size(void);
 #endif /* OTA_SERVICE_H_ */
