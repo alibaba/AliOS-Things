@@ -47,17 +47,16 @@ typedef enum {
 } stream_type_t;
 
 typedef void (*on_stream_header_callback)(uint32_t stream_id, char *channel_id, int cat, const uint8_t *name,
-        uint32_t namelen,
-        const uint8_t *value, uint32_t valuelen, uint8_t flags);
+        uint32_t namelen, const uint8_t *value, uint32_t valuelen, uint8_t flags, void *user_data);
 
 typedef void (*on_stream_chunk_recv_callback)(uint32_t stream_id, char *channel_id,
-        const uint8_t *data, uint32_t len, uint8_t flags);
+        const uint8_t *data, uint32_t len, uint8_t flags, void *user_data);
 
-typedef void (*on_stream_close_callback)(uint32_t stream_id, char *channel_id, uint32_t error_code);
+typedef void (*on_stream_close_callback)(uint32_t stream_id, char *channel_id, uint32_t error_code, void *user_data);
 
-typedef void (*on_stream_frame_send_callback)(uint32_t stream_id, char *channel_id, int type, uint8_t flags);
+typedef void (*on_stream_frame_send_callback)(uint32_t stream_id, char *channel_id, int type, uint8_t flags, void *user_data);
 
-typedef void (*on_stream_frame_recv_callback)(uint32_t stream_id, char *channel_id, int type, uint8_t flags);
+typedef void (*on_stream_frame_recv_callback)(uint32_t stream_id, char *channel_id, int type, uint8_t flags,void *user_data);
 
 typedef void (*on_reconnect_callback)();
 typedef void (*on_disconnect_callback)();
@@ -79,8 +78,9 @@ typedef struct {
     uint32_t            packet_len;         /* one packet length */
     const char          *identify;          /* path string to identify a stream service */
     int                 h2_stream_id;       /* stream identifier which is a field in HTTP2 frame */
-    char
-    *channel_id;        /* string return by server to identify a specific stream channel, different from stream identifier which is a field in HTTP2 frame */
+    char                *channel_id;        /* string return by server to identify a specific stream channel,
+                                            different from stream identifier which is a field in HTTP2 frame */
+    void                *user_data;         /* user data brought in at stream open */
 } stream_data_info_t;
 
 #ifdef FS_ENABLED
