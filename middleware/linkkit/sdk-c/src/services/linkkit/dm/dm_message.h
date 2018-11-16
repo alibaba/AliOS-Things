@@ -70,6 +70,7 @@ typedef struct {
     char *params;
     int params_len;
     char *method;
+    iotx_cm_data_handle_cb callback;
 } dm_msg_request_t;
 
 typedef struct {

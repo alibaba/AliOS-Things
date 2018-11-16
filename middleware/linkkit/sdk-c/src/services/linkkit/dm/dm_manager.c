@@ -606,6 +606,9 @@ int dm_mgr_upstream_thing_sub_register(_IN_ int devid)
     /* Get Dev ID */
     request.devid = devid;
 
+    /* Callback */
+    request.callback = dm_client_thing_sub_register_reply;
+
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
@@ -651,6 +654,9 @@ int dm_mgr_upstream_thing_sub_unregister(_IN_ int devid)
 
     /* Get Dev ID */
     request.devid = devid;
+
+    /* Callback */
+    request.callback = dm_client_thing_sub_unregister_reply;
 
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
@@ -698,6 +704,9 @@ int dm_mgr_upstream_thing_topo_add(_IN_ int devid)
     /* Get Dev ID */
     request.devid = devid;
 
+    /* Callback */
+    request.callback = dm_client_thing_topo_add_reply;
+
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
@@ -744,6 +753,9 @@ int dm_mgr_upstream_thing_topo_delete(_IN_ int devid)
     /* Get Dev ID */
     request.devid = devid;
 
+    /* Callback */
+    request.callback = dm_client_thing_topo_delete_reply;
+
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
@@ -785,6 +797,9 @@ int dm_mgr_upstream_thing_topo_get(void)
 
     /* Get Dev ID */
     request.devid = node->devid;
+
+    /* Callback */
+    request.callback = dm_client_thing_topo_get_reply;
 
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
@@ -832,6 +847,9 @@ int dm_mgr_upstream_thing_list_found(_IN_ int devid)
     /* Get Dev ID */
     request.devid = devid;
 
+    /* Callback */
+    request.callback = dm_client_thing_list_found_reply;
+
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
@@ -877,6 +895,9 @@ int dm_mgr_upstream_combine_login(_IN_ int devid)
 
     /* Get Dev ID */
     request.devid = devid;
+
+    /* Callback */
+    request.callback = dm_client_combine_login_reply;
 
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
@@ -928,6 +949,9 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
     /* Get Dev ID */
     request.devid = devid;
 
+    /* Callback */
+    request.callback = dm_client_combine_logout_reply;
+
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
@@ -974,7 +998,7 @@ int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ 
     dm_log_info("DM Send Raw Data:");
     HEXDUMP_INFO(payload, payload_len);
 
-    res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload));
+    res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload), dm_client_thing_model_up_raw_reply);
 #ifdef ALCS_ENABLED
     res1 = dm_server_send(uri, (unsigned char *)payload, strlen(payload), NULL);
 #endif
@@ -1030,6 +1054,9 @@ int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_
         return FAIL_RETURN;
     }
 
+    /* Callback */
+    request.callback = dm_client_thing_event_post_reply;
+
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_ALL, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
@@ -1072,6 +1099,9 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
         return FAIL_RETURN;
     }
 
+    /* Callback */
+    request.callback = dm_client_thing_event_post_reply;
+
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_ALL, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
@@ -1105,6 +1135,9 @@ int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, 
         return FAIL_RETURN;
     }
 
+    /* Callback */
+    request.callback = dm_client_thing_deviceinfo_update_reply;
+
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
@@ -1131,6 +1164,9 @@ int dm_mgr_upstream_thing_deviceinfo_delete(_IN_ int devid, _IN_ char *payload, 
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
+
+    /* Callback */
+    request.callback = dm_client_thing_deviceinfo_delete_reply;
 
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
@@ -1190,6 +1226,9 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid)
         return FAIL_RETURN;
     }
 
+    /* Callback */
+    request.callback = dm_client_thing_dynamictsl_get_reply;
+
     /* Send Message To Cloud */
     res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
@@ -1221,7 +1260,7 @@ int dm_mgr_upstream_ntp_request(void)
         return FAIL_RETURN;
     }
 
-    res = dm_client_publish(uri, (unsigned char *)ntp_request_fmt, strlen(ntp_request_fmt));
+    res = dm_client_publish(uri, (unsigned char *)ntp_request_fmt, strlen(ntp_request_fmt), dm_client_ntp_response);
     if (res != SUCCESS_RETURN) {
         DM_free(uri);//DM_free(cloud_payload);
         return FAIL_RETURN;
