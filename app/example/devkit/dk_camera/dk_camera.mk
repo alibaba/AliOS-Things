@@ -1,4 +1,4 @@
-NAME := cameraapp
+NAME := dk_camera
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
