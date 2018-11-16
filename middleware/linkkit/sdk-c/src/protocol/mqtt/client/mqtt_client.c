@@ -3100,15 +3100,15 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         return NULL;
     }
 
+    pclient->mqtt_auth = iotx_guider_authenticate;
+
+    iotx_mqtt_deal_offline_subs(pclient);
+
     /* MQTT Connected Callback */
     callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);
     if (callback) {
         ((int (*)(void))callback)();
     }
-
-    pclient->mqtt_auth = iotx_guider_authenticate;
-
-    iotx_mqtt_deal_offline_subs(pclient);
 
 #ifndef ATHOST_MQTT_REPORT_DISBALED
     iotx_set_report_func(IOT_MQTT_Publish_Simple);
