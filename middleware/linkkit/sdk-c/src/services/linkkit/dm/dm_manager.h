@@ -12,11 +12,13 @@
 typedef struct {
     int devid;
     int dev_type;
+#if defined(DEPRECATED_LINKKIT)
     dm_shw_t *dev_shadow;
+    iotx_dm_tsl_source_t tsl_source;
+#endif
     char product_key[PRODUCT_KEY_MAXLEN];
     char device_name[DEVICE_NAME_MAXLEN];
     char device_secret[DEVICE_SECRET_MAXLEN];
-    iotx_dm_tsl_source_t tsl_source;
     iotx_dm_dev_avail_t status;
     iotx_dm_dev_status_t dev_status;
     struct list_head linked_list;

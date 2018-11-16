@@ -838,6 +838,7 @@ int dm_msg_proc_combine_logout_reply(_IN_ dm_msg_source_t *source)
 }
 #endif
 
+#ifdef ALCS_ENABLED
 int dm_msg_proc_thing_dev_core_service_dev(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,
         _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response,
         _OU_ unsigned char **data, int *data_len)
@@ -865,3 +866,4 @@ int dm_msg_proc_thing_dev_core_service_dev(_IN_ dm_msg_source_t *source, _IN_ dm
 
     return SUCCESS_RETURN;
 }
+#endif
