@@ -1,5 +1,6 @@
 menuconfig AOS_BOARD_PCA10040
     bool "board_pca10040"
+    select AOS_MCU_NRF52832
     help
 
 if AOS_BOARD_PCA10040

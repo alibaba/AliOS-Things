@@ -1,16 +1,13 @@
 NAME := board_rda8955
 
-
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
-SUPPORT_MBINS      := yes
-
-MODULE               := 1062
-HOST_ARCH            := MIPS-I
-HOST_MCU_FAMILY      := rda8955
-SUPPORT_BINS         := no
-HOST_MCU_NAME        := rda8955
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board rda8955
+SUPPORT_MBINS      := no
+MODULE             := 1062
+HOST_ARCH          := MIPS-I
+HOST_MCU_FAMILY    := rda8955
+HOST_MCU_NAME      := rda8955
 
 GLOBAL_INCLUDES += .
 
