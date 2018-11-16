@@ -34,11 +34,6 @@ int32_t hal_gpio_init(gpio_dev_t *gpio)
 		hal_gpio_set_dir(gpio->port,GPIO_DIR_OUT);
 	}
 
-	if(gpio->config == IRQ_MODE)
-	{
-		hal_gpio_set_interrupt(gpio->port);
-	}
-	
 	switch(gpio->config)
 	{
 		case ANALOG_MODE:
@@ -107,7 +102,7 @@ static void gpio_intc_cb(uint32_t irq_num)
     if(gpio_status[irq_num].callback != NULL)
     {       
             gpio_status[irq_num].callback(gpio_status[irq_num].intc_data);
-            hal_gpio_intc_clear_counter((gpio_pin_t)irq_num);
+//            hal_gpio_intc_clear_counter((gpio_pin_t)irq_num);
     }
 }
 
