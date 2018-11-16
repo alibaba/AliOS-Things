@@ -52,3 +52,7 @@ menu "Application Configuration"
 source "app/example/Config.in"
 source "app/profile/Config.in"
 endmenu
+
+menu "Utility Configuration"
+source "utility/Config.in"
+endmenu
