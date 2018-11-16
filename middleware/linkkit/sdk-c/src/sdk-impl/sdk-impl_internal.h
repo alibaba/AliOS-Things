@@ -66,6 +66,4 @@ int perform_dynamic_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
                              _IN_ char device_name[DEVICE_NAME_MAXLEN],
                              _OU_ char device_secret[DEVICE_SECRET_MAXLEN]);
 
-void *impl_event_cb(int evt);
-
 #endif  /* __SDK_IMPL_INTERNAL_H__ */

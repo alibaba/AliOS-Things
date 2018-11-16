@@ -48,11 +48,14 @@ int iotx_dm_open(void)
         return DM_MEMORY_NOT_ENOUGH;
     }
 
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     /* DM OTA Module Init */
     res = dm_ota_init();
     if (res != SUCCESS_RETURN) {
         goto ERROR;
     }
+#endif
+
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     /* DM Message Cache Init */
     res = dm_msg_cache_init();
@@ -85,7 +88,7 @@ int iotx_dm_open(void)
         goto ERROR;
     }
 #endif
-#ifdef OTA_ENABLED
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     /* DM OTA Module Init */
     res = dm_ota_sub();
     if (res == SUCCESS_RETURN) {
@@ -116,7 +119,9 @@ ERROR:
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_deinit();
 #endif
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     dm_ota_deinit();
+#endif
 
     if (ctx->mutex) {
         HAL_MutexDestroy(ctx->mutex);
@@ -212,9 +217,11 @@ int iotx_dm_close(void)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_deinit();
 #endif
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     dm_cota_deinit();
     dm_fota_deinit();
     dm_ota_deinit();
+#endif
 
     if (ctx->mutex) {
         HAL_MutexDestroy(ctx->mutex);
@@ -245,8 +252,10 @@ void iotx_dm_dispatch(void)
 #if !defined(DM_MESSAGE_CACHE_DISABLED)
     dm_msg_cache_tick();
 #endif
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     dm_cota_status_check();
     dm_fota_status_check();
+#endif
     while (CONFIG_DISPATCH_QUEUE_MAXLEN == 0 || count++ < CONFIG_DISPATCH_QUEUE_MAXLEN) {
         if (dm_ipc_msg_next(&data) == SUCCESS_RETURN) {
             dm_ipc_msg_t *msg = (dm_ipc_msg_t *)data;
@@ -505,22 +514,38 @@ int iotx_dm_send_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_
 
 int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
 {
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     return dm_cota_perform_sync(buffer, buffer_len);
+#else
+    return -1;
+#endif
 }
 
 int iotx_dm_cota_get_config(_IN_ const char *config_scope, const char *get_type, const char *attribute_keys)
 {
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     return dm_cota_get_config(config_scope, get_type, attribute_keys);
+#else
+    return -1;
+#endif
 }
 
 int iotx_dm_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
 {
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     return dm_fota_perform_sync(buffer, buffer_len);
+#else
+    return -1;
+#endif
 }
 
 int iotx_dm_fota_request_image(const char *version, int buffer_len)
 {
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     return dm_fota_request_image(version, buffer_len);
+#else
+    return -1;
+#endif
 }
 
 #ifdef DEVICE_MODEL_GATEWAY
