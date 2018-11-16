@@ -30,18 +30,19 @@ static int retry_cnt = 5;
 
 static void *sem_send;
 static void  iotx_response_block_handler(void *arg, void *p_response);
-static void  iotx_req_block_from_server(char *path);
 
-static int ota_download_start(char *url)
+static int ota_download_start(void *pctx)
 {
-    if (!url || strlen(url) == 0) {
-        OTA_LOG_E("ota_download parms  error!\n");
-        return OTA_DOWNLOAD_URL_FAIL;
-    }
     int    ret        = 0;
     int    breakpoint = 0;
-    char   buf[128] = {0};
-    ret = ota_snprintf(buf, sizeof(buf), DOWNLOAD_PATH, ota_get_service()->pk, ota_get_service()->dn);
+    char   path[128] = {0};
+    ota_service_t* ctx = pctx;
+    if (!ctx || !(ctx->h_ch)) {
+        OTA_LOG_E("coap invalid param.");
+        return -1;
+    }
+
+    ret = ota_snprintf(path, sizeof(path), DOWNLOAD_PATH, ctx->pk, ctx->dn);
     if (ret < 0) {
         OTA_LOG_E("ota_snprintf failed");
         return -1;
@@ -59,7 +60,13 @@ static int ota_download_start(char *url)
     coap_client_running = 1;
     sem_send  = ota_semaphore_create();
     while (coap_client_running && block_more) {
-        iotx_req_block_from_server(buf);
+        iotx_message_t message;
+        message.p_payload     = NULL;
+        message.payload_len   = 0;
+        message.resp_callback = iotx_response_block_handler;
+        message.msg_type      = COAP_MESSAGE_CON;
+        message.content_type  = COAP_CONTENT_TYPE_JSON;
+        ota_coap_send_block(ctx->h_ch, path, &message, COAP_OPTION_BLOCK2, block_cur_num, block_more, block_size);
         ret = ota_semaphore_wait(&sem_send, 5000);
         if(ret < 0) {
             ret = OTA_DOWNLOAD_FAIL;
@@ -121,17 +128,6 @@ static void iotx_response_block_handler(void *arg, void *p_response)
         }
     }
     ota_semaphore_post(&sem_send);
-}
-
-static void iotx_req_block_from_server(char *path)
-{
-    iotx_message_t message;
-    message.p_payload     = NULL;
-    message.payload_len   = 0;
-    message.resp_callback = iotx_response_block_handler;
-    message.msg_type      = COAP_MESSAGE_CON;
-    message.content_type  = COAP_CONTENT_TYPE_JSON;
-    ota_coap_send_block(ota_get_service()->h_ch, path, &message, COAP_OPTION_BLOCK2, block_cur_num, block_more, block_size);
 }
 
 static int ota_download_stop(void)

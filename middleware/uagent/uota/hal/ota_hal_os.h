@@ -38,9 +38,6 @@ int ota_kv_get(const char *key, void *buffer, int *len);
 /*Reboot*/
 void ota_reboot(void);
 
-/*System version*/
-const char *ota_get_sys_version(void);
-
 /*Socket API*/
 void* ota_socket_connect(char *host, int port);
 int ota_socket_send(void* fd,  char *buf, int len);

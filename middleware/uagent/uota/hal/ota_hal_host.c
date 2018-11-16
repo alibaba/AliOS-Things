@@ -152,7 +152,7 @@ static int ota_boot(void *something)
    char cmd1[64] = { 0 };
    ota_boot_param_t *param = (ota_boot_param_t *)something;
    if (param==NULL){
-       OTA_LOG_E("read err\n");
+       OTA_LOG_E("boot err\n");
        return -1;
    }
    if (param->res_type==OTA_FINISH) {
@@ -196,10 +196,20 @@ static int ota_rollback(void *something)
     return 0;
 }
 
+static const char *ota_get_version(unsigned char dev_type)
+{
+    if(dev_type) {
+        return "v1.0.0-20180101-1000";//SYSINFO_APP_VERSION;
+    } else {
+        return SYSINFO_APP_VERSION;
+    }
+}
+
 ota_hal_module_t ota_hal_module = {
     .init     = ota_init,
     .write    = ota_write,
     .read     = ota_read,
     .boot     = ota_boot,
     .rollback = ota_rollback,
+    .version  = ota_get_version,
 };
