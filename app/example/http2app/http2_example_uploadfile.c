@@ -18,7 +18,7 @@
 	#define HTTP2_DEVICE_NAME             "zhangmei_test01"
 	#define HTTP2_DEVICE_SECRET           "KQCftfEDCx35LChyEwZoYY6FCYidTOp0"
 #elif defined(ON_PRE)
-	#define HTTP2_ONLINE_SERVER_URL       "100.67.141.158/"
+	#define HTTP2_ONLINE_SERVER_URL       "100.67.141.158"
 	#define HTTP2_ONLINE_SERVER_PORT      8443
 	#define HTTP2_PRODUCT_KEY             "b1XVhqfan1X"
 	#define HTTP2_DEVICE_NAME             "YvhjziEQmKusCFUgRpeo"
@@ -43,24 +43,28 @@
 
 static int upload_end = 0;
 static void on_header(uint32_t stream_id, char *channel_id,int cat,const uint8_t *name,uint32_t namelen, 
-                              const uint8_t *value,uint32_t valuelen, uint8_t flags)
+                              const uint8_t *value,uint32_t valuelen, uint8_t flags ,void *user_data)
 {
-    EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, name = %s, value = %s, flag = %d\n", stream_id,channel_id,name,value,flags);
+    EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, name = %s, value = %s, flag = %d user_data =%p\n", stream_id,channel_id,name,value,flags ,user_data);
 }
 
-static void on_chunk_recv(uint32_t stream_id, char *channel_id,const uint8_t *data, uint32_t len,uint8_t flags)
+static void on_chunk_recv(uint32_t stream_id, char *channel_id,const uint8_t *data, uint32_t len,uint8_t flags,void *user_data)
 {
-     EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s,len = %d flag = %d\n", stream_id,channel_id,len,flags);
+     EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, data = %.*s, len = %d flag = %d\n", stream_id, channel_id, len, data, len, flags);
 }
-static void on_stream_close(uint32_t stream_id, char *channel_id,uint32_t error_code)
+static void on_stream_close(uint32_t stream_id, char *channel_id,uint32_t error_code,void *user_data)
 {
      EXAMPLE_TRACE("~~~~~stream_id = %d channel_id=%s, error_code = %d\n", stream_id,channel_id,error_code);
+}
+static void on_stream_frame_send(uint32_t stream_id, char *channel_id, int type, uint8_t flags,void *user_data){
+    EXAMPLE_TRACE("~~~~~stream_id = %d user_data =%p, type = %d\n", stream_id,user_data,type);
 }
 
 static http2_stream_cb_t my_cb = {
     .on_stream_header_cb = on_header,
     .on_stream_chunk_recv_cb = on_chunk_recv,
     .on_stream_close_cb = on_stream_close,
+    .on_stream_frame_send_cb = on_stream_frame_send,
 };
 
 void upload_file_result(const char * path,int result, void * user_data)

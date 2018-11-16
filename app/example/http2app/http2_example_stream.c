@@ -20,7 +20,7 @@
 	#define HTTP2_DEVICE_NAME             "zhangmei_test01"
 	#define HTTP2_DEVICE_SECRET           "KQCftfEDCx35LChyEwZoYY6FCYidTOp0"
 #elif defined(ON_PRE)
-	#define HTTP2_ONLINE_SERVER_URL       "100.67.141.158/"
+	#define HTTP2_ONLINE_SERVER_URL       "100.67.141.158"
 	#define HTTP2_ONLINE_SERVER_PORT      8443
 	#define HTTP2_PRODUCT_KEY             "b1XVhqfan1X"
 	#define HTTP2_DEVICE_NAME             "YvhjziEQmKusCFUgRpeo"
@@ -107,26 +107,31 @@ static const char UPLOAD_STRING[] =
 
 
 static void on_header(uint32_t stream_id, char *channel_id,int cat,const uint8_t *name,uint32_t namelen, 
-                              const uint8_t *value,uint32_t valuelen, uint8_t flags)
+                              const uint8_t *value,uint32_t valuelen, uint8_t flags ,void *user_data)
 {
-    EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, name = %s, value = %s, flag = %d\n", stream_id,channel_id,name,value,flags);
+    EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, name = %s, value = %s, flag = %d user_data =%p\n", stream_id,channel_id,name,value,flags ,user_data);
 }
 
-static void on_chunk_recv(uint32_t stream_id, char *channel_id,const uint8_t *data, uint32_t len,uint8_t flags)
+static void on_chunk_recv(uint32_t stream_id, char *channel_id,const uint8_t *data, uint32_t len,uint8_t flags,void *user_data)
 {
      EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, data = %.*s, len = %d flag = %d\n", stream_id, channel_id, len, data, len, flags);
 }
-static void on_stream_close(uint32_t stream_id, char *channel_id,uint32_t error_code)
+static void on_stream_close(uint32_t stream_id, char *channel_id,uint32_t error_code,void *user_data)
 {
      EXAMPLE_TRACE("~~~~~stream_id = %d channel_id=%s, error_code = %d\n", stream_id,channel_id,error_code);
+}
+static void on_stream_frame_send(uint32_t stream_id, char *channel_id, int type, uint8_t flags,void *user_data){
+    EXAMPLE_TRACE("~~~~~stream_id = %d user_data =%p, type = %d\n", stream_id,user_data,type);
 }
 
 static http2_stream_cb_t my_cb = {
     .on_stream_header_cb = on_header,
     .on_stream_chunk_recv_cb = on_chunk_recv,
     .on_stream_close_cb = on_stream_close,
+    .on_stream_frame_send_cb = on_stream_frame_send,
 };
 
+static int test_user_data;
 
 static int http2_stream_test()
 {
@@ -162,7 +167,9 @@ static int http2_stream_test()
 
     memset(&info_download, 0, sizeof(stream_data_info_t));
     info_download.identify = "iotx/vision/voice/intercom/live";
-
+    info_download.user_data = (void *)&test_user_data;
+    
+    EXAMPLE_TRACE("----------usr_data =%p\n",(void *)&test_user_data);
     ret = IOT_HTTP2_Stream_Open(handle, &info_download, &my_header_info);
     if (ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_downstream_open failed %d!!!!!\n", ret);
@@ -173,14 +180,15 @@ static int http2_stream_test()
     ret = IOT_HTTP2_Stream_Query(handle, &info_download, &my_header_info);
     if (ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_downstream_query failed %d!!!!!\n", ret);
-        IOT_HTTP2_Stream_Close(handle, &info_upload);
+        IOT_HTTP2_Stream_Close(handle, &info_download);
         IOT_HTTP2_Disconnect(handle);
         return -1; 
     }
-
+    info_upload.user_data = (void *)&test_user_data;
     ret = IOT_HTTP2_Stream_Open(handle, &info_upload, &my_header_info);
     if(ret < 0) {
         EXAMPLE_TRACE("=========iotx_http2_upstream_open failed %d!!!!!\n", ret);
+        IOT_HTTP2_Stream_Close(handle, &info_download);
         IOT_HTTP2_Disconnect(handle);
         return -1;
     }
