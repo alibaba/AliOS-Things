@@ -1,17 +1,17 @@
 NAME := uffs
 
-$(NAME)_MBINS_TYPE        := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := Ultra-low-cost Flash File System
 
-$(NAME)_SOURCES     +=  uffs_aos.c uffs_port.c
+$(NAME)_SOURCES +=  uffs_aos.c uffs_port.c
 
 #default gcc
 ifeq ($(COMPILER),)
-$(NAME)_CFLAGS      += -Wall -Werror -Wno-strict-aliasing -Wno-uninitialized
+$(NAME)_CFLAGS += -Wall -Werror -Wno-strict-aliasing -Wno-uninitialized
 else ifeq ($(COMPILER),gcc)
-$(NAME)_CFLAGS      += -Wall -Werror -Wno-strict-aliasing -Wno-uninitialized
+$(NAME)_CFLAGS += -Wall -Werror -Wno-strict-aliasing -Wno-uninitialized
 endif
 
-GLOBAL_INCLUDES     += include
-GLOBAL_DEFINES      += AOS_UFFS
+GLOBAL_INCLUDES += include
+GLOBAL_DEFINES  += AOS_UFFS
