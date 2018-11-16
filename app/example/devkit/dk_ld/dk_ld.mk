@@ -1,4 +1,4 @@
-NAME := ldapp
+NAME := dk_ld
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
