@@ -612,6 +612,8 @@ bool RegionCN470ATxConfig(TxConfigParams_t *txConfig, int8_t *txPower,
     uint32_t bandwidth  = GetBandwidth(txConfig->Datarate);
     int8_t   phyTxPower = 0;
 
+    MibRequestConfirm_t mib_req;
+
     // Calculate physical TX power
     phyTxPower = RegionCommonComputeTxPower(txPowerLimited, txConfig->MaxEirp,
                                             txConfig->AntennaGain);
@@ -645,6 +647,18 @@ bool RegionCN470ATxConfig(TxConfigParams_t *txConfig, int8_t *txPower,
     *txTimeOnAir = Radio.TimeOnAir(modem, txConfig->PktLen);
 
     *txPower = txConfig->TxPower;
+
+    mib_req.Type = MIB_FREQ_BAND;
+    mib_req.Param.freqband = TxFreqBandNum;
+    if (LoRaMacMibSetRequestConfirm(&mib_req) != LORAMAC_STATUS_OK) {
+        DBG_LINKWAN("save tx freqband fail\r\n");
+    }
+
+    mib_req.Type = MIB_CHANNELS_DATARATE;
+    mib_req.Param.ChannelsDatarate = txConfig->Datarate;
+    if (LoRaMacMibSetRequestConfirm(&mib_req) != LORAMAC_STATUS_OK) {
+        DBG_LINKWAN("save tx datarate fail\r\n");
+    }
 
     DBG_LINKWAN("Tx, Band %d, Freq: %d,DR: %d, len: %d, duration %d, at %d\r\n",
                 TxFreqBandNum, frequency, txConfig->Datarate, txConfig->PktLen,
@@ -870,7 +884,8 @@ void RegionCN470ACalcBackOff(CalcBackOffParams_t *calcBackOff)
 
     if (calcBackOff->Joined == false) {
         // Get the join duty cycle
-        joinDutyCycle = RegionCommonGetJoinDc(calcBackOff->ElapsedTime);
+        // joinDutyCycle = RegionCommonGetJoinDc(calcBackOff->ElapsedTime);
+        joinDutyCycle = 1;
         // Apply the most restricting duty cycle
         dutyCycle = MAX(dutyCycle, joinDutyCycle);
         // Apply band time-off.
