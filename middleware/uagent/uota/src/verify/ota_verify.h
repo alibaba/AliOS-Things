@@ -39,7 +39,6 @@ int          ota_get_break_point(void);
 int          ota_malloc_hash_ctx(OTA_HASH_E type);
 int          ota_check_hash(OTA_HASH_E hash_type, char* hash);
 int          ota_set_break_point(int offset);
-int          ota_breakpoint_is_valid(void);
 int          ota_get_last_hash_ctx(ota_hash_param_t *hash_ctx);
 int          ota_set_cur_hash_ctx(ota_hash_param_t *hash_ctx);
 int          ota_get_last_hash(char *value);
@@ -47,5 +46,5 @@ int          ota_set_cur_hash(char *value);
 int          ota_verify_hash_value(ota_hash_t last_hash, ota_hash_t cur_hash);
 ota_hash_param_t *ota_get_hash_ctx(void);
 unsigned char    *ota_get_identity_image_md5_strvalue(void);
-int      ota_check_image(void);
+int      ota_check_image(unsigned int size);
 #endif

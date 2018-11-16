@@ -68,12 +68,6 @@ void ota_reboot(void)
 #endif
 }
 
-/*System version*/
-const char *ota_get_sys_version(void)
-{
-    return SYSINFO_APP_VERSION;
-}
-
 /*Memory malloc*/
 void *ota_malloc(int size)
 {
