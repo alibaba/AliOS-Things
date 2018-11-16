@@ -51,9 +51,9 @@ else
 GLOBAL_LDFLAGS += -T board/starterkit/STM32L433RCTxP_FLASH.ld
 endif
 
-sal ?= 1
 no_tls ?= 1
-ifeq (1,$(sal))
+AOS_NETWORK_SAL ?= y
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.bk7231
 else

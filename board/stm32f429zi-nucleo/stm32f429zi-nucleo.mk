@@ -31,9 +31,9 @@ ywss_support ?= 0
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=32768 #32kb
 GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=14 #(1 << 14) = 16kb
 
-#depends on sal module if select sal function via build option "sal=1"
-#sal ?= 1
-ifeq (1,$(sal))
+#depends on sal module if select sal function via build option "AOS_NETWORK_SAL=y"
+AOS_NETWORK_SAL ?= n
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module ?= wifi.mk3060
 else
