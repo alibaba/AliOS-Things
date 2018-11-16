@@ -1,0 +1,3 @@
+config AOS_COMP_CHIPCODE
+    bool "chip_code"
+    default n

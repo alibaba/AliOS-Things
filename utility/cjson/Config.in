@@ -1,0 +1,3 @@
+config AOS_COMP_CJSON
+    bool "cjson"
+    default n
