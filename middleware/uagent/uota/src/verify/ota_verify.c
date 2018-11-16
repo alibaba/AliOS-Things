@@ -86,21 +86,6 @@ int ota_set_cur_hash(char *value)
     return ota_kv_set(KEY_OTA_HASH, value, 66, 1);
 }
 
-int ota_breakpoint_is_valid()
-{
-    int breakpoint_is_valid = -1;
-    int tmp_breakpoint = 0;
-    ota_hash_t last_hash  = {0};
-
-    tmp_breakpoint = ota_get_break_point();
-    memset(&last_hash, 0x00, sizeof(last_hash));
-    ota_get_last_hash((char *)&last_hash);
-    if (tmp_breakpoint && (strncmp((char*)&last_hash, ota_get_service()->h_tr->hash, OTA_HASH_LEN) == 0)) {
-        breakpoint_is_valid = 0;
-    }
-    return breakpoint_is_valid;
-}
-
 int ota_get_last_hash_ctx(ota_hash_param_t *hash_ctx)
 {
     int ret = 0;
@@ -230,7 +215,7 @@ void ota_destroy_bin_md5_context()
     image_md5_ctx.ctx_size    = 0;
 }
 
-int ota_check_image(void)
+int ota_check_image(unsigned int size)
 {
     int                   ret     = 0;
     int                   i       = 0;
@@ -242,7 +227,7 @@ int ota_check_image(void)
     char                  test_buf[33] = { 0 };
     int                   bin_size     = 0;
 
-    bin_size                 = ota_get_firm_size();
+    bin_size                 = size;
     OTA_LOG_I("bin_size = %d", bin_size);
     if (bin_size <= sizeof(ota_image_t)) {
         ret = -1;

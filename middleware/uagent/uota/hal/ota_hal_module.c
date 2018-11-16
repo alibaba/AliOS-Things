@@ -81,3 +81,16 @@ int ota_hal_rollback(void *something)
 
     return 0;
 }
+
+const char *ota_hal_get_version(unsigned char dev_type)
+{
+    if (ota_module == NULL) {
+        OTA_LOG_I("ota get version is NULL");
+        return NULL;
+    }
+
+    if (ota_module != NULL && ota_module->version != NULL) {
+        return ota_module->version(dev_type);
+    } 
+    return NULL;
+}

@@ -31,7 +31,6 @@ typedef struct  {
     unsigned int  splict_size;
     int off_bp;   /*Break point offset*/
     OTA_RES_TYPE_E  res_type; /*result type: OTA_FINISH, OTA_BREAKPOINT*/
-    char  upg_status;/*Upgrade status info*/
     unsigned short param_crc; /*Parameter crc*/
 } __attribute__((packed)) ota_boot_param_t;
 
@@ -41,6 +40,7 @@ typedef struct ota_hal_module_s {
     int (*read)(int *off_set, char *out_buf , int out_buf_len);
     int (*boot)(void *something);
     int (*rollback)(void *something);
+    const char *(*version)(unsigned char dev_type);
 }ota_hal_module_t;
 
 /**
@@ -103,6 +103,16 @@ int ota_hal_boot(void *something);
  * @return  kNoErr : On success. kGeneralErr : If an error occurred with any step
  */
 int ota_hal_rollback(void *something);
+
+
+/**
+ * get system version
+ *
+ * @param  device type
+ *
+ * @return  version
+ */
+const char *ota_hal_get_version(unsigned char dev_type);
 #ifdef __cplusplus
 }
 #endif
