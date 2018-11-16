@@ -1,12 +1,3 @@
-
-menuconfig LOG_ENABLED
-    bool "FEATURE_LOG_ENABLE"
+config AOS_COMP_LOG
+    bool "log"
     default y
-    help
-        AliOS things log module
-
-if LOG_ENABLED
-menu "LOG Configurations"
-
-endmenu
-endif
