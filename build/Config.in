@@ -7,10 +7,6 @@ config AOS_BUILD
     bool
     default y
 
-config AOS_FTR_SUPPORT_SAL
-    int
-    default 1
-
 config MBINS
     string
     option env="MBINS"
