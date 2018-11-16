@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_CRAMFS
+    bool "cramfs"
+    default n
+    help
+
+if AOS_COMP_CRAMFS
+# Configurations for component cramfs
+endif
