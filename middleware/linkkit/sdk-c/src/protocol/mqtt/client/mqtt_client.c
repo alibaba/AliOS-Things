@@ -3104,12 +3104,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     iotx_mqtt_deal_offline_subs(pclient);
 
-    /* MQTT Connected Callback */
-    callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);
-    if (callback) {
-        ((int (*)(void))callback)();
-    }
-
 #ifndef ATHOST_MQTT_REPORT_DISBALED
     iotx_set_report_func(IOT_MQTT_Publish_Simple);
     /* report module id */
@@ -3136,6 +3130,12 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #endif
     }
 #endif
+
+    /* MQTT Connected Callback */
+    callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);
+    if (callback) {
+        ((int (*)(void))callback)();
+    }
 
     g_mqtt_client = pclient;
     return pclient;
