@@ -895,9 +895,9 @@ int IOT_HTTP2_Disconnect(void *hd)
     POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
     handle->init_state = 0;
 
-    ret = HAL_SemaphoreWait(handle->semaphore, IOT_HTTP2_RES_OVERTIME_MS);
+    ret = HAL_SemaphoreWait(handle->semaphore, PLATFORM_WAIT_INFINITE);
     if (ret < 0) {
-        h2stream_err("semaphore wait overtime\n");
+        h2stream_err("semaphore wait err\n");
         return FAIL_RETURN;
     }
 
