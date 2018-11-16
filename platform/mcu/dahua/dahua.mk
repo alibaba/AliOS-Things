@@ -21,7 +21,7 @@ endif
 
 ifeq ($(SAL),1)
 $(NAME)_COMPONENTS  += linkkit/sdk-c/src/services/mdal/sal \
-                       sal.wifi.esp8266
+                       sal.hal.wifi.esp8266
 GLOBAL_DEFINES += WITH_SAL
 endif
 
