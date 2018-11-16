@@ -118,14 +118,16 @@ void isr_gpio_11()
 //    REG32(0xc0000c00) = '\n';
 }
 
+extern struct st_rf_table ssv_rf_table;
+
 static void app_start(void)
 {
     xip_init();
     xip_enter();
     flash_init();
 
-    load_rf_table_from_flash();
-    write_reg_rf_table();
+    //load_rf_table_from_flash();
+    //write_reg_rf_table();
     
     //dbgcon_init(UART_SPR_BAUD_921600);
     drv_uart_init();
@@ -136,6 +138,20 @@ static void app_start(void)
     OS_Init();
     OS_MemInit();
     //OS_PsramInit();
+
+    load_rf_table_from_flash();
+    if(ssv_rf_table.boot_flag == 0xFF)
+    {
+        build_default_rf_table(&ssv_rf_table);
+        load_rf_table_to_mac(&ssv_rf_table);
+        save_rf_table_to_flash();
+        dump_rf_table();
+    }
+    else
+    {
+        load_rf_table_to_mac(&ssv_rf_table);
+        dump_rf_table();
+    }
 
     drv_gpio_set_dir(GPIO_12, GPIO_DIR_IN);
     drv_gpio_set_dir(GPIO_11, GPIO_DIR_IN);
