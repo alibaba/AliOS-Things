@@ -137,7 +137,8 @@ typedef enum {
     ITE_PERMIT_JOIN,
     ITE_INITIALIZE_COMPLETED,
     ITE_FOTA,
-    ITE_COTA
+    ITE_COTA,
+    ITE_MQTT_CONNECT_SUCC
 } iotx_ioctl_event_t;
 
 #define IOT_RegisterCallback(evt, cb)           iotx_register_for_##evt(cb);
@@ -165,6 +166,7 @@ DECLARE_EVENT_CALLBACK(ITE_INITIALIZE_COMPLETED, int (*cb)(const int))
 DECLARE_EVENT_CALLBACK(ITE_FOTA,                 int (*cb)(const int, const char *))
 DECLARE_EVENT_CALLBACK(ITE_COTA,                 int (*cb)(const int, const char *, int, const char *, const char *,
                        const char *, const char *))
+DECLARE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*cb)(void))
 
 /** @defgroup group_api api
  *  @{

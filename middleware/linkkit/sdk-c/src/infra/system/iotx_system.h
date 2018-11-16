@@ -50,6 +50,8 @@ iotx_conn_info_pt iotx_conn_info_get(void);
 void iotx_conn_info_release(void);
 iotx_conn_info_pt iotx_conn_info_reload(void);
 
+void *iotx_event_callback(int evt);
+
 #if defined(__cplusplus)
 }
 #endif

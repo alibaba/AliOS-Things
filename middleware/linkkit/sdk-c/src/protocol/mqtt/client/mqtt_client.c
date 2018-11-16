@@ -3007,6 +3007,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     iotx_mc_client_t   *pclient;
     iotx_mqtt_param_t *mqtt_params = NULL;
     iotx_conn_info_t *conn_info = NULL;
+    void *callback = NULL;
 
     if (pInitParams != NULL) {
         if (g_mqtt_client != NULL) {
@@ -3098,6 +3099,13 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         mqtt_free(pclient);
         return NULL;
     }
+
+    /* MQTT Connected Callback */
+    callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);
+    if (callback) {
+        ((int (*)(void))callback)();
+    }
+
     pclient->mqtt_auth = iotx_guider_authenticate;
 
     iotx_mqtt_deal_offline_subs(pclient);

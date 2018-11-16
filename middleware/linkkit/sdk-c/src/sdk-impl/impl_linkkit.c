@@ -8,6 +8,7 @@
 
 #include "iot_export_linkkit.h"
 #include "sdk-impl_internal.h"
+#include "iotx_system.h"
 #include "iotx_utils.h"
 #include "iotx_dm.h"
 
@@ -265,14 +266,14 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
     switch (type) {
         case IOTX_DM_EVENT_CLOUD_CONNECTED: {
-            callback = impl_event_cb(ITE_CONNECT_SUCC);
+            callback = iotx_event_callback(ITE_CONNECT_SUCC);
             if (callback) {
                 ((int (*)(void))callback)();
             }
         }
         break;
         case IOTX_DM_EVENT_CLOUD_DISCONNECT: {
-            callback = impl_event_cb(ITE_DISCONNECTED);
+            callback = iotx_event_callback(ITE_DISCONNECTED);
             if (callback) {
                 ((int (*)(void))callback)();
             }
@@ -285,7 +286,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             sdk_debug("Current Devid: %d", lite_item_devid.value_int);
 
-            callback = impl_event_cb(ITE_INITIALIZE_COMPLETED);
+            callback = iotx_event_callback(ITE_INITIALIZE_COMPLETED);
             if (callback) {
                 ((int (*)(const int))callback)(lite_item_devid.value_int);
             }
@@ -312,7 +313,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             HEXDUMP_DEBUG(raw_data, raw_data_len);
 
-            callback = impl_event_cb(ITE_RAWDATA_ARRIVED);
+            callback = iotx_event_callback(ITE_RAWDATA_ARRIVED);
             if (callback) {
                 ((int (*)(const int, const unsigned char *, const int))callback)(lite_item_devid.value_int, raw_data, raw_data_len);
             }
@@ -342,7 +343,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
 
             HEXDUMP_DEBUG(raw_data, raw_data_len);
 
-            callback = impl_event_cb(ITE_RAWDATA_ARRIVED);
+            callback = iotx_event_callback(ITE_RAWDATA_ARRIVED);
             if (callback) {
                 ((int (*)(const int, const unsigned char *, const int))callback)(lite_item_devid.value_int, raw_data, raw_data_len);
             }
@@ -373,7 +374,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(request, 0, lite_item_payload.value_length + 1);
             memcpy(request, lite_item_payload.value, lite_item_payload.value_length);
 
-            callback = impl_event_cb(ITE_SERVICE_REQUST);
+            callback = iotx_event_callback(ITE_SERVICE_REQUST);
             if (callback) {
                 res = ((int (*)(const int, const char *, const int, const char *, const int, char **,
                                 int *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
@@ -410,7 +411,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(property_payload, 0, lite_item_payload.value_length + 1);
             memcpy(property_payload, lite_item_payload.value, lite_item_payload.value_length);
 
-            callback = impl_event_cb(ITE_PROPERTY_SET);
+            callback = iotx_event_callback(ITE_PROPERTY_SET);
             if (callback) {
                 ((int (*)(const int, const char *, const int))callback)(lite_item_devid.value_int, property_payload,
                         lite_item_payload.value_length);
@@ -449,7 +450,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(request, 0, lite_item_payload.value_length + 1);
             memcpy(request, lite_item_payload.value, lite_item_payload.value_length);
 
-            callback = impl_event_cb(ITE_PROPERTY_GET);
+            callback = iotx_event_callback(ITE_PROPERTY_GET);
             if (callback) {
                 res = ((int (*)(const int, const char *, const int, char **, int *))callback)(lite_item_devid.value_int, request,
                         lite_item_payload.value_length, &response, &response_len);
@@ -492,7 +493,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 user_payload_length = lite_item_payload.value_length;
             }
 
-            callback = impl_event_cb(ITE_REPORT_REPLY);
+            callback = iotx_event_callback(ITE_REPORT_REPLY);
             if (callback) {
                 ((int (*)(const int, const int, const int, const char *, const int))callback)(lite_item_devid.value_int,
                         lite_item_id.value_int, lite_item_code.value_int, user_payload,
@@ -538,7 +539,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memcpy(user_payload, lite_item_payload.value, lite_item_payload.value_length);
 
 
-            callback = impl_event_cb(ITE_TRIGGER_EVENT_REPLY);
+            callback = iotx_event_callback(ITE_TRIGGER_EVENT_REPLY);
             if (callback) {
                 ((int (*)(const int, const int, const int, const char *, const int, const char *,
                           const int))callback)(lite_item_devid.value_int,
@@ -567,7 +568,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(utc_payload, 0, lite_item_utc.value_length + 1);
             memcpy(utc_payload, lite_item_utc.value, lite_item_utc.value_length);
 
-            callback = impl_event_cb(ITE_TIMESTAMP_REPLY);
+            callback = iotx_event_callback(ITE_TIMESTAMP_REPLY);
             if (callback) {
                 ((int (*)(const char *))callback)(utc_payload);
             }
@@ -599,7 +600,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(rrpc_request, 0, lite_item_payload.value_length + 1);
             memcpy(rrpc_request, lite_item_payload.value, lite_item_payload.value_length);
 
-            callback = impl_event_cb(ITE_SERVICE_REQUST);
+            callback = iotx_event_callback(ITE_SERVICE_REQUST);
             if (callback) {
                 res = ((int (*)(const int, const char *, const int, const char *, const int, char **,
                                 int *))callback)(lite_item_devid.value_int, lite_item_serviceid.value,
@@ -635,7 +636,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(version, 0, lite_item_version.value_length + 1);
             memcpy(version, lite_item_version.value, lite_item_version.value_length);
 
-            callback = impl_event_cb(ITE_FOTA);
+            callback = iotx_event_callback(ITE_FOTA);
             if (callback) {
                 ((int (*)(const int, const char *))callback)(0, version);
             }
@@ -690,7 +691,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 return;
             }
 
-            callback = impl_event_cb(ITE_COTA);
+            callback = iotx_event_callback(ITE_COTA);
             if (callback) {
                 ((int (*)(const int, const char *, int, const char *, const char *, const char *, const char *))callback)(0, config_id,
                         lite_item_configsize.value_int, get_type, sign, sign_method, url);
@@ -734,7 +735,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(topo_list, 0, lite_item_topo.value_length + 1);
             memcpy(topo_list, lite_item_topo.value, lite_item_topo.value_length);
 
-            callback = impl_event_cb(ITE_TOPOLIST_REPLY);
+            callback = iotx_event_callback(ITE_TOPOLIST_REPLY);
             if (callback) {
                 ((int (*)(const int, const int, const int, const char *, const int))callback)(lite_item_devid.value_int,
                         lite_item_id.value_int,
@@ -779,7 +780,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             memset(product_key, 0, lite_item_pk.value_length + 1);
             memcpy(product_key, lite_item_pk.value, lite_item_pk.value_length);
 
-            callback = impl_event_cb(ITE_PERMIT_JOIN);
+            callback = iotx_event_callback(ITE_PERMIT_JOIN);
             if (callback) {
                 ((int (*)(const char *, int))callback)((const char *)product_key, (const int)lite_item_time.value_int);
             }
@@ -1215,7 +1216,7 @@ static int _iotx_linkkit_subdev_login(int devid)
 
     iotx_dm_send_aos_active(devid);
 
-    void *callback = impl_event_cb(ITE_INITIALIZE_COMPLETED);
+    void *callback = iotx_event_callback(ITE_INITIALIZE_COMPLETED);
     if (callback) {
         ((int (*)(const int))callback)(devid);
     }
