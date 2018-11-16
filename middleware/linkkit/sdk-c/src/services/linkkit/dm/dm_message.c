@@ -1506,6 +1506,7 @@ int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response)
 
 #endif
 
+#ifdef ALCS_ENABLED
 const char DM_MSG_DEV_CORE_SERVICE_DEV[] DM_READ_ONLY =
             "{\"devices\":{\"addr\":\"%s\",\"port\":%d,\"pal\":\"linkkit-ica\",\"profile\":%s}}";
 int dm_msg_dev_core_service_dev(char **payload, int *payload_len)
@@ -1579,6 +1580,7 @@ int dm_msg_dev_core_service_dev(char **payload, int *payload_len)
 
     return SUCCESS_RETURN;
 }
+#endif
 
 int dm_msg_cloud_connected(void)
 {

@@ -3,7 +3,7 @@
  */
 
 
-
+#if defined(DEPRECATED_LINKKIT)
 #ifndef _DM_SHADOW_H_
 #define _DM_SHADOW_H_
 
@@ -529,4 +529,5 @@ void dm_shw_destroy(_IN_ dm_shw_t **shadow);
     void dm_shw_print(_IN_ dm_shw_t *shadow);
 #endif
 
+#endif
 #endif
