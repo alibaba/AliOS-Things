@@ -243,14 +243,16 @@ int dm_mgr_device_create(_IN_ int dev_type, _IN_ char product_key[PRODUCT_KEY_MA
 
     node->devid = _dm_mgr_next_devid();
     node->dev_type = dev_type;
+#if defined(DEPRECATED_LINKKIT)
     node->dev_shadow = NULL;
+    node->tsl_source = IOTX_DM_TSL_SOURCE_CLOUD;
+#endif
     memcpy(node->product_key, product_key, strlen(product_key));
     memcpy(node->device_name, device_name, strlen(device_name));
     if (device_secret != NULL) {
         memcpy(node->device_secret, device_secret, strlen(device_secret));
     }
     node->dev_status = IOTX_DM_DEV_STATUS_AUTHORIZED;
-    node->tsl_source = IOTX_DM_TSL_SOURCE_CLOUD;
     INIT_LIST_HEAD(&node->linked_list);
 
     list_add_tail(&node->linked_list, &ctx->dev_list);
@@ -282,11 +284,11 @@ int dm_mgr_device_destroy(_IN_ int devid)
 
     list_del(&node->linked_list);
 
+#if defined(DEPRECATED_LINKKIT)
     if (node->dev_shadow) {
-#ifdef DEPRECATED_LINKKIT
         dm_shw_destroy(&node->dev_shadow);
-#endif
     }
+#endif
     DM_free(node);
 
     return SUCCESS_RETURN;

@@ -139,7 +139,9 @@ int dm_msg_ext_error_reply(dm_msg_response_payload_t *response);
     int dm_msg_combine_login_reply(dm_msg_response_payload_t *response);
     int dm_msg_combine_logout_reply(dm_msg_response_payload_t *response);
 #endif
-int dm_msg_dev_core_service_dev(char **payload, int *payload_len);
+#ifdef ALCS_ENABLED
+    int dm_msg_dev_core_service_dev(char **payload, int *payload_len);
+#endif
 int dm_msg_cloud_connected(void);
 int dm_msg_cloud_disconnect(void);
 int dm_msg_cloud_reconnect(void);
