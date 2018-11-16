@@ -1,4 +1,4 @@
-NAME := developerkitaudio
+NAME := dk_audio
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
