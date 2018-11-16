@@ -1,12 +1,5 @@
-
-menuconfig LIBC_ENABLED
-    bool "FEATURE_LIBC_ENABLE"
+config AOS_COMP_LIBC
+    bool "libc"
     default y
     help
-        AliOS things libc adaptation layer
-
-if LIBC_ENABLED
-menu "LIBC Configurations"
-
-endmenu
-endif
+        AliOS Things libc adaptation layer
