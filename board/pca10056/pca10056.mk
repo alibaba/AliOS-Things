@@ -1,16 +1,13 @@
 NAME := board_pca10056
 
-
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
-SUPPORT_MBINS      := yes
-
-MODULE               := 1062
-HOST_ARCH            := Cortex-M4
-HOST_MCU_FAMILY      := nrf52xxx
-SUPPORT_BINS         := no
-HOST_MCU_NAME        := nrf52840
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board pca10056
+SUPPORT_MBINS      := no
+MODULE             := 1062
+HOST_ARCH          := Cortex-M4
+HOST_MCU_FAMILY    := nrf52xxx
+HOST_MCU_NAME      := nrf52840
 
 GLOBAL_INCLUDES += .
 

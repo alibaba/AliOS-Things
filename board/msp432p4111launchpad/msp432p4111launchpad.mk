@@ -1,29 +1,26 @@
 NAME := msp432p4111launchpad
 
 #It's useless for now, just use this code for no reason
-MODULE               := 1062
+MODULE := 1062
 
 # The ARCH of the mcu is used on this board
 # ARM: ARM968E-S/Cortex-M0/Cortex-M3/Cortex-M4/Cortex-M4F/Cortex-M7/Cortex-R3
 # other: armhflinux/xtensa
 # csky: ck802/ck803
 # MIPS: MIPS-I
-HOST_ARCH            := Cortex-M4
-
-HOST_MCU_FAMILY      := msp432p4xx
-
-$(NAME)_TYPE := kernel
-
-SUPPORT_BINS         := no
-
-HOST_MCU_NAME        := MSP432P4111
-
-ENABLE_VFP           := 1
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board msp432p4111launchpad
+HOST_ARCH          := Cortex-M4
+HOST_MCU_FAMILY    := msp432p4xx
+SUPPORT_BINS       := no
+HOST_MCU_NAME      := MSP432P4111
+ENABLE_VFP         := 1
 
 $(NAME)_SOURCES += aos/board_partition.c \
-                   aos/soc_init.c \
-                   MSP_EXP432P4111.c \
-                   system_msp432p4111.c \
+                   aos/soc_init.c        \
+                   MSP_EXP432P4111.c     \
+                   system_msp432p4111.c  \
                    board_led_drv.c
 
 GLOBAL_INCLUDES += . \
@@ -37,7 +34,7 @@ GLOBAL_CFLAGS += -D__MSP432P4111__ -DDeviceFamily_MSP432P4x1xI -DSTDIO_UART=0
 # Gcc compilation is supported by default
 
 ifeq ($(COMPILER), armcc)
-$(NAME)_SOURCES += startup_msp432p4111_uvision.s    
+$(NAME)_SOURCES += startup_msp432p4111_uvision.s
 else ifeq ($(COMPILER), iar)
 $(NAME)_SOURCES += startup_msp432p4111_ewarm.c
 else
@@ -57,17 +54,17 @@ GLOBAL_LDFLAGS += -T board/msp432p4111launchpad/msp432p4111.lds
 endif
 
 # yloop needs sal or lwip, module means the Plug-in module Type
-sal ?= 1
+sal                ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
-module ?= wifi.mk3060
+module             ?= wifi.mk3060
 else
-GLOBAL_DEFINES += CONFIG_NO_TCPIP
+GLOBAL_DEFINES     += CONFIG_NO_TCPIP
 endif
 
 # It's defined by the developer
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_startup_msp432p4111launchpad
-CONFIG_SYSINFO_DEVICE_NAME := msp432p4111launchpad
+CONFIG_SYSINFO_DEVICE_NAME   := msp432p4111launchpad
 
 #GLOBAL_CFLAGS += -DSYSINFO_OS_VERSION=\"$(CONFIG_SYSINFO_OS_VERSION)\"
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"

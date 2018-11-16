@@ -1,15 +1,15 @@
-
 NAME := board_lpcxpresso54018
-$(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
 
-MODULE              := 54018
-HOST_ARCH           := Cortex-M4
-HOST_MCU_FAMILY     := lpc54018
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board lpcxpresso54018
+
+MODULE          := 54018
+HOST_ARCH       := Cortex-M4
+HOST_MCU_FAMILY := lpc54018
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_LPC54018
-CONFIG_SYSINFO_DEVICE_NAME := LPC54018
+CONFIG_SYSINFO_DEVICE_NAME   := LPC54018
 
 GLOBAL_DEFINES += SKIP_SYSCLK_INIT
 # GLOBAL_DEFINES += BLK_BITS=18
@@ -27,12 +27,10 @@ GLOBAL_INCLUDES += ../../platform/mcu/lpc54018/
 GLOBAL_INCLUDES += ../../platform/mcu/lpc54018/CMSIS/Include
 GLOBAL_INCLUDES += ../../platform/mcu/lpc54018/drivers
 
-
-
-$(NAME)_SOURCES     :=
-$(NAME)_SOURCES     += ./board.c
-$(NAME)_SOURCES     += ./clock_config.c
-$(NAME)_SOURCES     += ./pin_mux.c
+$(NAME)_SOURCES :=
+$(NAME)_SOURCES += ./board.c
+$(NAME)_SOURCES += ./clock_config.c
+$(NAME)_SOURCES += ./pin_mux.c
 
 TEST_COMPONENTS += certificate
 
