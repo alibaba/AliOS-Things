@@ -20,7 +20,7 @@ GLOBAL_DEFINES += WITH_LWIP
 endif
 
 ifeq ($(SAL),1)
-$(NAME)_COMPONENTS  += sal.wifi.esp8266
+$(NAME)_COMPONENTS  += sal.hal.wifi.esp8266
 $(NAME)_COMPONENTS  += linkkit/sdk-c/src/services/mdal/sal
 GLOBAL_DEFINES += WITH_SAL
 endif
