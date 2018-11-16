@@ -919,7 +919,7 @@ int lite_cjson_object_item_by_index(_IN_ lite_cjson_t *lite, _IN_ int index, _OU
     return -1;
 }
 /*** cjson create, add and print ***/
-
+#if defined(ALCS_ENABLED) || defined(DEPRECATED_LINKKIT)
 #define true ((cJSON_bool)1)
 #define false ((cJSON_bool)0)
 #define cjson_min(a, b) ((a < b) ? a : b)
@@ -1846,3 +1846,4 @@ lite_cjson_item_t *lite_cjson_create_stringArray(const char **strings, int count
 
     return a;
 }
+#endif
