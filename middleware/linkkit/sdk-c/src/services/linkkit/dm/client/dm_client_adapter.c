@@ -94,7 +94,7 @@ int dm_client_unsubscribe(char *uri)
     return res;
 }
 
-int dm_client_publish(char *uri, unsigned char *payload, int payload_len)
+int dm_client_publish(char *uri, unsigned char *payload, int payload_len, iotx_cm_data_handle_cb callback)
 {
     int res = 0;
     char *pub_uri = NULL;
@@ -108,6 +108,7 @@ int dm_client_publish(char *uri, unsigned char *payload, int payload_len)
     pub_param.ack_cb = NULL;
 
 #if defined(COAP_COMM_ENABLED) && !defined(MQTT_COMM_ENABLED)
+    pub_param.ack_cb = callback;
     res = dm_utils_uri_add_prefix("/topic", uri, &pub_uri);
     if (res < SUCCESS_RETURN) {
         return FAIL_RETURN;
