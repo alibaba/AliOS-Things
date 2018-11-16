@@ -65,8 +65,9 @@ typedef struct {
     stream_type_t stream_type;      /* check @stream_type_t */
     void *semaphore;                /* semaphore for http2 response sync */
     char status_code[5];            /* http2 response status code */
-    http2_list_t list;              /* list_head */
     uint8_t  rcv_hd_cnt;            /* the number of concerned heads received*/
+    void     *user_data;            /* data passed to the stream callback function */
+    http2_list_t list;              /* list_head */
 } http2_stream_node_t;
 
 static device_info g_device_info;
@@ -128,42 +129,42 @@ static int iotx_http2_get_url(char *buf, char *productkey)
 static void file_upload_gen_string(char *str, int type, char *para1, int para2)
 {
     switch (type) {
-        case NUM_STRING_ENUM: {
-            sprintf(str, "%d", para2);
-            break;
+    case NUM_STRING_ENUM: {
+        sprintf(str, "%d", para2);
+        break;
+    }
+    case PATH_CREATE_STR_ENUM:
+    case PATH_UPLOAD_STR_ENUM:
+    case ORI_SIGN_STR_ENUM:
+    case CID_STRING_ENUM: {
+        if (type == PATH_CREATE_STR_ENUM) {
+            sprintf(str, "/message/pub_with_resp/sys/%s/%s/thing/%s/create",
+                    g_device_info.product_key,
+                    g_device_info.device_name,
+                    para1);
+        } else if (type == PATH_UPLOAD_STR_ENUM) {
+            sprintf(str, "/message/pub_with_resp/sys/%s/%s/thing/%s/upload",
+                    g_device_info.product_key,
+                    g_device_info.device_name,
+                    para1);
+        } else if (type == ORI_SIGN_STR_ENUM) {
+            sprintf(str, "clientId%sdeviceName%sproductKey%s",
+                    para1,
+                    g_device_info.device_name,
+                    g_device_info.product_key);
+        } else {
+            sprintf(str, "%s.%s", g_device_info.product_key, g_device_info.device_name);
         }
-        case PATH_CREATE_STR_ENUM:
-        case PATH_UPLOAD_STR_ENUM:
-        case ORI_SIGN_STR_ENUM:
-        case CID_STRING_ENUM: {
-            if (type == PATH_CREATE_STR_ENUM) {
-                sprintf(str, "/message/pub_with_resp/sys/%s/%s/thing/%s/create",
-                        g_device_info.product_key,
-                        g_device_info.device_name,
-                        para1);
-            } else if (type == PATH_UPLOAD_STR_ENUM) {
-                sprintf(str, "/message/pub_with_resp/sys/%s/%s/thing/%s/upload",
-                        g_device_info.product_key,
-                        g_device_info.device_name,
-                        para1);
-            } else if (type == ORI_SIGN_STR_ENUM) {
-                sprintf(str, "clientId%sdeviceName%sproductKey%s",
-                        para1,
-                        g_device_info.device_name,
-                        g_device_info.product_key);
-            } else {
-                sprintf(str, "%s.%s", g_device_info.product_key, g_device_info.device_name);
-            }
-            break;
-        }
-        case REAL_SIGN_STR_ENUM: {
-            utils_hmac_sha1(para1, strlen(para1), str, g_device_info.device_secret, strlen(g_device_info.device_secret));
-            break;
-        }
-        default: {
-            h2stream_err("ASSERT\n");
-            break;
-        }
+        break;
+    }
+    case REAL_SIGN_STR_ENUM: {
+        utils_hmac_sha1(para1, strlen(para1), str, g_device_info.device_secret, strlen(g_device_info.device_secret));
+        break;
+    }
+    default: {
+        h2stream_err("ASSERT\n");
+        break;
+    }
     }
 }
 
@@ -200,28 +201,28 @@ static void on_stream_header(int32_t stream_id, int cat, const uint8_t *name, ui
     }
 
     switch (cat) {
-        case 0x01:
-            if (strncmp((char *)name, "x-data-stream-id", (int)namelen) == 0) {
-                node->channel_id = HTTP2_STREAM_MALLOC(valuelen + 1);
-                if (node->channel_id == NULL) {
-                    return;
-                }
-                memset(node->channel_id, 0, (int)valuelen + 1);
-                memcpy(node->channel_id, (char *)value, (int)valuelen);
-                if (++node->rcv_hd_cnt == 2) {
-                    HAL_SemaphorePost(node->semaphore);
-                }
-            } else if (strncmp((char *)name, ":status", (int)namelen) == 0) {
-                strncpy(node->status_code, (char *)value, sizeof(node->status_code) - 1);
-                if (++node->rcv_hd_cnt == 2) {
-                    HAL_SemaphorePost(node->semaphore);
-                }
+    case 0x01:
+        if (strncmp((char *)name, "x-data-stream-id", (int)namelen) == 0) {
+            node->channel_id = HTTP2_STREAM_MALLOC(valuelen + 1);
+            if (node->channel_id == NULL) {
+                return;
             }
+            memset(node->channel_id, 0, (int)valuelen + 1);
+            memcpy(node->channel_id, (char *)value, (int)valuelen);
+            if (++node->rcv_hd_cnt == 2) {
+                HAL_SemaphorePost(node->semaphore);
+            }
+        } else if (strncmp((char *)name, ":status", (int)namelen) == 0) {
+            strncpy(node->status_code, (char *)value, sizeof(node->status_code) - 1);
+            if (++node->rcv_hd_cnt == 2) {
+                HAL_SemaphorePost(node->semaphore);
+            }
+        }
     }
 
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_header_cb) {
         g_stream_handle->cbs->on_stream_header_cb(node->stream_id, node->channel_id, cat, name, namelen, value, valuelen,
-                flags);
+                flags, node->user_data);
     }
 }
 
@@ -237,7 +238,7 @@ static void on_stream_chunk_recv(int32_t stream_id, const uint8_t *data, uint32_
     }
 
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_chunk_recv_cb) {
-        g_stream_handle->cbs->on_stream_chunk_recv_cb(node->stream_id, node->channel_id, data, len, flags);
+        g_stream_handle->cbs->on_stream_chunk_recv_cb(node->stream_id, node->channel_id, data, len, flags, node->user_data);
     }
 }
 
@@ -252,7 +253,7 @@ static void on_stream_close(int32_t stream_id, uint32_t error_code)
         return;
     }
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_close_cb) {
-        g_stream_handle->cbs->on_stream_close_cb(node->stream_id, node->channel_id, error_code);
+        g_stream_handle->cbs->on_stream_close_cb(node->stream_id, node->channel_id, error_code,node->user_data);
     }
 }
 
@@ -267,7 +268,7 @@ static  void on_stream_frame_send(int32_t stream_id, int type, uint8_t flags)
         return;
     }
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_frame_send_cb) {
-        g_stream_handle->cbs->on_stream_frame_send_cb(node->stream_id, node->channel_id, type, flags);
+        g_stream_handle->cbs->on_stream_frame_send_cb(node->stream_id,node->channel_id, type, flags,node->user_data);
     }
 }
 
@@ -283,7 +284,7 @@ static void on_stream_frame_recv(int32_t stream_id, int type, uint8_t flags)
     }
 
     if (g_stream_handle->cbs && g_stream_handle->cbs->on_stream_frame_recv_cb) {
-        g_stream_handle->cbs->on_stream_frame_recv_cb(node->stream_id, node->channel_id, type, flags);
+        g_stream_handle->cbs->on_stream_frame_recv_cb(node->stream_id,node->channel_id, type, flags,node->user_data);
     }
 }
 
@@ -361,7 +362,7 @@ static void *http2_io(void *user_data)
     return NULL;
 }
 
-static int http2_stream_node_insert(stream_handle_t *handle, unsigned int id, http2_stream_node_t **p_node)
+static int http2_stream_node_insert(stream_handle_t *handle, unsigned int id, void *user_data, http2_stream_node_t **p_node)
 {
     http2_stream_node_t *node = NULL;
     void *semaphore = NULL;
@@ -381,7 +382,7 @@ static int http2_stream_node_insert(stream_handle_t *handle, unsigned int id, ht
 
     memset(node, 0, sizeof(http2_stream_node_t));
     node->stream_id = id;
-
+    node->user_data = user_data;
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
         HTTP2_STREAM_FREE(node);
@@ -571,7 +572,7 @@ int IOT_HTTP2_Stream_Open(void *hd, stream_data_info_t *info, header_ext_info_t 
 
     HAL_MutexLock(handle->mutex);
     rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
-    http2_stream_node_insert(handle, h2_data.stream_id, &node);
+    http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
     HAL_MutexUnlock(handle->mutex);
     HTTP2_STREAM_FREE(nva);
 
@@ -682,7 +683,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
 
         HAL_MutexLock(handle->mutex);
         rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
-        http2_stream_node_insert(handle, h2_data.stream_id, &node);
+        http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
         HAL_MutexUnlock(handle->mutex);
         HTTP2_STREAM_FREE(nva);
 
@@ -793,7 +794,7 @@ int IOT_HTTP2_Stream_Query(void *hd, stream_data_info_t *info, header_ext_info_t
 
     HAL_MutexLock(handle->mutex);
     rv = iotx_http2_client_send((void *)handle->http2_connect, &h2_data);
-    http2_stream_node_insert(handle, h2_data.stream_id, &node);
+    http2_stream_node_insert(handle, h2_data.stream_id, info->user_data, &node);
     HAL_MutexUnlock(handle->mutex);
     HTTP2_STREAM_FREE(nva);
 
@@ -873,7 +874,7 @@ int IOT_HTTP2_Stream_Close(void *hd, stream_data_info_t *info)
             continue;
         }
         if ((node->channel_id != NULL) && (stream_id != NULL) &&
-            (len == strlen(node->channel_id) && !strncmp(node->channel_id, stream_id, len))) {
+                (len == strlen(node->channel_id) && !strncmp(node->channel_id, stream_id, len))) {
             list_del((list_head_t *)&node->list);
             HTTP2_STREAM_FREE(node->channel_id);
             HAL_SemaphoreDestroy(node->semaphore);
