@@ -1,4 +1,13 @@
-config AOS_STM32F401RE-NUCLEO
+menuconfig AOS_BOARD_STM32F401RE-NUCLEO
     bool "stm32f401re-nucleo"
-    default n
+    select AOS_MCU_STM32F4XX_CUBE
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
     help
+
+if AOS_BOARD_STM32F401RE-NUCLEO
+# Configurations for board stm32f401re-nucleo
+
+# Set default value of AOS_NETWORK_SAL
+config AOS_NETWORK_SAL
+    default y
+endif

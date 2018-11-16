@@ -54,8 +54,8 @@ GLOBAL_LDFLAGS += -T board/msp432p4111launchpad/msp432p4111.lds
 endif
 
 # yloop needs sal or lwip, module means the Plug-in module Type
-sal                ?= 1
-ifeq (1,$(sal))
+AOS_NETWORK_SAL ?= y
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module             ?= wifi.mk3060
 else

@@ -17,8 +17,8 @@ GLOBAL_CFLAGS                += -DCPU_LPC54102J512BD64_cm4
 GLOBAL_CFLAGS                += -D__USE_CMSIS -D__MULTICORE_MASTER
 GLOBAL_CFLAGS                += -D__NEWLIB__
 
-sal                ?= 1
-ifeq (1,$(sal))
+AOS_NETWORK_SAL ?= y
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
 module             ?= wifi.mk3060
 endif
