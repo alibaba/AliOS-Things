@@ -2,6 +2,9 @@
 
 struct cut_runtime cut;
 
+static char suite_pattern[64];
+static char case_pattern[64];
+
 static void _filter(int argc, char **argv)
 {
     int i = 0;
@@ -14,8 +17,11 @@ static void _filter(int argc, char **argv)
         c = cut.clist[i];
         if ((argc == 2 && (0 != strcmp(c->sname, argv[1]))) ||
             (argc == 3 && (0 != strcmp(c->sname, argv[1]) || 0 != strcmp(c->cname, argv[2])))) {
-            cut.clist[i]->skip = 1;
-            cut.ccnt_skip++;
+
+            if (!(argc == 2 && strlen(suite_pattern) && strstr(c->sname, suite_pattern))) {
+                cut.clist[i]->skip = 1;
+                cut.ccnt_skip++;
+            }
         }
     }
 }
@@ -44,6 +50,9 @@ static int _parse_arg(int argc, char **argv)
                 if (argc == 2 ||
                     (argc == 3 && 0 == strcmp(argv[2], "all")) ||
                     (argc == 3 && 0 == strcmp(c->sname, argv[2])) ||
+                    (argc == 3 && strlen(suite_pattern) && strstr(c->sname, suite_pattern)) ||
+                    (argc == 4 && strlen(suite_pattern) && strlen(case_pattern) && strstr(c->sname, suite_pattern)
+                     && strstr(c->cname, case_pattern)) ||
                     (argc == 4 && 0 == strcmp(c->sname, argv[2]) && 0 == strcmp(c->cname, argv[3]))) {
                     cut_printf("  [%02d] %s.%s\n", ++cnt, c->sname, c->cname);
                 }
@@ -71,6 +80,29 @@ int cut_main(int argc, char **argv)
     int         i = 0, j = 0, cnt = 0;
     char        tmpbuf[128];
     char       *pos;
+
+    if (argc >= 2) {
+
+        int         idx = 1;
+        char        *q = NULL;
+
+        if (!strcmp(argv[1], "--list") || !strncmp(argv[1], "--verbose", strlen("--verbose"))) {
+            idx += 1;
+        }
+
+        if (idx < argc) {
+
+            if ((q = strchr(argv[idx], '%')) != NULL) {
+                strncpy(suite_pattern, argv[idx], q - argv[idx]);
+            }
+            idx += 1;
+            if (idx < argc) {
+                if ((q = strchr(argv[idx], '%')) != NULL) {
+                    strncpy(case_pattern, argv[idx], q - argv[idx]);
+                }
+            }
+        }
+    }
 
     if (0 == _parse_arg(argc, argv)) {
         return 0;
