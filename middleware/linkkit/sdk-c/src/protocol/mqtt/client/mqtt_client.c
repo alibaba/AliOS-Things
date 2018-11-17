@@ -3376,12 +3376,16 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter)
 
 int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg)
 {
-    iotx_mc_client_t *client = (iotx_mc_client_t *)(handle ? handle : g_mqtt_client);
+    iotx_mc_client_t   *client = (iotx_mc_client_t *)(handle ? handle : g_mqtt_client);
+    int                 rc = -1;
 
     POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
     STRING_PTR_SANITY_CHECK(topic_name, NULL_VALUE_ERROR);
 
-    return iotx_mc_publish(client, topic_name, topic_msg);
+    rc = iotx_mc_publish(client, topic_name, topic_msg);
+    mqtt_info("Publish to topic '%s' returns [%d]", topic_name, rc);
+
+    return rc;
 }
 
 int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len)
