@@ -29,6 +29,7 @@ void IOT_SetLogLevel(IOT_LogLevel level)
     }
 
     LITE_set_loglevel(lvl);
+    HAL_Printf("[prt] log level set as: [ %d ]\r\n", lvl);
 }
 
 void IOT_DumpMemoryStats(IOT_LogLevel level)
@@ -53,7 +54,7 @@ int IOT_SetupConnInfo(const char *product_key,
     char                product_secret[PRODUCT_SECRET_MAXLEN] = {0};
     int                 device_secret_len = DEVICE_SECRET_MAXLEN;
     sdk_impl_ctx_t     *ctx = sdk_impl_get_ctx();
-    
+
     STRING_PTR_SANITY_CHECK(product_key, -1);
     STRING_PTR_SANITY_CHECK(device_name, -1);
 
@@ -115,10 +116,10 @@ int IOT_SetupConnInfo(const char *product_key,
         return SUCCESS_RETURN;
     }
     *info_ptr = iotx_conn_info_reload();
-    if(*info_ptr == NULL) {
+    if (*info_ptr == NULL) {
         return -1;
     }
-    
+
 #endif
     return rc;
 }
