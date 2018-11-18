@@ -57,7 +57,7 @@
 #include <vfs_err.h>
 #include <vfs_register.h>
 #include "common.h"
-#include "sensor.h"
+#include "hal/sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
 #define BMP380_BIT(x)                       ((uint8_t)(x))

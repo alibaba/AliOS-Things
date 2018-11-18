@@ -2,7 +2,7 @@ NAME := gpsapp
 
 $(NAME)_SOURCES := gpsapp_sample.c
 
-$(NAME)_COMPONENTS := cli atparser cjson fota netmgr framework.common device.gps uData connectivity.mqtt
+$(NAME)_COMPONENTS := cli atparser cjson fota netmgr framework.common device.gps uData connectivity.mqtt sensor
 
 $(NAME)_INCLUDES := \
     ./include \

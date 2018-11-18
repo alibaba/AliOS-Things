@@ -10,7 +10,7 @@ ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),developerkit)
 $(NAME)_SOURCES    += devkit_display/AliOS_Things_logo.c
 $(NAME)_SOURCES    += devkit_display/chat_display.c
 GLOBAL_DEFINES += LITTLEVGL_DISPLAY LITTLEVGL_DEVELOPERKIT
-$(NAME)_COMPONENTS += framework.GUI.littlevGL
+$(NAME)_COMPONENTS += framework.GUI.littlevGL sensor
 GLOBAL_INCLUDES     += ../../framework/GUI/littlevGL/ devkit_display/
 endif
 

@@ -57,7 +57,7 @@
 #include <vfs_err.h>
 #include <vfs_register.h>
 #include "common.h"
-#include "sensor.h"
+#include "hal/sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
 #define BMI260_I2C_ADDR_TRANS(n)      ((n)<<1)

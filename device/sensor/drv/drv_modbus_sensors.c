@@ -8,7 +8,7 @@
 #include <hal/base.h>
 #include "aos/uData.h"
 #include "common.h"
-#include "sensor.h"
+#include "hal/sensor.h"
 #include "sensor_drv_conf.h"
 #include "mbmaster_api.h"
 #include "sensor_drv_api.h"

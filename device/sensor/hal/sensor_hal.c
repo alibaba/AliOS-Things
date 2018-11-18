@@ -13,7 +13,7 @@
 #include <vfs_register.h>
 
 #include "common.h"
-#include "sensor.h"
+#include "hal/sensor.h"
 #ifdef UDATA_MODBUS
 #include "mbmaster_api.h"
 #endif
