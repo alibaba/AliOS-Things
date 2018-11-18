@@ -181,19 +181,18 @@ static int _DTLSSession_save(const mbedtls_ssl_session *session,
 }
 #endif
 
-static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
-        unsigned char    *p_ca_cert_pem)
+static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session, unsigned char *p_ca_cert_pem, char *host)
 {
     int result;
     unsigned int err_code = DTLS_SUCCESS;
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     if (p_ca_cert_pem != NULL) {
-#ifndef TEST_COAP_DAILY
         mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_REQUIRED);
-#else
-        mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
-#endif
+        if (strstr(host, "pre.iot-as-coap")) {
+            DTLS_TRC("host = '%s' so verify server OPTIONAL\r\n", host);
+            mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
+        }
         DTLS_TRC("Call mbedtls_ssl_conf_authmode\r\n");
 
         DTLS_TRC("x509 ca cert pem len %d\r\n%s\r\n", (int)strlen((char *)p_ca_cert_pem) + 1, p_ca_cert_pem);
@@ -222,7 +221,7 @@ static void _DTLSLog_wrapper(void        *p_ctx, int level,
     DTLS_INFO("[mbedTLS]:[%s]:[%d]: %s\r\n", p_file, line, p_str);
 }
 
-static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_options_t  *p_options)
+static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_options_t *p_options)
 {
     int   result = 0;
 
@@ -352,7 +351,7 @@ DLL_HAL_API int HAL_DTLSHooks_set(dtls_hooks_t *hooks)
     return DTLS_SUCCESS;
 }
 
-DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
+DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
 {
     char port[6] = {0};
     int result = 0;
@@ -390,7 +389,7 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
                                       mbedtls_ssl_cookie_check, &p_dtls_session->cookie_ctx);
 #endif
 
-        result = _DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem);
+        result = _DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem, p_options->p_host);
 
         if (DTLS_SUCCESS != result) {
             DTLS_ERR("DTLSVerifyOptions_set result 0x%04x\r\n", result);
@@ -436,8 +435,8 @@ error:
 }
 
 unsigned int HAL_DTLSSession_write(DTLSContext *context,
-                                   const unsigned char   *p_data,
-                                   unsigned int    *p_datalen)
+                                   const unsigned char *p_data,
+                                   unsigned int *p_datalen)
 {
     int len  = 0;
     unsigned int err_code = DTLS_SUCCESS;
