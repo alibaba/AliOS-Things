@@ -294,7 +294,6 @@ endif
 
 
 # Process all the components + AOS
-
 COMPONENTS += platform/mcu/$(PLATFORM_MCU_BOARD) board/$(PLATFORM_DIRECTORY)
 
 AOS_SDK_DEFINES += BUILD_2BOOT
@@ -323,6 +322,9 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
                     -I$(SOURCE_ROOT)kernel/fs/kv/include \
                     -I$(SOURCE_ROOT)tools/cli/include \
                     -I$(SOURCE_ROOT)utility/log/include \
+                    -I$(SOURCE_ROOT)osal/aos/include \
+                    -I$(SOURCE_ROOT)osal/aos/include/hal \
+                    -I$(SOURCE_ROOT)osal/aos/include/hal/soc \
 		    -I$(SOURCE_ROOT)kernel/rhino
 
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
