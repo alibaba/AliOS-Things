@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <aos/yloop.h>
-#include "sensor.h"
+#include "hal/sensor.h"
 #include "abs_data_model.h"
 #include "service_mgr.h"
 #include "uData_queue.h"

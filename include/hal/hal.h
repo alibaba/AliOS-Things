@@ -13,7 +13,7 @@
 #include <hal/trace.h>
 #include <hal/wifi.h>
 #include <hal/atcmd.h>
-
+#include <hal/sensor.h>
 #include <hal/soc/soc.h>
 
 #endif /* HAL_HAL_H */

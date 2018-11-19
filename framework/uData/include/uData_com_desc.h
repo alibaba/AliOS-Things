@@ -13,7 +13,7 @@
 #define UDATA_OBJ_DESC_H
 
 #include <aos/kernel.h>
-#include "sensor.h"
+#include "hal/sensor.h"
 #include "aos/log.h"
 
 

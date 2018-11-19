@@ -8,7 +8,7 @@
 #include <aos/aos.h>
 #include "hal/soc/soc.h"
 #include "hal/soc/i2c.h"
-#include "sensor.h"
+#include "hal/sensor.h"
 #include "hal/soc/spi.h"
 
 typedef struct  _sensor_io_dev_t{

@@ -13,7 +13,7 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "sensor.h"
+#include "hal/sensor.h"
 
  
 /* I2C settings for I2C library */

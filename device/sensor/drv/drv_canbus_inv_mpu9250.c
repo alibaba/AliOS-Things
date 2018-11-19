@@ -13,7 +13,7 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "sensor.h"
+#include "hal/sensor.h"
 
 #define LSM6DSL_ACC_MUL 1000
 #define MPU9250_GYRO_SENSITIVITY_2000DPS  70000
