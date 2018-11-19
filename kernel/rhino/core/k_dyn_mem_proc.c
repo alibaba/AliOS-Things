@@ -33,7 +33,9 @@ void dyn_mem_proc_task(void *arg)
                 RHINO_CRITICAL_EXIT();
 #if (RHINO_CONFIG_USER_SPACE > 0)
                 task = (ktask_t *)(res_free->res[1]);
-                k_proc_unload(task->pid);
+                if (task->is_proc == 1u) {
+                    k_proc_unload(task->pid);
+                }
 #endif
                 memcpy(&tmp, res_free, sizeof(res_free_t));
                 for (i = 0; i < tmp.cnt; i++) {
