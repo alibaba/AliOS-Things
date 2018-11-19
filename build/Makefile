@@ -35,7 +35,7 @@ include $(MAKEFILES_PATH)/aos_kconfig.mk
 define USAGE_TEXT
 Aborting due to invalid targets
 
-Usage: make <target> [download] [run | debug] [JTAG=xxx] [total] [VERBOSE=1] [BINS=app/framework/kernel]
+Usage: make <target> [download] [run | debug] [JTAG=xxx] [total] [VERBOSE=1] [MBINS=app/kernel]
        make run
 
   <target>
@@ -60,8 +60,8 @@ Usage: make <target> [download] [run | debug] [JTAG=xxx] [total] [VERBOSE=1] [BI
   [VERBOSE=1]
     Shows the commands as they are being executed
 
-  [BINS=app/framework/kernel]
-    Build bins: app or framework or kernel
+  [MBINS=app/kernel]
+    Build bins: app or kernel
 
   Notes
     * Component names are case sensitive
