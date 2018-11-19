@@ -1035,6 +1035,7 @@ static int iotx_mc_mask_subInfo_from(iotx_mc_client_t *c, unsigned int msgId, io
             *messageHandler = node->handler;
             node->handler = NULL;
             node->node_state = IOTX_MC_NODE_STATE_INVALID; /* mark as invalid node */
+            break;
         }
     }
 
@@ -1436,7 +1437,14 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
 
-    if ((NULL == messagehandler->handle.h_fp) || (NULL == messagehandler->topic_filter)) {
+
+    if (NULL == messagehandler->topic_filter) {
+        mqtt_free(messagehandler);
+        return MQTT_SUB_INFO_NOT_FOUND_ERROR;
+    }
+
+    if ((NULL == messagehandler->handle.h_fp)) {
+        mqtt_free(messagehandler->topic_filter);
         mqtt_free(messagehandler);
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
@@ -1475,6 +1483,7 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
             iotx_mc_topic_handle_t *handle = mqtt_malloc(sizeof(iotx_mc_topic_handle_t));
             if (!handle) {
                 mqtt_free(messagehandler[j].topic_filter);
+                mqtt_free(messagehandler);
                 return FAIL_RETURN;
             }
 
@@ -1493,7 +1502,6 @@ static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
             mqtt_free(messagehandler[j].topic_filter);
         }
     }
-
     mqtt_free(messagehandler);
 #else
     }
@@ -1638,10 +1646,16 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
     (void)iotx_mc_mask_subInfo_from(c, mypacketid, &messageHandler);
     HAL_MutexUnlock(c->lock_list_sub);
 
-    if (NULL == messageHandler || NULL == messageHandler->topic_filter) {
-        mqtt_debug("------------------------------------------------");
+    if (NULL == messageHandler) {
         return MQTT_SUB_INFO_NOT_FOUND_ERROR;
     }
+
+    if (NULL == messageHandler->topic_filter) {
+        mqtt_free(messageHandler);
+        return MQTT_SUB_INFO_NOT_FOUND_ERROR;
+    }
+
+
 
     /* Remove from message handler array */
     HAL_MutexLock(c->lock_generic);
@@ -2507,11 +2521,11 @@ static int MQTTSubInfoProc(iotx_mc_client_t *pClient)
         mqtt_debug("MQTTSubInfoProc Timeout, packetid: %d", node->msg_id);
 #endif
 
-        (void)iotx_mc_mask_subInfo_from(pClient, packet_id, &messageHandler);
-
         /* When arrive here, it means timeout to wait ACK */
         packet_id = node->msg_id;
         msg_type = node->type;
+
+        (void)iotx_mc_mask_subInfo_from(pClient, packet_id, &messageHandler);
 
         /* Wait MQTT SUBSCRIBE ACK timeout */
         if (SUBSCRIBE == msg_type) {
