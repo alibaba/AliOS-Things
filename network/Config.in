@@ -2,6 +2,10 @@ config AOS_NETWORK
     bool "Network Configuration"
     default y
 
+config AOS_NETWORK_SAL
+    bool "Support SAL"
+    default n
+
 if AOS_NETWORK
 source "network/umesh/Config.in"
 source "network/halwifi/Config.in"
