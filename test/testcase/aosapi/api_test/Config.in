@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_API_TEST
+    bool "api_test"
+    default n
+    select AOS_COMP_RHINO
+    help
+
+if AOS_COMP_API_TEST
+# Configurations for comp api_test
+endif

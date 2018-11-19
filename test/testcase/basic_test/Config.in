@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_BASIC_TEST
+    bool "basic_test"
+    default n
+    help
+
+if AOS_COMP_BASIC_TEST
+# Configurations for comp basic_test
+endif
