@@ -1,8 +1,4 @@
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
-NAME := board_mk3060_2boot
-else
 NAME := board_mk3060
-endif
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
