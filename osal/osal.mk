@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := os interface adaptation layer
 
 $(NAME)_COMPONENTS += middleware.common
 
-GLOBAL_INCLUDES += ./mico/include ./aos/include ./aos
+GLOBAL_INCLUDES += ./mico/include ./aos/include ./aos ./aos/include/hal ./aos/include/hal/soc
 
 #default gcc
 ifeq ($(COMPILER),)
