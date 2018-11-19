@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_CJSON_TEST
+    bool "cjson_test"
+    default n
+    select AOS_COMP_CJSON
+    help
+
+if AOS_COMP_CJSON_TEST
+# Configurations for comp cjson_test
+endif

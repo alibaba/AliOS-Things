@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_DIGEST_ALGORITHM_TEST
+    bool "digest_algorithm_test"
+    default n
+    select AOS_COMP_DIGEST_ALGORITHM
+    help
+
+if AOS_COMP_DIGEST_ALGORITHM_TEST
+# Configurations for comp digest_algorithm_test
+endif

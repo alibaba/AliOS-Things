@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_FATFS_TEST
+    bool "fatfs_test"
+    default n
+    select AOS_COMP_FATFS
+    help
+
+if AOS_COMP_FATFS_TEST
+# Configurations for comp fatfs_test
+endif
