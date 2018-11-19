@@ -331,7 +331,20 @@ ifneq ($(ONLY_BUILD_LIBRARY), yes)
 COMPONENTS += auto_component
 endif
 
+# MBINS build support
+ifeq ($(MBINS),app)
+COMPONENTS += mbins.umbins
+COMPONENTS += rhino.mm
+COMPONENTS += rhino.uspace
+AOS_SDK_DEFINES += BUILD_APP
+AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush -nostartfiles
+else ifeq ($(MBINS),kernel)
+COMPONENTS += mbins.kmbins
+COMPONENTS += rhino.uspace
+AOS_SDK_DEFINES += BUILD_KERNEL
+else ifeq (,$(MBINS))
 AOS_SDK_DEFINES += BUILD_BIN
+endif
 
 ALL_MAKEFILES :=
 ifneq ($(CUBE_MAKEFILE), )
@@ -421,13 +434,11 @@ $(foreach comp,$(PROCESSED_COMPONENTS), $(eval $(comp)_CXXFLAGS_ALL += $($(comp)
 
 ifneq ($(ONLY_BUILD_LIBRARY), yes)
 # select the prebuilt libraries
-ifeq (app, $(BINS))
-AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $($(comp)_TYPE), $(if $(filter app app&framework app&kernel share, $($(comp)_TYPE)),$(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
-else ifeq (framework, $(BINS))
-AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $(filter framework app&framework framework&kernel share, $($(comp)_TYPE)), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
-else ifeq (kernel, $(BINS))
-AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $(filter kernel app&kernel framework&kernel share, $($(comp)_TYPE)), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
-else ifeq (, $(BINS))
+ifeq (app, $(MBINS))
+AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $($(comp)_MBINS_TYPE), $(if $(filter app share, $($(comp)_MBINS_TYPE)),$(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
+else ifeq (kernel, $(MBINS))
+AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $(filter kernel share, $($(comp)_MBINS_TYPE)), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
+else ifeq (, $(MBINS))
 AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY)))
 endif
 
@@ -464,7 +475,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,APP_FULL                  		:= $(APP_FULL))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,PLATFORM                  		:= $(PLATFORM))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,HOST_MCU_FAMILY                  	:= $(HOST_MCU_FAMILY))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,SUPPORT_BINS                          := $(SUPPORT_BINS))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,SUPPORT_MBINS                          := $(SUPPORT_MBINS))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,APP                       		:= $(APP))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,HOST_OPENOCD              		:= $(HOST_OPENOCD))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,JTAG              		        := $(JTAG))
@@ -483,7 +494,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_MAKEFILE         := $($(comp)_MAKEFILE)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PRE_BUILD_TARGETS:= $($(comp)_PRE_BUILD_TARGETS)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PREBUILT_LIBRARY := $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
-	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_TYPE             := $($(comp)_TYPE)))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_MBINS_TYPE             := $($(comp)_MBINS_TYPE)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_targets  := $($(comp)_SELF_BUIlD_COMP_targets)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_scripts  := $($(comp)_SELF_BUIlD_COMP_scripts)))
 	$(QUIET)$(foreach var,$(sort $(FEATURE_SHOW_VARS)), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(var) := $($(var))))
