@@ -1,9 +1,0 @@
-menuconfig AOS_COMP_REALTIME
-    bool "realtime"
-    default n
-    select AOS_COMP_RHINO
-    help
-
-if AOS_COMP_REALTIME
-# Configurations for component realtime
-endif
