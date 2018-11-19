@@ -57,6 +57,7 @@ LoRaMacSerializerStatus_t LoRaMacSerializerJoinRequest( LoRaMacMessageJoinReques
     return LORAMAC_SERIALIZER_SUCCESS;
 }
 
+#ifdef LORAWAN_VERSION_110
 LoRaMacSerializerStatus_t LoRaMacSerializerReJoinType1( LoRaMacMessageReJoinType1_t* macMsg )
 {
     if( ( macMsg == 0 ) || ( macMsg->Buffer == 0 ) )
@@ -118,6 +119,7 @@ LoRaMacSerializerStatus_t LoRaMacSerializerReJoinType0or2( LoRaMacMessageReJoinT
 
     return LORAMAC_SERIALIZER_SUCCESS;
 }
+#endif
 
 LoRaMacSerializerStatus_t LoRaMacSerializerData( LoRaMacMessageData_t* macMsg )
 {
