@@ -11,8 +11,6 @@ export SOURCE_ROOT ?= ./
 export MAKEFILES_PATH := $(SOURCE_ROOT)/build
 export SCRIPTS_PATH := $(SOURCE_ROOT)/build/scripts
 
-export BINSTYPE_UPPER
-export BINSTYPE_LOWER
 export UNDERLINE
 export RADIXPOINT
 
@@ -22,7 +20,6 @@ export BIN2BOOTTYPE_LOWER
 
 MAKEFILE_TARGETS := clean Help # targets used by makefile
 
-BINS ?=
 MBINS ?=
 MBINS_APP ?=
 
@@ -86,36 +83,6 @@ Usage: make <target> [download] [run | debug] [JTAG=xxx] [total] [VERBOSE=1] [MB
       $> make clean
 endef
 
-ifeq (,$(BINS))
-BINSTYPE_UPPER :=
-BINSTYPE_LOWER :=
-UNDERLINE :=
-RADIXPOINT :=
-else ifeq (app,$(BINS))
-BINSTYPE_UPPER :=APP
-BINSTYPE_LOWER :=app
-UNDERLINE :=_
-RADIXPOINT :=.
-CREATE_SYSCALLFILE :=$(MAKEFILES_PATH)/scripts/gen_syscalls.py
-PARSE_RESOURSE_TO_SYSCALL_FILE = $(PYTHON) $(CREATE_SYSCALLFILE) $(1) $(2)
-else ifeq (framework,$(BINS))
-BINSTYPE_UPPER :=FRAMEWORK
-BINSTYPE_LOWER :=framework
-UNDERLINE :=_
-RADIXPOINT :=.
-CREATE_SYSCALLFILE :=$(MAKEFILES_PATH)/scripts/gen_syscalls.py
-PARSE_RESOURSE_TO_SYSCALL_FILE = $(PYTHON) $(CREATE_SYSCALLFILE) $(1) $(2)
-else ifeq (kernel,$(BINS))
-BINSTYPE_UPPER :=KERNEL
-BINSTYPE_LOWER :=kernel
-UNDERLINE :=_
-RADIXPOINT :=.
-CREATE_SYSCALLFILE :=$(MAKEFILES_PATH)/scripts/gen_syscalls.py
-PARSE_RESOURSE_TO_SYSCALL_FILE = $(PYTHON) $(CREATE_SYSCALLFILE) $(1) $(2)
-else
-$(error ***** BINS Error, Valid BINS: [BINS=app BINS=kernel BINS=framework] ***** ***)
-endif
-
 ifeq (,$(MBINS))
 MBINSTYPE_UPPER :=
 MBINSTYPE_LOWER :=
@@ -155,7 +122,7 @@ COMPONENT_DEPENDENCY_SCRIPT := $(MAKEFILES_PATH)/scripts/component_dependencies.
 COMPONENT_DEPENDENCY = $(PYTHON) $(COMPONENT_DEPENDENCY_SCRIPT)
 export COMPONENT_DEPENDENCY
 
-.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit .gdbinit$(BINSTYPE_LOWER) export_linkkit_sdk restore_linkkit_sdk
+.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit .gdbinit$(MBINSTYPE_LOWER) export_linkkit_sdk restore_linkkit_sdk
 
 Help:
 	$(TOOLCHAIN_HOOK_TARGETS)
@@ -219,7 +186,6 @@ else
  TOOLCHAIN_MK = aos_toolchain_gcc.mk
 endif
 
-ifeq (,$(MBINS))
 $(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/$(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT)
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/precompile))
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall/syscall_kapi))
@@ -227,27 +193,12 @@ $(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call PARSE_RESOURSE_TO_SYSCALL_FILE, $(OUTPUT_DIR), pre-create))
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_MAKEFILES),Applying changes made to: $?,Making config file for first time)
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config.mk $(CLEANED_BUILD_STRING)
-else
-$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config_mbins.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/$(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT)
-	$(QUIET)$(ECHO) $(if $(AOS_SDK_MAKEFILES),Applying changes made to: $?,Making config file for first time)
-	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config_mbins.mk $(CLEANED_BUILD_STRING)
-endif
 
 endif
-
-define BINS_EXIT
-$(error ***** This Platform Not Support Multi-Bins! [SUPPORT_BINS:=$(SUPPORT_BINS)] Not Use Option:[BINs=*] ***** ***)
-endef
 
 define MBINS_EXIT
-$(error ***** This Platform Not Support Multi-Bins! [SUPPORT_BINS:=$(SUPPORT_BINS)] Not Use Option:[BINs=*] ***** ***)
+$(error ***** This Platform Not Support Multi-Bins! [SUPPORT_MBINS:=$(SUPPORT_MBINS)] Not Use Option:[MBINs=*] ***** ***)
 endef
-
-ifneq ($(BINS),)
-ifneq ($(SUPPORT_BINS),yes)
-BINS_ERROR := error
-endif
-endif
 
 ifneq ($(MBINS),)
 ifneq ($(SUPPORT_MBINS),yes)
@@ -264,11 +215,9 @@ PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) exp
 $(PASSDOWN_TARGETS):
 	@:
 
-$(BUILD_STRING): main_app $(if $(SUB_BUILD),,.gdbinit .gdbinit$(BINSTYPE_LOWER)) 2boot
+$(BUILD_STRING): main_app $(if $(SUB_BUILD),,.gdbinit .gdbinit$(MBINSTYPE_LOWER)) 2boot
 
-ifeq (,$(MBINS))
 main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/aos_target_build.mk
-	$(if $(BINS_ERROR), $(call BINS_EXIT))
 	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
 	$(QUIET)$(ECHO) Build AOS Now
 	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
@@ -279,19 +228,6 @@ main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/ao
 	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_auto_code.py $(OUTPUT_DIR)/config.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
 	$(QUIET)$(ECHO) Build complete
-else
-main_app: $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_target_build_mbins.mk
-	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
-	$(QUIET)$(ECHO) Build AOS Now
-	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/modules)
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/resources)
-	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_auto_code.py $(OUTPUT_DIR)/config.mk $(AUTO_COMPONENT_DIR)
-	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build_mbins.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
-	$(QUIET)$(ECHO) Build complete
-endif
 
 ifeq (yes,$(AOS_SDK_2BOOT_SUPPORT))
 $(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/$(TOOLCHAIN_MK) $(AOS_SDK_2BOOT_MAKEFILES) $(AUTO_COMPONENT)
@@ -301,7 +237,7 @@ $(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MA
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(CLEANED_BUILD_STRING)
 
 2boot: $(OUTPUT_DIR)/config_2boot.mk $(MAKEFILES_PATH)/aos_target_build_2boot.mk
-	$(if $(BINS_ERROR), $(call BINS_EXIT))
+	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
 	$(QUIET)$(ECHO) Build AOS Second Boot Now
 	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
@@ -331,12 +267,6 @@ endif
 	$(QUIET)$(ECHO) set remotetimeout 20 >> $@
 	$(QUIET)$(ECHO) $(GDB_KILL_OPENOCD) >> $@
 	$(QUIET)$(ECHO) $(GDBINIT_STRING) >> $@
-
-ifneq ($(BINS),)
-.gdbinit$(BINSTYPE_LOWER): $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk main_app
-	$(QUIET)$(ECHO) Making $@
-	$(QUIET)$(ECHO) $(SUBGDBINIT_STRING) > $@
-endif
 
 ifneq ($(MBINS),)
 .gdbinit$(MBINSTYPE_LOWER): $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk main_app
