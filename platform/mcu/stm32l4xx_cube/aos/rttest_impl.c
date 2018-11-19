@@ -12,8 +12,8 @@
 #include <stm32l496xx.h>
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_tim.h"
-#include "real_time_test.h"
 #include "stm32l4xx_hal_rcc.h"
+#include "test_realtime.h"
 
 float soc_cpu_clock_freq_mhz(void)
 {
