@@ -6,25 +6,21 @@ $(NAME)_SUMMARY :=
 GLOBAL_DEFINES += AOS_BT
 
 GLOBAL_INCLUDES += include \
-                   include/drivers \
-                   common/include \
-                   port/include
+                   include/drivers
 
-$(NAME)_INCLUDES += common/tinycrypt/include \
+$(NAME)_INCLUDES += bt_common/tinycrypt/include \
                     ../../rhino/core/include
 
 $(NAME)_COMPONENTS += yloop
+
+$(NAME)_COMPONENTS += network.bluetooth.bt.bt_common
 
 ifeq ($(bt_mesh), 1)
 $(NAME)_COMPONENTS += network.bluetooth.bt_mesh
 GLOBAL_DEFINES += CONFIG_BT_MESH
 endif
 
-$(NAME)_SOURCES := common/atomic_c.c \
-                   common/buf.c \
-                   common/log.c \
-                   common/poll.c \
-                   host/uuid.c \
+$(NAME)_SOURCES := host/uuid.c \
                    host/hci_core.c \
                    host/conn.c \
                    host/l2cap.c \
@@ -32,22 +28,9 @@ $(NAME)_SOURCES := common/atomic_c.c \
                    host/gatt.c \
                    host/crypto.c \
                    host/smp.c \
-                   host/keys.c \
-                   common/tinycrypt/source/cmac_mode.c \
-                   common/tinycrypt/source/aes_encrypt.c \
-                   common/rpa.c \
-                   common/work.c \
-                   port/aos_port.c
+                   host/keys.c
 
-$(NAME)_SOURCES += host/hci_ecc.c \
-                   common/tinycrypt/source/utils.c \
-                   common/tinycrypt/source/sha256.c \
-                   common/tinycrypt/source/hmac.c \
-                   common/tinycrypt/source/hmac_prng.c \
-                   common/tinycrypt/source/cmac_mode.c \
-                   common/tinycrypt/source/aes_encrypt.c \
-                   common/tinycrypt/source/ecc.c \
-                   common/tinycrypt/source/ecc_dh.c
+$(NAME)_SOURCES += host/hci_ecc.c
 
 bt_controller?=0
 ifeq ($(bt_controller), 1)
