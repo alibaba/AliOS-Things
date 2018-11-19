@@ -58,12 +58,6 @@ $(foreach makefile_name,$(EXTRA_TARGET_MAKEFILES),$(eval include $(makefile_name
 endif
 endif
 
-ifneq (,$(BINS))
-CREATE_SYSCALLFILE :=$(MAKEFILES_PATH)/scripts/gen_syscalls.py
-PARSE_RESOURSE_TO_SYSCALL_FILE = $(PYTHON) $(CREATE_SYSCALLFILE) $(1) $(2)
-PROCESS_PRECOMPILED_FILES := $(OUTPUT_DIR)/precompile/mark.i
-endif
-
 include $(MAKEFILES_PATH)/aos_resources.mk
 include $(MAKEFILES_PATH)/aos_images_download.mk
 
@@ -252,7 +246,7 @@ LINK_LIBS += $(RESOURCES_LIBRARY)
 # Create targets for components
 ifeq (app, $(MBINS))
 $(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_MBINS_TYPE), $(if $(filter app share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp))), $(call BUILD_COMPONENT_RULES,$(comp)))))
-else ifeq (kernel, $(BINS))
+else ifeq (kernel, $(MBINS))
 $(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp)))))
 else ifeq (,$(MBINS))
 $(foreach comp,$(COMPONENTS),$(eval $(call BUILD_COMPONENT_RULES,$(comp))))
@@ -263,12 +257,6 @@ $(foreach ldsfile,$(AOS_SDK_LDS_FILES),$(eval $(call PROCESS_LDS_FILE,$(ldsfile)
 $(foreach ldsfile,$(AOS_SDK_LDS_INCLUDES),$(eval $(call PROCESS_LDS_FILE,$(ldsfile))))
 $(foreach ldsfile,$(AOS_SDK_LDS_FILES),$(eval AOS_SDK_LDFLAGS += -T $(notdir $(ldsfile:.ld.S=.ld))))
 $(if $(AOS_SDK_LDS_FILES),$(eval AOS_SDK_LDFLAGS += -L $(LDS_FILE_DIR)))
-
-ifneq (,$(BINS))
-$(PROCESS_PRECOMPILED_FILES): $(PRECOMPILED_FILES)
-	$(QUIET)$(TOUCH) $@
-	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call PARSE_RESOURSE_TO_SYSCALL_FILE, $(OUTPUT_DIR), create))
-endif
 
 # Add pre-built libraries
 LINK_LIBS += $(AOS_SDK_PREBUILT_LIBRARIES)
