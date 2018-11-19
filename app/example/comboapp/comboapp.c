@@ -25,6 +25,8 @@
 #include <breeze_export.h>
 #include "dev_info.h"
 
+#include "extcmd.h"
+
 static char linkkit_started = 0;
 static char awss_running    = 0;
 static breeze_apinfo_t apinfo;
@@ -318,7 +320,8 @@ int application_start(int argc, char **argv)
     };
 
     if (combo_init() == 0) {
-        breeze_awss_init(apinfo_ready_handler, &dinfo);
+        extcmd_init(&dinfo);
+        breeze_awss_init(extcmd_rx_command, &dinfo);
     }
 
     breeze_awss_start();
