@@ -152,7 +152,10 @@ static void ComputePingOffset( uint64_t beaconTime, uint32_t address, uint16_t p
 
     SecureElementSetKey( SLOT_RAND_ZERO_KEY, zeroKey );
 
-    SecureElementAesEncrypt( buffer, 16, SLOT_RAND_ZERO_KEY, cipher );
+    if( SecureElementAesEncrypt( buffer, 16, SLOT_RAND_ZERO_KEY, cipher ) != SECURE_ELEMENT_SUCCESS )
+    {
+        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
+    }
 
     result = ( ( ( uint32_t ) cipher[0] ) + ( ( ( uint32_t ) cipher[1] ) * 256 ) );
 
