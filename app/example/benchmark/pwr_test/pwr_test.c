@@ -27,7 +27,6 @@ void demo_task1(void *arg)
         printf("count1 = %d, idle = %d\n", count1++,
                (unsigned int)g_idle_count[0]);
         // printf("count1 = %d\n", count1++);
-
         krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
     }
 }
@@ -37,8 +36,7 @@ void demo_task2(void *arg)
     int count2 = 0;
 
     while (1) {
-        printf("count2 = %d\n", count2++);
-
+        //printf("count2 = %d\n", count2++);
         krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND * 2);
     }
 }

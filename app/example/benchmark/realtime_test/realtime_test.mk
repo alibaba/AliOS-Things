@@ -1,8 +1,5 @@
 NAME := realtime_test
 
-$(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
 $(NAME)_SOURCES := realtime_test.c
 
 GLOBAL_DEFINES += AOS_NO_WIFI
@@ -10,6 +7,6 @@ GLOBAL_DEFINES += AOS_NO_WIFI
 GLOBAL_DEFINES += RHINO_CONFIG_INTRPT_STATS=1
 GLOBAL_DEFINES += RHINO_CONFIG_REALTIME_TEST=1
 
-$(NAME)_COMPONENTS := cli rhino/test/realtime
+$(NAME)_COMPONENTS := cli test/testcase/kernel/realtime
 
 GLOBAL_INCLUDES += ./

@@ -1,0 +1,8 @@
+menuconfig AOS_APP_FOOTPRINT_TEST
+    bool "footprint_test"
+    select AOS_COMP_CLI
+    help
+
+if AOS_APP_FOOTPRINT_TEST
+# Configurations for app footprint_test
+endif
