@@ -464,7 +464,7 @@ DLL_HAL_API void *HAL_Fopen(const char *path, const char *mode);
  * @see None.
  * @note None.
  */
-DLL_HAL_API size_t HAL_Fread(void *buff, size_t size, size_t count, void *stream);
+DLL_HAL_API uint32_t HAL_Fread(void *buff, uint32_t size, uint32_t count, void *stream);
 
 /**
  * @brief Writes an array of count elements, each one with a size of size bytes, from the block of memory pointed
@@ -478,7 +478,7 @@ DLL_HAL_API size_t HAL_Fread(void *buff, size_t size, size_t count, void *stream
  * @see None.
  * @note None.
  */
-DLL_HAL_API size_t HAL_Fwrite(const void *ptr, size_t size, size_t count, void *stream);
+DLL_HAL_API uint32_t HAL_Fwrite(const void *ptr, uint32_t size, uint32_t count, void *stream);
 
 /**
  * @brief Sets the position indicator associated with the stream to a new position.
@@ -502,7 +502,7 @@ DLL_HAL_API int HAL_Fseek(void *stream, long offset, int origin);
  * @see None.
  * @note None.
  */
-DLL_HAL_API int HAL_Fclose(FILE *stream);
+DLL_HAL_API int HAL_Fclose(void *stream);
 
 /**
  * @brief Returns the current value of the position indicator of the stream.
