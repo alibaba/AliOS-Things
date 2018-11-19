@@ -1195,6 +1195,7 @@ uint8_t RegionCN470AApplyDrOffset(uint8_t downlinkDwellTime, int8_t dr,
     return datarate;
 }
 
+#ifdef LORAMAC_CLASSB_ENABLED
 void RegionCN470ARxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
 {
     RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
@@ -1212,4 +1213,5 @@ void RegionCN470ARxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
     // Store downlink datarate
     *outDr = CN470A_BEACON_CHANNEL_DR;
 }
+#endif
 

@@ -585,6 +585,7 @@ static LoRaMacCryptoStatus_t VerifyCmacB0( uint8_t* msg, uint16_t len, KeyIdenti
  * \param[IN/OUT]  b0         - B0 block
  * \retval                    - Status of the operation
  */
+#ifdef LORAWAN_VERSION_110
 static LoRaMacCryptoStatus_t PrepareB1( uint16_t msgLen, KeyIdentifier_t keyID, bool isAck, uint8_t txDr, uint8_t txCh, uint32_t devAddr, uint32_t fCntUp, uint8_t* b1 )
 {
     if( b1 == 0 )
@@ -627,6 +628,7 @@ static LoRaMacCryptoStatus_t PrepareB1( uint16_t msgLen, KeyIdentifier_t keyID, 
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
+#endif
 
 /*
  * Computes cmac with adding B1 block in front ( only for Uplink frames LoRaWAN 1.1 )
@@ -644,6 +646,7 @@ static LoRaMacCryptoStatus_t PrepareB1( uint16_t msgLen, KeyIdentifier_t keyID, 
  * \param[OUT] cmac           - Computed cmac
  * \retval                    - Status of the operation
  */
+#ifdef LORAWAN_VERSION_110
 static LoRaMacCryptoStatus_t ComputeCmacB1( uint8_t* msg, uint16_t len, KeyIdentifier_t keyID, bool isAck, uint8_t txDr, uint8_t txCh, uint32_t devAddr, uint32_t fCntUp, uint32_t* cmac )
 {
     if( ( msg == 0 ) || ( cmac == 0 ) )
@@ -671,6 +674,7 @@ static LoRaMacCryptoStatus_t ComputeCmacB1( uint8_t* msg, uint16_t len, KeyIdent
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
+#endif
 
 /*
  * Gets security item from list.
@@ -747,6 +751,7 @@ static LoRaMacCryptoStatus_t DeriveSessionKey10x( KeyIdentifier_t keyID, uint8_t
  * \param[IN]  deviceNonce    - Device nonce
  * \retval                    - Status of the operation
  */
+#ifdef LORAWAN_VERSION_110
 static LoRaMacCryptoStatus_t DeriveSessionKey11x( KeyIdentifier_t keyID, uint8_t* joinNonce, uint8_t* joinEUI, uint8_t* devNonce )
 {
     if( ( joinNonce == 0 ) || ( joinEUI == 0 ) || ( devNonce == 0 ) )
@@ -787,6 +792,7 @@ static LoRaMacCryptoStatus_t DeriveSessionKey11x( KeyIdentifier_t keyID, uint8_t
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
+#endif
 
 /*
  * Derives a life time session key (JSIntKey or JSEncKey)  as of LoRaWAN 1.1.0
@@ -795,6 +801,7 @@ static LoRaMacCryptoStatus_t DeriveSessionKey11x( KeyIdentifier_t keyID, uint8_t
  * \param[IN]  devEUI         - Device EUI
  * \retval                    - Status of the operation
  */
+#ifdef LORAWAN_VERSION_110
 static LoRaMacCryptoStatus_t DeriveLifeTimeSessionKey( KeyIdentifier_t keyID, uint8_t* devEUI )
 {
     if( devEUI == 0 )
@@ -825,7 +832,7 @@ static LoRaMacCryptoStatus_t DeriveLifeTimeSessionKey( KeyIdentifier_t keyID, ui
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
-
+#endif
 /*
  * Checks the downlink counter value
  *
@@ -1039,6 +1046,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     macMsg->DevNonce = CryptoCtx.NvmCtx->DevNonce;
 
     // Derive lifetime session keys
+    #ifdef LORAWAN_VERSION_110
     retval = DeriveLifeTimeSessionKey( J_S_INT_KEY, macMsg->DevEUI );
     if( retval != LORAMAC_CRYPTO_SUCCESS )
     {
@@ -1049,6 +1057,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     {
         return retval;
     }
+    #endif
 
     // Serialize message
     if( LoRaMacSerializerJoinRequest( macMsg ) != LORAMAC_SERIALIZER_SUCCESS )
@@ -1072,6 +1081,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
+#ifdef LORAWAN_VERSION_110
 LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1_t* macMsg )
 {
     if( macMsg == 0 )
@@ -1111,7 +1121,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
+#endif
 
+#ifdef LORAWAN_VERSION_110
 LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType0or2( LoRaMacMessageReJoinType0or2_t* macMsg )
 {
     if( macMsg == 0 )
@@ -1150,6 +1162,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType0or2( LoRaMacMessageReJoinTy
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
+#endif
 
 LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReqType, uint8_t* joinEUI, LoRaMacMessageJoinAccept_t* macMsg )
 {
@@ -1170,6 +1183,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         encryptionKeyID = APP_KEY;
         micComputationOffset = CRYPTO_MIC_COMPUTATION_OFFSET;
     }
+#ifdef LORAWAN_VERSION_110
     else
     {
         encryptionKeyID = J_S_ENC_KEY;
@@ -1184,7 +1198,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
             devNonceForKeyDerivation = ( uint8_t* ) &CryptoCtx.NvmCtx->RJcount1;
         }
     }
-
+#endif
     // Decrypt header, skip MHDR
     uint8_t procBuffer[CRYPTO_MAXMESSAGE_SIZE + CRYPTO_MIC_COMPUTATION_OFFSET];
     memset1( procBuffer, 0, ( macMsg->BufSize + micComputationOffset ) );
@@ -1511,6 +1525,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
+#ifdef LORAWAN_VERSION_110
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID, uint16_t nonce, uint8_t* devEUI )
 {
     if( devEUI == 0 )
@@ -1542,7 +1557,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID, uint16_
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
+#endif
 
+#ifdef LORAWAN_VERSION_110
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t addrID, uint32_t mcAddr )
 {
     if( mcAddr == 0 )
@@ -1591,3 +1608,4 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t a
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
+#endif
