@@ -23,7 +23,7 @@
 #ifndef __SPI_H__
 #define __SPI_H__
 
-#include "gpio.h"
+#include "lora/system/gpio.h"
 
 /*!
  * SPI peripheral ID

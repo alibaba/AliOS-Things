@@ -25,8 +25,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "gpio.h"
-#include "spi.h"
+#include "lora/system/gpio.h"
+#include "lora/system/spi.h"
 #include "radio.h"
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
