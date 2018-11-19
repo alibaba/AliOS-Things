@@ -23,6 +23,10 @@
     #define WITH_MQTT_FLOW_CTRL                 (0)
 #endif
 
+#ifndef WITH_MQTT_ONLY_QOS0
+    #define WITH_MQTT_ONLY_QOS0                 (0)
+#endif
+
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)
 
