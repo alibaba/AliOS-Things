@@ -773,7 +773,6 @@ static void OnRadioRxError( void )
 
 static void OnRadioRxTimeout( void )
 {
-    DBG_LINKWAN("rx timeout\r\n");
     LoRaMacRadioEvents.Events.RxTimeout = 1;
 }
 
@@ -904,6 +903,7 @@ static void ProcessRadioRxDone( void )
         return;
     }
     // Check if we expect a ping or a multicast slot.
+#ifdef LORAMAC_CLASSB_ENABLED
     if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
     {
         if( LoRaMacClassBIsPingExpected( ) == true )
@@ -919,6 +919,7 @@ static void ProcessRadioRxDone( void )
             MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_MULTICAST_SLOT;
         }
     }
+#endif
 
     macHdr.Value = payload[pktHeaderLen++];
 
@@ -1284,6 +1285,7 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
         LoRaMacClassBBeaconTimerEvent( );
         classBRx = true;
     }
+#ifdef LORAMAC_CLASSB_ENABLED
     if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
     {
         if( LoRaMacClassBIsPingExpected( ) == true )
@@ -1299,6 +1301,7 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
             classBRx = true;
         }
     }
+#endif
 
     if( classBRx == false )
     {
@@ -1416,6 +1419,7 @@ void LoRaMacProcess( void )
                 noTx = true;
             }
 
+        #ifdef LORAMAC_CLASSB_ENABLED
             if( ( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_ACQUISITION ) == true ) &&
                 ( MacCtx.MacFlags.Bits.McpsReq == 0 ) )
             {
@@ -1425,6 +1429,7 @@ void LoRaMacProcess( void )
                     MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
                 }
             }
+        #endif
         }
 
         if( noTx == false )
@@ -1985,6 +1990,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 SetMlmeScheduleUplinkIndication( );
                 break;
             }
+        #ifdef LORAMAC_CLASSB_ENABLED
             case SRV_MAC_DEVICE_TIME_ANS:
             {
                 SysTime_t gpsEpochTime = { 0 };
@@ -2074,6 +2080,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     LoRaMacCommandsAddCmd( MOTE_MAC_BEACON_FREQ_ANS, macCmdPayload, 1 );
                 }
                 break;
+        #endif
             default:
                 // Unknown command. ABORT MAC commands processing
                 return;
@@ -3103,6 +3110,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     // Initialize class b
     // Apply callback
+#ifdef LORAMAC_CLASSB_ENABLED
     classBCallbacks.GetTemperatureLevel = NULL;
     if( callbacks != NULL )
     {
@@ -3120,7 +3128,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     classBParams.MulticastChannels = &MacCtx.NvmCtx->MulticastChannelList[0];
 
     LoRaMacClassBInit( &classBParams, &classBCallbacks, &EventClassBNvmCtxChanged );
-
+#endif
     return LORAMAC_STATUS_OK;
 }
 
@@ -3453,6 +3461,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             }
             break;
         }
+    #ifdef LORAWAN_VERSION_110
         case MIB_J_S_INT_KEY:
         {
             if( mibSet->Param.JSIntKey != NULL )
@@ -3483,6 +3492,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             }
             break;
         }
+    #endif
         case MIB_F_NWK_S_INT_KEY:
         {
             if( mibSet->Param.FNwkSIntKey != NULL )
@@ -3543,6 +3553,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             }
             break;
         }
+    #ifdef LORAWAN_VERSION_110
         case MIB_MC_KE_KEY:
         {
             if( mibSet->Param.McKEKey != NULL )
@@ -3738,6 +3749,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             }
             break;
         }
+    #endif
         case MIB_PUBLIC_NETWORK:
         {
             MacCtx.NvmCtx->PublicNetwork = mibSet->Param.EnablePublicNetwork;
@@ -4154,6 +4166,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
             status = SetTxContinuousWave1( mlmeRequest->Req.TxCw.Timeout, mlmeRequest->Req.TxCw.Frequency, mlmeRequest->Req.TxCw.Power );
             break;
         }
+    #ifdef LORAMAC_CLASSB_ENABLED
         case MLME_DEVICE_TIME:
         {
             // Apply the request
@@ -4232,6 +4245,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
             }
             break;
         }
+    #endif
         default:
             break;
     }
