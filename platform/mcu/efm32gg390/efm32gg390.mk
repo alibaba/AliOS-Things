@@ -19,14 +19,15 @@ GLOBAL_INCLUDES += include \
 				   EMLib/em_lib/include \
 				   EMLib/usb/inc \
 				   hal \
-				   Utils/include
-
-
+				   Utils/include \
+				   Peripheral/include \
+				   Peripheral/include/port_hw \
+				   Peripheral/include/port_os
 
 GLOBAL_INCLUDES += Essentials/include \
 				   Essentials/include/bsp \
 				   Essentials/include/mcu \
-				   Essentials/include/mcu/efm32
+				   Essentials/include/mcu/efm32				   
 
 
 $(NAME)_SOURCES := aos/aos.c \
@@ -37,8 +38,15 @@ $(NAME)_SOURCES += Utils/UartTransceiver.c \
 				   Utils/RingBuffer.c \
 				   Utils/I2CTransceiver.c \
 
+$(NAME)_SOURCES += Peripheral/source/PeripheralDriver.c \
+				   Peripheral/source/port_os/PeripheralDriver_AliOS.c \
+				   Peripheral/source/SpiDriver.c \
+				   Peripheral/source/port_hw/SpiDriverPort.c
+
 $(NAME)_SOURCES += hal/efm32_hal_uart.c \
 				   hal/efm32_hal_i2c.c \
+				   hal/efm32_hal_spi.c \
+				   hal/efm32_hal_gpio.c \
 	               hal/efm32_hal.c \
                    hal/system_efm32gg.c \
                    hal/hw.c \
@@ -84,7 +92,8 @@ $(NAME)_SOURCES += Essentials/source/mcu/efm32/Timer.c \
 				   Essentials/source/mcu/efm32/UART.c \
 				   Essentials/source/mcu/efm32/I2C.c \
 				   Essentials/source/mcu/efm32/SPI.c \
-				   Essentials/source/Retcode.c
+				   Essentials/source/Retcode.c \
+				   Essentials/source/assert.c
 
 
 

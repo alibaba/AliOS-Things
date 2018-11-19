@@ -63,15 +63,6 @@
 typedef uint32_t Retcode_T;
 
 /**
- * @deprecated The below enums are provided for backward compatibility.
- * @note - Interface users are requested to not use this, since it will be removed going forward.
- */
-#define RETCODE_INCONSITENT_STATE RETCODE_INCONSISTENT_STATE
-#define RETCODE_DOPPLE_INITIALIZATION RETCODE_DOUBLE_INITIALIZATION
-#define RETCODE_RTOS_QUEUE_ERROR RETCODE_QUEUE_ERROR
-#define RETCODE_INVALID_SEMAPHORE_IN_ISR RETCODE_INVALID_SIGNAL_IN_ISR
-
-/**
  * @brief	Enumeration to represent the General return codes.
  * The first codes from 0 to #RETCODE_FIRST_CUSTOM_CODE are reserved as general error codes.
  * Packages and projects may define their own codes starting
@@ -84,16 +75,15 @@ enum Retcode_General_E
     RETCODE_OUT_OF_RESOURCES,
     RETCODE_INVALID_PARAM,
     RETCODE_NOT_SUPPORTED,
-    RETCODE_INCONSISTENT_STATE,
+    RETCODE_INCONSITENT_STATE,
     RETCODE_UNINITIALIZED,
 	RETCODE_NULL_POINTER,
+	RETCODE_RTOS_QUEUE_ERROR,
 	RETCODE_UNEXPECTED_BEHAVIOR,
-	RETCODE_DOUBLE_INITIALIZATION,
-	RETCODE_TIMEOUT,
-	RETCODE_TIMER_ERROR,
 	RETCODE_SEMAPHORE_ERROR,
-	RETCODE_QUEUE_ERROR,
-	RETCODE_INVALID_SIGNAL_IN_ISR,
+	RETCODE_DOPPLE_INITIALIZATION,
+	RETCODE_TIMEOUT,
+	RETCODE_INVALID_SEMAPHORE_IN_ISR,
 	//...
 	RETCODE_FIRST_CUSTOM_CODE = 65,
 };
@@ -304,7 +294,6 @@ static BCDS_INLINE uint32_t Retcode_GetCode(Retcode_T retcode)
  * @retval RETCODE_OK : On successful init
  * @retval RETCODE_INCONSITENT_STATE : When this function is called more than once
  * @retval RETCODE_NULL_POINTER : When the function pointer is NULL
- *
  */
 BCDS_DEPRECATED(Retcode_T Retcode_initialize(Retcode_ErrorHandlingFunc_T func));
 
@@ -344,9 +333,6 @@ BCDS_DEPRECATED(void Retcode_raiseError(Retcode_T error));
  * @see Retcode_ErrorHandlingFunc_T
  */
 BCDS_DEPRECATED(void Retcode_raiseErrorFromIsr(Retcode_T error));
-
-/** LCOV_EXCL_START : Start of section where code coverage is ignored.
- * Ignore code coverage for the deprecated APIs.*/
 
 /**
  * @deprecated since version vxx.xx.xx, replaced by #Retcode_GetSeverity
@@ -395,8 +381,6 @@ static BCDS_INLINE uint32_t Retcode_getPackage(Retcode_T retcode)
 {
     return Retcode_GetPackage(retcode);
 }
-
-/** LCOV_EXCL_STOP : End of section where code coverage is ignored. */
 
 #endif /* BCDS_RETCODE_H_ */
 /**@} */

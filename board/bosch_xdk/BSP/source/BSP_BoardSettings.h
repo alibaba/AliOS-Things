@@ -465,6 +465,9 @@
 
 #define SPI2_SCK_PIN                                                            (5)
 #define SPI2_SCK_PORT                                                           (gpioPortB)
+#define SPI2_CS_PIN                                                             (8)
+#define SPI2_CS_PORT                                                            (gpioPortD)
+
 #define TIM0_CC0_PIN                                                            (0)
 #define TIM0_CC0_PORT                                                           (gpioPortA)
 

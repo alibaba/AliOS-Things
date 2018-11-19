@@ -53,8 +53,7 @@ static Retcode_T SPI_ReceiveDefault(struct MCU_SPI_Handle_S* spi_ptr, uint8_t* d
  */
 void MCU_SPI_IRQ_RX_Callback(SPI_T spi)
 {
-    
-     struct MCU_SPI_Handle_S* spi_ptr = (struct MCU_SPI_Handle_S*) spi;
+    struct MCU_SPI_Handle_S* spi_ptr = (struct MCU_SPI_Handle_S*) spi;
     union MCU_SPI_Event_U event;
     USART_TypeDef* spiInstance = spi_ptr->Instance;
     uint32_t spiIntFlags = USART_IntGetEnabled(spiInstance);
@@ -64,10 +63,9 @@ void MCU_SPI_IRQ_RX_Callback(SPI_T spi)
     {
         spi_ptr->pRxBuffPtr[spi_ptr->XferSize - spi_ptr->RxXferCount] = spiInstance->RXDATA;
         spi_ptr->RxXferCount--;
-
         /* Check for final char event */
         if (!spi_ptr->RxXferCount)
-        {
+        {   
             spiInstance->IEN &= ~(USART_IEN_RXDATAV | USART_IEN_PERR | USART_IEN_FERR | USART_IEN_RXOF);
             spiInstance->IFC = (USART_IFC_FERR | USART_IFC_PERR | USART_IFC_RXFULL | USART_IFC_RXOF);
             event.bitfield.RxComplete = 1;
@@ -94,7 +92,6 @@ void MCU_SPI_IRQ_RX_Callback(SPI_T spi)
 
 void MCU_SPI_DMA_RX_Callback(SPI_T spi)
 {
- 
     struct MCU_SPI_Handle_S* spi_ptr = (struct MCU_SPI_Handle_S*) spi;
     union MCU_SPI_Event_U event;
     event.registerValue = 0;
@@ -112,13 +109,11 @@ void MCU_SPI_DMA_RX_Callback(SPI_T spi)
  */
 void MCU_SPI_IRQ_TX_Callback(SPI_T spi)
 {
-     struct MCU_SPI_Handle_S* spi_ptr = (struct MCU_SPI_Handle_S*) spi;
+    struct MCU_SPI_Handle_S* spi_ptr = (struct MCU_SPI_Handle_S*) spi;
     union MCU_SPI_Event_U event;
     USART_TypeDef* spiInstance = spi_ptr->Instance;
-
     /*get the interrupt flags that are pending */
     uint32_t spiIntFlags = USART_IntGetEnabled(spiInstance);
-
     if ((spiIntFlags & USART_IF_TXBL))
     {
         /* the tx buffer is low -so put same data if we have */
@@ -160,7 +155,7 @@ void MCU_SPI_IRQ_TX_Callback(SPI_T spi)
         USART_IntDisable(spiInstance, USART_IEN_TXC);
         USART_IntClear(spiInstance, USART_IFC_TXC);
 
-        if (SPI_STATE_TX == spi_ptr->State)
+        if (SPI_STATE_TX == spi_ptr->State )
         {
             event.bitfield.TxComplete = 1;
             spi_ptr->State = SPI_STATE_READY;
@@ -170,13 +165,14 @@ void MCU_SPI_IRQ_TX_Callback(SPI_T spi)
 
 }
 
+
 void MCU_SPI_DMA_TX_Callback(SPI_T spi)
 {
     struct MCU_SPI_Handle_S* spi_ptr = (struct MCU_SPI_Handle_S*) spi;
     USART_TypeDef* spiInstance = spi_ptr->Instance;
 
     /* only in case of a write only operation */
-    if (SPI_STATE_TX == spi_ptr->State)
+    if (SPI_STATE_TX == spi_ptr->State )
     {
         USART_IntEnable(spiInstance, USART_IEN_TXC);
     }
@@ -304,7 +300,7 @@ Retcode_T MCU_SPI_Deinitialize(SPI_T spi)
 }
 
 /** @brief See public interface function description in BCDS_MCU_SPI.h */
-Retcode_T MCU_SPI_SetParentHandle(SPI_T spi, SWHandle_T parentHandle)
+Retcode_T MCU_SPI_SetOwner(SPI_T spi, SPI_Owner_T parentHandle)
 {
     struct MCU_SPI_Handle_S* spi_ptr = (struct MCU_SPI_Handle_S*) spi;
     Retcode_T retcode = RETCODE_OK;
@@ -320,7 +316,7 @@ Retcode_T MCU_SPI_SetParentHandle(SPI_T spi, SWHandle_T parentHandle)
 }
 
 /** @brief See public interface function description in BCDS_MCU_SPI.h */
-SWHandle_T MCU_SPI_GetParentHandle(SPI_T spi)
+SPI_Owner_T MCU_SPI_GetOwner(SPI_T spi)
 {
     struct MCU_SPI_Handle_S* spi_ptr = (struct MCU_SPI_Handle_S*) spi;
     return spi_ptr->ParentHandle;
@@ -425,7 +421,7 @@ uint32_t MCU_SPI_GetDataCount(SPI_T spi)
 
 static Retcode_T SPI_SendIntMode(struct MCU_SPI_Handle_S* spi_ptr, uint8_t * data, uint32_t dataLength)
 {
-     if (SPI_STATE_READY == spi_ptr->State)
+    if (SPI_STATE_READY == spi_ptr->State)
     {
         USART_TypeDef* spiInstance = spi_ptr->Instance;
         spi_ptr->State = SPI_STATE_TX;
@@ -454,8 +450,7 @@ static Retcode_T SPI_SendIntMode(struct MCU_SPI_Handle_S* spi_ptr, uint8_t * dat
 
 static Retcode_T SPI_SendDmaMode(struct MCU_SPI_Handle_S* spi_ptr, uint8_t * data, uint32_t dataLength)
 {
-    
-     Retcode_T retcode = RETCODE_OK;
+    Retcode_T retcode = RETCODE_OK;
     DMA_CfgDescr_TypeDef spiCfgDescrTx;
     struct MCU_DMA_Channel_S * spiTxChannel = (struct MCU_DMA_Channel_S *) spi_ptr->Link1;
 
@@ -659,14 +654,16 @@ static Retcode_T SPI_TransferDmaMode(struct MCU_SPI_Handle_S* spi_ptr, uint8_t *
         spiCfgDescrRx.hprot = 0;
         DMA_CfgDescr(spiRxChannel->ChannelId, true, &spiCfgDescrRx);
 
+
         /* Activate RX and clear RX buffer*/
         spiInstance->CMD = USART_CMD_RXEN | USART_CMD_CLEARRX | USART_CMD_TXEN | USART_CMD_CLEARTX;
         spiInstance->IEN = 0;
 
         /* Enable DMA Channels */
-        DMA_ActivateBasic(spiRxChannel->ChannelId, true, false, data_in, (void*) &(spi_ptr->Instance->RXDATA), (dataLength - 1));
+        DMA_ActivateBasic(spiRxChannel->ChannelId, true, false, data_in, (void*)&(spi_ptr->Instance->RXDATA), (dataLength - 1));
         /* TX finally starts the synchronous transfer */
-        DMA_ActivateBasic(spiTxChannel->ChannelId, true, false, (void*) &(spi_ptr->Instance->TXDATA), data_out, (dataLength - 1));
+        DMA_ActivateBasic(spiTxChannel->ChannelId, true, false, (void*)&(spi_ptr->Instance->TXDATA), data_out, (dataLength - 1));
+
 
         return RETCODE_OK;
     }
@@ -693,5 +690,6 @@ static Retcode_T SPI_Abort(struct MCU_SPI_Handle_S* spi_ptr)
 
     return RETCODE_OK;
 }
+
 
 #endif //-- BCDS_FEATURE_SPI

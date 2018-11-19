@@ -116,7 +116,7 @@ struct MCU_SPI_Handle_S
     void * Link1;            /**< general purpose link register 1 (used for e.g. DMA TX handle) */
     void * Link2;            /**< general purpose link register 2 (used for e.g. DMA RX handle) */
 
-    SWHandle_T ParentHandle;     /**< OS aware SPI parent handle */
+    SPI_Owner_T ParentHandle;     /**< OS aware SPI parent handle */
 };
 
 #endif /* BCDS_FEATURE_SPI && BCDS_SPI_COUNT */

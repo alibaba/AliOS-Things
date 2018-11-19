@@ -57,21 +57,6 @@
 typedef HWHandle_T SPI_T;
 
 /**
- * @brief Structure to holding device attributes for an SPI device.
- * @details An SPI device is distinguished through its select and de-select functions which in most cases
- * are acting on the Chip Select pin of the device. This structure shall be initialized by the BSP to hold
- * reference to those functions and communicated to the upper layer by type casting to SWHandle_T and writing
- * it to DeviceAttr member of struct MCU_DeviceHandle_S
- *
- */
-
-typedef struct MCU_SPI_DeviceAttr_S
-{
-    Retcode_T (*MCU_SPI_SelectFuncPtr)(int32_t); /**< Pointer to the an SPI device select function*/
-    Retcode_T (*MCU_SPI_DeselectFuncPtr)(int32_t);/**< Pointer to the an SPI device deselect function */
-}MCU_SPI_DeviceAttr_T;
-
-/**
  * @brief Structure to represent the events that can be received from the SPI
  * in the callback function.
  */
@@ -107,6 +92,8 @@ enum RETCODE_HAL_SPI_E
     RETCODE_HAL_SPI_DRIVER_RX_NOT_RUN,
     RETCODE_HAL_SPI_DRIVER_RESSOURCE_NOT_AVAILABLE,
 };
+
+typedef void * SPI_Owner_T;
 
 /**
  * @brief This data type represents a function pointer which is used by SPI as
@@ -155,7 +142,7 @@ Retcode_T MCU_SPI_Deinitialize(SPI_T spi);
  *
  * @retval RETCODE_OK upon successful execution or an error code otherwise (see #Retcode_T for other codes).
  */
-Retcode_T MCU_SPI_SetParentHandle(SPI_T spi, SWHandle_T parentHandle);
+Retcode_T MCU_SPI_SetOwner(SPI_T spi, SPI_Owner_T parentHandle);
 
 /**
  * @brief   Gets the OS aware parent handle.
@@ -164,7 +151,7 @@ Retcode_T MCU_SPI_SetParentHandle(SPI_T spi, SWHandle_T parentHandle);
  *
  * @retval parent handle mapped to the SPI handle. Could be NULL if not initialized.
  */
-SWHandle_T MCU_SPI_GetParentHandle(SPI_T spi);
+SPI_Owner_T MCU_SPI_GetOwner(SPI_T spi);
 
 /**
  * @brief Use this function to send data via SPI.

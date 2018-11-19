@@ -147,7 +147,7 @@ void I2C0_IRQHandler(void)
 //{
 //    BSP_ExtensionPort_I2cIsr();
 //}
-
+#if 0
 /*
  * Refer header BSP_IrqHandler.h for description
  */
@@ -163,7 +163,7 @@ void USART2_RX_IRQHandler(void)
 {
     BSP_ExtensionPort_SPIRxISR();
 }
-
+#endif
 /*
  * Refer header BSP_IrqHandler.h for description
  */

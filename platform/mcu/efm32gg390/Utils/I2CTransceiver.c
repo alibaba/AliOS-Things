@@ -160,15 +160,12 @@ Retcode_T I2CTransceiver_Read(I2cTranceiverHandlePtr_T i2cTransceiver, uint8_t I
         return (RETCODE(RETCODE_SEVERITY_ERROR, RETCODE_SEMAPHORE_ERROR));
     }
     
-    printf("yftest MCU_I2C_ReadRegister start\n");
     retcode = MCU_I2C_ReadRegister(i2cTransceiver->I2CHandle, (uint16_t) I2Caddr, Reg, RegData, NbrBytesToRead);
-    printf("yftest MCU_I2C_ReadRegister retcode=%d\n",retcode);
     if (RETCODE_OK == retcode)
     {
         if (RHINO_SUCCESS != krhino_sem_take(&i2cTransceiver->I2CBusSync, /*(TickType_t) pdMS_TO_TICKS*/(DATA_TRANSFER_TIMEOUT_MS)))
         {
             /* Since the I2C transfer time out happened, Abort an ongoing I2C transmission.*/
-            printf("yftest MCU_I2C_Send\n");
             retcode = MCU_I2C_Send(i2cTransceiver->I2CHandle, (uint16_t) I2Caddr, RegData, CANCEL_I2C_TRANSMISSION);
             if (RETCODE_OK == retcode)
             {
@@ -237,6 +234,7 @@ Retcode_T I2CTransceiver_Write(I2cTranceiverHandlePtr_T i2cTransceiver, uint8_t 
     {
         retcode = RETCODE(RETCODE_SEVERITY_FATAL, RETCODE_SEMAPHORE_ERROR);
     }
+
 
     return retcode;
 }

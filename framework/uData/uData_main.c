@@ -15,7 +15,6 @@ extern     int uData_service_own_task_start(void);
 int uData_main(void)
 {
     int ret = 0;
-
     /* NOTE:
      * please run the abs data init firstly, then run udata service init */
 #ifndef UDATA_YLOOP
@@ -41,9 +40,8 @@ int uData_main(void)
     }
 
     ret = abs_data_cali_init();
-    if (unlikely(ret)) {
-        return -1;
-    }
+
+    
 #ifndef UDATA_YLOOP
     ret = uData_service_own_task_start();
     if (unlikely(ret)) {
