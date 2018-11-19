@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_COAP_TEST
+    bool "coap_test"
+    default n
+    help
+
+if AOS_COMP_COAP_TEST
+# Configurations for comp coap_test
+endif

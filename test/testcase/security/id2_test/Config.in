@@ -1,0 +1,10 @@
+menuconfig AOS_COMP_ID2_TEST
+    bool "id2_test"
+    default n
+    select AOS_COMP_IROT
+    select AOS_COMP_ID2
+    help
+
+if AOS_COMP_ID2_TEST
+# Configurations for comp id2_test
+endif

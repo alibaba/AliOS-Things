@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_NETMGR_TEST
+    bool "netmgr_test"
+    default n
+    help
+
+if AOS_COMP_NETMGR_TEST
+# Configurations for comp netmgr_test
+endif
