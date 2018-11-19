@@ -4,12 +4,13 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
 $(NAME)_SUMMARY :=
 
+$(NAME)_COMPONENTS += network.bluetooth.bt.bt_common
+
 $(NAME)_INCLUDES += ./port/adv/ \
                     ./port/crypto/ \
                     ./port/gatt/ \
                     ./inc/ \
                     ./inc/api/mesh/ \
-                    ../bt/common/tinycrypt/include/ \
                     ../bt/host/ \
                     ../bt/include/
 

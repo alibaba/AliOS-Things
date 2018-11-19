@@ -33,7 +33,7 @@ $(NAME)_SOURCES += hal/nrf5/cntr.c \
                    util/memq.c \
                    util/util.c \
                    hal/device.c \
-                   ../common/irq_manage.c
+                   ../bt_common/irq_manage.c
 
 GLOBAL_DEFINES += CONFIG_BT_OBSERVER
 GLOBAL_DEFINES += CONFIG_BT_BROADCASTER
