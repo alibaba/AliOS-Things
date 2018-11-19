@@ -83,14 +83,6 @@ static void event_handler(ali_event_t *p_event)
             }
 #endif
             break;
-
-        case BZ_EVENT_APINFO:
-#if BZ_ENABLE_COMBO_NET
-            if(m_apinfo_handler != NULL){
-                m_apinfo_handler(p_event->rx_data.p_data);
-	    }
-#endif
-            break;
 	case BZ_CMD_CTX_INFO:
 	    if(p_event->rx_data.p_data != NULL){
                 struct rx_cmd_post_t *r_cmd  = (struct rx_cmd_post_t*) p_event->rx_data.p_data;
@@ -112,7 +104,11 @@ static void event_handler(ali_event_t *p_event)
                     memcpy(m_disc_evt.cmd_evt.m_cmd.data, r_cmd->p_rx_buf, r_cmd->buf_sz);
                     b_notify_upper = true;
 #endif
-		}
+		} else if((cmd = BZ_CMD_EXT_DOWN) && (m_apinfo_handler) != NULL){
+#if BZ_ENABLE_COMBO_NET
+                       m_apinfo_handler(r_cmd->cmd, r_cmd->p_rx_buf, r_cmd->buf_sz);
+#endif
+	        }
 	    }
 	    break;
 #if BZ_ENABLE_OTA
