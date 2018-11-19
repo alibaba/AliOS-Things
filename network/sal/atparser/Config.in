@@ -5,4 +5,13 @@ menuconfig AOS_COMP_ATPARSER
 
 if AOS_COMP_ATPARSER
 # Configurations for comp atparser
+
+config HDLC_UART
+    bool "FEATURE_HDLC_UART"
+    default n
+    help
+      Provides HDLC over uart
+
+      Switching to "y" leads to HDLC over uart enabled.
+      Switching to "n" leads to HDLC over uart disabled.
 endif
