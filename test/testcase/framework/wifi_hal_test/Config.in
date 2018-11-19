@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_WIFI_HAL_TEST
+    bool "wifi_hal_test"
+    default n
+    help
+
+if AOS_COMP_WIFI_HAL_TEST
+# Configurations for comp wifi_hal_test
+endif

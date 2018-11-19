@@ -1,0 +1,10 @@
+menuconfig AOS_COMP_UDATA_TEST
+    bool "uData_test"
+    default n
+    select AOS_COMP_COMMON
+    select AOS_COMP_UDATA
+    help
+
+if AOS_COMP_UDATA_TEST
+# Configurations for comp uData_test
+endif

@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_VFS_TEST
+    bool "vfs_test"
+    default n
+    select AOS_COMP_VFS
+    help
+
+if AOS_COMP_VFS_TEST
+# Configurations for comp vfs_test
+endif
