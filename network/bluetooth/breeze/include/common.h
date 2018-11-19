@@ -19,7 +19,7 @@
 #define BZ_CMD_QUERY 0x2
 #define BZ_CMD_REPLY 0x3
 #define BZ_CMD_EXT_DOWN 0xd
-#define BZ_CMD_EXT_UP 0xd
+#define BZ_CMD_EXT_UP 0xe
 #define BZ_CMD_ERR 0xf
 
 #define BZ_CMD_AUTH 0x10
@@ -97,7 +97,6 @@ typedef enum {
     BZ_EVENT_DISCONNECTED,
     BZ_EVENT_AUTHENTICATED,
     BZ_EVENT_TX_DONE,
-    BZ_EVENT_APINFO,
     BZ_EVENT_ERR_DISCONT,
     BZ_CMD_CTX_INFO,
 };
