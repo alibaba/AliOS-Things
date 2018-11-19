@@ -113,7 +113,6 @@ void I2C0_Init(void)
     printf("I2CTransceiver_Init ret=%d\n",ret);
 
     
-    aos_msleep(10);
     
     CMU_ClockEnable(cmuClock_I2C0, true);
     
@@ -162,7 +161,6 @@ void I2C1_Init(void)
     printf("I2CTransceiver_Init ret=%d\n",ret);
 
     
-    aos_msleep(10);
     
     CMU_ClockEnable(cmuClock_I2C1, true);
     
@@ -204,12 +202,39 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
 int32_t hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *data,
                             uint16_t size, uint32_t timeout)
 {
+    int ret = -1;
+    I2cTranceiverHandle_T * handle = NULL;
+
+    if (NULL == i2c || NULL == data){
+        return ret;
+    }
+    handle = get_priv(i2c->port);
+    if(handle == NULL)
+    {
+        return ret;
+    }
+    ret = MCU_I2C_Send(handle->I2CHandle,dev_addr,data,size);
+    return ret;
 }
 
 
 int32_t hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
                             uint16_t size, uint32_t timeout)
 {
+    
+    int ret = -1;
+    I2cTranceiverHandle_T * handle = NULL;
+
+    if (NULL == i2c || NULL == data){
+        return ret;
+    }
+    handle = get_priv(i2c->port);
+    if(handle == NULL)
+    {
+        return ret;
+    }
+    ret = MCU_I2C_Receive(handle->I2CHandle,dev_addr,data,size);
+    return ret;
 }
 
 int32_t hal_i2c_slave_send(i2c_dev_t *i2c, const uint8_t *data, uint16_t size, uint32_t timeout)
@@ -234,6 +259,7 @@ int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
     {
         ret = 0;
     }
+    
     return ret;
 }
 
@@ -252,6 +278,7 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
     {
         ret = 0;
     }
+    
     return ret;
 
 }

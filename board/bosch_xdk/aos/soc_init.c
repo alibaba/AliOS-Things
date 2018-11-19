@@ -41,10 +41,22 @@
 
 uart_dev_t uart_0;
 //i2c_dev_t brd_i2c0_dev = {0, {0}, NULL};
+i2c_dev_t brd_i2c0_dev = {0, {0}, NULL};
+i2c_dev_t brd_i2c1_dev = {1, {0}, NULL};
+spi_dev_t brd_spi2_dev = {2, {0}, NULL};
+
+void efm32_soc_peripheral_init(void)
+{
+    
+    hal_i2c_init(&brd_i2c0_dev);
+    hal_i2c_init(&brd_i2c1_dev);
+    //hal_spi_init(&brd_spi2_dev);
+
+}
 
 static void stduart_init(void)
 {
-    uart_0.port = 0;
+    uart_0.port = 1;
     uart_0.config.baud_rate = 115200;
     uart_0.config.data_width = DATA_WIDTH_8BIT;
     uart_0.config.flow_control = FLOW_CONTROL_DISABLED;

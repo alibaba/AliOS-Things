@@ -34,7 +34,7 @@ static void sys_init(void)
     SysTick_Config(SystemCoreClock/RHINO_CONFIG_TICKS_PER_SECOND);
     //xdk_board_init();
     //start_hw();
-    
+    efm32_soc_peripheral_init();
     hw_start_hal();
 
     var_init();
