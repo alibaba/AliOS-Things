@@ -755,10 +755,6 @@ static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
     }
     LOGD(MODULE_NAME, "Sending delimiter %s", at._send_delimiter);
 
-#ifdef AT_PARSER_DELAY_FLAG
-    aos_msleep(20);
-#endif
-
 #ifdef HDLC_UART
     if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)data, len,
                               at._timeout, true)) != 0)
