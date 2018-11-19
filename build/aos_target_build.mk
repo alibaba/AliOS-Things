@@ -24,7 +24,7 @@ endif
 # Filenames
 ##################################
 
-LINK_OUTPUT_FILE          :=$(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING)$(RADIXPOINT)$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX)
+LINK_OUTPUT_FILE          :=$(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING)$(RADIXPOINT)$(MBINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX)
 # out/helloworld@xx/binary/helloworld@xx.elf
 STRIPPED_LINK_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.stripped$(LINK_OUTPUT_SUFFIX))
 # out/helloworld@xx/binary/helloworld@xx.stripped.elf
@@ -46,9 +46,9 @@ endif
 OPENOCD_LOG_FILE          ?= $(OUTPUT_DIR)/openocd_log.txt
 
 LIBS_DIR                  := $(OUTPUT_DIR)/libraries
-LINK_OPTS_FILE            := $(OUTPUT_DIR)/binary/link$(UNDERLINE)$(BINSTYPE_LOWER).opts
+LINK_OPTS_FILE            := $(OUTPUT_DIR)/binary/link$(UNDERLINE)$(MBINSTYPE_LOWER).opts
 
-LINT_OPTS_FILE            := $(OUTPUT_DIR)/binary/lint$(UNDERLINE)$(BINSTYPE_LOWER).opts
+LINT_OPTS_FILE            := $(OUTPUT_DIR)/binary/lint$(UNDERLINE)$(MBINSTYPE_LOWER).opts
 
 LDS_FILE_DIR              := $(OUTPUT_DIR)/ld
 
@@ -250,24 +250,11 @@ LINK_LIBS += $(RESOURCES_LIBRARY)
 
 # $(info Components: $(COMPONENTS))
 # Create targets for components
-ifeq (app, $(BINS))
-# precompile kernel/framework file
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),kernel))))
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),framework))))
-# Create targets for components
-$(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_TYPE), $(if $(filter app app&framework app&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp))), $(call BUILD_COMPONENT_RULES,$(comp)))))
-else ifeq (framework, $(BINS))
-# precompile kernel/framework file
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),kernel))))
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),framework))))
-# Create targets for components
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework app&framework framework&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp)))))
+ifeq (app, $(MBINS))
+$(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_MBINS_TYPE), $(if $(filter app share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp))), $(call BUILD_COMPONENT_RULES,$(comp)))))
 else ifeq (kernel, $(BINS))
-# precompile kernel file
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),kernel))))
-# Create targets for components
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel app&kernel framework&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp)))))
-else ifeq (,$(BINS))
+$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp)))))
+else ifeq (,$(MBINS))
 $(foreach comp,$(COMPONENTS),$(eval $(call BUILD_COMPONENT_RULES,$(comp))))
 endif
 
