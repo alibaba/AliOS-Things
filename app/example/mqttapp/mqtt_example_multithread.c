@@ -330,8 +330,7 @@ int mqtt_client(void *params)
     /* Device AUTH */
     if (0 != IOT_SetupConnInfo(PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET, (void **)&pconn_info)) {
         EXAMPLE_TRACE("AUTH request failed!");
-        rc = -1;
-        goto do_exit;
+        return -1;
     }
 
     /* Initialize MQTT parameter */
@@ -358,8 +357,7 @@ int mqtt_client(void *params)
     pclient = IOT_MQTT_Construct(&mqtt_params);
     if (NULL == pclient) {
         EXAMPLE_TRACE("MQTT construct failed");
-        rc = -1;
-        goto do_exit;
+        return -1;
     }
 
     EXAMPLE_TRACE("TEST CASE");
@@ -370,7 +368,6 @@ int mqtt_client(void *params)
     task_parms.name = "thread_yield";
     rc = HAL_ThreadCreate(&g_thread_yield, thread_yield, (void *)pclient, &task_parms, &stack_used);
     if (rc != 0) {
-        IOT_MQTT_Destroy(&pclient);
         goto do_exit;
     }
 
@@ -393,7 +390,7 @@ int mqtt_client(void *params)
     g_thread_pub_2_running = 0;
     g_thread_yield_running = 0;
     HAL_SleepMs(5000);
-    IOT_MQTT_Destroy(&pclient);
+    
 do_exit:
 
     HAL_ThreadDelete(g_thread_sub_unsub_1);
@@ -401,7 +398,7 @@ do_exit:
     HAL_ThreadDelete(g_thread_pub_1);
     HAL_ThreadDelete(g_thread_pub_2);
     HAL_ThreadDelete(g_thread_yield);
-
+    IOT_MQTT_Destroy(&pclient);
     return rc;
 }
 
