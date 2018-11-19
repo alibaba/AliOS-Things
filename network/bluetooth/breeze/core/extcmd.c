@@ -369,7 +369,7 @@ void extcmd_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
     uint32_t err_code = BZ_SUCCESS;
 
 #if BZ_ENABLE_AUTH
-    if (auth_is_authdone()) {
+    if (!auth_is_authdone()) {
         err_code = BZ_EINVALIDSTATE;
     }
 #endif
