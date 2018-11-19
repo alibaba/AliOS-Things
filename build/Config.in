@@ -56,3 +56,7 @@ endmenu
 menu "Utility Configuration"
 source "utility/Config.in"
 endmenu
+
+menu "Testcase Configuration"
+source "test/Config.in"
+endmenu
