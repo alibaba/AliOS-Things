@@ -68,6 +68,7 @@ typedef struct SUBSCRIBE_INFO {
     struct list_head            linked_list;
 } iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
 
+#if !WITH_MQTT_ONLY_QOS0
 /* Information structure of published topic */
 typedef struct REPUBLISH_INFO {
     iotx_time_t                 pub_start_time;     /* start time of publish request */
@@ -77,7 +78,7 @@ typedef struct REPUBLISH_INFO {
     unsigned char              *buf;                /* publish message */
     struct list_head            linked_list;
 } iotx_mc_pub_info_t, *iotx_mc_pub_info_pt;
-
+#endif
 /* Reconnected parameter of MQTT client */
 typedef struct {
     iotx_time_t         reconnect_next_time;        /* the next time point of reconnect */
@@ -105,7 +106,9 @@ typedef struct Client {
     iotx_mc_state_t                 client_state;                               /* state of MQTT client */
     iotx_mc_reconnect_param_t       reconnect_param;                            /* reconnect parameter */
     MQTTPacket_connectData          connect_data;                               /* connection parameter */
+#if !WITH_MQTT_ONLY_QOS0
     struct list_head                list_pub_wait_ack;                          /* list of wait publish ack */
+#endif
     struct list_head                list_sub_wait_ack;                          /* list of subscribe or unsubscribe ack */
     void                           *lock_list_pub;                              /* lock for list of QoS1 pub */
     void                           *lock_list_sub;                              /* lock for list of sub/unsub */

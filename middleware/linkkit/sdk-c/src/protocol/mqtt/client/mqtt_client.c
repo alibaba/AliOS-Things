@@ -24,7 +24,9 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient);
 static void iotx_mc_disconnect_callback(iotx_mc_client_t *pClient) ;
 static int iotx_mc_check_state_normal(iotx_mc_client_t *c);
 static void iotx_mc_reconnect_callback(iotx_mc_client_t *pClient);
-static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, iotx_mc_pub_info_t **node);
+#if !WITH_MQTT_ONLY_QOS0
+    static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, iotx_mc_pub_info_t **node);
+#endif
 static int iotx_mc_push_subInfo_to(iotx_mc_client_t *c, int len, unsigned short msgId, enum msgTypes type,
                                    iotx_mc_topic_handle_t *handler,
                                    iotx_mc_subsribe_info_t **node);
@@ -47,7 +49,6 @@ static void *g_mqtt_client = NULL;
 static offline_sub_list_t *_mqtt_offline_subs_list = NULL;
 
 #if  WITH_MQTT_DYN_BUF
-
 static int _reset_send_buffer(iotx_mc_client_t *c)
 {
     ARGUMENT_SANITY_CHECK(c != NULL, FAIL_RETURN);
@@ -381,7 +382,6 @@ int MQTTConnect(iotx_mc_client_t *pClient)
 int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
 
 {
-    iotx_mc_pub_info_t  *node = NULL;
     iotx_time_t         timer;
     MQTTString          topic = MQTTString_initializer;
     int                 len = 0;
@@ -423,7 +423,8 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
         return MQTT_PUBLISH_PACKET_ERROR;
     }
 
-
+#if !WITH_MQTT_ONLY_QOS0
+    iotx_mc_pub_info_t  *node = NULL;
     /* If the QOS >1, push the information into list of wait publish ACK */
     if (topic_msg->qos > IOTX_MQTT_QOS0) {
         /* push into list */
@@ -435,15 +436,16 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
             return MQTT_PUSH_TO_LIST_ERROR;
         }
     }
-
+#endif
     /* send the publish packet */
     if (iotx_mc_send_packet(c, c->buf_send, len, &timer) != SUCCESS_RETURN) {
+#if !WITH_MQTT_ONLY_QOS0
         if (topic_msg->qos > IOTX_MQTT_QOS0) {
             /* If not even successfully sent to IP stack, meaningless to wait QOS1 ack, give up waiting */
-
             list_del(&node->linked_list);
             mqtt_free(node);
         }
+#endif
         _reset_send_buffer(c);
         HAL_MutexUnlock(c->lock_write_buf);
         HAL_MutexUnlock(c->lock_list_pub);
@@ -462,67 +464,6 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     HAL_MutexUnlock(c->lock_write_buf);
     HAL_MutexUnlock(c->lock_list_pub);
 
-    return SUCCESS_RETURN;
-}
-
-
-/* MQTT send publish ACK */
-static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes type)
-{
-    int rc = 0;
-    int len = 0;
-    iotx_time_t timer;
-
-    if (!c) {
-        return FAIL_RETURN;
-    }
-
-    iotx_time_init(&timer);
-    utils_time_countdown_ms(&timer, c->request_timeout_ms);
-
-    HAL_MutexLock(c->lock_write_buf);
-    if (type == PUBACK) {
-
-        if (_alloc_send_buffer(c, 0) < 0) {
-            HAL_MutexUnlock(c->lock_write_buf);
-            return FAIL_RETURN;
-        }
-
-        len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBACK, 0, msgId);
-#if WITH_MQTT_QOS2_PACKET
-    } else if (type == PUBREC) {
-        if (_alloc_send_buffer(c, 0) < 0) {
-            HAL_MutexUnlock(c->lock_write_buf);
-            return FAIL_RETURN;
-        }
-        len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBREC, 0, msgId);
-    } else if (type == PUBREL) {
-        if (_alloc_send_buffer(c, 0) < 0) {
-            HAL_MutexUnlock(c->lock_write_buf);
-            return FAIL_RETURN;
-        }
-        len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBREL, 0, msgId);
-#endif  /* #if WITH_MQTT_QOS2_PACKET */
-    } else {
-        HAL_MutexUnlock(c->lock_write_buf);
-        return MQTT_PUBLISH_ACK_TYPE_ERROR;
-    }
-
-    if (len <= 0) {
-        _reset_send_buffer(c);
-        HAL_MutexUnlock(c->lock_write_buf);
-        return MQTT_PUBLISH_ACK_PACKET_ERROR;
-    }
-
-    rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);
-    if (rc != SUCCESS_RETURN) {
-        _reset_send_buffer(c);
-        HAL_MutexUnlock(c->lock_write_buf);
-        return MQTT_NETWORK_ERROR;
-    }
-
-    _reset_send_buffer(c);
-    HAL_MutexUnlock(c->lock_write_buf);
     return SUCCESS_RETURN;
 }
 
@@ -843,6 +784,67 @@ static int MQTTDisconnect(iotx_mc_client_t *c)
     return rc;
 }
 
+/* MQTT send publish ACK */
+static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes type)
+{
+    int rc = 0;
+    int len = 0;
+    iotx_time_t timer;
+
+    if (!c) {
+        return FAIL_RETURN;
+    }
+
+    iotx_time_init(&timer);
+    utils_time_countdown_ms(&timer, c->request_timeout_ms);
+
+    HAL_MutexLock(c->lock_write_buf);
+    if (type == PUBACK) {
+
+        if (_alloc_send_buffer(c, 0) < 0) {
+            HAL_MutexUnlock(c->lock_write_buf);
+            return FAIL_RETURN;
+        }
+
+        len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBACK, 0, msgId);
+#if WITH_MQTT_QOS2_PACKET
+    } else if (type == PUBREC) {
+        if (_alloc_send_buffer(c, 0) < 0) {
+            HAL_MutexUnlock(c->lock_write_buf);
+            return FAIL_RETURN;
+        }
+        len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBREC, 0, msgId);
+    } else if (type == PUBREL) {
+        if (_alloc_send_buffer(c, 0) < 0) {
+            HAL_MutexUnlock(c->lock_write_buf);
+            return FAIL_RETURN;
+        }
+        len = MQTTSerialize_ack((unsigned char *)c->buf_send, c->buf_size_send, PUBREL, 0, msgId);
+#endif  /* #if WITH_MQTT_QOS2_PACKET */
+    } else {
+        HAL_MutexUnlock(c->lock_write_buf);
+        return MQTT_PUBLISH_ACK_TYPE_ERROR;
+    }
+
+    if (len <= 0) {
+        _reset_send_buffer(c);
+        HAL_MutexUnlock(c->lock_write_buf);
+        return MQTT_PUBLISH_ACK_PACKET_ERROR;
+    }
+
+    rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);
+    if (rc != SUCCESS_RETURN) {
+        _reset_send_buffer(c);
+        HAL_MutexUnlock(c->lock_write_buf);
+        return MQTT_NETWORK_ERROR;
+    }
+
+    _reset_send_buffer(c);
+    HAL_MutexUnlock(c->lock_write_buf);
+    return SUCCESS_RETURN;
+}
+
+#if !WITH_MQTT_ONLY_QOS0
 /* remove the list element specified by @msgId from list of wait publish ACK */
 /* return: 0, success; NOT 0, fail; */
 static int iotx_mc_mask_pubInfo_from(iotx_mc_client_t *c, uint16_t msgId)
@@ -863,7 +865,6 @@ static int iotx_mc_mask_pubInfo_from(iotx_mc_client_t *c, uint16_t msgId)
 
     return SUCCESS_RETURN;
 }
-
 
 /* push the wait element into list of wait publish ACK */
 /* return: 0, success; NOT 0, fail; */
@@ -909,7 +910,7 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
 
     return SUCCESS_RETURN;
 }
-
+#endif //WITH_MQTT_ONLY_QOS0
 
 /* push the wait element into list of wait subscribe(unsubscribe) ACK */
 /* return: 0, success; NOT 0, fail; */
@@ -983,22 +984,17 @@ static int _dump_wait_list(iotx_mc_client_t *c, const char *type)
         list_for_each_entry(&node->linked_list, &c->list_sub_wait_ack, linked_list, iotx_mc_subsribe_info_t) {
             debug_handler = subInfo->handler;
             topic_filter = (char *)((debug_handler) ? (debug_handler->topic_filter) : ("NULL"));
-#if 0
-            HEXDUMP_DEBUG(subInfo->handler->topic_filter, 32);
-            mqtt_debug("[%d] %-32s(%d) | %p | %-8s | %-6s |",
-                       subInfo->msg_id,
-                       (subInfo->handler->topic_filter[0] == '/') ? subInfo->handler->topic_filter : "+ N/A +",
-#else
+
             mqtt_debug("[%d] %s(%d) | %p | %-8s | %-6s |",
                        subInfo->msg_id,
                        topic_filter,
-#endif
                        subInfo->len,
                        debug_handler,
                        (subInfo->node_state == IOTX_MC_NODE_STATE_INVALID) ? "INVALID" : "NORMAL",
                        (subInfo->type == SUBSCRIBE) ? "SUB" : "UNSUB"
                       );
         }
+#if !WITH_MQTT_ONLY_QOS0
     } else if (strlen(type) && !strcmp(type, "pub")) {
         iotx_mc_pub_info_t *node = NULL;
 
@@ -1009,6 +1005,7 @@ static int _dump_wait_list(iotx_mc_client_t *c, const char *type)
                 mqtt_err("pub node's value is invalid!");
             }
         }
+#endif
     } else {
         mqtt_err("Invalid argument of type = '%s', abort", type);
     }
@@ -1363,7 +1360,7 @@ static int iotx_mc_handle_recv_CONNACK(iotx_mc_client_t *c)
     return rc;
 }
 
-
+#if !WITH_MQTT_ONLY_QOS0
 /* handle PUBACK packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
 {
@@ -1391,7 +1388,7 @@ static int iotx_mc_handle_recv_PUBACK(iotx_mc_client_t *c)
 
     return SUCCESS_RETURN;
 }
-
+#endif
 
 /* handle SUBACK packet received from remote MQTT broker */
 static int iotx_mc_handle_recv_SUBACK(iotx_mc_client_t *c)
@@ -1692,7 +1689,6 @@ static int iotx_mc_handle_recv_UNSUBACK(iotx_mc_client_t *c)
 /* wait CONNACK packet from remote MQTT broker */
 static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
 {
-
 #define WAIT_CONNACK_MAX (10)
     unsigned char wait_connack = 0;
     unsigned int packetType = 0;
@@ -1790,6 +1786,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
             mqtt_debug("CONNACK");
             break;
         }
+#if !WITH_MQTT_ONLY_QOS0
         case PUBACK: {
             mqtt_debug("PUBACK");
             rc = iotx_mc_handle_recv_PUBACK(c);
@@ -1799,6 +1796,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 
             break;
         }
+#endif
         case SUBACK: {
             mqtt_debug("SUBACK");
             rc = iotx_mc_handle_recv_SUBACK(c);
@@ -2064,15 +2062,18 @@ int iotx_mc_publish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_
         return MQTT_STATE_ERROR;
     }
 
+#if !WITH_MQTT_ONLY_QOS0
     if (topic_msg->qos == IOTX_MQTT_QOS1 || topic_msg->qos == IOTX_MQTT_QOS2) {
         msg_id = iotx_mc_get_next_packetid(c);
         topic_msg->packet_id = msg_id;
     }
-
     if (topic_msg->qos == IOTX_MQTT_QOS2) {
         mqtt_err("MQTTPublish return error,MQTT_QOS2 is now not supported.");
         return MQTT_PUBLISH_QOS_ERROR;
     }
+#else
+    topic_msg->qos = IOTX_MQTT_QOS0;
+#endif
 
 #if defined(INSPECT_MQTT_FLOW)
     HEXDUMP_DEBUG(topic_msg->payload, topic_msg->payload_len);
@@ -2292,8 +2293,9 @@ int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams)
 
     /* Initialize reconnect parameter */
     pClient->reconnect_param.reconnect_time_interval_ms = IOTX_MC_RECONNECT_INTERVAL_MIN_MS;
-
+#if !WITH_MQTT_ONLY_QOS0
     INIT_LIST_HEAD(&pClient->list_pub_wait_ack);
+#endif
     INIT_LIST_HEAD(&pClient->list_sub_wait_ack);
 
     /* Initialize MQTT connect parameter */
@@ -2606,7 +2608,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
     } while (0);
 }
 
-
+#if !WITH_MQTT_ONLY_QOS0
 /* republish */
 static int MQTTRePublish(iotx_mc_client_t *c, char *buf, int len)
 {
@@ -2670,7 +2672,7 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 
     return SUCCESS_RETURN;
 }
-
+#endif
 
 /* connect */
 int iotx_mc_connect(iotx_mc_client_t *pClient)
@@ -2870,6 +2872,7 @@ static void iotx_sub_wait_ack_list_destroy(iotx_mc_client_t *pClient)
     }
 }
 
+#if !WITH_MQTT_ONLY_QOS0
 static void iotx_pub_wait_ack_list_destroy(iotx_mc_client_t *pClient)
 {
     iotx_mc_pub_info_t *node = NULL, *next_node = NULL;
@@ -2879,7 +2882,7 @@ static void iotx_pub_wait_ack_list_destroy(iotx_mc_client_t *pClient)
         mqtt_free(node);
     }
 }
-
+#endif
 /* release MQTT resource */
 static int iotx_mc_release(iotx_mc_client_t *pClient)
 {
@@ -2916,8 +2919,9 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
     HAL_MutexDestroy(pClient->lock_read_buf);
 
     iotx_sub_wait_ack_list_destroy(pClient);
+#if !WITH_MQTT_ONLY_QOS0
     iotx_pub_wait_ack_list_destroy(pClient);
-
+#endif
     if (pClient->buf_send != NULL) {
         mqtt_free(pClient->buf_send);
         pClient->buf_send = NULL;
@@ -3216,9 +3220,10 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms)
         /* acquire package in cycle, such as PINGRESP or PUBLISH */
         rc = iotx_mc_cycle(pClient, &time);
         if (SUCCESS_RETURN == rc) {
+#if !WITH_MQTT_ONLY_QOS0
             /* check list of wait publish ACK to remove node that is ACKED or timeout */
             MQTTPubInfoProc(pClient);
-
+#endif
             /* check list of wait subscribe(or unsubscribe) ACK to remove node that is ACKED or timeout */
             MQTTSubInfoProc(pClient);
         }
@@ -3397,8 +3402,6 @@ int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_
     STRING_PTR_SANITY_CHECK(topic_name, NULL_VALUE_ERROR);
 
     rc = iotx_mc_publish(client, topic_name, topic_msg);
-    mqtt_info("Publish to topic '%s' returns [%d]", topic_name, rc);
-
     return rc;
 }
 
