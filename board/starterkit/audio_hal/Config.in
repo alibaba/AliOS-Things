@@ -1,7 +1,0 @@
-menuconfig AOS_BOARD_AUDIO_HAL
-    bool "audio_hal"
-    help
-
-if AOS_BOARD_AUDIO_HAL
-# Configurations for board audio_hal
-endif
