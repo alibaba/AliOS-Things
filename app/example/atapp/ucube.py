@@ -5,7 +5,7 @@ component =aos_component('atapp', src)
 
 dependencis =Split(''' 
     kernel/yloop
-    tools/cli
+    kernel/cli
     network/netmgr
     network/sal/atparser
 ''')

@@ -6,7 +6,7 @@ aos_global_config.set('no_with_lwip', 0)
 
 dependencis =Split(''' 
     network/umesh
-    tools/cli
+    kernel/cli
     network/netmgr
 ''')
 for i in dependencis:

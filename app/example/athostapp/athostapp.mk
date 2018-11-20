@@ -6,7 +6,7 @@ $(NAME)_SUMMARY :=
 $(NAME)_SOURCES := athostapp.c
 $(NAME)_COMPONENTS := network/sal/athost \
                       network/netmgr \
-                      tools/cli \
+                      kernel/cli \
                       yloop
 
 no_atparser ?= 0

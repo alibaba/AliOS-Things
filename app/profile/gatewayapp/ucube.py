@@ -18,7 +18,7 @@ dependencis =Split('''
     framework/protocol/linkkit/alcs
     framework/protocol/linkkit/iotkit
     framework/ywss4linkkit
-    tools/cli
+    kernel/cli
     device/sensor 
     framework/uData
     network/websockets

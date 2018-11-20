@@ -3,4 +3,4 @@ src     = Split('''
 ''')
 
 component = aos_component('wifihalapp', src)
-component.add_comp_deps('kernel/yloop', 'tools/cli')
+component.add_comp_deps('kernel/yloop', 'kernel/cli')
