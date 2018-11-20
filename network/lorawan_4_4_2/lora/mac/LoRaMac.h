@@ -70,7 +70,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "utilities.h"
-#include "timer.h"
+#include "lora/system/timer.h"
 #include "systime.h"
 #include "radio.h"
 #include "LoRaMacTypes.h"

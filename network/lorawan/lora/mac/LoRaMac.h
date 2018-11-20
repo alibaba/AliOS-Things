@@ -53,7 +53,7 @@
 #ifdef CONFIG_LINKWAN
 #include "linkwan.h"
 #endif
-#include "timer.h"
+#include "lora/system/timer.h"
 
 /*!
  * Check the Mac layer state every MAC_STATE_CHECK_TIMEOUT in ms
