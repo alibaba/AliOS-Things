@@ -22,7 +22,7 @@ deps = Split('''
         middleware/common
         security/mbedtls
         utility/cjson
-        tools/cli
+        kernel/cli
         utility/digest_algorithm
         osal
         kernel/init
