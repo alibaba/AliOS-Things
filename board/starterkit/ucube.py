@@ -70,5 +70,5 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'starterkit'+'\\"')
 
 component.set_enable_vfp()
 
-linux_only_targets="helloworld mqttapp acapp nano tls alinkapp coapapp hdlcapp.hdlcserver udataapp networkapp wifihalapp hdlcapp.hdlcclient atapp helloworld_nocli vflashdemo netmgrapp blink yts kernel_test i2c_hts221_test cryptotest http2app"
+linux_only_targets="helloworld mqttapp acapp nano tls alinkapp coapapp hdlcapp.hdlcserver udataapp networkapp wifihalapp hdlcapp.hdlcclient atapp helloworld_nocli vflashdemo netmgrapp blink yts kernel_test i2c_hts221_test cryptotest http2app benchmark.footprint_test devkit.dk_ld startkit.sk_gui"
 windows_only_targets="helloworld|COMPILER=armcc acapp|COMPILER=armcc helloworld|COMPILER=iar acapp|COMPILER=iar mqttapp|COMPILER=armcc mqttapp|COMPILER=iar"

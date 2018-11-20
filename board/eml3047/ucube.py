@@ -47,4 +47,4 @@ macros =Split('''
 for i in macros:
     component.add_macros(i)
 
-linux_only_targets="nano lorawan.classb lorawan.linkwan cryptotest kernel_test"
+linux_only_targets="nano lorawan.classb lorawan.linkwan cryptotest kernel_test benchmark.footprint_test"
