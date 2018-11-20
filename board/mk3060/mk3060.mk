@@ -9,7 +9,7 @@ JTAG := jlink
 MODULE          := EMW3060
 HOST_ARCH       := ARM968E-S
 HOST_MCU_FAMILY := moc108
-SUPPORT_BINS    := no
+SUPPORT_MBINS   := no
 
 ifeq ($(AOS_2BOOT_SUPPORT), yes)
 $(NAME)_SOURCES := flash_partitions.c

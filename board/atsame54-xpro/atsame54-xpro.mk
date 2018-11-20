@@ -8,7 +8,7 @@ $(NAME)_SUMMARY    := configuration for board atsame54-xpro
 MODULE               := 1062
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := atsamd5x_e5x
-SUPPORT_BINS         := no
+SUPPORT_MBINS        := no
 HOST_MCU_NAME        := ATSAME54P20A
 
 $(NAME)_SOURCES += board.c

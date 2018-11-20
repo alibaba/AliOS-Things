@@ -6,7 +6,7 @@ $(NAME)_SUMMARY    := configuration for board imx6dq
 MODULE             := imx6dq
 HOST_ARCH          := Cortex-A9
 HOST_MCU_FAMILY    := imx6.imx6dq
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 $(NAME)_SOURCES := board.c
 

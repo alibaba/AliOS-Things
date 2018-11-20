@@ -8,7 +8,7 @@ $(NAME)_SUMMARY    := configuration for board mk3080
 MODULE             := AmebaZ
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := rtl8710bn
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 $(NAME)_SOURCES := board.c
 

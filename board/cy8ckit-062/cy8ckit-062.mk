@@ -8,7 +8,7 @@ $(NAME)_SUMMARY    := configuration for board cy8ckit-062
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := cy8c6347
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 $(NAME)_SOURCES := board.c
 
