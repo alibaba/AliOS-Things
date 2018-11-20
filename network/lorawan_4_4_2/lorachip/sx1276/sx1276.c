@@ -25,7 +25,7 @@
 #include <math.h>
 #include <string.h>
 #include "utilities.h"
-#include "timer.h"
+#include "lora/system/timer.h"
 #include "radio.h"
 #include "delay.h"
 #include "sx1276.h"
