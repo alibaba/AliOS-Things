@@ -5,10 +5,24 @@
 #ifndef BT_MESH_CRYPTO_H
 #define BT_MESH_CRYPTO_H
 
-#include <bluetooth/bluetooth.h>
+#include <mesh_crypto.h>
 
-#include "crypto.h"
-#include "ecc.h"
+typedef void (*bt_mesh_dh_key_cb_t)(const uint8_t key[32]);
+
+/*  @brief Container for public key callback */
+struct bt_mesh_pub_key_cb {
+        /** @brief Callback type for Public Key generation.
+         *
+         *  Used to notify of the local public key or that the local key is not
+         *  available (either because of a failure to read it or because it is
+         *  being regenerated).
+         *
+         *  @param key The local public key, or NULL in case of no key.
+         */
+        void (*func)(const uint8_t key[64]);
+
+        struct bt_mesh_pub_key_cb *_next;
+};
 
 /** @brief Generate random data.
  *
@@ -47,7 +61,7 @@ const uint8_t *bt_mesh_pub_key_get(void);
  *
  *  @return Zero on success or negative error code otherwise
  */
-int bt_mesh_dh_key_gen(const uint8_t remote_pk[64], bt_dh_key_cb_t cb);
+int bt_mesh_dh_key_gen(const uint8_t remote_pk[64], bt_mesh_dh_key_cb_t cb);
 
 /*  @brief Generate a new Public Key.
  *
@@ -60,6 +74,6 @@ int bt_mesh_dh_key_gen(const uint8_t remote_pk[64], bt_dh_key_cb_t cb);
  *
  *  @return Zero on success or negative error code otherwise
  */
-int bt_mesh_pub_key_gen(struct bt_pub_key_cb *cb);
+int bt_mesh_pub_key_gen(struct bt_mesh_pub_key_cb *cb);
 
 #endif //BT_MESH_CRYPTO_H

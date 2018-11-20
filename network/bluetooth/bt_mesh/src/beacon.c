@@ -22,7 +22,7 @@
 #include "mesh.h"
 #include "net.h"
 #include "prov.h"
-#include "crypto.h"
+#include "mesh_crypto.h"
 #include "beacon.h"
 #include "foundation.h"
 
