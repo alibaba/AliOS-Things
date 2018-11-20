@@ -30,6 +30,12 @@ typedef enum {
 } breeze_event_t;
 
 typedef struct {
+    char    ssid[32 + 1];
+    char    pw[64 + 1];
+    uint8_t bssid[6];
+} breeze_apinfo_t;
+
+typedef struct {
     uint32_t product_id;
     char *product_key;
     char *product_secret;
@@ -102,17 +108,7 @@ typedef void (*set_dev_status_cb)(uint8_t *buffer, uint32_t length);
  */
 typedef void (*get_dev_status_cb)(uint8_t *buffer, uint32_t length);
 
-/**
- * @brief Callback when there is ext cmd including combo net cmd.
- *
- * @param[out] cmd @n Ext cmd.
- * @param[out] buffer @n The data of cmd.
- * @param[out] model @n Length of the data.
- * @return None.
- * @see None.
- * @note This API should be implemented by user and will be called by SDK.
- */
-typedef void (*apinfo_ready_cb)(uint8_t cmd, uint8_t* buf, uint32_t length);
+typedef void (*apinfo_ready_cb)(breeze_apinfo_t *ap);
 
 /**
  * @brief Callback when device receive ota releated event.
