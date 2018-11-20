@@ -10,7 +10,7 @@ $(NAME)_COMPONENTS += feature.linkkit-mqtt \
                       network/netmgr \
                       middleware/common \
                       utility/cjson \
-                      tools/cli
+                      kernel/cli
 
 
 GLOBAL_DEFINES += CONFIG_AOS_CLI

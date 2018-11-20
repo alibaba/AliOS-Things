@@ -10,7 +10,7 @@ dependencis =Split('''
     framework/common
     framework/ywss4linkkit
     utility/cjson
-    tools/cli
+    kernel/cli
     bluetooth/breeze/ais_ilop/ali_lib
     bluetooth/breeze/ais_ilop/ble_app_ali
     bluetooth/profile

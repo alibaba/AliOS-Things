@@ -13,5 +13,5 @@ component.add_sources(path+"/libalicrypto/test/ali_crypto_test_rsa.c")
 component.add_sources(path+"/libalicrypto/test/ali_crypto_test_hmac.c")
 component.add_includes(path+"/libalicrypto/test/inc")
 
-component.add_comp_deps('kernel/yloop', 'tools/cli', 'security/alicrypto')
+component.add_comp_deps('kernel/yloop', 'kernel/cli', 'security/alicrypto')
 component.add_global_macros('AOS_NO_WIFI')

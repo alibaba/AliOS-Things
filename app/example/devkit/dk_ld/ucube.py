@@ -15,7 +15,7 @@ for i in macro_tmp:
     component.add_global_macros(i)
 
 dependencis = Split('''
-    tools/cli
+    kernel/cli
     connectivity/mqtt
     utility/cjson
     middleware/uagent/uota
