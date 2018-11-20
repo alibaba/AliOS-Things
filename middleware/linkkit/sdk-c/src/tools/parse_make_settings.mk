@@ -17,7 +17,7 @@ $(foreach v, \
 )
 
 ifeq (y,$(strip $(FEATURE_COAP_COMM_ENABLED)))
-    CFLAGS += -DDM_MESSAGE_CACHE_DISABLED
+    # CFLAGS += -DDM_MESSAGE_CACHE_DISABLED
 endif
 
 ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_RAWDATA_SOLO)))
