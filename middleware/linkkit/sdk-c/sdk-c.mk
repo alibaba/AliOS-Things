@@ -4,8 +4,6 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
 $(NAME)_SUMMARY :=
 
-$(NAME)_COMPONENTS := middleware/linkkit/hal
-
 GLOBAL_INCLUDES += \
     include/exports \
     include/imports \
@@ -66,6 +64,8 @@ GLOBAL_DEFINES  += \
 #    middleware/linkkit/sdk-c/src/infra/system \
 #    middleware/linkkit/sdk-c/src/sdk-impl \
 #    middleware/linkkit/sdk-c/src/ref-impl/hal
+
+$(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/ref-impl/hal/os/alios
 
 ifeq (y,$(FEATURE_MAL_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/mdal/mal
