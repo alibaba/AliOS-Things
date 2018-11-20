@@ -18,9 +18,6 @@ $(NAME)_COMPONENTS += \
                       chip_code \
                       network/netmgr
 
-ifneq (,$(filter ywss4linkkit,$(COMPONENTS)))
-$(NAME)_SOURCES  +=  HAL_AWSS_rhino.c
-endif
 
 ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
 $(info FEATURE_SUPPORT_ITLS = y, so using iTLS)
