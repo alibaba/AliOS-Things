@@ -7,6 +7,7 @@
 #include "core.h"
 #include "transport.h"
 #include "auth.h"
+#include "extcmd.h"
 #include "common.h"
 #include "ble_service.h"
 #include "breeze_hal_ble.h"
@@ -134,9 +135,14 @@ ret_code_t core_init(ali_init_t const *p_init)
 
     ais_init(p_init);
     ble_get_mac(mac_be);
+
     transport_init(p_init);
 #if BZ_ENABLE_AUTH
     auth_init(p_init, tx_func_indicate);
+#endif
+
+#if BZ_ENABLE_COMBO_NET
+    extcmd_init(p_init, tx_func_indicate);
 #endif
     create_bz_adv_data(p_init->model_id, mac_be);
     adv_data.vdata.len = sizeof(adv_data.vdata.data);
