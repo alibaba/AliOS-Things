@@ -6,11 +6,11 @@
 void kv_register_cli_command(void) {}
 #else
 
-#include "aos/cli.h"
-
 #include "kv_types.h"
 #include "kv_api.h"
 #include "kv_adapt.h"
+
+#include "cli_api.h"
 
 extern kv_item_t *kv_item_traverse(item_func func, uint8_t blk_idx, const char *key);
 
@@ -40,7 +40,7 @@ static int __item_print_cb(kv_item_t *item, const char *key)
     off = item->pos + KV_ITEM_HDR_SIZE + item->hdr.key_len;
     kv_flash_read(off, p_val, item->hdr.val_len);
 
-    aos_cli_printf("%s = %s\r\n", p_key, p_val);
+    cli_printf("%s = %s\r\n", p_key, p_val);
     kv_free(p_key);
     kv_free(p_val);
 
@@ -65,7 +65,7 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
 
         res = kv_item_set(argv[2], argv[3], strlen(argv[3]));
         if (res != KV_OK) {
-            aos_cli_printf("cli set kv failed %d.\r\n", res);
+            cli_printf("cli set kv failed %d.\r\n", res);
         }
     } else if (strcmp(rtype, "get") == KV_OK) {
         if (argc != 3) {
@@ -74,16 +74,16 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
 
         buffer = (char *)kv_malloc(KV_MAX_VAL_LEN);
         if (!buffer) {
-            aos_cli_printf("there is no space\r\n");
+            cli_printf("there is no space\r\n");
             return;
         }
 
         memset(buffer, 0, KV_MAX_VAL_LEN);
         res = kv_item_get(argv[2], buffer, &len);
         if (res != 0) {
-            aos_cli_printf("cli: no paired kv\r\n");
+            cli_printf("cli: no paired kv\r\n");
         } else {
-            aos_cli_printf("value is %s\r\n", buffer);
+            cli_printf("value is %s\r\n", buffer);
         }
 
         if (buffer) {
@@ -96,7 +96,7 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
 
         res = kv_item_delete(argv[2]);
         if (res != KV_OK) {
-            aos_cli_printf("cli kv del failed %d\r\n", res);
+            cli_printf("cli kv del failed %d\r\n", res);
         }
     } else if (strcmp(rtype, "list") == KV_OK) {
         for (i = 0; i < KV_BLOCK_NUMS; i++) {
@@ -110,7 +110,7 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
         num = atoi(argv[3]);
         res = kv_item_set(argv[2], (void *)(&num), sizeof(int));
         if (res != KV_OK) {
-            aos_cli_printf("cli set integer kv failed %d.\r\n", res);
+            cli_printf("cli set integer kv failed %d.\r\n", res);
         }
     } else if (strcmp(rtype, "geti") == KV_OK) {
         num = 0;
@@ -122,22 +122,22 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
 
         res = kv_item_get(argv[2], &num, &len);
         if (res != 0) {
-            aos_cli_printf("cli: no paired kv\r\n");
+            cli_printf("cli: no paired kv\r\n");
         } else {
-            aos_cli_printf("value is %d\r\n", num);
+            cli_printf("value is %d\r\n", num);
         }
     }
 
     return;
 }
 
-static struct cli_command kv_cmd = {
+static struct cli_command_st kv_cmd = {
     "kv", "kv [set key value | get key | del key | seti key int_val | geti key | list]", handle_kv_cmd
 };
 
 void kv_register_cli_command(void)
 {
-    aos_cli_register_command(&kv_cmd);
+    cli_register_command(&kv_cmd);
 }
 
 #endif
