@@ -308,6 +308,7 @@ PhyParam_t RegionCN470AGetPhyParam(GetPhyParams_t *getPhy)
             phyParam.fValue = CN470A_DEFAULT_ANTENNA_GAIN;
             break;
         }
+#ifdef LORAMAC_CLASSB_ENABLED
         case PHY_BEACON_CHANNEL_FREQ: {
             phyParam.Value = CN470A_BEACON_CHANNEL_FREQ;
             break;
@@ -334,6 +335,7 @@ PhyParam_t RegionCN470AGetPhyParam(GetPhyParams_t *getPhy)
             phyParam.Value = CN470A_PING_SLOT_CHANNEL_DR;
             break;
         }
+#endif
         default: {
             break;
         }

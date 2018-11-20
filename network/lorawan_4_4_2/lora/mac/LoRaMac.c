@@ -895,6 +895,7 @@ static void ProcessRadioRxDone( void )
     Radio.Sleep( );
     TimerStop( &MacCtx.RxWindowTimer2 );
 
+#ifdef LORAMAC_CLASSB_ENABLED
     // This function must be called even if we are not in class b mode yet.
     if( LoRaMacClassBRxBeacon( payload, size ) == true )
     {
@@ -903,7 +904,6 @@ static void ProcessRadioRxDone( void )
         return;
     }
     // Check if we expect a ping or a multicast slot.
-#ifdef LORAMAC_CLASSB_ENABLED
     if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
     {
         if( LoRaMacClassBIsPingExpected( ) == true )
@@ -1279,13 +1279,14 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
         Radio.Sleep( );
     }
 
+#ifdef LORAMAC_CLASSB_ENABLED
     if( LoRaMacClassBIsBeaconExpected( ) == true )
     {
         LoRaMacClassBSetBeaconState( BEACON_STATE_TIMEOUT );
         LoRaMacClassBBeaconTimerEvent( );
         classBRx = true;
     }
-#ifdef LORAMAC_CLASSB_ENABLED
+
     if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
     {
         if( LoRaMacClassBIsPingExpected( ) == true )
@@ -1390,8 +1391,9 @@ void LoRaMacProcess( void )
     bool noTx = false;
 
     LoRaMacHandleIrqEvents( );
+#ifdef LORAMAC_CLASSB_ENABLED
     LoRaMacClassBProcess( );
-
+#endif
     // MAC proceeded a state and is ready to check
     if( MacCtx.MacFlags.Bits.MacDone == 1 )
     {
@@ -1535,7 +1537,9 @@ void LoRaMacProcess( void )
         // Procedure done. Reset variables.
         MacCtx.MacFlags.Bits.MacDone = 0;
 
+#ifdef LORAMAC_CLASSB_ENABLED
         LoRaMacClassBResumeBeaconing( );
+#endif
     }
 
     // Handle MCPS indication
@@ -1693,6 +1697,7 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
     {
         case CLASS_A:
         {
+#ifdef LORAMAC_CLASSB_ENABLED
             if( deviceClass == CLASS_B )
             {
                 status = LoRaMacClassBSwitchClass( deviceClass );
@@ -1701,6 +1706,7 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
                     MacCtx.NvmCtx->DeviceClass = deviceClass;
                 }
             }
+#endif
 
             if( deviceClass == CLASS_C )
             {
@@ -1724,11 +1730,13 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
         }
         case CLASS_B:
         {
+#ifdef LORAMAC_CLASSB_ENABLED
             status = LoRaMacClassBSwitchClass( deviceClass );
             if( status == LORAMAC_STATUS_OK )
             {
                 MacCtx.NvmCtx->DeviceClass = deviceClass;
             }
+#endif
             break;
         }
         case CLASS_C:
@@ -2548,7 +2556,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     txConfig.AntennaGain = MacCtx.NvmCtx->MacParams.AntennaGain;
     txConfig.PktLen = MacCtx.PktBufferLen;
 
-
+#ifdef LORAMAC_CLASSB_ENABLED
     if( LoRaMacClassBIsBeaconExpected( ) == true )
     {
         return LORAMAC_STATUS_BUSY_BEACON_RESERVED_TIME;
@@ -2569,6 +2577,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
             LoRaMacClassBStopRxSlots( );
         }
     }
+#endif
     RegionTxConfig( MacCtx.NvmCtx->Region, &txConfig, &txPower, &MacCtx.TxTimeOnAir );
 
     LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_ERROR );
@@ -2581,6 +2590,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     MacCtx.McpsConfirm.TxTimeOnAir = MacCtx.TxTimeOnAir;
     MacCtx.MlmeConfirm.TxTimeOnAir = MacCtx.TxTimeOnAir;
 
+#ifdef LORAMAC_CLASSB_ENABLED
     if( LoRaMacClassBIsBeaconModeActive( ) == true )
     {
         // Currently, the Time-On-Air can only be computed when the radio is configured with
@@ -2594,7 +2604,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     }
 
     LoRaMacClassBHaltBeaconing( );
-
+#endif
     MacCtx.MacState |= LORAMAC_TX_RUNNING;
 
     // Send now
@@ -2640,7 +2650,9 @@ LoRaMacCtxs_t* GetCtxs( void )
     Contexts.RegionNvmCtxSize = params.nvmCtxSize;
     Contexts.SecureElementNvmCtx = SecureElementGetNvmCtx( &Contexts.SecureElementNvmCtxSize );
     Contexts.CommandsNvmCtx = LoRaMacCommandsGetNvmCtx( &Contexts.CommandsNvmCtxSize );
+#ifdef LORAMAC_CLASSB_ENABLED
     Contexts.ClassBNvmCtx = LoRaMacClassBGetNvmCtx( &Contexts.ClassBNvmCtxSize );
+#endif
     Contexts.ConfirmQueueNvmCtx = LoRaMacConfirmQueueGetNvmCtx( &Contexts.ConfirmQueueNvmCtxSize );
     Contexts.FCntHandlerNvmCtx = LoRaMacFCntHandlerGetNvmCtx( &Contexts.FCntHandlerNvmCtxSize );
     return &Contexts;
@@ -2687,10 +2699,12 @@ LoRaMacStatus_t RestoreCtxs( LoRaMacCtxs_t* contexts )
         return LORAMAC_STATUS_MAC_COMMAD_ERROR;
     }
 
+#ifdef LORAMAC_CLASSB_ENABLED
     if( LoRaMacClassBRestoreNvmCtx( contexts->ClassBNvmCtx ) != true )
     {
         return LORAMAC_STATUS_CLASS_B_ERROR;
     }
+#endif
 
     if( LoRaMacConfirmQueueRestoreNvmCtx( contexts->ConfirmQueueNvmCtx ) != true )
     {
@@ -2894,10 +2908,12 @@ static void EventCommandsNvmCtxChanged( void )
     CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_COMMANDS );
 }
 
+#ifdef LORAMAC_CLASSB_ENABLED
 static void EventClassBNvmCtxChanged( void )
 {
     CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_CLASS_B );
 }
+#endif
 
 static void EventConfirmQueueNvmCtxChanged( void )
 {
@@ -2913,8 +2929,10 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 {
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
+#ifdef LORAMAC_CLASSB_ENABLED
     LoRaMacClassBCallback_t classBCallbacks;
     LoRaMacClassBParams_t classBParams;
+#endif
 
     if( ( primitives == NULL ) ||
         ( callbacks == NULL ) )
@@ -3375,7 +3393,9 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
 #endif
         default:
         {
+#ifdef LORAMAC_CLASSB_ENABLED
             status = LoRaMacClassBMibGetRequestConfirm( mibGet );
+#endif
             break;
         }
     }
@@ -3981,7 +4001,9 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
         }
         default:
         {
+#ifdef LORAMAC_CLASSB_ENABLED
             status = LoRaMacMibClassBSetRequestConfirm( mibSet );
+#endif
             break;
         }
     }
