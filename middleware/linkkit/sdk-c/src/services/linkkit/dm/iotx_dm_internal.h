@@ -64,6 +64,12 @@
 #endif
 #define DM_free(ptr)   {LITE_free(ptr);ptr = NULL;}
 
+#if defined(COAP_COMM_ENABLED) && !defined(MQTT_COMM_ENABLED)
+    #define DM_URI_OFFSET 1
+#else
+    #define DM_URI_OFFSET 0
+#endif
+
 #if 1
     #define dm_log_emerg(...)     log_emerg("DM", __VA_ARGS__)
     #define dm_log_crit(...)      log_crit("DM", __VA_ARGS__)
