@@ -73,5 +73,9 @@ ifeq ($(AOS_DEBUG_PANIC),1)
 $(NAME)_SOURCES += aos/aos_debug.c
 endif
 
+ifeq ($(AOS_CLI),1)
+$(NAME)_SOURCES += aos/aos_cli.c
+endif
+
 endif
 
