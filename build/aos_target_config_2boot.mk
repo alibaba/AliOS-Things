@@ -320,7 +320,7 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
                     -I$(SOURCE_ROOT)kernel/fs/vfs/include \
                     -I$(SOURCE_ROOT)kernel/yloop/include \
                     -I$(SOURCE_ROOT)kernel/fs/kv/include \
-                    -I$(SOURCE_ROOT)tools/cli/include \
+                    -I$(SOURCE_ROOT)kernel/cli/include \
                     -I$(SOURCE_ROOT)utility/log/include \
                     -I$(SOURCE_ROOT)osal/aos/include \
                     -I$(SOURCE_ROOT)osal/aos/include/hal \
