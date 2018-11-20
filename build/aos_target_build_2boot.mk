@@ -141,8 +141,10 @@ endif
 # Target for the component static library is created in this macro
 # Targets for source files are created by calling the macros defined above
 # $(1) is component name
+# $(2) is the suffix for .a, *_opts files
 define BUILD_COMPONENT_RULES
-$(eval LINK_LIBS +=$(if $($(1)_SOURCES),$(LIBS_DIR)/$(1).a))
+$(eval SUFFIX := $(2))
+$(eval LINK_LIBS +=$(if $($(1)_SOURCES),$(LIBS_DIR)/$(1)$(SUFFIX).a))
 $(eval LINK_LIBS +=$(if $($(1)_SELF_BUIlD_COMP_targets),$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets) )))
 
 ifneq ($($(1)_PRE_BUILD_TARGETS),)
@@ -153,7 +155,7 @@ endif
 $(eval $(1)_LIB_OBJS := $(addprefix $(strip $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))),  $(filter %.o, $($(1)_SOURCES:.cc=.o) $($(1)_SOURCES:.cpp=.o) $($(1)_SOURCES:.c=.o) $($(1)_SOURCES:.s=.o) $($(1)_SOURCES:.S=.o)))  $(patsubst %.c,%.o,$(call RESOURCE_FILENAME, $($(1)_RESOURCES))))
 
 
-$(LIBS_DIR)/$(1).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
+$(LIBS_DIR)/$(1)$(SUFFIX).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_C_OPTS:=$(subst $(COMMA),$$(COMMA), $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $(COMPILER_UNI_CFLAGS) $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES)))
 	$(eval C_OPTS_IAR := $(subst =\",="\",$($(1)_C_OPTS)) )
 	$(eval C_OPTS_IAR := $(subst \" ,\"" ,$(C_OPTS_IAR) ) )
@@ -165,11 +167,11 @@ $(LIBS_DIR)/$(1).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$$(call WRITE_FILE_CREATE, $$@, $(C_OPTS_FILE))
 	$$(file >$$@, $(C_OPTS_FILE) )
 
-$(LIBS_DIR)/$(1).cpp_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
+$(LIBS_DIR)/$(1)$(SUFFIX).cpp_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_CPP_OPTS:=$(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $($(1)_CXXFLAGS)  $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES))
 	$$(file >$$@, $($(1)_CPP_OPTS) )
 
-$(LIBS_DIR)/$(1).as_opts: $(CONFIG_FILE) | $(LIBS_DIR)
+$(LIBS_DIR)/$(1)$(SUFFIX).as_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_S_OPTS:=$(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES))
 	$(eval S_OPTS_KEIL := $(subst -I.,-I../../../../., $($(1)_S_OPTS) ) )
 	$(eval S_OPTS_IAR := $(filter-out --cpu Cortex-M4, $($(1)_S_OPTS) ) )
@@ -178,7 +180,7 @@ $(LIBS_DIR)/$(1).as_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 	$(if $(IDE_IAR_FLAG),$(eval S_OPTS_FILE:=$(S_OPTS_IAR)),)
 	$$(file >$$@, $(S_OPTS_FILE) )
 
-$(LIBS_DIR)/$(1).ar_opts: $(CONFIG_FILE) | $(LIBS_DIR)
+$(LIBS_DIR)/$(1)$(SUFFIX).ar_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 	$(QUIET)$$(call WRITE_FILE_CREATE, $$@ ,$($(1)_LIB_OBJS))
 
 
@@ -186,12 +188,12 @@ $(LIBS_DIR)/$(1).ar_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 $(foreach src, $(if $(findstring 1,$(CHECK_HEADERS)), $(filter %.h, $($(1)_CHECK_HEADERS)), ),$(eval $(call CHECK_HEADER_RULE,$(1),$(src))))
 
 # Target for build-from-source
-#$(OUTPUT_DIR)/libraries/$(1).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(OUTPUT_DIR)/libraries/$(1).ar_opts $$(if $(AOS_BUILT_WITH_ROM_SYMBOLS),$(ROMOBJCOPY_OPTS_FILE))
-$(LIBS_DIR)/$(1).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(OUTPUT_DIR)/libraries/$(1).ar_opts
+#$(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).ar_opts $$(if $(AOS_BUILT_WITH_ROM_SYMBOLS),$(ROMOBJCOPY_OPTS_FILE))
+$(LIBS_DIR)/$(1)$(SUFFIX).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).ar_opts
 	$(ECHO) Making $$@
-	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
+	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
 ifeq ($(COMPILER),)
-	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1).stripped.a $(OUTPUT_DIR)/libraries/$(1).a
+	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).stripped.a $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).a
 endif
 # Create targets to built the component's source files into object files
 $(if $($(1)_SELF_BUIlD_COMP_scripts), $(eval $(call SELF_BUILD_RULE,$(1))) )
@@ -246,20 +248,20 @@ ifeq (app, $(BINS))
 $(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),kernel))))
 $(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),framework))))
 # Create targets for components
-$(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_TYPE), $(if $(filter app app&framework app&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp))), $(call BUILD_COMPONENT_RULES,$(comp)))))
+$(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_TYPE), $(if $(filter app app&framework app&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX))), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
 else ifeq (framework, $(BINS))
 # precompile kernel/framework file
 $(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),kernel))))
 $(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),framework))))
 # Create targets for components
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework app&framework framework&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp)))))
+$(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework app&framework framework&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
 else ifeq (kernel, $(BINS))
 # precompile kernel file
 $(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),kernel))))
 # Create targets for components
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel app&kernel framework&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp)))))
+$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel app&kernel framework&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
 else ifeq (,$(BINS))
-$(foreach comp,$(COMPONENTS),$(eval $(call BUILD_COMPONENT_RULES,$(comp))))
+$(foreach comp,$(COMPONENTS),$(eval $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX))))
 endif
 
 # handle lds file, lds -> ld
