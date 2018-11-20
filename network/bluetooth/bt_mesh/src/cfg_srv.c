@@ -26,7 +26,7 @@
 #include "net.h"
 #include "lpn.h"
 #include "transport.h"
-#include "crypto.h"
+#include "mesh_crypto.h"
 #include "access.h"
 #include "beacon.h"
 #include "proxy.h"

@@ -4,22 +4,14 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
 $(NAME)_SUMMARY :=
 
-$(NAME)_COMPONENTS += network.bluetooth.bt.bt_common
+$(NAME)_COMPONENTS += network.bluetooth.bt.bt_common network.bluetooth.bt_mesh.port
 
-$(NAME)_INCLUDES += ./port/adv/ \
-                    ./port/crypto/ \
-                    ./port/gatt/ \
-                    ./inc/ \
-                    ./inc/api/mesh/ \
-                    ../bt/host/ \
-                    ../bt/include/
+$(NAME)_INCLUDES += ./inc/ \
+                    ./inc/api/mesh/
 
 $(NAME)_COMPONENTS += yloop
 
-$(NAME)_SOURCES := ./port/adv/bt_mesh_adv.c \
-                   ./port/crypto/bt_mesh_crypto.c \
-                   ./port/gatt/bt_mesh_gatt.c \
-                   ./src/access.c \
+$(NAME)_SOURCES := ./src/access.c \
                    ./src/adv.c \
                    ./src/beacon.c \
                    ./src/crypto.c \
@@ -34,5 +26,4 @@ $(NAME)_SOURCES := ./port/adv/bt_mesh_adv.c \
                    ./src/transport.c
 
 GLOBAL_INCLUDES += ./inc/ \
-                   ./inc/api/ \
-                   ./port/
+                   ./inc/api/
