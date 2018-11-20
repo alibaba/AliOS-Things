@@ -17,12 +17,12 @@ static kbuf_queue_t bufq;
 
 #define LOOP_ROUND 10
 
-static ksem_t bufq_sem;
-static bool   bufq_ready;
-static bool   bufq_recv_done;
-static bool   bufq_send_exit;
-static int    send_crc;
-static int    recv_crc;
+static ksem_t *bufq_sem;
+static bool    bufq_ready;
+static bool    bufq_recv_done;
+static bool    bufq_send_exit;
+static int     send_crc;
+static int     recv_crc;
 
 static void bufq_run(void *arg)
 {
@@ -40,7 +40,7 @@ static void bufq_run(void *arg)
     }
 
     for (int i = 0; i < LOOP_ROUND; i++) {
-        krhino_sem_take(&bufq_sem, RHINO_WAIT_FOREVER);
+        krhino_sem_take(bufq_sem, RHINO_WAIT_FOREVER);
 
         if (bufq_send_exit)
             break;
@@ -85,7 +85,7 @@ int buf_queue_test(void)
     bufq_ready     = 0;
     bufq_send_exit = 0;
 
-    stat = krhino_sem_create(&bufq_sem, "bufq_sem", 0);
+    stat = krhino_sem_dyn_create(&bufq_sem, "bufq_sem", 0);
     if (stat != RHINO_SUCCESS) {
         ret = -1;
         goto out;
@@ -118,7 +118,7 @@ int buf_queue_test(void)
         send_buf = malloc(MSG_SIZE + 1);
         if (NULL == send_buf) {
             printf("malloc send_buf fail\r\n");
-            krhino_sem_give(&bufq_sem);
+            krhino_sem_give(bufq_sem);
             bufq_send_exit=1;
             ret = -4;
             break;
@@ -137,7 +137,7 @@ int buf_queue_test(void)
         krhino_buf_queue_send(&bufq, send_buf, MSG_SIZE);
         free(send_buf);
         send_buf = NULL;
-        krhino_sem_give(&bufq_sem);
+        krhino_sem_give(bufq_sem);
 
         if (bufq_recv_done == 1)
             break;
@@ -154,7 +154,7 @@ int buf_queue_test(void)
         goto out;
     }
 
-    stat = krhino_sem_del(&bufq_sem);
+    stat = krhino_sem_dyn_del(bufq_sem);
     if (RHINO_SUCCESS != stat) {
         printf("sem del failed, err code %d\r\n", stat);
         ret = -6;

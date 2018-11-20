@@ -19,8 +19,8 @@ extern unsigned int _app_type;
 #define UTASK_USTACK_SIZE 0x200
 #define UTASK_KSTACK_SIZE 0x200
 
-static cpu_stack_t ustack[UTASK_USTACK_SIZE];
-static ktask_t     task_struct;
+static cpu_stack_t  ustack[UTASK_USTACK_SIZE];
+static ktask_t     *task_struct;
 
 extern int application_start(int argc, char **argv);
 
