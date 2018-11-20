@@ -4,12 +4,12 @@
 
 #include <u_api.h>
 
-//#define ENABLE_PROC_MSG
+/* #define ENABLE_PROC_MSG */
 
 #define APP_STACK_SIZE 0x400
 
-static ktask_t     app_obj;
-static cpu_stack_t app_stack[APP_STACK_SIZE];
+static ktask_t     *app_obj;
+static cpu_stack_t  app_stack[APP_STACK_SIZE];
 
 static void app_run(void *arg)
 {

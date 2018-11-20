@@ -28,6 +28,6 @@ void run_test_case(void)
     RUN_TEST_CASE(mutex_test, 0);
     RUN_TEST_CASE(semphore_test, 0);
     RUN_TEST_CASE(time_test, 0);
-    RUN_TEST_CASE(buf_queue_test, 0);
+    /* RUN_TEST_CASE(buf_queue_test, 0); */
 }
 
