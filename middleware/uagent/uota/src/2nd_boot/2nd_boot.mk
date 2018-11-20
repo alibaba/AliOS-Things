@@ -14,7 +14,7 @@ endif
 $(NAME)_COMPONENTS += middleware.uagent.uota.src.2nd_boot.nbpatch
 $(NAME)_COMPONENTS += middleware.uagent.uota.src.2nd_boot.xz
 
-$(NAME)_SOURCES += rec_libc.c rec_main.c rec_2boot.c
+$(NAME)_SOURCES += rec_libc.c rec_main.c rec_2boot.c rec_ymodem.c
 
 $(NAME)_INCLUDES += nbpatch
 GLOBAL_INCLUDES += ./ ../service
