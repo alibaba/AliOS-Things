@@ -377,7 +377,7 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
                     -I$(SOURCE_ROOT)kernel/fs/vfs/include \
                     -I$(SOURCE_ROOT)network/yloop/include \
                     -I$(SOURCE_ROOT)kernel/fs/kv/include \
-                    -I$(SOURCE_ROOT)tools/cli/include \
+                    -I$(SOURCE_ROOT)kernel/cli/include \
                     -I$(SOURCE_ROOT)utility/log/include
 
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
