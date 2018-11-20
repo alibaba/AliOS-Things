@@ -9,7 +9,7 @@ $(NAME)_SUMMARY    := configuration for board m100c
 MODULE          := 1062
 HOST_ARCH       := Cortex-M3
 HOST_MCU_FAMILY := efm32gxx
-SUPPORT_BINS    := no
+SUPPORT_MBINS   := no
 
 $(NAME)_COMPONENTS += network.lorawan_4_4_2.lorachip
 LORACHIP           := sx1276

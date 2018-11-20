@@ -7,7 +7,7 @@ $(NAME)_SUMMARY    := configuration for board linuxhost
 MODULE          := 1062
 HOST_ARCH       := linux
 HOST_MCU_FAMILY := linux
-SUPPORT_BINS    := no
+SUPPORT_MBINS   := no
 
 
 # Change to use the correct deivce here if necessary.

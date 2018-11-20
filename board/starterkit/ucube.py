@@ -18,7 +18,7 @@ else:
 aos_global_config.set('MODULE', '1062')
 aos_global_config.set('HOST_ARCH', 'Cortex-M4')
 aos_global_config.set('HOST_MCU_FAMILY', 'stm32l4xx_cube')
-aos_global_config.set('SUPPORT_BINS', 'no')
+aos_global_config.set('SUPPORT_MBINS', 'no')
 aos_global_config.set('HOST_MCU_NAME', 'STM32L433CCTx')
 
 dependencis =Split('''
