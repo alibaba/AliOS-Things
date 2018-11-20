@@ -3,11 +3,11 @@ src     = Split('''
 ''')
 
 component = aos_component('i2c_hts221_test', src)
-component.add_comp_deps('kernel/yloop', 'tools/cli')
+component.add_comp_deps('kernel/yloop', 'kernel/cli')
 component.add_global_macros('AOS_NO_WIFI')
 
 dependencis =Split(''' 
-    tools/cli
+    kernel/cli
     device/sensor 
     middleware/common
     middleware/udata

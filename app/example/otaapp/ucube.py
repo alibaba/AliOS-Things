@@ -10,7 +10,7 @@ dependencis =Split('''
     framework/netmgr
     framework/common
     utility/cjson
-    tools/cli
+    kernel/cli
 ''')
 for i in dependencis:
     component.add_comp_deps(i)

@@ -10,7 +10,7 @@ $(NAME)_COMPONENTS += feature.linkkit-http2 \
                       network/netmgr \
                       middleware/common \
                       utility/cjson \
-                      tools/cli
+                      kernel/cli
 
 
 GLOBAL_DEFINES += CONFIG_AOS_CLI ON_DAILY

@@ -4,5 +4,5 @@ src     = Split('''
 ''')
 
 component = aos_component('modbus_test', src)
-component.add_comp_deps('kernel/yloop', 'tools/cli','kernel/rhino/bus/mbmaster')
+component.add_comp_deps('kernel/yloop', 'kernel/cli','kernel/rhino/bus/mbmaster')
 component.add_global_macros('AOS_NO_WIFI')
