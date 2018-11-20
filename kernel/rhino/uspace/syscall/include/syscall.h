@@ -15,35 +15,35 @@ typedef struct  {
 } krhino_task_sleep_syscall_arg_t;
 
 typedef struct {
-    ktask_t *task;
-} krhino_task_del_syscall_arg_t;
-
-typedef struct {
-    ktask_t      *task;
-    const name_t *name;
-    void         *arg;
-    uint8_t       prio;
-    tick_t        ticks;
-    cpu_stack_t  *stack_buf;
-    size_t        stack_size;
-    size_t        kstack_size;
-    task_entry_t  entry;
-    uint8_t       autorun;
+    ktask_t      **task;
+    const name_t  *name;
+    void          *arg;
+    uint8_t        prio;
+    tick_t         ticks;
+    cpu_stack_t   *stack_buf;
+    size_t         stack_size;
+    size_t         kstack_size;
+    task_entry_t   entry;
+    uint8_t        autorun;
 } krhino_utask_create_syscall_arg_t;
 
 typedef struct {
-    ktask_t      *task;
-    const name_t *name;
-    void         *arg;
-    uint8_t       prio;
-    tick_t        ticks;
-    cpu_stack_t  *stack_buf;
-    size_t        stack_size;
-    size_t        kstack_size;
-    task_entry_t  entry;
-    uint32_t      pid;
-    uint8_t       autorun;
+    ktask_t      **task;
+    const name_t  *name;
+    void          *arg;
+    uint8_t        prio;
+    tick_t         ticks;
+    cpu_stack_t   *stack_buf;
+    size_t         stack_size;
+    size_t         kstack_size;
+    task_entry_t   entry;
+    uint32_t       pid;
+    uint8_t        autorun;
 } krhino_uprocess_create_syscall_arg_t;
+
+typedef struct {
+    ktask_t *task;
+} krhino_utask_del_syscall_arg_t;
 
 /* ------------------- time  ------------------- */
 typedef struct {
@@ -56,14 +56,14 @@ typedef struct {
 
 /* ----------------- mutex ------------------- */
 typedef struct {
-    kmutex_t     *mutex;
-    const name_t *name;
-    uint8_t       mm_alloc_flag;
-} krhino_mutex_create_syscall_arg_t;
+    kmutex_t     **mutex;
+    const name_t  *name;
+    uint8_t        mm_alloc_flag;
+} krhino_mutex_dyn_create_syscall_arg_t;
 
 typedef struct {
     kmutex_t *mutex;
-} krhino_mutex_del_syscall_arg_t;
+} krhino_mutex_dyn_del_syscall_arg_t;
 
 typedef struct {
     kmutex_t *mutex;
@@ -76,14 +76,14 @@ typedef struct {
 
 /* ---------------- semphore ---------------- */
 typedef struct {
-    ksem_t       *sem;
-    const name_t *name;
-    sem_count_t   count;
-} krhino_sem_create_syscall_arg_t;
+    ksem_t       **sem;
+    const name_t  *name;
+    sem_count_t    count;
+} krhino_sem_dyn_create_syscall_arg_t;
 
 typedef struct {
     ksem_t *sem;
-} krhino_sem_del_syscall_arg_t;
+} krhino_sem_dyn_del_syscall_arg_t;
 
 typedef struct {
     ksem_t *sem;
