@@ -27,7 +27,7 @@
 #include "common/log.h"
 
 #include "mesh.h"
-#include "crypto.h"
+#include "mesh_crypto.h"
 
 #define NET_MIC_LEN(pdu) (((pdu)[1] & 0x80) ? 8 : 4)
 #define APP_MIC_LEN(aszmic) ((aszmic) ? 8 : 4)
