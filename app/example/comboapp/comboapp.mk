@@ -15,9 +15,6 @@ $(NAME)_COMPONENTS += network/netmgr \
 $(NAME)_COMPONENTS += bluetooth/breeze \
                       bluetooth/breeze/hal/ble \
                       bluetooth/profile
-bz_en_auth := 1
-bz_en_awss := 1
-ble := 1
 
 $(NAME)_INCLUDES += \
     ../../../middleware/uagent/uota/src/service
@@ -57,11 +54,10 @@ else
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
-GLOBAL_DEFINES += BUILD_AOS
 GLOBAL_DEFINES += AWSS_NEED_REBOOT
 
 GLOBAL_INCLUDES += ./
 
-ifeq ($(bz_en_awss), 1)
-$(NAME)_SOURCES += extcmd.c 
-endif
+bz_en_auth = 1
+bz_en_awss = 1
+ble := 1
