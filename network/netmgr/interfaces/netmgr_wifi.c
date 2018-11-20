@@ -584,6 +584,7 @@ static void read_persistent_conf(void)
     get_wifi_ssid();
 }
 
+#ifdef CONFIG_AOS_CLI
 static void handle_netmgr_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[1] : "";
@@ -610,6 +611,7 @@ static struct cli_command ncmd = {
     .help     = "netmgr [start|clear|connect ssid password]",
     .function = handle_netmgr_cmd,
 };
+#endif
 
 bool netmgr_get_ip_state()
 {
@@ -666,7 +668,10 @@ int netmgr_wifi_init(void)
     hal_wifi_module_t *module;
 
     aos_register_event_filter(EV_WIFI, netmgr_events_executor, NULL);
+
+#ifdef CONFIG_AOS_CLI
     aos_cli_register_command(&ncmd);
+#endif
 
     module = hal_wifi_get_default_module();
     memset(&g_netmgr_cxt, 0, sizeof(g_netmgr_cxt));
