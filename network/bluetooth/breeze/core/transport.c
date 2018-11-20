@@ -218,6 +218,10 @@ static void trans_rx_dispatcher(void)
 #if BZ_ENABLE_AUTH
         auth_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
 #endif
+    } else if(g_transport.rx.cmd == BZ_CMD_EXT_DOWN){
+#if BZ_ENABLE_COMBO_NET
+        extcmd_rx_command(g_transport.rx.cmd, g_transport.rx.buff, g_transport.rx.bytes_received);
+#endif
     } else {
         rx_cmd_post.cmd = g_transport.rx.cmd;
         rx_cmd_post.frame_seq = g_transport.rx.frame_seq + 1;
