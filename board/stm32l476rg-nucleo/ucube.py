@@ -21,4 +21,4 @@ if aos_global_config.get('sal', 1) == 1:
         aos_global_config.set('module', 'wifi.mk3060')
 
 component.set_enable_vfp()
-linux_only_targets="netmgrapp acapp linkkit_gateway nano networkapp hdlcapp.hdlcserver alinkapp helloworld coapapp tls helloworld_nocli blink atapp hdlcapp.hdlcclient linkkitapp vflashdemo mqttapp wifihalapp udataapp yts i2c_hts221_test cryptotest otaapp kernel_test http2app"
+linux_only_targets="netmgrapp acapp linkkit_gateway nano networkapp hdlcapp.hdlcserver alinkapp helloworld coapapp tls helloworld_nocli blink atapp hdlcapp.hdlcclient linkkitapp vflashdemo mqttapp wifihalapp udataapp yts i2c_hts221_test cryptotest otaapp kernel_test http2app devkit.dk_ld benchmark.footprint_test"
