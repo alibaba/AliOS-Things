@@ -24,13 +24,6 @@ static void sys_krhino_task_sleep_stub(void *arg)
     krhino_task_sleep(_arg->tick);
 }
 
-static kstat_t sys_krhino_task_del_stub(void *arg)
-{
-    krhino_task_del_syscall_arg_t *_arg = arg;
-
-    return krhino_task_del(_arg->task);
-}
-
 static kstat_t sys_krhino_uprocess_create_stub(void *arg)
 {
     krhino_uprocess_create_syscall_arg_t *_arg = arg;
@@ -41,6 +34,13 @@ static kstat_t sys_krhino_uprocess_create_stub(void *arg)
                                   _arg->entry, _arg->pid, _arg->autorun);
 }
 
+static kstat_t sys_krhino_uprocess_exit_stub(void *arg)
+{
+    arg = arg;
+
+    return krhino_uprocess_exit();
+}
+
 static kstat_t sys_krhino_utask_create_stub(void *arg)
 {
     krhino_utask_create_syscall_arg_t *_arg = arg;
@@ -49,6 +49,13 @@ static kstat_t sys_krhino_utask_create_stub(void *arg)
                                _arg->prio, _arg->ticks, _arg->stack_buf,
                                _arg->stack_size, _arg->kstack_size,
                                _arg->entry, _arg->autorun);
+}
+
+static kstat_t sys_krhino_utask_del_stub(void *arg)
+{
+    krhino_utask_del_syscall_arg_t *_arg = arg;
+
+    return krhino_utask_del(_arg->task);
 }
 
 /* ------------------- time ------------------ */
@@ -81,18 +88,18 @@ static sys_time_t sys_krhino_ticks_to_ms_stub(void *arg)
 }
 
 /* ------------------ mutex ------------------ */
-static kstat_t sys_krhino_mutex_create_stub(void *arg)
+static kstat_t sys_krhino_mutex_dyn_create_stub(void *arg)
 {
-    krhino_mutex_create_syscall_arg_t *_arg = arg;
+    krhino_mutex_dyn_create_syscall_arg_t *_arg = arg;
 
-    return krhino_mutex_create(_arg->mutex, _arg->name);
+    return krhino_mutex_dyn_create(_arg->mutex, _arg->name);
 }
 
-static kstat_t sys_krhino_mutex_del_stub(void *arg)
+static kstat_t sys_krhino_mutex_dyn_del_stub(void *arg)
 {
-    krhino_mutex_del_syscall_arg_t *_arg = arg;
+    krhino_mutex_dyn_del_syscall_arg_t *_arg = arg;
 
-    return krhino_mutex_del(_arg->mutex);
+    return krhino_mutex_dyn_del(_arg->mutex);
 }
 
 static kstat_t sys_krhino_mutex_lock_stub(void *arg)
@@ -110,18 +117,18 @@ static kstat_t sys_krhino_mutex_unlock_stub(void *arg)
 }
 
 /* ------------------ semphore ------------------ */
-static kstat_t sys_krhino_sem_create_stub(void *arg)
+static kstat_t sys_krhino_sem_dyn_create_stub(void *arg)
 {
-    krhino_sem_create_syscall_arg_t *_arg = arg;
+    krhino_sem_dyn_create_syscall_arg_t *_arg = arg;
 
-    return krhino_sem_create(_arg->sem, _arg->name, _arg->count);
+    return krhino_sem_dyn_create(_arg->sem, _arg->name, _arg->count);
 }
 
-static kstat_t sys_krhino_sem_del_stub(void *arg)
+static kstat_t sys_krhino_sem_dyn_del_stub(void *arg)
 {
-    krhino_sem_del_syscall_arg_t *_arg = arg;
+    krhino_sem_dyn_del_syscall_arg_t *_arg = arg;
 
-    return krhino_sem_del(_arg->sem);
+    return krhino_sem_dyn_del(_arg->sem);
 }
 
 static kstat_t sys_krhino_sem_give_stub(void *arg)
@@ -302,9 +309,10 @@ void *syscall_tbl[] = {
                        /* ------------------- task ----------------------*/
                        [SYS_KRHINO_CUR_TASK_GET]    = sys_krhino_cur_task_get_stub,
                        [SYS_KRHINO_TASK_SLEEP]      = sys_krhino_task_sleep_stub,
-                       [SYS_KRHINO_TASK_DEL]        = sys_krhino_task_del_stub,
                        [SYS_KRHINO_UPROCESS_CREATE] = sys_krhino_uprocess_create_stub,
+                       [SYS_KRHINO_UPROCESS_EXIT]   = sys_krhino_uprocess_exit_stub,
                        [SYS_KRHINO_UTASK_CREATE]    = sys_krhino_utask_create_stub,
+                       [SYS_KRHINO_UTASK_DEL]       = sys_krhino_utask_del_stub,
 
                        /* ------------------- time ----------------------*/
                        [SYS_KRHINO_SYS_TIME_GET] = sys_krhino_sys_time_get_stub,
@@ -313,16 +321,16 @@ void *syscall_tbl[] = {
                        [SYS_KRHINO_TICKS_TO_MS]  = sys_krhino_ticks_to_ms_stub,
 
                        /* ------------------- mutex ---------------------*/
-                       [SYS_KRHINO_MUTEX_CREATE] = sys_krhino_mutex_create_stub,
-                       [SYS_KRHINO_MUTEX_DEL]    = sys_krhino_mutex_del_stub,
-                       [SYS_KRHINO_MUTEX_LOCK]   = sys_krhino_mutex_lock_stub,
-                       [SYS_KRHINO_MUTEX_UNLOCK] = sys_krhino_mutex_unlock_stub,
+                       [SYS_KRHINO_MUTEX_DYN_CREATE] = sys_krhino_mutex_dyn_create_stub,
+                       [SYS_KRHINO_MUTEX_DYN_DEL]    = sys_krhino_mutex_dyn_del_stub,
+                       [SYS_KRHINO_MUTEX_LOCK]       = sys_krhino_mutex_lock_stub,
+                       [SYS_KRHINO_MUTEX_UNLOCK]     = sys_krhino_mutex_unlock_stub,
 
                        /* ------------------ semphore --------------------*/
-                       [SYS_KRHINO_SEM_CREATE] = sys_krhino_sem_create_stub,
-                       [SYS_KRHINO_SEM_DEL]    = sys_krhino_sem_del_stub,
-                       [SYS_KRHINO_SEM_TAKE]   = sys_krhino_sem_take_stub,
-                       [SYS_KRHINO_SEM_GIVE]   = sys_krhino_sem_give_stub,
+                       [SYS_KRHINO_SEM_DYN_CREATE] = sys_krhino_sem_dyn_create_stub,
+                       [SYS_KRHINO_SEM_DYN_DEL]    = sys_krhino_sem_dyn_del_stub,
+                       [SYS_KRHINO_SEM_TAKE]       = sys_krhino_sem_take_stub,
+                       [SYS_KRHINO_SEM_GIVE]       = sys_krhino_sem_give_stub,
 
                        /* ------------------ buf queue --------------------*/
                        [SYS_KRHINO_BUF_QUEUE_CREATE]     = sys_krhino_buf_queue_create_stub,
