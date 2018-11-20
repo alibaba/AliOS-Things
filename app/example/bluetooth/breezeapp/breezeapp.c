@@ -88,7 +88,7 @@ static void adv_work(void *arg)
 }
 #endif
 
-static void apinfo_handler(breeze_apinfo_t *ap)
+static void apinfo_handler(uint8_t cmd, uint8_t* buf, uint32_t length)
 {
     printf("Hello %s\r\n", __func__);
 }
