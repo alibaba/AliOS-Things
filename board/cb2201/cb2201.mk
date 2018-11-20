@@ -9,7 +9,7 @@ MODULE             := CH2201
 HOST_CHIP          := ch2201
 HOST_ARCH          := ck802
 HOST_MCU_FAMILY    := csky
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 #$(NAME)_COMPONENTS   :=  tfs
 #CONFIG_LIB_TFS       := y

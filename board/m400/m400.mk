@@ -8,7 +8,7 @@ $(NAME)_SUMMARY    := configuration for board m400
 MODULE             := 1062
 HOST_ARCH          := Cortex-M0
 HOST_MCU_FAMILY    := stm32l0xx.stm32l071kb
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 $(NAME)_SOURCES := hal/board.c     \
                    hal/hw_gpio.c   \

@@ -9,7 +9,7 @@ MODULE             := 3165
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := stm32f4xx
 HOST_MCU_VARIANT   := STM32F411
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 BUS := SDIO
 

@@ -6,7 +6,7 @@ $(NAME)_SUMMARY    := configuration for board hifive1
 MODULE             := hifive1
 HOST_ARCH          := RISC-V
 HOST_MCU_FAMILY    := freedom-e.e310
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 $(NAME)_SOURCES := board.c
 

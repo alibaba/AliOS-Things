@@ -9,7 +9,7 @@ $(NAME)_SUMMARY    := configuration for board bk7231
 MODULE               := BK7231
 HOST_ARCH            := ARM968E-S
 HOST_MCU_FAMILY      := bk7231
-SUPPORT_BINS         := no
+SUPPORT_MBINS        := no
 
 $(NAME)_SOURCES := board.c
 

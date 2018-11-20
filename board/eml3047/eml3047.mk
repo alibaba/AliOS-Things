@@ -8,7 +8,7 @@ $(NAME)_SUMMARY    := configuration for board eml3047
 MODULE             := 1062
 HOST_ARCH          := Cortex-M0
 HOST_MCU_FAMILY    := stm32l0xx.stm32l071kb
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 $(NAME)_SOURCES := board.c          \
                    src/debug.c      \

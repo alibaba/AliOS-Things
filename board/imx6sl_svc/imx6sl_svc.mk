@@ -7,7 +7,7 @@ $(NAME)_SUMMARY    := configuration for board imx6sl_svc
 MODULE          := imx6sl_svc
 HOST_ARCH       := Cortex-A9
 HOST_MCU_FAMILY := imx6sl_svc
-SUPPORT_BINS    := no
+SUPPORT_MBINS   := no
 SUPPORT_MBINS   := yes
 ENABLE_USPACE   := 1
 
