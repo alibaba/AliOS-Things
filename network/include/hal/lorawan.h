@@ -14,7 +14,7 @@ extern "C" {
  *END***********************************************************************/
 #include <stdint.h>
 #include "base.h"
-#include "timer.h"
+#include "lora/system/timer.h"
 
 /*MACROS*********************************************************************
  *                          DATATYPE DEFINITIONS

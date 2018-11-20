@@ -56,7 +56,7 @@
 #include <stdbool.h>
 #include "utilities.h"
 #include "LoRaMac.h"
-#include "timer.h"
+#include "lora/system/timer.h"
 
 #ifdef CONFIG_LINKWAN
 #include "linkwan.h"
