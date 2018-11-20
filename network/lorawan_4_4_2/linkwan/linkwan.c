@@ -84,6 +84,7 @@ static bool send_frame(void)
 
     if (LoRaMacQueryTxPossible(tx_data.BuffSize, &txInfo) !=
         LORAMAC_STATUS_OK) {
+        
         return true;
     }
 
@@ -305,6 +306,10 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
     // Check Port
     // Check Datarate
     // Check FramePending
+    if (mcpsIndication->FramePending == true) {
+        tx_data.BuffSize = 0;
+        on_tx_next_packet_timer_event();
+    }
     // Check Buffer
     // Check BufferSize
     // Check Rssi
@@ -1203,12 +1208,16 @@ bool send_lora_link_check(void)
     MlmeReq_t mlmeReq;
 
     mlmeReq.Type = MLME_LINK_CHECK;
+
     if (next_tx == true) {
         if (LoRaMacMlmeRequest(&mlmeReq) == LORAMAC_STATUS_OK) {
-            next_tx = false;
-            return lora_tx_data_payload(1, get_lora_tx_cfm_trials(), NULL, 0);
+
+            device_state = DEVICE_STATE_SEND;
+
+            return true;
         }
     }
+
     return false;
 }
 
@@ -1500,6 +1509,7 @@ bool lora_tx_data_payload(uint8_t confirm, uint8_t Nbtrials, uint8_t *payload,
             tx_data.BuffSize = len;
             set_lora_tx_cfm_trials(Nbtrials);
             device_state = DEVICE_STATE_SEND;
+            
             return true;
 
         } else {
