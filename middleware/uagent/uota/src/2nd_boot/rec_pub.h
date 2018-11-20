@@ -65,6 +65,7 @@ void rec_delayms(volatile int ms);
 void rec_uart_send(unsigned char *buff, int len);
 void rec_uart_send_string(char *buff);
 unsigned char uart_recv_byte(unsigned char *c);
+void rec_uart_send_byte(unsigned char buff);
 
 void rec_flash_init(void);
 void rec_flash_erase(unsigned long offset);
@@ -81,4 +82,5 @@ void rec_2boot_rollback();
 void recovery_get_flag_info(rec_flag_info_t *rec_flag_info);
 void recovery_set_flag_info(rec_flag_info_t *rec_flag_info);
 
+void rec_ymodem_cmd();
 #endif //_REC_PUB_H_
