@@ -8,7 +8,7 @@ $(NAME)_SUMMARY    := configuration for board b_l475e
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := stm32l475
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 $(NAME)_SOURCES := board.c osa_flash.c
 

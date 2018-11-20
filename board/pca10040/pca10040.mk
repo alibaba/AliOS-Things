@@ -7,7 +7,7 @@ SUPPORT_MBINS      := yes
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := nrf52xxx
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 HOST_MCU_NAME      := nrf52832
 
 GLOBAL_INCLUDES += .

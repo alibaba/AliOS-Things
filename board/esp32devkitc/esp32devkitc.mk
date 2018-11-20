@@ -6,7 +6,7 @@ $(NAME)_SUMMARY    := configuration for board esp32devkitc
 MODULE             := 1062
 HOST_ARCH          := xtensa
 HOST_MCU_FAMILY    := esp32
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 # todo: remove these after rhino/lwip ready
 osal ?= rhino

@@ -9,7 +9,7 @@ MODULE             := 3239
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := stm32f4xx
 HOST_MCU_VARIANT   := STM32F412
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 WLAN_CHIP              := 43438
 WLAN_CHIP_REVISION     := A1

@@ -13,7 +13,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := configuration for board msp432p4111launchpad
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := msp432p4xx
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 HOST_MCU_NAME      := MSP432P4111
 ENABLE_VFP         := 1
 

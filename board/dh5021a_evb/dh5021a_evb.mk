@@ -9,7 +9,7 @@ MODULE             := DH5021A
 HOST_CHIP          := dh5021a
 HOST_ARCH          := ck803
 HOST_MCU_FAMILY    := dahua
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 #$(NAME)_COMPONENTS  :=  tfs
 #CONFIG_LIB_TFS := y

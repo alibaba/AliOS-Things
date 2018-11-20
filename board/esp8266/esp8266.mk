@@ -6,7 +6,7 @@ $(NAME)_SUMMARY    := configuration for board esp8266
 MODULE             := 1062
 HOST_ARCH          := xtensa
 HOST_MCU_FAMILY    := esp8266
-SUPPORT_BINS       := no
+SUPPORT_MBINS      := no
 
 # todo: remove these after rhino/lwip ready
 osal ?= rhino
