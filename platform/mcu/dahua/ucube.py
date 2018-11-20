@@ -74,7 +74,7 @@ dependencis = Split('''
         network/lwip
         middleware/common 
         utility/cjson
-        tools/cli
+        kernel/cli
         platform/mcu/csky/hal_init
 ''')
 
