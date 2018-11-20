@@ -11,7 +11,7 @@
 #include "em_gpio.h"
 
 #include "lorawan_port.h"
-#include "timer.h"
+#include "lora/system/timer.h"
 #include "debug.h"
 #include "low_power.h"
 
