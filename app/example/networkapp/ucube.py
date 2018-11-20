@@ -9,7 +9,7 @@ if aos_global_config.get("BENCHMARKS")==1:
 
 dependencis =Split(''' 
     kernel/yloop
-    tools/cli
+    kernel/cli
     network/netmgr
 ''')
 for i in dependencis:

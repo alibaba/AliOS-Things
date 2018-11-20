@@ -9,7 +9,7 @@ global_includes =Split('''
 ''')
 
 dependencis =Split('''
-    tools/cli
+    kernel/cli
     network/netmgr
     middleware/common
     device/sensor 

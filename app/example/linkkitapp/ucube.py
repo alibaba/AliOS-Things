@@ -12,7 +12,7 @@ dependencis =Split('''
     framework/common
     framework/ywss4linkkit
     utility/cjson
-    tools/cli
+    kernel/cli
 ''')
 for i in dependencis:
     component.add_comp_deps(i)

@@ -11,7 +11,7 @@ $(NAME)_COMPONENTS += feature.linkkit-mqtt \
                       middleware/common \
                       middleware/uagent/uota  \
                       utility/cjson \
-		      tools/cli  \
+		              kernel/cli  \
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
