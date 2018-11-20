@@ -18,7 +18,7 @@ The Freedom KL26Z is an ultra-low-cost development platform for Kinetis® L seri
    - In file test/testcase/certificate_test/aos_test.c:
      > Change TEST_CONFIG_YLOOP_EVENT_COUNT to 50
      > Change TEST_CONFIG_YLOOP_LOOP_COUNT  to 2
-   - In file tools/cli/cli.c:
+   - In file kernel/cli/cli.c:
      > Change CONFIG_AOS_CLI_STACK_SIZE to 1024
    - In file include/aos/cli.h:
      > Change OUTBUF_SIZE to 256
