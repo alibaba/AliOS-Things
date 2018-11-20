@@ -3,8 +3,8 @@ HOST_OPENOCD := esp32
 NAME := esp32
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := driver & sdk for platform/mcu esp32
 
 $(NAME)_COMPONENTS := hal kernel.fs.kv
 $(NAME)_COMPONENTS += network.lwip alicrypto
@@ -23,9 +23,9 @@ GLOBAL_INCLUDES += $(ESP_INC_PATH)/spi_flash/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/container/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/app_update/include
 
-GLOBAL_CFLAGS   += -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -DESPOS_FOR_ESP32
-GLOBAL_LDFLAGS   += -nostdlib -Lplatform/mcu/esp32/ -lc
-GLOBAL_LDFLAGS   += -lgcc -lstdc++ -lgcov -lm
+GLOBAL_CFLAGS  += -ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -DESPOS_FOR_ESP32
+GLOBAL_LDFLAGS += -nostdlib -Lplatform/mcu/esp32/ -lc
+GLOBAL_LDFLAGS += -lgcc -lstdc++ -lgcov -lm
 
 GLOBAL_LDS_FILES += platform/mcu/esp32/bsp/ld/esp32.ld.S
 GLOBAL_LDS_FILES += platform/mcu/esp32/bsp/ld/esp32.common.ld
@@ -34,48 +34,45 @@ GLOBAL_LDS_FILES += platform/mcu/esp32/bsp/ld/esp32.peripherals.ld
 GLOBAL_LDS_FILES += platform/mcu/esp32/bsp/ld/esp32.rom.spiram_incompatible_fns.ld
 GLOBAL_LDFLAGS   += -L platform/mcu/esp32/bsp/ld
 
-GLOBAL_DEFINES   += CONFIG_AOS_KV_BUFFER_SIZE=8192
-GLOBAL_DEFINES   += CONFIG_AOS_CLI_BOARD
+GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
+GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 
-$(NAME)_SOURCES  := bsp/entry.c
-$(NAME)_SOURCES  += bsp/setboot_cli.c
-$(NAME)_SOURCES  += hal/uart.c
-$(NAME)_SOURCES  += hal/flash.c
-$(NAME)_SOURCES  += hal/wifi_port.c
-$(NAME)_SOURCES  += hal/ota_port.c
+$(NAME)_SOURCES := bsp/entry.c
+$(NAME)_SOURCES += bsp/setboot_cli.c
+$(NAME)_SOURCES += hal/uart.c
+$(NAME)_SOURCES += hal/flash.c
+$(NAME)_SOURCES += hal/wifi_port.c
 ifeq ($(ble),1)
-$(NAME)_SOURCES  += hal/ais_ota_port.c
+$(NAME)_SOURCES += hal/ais_ota_port.c
 endif
-$(NAME)_SOURCES  += hal/misc.c
-$(NAME)_SOURCES  += hal/i2c.c
-$(NAME)_SOURCES  += hal/gpio.c
-$(NAME)_SOURCES  += hal/pwm.c
-$(NAME)_SOURCES  += bsp/tcpip_adapter_lwip.c bsp/wlanif.c bsp/ethernetif.c
-$(NAME)_CFLAGS   := -std=gnu99
+$(NAME)_SOURCES += hal/misc.c
+$(NAME)_SOURCES += hal/i2c.c
+$(NAME)_SOURCES += hal/gpio.c
+$(NAME)_SOURCES += hal/pwm.c
+$(NAME)_SOURCES += bsp/tcpip_adapter_lwip.c bsp/wlanif.c bsp/ethernetif.c
+$(NAME)_CFLAGS  := -std=gnu99
 
 ifeq ($(bt_mesh), 1)
-$(NAME)_SOURCES  += hal/mesh_bt_hal.c
+$(NAME)_SOURCES += hal/mesh_bt_hal.c
 endif
-
 
 ifeq ($(OS_MUTICORE_NUM), 2)
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/app_update/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/esp32/include/rom
 GLOBAL_INCLUDES += smp
-$(NAME)_SOURCES  += smp/smp_int.c
-$(NAME)_SOURCES  += smp/smp_load.c
-$(NAME)_SOURCES  += smp/smp_sync.c
+$(NAME)_SOURCES += smp/smp_int.c
+$(NAME)_SOURCES += smp/smp_load.c
+$(NAME)_SOURCES += smp/smp_sync.c
 endif
-
 
 ifneq ($(wifi),0)
-$(NAME)_CFLAGS   += -DENABLE_WIFI
+$(NAME)_CFLAGS += -DENABLE_WIFI
 endif
-$(NAME)_CFLAGS	 += -I platform/mcu/esp32/bsp
+$(NAME)_CFLAGS += -I platform/mcu/esp32/bsp
 
 ifeq (0,1)
-libs := $(wildcard platform/mcu/esp32/lib/*.a)
-libs := $(foreach lib,$(libs),lib/$(notdir $(lib)))
+libs                     := $(wildcard platform/mcu/esp32/lib/*.a)
+libs                     := $(foreach lib,$(libs),lib/$(notdir $(lib)))
 $(NAME)_PREBUILT_LIBRARY := $(libs)
 endif
 
@@ -118,38 +115,38 @@ $(NAME)_SOURCES          += aos/soc_impl.c
 $(NAME)_SOURCES          += aos/heap_wrapper.c
 endif
 
-mesh ?= 0
+mesh               ?= 0
 ifneq ($(mesh),0)
 $(NAME)_COMPONENTS += network.umesh
 endif
 
-ble ?= 0
+ble                      ?= 0
 ifneq ($(ble),0)
-$(NAME)_COMPONENTS += network.bluetooth.bt
-GLOBAL_INCLUDES += $(ESP_INC_PATH)/bt/include
-$(NAME)_INCLUDES += ../../../network/bluetooth/port
-$(NAME)_INCLUDES += ../../../network/bluetooth/host
-$(NAME)_INCLUDES += ../../../network/bluetooth/host/bt_mesh
-$(NAME)_INCLUDES += ../../../network/bluetooth/core/include
-$(NAME)_INCLUDES += ../../../network/bluetooth/include/bluetooth
+$(NAME)_COMPONENTS       += network.bluetooth.bt
+GLOBAL_INCLUDES          += $(ESP_INC_PATH)/bt/include
+$(NAME)_INCLUDES         += ../../../network/bluetooth/port
+$(NAME)_INCLUDES         += ../../../network/bluetooth/host
+$(NAME)_INCLUDES         += ../../../network/bluetooth/host/bt_mesh
+$(NAME)_INCLUDES         += ../../../network/bluetooth/core/include
+$(NAME)_INCLUDES         += ../../../network/bluetooth/include/bluetooth
 ifneq ($(hci_h4),1)
-$(NAME)_SOURCES  += ble_hci_driver/hci_driver.c
-GLOBAL_CFLAGS    += -DBLE_4_2
+$(NAME)_SOURCES          += ble_hci_driver/hci_driver.c
+GLOBAL_CFLAGS            += -DBLE_4_2
 else
 ifeq ($(ble_controller),nrf51822)
-$(NAME)_COMPONENTS += bluetooth.nrf51822
-GLOBAL_CFLAGS    += -DBLE_4_0
+$(NAME)_COMPONENTS       += bluetooth.nrf51822
+GLOBAL_CFLAGS            += -DBLE_4_0
 else ifeq ($(ble_controller),nrf52840)
-$(NAME)_COMPONENTS += bluetooth.nrf52840
-GLOBAL_CFLAGS    += -DBLE_4_2
+$(NAME)_COMPONENTS       += bluetooth.nrf52840
+GLOBAL_CFLAGS            += -DBLE_4_2
 else
 error("Invalid ble controller.")
 endif
 endif
 $(NAME)_PREBUILT_LIBRARY += lib/libbt.a
 $(NAME)_PREBUILT_LIBRARY += lib/libbtdm_app.a
-GLOBAL_DEFINES += CONFIG_ESP32_WITH_BLE
-GLOBAL_DEFINES += CONFIG_XTENSA
+GLOBAL_DEFINES           += CONFIG_ESP32_WITH_BLE
+GLOBAL_DEFINES           += CONFIG_XTENSA
 endif
 
 $(NAME)_SOURCES  += hal/adc.c
@@ -157,5 +154,4 @@ $(NAME)_SOURCES  += hal/dac.c
 $(NAME)_SOURCES  += hal/wdg.c
 
 $(NAME)_SOURCES  += hal/rtc.c
-
 
