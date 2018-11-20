@@ -6,7 +6,7 @@
 #include "hw.h"
 #include "radio.h"
 #include "delay.h"
-#include "timer.h"
+#include "lora/system/timer.h"
 #include "sx1276.h"
 #include "port_mcu.h"
 #include "lorawan_port.h"
