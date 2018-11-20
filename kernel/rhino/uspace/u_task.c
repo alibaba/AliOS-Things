@@ -200,6 +200,14 @@ kstat_t krhino_utask_create(ktask_t **task, const name_t *name, void *arg,
     return ret;
 }
 
+kstat_t krhino_utask_del(ktask_t *task)
+{
+    kstat_t  ret;
+    ret = krhino_task_dyn_del(task);
+
+    return ret;
+}
+
 kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
                                uint8_t pri, tick_t ticks, cpu_stack_t *ustack_buf,
                                size_t ustack, size_t kstack, task_entry_t entry, uint32_t pid,

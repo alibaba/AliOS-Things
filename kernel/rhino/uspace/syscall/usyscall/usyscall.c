@@ -14,20 +14,41 @@ ktask_t *krhino_cur_task_get(void)
 kstat_t krhino_task_sleep(tick_t tick)
 {
     volatile krhino_task_sleep_syscall_arg_t _arg;
+
     _arg.tick = tick;
 
     return SYSCALL(SYS_KRHINO_TASK_SLEEP, &_arg);
 }
 
-kstat_t krhino_task_del(ktask_t *task)
+kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name,
+                               void *arg, uint8_t prio, tick_t ticks,
+                               cpu_stack_t *stack_buf, size_t stack_size,
+                               size_t kstack_size, task_entry_t entry,
+                               uint32_t pid, uint8_t autorun)
 {
-    volatile krhino_task_del_syscall_arg_t _arg;
-    _arg.task = task;
+    volatile krhino_uprocess_create_syscall_arg_t _arg;
 
-    return SYSCALL(SYS_KRHINO_TASK_DEL, &_arg);
+    _arg.task        = task;
+    _arg.name        = name;
+    _arg.arg         = arg;
+    _arg.prio        = prio;
+    _arg.ticks       = ticks;
+    _arg.stack_buf   = stack_buf;
+    _arg.stack_size  = stack_size;
+    _arg.kstack_size = kstack_size;
+    _arg.entry       = entry;
+    _arg.pid         = pid;
+    _arg.autorun     = autorun;
+
+    return SYSCALL(SYS_KRHINO_UPROCESS_CREATE, &_arg);
 }
 
-kstat_t krhino_utask_create(ktask_t *task, const name_t *name,
+kstat_t krhino_uprocess_exit(void)
+{
+    return SYSCALL(SYS_KRHINO_UPROCESS_EXIT, NULL);
+}
+
+kstat_t krhino_utask_create(ktask_t **task, const name_t *name,
                             void *arg, uint8_t prio, tick_t ticks,
                             cpu_stack_t *stack_buf, size_t stack_size,
                             size_t kstack_size, task_entry_t entry,
@@ -49,27 +70,13 @@ kstat_t krhino_utask_create(ktask_t *task, const name_t *name,
     return SYSCALL(SYS_KRHINO_UTASK_CREATE, &_arg);
 }
 
-kstat_t krhino_uprocess_create(ktask_t *task, const name_t *name,
-                               void *arg, uint8_t prio, tick_t ticks,
-                               cpu_stack_t *stack_buf, size_t stack_size,
-                               size_t kstack_size, task_entry_t entry,
-                               uint32_t pid, uint8_t autorun)
+kstat_t krhino_utask_del(ktask_t *task)
 {
-    volatile krhino_uprocess_create_syscall_arg_t _arg;
+    volatile krhino_utask_del_syscall_arg_t _arg;
 
-    _arg.task        = task;
-    _arg.name        = name;
-    _arg.arg         = arg;
-    _arg.prio        = prio;
-    _arg.ticks       = ticks;
-    _arg.stack_buf   = stack_buf;
-    _arg.stack_size  = stack_size;
-    _arg.kstack_size = kstack_size;
-    _arg.entry       = entry;
-    _arg.pid         = pid;
-    _arg.autorun     = autorun;
+    _arg.task = task;
 
-    return SYSCALL(SYS_KRHINO_UPROCESS_CREATE, &_arg);
+    return SYSCALL(SYS_KRHINO_UTASK_DEL, &_arg);
 }
 
 /* ------------------ time ------------------ */
@@ -102,23 +109,23 @@ sys_time_t krhino_ticks_to_ms(tick_t ticks)
 }
 
 /* ------------------ mutex ------------------ */
-kstat_t krhino_mutex_create(kmutex_t *mutex, const name_t *name)
+kstat_t krhino_mutex_dyn_create(kmutex_t **mutex, const name_t *name)
 {
-    volatile krhino_mutex_create_syscall_arg_t _arg;
+    volatile krhino_mutex_dyn_create_syscall_arg_t _arg;
 
     _arg.mutex = mutex;
     _arg.name  = name;
 
-    return SYSCALL(SYS_KRHINO_MUTEX_CREATE, &_arg);
+    return SYSCALL(SYS_KRHINO_MUTEX_DYN_CREATE, &_arg);
 }
 
-kstat_t krhino_mutex_del(kmutex_t *mutex)
+kstat_t krhino_mutex_dyn_del(kmutex_t *mutex)
 {
-    volatile krhino_mutex_del_syscall_arg_t _arg;
+    volatile krhino_mutex_dyn_del_syscall_arg_t _arg;
 
     _arg.mutex = mutex;
 
-    return SYSCALL(SYS_KRHINO_MUTEX_DEL, &_arg);
+    return SYSCALL(SYS_KRHINO_MUTEX_DYN_DEL, &_arg);
 }
 
 kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
@@ -141,24 +148,24 @@ kstat_t krhino_mutex_unlock(kmutex_t *mutex)
 }
 
 /* ------------------ semphore ------------------ */
-kstat_t krhino_sem_create(ksem_t *sem, const name_t *name, sem_count_t count)
+kstat_t krhino_sem_dyn_create(ksem_t **sem, const name_t *name, sem_count_t count)
 {
-    volatile krhino_sem_create_syscall_arg_t _arg;
+    volatile krhino_sem_dyn_create_syscall_arg_t _arg;
 
     _arg.sem   = sem;
     _arg.name  = name;
     _arg.count = count;
 
-    return SYSCALL(SYS_KRHINO_SEM_CREATE, &_arg);
+    return SYSCALL(SYS_KRHINO_SEM_DYN_CREATE, &_arg);
 }
 
-kstat_t krhino_sem_del(ksem_t *sem)
+kstat_t krhino_sem_dyn_del(ksem_t *sem)
 {
-    volatile krhino_sem_del_syscall_arg_t _arg;
+    volatile krhino_sem_dyn_del_syscall_arg_t _arg;
 
     _arg.sem = sem;
 
-    return SYSCALL(SYS_KRHINO_SEM_DEL, &_arg);
+    return SYSCALL(SYS_KRHINO_SEM_DYN_DEL, &_arg);
 }
 
 kstat_t krhino_sem_give(ksem_t *sem)
