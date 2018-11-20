@@ -1,5 +1,2 @@
 
-NAME := hal_init
-
-$(NAME)_TYPE := kernel
-$(NAME)_SOURCES := hal_init.c
+$(NAME)_SOURCES += ./hal_init/hal_init.c

@@ -3,7 +3,7 @@
 ----------
 
 ESP8266 SDK based on FreeRTOS.
-   
+
 ## Note ##
 
 APIs of "ESP8266_RTOS_SDK" are same as "ESP8266_NONOS_SDK"
@@ -15,7 +15,7 @@ More details in "Wiki" !
 You can use both xcc and gcc to compile your project, gcc is recommended.
 For gcc, please refer to [esp-open-sdk](https://github.com/pfalcon/esp-open-sdk).
 
-  
+
 ## Compile ##
 
 Clone ESP8266_RTOS_SDK, e.g., to ~/ESP8266_RTOS_SDK.
@@ -35,7 +35,7 @@ For Windows:
 
 ESP8266_RTOS_SDK/examples/project_template is a project template, you can copy this to anywhere, e.g., to ~/workspace/project_template.
 
-Generate bin: 
+Generate bin:
 For Linux:
 
     ./gen_misc.sh
@@ -43,7 +43,7 @@ For Linux:
 For Windows:
 
     gen_misc.bat
-   
+
 Just follow the tips and steps.
 
 ## Download ##

@@ -74,7 +74,7 @@ static struct nvm_configuration _nvm
 static struct _flash_device *_nvm_dev = NULL;
 
 static void _flash_erase_block(void *const hw, const uint32_t dst_addr);
-void _flash_program(void *const hw, const uint32_t dst_addr, const uint8_t *buffer, const uint16_t size);
+static void _flash_program(void *const hw, const uint32_t dst_addr, const uint8_t *buffer, const uint16_t size);
 
 /**
  * \brief Initialize NVM
@@ -384,7 +384,7 @@ static void _flash_erase_block(void *const hw, const uint32_t dst_addr)
  *                           write is stored
  * \param[in] size           The size of data to write to a page
  */
-void _flash_program(void *const hw, const uint32_t dst_addr, const uint8_t *buffer, const uint16_t size)
+static void _flash_program(void *const hw, const uint32_t dst_addr, const uint8_t *buffer, const uint16_t size)
 {
 	uint32_t *ptr_read    = (uint32_t *)buffer;
 	uint32_t  nvm_address = dst_addr / 4;
