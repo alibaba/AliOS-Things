@@ -20,14 +20,14 @@ int rec_2boot_cmd_check(void)
 
     while(1) {
         if(uart_recv_byte(&c) && ('w' == c)) {
-            printf("begin second bootloader cmd \r\n");
+            printf("Begin aos second bootloader cmd \r\n");
             return 0;
         }
         i ++;
         if(i >= 100)break;
         rec_delayms(1);
     }
-    printf("normal bootup, flag 0x%x, num 0x%x\r\n", rec_flag_info.flag, rec_flag_info.num);
+    printf("Normal bootup, flag 0x%x, num 0x%x\r\n", rec_flag_info.flag, rec_flag_info.num);
 #endif
     rec_flash_init();
     recovery_get_flag_info(&rec_flag_info);
@@ -39,6 +39,22 @@ int rec_2boot_cmd_check(void)
     return 1;
 }
 
+#ifdef AOS_OTA_2BOOT_CLI
+void print_usage()
+{
+    printf("aos second bootloader version: " REC_2BOOT_VERSION "\r\n");
+
+    printf("[1] Query  firmware version information \r\n");
+    printf("[2] Update firmware by UART YMODEM \r\n");
+    printf("[3] Update firmware by CANbus \r\n");
+    printf("[4] Update firmware by USB Storage \r\n");
+    printf("[5] Active backup firmware\r\n");
+    printf("[6] Reboot\r\n");
+    printf("[h] print this help info\r\n");
+    printf("Please input 1-6 to select the corresponding function\r\n");
+}
+#endif
+
 void rec_2boot_cmd_process()
 {
 #ifdef AOS_OTA_2BOOT_CLI
@@ -48,22 +64,18 @@ void rec_2boot_cmd_process()
     pstatus = nbpatch_get_pstatus();
     read_patch_status(pstatus);
 
-    printf("aos second bootloader version: "REC_2BOOT_VERSION"\r\n");
-
-    printf("[1] Query  firmware version information \r\n");
-    printf("[2] Update firmware by UART XYMODEN protocol \r\n");
-    printf("[3] Update firmware by CANbus \r\n");
-    printf("[4] Update firmware by USB Storage \r\n");
-    printf("[5] Active backup firmware\r\n");
-    printf("[6] Reboot\r\n");
-    printf("Please input 1-6 to select the corresponding function\r\n");
-    printf("# ");
+    print_usage();
+    printf("aos boot# ");
     while(1) {
         if(uart_recv_byte(&c)) {
-            if((c == 0)||(c == 0xd)||(c == 'w')) {
-                rec_delayms(1);
+            if('w' == c)  {
                 continue;
             }
+            if( ('\r' == c) || ('\n' == c) ) {
+                printf("\r\naos boot# ");
+                continue;
+            }
+
             printf("%c \r\n", c);
             switch(c) {
                 case '1' :
@@ -72,25 +84,32 @@ void rec_2boot_cmd_process()
                     break;
 
                 case '2' :
+                    rec_ymodem_cmd();
+                    break;
+
                 case '3' :
                 case '4' :
-                    printf("command %c not supported \r\n", c);
+                    printf("Command %c not supported \r\n", c);
                     break;
 
                 case '5' :
-                    printf("begin active backup firmware %s\r\n", pstatus->ota_version);
+                    printf("Begin active backup firmware %s\r\n", pstatus->ota_version);
                     nbpatch_swap_app2ota(TRUE);
                     //说明：此处激活备区版本后，直接复位，故此处不需要break
                 case '6' :
-                    printf("begin reboot \r\n");
+                    printf("Begin reboot \r\n");
                     rec_reboot();
+                    break;
+
+                case 'h' :
+                    print_usage();
                     break;
 
                 default:
                     printf("Please input 1-6 to select the corresponding function\r\n");
                     break;
             }
-            printf("# ");
+            printf("\r\naos boot# ");
             rec_delayms(1);
         }
     }
