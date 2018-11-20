@@ -316,6 +316,7 @@ typedef struct sLoRaMacCtxs
      * \brief   Size of MAC commands module context
      */
     size_t CommandsNvmCtxSize;
+#ifdef LORAMAC_CLASSB_ENABLED
     /*!
      * \brief   Pointer to Class B module context
      */
@@ -324,6 +325,7 @@ typedef struct sLoRaMacCtxs
      * \brief   Size of MAC Class B module context
      */
     size_t ClassBNvmCtxSize;
+#endif
     /*!
      * \brief   Pointer to MLME Confirm queue module context
      */

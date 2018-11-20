@@ -430,6 +430,7 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
             }
             break;
         }
+#ifdef LORAMAC_CLASSB_ENABLED
         case MLME_DEVICE_TIME: {
             device_state = DEVICE_STATE_BEACON_ACQUISITION;
 
@@ -465,6 +466,7 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
             }
             break;
         }
+#endif
         default:
             break;
     }
@@ -725,6 +727,7 @@ void lora_fsm(void)
             case DEVICE_STATE_JOINED: {
                 DBG_LINKWAN("Joined\n\r");
                 store_lora_config();
+#ifdef LORAMAC_CLASSB_ENABLED
                 if (app_classType == LORA_APP_CLASS_B) {
                     device_state = DEVICE_STATE_REQ_DEVICE_TIME;
                 } else {
@@ -778,6 +781,9 @@ void lora_fsm(void)
                         device_state = DEVICE_STATE_SEND;
                     }
                 }
+#else
+            device_state = DEVICE_STATE_SEND;
+#endif
                 break;
             }
             case DEVICE_STATE_SEND: {
