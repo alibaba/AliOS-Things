@@ -11,7 +11,6 @@
 #include "ble_service.h"
 #include "transport.h"
 #include "auth.h"
-#include "extcmd.h"
 #include "bzopt.h"
 
 #ifdef __cplusplus
