@@ -23,7 +23,7 @@
 
 #include "ecc.h"
 
-#include "crypto.h"
+#include "mesh_crypto.h"
 #include "adv.h"
 #include "mesh.h"
 #include "net.h"

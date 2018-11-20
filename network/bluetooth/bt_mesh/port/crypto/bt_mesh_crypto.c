@@ -4,6 +4,8 @@
 
 #include <errno.h>
 
+#include <bluetooth/bluetooth.h>
+#include "ecc.h"
 #include <tinycrypt/constants.h>
 #include <tinycrypt/utils.h>
 #include <tinycrypt/aes.h>
@@ -52,12 +54,12 @@ const uint8_t *bt_mesh_pub_key_get(void)
     return bt_pub_key_get();
 }
 
-int bt_mesh_dh_key_gen(const uint8_t remote_pk[64], bt_dh_key_cb_t cb)
+int bt_mesh_dh_key_gen(const uint8_t remote_pk[64], bt_mesh_dh_key_cb_t cb)
 {
     return bt_dh_key_gen(remote_pk, cb);
 }
 
-int bt_mesh_pub_key_gen(struct bt_pub_key_cb *cb)
+int bt_mesh_pub_key_gen(struct bt_mesh_pub_key_cb *cb)
 {
     return bt_pub_key_gen(cb);
 }

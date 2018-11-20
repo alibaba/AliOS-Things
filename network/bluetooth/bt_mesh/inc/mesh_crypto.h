@@ -6,6 +6,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#ifndef _CRYPTO_H_
+#define _CRYPTO_H_
+
 struct bt_mesh_sg {
 	const void *data;
 	size_t len;
@@ -154,3 +157,5 @@ int bt_mesh_prov_conf(const u8_t conf_key[16], const u8_t rand[16],
 
 int bt_mesh_prov_decrypt(const u8_t key[16], u8_t nonce[13],
 			 const u8_t data[25 + 8], u8_t out[25]);
+
+#endif
