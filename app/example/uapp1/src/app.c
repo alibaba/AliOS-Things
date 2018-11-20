@@ -5,7 +5,8 @@
 #include <u_api.h>
 #include <ucli.h>
 
-//#define ENABLE_PROC_MSG
+/* #define ENABLE_PROC_MSG */
+
 #define APP_STACK_SIZE 0x400
 
 static ktask_t     app_obj;
