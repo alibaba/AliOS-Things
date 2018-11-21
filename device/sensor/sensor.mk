@@ -15,7 +15,11 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_sensirion_shtc1.c \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
-        drv/drv_mag_temp_memsic_mmc3680kj.c 
+        drv/drv_mag_temp_memsic_mmc3680kj.c \
+        drv/drv_acc_bosch_bma280.c \
+        drv/drv_gyro_bosch_bmg160.c \
+        drv/drv_mag_bosch_bmm150.c \
+        drv/drv_acc_gyro_bosch_bmi160.c
 
 
 #modbus_sensor_enable=1

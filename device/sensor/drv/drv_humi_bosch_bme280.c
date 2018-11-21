@@ -194,7 +194,7 @@ static bme280_cali_table_t g_cali_table;
 static bme280_config_t     g_bme280_config;
 
 i2c_dev_t bme280_ctx_i2c = {
-    .port                 = 3,
+    .port                 = 0,
     .config.address_width = 8,
     .config.freq          = 400000,
     .config.dev_addr      = BME280_I2C_ADDR,
@@ -728,7 +728,6 @@ static int drv_humi_bosch_bme280_read_humi(humidity_data_t *pdata)
     data_lsb = (uint32_t)data[0] << 8;
     data_msb = (uint32_t)data[1];
     pdata->h = data_msb | data_lsb;
-
     ret = drv_humi_bosch_bme280_comp_humi(pdata);
     if (unlikely(ret)) {
         return ret;
@@ -839,7 +838,7 @@ int drv_humi_bosch_bme280_init(void)
     memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
-    sensor.io_port    = SPI_PORT;
+    sensor.io_port    = I2C_PORT;
     sensor.tag        = TAG_DEV_HUMI;
     sensor.path       = dev_humi_path;
     sensor.open       = drv_humi_bosch_bme280_open;
@@ -856,27 +855,32 @@ int drv_humi_bosch_bme280_init(void)
 
     ret = drv_humi_bosch_bme280_io_init(sensor.io_port);
     if (unlikely(ret)) {
+        
         return -1;
     }
 
     ret = drv_humi_bosch_bme280_validate_id(BME280_CHIP_ID);
     if (unlikely(ret)) {
+        
         return -1;
     }
 
     ret = drv_humi_bosch_bme280_soft_reset();
     if (unlikely(ret)) {
+        
         return -1;
     }
 
 
     ret = drv_humi_bosch_bme280_set_default_config();
     if (unlikely(ret)) {
+        
         return -1;
     }
 
     ret = drv_humi_bosch_bme280_get_cali_parm();
     if (unlikely(ret)) {
+        
         return -1;
     }
 

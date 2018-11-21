@@ -28,7 +28,7 @@
 
 #include "BCDS_HAL.h"
 
-#if BCDS_FEATURE_BSP_USB
+//#if BCDS_FEATURE_BSP_USB
 /* additional interface header files */
 #include "em_device.h"
 /** @TODO : The following condition and the above inclusion of "em_device.h" needs to be
@@ -360,7 +360,7 @@ USB_returnCode_t USB_receiveByte(uint8_t* byte)
     return (retVal);
 }
 
-#ifdef USB_USE_PRINTF
+//#ifdef USB_USE_PRINTF
 
 /**
  * @brief       RETARGET API used by printf to transmit single byte to USB
@@ -451,8 +451,8 @@ void USB_DisConnect(void)
 {
     USBD_Disconnect();
 }
-#endif /* if (USB_PRESENT ) && ( USB_COUNT == 1 ) */
+//#endif /* if (USB_PRESENT ) && ( USB_COUNT == 1 ) */
 
-#endif /* BCDS_FEATURE_BSP_USB */
+//#endif /* BCDS_FEATURE_BSP_USB */
 
 /** ************************************************************************* */

@@ -30,7 +30,7 @@
 #define BMA280_DEFAULT_ODR                  (100)
 
 i2c_dev_t bma280_ctx                             = {
-    .port                 = 3,
+    .port                 = 0,
     .config.address_width = 8,
     .config.freq          = 400000,
     .config.dev_addr      = BMA280_I2C_ADDR,
@@ -118,7 +118,7 @@ int drv_acc_bosch_bma280_init(void)
     }
 
     ret = drv_acc_bosch_bma253_validate_id(&bma280_ctx, BMA280_CHIP_ID_VALUE);
-    if (unlikely(ret)) {
+    if (unlikely(ret)) { 
         return -1;
     }
 
@@ -129,7 +129,7 @@ int drv_acc_bosch_bma280_init(void)
 
     aos_msleep(5);
     ret = drv_acc_bosch_bma253_set_range(&bma280_ctx, ACC_RANGE_8G);
-    if (unlikely(ret)) {
+    if (unlikely(ret)) {       
         return -1;
     }
 

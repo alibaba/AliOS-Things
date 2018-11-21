@@ -84,7 +84,16 @@ $(NAME)_SOURCES += EMLib/em_lib/src/em_acmp.c \
 				   EMLib/em_lib/src/em_timer.c \
 				   EMLib/em_lib/src/em_usart.c  \
 				   EMLib/em_lib/src/em_vcmp.c \
-				   EMLib/em_lib/src/em_wdog.c
+				   EMLib/em_lib/src/em_wdog.c \
+				   EMLib/usb/src/em_usbd.c \
+				   EMLib/usb/src/em_usbtimer.c \
+				   EMLib/usb/src/em_usbhal.c \
+				   EMLib/usb/src/em_usbdch9.c \
+				   EMLib/usb/src/em_usbdep.c \
+				   EMLib/usb/src/em_usbdint.c \
+				   EMLib/usb/src/em_usbh.c \
+				   EMLib/usb/src/em_usbhep.c \
+				   EMLib/usb/src/em_usbhint.c
 
 
 

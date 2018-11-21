@@ -320,12 +320,12 @@ void BSP_Board_OSTickInitialize(BSP_Systick_Callback_T PreCallback, BSP_Systick_
         {
             retcode = Board_ADC_Init();
         }
-#if BCDS_FEATURE_BSP_USB
+//#if BCDS_FEATURE_BSP_USB
         if (RETCODE_OK == retcode)
         {
             retcode = Board_USB_Init();
         }
-#endif
+//#endif
 
         BSP_Board_SetOStoBSPDelayFunc(Board_Delay);
     
