@@ -13,6 +13,8 @@ static kstat_t sem_create(ksem_t *sem, const name_t *name, sem_count_t count,
     NULL_PARA_CHK(sem);
     NULL_PARA_CHK(name);
 
+    memset(sem, 0, sizeof(ksem_t));
+
     /* init the list */
     klist_init(&sem->blk_obj.blk_list);
 
