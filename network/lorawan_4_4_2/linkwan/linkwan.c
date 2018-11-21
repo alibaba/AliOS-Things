@@ -84,23 +84,26 @@ static bool send_frame(void)
 
     if (LoRaMacQueryTxPossible(tx_data.BuffSize, &txInfo) !=
         LORAMAC_STATUS_OK) {
-        
-        return true;
-    }
-
-    if (is_tx_confirmed == 0) {
-        mcpsReq.Type                        = MCPS_UNCONFIRMED;
-        mcpsReq.Req.Unconfirmed.fPort       = tx_data.Port;
-        mcpsReq.Req.Unconfirmed.fBuffer     = tx_data.Buff;
-        mcpsReq.Req.Unconfirmed.fBufferSize = tx_data.BuffSize;
-        mcpsReq.Req.Unconfirmed.Datarate    = lora_param.TxDatarate;
+        // Send empty frame in order to flush MAC commands
+        mcpsReq.Type = MCPS_UNCONFIRMED;
+        mcpsReq.Req.Unconfirmed.fBuffer = NULL;
+        mcpsReq.Req.Unconfirmed.fBufferSize = 0;
+        mcpsReq.Req.Unconfirmed.Datarate = lora_param.TxDatarate;
     } else {
-        mcpsReq.Type                      = MCPS_CONFIRMED;
-        mcpsReq.Req.Confirmed.fPort       = tx_data.Port;
-        mcpsReq.Req.Confirmed.fBuffer     = tx_data.Buff;
-        mcpsReq.Req.Confirmed.fBufferSize = tx_data.BuffSize;
-        mcpsReq.Req.Confirmed.NbTrials    = num_trials;
-        mcpsReq.Req.Confirmed.Datarate    = lora_param.TxDatarate;
+        if (is_tx_confirmed == 0) {
+            mcpsReq.Type                        = MCPS_UNCONFIRMED;
+            mcpsReq.Req.Unconfirmed.fPort       = tx_data.Port;
+            mcpsReq.Req.Unconfirmed.fBuffer     = tx_data.Buff;
+            mcpsReq.Req.Unconfirmed.fBufferSize = tx_data.BuffSize;
+            mcpsReq.Req.Unconfirmed.Datarate    = lora_param.TxDatarate;
+        } else {
+            mcpsReq.Type                      = MCPS_CONFIRMED;
+            mcpsReq.Req.Confirmed.fPort       = tx_data.Port;
+            mcpsReq.Req.Confirmed.fBuffer     = tx_data.Buff;
+            mcpsReq.Req.Confirmed.fBufferSize = tx_data.BuffSize;
+            mcpsReq.Req.Confirmed.NbTrials    = num_trials;
+            mcpsReq.Req.Confirmed.Datarate    = lora_param.TxDatarate;
+        }
     }
 
     if (LoRaMacMcpsRequest(&mcpsReq) == LORAMAC_STATUS_OK) {
