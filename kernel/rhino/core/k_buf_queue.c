@@ -23,6 +23,8 @@ static kstat_t buf_queue_create(kbuf_queue_t *queue, const name_t *name,
         return RHINO_BUF_QUEUE_SIZE_ZERO;
     }
 
+    memset(queue, 0, sizeof(kbuf_queue_t));
+
     /* init the queue blocked list */
     klist_init(&queue->blk_obj.blk_list);
 
