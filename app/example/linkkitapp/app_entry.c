@@ -233,7 +233,11 @@ extern int  awss_report_reset();
 static void do_awss_reset()
 {
 #ifdef WIFI_PROVISION_ENABLED
+#if defined(SUPPORT_ITLS)
+    aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 4096);  // stack taken by iTLS is more than taken by TLS.
+#else
     aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 2048);
+#endif
 #endif
     aos_post_delayed_action(2000, linkkit_reset, NULL);
 }
