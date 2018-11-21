@@ -1,5 +1,6 @@
 
 final-out: sub-mods
+ifneq (1,$(WITH_LCOV))
 ifneq (,$(COMP_LIB_NAME))
 	$(TOP_Q) \
 	if  [ ! -f $(SYSROOT_LIB)/lib$(COMP_LIB_NAME).a ] && \
@@ -47,3 +48,4 @@ endif
 	$(TOP_Q)$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
 	    CFLAGS=$(CFLAGS) SED=$(SED) \
 	    bash $(RULE_DIR)/scripts/gen_rom_stats.sh
+endif
