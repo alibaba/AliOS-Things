@@ -24,6 +24,8 @@ static kstat_t queue_create(kqueue_t *queue, const name_t *name, void **start,
         return RHINO_INV_PARAM;
     }
 
+    memset(queue, 0, sizeof(kqueue_t));
+
     /* init the queue blocked list */
     klist_init(&queue->blk_obj.blk_list);
 
