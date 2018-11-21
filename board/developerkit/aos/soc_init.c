@@ -67,6 +67,7 @@ void stm32_soc_init(void)
     hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
     MX_DMA_Init();
     MX_ADC3_Init();
+    MX_USART2_SMARTCARD_Init();
     MX_DCMI_Init();
     MX_SAI2_Init();
     MX_SPI1_Init();
@@ -118,15 +119,12 @@ gpio_dev_t brd_gpio_table[] = {
     {LCD_PWR, OUTPUT_PUSH_PULL, &gpio_reset},
     {LCD_RST, OUTPUT_PUSH_PULL, &gpio_set},
     {PCIE_RST, OUTPUT_PUSH_PULL, &gpio_set},
-    {SECURE_CLK, OUTPUT_PUSH_PULL, &gpio_set},
-    {SECURE_IO, OUTPUT_PUSH_PULL, &gpio_set},
-    {SECURE_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {SECURE_RST, OUTPUT_PUSH_PULL, &gpio_reset},
     {SIM_DET, INPUT_HIGH_IMPEDANCE, NULL},
     {USB_PCIE_SW, OUTPUT_PUSH_PULL, &gpio_set},
     {WIFI_RST, OUTPUT_PUSH_PULL, &gpio_reset}, /*Low Level will reset wifi*/
     {WIFI_WU, OUTPUT_PUSH_PULL, &gpio_set},
     {ZIGBEE_INT, IRQ_MODE, &mode_rising},
-    {ZIGBEE_RST, OUTPUT_PUSH_PULL, &gpio_set},
 };
 
 i2c_dev_t brd_i2c2_dev = {AOS_PORT_I2C2, {0}, NULL};

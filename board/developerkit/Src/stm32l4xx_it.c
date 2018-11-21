@@ -43,7 +43,7 @@
 extern DMA_HandleTypeDef hdma_dcmi;
 extern DCMI_HandleTypeDef hdcmi;
 extern UART_HandleTypeDef hlpuart1;
-extern UART_HandleTypeDef huart2;
+extern SMARTCARD_HandleTypeDef hsmartcard2;
 extern UART_HandleTypeDef huart3;
 extern DMA_HandleTypeDef hdma_sai2_a;
 extern SAI_HandleTypeDef hsai_BlockA2;
@@ -266,7 +266,7 @@ void USART2_IRQHandler(void)
   /* USER CODE BEGIN USART2_IRQn 0 */
 
   /* USER CODE END USART2_IRQn 0 */
-  HAL_UART_IRQHandler(&huart2);
+  HAL_SMARTCARD_IRQHandler(&hsmartcard2);
   /* USER CODE BEGIN USART2_IRQn 1 */
 
   /* USER CODE END USART2_IRQn 1 */

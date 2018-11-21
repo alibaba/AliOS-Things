@@ -180,15 +180,12 @@
 #define LCD_PWR                    HAL_GPIO_71
 #define LCD_RST                    HAL_GPIO_18
 #define PCIE_RST                   HAL_GPIO_45
-#define SECURE_CLK                 HAL_GPIO_79
-#define SECURE_IO                  HAL_GPIO_0
-#define SECURE_RST                 HAL_GPIO_1
+#define SECURE_RST                 HAL_GPIO_79
 #define SIM_DET                    HAL_GPIO_66
 #define USB_PCIE_SW                HAL_GPIO_21
 #define WIFI_RST                   HAL_GPIO_16
 #define WIFI_WU                    HAL_GPIO_17
 #define ZIGBEE_INT                 HAL_GPIO_72
-#define ZIGBEE_RST                 HAL_GPIO_55
 
 #define GPIOA_SPEED	 GPIO_SPEED_FREQ_VERY_HIGH
 

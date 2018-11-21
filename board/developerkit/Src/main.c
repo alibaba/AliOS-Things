@@ -109,7 +109,7 @@ int main(void)
   MX_I2C3_Init();
   MX_I2C2_Init();
   MX_ADC3_Init();
-  MX_USART2_UART_Init();
+  MX_USART2_SMARTCARD_Init();
   MX_SPI1_Init();
   MX_USART3_UART_Init();
   MX_LPUART1_UART_Init();

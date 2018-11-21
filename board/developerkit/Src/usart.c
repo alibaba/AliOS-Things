@@ -47,7 +47,7 @@
 /* USER CODE END 0 */
 
 UART_HandleTypeDef hlpuart1;
-UART_HandleTypeDef huart2;
+SMARTCARD_HandleTypeDef hsmartcard2;
 UART_HandleTypeDef huart3;
 
 /* LPUART1 init function */
@@ -72,20 +72,27 @@ void MX_LPUART1_UART_Init(void)
 }
 /* USART2 init function */
 
-void MX_USART2_UART_Init(void)
+void MX_USART2_SMARTCARD_Init(void)
 {
 
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
+  hsmartcard2.Instance = USART2;
+  hsmartcard2.Init.BaudRate = 10752;
+  hsmartcard2.Init.WordLength = SMARTCARD_WORDLENGTH_9B;
+  hsmartcard2.Init.StopBits = SMARTCARD_STOPBITS_1_5;
+  hsmartcard2.Init.Parity = SMARTCARD_PARITY_EVEN;
+  hsmartcard2.Init.Mode = SMARTCARD_MODE_TX_RX;
+  hsmartcard2.Init.CLKPolarity = SMARTCARD_POLARITY_LOW;
+  hsmartcard2.Init.CLKPhase = SMARTCARD_PHASE_1EDGE;
+  hsmartcard2.Init.CLKLastBit = SMARTCARD_LASTBIT_ENABLE;
+  hsmartcard2.Init.OneBitSampling = SMARTCARD_ONE_BIT_SAMPLE_DISABLE;
+  hsmartcard2.Init.Prescaler = 10;
+  hsmartcard2.Init.GuardTime = 0x1;
+  hsmartcard2.Init.NACKEnable = SMARTCARD_NACK_ENABLE;
+  hsmartcard2.Init.TimeOutEnable = SMARTCARD_TIMEOUT_DISABLE;
+  hsmartcard2.Init.BlockLength = 0;
+  hsmartcard2.Init.AutoRetryCount = 3;
+  hsmartcard2.AdvancedInit.AdvFeatureInit = SMARTCARD_ADVFEATURE_NO_INIT;
+  if (HAL_SMARTCARD_Init(&hsmartcard2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -143,32 +150,6 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
   /* USER CODE END LPUART1_MspInit 1 */
   }
-  else if(uartHandle->Instance==USART2)
-  {
-  /* USER CODE BEGIN USART2_MspInit 0 */
-
-  /* USER CODE END USART2_MspInit 0 */
-    /* USART2 clock enable */
-    __HAL_RCC_USART2_CLK_ENABLE();
-  
-    /**USART2 GPIO Configuration    
-    PA2     ------> USART2_TX
-    PA3     ------> USART2_RX 
-    */
-    GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /* USART2 interrupt Init */
-    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(USART2_IRQn);
-  /* USER CODE BEGIN USART2_MspInit 1 */
-
-  /* USER CODE END USART2_MspInit 1 */
-  }
   else if(uartHandle->Instance==USART3)
   {
   /* USER CODE BEGIN USART3_MspInit 0 */
@@ -197,6 +178,45 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   }
 }
 
+void HAL_SMARTCARD_MspInit(SMARTCARD_HandleTypeDef* smartcardHandle)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+  if(smartcardHandle->Instance==USART2)
+  {
+  /* USER CODE BEGIN USART2_MspInit 0 */
+
+  /* USER CODE END USART2_MspInit 0 */
+    /* USART2 clock enable */
+    __HAL_RCC_USART2_CLK_ENABLE();
+  
+    /**USART2 GPIO Configuration    
+    PA2     ------> USART2_TX
+    PD7     ------> USART2_CK 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_2;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    /* USART2 interrupt Init */
+    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
+  /* USER CODE BEGIN USART2_MspInit 1 */
+
+  /* USER CODE END USART2_MspInit 1 */
+  }
+}
+
 void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 {
 
@@ -220,26 +240,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
   /* USER CODE END LPUART1_MspDeInit 1 */
   }
-  else if(uartHandle->Instance==USART2)
-  {
-  /* USER CODE BEGIN USART2_MspDeInit 0 */
-
-  /* USER CODE END USART2_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_USART2_CLK_DISABLE();
-  
-    /**USART2 GPIO Configuration    
-    PA2     ------> USART2_TX
-    PA3     ------> USART2_RX 
-    */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_3);
-
-    /* USART2 interrupt Deinit */
-    HAL_NVIC_DisableIRQ(USART2_IRQn);
-  /* USER CODE BEGIN USART2_MspDeInit 1 */
-
-  /* USER CODE END USART2_MspDeInit 1 */
-  }
   else if(uartHandle->Instance==USART3)
   {
   /* USER CODE BEGIN USART3_MspDeInit 0 */
@@ -259,6 +259,33 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE BEGIN USART3_MspDeInit 1 */
 
   /* USER CODE END USART3_MspDeInit 1 */
+  }
+}
+
+void HAL_SMARTCARD_MspDeInit(SMARTCARD_HandleTypeDef* smartcardHandle)
+{
+
+  if(smartcardHandle->Instance==USART2)
+  {
+  /* USER CODE BEGIN USART2_MspDeInit 0 */
+
+  /* USER CODE END USART2_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_USART2_CLK_DISABLE();
+  
+    /**USART2 GPIO Configuration    
+    PA2     ------> USART2_TX
+    PD7     ------> USART2_CK 
+    */
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
+
+    HAL_GPIO_DeInit(GPIOD, GPIO_PIN_7);
+
+    /* USART2 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
+  /* USER CODE BEGIN USART2_MspDeInit 1 */
+
+  /* USER CODE END USART2_MspDeInit 1 */
   }
 } 
 
