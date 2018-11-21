@@ -3,12 +3,13 @@
 ## Introduction
 **spiffs** is a file system intended for SPI NOR flash devices on embedded targets.
 It is designed with following characteristics in mind:
-    - small targets, sparse RAM without heap.
-    - Only big areas of data can be erased.
-    - An erase will reset all bits in block to ones
-    - Writing pulls one to zeroes
-    - Zeroes can only be pulled to one by erase
-    - Wear leveling
+- small targets, sparse RAM without heap.
+- Only big areas of data can be erased.
+- An erase will reset all bits in block to ones.
+- Writing pulls one to zeroes.
+- Zeroes can only be pulled to one by erase.
+- Wear leveling.
+
 It also attempts to provide AOS-compatible filesystem behaviour.
 
 ### Features
@@ -41,7 +42,5 @@ spiffs
 │   └── spiffs_nucleus.c     # SPIFFS inode/entry implementation
 └── spiffs_port.c            # SPIFFS VFS adapt layer implementation
 ```
-
-### Dependencies
 
 ## Reference

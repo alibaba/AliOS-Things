@@ -33,7 +33,7 @@ uffs
 - Building:
     - get uffs zipball from official repo.(https://github.com/rickyzheng/uffs)
     - Put the souce files under this directory
-    - Add component dependency to your target board or your target app.($(NAME)_COMPONENTS += 3rdparty.experimental.fs.uffs)
+    - Add component dependency to your target board or your target app.(`$(NAME)_COMPONENTS += 3rdparty.experimental.fs.uffs`)
     - Just build and enjoy it ! 
 
 - License:

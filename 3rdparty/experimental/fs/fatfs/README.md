@@ -32,10 +32,9 @@ fatfs
 ├── include
 │   ├── fatfs_diskio.h # Fatfs disk I/O constant defination
 │   └── fatfs.h        # Fatfs register interface declaration
-├── README.md
+└─── README.md
 
-
-### Dependencies
+```
 
 ## Reference
 

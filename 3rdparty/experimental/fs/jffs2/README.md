@@ -23,13 +23,13 @@ jffs2
 
 - Usage:
     - This directory include all the jffs2 vfs-adapting files.
-    - You should call "vfs\_jffs2\_register" function to mount the jffs2 before you can use it.
-    - The mount point of the jffs2 in Alios-Things is "/jffs2".
+    - You should call `vfs_jffs2_register()` function to mount the jffs2 before you can use it.
+    - The mount point of the jffs2 in AliOS-Things is `/jffs2`.
 
 - Building:
-    - Get the Alios-Things porting version jffs2 codes first. (you can contact us via https://github.com/alibaba/AliOS)
-    - Put the souce files under this directory
-    - Add component dependency to your target board or your target app. (e.g. $(NAME)_COMPONENTS += 3rdparty.experimental.fs.jffs2)
+    - Get the AliOS-Things porting version jffs2 codes first. (you can contact us via https://github.com/alibaba/AliOS-Things)
+    - Put the source files under this directory
+    - Add component dependency to your target board or your target app. (e.g. `$(NAME)_COMPONENTS += 3rdparty.experimental.fs.jffs2`)
     - Just build and enjoy it !
 
 - License:
