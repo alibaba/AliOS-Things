@@ -22,12 +22,12 @@ cramfs
 - Usage:
     - This directory include all the cramfs vfs-adapting files.
     - You should call "vfs\_cramfs\_register" function to mount the cramfs before you can use it.
-    - The mount point of the cramfs in Alios-Things is "/cramfs".
+    - The mount point of the cramfs in AliOS-Things is "/cramfs".
 
 - Building:
-    - Get the Alios-Things porting version cramfs codes first. (you can contact us via https://github.com/alibaba/AliOS)
-    - Put the souce files under this directory
-    - Add component dependency to your target board or your target app. (e.g. $(NAME)_COMPONENTS += 3rdparty.experimental.fs.cramfs)
+    - Get the AliOS-Things porting version cramfs codes first. (you can contact us via https://github.com/alibaba/AliOS-Things)
+    - Put the source files under this directory
+    - Add component dependency to your target board or your target app. (e.g. `$(NAME)_COMPONENTS += 3rdparty.experimental.fs.cramfs`)
     - Just build and enjoy it !
 
 - License:
