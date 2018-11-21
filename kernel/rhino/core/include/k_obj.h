@@ -40,10 +40,6 @@ typedef struct {
     klist_t task_head;
     klist_t mutex_head;
 
-#if (RHINO_CONFIG_MM_BLK > 0)
-    klist_t mblkpool_head;
-#endif
-
 #if (RHINO_CONFIG_SEM > 0)
     klist_t sem_head;
 #endif
