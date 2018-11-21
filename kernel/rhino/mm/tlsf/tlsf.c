@@ -1299,6 +1299,6 @@ void* tlsf_realloc(tlsf_t tlsf, void* ptr, size_t size)
     addr = _tlsf_realloc(tlsf, ptr, size);
     krhino_mutex_unlock(tlsf_mutex);
 
-    return ret;
+    return addr;
 }
 
