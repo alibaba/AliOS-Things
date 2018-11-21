@@ -8,6 +8,7 @@ $(NAME)_SOURCES :=   app_entry.c
 $(NAME)_COMPONENTS += feature.linkkit
 
 
+
 $(NAME)_COMPONENTS += network/netmgr \
                       middleware/common \
                       utility/cjson
@@ -15,9 +16,9 @@ $(NAME)_COMPONENTS += network/netmgr \
 ##ifeq ($(COMPILER),iar)
 ##$(NAME)_COMPONENTS += feature.linkkit-nouota
 ##else
-$(NAME)_INCLUDES   += ../../../middleware/uagent/uota/src/service
 $(NAME)_COMPONENTS += middleware/uagent/uota
 ##endif
+
 
 ifeq ($(case),sched)
 ifneq ($(deprecated),)
@@ -57,5 +58,18 @@ GLOBAL_DEFINES += CONFIG_AOS_CLI
 else
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
+
+en_comboapp := 0
+ifeq ($(en_comboapp), 1)
+$(NAME)_COMPONENTS += bluetooth/breeze \
+                      bluetooth/breeze/hal/ble \
+                      bluetooth/profile
+$(NAME)_SOURCES += combo/combo_net.c
+GLOBAL_DEFINES += EN_COMBO_NET
+bz_en_auth := 1
+bz_en_awss := 1
+ble := 1
+endif
+
 
 GLOBAL_INCLUDES += ./
