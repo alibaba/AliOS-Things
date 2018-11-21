@@ -19,5 +19,8 @@ kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
 
 kstat_t krhino_uprocess_exit(void);
 
+void    krhino_uprocess_res_get(int32_t id, void **res);
+
+
 #endif /* U_TASK_H */
 

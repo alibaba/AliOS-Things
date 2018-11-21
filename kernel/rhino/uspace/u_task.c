@@ -4,6 +4,8 @@
 
 #include <k_api.h>
 
+#define PROC_MSG_NUM 100
+
 static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
                            uint8_t prio, tick_t ticks, cpu_stack_t *ustack_buf,
                            size_t ustack_size, cpu_stack_t *kstack_buf, size_t kstack_size,
@@ -72,17 +74,18 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 
     memset(tmp, 0, kstack_size * sizeof(cpu_stack_t));
 
-    task->task_name     = name;
-    task->prio          = prio;
-    task->b_prio        = prio;
-    task->stack_size    = kstack_size;
-    task->mm_alloc_flag = mm_alloc_flag;
-    task->cpu_num       = cpu_num;
+    task->task_name          = name;
+    task->prio               = prio;
+    task->b_prio             = prio;
+    task->stack_size         = kstack_size;
+    task->mm_alloc_flag      = mm_alloc_flag;
+    task->cpu_num            = cpu_num;
 
-    task->ustack_size   = ustack_size;
-    task->mode          = 0x3;
-    task->pid           = pid;
-    task->is_proc       = is_proc;
+    task->ustack_size        = ustack_size;
+    task->task_ustack_base   = ustack_buf;
+    task->mode               = 0x3;
+    task->pid                = pid;
+    task->is_proc            = is_proc;
 
     if (task->is_proc == 1) {
         task->proc_addr = task;
@@ -213,11 +216,28 @@ kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
                                size_t ustack, size_t kstack, task_entry_t entry, uint32_t pid,
                                uint8_t autorun)
 {
-    kstat_t ret;
-    ktask_t *task_tmp;
+    kstat_t       ret;
+    ktask_t      *task_tmp;
+    kqueue_t     *queue;
 
     ret = utask_create(task, name, arg, pri, ticks, ustack_buf,
-                        ustack, kstack, entry, 0, 0, pid, autorun, 1);
+                        ustack, kstack, entry, 0, 0, pid, 0, 1);
+
+    if (ret != RHINO_SUCCESS) {
+        return ret;
+    }
+
+    task_tmp = *task;
+    ret = krhino_queue_dyn_create(&queue, "res_queue", PROC_MSG_NUM);
+    if (ret != RHINO_SUCCESS) {
+        krhino_mm_free(task_tmp->task_stack_base);
+        krhino_mm_free(task_tmp);
+    }
+    task_tmp->res_q = queue;
+
+    if (autorun > 0){
+        krhino_task_resume(task_tmp);
+    }
 
     return ret;
 }
@@ -231,5 +251,21 @@ kstat_t krhino_uprocess_exit()
     ret = krhino_task_dyn_del(cur_task->proc_addr);
 
     return ret;
+}
+
+
+void krhino_uprocess_res_get(int32_t id, void **res)
+{
+    ktask_t *cur_task;
+    ktask_t *cur_proc;
+    cur_task = krhino_cur_task_get();
+
+    if (id == 0) {
+        cur_proc = cur_task->proc_addr;
+       *res = cur_proc->res_q;
+    }
+    else {
+       *res = 0;
+    }
 }
 
