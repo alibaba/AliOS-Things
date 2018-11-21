@@ -37,6 +37,8 @@ typedef struct {
     uint8_t          mode;
     uint8_t          is_proc;
     void            *proc_addr;
+    cpu_stack_t     *task_ustack_base;
+    kqueue_t        *res_q;
 #endif
 
     cpu_stack_t     *task_stack_base;
