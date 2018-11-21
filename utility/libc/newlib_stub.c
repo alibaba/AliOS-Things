@@ -10,6 +10,7 @@
 #include <aos/aos.h>
 #include <hal/hal.h>
 
+
 extern uart_dev_t uart_0;
 
 
@@ -107,6 +108,10 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
             set_errno(EBADF);
             return -1;
     }
+    
+#ifdef XDK_USB_PRINT
+    RETARGET_WriteChar((void *)buf,nbytes);
+#endif
 
     for (i = 0; i < nbytes; i++) {
         if (*tmp == '\n') {

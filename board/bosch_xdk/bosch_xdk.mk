@@ -21,7 +21,8 @@ $(NAME)_SOURCES += BSP/source/BSP_WiFi_cc3100mod.c \
 				   BSP/source/BSP_BT_EM9301.c \
 				   BSP/source/BSP_SensorNode.c \
 				   BSP/source/BSP_SDCard.c \
-				   BSP/source/BSP_IrqHandler.c
+				   BSP/source/BSP_IrqHandler.c \
+				   BSP/source/BSP_USB.c
 				   
 $(NAME)_SOURCES += common/source/adc/Mcu_Adc.c \
 
@@ -48,13 +49,27 @@ GLOBAL_CFLAGS += -DEFM32GG390F1024
 
 GLOBAL_DEFINES += STDIO_UART=1
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
+GLOBAL_DEFINES += XDK_USB_PRINT
+
+GLOBAL_DEFINES      += AOS_SENSOR_HUMI_BOSCH_BME280
+GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA280
+GLOBAL_DEFINES      += AOS_SENSOR_GYRO_BOSCH_BMG160
+GLOBAL_DEFINES      += AOS_SENSOR_MAG_BOSCH_BMM150
+#GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMI160
+#GLOBAL_DEFINES      += AOS_SENSOR_GYRO_BOSCH_BMI160
+
+#use_bootloader = 1
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS +=
 else ifeq ($(COMPILER),iar)
 GLOBAL_LDFLAGS +=
 else
-GLOBAL_LDFLAGS += -T board/bosch_xdk/efm32gg390_new.ld
+ifeq ($(use_bootloader),1)
+GLOBAL_LDFLAGS += -T board/bosch_xdk/efm32gg390_withbootloader.ld
+else
+GLOBAL_LDFLAGS += -T board/bosch_xdk/efm32gg390_nobootloader.ld
+endif
 endif
 
 $(NAME)_COMPONENTS += sal

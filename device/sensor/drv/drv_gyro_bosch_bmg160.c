@@ -698,7 +698,7 @@ static uint32_t bmg160_factor[5] = { 2624, 1312, 656, 328,
 static uint32_t current_factor   = 0;
 
 i2c_dev_t bmg160_ctx = {
-    .port                 = 1,
+    .port                 = 0,
     .config.address_width = 8,
     .config.freq          = 400000,
     .config.dev_addr      = BMG160_I2C_ADDR1,
@@ -948,7 +948,6 @@ int drv_gyro_bosch_bmg160_read(void *buf, size_t len)
         gyro->data[DATA_AXIS_Y] = (int32_t)((int64_t)gyro->data[DATA_AXIS_Y] * GYROSCOPE_UNIT_FACTOR * 10  / current_factor);
         gyro->data[DATA_AXIS_Z] = (int32_t)((int64_t)gyro->data[DATA_AXIS_Z] * GYROSCOPE_UNIT_FACTOR * 10 / current_factor);
     }
-
     gyro->timestamp = aos_now_ms();
     return (int)size;
 }

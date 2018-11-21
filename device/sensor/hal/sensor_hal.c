@@ -508,6 +508,25 @@ int sensor_init(void)
     drv_temp_memsic_mmc3680kj_init();
 #endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
 
+#ifdef AOS_SENSOR_ACC_BOSCH_BMA280
+    drv_acc_bosch_bma280_init();
+#endif
+
+#ifdef AOS_SENSOR_GYRO_BOSCH_BMG160
+    drv_gyro_bosch_bmg160_init();
+#endif
+
+#ifdef AOS_SENSOR_MAG_BOSCH_BMM150
+    drv_mag_bosch_bmm150_init();
+#endif
+
+#ifdef AOS_SENSOR_ACC_BOSCH_BMI160
+    drv_acc_bosch_bmi160_init();
+#endif
+
+#ifdef AOS_SENSOR_GYRO_BOSCH_BMI160
+    drv_gyro_bosch_bmi160_init();
+#endif
 
 #ifdef UDATA_MODBUS
     modbus_init();

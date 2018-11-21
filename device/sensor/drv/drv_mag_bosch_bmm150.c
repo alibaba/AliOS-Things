@@ -123,7 +123,7 @@ typedef struct bmm150_trim_registers {
 bmm150_trim_reg_st      g_bmm150_trim_reg = {0};
 
 i2c_dev_t bmm150_ctx = {
-    .port                 = 3,
+    .port                 = 0,
     .config.address_width = 8,
     .config.freq          = 400000,
     .config.dev_addr      = BMM150_I2C_ADDR1,
@@ -507,7 +507,6 @@ int drv_mag_bosch_bmm150_read(void *buf, size_t len)
     mag->data[0] = mag->data[0] * BMM150_DATA_UT_2_MG;
     mag->data[1] = mag->data[1] * BMM150_DATA_UT_2_MG;
     mag->data[2] = mag->data[2] * BMM150_DATA_UT_2_MG;
-    
     mag->timestamp = aos_now_ms();
     return (int)size;
 }
