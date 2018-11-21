@@ -1,8 +1,11 @@
 menuconfig AOS_COMP_BT_MESH
-    bool "bt_mesh"
+    bool "Bluetooth Mesh"
     default n
     select AOS_COMP_YLOOP
+    select AOS_COMP_BT_COMMON
+    select AOS_COMP_BT_MESH_PORT
     help
+      AliOS Things NETWORK - Bluetooth Mesh component
 
 if AOS_COMP_BT_MESH
 # Configurations for comp bt_mesh
