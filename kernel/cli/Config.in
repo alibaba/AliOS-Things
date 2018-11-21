@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_CLI
+    bool "cli"
+    default y
+    help
+      command-line interface
+
+if AOS_COMP_CLI
+# Configurations for component cli
+endif
