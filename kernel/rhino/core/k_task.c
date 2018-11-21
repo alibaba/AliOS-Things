@@ -76,9 +76,11 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     task->mm_alloc_flag = mm_alloc_flag;
     task->cpu_num       = cpu_num;
 #if (RHINO_CONFIG_USER_SPACE > 0)
-    task->mode          = 0;
-    task->pid           = 0;
-    task->is_proc       = 0;
+    task->mode             = 0;
+    task->pid              = 0;
+    task->is_proc          = 0;
+    task->task_ustack_base = 0;
+    task->proc_addr        = 0;
 #endif
     cpu_binded          = cpu_binded;
     i                   = i;

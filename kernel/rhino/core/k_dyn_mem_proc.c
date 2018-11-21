@@ -14,7 +14,9 @@ void dyn_mem_proc_task(void *arg)
     res_free_t *res_free;
     res_free_t  tmp;
 #if (RHINO_CONFIG_USER_SPACE > 0)
-    ktask_t    *task;
+    ktask_t      *task;
+    ktask_t      *proc;
+    kbuf_queue_t *res_q;
 #endif
 
     (void)arg;
@@ -35,6 +37,13 @@ void dyn_mem_proc_task(void *arg)
                 task = (ktask_t *)(res_free->res[1]);
                 if (task->is_proc == 1u) {
                     k_proc_unload(task->pid);
+                }
+                else {
+                    proc = task->proc_addr;
+                    if (proc != 0) {
+                        res_q = proc->res_q;
+                        krhino_queue_back_send(res_q, task->task_ustack_base);
+                    }
                 }
 #endif
                 memcpy(&tmp, res_free, sizeof(res_free_t));
