@@ -12,7 +12,7 @@ static ktask_t *task_buf_queue_trigger;
 
 static ksem_t      *test_sem;
 static kbuf_queue_t test_buf_queue;
-static uint8_t buf_queue_test_buf[1];
+static uint8_t buf_queue_test_buf[80];
 static uint8_t buf_queue_recv[1];
 static uint8_t buf_queue_send[1];
 
@@ -64,7 +64,7 @@ void sem_buf_queue_coopr_test(void)
 
     (void)krhino_sem_dyn_create(&test_sem, "semtest", 0);
     krhino_buf_queue_create(&test_buf_queue, "bugqueue", (void *)buf_queue_test_buf,
-                            8, 1);
+                            80, 1);
 
     ret = krhino_task_dyn_create(&task_sem, MODULE_NAME, 0, TASK_COMB_PRI,
                                  0, TASK_TEST_STACK_SIZE, task_sem_opr_entry, 1);
