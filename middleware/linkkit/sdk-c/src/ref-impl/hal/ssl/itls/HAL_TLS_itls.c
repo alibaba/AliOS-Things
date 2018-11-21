@@ -285,6 +285,13 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
     gettimeofday(&tv1, NULL);
 #endif
 
+    /*
+     * the max of fragmentation of itls is 2048
+     * if len > 2048, needs to read more times, so we set max time for timeout is 10s.
+     */
+    if (len > 2048 && timeout_ms < 10000)
+        timeout_ms = 10000;
+
     mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), timeout_ms);
     while (readLen < len) {
         ret = mbedtls_ssl_read(&(pTlsData->ssl), (unsigned char *)(buffer + readLen), (len - readLen));
