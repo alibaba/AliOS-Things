@@ -9,9 +9,6 @@
 #include "cJSON.h"
 #include "app_entry.h"
 
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    #include "ota_service.h"
-#endif
 
 #define USE_CUSTOME_DOMAIN      (0)
 
@@ -64,9 +61,6 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    ota_service_init(NULL);
-#endif
     return 0;
 }
 

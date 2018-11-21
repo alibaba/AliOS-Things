@@ -9,17 +9,20 @@
 #include "cJSON.h"
 #include "app_entry.h"
 
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    #include "ota_service.h"
-#endif
-
 #define USE_CUSTOME_DOMAIN      (0)
 
+#ifdef EN_COMBO_NET
+#define PRODUCT_KEY    "b1XVhqfan1X"
+#define PRODUCT_SECRET "iX6XqAjaCTXBv4h3"
+#define DEVICE_NAME    "112233445566"
+#define DEVICE_SECRET  "cNwnA4W7amnkgG6s8zGXSJD3nI1c7kO1"
+#else
 // for demo only
-#define PRODUCT_KEY      "a1X2bEnP82z"
-#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "test_06"
-#define DEVICE_SECRET    "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
+#define PRODUCT_KEY      "a16UKrlKekO"
+#define PRODUCT_SECRET   "RDluqbn3LQazrdqM"
+#define DEVICE_NAME      "gateway_test01"
+#define DEVICE_SECRET    "AT2XFOPOIbJaKfXsKeaEhabJ8TLhMQYp"
+#endif
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -64,9 +67,6 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    ota_service_init(NULL);
-#endif
     return 0;
 }
 
