@@ -1232,7 +1232,7 @@ void tlsf_free(tlsf_t tlsf, void* ptr)
 ** - an extended buffer size will leave the newly-allocated area with
 **   contents undefined
 */
-void* tlsf_realloc(tlsf_t tlsf, void* ptr, size_t size)
+void* _tlsf_realloc(tlsf_t tlsf, void* ptr, size_t size)
 {
     control_t* control = tlsf_cast(control_t*, tlsf);
     void* p = 0;
@@ -1288,5 +1288,17 @@ void* tlsf_realloc(tlsf_t tlsf, void* ptr, size_t size)
     }
 
     return p;
+}
+
+
+void* tlsf_realloc(tlsf_t tlsf, void* ptr, size_t size)
+{
+    void *addr;
+
+    krhino_mutex_lock(tlsf_mutex, RHINO_WAIT_FOREVER);
+    addr = _tlsf_realloc(tlsf, ptr, size);
+    krhino_mutex_unlock(tlsf_mutex);
+
+    return ret;
 }
 
