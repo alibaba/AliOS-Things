@@ -231,7 +231,7 @@ void wilc_netif_rx_callback(uint8 msg_type, void * msg, void *ctrl_buf)
 	if (msg_type == M2M_WIFI_RESP_ETHERNET_RX_PACKET) {
 
 		if (!rx_first) {
-			rx_first = rx_last = pbuf_alloc(PBUF_RAW, WILC_RX_BUF_SZ, PBUF_POOL);
+			rx_first = rx_last = pbuf_alloc(PBUF_RAW_TX, WILC_RX_BUF_SZ, PBUF_POOL);
 			if (rx_first == NULL) {
 				LINK_STATS_INC(link.memerr);
 				LINK_STATS_INC(link.drop);
@@ -240,7 +240,7 @@ void wilc_netif_rx_callback(uint8 msg_type, void * msg, void *ctrl_buf)
 			}
 			memcpy((uint8_t*) rx_first->payload, rx_buf, sz);
 		}
-		p = pbuf_alloc(PBUF_RAW, WILC_RX_BUF_SZ, PBUF_POOL);
+		p = pbuf_alloc(PBUF_RAW_TX, WILC_RX_BUF_SZ, PBUF_POOL);
 		if (rx_first == rx_last) {
 			rx_last->tot_len = sz + rem;
 		}
