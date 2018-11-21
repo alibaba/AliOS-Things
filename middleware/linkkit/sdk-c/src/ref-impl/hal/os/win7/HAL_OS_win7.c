@@ -653,7 +653,7 @@ int HAL_Fseek(void *stream, long offset, int framewhere)
     return fseek((FILE *)stream, offset, framewhere);
 }
 
-int HAL_Fclose(FILE *stream)
+int HAL_Fclose(void *stream)
 {
     return fclose((FILE *)stream);
 }
