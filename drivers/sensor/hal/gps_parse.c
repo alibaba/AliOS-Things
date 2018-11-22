@@ -150,7 +150,7 @@ static int gps_gpgga_data_get(gps_gpgga_t *result,gps_data_t* pgpsdata)
     pgpsdata->utc.sec = result->utc.sec;
     pgpsdata->utc.hsec = result->utc.hsec;
 
-    pgpsdata->lat = ('N' == result->ns)? result->lat : -(result->lat);
+    pgpsdata->lat = ('N' == result->ns)? result->lat : -(result->lat);
     pgpsdata->lat = pgpsdata->lat/100;
     pgpsdata->lon = ('E' == result->ew)? result->lon : -(result->lon);
     pgpsdata->lon = pgpsdata->lon/100;
