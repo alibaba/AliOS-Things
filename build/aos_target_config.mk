@@ -202,7 +202,6 @@ $(NAME)_OPTIM_CFLAGS   ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMP
 
 $(NAME)_OPTIM_CXXFLAGS ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_CXXFLAGS), $(if $(findstring release_log,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_RELEASE_LOG_CXXFLAGS), $(COMPILER_SPECIFIC_RELEASE_CXXFLAGS))) $($(NAME)_OPTIM_CXXFLAGS-y)
 
-AOS_SDK_INCLUDES           +=$(addprefix -I$($(NAME)_LOCATION),$(GLOBAL_INCLUDES) $(GLOBAL_INCLUDES-y))
 AOS_SDK_LINK_SCRIPT        +=$(if $(GLOBAL_LINK_SCRIPT),$(GLOBAL_LINK_SCRIPT),) $(if $(GLOBAL_LINK_SCRIPT-y),$(GLOBAL_LINK_SCRIPT-y),)
 AOS_SDK_DEFAULT_LINK_SCRIPT+=$(if $(DEFAULT_LINK_SCRIPT),$(addprefix $($(NAME)_LOCATION),$(DEFAULT_LINK_SCRIPT)),) $(if $(DEFAULT_LINK_SCRIPT-y),$(addprefix $($(NAME)_LOCATION),$(DEFAULT_LINK_SCRIPT-y)),)
 $(eval AOS_SDK_DEFINES            +=$(GLOBAL_DEFINES) $(GLOBAL_DEFINES-y))
@@ -219,6 +218,13 @@ AOS_SDK_2BOOT_SUPPORT +=$(AOS_2BOOT_SUPPORT)
 AOS_CPLUSPLUS_FLAGS += $(CPLUSPLUS_FLAGS)
 $(eval PROCESSED_COMPONENTS += $(NAME))
 $(eval $(NAME)_SOURCES := $(sort $(subst $($(NAME)_LOCATION),,$(wildcard $(addprefix $($(NAME)_LOCATION),$($(NAME)_SOURCES) $($(NAME)_SOURCES-y)) ))))
+$(eval $(NAME)_POPULATE_INCLUDES := $(if $(filter 1,$(STRICT)),$(addprefix $(subst $(SOURCE_ROOT),,$($(NAME)_LOCATION)),$(GLOBAL_INCLUDES) $(GLOBAL_INCLUDES-y))))
+
+ifeq ($(STRICT),1)
+AOS_SDK_INCLUDES += $(addprefix -I$(OUTPUT_DIR)/includes/,$($(NAME)_POPULATE_INCLUDES))
+else
+AOS_SDK_INCLUDES +=$(addprefix -I$($(NAME)_LOCATION),$(GLOBAL_INCLUDES) $(GLOBAL_INCLUDES-y))
+endif
 
 endef
 
@@ -366,8 +372,9 @@ PLATFORM    :=$(notdir $(PLATFORM_FULL))
 reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 $(foreach defconfig, $(call reverse,$(DEFCONFIG_LIST)), $(eval include $(defconfig)))
 
+ifeq ($(STRICT),)
 # Add some default values
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/network/include -I$(SOURCE_ROOT)app/example/$(APP_FULL)
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/network/include -I$(SOURCE_ROOT)app/example/$(APP_FULL) -I$(OUTPUT_DIR)/includes
 
 ## Workaround for fixing build failures that can't find headers.
 ## Should be cleaned up after the failures fixed from components side
@@ -379,6 +386,7 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
                     -I$(SOURCE_ROOT)kernel/fs/kv/include \
                     -I$(SOURCE_ROOT)kernel/cli/include \
                     -I$(SOURCE_ROOT)utility/log/include
+endif
 
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
@@ -495,6 +503,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PRE_BUILD_TARGETS:= $($(comp)_PRE_BUILD_TARGETS)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PREBUILT_LIBRARY := $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_MBINS_TYPE             := $($(comp)_MBINS_TYPE)))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_POPULATE_INCLUDES      := $($(comp)_POPULATE_INCLUDES)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_targets  := $($(comp)_SELF_BUIlD_COMP_targets)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_scripts  := $($(comp)_SELF_BUIlD_COMP_scripts)))
 	$(QUIET)$(foreach var,$(sort $(FEATURE_SHOW_VARS)), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(var) := $($(var))))
