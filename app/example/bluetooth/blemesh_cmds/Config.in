@@ -1,0 +1,10 @@
+menuconfig AOS_APP_BLEMESH_CMDS
+    bool "blemesh_cmds"
+    select AOS_COMP_BT
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_APP_BLEMESH_CMDS
+# Configurations for app blemesh_cmds
+endif
