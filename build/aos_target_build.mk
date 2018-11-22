@@ -146,6 +146,11 @@ define BUILD_COMPONENT_RULES
 $(eval $(1)_SOURCES += $($(1)_SOURCES-y))
 $(eval LINK_LIBS +=$(if $($(1)_SOURCES),$(LIBS_DIR)/$(1).a))
 $(eval LINK_LIBS +=$(if $($(1)_SELF_BUIlD_COMP_targets),$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets) )))
+$(eval POPULATE_INCLUDE_DIRS := $(addsuffix _populate_include, $(foreach incdir,$($(1)_POPULATE_INCLUDES),$(if $(wildcard $(SOURCE_ROOT)/$(incdir)),$(incdir)))))
+
+ifeq ($(STRICT),1)
+EXTRA_PRE_BUILD_TARGETS += $(POPULATE_INCLUDE_DIRS)
+endif
 
 ifneq ($($(1)_PRE_BUILD_TARGETS),)
 include $($(1)_MAKEFILE)
@@ -270,6 +275,11 @@ $(LIBS_DIR):
 
 $(LDS_FILE_DIR):
 	$(QUIET)$(call MKDIR, $@)
+
+%_populate_include:
+	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/includes/$*)
+	$(QUIET)$(eval FILES := $(filter-out %.in %.md %.c %.py %.mk,$(foreach file,$(wildcard $*/*),$(file))))
+	$(QUIET)$(if $(FILES),$(call CPDIR, $(FILES), $(OUTPUT_DIR)/includes/$*),$(warning *** No header files in $*, please remove it from "GLOBAL_INCLUDES" ***))
 
 # Directory dependency - causes mkdir to be called once for each directory.
 %/.d:
