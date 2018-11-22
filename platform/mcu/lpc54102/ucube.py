@@ -35,7 +35,6 @@ src = Split('''
         hal/csp_log.c
         hal/hal_flash.c
         hal/hal_wifi_wmi.c
-        hal/hal_ota.c
         aos/aos.c
         aos/soc_impl.c
         hal/hook_impl.c

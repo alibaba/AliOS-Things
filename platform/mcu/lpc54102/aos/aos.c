@@ -16,7 +16,6 @@
 #include <stdbool.h>
 #include <hal/soc/soc.h>
 #include "hal/wifi.h"
-#include "hal/ota.h"
 
 #define AOS_START_STACK 1536
 
@@ -102,7 +101,6 @@ static int spi_init(void)
     return 0;
 }
 
-extern struct hal_ota_module_s hal_lpc54102_ota_module;
 static void platform_init(void)
 {
     uint32_t port_state = 0;
@@ -129,10 +127,6 @@ static void platform_init(void)
                                 More details please refer to user manual and errata. */
     BOARD_InitDebugConsole();	
 
-#ifdef AOS_UOTA
-    hal_ota_register_module(&hal_lpc54102_ota_module);
-#endif
-
     i2c_init();
     spi_init();
     board_led_init();
@@ -154,7 +148,6 @@ static void platform_init(void)
 #include <hal/soc/timer.h>
 #include <hal/base.h>
 #include <hal/wifi.h>
-#include <hal/ota.h>
 
 #define TAG "hw"
 
