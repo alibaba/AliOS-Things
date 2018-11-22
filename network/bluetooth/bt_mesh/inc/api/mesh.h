@@ -31,8 +31,4 @@
 #include <mesh/proxy.h>
 #endif
 
-#if defined(CONFIG_BT_MESH_SHELL)
-#include <mesh/mesh_shell.h>
-#endif
-
 #endif /* __BT_MESH_H */
