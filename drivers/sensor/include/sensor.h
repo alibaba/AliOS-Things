@@ -368,6 +368,7 @@ typedef struct _dev_sensor_config_t
 typedef struct _sensor_identity_t{
     sensor_tag_e    tag;
     uint8_t         instance;
+    dev_io_port_e   io_port;
 }sensor_identity_t;
 typedef struct _sensor_list_t
 {
@@ -494,5 +495,6 @@ typedef struct _dev_gps_data_t
     float      elv;
 } gps_data_t;
 
+int sensor_init(void);
 
 #endif /* HAL_SENSOR_H */
