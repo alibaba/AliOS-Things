@@ -5,8 +5,8 @@
 #include <k_api.h>
 #include <u_task.h>
 
-#define RES_TASK_USTACK  512u
-#define RES_TASK_KSTACK  512u
+#define RES_TASK_USTACK 512u
+#define RES_TASK_KSTACK 512u
 
 ktask_t *res_task;
 
@@ -27,7 +27,11 @@ void res_task_start(void)
     cpu_stack_t *ustack_buf;
 
     ustack_buf = malloc(RES_TASK_USTACK * sizeof(cpu_stack_t));
-    krhino_utask_create(&res_task, "res_task", 0, 20 ,50 ,ustack_buf, RES_TASK_USTACK, 
-                         RES_TASK_KSTACK, res_task, 1);
+    if (ustack_buf == NULL) {
+        return;
+    }
+
+    krhino_utask_create(&res_task, "res_task", 0, 20 ,50 ,ustack_buf,
+                        RES_TASK_USTACK, RES_TASK_KSTACK, res_task, 1);
 }
 
