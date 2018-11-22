@@ -10,9 +10,11 @@
 
 #include <aos/aos.h>
 #include <aos/yloop.h>
-#include "aos/uData.h"
-#include "uData_queue.h"
-#ifdef UDATA_CJSON_SUPPORTED
+#include "aos/udata.h"
+#include "udata_queue.h"
+#include "service_mgr.h"
+
+#if defined(UDATA_CJSON_SUPPORTED) || defined(DTC_LINKKIT)
 #include "cJSON.h"
 #endif
 
@@ -54,40 +56,115 @@ extern int udata_linkkit_publish(udata_type_e type, void* pdata, uint32_t len);
 
 
 #if defined( DTC_MQTT ) || defined( DTC_LINKKIT )
-static int64_t g_time[UDATA_MAX_CNT] = {0};
-static uint32_t g_interval[UDATA_MAX_CNT] = {0};
-int uData_interval_init(udata_type_e type, uint32_t interval)
+#include "service_data_to_cloud.h"
+#define   DATA_ASSEMBLE(a)  {a,#a}
+typedef struct {
+    udata_type_e type;
+    char*        type_name;
+}udata_sample_service_name_st;
+static udata_sample_service_name_st  g_sample_service_name[UDATA_MAX_CNT] = {
+DATA_ASSEMBLE(UDATA_SERVICE_ACC),
+DATA_ASSEMBLE(UDATA_SERVICE_MAG),
+DATA_ASSEMBLE(UDATA_SERVICE_GYRO),
+DATA_ASSEMBLE(UDATA_SERVICE_ALS),
+DATA_ASSEMBLE(UDATA_SERVICE_PS),
+DATA_ASSEMBLE(UDATA_SERVICE_BARO),
+DATA_ASSEMBLE(UDATA_SERVICE_TEMP),
+DATA_ASSEMBLE(UDATA_SERVICE_UV),
+DATA_ASSEMBLE(UDATA_SERVICE_HUMI),
+DATA_ASSEMBLE(UDATA_SERVICE_NOISE),
+DATA_ASSEMBLE(UDATA_SERVICE_PM25),
+DATA_ASSEMBLE(UDATA_SERVICE_PM1P0),
+DATA_ASSEMBLE(UDATA_SERVICE_PM10),
+DATA_ASSEMBLE(UDATA_SERVICE_CO2),
+DATA_ASSEMBLE(UDATA_SERVICE_HCHO),
+DATA_ASSEMBLE(UDATA_SERVICE_TVOC),
+DATA_ASSEMBLE(UDATA_SERVICE_PH),
+DATA_ASSEMBLE(UDATA_SERVICE_VWC),
+DATA_ASSEMBLE(UDATA_SERVICE_EC),
+DATA_ASSEMBLE(UDATA_SERVICE_SALINITY),
+DATA_ASSEMBLE(UDATA_SERVICE_TDS),
+DATA_ASSEMBLE(UDATA_SERVICE_WINDSPD),
+DATA_ASSEMBLE(UDATA_SERVICE_WINDDIR),
+DATA_ASSEMBLE(UDATA_SERVICE_RAIN),
+DATA_ASSEMBLE(UDATA_SERVICE_HALL),
+DATA_ASSEMBLE(UDATA_SERVICE_HR),
+DATA_ASSEMBLE(UDATA_SERVICE_RGB),
+DATA_ASSEMBLE(UDATA_SERVICE_GS),
+DATA_ASSEMBLE(UDATA_SERVICE_IR),
+DATA_ASSEMBLE(UDATA_SERVICE_PEDOMETER),
+DATA_ASSEMBLE(UDATA_SERVICE_PDR),
+DATA_ASSEMBLE(UDATA_SERVICE_VDR),
+DATA_ASSEMBLE(UDATA_SERVICE_GPS),
+DATA_ASSEMBLE(UDATA_SERVICE_RTC)
+};
+
+bool  g_dtc_flag = false;
+udata_type_e g_dtc_service_type = UDATA_MAX_CNT;
+
+void handle_dtc_test_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
+    int i;
+    udata_type_e type;
+    bool flag;
+    int ret;
+    char* para1 = argc > 1 ? argv[1] : "";
+    char* para2 = argc > 2 ? argv[2] : "";
+
+    for(i = 0; i < UDATA_MAX_CNT; i++){
+        if ((strlen(para1) == strlen(g_sample_service_name[i].type_name))&&(strcmp(para1, g_sample_service_name[i].type_name) == 0)) {
+            break;
+        } 
+    }
+
+    if(i == UDATA_MAX_CNT){
+        return;
+    }
+
+    type = g_sample_service_name[i].type;
     if(type >= UDATA_MAX_CNT){
-        return -1;
+        return;
+    }
+
+    if (strcmp(para2, "on") == 0) {
+        flag = true;
+    }
+    else if (strcmp(para2, "off") == 0) {
+        flag = false;
+    }
+    else {
+        printf("bad para2 %s \n",para2);
+        return;
+    }
+
+    ret = service_dtc_publish_set(type, flag);
+    if(unlikely(ret)){
+        return;
     }
     
-    g_interval[type] = interval;
+    if ((g_dtc_service_type != type) && (flag == true)){
 
-    return 0;
+        if (g_dtc_flag == true){
+            ret = service_dtc_publish_set(g_dtc_service_type, false);   
+            if(unlikely(ret)){
+                return;
+            }
+        }
+
+        g_dtc_service_type = type;
+        g_dtc_flag = flag;
+    }
+
+    return;
 }
 
 
-bool uData_dtc_timeout(udata_type_e type)
-{
-    int64_t time;
-    if(type >= UDATA_MAX_CNT){
-        return false;
-    }
-
-    if(0 == g_interval[type]){
-        return false;
-    }
-    time = aos_now_ms();
-
-    if((time - g_time[type]) >= g_interval[type]){
-        g_time[type] = time;
-        return true;
-    }
-
-    return false;
-
-}
+static struct cli_command dtccmd = {
+    .name = "dtc",
+    .help = "dtc status set",
+    .function = handle_dtc_test_cmd
+};
+    
 
 #endif
 int uData_local_publish(udata_type_e type, void* pdata, uint32_t len)
@@ -188,7 +265,7 @@ void uData_report_demo(sensor_msg_pkg_t *msg)
     }
 
     if (msg->cmd == UDATA_MSG_REPORT_PUBLISH) {
-        ret = uData_report_publish(msg, &buf);
+        ret = uData_report_publish(msg->value, &buf);
         if (ret != 0) {
             return;
         }
@@ -205,49 +282,66 @@ int udata_sample(void)
 {
     int ret = 0;
     ret = uData_register_msg_handler(uData_report_demo);
-    LOG("uData_queue_registerslot service_dtc_handle ret=%d\n", ret);
-    if (ret == -1) {
-        LOG("error occur reg uData_report_demo \n");
+    if (ret < 0) {
+        LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return ret;
     }
 
     ret = uData_subscribe(UDATA_SERVICE_HUMI);
-    if (ret != 0) {
+    if (unlikely(ret)) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
-        return -1;
+        //return -1;
     }
 
     ret = uData_subscribe(UDATA_SERVICE_TEMP);
-    if (ret != 0) {
+    if (unlikely(ret)) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
-        return -1;
+        //return -1;
     }
+
 
     return 0;
 }
 
 
+static int uData_test_service_ioctl(udata_type_e type, uint32_t abs_index)
+{
+    (void)type;
+    (void)abs_index;
+    return 0;
+}
+
+static size_t uData_test_service_process(uint32_t abs_index, void *arg,
+                                                 uint32_t len)
+{
+    LOG("enter udata_std_service_process  %d\n",abs_index);
+    return DATA_SIZE;
+}
 
 int application_start(int argc, char **argv)
 {
     int ret;
-    ret = uData_main();
-    if (unlikely(ret)) {
-        return -1;
-    }
-
-#ifdef UDATA_CJSON_SUPPORTED
+#if defined(UDATA_CJSON_SUPPORTED) || defined(DTC_LINKKIT)
     cJSON_Hooks cjson_hooks;
     cjson_hooks.malloc_fn = aos_malloc;
     cjson_hooks.free_fn = aos_free;
     cJSON_InitHooks(&cjson_hooks);
 #endif
+    
+    ret = uData_main();
+    if (unlikely(ret)) {
+        //return -1;
+    }
 
-#if defined DTC_MQTT
-    mqtt_sample_start();
-#elif defined DTC_LINKKIT
+#if defined DTC_LINKKIT
     linkkit_sample_start();
+    aos_cli_register_command(&dtccmd);
+#elif defined DTC_MQTT
+    mqtt_sample_start();
+    aos_cli_register_command(&dtccmd);
 #endif
+
+    uData_service_cb_register(UDATA_SERVICE_HUMI,uData_test_service_process,uData_test_service_ioctl);
 
     (void)udata_sample();
 
