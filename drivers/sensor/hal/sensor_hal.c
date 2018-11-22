@@ -19,6 +19,7 @@
 #include "mbmaster_api.h"
 #endif
 
+#define SENSOR_MS_TO_ODR(ms)     ((1000/(ms)) + 1)
 #define MODBUS_CONFIG_STACK_SIZE (256 * 4)
 #define MODBUS_UART_PORT 2
 #define MODBUS_UART_BAUDRATE 9600
@@ -266,8 +267,9 @@ static int sensor_hal_get_dev_list(void* buf)
     }
 
     for(int index = 0; (index < g_sensor_cnt) && (index < SENSOR_MAX_NUM); index++){
-        sensor_list->list[sensor_list->cnt + index].tag    = g_sensor_obj[index]->tag;
-        sensor_list->list[sensor_list->cnt + index].instance  = g_sensor_obj[index]->instance;
+        sensor_list->list[index].tag    = g_sensor_obj[index]->tag;
+        sensor_list->list[index].instance  = g_sensor_obj[index]->instance;
+        sensor_list->list[index].io_port    = g_sensor_obj[index]->io_port;
     }
 
     sensor_list->cnt = g_sensor_cnt;
@@ -387,15 +389,17 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
 {
     int                  ret   = 0;
     int                  index = 0;
+    unsigned long        value;
     dev_sensor_config_t *config;
 
     if (f == NULL) {
         LOGD("%s %s fail line: %d\n", SENSOR_STR, __func__, __LINE__);
         return -1;
     }
+    value = arg;
 
     if (cmd == SENSOR_IOCTL_GET_SENSOR_LIST) {
-        ret = sensor_hal_get_dev_list((void *)arg);
+        ret = sensor_hal_get_dev_list((void *)value);
         if (unlikely(ret)) {
             LOGD("%s %s fail line: %d\n", SENSOR_STR, __func__, __LINE__);
             return -1;
@@ -408,8 +412,8 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
         return -1;
     }
     if (cmd == SENSOR_IOCTL_SET_SENSOR_IRQ_CB) {
-        config = (dev_sensor_config_t *)arg;
-        if (0 == arg) {
+        config = (dev_sensor_config_t *)value;
+        if (0 == value) {
             LOGD("%s %s fail line: %d\n", SENSOR_STR, __func__, __LINE__);
             return -1;
         }
@@ -423,8 +427,8 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
     }
 
     if (cmd == SENSOR_IOCTL_GET_SENSOR_MODE) {
-        config = (dev_sensor_config_t *)arg;
-        if (0 == arg) {
+        config = (dev_sensor_config_t *)value;
+        if (0 == value) {
             LOGD("%s %s fail line: %d\n", SENSOR_STR, __func__, __LINE__);
             return -1;
         }
@@ -438,14 +442,23 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
         return 0;
     }
 
+    if (cmd == SENSOR_IOCTL_ODR_SET) {
+        if (0 == value) {
+            LOGD("%s %s fail line: %d\n", SENSOR_STR, __func__, __LINE__);
+            return -1;
+        }
+        
+        value = SENSOR_MS_TO_ODR(value);
+    }
+
     if (g_sensor_obj[index]->ioctl) {
-        ret = g_sensor_obj[index]->ioctl(cmd, arg);
+        ret = g_sensor_obj[index]->ioctl(cmd, value);
         if (unlikely(ret)) {
             LOGD("%s %s fail line: %d\n", SENSOR_STR, __func__, __LINE__);
             return -1;
         }
     }
-    LOGD(SENSOR_STR, "%s successfully \n", __func__);
+    LOG(SENSOR_STR, "%s successfully \n", __func__);
     return 0;
 }
 
@@ -490,11 +503,11 @@ int modbus_init(void)
 }
 #endif
 
+
 int sensor_init(void)
 {
     int ret      = 0;
     g_sensor_cnt = 0;
-
 #if (!defined (SENSOR_DRV_AUTO_INIT)) || defined(__ICCARM__) 
 #ifdef AOS_SENSOR_HUMI_BOSCH_BME280
     drv_humi_bosch_bme280_init();
