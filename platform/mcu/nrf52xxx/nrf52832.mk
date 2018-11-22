@@ -1,10 +1,4 @@
-NAME := pca10040
 HOST_OPENOCD := pca10040
-$(NAME)_TYPE := kernel
-$(NAME)_MBINS_TYPE := kernel
-
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal kernel.fs.vfs digest_algorithm network.bluetooth.bt kernel.fs.kv
 
 GLOBAL_DEFINES += CONFIG_ARM
 

@@ -1,12 +1,9 @@
-NAME = mx1101_sdk
 
-$(NAME)_INCLUDES := \
-CMSIS/Include \
-O18B_SDK_GCC/MVs_new/MVs18_SDK/Libraries/driver/inc
+$(NAME)_INCLUDES += sdk/CMSIS/Include \
+                    sdk/O18B_SDK_GCC/MVs_new/MVs18_SDK/Libraries/driver/inc
 
-$(NAME)_SOURCES := \
-startup.s \
-main.c 
+$(NAME)_SOURCES += sdk/startup.s \
+                   sdk/main.c
 
 GLOBAL_LDFLAGS += platform/mcu/mx1101/sdk/O18B_SDK_GCC/lib/libdriver.a
 
