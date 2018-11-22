@@ -1,9 +1,9 @@
 HOST_OPENOCD := MKL26Z4
-NAME := mkl26z4impl
+NAME         := mkl26z4impl
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := driver & sdk for platform/mcu mkl26z4impl
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv6m
 $(NAME)_COMPONENTS += rhino libc kernel.fs.kv cli kernel.fs.vfs
@@ -24,17 +24,17 @@ GLOBAL_LDFLAGS += -Xlinker --gc-sections -Xlinker -static -Xlinker -z -Xlinker m
 GLOBAL_LDFLAGS += -mcpu=cortex-m0plus -mfloat-abi=soft
 GLOBAL_LDFLAGS += -T platform/mcu/mkl26z4/gcc/MKL26Z128xxx4_flash.ld
 
-$(NAME)_SOURCES     += ./drivers/fsl_clock.c
-$(NAME)_SOURCES     += ./drivers/fsl_common.c
-$(NAME)_SOURCES     += ./drivers/fsl_flash.c
-$(NAME)_SOURCES     += ./drivers/fsl_gpio.c
-$(NAME)_SOURCES     += ./drivers/fsl_lpsci.c
-$(NAME)_SOURCES     += ./drivers/fsl_smc.c
-$(NAME)_SOURCES     += ./drivers/fsl_uart.c
-$(NAME)_SOURCES     += ./system_MKL26Z4.c
-$(NAME)_SOURCES     += ./gcc/startup_MKL26Z4.S
-$(NAME)_SOURCES     += ./hal/hal_uart.c
-$(NAME)_SOURCES     += ./hal/hal_flash.c
-$(NAME)_SOURCES     += ./aos/aos.c
-$(NAME)_SOURCES     += ./aos/soc_impl.c
+$(NAME)_SOURCES += ./drivers/fsl_clock.c
+$(NAME)_SOURCES += ./drivers/fsl_common.c
+$(NAME)_SOURCES += ./drivers/fsl_flash.c
+$(NAME)_SOURCES += ./drivers/fsl_gpio.c
+$(NAME)_SOURCES += ./drivers/fsl_lpsci.c
+$(NAME)_SOURCES += ./drivers/fsl_smc.c
+$(NAME)_SOURCES += ./drivers/fsl_uart.c
+$(NAME)_SOURCES += ./system_MKL26Z4.c
+$(NAME)_SOURCES += ./gcc/startup_MKL26Z4.S
+$(NAME)_SOURCES += ./hal/hal_uart.c
+$(NAME)_SOURCES += ./hal/hal_flash.c
+$(NAME)_SOURCES += ./aos/aos.c
+$(NAME)_SOURCES += ./aos/soc_impl.c
 

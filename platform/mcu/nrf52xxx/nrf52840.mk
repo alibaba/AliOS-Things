@@ -1,10 +1,4 @@
-NAME := pca10056
 HOST_OPENOCD := pca10056
-$(NAME)_TYPE := kernel
-$(NAME)_MBINS_TYPE := kernel
-
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal kernel.fs.vfs digest_algorithm network.bluetooth.bt
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6

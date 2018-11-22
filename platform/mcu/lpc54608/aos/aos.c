@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "hal/ota.h"
 
 #define AOS_START_STACK 1536
 
@@ -55,16 +54,11 @@ static void sys_init(void)
     aos_loop_init();
 #endif
 
-#ifdef AOS_UOTA 
-    ota_service_init();
-#endif
-
     aos_framework_init();
 	lwip_tcpip_init();
     application_start(0, NULL);	
 #endif
 }
-extern struct hal_ota_module_s hal_lpc54608_ota_module;
 static void platform_init(void)
 {
     uint32_t port_state = 0;
@@ -90,10 +84,6 @@ static void platform_init(void)
                                 DEVICE_ID1 register in SYSCON shows the device version.
                                 More details please refer to user manual and errata. */
     BOARD_InitDebugConsole();	
-#ifdef AOS_UOTA
-    hal_ota_register_module(&hal_lpc54608_ota_module);
-#endif
-	
 }
 
 
@@ -111,7 +101,6 @@ static void platform_init(void)
 #include <hal/soc/soc.h>
 #include <hal/soc/timer.h>
 #include <hal/base.h>
-#include <hal/ota.h>
 
 #define TAG "hw"
 
