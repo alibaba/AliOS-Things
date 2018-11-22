@@ -6,6 +6,7 @@
 #include <string.h>
 #include "iot_export.h"
 #include "iotx_utils.h"
+#include "iotx_system.h"
 #include "awss_reset.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
@@ -43,7 +44,13 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
     HAL_Timer_Delete(report_reset_timer);
     report_reset_timer = NULL;
 
-    iotx_event_post(IOTX_RESET);
+    iotx_event_post(IOTX_RESET);  // for old version of event
+    do {  // for new version of event
+        void *cb = NULL;
+        cb = (void *)iotx_event_callback(ITE_AWSS_STATUS);
+        if (cb == NULL) break;
+        ((int (*)(int))cb)(IOTX_RESET);
+    } while (0);
 }
 
 static int awss_report_reset_to_cloud()
