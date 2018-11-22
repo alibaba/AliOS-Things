@@ -1,0 +1,10 @@
+menuconfig AOS_COMP_BT_MESH_PORT
+    bool "Bluetooth Mesh HAL AliOS Things based porting"
+    default n
+    select AOS_COMP_BT
+    help
+      AliOS Things NETWORK - Bluetooth Mesh HAL AliOS Things based porting
+
+if AOS_COMP_BT_MESH
+# Configurations for comp bt_mesh
+endif

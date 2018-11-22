@@ -9,11 +9,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#ifdef CONFIG_BT_MESH_SHELL
+
 #include <stdlib.h>
 #include <ctype.h>
 #include <zephyr.h>
-#include <shell/shell.h>
 #include <misc/printk.h>
+#include "errno.h"
 
 #include <bluetooth/bluetooth.h>
 #include <api/mesh.h>
@@ -68,6 +70,8 @@ static struct bt_mesh_cfg_srv cfg_srv = {
 
 static u8_t cur_faults[CUR_FAULTS_MAX];
 static u8_t reg_faults[CUR_FAULTS_MAX * 2];
+
+struct mesh_shell_cmd *bt_mesh_get_shell_cmd_list();
 
 static void get_faults(u8_t *faults, u8_t faults_size, u8_t *dst, u8_t *count)
 {
@@ -716,6 +720,7 @@ static int cmd_net_send(int argc, char *argv[])
 	return 0;
 }
 
+#if defined(CONFIG_BT_MESH_IV_UPDATE_TEST)
 static int cmd_iv_update(int argc, char *argv[])
 {
 	if (bt_mesh_iv_update()) {
@@ -748,6 +753,7 @@ static int cmd_iv_update_test(int argc, char *argv[])
 
 	return 0;
 }
+#endif
 
 static int cmd_rpl_clear(int argc, char *argv[])
 {
@@ -1868,7 +1874,54 @@ static int cmd_del_fault(int argc, char *argv[])
 	return 0;
 }
 
-static const struct shell_cmd mesh_commands[] = {
+static void print_all_help(struct mesh_shell_cmd *cmds)
+{
+	while (cmds->cmd_name != NULL) {
+		printk("%s", cmds->cmd_name);
+		if (cmds->help != NULL) {
+			printk(": %s\r\n", cmds->help);
+		} else {
+			printk("\r\n");
+		}
+		cmds++;
+	}
+}
+
+static int cmd_display_help(int argc, char *argv[])
+{
+	char *cmd = NULL, *help_str = NULL;
+	struct mesh_shell_cmd *cmd_entry;
+
+	cmd_entry = bt_mesh_get_shell_cmd_list();
+
+	if ((argc == 0) || (argc == 1 && strcmp(argv[0], "help") == 0)) {
+		print_all_help(cmd_entry);
+		return 0;
+	}
+
+	cmd = argv[0];
+	if (!cmd_entry) {
+		printk("No command supported.\n");
+		return 0;
+	}
+
+	while (cmd_entry->cmd_name != NULL) {
+		if (strcmp(cmd_entry->cmd_name, cmd) != 0) {
+			cmd_entry++;
+			continue;
+		}
+		help_str = cmd_entry->help;
+		break;
+	}
+
+	if (help_str != NULL) {
+		printk("%s: %s\n", cmd_entry->cmd_name, help_str);
+	}
+
+	return 0;
+}
+
+static const struct mesh_shell_cmd mesh_commands[] = {
 	{ "init", cmd_init, NULL },
 	{ "timeout", cmd_timeout, "[timeout in seconds]" },
 #if defined(CONFIG_BT_MESH_PB_ADV)
@@ -1897,8 +1950,10 @@ static const struct shell_cmd mesh_commands[] = {
 
 	/* Commands which access internal APIs, for testing only */
 	{ "net-send", cmd_net_send, "<hex string>" },
+#if defined(CONFIG_BT_MESH_IV_UPDATE_TEST)
 	{ "iv-update", cmd_iv_update, NULL },
 	{ "iv-update-test", cmd_iv_update_test, "<value: off, on>" },
+#endif
 	{ "rpl-clear", cmd_rpl_clear, NULL },
 
 	/* Configuration Client Model operations */
@@ -1943,7 +1998,14 @@ static const struct shell_cmd mesh_commands[] = {
 	{ "add-fault", cmd_add_fault, "<Fault ID>" },
 	{ "del-fault", cmd_del_fault, "[Fault ID]" },
 
+	{ "help", cmd_display_help, "[help]"},
+
 	{ NULL, NULL, NULL}
 };
 
-SHELL_REGISTER("mesh", mesh_commands);
+struct mesh_shell_cmd *bt_mesh_get_shell_cmd_list()
+{
+	return mesh_commands;
+}
+
+#endif // CONFIG_BT_MESH_SHELL
