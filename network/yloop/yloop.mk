@@ -22,9 +22,9 @@ GLOBAL_DEFINES      += AOS_LOOP
 GLOBAL_INCLUDES     += include
 
 ifeq ($(COMPILER),armcc)
-	$(NAME)_LINK_FILES := local_event.o
+	$(NAME)_LINK_FILES := src/local_event.o
 endif
 
 ifeq ($(COMPILER),rvct)
-	$(NAME)_LINK_FILES := local_event.o
+	$(NAME)_LINK_FILES := src/local_event.o
 endif
