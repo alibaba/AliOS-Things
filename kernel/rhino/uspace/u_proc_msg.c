@@ -48,9 +48,8 @@ static void msg_dyn_create(kbuf_queue_t **queue, const name_t *name,
     ringbuf_init(&(queue_obj->ringbuf), queue_obj->buf, size, RINGBUF_TYPE_DYN, max_msg);
     queue_obj->min_free_buf_size  = queue_obj->ringbuf.freesize;
 
-    head = &g_kobj_list.buf_queue_head;
-
     RHINO_CRITICAL_ENTER();
+    head = &g_kobj_list.buf_queue_head;
     for (tmp = head->next; tmp != head; tmp = tmp->next) {
         queue_tmp = krhino_list_entry(tmp, kbuf_queue_t, buf_queue_item);
         if (queue_tmp->key == key) {

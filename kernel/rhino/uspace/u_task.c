@@ -258,6 +258,7 @@ kstat_t krhino_uprocess_exit()
 
     /* release all the task belong to this process */
     RHINO_CRITICAL_ENTER();
+    head = &g_kobj_list.task_head;
     for (tmp = head->next; tmp != head; tmp = tmp->next) {
         task_tmp = krhino_list_entry(tmp, ktask_t, task_stats_item);
         if (task_tmp->pid == pid) {
