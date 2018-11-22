@@ -25,8 +25,8 @@
 #include <aos/aos.h>
 #include <aos/yloop.h>
 #include "netmgr.h"
-#include "aos/uData.h"
-#include "uData_queue.h"
+#include "aos/udata.h"
+#include "udata_queue.h"
 #define AOS_SENSOR_HUMI_SENSIRION_HTS221
 
 #define UDATA_PRINT    printf
