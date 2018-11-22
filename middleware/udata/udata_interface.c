@@ -9,23 +9,22 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <fcntl.h>
-#include "uData_com_desc.h"
+#include "udata_com_desc.h"
 #include "service_mgr.h"
 
 
-int uData_report_publish(sensor_msg_pkg_t *msg, void *pdata)
+int uData_report_publish(udata_type_e type, void *pdata)
 {
-    if (msg == NULL) {
-        return -1;
-    }
+
     if (pdata == NULL) {
         return -1;
     }
-    if (msg->value >= UDATA_MAX_CNT) {
+    if (type >= UDATA_MAX_CNT)
+    {
         return -1;
     }
 
-    return uData_get_report_pkg(pdata, msg->index);
+    return uData_get_report_pkg(type, pdata);
 }
 
 int uData_dev_ioctl(udata_t *pkg, uint8_t cmd, void *parm)

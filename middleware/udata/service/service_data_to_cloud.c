@@ -12,11 +12,11 @@
 #include "aos/log.h"
 #include "aos/network.h"
 #include <aos/kernel.h>
-#include "aos/uData.h"
+#include "aos/udata.h"
 #include "service_mgr.h"
 #include "service_data_to_cloud.h"
-#include "uData_queue.h"
-#include "uData_parse.h"
+#include "udata_queue.h"
+#include "udata_parse.h"
 
 #define DTC_PUBLISH_STR_LEN         (128)
 #define DTC_PUBLISH_DELAY           (50)
@@ -37,11 +37,9 @@
 
 
 service_pub_info_t* g_service_info[UDATA_MAX_CNT] = {NULL};
-static int g_index = -1;
+static int g_reg_index = -1;
 static bool  g_dtc_conn_flag = false;
 static uint32_t g_dtc_num = 0;
-extern long long aos_now_ms(void);
-extern int udata_cloud_report(void* pdata, uint32_t len);
 
 #define  FLOAT_PRINT_DATA_GET(IN,OUT,SIGN) \
 do{ \
@@ -55,7 +53,7 @@ do{ \
 
 #define  FLOAT_PRINT_DATA(DATA,SIGN)  SIGN,DATA[0],DATA[1],DATA[2]
 
-int udata_dtc_publish(udata_type_e type, void* pdata, uint32_t len)
+static int udata_dtc_publish(udata_type_e type, void* pdata, uint32_t len)
 {
     int     ret = 0;
     int     coeff;
@@ -139,7 +137,6 @@ int udata_dtc_publish(udata_type_e type, void* pdata, uint32_t len)
             break;
         }
          
-        case UDATA_SERVICE_BARO:
         case UDATA_SERVICE_TVOC:
         case UDATA_SERVICE_HCHO:
         case UDATA_SERVICE_NOISE:
@@ -152,6 +149,7 @@ int udata_dtc_publish(udata_type_e type, void* pdata, uint32_t len)
             break;
         }
 
+        case UDATA_SERVICE_BARO:
         case UDATA_SERVICE_PM25:
         case UDATA_SERVICE_CO2:
         case UDATA_SERVICE_PH:
@@ -224,22 +222,26 @@ int udata_dtc_publish(udata_type_e type, void* pdata, uint32_t len)
 }
 
 
-int uData_msg_report_publish(sensor_msg_pkg_t *msg)
+int uData_msg_report_publish(udata_type_e type)
 {
     int         ret = 0;
     udata_pkg_t buf;
     
+    if (type >= UDATA_MAX_CNT)
+    {
+        return -1;
+    }
     if (false == service_dtc_is_connect()) {
         return -1;
     }
-    if (false == service_dtc_is_publish(msg->value)) {
+    if (false == service_dtc_is_timeout(type)) {
         return -1;
     }
-    ret = uData_report_publish(msg, &buf);
+    ret = uData_report_publish(type, &buf);
     if (ret != 0) {
         return -1;
     }
-    ret = udata_dtc_publish(buf.type, (void *)&buf.payload[0],0);
+    ret = udata_dtc_publish(type, (void *)&buf.payload[0],0);
     if (ret != 0) {
         return -1;
     }
@@ -255,8 +257,8 @@ void service_dtc_handle(sensor_msg_pkg_t *msg)
     }
 
     switch (msg->cmd) {
-        case UDATA_MSG_REPORT_PUBLISH: {
-            ret = uData_msg_report_publish(msg);
+        case UDATA_MSG_DATA_TO_CLOUD: {
+            ret = uData_msg_report_publish(msg->value);
             if (ret != 0) {
                 return;
             }
@@ -270,26 +272,26 @@ int service_dtc_connect_set(bool flag)
 {
     int ret;
 
-    if ((g_index == -1) && (flag == true)){
+    if ((g_reg_index == -1) && (flag == true)){
         ret = uData_register_msg_handler(service_dtc_handle);
         if (ret == -1) {
             LOG("error occur reg service_dtc_handle \n");
-            return ret;
+            return -1;
         }
-        g_index = ret;
+        g_reg_index = ret;
     }
 
-    if ((g_index != -1) && (flag == false)){
-        ret = uData_unregister_msg_handler(g_index);
+    if ((g_reg_index != -1) && (flag == false)){
+        ret = uData_unregister_msg_handler(g_reg_index);
         if (unlikely(ret)){
-            LOG("error occur reg service_dtc_handle \n");
-            return ret;
+            LOG("error occur unreg service_dtc_handle \n");
+            return -1;
         }
-        g_index = -1;
+        g_reg_index = -1;
     }
 
     g_dtc_conn_flag = flag;
-    return -1;
+    return 0;
 }
 
 
@@ -298,25 +300,48 @@ bool service_dtc_is_connect()
     return g_dtc_conn_flag;
 }
 
-bool service_dtc_publish_set(udata_type_e type, bool flag)
+int service_dtc_publish_set(udata_type_e type, bool flag)
 {
-    bool ret;
+
+    if (type >= UDATA_MAX_CNT) {
+        return -1;
+    }
+
+    if (NULL == g_service_info[type]){
+        return -1;
+    }
+    
+    if (flag == g_service_info[type]->dtcFlag) {
+        return 0;
+    }
+
+    g_service_info[type]->dtcFlag   = flag;
+    g_service_info[type]->time_stamp = aos_now_ms();
+    return 0;
+}
+
+bool service_dtc_is_publish(udata_type_e type)
+{
+
     if (type >= UDATA_MAX_CNT) {
         return false;
     }
 
-    if (flag == g_service_info[type]->dtcFlag) {
-        return flag;
+    if (NULL == g_service_info[type]){
+        return false;
     }
 
-    ret = g_service_info[type]->dtcFlag;
-
-    g_service_info[type]->dtcFlag   = flag;
-    g_service_info[type]->time_stamp = aos_now_ms();
-    return ret;
+    if (false == g_service_info[type]->dtcFlag) {
+        return false;
+    }
+    
+    if (0 == g_service_info[type]->dtc_cycle) {
+        return false;
+    }
+    return true;
 }
 
-bool service_dtc_is_publish(udata_type_e type)
+bool service_dtc_is_timeout(udata_type_e type)
 {
     uint64_t time = aos_now_ms();
 
@@ -324,6 +349,14 @@ bool service_dtc_is_publish(udata_type_e type)
         return false;
     }
 
+    if (NULL == g_service_info[type]){
+        return false;
+    }
+
+    if (false == g_service_info[type]->dtcFlag) {
+        return false;
+    }
+    
     if (0 == g_service_info[type]->dtc_cycle) {
         return false;
     }
@@ -341,6 +374,10 @@ int service_dtc_publish_cycle_set(udata_type_e type, uint32_t cycle)
 {
 
     if (type >= UDATA_MAX_CNT) {
+        return -1;
+    }
+    
+    if (NULL == g_service_info[type]){
         return -1;
     }
     g_service_info[type]->dtc_cycle = cycle;
@@ -469,7 +506,7 @@ int service_dtc_init(void)
 
     memset(&g_service_info[0],0,sizeof(g_service_info));
 
-    ret = uData_config_num_get(&num);
+    ret = uData_dtc_num_get(&num);
     if (unlikely(ret)) {
         return -1;
     }
