@@ -7,10 +7,6 @@
 #include "cJSON.h"
 #include "app_entry.h"
 
-#if defined(OTA_ENABLED)
-#include "ota_service.h"
-#endif
-
 // for demo only
 #define PRODUCT_KEY      "a1X2bEnP82z"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
@@ -55,9 +51,6 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
-#if defined(OTA_ENABLED)
-    ota_service_init(NULL);
-#endif
     return 0;
 }
 
