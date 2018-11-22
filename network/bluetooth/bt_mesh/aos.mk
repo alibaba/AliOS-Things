@@ -23,8 +23,7 @@ $(NAME)_SOURCES-y := ./src/access.c \
                      ./src/net.c \
                      ./src/prov.c \
                      ./src/proxy.c \
-                     ./src/transport.c \
-                     ./src/shell.c
+                     ./src/transport.c
 
 GLOBAL_INCLUDES-y += ./inc/ \
                      ./inc/api/
