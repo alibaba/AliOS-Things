@@ -95,8 +95,8 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
         task->proc_addr = cur_task->proc_addr;
     }
 
-    cpu_binded          = cpu_binded;
-    i                   = i;
+    cpu_binded = cpu_binded;
+    i          = i;
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
     task->cpu_binded    = cpu_binded;
@@ -155,6 +155,7 @@ static kstat_t utask_create(ktask_t **task, const name_t *name, void *arg,
     kstat_t      ret;
     cpu_stack_t *ktask_stack;
     ktask_t     *task_obj;
+
     NULL_PARA_CHK(task);
 
     if (kstack == 0) {
@@ -181,6 +182,7 @@ static kstat_t utask_create(ktask_t **task, const name_t *name, void *arg,
     if ((ret != RHINO_SUCCESS) && (ret != RHINO_STOPPED)) {
         krhino_mm_free(ktask_stack);
         krhino_mm_free(task_obj);
+
         return ret;
     }
 
@@ -192,8 +194,8 @@ kstat_t krhino_utask_create(ktask_t **task, const name_t *name, void *arg,
                             size_t ustack, size_t kstack, task_entry_t entry, uint8_t autorun)
 {
     ktask_t *cur_task;
-    kstat_t  ret;
     ktask_t *task_tmp;
+    kstat_t  ret;
 
     cur_task = krhino_cur_task_get();
 
@@ -205,20 +207,17 @@ kstat_t krhino_utask_create(ktask_t **task, const name_t *name, void *arg,
 
 kstat_t krhino_utask_del(ktask_t *task)
 {
-    kstat_t  ret;
-    ret = krhino_task_dyn_del(task);
-
-    return ret;
+    return krhino_task_dyn_del(task);
 }
 
 kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
                                uint8_t pri, tick_t ticks, cpu_stack_t *ustack_buf,
-                               size_t ustack, size_t kstack, task_entry_t entry, uint32_t pid,
-                               uint8_t autorun)
+                               size_t ustack, size_t kstack, task_entry_t entry,
+                               uint32_t pid, uint8_t autorun)
 {
-    kstat_t       ret;
-    ktask_t      *task_tmp;
-    kqueue_t     *queue;
+    ktask_t  *task_tmp;
+    kqueue_t *queue;
+    kstat_t   ret;
 
     ret = utask_create(task, name, arg, pri, ticks, ustack_buf,
                         ustack, kstack, entry, 0, 0, pid, 0, 1);
@@ -235,21 +234,21 @@ kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
     }
     task_tmp->res_q = queue;
 
-    if (autorun > 0){
+    if (autorun > 0) {
         krhino_task_resume(task_tmp);
     }
 
     return ret;
 }
 
-kstat_t krhino_uprocess_exit()
+kstat_t krhino_uprocess_exit(void)
 {
-    kstat_t       ret;
-    ktask_t      *cur_task;
-    klist_t      *tmp;
-    klist_t      *head;
-    ktask_t      *task_tmp;
-    uint32_t      pid;
+    kstat_t   ret;
+    ktask_t  *cur_task;
+    klist_t  *tmp;
+    klist_t  *head;
+    ktask_t  *task_tmp;
+    uint32_t  pid;
 
     CPSR_ALLOC();
 
@@ -277,14 +276,14 @@ void krhino_uprocess_res_get(int32_t id, void **res)
 {
     ktask_t *cur_task;
     ktask_t *cur_proc;
+
     cur_task = krhino_cur_task_get();
 
     if (id == 0) {
         cur_proc = cur_task->proc_addr;
-       *res = cur_proc->res_q;
-    }
-    else {
-       *res = 0;
+        *res     = cur_proc->res_q;
+    } else {
+        *res = 0;
     }
 }
 
