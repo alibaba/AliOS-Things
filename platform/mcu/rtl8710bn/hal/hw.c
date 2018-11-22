@@ -12,7 +12,6 @@
 #include <hal/soc/timer.h>
 #include <hal/base.h>
 #include <hal/wifi.h>
-#include <hal/ota.h>
 #include "board.h"
 #include "diag.h"
 #include "platform_stdlib.h"
@@ -65,7 +64,6 @@ void hal_timer_stop(timer_dev_t *tmr)
 }
 
 extern hal_wifi_module_t rtl8710bn_wifi_module;
-extern hal_ota_module_t rtl8710bn_ota_module;
 void hw_start_hal(void)
 {
     DBG_8195A("start hal-----------\n");
@@ -74,7 +72,6 @@ void hw_start_hal(void)
     hal_umesh_register_wifi(&rtl8710bn_wifi_module);
 #endif
     
-    hal_ota_register_module(&rtl8710bn_ota_module);
     uart_0.port                = MICO_UART_1;
     uart_0.config.baud_rate    = 115200;
     uart_0.config.data_width   = DATA_WIDTH_8BIT;
