@@ -30,7 +30,7 @@ $(NAME)_SOURCES += port/lora_port.c          \
                    port/lorawan_radio_port.c \
                    port/lorawan_timer_port.c
 
-$(NAME)_COMPONENTS += network.lorawan_4_4_2.lorachip network.lorawan_4_4_2
+$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_2.lorachip network.lorawan.lorawan_4_4_2
 LORACHIP           := sx1276
 
 GLOBAL_DEFINES += M400_LORAWAN
@@ -56,11 +56,11 @@ GLOBAL_INCLUDES += ../../platform/mcu/stm32l0xx/Drivers/STM32L0xx_HAL_Driver/Inc
 GLOBAL_DEFINES += USE_HAL_DRIVER \
                   STM32L071xx
 
-GLOBAL_INCLUDES += ../../network/lorawan_4_4_2/lorachip/sx1276 \
-                   ../../network/lorawan_4_4_2/lora/system     \
-                   ../../network/lorawan_4_4_2/lora/mac        \
-                   ../../network/lorawan_4_4_2/lora/radio      \
-                   ../../network/lorawan_4_4_2/linkwan\include
+GLOBAL_INCLUDES += ../../network/lorawan/lorawan_4_4_2/lorachip/sx1276 \
+                   ../../network/lorawan/lorawan_4_4_2/lora/system     \
+                   ../../network/lorawan/lorawan_4_4_2/lora/mac        \
+                   ../../network/lorawan/lorawan_4_4_2/lora/radio      \
+                   ../../network/lorawan/lorawan_4_4_2/linkwan/include
 
 GLOBAL_DEFINES += STDIO_UART=0 CONFIG_NO_TCPIP
 GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0 RHINO_CONFIG_NORMAL_PRT=0
