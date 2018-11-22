@@ -1,35 +1,58 @@
-#include "uData_queue.h"
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ *
+ *
+ * uData service task
+ */
 
+#include "udata_queue.h"
+#include "abs_data_model.h"
+#include "service_mgr.h"
 
 int g_taskid;
-#define UDATA_TASK_STACK_SIZE 4096 // 4kByte
+#define UDATA_TASK_STACK_SIZE 2048 // 2kByte
 #define UDATA_TASK_PRIO \
     (AOS_DEFAULT_APP_PRI - 2) // higher prio than normal app's
 
 void process_example(void *arg)
 {
     
-    char rec_cached[256];
+    char buffer[256];
     sensor_msg_pkg_t* msg = NULL;
     unsigned int  size = 0;
     int ret =0;
+    sensor_tag_e tag;
+    uint8_t index;
+    void* data = NULL;
+    uint32_t len;
     
     while (DO_FOREVER) {
-        
-        ret = aos_msg_recv(g_taskid,AOS_WAIT_FOREVER,(void*)rec_cached,&size);
+        ret = aos_msg_recv(g_taskid,AOS_WAIT_FOREVER,(void*)buffer,&size);
         if (size == 0||unlikely(ret)) {
             aos_msleep(100);
             continue;
         }
         
-        msg = (sensor_msg_pkg_t *)rec_cached;
+        msg = (sensor_msg_pkg_t *)buffer;
         if (msg->cmd != CODE_UDATA_SERVICE_PROCESS) {
             continue;
         }
-        LOG("algo own task abs index %d\n",msg->value);
         
+        ret = abs_data_get_sensor_info(msg->index,&tag, &index);
+        if (unlikely(ret)) {
+            return;
+        }
+
+        if ((tag == TAG_DEV_HUMI) || (tag == TAG_DEV_TEMP)){
+            ret = uData_service_get_payload(msg->index, &data, &len);
+        
+            ret = uData_install_report_pkg(UDATA_SERVICE_HUMI, data, len);
+            if (unlikely(ret)) {
+                return;
+            }
+        }
+                
     }
-    
     
 }
 

@@ -1,8 +1,15 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ *
+ *
+ * uData queue
+ */
+
 
 
 #include <stdio.h>
 #include <string.h>
-#include "uData_queue.h"
+#include "udata_queue.h"
 #include "abs_data_model.h"
 
 
@@ -40,14 +47,14 @@ static void uData_msg_dispatcher(void *arg)
 {
 
     int  ret = 0;
-    char rec_cached[256];
+    char data[256];
+    uint32_t          size = 0;
+    sensor_msg_pkg_t *msg  = NULL;
     // all the cmd of sensorhub will be sent to be handled here;
     // the dispatcher will asign the new sub task to the fitted model
     while (DO_FOREVER) {
-        uint32_t          size = 0;
-        sensor_msg_pkg_t *msg  = NULL;
         ret = aos_queue_recv(&g_uData_queue, AOS_WAIT_FOREVER,
-                             (void *)rec_cached, (unsigned int *)(&size));
+                             (void *)data, (unsigned int *)(&size));
         
         if (unlikely(ret)) {
             continue;
@@ -57,7 +64,7 @@ static void uData_msg_dispatcher(void *arg)
             continue;
         }
 
-        msg = (sensor_msg_pkg_t *)rec_cached;
+        msg = (sensor_msg_pkg_t *)data;
         for (int n = 0; n < UDATA_QUEUE_MAXSLOTS; n++) {
             if (g_uData_queue_cb[n].status == UDATA_QUEUE_OPEN) {
                 g_uData_queue_cb[n].msg_cb(msg);
@@ -112,7 +119,7 @@ int own_task_post_msg(sensor_msg_pkg_t msg)
     {
         for(int j =0; j< g_uData_own_task_tag[i].actual_num;j++)
         {
-            if(g_uData_own_task_tag[i].index[j] == msg.value)
+            if(g_uData_own_task_tag[i].index[j] == msg.index)
             {
                 aos_queue_send(&g_uData_own_task_queue[i],(void *)&msg, sizeof(msg));
                 break;
