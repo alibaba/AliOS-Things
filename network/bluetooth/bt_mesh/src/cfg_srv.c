@@ -32,6 +32,7 @@
 #include "proxy.h"
 #include "foundation.h"
 #include "friend.h"
+#include "mesh_config.h"
 
 #define DEFAULT_TTL 7
 
