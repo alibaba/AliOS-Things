@@ -180,7 +180,7 @@ int find_empty_obj()
 }
 
 int sensor_obj_init_para(sensor_tag_e tag,int sensor_index,int axis,void* para)
-{
+{
     int index = find_empty_obj();
     if(index < 0) return -1;
     g_sensor_static_para[index].sensor_index = sensor_index;

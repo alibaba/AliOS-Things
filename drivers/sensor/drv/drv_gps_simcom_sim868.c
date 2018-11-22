@@ -222,7 +222,7 @@ static int drv_gps_simcom_sim868_data_get(gps_sim868_t *result,gps_data_t* pgpsd
     pgpsdata->utc.sec = result->utc.sec;
     pgpsdata->utc.hsec = result->utc.hsec;
 
-    pgpsdata->lat = result->lat;
+    pgpsdata->lat = result->lat;
     pgpsdata->lon = result->lon;
     pgpsdata->elv = result->elv;
      
