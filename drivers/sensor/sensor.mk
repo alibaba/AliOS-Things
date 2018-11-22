@@ -11,7 +11,7 @@ $(NAME)_SOURCES += \
 =======
 >>>>>>> b7b8639a0 (BugID: 17115493:add sensor compile file)
         hal/sensor_drv_api.c \
-        drv/drv_humi_bosch_bme280.c \
+        drv/drv_temp_humi_baro_bosch_bme280.c \
         drv/drv_acc_bosch_bma253.c \
         drv/drv_baro_bosch_bmp280.c \
         drv/drv_acc_gyro_st_lsm6dsl.c\

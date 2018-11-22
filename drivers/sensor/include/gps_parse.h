@@ -145,22 +145,18 @@ static inline void gps_data_conv(void* str, int len,void* addr,int type)
     switch(type){
         case GPS_TYPE_FLOAT:
             *(float*)(addr) = (float)gps_atof(str,len); 
-            //printf("f == %f\n",*(float*)(addr));
             break;
         case GPS_TYPE_INT32:
             *(int*)(addr) = (int)gps_atoi(str,len,10); 
-            //printf("d == %d\n",*(int*)(addr) );
             break;
         
         case GPS_TYPE_UINT8:
             *(char*)(addr) = *(char*)str;
-            //printf("c == %c\n",*(char*)(addr) );
             break;
             
         case GPS_TYPE_STR:
             memcpy(addr, str, len);
             ((char *)addr)[len] = '\0';
-            //printf("S == %s\n",(char*)(addr) );
             break;
 
         case GPS_TYPE_UTC:
