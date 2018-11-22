@@ -16,7 +16,7 @@
 #include "iot_export_linkkit.h"
 
 #include "sensor.h"
-#include "aos/uData.h"
+#include "aos/udata.h"
 
 #include "app_entry.h"
 
@@ -28,19 +28,11 @@
 
 static char linkkit_started = 0;
 static char awss_running    = 0;
-void *g_device_id  = NULL;
+int g_device_id  = -1;
 
 void set_iotx_info();
 void do_awss_active();
-
-#ifdef CONFIG_PRINT_HEAP
-void print_heap()
-{
-    extern k_mm_head *g_kmm_head;
-    int               free = g_kmm_head->free_size;
-    LOG("============free heap size =%d==========", free);
-}
-#endif
+extern void LITE_set_loglevel(int);
 
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
@@ -62,9 +54,6 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 
     if (!linkkit_started) {
-#ifdef CONFIG_PRINT_HEAP
-        print_heap();
-#endif
 #ifdef MQTT_DIRECT
         aos_task_new("linkkit", (void (*)(void *))linkkit_main, NULL, 1024 * 6);
 #else
@@ -268,13 +257,6 @@ static struct cli_command ncmd = { .name     = "active_awss",
                                    .function = handle_active_cmd };
 #endif
 
-#ifdef CONFIG_PRINT_HEAP
-static void duration_work(void *p)
-{
-    print_heap();
-    aos_post_delayed_action(5000, duration_work, NULL);
-}
-#endif
 
 
 #ifdef WITH_SAL
@@ -284,11 +266,6 @@ extern int sal_init(void);
 int linkkit_sample_start(void)
 {
 
-#if 1
-#ifdef CONFIG_PRINT_HEAP
-    print_heap();
-    aos_post_delayed_action(5000, duration_work, NULL);
-#endif
 
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
@@ -311,18 +288,15 @@ int linkkit_sample_start(void)
     aos_cli_register_command(&ncmd);
 #endif
     set_iotx_info();
-    extern void LITE_set_loglevel(int);
     LITE_set_loglevel(5);
     aos_task_new("netmgr", start_netmgr, NULL, 4096);
-#endif
+
     return 0;
 }
 
 int udata_cloud_report(void* pdata, uint32_t len)
 {
     int     ret = 0;
-    //LOG("udata_cloud_report %s  <%d>\n",pdata,len);
-    return -1;
     if(pdata == NULL){
         return -1;
     }
@@ -331,7 +305,7 @@ int udata_cloud_report(void* pdata, uint32_t len)
         return -1;
     }
 
-    if(g_device_id == NULL){
+    if(g_device_id == -1){
         return -1;
     }
     ret = IOT_Linkkit_Report(g_device_id, ITM_MSG_POST_PROPERTY,
