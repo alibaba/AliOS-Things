@@ -828,10 +828,13 @@ int32_t cli_printf(const char *buffer, ...)
     va_end(ap);
 
     if (len <= 0) {
+        cli_free(message);
+
         return CLI_OK;
     }
 
     cli_putstr(message);
+    cli_free(message);
 
     return CLI_OK;
 }
