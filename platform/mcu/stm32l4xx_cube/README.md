@@ -22,7 +22,6 @@ stm32l4xx
 └── hal                         # aos hal interfaces
     ├── hal_xxx_stm32l4.c
     ├── hw.c                    # hardware hal interface: reboot, delay etc.
-    ├── ota_port.c              # fota interface
     └── app_runtime             # app runtime for multi-bins
 ```
 
