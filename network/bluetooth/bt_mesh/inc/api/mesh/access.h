@@ -10,6 +10,8 @@
 #ifndef __BT_MESH_ACCESS_H
 #define __BT_MESH_ACCESS_H
 
+#include "mesh_config.h"
+
 /**
  * @brief Bluetooth Mesh Access Layer
  * @defgroup bt_mesh_access Bluetooth Mesh Access Layer
