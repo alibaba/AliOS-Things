@@ -21,7 +21,7 @@
 
 #include "hal/hal.h"
 #include "sensor.h"
-#include "aos/uData.h"
+#include "aos/udata.h"
 #include "service_data_to_cloud.h"
 
 
@@ -34,8 +34,8 @@
 
 
 #define PRODUCT_KEY   "b1GadfPW0om"
-#define DEVICE_NAME   "AliOS_Things_Sensor_09"
-#define DEVICE_SECRET "eBBXNm370dq6xpKmRiELjMeiYcrwBlgI"
+#define DEVICE_NAME   "DwMNwfxBhWwUD9oDuJnj"
+#define DEVICE_SECRET "sywXYWM0WY0HVHU1I3dfhU2JS3Hkcpnr"
 
 typedef void (*task_fun)(void *);
 
@@ -52,36 +52,47 @@ char __device_secret[DEVICE_SECRET_LEN + 1];
 #define ALINK_TOPIC_PROP_SET \
     "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/service/property/set"
 #define ALINK_METHOD_PROP_POST "thing.event.property.post"
-/*
-* Please check below item which in feature self-definition from "https://linkdevelop.aliyun.com/"
-*/
-#define PROP_POST_FORMAT_ACC        "{\"Accelerometer\":{\"x\":%f,\"y\":%f, \"z\":%f}}"
-#define PROP_POST_FORMAT_GYRO       "{\"Gyroscope\":{\"x_dps\":%f,\"y_dps\":%f, \"z_dps\":%f}}"
-#define PROP_POST_FORMAT_MAG        "{\"Magnetometer\":{\"x_gs\":%f,\"y_gs\":%f, \"z_gs\":%f}}"
-#define PROP_POST_FORMAT_GPS        "{\"Gps\":{\"Latitude\":%f,\"Longitude\":%f, \"Elevation\":%f}}"
-#define PROP_POST_FORMAT_HUMI       "{\"CurrentHumidity\":%f}"
-#define PROP_POST_FORMAT_TEMP       "{\"CurrentTemperature\":%f}"
-#define PROP_POST_FORMAT_HALL       "{\"Hall_level\":%d}"
-#define PROP_POST_FORMAT_BARO       "{\"Barometer\":%u}"
-#define PROP_POST_FORMAT_ALS        "{\"LightLux\":%u}"
-#define PROP_POST_FORMAT_PS         "{\"Proximity\":%u}"
-#define PROP_POST_FORMAT_UV         "{\"Ultraviolet\":%d}"
-#define PROP_POST_FORMAT_HR         "{\"Heart_rate\":%d}"
 
-#define PROP_SET_FORMAT_CMDLED      "\"cmd_led\":"
+#define PROP_SET_FORMAT_UDATA      "\"dtc_config\":"
+
+
 #define DATA_CONVERT_FLOAT(a,b)  (((float)(a))/((float)(b)))
 #define DATA_CONVERT_INT(a,b)    (((int32_t)(a))/((int32_t)(b)))
 
 
+#define MQTT_DTC_ACC_ON     "\"acc=1\""
+#define MQTT_DTC_ACC_OFF    "\"acc=0\""
+
+#define MQTT_DTC_GYRO_ON    "\"gyro=1\""
+#define MQTT_DTC_GYRO_OFF   "\"gyro=0\""
+
+#define MQTT_DTC_MAG_ON     "\"mag=1\""
+#define MQTT_DTC_MAG_OFF    "\"mag=0\""
+
+#define MQTT_DTC_TEMP_ON    "\"temp=1\""
+#define MQTT_DTC_TEMP_OFF   "\"temp=0\""
+
+#define MQTT_DTC_HUMI_ON    "\"humi=1\""
+#define MQTT_DTC_HUMI_OFF   "\"humi=0\""
+
+#define MQTT_DTC_ALS_ON     "\"als=1\""
+#define MQTT_DTC_ALS_OFF    "\"als=0\""
+
+#define MQTT_DTC_PS_ON      "\"ps=1\""
+#define MQTT_DTC_PS_OFF     "\"ps=0\""
+
+#define MQTT_DTC_BARO_ON    "\"baro=1\""
+#define MQTT_DTC_BARO_OFF   "\"baro=0\""
 #define MQTT_MSGLEN                 (1024)
 
-uint32_t        cnt           = 0;
-
+uint32_t cnt  = 0;
 void *gpclient = NULL;
-
-static char            linkkit_started = 0;
-
+static char linkkit_started = 0;
 static int g_mqtt_con_flag = 0;
+
+static udata_type_e g_service_type[UDATA_MAX_CNT] = {0};
+static bool g_service_flag[UDATA_MAX_CNT] = {0};
+
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -100,14 +111,15 @@ int linkkit_main(void *paras);
  */
 static void handle_prop_set(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-#ifdef CLD_CMD_LED_REMOTE_CTRL_SUPPORT
+    int ret;
+    udata_type_e type;
     iotx_mqtt_topic_info_pt ptopic_info = (iotx_mqtt_topic_info_pt)msg->msg;
-    char *p_serch = NULL;
-    uint8_t led_cmd = 0;
-    bool gpio_level = 0;
-    p_serch = strstr(ptopic_info->payload, PROP_SET_FORMAT_CMDLED);
+    char* p_serch = NULL;
+    char* str = 0;
+    p_serch = strstr(ptopic_info->payload, PROP_SET_FORMAT_UDATA);
     if (p_serch != NULL) {
-      led_cmd = *(p_serch + strlen(PROP_SET_FORMAT_CMDLED));
+        str = (p_serch + strlen(PROP_SET_FORMAT_UDATA));
+        printf("str==%s\n",str);
     } else {
       LOG("----");
       LOG("Topic: '%.*s' (Length: %d)", ptopic_info->topic_len,
@@ -116,11 +128,79 @@ static void handle_prop_set(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
                   ptopic_info->payload, ptopic_info->payload_len);
        LOG("----");
     }
-    if (led_cmd == '1' || led_cmd == '0')
-      gpio_level = led_cmd - '0';
-    board_drv_led_ctrl(gpio_level);
-#endif
+    if (0 == strncmp(str, MQTT_DTC_ACC_ON, strlen(MQTT_DTC_ACC_ON))){
+        type = UDATA_SERVICE_ACC;
+        g_service_flag[type] = true;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_ACC_OFF, strlen(MQTT_DTC_ACC_OFF))){
+        type = UDATA_SERVICE_ACC;
+        g_service_flag[type] = false;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_MAG_ON, strlen(MQTT_DTC_MAG_ON))){
+        type = UDATA_SERVICE_MAG;
+        g_service_flag[type] = true;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_MAG_OFF, strlen(MQTT_DTC_MAG_OFF))){
+        type = UDATA_SERVICE_MAG;
+        g_service_flag[type] = false;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_GYRO_ON, strlen(MQTT_DTC_GYRO_ON))){
+        type = UDATA_SERVICE_GYRO;
+        g_service_flag[type] = true;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_GYRO_OFF, strlen(MQTT_DTC_GYRO_OFF))){
+        type = UDATA_SERVICE_GYRO;
+        g_service_flag[type] = false;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_TEMP_ON, strlen(MQTT_DTC_TEMP_ON))){
+        type = UDATA_SERVICE_TEMP;
+        g_service_flag[type] = true;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_TEMP_OFF, strlen(MQTT_DTC_TEMP_OFF))){
+        type = UDATA_SERVICE_TEMP;
+        g_service_flag[type] = false;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_HUMI_ON, strlen(MQTT_DTC_HUMI_ON))){
+        type = UDATA_SERVICE_HUMI;
+        g_service_flag[type] = true;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_HUMI_OFF, strlen(MQTT_DTC_HUMI_OFF))){
+        type = UDATA_SERVICE_HUMI;
+        g_service_flag[type] = false;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_ALS_ON, strlen(MQTT_DTC_ALS_ON))){
+        type = UDATA_SERVICE_ALS;
+        g_service_flag[type] = true;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_ALS_OFF, strlen(MQTT_DTC_ALS_OFF))){
+        type = UDATA_SERVICE_ALS;
+        g_service_flag[type] = false;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_PS_ON, strlen(MQTT_DTC_PS_ON))){
+        type = UDATA_SERVICE_PS;
+        g_service_flag[type] = true;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_PS_OFF, strlen(MQTT_DTC_PS_OFF))){
+        type = UDATA_SERVICE_PS;
+        g_service_flag[type] = false;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_BARO_ON, strlen(MQTT_DTC_BARO_ON))){
+        type = UDATA_SERVICE_BARO;
+        g_service_flag[type] = true;
+    }
+    else if (0 == strncmp(str, MQTT_DTC_BARO_OFF, strlen(MQTT_DTC_BARO_OFF))){
+        type = UDATA_SERVICE_BARO;
+        g_service_flag[type] = false;
+    }
 
+    else{
+        return;
+    }
+    
+    ret = service_dtc_publish_set(type, g_service_flag[type]);
+    if(unlikely(ret)){
+        return;
+    }
 }
 
 
@@ -354,7 +434,12 @@ int linkkit_main(void *paras)
 
 int mqtt_sample_start(void)
 {
+    int i;
 
+    for(i = 0 ; i < UDATA_MAX_CNT; i++){
+        g_service_type[i] = UDATA_MAX_CNT;
+        g_service_flag[i] = false;
+    }
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
@@ -369,12 +454,6 @@ int mqtt_sample_start(void)
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     
     netmgr_init();
-#if 0
-    memset(&apconfig, 0, sizeof(apconfig));
-    strcpy(apconfig.ssid, "LinkDevelop-Workshop");
-    strcpy(apconfig.pwd, "linkdevelop");
-    netmgr_set_ap_config(&apconfig);
-#endif
     netmgr_start(false);
 
     return 0;
