@@ -11,7 +11,7 @@ HOST_ARCH       := Cortex-M3
 HOST_MCU_FAMILY := efm32gxx
 SUPPORT_MBINS   := no
 
-$(NAME)_COMPONENTS += network.lorawan_4_4_2.lorachip
+$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_2.lorachip
 LORACHIP           := sx1276
 
 GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0 RHINO_CONFIG_NORMAL_PRT=0
