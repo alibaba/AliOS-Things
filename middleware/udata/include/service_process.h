@@ -5,8 +5,8 @@
 #ifndef SERVICE_PROCESS_H
 #define SERVICE_PROCESS_H
 
-extern int service_example_init(void);
-extern int service_process_init(void);
+int service_example_init(void);
+int service_process_init(void);
 
 #endif /* SERVICE_PROCESS_H */
 

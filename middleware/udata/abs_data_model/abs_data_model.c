@@ -3,8 +3,6 @@
  *
  *
  * abstract(abs) data model
- *
- *
  */
 
 #include <stdio.h>
@@ -15,8 +13,8 @@
 #include "sensor.h"
 #include "abs_data_model.h"
 #include "service_mgr.h"
-#include "uData_queue.h"
-#include "uData_parse.h"
+#include "udata_queue.h"
+#include "udata_parse.h"
 
 #define ABS_QUEUE_MAXSLOTS      8
 #define ABS_TASK_STACK_SIZE     1024
@@ -50,7 +48,7 @@ static abs_data_list_t g_abs_data_table;
 
 static aos_task_t data_poll_task;
 
-static dev_sensor_full_info_t  g_sensor_full_info[SENSOR_MAX_NUM];
+static dev_sensor_config_t  g_sensor_config[SENSOR_MAX_NUM];
 /* NOTE: please follow the sensor order of the "sensor_tag_e"
          which is defined the the sensor.h file */
 abs_sensor_node_t g_sensor_node[SENSOR_MAX_NUM] = {0};
@@ -73,7 +71,6 @@ sensor_node_t  g_sensor_tag_node[] = {
     { TAG_DEV_RTC, dev_rtc_path, 0},
 };
 
-extern int cali_example_example_init(void);
 
 int abs_post_msg(sensor_msg_pkg_t msg)
 {
@@ -85,28 +82,28 @@ int abs_post_msg(sensor_msg_pkg_t msg)
     return 0;
 }
 
-static int abs_data_compute_time_interval(uint32_t a, uint32_t b, uint32_t* result)
+static int abs_data_compute_timer_interval(uint32_t time1, uint32_t time2, uint32_t* result)
 {
-    if((a == 0) || (b == 0)){
+    if((time1 == 0) || (time2 == 0)){
         return -1;
     }
     if(result == NULL){
         return -1;
     }
 
-    while(a != b){
-        if(a > b){
-            a = a - b;
+    while(time1 != time2){
+        if(time1 > time2){
+            time1 = time1 - time2;
         }
         else{
-            b = b - a;
+            time2 = time2 - time1;
         }
     }
 
-    *result = a;
+    *result = time1;
     return 0;
 }
-static int abs_data_set_time_interval(uint32_t abs_index, uint32_t inerval)
+static int abs_data_set_timer_interval(uint32_t abs_index, uint32_t inerval)
 {
 
     if(abs_index >= abs_data_max_num){
@@ -135,20 +132,16 @@ static void abs_data_set_timer_status(bool status)
 {
     is_timer_work = status;
 }
-int abs_data_get_sensor_tag(uint32_t abs_index, sensor_tag_e* ptag)
+int abs_data_get_sensor_info(uint32_t abs_index, sensor_tag_e* ptag, uint8_t* pinstance)
 {
     if(abs_index >= abs_data_max_num){
+        return -1;
+    }
+
+    if((ptag == NULL) || (pinstance == NULL)){
         return -1;
     }
     *ptag = g_abs_data_table.list[abs_index].tag;
-    return 0;
-}
-
-int abs_data_get_sensor_instance(uint32_t abs_index, uint8_t* pinstance)
-{
-    if(abs_index >= abs_data_max_num){
-        return -1;
-    }
     *pinstance = g_abs_data_table.list[abs_index].instance;
     return 0;
 }
@@ -157,6 +150,9 @@ int abs_data_get_abs_index(sensor_tag_e tag, uint8_t instance, uint32_t* pindex)
 {
     uint32_t i;
     if(tag >= TAG_DEV_SENSOR_NUM_MAX){
+        return -1;
+    }
+    if(pindex == NULL){
         return -1;
     }
     for(i = 0; i < abs_data_max_num; i++){
@@ -188,8 +184,7 @@ static int abs_data_create_obj_ctx(int index, int arg, void *pdata)
     }
     memset(g_abs_data_db[index], 0, (sizeof(abs_data_pkg_t)));
     
-    ret |= abs_data_get_sensor_tag(index, &tag);
-    ret |= abs_data_get_sensor_instance(index, &instance);
+    ret = abs_data_get_sensor_info(index, &tag, &instance);
     if(unlikely(ret)){
         goto error;
     }
@@ -219,16 +214,16 @@ error:
 void abs_sensor_read(uint32_t       abs_index)
 {
     int      ret;
-    void *   addr = NULL;
+    void*    data = NULL;
     uint32_t len  = 0;
 
-    ret = uData_service_get_payload(abs_index, &addr, &len);
+    ret = uData_service_get_payload(abs_index, &data, &len);
     if (unlikely(ret)) {
         return;
     }
 
     //memset(addr, 0, len);
-    ret = abs_data_read(abs_index, addr, len);
+    ret = abs_data_read(abs_index, data, len);
     if (ret <= 0) {
         return;
     }
@@ -244,7 +239,9 @@ static void abs_data_post_timer_expried_dev(uint64_t timestamp)
         if ((g_abs_data_db[i] == NULL) || (g_abs_data_db[i]->poweron != true)){
             continue;
         }
-    
+        if ((g_abs_data_table.list[i].io_port == MODBUS_PORT) || (g_abs_data_table.list[i].io_port == CAN_PORT)){
+            continue;
+        }
         mode = abs_sensor_mode_get(i);
         if (DEV_POLLING != mode) {
             continue;
@@ -254,7 +251,7 @@ static void abs_data_post_timer_expried_dev(uint64_t timestamp)
             (g_abs_data_db[i]->interval)) {
             memset(&data_msg, 0, sizeof(data_msg));
             data_msg.cmd   = UDATA_MSG_DEV_READ;
-            data_msg.value = i;
+            data_msg.index = i;
             ret            = abs_post_msg(data_msg);
             if (unlikely(ret)) {
                 return;
@@ -347,7 +344,7 @@ static int abs_data_timer_update(uint32_t abs_index, int interval)
     }
     
     /* no need change the interval in this case here */
-    ret = abs_data_compute_time_interval(cur_interval,interval,&value);
+    ret = abs_data_compute_timer_interval(cur_interval,interval,&value);
     if (unlikely(ret)) {
         return -1;
     }
@@ -395,6 +392,9 @@ static void abs_data_polling(void *p)
             if ((g_abs_data_db[i] == NULL) || (g_abs_data_db[i]->poweron != true)){
                 continue;
             }
+            if ((g_abs_data_table.list[i].io_port != MODBUS_PORT) && (g_abs_data_table.list[i].io_port != CAN_PORT)){
+                continue;
+            }
             if ((timestamp - g_abs_data_db[i]->cur_timestamp) >=
                 g_abs_data_db[i]->interval) {
                 if ((aos_now_ms() - pre_timestamp) < 150)
@@ -421,7 +421,7 @@ void *abs_sensor_buff_addr_get(uint32_t abs_index)
         return NULL;
     }
 
-    return g_sensor_full_info[abs_index].config.data_buf;
+    return g_sensor_config[abs_index].data_buf;
 }
 
 uint32_t abs_sensor_buff_len_get(uint32_t abs_index)
@@ -430,7 +430,7 @@ uint32_t abs_sensor_buff_len_get(uint32_t abs_index)
         return 0;
     }
 
-    return g_sensor_full_info[abs_index].config.data_len;
+    return g_sensor_config[abs_index].data_len;
 }
 
 work_mode_e abs_sensor_mode_get(uint32_t abs_index)
@@ -439,7 +439,7 @@ work_mode_e abs_sensor_mode_get(uint32_t abs_index)
         return DEV_MODE_INVALID;
     }
 
-    return g_sensor_full_info[abs_index].config.mode;
+    return g_sensor_config[abs_index].mode;
 }
 
 void abs_sensor_irq_callback(sensor_tag_e tag, uint8_t instance)
@@ -455,7 +455,7 @@ void abs_sensor_irq_callback(sensor_tag_e tag, uint8_t instance)
     
     memset(&data_msg, 0, sizeof(data_msg));
     data_msg.cmd   = UDATA_MSG_DEV_READ;
-    data_msg.value = abs_index;
+    data_msg.index = abs_index;
     ret            = uData_post_msg(data_msg);
     if (unlikely(ret)) {
         LOG("abs_sensor_irq_callback post msg fail ret = %d index = %d\n", ret,
@@ -489,12 +489,11 @@ int abs_sensor_irq_callback_reg(uint32_t abs_index, SENSOR_IRQ_CALLBACK cb)
     return 0;
 }
 
-static int abs_data_open_exit_obj(uint32_t abs_index, uData_service_t *service)
+static int abs_data_timer_config(uint32_t abs_index, uData_service_t *service)
 {
     int                     ret      = 0;
     uint32_t                interval = 0;
     int                     fd       = 0;
-    dev_sensor_full_info_t* sensor;
 
     if (service == NULL) {
         LOG("service NULL\n");
@@ -505,21 +504,21 @@ static int abs_data_open_exit_obj(uint32_t abs_index, uData_service_t *service)
         return -1;
     }
 
-    if(!ABS_DATA_EXSIST(service->abs_bitmap, abs_index))
+    if(!UDATA_BITMAP_COMPARE(service->abs_bitmap, abs_index))
     {
        return -1;
     }
-
+    fd = g_sensor_node[abs_index].fd;
 
     if ((g_abs_data_db[abs_index]->poweron != true)) {
-        ret = aos_ioctl(g_sensor_node[abs_index].fd, SENSOR_IOCTL_SET_POWER, true);
+        ret = aos_ioctl(fd, SENSOR_IOCTL_SET_POWER, true);
         if (unlikely(ret)) {
             return -1;
         }
         g_abs_data_db[abs_index]->poweron = true;
     }
     
-    ret = abs_data_compute_time_interval((g_abs_data_db[abs_index]->interval),(service->interval[abs_index]),&interval);
+    ret = abs_data_compute_timer_interval((g_abs_data_db[abs_index]->interval),(service->interval[abs_index]),&interval);
     if(unlikely(ret)){
         return -1;
     }
@@ -528,28 +527,27 @@ static int abs_data_open_exit_obj(uint32_t abs_index, uData_service_t *service)
         return 0;
     }
             
-    if ((service->config.id & SENSOR_IOCTL_ODR_SET) != 0) {
+    if (service->config.id == SENSOR_IOCTL_ODR_SET) {
         ret = aos_ioctl(fd, service->config.id, interval);
         if (unlikely(ret)) {
-            return -1;
+            LOG("aos_ioctl cmd %d\n",SENSOR_IOCTL_ODR_SET);
         }
     }
     
-    if ((service->config.id & SENSOR_IOCTL_RANGE_SET) != 0) {
+    if (service->config.id == SENSOR_IOCTL_RANGE_SET) {
         ret = aos_ioctl(fd, service->config.id, service->config.range);
         if (unlikely(ret)) {
-            return -1;
+            LOG("aos_ioctl cmd %d\n",SENSOR_IOCTL_RANGE_SET);
         }
     }
     
-    ret = abs_data_set_time_interval(abs_index, interval);
+    ret = abs_data_set_timer_interval(abs_index, interval);
     if (unlikely(ret)) {
         return -1;
     }
     
 #ifndef UDATA_MODBUS
-    sensor                  = &g_sensor_full_info[abs_index];
-    if (sensor->config.mode == DEV_POLLING) {
+    if (g_sensor_config[abs_index].mode == DEV_POLLING) {
         ret      = abs_data_timer_update(abs_index, interval);
         if (unlikely(ret)) {
             return -1;
@@ -561,14 +559,13 @@ static int abs_data_open_exit_obj(uint32_t abs_index, uData_service_t *service)
 }
 
 
-
-static int abs_data_open_creat_obj(uint32_t abs_index, uData_service_t *service)
+static int abs_data_create_obj(uint32_t abs_index, uData_service_t *service)
 {
     int                     ret      = 0;
     uint32_t                interval = 0;
-    int                     fd       = 0;
-    dev_sensor_full_info_t  sensor_cfg;
-    dev_sensor_full_info_t *sensor;
+    int                     fd;
+    dev_sensor_full_info_t  info;
+    dev_sensor_config_t     *sensor;
 
     if (service == NULL) {
         LOG("service NULL\n");
@@ -577,62 +574,62 @@ static int abs_data_open_creat_obj(uint32_t abs_index, uData_service_t *service)
     if(abs_index >= abs_data_max_num){
         return -1;
     }
-    if(!ABS_DATA_EXSIST(service->abs_bitmap, abs_index))
+    if(!UDATA_BITMAP_COMPARE(service->abs_bitmap, abs_index))
     {
         return -1;
     }
-    
+    fd = g_sensor_node[abs_index].fd;
     interval = service->interval[abs_index];
     
-    if ((service->config.id & SENSOR_IOCTL_ODR_SET) != 0) {
-        ret = aos_ioctl(fd, service->config.id, service->config.inerval);
+    if (service->config.id == SENSOR_IOCTL_ODR_SET) {
+        ret = aos_ioctl(fd, service->config.id, interval);
         if (unlikely(ret)) {
-            return -1;
+            LOG("aos_ioctl cmd %d\n",SENSOR_IOCTL_ODR_SET);
         }
     }
 
-    if ((service->config.id & SENSOR_IOCTL_RANGE_SET) != 0) {
+    if (service->config.id == SENSOR_IOCTL_RANGE_SET) {
         ret = aos_ioctl(fd, service->config.id, service->config.range);
         if (unlikely(ret)) {
-            return -1;
+            LOG("aos_ioctl cmd %d\n",SENSOR_IOCTL_RANGE_SET);
         }
     }
 
 #ifndef UDATA_MODBUS
-    memset(&sensor_cfg, 0, sizeof(sensor_cfg));
-    sensor_cfg.config.id = SENSOR_IOCTL_GET_SENSOR_MODE;
+    memset(&info, 0, sizeof(info));
+    info.config.id = SENSOR_IOCTL_GET_SENSOR_MODE;
 
-    ret = abs_data_ioctl(abs_index, &sensor_cfg);
+    ret = abs_data_ioctl(abs_index, &info);
     if (0 != ret) {
         return -1;
     }
 
-    sensor                  = &g_sensor_full_info[abs_index];
-    sensor->config.mode     = sensor_cfg.config.mode;
-    sensor->config.data_len = sensor_cfg.config.data_len;
+    sensor           = &g_sensor_config[abs_index];
+    sensor->mode     = info.config.mode;
+    sensor->data_len = info.config.data_len;
     
-    if(sensor->config.mode >= DEV_MODE_INVALID){
+    if(sensor->mode >= DEV_MODE_INVALID){
         return -1;
     }
     
-    if (sensor->config.mode == DEV_POLLING) {
+    if (sensor->mode == DEV_POLLING) {
         ret      = abs_data_timer_update(abs_index, interval);
         if (unlikely(ret)) {
             return -1;
         }
     }
-    if ((sensor->config.mode == DEV_INT) ||
-               (sensor->config.mode == DEV_DATA_READY) ||
-               (sensor->config.mode == DEV_FIFO)) {
+    if ((sensor->mode == DEV_INT) ||
+               (sensor->mode == DEV_DATA_READY) ||
+               (sensor->mode == DEV_FIFO)) {
 
-        if (sensor->config.mode == DEV_FIFO) {
-            if(sensor->config.data_buf == NULL){
-                if (sensor_cfg.config.data_len == 0) {
+        if (sensor->mode == DEV_FIFO) {
+            if(sensor->data_buf == NULL){
+                if (info.config.data_len == 0) {
                     return -1;
                 }
                 
-                sensor->config.data_buf = aos_malloc(sensor_cfg.config.data_len);
-                if (sensor->config.data_buf == NULL) {
+                sensor->data_buf = aos_malloc(info.config.data_len);
+                if (sensor->data_buf == NULL) {
                     return -1;
                 }
             }
@@ -640,20 +637,20 @@ static int abs_data_open_creat_obj(uint32_t abs_index, uData_service_t *service)
 
         ret = abs_sensor_irq_callback_reg(abs_index, abs_sensor_irq_callback);
         if (unlikely(ret)) {
-            if((sensor->config.mode == DEV_FIFO) && (sensor->config.data_buf != NULL)){
-                aos_free(sensor->config.data_buf);
-                sensor->config.data_buf = NULL;
+            if((sensor->mode == DEV_FIFO) && (sensor->data_buf != NULL)){
+                aos_free(sensor->data_buf);
+                sensor->data_buf = NULL;
             }
-
+            
             return -1;
         }
 
     }     
     ret = abs_data_create_obj_ctx(abs_index, interval,  service);
     if (unlikely(ret)) {
-        if((sensor->config.mode == DEV_FIFO) && (sensor->config.data_buf != NULL)){
-            aos_free(sensor->config.data_buf);
-            sensor->config.data_buf = NULL;
+        if((sensor->mode == DEV_FIFO) && (sensor->data_buf != NULL)){
+            aos_free(sensor->data_buf);
+            sensor->data_buf = NULL;
         }
         LOG("abs_data_create_obj_ctx error\n");
         return -1;
@@ -683,7 +680,7 @@ int abs_data_open(uData_service_t *service)
     /* check the target in the dev tree */
 
     for(index = 0; index < abs_data_max_num; index++){ 
-        if(!ABS_DATA_EXSIST(service->abs_bitmap, index))
+        if(!UDATA_BITMAP_COMPARE(service->abs_bitmap, index))
         {
            continue;
         }
@@ -698,7 +695,7 @@ int abs_data_open(uData_service_t *service)
         }
         
         if(g_abs_data_db[index] != NULL){   
-            ret = abs_data_open_exit_obj(index, service);
+            ret = abs_data_timer_config(index, service);
             if(unlikely(ret)){
                 return -1;
             }
@@ -707,7 +704,7 @@ int abs_data_open(uData_service_t *service)
             }
         }
         
-        ret = abs_data_open_creat_obj(index, service);
+        ret = abs_data_create_obj(index, service);
         if(unlikely(ret)){
             return -1;
         }
@@ -722,6 +719,10 @@ int abs_data_close(uint32_t abs_index)
 {
     int      ret   = 0;
     uint32_t index = 0;
+    
+    if(abs_index >= abs_data_max_num){
+        return -1;
+    }
     if (g_sensor_node[abs_index].fd <= 0) {
         return -1;
     }
@@ -730,7 +731,7 @@ int abs_data_close(uint32_t abs_index)
     if (ret < 0) {
         return -1;
     }
-
+    g_sensor_node[abs_index].fd = 0;
     g_abs_data_db[abs_index]->poweron = false;
     for (index = 0; index < abs_data_cnt; index++) {
         if (g_abs_data_db[index]->poweron == true) {
@@ -744,6 +745,15 @@ int abs_data_close(uint32_t abs_index)
 int abs_data_read_ext(uint32_t abs_index, void *pdata)
 {
     ssize_t size = 0;
+        
+    if(abs_index >= abs_data_max_num){
+        return -1;
+    }
+
+    if(pdata == NULL){
+        return -1;
+    }
+    
     size         = aos_read(g_sensor_node[abs_index].fd, pdata, DATA_SIZE);
     if (size <= 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
@@ -759,6 +769,14 @@ int abs_data_read(uint32_t abs_index, void *pdata, uint32_t nbyte)
     size_t size  = 0;
     sensor_msg_pkg_t data_msg;
     
+    if(abs_index >= abs_data_max_num){
+        return -1;
+    }
+
+    if(pdata == NULL){
+        return -1;
+    }
+    
     /* read the physical sensor data by posix way */
     size = aos_read(g_sensor_node[abs_index].fd, pdata, nbyte);
     if (size <= 0) {
@@ -772,15 +790,12 @@ int abs_data_read(uint32_t abs_index, void *pdata, uint32_t nbyte)
         (g_abs_data_db[abs_index]->calibrated_algo_process_cb != NULL)) {
         g_abs_data_db[abs_index]->calibrated_algo_process_cb(pdata, size);
     }
-    //printf("%s  == %d  %d\n",__func__,__LINE__,nbyte);
     data_msg.cmd   = UDATA_MSG_SERVICE_PROCESS;
-    data_msg.value = abs_index;
+    data_msg.index = abs_index;
     ret            = uData_post_msg(data_msg);
     if (unlikely(ret)) {
-        //printf("%s  == %d\n",__func__,__LINE__);
         return -1;
     }
-    //printf("%s  == %d\n",__func__,__LINE__);
 
     return (int)size;
 }
@@ -790,6 +805,14 @@ int abs_data_ioctl(uint32_t abs_index, void *config)
     int                     ret           = 0;
     unsigned long           arg           = 0;
     dev_sensor_full_info_t *sensor_config = config;
+
+    if(abs_index >= abs_data_max_num){
+        return -1;
+    }
+
+    if(sensor_config == NULL){
+        return -1;
+    }
 
     if (sensor_config->config.id == SENSOR_IOCTL_ODR_SET) {
         arg = sensor_config->config.inerval;
@@ -867,21 +890,21 @@ static void abs_msg_dispatcher(void *arg)
 {
 
     int  ret = 0;
-    char rec_cached[256];
+    char data[256];
     uint32_t          size = 0;
     sensor_msg_pkg_t *msg  = NULL;
     
     while (DO_FOREVER) {
         size = 0;
-        ret = aos_queue_recv(&g_abs_queue, AOS_WAIT_FOREVER, (void *)rec_cached, (unsigned int *)(&size));
+        ret = aos_queue_recv(&g_abs_queue, AOS_WAIT_FOREVER, (void *)data, (unsigned int *)(&size));
         if ((ret != 0) || (size == 0)){
             continue;
         }
 
-        msg = (sensor_msg_pkg_t *)rec_cached;
+        msg = (sensor_msg_pkg_t *)data;
         switch(msg->cmd){
             case UDATA_MSG_DEV_READ:
-                abs_sensor_read(msg->value);
+                abs_sensor_read(msg->index);
                 break;
             
             default:
@@ -938,7 +961,7 @@ int abs_data_model_init(void)
     
     memset(g_abs_data_db, 0, SENSOR_MAX_NUM * sizeof(abs_data_pkg_t*));
     memset(g_sensor_node, 0, SENSOR_MAX_NUM * sizeof(sensor_node_t));
-    memset(g_sensor_full_info, 0, SENSOR_MAX_NUM * sizeof(dev_sensor_full_info_t));
+    memset(g_sensor_config, 0, SENSOR_MAX_NUM * sizeof(dev_sensor_config_t));
     memset(&g_abs_data_table, 0, sizeof(g_abs_data_table));
     cur_interval = DEFAULT_TIMER_INTERVAL;
 
@@ -952,7 +975,7 @@ int abs_data_model_init(void)
     }
 
     for (i = 0; i < abs_data_max_num; i++) {
-        g_sensor_full_info[i].config.mode = DEV_MODE_INVALID;
+        g_sensor_config[i].mode = DEV_MODE_INVALID;
     }
     ret = abs_data_node_init();
     if (unlikely(ret)) {
