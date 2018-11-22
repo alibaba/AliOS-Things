@@ -13,10 +13,6 @@
 #include "cJSON.h"
 #include "app_entry.h"
 
-#if defined(OTA_ENABLED)
-#include "ota_service.h"
-#endif
-
 // for demo only
 #define PRODUCT_KEY      "a1ikrQdGiG8"
 #define PRODUCT_SECRET   "UgqWfzL5B2zNvglF"
@@ -202,9 +198,6 @@ static int on_connect(void)
     app_ctx->connected = 1;
     APP_TRACE("device is connected\n");
 
-#if defined(OTA_ENABLED)
-    ota_service_init(NULL);
-#endif
     /*
      * implement user process routine here
      */
