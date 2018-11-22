@@ -143,9 +143,9 @@ int cut_main(int argc, char **argv)
         TRY {
             if (cut.ccur->setup)
             {
-                cut.ccur->setup(cut.ccur->data);
+                cut.ccur->setup(cut.ccur->data, cut.ccur);
             }
-            cut.ccur->run((struct cut_case *)(cut.ccur->data));
+            cut.ccur->run(cut.ccur->data, (struct cut_case *)cut.ccur);
             if (cut.ccur->teardown)
             {
                 cut.ccur->teardown(cut.ccur->data);
