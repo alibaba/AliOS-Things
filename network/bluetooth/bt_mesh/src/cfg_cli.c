@@ -17,7 +17,7 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
 #include <api/mesh.h>
-#include "cfg_cli.h"
+#include "api/mesh/cfg_cli.h"
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_MODEL)
 #include "common/log.h"
