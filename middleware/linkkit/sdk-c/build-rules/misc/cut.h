@@ -29,8 +29,8 @@ struct cut_case {
     const char *sname;
     const char *cname;
     void *data;
-    void (*run)(void *);
-    void (*setup)(void *);
+    void (*run)(void *, void *);
+    void (*setup)(void *, void *);
     void (*teardown)(void *);
     int skip;
 };
@@ -57,7 +57,7 @@ struct cut_runtime {
     struct CUT_CASE_DATA(sname)
 
 #define SETUP(sname) \
-    static void CUT_CASE_SETUP(sname)(struct CUT_CASE_DATA(sname) *data)
+    static void CUT_CASE_SETUP(sname)(struct CUT_CASE_DATA(sname) *data, struct cut_case *case_data)
 
 #define TEARDOWN(sname) \
     static void CUT_CASE_TEARDOWN(sname)(struct CUT_CASE_DATA(sname) *data)
@@ -74,11 +74,11 @@ struct cut_runtime {
     }
  */
 #define CASE(sname, cname) \
-    static void CUT_CASE_RUNNER(sname, cname)(void *null); \
+    static void CUT_CASE_RUNNER(sname, cname)(void *null, struct cut_case *case_data); \
     static struct cut_case CUT_CASE_NAME(sname, cname) = \
             { \
-              #sname, #cname, NULL, CUT_CASE_RUNNER(sname, cname), NULL, NULL, 0}; \
-    static void CUT_CASE_RUNNER(sname, cname)(void *null)
+              #sname, #cname, NULL, (void(*)(void*,void*))CUT_CASE_RUNNER(sname, cname), NULL, NULL, 0}; \
+    static void CUT_CASE_RUNNER(sname, cname)(void *null, struct cut_case *case_data)
 
 /*
  * @brief: construct a test case structor and a test case runner
@@ -111,13 +111,13 @@ struct cut_runtime {
  */
 #define CASEs(sname, cname)                                                        \
     static struct CUT_CASE_DATA(sname) CUT_CASE_DATA(sname);                       \
-    static void CUT_CASE_RUNNER(sname, cname)(struct CUT_CASE_DATA(sname) * data); \
+    static void CUT_CASE_RUNNER(sname, cname)(struct CUT_CASE_DATA(sname) * data,struct cut_case *case_data); \
     static struct cut_case CUT_CASE_NAME(sname, cname) = \
             { \
-              #sname, #cname, &CUT_CASE_DATA(sname), (void(*)(void*))CUT_CASE_RUNNER(sname, cname),      \
-              (void(*)(void*))CUT_CASE_SETUP(sname), (void(*)(void*))CUT_CASE_TEARDOWN(sname), 0}; \
+              #sname, #cname, &CUT_CASE_DATA(sname), (void(*)(void*,void*))CUT_CASE_RUNNER(sname, cname),      \
+              (void(*)(void*,void*))CUT_CASE_SETUP(sname), (void(*)(void*))CUT_CASE_TEARDOWN(sname), 0}; \
     \
-    static void CUT_CASE_RUNNER(sname, cname)(struct CUT_CASE_DATA(sname) * data)
+    static void CUT_CASE_RUNNER(sname, cname)(struct CUT_CASE_DATA(sname) * data, struct cut_case *case_data)
 
 /*
  * @brief: construct a test suite by adding test case(s)

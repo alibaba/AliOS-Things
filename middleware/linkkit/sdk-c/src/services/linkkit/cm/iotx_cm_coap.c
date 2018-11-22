@@ -11,34 +11,34 @@
 #ifdef COAP_DTLS_SUPPORT  //DTLS
     #ifdef ON_DAILY
         #define IOTX_COAP_SERVER_URI      "coaps://11.239.164.238:5684"
-    #else 
+    #else
         #ifdef ON_PRE
-        #define IOTX_COAP_SERVER_URI      "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
- 
+            #define IOTX_COAP_SERVER_URI      "coaps://pre.coap.cn-shanghai.link.aliyuncs.com:5684"
+
         #else //online
-        #define IOTX_COAP_SERVER_URI      "coaps://%s.coap.cn-shanghai.link.aliyuncs.com:5684"
+            #define IOTX_COAP_SERVER_URI      "coaps://%s.coap.cn-shanghai.link.aliyuncs.com:5684"
         #endif
     #endif
 
-#else 
+#else
     #ifdef COAP_PSK_SUPPORT  //PSK
         #ifdef ON_DAILY
             #define IOTX_COAP_SERVER_URI      "coap-psk://10.101.83.159:5682"
-        #else 
+        #else
             #ifdef ON_PRE
-            #define IOTX_COAP_SERVER_URI      "coap-psk://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
+                #define IOTX_COAP_SERVER_URI      "coap-psk://pre.coap.cn-shanghai.link.aliyuncs.com:5682"
             #else //online
-            #define IOTX_COAP_SERVER_URI      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
+                #define IOTX_COAP_SERVER_URI      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
             #endif
         #endif
     #else                 //UDP
-        #ifdef ON_DAILY     
-            #define IOTX_COAP_SERVER_URI      "" 
-        #else 
+        #ifdef ON_DAILY
+            #define IOTX_COAP_SERVER_URI      ""
+        #else
             #ifdef ON_PRE
-            #define IOTX_COAP_SERVER_URI      "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
+                #define IOTX_COAP_SERVER_URI      "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
             #else //online
-            #define IOTX_COAP_SERVER_URI      "coap://%s.coap.cn-shanghai.link.aliyuncs.com:5683"
+                #define IOTX_COAP_SERVER_URI      "coap://%s.coap.cn-shanghai.link.aliyuncs.com:5683"
             #endif
         #endif
 
@@ -160,27 +160,27 @@ static int  _coap_connect(uint32_t timeout)
     iotx_time_t timer;
     iotx_coap_config_t *config = NULL;
     iotx_coap_context_t *p_ctx = NULL;
-     char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
 
     POINTER_SANITY_CHECK(_coap_conncection, NULL_VALUE_ERROR);
     HAL_GetProductKey(product_key);
     config = _coap_conncection->open_params;
     POINTER_SANITY_CHECK(config, NULL_VALUE_ERROR);
-    
+
     HAL_Snprintf(url, 100, IOTX_COAP_SERVER_URI, product_key);
     config->p_url = url;
-    
+
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, timeout);
     do {
-        if(p_ctx == NULL) {
+        if (p_ctx == NULL) {
             p_ctx = IOT_CoAP_Init(config);
             if (NULL == p_ctx) {
                 continue;
             }
         }
         ret = IOT_CoAP_DeviceNameAuth(p_ctx);
-        if(ret == 0) {
+        if (ret == 0) {
             _coap_conncection->context = p_ctx;
             iotx_cm_event_msg_t event;
             event.type = IOTX_CM_EVENT_CLOUD_CONNECTED;
@@ -213,13 +213,13 @@ static void _coap_response_default(void *p_arg, void *p_message)
     unsigned int token;
     iotx_coap_resp_code_t resp_code;
 
-    if(_coap_conncection == NULL || p_message == NULL) {
-        CM_ERR("paras err"); 
+    if (_coap_conncection == NULL || p_message == NULL) {
+        CM_ERR("paras err");
         return;
     }
-   
+
     ret = IOT_CoAP_GetMessageCode(p_message, &resp_code);
-    if(ret < 0) {
+    if (ret < 0) {
         CM_ERR("get msg code err");
         return;
     }
@@ -227,13 +227,13 @@ static void _coap_response_default(void *p_arg, void *p_message)
     CM_INFO("resp_code = %d", resp_code);
 
     ret = IOT_CoAP_GetMessagePayload(p_message, &p_payload, &len);
-    if(ret< 0) {
+    if (ret < 0) {
         CM_ERR("get msg payload err");
         return;
     }
 
     ret = IOT_CoAP_GetMessageToken(p_message, &token);
-    if(ret< 0) {
+    if (ret < 0) {
         CM_ERR("get msg token err");
         return;
     }
@@ -243,22 +243,22 @@ static void _coap_response_default(void *p_arg, void *p_message)
 
     HAL_MutexLock(_coap_conncection->list_lock);
     list_for_each_entry_safe(node, next, &g_coap_response_list, linked_list, coap_response_node_t) {
-        if(node->token_num == token) {
+        if (node->token_num == token) {
             iotx_cm_data_handle_cb recieve_cb = node->responce_cb;
-            void * context = node->context;
+            void *context = node->context;
             unsigned int topic_len = strlen(node->topic) + 1;
             char *topic = cm_malloc(topic_len);
-                if (topic == NULL) {
-                    CM_ERR("topic malloc failed");
-                    continue;
-                }
+            if (topic == NULL) {
+                CM_ERR("topic malloc failed");
+                continue;
+            }
             memset(topic, 0, topic_len);
             strncpy(topic, node->topic, topic_len);
             list_del(&node->linked_list);
             cm_free(node->topic);
             cm_free(node);
             HAL_MutexUnlock(_coap_conncection->list_lock); //do not lock while callback
-        
+
             recieve_cb(_coap_conncection->fd, topic, (const char *)p_payload, len, context);
             //recieve_cb(_coap_conncection->fd, &msg, context);
             cm_free(topic);
@@ -285,10 +285,10 @@ static int _coap_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
 
     message.p_payload = (unsigned char *)payload;
     message.payload_len = payload_len;
-    message.resp_callback = _coap_response_default;  
-    message.msg_type = qos;  
+    message.resp_callback = _coap_response_default;
+    message.msg_type = qos;
     message.content_type = IOTX_CONTENT_TYPE_JSON;
-     
+
     token = IOT_CoAP_GetCurToken((iotx_coap_context_t *)_coap_conncection->context);
     ret = IOT_CoAP_SendMessage((iotx_coap_context_t *)_coap_conncection->context, (char *)topic, &message);
 
@@ -296,13 +296,13 @@ static int _coap_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
         return -1;
     }
 
-    if(ext != NULL &&  ext->ack_cb != NULL ) {
+    if (ext != NULL &&  ext->ack_cb != NULL) {
         coap_response_node_t *node;
         node = (coap_response_node_t *)cm_malloc(sizeof(coap_response_node_t));
         if (node == NULL) {
             return -1;
         }
-        memset(node , 0 ,sizeof(coap_response_node_t));
+        memset(node, 0, sizeof(coap_response_node_t));
         topic_len = strlen(topic) + 1;
         node->topic = (char *)cm_malloc(topic_len);
         if (node->topic == NULL) {
@@ -317,7 +317,7 @@ static int _coap_publish(iotx_cm_ext_params_t *ext, const char *topic, const cha
         node->responce_cb = ext->ack_cb;
         node->context = ext->cb_context;
         node->token_num = token;
-       
+
         HAL_MutexLock(_coap_conncection->list_lock);
         list_add_tail(&node->linked_list, &g_coap_response_list);
         HAL_MutexUnlock(_coap_conncection->list_lock);
@@ -362,7 +362,7 @@ static int _coap_close()
     cm_free(coap_config->p_devinfo);
     cm_free(coap_config);
     IOT_CoAP_Deinit(&_coap_conncection->context);
-    
+
     cm_free(_coap_conncection);
     _coap_conncection = NULL;
     return 0;
