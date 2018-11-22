@@ -69,12 +69,18 @@ $(call Append_Conditional, TARGET, linkkit-example-cota, \
     DEPRECATED_LINKKIT \
 )
 
+ifneq (,$(filter -DDEPRECATED_LINKKIT,$(CFLAGS)))
 $(call Append_Conditional, TARGET, linkkit-example-solo,        DEVICE_MODEL_ENABLED, DEVICE_MODEL_GATEWAY)
+$(call Append_Conditional, TARGET, linkkit-example-gw,          DEVICE_MODEL_ENABLED  DEVICE_MODEL_GATEWAY)
+else
+$(call Append_Conditional, TARGET, linkkit-example-solo,        DEVICE_MODEL_ENABLED)
+$(call Append_Conditional, TARGET, linkkit-example-gw,          DEVICE_MODEL_ENABLED  DEVICE_MODEL_GATEWAY)
+endif
+
 $(call Append_Conditional, TARGET, linkkit-example-countdown,   DEVICE_MODEL_ENABLED, DEVICE_MODEL_GATEWAY)
 ifneq (Darwin,$(shell uname))
 $(call Append_Conditional, TARGET, linkkit-example-sched,       DEVICE_MODEL_ENABLED, DEVICE_MODEL_GATEWAY)
 endif
-$(call Append_Conditional, TARGET, linkkit-example-gw,          DEVICE_MODEL_ENABLED  DEVICE_MODEL_GATEWAY)
 
 # Clear All Above when Build for Windows
 #
