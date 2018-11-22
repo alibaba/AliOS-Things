@@ -237,6 +237,7 @@ void cli_service_init(kinit_t *kinit)
 void aos_show_welcome(void)
 {
     puts("             Welcome to AliOS Things           ");
+#ifdef CONFIG_AOS_INIT_WELCOME
     puts("       █████╗ ██╗     ██╗ ██████╗ ███████╗     ");
     puts("      ██╔══██╗██║     ██║██╔═══██╗██╔════╝     ");
     puts("      ███████║██║     ██║██║   ██║███████╗     ");
@@ -249,6 +250,7 @@ void aos_show_welcome(void)
     puts("   ██║   ██╔══██║██║██║╚██╗██║██║   ██║╚════██║");
     puts("   ██║   ██║  ██║██║██║ ╚████║╚██████╔╝███████║");
     puts("   ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝");
+#endif
 }
 
 int aos_kernel_init(kinit_t *kinit)
