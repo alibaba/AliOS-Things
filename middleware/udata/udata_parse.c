@@ -2,9 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  *
  *
- * udata para parse
- *
- *
+ * uData para parse
  */
 
 #include <stdio.h>
@@ -15,15 +13,14 @@
 #include <sensor.h>
 #include "abs_data_model.h"
 #include "service_mgr.h"
-#include "uData_queue.h"
-#include "uData_parse.h"
+#include "udata_queue.h"
+#include "udata_parse.h"
 #include "service_data_to_cloud.h"
 
 uint32_t  g_uDataServiceNum = 0;
+uint32_t  g_uDataDtcNum = 0;
 
-//#define UDATA_CJSON_SUPPORTED
-
-//#ifdef UDATA_CJSON_SUPPORTED
+#ifdef UDATA_CJSON_SUPPORTED
 #include "cJSON.h"
 #include "config/udata_config.data"
 
@@ -32,6 +29,22 @@ uint32_t  g_uDataServiceNum = 0;
 
 #define  UDATA_DTC_FLAG_ON                  "on"
 #define  UDATA_DTC_FLAG_OFF                 "off"
+
+#define  UDATA_SERVICE_CONFIG_NAME          "uData_cfg_desc"
+#define  UDATA_SERVICE_TYPE_NAME            "type"
+#define  UDATA_SERVICE_TASKFLAG_NAME        "task"
+#define  UDATA_SERVICE_DEVICES_NAME         "devices"
+#define  UDATA_SERVICE_TAG_NAME             "tag"
+#define  UDATA_SERVICE_INDEX_NAME           "index"
+#define  UDATA_SERVICE_INTERVAL_NAME        "interval"
+
+
+#define  UDATA_DTC_FLAG_NAME                "dtcFlag"
+#define  UDATA_DTC_OUTDATA_NAME             "outData"
+#define  UDATA_DTC_PROPERTY_NAME            "name"
+#define  UDATA_DTC_DATATYPE_NAME            "dataType"
+#define  UDATA_DTC_COEFF_NAME               "coeff"
+#define  UDATA_DTC_INTERVAL_NAME            "dtcInterval"
 
 typedef struct {
     udata_type_e type;
@@ -131,18 +144,27 @@ DATA_ASSEMBLE(UDATA_FLOAT),
 };
 
 cJSON* g_uDataItem = NULL;
-//const char* service_config_str = "{\"uData_cfg_desc\":[{\"name\":\"pedometer\",\"type\":\"UDATA_SERVICE_PEDOMETER\",\"task\":\"shared\",\"devices\":[{\"tag\":\"TAG_DEV_ACC\",\"index\":0,\"interval\":2000},{\"tag\":\"TAG_DEV_GYRO\",\"index\":0,\"interval\":2000}],\"outData\":[{\"name\":\"x\"},{\"name\":\"y\"},{\"name\":\"z\"}],\"dataType\":\"UDATA_FLOAT\",\"coeff\":1,\"dtcFlag\":\"on\",\"dtcInterval\":2000},{\"name\":\"temp\",\"type\":\"UDATA_SERVICE_TEMP\",\"task\":\"shared\",\"devices\":[{\"tag\":\"TAG_DEV_TEMP\",\"index\":0,\"interval\":2000}],\"outData\":[{\"name\":\"null\"}],\"dataType\":\"UDATA_FLOAT\",\"coeff\":10,\"dtcFlag\":\"on\",\"dtcInterval\":2000}]}";
+void uData_cjson_init(void)
+{
+    cJSON_Hooks cjson_hooks;
+    cjson_hooks.malloc_fn = aos_malloc;
+    cjson_hooks.free_fn = aos_free;
+    cJSON_InitHooks(&cjson_hooks);
+}
 
-int uData_config_num_get(uint32_t* pNum)
+int uData_service_num_get(uint32_t* pNum)
 {
     int ret;
     cJSON *root = NULL;
+    if(pNum == NULL){
+        return -1;
+    }
     
     root = cJSON_Parse(service_config_str);
     if (root == NULL || !cJSON_IsObject(root)) {
         return -1;
     }
-    g_uDataItem = cJSON_GetObjectItem(root,"uData_cfg_desc");
+    g_uDataItem = cJSON_GetObjectItem(root,UDATA_SERVICE_CONFIG_NAME);
     if (g_uDataItem == NULL) {
         return -1;
     }
@@ -156,7 +178,6 @@ int uData_config_num_get(uint32_t* pNum)
     return 0;
 }
 
-
 int uData_service_config_parse(uint32_t index, uData_service_t* svc)
 {
     int ret;
@@ -167,6 +188,7 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
     cJSON *item = NULL;
     cJSON *root = NULL;
     uint32_t idx = 0;
+    sensor_tag_e tag;
 
     if(svc == NULL){
         return -1;
@@ -181,7 +203,7 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
         return -1;
     }
 
-    temp=cJSON_GetObjectItem(root,"type");
+    temp=cJSON_GetObjectItem(root,UDATA_SERVICE_TYPE_NAME);
     if (temp == NULL) {
         return -1;
     }
@@ -201,7 +223,7 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
     }
 
 
-    temp=cJSON_GetObjectItem(root,"task");
+    temp=cJSON_GetObjectItem(root,UDATA_SERVICE_TASKFLAG_NAME);
     if (temp == NULL) {
         return -1;
     }
@@ -217,7 +239,7 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
         return -1;
     }
 
-    item=cJSON_GetObjectItem(root,"devices");
+    item=cJSON_GetObjectItem(root,UDATA_SERVICE_DEVICES_NAME);
     if (item == NULL) {
         return -1;
     }
@@ -225,13 +247,11 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
 
     for(i = 0; i < num; i++){
         array = cJSON_GetArrayItem(item,i);
-        temp=cJSON_GetObjectItem(array,"tag");
+        temp=cJSON_GetObjectItem(array,UDATA_SERVICE_TAG_NAME);
         if (temp == NULL) {
             return -1;
         }
 
-        ret = -1;
-        sensor_tag_e tag;
         for(j = 0; j < TAG_DEV_SENSOR_NUM_MAX; j++){
             if((strlen(temp->valuestring) == strlen(g_udata_tag_name[j].tag_name)) && 
                 (0 == strncmp(temp->valuestring,g_udata_tag_name[j].tag_name,strlen(temp->valuestring))))
@@ -245,18 +265,17 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
             return -1;
         }
 
-        temp=cJSON_GetObjectItem(array,"index");
+        temp=cJSON_GetObjectItem(array,UDATA_SERVICE_INDEX_NAME);
         if (temp == NULL) {
             return -1;
         }
         ret = abs_data_get_abs_index(tag, temp->valueint, &idx);
         if (unlikely(ret)){
-            //LOG("service %d tag %d index %d\n",svc->type, tag,temp->valueint);
             return -1;
         }
-        UDATA_SERVICE_BITMAP_SET(svc->abs_bitmap,idx);
+        UDATA_BITMAP_SET(svc->abs_bitmap,idx);
 
-        temp=cJSON_GetObjectItem(array,"interval");
+        temp=cJSON_GetObjectItem(array,UDATA_SERVICE_INTERVAL_NAME);
         if (temp == NULL) {
             return -1;
         }
@@ -270,6 +289,32 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
     return 0;
 }
 
+
+int uData_dtc_num_get(uint32_t* pNum)
+{
+    int ret;
+    cJSON *root = NULL;
+    if(pNum == NULL){
+        return -1;
+    }
+    
+    root = cJSON_Parse(service_config_str);
+    if (root == NULL || !cJSON_IsObject(root)) {
+        return -1;
+    }
+    g_uDataItem = cJSON_GetObjectItem(root,UDATA_SERVICE_CONFIG_NAME);
+    if (g_uDataItem == NULL) {
+        return -1;
+    }
+
+    ret = cJSON_GetArraySize(g_uDataItem);
+    if(ret <= 0){
+        return -1;
+    }
+    *pNum = (uint32_t)ret;
+    g_uDataServiceNum = ret;
+    return 0;
+}
 
 int uData_cjson_dtc_flag_get(uint32_t index, bool* pFlag)
 {
@@ -286,7 +331,7 @@ int uData_cjson_dtc_flag_get(uint32_t index, bool* pFlag)
     }
 
 
-    temp=cJSON_GetObjectItem(root,"dtcFlag");
+    temp=cJSON_GetObjectItem(root,UDATA_DTC_FLAG_NAME);
     if (temp == NULL) {
         return -1;
     }
@@ -318,17 +363,20 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     cJSON *item = NULL;
     cJSON *root = NULL;
 
-    if(index >= g_uDataServiceNum){
+    if(dtc == NULL){
         return -1;
     }
 
+    if(index >= g_uDataServiceNum){
+        return -1;
+    }
     root = cJSON_GetArrayItem(g_uDataItem,index);
     if (root == NULL) {
         return -1;
     }
 
 
-    temp=cJSON_GetObjectItem(root,"dtcFlag");
+    temp=cJSON_GetObjectItem(root,UDATA_DTC_FLAG_NAME);
     if (temp == NULL) {
         return -1;
     }
@@ -345,7 +393,7 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     }
     dtc->dtcFlag = dtcFlag;
 
-    item=cJSON_GetObjectItem(root,"outData");
+    item=cJSON_GetObjectItem(root,UDATA_DTC_OUTDATA_NAME);
     if (item == NULL) {
         return -1;
     }
@@ -361,7 +409,7 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
         return -1;
     }
     
-    temp=cJSON_GetObjectItem(root,"name");
+    temp=cJSON_GetObjectItem(root,UDATA_DTC_PROPERTY_NAME);
     if (temp == NULL) {
         goto error;
     }
@@ -379,7 +427,7 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
 
     for(i = 0; i < num; i++){
         array = cJSON_GetArrayItem(item,i);
-        temp=cJSON_GetObjectItem(array,"name");
+        temp=cJSON_GetObjectItem(array,UDATA_DTC_PROPERTY_NAME);
         if (temp == NULL) {
             goto error;
         }
@@ -392,10 +440,9 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
         
         memcpy(str,temp->valuestring,len);
         str[len] = '\0';
-
     }
 
-    temp=cJSON_GetObjectItem(root,"dataType");
+    temp=cJSON_GetObjectItem(root,UDATA_DTC_DATATYPE_NAME);
     if (temp == NULL) {
         goto error;
     }
@@ -410,7 +457,7 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
         }
     }
     
-    temp=cJSON_GetObjectItem(root,"coeff");
+    temp=cJSON_GetObjectItem(root,UDATA_DTC_COEFF_NAME);
     if (temp == NULL) {
         goto error;
     }
@@ -421,7 +468,7 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     
     dtc->coeff = (uint32_t)temp->valueint;
 
-    temp=cJSON_GetObjectItem(root,"dtcInterval");
+    temp=cJSON_GetObjectItem(root,UDATA_DTC_INTERVAL_NAME);
     if (temp == NULL) {
         goto error;
     }
@@ -431,7 +478,7 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     }
     dtc->dtc_cycle = temp->valueint;
     
-    temp=cJSON_GetObjectItem(root,"type");
+    temp=cJSON_GetObjectItem(root,UDATA_SERVICE_TYPE_NAME);
     if (temp == NULL) {
         goto error;
     }
@@ -461,7 +508,152 @@ error:
 
 }
 
+#else
+#include "config/udata_config.c"
+int uData_service_num_get(uint32_t* pNum)
+{
+    uint32_t size = 0;
+    if(pNum == NULL){
+        return -1;
+    }
+    size = sizeof(g_service_para) / sizeof(g_service_para[0]);
+    *pNum = size;
+    g_uDataServiceNum = size;
+    return 0;
+}
 
+int uData_service_config_parse(uint32_t index, uData_service_t* svc)
+{
+    int ret;
+    uint32_t i;
+    sensor_tag_e tag;
+    int                idx;
+    uint32_t           abs_idx;
+    
+    if(svc == NULL){
+        return -1;
+    }
 
+    if(index >= g_uDataServiceNum){
+        return -1;
+    }
 
+    if(g_service_para[index].type >= UDATA_MAX_CNT){
+        return -1;
+    }
+
+    svc->type = g_service_para[index].type;
+    svc->task_flag =  g_service_para[index].task_flag;
+
+    if(NULL == g_service_para[index].p_tag_para){
+        return -1;
+    }
+
+    for(i = 0; i < g_service_para[index].dev_num; i++){
+        tag = g_service_para[index].p_tag_para[i].tag;
+        if(tag >= TAG_DEV_SENSOR_NUM_MAX){
+            return -1;
+        }
+        idx = g_service_para[index].p_tag_para[i].index;
+        
+        ret = abs_data_get_abs_index(tag, (uint8_t)idx, &abs_idx);
+        if (unlikely(ret)){
+            return -1;
+        }
+
+        UDATA_BITMAP_SET(svc->abs_bitmap,abs_idx);
+        
+        if(g_service_para[index].p_tag_para[i].interval <= 0){
+            return -1;
+        }
+        
+        svc->interval[abs_idx] = g_service_para[index].p_tag_para[i].interval;
+    }
+
+    return 0;
+}
+
+int uData_dtc_num_get(uint32_t* pNum)
+{
+    uint32_t size = 0;
+
+    if(pNum == NULL){
+        return -1;
+    }
+    size = sizeof(g_dtc_para) / sizeof(g_dtc_para[0]);
+    *pNum = size;
+    g_uDataDtcNum = size;
+    return 0;
+}
+
+int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
+{
+    int len;
+    char* str;
+    uint32_t i;
+    
+    if(dtc == NULL){
+        return -1;
+    }
+
+    if(index >= g_uDataDtcNum){
+        return -1;
+    }
+
+    if(g_dtc_para[index].type >= UDATA_MAX_CNT){
+        return -1;
+    }
+    if(g_dtc_para[index].data_type >= UDATA_TYPE_MAX){
+        return -1;
+    }
+
+    if(g_dtc_para[index].name_num <= 0){
+        return -1;
+    }
+
+    if(g_dtc_para[index].name == NULL){
+        return -1;
+    }
+
+    len = strlen(g_dtc_para[index].name);
+    if((len >= SERVICE_PUB_NAME_LEN) || (len == 0)){
+        return -1;
+    }
+    
+    dtc->type = g_dtc_para[index].type;
+    dtc->dtcFlag =  g_dtc_para[index].dtc_flag;
+    dtc->dtc_cycle =  g_dtc_para[index].dtc_cycle;
+
+    dtc->name_num =  (g_dtc_para[index].name_num == 1)? 1 : (g_dtc_para[index].name_num + 1);
+    dtc->name_addr = aos_malloc(dtc->name_num*SERVICE_PUB_NAME_LEN);
+    if(NULL == dtc->name_addr){
+        return -1;
+    }
+
+    str = dtc->name_addr;
+    memcpy(str, g_dtc_para[index].name,len);
+    str[len] = '\0';
+    for(i = 1; i < dtc->name_num; i++){
+        len = strlen(g_dtc_para[index].para_name[i-1]);
+        if ((len >= SERVICE_PUB_NAME_LEN) || (len == 0)){
+            goto error;
+        }
+        str = dtc->name_addr + (i * SERVICE_PUB_NAME_LEN);
+        memcpy(str, g_dtc_para[index].para_name[i-1],len);
+        str[len] = '\0';
+    }
+    dtc->data_type = g_dtc_para[index].data_type;
+    dtc->coeff     = g_dtc_para[index].coeff;
+
+    return 0;
+error:
+    if(dtc->name_addr != NULL){
+        aos_free(dtc->name_addr);
+        dtc->name_addr = NULL;
+    }
+    return -1;
+    
+}
+
+#endif
 

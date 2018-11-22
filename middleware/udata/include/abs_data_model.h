@@ -11,8 +11,8 @@
 #ifndef ABS_SENSOR_MODEL_H
 #define ABS_SENSOR_MODEL_H
 
-#include "uData_com_desc.h"
-#include "uData_parse.h"
+#include "udata_com_desc.h"
+#include "udata_parse.h"
 
 int         abs_data_cali_init(void);
 int         abs_data_model_init(void);
@@ -29,7 +29,7 @@ uint32_t    abs_sensor_buff_len_get(uint32_t abs_index);
 int         abs_data_dev_enable(uint32_t abs_index);
 uint32_t    abs_data_get_maxmum(void);
 int         abs_data_get_abs_index(sensor_tag_e tag, uint8_t instance, uint32_t* pindex);
-int         abs_data_get_sensor_tag(uint32_t abs_index, sensor_tag_e* ptag);
-int         abs_data_get_sensor_instance(uint32_t abs_index, uint8_t* pinstance);
+int         abs_data_get_sensor_info(uint32_t abs_index, sensor_tag_e* ptag, uint8_t* pinstance);
+int         cali_example_example_init(void);
 
 #endif /*ABS_SENSOR_MODEL_H*/

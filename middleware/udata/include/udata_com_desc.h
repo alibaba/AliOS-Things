@@ -57,6 +57,7 @@
 #define UDATA_MSG_SERVICE_PROCESS 9
 #define UDATA_MSG_SERVICE_IOCTL 10
 #define UDATA_MSG_REPORT_PUBLISH 11
+#define UDATA_MSG_DATA_TO_CLOUD  12
 
 
 typedef bool b_subscribed;
@@ -136,6 +137,8 @@ struct _abs_data_pkg_t
     dev_sensor_full_info_t full_info;
 };
 typedef struct _abs_data_pkg_t abs_data_pkg_t;
+typedef size_t (*SERVICE_PROCESS_CB)(uint32_t abs_index, void *pdata,uint32_t len); 
+typedef int (*SERVICE_IOCTL_CB)(udata_type_e type,uint32_t abs_index);
 
 /* sensor service manager layer*/
 struct _uData_service_t
@@ -150,12 +153,8 @@ struct _uData_service_t
     uint64_t            time[SENSOR_MAX_NUM];
     dev_sensor_config_t config;
     uint8_t             payload[DATA_SIZE];
-    size_t (*service_process_cb)(
-      uint32_t abs_index, void *pdata,
-      uint32_t len); /* process callback for udata service handle */
-
-    int (*service_ioctl_cb)(
-      udata_type_e type,uint32_t abs_index); /* ioclt callback for udata service handle */
+    SERVICE_PROCESS_CB  service_process_cb;
+    SERVICE_IOCTL_CB    service_ioctl_cb; /* ioclt callback for udata service handle */
 };
 typedef struct _uData_service_t uData_service_t;
 

@@ -7,9 +7,8 @@
 
 #include "abs_data_model.h"
 #include "service_mgr.h"
-#include "uData_queue.h"
+#include "udata_queue.h"
 #include "service_data_to_cloud.h"
-extern     int uData_service_own_task_start(void);
 
 int uData_main(void)
 {
@@ -46,10 +45,7 @@ int uData_main(void)
     if (unlikely(ret)) {
         return -1;
     }
-    ret = uData_service_own_task_start();
-    if (unlikely(ret)) {
-        return -1;
-    }
+
     LOG("%s %s successfully\n", uDATA_STR, __func__);
     return 0;
 }

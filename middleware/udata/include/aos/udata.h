@@ -6,9 +6,9 @@
 #ifndef UDATA_H
 #define UDATA_H
 
-#include "../../middleware/udata/include/uData_com_desc.h"
+#include "udata_com_desc.h"
 
-int uData_report_publish(sensor_msg_pkg_t *msg, void *pdata);
+int uData_report_publish(udata_type_e type, void *pdata);
 
 int uData_dev_ioctl(udata_t *pkg, uint8_t cmd, long long parm);
 int uData_subscribe(udata_type_e type);
