@@ -85,7 +85,7 @@ int           g_region_num = 1;
 void aos_heap_set(void)
 {
     g_mm_region[0].start = (uint8_t*)&Image$$RW_IRAM1$$ZI$$Limit;
-    g_mm_region[0].len   =
+    g_mm_region[0].len   = 
         (g_iram1_start + g_iram1_total_size - (size_t)&Image$$RW_IRAM1$$ZI$$Limit);
 }
 #elif defined (__ICCARM__)/* IAR */
@@ -106,7 +106,7 @@ int           g_region_num = 1;
 void aos_heap_set(void)
 {
     g_mm_region[0].start = (uint8_t*)&__bss_end__;
-    g_mm_region[0].len   =
+    g_mm_region[0].len   = 
         ((uint8_t*)&_estack - (uint8_t*)&__bss_end__) - RHINO_CONFIG_SYSTEM_STACK_SIZE;
 }
 #endif
@@ -163,7 +163,7 @@ static void soc_print_stack()
 void soc_err_proc(kstat_t err)
 {
     (void)err;
-
+    
     #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
     soc_print_stack();
     #endif

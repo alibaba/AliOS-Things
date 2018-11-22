@@ -14,16 +14,13 @@ HOST_OPENOCD := rtl8710bn
 #SPI_WIFI_ENABLED := true
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := driver & sdk for platform/mcu rtl8710bn
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 #$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common cli digest_algorithm network.lwip
 $(NAME)_COMPONENTS += halwifi
-
-$(NAME)_COMPONENTS += platform/mcu/rtl8710bn/sdk
-$(NAME)_COMPONENTS += platform/mcu/rtl8710bn/peripherals
 
 #GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
 #GLOBAL_LDFLAGS  += -I $(SOURCE_ROOT)/platform/mcu/rtl8710bn
@@ -102,7 +99,6 @@ $(NAME)_INCLUDES += sdk/component/common/mbed/hal_ext
 $(NAME)_INCLUDES += sdk/component/common/mbed/targets/cmsis/rtl8711b
 $(NAME)_INCLUDES += sdk/component/common/mbed/targets/hal/rtl8711b
 
-
 #GLOBAL_CFLAGS += -mcpu=cortex-m4 \
                  -march=armv7e-m \
                  -mthumb -mthumb-interwork \
@@ -112,19 +108,18 @@ $(NAME)_INCLUDES += sdk/component/common/mbed/targets/hal/rtl8711b
                  -DCONFIG_PLATFORM_8711B \
                  -DM3
 
-GLOBAL_CFLAGS += -mcpu=cortex-m4 \
-                 -march=armv7e-m \
+GLOBAL_CFLAGS += -mcpu=cortex-m4           \
+                 -march=armv7e-m           \
                  -mthumb -mthumb-interwork \
-                 -mlittle-endian \
-                 -DCONFIG_PLATFORM_8711B \
-                 -DM3 \
-                 -fno-short-enums
+                 -mlittle-endian           \
+                 -DCONFIG_PLATFORM_8711B   \
+                 -DM3
 
 GLOBAL_CFLAGS += -w
 
 GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
 #GLOBAL_LDFLAGS += -I $(SOURCE_ROOT)/platform/mcu/rtl8710bn
-# GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld                 
+# GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld
 #GLOBAL_LDFLAGS += $(SOURCE_ROOT)/platform/mcu/rtl8710bn/bin/boot_all.o
 GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)/platform/mcu/rtl8710bn/lib/ -l_platform -l_wlan -l_wps -l_p2p -l_rtlstd
 
@@ -139,20 +134,20 @@ GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)/platform/mcu/rtl8710bn/lib/ -l_platform -l_wl
                   -Wl,--no-wchar-size-warning \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 
-GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
-                  -mthumb\
-                  -Os \
-                  -nostartfiles \
-                  -Wl,--no-enum-size-warning \
+GLOBAL_LDFLAGS += -mcpu=cortex-m4             \
+                  -mthumb                     \
+                  -Os                         \
+                  -nostartfiles               \
+                  -Wl,--no-enum-size-warning  \
                   -Wl,--no-wchar-size-warning \
-                  -Wl,--gc-sections \
-                  -Wl,--cref \
-                  $(CLIB_LDFLAGS_NANO_FLOAT)                 
+                  -Wl,--gc-sections           \
+                  -Wl,--cref                  \
+                  $(CLIB_LDFLAGS_NANO_FLOAT)
 
-$(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
-$(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized
-$(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
-$(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
+$(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
+$(NAME)_CFLAGS += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized
+$(NAME)_CFLAGS += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
+$(NAME)_CFLAGS += -Wno-unused-value -Wno-strict-aliasing
 
 #$(NAME)_SOURCES += aos/soc_impl.c
 #$(NAME)_SOURCES += aos/aos.c
@@ -165,28 +160,25 @@ $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 #$(NAME)_INCLUDES += arch
 #$(NAME)_INCLUDES += peripherals
 
-$(NAME)_SOURCES := aos/soc_impl.c          \
-                   aos/aos.c \
-                   aos/aos_osdep.c \
+$(NAME)_SOURCES := aos/soc_impl.c   \
+                   aos/aos.c        \
+                   aos/aos_osdep.c  \
                    aos/ethernetif.c \
-                   aos/qc.c \
-                   hal/uart.c \
-                   hal/flash.c  \
-                   hal/hw.c  \
-                   hal/wifi_port.c \
-                   hal/ota_port.c \
-                   hal/gpio.c \
-                   hal/wdg.c 
-		   
+                   aos/qc.c         \
+                   hal/uart.c       \
+                   hal/flash.c      \
+                   hal/hw.c         \
+                   hal/wifi_port.c  \
+                   hal/gpio.c       \
+                   hal/wdg.c
+
 #$(NAME)_SOURCES  += hal/uart.c
 #$(NAME)_SOURCES  += hal/flash.c
 #$(NAME)_SOURCES  += hal/hw.c
 #$(NAME)_SOURCES  += hal/wifi_port.c
-#$(NAME)_SOURCES  += hal/ota_port.c
 #$(NAME)_SOURCES  += hal/misc.c
 
-
-
-#$(NAME)_COMPONENTS += platform/mcu/rtl8710bn/peripherals
+include ./platform/mcu/rtl8710bn/sdk/sdk.mk
+include ./platform/mcu/rtl8710bn/peripherals/peripherals.mk
 
 PING_PONG_OTA := 1

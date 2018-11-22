@@ -12,7 +12,6 @@
 #include <hal/soc/timer.h>
 #include <hal/base.h>
 #include <hal/wifi.h>
-#include <hal/ota.h>
 #include "stm32_wifi.h"
 #include "stm32l4xx_hal_cortex.h"
 
@@ -64,7 +63,6 @@ extern hal_wifi_module_t aos_wifi_module_mk3060;
 extern hal_wifi_module_t sim_aos_wifi_stm32l475;
 #endif
 
-extern struct hal_ota_module_s stm32l475_ota_module;
 void hw_start_hal(void)
 {
     printf("start-----------hal\n");
@@ -75,6 +73,5 @@ void hw_start_hal(void)
 #else
     hal_wifi_register_module(&sim_aos_wifi_stm32l475);
 #endif
-    hal_ota_register_module(&stm32l475_ota_module);
     hal_wifi_init();
 }
