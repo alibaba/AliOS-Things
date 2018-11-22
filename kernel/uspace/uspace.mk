@@ -2,7 +2,7 @@ NAME := uspace
 
 $(NAME)_MBINS_TYPE := share
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := syscall uprocess utask utimer IPC
 
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS += -Wall -Werror
