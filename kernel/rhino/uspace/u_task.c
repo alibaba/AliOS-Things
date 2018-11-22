@@ -248,8 +248,10 @@ kstat_t krhino_uprocess_exit()
     ktask_t      *cur_task;
     klist_t      *tmp;
     klist_t      *head;
-    kbuf_queue_t *task_tmp;
+    ktask_t      *task_tmp;
     uint32_t      pid;
+
+    CPSR_ALLOC();
 
     cur_task = krhino_cur_task_get();
     pid      = cur_task->pid;
@@ -259,9 +261,7 @@ kstat_t krhino_uprocess_exit()
     for (tmp = head->next; tmp != head; tmp = tmp->next) {
         task_tmp = krhino_list_entry(tmp, ktask_t, task_stats_item);
         if (task_tmp->pid == pid) {
-            RHINO_CRITICAL_EXIT();
             krhino_task_dyn_del(task_tmp);
-            RHINO_CRITICAL_ENTER();
         }
     }
     RHINO_CRITICAL_EXIT();
