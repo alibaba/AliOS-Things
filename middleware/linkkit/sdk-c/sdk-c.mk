@@ -2,7 +2,7 @@ NAME := linkkit_sdk_c
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := IoT Connectivity Devkit Running on Embedded Devices for Alibaba Cloud
 
 GLOBAL_INCLUDES += \
     include/exports \
