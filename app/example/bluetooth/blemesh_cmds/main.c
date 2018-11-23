@@ -54,12 +54,13 @@ static struct cli_command mcmd = { .name     = "bt_mesh",
                                    .function = handle_bt_mesh_cmd };
 #endif
 
+extern int hci_driver_init();
 int application_start(int argc, char **argv)
 {
 #ifdef CONFIG_AOS_CLI
     aos_cli_register_command(&mcmd);
 #endif
-
+    hci_driver_init();
     aos_loop_run();
     return 0;
 }
