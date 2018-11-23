@@ -8,7 +8,7 @@
 #include "k_config.h"
 #include <hal/hal.h>
 
-int errno;
+volatile int errno = 0;
 extern uart_dev_t uart_0;
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
@@ -24,6 +24,12 @@ int gettimeofday(struct timeval *tv, void *tzp)
     tv->tv_usec = (t % 1000) * 1000;
     return 0;
 }
+
+volatile int *__aeabi_errno_addr()
+{
+    return &errno;
+}
+
 
 #if (RHINO_CONFIG_MM_TLF > 0)
 #define AOS_UNSIGNED_INT_MSB (1u << (sizeof(unsigned int) * 8 - 1))
