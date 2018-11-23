@@ -218,7 +218,7 @@ AOS_SDK_FINAL_OUTPUT_FILE += $(BIN_OUTPUT_FILE)
 AOS_SDK_2BOOT_SUPPORT +=$(AOS_2BOOT_SUPPORT)
 AOS_CPLUSPLUS_FLAGS += $(CPLUSPLUS_FLAGS)
 $(eval PROCESSED_COMPONENTS += $(NAME))
-$(eval $(NAME)_SOURCES := $(sort $($(NAME)_SOURCES) $($(NAME)_SOURCES-y)) )
+$(eval $(NAME)_SOURCES := $(sort $(subst $($(NAME)_LOCATION),,$(wildcard $(addprefix $($(NAME)_LOCATION),$($(NAME)_SOURCES) $($(NAME)_SOURCES-y)) ))))
 
 endef
 
