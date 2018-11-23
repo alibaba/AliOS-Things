@@ -324,26 +324,51 @@ struct Radio_s {
      */
     void    ( *ReadBuffer )( uint8_t addr, uint8_t *buffer, uint8_t size );
     /*!
-     * \brief Set synchro word in radio
-     *
-     * \param [IN] data  THe syncword
-     */
-    void    ( *SetSyncWord )( uint8_t data );
-
-    /*!
      * \brief Sets the maximum payload length.
      *
      * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
      * \param [IN] max        Maximum payload length in bytes
      */
-    void ( *SetMaxPayloadLength )( RadioModems_t modem, uint8_t max );
+    void    ( *SetMaxPayloadLength )( RadioModems_t modem, uint8_t max );
     /*!
-     * \brief   Service to get the radio wake-up time.
+     * \brief Sets the network to public or private. Updates the sync byte.
      *
-     * \retval  Value of the radio wake-up time.
+     * \remark Applies to LoRa modem only
+     *
+     * \param [IN] enable if true, it enables a public network
      */
-    uint32_t ( *GetRadioWakeUpTime ) ( void );
-
+    void    ( *SetPublicNetwork )( bool enable );
+    /*!
+     * \brief Gets the time required for the board plus radio to get out of sleep.[ms]
+     *
+     * \retval time Radio plus board wakeup time in ms.
+     */
+    uint32_t  ( *GetWakeupTime )( void );
+    /*!
+     * \brief Process radio irq
+     */
+    void ( *IrqProcess )( void );
+    /*
+     * The next functions are available only on SX126x radios.
+     */
+    /*!
+     * \brief Sets the radio in reception mode with Max LNA gain for the given time
+     *
+     * \remark Available on SX126x radios only.
+     *
+     * \param [IN] timeout Reception timeout [ms]
+     *                     [0: continuous, others timeout]
+     */
+    void    ( *RxBoosted )( uint32_t timeout );
+    /*!
+     * \brief Sets the Rx duty cycle management parameters
+     *
+     * \remark Available on SX126x radios only.
+     *
+     * \param [in]  rxTime        Structure describing reception timeout value
+     * \param [in]  sleepTime     Structure describing sleep timeout value
+     */
+    void ( *SetRxDutyCycle ) ( uint32_t rxTime, uint32_t sleepTime );
 };
 
 /*!

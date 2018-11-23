@@ -1142,21 +1142,6 @@ int16_t SX1276ReadRssi( RadioModems_t modem )
     return rssi;
 }
 
-void SX1276Reset( void )
-{
-    // Set RESET pin to 0
-    aos_lrwan_radio_ctrl.radio_reset();
-
-    // Wait 1 ms
-    DelayMs( 1 );
-
-    // Configure RESET as input
-    aos_lrwan_radio_ctrl.radio_reset_cfg_input();
-
-    // Wait 6 ms
-    DelayMs( 6 );
-}
-
 void SX1276SetOpMode( uint8_t opMode )
 {
     if ( opMode == RF_OPMODE_SLEEP ) {
@@ -1279,7 +1264,23 @@ void SX1276SetMaxPayloadLength( RadioModems_t modem, uint8_t max )
     }
 }
 
-uint32_t SX1276GetRadioWakeUpTime( void )
+void SX1276SetPublicNetwork( bool enable )
+{
+    SX1276SetModem( MODEM_LORA );
+    SX1276.Settings.LoRa.PublicNetwork = enable;
+    if( enable == true )
+    {
+        // Change LoRa modem SyncWord
+        SX1276Write( REG_LR_SYNCWORD, LORA_MAC_PUBLIC_SYNCWORD );
+    }
+    else
+    {
+        // Change LoRa modem SyncWord
+        SX1276Write( REG_LR_SYNCWORD, LORA_MAC_PRIVATE_SYNCWORD );
+    }
+}
+
+uint32_t SX1276GetWakeupTime( void )
 {
     return (uint32_t) LoRaBoardCallbacks->SX1276BoardGetWakeTime( ) + RADIO_WAKEUP_TIME;// BOARD_WAKEUP_TIME;
 }
