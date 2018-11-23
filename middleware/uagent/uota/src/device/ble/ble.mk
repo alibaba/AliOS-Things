@@ -6,7 +6,6 @@ $(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES += \
     src/ota_breeze.c \
-    src/ota_breeze_service.c \
     src/ota_breeze_transport.c
 
 $(NAME)_COMPONENTS += middleware.uagent.uota.hal
@@ -15,3 +14,6 @@ GLOBAL_INCLUDES += . \
                    inc
 
 GLOBAL_DEFINES += OTA_BLE
+#GLOBAL_DEFINES += OTA_BLE_LOG_INFO
+#GLOBAL_DEFINES += OTA_BLE_LOG_DEBUG
+#GLOBAL_DEFINES += OTA_BLE_LOG_ERR
