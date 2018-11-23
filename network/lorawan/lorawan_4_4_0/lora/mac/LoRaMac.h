@@ -191,7 +191,7 @@ typedef struct sBand
      * Holds the time where the device is off
      */
     TimerTime_t TimeOff;
-} __attribute__((packed)) Band_t;
+} Band_t;
 
 /*!
  * LoRaMAC channel definition
@@ -214,7 +214,7 @@ typedef struct sChannelParams
      * Band index
      */
     uint8_t Band;
-} __attribute__((packed)) ChannelParams_t;
+} ChannelParams_t;
 
 /*!
  * LoRaMAC receive window 2 channel parameters
@@ -234,7 +234,7 @@ typedef struct sRx2ChannelParams
      * DR_15 for details.
      */
     uint8_t Datarate;
-} __attribute__((packed)) Rx2ChannelParams_t;
+} Rx2ChannelParams_t;
 
 /*!
  * Global MAC layer parameters
@@ -314,7 +314,7 @@ typedef struct sLoRaMacParams
     uint32_t      freqband;
     bool          update_freqband;
 #endif
-} __attribute__((packed)) LoRaMacParams_t;
+} LoRaMacParams_t;
 
 /*!
  * LoRaMAC multicast channel parameter
@@ -341,7 +341,7 @@ typedef struct sMulticastParams
      * Reference pointer to the next multicast channel parameters in the list
      */
     struct sMulticastParams *Next;
-} __attribute__((packed)) MulticastParams_t;
+} MulticastParams_t;
 
 /*!
  * LoRaMAC frame types
@@ -733,7 +733,7 @@ typedef struct sMcpsReqUnconfirmed
      * Uplink datarate, if ADR is off
      */
     int8_t Datarate;
-} __attribute__((packed)) McpsReqUnconfirmed_t;
+} McpsReqUnconfirmed_t;
 
 /*!
  * LoRaMAC MCPS-Request for a confirmed frame
@@ -780,7 +780,7 @@ typedef struct sMcpsReqConfirmed
      * the datarate, in case the LoRaMAC layer did not receive an acknowledgment
      */
     uint8_t NbTrials;
-} __attribute__((packed)) McpsReqConfirmed_t;
+} McpsReqConfirmed_t;
 
 /*!
  * LoRaMAC MCPS-Request for a proprietary frame
@@ -799,7 +799,7 @@ typedef struct sMcpsReqProprietary
      * Uplink datarate, if ADR is off
      */
     int8_t Datarate;
-} __attribute__((packed)) McpsReqProprietary_t;
+} McpsReqProprietary_t;
 
 /*!
  * LoRaMAC MCPS-Request structure
@@ -872,7 +872,7 @@ typedef struct sMcpsConfirm
      * The uplink frequency related to the frame
      */
     uint32_t UpLinkFrequency;
-} __attribute__((packed)) McpsConfirm_t;
+} McpsConfirm_t;
 
 /*!
  * LoRaMAC MCPS-Indication primitive
@@ -937,7 +937,7 @@ typedef struct sMcpsIndication
      * The downlink counter value for the received frame
      */
     uint32_t DownLinkCounter;
-} __attribute__((packed)) McpsIndication_t;
+} McpsIndication_t;
 
 /*!
  * \brief LoRaMAC management services
@@ -1020,7 +1020,7 @@ typedef struct sMlmeReqJoin
     join_method_t method;
     uint8_t       freqband;
 #endif
-} __attribute__((packed)) MlmeReqJoin_t;
+} MlmeReqJoin_t;
 
 /*!
  * LoRaMAC MLME-Request for Tx continuous wave mode
@@ -1039,7 +1039,7 @@ typedef struct sMlmeReqTxCw
      * RF output power to set (Only used with new way)
      */
     uint8_t Power;
-} __attribute__((packed)) MlmeReqTxCw_t;
+} MlmeReqTxCw_t;
 
 /*!
  * LoRaMAC MLME-Request structure
@@ -1108,7 +1108,7 @@ typedef struct sMlmeConfirm
      * Provides the number of retransmissions
      */
     uint8_t NbRetries;
-} __attribute__((packed)) MlmeConfirm_t;
+} MlmeConfirm_t;
 
 /*!
  * LoRa Mac Information Base (MIB)
@@ -1580,7 +1580,7 @@ typedef struct eMibRequestConfirm
      * MLME-RequestConfirm parameters
      */
     MibParam_t Param;
-} __attribute__((packed)) MibRequestConfirm_t;
+} MibRequestConfirm_t;
 
 /*!
  * LoRaMAC tx information
@@ -1595,7 +1595,7 @@ typedef struct sLoRaMacTxInfo
      * The current payload size, dependent on the current datarate
      */
     uint8_t CurrentPayloadSize;
-} __attribute__((packed)) LoRaMacTxInfo_t;
+} LoRaMacTxInfo_t;
 
 /*!
  * LoRaMAC Status

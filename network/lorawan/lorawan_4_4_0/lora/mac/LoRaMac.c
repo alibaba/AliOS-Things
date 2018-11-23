@@ -624,13 +624,6 @@ LoRaMacStatus_t SetTxContinuousWave1(uint16_t timeout, uint32_t frequency,
                                      uint8_t power);
 
 /*!
- * \brief Sets the network to public or private. Updates the sync byte.
- *
- * \param [IN] enable if true, it enables a public network
- */
-static void SetPublicNetwork(bool enable);
-
-/*!
  * \brief Resets MAC specific parameters to default
  */
 static void ResetMacParameters(void);
@@ -2385,7 +2378,7 @@ LoRaMacStatus_t LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
     srand1(Radio.Random());
 
     PublicNetwork = true;
-    SetPublicNetwork(PublicNetwork);
+    Radio.SetPublicNetwork(PublicNetwork);
     Radio.Sleep();
 
     return LORAMAC_STATUS_OK;
@@ -2677,7 +2670,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm(MibRequestConfirm_t *mibSet)
         }
         case MIB_PUBLIC_NETWORK: {
             PublicNetwork = mibSet->Param.EnablePublicNetwork;
-            SetPublicNetwork(PublicNetwork);
+            Radio.SetPublicNetwork(PublicNetwork);
             break;
         }
         case MIB_REPEATER_SUPPORT: {
@@ -3198,19 +3191,6 @@ void LoRaMacTestSetDutyCycleOn(bool enable)
 void LoRaMacTestSetChannel(uint8_t channel)
 {
     Channel = channel;
-}
-
-static void SetPublicNetwork(bool enable)
-{
-    PublicNetwork = enable;
-    Radio.SetModem(MODEM_LORA);
-    if (PublicNetwork == true) {
-        // Change LoRa modem SyncWord
-        Radio.SetSyncWord(LORA_MAC_PUBLIC_SYNCWORD);
-    } else {
-        // Change LoRa modem SyncWord
-        Radio.SetSyncWord(LORA_MAC_PRIVATE_SYNCWORD);
-    }
 }
 
 void LoraMacDelMultCastNode(MulticastParams_t *multiCastNode)
