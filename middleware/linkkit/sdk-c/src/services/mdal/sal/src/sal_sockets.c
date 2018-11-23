@@ -705,7 +705,7 @@ static err_t salnetconn_recv_data(sal_netconn_t *conn, sal_netbuf_t **new_buf)
 
     ret = sal_arch_mbox_fetch(&conn->recvmbox, &buf, conn->recv_timeout);
     if (ret == SAL_ARCH_TIMEOUT) {
-        SAL_ERROR("sal recv data time out, socket %d conn %p timeout %d\n", conn->socket, conn, conn->recv_timeout);
+        SAL_DEBUG("sal recv data time out, socket %d conn %p timeout %d\n", conn->socket, conn, conn->recv_timeout);
         return ERR_TIMEOUT;
     }
 
@@ -1034,7 +1034,11 @@ int sal_recvfrom(int s, void *mem, size_t len, int flags,
                 }
 
                 sock_set_errno(pstsock, err_to_errno(err));
-                return -1;
+                if (err == ERR_CLSD) {
+                    return 0;
+                } else {
+                    return -1;
+                }
             }
 
             pstsock->lastdata = buf;
