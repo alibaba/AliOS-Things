@@ -72,6 +72,18 @@ Maintainer: Miguel Luis and Gregory Cristian
 #endif
 
 #define RF_MID_BAND_THRESH                          525000000
+
+/*!
+ * Sync word for Private LoRa networks
+ */
+#define LORA_MAC_PRIVATE_SYNCWORD                   0x12
+
+/*!
+ * Sync word for Public LoRa networks
+ */
+#define LORA_MAC_PUBLIC_SYNCWORD                    0x34
+
+
 /*!
  * Radio FSK modem parameters
  */
@@ -525,10 +537,19 @@ void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
 void SX1276SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
 
 /*!
+ * \brief Sets the network to public or private. Updates the sync byte.
+ *
+ * \remark Applies to LoRa modem only
+ *
+ * \param [IN] enable if true, it enables a public network
+ */
+void SX1276SetPublicNetwork( bool enable );
+
+/*!
  * \brief   Service to get the radio wake-up time.
  *
  * \retval  Value of the radio wake-up time.
  */
-uint32_t SX1276GetRadioWakeUpTime( void );
+uint32_t SX1276GetWakeupTime( void );
 
 #endif /* __SX1276_H__ */

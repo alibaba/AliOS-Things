@@ -1,4 +1,4 @@
-NAME := lorawan
+NAME := lorawan_4_4_0
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
