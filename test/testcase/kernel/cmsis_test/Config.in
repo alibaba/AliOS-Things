@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_CMSIS_TEST
+    bool "cmsis_test"
+    default n
+    select AOS_COMP_CMSIS_TEST
+    help
+
+if AOS_COMP_CMSIS_TEST
+# Configurations for comp cmsis_test
+endif
