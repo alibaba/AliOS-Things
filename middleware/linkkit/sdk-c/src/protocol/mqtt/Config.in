@@ -26,5 +26,11 @@ menu "MQTT Configurations"
         help
             Enable providing cache data of IoT device at cloud via "IOT_Shadow_XXX" APIs declared in include/exports/iot_export_shadow.h
 
+    config MQTT_LOGPOST
+        bool "FEATURE_MQTT_LOGPOST"
+        default n
+        help
+            Enable capability of publishing important device running log messages to IoT cloud
+
 endmenu
 
