@@ -1413,9 +1413,9 @@ int iotx_cm_process_list_push(iotx_cm_conntext_t *cm_ctx,
         return FAIL_RETURN;
     }
 
-    list = connectivity->process_list;
-
     HAL_MutexLock(connectivity->process_lock);
+
+    list = connectivity->process_list;
 
     if (NULL == list) {
         list = CM_malloc(sizeof(iotx_cm_process_list_t));
@@ -1474,14 +1474,14 @@ iotx_cm_process_list_node_t *iotx_cm_process_list_pop(iotx_cm_conntext_t *cm_ctx
     }
 #endif
 
+    HAL_MutexLock(connectivity->process_lock);
+
     list = connectivity->process_list;
 
     if (NULL == list) {
         CM_ERR(cm_log_error_status);
         return NULL;
     }
-
-    HAL_MutexLock(connectivity->process_lock);
 
     if (list->size == 1) {
         node = list->header;
