@@ -9,7 +9,11 @@ linkwan := 1
 
 $(NAME)_SOURCES := linkwan.c
 
+ifeq ($(lorawanback), 0)
 $(NAME)_COMPONENTS := network.lorawan.lorawan_4_4_2
+else ifeq ($(lorawanback), 1)
+$(NAME)_COMPONENTS := network.lorawan.lorawan_4_4_0
+endif
 
 $(NAME)_COMPONENTS += kernel.fs.kv
 
