@@ -207,6 +207,11 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
                 PLATFORM_LOG_D("EINTR be caught");
                 continue;
             }
+
+            if (EWOULDBLOCK == errno) {
+                err_code = 0;
+                break;
+            }
             PLATFORM_LOG_E("read fail");
             err_code = -2;
             break;
