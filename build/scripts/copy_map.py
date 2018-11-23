@@ -4,8 +4,8 @@ import sys, os
 
 compdirs = [
     ['middleware/linkkit/sdk-c', ''],
-    ['utility/libc/compilers/armlibc', 'src/infra/stdc/armlibc'],
-    ['utility/libc/compilers/iar', 'src/infra/stdc/iarlibc'],
+    ['utility/libc/compilers/armlibc', 'prebuilt/extra/stdc/armlibc'],
+    ['utility/libc/compilers/iar', 'prebuilt/extra/stdc/iarlibc'],
 ]
 
 # Example file list
@@ -18,9 +18,9 @@ for example in examples:
     elif example.startswith('mqtt'):
         dist_example_dir = "mqtt"
     elif example.startswith('coap'):
-        dist_example_dir = "coap"  
+        dist_example_dir = "coap"
     elif example.startswith('http2'):
-        dist_example_dir = "http2"  
+        dist_example_dir = "http2"
 
 
     for filename in os.listdir('app/example/' + example):
@@ -34,5 +34,5 @@ for example in examples:
                 dest = os.path.join('examples', dist_example_dir, filename, filename2)
                 example_files += [[src, dest]]
 
-copy_map =  compdirs + example_files               
+copy_map =  compdirs + example_files
 
