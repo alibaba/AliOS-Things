@@ -2,6 +2,7 @@
 #define _OTA_BREEZE_H
 
 #include "ota_breeze_export.h"
+#include "ota_log.h"
 
 #ifndef true
 #define true    (1)
@@ -13,6 +14,18 @@
 
 #ifndef NULL
 #define NULL 0
+#endif
+
+#ifndef OTA_BLE_LOG_INFO
+#define OTA_LOG_I
+#endif
+
+#ifndef OTA_BLE_LOG_DEBUG
+#define OTA_LOG_D
+#endif
+
+#ifndef OTA_BLE_LOG_ERR
+#define OTA_LOG_E
 #endif
 
 #define OTA_BREEZE_BIN_TYPE_INFO_OFFSET 0x28
