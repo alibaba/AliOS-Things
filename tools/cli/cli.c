@@ -8,6 +8,7 @@
 #include <string.h>
 #include <errno.h>
 #include <aos/aos.h>
+#include "soc.h"
 
 #define RET_CHAR  '\n'
 #define END_CHAR  '\r'
@@ -782,8 +783,13 @@ int aos_cli_printf(const char *msg, ...)
 
 int cli_putstr(char *msg)
 {
+    uart_dev_t uart_stdio;
+
+    memset(&uart_stdio, 0, sizeof(uart_stdio));
+    uart_stdio.port = 1;
+
     if (msg[0] != 0) {
-        aos_uart_send(msg, strlen(msg), 0);
+        hal_uart_send(&uart_stdio, (void *)msg, strlen(msg), HAL_WAIT_FOREVER);
     }
 
     return 0;
@@ -791,7 +797,16 @@ int cli_putstr(char *msg)
 
 int cli_getchar(char *inbuf)
 {
-    if (aos_uart_recv(inbuf, 1, NULL, 0xFFFFFFFF) == 0) {
+    int ret = -1;
+    uint32_t recv_size = 0;
+    uart_dev_t uart_stdio;
+
+    memset(&uart_stdio, 0, sizeof(uart_stdio));
+    uart_stdio.port = 1; //=0;  //mallo
+
+    ret = hal_uart_recv_II(&uart_stdio, inbuf,  1, &recv_size,  HAL_WAIT_FOREVER);
+
+    if ((ret == 0) && (recv_size == 1)) {
         return 1;
     } else {
         return 0;

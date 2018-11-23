@@ -63,7 +63,7 @@
 #define TEST_CONFIG_YLOOP_ENABLED               (1)
 #endif
 #if (TEST_CONFIG_YLOOP_ENABLED)
-#define TEST_CONFIG_YLOOP_EVENT_COUNT           (1000)
+#define TEST_CONFIG_YLOOP_EVENT_COUNT           (100) //(1000) //mallo
 #define TEST_CONFIG_YLOOP_LOOP_COUNT            (5)
 #endif
 
