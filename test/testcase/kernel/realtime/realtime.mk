@@ -6,7 +6,7 @@ $(NAME)_SUMMARY :=
 
 $(NAME)_COMPONENTS += rhino
 
-GLOBAL_INCLUDES += include
+GLOBAL_INCLUDES += include common
 
 #default gcc
 ifeq ($(COMPILER),)
