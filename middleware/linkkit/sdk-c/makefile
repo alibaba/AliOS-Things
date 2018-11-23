@@ -65,6 +65,7 @@ $(call Present1_Relation, FEATURE_MQTT_DIRECT, FEATURE_SUPPORT_TLS)
 
 # 'Opt1 = y' requires 'Opt2 = y' as mandantory support
 #
+$(call Requires_Relation, FEATURE_MQTT_LOGPOST, FEATURE_MQTT_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_MQTT_SHADOW, FEATURE_MQTT_COMM_ENABLED)
 $(call Requires_Relation, FEATURE_DEVICE_MODEL_GATEWAY, FEATURE_DEVICE_MODEL_ENABLED)
 $(call Requires_Relation, FEATURE_HTTP2_COMM_ENABLED, FEATURE_SUPPORT_TLS)

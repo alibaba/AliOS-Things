@@ -3,6 +3,8 @@
  */
 
 #ifdef MQTT_COMM_ENABLED
+#ifdef MQTT_LOGPOST
+
 #include "sdk-impl_internal.h"
 
 #define LOG_PUBLISH_MSG_MAXLEN   (255)
@@ -69,7 +71,7 @@ static int iotx_mc_log_post(void *pclient, char *payload)
     HAL_GetDeviceName(device_name);
 
     iotx_mqtt_topic_info_t topic_info;
-    
+
 
     if (!payload || !pclient) {
         return FAIL_RETURN;
@@ -105,4 +107,6 @@ static int iotx_mc_log_post(void *pclient, char *payload)
     return SUCCESS_RETURN;
 }
 
-#endif
+#endif  /* MQTT_LOGPOST */
+#endif  /* MQTT_COMM_ENABLED */
+
