@@ -41,7 +41,7 @@ menu "Device Model Configurations"
     config DEV_BIND_ENABLED
         bool "FEATURE_DEV_BIND_ENABLED"
         depends on MQTT_COMM_ENABLED
-        default n
+        default y
         help
             Enable customers to bind device to current user
 
