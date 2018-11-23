@@ -24,10 +24,16 @@ ifeq ($(linkwan), 1)
 $(NAME)_SOURCES += src/lorawan_port.c \
                    src/eml3047_lrwan.c
 
+lorawanback      ?= 0
+ifeq ($(lorawanback), 0)
 $(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_2.lorachip network.lorawan.lorawan_4_4_2
-LORACHIP           := sx1276
+else ifeq ($(lorawanback), 1)
+$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_0.lorachip network.lorawan.lorawan_4_4_0
+endif
 
-GLOBAL_DEFINES += EML3047_LORAWAN
+LORACHIP          := sx1276
+
+GLOBAL_DEFINES    += EML3047_LORAWAN
 endif
 
 #$(NAME)_LINK_FILES := src/eml3047_it.o
@@ -42,10 +48,17 @@ GLOBAL_INCLUDES += .                                                            
 GLOBAL_DEFINES += USE_HAL_DRIVER \
                   STM32L071xx
 
+ifeq ($(lorawanback), 0)
 GLOBAL_INCLUDES += ../../network/lorawan/lorawan_4_4_2/lora/system \
                    ../../network/lorawan/lorawan_4_4_2/lora/mac    \
                    ../../network/lorawan/lorawan_4_4_2/lora/radio  \
                    ../../network/lorawan/lorawan_4_4_2/linkwan\include
+else ifeq ($(lorawanback), 0)
+GLOBAL_INCLUDES += ../../network/lorawan/lorawan_4_4_0/lora/system \
+                   ../../network/lorawan/lorawan_4_4_0/lora/mac    \
+                   ../../network/lorawan/lorawan_4_4_0/lora/radio  \
+                   ../../network/lorawan/lorawan_4_4_0/linkwan\include
+endif
 
 GLOBAL_DEFINES += STDIO_UART=0 CONFIG_NO_TCPIP
 GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0 RHINO_CONFIG_NORMAL_PRT=0

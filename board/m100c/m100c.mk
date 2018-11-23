@@ -11,7 +11,13 @@ HOST_ARCH       := Cortex-M3
 HOST_MCU_FAMILY := efm32gxx
 SUPPORT_MBINS   := no
 
-$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_2.lorachip
+lorawanback      ?= 0
+ifeq ($(lorawanback), 0)
+$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_2.lorachip network.lorawan.lorawan_4_4_2
+else ifeq ($(lorawanback), 1)
+$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_0.lorachip network.lorawan.lorawan_4_4_0
+endif
+
 LORACHIP           := sx1276
 
 GLOBAL_DEFINES += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0 RHINO_CONFIG_NORMAL_PRT=0
@@ -26,6 +32,20 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/board/m100c
 
 GLOBAL_INCLUDES += .
+
+ifeq ($(lorawanback), 0)
+GLOBAL_INCLUDES += ../../network/lorawan/lorawan_4_4_2/lorachip/sx1276 \
+                   ../../network/lorawan/lorawan_4_4_2/lora/system     \
+                   ../../network/lorawan/lorawan_4_4_2/lora/mac        \
+                   ../../network/lorawan/lorawan_4_4_2/lora/radio      \
+                   ../../network/lorawan/lorawan_4_4_2/linkwan/include
+else ifeq ($(lorawanback), 1)
+GLOBAL_INCLUDES += ../../network/lorawan/lorawan_4_4_0/lorachip/sx1276 \
+                   ../../network/lorawan/lorawan_4_4_0/lora/system     \
+                   ../../network/lorawan/lorawan_4_4_0/lora/mac        \
+                   ../../network/lorawan/lorawan_4_4_0/lora/radio      \
+                   ../../network/lorawan/lorawan_4_4_0/linkwan/include
+endif
 
 $(NAME)_SOURCES := board.c
 $(NAME)_SOURCES += hw.c
