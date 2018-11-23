@@ -320,6 +320,15 @@ kstat_t task_suspend(ktask_t *task)
     RHINO_CRITICAL_ENTER();
 
     cur_cpu_num = cpu_cur_get();
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    if (task->cpu_num != cur_cpu_num) {
+        if (task->cur_exc == 1) {
+            RHINO_CRITICAL_EXIT();
+            return RHINO_TRY_AGAIN;
+        }
+    }
+#endif
+
     if (task == g_active_task[cur_cpu_num]) {
         if (g_sched_lock[cur_cpu_num] > 0u) {
             RHINO_CRITICAL_EXIT();
@@ -358,12 +367,6 @@ kstat_t task_suspend(ktask_t *task)
     }
 
     TRACE_TASK_SUSPEND(g_active_task[cur_cpu_num], task);
-
-#if (RHINO_CONFIG_CPU_NUM > 1)
-    if (task->cpu_num != cur_cpu_num) {
-        cpu_signal(task->cpu_num);
-    }
-#endif
 
     RHINO_CRITICAL_EXIT_SCHED();
 

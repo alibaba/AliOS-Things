@@ -245,29 +245,10 @@ kstat_t krhino_uprocess_exit(void)
 {
     kstat_t   ret;
     ktask_t  *cur_task;
-    klist_t  *tmp;
-    klist_t  *head;
-    ktask_t  *task_tmp;
-    uint32_t  pid;
 
-    CPSR_ALLOC();
-
+    /* to do ....... */
     cur_task = krhino_cur_task_get();
-    pid      = cur_task->pid;
-
-    /* release all the task belong to this process */
-    RHINO_CRITICAL_ENTER();
-    head = &g_kobj_list.task_head;
-    for (tmp = head->next; tmp != head; tmp = tmp->next) {
-        task_tmp = krhino_list_entry(tmp, ktask_t, task_stats_item);
-        if (task_tmp->pid == pid) {
-            krhino_task_dyn_del(task_tmp);
-        }
-    }
-    RHINO_CRITICAL_EXIT();
-
     ret = krhino_task_dyn_del(cur_task->proc_addr);
-
     return ret;
 }
 
