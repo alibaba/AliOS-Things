@@ -16,8 +16,6 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 
-GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4
-
 GLOBAL_INCLUDES += src/common/csp/lwip/include             \
                    src/common/csp/wifi/inc                 \
                    src/B-L475E-IOT01/include               \
@@ -32,8 +30,9 @@ GLOBAL_INCLUDES += src/common/csp/lwip/include             \
                    Drivers/BSP/Components/lps22hb          \
                    Drivers/BSP/Components/lsm6dsl          \
                    Drivers/BSP/Components/vl53l0x          \
+                   Drivers/BSP/Components/mx25r6435f       \
+                   Drivers/BSP/Components/Common           \
                    Drivers/CMSIS/Include                   \
-                   ../../../kernel/hal/include             \
                    Middlewares/USB_Device/Core/Inc
 
 GLOBAL_CFLAGS += -DSTM32L475xx
