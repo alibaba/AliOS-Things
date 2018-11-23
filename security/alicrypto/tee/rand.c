@@ -3,7 +3,7 @@
  **/
 
 #include "ali_crypto.h"
-#include "../../libalicrypto/mbed/inc/mbed_crypto.h"
+#include "../libalicrypto/mbed/inc/mbed_crypto.h"
 #include "tee_client_api.h"
 #include "tee_crypto_client.h"
 
