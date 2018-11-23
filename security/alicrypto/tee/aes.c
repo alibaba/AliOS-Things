@@ -2,7 +2,7 @@
  * Copyright (C) 2017  Alibaba Group Holding Limited. 
  */
 
-#include "../../libalicrypto/mbed/inc/mbed_crypto.h"
+#include "../libalicrypto/mbed/inc/mbed_crypto.h"
 #include "ali_crypto.h"
 #include "tee_crypto_client.h"
 
