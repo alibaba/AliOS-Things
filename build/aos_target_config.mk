@@ -335,12 +335,12 @@ endif
 ifeq ($(MBINS),app)
 COMPONENTS += mbins.umbins
 COMPONENTS += rhino.mm
-COMPONENTS += rhino.uspace
+COMPONENTS += uspace
 AOS_SDK_DEFINES += BUILD_APP
 AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush -nostartfiles
 else ifeq ($(MBINS),kernel)
 COMPONENTS += mbins.kmbins
-COMPONENTS += rhino.uspace
+COMPONENTS += uspace
 AOS_SDK_DEFINES += BUILD_KERNEL
 else ifeq (,$(MBINS))
 AOS_SDK_DEFINES += BUILD_BIN
