@@ -18,10 +18,10 @@
 #define DEVICE_SECRET  "cNwnA4W7amnkgG6s8zGXSJD3nI1c7kO1"
 #else
 // for demo only
-#define PRODUCT_KEY      "a16UKrlKekO"
-#define PRODUCT_SECRET   "RDluqbn3LQazrdqM"
-#define DEVICE_NAME      "gateway_test01"
-#define DEVICE_SECRET    "AT2XFOPOIbJaKfXsKeaEhabJ8TLhMQYp"
+#define PRODUCT_KEY      "a1X2bEnP82z"
+#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
+#define DEVICE_NAME      "example1"
+#define DEVICE_SECRET    "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
 #endif
 
 #if USE_CUSTOME_DOMAIN
