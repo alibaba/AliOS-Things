@@ -7,7 +7,6 @@
 #define LOOP_ROUND 50
 #define STACK_SIZE 0x400
 
-static char      stack[STACK_SIZE];
 static ktask_t  *mutex_task_obj;
 static kmutex_t *test_mutex;
 static bool      loop_exit;
@@ -28,20 +27,25 @@ static void second_task_run(void *arg)
 
     del_mutex = 1;
 
-    while (1) {
-        krhino_task_sleep(1000);
-    }
+    krhino_utask_del(krhino_cur_task_get());
 }
 
 int mutex_test(void)
 {
-    kstat_t stat;
+    cpu_stack_t *stack;
+    kstat_t      stat;
 
     loop_exit = 0;
     del_mutex = 0;
     mutex_cnt = 0;
 
     krhino_mutex_dyn_create(&test_mutex, "test_mutex");
+
+    stack = malloc(STACK_SIZE*sizeof(cpu_stack_t));
+    if (stack == NULL) {
+        printf("%s, allocate stack failed\r\n", __func__);
+        return -2;
+    }
 
     stat = krhino_utask_create(&mutex_task_obj, "mutex_test_task", 0,
                                AOS_DEFAULT_APP_PRI, (tick_t)0, stack,
