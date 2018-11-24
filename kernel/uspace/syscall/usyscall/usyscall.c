@@ -20,34 +20,6 @@ kstat_t krhino_task_sleep(tick_t tick)
     return SYSCALL(SYS_KRHINO_TASK_SLEEP, &_arg);
 }
 
-kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name,
-                               void *arg, uint8_t prio, tick_t ticks,
-                               cpu_stack_t *stack_buf, size_t stack_size,
-                               size_t kstack_size, task_entry_t entry,
-                               uint32_t pid, uint8_t autorun)
-{
-    volatile krhino_uprocess_create_syscall_arg_t _arg;
-
-    _arg.task        = task;
-    _arg.name        = name;
-    _arg.arg         = arg;
-    _arg.prio        = prio;
-    _arg.ticks       = ticks;
-    _arg.stack_buf   = stack_buf;
-    _arg.stack_size  = stack_size;
-    _arg.kstack_size = kstack_size;
-    _arg.entry       = entry;
-    _arg.pid         = pid;
-    _arg.autorun     = autorun;
-
-    return SYSCALL(SYS_KRHINO_UPROCESS_CREATE, &_arg);
-}
-
-kstat_t krhino_uprocess_exit(void)
-{
-    return SYSCALL(SYS_KRHINO_UPROCESS_EXIT, NULL);
-}
-
 kstat_t krhino_utask_create(ktask_t **task, const name_t *name,
                             void *arg, uint8_t prio, tick_t ticks,
                             cpu_stack_t *stack_buf, size_t stack_size,
@@ -77,6 +49,45 @@ kstat_t krhino_utask_del(ktask_t *task)
     _arg.task = task;
 
     return SYSCALL(SYS_KRHINO_UTASK_DEL, &_arg);
+}
+
+/* ------------------- process ------------------- */
+kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name,
+                               void *arg, uint8_t prio, tick_t ticks,
+                               cpu_stack_t *stack_buf, size_t stack_size,
+                               size_t kstack_size, task_entry_t entry,
+                               uint32_t pid, uint8_t autorun)
+{
+    volatile krhino_uprocess_create_syscall_arg_t _arg;
+
+    _arg.task        = task;
+    _arg.name        = name;
+    _arg.arg         = arg;
+    _arg.prio        = prio;
+    _arg.ticks       = ticks;
+    _arg.stack_buf   = stack_buf;
+    _arg.stack_size  = stack_size;
+    _arg.kstack_size = kstack_size;
+    _arg.entry       = entry;
+    _arg.pid         = pid;
+    _arg.autorun     = autorun;
+
+    return SYSCALL(SYS_KRHINO_UPROCESS_CREATE, &_arg);
+}
+
+kstat_t krhino_uprocess_exit(void)
+{
+    return SYSCALL(SYS_KRHINO_UPROCESS_EXIT, NULL);
+}
+
+void krhino_uprocess_res_get(int32_t id, void **res)
+{
+    volatile krhino_uprocess_res_get_syscall_arg_t _arg;
+
+    _arg.id  = id;
+    _arg.res = res;
+
+    SYSCALL(SYS_KRHINO_UPROCESS_RES_GET, &_arg);
 }
 
 /* ------------------ time ------------------ */
@@ -185,6 +196,68 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
     _arg.ticks = ticks;
 
     return SYSCALL(SYS_KRHINO_SEM_TAKE, &_arg);
+}
+
+/* -------------------- queue ---------------------*/
+kstat_t krhino_queue_dyn_create(kqueue_t **queue, const name_t *name,
+                                size_t msg_num)
+{
+    volatile krhino_queue_dyn_create_syscall_arg_t arg;
+
+    arg.queue   = queue;
+    arg.name    = name;
+    arg.msg_num = msg_num;
+
+    return SYSCALL(SYS_KRHINO_QUEUE_DYN_CREATE, &arg);
+}
+
+kstat_t krhino_queue_dyn_del(kqueue_t *queue)
+{
+    volatile krhino_queue_dyn_del_syscall_arg_t arg;
+
+    arg.queue = queue;
+
+    return SYSCALL(SYS_KRHINO_QUEUE_DYN_DEL, &arg);
+}
+
+kstat_t krhino_queue_back_send(kqueue_t *queue, void *msg)
+{
+    volatile krhino_queue_back_send_syscall_arg_t arg;
+
+    arg.queue = queue;
+    arg. msg  = msg;
+
+    return SYSCALL(SYS_KRHINO_QUEUE_BACK_SEND, &arg);
+}
+
+kstat_t krhino_queue_all_send(kqueue_t *queue, void *msg)
+{
+    volatile krhino_queue_all_send_syscall_arg_t arg;
+
+    arg.queue = queue;
+    arg.msg   = msg;
+
+    return SYSCALL(SYS_KRHINO_QUEUE_ALL_SEND, &arg);
+}
+
+kstat_t krhino_queue_recv(kqueue_t *queue, tick_t ticks, void **msg)
+{
+    volatile krhino_queue_recv_syscall_arg_t arg;
+
+    arg.queue  = queue;
+    arg.ticks  = ticks;
+    arg.msg    = msg;
+
+    return SYSCALL(SYS_KRHINO_QUEUE_RECV, &arg);
+}
+
+kstat_t krhino_queue_flush(kqueue_t *queue)
+{
+    volatile krhino_queue_flush_syscall_arg_t arg;
+
+    arg.queue = queue;
+
+    return SYSCALL(SYS_KRHINO_QUEUE_FLUSH, &arg);
 }
 
 /* ------------------ buf queue -------------------*/

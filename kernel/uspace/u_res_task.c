@@ -8,7 +8,7 @@
 #define RES_TASK_USTACK 512u
 #define RES_TASK_KSTACK 512u
 
-ktask_t *res_task;
+ktask_t *res_task_obj;
 
 void res_task(void *arg)
 {
@@ -31,7 +31,7 @@ void res_task_start(void)
         return;
     }
 
-    krhino_utask_create(&res_task, "res_task", 0, 20 ,50 ,ustack_buf,
+    krhino_utask_create(&res_task_obj, "res_task", 0, 20 ,50 ,ustack_buf,
                         RES_TASK_USTACK, RES_TASK_KSTACK, res_task, 1);
 }
 
