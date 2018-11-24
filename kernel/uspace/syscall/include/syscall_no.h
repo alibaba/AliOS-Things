@@ -8,17 +8,24 @@
 /* ------------------- task --------------------*/
 #define K_TASK_BASE (0)
 
-#define SYS_KRHINO_CUR_TASK_GET    (K_TASK_BASE + 0)
-#define SYS_KRHINO_TASK_SLEEP      (K_TASK_BASE + 1)
-#define SYS_KRHINO_UPROCESS_CREATE (K_TASK_BASE + 2)
-#define SYS_KRHINO_UPROCESS_EXIT   (K_TASK_BASE + 3)
-#define SYS_KRHINO_UTASK_CREATE    (K_TASK_BASE + 4)
-#define SYS_KRHINO_UTASK_DEL       (K_TASK_BASE + 5)
+#define SYS_KRHINO_CUR_TASK_GET       (K_TASK_BASE + 0)
+#define SYS_KRHINO_TASK_SLEEP         (K_TASK_BASE + 1)
+#define SYS_KRHINO_UTASK_CREATE       (K_TASK_BASE + 2)
+#define SYS_KRHINO_UTASK_DEL          (K_TASK_BASE + 3)
 
-#define K_TASK_END (SYS_KRHINO_UTASK_CREATE)
+#define K_TASK_END (SYS_KRHINO_UTASK_DEL)
+
+/* ------------------- process --------------------*/
+#define K_UPROCESS_BASE (K_TASK_END + 1)
+
+#define SYS_KRHINO_UPROCESS_CREATE    (K_UPROCESS_BASE + 0)
+#define SYS_KRHINO_UPROCESS_EXIT      (K_UPROCESS_BASE + 1)
+#define SYS_KRHINO_UPROCESS_RES_GET   (K_UPROCESS_BASE + 2)
+
+#define K_UPROCESS_END (SYS_KRHINO_UPROCESS_RES_GET)
 
 /* ------------------- time --------------------*/
-#define K_TIME_BASE (K_TASK_END + 1)
+#define K_TIME_BASE (K_UPROCESS_END + 1)
 
 #define SYS_KRHINO_SYS_TIME_GET (K_TIME_BASE + 0)
 #define SYS_KRHINO_SYS_TICK_GET (K_TIME_BASE + 1)
@@ -47,8 +54,20 @@
 
 #define K_SEM_END (SYS_KRHINO_SEM_GIVE)
 
+/* -------------------- queue --------------------*/
+#define K_QUEUE_BASE (K_SEM_END + 1)
+
+#define SYS_KRHINO_QUEUE_DYN_CREATE (K_QUEUE_BASE + 0)
+#define SYS_KRHINO_QUEUE_DYN_DEL    (K_QUEUE_BASE + 1)
+#define SYS_KRHINO_QUEUE_BACK_SEND  (K_QUEUE_BASE + 2)
+#define SYS_KRHINO_QUEUE_ALL_SEND   (K_QUEUE_BASE + 3)
+#define SYS_KRHINO_QUEUE_RECV       (K_QUEUE_BASE + 4)
+#define SYS_KRHINO_QUEUE_FLUSH      (K_QUEUE_BASE + 5)
+
+#define K_QUEUE_END (SYS_KRHINO_QUEUE_FLUSH)
+
 /* ------------------ buf queue -------------------*/
-#define K_BUF_QUEUE_BASE (K_SEM_END + 1)
+#define K_BUF_QUEUE_BASE (K_QUEUE_END + 1)
 
 #define SYS_KRHINO_BUF_QUEUE_CREATE     (K_BUF_QUEUE_BASE + 0)
 #define SYS_KRHINO_FIX_BUF_QUEUE_CREATE (K_BUF_QUEUE_BASE + 1)
