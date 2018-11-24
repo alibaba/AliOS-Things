@@ -1,4 +1,9 @@
-#include "../port/port.h"
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+#include <mbmaster_api.h>
+#include "mbcrc.h"
 
 /* Table of CRC values for high–order byte */
 static const uint8_t auch_crc_hi[] = {
