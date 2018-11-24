@@ -8,12 +8,13 @@
 #define LOOP_ROUND 10
 #define STACK_SIZE 0x400
 
-static char     stack[STACK_SIZE];
-static ktask_t *task_obj;
-static ksem_t  *client_server_sem;
-static bool     server_loop_exit;
-static bool     client_loop_exit;
-static int      client_loop_cnt;
+static cpu_stack_t *stack;
+static ktask_t     *task_obj;
+static ksem_t      *client_server_sem;
+
+static bool server_loop_exit;
+static bool client_loop_exit;
+static int  client_loop_cnt;
 
 static int wait_test(void)
 {
@@ -40,8 +41,8 @@ static int wait_test(void)
 
     end = krhino_sys_tick_get();
     if ((end < start) || (end - start < wait_ticks)) {
-        printf("wait ticks error, start 0x%x, end 0x%x\r\n",
-                (int)start, (int)end);
+        printf("%s: wait ticks error, start 0x%x, end 0x%x\r\n",
+               __func__, (int)start, (int)end);
         ret = -7;
         goto err1;
     }
@@ -68,9 +69,8 @@ static void client_task_run(void *arg)
     }
 
     client_loop_exit = 1;
-    while (1) {
-        krhino_task_sleep(1000);
-    }
+
+    krhino_utask_del(krhino_cur_task_get());
 }
 
 static int client_server_test(void)
@@ -88,14 +88,21 @@ static int client_server_test(void)
         return -8;
     }
 
+    stack = malloc(STACK_SIZE*sizeof(cpu_stack_t));
+    if (stack == NULL) {
+        printf("%s: alloc stack failed\r\n", __func__);
+        return -9;
+    }
+
     stat = krhino_utask_create(&task_obj, "sem_test_task", 0,
                                AOS_DEFAULT_APP_PRI, (tick_t)0,
                                stack, STACK_SIZE, STACK_SIZE,
                                (task_entry_t)client_task_run, 1);
 
     if (RHINO_SUCCESS != stat) {
-        ret = -9;
-        printf("create sem_test_task failed, ret code %d\r\n", stat);
+        ret = -10;
+        printf("%s: create sem_test_task failed, ret code %d\r\n",
+               __func__, stat);
         goto del_sem;
     }
 
