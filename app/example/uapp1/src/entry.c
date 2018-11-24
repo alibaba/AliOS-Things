@@ -39,6 +39,8 @@ void app_entry(int argc, char *argv[])
 
     // Note: printf doesn't work in app untill app_mm_init is done
 
+    res_task_start();
+
     timer_init();
 
     application_start(argc, argv);

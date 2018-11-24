@@ -9,7 +9,7 @@
 #define APP_STACK_SIZE 0x400
 
 static ktask_t     *app_obj;
-static cpu_stack_t  app_stack[APP_STACK_SIZE];
+static cpu_stack_t *stack;
 
 static void app_run(void *arg)
 {
@@ -49,9 +49,12 @@ int application_start(int argc, char *argv[])
 
     printf("uapp2 start to run\r\n");
 
-    krhino_utask_create(&app_obj, "application2", 0, AOS_DEFAULT_APP_PRI,
-                        (tick_t)0, app_stack, APP_STACK_SIZE,APP_STACK_SIZE,
-                        (task_entry_t)app_run, 1);
+    stack = malloc(APP_STACK_SIZE*sizeof(cpu_stack_t));
+    if (stack != NULL) {
+        krhino_utask_create(&app_obj, "application2", 0, AOS_DEFAULT_APP_PRI,
+                            (tick_t)0, stack, APP_STACK_SIZE,APP_STACK_SIZE,
+                            (task_entry_t)app_run, 1);
+    }
 
     while (1) {
         krhino_task_sleep(200);
