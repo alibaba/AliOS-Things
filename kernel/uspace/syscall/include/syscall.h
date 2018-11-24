@@ -9,7 +9,7 @@
 #include <k_api.h>
 #include <syscall_no.h>
 
-/* ------------------- task  ------------------- */
+/* ------------------- utask ------------------- */
 typedef struct  {
     tick_t tick;
 } krhino_task_sleep_syscall_arg_t;
@@ -28,6 +28,11 @@ typedef struct {
 } krhino_utask_create_syscall_arg_t;
 
 typedef struct {
+    ktask_t *task;
+} krhino_utask_del_syscall_arg_t;
+
+/* ------------------- process ------------------- */
+typedef struct {
     ktask_t      **task;
     const name_t  *name;
     void          *arg;
@@ -42,8 +47,9 @@ typedef struct {
 } krhino_uprocess_create_syscall_arg_t;
 
 typedef struct {
-    ktask_t *task;
-} krhino_utask_del_syscall_arg_t;
+    int32_t   id;
+    void    **res;
+} krhino_uprocess_res_get_syscall_arg_t;
 
 /* ------------------- time  ------------------- */
 typedef struct {
@@ -107,6 +113,37 @@ typedef struct {
     ksem_t      *sem;
     sem_count_t *count;
 } krhino_sem_count_set_syscall_arg_t;
+
+/* -------------------- queue ---------------------*/
+typedef struct {
+    kqueue_t     **queue;
+    const name_t  *name;
+    size_t         msg_num;
+} krhino_queue_dyn_create_syscall_arg_t;
+
+typedef struct {
+    kqueue_t *queue;
+} krhino_queue_dyn_del_syscall_arg_t;
+
+typedef struct {
+    kqueue_t *queue;
+    void *msg;
+} krhino_queue_back_send_syscall_arg_t;
+
+typedef struct {
+    kqueue_t *queue;
+    void *msg;
+} krhino_queue_all_send_syscall_arg_t;
+
+typedef struct {
+    kqueue_t *queue;
+    void    **msg;
+    tick_t    ticks;
+} krhino_queue_recv_syscall_arg_t;
+
+typedef struct {
+    kqueue_t *queue;
+} krhino_queue_flush_syscall_arg_t;
 
 /* ---------------- buf queue -----------------*/
 typedef struct {

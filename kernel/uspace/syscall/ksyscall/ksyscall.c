@@ -24,6 +24,24 @@ static void sys_krhino_task_sleep_stub(void *arg)
     krhino_task_sleep(_arg->tick);
 }
 
+static kstat_t sys_krhino_utask_create_stub(void *arg)
+{
+    krhino_utask_create_syscall_arg_t *_arg = arg;
+
+    return krhino_utask_create(_arg->task, _arg->name, _arg->arg,
+                               _arg->prio, _arg->ticks, _arg->stack_buf,
+                               _arg->stack_size, _arg->kstack_size,
+                               _arg->entry, _arg->autorun);
+}
+
+static kstat_t sys_krhino_utask_del_stub(void *arg)
+{
+    krhino_utask_del_syscall_arg_t *_arg = arg;
+
+    return krhino_utask_del(_arg->task);
+}
+
+/* ------------------ process ------------------ */
 static kstat_t sys_krhino_uprocess_create_stub(void *arg)
 {
     krhino_uprocess_create_syscall_arg_t *_arg = arg;
@@ -41,21 +59,11 @@ static kstat_t sys_krhino_uprocess_exit_stub(void *arg)
     return krhino_uprocess_exit();
 }
 
-static kstat_t sys_krhino_utask_create_stub(void *arg)
+static void sys_krhino_uprocess_res_get_stub(void *arg)
 {
-    krhino_utask_create_syscall_arg_t *_arg = arg;
+    krhino_uprocess_res_get_syscall_arg_t *_arg = arg;
 
-    return krhino_utask_create(_arg->task, _arg->name, _arg->arg,
-                               _arg->prio, _arg->ticks, _arg->stack_buf,
-                               _arg->stack_size, _arg->kstack_size,
-                               _arg->entry, _arg->autorun);
-}
-
-static kstat_t sys_krhino_utask_del_stub(void *arg)
-{
-    krhino_utask_del_syscall_arg_t *_arg = arg;
-
-    return krhino_utask_del(_arg->task);
+    krhino_uprocess_res_get(_arg->id, _arg->res);
 }
 
 /* ------------------- time ------------------ */
@@ -143,6 +151,49 @@ static kstat_t sys_krhino_sem_take_stub(void *arg)
     krhino_sem_take_syscall_arg_t *_arg = arg;
 
     return krhino_sem_take(_arg->sem, _arg->ticks);
+}
+
+/* -------------------- queue --------------------*/
+kstat_t sys_krhino_queue_dyn_create_stub(void *arg)
+{
+    krhino_queue_dyn_create_syscall_arg_t *_arg = arg;
+
+    return krhino_queue_dyn_create(_arg->queue, _arg->name, _arg->msg_num);
+}
+
+kstat_t sys_krhino_queue_dyn_del_stub(void *arg)
+{
+     krhino_buf_queue_dyn_del_syscall_arg_t *_arg = arg;
+
+    return krhino_queue_dyn_del(_arg->queue);
+}
+
+kstat_t sys_krhino_queue_back_send_stub(void *arg)
+{
+     krhino_queue_back_send_syscall_arg_t *_arg = arg;
+
+     return krhino_queue_back_send(_arg->queue, _arg->msg);
+}
+
+kstat_t sys_krhino_queue_all_send_stub(void *arg)
+{
+     krhino_queue_all_send_syscall_arg_t *_arg = arg;
+
+     return krhino_queue_all_send(_arg->queue, _arg->msg);
+}
+
+ kstat_t sys_krhino_queue_recv_stub(void *arg)
+{
+     krhino_queue_recv_syscall_arg_t *_arg = arg;
+
+     return krhino_queue_recv(_arg->queue, _arg->ticks, _arg->msg);
+}
+
+ kstat_t sys_krhino_queue_flush_stub(void *arg)
+{
+     krhino_queue_flush_syscall_arg_t *_arg = arg;
+
+     return krhino_queue_flush(_arg->queue);
 }
 
 /* ------------------ buf queue -------------------*/
@@ -307,12 +358,15 @@ static ssize_t sys_aos_write_stub(void *arg)
  *************************************************************/
 void *syscall_tbl[] = {
                        /* ------------------- task ----------------------*/
-                       [SYS_KRHINO_CUR_TASK_GET]    = sys_krhino_cur_task_get_stub,
-                       [SYS_KRHINO_TASK_SLEEP]      = sys_krhino_task_sleep_stub,
+                       [SYS_KRHINO_CUR_TASK_GET] = sys_krhino_cur_task_get_stub,
+                       [SYS_KRHINO_TASK_SLEEP]   = sys_krhino_task_sleep_stub,
+                       [SYS_KRHINO_UTASK_CREATE] = sys_krhino_utask_create_stub,
+                       [SYS_KRHINO_UTASK_DEL]    = sys_krhino_utask_del_stub,
+
+                       /* ------------------- porcess ----------------------*/
                        [SYS_KRHINO_UPROCESS_CREATE] = sys_krhino_uprocess_create_stub,
                        [SYS_KRHINO_UPROCESS_EXIT]   = sys_krhino_uprocess_exit_stub,
-                       [SYS_KRHINO_UTASK_CREATE]    = sys_krhino_utask_create_stub,
-                       [SYS_KRHINO_UTASK_DEL]       = sys_krhino_utask_del_stub,
+                       [SYS_KRHINO_UPROCESS_RES_GET]   = sys_krhino_uprocess_res_get_stub,
 
                        /* ------------------- time ----------------------*/
                        [SYS_KRHINO_SYS_TIME_GET] = sys_krhino_sys_time_get_stub,
@@ -331,6 +385,14 @@ void *syscall_tbl[] = {
                        [SYS_KRHINO_SEM_DYN_DEL]    = sys_krhino_sem_dyn_del_stub,
                        [SYS_KRHINO_SEM_TAKE]       = sys_krhino_sem_take_stub,
                        [SYS_KRHINO_SEM_GIVE]       = sys_krhino_sem_give_stub,
+
+                       /* --------------------- queue -----------------------*/
+                       [SYS_KRHINO_QUEUE_DYN_CREATE] = sys_krhino_queue_dyn_create_stub,
+                       [SYS_KRHINO_QUEUE_DYN_DEL]    = sys_krhino_queue_dyn_del_stub,
+                       [SYS_KRHINO_QUEUE_BACK_SEND]  = sys_krhino_queue_back_send_stub,
+                       [SYS_KRHINO_QUEUE_ALL_SEND]   = sys_krhino_queue_all_send_stub,
+                       [SYS_KRHINO_QUEUE_RECV]       = sys_krhino_queue_recv_stub,
+                       [SYS_KRHINO_QUEUE_FLUSH]      = sys_krhino_queue_flush_stub,
 
                        /* ------------------ buf queue --------------------*/
                        [SYS_KRHINO_BUF_QUEUE_CREATE]     = sys_krhino_buf_queue_create_stub,
