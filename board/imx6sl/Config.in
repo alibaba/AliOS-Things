@@ -1,6 +1,6 @@
 menuconfig AOS_BOARD_IMX6SL
     bool "board_imx6sl"
-    select AOS_MCU_IMX6
+    select AOS_MCU_IMX6SX
     help
 
 if AOS_BOARD_IMX6SL
