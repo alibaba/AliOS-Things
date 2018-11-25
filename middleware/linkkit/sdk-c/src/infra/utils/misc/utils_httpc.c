@@ -203,21 +203,6 @@ int httpclient_get_info(httpclient_t *client, char *send_buf, int *send_idx, cha
     return SUCCESS_RETURN;
 }
 
-void httpclient_set_custom_header(httpclient_t *client, char *header)
-{
-    client->header = header;
-}
-
-int httpclient_basic_auth(httpclient_t *client, char *user, char *password)
-{
-    if ((strlen(user) + strlen(password)) >= HTTPCLIENT_AUTHB_SIZE) {
-        return ERROR_HTTP;
-    }
-    client->auth_user = user;
-    client->auth_password = password;
-    return SUCCESS_RETURN;
-}
-
 int httpclient_send_auth(httpclient_t *client, char *send_buf, int *send_idx)
 {
     char b_auth[(int)((HTTPCLIENT_AUTHB_SIZE + 3) * 4 / 3 + 1)];
