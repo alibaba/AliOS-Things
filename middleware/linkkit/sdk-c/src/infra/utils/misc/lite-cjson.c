@@ -497,6 +497,7 @@ int lite_cjson_parse(_IN_ const char *src, _IN_ int src_len, _OU_ lite_cjson_t *
     return 0;
 }
 
+#if 0
 int lite_cjson_is_false(_IN_ lite_cjson_t *lite)
 {
     if (!lite) {
@@ -523,6 +524,7 @@ int lite_cjson_is_null(_IN_ lite_cjson_t *lite)
 
     return (lite->type & 0xFF) == cJSON_NULL;
 }
+#endif
 
 int lite_cjson_is_number(_IN_ lite_cjson_t *lite)
 {
@@ -832,6 +834,7 @@ int lite_cjson_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN_ i
     return 0;
 }
 
+#ifdef DEPRECATED_LINKKIT
 int lite_cjson_object_item_by_index(_IN_ lite_cjson_t *lite, _IN_ int index, _OU_ lite_cjson_t *lite_item_key,
                                     _OU_ lite_cjson_t *lite_item_value)
 {
@@ -918,6 +921,8 @@ int lite_cjson_object_item_by_index(_IN_ lite_cjson_t *lite, _IN_ int index, _OU
 
     return -1;
 }
+#endif  /* #ifdef DEPRECATED_LINKKIT */
+
 /*** cjson create, add and print ***/
 #if defined(ALCS_ENABLED) || defined(DEPRECATED_LINKKIT)
 #define true ((cJSON_bool)1)
