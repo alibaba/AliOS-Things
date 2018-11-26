@@ -41,6 +41,12 @@ which ${CC} > /dev/null 2>&1
 
 if [ $? != 0 ] && [ ! -f ${LOCAL_CC} ]; then
 
+    if [ "${GITPATH}" = "" ]; then
+        echo "Unable to find available toolchain of [${CC}] from local ENV or Internet. Abort!" | grep --color ".*"
+        echo ""
+        exit 1
+    fi
+
     echo -n "${GIT_PREFIX}/${GITPATH} -> "
     echo -n "$(basename ${OUTPUT_DIR})/$(basename ${TOOLCHAIN_DLDIR})/"
     echo "$(dirname ${RELPATH})"
@@ -52,4 +58,5 @@ if [ $? != 0 ] && [ ! -f ${LOCAL_CC} ]; then
 
     waiting "$!" "downloading toolchain for ${CC}"
     cd ${OLDPWD}
+
 fi
