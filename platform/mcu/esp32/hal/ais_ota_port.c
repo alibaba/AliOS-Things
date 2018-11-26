@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <hal/ais_ota.h>
+#include "ais_ota.h"
 #include <aos/aos.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/storage.h>
