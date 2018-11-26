@@ -650,16 +650,23 @@ bool RegionCN470ATxConfig(TxConfigParams_t *txConfig, int8_t *txPower,
 
     *txPower = txConfig->TxPower;
 
-    mib_req.Type = MIB_FREQ_BAND;
-    mib_req.Param.freqband = TxFreqBandNum;
-    if (LoRaMacMibSetRequestConfirm(&mib_req) != LORAMAC_STATUS_OK) {
-        DBG_LINKWAN("save tx freqband fail\r\n");
-    }
+    mib_req.Type = MIB_NETWORK_ACTIVATION;
+    if (LoRaMacMibGetRequestConfirm(&mib_req) == LORAMAC_STATUS_OK) {
 
-    mib_req.Type = MIB_CHANNELS_DATARATE;
-    mib_req.Param.ChannelsDatarate = txConfig->Datarate;
-    if (LoRaMacMibSetRequestConfirm(&mib_req) != LORAMAC_STATUS_OK) {
-        DBG_LINKWAN("save tx datarate fail\r\n");
+        if (mib_req.Param.NetworkActivation == ACTIVATION_TYPE_NONE) {
+
+            mib_req.Type = MIB_FREQ_BAND;
+            mib_req.Param.freqband = TxFreqBandNum;
+            if (LoRaMacMibSetRequestConfirm(&mib_req) != LORAMAC_STATUS_OK) {
+                DBG_LINKWAN("save tx freqband fail\r\n");
+            }
+
+            mib_req.Type = MIB_CHANNELS_DATARATE;
+            mib_req.Param.ChannelsDatarate = txConfig->Datarate;
+            if (LoRaMacMibSetRequestConfirm(&mib_req) != LORAMAC_STATUS_OK) {
+                DBG_LINKWAN("save tx datarate fail\r\n");
+            }
+        }
     }
 
     DBG_LINKWAN("Tx, Band %d, Freq: %d,DR: %d, len: %d, duration %d, at %d\r\n",

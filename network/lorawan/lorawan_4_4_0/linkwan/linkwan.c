@@ -300,6 +300,11 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
     // Check Port
     // Check Datarate
     // Check FramePending
+    if (mcpsIndication->FramePending == true) {
+        tx_data.BuffSize = 0;
+        on_tx_next_packet_timer_event();
+    }
+
     // Check Buffer
     // Check BufferSize
     // Check Rssi
@@ -563,6 +568,9 @@ void lora_fsm(void)
 #endif
 
 #endif
+
+                set_lora_app_port(2);
+
                 device_state = DEVICE_STATE_JOIN;
                 break;
             }
@@ -1050,12 +1058,16 @@ bool send_lora_link_check(void)
     MlmeReq_t mlmeReq;
 
     mlmeReq.Type = MLME_LINK_CHECK;
+
     if (next_tx == true) {
         if (LoRaMacMlmeRequest(&mlmeReq) == LORAMAC_STATUS_OK) {
-            next_tx = false;
-            return lora_tx_data_payload(1, get_lora_tx_cfm_trials(), NULL, 0);
+
+            device_state = DEVICE_STATE_SEND;
+
+            return true;
         }
     }
+
     return false;
 }
 
