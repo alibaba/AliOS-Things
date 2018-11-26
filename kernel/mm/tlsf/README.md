@@ -82,7 +82,7 @@ History
 2006/09/09 - v1.2
   * Add tlsf_block_size
   * Static assertion mechanism for invariants
-  * Minor bugfixes 
+  * Minor bugfixes
 
 2006/09/01 - v1.1
   * Add tlsf_realloc
