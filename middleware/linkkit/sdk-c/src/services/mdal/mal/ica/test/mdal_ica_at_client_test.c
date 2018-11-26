@@ -26,7 +26,6 @@ int HAL_MDAL_MAL_ICA_Init()
         return ret;
     }
 
-    at.set_mode(ASYN);
     return 0;
 #endif
 }
