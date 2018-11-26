@@ -635,6 +635,8 @@ void lora_fsm(void)
                 mibReq.Param.Class = lora_dev.class;
                 LoRaMacMibSetRequestConfirm(&mibReq);
 
+                app_classType = lora_dev.class;
+
 #if defined(REGION_EU868)
                 lora_config_duty_cycle_set(LORAWAN_DUTYCYCLE_ON ? 1 : 0);
 
