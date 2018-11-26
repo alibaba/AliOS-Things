@@ -4,7 +4,7 @@
 **yloop** refers to the event driven loop, which provides the event notifications mechanism.
 
 ### Features
-- event notifications
+- event schedule
 
 ### Directories
 
