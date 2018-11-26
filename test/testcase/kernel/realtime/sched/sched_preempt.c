@@ -1,18 +1,20 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
 #define TEST_TASK1_NAME "rt_test1"
 #define TEST_TASK2_NAME "rt_test2"
-#define TEST_TASK1_PRI  TEST_TASK_PRIORITY  /* low priority task */
-#define TEST_TASK2_PRI  (TEST_TASK_PRIORITY-1)  /* high priority task */
+
+#define TEST_TASK1_PRI TEST_TASK_PRIORITY       /* low priority task */
+#define TEST_TASK2_PRI (TEST_TASK_PRIORITY - 1) /* high priority task */
 
 static void test_data_init()
 {
@@ -43,7 +45,7 @@ static void test_task2(void *arg)
     while (test_count < TEST_ITERATION) {
         time_end = HR_COUNT_GET();
 
-        if(rttest_aux_intrpt_occurred() == true) {
+        if (rttest_aux_intrpt_occurred() == true) {
             krhino_task_suspend(&test_task2_tcb);
             continue;
         }

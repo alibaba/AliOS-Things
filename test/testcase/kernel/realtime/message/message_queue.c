@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
@@ -28,7 +29,7 @@ static void test_data_init()
 static void test_task1(void *arg)
 {
     hr_timer_t time_start_send = HR_TIMER_MAX, time_end_send = 0;
-    hr_timer_t time_start_rev = HR_TIMER_MAX, time_end_rev = 0;
+    hr_timer_t time_start_rev  = HR_TIMER_MAX, time_end_rev  = 0;
     hr_timer_t time_current;
 
     while (test_count < TEST_ITERATION) {
@@ -44,7 +45,7 @@ static void test_task1(void *arg)
             continue;
         }
 
-        if(rttest_aux_intrpt_occurred() == true) {
+        if (rttest_aux_intrpt_occurred() == true) {
             continue;
         }
 

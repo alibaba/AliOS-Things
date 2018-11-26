@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
@@ -14,7 +15,7 @@
 #define TEST_TASK1_NAME "rt_test1"
 #define TEST_TASK1_PRI  TEST_TASK_PRIORITY
 
-static void test_data_init()
+static void test_data_init(void)
 {
     time_sum   = 0;
     time_max   = 0;
@@ -54,7 +55,7 @@ static void test_task1(void *arg)
 
 void test_realtime_intrpt_preempt(void)
 {
-    kstat_t      stat;
+    kstat_t stat;
 
     test_data_init();
 
@@ -66,6 +67,7 @@ void test_realtime_intrpt_preempt(void)
                        test_task1_stack, TEST_TASK_STACKSIZE, test_task1, 0);
 
     rttest_aux_intrpt_check_init();
+
     /* insert into head of task ready list */
     krhino_task_resume(&test_task1_tcb);
 
@@ -76,4 +78,5 @@ void test_realtime_intrpt_preempt(void)
     krhino_task_del(&test_task1_tcb);
     krhino_sem_del(&wait_test_end);
 }
-#endif
+
+#endif /* ENABLE_INTRPT_PREEMPT > 0 */

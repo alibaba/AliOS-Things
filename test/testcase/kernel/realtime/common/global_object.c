@@ -1,20 +1,22 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
-#include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <aos/aos.h>
+#include <k_api.h>
+
 #include "test_realtime.h"
 
-uint64_t   time_sum          = 0;
-hr_timer_t time_max          = 0;
-hr_timer_t time_min          = HR_TIMER_MAX;
+uint64_t   time_sum = 0;
+hr_timer_t time_max = 0;
+hr_timer_t time_min = HR_TIMER_MAX;
+
 volatile uint32_t test_count = 0;
 
-hr_timer_t   time_start = HR_TIMER_MAX, time_end = 0;
+hr_timer_t time_start = HR_TIMER_MAX, time_end = 0;
 
 uint64_t   time_sum_alloc = 0;
 hr_timer_t time_max_alloc = 0;
