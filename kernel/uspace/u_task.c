@@ -16,6 +16,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 
     cpu_stack_t *tmp;
     ktask_t     *cur_task;
+    ktask_t     *proc_task;
     uint8_t      i = 0;
 
     NULL_PARA_CHK(task);
@@ -80,7 +81,6 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     task->stack_size         = kstack_size;
     task->mm_alloc_flag      = mm_alloc_flag;
     task->cpu_num            = cpu_num;
-
     task->ustack_size        = ustack_size;
     task->task_ustack_base   = ustack_buf;
     task->mode               = 0x3;
@@ -89,11 +89,21 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 
     if (task->is_proc == 1) {
         task->proc_addr = task;
+        klist_init(&task->kobj.task_head);
+        klist_insert(&task->kobj.task_head, &task->task_user);
     }
     else {
         cur_task = krhino_cur_task_get();
         task->proc_addr = cur_task->proc_addr;
+        proc_task = task->proc_addr;
+        RHINO_CRITICAL_ENTER();
+        klist_insert(&proc_task->kobj.task_head, &task->task_user);
+        RHINO_CRITICAL_EXIT();
     }
+
+    RHINO_CRITICAL_ENTER();
+    klist_insert(&task->kobj.task_head, &task->task_user);
+    RHINO_CRITICAL_EXIT();
 
     cpu_binded = cpu_binded;
     i          = i;

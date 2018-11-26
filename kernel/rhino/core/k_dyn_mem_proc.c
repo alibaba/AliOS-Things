@@ -5,6 +5,51 @@
 #include <k_api.h>
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+static proc_free(ktask_t *task)
+{
+    CPSR_ALLOC();
+
+    ktask_t      *proc;
+    kqueue_t     *res_q;
+    cpu_stack_t  *u_stack;
+    klist_t      *head = &task->kobj.task_head;
+
+    u_stack = task->task_ustack_base;
+    proc = task->proc_addr;
+
+    if (task->is_proc == 1u) {
+        res_q = proc->res_q;
+
+        RHINO_CRITICAL_ENTER();
+        klist_rm(&task->task_user);
+        if (head->next == head) {
+            RHINO_CRITICAL_EXIT();
+            k_proc_unload(task->pid);
+        }
+        RHINO_CRITICAL_EXIT();
+        krhino_queue_back_send(res_q, task->task_ustack_base);
+    }
+    else {
+        if (task->proc_addr != 0) {
+            res_q = proc->res_q;
+
+            RHINO_CRITICAL_ENTER();
+            klist_rm(&task->task_user);
+            if (head->next == head) {
+                RHINO_CRITICAL_EXIT();
+                k_proc_unload(task->pid);
+            }
+            RHINO_CRITICAL_EXIT();
+            krhino_queue_back_send(res_q, task->task_ustack_base);
+            
+            
+        }
+    }    
+}
+#endif
+
 void dyn_mem_proc_task(void *arg)
 {
     CPSR_ALLOC();
@@ -13,11 +58,6 @@ void dyn_mem_proc_task(void *arg)
     kstat_t     ret;
     res_free_t *res_free;
     res_free_t  tmp;
-#if (RHINO_CONFIG_USER_SPACE > 0)
-    ktask_t      *task;
-    ktask_t      *proc;
-    kbuf_queue_t *res_q;
-#endif
 
     (void)arg;
 
@@ -34,17 +74,7 @@ void dyn_mem_proc_task(void *arg)
                 klist_rm(&res_free->res_list);
                 RHINO_CRITICAL_EXIT();
 #if (RHINO_CONFIG_USER_SPACE > 0)
-                task = (ktask_t *)(res_free->res[1]);
-                if (task->is_proc == 1u) {
-                    k_proc_unload(task->pid);
-                }
-                else {
-                    proc = task->proc_addr;
-                    if (proc != 0) {
-                        res_q = proc->res_q;
-                        krhino_queue_back_send(res_q, task->task_ustack_base);
-                    }
-                }
+                proc_free((ktask_t *)(res_free->res[1]));
 #endif
                 memcpy(&tmp, res_free, sizeof(res_free_t));
                 for (i = 0; i < tmp.cnt; i++) {
