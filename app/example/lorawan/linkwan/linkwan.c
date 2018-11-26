@@ -21,11 +21,6 @@ static void LoraTxData(lora_AppData_t *AppData)
 {
     uint8_t index = 0;
 
-    AppData->BuffSize = get_lora_tx_len();
-    if (AppData->BuffSize < 1) {
-        AppData->BuffSize = 1;
-    }
-
     for (index = 0; index < AppData->BuffSize; index++) {
         AppData->Buff[index] = '0' + index;
     }
