@@ -2,7 +2,7 @@ NAME := lwip
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := lightweight tcp/ip stack
 
 #ifeq (y,$(FEATURE_LWIP_ENABLED))
 ifneq ($(no_with_lwip),1)
