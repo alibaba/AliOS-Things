@@ -10,9 +10,9 @@ GLOBAL_INCLUDES += include common
 
 #default gcc
 ifeq ($(COMPILER),)
-$(NAME)_CFLAGS      += -Wall -Werror
+$(NAME)_CFLAGS += -Wall -Werror
 else ifeq ($(COMPILER),gcc)
-$(NAME)_CFLAGS      += -Wall -Werror
+$(NAME)_CFLAGS += -Wall -Werror
 endif
 
 $(NAME)_SOURCES := common/auxiliary.c \

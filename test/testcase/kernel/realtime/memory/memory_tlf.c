@@ -1,18 +1,19 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
 #define TEST_TASK1_NAME "rt_test1"
 #define TEST_TASK1_PRI  TEST_TASK_PRIORITY
 
-static void test_data_init()
+static void test_data_init(void)
 {
     time_sum_alloc = 0;
     time_max_alloc = 0;
@@ -28,9 +29,10 @@ static void test_data_init()
 static void test_task1(void *arg)
 {
     hr_timer_t time_start_alloc = HR_TIMER_MAX, time_end_alloc = 0;
-    hr_timer_t time_start_free = HR_TIMER_MAX, time_end_free = 0;
+    hr_timer_t time_start_free  = HR_TIMER_MAX, time_end_free  = 0;
     hr_timer_t time_current;
-    void * tmp;
+
+    void *tmp;
 
     while (test_count < TEST_ITERATION) {
         time_start_alloc = HR_COUNT_GET();
@@ -41,7 +43,7 @@ static void test_task1(void *arg)
         krhino_mm_free(tmp);
         time_end_free = HR_COUNT_GET();
 
-        if(rttest_aux_intrpt_occurred() == true) {
+        if (rttest_aux_intrpt_occurred() == true) {
             continue;
         }
 
@@ -78,7 +80,7 @@ void test_realtime_memory_tlf_alloc(void)
 #else
     rttest_aux_show_result(MEM_TLF_INTRPT_CRITICAL_ID, "mem_tlf_alloc", test_count, time_sum_alloc, time_max_alloc, time_min_alloc);
     rttest_aux_show_result(MEM_TLF_INTRPT_CRITICAL_ID, "mem_tlf_free", test_count, time_sum_free, time_max_free, time_min_free);
-#endif
+#endif /* RHINO_CONFIG_MM_REGION_MUTEX */
 
     krhino_task_del(&test_task1_tcb);
     krhino_sem_del(&wait_test_end);

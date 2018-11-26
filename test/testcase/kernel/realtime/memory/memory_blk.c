@@ -1,20 +1,21 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
 #define TEST_TASK1_NAME "rt_test1"
 #define TEST_TASK1_PRI  TEST_TASK_PRIORITY
 
-mblk_pool_t *mmblk_pool;
+static mblk_pool_t *mmblk_pool;
 
-static void test_data_init()
+static void test_data_init(void)
 {
     time_sum_alloc = 0;
     time_max_alloc = 0;
@@ -30,7 +31,7 @@ static void test_data_init()
 static void test_task1(void *arg)
 {
     hr_timer_t time_start_alloc = HR_TIMER_MAX, time_end_alloc = 0;
-    hr_timer_t time_start_free = HR_TIMER_MAX,  time_end_free  = 0;
+    hr_timer_t time_start_free  = HR_TIMER_MAX, time_end_free  = 0;
     hr_timer_t time_current;
     void      *tmp;
     kstat_t    sta;
@@ -48,7 +49,7 @@ static void test_task1(void *arg)
         krhino_mblk_free(mmblk_pool, tmp);
         time_end_free = HR_COUNT_GET();
 
-        if(rttest_aux_intrpt_occurred() == true) {
+        if (rttest_aux_intrpt_occurred() == true) {
             continue;
         }
 
@@ -67,7 +68,7 @@ static void test_task1(void *arg)
 
 void test_realtime_memory_blk_alloc(void)
 {
-    kstat_t      stat;
+    kstat_t stat;
 
     test_data_init();
 
@@ -83,8 +84,7 @@ void test_realtime_memory_blk_alloc(void)
             krhino_mm_free(mmblk_pool);
             return;
         }
-    }
-    else {
+    } else {
         return;
     }
 
@@ -92,6 +92,7 @@ void test_realtime_memory_blk_alloc(void)
                        test_task1_stack, TEST_TASK_STACKSIZE, test_task1, 0);
 
     rttest_aux_intrpt_check_init();
+
     /* insert into head of task ready list */
     krhino_task_resume(&test_task1_tcb);
 

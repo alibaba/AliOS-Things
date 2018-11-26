@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
@@ -15,7 +16,7 @@
 #define TEST_TASK2_NAME "rt_test2"
 #define TEST_TASK2_PRI  TEST_TASK_PRIORITY
 
-static void test_data_init()
+static void test_data_init(void)
 {
     time_sum = 0;
     time_max = 0;
@@ -30,6 +31,7 @@ static void test_data_init()
 static void test_task1(void *arg)
 {
     hr_timer_t time_current;
+
     krhino_queue_back_send(&test_queue2, queue_send_msg2);
     while (test_count < TEST_ITERATION) {
         time_start = HR_COUNT_GET();
@@ -41,7 +43,7 @@ static void test_task1(void *arg)
             continue;
         }
 
-        if(rttest_aux_intrpt_occurred() == true) {
+        if (rttest_aux_intrpt_occurred() == true) {
             continue;
         }
 
@@ -74,13 +76,12 @@ void test_realtime_message_rrwp_task(void)
     krhino_sem_create(&wait_test_end, "test_sync", 0);
 
     ret = krhino_queue_create(&test_queue1, "test_queue1",
-                                  (void **)&test_queue_msg1, TEST_QUEUE_MSG_SIZE);
+                              (void **)&test_queue_msg1, TEST_QUEUE_MSG_SIZE);
     if (ret != RHINO_SUCCESS) {
         return;
     }
-
     ret = krhino_queue_create(&test_queue2, "test_queue2",
-                                  (void **)&test_queue_msg2, TEST_QUEUE_MSG_SIZE);
+                              (void **)&test_queue_msg2, TEST_QUEUE_MSG_SIZE);
     if (ret != RHINO_SUCCESS) {
         return;
     }

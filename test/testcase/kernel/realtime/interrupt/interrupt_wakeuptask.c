@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
@@ -26,7 +27,7 @@ static void test_data_init()
     time_end   = 0;
 }
 
-static void highpri_intrpt_process()
+static void highpri_intrpt_process(void)
 {
     time_start = HR_COUNT_GET();
     krhino_sem_give(&test_sem);
@@ -91,4 +92,4 @@ void test_realtime_intrpt_wakeuptask(void)
     krhino_sem_del(&wait_test_end);
 }
 
-#endif
+#endif /* ENABLE_INTRPT_RESPOND_WAKEUP > 0 */
