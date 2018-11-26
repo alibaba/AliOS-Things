@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_MBINS_ENTRY
-    bool "mbins_entry"
-    default n
-    help
-
-if AOS_COMP_MBINS_ENTRY
-# Configurations for component mbins_entry
-endif
