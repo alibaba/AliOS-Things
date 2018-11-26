@@ -2,7 +2,7 @@ NAME := sal
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := socket adapter layer
 
 GLOBAL_DEFINES += WITH_SAL                   \
                   SAL_USE_AOS_HAL            \
