@@ -2,7 +2,7 @@ NAME := athost
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := athost for communicaiton module
 
 $(NAME)_SOURCES := ./src/athost.c             \
                    ./src/at_util.c 

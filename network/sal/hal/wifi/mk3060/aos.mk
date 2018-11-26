@@ -2,7 +2,7 @@ NAME := device_sal_mk3060
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := sal hal implementation for mk3060
 $(NAME)_SOURCES += wifi_atcmd.c
 GLOBAL_DEFINES += DEV_SAL_MK3060
 
