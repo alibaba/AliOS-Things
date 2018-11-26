@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <hal/ais_ota.h>
+#include "ais_ota.h"
 
 #include "nordic_common.h"
 //#include "sdk_macros.h"
