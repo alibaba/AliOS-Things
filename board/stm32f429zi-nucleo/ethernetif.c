@@ -485,9 +485,11 @@ static void tcpip_dhcpc_cb(struct netif *pstnetif)
             ip4_addr_set(&eth_ip_info.gw, ip_2_ip4(&pstnetif->gw));
 
             /* post the dhcp ip address */
-            post_ip_addr(eth_ip_info);     
+            post_ip_addr(eth_ip_info);
 
+#ifdef AOS_LOOP
             aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0xdeaddead);
+#endif
         }
     }
     return;
