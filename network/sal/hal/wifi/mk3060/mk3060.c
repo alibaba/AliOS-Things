@@ -964,7 +964,6 @@ static int mk3060_client_status_notify(netconn_client_status_notify_t cb)
 
 int sal_device_init(void)
 {
-    at.set_mode(ASYN);
     at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
             AT_SEND_DELIMITER, 1000);
     return 0;
