@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef REAL_TIME_DEFAULT_CONFIG_H
@@ -13,11 +13,11 @@
 #endif
 
 #ifndef ENABLE_INTRPT_PREEMPT
-#define ENABLE_INTRPT_PREEMPT        1 /* enabel interrupt preempt test */
+#define ENABLE_INTRPT_PREEMPT 1 /* enabel interrupt preempt test */
 #endif
 
 #ifndef RTTEST_DEBUG
-#define RTTEST_DEBUG                 0
+#define RTTEST_DEBUG 0
 #endif
 
 /* test case parameter */
@@ -37,4 +37,4 @@ extern "C" {
 }
 #endif
 
-#endif
+#endif /* REAL_TIME_DEFAULT_CONFIG_H */

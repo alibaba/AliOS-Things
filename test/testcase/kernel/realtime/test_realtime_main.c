@@ -1,9 +1,10 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #include <string.h>
 #include <stdio.h>
+
 #include <aos/aos.h>
 
 #include "test_realtime.h"
@@ -53,14 +54,14 @@ static intrpt_callback_t test_case[] = {
     test_realtime_memory_tlf_alloc,    /* t17 t19*/
 };
 
-uint32_t id_to_index[] = {0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,15,16};
+uint32_t id_to_index[] = {0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 15, 16};
 
 static void rttest_entry(void * arg)
 {
     uint32_t id = (uint32_t)arg;
     uint32_t index;
 
-    if(id >= sizeof(id_to_index)/sizeof(id_to_index[0])) {
+    if(id >= sizeof(id_to_index) / sizeof(id_to_index[0])) {
         printf("the test id is too large\n");
         krhino_sem_give(&wait_main_end);
         return;
@@ -82,10 +83,9 @@ static void rttest_entry(void * arg)
 #if (RHINO_CONFIG_INTRPT_STATS > 0)
         rttest_max_disintrpt();
 #endif
-    }
-    else {
+    } else {
         rttest_aux_show_result_header();
-        if(test_case[index] != NULL) {
+        if (test_case[index] != NULL) {
             test_case[index]();
         }
         rttest_aux_show_result_end();

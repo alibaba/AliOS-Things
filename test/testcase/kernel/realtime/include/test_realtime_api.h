@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef TEST_REALTIME_API_H
@@ -29,7 +29,7 @@ void test_realtime_memory_blk_alloc(void);
 void test_realtime_memory_tlf_alloc(void);
 
 /* test entry */
-void test_realtime_main(uint32_t id);  /* 0 for all test case*/
+void test_realtime_main(uint32_t id); /* 0 for all test case*/
 void test_realtime_max_disintrpt(void);
 
 #ifdef __cplusplus
