@@ -39,6 +39,8 @@ typedef struct {
     void            *proc_addr;
     cpu_stack_t     *task_ustack_base;
     void            *res_q;
+    kobj_list_t      kobj;
+    klist_t          task_user;
 #endif
 
     cpu_stack_t     *task_stack_base;
