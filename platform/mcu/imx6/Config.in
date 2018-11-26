@@ -1,5 +1,5 @@
-menuconfig AOS_MCU_IMX6SX
-    bool "imx6sx"
+menuconfig AOS_MCU_IMX6
+    bool "imx6"
     default n
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_COMMON
@@ -8,6 +8,6 @@ menuconfig AOS_MCU_IMX6SX
     select AOS_COMP_RHINO
     help
 
-if AOS_MCU_IMX6SX
-# Configurations for mcu imx6sx
+if AOS_MCU_IMX6
+# Configurations for mcu imx6
 endif
