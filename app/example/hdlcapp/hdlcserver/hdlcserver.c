@@ -109,7 +109,6 @@ static void app_delayed_action(void *arg)
 
 int application_start(int argc, char *argv[])
 {
-    at.set_mode(ASYN);
     at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
             AT_SEND_DELIMITER, 1000);
 
