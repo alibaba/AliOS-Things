@@ -4,7 +4,7 @@ $(NAME)_COMPONENTS := kernel.fs.vfs
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := yloop provides the event schedule mechanism for resource constrained devices.
 
 $(NAME)_SOURCES     := src/yloop.c
 $(NAME)_SOURCES     += src/local_event.c
