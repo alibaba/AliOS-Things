@@ -340,7 +340,7 @@ endif
 # MBINS build support
 ifeq ($(MBINS),app)
 COMPONENTS += mbins.umbins
-COMPONENTS += rhino.mm
+COMPONENTS += mm
 COMPONENTS += uspace
 AOS_SDK_DEFINES += BUILD_APP
 AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush -nostartfiles
