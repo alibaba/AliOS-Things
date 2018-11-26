@@ -59,6 +59,8 @@ def changeItemForMcu( tree ):
             ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L432KC-Nucleo\STM32L432.sct'
         if 'developerkit' in buildstring:
             ScatterFile.text = '..\..\..\..\\board\developerkit\STM32L496.sct'
+        if 'waveshareopen103c' in buildstring:
+            ScatterFile.text = '..\..\..\..\\board\waveshareopen103c\stm32f103xb_flash.sct'
     
 # change key word in project file. automation to do
 def ModifyProjString( projString ):
@@ -68,6 +70,8 @@ def ModifyProjString( projString ):
         projString = projString.replace('STM32L475VGTx','STM32L432KCTx')
     if 'developerkit' in buildstring:
         projString = projString.replace('STM32L475VGTx','STM32L496VGTx')
+    if 'waveshareopen103c' in buildstring:
+        projString = projString.replace('STM32L475VGTx','STM32F103CB')
     return  projString   
     
 def gen_project(tree, target, script):
