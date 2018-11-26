@@ -1,8 +1,8 @@
-NAME := xtensa
+NAME := xtensa_lx106
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1.0
-$(NAME)_SUMMARY    := arch for xtensa
+$(NAME)_SUMMARY    := arch for xtensa_lx106
 
 $(NAME)_SOURCES := port.c         \
                    panic.c        \

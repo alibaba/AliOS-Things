@@ -103,8 +103,8 @@ SECTIONS
     *(.init)
     *esp8266.a:entry.o(.literal .text .literal.* .text.*)
     *libmain.a:spi_flash.o(.literal .text .literal.* .text.*)
-    *xtensa.a:xtensa_vectors.o(.literal .text .literal.* .text.*)
-    *xtensa.a:port.o(.literal .text .literal.* .text.*)
+    *xtensa_lx106.a:xtensa_vectors.o(.literal .text .literal.* .text.*)
+    *xtensa_lx106.a:port.o(.literal .text .literal.* .text.*)
     *(.literal .text)
     _text_end = ABSOLUTE(.);
     _etext = .;
@@ -163,7 +163,7 @@ SECTIONS
     *libgcc.a:(.bss .bss.* COMMON)
     *libespos.a:(.bss .bss.* COMMON)
     *libmain.a:(.bss .bss.* COMMON)
-    *xtensa.a:(.bss .bss.* COMMON)
+    *xtensa_lx106.a:(.bss .bss.* COMMON)
     *libhal.a:(.bss .bss.* COMMON)
     *libnet80211.a:(.bss .bss.* COMMON)
     *esp8266.a:(.bss .bss.* COMMON)
