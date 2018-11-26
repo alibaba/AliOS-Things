@@ -212,18 +212,6 @@ static int at_init(const char *recv_prefix, const char *recv_success_postfix,
     return 0;
 }
 
-static void at_set_mode(at_mode_t m)
-{
-    if (m == at._mode) {
-        return;
-    }
-    /*at operate mode changed, it should wait the uart read operate finished in
-     * the origin operate mode*/
-    aos_mutex_lock(&at.at_mutex, AOS_WAIT_FOREVER);
-    at._mode = m;
-    aos_mutex_unlock(&at.at_mutex);
-}
-
 static int at_putc(char c)
 {
     int ret = 0;
@@ -997,9 +985,7 @@ static void at_worker(void *arg)
 
 at_parser_t at = { ._oobs                 = { { 0 } },
                    ._oobs_num             = 0,
-                   ._mode                 = ASYN, // default mode - atworker
                    .init                  = at_init,
-                   .set_mode              = at_set_mode,
                    .set_timeout           = at_set_timeout,
                    .set_recv_delimiter    = at_set_recv_delimiter,
                    .set_worker_stack_size = at_set_worker_stack_size,

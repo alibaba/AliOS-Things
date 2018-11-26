@@ -66,12 +66,6 @@ typedef struct at_task_s
 
 typedef enum
 {
-    NORMAL = 0,
-    ASYN
-} at_mode_t;
-
-typedef enum
-{
     AT_SEND_RAW = 0,
     AT_SEND_PBUF
 } at_send_t;
@@ -98,8 +92,6 @@ typedef struct
     aos_mutex_t at_uart_send_mutex;
     aos_mutex_t task_mutex;
 
-    at_mode_t _mode;
-
     // can be used externally
     slist_t task_l;
 
@@ -116,8 +108,6 @@ typedef struct
     int (*init)(const char *recv_prefix, const char *recv_success_postfix,
                 const char *recv_fail_postfix, const char *send_delimiter,
                 int timeout);
-
-    void (*set_mode)(at_mode_t m);
 
     void (*set_timeout)(int timeout);
 
