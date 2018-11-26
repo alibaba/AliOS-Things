@@ -88,14 +88,16 @@ all: ${OUTPUT_DIR}/usr/lib/${COMP_LIB} ${ALL_LIBS} ${ALL_BINS}
 	    rm -f \$(STAMP_LCOV); \\
 	fi
 
+ifneq (,\$(findstring gcc,\$(CC)))
 $(for iter in ${COMP_LIB_OBJS}; do
-    echo "sinclude ${iter/.o/.d}"
+    echo "sinclude ${OUTPUT_DIR}/${iter/.o/.d}"
 done
 )
+endif
 
 ${OUTPUT_DIR}/usr/lib/${COMP_LIB}: \\
 $(for iter in ${COMP_LIB_OBJS}; do
-    echo "    ${iter} \\"
+    echo "    ${OUTPUT_DIR}/${iter} \\"
 done
 )
 
@@ -113,6 +115,7 @@ done
         \$(IFLAGS) \\
         \$\${S//.o/.c}
 
+ifneq (,\$(findstring gcc,\$(CC)))
 %.d:
 	@\\
 ( \\
@@ -127,6 +130,7 @@ done
 	sed -i 's!\$(shell basename \$*)\.o[ :]!\$*.o:!1' \$@.\$\$\$\$; \\
 	mv \$@.\$\$\$\$ \$@; \\
 )
+endif
 
 EOB
 
