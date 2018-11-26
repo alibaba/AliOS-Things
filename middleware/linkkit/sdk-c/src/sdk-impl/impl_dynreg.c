@@ -8,6 +8,9 @@
 
 #define HTTP_RESPONSE_PAYLOAD_LEN           256
 
+#define IMPL_LINKKIT_DYNREG_MALLOC(size)    LITE_malloc(size, MEM_MAGIC, "impl.dynreg")
+#define IMPL_LINKKIT_DYNREG_FREE(ptr)       LITE_free(ptr)
+
 static int _calc_dynreg_sign(
             _IN_ char product_key[PRODUCT_KEY_MAXLEN],
             _IN_ char product_secret[PRODUCT_SECRET_MAXLEN],
@@ -28,7 +31,7 @@ static int _calc_dynreg_sign(
 
     /* Calculate SHA256 Value */
     sign_source_len = strlen(dynamic_register_sign_fmt) + strlen(device_name) + strlen(product_key) + strlen(random) + 1;
-    sign_source = LITE_malloc(sign_source_len);
+    sign_source = IMPL_LINKKIT_DYNREG_MALLOC(sign_source_len);
     if (sign_source == NULL) {
         sdk_err("Memory Not Enough");
         return FAIL_RETURN;
@@ -37,7 +40,7 @@ static int _calc_dynreg_sign(
     HAL_Snprintf(sign_source, sign_source_len, dynamic_register_sign_fmt, device_name, product_key, random);
 
     utils_hmac_sha256(sign_source, strlen(sign_source), sign, product_secret, strlen(product_secret));
-    LITE_free(sign_source);
+    IMPL_LINKKIT_DYNREG_FREE(sign_source);
     sdk_info("Sign: %s", sign);
 
     return SUCCESS_RETURN;
@@ -64,7 +67,7 @@ static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *respon
         return FAIL_RETURN;
     }
     url_len = strlen(url_format) + strlen(domain) + 1;
-    url = (char *)LITE_malloc(url_len);
+    url = (char *)IMPL_LINKKIT_DYNREG_MALLOC(url_len);
     if (NULL == url) {
         sdk_err("Not Enough Memory");
         return FAIL_RETURN;
@@ -83,10 +86,10 @@ static int _fetch_dynreg_http_resp(_IN_ char *request_payload, _IN_ char *respon
     res = httpclient_common(&http_client, url, 443, iotx_ca_get(), HTTPCLIENT_POST, 10000, &http_client_data);
     if (res != SUCCESS_RETURN) {
         sdk_err("Http Download Failed");
-        LITE_free(url);
+        IMPL_LINKKIT_DYNREG_FREE(url);
         return FAIL_RETURN;
     }
-    LITE_free(url);
+    IMPL_LINKKIT_DYNREG_FREE(url);
     sdk_info("Http Response Payload: %s", http_client_data.response_buf);
 
     /* Parse Http Response */
@@ -165,7 +168,7 @@ int perform_dynamic_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
     /* Assemble Http Dynamic Register Request Payload */
     dynamic_register_request_len = strlen(dynamic_register_format) + strlen(product_key) + strlen(device_name) +
                                    strlen(random) + strlen(sign) + strlen(DYNAMIC_REGISTER_SIGN_METHOD_HMACSHA256) + 1;
-    dynamic_register_request = LITE_malloc(dynamic_register_request_len);
+    dynamic_register_request = IMPL_LINKKIT_DYNREG_MALLOC(dynamic_register_request_len);
     if (dynamic_register_request == NULL) {
         sdk_err("Not Enough Memory");
         return FAIL_RETURN;
@@ -174,17 +177,17 @@ int perform_dynamic_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
     HAL_Snprintf(dynamic_register_request, dynamic_register_request_len, dynamic_register_format,
                  product_key, device_name, random, sign, DYNAMIC_REGISTER_SIGN_METHOD_HMACSHA256);
 
-    dynamic_register_response = LITE_malloc(HTTP_RESPONSE_PAYLOAD_LEN);
+    dynamic_register_response = IMPL_LINKKIT_DYNREG_MALLOC(HTTP_RESPONSE_PAYLOAD_LEN);
     if (dynamic_register_response == NULL) {
         sdk_err("Not Enough Memory");
-        LITE_free(dynamic_register_request);
+        IMPL_LINKKIT_DYNREG_FREE(dynamic_register_request);
         return FAIL_RETURN;
     }
 
     /* Send Http Request For Getting Device Secret */
     res = _fetch_dynreg_http_resp(dynamic_register_request, dynamic_register_response, device_secret);
-    LITE_free(dynamic_register_request);
-    LITE_free(dynamic_register_response);
+    IMPL_LINKKIT_DYNREG_FREE(dynamic_register_request);
+    IMPL_LINKKIT_DYNREG_FREE(dynamic_register_response);
     if (res != SUCCESS_RETURN) {
         sdk_err("Get Device Secret Failed");
         return FAIL_RETURN;
