@@ -232,11 +232,6 @@ static int at_putc(char c)
         return -1;
     }
 
-    if (at._mode != ASYN) {
-        LOGE(MODULE_NAME, "AT mode is normal, can no use at_putc \r\n");
-        return -1;
-    }
-
     LOGD(MODULE_NAME, "uart sending %c(0x%02x)\r\n", c, c);
     aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
 #ifdef HDLC_UART
@@ -264,11 +259,6 @@ static int at_getc(char *c)
         LOGE(MODULE_NAME, "at have not init yet\r\n");
         return -1;
     }
-#if 1
-    if (at._mode != ASYN) {
-        return -1;
-    }
-#endif
 
     aos_mutex_lock(&at.at_mutex, AOS_WAIT_FOREVER);
 #ifdef HDLC_UART
@@ -404,11 +394,6 @@ static int at_send_raw_self_define_respone_formate_internal(
         return -1;
     }
 
-    if (at._mode != ASYN) {
-        LOGE(MODULE_NAME, "Operation not supported in non asyn mode \r\n");
-        return -1;
-    }
-
     if (NULL == command) {
         LOGE(MODULE_NAME, "%s invalid input \r\n", __FUNCTION__);
         return -1;
@@ -519,11 +504,6 @@ static int at_send_raw(const char *command, char *rsp, uint32_t rsplen)
         return -1;
     }
 
-    if (at._mode != ASYN) {
-        LOGE(MODULE_NAME, "Operation not supported in non asyn mode");
-        return -1;
-    }
-
     return at_send_raw_self_define_respone_formate(command, rsp, rsplen, NULL,
                                                    NULL, NULL);
 }
@@ -558,11 +538,6 @@ static int at_send_data_3stage_no_rsp(const char *header, const uint8_t *data,
 
     if (inited == 0) {
         LOGE(MODULE_NAME, "at have not init yet\r\n");
-        return -1;
-    }
-
-    if (at._mode != ASYN) {
-        LOGE(MODULE_NAME, "Operation not supported in non asyn mode");
         return -1;
     }
 
@@ -686,11 +661,6 @@ static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
 
     if (inited == 0) {
         LOGE(MODULE_NAME, "at have not init yet\r\n");
-        return -1;
-    }
-
-    if (at._mode != ASYN) {
-        LOGE(MODULE_NAME, "Operation not supported in non asyn mode \r\n");
         return -1;
     }
 
@@ -868,10 +838,6 @@ static void at_worker(void *arg)
 
     while (true) {
         // read from uart and store buf
-        if (at._mode != ASYN) {
-            aos_msleep(1);
-        }
-
         ret = at_getc(&c);
         if (ret != 0) {
             continue;
