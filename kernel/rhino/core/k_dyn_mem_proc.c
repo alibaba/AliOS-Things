@@ -7,7 +7,7 @@
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 
 #if (RHINO_CONFIG_USER_SPACE > 0)
-static proc_free(ktask_t *task)
+static void proc_free(ktask_t *task)
 {
     CPSR_ALLOC();
 
@@ -43,10 +43,8 @@ static proc_free(ktask_t *task)
             }
             RHINO_CRITICAL_EXIT();
             krhino_queue_back_send(res_q, task->task_ustack_base);
-            
-            
         }
-    }    
+    }
 }
 #endif
 
