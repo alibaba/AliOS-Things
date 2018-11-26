@@ -20,6 +20,7 @@ endif
 
 GLOBAL_DEFINES      += AOS_LOOP
 GLOBAL_INCLUDES     += include
+GLOBAL_INCLUDES     += hal
 
 ifeq ($(COMPILER),armcc)
 	$(NAME)_LINK_FILES := src/local_event.o
@@ -27,4 +28,8 @@ endif
 
 ifeq ($(COMPILER),rvct)
 	$(NAME)_LINK_FILES := src/local_event.o
+endif
+
+ifeq ($(osal), rhino)
+$(NAME)_SOURCES += hal/loop_hal_alios.c
 endif

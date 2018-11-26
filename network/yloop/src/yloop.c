@@ -11,6 +11,7 @@
 #include <aos/aos.h>
 #include <aos/network.h>
 
+#include "loop_hal.h"
 #include "yloop.h"
 
 #define TAG "yloop"
@@ -23,18 +24,17 @@ typedef struct yloop_timeout_s {
     int              ms;
 } yloop_timeout_t;
 
-
 yloop_ctx_t    *g_main_ctx = NULL;
-static aos_task_key_t  g_loop_key;
+static unsigned int g_loop_key;
 
 static inline void _set_context(yloop_ctx_t *ctx)
 {
-    aos_task_setspecific(g_loop_key, ctx);
+    hal_loop_task_setspecific(g_loop_key, ctx);
 }
 
 static inline yloop_ctx_t *_get_context(void)
 {
-    return aos_task_getspecific(g_loop_key);
+    return hal_loop_task_getspecific(g_loop_key);
 }
 
 static inline yloop_ctx_t *get_context(void)
@@ -69,7 +69,7 @@ aos_loop_t aos_loop_init(void)
     yloop_ctx_t *ctx = _get_context();
 
     if (!g_main_ctx) {
-        aos_task_key_create(&g_loop_key);
+        hal_loop_task_key_create(&g_loop_key);
     } else if (ctx) {
         LOGE(TAG, "yloop already inited");
         return ctx;
