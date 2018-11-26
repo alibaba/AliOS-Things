@@ -1,14 +1,19 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef GLOBAL_OBJECT_H
 #define GLOBAL_OBJECT_H
 
-#include <aos/aos.h>
-#include <k_api.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <aos/aos.h>
+#include <k_api.h>
 
 #include "test_realtime.h"
 
@@ -76,4 +81,8 @@ extern void    *test_queue_msg2[];
 extern void    *queue_send_msg2;
 extern void    *queue_recv_msg2;
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* GLOBAL_OBJECT_H */

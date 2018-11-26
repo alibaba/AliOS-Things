@@ -1,18 +1,19 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
 #define TEST_TASK1_NAME "rt_test1"
 #define TEST_TASK1_PRI  TEST_TASK_PRIORITY
 
-static void test_data_init()
+static void test_data_init(void)
 {
     time_sum_request = 0;
     time_max_request = 0;
@@ -40,7 +41,7 @@ static void test_task1(void *arg)
         krhino_sem_take(&test_sem, RHINO_WAIT_FOREVER);
         time_end_request = HR_COUNT_GET();
 
-        if(rttest_aux_intrpt_occurred() == true) {
+        if (rttest_aux_intrpt_occurred() == true) {
             continue;
         }
 

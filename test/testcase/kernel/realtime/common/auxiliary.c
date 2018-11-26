@@ -1,25 +1,26 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
-#include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <aos/aos.h>
+#include <k_api.h>
+
 #include "test_realtime.h"
 
-sys_time_t old_systick = 0;
+static sys_time_t old_systick = 0;
 
-intrpt_callback_t  highpri_intrpt_func = NULL;
-intrpt_callback_t  lowpri_intrpt_func = NULL;
+intrpt_callback_t highpri_intrpt_func = NULL;
+intrpt_callback_t lowpri_intrpt_func  = NULL;
 
 #if RTTEST_DEBUG
 hr_timer_t debug_data[TEST_ITERATION];
 uint32_t   debud_data_count = 0;
 #endif
 
-void rttest_aux_show_sysconfig()
+void rttest_aux_show_sysconfig(void)
 {
     printf("\n=======================AliOS Things Test Environment===================\n");
     printf("test evironment congfig:\n");
@@ -49,16 +50,16 @@ void rttest_aux_show_result(uint32_t test_id, char * test_name, uint32_t test_co
     }
     printf("\n");
     debud_data_count = 0;
-#endif
+#endif /* RTTEST_DEBUG */
 
-    printf("T%-6d",test_id);
-    printf("%-25s",test_name);
+    printf("T%-6d", test_id);
+    printf("%-25s", test_name);
 
-    printf("%-10.2f", (float)time_sum/test_count/HR_COUNT_FREQ());
-    printf("%-10.2f", (float)time_min/HR_COUNT_FREQ());
-    printf("%-10.2f", (float)time_max/HR_COUNT_FREQ());
+    printf("%-10.2f", (float)time_sum / test_count/HR_COUNT_FREQ());
+    printf("%-10.2f", (float)time_min / HR_COUNT_FREQ());
+    printf("%-10.2f", (float)time_max / HR_COUNT_FREQ());
 
-    printf("%-10d\n",test_count);
+    printf("%-10d\n", test_count);
 }
 
 void rttest_aux_show_result_end(void)
@@ -69,7 +70,7 @@ void rttest_aux_show_result_end(void)
 void rttest_aux_record_result(hr_timer_t time_current, uint64_t *time_sum,
                               hr_timer_t *time_max, hr_timer_t *time_min)
 {
-    if(time_current > g_sys_measure_waste) {
+    if (time_current > g_sys_measure_waste) {
         time_current -= g_sys_measure_waste;
     } else {
         time_current = 0;
@@ -93,8 +94,7 @@ void rttest_aux_record_result(hr_timer_t time_current, uint64_t *time_sum,
 /* try to avoid systick interrupt */
 void rttest_aux_intrpt_check_init(void)
 {
-    sys_time_t systick;
-    systick = krhino_sys_tick_get();
+    sys_time_t systick = krhino_sys_tick_get();
 
     while (systick == krhino_sys_tick_get());
 
@@ -104,12 +104,13 @@ void rttest_aux_intrpt_check_init(void)
 /* check systick interrupt */
 bool rttest_aux_intrpt_occurred(void)
 {
-    sys_time_t systick;
-    systick = krhino_sys_tick_get();
-    if(old_systick != systick) {
+    sys_time_t systick = krhino_sys_tick_get();
+
+    if (old_systick != systick) {
         old_systick = systick;
         return true;
     }
+
     return false;
 }
 
@@ -131,6 +132,6 @@ void rttest_max_disintrpt()
         intrpt_disalbe_time = 0;
     }
 
-    printf("\nMax intrpt disable time :%6.2fus\n", (float)intrpt_disalbe_time/HR_COUNT_FREQ());
+    printf("\nMax intrpt disable time :%6.2fus\n", (float)intrpt_disalbe_time / HR_COUNT_FREQ());
 }
-#endif
+#endif /* RHINO_CONFIG_INTRPT_STATS > 0 */

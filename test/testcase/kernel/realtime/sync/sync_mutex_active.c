@@ -1,22 +1,24 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
 #define TEST_TASK1_NAME "rt_test1"
 #define TEST_TASK2_NAME "rt_test2"
 #define AUX_TASK_NAME   "aux_test"
-#define TEST_TASK1_PRI  (TEST_TASK_PRIORITY -2)      /* high priority task */
-#define TEST_TASK2_PRI  (TEST_TASK_PRIORITY-1)       /*  mid priority task */
-#define AUX_TASK_PRI    (TEST_TASK_PRIORITY)        /* lowest priority task */
 
-static void test_data_init()
+#define TEST_TASK1_PRI (TEST_TASK_PRIORITY - 2) /* high priority task */
+#define TEST_TASK2_PRI (TEST_TASK_PRIORITY - 1) /* mid priority task */
+#define AUX_TASK_PRI   (TEST_TASK_PRIORITY)     /* lowest priority task */
+
+static void test_data_init(void)
 {
     time_sum = 0;
     time_max = 0;
@@ -91,7 +93,7 @@ void test_realtime_mutex_active(void)
                        test_task2_stack, TEST_TASK_STACKSIZE, test_task2, 0);
     krhino_task_create(&aux_task_tcb, AUX_TASK_NAME, 0, AUX_TASK_PRI, 50,
                        aux_task_stack, TEST_TASK_STACKSIZE, test_aux_task, 0);
-    
+
     rttest_aux_intrpt_check_init();
     krhino_task_resume(&test_task1_tcb);
     krhino_task_resume(&test_task2_tcb);

@@ -1,20 +1,22 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
 #define TEST_TASK1_NAME "rt_test1"
 #define TEST_TASK2_NAME "rt_test2"
-#define TEST_TASK1_PRI  TEST_TASK_PRIORITY      /* low priority task */
-#define TEST_TASK2_PRI  (TEST_TASK_PRIORITY  - 1)  /* high priority task */
 
-static void test_data_init()
+#define TEST_TASK1_PRI TEST_TASK_PRIORITY       /* low priority task */
+#define TEST_TASK2_PRI (TEST_TASK_PRIORITY - 1) /* high priority task */
+
+static void test_data_init(void)
 {
     time_sum = 0;
     time_max = 0;
@@ -76,7 +78,7 @@ void test_realtime_shuffling_mutex(void)
     }
 
     krhino_sem_create(&aux_sem, "aux_sem", 0);
-    
+
     krhino_task_create(&test_task1_tcb, TEST_TASK1_NAME, 0, TEST_TASK1_PRI, 50,
                        test_task1_stack, TEST_TASK_STACKSIZE, test_task1, 0);
     krhino_task_create(&test_task2_tcb, TEST_TASK2_NAME, 0, TEST_TASK2_PRI, 50,

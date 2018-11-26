@@ -1,20 +1,22 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <aos/aos.h>
 #include <k_api.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "test_realtime.h"
 
 #define TEST_TASK1_NAME "rt_test1"
 #define TEST_TASK2_NAME "rt_test2"
-#define TEST_TASK1_PRI  TEST_TASK_PRIORITY      /* low priority task */
-#define TEST_TASK2_PRI  (TEST_TASK_PRIORITY  - 1)  /* high priority task */
 
-static void test_data_init()
+#define TEST_TASK1_PRI TEST_TASK_PRIORITY       /* low priority task */
+#define TEST_TASK2_PRI (TEST_TASK_PRIORITY - 1) /* high priority task */
+
+static void test_data_init(void)
 {
     time_sum = 0;
     time_max = 0;
@@ -23,7 +25,7 @@ static void test_data_init()
     test_count = 0;
 
     time_start = HR_TIMER_MAX;
-    time_end = 0;
+    time_end   = 0;
 }
 
 static void test_task1(void *arg)
