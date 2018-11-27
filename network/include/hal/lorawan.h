@@ -13,7 +13,6 @@ extern "C" {
  *                          SYSTEM HEADER FILES
  *END***********************************************************************/
 #include <stdint.h>
-#include "base.h"
 #include "lora/system/timer.h"
 
 /*MACROS*********************************************************************
