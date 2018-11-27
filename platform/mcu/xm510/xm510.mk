@@ -10,7 +10,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu xm510
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7a
-$(NAME)_COMPONENTS += libc rhino hal middleware.common network.lwip rhino.cplusplus
+$(NAME)_COMPONENTS += libc rhino hal middleware.common network.lwip cplusplus
 
 #add the following line to the code if POSIX API is needed
 $(NAME)_COMPONENTS += rhino.posix
