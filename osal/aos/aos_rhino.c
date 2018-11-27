@@ -672,7 +672,6 @@ int aos_work_cancel(aos_work_t *work)
 }
 #endif
 
-#if (RHINO_CONFIG_MM_TLF > 0)
 void *aos_zalloc(unsigned int size)
 {
     void *tmp = NULL;
@@ -819,7 +818,6 @@ void aos_free(void *mem)
 
     krhino_mm_free(mem);
 }
-#endif
 
 long long aos_now(void)
 {
