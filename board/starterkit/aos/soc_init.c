@@ -202,4 +202,13 @@ GETCHAR_PROTOTYPE
   }
 }
 
+static void MX_SPI1_Init(void) {
+}
+static void MX_SAI1_Init(void) {
+}
+static void MX_CRC_Init(void) {
+}
+static void MX_DMA_Init(void) {
+}
+
 
