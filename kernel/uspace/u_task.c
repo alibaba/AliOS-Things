@@ -262,19 +262,28 @@ kstat_t krhino_uprocess_exit(void)
     return ret;
 }
 
-
 void krhino_uprocess_res_get(int32_t id, void **res)
 {
+    CPSR_ALLOC();
+
     ktask_t *cur_task;
     ktask_t *cur_proc;
+    klist_t *head;
 
     cur_task = krhino_cur_task_get();
-
+    cur_proc = cur_task->proc_addr;
+    head = &cur_proc->kobj.task_head;
     if (id == 0) {
-        cur_proc = cur_task->proc_addr;
-        *res     = cur_proc->res_q;
-    } else {
-        *res = 0;
+        *res = cur_proc->res_q;
+    } else if (id == 1){
+        RHINO_CRITICAL_ENTER();
+        if (head->next->next == head) {
+            *res = (void *)1;
+        }
+        else {
+            *res = 0;
+        }
+        RHINO_CRITICAL_EXIT();
     }
 }
 
