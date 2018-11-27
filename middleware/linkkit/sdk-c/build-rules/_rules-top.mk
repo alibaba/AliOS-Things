@@ -71,7 +71,7 @@ one:
 	    ALL_LIBS="$(strip $(foreach V,$(SUBDIRS),$(LIBA_TARGET_$(V))))" \
 	    ALL_PROG="$(strip $(foreach V,$(SUBDIRS),$(TARGET_$(V))))" \
 	    COMP_LIB_OBJS="$(COMP_LIB_OBJS)" \
-	    bash $(RULE_DIR)/scripts/gen_one_makefile.sh $(STAMP_ONE_MK)
+	    bash $(RULE_DIR)/scripts/gen_one_makefile.sh
 
 config:
 
