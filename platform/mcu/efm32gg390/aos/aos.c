@@ -9,6 +9,7 @@
 
 
 static kinit_t kinit;
+#define EFM32_HFXO_FREQ       UINT32_C(48000000)/**< value of the high speed external oscillator */
 
 #define INIT_TASK_STACK_SIZE 2014
 static ktask_t init_task;
@@ -31,7 +32,7 @@ static void sys_init(void)
 {
     //efm32_soc_init();
 
-    SysTick_Config(SystemCoreClock/RHINO_CONFIG_TICKS_PER_SECOND);
+    SysTick_Config(EFM32_HFXO_FREQ/RHINO_CONFIG_TICKS_PER_SECOND);
     //xdk_board_init();
     //start_hw();
     efm32_soc_peripheral_init();

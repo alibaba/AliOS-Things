@@ -446,6 +446,14 @@ int sensor_init(void)
     drv_humi_bosch_bme280_init();
 #endif /* AOS_SENSOR_HUMI_BOSCH_BME280 */
 
+#ifdef AOS_SENSOR_BARO_BOSCH_BME280
+    drv_baro_bosch_bme280_init();
+#endif
+
+#ifdef AOS_SENSOR_TEMP_BOSCH_BME280
+    drv_temp_bosch_bme280_init();
+#endif
+
 #ifdef AOS_SENSOR_ACC_BOSCH_BMA253
     drv_acc_bosch_bma253_init();
 #endif /* AOS_SENSOR_ACC_BOSCH_BMA253 */
@@ -527,6 +535,7 @@ int sensor_init(void)
 #ifdef AOS_SENSOR_GYRO_BOSCH_BMI160
     drv_gyro_bosch_bmi160_init();
 #endif
+
 
 #ifdef UDATA_MODBUS
     modbus_init();
