@@ -7,6 +7,8 @@ void atmel_start_init(void)
 {
 	system_init();
 
+	sd_mmc_stack_init();
+
 	usart_os_enable(&USART_0);
 	usart_os_enable(&USART_2);
 }

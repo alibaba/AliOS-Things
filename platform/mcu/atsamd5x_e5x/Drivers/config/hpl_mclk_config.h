@@ -92,7 +92,7 @@
 // <15=> 15
 // <id> nvm_wait_states
 #ifndef CONF_NVM_WAIT_STATE
-#define CONF_NVM_WAIT_STATE 1
+#define CONF_NVM_WAIT_STATE 5
 #endif
 
 // </h>

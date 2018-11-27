@@ -70,7 +70,7 @@ static int ffs(int v)
 	}
 #endif
 
-#define EXT_IRQ_AMOUNT 1
+#define EXT_IRQ_AMOUNT 2
 
 /**
  * \brief EXTINTx and pin number map
@@ -167,6 +167,9 @@ int32_t _ext_irq_init(void (*cb)(const uint32_t pin))
 	                             | 0);
 
 	hri_eic_set_CTRLA_ENABLE_bit(EIC);
+	NVIC_DisableIRQ(EIC_7_IRQn);
+	NVIC_ClearPendingIRQ(EIC_7_IRQn);
+	NVIC_EnableIRQ(EIC_7_IRQn);
 	NVIC_DisableIRQ(EIC_15_IRQn);
 	NVIC_ClearPendingIRQ(EIC_15_IRQn);
 	NVIC_EnableIRQ(EIC_15_IRQn);
@@ -181,6 +184,7 @@ int32_t _ext_irq_init(void (*cb)(const uint32_t pin))
  */
 int32_t _ext_irq_deinit(void)
 {
+	NVIC_DisableIRQ(EIC_7_IRQn);
 	NVIC_DisableIRQ(EIC_15_IRQn);
 	callback = NULL;
 
@@ -226,6 +230,7 @@ static void _ext_irq_handler(void)
 	volatile uint32_t flags = hri_eic_read_INTFLAG_reg(EIC);
 	int8_t            pos;
 	uint32_t          pin = INVALID_PIN_NUMBER;
+	int8_t			  skip_wilc_flag = 0;
 
 	hri_eic_clear_INTFLAG_reg(EIC, flags);
 
@@ -251,11 +256,15 @@ static void _ext_irq_handler(void)
 
 			if (INVALID_PIN_NUMBER != pin) {
 				callback(pin);
+				if (pin == PIN_PC23)	// skip wilc irq pin detection in next checking 
+					skip_wilc_flag = 1;
 			}
 			flags &= ~(1ul << pos);
 			pos = ffs(flags) - 1;
 		}
 		flags = hri_eic_read_INTFLAG_reg(EIC);
+		if (skip_wilc_flag)
+			flags &=(~0x80); 
 		hri_eic_clear_INTFLAG_reg(EIC, flags);
 	}
 }
@@ -263,6 +272,11 @@ static void _ext_irq_handler(void)
 /**
  * \brief EIC interrupt handler
  */
+void EIC_7_Handler(void)
+{
+	_ext_irq_handler();
+}
+
 void EIC_15_Handler(void)
 {
 	_ext_irq_handler();

@@ -8,6 +8,7 @@ extern "C" {
 #define FBSW_MAGIC    0x46425357U    /* Magic number 'FBSW' for flash bank switch */
 
 #include "driver_init.h"
+#include "sd_mmc_start.h"
 
 /**
  * Initializes MCU, drivers and middleware in the project

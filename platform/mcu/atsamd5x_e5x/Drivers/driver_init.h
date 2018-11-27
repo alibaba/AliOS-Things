@@ -22,6 +22,7 @@ extern "C" {
 #include <hal_sleep.h>
 
 #include <hal_usart_os.h>
+#include <hal_mci_sync.h>
 #include <hal_flash.h>
 
 extern struct usart_os_descriptor USART_0;
@@ -37,9 +38,15 @@ void USART_2_init(void);
 
 extern struct flash_descriptor FLASH_0;
 
+extern struct mci_sync_desc IO_MCI;
+
 void FLASH_0_init(void);
 void FLASH_0_CLOCK_init(void);
 
+
+void IO_MCI_PORT_init(void);
+void IO_MCI_CLOCK_init(void);
+void IO_MCI_init(void);
 /**
  * \brief Perform system initialization, initialize pins and clocks for
  * peripherals

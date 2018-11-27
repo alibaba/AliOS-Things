@@ -406,7 +406,7 @@
 // <e> Interrupt 7 Settings
 // <id> eic_arch_enable_irq_setting7
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING7
-#define CONF_EIC_ENABLE_IRQ_SETTING7 0
+#define CONF_EIC_ENABLE_IRQ_SETTING7 1
 #endif
 
 // <q> External Interrupt 7 Filter Enable
@@ -440,7 +440,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense7
 #ifndef CONF_EIC_SENSE7
-#define CONF_EIC_SENSE7 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE7 EIC_NMICTRL_NMISENSE_LOW_Val
 #endif
 
 // <q> External Interrupt 7 Asynchronous Edge Detection Mode
@@ -906,7 +906,7 @@
 
 // </h>
 
-#define CONFIG_EIC_EXTINT_MAP {15, PIN_PB31},
+#define CONFIG_EIC_EXTINT_MAP {7, PIN_PC23}, {15, PIN_PB31},
 
 // <<< end of configuration section >>>
 

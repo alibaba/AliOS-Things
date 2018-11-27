@@ -43,7 +43,7 @@
 // <i> Indicates whether configuration for External 32K Osc is enabled or not
 // <id> enable_xosc32k
 #ifndef CONF_XOSC32K_CONFIG
-#define CONF_XOSC32K_CONFIG 1
+#define CONF_XOSC32K_CONFIG 0
 #endif
 
 // <h> 32kHz External Crystal Oscillator Control
@@ -51,7 +51,7 @@
 // <i> Indicates whether 32kHz External Crystal Oscillator is enabled or not
 // <id> xosc32k_arch_enable
 #ifndef CONF_XOSC32K_ENABLE
-#define CONF_XOSC32K_ENABLE 1
+#define CONF_XOSC32K_ENABLE 0
 #endif
 
 // <o> Start-Up Time

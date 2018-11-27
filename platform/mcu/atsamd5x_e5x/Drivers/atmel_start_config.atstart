@@ -1,14 +1,54 @@
 format_version: '2'
-name: EDBG UART
+name: AliOS-Things
+versions:
+  api: '1.0'
+  backend: 1.4.93
+  commit: 9c29f8365cf76e9937d19b1e765a83bc7a80e4e9
+  content: 1.0.1193
+  content_pack_name: acme-packs-all
+  format: '2'
+  frontend: 1.4.1787
 board:
   identifier: SAME54XplainedPro
   device: SAME54P20A-AU
 details: null
-application:
-  definition: 'Atmel:Application_Examples:0.0.1::Application:EDBG_UART:'
-  configuration: null
-middlewares: {}
+application: null
+middlewares:
+  SDMMC_ACCESS_0:
+    user_label: SDMMC_ACCESS_0
+    configuration:
+      conf_mmc_support: false
+      conf_sd_mmc_0_cd_detect_en: false
+      conf_sd_mmc_0_cd_detect_value: Low
+      conf_sd_mmc_0_enable: true
+      conf_sd_mmc_0_wp_detect_en: false
+      conf_sd_mmc_0_wp_detect_value: High
+      conf_sd_mmc_os_support: false
+      conf_sdio_support: true
+    definition: Atmel:SD_MMC:0.0.1::SD_MMC
+    functionality: SD/MMC_Access
+    api: SD-MMC:Lib:API
+    dependencies:
+      IO Bus: IO_MCI
+      Write Protect 0: WRITE_PROTECT_0
+      Card Detect 0: CARD_DETECT_0
 drivers:
+  CMCC:
+    user_label: CMCC
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::CMCC::driver_config_definition::CMCC::HAL:HPL:CMCC
+    functionality: System
+    api: HAL:HPL:CMCC
+    configuration:
+      cache_size: 4 KB
+      cmcc_advanced_configuration: false
+      cmcc_clock_gating_disable: false
+      cmcc_data_cache_disable: false
+      cmcc_enable: false
+      cmcc_inst_cache_disable: false
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group: null
   DMAC:
     user_label: DMAC
     definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::DMAC::driver_config_definition::DMAC::HAL:HPL:DMAC
@@ -545,6 +585,127 @@ drivers:
     variant: null
     clocks:
       domain_group: null
+  EXTERNAL_IRQ_0:
+    user_label: EXTERNAL_IRQ_0
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::EIC::driver_config_definition::Default::HAL:Driver:Ext.IRQ
+    functionality: External_IRQ
+    api: HAL:Driver:Ext_IRQ
+    configuration:
+      eic_arch_asynch0: false
+      eic_arch_asynch1: false
+      eic_arch_asynch10: false
+      eic_arch_asynch11: false
+      eic_arch_asynch12: false
+      eic_arch_asynch13: false
+      eic_arch_asynch14: false
+      eic_arch_asynch15: false
+      eic_arch_asynch2: false
+      eic_arch_asynch3: false
+      eic_arch_asynch4: false
+      eic_arch_asynch5: false
+      eic_arch_asynch6: false
+      eic_arch_asynch7: false
+      eic_arch_asynch8: false
+      eic_arch_asynch9: false
+      eic_arch_cksel: Clocked by GCLK
+      eic_arch_debounce_enable0: false
+      eic_arch_debounce_enable1: false
+      eic_arch_debounce_enable10: false
+      eic_arch_debounce_enable11: false
+      eic_arch_debounce_enable12: false
+      eic_arch_debounce_enable13: false
+      eic_arch_debounce_enable14: false
+      eic_arch_debounce_enable15: false
+      eic_arch_debounce_enable2: false
+      eic_arch_debounce_enable3: false
+      eic_arch_debounce_enable4: false
+      eic_arch_debounce_enable5: false
+      eic_arch_debounce_enable6: false
+      eic_arch_debounce_enable7: false
+      eic_arch_debounce_enable8: false
+      eic_arch_debounce_enable9: false
+      eic_arch_enable_irq_setting0: false
+      eic_arch_enable_irq_setting1: false
+      eic_arch_enable_irq_setting10: false
+      eic_arch_enable_irq_setting11: false
+      eic_arch_enable_irq_setting12: false
+      eic_arch_enable_irq_setting13: false
+      eic_arch_enable_irq_setting14: false
+      eic_arch_enable_irq_setting15: false
+      eic_arch_enable_irq_setting2: false
+      eic_arch_enable_irq_setting3: false
+      eic_arch_enable_irq_setting4: false
+      eic_arch_enable_irq_setting5: false
+      eic_arch_enable_irq_setting6: false
+      eic_arch_enable_irq_setting7: false
+      eic_arch_enable_irq_setting8: false
+      eic_arch_enable_irq_setting9: false
+      eic_arch_extinteo0: false
+      eic_arch_extinteo1: false
+      eic_arch_extinteo10: false
+      eic_arch_extinteo11: false
+      eic_arch_extinteo12: false
+      eic_arch_extinteo13: false
+      eic_arch_extinteo14: false
+      eic_arch_extinteo15: false
+      eic_arch_extinteo2: false
+      eic_arch_extinteo3: false
+      eic_arch_extinteo4: false
+      eic_arch_extinteo5: false
+      eic_arch_extinteo6: false
+      eic_arch_extinteo7: false
+      eic_arch_extinteo8: false
+      eic_arch_extinteo9: false
+      eic_arch_filten0: false
+      eic_arch_filten1: false
+      eic_arch_filten10: false
+      eic_arch_filten11: false
+      eic_arch_filten12: false
+      eic_arch_filten13: false
+      eic_arch_filten14: false
+      eic_arch_filten15: false
+      eic_arch_filten2: false
+      eic_arch_filten3: false
+      eic_arch_filten4: false
+      eic_arch_filten5: false
+      eic_arch_filten6: false
+      eic_arch_filten7: false
+      eic_arch_filten8: false
+      eic_arch_filten9: false
+      eic_arch_nmi_ctrl: false
+      eic_arch_nmiasynch: false
+      eic_arch_nmifilten: false
+      eic_arch_nmisense: No detection
+      eic_arch_prescaler0: Divided by 2
+      eic_arch_prescaler1: Divided by 2
+      eic_arch_sense0: No detection
+      eic_arch_sense1: No detection
+      eic_arch_sense10: No detection
+      eic_arch_sense11: No detection
+      eic_arch_sense12: No detection
+      eic_arch_sense13: No detection
+      eic_arch_sense14: No detection
+      eic_arch_sense15: No detection
+      eic_arch_sense2: No detection
+      eic_arch_sense3: No detection
+      eic_arch_sense4: No detection
+      eic_arch_sense5: No detection
+      eic_arch_sense6: No detection
+      eic_arch_sense7: No detection
+      eic_arch_sense8: No detection
+      eic_arch_sense9: No detection
+      eic_arch_states0: '3'
+      eic_arch_states1: '3'
+      eic_arch_tickon: The sampling rate is EIC clock
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: EIC
+          input: Generic clock generator 0
+        configuration:
+          eic_gclk_selection: Generic clock generator 0
   GCLK:
     user_label: GCLK
     definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::GCLK::driver_config_definition::GCLK::HAL:HPL:GCLK
@@ -556,7 +717,7 @@ drivers:
       enable_gclk_gen_10: false
       enable_gclk_gen_11: false
       enable_gclk_gen_2: false
-      enable_gclk_gen_3: false
+      enable_gclk_gen_3: true
       enable_gclk_gen_4: false
       enable_gclk_gen_5: false
       enable_gclk_gen_6: false
@@ -588,7 +749,7 @@ drivers:
       gclk_arch_gen_2_oe: false
       gclk_arch_gen_2_oov: false
       gclk_arch_gen_2_runstdby: false
-      gclk_arch_gen_3_enable: false
+      gclk_arch_gen_3_enable: true
       gclk_arch_gen_3_idc: false
       gclk_arch_gen_3_oe: false
       gclk_arch_gen_3_oov: false
@@ -632,15 +793,15 @@ drivers:
       gclk_gen_11_div: 1
       gclk_gen_11_div_sel: false
       gclk_gen_11_oscillator: External Crystal Oscillator 8-48MHz (XOSC1)
-      gclk_gen_1_div: 3
+      gclk_gen_1_div: 6
       gclk_gen_1_div_sel: false
-      gclk_gen_1_oscillator: Digital Phase Locked Loop (DPLL0)
+      gclk_gen_1_oscillator: External Crystal Oscillator 8-48MHz (XOSC1)
       gclk_gen_2_div: 1
       gclk_gen_2_div_sel: true
       gclk_gen_2_oscillator: External Crystal Oscillator 8-48MHz (XOSC1)
       gclk_gen_3_div: 1
       gclk_gen_3_div_sel: false
-      gclk_gen_3_oscillator: 32kHz External Crystal Oscillator (XOSC32K)
+      gclk_gen_3_oscillator: 32kHz Ultra Low Power Internal Oscillator (OSCULP32K)
       gclk_gen_4_div: 1
       gclk_gen_4_div_sel: false
       gclk_gen_4_oscillator: External Crystal Oscillator 8-48MHz (XOSC1)
@@ -684,6 +845,19 @@ drivers:
         - name: CPU
           input: CPU
         configuration: {}
+  FLASH_0:
+    user_label: FLASH_0
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::NVMCTRL::driver_config_definition::Flash::HAL:Driver:FLASH
+    functionality: Flash
+    api: HAL:Driver:FLASH
+    configuration:
+      nvm_arch_cache0: false
+      nvm_arch_cache1: false
+      nvm_arch_sleepprm: Wake On Access
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group: null
   OSC32KCTRL:
     user_label: OSC32KCTRL
     definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::OSC32KCTRL::driver_config_definition::OSC32KCTRL::HAL:HPL:OSC32KCTRL
@@ -692,7 +866,7 @@ drivers:
     configuration:
       enable_osculp32k: true
       enable_rtc_source: false
-      enable_xosc32k: true
+      enable_xosc32k: false
       osculp32k_calib: 0
       osculp32k_calib_enable: false
       rtc_1khz_selection: true
@@ -702,7 +876,7 @@ drivers:
       xosc32k_arch_cgm: Standard mode
       xosc32k_arch_en1k: false
       xosc32k_arch_en32k: true
-      xosc32k_arch_enable: true
+      xosc32k_arch_enable: false
       xosc32k_arch_ondemand: false
       xosc32k_arch_runstdby: false
       xosc32k_arch_startup: 62592us
@@ -733,28 +907,28 @@ drivers:
       dfll_arch_stable: false
       dfll_arch_usbcrm: false
       dfll_arch_waitlock: true
-      dfll_mode: Open Loop Mode
-      dfll_mul: 0
+      dfll_mode: Closed Loop Mode
+      dfll_mul: 1464
       dfll_ref_clock: Generic clock generator 3
       enable_dfll: false
       enable_fdpll0: true
       enable_fdpll1: false
       enable_xosc0: false
-      enable_xosc1: false
+      enable_xosc1: true
       fdpll0_arch_dcoen: false
       fdpll0_arch_enable: true
       fdpll0_arch_filter: 0
       fdpll0_arch_lbypass: true
       fdpll0_arch_ltime: No time-out, automatic lock
       fdpll0_arch_ondemand: false
-      fdpll0_arch_refclk: XOSC32K clock reference
+      fdpll0_arch_refclk: GCLK clock reference
       fdpll0_arch_runstdby: false
       fdpll0_arch_wuf: false
       fdpll0_clock_dcofilter: 0
       fdpll0_clock_div: 0
-      fdpll0_ldr: 3660
-      fdpll0_ldrfrac: 18
-      fdpll0_ref_clock: 32kHz External Crystal Oscillator (XOSC32K)
+      fdpll0_ldr: 59
+      fdpll0_ldrfrac: 0
+      fdpll0_ref_clock: Generic clock generator 1
       fdpll1_arch_dcoen: false
       fdpll1_arch_enable: false
       fdpll1_arch_filter: 0
@@ -780,7 +954,7 @@ drivers:
       xosc0_arch_xtalen: false
       xosc0_frequency: 12000000
       xosc1_arch_cfden: false
-      xosc1_arch_enable: false
+      xosc1_arch_enable: true
       xosc1_arch_enalc: false
       xosc1_arch_lowbufgain: false
       xosc1_arch_ondemand: false
@@ -803,11 +977,11 @@ drivers:
     variant: null
     clocks:
       domain_group: null
-  EDBG_COM:
-    user_label: EDBG_COM
-    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::SERCOM2::driver_config_definition::UART::HAL:Driver:USART.Async
+  USART_0:
+    user_label: USART_0
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::SERCOM0::driver_config_definition::UART::HAL:Driver:USART.RTOS.Beta
     functionality: USART
-    api: HAL:Driver:USART_Async
+    api: HAL:Driver:USART_RTOS_Beta
     configuration:
       usart_advanced: false
       usart_arch_clock_mode: USART with internal clock
@@ -832,6 +1006,51 @@ drivers:
     variant:
       specification: TXPO=0, RXPO=1, CMODE=0
       required_signals:
+      - name: SERCOM0/PAD/0
+        pad: PA04
+        label: TX
+      - name: SERCOM0/PAD/1
+        pad: PA05
+        label: RX
+    clocks:
+      domain_group:
+        nodes:
+        - name: Core
+          input: Generic clock generator 0
+        - name: Slow
+          input: Generic clock generator 3
+        configuration:
+          core_gclk_selection: Generic clock generator 0
+          slow_gclk_selection: Generic clock generator 3
+  USART_2:
+    user_label: USART_2
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::SERCOM2::driver_config_definition::UART::HAL:Driver:USART.RTOS.Beta
+    functionality: USART
+    api: HAL:Driver:USART_RTOS_Beta
+    configuration:
+      usart_advanced: false
+      usart_arch_clock_mode: USART with internal clock
+      usart_arch_cloden: false
+      usart_arch_dbgstop: Keep running
+      usart_arch_dord: LSB is transmitted first
+      usart_arch_enc: No encoding
+      usart_arch_fractional: 0
+      usart_arch_ibon: false
+      usart_arch_lin_slave_enable: Disable
+      usart_arch_runstdby: false
+      usart_arch_sampa: 7-8-9 (3-4-5 8-bit over-sampling)
+      usart_arch_sampr: 16x arithmetic
+      usart_arch_sfde: false
+      usart_baud_rate: 921600
+      usart_character_size: 8 bits
+      usart_parity: No parity
+      usart_rx_enable: true
+      usart_stop_bit: One stop bit
+      usart_tx_enable: true
+    optional_signals: []
+    variant:
+      specification: TXPO=0, RXPO=1, CMODE=0
+      required_signals:
       - name: SERCOM2/PAD/0
         pad: PB25
         label: TX
@@ -842,13 +1061,76 @@ drivers:
       domain_group:
         nodes:
         - name: Core
-          input: Generic clock generator 1
+          input: Generic clock generator 0
         - name: Slow
           input: Generic clock generator 3
         configuration:
-          core_gclk_selection: Generic clock generator 1
+          core_gclk_selection: Generic clock generator 0
           slow_gclk_selection: Generic clock generator 3
+  IO_MCI:
+    user_label: IO_MCI
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::SDHC1::driver_config_definition::MCI::HAL:Driver:MCI.Sync
+    functionality: MCI
+    api: HAL:Driver:MCI_Sync
+    configuration:
+      sdhc_clk_gsel: Divided Clock mode
+    optional_signals: []
+    variant:
+      specification: default
+      required_signals:
+      - name: SDHC1/SDCK
+        pad: PA21
+        label: SDCK
+      - name: SDHC1/SDCMD
+        pad: PA20
+        label: SDCMD
+      - name: SDHC1/SDDAT/0
+        pad: PB18
+        label: SDDAT/0
+      - name: SDHC1/SDDAT/1
+        pad: PB19
+        label: SDDAT/1
+      - name: SDHC1/SDDAT/2
+        pad: PB20
+        label: SDDAT/2
+      - name: SDHC1/SDDAT/3
+        pad: PB21
+        label: SDDAT/3
+    clocks:
+      domain_group:
+        nodes:
+        - name: SDHC
+          input: Generic clock generator 0
+        - name: SDHC_Slow
+          input: Generic clock generator 1
+        configuration:
+          sdhc_gclk_selection: Generic clock generator 0
+          sdhc_slow_gclk_selection: Generic clock generator 1
 pads:
+  CARD_DETECT_0:
+    name: PA00
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PA00
+    mode: Digital input
+    user_label: CARD_DETECT_0
+    configuration: {}
+  WRITE_PROTECT_0:
+    name: PA01
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PA01
+    mode: Digital input
+    user_label: WRITE_PROTECT_0
+    configuration: {}
+  PA04:
+    name: PA04
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PA04
+    mode: Peripheral IO
+    user_label: PA04
+    configuration: null
+  PA05:
+    name: PA05
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PA05
+    mode: Peripheral IO
+    user_label: PA05
+    configuration: null
   LED0:
     name: PC18
     definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PC18
@@ -856,6 +1138,42 @@ pads:
     user_label: LED0
     configuration:
       pad_initial_level: High
+  PB18:
+    name: PB18
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PB18
+    mode: Advanced
+    user_label: PB18
+    configuration: null
+  PB19:
+    name: PB19
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PB19
+    mode: Advanced
+    user_label: PB19
+    configuration: null
+  PB20:
+    name: PB20
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PB20
+    mode: Advanced
+    user_label: PB20
+    configuration: null
+  PB21:
+    name: PB21
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PB21
+    mode: Advanced
+    user_label: PB21
+    configuration: null
+  PA20:
+    name: PA20
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PA20
+    mode: Advanced
+    user_label: PA20
+    configuration: null
+  PA21:
+    name: PA21
+    definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PA21
+    mode: Advanced
+    user_label: PA21
+    configuration: null
   EDBG_COM_RX:
     name: PB24
     definition: Atmel:SAME54_Drivers:0.0.1::SAME54P20A-AU::pad::PB24

@@ -114,8 +114,8 @@
 // <0x1=>16x fractional
 // <0x2=>8x arithmetic
 // <0x3=>8x fractional
-// <0x3=>3x
-// <i> How many over-sampling bits used when samling data state
+// <0x4=>3x arithmetic
+// <i> How many over-sampling bits used when sampling data state
 // <id> usart_arch_sampr
 #ifndef CONF_SERCOM_0_USART_SAMPR
 #define CONF_SERCOM_0_USART_SAMPR 0x0
@@ -383,8 +383,8 @@
 // <0x1=>16x fractional
 // <0x2=>8x arithmetic
 // <0x3=>8x fractional
-// <0x3=>3x
-// <i> How many over-sampling bits used when samling data state
+// <0x4=>3x arithmetic
+// <i> How many over-sampling bits used when sampling data state
 // <id> usart_arch_sampr
 #ifndef CONF_SERCOM_2_USART_SAMPR
 #define CONF_SERCOM_2_USART_SAMPR 0x0
