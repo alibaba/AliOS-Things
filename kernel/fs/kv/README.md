@@ -29,3 +29,4 @@ kv
 
 ## Reference
 - [Flash and KV Storage Porting Guide](https://github.com/alibaba/AliOS-Things/wiki/Flash-and-KV-Storage-Porting-Guide)
+- [AliOS Things API KV Guide](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-API-KV-Guide)
