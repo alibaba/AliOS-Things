@@ -65,7 +65,7 @@ static void demo_task3(void *arg)
 
 void test_thread(void)
 {
-    char *name = "task";
+    char *name = (char *)"task";
     pa = new Thread;
     pb = new Thread;
     pc = new Thread;
