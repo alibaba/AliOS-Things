@@ -2,7 +2,7 @@ NAME := netmgr
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := network manager manages different types of RF.
 $(NAME)_SOURCES-y := netmgr.c
 
 #default gcc
@@ -20,7 +20,7 @@ $(NAME)_DEFINES-y += WIFI_PWD=\"$(pwd)\"
 endif
 $(NAME)_SOURCES-y += interfaces/netmgr_wifi.c
 GLOBAL_DEFINES-y += NET_WITH_WIFI
-$(NAME)_COMPONENTS-y += halwifi
+$(NAME)_SOURCES-y += hal/wifi.c
 else
 $(NAME)_SOURCES-y += hal/net.c
 $(NAME)_SOURCES-y += interfaces/netmgr_net.c
