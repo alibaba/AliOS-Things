@@ -8,7 +8,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l475
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino hal halwifi kernel.fs.kv kernel.fs.vfs digest_algorithm
+$(NAME)_COMPONENTS += libc rhino hal kernel.fs.kv kernel.fs.vfs digest_algorithm netmgr
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
