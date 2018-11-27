@@ -25,3 +25,4 @@ cli
 ```
 
 ## Reference
+- [为你的AliOS Things应用增加自定义cli命令](https://yq.aliyun.com/articles/669091)
