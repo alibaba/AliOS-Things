@@ -5,7 +5,6 @@
 #include <u_api.h>
 
 #define LOOP_ROUND 20
-#define STACK_SIZE 0x400
 
 static ktimer_t  timer;
 static ksem_t   *timer_sem;
