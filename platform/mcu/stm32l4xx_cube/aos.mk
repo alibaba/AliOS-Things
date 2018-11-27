@@ -3,7 +3,7 @@ HOST_OPENOCD := stm32l4xx
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
-$(NAME)_SUMMARY    :=
+$(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l4xx_cube
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS += libc rhino hal kernel.fs.vfs digest_algorithm kernel.fs.kv
