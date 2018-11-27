@@ -126,7 +126,6 @@ static void abs_data_post_timer_expried_dev(uint64_t timestamp)
         }
         if ((timestamp - g_abs_data_db[i]->cur_timestamp) >=
             (g_abs_data_db[i]->interval)) {
-                aos_msleep(150);
             // aos_post_event(EV_UDATA, CODE_UDATA_DEV_READ,
             // (g_abs_data_db[i]->tag));
             abs_sensor_read(g_abs_data_db[i]->tag);
