@@ -226,8 +226,13 @@ static void store_lora_config(void)
     }
 
     read_lora_dev(&lora_dev);
-    lora_dev.freqband = freqband;
-    lora_dev.datarate = datarate;
+
+    if ((lora_dev.freqband != freqband)||
+        (lora_dev.datarate != datarate)) {
+        lora_dev.freqband = freqband;
+        lora_dev.datarate = datarate;
+    }
+
     write_lora_dev(&lora_dev);
 }
 
