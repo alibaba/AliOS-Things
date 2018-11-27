@@ -2,7 +2,7 @@ NAME := zlib
 
 $(NAME)_MBINS_TYPE := share
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := zlib is a general purpose data compression library.
 
 $(NAME)_SOURCES :=  src/adler32.c \
                     src/compress.c \
