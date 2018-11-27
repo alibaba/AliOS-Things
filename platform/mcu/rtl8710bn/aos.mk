@@ -19,8 +19,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu rtl8710bn
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 #$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
-$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common cli digest_algorithm network.lwip
-$(NAME)_COMPONENTS += halwifi
+$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common cli digest_algorithm network.lwip network.netmgr
 
 #GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
 #GLOBAL_LDFLAGS  += -I $(SOURCE_ROOT)/platform/mcu/rtl8710bn

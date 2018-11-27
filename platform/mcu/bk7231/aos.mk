@@ -8,10 +8,9 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu bk7231
 
 $(NAME)_COMPONENTS := platform/arch/arm/armv5
 $(NAME)_COMPONENTS += libc rhino yloop kernel.fs.kv alicrypto digest_algorithm
-$(NAME)_COMPONENTS += network.lwip network.umesh
+$(NAME)_COMPONENTS += network.lwip network.umesh network.netmgr
 $(NAME)_COMPONENTS += prov
 $(NAME)_COMPONENTS += hal
-$(NAME)_COMPONENTS += halwifi
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
