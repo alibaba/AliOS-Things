@@ -5,6 +5,6 @@ $(NAME)_VERSION := 0.0.1
 $(NAME)_SUMMARY :=
 $(NAME)_SOURCES := wifihalapp.c
 
-$(NAME)_COMPONENTS += yloop cli halwifi
+$(NAME)_COMPONENTS += yloop cli netmgr
 
 GLOBAL_INCLUDES += ./
