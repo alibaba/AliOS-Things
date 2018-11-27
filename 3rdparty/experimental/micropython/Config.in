@@ -1,0 +1,11 @@
+menuconfig AOS_COMP_MICROPYTHON
+    bool "micropython"
+    default n
+    select AOS_COMP_HAL
+    select AOS_COMP_RHINO
+    help
+      micropython support
+
+if AOS_COMP_MICROPYTHON
+# Configurations for component micropython
+endif
