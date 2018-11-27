@@ -269,12 +269,10 @@ $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
 include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/aos.mk
 
 PLATFORM_MCU_BOARD	:=$(subst .,/,$(HOST_MCU_FAMILY))
-PLATFORM_MCU_BD :=$(subst ., ,$(HOST_MCU_FAMILY))
-PLATFORM_MCU_MK :=$(if ($(words $(PLATFORM_MCU_BD)):1= $(PLATFORM_MCU_BD)),$(word $(words $(PLATFORM_MCU_BD)),$(PLATFORM_MCU_BD)))
 AOS_SDK_2BOOT_LDS_INCLUDES       :=$(GLOBAL_2BOOT_LDS_INCLUDES)
 
 $(eval CURDIR := $(SOURCE_ROOT)/platform/mcu/$(PLATFORM_MCU_BOARD)/)
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/$(PLATFORM_MCU_MK).mk
+include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/aos.mk
 MAIN_COMPONENT_PROCESSING :=1
 
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
