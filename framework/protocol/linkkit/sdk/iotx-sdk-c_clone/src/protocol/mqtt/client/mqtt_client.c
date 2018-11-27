@@ -2486,7 +2486,8 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     mqtt_info("Waiting to reconnect...");
     while (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet.  */
-        HAL_SleepMs(20);
+        HAL_SleepMs(500);
+        return FAIL_RETURN;
     }
 
     mqtt_info("start to reconnect");
