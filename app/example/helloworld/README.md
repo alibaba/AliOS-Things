@@ -4,7 +4,7 @@
 helloworld
 ├── helloworld.c    # helloworld source code
 ├── Config.in       # kconfig file
-├── blink.mk        # aos build system file(for make)
+├── helloworld.mk   # aos build system file(for make)
 ├── k_app_config.h  # aos app config file
 └── ucube.py        # aos build system file(for scons)
 ```
@@ -30,7 +30,7 @@ aos make helloworld@yourboard
 ### Install
 
 ```sh
-aos upload blink@yourboard
+aos upload helloworld@yourboard
 ```
 
 > if you are not sure is the`aos upload` command supports your board, check [aos upload](../../../build/site_scons/upload).
