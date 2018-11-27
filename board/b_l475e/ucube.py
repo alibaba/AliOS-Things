@@ -32,4 +32,4 @@ component.add_global_macros('RHINO_CONFIG_WORKQUEUE=0')
 
 
 linux_only_targets="nano helloworld mqttapp alinkapp tls udataapp networkapp acapp vflashdemo atapp hdlcapp.hdlcclient wifihalapp netmgrapp hdlcapp.hdlcserver coapapp helloworld_nocli linkkitapp otaapp linkkit_gateway cryptotest kernel_test yts http2app devkit.dk_ld benchmark.footprint_test"
-windows_only_targets="nano|COMPILER=armcc helloworld|COMPILER=armcc acapp|COMPILER=armcc nano|COMPILER=iar helloworld|COMPILER=iar acapp|COMPILER=iar"
+windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"
