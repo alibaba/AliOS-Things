@@ -5,7 +5,7 @@ CONFIG_ENV_CFLAGS += -DSTM32L496xx \
 					 --cpu=Cortex-M4 \
 					 --apcs=interwork \
 					 --split_sections
-CONFIG_ENV_CFLAGS += -c --c99 -D__MICROLIB -g --gnu --library_type=microlib -W -Ospace -O3 -Isrc/infra/stdc/armlibc
+CONFIG_ENV_CFLAGS += -c --c99 -D__MICROLIB -g --gnu --library_type=microlib -W -Ospace -O3 -Iprebuilt/extra/stdc/armlibc
 OVERRIDE_AR:=armar -rcs
 				 
 else ifeq ($(COMPILER),iar)
@@ -14,7 +14,7 @@ CONFIG_ENV_CFLAGS += -DSTM32L496xx \
 					--cpu=Cortex-M4 \
                     --cpu_mode=thumb \
                     --endian=little 		    
-CONFIG_ENV_CFLAGS += --vla -e --dlib_config=full -D_TIMESPEC_DEFINED --silent --only_stdout --no_warnings --diag_warning=Pe167,Pe144,Pe513 -Ohz -Isrc/infra/stdc/iarlibc
+CONFIG_ENV_CFLAGS += --vla -e --dlib_config=full -D_TIMESPEC_DEFINED --silent --only_stdout --no_warnings --diag_warning=Pe167,Pe144,Pe513 -Ohz -Iprebuilt/extra/stdc/iarlibc
 OVERRIDE_AR:=iarchive --create
 
 else
