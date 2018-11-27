@@ -1,28 +1,18 @@
-NAME := lorawan_4_4_2
+NAME := lorawan_4_4_0
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := LoRaWAN Protocal Stack Version 4.4.0
 $(NAME)_SOURCES := lora/system/crypto/aes.c                \
                    lora/system/crypto/cmac.c               \
-                   lora/system/crypto/soft-se.c            \
                    lora/system/timeServer.c      \
                    lora/system/low_power.c       \
                    lora/system/utilities.c       \
                    lora/system/delay.c           \
-                   lora/system/systime.c           \
                    lora/mac/region/Region.c         \
                    lora/mac/region/RegionCommon.c   \
                    lora/mac/LoRaMac.c               \
-                   lora/mac/LoRaMacCrypto.c         \
-                   lora/mac/LoRaMacAdr.c            \
-                   lora/mac/LoRaMacClassB.c         \
-                   lora/mac/LoRaMacCommands.c       \
-                   lora/mac/LoRaMacConfirmQueue.c       \
-                   lora/mac/LoRaMacCrypto.c       \
-                   lora/mac/LoRaMacFCntHandler.c       \
-                   lora/mac/LoRaMacParser.c       \
-                   lora/mac/LoRaMacSerializer.c
+                   lora/mac/LoRaMacCrypto.c
 
 GLOBAL_INCLUDES +=  . \
                     lora/system/crypto \
@@ -30,9 +20,6 @@ GLOBAL_INCLUDES +=  . \
                     lora/mac         \
                     lora/mac/region  \
                     lora/system
-
-GLOBAL_DEFINES += LORAMAC_CLASSB_ENABLED
-#GLOBAL_DEFINES += LORAWAN_VERSION_110
 
 linkwan?=0
 ifeq ($(linkwan), 1)
