@@ -1,32 +1,19 @@
-NAME := libywss
+NAME := ywss4linkkit
 
 $(NAME)_TYPE := framework
+
+$(NAME)_COMPONENTS += ywss4linkkit.libywss 
+
+$(NAME)_COMPONENTS += digest_algorithm protocol.linkkit.iotkit connectivity.link-coap connectivity.mqtt
+
 GLOBAL_DEFINES += CONFIG_YWSS
 
-ifeq ($(HOST_ARCH), linux)
-LIB_PATH := linux
-else ifeq ($(HOST_ARCH), ARM968E-S)
-LIB_PATH := arm968es
-else ifeq ($(HOST_ARCH), xtensa)
-ifeq ($(HOST_MCU_FAMILY), esp32)
-LIB_PATH := xtensa/esp32
-else ifeq ($(HOST_MCU_FAMILY), esp8266)
-LIB_PATH := xtensa/esp8266
-endif
-else ifeq ($(HOST_ARCH), Cortex-M4)
-ifeq ($(ENABLE_VFP), 1)
-LIB_PATH := cortex-m4/vfp
-else
-LIB_PATH := cortex-m4
-endif
-else
-$(error "not find correct platform!")
+ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
+GLOBAL_DEFINES += ESP8266_CONFIG
 endif
 
-ifeq ($(COMPILER),armcc)
-$(NAME)_PREBUILT_LIBRARY := lib/$(LIB_PATH)/KEIL/libywss.a
-else ifeq ($(COMPILER),iar)
-$(NAME)_PREBUILT_LIBRARY := lib/$(LIB_PATH)/IAR/libywss.a
-else
-$(NAME)_PREBUILT_LIBRARY := lib/$(LIB_PATH)/libywss.a
-endif
+
+$(NAME)_INCLUDES += ./libywss/os/  ./libywss/os/platform/ 
+#$(NAME)_SOURCES +=  hal/HAL_AWSS_rhino.c
+
+
