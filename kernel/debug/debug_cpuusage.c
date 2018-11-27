@@ -77,7 +77,6 @@ void debug_total_cpu_usage_show(void)
     taskinfo = krhino_mm_alloc(tasknum * sizeof(task_cpuusage_info));
     if (taskinfo ==  NULL) {
         krhino_sched_enable();
-        return RHINO_NO_MEM;
     }
     memset(taskinfo, 0, tasknum * sizeof(task_cpuusage_info));
 
