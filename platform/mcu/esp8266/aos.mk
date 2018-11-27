@@ -7,9 +7,8 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp8266
 
 $(NAME)_COMPONENTS := middleware.common yloop kernel.fs.kv libc debug
-$(NAME)_COMPONENTS += network.lwip alicrypto hal
+$(NAME)_COMPONENTS += network.lwip network.netmgr alicrypto hal
 $(NAME)_COMPONENTS += middleware.uagent.uota.src.2nd_boot digest_algorithm
-$(NAME)_COMPONENTS += halwifi
 
 use_private_lwip := 1
 
