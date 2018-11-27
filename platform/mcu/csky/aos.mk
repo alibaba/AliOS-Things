@@ -10,17 +10,17 @@ LWIP := 0
 SAL  := 1
 
 #$(NAME)_COMPONENTS += platform/arch/csky/cskyv2-l
-$(NAME)_COMPONENTS += rhino hal halwifi middleware.common cjson cli
+$(NAME)_COMPONENTS += rhino hal middleware.common cjson cli
 
 ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS += network.lwip
+$(NAME)_COMPONENTS += network.lwip network.netmgr
 no_with_lwip       := 0
 GLOBAL_DEFINES     += WITH_LWIP
 endif
 
 ifeq ($(SAL),1)
 $(NAME)_COMPONENTS += sal.hal.wifi.esp8266
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
+$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal network.netmgr
 GLOBAL_DEFINES     += WITH_SAL
 endif
 
