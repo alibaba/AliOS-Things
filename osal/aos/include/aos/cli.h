@@ -96,5 +96,4 @@ extern int csp_printf(const char *fmt, ...);
 }
 #endif
 
-
 #endif /* AOS_CLI_H */
