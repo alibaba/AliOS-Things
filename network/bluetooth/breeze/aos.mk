@@ -3,7 +3,7 @@ NAME := breeze
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := breeze provides secure BLE connection to Alibaba IoT cloud and services.
 
 $(NAME)_SOURCES-y += core/core.c
 $(NAME)_SOURCES-y += core/transport.c
