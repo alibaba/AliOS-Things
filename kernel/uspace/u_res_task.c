@@ -8,7 +8,8 @@
 #define RES_TASK_USTACK 512u
 #define RES_TASK_KSTACK 512u
 
-ktask_t *res_task_obj;
+ktask_t    *res_task_obj;
+cpu_stack_t ustack_buf[RES_TASK_USTACK];
 
 void res_task(void *arg)
 {
@@ -19,18 +20,15 @@ void res_task(void *arg)
     while (1) {
         krhino_queue_recv(res, RHINO_WAIT_FOREVER, &msg);
         free(msg);
+        krhino_uprocess_res_get(1, &res);
+        if (res != 0) {
+            krhino_utask_del(res_task_obj);
+        }
     }
 }
 
 void res_task_start(void)
 {
-    cpu_stack_t *ustack_buf;
-
-    ustack_buf = malloc(RES_TASK_USTACK * sizeof(cpu_stack_t));
-    if (ustack_buf == NULL) {
-        return;
-    }
-
     krhino_utask_create(&res_task_obj, "res_task", 0, 20 ,50 ,ustack_buf,
                         RES_TASK_USTACK, RES_TASK_KSTACK, res_task, 1);
 }
