@@ -54,7 +54,7 @@ endif
 no_tls             ?= 1
 AOS_NETWORK_SAL    ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
+$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal network.netmgr
 module             ?= wifi.bk7231
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
