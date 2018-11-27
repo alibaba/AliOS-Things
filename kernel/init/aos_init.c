@@ -19,7 +19,6 @@ extern int vfs_init(void);
 extern int vfs_device_init(void);
 extern int aos_kv_init(void);
 extern void ota_service_init(void);
-extern int aos_framework_init(void);
 extern void dumpsys_cli_init(void);
 extern int application_start(int argc, char **argv);
 //extern void aos_components_init(void);
@@ -302,18 +301,10 @@ int aos_kernel_init(kinit_t *kinit)
 #ifdef AOS_BINS
     app_pre_init();
 
-#ifdef AOS_FRAMEWORK_COMMON
-        aos_framework_init();
-#endif
-
     if (app_info->app_entry) {
         app_info->app_entry((void *)kmbins_tbl, 0, NULL);
     }
 #else
-
-#ifdef AOS_FRAMEWORK_COMMON
-    aos_framework_init();
-#endif
 
     application_start(kinit->argc, kinit->argv);
 #endif
