@@ -1,6 +1,6 @@
 #! /bin/bash
 
-TARGET_FILE=$1
+TARGET_FILE=${OUTPUT_DIR}/.one_makefile
 rm -f ${TARGET_FILE}
 
 CONFIG_VERNDOR=$(grep -m 1 "VENDOR *:" .config|awk '{ print $NF }')
