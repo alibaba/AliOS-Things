@@ -32,10 +32,10 @@ static void test_kv_add(void)
 
     ret = aos_kv_set(g_key_2, g_val_2, strlen(g_val_2),1);
     YUNIT_ASSERT(0 == ret);
-    
+
     ret = aos_kv_set(g_key_3, g_val_3, strlen(g_val_3),1);
     YUNIT_ASSERT(0 == ret);
-    
+
     ret = aos_kv_set(g_key_4, g_val_4, strlen(g_val_4),1);
     YUNIT_ASSERT(0 == ret);
 }
@@ -69,13 +69,13 @@ static void test_kv_del(void)
     char buf[10] = {0};
     int len = sizeof(buf);
 
-    ret = aos_kv_del(g_key_1); 
+    ret = aos_kv_del(g_key_1);
     YUNIT_ASSERT(0 == ret);
 
-    ret = aos_kv_del(g_key_2); 
+    ret = aos_kv_del(g_key_2);
     YUNIT_ASSERT(0 == ret);
-   
-    ret = aos_kv_del(g_key_3); 
+
+    ret = aos_kv_del(g_key_3);
     YUNIT_ASSERT(0 == ret);
 
     ret = aos_kv_get(g_key_3,buf,&len);
@@ -193,7 +193,7 @@ static void test_kv_error(void)
         hal_flash_erase(KV_TEST_PTN, offset, blk_size);
         hal_flash_write(KV_TEST_PTN, &offset, buf, blk_size);
     }
-    test_kv_error_cycle();    
+    test_kv_error_cycle();
 
     /* case situation : one middle block is abnormal, and other block is clean */
     memset(buf, -1, blk_size);
@@ -208,7 +208,7 @@ static void test_kv_error(void)
     offset = blk_size;
     hal_flash_erase(KV_TEST_PTN, offset, blk_size);
     hal_flash_write(KV_TEST_PTN, &offset, buf, blk_size);
-    test_kv_error_cycle(); 
+    test_kv_error_cycle();
 
     /* case situation : one block is clean, one block is dirty, but header means clean */
     memset(buf, -1, blk_size);
@@ -227,7 +227,7 @@ static void test_kv_error(void)
     memset(buf, 0, blk_size);
     offset = blk_size;
     hal_flash_read(KV_TEST_PTN, &offset, buf, blk_size);
-    YUNIT_ASSERT(buf[1] == 0x44); 
+    YUNIT_ASSERT(buf[1] == 0x44);
     aos_kv_deinit();
 
 
@@ -280,7 +280,7 @@ static yunit_test_suite_t suites[] = {
 };
 
 void test_kv(void)
-{    
+{
     yunit_add_test_suites(suites);
 }
 AOS_TESTCASE(test_kv);
