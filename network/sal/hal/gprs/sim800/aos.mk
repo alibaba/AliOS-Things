@@ -2,7 +2,7 @@ NAME := device_sal_sim800
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := sal hal implmentation for sim800
 GLOBAL_DEFINES += DEV_SAL_SIM800
 
 $(NAME)_COMPONENTS += yloop
