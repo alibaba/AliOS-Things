@@ -1,8 +1,8 @@
 NAME := kv
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    += 0.0.1.0
-$(NAME)_SUMMARY    += lightweight key-value style storage module
+$(NAME)_VERSION    := 0.0.1.0
+$(NAME)_SUMMARY    := lightweight key-value style storage module
 
 $(NAME)_SOURCES := kv.c kv_adapt.c kv_cli.c
 

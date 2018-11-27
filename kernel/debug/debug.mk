@@ -1,8 +1,8 @@
 NAME := debug
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    += 0.0.1.0
-$(NAME)_SUMMARY    += panic debug and cpuusage
+$(NAME)_VERSION    := 0.0.1.0
+$(NAME)_SUMMARY    := panic debug and cpuusage
 
 GLOBAL_INCLUDES += ./ ./include
 
