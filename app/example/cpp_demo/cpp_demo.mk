@@ -15,7 +15,7 @@ $(NAME)_SOURCES += inheritance.cpp
 GLOBAL_DEFINES += AOS_NO_WIFI
 GLOBAL_LDFLAGS += -lstdc++
 
-$(NAME)_COMPONENTS += yloop cli kernel/rhino/cplusplus
+$(NAME)_COMPONENTS += yloop cli cplusplus
 
 ifeq ($(BENCHMARKS),1)
 $(NAME)_COMPONENTS  += benchmarks
