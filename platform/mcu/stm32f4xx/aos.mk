@@ -1,4 +1,4 @@
-NAME = stm32f4xx
+NAME := stm32f4xx
 
 # Host architecture is ARM Cortex M4
 HOST_ARCH := Cortex-M4
