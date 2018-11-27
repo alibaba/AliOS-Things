@@ -145,17 +145,22 @@ static int http_report_func(void *handle, const char *topic_name, int req_ack, v
 {
     iotx_http_message_param_t   msg_param;
     char                        request_buf[1024];
+    char                        topic_path[100];
+
     if (handle == NULL || topic_name == NULL || data == NULL) {
         http_err("params err");
         return -1;
     }
+
+    HAL_Snprintf(topic_path, sizeof(topic_path), "/topic%s", topic_name);
+
     memset(&msg_param, 0, sizeof(iotx_http_message_param_t));
     msg_param.request_payload = (char *)data;
     msg_param.response_payload = request_buf;
     msg_param.timeout_ms = CONFIG_MID_HTTP_TIMEOUT;
     msg_param.request_payload_len = len;
     msg_param.response_payload_len = 1024;
-    msg_param.topic_path = (char *)topic_name;
+    msg_param.topic_path = topic_path;
 
     return IOT_HTTP_SendMessage(handle, &msg_param);
 }
@@ -192,6 +197,10 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
     }
 
     p_devinfo = pInitParams->device_info;
+
+    HAL_SetProductKey(p_devinfo->product_key);
+    HAL_SetDeviceName(p_devinfo->device_name);
+    HAL_SetDeviceSecret(p_devinfo->device_secret);
 
     iotx_http_context = (iotx_http_t *)HTTP_API_MALLOC(sizeof(iotx_http_t));
 
@@ -481,12 +490,22 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     iotx_set_report_func(http_report_func);
     /* report module id */
     ret = iotx_report_mid(iotx_http_context);
-    // /* report module id */
-    // ret = iotx_http_report_mid(iotx_http_context);
     if (SUCCESS_RETURN != ret) {
         http_err("Send ModuleId message to server(Http) failed, ret = %d", ret);
         goto do_exit;
     }
+    /* report device information */
+    ret = iotx_report_devinfo(iotx_http_context);
+    if (SUCCESS_RETURN != ret) {
+        http_err("Send devinfo message to server(Http) failed, ret = %d", ret);
+        goto do_exit;
+    }
+    /* report firmware */
+    ret = iotx_report_firmware_version(iotx_http_context);
+    if (SUCCESS_RETURN != ret) {
+        http_err("Send firmware message to server(Http) failed, ret = %d", ret);
+        goto do_exit;
+    }        
 
     ret = 0;
 
