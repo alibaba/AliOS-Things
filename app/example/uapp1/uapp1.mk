@@ -17,7 +17,7 @@ $(NAME)_SOURCES += test/test.c \
                    test/mutex_test.c \
                    test/semphore_test.c \
                    test/time_test.c \
-				   test/timer_test.c \
+                   test/timer_test.c \
                    test/buf_queue_test.c
 
 $(NAME)_INCLUDES := include \
