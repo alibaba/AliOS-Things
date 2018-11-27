@@ -178,5 +178,6 @@ bool send_lora_link_check(void);
 
 bool lora_tx_data_payload(uint8_t confirm, uint8_t Nbtrials, uint8_t *payload,
                           uint8_t len);
+bool set_lora_app_port(uint8_t port);
 
 #endif /* LINKWAN_H */
