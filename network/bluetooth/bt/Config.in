@@ -3,7 +3,6 @@ menuconfig AOS_COMP_BT
     default n
     select AOS_COMP_CONTROLLER if @CONDITION@
     select AOS_COMP_YLOOP
-    select AOS_COMP_BT_MESH if @CONDITION@
     help
 
 if AOS_COMP_BT
