@@ -73,15 +73,8 @@ lorawan_4_4_2/
 │       ├── utilities.c
 │       ├── utilities.h
 │       └── version.h
-├── lorachip
-│   ├── lorachip.mk
-│   ├── sx1276
-│   │   ├── sx1276.c
-│   │   ├── sx1276.h
-│   │   ├── sx1276Regs-Fsk.h
-│   │   └── sx1276Regs-LoRa.h
 │   └── ucube.py
-├── lorawan_4_4_2.mk
+├── aos.mk
 └── README.md
 
 ## Introduction
