@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_HALWIFI
-    bool "halwifi"
-    default n
-    help
-
-if AOS_COMP_HALWIFI
-# Configurations for comp halwifi
-endif
