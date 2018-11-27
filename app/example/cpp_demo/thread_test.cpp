@@ -70,12 +70,12 @@ void test_thread(void)
     pb = new Thread;
     pc = new Thread;
 
-    pa->create((const name_t *)name, (void *)NULL, (uint8_t)20, (tick_t)50, 
+    pa->create((const name_t *)name, (void *)NULL, (uint8_t)20, (tick_t)50,
       STACK_BUF_BYTES, demo_task1, (uint8_t)1);
 
-    pb->create((const name_t *)name, (void *)NULL, (uint8_t)20, (tick_t)50, 
+    pb->create((const name_t *)name, (void *)NULL, (uint8_t)20, (tick_t)50,
       STACK_BUF_BYTES, demo_task2, (uint8_t)1);
 
-    pc->create((const name_t *)name, (void *)NULL, (uint8_t)20, (tick_t)50, 
+    pc->create((const name_t *)name, (void *)NULL, (uint8_t)20, (tick_t)50,
       STACK_BUF_BYTES, demo_task3, (uint8_t)0);
 }
