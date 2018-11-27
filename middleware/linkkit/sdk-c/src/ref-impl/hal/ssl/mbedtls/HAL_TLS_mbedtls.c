@@ -274,14 +274,14 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx, const char *hos
 
 void *_SSLCalloc_wrapper(size_t n, size_t size)
 {
-    void *buf = NULL;
+    char *buf = NULL;
     mbedtls_mem_info_t *mem_info = NULL;
 
     if (n == 0 || size == 0) {
         return NULL;
     }
 
-    buf = g_ssl_hooks.malloc(n * size + sizeof(mbedtls_mem_info_t));
+    buf = (char *)(g_ssl_hooks.malloc(n * size + sizeof(mbedtls_mem_info_t)));
     if (NULL == buf) {
         return NULL;
     } else {
@@ -311,7 +311,7 @@ void _SSLFree_wrapper(void *ptr)
         return;
     }
 
-    mem_info = ptr - sizeof(mbedtls_mem_info_t);
+    mem_info = (mbedtls_mem_info_t *)((char *)ptr - sizeof(mbedtls_mem_info_t));
     if (mem_info->magic != MBEDTLS_MEM_INFO_MAGIC) {
         hal_info("Warning - invalid mem info magic: 0x%x\r\n", mem_info->magic);
         return;
