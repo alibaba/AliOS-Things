@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_BT_CONTROLLER
+    bool "bt_controller"
+    default n
+    help
+
+if AOS_COMP_BT_CONTROLLER
+# Configurations for comp bt_controller
+endif
