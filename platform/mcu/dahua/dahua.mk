@@ -11,7 +11,6 @@ SAL  := 0
 
 #$(NAME)_COMPONENTS += platform/arch/dahua/dahuav2-l
 $(NAME)_COMPONENTS += rhino hal middleware.common cjson cli
-$(NAME)_COMPONENTS += platform/mcu/dahua/hal_init
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS += network.lwip
@@ -70,7 +69,8 @@ $(NAME)_SOURCES += aos/aos.c                                    \
                    csi/csi/csi_kernel/rhino/adapter/csi_rhino.c \
                    csi/csi/csi_kernel/rhino/driver/systick.c    \
                    csi/csi/csi_kernel/rhino/driver/hook_impl.c  \
-                   libs/posix/time/clock_gettime.c
+                   libs/posix/time/clock_gettime.c              \
+                   hal_init/hal_init.c
 
 ifeq ($(SAL),1)
 $(NAME)_SOURCES += hal/wifi_port.c

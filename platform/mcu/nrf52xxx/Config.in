@@ -1,0 +1,16 @@
+menuconfig AOS_MCU_NRF52XXX
+    bool "nrf52xxx"
+    default n
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_COMMON
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_HAL
+    select AOS_COMP_RHINO
+    select AOS_COMP_DIGEST_ALGORITHM
+    select AOS_COMP_VFS
+    select AOS_COMP_BT
+    help
+
+if AOS_MCU_NRF52XXX
+# Configurations for mcu nrf52xxx
+endif
