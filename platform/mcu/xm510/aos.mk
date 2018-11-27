@@ -1,4 +1,4 @@
-NAME = xm510
+NAME := xm510
 
 HOST_OPENOCD := xm510
 

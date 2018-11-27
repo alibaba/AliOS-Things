@@ -1,4 +1,4 @@
-NAME = e310
+NAME := e310
 
 HOST_OPENOCD := e310
 
