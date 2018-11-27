@@ -11,5 +11,5 @@ src     = Split('''
 ''')
 
 component = aos_component('cpp_demo', src)
-component.add_comp_deps('kernel/yloop', 'kernel/cli', 'kernel/rhino/cplusplus')
+component.add_comp_deps('kernel/yloop', 'kernel/cli', 'kernel/cplusplus')
 component.add_global_macros('AOS_NO_WIFI')
