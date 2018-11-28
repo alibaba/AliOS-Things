@@ -106,7 +106,6 @@ src = Split('''
         hal/hal_nand_stm32l4.c
         hal/hal_nor_stm32l4.c
         hal/hal_flash_stm32l4.c
-        hal/ota_port.c
 ''')
 
 deps = Split('''

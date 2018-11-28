@@ -8,7 +8,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu RDA8955
 
 $(NAME)_COMPONENTS += platform/arch/mips/mips-I
-$(NAME)_COMPONENTS := libc rhino hal netmgr middleware.common cjson digest_algorithm network.lwip
+$(NAME)_COMPONENTS := libc rhino netmgr cjson digest_algorithm network.lwip
 
 #dual_os ?= no
 

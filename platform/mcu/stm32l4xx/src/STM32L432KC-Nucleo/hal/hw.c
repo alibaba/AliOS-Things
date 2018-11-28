@@ -69,6 +69,5 @@ void hw_start_hal(void)
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 #endif
-    //hal_ota_register_module(&stm32l475_ota_module);
     hal_wifi_init();
 }

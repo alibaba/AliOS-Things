@@ -10,10 +10,9 @@ HOST_OPENOCD := imx6sx
 HOST_ARCH := Cortex-A9
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7a
-$(NAME)_COMPONENTS += libc rhino hal kernel.fs.vfs
+$(NAME)_COMPONENTS += libc rhino kernel.fs.vfs
 
 GLOBAL_INCLUDES += ../../../arch/arm/armv7a/gcc/syscall/a9
-GLOBAL_INCLUDES += ../../../../kernel/hal/include/soc/
 
 GLOBAL_INCLUDES += aos                                      \
                    imx6_platform_sdk/sdk                    \

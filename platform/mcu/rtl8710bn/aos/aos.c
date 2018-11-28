@@ -28,7 +28,6 @@ ktask_t *g_aos_init;
 static kinit_t kinit;
 
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 extern void board_init(void);
 
 extern uint32_t SystemCoreClock;
