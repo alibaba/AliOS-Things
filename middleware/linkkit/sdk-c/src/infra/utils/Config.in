@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_LIBIOT_UTILS
-    default n
-    help
-      tool sets, such as json,md5,base64 and so on
-
-if AOS_COMP_LIBIOT_UTILS
-# Configurations for comp libiot_utils
-endif
