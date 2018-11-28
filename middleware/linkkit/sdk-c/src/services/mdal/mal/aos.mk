@@ -5,11 +5,11 @@ $(NAME)_SUMMARY := mqtt adapter layer
 
 $(NAME)_SOURCES := ./mal.c \
  
-include middleware/linkkit/sdk-c/src/infra/utils/utils.mk
-include middleware/linkkit/sdk-c/src/infra/log/log.mk
-include middleware/linkkit/sdk-c/src/infra/system/system.mk
-include middleware/linkkit/sdk-c/src/sdk-impl/sdk-impl.mk
-include middleware/linkkit/sdk-c/src/services/mdal/mal/ica/ica.mk
+include middleware/linkkit/sdk-c/src/infra/utils/aos.mk
+include middleware/linkkit/sdk-c/src/infra/log/aos.mk
+include middleware/linkkit/sdk-c/src/infra/system/aos.mk
+include middleware/linkkit/sdk-c/src/sdk-impl/aos.mk
+include middleware/linkkit/sdk-c/src/services/mdal/mal/ica/aos.mk
 
 $(NAME)_INCLUDES := . \
     middleware/linkkit/sdk-c/src/infra/system \
