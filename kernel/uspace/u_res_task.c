@@ -19,9 +19,12 @@ void res_task(void *arg)
     krhino_uprocess_res_get(0, &res);
     while (1) {
         krhino_queue_recv(res, RHINO_WAIT_FOREVER, &msg);
-        free(msg);
-        krhino_uprocess_res_get(1, &res);
-        if (res != 0) {
+        if (msg != 0) {
+            free(msg);
+        }
+
+        krhino_uprocess_res_get(1, &msg);
+        if (msg != 0) {
             krhino_utask_del(res_task_obj);
         }
     }
