@@ -2,7 +2,7 @@ NAME := bt_mesh_port
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := This is an AliOS Things based implementation of BLE Mesh HAL API.
 
 $(NAME)_COMPONENTS-y := network.bluetooth.bt
 
