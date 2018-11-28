@@ -160,7 +160,7 @@ ifeq ($(modbus_sensor_enable),1)
 ifeq ($(AOS_SENSOR_MODBUS_ENABLE),y)
 >>>>>>> 44f3c13a5 ( BugID:17532990: sensor automatic init)
 $(NAME)_SOURCES += drv/drv_modbus_sensors.c
-$(NAME)_COMPONENTS  += rhino.bus.mbmaster
+$(NAME)_COMPONENTS  += kernel.bus.mbmaster
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
 
