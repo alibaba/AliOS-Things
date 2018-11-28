@@ -2,120 +2,114 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_inode.h>
-#include <vfs.h>
-#include <stdio.h>
-#include <hal/hal.h>
-#include <limits.h>
+#include <stdint.h>
+#include <stddef.h>
 #include <string.h>
-#include <vfs_file.h>
+
+#include "vfs_conf.h"
+#include "vfs_api.h"
+#include "vfs_inode.h"
+#include "vfs_file.h"
+#include "vfs_adapt.h"
 
 #ifdef IO_NEED_TRAP
-#include <vfs_trap.h>
+#include "vfs_trap.h"
 #endif
 
-#ifndef PATH_MAX
-#define PATH_MAX 256
-#endif
+static uint8_t  g_vfs_init     = 0;
+static void    *g_vfs_lock_ptr = NULL;
 
-static uint8_t g_vfs_init;
-kmutex_t g_vfs_mutex;
-
-int vfs_init(void)
+int32_t vfs_init(void)
 {
-    int ret = VFS_SUCCESS;
-
     if (g_vfs_init == 1) {
-        return ret;
+        return VFS_OK;
     }
 
-    if ((ret = krhino_mutex_create(&g_vfs_mutex, "g_vfs_mutex")) != VFS_SUCCESS) {
-        return ret;
+    g_vfs_lock_ptr = vfs_lock_create();
+    if (g_vfs_lock_ptr == NULL) {
+        return VFS_ERR_NOMEM;
     }
 
-    inode_init();
+    vfs_inode_init();
 
     g_vfs_init = 1;
 
-    return ret;
+    return VFS_OK;
 }
 
-int aos_open(const char *path, int flags)
+int32_t vfs_open(const char *path, int32_t flags)
 {
-    file_t  *file;
-    inode_t *node;
-    size_t len = 0;
-    int ret = VFS_SUCCESS;
+    int32_t len = 0;
+    int32_t ret = VFS_OK;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (path == NULL) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
     len = strlen(path);
-    if (len > PATH_MAX) {
-        return -ENAMETOOLONG;
+    if (len > VFS_PATH_MAX) {
+        return VFS_ERR_NAMETOOLONG;
     }
 
-    if ((ret = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return ret;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    node = inode_open(path);
-
+    node = vfs_inode_open(path);
     if (node == NULL) {
-        krhino_mutex_unlock(&g_vfs_mutex);
+        vfs_unlock(g_vfs_lock_ptr);
 
 #ifdef IO_NEED_TRAP
         return trap_open(path, flags);
 #else
-        return -ENOENT;
+        return VFS_ERR_NOENT;
 #endif
     }
 
     node->i_flags = flags;
-    file = new_file(node);
+    f = vfs_file_new(node);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    if (file == NULL) {
-        return -ENFILE;
+    if (f == NULL) {
+        return VFS_ERR_ENFILE;
     }
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->open) != NULL) {
-            ret = (node->ops.i_fops->open)(file, path, flags);
+            ret = (node->ops.i_fops->open)(f, path, flags);
         }
-
     } else {
         if ((node->ops.i_ops->open) != NULL) {
-            ret = (node->ops.i_ops->open)(node, file);
+            ret = (node->ops.i_ops->open)(node, f);
         }
     }
 
-    if (ret != VFS_SUCCESS) {
-        del_file(file);
+    if (ret != VFS_OK) {
+        vfs_file_del(f);
         return ret;
     }
 
-    return get_fd(file);
+    return vfs_fd_get(f);
 }
 
-int aos_close(int fd)
+int32_t vfs_close(int32_t fd)
 {
-    int ret = VFS_SUCCESS;
-    file_t  *f;
-    inode_t *node;
+    int32_t ret = VFS_OK;
 
-    f = get_file(fd);
+    vfs_file_t *f;
+    vfs_inode_t *node;
+
+    f = vfs_file_get(fd);
 
     if (f == NULL) {
 #ifdef IO_NEED_TRAP
         return trap_close(fd);
 #else
-        return -ENOENT;
+        return VFS_ERR_NOENT;
 #endif
     }
 
@@ -125,38 +119,37 @@ int aos_close(int fd)
         if ((node->ops.i_fops->close) != NULL) {
             ret = (node->ops.i_fops->close)(f);
         }
-
     } else {
-
         if ((node->ops.i_ops->close) != NULL) {
             ret = (node->ops.i_ops->close)(f);
         }
     }
 
-    if ((ret = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return ret;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    del_file(f);
+    vfs_file_del(f);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
     return ret;
 }
 
-ssize_t aos_read(int fd, void *buf, size_t nbytes)
+int32_t vfs_read(int32_t fd, void *buf, uint32_t nbytes)
 {
-    ssize_t  nread = -1;
-    file_t  *f;
-    inode_t *node;
+    int32_t nread = -1;
 
-    f = get_file(fd);
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    f = vfs_file_get(fd);
 
     if (f == NULL) {
 #ifdef IO_NEED_TRAP
         return trap_read(fd, buf, nbytes);
 #else
-        return -ENOENT;
+        return VFS_ERR_NOENT;
 #endif
     }
 
@@ -175,19 +168,20 @@ ssize_t aos_read(int fd, void *buf, size_t nbytes)
     return nread;
 }
 
-ssize_t aos_write(int fd, const void *buf, size_t nbytes)
+int32_t vfs_write(int32_t fd, const void *buf, uint32_t nbytes)
 {
-    ssize_t  nwrite = -1;
-    file_t  *f;
-    inode_t *node;
+    int32_t nwrite = -1;
 
-    f = get_file(fd);
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    f = vfs_file_get(fd);
 
     if (f == NULL) {
 #ifdef IO_NEED_TRAP
         return trap_write(fd, buf, nbytes);
 #else
-        return -ENOENT;
+        return VFS_ERR_NOENT;
 #endif
     }
 
@@ -206,20 +200,20 @@ ssize_t aos_write(int fd, const void *buf, size_t nbytes)
     return nwrite;
 }
 
-int aos_ioctl(int fd, int cmd, unsigned long arg)
+int32_t vfs_ioctl(int32_t fd, int32_t cmd, uint32_t arg)
 {
-    int ret = -ENOSYS;
-    file_t  *f;
-    inode_t *node;
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (fd < 0) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    f = get_file(fd);
-
+    f = vfs_file_get(fd);
     if (f == NULL) {
-        return -ENOENT;
+        return VFS_ERR_NOENT;
     }
 
     node = f->node;
@@ -237,16 +231,40 @@ int aos_ioctl(int fd, int cmd, unsigned long arg)
     return ret;
 }
 
-off_t aos_lseek(int fd, off_t offset, int whence)
+int32_t vfs_do_pollfd(int32_t fd, int32_t flag, vfs_poll_notify_t notify,
+                      void *fds, void *arg)
 {
-    file_t *f;
-    inode_t *node;
-    int ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
 
-    f = get_file(fd);
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
+    f = vfs_file_get(fd);
     if (f == NULL) {
-        return -ENOENT;
+        return VFS_ERR_NOENT;
+    }
+
+    node = f->node;
+
+    if (!INODE_IS_FS(node)) {
+        if ((node->ops.i_ops->poll) != NULL) {
+            ret = (node->ops.i_ops->poll)(f, flag, notify, fds, arg);
+        }
+    }
+
+    return ret;
+}
+
+uint32_t vfs_lseek(int32_t fd, uint32_t offset, int32_t whence)
+{
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    f = vfs_file_get(fd);
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
     }
 
     node = f->node;
@@ -260,16 +278,16 @@ off_t aos_lseek(int fd, off_t offset, int whence)
     return ret;
 }
 
-int aos_sync(int fd)
+int32_t vfs_sync(int32_t fd)
 {
-    file_t  *f;
-    inode_t *node;
-    int ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
 
-    f = get_file(fd);
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
+    f = vfs_file_get(fd);
     if (f == NULL) {
-        return -ENOENT;
+        return VFS_ERR_NOENT;
     }
 
     node = f->node;
@@ -283,123 +301,126 @@ int aos_sync(int fd)
     return ret;
 }
 
-int aos_stat(const char *path, struct stat *st)
+int32_t vfs_stat(const char *path, vfs_stat_t *st)
 {
-    file_t  *file;
-    inode_t *node;
-    int err, ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (path == NULL) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    node = inode_open(path);
+    node = vfs_inode_open(path);
 
     if (node == NULL) {
-        krhino_mutex_unlock(&g_vfs_mutex);
-        return -ENODEV;
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
     }
 
-    file = new_file(node);
+    f = vfs_file_new(node);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    if (file == NULL) {
-        return -ENOENT;
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
     }
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->stat) != NULL) {
-            ret = (node->ops.i_fops->stat)(file, path, st);
+            ret = (node->ops.i_fops->stat)(f, path, st);
         }
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    del_file(file);
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
 
-int aos_unlink(const char *path)
+int32_t vfs_unlink(const char *path)
 {
-    file_t  *f;
-    inode_t *node;
-    int err, ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (path == NULL) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    node = inode_open(path);
+    node = vfs_inode_open(path);
 
     if (node == NULL) {
-        krhino_mutex_unlock(&g_vfs_mutex);
-        return -ENODEV;
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
     }
 
-    f = new_file(node);
+    f = vfs_file_new(node);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
     if (f == NULL) {
-        return -ENOENT;
+        return VFS_ERR_NOENT;
     }
 
     if (INODE_IS_FS(node)) {
-        if ((node->ops.i_fops->unlink) != NULL) {
-            ret = (node->ops.i_fops->unlink)(f, path);
+        if ((node->ops.i_fops->sync) != NULL) {
+            ret = (node->ops.i_fops->sync)(f);
         }
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    del_file(f);
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
 
-int aos_rename(const char *oldpath, const char *newpath)
+int32_t vfs_rename(const char *oldpath, const char *newpath)
 {
-    file_t  *f;
-    inode_t *node;
-    int err, ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
 
-    if (oldpath == NULL || newpath == NULL) {
-        return -EINVAL;
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    if ((oldpath == NULL) || (newpath == NULL)) {
+        return VFS_ERR_INVAL;
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    node = inode_open(oldpath);
+    node = vfs_inode_open(oldpath);
 
     if (node == NULL) {
-        krhino_mutex_unlock(&g_vfs_mutex);
-        return -ENODEV;
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
     }
 
-    f = new_file(node);
+    f = vfs_file_new(node);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
     if (f == NULL) {
-        return -ENOENT;
+        return VFS_ERR_NOENT;
     }
 
     if (INODE_IS_FS(node)) {
@@ -408,80 +429,82 @@ int aos_rename(const char *oldpath, const char *newpath)
         }
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    del_file(f);
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
 
-aos_dir_t *aos_opendir(const char *path)
+vfs_dir_t *vfs_opendir(const char *path)
 {
-    file_t  *file;
-    inode_t *node;
-    aos_dir_t *dp = NULL;
+    vfs_dir_t *dp = NULL;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (path == NULL) {
         return NULL;
     }
 
-    if (krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER) != 0) {
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
         return NULL;
     }
 
-    node = inode_open(path);
+    node = vfs_inode_open(path);
 
     if (node == NULL) {
-        krhino_mutex_unlock(&g_vfs_mutex);
+        vfs_unlock(g_vfs_lock_ptr);
         return NULL;
     }
 
-    file = new_file(node);
+    f = vfs_file_new(node);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    if (file == NULL) {
+    if (f == NULL) {
         return NULL;
     }
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->opendir) != NULL) {
-            dp = (node->ops.i_fops->opendir)(file, path);
+            dp = (node->ops.i_fops->opendir)(f, path);
         }
     }
 
     if (dp == NULL) {
-        if (krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER) != 0) {
+        if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
             return NULL;
         }
 
-        del_file(file);
+        vfs_file_del(f);
 
-        krhino_mutex_unlock(&g_vfs_mutex);
+        vfs_unlock(g_vfs_lock_ptr);
         return NULL;
     }
 
-    dp->dd_vfs_fd = get_fd(file);
+    dp->dd_vfs_fd = vfs_fd_get(f);
+
     return dp;
 }
 
-int aos_closedir(aos_dir_t *dir)
+int32_t vfs_closedir(vfs_dir_t *dir)
 {
-    file_t  *f;
-    inode_t *node;
-    int err, ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (dir == NULL) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    f = get_file(dir->dd_vfs_fd);
-
+    f = vfs_file_get(dir->dd_vfs_fd);
     if (f == NULL) {
-        return -ENOENT;
+        return VFS_ERR_NOENT;
     }
 
     node = f->node;
@@ -492,28 +515,29 @@ int aos_closedir(aos_dir_t *dir)
         }
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    del_file(f);
+    vfs_file_del(f);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
     return ret;
 }
 
-aos_dirent_t *aos_readdir(aos_dir_t *dir)
+vfs_dirent_t *vfs_readdir(vfs_dir_t *dir)
 {
-    file_t *f;
-    inode_t *node;
-    aos_dirent_t *ret = NULL;
+    vfs_dirent_t *dirent = NULL;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (dir == NULL) {
         return NULL;
     }
 
-    f = get_file(dir->dd_vfs_fd);
+    f = vfs_file_get(dir->dd_vfs_fd);
     if (f == NULL) {
         return NULL;
     }
@@ -522,119 +546,115 @@ aos_dirent_t *aos_readdir(aos_dir_t *dir)
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->readdir) != NULL) {
-            ret = (node->ops.i_fops->readdir)(f, dir);
+            dirent = (node->ops.i_fops->readdir)(f, dir);
         }
     }
 
-    if (ret != NULL) {
-        return ret;
-    }
-
-    return NULL;
+    return dirent;
 }
 
-int aos_mkdir(const char *path)
+int32_t vfs_mkdir(const char *path)
 {
-    file_t  *file;
-    inode_t *node;
-    int err, ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (path == NULL) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    node = inode_open(path);
+    node = vfs_inode_open(path);
 
     if (node == NULL) {
-        krhino_mutex_unlock(&g_vfs_mutex);
-        return -ENODEV;
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
     }
 
-    file = new_file(node);
+    f = vfs_file_new(node);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    if (file == NULL) {
-        return -ENOENT;
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
     }
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->mkdir) != NULL) {
-            ret = (node->ops.i_fops->mkdir)(file, path);
+            ret = (node->ops.i_fops->mkdir)(f, path);
         }
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    del_file(file);
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
 
-int aos_rmdir(const char *path)
+int32_t vfs_rmdir(const char *path)
 {
-    file_t  *file;
-    inode_t *node;
-    int err = -ENOSYS;
-    int ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (path == NULL) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    node = inode_open(path);
+    node = vfs_inode_open(path);
 
     if (node == NULL) {
-        krhino_mutex_unlock(&g_vfs_mutex);
-        return -ENODEV;
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
     }
 
-    file = new_file(node);
+    f = vfs_file_new(node);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    if (file == NULL) {
-        return -ENOENT;
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
     }
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->rmdir) != NULL) {
-            ret = (node->ops.i_fops->rmdir)(file, path);
+            ret = (node->ops.i_fops->rmdir)(f, path);
         }
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    del_file(file);
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
 
-void aos_rewinddir(aos_dir_t *dir)
+void vfs_rewinddir(vfs_dir_t *dir)
 {
-    file_t  *f;
-    inode_t *node;
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (dir == NULL) {
         return;
     }
 
-    f = get_file(dir->dd_vfs_fd);
-
+    f = vfs_file_get(dir->dd_vfs_fd);
     if (f == NULL) {
         return;
     }
@@ -650,43 +670,43 @@ void aos_rewinddir(aos_dir_t *dir)
     return;
 }
 
-long aos_telldir(aos_dir_t *dir)
+int32_t vfs_telldir(vfs_dir_t *dir)
 {
-    file_t  *f;
-    inode_t *node;
-    long ret = 0;
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    int32_t ret = 0;
 
     if (dir == NULL) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    f = get_file(dir->dd_vfs_fd);
-
+    f = vfs_file_get(dir->dd_vfs_fd);
     if (f == NULL) {
-        return -ENOENT;
+        return VFS_ERR_NOENT;
     }
 
     node = f->node;
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->telldir) != NULL) {
-            ret = (node->ops.i_fops->telldir)(f, dir);
+            (node->ops.i_fops->telldir)(f, dir);
         }
     }
+
     return ret;
 }
 
-void aos_seekdir(aos_dir_t *dir, long loc)
+void vfs_seekdir(vfs_dir_t *dir, int32_t loc)
 {
-    file_t  *f;
-    inode_t *node;
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (dir == NULL) {
         return;
     }
 
-    f = get_file(dir->dd_vfs_fd);
-
+    f = vfs_file_get(dir->dd_vfs_fd);
     if (f == NULL) {
         return;
     }
@@ -698,98 +718,197 @@ void aos_seekdir(aos_dir_t *dir, long loc)
             (node->ops.i_fops->seekdir)(f, dir, loc);
         }
     }
+
+    return;
 }
 
-int aos_statfs(const char *path, struct statfs *buf)
+int32_t vfs_statfs(const char *path, vfs_statfs_t *buf)
 {
-    file_t  *file;
-    inode_t *node;
-    int err = -ENOSYS;
-    int ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (path == NULL) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    node = inode_open(path);
+    node = vfs_inode_open(path);
 
     if (node == NULL) {
-        krhino_mutex_unlock(&g_vfs_mutex);
-        return -ENODEV;
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
     }
 
-    file = new_file(node);
+    f = vfs_file_new(node);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    if (file == NULL) {
-        return -ENOENT;
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
     }
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->statfs) != NULL) {
-            ret = (node->ops.i_fops->statfs)(file, path, buf);
+            ret = (node->ops.i_fops->statfs)(f, path, buf);
         }
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    del_file(file);
-
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
 
     return ret;
 }
 
-int aos_access(const char *path, int amode)
+int32_t vfs_access(const char *path, int32_t amode)
 {
-    file_t  *file;
-    inode_t *node;
-    int err = -ENOSYS;
-    int ret = -ENOSYS;
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
 
     if (path == NULL) {
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    node = inode_open(path);
+    node = vfs_inode_open(path);
 
     if (node == NULL) {
-        krhino_mutex_unlock(&g_vfs_mutex);
-        return -ENODEV;
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
     }
 
-    file = new_file(node);
+    f = vfs_file_new(node);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    if (file == NULL) {
-        return -ENOENT;
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
     }
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->access) != NULL) {
-            ret = (node->ops.i_fops->access)(file, path, amode);
+            ret = (node->ops.i_fops->access)(f, path, amode);
         }
     }
 
-    if ((err = krhino_mutex_lock(&g_vfs_mutex, RHINO_WAIT_FOREVER)) != 0) {
-        return err;
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
     }
 
-    del_file(file);
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
 
-    krhino_mutex_unlock(&g_vfs_mutex);
     return ret;
 }
 
+int32_t vfs_fd_offset_get(void)
+{
+    return VFS_FD_OFFSET;
+}
+
+int32_t vfs_register_driver(const char *path, vfs_file_ops_t *ops, void *arg)
+{
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_inode_t *node = NULL;
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    ret = vfs_inode_reserve(path, &node);
+    if (ret == VFS_OK) {
+        INODE_SET_CHAR(node);
+
+        node->ops.i_ops = ops;
+        node->i_arg     = arg;
+    }
+
+    if (vfs_unlock(g_vfs_lock_ptr) != VFS_OK) {
+        if (node->i_name != NULL) {
+            vfs_free(node->i_name);
+        }
+
+        memset(node, 0, sizeof(vfs_inode_t));
+        return VFS_ERR_LOCK;
+    }
+
+    return ret;
+}
+
+int32_t vfs_unregister_driver(const char *path)
+{
+    int32_t ret;
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    ret = vfs_inode_release(path);
+
+    if (vfs_unlock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    return ret;
+}
+
+int32_t vfs_register_fs(const char *path, vfs_filesystem_ops_t* ops, void *arg)
+{
+    int32_t ret;
+
+    vfs_inode_t *node = NULL;
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    ret = vfs_inode_reserve(path, &node);
+    if (ret == VFS_OK) {
+        INODE_SET_FS(node);
+
+        node->ops.i_fops = ops;
+        node->i_arg      = arg;
+    }
+
+    if (vfs_unlock(g_vfs_lock_ptr) != VFS_OK) {
+        if (node->i_name != NULL) {
+            vfs_free(node->i_name);
+        }
+
+        memset(node, 0, sizeof(vfs_inode_t));
+        return VFS_ERR_LOCK;
+    }
+
+    return ret;
+}
+
+int32_t vfs_unregister_fs(const char *path)
+{
+    int32_t ret;
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    ret = vfs_inode_release(path);
+
+    if (vfs_unlock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    return ret;
+}
