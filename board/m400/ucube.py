@@ -1,1 +1,1 @@
-linux_only_targets="lorawan.linkwan lorawan.classb"
+linux_only_targets="lorawan.linkwan"

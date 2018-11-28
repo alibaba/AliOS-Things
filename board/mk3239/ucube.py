@@ -26,4 +26,4 @@ for i in global_macros:
 
 
 
-linux_only_targets="hdlcapp.hdlcserver yts nano kernel_test netmgrapp networkapp helloworld cryptotest wifihalapp helloworld_nocli vflashdemo tls udataapp wifimonitor acapp http2app linkkitapp mqttapp otaapp linkkit_gateway coapapp benchmark.footprint_test devkit.dk_ld"
+linux_only_targets="coapapp helloworld http2app linkkit_gateway linkkitapp mqttapp otaapp tls udataapp yts"

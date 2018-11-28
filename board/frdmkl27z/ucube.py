@@ -1,1 +1,1 @@
-linux_only_targets="helloworld nano helloworld_nocli wifihalapp vflashdemo netmgrapp"
+linux_only_targets="helloworld"
