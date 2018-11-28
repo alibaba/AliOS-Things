@@ -159,6 +159,7 @@ int nbpatch_swap_section(int par1, int par2, int offset, size_t swap_size, unsig
     int i;
     int num;
     void *buf = NULL;
+    void *buf2 = NULL;
     PatchStatus* pstatus = nbpatch_get_pstatus();
 
     LOG("swap offset 0x%x\n", offset);
@@ -168,25 +169,40 @@ int nbpatch_swap_section(int par1, int par2, int offset, size_t swap_size, unsig
         return -1;
     }
 
+    buf2 = malloc(SECTOR_SIZE);
+    if(NULL == buf2) {
+        free(buf);
+        return -1;
+    }
+
     rec_wdt_feed();
 
     num = swap_size  / SECTOR_SIZE;
 
     for(i = sec; i < num; i ++ ) {
-        if((sec != 0) && (sec == i)) {
+        if((sec != 0) && (sec == i) && (0 != pstatus->swaped_state)) {
             if (1 == pstatus->swaped_state) {
+                patch_flash_read(PARTITION_BACKUP_PARAM, (const unsigned char *)buf, offset + i*SECTOR_SIZE, SECTOR_SIZE);
+                patch_flash_read(par2, (const unsigned char *)buf2, offset + i*SECTOR_SIZE, SECTOR_SIZE);
                 goto state1_label;
             } else if(2 == pstatus->swaped_state) {
+                patch_flash_read(PARTITION_BACKUP_PARAM, (const unsigned char *)buf, offset + i*SECTOR_SIZE, SECTOR_SIZE);
                 goto state2_label;
             } else if(3 == pstatus->swaped_state) {
                 continue;
             }
+        } else {
+            patch_flash_read(par1, (const unsigned char *)buf, offset + i*SECTOR_SIZE, SECTOR_SIZE);
+            patch_flash_read(par2, (const unsigned char *)buf2, offset + i*SECTOR_SIZE, SECTOR_SIZE);
         }
         pstatus->swaped_idx   = i;
         pstatus->swaped_state = 0;
         save_patch_status(pstatus);
 
-        patch_flash_read(par1, (const unsigned char *)buf, offset + i*SECTOR_SIZE, SECTOR_SIZE);
+        if(0 == memcmp(buf, buf2, SECTOR_SIZE)) {
+            continue;
+        }
+
         patch_flash_erase(PARTITION_BACKUP_PARAM, SECTOR_SIZE, SECTOR_SIZE);
         patch_flash_write(PARTITION_BACKUP_PARAM, (const unsigned char *)buf, SECTOR_SIZE, SECTOR_SIZE);
 
@@ -194,15 +210,13 @@ int nbpatch_swap_section(int par1, int par2, int offset, size_t swap_size, unsig
         save_patch_status(pstatus);
 
         state1_label:
-        patch_flash_read(par2, (const unsigned char *)buf, offset + i*SECTOR_SIZE, SECTOR_SIZE);
         patch_flash_erase(par1, offset + i*SECTOR_SIZE, SECTOR_SIZE);
-        patch_flash_write(par1, (const unsigned char *)buf, offset + i*SECTOR_SIZE, SECTOR_SIZE);
+        patch_flash_write(par1, (const unsigned char *)buf2, offset + i*SECTOR_SIZE, SECTOR_SIZE);
 
         pstatus->swaped_state = 2;
         save_patch_status(pstatus);
 
         state2_label:
-        patch_flash_read(PARTITION_BACKUP_PARAM, (const unsigned char *)buf, SECTOR_SIZE, SECTOR_SIZE);
         patch_flash_erase(par2, offset + i*SECTOR_SIZE, SECTOR_SIZE);
         patch_flash_write(par2, (const unsigned char *)buf, offset + i*SECTOR_SIZE, SECTOR_SIZE);
 
@@ -210,6 +224,7 @@ int nbpatch_swap_section(int par1, int par2, int offset, size_t swap_size, unsig
         save_patch_status(pstatus);
     }
     free(buf);
+    free(buf2);
     return 0;
 }
 

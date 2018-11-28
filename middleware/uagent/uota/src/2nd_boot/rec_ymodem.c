@@ -18,7 +18,7 @@
 #define SOH_DATA_LEN 128
 #define STX_DATA_LEN 1024
 
-#define UART_RECV_TIMEOUT 5000
+#define UART_RECV_TIMEOUT 400000
 
 #define YMODEM_STATE_INIT      0
 #define YMODEM_STATE_WAIT_HEAD 1
@@ -89,11 +89,7 @@ unsigned int ymodem_recv_bytes(unsigned char *buffer, unsigned int nbytes, unsig
         t++;
     }
 
-    if (i == nbytes) {
-        return nbytes;
-    }
-
-    return 0;
+    return i;
 }
 
 int ymodem_data_head_parse(unsigned char data_type)
@@ -106,7 +102,7 @@ int ymodem_data_head_parse(unsigned char data_type)
     unsigned short crc    = 0;
     unsigned int   value  = 0;
 
-    buf_len = SOH_DATA_LEN + 4;
+    buf_len = ((YMODEM_SOH == data_type) ? SOH_DATA_LEN : STX_DATA_LEN) + 4;
     buffer  = malloc(buf_len);
     memset(buffer, 0, buf_len);
 
@@ -117,7 +113,7 @@ int ymodem_data_head_parse(unsigned char data_type)
     }
 
     //check CRC
-    crc = cal_crc(&buffer[2], SOH_DATA_LEN);
+    crc = cal_crc(&buffer[2], buf_len-4);
     if (((crc >> 8) != buffer[buf_len - 2]) || ((crc & 0xFF) != buffer[buf_len - 1])) {
         goto err_exit;
     }
@@ -206,7 +202,6 @@ err_exit :
     return ret;
 }
 
-
 int ymodem_recv_file(unsigned int flash_addr)
 {
     int i     = 0;
@@ -238,7 +233,7 @@ int ymodem_recv_file(unsigned int flash_addr)
                 state = 0;
                 break;
             }
-            if( YMODEM_SOH == c ) {
+            if(( YMODEM_SOH == c ) || ( YMODEM_STX == c )) {
                 ret = ymodem_data_head_parse(c);
                 if (ret == YMODEM_OK) {
                     rec_uart_send_byte(YMODEM_ACK);
@@ -321,7 +316,7 @@ void rec_ymodem_cmd()
         return;
     }
 
-    printf("Please start the ymodem on your computer ... (press \'c\' to cancel)\r\n");
+    printf("Please start the ymodem on your computer ... (press ctrl+c to cancel)\r\n");
     ymodem_flash_addr = addr;
     ymodem_recv_file(addr);
     printf("Receive file to flash addr 0x%x end\r\n", addr);

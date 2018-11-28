@@ -210,7 +210,8 @@ static int ota_boot(void *something)
             extern int kernel_download_addr;
             hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
             param->src_adr = part_info->partition_start_addr;
-            param->dst_adr = (param->upg_flag == OTA_APP)? (int)&app_download_addr : (int)&kernel_download_addr; 
+            param->dst_adr = (param->upg_flag == OTA_APP)? (int)&app_download_addr : (int)&kernel_download_addr;
+            //param->upg_flag = REC_SWAP_UPDATE_FLAG;
             ota_CRC16_Init(&ctx);
             ota_CRC16_Update(&ctx, param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
             ota_CRC16_Final(&ctx, &crc);
