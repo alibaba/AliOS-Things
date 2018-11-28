@@ -1,16 +1,9 @@
-
-config SUPPORT_TLS
-    bool "FEATURE_SUPPORT_TLS"
-    default y
-    help
-        This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
-
-config SUPPORT_ITLS
-    bool "FEATURE_SUPPORT_ITLS"
-    depends on !SUPPORT_TLS
+menuconfig AOS_COMP_LIBIOT_SDK_IMPL
     default n
+    select AOS_COMP_LIBIOT_UTILS
     help
-        This option is mutually exclusive with SUPPORT_TLS, only less than one of them can be switched to "y"
+      The upper API of linkkit
 
-        iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
-
+if AOS_COMP_LIBIOT_SDK_IMPL
+# Configurations for comp libiot_sdk_impl
+endif
