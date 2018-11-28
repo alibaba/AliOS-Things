@@ -64,7 +64,7 @@ extern void _spiffs_unlock(struct spiffs_t *fs);
 #if defined (CONFIG_MX108)
 #define CFG_SPIFFS_PHYS_SZ        (1024 * 256)
 #elif defined(STM32L496xx)
-#define CFG_SPIFFS_PHYS_SZ (1024 * 128)
+#define CFG_SPIFFS_PHYS_SZ (1024 * 256)
 #else
 #define CFG_SPIFFS_PHYS_SZ        (1024 * 512)
 #endif
