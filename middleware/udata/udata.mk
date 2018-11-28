@@ -33,6 +33,6 @@ endif
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
-GLOBAL_DEFINES += AOS_UDATA
+$(NAME)_SUMMARY := Sensoring device processing framework
+GLOBAL_DEFINES  += AOS_UDATA
 
