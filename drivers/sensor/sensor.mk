@@ -2,7 +2,7 @@ NAME := sensor
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Hardware abstract layer for sensors
 
 $(NAME)_SOURCES += \
         hal/sensor_hal.c \
