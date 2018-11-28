@@ -2,7 +2,7 @@ NAME := libiot_http2_stream
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := http2 stream service
 
 $(NAME)_SOURCES := ./http2_stream.c
  

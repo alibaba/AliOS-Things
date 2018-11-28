@@ -2,7 +2,7 @@ NAME := iotx-hal
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := HAL for AliOS Things
 
 $(NAME)_SOURCES := HAL_OS_rhino.c \
                    HAL_TCP_rhino.c \
