@@ -26,7 +26,7 @@ extern "C" {
 #include <aos/log.h>
 
 #ifdef AOS_VFS
-#include <vfs.h>
+#include <aos/vfs.h>
 #endif
 
 #include <aos/version.h>
