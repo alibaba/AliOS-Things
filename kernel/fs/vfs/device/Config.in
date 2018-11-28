@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_VFS_DEVICE
-    bool "vfs_device"
-    default n
-    help
-
-if AOS_COMP_VFS_DEVICE
-# Configurations for component vfs_device
-endif
