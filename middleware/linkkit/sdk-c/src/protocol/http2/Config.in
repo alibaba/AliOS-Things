@@ -1,9 +1,18 @@
-menuconfig AOS_COMP_LIBIOT_HTTP2
-    default n
-    select AOS_COMP_LIBIOT_UTILS
-    help
-      Nghttp2 and its encapsulation
 
-if AOS_COMP_LIBIOT_HTTP2
-# Configurations for comp libiot_http2
-endif
+config HTTP2_COMM_ENABLED
+    bool "FEATURE_HTTP2_COMM_ENABLED"
+    default n
+    help
+        Establish persistent connection with AliCloud via HTTP2-based protocol
+
+menu "HTTP2 Configurations"
+    depends on HTTP2_COMM_ENABLED
+
+    config FS_ENABLED
+        bool "FEATURE_FS_ENABLED"
+        default y
+        help
+            USE HAL fs api to enable file upload feature 
+
+endmenu
+

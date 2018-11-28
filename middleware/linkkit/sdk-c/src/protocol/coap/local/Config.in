@@ -1,9 +1,0 @@
-menuconfig AOS_COMP_LIBIOT_COAP_LOCAL
-    default n
-    select AOS_COMP_LIBIOT_UTILS
-    help
-      coap server
-
-if AOS_COMP_LIBIOT_COAP_LOCAL
-# Configurations for comp libiot_coap_local
-endif

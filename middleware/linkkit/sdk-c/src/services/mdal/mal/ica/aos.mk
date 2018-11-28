@@ -1,3 +1,5 @@
+NAME := libiot_malica
+
 $(NAME)_SOURCES := mdal_ica_at_client.c 
 
 malica_test ?= 0
