@@ -2,7 +2,7 @@ NAME := otaapp
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := OTA demo app for developers
 
 $(NAME)_SOURCES := otaapp.c \
 
