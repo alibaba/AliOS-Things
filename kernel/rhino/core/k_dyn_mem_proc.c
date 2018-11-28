@@ -24,12 +24,8 @@ static void proc_free(ktask_t *task)
 
         RHINO_CRITICAL_ENTER();
         klist_rm(&task->task_user);
-        if (head->next == head) {
-            RHINO_CRITICAL_EXIT();
-            k_proc_unload(task->pid);
-        }
         RHINO_CRITICAL_EXIT();
-        krhino_queue_back_send(res_q, task->task_ustack_base);
+        krhino_queue_back_send(res_q, 0);
     }
     else {
         if (task->proc_addr != 0) {
