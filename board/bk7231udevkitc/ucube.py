@@ -1,1 +1,1 @@
-linux_only_targets="blink linkkitapp cryptotest otaapp udataapp athostapp vflashdemo coapapp acapp netmgrapp helloworld helloworld_nocli tls linkkit_gateway nano kernel_test networkapp mqttapp yts wifihalapp hdlcapp.hdlcserver http2app devkit.dk_ld"
+linux_only_targets="athostapp blink coapapp helloworld http2app linkkit_gateway linkkitapp mqttapp otaapp tls udataapp yts"
