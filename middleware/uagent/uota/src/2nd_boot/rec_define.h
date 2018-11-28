@@ -24,12 +24,14 @@
 #define REC_NORMAL_START        1
 #define REC_UPGRADE_START       2   // just for esp8266
 #define REC_ROLLBACK_START      3
+#define REC_SWAP_UPDATE_START   4
 
 #define REC_NORMAL_FLAG          0
 #define REC_RECOVERY_FLAG        0x52455659   //"REVY"
 #define REC_UPGRADE_FLAG         0x55504745   //"UPGE"
 #define REC_ROLLBACK_FLAG        0x524F424B   //"ROBK"
 #define REC_RECOVERY_VERIFY_FLAG 0x52455656   //"REVV"
+#define REC_SWAP_UPDATE_FLAG     0x52535546   //"RSUF"
 
 #define REC_MAX_NUM         3
 #define REC_WDT_TIMEOUT_MS  6000
