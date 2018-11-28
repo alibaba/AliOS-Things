@@ -2,7 +2,7 @@ NAME := libiot_http2
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Nghttp2 and its encapsulation
 
 $(NAME)_SOURCES := ./nghttp2_version.c \
 ./nghttp2_hd_huffman.c \

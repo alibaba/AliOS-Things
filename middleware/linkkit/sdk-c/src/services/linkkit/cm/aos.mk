@@ -2,7 +2,7 @@ NAME := libiot_cm
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Connection management
 
 $(NAME)_SOURCES := ./iotx_cm.c 
 

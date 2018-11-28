@@ -2,7 +2,7 @@ NAME := libiot_coap_local
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := coap server
 
 $(NAME)_SOURCES := ./CoAPDeserialize.c \
                    ./CoAPResource.c \

@@ -2,7 +2,7 @@ NAME := libiot_ota
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Fireware download service
 
 LINKKIT_MODULE  := middleware/linkkit/sdk-c/src/services/ota
 

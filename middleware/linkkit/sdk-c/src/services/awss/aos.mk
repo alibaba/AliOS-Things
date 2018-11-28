@@ -2,7 +2,7 @@ NAME := libawss
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Alibaba Wireless Setup service
 
 $(NAME)_DEFINES := USE_LPTHREAD
 

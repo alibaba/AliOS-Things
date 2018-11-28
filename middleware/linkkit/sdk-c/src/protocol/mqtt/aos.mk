@@ -2,7 +2,7 @@ NAME := libiot_mqtt
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Implementation of MQTT protocol
 
 $(NAME)_SOURCES := ./client/mqtt_client.c \
 ./MQTTPacket/MQTTPacket.c \
