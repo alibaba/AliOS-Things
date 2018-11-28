@@ -5,4 +5,4 @@ src     = Split('''
 component = aos_board_component('board_esp8266', 'esp8266', src)
 
 platform_options="wifi=1"
-linux_only_targets="helloworld acapp linkkitapp mqttapp coapapp linkkit_gateway helloworld_nocli nano netmgrapp wifihalapp tls networkapp kernel_test vflashdemo cryptotest otaapp yts http2app"
+linux_only_targets="coapapp helloworld http2app linkkit_gateway linkkitapp mqttapp otaapp tls yts"
