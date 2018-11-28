@@ -13,7 +13,7 @@ else
 $(NAME)_CFLAGS  += -Wall -Werror
 endif
 
-$(NAME)_COMPONENTS += hal log debug
+$(NAME)_COMPONENTS += log debug
 
 GLOBAL_INCLUDES += include
 GLOBAL_DEFINES  += CONFIG_AOS_CLI
