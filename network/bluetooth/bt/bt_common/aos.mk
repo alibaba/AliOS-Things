@@ -2,7 +2,7 @@ NAME := bt_common
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Common utilities used in BLE components.
 
 $(NAME)_SOURCES-y := ./atomic_c.c \
                      ./buf.c \
