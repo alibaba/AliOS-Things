@@ -2,32 +2,43 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef AOS_VFS_CONFIG_H
-#define AOS_VFS_CONFIG_H
+#ifndef VFS_CONF_H
+#define VFS_CONF_H
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-#define VFS_FALSE 0u
-#define VFS_TRUE 1u
-
-#define AOS_CONFIG_VFS_DEV_NODES 25
-/*mem 1000 byte*/
-#define AOS_CONFIG_VFS_DEV_MEM 2000
-#define AOS_CONFIG_VFS_POLL_SUPPORT 1
-#define AOS_CONFIG_VFS_FD_OFFSET 512
-
-#define MAX_FILE_NUM (AOS_CONFIG_VFS_DEV_NODES * 2)
-
-#ifdef _WIN32
-#define CHECK_IF_NON_VFS_FD(_SOCKET)         \
-    ((_SOCKET < AOS_CONFIG_VFS_FD_OFFSET) || \
-     (_SOCKET > (AOS_CONFIG_VFS_FD_OFFSET + AOS_CONFIG_VFS_DEV_NODES)))
+#ifndef CONFIG_VFS_DEVICE_NODES
+#define VFS_DEVICE_NODES 25
+#else
+#define VFS_DEVICE_NODES CONFIG_VFS_DEVICE_NODES
 #endif
 
-#ifdef __cplusplus
-}
+#ifndef CONFIG_VFS_DEVICE_MEM_SIZE
+#define VFS_DEVICE_MEM_SIZE 2000
+#else
+#define VFS_DEVICE_MEM_SIZE CONFIG_VFS_DEVICE_MEM_SIZE
 #endif
 
+#ifndef CONFIG_VFS_FD_OFFSET
+#define VFS_FD_OFFSET 512
+#else
+#define VFS_FD_OFFSET CONFIG_VFS_FD_OFFSET
 #endif
+
+#ifndef CONFIG_VFS_PATH_MAX
+#define VFS_PATH_MAX 256
+#else
+#define VFS_PATH_MAX CONFIG_VFS_PATH_MAX
+#endif
+
+#ifndef CONFIG_VFS_MAX_FILE_NUM
+#define VFS_MAX_FILE_NUM (VFS_DEVICE_NODES * 2)
+#else
+#define VFS_MAX_FILE_NUM CONFIG_VFS_MAX_FILE_NUM
+#endif
+
+#ifndef CONFIG_VFS_STAT_INCLUDE_SIZE
+#define VFS_STAT_INCLUDE_SIZE 1
+#else
+#define VFS_STAT_INCLUDE_SIZE CONFIG_VFS_STAT_INCLUDE_SIZE
+#endif
+
+#endif /* VFS_CONF_H */

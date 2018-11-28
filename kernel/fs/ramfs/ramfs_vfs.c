@@ -9,8 +9,7 @@
 
 #include "aos/errno.h"
 
-#include "vfs_inode.h"
-#include "vfs_register.h"
+#include "aos/vfs.h"
 
 #include "ramfs_types.h"
 #include "ramfs_api.h"

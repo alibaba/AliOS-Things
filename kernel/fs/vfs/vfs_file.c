@@ -2,20 +2,48 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_inode.h>
-#include <stdio.h>
+#include <stddef.h>
+#include <stdint.h>
 
-static file_t files[MAX_FILE_NUM];
+#include "vfs_conf.h"
+#include "vfs_types.h"
+#include "vfs_file.h"
 
-file_t *new_file(inode_t *node)
+static vfs_file_t g_files[VFS_MAX_FILE_NUM];
+
+extern void vfs_inode_ref(vfs_inode_t *node);
+extern void vfs_inode_unref(vfs_inode_t *node);
+
+int32_t vfs_fd_get(vfs_file_t *file)
 {
-    file_t *f;
-    int idx;
+    return (file - g_files) + VFS_FD_OFFSET;
+}
 
-    for (idx = 0; idx < MAX_FILE_NUM; idx++) {
-        f = &files[idx];
+vfs_file_t *vfs_file_get(int32_t fd)
+{
+    vfs_file_t *f;
+
+    fd -= VFS_FD_OFFSET;
+
+    if (fd < 0) {
+        return NULL;
+    }
+
+    if (fd >= VFS_MAX_FILE_NUM) {
+        return NULL;
+    }
+
+    f = &g_files[fd];
+    return f->node ? f : NULL;
+}
+
+vfs_file_t *vfs_file_new(vfs_inode_t *node)
+{
+    int32_t     idx;
+    vfs_file_t *f;
+
+    for (idx = 0; idx < VFS_MAX_FILE_NUM; idx++) {
+        f = &g_files[idx];
 
         if (f->node == NULL) {
             goto got_file;
@@ -25,38 +53,17 @@ file_t *new_file(inode_t *node)
     return NULL;
 
 got_file:
-    f->node = node;
-    f->f_arg = NULL;
+    f->node   = node;
+    f->f_arg  = NULL;
     f->offset = 0;
-    inode_ref(node);
+    vfs_inode_ref(node);
+
     return f;
 }
 
-void del_file(file_t *file)
+void vfs_file_del(vfs_file_t *file)
 {
-    inode_unref(file->node);
+    vfs_inode_unref(file->node);
+
     file->node = NULL;
-}
-
-int get_fd(file_t *file)
-{
-    return (file - files) + AOS_CONFIG_VFS_FD_OFFSET;
-}
-
-file_t *get_file(int fd)
-{
-    file_t *f;
-
-    fd -= AOS_CONFIG_VFS_FD_OFFSET;
-
-    if (fd < 0) {
-        return NULL;
-    }
-
-    if (fd >= MAX_FILE_NUM) {
-        return NULL;
-    }
-
-    f = &files[fd];
-    return f->node ? f : NULL;
 }
