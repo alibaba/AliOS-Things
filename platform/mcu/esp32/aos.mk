@@ -6,7 +6,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp32
 
-$(NAME)_COMPONENTS := hal kernel.fs.kv
+$(NAME)_COMPONENTS := kernel.fs.kv
 $(NAME)_COMPONENTS += network.lwip alicrypto netmgr
 
 ESP_INC_PATH    := bsp/include

@@ -11,7 +11,6 @@ src = Split('''
         hal/flash.c
         hal/misc.c
         hal/wifi_port.c
-        hal/ota_port.c
         hal/upgrade_lib.c
         bsp/driver/gpio.c
         bsp/driver/hw_timer.c
@@ -33,7 +32,6 @@ global_includes = Split('''
 local_includes = []
 
 dependencis = Split('''
-        middleware/common 
         kernel/fs/kv 
         utility/libc
         network/lwip

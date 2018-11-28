@@ -9,7 +9,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l071kb
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv6m
-# $(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
+# $(NAME)_COMPONENTS += libc rhino hal netmgr mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += rhino
 
 GLOBAL_DEFINES += STM32_USE_SPI_WIFI

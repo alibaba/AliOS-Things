@@ -12,7 +12,6 @@
 #include <hal/soc/timer.h>
 #include <hal/base.h>
 #include <hal/wifi.h>
-#include <hal/ota.h>
 
 #define TAG "hw"
 
@@ -66,7 +65,6 @@ void hal_timer_stop(timer_dev_t *tmr)
     extern hal_wifi_module_t sim_aos_wifi_stm32l475;
 #endif
 
-extern struct hal_ota_module_s cy8c6347_ota_module;
 void hw_start_hal(void)
 {
     printf("start-----------hal\n");
@@ -76,7 +74,6 @@ void hw_start_hal(void)
 #else
     hal_wifi_register_module(&sim_aos_wifi_stm32l475);
 #endif
-    hal_ota_register_module(&cy8c6347_ota_module);
     hal_wifi_init();    
 }
 

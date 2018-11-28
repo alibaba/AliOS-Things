@@ -3,7 +3,6 @@
 
 #include <hal/soc/soc.h>
 #include <hal/wifi.h>
-#include <hal/ota.h>
 #include <aos/aos.h>
 #include <sdkconfig.h>
 
@@ -52,7 +51,6 @@ static void initialise_wifi(void)
 #endif
 
 extern uart_dev_t uart_0;
-extern struct hal_ota_module_s esp32_yos_ota_module;
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
 extern void esp_dport_access_int_init(void);
@@ -100,7 +98,6 @@ void app_main(void)
     extern void esp_bt_mesh_register(void);
     esp_bt_mesh_register();
 #endif
-    hal_ota_register_module(&esp32_yos_ota_module);
     
     #if (RHINO_CONFIG_CPU_NUM > 1)
 

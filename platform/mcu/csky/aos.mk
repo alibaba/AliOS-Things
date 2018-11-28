@@ -10,7 +10,7 @@ LWIP := 0
 SAL  := 1
 
 #$(NAME)_COMPONENTS += platform/arch/csky/cskyv2-l
-$(NAME)_COMPONENTS += rhino hal middleware.common cjson cli
+$(NAME)_COMPONENTS += rhino cjson cli
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS += network.lwip network.netmgr

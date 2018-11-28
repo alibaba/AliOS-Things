@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "hal/wifi.h"
-#include "hal/ota.h"
 
 #include "nordic_common.h"
 #include "nrf_drv_clock.h"
@@ -34,7 +33,6 @@
 ktask_t *g_aos_init;
 ktask_t *g_aos_app = NULL;
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 extern int32_t hal_uart_init(uart_dev_t *uart );
 extern void hw_start_hal(void);
 
@@ -135,10 +133,6 @@ static void sys_init(void)
     aos_loop_init();
 #endif
 
-#ifdef AOS_UOTA
-    ota_service_init();
-#endif
-
 #ifdef AOS_BINS
     app_pre_init();
 
@@ -146,7 +140,6 @@ static void sys_init(void)
         app_info->app_entry((void *)syscall_ktbl, 0, NULL);
     }
 #else
-    /*aos_framework_init();*/
     application_start(0, NULL);
 #endif
 

@@ -72,7 +72,6 @@ dependencis = Split('''
         kernel/init
         osal
         network/lwip
-        middleware/common 
         utility/cjson
         kernel/cli
         platform/mcu/csky/hal_init
