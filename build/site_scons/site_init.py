@@ -531,10 +531,12 @@ class ide_transfer_process_impl(process):
 
         buildstring = self.config.app + '@' + self.config.board
 
-        if self.config.ide == 'iar' 
+        if self.config.ide == 'iar':
             proj_gen_dir = 'projects/IAR/'+buildstring+'/'+self.config.ide+'_project'
-        elif self.config.ide == 'keil'
+        elif self.config.ide == 'keil':
             proj_gen_dir = 'projects/Keil/'+buildstring+'/'+self.config.ide+'_project'
+        else:
+            pass
 
         transfer_cmd = 'python build/scripts/'+self.config.ide+'.py ' + buildstring
         opts_dir = proj_gen_dir+'/opts'
