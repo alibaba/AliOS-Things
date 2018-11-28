@@ -1,13 +1,22 @@
 NAME := vfs
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := Virtual File System
 
 $(NAME)_SOURCES := vfs.c
 $(NAME)_SOURCES += vfs_file.c
 $(NAME)_SOURCES += vfs_inode.c
-$(NAME)_SOURCES += vfs_register.c
+$(NAME)_SOURCES += vfs_adapt.c
+
+$(NAME)_SOURCES += vfs_device_adc.c  \
+                   vfs_device_gpio.c \
+                   vfs_device_i2c.c  \
+                   vfs_device_pwm.c  \
+                   vfs_device_rtc.c  \
+                   vfs_device_spi.c  \
+                   vfs_device_uart.c \
+                   vfs_device_wdg.c
 
 ifeq ($(HOST_ARCH),linux)
 $(NAME)_DEFINES += IO_NEED_TRAP
@@ -24,7 +33,7 @@ else ifeq ($(COMPILER),rvct)
 GLOBAL_DEFINES += __BSD_VISIBLE
 endif
 
-GLOBAL_INCLUDES += include
+GLOBAL_INCLUDES += . include
 GLOBAL_DEFINES  += AOS_VFS
 
-$(NAME)_COMPONENTS += kernel.fs.vfs.device
+AOS_VFS ?= 1

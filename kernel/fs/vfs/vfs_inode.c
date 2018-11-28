@@ -2,71 +2,96 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_inode.h>
 
-#define VFS_NULL_PARA_CHK(para)     do { if (!(para)) return -EINVAL; } while(0)
+#include "vfs_conf.h"
+#include "vfs_err.h"
+#include "vfs_types.h"
+#include "vfs_inode.h"
+#include "vfs_adapt.h"
 
-static inode_t g_vfs_dev_nodes[AOS_CONFIG_VFS_DEV_NODES];
+static vfs_inode_t g_vfs_nodes[VFS_DEVICE_NODES];
 
-int inode_init()
+static int32_t vfs_inode_set_name(const char *path, vfs_inode_t **p_node)
 {
-    memset(g_vfs_dev_nodes, 0, sizeof(inode_t) * AOS_CONFIG_VFS_DEV_NODES);
-    return 0;
+    int32_t  len;
+    void    *mem;
+
+    len = strlen(path);
+    mem = (void *)vfs_malloc(len + 1);
+    if (mem == NULL) {
+        return VFS_ERR_NOMEM;
+    }
+
+    memcpy(mem, (const void *)path, len);
+
+    (*p_node)->i_name      = (char *)mem;
+    (*p_node)->i_name[len] = '\0';
+
+    return VFS_OK;
 }
 
-int inode_alloc()
+int32_t vfs_inode_init(void)
 {
-    int e = 0;
+    memset(g_vfs_nodes, 0, sizeof(vfs_inode_t) * VFS_DEVICE_NODES);
 
-    for (; e < AOS_CONFIG_VFS_DEV_NODES; e++) {
-        if (g_vfs_dev_nodes[e].type == VFS_TYPE_NOT_INIT) {
-            return e;
+    return VFS_OK;
+}
+
+int32_t vfs_inode_alloc(void)
+{
+    int32_t idx;
+
+    for (idx = 0; idx < VFS_DEVICE_NODES; idx++) {
+        if (g_vfs_nodes[idx].type == VFS_TYPE_NOT_INIT) {
+            return idx;
         }
     }
 
-    return -ENOMEM;
+    return VFS_ERR_NOMEM;
 }
 
-int inode_del(inode_t *node)
+int32_t vfs_inode_del(vfs_inode_t *node)
 {
     if (node->refs > 0) {
-        return -EBUSY;
+        return VFS_ERR_BUSY;
     }
 
     if (node->refs == 0) {
         if (node->i_name != NULL) {
-            krhino_mm_free(node->i_name);
+            vfs_free(node->i_name);
         }
 
-        node->i_name = NULL;
-        node->i_arg = NULL;
+        node->i_name  = NULL;
+        node->i_arg   = NULL;
         node->i_flags = 0;
-        node->type = VFS_TYPE_NOT_INIT;
+        node->type    = VFS_TYPE_NOT_INIT;
     }
 
-    return VFS_SUCCESS;
+    return VFS_OK;
 }
 
-inode_t *inode_open(const char *path)
+vfs_inode_t *vfs_inode_open(const char *path)
 {
-    int e = 0;
-    inode_t *node;
+    int32_t      idx;
+    vfs_inode_t *node;
 
-    for (e = 0; e < AOS_CONFIG_VFS_DEV_NODES; e++) {
-        node = &g_vfs_dev_nodes[e];
+    for (idx = 0; idx < VFS_DEVICE_NODES; idx++) {
+        node = &g_vfs_nodes[idx];
 
         if (node->i_name == NULL) {
             continue;
         }
+
         if (INODE_IS_TYPE(node, VFS_TYPE_FS_DEV)) {
-            if ((strncmp(node->i_name, path, strlen(node->i_name)) == 0) &&
+            if ((strncmp(node->i_name, path, strlen(node->i_name)) == 0) && 
                 (*(path + strlen(node->i_name)) == '/')) {
                 return node;
             }
         }
+
         if (strcmp(node->i_name, path) == 0) {
             return node;
         }
@@ -75,41 +100,23 @@ inode_t *inode_open(const char *path)
     return NULL;
 }
 
-int inode_ptr_get(int fd, inode_t **node)
+int32_t vfs_inode_ptr_get(int32_t fd, vfs_inode_t **p_node)
 {
-    if (fd < 0 || fd >= AOS_CONFIG_VFS_DEV_NODES) {
-        return -EINVAL;
+    if (fd < 0 || fd >= VFS_DEVICE_NODES) {
+        return VFS_ERR_INVAL;
     }
 
-    *node = &g_vfs_dev_nodes[fd];
+    *p_node = &g_vfs_nodes[fd];
 
-    return VFS_SUCCESS;
+    return VFS_OK;
 }
 
-void inode_ref(inode_t *node)
+int32_t vfs_inode_avail_count(void)
 {
-    node->refs++;
-}
+    int32_t idx, count = 0;
 
-void inode_unref(inode_t *node)
-{
-    if (node->refs > 0) {
-        node->refs--;
-    }
-}
-
-int inode_busy(inode_t *node)
-{
-    return node->refs > 0;
-}
-
-int inode_avail_count(void)
-{
-    int count = 0;
-    int e = 0;
-
-    for (; e < AOS_CONFIG_VFS_DEV_NODES; e++) {
-        if (g_vfs_dev_nodes[count].type == VFS_TYPE_NOT_INIT) {
+    for (idx = 0; idx < VFS_DEVICE_NODES; idx++){
+        if (g_vfs_nodes[count].type == VFS_TYPE_NOT_INIT) {
             count++;
         }
     }
@@ -117,74 +124,79 @@ int inode_avail_count(void)
     return count;
 }
 
-static int inode_set_name(const char *path, inode_t **inode)
+void vfs_inode_ref(vfs_inode_t *node)
 {
-    size_t len;
-    void  *mem;
-
-    len = strlen(path);
-    mem = (void *)krhino_mm_alloc(len + 1);
-    if (!mem) {
-        return -ENOMEM;
-    }
-
-    memcpy(mem, (const void *)path, len);
-    (*inode)->i_name = (char *)mem;
-    (*inode)->i_name[len] = '\0';
-
-    return VFS_SUCCESS;
+    node->refs++;
 }
 
-int inode_reserve(const char *path, inode_t **inode)
+void vfs_inode_unref(vfs_inode_t *node)
 {
-    int ret;
-    inode_t *node = NULL;
+    if (node->refs > 0) {
+        node->refs--;
+    }
+}
 
-    VFS_NULL_PARA_CHK(path != NULL && inode != NULL);
-    *inode = NULL;
+int32_t vfs_inode_busy(vfs_inode_t *node)
+{
+    return (node->refs > 0);
+}
+
+int32_t vfs_inode_reserve(const char *path, vfs_inode_t **p_node)
+{
+    int32_t ret;
+
+    vfs_inode_t *node = NULL;
+
+    if ((path == NULL) || (p_node == NULL)) {
+        return VFS_ERR_INVAL;
+    }
+
+    *p_node = NULL;
 
     /* Handle paths that are interpreted as the root directory */
 #ifdef _WIN32
-    if (path[0] == '\0' || path[1] != ':') {
+    if ((path[0] == '\0') || (path[1] != ':')) {
 #else
-    if (path[0] == '\0' || path[0] != '/') {
+    if ((path[0] == '\0') || (path[0] != '/')) {
 #endif
-        return -EINVAL;
+        return VFS_ERR_INVAL;
     }
 
-    ret = inode_alloc();
-    if (ret < 0) {
+    ret = vfs_inode_alloc();
+    if (ret != VFS_OK) {
         return ret;
     }
 
-    inode_ptr_get(ret, &node);
+    vfs_inode_ptr_get(ret, &node);
 
-    ret = inode_set_name(path, &node);
-    if (ret < 0) {
+    ret = vfs_inode_set_name(path, &node);
+    if (ret != VFS_OK) {
         return ret;
     }
 
-    *inode = node;
-    return VFS_SUCCESS;
+    *p_node = node;
+
+    return VFS_OK;
 }
 
-int inode_release(const char *path)
+int32_t vfs_inode_release(const char *path)
 {
-    int ret;
-    inode_t *node;
+    int32_t ret;
+    vfs_inode_t *node;
 
-    VFS_NULL_PARA_CHK(path != NULL);
+    if (path == NULL) {
+        return VFS_ERR_INVAL;
+    }
 
-    node = inode_open(path);
+    node = vfs_inode_open(path);
     if (node == NULL) {
-        return -ENODEV;
+        return VFS_ERR_NODEV;
     }
 
-    ret = inode_del(node);
-    if (ret < 0) {
-        return ret;
-    }
+    ret = vfs_inode_del(node);
 
-    return VFS_SUCCESS;
+    return ret;
 }
+
+
 
