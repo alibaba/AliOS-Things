@@ -180,7 +180,7 @@ Projects = [
 
 #argv[1]: buildstring, eg: nano@b_l475e
 buildstring = sys.argv[1]
-proj_output_dir = 'projects/autogen/'+buildstring+'/keil_project'
+proj_output_dir = 'projects/Keil/'+buildstring+'/keil_project'
 #use in xml text
 aos_relative_path = '../../../../'
 projectPath = proj_output_dir+'/'+buildstring+'.uvprojx'
