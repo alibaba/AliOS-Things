@@ -9,6 +9,9 @@
 
 #define LOG_PUBLISH_MSG_MAXLEN   (255)
 
+#define IMPL_LOGPOST_MALLOC(size)    LITE_malloc(size, MEM_MAGIC, "impl.logpost")
+#define IMPL_LOGPOST_FREE(ptr)       LITE_free(ptr)
+
 static int iotx_mc_log_post(void *pclient, char *payload);
 
 static const char THING_LOG_POST_PARAMS[] =
@@ -29,7 +32,7 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
         return FAIL_RETURN;
     }
 
-    logbuf = LITE_malloc(LOG_PUBLISH_MSG_MAXLEN + 1);
+    logbuf = IMPL_LOGPOST_MALLOC(LOG_PUBLISH_MSG_MAXLEN + 1);
     if (logbuf == NULL) {
         return FAIL_RETURN;
     }
@@ -38,7 +41,7 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
     /* generate log post json data */
     ret = HAL_Snprintf(logbuf, LOG_PUBLISH_MSG_MAXLEN, THING_LOG_POST_PARAMS, msgid, HAL_UTC_Get(), level, module, msg);
     if (ret < 0) {
-        LITE_free(logbuf);
+        IMPL_LOGPOST_FREE(logbuf);
         return FAIL_RETURN;
     }
 
@@ -56,7 +59,7 @@ int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const
         log_err((char *)module, "log post to cloud success");
     }
 
-    LITE_free(logbuf);
+    IMPL_LOGPOST_FREE(logbuf);
     return ret;
 }
 
