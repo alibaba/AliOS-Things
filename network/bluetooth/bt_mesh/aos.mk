@@ -2,7 +2,7 @@ NAME := bt_mesh
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := BLE Mesh stack.
 
 $(NAME)_COMPONENTS-y += network.bluetooth.bt.bt_common network.bluetooth.bt_mesh.port
 
