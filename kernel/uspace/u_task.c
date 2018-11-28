@@ -90,6 +90,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     if (task->is_proc == 1) {
         task->proc_addr = task;
         klist_init(&task->kobj.task_head);
+        klist_init(&task->kobj.sem_head);
         klist_insert(&task->kobj.task_head, &task->task_user);
     }
     else {
@@ -100,10 +101,6 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
         klist_insert(&proc_task->kobj.task_head, &task->task_user);
         RHINO_CRITICAL_EXIT();
     }
-
-    RHINO_CRITICAL_ENTER();
-    klist_insert(&task->kobj.task_head, &task->task_user);
-    RHINO_CRITICAL_EXIT();
 
     cpu_binded = cpu_binded;
     i          = i;
