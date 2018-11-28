@@ -21,13 +21,7 @@
 #include <vfs_trap.h>
 #endif
 
-extern aos_mutex_t g_vfs_mutex;
-
 #if (AOS_CONFIG_VFS_POLL_SUPPORT>0)
-
-#if !defined(WITH_LWIP) && !defined(WITH_SAL)&& defined(OSAL_RHINO)
-#define NEED_WAIT_IO
-#endif
 
 #include <aos/network.h>
 
@@ -67,83 +61,6 @@ static int init_parg(struct poll_arg *parg)
 static void deinit_parg(struct poll_arg *parg)
 {
     aos_sem_free(&parg->sem);
-}
-#elif defined(NEED_WAIT_IO)
-
-#include <sys/syscall.h>
-#define gettid() syscall(SYS_gettid)
-
-struct poll_arg {
-    aos_sem_t sem;
-};
-
-static void setup_fd(int fd)
-{
-    int f = fcntl(fd, F_GETFL) | O_ASYNC;
-    if (fcntl(fd, F_SETFL, f) < 0) {
-        perror("fcntl setup");
-    }
-    if (fcntl(fd, F_SETOWN, gettid()) < 0) {
-        perror("fcntl setown");
-    }
-}
-
-static void teardown_fd(int fd)
-{
-    int f = fcntl(fd, F_GETFL) & ~O_ASYNC;
-    if (fcntl(fd, F_SETFL, f) < 0) {
-        perror("fcntl teardown");
-    }
-}
-
-static int wait_io(int maxfd, fd_set *rfds, struct poll_arg *parg, int timeout)
-{
-    struct timeval tv = { 0 };
-    int ret;
-    fd_set saved_fds = *rfds;
-
-    /* check if already data available */
-    ret = select(maxfd + 1, rfds, NULL, NULL, &tv);
-    if (ret > 0) {
-        return ret;
-    }
-
-    timeout = timeout >= 0 ? timeout : AOS_WAIT_FOREVER;
-    ret = aos_sem_wait(&parg->sem, timeout);
-    if (ret != VFS_SUCCESS) {
-        return 0;
-    }
-
-    *rfds = saved_fds;
-    ret = select(maxfd + 1, rfds, NULL, NULL, &tv);
-    return ret;
-}
-
-static void vfs_poll_notify(struct pollfd *fd, void *arg)
-{
-    struct poll_arg *parg = arg;
-    aos_sem_signal(&parg->sem);
-}
-
-static void vfs_io_cb(int fd, void *arg)
-{
-    struct poll_arg *parg = arg;
-    aos_sem_signal(&parg->sem);
-}
-
-void cpu_io_register(void (*f)(int, void *), void *arg);
-void cpu_io_unregister(void (*f)(int, void *), void *arg);
-static int init_parg(struct poll_arg *parg)
-{
-    cpu_io_register(vfs_io_cb, parg);
-    aos_sem_new(&parg->sem,  0);
-    return 0;
-}
-
-static void deinit_parg(struct poll_arg *parg)
-{
-    aos_sem_free(&parg->sem);
-    cpu_io_unregister(vfs_io_cb, parg);
 }
 #elif defined(_WIN32)
 
@@ -382,43 +299,4 @@ int aos_fcntl(int fd, int cmd, int val)
     }
 
     return 0;
-}
-
-int aos_ioctl_in_loop(int cmd, unsigned long arg)
-{
-    int      err;
-    int      fd;
-
-    for (fd = AOS_CONFIG_VFS_FD_OFFSET;
-         fd < AOS_CONFIG_VFS_FD_OFFSET + AOS_CONFIG_VFS_DEV_NODES; fd++) {
-        file_t  *f;
-        inode_t *node;
-
-        if ((err = aos_mutex_lock(&g_vfs_mutex, AOS_WAIT_FOREVER)) != 0) {
-            return err;
-        }
-
-        f = get_file(fd);
-
-        if (f == NULL) {
-            aos_mutex_unlock(&g_vfs_mutex);
-            return -ENOENT;
-        }
-
-        if ((err = aos_mutex_unlock(&g_vfs_mutex)) != 0) {
-            return err;
-        }
-
-        node = f->node;
-
-        if ((node->ops.i_ops->ioctl) != NULL) {
-            err = (node->ops.i_ops->ioctl)(f, cmd, arg);
-
-            if (err != VFS_SUCCESS) {
-                return err;
-            }
-        }
-    }
-
-    return VFS_SUCCESS;
 }
