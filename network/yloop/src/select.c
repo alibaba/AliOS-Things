@@ -62,66 +62,6 @@ static void deinit_parg(struct poll_arg *parg)
 {
     aos_sem_free(&parg->sem);
 }
-#elif defined(_WIN32)
-
-#include <unistd.h>
-struct poll_arg_sig {
-    aos_sem_t sem;
-};
-struct poll_arg {
-    int efd;
-};
-
-static void vfs_poll_notify(struct pollfd *fd, void *arg)
-{
-    struct poll_arg_sig *parg = arg;
-    aos_sem_signal(&parg->sem);
-}
-
-static void setup_fd(int fd)
-{
-}
-
-static void teardown_fd(int fd)
-{
-}
-
-static int init_parg(struct poll_arg *parg)
-{
-    return aos_sem_new(&(((struct poll_arg_sig *)parg)->sem), 0);
-}
-
-static void deinit_parg(struct poll_arg *parg)
-{
-    aos_sem_free(&(((struct poll_arg_sig *)parg)->sem));
-}
-
-static int wait_io(int maxfd, fd_set *rfds, struct poll_arg *parg, int timeout)
-{
-    struct timeval tv = {
-        .tv_sec  = timeout / 1024,
-        .tv_usec = (timeout % 1024) * 1024,
-    };
-
-    //forget param parg, which is only used for signal in Windows
-    unsigned char i = 0;
-    SOCKET maxFd = 0;
-    FD_SET ReadSet;
-
-    FD_ZERO(&ReadSet);
-    for (i = 0; i < rfds->fd_count; i++) {
-        if (rfds->fd_array[i] > maxFd) {
-            maxFd = rfds->fd_array[i];
-        }
-        FD_SET(rfds->fd_array[i], &ReadSet);
-    }
-    if (maxFd == 0) {
-        return 0;
-    } else {
-        return select(maxFd + 1, &ReadSet, NULL, NULL, timeout >= 0 ? &tv : NULL);
-    }
-}
-
 #else
 struct poll_arg {
     int efd;
