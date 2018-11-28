@@ -2,7 +2,7 @@ NAME := libiot_alcs
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := ICA local communication service
 
 $(NAME)_SOURCES := ./alcs_coap.c \
                    ./alcs_mqtt.c \
