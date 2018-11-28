@@ -88,5 +88,9 @@ ifeq ($(AOS_CLI),1)
 $(NAME)_SOURCES += aos/aos_cli.c
 endif
 
+ifeq ($(AOS_VFS),1)
+$(NAME)_SOURCES += aos/aos_vfs.c
+endif
+
 endif
 
