@@ -1,9 +1,27 @@
 source "$SRCPATH/src/protocol/mqtt/Config.in"
 source "$SRCPATH/src/services/linkkit/Config.in"
-source "$SRCPATH/src/protocol/coap/Config.in"
+source "$SRCPATH/src/protocol/coap/cloud/Config.in"
 source "$SRCPATH/src/services/ota/Config.in"
-source "$SRCPATH/src/protocol/http2/Config.in"
 source "$SRCPATH/src/protocol/http/Config.in"
 source "$SRCPATH/src/sdk-impl/Config.in"
 source "$SRCPATH/src/services/mdal/Config.in"
 source "$SRCPATH/src/services/awss/Config.in"
+source "$SRCPATH/src/services/http2_stream/Config.in"
+
+config SUPPORT_TLS
+    bool "FEATURE_SUPPORT_TLS"
+    default y
+    help
+        This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
+
+config SUPPORT_ITLS
+    bool "FEATURE_SUPPORT_ITLS"
+    depends on !SUPPORT_TLS
+    default n
+    help
+        This option is mutually exclusive with SUPPORT_TLS, only less than one of them can be switched to "y"
+
+        iTLS is a TLS implementation based on ID2, and ID2 service is professional security solution based on special hardware
+
+
+
