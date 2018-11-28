@@ -2,7 +2,7 @@ NAME := ota_verify
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Verify OTA firmware with Hash or RSA.
 
 $(NAME)_SOURCES := ota_verify.c \
                    ota_rsa_verify.c \
