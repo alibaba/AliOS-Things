@@ -1,6 +1,6 @@
 menuconfig AOS_COMP_OTA_TRANSPORT
     bool "ota_transport"
-    default n
+    default y
     help
 
 if AOS_COMP_OTA_TRANSPORT

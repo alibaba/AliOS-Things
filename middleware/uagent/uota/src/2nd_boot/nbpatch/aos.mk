@@ -2,7 +2,7 @@ NAME := ota_2ndboot_nbpatch
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Differential recoevry algorithm
 $(NAME)_SOURCES := nbpatch.c \
                    nbpatch_io.c \
                    xzdec.c \
