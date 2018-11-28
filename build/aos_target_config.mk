@@ -550,9 +550,8 @@ $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,}$(COMMA))
 endef
 
-PROJ_GEN_DIR   := projects/autogen/$(CLEANED_BUILD_STRING)
-
 ifeq ($(IDE),iar)
+PROJ_GEN_DIR   := projects/IAR/$(CLEANED_BUILD_STRING)
 PROJECT_GEN := $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewp
 $(MAKECMDGOALS): $(PROJECT_GEN)
 $(PROJECT_GEN): build/scripts/iar.py build/aos_target_config.mk $(CONFIG_FILE)
@@ -567,6 +566,7 @@ $(PROJECT_GEN): build/scripts/iar.py build/aos_target_config.mk $(CONFIG_FILE)
 endif
 
 ifeq ($(IDE),keil)
+PROJ_GEN_DIR   := projects/Keil/$(CLEANED_BUILD_STRING)
 PROJECT_GEN := $(PROJ_GEN_DIR)/keil_project/$(CLEANED_BUILD_STRING).uvprojx
 $(MAKECMDGOALS): $(PROJECT_GEN)
 $(PROJECT_GEN): build/scripts/keil.py build/aos_target_config.mk $(CONFIG_FILE)
