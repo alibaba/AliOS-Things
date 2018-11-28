@@ -27,7 +27,7 @@ endif
 
 ifeq ($(AOS_SENSOR_MODBUS_ENABLE),y)
 $(NAME)_SOURCES += drv/drv_modbus_sensors.c
-$(NAME)_COMPONENTS  += rhino.bus.mbmaster
+$(NAME)_COMPONENTS  += kernel.bus.mbmaster
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
 
