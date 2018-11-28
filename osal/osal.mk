@@ -51,7 +51,7 @@ $(NAME)_SOURCES += \
 endif
 
 ifeq ($(osal),rhino)
-GLOBAL_DEFINES += OSAL_RHINO
+GLOBAL_DEFINES += OSAL_RHINO AOS_HAL
 $(NAME)_COMPONENTS += rhino
 
 ifeq ($(HOST_MCU_FAMILY),esp32)
