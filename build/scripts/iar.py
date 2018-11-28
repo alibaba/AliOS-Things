@@ -179,7 +179,7 @@ def gen_project(target, script):
 
 #argv[1]: buildstring, eg: nano@b_l475e
 buildstring = sys.argv[1]
-proj_output_dir = 'projects/autogen/'+buildstring+'/iar_project'
+proj_output_dir = 'projects/IAR/'+buildstring+'/iar_project'
 #use in xml text
 aos_relative_path = '$PROJ_DIR$\\' + '../../../../'
 projectPath = proj_output_dir+'/'+buildstring+'.ewp'
