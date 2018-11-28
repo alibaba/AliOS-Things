@@ -1,0 +1,494 @@
+# Kconfig - Bluetooth Controller configuration options
+#
+# Copyright (c) 2016-2017 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+comment "BLE Controller support"
+
+config BT_CTLR
+	bool "Bluetooth Controller"
+	select BT_RECV_IS_RX_THREAD
+	help
+	  Enables support for SoC native controller implementations.
+
+if BT_CTLR
+
+choice
+	prompt "Bluetooth Link Layer Selection"
+	default BT_LL_SW
+	help
+	  Select the Bluetooth Link Layer to compile.
+
+config BT_LL_SW
+	bool "Use the software-based BLE Link Layer"
+	help
+	  Use Zephyr software BLE Link Layer implementation.
+
+endchoice
+
+comment "BLE Controller configuration"
+
+config BT_CTLR_HCI_VS_BUILD_INFO
+	string "Zephyr HCI VS Build Info string"
+	default ""
+	depends on BT_HCI_VS_EXT
+	help
+	  User-defined string that will be returned by the Zephyr VS Read Build
+	  Information command after the Zephyr version and build time. When
+	  setting this to a value different from an empty string, a space
+	  character is required at the beginning to separate it from the
+	  already included information.
+
+config BT_CTLR_DUP_FILTER_LEN
+	prompt "Number of addresses in the scan duplicate filter"
+	int
+	depends on BT_OBSERVER
+	default 16
+	help
+	  Set the number of unique BLE addresses that can be filtered as
+	  duplicates while scanning.
+
+config BT_CTLR_RX_BUFFERS
+	prompt "Number of Rx buffers"
+	int
+	default 1
+	default 6 if BT_HCI_RAW
+	range 1 18
+	help
+	  Set the number of Rx PDUs to be buffered in the controller. In a 7.5ms
+	  connection interval and 2M PHY, maximum 18 packets with L2CAP payload
+	  size of 1 byte can be received.
+
+config BT_CTLR_TX_BUFFERS
+	prompt "Number of Tx buffers"
+	int
+	default 2
+	default 7 if BT_HCI_RAW
+	range 1 19
+	help
+	  Set the number of Tx PDUs to be queued for transmission in the
+	  controller. In a 7.5ms connection interval and 2M PHY, maximum 19
+	  packets can be enqueued, with 18 packets with L2CAP payload size of 1
+	  byte can be acknowledged.
+
+config BT_CTLR_TX_BUFFER_SIZE
+	prompt "Tx buffer size"
+	int
+	range 27 16384
+	default 27
+	help
+	  Size of the Tx buffers and the value returned in HCI LE Read Buffer
+	  Size command response. If this size if greater than effective PDU size
+	  then controller will perform fragmentation before transmitting on the
+	  the packet on air.
+	  Maximum is set to 16384 due to implementation limitations (use of
+	  u16_t for size/length variables).
+
+config BT_CTLR_COMPANY_ID
+	prompt "Company Id"
+	hex
+	default 0xFFFF
+	range 0x0000 0xFFFF
+	help
+	  Set the Company Id that will be used in VERSION_IND PDU.
+
+config BT_CTLR_SUBVERSION_NUMBER
+	prompt "Subversion Number"
+	hex
+	default 0xFFFF
+	range 0x0000 0xFFFF
+	help
+	  Set the Subversion Number that will be used in VERSION_IND PDU.
+
+config BT_CTLR_RX_PRIO_STACK_SIZE
+	int
+	default 448
+
+config BT_CTLR_RX_PRIO
+	# Hidden option for Controller's Co-Operative high priority Rx thread
+	# priority.
+	int
+	default 6
+
+comment "BLE Controller features"
+
+if BT_CONN
+
+config BT_CTLR_LE_ENC
+	bool
+	depends on !BT_CTLR_DATA_LENGTH_CLEAR && !BT_CTLR_PHY_2M_NRF
+	default y
+	# Enable support for Bluetooth v4.0 LE Encryption feature in the
+	# Controller.
+
+config BT_CTLR_CONN_PARAM_REQ
+	bool "Connection Parameter Request"
+	default y
+	help
+	  Enable support for Bluetooth v4.1 Connection Parameter Request feature
+	  in the Controller.
+
+config BT_CTLR_LE_PING
+	bool "LE Ping"
+	default y
+	help
+	  Enable support for Bluetooth v4.1 LE Ping feature in the Controller.
+
+config BT_CTLR_PRIVACY
+	bool "LE Controller-based Privacy"
+	depends on !SOC_SERIES_NRF51X
+	default y
+	select BT_RPA
+	help
+	  Enable support for Bluetooth v4.2 LE Controller-based Privacy feature
+	  in the Controller.
+
+config BT_CTLR_RL_SIZE
+	prompt "LE Controller-based Privacy Resolving List size"
+	depends on BT_CTLR_PRIVACY
+	int
+	default 8
+	range 1 8 if SOC_FAMILY_NRF5
+	help
+	  Set the size of the Resolving List for LE Controller-based Privacy.
+	  On nRF5x-based controllers, the hardware imposes a limit of 8 devices.
+
+config BT_CTLR_EXT_SCAN_FP
+	bool "LE Extended Scanner Filter Policies"
+	default y
+	help
+	  Enable support for Bluetooth v4.2 LE Extended Scanner Filter Policies
+	  in the Controller.
+
+config BT_CTLR_DATA_LENGTH
+	bool "Data Length Update"
+	default y if SOC_SERIES_NRF52X
+	help
+	  Enable support for Bluetooth v4.2 LE Data Length Update procedure in
+	  the Controller.
+
+config BT_CTLR_DATA_LENGTH_MAX
+	prompt "Maximum data length supported"
+	depends on BT_CTLR_DATA_LENGTH
+	int
+	default 27
+	range 27 251 if SOC_SERIES_NRF52X || BT_CTLR_DATA_LENGTH_CLEAR
+	range 27 27
+	help
+	  Set the maximum data length of PDU supported in the Controller.
+
+config BT_CTLR_PHY
+	bool "PHY Update"
+	default y if SOC_SERIES_NRF52X
+	help
+	  Enable support for Bluetooth 5.0 PHY Update Procedure in the
+	  Controller.
+
+endif # BT_CONN
+
+config BT_CTLR_CHAN_SEL_2
+	bool "Channel Selection Algorithm #2"
+	default y
+	help
+	  Enable support for Bluetooth 5.0 LE Channel Selection Algorithm #2 in
+	  the Controller.
+
+config BT_CTLR_MIN_USED_CHAN
+	bool "Minimum Number of Used Channels"
+	default y
+	help
+	  Enable support for Bluetooth 5.0 Minimum Number of Used Channels
+	  Procedure in the Controller.
+
+config BT_CTLR_ADV_EXT
+	bool "LE Advertising Extensions"
+	select BT_CTLR_SCAN_REQ_NOTIFY
+	select BT_CTLR_CHAN_SEL_2
+	default y
+	help
+	  Enable support for Bluetooth 5.0 LE Advertising Extensions in the
+	  Controller.
+
+config BT_CTLR_DTM
+	bool
+	help
+	  Enable support for Direct Test Mode in the Controller.
+
+config BT_CTLR_DTM_HCI
+	bool "Direct Test Mode over HCI"
+	select BT_CTLR_DTM
+	help
+	  Enable support for Direct Test Mode over the HCI transport.
+
+config BT_CTLR_ADVANCED_FEATURES
+	bool "Show advanced features"
+	help
+	  Makes advanced features visible to controller developers.
+
+menu "Advanced features"
+	visible if BT_CTLR_ADVANCED_FEATURES
+
+config BT_CTLR_DATA_LENGTH_CLEAR
+	bool "Data Length Support (Cleartext only)"
+	depends on BT_CTLR_DATA_LENGTH && SOC_SERIES_NRF51X
+	help
+	  Enable support for Bluetooth v4.2 LE Data Length Update procedure, up to
+	  251 byte cleartext payloads in the Controller. Encrypted connections
+	  are not supported.
+
+if BT_CTLR_PHY
+
+config BT_CTLR_PHY_2M
+	bool "2Mbps PHY Support"
+	depends on !SOC_SERIES_NRF51X || BT_CTLR_PHY_2M_NRF
+	default y
+	help
+	  Enable support for Bluetooth 5.0 2Mbps PHY in the Controller.
+
+config BT_CTLR_PHY_2M_NRF
+	bool "2Mbps Nordic Semiconductor PHY Support (Cleartext only)"
+	depends on SOC_SERIES_NRF51X
+	select BT_CTLR_PHY_2M
+	help
+	  Enable support for Nordic Semiconductor proprietary 2Mbps PHY in the
+	  Controller. Encrypted connections are not supported.
+
+config BT_CTLR_PHY_CODED
+	bool "Coded PHY Support"
+	depends on SOC_NRF52840
+	default y
+	help
+	  Enable support for Bluetooth 5.0 Coded PHY in the Controller.
+
+endif # BT_CTLR_PHY
+
+config BT_CTLR_WORKER_PRIO
+	prompt "Radio and Ticker's Worker IRQ priority"
+	int
+	range 0 3 if SOC_SERIES_NRF51X
+	range 0 6 if SOC_SERIES_NRF52X
+	default 0
+	help
+	  The interrupt priority for event preparation and radio IRQ. This value
+	  shall be less than or equal to the Ticker's Job priority value.
+
+config BT_CTLR_JOB_PRIO
+	prompt "Ticker's JOB IRQ priority"
+	int
+	range BT_CTLR_WORKER_PRIO 3 if SOC_SERIES_NRF51X
+	range BT_CTLR_WORKER_PRIO 6 if SOC_SERIES_NRF52X
+	default 0
+	help
+	  The interrupt priority for Ticker's Job (SWI4) IRQ. This value shall
+	  be greater than or equal to the Ticker's Worker IRQ priority value.
+
+config BT_CTLR_XTAL_ADVANCED
+	bool "Advanced event preparation"
+	default y
+	help
+	  Enables advanced event preparation offset ahead of radio tx/rx, taking
+	  into account predictive processing time requirements in preparation to
+	  the event, like control procedure handling and CPU execution speeds.
+	  Crystal oscillator is retained between closely spaced consecutive
+	  radio events to reduce the overall number of crystal settling current
+	  consumptions.
+
+	  This feature maximizes radio utilization in an average role event
+	  timeslice when they are closely spaced by using a reduced offset
+	  between preparation and radio event.
+
+	  By disabling this feature, the controller will use a constant offset
+	  between the preparation and radio event. The controller will toggle
+	  crystal oscillator between two closely spaced radio events leading to
+	  higher average current due to increased number of crystal settling
+	  current consumptions.
+
+config BT_CTLR_XTAL_THRESHOLD
+	prompt "Crystal shutdown threshold in uS"
+	depends on BT_CTLR_XTAL_ADVANCED
+	int
+	default 5168
+	help
+	  Configure the optimal delta in micro seconds between two consecutive
+	  radio events below which (active clock) crystal will be retained. This
+	  value is board dependent. The value 5168 is based on crude calculation
+	  for nRF51 current versus startup time of high frequency crystal.
+
+config BT_CTLR_SCHED_ADVANCED
+	bool "Advanced scheduling"
+	depends on (BT_MAX_CONN != 0)
+	default y
+	default n if BT_PERIPHERAL && !BT_CENTRAL
+	help
+	  Enable non-overlapping placement of observer, initiator and master
+	  roles in timespace. Uses window offset in connection updates and uses
+	  connection parameter request in slave role to negotiate
+	  non-overlapping placement with active master roles to avoid slave
+	  roles drifting into active master roles in the local controller.
+
+	  This feature maximizes the average data transmission amongst active
+	  concurrent master and slave connections while other observer,
+	  initiator, master or slave roles are active in the local controller.
+
+	  Disabling this feature will lead to overlapping role in timespace
+	  leading to skipped events amongst active roles.
+
+config BT_CTLR_RADIO_ENABLE_FAST
+	bool "Use tTXEN/RXEN,FAST ramp-up"
+	depends on SOC_SERIES_NRF52X
+	default y
+	help
+	  Enable use of fast radio ramp-up mode.
+
+config BT_CTLR_TIFS_HW
+	bool "H/w Accelerated tIFS Trx switching"
+	depends on !BT_CTLR_RADIO_ENABLE_FAST
+	default y
+	help
+	  Enable use of hardware accelerated tIFS Trx switching.
+
+if BT_CONN
+
+config BT_CTLR_FAST_ENC
+	bool "Fast Encryption Setup"
+	depends on BT_CTLR_LE_ENC
+	help
+	  Enable connection encryption setup in 3 connection intervals.
+	  Peripheral will respond to Encryption Request with Encryption Response
+	  in the same connection interval, and also, will respond with Start
+	  Encryption Response PDU in the 3rd connection interval, hence
+	  completing encryption setup in 3 connection intervals. Encrypted data
+	  would be transmitted as fast as in 3rd connection interval from the
+	  connection establishment.
+	  Maximum CPU time in Radio ISR will increase if this feature is
+	  selected.
+
+config BT_CTLR_CONN_RSSI
+	bool "Connection RSSI"
+	help
+	  Enable connection RSSI measurement.
+
+endif # BT_CONN
+
+config BT_CTLR_ADV_INDICATION
+	bool "Advertisement indications"
+	help
+	  Generate events indicating on air advertisement events.
+
+config BT_CTLR_SCAN_REQ_NOTIFY
+	bool "Scan Request Notifications"
+	help
+	  Generate events notifying the on air scan requests received.
+
+config BT_CTLR_SCAN_REQ_RSSI
+	bool "Measure Scan Request RSSI"
+	depends on BT_CTLR_SCAN_REQ_NOTIFY
+	help
+	  Measure RSSI of the on air scan requests received.
+
+endmenu
+
+comment "BLE Controller hardware configuration"
+
+menuconfig BT_CTLR_GPIO_PA
+	bool "Power Amplifier GPIO interface"
+	depends on !SOC_SERIES_NRF51X
+	help
+	  Enable GPIO interface to a Power Amplifier. This allows hardware
+	  designs using PA to let the Controller toggle their state based on
+	  radio activity.
+
+if BT_CTLR_GPIO_PA
+
+config BT_CTLR_GPIO_PA_PIN
+	prompt "Power Amplifier GPIO pin number"
+	int
+	help
+	  GPIO Pin number connected to a Power Amplifier.
+
+config BT_CTLR_GPIO_PA_POL_INV
+	bool "Inverted polarity for the PA pin"
+	help
+	  Enable inverted polarity (active low) for the PA pin.
+
+config BT_CTLR_GPIO_PA_OFFSET
+	prompt "Time from PA ON to Tx ready"
+	int
+	default 5
+	range 0 10
+	help
+	  Time before Tx ready to turn on PA.
+
+endif # BT_CTLR_GPIO_PA
+
+menuconfig BT_CTLR_GPIO_LNA
+	bool "Low Noise Amplifier GPIO interface"
+	depends on !SOC_SERIES_NRF51X
+	help
+	  Enable GPIO interface to a Low Noise Amplifier. This allows hardware
+	  designs using LNAs to let the Controller toggle their state based on
+	  radio activity.
+
+if BT_CTLR_GPIO_LNA
+
+config BT_CTLR_GPIO_LNA_PIN
+	prompt "Low Noise Amplifier GPIO pin number"
+	int
+	help
+	  GPIO Pin number connected to a Low Noise Amplifier.
+
+config BT_CTLR_GPIO_LNA_POL_INV
+	bool "Inverted polarity for the LNA pin"
+	help
+	  Enable inverted polarity (active low) for the LNA pin.
+
+config BT_CTLR_GPIO_LNA_OFFSET
+	prompt "Time from LNA ON to Rx ready"
+	int
+	default 5
+	range 0 10
+	help
+	  Time before Rx ready to turn on LNA.
+
+endif # BT_CTLR_GPIO_LNA
+
+config BT_CTLR_PA_LNA_GPIOTE_CHAN
+	# Hidden "nRF5 GPIO PA/LNA GPIOTE Channel"
+	depends on SOC_FAMILY_NRF5 && (BT_CTLR_GPIO_PA || BT_CTLR_GPIO_LNA)
+	int
+	default 3
+	help
+	  Select the nRF5 GPIOTE channel to use for PA/LNA GPIO feature.
+
+comment "BLE Controller debug configuration"
+
+config BT_CTLR_ASSERT_HANDLER
+	bool "Bluetooth Controller Assertion Handler"
+	depends on BT_HCI_RAW
+	help
+	  This option enables an application-defined sink for the
+	  controller assertion mechanism. This must be defined in
+	  application code as void \"bt_controller_assert_handle(char \*, int)\"
+	  and will be invoked whenever the controller code encounters
+	  an unrecoverable error.
+
+config BT_CTLR_PROFILE_ISR
+	bool "Profile radio ISR"
+	help
+	  Turn on measurement of radio ISR latency, CPU usage and generation of
+	  controller event with these profiling data. The controller event
+	  contains current, minimum and maximum ISR entry latencies; and
+	  current, minimum and maximum ISR CPU use in micro-seconds.
+
+config BT_CTLR_DEBUG_PINS
+	bool "Bluetooth Controller Debug Pins"
+	depends on BOARD_NRF51_PCA10028 || BOARD_NRF52_PCA10040 || BOARD_NRF52840_PCA10056
+	help
+	  Turn on debug GPIO toggling for the BLE Controller. This is useful
+	  when debugging with a logic analyzer or profiling certain sections of
+	  the code. When enabled, pins P0.16 to P0.25 are taken over exclusively
+	  by the controller and cannot be used outside of it.
+
+endif # BT_CTLR

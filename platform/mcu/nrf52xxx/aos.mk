@@ -2,7 +2,7 @@ NAME := nrf52xxx
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
-$(NAME)_SUMMARY    := driver & sdk for platform/mcu nrf52832 or nrf52840
+$(NAME)_SUMMARY    := driver & sdk &ble controller for platform/mcu nrf52832 or nrf52840
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 $(NAME)_COMPONENTS += libc rhino kernel.fs.vfs digest_algorithm network.bluetooth.bt
