@@ -69,9 +69,9 @@ SVC_Handler:
     ldr     r1, [r1]
 
     // change utask.mode to 0x11
-    ldr     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
+    ldrb    r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
     orr     r2, r2, #0x01
-    str     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
+    strb    r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
 
     // change mode to user thread, set control[0]
     mrs     r2, control
@@ -113,14 +113,14 @@ SVC_Handler:
 
     ldr     r1, =g_active_task
     ldr     r1, [r1]
-    ldr     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
+    ldrb    r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
     and     r2, r2, #0x02
     cmp     r2, #0x02
     bne     .return
 
     // clear bit[0], set task to privilegend mode
     bic     r2, #0x01
-    str     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
+    strb     r2, [r1, #RHINO_CONFIG_TASK_MODE_OFFSET]
 
     // switch psp to utask.kstack
     // copy utask.kstack to utask.ustack
@@ -172,7 +172,7 @@ do_syscall:
     ldr     r2, =g_active_task
     ldr     r2, [r2]
     // load mode
-    ldr     r3, [r2, #RHINO_CONFIG_TASK_MODE_OFFSET]
+    ldrb    r3, [r2, #RHINO_CONFIG_TASK_MODE_OFFSET]
     and     r3, r3, #0x02
     cmp     r3, #0x02
     bne     .ktask_return
