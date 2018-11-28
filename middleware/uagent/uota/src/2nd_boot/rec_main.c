@@ -58,29 +58,32 @@ int recovery_check(void)
 		case REC_RECOVERY_FLAG :
 		    flag = REC_RECOVERY_START;
 		break;
-		case REC_RECOVERY_VERIFY_FLAG :
-			if(rec_flag_info.num <= REC_MAX_NUM) {
-				rec_flag_info.num += 1;
-				recovery_set_flag_info(&rec_flag_info);
-		        flag = REC_NORMAL_START;
-			} else { // 超过3次启动失败，自动回滚
-				rec_flag_info.flag = REC_ROLLBACK_FLAG;
-				rec_flag_info.num  = 0;
-				recovery_set_flag_info(&rec_flag_info);
-				flag = REC_ROLLBACK_START;
-			}
-		break;
-		case REC_ROLLBACK_FLAG :
-			flag = REC_ROLLBACK_START;
-		break;
-	    #if (defined BOARD_ESP8266)
+        case REC_SWAP_UPDATE_FLAG :
+            flag = REC_SWAP_UPDATE_START;
+        break;
+        case REC_RECOVERY_VERIFY_FLAG :
+            if(rec_flag_info.num <= REC_MAX_NUM) {
+                rec_flag_info.num += 1;
+                recovery_set_flag_info(&rec_flag_info);
+                flag = REC_NORMAL_START;
+            } else { // more than 3 startup failures, automatic rollback
+                rec_flag_info.flag = REC_ROLLBACK_FLAG;
+                rec_flag_info.num  = 0;
+                recovery_set_flag_info(&rec_flag_info);
+                flag = REC_ROLLBACK_START;
+            }
+        break;
+        case REC_ROLLBACK_FLAG :
+            flag = REC_ROLLBACK_START;
+        break;
+        #if (defined BOARD_ESP8266)
 	        case REC_UPGRADE_FLAG :
 	        flag = REC_UPGRADE_START;
-	        break;
-	    #endif
-		default:
-	              flag = REC_NORMAL_START;
-		break;
+            break;
+        #endif
+        default:
+            flag = REC_NORMAL_START;
+        break;
     }
     return flag;
 }
@@ -94,24 +97,27 @@ int recovery_flag_update()
 
     printf("rec_flag_info.flag = 0x%x\n", rec_flag_info.flag);
     switch (rec_flag_info.flag) {
-            case REC_RECOVERY_FLAG :
-                if(rec_flag_info.num <= REC_MAX_NUM) {
-		     rec_flag_set.flag = REC_RECOVERY_FLAG;
-                     rec_flag_set.num  = rec_flag_info.num + 1;
-                }
-                flag = REC_RECOVERY_START;
-                break;
-            case REC_ROLLBACK_FLAG :
-                flag = REC_ROLLBACK_START;
-                break;
+        case REC_RECOVERY_FLAG :
+            if(rec_flag_info.num <= REC_MAX_NUM) {
+                rec_flag_set.flag = REC_RECOVERY_FLAG;
+                rec_flag_set.num  = rec_flag_info.num + 1;
+            }
+            flag = REC_RECOVERY_START;
+            break;
+        case REC_SWAP_UPDATE_FLAG :
+            flag = REC_SWAP_UPDATE_START;
+            break;
+        case REC_ROLLBACK_FLAG :
+            flag = REC_ROLLBACK_START;
+            break;
 	    #if (defined BOARD_ESP8266)
 	    case REC_UPGRADE_FLAG :
 	        flag = REC_UPGRADE_START;
 	    break;
 	    #endif
-            default:
-                flag = REC_RECOVERY_START;
-            break;
+        default:
+            flag = REC_RECOVERY_START;
+        break;
     }
     recovery_set_flag_info(&rec_flag_set);
     return flag;
@@ -165,6 +171,22 @@ void recovery_process()
     }
 }
 
+#if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBACK)
+void rec_swap_update_process()
+{
+    int ret;
+    ret = nbpatch_swap_app2ota(TRUE);
+    if(ret == 0) {
+        LOG("update succ!\r\n");
+        rec_success();
+    }
+    else {
+        LOG("update fail!\r\n");
+        rec_reboot();
+    }
+}
+#endif
+
 void recovery_main()
 {
     int flag = 0;
@@ -190,6 +212,12 @@ void recovery_main()
         rec_2boot_rollback();
         return;
     }
+#if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBACK)
+    else if (REC_SWAP_UPDATE_START == flag) {
+        rec_swap_update_process();
+        return;
+    }
+#endif
 #endif
     recovery_process();
 }
