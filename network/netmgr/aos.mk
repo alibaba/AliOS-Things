@@ -27,7 +27,7 @@ $(NAME)_SOURCES-y += interfaces/netmgr_net.c
 GLOBAL_INCLUDES-y += ../include/hal/
 endif
 
-$(NAME)_COMPONENTS-y += kernel.fs.kv yloop kernel.hal
+$(NAME)_COMPONENTS-y += kernel.fs.kv yloop
 
 GLOBAL_INCLUDES-y += include ../../middleware/alink/protocol/os/platform/
 
