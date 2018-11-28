@@ -2,7 +2,7 @@ NAME := libiot_http
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := A communication channel implemented in HTTP
 
 $(NAME)_SOURCES := ./iotx_http_api.c \
  

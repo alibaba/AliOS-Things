@@ -2,7 +2,7 @@ NAME := libiot_sdk_impl
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := The upper API of linkkit
 
 # $(NAME)_SOURCES := ./sdk-impl.c \
 # 		   ./impl_dynreg.c \
