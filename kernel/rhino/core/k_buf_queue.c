@@ -107,8 +107,8 @@ kstat_t krhino_buf_queue_del(kbuf_queue_t *queue)
 }
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
-                                    size_t size, size_t max_msg)
+static kstat_t buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
+                                    size_t size, size_t max_msg, uint8_t type)
 {
     kstat_t      stat;
     kbuf_queue_t *queue_obj;
@@ -144,6 +144,23 @@ kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
     *queue = queue_obj;
 
     return RHINO_SUCCESS;
+}
+
+kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
+                                                size_t size, size_t max_msg)
+{
+    kstat_t stat;
+    stat = buf_queue_dyn_create(queue, name, size, max_msg, RINGBUF_TYPE_DYN);
+    return stat;
+}
+
+kstat_t krhino_fix_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
+                                   void *buf, size_t msg_size, size_t msg_num)
+{
+    kstat_t stat;
+    stat = buf_queue_dyn_create(queue, name, msg_size * msg_num,
+                                msg_size, RINGBUF_TYPE_FIX);
+    return stat;
 }
 
 kstat_t krhino_buf_queue_dyn_del(kbuf_queue_t *queue)
