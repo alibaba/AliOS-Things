@@ -13,7 +13,6 @@
 ktask_t *g_aos_init;
 
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 
 extern void hw_start_hal(void);
 
@@ -38,7 +37,6 @@ static void sys_init(void)
     aos_cli_init();
     aos_kv_init();
     aos_loop_init();
-    aos_framework_init();
     dumpsys_cli_init();
 #ifdef AOS_FOTA
     ota_service_init();

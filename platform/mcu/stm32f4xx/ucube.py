@@ -19,7 +19,6 @@ deps = Split('''
         kernel/rhino
         kernel/hal
         network/netmgr
-        middleware/common
         security/mbedtls
         utility/cjson
         kernel/cli

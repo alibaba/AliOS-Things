@@ -6,7 +6,6 @@ src = Split('''
         hal/uart.c
         hal/flash.c
         hal/wifi_port.c
-        hal/ota_port.c
         hal/ais_ota_port.c
         hal/misc.c
         hal/i2c.c

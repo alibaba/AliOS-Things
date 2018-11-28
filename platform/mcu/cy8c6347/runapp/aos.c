@@ -20,7 +20,6 @@ aos_task_t task;
 static kinit_t kinit;
 
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 extern void board_init(void);
 extern int default_UART_Init(void);
 	

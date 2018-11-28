@@ -25,7 +25,6 @@ ktask_t *g_aos_init;
 ktask_t *g_aos_app = NULL;
 static kinit_t kinit;
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 
 extern hal_wifi_module_t qca_4002_wmi;
 

@@ -6,7 +6,6 @@ src = Split('''
     main/main.c
     main/hw.c
     main/wifi_port.c
-    main/ota_port.c
     main/vfs_trap.c
 ''')
 

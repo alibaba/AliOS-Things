@@ -10,10 +10,9 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu imx6
 
 $(NAME)_COMPONENTS += platform/arch/arm/armv7a
-$(NAME)_COMPONENTS += libc rhino hal middleware.common
+$(NAME)_COMPONENTS += libc rhino
 
 GLOBAL_INCLUDES += ../../../arch/arm/armv7a/gcc/a9
-GLOBAL_INCLUDES += ../../../../kernel/hal/include/soc/
 GLOBAL_INCLUDES += ./aos                                      \
                    ./imx6_platform_sdk/sdk                    \
                    ./imx6_platform_sdk/sdk/core               \

@@ -21,7 +21,6 @@
 ktask_t *g_aos_init;
 ktask_t *g_aos_app = NULL;
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 
 
 extern void hw_start_hal(void);
@@ -54,7 +53,6 @@ static void sys_init(void)
     aos_loop_init();
 #endif
 
-    aos_framework_init();
 	lwip_tcpip_init();
     application_start(0, NULL);	
 #endif

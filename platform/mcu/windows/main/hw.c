@@ -25,7 +25,6 @@
 #include <hal/soc/timer.h>
 #include <hal/base.h>
 #include <hal/wifi.h>
-#include <hal/ota.h>
 #include <arg_options.h>
 
 #define TAG "hw"
@@ -244,7 +243,6 @@ extern hal_wifi_module_t aos_wifi_module_mk3060;
 #else
 extern hal_wifi_module_t sim_aos_wifi_linux;
 #endif
-extern struct hal_ota_module_s linuxhost_ota_module;
 uart_dev_t uart_0;
 
 void linux_wifi_register(void);
@@ -270,7 +268,6 @@ void hw_start_hal(options_t *poptions)
 #else
 	hal_wifi_register_module(&sim_aos_wifi_linux);
 #endif
-	hal_ota_register_module(&linuxhost_ota_module);
 #endif
 
 #ifdef LINUX_MESH_80211
