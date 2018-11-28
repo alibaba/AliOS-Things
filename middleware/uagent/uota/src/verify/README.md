@@ -1,16 +1,38 @@
 ## Contents
 
 ```sh
-OTA
-├── hal
-├── ota_service.c
-├── src
-│   ├── 2nd_boot
-│   ├── device
-│   ├── download
-│   ├── transport
-│   └── verify
-└── aos.mk
+verify
+├── base64
+│   ├── ota_base64.c
+│   └── ota_base64.h
+├── Config.in
+├── crc
+│   ├── ota_crc.c
+│   └── ota_crc.h
+├── hash
+│   ├── ota_hash.c
+│   ├── ota_hash.h
+│   ├── ota_md5.c
+│   ├── ota_md5.h
+│   ├── ota_sha256.c
+│   └── ota_sha256.h
+├── ota_public_key_config.h
+├── ota_rsa_param.h
+├── ota_rsa_verify.c
+├── ota_rsa_verify.h
+├── ota_verify.c
+├── ota_verify.h
+├── README.md
+└── rsa
+    ├── ota_asn1.h
+    ├── ota_bignum.c
+    ├── ota_bignum.h
+    ├── ota_bn_mul.h
+    ├── ota_hash_rsa.c
+    ├── ota_oid.h
+    ├── ota_pub.h
+    ├── ota_rsa.c
+    └── ota_rsa.h
 ```
 
 ## Introduction
@@ -34,22 +56,6 @@ Linkkit CoAP channel
 User service APIs:
 
 ```c
-typedef struct {
-    unsigned char  inited;  /*If is inted*/
-    char  pk[20+1];/*Product Key*/
-    char  ps[64+1];/*Product secret*/
-    char  dn[32+1];/*Device name*/
-    char  ds[64+1];/*Device secret*/
-    OTA_PROTCOL_E  trans_protcol;  /*default:0--> MQTT 1-->COAP*/
-    OTA_PROTCOL_E  dl_protcol;     /*default:3--> HTTPS 1-->COAP 2-->HTTP*/
-    unsigned char  sign_type;      /*default:0--> sha256 1--> md5 2-->RSA*/
-    char           ota_ver[OTA_MAX_VER_LEN];  /*OTA FW version*/
-    char           sys_ver[OTA_MAX_VER_LEN];  /*OTA System version*/
-    ota_transport_t *h_tr;    /*OTA tansport manager*/
-    ota_download_t  *h_dl;    /*OTA download manager*/
-    void*    h_ch;            /*OTA channel handle:mqtt,coap*/
-} ota_service_t;
-
 /*OTA export service APIs*/
 int ota_service_init(ota_service_t* ctx);
 int ota_service_deinit(ota_service_t* ctx);

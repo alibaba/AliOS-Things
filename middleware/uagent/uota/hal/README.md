@@ -1,16 +1,16 @@
 ## Contents
 
 ```sh
-OTA
-├── hal
-├── ota_service.c
-├── src
-│   ├── 2nd_boot
-│   ├── device
-│   ├── download
-│   ├── transport
-│   └── verify
-└── aos.mk
+hal
+├── aos.mk
+├── Config.in
+├── ota_hal_host.c
+├── ota_hal_module.c
+├── ota_hal_os.c
+├── ota_hal_os.h
+├── ota_hal_plat.c
+├── ota_hal_plat.h
+└── README.md
 ```
 
 ## Introduction

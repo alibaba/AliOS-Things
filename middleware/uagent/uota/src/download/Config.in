@@ -1,6 +1,6 @@
 menuconfig AOS_COMP_OTA_DOWNLOAD
     bool "ota_download"
-    default n
+    default y
     help
 
 if AOS_COMP_OTA_DOWNLOAD

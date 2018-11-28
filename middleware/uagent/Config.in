@@ -1,15 +1,7 @@
 menuconfig AOS_UAGENT
     bool "uAgent Configuration"
-    default n
+    default y
 
 if AOS_UAGENT
 source "middleware/uagent/uota/Config.in"
-source "middleware/uagent/uota/hal/Config.in"
-source "middleware/uagent/uota/src/verify/Config.in"
-source "middleware/uagent/uota/src/transport/Config.in"
-source "middleware/uagent/uota/src/2nd_boot/Config.in"
-source "middleware/uagent/uota/src/2nd_boot/xz/Config.in"
-source "middleware/uagent/uota/src/2nd_boot/nbpatch/Config.in"
-source "middleware/uagent/uota/src/download/Config.in"
-source "middleware/uagent/uota/src/device/ble/Config.in"
 endif
