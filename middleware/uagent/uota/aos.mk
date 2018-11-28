@@ -2,7 +2,7 @@ NAME := ota
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := An over-the-air update is the wireless delivery of new software. 
 
 #default gcc
 ifeq ($(COMPILER),)

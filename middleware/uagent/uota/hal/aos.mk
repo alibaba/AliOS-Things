@@ -2,7 +2,7 @@ NAME := ota_hal
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := ota porting HAL APIs
 
 #default gcc
 ifeq ($(COMPILER),)

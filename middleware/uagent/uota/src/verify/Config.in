@@ -1,6 +1,6 @@
 menuconfig AOS_COMP_OTA_VERIFY
     bool "ota_verify"
-    default n
+    default y
     help
 
 if AOS_COMP_OTA_VERIFY
