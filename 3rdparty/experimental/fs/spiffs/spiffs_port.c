@@ -7,8 +7,8 @@
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
 #include <hal/hal.h>
-#include <vfs_inode.h>
-#include <vfs_register.h>
+
+#include "aos/vfs.h"
 
 static const char *spiffs_mnt_path = "/spiffs";
 
