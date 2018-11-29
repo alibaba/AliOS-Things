@@ -158,18 +158,18 @@ static void pmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 
     switch (argc) {
         case 4:
-            width = strtol(argv[3], NULL, 0);
+            width = strtoul(argv[3], NULL, 0);
         case 3:
-            nunits = strtol(argv[2], NULL, 0);
+            nunits = strtoul(argv[2], NULL, 0);
             nunits = nunits > 0x400 ? 0x400 : nunits;
         case 2:
-            addr = (char *)strtol(argv[1], &pos, 0);
+            addr = (char *)strtoul(argv[1], &pos, 0);
             break;
         default:
             break;
     }
 
-    if (pos == NULL || pos == argv[1]) {
+    if (pos == NULL || pos == argv[1] || nunits > 0x1000) {
         cli_printf("p <addr> <nunits> <width>\r\n"
                    "addr  : address to display\r\n"
                    "nunits: number of units to display (default is 16)\r\n"
@@ -229,11 +229,11 @@ static void mmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 
     switch (argc) {
         case 4:
-            width = strtol(argv[3], NULL, 0);
+            width = strtoul(argv[3], NULL, 0);
         case 3:
-            value = strtol(argv[2], NULL, 0);
+            value = strtoul(argv[2], NULL, 0);
         case 2:
-            addr = (void *)strtol(argv[1], NULL, 0);
+            addr = (void *)strtoul(argv[1], NULL, 0);
             break;
         default:
             addr = NULL;
