@@ -9,9 +9,19 @@ MODULE             := AmebaZ
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := rtl8710bn
 SUPPORT_MBINS      := no
+AOS_SDK_2BOOT_SUPPORT := yes
 
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+$(NAME)_LIBSUFFIX := _2boot
+GLOBAL_CFLAGS     += -DAOS_OTA_2BOOT_CLI
+else
 $(NAME)_SOURCES := board.c
+endif
 
+GLOBAL_CFLAGS         += -DAOS_OTA_RECOVERY_TYPE=1
+GLOBAL_CFLAGS         += -DAOS_OTA_BANK_SINGLE
+
+$(NAME)_SOURCES += flash_partitions.c
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES  += STDIO_UART=0 USE_MX1290
 
