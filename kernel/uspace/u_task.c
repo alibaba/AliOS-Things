@@ -200,7 +200,6 @@ kstat_t krhino_utask_create(ktask_t **task, const name_t *name, void *arg,
                             size_t ustack, size_t kstack, task_entry_t entry, uint8_t autorun)
 {
     ktask_t *cur_task;
-    ktask_t *task_tmp;
     kstat_t  ret;
 
     cur_task = krhino_cur_task_get();
