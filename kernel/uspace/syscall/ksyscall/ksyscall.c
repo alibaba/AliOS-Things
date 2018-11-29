@@ -96,6 +96,20 @@ static sys_time_t sys_krhino_ticks_to_ms_stub(void *arg)
 }
 
 /* ------------------ mutex ------------------ */
+static kstat_t sys_krhino_mutex_create_stub(void *arg)
+{
+    krhino_mutex_create_syscall_arg_t *_arg = arg;
+
+    return krhino_mutex_create(_arg->mutex, _arg->name);
+}
+
+static kstat_t sys_krhino_mutex_del_stub(void *arg)
+{
+    krhino_mutex_del_syscall_arg_t *_arg = arg;
+
+    return krhino_mutex_del(_arg->mutex);
+}
+
 static kstat_t sys_krhino_mutex_dyn_create_stub(void *arg)
 {
     krhino_mutex_dyn_create_syscall_arg_t *_arg = arg;
@@ -125,6 +139,20 @@ static kstat_t sys_krhino_mutex_unlock_stub(void *arg)
 }
 
 /* ------------------ semphore ------------------ */
+static kstat_t sys_krhino_sem_create_stub(void *arg)
+{
+    krhino_sem_create_syscall_arg_t *_arg = arg;
+
+    return krhino_sem_create(_arg->sem, _arg->name, _arg->count);
+}
+
+static kstat_t sys_krhino_sem_del_stub(void *arg)
+{
+    krhino_sem_del_syscall_arg_t *_arg = arg;
+
+    return krhino_sem_del(_arg->sem);
+}
+
 static kstat_t sys_krhino_sem_dyn_create_stub(void *arg)
 {
     krhino_sem_dyn_create_syscall_arg_t *_arg = arg;
@@ -154,6 +182,20 @@ static kstat_t sys_krhino_sem_take_stub(void *arg)
 }
 
 /* -------------------- queue --------------------*/
+kstat_t sys_krhino_queue_create_stub(void *arg)
+{
+    krhino_queue_create_syscall_arg_t *_arg = arg;
+
+    return krhino_queue_create(_arg->queue, _arg->name, _arg->start, _arg->msg_num);
+}
+
+kstat_t sys_krhino_queue_del_stub(void *arg)
+{
+     krhino_buf_queue_del_syscall_arg_t *_arg = arg;
+
+    return krhino_queue_del(_arg->queue);
+}
+
 kstat_t sys_krhino_queue_dyn_create_stub(void *arg)
 {
     krhino_queue_dyn_create_syscall_arg_t *_arg = arg;
@@ -229,6 +271,15 @@ static kstat_t sys_krhino_buf_queue_dyn_create_stub(void *arg)
                                        _arg->size, _arg->max_msg);
 }
 
+static kstat_t sys_krhino_fix_buf_queue_dyn_create_stub(void *arg)
+{
+
+    krhino_fix_buf_queue_dyn_create_syscall_arg_t *_arg = arg;
+
+    return krhino_fix_buf_queue_dyn_create(_arg->queue, _arg->name, _arg->buf,
+                                           _arg->msg_size, _arg->msg_num);
+}
+
 static kstat_t sys_krhino_buf_queue_dyn_del_stub(void *arg)
 {
     krhino_buf_queue_dyn_del_syscall_arg_t *_arg = arg;
@@ -255,13 +306,6 @@ static kstat_t sys_krhino_buf_queue_flush_stub(void *arg)
     krhino_buf_queue_flush_syscall_arg_t *_arg = arg;
 
     return krhino_buf_queue_flush(_arg->queue);
-}
-
-static kstat_t sys_krhino_buf_queue_info_get_stub(void *arg)
-{
-    krhino_buf_queue_info_get_syscall_arg_t *_arg = arg;
-
-    return krhino_buf_queue_info_get(_arg->queue, _arg->info);
 }
 
 /* ----------------- proc msg -------------------- */
@@ -304,6 +348,10 @@ static int32_t sys_hal_uart_send_stub(void *arg)
 /* this function is almost discarded by kernel */
 static int32_t sys_hal_uart_recv_stub(void *arg)
 {
+    hal_uart_recv_syscall_arg_t *_arg = arg;
+
+    _arg = _arg;
+
     return 0;
 }
 
@@ -320,35 +368,6 @@ static int32_t sys_hal_uart_finalize_stub(void *arg)
     hal_uart_finalize_syscall_arg_t *_arg = arg;
 
     return hal_uart_finalize(_arg->uart);
-}
-
-/* -------------------- vfs ---------------------- */
-static off_t sys_aos_lseek_stub(void *arg)
-{
-    aos_lseek_syscall_arg_t *_arg = arg;
-
-    return aos_lseek(_arg->fd, _arg->offset, _arg->whence);
-}
-
-static int sys_aos_close_stub(void *arg)
-{
-    aos_close_syscall_arg_t *_arg = arg;
-
-    return aos_close(_arg->fd);
-}
-
-static ssize_t sys_aos_read_stub(void *arg)
-{
-    aos_read_syscall_arg_t *_arg = arg;
-
-    return aos_read(_arg->fd, _arg->buf, _arg->nbytes);
-}
-
-static ssize_t sys_aos_write_stub(void *arg)
-{
-    aos_read_syscall_arg_t *_arg = arg;
-
-    return aos_write(_arg->fd, _arg->buf, _arg->nbytes);
 }
 
 /**************************************************************
@@ -373,18 +392,24 @@ void *syscall_tbl[] = {
                        [SYS_KRHINO_TICKS_TO_MS]  = sys_krhino_ticks_to_ms_stub,
 
                        /* ------------------- mutex ---------------------*/
+                       [SYS_KRHINO_MUTEX_CREATE]     = sys_krhino_mutex_create_stub,
+                       [SYS_KRHINO_MUTEX_DEL]        = sys_krhino_mutex_del_stub,
                        [SYS_KRHINO_MUTEX_DYN_CREATE] = sys_krhino_mutex_dyn_create_stub,
                        [SYS_KRHINO_MUTEX_DYN_DEL]    = sys_krhino_mutex_dyn_del_stub,
                        [SYS_KRHINO_MUTEX_LOCK]       = sys_krhino_mutex_lock_stub,
                        [SYS_KRHINO_MUTEX_UNLOCK]     = sys_krhino_mutex_unlock_stub,
 
                        /* ------------------ semphore --------------------*/
+                       [SYS_KRHINO_SEM_CREATE]     = sys_krhino_sem_create_stub,
+                       [SYS_KRHINO_SEM_DEL]        = sys_krhino_sem_del_stub,
                        [SYS_KRHINO_SEM_DYN_CREATE] = sys_krhino_sem_dyn_create_stub,
                        [SYS_KRHINO_SEM_DYN_DEL]    = sys_krhino_sem_dyn_del_stub,
                        [SYS_KRHINO_SEM_TAKE]       = sys_krhino_sem_take_stub,
                        [SYS_KRHINO_SEM_GIVE]       = sys_krhino_sem_give_stub,
 
                        /* --------------------- queue -----------------------*/
+                       [SYS_KRHINO_QUEUE_CREATE]     = sys_krhino_queue_create_stub,
+                       [SYS_KRHINO_QUEUE_DEL]        = sys_krhino_queue_del_stub,
                        [SYS_KRHINO_QUEUE_DYN_CREATE] = sys_krhino_queue_dyn_create_stub,
                        [SYS_KRHINO_QUEUE_DYN_DEL]    = sys_krhino_queue_dyn_del_stub,
                        [SYS_KRHINO_QUEUE_BACK_SEND]  = sys_krhino_queue_back_send_stub,
@@ -393,15 +418,15 @@ void *syscall_tbl[] = {
                        [SYS_KRHINO_QUEUE_FLUSH]      = sys_krhino_queue_flush_stub,
 
                        /* ------------------ buf queue --------------------*/
-                       [SYS_KRHINO_BUF_QUEUE_CREATE]     = sys_krhino_buf_queue_create_stub,
-                       [SYS_KRHINO_FIX_BUF_QUEUE_CREATE] = sys_krhino_fix_buf_queue_create_stub,
-                       [SYS_KRHINO_BUF_QUEUE_DEL]        = sys_krhino_buf_queue_del_stub,
-                       [SYS_KRHINO_BUF_QUEUE_DYN_CREATE] = sys_krhino_buf_queue_dyn_create_stub,
-                       [SYS_KRHINO_BUF_QUEUE_DYN_DEL]    = sys_krhino_buf_queue_dyn_del_stub,
-                       [SYS_KRHINO_BUF_QUEUE_SEND]       = sys_krhino_buf_queue_send_stub,
-                       [SYS_KRHINO_BUF_QUEUE_RECV]       = sys_krhino_buf_queue_recv_stub,
-                       [SYS_KRHINO_BUF_QUEUE_FLUSH]      = sys_krhino_buf_queue_flush_stub,
-                       [SYS_KRHINO_BUF_QUEUE_INFO_GET]   = sys_krhino_buf_queue_info_get_stub,
+                       [SYS_KRHINO_BUF_QUEUE_CREATE]         = sys_krhino_buf_queue_create_stub,
+                       [SYS_KRHINO_FIX_BUF_QUEUE_CREATE]     = sys_krhino_fix_buf_queue_create_stub,
+                       [SYS_KRHINO_BUF_QUEUE_DEL]            = sys_krhino_buf_queue_del_stub,
+                       [SYS_KRHINO_BUF_QUEUE_DYN_CREATE]     = sys_krhino_buf_queue_dyn_create_stub,
+                       [SYS_KRHINO_FIX_BUF_QUEUE_DYN_CREATE] = sys_krhino_fix_buf_queue_dyn_create_stub,
+                       [SYS_KRHINO_BUF_QUEUE_DYN_DEL]        = sys_krhino_buf_queue_dyn_del_stub,
+                       [SYS_KRHINO_BUF_QUEUE_SEND]           = sys_krhino_buf_queue_send_stub,
+                       [SYS_KRHINO_BUF_QUEUE_RECV]           = sys_krhino_buf_queue_recv_stub,
+                       [SYS_KRHINO_BUF_QUEUE_FLUSH]          = sys_krhino_buf_queue_flush_stub,
 
                        /* ------------------ u_proc_msg -------------------*/
                        [SYS_KRHINO_MSG_GET]  = sys_krhino_msg_get_stub,
@@ -414,12 +439,6 @@ void *syscall_tbl[] = {
                        [SYS_HAL_UART_RECV]     = sys_hal_uart_recv_stub,
                        [SYS_HAL_UART_RECV_II]  = sys_hal_uart_recv_II_stub,
                        [SYS_HAL_UART_FINALIZE] = sys_hal_uart_finalize_stub,
-
-                       /* ---------------- vfs ------------------*/
-                       [SYS_AOS_LSEEK] = sys_aos_lseek_stub,
-                       [SYS_AOS_CLOSE] = sys_aos_close_stub,
-                       [SYS_AOS_READ]  = sys_aos_read_stub,
-                       [SYS_AOS_WRITE] = sys_aos_write_stub,
 
                        /* ---------------- end ------------------*/
                        NULL
