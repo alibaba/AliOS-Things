@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_LIBIOT_LOG
+    default n
+    help
+      Log printing implementation
+
+if AOS_COMP_LIBIOT_LOG
+# Configurations for comp libiot_log
+endif
