@@ -9,8 +9,7 @@ GLOBAL_DEFINES-y += AOS_BT
 GLOBAL_INCLUDES-y += include \
                    include/drivers
 
-$(NAME)_INCLUDES += bt_common/tinycrypt/include \
-                    ../../rhino/core/include
+$(NAME)_INCLUDES +=  ../../rhino/core/include
 
 $(NAME)_COMPONENTS-y += yloop
 
