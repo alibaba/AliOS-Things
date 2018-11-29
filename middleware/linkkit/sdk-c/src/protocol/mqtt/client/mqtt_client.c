@@ -3085,7 +3085,7 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     if (pInitParams->host == NULL || pInitParams->client_id == NULL ||
         pInitParams->username == NULL || pInitParams->password == NULL ||
-        pInitParams->port == 0) {
+        pInitParams->port == 0 || !strlen(pInitParams->host)) {
         mqtt_err("init params is not complete");
         if (mqtt_params != NULL) {
             mqtt_free(mqtt_params);
