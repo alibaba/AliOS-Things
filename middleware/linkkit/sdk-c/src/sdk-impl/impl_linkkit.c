@@ -1162,6 +1162,11 @@ int IOT_Linkkit_Close(int devid)
         return FAIL_RETURN;
     }
 
+#ifdef DEV_BIND_ENABLED
+    extern int awss_bind_deinit(void);
+    awss_bind_deinit();
+#endif
+
     return res;
 }
 
