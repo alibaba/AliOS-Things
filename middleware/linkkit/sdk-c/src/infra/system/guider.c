@@ -482,7 +482,7 @@ static int guider_get_iotId_iotToken(
         goto do_exit;
     }
 
-    pvalue = LITE_json_value_of("data.iotId", iotx_payload, MEM_MAGIC, "system.http_auth");
+    pvalue = LITE_json_value_of("data.iotId", iotx_payload, MEM_MAGIC, "sys.preauth");
     if (NULL == pvalue) {
         goto do_exit;
     }
@@ -490,7 +490,7 @@ static int guider_get_iotId_iotToken(
     LITE_free(pvalue);
     pvalue = NULL;
 
-    pvalue = LITE_json_value_of("data.iotToken", iotx_payload, MEM_MAGIC, "system.http_auth");
+    pvalue = LITE_json_value_of("data.iotToken", iotx_payload, MEM_MAGIC, "sys.preauth");
     if (NULL == pvalue) {
         goto do_exit;
     }
@@ -498,7 +498,7 @@ static int guider_get_iotId_iotToken(
     LITE_free(pvalue);
     pvalue = NULL;
 
-    pvalue = LITE_json_value_of("data.resources.mqtt.host", iotx_payload, MEM_MAGIC, "system.http_auth");
+    pvalue = LITE_json_value_of("data.resources.mqtt.host", iotx_payload, MEM_MAGIC, "sys.preauth");
     if (NULL == pvalue) {
         goto do_exit;
     }
@@ -506,7 +506,7 @@ static int guider_get_iotId_iotToken(
     LITE_free(pvalue);
     pvalue = NULL;
 
-    pvalue = LITE_json_value_of("data.resources.mqtt.port", iotx_payload, MEM_MAGIC, "system.http_auth");
+    pvalue = LITE_json_value_of("data.resources.mqtt.port", iotx_payload, MEM_MAGIC, "sys.preauth");
     if (NULL == pvalue) {
         goto do_exit;
     }
