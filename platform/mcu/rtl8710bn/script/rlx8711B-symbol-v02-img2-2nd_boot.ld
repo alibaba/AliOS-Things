@@ -1,14 +1,9 @@
+ENTRY(aos_2boot_entry)
 
-
-ENTRY(Reset_Handler)
-
-INCLUDE "script/export-rom_symbol_v01.txt"
+INCLUDE "platform/mcu/rtl8710bn/script/export-rom_symbol_v01.txt"
 
 GROUP (
-  libgcc.a
   libc.a
-  libg.a
-  libm.a
   libnosys.a
 )
 
@@ -25,11 +20,10 @@ MEMORY
 	XIPBOOT (rx)  :			ORIGIN = 0x08000000+0x20, LENGTH = 0x04000-0x20	/* XIPBOOT: 32k, 32 Bytes resvd for header*/
 	XIPSYS (r) :			ORIGIN = 0x08009000, LENGTH = 0x1000	/* XIPSYS: 4K system data in flash */
 	XIPCAL (r) :			ORIGIN = 0x0800A000, LENGTH = 0x1000	/* XIPCAL: 4K calibration data in flash */
-	XIP1 (rx)  : 			ORIGIN = 0x08019000+0x20, LENGTH = 0xE2000-0x20	/* XIP1: 904k, 32 Bytes resvd for header */
+	XIP1 (rx)  : 			ORIGIN = 0x0800B000+0x20, LENGTH = 0x6000-0x20	/* XIP1: 968k, 32 Bytes resvd for header */
 }
 
-PROVIDE(app_download_addr = 0xffffffff);
-PROVIDE(kernel_download_addr = 0x8100000);
+
 
 SECTIONS
 {
@@ -57,12 +51,12 @@ SECTIONS
 		KEEP(*(.image1.export.symb*))
 	} > BOOTLOADER_RAM
 
-	/*  Add . to assign the start address of the section */ 
-	/*  to prevent the change of the start address by ld doing section alignment */  
+	/*  Add . to assign the start address of the section */
+	/*  to prevent the change of the start address by ld doing section alignment */
 	.ram_image1.text . :
 	{
 		/* image1 text */
-		*(.boot.ram.text*)    
+		*(.boot.ram.text*)
 		*(.boot.rodata*)
 	} > BOOTLOADER_RAM
 
@@ -71,7 +65,7 @@ SECTIONS
 		__ram_image1_data_start__ = .;
 		KEEP(*(.boot.ram.data*))
 		__ram_image1_data_end__ = .;
-	
+
 		__ram_image1_text_end__ = .;
 	} > BOOTLOADER_RAM
 
@@ -90,7 +84,7 @@ SECTIONS
 		KEEP(*(SORT(.image2.entry.data*)))
 
 		__image2_validate_code__ = .;
-		KEEP(*(.image2.validate.rodata*)) 
+		KEEP(*(.image2.validate.rodata*))
 
 	} > BD_RAM
 
@@ -99,15 +93,15 @@ SECTIONS
 	  KEEP(*(.image2.ram.text*))
 	} > BD_RAM
 
-	.ram_image2.data : 
+	.ram_image2.data :
 	{
 		__data_start__ = .;
 		*(.data*)
 		__data_end__ = .;
 		__ram_image2_text_end__ = .;
-		. = ALIGN(16);	
+		. = ALIGN(16);
 	} > BD_RAM
-  
+
 	.ram_image2.bss :
 	{
 		__bss_start__ = .;
@@ -121,22 +115,22 @@ SECTIONS
 		__bss_end__ = .;
 	} > BD_RAM
 
-	.ram_heap.data : 
+	.ram_heap.data :
 	{
 		*(.bfsram.data*)
 	} > BD_RAM
 
 	. = ALIGN(8);
-	PROVIDE(heap_start    	  = .);
-	PROVIDE(heap_end    	  = 0x1003CFFF);
-	PROVIDE(heap_len    	  = heap_end - heap_start);
-	
-	.rom.bss : 
+	PROVIDE(_rec_heap_start   = .);
+	PROVIDE(_rec_heap_end     = 0x1003CFFF);
+	PROVIDE(_rec_heap_len     = _rec_heap_end - _rec_heap_start);
+	PROVIDE(end = 0x1003d000);
+	.rom.bss :
 	{
 		*(.heap.stdlib*)
-	} > ROM_BSS_RAM	
-	
-	.ram_rdp.text : 
+	} > ROM_BSS_RAM
+
+	.ram_rdp.text :
 	{
 		__rom_top_4k_start_ = .;
 		__rdp_text_start__ = .;
@@ -144,7 +138,7 @@ SECTIONS
 		KEEP(*(.rdp.ram.data*))
 		__rdp_text_end__ = .;
 		. = ALIGN(16);
-	
+
 	} > RDP_RAM
 
 	.xip_image1.text :
@@ -158,25 +152,25 @@ SECTIONS
 		. = ALIGN(16);
 	} > XIPBOOT
 
-	.xip_image2.text : 
+	.xip_image2.text :
 	{
 		__flash_text_start__ = .;
 
 		*(.img2_custom_signature*)
 		*(.text)
-		*(.text*)  
-		*(.rodata)  
+		*(.text*)
+		*(.rodata)
 		*(.rodata*)
 		*(.debug_trace*)
 
 		__flash_text_end__ = .;
-	
+
 		. = ALIGN (16);
 	} > XIP1
 }
 
-SECTIONS 
-{ 
-	/* Bootloader symbol list */  
-  boot_export_symbol = 0x10002020;  
-} 
+SECTIONS
+{
+	/* Bootloader symbol list */
+    boot_export_symbol = 0x10002020;
+}
