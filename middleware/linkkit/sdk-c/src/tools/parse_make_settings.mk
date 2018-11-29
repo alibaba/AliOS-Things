@@ -2,7 +2,7 @@ include $(CURDIR)/src/tools/internal_make_funcs.mk
 
 SWITCH_VARS := \
 $(shell grep '''config [_A-Z]*''' \
-    $(wildcard $(TOP_DIR)/*/*/*/Config.in) $(wildcard $(TOP_DIR)/*/*/Config.in) \
+    $$(find -L $(TOP_DIR)/src -name 'Config.in') \
         | cut -d: -f2 \
         | grep -v menuconfig \
         | grep -v SRCPATH \
