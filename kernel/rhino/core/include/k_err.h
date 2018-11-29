@@ -81,7 +81,9 @@ typedef enum
     RHINO_WORKQUEUE_WORK_RUNNING,
 
     RHINO_TASK_STACK_OVF = 1200u,
-    RHINO_INTRPT_STACK_OVF
+    RHINO_INTRPT_STACK_OVF,
+
+    RHINO_STATE_ALIGN = 0x10000000u /* keep enum 4 bytes */
 } kstat_t;
 
 typedef void (*krhino_err_proc_t)(kstat_t err);
