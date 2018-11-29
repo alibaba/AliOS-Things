@@ -16,8 +16,13 @@ if [ ! -d "${platform_dir}/Debug/Exe" ]; then
 fi
 BIN_DIR=${platform_dir}/Debug/Exe
 app=`echo $3 | tr '/' '.'`
-outputname=$app@$4
-outputdir=$2/out/${outputname}/binary
+outputplatform=$app@$4
+outputdir=$2/out/${outputplatform}/binary
+if [ "${ota_offset}" = "0x0800B000" ]; then
+	outputname=${outputplatform}.2boot
+else
+	outputname=${outputplatform}
+fi
 OS=`uname -s`
 PICK=${platform_dir}/tools/pick
 PAD=${platform_dir}/tools/padding
@@ -41,6 +46,7 @@ else #Some Linux version
 fi
 find ${BIN_DIR}/ -name "*.axf" | xargs rm -rf
 find ${BIN_DIR}/ -name "*.map" | xargs rm -rf
+rm -f ${outputdir}/${outputname}.bin
 cp ${outputdir}/${outputname}.elf ${BIN_DIR}/${outputname}.axf
 arm-none-eabi-nm ${BIN_DIR}/${outputname}.axf | sort > ${BIN_DIR}/${outputname}.nmap
 arm-none-eabi-objcopy -j .ram_image2.entry -j .ram_image2.data -j .ram_image2.text -j .ram_image2.bss -j .ram_image2.skb.bss -j .ram_heap.data -Obinary ${BIN_DIR}/${outputname}.axf ${BIN_DIR}/ram_2.r.bin
@@ -54,9 +60,10 @@ chmod +rx ${PICK} ${CHKSUM} ${PAD} ${OTA}
 ${PICK} 0x`grep __ram_image2_text_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` 0x`grep __ram_image2_text_end__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` ${BIN_DIR}/ram_2.r.bin ${BIN_DIR}/ram_2.bin raw
 ${PICK} 0x`grep __ram_image2_text_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` 0x`grep __ram_image2_text_end__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` ${BIN_DIR}/ram_2.bin ${BIN_DIR}/ram_2.p.bin
 ${PICK} 0x`grep __xip_image2_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` 0x`grep __xip_image2_start__ ${BIN_DIR}/${outputname}.nmap | gawk '{print $1}'` ${BIN_DIR}/xip_image2.bin ${BIN_DIR}/xip_image2.p.bin
-IMAGE2_OTA1=image2_all_ota1.bin
-IMAGE2_OTA2=image2_all_ota2.bin
+IMAGE2_OTA1=image2_2boot.bin
+IMAGE2_OTA2=image2_app.bin
 OTA_ALL=ota_all.bin
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -68,6 +75,10 @@ if [ "${ota_idx}" == "1" ]; then
 if [ "${ota_idx}" = "1" ]; then
 >>>>>>> d09a5fc6f (fix the incompatibility of scripting language)
 =======
+=======
+
+#2boot bin
+>>>>>>> ea3b1f788 (BugID:17115756:[OTA] support mk3080 2nd bootloader)
 if [ "${ota_offset}" = "0x0800B000" ]; then
 >>>>>>> 61271e937 (make the flash address of image2_all_ota1.bin can be modified.)
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA1}
@@ -84,6 +95,7 @@ elif [ "${ota_idx}" = "2" ]; then
 	cp ${BIN_DIR}/${IMAGE2_OTA1} ${outputdir}/${IMAGE2_OTA1}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 355f80e8c (Modified script file content format.)
 elif [ "${ota_idx}" == "2" ]; then
 >>>>>>> 4109dccdc (supporting linux platform to generate bin file)
@@ -91,16 +103,17 @@ elif [ "${ota_idx}" == "2" ]; then
 elif [ "${ota_idx}" = "2" ]; then
 >>>>>>> d09a5fc6f (fix the incompatibility of scripting language)
 =======
+=======
+
+>>>>>>> ea3b1f788 (BugID:17115756:[OTA] support mk3080 2nd bootloader)
 else
 >>>>>>> 61271e937 (make the flash address of image2_all_ota1.bin can be modified.)
 	cat ${BIN_DIR}/xip_image2.p.bin > ${BIN_DIR}/${IMAGE2_OTA2}
 	chmod 777 ${BIN_DIR}/${IMAGE2_OTA2}
 	cat ${BIN_DIR}/ram_2.p.bin >> ${BIN_DIR}/${IMAGE2_OTA2}
 	${CHKSUM} ${BIN_DIR}/${IMAGE2_OTA2} || true
-	${OTA} ${BIN_DIR}/${IMAGE2_OTA1} 0x800B000 ${BIN_DIR}/${IMAGE2_OTA2} ${ota_offset} 0x20170111 ${BIN_DIR}/${OTA_ALL}
-        cp ${platform_dir}/bin/boot_all.bin ${outputdir}/boot_all.bin
-        cp ${BIN_DIR}/${IMAGE2_OTA2} ${outputdir}/${IMAGE2_OTA2}
-        cp ${BIN_DIR}/${OTA_ALL} ${outputdir}/${OTA_ALL}
+	rm ${BIN_DIR}/xip_image2.p.bin ${BIN_DIR}/ram_2.p.bin
+	cp ${BIN_DIR}/${IMAGE2_OTA2} ${outputdir}/${IMAGE2_OTA2}
 fi
 <<<<<<< HEAD
 <<<<<<< HEAD
