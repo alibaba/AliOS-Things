@@ -174,6 +174,30 @@ void LPUART1_IRQHandler(void)
 }
 #endif
 
+static uint8_t error_info[64];
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+    const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(huart->Instance);
+    UART_MAPPING* uartIns = GetUARTMapping(appPort);
+    //Only try to recover the OVER ERR when the UART RCV using normal ISR
+    if(stm32_uart[appPort].hal_uart_handle.hdmarx == NULL){
+        snprintf(error_info,sizeof(error_info),"\n### FATAL UART %d OVER RUN !!!\n",appPort);
+        const uint8_t info_size = strlen(error_info);
+        uint8_t i = 0;
+
+        //pop out user information using STD UART, Asyncronization mode
+        while(i++<info_size){
+            if(++stm32_uart[PORT_UART_STD].uart_rx_in >= uartIns->attr.max_buf_bytes){
+                stm32_uart[PORT_UART_STD].uart_rx_in = 0;
+            }
+            *((uint8_t*)&stm32_uart[PORT_UART_STD].UartRxBuf[stm32_uart[PORT_UART_STD].uart_rx_in]) = error_info[i];
+        }
+        //restart the UART It again
+        uart_receive_start_it(appPort,uartIns->attr.max_buf_bytes);
+    }
+}
+
 int32_t hal_uart_init(uart_dev_t *uart)
 {
     int32_t ret = -1;

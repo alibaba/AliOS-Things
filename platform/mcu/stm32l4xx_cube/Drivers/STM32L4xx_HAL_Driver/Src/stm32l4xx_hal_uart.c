@@ -1759,6 +1759,19 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
       return;
     }
   }  
+  if(errorflags != RESET)
+  {
+    if((isrflags & USART_ISR_ORE) != RESET){
+      //Clear the error MARK
+      __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
+      huart->ErrorCode = HAL_UART_ERROR_NONE;
+
+      //Handle the error only if Interrupt is already disabled
+      if((cr3its & USART_CR3_EIE) == RESET){
+        HAL_UART_ErrorCallback(huart);
+      }
+    }
+  }
   
   /* If some errors occur */
 #if defined(USART_CR1_FIFOEN)
