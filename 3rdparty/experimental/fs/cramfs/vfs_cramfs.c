@@ -5,8 +5,9 @@
 #include <errno.h>
 #include <unistd.h>
 #include "os-alios.h"
-#include "vfs_inode.h"
-#include "vfs_register.h"
+
+#include "aos/vfs.h"
+
 #include "cramfs_fs.h"
 
 static const char *cramfs_mnt_path = "/cramfs";

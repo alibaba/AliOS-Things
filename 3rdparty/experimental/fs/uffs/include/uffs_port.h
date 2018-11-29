@@ -8,8 +8,7 @@
 #include "uffs_config.h"
 #include "uffs/uffs_public.h"
 
-#include <vfs_inode.h>
-#include <vfs_register.h>
+#include "aos/vfs.h"
 
 #ifndef CONFIG_UFFS_ECC_MODE
 #define CONFIG_UFFS_ECC_MODE UFFS_ECC_NONE

@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <k_api.h>
 #include <errno.h>
-#include "vfs_inode.h"
-#include "vfs_register.h"
+
+#include "aos/vfs.h"
+
 #include <hal/soc/nor.h>
 #include "jffs2_port.h"
 #include "include/linux/jffs2.h"
