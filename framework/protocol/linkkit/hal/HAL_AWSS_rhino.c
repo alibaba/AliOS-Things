@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifdef __cplusplus
@@ -85,7 +85,6 @@ extern "C"
 
     extern void wifi_get_ip(char ips[16]);
 
-#define HAL_IP_LEN (15 + 1)
     /**
      * @brief   获取Wi-Fi网口的IP地址, 点分十进制格式保存在字符串数组出参,
      * 二进制格式则作为返回值, 并以网络字节序(大端)表达
@@ -94,7 +93,7 @@ extern "C"
      * @param   ip_str : 存放点分十进制格式的IP地址字符串的数组
      * @return  二进制形式的IP地址, 以网络字节序(大端)组织
      */
-    uint32_t HAL_Wifi_Get_IP(_OU_ char        ip_str[HAL_IP_LEN],
+    uint32_t HAL_Wifi_Get_IP(_OU_ char        ip_str[NETWORK_ADDR_LEN],
                              _IN_ const char *ifname)
     {
         //(void *)ifname;
@@ -166,10 +165,6 @@ extern "C"
      * @param[in] with_fcs @n 80211 frame buffer include fcs(4 byte) or not
      * @param[in] rssi @n rssi of packet
      */
-    typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
-                                              enum AWSS_LINK_TYPE link_type,
-                                              int with_fcs, signed char rssi);
-
     awss_recv_80211_frame_cb_t g_ieee80211_handler;
 
     static void monitor_data_handler(uint8_t *buf, int len,
@@ -502,10 +497,6 @@ extern "C"
         return 4;
     }
 
-    void HAL_Sys_reboot(void)
-    {
-        aos_reboot();
-    }
 
 #if 0
 int platform_sys_net_is_ready(void)

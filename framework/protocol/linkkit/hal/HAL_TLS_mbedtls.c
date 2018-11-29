@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #include <stdio.h>
@@ -24,6 +24,8 @@
 #define platform_err(format, ...) LOGE(LOG_TAG, format, ##__VA_ARGS__)
 
 #define SEND_TIMEOUT_SECONDS (10)
+
+static ssl_hooks_t g_ssl_hooks = {HAL_Malloc, HAL_Free};
 
 typedef struct _TLSDataParams
 {
@@ -245,11 +247,20 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx,
 
         if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout,
                             sizeof(sendtimeout))) {
-            perror("setsockopt");
-            platform_err("setsockopt error");
+            platform_err("setsockopt SO_SNDTIMEO error");
         }
 
-        platform_info("setsockopt SO_SNDTIMEO timeout: %ds",
+        if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_RECVTIMEO, &sendtimeout,
+                            sizeof(sendtimeout))) {
+            platform_err("setsockopt SO_RECVTIMEO error");
+        }
+
+        if (0 != setsockopt(ctx->fd, SOL_SOCKET, SO_SNDTIMEO, &sendtimeout,
+                            sizeof(sendtimeout))) {
+            platform_err("setsockopt SO_SNDTIMEO error");
+        }
+
+        platform_info("setsockopt SO_SNDTIMEO  SO_RECVTIMEO  SO_SNDTIMEO timeout: %ds",
                       sendtimeout.tv_sec);
 
         if (connect(ctx->fd, cur->ai_addr, cur->ai_addrlen) == 0) {
@@ -452,6 +463,11 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len,
 
             else {
                 // mbedtls_strerror(ret, err_str, sizeof(err_str));
+#ifdef CSP_LINUXHOST
+                if (MBEDTLS_ERR_SSL_WANT_READ == ret && errno == EINTR) {
+                    continue;
+                }
+#endif
                 platform_err("ssl recv error: code = %d", ret);
                 net_status = -1;
                 return -1; /* Connection error */
@@ -507,16 +523,6 @@ static void _network_ssl_disconnect(TLSDataParams_t *pTlsData)
     platform_info("ssl_disconnect");
 }
 
-int32_t HAL_SSL_GetFd(uintptr_t handle)
-{
-    int32_t fd = -1;
-    if ((uintptr_t)NULL == handle) {
-        platform_err("handle is NULL");
-        return fd;
-    }
-    fd = ((TLSDataParams_t *)handle)->fd.fd;
-    return fd;
-}
 int32_t HAL_SSL_Read(uintptr_t handle, char *buf, int len, int timeout_ms)
 {
     return _network_ssl_read((TLSDataParams_t *)handle, buf, len, timeout_ms);
@@ -539,6 +545,18 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
     _network_ssl_disconnect((TLSDataParams_t *)handle);
     HAL_Free((void *)handle);
     return 0;
+}
+
+int HAL_SSLHooks_set(ssl_hooks_t *hooks)
+{
+    if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
+        return DTLS_INVALID_PARAM;
+    }
+
+    g_ssl_hooks.malloc = hooks->malloc;
+    g_ssl_hooks.free = hooks->free;
+
+    return DTLS_SUCCESS;
 }
 
 uintptr_t HAL_SSL_Establish(const char *host, uint16_t port, const char *ca_crt,

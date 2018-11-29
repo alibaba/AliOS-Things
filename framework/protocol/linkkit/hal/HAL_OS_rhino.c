@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #include <stdio.h>
@@ -63,9 +63,24 @@ void *HAL_Malloc(_IN_ uint32_t size)
     return aos_malloc(size);
 }
 
+void *HAL_Realloc(_IN_ void *ptr, _IN_ uint32_t size)
+{
+    return aos_realloc(ptr, size);
+}
+
+// void *HAL_Calloc(_IN_ uint32_t nmemb, _IN_ uint32_t size)
+// {
+//     return aos_calloc(nmemb, size);
+// }
+
 void HAL_Free(_IN_ void *ptr)
 {
     aos_free(ptr);
+}
+
+void HAL_Reboot(void)
+{
+    aos_reboot();
 }
 
 int aliot_platform_ota_start(const char *md5, uint32_t file_size)
@@ -155,7 +170,6 @@ uint32_t HAL_Random(uint32_t region)
 }
 
 
-#ifdef USE_LPTHREAD
 void *HAL_SemaphoreCreate(void)
 {
     aos_sem_t sem;
@@ -186,11 +200,10 @@ int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
     }
 }
 
-typedef struct
-{
+typedef struct {
     aos_task_t task;
     int        detached;
-    void *     arg;
+    void      *arg;
     void *(*routine)(void *arg);
 } task_context_t;
 
@@ -211,15 +224,16 @@ static void task_wrapper(void *arg)
 int HAL_ThreadCreate(_OU_ void **thread_handle,
                      _IN_ void *(*work_routine)(void *), _IN_ void *arg,
                      _IN_ hal_os_thread_param_t *hal_os_thread_param,
-                     _OU_ int *                  stack_used)
+                     _OU_ int                   *stack_used)
 {
     int ret = -1;
     if (stack_used != NULL) {
         *stack_used = 0;
     }
-    char * tname;
+    char *tname;
     size_t ssiz;
     int    detach_state = 0;
+    int    priority;
 
     if (hal_os_thread_param) {
         detach_state = hal_os_thread_param->detach_state;
@@ -236,6 +250,14 @@ int HAL_ThreadCreate(_OU_ void **thread_handle,
         ssiz = hal_os_thread_param->stack_size;
     }
 
+    if (!hal_os_thread_param || hal_os_thread_param->priority == 0) {
+        priority = DEFAULT_THREAD_PRI;
+    } else if (hal_os_thread_param->priority < os_thread_priority_idle ||
+               hal_os_thread_param->priority > os_thread_priority_realtime) {
+        priority = DEFAULT_THREAD_PRI;
+    } else {
+        priority = DEFAULT_THREAD_PRI - hal_os_thread_param->priority;
+    }
 
     task_context_t *task = aos_malloc(sizeof(task_context_t));
     if (!task) {
@@ -248,7 +270,7 @@ int HAL_ThreadCreate(_OU_ void **thread_handle,
     task->detached = detach_state;
 
     ret = aos_task_new_ext(&task->task, tname, task_wrapper, task, ssiz,
-                           DEFAULT_THREAD_PRI);
+                           priority);
 
     *thread_handle = (void *)task;
 
@@ -269,9 +291,6 @@ void HAL_ThreadDelete(_IN_ void *thread_handle)
     }
     aos_task_exit(0);
 }
-
-#endif
-
 
 void HAL_Firmware_Persistence_Start(void) {}
 
@@ -305,61 +324,32 @@ int HAL_Config_Read(char *buffer, int length)
     return aos_kv_get("alink", buffer, &length);
 }
 
-#define LINKKIT_KV_START "linkkit_%s"
-
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
 {
-    int   ret;
-    int   real_len = strlen(key) + strlen(LINKKIT_KV_START) + 1;
-    char *temp     = aos_malloc(real_len);
-    if (!temp) {
-        return -1;
-    }
-    snprintf(temp, real_len, LINKKIT_KV_START, key);
-    ret = aos_kv_set(temp, val, len, sync);
-    aos_free(temp);
+    int   ret = 0;
+    ret = aos_kv_set(key, val, len, sync);
     return ret;
 }
 
 int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
 {
-    int   ret;
-    int   real_len = strlen(key) + strlen(LINKKIT_KV_START) + 1;
-    char *temp     = aos_malloc(real_len);
-    if (!temp) {
-        return -1;
-    }
-    snprintf(temp, real_len, LINKKIT_KV_START, key);
-    ret = aos_kv_get(temp, buffer, buffer_len);
-    aos_free(temp);
+    int   ret = 0;
+    ret = aos_kv_get(key, buffer, buffer_len);
     return ret;
 }
 
 int HAL_Kv_Del(const char *key)
 {
-    int   ret      = 0;
-    int   real_len = strlen(key) + strlen(LINKKIT_KV_START) + 1;
-    char *temp     = aos_malloc(real_len);
-    if (!temp) {
-        return -1;
-    }
-    snprintf(temp, real_len, LINKKIT_KV_START, key);
-    ret = aos_kv_del(temp);
-    aos_free(temp);
+    int   ret = 0;
+    ret = aos_kv_del(key);
     return ret;
 }
 
-int HAL_Kv_Erase_All()
-{
-    return aos_kv_del_by_prefix("linkkit_");
-}
-
-typedef struct
-{
+typedef struct {
     const char *name;
     int         ms;
     aos_call_t  cb;
-    void *      data;
+    void       *data;
 } schedule_timer_t;
 
 
@@ -399,7 +389,7 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
 {
 #ifdef USE_YLOOP
     schedule_timer_t *timer =
-      (schedule_timer_t *)aos_malloc(sizeof(schedule_timer_t));
+                (schedule_timer_t *)aos_malloc(sizeof(schedule_timer_t));
     if (timer == NULL) {
         return NULL;
     }
@@ -468,7 +458,6 @@ long long HAL_UTC_Get(void)
 
 int get_aos_hex_version(const char *str, unsigned char hex[VERSION_NUM_SIZE])
 {
-    // AOS-R-1.3.3.0
     char *p           = NULL;
     char *q           = NULL;
     int   i           = 0;
@@ -536,4 +525,18 @@ void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE])
         chip_code[3] = (uint8_t)p_chip_code_obj->id;
     }
     // return chip_code;
+}
+
+int HAL_GetNetifInfo(char *nif_str)
+{
+    memset(nif_str, 0x0, NIF_STRLEN_MAX);
+#ifdef __DEMO__
+    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    const char *net_info = "WiFi|03ACDEFF0032";
+    strncpy(nif_str, net_info, strlen(net_info));
+    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
+    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
+#endif
+    return strlen(nif_str);
 }

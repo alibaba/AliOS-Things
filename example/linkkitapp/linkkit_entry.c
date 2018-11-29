@@ -167,6 +167,11 @@ static void linkkit_event_monitor(int event)
             LOG("IOTX_AWSS_BIND_NOTIFY");
             // operate led to indicate user
             break;
+        case IOTX_AWSS_ENABLE_TIMEOUT: // AWSS enable timeout
+                                       // user needs to enable awss again to support get ssid & passwd of router
+            LOG("IOTX_AWSS_ENALBE_TIMEOUT");
+            // operate led to indicate user
+            break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
             LOG("IOTX_CONN_CLOUD");
             // operate led to indicate user
@@ -201,20 +206,28 @@ void do_awss_active()
 {
     LOG("do_awss_active %d\n", awss_running);
     awss_running = 1;
+    #ifdef WIFI_PROVISION_ENABLED
     extern int awss_config_press();
     awss_config_press();
+    #endif
 }
 
 static void linkkit_reset(void *p)
 {
     netmgr_clear_ap_config();
-    HAL_Sys_reboot();
+    HAL_Reboot();
 }
 
 extern int  awss_report_reset();
 static void do_awss_reset()
 {
+#ifdef WIFI_PROVISION_ENABLED
+#if defined(SUPPORT_ITLS)
+    aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 4096);  // stack taken by iTLS is more than taken by TLS.
+#else
     aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 2048);
+#endif
+#endif
     aos_post_delayed_action(2000, linkkit_reset, NULL);
 }
 
