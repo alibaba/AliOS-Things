@@ -47,6 +47,7 @@ typedef struct iotx_connection_st {
     iotx_cm_yield_fp                 yield_func;
     iotx_cm_close_fp                 close_func;
     iotx_cm_event_handle_cb          event_handler;
+    void                             *cb_data;
 
 } iotx_cm_connection_t;
 
