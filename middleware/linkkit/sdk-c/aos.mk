@@ -77,13 +77,18 @@ ifeq (y,$(FEATURE_SUPPORT_TLS))
 #$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/ref-impl/tls
 endif
 
+
 ifeq (y,$(FEATURE_DEVICE_MODEL_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/dev_reset
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/cm \
+    middleware/linkkit/sdk-c/src/services/linkkit/dm  \
+    middleware/linkkit/sdk-c/src/services/linkkit/dev_reset
 endif
+
 
 ifeq (y,$(FEATURE_DEV_BIND_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/dev_bind \
-    middleware/linkkit/sdk-c/src/protocol/coap/local
+    middleware/linkkit/sdk-c/src/protocol/coap/local \
+    middleware/linkkit/sdk-c/src/protocol/mqtt 
 endif
 
 ifeq (y,$(FEATURE_WIFI_PROVISION_ENABLED))
@@ -113,12 +118,8 @@ endif
 
 ifeq (y,$(FEATURE_ALCS_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/alcs \
-    middleware/linkkit/sdk-c/src/protocol/coap/local
-endif
+    middleware/linkkit/sdk-c/src/protocol/coap/local  
 
-ifeq (y,$(FEATURE_DEVICE_MODEL_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/cm \
-    middleware/linkkit/sdk-c/src/services/linkkit/dm
 endif
 
 ifeq (y,$(FEATURE_HTTP2_COMM_ENABLED))
