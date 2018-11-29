@@ -30,7 +30,7 @@ static void second_task_run(void *arg)
     krhino_utask_del(krhino_cur_task_get());
 }
 
-int mutex_test(void)
+int dynamic_mutex_test(void)
 {
     cpu_stack_t *stack;
     kstat_t      stat;

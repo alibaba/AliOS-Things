@@ -14,8 +14,10 @@ $(NAME)_SOURCES := src/entry.c \
 
 $(NAME)_SOURCES += test/test.c \
                    test/task_test.c \
-                   test/mutex_test.c \
-                   test/semphore_test.c \
+                   test/dynamic_mutex_test.c \
+                   test/static_mutex_test.c \
+                   test/dynamic_semaphore_test.c \
+                   test/static_semaphore_test.c \
                    test/time_test.c \
                    test/timer_test.c \
                    test/buf_queue_test.c
