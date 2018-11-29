@@ -24,7 +24,6 @@
 │   ├── toolchain.h
 │   ├── work.h
 │   └── zephyr
-├── irq_manage.c
 ├── Kconfig
 ├── log.c
 ├── poll.c
