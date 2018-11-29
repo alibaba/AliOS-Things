@@ -18,53 +18,6 @@ extern "C"
 
     autoconfig_plugin_t g_alink_smartconfig;
 
-
-    /**
-     * @brief   获取Wi-Fi的接受信号强度(`RSSI`)
-     *
-     * @return  信号强度数值, 单位是dBm
-     */
-    int HAL_Wifi_Get_Rssi_Dbm(void)
-    {
-        LOGW("awss", "%s not implemented yet!", __func__);
-        return 0;
-    }
-
-    /**
-     * @brief   使WiFi模组进入省电模式, 并持续一段时间
-     *
-     * @param   指定在多长时间内, WiFi模组都处于省电模式, 单位是毫秒
-     * @retval  0 : 设置成功
-     * @retval  -1 : 设置失败
-     *
-     * @note sample code
-     * int HAL_Wifi_Low_Power(int timeout_ms)
-     * {
-     *      wifi_enter_power_saving_mode();
-     *      msleep(timeout_ms);
-     *      wifi_exit_power_saving_mode();
-     *
-     *      return 0;
-     * }
-     */
-    int HAL_Wifi_Low_Power(_IN_ int timeout_ms)
-    {
-        aos_msleep(timeout_ms);
-        return 0;
-    }
-
-    /**
-     * @brief   获取RF433的接收信号强度(`RSSI`)
-     *
-     * @return  信号强度数值, 单位是dBm
-     */
-    int HAL_RF433_Get_Rssi_Dbm(void)
-    {
-        LOGW("awss", "%s not implemented yet!", __func__);
-        return 0;
-    }
-
-
     /**
      * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
      *
@@ -102,18 +55,6 @@ extern "C"
     }
 
     /**
-     * @brief   获取Wi-Fi模块上的操作系统版本字符串
-     *
-     * @param   version_str : 存放版本字符串的缓冲区数组
-     * @return  指向缓冲区数组的起始地址
-     */
-    char *HAL_Wifi_Get_Os_Version(_OU_ char version_str[STR_SHORT_LEN])
-    {
-        strncpy(version_str, aos_version_get(), FIRMWARE_VERSION_MAXLEN - 1);
-        return version_str;
-    }
-
-    /**
      * @brief   获取配网服务(`AWSS`)的超时时间长度, 单位是毫秒
      *
      * @return  超时时长, 单位是毫秒
@@ -125,18 +66,6 @@ extern "C"
     }
 
     /**
-     * @brief   获取配网服务(`AWSS`)超时时长到达之后,
-     * 去连接默认SSID时的超时时长, 单位是毫秒
-     *
-     * @return  超时时长, 单位是毫秒
-     * @note    推荐时长是0毫秒, 含义是永远持续
-     */
-    int HAL_Awss_Get_Connect_Default_Ssid_Timeout_Interval_Ms(void)
-    {
-        return 0;
-    }
-
-    /**
      * @brief   获取在每个信道(`channel`)上扫描的时间长度, 单位是毫秒
      *
      * @return  时间长度, 单位是毫秒
@@ -144,7 +73,7 @@ extern "C"
      */
     int HAL_Awss_Get_Channelscan_Interval_Ms(void)
     {
-        return 200;
+        return 250;
     }
 
     /**
@@ -494,6 +423,18 @@ extern "C"
 
     int HAL_Awss_Get_Conn_Encrypt_Type()
     {
+        char invalid_ds[DEVICE_SECRET_LEN + 1] = {0};
+        char ds[DEVICE_SECRET_LEN + 1] = {0};
+
+        HAL_GetDeviceSecret(ds);
+
+        if (memcmp(invalid_ds, ds, sizeof(ds)) == 0)
+            return 3;
+
+        memset(invalid_ds, 0xff, sizeof(invalid_ds));
+        if (memcmp(invalid_ds, ds, sizeof(ds)) == 0)
+            return 3;
+
         return 4;
     }
 
