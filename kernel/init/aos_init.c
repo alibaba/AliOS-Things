@@ -151,7 +151,6 @@ void tcpip_cli_init(void)
 }
 #endif
 
-#ifdef AOS_HAL_WIFI
 void wifi_debug_cmd(char *buf, int len, int argc, char **argv)
 {
     hal_wifi_start_debug_mode(NULL);
@@ -210,7 +209,6 @@ void hal_wifi_cli_init(void)
 {
     aos_cli_register_commands(&wifi_cli_cmd[0],sizeof(wifi_cli_cmd) / sizeof(struct cli_command));
 }
-#endif
 
 void cli_service_init(kinit_t *kinit)
 {
@@ -224,9 +222,7 @@ void cli_service_init(kinit_t *kinit)
 #ifndef CONFIG_NO_TCPIP
         tcpip_cli_init();
 #endif
-#ifdef AOS_HAL_WIFI
         hal_wifi_cli_init();
-#endif
     }
     return;
 }
