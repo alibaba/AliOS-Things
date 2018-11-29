@@ -30,7 +30,7 @@
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_HCI_CORE)
 #include "common/log.h"
 
-#include "common/rpa.h"
+#include "rpa.h"
 #include "keys.h"
 #include "monitor.h"
 #include "hci_core.h"

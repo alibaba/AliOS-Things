@@ -24,7 +24,8 @@ $(NAME)_SOURCES-y := host/uuid.c \
                      host/gatt.c \
                      host/crypto.c \
                      host/smp.c \
-                     host/keys.c
+                     host/keys.c \
+                     host/rpa.c
 
 $(NAME)_SOURCES-y += host/hci_ecc.c
 
