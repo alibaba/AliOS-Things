@@ -18,22 +18,6 @@
 
 static unsigned int used_bitmap;
 
-extern void hal_reboot(void);
-void        aos_reboot(void)
-{
-    hal_reboot();
-}
-
-int aos_get_hz(void)
-{
-    return RHINO_CONFIG_TICKS_PER_SECOND;
-}
-
-const char *aos_version_get(void)
-{
-    return SYSINFO_KERNEL_VERSION;
-}
-
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 int aos_task_new(const char *name, void (*fn)(void *), void *arg,
                  int stack_size)
