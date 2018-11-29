@@ -10,7 +10,7 @@ LWIP := 1
 SAL  := 0
 
 #$(NAME)_COMPONENTS += platform/arch/dahua/dahuav2-l
-$(NAME)_COMPONENTS += rhino cjson cli
+$(NAME)_COMPONENTS += rhino cjson cli network.netmgr
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS += network.lwip
