@@ -6,8 +6,6 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/protocol/linkkit/hal \
                       framework/netmgr \
                       framework/common \
-                      framework/ywss4linkkit \
-                      framework/uOTA  \
                       utility/cjson 
                    
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE  \
