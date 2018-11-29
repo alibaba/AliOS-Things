@@ -13,10 +13,8 @@ static void proc_free(ktask_t *task)
 
     ktask_t      *proc;
     kqueue_t     *res_q;
-    cpu_stack_t  *u_stack;
     klist_t      *head = &task->task_head;
 
-    u_stack = task->task_ustack_base;
     proc = task->proc_addr;
 
     if (task->is_proc == 1u) {
