@@ -163,7 +163,7 @@ kstat_t sys_krhino_queue_dyn_create_stub(void *arg)
 
 kstat_t sys_krhino_queue_dyn_del_stub(void *arg)
 {
-     krhino_buf_queue_dyn_del_syscall_arg_t *_arg = arg;
+    krhino_queue_dyn_del_syscall_arg_t *_arg = arg;
 
     return krhino_queue_dyn_del(_arg->queue);
 }
@@ -304,8 +304,6 @@ static int32_t sys_hal_uart_send_stub(void *arg)
 /* this function is almost discarded by kernel */
 static int32_t sys_hal_uart_recv_stub(void *arg)
 {
-    hal_uart_recv_syscall_arg_t *_arg = arg;
-
     return 0;
 }
 
