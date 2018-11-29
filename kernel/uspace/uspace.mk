@@ -20,7 +20,8 @@ $(NAME)_SOURCES    := u_timer.c
 $(NAME)_SOURCES    += u_res_task.c
 $(NAME)_SOURCES    += u_mm.c
 $(NAME)_SOURCES    += syscall/usyscall/usyscall.c
-GLOBAL_DEFINES     += AOS_UMM
+GLOBAL_DEFINES     += AOS_USPACE
+AOS_VFS := 0
 endif
 GLOBAL_INCLUDES    += syscall/include
 GLOBAL_INCLUDES    += ./include
