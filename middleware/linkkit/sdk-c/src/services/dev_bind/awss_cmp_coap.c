@@ -188,14 +188,15 @@ int awss_cmp_local_init()
     return 0;
 }
 
-int awss_cmp_local_deinit()
+int awss_cmp_local_deinit(int force)
 {
     if (g_coap_ctx == NULL)
         return 0;
 #ifdef WIFI_PROVISION_ENABLED
     awss_devinfo_notify_stop();
 #endif
-    //awss_cmp_coap_deinit();
+    if (force)
+        awss_cmp_coap_deinit();
 
     return 0;
 }

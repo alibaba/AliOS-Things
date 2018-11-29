@@ -151,6 +151,18 @@ int awss_check_reset()
     return awss_report_reset_to_cloud();
 }
 
+int awss_stop_report_reset()
+{
+    if (report_reset_timer == NULL)
+        return 0;
+
+    HAL_Timer_Stop(report_reset_timer);
+    HAL_Timer_Delete(report_reset_timer);
+    report_reset_timer = NULL;
+
+    return 0;
+}
+
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
