@@ -14,7 +14,6 @@ $(NAME)_SOURCES-y := ./atomic_c.c \
                      ./work.c \
                      ./tinycrypt/source/cmac_mode.c \
                      ./tinycrypt/source/aes_encrypt.c \
-                     ./rpa.c \
                      ./work.c \
                      ./tinycrypt/source/utils.c \
                      ./tinycrypt/source/sha256.c \

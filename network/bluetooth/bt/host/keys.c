@@ -18,7 +18,7 @@
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_KEYS)
 #include "common/log.h"
 
-#include "common/rpa.h"
+#include "rpa.h"
 #include "hci_core.h"
 #include "smp.h"
 #include "keys.h"
