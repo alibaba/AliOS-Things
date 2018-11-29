@@ -171,6 +171,7 @@ clean:
 	                             -or -name "*.o" \
 	                             -or -name "*.d" \
 	                             -or -name "*.gc*" \
+	                             | grep -v '$(OUTPUT_DIR)/compiler' \
 	        2>/dev/null)
 
 distclean:
