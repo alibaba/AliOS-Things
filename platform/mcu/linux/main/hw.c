@@ -250,14 +250,12 @@ void hw_start_hal(options_t *poptions)
         hal_uart_init(&uart_0);
 #endif
 
-#ifdef AOS_HAL_WIFI
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 #elif defined(DEV_SAL_ATHOST)
     hal_wifi_register_module(&aos_wifi_module_athost);
 #else
     hal_wifi_register_module(&sim_aos_wifi_linux);
-#endif
 #endif
 
 #ifdef LINUX_MESH_80211
