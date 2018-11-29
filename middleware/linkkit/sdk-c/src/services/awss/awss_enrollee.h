@@ -164,11 +164,11 @@ int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type,
 
 /* registrar API */
 #ifdef AWSS_DISABLE_REGISTRAR
-static inline void awss_registrar_exit(void) { }
+static inline void awss_registrar_deinit(void) { }
 static inline void awss_registrar_init(void) { }
 #else
 void awss_registrar_init(void);
-void awss_registrar_exit(void);
+void awss_registrar_deinit(void);
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
