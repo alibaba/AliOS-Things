@@ -120,6 +120,25 @@ sys_time_t krhino_ticks_to_ms(tick_t ticks)
 }
 
 /* ------------------ mutex ------------------ */
+kstat_t krhino_mutex_create(kmutex_t *mutex, const name_t *name)
+{
+    volatile krhino_mutex_create_syscall_arg_t _arg;
+
+    _arg.mutex = mutex;
+    _arg.name  = name;
+
+    return SYSCALL(SYS_KRHINO_MUTEX_CREATE, &_arg);
+}
+
+kstat_t krhino_mutex_del(kmutex_t *mutex)
+{
+    volatile krhino_mutex_del_syscall_arg_t _arg;
+
+    _arg.mutex = mutex;
+
+    return SYSCALL(SYS_KRHINO_MUTEX_DEL, &_arg);
+}
+
 kstat_t krhino_mutex_dyn_create(kmutex_t **mutex, const name_t *name)
 {
     volatile krhino_mutex_dyn_create_syscall_arg_t _arg;
@@ -159,6 +178,26 @@ kstat_t krhino_mutex_unlock(kmutex_t *mutex)
 }
 
 /* ------------------ semphore ------------------ */
+kstat_t krhino_sem_create(ksem_t *sem, const name_t *name, sem_count_t count)
+{
+    volatile krhino_sem_create_syscall_arg_t _arg;
+
+    _arg.sem   = sem;
+    _arg.name  = name;
+    _arg.count = count;
+
+    return SYSCALL(SYS_KRHINO_SEM_CREATE, &_arg);
+}
+
+kstat_t krhino_sem_del(ksem_t *sem)
+{
+    volatile krhino_sem_del_syscall_arg_t _arg;
+
+    _arg.sem = sem;
+
+    return SYSCALL(SYS_KRHINO_SEM_DEL, &_arg);
+}
+
 kstat_t krhino_sem_dyn_create(ksem_t **sem, const name_t *name, sem_count_t count)
 {
     volatile krhino_sem_dyn_create_syscall_arg_t _arg;
@@ -199,65 +238,87 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
 }
 
 /* -------------------- queue ---------------------*/
+kstat_t krhino_queue_create(kqueue_t *queue, const name_t *name,
+                            void **start, size_t msg_num)
+{
+    volatile krhino_queue_create_syscall_arg_t _arg;
+
+    _arg.queue   = queue;
+    _arg.name    = name;
+    _arg.start   = start;
+    _arg.msg_num = msg_num;
+
+    return SYSCALL(SYS_KRHINO_QUEUE_CREATE, &_arg);
+}
+
+kstat_t krhino_queue_del(kqueue_t *queue)
+{
+    volatile krhino_queue_del_syscall_arg_t _arg;
+
+    _arg.queue = queue;
+
+    return SYSCALL(SYS_KRHINO_QUEUE_DEL, &_arg);
+}
+
 kstat_t krhino_queue_dyn_create(kqueue_t **queue, const name_t *name,
                                 size_t msg_num)
 {
-    volatile krhino_queue_dyn_create_syscall_arg_t arg;
+    volatile krhino_queue_dyn_create_syscall_arg_t _arg;
 
-    arg.queue   = queue;
-    arg.name    = name;
-    arg.msg_num = msg_num;
+    _arg.queue   = queue;
+    _arg.name    = name;
+    _arg.msg_num = msg_num;
 
-    return SYSCALL(SYS_KRHINO_QUEUE_DYN_CREATE, &arg);
+    return SYSCALL(SYS_KRHINO_QUEUE_DYN_CREATE, &_arg);
 }
 
 kstat_t krhino_queue_dyn_del(kqueue_t *queue)
 {
-    volatile krhino_queue_dyn_del_syscall_arg_t arg;
+    volatile krhino_queue_dyn_del_syscall_arg_t _arg;
 
-    arg.queue = queue;
+    _arg.queue = queue;
 
-    return SYSCALL(SYS_KRHINO_QUEUE_DYN_DEL, &arg);
+    return SYSCALL(SYS_KRHINO_QUEUE_DYN_DEL, &_arg);
 }
 
 kstat_t krhino_queue_back_send(kqueue_t *queue, void *msg)
 {
-    volatile krhino_queue_back_send_syscall_arg_t arg;
+    volatile krhino_queue_back_send_syscall_arg_t _arg;
 
-    arg.queue = queue;
-    arg. msg  = msg;
+    _arg.queue = queue;
+    _arg. msg  = msg;
 
-    return SYSCALL(SYS_KRHINO_QUEUE_BACK_SEND, &arg);
+    return SYSCALL(SYS_KRHINO_QUEUE_BACK_SEND, &_arg);
 }
 
 kstat_t krhino_queue_all_send(kqueue_t *queue, void *msg)
 {
-    volatile krhino_queue_all_send_syscall_arg_t arg;
+    volatile krhino_queue_all_send_syscall_arg_t _arg;
 
-    arg.queue = queue;
-    arg.msg   = msg;
+    _arg.queue = queue;
+    _arg.msg   = msg;
 
-    return SYSCALL(SYS_KRHINO_QUEUE_ALL_SEND, &arg);
+    return SYSCALL(SYS_KRHINO_QUEUE_ALL_SEND, &_arg);
 }
 
 kstat_t krhino_queue_recv(kqueue_t *queue, tick_t ticks, void **msg)
 {
-    volatile krhino_queue_recv_syscall_arg_t arg;
+    volatile krhino_queue_recv_syscall_arg_t _arg;
 
-    arg.queue  = queue;
-    arg.ticks  = ticks;
-    arg.msg    = msg;
+    _arg.queue  = queue;
+    _arg.ticks  = ticks;
+    _arg.msg    = msg;
 
-    return SYSCALL(SYS_KRHINO_QUEUE_RECV, &arg);
+    return SYSCALL(SYS_KRHINO_QUEUE_RECV, &_arg);
 }
 
 kstat_t krhino_queue_flush(kqueue_t *queue)
 {
-    volatile krhino_queue_flush_syscall_arg_t arg;
+    volatile krhino_queue_flush_syscall_arg_t _arg;
 
-    arg.queue = queue;
+    _arg.queue = queue;
 
-    return SYSCALL(SYS_KRHINO_QUEUE_FLUSH, &arg);
+    return SYSCALL(SYS_KRHINO_QUEUE_FLUSH, &_arg);
 }
 
 /* ------------------ buf queue -------------------*/
@@ -311,6 +372,20 @@ kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
     return SYSCALL(SYS_KRHINO_BUF_QUEUE_DYN_CREATE, &_arg);
 }
 
+kstat_t krhino_fix_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
+                                   void *buf, size_t msg_size, size_t msg_num)
+{
+    volatile krhino_fix_buf_queue_dyn_create_syscall_arg_t _arg;
+
+    _arg.queue    = queue;
+    _arg.name     = name;
+    _arg.buf      = buf;
+    _arg.msg_size = msg_size;
+    _arg.msg_num  = msg_num;
+
+    return SYSCALL(SYS_KRHINO_FIX_BUF_QUEUE_DYN_CREATE, &_arg);
+}
+
 kstat_t krhino_buf_queue_dyn_del(kbuf_queue_t *queue)
 {
     volatile krhino_buf_queue_dyn_del_syscall_arg_t _arg;
@@ -351,16 +426,6 @@ kstat_t krhino_buf_queue_flush(kbuf_queue_t *queue)
     _arg.queue = queue;
 
     return SYSCALL(SYS_KRHINO_BUF_QUEUE_FLUSH, &_arg);
-}
-
-kstat_t krhino_buf_queue_info_get(kbuf_queue_t *queue, kbuf_queue_info_t *info)
-{
-    volatile krhino_buf_queue_info_get_syscall_arg_t _arg;
-
-    _arg.queue = queue;
-    _arg.info  = info;
-
-    return SYSCALL(SYS_KRHINO_BUF_QUEUE_INFO_GET, &_arg);
 }
 
 /* ----------------- proc msg ----------------- */
@@ -455,48 +520,5 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
     _arg.uart = uart;
 
     return SYSCALL(SYS_HAL_UART_FINALIZE, &_arg);
-}
-
-/* ------------------ vfs ------------------ */
-off_t aos_lseek(int fd, off_t offset, int whence)
-{
-    volatile aos_lseek_syscall_arg_t _arg;
-
-    _arg.fd     = fd;
-    _arg.offset = offset;
-    _arg.whence = whence;
-
-    return SYSCALL(SYS_AOS_LSEEK, &_arg);
-}
-
-int aos_close(int fd)
-{
-    volatile aos_close_syscall_arg_t _arg;
-
-    _arg.fd = fd;
-
-    return SYSCALL(SYS_AOS_CLOSE, &_arg);
-}
-
-ssize_t aos_read(int fd, void *buf, size_t nbytes)
-{
-    volatile aos_read_syscall_arg_t _arg;
-
-    _arg.fd     = fd;
-    _arg.buf    = buf;
-    _arg.nbytes = nbytes;
-
-    return SYSCALL(SYS_AOS_READ, &_arg);
-}
-
-ssize_t aos_write(int fd, const void *buf, size_t nbytes)
-{
-    volatile aos_write_syscall_arg_t _arg;
-
-    _arg.fd     = fd;
-    _arg.buf    = buf;
-    _arg.nbytes = nbytes;
-
-    return SYSCALL(SYS_AOS_WRITE, &_arg);
 }
 

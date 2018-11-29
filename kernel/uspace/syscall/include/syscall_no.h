@@ -37,49 +37,55 @@
 /* ------------------- mutex --------------------*/
 #define K_MUTEX_BASE (K_TIME_END + 1)
 
-#define SYS_KRHINO_MUTEX_DYN_CREATE (K_MUTEX_BASE + 0)
-#define SYS_KRHINO_MUTEX_DYN_DEL    (K_MUTEX_BASE + 1)
-#define SYS_KRHINO_MUTEX_LOCK       (K_MUTEX_BASE + 2)
-#define SYS_KRHINO_MUTEX_UNLOCK     (K_MUTEX_BASE + 3)
+#define SYS_KRHINO_MUTEX_CREATE     (K_MUTEX_BASE + 0)
+#define SYS_KRHINO_MUTEX_DEL        (K_MUTEX_BASE + 1)
+#define SYS_KRHINO_MUTEX_DYN_CREATE (K_MUTEX_BASE + 2)
+#define SYS_KRHINO_MUTEX_DYN_DEL    (K_MUTEX_BASE + 3)
+#define SYS_KRHINO_MUTEX_LOCK       (K_MUTEX_BASE + 4)
+#define SYS_KRHINO_MUTEX_UNLOCK     (K_MUTEX_BASE + 5)
 
 #define K_MUTEXT_END (SYS_KRHINO_MUTEX_UNLOCK)
 
 /* ------------------ semphore -------------------*/
 #define K_SEM_BASE (K_MUTEXT_END + 1)
 
-#define SYS_KRHINO_SEM_DYN_CREATE (K_SEM_BASE + 0)
-#define SYS_KRHINO_SEM_DYN_DEL    (K_SEM_BASE + 1)
-#define SYS_KRHINO_SEM_TAKE       (K_SEM_BASE + 2)
-#define SYS_KRHINO_SEM_GIVE       (K_SEM_BASE + 3)
+#define SYS_KRHINO_SEM_CREATE     (K_SEM_BASE + 0)
+#define SYS_KRHINO_SEM_DEL        (K_SEM_BASE + 1)
+#define SYS_KRHINO_SEM_DYN_CREATE (K_SEM_BASE + 2)
+#define SYS_KRHINO_SEM_DYN_DEL    (K_SEM_BASE + 3)
+#define SYS_KRHINO_SEM_TAKE       (K_SEM_BASE + 4)
+#define SYS_KRHINO_SEM_GIVE       (K_SEM_BASE + 5)
 
 #define K_SEM_END (SYS_KRHINO_SEM_GIVE)
 
 /* -------------------- queue --------------------*/
 #define K_QUEUE_BASE (K_SEM_END + 1)
 
-#define SYS_KRHINO_QUEUE_DYN_CREATE (K_QUEUE_BASE + 0)
-#define SYS_KRHINO_QUEUE_DYN_DEL    (K_QUEUE_BASE + 1)
-#define SYS_KRHINO_QUEUE_BACK_SEND  (K_QUEUE_BASE + 2)
-#define SYS_KRHINO_QUEUE_ALL_SEND   (K_QUEUE_BASE + 3)
-#define SYS_KRHINO_QUEUE_RECV       (K_QUEUE_BASE + 4)
-#define SYS_KRHINO_QUEUE_FLUSH      (K_QUEUE_BASE + 5)
+#define SYS_KRHINO_QUEUE_CREATE     (K_QUEUE_BASE + 0)
+#define SYS_KRHINO_QUEUE_DEL        (K_QUEUE_BASE + 1)
+#define SYS_KRHINO_QUEUE_DYN_CREATE (K_QUEUE_BASE + 2)
+#define SYS_KRHINO_QUEUE_DYN_DEL    (K_QUEUE_BASE + 3)
+#define SYS_KRHINO_QUEUE_BACK_SEND  (K_QUEUE_BASE + 4)
+#define SYS_KRHINO_QUEUE_ALL_SEND   (K_QUEUE_BASE + 5)
+#define SYS_KRHINO_QUEUE_RECV       (K_QUEUE_BASE + 6)
+#define SYS_KRHINO_QUEUE_FLUSH      (K_QUEUE_BASE + 7)
 
 #define K_QUEUE_END (SYS_KRHINO_QUEUE_FLUSH)
 
 /* ------------------ buf queue -------------------*/
 #define K_BUF_QUEUE_BASE (K_QUEUE_END + 1)
 
-#define SYS_KRHINO_BUF_QUEUE_CREATE     (K_BUF_QUEUE_BASE + 0)
-#define SYS_KRHINO_FIX_BUF_QUEUE_CREATE (K_BUF_QUEUE_BASE + 1)
-#define SYS_KRHINO_BUF_QUEUE_DEL        (K_BUF_QUEUE_BASE + 2)
-#define SYS_KRHINO_BUF_QUEUE_DYN_CREATE (K_BUF_QUEUE_BASE + 3)
-#define SYS_KRHINO_BUF_QUEUE_DYN_DEL    (K_BUF_QUEUE_BASE + 4)
-#define SYS_KRHINO_BUF_QUEUE_SEND       (K_BUF_QUEUE_BASE + 5)
-#define SYS_KRHINO_BUF_QUEUE_RECV       (K_BUF_QUEUE_BASE + 6)
-#define SYS_KRHINO_BUF_QUEUE_FLUSH      (K_BUF_QUEUE_BASE + 7)
-#define SYS_KRHINO_BUF_QUEUE_INFO_GET   (K_BUF_QUEUE_BASE + 8)
+#define SYS_KRHINO_BUF_QUEUE_CREATE         (K_BUF_QUEUE_BASE + 0)
+#define SYS_KRHINO_FIX_BUF_QUEUE_CREATE     (K_BUF_QUEUE_BASE + 1)
+#define SYS_KRHINO_BUF_QUEUE_DEL            (K_BUF_QUEUE_BASE + 2)
+#define SYS_KRHINO_BUF_QUEUE_DYN_CREATE     (K_BUF_QUEUE_BASE + 3)
+#define SYS_KRHINO_FIX_BUF_QUEUE_DYN_CREATE (K_BUF_QUEUE_BASE + 4)
+#define SYS_KRHINO_BUF_QUEUE_DYN_DEL        (K_BUF_QUEUE_BASE + 5)
+#define SYS_KRHINO_BUF_QUEUE_SEND           (K_BUF_QUEUE_BASE + 6)
+#define SYS_KRHINO_BUF_QUEUE_RECV           (K_BUF_QUEUE_BASE + 7)
+#define SYS_KRHINO_BUF_QUEUE_FLUSH          (K_BUF_QUEUE_BASE + 8)
 
-#define K_BUF_QUEUE_END (SYS_KRHINO_BUF_QUEUE_INFO_GET)
+#define K_BUF_QUEUE_END (SYS_KRHINO_BUF_QUEUE_FLUSH)
 
 /* ----------------- proc msg -----------------*/
 #define U_PROC_MSG_BASE (K_BUF_QUEUE_END + 1)
@@ -101,18 +107,8 @@
 
 #define HAL_UART_END (SYS_HAL_UART_FINALIZE)
 
-/* ------------------- vfs -------------------*/
-#define VFS_BASE (HAL_UART_END + 1)
-
-#define SYS_AOS_LSEEK (VFS_BASE + 0)
-#define SYS_AOS_CLOSE (VFS_BASE + 1)
-#define SYS_AOS_READ (VFS_BASE + 2)
-#define SYS_AOS_WRITE (VFS_BASE + 3)
-
-#define VFS_END (SYS_AOS_WRITE)
-
 /* ------------------- end -------------------*/
-#define MAX_SYSCALL_NO (VFS_END)
+#define MAX_SYSCALL_NO (HAL_UART_END)
 
 #endif /* SYSCALL_NO_H */
 
