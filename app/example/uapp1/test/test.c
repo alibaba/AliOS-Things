@@ -28,8 +28,10 @@ void run_test_case(void)
     RUN_TEST_CASE(task_test, 0);
     RUN_TEST_CASE(time_test, 0);
     RUN_TEST_CASE(timer_test, 0);
-    RUN_TEST_CASE(mutex_test, 0);
-    RUN_TEST_CASE(semphore_test, 0);
+    RUN_TEST_CASE(dynamic_mutex_test, 0);
+    RUN_TEST_CASE(static_mutex_test, 0);
+    RUN_TEST_CASE(dynamic_semaphore_test, 0);
+    RUN_TEST_CASE(static_semaphore_test, 0);
     RUN_TEST_CASE(buf_queue_test, 0);
 }
 
