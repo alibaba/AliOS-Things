@@ -6,12 +6,8 @@
 #include <string.h>
 #include <aos/aos.h>
 
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
 #include <event_device.h>
 
-#if (AOS_CONFIG_VFS_POLL_SUPPORT > 0)
 static int inited;
 
 typedef struct {
@@ -154,8 +150,8 @@ static ssize_t event_read(file_t *f, void *buf, size_t len)
     return cnt;
 }
 
-static int event_poll(file_t *f, bool setup, poll_notify_t notify,
-                      struct pollfd *fd, void *opa)
+static int event_poll(file_t *f, int setup, poll_notify_t notify,
+                      void *fd, void *opa)
 {
     event_dev_t *pdev = f->f_arg;
 
@@ -167,7 +163,7 @@ static int event_poll(file_t *f, bool setup, poll_notify_t notify,
     }
 
     pdev->poll_cb = notify;
-    pdev->fd = fd;
+    pdev->fd = (struct pollfd *)fd;
     pdev->poll_data = opa;
 
     if (pdev->counter) {
@@ -194,7 +190,7 @@ int vfs_device_init(void)
     int ret;
 
     if (inited == 1) {
-        return  VFS_SUCCESS;
+        return 0;
     }
 #ifdef _WIN32
     ret = aos_register_driver("C:\\event.bin", &event_fops, NULL);
@@ -202,13 +198,12 @@ int vfs_device_init(void)
     ret = aos_register_driver("/dev/event", &event_fops, NULL);
 #endif
 
-    if (ret != VFS_SUCCESS) {
+    if (ret != 0) {
         return ret;
     }
 
     inited = 1;
 
-    return VFS_SUCCESS;
+    return 0;
 }
-#endif
 

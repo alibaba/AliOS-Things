@@ -4,14 +4,10 @@
 
 #include <aos/aos.h>
 #include <aos/network.h>
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_inode.h>
-#include <vfs.h>
+
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
-#include <vfs_file.h>
 
 #if defined(__ICCARM__) || defined(__CC_ARM)
 #include <sys/select.h>
@@ -20,10 +16,6 @@
 #ifdef IO_NEED_TRAP
 #include <vfs_trap.h>
 #endif
-
-#if (AOS_CONFIG_VFS_POLL_SUPPORT>0)
-
-#include <aos/network.h>
 
 #ifdef CONFIG_NO_TCPIP
 
@@ -39,7 +31,7 @@ static void teardown_fd(int fd)
 {
 }
 
-static void vfs_poll_notify(struct pollfd *fd, void *arg)
+static void vfs_poll_notify(void *fd, void *arg)
 {
     struct poll_arg *parg = arg;
     aos_sem_signal(&parg->sem);
@@ -67,7 +59,7 @@ struct poll_arg {
     int efd;
 };
 
-static void vfs_poll_notify(struct pollfd *fd, void *arg)
+static void vfs_poll_notify(void *fd, void *arg)
 {
     struct poll_arg *parg = arg;
     uint64_t val = 1;
@@ -126,24 +118,18 @@ static int pre_poll(struct pollfd *fds, int nfds, fd_set *rfds, void *parg)
     }
 
     for (i = 0; i < nfds; i++) {
-        file_t  *f;
         struct pollfd *pfd = &fds[i];
 
-        if (pfd->fd < AOS_CONFIG_VFS_FD_OFFSET) {
+        if (pfd->fd < aos_vfs_fd_offset_get()) {
             setup_fd(pfd->fd);
             FD_SET(pfd->fd, rfds);
             maxfd = pfd->fd > maxfd ? pfd->fd : maxfd;
             continue;
         }
 
-        f = get_file(pfd->fd);
-
-        if (f == NULL) {
+        if (aos_do_pollfd(pfd->fd, true, vfs_poll_notify, pfd, parg) == -ENOENT) {
             return -1;
         }
-
-        pfd = &fds[i];
-        (f->node->ops.i_ops->poll)(f, true, vfs_poll_notify, pfd, parg);
     }
 
     return maxfd;
@@ -155,22 +141,16 @@ static int post_poll(struct pollfd *fds, int nfds)
     int ret = 0;
 
     for (j = 0; j < nfds; j++) {
-        file_t  *f;
         struct pollfd *pfd = &fds[j];
 
-        if (pfd->fd < AOS_CONFIG_VFS_FD_OFFSET) {
+        if (pfd->fd < aos_vfs_fd_offset_get()) {
             teardown_fd(pfd->fd);
             continue;
         }
 
-
-        f = get_file(pfd->fd);
-
-        if (f == NULL) {
+        if (aos_do_pollfd(pfd->fd, false, NULL, NULL, NULL) == -ENOENT) {
             continue;
         }
-
-        (f->node->ops.i_ops->poll)(f, false, NULL, NULL, NULL);
 
         if (pfd->revents) {
             ret ++;
@@ -184,7 +164,7 @@ int aos_poll(struct pollfd *fds, int nfds, int timeout)
 {
     fd_set rfds;
 
-    int ret = VFS_SUCCESS;
+    int ret = 0;
     int nset = 0;
     struct poll_arg parg;
 
@@ -222,7 +202,6 @@ check_poll:
 
     return ret < 0 ? 0 : nset;
 }
-#endif
 
 int aos_fcntl(int fd, int cmd, int val)
 {
@@ -230,7 +209,7 @@ int aos_fcntl(int fd, int cmd, int val)
         return -EINVAL;
     }
 
-    if (fd < AOS_CONFIG_VFS_FD_OFFSET) {
+    if (fd < aos_vfs_fd_offset_get()) {
 #ifdef IO_NEED_TRAP
         return trap_fcntl(fd, cmd, val);
 #else
