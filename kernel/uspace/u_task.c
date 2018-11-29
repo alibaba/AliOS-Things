@@ -89,16 +89,15 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 
     if (task->is_proc == 1) {
         task->proc_addr = task;
-        klist_init(&task->kobj.task_head);
-        klist_init(&task->kobj.sem_head);
-        klist_insert(&task->kobj.task_head, &task->task_user);
+        klist_init(&task->task_head);
+        klist_insert(&task->task_head, &task->task_user);
     }
     else {
         cur_task = krhino_cur_task_get();
         task->proc_addr = cur_task->proc_addr;
         proc_task = task->proc_addr;
         RHINO_CRITICAL_ENTER();
-        klist_insert(&proc_task->kobj.task_head, &task->task_user);
+        klist_insert(&proc_task->task_head, &task->task_user);
         RHINO_CRITICAL_EXIT();
     }
 
@@ -269,7 +268,7 @@ void krhino_uprocess_res_get(int32_t id, void **res)
 
     cur_task = krhino_cur_task_get();
     cur_proc = cur_task->proc_addr;
-    head = &cur_proc->kobj.task_head;
+    head = &cur_proc->task_head;
     if (id == 0) {
         *res = cur_proc->res_q;
     } else if (id == 1){
