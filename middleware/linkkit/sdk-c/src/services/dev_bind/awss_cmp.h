@@ -30,13 +30,14 @@ struct coap_session_ctx_t {
 };
 
 int awss_cmp_local_init();
-int awss_cmp_local_deinit();
+int awss_cmp_local_deinit(int force);
 int awss_cmp_online_init();
 int awss_cmp_online_deinit();
 int awss_token_remain_time();
 int awss_token_timeout();
 int awss_update_token();
 int awss_report_token();
+int awss_stop_report_token();
 
 int awss_cmp_coap_loop(void *param);
 int awss_cmp_coap_register_cb(char *topic, void *cb);

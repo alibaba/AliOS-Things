@@ -26,4 +26,14 @@ int awss_check_reset();
  */
 int awss_report_reset();
 
+/**
+ * @brief   stop to report reset to cloud.
+ *
+ * @retval  -1 : failure
+ * @retval  0 : sucess
+ * @note
+ *      just stop report reset to cloud without any touch reset flag in flash.
+ */
+int awss_stop_report_reset();
+
 #endif

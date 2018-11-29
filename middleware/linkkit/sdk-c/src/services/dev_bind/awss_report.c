@@ -24,9 +24,9 @@ volatile char awss_report_token_suc = 0;
 volatile char awss_report_token_cnt = 0;
 static char awss_report_id = 0;
 #ifdef WIFI_PROVISION_ENABLED
+static uint8_t switchap_bssid[ETH_ALEN] = {0};
 static char switchap_ssid[OS_MAX_SSID_LEN] = {0};
 static char switchap_passwd[OS_MAX_PASSWD_LEN] = {0};
-static uint8_t switchap_bssid[ETH_ALEN] = {0};
 static void *switchap_timer = NULL;
 #endif
 
@@ -324,6 +324,18 @@ int awss_report_token()
     awss_report_token_suc = 0;
 
     return awss_report_token_to_cloud();
+}
+
+int awss_stop_report_token()
+{
+    if (report_token_timer) {
+        awss_stop_timer(report_token_timer);
+        report_token_timer = NULL;
+    }
+
+    memset(aes_random, 0x00, sizeof(aes_random));
+
+    return 0;
 }
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
