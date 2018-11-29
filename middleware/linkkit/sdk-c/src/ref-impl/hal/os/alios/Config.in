@@ -1,0 +1,10 @@
+menuconfig AOS_COMP_IOTX-HAL
+    default n
+    select AOS_COMP_ITLS if @CONDITION@
+    select AOS_COMP_MBEDTLS if @CONDITION@
+    help
+      HAL for AliOS Things
+
+if AOS_COMP_IOTX-HAL
+# Configurations for comp iotx-hal
+endif

@@ -6,3 +6,4 @@ config SRCPATH
     default "."
 
 source "Config.linkkit"
+
