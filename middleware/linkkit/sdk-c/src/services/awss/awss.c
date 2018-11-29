@@ -65,7 +65,7 @@ int awss_start(void)
                     awss_open_adha_monitor();
                     while (!awss_is_ready_switch_next_adha())
                         os_msleep(50);
-                    awss_cmp_local_deinit();
+                    awss_cmp_local_deinit(0);
                 }
 
                 if (switch_ap_done || awss_stopped)
@@ -98,7 +98,7 @@ int awss_start(void)
                     os_msleep(50);
                 }
 
-                awss_cmp_local_deinit();
+                awss_cmp_local_deinit(0);
 
                 if (switch_ap_done || awss_stopped)
                     break;
@@ -138,7 +138,7 @@ int awss_stop(void)
     awss_close_adha_monitor();
 #endif
     __awss_stop();
-    awss_cmp_local_deinit();
+    awss_cmp_local_deinit(0);
     awss_stopped = 1;
     return 0;
 }

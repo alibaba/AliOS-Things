@@ -62,7 +62,7 @@ void awss_registrar_init(void)
                                      (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
 }
 
-void awss_registrar_exit(void)
+void awss_registrar_deinit(void)
 {
     uint8_t alibaba_oui[3] = ALIBABA_OUI;
     os_wifi_enable_mgnt_frame_filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,

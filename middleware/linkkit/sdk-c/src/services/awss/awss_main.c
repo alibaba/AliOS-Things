@@ -113,7 +113,7 @@ int __awss_stop(void)
 #endif
     awss_suc_notify_stop();
 #ifndef AWSS_DISABLE_REGISTRAR
-    awss_registrar_exit();
+    awss_registrar_deinit();
 #endif
 
     while (1) {
