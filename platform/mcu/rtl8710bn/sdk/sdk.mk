@@ -64,6 +64,7 @@ $(NAME)_INCLUDES += sdk/component/common/mbed/targets/hal/rtl8711b
 
 #$(NAME)_SOURCES := soc_impl.c
 
+ifneq ($(AOS_2BOOT_SUPPORT), yes)
 #cmsis
 $(NAME)_SOURCES += sdk/component/soc/realtek/8711b/cmsis/device/app_start.c
 $(NAME)_SOURCES += sdk/component/soc/realtek/8711b/fwlib/ram_lib/startup.c
@@ -142,3 +143,7 @@ $(NAME)_SOURCES += sdk/component/soc/realtek/8711b/misc/rtl8710b_ota.c
 $(NAME)_SOURCES += sdk/component/soc/realtek/8711b/fwlib/ram_lib/rtl8710b_pinmapcfg.c
 $(NAME)_SOURCES += sdk/component/soc/realtek/8711b/fwlib/ram_lib/rtl8710b_sleepcfg.c
 
+else
+$(NAME)_SOURCES += sdk/component/common/mbed/targets/hal/rtl8711b/flash_api.c
+$(NAME)_SOURCES += sdk/component/common/mbed/targets/hal/rtl8711b/wdt_api.c
+endif

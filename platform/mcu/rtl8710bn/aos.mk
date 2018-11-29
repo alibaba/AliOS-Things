@@ -17,9 +17,14 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu rtl8710bn
 
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+$(NAME)_COMPONENTS += middleware/uagent/uota/src/2nd_boot
+$(NAME)_LIBSUFFIX  := _2boot
+else
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
 #$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += libc rhino netmgr cli digest_algorithm network.lwip network.netmgr
+endif
 
 #GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
 #GLOBAL_LDFLAGS  += -I $(SOURCE_ROOT)/platform/mcu/rtl8710bn
@@ -116,11 +121,13 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4           \
 
 GLOBAL_CFLAGS += -w
 
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2-2nd_boot.ld
+else
 GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
-#GLOBAL_LDFLAGS += -I $(SOURCE_ROOT)/platform/mcu/rtl8710bn
-# GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld
-#GLOBAL_LDFLAGS += $(SOURCE_ROOT)/platform/mcu/rtl8710bn/bin/boot_all.o
+GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld
 GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)/platform/mcu/rtl8710bn/lib/ -l_platform -l_wlan -l_wps -l_p2p -l_rtlstd
+endif
 
 #GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
                   -mthumb -mthumb-interwork \
@@ -133,6 +140,17 @@ GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)/platform/mcu/rtl8710bn/lib/ -l_platform -l_wl
                   -Wl,--no-wchar-size-warning \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+GLOBAL_LDFLAGS += -mcpu=cortex-m4        \
+                  -mthumb\
+                  -Os \
+                  -nostartfiles \
+                  --specs=nosys.specs \
+                  -Wl,--no-enum-size-warning \
+                  -Wl,--no-wchar-size-warning \
+                  -Wl,--gc-sections \
+                  -Wl,--cref
+else
 GLOBAL_LDFLAGS += -mcpu=cortex-m4             \
                   -mthumb                     \
                   -Os                         \
@@ -142,23 +160,20 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4             \
                   -Wl,--gc-sections           \
                   -Wl,--cref                  \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
+endif
 
 $(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
 $(NAME)_CFLAGS += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized
 $(NAME)_CFLAGS += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
 $(NAME)_CFLAGS += -Wno-unused-value -Wno-strict-aliasing
 
-#$(NAME)_SOURCES += aos/soc_impl.c
-#$(NAME)_SOURCES += aos/aos.c
-#$(NAME)_SOURCES += soc_impl.c
-#$(NAME)_INCLUDES += ../../../osal/mico/include
-#$(NAME)_INCLUDES += ../../../middleware/alink/protocol/os/platform
-#$(NAME)_INCLUDES += ../include
-#$(NAME)_INCLUDES += ../../../kernel/hal/include/soc
-#$(NAME)_INCLUDES += ../../../include/aos
-#$(NAME)_INCLUDES += arch
-#$(NAME)_INCLUDES += peripherals
-
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+$(NAME)_SOURCES :=  2nd_boot/boot_startup.c \
+                    2nd_boot/rec_flash.c    \
+                    2nd_boot/rec_sys.c      \
+                    2nd_boot/rec_uart.c     \
+                    2nd_boot//rec_wdt.c
+else
 $(NAME)_SOURCES := aos/soc_impl.c   \
                    aos/aos.c        \
                    aos/aos_osdep.c  \
@@ -170,14 +185,12 @@ $(NAME)_SOURCES := aos/soc_impl.c   \
                    hal/wifi_port.c  \
                    hal/gpio.c       \
                    hal/wdg.c
+include ./platform/mcu/rtl8710bn/peripherals/peripherals.mk
+endif
 
-#$(NAME)_SOURCES  += hal/uart.c
-#$(NAME)_SOURCES  += hal/flash.c
-#$(NAME)_SOURCES  += hal/hw.c
-#$(NAME)_SOURCES  += hal/wifi_port.c
-#$(NAME)_SOURCES  += hal/misc.c
+GLOBAL_INCLUDES += 2nd_boot
 
 include ./platform/mcu/rtl8710bn/sdk/sdk.mk
-include ./platform/mcu/rtl8710bn/peripherals/peripherals.mk
 
-PING_PONG_OTA := 1
+
+
