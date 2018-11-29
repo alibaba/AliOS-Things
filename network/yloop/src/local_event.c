@@ -10,6 +10,7 @@
 #include "event_device.h"
 #include "yloop.h"
 #include "k_config.h"
+
 typedef struct {
     dlist_t       node;
     aos_event_cb  cb;

@@ -27,6 +27,9 @@ typedef struct yloop_timeout_s {
 yloop_ctx_t    *g_main_ctx = NULL;
 static unsigned int g_loop_key;
 
+extern int aos_poll(struct pollfd *fds, int nfds, int timeout);
+extern int aos_fcntl(int fd, int cmd, int val);
+
 static inline void _set_context(yloop_ctx_t *ctx)
 {
     hal_loop_task_setspecific(g_loop_key, ctx);
