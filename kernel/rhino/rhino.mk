@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := rhino core code
 
-GLOBAL_INCLUDES += core/include ./
+GLOBAL_INCLUDES += include ./
 
 #default gcc
 ifeq ($(COMPILER),)
@@ -13,29 +13,28 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS += -Wall -Werror
 endif
 
-
-$(NAME)_SOURCES := core/k_err.c          \
-                   core/k_mm.c           \
-                   core/k_mm_debug.c     \
-                   core/k_ringbuf.c      \
-                   core/k_stats.c        \
-                   core/k_task_sem.c     \
-                   core/k_timer.c        \
-                   core/k_buf_queue.c    \
-                   core/k_event.c        \
-                   core/k_mm_blk.c       \
-                   core/k_mutex.c        \
-                   core/k_pend.c         \
-                   core/k_sched.c        \
-                   core/k_sys.c          \
-                   core/k_tick.c         \
-                   core/k_workqueue.c    \
-                   core/k_dyn_mem_proc.c \
-                   core/k_idle.c         \
-                   core/k_obj.c          \
-                   core/k_queue.c        \
-                   core/k_sem.c          \
-                   core/k_task.c         \
-                   core/k_time.c         \
-                   core/k_spin_lock.c
+$(NAME)_SOURCES := k_err.c          \
+                   k_mm.c           \
+                   k_mm_debug.c     \
+                   k_ringbuf.c      \
+                   k_stats.c        \
+                   k_task_sem.c     \
+                   k_timer.c        \
+                   k_buf_queue.c    \
+                   k_event.c        \
+                   k_mm_blk.c       \
+                   k_mutex.c        \
+                   k_pend.c         \
+                   k_sched.c        \
+                   k_sys.c          \
+                   k_tick.c         \
+                   k_workqueue.c    \
+                   k_dyn_mem_proc.c \
+                   k_idle.c         \
+                   k_obj.c          \
+                   k_queue.c        \
+                   k_sem.c          \
+                   k_task.c         \
+                   k_time.c         \
+                   k_spin_lock.c
 
