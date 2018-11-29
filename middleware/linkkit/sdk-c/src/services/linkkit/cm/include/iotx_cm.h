@@ -82,8 +82,8 @@ typedef struct {
 } iotx_cm_event_msg_t;
 
 typedef struct {
-    char *topic;
-    uint8_t *payload;
+    char * topic;
+    uint8_t * payload;
     uint32_t  payload_len;
 } event_msg_data_t;
 
@@ -101,7 +101,7 @@ typedef struct {
     uint32_t                      read_buf_size;
     iotx_cm_protocol_types_t      protocol_type;
     iotx_cm_event_handle_cb       handle_event;             /* Specify MQTT event handle */
-    void                          *context;
+
 } iotx_cm_init_param_t;
 
 typedef struct {
