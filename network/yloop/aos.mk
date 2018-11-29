@@ -10,6 +10,7 @@ $(NAME)_SOURCES     := src/yloop.c
 $(NAME)_SOURCES     += src/local_event.c
 $(NAME)_SOURCES     += src/select.c
 $(NAME)_SOURCES     += src/device.c
+$(NAME)_SOURCES     += src/workqueue.c
 
 #default gcc
 ifeq ($(COMPILER),)
