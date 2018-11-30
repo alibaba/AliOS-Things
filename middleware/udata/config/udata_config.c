@@ -13,7 +13,7 @@
 
 typedef struct _udata_tag_para_st{
     sensor_tag_e tag;
-    int          index;
+    int          instance;
     int          interval;
 }udata_tag_para_st;
 
