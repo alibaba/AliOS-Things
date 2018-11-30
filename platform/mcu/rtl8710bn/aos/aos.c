@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "hal/soc/soc.h"
-
+#include "hal/soc/wdg.h"
 #include "diag.h"
 #include "platform_stdlib.h"
 #include "rtl8710b.h"
@@ -159,6 +159,8 @@ void sys_init_func(void)
 
 void main(void)
 {
+    hal_wdg_finalize(0);
+
     aos_init();
 
     krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI , 0, AOS_START_STACK, (task_entry_t)sys_init_func, 1);
