@@ -246,7 +246,6 @@ endif
 
 # Check if there are any unknown components; output error if so.
 $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) ),,$(error Unknown component: $(comp))))
-$(info wgj $(COMPONENTS))
 # Find the matching platform and application from the build string components
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(BUILD_APP)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
 $(info PLATFORM_FULL $(PLATFORM_FULL))
