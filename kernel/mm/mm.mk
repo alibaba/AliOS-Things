@@ -12,6 +12,6 @@ ifeq ($(ENABLE_USPACE),1)
 
 $(NAME)_SOURCES := tlsf/tlsf.c
 
-GLOBAL_INCLUDES += tlsf/
+GLOBAL_INCLUDES += tlsf/ ./include
 endif
 
