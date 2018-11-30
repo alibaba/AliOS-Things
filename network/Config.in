@@ -7,20 +7,33 @@ config AOS_NETWORK_SAL
     default n
 
 if AOS_NETWORK
-source "network/umesh/Config.in"
-source "network/halwifi/Config.in"
-source "network/bluetooth/bt/Config.in"
+
+## --- Generated Automatically ---
 source "network/bluetooth/breeze/Config.in"
-source "network/bluetooth/bt_mesh_profile/Config.in"
+source "network/bluetooth/breeze/hal/ble/Config.in"
+source "network/bluetooth/bt/Config.in"
+source "network/bluetooth/bt/bt_common/Config.in"
 source "network/bluetooth/bt_mesh/Config.in"
-source "network/lorawan_4_4_2/lorachip/Config.in"
-source "network/lorawan_4_4_2/Config.in"
-source "network/lorawan_4_4_0/lorachip/Config.in"
-source "network/lorawan_4_4_0/Config.in"
-source "network/sal/atparser/Config.in"
-source "network/sal/athost/Config.in"
-source "network/sal/hal/Config.in"
-source "network/netmgr/Config.in"
+source "network/bluetooth/bt_mesh/port/Config.in"
+source "network/bluetooth/bt_mesh_profile/Config.in"
+source "network/bluetooth/profile/Config.in"
+source "network/lorawan/lorawan_4_4_0/Config.in"
+source "network/lorawan/lorawan_4_4_0/lorachip/Config.in"
+source "network/lorawan/lorawan_4_4_2/Config.in"
+source "network/lorawan/lorawan_4_4_2/lorachip/Config.in"
 source "network/lwip/Config.in"
+source "network/netmgr/Config.in"
+source "network/sal/athost/Config.in"
+source "network/sal/atparser/Config.in"
+source "network/sal/hal/Config.in"
+source "network/sal/hal/gprs/sim800/Config.in"
+source "network/sal/hal/wifi/athost/Config.in"
+source "network/sal/hal/wifi/bk7231/Config.in"
+source "network/sal/hal/wifi/esp8266/Config.in"
+source "network/sal/hal/wifi/gt202/Config.in"
+source "network/sal/hal/wifi/mk3060/Config.in"
+source "network/umesh/Config.in"
 source "network/yloop/Config.in"
+## --- End ---
+
 endif
