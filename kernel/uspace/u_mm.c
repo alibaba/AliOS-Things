@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <tlsf.h>
+#include <mm.h>
 
 static tlsf_t tlsf_ptr = NULL;
 
