@@ -311,9 +311,13 @@ PhyParam_t RegionCN470AGetPhyParam(GetPhyParams_t *getPhy)
 #ifdef LORAMAC_CLASSB_ENABLED
         case PHY_BEACON_CHANNEL_FREQ: {
             if (get_lora_freq_mode() == FREQ_MODE_INTER) {
-                phyParam.Value = CN470A_BEACON_CHANNEL_INTER_FREQ;
+                if (TxFreqBandNum >= 8) {
+                    phyParam.Value = 470300000 + 200000 * FreqBandStartChannelNum[TxFreqBandNum - 8];
+                } else {
+                    phyParam.Value = 470300000 + 200000 * FreqBandStartChannelNum[TxFreqBandNum + 8];
+                }
             } else {
-                phyParam.Value = CN470A_BEACON_CHANNEL_INTRA_FREQ;
+                phyParam.Value = 470300000 + 200000 * FreqBandStartChannelNum[TxFreqBandNum];
             }
 
             break;
