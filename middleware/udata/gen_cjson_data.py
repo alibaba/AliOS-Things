@@ -8,7 +8,7 @@ fd = open(file_in)
 data = fd.read()
 fd.close()
 
-data_strip = data.replace(" ","").replace("\n","").replace("\t","").strip()
+data_strip = data.replace(" ","").replace("\n","").replace("\t","").replace("\r","").strip()
 
 data_encode = json.dumps(data_strip)
 
