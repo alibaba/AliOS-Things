@@ -7,10 +7,11 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <vfs_register.h>
 #include <aos/kernel.h>
 #include <yunit.h>
 #include <yts.h>
+
+#include "aos/vfs.h"
 
 #include "fatfs.h"
 
