@@ -1,5 +1,6 @@
 menu "MCU Configuration"
 
+## --- Generated Automatically ---
 source "platform/mcu/atsamd5x_e5x/Config.in"
 source "platform/mcu/bk7231/Config.in"
 source "platform/mcu/bk7231u/Config.in"
@@ -10,8 +11,7 @@ source "platform/mcu/efm32gxx/Config.in"
 source "platform/mcu/esp32/Config.in"
 source "platform/mcu/esp8266/Config.in"
 source "platform/mcu/freedom-e/e310/Config.in"
-source "platform/mcu/imx6/imx6dq/Config.in"
-source "platform/mcu/imx6/imx6sl/Config.in"
+source "platform/mcu/imx6/Config.in"
 source "platform/mcu/imx6sl_svc/Config.in"
 source "platform/mcu/linux/Config.in"
 source "platform/mcu/lpc54018/Config.in"
@@ -30,6 +30,8 @@ source "platform/mcu/mkl82z7/Config.in"
 source "platform/mcu/moc108/Config.in"
 source "platform/mcu/msp432p4xx/Config.in"
 source "platform/mcu/mx1101/Config.in"
+source "platform/mcu/nrf52xxx/Config.in"
+source "platform/mcu/nrf52xxx/controller/Config.in"
 source "platform/mcu/rda5981x/Config.in"
 source "platform/mcu/rda8955/Config.in"
 source "platform/mcu/rtl8710bn/Config.in"
@@ -42,5 +44,6 @@ source "platform/mcu/stm32l4xx/Config.in"
 source "platform/mcu/stm32l4xx_cube/Config.in"
 source "platform/mcu/stm32l4xx_syscall/Config.in"
 source "platform/mcu/xm510/Config.in"
+## --- End ---
 
 endmenu
