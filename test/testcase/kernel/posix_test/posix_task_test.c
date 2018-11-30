@@ -115,7 +115,7 @@ static void *demo_task4(void *arg)
     pthread_cleanup_push(output_cleanup_msg, "first cleanup function");
     pthread_cleanup_push(output_cleanup_msg, "second cleanup function");
 
-    printf("demo_task3 is running!\n");
+    printf("demo_task4 is running!\n");
 
     pthread_exit(status);
 
