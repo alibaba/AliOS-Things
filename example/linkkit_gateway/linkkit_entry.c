@@ -170,6 +170,11 @@ static void linkkit_event_monitor(int event)
             LOG("IOTX_AWSS_BIND_NOTIFY");
             // operate led to indicate user
             break;
+        case IOTX_AWSS_ENABLE_TIMEOUT: // AWSS enable timeout
+                                       // user needs to enable awss again to support get ssid & passwd of router
+            LOG("IOTX_AWSS_ENALBE_TIMEOUT");
+            // operate led to indicate user
+            break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
             LOG("IOTX_CONN_CLOUD");
             // operate led to indicate user
@@ -204,20 +209,24 @@ void do_awss_active()
 {
     LOG("do_awss_active %d\n", awss_running);
     awss_running = 1;
+    #ifdef WIFI_PROVISION_ENABLED
     extern int awss_config_press();
     awss_config_press();
+    #endif
 }
 
 static void linkkit_reset(void *p)
 {
     netmgr_clear_ap_config();
-    HAL_Sys_reboot();
+    HAL_Reboot();
 }
 
 extern int  awss_report_reset();
 static void do_awss_reset()
 {
+#ifdef WIFI_PROVISION_ENABLED
     aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 2048);
+#endif
     aos_post_delayed_action(2000, linkkit_reset, NULL);
 }
 
@@ -239,11 +248,8 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
 #ifdef CONFIG_AOS_CLI
 static void handle_gw_mm_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    int loglevel_bakups =  LITE_get_loglevel();
-    LITE_set_loglevel(LOG_DEBUG_LEVEL);
-    LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
-    LITE_set_loglevel(loglevel_bakups);
-
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
+    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
 }
 static struct cli_command gw_mm = {
     .name = "gw_mm",

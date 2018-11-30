@@ -6,8 +6,6 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/protocol/linkkit/hal \
                       framework/netmgr \
                       framework/common \
-                      framework/ywss4linkkit \
-                      framework/uOTA \
                       utility/cjson \
 
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
@@ -30,8 +28,3 @@ else
 GLOBAL_DEFINES += FOTA_RAM_LIMIT_MODE
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
-
-#for test command
-GLOBAL_CFLAGS += -DLINKKIT_GATEWAY_TEST_CMD
-$(NAME)_SOURCES += testcmd.c testcmd_lock.c json.c
-#end
