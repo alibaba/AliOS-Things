@@ -17,7 +17,7 @@ GLOBAL_DEFINES  += DATA_TO_CLOUD
 endif
 
 ifeq ($(udata_cjson_support),1)
-$(NAME)_PRE_PROCESS := @python build/scripts/cjson_format.py
+EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/middleware/udata/gen_cjson_data.mk
 endif
 
 $(NAME)_INCLUDES := ../../device/sensor/include
