@@ -1,3 +1,4 @@
+## --- Generated Automatically ---
 source "security/alicrypto/Config.in"
 source "security/id2/Config.in"
 source "security/irot/Config.in"
@@ -9,3 +10,4 @@ source "security/isst/Config.in"
 source "security/itls/Config.in"
 source "security/mbedtls/Config.in"
 source "security/prov/Config.in"
+## --- End ---
