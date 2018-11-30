@@ -100,10 +100,6 @@ ifeq (y,$(FEATURE_MQTT_COMM_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/mqtt
 endif
 
-ifeq (y,$(FEATURE_OTA_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/ota
-endif
-
 ifeq (y,$(FEATURE_MQTT_SHADOW))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/shadow
 endif
