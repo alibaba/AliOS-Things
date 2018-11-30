@@ -30,21 +30,32 @@ uint32_t  g_uDataDtcNum = 0;
 #define  UDATA_DTC_FLAG_ON                  "on"
 #define  UDATA_DTC_FLAG_OFF                 "off"
 
-#define  UDATA_SERVICE_CONFIG_NAME          "uData_cfg_desc"
+#define  UDATA_CONFIG_DESC_NAME             "udata_config_desc"
+#define  UDATA_SERVICE_CONFIG_NAME          "service_config"
+#define  UDATA_DTC_CONFIG_NAME              "data_to_cloud"
+
+
 #define  UDATA_SERVICE_TYPE_NAME            "type"
 #define  UDATA_SERVICE_TASKFLAG_NAME        "task"
 #define  UDATA_SERVICE_DEVICES_NAME         "devices"
 #define  UDATA_SERVICE_TAG_NAME             "tag"
-#define  UDATA_SERVICE_INDEX_NAME           "index"
+#define  UDATA_SERVICE_INDEX_NAME           "instance"
 #define  UDATA_SERVICE_INTERVAL_NAME        "interval"
 
 
-#define  UDATA_DTC_FLAG_NAME                "dtcFlag"
-#define  UDATA_DTC_OUTDATA_NAME             "outData"
+#define  UDATA_DTC_FLAG_NAME                "dtc_enable"
+#define  UDATA_DTC_OUTDATA_NAME             "sub_para"
 #define  UDATA_DTC_PROPERTY_NAME            "name"
-#define  UDATA_DTC_DATATYPE_NAME            "dataType"
-#define  UDATA_DTC_COEFF_NAME               "coeff"
-#define  UDATA_DTC_INTERVAL_NAME            "dtcInterval"
+#define  UDATA_DTC_DATATYPE_NAME            "data_type"
+#define  UDATA_DTC_COEFF_NAME               "coefficient"
+#define  UDATA_DTC_INTERVAL_NAME            "dtc_interval"
+
+#define  UDATA_SERVICE_CONFIG_DEFAULT_NUM   (1)
+#define  UDATA_SERVICE_CONFIG_DEFAULT_IDX   (0)
+
+#define  UDATA_DTC_CONFIG_DEFAULT_NUM       (1)
+#define  UDATA_DTC_CONFIG_DEFAULT_IDX       (0)
+
 
 typedef struct {
     udata_type_e type;
@@ -151,7 +162,7 @@ void uData_cjson_init(void)
     cjson_hooks.free_fn = aos_free;
     cJSON_InitHooks(&cjson_hooks);
 }
-
+int g_config_num_flag = 0;
 int uData_service_num_get(uint32_t* pNum)
 {
     int ret;
@@ -160,21 +171,31 @@ int uData_service_num_get(uint32_t* pNum)
         return -1;
     }
     
+    if(g_config_num_flag == 1){
+        *pNum = (uint32_t)g_uDataServiceNum;
+        return 0;
+    }
+    
     root = cJSON_Parse(service_config_str);
     if (root == NULL || !cJSON_IsObject(root)) {
+printf("%s == %d\n",__func__,__LINE__);
         return -1;
     }
-    g_uDataItem = cJSON_GetObjectItem(root,UDATA_SERVICE_CONFIG_NAME);
+    g_uDataItem = cJSON_GetObjectItem(root,UDATA_CONFIG_DESC_NAME);
     if (g_uDataItem == NULL) {
+printf("%s == %d\n",__func__,__LINE__);
         return -1;
     }
 
     ret = cJSON_GetArraySize(g_uDataItem);
     if(ret <= 0){
+printf("%s == %d\n",__func__,__LINE__);
         return -1;
     }
     *pNum = (uint32_t)ret;
-    g_uDataServiceNum = ret;
+    g_uDataServiceNum = (uint32_t)ret;
+    
+    g_config_num_flag = 1;
     return 0;
 }
 
@@ -203,7 +224,17 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
         return -1;
     }
 
-    temp=cJSON_GetObjectItem(root,UDATA_SERVICE_TYPE_NAME);
+    /*get service_config*/
+    item=cJSON_GetObjectItem(root,UDATA_SERVICE_CONFIG_NAME);
+    if (item == NULL) {
+        return -1;
+    }
+    num = cJSON_GetArraySize(item);
+    if (num != UDATA_SERVICE_CONFIG_DEFAULT_NUM) {
+        return -1;
+    }
+    array = cJSON_GetArrayItem(item,UDATA_DTC_CONFIG_DEFAULT_IDX);
+    temp=cJSON_GetObjectItem(array,UDATA_SERVICE_TYPE_NAME);
     if (temp == NULL) {
         return -1;
     }
@@ -223,7 +254,7 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
     }
 
 
-    temp=cJSON_GetObjectItem(root,UDATA_SERVICE_TASKFLAG_NAME);
+    temp=cJSON_GetObjectItem(array,UDATA_SERVICE_TASKFLAG_NAME);
     if (temp == NULL) {
         return -1;
     }
@@ -239,11 +270,14 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
         return -1;
     }
 
-    item=cJSON_GetObjectItem(root,UDATA_SERVICE_DEVICES_NAME);
+    item=cJSON_GetObjectItem(array,UDATA_SERVICE_DEVICES_NAME);
     if (item == NULL) {
         return -1;
     }
     num = cJSON_GetArraySize(item);
+    if (num <= 0) {
+        return -1;
+    }
 
     for(i = 0; i < num; i++){
         array = cJSON_GetArrayItem(item,i);
@@ -298,11 +332,16 @@ int uData_dtc_num_get(uint32_t* pNum)
         return -1;
     }
     
+    if(g_config_num_flag == 1){
+        *pNum = (uint32_t)g_uDataServiceNum;
+        return 0;
+    }
+    
     root = cJSON_Parse(service_config_str);
     if (root == NULL || !cJSON_IsObject(root)) {
         return -1;
     }
-    g_uDataItem = cJSON_GetObjectItem(root,UDATA_SERVICE_CONFIG_NAME);
+    g_uDataItem = cJSON_GetObjectItem(root,UDATA_CONFIG_DESC_NAME);
     if (g_uDataItem == NULL) {
         return -1;
     }
@@ -312,44 +351,10 @@ int uData_dtc_num_get(uint32_t* pNum)
         return -1;
     }
     *pNum = (uint32_t)ret;
-    g_uDataServiceNum = ret;
+    g_uDataServiceNum = (uint32_t)ret;
+    g_config_num_flag = 1;
     return 0;
 }
-
-int uData_cjson_dtc_flag_get(uint32_t index, bool* pFlag)
-{
-    cJSON* temp = NULL;
-    cJSON* root = NULL;
-
-    if(index >= g_uDataServiceNum){
-        return -1;
-    }
-
-    root = cJSON_GetArrayItem(g_uDataItem,index);
-    if (root == NULL) {
-        return -1;
-    }
-
-
-    temp=cJSON_GetObjectItem(root,UDATA_DTC_FLAG_NAME);
-    if (temp == NULL) {
-        return -1;
-    }
-    if(0 == strncmp(temp->valuestring,UDATA_DTC_FLAG_ON,strlen(temp->valuestring)))
-    {
-        *pFlag = true;
-    }
-    else if(0 == strncmp(temp->valuestring,UDATA_DTC_FLAG_OFF,strlen(temp->valuestring)))
-    {
-        *pFlag = false;
-    }
-    else{
-        return -1;
-    }
-
-    return 0;
-}
-
 
 int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
 {
@@ -375,8 +380,50 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
         return -1;
     }
 
+    /*get service config*/
 
-    temp=cJSON_GetObjectItem(root,UDATA_DTC_FLAG_NAME);
+    item=cJSON_GetObjectItem(root,UDATA_SERVICE_CONFIG_NAME);
+    if (item == NULL) {
+        return -1;
+    }
+    num = cJSON_GetArraySize(item);
+    if (num != UDATA_SERVICE_CONFIG_DEFAULT_NUM) {
+        return -1;
+    }
+    array = cJSON_GetArrayItem(item,UDATA_DTC_CONFIG_DEFAULT_IDX);
+
+    /* get service type */
+    temp=cJSON_GetObjectItem(array,UDATA_SERVICE_TYPE_NAME);
+    if (temp == NULL) {
+        return -1;
+    }
+
+    for(i = 0; i < UDATA_MAX_CNT; i++){
+        if((strlen(temp->valuestring) == strlen(g_udata_service_name[i].type_name)) && 
+            (0 == strncmp(temp->valuestring,g_udata_service_name[i].type_name,strlen(temp->valuestring))))
+        {
+            dtc->type = g_udata_service_name[i].type;
+            break;
+        }
+    }
+
+    if(i == UDATA_MAX_CNT){
+        return -1;
+    }
+
+    /*get data_to_cloud config*/
+    item=cJSON_GetObjectItem(root,UDATA_DTC_CONFIG_NAME);
+    if (item == NULL) {
+        return -1;
+    }
+    num = cJSON_GetArraySize(item);
+    if (num != UDATA_DTC_CONFIG_DEFAULT_NUM) {
+        return -1;
+    }
+    array = cJSON_GetArrayItem(item,UDATA_DTC_CONFIG_DEFAULT_IDX);
+
+    /* get dtc flag */
+    temp=cJSON_GetObjectItem(array,UDATA_DTC_FLAG_NAME);
     if (temp == NULL) {
         return -1;
     }
@@ -393,13 +440,58 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     }
     dtc->dtcFlag = dtcFlag;
 
-    item=cJSON_GetObjectItem(root,UDATA_DTC_OUTDATA_NAME);
-    if (item == NULL) {
+    /* get dtc data type */
+    temp=cJSON_GetObjectItem(array,UDATA_DTC_DATATYPE_NAME);
+    if (temp == NULL) {
         return -1;
     }
-    num = cJSON_GetArraySize(item);
-    if(num <= 0){
+    
+    dtc->data_type = UDATA_TYPE_MAX;
+    for(j = 0; j < UDATA_TYPE_MAX; j++){ 
+        if((strlen(temp->valuestring) == strlen(g_udata_data_type[j].type_name)) && 
+            (0 == strncmp(temp->valuestring,g_udata_data_type[j].type_name,strlen(temp->valuestring))))
+        {
+            dtc->data_type = g_udata_data_type[j].type;
+            break;
+        }
+    }
+
+    if (dtc->data_type == UDATA_TYPE_MAX){
         return -1;
+    }
+    
+    /* get dtc data coefficient */
+    temp=cJSON_GetObjectItem(array,UDATA_DTC_COEFF_NAME);
+    if (temp == NULL) {
+        return -1;
+    }
+
+    if(temp->valueint <= 0){
+        return -1;
+    }
+    dtc->coeff = (uint32_t)temp->valueint;
+
+    temp=cJSON_GetObjectItem(array,UDATA_DTC_INTERVAL_NAME);
+    if (temp == NULL) {
+        return -1;
+    }
+
+    if(temp->valueint < 0){
+        return -1;
+    }
+    dtc->dtc_cycle = temp->valueint;
+
+    /* get dtc output data name */
+    item=cJSON_GetObjectItem(array,UDATA_DTC_OUTDATA_NAME);
+    if (item == NULL) {
+        num = 1;
+        //return -1;
+    }
+    else{
+        num = cJSON_GetArraySize(item);
+        if(num <= 0){
+            return -1;
+        }
     }
     
     num = num==1? 1:(num+1);
@@ -409,7 +501,7 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
         return -1;
     }
     
-    temp=cJSON_GetObjectItem(root,UDATA_DTC_PROPERTY_NAME);
+    temp=cJSON_GetObjectItem(array,UDATA_DTC_PROPERTY_NAME);
     if (temp == NULL) {
         goto error;
     }
@@ -422,7 +514,6 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
     memcpy(dtc->name_addr,temp->valuestring,len);
     ((char*)dtc->name_addr)[len] = '\0';
     
-    //num = (num==1)?1:(num-1);
     num = num-1;
 
     for(i = 0; i < num; i++){
@@ -440,60 +531,6 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
         
         memcpy((void*)str,temp->valuestring,len);
         str[len] = '\0';
-    }
-
-    temp=cJSON_GetObjectItem(root,UDATA_DTC_DATATYPE_NAME);
-    if (temp == NULL) {
-        goto error;
-    }
-    
-
-    for(j = 0; j < UDATA_TYPE_MAX; j++){ 
-        if((strlen(temp->valuestring) == strlen(g_udata_data_type[j].type_name)) && 
-            (0 == strncmp(temp->valuestring,g_udata_data_type[j].type_name,strlen(temp->valuestring))))
-        {
-            dtc->data_type = g_udata_data_type[j].type;
-            break;
-        }
-    }
-    
-    temp=cJSON_GetObjectItem(root,UDATA_DTC_COEFF_NAME);
-    if (temp == NULL) {
-        goto error;
-    }
-
-    if(temp->valueint <= 0){
-        goto error;
-    }
-    
-    dtc->coeff = (uint32_t)temp->valueint;
-
-    temp=cJSON_GetObjectItem(root,UDATA_DTC_INTERVAL_NAME);
-    if (temp == NULL) {
-        goto error;
-    }
-
-    if(temp->valueint < 0){
-        goto error;
-    }
-    dtc->dtc_cycle = temp->valueint;
-    
-    temp=cJSON_GetObjectItem(root,UDATA_SERVICE_TYPE_NAME);
-    if (temp == NULL) {
-        goto error;
-    }
-
-    for(i = 0; i < UDATA_MAX_CNT; i++){
-        if((strlen(temp->valuestring) == strlen(g_udata_service_name[i].type_name)) && 
-            (0 == strncmp(temp->valuestring,g_udata_service_name[i].type_name,strlen(temp->valuestring))))
-        {
-            dtc->type = g_udata_service_name[i].type;
-            break;
-        }
-    }
-
-    if(i == UDATA_MAX_CNT){
-        goto error;
     }
 
     return 0;
@@ -554,7 +591,7 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
         if(tag >= TAG_DEV_SENSOR_NUM_MAX){
             return -1;
         }
-        idx = g_service_para[index].p_tag_para[i].index;
+        idx = g_service_para[index].p_tag_para[i].instance;
         
         ret = abs_data_get_abs_index(tag, (uint8_t)idx, &abs_idx);
         if (unlikely(ret)){
