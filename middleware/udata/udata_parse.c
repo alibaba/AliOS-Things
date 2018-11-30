@@ -436,9 +436,9 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
         if(len >= SERVICE_PUB_NAME_LEN){
             goto error;
         }
-        str = (char*)(dtc->name_addr + (i+1)*SERVICE_PUB_NAME_LEN);
+        str = (char*)((uint32_t)dtc->name_addr + (i+1)*SERVICE_PUB_NAME_LEN);
         
-        memcpy(str,temp->valuestring,len);
+        memcpy((void*)str,temp->valuestring,len);
         str[len] = '\0';
     }
 
@@ -630,16 +630,19 @@ int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
         return -1;
     }
 
-    str = dtc->name_addr;
-    memcpy(str, g_dtc_para[index].name,len);
+    str = (char*)dtc->name_addr;
+    memcpy((void*)str, g_dtc_para[index].name,len);
     str[len] = '\0';
     for(i = 1; i < dtc->name_num; i++){
+        if (g_dtc_para[index].para_name == NULL){
+            goto error;
+        }
         len = strlen(g_dtc_para[index].para_name[i-1]);
         if ((len >= SERVICE_PUB_NAME_LEN) || (len == 0)){
             goto error;
         }
-        str = dtc->name_addr + (i * SERVICE_PUB_NAME_LEN);
-        memcpy(str, g_dtc_para[index].para_name[i-1],len);
+        str = (char*)((uint32_t)dtc->name_addr + (i * SERVICE_PUB_NAME_LEN));
+        memcpy((void*)str, g_dtc_para[index].para_name[i-1],len);
         str[len] = '\0';
     }
     dtc->data_type = g_dtc_para[index].data_type;
