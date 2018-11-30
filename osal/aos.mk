@@ -66,7 +66,11 @@ ifneq (,$(filter $(PLATFORM), linuxhost mk3060 mk3239 mk3166 mk3165))
 $(NAME)_SOURCES += mico/mico_rhino.c
 endif
 
+ifeq ($(MBINS),app)
+$(NAME)_SOURCES += aos/aos_rhino_uspace.c
+else
 $(NAME)_SOURCES += aos/aos_rhino.c
+endif
 
 ifeq ($(AOS_KV), 1)
 $(NAME)_SOURCES += aos/aos_kv.c
