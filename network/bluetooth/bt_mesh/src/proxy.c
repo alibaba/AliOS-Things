@@ -70,7 +70,7 @@ static bool prov_fast_adv;
 #endif
 
 static struct bt_mesh_proxy_client {
-    struct bt_conn *conn;
+    bt_mesh_conn_t conn;
     u16_t filter[CONFIG_BT_MESH_PROXY_FILTER_SIZE];
     enum __packed {
         NONE,
@@ -100,7 +100,7 @@ static enum {
     MESH_GATT_PROXY,
 } gatt_svc = MESH_GATT_NONE;
 
-static struct bt_mesh_proxy_client *find_client(struct bt_conn *conn)
+static struct bt_mesh_proxy_client *find_client(bt_mesh_conn_t conn)
 {
     int i;
 
@@ -117,7 +117,7 @@ static struct bt_mesh_proxy_client *find_client(struct bt_conn *conn)
 /* Next subnet in queue to be advertised */
 static int next_idx;
 
-static int proxy_segment_and_send(struct bt_conn *conn, u8_t type,
+static int proxy_segment_and_send(bt_mesh_conn_t conn, u8_t type,
                                   struct net_buf_simple *msg);
 
 static int filter_set(struct bt_mesh_proxy_client *client,
@@ -293,7 +293,7 @@ static void proxy_cfg(struct bt_mesh_proxy_client *client)
     }
 }
 
-static int beacon_send(struct bt_conn *conn, struct bt_mesh_subnet *sub)
+static int beacon_send(bt_mesh_conn_t conn, struct bt_mesh_subnet *sub)
 {
     struct net_buf_simple *buf = NET_BUF_SIMPLE(23);
 
@@ -423,7 +423,7 @@ static void proxy_complete_pdu(struct bt_mesh_proxy_client *client)
 
 #define ATTR_IS_PROV(attr) (attr->user_data != NULL)
 
-static ssize_t proxy_recv(struct bt_conn *conn,
+static ssize_t proxy_recv(bt_mesh_conn_t conn,
                           const struct bt_gatt_attr *attr, const void *buf,
                           u16_t len, u16_t offset, u8_t flags)
 {
@@ -506,7 +506,7 @@ static ssize_t proxy_recv(struct bt_conn *conn,
 
 static int conn_count;
 
-static void proxy_connected(struct bt_conn *conn, u8_t err)
+static void proxy_connected(bt_mesh_conn_t conn, u8_t err)
 {
     struct bt_mesh_proxy_client *client;
     int i;
@@ -542,7 +542,7 @@ static void proxy_connected(struct bt_conn *conn, u8_t err)
     net_buf_simple_init(&client->buf, 0);
 }
 
-static void proxy_disconnected(struct bt_conn *conn, u8_t reason)
+static void proxy_disconnected(bt_mesh_conn_t conn, u8_t reason)
 {
     int i;
 
@@ -579,7 +579,7 @@ struct net_buf_simple *bt_mesh_proxy_get_buf(void)
 }
 
 #if defined(CONFIG_BT_MESH_PB_GATT)
-static ssize_t prov_ccc_write(struct bt_conn *conn,
+static ssize_t prov_ccc_write(bt_mesh_conn_t conn,
                               const struct bt_gatt_attr *attr,
                               const void *buf, u16_t len,
                               u16_t offset, u8_t flags)
@@ -611,7 +611,7 @@ static ssize_t prov_ccc_write(struct bt_conn *conn,
     return len;
 }
 
-static ssize_t prov_ccc_read(struct bt_conn *conn,
+static ssize_t prov_ccc_read(bt_mesh_conn_t conn,
                              const struct bt_gatt_attr *attr,
                              void *buf, u16_t len, u16_t offset)
 {
@@ -690,7 +690,7 @@ int bt_mesh_proxy_prov_disable(void)
 #endif /* CONFIG_BT_MESH_PB_GATT */
 
 #if defined(CONFIG_BT_MESH_GATT_PROXY)
-static ssize_t proxy_ccc_write(struct bt_conn *conn,
+static ssize_t proxy_ccc_write(bt_mesh_conn_t conn,
                                const struct bt_gatt_attr *attr,
                                const void *buf, u16_t len,
                                u16_t offset, u8_t flags)
@@ -722,7 +722,7 @@ static ssize_t proxy_ccc_write(struct bt_conn *conn,
     return len;
 }
 
-static ssize_t proxy_ccc_read(struct bt_conn *conn,
+static ssize_t proxy_ccc_read(bt_mesh_conn_t conn,
                               const struct bt_gatt_attr *attr,
                               void *buf, u16_t len, u16_t offset)
 {
@@ -885,7 +885,7 @@ bool bt_mesh_proxy_relay(struct net_buf_simple *buf, u16_t dst)
 
 #endif /* CONFIG_BT_MESH_GATT_PROXY */
 
-static int proxy_send(struct bt_conn *conn, const void *data, u16_t len)
+static int proxy_send(bt_mesh_conn_t conn, const void *data, u16_t len)
 {
     BT_DBG("%u bytes: %s", len, bt_hex(data, len));
 
@@ -906,7 +906,7 @@ static int proxy_send(struct bt_conn *conn, const void *data, u16_t len)
     return 0;
 }
 
-static int proxy_segment_and_send(struct bt_conn *conn, u8_t type,
+static int proxy_segment_and_send(bt_mesh_conn_t conn, u8_t type,
                                   struct net_buf_simple *msg)
 {
     u16_t mtu;
@@ -941,7 +941,7 @@ static int proxy_segment_and_send(struct bt_conn *conn, u8_t type,
     return 0;
 }
 
-int bt_mesh_proxy_send(struct bt_conn *conn, u8_t type,
+int bt_mesh_proxy_send(bt_mesh_conn_t conn, u8_t type,
                        struct net_buf_simple *msg)
 {
     struct bt_mesh_proxy_client *client = find_client(conn);
@@ -1232,7 +1232,7 @@ void bt_mesh_proxy_adv_stop(void)
     }
 }
 
-static struct bt_conn_cb conn_callbacks = {
+static struct bt_mesh_conn_cb conn_callbacks = {
     .connected = proxy_connected,
     .disconnected = proxy_disconnected,
 };
