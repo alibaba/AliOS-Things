@@ -20,6 +20,9 @@ $(NAME)_SOURCES += test/test.c \
                    test/timer_test.c \
                    test/buf_queue_test.c
 
+$(NAME)_SOURCES += test/aos_uspace_test.c \
+                   test/cut.c
+
 $(NAME)_INCLUDES := include \
                     test
 else
