@@ -10,20 +10,25 @@
 #include <aos/aos.h>
 #include <aos/network.h>
 
-#include "vfs.h"
-#include "vfs_inode.h"
-#include "vfs_register.h"
-#include "vfs_err.h"
-
 #include "yunit.h"
 
-#include "device/vfs_adc.h"
 #include "hal/soc/adc.h"
-#include "device/vfs_device.h"
 #include "hal/soc/soc.h"
+
+#include "vfs_api.h"
 
 uint32_t adc_init_count = 0;
 uint32_t adc_finalize_count = 0;
+
+extern vfs_file_ops_t i2c_ops;
+extern vfs_file_ops_t adc_ops;
+extern vfs_file_ops_t rtc_ops;
+extern vfs_file_ops_t gpio_ops;
+
+/* cmd for ioctl */
+#define IOCTL_GPIO_OUTPUT_HIGHT  1  /* output hight */
+#define IOCTL_GPIO_OUTPUT_LOW    2  /* output low */
+#define IOCTL_GPIO_OUTPUT_TOGGLE 3  /* toggle output */
 
 adc_dev_t adc_dev_test =
 {
@@ -252,7 +257,7 @@ static void test_vfs_device_io_case(void)
 
     memset(&rtc_time, 0, sizeof(rtc_time));
 
-    ret = aos_register_driver(adc_path, &adc_ops, &adc_dev_test);
+    ret = vfs_register_driver(adc_path, &adc_ops, &adc_dev_test);
     YUNIT_ASSERT(ret == 0);
 
     /* The device can be opened several times, but is only initialized when it is first opened */
@@ -276,7 +281,7 @@ static void test_vfs_device_io_case(void)
     YUNIT_ASSERT((ret == 0)&&(adc_finalize_count == 1));
 
     /* example of gpio */
-    ret = aos_register_driver(gpio_path, &gpio_ops, &gpio_dev_test);
+    ret = vfs_register_driver(gpio_path, &gpio_ops, &gpio_dev_test);
     YUNIT_ASSERT(ret == 0);
 
     fd_gpio = aos_open(gpio_path,0);
@@ -302,7 +307,7 @@ static void test_vfs_device_io_case(void)
     YUNIT_ASSERT(ret == 0);
 
     /* example of i2c */
-    ret = aos_register_driver(i2c_path, &i2c_ops, &i2c_dev_test);
+    ret = vfs_register_driver(i2c_path, &i2c_ops, &i2c_dev_test);
     YUNIT_ASSERT(ret == 0);
 
     fd_i2c = aos_open(i2c_path,0);
@@ -324,7 +329,7 @@ static void test_vfs_device_io_case(void)
     YUNIT_ASSERT(ret == 0);
 
     /* example of rtc */
-    ret = aos_register_driver(rtc_path, &rtc_ops, &rtc_dev_test);
+    ret = vfs_register_driver(rtc_path, &rtc_ops, &rtc_dev_test);
     YUNIT_ASSERT(ret == 0);
 
     fd_rtc = aos_open(rtc_path,0);
