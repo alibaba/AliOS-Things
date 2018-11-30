@@ -7,7 +7,9 @@ if AOS_APP_PROFILE
 choice
     prompt "Select Builtin Profile"
 
+## --- Generated Automatically ---
 source "app/profile/gatewayapp/Config.in"
+## --- End ---
 
 endchoice
 endif
