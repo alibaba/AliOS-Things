@@ -117,7 +117,7 @@ RHINO_INLINE _pthread_tcb_t *_pthread_get_tcb(pthread_t thread)
 
 int       pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                          void *(*start_routine)(void *), void *arg);
-void      pthread_exit(void *retval);
+void      pthread_exit(void *value_ptr);
 int       pthread_detach(pthread_t thread);
 int       pthread_join(pthread_t thread, void **retval);
 int       pthread_cancel(pthread_t thread);
