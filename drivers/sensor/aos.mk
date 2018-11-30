@@ -143,6 +143,8 @@ $(NAME)_SOURCES += $(addprefix drv/,$(SENSOR_SRC_FILE))
 
 CONFIG_DRV_SET = $(word 1,$(CONFIG_SENSOR_DRV_NAME))
 
+$(NAME)_COMPONENTS += kernel.fs.vfs
+
 ifneq ($(CONFIG_DRV_SET),)
 GLOBAL_DEFINES += SENSOR_DRV_AUTO_INIT
 endif
