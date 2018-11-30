@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
-
 #include <aos/kernel.h>
 #include <aos/aos.h>
 #include <aos/uData.h>
