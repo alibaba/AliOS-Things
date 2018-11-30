@@ -8,7 +8,6 @@ $(NAME)_SOURCES := otaapp.c \
 
 $(NAME)_COMPONENTS += feature.linkkit-mqtt \
                       network/netmgr \
-                      middleware/common \
                       middleware/uagent/uota  \
                       utility/cjson \
 		              kernel/cli  \
