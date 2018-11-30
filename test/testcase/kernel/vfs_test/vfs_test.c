@@ -9,22 +9,9 @@
 #include <aos/kernel.h>
 #include <aos/aos.h>
 
-#include "vfs.h"
-#include "vfs_inode.h"
-#include "vfs_register.h"
-#include "vfs_err.h"
-
 #include "dirent.h"
 
 #include "yunit.h"
-
-// #include "device/vfs_adc.h"
-// #include "hal/soc/adc.h"
-// #include "device/vfs_device.h"
-// #include "hal/soc/soc.h"
-
-//static const char *test_path = "/ramfs/dir00";
-//static const char *test_file = "/ramfs/abc0";
 
 static int test_ioctl(file_t *node, int cmd, unsigned long arg)
 {
