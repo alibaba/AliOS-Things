@@ -2,12 +2,6 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-/*
-modification history
---------------------
-14jan2018, init vesion
-*/
-
 #include "cpu_pwr_api.h"
 #include "cpu_pwr_hal_lib.h"
 #include "cpu_pwr_lib.h"
