@@ -1,12 +1,13 @@
 choice
     prompt "Select board"
 
+## --- Generated Automatically ---
 source "board/amebaz_dev/Config.in"
 source "board/armhflinux/Config.in"
 source "board/atsame54-xpro/Config.in"
+source "board/b_l475e/Config.in"
 source "board/bk7231devkitc/Config.in"
 source "board/bk7231udevkitc/Config.in"
-source "board/b_l475e/Config.in"
 source "board/cb2201/Config.in"
 source "board/cy8ckit-062/Config.in"
 source "board/developerkit/Config.in"
@@ -58,5 +59,6 @@ source "board/stm32l476rg-nucleo/Config.in"
 source "board/stm32l496g-discovery/Config.in"
 source "board/uno-91h/Config.in"
 source "board/xm510_evb/Config.in"
+## --- End ---
 
 endchoice
