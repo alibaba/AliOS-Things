@@ -3,30 +3,21 @@
  */
 
 /*
-modification history
---------------------
-14jan2018, init vesion
-*/
-
-/*
  * This file provides cpu_pwr_topology_show()/cpu_pwr_state_show() to show
  * information for CPU power management.
  */
 
-#include "cpu_pwr_api.h"
-
-#if (RHINO_CONFIG_CPU_PWR_SHOW > 0)
-
 #include <stdio.h>
 #include <string.h>
+
+#include "cpu_pwr_api.h"
 #include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
+#include "pwr_debug.h"
 
-/* extern */
+#if (RHINO_CONFIG_CPU_PWR_SHOW > 0)
 extern cpu_pwr_t *p_cpu_pwr_root_node;
 extern cpu_pwr_t *p_cpu_node_array[];
-
-static void cpu_pwr_c_support_print(cpu_pwr_t *p_cpu_node, char *prefix);
 
 static void cpu_pwr_c_support_print(cpu_pwr_t *p_cpu_node, char *prefix)
 {
@@ -82,12 +73,10 @@ void cpu_pwr_info_show(void)
 
     for (cpu_idx = 0; cpu_idx < CPUS_NUM_MAX; cpu_idx++) {
         p_cpu_node = p_cpu_node_array[cpu_idx];
-        (void)printf("%s%u (CPU%d)\n", p_cpu_node->name, p_cpu_node->unit,
-                     cpu_idx);
+        (void)printf("%s%u (CPU%d)\n", p_cpu_node->name, p_cpu_node->unit, cpu_idx);
         cpu_pwr_c_support_print(p_cpu_node, "       ");
     }
 }
-
 
 /**
  * cpu_pwr_state_show() display the CPU power/performance states.
@@ -109,3 +98,16 @@ void cpu_pwr_state_show(void)
 }
 
 #endif /* RHINO_CONFIG_CPU_PWR_SHOW */
+
+#if (RHINO_CONFIG_CPU_PWR_DEBUG > 0)
+void pwr_debug(pwr_debug_level_t debug_level, const char *fmt_str, ...)
+{
+    va_list param;
+
+    if (debug_level >= PWR_DEBUG_LEVEL) {
+        va_start(param,fmt_str);
+        vprintf(fmt_str,param);
+        va_end(param);
+    }
+}
+#endif /* RHINO_CONFIG_CPU_PWR_DEBUG > 0 */
