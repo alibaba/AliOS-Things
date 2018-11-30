@@ -264,7 +264,7 @@ static int wifimgr_process_get_device_info(void *ctx, void *resource, void *remo
     }
 
     if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request))
-        awss_debug("sending failed.");
+        awss_debug("sending awss dev info response failed.");
 
     os_free(buf);
     return SHUB_OK;
