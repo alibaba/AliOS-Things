@@ -1,6 +1,6 @@
 ifneq ($(findstring $(HOST_OS),Win32 Win64),)
 AMEBAZ_DIR = $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)
-else 
+else
 TOP_PATH = $(shell pwd)
 AMEBAZ_DIR = $(TOP_PATH)/platform/mcu/$(HOST_MCU_FAMILY)
 endif
@@ -69,13 +69,16 @@ ATE_OFFSET:= 0xD0000
 APP_BIN_FILE := $(OUTPUT_DIR)/binary/image2_app.bin
 APP_OFFSET := 0x19000
 
+OTA_OUTPUT_DIR := $(OUTPUT_DIR)/binary/ota
+
 # Required to build Full binary file
 GEN_COMMON_BIN_OUTPUT_FILE_SCRIPT:= $(SCRIPTS_PATH)/gen_common_bin_output_file.py
 APP_BIN_OUTPUT_FILE := $(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=$(BIN_OUTPUT_SUFFIX))
 2BOOT_BIN_OUTPUT_FILE := $(OUTPUT_DIR)/binary/mk3080.2boot.bin
 
 MOC_APP_BIN_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:.2boot$(LINK_OUTPUT_SUFFIX)=$(BIN_OUTPUT_SUFFIX))
-MOC_ALL_BIN_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:.2boot$(LINK_OUTPUT_SUFFIX)=.all$(BIN_OUTPUT_SUFFIX))
+MOC_ALL_BIN_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:.2boot$(LINK_OUTPUT_SUFFIX)=.factory$(BIN_OUTPUT_SUFFIX))
+MOC_OTA_BIN_OUTPUT_FILE :=$(OTA_OUTPUT_DIR)/$(notdir $(LINK_OUTPUT_FILE:.2boot$(LINK_OUTPUT_SUFFIX)=.ota$(BIN_OUTPUT_SUFFIX)))
 
 gen_standard_images: gen_crc_bin
 	$(QUIET)$(ECHO) Generate Standard Flash Images: $(APP_BIN_OUTPUT_FILE)
@@ -84,6 +87,8 @@ gen_standard_images: gen_crc_bin
 	$(QUIET)$(RM) $(APP_BIN_FILE)
 
 gen_standard_images_2boot: gen_crc_bin_2boot
+	mkdir -p $(OTA_OUTPUT_DIR)
+	$(QUIET)$(CP) $(MOC_APP_BIN_OUTPUT_FILE) $(MOC_OTA_BIN_OUTPUT_FILE)
 	$(QUIET)$(ECHO) Generate Second Boot Standard Flash Images: $(2BOOT_BIN_OUTPUT_FILE)
 	$(QUIET)$(RM) $(2BOOT_BIN_OUTPUT_FILE)
 	$(QUIET)$(CP) $(2BOOT_BIN_FILE) $(2BOOT_BIN_OUTPUT_FILE)
