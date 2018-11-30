@@ -32,6 +32,8 @@
 #include "proxy.h"
 #include "prov.h"
 
+#include "bt_mesh_glue.h"
+
 /* 3 transmissions, 20ms interval */
 #define PROV_XMIT_COUNT        2
 #define PROV_XMIT_INT          20
@@ -116,7 +118,7 @@ enum {
 struct prov_link {
     ATOMIC_DEFINE(flags, NUM_FLAGS);
 #if defined(CONFIG_BT_MESH_PB_GATT)
-    struct bt_conn *conn;    /* GATT connection */
+    bt_mesh_conn_t conn;    /* GATT connection */
 #endif
     u8_t  dhkey[32];         /* Calculated DHKey */
     u8_t  expect;            /* Next expected PDU */
@@ -1432,7 +1434,7 @@ void bt_mesh_pb_adv_recv(struct net_buf_simple *buf)
 #endif /* CONFIG_BT_MESH_PB_ADV */
 
 #if defined(CONFIG_BT_MESH_PB_GATT)
-int bt_mesh_pb_gatt_recv(struct bt_conn *conn, struct net_buf_simple *buf)
+int bt_mesh_pb_gatt_recv(bt_mesh_conn_t conn, struct net_buf_simple *buf)
 {
     u8_t type;
 
@@ -1469,7 +1471,7 @@ int bt_mesh_pb_gatt_recv(struct bt_conn *conn, struct net_buf_simple *buf)
     return 0;
 }
 
-int bt_mesh_pb_gatt_open(struct bt_conn *conn)
+int bt_mesh_pb_gatt_open(bt_mesh_conn_t conn)
 {
     BT_DBG("conn %p", conn);
 
@@ -1488,7 +1490,7 @@ int bt_mesh_pb_gatt_open(struct bt_conn *conn)
     return 0;
 }
 
-int bt_mesh_pb_gatt_close(struct bt_conn *conn)
+int bt_mesh_pb_gatt_close(bt_mesh_conn_t conn)
 {
     bool pub_key;
 
