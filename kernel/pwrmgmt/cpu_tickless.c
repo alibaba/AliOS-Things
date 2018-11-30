@@ -3,12 +3,6 @@
  */
 
 /*
-modification history
---------------------
-14jan2018, init vesion
-*/
-
-/*
 This file provides support for cpu tickless-idle.
 
 Tickless-idle eliminates unnecessary timer interrupts when the processor is
@@ -18,14 +12,12 @@ idle is entered when all CPUs are ready.
 */
 
 #include <stdlib.h>
-#include <k_critical.h>
+
 #include "cpu_pwr_api.h"
 #include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
 #include "pwr_debug.h"
 #include "cpu_tickless.h"
-
-//#define CPU_TICKLESS_DBG
 
 /* 100 * 365 * 24 * 3600 * 1000 * 1000 = 0xB342EB7C38000 */
 #define TIME_100_YEARS_IN_US 0xB342EB7C38000ULL
@@ -77,14 +69,11 @@ static pwr_status_t tickless_timer_init(void);
 static void         tickless_enter(void);
 static void         tickless_exit(void);
 static void         tickless_enter_check(uint32_t cpu_idx, uint32_t cStatesCfg,
-                                         uint64_t *    p_sleeptime,
-                                         cpu_cstate_t *p_cstate_to_set);
-static pwr_status_t tickless_one_shot_start(uint64_t     sleep_time,
-                                            cpu_cstate_t c_state_to_enter);
+                                         uint64_t *p_sleeptime, cpu_cstate_t *p_cstate_to_set);
+static pwr_status_t tickless_one_shot_start(uint64_t sleep_time, cpu_cstate_t c_state_to_enter);
 static tick_t       tickless_one_shot_stop(cpu_cstate_t c_state_current);
 static void         tickless_announce_n(tick_t n_ticks);
-static pwr_status_t tickless_c_state_latency_init(uint32_t  cpu_idx,
-                                                  uint32_t *p_latency);
+static pwr_status_t tickless_c_state_latency_init(uint32_t cpu_idx, uint32_t *p_latency);
 
 /**
  * This routine is supplied by this module for board/platform,
@@ -120,8 +109,7 @@ pwr_status_t tickless_init(void)
     cpu_pwr_idle_mode_set(CPU_IDLE_MODE_RUN);
 
     for (cpu_idx = 0; cpu_idx < CPUS_NUM_MAX; cpu_idx++) {
-        if (cpu_pwr_c_state_capability_get(cpu_idx, &cStateConfig[cpu_idx]) !=
-            PWR_OK) {
+        if (cpu_pwr_c_state_capability_get(cpu_idx, &cStateConfig[cpu_idx]) != PWR_OK) {
             return PWR_ERR;
         }
 
@@ -157,11 +145,9 @@ static pwr_status_t tickless_timer_init(void)
     return PWR_OK;
 }
 
-static pwr_status_t tickless_one_shot_start(uint64_t     sleep_time,
-                                            cpu_cstate_t c_state_to_enter)
+static pwr_status_t tickless_one_shot_start(uint64_t sleep_time, cpu_cstate_t c_state_to_enter)
 {
-    if (cStateOneShotTimer[c_state_to_enter]->one_shot_start(sleep_time) !=
-        PWR_OK) {
+    if (cStateOneShotTimer[c_state_to_enter]->one_shot_start(sleep_time) != PWR_OK) {
         PWR_DBG(DBG_INFO, "start one shot(%lld ms) fail\n", sleep_time);
 
         return (PWR_ERR);
@@ -184,8 +170,7 @@ static tick_t tickless_one_shot_stop(cpu_cstate_t c_state_current)
         return 0;
     }
 
-    n_ticks =
-      (tick_t)((passed_micro_sec * RHINO_CONFIG_TICKS_PER_SECOND) / (1000000));
+    n_ticks = (tick_t)((passed_micro_sec * RHINO_CONFIG_TICKS_PER_SECOND) / (1000000));
 
     /* fixs ticks drift issue */
     us_remain += passed_micro_sec % us_per_tick;
@@ -205,8 +190,7 @@ static tick_t tickless_one_shot_stop(cpu_cstate_t c_state_current)
  * @param[in]  p_latency[]  Latency array
  * @return  PWR_OK or PWR_ERR when failed.
  */
-static pwr_status_t tickless_c_state_latency_init(uint32_t cpu_idx,
-                                                  uint32_t p_latency[])
+static pwr_status_t tickless_c_state_latency_init(uint32_t cpu_idx, uint32_t p_latency[])
 {
     cpu_cstate_t cstate;
     uint32_t     cstate_all;
@@ -244,8 +228,7 @@ static pwr_status_t tickless_c_state_latency_init(uint32_t cpu_idx,
  * @return  N/A
  */
 static void tickless_enter_check(uint32_t cpu_idx, uint32_t cstate_cfg,
-                                 uint64_t *    p_sleeptime,
-                                 cpu_cstate_t *p_cstate_to_set)
+                                 uint64_t *p_sleeptime, cpu_cstate_t *p_cstate_to_set)
 {
     uint32_t cpu_c_state;
     uint64_t sleep_time_us;           /* sleep time in microseconds */
@@ -312,7 +295,7 @@ static void tickless_enter_check(uint32_t cpu_idx, uint32_t cstate_cfg,
 /**
  * tickless_enter() is called when a CPU is going to enter idle state, a one
  * shot interrupt is planned at sametime which is used to wake up CPU.
- * @return  N/A
+ * @return N/A
  */
 static void tickless_enter(void)
 {
@@ -422,8 +405,7 @@ static void tickless_announce_n(tick_t n_ticks)
  * one shot timer and c state, different c state could has different
  * wake up timer.
  */
-void tickless_one_shot_timer_save(cpu_cstate_t      cstate,
-                                  one_shot_timer_t *p_timer)
+void tickless_one_shot_timer_save(cpu_cstate_t cstate, one_shot_timer_t *p_timer)
 {
     cStateOneShotTimer[cstate] = p_timer;
 }
