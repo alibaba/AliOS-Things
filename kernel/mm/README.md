@@ -2,11 +2,14 @@
 memory management configuration
 
 ## Feature of Board
+support malloc/realloc/free when uspace app enabled
 
 ## Directories
 
 ```sh
-mm # configuration files for memory management
+
+tlsf
+├─ tlsf.c   # memory management algorithm src
 ```
 
 ## Board Hardware Resources
