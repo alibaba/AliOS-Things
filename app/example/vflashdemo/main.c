@@ -8,8 +8,6 @@
 #include <aos/aos.h>
 #include <errno.h>
 #include <hal/soc/flash.h>
-#include <vfs_inode.h>
-#include <vfs_register.h>
 
 #define SECTOR_SIZE 0x1000
 #define SECTOR_MASK ~(SECTOR_SIZE - 1)
