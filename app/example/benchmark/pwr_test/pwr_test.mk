@@ -4,7 +4,7 @@ $(NAME)_SOURCES := pwr_test.c
 
 GLOBAL_DEFINES += AOS_NO_WIFI
 
-$(NAME)_COMPONENTS := yloop cli rhino/pwrmgmt
+$(NAME)_COMPONENTS := yloop cli pwrmgmt
 
 GLOBAL_DEFINES += RHINO_CONFIG_CPU_PWR_MGMT=1
 
