@@ -310,7 +310,12 @@ PhyParam_t RegionCN470AGetPhyParam(GetPhyParams_t *getPhy)
         }
 #ifdef LORAMAC_CLASSB_ENABLED
         case PHY_BEACON_CHANNEL_FREQ: {
-            phyParam.Value = CN470A_BEACON_CHANNEL_FREQ;
+            if (get_lora_freq_mode() == FREQ_MODE_INTER) {
+                phyParam.Value = CN470A_BEACON_CHANNEL_INTER_FREQ;
+            } else {
+                phyParam.Value = CN470A_BEACON_CHANNEL_INTRA_FREQ;
+            }
+
             break;
         }
         case PHY_BEACON_FORMAT: {
@@ -593,6 +598,7 @@ bool RegionCN470ARxConfig(RxConfigParams_t *rxConfig, int8_t *datarate)
 
     *datarate           = (uint8_t)dr;
     rxConfig->Frequency = frequency;
+
     return true;
 }
 
