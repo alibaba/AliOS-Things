@@ -13,8 +13,8 @@
 #include "vfs_conf.h"
 #include "aos/network.h"
 
-#define FD_VFS_START AOS_CONFIG_VFS_FD_OFFSET
-#define FD_VFS_END (FD_VFS_START + MAX_FILE_NUM - 1)
+#define FD_VFS_START VFS_FD_OFFSET
+#define FD_VFS_END (FD_VFS_START + VFS_MAX_FILE_NUM - 1)
 
 #ifdef POSIX_DEVICE_IO_NEED
 #ifdef WITH_LWIP
@@ -171,8 +171,8 @@ int ioctl(int fildes, int request, ... /* arg */)
 
     va_start(args, request);
 
-    if ((fildes >= AOS_CONFIG_VFS_FD_OFFSET) &&
-        (fildes <= (AOS_CONFIG_VFS_FD_OFFSET + MAX_FILE_NUM - 1))) {
+    if ((fildes >= VFS_FD_OFFSET) &&
+        (fildes <= (VFS_FD_OFFSET + VFS_MAX_FILE_NUM - 1))) {
         arg = va_arg(args, int);
         return aos_ioctl(fildes, request, arg);
 #ifdef WITH_LWIP
