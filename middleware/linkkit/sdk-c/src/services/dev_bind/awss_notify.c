@@ -185,13 +185,17 @@ int awss_notify_dev_info(int type, int count)
             cb = notify_map[i].cb;
             break;
         }
-        if (method == NULL || topic == NULL)
+        if (method == NULL || topic == NULL) {
+            awss_err("parametes invalid");
             break;
+        }
 
         buf = os_zalloc(DEV_INFO_LEN_MAX);
         dev_info = os_zalloc(DEV_INFO_LEN_MAX);
-        if (buf == NULL || dev_info == NULL)
+        if (buf == NULL || dev_info == NULL) {
+            awss_err("alloc mem fail");
             break;
+        }
 
         memset(&notify_sa, 0, sizeof(notify_sa));
         memcpy(notify_sa.host, AWSS_NOTIFY_HOST, strlen(AWSS_NOTIFY_HOST));
@@ -203,7 +207,8 @@ int awss_notify_dev_info(int type, int count)
 
         awss_flow("topic:%s, %s\n", topic, buf);
         for (i = 0; i < count; i ++) {
-            awss_cmp_coap_send(buf, strlen(buf), &notify_sa, topic, cb, &g_notify_msg_id);
+            int ret = awss_cmp_coap_send(buf, strlen(buf), &notify_sa, topic, cb, &g_notify_msg_id);
+            awss_debug("send notify %s", ret == 0 ? "success" : "fail");
             if (count > 1)
                 os_msleep(200 + 100 * i);
 
@@ -228,12 +233,15 @@ static int awss_process_get_devinfo()
     char *dev_info = NULL;
 
     if (awss_report_token_suc == 0) {
+        awss_debug("try to report token to cloud");
         HAL_Timer_Start(get_devinfo_timer, AWSS_CHECK_RESP_TIME);
         return 0;
     }
 
-    if (coap_session_ctx == NULL)
+    if (coap_session_ctx == NULL) {
+        awss_debug("no get req");
         return -1;
+    }
 
     do {
         int len = 0, id_len = 0;
@@ -311,14 +319,18 @@ static int online_get_device_info(void *ctx, void *resource, void *remote,
     /*
      * if the last one is not finished, drop current request
      */
-    if (coap_session_ctx != NULL)
+    if (coap_session_ctx != NULL) {
+        awss_debug("no req");
         return -1;
+    }
     /*
      * copy coap session context
      */
     coap_session_ctx = awss_cpy_coap_ctx(request, remote, is_mcast);
-    if (coap_session_ctx == NULL)
+    if (coap_session_ctx == NULL) {
+        awss_debug("cpy req ctx fail");
         return -1;
+    }
 
     timeout = awss_token_timeout();
     if (timeout) {

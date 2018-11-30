@@ -143,6 +143,7 @@ int awss_check_reset()
     HAL_Kv_Get(AWSS_KV_RST, &rst, &len);
 
     if (rst != 0x01) { // reset flag is not set
+        log_debug("[RST]", "no rst\r\n");
         return 0;
     }
 
