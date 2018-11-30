@@ -639,11 +639,12 @@ void *HAL_Fopen(const char *path, const char *mode)
     return (void *)fopen(path, mode);
 }
 
-size_t HAL_Fread(void *buff, size_t size, size_t count, void *stream)
+uint32_t HAL_Fread(void *buff, uint32_t size, uint32_t count, void *stream)
 {
     return fread(buff, size, count, (FILE *)stream);
 }
-size_t HAL_Fwrite(const void *ptr, size_t size, size_t count, void *stream)
+
+uint32_t HAL_Fwrite(const void *ptr, uint32_t size, uint32_t count, void *stream)
 {
     return fwrite(ptr, size, count, (FILE *)stream);
 }
