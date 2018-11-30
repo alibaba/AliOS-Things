@@ -15,6 +15,7 @@ $(NAME)_SOURCES += posix_semaphore.c
 $(NAME)_SOURCES += posix_mqueue.c
 $(NAME)_SOURCES += posix_dirent.c
 $(NAME)_SOURCES += posix_prctl.c
+$(NAME)_SOURCES += posix_init.c
 
 #default gcc
 ifeq ($(COMPILER),)

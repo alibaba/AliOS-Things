@@ -5,6 +5,8 @@
 #include "posix_dirent.h"
 #include "aos/network.h"
 
+#if (POSIX_DIRENT_ENABLE > 0)
+
 DIR *opendir(const char *dirname)
 {
     return (DIR *)aos_opendir(dirname);
@@ -84,3 +86,5 @@ int access(const char *filenpath, int mode)
 {
     return aos_access(filenpath, mode);
 }
+
+#endif

@@ -14,7 +14,7 @@ extern "C"
 #include <sys/time.h>
 
 #include "k_api.h"
-#include "pthread_default_config.h"
+#include "posix_default_config.h"
 
 typedef ktask_t *pthread_t;
 typedef int      pthread_once_t;

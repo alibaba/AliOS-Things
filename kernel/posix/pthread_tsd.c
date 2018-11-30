@@ -4,6 +4,8 @@
 
 #include "pthread.h"
 
+#if (POSIX_PTHREAD_ENABLE > 0)
+
 pthread_key_list_t pthread_key_list_head;
 
 int pthread_key_create(pthread_key_t *key, void (*destructor)(void*))
@@ -287,3 +289,5 @@ int pthread_key_delete(pthread_key_t key)
     RHINO_CRITICAL_EXIT();
     return 0;
 }
+
+#endif

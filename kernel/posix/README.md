@@ -19,15 +19,17 @@
 posix
 ├── include
 │   ├── posix_dirent.h           # interface of device IO and file system
-│   ├── posix_mqueue.h           # interface of queue 
+│   ├── posix_mqueue.h           # interface of queue
 │   ├── posix_prctl.h            # interface of prctl
 │   ├── posix_semaphore.h        # interface of semaphore
 │   ├── posix_signal.h           # interface of signal
 │   ├── posix_timer.h            # interface of timer
 │   ├── pthread.h                # interface of pthread
+│   ├── posix_init.h             # interface of posix init
 │   └── posix_default_config.h   # default config of posix
 ├── posix.mk                     # makefile of posix
 ├── posix_dirent.c               # implement of device IO and file system
+├── posix_init.c                 # implement of posix init
 ├── posix_mqueue.c               # implement of queue
 ├── posix_prctl.h                # implement of prctl
 ├── posix_semaphore.c            # implement of semaphore
