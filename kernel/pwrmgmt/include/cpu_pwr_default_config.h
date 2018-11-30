@@ -10,6 +10,8 @@ extern "C"
 {
 #endif
 
+#include "cpu_pwr_api.h"
+
 /* Maximum number of CPUs */
 #ifndef CPUS_NUM_MAX
 #define CPUS_NUM_MAX 1
@@ -17,6 +19,10 @@ extern "C"
 
 #ifndef RHINO_CONFIG_CPU_PWR_SHOW
 #define RHINO_CONFIG_CPU_PWR_SHOW 0
+#endif
+
+#ifndef RHINO_CONFIG_CPU_PWR_DEBUG
+#define RHINO_CONFIG_CPU_PWR_DEBUG 0
 #endif
 
 #ifdef __cplusplus

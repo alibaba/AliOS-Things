@@ -3,16 +3,11 @@
  */
 
 /*
-modification history
---------------------
-14jan2018, init vesion
-*/
-
-/*
 This file provides Hardware Abstraction Layer of CPU power management support.
 */
 
 #include <stdlib.h>
+
 #include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
 #include "cpu_pwr_api.h"
@@ -21,25 +16,21 @@ This file provides Hardware Abstraction Layer of CPU power management support.
 /* debug switch of this file */
 #undef CPU_PWR_HAL_DBG
 
-/* forward declarations */
+#define CPU_TREE_MUX_LOCK() \
+        (void)krhino_mutex_lock(&cpu_pwr_hal_mux, RHINO_WAIT_FOREVER)
+#define CPU_TREE_MUX_UNLOCK() (void)krhino_mutex_unlock(&cpu_pwr_hal_mux)
+
+/* the index of this p_cpu_node_array implies the cpu logic id */
+cpu_pwr_t         *p_cpu_node_array[CPUS_NUM_MAX];
+static kmutex_t    cpu_pwr_hal_mux;
+static kspinlock_t cpu_pwr_lock;
 
 /*
-board_cpu_pwr_topo_create() must be provided by board or platform,
+board_cpu_pwr_init() must be provided by board or platform,
 different board/platform may has different cpu topology.
 */
 extern pwr_status_t board_cpu_pwr_init(void);
-
-/* the index of this p_cpu_node_array implies the cpu logic id */
-cpu_pwr_t *     p_cpu_node_array[CPUS_NUM_MAX];
-static kmutex_t cpu_pwr_hal_mux;
-
-static int num_of_bit_one_get(uint32_t n);
-
-#define CPU_TREE_MUX_LOCK() \
-    (void)krhino_mutex_lock(&cpu_pwr_hal_mux, RHINO_WAIT_FOREVER)
-#define CPU_TREE_MUX_UNLOCK() (void)krhino_mutex_unlock(&cpu_pwr_hal_mux)
-
-static kspinlock_t cpu_pwr_lock;
+static int          num_of_bit_one_get(uint32_t n);
 
 cpu_pwr_t *cpu_pwr_node_find_by_name(char *p_name, uint32_t index)
 {
@@ -50,8 +41,7 @@ cpu_pwr_t *cpu_pwr_node_find_by_name(char *p_name, uint32_t index)
             continue;
         }
 
-        if ((!strncmp(p_cpu_node_array[i]->name, p_name,
-                      CPU_PWR_NODE_NAME_LEN)) &&
+        if ((!strncmp(p_cpu_node_array[i]->name, p_name, CPU_PWR_NODE_NAME_LEN)) &&
             (p_cpu_node_array[i]->unit == index)) {
             /* find it, and return */
             return p_cpu_node_array[i];
@@ -61,8 +51,7 @@ cpu_pwr_t *cpu_pwr_node_find_by_name(char *p_name, uint32_t index)
     return NULL;
 }
 
-pwr_status_t cpu_pwr_node_init_(char *name, uint32_t unit,
-                                cpu_pwr_t *p_cpu_node)
+pwr_status_t cpu_pwr_node_init_(char *name, uint32_t unit, cpu_pwr_t *p_cpu_node)
 {
     if (name == NULL || p_cpu_node == NULL) {
         return PWR_ERR;
@@ -97,8 +86,7 @@ pwr_status_t cpu_pwr_node_init_(char *name, uint32_t unit,
  *
  * the space of p_cpu_node is provided by caller.
  */
-pwr_status_t cpu_pwr_node_init_static(char *name, uint32_t unit,
-                                      cpu_pwr_t *p_cpu_node)
+pwr_status_t cpu_pwr_node_init_static(char *name, uint32_t unit, cpu_pwr_t *p_cpu_node)
 {
     if (name == NULL || p_cpu_node == NULL) {
         return PWR_ERR;
@@ -112,8 +100,7 @@ pwr_status_t cpu_pwr_node_init_static(char *name, uint32_t unit,
  * the difference is the space of pp_cpu_node is mallocced in
  * running time.
  */
-pwr_status_t cpu_pwr_node_init_dyn(char *name, uint32_t unit,
-                                   cpu_pwr_t **pp_cpu_node)
+pwr_status_t cpu_pwr_node_init_dyn(char *name, uint32_t unit, cpu_pwr_t **pp_cpu_node)
 {
     cpu_pwr_t *p_cpu_node;
 
@@ -181,17 +168,15 @@ pwr_status_t cpu_pwr_node_record(cpu_pwr_t *p_cpu_node, uint32_t cpu_idx)
     return PWR_OK;
 }
 
-
 /**
  * cpu_pwr_c_method_set() set the method of controlling C state,
  *normally it will be called by platform in board_cpu_pwr_init().
  *
- * @renturn  PWR_OK or PWR_ERR when failed.
+ * @renturn PWR_OK or PWR_ERR when failed.
  */
-pwr_status_t cpu_pwr_c_method_set(uint32_t         cpu_idx,
-                                  cpu_cstate_set_t cpu_cstate_set_func)
+pwr_status_t cpu_pwr_c_method_set(uint32_t cpu_idx, cpu_cstate_set_t cpu_cstate_set_func)
 {
-    cpu_pwr_t *  p_cpu_node;
+    cpu_pwr_t   *p_cpu_node;
     pwr_status_t ret = PWR_OK;
 
     if (cpu_idx >= CPUS_NUM_MAX) {
@@ -205,33 +190,30 @@ pwr_status_t cpu_pwr_c_method_set(uint32_t         cpu_idx,
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR,
-                "did not find p_cpu_node in p_cpu_node_array "
-                "with cpu_idx[%d]\n",
-                cpu_idx);
+        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array "
+                "with cpu_idx[%d]\n", cpu_idx);
 
         return PWR_ERR;
     }
 
     CPU_TREE_MUX_LOCK();
+
     /* bind P state set/get method into this node */
     p_cpu_node->cpu_cstate_set_func = cpu_cstate_set_func;
 
     /* set C state to C0 by default, is here the right place ?*/
     p_cpu_node->current_c_state = CPU_CSTATE_C0;
 
-    PWR_DBG(DBG_INFO, "set CPU(%s%d in level %d) C-state-set to 0x%08x\n",
-            p_cpu_node->name, p_cpu_node->unit, p_cpu_node->level,
-            cpu_cstate_set_func);
-    PWR_DBG(DBG_INFO, "set CPU(%s%d in level %d) current_c_state to C%d\n",
-            p_cpu_node->name, p_cpu_node->unit, p_cpu_node->level,
-            p_cpu_node->current_c_state);
+    PWR_DBG(DBG_INFO, "set CPU(%s%d) C-state-set to 0x%08x\n",
+            p_cpu_node->name, p_cpu_node->unit, cpu_cstate_set_func);
+    PWR_DBG(DBG_INFO, "set CPU(%s%d) current_c_state to C%d\n",
+            p_cpu_node->name, p_cpu_node->unit, p_cpu_node->current_c_state);
     CPU_TREE_MUX_UNLOCK();
 
     return ret;
 }
 
-static pwr_status_t cpu_pwr_c_state_set_(cpu_pwr_t *  p_cpu_node,
+static pwr_status_t cpu_pwr_c_state_set_(cpu_pwr_t *p_cpu_node,
                                          cpu_cstate_t cpu_c_state, int master,
                                          int all_cores_need_sync)
 {
@@ -314,9 +296,7 @@ static pwr_status_t cpu_pwr_c_state_set_(cpu_pwr_t *  p_cpu_node,
      * 2) - the request C state is not support
      */
 
-    PWR_DBG(DBG_INFO,
-            "p_cpu_node(%s%d) do not support cpu_cstate_set_func "
-            "or the request C state is not support\n",
+    PWR_DBG(DBG_INFO, "p_cpu_node(%s%d) do not support cpu_cstate_set_func or the request C state is not support\n",
             p_cpu_node->name, p_cpu_node->unit);
 
     return PWR_OK;
@@ -330,7 +310,7 @@ static pwr_status_t cpu_pwr_c_state_set_(cpu_pwr_t *  p_cpu_node,
  *
  * @return  PWR_OK or PWR_ERR when failed.
  */
-static pwr_status_t _cpu_pwr_c_state_get(uint32_t      cpu_idx,
+static pwr_status_t _cpu_pwr_c_state_get(uint32_t cpu_idx,
                                          cpu_cstate_t *p_cpu_c_state)
 {
     cpu_pwr_t *p_cpu_node;
@@ -346,10 +326,8 @@ static pwr_status_t _cpu_pwr_c_state_get(uint32_t      cpu_idx,
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR,
-                "did not find p_cpu_node in p_cpu_node_array "
-                "with cpu_idx[%d]\n",
-                cpu_idx);
+        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array "
+                "with cpu_idx[%d]\n", cpu_idx);
 
         return PWR_ERR;
     }
@@ -396,10 +374,8 @@ static pwr_status_t _cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(
-          DBG_ERR,
-          "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
-          cpu_idx);
+        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
+                cpu_idx);
 
         return PWR_ERR;
     }
@@ -427,9 +403,8 @@ static pwr_status_t _cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
      * to C1,C2,C3,...), cstate_updating will be forced to FALSE.
      */
 
-    if (target_c_state == CPU_CSTATE_C0 &&
-        p_cpu_node->current_c_state != CPU_CSTATE_C0 &&
-        p_cpu_node->cstate_updating == TRUE) {
+    if (target_c_state == CPU_CSTATE_C0 && p_cpu_node->current_c_state != CPU_CSTATE_C0
+        && p_cpu_node->cstate_updating == TRUE) {
 
         p_cpu_node->cstate_updating = FALSE;
     }
@@ -475,14 +450,10 @@ static pwr_status_t _cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
                      * based on this value, because we are the first
                      * core wake up.
                      */
-                    ret =
-                      p_cpu_node->cpu_cstate_set_func(target_c_state, master);
+                    ret = p_cpu_node->cpu_cstate_set_func(target_c_state, master);
                     if (ret != PWR_OK) {
-                        PWR_DBG(DBG_ERR,
-                                "%s%d -> cpu_cstate_set_func(P%d) "
-                                "failed\n",
-                                p_cpu_node->name, p_cpu_node->unit,
-                                target_c_state);
+                        PWR_DBG(DBG_ERR, "%s%d -> cpu_cstate_set_func(P%d) failed\n",
+                                p_cpu_node->name, p_cpu_node->unit, target_c_state);
                         ret = PWR_ERR;
                     }
                 }
@@ -498,16 +469,11 @@ static pwr_status_t _cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
                  * self state to C0 and call function if need,
                  * normmally cpu_cstate_set_func() will do nothing here.
                  */
-
                 if (p_cpu_node->cpu_cstate_set_func != NULL) {
-                    ret =
-                      p_cpu_node->cpu_cstate_set_func(target_c_state, master);
+                    ret = p_cpu_node->cpu_cstate_set_func(target_c_state, master);
                     if (ret != PWR_OK) {
-                        PWR_DBG(DBG_ERR,
-                                "%s%d -> cpu_cstate_set_func(P%d) "
-                                "failed\n",
-                                p_cpu_node->name, p_cpu_node->unit,
-                                target_c_state);
+                        PWR_DBG(DBG_ERR, "%s%d -> cpu_cstate_set_func(P%d) failed\n",
+                                p_cpu_node->name, p_cpu_node->unit, target_c_state);
 
                         ret = PWR_ERR;
                     }
@@ -530,8 +496,7 @@ static pwr_status_t _cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
              */
             master = TRUE;
 
-            ret =
-              cpu_pwr_c_state_set_(p_cpu_node, target_c_state, master, FALSE);
+            ret = cpu_pwr_c_state_set_(p_cpu_node, target_c_state, master, FALSE);
         }
 
         /*
@@ -567,8 +532,7 @@ pwr_status_t cpu_pwr_c_state_set(cpu_cstate_t target_c_state)
 }
 
 static pwr_status_t cpu_pwr_c_state_capability_set_(cpu_pwr_t *p_cpu_node,
-                                                    int        cpu_idx,
-                                                    int32_t    support_bitset_c)
+                                                    int cpu_idx, int32_t support_bitset_c)
 {
     if (p_cpu_node == NULL) {
         PWR_DBG(DBG_ERR, "p_cpu_node == NULL\n");
@@ -580,24 +544,20 @@ static pwr_status_t cpu_pwr_c_state_capability_set_(cpu_pwr_t *p_cpu_node,
     if (p_cpu_node->cpu_cstate_set_func != NULL) {
         p_cpu_node->support_bitset_c = support_bitset_c;
 
-        PWR_DBG(DBG_INFO,
-                "level %d, p_cpu_node(%s%d) support_bitset_c = 0x%016llx\n",
-                p_cpu_node->level, p_cpu_node->name, p_cpu_node->unit,
-                p_cpu_node->support_bitset_c);
+        PWR_DBG(DBG_INFO, "p_cpu_node(%s%d) support_bitset_c = 0x%016lx\n",
+                p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
 
         return PWR_OK;
     }
 
-    PWR_DBG(DBG_ERR,
-            "PWR_ERR: p_cpu_node(%s%d) "
-            "support_bitset_c = 0x%016llx\n",
+    PWR_DBG(DBG_ERR, "PWR_ERR: p_cpu_node(%s%d) support_bitset_c = 0x%016lx\n",
             p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
 
     return PWR_ERR;
 }
 
-static pwr_status_t cpu_pwr_c_state_capability_get_(
-  cpu_pwr_t *p_cpu_node, int cpu_idx, uint32_t *p_support_bitset_c)
+static pwr_status_t cpu_pwr_c_state_capability_get_(cpu_pwr_t *p_cpu_node, int cpu_idx,
+                                                    uint32_t *p_support_bitset_c)
 {
     if (p_cpu_node == NULL) {
         PWR_DBG(DBG_ERR, "p_cpu_node == NULL\n");
@@ -611,10 +571,8 @@ static pwr_status_t cpu_pwr_c_state_capability_get_(
     if (p_cpu_node->cpu_cstate_set_func != NULL) {
         *p_support_bitset_c |= p_cpu_node->support_bitset_c;
 
-        PWR_DBG(DBG_INFO,
-                "level %d, p_cpu_node(%s%d) support_bitset_c = 0x%016llx\n",
-                p_cpu_node->level, p_cpu_node->name, p_cpu_node->unit,
-                p_cpu_node->support_bitset_c);
+        PWR_DBG(DBG_INFO, "p_cpu_node(%s%d) support_bitset_c = 0x%016lx\n",
+                p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
 
         /* do not return, continue check if any support C state from parent */
     }
@@ -635,10 +593,9 @@ static pwr_status_t cpu_pwr_c_state_capability_get_(
  *
  * @return  PWR_OK or PWR_ERR when failed.
  */
-pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpu_idx,
-                                            uint32_t support_bitset_c)
+pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpu_idx, uint32_t support_bitset_c)
 {
-    cpu_pwr_t *  p_cpu_node;
+    cpu_pwr_t   *p_cpu_node;
     pwr_status_t ret = PWR_OK;
 
     if (cpu_idx >= CPUS_NUM_MAX) {
@@ -649,13 +606,10 @@ pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpu_idx,
     }
 
     /* fetch the p_cpu_node directly from p_cpu_node_array according cpu_idx */
-
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR,
-                "did not find p_cpu_node in p_cpu_node_array "
-                "with cpu_idx[%d]\n",
+        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
                 cpu_idx);
 
         return PWR_ERR;
@@ -663,8 +617,7 @@ pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpu_idx,
 
     CPU_TREE_MUX_LOCK();
 
-    ret =
-      cpu_pwr_c_state_capability_set_(p_cpu_node, cpu_idx, support_bitset_c);
+    ret = cpu_pwr_c_state_capability_set_(p_cpu_node, cpu_idx, support_bitset_c);
 
     CPU_TREE_MUX_UNLOCK();
 
@@ -677,10 +630,10 @@ pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpu_idx,
  *
  * @return  PWR_OK or PWR_ERR when failed.
  */
-pwr_status_t cpu_pwr_c_state_capability_get(uint32_t  cpu_idx,
+pwr_status_t cpu_pwr_c_state_capability_get(uint32_t cpu_idx,
                                             uint32_t *p_support_bitset_c)
 {
-    cpu_pwr_t *  p_cpu_node;
+    cpu_pwr_t   *p_cpu_node;
     pwr_status_t ret = PWR_OK;
 
     if (cpu_idx >= CPUS_NUM_MAX) {
@@ -694,9 +647,7 @@ pwr_status_t cpu_pwr_c_state_capability_get(uint32_t  cpu_idx,
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR,
-                "did not find p_cpu_node in p_cpu_node_array "
-                "with cpu_idx[%d]\n",
+        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
                 cpu_idx);
 
         return PWR_ERR;
@@ -707,8 +658,7 @@ pwr_status_t cpu_pwr_c_state_capability_get(uint32_t  cpu_idx,
 
     CPU_TREE_MUX_LOCK();
 
-    ret =
-      cpu_pwr_c_state_capability_get_(p_cpu_node, cpu_idx, p_support_bitset_c);
+    ret = cpu_pwr_c_state_capability_get_(p_cpu_node, cpu_idx, p_support_bitset_c);
 
     CPU_TREE_MUX_UNLOCK();
 
@@ -719,9 +669,9 @@ pwr_status_t cpu_pwr_c_state_capability_get(uint32_t  cpu_idx,
 }
 
 
-static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *  p_cpu_node,
+static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *p_cpu_node,
                                                   cpu_cstate_t cpu_c_state,
-                                                  uint32_t     latency)
+                                                  uint32_t latency)
 {
     int    i;
     size_t spaceSize = 0;
@@ -757,14 +707,11 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *  p_cpu_node,
     if (p_cpu_node->cpu_cstate_set_func != NULL) {
         /* how many C state is supportted */
         if (p_cpu_node->cstate_nums == 0) {
-            p_cpu_node->cstate_nums =
-              num_of_bit_one_get(p_cpu_node->support_bitset_c);
+            p_cpu_node->cstate_nums = num_of_bit_one_get(p_cpu_node->support_bitset_c);
 
             if (p_cpu_node->cstate_nums == 0) {
-                PWR_DBG(DBG_ERR,
-                        "%s%d->support_bitset_c(%d), cstate_nums() = 0\n",
-                        p_cpu_node->name, p_cpu_node->unit,
-                        p_cpu_node->support_bitset_c);
+                PWR_DBG(DBG_ERR, "%s%d->support_bitset_c(%d), cstate_nums() = 0\n",
+                        p_cpu_node->name, p_cpu_node->unit, p_cpu_node->support_bitset_c);
 
                 return PWR_ERR;
             }
@@ -772,7 +719,7 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *  p_cpu_node,
 
         /* malloc the space to save frequency info */
         if (p_cpu_node->p_pair_latency == NULL) {
-            spaceSize = sizeof(state_val_pair_t) * p_cpu_node->cstate_nums;
+            spaceSize = sizeof(state_val_pair_t) *p_cpu_node->cstate_nums;
             p_cpu_node->p_pair_latency = (state_val_pair_t *)malloc(spaceSize);
 
             if (p_cpu_node->p_pair_latency == NULL) {
@@ -804,8 +751,7 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *  p_cpu_node,
 
             for (i = 0; i < p_cpu_node->cstate_nums; i++) {
                 /* search a free space on p_pair_latency to save info */
-                if (p_cpu_node->p_pair_latency[i].value ==
-                    (uint32_t)CPU_LATENCY_UNKNOW) {
+                if (p_cpu_node->p_pair_latency[i].value == (uint32_t)CPU_LATENCY_UNKNOW) {
                     p_cpu_node->p_pair_latency[i].state = cpu_c_state;
                     p_cpu_node->p_pair_latency[i].value = latency;
 
@@ -829,8 +775,7 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *  p_cpu_node,
      * 2) this node support cpu_cstate_set_func, but the given C state
      * cpu_c_state is not supported
      */
-    PWR_DBG(DBG_INFO,
-            "p_cpu_node(%s%d) do not support cpu_cstate_set_func "
+    PWR_DBG(DBG_INFO, "p_cpu_node(%s%d) do not support cpu_cstate_set_func "
             "or the given C state cpu_c_state is not supported\n",
             p_cpu_node->name, p_cpu_node->unit);
 
@@ -845,11 +790,10 @@ static pwr_status_t cpu_pwr_c_state_latency_save_(cpu_pwr_t *  p_cpu_node,
  *
  * @return  PWR_OK or PWR_ERR when failed.
  */
-pwr_status_t cpu_pwr_c_state_latency_save(uint32_t     cpu_idx,
-                                          cpu_cstate_t cpu_c_state,
-                                          uint32_t     latency)
+pwr_status_t cpu_pwr_c_state_latency_save(uint32_t cpu_idx, cpu_cstate_t cpu_c_state,
+                                          uint32_t latency)
 {
-    cpu_pwr_t *  p_cpu_node;
+    cpu_pwr_t   *p_cpu_node;
     pwr_status_t ret = PWR_OK;
 
     if (cpu_idx >= CPUS_NUM_MAX) {
@@ -862,9 +806,7 @@ pwr_status_t cpu_pwr_c_state_latency_save(uint32_t     cpu_idx,
     p_cpu_node = p_cpu_node_array[cpu_idx];
 
     if (p_cpu_node == NULL) {
-        PWR_DBG(DBG_ERR,
-                "did not find p_cpu_node in p_cpu_node_array "
-                "with cpu_idx[%d]\n",
+        PWR_DBG(DBG_ERR, "did not find p_cpu_node in p_cpu_node_array with cpu_idx[%d]\n",
                 cpu_idx);
 
         return PWR_ERR;
@@ -879,7 +821,7 @@ pwr_status_t cpu_pwr_c_state_latency_save(uint32_t     cpu_idx,
     return ret;
 }
 
-static uint32_t cpu_pwr_c_state_latency_get_(cpu_pwr_t *  p_cpu_node,
+static uint32_t cpu_pwr_c_state_latency_get_(cpu_pwr_t *p_cpu_node,
                                              cpu_cstate_t cpu_c_state)
 {
     int i;
@@ -907,9 +849,7 @@ static uint32_t cpu_pwr_c_state_latency_get_(cpu_pwr_t *  p_cpu_node,
                     }
                 }
             } else {
-                PWR_DBG(DBG_ERR,
-                        "p_cpu_node(%s%d)->pPStateAttrArray is not "
-                        "initialized\n",
+                PWR_DBG(DBG_ERR, "p_cpu_node(%s%d)->pPStateAttrArray is not initialized\n",
                         p_cpu_node->name, p_cpu_node->unit);
 
                 return (uint32_t)CPU_LATENCY_UNKNOW;
@@ -951,7 +891,6 @@ uint32_t cpu_pwr_c_state_latency_get(uint32_t cpu_idx, cpu_cstate_t cpu_c_state)
     return cpu_pwr_c_state_latency_get_(p_cpu_node, cpu_c_state);
 }
 
-
 /*
  * cpu_pwr_hal_lib_init() is called to initialize the cpu hardware
  * abstraction layer infrastructure, such as constructing the semphore.
@@ -962,7 +901,7 @@ uint32_t cpu_pwr_c_state_latency_get(uint32_t cpu_idx, cpu_cstate_t cpu_c_state)
 void cpu_pwr_hal_lib_init(void)
 {
     /* clean the space */
-    memset(p_cpu_node_array, 0, sizeof(cpu_pwr_t *) * CPUS_NUM_MAX);
+    memset(p_cpu_node_array, 0, sizeof(cpu_pwr_t *) *CPUS_NUM_MAX);
 
     krhino_spin_lock_init(&cpu_pwr_lock);
 
