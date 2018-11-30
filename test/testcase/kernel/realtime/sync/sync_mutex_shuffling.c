@@ -83,7 +83,7 @@ void test_realtime_shuffling_mutex(void)
                        test_task1_stack, TEST_TASK_STACKSIZE, test_task1, 0);
     krhino_task_create(&test_task2_tcb, TEST_TASK2_NAME, 0, TEST_TASK2_PRI, 50,
                        test_task2_stack, TEST_TASK_STACKSIZE, test_task2, 0);
-    
+
     rttest_aux_intrpt_check_init();
     krhino_task_resume(&test_task1_tcb);
 
@@ -92,7 +92,7 @@ void test_realtime_shuffling_mutex(void)
     rttest_aux_show_result(SYNC_MUTEX_SHUFFLING_ID, "sync_mutex_shuffling", test_count, time_sum, time_max, time_min);
 
     krhino_task_del(&test_task2_tcb);
-    krhino_task_del(&test_task1_tcb);    
+    krhino_task_del(&test_task1_tcb);
     krhino_sem_del(&aux_sem);
     krhino_mutex_del(&test_mutex);
     krhino_sem_del(&wait_test_end);
