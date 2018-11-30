@@ -7,7 +7,7 @@
 
 #include "pthread.h"
 #include "k_api.h"
-#include "semaphore.h"
+#include "posix_semaphore.h"
 
 void posix_sem_case1(void);
 void posix_sem_case2(void);
