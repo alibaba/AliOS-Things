@@ -86,7 +86,7 @@ void test_realtime_mutex_active(void)
 
     krhino_sem_create(&aux_sem_regain_mutex, "aux_sem1", 0);
     krhino_sem_create(&aux_sem_cooperation, "aux_sem2", 0);
-    
+
     krhino_task_create(&test_task1_tcb, TEST_TASK1_NAME, 0, TEST_TASK1_PRI, 50,
                        test_task1_stack, TEST_TASK_STACKSIZE, test_task1, 0);
     krhino_task_create(&test_task2_tcb, TEST_TASK2_NAME, 0, TEST_TASK2_PRI, 50,
@@ -105,8 +105,8 @@ void test_realtime_mutex_active(void)
 
     krhino_task_del(&aux_task_tcb);
     krhino_task_del(&test_task2_tcb);
-    krhino_task_del(&test_task1_tcb);   
-    krhino_sem_del(&aux_sem_cooperation); 
+    krhino_task_del(&test_task1_tcb);
+    krhino_sem_del(&aux_sem_cooperation);
     krhino_sem_del(&aux_sem_regain_mutex);
     krhino_mutex_del(&test_mutex);
     krhino_sem_del(&wait_test_end);
