@@ -295,7 +295,9 @@
 /*!
  * Beacon frequency
  */
-#define CN470A_BEACON_CHANNEL_FREQ                   471900000
+#define CN470A_BEACON_CHANNEL_INTRA_FREQ             471900000
+
+#define CN470A_BEACON_CHANNEL_INTER_FREQ             485500000
 
 /*!
  * Beacon frequency channel stepwidth
