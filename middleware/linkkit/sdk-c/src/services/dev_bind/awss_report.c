@@ -17,7 +17,7 @@ extern "C" {
 
 #define AWSS_REPORT_LEN_MAX       (256)
 #define AWSS_TOKEN_TIMEOUT_MS     (45 * 1000)
-#define MATCH_MONITOR_TIMEOUT_MS  (30 * 1000)
+#define MATCH_MONITOR_TIMEOUT_MS  (10 * 1000)
 #define MATCH_REPORT_CNT_MAX      (2)
 
 volatile char awss_report_token_suc = 0;
@@ -61,6 +61,7 @@ int awss_update_token()
         report_token_timer = HAL_Timer_Create("rp_token", (void (*)(void *))awss_report_token_to_cloud, NULL);
     HAL_Timer_Stop(report_token_timer);
     HAL_Timer_Start(report_token_timer, 10);
+    awss_debug("update token");
 
     produce_random(aes_random, sizeof(aes_random));
     return 0;
@@ -270,6 +271,7 @@ static int awss_report_token_to_cloud()
     if (awss_report_token_cnt ++ > MATCH_REPORT_CNT_MAX) {
         awss_stop_timer(report_token_timer);
         report_token_timer = NULL;
+        awss_debug("try %d times fail", awss_report_token_cnt);
         return -2;
     }
 
@@ -282,8 +284,10 @@ static int awss_report_token_to_cloud()
     int packet_len = AWSS_REPORT_LEN_MAX;
 
     char *packet = os_zalloc(packet_len + 1);
-    if (packet == NULL)
+    if (packet == NULL) {
+        awss_err("alloc mem(%d) failed", packet_len);
         return -1;
+    }
 
     do {
         // reduce stack used
