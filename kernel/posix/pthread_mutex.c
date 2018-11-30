@@ -4,6 +4,8 @@
 
 #include "pthread.h"
 
+#if (POSIX_PTHREAD_ENABLE > 0)
+
 int pthread_mutex_init(pthread_mutex_t *p_mutex, const pthread_mutexattr_t *attr)
 {
     kstat_t ret;
@@ -107,3 +109,5 @@ int pthread_mutexattr_getpshared(pthread_mutexattr_t *attr, int *pshared)
 {
     return 0;
 }
+
+#endif

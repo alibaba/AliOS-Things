@@ -10,6 +10,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include "k_api.h"
+#include "posix_default_config.h"
 
 /*
  * PR_SET_NAME:

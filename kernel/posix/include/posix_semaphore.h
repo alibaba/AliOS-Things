@@ -9,8 +9,10 @@
 extern "C" {
 #endif
 
-#include "k_api.h"
 #include <time.h>
+
+#include "k_api.h"
+#include "posix_default_config.h"
 
 typedef ksem_t *sem_t;
 

@@ -4,6 +4,8 @@
 
 #include "pthread.h"
 
+#if (POSIX_PTHREAD_ENABLE > 0)
+
 int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
 {
     int ret = -1;
@@ -201,3 +203,5 @@ int pthread_condattr_destroy(pthread_condattr_t *attr)
 {
     return 0;
 }
+
+#endif

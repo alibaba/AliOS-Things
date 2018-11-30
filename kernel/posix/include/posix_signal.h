@@ -17,8 +17,8 @@ extern "C" {
 #define SIGEV_THREAD 2
 
 union sigval {
-    int    sival_int;
-    void  *sival_ptr;
+    int   sival_int;
+    void *sival_ptr;
 };
 
 struct sigevent {
