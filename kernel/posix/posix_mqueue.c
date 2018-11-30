@@ -4,6 +4,8 @@
 
 #include "posix_mqueue.h"
 
+#if (POSIX_MQUEUE_ENABLE > 0)
+
 mqd_t mq_open(const char *name, int oflag, ...)
 {
     kbuf_queue_t *mq;
@@ -87,3 +89,5 @@ int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
 
     return msg_len;
 }
+
+#endif

@@ -4,22 +4,31 @@
 
 #include "pthread.h"
 
+#if (POSIX_PTHREAD_ENABLE > 0)
+
+kmutex_t g_pthread_mutex;
+
+int pthread_lock_init(void)
+{
+    int ret = -1;
+
+    ret = krhino_mutex_create(&g_pthread_mutex, "g_pthread_mutex");
+
+    return ret;
+}
+
 void pthread_cleanup_pop(int execute)
 {
-    CPSR_ALLOC();
-
     _pthread_tcb_t     *ptcb;
     _pthread_cleanup_t *cleanup;
 
     ptcb = _pthread_get_tcb(krhino_cur_task_get());
 
     if (execute > 0) {
-        RHINO_CRITICAL_ENTER();
         cleanup = ptcb->cleanup;
-        if (cleanup) {
+        if (cleanup != NULL) {
             ptcb->cleanup = cleanup->prev;
         }
-        RHINO_CRITICAL_EXIT();
 
         if (cleanup != NULL) {
             cleanup->cleanup_routine(cleanup->para);
@@ -30,8 +39,6 @@ void pthread_cleanup_pop(int execute)
 
 void pthread_cleanup_push(void (*routine)(void *), void *arg)
 {
-    CPSR_ALLOC();
-
     _pthread_tcb_t     *ptcb;
     _pthread_cleanup_t *cleanup;
 
@@ -41,11 +48,9 @@ void pthread_cleanup_push(void (*routine)(void *), void *arg)
     if (cleanup != NULL) {
         cleanup->cleanup_routine = routine;
         cleanup->para            = arg;
+        cleanup->prev            = ptcb->cleanup;
 
-        RHINO_CRITICAL_ENTER();
-        cleanup->prev = ptcb->cleanup;
         ptcb->cleanup = cleanup;
-        RHINO_CRITICAL_EXIT();
     }
 }
 
@@ -153,20 +158,16 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     return -1;
 }
 
-void pthread_exit(void *value)
+void pthread_exit(void *value_ptr)
 {
-    CPSR_ALLOC();
+    int ret = -1;
 
     _pthread_tcb_t *ptcb;
 
     ptcb = _pthread_get_tcb(krhino_cur_task_get());
 
     if (ptcb != NULL) {
-        RHINO_CRITICAL_ENTER();
-        ptcb->cancel_state = PTHREAD_CANCEL_DISABLE;
-        ptcb->return_value = value;
-        RHINO_CRITICAL_EXIT();
-
+        ptcb->return_value = value_ptr;
         /* ptcb->join_sem semaphore should be released by krhino_task_del_hook
          * if ptcb->attr.detachstate is PTHREAD_CREATE_DETACHED, task stack and
          * task structure should be release by krhino_task_del_hook
@@ -177,9 +178,8 @@ void pthread_exit(void *value)
 
 int pthread_detach(pthread_t thread)
 {
-    CPSR_ALLOC();
+    int ret = -1;
 
-    kstat_t         ret = 0;
     _pthread_tcb_t *ptcb;
 
     if (thread == NULL) {
@@ -202,9 +202,13 @@ int pthread_detach(pthread_t thread)
                 krhino_sem_give(ptcb->join_sem);
             }
 
-            RHINO_CRITICAL_ENTER();
+            ret = krhino_mutex_lock(&g_pthread_mutex, RHINO_WAIT_FOREVER);
+            if (ret != 0) {
+                return -1;
+            }
+
             ptcb->attr.detachstate = PTHREAD_CREATE_DETACHED;
-            RHINO_CRITICAL_EXIT();
+            krhino_mutex_unlock(&g_pthread_mutex);
         }
     } else {
         if (ptcb->attr.stackaddr == NULL) {
@@ -340,20 +344,25 @@ pthread_t pthread_self(void)
 
 int pthread_once(pthread_once_t *once_control, void (*init_routine)(void))
 {
-    CPSR_ALLOC();
+    int ret = -1;
 
-    RHINO_CRITICAL_ENTER();
+    ret = krhino_mutex_lock(&g_pthread_mutex, RHINO_WAIT_FOREVER);
+    if (ret != 0) {
+        return -1;
+    }
 
     if (*once_control == PTHREAD_ONCE_INIT)
     {
         *once_control = !PTHREAD_ONCE_INIT;
 
-        RHINO_CRITICAL_EXIT();
+        krhino_mutex_unlock(&g_pthread_mutex);
 
         init_routine ();
     }
 
-    RHINO_CRITICAL_EXIT();
+    krhino_mutex_unlock(&g_pthread_mutex);
 
     return 0;
 }
+
+#endif

@@ -4,6 +4,8 @@
 
 #include "pthread.h"
 
+#if (POSIX_PTHREAD_ENABLE > 0)
+
 int sched_yield(void)
 {
     krhino_task_yield();
@@ -25,3 +27,5 @@ int sched_setscheduler(pid_t pid, int policy)
 {
     return 0;
 }
+
+#endif

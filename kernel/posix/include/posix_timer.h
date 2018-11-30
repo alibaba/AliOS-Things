@@ -10,8 +10,10 @@ extern "C" {
 #endif
 
 #include <time.h>
+
 #include "k_api.h"
 #include "posix_signal.h"
+#include "posix_default_config.h"
 
 #define NANOSECONDS_PER_SECOND       1000000000LL
 #define MICROSECONDS_PER_SECOND      1000000LL
