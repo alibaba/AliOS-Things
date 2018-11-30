@@ -5,8 +5,7 @@
 #ifndef BT_MESH_GATT_H
 #define BT_MESH_GATT_H
 
-#include <bluetooth/conn.h>
-#include <bluetooth/gatt.h>
+#include "bt_mesh_glue.h"
 
 /** @brief Register connection callbacks.
  *
@@ -14,7 +13,7 @@
  *
  *  @param cb Callback struct.
  */
-void bt_mesh_conn_cb_register(struct bt_conn_cb *cb);
+void bt_mesh_conn_cb_register(struct bt_mesh_conn_cb *cb);
 
 /** @brief Increment a connection's reference count.
  *
@@ -24,7 +23,7 @@ void bt_mesh_conn_cb_register(struct bt_conn_cb *cb);
  *
  *  @return Connection object with incremented reference count.
  */
-struct bt_conn *bt_mesh_conn_ref(struct bt_conn *conn);
+bt_mesh_conn_t bt_mesh_conn_ref(bt_mesh_conn_t conn);
 
 /** @brief Decrement a connection's reference count.
  *
@@ -32,7 +31,7 @@ struct bt_conn *bt_mesh_conn_ref(struct bt_conn *conn);
  *
  *  @param conn Connection object.
  */
-void bt_mesh_conn_unref(struct bt_conn *conn);
+void bt_mesh_conn_unref(bt_mesh_conn_t conn);
 
 /** @brief Disconnect from a remote device or cancel pending connection.
  *
@@ -44,7 +43,7 @@ void bt_mesh_conn_unref(struct bt_conn *conn);
  *
  *  @return Zero on success or (negative) error code on failure.
  */
-int bt_mesh_conn_disconnect(struct bt_conn *conn, uint8_t reason);
+int bt_mesh_conn_disconnect(bt_mesh_conn_t conn, uint8_t reason);
 
 /** @brief Register GATT service.
  *
@@ -56,7 +55,7 @@ int bt_mesh_conn_disconnect(struct bt_conn *conn, uint8_t reason);
  *
  *  @return 0 in case of success or negative value in case of error.
  */
-int bt_mesh_gatt_service_register(struct bt_gatt_service *svc);
+int bt_mesh_gatt_service_register(struct bt_mesh_gatt_service *svc);
 
 /** @brief Unregister GATT service.
  *
@@ -64,7 +63,7 @@ int bt_mesh_gatt_service_register(struct bt_gatt_service *svc);
  *
  *  @return 0 in case of success or negative value in case of error.
  */
-int bt_mesh_gatt_service_unregister(struct bt_gatt_service *svc);
+int bt_mesh_gatt_service_unregister(struct bt_mesh_gatt_service *svc);
 
 /** @brief Notify attribute value change.
  *
@@ -81,7 +80,7 @@ int bt_mesh_gatt_service_unregister(struct bt_gatt_service *svc);
  *  @param data Pointer to Attribute data.
  *  @param len Attribute value length.
  */
-int bt_mesh_gatt_notify(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+int bt_mesh_gatt_notify(bt_mesh_conn_t conn, const struct bt_mesh_gatt_attr *attr,
                         const void *data, uint16_t len);
 
 /** @brief Generic Read Attribute value helper.
@@ -99,7 +98,7 @@ int bt_mesh_gatt_notify(struct bt_conn *conn, const struct bt_gatt_attr *attr,
  *  @return int number of bytes read in case of success or negative values in
  *  case of error.
  */
-ssize_t bt_mesh_gatt_attr_read(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+int bt_mesh_gatt_attr_read(bt_mesh_conn_t conn, const struct bt_mesh_gatt_attr *attr,
                                void *buf, uint16_t buf_len, uint16_t offset,
                                const void *value, uint16_t value_len);
 
@@ -112,6 +111,6 @@ ssize_t bt_mesh_gatt_attr_read(struct bt_conn *conn, const struct bt_gatt_attr *
  *
  *  @return MTU in bytes
  */
-uint16_t bt_mesh_gatt_get_mtu(struct bt_conn *conn);
+uint16_t bt_mesh_gatt_get_mtu(bt_mesh_conn_t conn);
 
 #endif //BT_MESH_GATT_H

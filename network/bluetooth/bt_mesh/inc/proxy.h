@@ -6,12 +6,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include "bt_mesh_glue.h"
+
 #define BT_MESH_PROXY_NET_PDU   0x00
 #define BT_MESH_PROXY_BEACON    0x01
 #define BT_MESH_PROXY_CONFIG    0x02
 #define BT_MESH_PROXY_PROV      0x03
 
-int bt_mesh_proxy_send(struct bt_conn *conn, u8_t type,
+int bt_mesh_proxy_send(bt_mesh_conn_t conn, u8_t type,
 		       struct net_buf_simple *msg);
 
 int bt_mesh_proxy_prov_enable(void);
