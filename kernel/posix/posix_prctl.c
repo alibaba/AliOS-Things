@@ -5,13 +5,17 @@
 #include <stdarg.h>
 #include "posix_prctl.h"
 
+#if (POSIX_PRCTL_ENABLE > 0)
+
+extern kmutex_t g_pthread_mutex;
+
 int prctl(int option, ...)
 {
     va_list       ap;
     unsigned long arg;
     char         *p_str;
     ktask_t      *p_tcb;
-    CPSR_ALLOC();
+    int           ret = -1;
 
     if (option == PR_SET_NAME) {
         /* set ap to the start stack address of argument list */
@@ -32,12 +36,15 @@ int prctl(int option, ...)
         }
 
         /* get TCB of current task */
-        RHINO_CRITICAL_ENTER();
+        ret = krhino_mutex_lock(&g_pthread_mutex, RHINO_WAIT_FOREVER);
+        if (ret != 0) {
+            return -1;
+        }
 
-        p_tcb = g_active_task[cpu_cur_get()];
+        p_tcb = krhino_cur_task_get();
         p_tcb->task_name = p_str;
 
-        RHINO_CRITICAL_EXIT();
+        krhino_mutex_unlock(&g_pthread_mutex);
 
         return 0;
     } else {
@@ -45,3 +52,4 @@ int prctl(int option, ...)
     }
 }
 
+#endif

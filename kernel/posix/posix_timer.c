@@ -5,12 +5,25 @@
 #include "posix_timer.h"
 #include "posix_signal.h"
 
+#if (POSIX_TIMER_ENABLE > 0)
+
 timer_list_t *timer_list_head;
 
 static int64_t timespec_to_nanosecond(struct timespec *value);
 static int     timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_relate);
 
 static struct timespec nanosecond_to_timespec(int64_t value);
+
+kmutex_t g_timer_mutex;
+
+int timer_lock_init(void)
+{
+    int ret = -1;
+
+    ret = krhino_mutex_create(&g_timer_mutex, "g_timer_mutex");
+
+    return ret;
+}
 
 int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *restrict timerid)
 {
@@ -35,8 +48,10 @@ int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *rest
 
     memset(timer_list_m, 0, sizeof(timer_list_t));
 
-    CPSR_ALLOC();
-    RHINO_CRITICAL_ENTER();
+    ret = krhino_mutex_lock(&g_timer_mutex, RHINO_WAIT_FOREVER);
+    if (ret != 0) {
+        return -1;
+    }
 
     /* find the last node add the new timer to the list */
     if (timer_list_head == NULL) {
@@ -55,7 +70,7 @@ int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *rest
         timer_list->next = timer_list_m;
     }
 
-    RHINO_CRITICAL_EXIT();
+    krhino_mutex_unlock(&g_timer_mutex);
 
     /* create a timer */
     ret = krhino_timer_dyn_create(&timer_list_m->ktimer, "posix_timer", evp->sigev_notify_function,
@@ -315,3 +330,5 @@ int timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_rela
 
     return 0;
 }
+
+#endif

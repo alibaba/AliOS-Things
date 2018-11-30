@@ -4,6 +4,8 @@
 
 #include "posix_semaphore.h"
 
+#if (POSIX_SEMAPHORE_ENABLE > 0)
+
 int sem_init(sem_t *sem, int pshared, unsigned int value)
 {
     kstat_t stat;
@@ -38,7 +40,7 @@ int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout)
     kstat_t stat;
     tick_t  ticks;
 
-    ticks = abs_timeout->tv_sec * RHINO_CONFIG_TICKS_PER_SECOND + 
+    ticks = abs_timeout->tv_sec * RHINO_CONFIG_TICKS_PER_SECOND +
             (abs_timeout->tv_nsec / 1000000) / (1000 / RHINO_CONFIG_TICKS_PER_SECOND);
 
     stat = krhino_sem_take(*sem, ticks);
@@ -104,3 +106,5 @@ int sem_destroy(sem_t *sem)
 
     return -1;
 }
+
+#endif

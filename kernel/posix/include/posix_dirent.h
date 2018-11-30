@@ -2,8 +2,6 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-/* dirent.h - POSIX directory handling definitions */
-
 #ifndef POSIX_DIRENT_H
 #define POSIX_DIRENT_H
 
@@ -17,6 +15,7 @@ extern "C"
 #include "k_api.h"
 #include "vfs.h"
 #include "vfs_inode.h"
+#include "posix_default_config.h"
 
 #define DT_UNKNOWN 0
 #define DT_FIFO    1
