@@ -28,6 +28,7 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 
 # kconfig support
 include $(MAKEFILES_PATH)/aos_kconfig.mk
+include $(MAKEFILES_PATH)/aos_prebuild.mk
 
 define USAGE_TEXT
 Aborting due to invalid targets
@@ -186,7 +187,7 @@ else
  TOOLCHAIN_MK = aos_toolchain_gcc.mk
 endif
 
-$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/$(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT)
+$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/$(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/precompile))
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall/syscall_kapi))
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall/syscall_fapi))
@@ -215,7 +216,7 @@ PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) exp
 $(PASSDOWN_TARGETS):
 	@:
 
-$(BUILD_STRING): main_app $(if $(SUB_BUILD),,.gdbinit .gdbinit$(MBINSTYPE_LOWER)) 2boot
+$(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app $(if $(SUB_BUILD),,.gdbinit .gdbinit$(MBINSTYPE_LOWER)) 2boot
 
 main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/aos_target_build.mk
 	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
