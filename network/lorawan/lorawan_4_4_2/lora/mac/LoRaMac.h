@@ -2498,7 +2498,7 @@ LoRaMacStatus_t LoRaMacChannelRemove( uint8_t id );
  *          \ref LORAMAC_STATUS_BUSY,
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
  */
-LoRaMacStatus_t LoRaMacMulticastChannelSet( MulticastChannel_t channel );
+LoRaMacStatus_t LoRaMacMulticastChannelSet( MulticastChannel_t *channel );
 
 /*!
  * \brief   LoRaMAC MIB-Get

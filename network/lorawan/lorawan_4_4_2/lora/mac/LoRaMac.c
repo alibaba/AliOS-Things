@@ -3573,7 +3573,6 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             }
             break;
         }
-    #ifdef LORAWAN_VERSION_110
         case MIB_MC_KE_KEY:
         {
             if( mibSet->Param.McKEKey != NULL )
@@ -3769,7 +3768,6 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             }
             break;
         }
-    #endif
         case MIB_PUBLIC_NETWORK:
         {
             MacCtx.NvmCtx->PublicNetwork = mibSet->Param.EnablePublicNetwork;
@@ -4055,21 +4053,22 @@ LoRaMacStatus_t LoRaMacChannelRemove( uint8_t id )
     return LORAMAC_STATUS_OK;
 }
 
-LoRaMacStatus_t LoRaMacMulticastChannelSet( MulticastChannel_t channel )
+LoRaMacStatus_t LoRaMacMulticastChannelSet( MulticastChannel_t *channel )
 {
     if( ( MacCtx.MacState & LORAMAC_TX_RUNNING ) == LORAMAC_TX_RUNNING )
     {
         return LORAMAC_STATUS_BUSY;
     }
 
-    MacCtx.NvmCtx->MulticastChannelList[channel.AddrID].Address = channel.Address;
-    MacCtx.NvmCtx->MulticastChannelList[channel.AddrID].IsEnabled = channel.IsEnabled;
-    MacCtx.NvmCtx->MulticastChannelList[channel.AddrID].Frequency = channel.Frequency;
-    MacCtx.NvmCtx->MulticastChannelList[channel.AddrID].Datarate = channel.Datarate;
-    MacCtx.NvmCtx->MulticastChannelList[channel.AddrID].Periodicity = channel.Periodicity;
+    MacCtx.NvmCtx->MulticastChannelList[channel->AddrID].AddrID = channel->AddrID;
+    MacCtx.NvmCtx->MulticastChannelList[channel->AddrID].Address = channel->Address;
+    MacCtx.NvmCtx->MulticastChannelList[channel->AddrID].IsEnabled = channel->IsEnabled;
+    MacCtx.NvmCtx->MulticastChannelList[channel->AddrID].Frequency = channel->Frequency;
+    MacCtx.NvmCtx->MulticastChannelList[channel->AddrID].Datarate = channel->Datarate;
+    MacCtx.NvmCtx->MulticastChannelList[channel->AddrID].Periodicity = channel->Periodicity;
 
     // Calculate class b parameters
-    LoRaMacClassBSetMulticastPeriodicity( &MacCtx.NvmCtx->MulticastChannelList[channel.AddrID] );
+    LoRaMacClassBSetMulticastPeriodicity( &MacCtx.NvmCtx->MulticastChannelList[channel->AddrID] );
 
     EventMacNvmCtxChanged( );
     EventRegionNvmCtxChanged( );
