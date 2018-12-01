@@ -18,21 +18,20 @@
 #ifndef AWSS_DISABLE_ENROLLEE
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 const uint8_t probe_req_frame[ZC_PROBE_LEN] = {
-    0x40, 0x00,  // mgnt type, frame control
-    0x00, 0x00,  // duration
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // DA
-    0x28, 0xC2, 0xDD, 0x61, 0x68, 0x83,  // SA, to be replaced with wifi mac
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // BSSID
-    0xC0, 0x79,  // seq
-    0x00, 0x00,  // hide ssid,
-    0x01, 0x08, 0x82, 0x84, 0x8B, 0x96, 0x8C, 0x92, 0x98, 0xA4,  // supported rates
-    0x32, 0x04, 0xB0, 0x48, 0x60, 0x6C,  // extended supported rates
-    0x3F, 0x84, 0x10, 0x9E  // FCS
+    0x40, 0x00,  /* mgnt type, frame control */
+    0x00, 0x00,  /* duration */
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* DA */
+    0x28, 0xC2, 0xDD, 0x61, 0x68, 0x83,  /* SA, to be replaced with wifi mac */
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* BSSID */
+    0xC0, 0x79,  /* seq */
+    0x00, 0x00,  /* hide ssid, */
+    0x01, 0x08, 0x82, 0x84, 0x8B, 0x96, 0x8C, 0x92, 0x98, 0xA4,  /* supported rates */
+    0x32, 0x04, 0xB0, 0x48, 0x60, 0x6C,  /* extended supported rates */
+    0x3F, 0x84, 0x10, 0x9E  /* FCS */
 };
 
 static uint8_t *g_dev_sign; /* pointer to dev_name_len start pos */
@@ -45,7 +44,7 @@ static int decrypt_ssid_passwd(uint8_t *ie, uint8_t ie_len,
                                uint8_t out_passwd[OS_MAX_PASSWD_LEN],
                                uint8_t out_bssid[ETH_ALEN]);
 
-void awss_init_enrollee_info(void)// void enrollee_raw_frame_init(void)
+void awss_init_enrollee_info(void)/*  void enrollee_raw_frame_init(void) */
 {
     char *pk = NULL, *dev_name = NULL, *text = NULL;
     uint8_t sign[ENROLLEE_SIGN_SIZE + 1] = {0};
@@ -53,8 +52,9 @@ void awss_init_enrollee_info(void)// void enrollee_raw_frame_init(void)
     int dev_name_len, pk_len;
     int len, ie_len;
 
-    if (enrollee_frame_len)
+    if (enrollee_frame_len) {
         return;
+    }
 
     dev_name = os_zalloc(OS_DEVICE_NAME_LEN + 1);
     pk = os_zalloc(OS_PRODUCT_KEY_LEN + 1);
@@ -69,9 +69,9 @@ void awss_init_enrollee_info(void)// void enrollee_raw_frame_init(void)
     text = os_zalloc(len + 1); /* +1 for string print */
 
     awss_build_sign_src(text, &len);
-    if (os_get_conn_encrypt_type() == 3) { // aes-key per product
+    if (os_get_conn_encrypt_type() == 3) { /* aes-key per product */
         os_product_get_secret(key);
-    } else { // aes-key per device
+    } else { /* aes-key per device */
         os_device_get_secret(key);
     }
     produce_signature(sign, (uint8_t *)text, len, key);
@@ -87,7 +87,7 @@ void awss_init_enrollee_info(void)// void enrollee_raw_frame_init(void)
     len = sizeof(probe_req_frame) - FCS_SIZE;
     memcpy(enrollee_frame, probe_req_frame, len);
 
-    enrollee_frame[len ++] = 221; //vendor ie
+    enrollee_frame[len ++] = 221; /* vendor ie */
     enrollee_frame[len ++] = ie_len - 2; /* exclude 221 & len */
     enrollee_frame[len ++] = 0xD8;
     enrollee_frame[len ++] = 0x96;
@@ -110,9 +110,9 @@ void awss_init_enrollee_info(void)// void enrollee_raw_frame_init(void)
     memcpy(&enrollee_frame[len], aes_random, RANDOM_MAX_LEN);
     len += RANDOM_MAX_LEN;
 
-    enrollee_frame[len ++] = os_get_conn_encrypt_type();  // encrypt type
-    enrollee_frame[len ++] = 0;  // signature method, 0: hmacsha1, 1: hmacsha256
-    enrollee_frame[len ++] = ENROLLEE_SIGN_SIZE;  // signature length
+    enrollee_frame[len ++] = os_get_conn_encrypt_type();  /* encrypt type */
+    enrollee_frame[len ++] = 0;  /* signature method, 0: hmacsha1, 1: hmacsha256 */
+    enrollee_frame[len ++] = ENROLLEE_SIGN_SIZE;  /* signature length */
     g_dev_sign = &enrollee_frame[len];
     memcpy(&enrollee_frame[len], sign, ENROLLEE_SIGN_SIZE);
     len += ENROLLEE_SIGN_SIZE;
@@ -140,8 +140,9 @@ void awss_destroy_enrollee_info(void)
 
 void awss_broadcast_enrollee_info(void)
 {
-    if (enrollee_frame_len == 0 || enrollee_frame == NULL)
+    if (enrollee_frame_len == 0 || enrollee_frame == NULL) {
         return;
+    }
 
     os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, enrollee_frame,
                                  enrollee_frame_len);
@@ -149,10 +150,10 @@ void awss_broadcast_enrollee_info(void)
 
 /* return 0 for success, -1 dev_name not match, otherwise return -2 */
 static int decrypt_ssid_passwd(
-    uint8_t *ie, uint8_t ie_len,
-    uint8_t out_ssid[OS_MAX_SSID_LEN],
-    uint8_t out_passwd[OS_MAX_PASSWD_LEN],
-    uint8_t out_bssid[ETH_ALEN])
+            uint8_t *ie, uint8_t ie_len,
+            uint8_t out_ssid[OS_MAX_SSID_LEN],
+            uint8_t out_passwd[OS_MAX_PASSWD_LEN],
+            uint8_t out_bssid[ETH_ALEN])
 {
     uint8_t tmp_ssid[OS_MAX_SSID_LEN + 1] = {0}, tmp_passwd[OS_MAX_PASSWD_LEN + 1] = {0};
     uint8_t *p_dev_name_sign = NULL, *p_ssid = NULL, *p_passwd = NULL, *p_bssid = NULL;
@@ -165,13 +166,15 @@ static int decrypt_ssid_passwd(
         return -1;
     }
 
-    ie ++;  //skip version
+    ie ++;  /* skip version */
     p_dev_name_sign = ie;
 
     if (!g_dev_sign || memcmp(g_dev_sign, p_dev_name_sign + 1, p_dev_name_sign[0])) {
         p_dev_name_sign[p_dev_name_sign[0]] = '\0';
         awss_debug("dev_name not match, expect:");
-        if (g_dev_sign) dump_hex(g_dev_sign, p_dev_name_sign[0], 16);
+        if (g_dev_sign) {
+            dump_hex(g_dev_sign, p_dev_name_sign[0], 16);
+        }
         awss_debug("\r\nbut recv:");
         dump_hex(p_dev_name_sign + 1, p_dev_name_sign[0], 16);
         return -2;
@@ -205,7 +208,8 @@ static int decrypt_ssid_passwd(
     p_bssid = ie;
     ie += ETH_ALEN; /* eating bssid len */
 
-    aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0], os_get_conn_encrypt_type(), 2); //aes128 cfb
+    aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0], os_get_conn_encrypt_type(),
+                       2); /* aes128 cfb */
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
         awss_debug("registrar(passwd invalid!");
         return -1;
@@ -219,7 +223,8 @@ static int decrypt_ssid_passwd(
     return 0;/* success */
 }
 
-int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res, signed char rssi)
+int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res,
+                                   signed char rssi)
 {
     const uint8_t *registrar_ie = NULL;
     struct ieee80211_hdr *hdr;
@@ -230,28 +235,33 @@ int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type,
      * when device try to connect current router (include adha and aha)
      * skip the new aha and process the new aha in the next scope.
      */
-    if (mgmt_header == NULL || zconfig_finished)
+    if (mgmt_header == NULL || zconfig_finished) {
         return ALINK_INVALID;
+    }
     /*
      * we don't process zconfig used by enrollee until user press configure button
      */
-    if (awss_get_config_press() == 0)
+    if (awss_get_config_press() == 0) {
         return ALINK_INVALID;
+    }
 
     hdr = (struct ieee80211_hdr *)mgmt_header;
     fc = hdr->frame_control;
 
-    if (!ieee80211_is_probe_req(fc) && !ieee80211_is_probe_resp(fc))
+    if (!ieee80211_is_probe_req(fc) && !ieee80211_is_probe_resp(fc)) {
         return ALINK_INVALID;
+    }
 
     ieoffset = offsetof(struct ieee80211_mgmt, u.probe_resp.variable);
-    if (ieoffset > len)
+    if (ieoffset > len) {
         return ALINK_INVALID;
+    }
 
     registrar_ie = (const uint8_t *)cfg80211_find_vendor_ie(WLAN_OUI_ALIBABA,
-            WLAN_OUI_TYPE_REGISTRAR, mgmt_header + ieoffset, len - ieoffset);
-    if (registrar_ie == NULL)
+                   WLAN_OUI_TYPE_REGISTRAR, mgmt_header + ieoffset, len - ieoffset);
+    if (registrar_ie == NULL) {
         return ALINK_INVALID;
+    }
 
     res->u.ie.alink_ie_len = len - (registrar_ie - mgmt_header);
     res->u.ie.alink_ie = (uint8_t *)registrar_ie;
@@ -268,12 +278,14 @@ int awss_recv_callback_zconfig(struct parser_res *res)
     uint8_t ie_len = ie[1];
     int ret;
 
-    if (res->u.ie.alink_ie_len < ie_len)
+    if (res->u.ie.alink_ie_len < ie_len) {
         return PKG_INVALID;
+    }
 
     ret = decrypt_ssid_passwd(ie, ie_len, zc_ssid, zc_passwd, zc_bssid);
-    if (ret)
+    if (ret) {
         return PKG_INVALID;
+    }
 
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
 

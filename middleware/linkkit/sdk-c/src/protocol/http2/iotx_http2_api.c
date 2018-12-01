@@ -753,11 +753,11 @@ int iotx_http2_exec_io(http2_connection_t *connection)
             NGHTTP2_DBG("nghttp2_session_recv error");
             return -1;
         }
-        // rv = nghttp2_session_send(connection->session);
-        // if (rv < 0) {
-        //     NGHTTP2_DBG("nghttp2_session_send error");
-        //     return -1;
-        // }
+        /* rv = nghttp2_session_send(connection->session); */
+        /* if (rv < 0) { */
+        /* NGHTTP2_DBG("nghttp2_session_send error"); */
+        /* return -1; */
+        /* } */
     }
     return 0;
 }

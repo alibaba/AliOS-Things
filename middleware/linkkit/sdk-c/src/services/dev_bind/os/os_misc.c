@@ -8,22 +8,24 @@
 #include "os.h"
 
 #ifndef in_range
-#define in_range(c, lo, up)  ((uint8_t)c >= lo && (uint8_t)c <= up)
-#define isdigit(c)           in_range(c, '0', '9')
-#define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
-#define islower(c)           in_range(c, 'a', 'z')
-#define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
+    #define in_range(c, lo, up)  ((uint8_t)c >= lo && (uint8_t)c <= up)
+    #define isdigit(c)           in_range(c, '0', '9')
+    #define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
+    #define islower(c)           in_range(c, 'a', 'z')
+    #define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
 #endif
+
+#define inline __inline
 
 /****** Convert values between host and big-/little-endian byte order ******/
 
-//reverse byte order
+/* reverse byte order */
 static inline uint16_t reverse_16bit(uint16_t data)
 {
     return (data >> 8) | (data << 8);
 }
 
-//host byte order to big endian
+/* host byte order to big endian */
 uint16_t os_htobe16(uint16_t data)
 {
     if (os_is_big_endian()) {
@@ -33,7 +35,7 @@ uint16_t os_htobe16(uint16_t data)
     return reverse_16bit(data);
 }
 
-//host byte order to little endian
+/* host byte order to little endian */
 uint16_t os_htole16(uint16_t data)
 {
     if (os_is_big_endian()) {
@@ -43,26 +45,26 @@ uint16_t os_htole16(uint16_t data)
     return data;
 }
 
-//big endian to host byte order
+/* big endian to host byte order */
 uint16_t os_be16toh(uint16_t data)
 {
     return os_htobe16(data);
 }
 
-//little endian to host byte order
+/* little endian to host byte order */
 uint16_t os_le16toh(uint16_t data)
 {
     return os_htole16(data);
 }
 
-//reverse byte order
+/* reverse byte order */
 static inline uint32_t reverse_32bit(uint32_t data)
 {
     data = (data >> 16) | (data << 16);
     return ((data & 0xff00ff00UL) >> 8) | ((data & 0x00ff00ffUL) << 8);
 }
 
-//host byte order to big endian
+/* host byte order to big endian */
 static uint32_t os_htobe32(uint32_t data)
 {
     if (os_is_big_endian()) {
@@ -72,7 +74,7 @@ static uint32_t os_htobe32(uint32_t data)
     return reverse_32bit(data);
 }
 
-//host byte order to little endian
+/* host byte order to little endian */
 static uint32_t os_htole32(uint32_t data)
 {
     if (os_is_big_endian()) {
@@ -82,19 +84,19 @@ static uint32_t os_htole32(uint32_t data)
     return data;
 }
 
-//big endian to host byte order
+/* big endian to host byte order */
 static uint32_t os_be32toh(uint32_t data)
 {
     return os_htobe32(data);
 }
 
-//little endian to host byte order
+/* little endian to host byte order */
 uint32_t os_le32toh(uint32_t data)
 {
     return os_htole32(data);
 }
 
-//reverse byte order
+/* reverse byte order */
 static inline uint64_t reverse_64bit(uint64_t data)
 {
     data = (data >> 32) | (data << 32);
@@ -104,7 +106,7 @@ static inline uint64_t reverse_64bit(uint64_t data)
 }
 
 #if 0
-//host to big endian
+/* host to big endian */
 uint64_t os_htobe64(uint64_t data)
 {
     if (os_is_big_endian()) {
@@ -115,7 +117,7 @@ uint64_t os_htobe64(uint64_t data)
 }
 #endif
 
-//host to little endian
+/* host to little endian */
 uint64_t os_htole64(uint64_t data)
 {
     if (os_is_big_endian()) {
@@ -126,21 +128,21 @@ uint64_t os_htole64(uint64_t data)
 }
 
 #if 0
-//big endian to host
+/* big endian to host */
 uint64_t os_be64toh(uint64_t data)
 {
     return os_htobe64(data);
 }
 #endif
 
-//little endian to host
+/* little endian to host */
 uint64_t os_le64toh(uint64_t data)
 {
     return os_htole64(data);
 }
 
-//get unaligned data in big endian.
-uint16_t os_get_unaligned_be16(uint8_t * ptr)
+/* get unaligned data in big endian. */
+uint16_t os_get_unaligned_be16(uint8_t *ptr)
 {
     uint16_t res;
 
@@ -149,8 +151,8 @@ uint16_t os_get_unaligned_be16(uint8_t * ptr)
     return os_be16toh(res);
 }
 
-//get unaligned data in little endian.
-uint16_t os_get_unaligned_le16(uint8_t * ptr)
+/* get unaligned data in little endian. */
+uint16_t os_get_unaligned_le16(uint8_t *ptr)
 {
     uint16_t res;
 
@@ -160,7 +162,7 @@ uint16_t os_get_unaligned_le16(uint8_t * ptr)
 
 }
 
-uint32_t os_get_unaligned_be32(uint8_t * ptr)
+uint32_t os_get_unaligned_be32(uint8_t *ptr)
 {
     uint32_t res;
 
@@ -168,9 +170,9 @@ uint32_t os_get_unaligned_be32(uint8_t * ptr)
 
     return os_be32toh(res);
 }
-/*
-//get unaligned data in little endian.
-uint32_t os_get_unaligned_le32(uint8_t * ptr)
+
+/* get unaligned data in little endian. */
+uint32_t os_get_unaligned_le32(uint8_t *ptr)
 {
     uint32_t res;
 
@@ -179,7 +181,7 @@ uint32_t os_get_unaligned_le32(uint8_t * ptr)
     return os_le32toh(res);
 
 }
-*/
+
 uint16_t os_htons(uint16_t n)
 {
     return os_htobe16(n);
@@ -266,7 +268,7 @@ uint8_t *os_wifi_get_mac(uint8_t mac[OS_ETH_ALEN])
 
     os_wifi_get_mac_str(mac_str);
 
-    while('\0' != *ptr && i < OS_ETH_ALEN) {
+    while ('\0' != *ptr && i < OS_ETH_ALEN) {
         mac[i++] = (uint8_t)strtol(ptr, &ptr, 16);
         ++ptr;
     }

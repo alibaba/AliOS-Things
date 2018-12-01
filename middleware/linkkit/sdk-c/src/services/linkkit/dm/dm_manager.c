@@ -1264,11 +1264,11 @@ int dm_mgr_upstream_ntp_request(void)
 
     res = dm_client_publish(uri, (unsigned char *)ntp_request_fmt, strlen(ntp_request_fmt), dm_client_ntp_response);
     if (res != SUCCESS_RETURN) {
-        DM_free(uri);//DM_free(cloud_payload);
+        DM_free(uri); /* DM_free(cloud_payload); */
         return FAIL_RETURN;
     }
 
-    DM_free(uri);//DM_free(cloud_payload);
+    DM_free(uri); /* DM_free(cloud_payload); */
     return SUCCESS_RETURN;
 }
 

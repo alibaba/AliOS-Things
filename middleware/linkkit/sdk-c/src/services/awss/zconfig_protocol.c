@@ -3,9 +3,9 @@
  */
 
 #include <stdlib.h>
-#include <string.h>            // strcpy, memset()
-#include <ctype.h>             // isascii()
-#include <stdio.h>             // snprintf
+#include <string.h>            /* strcpy, memset() */
+#include <ctype.h>             /* isascii() */
+#include <stdio.h>             /* HAL_Snprintf */
 #include "os.h"
 #include "zconfig_utils.h"
 #include "zconfig_ieee80211.h"
@@ -61,7 +61,7 @@ void encode_chinese(uint8_t *in, uint8_t in_len,
         uint8_t bit[ZC_MAX_SSID_LEN * 8] = {0};
         uint8_t output_len = ((in_len * 8) + bits - 1) / bits;
 
-        // char to bit stream
+        /* char to bit stream */
         for (i = 0; i < in_len; i ++) {
             for (j = 0; j < 8; j ++) {
                 bit[i * 8 + j] = (in[i] >> j) & 0x01;
@@ -99,7 +99,7 @@ void decode_chinese(uint8_t *in, uint8_t in_len,
             return;
         }
 
-        // char to bit stream
+        /* char to bit stream */
         for (i = 0; i < in_len; i ++) {
             for (j = 0; j < bits; j ++) {
                 bit[i * bits + j] = (in[i] >> j) & 0x01;
@@ -180,15 +180,15 @@ void zconfig_set_state(uint8_t state, uint8_t tods, uint8_t channel)
         case STATE_CHN_SCANNING:
             break;
         case STATE_CHN_LOCKED_BY_P2P:
-            //locked state used by action/wps frame
+            /* locked state used by action/wps frame */
             zconfig_callback_channel_locked(channel);
             break;
         case STATE_CHN_LOCKED_BY_BR:
-            //locked state used by br frame
+            /* locked state used by br frame */
             zconfig_callback_channel_locked(zc_channel ? zc_channel : channel);
             break;
         case STATE_RCV_DONE:
-            // prevent main_thread_func to free zconfig_data until curent task is finished.
+            /* prevent main_thread_func to free zconfig_data until curent task is finished. */
             os_mutex_lock(zc_mutex);
             /*
              * in case of p2p/router, direct into RCV_DONE state,

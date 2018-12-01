@@ -14,8 +14,7 @@
 #include "zconfig_ieee80211.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 /*  Variable
@@ -52,10 +51,11 @@ int ht40_init(void)
 
 int ht40_lock_channel(uint8_t channel, uint8_t filter)
 {
-    if (channel < 1 || channel > 14)
+    if (channel < 1 || channel > 14) {
         return 0;
+    }
 
-    if (!ht40_channel[channel]) {  // replace when 0
+    if (!ht40_channel[channel]) {  /* replace when 0 */
         ht40_channel[channel] ++;
         ht40_channel_filter[channel] = filter;
     } else if (filter == ht40_channel_filter[channel]) {
@@ -64,8 +64,9 @@ int ht40_lock_channel(uint8_t channel, uint8_t filter)
         ht40_channel[channel] --;  /* decrease */
     }
 
-    if (ht40_channel[channel] >= HIT_FRAME_PER_CHANNEL)
+    if (ht40_channel[channel] >= HIT_FRAME_PER_CHANNEL) {
         return 1;
+    }
 
     return 0;
 }
@@ -77,8 +78,9 @@ int ht40_scanning_hint_frame(uint8_t filter, signed char rssi, uint32_t length, 
     int tods = 1;
     int i, j, k;
 
-    if (ht40_state != STATE_CHN_SCANNING)
+    if (ht40_state != STATE_CHN_SCANNING) {
         return -1;
+    }
 
     /* range check, max: 0x4e0 + tkip + qos, min: 0x3e0 + open */
     if (length > START_FRAME + zconfig_fixed_offset[2][0] + 2 ||
@@ -86,39 +88,42 @@ int ht40_scanning_hint_frame(uint8_t filter, signed char rssi, uint32_t length, 
         return -1;
     }
 
-    for (i = 1; i >= 0; i--) //Qos or not
-        for (j = 3; j >= 0; j--) //auth type, without open
-            for (k = 0; k < 8; k++) {//group frame
+    for (i = 1; i >= 0; i--) /* Qos or not */
+        for (j = 3; j >= 0; j--) /* auth type, without open */
+            for (k = 0; k < 8; k++) {/* group frame */
                 if (zconfig_hint_frame[k] + zconfig_fixed_offset[j][0] + i * 2 == length) {
                     hint_pos = i * 32 + j * 8 + k;
 #if 1
                     awss_trace("\r\nfilter:%x, rssi:%d, len:%d, Qos:%d, auth:%d, group:%d, %s\r\n",
-                              filter, rssi, length, i, j, k,
-                              next_loop ? "DUP" : "");
+                               filter, rssi, length, i, j, k,
+                               next_loop ? "DUP" : "");
 #endif
                     if (!next_loop) {
                         channel_locked = ht40_lock_channel(channel, filter);
-                        if (channel_locked)
+                        if (channel_locked) {
                             zconfig_set_state(STATE_CHN_LOCKED_BY_BR, tods, channel);
+                        }
                         next_loop = 1;/* don't enter this loop again */
                     }
 
                     ht40_hint_frame_cnt[hint_pos]++;
                 }
-            }//end of for
+            }/* end of for */
 
     if (channel_locked) {
         ht40_rssi_high = rssi + ht40_rssi_range;
-        if (ht40_rssi_high > -1)
+        if (ht40_rssi_high > -1) {
             ht40_rssi_high = -1;
+        }
         ht40_rssi_low = rssi - ht40_rssi_range;
-        if (ht40_rssi_low < -128)
+        if (ht40_rssi_low < -128) {
             ht40_rssi_low = -128;
+        }
 
         ht40_filter = filter;
 
         awss_trace("filter:%x, rssi range:[%d, %d]\r\n",
-                  filter, ht40_rssi_low, ht40_rssi_high);
+                   filter, ht40_rssi_low, ht40_rssi_high);
     }
 
     return hint_pos;
@@ -136,14 +141,14 @@ int ht40_get_qos_auth_group_info(uint32_t length)
         return 0;
     }
 
-    for (i = 1; i >= 0; i--) //Qos or not
-        for (j = 3; j >= 0; j--) //auth type
-            for (count = 0, continues = 0, k = 0; k < 8; k++) {//group frame
+    for (i = 1; i >= 0; i--) /* Qos or not */
+        for (j = 3; j >= 0; j--) /* auth type */
+            for (count = 0, continues = 0, k = 0; k < 8; k++) {/* group frame */
                 int pos = i * 32 + j * 8 + k;
 
                 if (ht40_hint_frame_cnt[pos]) {
                     count += ht40_hint_frame_cnt[pos];
-                    if (count > max_count) {//NOTE: not >=, see continues
+                    if (count > max_count) {/* NOTE: not >=, see continues */
                         max_count = count;
                         max_count_pos = pos;
                     }
@@ -160,7 +165,7 @@ int ht40_get_qos_auth_group_info(uint32_t length)
     awss_debug("max_cont:%d, sec_cont:%d, max_count:%d, max_cont_pos:%d, max_count_pos:%d\r\n",
                max_continues, second_continues, max_count, max_count_pos, max_continues_pos);
 
-    if (max_continues > second_continues // not >=
+    if (max_continues > second_continues /* not >= */
         && max_count_pos == max_continues_pos) {
         uint8_t qos = max_count_pos / 32;
         uint8_t auth = (max_count_pos % 32) / 8;
@@ -191,19 +196,22 @@ int awss_ieee80211_ht_ctrl_process(uint8_t *ht_ctrl, int len, int link_type, str
      * when device try to connect current router (include adha and aha)
      * skip the new packet.
      */
-    if (ht_ctrl == NULL || zconfig_finished)
+    if (ht_ctrl == NULL || zconfig_finished) {
         return ALINK_INVALID;
+    }
     /*
      * we don't process smartconfig until user press configure button
      */
-    if (awss_get_config_press() == 0)
+    if (awss_get_config_press() == 0) {
         return ALINK_INVALID;
+    }
 
     /*
      * just process ht ctrl
      */
-    if (link_type != AWSS_LINK_TYPE_HT40_CTRL)
+    if (link_type != AWSS_LINK_TYPE_HT40_CTRL) {
         return ALINK_INVALID;
+    }
 
     ctrl = (struct ht40_ctrl *)ht_ctrl;
     res->u.ht_ctrl.rssi = rssi;
@@ -244,12 +252,15 @@ int awss_recv_callback_ht_ctrl(struct parser_res *res)
     }
 
     if (ht40_state == STATE_RCV_IN_PROGRESS) {
-        if (rssi <= ht40_rssi_low && rssi >= ht40_rssi_high)
+        if (rssi <= ht40_rssi_low && rssi >= ht40_rssi_high) {
             goto drop;
-        if (filter != ht40_filter)
+        }
+        if (filter != ht40_filter) {
             goto drop;
-        if (len <= zc_frame_offset)  /* length invalid */
+        }
+        if (len <= zc_frame_offset) { /* length invalid */
             goto drop;
+        }
 
         len -= zc_frame_offset;
 
@@ -309,7 +320,7 @@ int awss_recv_callback_ht_ctrl(struct parser_res *res)
             equal = !package_cmp((uint8_t *)pkg(pos), NULL, NULL, tods, len);
 
             if (score > pkg_score(pos)) {
-                pkg_score(pos) = score;    //update score first
+                pkg_score(pos) = score;    /* update score first */
                 if (!equal) {
                     zc_replace = 1;
                     package_save((uint8_t *)pkg(pos), NULL, NULL, tods, len);
@@ -320,7 +331,7 @@ int awss_recv_callback_ht_ctrl(struct parser_res *res)
                 } else {
                     pkg_score(pos)--;
                 }
-            } else {//pkg_score(pos) > score
+            } else {/* pkg_score(pos) > score */
                 /* do nothing */
             }
 
@@ -346,14 +357,15 @@ int awss_recv_callback_ht_ctrl(struct parser_res *res)
                     zc_group_pos = group;
                     zc_score_uplimit = score_mid;
 
-                    if (zc_cur_pos + 1 == group)
+                    if (zc_cur_pos + 1 == group) {
                         pkg_score(zc_cur_pos) += 1;
+                    }
 
                     zc_cur_pos = group;
 
                     awss_trace("%d+%d [%d] -- T %-3x\r\n", group, 0, zc_score_uplimit, len);
 
-                    //ignore PKG_GROUP_FRAME here
+                    /* ignore PKG_GROUP_FRAME here */
                     pkg_type = PKG_START_FRAME;
                     ht40_timestamp = now;
                     return pkg_type;

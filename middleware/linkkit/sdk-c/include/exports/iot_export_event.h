@@ -16,27 +16,27 @@ extern "C" {
  * @brief event list used for iotx_regist_event_monitor_cb
  */
 enum iotx_event_t {
-    IOTX_AWSS_START = 0x1000,       // AWSS start without enbale, just supports device discover
-    IOTX_AWSS_ENABLE,               // AWSS enable
-    IOTX_AWSS_LOCK_CHAN,            // AWSS lock channel(Got AWSS sync packet)
-    IOTX_AWSS_CS_ERR,               // AWSS AWSS checksum is error
-    IOTX_AWSS_PASSWD_ERR,           // AWSS decrypt passwd error
-    IOTX_AWSS_GOT_SSID_PASSWD,      // AWSS parse ssid and passwd successfully
-    IOTX_AWSS_CONNECT_ADHA,         // AWSS try to connnect adha (device discover, router solution)
-    IOTX_AWSS_CONNECT_ADHA_FAIL,    // AWSS fails to connect adha
-    IOTX_AWSS_CONNECT_AHA,          // AWSS try to connect aha (AP solution)
-    IOTX_AWSS_CONNECT_AHA_FAIL,     // AWSS fails to connect aha
-    IOTX_AWSS_SETUP_NOTIFY,         // AWSS sends out device setup information (AP and router solution)
-    IOTX_AWSS_CONNECT_ROUTER,       // AWSS try to connect destination router
-    IOTX_AWSS_CONNECT_ROUTER_FAIL,  // AWSS fails to connect destination router.
-    IOTX_AWSS_GOT_IP,               // AWSS connects destination successfully and got ip address
-    IOTX_AWSS_SUC_NOTIFY,           // AWSS sends out success notify (AWSS sucess)
-    IOTX_AWSS_BIND_NOTIFY,          // AWSS sends out bind notify information to support bind between user and device
-    IOTX_AWSS_ENABLE_TIMEOUT,       // AWSS enable timeout(user needs to call awss_config_press again to enable awss)
-    IOTX_CONN_CLOUD = 0x2000,       // Device try to connect cloud
-    IOTX_CONN_CLOUD_FAIL,           // Device fails to connect cloud, refer to net_sockets.h for error code
-    IOTX_CONN_CLOUD_SUC,            // Device connects cloud successfully
-    IOTX_RESET = 0x3000,            // Linkkit reset success (just got reset response from cloud without any other operation)
+    IOTX_AWSS_START = 0x1000,       /* AWSS start without enbale, just supports device discover */
+    IOTX_AWSS_ENABLE,               /* AWSS enable */
+    IOTX_AWSS_LOCK_CHAN,            /* AWSS lock channel(Got AWSS sync packet) */
+    IOTX_AWSS_CS_ERR,               /* AWSS AWSS checksum is error */
+    IOTX_AWSS_PASSWD_ERR,           /* AWSS decrypt passwd error */
+    IOTX_AWSS_GOT_SSID_PASSWD,      /* AWSS parse ssid and passwd successfully */
+    IOTX_AWSS_CONNECT_ADHA,         /* AWSS try to connnect adha (device discover, router solution) */
+    IOTX_AWSS_CONNECT_ADHA_FAIL,    /* AWSS fails to connect adha */
+    IOTX_AWSS_CONNECT_AHA,          /* AWSS try to connect aha (AP solution) */
+    IOTX_AWSS_CONNECT_AHA_FAIL,     /* AWSS fails to connect aha */
+    IOTX_AWSS_SETUP_NOTIFY,         /* AWSS sends out device setup information (AP and router solution) */
+    IOTX_AWSS_CONNECT_ROUTER,       /* AWSS try to connect destination router */
+    IOTX_AWSS_CONNECT_ROUTER_FAIL,  /* AWSS fails to connect destination router. */
+    IOTX_AWSS_GOT_IP,               /* AWSS connects destination successfully and got ip address */
+    IOTX_AWSS_SUC_NOTIFY,           /* AWSS sends out success notify (AWSS sucess) */
+    IOTX_AWSS_BIND_NOTIFY,          /* AWSS sends out bind notify information to support bind between user and device */
+    IOTX_AWSS_ENABLE_TIMEOUT,       /* AWSS enable timeout(user needs to call awss_config_press again to enable awss) */
+    IOTX_CONN_CLOUD = 0x2000,       /* Device try to connect cloud */
+    IOTX_CONN_CLOUD_FAIL,           /* Device fails to connect cloud, refer to net_sockets.h for error code */
+    IOTX_CONN_CLOUD_SUC,            /* Device connects cloud successfully */
+    IOTX_RESET = 0x3000,            /* Linkkit reset success (just got reset response from cloud without any other operation) */
 };
 
 /**

@@ -97,7 +97,7 @@ static int _alloc_recv_buffer(iotx_mc_client_t *c, int len)
     if (tmp_len > c->buf_size_read_max) {
         tmp_len = c->buf_size_read_max;
     }
-    if (c->buf_read != NULL) { //do realloc
+    if (c->buf_read != NULL) { /* do realloc */
         char *temp = mqtt_malloc(tmp_len);
         if (temp == NULL) {
             mqtt_err("realloc err");
@@ -910,7 +910,7 @@ static int iotx_mc_push_pubInfo_to(iotx_mc_client_t *c, int len, unsigned short 
 
     return SUCCESS_RETURN;
 }
-#endif //WITH_MQTT_ONLY_QOS0
+#endif /* WITH_MQTT_ONLY_QOS0 */
 
 /* push the wait element into list of wait subscribe(unsubscribe) ACK */
 /* return: 0, success; NOT 0, fail; */
@@ -3256,10 +3256,10 @@ int IOT_MQTT_Subscribe(void *handle,
 {
     iotx_mc_client_t *client = (iotx_mc_client_t *)(handle ? handle : g_mqtt_client);
 
-    if (client == NULL) { //do offline subscribe
+    if (client == NULL) { /* do offline subscribe */
         return iotx_mqtt_offline_subscribe(topic_filter, qos, topic_handle_func, pcontext);
     }
-    //POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
+    /* POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR); */
     POINTER_SANITY_CHECK(topic_handle_func, NULL_VALUE_ERROR);
     STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
 
@@ -3290,7 +3290,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
 
     iotx_mc_client_t *client = (iotx_mc_client_t *)(handle ? handle : g_mqtt_client);
 
-    if (client == NULL) { //do offline subscribe
+    if (client == NULL) { /* do offline subscribe */
         return iotx_mqtt_offline_subscribe(topic_filter, qos, topic_handle_func, pcontext);
     }
     STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
@@ -3354,12 +3354,12 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
                 } else if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_NACK) {
                     list_del(&node->linked_list);
                     mqtt_free(node);
-                    ret = -1; //resub
+                    ret = -1; /* resub */
                     subed = 0;
                 } else if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_TIMEOUT) {
                     list_del(&node->linked_list);
                     mqtt_free(node);
-                    ret = -1; //resub
+                    ret = -1; /* resub */
                     subed = 0;
                 }
             }

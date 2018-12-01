@@ -349,7 +349,7 @@ static int Cloud_CoAPRespMessage_handle(Cloud_CoAPContext *context, Cloud_CoAPMe
             if (COAP_MSG_CODE_400_BAD_REQUEST <= message->header.code) {
                 /* TODO:i */
                 if (NULL != context->notifier) {
-                    //context->notifier(message->header.code, message);
+                    /* context->notifier(message->header.code, message); */
                 }
             }
 

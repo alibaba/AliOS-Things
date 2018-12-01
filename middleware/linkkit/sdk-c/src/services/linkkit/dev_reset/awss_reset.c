@@ -44,11 +44,13 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
     HAL_Timer_Delete(report_reset_timer);
     report_reset_timer = NULL;
 
-    iotx_event_post(IOTX_RESET);  // for old version of event
-    do {  // for new version of event
+    iotx_event_post(IOTX_RESET);  /* for old version of event */
+    do {  /* for new version of event */
         void *cb = NULL;
         cb = (void *)iotx_event_callback(ITE_AWSS_STATUS);
-        if (cb == NULL) break;
+        if (cb == NULL) {
+            break;
+        }
         ((int (*)(int))cb)(IOTX_RESET);
     } while (0);
 }
@@ -84,7 +86,7 @@ static int awss_report_reset_to_cloud()
         }
         memset(topic, 0, topic_len + 1);
 
-        snprintf(topic, topic_len, TOPIC_RESET_REPORT_REPLY, pk, dn);
+        HAL_Snprintf(topic, topic_len, TOPIC_RESET_REPORT_REPLY, pk, dn);
 
         ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0,
                                       (iotx_mqtt_event_handle_func_fpt)awss_report_reset_reply, NULL, 1000);
@@ -93,7 +95,7 @@ static int awss_report_reset_to_cloud()
         }
 
         memset(topic, 0, topic_len + 1);
-        snprintf(topic, topic_len, TOPIC_RESET_REPORT, pk, dn);
+        HAL_Snprintf(topic, topic_len, TOPIC_RESET_REPORT, pk, dn);
     } while (0);
 
     packet = AWSS_RESET_MALLOC(packet_len + 1);
@@ -105,8 +107,8 @@ static int awss_report_reset_to_cloud()
 
     do {
         char id_str[AWSS_RESET_MSG_ID_LEN + 1] = {0};
-        snprintf(id_str, AWSS_RESET_MSG_ID_LEN, "\"%u\"", awss_report_reset_id ++);
-        final_len = snprintf(packet, packet_len, AWSS_RESET_REQ_FMT, id_str, METHOD_RESET_REPORT, "{}");
+        HAL_Snprintf(id_str, AWSS_RESET_MSG_ID_LEN, "\"%u\"", awss_report_reset_id ++);
+        final_len = HAL_Snprintf(packet, packet_len, AWSS_RESET_REQ_FMT, id_str, METHOD_RESET_REPORT, "{}");
     } while (0);
 
     log_debug("[RST]", "report reset:%s\r\n", packet);
@@ -142,7 +144,7 @@ int awss_check_reset()
 
     HAL_Kv_Get(AWSS_KV_RST, &rst, &len);
 
-    if (rst != 0x01) { // reset flag is not set
+    if (rst != 0x01) { /* reset flag is not set */
         log_debug("[RST]", "no rst\r\n");
         return 0;
     }
@@ -154,8 +156,9 @@ int awss_check_reset()
 
 int awss_stop_report_reset()
 {
-    if (report_reset_timer == NULL)
+    if (report_reset_timer == NULL) {
         return 0;
+    }
 
     HAL_Timer_Stop(report_reset_timer);
     HAL_Timer_Delete(report_reset_timer);

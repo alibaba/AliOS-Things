@@ -170,7 +170,7 @@ err:
     coap_free(p_ctx);
     p_ctx = NULL;
 
-    // TODO: release the resource
+    /* TODO: release the resource */
     return (CoAPContext *)p_ctx;
 }
 

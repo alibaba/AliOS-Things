@@ -8,7 +8,7 @@
 #include "os.h"
 
 #ifndef ETH_ALEN
-#define ETH_ALEN            (6)
+    #define ETH_ALEN            (6)
 #endif
 
 #define ZC_MAX_SSID_LEN     (32 + 1)/* ssid: 32 octets at most, include the NULL-terminated */
@@ -16,8 +16,7 @@
 #define MAX_APLIST_NUM      (100)
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 enum _ZC_AUTH_TYPE_ {
@@ -43,13 +42,13 @@ enum _ZC_ENC_TYPE_ {
 };
 
 enum _ZC_PKG_TYPE_ {
-    PKG_INVALID,       // invalid pkg, --无效包
-    PKG_BC_FRAME,      // broadcast frame, --信道扫描阶段，收到收到该返回值建议延长在当前信道停留时间，可以延长T1
-    PKG_START_FRAME,   // start frame, --信道扫描阶段，收到该返回值用于锁定信道
-    PKG_DATA_FRAME,    // data frame, --数据包，锁定信道后长时间T2收不到数据包，需重新进入扫描阶段
-    PKG_ALINK_ROUTER,  // alink router
-    PKG_GROUP_FRAME,   // group frame
-    PKG_END            // --配网结束事件，已拿到ssid和passwd，通过回调函数去获取ssid和passwd
+    PKG_INVALID,       /* invalid pkg, --无效包 */
+    PKG_BC_FRAME,      /* broadcast frame, --信道扫描阶段，收到收到该返回值建议延长在当前信道停留时间，可以延长T1 */
+    PKG_START_FRAME,   /* start frame, --信道扫描阶段，收到该返回值用于锁定信道 */
+    PKG_DATA_FRAME,    /* data frame, --数据包，锁定信道后长时间T2收不到数据包，需重新进入扫描阶段 */
+    PKG_ALINK_ROUTER,  /* alink router */
+    PKG_GROUP_FRAME,   /* group frame */
+    PKG_END            /* --配网结束事件，已拿到ssid和passwd，通过回调函数去获取ssid和passwd */
     /*
      * 参考值：
      * T1:             400ms >= T2 >= 100ms
@@ -57,9 +56,9 @@ enum _ZC_PKG_TYPE_ {
      */
 };
 
-//进入monitor模式前后调用该函数
+/* 进入monitor模式前后调用该函数 */
 void zconfig_init();
-//配网成功后，调用该函数，释放内存资源
+/* 配网成功后，调用该函数，释放内存资源 */
 void zconfig_destroy(void);
 /*
     进入monitor/sniffer模式后，将收到的包传给该函数进行处理
@@ -81,7 +80,7 @@ int zconfig_recv_callback(void *pkt_data, uint32_t pkt_length, uint8_t channel,
  * save apinfo
  * 0 -- success, otherwise, failed.
  */
-int zconfig_set_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
+int zconfig_set_apinfo(uint8_t *ssid, uint8_t *bssid, uint8_t channel, uint8_t auth,
                        uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi);
 
 /* helper function, auth/encry type to string */

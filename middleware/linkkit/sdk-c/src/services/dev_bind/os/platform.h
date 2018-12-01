@@ -95,7 +95,7 @@ extern "C" {
  */
 #define platform_reboot HAL_Reboot
 
-/** @} */ //end of platform_thread
+/** @} */ /* end of platform_thread */
 
 
 /*********************************** mutex interface ***********************************/
@@ -143,7 +143,7 @@ extern "C" {
  */
 #define platform_mutex_unlock HAL_MutexUnlock
 
-/** @} */ //end of platform_mutex
+/** @} */ /* end of platform_mutex */
 
 
 /********************************* semaphore interface *********************************/
@@ -197,7 +197,7 @@ extern "C" {
  */
 #define platform_semaphore_post HAL_SemaphorePost
 
-/** @} */ //end of platform_semaphore
+/** @} */ /* end of platform_semaphore */
 
 /********************************** memory interface **********************************/
 
@@ -227,7 +227,7 @@ extern "C" {
  */
 #define platform_free HAL_Free
 
-/** @} */ //end of platform_memory_manage
+/** @} */ /* end of platform_memory_manage */
 
 /********************************** system interface **********************************/
 
@@ -256,7 +256,7 @@ extern "C" {
  */
 #define platform_get_time_ms (uint32_t)HAL_UptimeMs
 
-/** @} */ //end of platform_system
+/** @} */ /* end of platform_system */
 
 
 /************************************ io interface ************************************/
@@ -279,7 +279,7 @@ extern "C" {
 #define platform_printf(fmt, ...) HAL_Printf(fmt, ## __VA_ARGS__)
 
 
-/** @} */ //end of group_io
+/** @} */ /* end of group_io */
 
 /******************************** wifi module interface ********************************/
 
@@ -314,7 +314,7 @@ extern "C" {
 #define platform_wifi_get_ip HAL_Wifi_Get_IP
 
 
-/** @} */ //end of platform_wifi_module
+/** @} */ /* end of platform_wifi_module */
 
 
 /************************* awss(alibaba wireless setup service) interface ***************************/
@@ -475,7 +475,7 @@ typedef awss_wifi_mgmt_frame_cb_t platform_wifi_mgnt_frame_cb_t;
  */
 #define platform_wifi_enable_mgnt_frame_filter HAL_Wifi_Enable_Mgmt_Frame_Filter
 
-/** @} */ //end of platform__awss
+/** @} */ /* end of platform__awss */
 
 /**
  * @brief handle one piece of AP information from wifi scan result
@@ -663,9 +663,9 @@ typedef awss_wifi_scan_result_cb_t platform_wifi_scan_result_cb_t;
  */
 #define platform_get_conn_encrypt_type HAL_Awss_Get_Conn_Encrypt_Type
 
-/** @} */ //end of platform__awss
+/** @} */ /* end of platform__awss */
 
-/** @} */ //end of group_platform
+/** @} */ /* end of group_platform */
 
 #ifdef __cplusplus
 }

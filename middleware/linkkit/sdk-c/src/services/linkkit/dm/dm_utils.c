@@ -89,7 +89,7 @@ int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
             *array_input_len = bracket_suf - input + 1;
         }
 
-        //Get Index
+        /* Get Index */
         memcpy(array_index_str, bracket_pre + 1, bracket_suf - bracket_pre - 1);
         *array_index = atoi(array_index_str);
         return SUCCESS_RETURN;

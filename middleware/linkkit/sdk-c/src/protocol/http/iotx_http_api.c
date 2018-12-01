@@ -306,18 +306,18 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     char                p_msg_unsign[IOTX_HTTP_SIGN_SOURCE_LEN] = {0};
     iotx_time_t         timer;
     iotx_http_t        *iotx_http_context;
-    /*
-        //    body:
-        //    {
-        //      "version": "default",//默认default
-        //      "clientId": "xxxxxx",//必填
-        //      "signmethod": "hmacsha1",//只支持hmacmd5和hmacsha1，默认hmacmd5
-        //      "sign": "xxxxxxxxxxxxx",//必填，signmethod(deviceSecret,content), content = 将所有提交给服务器的参数（version,sign,signmethod除外）, 按照字母顺序排序, 然后将参数值依次拼接，无拼接符号
-        //      "productKey": "xxxxxx",//必填
-        //      "deviceName": "xxxxxx",//必填
-        //      "timestamp": "xxxxxx"//选填  13byte
-        //    }
-    */
+    /* */
+    /* body: */
+    /* { */
+    /* "version": "default",//默认default */
+    /* "clientId": "xxxxxx",//必填 */
+    /* "signmethod": "hmacsha1",//只支持hmacmd5和hmacsha1，默认hmacmd5 */
+    /* "sign": "xxxxxxxxxxxxx",//必填，signmethod(deviceSecret,content), content = 将所有提交给服务器的参数（version,sign,signmethod除外）, 按照字母顺序排序, 然后将参数值依次拼接，无拼接符号 */
+    /* "productKey": "xxxxxx",//必填 */
+    /* "deviceName": "xxxxxx",//必填 */
+    /* "timestamp": "xxxxxx"//选填  13byte */
+    /* } */
+
     if (NULL == (iotx_http_context = verify_iotx_http_context(handle))) {
         goto do_exit;
     }
@@ -505,7 +505,7 @@ int IOT_HTTP_DeviceNameAuth(void *handle)
     if (SUCCESS_RETURN != ret) {
         http_err("Send firmware message to server(Http) failed, ret = %d", ret);
         goto do_exit;
-    }        
+    }
 
     ret = 0;
 

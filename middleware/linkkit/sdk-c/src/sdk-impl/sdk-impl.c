@@ -109,7 +109,7 @@ int IOT_SetupConnInfo(const char *product_key,
         }
     }
 
-    //iotx_device_info_set(product_key, device_name, device_secret_actual);
+    /* iotx_device_info_set(product_key, device_name, device_secret_actual); */
 
 #if defined MQTT_COMM_ENABLED
     if (NULL == info_ptr) {

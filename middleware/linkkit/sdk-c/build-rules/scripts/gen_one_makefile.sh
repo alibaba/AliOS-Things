@@ -109,11 +109,19 @@ done
 	\$(Q)\$(call Brief_Log,"CC",\$\$(basename \$@),"...")
 	\$(Q)mkdir -p \$\$(dirname \$@)
 	\$(Q)S=\$\$(echo \$@|sed 's,${OUTPUT_DIR},${TOP_DIR},1'); \\
-    ${CC} -c \\
-        -o \$@ \\
-        \$(CFLAGS) \\
-        \$(IFLAGS) \\
-        \$\${S//.o/.c}
+    if echo \$\${S//.o/.c} | grep -q 'ref-impl'; then \\
+        ${CC} -c \\
+            -o \$@ \\
+            \$(filter-out -ansi,\$(CFLAGS)) \\
+            \$(IFLAGS) \\
+            \$\${S//.o/.c}; \\
+    else \\
+        ${CC} -c \\
+            -o \$@ \\
+            \$(CFLAGS) \\
+            \$(IFLAGS) \\
+            \$\${S//.o/.c}; \\
+    fi
 
 ifneq (,\$(findstring gcc,\$(CC)))
 %.d:
@@ -125,7 +133,7 @@ ifneq (,\$(findstring gcc,\$(CC)))
 	mkdir -p \$\$(dirname \$@); \\
 	${CC} -MM -I\$(CURDIR) \\
 	    \$(IFLAGS) \\
-	    \$(CFLAGS) \\
+	    \$(filter-out -ansi,\$(CFLAGS)) \\
 	\$\${D}/\$\${F} > \$@.\$\$\$\$; \\
 	sed -i 's!\$(shell basename \$*)\.o[ :]!\$*.o:!1' \$@.\$\$\$\$; \\
 	mv \$@.\$\$\$\$ \$@; \\
@@ -183,7 +191,7 @@ done)
 	\$(Q)${CC} \\
         -o \$@ \\
         $([ "$i" != "sdk-testsuites" ] && echo "\$(IFLAGS)" || echo "\$(EXT_IFLAGS)") \\
-        \$(CFLAGS) \\
+        \$(filter-out -ansi,\$(CFLAGS)) \\
         \$(filter-out %.a,\$^) \\
         $( if [ "${i}" = "sdk-testsuites" ] && uname -a|grep -qw Ubuntu; then echo "${TOP_DIR}/${IMPORT_VDRDIR}/${PREBUILT_LIBDIR}/libcurl.a"; fi ) \\
         -L${OUTPUT_DIR}/usr/lib \\
