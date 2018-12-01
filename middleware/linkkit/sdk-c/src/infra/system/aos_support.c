@@ -3,7 +3,7 @@
 #include "iotx_utils.h"
 #include "utils_sysinfo.h"
 /* AOS activation data report */
-// aos will implement this function
+/*  aos will implement this function */
 #ifndef BUILD_AOS
 unsigned int aos_get_version_info(unsigned char version_num[VERSION_NUM_SIZE],
                                   unsigned char random_num[RANDOM_NUM_SIZE], unsigned char mac_address[MAC_ADDRESS_SIZE],

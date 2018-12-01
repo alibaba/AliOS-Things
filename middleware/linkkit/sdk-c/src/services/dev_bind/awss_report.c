@@ -45,8 +45,9 @@ int awss_token_remain_time()
     uint32_t cur = os_get_time_ms();
     uint32_t diff = (uint32_t)(cur - awss_report_token_time);
 
-    if (diff < AWSS_TOKEN_TIMEOUT_MS)
+    if (diff < AWSS_TOKEN_TIMEOUT_MS) {
         remain = AWSS_TOKEN_TIMEOUT_MS - diff;
+    }
 
     return remain;
 }
@@ -57,8 +58,9 @@ int awss_update_token()
     awss_report_token_cnt = 0;
     awss_report_token_suc = 0;
 
-    if (report_token_timer == NULL)
+    if (report_token_timer == NULL) {
         report_token_timer = HAL_Timer_Create("rp_token", (void (*)(void *))awss_report_token_to_cloud, NULL);
+    }
     HAL_Timer_Stop(report_token_timer);
     HAL_Timer_Start(report_token_timer, 10);
     awss_debug("update token");
@@ -69,12 +71,14 @@ int awss_update_token()
 
 int awss_token_timeout()
 {
-    if (awss_report_token_time == 0)
+    if (awss_report_token_time == 0) {
         return 1;
+    }
 
     uint32_t cur = os_get_time_ms();
-    if ((uint32_t)(cur - awss_report_token_time) > AWSS_TOKEN_TIMEOUT_MS)
+    if ((uint32_t)(cur - awss_report_token_time) > AWSS_TOKEN_TIMEOUT_MS) {
         return 1;
+    }
     return 0;
 }
 
@@ -86,8 +90,9 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
 
     ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
 
-    if (ret != 0)
+    if (ret != 0) {
         return;
+    }
 
     awss_debug("%s\r\n", __func__);
     awss_report_token_suc = 1;
@@ -117,35 +122,41 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg)
 
     ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
 
-    if (ret != 0)
+    if (ret != 0) {
         goto ONLINE_SWITCHAP_FAIL;
+    }
 
-    if (payload == NULL || payload_len == 0)
+    if (payload == NULL || payload_len == 0) {
         goto ONLINE_SWITCHAP_FAIL;
+    }
 
     awss_debug("online switchap len:%u, payload:%s\r\n", payload_len, payload);
     packet = os_zalloc(packet_len + 1);
-    if (packet == NULL)
+    if (packet == NULL) {
         goto ONLINE_SWITCHAP_FAIL;
+    }
 
     awss_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_PARAM, &awss_info_len, NULL);
-    if (awss_info == NULL || awss_info_len == 0)
+    if (awss_info == NULL || awss_info_len == 0) {
         goto ONLINE_SWITCHAP_FAIL;
+    }
 
     /*
      * get SSID , PASSWD, BSSID of router
      */
     elem = json_get_value_by_name(awss_info, awss_info_len, AWSS_SSID, &len, NULL);
-    if (elem == NULL || len <= 0 || len >= OS_MAX_SSID_LEN)
+    if (elem == NULL || len <= 0 || len >= OS_MAX_SSID_LEN) {
         goto ONLINE_SWITCHAP_FAIL;
+    }
 
     memset(switchap_ssid, 0, sizeof(switchap_ssid));
     memcpy(switchap_ssid, elem, len);
 
     len = 0;
     elem = json_get_value_by_name(awss_info, awss_info_len, AWSS_PASSWD, &len, NULL);
-    if (elem == NULL || len <= 0 || len >= OS_MAX_PASSWD_LEN)
+    if (elem == NULL || len <= 0 || len >= OS_MAX_PASSWD_LEN) {
         goto ONLINE_SWITCHAP_FAIL;
+    }
 
     memset(switchap_passwd, 0, sizeof(switchap_passwd));
     memcpy(switchap_passwd, elem, len);
@@ -157,7 +168,7 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg)
     if (elem != NULL && len == AWSS_BSSID_STR_LEN) {
         uint8_t i = 0;
         char *bssid_str = elem;
-        // convert bssid string to bssid value
+        /* convert bssid string to bssid value */
         while (i < OS_ETH_ALEN) {
             switchap_bssid[i ++] = (uint8_t)strtol(bssid_str, &bssid_str, 16);
             ++ bssid_str;
@@ -175,12 +186,13 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg)
     elem = json_get_value_by_name(awss_info, awss_info_len, AWSS_SWITCH_MODE, &len, NULL);
     if (elem != NULL && (elem[0] == '0' || elem[0] == 0)) {
         elem = json_get_value_by_name(awss_info, awss_info_len, AWSS_TIMEOUT, &len, NULL);
-        if (elem)
+        if (elem) {
             timeout = (int)strtol(elem, &elem, 16);
+        }
     }
 
     do {
-        // reduce stack used
+        /* reduce stack used */
         char *id = NULL;
         char id_str[MSG_REQ_ID_LEN] = {0};
         id = json_get_value_by_name(payload, payload_len, AWSS_JSON_ID, &len, NULL);
@@ -198,8 +210,9 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg)
     /*
      * make sure the response would been received
      */
-    if (timeout < 1000)
+    if (timeout < 1000) {
         timeout = 1000;
+    }
 
     do {
         uint8_t bssid[ETH_ALEN] = {0};
@@ -211,8 +224,9 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg)
         if (strncmp(ssid, switchap_ssid, sizeof(ssid)) ||
             memcmp(bssid, switchap_bssid, sizeof(bssid)) ||
             strncmp(passwd, switchap_passwd, sizeof(passwd))) {
-            if (switchap_timer == NULL)
+            if (switchap_timer == NULL) {
                 switchap_timer = HAL_Timer_Create("swichap_online", (void (*)(void *))awss_switch_ap_online, NULL);
+            }
 
             HAL_Timer_Stop(switchap_timer);
             HAL_Timer_Start(switchap_timer, timeout);
@@ -226,7 +240,9 @@ ONLINE_SWITCHAP_FAIL:
     memset(switchap_ssid, 0, sizeof(switchap_ssid));
     memset(switchap_bssid, 0, sizeof(switchap_bssid));
     memset(switchap_passwd, 0, sizeof(switchap_passwd));
-    if (packet) os_free(packet);
+    if (packet) {
+        os_free(packet);
+    }
     return;
 }
 
@@ -262,8 +278,9 @@ static int awss_reboot_system()
 static int awss_report_token_to_cloud()
 {
 #define REPORT_TOKEN_PARAM_LEN  (64)
-    if (awss_report_token_suc)  // success ,no need to report
+    if (awss_report_token_suc) { /* success ,no need to report */
         return 0;
+    }
 
     /*
      * it is still failed after try to report token MATCH_REPORT_CNT_MAX times
@@ -290,24 +307,26 @@ static int awss_report_token_to_cloud()
     }
 
     do {
-        // reduce stack used
+        /* reduce stack used */
         uint8_t i;
         char id_str[MSG_REQ_ID_LEN] = {0};
         char param[REPORT_TOKEN_PARAM_LEN] = {0};
         char token_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
 
-        for (i = 0; i < sizeof(aes_random); i ++)  // check aes_random is initialed or not
-            if (aes_random[i] != 0x00)
+        for (i = 0; i < sizeof(aes_random); i ++)  /* check aes_random is initialed or not */
+            if (aes_random[i] != 0x00) {
                 break;
+            }
 
-        if (i >= sizeof(aes_random))  // aes_random needs to be initialed
+        if (i >= sizeof(aes_random)) { /* aes_random needs to be initialed */
             produce_random(aes_random, sizeof(aes_random));
+        }
 
         awss_report_token_time = os_get_time_ms();
 
-        snprintf(id_str, MSG_REQ_ID_LEN - 1, "\"%u\"", awss_report_id ++);
+        HAL_Snprintf(id_str, MSG_REQ_ID_LEN - 1, "\"%u\"", awss_report_id ++);
         utils_hex_to_str(aes_random, RANDOM_MAX_LEN, token_str, sizeof(token_str) - 1);
-        snprintf(param, REPORT_TOKEN_PARAM_LEN - 1, "{\"token\":\"%s\"}", token_str);
+        HAL_Snprintf(param, REPORT_TOKEN_PARAM_LEN - 1, "{\"token\":\"%s\"}", token_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id_str, ILOP_VER, METHOD_MATCH_REPORT, param, 0, packet, &packet_len);
     } while (0);
 

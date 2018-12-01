@@ -17,10 +17,10 @@
 #include "CoAPExport.h"
 #include "iotx_alcs.h"
 
-char* DEFAULT_AC = "Xtau@iot";
-char* DEFAULT_AS = "Yx3DdsyetbSezlvc";
-void* g_adapter_handle = NULL;
-void* g_coap_handle = NULL;
+char *DEFAULT_AC = "Xtau@iot";
+char *DEFAULT_AS = "Yx3DdsyetbSezlvc";
+void *g_adapter_handle = NULL;
+void *g_coap_handle = NULL;
 
 typedef enum {
     ALCS_LOCALSETUP_SUCCESS,
@@ -62,20 +62,19 @@ static localsetup_status __alcs_localsetup_kv_del(const char *key)
     return ALCS_LOCALSETUP_SUCCESS;
 }
 
-static localsetup_status __fill_key (const char *pk, uint16_t pk_len,
-        const char *dn, uint16_t dn_len, char key_md5_hexstr[33])
+static localsetup_status __fill_key(const char *pk, uint16_t pk_len,
+                                    const char *dn, uint16_t dn_len, char key_md5_hexstr[33])
 {
     uint8_t key_md5[16] = {0};
     char key_source[PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 3];
 
     if (pk == NULL || pk_len >= PRODUCT_KEY_MAXLEN ||
-        dn == NULL || dn_len >= DEVICE_NAME_MAXLEN)
-    {
+        dn == NULL || dn_len >= DEVICE_NAME_MAXLEN) {
         COAP_ERR("Invalid Parameter");
         return ALCS_LOCALSETUP_ERROR;
     }
 
-    //Calculate Key
+    /* Calculate Key */
     HAL_Snprintf(key_source, sizeof(key_source), "%.*s%.*s.l", pk_len, pk, dn_len, dn);
 
     utils_md5((const unsigned char *)key_source, strlen(key_source), key_md5);
@@ -101,7 +100,7 @@ static localsetup_status __alcs_localsetup_ac_as_save(const char *pk, uint16_t p
         return rt;
     }
 
-    //Calculate Value
+    /* Calculate Value */
     value = ALCS_ADAPTER_malloc(prefix_len + secret_len + 3);
     if (value == NULL) {
         COAP_ERR("No Enough Memory");
@@ -142,7 +141,7 @@ localsetup_status alcs_localsetup_ac_as_load(const char *pk, uint16_t pk_len,
         return rt;
     }
 
-    //Get Value
+    /* Get Value */
     if (ALCS_LOCALSETUP_SUCCESS != __alcs_localsetup_kv_get(key_md5_hexstr, value, &value_len)) {
         COAP_WRN("ALCS KV Get local Prefix And Secret Fail");
         return ALCS_LOCALSETUP_ERROR;
@@ -178,94 +177,94 @@ static localsetup_status __alcs_localsetup_ac_as_del(const char *pk, uint16_t pk
     return ALCS_LOCALSETUP_SUCCESS;
 }
 
-static void alcs_service_cb_setup (CoAPContext *context, const char *paths, NetworkAddr *remote, CoAPMessage *message)
+static void alcs_service_cb_setup(CoAPContext *context, const char *paths, NetworkAddr *remote, CoAPMessage *message)
 {
     char payload[128];
-    char* id = NULL, *p;
+    char *id = NULL, *p;
     int idlen = 0, len, aclen, aslen, pklen, dnlen;
-    char* ac = NULL, *as = NULL, *pk = NULL, *dn = dn;
+    char *ac = NULL, *as = NULL, *pk = NULL, *dn = dn;
     bool success = 0;
-    char* err_msg = NULL;
+    char *err_msg = NULL;
     char configValueBack, acBack, asBack;
     char *str_pos, *entry;
     int entry_len, type;
     iotx_alcs_msg_t rsp_msg;
 
-    COAP_DEBUG ("alcs_service_cb_setup, path:%s", paths);
+    COAP_DEBUG("alcs_service_cb_setup, path:%s", paths);
     do {
         if (!remote || !message) {
-            COAP_DEBUG ("alcs_service_cb_setup, param is NULL!");
+            COAP_DEBUG("alcs_service_cb_setup, param is NULL!");
             err_msg = "invalid package";
             break;
         }
 
-        id = json_get_value_by_name((char*)message->payload, message->payloadlen, "id", &idlen, (int*)NULL);
-        p = json_get_value_by_name((char*)message->payload, message->payloadlen, "params", &len, (int*)NULL);
+        id = json_get_value_by_name((char *)message->payload, message->payloadlen, "id", &idlen, (int *)NULL);
+        p = json_get_value_by_name((char *)message->payload, message->payloadlen, "params", &len, (int *)NULL);
         if (!p || !len) {
             err_msg = "params is not found";
             break;
         }
 
-        p = json_get_value_by_name(p, len, "configValue", &len, (int*)NULL);
+        p = json_get_value_by_name(p, len, "configValue", &len, (int *)NULL);
         if (!p || !len) {
             err_msg = "configValue is not found";
             break;
         }
 
-        backup_json_str_last_char (p, len, configValueBack);
+        backup_json_str_last_char(p, len, configValueBack);
 
         json_array_for_each_entry(p, len, str_pos, entry, entry_len, type) {
-            COAP_DEBUG ("entry:%.*s", entry_len, entry);
-            ac = json_get_value_by_name(entry, entry_len, "authCode", &aclen, (int*)NULL);
-            as = json_get_value_by_name(entry, entry_len, "authSecret", &aslen, (int*)NULL);
-            pk = json_get_value_by_name(entry, entry_len, "productKey", &pklen, (int*)NULL);
-            dn = json_get_value_by_name(entry, entry_len, "deviceName", &dnlen, (int*)NULL);
+            COAP_DEBUG("entry:%.*s", entry_len, entry);
+            ac = json_get_value_by_name(entry, entry_len, "authCode", &aclen, (int *)NULL);
+            as = json_get_value_by_name(entry, entry_len, "authSecret", &aslen, (int *)NULL);
+            pk = json_get_value_by_name(entry, entry_len, "productKey", &pklen, (int *)NULL);
+            dn = json_get_value_by_name(entry, entry_len, "deviceName", &dnlen, (int *)NULL);
             break;
-        } //end json_array_for_each_entry
-        restore_json_str_last_char (p, len, configValueBack);
+        } /* end json_array_for_each_entry */
+        restore_json_str_last_char(p, len, configValueBack);
 
         if (!ac || !aclen || !as || !aslen || !pk || !pklen || !dn || !dnlen) {
             err_msg = "authinfo is not found";
             break;
         }
 
-        //save
-        backup_json_str_last_char (ac, aclen, acBack);
-        backup_json_str_last_char (as, aslen, asBack);
-        __alcs_localsetup_ac_as_del (pk, pklen, dn, dnlen);
-        __alcs_localsetup_ac_as_save (pk, pklen, dn, dnlen, ac, aclen, as, aslen);
+        /* save */
+        backup_json_str_last_char(ac, aclen, acBack);
+        backup_json_str_last_char(as, aslen, asBack);
+        __alcs_localsetup_ac_as_del(pk, pklen, dn, dnlen);
+        __alcs_localsetup_ac_as_save(pk, pklen, dn, dnlen, ac, aclen, as, aslen);
 
         alcs_add_svr_key(g_coap_handle, ac, as, LOCALSETUP);
 
-        restore_json_str_last_char (ac, aclen, acBack);
-        restore_json_str_last_char (as, aslen, asBack)
+        restore_json_str_last_char(ac, aclen, acBack);
+        restore_json_str_last_char(as, aslen, asBack)
         success = 1;
 
     } while (0);
 
     if (success) {
-        HAL_Snprintf(payload, sizeof(payload), "{\"id\":\"%.*s\",\"code\":200}", idlen, id? id : "");
+        HAL_Snprintf(payload, sizeof(payload), "{\"id\":\"%.*s\",\"code\":200}", idlen, id ? id : "");
     } else {
-        HAL_Snprintf(payload, sizeof(payload), "{\"id\":\"%.*s\",\"code\":400,\"msg\":\"%s\"}", idlen, id? id : "", err_msg);
-        COAP_ERR ("alcs_service_cb_setup, %s", err_msg);
+        HAL_Snprintf(payload, sizeof(payload), "{\"id\":\"%.*s\",\"code\":400,\"msg\":\"%s\"}", idlen, id ? id : "", err_msg);
+        COAP_ERR("alcs_service_cb_setup, %s", err_msg);
     }
 
     memset(&rsp_msg, 0, sizeof(iotx_alcs_msg_t));
 
     rsp_msg.msg_code = ITOX_ALCS_COAP_MSG_CODE_205_CONTENT;
     rsp_msg.msg_type = IOTX_ALCS_MESSAGE_TYPE_CON;
-    rsp_msg.payload = (unsigned char*)payload;
+    rsp_msg.payload = (unsigned char *)payload;
     rsp_msg.payload_len = strlen(payload);
-    rsp_msg.ip = (char*)(remote? remote->addr : NULL);
-    rsp_msg.port = remote? remote->port : 5683;
-    rsp_msg.uri = (char*)paths;
+    rsp_msg.ip = (char *)(remote ? remote->addr : NULL);
+    rsp_msg.port = remote ? remote->port : 5683;
+    rsp_msg.uri = (char *)paths;
 
     if (message) {
-        iotx_alcs_send_Response (g_adapter_handle, &rsp_msg, message->header.tokenlen, message->token);
+        iotx_alcs_send_Response(g_adapter_handle, &rsp_msg, message->header.tokenlen, message->token);
     }
 }
 
-static void alcs_localsetup_register_resource (void *adapter_handle, char *pk, char *dn)
+static void alcs_localsetup_register_resource(void *adapter_handle, char *pk, char *dn)
 {
     iotx_alcs_res_t alcs_res;
     char uri [PRODUCT_KEY_LEN + DEVICE_NAME_LEN + 24];
@@ -288,22 +287,23 @@ static void alcs_localsetup_register_resource (void *adapter_handle, char *pk, c
     iotx_alcs_register_resource(adapter_handle, &alcs_res);
 }
 
-void alcs_localsetup_init(void *adapter_handle, void* coap_handler, char *pk, char *dn)
+void alcs_localsetup_init(void *adapter_handle, void *coap_handler, char *pk, char *dn)
 {
     char prefix [10];
     char secret [64];
     g_adapter_handle = adapter_handle;
     g_coap_handle = coap_handler;
-    alcs_localsetup_register_resource (adapter_handle, pk, dn);
+    alcs_localsetup_register_resource(adapter_handle, pk, dn);
 
-    if (alcs_localsetup_ac_as_load(pk, strlen(pk), dn, strlen(dn), prefix, sizeof(prefix), secret, sizeof(secret)) != ALCS_LOCALSETUP_SUCCESS) {
+    if (alcs_localsetup_ac_as_load(pk, strlen(pk), dn, strlen(dn), prefix, sizeof(prefix), secret,
+                                   sizeof(secret)) != ALCS_LOCALSETUP_SUCCESS) {
         alcs_add_svr_key(g_coap_handle, DEFAULT_AC, DEFAULT_AS, LOCALDEFAULT);
     } else {
         alcs_add_svr_key(g_coap_handle, prefix, secret, LOCALSETUP);
     }
 }
 
-void alcs_localsetup_add_sub_device (void *adapter_handle,char* pk,char* dn)
+void alcs_localsetup_add_sub_device(void *adapter_handle, char *pk, char *dn)
 {
-    alcs_localsetup_register_resource (adapter_handle, pk, dn);
+    alcs_localsetup_register_resource(adapter_handle, pk, dn);
 }

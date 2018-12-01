@@ -432,7 +432,7 @@ void CoAPMessage_dump(NetworkAddr *remote, CoAPMessage *message)
     ret = CoAPUintOption_get(message, COAP_OPTION_CONTENT_FORMAT, &ctype);
     if (COAP_SUCCESS == ret && NULL != message->payload
         && (COAP_CT_APP_OCTET_STREAM != ctype && COAP_CT_APP_CBOR != ctype)) {
-        //     COAP_FLOW("Payload     : %s", message->payload);
+        /* COAP_FLOW("Payload     : %s", message->payload); */
     }
 
     COAP_FLOW("********************************");
@@ -559,7 +559,7 @@ static int CoAPAckMessage_handle(CoAPContext *context, CoAPMessage *message)
     list_for_each_entry_safe(node, next, &ctx->sendlist.list, sendlist, CoAPSendNode) {
         if (node->header.msgid == message->header.msgid) {
             node->acked = 1;
-            if (CoAPRespMsg(node->header)) { //CON response message
+            if (CoAPRespMsg(node->header)) { /* CON response message */
                 list_del_init(&node->sendlist);
                 coap_free(node->message);
                 coap_free(node);
@@ -656,7 +656,7 @@ static int CoAPRespMessage_handle(CoAPContext *context, NetworkAddr *remote, CoA
 
     if (found && NULL != node) {
         message->user  = node->user;
-        // TODO: comment it
+        /* TODO: comment it */
         /*
         if (COAP_MSG_CODE_400_BAD_REQUEST <= message->header.code) {
             if (NULL != ctx->notifier) {
@@ -715,7 +715,7 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
     CoAPIntContext *ctx = (CoAPIntContext *)context;
     COAP_FLOW("CoAPRequestMessage_handle: %p", ctx);
 
-    // TODO: if need only one callback
+    /* TODO: if need only one callback */
     for (index = 0; index < message->optcount; index++) {
         if (COAP_OPTION_URI_PATH == message->options[index].num) {
             if ((COAP_MSG_MAX_PATH_LEN - 1) >= (tmp - path + message->options[index].len)) {
@@ -804,9 +804,9 @@ static void CoAPMessage_handle(CoAPContext *context,
     CoAPMessage_dump(remote, &message);
 
     if (COAPAckMsg(message.header) || CoAPResetMsg(message.header)) {
-        // TODO: implement handle client observe
+        /* TODO: implement handle client observe */
 
-        // TODO: if need call response callback
+        /* TODO: if need call response callback */
         CoAPAckMessage_handle(ctx, &message);
 
     } else if (CoAPRespMsg(message.header)) {

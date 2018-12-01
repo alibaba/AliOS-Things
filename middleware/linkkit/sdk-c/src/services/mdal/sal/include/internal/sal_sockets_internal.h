@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef SAL_USE_AOS_HAL
-#include <aos/aos.h>
+    #include <aos/aos.h>
 #else
-#include "iotx_log.h"
+    #include "iotx_log.h"
 #endif
 
 #include "sal_arch.h"
@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-#define MEMP_NUM_NETCONN     5 // (MAX_SOCKETS_TCP + MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP)
+#define MEMP_NUM_NETCONN     5 /* (MAX_SOCKETS_TCP + MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP) */
 
 #define SAL_TAG  "sal"
 
@@ -41,7 +41,7 @@ extern "C" {
 
 #define SAL_ERROR(format, ...)  LOGE(SAL_TAG, format, ##__VA_ARGS__)
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
-        LOGE(SAL_TAG, msg);} \
+            LOGE(SAL_TAG, msg);} \
     } while (0)
 #else
 #ifdef SAL_USE_DEBUG
@@ -52,7 +52,7 @@ extern "C" {
 
 #define SAL_ERROR(format, ...)  log_err(SAL_TAG, format, ##__VA_ARGS__)
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
-        log_err(SAL_TAG, msg);} \
+            log_err(SAL_TAG, msg);} \
     } while (0)
 #endif
 
@@ -81,9 +81,9 @@ extern "C" {
 
 /** Set the blocking status of netconn calls (@todo: write/send is missing) */
 #define netconn_set_nonblocking(conn, val)  do { if(val) { \
-  (conn)->flags |= NETCONN_FLAG_NON_BLOCKING; \
-} else { \
-  (conn)->flags &= ~ NETCONN_FLAG_NON_BLOCKING; }} while(0)
+            (conn)->flags |= NETCONN_FLAG_NON_BLOCKING; \
+        } else { \
+            (conn)->flags &= ~ NETCONN_FLAG_NON_BLOCKING; }} while(0)
 /** Get the blocking status of netconn calls (@todo: write/send is missing) */
 #define netconn_is_nonblocking(conn)        (((conn)->flags & NETCONN_FLAG_NON_BLOCKING) != 0)
 
@@ -187,9 +187,9 @@ typedef struct sal_netconn {
 
 /** Set the blocking status of netconn calls (@todo: write/send is missing) */
 #define netconn_set_nonblocking(conn, val)  do { if(val) { \
-  (conn)->flags |= NETCONN_FLAG_NON_BLOCKING; \
-} else { \
-  (conn)->flags &= ~ NETCONN_FLAG_NON_BLOCKING; }} while(0)
+            (conn)->flags |= NETCONN_FLAG_NON_BLOCKING; \
+        } else { \
+            (conn)->flags &= ~ NETCONN_FLAG_NON_BLOCKING; }} while(0)
 /** Get the blocking status of netconn calls (@todo: write/send is missing) */
 #define netconn_is_nonblocking(conn)        (((conn)->flags & NETCONN_FLAG_NON_BLOCKING) != 0)
 
@@ -232,14 +232,14 @@ struct sockaddr_storage {
 
 /** Safely copy one IPv6 address to another (src may be NULL) */
 #define ip6_addr_set(dest, src) do{(dest)->addr[0] = (src) == NULL ? 0 : (src)->addr[0]; \
-                                   (dest)->addr[1] = (src) == NULL ? 0 : (src)->addr[1]; \
-                                   (dest)->addr[2] = (src) == NULL ? 0 : (src)->addr[2]; \
-                                   (dest)->addr[3] = (src) == NULL ? 0 : (src)->addr[3];}while(0)
+        (dest)->addr[1] = (src) == NULL ? 0 : (src)->addr[1]; \
+        (dest)->addr[2] = (src) == NULL ? 0 : (src)->addr[2]; \
+        (dest)->addr[3] = (src) == NULL ? 0 : (src)->addr[3];}while(0)
 
 /** Safely copy one IP address to another (src may be NULL) */
 #define ip4_addr_set(dest, src) ((dest)->addr = \
-                                        ((src) == NULL ? 0 : \
-                                        (src)->addr))
+                                 ((src) == NULL ? 0 : \
+                                  (src)->addr))
 
 /** @ingroup ip6addr
  * Convert generic ip address to specific protocol version
@@ -270,8 +270,8 @@ struct sockaddr_storage {
 #define IP_IS_V6(ipaddr)              (IP_IS_V6_VAL(*(ipaddr)))
 
 #define ip_addr_set(dest, src) do{ IP_SET_TYPE(dest, IP_GET_TYPE(src)); if(IP_IS_V6(src)){ \
-  ip6_addr_set(ip_2_ip6(dest), ip_2_ip6(src)); }else{ \
-  ip4_addr_set(ip_2_ip4(dest), ip_2_ip4(src)); }}while(0)
+            ip6_addr_set(ip_2_ip6(dest), ip_2_ip6(src)); }else{ \
+            ip4_addr_set(ip_2_ip4(dest), ip_2_ip4(src)); }}while(0)
 /** @ingroup ipaddr */
 #define ip_addr_set_ipaddr(dest, src) ip_addr_set(dest, src)
 
@@ -279,18 +279,18 @@ struct sockaddr_storage {
 #define inet_addr_to_ipaddr(target_ipaddr, source_inaddr)   (ip4_addr_set_u32(target_ipaddr, (source_inaddr)->s_addr))
 
 #define IP4ADDR_PORT_TO_SOCKADDR(sin, ipaddr, port) do { \
-      (sin)->sin_len = sizeof(struct sockaddr_in); \
-      (sin)->sin_family = AF_INET; \
-      (sin)->sin_port = sal_htons((port)); \
-      inet_addr_from_ipaddr(&(sin)->sin_addr, ipaddr); \
-      memset((sin)->sin_zero, 0, SIN_ZERO_LEN); }while(0)
+        (sin)->sin_len = sizeof(struct sockaddr_in); \
+        (sin)->sin_family = AF_INET; \
+        (sin)->sin_port = sal_htons((port)); \
+        inet_addr_from_ipaddr(&(sin)->sin_addr, ipaddr); \
+        memset((sin)->sin_zero, 0, SIN_ZERO_LEN); }while(0)
 
 #define SOCKADDR4_TO_IP4ADDR_PORT(sin, ipaddr, port) do { \
-    inet_addr_to_ipaddr(ip_2_ip4(ipaddr), &((sin)->sin_addr)); \
-    (port) = sal_htons((sin)->sin_port); }while(0)
+        inet_addr_to_ipaddr(ip_2_ip4(ipaddr), &((sin)->sin_addr)); \
+        (port) = sal_htons((sin)->sin_port); }while(0)
 
 #define IPADDR_PORT_TO_SOCKADDR(sockaddr, ipaddr, port) \
-        IP4ADDR_PORT_TO_SOCKADDR((struct sockaddr_in*)(void*)(sockaddr), ip_2_ip4(ipaddr), port)
+    IP4ADDR_PORT_TO_SOCKADDR((struct sockaddr_in*)(void*)(sockaddr), ip_2_ip4(ipaddr), port)
 
 #define ipaddr_aton(cp,addr) ip4addr_aton(cp,addr)
 

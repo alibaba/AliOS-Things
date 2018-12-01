@@ -2072,7 +2072,7 @@ static int _dm_msg_set_object(dm_msg_set_type_t type, int devid, char *key, lite
         /* dm_log_debug("Current Key: %.*s, Value: %.*s",
                      lite_item_key.value_length, lite_item_key.value,
                      lite_item_value.value_length, lite_item_value.value); */
-        //new_key_len = lite_item_key.value_length + 1;
+        /* new_key_len = lite_item_key.value_length + 1; */
         new_key_len = ((key == NULL) ? (0) : (strlen(key) + 1)) + lite_item_key.value_length + 1;
         /* dm_log_debug("new_key_len: %d", new_key_len); */
         new_key = DM_malloc(new_key_len);

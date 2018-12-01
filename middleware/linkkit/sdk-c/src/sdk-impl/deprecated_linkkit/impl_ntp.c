@@ -136,7 +136,7 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
         }
         memset(topic, 0, topic_len + 1);
 
-        snprintf(topic, topic_len, TOPIC_NTP_REPLY, pk, dn);
+        HAL_Snprintf(topic, topic_len, TOPIC_NTP_REPLY, pk, dn);
         ret = IOT_MQTT_Subscribe_Sync(NULL, topic, IOTX_MQTT_QOS0,
                                       (iotx_mqtt_event_handle_func_fpt)linkkit_ntp_time_reply, NULL, 1000);
         if (ret < 0) {
@@ -144,7 +144,7 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
         }
 
         memset(topic, 0, topic_len + 1);
-        snprintf(topic, topic_len, TOPIC_NTP, pk, dn);
+        HAL_Snprintf(topic, topic_len, TOPIC_NTP, pk, dn);
     } while (0);
 
     packet = (char *)IMPL_NTP_MALLOC(packet_len + 1);
@@ -155,7 +155,7 @@ int linkkit_ntp_time_request(void (*ntp_reply)(const char *ntp_offset_time_ms))
     memset(packet, 0, packet_len + 1);
 
     g_ntp_reply_cb = ntp_reply;
-    final_len = snprintf(packet, packet_len, "{\"deviceSendTime\":\"%u\"}", (unsigned int)(HAL_UptimeMs()));
+    final_len = HAL_Snprintf(packet, packet_len, "{\"deviceSendTime\":\"%u\"}", (unsigned int)(HAL_UptimeMs()));
 
     log_debug("[ntp]", "report ntp:%s\r\n", packet);
 

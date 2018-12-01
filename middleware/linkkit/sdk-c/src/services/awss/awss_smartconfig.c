@@ -13,12 +13,10 @@
 #include "zconfig_protocol.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
-//////////////////////////////////////////////////////////////////////////////////
-//following is broadcast protocol related code
+/* following is broadcast protocol related code */
 uint8_t is_start_frame(uint16_t len)
 {
     return (len == START_FRAME);
@@ -34,13 +32,15 @@ uint8_t is_data_frame(uint16_t len)
 {
     uint8_t group_frame, index;
     /* is start frame */
-    if (is_start_frame(len))
+    if (is_start_frame(len)) {
         return 0;
+    }
 
     /* is group frame? */
     group_frame = is_group_frame(len);
-    if (group_frame)
+    if (group_frame) {
         return 0;
+    }
 
     index = (len >> PAYLOAD_BITS_CNT) & 0xF;
     return (index >= ZC_GRP_PKT_IDX_START && index <= ZC_GRP_PKT_IDX_END);
@@ -48,8 +48,9 @@ uint8_t is_data_frame(uint16_t len)
 
 uint8_t get_group_index(uint16_t len)
 {
-    if (is_start_frame(len))
+    if (is_start_frame(len)) {
         return 0;
+    }
 
     return (len - GROUP_FRAME) * GROUP_NUMBER;
 }
@@ -95,7 +96,7 @@ int zconfig_get_data_len(void)
     }
 
     if (len && score > score_mid) {
-        //awss_debug("zconfig_get_data_len = %d\r\n", len);
+        /* awss_debug("zconfig_get_data_len = %d\r\n", len); */
         goto out;
     }
 
@@ -133,7 +134,7 @@ int zconfig_recv_completed(uint8_t tods)
     }
 
     if (!len || pkg_score(1) <= score_min) {
-        //awss_trace("len=%d, pkg_score(1)=%d\r\n", len, pkg_score(1));
+        /* awss_trace("len=%d, pkg_score(1)=%d\r\n", len, pkg_score(1)); */
         return 0;
     }
 
@@ -147,13 +148,14 @@ int zconfig_recv_completed(uint8_t tods)
 
         /* over-written ssid_len here */
         ssid_len = strlen((char const *)zc_ssid);
-        if (ssid_len > ZC_MAX_SSID_LEN - 1)
+        if (ssid_len > ZC_MAX_SSID_LEN - 1) {
             ssid_len = ZC_MAX_SSID_LEN - 1;
+        }
 
         if (!(flag & SSID_ENCODE_MASK)) {/* ASCLL ssid */
             if ((ssid_len | 0x200) != pkg_len(3)) {
                 awss_warn("ssid len not match! ssid:%s != %d\r\n",
-                        zc_ssid, (pkg_len(3) & ~0x200));
+                          zc_ssid, (pkg_len(3) & ~0x200));
                 zc_ssid_auto_complete_disable = 1;
                 goto skip_ssid_auto_complete;
             }
@@ -209,19 +211,22 @@ int zconfig_recv_completed(uint8_t tods)
 #endif
 
 skip_ssid_auto_complete:
-    //awss_debug("expect len = %d, max len = %d\r\n", len, zc_max_pos);
-    if (zc_max_pos < len)
-        return 0;    // receive all the packets
+    /* awss_debug("expect len = %d, max len = %d\r\n", len, zc_max_pos); */
+    if (zc_max_pos < len) {
+        return 0;    /* receive all the packets */
+    }
 
-    for (i = 1; i <= len; i ++) {  // check score for all the packets
-        if (pkg_score(i) <= score_min)
+    for (i = 1; i <= len; i ++) {  /* check score for all the packets */
+        if (pkg_score(i) <= score_min) {
             return 0;
+        }
     }
 
     /* 4 for total_len, flag, ssid_len, passwd_len, 2 for crc */
     if (flag & SSID_EXIST_MASK) { /* ssid exist */
-        if (len != ssid_len + passwd_len + 4 + 2)
+        if (len != ssid_len + passwd_len + 4 + 2) {
             return 0;
+        }
     } else if (len != passwd_len + 3 + 2) {
         return 0;
     }
@@ -236,13 +241,15 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     uint16_t crc, cal_crc;
     uint8_t data, score;
 
-    if (!zconfig_recv_completed(tods))
+    if (!zconfig_recv_completed(tods)) {
         return -1;
+    }
 
     buf = os_zalloc(256);
     tmp = os_zalloc(128);
-    if (buf == NULL || tmp == NULL)
+    if (buf == NULL || tmp == NULL) {
         awss_crit("malloc failed!\r\n");
+    }
 
     /* package num */
     package_num = pkg_len(1) & PAYLOAD_BITS_MASK;/* total len, include len(1B) & crc(2B) */
@@ -279,7 +286,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
 
     if (crc != cal_crc) {
         awss_trace("crc error: recv 0x%x != 0x%x\r\n", crc, cal_crc);
-        //memset(zconfig_data, 0, sizeof(*zconfig_data));
+        /* memset(zconfig_data, 0, sizeof(*zconfig_data)); */
         uint8_t tods_tmp = tods;
         for (tods = 0; tods < 2; tods ++) {
             for (i = 1; i <= package_num; i ++) {
@@ -302,13 +309,14 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         passwd_len = pbuf[1];
         pbuf += 2; /* 2B for ssid_len, passwd_len */
 
-        if (!(flag & SSID_ENCODE_MASK))    {  // ascii
-            /* CAN'T use snprintf here, because of SPACE char */
+        if (!(flag & SSID_ENCODE_MASK))    {  /* ascii */
+            /* CAN'T use HAL_Snprintf here, because of SPACE char */
             memcpy((char *)tmp, pbuf, ssid_len);
             tmp[ssid_len] = '\0';
-            for (i = 0; i < ssid_len; i ++)
+            for (i = 0; i < ssid_len; i ++) {
                 tmp[i] += 32;
-        } else {//chinese format
+            }
+        } else {/* chinese format */
             decode_chinese(pbuf, ssid_len, tmp, NULL, 6);
             /* make sure 'tmp' is null-terminated */
         }
@@ -325,7 +333,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             }
         }
 #ifdef AWSS_SUPPORT_APLIST
-        do {  // amend SSID automatically
+        do {  /* amend SSID automatically */
             struct ap_info *ap = NULL;
             ap = zconfig_get_apinfo(zc_bssid);
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
@@ -344,9 +352,9 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         pbuf += 1; /* 1B for passwd_len */
     }
 
-    /* CAN'T use snprintf here, because of SPACE char */
+    /* CAN'T use HAL_Snprintf here, because of SPACE char */
     if (passwd_encrypt > PASSWD_ENCRYPT_CIPHER) {
-        // decypt passwd using aes128-cfb
+        /* decypt passwd using aes128-cfb */
         decode_chinese(pbuf, passwd_len, tmp, &passwd_cipher_len, 6);
         passwd_len = passwd_cipher_len;
         memset(zc_passwd, 0, ZC_MAX_PASSWD_LEN);
@@ -361,8 +369,9 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     } else {
         memcpy((void *)tmp, (const void *)pbuf, passwd_len);
         tmp[passwd_len] = '\0';
-        for (i = 0; i < passwd_len; i ++)
+        for (i = 0; i < passwd_len; i ++) {
             tmp[i] += 32;
+        }
         strncpy((char *)zc_passwd, (const char *)tmp, ZC_MAX_PASSWD_LEN - 1);
 
         awss_trace("encrypt:%d not support\r\n", passwd_encrypt);
@@ -372,7 +381,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     }
 
 
-    // awss_debug("PASSWD: [%s]\r\n", zc_passwd);
+    /* awss_debug("PASSWD: [%s]\r\n", zc_passwd); */
     pbuf += passwd_len; /* passwd */
     ret = 0;
 exit:
@@ -386,8 +395,9 @@ int package_cmp(uint8_t *package, uint8_t *src, uint8_t *dst, uint8_t tods, uint
 {
     struct package *pkg = (struct package *)package;
 
-    if (pkg->len != len)
+    if (pkg->len != len) {
         return 1;
+    }
     return 0;
 }
 
@@ -401,20 +411,20 @@ int package_save(uint8_t *package, uint8_t *src, uint8_t *dst, uint8_t tods, uin
 
 /* len -= (rth->it_len + hdrlen); see ieee80211.c */
 const uint8_t zconfig_fixed_offset[ZC_ENC_TYPE_MAX + 1][2] = {
-    {  // open, none, ip(20) + udp(8) + 8(LLC)
+    {  /* open, none, ip(20) + udp(8) + 8(LLC) */
         36, 36
     },
-    {  // wep, + iv(4) + data + ICV(4)
-        44, 44  // feixun, wep64(10byte), wep128(26byte)
+    {  /* wep, + iv(4) + data + ICV(4) */
+        44, 44  /* feixun, wep64(10byte), wep128(26byte) */
     },
-    {  // tkip, + iv/keyID(4) + Ext IV(4) + data + MIC(8) + ICV(4)
-        56, 56  // tkip(10byte, 20byte), wpa2+tkip(20byte)
+    {  /* tkip, + iv/keyID(4) + Ext IV(4) + data + MIC(8) + ICV(4) */
+        56, 56  /* tkip(10byte, 20byte), wpa2+tkip(20byte) */
     },
-    {  // aes, + ccmp header(8) + data + MIC(8) + ICV(4)
-        52, 52  //
+    {  /* aes, + ccmp header(8) + data + MIC(8) + ICV(4) */
+        52, 52  /*  */
     },
-    {  // tkip-aes
-        56, 52  // fromDs==tkip,toDs==aes
+    {  /* tkip-aes */
+        56, 52  /* fromDs==tkip,toDs==aes */
     }
 };
 
@@ -437,14 +447,16 @@ int is_hint_frame(uint8_t encry, int len, uint8_t *bssid, uint8_t *src,
 {
     int i;
 
-    if (encry > ZC_ENC_TYPE_MAX)
+    if (encry > ZC_ENC_TYPE_MAX) {
         return 0;
+    }
 
     len -= zconfig_fixed_offset[encry][0];    /* dont't care about tkip-aes */
 
     for (i = 0; zconfig_hint_frame[i]; i++) {
-        if (zconfig_hint_frame[i] == len)
+        if (zconfig_hint_frame[i] == len) {
             goto found_match;
+        }
     }
 
     return 0;
@@ -452,7 +464,7 @@ int is_hint_frame(uint8_t encry, int len, uint8_t *bssid, uint8_t *src,
 found_match:
     /* tods/fromds already locked? */
     if (!memcmp(zc_bssid, zero_mac, ETH_ALEN)) {
-        //zero mac means not locked
+        /* zero mac means not locked */
         memcpy(zc_bssid, bssid, ETH_ALEN);
         memcpy(zc_src_mac, src, ETH_ALEN);
     } else {
@@ -467,30 +479,30 @@ found_match:
          *         in WDS case, zc_bssid should be unchanged
          */
 
-        if (memcmp(zc_src_mac, src, ETH_ALEN)) {//case 1,2
-            //someone must be working in aws at the same time
+        if (memcmp(zc_src_mac, src, ETH_ALEN)) {/* case 1,2 */
+            /* someone must be working in aws at the same time */
             awss_warn("%c interference src:"MAC_FORMAT", bssid:"MAC_FORMAT"\r\n",
-                    flag_tods(tods), MAC_VALUE(src), MAC_VALUE(bssid));
+                      flag_tods(tods), MAC_VALUE(src), MAC_VALUE(bssid));
             return 0;
         } else {
-            if (memcmp(zc_bssid, bssid, ETH_ALEN)) {//case 4
+            if (memcmp(zc_bssid, bssid, ETH_ALEN)) {/* case 4 */
                 if (tods) {
                     memcpy(zc_bssid, bssid, ETH_ALEN);
                     memcpy(zc_src_mac, src, ETH_ALEN);
-                    //TODO: clear previous buffer, channel lock state?
-                    if (zconfig_data->data[0].state_machine == STATE_CHN_LOCKED_BY_BR) { //zc_state
+                    /* TODO: clear previous buffer, channel lock state? */
+                    if (zconfig_data->data[0].state_machine == STATE_CHN_LOCKED_BY_BR) { /* zc_state */
                         zconfig_data->data[0].state_machine = STATE_CHN_SCANNING;
                     }
                     awss_warn("%c WDS! bssid:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\r\n",
-                         flag_tods(tods), MAC_VALUE(zc_bssid),
-                         MAC_VALUE(bssid));
+                              flag_tods(tods), MAC_VALUE(zc_bssid),
+                              MAC_VALUE(bssid));
                 } else {
                     awss_trace("%c WDS? src:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\r\n",
-                        flag_tods(tods), MAC_VALUE(src),
-                        MAC_VALUE(bssid));
+                               flag_tods(tods), MAC_VALUE(src),
+                               MAC_VALUE(bssid));
                     return 0;
                 }
-            } //else case 3
+            } /* else case 3 */
         }
     }
 
@@ -503,16 +515,17 @@ found_match:
 
     memset(zc_ssid, 0, ZC_MAX_SSID_LEN);
 #ifdef AWSS_SUPPORT_APLIST
-    //fix channel with apinfo if exist, otherwise return anyway.
+    /* fix channel with apinfo if exist, otherwise return anyway. */
     do {
         struct ap_info *ap_info = zconfig_get_apinfo(bssid);
-        if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX)
+        if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX) {
             awss_warn("invalid apinfo ssid:%s\r\n", ap_info->ssid);
+        }
 
         if (ap_info && ap_info->encry[tods] == encry && ap_info->channel) {
             if (channel != ap_info->channel) {
                 awss_debug("fix channel from %d to %d\r\n", channel, ap_info->channel);
-                zc_channel = ap_info->channel;  // fix by ap_info channel
+                zc_channel = ap_info->channel;  /* fix by ap_info channel */
                 extern void aws_set_dst_chan(int channel);
                 aws_set_dst_chan(zc_channel);
             }
@@ -520,9 +533,10 @@ found_match:
             /* warning: channel may eq 0! */
         };
 
-        if (ap_info)  /* save ssid */
+        if (ap_info) { /* save ssid */
             strncpy((char *)zc_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
-    } while(0);
+        }
+    } while (0);
 #endif
 
     return 1;
@@ -542,42 +556,42 @@ uint8_t get_data_score(uint16_t group_sn, uint16_t sn_now, uint16_t sn_last,
     /*
     example: 1
      8+3 250 0  d0e cc:fa:00:c8:cf:d2 > ff:ff:ff:ff:ff:ff
-     8+4 2bf 0  d15 cc:fa:00:c8:cf:d2 > ff:ff:ff:ff:ff:ff    //两个包index_delta=1, sn_delta=7
+     8+4 2bf 0  d15 cc:fa:00:c8:cf:d2 > ff:ff:ff:ff:ff:ff    两个包index_delta=1, sn_delta=7
 
     example: 2
-     8+0, 3e1,  9a5
-     8+1, 13f,  9a7
-             group_sn=9a7, sn=9ab-9a7, pos=e-9, len=3ce        //here, index_delta=5, sn_delta=4
-             group_sn=9a7, sn=9ac-9ab, pos=f-9, len=454
-             group_sn=9a7, sn=9ad-9ac, pos=10-9, len=4d2
-    example: 3
-     8+3, 225,  a32
-     8+6, 3c7,  a39        //此处应该是16+6, index_delta=3, sn_delta=7
-    example: 4
-     0+0, 4e0,  da5
-     0+7, 441,  dab        //此处应该是8+7， index_delta=7, sn_delta=6
-     0+0, 4e0,  d89
-     0+8, 4c2,  d8f        //此处应该是8+8， index_delta=8, sn_delta=6
+    8 + 0, 3e1,  9a5
+    8 + 1, 13f,  9a7
+    group_sn = 9a7, sn = 9ab - 9a7, pos = e - 9, len = 3ce  here, index_delta=5, sn_delta=4
+                                          group_sn = 9a7, sn = 9ac - 9ab, pos = f - 9, len = 454
+                                                  group_sn = 9a7, sn = 9ad - 9ac, pos = 10 - 9, len = 4d2
+                                                          example: 3
+                                                          8 + 3, 225,  a32
+                                                          8 + 6, 3c7,  a39      此处应该是16+6, index_delta=3, sn_delta=7
+                                                          example: 4
+                                                          0 + 0, 4e0,  da5
+                                                          0 + 7, 441,  dab      此处应该是8+7， index_delta=7, sn_delta=6
+                                                          0 + 0, 4e0,  d89
+                                                          0 + 8, 4c2,  d8f      此处应该是8+8， index_delta=8, sn_delta=6
 
-    //example: 4
-     0+0 [100] 294 0 4e0
-     0+1 [60] 2a2 0 11a
-     0+2 [40] 2aa 0 181
-             group_sn:2aa, sn:2b8-2aa=14, pos:3-2, len:20a
-             group_sn:2aa, sn:2bc-2b8=18, pos:4-2, len:28a
-             group_sn:2aa, sn:2c0-2bc=22, pos:5-2, len:310
-             group_sn:2aa, sn:2c4-2c0=26, pos:6-2, len:391
-             group_sn:2aa, sn:2c8-2c4=30, pos:7-2, len:412
-             group_sn:2aa, sn:2cc-2c8=34, pos:8-2, len:493
-    */
+                                                          example: 4
+                                                          0 + 0 [100] 294 0 4e0
+                                                          0 + 1 [60] 2a2 0 11a
+                                                          0 + 2 [40] 2aa 0 181
+                                                          group_sn: 2aa, sn: 2b8 - 2aa = 14, pos: 3 - 2, len: 20a
+                                                                  group_sn: 2aa, sn: 2bc - 2b8 = 18, pos: 4 - 2, len: 28a
+                                                                          group_sn: 2aa, sn: 2c0 - 2bc = 22, pos: 5 - 2, len: 310
+                                                                                  group_sn: 2aa, sn: 2c4 - 2c0 = 26, pos: 6 - 2, len: 391
+                                                                                          group_sn: 2aa, sn: 2c8 - 2c4 = 30, pos: 7 - 2, len: 412
+                                                                                                  group_sn: 2aa, sn: 2cc - 2c8 = 34, pos: 8 - 2, len: 493
+                                                                                                          */
     static const uint16_t score_level[][2] = {
         {0,      0},
-        {1,      2}, //include, example 1, 3
+        {1,      2}, /* include, example 1, 3 */
         {4,      8},
-        {8,      16},//example 1
+        {8,      16},/* example 1 */
         {15,     30},
         {40,     40},
-        {0xFFFF, score_max}    //the end missing seq, example 2
+        {0xFFFF, score_max}    /* the end missing seq, example 2 */
     };
 
     uint16_t sn_delta = sn_minus(sn_now, group_sn) - 1;
@@ -625,7 +639,7 @@ int try_to_sync_pos(uint8_t tods, uint16_t last_sn, uint8_t sn,
     int guess_pos = -1, final_pos = -1;
 
     int max_match = 0, match_group = -1, match_end = GROUP_NUMBER, match_score = 0;
-    int match, i, j, score;    //loop variable
+    int match, i, j, score;    /* loop variable */
 
 retry:
     for (i = 0; i <= zconfig_get_data_len(); i += GROUP_NUMBER) {
@@ -658,30 +672,30 @@ retry:
             match_end = j - 1;
             match_score = score;
             awss_trace("match=%d, match_group=%d, match_end=%d\r\n",
-                match, match_group, match_end);
+                       match, match_group, match_end);
         }
     }
 
-    if (!max_match && !empty_match) {//retry empty place match
+    if (!max_match && !empty_match) {/* retry empty place match */
         empty_match = 1;
         goto retry;
     }
 
-    if (group_pos != -1) {//根据后位置确定
-        guess_pos = group_pos - GROUP_NUMBER;//前一组
+    if (group_pos != -1) {/* 根据后位置确定 */
+        guess_pos = group_pos - GROUP_NUMBER;/* 前一组 */
         if (guess_pos < 0) {
             guess_pos = (zconfig_get_data_len() / GROUP_NUMBER) * GROUP_NUMBER;
         }
 
-        if (!max_match || empty_match) {//case 3
+        if (!max_match || empty_match) {/* case 3 */
             match_score = 2;
             final_pos = guess_pos;
             reason = 3;
             goto replace;
-            //can not del goto, cause guess_pos has higher priority than empty match
+            /* can not del goto, cause guess_pos has higher priority than empty match */
         }
     }
-    //前位置 有效性难以判断，忽略
+    /* 前位置 有效性难以判断，忽略 */
 
     if (max_match > 0) {
         if (max_match == 1) {
@@ -695,13 +709,13 @@ retry:
         }
 
         if (guess_pos != -1) {
-            if (guess_pos == match_group) {//case 1
+            if (guess_pos == match_group) {/* case 1 */
                 match_end = GROUP_NUMBER;
-                match_score += 2;//bonus
+                match_score += 2;/* bonus */
                 final_pos = match_group;
                 reason = 1;
-            } else {//case 2
-                match_score -= 0;//bonus
+            } else {/* case 2 */
+                match_score -= 0;/* bonus */
                 if (max_match >= 2 && !empty_match) {
                     final_pos = match_group;
                 } else {
@@ -709,7 +723,7 @@ retry:
                 }
                 reason = 2;
             }
-        } else {//case 4: 只有match_pos存在
+        } else {/* case 4: 只有match_pos存在 */
             final_pos = match_group;
 
             reason = 4;
@@ -732,7 +746,7 @@ replace:
             if (pkg_score(i) < match_score && tmp_score(j)) {
                 pkg_len(i) = tmp_len(j);
                 pkg_score(i) = (match_score > tmp_score(j) - 1) ?
-                               (match_score - (tmp_score(j) - 1)) : match_score;//TODO
+                               (match_score - (tmp_score(j) - 1)) : match_score;/* TODO */
                 awss_trace("\t%d+%d [%d] %c %-3x\r\n", final_pos, j, pkg_score(i), flag_tods(tods), tmp_len(j));
 
                 zc_replace = 1;
@@ -762,11 +776,13 @@ int try_to_replace_same_pos(int tods, int pos, int new_len)
 
     for (i = pos % GROUP_NUMBER; i <= zconfig_get_data_len();
          i += GROUP_NUMBER) {
-        if (i != pos && pkg_len(i) == pkg_len(pos))
+        if (i != pos && pkg_len(i) == pkg_len(pos)) {
             old_match = 1;
+        }
 
-        if (pkg_len(i) == new_len)
+        if (pkg_len(i) == new_len) {
             new_match = 1;
+        }
     }
 
     if ((old_match && !new_match) || tods == 0) {
@@ -785,35 +801,36 @@ int try_to_replace_same_pos(int tods, int pos, int new_len)
  *    in some cases.
  */
 #define set_encry_type(encry, value, bssid, tods)    \
-do {\
-    if (encry != ZC_ENC_TYPE_INVALID) {\
-        awss_trace("%02x%02x%02x%02x%02x%02x, enc[%c]:%s<->%s!!!\r\n",\
-                bssid[0], bssid[1], bssid[2],\
-                bssid[3], bssid[4], bssid[5],\
-                flag_tods(tods),\
-                zconfig_encry_str(encry),\
-                zconfig_encry_str(value));\
-        goto encry_collision;\
-    } else {\
-        encry = (value);\
-    }\
-} while (0)
+    do {\
+        if (encry != ZC_ENC_TYPE_INVALID) {\
+            awss_trace("%02x%02x%02x%02x%02x%02x, enc[%c]:%s<->%s!!!\r\n",\
+                       bssid[0], bssid[1], bssid[2],\
+                       bssid[3], bssid[4], bssid[5],\
+                       flag_tods(tods),\
+                       zconfig_encry_str(encry),\
+                       zconfig_encry_str(value));\
+            goto encry_collision;\
+        } else {\
+            encry = (value);\
+        }\
+    } while (0)
 
 #ifdef AWSS_SUPPORT_APLIST
 #define update_apinfo_encry_type(encry_type, bssid, tods)    \
-do {\
-    struct ap_info *ap_info = zconfig_get_apinfo(bssid);\
-    if (ap_info && (encry_type) != ap_info->encry[tods]) {\
-        awss_debug("ssid:%s, enc[%c]:%s->%s\r\n",\
-            ap_info->ssid, flag_tods(tods),\
-            zconfig_encry_str(ap_info->encry[tods]),\
-            zconfig_encry_str(encry_type));\
-        ap_info->encry[tods] = encry_type;\
-    }\
-} while (0)
+    do {\
+        struct ap_info *ap_info = zconfig_get_apinfo(bssid);\
+        if (ap_info && (encry_type) != ap_info->encry[tods]) {\
+            awss_debug("ssid:%s, enc[%c]:%s->%s\r\n",\
+                       ap_info->ssid, flag_tods(tods),\
+                       zconfig_encry_str(ap_info->encry[tods]),\
+                       zconfig_encry_str(encry_type));\
+            ap_info->encry[tods] = encry_type;\
+        }\
+    } while (0)
 #endif
 
-int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_type, struct parser_res *res, signed char rssi)
+int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_type, struct parser_res *res,
+                                       signed char rssi)
 {
     int hdrlen, fc, seq_ctrl;
     struct ieee80211_hdr *hdr;
@@ -824,14 +841,16 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
      * when device try to connect current router (include adha and aha)
      * skip the new packet.
      */
-    if (ieee80211 == NULL || zconfig_finished)
+    if (ieee80211 == NULL || zconfig_finished) {
         return ALINK_INVALID;
+    }
 
     /*
      * we don't process smartconfig until user press configure button
      */
-    if (awss_get_config_press() == 0)
+    if (awss_get_config_press() == 0) {
         return ALINK_INVALID;
+    }
 
     hdr = (struct ieee80211_hdr *)ieee80211;
     fc = hdr->frame_control;
@@ -840,19 +859,23 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
     /*
      * for smartconfig with bcast of data
      */
-    if (!ieee80211_is_data_exact(fc))
+    if (!ieee80211_is_data_exact(fc)) {
         return ALINK_INVALID;
+    }
 
     /* tods = 1, fromds = 0 || tods = 0, fromds = 1 */
-    if (ieee80211_has_tods(fc) == ieee80211_has_fromds(fc))
+    if (ieee80211_has_tods(fc) == ieee80211_has_fromds(fc)) {
         return ALINK_INVALID;
-    // drop frag, more, order
-    if (ieee80211_has_frags(fc))
+    }
+    /* drop frag, more, order */
+    if (ieee80211_has_frags(fc)) {
         return ALINK_INVALID;
+    }
 
     dst_mac = (uint8_t *)ieee80211_get_DA(hdr);
-    if (memcmp(dst_mac, br_mac, ETH_ALEN))
-        return ALINK_INVALID; /* only handle br frame */
+    if (memcmp(dst_mac, br_mac, ETH_ALEN)) {
+        return ALINK_INVALID;    /* only handle br frame */
+    }
 
     bssid_mac = (uint8_t *)ieee80211_get_BSSID(hdr);
 
@@ -860,12 +883,15 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
      * payload len = frame.len - (radio_header + wlan_hdr)
      */
     hdrlen = ieee80211_hdrlen(fc);
-    if (hdrlen > len)
+    if (hdrlen > len) {
         return ALINK_INVALID;
+    }
 
 #ifdef _PLATFORM_QCOM_
-    //Note: http://stackoverflow.com/questions/17688710/802-11-qos-data-frames
+
+    /* Note: http://stackoverflow.com/questions/17688710/802-11-qos-data-frames */
     hdrlen = (hdrlen + 3) & 0xFC;/* align header to 32bit boundary */
+
 #endif
 
     res->u.br.data_len = len - hdrlen;       /* eating the hdr */
@@ -884,18 +910,21 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
 #endif
         {
             if (!ieee80211_has_protected(fc)) {
-                set_encry_type(encry, ZC_ENC_TYPE_NONE, bssid_mac, tods);//open
+                set_encry_type(encry, ZC_ENC_TYPE_NONE, bssid_mac, tods);/* open */
             } else {
                 /* Note: avoid empty null data */
-                if (len < 8)        //IV + ICV + DATA >= 8
+                if (len < 8) {      /* IV + ICV + DATA >= 8 */
                     return ALINK_INVALID;
+                }
                 if (!(ieee80211[3] & 0x3F)) {
-                    set_encry_type(encry, ZC_ENC_TYPE_WEP, bssid_mac, tods);//wep
-                } else if (data[3] & (1 << 5)) {//Extended IV
-                    if (data[1] == ((data[0] | 0x20) & 0x7F)) //tkip, WEPSeed  = (TSC1 | 0x20 ) & 0x7F
+                    set_encry_type(encry, ZC_ENC_TYPE_WEP, bssid_mac, tods);/* wep */
+                } else if (data[3] & (1 << 5)) {/* Extended IV */
+                    if (data[1] == ((data[0] | 0x20) & 0x7F)) { /* tkip, WEPSeed  = (TSC1 | 0x20 ) & 0x7F */
                         set_encry_type(encry, ZC_ENC_TYPE_TKIP, bssid_mac, tods);
-                    if (data[2] == 0 && (!(data[3] & 0x0F)))
-                        set_encry_type(encry, ZC_ENC_TYPE_AES, bssid_mac, tods);//ccmp
+                    }
+                    if (data[2] == 0 && (!(data[3] & 0x0F))) {
+                        set_encry_type(encry, ZC_ENC_TYPE_AES, bssid_mac, tods);    /* ccmp */
+                    }
 
                     /*
                      * Note: above code use if(tkip) and if(ase)
@@ -907,15 +936,16 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
         }
     } while (0);
 
-    if (encry == ZC_ENC_TYPE_INVALID)
+    if (encry == ZC_ENC_TYPE_INVALID) {
         awss_warn("invalid encry type!\r\n");
+    }
     res->u.br.encry_type = encry;
-    // apinfo's encry field updated only from beacon/probe resp frame
-    // update_apinfo_encry_type(encry, bssid_mac, tods);
+    /* apinfo's encry field updated only from beacon/probe resp frame */
+    /* update_apinfo_encry_type(encry, bssid_mac, tods); */
     return ALINK_BROADCAST;
 
 encry_collision:
-    // set encry type to invalid
+    /* set encry type to invalid */
     res->u.br.encry_type = ZC_ENC_TYPE_INVALID;
 
     return ALINK_BROADCAST;
@@ -939,7 +969,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
     uint8_t score = 0, timeout = 0, equal = 0;
 
     uint16_t pos = 0, index = 0;
-#if 0 
+#if 0
     awss_debug("len=%d, %c, sn=%d, enc=%d, chn=%d, src=%02x%02x%02x%02x%02x%02x\r\n",
                len, flag_tods(tods), sn, encry_type, channel,
                src[0], src[1], src[2], src[3], src[4], src[5]);
@@ -954,11 +984,11 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         zc_state == STATE_CHN_SCANNING) {
         if (is_hint_frame(encry_type, len, bssid, src, channel, tods, sn)) {
             awss_trace("hint frame: offset:%d, %c, sn:%x\r\n",
-                      zc_frame_offset, flag_tods(tods), sn);
+                       zc_frame_offset, flag_tods(tods), sn);
 
             awss_trace("src:%02x%02x%02x%02x%02x%02x, bssid:%02x%02x%02x%02x%02x%02x\r\n",
-                      src[0], src[1], src[2], src[3], src[4], src[5],
-                      bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+                       src[0], src[1], src[2], src[3], src[4], src[5],
+                       bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
             pkg_type = PKG_START_FRAME;
             zconfig_set_state(STATE_CHN_LOCKED_BY_BR, tods, channel);
@@ -973,8 +1003,8 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                 }
                 memcpy(zc_android_bssid, bssid, ETH_ALEN);
                 awss_trace("src %02x%02x%02x match %02x%02x%02x\r\n",
-                          zc_android_src[0], zc_android_src[1], zc_android_src[2],
-                          zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
+                           zc_android_src[0], zc_android_src[1], zc_android_src[2],
+                           zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
             }
 #endif
         }
@@ -982,7 +1012,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         /* same src mac & br & bssid */
         if (memcmp(&src[0], zc_src_mac, ETH_ALEN) ||
             memcmp(&dst[0], br_mac, sizeof(br_mac)) ||
-            memcmp(bssid, zc_bssid, ETH_ALEN)) { //in case of WDS
+            memcmp(bssid, zc_bssid, ETH_ALEN)) { /* in case of WDS */
             goto drop;
         }
 
@@ -992,18 +1022,18 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         }
 
         ret = sn_compare(sn, zc_prev_sn);
-        if (ret <= 0) { // retry packet, update timestamp
+        if (ret <= 0) { /* retry packet, update timestamp */
             zc_timestamp = timestamp;
         }
         if (ret == 0) {
-            awss_debug("drop: %3x == %3x\r\n", sn, zc_prev_sn);//log level, too many retry pkg
+            awss_debug("drop: %3x == %3x\r\n", sn, zc_prev_sn);/* log level, too many retry pkg */
             goto drop;
-        } else if (ret < 0 && !timeout) {//if timeout, goto pos_unsync
-            awss_debug("drop: %3x < %3x\r\n", sn, zc_prev_sn);//TODO: better not drop
-            goto update_sn;//FIXME: update sn???
+        } else if (ret < 0 && !timeout) {/* if timeout, goto pos_unsync */
+            awss_debug("drop: %3x < %3x\r\n", sn, zc_prev_sn);/* TODO: better not drop */
+            goto update_sn;/* FIXME: update sn??? */
         }
 
-        //assert(sn > zc_prev_sn && !timeout);
+        /* assert(sn > zc_prev_sn && !timeout); */
 
         if (len <= zc_frame_offset) { /* length invalid */
             goto drop;
@@ -1049,7 +1079,7 @@ pos_unsync:
                 if (zc_pos_unsync == 1) {
                     tmp_score(index) = 1;
                 } else {
-                    tmp_score(index) = (sn - zc_prev_sn);    //TODO: index? last_tmp_score
+                    tmp_score(index) = (sn - zc_prev_sn);    /* TODO: index? last_tmp_score */
                 }
                 zc_pos_unsync ++; /* unsync pkg counter */
                 awss_trace("\tX+%d [%d] %-3x %c %-3x\r\n", index, tmp_score(index), sn, flag_tods(tods), len);
@@ -1058,21 +1088,21 @@ pos_unsync:
                     zconfig_force_rescan();
                     goto drop;
                 }
-                goto update_sn;//FIXME: update prev_sn or not?
+                goto update_sn;/* FIXME: update prev_sn or not? */
             }
 
-            // assert(sn > zc_prev_sn && pos > zc_cur_pos)
+            /* assert(sn > zc_prev_sn && pos > zc_cur_pos) */
             score = get_data_score(zc_group_sn, sn, zc_prev_sn, pos, zc_cur_pos, tods);
-            if (score == score_min) {//better not drop any pkg here
+            if (score == score_min) {/* better not drop any pkg here */
                 awss_trace("\t drop: group_sn:%x, sn:%x-%x=%x, pos:%d-%d, len:%x\r\n",
-                          zc_group_sn, sn, zc_prev_sn, sn_minus(sn, zc_group_sn), pos, zc_cur_pos, len);
+                           zc_group_sn, sn, zc_prev_sn, sn_minus(sn, zc_group_sn), pos, zc_cur_pos, len);
                 goto update_sn;
             } else {
                 if (zc_score_uplimit > score) {
                     zc_score_uplimit = score;    /* inherit last limit */
                 }
 
-                zc_group_sn = sn;//TODO
+                zc_group_sn = sn;/* TODO */
                 awss_trace("%d+%d [%d] %-3x %c %-3x\r\n", zc_group_pos, index, score, sn, flag_tods(tods), len);
             }
         } else {
@@ -1091,7 +1121,7 @@ pos_unsync:
 
                 awss_trace("%d+%d [%d] %-3x %c %-3x\r\n", group, 0, zc_score_uplimit, sn, flag_tods(tods), len);
 
-                //ignore PKG_GROUP_FRAME here
+                /* ignore PKG_GROUP_FRAME here */
                 pkg_type = PKG_START_FRAME;
 
                 /*
@@ -1100,7 +1130,7 @@ pos_unsync:
                  */
                 zconfig_set_state(STATE_CHN_LOCKED_BY_BR, tods, channel);
 
-                //zc_replace may happen in try_to_sync_pos(), so goto is_recv_completed
+                /* zc_replace may happen in try_to_sync_pos(), so goto is_recv_completed */
                 goto is_recv_completed;
             } else {
                 awss_trace("\t invalid len = %d\r\n", len + zc_frame_offset);
@@ -1131,11 +1161,11 @@ pos_unsync:
             equal = !package_cmp((uint8_t *)pkg(pos), src, dst, tods, len);
 
             if (score > pkg_score(pos)) {
-                pkg_score(pos) = score;    //update score first
+                pkg_score(pos) = score;    /* update score first */
                 if (equal) {
                     continue;
                 }
-                // not equal
+                /* not equal */
                 zc_replace = 1;
                 package_save((uint8_t *)pkg(pos), src, dst, tods, len);
             } else if (score == pkg_score(pos)) {/* range check ? */
@@ -1143,18 +1173,18 @@ pos_unsync:
                     pkg_score(pos) ++;
                     continue;
                 }
-                // not equal
+                /* not equal */
                 int replace = try_to_replace_same_pos(tods, pos, len);
                 if (replace) {
                     awss_trace("\t replace @ %d, len=%x\r\n", pos, len);
                     continue;
                 }
                 pkg_score(pos) /= 2;
-                if (score >= score_mid)  // better not happen
+                if (score >= score_mid)  /* better not happen */
                     awss_warn("xxxxxxxx warn: pos=%d, score=[%d], %x != %x\r\n",
-                         pos, score, pkg_len(pos), len);
+                              pos, score, pkg_len(pos), len);
 
-            } else if (tods == res->tods) {//pkg_score(pos) > score
+            } else if (tods == res->tods) {/* pkg_score(pos) > score */
                 if (!equal) {/* data not equal */
                     if (zc_pos_unsync) {
                         continue;

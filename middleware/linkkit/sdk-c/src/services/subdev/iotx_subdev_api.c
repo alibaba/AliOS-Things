@@ -863,7 +863,7 @@ int being_deprecated IOT_Subdevice_Register(void *handle,
             subdev_info("parse register reply error");
             return rc;
         }
-        //subdev_info("register success, secret %s", device_secret);
+        /* subdev_info("register success, secret %s", device_secret); */
 
         /* timestamp */
         MALLOC_MEMORY_WITH_RESULT(timestamp, 20, FAIL_RETURN);

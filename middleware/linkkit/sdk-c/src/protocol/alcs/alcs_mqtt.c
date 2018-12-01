@@ -104,7 +104,7 @@ alcs_mqtt_status_e __alcs_mqtt_prefix_secret_save(const char *pk, uint16_t pk_le
         return ALCS_MQTT_STATUS_ERROR;
     }
 
-    //Calculate Key
+    /* Calculate Key */
     key_source = ALCS_ADAPTER_malloc(pk_len + dn_len + 1);
     if (key_source == NULL) {
         COAP_ERR("No Enough Memory");
@@ -117,7 +117,7 @@ alcs_mqtt_status_e __alcs_mqtt_prefix_secret_save(const char *pk, uint16_t pk_le
     utils_md5((const unsigned char *)key_source, strlen(key_source), key_md5);
     utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
 
-    //Calculate Value
+    /* Calculate Value */
     value = ALCS_ADAPTER_malloc(prefix_len + secret_len + 3);
     if (value == NULL) {
         COAP_ERR("No Enough Memory");
@@ -159,7 +159,7 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_load(const char *pk, uint16_t pk_len,
         return ALCS_MQTT_STATUS_ERROR;
     }
 
-    //Calculate Key
+    /* Calculate Key */
     key_source = ALCS_ADAPTER_malloc(pk_len + dn_len + 1);
     if (key_source == NULL) {
         COAP_ERR("No Enough Memory");
@@ -172,7 +172,7 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_load(const char *pk, uint16_t pk_len,
     utils_md5((const unsigned char *)key_source, strlen(key_source), key_md5);
     utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
 
-    //Get Value
+    /* Get Value */
     if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_get(key_md5_hexstr, value, &value_len)) {
         COAP_ERR("ALCS KV Get Prefix And Secret Fail");
         LITE_free(key_source);
@@ -199,7 +199,7 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_del(const char *pk, uint16_t pk_len,
         return ALCS_MQTT_STATUS_ERROR;
     }
 
-    //Calculate Key
+    /* Calculate Key */
     key_source = ALCS_ADAPTER_malloc(pk_len + dn_len + 1);
     if (key_source == NULL) {
         COAP_ERR("No Enough Memory");
@@ -553,7 +553,7 @@ alcs_mqtt_status_e alcs_mqtt_prefixkey_update(void *ctx)
 
 alcs_mqtt_status_e alcs_prefixkey_get(const char *product_key, const char *device_name)
 {
-    //int ret = 0;
+    /* int ret = 0; */
     char *msg_pub = NULL;
     uint16_t msg_len = 0;
     char topic[ALCS_MQTT_TOPIC_MAX_LEN] = {0};
@@ -585,7 +585,7 @@ alcs_mqtt_status_e alcs_prefixkey_get(const char *product_key, const char *devic
 
 alcs_mqtt_status_e alcs_mqtt_subdev_prefix_get(const char *product_key, const char *device_name)
 {
-    //int ret = 0;
+    /* int ret = 0; */
     char *msg_pub = NULL;
     uint16_t msg_len = 0;
     char topic[ALCS_MQTT_TOPIC_MAX_LEN] = {0};

@@ -17,6 +17,10 @@
     #define DM_READ_ONLY
 #endif
 
+#define _BSD_SOURCE
+
+#include <stdlib.h>
+
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iotx_utils.h"

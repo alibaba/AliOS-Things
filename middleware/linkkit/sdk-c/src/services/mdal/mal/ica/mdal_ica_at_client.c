@@ -32,10 +32,10 @@ int at_ica_mqtt_client_unsubscribe(const char *topic,
                                    unsigned int *mqtt_packet_id,
                                    int *mqtt_status);
 int at_ica_mqtt_client_subscribe(const char *topic,
-                                        int qos,
-                                        unsigned int *mqtt_packet_id,
-                                        int *mqtt_status,
-                                        int timeout_ms);
+                                 int qos,
+                                 unsigned int *mqtt_packet_id,
+                                 int *mqtt_status,
+                                 int timeout_ms);
 int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int tlsEnable);
 int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int tlsEnable);
 int at_ica_mqtt_client_disconn(void);
@@ -109,23 +109,21 @@ int HAL_MDAL_MAL_State(void)
 
 void HAL_MDAL_MAL_RegRecvCb(recv_cb cb)
 {
-    g_recv_cb = cb;    
+    g_recv_cb = cb;
 }
 
 int HAL_MDAL_MAL_Connectwifi(char *at_conn_wifi)
 {
 #ifdef MAL_ICA_ENABLED
     char  at_cmd[64];
-    // disconnect before connect to the network
-    if(at_ica_mqtt_client_disconn() != 0)
-    {
+    /* disconnect before connect to the network */
+    if (at_ica_mqtt_client_disconn() != 0) {
         return -1;
     }
 
     memcpy(at_cmd, at_conn_wifi, 64);
-    // connect to the network
-    if(at_ica_mqtt_atsend(at_cmd, AT_MQTT_WAIT_FOREVER) != 0)
-    {
+    /* connect to the network */
+    if (at_ica_mqtt_atsend(at_cmd, AT_MQTT_WAIT_FOREVER) != 0) {
         return -1;
     }
 
@@ -138,7 +136,7 @@ static char              *g_ica_rsp_buff = NULL;
 static volatile int       g_mqtt_connect_state = 0;
 static volatile at_mqtt_send_type_t   g_ica_at_response = AT_MQTT_IDLE;
 static volatile int       g_at_response_result = 0;
-static void*              g_sem_response;
+static void              *g_sem_response;
 static volatile int       g_response_msg_number = 0;
 static int                g_response_packetid = 0;
 static int                g_response_status = 0;
@@ -146,23 +144,20 @@ static int                g_public_qos = 0;
 
 int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms);
 
-static void at_err_callback(char* at_rsp)
+static void at_err_callback(char *at_rsp)
 {
-    char * temp;
+    char *temp;
     int    data;
 
     temp            = strtok(at_rsp, ":");
     temp            = strtok(NULL, ":");
-    if((data = strtol(temp, NULL, 0)) == 3)
-    {
-         g_at_response_result = 0;
-    }
-    else
-    {
-         g_at_response_result = -1;
+    if ((data = strtol(temp, NULL, 0)) == 3) {
+        g_at_response_result = 0;
+    } else {
+        g_at_response_result = -1;
     }
 
-    // notify the sender error;
+    /* notify the sender error; */
     HAL_SemaphorePost(g_sem_response);
 
     return;
@@ -171,7 +166,7 @@ static void at_err_callback(char* at_rsp)
 static void at_succ_callback(void)
 {
     g_at_response_result = 0;
-    // notify the sender ok;
+    /* notify the sender ok; */
     HAL_SemaphorePost(g_sem_response);
 
     return;
@@ -184,12 +179,12 @@ static void sub_callback(char *at_rsp)
     if (strstr(at_rsp, AT_MQTT_CMD_ERROR_RSP)) {
         g_at_response_result = -1;
 
-        // notify the sender fail;
+        /* notify the sender fail; */
         HAL_SemaphorePost(g_sem_response);
 
         return;
     } else if (NULL != strstr(at_rsp, AT_ICA_MQTT_MQTTSUBRSP)) {
-        // get status/packet_id
+        /* get status/packet_id */
         if (NULL != strstr(at_rsp, ",")) {
             g_at_response_result = 0;
 
@@ -227,7 +222,7 @@ static void sub_callback(char *at_rsp)
                 return;
             }
 
-            // notify the sender ok;
+            /* notify the sender ok; */
             HAL_SemaphorePost(g_sem_response);
         }
     }
@@ -241,12 +236,12 @@ static void unsub_callback(char *at_rsp)
     if (strstr(at_rsp, AT_MQTT_CMD_ERROR_RSP)) {
         g_at_response_result = -1;
 
-        // notify the sender fail;
+        /* notify the sender fail; */
         HAL_SemaphorePost(g_sem_response);
 
         return;
     } else if (NULL != strstr(at_rsp, AT_ICA_MQTT_MQTTUNSUBRSP)) {
-        // get status/packet_id
+        /* get status/packet_id */
         if (NULL != strstr(at_rsp, ",")) {
             g_at_response_result = 0;
 
@@ -281,7 +276,7 @@ static void unsub_callback(char *at_rsp)
             mdal_err("unsub: %s", g_ica_rsp_buff);
             mdal_err("unsub packetid: %d, sta: %d", g_response_packetid, g_response_status);
 
-            // notify the sender ok;
+            /* notify the sender ok; */
             HAL_SemaphorePost(g_sem_response);
         }
     }
@@ -295,14 +290,14 @@ static void pub_callback(char *at_rsp)
     if (strstr(at_rsp, AT_MQTT_CMD_ERROR_RSP)) {
         g_at_response_result = -1;
 
-        // notify the sender fail;
+        /* notify the sender fail; */
         HAL_SemaphorePost(g_sem_response);
 
         return;
     } else if (NULL != strstr(at_rsp, AT_ICA_MQTT_MQTTPUBRSP)) {
-        // get status/packet_id
+        /* get status/packet_id */
         if ((NULL != strstr(at_rsp, ","))
-          ||(0 == g_public_qos)) {
+            || (0 == g_public_qos)) {
 
             temp            = strtok(at_rsp, ":");
 
@@ -340,11 +335,11 @@ static void pub_callback(char *at_rsp)
 
             g_at_response_result = 0;
 
-            // notify the sender ok;
+            /* notify the sender ok; */
             HAL_SemaphorePost(g_sem_response);
         }
     }
-    
+
     return;
 }
 
@@ -374,20 +369,20 @@ static void recv_data_callback(char *at_rsp)
     char     *topic_ptr = NULL;
     char     *msg_ptr = NULL;
     unsigned int  msg_len = 0;
-    //unsinged int  packet_id = 0;
+    /* unsinged int  packet_id = 0; */
 
     if (NULL == at_rsp) {
         return;
     }
 
-    // try to get msg id
+    /* try to get msg id */
     temp = strtok(g_ica_rsp_buff, ":");
 
     if (temp != NULL) {
         temp  = strtok(NULL, ",");
 
         if (temp != NULL) {
-            //packet_id = strtol(temp, NULL, 0);
+            /* packet_id = strtol(temp, NULL, 0); */
         } else {
             mdal_err("packet id error");
 
@@ -399,7 +394,7 @@ static void recv_data_callback(char *at_rsp)
         return;
     }
 
-    // try to get topic string
+    /* try to get topic string */
     temp = strtok(NULL, "\"");
 
     if (temp != NULL) {
@@ -412,7 +407,7 @@ static void recv_data_callback(char *at_rsp)
         return;
     }
 
-    // try to get payload string
+    /* try to get payload string */
     temp = strtok(NULL, ",");
 
     if (temp != NULL) {
@@ -461,16 +456,16 @@ static void at_ica_mqtt_client_rsp_callback(void *arg, char *rspinfo, int rsplen
         at_err_callback(g_ica_rsp_buff);
     } else if (0 == memcmp(g_ica_rsp_buff,
                            AT_ICA_MQTT_MQTTRCVPUB,
-                           strlen(AT_ICA_MQTT_MQTTRCVPUB))) { // Receive Publish Data
+                           strlen(AT_ICA_MQTT_MQTTRCVPUB))) { /* Receive Publish Data */
 
         recv_data_callback(g_ica_rsp_buff);
     } else if (0 == memcmp(g_ica_rsp_buff,
                            AT_ICA_MQTT_MQTTSTATERSP,
-                           strlen(AT_ICA_MQTT_MQTTSTATERSP))) {  // Receive Mqtt Status Change
+                           strlen(AT_ICA_MQTT_MQTTSTATERSP))) {  /* Receive Mqtt Status Change */
 
         state_change_callback(g_ica_rsp_buff);
     } else {
-        switch (g_ica_at_response) {  // nothing to process
+        switch (g_ica_at_response) {  /* nothing to process */
 
             case AT_MQTT_IDLE:
 
@@ -530,7 +525,7 @@ int at_ica_mqtt_client_disconn(void)
 
     memset(at_cmd, 0, 64);
 
-    // connect to the network
+    /* connect to the network */
     snprintf(at_cmd,
              64,
              "%s\r\n",
@@ -550,7 +545,7 @@ int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int tl
 {
     char        at_cmd[AT_MQTT_CMD_MAX_LEN];
 
-    if ((proKey == NULL)||(devName == NULL)||(devSecret == NULL)) {
+    if ((proKey == NULL) || (devName == NULL) || (devSecret == NULL)) {
 
         mdal_err("auth param should not be NULL");
 
@@ -598,7 +593,7 @@ int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int tl
 {
     char  at_cmd[64];
 
-    if ((proKey == NULL)||(devName == NULL)||(devSecret == NULL)) {
+    if ((proKey == NULL) || (devName == NULL) || (devSecret == NULL)) {
 
         mdal_err("conn param should not be NULL");
 
@@ -633,14 +628,14 @@ int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int tl
 }
 
 int at_ica_mqtt_client_subscribe(const char *topic,
-                                        int qos,
-                                        unsigned int *mqtt_packet_id,
-                                        int *mqtt_status,
-                                        int timeout_ms)
+                                 int qos,
+                                 unsigned int *mqtt_packet_id,
+                                 int *mqtt_status,
+                                 int timeout_ms)
 {
     char    at_cmd[AT_MQTT_CMD_MAX_LEN];
 
-    if ((topic == NULL)||(mqtt_packet_id == NULL)||(mqtt_status == NULL)) {
+    if ((topic == NULL) || (mqtt_packet_id == NULL) || (mqtt_status == NULL)) {
 
         mdal_err("subscribe param should not be NULL");
 
@@ -670,7 +665,7 @@ int at_ica_mqtt_client_unsubscribe(const char *topic,
                                    int *mqtt_status)
 {
     char    at_cmd[AT_MQTT_CMD_MAX_LEN];
-    if ((topic == NULL)||(mqtt_packet_id == NULL)||(mqtt_status == NULL)) {
+    if ((topic == NULL) || (mqtt_packet_id == NULL) || (mqtt_status == NULL)) {
 
         mdal_err("unsubscribe param should not be NULL");
 
@@ -700,7 +695,7 @@ int at_ica_mqtt_client_publish(const char *topic, int qos, const char *message)
     char    at_cmd[AT_MQTT_CMD_MAX_LEN] = {0};
     char    msg_convert[AT_MQTT_CMD_MAX_LEN] = {0};
     char   *temp;
-    if ((topic == NULL)||(message == NULL)) {
+    if ((topic == NULL) || (message == NULL)) {
 
         mdal_err("publish param should not be NULL");
 
@@ -709,7 +704,7 @@ int at_ica_mqtt_client_publish(const char *topic, int qos, const char *message)
 
     temp = msg_convert;
 
-    // for the case of " appeared in the string
+    /* for the case of " appeared in the string */
     while (*message) {
         if (*message == '\"') {
             *temp++ = '\\';
@@ -766,22 +761,22 @@ int at_ica_mqtt_client_init(void)
     HAL_MDAL_MAL_ICA_Init();
 
     HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTRCV,
-           AT_ICA_MQTT_POSTFIX,
-           AT_MQTT_CMD_MAX_LEN,
-           at_ica_mqtt_client_rsp_callback,
-           NULL);
+                             AT_ICA_MQTT_POSTFIX,
+                             AT_MQTT_CMD_MAX_LEN,
+                             at_ica_mqtt_client_rsp_callback,
+                             NULL);
 
     HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTERROR,
-           AT_ICA_MQTT_POSTFIX,
-           AT_MQTT_CMD_MAX_LEN,
-           at_ica_mqtt_client_rsp_callback,
-           NULL);
+                             AT_ICA_MQTT_POSTFIX,
+                             AT_MQTT_CMD_MAX_LEN,
+                             at_ica_mqtt_client_rsp_callback,
+                             NULL);
 
     HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTOK,
-           AT_ICA_MQTT_POSTFIX,
-           AT_MQTT_CMD_MAX_LEN,
-           at_ica_mqtt_client_rsp_callback,
-           NULL);
+                             AT_ICA_MQTT_POSTFIX,
+                             AT_MQTT_CMD_MAX_LEN,
+                             at_ica_mqtt_client_rsp_callback,
+                             NULL);
 
     return 0;
 }
@@ -805,7 +800,7 @@ int at_ica_mqtt_atsend(char *at_cmd, int timeout_ms)
     if (at_cmd == NULL) {
         return -1;
     }
-    // state error
+    /* state error */
     if (g_ica_at_response != AT_MQTT_IDLE) {
 
         mdal_err("at send state is not idle (%d)", g_ica_at_response);

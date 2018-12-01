@@ -19,8 +19,7 @@
 #include "zconfig_protocol.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 int is_ascii_string(uint8_t *str)
@@ -86,11 +85,11 @@ void passwd_check_utf8(uint8_t *passwd, int *passwd_len)
 
     len = *passwd_len;
     for (i = 0; i < len; i ++) {
-        if (passwd[i] < 0x80) { // [0x01 ~ 0x7F]
+        if (passwd[i] < 0x80) { /* [0x01 ~ 0x7F] */
             continue;
         }
-        passwd[i] = 0;  // resetore to 0x00
-        if (i + 2 < len) { // move the rest to overwrite useless content.
+        passwd[i] = 0;  /* resetore to 0x00 */
+        if (i + 2 < len) { /* move the rest to overwrite useless content. */
             memmove(passwd + i + 1, passwd + i + 2, len - i - 2);
         }
         len --;
@@ -115,20 +114,22 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
     uint16_t crc, cal_crc;
     char encrypt = 0;
     /* used by prepare frame */
-    char *magic_p_w_d = "zl&ws";//FIXME: Maybe it will be dangerous when opening source.
+    char *magic_p_w_d = "zl&ws";/* FIXME: Maybe it will be dangerous when opening source. */
     static uint32_t start_time = 0;
 
-#define W_LEN        (32)  // total_len
-#define EXTRA_LEN    (3)   // ssid_len(1B) + checksum(2B)
-    if (!in || total_len <= 4)
+#define W_LEN        (32)  /* total_len */
+#define EXTRA_LEN    (3)   /* ssid_len(1B) + checksum(2B) */
+    if (!in || total_len <= 4) {
         return GOT_NOTHING;
+    }
 
     /* attr_id(2) + attr_len(2) = 4 */
     in += 4;
     total_len -= 4;
 
-    if (total_len > W_LEN)
+    if (total_len > W_LEN) {
         awss_warn("ssid len > 32\r\n");
+    }
 
     /* total_len: ssid_len(1B), ssid, passwd, crc(2B) */
     ssid_len = in[0];
@@ -137,11 +138,12 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         ssid_len &= P2P_SSID_LEN_MASK;
     }
     passwd_len = total_len - ssid_len - EXTRA_LEN; /* ssid_len(1B), crc(2B) */
-    if (ssid_len > W_LEN - EXTRA_LEN || passwd_len < 0)
+    if (ssid_len > W_LEN - EXTRA_LEN || passwd_len < 0) {
         return GOT_NOTHING;
+    }
 
     crc = os_get_unaligned_be16(in + 1 + ssid_len + passwd_len);
-    // restore 0xc080 to 0x00
+    /* restore 0xc080 to 0x00 */
     passwd_check_utf8(in + 1 + ssid_len, &passwd_len);
     cal_crc = zconfig_checksum_v3(in, 1 + ssid_len + passwd_len);
     if (crc != cal_crc) {
@@ -162,17 +164,18 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         return GOT_NOTHING;
     }
 
-    if (start_time == 0)
+    if (start_time == 0) {
         start_time = os_get_time_ms();
+    }
 
 #define MAC_LOCAL_ADMINISTERED_BIT    (0x02)
     memcpy(zc_android_src, src, ETH_ALEN);
     if (zc_android_src[0] & MAC_LOCAL_ADMINISTERED_BIT) {
         zc_android_src[0] &= ~MAC_LOCAL_ADMINISTERED_BIT;
-        //awss_debug("android src: %02x%02x%02x\r\n", zc_android_src[0], src[1], src[2]);
+        /* awss_debug("android src: %02x%02x%02x\r\n", zc_android_src[0], src[1], src[2]); */
     } else {
         awss_warn("local administered bit not set: %02x%02x%02x\r\n",
-                src[0], src[1], src[2]);
+                  src[0], src[1], src[2]);
     }
 
     in += 1;/* eating ssid_len(1B) */
@@ -182,18 +185,20 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
 
     memcpy(tmp_ssid, in, ssid_len);
     in += ssid_len;
-    if (passwd_len)
+    if (passwd_len) {
         memcpy(tmp_passwd, in, passwd_len);
+    }
 
     awss_dict_crypt(SSID_DECODE_TABLE, tmp_ssid, ssid_len);
 
     switch (encrypt) {
         case P2P_ENCODE_TYPE_ENCRYPT: {
-            // decypt passwd using aes128-cfb
+            /* decypt passwd using aes128-cfb */
             uint8_t passwd_cipher_len = 0;
             uint8_t *passwd_cipher = os_zalloc(128);
-            if (passwd_cipher == NULL)
+            if (passwd_cipher == NULL) {
                 return GOT_NOTHING;
+            }
 
             decode_chinese(tmp_passwd, passwd_len, passwd_cipher, &passwd_cipher_len, 7);
             passwd_len = passwd_cipher_len;
@@ -201,7 +206,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
             aes_decrypt_string((char *)passwd_cipher, (char *)tmp_passwd, passwd_len, os_get_encrypt_type(), 0);
             os_free(passwd_cipher);
             if (is_utf8((const char *)tmp_passwd, passwd_len) == 0) {
-                //memset(zconfig_data, 0, sizeof(*zconfig_data));
+                /* memset(zconfig_data, 0, sizeof(*zconfig_data)); */
                 memset(zc_android_src, 0, sizeof(zconfig_data->android_src));
                 memset(zc_pre_ssid, 0, sizeof(zconfig_data->android_pre_ssid));
                 memset(zc_android_ssid, 0, sizeof(zconfig_data->android_ssid));
@@ -221,25 +226,25 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
 
     awss_debug("ssid:%s, tlen:%d\r\n", tmp_ssid, total_len);
     if (passwd_len && !memcmp(tmp_passwd, magic_p_w_d, passwd_len)) {
-        //Note: when v2 rollback to v1, zc_preapre_ssid will useless
+        /* Note: when v2 rollback to v1, zc_preapre_ssid will useless */
         strncpy((char *)zc_pre_ssid, (char const *)tmp_ssid, ZC_MAX_SSID_LEN - 1);
         return GOT_CHN_LOCK;
     }
 
-    // for ascii ssid, max length is 29(32 - 1 - 2).
-    // for utf-8 ssid, max length is 29 - 2 or 29 - 3
-    // gbk ssid also encoded as utf-8
-    // SAMSUNG S4 max name length = 22
-    if (!is_ascii_string((uint8_t *)tmp_ssid)) { // chinese ssid
-        ssid_truncated = 1;    // in case of gbk chinese
+    /* for ascii ssid, max length is 29(32 - 1 - 2). */
+    /* for utf-8 ssid, max length is 29 - 2 or 29 - 3 */
+    /* gbk ssid also encoded as utf-8 */
+    /* SAMSUNG S4 max name length = 22 */
+    if (!is_ascii_string((uint8_t *)tmp_ssid)) { /* chinese ssid */
+        ssid_truncated = 1;    /* in case of gbk chinese */
     } else if (total_len >= W_LEN - EXTRA_LEN) {
         ssid_truncated = 1;
     }
 
     if (ssid_truncated) {
         uint8_t *best_ssid;
-        int cur_ssid_len = strlen((const char *)tmp_ssid);  // current_ssid
-        int pre_ssid_len = strlen((const char *)zc_pre_ssid);  // prepare_ssid
+        int cur_ssid_len = strlen((const char *)tmp_ssid);  /* current_ssid */
+        int pre_ssid_len = strlen((const char *)zc_pre_ssid);  /* prepare_ssid */
         if (pre_ssid_len && pre_ssid_len < cur_ssid_len) {
             /* should not happen */
             awss_warn("pre:%s < cur:%s\r\n", zc_pre_ssid, tmp_ssid);
@@ -250,7 +255,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
             best_ssid = tmp_ssid;    /* default use current ssid */
         }
 
-        //awss_debug("ssid truncated, best ssid: %s\r\n", best_ssid);
+        /* awss_debug("ssid truncated, best ssid: %s\r\n", best_ssid); */
 
         do {
 #ifdef AWSS_SUPPORT_APLIST
@@ -269,9 +274,9 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
 #ifdef AWSS_SUPPORT_APLIST
                 ap_info = zconfig_get_apinfo(zc_android_bssid);
                 if (ap_info) {
-                    if (ap_info->ssid[0] == '\0') {  // hide ssid, MUST not truncate
+                    if (ap_info->ssid[0] == '\0') {  /* hide ssid, MUST not truncate */
                         strncpy((char *)zc_android_ssid, (const char *)best_ssid, ZC_MAX_SSID_LEN - 1);
-                    } else {  // not hide ssid, amend ssid according to ap list
+                    } else {  /* not hide ssid, amend ssid according to ap list */
                         strncpy((char *)zc_android_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
                     }
                 } else
@@ -343,33 +348,39 @@ int awss_ieee80211_wps_process(uint8_t *mgmt_header, int len, int link_type, str
      * when device try to connect current router (include adha and aha)
      * skip the wps packet.
      */
-    if (mgmt_header == NULL || zconfig_finished)
+    if (mgmt_header == NULL || zconfig_finished) {
         return ALINK_INVALID;
+    }
 
     /*
      * we don't process wps until user press configure button
      */
-    if (awss_get_config_press() == 0)
+    if (awss_get_config_press() == 0) {
         return ALINK_INVALID;
+    }
 
     hdr = (struct ieee80211_hdr *)mgmt_header;
     fc = hdr->frame_control;
 
-    if (!ieee80211_is_probe_req(fc))
+    if (!ieee80211_is_probe_req(fc)) {
         return ALINK_INVALID;
+    }
 
     ieoffset = offsetof(struct ieee80211_mgmt, u.probe_req.variable);
-    if (ieoffset > len)
+    if (ieoffset > len) {
         return ALINK_INVALID;
-    // get wps ie
+    }
+    /* get wps ie */
     wps_ie = (const uint8_t *)cfg80211_find_vendor_ie(WLAN_OUI_WPS, WLAN_OUI_TYPE_WPS,
-            mgmt_header + ieoffset, len - ieoffset);
-    if (wps_ie == NULL)
+             mgmt_header + ieoffset, len - ieoffset);
+    if (wps_ie == NULL) {
         return ALINK_INVALID;
-    // get wps name in wps ie
+    }
+    /* get wps name in wps ie */
     wps_ie = (const uint8_t *)get_device_name_attr_from_wps((uint8_t *)wps_ie, &attr_len);
-    if (wps_ie == NULL)
+    if (wps_ie == NULL) {
         return ALINK_INVALID;
+    }
     res->u.wps.data_len = attr_len;
     res->u.wps.data = (uint8_t *)wps_ie;
     return ALINK_WPS;

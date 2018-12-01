@@ -21,12 +21,11 @@
 #include "awss_smartconfig.h"
 
 #ifdef AWSS_SUPPORT_HT40
-#include "awss_ht40.h"
+    #include "awss_ht40.h"
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
@@ -205,10 +204,12 @@ int ieee80211_is_probe_resp(uint16_t fc)
  */
 uint8_t *ieee80211_get_SA(struct ieee80211_hdr *hdr)
 {
-    if (ieee80211_has_a4(hdr->frame_control))
+    if (ieee80211_has_a4(hdr->frame_control)) {
         return hdr->addr4;
-    if (ieee80211_has_fromds(hdr->frame_control))
+    }
+    if (ieee80211_has_fromds(hdr->frame_control)) {
         return hdr->addr3;
+    }
     return hdr->addr2;
 }
 
@@ -224,24 +225,27 @@ uint8_t *ieee80211_get_SA(struct ieee80211_hdr *hdr)
  */
 uint8_t *ieee80211_get_DA(struct ieee80211_hdr *hdr)
 {
-    if (ieee80211_has_tods(hdr->frame_control))
+    if (ieee80211_has_tods(hdr->frame_control)) {
         return hdr->addr3;
-    else
+    } else {
         return hdr->addr1;
+    }
 }
 
 uint8_t *ieee80211_get_BSSID(struct ieee80211_hdr *hdr)
 {
     if (ieee80211_has_tods(hdr->frame_control)) {
-        if (!ieee80211_has_fromds(hdr->frame_control))
+        if (!ieee80211_has_fromds(hdr->frame_control)) {
             return hdr->addr1;
-        else
+        } else {
             return NULL;
+        }
     } else {
-        if (ieee80211_has_fromds(hdr->frame_control))
+        if (ieee80211_has_fromds(hdr->frame_control)) {
             return hdr->addr2;
-        else
+        } else {
             return hdr->addr3;
+        }
     }
 }
 
@@ -249,10 +253,11 @@ int ieee80211_get_bssid(uint8_t *in, uint8_t *mac)
 {
     uint8_t *bssid = ieee80211_get_BSSID((struct ieee80211_hdr *)in);
 
-    if (bssid)
+    if (bssid) {
         memcpy(mac, bssid, ETH_ALEN);
-    else
+    } else {
         return -1;
+    }
 
     return 0;
 }
@@ -264,19 +269,21 @@ int ieee80211_has_frags(uint16_t fc)
     return !!tmp;
 }
 
-//DATA:        24B
-//QOS-DATA:    26B
+/* DATA:        24B */
+/* QOS-DATA:    26B */
 int ieee80211_hdrlen(uint16_t fc)
 {
     uint32_t hdrlen = 24;
 
     if (ieee80211_is_data(fc)) {
-        if (ieee80211_has_a4(fc))
+        if (ieee80211_has_a4(fc)) {
             hdrlen = 30;
+        }
         if (ieee80211_is_data_qos(fc)) {
             hdrlen += IEEE80211_QOS_CTL_LEN;
-            if (ieee80211_has_order(fc))
+            if (ieee80211_has_order(fc)) {
                 hdrlen += IEEE80211_HT_CTL_LEN;
+            }
         }
         goto out;
     }
@@ -291,10 +298,11 @@ int ieee80211_hdrlen(uint16_t fc)
          *   bits that matter:         ^^^      (0x00E0)
          *   value of those: 0b0000000011000000 (0x00C0)
          */
-        if ((fc & os_htole16(0x00E0)) == os_htole16(0x00C0))
+        if ((fc & os_htole16(0x00E0)) == os_htole16(0x00C0)) {
             hdrlen = 10;
-        else
+        } else {
             hdrlen = 16;
+        }
     }
 
 out:
@@ -305,7 +313,7 @@ out:
 int ieee80211_get_radiotap_len(uint8_t *data)
 {
     struct ieee80211_radiotap_header *hdr =
-            (struct ieee80211_radiotap_header *)data;
+                (struct ieee80211_radiotap_header *)data;
 
     return os_get_unaligned_le16((uint8_t *)&hdr->it_len);
 }
@@ -314,12 +322,14 @@ const uint8_t *cfg80211_find_ie(uint8_t eid, const uint8_t *ies, int len)
 {
     while (len > 2 && ies[0] != eid) {
         len -= ies[1] + 2;
-            ies += ies[1] + 2;
+        ies += ies[1] + 2;
     }
-    if (len < 2)
+    if (len < 2) {
         return NULL;
-    if (len < 2 + ies[1])
+    }
+    if (len < 2 + ies[1]) {
         return NULL;
+    }
     return ies;
 }
 
@@ -348,21 +358,24 @@ const uint8_t *cfg80211_find_vendor_ie(uint32_t oui, uint8_t oui_type, const uin
     while (pos < end) {
         pos = cfg80211_find_ie(WLAN_EID_VENDOR_SPECIFIC, pos,
                                end - pos);
-        if (!pos)
+        if (!pos) {
             return NULL;
+        }
 
         ie = (struct ieee80211_vendor_ie *)pos;
 
         /* make sure we can access ie->len */
-        //BUILD_BUG_ON(offsetof(struct ieee80211_vendor_ie, len) != 1);
+        /* BUILD_BUG_ON(offsetof(struct ieee80211_vendor_ie, len) != 1); */
 
-        if (ie->len < sizeof(*ie))
+        if (ie->len < sizeof(*ie)) {
             goto cont;
+        }
 
         ie_oui = ie->oui[0] << 16 | ie->oui[1] << 8 | ie->oui[2];
-        //awss_trace("oui=%x, type=%x, len=%d\r\n", ie_oui, oui_type, ie->len);
-        if (ie_oui == oui && ie->oui_type == oui_type)
+        /* awss_trace("oui=%x, type=%x, len=%d\r\n", ie_oui, oui_type, ie->len); */
+        if (ie_oui == oui && ie->oui_type == oui_type) {
             return pos;
+        }
 cont:
         pos += 2 + ie->len;
     }
@@ -381,9 +394,9 @@ cont:
  */
 int ieee80211_get_ssid(uint8_t *beacon_frame, uint16_t frame_len, uint8_t *ssid)
 {
-    uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);//same as u.probe_resp.variable
+    uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);/* same as u.probe_resp.variable */
     const uint8_t *ptr = cfg80211_find_ie(WLAN_EID_SSID,
-                beacon_frame + ieoffset, frame_len - ieoffset);
+                                          beacon_frame + ieoffset, frame_len - ieoffset);
     if (ptr) {
         uint8_t ssid_len = ptr[1];
         if (ssid_len <= 32) {    /* ssid 32 octets at most */
@@ -407,7 +420,7 @@ int ieee80211_get_ssid(uint8_t *beacon_frame, uint16_t frame_len, uint8_t *ssid)
  */
 int cfg80211_get_bss_channel(uint8_t *beacon_frame, uint16_t frame_len)
 {
-    uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);//same as u.probe_resp.variable
+    uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);/* same as u.probe_resp.variable */
     const uint8_t *ie = beacon_frame + ieoffset;
     uint16_t ielen = frame_len - ieoffset;
 
@@ -435,14 +448,14 @@ static const uint8_t RSN_SUITE_1X[] =               {0x00, 0x0f, 0xac, 0x01};
 static const uint8_t WPA_CIPHER_SUITE_NONE23A[] =   {0x00, 0x50, 0xf2, 0x00};
 static const uint8_t WPA_CIPHER_SUITE_WEP4023A[] =  {0x00, 0x50, 0xf2, 0x01};
 static const uint8_t WPA_CIPHER_SUITE_TKIP23A[] =   {0x00, 0x50, 0xf2, 0x02};
-//static const uint8_t WPA_CIPHER_SUITE_WRAP23A[] = {0x00, 0x50, 0xf2, 0x03};
+/* static const uint8_t WPA_CIPHER_SUITE_WRAP23A[] = {0x00, 0x50, 0xf2, 0x03}; */
 static const uint8_t WPA_CIPHER_SUITE_CCMP23A[] =   {0x00, 0x50, 0xf2, 0x04};
 static const uint8_t WPA_CIPHER_SUITE_WEP10423A[] = {0x00, 0x50, 0xf2, 0x05};
 
 static const uint8_t RSN_CIPHER_SUITE_NONE23A[] =   {0x00, 0x0f, 0xac, 0x00};
 static const uint8_t RSN_CIPHER_SUITE_WEP4023A[] =  {0x00, 0x0f, 0xac, 0x01};
 static const uint8_t RSN_CIPHER_SUITE_TKIP23A[] =   {0x00, 0x0f, 0xac, 0x02};
-//static const uint8_t RSN_CIPHER_SUITE_WRAP23A[] = {0x00, 0x0f, 0xac, 0x03};
+/* static const uint8_t RSN_CIPHER_SUITE_WRAP23A[] = {0x00, 0x0f, 0xac, 0x03}; */
 static const uint8_t RSN_CIPHER_SUITE_CCMP23A[] =   {0x00, 0x0f, 0xac, 0x04};
 static const uint8_t RSN_CIPHER_SUITE_WEP10423A[] = {0x00, 0x0f, 0xac, 0x05};
 
@@ -459,51 +472,61 @@ static const uint8_t RSN_CIPHER_SUITE_WEP10423A[] = {0x00, 0x0f, 0xac, 0x05};
 static uint8_t map_cipher_to_encry(uint8_t cipher)
 {
     switch (cipher) {
-    case WPA_CIPHER_CCMP:
-        return ZC_ENC_TYPE_AES;
-    case WPA_CIPHER_TKIP:
-        return ZC_ENC_TYPE_TKIP;
-    case WPA_CIPHER_WEP40:
-    case WPA_CIPHER_WEP104:
-        return ZC_ENC_TYPE_WEP;
-    case WPA_CIPHER_NONE:
-        return ZC_ENC_TYPE_NONE;
-    case (WPA_CIPHER_TKIP | WPA_CIPHER_CCMP):
-        return ZC_ENC_TYPE_TKIPAES;
-    default:
-        awss_warn("unknow cipher type: %x\r\n", cipher);
-        return ZC_ENC_TYPE_INVALID;
+        case WPA_CIPHER_CCMP:
+            return ZC_ENC_TYPE_AES;
+        case WPA_CIPHER_TKIP:
+            return ZC_ENC_TYPE_TKIP;
+        case WPA_CIPHER_WEP40:
+        case WPA_CIPHER_WEP104:
+            return ZC_ENC_TYPE_WEP;
+        case WPA_CIPHER_NONE:
+            return ZC_ENC_TYPE_NONE;
+        case (WPA_CIPHER_TKIP | WPA_CIPHER_CCMP):
+            return ZC_ENC_TYPE_TKIPAES;
+        default:
+            awss_warn("unknow cipher type: %x\r\n", cipher);
+            return ZC_ENC_TYPE_INVALID;
     }
 }
 
 static int get_wpa_cipher_suite(const uint8_t *s)
 {
-    if (!memcmp(s, WPA_CIPHER_SUITE_NONE23A, WPA_SELECTOR_LEN))
+    if (!memcmp(s, WPA_CIPHER_SUITE_NONE23A, WPA_SELECTOR_LEN)) {
         return WPA_CIPHER_NONE;
-    if (!memcmp(s, WPA_CIPHER_SUITE_WEP4023A, WPA_SELECTOR_LEN))
+    }
+    if (!memcmp(s, WPA_CIPHER_SUITE_WEP4023A, WPA_SELECTOR_LEN)) {
         return WPA_CIPHER_WEP40;
-    if (!memcmp(s, WPA_CIPHER_SUITE_TKIP23A, WPA_SELECTOR_LEN))
+    }
+    if (!memcmp(s, WPA_CIPHER_SUITE_TKIP23A, WPA_SELECTOR_LEN)) {
         return WPA_CIPHER_TKIP;
-    if (!memcmp(s, WPA_CIPHER_SUITE_CCMP23A, WPA_SELECTOR_LEN))
+    }
+    if (!memcmp(s, WPA_CIPHER_SUITE_CCMP23A, WPA_SELECTOR_LEN)) {
         return WPA_CIPHER_CCMP;
-    if (!memcmp(s, WPA_CIPHER_SUITE_WEP10423A, WPA_SELECTOR_LEN))
+    }
+    if (!memcmp(s, WPA_CIPHER_SUITE_WEP10423A, WPA_SELECTOR_LEN)) {
         return WPA_CIPHER_WEP104;
+    }
 
     return 0;
 }
 
 static int get_wpa2_cipher_suite(const uint8_t *s)
 {
-    if (!memcmp(s, RSN_CIPHER_SUITE_NONE23A, RSN_SELECTOR_LEN))
+    if (!memcmp(s, RSN_CIPHER_SUITE_NONE23A, RSN_SELECTOR_LEN)) {
         return WPA_CIPHER_NONE;
-    if (!memcmp(s, RSN_CIPHER_SUITE_WEP4023A, RSN_SELECTOR_LEN))
+    }
+    if (!memcmp(s, RSN_CIPHER_SUITE_WEP4023A, RSN_SELECTOR_LEN)) {
         return WPA_CIPHER_WEP40;
-    if (!memcmp(s, RSN_CIPHER_SUITE_TKIP23A, RSN_SELECTOR_LEN))
+    }
+    if (!memcmp(s, RSN_CIPHER_SUITE_TKIP23A, RSN_SELECTOR_LEN)) {
         return WPA_CIPHER_TKIP;
-    if (!memcmp(s, RSN_CIPHER_SUITE_CCMP23A, RSN_SELECTOR_LEN))
+    }
+    if (!memcmp(s, RSN_CIPHER_SUITE_CCMP23A, RSN_SELECTOR_LEN)) {
         return WPA_CIPHER_CCMP;
-    if (!memcmp(s, RSN_CIPHER_SUITE_WEP10423A, RSN_SELECTOR_LEN))
+    }
+    if (!memcmp(s, RSN_CIPHER_SUITE_WEP10423A, RSN_SELECTOR_LEN)) {
         return WPA_CIPHER_WEP104;
+    }
 
     return 0;
 }
@@ -521,8 +544,9 @@ int cfg80211_parse_wpa_info(const uint8_t *wpa_ie, int wpa_ie_len,
         return -1;
     }
 
-    if (wpa_ie[1] != (uint8_t)(wpa_ie_len - 2))
+    if (wpa_ie[1] != (uint8_t)(wpa_ie_len - 2)) {
         return -1;
+    }
 
     pos = wpa_ie;
 
@@ -573,7 +597,7 @@ int cfg80211_parse_wpa_info(const uint8_t *wpa_ie, int wpa_ie_len,
     return ret;
 }
 
-int cfg80211_parse_wpa2_info(const uint8_t* rsn_ie, int rsn_ie_len, uint8_t *group_cipher,
+int cfg80211_parse_wpa2_info(const uint8_t *rsn_ie, int rsn_ie_len, uint8_t *group_cipher,
                              uint8_t *pairwise_cipher, uint8_t *is_8021x)
 {
     int i, ret = 0;
@@ -585,7 +609,7 @@ int cfg80211_parse_wpa2_info(const uint8_t* rsn_ie, int rsn_ie_len, uint8_t *gro
         return -1;
     }
 
-    if (*rsn_ie != WLAN_EID_RSN || *(rsn_ie+1) != (uint8_t)(rsn_ie_len - 2)) {
+    if (*rsn_ie != WLAN_EID_RSN || *(rsn_ie + 1) != (uint8_t)(rsn_ie_len - 2)) {
         return -1;
     }
 
@@ -652,7 +676,7 @@ int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
     struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)beacon_frame;
     uint8_t is_privacy = !!(mgmt->u.beacon.capab_info & WLAN_CAPABILITY_PRIVACY);
 
-    uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);//same as u.probe_resp.variable
+    uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);/* same as u.probe_resp.variable */
     const uint8_t *ie = beacon_frame + ieoffset;
     uint16_t ielen = frame_len - ieoffset;
 
@@ -663,10 +687,11 @@ int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
     tmp = cfg80211_find_ie(WLAN_EID_RSN, ie, ielen);
     if (tmp && tmp[1]) {
         ret = cfg80211_parse_wpa2_info(tmp, tmp[1] + 2, &group_cipher, &pairwise_cipher, &is80211X);
-        if (is80211X)
+        if (is80211X) {
             auth = ZC_AUTH_TYPE_WPA28021X;
-        else
+        } else {
             auth = ZC_AUTH_TYPE_WPA2PSK;
+        }
         group_cipher = map_cipher_to_encry(group_cipher);
         pairwise_cipher = map_cipher_to_encry(pairwise_cipher);
     } else {
@@ -674,17 +699,18 @@ int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
         tmp = cfg80211_find_vendor_ie(WLAN_OUI_MICROSOFT, WLAN_OUI_TYPE_MICROSOFT_WPA, ie, ielen);
         if (tmp) {
             ret = cfg80211_parse_wpa_info(tmp, tmp[1] + 2, &group_cipher, &pairwise_cipher, &is80211X);
-            if (is80211X)
+            if (is80211X) {
                 auth = ZC_AUTH_TYPE_WPA8021X;
-            else
+            } else {
                 auth = ZC_AUTH_TYPE_WPAPSK;
+            }
             group_cipher = map_cipher_to_encry(group_cipher);
             pairwise_cipher = map_cipher_to_encry(pairwise_cipher);
         } else
 #endif
         {
             if (is_privacy) {
-                auth = ZC_AUTH_TYPE_SHARED;  // TODO: WEP
+                auth = ZC_AUTH_TYPE_SHARED;  /* TODO: WEP */
                 pairwise_cipher = ZC_ENC_TYPE_WEP;
                 group_cipher = ZC_ENC_TYPE_WEP;
             } else {
@@ -695,12 +721,15 @@ int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
         }
     }
 
-    if (auth_type)
+    if (auth_type) {
         *auth_type = auth;
-    if (pairwise_cipher_type)
+    }
+    if (pairwise_cipher_type) {
         *pairwise_cipher_type = pairwise_cipher;
-    if (group_cipher_type)
+    }
+    if (group_cipher_type) {
         *group_cipher_type = group_cipher;
+    }
 
     return ret;
 }
@@ -710,44 +739,44 @@ int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
  * TODO: code refactor, avoid using memmove
  */
 #define check_ieee80211_buf_alignment(buf_addr, len) \
-do {\
-    if (((unsigned long)(buf_addr) & 0x1) && len > 0) {\
-        uint8_t *word_align_addr = (uint8_t *)((unsigned long)(buf_addr) & ~0x1);\
-        memmove(word_align_addr, buf_addr, len);\
-        buf_addr = word_align_addr;\
-    }\
-} while (0)
+    do {\
+        if (((unsigned long)(buf_addr) & 0x1) && len > 0) {\
+            uint8_t *word_align_addr = (uint8_t *)((unsigned long)(buf_addr) & ~0x1);\
+            memmove(word_align_addr, buf_addr, len);\
+            buf_addr = word_align_addr;\
+        }\
+    } while (0)
 
 uint8_t *zconfig_remove_link_header(uint8_t **in, int *len, int link_type)
 {
     int lt_len = 0;
 
     switch (link_type) {
-    case AWS_LINK_TYPE_NONE:
-        break;
-    case AWS_LINK_TYPE_PRISM:
+        case AWS_LINK_TYPE_NONE:
+            break;
+        case AWS_LINK_TYPE_PRISM:
 #define PRISM_HDR_LEN           144
-        *in += PRISM_HDR_LEN;
-        *len -= PRISM_HDR_LEN;
-        //144, no need to check buf aligment
-        break;
-    case AWS_LINK_TYPE_80211_RADIO:
-        lt_len = ieee80211_get_radiotap_len(*in);
-        *in += lt_len;
-        *len -= lt_len;
-        check_ieee80211_buf_alignment(*in, *len);
-        break;
-    case AWS_LINK_TYPE_80211_RADIO_AVS:
+            *in += PRISM_HDR_LEN;
+            *len -= PRISM_HDR_LEN;
+            /* 144, no need to check buf aligment */
+            break;
+        case AWS_LINK_TYPE_80211_RADIO:
+            lt_len = ieee80211_get_radiotap_len(*in);
+            *in += lt_len;
+            *len -= lt_len;
+            check_ieee80211_buf_alignment(*in, *len);
+            break;
+        case AWS_LINK_TYPE_80211_RADIO_AVS:
 #define WLANCAP_MAGIC_COOKIE_V1 0x80211001
 #define WLANCAP_MAGIC_COOKIE_V2 0x80211002
-        lt_len = *(uint32_t *)(*in + 4);/* first 4 byte is magic code */
-        *in += lt_len;
-        *len -= lt_len;
-        check_ieee80211_buf_alignment(*in, *len);
-        break;
-    default:
-        awss_debug("un-supported link type!\r\n");
-        break;
+            lt_len = *(uint32_t *)(*in + 4);/* first 4 byte is magic code */
+            *in += lt_len;
+            *len -= lt_len;
+            check_ieee80211_buf_alignment(*in, *len);
+            break;
+        default:
+            awss_debug("un-supported link type!\r\n");
+            break;
     }
 
     return *in;
@@ -800,21 +829,25 @@ int ieee80211_data_extract(uint8_t *in, int len, int link_type, struct parser_re
     int i, fc;
 
     hdr = (struct ieee80211_hdr *)zconfig_remove_link_header(&in, &len, link_type);
-    if (len <= 0)
+    if (len <= 0) {
         goto drop;
+    }
     fc = hdr->frame_control;
 
     for (i = 0; i < sizeof(awss_protocol_couple_array) / sizeof(awss_protocol_couple_array[0]); i ++) {
         awss_protocol_process_func_type protocol_func = awss_protocol_couple_array[i].awss_protocol_process_func;
-        if (protocol_func == NULL)
+        if (protocol_func == NULL) {
             continue;
+        }
         alink_type = protocol_func((uint8_t *)hdr, len, link_type, res, rssi);
-        if (alink_type != ALINK_INVALID)
+        if (alink_type != ALINK_INVALID) {
             break;
+        }
     }
 
-    if (alink_type == ALINK_INVALID)
+    if (alink_type == ALINK_INVALID) {
         goto drop;
+    }
 
     if (alink_type != ALINK_HT_CTRL) {
         /* convert IEEE 802.11 header + possible LLC headers into Ethernet header
@@ -833,9 +866,10 @@ int ieee80211_data_extract(uint8_t *in, int len, int link_type, struct parser_re
 
     do {
         awss_protocol_finish_func_type finish_func = awss_protocol_couple_array[i].awss_protocol_finish_func;
-        if (finish_func)
+        if (finish_func) {
             pkt_type = finish_func(res);
-    } while(0);
+        }
+    } while (0);
 
 drop:
     return pkt_type;

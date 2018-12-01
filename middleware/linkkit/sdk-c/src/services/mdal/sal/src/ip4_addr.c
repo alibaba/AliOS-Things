@@ -6,12 +6,12 @@
 
 /* Here for now until needed in other places in lwIP */
 #ifndef isprint
-#define in_range(c, lo, up)  ((u8_t)c >= lo && (u8_t)c <= up)
-#define isprint(c)           in_range(c, 0x20, 0x7f)
-#define isdigit(c)           in_range(c, '0', '9')
-#define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
-#define islower(c)           in_range(c, 'a', 'z')
-#define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
+    #define in_range(c, lo, up)  ((u8_t)c >= lo && (u8_t)c <= up)
+    #define isprint(c)           in_range(c, 0x20, 0x7f)
+    #define isdigit(c)           in_range(c, '0', '9')
+    #define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
+    #define islower(c)           in_range(c, 'a', 'z')
+    #define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
 #endif
 
 /**
@@ -228,7 +228,7 @@ void ip4_sockaddr_to_ipstr_port(const struct sockaddr *name, char *ip)
         uint8_t ip_u8[4];
     } ip_u;
 
-    if (!name || !ip ) {
+    if (!name || !ip) {
         return;
     }
 
@@ -256,7 +256,7 @@ int ipstr_to_u32(char *ipstr, uint32_t *ip32)
          *p != '\0' && stridx < 15 && dotnum < 4;
          stridx++, p++) {
         if (*p == '.') {
-            q[dotnum] = n; // saved in network order
+            q[dotnum] = n; /* saved in network order */
             n = 0;
             dotnum++;
             continue;
@@ -270,7 +270,7 @@ int ipstr_to_u32(char *ipstr, uint32_t *ip32)
     if (dotnum >= 4 || stridx > 15) {
         return -1;
     } else {
-        q[dotnum] = n;    // the last number
+        q[dotnum] = n;    /* the last number */
     }
 
     return 0;

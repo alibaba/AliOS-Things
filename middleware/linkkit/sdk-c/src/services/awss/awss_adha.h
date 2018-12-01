@@ -11,8 +11,7 @@
 #include "zconfig_protocol.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 struct adha_info {
@@ -41,5 +40,5 @@ int awss_ieee80211_adha_process(uint8_t *mgmt_header, int len, int link_type,
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
-#endif  // end AWSS_SUPPORT_ADHA || AWSS_SUPPORT_AHA
+#endif  /* end AWSS_SUPPORT_ADHA || AWSS_SUPPORT_AHA */
 #endif

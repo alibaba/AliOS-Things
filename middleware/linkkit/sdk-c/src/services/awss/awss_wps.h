@@ -12,8 +12,7 @@
 #include "zconfig_ieee80211.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #define WLAN_OUI_MICROSOFT              (0x0050F2)
@@ -28,5 +27,5 @@ int awss_ieee80211_wps_process(uint8_t *mgmt_header, int len, int link_type,
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
-#endif  // end AWSS_SUPPORT_SMARTCONFIG_WPS
+#endif  /* end AWSS_SUPPORT_SMARTCONFIG_WPS */
 #endif

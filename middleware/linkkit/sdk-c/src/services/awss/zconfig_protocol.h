@@ -11,14 +11,13 @@
 #include "zconfig_lib.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 enum state_machine {
     STATE_CHN_SCANNING,
-    STATE_CHN_LOCKED_BY_P2P,  // wps/action used for enrollee
-    STATE_CHN_LOCKED_BY_BR,   // broadcast used for smartconfig
+    STATE_CHN_LOCKED_BY_P2P,  /* wps/action used for enrollee */
+    STATE_CHN_LOCKED_BY_BR,   /* broadcast used for smartconfig */
     STATE_GOT_BEACON,
     STATE_RCV_IN_PROGRESS,
     STATE_RCV_COMPLETE,
@@ -100,7 +99,7 @@ struct zconfig_data {
         uint16_t prev_sn;       /* last sn */
         uint16_t last_len;      /* len pkg len */
         uint32_t timestamp;     /* last timestamp */
-#define time_interval             (300)    //ms
+#define time_interval             (300)    /* ms */
     } data[2];
 
     /* package store */

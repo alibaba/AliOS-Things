@@ -38,7 +38,7 @@
 #define DM_SHW_KEY_SIZE                       "size"
 #define DM_SHW_KEY_ITEM                       "item"
 
-//Special Service And Event
+/* Special Service And Event */
 #define DM_SHW_SPECIAL_SERVICE_SET_IDENTIFIER "set"
 #define DM_SHW_SPECIAL_SERVICE_SET_METHOD     "thing.service.property.set"
 #define DM_SHW_SPECIAL_SERVICE_GET_IDENTIFIER "get"
@@ -49,16 +49,16 @@
 #define DM_SHW_KEY_DELIMITER                  '.'
 
 typedef enum {
-    DM_SHW_DATA_TYPE_NONE,                    //none
-    DM_SHW_DATA_TYPE_INT,                     //int
-    DM_SHW_DATA_TYPE_FLOAT,                   //float
-    DM_SHW_DATA_TYPE_DOUBLE,                  //double
-    DM_SHW_DATA_TYPE_TEXT,                    //string
-    DM_SHW_DATA_TYPE_ENUM,                    //int
-    DM_SHW_DATA_TYPE_DATE,                    //string
-    DM_SHW_DATA_TYPE_BOOL,                    //bool,0 or 1
-    DM_SHW_DATA_TYPE_ARRAY,                   //support int, float, double, text
-    DM_SHW_DATA_TYPE_STRUCT,                  //support above 8 data types
+    DM_SHW_DATA_TYPE_NONE,                    /* none */
+    DM_SHW_DATA_TYPE_INT,                     /* int */
+    DM_SHW_DATA_TYPE_FLOAT,                   /* float */
+    DM_SHW_DATA_TYPE_DOUBLE,                  /* double */
+    DM_SHW_DATA_TYPE_TEXT,                    /* string */
+    DM_SHW_DATA_TYPE_ENUM,                    /* int */
+    DM_SHW_DATA_TYPE_DATE,                    /* string */
+    DM_SHW_DATA_TYPE_BOOL,                    /* bool,0 or 1 */
+    DM_SHW_DATA_TYPE_ARRAY,                   /* support int, float, double, text */
+    DM_SHW_DATA_TYPE_STRUCT,                  /* support above 8 data types */
 } dm_shw_data_type_e;
 
 typedef enum {
@@ -78,14 +78,14 @@ typedef struct {
         int value_int;
         float value_float;
         double value_double;
-        void *value;                             //string or complex type accroding to data type
+        void *value;                             /* string or complex type accroding to data type */
     };
 } dm_shw_data_value_t;
 
 typedef struct {
     dm_shw_data_type_e type;
-    int specs_number;                            //used when type is enum and struct
-    void *specs;                                 //nerver be used by struct
+    int specs_number;                            /* used when type is enum and struct */
+    void *specs;                                 /* nerver be used by struct */
 } dm_shw_data_type_t;
 
 typedef struct {
@@ -95,27 +95,27 @@ typedef struct {
 
 typedef struct {
     char *identifier;
-    int input_data_number;                       //input_data Number
-    dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
-    int output_data_number;                      //ouput_data Number
-    dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
+    int input_data_number;                       /* input_data Number */
+    dm_shw_data_t *input_datas;               /* input_data array, type is dm_shw_data_t */
+    int output_data_number;                      /* ouput_data Number */
+    dm_shw_data_t *output_datas;              /* output_data array, type is dm_shw_data_t */
 } dm_shw_event_t;
 
 typedef struct {
-    char *identifier;                            //synchronized or asynchronized
-    int input_data_number;                       //input_data_number
-    dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
-    int output_data_number;                      //ouput_data Number
-    dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
+    char *identifier;                            /* synchronized or asynchronized */
+    int input_data_number;                       /* input_data_number */
+    dm_shw_data_t *input_datas;               /* input_data array, type is dm_shw_data_t */
+    int output_data_number;                      /* ouput_data Number */
+    dm_shw_data_t *output_datas;              /* output_data array, type is dm_shw_data_t */
 } dm_shw_service_t;
 
 typedef struct {
     int property_number;
-    dm_shw_data_t *properties;                //property array, type is dm_shw_data_t
+    dm_shw_data_t *properties;                /* property array, type is dm_shw_data_t */
     int event_number;
-    dm_shw_event_t *events;                   //event array, type is dm_shw_event_t
+    dm_shw_event_t *events;                   /* event array, type is dm_shw_event_t */
     int service_number;
-    dm_shw_service_t *services;               //service array, type is dm_shw_service_t
+    dm_shw_service_t *services;               /* service array, type is dm_shw_service_t */
 } dm_shw_t;
 
 /**

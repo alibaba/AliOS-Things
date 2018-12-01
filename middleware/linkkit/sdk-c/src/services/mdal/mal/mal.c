@@ -38,15 +38,15 @@
 #define mal_malloc(...)            LITE_malloc(__VA_ARGS__, MEM_MAGIC, "mal")
 #define mal_free                   LITE_free
 
-typedef struct at_mqtt_msg_buff_s{
+typedef struct at_mqtt_msg_buff_s {
     uint8_t  write_index;
     uint8_t  read_index;
     uint8_t  last_write_index;
     uint8_t  valid_flag[MAL_MC_MAX_BUFFER_NUM];
     uint8_t  buffer_num;
-    char*    topic[MAL_MC_MAX_BUFFER_NUM];
-    char*    msg_data[MAL_MC_MAX_BUFFER_NUM];
-    void*    buffer_mutex;
+    char    *topic[MAL_MC_MAX_BUFFER_NUM];
+    char    *msg_data[MAL_MC_MAX_BUFFER_NUM];
+    void    *buffer_mutex;
 } at_mqtt_msg_buff_t;
 static at_mqtt_msg_buff_t    g_at_mqtt_buff_mgr;
 static char g_at_mqtt_topic[MAL_MC_DEFAULT_BUFFER_NUM][MAL_MC_TOPIC_NAME_MAX_LEN];
@@ -192,9 +192,8 @@ int MALMQTTConnect(iotx_mc_client_t *pClient)
     HAL_GetDeviceName(device_name);
     HAL_GetDeviceSecret(device_secret);
 
-    if(0 != HAL_MDAL_MAL_Connect(product_key, device_name, device_secret))
-    {
-        return FAIL_RETURN; 
+    if (0 != HAL_MDAL_MAL_Connect(product_key, device_name, device_secret)) {
+        return FAIL_RETURN;
     }
 
     return SUCCESS_RETURN;
@@ -299,16 +298,15 @@ static int MALMQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsi
     int ret;
 
     ret = HAL_MDAL_MAL_Unsubscribe(topicFilter, &msgId, &status);
-    if(ret != 0)
-    {
-       return -1;
+    if (ret != 0) {
+        return -1;
     }
 
     iotx_mc_topic_handle_t *h;
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
         if (((strlen(topicFilter) == strlen(h->topic_filter))
-        && (strcmp(topicFilter, (char *)h->topic_filter) == 0))
-        || (mal_mc_is_topic_matched((char *)h->topic_filter, topicFilter))) {
+             && (strcmp(topicFilter, (char *)h->topic_filter) == 0))
+            || (mal_mc_is_topic_matched((char *)h->topic_filter, topicFilter))) {
             remove_handle_from_list(c, h);
         }
     }
@@ -356,7 +354,7 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
     int filterLen = strlen(filterStr);
 
     if (0 == memcmp(msg, filterStr, filterLen)) {
-        //mal_debug("iotx_mc_handle_recv_PUBLISH match filterstring");
+        /* mal_debug("iotx_mc_handle_recv_PUBLISH match filterstring"); */
         time_curr = HAL_UptimeMs();
         if (time_curr < time_prev) {
             time_curr = time_prev;
@@ -374,8 +372,8 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c, char *topic, char *m
     iotx_mc_topic_handle_t *h;
     for (h = c->first_sub_handle; h != NULL; h = h->next) {
         if (((strlen(topic) == strlen(h->topic_filter))
-           && (strcmp(topic, (char *)h->topic_filter) == 0))
-           ||(mal_mc_is_topic_matched((char *)h->topic_filter, topic))) {
+             && (strcmp(topic, (char *)h->topic_filter) == 0))
+            || (mal_mc_is_topic_matched((char *)h->topic_filter, topic))) {
             mal_debug("pub topic is matched");
 
             iotx_mc_topic_handle_t *msg_handle = h;
@@ -626,17 +624,14 @@ int mal_mc_recv_buf_init()
 
     for (int i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
-        if(i < MAL_MC_DEFAULT_BUFFER_NUM)
-        {
+        if (i < MAL_MC_DEFAULT_BUFFER_NUM) {
             g_at_mqtt_buff_mgr.topic[i] = g_at_mqtt_topic[i];
             g_at_mqtt_buff_mgr.msg_data[i] = g_at_mqtt_msg_data[i];
-        memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
-        memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
-        }
-        else
-        {
-           g_at_mqtt_buff_mgr.topic[i] = NULL;
-           g_at_mqtt_buff_mgr.msg_data[i] = NULL;
+            memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
+            memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
+        } else {
+            g_at_mqtt_buff_mgr.topic[i] = NULL;
+            g_at_mqtt_buff_mgr.msg_data[i] = NULL;
         }
     }
 
@@ -656,24 +651,18 @@ void mal_mc_recv_buf_deinit()
 
     for (int i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
-        if(i < MAL_MC_DEFAULT_BUFFER_NUM)
-        {
-        memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
-        memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
-        }
-        else
-        {
-           if(i < g_at_mqtt_buff_mgr.buffer_num)
-           {
-               if(g_at_mqtt_buff_mgr.topic[i] != NULL)
-               {
-                   mal_free(g_at_mqtt_buff_mgr.topic[i]);
-               }
-               if(g_at_mqtt_buff_mgr.msg_data[i] != NULL)
-               {
-                   mal_free(g_at_mqtt_buff_mgr.msg_data[i]);
-               }
-           }
+        if (i < MAL_MC_DEFAULT_BUFFER_NUM) {
+            memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
+            memset(g_at_mqtt_buff_mgr.msg_data[i], 0, MAL_MC_MAX_MSG_LEN);
+        } else {
+            if (i < g_at_mqtt_buff_mgr.buffer_num) {
+                if (g_at_mqtt_buff_mgr.topic[i] != NULL) {
+                    mal_free(g_at_mqtt_buff_mgr.topic[i]);
+                }
+                if (g_at_mqtt_buff_mgr.msg_data[i] != NULL) {
+                    mal_free(g_at_mqtt_buff_mgr.msg_data[i]);
+                }
+            }
         }
     }
 
@@ -697,14 +686,11 @@ int mal_mc_wait_for_result()
         }
 
         state = HAL_MDAL_MAL_State();
-    }while (!utils_time_is_expired(&time) &&  (state != IOTX_MC_STATE_CONNECTED));
+    } while (!utils_time_is_expired(&time) && (state != IOTX_MC_STATE_CONNECTED));
 
-    if(state == IOTX_MC_STATE_CONNECTED)
-    {
+    if (state == IOTX_MC_STATE_CONNECTED) {
         return SUCCESS_RETURN;
-    }
-    else
-    {
+    } else {
         return FAIL_RETURN;
     }
 }
@@ -722,10 +708,9 @@ int mal_mc_connect(iotx_mc_client_t *pClient)
         mal_err("send connect packet failed");
         return  rc;
     }
-    if(SUCCESS_RETURN != mal_mc_wait_for_result())
-    {
-       mal_err("current state is not connected");
-       return FAIL_RETURN;
+    if (SUCCESS_RETURN != mal_mc_wait_for_result()) {
+        mal_err("current state is not connected");
+        return FAIL_RETURN;
     }
 
     mal_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
@@ -799,10 +784,10 @@ static void guider_get_timestamp_str(char *buf, int len)
 }
 
 static int _calc_hmac_signature(
-            char* product_key,
-            char* device_name,
-            char* device_secret,
-            char* device_id,
+            char *product_key,
+            char *device_name,
+            char *device_secret,
+            char *device_id,
             char *hmac_sigbuf,
             const int hmac_buflen,
             const char *timestamp_str)
@@ -832,7 +817,7 @@ static int _calc_hmac_signature(
 }
 #endif /* MAL_ICA_ENABLED */
 
-int iotx_mdal_get_auth_username_passwd(char* out_username, char* out_password)
+int iotx_mdal_get_auth_username_passwd(char *out_username, char *out_password)
 {
 #ifndef MAL_ICA_ENABLED
     char                guider_sign[GUIDER_SIGN_LEN] = {0};
@@ -848,8 +833,7 @@ int iotx_mdal_get_auth_username_passwd(char* out_username, char* out_password)
     HAL_GetDeviceSecret(device_secret);
     HAL_GetDeviceID(device_id);
 
-    if((out_username == NULL) || (out_password == NULL))
-    {
+    if ((out_username == NULL) || (out_password == NULL)) {
         mal_err("username or passwd is null");
         return -1;
     }
@@ -858,7 +842,7 @@ int iotx_mdal_get_auth_username_passwd(char* out_username, char* out_password)
 
     /* calculate the sign */
     _calc_hmac_signature(product_key, device_name, device_secret, device_id, guider_sign,
-                      sizeof(guider_sign), timestamp_str);
+                         sizeof(guider_sign), timestamp_str);
 
     /* fill up username and password */
     _fill_conn_string(out_username, 64,
@@ -869,7 +853,7 @@ int iotx_mdal_get_auth_username_passwd(char* out_username, char* out_password)
                       "%s",
                       guider_sign);
     return 0;
-#else 
+#else
     mal_err("Get username and passwd feature is not supported, when MAL_ICA_ENABLED is y");
     return -1;
 #endif
@@ -880,12 +864,12 @@ int mal_mc_data_copy_to_buf(char *topic, char *message)
     uint8_t       write_index;
     char         *copy_ptr;
 
-    if ((topic == NULL)||(message == NULL)) {
+    if ((topic == NULL) || (message == NULL)) {
         mal_err("write buffer is NULL");
         return -1;
     }
 
-    if ((strlen(topic) >= MAL_MC_MAX_TOPIC_LEN)||
+    if ((strlen(topic) >= MAL_MC_MAX_TOPIC_LEN) ||
         (strlen(message) >= MAL_MC_MAX_MSG_LEN)) {
         mal_err("topic(%d) or message(%d) too large", strlen(topic), strlen(message));
         return -1;
@@ -894,36 +878,31 @@ int mal_mc_data_copy_to_buf(char *topic, char *message)
     HAL_MutexLock(g_at_mqtt_buff_mgr.buffer_mutex);
     write_index     = g_at_mqtt_buff_mgr.write_index;
 
-    if ((g_at_mqtt_buff_mgr.valid_flag[write_index]) 
-         && (g_at_mqtt_buff_mgr.buffer_num == MAL_MC_MAX_BUFFER_NUM)) {
+    if ((g_at_mqtt_buff_mgr.valid_flag[write_index])
+        && (g_at_mqtt_buff_mgr.buffer_num == MAL_MC_MAX_BUFFER_NUM)) {
         mal_err("buffer is full");
 
         HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
         return -1;
     }
-    if(g_at_mqtt_buff_mgr.valid_flag[write_index])
-    {
+    if (g_at_mqtt_buff_mgr.valid_flag[write_index]) {
         int last_write_index = write_index;
         g_at_mqtt_buff_mgr.last_write_index = last_write_index;
         write_index = g_at_mqtt_buff_mgr.buffer_num;
         mal_err("increase buffer to %d", g_at_mqtt_buff_mgr.buffer_num);
         g_at_mqtt_buff_mgr.topic[write_index] = mal_malloc(MAL_MC_MAX_TOPIC_LEN);
-        if(g_at_mqtt_buff_mgr.topic[write_index] == NULL)
-        {
+        if (g_at_mqtt_buff_mgr.topic[write_index] == NULL) {
             mal_err("increase buffer failed, drop it");
             return -1;
         }
         g_at_mqtt_buff_mgr.msg_data[write_index] = mal_malloc(MAL_MC_MAX_MSG_LEN);
-        if(g_at_mqtt_buff_mgr.msg_data[write_index] == NULL)
-        {
+        if (g_at_mqtt_buff_mgr.msg_data[write_index] == NULL) {
             mal_err("increase buffer failed, drop it");
             mal_free(g_at_mqtt_buff_mgr.topic[write_index]);
             return -1;
         }
         g_at_mqtt_buff_mgr.buffer_num ++;
-    }
-    else
-    {
+    } else {
         g_at_mqtt_buff_mgr.last_write_index = 0;
     }
 
@@ -939,13 +918,10 @@ int mal_mc_data_copy_to_buf(char *topic, char *message)
         write_index = 0;
     }
 
-    if(g_at_mqtt_buff_mgr.last_write_index != 0)
-    {
+    if (g_at_mqtt_buff_mgr.last_write_index != 0) {
         g_at_mqtt_buff_mgr.write_index = g_at_mqtt_buff_mgr.last_write_index;
-    }
-    else
-    {
-    g_at_mqtt_buff_mgr.write_index  = write_index;
+    } else {
+        g_at_mqtt_buff_mgr.write_index  = write_index;
     }
     HAL_MutexUnlock(g_at_mqtt_buff_mgr.buffer_mutex);
 
@@ -957,7 +933,7 @@ int mal_mc_data_copy_from_buf(char *topic, char *message)
     uint8_t         read_index;
     char           *copy_ptr;
 
-    if ((topic == NULL)||(message == NULL)) {
+    if ((topic == NULL) || (message == NULL)) {
         mal_err("read buffer is NULL");
         return -1;
     }
