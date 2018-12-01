@@ -46,7 +46,7 @@ static alcs_mqtt_status_e __alcs_mqtt_send_response(char *topic, int id, int cod
         return ALCS_MQTT_STATUS_ERROR;
     }
 
-    snprintf(msg_pub, msg_len, ALCS_MQTT_THING_LAN_PREFIX_RESPONSE_FMT, id, code, data);
+    HAL_Snprintf(msg_pub, msg_len, ALCS_MQTT_THING_LAN_PREFIX_RESPONSE_FMT, id, code, data);
 
     status =  __alcs_mqtt_publish(topic, 1, msg_pub, strlen(msg_pub));
 
@@ -259,8 +259,8 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
     }
 
     memset(topic_compare, 0, ALCS_MQTT_TOPIC_MAX_LEN);
-    snprintf(topic_compare, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_REPLY_FMT,
-             alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
+    HAL_Snprintf(topic_compare, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_REPLY_FMT,
+                 alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
 
     COAP_INFO("Receivce Message, Topic: %.*s\n", topic_len, topic);
     COAP_INFO("Receivce Message, Payload: %.*s\n", payload_len, payload);
@@ -323,8 +323,8 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
     }
 
     memset(topic_compare, 0, ALCS_MQTT_TOPIC_MAX_LEN);
-    snprintf(topic_compare, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_UPDATE_FMT,
-             alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
+    HAL_Snprintf(topic_compare, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_UPDATE_FMT,
+                 alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
 
     if ((strlen(topic_compare) == topic_len) && (strncmp(topic_compare, topic, topic_len) == 0)) {
         int param_len = 0, prefix_len = 0, id_len = 0;
@@ -347,16 +347,16 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
             }
 
             char reply_topic[ALCS_MQTT_TOPIC_MAX_LEN] = {0};
-            snprintf(reply_topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_UPDATE_REPLY_FMT,
-                     alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
+            HAL_Snprintf(reply_topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_UPDATE_REPLY_FMT,
+                         alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
             __alcs_mqtt_send_response(reply_topic, atoi(reqid), 200, NULL);
         }
         return;
     }
 
     memset(topic_compare, 0, ALCS_MQTT_TOPIC_MAX_LEN);
-    snprintf(topic_compare, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_BLACKLIST_UPDATE_FMT,
-             alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
+    HAL_Snprintf(topic_compare, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_BLACKLIST_UPDATE_FMT,
+                 alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
 
     if ((strlen(topic_compare) == topic_len) && (strncmp(topic_compare, topic, topic_len) == 0)) {
         int param_len = 0, blacklist_len = 0, id_len = 0;
@@ -378,8 +378,9 @@ static void __alcs_mqtt_subscribe_callback(void *pcontext, void *pclient, iotx_m
             }
 
             char reply_topic[ALCS_MQTT_TOPIC_MAX_LEN] = {0};
-            snprintf(reply_topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_BLACKLIST_UPDATE_REPLY_FMT,
-                     alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
+            HAL_Snprintf(reply_topic, ALCS_MQTT_TOPIC_MAX_LEN,
+                         ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_BLACKLIST_UPDATE_REPLY_FMT,
+                         alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
             __alcs_mqtt_send_response(reply_topic, atoi(reqid), 200, NULL);
         } else {
             if (ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_BLACK, blacklist, &blacklist_len)) {
@@ -423,24 +424,24 @@ alcs_mqtt_status_e alcs_mqtt_init(void *handle, char *product_key, char *device_
     memcpy(ctx->device_name, device_name, strlen(device_name));
 
     memset(topic, 0, ALCS_MQTT_TOPIC_MAX_LEN);
-    snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_REPLY_FMT,
-             ctx->product_key, ctx->device_name);
+    HAL_Snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_REPLY_FMT,
+                 ctx->product_key, ctx->device_name);
     if (__alcs_mqtt_subscribe((void *)ctx, topic) != ALCS_MQTT_STATUS_SUCCESS) {
         COAP_ERR("ALCS Subscribe Failed, Topic: %s", topic);
         status = ALCS_MQTT_STATUS_ERROR;
     }
 
     memset(topic, 0, ALCS_MQTT_TOPIC_MAX_LEN);
-    snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_UPDATE_FMT,
-             ctx->product_key, ctx->device_name);
+    HAL_Snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_UPDATE_FMT,
+                 ctx->product_key, ctx->device_name);
     if (__alcs_mqtt_subscribe((void *)ctx, topic) != ALCS_MQTT_STATUS_SUCCESS) {
         COAP_ERR("ALCS Subscribe Failed, Topic: %s", topic);
         status = ALCS_MQTT_STATUS_ERROR;
     }
 
     memset(topic, 0, ALCS_MQTT_TOPIC_MAX_LEN);
-    snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_BLACKLIST_UPDATE_FMT,
-             ctx->product_key, ctx->device_name);
+    HAL_Snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_BLACKLIST_UPDATE_FMT,
+                 ctx->product_key, ctx->device_name);
     if (__alcs_mqtt_subscribe((void *)ctx, topic) != ALCS_MQTT_STATUS_SUCCESS) {
         COAP_ERR("ALCS Subscribe Failed, Topic: %s", topic);
         status = ALCS_MQTT_STATUS_ERROR;
@@ -471,24 +472,24 @@ alcs_mqtt_status_e alcs_mqtt_deinit(void *handle, char *product_key, char *devic
     }
 
     memset(topic, 0, ALCS_MQTT_TOPIC_MAX_LEN);
-    snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_REPLY_FMT,
-             ctx->product_key, ctx->device_name);
+    HAL_Snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_REPLY_FMT,
+                 ctx->product_key, ctx->device_name);
     if (__alcs_mqtt_unsubscribe((void *)ctx, topic) != ALCS_MQTT_STATUS_SUCCESS) {
         COAP_ERR("ALCS Subscribe Failed, Topic: %s", topic);
         status = ALCS_MQTT_STATUS_ERROR;
     }
 
     memset(topic, 0, ALCS_MQTT_TOPIC_MAX_LEN);
-    snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_UPDATE_FMT,
-             ctx->product_key, ctx->device_name);
+    HAL_Snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_UPDATE_FMT,
+                 ctx->product_key, ctx->device_name);
     if (__alcs_mqtt_unsubscribe((void *)ctx, topic) != ALCS_MQTT_STATUS_SUCCESS) {
         COAP_ERR("ALCS Subscribe Failed, Topic: %s", topic);
         status = ALCS_MQTT_STATUS_ERROR;
     }
 
     memset(topic, 0, ALCS_MQTT_TOPIC_MAX_LEN);
-    snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_BLACKLIST_UPDATE_FMT,
-             ctx->product_key, ctx->device_name);
+    HAL_Snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_BLACKLIST_UPDATE_FMT,
+                 ctx->product_key, ctx->device_name);
     if (__alcs_mqtt_unsubscribe((void *)ctx, topic) != ALCS_MQTT_STATUS_SUCCESS) {
         COAP_ERR("ALCS Subscribe Failed, Topic: %s", topic);
         status = ALCS_MQTT_STATUS_ERROR;
@@ -565,15 +566,15 @@ alcs_mqtt_status_e alcs_prefixkey_get(const char *product_key, const char *devic
         device_name == NULL || strlen(device_name) > DEVICE_NAME_LEN) {
         return ALCS_MQTT_STATUS_ERROR;
     }
-    snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_FMT,
-             product_key, device_name);
+    HAL_Snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_FMT,
+                 product_key, device_name);
 
     msg_len = strlen(ALCS_MQTT_THING_ALCS_REQUEST) + 10 + 1;
     if ((msg_pub = ALCS_ADAPTER_malloc(msg_len)) == NULL) {
         return ALCS_MQTT_STATUS_ERROR;
     }
 
-    snprintf(msg_pub, msg_len, ALCS_MQTT_THING_ALCS_REQUEST, id);
+    HAL_Snprintf(msg_pub, msg_len, ALCS_MQTT_THING_ALCS_REQUEST, id);
 
     COAP_INFO("ALCS Prefix Get, Topic: %s, Payload: %s", topic, msg_pub);
     status = __alcs_mqtt_publish(topic, 1, msg_pub, strlen(msg_pub));
@@ -599,16 +600,16 @@ alcs_mqtt_status_e alcs_mqtt_subdev_prefix_get(const char *product_key, const ch
     }
 
     COAP_INFO("Subdevice, PK: %s, DN: %s\n", product_key, device_name);
-    snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_FMT,
-             ctx->product_key, ctx->device_name);
+    HAL_Snprintf(topic, ALCS_MQTT_TOPIC_MAX_LEN, ALCS_MQTT_PREFIX ALCS_MQTT_THING_LAN_PREFIX_GET_FMT,
+                 ctx->product_key, ctx->device_name);
 
     msg_len = strlen(ALCS_MQTT_THING_ALCS_SUBDEV_REQUEST) + 10 + strlen(product_key) + strlen(device_name) + 1;
     if ((msg_pub = ALCS_ADAPTER_malloc(msg_len)) == NULL) {
         return ALCS_MQTT_STATUS_ERROR;
     }
 
-    snprintf(msg_pub, msg_len, ALCS_MQTT_THING_ALCS_SUBDEV_REQUEST, id,
-             (int)strlen(product_key), product_key, (int)strlen(device_name), device_name);
+    HAL_Snprintf(msg_pub, msg_len, ALCS_MQTT_THING_ALCS_SUBDEV_REQUEST, id,
+                 (int)strlen(product_key), product_key, (int)strlen(device_name), device_name);
 
     COAP_ERR("ALCS Prefix Get, Topic: %s, Payload: %s", topic, msg_pub);
     status = __alcs_mqtt_publish(topic, 1, msg_pub, strlen(msg_pub));
