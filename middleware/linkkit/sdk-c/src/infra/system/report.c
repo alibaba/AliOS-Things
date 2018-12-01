@@ -72,7 +72,7 @@ void iotx_set_report_func(info_report_func_pt func)
 {
     info_report_func = func;
 }
-// aos will implement this function
+/*  aos will implement this function */
 #if defined(BUILD_AOS)
 extern void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE]);
 #else
@@ -95,7 +95,7 @@ void aos_get_version_hex(unsigned char version[VERSION_NUM_SIZE])
 
 
 
-// aos will implement this function
+/*  aos will implement this function */
 #if defined(BUILD_AOS)
 extern void aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE]);
 #else
@@ -105,7 +105,7 @@ void aos_get_mac_hex(unsigned char mac[MAC_ADDRESS_SIZE])
 }
 #endif
 
-// aos will implement this function
+/*  aos will implement this function */
 #if defined(BUILD_AOS)
 extern void aos_get_chip_code(unsigned char chip_code[CHIP_CODE_SIZE]);
 #else
@@ -242,7 +242,7 @@ int iotx_report_firmware_version(void *pclient)
     int ret;
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
     char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
-    //iotx_mqtt_topic_info_t topic_info;
+    /* iotx_mqtt_topic_info_t topic_info; */
     char version[FIRMWARE_VERSION_MAXLEN] = {0};
 
     if (info_report_func == NULL) {

@@ -28,21 +28,21 @@
 #ifndef CHIP_CODE_SIZE
     #define CHIP_CODE_SIZE      4
 #endif
-// aos activation data len
+/*  aos activation data len */
 #define AOS_ACTIVE_INFO_LEN (81)
 
 
-// activation device type
+/*  activation device type */
 typedef enum {
-    ACTIVE_SUBDEV,              // it's a subDevice
-    ACTIVE_SINGLE_GW            // it s a single or gateway device
+    ACTIVE_SUBDEV,              /* it's a subDevice */
+    ACTIVE_SINGLE_GW            /* it s a single or gateway device */
 } active_device_type_t;
 
-// activation system type
+/*  activation system type */
 typedef enum {
-    ACTIVE_LINKKIT_ONLY,        // only linkkit implement
-    ACTIVE_LINKKIT_AOS,         // both linkkit and AOS implement
-    ACTIVE_LINKKIT_OTHERS       // linkkit and 3-party OS implement
+    ACTIVE_LINKKIT_ONLY,        /* only linkkit implement */
+    ACTIVE_LINKKIT_AOS,         /* both linkkit and AOS implement */
+    ACTIVE_LINKKIT_OTHERS       /* linkkit and 3-party OS implement */
 } active_system_type_t;
 
 /**

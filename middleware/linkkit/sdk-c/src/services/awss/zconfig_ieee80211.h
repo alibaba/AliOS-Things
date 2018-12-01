@@ -9,8 +9,7 @@
 #include "zconfig_protocol.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #define WIFI_RX_SENSITIVITY   (-85)
@@ -215,7 +214,7 @@ struct ieee80211_mgmt {
     uint16_t seq_ctrl;
     union {
         struct {
-            //__le64 timestamp;
+            /* __le64 timestamp; */
             uint16_t timestamp[4];
             uint16_t beacon_int;
             uint16_t capab_info;
@@ -228,13 +227,13 @@ struct ieee80211_mgmt {
             uint8_t variable;
         } probe_req;
         struct {
-            //__le64 timestamp;
+            /* __le64 timestamp; */
             uint16_t timestamp[4];
             uint16_t beacon_int;
             uint16_t capab_info;
             /* followed by some of SSID, Supported rates,
              * FH Params, DS Params, CF Params, IBSS Params */
-           uint8_t variable;
+            uint8_t variable;
         } probe_resp;
     } u;
 };

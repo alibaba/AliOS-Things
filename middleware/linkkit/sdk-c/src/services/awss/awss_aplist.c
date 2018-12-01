@@ -3,8 +3,7 @@
  */
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #ifdef AWSS_SUPPORT_APLIST
@@ -51,10 +50,12 @@ int awss_clear_aplist(void)
 
 int awss_open_aplist_monitor(void)
 {
-    if (clr_aplist_timer == NULL)
+    if (clr_aplist_timer == NULL) {
         clr_aplist_timer = HAL_Timer_Create("clr_aplist", (void (*)(void *))awss_clr_aplist_monitor, (void *)NULL);
-    if (clr_aplist_timer == NULL)
+    }
+    if (clr_aplist_timer == NULL) {
         return -1;
+    }
 
     HAL_Timer_Stop(clr_aplist_timer);
     HAL_Timer_Start(clr_aplist_timer, CLR_APLIST_MONITOR_TIMEOUT_MS);
@@ -63,8 +64,9 @@ int awss_open_aplist_monitor(void)
 
 int awss_close_aplist_monitor(void)
 {
-    if (clr_aplist_timer == NULL)
+    if (clr_aplist_timer == NULL) {
         return 0;
+    }
     awss_stop_timer(clr_aplist_timer);
     clr_aplist_timer = NULL;
     return 0;
@@ -72,19 +74,22 @@ int awss_close_aplist_monitor(void)
 
 int awss_init_ieee80211_aplist(void)
 {
-    if (zconfig_aplist)
+    if (zconfig_aplist) {
         return 0;
+    }
     zconfig_aplist = (struct ap_info *)os_zalloc(sizeof(struct ap_info) * MAX_APLIST_NUM);
-    if (zconfig_aplist == NULL)
+    if (zconfig_aplist == NULL) {
         return -1;
+    }
     zconfig_aplist_num = 0;
     return 0;
 }
 
 int awss_deinit_ieee80211_aplist(void)
 {
-    if (zconfig_aplist == NULL)
+    if (zconfig_aplist == NULL) {
         return 0;
+    }
     os_free(zconfig_aplist);
     zconfig_aplist = NULL;
     zconfig_aplist_num = 0;
@@ -96,8 +101,9 @@ struct ap_info *zconfig_get_apinfo(uint8_t *mac)
     int i;
 
     for (i = 1; i < zconfig_aplist_num; i++) {
-        if (!memcmp(zconfig_aplist[i].mac, mac, ETH_ALEN))
+        if (!memcmp(zconfig_aplist[i].mac, mac, ETH_ALEN)) {
             return &zconfig_aplist[i];
+        }
     }
 
     return NULL;
@@ -108,8 +114,9 @@ struct ap_info *zconfig_get_apinfo_by_ssid(uint8_t *ssid)
     int i;
 
     for (i = 1; i < zconfig_aplist_num; i ++) {
-        if (!strcmp((char *)zconfig_aplist[i].ssid, (char *)ssid))
+        if (!strcmp((char *)zconfig_aplist[i].ssid, (char *)ssid)) {
             return &zconfig_aplist[i];
+        }
     }
 
     return NULL;
@@ -120,13 +127,14 @@ struct ap_info *zconfig_get_apinfo_by_ssid_prefix(uint8_t *ssid_prefix)
 {
     int i;
     int len = strlen((const char *)ssid_prefix);
-    if (!len)
+    if (!len) {
         return NULL;
+    }
 
     for (i = 1; i < zconfig_aplist_num; i++) {
         if (!strncmp((char *)zconfig_aplist[i].ssid, (char *)ssid_prefix, len)) {
-            //TODO: first match or best match???
-            return &zconfig_aplist[i];//first match
+            /* TODO: first match or best match??? */
+            return &zconfig_aplist[i];/* first match */
         }
     }
 
@@ -136,12 +144,14 @@ struct ap_info *zconfig_get_apinfo_by_ssid_prefix(uint8_t *ssid_prefix)
 int str_end_with(const char *str, const char *suffix)
 {
     int lenstr, lensuffix;
-    if (!str || !suffix)
+    if (!str || !suffix) {
         return 0;
+    }
     lenstr = strlen(str);
     lensuffix = strlen(suffix);
-    if (lensuffix >  lenstr)
+    if (lensuffix >  lenstr) {
         return 0;
+    }
     return strncmp(str + lenstr - lensuffix, suffix, lensuffix) == 0;
 }
 
@@ -150,13 +160,14 @@ struct ap_info *zconfig_get_apinfo_by_ssid_suffix(uint8_t *ssid_suffix)
 {
     int i;
     int len = strlen((const char *)ssid_suffix);
-    if (!len)
+    if (!len) {
         return NULL;
+    }
 
     for (i = 1; i < zconfig_aplist_num; i++) {
         if (str_end_with((char *)zconfig_aplist[i].ssid, (char *)ssid_suffix)) {
-            //TODO: first match or best match???
-            return &zconfig_aplist[i];//first match
+            /* TODO: first match or best match??? */
+            return &zconfig_aplist[i];/* first match */
         }
     }
 
@@ -182,32 +193,38 @@ struct ap_info *zconfig_get_apinfo_by_ssid_suffix(uint8_t *ssid_suffix)
  *     0/success, -1/invalid params(empty ssid/bssid)
  */
 
-int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t auth,
+int awss_save_apinfo(uint8_t *ssid, uint8_t *bssid, uint8_t channel, uint8_t auth,
                      uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi)
 {
     int i;
 
     /* ssid, bssid cannot empty, channel can be 0, auth/encry can be invalid */
-    if (!(ssid && bssid))
+    if (!(ssid && bssid)) {
         return -1;
+    }
 
     /* sanity check */
-    if (channel > ZC_MAX_CHANNEL || channel < ZC_MIN_CHANNEL)
+    if (channel > ZC_MAX_CHANNEL || channel < ZC_MIN_CHANNEL) {
         channel = 0;
-    else
+    } else {
         zconfig_add_active_channel(channel);
+    }
 
-    if (auth > ZC_AUTH_TYPE_MAX)
+    if (auth > ZC_AUTH_TYPE_MAX) {
         auth = ZC_AUTH_TYPE_INVALID;
+    }
 
-    if (pairwise_cipher > ZC_ENC_TYPE_MAX)
+    if (pairwise_cipher > ZC_ENC_TYPE_MAX) {
         pairwise_cipher = ZC_ENC_TYPE_INVALID;
-    if (group_cipher > ZC_ENC_TYPE_MAX)
+    }
+    if (group_cipher > ZC_ENC_TYPE_MAX) {
         group_cipher = ZC_ENC_TYPE_INVALID;
+    }
 
-    //FIXME:
-    if (pairwise_cipher == ZC_ENC_TYPE_TKIPAES)
-        pairwise_cipher = ZC_ENC_TYPE_AES;//tods
+    /* FIXME: */
+    if (pairwise_cipher == ZC_ENC_TYPE_TKIPAES) {
+        pairwise_cipher = ZC_ENC_TYPE_AES;    /* tods */
+    }
 
     /*
      * start from zconfig_aplist[1], leave [0] for temp use
@@ -218,20 +235,24 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
     }
 
     for (i = 1; i < zconfig_aplist_num; i++) {
-        if(!strncmp(zconfig_aplist[i].ssid, (char *)ssid, ZC_MAX_SSID_LEN)
-           && !memcmp(zconfig_aplist[i].mac, bssid, ETH_ALEN)) {
-            //FIXME: useless?
+        if (!strncmp(zconfig_aplist[i].ssid, (char *)ssid, ZC_MAX_SSID_LEN)
+            && !memcmp(zconfig_aplist[i].mac, bssid, ETH_ALEN)) {
+            /* FIXME: useless? */
             /* found the same bss */
-            if (!zconfig_aplist[i].channel)
+            if (!zconfig_aplist[i].channel) {
                 zconfig_aplist[i].channel = channel;
-            if (zconfig_aplist[i].auth == ZC_AUTH_TYPE_INVALID)
+            }
+            if (zconfig_aplist[i].auth == ZC_AUTH_TYPE_INVALID) {
                 zconfig_aplist[i].auth = auth;
-            if (zconfig_aplist[i].encry[0] == ZC_ENC_TYPE_INVALID)
+            }
+            if (zconfig_aplist[i].encry[0] == ZC_ENC_TYPE_INVALID) {
                 zconfig_aplist[i].encry[0] = group_cipher;
-            if (zconfig_aplist[i].encry[1] == ZC_ENC_TYPE_INVALID)
+            }
+            if (zconfig_aplist[i].encry[1] == ZC_ENC_TYPE_INVALID) {
                 zconfig_aplist[i].encry[1] = pairwise_cipher;
+            }
 
-            return 0;//duplicated ssid
+            return 0;/* duplicated ssid */
         }
     }
 
@@ -253,18 +274,21 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
     do {
         char save_adha = 0;
 #ifdef AWSS_SUPPORT_ADHA
-        if (!strcmp((void *)ssid, zc_adha_ssid))
+        if (!strcmp((void *)ssid, zc_adha_ssid)) {
             save_adha = 1;
+        }
 #endif
 #ifdef AWSS_SUPPORT_AHA
-        if (!strcmp((void *)ssid, zc_default_ssid))
+        if (!strcmp((void *)ssid, zc_default_ssid)) {
             save_adha = 1;
+        }
 #endif
         if (save_adha) {
-            if (adha_aplist->cnt < MAX_APLIST_NUM)
+            if (adha_aplist->cnt < MAX_APLIST_NUM) {
                 adha_aplist->aplist[adha_aplist->cnt ++] = i;
+            }
         }
-    } while(0);
+    } while (0);
 #endif
 
     do {
@@ -272,12 +296,12 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
         adha = adha_aplist->cnt;
 #endif
-    awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, auth:%s, %s, %s, rssi:%d, adha:%d\r\n",
-        i, ssid, bssid[0], bssid[1], bssid[2],
-        bssid[3], bssid[4], bssid[5], channel,
-        zconfig_auth_str(auth),
-        zconfig_encry_str(pairwise_cipher),
-        zconfig_encry_str(group_cipher), rssi > 0 ? rssi - 256 : rssi, adha);
+        awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, auth:%s, %s, %s, rssi:%d, adha:%d\r\n",
+                   i, ssid, bssid[0], bssid[1], bssid[2],
+                   bssid[3], bssid[4], bssid[5], channel,
+                   zconfig_auth_str(auth),
+                   zconfig_encry_str(pairwise_cipher),
+                   zconfig_encry_str(group_cipher), rssi > 0 ? rssi - 256 : rssi, adha);
     } while (0);
     /*
      * if chn already locked(zc_bssid set),
@@ -314,17 +338,22 @@ int awss_get_auth_info(uint8_t *ssid, uint8_t *bssid, uint8_t *auth,
         ap_info = zconfig_get_apinfo_by_ssid(ssid);
     }
 
-    if (!ap_info)
+    if (!ap_info) {
         return 0;
+    }
 
-    if (auth)
+    if (auth) {
         *auth = ap_info->auth;
-    if (encry)
+    }
+    if (encry) {
         *encry = ap_info->encry[1];    /* tods side */
-    if (!valid_bssid && bssid)
+    }
+    if (!valid_bssid && bssid) {
         memcpy(bssid, ap_info->mac, ETH_ALEN);
-    if (channel)
+    }
+    if (channel) {
         *channel = ap_info->channel;
+    }
 
     return 1;
 
@@ -335,38 +364,45 @@ void aws_try_adjust_chan(void)
     struct ap_info *ap = NULL;
     char ssid[ZC_MAX_SSID_LEN] = {0};
     ap = zconfig_get_apinfo(zc_bssid);
-    if (ap == NULL)
+    if (ap == NULL) {
         return;
-    if (zconfig_get_lock_chn() == ap->channel)
+    }
+    if (zconfig_get_lock_chn() == ap->channel) {
         return;
-    if (!zconfig_is_valid_channel(ap->channel))
+    }
+    if (!zconfig_is_valid_channel(ap->channel)) {
         return;
+    }
     strncpy(ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
 
 #ifdef AWSS_SUPPORT_AHA
     if (strlen(ssid) == strlen(zc_default_ssid) &&
-        strncmp(ap->ssid, zc_default_ssid, strlen(zc_default_ssid)) == 0)
+        strncmp(ap->ssid, zc_default_ssid, strlen(zc_default_ssid)) == 0) {
         return;
+    }
 #endif
 #ifdef AWSS_SUPPORT_ADHA
     if (strlen(ssid) == strlen(zc_adha_ssid) &&
-        strncmp(ap->ssid, zc_adha_ssid, strlen(zc_adha_ssid)) == 0)
+        strncmp(ap->ssid, zc_adha_ssid, strlen(zc_adha_ssid)) == 0) {
         return;
+    }
 #endif
 
     aws_set_dst_chan(ap->channel);
     aws_switch_channel();
 }
 
-int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res, signed char rssi)
+int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res,
+                                  signed char rssi)
 {
     uint8_t ssid[ZC_MAX_SSID_LEN] = {0}, bssid[ETH_ALEN] = {0};
     uint8_t auth, pairwise_cipher, group_cipher;
     struct ieee80211_hdr *hdr;
     int fc, ret, channel;
 
-    if (mgmt_header == NULL)
+    if (mgmt_header == NULL) {
         return ALINK_INVALID;
+    }
 
     hdr = (struct ieee80211_hdr *)mgmt_header;
     fc = hdr->frame_control;
@@ -374,27 +410,32 @@ int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, 
     /*
      * just for save ap in aplist for ssid amend.
      */
-    if (!ieee80211_is_beacon(fc) && !ieee80211_is_probe_resp(fc))
+    if (!ieee80211_is_beacon(fc) && !ieee80211_is_probe_resp(fc)) {
         return ALINK_INVALID;
+    }
 
     ret = ieee80211_get_bssid(mgmt_header, bssid);
-    if (ret < 0)
+    if (ret < 0) {
         return ALINK_INVALID;
+    }
 
     ret = ieee80211_get_ssid(mgmt_header, len, ssid);
-    if (ret < 0)
+    if (ret < 0) {
         return ALINK_INVALID;
+    }
 
     /*
      * skip all the adha and aha
      */
 #ifdef AWSS_SUPPORT_AHA
-    if (strcmp((const char *)ssid, zc_default_ssid) == 0)
+    if (strcmp((const char *)ssid, zc_default_ssid) == 0) {
         return ALINK_INVALID;
+    }
 #endif
 #ifdef AWSS_SUPPORT_ADHA
-    if (strcmp((const char *)ssid, zc_adha_ssid) == 0)
+    if (strcmp((const char *)ssid, zc_adha_ssid) == 0) {
         return ALINK_INVALID;
+    }
 #endif
 
     channel = cfg80211_get_bss_channel(mgmt_header, len);

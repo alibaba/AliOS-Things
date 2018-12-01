@@ -17,8 +17,7 @@
 #include "zconfig_ieee80211.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 struct adha_info *adha_aplist = NULL;
@@ -33,16 +32,16 @@ const char *zc_adha_passwd = "08d9f22c60157fd01f57645d791a0b610fe0a558c104d6a1f9
 #define ADHA_SA_OFFSET       (10)
 
 static const uint8_t adha_probe_req_frame[ADHA_PROBE_PKT_LEN] = {
-    0x40, 0x00,  // mgnt type, frame control
-    0x00, 0x00,  // duration
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // DA
-    0x28, 0xC2, 0xDD, 0x61, 0x68, 0x83,  // SA, to be replaced with wifi mac
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // BSSID
-    0xC0, 0x79,  // seq
-    0x00, 0x04, 0x61, 0x64, 0x68, 0x61,  // ssid, adha
-    0x01, 0x08, 0x82, 0x84, 0x8B, 0x96, 0x8C, 0x92, 0x98, 0xA4,  // supported rates
-    0x32, 0x04, 0xB0, 0x48, 0x60, 0x6C,  // extended supported rates
-    0x3F, 0x84, 0x10, 0x9E  // FCS
+    0x40, 0x00,  /* mgnt type, frame control */
+    0x00, 0x00,  /* duration */
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* DA */
+    0x28, 0xC2, 0xDD, 0x61, 0x68, 0x83,  /* SA, to be replaced with wifi mac */
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* BSSID */
+    0xC0, 0x79,  /* seq */
+    0x00, 0x04, 0x61, 0x64, 0x68, 0x61,  /* ssid, adha */
+    0x01, 0x08, 0x82, 0x84, 0x8B, 0x96, 0x8C, 0x92, 0x98, 0xA4,  /* supported rates */
+    0x32, 0x04, 0xB0, 0x48, 0x60, 0x6C,  /* extended supported rates */
+    0x3F, 0x84, 0x10, 0x9E  /* FCS */
 };
 
 static void *adha_timer = NULL;
@@ -63,10 +62,12 @@ int awss_is_ready_switch_next_adha(void)
 int awss_open_adha_monitor(void)
 {
     adha_switch = 0;
-    if (adha_timer == NULL)
+    if (adha_timer == NULL) {
         adha_timer = (void *)HAL_Timer_Create("adha", (void (*)(void *))adha_monitor, NULL);
-    if (adha_timer == NULL)
+    }
+    if (adha_timer == NULL) {
         return -1;
+    }
 
     HAL_Timer_Stop(adha_timer);
     HAL_Timer_Start(adha_timer, ADHA_WORK_CYCLE);
@@ -115,32 +116,38 @@ int awss_ieee80211_adha_process(uint8_t *mgmt_header, int len, int link_type, st
      * when device try to connect current router (include adha and aha)
      * skip the new aha and process the new aha in the next scope.
      */
-    if (mgmt_header == NULL || zconfig_finished)
+    if (mgmt_header == NULL || zconfig_finished) {
         return ALINK_INVALID;
+    }
 
     /*
      * if user press configure button, drop all adha
      */
-    if (awss_get_config_press())
+    if (awss_get_config_press()) {
         return ALINK_INVALID;
+    }
 
     hdr = (struct ieee80211_hdr *)mgmt_header;
     fc = hdr->frame_control;
 
-    if (!ieee80211_is_beacon(fc) && !ieee80211_is_probe_resp(fc))
+    if (!ieee80211_is_beacon(fc) && !ieee80211_is_probe_resp(fc)) {
         return ALINK_INVALID;
+    }
     ret = ieee80211_get_bssid(mgmt_header, bssid);
-    if (ret < 0)
+    if (ret < 0) {
         return ALINK_INVALID;
+    }
 
     ret = ieee80211_get_ssid(mgmt_header, len, ssid);
-    if (ret < 0)
+    if (ret < 0) {
         return ALINK_INVALID;
+    }
     /*
      * skip ap which is not adha
      */
-    if (strcmp((const char *)ssid, zc_adha_ssid))
+    if (strcmp((const char *)ssid, zc_adha_ssid)) {
         return ALINK_INVALID;
+    }
 
     channel = cfg80211_get_bss_channel(mgmt_header, len);
     rssi = rssi > 0 ? rssi - 256 : rssi;
@@ -169,18 +176,21 @@ int awss_ieee80211_adha_process(uint8_t *mgmt_header, int len, int link_type, st
 
 int awss_init_adha_aplist(void)
 {
-    if (adha_aplist)
+    if (adha_aplist) {
         return 0;
+    }
     adha_aplist = (struct adha_info *)os_zalloc(sizeof(struct adha_info));
-    if (adha_aplist == NULL)
+    if (adha_aplist == NULL) {
         return -1;
+    }
     return 0;
 }
 
 int awss_deinit_adha_aplist(void)
 {
-    if (adha_aplist == NULL)
+    if (adha_aplist == NULL) {
         return 0;
+    }
 
     os_free(adha_aplist);
     adha_aplist = NULL;

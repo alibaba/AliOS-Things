@@ -619,7 +619,7 @@ void LITE_dump_malloc_free_stats(int level)
             if (call_pos->func_name) {
                 LITE_printf(". \x1B[1;31m%s \x1B[0m Ln:%d\r\n", call_pos->func_name, call_pos->line);
 
-                // free memery of func_name and calling_stack
+                /* free memery of func_name and calling_stack */
                 UTILS_free(call_pos->func_name);
                 list_del(&call_pos->func_head);
                 UTILS_free(call_pos);

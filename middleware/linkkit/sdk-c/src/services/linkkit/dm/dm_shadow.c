@@ -7,7 +7,7 @@
 #ifdef DEPRECATED_LINKKIT
 #include "iotx_dm_internal.h"
 
-//#define IOTX_DM_TSL_DEVELOP_TEST
+/* #define IOTX_DM_TSL_DEVELOP_TEST */
 
 /*****************************Internal Definition*****************************/
 
@@ -31,7 +31,7 @@ typedef struct {
     dm_shw_array_free  func_array_free;
 } dm_shw_data_type_mapping_t;
 
-//Data Set
+/* Data Set */
 static int _dm_shw_int_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int value_len);
 static int _dm_shw_float_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int value_len);
 static int _dm_shw_double_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int value_len);
@@ -40,7 +40,7 @@ static int _dm_shw_enum_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *val
 static int _dm_shw_date_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int value_len);
 static int _dm_shw_bool_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int value_len);
 
-//Array Data Set
+/* Array Data Set */
 static int _dm_shw_array_int_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int value_len,
                                  _IN_ int index);
 static int _dm_shw_array_float_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int value_len,
@@ -56,7 +56,7 @@ static int _dm_shw_array_date_set(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
 static int _dm_shw_array_bool_set(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int value_len,
                                   _IN_ int index);
 
-//Data Get
+/* Data Get */
 static int _dm_shw_int_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value);
 static int _dm_shw_float_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value);
 static int _dm_shw_double_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value);
@@ -65,7 +65,7 @@ static int _dm_shw_enum_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *val
 static int _dm_shw_date_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value);
 static int _dm_shw_bool_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value);
 
-//Array Data Get
+/* Array Data Get */
 static int _dm_shw_array_int_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int index);
 static int _dm_shw_array_float_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int index);
 static int _dm_shw_array_double_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int index);
@@ -74,7 +74,7 @@ static int _dm_shw_array_enum_get(_IN_ dm_shw_data_value_t *data_value, _IN_ voi
 static int _dm_shw_array_date_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int index);
 static int _dm_shw_array_bool_get(_IN_ dm_shw_data_value_t *data_value, _IN_ void *value, _IN_ int index);
 
-//Data Free
+/* Data Free */
 static void _dm_shw_int_free(_IN_ dm_shw_data_value_t *data_value);
 static void _dm_shw_float_free(_IN_ dm_shw_data_value_t *data_value);
 static void _dm_shw_double_free(_IN_ dm_shw_data_value_t *data_value);
@@ -86,7 +86,7 @@ static void _dm_shw_array_free(_IN_ dm_shw_data_value_t *data_value);
 static void _dm_shw_struct_free(_IN_ dm_shw_data_value_t *data_value);
 static void _dm_shw_property_free(_IN_ dm_shw_data_t *property);
 
-//Array Data Free
+/* Array Data Free */
 static void _dm_shw_array_int_free(_IN_ dm_shw_data_value_t *data_value);
 static void _dm_shw_array_float_free(_IN_ dm_shw_data_value_t *data_value);
 static void _dm_shw_array_double_free(_IN_ dm_shw_data_value_t *data_value);
@@ -98,7 +98,7 @@ static void _dm_shw_array_array_free(_IN_ dm_shw_data_value_t *data_value);
 static void _dm_shw_array_struct_free(_IN_ dm_shw_data_value_t *data_value);
 
 #if 0
-    //Data Print
+    /* Data Print */
     static void _dm_shw_int_print(_IN_ dm_shw_data_value_t *data_value);
     static void _dm_shw_float_print(_IN_ dm_shw_data_value_t *data_value);
     static void _dm_shw_double_print(_IN_ dm_shw_data_value_t *data_value);
@@ -1929,25 +1929,25 @@ int dm_shw_assemble_service_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier,
 
 static void _dm_shw_int_free(_IN_ dm_shw_data_value_t *data_value)
 {
-    //Free Value
-    //if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;}
+    /* Free Value */
+    /* if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;} */
 }
 
 static void _dm_shw_float_free(_IN_ dm_shw_data_value_t *data_value)
 {
-    //Free Value
-    //if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;}
+    /* Free Value */
+    /* if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;} */
 }
 
 static void _dm_shw_double_free(_IN_ dm_shw_data_value_t *data_value)
 {
-    //Free Value
-    //if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;}
+    /* Free Value */
+    /* if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;} */
 }
 
 static void _dm_shw_text_free(_IN_ dm_shw_data_value_t *data_value)
 {
-    //Free Value
+    /* Free Value */
     if (data_value->value) {
         DM_free(data_value->value);
         data_value->value = NULL;
@@ -1956,13 +1956,13 @@ static void _dm_shw_text_free(_IN_ dm_shw_data_value_t *data_value)
 
 static void _dm_shw_enum_free(_IN_ dm_shw_data_value_t *data_value)
 {
-    //Free Value
-    //if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;}
+    /* Free Value */
+    /* if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;} */
 }
 
 static void _dm_shw_date_free(_IN_ dm_shw_data_value_t *data_value)
 {
-    //Free Value
+    /* Free Value */
     if (data_value->value) {
         DM_free(data_value->value);
         data_value->value = NULL;
@@ -1971,8 +1971,8 @@ static void _dm_shw_date_free(_IN_ dm_shw_data_value_t *data_value)
 
 static void _dm_shw_bool_free(_IN_ dm_shw_data_value_t *data_value)
 {
-    //Free Value
-    //if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;}
+    /* Free Value */
+    /* if (data_value->value) {DM_free(data_value->value);data_value->value = NULL;} */
 }
 
 static void _dm_shw_array_int_free(_IN_ dm_shw_data_value_t *data_value)
@@ -1995,7 +1995,7 @@ static void _dm_shw_array_text_free(_IN_ dm_shw_data_value_t *data_value)
     int index = 0;
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-    //Free Value
+    /* Free Value */
     if (complex_array) {
         for (index = 0; index < complex_array->size; index++) {
             if (*((char **)(complex_array->value) + index)) {
@@ -2016,7 +2016,7 @@ static void _dm_shw_array_date_free(_IN_ dm_shw_data_value_t *data_value)
     int index = 0;
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-    //Free Value
+    /* Free Value */
     if (complex_array) {
         for (index = 0; index < complex_array->size; index++) {
             if (*((char **)(complex_array->value) + index)) {
@@ -2056,7 +2056,7 @@ static void _dm_shw_array_free(_IN_ dm_shw_data_value_t *data_value)
 {
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-    //Free Value
+    /* Free Value */
     if (complex_array) {
         /* dm_log_err("complex_array->type: %d",complex_array->type); */
         if (g_iotx_data_type_mapping[complex_array->type].func_array_free != NULL) {
@@ -2076,7 +2076,7 @@ static void _dm_shw_struct_free(_IN_ dm_shw_data_value_t *data_value)
     dm_shw_data_t *property = NULL;
     dm_shw_data_value_complex_t *complex_array = data_value->value;
 
-    //Free Value
+    /* Free Value */
     if (complex_array) {
         for (index = 0; index < complex_array->size; index++) {
             property = (dm_shw_data_t *)(complex_array->value) + index;
@@ -2236,21 +2236,21 @@ void dm_shw_destroy(_IN_ dm_shw_t **shadow)
         return;
     }
 
-    //Free Properties
+    /* Free Properties */
     if ((*shadow)->properties) {
         _dm_shw_properties_free((*shadow)->properties, (*shadow)->property_number);
         DM_free((*shadow)->properties);
         (*shadow)->properties = NULL;
     }
 
-    //Free Events
+    /* Free Events */
     if ((*shadow)->events) {
         _dm_shw_events_free((*shadow)->events, (*shadow)->event_number);
         DM_free((*shadow)->events);
         (*shadow)->events = NULL;
     }
 
-    //Free Services
+    /* Free Services */
     if ((*shadow)->services) {
         _dm_shw_services_free((*shadow)->services, (*shadow)->service_number);
         DM_free((*shadow)->services);
@@ -2491,7 +2491,7 @@ static void _dm_shw_service_inputdatas_print(_IN_ dm_shw_service_t *service, _IN
     for (index = 0; index < number; index++) {
         inputdata = service->input_datas + index;
         dm_log_debug("TSL Service Output Data Index: %d", index);
-        //There Is A God-Damned Special Case For thing.service.property.get(method)/get(identifier)
+        /* There Is A God-Damned Special Case For thing.service.property.get(method)/get(identifier) */
         if (strcmp(service->identifier, DM_SHW_SPECIAL_SERVICE_GET_IDENTIFIER) == 0) {
             _dm_shw_service_inputdata_get_print(inputdata);
         } else {

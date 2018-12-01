@@ -1,5 +1,5 @@
 CONFIG_ENV_CFLAGS   += \
-    -Os -Wall \
+    -Os -Wall -ansi \
     -g3 --coverage \
     -D_PLATFORM_IS_LINUX_ \
     -D__UBUNTU_SDK_DEMO__ \

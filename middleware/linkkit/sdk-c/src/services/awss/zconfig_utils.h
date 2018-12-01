@@ -8,8 +8,7 @@
 #include "os.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 void dump_mac(uint8_t *src, uint8_t *dst);
@@ -23,4 +22,4 @@ char is_utf8(const char *ansi_str, int length);
 }
 #endif
 
-#endif	// _UTILS_H_
+#endif  /*  _UTILS_H_ */

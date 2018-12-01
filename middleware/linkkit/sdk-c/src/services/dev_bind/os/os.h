@@ -2,15 +2,14 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef __ABSTRAC_H__
 #define __ABSTRAC_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define inline __inline
 
 #include "iot_import.h"
 #include "iot_export.h"
@@ -55,10 +54,10 @@ static inline int os_is_big_endian(void)
     uint32_t data = 0xFF000000;
 
     if (0xFF == *(uint8_t *) & data) {
-        return 1;                                    //big endian
+        return 1;                                    /* big endian */
     }
 
-    return 0;                                        //little endian
+    return 0;                                        /* little endian */
 }
 
 /**
@@ -238,7 +237,7 @@ static inline void os_reboot()
     platform_reboot();
 }
 
-/** @} *///end of os_misc
+/** @} */
 
 /***************************************** mutex Interface *****************************************/
 
@@ -297,7 +296,7 @@ static inline void os_mutex_unlock(_IN_ void *mutex)
     platform_mutex_unlock(mutex);
 }
 
-/** @} */// end of os_mutex
+/** @} */
 
 /*************************************** semaphore Interface ***************************************/
 
@@ -362,7 +361,7 @@ static inline void os_semaphore_post(_IN_ void *sem)
     platform_semaphore_post(sem);
 }
 
-/** @} */// end of os_semaphore
+/** @} */
 
 /**************************************** memory Interface ****************************************/
 
@@ -415,7 +414,7 @@ static inline void *os_zalloc(uint32_t size)
     return ptr;
 }
 
-/** @} */// end of os_memory_manage
+/** @} */
 
 /**************************************** system Interface ****************************************/
 
@@ -470,7 +469,7 @@ static inline uint32_t time_elapsed_ms_since(uint32_t start_timestamp)
     return now - start_timestamp;
 }
 
-/** @} */// end of os_system
+/** @} */
 
 /****************************************** io Interface ******************************************/
 
@@ -490,7 +489,7 @@ static inline uint32_t time_elapsed_ms_since(uint32_t start_timestamp)
  */
 #define os_printf(fmt, ...) platform_printf(fmt, ## __VA_ARGS__)
 
-/** @} */// end of os_io
+/** @} */
 
 /*************************************** wifi module Interface ***************************************/
 
@@ -921,7 +920,7 @@ static inline int os_wifi_get_ap_info(
     return platform_wifi_get_ap_info(ssid, passwd, bssid);
 }
 
-/** @} */// end of os_awss
+/** @} */
 
 /** @defgroup group_os_product product
  *  @{
@@ -978,10 +977,8 @@ static inline int os_device_get_name(char key_str[OS_DEVICE_NAME_LEN])
 {
     return device_get_name(key_str);
 }
-/** @} */// end of group_product
+/** @} */
 
-
-/** @} */// end of group_os
 
 #ifdef __cplusplus
 }

@@ -8,36 +8,36 @@
 #include "iotx_utils.h"
 #include "iotx_system.h"
 
-#ifdef COAP_DTLS_SUPPORT  //DTLS
+#ifdef COAP_DTLS_SUPPORT  /* DTLS */
     #ifdef ON_DAILY
         #define IOTX_COAP_SERVER_URI      "coaps://11.239.164.238:5684"
     #else
         #ifdef ON_PRE
             #define IOTX_COAP_SERVER_URI      "coaps://pre.coap.cn-shanghai.link.aliyuncs.com:5684"
 
-        #else //online
+        #else /* online */
             #define IOTX_COAP_SERVER_URI      "coaps://%s.coap.cn-shanghai.link.aliyuncs.com:5684"
         #endif
     #endif
 
 #else
-    #ifdef COAP_PSK_SUPPORT  //PSK
+    #ifdef COAP_PSK_SUPPORT  /* PSK */
         #ifdef ON_DAILY
             #define IOTX_COAP_SERVER_URI      "coap-psk://10.101.83.159:5682"
         #else
             #ifdef ON_PRE
                 #define IOTX_COAP_SERVER_URI      "coap-psk://pre.coap.cn-shanghai.link.aliyuncs.com:5682"
-            #else //online
+            #else /* online */
                 #define IOTX_COAP_SERVER_URI      "coap-psk://%s.coap.cn-shanghai.link.aliyuncs.com:5682"
             #endif
         #endif
-    #else                 //UDP
+    #else                 /* UDP */
         #ifdef ON_DAILY
             #define IOTX_COAP_SERVER_URI      ""
         #else
             #ifdef ON_PRE
                 #define IOTX_COAP_SERVER_URI      "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
-            #else //online
+            #else /* online */
                 #define IOTX_COAP_SERVER_URI      "coap://%s.coap.cn-shanghai.link.aliyuncs.com:5683"
             #endif
         #endif
@@ -105,7 +105,7 @@ iotx_cm_connection_t *iotx_cm_open_coap(iotx_cm_init_param_t *params)
     iotx_set_devinfo(deviceinfo);
     coap_config->wait_time_ms = params->request_timeout_ms;
     coap_config->p_devinfo = deviceinfo;
-    // coap_config->p_url = IOTX_COAP_SERVER_URI;
+    /* coap_config->p_url = IOTX_COAP_SERVER_URI; */
 
     _coap_conncection->event_handler = params->handle_event;
 
@@ -257,10 +257,10 @@ static void _coap_response_default(void *p_arg, void *p_message)
             list_del(&node->linked_list);
             cm_free(node->topic);
             cm_free(node);
-            HAL_MutexUnlock(_coap_conncection->list_lock); //do not lock while callback
+            HAL_MutexUnlock(_coap_conncection->list_lock); /* do not lock while callback */
 
             recieve_cb(_coap_conncection->fd, topic, (const char *)p_payload, len, context);
-            //recieve_cb(_coap_conncection->fd, &msg, context);
+            /* recieve_cb(_coap_conncection->fd, &msg, context); */
             cm_free(topic);
             HAL_MutexLock(_coap_conncection->list_lock);
         }

@@ -16,8 +16,7 @@
 #include "passwd.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 #define AWSS_PRESS_TIMEOUT_MS  (60000)
@@ -54,33 +53,39 @@ int awss_start(void)
 #ifdef AWSS_SUPPORT_ADHA
             while (1) {
                 memset(ssid, 0, sizeof(ssid));
-                os_wifi_get_ap_info(ssid , NULL, NULL);
+                os_wifi_get_ap_info(ssid, NULL, NULL);
                 awss_debug("start, ssid:%s, strlen:%d\n", ssid, strlen(ssid));
-                if (strlen(ssid) > 0 && strcmp(ssid, ADHA_SSID))  // not adha AP
+                if (strlen(ssid) > 0 && strcmp(ssid, ADHA_SSID)) { /* not adha AP */
                     break;
+                }
 
-                if (os_sys_net_is_ready()) { // skip the adha failed
+                if (os_sys_net_is_ready()) { /* skip the adha failed */
                     awss_cmp_local_init();
 
                     awss_open_adha_monitor();
-                    while (!awss_is_ready_switch_next_adha())
+                    while (!awss_is_ready_switch_next_adha()) {
                         os_msleep(50);
+                    }
                     awss_cmp_local_deinit(0);
                 }
 
-                if (switch_ap_done || awss_stopped)
+                if (switch_ap_done || awss_stopped) {
                     break;
+                }
                 __awss_start();
             }
 #endif
-            if (awss_stopped)
+            if (awss_stopped) {
                 break;
+            }
 
-            if (switch_ap_done)
+            if (switch_ap_done) {
                 break;
+            }
 
-            if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID))  // not AHA
+            if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) { /* not AHA */
                 break;
+            }
 
             if (os_sys_net_is_ready()) {
                 awss_open_aha_monitor();
@@ -89,9 +94,9 @@ int awss_start(void)
                 char dest_ap = 0;
                 while (!awss_aha_monitor_is_timeout()) {
                     memset(ssid, 0, sizeof(ssid));
-                    os_wifi_get_ap_info(ssid , NULL, NULL);
+                    os_wifi_get_ap_info(ssid, NULL, NULL);
                     if (os_sys_net_is_ready() &&
-                        strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) {  // not AHA
+                        strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) {  /* not AHA */
                         dest_ap = 1;
                         break;
                     }
@@ -100,21 +105,25 @@ int awss_start(void)
 
                 awss_cmp_local_deinit(0);
 
-                if (switch_ap_done || awss_stopped)
+                if (switch_ap_done || awss_stopped) {
                     break;
+                }
 
-                if (dest_ap == 1)
+                if (dest_ap == 1) {
                     break;
+                }
             }
             awss_event_post(AWSS_ENABLE_TIMEOUT);
             __awss_start();
         } while (1);
 #endif
-        if (awss_stopped)
+        if (awss_stopped) {
             break;
+        }
 
-        if (os_sys_net_is_ready())
+        if (os_sys_net_is_ready()) {
             break;
+        }
     } while (1);
 
 #ifdef AWSS_SUPPORT_AHA
@@ -147,8 +156,9 @@ static void awss_press_timeout(void)
 {
     awss_stop_timer(press_timer);
     press_timer = NULL;
-    if (g_user_press)
+    if (g_user_press) {
         awss_event_post(AWSS_ENABLE_TIMEOUT);
+    }
     g_user_press = 0;
 }
 
@@ -162,15 +172,18 @@ int awss_config_press(void)
 
     awss_event_post(AWSS_ENABLE);
 
-    if (press_timer == NULL)
+    if (press_timer == NULL) {
         press_timer = HAL_Timer_Create("press", (void (*)(void *))awss_press_timeout, NULL);
-    if (press_timer == NULL)
+    }
+    if (press_timer == NULL) {
         return -1;
+    }
 
     HAL_Timer_Stop(press_timer);
 
-    if (timeout < AWSS_PRESS_TIMEOUT_MS)
+    if (timeout < AWSS_PRESS_TIMEOUT_MS) {
         timeout = AWSS_PRESS_TIMEOUT_MS;
+    }
     HAL_Timer_Start(press_timer, timeout);
 
     awss_debug("%s exit", __func__);

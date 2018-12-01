@@ -3,7 +3,7 @@
  */
 
 
-// Optimized for minimal code size.
+/*  Optimized for minimal code size. */
 #include <stdio.h>
 #include <string.h>
 #include "os.h"
@@ -13,8 +13,7 @@
 #define shr(value, bits) ((value) >> (bits))
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
-extern "C"
-{
+extern "C" {
 #endif
 
 static const uint32_t K[64] = {
@@ -33,16 +32,17 @@ static const uint32_t K[64] = {
     0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
     0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
-    0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2 };
+    0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+};
 
-static void SHA256_Transform(SHA256_CTX* ctx)
+static void SHA256_Transform(SHA256_CTX *ctx)
 {
     uint32_t W[64];
     uint32_t A, B, C, D, E, F, G, H;
-    uint8_t* p = ctx->buf;
+    uint8_t *p = ctx->buf;
     int t;
 
-    for(t = 0; t < 16; ++t) {
+    for (t = 0; t < 16; ++t) {
         uint32_t tmp =  *p++ << 24;
         tmp |= *p++ << 16;
         tmp |= *p++ << 8;
@@ -50,10 +50,10 @@ static void SHA256_Transform(SHA256_CTX* ctx)
         W[t] = tmp;
     }
 
-    for(; t < 64; t++) {
-        uint32_t s0 = ror(W[t-15], 7) ^ ror(W[t-15], 18) ^ shr(W[t-15], 3);
-        uint32_t s1 = ror(W[t-2], 17) ^ ror(W[t-2], 19) ^ shr(W[t-2], 10);
-        W[t] = W[t-16] + s0 + W[t-7] + s1;
+    for (; t < 64; t++) {
+        uint32_t s0 = ror(W[t - 15], 7) ^ ror(W[t - 15], 18) ^ shr(W[t - 15], 3);
+        uint32_t s1 = ror(W[t - 2], 17) ^ ror(W[t - 2], 19) ^ shr(W[t - 2], 10);
+        W[t] = W[t - 16] + s0 + W[t - 7] + s1;
     }
 
     A = ctx->state[0];
@@ -65,7 +65,7 @@ static void SHA256_Transform(SHA256_CTX* ctx)
     G = ctx->state[6];
     H = ctx->state[7];
 
-    for(t = 0; t < 64; t++) {
+    for (t = 0; t < 64; t++) {
         uint32_t s0 = ror(A, 2) ^ ror(A, 13) ^ ror(A, 22);
         uint32_t maj = (A & B) ^ (A & C) ^ (B & C);
         uint32_t t2 = s0 + maj;
@@ -102,9 +102,9 @@ static const HASH_VTAB SHA256_VTAB = {
 };
 #endif
 
-void SHA256_init(SHA256_CTX* ctx)
+void SHA256_init(SHA256_CTX *ctx)
 {
-    //ctx->f = &SHA256_VTAB;
+    /* ctx->f = &SHA256_VTAB; */
     ctx->state[0] = 0x6a09e667;
     ctx->state[1] = 0xbb67ae85;
     ctx->state[2] = 0x3c6ef372;
@@ -116,10 +116,10 @@ void SHA256_init(SHA256_CTX* ctx)
     ctx->count = 0;
 }
 
-void SHA256_update(SHA256_CTX* ctx, const void* data, int len)
+void SHA256_update(SHA256_CTX *ctx, const void *data, int len)
 {
-    int i = (int) (ctx->count & 63);
-    const uint8_t* p = (const uint8_t*)data;
+    int i = (int)(ctx->count & 63);
+    const uint8_t *p = (const uint8_t *)data;
     ctx->count += len;
     while (len--) {
         ctx->buf[i++] = *p++;
@@ -130,17 +130,17 @@ void SHA256_update(SHA256_CTX* ctx, const void* data, int len)
     }
 }
 
-const uint8_t* SHA256_final(SHA256_CTX* ctx)
+const uint8_t *SHA256_final(SHA256_CTX *ctx)
 {
     uint8_t *p = ctx->buf;
     uint64_t cnt = ctx->count * 8;
     int i;
-    SHA256_update(ctx, (uint8_t*)"\x80", 1);
+    SHA256_update(ctx, (uint8_t *)"\x80", 1);
     while ((ctx->count & 63) != 56) {
-        SHA256_update(ctx, (uint8_t*)"\0", 1);
+        SHA256_update(ctx, (uint8_t *)"\0", 1);
     }
     for (i = 0; i < 8; ++i) {
-        uint8_t tmp = (uint8_t) (cnt >> ((7 - i) * 8));
+        uint8_t tmp = (uint8_t)(cnt >> ((7 - i) * 8));
         SHA256_update(ctx, &tmp, 1);
     }
     for (i = 0; i < 8; i++) {
@@ -154,7 +154,7 @@ const uint8_t* SHA256_final(SHA256_CTX* ctx)
 }
 
 /* Convenience function */
-const uint8_t* SHA256_hash(const void* data, int len, uint8_t* digest)
+const uint8_t *SHA256_hash(const void *data, int len, uint8_t *digest)
 {
     SHA256_CTX ctx;
     SHA256_init(&ctx);

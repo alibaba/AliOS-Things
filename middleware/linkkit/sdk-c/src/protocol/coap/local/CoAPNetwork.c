@@ -14,7 +14,7 @@
 #include "CoAPExport.h"
 #include "CoAPPlatform.h"
 #ifdef COAP_DTLS_SUPPORT
-#include "iot_import_dtls.h"
+    #include "iot_import_dtls.h"
 #endif
 #include "CoAPNetwork.h"
 
@@ -28,8 +28,8 @@ int CoAPNetwork_read(NetworkContext         *p_context,
     int          len      = 0;
     NetworkConf  *network = NULL;
 
-    if(NULL == p_context || NULL == p_remote || NULL == p_data){
-        return -1; // TODO
+    if (NULL == p_context || NULL == p_remote || NULL == p_data) {
+        return -1; /* TODO */
     }
 
     network = (NetworkConf *)p_context;
@@ -38,8 +38,8 @@ int CoAPNetwork_read(NetworkContext         *p_context,
     } else {
 #endif
         len =  HAL_UDP_recvfrom(network->fd, p_remote, p_data,
-                            datalen, timeout_ms);
-        //COAP_DEBUG("[CoAP-NWK]: Network read return %d", len);
+                                datalen, timeout_ms);
+        /* COAP_DEBUG("[CoAP-NWK]: Network read return %d", len); */
 #ifdef COAP_DTLS_SUPPORT
     }
 #endif
@@ -47,30 +47,29 @@ int CoAPNetwork_read(NetworkContext         *p_context,
 }
 
 int CoAPNetwork_write(NetworkContext          *p_context,
-                                NetworkAddr   *p_remote,
-                         const unsigned char  *p_data,
-                         unsigned int          datalen,
-                         unsigned int          timeout_ms)
+                      NetworkAddr   *p_remote,
+                      const unsigned char  *p_data,
+                      unsigned int          datalen,
+                      unsigned int          timeout_ms)
 
 {
 
     int          len      = 0;
     NetworkConf  *network = NULL;
 
-    if(NULL == p_context || NULL == p_remote || NULL == p_data){
-        return -1; // TODO
+    if (NULL == p_context || NULL == p_remote || NULL == p_data) {
+        return -1; /* TODO */
     }
 
     network = (NetworkConf *)p_context;
 #ifdef COAP_DTLS_SUPPORT
-    // TODO:
-    if(COAP_NETWORK_DTLS == network->type){
+    /* TODO: */
+    if (COAP_NETWORK_DTLS == network->type) {
 
-    }
-    else{
+    } else {
 #endif
         len = HAL_UDP_sendto(network->fd, p_remote,
-                       p_data, datalen, timeout_ms);
+                             p_data, datalen, timeout_ms);
 #ifdef COAP_DTLS_SUPPORT
     }
 #endif
@@ -78,7 +77,7 @@ int CoAPNetwork_write(NetworkContext          *p_context,
 }
 
 
-NetworkContext *CoAPNetwork_init (const NetworkInit   *p_param)
+NetworkContext *CoAPNetwork_init(const NetworkInit   *p_param)
 {
     NetworkConf     *network = NULL;
 
@@ -87,7 +86,7 @@ NetworkContext *CoAPNetwork_init (const NetworkInit   *p_param)
     }
 
     network = coap_malloc(sizeof(NetworkConf));
-    if(NULL == network){
+    if (NULL == network) {
         return NULL;
     }
 
@@ -96,15 +95,15 @@ NetworkContext *CoAPNetwork_init (const NetworkInit   *p_param)
 
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_NETWORK_DTLS == network->type) {
-        // TODO:
+        /* TODO: */
         coap_free(network);
         return NULL;
-    }else{
+    } else {
 #endif
         /*Create udp socket*/
         network->port = p_param->port;
         network->fd = (intptr_t)HAL_UDP_create_without_connect(NULL, network->port);
-        if ((intptr_t)-1 == network->fd) {
+        if ((intptr_t) - 1 == network->fd) {
             coap_free(network);
             return NULL;
         }
@@ -120,14 +119,15 @@ NetworkContext *CoAPNetwork_init (const NetworkInit   *p_param)
 void CoAPNetwork_deinit(NetworkContext *p_context)
 {
     NetworkConf     *network = NULL;
-    if(NULL == p_context)
+    if (NULL == p_context) {
         return;
+    }
 
     network = (NetworkConf *)p_context;
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_NETWORK_DTLS == network->type) {
-        // TODO:
-    }else{
+        /* TODO: */
+    } else {
 #endif
         HAL_UDP_close_without_connect(network->fd);
         coap_free(p_context);
