@@ -55,9 +55,9 @@ volatile static DeviceState_t device_state = DEVICE_STATE_INIT;
 lora_dev_t                    g_lora_dev   = { LORAWAN_DEVICE_EUI,
                           LORAWAN_APPLICATION_EUI,
                           LORAWAN_APPLICATION_KEY,
-                          0,
-                          DR_5,
-                          CLASS_A,
+                          1,
+                          DR_2,
+                          CLASS_B,
                           NODE_MODE_NORMAL,
                           0xffff,
                           VALID_LORA_CONFIG,
@@ -65,14 +65,83 @@ lora_dev_t                    g_lora_dev   = { LORAWAN_DEVICE_EUI,
 lora_abp_id_t g_lora_abp_id = { LORAWAN_DEVICE_ADDRESS, LORAWAN_NWKSKEY,
                                 LORAWAN_APPSKEY, INVALID_LORA_CONFIG };
 
-node_freq_mode_t g_freq_mode = FREQ_MODE_INTRA;
+node_freq_mode_t g_freq_mode = FREQ_MODE_INTER;
 join_method_t    g_join_method;
 
 static uint8_t  gJoinState    = 0;
 static uint8_t  gAutoJoin     = 1;
 static uint16_t gJoinInterval = 8;
 
+static uint8_t  g_mc_key_0[16] = {0x7B, 0xE0, 0xC6, 0x0C, 0x84, 0xCC, 0x95, 0x3E,
+                                0xA2, 0xDF, 0xB5, 0x4B, 0x24, 0x01, 0xA4, 0x41};
+
+static uint8_t  g_mc_key_1[16] = {0xE8, 0xDA, 0x78, 0x84, 0x5E, 0x70, 0x8D, 0xD1, 
+                                0xD6, 0x7F, 0xF4, 0xD4, 0x1E, 0x23, 0x86, 0x87};
+
+
+static MulticastChannel_t g_multicast_channel_0 = {
+                    MULTICAST_0_ADDR,
+                    0x001984d8,
+                    true,
+                    0,
+                    DR_2,
+                    LORAWAN_DEFAULT_PING_SLOT_PERIODICITY };
+
+static MulticastChannel_t g_multicast_channel_1 = {
+                    MULTICAST_1_ADDR,
+                    0x00303240,
+                    true,
+                    486900000,
+                    DR_2,
+                    LORAWAN_DEFAULT_PING_SLOT_PERIODICITY };
+
+
 static void start_dutycycle_timer(void);
+
+void add_multicast_channel(MulticastChannel_t *mc_channel,
+                                  uint8_t *mc_key,
+                                  uint8_t mc_id)
+{
+    MibRequestConfirm_t mibReq;
+    AddressIdentifier_t mc_addrid;
+
+    switch (mc_id) {
+        case 0:
+            mibReq.Type = MIB_MC_KEY_0;
+            mc_addrid   = MULTICAST_0_ADDR;
+            break;
+        case 1:
+            mibReq.Type = MIB_MC_KEY_1;
+            mc_addrid   = MULTICAST_1_ADDR;
+            break;
+        case 2: 
+            mibReq.Type = MIB_MC_KEY_2;
+            mc_addrid   = MULTICAST_2_ADDR;
+            break;
+        case 3: 
+            mibReq.Type = MIB_MC_KEY_3;
+            mc_addrid   = MULTICAST_3_ADDR;
+            break;
+        default:
+            mibReq.Type = MIB_MC_KEY_0;
+            mc_addrid   = MULTICAST_0_ADDR;
+            break;
+    }
+
+    mibReq.Param.McKey1 = mc_key;
+
+    if (LORAMAC_STATUS_OK != LoRaMacMibSetRequestConfirm(&mibReq)) {
+        DBG_LINKWAN("set mib mc error\r\n");
+    }
+
+    if (LORAMAC_STATUS_OK != LoRaMacCryptoDeriveMcSessionKeyPair(mc_addrid, mc_channel->Address)) {
+        DBG_LINKWAN("derive mc skey error\r\n");
+    }
+
+    LoRaMacMulticastChannelSet( mc_channel );
+}
+
+
 static bool send_frame(void)
 {
     McpsReq_t       mcpsReq;
@@ -311,6 +380,9 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
     }
 
     // Check Multicast
+    if (mcpsIndication->Multicast == true) {
+        DBG_LINKWAN("get the multicast\r\n");
+    }
     // Check Port
     // Check Datarate
     // Check FramePending
@@ -670,6 +742,9 @@ void lora_fsm(void)
 
                 LoRaMacStart();
 
+                add_multicast_channel(&g_multicast_channel_0, g_mc_key_0, 0);
+                add_multicast_channel(&g_multicast_channel_1, g_mc_key_1, 1);
+               
                 device_state = DEVICE_STATE_JOIN;
                 break;
             }
@@ -1536,3 +1611,4 @@ bool lora_tx_data_payload(uint8_t confirm, uint8_t Nbtrials, uint8_t *payload,
     }
     return false;
 }
+

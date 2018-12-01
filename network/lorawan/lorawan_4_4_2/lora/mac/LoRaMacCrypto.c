@@ -1474,6 +1474,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
         return retval;
     }
     FRMPayloadDecryptionKeyID = curItem->AppSkey;
+    micComputationKeyID = curItem->NwkSkey;
 
     // Check if it is our address
     if( address != macMsg->FHDR.DevAddr )
@@ -1525,7 +1526,6 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
-#ifdef LORAWAN_VERSION_110
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID, uint16_t nonce, uint8_t* devEUI )
 {
     if( devEUI == 0 )
@@ -1557,9 +1557,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID, uint16_
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
-#endif
 
-#ifdef LORAWAN_VERSION_110
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t addrID, uint32_t mcAddr )
 {
     if( mcAddr == 0 )
@@ -1586,15 +1584,15 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t a
     compBaseAppS[0] = 0x01;
     compBaseNwkS[0] = 0x02;
 
-    compBaseAppS[1] = mcAddr & 0xFF;
-    compBaseAppS[2] = ( mcAddr >> 8 ) & 0xFF;
-    compBaseAppS[3] = ( mcAddr >> 16 ) & 0xFF;
-    compBaseAppS[4] = ( mcAddr >> 24 ) & 0xFF;
+    compBaseAppS[1] = ( mcAddr >> 24 ) & 0xFF;
+    compBaseAppS[2] = ( mcAddr >> 16 ) & 0xFF;
+    compBaseAppS[3] = ( mcAddr >> 8 ) & 0xFF;
+    compBaseAppS[4] = mcAddr & 0xFF;
 
-    compBaseNwkS[1] = mcAddr & 0xFF;
-    compBaseNwkS[2] = ( mcAddr >> 8 ) & 0xFF;
-    compBaseNwkS[3] = ( mcAddr >> 16 ) & 0xFF;
-    compBaseNwkS[4] = ( mcAddr >> 24 ) & 0xFF;
+    compBaseNwkS[1] = ( mcAddr >> 24 ) & 0xFF;
+    compBaseNwkS[2] = ( mcAddr >> 16 ) & 0xFF;
+    compBaseNwkS[3] = ( mcAddr >> 8 ) & 0xFF;
+    compBaseNwkS[4] = mcAddr & 0xFF;
 
     if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBaseAppS, curItem->RootKey, curItem->AppSkey ) != SECURE_ELEMENT_SUCCESS )
     {
@@ -1608,4 +1606,4 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t a
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
-#endif
+
