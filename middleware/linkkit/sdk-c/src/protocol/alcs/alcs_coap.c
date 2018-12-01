@@ -97,7 +97,7 @@ int alcs_sendrsp(CoAPContext *context, NetworkAddr *addr, CoAPMessage *message, 
     return do_sendmsg(context, addr, message, observe, msgid, token);
 }
 
-//observe
+/* observe */
 int alcs_observe_notify(CoAPContext *context, const char *path, CoAPLenString *payload)
 {
     int needAuth = 0;
@@ -143,7 +143,7 @@ static void recv_msg_handler(CoAPContext *context, const char *path, NetworkAddr
     send_err_rsp(context, remote, COAP_MSG_CODE_401_UNAUTHORIZED, message);
 }
 
-//resource
+/* resource */
 int alcs_resource_register(CoAPContext *context, const char *pk, const char *dn, const char *path,
                            unsigned short permission,
                            unsigned int ctype, unsigned int maxage, char needAuth, CoAPRecvMsgHandler callback)
