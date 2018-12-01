@@ -1,6 +1,7 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_target_func.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
+include $(OUTPUT_DIR)/aos_all_components.mk
 
 APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
