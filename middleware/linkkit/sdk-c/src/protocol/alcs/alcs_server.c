@@ -84,10 +84,10 @@ void alcs_rec_auth_select(CoAPContext *ctx, const char *paths, NetworkAddr *from
 
     CoAPMessage msg;
     char keybuf[32];
-    snprintf(keybuf, sizeof(keybuf), "\"accessKey\":\"%.*s\"", targetLen, targetKey);
+    HAL_Snprintf(keybuf, sizeof(keybuf), "\"accessKey\":\"%.*s\"", targetLen, targetKey);
     char payloadbuf[512];
-    snprintf(payloadbuf, sizeof(payloadbuf), RES_FORMAT, seqlen, seq, targetKey ? 200 : COAP_MSG_CODE_401_UNAUTHORIZED,
-             keybuf);
+    HAL_Snprintf(payloadbuf, sizeof(payloadbuf), RES_FORMAT, seqlen, seq, targetKey ? 200 : COAP_MSG_CODE_401_UNAUTHORIZED,
+                 keybuf);
     CoAPLenString payload = {strlen(payloadbuf), (unsigned char *)payloadbuf};
 
     alcs_msg_init(ctx, &msg, COAP_MSG_CODE_205_CONTENT, COAP_MESSAGE_TYPE_ACK, 0, &payload, NULL);
@@ -247,14 +247,14 @@ void alcs_rec_auth(CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAPM
         pk[pklen] = tmp1;
         dn[dnlen] = tmp2;
 
-        snprintf(buf, sizeof(buf), "%.*s%s", randomkeylen, randomkey, session->randomKey);
+        HAL_Snprintf(buf, sizeof(buf), "%.*s%s", randomkeylen, randomkey, session->randomKey);
         utils_hmac_sha1_raw(buf, strlen(buf), session->sessionKey, accessToken, tokenlen);
 
         /*calc sign, save in buf*/
         calc_sign_len = sizeof(buf);
         utils_hmac_sha1_base64(session->randomKey, RANDOMKEY_LEN, accessToken, tokenlen, buf, &calc_sign_len);
-        snprintf(body, sizeof(body), "\"sign\":\"%.*s\",\"randomKey\":\"%s\",\"sessionId\":%d,\"expire\":86400",
-                 calc_sign_len, buf, session->randomKey, session->sessionId);
+        HAL_Snprintf(body, sizeof(body), "\"sign\":\"%.*s\",\"randomKey\":\"%s\",\"sessionId\":%d,\"expire\":86400",
+                     calc_sign_len, buf, session->randomKey, session->sessionId);
 
         session->authed_time = HAL_UptimeMs();
         session->heart_time = session->authed_time;
@@ -265,7 +265,7 @@ void alcs_rec_auth(CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAPM
 
     CoAPMessage message;
     char payloadbuf[512];
-    snprintf(payloadbuf, sizeof(payloadbuf), RES_FORMAT, seqlen, seq, res_code, body);
+    HAL_Snprintf(payloadbuf, sizeof(payloadbuf), RES_FORMAT, seqlen, seq, res_code, body);
     CoAPLenString payload = {strlen(payloadbuf), (unsigned char *)payloadbuf};
 
     alcs_msg_init(ctx, &message, COAP_MSG_CODE_205_CONTENT, COAP_MESSAGE_TYPE_ACK, 0, &payload, NULL);
@@ -395,7 +395,7 @@ int alcs_set_revocation(CoAPContext *ctx, const char *seqlist)
     return COAP_SUCCESS;
 }
 
-//-----------------------------------------
+/* ----------------------------------------- */
 
 void send_err_rsp(CoAPContext *ctx, NetworkAddr *addr, int code, CoAPMessage *request)
 {
@@ -555,10 +555,10 @@ void alcs_rec_heart_beat(CoAPContext *ctx, const char *path, NetworkAddr *remote
     char payloadbuf[128];
 
     if (session) {
-        snprintf(databuf, sizeof(databuf), "\"delayTime\":%d", default_heart_expire / 1000);
-        snprintf(payloadbuf, sizeof(payloadbuf), RES_FORMAT, seqlen, seq, 200, databuf);
+        HAL_Snprintf(databuf, sizeof(databuf), "\"delayTime\":%d", default_heart_expire / 1000);
+        HAL_Snprintf(payloadbuf, sizeof(payloadbuf), RES_FORMAT, seqlen, seq, 200, databuf);
     } else {
-        snprintf(payloadbuf, sizeof(payloadbuf), RES_FORMAT, seqlen, seq, ALCS_HEART_FAILAUTH, "");
+        HAL_Snprintf(payloadbuf, sizeof(payloadbuf), RES_FORMAT, seqlen, seq, ALCS_HEART_FAILAUTH, "");
     }
 
     CoAPLenString payload = {strlen(payloadbuf), (unsigned char *)payloadbuf};

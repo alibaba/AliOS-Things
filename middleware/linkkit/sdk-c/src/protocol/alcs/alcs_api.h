@@ -47,7 +47,7 @@ typedef enum {
 
 typedef struct {
     int code;
-    char *msg;//MUST call coap_free to free memory
+    char *msg;/* MUST call coap_free to free memory */
 } ResponseMsg;
 
 #ifdef __cplusplus

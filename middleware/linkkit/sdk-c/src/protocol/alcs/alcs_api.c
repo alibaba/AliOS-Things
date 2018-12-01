@@ -93,7 +93,7 @@ static session_item *get_session(struct list_head *sessions, AlcsDeviceKey *devK
 
     char ck[PK_DN_CHECKSUM_LEN] = {0};
     char path[100] = {0};
-    snprintf(path, sizeof(path), "%s%s", devKey->pk, devKey->dn);
+    HAL_Snprintf(path, sizeof(path), "%s%s", devKey->pk, devKey->dn);
     CoAPPathMD5_sum(path, strlen(path), ck, PK_DN_CHECKSUM_LEN);
 
     return get_session_by_checksum(sessions, &devKey->addr, ck);
@@ -221,7 +221,7 @@ int alcs_auth_init(CoAPContext *ctx, const char *productKey, const char *deviceN
         INIT_LIST_HEAD(&dev->lst_auth.lst_svr);
 
         char path[256];
-        snprintf(path, sizeof(path), "/dev/%s/%s/core/service/auth", productKey, deviceName);
+        HAL_Snprintf(path, sizeof(path), "/dev/%s/%s/core/service/auth", productKey, deviceName);
         alcs_resource_register(ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_auth);
         strcat(path, "/select");
         alcs_resource_register(ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_auth_select);
@@ -247,7 +247,7 @@ int alcs_auth_init(CoAPContext *ctx, const char *productKey, const char *deviceN
 void alcs_auth_subdev_init(CoAPContext *ctx, const char *productKey, const char *deviceName)
 {
     char path[256];
-    snprintf(path, sizeof(path), "/dev/%s/%s/core/service/auth", productKey, deviceName);
+    HAL_Snprintf(path, sizeof(path), "/dev/%s/%s/core/service/auth", productKey, deviceName);
     alcs_resource_register(ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_auth);
     strcat(path, "/select");
     alcs_resource_register(ctx, productKey, deviceName, path, COAP_PERM_GET, COAP_CT_APP_JSON, 60, 0, alcs_rec_auth_select);

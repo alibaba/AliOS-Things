@@ -287,7 +287,7 @@ void  auth_cb(CoAPContext *ctx, CoAPReqResult result, void *userdata, NetworkAdd
                 }
 
                 char buf[32];
-                snprintf(buf, sizeof(buf), "%s%.*s", session->randomKey, tmplen, tmp);
+                HAL_Snprintf(buf, sizeof(buf), "%s%.*s", session->randomKey, tmplen, tmp);
                 utils_hmac_sha1_raw(buf, strlen(buf), session->sessionKey, auth_param->accessToken, strlen(auth_param->accessToken));
                 session->authed_time = HAL_UptimeMs();
                 session->heart_time = session->authed_time;
@@ -398,7 +398,7 @@ void alcs_auth_has_key(CoAPContext *ctx, NetworkAddr *addr, AuthParam *auth_para
     item.accessKey = auth_param->accessKey;
     item.deviceName = auth_param->deviceName;
     item.productKey = auth_param->productKey;
-    item.accessToken = auth_param->accessToken;//(char*) coap_malloc (strlen(auth_param->accessToken) + 1);
+    item.accessToken = auth_param->accessToken;/* (char*) coap_malloc (strlen(auth_param->accessToken) + 1); */
     /* strcpy (item.accessToken, auth_param->accessToken); */
     do_auth(ctx, addr, &item, auth_param->user_data, auth_param->handler);
 }
