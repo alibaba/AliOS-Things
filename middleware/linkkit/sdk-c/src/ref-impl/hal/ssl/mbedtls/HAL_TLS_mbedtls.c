@@ -580,6 +580,16 @@ uintptr_t HAL_SSL_Establish(const char *host,
     const char         *alter = host;
     TLSDataParams_pt    pTlsData;
 
+    if (host == NULL || ca_crt == NULL) {
+        hal_err("input params are NULL, abort");
+        return 0;
+    }
+
+    if (!strlen(host) || (strlen(host) < 8)) {
+        hal_err("invalid host: '%s'(len=%d), abort", host, strlen(host));
+        return 0;
+    }
+
     pTlsData = g_ssl_hooks.malloc(sizeof(TLSDataParams_t));
     if (NULL == pTlsData) {
         return (uintptr_t)NULL;
