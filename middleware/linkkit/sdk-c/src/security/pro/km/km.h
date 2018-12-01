@@ -31,7 +31,7 @@ extern "C" {
 #define KM_ERR_CORRUPT_KEY       0xffff0009
 #define KM_ERR_OVERFLOW          0xffff000A
 
-typedef void * km_op_handle_t;
+typedef void *km_op_handle_t;
 
 typedef enum {
     KM_KEY_FORMAT_X509 = 0, /* for public key export*/
@@ -54,7 +54,7 @@ typedef enum {
     KM_ECB,
     KM_CBC,
     KM_CTR,
-    KM_XTS, //not support yet
+    KM_XTS, /* not support yet */
     KM_GCM,
 } km_block_mode_type;
 
@@ -163,7 +163,7 @@ typedef struct _km_key_data_t {
  * return: see km error code
  * */
 uint32_t km_generate_key(const char *name, const uint32_t name_len,
-                     km_key_type key_type, void *arg);
+                         km_key_type key_type, void *arg);
 
 /*
  * km import key
@@ -175,7 +175,7 @@ uint32_t km_generate_key(const char *name, const uint32_t name_len,
  * return: see km error code
  * */
 uint32_t km_import_key(const char *name, const uint32_t name_len, km_format_t format,
-                   const km_key_data_t *key_data, const uint32_t key_data_len);
+                       const km_key_data_t *key_data, const uint32_t key_data_len);
 
 /*
  * km export key
@@ -189,7 +189,7 @@ uint32_t km_import_key(const char *name, const uint32_t name_len, km_format_t fo
  * return: see km error code
  * */
 uint32_t km_export_key(const char *name, const uint32_t name_len, km_format_t format,
-                   uint8_t *export_data, uint32_t *export_data_size);
+                       uint8_t *export_data, uint32_t *export_data_size);
 
 /*
  * km mac: computer mac
@@ -207,8 +207,8 @@ uint32_t km_export_key(const char *name, const uint32_t name_len, km_format_t fo
  * return: see km error code
  * */
 uint32_t km_mac(const char *name, const uint32_t name_len, km_sym_param *mac_params,
-        const uint8_t *iv, const uint32_t iv_len, uint8_t *src, size_t src_len,
-        uint8_t *mac, uint32_t *mac_len);
+                const uint8_t *iv, const uint32_t iv_len, uint8_t *src, size_t src_len,
+                uint8_t *mac, uint32_t *mac_len);
 
 /*
  * km_delete_key: delete key stored in km
@@ -244,8 +244,8 @@ uint32_t km_delete_all();
  * */
 
 uint32_t km_envelope_begin(void **ctx, const char *name, const uint32_t name_len,
-        uint8_t *iv, uint16_t iv_len,
-        uint8_t *protected_key, uint32_t *protected_key_len, km_purpose_type is_enc);
+                           uint8_t *iv, uint16_t iv_len,
+                           uint8_t *protected_key, uint32_t *protected_key_len, km_purpose_type is_enc);
 
 /*
  * km_envelope_update: to generate a digit envelope
@@ -260,7 +260,7 @@ uint32_t km_envelope_begin(void **ctx, const char *name, const uint32_t name_len
  * */
 
 uint32_t km_envelope_update(void *ctx, uint8_t *src, uint32_t src_len,
-        uint8_t *dest, uint32_t *dest_len);
+                            uint8_t *dest, uint32_t *dest_len);
 
 /*
  * km_envelope_update: to generate a digit
@@ -275,7 +275,7 @@ uint32_t km_envelope_update(void *ctx, uint8_t *src, uint32_t src_len,
  *
  * */
 uint32_t km_envelope_finish(void *ctx, uint8_t *src, uint32_t src_len,
-        uint8_t *dest, uint32_t *dest_len);
+                            uint8_t *dest, uint32_t *dest_len);
 
 /*
  * to get device id
@@ -306,8 +306,8 @@ uint32_t km_get_attestation(uint8_t *id, uint32_t *id_len);
  * */
 
 uint32_t km_sign(const char *name, const uint32_t name_len, void *sign_params,
-             const uint8_t *data, const size_t data_len,
-             uint8_t *out, size_t *out_len);
+                 const uint8_t *data, const size_t data_len,
+                 uint8_t *out, size_t *out_len);
 
 /*
  * km verify
@@ -323,8 +323,8 @@ uint32_t km_sign(const char *name, const uint32_t name_len, void *sign_params,
  *
  * */
 uint32_t km_verify(const char *name, const uint32_t name_len, void *sign_params,
-               const uint8_t *data, const size_t data_len,
-               const uint8_t *signature, const size_t signature_len);
+                   const uint8_t *data, const size_t data_len,
+                   const uint8_t *signature, const size_t signature_len);
 
 /*
  * km asymmetric encrypt
@@ -341,8 +341,8 @@ uint32_t km_verify(const char *name, const uint32_t name_len, void *sign_params,
  * return: see km error code
  * */
 uint32_t km_asym_encrypt(const char *name, const uint32_t name_len, void *enc_params,
-                const uint8_t *src, const size_t src_len,
-             uint8_t *dest, size_t *dest_len);
+                         const uint8_t *src, const size_t src_len,
+                         uint8_t *dest, size_t *dest_len);
 /*
  * km asymmetric decrypt
  * param: in:      name: key name
@@ -358,8 +358,8 @@ uint32_t km_asym_encrypt(const char *name, const uint32_t name_len, void *enc_pa
  * return: see km error code
  * */
 uint32_t km_asym_decrypt(const char *name, const uint32_t name_len, void *enc_params,
-                const uint8_t *src, const size_t src_len,
-               uint8_t *dest, size_t *dest_len);
+                         const uint8_t *src, const size_t src_len,
+                         uint8_t *dest, size_t *dest_len);
 
 /*
  * km symmetric cipher
@@ -378,8 +378,8 @@ uint32_t km_asym_decrypt(const char *name, const uint32_t name_len, void *enc_pa
  * */
 
 uint32_t km_cipher(const char *name, const uint32_t name_len, km_sym_param *cipher_params,
-        const uint8_t *iv, const uint32_t iv_len, uint8_t *src, size_t src_len,
-        uint8_t *dest, size_t *dest_len);
+                   const uint8_t *iv, const uint32_t iv_len, uint8_t *src, size_t src_len,
+                   uint8_t *dest, size_t *dest_len);
 /*
  * to show km version and new file for no rsvd part platform
  * return: see km error code

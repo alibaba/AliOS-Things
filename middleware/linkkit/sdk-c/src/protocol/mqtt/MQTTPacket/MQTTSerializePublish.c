@@ -118,10 +118,10 @@ exit:
   * @param packetid integer - the MQTT packet identifier
   * @return serialized length, or error if 0
   */
-// int MQTTSerialize_puback(unsigned char* buf, int buflen, unsigned short packetid)
-// {
-//  return MQTTSerialize_ack(buf, buflen, PUBACK, 0, packetid);
-// }
+/*  int MQTTSerialize_puback(unsigned char* buf, int buflen, unsigned short packetid) */
+/*  { */
+/*   return MQTTSerialize_ack(buf, buflen, PUBACK, 0, packetid); */
+/*  } */
 
 #if WITH_MQTT_QOS2_PACKET
 /**

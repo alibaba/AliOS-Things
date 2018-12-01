@@ -10,21 +10,21 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
-//#define IOTX_PRODUCT_KEY        "21ESeH6RYT7"
-//#define IOTX_DEVICE_NAME        "ota_demo"
-//#define IOTX_DEVICE_SECRET      "HTVEzMoQrNLV5CjmjKs2l16aDpmXi1Aa"
-//#define IOTX_DEVICE_ID          "21ESeH6RYT7.ota_demo"
+/* #define IOTX_PRODUCT_KEY        "21ESeH6RYT7" */
+/* #define IOTX_DEVICE_NAME        "ota_demo" */
+/* #define IOTX_DEVICE_SECRET      "HTVEzMoQrNLV5CjmjKs2l16aDpmXi1Aa" */
+/* #define IOTX_DEVICE_ID          "21ESeH6RYT7.ota_demo" */
 
 #define IOTX_PRODUCT_KEY        "stMRPCR0yQu"
 #define IOTX_DEVICE_NAME        "xikan_ota"
 #define IOTX_DEVICE_SECRET      "XZjhoJclBJpvcEoa8eLYSxnb3ksRVd3W"
 #define IOTX_DEVICE_ID          "stMRPCR0yQu.xikan_ota"
 
-//#define IOTX_PRE_DTLS_SERVER_URI "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684"
-#define IOTX_PRE_NOSEC_SERVER_URI "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
+/* #define IOTX_PRE_DTLS_SERVER_URI "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684" */
+#define IOTX_PRE_NOSEC_SERVER_URI "coap:/* pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683" */
 
 
-//#define IOTX_PRE_NOSEC_SERVER_URI "coap://iot-as-coap.alibaba.net:5683"
+/* #define IOTX_PRE_NOSEC_SERVER_URI "coap://iot-as-coap.alibaba.net:5683" */
 
 #define EXAMPLE_TRACE(fmt, ...)  \
     do { \
@@ -104,9 +104,9 @@ static int fetch_ota(void *h_ota, void *h_coap)
 }
 
 
-//-1, fetch failed
-//0, no any ota firmware
-//1, fetch successfully
+/* -1, fetch failed */
+/* 0, no any ota firmware */
+/* 1, fetch successfully */
 static int try_fetch_ota(void *h_ota, void *h_coap)
 {
     if (IOT_OTA_IsFetching(h_ota)) {

@@ -193,7 +193,7 @@ void iotx_alcs_coap_adapter_event_notifier(unsigned int event, NetworkAddr *remo
 
 int iotx_alcs_adapter_list_init(iotx_alcs_adapter_t *adapter)
 {
-    //initialze send list
+    /* initialze send list */
     INIT_LIST_HEAD(&adapter->alcs_send_list);
     INIT_LIST_HEAD(&adapter->alcs_subdev_list);
 
@@ -246,7 +246,7 @@ int iotx_alcs_adapter_deinit(void)
 
     alcs_mqtt_deinit(adapter->coap_ctx, product_key, device_name);
 
-    //if (adapter->coap_ctx) CoAPContext_free(adapter->coap_ctx);
+    /* if (adapter->coap_ctx) CoAPContext_free(adapter->coap_ctx); */
 
     alcs_context_deinit();
     alcs_deinit();
@@ -435,7 +435,7 @@ void iotx_alcs_subdev_stage_check(void)
                  (time_now - node->retry_ms >= IOTX_ALCS_SUBDEV_RETRY_INTERVAL_MS)) ||
                 ((time_now <= node->retry_ms) &&
                  ((0xFFFFFFFFFFFFFFFF - node->retry_ms) + time_now >= IOTX_ALCS_SUBDEV_RETRY_INTERVAL_MS))) {
-                //Get Prefix And Secret From Cloud
+                /* Get Prefix And Secret From Cloud */
                 alcs_mqtt_subdev_prefix_get(node->product_key, node->device_name);
                 node->retry_ms = time_now;
             }
@@ -587,7 +587,7 @@ int iotx_alcs_send(void *handle, iotx_alcs_msg_t *msg)
     memcpy(network_addr.addr, msg->ip, strlen(msg->ip));
     network_addr.port = msg->port;
 
-    //Get Product Key And Device Name
+    /* Get Product Key And Device Name */
     AlcsDeviceKey devKey;
     char productKey[PRODUCT_KEY_MAXLEN] = {0};
     char deviceName[DEVICE_NAME_MAXLEN] = {0};
@@ -706,7 +706,7 @@ int iotx_alcs_send_Response(void *handle, iotx_alcs_msg_t *msg, uint8_t token_le
     token_payload.len = token_len;
     token_payload.data = token;
 
-    //Get Product Key And Device Name
+    /* Get Product Key And Device Name */
     AlcsDeviceKey devKey;
     char productKey[PRODUCT_KEY_MAXLEN] = {0};
     char deviceName[DEVICE_NAME_MAXLEN] = {0};
@@ -776,7 +776,7 @@ int iotx_alcs_register_resource(void *handle, iotx_alcs_res_t *resource)
     memcpy(deviceName, uri_dn, uri_dn_len);
 
     COAP_INFO("alcs register resource, uri:%s", resource->uri);
-    int needAuth = resource->need_auth; // strcmp (resource->uri, "/dev/core/service/dev");
+    int needAuth = resource->need_auth; /* strcmp (resource->uri, "/dev/core/service/dev"); */
 
     res = alcs_resource_register(adapter->coap_ctx,
                                  productKey,
@@ -836,7 +836,7 @@ int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
         alcs_auth_subdev_init(adapter->coap_ctx, pk, dn);
     }
 
-    //Search Subdev In Linked List
+    /* Search Subdev In Linked List */
     HAL_MutexLock(adapter->mutex);
     res = _iotx_alcs_subdev_list_search(pk, dn, &subdev_item);
     if (res == SUCCESS_RETURN) {
@@ -846,7 +846,7 @@ int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
     }
     HAL_MutexUnlock(adapter->mutex);
 
-    //Insert New Subdev Into Linked List
+    /* Insert New Subdev Into Linked List */
     subdev_item = (iotx_alcs_subdev_item_t *)ALCS_ADAPTER_malloc(sizeof(iotx_alcs_subdev_item_t));
     if (subdev_item == NULL) {
         COAP_ERR("No Enough Memory");
@@ -854,7 +854,7 @@ int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
     }
     memset(subdev_item, 0, sizeof(iotx_alcs_subdev_item_t));
 
-    //Set Product Key And Device Name
+    /* Set Product Key And Device Name */
     memcpy(subdev_item->product_key, pk, strlen(pk));
     memcpy(subdev_item->device_name, dn, strlen(dn));
     subdev_item->stage = IOTX_ALCS_SUBDEV_DISCONNCET_CLOUD;
@@ -867,7 +867,7 @@ int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
 
     alcs_localsetup_add_sub_device(adapter, subdev_item->product_key, subdev_item->device_name);
 
-    //Get Prefix And Secret From KV
+    /* Get Prefix And Secret From KV */
     char prefix[ALCS_MQTT_PREFIX_MAX_LEN] = {0};
     char secret[ALCS_MQTT_SECRET_MAX_LEN] = {0};
 
@@ -878,7 +878,7 @@ int iotx_alcs_add_sub_device(void *handle, const char *pk, const char *dn)
         alcs_mqtt_add_srv_key(prefix, secret);
     }
 
-    //Get Prefix And Secret From Cloud
+    /* Get Prefix And Secret From Cloud */
     alcs_mqtt_subdev_prefix_get(pk, dn);
 
     return SUCCESS_RETURN;
@@ -898,7 +898,7 @@ int iotx_alcs_remove_sub_device(void *handle, const char *pk, const char *dn)
         return FAIL_RETURN;
     }
 
-    //Remove Subdev Item From KV
+    /* Remove Subdev Item From KV */
     alcs_mqtt_prefix_secret_del(pk, strlen(pk), dn, strlen(dn));
     return SUCCESS_RETURN;
 }

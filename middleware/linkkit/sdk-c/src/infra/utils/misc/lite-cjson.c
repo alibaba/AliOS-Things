@@ -181,8 +181,8 @@ static int parse_array(_IN_ lite_cjson_t *const item, _IN_ parse_buffer *const i
         }
         buffer_skip_whitespace(input_buffer);
 
-        //printf("current item index: %d, type: %d, length: %d, value: %.*s\n",
-        //  item->size+1, current_item.type, current_item.value_length, current_item.value_length, current_item.value);
+        /* printf("current item index: %d, type: %d, length: %d, value: %.*s\n", */
+        /* item->size+1, current_item.type, current_item.value_length, current_item.value_length, current_item.value); */
 
         item->size++;
     } while (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == ','));
@@ -263,9 +263,9 @@ static int parse_object(_IN_ lite_cjson_t *const item, _IN_ parse_buffer *const 
         }
         buffer_skip_whitespace(input_buffer);
 
-        //printf("Current Object [Index: %d], [Key Length: %d, Key Value: %.*s], [Value Length: %d, Value: %.*s]\n",
-        //  item->size+1,current_item_key.value_length,current_item_key.value_length,current_item_key.value,
-        //  current_item_value.value_length,current_item_value.value_length,current_item_value.value);
+        /* printf("Current Object [Index: %d], [Key Length: %d, Key Value: %.*s], [Value Length: %d, Value: %.*s]\n", */
+        /* item->size+1,current_item_key.value_length,current_item_key.value_length,current_item_key.value, */
+        /* current_item_value.value_length,current_item_value.value_length,current_item_value.value); */
 
         item->size++;
     } while (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == ','));
@@ -295,18 +295,18 @@ static int parse_string(_IN_ lite_cjson_t *const item, _IN_ parse_buffer *const 
 {
     const unsigned char *input_pointer = buffer_at_offset(input_buffer) + 1;
     const unsigned char *input_end = buffer_at_offset(input_buffer) + 1;
-    //unsigned char *output_pointer = NULL;
-    //unsigned char *output = NULL;
+    /* unsigned char *output_pointer = NULL; */
+    /* unsigned char *output = NULL; */
 
     /* not a string */
     if (buffer_at_offset(input_buffer)[0] != '\"') {
-        //printf("not a string");
+        /* printf("not a string"); */
         goto fail;
     }
 
     {
         /* calculate approximate size of the output (overestimate) */
-        //int allocation_length = 0;
+        /* int allocation_length = 0; */
         int skipped_bytes = 0;
         while (((int)(input_end - input_buffer->content) < input_buffer->length) && (*input_end != '\"')) {
             /* is escape sequence */
@@ -321,7 +321,7 @@ static int parse_string(_IN_ lite_cjson_t *const item, _IN_ parse_buffer *const 
             input_end++;
         }
         if (((int)(input_end - input_buffer->content) >= input_buffer->length) || (*input_end != '\"')) {
-            //printf("end error\n");
+            /* printf("end error\n"); */
             goto fail; /* string ended unexpectedly */
         }
 #if 0
@@ -449,20 +449,20 @@ static int parse_value(_IN_ lite_cjson_t *const lite, _IN_ parse_buffer *const i
     }
     /* string */
     if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '\"')) {
-        //printf("parse string\n");
+        /* printf("parse string\n"); */
         return parse_string(lite, input_buffer);
     }
 
     /* number */
     if (can_access_at_index(input_buffer, 0) && ((buffer_at_offset(input_buffer)[0] == '-')
             || ((buffer_at_offset(input_buffer)[0] >= '0') && (buffer_at_offset(input_buffer)[0] <= '9')))) {
-        //printf("parse number\n");
+        /* printf("parse number\n"); */
         return parse_number(lite, input_buffer);
     }
 
     /* array */
     if (can_access_at_index(input_buffer, 0) && (buffer_at_offset(input_buffer)[0] == '[')) {
-        //printf("parse array\n");
+        /* printf("parse array\n"); */
         return parse_array(lite, input_buffer);
     }
 
@@ -578,7 +578,7 @@ int lite_cjson_array_item(_IN_ lite_cjson_t *lite, _IN_ int index, _OU_ lite_cjs
     buffer.offset = 0;
 
     lite_cjson_t current_item;
-    //int start_pos = p_buffer->offset;
+    /* int start_pos = p_buffer->offset; */
     int iter_index = 0;
 
     if (buffer_at_offset(p_buffer)[0] != '[') {
@@ -613,8 +613,8 @@ int lite_cjson_array_item(_IN_ lite_cjson_t *lite, _IN_ int index, _OU_ lite_cjs
         }
         buffer_skip_whitespace(p_buffer);
 
-        //printf("current item index: %d, type: %d, length: %d, value: %.*s\n",
-        //  iter_index+1, current_item.type, current_item.value_length, current_item.value_length, current_item.value);
+        /* printf("current item index: %d, type: %d, length: %d, value: %.*s\n", */
+        /* iter_index+1, current_item.type, current_item.value_length, current_item.value_length, current_item.value); */
 
         if (iter_index == index) {
             memcpy(lite_item, &current_item, sizeof(lite_cjson_t));
@@ -644,7 +644,7 @@ static int _lite_cjson_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key
 
     lite_cjson_t current_item_key;
     lite_cjson_t current_item_value;
-    //int start_pos = p_buffer->offset;
+    /* int start_pos = p_buffer->offset; */
     int index = 0;
 
     if (cannot_access_at_index(p_buffer, 0) || (buffer_at_offset(p_buffer)[0] != '{')) {
@@ -690,12 +690,12 @@ static int _lite_cjson_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key
         }
         buffer_skip_whitespace(p_buffer);
 
-        //printf("Current Object [Index: %d], [Key Length: %d, Key Value: %.*s], [Value Length: %d, Value: %.*s]\n",
-        //  index + 1, current_item_key.value_length,current_item_key.value_length,current_item_key.value,
-        //  current_item_value.value_length,current_item_value.value_length,current_item_value.value);
+        /* printf("Current Object [Index: %d], [Key Length: %d, Key Value: %.*s], [Value Length: %d, Value: %.*s]\n", */
+        /* index + 1, current_item_key.value_length,current_item_key.value_length,current_item_key.value, */
+        /* current_item_value.value_length,current_item_value.value_length,current_item_value.value); */
         index++;
 
-        //printf("key: %s, ken_len: %d\n",key,key_len);
+        /* printf("key: %s, ken_len: %d\n",key,key_len); */
         if ((current_item_key.value_length == key_len) &&
             memcmp(current_item_key.value, key, key_len) == 0) {
             memcpy(lite_item, &current_item_value, sizeof(lite_cjson_t));
@@ -754,7 +754,7 @@ static int _lite_cjson_key_array_index(_IN_ const char *key, _IN_ int key_len,
         *partial_key_len = bracket_pre - key;
         *array_key_len = bracket_suf - key + 1;
 
-        //Get Index
+        /* Get Index */
         memcpy(array_index_str, bracket_pre + 1, bracket_suf - bracket_pre - 1);
         *array_index = atoi(array_index_str);
         return 0;
@@ -787,48 +787,48 @@ int lite_cjson_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN_ i
 
     do {
         if ((delim = strchr(key_iter, '.')) != NULL) {
-            //printf("delim exist,delim : %s\n",delim);
+            /* printf("delim exist,delim : %s\n",delim); */
             memset(&lite_next, 0, sizeof(lite_cjson_t));
             partial_key_len = array_key_len = array_index = 0;
             key_iter_len = (int)(delim - key_iter);
         } else {
             key_iter_len = key_len - (key_iter - key);
-            //printf("key: %s, last key: %s, key len: %d, last key len: %d\n",key, key_iter, key_len, key_iter_len);
+            /* printf("key: %s, last key: %s, key len: %d, last key len: %d\n",key, key_iter, key_len, key_iter_len); */
         }
 
         if (_lite_cjson_key_array_index(key_iter, key_iter_len,
                                         &partial_key_len, &array_key_len, &array_index) == 0) {
 
-            //printf("partial_key_len: %d, array_key_len: %d, array_index: %d\n", partial_key_len, array_key_len, array_index);
+            /* printf("partial_key_len: %d, array_key_len: %d, array_index: %d\n", partial_key_len, array_key_len, array_index); */
 
             res = _lite_cjson_object_item(&lite_iter, key_iter, partial_key_len, &lite_prev);
             if (res || lite_prev.type != cJSON_Array) {
                 return -1;
             }
-            //printf("current array: %.*s\n",lite_prev.value_length,lite_prev.value);
+            /* printf("current array: %.*s\n",lite_prev.value_length,lite_prev.value); */
 
             res = lite_cjson_array_item(&lite_prev, array_index, &lite_next);
             if (res) {
                 return -1;
             }
-            //printf("current array item: %.*s\n",lite_next.value_length,lite_next.value);
+            /* printf("current array item: %.*s\n",lite_next.value_length,lite_next.value); */
 
             memcpy(&lite_iter, &lite_next, sizeof(lite_cjson_t));
             key_iter += array_key_len + 1;
-            //printf("key_iter: %s\n",key_iter);
+            /* printf("key_iter: %s\n",key_iter); */
         } else {
             res = _lite_cjson_object_item(&lite_iter, key_iter, key_iter_len, &lite_prev);
             if (res) {
                 return -1;
             }
-            //printf("current object: %.*s\n",lite_prev.value_length,lite_prev.value);
+            /* printf("current object: %.*s\n",lite_prev.value_length,lite_prev.value); */
 
             memcpy(&lite_iter, &lite_prev, sizeof(lite_cjson_t));
             key_iter = delim + 1;
         }
     } while (delim);
 
-    //printf("final lite cjson value: %.*s\n",lite_iter.value_length,lite_iter.value);
+    /* printf("final lite cjson value: %.*s\n",lite_iter.value_length,lite_iter.value); */
     memcpy(lite_item, &lite_iter, sizeof(lite_cjson_t));
 
     return 0;
@@ -852,7 +852,7 @@ int lite_cjson_object_item_by_index(_IN_ lite_cjson_t *lite, _IN_ int index, _OU
 
     lite_cjson_t current_item_key;
     lite_cjson_t current_item_value;
-    //int start_pos = p_buffer->offset;
+    /* int start_pos = p_buffer->offset; */
     int item_index = 0;
 
     if (cannot_access_at_index(p_buffer, 0) || (buffer_at_offset(p_buffer)[0] != '{')) {
@@ -898,13 +898,13 @@ int lite_cjson_object_item_by_index(_IN_ lite_cjson_t *lite, _IN_ int index, _OU
         }
         buffer_skip_whitespace(p_buffer);
 
-        //printf("Current Object [Index: %d], [Key Length: %d, Key Value: %.*s], [Value Length: %d, Value: %.*s]\n",
-        //  index + 1, current_item_key.value_length,current_item_key.value_length,current_item_key.value,
-        //  current_item_value.value_length,current_item_value.value_length,current_item_value.value);
+        /* printf("Current Object [Index: %d], [Key Length: %d, Key Value: %.*s], [Value Length: %d, Value: %.*s]\n", */
+        /* index + 1, current_item_key.value_length,current_item_key.value_length,current_item_key.value, */
+        /* current_item_value.value_length,current_item_value.value_length,current_item_value.value); */
 
-        //printf("index:%d, key: %.*s, value: %.*s\n",index,
-        //  current_item_key.value_length,current_item_key.value,
-        //  current_item_value.value_length,current_item_value.value);
+        /* printf("index:%d, key: %.*s, value: %.*s\n",index, */
+        /* current_item_key.value_length,current_item_key.value, */
+        /* current_item_value.value_length,current_item_value.value); */
 
         if (item_index == index) {
             if (lite_item_key) {

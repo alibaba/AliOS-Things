@@ -649,7 +649,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
 
     HAL_Snprintf(data_len_str, sizeof(data_len_str), "%d", info->stream_len);
     HAL_Snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
-    if (info->send_len == 0) { //first send,need header
+    if (info->send_len == 0) { /* first send,need header */
         int header_count, header_num;
         char version[33] = {0};
         HAL_Snprintf(version, sizeof(version), "%d", get_version_int());
@@ -684,7 +684,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
         h2_data.data = info->stream;
         h2_data.len = info->packet_len;
 
-        if (info->packet_len + info->send_len == info->stream_len) { //last frame
+        if (info->packet_len + info->send_len == info->stream_len) { /* last frame */
             h2_data.flag = 1;
         } else {
             h2_data.flag = 0;
@@ -716,7 +716,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
         h2_data.len = info->packet_len;
 
         h2_data.stream_id = info->h2_stream_id;
-        if (info->packet_len + info->send_len == info->stream_len) { //last frame
+        if (info->packet_len + info->send_len == info->stream_len) { /* last frame */
             h2_data.flag = 1;
         } else {
             h2_data.flag = 0;
@@ -1009,7 +1009,7 @@ static void *http_upload_one(void *user)
     info.stream = data_buffer;
     info.stream_len = file_size;
     info.packet_len = PACKET_LEN;
-    //info.identify = "com/aliyun/iotx/vision/picture/device/upstream";
+    /* info.identify = "com/aliyun/iotx/vision/picture/device/upstream"; */
     info.identify = user_data->identify;
 
     ret = IOT_HTTP2_Stream_Open(user_data->handle, &info, user_data->header);
@@ -1094,8 +1094,7 @@ static void *http_upload_file_func(void *user)
     return NULL;
 }
 
-
-//void *file_thread = NULL;
+/* void *file_thread = NULL; */
 int IOT_HTTP2_Stream_UploadFile(void *hd, const char *file_path, const char *identify,
                                 header_ext_info_t *header,
                                 upload_file_result_cb cb, void *user_data)

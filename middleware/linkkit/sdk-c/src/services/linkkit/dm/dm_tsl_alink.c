@@ -17,7 +17,7 @@ typedef struct {
     dm_shw_array_parse func_array_parse;
 } dm_tsl_alink_mapping_t;
 
-//Data Parse
+/* Data Parse */
 static int _dm_shw_int_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
 static int _dm_shw_float_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
 static int _dm_shw_double_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
@@ -29,7 +29,7 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
 static int _dm_shw_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
 static int _dm_shw_property_parse(_IN_ dm_shw_data_t *property, _IN_ lite_cjson_t *root);
 
-//Array Data Parse
+/* Array Data Parse */
 static int _dm_shw_array_int_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
 static int _dm_shw_array_float_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
 static int _dm_shw_array_double_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cjson_t *root);
@@ -117,7 +117,7 @@ static int _dm_shw_array_int_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ li
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(int)));
 
-    //Just For Test
+    /* Just For Test */
 #ifdef IOTX_DM_TSL_DEVELOP_TEST
     int index = 0;
     for (index = 0; index < complex_array->size; index++) {
@@ -138,7 +138,7 @@ static int _dm_shw_array_float_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(float)));
 
-    //Just For Test
+    /* Just For Test */
 #ifdef IOTX_DM_TSL_DEVELOP_TEST
     int index = 0;
     for (index = 0; index < complex_array->size; index++) {
@@ -159,7 +159,7 @@ static int _dm_shw_array_double_parse(_IN_ dm_shw_data_value_t *data_value, _IN_
     }
     memset(complex_array->value, 0, (complex_array->size) * (sizeof(double)));
 
-    //Just For Test
+    /* Just For Test */
 #ifdef IOTX_DM_TSL_DEVELOP_TEST
     int index = 0;
     for (index = 0; index < complex_array->size; index++) {
@@ -249,7 +249,7 @@ static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
         return DM_INVALID_PARAMETER;
     }
 
-    //Allocate Memory For Next Level Data Value And Next Level Complex Array
+    /* Allocate Memory For Next Level Data Value And Next Level Complex Array */
     data_value_next_level = DM_malloc(sizeof(dm_shw_data_value_t));
     if (data_value_next_level == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -266,7 +266,7 @@ static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
     complex_array->value = (void *)data_value_next_level;
     data_value_next_level->value = complex_array_next_level;
 
-    //Parse Size (Mandatory)
+    /* Parse Size (Mandatory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_SIZE, strlen(DM_SHW_KEY_SIZE), &lite_item);
     if (res != SUCCESS_RETURN && !lite_cjson_is_string(&lite_item)) {
@@ -280,7 +280,7 @@ static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
 
     dm_log_debug("TSL Property Array Array Size: %d", complex_array_next_level->size);
 
-    //Parse Item And Type (Mandatory)
+    /* Parse Item And Type (Mandatory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_ITEM, strlen(DM_SHW_KEY_ITEM), &lite_item);
     if (res != SUCCESS_RETURN && !lite_cjson_is_object(&lite_item)) {
@@ -296,7 +296,7 @@ static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
         return FAIL_RETURN;
     }
 
-    //Parse Specs (Optional)
+    /* Parse Specs (Optional) */
     memset(&lite_specs, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(&lite_item, DM_SHW_KEY_SPECS, strlen(DM_SHW_KEY_SPECS), &lite_specs);
     if ((complex_array_next_level->type == DM_SHW_DATA_TYPE_ARRAY
@@ -310,7 +310,7 @@ static int _dm_shw_array_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ 
     }
     dm_log_debug("TSL Property Specs Type: %s", g_dm_tsl_alink_mapping[complex_array_next_level->type].name);
 
-    //Parse Array Type
+    /* Parse Array Type */
     res = g_dm_tsl_alink_mapping[complex_array->type].func_array_parse(data_value_next_level, &lite_specs);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -364,7 +364,7 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
         return DM_INVALID_PARAMETER;
     }
 
-    //Allocate Memory For Data Type Specs
+    /* Allocate Memory For Data Type Specs */
     complex_array = DM_malloc(sizeof(dm_shw_data_value_complex_t));
     if (complex_array == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -372,7 +372,7 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
     memset(complex_array, 0, sizeof(dm_shw_data_value_complex_t));
     data_value->value = (void *)complex_array;
 
-    //Parse Size (Mandatory)
+    /* Parse Size (Mandatory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_SIZE, strlen(DM_SHW_KEY_SIZE), &lite_item);
     if (res != SUCCESS_RETURN && !lite_cjson_is_string(&lite_item)) {
@@ -386,7 +386,7 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
 
     /* dm_log_debug("TSL Property Array Size: %d",complex_array->size); */
 
-    //Parse Item And Type (Mandatory)
+    /* Parse Item And Type (Mandatory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_ITEM, strlen(DM_SHW_KEY_ITEM), &lite_item);
     if (res != SUCCESS_RETURN && !lite_cjson_is_object(&lite_item)) {
@@ -403,7 +403,7 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
     }
     /* dm_log_debug("TSL Property Array Type: %d",complex_array->type); */
 
-    //Parse Specs (Optional)
+    /* Parse Specs (Optional) */
     memset(&lite_specs, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(&lite_item, DM_SHW_KEY_SPECS, strlen(DM_SHW_KEY_SPECS), &lite_specs);
     if ((complex_array->type == DM_SHW_DATA_TYPE_ARRAY || complex_array->type == DM_SHW_DATA_TYPE_STRUCT) &&
@@ -416,7 +416,7 @@ static int _dm_shw_array_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_c
     }
     /* dm_log_debug("TSL Property Specs Type: %s",g_dm_tsl_alink_mapping[complex_array->type].name); */
 
-    //Parse Array Type
+    /* Parse Array Type */
     res = g_dm_tsl_alink_mapping[complex_array->type].func_array_parse(data_value, &lite_specs);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
@@ -440,7 +440,7 @@ static int _dm_shw_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_
 
     /* dm_log_debug("TSL Property Struct Size: %d",root->size); */
 
-    //Allocate Memory For Data Type Specs
+    /* Allocate Memory For Data Type Specs */
     complex_struct = DM_malloc(sizeof(dm_shw_data_value_complex_t));
     if (complex_struct == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -450,7 +450,7 @@ static int _dm_shw_struct_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_
 
     complex_struct->size = root->size;
 
-    //Allocate Memory For Multi Identifier
+    /* Allocate Memory For Multi Identifier */
     complex_struct->value = DM_malloc((complex_struct->size) * (sizeof(dm_shw_data_t)));
     if (complex_struct->value == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -483,7 +483,7 @@ static int _dm_shw_data_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cj
 
     memset(data_value, 0, sizeof(dm_shw_data_value_t));
 
-    //Parse Type
+    /* Parse Type */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_TYPE, strlen(DM_SHW_KEY_TYPE), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
@@ -495,14 +495,14 @@ static int _dm_shw_data_parse(_IN_ dm_shw_data_value_t *data_value, _IN_ lite_cj
         return FAIL_RETURN;
     }
 
-    //Parse Specs
+    /* Parse Specs */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_SPECS, strlen(DM_SHW_KEY_SPECS), &lite_item);
     if (res == SUCCESS_RETURN) {
         /* dm_log_debug("TSL Data Specs: %.*s",lite_item.value_length,lite_item.value); */
     }
 
-    //Parse Type And Value
+    /* Parse Type And Value */
     if (g_dm_tsl_alink_mapping[data_value->type].func_parse == NULL) {
         return FAIL_RETURN;
     }
@@ -519,7 +519,7 @@ static int _dm_shw_property_parse(_IN_ dm_shw_data_t *property, _IN_ lite_cjson_
     int res = 0;
     lite_cjson_t lite_item;
 
-    //Parse Identifier (Mandatory)
+    /* Parse Identifier (Mandatory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_IDENTIFIER, strlen(DM_SHW_KEY_IDENTIFIER), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
@@ -532,7 +532,7 @@ static int _dm_shw_property_parse(_IN_ dm_shw_data_t *property, _IN_ lite_cjson_
     }
     dm_log_debug("Identifier: %s", property->identifier);
 
-    //Parse DataType
+    /* Parse DataType */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_DATATYPE, strlen(DM_SHW_KEY_DATATYPE), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
@@ -567,7 +567,7 @@ static int _dm_shw_properties_parse(_IN_ dm_shw_t *shadow, _IN_ lite_cjson_t *ro
         return SUCCESS_RETURN;
     }
 
-    //Allocate Memory For TSL Properties Struct
+    /* Allocate Memory For TSL Properties Struct */
     shadow->property_number = lite_properties.size;
     shadow->properties = DM_malloc(sizeof(dm_shw_data_t) * (lite_properties.size));
     if (shadow->properties == NULL) {
@@ -595,7 +595,7 @@ static int _dm_shw_event_outputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_dat
     int res = 0;
     lite_cjson_t lite_item;
 
-    //Parse Identifier (Madantory)
+    /* Parse Identifier (Madantory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_IDENTIFIER, strlen(DM_SHW_KEY_IDENTIFIER), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
@@ -608,7 +608,7 @@ static int _dm_shw_event_outputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_dat
     }
     dm_log_debug("Identifier: %s", event_data->identifier);
 
-    //Parse DataType
+    /* Parse DataType */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_DATATYPE, strlen(DM_SHW_KEY_DATATYPE), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
@@ -634,7 +634,7 @@ static int _dm_shw_event_outputdatas_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_ev
         return SUCCESS_RETURN;
     }
 
-    //Allocate Memory For Output Datas
+    /* Allocate Memory For Output Datas */
     event->output_datas = DM_malloc((event->output_data_number) * (sizeof(dm_shw_data_t)));
     if (event->output_datas == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -662,7 +662,7 @@ static int _dm_shw_event_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_event_t *event
     int res = 0;
     lite_cjson_t lite_item;
 
-    //Parse Identifier (Mandatory)
+    /* Parse Identifier (Mandatory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_IDENTIFIER, strlen(DM_SHW_KEY_IDENTIFIER), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
@@ -681,7 +681,7 @@ static int _dm_shw_event_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_event_t *event
         return SUCCESS_RETURN;
     }
 
-    //Parse Output Data (Madantory)
+    /* Parse Output Data (Madantory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_OUTPUTDATA, strlen(DM_SHW_KEY_OUTPUTDATA), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_array(&lite_item)) {
@@ -716,7 +716,7 @@ static int _dm_shw_events_parse(_IN_ dm_shw_t *shadow, _IN_ lite_cjson_t *root)
         return SUCCESS_RETURN;
     }
 
-    //Allocate Memory For TSL Events Struct
+    /* Allocate Memory For TSL Events Struct */
     shadow->event_number = lite_events.size;
     shadow->events = DM_malloc(sizeof(dm_shw_event_t) * (lite_events.size));
     if (shadow->events == NULL) {
@@ -743,7 +743,7 @@ static int _dm_shw_service_outputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_d
     int res = 0;
     lite_cjson_t lite_item;
 
-    //Parse Identifier (Madantory)
+    /* Parse Identifier (Madantory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_IDENTIFIER, strlen(DM_SHW_KEY_IDENTIFIER), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
@@ -756,7 +756,7 @@ static int _dm_shw_service_outputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_d
     }
     dm_log_debug("Identifier: %s", service_data->identifier);
 
-    //Parse DataType
+    /* Parse DataType */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_DATATYPE, strlen(DM_SHW_KEY_DATATYPE), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
@@ -783,7 +783,7 @@ static int _dm_shw_service_outputdatas_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_
         return SUCCESS_RETURN;
     }
 
-    //Allocate Memory For Output Datas
+    /* Allocate Memory For Output Datas */
     service->output_datas = DM_malloc((service->output_data_number) * (sizeof(dm_shw_data_t)));
     if (service->output_datas == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -816,7 +816,7 @@ static int _dm_shw_service_inputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_da
         return DM_INVALID_PARAMETER;
     }
 
-    //Parse Identifier (Madantory)
+    /* Parse Identifier (Madantory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_IDENTIFIER, strlen(DM_SHW_KEY_IDENTIFIER), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
@@ -829,7 +829,7 @@ static int _dm_shw_service_inputdata_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_da
     }
     dm_log_debug("Identifier: %s", input_data->identifier);
 
-    //Parse DataType
+    /* Parse DataType */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_DATATYPE, strlen(DM_SHW_KEY_DATATYPE), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_item)) {
@@ -856,7 +856,7 @@ static int _dm_shw_service_inputdatas_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_s
         return SUCCESS_RETURN;
     }
 
-    //Allocate Memory For Output Datas
+    /* Allocate Memory For Output Datas */
     service->input_datas = DM_malloc((service->input_data_number) * (sizeof(dm_shw_data_t)));
     if (service->input_datas == NULL) {
         return DM_MEMORY_NOT_ENOUGH;
@@ -884,7 +884,7 @@ static int _dm_shw_service_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_service_t *s
     int res = 0;
     lite_cjson_t lite_item;
 
-    //Parse Identifier (Mandatory)
+    /* Parse Identifier (Mandatory) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_IDENTIFIER, strlen(DM_SHW_KEY_IDENTIFIER), &lite_item);
     if (res != SUCCESS_RETURN || !lite_cjson_is_string(&lite_item)) {
@@ -908,7 +908,7 @@ static int _dm_shw_service_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_service_t *s
         return SUCCESS_RETURN;
     }
 
-    //Parse Output Data (Optional)
+    /* Parse Output Data (Optional) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_OUTPUTDATA, strlen(DM_SHW_KEY_OUTPUTDATA), &lite_item);
     if (res == SUCCESS_RETURN && lite_cjson_is_array(&lite_item)) {
@@ -919,7 +919,7 @@ static int _dm_shw_service_parse(_IN_ dm_shw_t *shadow, _IN_ dm_shw_service_t *s
         }
     }
 
-    //Parse Input Data (Optional)
+    /* Parse Input Data (Optional) */
     memset(&lite_item, 0, sizeof(lite_cjson_t));
     res = lite_cjson_object_item(root, DM_SHW_KEY_INPUTDATA, strlen(DM_SHW_KEY_INPUTDATA), &lite_item);
     if (res == SUCCESS_RETURN && lite_cjson_is_array(&lite_item)) {
@@ -954,7 +954,7 @@ static int _dm_shw_services_parse(_IN_ dm_shw_t *shadow, _IN_ lite_cjson_t *root
         return SUCCESS_RETURN;
     }
 
-    //Allocate Memory For TSL Services Struct
+    /* Allocate Memory For TSL Services Struct */
     shadow->service_number = lite_services.size;
     shadow->services = DM_malloc(sizeof(dm_shw_service_t) * (lite_services.size));
     if (shadow->services == NULL) {
@@ -993,7 +993,7 @@ int dm_tsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **
     }
     memset(*shadow, 0, sizeof(dm_shw_t));
 
-    //Parse Root
+    /* Parse Root */
     memset(&lite_root, 0, sizeof(lite_root));
     res = lite_cjson_parse(tsl, tsl_len, &lite_root);
     if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite_root)) {
@@ -1001,19 +1001,19 @@ int dm_tsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **
         return DM_JSON_PARSE_FAILED;
     }
 
-    //Parse Properties (Mandatory)
+    /* Parse Properties (Mandatory) */
     res = _dm_shw_properties_parse(*shadow, &lite_root);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
-    //Parse Events (Mandatory)
+    /* Parse Events (Mandatory) */
     res = _dm_shw_events_parse(*shadow, &lite_root);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
 
-    //Parse Services (Mandatory)
+    /* Parse Services (Mandatory) */
     res = _dm_shw_services_parse(*shadow, &lite_root);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;

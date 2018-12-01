@@ -63,8 +63,6 @@ extern "C" {
  */
 #define device_get_secret(sec) HAL_GetDeviceSecret(sec)
 
-	/** @} */// end of group_product
-
 #ifdef __cplusplus
 }
 #endif

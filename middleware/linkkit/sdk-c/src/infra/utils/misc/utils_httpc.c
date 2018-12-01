@@ -279,7 +279,7 @@ static int _http_get_response_body(httpclient_t *client, char *data, int data_le
     utils_time_countdown_ms(&timer, timeout_ms);
 
     /* Receive data */
-    //utils_debug("Current data: %s", data);
+    /* utils_debug("Current data: %s", data); */
 
     client_data->is_more = IOT_TRUE;
 

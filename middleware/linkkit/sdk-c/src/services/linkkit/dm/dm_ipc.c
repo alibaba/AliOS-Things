@@ -35,13 +35,13 @@ int dm_ipc_init(int max_size)
 
     memset(ctx, 0, sizeof(dm_ipc_t));
 
-    //Create Mutex
+    /* Create Mutex */
     ctx->mutex = HAL_MutexCreate();
     if (ctx->mutex == NULL) {
         return DM_INVALID_PARAMETER;
     }
 
-    //Init List
+    /* Init List */
     ctx->msg_list.max_size = max_size;
     INIT_LIST_HEAD(&ctx->msg_list.message_list);
 
@@ -60,7 +60,7 @@ void dm_ipc_deinit(void)
     }
 
     list_for_each_entry_safe(del_node, next_node, &ctx->msg_list.message_list, linked_list, dm_ipc_msg_node_t) {
-        //Free Message
+        /* Free Message */
         del_msg = (dm_ipc_msg_t *)del_node->data;
         if (del_msg->data) {
             DM_free(del_msg->data);
@@ -68,7 +68,7 @@ void dm_ipc_deinit(void)
         DM_free(del_msg);
         del_msg = NULL;
 
-        //Free Node
+        /* Free Node */
         list_del(&del_node->linked_list);
         DM_free(del_node);
     }

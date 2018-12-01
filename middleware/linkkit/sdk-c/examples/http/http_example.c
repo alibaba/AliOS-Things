@@ -19,7 +19,7 @@
 #define MAX_BUF_LEN 256
 #define DEFAULT_TIMEOUT_MS 5000
 
-// on line
+/*  on line */
 #define IOTX_PRODUCT_KEY         "a13Npv1vjZ4"
 #define IOTX_DEVICE_NAME         "example_zc"
 #define IOTX_DEVICE_SECRET       "ZlexLJ4G0aXiSwkGmUFWuZBLLySKcG8h"

@@ -99,7 +99,7 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
             iotx_cm_event_msg_t event;
             event.type = IOTX_CM_EVENT_CLOUD_CONNECTED;
             event.msg = NULL;
-            //CM_INFO(cm_log_info_MQTT_reconnect);
+            /* CM_INFO(cm_log_info_MQTT_reconnect); */
 
             if (_mqtt_conncection->event_handler) {
                 _mqtt_conncection->event_handler(_mqtt_conncection->fd, &event, _mqtt_conncection->cb_data);

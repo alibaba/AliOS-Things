@@ -5,6 +5,8 @@
 #ifndef AOS_LIST_H
 #define AOS_LIST_H
 
+#define inline __inline
+
 #ifdef __cplusplus
 extern "C" {
 #endif

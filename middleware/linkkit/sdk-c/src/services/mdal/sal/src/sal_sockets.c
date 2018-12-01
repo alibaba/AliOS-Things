@@ -13,7 +13,7 @@ static struct sal_sock *tryget_socket(int s);
 static struct sal_event *tryget_event(int s);
 
 #if SAL_PACKET_SEND_MODE_ASYNC
-static void *sal_packet_output(void *arg);
+    static void *sal_packet_output(void *arg);
 #endif
 
 static int alloc_socket(sal_netconn_t *newconn, int accepted);
@@ -64,17 +64,17 @@ union sockaddr_aligned {
 };
 
 #define IS_SOCK_ADDR_LEN_VALID(namelen)  \
-        ((namelen) == sizeof(struct sockaddr_in))
+    ((namelen) == sizeof(struct sockaddr_in))
 
 #ifndef set_errno
-#define set_errno(err) do { if (err) { errno = (err); } } while(0)
+    #define set_errno(err) do { if (err) { errno = (err); } } while(0)
 #endif
 
 #define sock_set_errno(sk,e) do { \
-  const int sockerr = (e); \
-  sk->err = (u8_t)sockerr; \
-  set_errno(sockerr); \
-} while (0)
+        const int sockerr = (e); \
+        sk->err = (u8_t)sockerr; \
+        set_errno(sockerr); \
+    } while (0)
 
 /** The global array of available sockets */
 static struct sal_sock sockets[NUM_SOCKETS];
@@ -93,7 +93,7 @@ static volatile int select_cb_ctr;
 #define ENSURE_LOCAL_PORT_RANGE(port) ((u16_t)(((port) & ~LOCAL_PORT_RANGE_START) + LOCAL_PORT_RANGE_START))
 
 #if SAL_UDP_CLIENT_ENABLED
-struct udp_pcb *sal_udp_pcbs;
+    struct udp_pcb *sal_udp_pcbs;
 #endif
 
 struct tcp_pcb *sal_tcp_pcbs;
@@ -430,7 +430,7 @@ static int salpcb_new(sal_netconn_t *conn)
 static void salnetconn_drain(sal_netconn_t *conn)
 {
     sal_netbuf_t *mem;
-    
+
 
     if (sal_mbox_valid(&conn->recvmbox)) {
         while (sal_mbox_tryfetch(&conn->recvmbox, (void **)(&mem)) != SAL_MBOX_EMPTY) {
@@ -591,7 +591,7 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
     switch (NETCONNTYPE_GROUP(conn->type)) {
 #if SAL_UDP_CLIENT_ENABLED
         case NETCONN_UDP:
-            if (strcmp (IPADDR_BROADCAST_STRING, statconn.addr) != 0) {
+            if (strcmp(IPADDR_BROADCAST_STRING, statconn.addr) != 0) {
                 statconn.type = UDP_UNICAST;
             } else {
                 statconn.type = UDP_BROADCAST;
@@ -636,7 +636,7 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
             SAL_ERROR("Unsupported sal connection type.\n");
             return ERR_ARG;
     }
- 
+
     /*init socket send event*/
 #if SAL_PACKET_SEND_MODE_ASYNC
     sock = get_socket(conn->socket);
@@ -761,7 +761,7 @@ int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
         select_cb.exceptset = exceptset;
         select_cb.sem_signalled = 0;
 
-       if (sal_sem_new(&select_cb.sem, 0) != ERR_OK) {
+        if (sal_sem_new(&select_cb.sem, 0) != ERR_OK) {
             /* failed to create semaphore */
             set_errno(ENOMEM);
             return -1;
@@ -822,8 +822,8 @@ int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
                     /* Wait forever */
                     msectimeout = 0;
                 } else {
-                    msectimeout =  ((timeout->tv_sec * 1000) + \
-                                    ((timeout->tv_usec + 500) / 1000));
+                    msectimeout = ((timeout->tv_sec * 1000) + \
+                                   ((timeout->tv_usec + 500) / 1000));
                     if (msectimeout == 0) {
                         /* Wait 1ms at least (0 means wait forever) */
                         msectimeout = 1;
@@ -1196,7 +1196,7 @@ int sal_sendto(int s, const void *data, size_t size, int flags,
         sal_free(buf);
         sock_set_errno(pstsalsock, EAGAIN);
         SAL_ERROR("%s try post output packet fail \n", __FUNCTION__);
-        //return -1;
+        /* return -1; */
     } else {
         sal_deal_event(s, NETCONN_EVT_SENDMINUS);
     }
@@ -1996,14 +1996,14 @@ int sal_getaddrinfo(const char *nodename, const char *servname,
                 return EAI_NONAME;
             }
         } else {
-            //ip_addr_t addr;
+            /* ip_addr_t addr; */
             char ip_str[16] = {0};
             if (HAL_SAL_DomainToIp((char *)nodename, ip_str) != 0) {
                 SAL_ERROR("domain to ip failed.");
                 return EAI_FAIL;
             }
 
-            // Currently only v4 is supported by AT firmware
+            /* Currently only v4 is supported by AT firmware */
             addr.type = IPADDR_TYPE_V4;
             if (ipstr_to_u32(ip_str, &(addr.u_addr.ip4.addr)) != 0) {
                 SAL_ERROR("ip_2_u32 failed");
