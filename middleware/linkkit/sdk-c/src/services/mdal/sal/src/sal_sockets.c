@@ -86,8 +86,9 @@ static struct sal_select_cb *select_cb_list;
     and checked in event_callback to see if it has changed. */
 static volatile int select_cb_ctr;
 
-/* From http://www.iana.org/assignments/port-numbers:
-   "The Dynamic and/or Private Ports are those from 49152 through 65535" */
+/* From http://www.iana.org/assignments/port-numbers */
+/* "The Dynamic and/or Private Ports are those from 49152 through 65535" */
+
 #define LOCAL_PORT_RANGE_START  0xc000
 #define LOCAL_PORT_RANGE_END    0xffff
 #define ENSURE_LOCAL_PORT_RANGE(port) ((u16_t)(((port) & ~LOCAL_PORT_RANGE_START) + LOCAL_PORT_RANGE_START))
@@ -917,7 +918,7 @@ return_copy_fdsets:
     return nready;
 }
 
-//把有事件的标出来
+/* 把有事件的标出来 */
 static int sal_selscan(int maxfdp1, fd_set *readset_in, fd_set *writeset_in,
                        fd_set *exceptset_in, fd_set *readset_out,
                        fd_set *writeset_out, fd_set *exceptset_out)
