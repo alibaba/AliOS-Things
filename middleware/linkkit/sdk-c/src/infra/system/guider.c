@@ -5,7 +5,7 @@
 #include "iotx_system_internal.h"
 
 #define SYS_GUIDER_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "sys.guider")
-#define SYS_GUIDER_FREE(ptr)    LITE_free(ptr)
+#define SYS_GUIDER_FREE(ptr)    do { if(ptr) LITE_free(ptr); } while(0)
 
 #ifndef CONFIG_GUIDER_AUTH_TIMEOUT
     #define CONFIG_GUIDER_AUTH_TIMEOUT  (10 * 1000)
@@ -113,7 +113,7 @@ int iotx_guider_set_custom_domain(int domain_type, const char *domain)
     if ((domain_type >= GUIDER_DOMAIN_MAX) || (domain == NULL)) {
         return FAIL_RETURN;
     }
-    
+
     int len = strlen(domain);
     if (len >= CUSTOME_DOMAIN_LEN_MAX) {
         return FAIL_RETURN;
@@ -136,7 +136,7 @@ static int _calc_hmac_signature(
     iotx_device_info_t     dev;
 
     rc = iotx_device_info_get(&dev);
-    if(rc < 0) {
+    if (rc < 0) {
         sys_err("get device info err");
         return rc;
     }
@@ -386,7 +386,7 @@ static char *guider_set_auth_req_str(char sign[], char ts[])
     iotx_device_info_t      dev;
 
     rc = iotx_device_info_get(&dev);
-    if(rc < 0) {
+    if (rc < 0) {
         sys_err("get device info err");
         return NULL;
     }
@@ -552,7 +552,7 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
     int len;
     int rc;
     rc = iotx_device_info_get(&dev);
-    if(rc < 0) {
+    if (rc < 0) {
         sys_err("get device info err");
         return rc;
     }
@@ -570,16 +570,18 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 #if defined(SUPPORT_ITLS)
 #if defined(ON_DAILY)
     conn->port = 1885;
+    SYS_GUIDER_FREE(conn->host_name);
     conn->host_name = SYS_GUIDER_MALLOC(sizeof(GUIDER_DIRECT_DOMAIN_ITLS_DAILY));
-    if(conn->host_name == NULL) {
+    if (conn->host_name == NULL) {
         goto failed;
     }
-    _fill_conn_string(conn->host_name, sizeof(GUIDER_DIRECT_DOMAIN_ITLS_DAILY), 
+    _fill_conn_string(conn->host_name, sizeof(GUIDER_DIRECT_DOMAIN_ITLS_DAILY),
                       GUIDER_DIRECT_DOMAIN_ITLS_DAILY);
 #elif defined(ON_PRE)
     conn->port = 1885;
+    SYS_GUIDER_FREE(conn->host_name);
     conn->host_name = SYS_GUIDER_MALLOC(sizeof(GUIDER_DIRECT_DOMAIN_ITLS_PRE));
-    if(conn->host_name == NULL) {
+    if (conn->host_name == NULL) {
         goto failed;
     }
     _fill_conn_string(conn->host_name, sizeof(GUIDER_DIRECT_DOMAIN_ITLS_PRE),
@@ -587,10 +589,11 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 #else
     conn->port = 1883;
     len = strlen(dev.product_key) + 1 + sizeof(GUIDER_DIRECT_DOMAIN_ITLS);
+    SYS_GUIDER_FREE(conn->host_name);
     conn->host_name = SYS_GUIDER_MALLOC(len);
-    if(conn->host_name == NULL) {
+    if (conn->host_name == NULL) {
         goto failed;
-    }  
+    }
     _fill_conn_string(conn->host_name, len,
                       "%s.%s",
                       dev.product_key,
@@ -599,8 +602,9 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 #else   /* defined(SUPPORT_ITLS) */
 #if defined (ON_DAILY)
     conn->port = 1883;
+    SYS_GUIDER_FREE(conn->host_name);
     conn->host_name = SYS_GUIDER_MALLOC(sizeof(GUIDER_DIRECT_DOMAIN_DAILY));
-    if(conn->host_name == NULL) {
+    if (conn->host_name == NULL) {
         goto failed;
     }
     _fill_conn_string(conn->host_name, sizeof(GUIDER_DIRECT_DOMAIN_DAILY),
@@ -608,8 +612,9 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 #elif defined (ON_PRE)
     conn->port = 80;
 
+    SYS_GUIDER_FREE(conn->host_name);
     conn->host_name = SYS_GUIDER_MALLOC(sizeof(GUIDER_DIRECT_DOMAIN_PRE));
-    if(conn->host_name == NULL) {
+    if (conn->host_name == NULL) {
         goto failed;
     }
     _fill_conn_string(conn->host_name, sizeof(GUIDER_DIRECT_DOMAIN_PRE),
@@ -617,10 +622,11 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 #else
     conn->port = 1883;
     len = strlen(dev.product_key) + 2 + strlen(iotx_guider_get_domain(GUIDER_DOMAIN_MQTT));
+    SYS_GUIDER_FREE(conn->host_name);
     conn->host_name = SYS_GUIDER_MALLOC(len);
-    if(conn->host_name == NULL) {
+    if (conn->host_name == NULL) {
         goto failed;
-    }  
+    }
     _fill_conn_string(conn->host_name, len,
                       "%s.%s",
                       dev.product_key,
@@ -635,22 +641,24 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
                                  timestamp_str, guider_sign);
 
     len = strlen(dev.device_name) + strlen(dev.product_key) + 2;
+    SYS_GUIDER_FREE(conn->username);
     conn->username = SYS_GUIDER_MALLOC(len);
-    if(conn->username == NULL) {
+    if (conn->username == NULL) {
         goto failed;
-    }  
-   
+    }
+
     /* fill up username and password */
     _fill_conn_string(conn->username, len,
                       "%s&%s",
                       dev.device_name,
                       dev.product_key);
 
-    len = strlen(guider_sign) + 1;                  
+    len = strlen(guider_sign) + 1;
+    SYS_GUIDER_FREE(conn->password);
     conn->password = SYS_GUIDER_MALLOC(len);
-    if(conn->password == NULL) {
+    if (conn->password == NULL) {
         goto failed;
-    } 
+    }
     _fill_conn_string(conn->password, len,
                       "%s",
                       guider_sign);
@@ -689,37 +697,41 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 
     /* setup the hostname and port */
     conn->port = iotx_conn_port;
-    len = strlen(iotx_conn_host) + 1;                  
+    len = strlen(iotx_conn_host) + 1;
+    SYS_GUIDER_FREE(conn->host_name);
     conn->host_name = SYS_GUIDER_MALLOC(len);
-    if(conn->host_name == NULL) {
+    if (conn->host_name == NULL) {
         goto failed;
-    } 
+    }
     _fill_conn_string(conn->host_name, len,
                       "%s",
                       iotx_conn_host);
 
     /* fill up username and password */
-    len = strlen(iotx_id) + 1;                  
+    len = strlen(iotx_id) + 1;
+    SYS_GUIDER_FREE(conn->username);
     conn->username = SYS_GUIDER_MALLOC(len);
-    if(conn->username == NULL) {
+    if (conn->username == NULL) {
         goto failed;
-    } 
+    }
     _fill_conn_string(conn->username, len, "%s", iotx_id);
-    len = strlen(iotx_token) + 1;                  
+    len = strlen(iotx_token) + 1;
+    SYS_GUIDER_FREE(conn->password);
     conn->password = SYS_GUIDER_MALLOC(len);
-    if(conn->password == NULL) {
+    if (conn->password == NULL) {
         goto failed;
-    } 
+    }
     _fill_conn_string(conn->password, len, "%s", iotx_token);
 #endif /* MQTT_DIRECT */
 
     conn->pub_key = iotx_ca_get();
 
-    len = CLIENT_ID_LEN;                  
+    len = CLIENT_ID_LEN;
+    SYS_GUIDER_FREE(conn->client_id);
     conn->client_id = SYS_GUIDER_MALLOC(len);
-    if(conn->client_id == NULL) {
+    if (conn->client_id == NULL) {
         goto failed;
-    } 
+    }
     _fill_conn_string(conn->client_id, len,
                       "%s"
                       "|securemode=%d"
@@ -747,19 +759,19 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 
     return 0;
 failed:
-    if(conn->host_name != NULL) {
+    if (conn->host_name != NULL) {
         LITE_free(conn->host_name);
         conn->host_name = NULL;
     }
-     if(conn->username != NULL) {
+    if (conn->username != NULL) {
         LITE_free(conn->username);
-        conn->username= NULL;
+        conn->username = NULL;
     }
-    if(conn->password != NULL) {
+    if (conn->password != NULL) {
         LITE_free(conn->password);
         conn->password = NULL;
     }
-    if(conn->client_id != NULL) {
+    if (conn->client_id != NULL) {
         LITE_free(conn->client_id);
         conn->client_id = NULL;
     }
