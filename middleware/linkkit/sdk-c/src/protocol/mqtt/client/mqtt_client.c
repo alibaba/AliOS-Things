@@ -3405,6 +3405,8 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
 {
     iotx_mqtt_topic_info_t mqtt_msg;
     iotx_mc_client_t *client = (iotx_mc_client_t *)(handle ? handle : g_mqtt_client);
+    int rc = -1;
+
     POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
 
     memset(&mqtt_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
@@ -3415,11 +3417,13 @@ int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void 
     mqtt_msg.payload     = (void *)data;
     mqtt_msg.payload_len = len;
 
-    if (IOT_MQTT_Publish(client, topic_name, &mqtt_msg) < 0) {
+    rc = IOT_MQTT_Publish(client, topic_name, &mqtt_msg);
+
+    if (rc < 0) {
         mqtt_err("IOT_MQTT_Publish failed\n");
         return -1;
     }
 
-    return 0;
+    return rc;
 }
 
