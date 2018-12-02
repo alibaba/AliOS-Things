@@ -2777,14 +2777,12 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     }
     if (NULL != pClient->mqtt_auth && SUCCESS_RETURN != pClient->mqtt_auth(pconn)) {
         mqtt_err("redo authentication error!");
-        iotx_conn_info_release();
         return -1;
     }
 
     rc = iotx_mc_update_connect_params(pClient, pconn);
     if (SUCCESS_RETURN != rc) {
         mqtt_err("update connect info err");
-        iotx_conn_info_release();
         return -1;
     }
     char product_key[PRODUCT_KEY_LEN + 1] = {0};
@@ -2792,11 +2790,9 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     rc = iotx_net_init(pClient->ipstack, pconn->host_name, pconn->port, pconn->pub_key, product_key);
     if (SUCCESS_RETURN != rc) {
         mqtt_err("iotx_net_init err");
-        iotx_conn_info_release();
         return -1;
     }
     rc = iotx_mc_attempt_reconnect(pClient);
-    iotx_conn_info_release();
     if (SUCCESS_RETURN == rc) {
         iotx_mc_set_client_state(pClient, IOTX_MC_STATE_CONNECTED);
         return SUCCESS_RETURN;
@@ -2910,7 +2906,7 @@ static int iotx_mc_release(iotx_mc_client_t *pClient)
             handler = next_handler;
         }
     }
-    iotx_conn_info_release();
+
     HAL_MutexDestroy(pClient->lock_generic);
     HAL_MutexDestroy(pClient->lock_list_sub);
     HAL_MutexDestroy(pClient->lock_list_pub);
@@ -3038,7 +3034,9 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 
     if (pInitParams != NULL) {
         if (g_mqtt_client != NULL) {
-            IOT_MQTT_Destroy(&g_mqtt_client);
+            iotx_mc_release(g_mqtt_client);
+            mqtt_free(g_mqtt_client);
+            g_mqtt_client = NULL;
         }
 
     } else {
@@ -3091,7 +3089,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
             mqtt_free(mqtt_params);
 
         }
-        iotx_conn_info_release();
         return NULL;
     }
 
@@ -3101,7 +3098,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (mqtt_params != NULL) {
             mqtt_free(mqtt_params);
         }
-        iotx_conn_info_release();
         return NULL;
     }
 
@@ -3112,7 +3108,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
         if (mqtt_params != NULL) {
             mqtt_free(mqtt_params);
         }
-        iotx_conn_info_release();
         return NULL;
     }
 
@@ -3121,7 +3116,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     }
 
     err = iotx_mc_connect(pclient);
-    iotx_conn_info_release();
     if (SUCCESS_RETURN != err) {
         iotx_mc_release(pclient);
         mqtt_free(pclient);
@@ -3184,6 +3178,7 @@ int IOT_MQTT_Destroy(void **phandler)
     iotx_mc_release((iotx_mc_client_t *)client);
     mqtt_free(client);
     g_mqtt_client = NULL;
+    iotx_conn_info_release();
 
     return SUCCESS_RETURN;
 }
