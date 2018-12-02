@@ -464,7 +464,8 @@ static int guider_get_iotId_iotToken(
                    iotx_ca_get()
 #endif
                   );
-    sys_debug("http response: \r\n\r\n%s\r\n", iotx_payload);
+    sys_info("Downstream Payload:");
+    iotx_facility_json_print(iotx_payload, LOG_INFO_LEVEL, '<');
 
     pvalue = LITE_json_value_of("code", iotx_payload);
     if (!pvalue) {
