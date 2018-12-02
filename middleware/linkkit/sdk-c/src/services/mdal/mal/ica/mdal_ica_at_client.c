@@ -526,10 +526,10 @@ int at_ica_mqtt_client_disconn(void)
     memset(at_cmd, 0, 64);
 
     /* connect to the network */
-    snprintf(at_cmd,
-             64,
-             "%s\r\n",
-             AT_ICA_MQTT_MQTTDISCONN);
+    HAL_Snprintf(at_cmd,
+                 64,
+                 "%s\r\n",
+                 AT_ICA_MQTT_MQTTDISCONN);
 
     /* disconnect from server */
     if (0 != at_ica_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
@@ -556,11 +556,11 @@ int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int tl
     if (tlsEnable) {
         memset(at_cmd, 0, AT_MQTT_CMD_MAX_LEN);
 
-        snprintf(at_cmd,
-                 AT_MQTT_CMD_MAX_LEN - 1,
-                 "%s=%d\r\n",
-                 AT_ICA_MQTT_MQTTMODE,
-                 1);
+        HAL_Snprintf(at_cmd,
+                     AT_MQTT_CMD_MAX_LEN - 1,
+                     "%s=%d\r\n",
+                     AT_ICA_MQTT_MQTTMODE,
+                     1);
 
         if (0 != at_ica_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
@@ -573,11 +573,11 @@ int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int tl
     /* submit auth */
     memset(at_cmd, 0, AT_MQTT_CMD_MAX_LEN);
 
-    snprintf(at_cmd,
-             AT_MQTT_CMD_MAX_LEN - 1,
-             "%s=\"%s\",\"%s\",\"%s\"\r\n",
-             AT_ICA_MQTT_MQTTAUTH,
-             proKey, devName, devSecret);
+    HAL_Snprintf(at_cmd,
+                 AT_MQTT_CMD_MAX_LEN - 1,
+                 "%s=\"%s\",\"%s\",\"%s\"\r\n",
+                 AT_ICA_MQTT_MQTTAUTH,
+                 proKey, devName, devSecret);
 
     if (0 != at_ica_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
@@ -612,10 +612,10 @@ int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int tl
     /* connect to mqtt server */
     memset(at_cmd, 0, 64);
 
-    snprintf(at_cmd,
-             64,
-             "%s\r\n",
-             AT_ICA_MQTT_MQTTCONN);
+    HAL_Snprintf(at_cmd,
+                 64,
+                 "%s\r\n",
+                 AT_ICA_MQTT_MQTTCONN);
 
     if (0 != at_ica_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
@@ -644,12 +644,12 @@ int at_ica_mqtt_client_subscribe(const char *topic,
 
     memset(at_cmd, 0, AT_MQTT_CMD_MAX_LEN);
 
-    snprintf(at_cmd,
-             AT_MQTT_CMD_MAX_LEN - 1,
-             "%s=\"%s\",%d\r\n",
-             AT_ICA_MQTT_MQTTSUB,
-             topic,
-             qos);
+    HAL_Snprintf(at_cmd,
+                 AT_MQTT_CMD_MAX_LEN - 1,
+                 "%s=\"%s\",%d\r\n",
+                 AT_ICA_MQTT_MQTTSUB,
+                 topic,
+                 qos);
 
     if (0 != at_ica_mqtt_atsend(at_cmd, timeout_ms)) {
         mdal_err("sub at command fail");
@@ -674,11 +674,11 @@ int at_ica_mqtt_client_unsubscribe(const char *topic,
 
     memset(at_cmd, 0, AT_MQTT_CMD_MAX_LEN);
 
-    snprintf(at_cmd,
-             AT_MQTT_CMD_MAX_LEN - 1,
-             "%s=\"%s\"\r\n",
-             AT_ICA_MQTT_MQTTUNSUB,
-             topic);
+    HAL_Snprintf(at_cmd,
+                 AT_MQTT_CMD_MAX_LEN - 1,
+                 "%s=\"%s\"\r\n",
+                 AT_ICA_MQTT_MQTTUNSUB,
+                 topic);
 
     if (0 != at_ica_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {
 
@@ -713,13 +713,13 @@ int at_ica_mqtt_client_publish(const char *topic, int qos, const char *message)
         *temp++ = *message++;
     }
 
-    snprintf(at_cmd,
-             AT_MQTT_CMD_MAX_LEN - 1,
-             "%s=\"%s\",%d,\"%s\"\r\n",
-             AT_ICA_MQTT_MQTTPUB,
-             topic,
-             qos,
-             msg_convert);
+    HAL_Snprintf(at_cmd,
+                 AT_MQTT_CMD_MAX_LEN - 1,
+                 "%s=\"%s\",%d,\"%s\"\r\n",
+                 AT_ICA_MQTT_MQTTPUB,
+                 topic,
+                 qos,
+                 msg_convert);
 
     g_public_qos = qos;
     if (0 != at_ica_mqtt_atsend(at_cmd, AT_MQTT_WAIT_TIMEOUT)) {

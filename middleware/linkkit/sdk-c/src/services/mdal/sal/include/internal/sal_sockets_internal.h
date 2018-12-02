@@ -43,6 +43,8 @@ extern "C" {
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
             LOGE(SAL_TAG, msg);} \
     } while (0)
+
+#define SAL_SNPRINTF snprintf
 #else
 #ifdef SAL_USE_DEBUG
 #define SAL_DEBUG(format, ...)  log_debug(SAL_TAG, format, ##__VA_ARGS__)
@@ -54,6 +56,8 @@ extern "C" {
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
             log_err(SAL_TAG, msg);} \
     } while (0)
+
+#define SAL_SNPRINTF HAL_Snprintf
 #endif
 
 /* Helpers to process several netconn_types by the same code */
