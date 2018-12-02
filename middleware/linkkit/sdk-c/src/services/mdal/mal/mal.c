@@ -622,7 +622,8 @@ int mal_mc_recv_buf_init()
     g_at_mqtt_buff_mgr.last_write_index = 0;
     g_at_mqtt_buff_mgr.buffer_num = MAL_MC_DEFAULT_BUFFER_NUM;
 
-    for (int i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
+    int i;
+    for (i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
         if (i < MAL_MC_DEFAULT_BUFFER_NUM) {
             g_at_mqtt_buff_mgr.topic[i] = g_at_mqtt_topic[i];
@@ -649,7 +650,8 @@ void mal_mc_recv_buf_deinit()
     g_at_mqtt_buff_mgr.write_index = 0;
     g_at_mqtt_buff_mgr.last_write_index = 0;
 
-    for (int i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
+    int i;
+    for (i = 0; i < MAL_MC_MAX_BUFFER_NUM; i++) {
         g_at_mqtt_buff_mgr.valid_flag[i] = 0;
         if (i < MAL_MC_DEFAULT_BUFFER_NUM) {
             memset(g_at_mqtt_buff_mgr.topic[i], 0, MAL_MC_MAX_TOPIC_LEN);
