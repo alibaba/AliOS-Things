@@ -117,7 +117,7 @@ struct addrinfo {
 #define MSG_DONTWAIT   0x08    /* Nonblocking i/o for this operation only */
 #define MSG_MORE       0x10    /* Sender will send more */
 
-#define MEMP_NUM_NETCONN     5//(MAX_SOCKETS_TCP + MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP)
+#define MEMP_NUM_NETCONN     5/* (MAX_SOCKETS_TCP + MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP) */
 
 #ifndef SAL_SOCKET_OFFSET
 #define  SAL_SOCKET_OFFSET 0
@@ -130,10 +130,10 @@ struct addrinfo {
 #define FD_SETSIZE    MEMP_NUM_NETCONN
 
 #define FDSETSAFESET(n, code) do { \
-  if (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN *2) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0)) { \
-  code; }} while(0)
+        if (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN *2) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0)) { \
+            code; }} while(0)
 #define FDSETSAFEGET(n, code) (((n) - SAL_SOCKET_OFFSET < MEMP_NUM_NETCONN *2) && (((int)(n) - SAL_SOCKET_OFFSET) >= 0) ?\
-  (code) : 0)
+                               (code) : 0)
 #define FD_SET(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] |=  (1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
 #define FD_CLR(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] &= ~(1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
 #define FD_ISSET(n,p) FDSETSAFEGET(n, (p)->fd_bits[((n)-SAL_SOCKET_OFFSET)/8] &   (1 << (((n)-SAL_SOCKET_OFFSET) & 7)))
@@ -245,57 +245,57 @@ int sal_getaddrinfo(const char *nodename, const char *servname,
 
 int sal_fcntl(int s, int cmd, int val);
 #define select(maxfdp1,readset,writeset,exceptset,timeout) \
-        sal_select(maxfdp1,readset,writeset,exceptset,timeout)
+    sal_select(maxfdp1,readset,writeset,exceptset,timeout)
 
 #define write(s,data,size) \
-        sal_write(s,data,size)
+    sal_write(s,data,size)
 
 #define socket(domain,type,protocol) \
-        sal_socket(domain,type,protocol)
+    sal_socket(domain,type,protocol)
 
 #define connect(s,name,namelen) \
-        sal_connect(s,name,namelen)
+    sal_connect(s,name,namelen)
 
 #define bind(s,name,namelen) \
-        sal_bind(s,name,namelen)
+    sal_bind(s,name,namelen)
 
 #define shutdown(s,how) \
-        sal_shutdown(s,how)
+    sal_shutdown(s,how)
 
 #define eventfd(initval,flags) \
-        sal_eventfd(initval,flags)
+    sal_eventfd(initval,flags)
 
 #define setsockopt(s,level,optname,optval,optlen) \
-        sal_setsockopt(s,level,optname,optval,optlen)
+    sal_setsockopt(s,level,optname,optval,optlen)
 
 #define getsockopt(s,level,optname,optval,optlen) \
-        sal_getsockopt(s,level,optname,optval,optlen)
+    sal_getsockopt(s,level,optname,optval,optlen)
 
 #define gethostbyname(name) \
-        sal_gethostbyname(name)
+    sal_gethostbyname(name)
 
 #define close(s) \
-        sal_close(s)
+    sal_close(s)
 
 #define sendto(s,dataptr,size,flags,to,tolen) \
-        sal_sendto(s,dataptr,size,flags,to,tolen)
+    sal_sendto(s,dataptr,size,flags,to,tolen)
 
 #define recvfrom(s,mem,len,flags,from,fromlen) \
-            sal_recvfrom(s,mem,len,flags,from,fromlen)
+    sal_recvfrom(s,mem,len,flags,from,fromlen)
 
 #define send(s,data,size,flags) \
-        sal_send(s,data,size,flags)
+    sal_send(s,data,size,flags)
 
 #define recv(s,data,size,flags) \
-        sal_recv(s,data,size,flags)
+    sal_recv(s,data,size,flags)
 
 #define read(s,data,size) \
-        sal_read(s,data,size)
+    sal_read(s,data,size)
 
 #define freeaddrinfo(addrinfo) sal_freeaddrinfo(addrinfo)
 
 #define getaddrinfo(nodname, servname, hints, res) \
-       sal_getaddrinfo(nodname, servname, hints, res)
+    sal_getaddrinfo(nodname, servname, hints, res)
 
 #define fcntl(s,cmd,val)  sal_fcntl(s,cmd,val)
 

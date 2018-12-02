@@ -242,7 +242,7 @@ void ip4_sockaddr_to_ipstr_port(const struct sockaddr *name, char *ip)
     ip[SAL_SOCKET_IP4_ADDR_LEN - 1] = '\0';
 }
 
-// Caller to ensure a valid ip string
+/*  Caller to ensure a valid ip string */
 int ipstr_to_u32(char *ipstr, uint32_t *ip32)
 {
     uint8_t *q = (uint8_t *)ip32, n = 0, stridx = 0, dotnum = 0;
