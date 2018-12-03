@@ -65,20 +65,20 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
         hal_err("getaddrinfo error(%d), host = '%s', port = [%d]", rc, host, port);
-        return 0;
+        return -1;
     }
 
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
         if (cur->ai_family != AF_INET) {
             hal_err("socket type error");
-            rc = 0;
+            rc = -1;
             continue;
         }
 
         fd = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (fd < 0) {
             hal_err("create socket error");
-            rc = 0;
+            rc = -1;
             continue;
         }
 
@@ -89,10 +89,10 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
 
         close(fd);
         hal_err("connect error");
-        rc = 0;
+        rc = -1;
     }
 
-    if (0 == rc) {
+    if (-1 == rc) {
         hal_err("fail to establish tcp");
     } else {
         hal_info("success to establish tcp, fd=%d", rc);
