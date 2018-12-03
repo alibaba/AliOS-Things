@@ -5,10 +5,10 @@ $(NAME)_VERSION := 0.0.1
 $(NAME)_SUMMARY :=
 
 $(NAME)_SOURCES :=   udata_example.c
-$(NAME)_COMPONENTS := cli yloop middleware.common device.sensor middleware.udata
+$(NAME)_COMPONENTS := cli yloop drivers.sensor middleware.udata
 
 GLOBAL_INCLUDES += ./
-GLOBAL_INCLUDES += ../../../device/sensor/include
+GLOBAL_INCLUDES += ../../../drivers/sensor/include
 
 udata_cjson_support := 1
 ifeq ($(udata_cjson_support),1)
