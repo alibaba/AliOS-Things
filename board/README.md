@@ -56,3 +56,6 @@
 * C-Sky
     * CK802
         * [cb2210](./cb2210/README.md)
+* RISC-V
+    * RISCY
+        * [rv32m1_vega](./rv32m1_vega/README.md)
