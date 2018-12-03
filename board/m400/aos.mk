@@ -32,10 +32,10 @@ $(NAME)_SOURCES += port/lora_port.c          \
 
 lorawanback      ?= 0
 ifeq ($(lorawanback), 0)
-$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_2.lorachip network.lorawan.lorawan_4_4_2
+$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_2.lorachip_4_4_2 network.lorawan.lorawan_4_4_2
 LORACHIP           := sx1276
 else ifeq ($(lorawanback), 1)
-$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_0.lorachip network.lorawan.lorawan_4_4_0
+$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_0.lorachip_4_4_0 network.lorawan.lorawan_4_4_0
 LORACHIP           := sx1276
 endif
 
