@@ -1,9 +1,0 @@
-menuconfig AOS_APP_OPUSAPP
-    bool "opusapp"
-    select AOS_COMP_CLI
-    select AOS_COMP_YLOOP
-    help
-
-if AOS_APP_OPUSAPP
-# Configurations for app opusapp
-endif
