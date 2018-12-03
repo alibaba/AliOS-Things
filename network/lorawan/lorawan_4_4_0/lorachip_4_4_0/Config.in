@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_LORACHIP_4_4_0
+    bool "lorachip_4_4_0"
+    default n
+    help
+
+if AOS_COMP_LORACHIP_4_4_0
+# Configurations for comp lorachip
+endif

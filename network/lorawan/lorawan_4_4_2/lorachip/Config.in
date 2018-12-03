@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_LORACHIP
-    bool "lorachip"
-    default n
-    help
-
-if AOS_COMP_LORACHIP
-# Configurations for comp lorachip
-endif
