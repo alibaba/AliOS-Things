@@ -11,6 +11,7 @@ $(NAME)_SOURCES += \
 =======
 >>>>>>> b7b8639a0 (BugID: 17115493:add sensor compile file)
         hal/sensor_drv_api.c \
+<<<<<<< HEAD
         drv/drv_temp_humi_baro_bosch_bme280.c \
         drv/drv_acc_bosch_bma253.c \
         drv/drv_baro_bosch_bmp280.c \
@@ -132,6 +133,9 @@ $(NAME)_SOURCES += \
         drv/drv_mag_temp_memsic_mmc3680kj.c 
 >>>>>>> b7b8639a0 (BugID: 17115493:add sensor compile file)
 
+=======
+        hal/sensor_config.c
+>>>>>>> 44f3c13a5 ( BugID:17532990: sensor automatic init)
 
 CONFIG_SENSOR =  $(addsuffix .c,$(CONFIG_SENSOR_DRV_NAME))
 SENSOR_ALL_FILE=$(notdir $(wildcard drivers/sensor/drv/*.c))
@@ -149,14 +153,18 @@ ifneq ($(CONFIG_DRV_SET),)
 GLOBAL_DEFINES += SENSOR_DRV_AUTO_INIT
 endif
 
+<<<<<<< HEAD
 >>>>>>> 0cac3b6d8 (BugID:17115375: sensor driver initialize dynamically)
 ifeq ($(modbus_sensor_enable),1)
+=======
+ifeq ($(AOS_SENSOR_MODBUS_ENABLE),y)
+>>>>>>> 44f3c13a5 ( BugID:17532990: sensor automatic init)
 $(NAME)_SOURCES += drv/drv_modbus_sensors.c
 $(NAME)_COMPONENTS  += rhino.bus.mbmaster
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
 
-ifeq (gps.sim868,$(module))
+ifeq ($(AOS_SENSOR_GPS_SIMCOM_SIM868),y)
 $(NAME)_COMPONENTS += network.sal network.sal.atparser
 $(NAME)_COMPONENTS += network.sal.gprs.sim800
 $(NAME)_SOURCES += drv/drv_gps_simcom_sim868.c
@@ -171,6 +179,7 @@ endif
 
 GLOBAL_INCLUDES +=  ./include
 GLOBAL_DEFINES      += AOS_SENSOR
+include $(SOURCE_ROOT)/drivers/sensor/drv.mk
 
 <<<<<<< HEAD
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_BOSCH_BME280
