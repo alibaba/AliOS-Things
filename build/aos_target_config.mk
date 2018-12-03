@@ -20,6 +20,7 @@ COMPONENT_DIRECTORIES := . \
                          network   \
                          tools     \
                          test      \
+                         test/develop      \
                          device    \
                          security
 
@@ -280,7 +281,7 @@ $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)
 # Find the matching platform and application from the build string components
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
 
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)app/profile/$(comp) $(SOURCE_ROOT)$(comp)),$(comp),)))
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)app/profile/$(comp) $(SOURCE_ROOT)$(comp) $(SOURCE_ROOT)test/develop/$(comp)),$(comp),)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 APP         :=$(notdir $(APP_FULL))
