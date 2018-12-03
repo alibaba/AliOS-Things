@@ -163,7 +163,7 @@ int32_t vfs_inode_reserve(const char *path, vfs_inode_t **p_node)
     }
 
     ret = vfs_inode_alloc();
-    if (ret != VFS_OK) {
+    if (ret == VFS_ERR_NOMEM) {
         return ret;
     }
 
