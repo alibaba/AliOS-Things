@@ -136,7 +136,7 @@ void USART2_IRQHandler(void)
     krhino_intrpt_exit();
 }
 
-#ifdef UART3
+#ifdef USART3
 void USART3_IRQHandler(void)
 {
     krhino_intrpt_enter();
