@@ -35,8 +35,6 @@ UART_MAPPING UART_MAPPING_TABLE[] =
 {
       { PORT_UART_STD,     USART2, { UART_OVERSAMPLING_16, 1024 } },
       { PORT_UART_AT,      USART6,  { UART_OVERSAMPLING_16, 2048 } }
-//      { PORT_UART_STD,     USART2, { UART_OVERSAMPLING_16, 1024 } },
-//      { PORT_UART_AT,      USART6,  { UART_OVERSAMPLING_16, 2048 } }
 };
 
 
@@ -58,9 +56,6 @@ void stm32_soc_init(void)
 
     /* Configure the Systick interrupt time */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
-
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
     
     //MX_GPIO_Init();
 	/* GPIO Ports Clock Enable */
@@ -70,7 +65,11 @@ void stm32_soc_init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
   //__HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-    
+
+}
+
+void stm32_peripheral_init(void)
+{
     /*default uart init*/
     stduart_init();
 }
