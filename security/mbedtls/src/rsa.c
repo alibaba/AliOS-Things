@@ -192,7 +192,6 @@ int mbedtls_rsa_check_pubkey( const mbedtls_rsa_context *ctx )
     return( 0 );
 }
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
 /*
  * Check a private RSA key
  */
@@ -274,7 +273,6 @@ int mbedtls_rsa_check_pub_priv( const mbedtls_rsa_context *pub, const mbedtls_rs
 
     return( 0 );
 }
-#endif /* MBEDTLS_RSA_PRIV_ENABLED  */
 
 /*
  * Do an RSA public key operation
@@ -320,7 +318,6 @@ cleanup:
     return( 0 );
 }
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
 /*
  * Generate or update blinding values, see section 10 of:
  *  KOCHER, Paul C. Timing attacks on implementations of Diffie-Hellman, RSA,
@@ -455,7 +452,6 @@ cleanup:
 
     return( 0 );
 }
-#endif /* MBEDTLS_RSA_PRIV_ENABLED */
 
 #if defined(MBEDTLS_PKCS1_V21)
 /**
@@ -525,13 +521,8 @@ int mbedtls_rsa_rsaes_oaep_encrypt( mbedtls_rsa_context *ctx,
     const mbedtls_md_info_t *md_info;
     mbedtls_md_context_t md_ctx;
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     if( mode == MBEDTLS_RSA_PRIVATE && ctx->padding != MBEDTLS_RSA_PKCS_V21 )
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
-#else
-    if( mode != MBEDTLS_RSA_PUBLIC )
-        return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
-#endif /* MBEDTLS_RSA_PRIV_ENABLED */
 
     if( f_rng == NULL )
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
@@ -581,13 +572,9 @@ int mbedtls_rsa_rsaes_oaep_encrypt( mbedtls_rsa_context *ctx,
 
     mbedtls_md_free( &md_ctx );
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     return( ( mode == MBEDTLS_RSA_PUBLIC )
             ? mbedtls_rsa_public(  ctx, output, output )
             : mbedtls_rsa_private( ctx, f_rng, p_rng, output, output ) );
-#else
-    return ( mbedtls_rsa_public(  ctx, output, output );
-#endif
 }
 #endif /* MBEDTLS_PKCS1_V21 */
 
@@ -606,13 +593,8 @@ int mbedtls_rsa_rsaes_pkcs1_v15_encrypt( mbedtls_rsa_context *ctx,
     int ret;
     unsigned char *p = output;
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     if( mode == MBEDTLS_RSA_PRIVATE && ctx->padding != MBEDTLS_RSA_PKCS_V15 )
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
-#else
-    if( mode != MBEDTLS_RSA_PUBLIC )
-        return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
-#endif /* MBEDTLS_RSA_PRIV_ENABLED */
 
     // We don't check p_rng because it won't be dereferenced here
     if( f_rng == NULL || input == NULL || output == NULL )
@@ -657,13 +639,9 @@ int mbedtls_rsa_rsaes_pkcs1_v15_encrypt( mbedtls_rsa_context *ctx,
     *p++ = 0;
     memcpy( p, input, ilen );
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     return( ( mode == MBEDTLS_RSA_PUBLIC )
             ? mbedtls_rsa_public(  ctx, output, output )
             : mbedtls_rsa_private( ctx, f_rng, p_rng, output, output ) );
-#else
-    return (mbedtls_rsa_public(  ctx, output, output ) );
-#endif
 }
 #endif /* MBEDTLS_PKCS1_V15 */
 
@@ -696,7 +674,6 @@ int mbedtls_rsa_pkcs1_encrypt( mbedtls_rsa_context *ctx,
     }
 }
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
 #if defined(MBEDTLS_PKCS1_V21)
 /*
  * Implementation of the PKCS#1 v2.1 RSAES-OAEP-DECRYPT function
@@ -1195,7 +1172,6 @@ int mbedtls_rsa_pkcs1_sign( mbedtls_rsa_context *ctx,
             return( MBEDTLS_ERR_RSA_INVALID_PADDING );
     }
 }
-#endif /* MBEDTLS_RSA_PRIV_ENABLED */
 
 #if defined(MBEDTLS_PKCS1_V21)
 /*
@@ -1223,26 +1199,17 @@ int mbedtls_rsa_rsassa_pss_verify_ext( mbedtls_rsa_context *ctx,
     mbedtls_md_context_t md_ctx;
     unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     if( mode == MBEDTLS_RSA_PRIVATE && ctx->padding != MBEDTLS_RSA_PKCS_V21 )
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
-#else
-    if( mode != MBEDTLS_RSA_PUBLIC )
-        return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
-#endif /* MBEDTLS_RSA_PRIV_ENABLED */
 
     siglen = ctx->len;
 
     if( siglen < 16 || siglen > sizeof( buf ) )
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     ret = ( mode == MBEDTLS_RSA_PUBLIC )
           ? mbedtls_rsa_public(  ctx, sig, buf )
           : mbedtls_rsa_private( ctx, f_rng, p_rng, sig, buf );
-#else
-    ret = mbedtls_rsa_public(  ctx, sig, buf );
-#endif
 
     if( ret != 0 )
         return( ret );
@@ -1380,28 +1347,17 @@ int mbedtls_rsa_rsassa_pkcs1_v15_verify( mbedtls_rsa_context *ctx,
     mbedtls_asn1_buf oid;
     unsigned char buf[MBEDTLS_MPI_MAX_SIZE];
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     if( mode == MBEDTLS_RSA_PRIVATE && ctx->padding != MBEDTLS_RSA_PKCS_V15 )
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
-#else
-    if( mode != MBEDTLS_RSA_PUBLIC )
-        return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
-#endif /* MBEDTLS_RSA_PRIV_ENABLED */
 
     siglen = ctx->len;
 
     if( siglen < 16 || siglen > sizeof( buf ) )
         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     ret = ( mode == MBEDTLS_RSA_PUBLIC )
           ? mbedtls_rsa_public(  ctx, sig, buf )
           : mbedtls_rsa_private( ctx, f_rng, p_rng, sig, buf );
-#else
-    (void)f_rng;
-    (void)p_rng;
-    ret = mbedtls_rsa_public(  ctx, sig, buf );
-#endif /* MBEDTLS_RSA_PRIV_ENABLED */
 
     if( ret != 0 )
         return( ret );
@@ -1655,7 +1611,6 @@ static int myrand( void *rng_state, unsigned char *output, size_t len )
 }
 #endif /* MBEDTLS_PKCS1_V15 */
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
 /*
  * Checkup routine
  */
@@ -1775,7 +1730,6 @@ cleanup:
 #endif /* MBEDTLS_PKCS1_V15 */
     return( ret );
 }
-#endif /* MBEDTLS_RSA_PRIV_ENABLED  */
 
 #endif /* MBEDTLS_SELF_TEST */
 

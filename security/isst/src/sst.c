@@ -25,7 +25,7 @@ uint32_t sst_init()
 
     ret = sst_imp_init();
     if (SST_SUCCESS != ret) {
-        SST_ERR("gen key error 0x%x!\n", ret);
+        SST_ERR("gen key error 0x%x!\n", (unsigned int)ret);
     }
 
     return ret;
@@ -48,11 +48,11 @@ uint32_t sst_add_item(const char *name,
 
     ret = sst_imp_create_obj(data, data_len, type, &p_sst, &obj_len);
     if (SST_SUCCESS != ret) {
-        SST_ERR("create obj failed 0x%x\n", ret);
+        SST_ERR("create obj failed 0x%x\n", (unsigned int)ret);
         goto clean;
     }
 
-    SST_INF("store sst file len[%d]\n", (int)obj_len);
+    SST_INF("store sst file len[%d]\n", (unsigned int)obj_len);
 
     ret = sst_store_obj(name, p_sst, obj_len, flag);
     if (SST_SUCCESS != ret) {
@@ -75,7 +75,7 @@ uint32_t sst_get_item(const char *name,
     uint32_t ret = 0;
     uint32_t obj_len = 0;
 
-    if (NULL == name || (!data && *data_len)) {
+    if (NULL == name || !data_len || (!data && *data_len)) {
         SST_ERR("get item bad param!\n");
         return SST_ERROR_BAD_PARAMETERS;
     }

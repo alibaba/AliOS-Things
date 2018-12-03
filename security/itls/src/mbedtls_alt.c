@@ -13,43 +13,39 @@
 #include <string.h>
 
 #include "itls/md.h"
-
-#if defined(MBEDTLS_DEBUG_C)
 #include "itls/debug.h"
-#endif
-
-#if defined(MBEDTLS_THREADING_ALT)
 #include "itls/threading.h"
-#endif
-
-#if defined(MBEDTLS_AES_ALT)
 #include "itls/aes.h"
-#endif
-
-#if defined(MBEDTLS_SHA1_ALT)
 #include "itls/sha1.h"
-#endif
-#if defined(MBEDTLS_SHA256_ALT)
 #include "itls/sha256.h"
-#endif
-
-#if defined(MBEDTLS_IOT_PLAT_AOS)
-#include <aos/kernel.h>
-#endif
-
-#if defined(MBEDTLS_PLATFORM_ALT)
 #include "itls/platform.h"
-#else
-#define mbedtls_calloc    calloc
-#define mbedtls_free      free
+
+#if defined(CONFIG_PLAT_AOS)
+#include <aos/kernel.h>
 #endif
 
 #if defined(MBEDTLS_AES_ALT) || defined(MBEDTLS_MD_ALT)
 #include "ali_crypto.h"
 #endif
 
+#ifndef PLATFORM_ANDROID
 #define MBEDTLS_ALT_PRINT(_f, _a ...)  \
         printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+#else  /* PLATFORM_ANDROID */
+
+#include <android/log.h>
+
+#define __LOG_TAG__             "ITLS_LOG"
+
+#define LOG_INF(...)            __android_log_print(        \
+                                        ANDROID_LOG_INFO,   \
+                                        __LOG_TAG__,        \
+                                        __VA_ARGS__)
+
+#define MBEDTLS_ALT_PRINT(_f, _a ...)  \
+            LOG_INF("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+
+#endif /* PLATFORM_ANDROID */
 
 #define MBEDTLS_ALT_ASSERT(_x)                          \
     do {                                                \
@@ -74,15 +70,52 @@ static void mbedtls_zeroize( void *v, size_t n )
 
 #if defined(MBEDTLS_PLATFORM_ALT)
 
+#if defined(CONFIG_MEM_TEST_EN)
+
+#define MBEDTLS_MEM_INFO_MAGIC   0x12345678
+
+static unsigned int mbedtls_mem_used = 0;
+static unsigned int mbedtls_max_mem_used = 0;
+
+typedef struct {
+    int magic;
+    int size;
+} mbedtls_mem_info_t;
+#endif
+
 void *mbedtls_calloc( size_t n, size_t size )
 {
     void *buf;
+#if defined(CONFIG_MEM_TEST_EN)
+    mbedtls_mem_info_t *mem_info;
+#endif
 
     if (n == 0 || size == 0) {
         return NULL;
     }
 
-#if defined(MBEDTLS_IOT_PLAT_AOS)
+#if defined(CONFIG_MEM_TEST_EN)
+    buf = malloc(n * size + sizeof(mbedtls_mem_info_t));
+    if (NULL == buf) {
+        return NULL;
+    } else {
+        memset(buf, 0, n * size + sizeof(mbedtls_mem_info_t));
+    }
+
+    mem_info = (mbedtls_mem_info_t *)buf;
+    mem_info->magic = MBEDTLS_MEM_INFO_MAGIC;
+    mem_info->size = n * size;
+    buf += sizeof(mbedtls_mem_info_t);
+
+    mbedtls_mem_used += mem_info->size;
+    if (mbedtls_mem_used > mbedtls_max_mem_used) {
+        mbedtls_max_mem_used = mbedtls_mem_used;
+    }
+
+    MBEDTLS_ALT_PRINT("INFO -- itls malloc: 0x%x %d  total used: %d  max used: %d\n",
+                       (uint32_t)buf, size, mbedtls_mem_used, mbedtls_max_mem_used);
+#else
+#if defined(CONFIG_PLAT_AOS)
     buf = aos_malloc(n * size);
 #else
     buf = malloc(n * size);
@@ -92,20 +125,39 @@ void *mbedtls_calloc( size_t n, size_t size )
     } else {
         memset(buf, 0, n * size);
     }
+#endif
 
     return buf;
 }
 
 void mbedtls_free( void *ptr )
 {
+#if defined(CONFIG_MEM_TEST_EN)
+    mbedtls_mem_info_t *mem_info;
+#endif
+
     if (NULL == ptr) {
         return;
     }
 
-#if defined(MBEDTLS_IOT_PLAT_AOS)
+#if defined(CONFIG_MEM_TEST_EN)
+    mem_info = ptr - sizeof(mbedtls_mem_info_t);
+    if (mem_info->magic != MBEDTLS_MEM_INFO_MAGIC) {
+        MBEDTLS_ALT_PRINT("bad mem magic: 0x%x\n", mem_info->magic);
+        return;
+    }
+
+    mbedtls_mem_used -= mem_info->size;
+    MBEDTLS_ALT_PRINT("INFO -- itls free: 0x%x %d  total used: %d  max used: %d\n",
+                       (uint32_t)ptr, mem_info->size, mbedtls_mem_used, mbedtls_max_mem_used);
+
+    free(mem_info);
+#else
+#if defined(CONFIG_PLAT_AOS)
     aos_free(ptr);
 #else
     free(ptr);
+#endif
 #endif
 }
 

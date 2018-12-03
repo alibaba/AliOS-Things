@@ -145,7 +145,7 @@ static uint32_t _sst_enc_data(void *p_sst, const uint8_t *data_in)
     /* enc data */
     ret = km_envelope_finish(envelope_ctx, (uint8_t *)data_in, data_len, p_data, &data_len);
     if (ret || data_len != p_sst_obj->data_size) {
-        SST_ERR("envelope finish failed 0x%x\n", ret);
+        SST_ERR("envelope finish failed 0x%x\n", (unsigned int)ret);
         return SST_ERROR_GENERIC;
     }
 
@@ -174,7 +174,7 @@ static uint32_t _sst_dec_data(void *p_sst, uint8_t *data_out)
 
     /* decrypt get subkey*/
     if (p_sst_obj->key_size != 16) {
-        SST_ERR("key size error key_size = %d\n", p_sst_obj->key_size);
+        SST_ERR("key size error key_size = %d\n", (unsigned int)p_sst_obj->key_size);
         return SST_ERROR_GENERIC;
     }
 
