@@ -35,6 +35,7 @@ def get_comp_name(mkfile):
 def write_config_file(source_root, config_file, mklist):
     config_contents = {}
     config_keys = []
+    real_names = []
     aliasname = ""
     patten = re.compile(source_root + "(/*|\\\\*)(.*)(/|\\\\.*mk)")
 
@@ -44,6 +45,7 @@ def write_config_file(source_root, config_file, mklist):
         if not name:
             continue
 
+        real_names += [name]
         match = patten.match(mkfile)
         if match:
             aliasname = match.group(2)
@@ -71,6 +73,8 @@ def write_config_file(source_root, config_file, mklist):
             return 1
 
     with open (config_file, 'w') as f:
+        f.write("REAL_COMPONENTS := %s\n" % " ".join(real_names))
+
         for key in config_keys:
             f.write("%s_MAKEFILE := %s\n" % (key, config_contents[key]))
 
