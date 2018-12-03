@@ -21,6 +21,7 @@
 #define sst_memcmp memcmp
 #define sst_strlen strlen
 #define sst_strcpy strcpy
+#define sst_strncpy strncpy
 #define sst_printf printf
 
 #define INIT_MIG_MAGIC(a) \

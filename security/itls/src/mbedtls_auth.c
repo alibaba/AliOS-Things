@@ -11,20 +11,30 @@
 #include "itls/ssl_internal.h"
 #include "itls/mbedtls_auth.h"
 #include "itls/debug.h"
+#include "itls/platform.h"
 
 #include "id2_client.h"
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS)
 
-#if defined(MBEDTLS_PLATFORM_C)
-#include "itls/platform.h"
-#else
-#define mbedtls_calloc    calloc
-#define mbedtls_free      free
-#endif
-
+#ifndef PLATFORM_ANDROID
 #define MBEDTLS_SSL_PRINT(_f, _a ...)  \
         printf("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+#else  /* PLATFORM_ANDROID */
+
+#include <android/log.h>
+
+#define __LOG_TAG__             "ITLS_LOG"
+
+#define LOG_INF(...)            __android_log_print(        \
+                                        ANDROID_LOG_INFO,   \
+                                        __LOG_TAG__,        \
+                                        __VA_ARGS__)
+
+#define MBEDTLS_SSL_PRINT(_f, _a ...)  \
+            LOG_INF("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
+
+#endif /* PLATFORM_ANDROID */
 
 #if defined(CONFIG_KEY_OTP_ENABLED)
 static uint32_t otp_time = 0;
@@ -46,15 +56,15 @@ static unsigned char *mbedtls_hex_to_str(uint8_t *data, size_t len)
         lo = (data[i] >> 0) & 0xF;
 
         if (hi <= 9) {
-            str[2 * i] = hi + ('0' - 0);
+            str[2*i] = hi + ('0' - 0);
         } else {
-            str[2 * i] = hi + ('A' - 10);
+            str[2*i] = hi + ('A' - 10);
         }
 
         if (lo <= 9) {
-            str[2 * i + 1] = lo + ('0' - 0);
+            str[2*i + 1] = lo + ('0' - 0);
         } else {
-            str[2 * i + 1] = lo + ('A' - 10);
+            str[2*i + 1] = lo + ('A' - 10);
         }
     }
 
@@ -64,7 +74,7 @@ static unsigned char *mbedtls_hex_to_str(uint8_t *data, size_t len)
 }
 
 int mbedtls_write_auth_extra_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen)
+        mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen)
 {
     int ret = 0;
     unsigned char *p = buf;
@@ -108,7 +118,7 @@ int mbedtls_write_auth_extra_ext(
  * } Key_ID_Extension;
  */
 int mbedtls_write_key_id_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen)
+        mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen)
 {
     int ret = 0;
     unsigned char *p = buf;
@@ -131,7 +141,8 @@ int mbedtls_write_key_id_ext(
     key_id_len = (uint32_t)(end - p - 8);
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
-    if (ssl->conf->type == ITLS_TEST_VALUE_KEY_GROUP) {
+    if (ssl->conf->type == ITLS_TEST_VALUE_KEY_GROUP)
+    {
         MBEDTLS_SSL_PRINT("iTLS TEST - Client Hello - Invalid Key Group(0x%x)!!!\n\n", ssl->conf->key_group);
 
         key_group = ssl->conf->key_group;
@@ -140,7 +151,8 @@ int mbedtls_write_key_id_ext(
         key_id[1] = (unsigned char)( ( key_group >> 8  ) & 0xFF );
         key_id[2] = (unsigned char)( ( key_group >> 16 ) & 0xFF );
         key_id[3] = (unsigned char)( ( key_group >> 24 ) & 0xFF );
-    } else
+    }
+    else
 #endif /* MBEDTLS_SSL_PROTO_ITLS_TEST */
     {
         key_group = MBEDTLS_KEY_GROUP_ALIBABA_ID2;
@@ -152,12 +164,14 @@ int mbedtls_write_key_id_ext(
     }
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
-    if (ssl->conf->type == ITLS_TEST_DATA_KEY_ID) {
-        MBEDTLS_SSL_PRINT("iTLS ABT TEST - Client Hello - Invalid Key ID!!!\n\n");
+    if (ssl->conf->type == ITLS_TEST_DATA_KEY_ID)
+    {
+         MBEDTLS_SSL_PRINT("iTLS ABT TEST - Client Hello - Invalid Key ID!!!\n\n");
 
-        memcpy(key_id + 4, ssl->conf->key_id, ssl->conf->key_id_len);
-        key_id_len = ssl->conf->key_id_len;
-    } else
+         memcpy(key_id + 4, ssl->conf->key_id, ssl->conf->key_id_len);
+         key_id_len = ssl->conf->key_id_len;
+    }
+    else
 #endif /* MBEDTLS_SSL_PROTO_ITLS_TEST */
     {
 #if defined(CONFIG_KEY_OTP_ENABLED)
@@ -219,7 +233,7 @@ int mbedtls_write_key_id_ext(
 }
 
 int mbedtls_write_auth_code_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen)
+        mbedtls_ssl_context *ssl, unsigned char *buf, size_t *olen)
 {
     int ret = 0;
     unsigned char *p = buf;
@@ -246,7 +260,8 @@ int mbedtls_write_auth_code_ext(
             MBEDTLS_SSL_PRINT("id2_clien _get_otp_auth_code fail, %d\n", ret);
             return -1;
         }
-    } else
+    }
+    else
 #endif /* CONFIG_KEY_OTP_ENABLED */
     {
         if (ssl->handshake->challenge != NULL &&
@@ -258,7 +273,8 @@ int mbedtls_write_auth_code_ext(
             }
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
-            if (ssl->conf->type == ITLS_TEST_DATA_AUTH_CODE) {
+            if (ssl->conf->type == ITLS_TEST_DATA_AUTH_CODE)
+            {
                 MBEDTLS_SSL_PRINT("iTLS ABT TEST - Client Hello - Invalid Auth Code!!!\n\n");
 
                 auth_code_len = ssl->conf->auth_code_len;
@@ -268,12 +284,13 @@ int mbedtls_write_auth_code_ext(
                 }
 
                 memcpy(auth_code, ssl->conf->auth_code, auth_code_len);
-            } else
+            }
+            else
 #endif /* MBEDTLS_SSL_PROTO_ITLS_TEST */
             {
                 ret = id2_client_get_challenge_auth_code(
-                          (char *)ssl->handshake->challenge,
-                          NULL, 0, auth_code, &auth_code_len);
+                              (char *)ssl->handshake->challenge,
+                              NULL, 0, auth_code, &auth_code_len);
                 if (ret != 0) {
                     MBEDTLS_SSL_PRINT("id2_client_get_challenge_auth_code fail, %d\n", ret);
                     return -1;
@@ -297,7 +314,7 @@ int mbedtls_write_auth_code_ext(
 }
 
 int mbedtls_parse_hello_verify_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t len)
+        mbedtls_ssl_context *ssl, unsigned char *buf, size_t len)
 {
     const unsigned char *ext = buf;
     unsigned int ext_id;
@@ -323,11 +340,11 @@ int mbedtls_parse_hello_verify_ext(
 
     if (ext_size + 4 > len) {
         MBEDTLS_SSL_DEBUG_MSG( 1,
-                               ( "extension length does not match incoming message size" ) );
+            ( "extension length does not match incoming message size" ) );
         return - 1;
     }
 
-    switch (ext_id) {
+    switch(ext_id) {
         case MBEDTLS_TLS_EXT_SRV_CHALLENGE: {
 #if defined(MBEDTLS_DEBUG_C)
             MBEDTLS_SSL_DEBUG_BUF( 3, "challenge extension", ext + 4, ext_size );
@@ -371,15 +388,15 @@ int mbedtls_parse_hello_verify_ext(
 #endif
 
         default:
-            MBEDTLS_SSL_PRINT("unkown extension found: 0x%04x\n", ext_id);
-            return -1;
+           MBEDTLS_SSL_PRINT("unkown extension found: 0x%04x\n", ext_id);
+           return -1;
     }
 
     return 0;
 }
 
 int mbedtls_parse_auth_code_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t len)
+        mbedtls_ssl_context *ssl, unsigned char *buf, size_t len)
 {
     int ret = 0;
     unsigned char *rand_str = NULL;
@@ -401,10 +418,10 @@ int mbedtls_parse_auth_code_ext(
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
     if (ssl->conf->type == ITLS_TEST_FLAGS_SRV_HELLO) {
-        MBEDTLS_SSL_PRINT("TLS ABT TEST - Server Hello - Verify iTLS Server Failed!!!\n\n");
+         MBEDTLS_SSL_PRINT("TLS ABT TEST - Server Hello - Verify iTLS Server Failed!!!\n\n");
 
-        ret = -1;
-        goto _out;
+         ret = -1;
+         goto _out;
     }
 #endif /* MBEDTLS_SSL_PROTO_ITLS_TEST */
 
@@ -435,7 +452,7 @@ _out:
 }
 
 int mbedtls_parse_pre_master_secret_ext(
-    mbedtls_ssl_context *ssl, unsigned char *buf, size_t len)
+        mbedtls_ssl_context *ssl, unsigned char *buf, size_t len)
 {
     int ret = 0;
     uint32_t pms_len;
@@ -478,7 +495,7 @@ _out:
 
 #if defined(MBEDTLS_SSL_PROTO_ITLS_TEST)
 int mbedtls_ssl_conf_set_data( mbedtls_ssl_config *conf,
-                               unsigned int type, const char *data, size_t data_len)
+                unsigned int type, const char *data, size_t data_len)
 {
     MBEDTLS_SSL_PRINT("ssl_conf_set_data - type: 0x%x\n", type);
 
@@ -487,7 +504,7 @@ int mbedtls_ssl_conf_set_data( mbedtls_ssl_config *conf,
         return -1;
     }
 
-    switch (type) {
+    switch(type) {
         case ITLS_TEST_DATA_KEY_ID: {
             conf->key_id = (unsigned char *)data;
             conf->key_id_len = data_len;
@@ -515,7 +532,7 @@ int mbedtls_ssl_conf_set_data( mbedtls_ssl_config *conf,
 }
 
 int mbedtls_ssl_conf_set_value( mbedtls_ssl_config *conf,
-                                unsigned int type, unsigned int value)
+                unsigned int type, unsigned int value)
 {
     MBEDTLS_SSL_PRINT("ssl_conf_set_data - type: 0x%x value: 0x%x\n", type, value);
 
@@ -524,7 +541,7 @@ int mbedtls_ssl_conf_set_value( mbedtls_ssl_config *conf,
         return -1;
     }
 
-    switch (type) {
+    switch(type) {
         case ITLS_TEST_VALUE_VERSION: {
             conf->version = value;
             break;
