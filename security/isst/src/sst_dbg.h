@@ -12,12 +12,31 @@
 #define _DEPRESS_UNUSED_WARNING(_x) do { (_x) = (_x); } while (0)
 
 #define SST_TAG "SST"
+
+#ifndef PLATFORM_ANDROID
 #define SST_ERR(_f, _a ...) sst_printf("SST %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
 
 #define SST_VER(_f, _a ...) sst_printf("SST %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
+#else
+#include <android/log.h>
+#define LOG_ERR(...)            __android_log_print(        \
+                                        ANDROID_LOG_ERROR,   \
+                                        SST_TAG,        \
+                                        __VA_ARGS__)
+#define LOG_INF(...)            __android_log_print(        \
+                                        ANDROID_LOG_INFO,   \
+                                        SST_TAG,        \
+                                        __VA_ARGS__)
+#define SST_ERR(_f, _a ...) LOG_ERR("ERR %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
+#define SST_VER(_f, _a ...) LOG_INF(_f, ##_a)
+#endif /* PLATFORM_ANDROID */
 
 #ifdef CONFIG_SST_DBG
+#ifndef PLATFORM_ANDROID
 #define SST_INF(_f, _a ...) sst_printf("SST %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
+#else
+#define SST_INF(_f, _a ...) LOG_INF("%s %d: "_f, __FUNCTION__, __LINE__, ##_a)
+#endif /* PLATFORM_ANDROID */
 #else
 #define SST_INF(_f, _a ...)
 #endif
