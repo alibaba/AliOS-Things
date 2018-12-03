@@ -22,7 +22,7 @@ aos_global_config.set('SUPPORT_MBINS', 'no')
 aos_global_config.set('HOST_MCU_NAME', 'STM32L433CCTx')
 
 dependencis =Split('''
-    device/sensor
+    drivers/sensor
 ''')
 for i in dependencis:
     component.add_comp_deps(i)
