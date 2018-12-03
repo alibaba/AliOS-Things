@@ -31,7 +31,7 @@
 
 ## Introduction
 
-The **http2app**  shows linkkit related functions.
+The **linkkitapp**  shows linkkit related functions.
 
 ### Dependencies
 
@@ -41,29 +41,45 @@ The **http2app**  shows linkkit related functions.
 
 ### Build
 
-```sh
+> Notice: Please be sure to use **git bash** when build on Windows! Otherwise may resulting in run problem for linkkit. git bash download url https://git-scm.com/download/win
 
-    Notice: Please be sure to use git bash when build on Windows! Otherwise may resulting in run problem for linkkit. git bash download url https://git-scm.com/download/win
+```sh
 aos make clean
+```
+
 1).linkkit_example_solo.c(default):
+
+```sh
     aos make clean
-    aos make linkkitapp@xxxx   
+    aos make linkkitapp@xxxx
+```
 
 2).linkkit_example_sched.c:
+
+```sh
     aos make clean
     aos make linkkitapp@xxxx case=sched
+```
 
 3).linkkit_example_cntdown.c:
+
+```sh
     aos make clean
     aos make linkkitapp@xxxx case=cntdown
+```
 
-4).deprecated/solo.c
-    aos make clean
-    aos make linkkitapp@xxxx deprecated=1      
+4).deprecated/solo.c:
 
-5).deprecated/cntdown.c
+```sh
     aos make clean
-    aos make linkkitapp@xxxx deprecated=1  case=cntdown   
+    aos make linkkitapp@xxxx deprecated=1
+```
+
+5).deprecated/cntdown.c:
+
+```sh
+    aos make clean
+    aos make linkkitapp@xxxx deprecated=1  case=cntdown
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).
