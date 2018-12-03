@@ -579,6 +579,7 @@ static int drv_temp_memsic_mmc3680kj_ioctl(int cmd, unsigned long arg)
     return 0;
 }
 
+#ifdef AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ
 int drv_temp_memsic_mmc3680kj_init(void)
 {
     int          ret = 0;
@@ -621,6 +622,6 @@ int drv_temp_memsic_mmc3680kj_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
-
+#endif
 SENSOR_DRV_ADD(drv_mag_memsic_mmc3680kj_init);
 
