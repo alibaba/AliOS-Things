@@ -53,10 +53,11 @@ struct _hr_time
 };
 
 #else
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include <sys/signal.h>
+#include <signal.h>
 #include <time.h>
 
 struct _hr_time
@@ -298,6 +299,7 @@ unsigned long mbedtls_timing_get_timer( struct mbedtls_timing_hr_time *val, int 
     return( delta );
 }
 
+#ifndef CONFIG_PLAT_AOS
 static void sighandler( int signum )
 {
     mbedtls_timing_alarmed = 1;
@@ -310,6 +312,7 @@ void mbedtls_set_alarm( int seconds )
     signal( SIGALRM, sighandler );
     alarm( seconds );
 }
+#endif
 
 #endif /* _WIN32 && !EFIX64 && !EFI32 */
 

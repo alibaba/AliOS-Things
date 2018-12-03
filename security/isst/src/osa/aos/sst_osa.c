@@ -13,7 +13,7 @@
 #define MAX_DATA_LEN 512
 #define ITEM_NAME_LEN 65 //2 * SHA256_HASH_SIZE + 1
 
-inline uint32_t _kv_to_sst_res(int32_t err)
+static uint32_t _kv_to_sst_res(int32_t err)
 {
     uint32_t ret;
 
@@ -91,7 +91,7 @@ uint32_t sst_get_obj(const char *name, void **pp_data, uint32_t *p_file_len)
     res = aos_kv_get(item_name, file_data, (int *)&file_len);
     ret = _kv_to_sst_res(res);
     if (SST_SUCCESS != ret) {
-        SST_ERR("fs get file error %x\n", ret);
+        SST_ERR("fs get file error %x\n", (unsigned int)ret);
         sst_free(file_data);
         *pp_data = NULL;
         goto _err;
@@ -119,7 +119,7 @@ uint32_t sst_delete_obj(const char *name)
     res = aos_kv_del(item_name);
     ret = _kv_to_sst_res(res);
     if (ret) {
-        SST_ERR("kv del failed res %d ret %x\n", res, ret);
+        SST_ERR("kv del failed res %d ret %x\n", res, (unsigned int)ret);
     }
 
     return ret;
