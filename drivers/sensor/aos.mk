@@ -134,7 +134,7 @@ $(NAME)_SOURCES += \
 
 
 CONFIG_SENSOR =  $(addsuffix .c,$(CONFIG_SENSOR_DRV_NAME))
-SENSOR_ALL_FILE=$(notdir $(wildcard device/sensor/drv/*.c))
+SENSOR_ALL_FILE=$(notdir $(wildcard drivers/sensor/drv/*.c))
 
 FILTER_FILE=$(foreach defines_var,$(1),$(filter $(defines_var),$(2)))
 SENSOR_SRC_FILE=$(call FILTER_FILE,$(CONFIG_SENSOR),$(SENSOR_ALL_FILE))
