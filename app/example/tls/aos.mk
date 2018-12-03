@@ -2,7 +2,7 @@ NAME := tls_client
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := TLS client example
 DTLS := no
 
 $(NAME)_SOURCES     := tls_client.c
