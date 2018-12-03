@@ -2,7 +2,7 @@ NAME := athostapp
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := An example for receiving and processing AT command sets.
 $(NAME)_SOURCES := athostapp.c
 $(NAME)_COMPONENTS := network/sal/athost \
                       network/netmgr \

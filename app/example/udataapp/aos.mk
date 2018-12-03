@@ -2,7 +2,7 @@ NAME := udataapp
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := uData sensor framework demo
 
 $(NAME)_SOURCES :=   udata_example.c
 $(NAME)_COMPONENTS := cli yloop drivers.sensor middleware.udata
