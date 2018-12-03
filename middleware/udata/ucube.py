@@ -15,7 +15,7 @@ component =aos_component('udata', src)
 global_includes =Split(''' 
     .
     include
-    ../../device/sensor/include
+    ../../drivers/sensor/include
 ''')
 for i in global_includes:
     component.add_global_includes(i)
