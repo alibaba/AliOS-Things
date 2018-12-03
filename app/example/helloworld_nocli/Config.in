@@ -1,9 +1,0 @@
-menuconfig AOS_APP_HELLOWORLD_NOCLI
-    bool "helloworld_nocli"
-    select AOS_COMP_BENCHMARKS if @CONDITION@
-    select AOS_COMP_YLOOP
-    help
-
-if AOS_APP_HELLOWORLD_NOCLI
-# Configurations for app helloworld_nocli
-endif
