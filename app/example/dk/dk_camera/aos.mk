@@ -2,7 +2,7 @@ NAME := dk_camera
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := developer kit camera demo
 $(NAME)_SOURCES := cameraapp.c
 
 GLOBAL_DEFINES += AOS_NO_WIFI CONFIG_AOS_FATFS_SUPPORT_MMC

@@ -2,7 +2,7 @@ NAME := dk_ld
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := Developer Kit example with link develop
 $(NAME)_SOURCES    := ldapp.c
 
 $(NAME)_COMPONENTS := cli drivers.sensor cjson middleware.uagent.uota netmgr feature.linkkit-mqtt

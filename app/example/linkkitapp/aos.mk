@@ -2,7 +2,7 @@ NAME := linkkitapp
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := linkkitapp
 
 $(NAME)_SOURCES :=   app_entry.c
 $(NAME)_COMPONENTS += feature.linkkit

@@ -2,7 +2,7 @@ NAME := blemesh_cmds
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := blemesh_cmds
 $(NAME)_SOURCES     := main.c
 
 $(NAME)_INCLUDES    := ../../../network/bluetooth/include \
