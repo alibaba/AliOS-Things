@@ -106,7 +106,7 @@ static void spiEventsCallbackFunc(SPI_T spi, struct MCU_SPI_Event_S event)
         }
         else
         {
-            printf("krhino_event_set success\r\n");
+            //printf("krhino_event_set success\r\n");
         }
         return;
     }
