@@ -13,9 +13,9 @@ SUPPORT_MBINS   := no
 
 lorawanback      ?= 0
 ifeq ($(lorawanback), 0)
-$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_2.lorachip network.lorawan.lorawan_4_4_2
+$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_2.lorachip_4_4_2 network.lorawan.lorawan_4_4_2
 else ifeq ($(lorawanback), 1)
-$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_0.lorachip network.lorawan.lorawan_4_4_0
+$(NAME)_COMPONENTS += network.lorawan.lorawan_4_4_0.lorachip_4_4_0 network.lorawan.lorawan_4_4_0
 endif
 
 LORACHIP           := sx1276
