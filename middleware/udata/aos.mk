@@ -1,5 +1,10 @@
 NAME := udata
 
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 0.0.1
+$(NAME)_SUMMARY := Sensoring device processing framework
+GLOBAL_DEFINES += AOS_UDATA
+
 $(NAME)_SOURCES += \
     udata_main.c \
     udata_interface.c \
@@ -11,18 +16,20 @@ $(NAME)_SOURCES += \
     udata_service_task.c \
     udata_parse.c
 
-ifneq ($(dtc),)
+ifeq ($(AOS_CONFIG_DTC_ENABLE),y)
 $(NAME)_SOURCES += service/service_data_to_cloud.c
 GLOBAL_DEFINES  += DATA_TO_CLOUD
 endif
 
-ifeq ($(udata_cjson_support),1)
+ifeq ($(AOS_CONFIG_CJSON_FORMAT),y)
+$(NAME)_COMPONENTS += utility.cjson
 EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/middleware/udata/gen_cjson_data.mk
+GLOBAL_DEFINES += UDATA_CJSON_SUPPORTED
 endif
 
 $(NAME)_INCLUDES := ../../drivers/sensor/include
 
-GLOBAL_INCLUDES += . include \
+GLOBAL_INCLUDES += ./include \
                    ./include/aos
 
 ifeq ($(COMPILER),)
@@ -31,8 +38,5 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-$(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY := Sensoring device processing framework
-GLOBAL_DEFINES  += AOS_UDATA
+
 
