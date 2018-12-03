@@ -27,6 +27,10 @@
     #define WITH_MQTT_ONLY_QOS0                 (0)
 #endif
 
+#ifndef WITH_MQTT_DYN_CONNINFO
+    #define WITH_MQTT_DYN_CONNINFO              (0)
+#endif
+
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)
 
@@ -59,5 +63,6 @@
 
 /* Max times of keepalive which has been send and did not received response package */
 #define IOTX_MC_KEEPALIVE_PROBE_MAX             (3)
+
 
 #endif  /* IOTX_MQTT_CONFIG_H__ */
