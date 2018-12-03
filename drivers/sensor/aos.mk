@@ -7,18 +7,7 @@ $(NAME)_SUMMARY := Hardware abstract layer for sensors
 $(NAME)_SOURCES += \
         hal/sensor_hal.c \
         hal/sensor_drv_api.c \
-        drv/drv_temp_humi_baro_bosch_bme280.c \
-        drv/drv_acc_bosch_bma253.c \
-        drv/drv_baro_bosch_bmp280.c \
-        drv/drv_acc_gyro_st_lsm6dsl.c\
-        drv/drv_baro_st_lps22hb.c \
-        drv/drv_acc_mir3_da217.c \
-        drv/drv_als_ps_liteon_ltr553.c \
-        drv/drv_temp_humi_sensirion_shtc1.c \
-        drv/drv_temp_humi_st_hts221.c \
-        drv/drv_mag_st_lis3mdl.c \
-        drv/drv_mag_temp_memsic_mmc3680kj.c 
-
+        hal/sensor_config.c
 
 CONFIG_SENSOR =  $(addsuffix .c,$(CONFIG_SENSOR_DRV_NAME))
 SENSOR_ALL_FILE=$(notdir $(wildcard drivers/sensor/drv/*.c))
@@ -36,13 +25,13 @@ ifneq ($(CONFIG_DRV_SET),)
 GLOBAL_DEFINES += SENSOR_DRV_AUTO_INIT
 endif
 
-ifeq ($(modbus_sensor_enable),1)
+ifeq ($(AOS_SENSOR_MODBUS_ENABLE),y)
 $(NAME)_SOURCES += drv/drv_modbus_sensors.c
 $(NAME)_COMPONENTS  += rhino.bus.mbmaster
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
 
-ifeq (gps.sim868,$(module))
+ifeq ($(AOS_SENSOR_GPS_SIMCOM_SIM868),y)
 $(NAME)_COMPONENTS += network.sal network.sal.atparser
 $(NAME)_COMPONENTS += network.sal.gprs.sim800
 $(NAME)_SOURCES += drv/drv_gps_simcom_sim868.c
@@ -57,5 +46,6 @@ endif
 
 GLOBAL_INCLUDES +=  ./include
 GLOBAL_DEFINES      += AOS_SENSOR
+include $(SOURCE_ROOT)/drivers/sensor/drv.mk
 
 

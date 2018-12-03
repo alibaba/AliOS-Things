@@ -54,6 +54,8 @@ static SENSOR_IRQ_CALLBACK g_sensor_irq_cb = NULL;
 static sensor_obj_t *      g_sensor_obj[SENSOR_MAX_NUM];
 static char                g_sensor_path[SENSOR_MAX_NUM][SENSOR_NAME_LEN];
 static uint32_t            g_sensor_cnt = 0;
+extern int                 g_sensor_drv_num;
+extern SENSOR_INIT_FUN     g_sensor_func[];
 
 UNUSED static void sensor_set_power_mode(dev_power_mode_e power, int index)
 {
@@ -454,7 +456,7 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
             return -1;
         }
     }
-    LOG(SENSOR_STR, "%s successfully \n", __func__);
+    LOGD(SENSOR_STR, "%s successfully \n", __func__);
     return 0;
 }
 
@@ -504,103 +506,20 @@ int sensor_init(void)
 {
     int ret      = 0;
     g_sensor_cnt = 0;
-#if (!defined (SENSOR_DRV_AUTO_INIT)) || defined(__ICCARM__) 
-#ifdef AOS_SENSOR_HUMI_BOSCH_BME280
-    drv_humi_bosch_bme280_init();
-#endif /* AOS_SENSOR_HUMI_BOSCH_BME280 */
 
-#ifdef AOS_SENSOR_ACC_BOSCH_BMA253
-    drv_acc_bosch_bma253_init();
-#endif /* AOS_SENSOR_ACC_BOSCH_BMA253 */
+    if(g_sensor_drv_num > SENSOR_MAX_NUM){
+        return -1;
+    }
 
-#ifdef AOS_SENSOR_BARO_BOSCH_BMP280
-    drv_baro_bosch_bmp280_init();
-#endif /* AOS_SENSOR_BARO_BOSCH_BMP280 */
-
-#ifdef AOS_SENSOR_ACC_ST_LSM6DSL
-    drv_acc_st_lsm6dsl_init();
-#endif /* AOS_SENSOR_ACC_ST_LSM6DSL */
-
-#ifdef AOS_SENSOR_GYRO_ST_LSM6DSL
-    drv_gyro_st_lsm6dsl_init();
-#endif /* AOS_SENSOR_GYRO_ST_LSM6DSL */
-
-#ifdef AOS_SENSOR_BARO_ST_LPS22HB
-    drv_baro_st_lps22hb_init();
-#endif /* AOS_SENSOR_BARO_ST_LPS22HB */
-
-
-#ifdef AOS_SENSOR_ACC_MIR3_DA217
-    drv_acc_mir3_da217_init();
-#endif /* AOS_SENSOR_ACC_MIR3_DA217 */
-
-#ifdef AOS_SENSOR_ALS_LITEON_LTR553
-    drv_als_liteon_ltr553_init();
-#endif /* AOS_SENSOR_ALS_LITEON_LTR553 */
-
-#ifdef AOS_SENSOR_PS_LITEON_LTR553
-    drv_ps_liteon_ltr553_init();
-#endif /* AOS_SENSOR_PS_LITEON_LTR553 */
-
-#ifdef AOS_SENSOR_TEMP_SENSIRION_SHTC1
-    drv_temp_sensirion_shtc1_init();
-#endif /* AOS_SENSOR_TEMP_SENSIRION_SHTC1 */
-
-#ifdef AOS_SENSOR_HUMI_SENSIRION_SHTC1
-    drv_humi_sensirion_shtc1_init();
-#endif /* AOS_SENSOR_HUMI_SENSIRION_SHTC1 */
-
-#ifdef AOS_SENSOR_TEMP_SENSIRION_HTS221
-    drv_temp_st_hts221_init();
-#endif /* AOS_SENSOR_TEMP_SENSIRION_HTS221 */
-
-#ifdef AOS_SENSOR_HUMI_SENSIRION_HTS221
-    drv_humi_st_hts221_init();
-#endif /* AOS_SENSOR_HUMI_SENSIRION_HTS221 */
-
-
-#ifdef AOS_SENSOR_MAG_ST_LIS3MDL
-    drv_mag_st_lis3mdl_init();
-#endif /*AOS_SENSOR_MAG_ST_LIS3MDL*/
-
-#ifdef AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
-    drv_mag_memsic_mmc3680kj_init();
-#endif /* AOS_SENSOR_MAG_MEMSIC_MMC3680KJ */
-
-#ifdef AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ
-    drv_temp_memsic_mmc3680kj_init();
-#endif /* AOS_SENSOR_TEMP_MEMSIC_MMC3680KJ */
-
-#ifdef AOS_SENSOR_GPS_SIMCON_SIM868
-    drv_gps_simcom_sim868_init();
-#endif
-
-
-#else
-#if defined(__CC_ARM) ||  defined(__GNUC__)
-
-    SENSOR_INIT_FUN* func;
-    SENSOR_INIT_FUN* start = (SENSOR_INIT_FUN *)g_sensor_start;
-    SENSOR_INIT_FUN* end = (SENSOR_INIT_FUN *)g_sensor_end;
-
-    if(end != start){
-        for(func = start; func < end; func++){
-            if(func == NULL){
-                continue;
-            }
-
-            if(*func == NULL){
-                continue;
-            }
-
-            ret = (*func)();
-            if(unlikely(ret)){
-                LOG("sensor init function addr (%x) fail\n", (uint32_t)(*func));
-            }
+    for(int i = 0; i < g_sensor_drv_num; i++){
+        if(g_sensor_func[i] == NULL){
+            continue;
+        }
+        ret = g_sensor_func[i]();
+        if(unlikely(ret)){
+            LOGD(SENSOR_STR, "%s %d fail \n", __func__,i);
         }
     }
-#endif
-#endif
 
 #ifdef UDATA_MODBUS
     modbus_init();
