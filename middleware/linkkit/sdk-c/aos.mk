@@ -43,7 +43,6 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/awss \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/cm \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/mal \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/services/mdal/mal/ica \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/ota/impl \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/utils/misc  \
@@ -69,9 +68,6 @@ $(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/ref-impl/hal/os/alios
 
 ifeq (y,$(FEATURE_MAL_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/mdal/mal
-ifeq (y,$(FEATURE_MAL_ICA_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/mdal/mal/ica
-endif
 endif
 ifeq (y,$(FEATURE_SUPPORT_TLS))
 #$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/ref-impl/tls
