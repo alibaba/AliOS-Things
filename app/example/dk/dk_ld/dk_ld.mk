@@ -5,10 +5,10 @@ $(NAME)_VERSION := 0.0.1
 $(NAME)_SUMMARY :=
 $(NAME)_SOURCES    := ldapp.c
 
-$(NAME)_COMPONENTS := cli sensor cjson middleware.uagent.uota netmgr middleware.common feature.linkkit-mqtt
+$(NAME)_COMPONENTS := cli drivers.sensor cjson middleware.uagent.uota netmgr feature.linkkit-mqtt
 GLOBAL_DEFINES += CONFIG_AOS_CLI USE_LPTHREAD
 
-GLOBAL_INCLUDES += ../../../device/sensor/include
+GLOBAL_INCLUDES += ../../../../drivers/sensor/include
 # for developerkit board
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),developerkit)
 $(NAME)_SOURCES    += AliOS_Things_logo.c

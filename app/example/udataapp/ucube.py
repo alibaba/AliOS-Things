@@ -5,14 +5,13 @@ src =Split('''
 component =aos_component('udataapp', src)
 global_includes =Split(''' 
     .
-    ../../../device/sensor/include
+    ../../../drivers/sensor/include
 ''')
 
 dependencis =Split('''
     kernel/cli
     network/netmgr
-    middleware/common
-    device/sensor 
+    drivers/sensor 
     middleware/udata
 ''')
 for i in dependencis:
