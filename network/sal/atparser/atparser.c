@@ -259,6 +259,14 @@ static int at_getc(char *c)
     aos_mutex_unlock(&at.at_mutex);
 
     if (ret != 0) {
+#ifdef WORKAROUND_DEVELOPERBOARD_DMA_UART
+        if (ret == 1) {
+            printf("--->AT dma fail, restart!\n");
+            hal_uart_finalize(at._pstuart);
+            at_init_uart();
+            printf("<----AT dma fail, restart!\n");
+        }
+#endif
         return -1;
     }
 
