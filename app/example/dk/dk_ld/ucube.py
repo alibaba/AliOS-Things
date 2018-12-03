@@ -3,7 +3,7 @@ src = Split('''
 ''')
 component = aos_component('ldapp', src)
 global_includes =Split('''
-    ../../../device/sensor/include
+    ../../../../drivers/sensor/include
 ''')
 
 macro_tmp = Split('''
@@ -20,7 +20,6 @@ dependencis = Split('''
     utility/cjson
     middleware/uagent/uota
     network/netmgr
-    middleware/common
 ''')
 for i in dependencis:
     component.add_comp_deps(i)

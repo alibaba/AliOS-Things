@@ -26,7 +26,7 @@ GLOBAL_DEFINES      +=  MQTT_DIRECT  ALIOT_DEBUG IOTX_DEBUG USE_LPTHREAD COAP_WI
 
 $(NAME)_SOURCES     := gateway.c gateway_app.c gateway_tsl.c
 
-$(NAME)_COMPONENTS := feature.linkkit-noawss device/sensor middleware/common utility/cjson network/netmgr middleware/udata rhino.bus.mbmaster
+$(NAME)_COMPONENTS := feature.linkkit-noawss drivers/sensor utility/cjson network/netmgr middleware/udata rhino.bus.mbmaster
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
@@ -55,7 +55,7 @@ else
 
 $(NAME)_SOURCES := gateway.c
 
-$(NAME)_COMPONENTS :=  middleware/common network/netmgr middleware/udata device/sensor rhino.bus.mbmaster utility/cjson 
+$(NAME)_COMPONENTS := network/netmgr middleware/udata drivers/sensor rhino.bus.mbmaster utility/cjson
 
 GLOBAL_INCLUDES += .
 
