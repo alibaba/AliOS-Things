@@ -18,7 +18,15 @@ $(NAME)_SOURCES := mips_rda_stub.c
 else ifeq ($(HOST_MCU_FAMILY),freedom-e.e310)
 $(NAME)_SOURCES := newlib_riscv_stub.c
 else ifneq ($(HOST_MCU_FAMILY),linux)
+ifeq ($(MBINS),app)
+ifeq ($(ENABLE_USPACE),1)
+$(NAME)_SOURCES := newlib_stub_uspace.c
+else
 $(NAME)_SOURCES := newlib_stub.c
+endif
+else
+$(NAME)_SOURCES := newlib_stub.c
+endif
 endif
 
 ifeq ($(IDE),keil)
