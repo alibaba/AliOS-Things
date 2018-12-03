@@ -2,7 +2,7 @@ NAME := breezeapp
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_SUMMARY := breezeapp
 $(NAME)_SOURCES := breezeapp.c
 
 GLOBAL_DEFINES += BLE_APP_RECONFIG_AISILOP
