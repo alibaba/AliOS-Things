@@ -1,9 +1,0 @@
-menuconfig AOS_APP_REALTIME_TEST
-    bool "realtime_test"
-    select AOS_COMP_REALTIME
-    select AOS_COMP_CLI
-    help
-
-if AOS_APP_REALTIME_TEST
-# Configurations for app realtime_test
-endif

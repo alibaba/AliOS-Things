@@ -1,8 +1,0 @@
-menuconfig AOS_APP_RHINORUN
-    bool "rhinorun"
-    select AOS_COMP_CLI
-    help
-
-if AOS_APP_RHINORUN
-# Configurations for app rhinorun
-endif
