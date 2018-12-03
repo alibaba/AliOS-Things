@@ -44,7 +44,6 @@ $(call CompLib_Map, FEATURE_ALCS_ENABLED, \
 )
 $(call CompLib_Map, FEATURE_MAL_ENABLED, \
     src/services/mdal/mal \
-    src/services/mdal/ref-impl \
 )
 $(call CompLib_Map, FEATURE_SAL_ENABLED, \
     src/services/mdal/sal \
