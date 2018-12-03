@@ -1,8 +1,0 @@
-menuconfig AOS_APP_VFLASHDEMO
-    bool "vflashdemo"
-    select AOS_COMP_BENCHMARKS if @CONDITION@
-    help
-
-if AOS_APP_VFLASHDEMO
-# Configurations for app vflashdemo
-endif
