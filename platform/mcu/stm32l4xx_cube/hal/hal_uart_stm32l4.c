@@ -37,6 +37,9 @@ static int32_t uart_receive_dma(uart_dev_t *uart, void *data, uint32_t expect_si
                       uint32_t *recv_size, uint32_t timeout);
 static void UART_IT_RxCpltCallback(PORT_UART_TYPE appPort, uint32_t max_buffer_size);
 static void UART_DMA_RxCpltCallback(PORT_UART_TYPE appPort, uint32_t max_buffer_size);
+#ifdef WORKAROUND_DEVELOPERBOARD_DMA_UART
+static int8_t uart_dma_err_workaround(uart_dev_t *uart);
+#endif
 
 typedef struct {
     aos_mutex_t uart_tx_mutex;
@@ -482,6 +485,28 @@ static int32_t uart_receive_it(uart_dev_t *uart, void *data, uint32_t expect_siz
     return ret;
 }
 
+#ifdef WORKAROUND_DEVELOPERBOARD_DMA_UART
+static uint8_t g_err_cnt = 0;
+static int8_t uart_dma_err_workaround(uart_dev_t *uart)
+{
+   int8_t ret = 0;
+   uint32_t uart_cr1_peie = READ_BIT(stm32_uart[uart->port].hal_uart_handle.Instance->CR1, USART_CR1_PEIE);
+   uint32_t uart_ins_cr3_eie = READ_BIT(stm32_uart[uart->port].hal_uart_handle.Instance->CR3, USART_CR3_EIE);
+   uint32_t uart_ins_cr3_dmar = READ_BIT(stm32_uart[uart->port].hal_uart_handle.Instance->CR3, USART_CR3_DMAR);
+
+   if (uart_cr1_peie == 0 && uart_ins_cr3_eie == 0 && uart_ins_cr3_dmar == 0)
+     g_err_cnt++;
+   if (g_err_cnt == 5) {
+    ret = -1;
+    g_err_cnt = 0;
+   } else
+   ret = 0;
+
+  return ret;
+
+}
+#endif
+
 static int32_t uart_receive_dma(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
@@ -573,6 +598,12 @@ static int32_t uart_receive_dma(uart_dev_t *uart, void *data, uint32_t expect_si
     }
     else
     {
+#ifdef WORKAROUND_DEVELOPERBOARD_DMA_UART
+       if (uart_dma_err_workaround(uart)) {
+            printf("uart dma fail, workaround!!!!\n");
+            ret = 1;
+        } else
+#endif
         ret = -1;
     }
 
