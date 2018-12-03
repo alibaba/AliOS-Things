@@ -54,6 +54,8 @@ static SENSOR_IRQ_CALLBACK g_sensor_irq_cb = NULL;
 static sensor_obj_t *      g_sensor_obj[SENSOR_MAX_NUM];
 static char                g_sensor_path[SENSOR_MAX_NUM][SENSOR_NAME_LEN];
 static uint32_t            g_sensor_cnt = 0;
+extern int                 g_sensor_drv_num;
+extern SENSOR_INIT_FUN     g_sensor_func[];
 
 UNUSED static void sensor_set_power_mode(dev_power_mode_e power, int index)
 {
@@ -454,7 +456,7 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
             return -1;
         }
     }
-    LOG(SENSOR_STR, "%s successfully \n", __func__);
+    LOGD(SENSOR_STR, "%s successfully \n", __func__);
     return 0;
 }
 
@@ -504,6 +506,7 @@ int sensor_init(void)
 {
     int ret      = 0;
     g_sensor_cnt = 0;
+<<<<<<< HEAD
 #if (!defined (SENSOR_DRV_AUTO_INIT)) || defined(__ICCARM__) 
 #ifdef AOS_SENSOR_HUMI_BOSCH_BME280
     drv_humi_bosch_bme280_init();
@@ -734,16 +737,28 @@ int sensor_init(void)
             if(*func == NULL){
                 continue;
             }
+=======
 
-            ret = (*func)();
-            if(unlikely(ret)){
-                LOG("sensor init function addr (%x) fail\n", (uint32_t)(*func));
-            }
+    if(g_sensor_drv_num > SENSOR_MAX_NUM){
+        return -1;
+    }
+>>>>>>> 44f3c13a5 ( BugID:17532990: sensor automatic init)
+
+    for(int i = 0; i < g_sensor_drv_num; i++){
+        if(g_sensor_func[i] == NULL){
+            continue;
+        }
+        ret = g_sensor_func[i]();
+        if(unlikely(ret)){
+            LOGD(SENSOR_STR, "%s %d fail \n", __func__,i);
         }
     }
+<<<<<<< HEAD
 #endif
 #endif
 >>>>>>> e1b7036a7 (BugID:17115493: merge gps into sensor)
+=======
+>>>>>>> 44f3c13a5 ( BugID:17532990: sensor automatic init)
 
 #ifdef UDATA_MODBUS
     modbus_init();

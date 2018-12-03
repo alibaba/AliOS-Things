@@ -1,12 +1,610 @@
 menuconfig AOS_COMP_SENSOR
     bool "sensor"
     default n
-    select AOS_COMP_ATPARSER if @CONDITION@
-    select AOS_COMP_DEVICE_SAL_SIM800 if @CONDITION@
-    select AOS_COMP_MBMASTER if @CONDITION@
-    select AOS_COMP_SAL if @CONDITION@
+    select AOS_COMP_MBMASTER if AOS_SENSOR_MODBUS_ENABLE
+    select AOS_COMP_ATPARSER if AOS_SENSOR_GPS_SIMCOM_SIM868
+    select AOS_COMP_DEVICE_SAL_SIM800 if AOS_SENSOR_GPS_SIMCOM_SIM868
+    select AOS_COMP_SAL if AOS_SENSOR_GPS_SIMCOM_SIM868
     help
 
 if AOS_COMP_SENSOR
 # Configurations for comp sensor
+config AOS_SENSOR_MODBUS_ENABLE
+    bool "Enable modbus sensor"
+    default n
+    help
+        Enable modbus sensor
+
+
+menu "select sensor"
+    menu "acc sensor"
+        config AOS_SENSOR_ACC_ADI_ADXL345
+            bool "adxl345 sensor"
+            default n
+            help
+                Enable adxl345 sensor
+        config AOS_SENSOR_ACC_ADI_ADXL355
+            bool "adxl355 sensor"
+            default n
+            help
+                Enable adxl355 sensor
+        config AOS_SENSOR_ACC_BOSCH_BMA253
+            bool "bma253 sensor"
+            default n
+            help
+                Enable bma253 acc sensor
+        config AOS_SENSOR_ACC_BOSCH_BMA280
+            bool "bma280 sensor"
+            default n
+            help
+                Enable bma280 acc sensor
+        config AOS_SENSOR_ACC_BOSCH_BMA421
+            bool "bma421 sensor"
+            default n
+            help
+                Enable bma421 acc sensor
+        config AOS_SENSOR_ACC_BOSCH_BMA422
+            bool "bma422 sensor"
+            default n
+            help
+                Enable bma422 sensor
+        config AOS_SENSOR_ACC_BOSCH_BMA455
+            bool "bma455 sensor"
+            default n
+            help
+                Enable bma455 sensor
+        config AOS_SENSOR_ACC_BOSCH_BMA456
+            bool "bma456 sensor"
+            default n
+            help
+                Enable bma456 sensor
+        config AOS_SENSOR_ACC_BOSCH_BMI055
+            bool "bmi055 sensor"
+            default n
+            help
+                Enable bmi055 sensor
+        config AOS_SENSOR_ACC_BOSCH_BMI088
+            bool "bmI088 sensor"
+            default n
+            help
+                Enable bmI088 sensor
+        config AOS_SENSOR_ACC_BOSCH_BMI120
+            bool "bmI120 sensor"
+            default n
+            help
+                Enable bmI120 sensor
+        config AOS_SENSOR_ACC_BOSCH_BMI160
+            bool "bmI160 sensor"
+            default n
+            help
+                Enable bmI160 sensor
+        config AOS_SENSOR_ACC_BOSCH_BMI260
+            bool "bmI260 sensor"
+            default n
+            help
+                Enable bmI260 sensor
+        config AOS_SENSOR_ACC_SENODIA_SH200L
+            bool "sh200l sensor"
+            default n
+            help
+                Enable sh200l sensor
+        config AOS_SENSOR_ACC_SENODIA_SH200Q
+            bool "sh200q sensor"
+            default n
+            help
+                Enable sh200q sensor
+        config AOS_SENSOR_ACC_ST_LSM6DS3
+            bool "lsm6ds3 sensor"
+            default n
+            help
+                Enable lsm6ds3 sensor
+        config AOS_SENSOR_ACC_ST_LSM6DS3TR_C
+            bool "lsm6ds3tr_c sensor"
+            default n
+            help
+                Enable lsm6ds3tr_c sensor
+        config AOS_SENSOR_ACC_ST_LSM6DSL
+            bool "lsm6dsl sensor"
+            default n
+            help
+                Enable lsm6dsl sensor
+        config AOS_SENSOR_ACC_ST_LSM6DSM
+            bool "lsm6dsm sensor"
+            default n
+            help
+                Enable lsm6dsm sensor
+        config AOS_SENSOR_ACC_ST_LSM6DSOQ
+            bool "lsm6dsoq sensor"
+            default n
+            help
+                Enable lsm6dsoq sensor
+        config AOS_SENSOR_ACC_ST_LSM6DSR
+            bool "lsm6dsr sensor"
+            default n
+            help
+                Enable lsm6dsr sensor
+        config AOS_SENSOR_ACC_ST_LSM303AGR
+            bool "lsm303agr sensor"
+            default n
+            help
+                Enable lsm303agr sensor
+				
+        config AOS_SENSOR_ACC_MIR3_DA213B
+            bool "da213b sensor"
+            default n
+            help
+                Enable da213b sensor
+        config AOS_SENSOR_ACC_MIR3_DA215
+            bool "da215 sensor"
+            default n
+            help
+                Enable da215 sensor
+        config AOS_SENSOR_ACC_MIR3_DA217
+            bool "da217 sensor"
+            default n
+            help
+                Enable da217 sensor
+        config AOS_SENSOR_ACC_MIR3_DA270
+            bool "da270 sensor"
+            default n
+            help
+                Enable da270 sensor
+        config AOS_SENSOR_ACC_MIR3_DA312B
+            bool "da312b sensor"
+            default n
+            help
+                Enable da312b sensor
+        config AOS_SENSOR_ACC_MIR3_DA380B
+            bool "da380b sensor"
+            default n
+            help
+                Enable da380b sensor
+        config AOS_SENSOR_ACC_ST_AIS328DQ
+            bool "ais328dq sensor"
+            default n
+            help
+                Enable ais328dq sensor
+        config AOS_SENSOR_ACC_ST_H3LIS100DL
+            bool "h3lis100dl sensor"
+            default n
+            help
+                Enable h3lis100dl sensor
+        config AOS_SENSOR_ACC_ST_H3LIS331DL
+            bool "h3lis331dl sensor"
+            default n
+            help
+                Enable h3lis331dl sensor
+        config AOS_SENSOR_ACC_ST_LIS2DH12
+            bool "lis2dh12 sensor"
+            default n
+            help
+                Enable lis2dh12 sensor
+        config AOS_SENSOR_ACC_ST_LIS2DW12
+            bool "lis2dw12 sensor"
+            default n
+            help
+                Enable lis2dw12 sensor
+        config AOS_SENSOR_ACC_ST_LIS2HH12
+            bool "lis2hh12 sensor"
+            default n
+            help
+                Enable lis2hh12 sensor
+        config AOS_SENSOR_ACC_ST_LIS3DH
+            bool "lis3dh sensor"
+            default n
+            help
+                Enable lis3dh sensor
+        config AOS_SENSOR_ACC_ST_LIS331HH
+            bool "lis331hh sensor"
+            default n
+            help
+                Enable lis331hh sensor
+        config AOS_SENSOR_ACC_ST_N2DM
+            bool "n2dm sensor"
+            default n
+            help
+                Enable n2dm sensor
+    endmenu
+
+    menu "gyro sensor"
+        config AOS_SENSOR_GYRO_BOSCH_BMI055
+            bool "bmi055 sensor"
+            default n
+            help
+                Enable bmi055 sensor
+        config AOS_SENSOR_GYRO_BOSCH_BMI088
+            bool "bmI088 sensor"
+            default n
+            help
+                Enable bmI088 sensor
+        config AOS_SENSOR_GYRO_BOSCH_BMI120
+            bool "bmI120 sensor"
+            default n
+            help
+                Enable bmI120 sensor
+        config AOS_SENSOR_GYRO_BOSCH_BMI160
+            bool "bmI160 sensor"
+            default n
+            help
+                Enable bmI160 sensor
+        config AOS_SENSOR_GYRO_BOSCH_BMI260
+            bool "bmI260 sensor"
+            default n
+            help
+                Enable bmI260 sensor
+        config AOS_SENSOR_GYRO_SENODIA_SH200L
+            bool "sh200l sensor"
+            default n
+            help
+                Enable sh200l sensor
+        config AOS_SENSOR_GYRO_SENODIA_SH200Q
+            bool "sh200q sensor"
+            default n
+            help
+                Enable sh200q sensor
+        config AOS_SENSOR_GYRO_ST_LSM6DS3
+            bool "lsm6ds3 sensor"
+            default n
+            help
+                Enable lsm6ds3 sensor
+        config AOS_SENSOR_GYRO_ST_LSM6DS3TR_C
+            bool "lsm6ds3tr_c sensor"
+            default n
+            help
+                Enable lsm6ds3tr_c sensor
+        config AOS_SENSOR_GYRO_ST_LSM6DSL
+            bool "lsm6dsl sensor"
+            default n
+            help
+                Enable lsm6dsl sensor
+        config AOS_SENSOR_GYRO_ST_LSM6DSM
+            bool "lsm6dsm sensor"
+            default n
+            help
+                Enable lsm6dsm sensor
+        config AOS_SENSOR_GYRO_ST_LSM6DSOQ
+            bool "lsm6dsoq sensor"
+            default n
+            help
+                Enable lsm6dsoq sensor
+        config AOS_SENSOR_GYRO_ST_LSM6DSR
+            bool "lsm6dsr sensor"
+            default n
+            help
+                Enable lsm6dsr sensor
+        config AOS_SENSOR_GYRO_BOSCH_BMG160
+            bool "bmg160 sensor"
+            default n
+            help
+                Enable bmg160 sensor
+        config AOS_SENSOR_GYRO_ST_A3G4250D
+            bool "a3g4250d sensor"
+            default n
+            help
+                Enable a3g4250d sensor
+        config AOS_SENSOR_GYRO_ST_I3G4250D
+            bool "i3g4250d sensor"
+            default n
+            help
+                Enable i3g4250d sensor
+        config AOS_SENSOR_GYRO_ST_L3GD20H
+            bool "l3gd20h sensor"
+            default n
+            help
+                Enable l3gd20h sensor
+    endmenu
+	
+
+    menu "mag sensor"
+        config AOS_SENSOR_MAG_ST_LSM303AGR
+            bool "lsm303agr sensor"
+            default n
+            help
+                Enable lsm303agr sensor
+
+        config AOS_SENSOR_MAG_AKM_AK09917
+            bool "ak09917 sensor"
+            default n
+            help
+                Enable ak09917 sensor	
+        config AOS_SENSOR_MAG_AKM_AK09918
+            bool "ak09918 sensor"
+            default n
+            help
+                Enable ak09918 sensor	
+        config AOS_SENSOR_MAG_AKM_AK09940
+            bool "ak09940 sensor"
+            default n
+            help
+                Enable ak09940 sensor	
+
+        config AOS_SENSOR_MAG_ROHM_BM1422A
+            bool "bm1422a sensor"
+            default n
+            help
+                Enable bm1422a sensor
+
+        config AOS_SENSOR_MAG_SENODIA_ST350
+            bool "st350 sensor"
+            default n
+            help
+                Enable st350 sensor
+
+        config AOS_SENSOR_MAG_SENODIA_ST480
+            bool "st480 sensor"
+            default n
+            help
+                Enable st480 sensor
+
+        config AOS_SENSOR_MAG_ST_LIS2MDL
+            bool "lis2mdl sensor"
+            default n
+            help
+                Enable lis2mdl sensor
+
+        config AOS_SENSOR_MAG_ST_LIS3MDL
+            bool "lis3mdl sensor"
+            default n
+            help
+                Enable lis3mdl sensor
+
+        config AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
+            bool "mmc3680kj sensor"
+            default n
+            help
+                Enable mmc3680kj sensor
+    endmenu
+    
+    menu "als sensor"
+        config AOS_SENSOR_ALS_AMS_TCS3400
+            bool "tcs3400 sensor"
+            default n
+            help
+                Enable tcs3400 sensor
+				
+        config AOS_SENSOR_ALS_AMS_TMD2725
+            bool "tmd2725 sensor"
+            default n
+            help
+                Enable tmd2725 sensor
+
+        config AOS_SENSOR_ALS_LITEON_LTR303
+            bool "ltr303 sensor"
+            default n
+            help
+                Enable ltr303 sensor
+
+        config AOS_SENSOR_ALS_LITEON_LTR568
+            bool "ltr568 sensor"
+            default n
+            help
+                Enable ltr568 sensor
+
+        config AOS_SENSOR_ALS_LITEON_LTR507
+            bool "ltr507 sensor"
+            default n
+            help
+                Enable ltr507 sensor
+
+        config AOS_SENSOR_ALS_LITEON_LTR553
+            bool "ltr553 sensor"
+            default n
+            help
+                Enable ltr553 sensor
+				
+        config AOS_SENSOR_ALS_LITEON_LTR559
+            bool "ltr559 sensor"
+            default n
+            help
+                Enable ltr559 sensor
+				
+        config AOS_SENSOR_ALS_ROHM_BH1730
+            bool "bh1730 sensor"
+            default n
+            help
+                Enable bh1730 sensor
+				
+				
+    endmenu
+	
+    menu "ps sensor"
+        config AOS_SENSOR_PS_AMS_TMD2725
+            bool "tmd2725 sensor"
+            default n
+            help
+                Enable tmd2725 sensor
+
+        config AOS_SENSOR_PS_LITEON_LTR507
+            bool "ltr507 sensor"
+            default n
+            help
+                Enable ltr507 sensor
+
+        config AOS_SENSOR_PS_LITEON_LTR553
+            bool "ltr553 sensor"
+            default n
+            help
+                Enable ltr553 sensor
+				
+        config AOS_SENSOR_PS_LITEON_LTR559
+            bool "ltr559 sensor"
+            default n
+            help
+                Enable ltr559 sensor
+				
+        config AOS_SENSOR_PS_LITEON_LTR659
+            bool "ltr659 sensor"
+            default n
+            help
+                Enable ltr659 sensor
+				
+        config AOS_SENSOR_PS_LITEON_LTR690
+            bool "ltr690 sensor"
+            default n
+            help
+                Enable ltr690 sensor
+				
+        config AOS_SENSOR_PS_LITEON_LTR706
+            bool "ltr706 sensor"
+            default n
+            help
+                Enable ltr706 sensor
+    endmenu
+	
+    menu "baro sensor"
+        config AOS_SENSOR_BARO_BOSCH_BMP280
+            bool "bmp280 sensor"
+            default n
+            help
+                Enable bmp280 sensor
+
+        config AOS_SENSOR_BARO_BOSCH_BMP380
+            bool "bmp380 sensor"
+            default n
+            help
+                Enable bmp380 sensor
+
+        config AOS_SENSOR_BARO_ROHM_BM1383A
+            bool "bm1383a sensor"
+            default n
+            help
+                Enable bm1383a sensor
+
+        config AOS_SENSOR_BARO_ST_LPS22HB
+            bool "lps22hb sensor"
+            default n
+            help
+                Enable lps22hb sensor
+
+        config AOS_SENSOR_BARO_ST_LPS33HB
+            bool "lps33hb sensor"
+            default n
+            help
+                Enable lps33hb sensor
+
+        config AOS_SENSOR_BARO_ST_LPS35HB
+            bool "lps35hb sensor"
+            default n
+            help
+                Enable lps35hb sensor
+
+        config AOS_SENSOR_BARO_BOSCH_BME280
+            bool "bme280 sensor"
+            default n
+            help
+                Enable bme280 sensor
+    endmenu
+
+    menu "gesture sensor"
+        config AOS_SENSOR_GESTURE_PIXART_PAJ7620
+            bool "paj7620 sensor"
+            default n
+            help
+                Enable paj7620 sensor
+    endmenu
+
+    menu "ir sensor"
+        config AOS_SENSOR_IR_AKM_AK9754
+            bool "ak9754 sensor"
+            default n
+            help
+                Enable ak9754 sensor
+    endmenu	
+
+    menu "rgb sensor"
+        config AOS_SENSOR_RGB_LITEON_LTR381
+            bool "ltr381 sensor"
+            default n
+            help
+                Enable ltr381 sensor
+    endmenu	
+
+    menu "rtc sensor"
+        config AOS_SENSOR_RTC_MAXIM_DS1307
+            bool "ds1307 sensor"
+            default n
+            help
+                Enable ds1307 sensor
+    endmenu	
+	
+    menu "uv sensor"
+        config AOS_SENSOR_UV_LITEON_LTR390
+            bool "ltr390 sensor"
+            default n
+            help
+                Enable ltr390 sensor
+    endmenu	
+    menu "temp sensor"
+        config AOS_SENSOR_TEMP_ADI_ADT7410
+            bool "adt7410 sensor"
+            default n
+            help
+                Enable adt7410 sensor
+				
+        config AOS_SENSOR_TEMP_BOSCH_BME280
+            bool "bme280 sensor"
+            default n
+            help
+                Enable bme280 sensor
+        config AOS_SENSOR_TEMP_SENSIRION_SHT30
+            bool "sht30 sensor"
+            default n
+            help
+                Enable sht30 sensor
+
+        config AOS_SENSOR_TEMP_SENSIRION_SHT31
+            bool "sht31 sensor"
+            default n
+            help
+                Enable sht31 sensor
+        config AOS_SENSOR_TEMP_SENSIRION_SHTC1
+            bool "shtc1 sensor"
+            default n
+            help
+                Enable shtc1 sensor
+        config AOS_SENSOR_TEMP_ST_HTS221
+            bool "hts221 sensor"
+            default n
+            help
+                Enable hts221 sensor
+    endmenu	
+	
+    menu "humi sensor"
+        config AOS_SENSOR_HUMI_BOSCH_BME280
+            bool "bme280 sensor"
+            default n
+            help
+                Enable bme280 sensor
+        config AOS_SENSOR_HUMI_SENSIRION_SHT30
+            bool "sht30 sensor"
+            default n
+            help
+                Enable sht30 sensor
+
+        config AOS_SENSOR_HUMI_SENSIRION_SHT31
+            bool "sht31 sensor"
+            default n
+            help
+                Enable sht31 sensor
+        config AOS_SENSOR_HUMI_SENSIRION_SHTC1
+            bool "shtc1 sensor"
+            default n
+            help
+                Enable shtc1 sensor
+        config AOS_SENSOR_HUMI_ST_HTS221
+            bool "hts221 sensor"
+            default n
+            help
+                Enable hts221 sensor
+    endmenu	
+	
+    menu "gps sensor"
+        config AOS_SENSOR_GPS_SIMCOM_SIM868
+            bool "sim868 sensor"
+            default n
+            help
+                Enable sim868 sensor
+    endmenu
+	
+endmenu
 endif
