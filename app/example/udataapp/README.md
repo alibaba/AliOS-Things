@@ -13,14 +13,15 @@ Users can subscribe the uData service if they need as it shows in the uDataapp. 
 
 ### Directories
 
-<pre><code>udataapp
+```sh
+udataapp
 ├─linkkit
 │  ├─app_entry.c               # init function for data to cloud through linkkit
 │  └─linkkit_example_solo.c    # callback function for data to cloud through linkkit
 ├─mqtt
 │  └─mqtt_example.c            # init and callback function for data to cloud through mqtt
 └─udata_example.c              # uData example code
-</code></pre>
+```
 
 ### Dependencies
 
