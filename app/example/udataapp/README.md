@@ -24,7 +24,7 @@ Users can subscribe the uData service if they need as it shows in the uDataapp. 
 
 ### Dependencies
 
-- device.sensor(necessary)
+- drivers.sensor(necessary)
 - middleware.udata(necessary)
 - utility.cjson(optional)
 - feature.linkkit(optional)
