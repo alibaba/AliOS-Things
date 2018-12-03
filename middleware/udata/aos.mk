@@ -20,7 +20,7 @@ ifeq ($(udata_cjson_support),1)
 EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/middleware/udata/gen_cjson_data.mk
 endif
 
-$(NAME)_INCLUDES := ../../device/sensor/include
+$(NAME)_INCLUDES := ../../drivers/sensor/include
 
 GLOBAL_INCLUDES += . include \
                    ./include/aos
