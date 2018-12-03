@@ -35,10 +35,11 @@ The **http2app**  shows linkkit gateway related functions.
 ```sh
 aos make clean
 aos make linkkit_gateway@yourboard
+```
 
-you can add params print_heap=1 to show free heap duration
-or add deprecated=1 to use deprecated api
+you can add params print_heap=1 to show free heap duration, or add deprecated=1 to use deprecated api
 
+```sh
 aos make linkkit_gateway@yourboard print_heap=1  deprecated=1 
 ```
 

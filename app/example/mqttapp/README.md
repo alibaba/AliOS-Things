@@ -17,7 +17,7 @@
 
 ## Introduction
 
-The **http2app**  shows mqtt related functions.
+The **mqttapp**  shows mqtt related functions.
 
 ### Dependencies
 
@@ -27,21 +27,36 @@ The **http2app**  shows mqtt related functions.
 
 ### Build
 
-```sh
 
-Notice: Please be sure to use git bash when build on Windows! Otherwise may resulting in run problem for linkkit. git bash download url https://git-scm.com/download/win
-    
+
+> Notice: Please be sure to use git bash when build on Windows! Otherwise may resulting in run problem for linkkit. git bash download url https://git-scm.com/download/win
+
+```sh
     aos make clean
+```
+
 1).mqtt_example.c:
-    aos make mqttapp@xxxx   
+
+```sh
+    aos make mqttapp@xxxx
+```
 
 2).mqtt_example_rrpc.c:
+
+```sh
     aos make mqttapp@xxxx case=rrpc
+```
 
 3).mqtt_example_multithread.c:
-    aos make mqttapp@xxxx case=multithread
 
-3).mqtt_example_presstest.c: (refs:https://github.com/AITC-LinkCertification/AITC-Manual/wiki/Manual-Channel-MQTT)
+```sh
+    aos make mqttapp@xxxx case=multithread
+```
+
+3).mqtt_presstest.c:
+> refs: https://github.com/AITC-LinkCertification/AITC-Manual/wiki/Manual-Channel-MQTT
+
+```sh
     aos make mqttapp@xxxx case=presstest
 ```
 
@@ -104,8 +119,6 @@ mqtt_client|193 ::
 [dbg] iotx_mc_cycle(1791): PUBACK
 event_handle|080 :: publish success, packet-id=1
 [dbg] iotx_mc_cycle(1791): PUBACK
-
-
 ```
 
 ## Reference

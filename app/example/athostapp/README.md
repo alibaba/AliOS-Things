@@ -1,5 +1,3 @@
-# README.md: athostapp
-
 ## Contents
 
 ```shell
@@ -13,8 +11,11 @@
 
 `athostapp` is an example for receiving and processing AT command sets. It provides AT commands such as ICA MQTT/COAP, tcp/udp client, WiFi management, etc.
 
-Compile command example: aos make athostapp@mk3080
+Compile command example:
 
+```sh
+aos make athostapp@mk3080
+```
 
 ### Features
 
@@ -26,10 +27,6 @@ Compile command example: aos make athostapp@mk3080
 ### Dependencies
 
 - network/sal/athost
-
-## API
-
-None.
 
 ## Reference
 
