@@ -114,6 +114,7 @@ typedef struct {
 #if (RHINO_CONFIG_CPU_NUM > 1)
     uint8_t          cpu_binded;
     uint8_t          cur_exc;
+    klist_t          task_del_item;
 #endif
 
     /* current prio */
