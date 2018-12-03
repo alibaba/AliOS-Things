@@ -1,7 +1,0 @@
-menuconfig AOS_APP_UAPP2
-    bool "uapp2"
-    help
-
-if AOS_APP_UAPP2
-# Configurations for app uapp2
-endif

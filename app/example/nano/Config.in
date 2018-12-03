@@ -1,8 +1,0 @@
-menuconfig AOS_APP_NANO
-    bool "nano"
-    select AOS_COMP_BENCHMARKS if @CONDITION@
-    help
-
-if AOS_APP_NANO
-# Configurations for app nano
-endif
