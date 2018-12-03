@@ -40,7 +40,7 @@ int32_t vfs_inode_init(void);
 /**
  * @brief Alloc a free inode
  *
- * @return 0 on success, negative error on failure
+ * @return the index of inode, VFS_ERR_NOMEM on failure
  *
  */
 int32_t vfs_inode_alloc(void);
