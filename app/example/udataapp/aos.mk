@@ -10,20 +10,23 @@ $(NAME)_COMPONENTS := cli yloop drivers.sensor middleware.udata
 GLOBAL_INCLUDES += ./
 GLOBAL_INCLUDES += ../../../drivers/sensor/include
 
-udata_cjson_support := 1
-ifeq ($(udata_cjson_support),1)
-GLOBAL_DEFINES += UDATA_CJSON_SUPPORTED
-$(NAME)_COMPONENTS += utility.cjson
-endif
 
 ifeq ($(dtc),linkkit)
+AOS_CONFIG_DTC_LINKKIT = y
+AOS_CONFIG_DTC_ENABLE = y
+else ifeq ($(dtc),mqtt)
+AOS_CONFIG_DTC_MQTT = y
+AOS_CONFIG_DTC_ENABLE = y
+endif
+
+ifeq ($(AOS_CONFIG_DTC_LINKKIT),y)
 
 $(NAME)_SOURCES += linkkit/app_entry.c
 $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 
 $(NAME)_COMPONENTS += feature.linkkit netmgr utility.cjson
 
-ifeq ($(LWIP),1)
+ifeq ($(AOS_CONFIG_LWIP_ENABLE),y)
 $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
@@ -32,7 +35,7 @@ GLOBAL_INCLUDES += ./
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 GLOBAL_DEFINES += DTC_LINKKIT
 
-else ifeq ($(dtc),mqtt)
+else ifeq ($(AOS_CONFIG_DTC_MQTT),y)
 
 $(NAME)_SOURCES    += mqtt/mqtt_example.c
 
