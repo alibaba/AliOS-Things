@@ -170,6 +170,7 @@ done
 for i in ${ALL_PROG}; do
     j=$(grep -w -m 1 "^SRCS_${i}" ${STAMP_BLD_VAR}|cut -d' ' -f3-)
     k=$(grep -m 1 "TARGET_.* = .*${i}" ${STAMP_BLD_VAR}|cut -d' ' -f1|sed 's:TARGET_::1')
+    q=${k}
     if [ "$(grep -m 1 "^TARGET_${k}" ${STAMP_BLD_VAR}|cut -d' ' -f3-|awk '{ print NF }')" = "1" ]; then
         k=""
     fi
@@ -179,7 +180,7 @@ for i in ${ALL_PROG}; do
             LFLAGS="${LFLAGS} -lgcov"
         fi
     fi
-    j=$(for n in ${j}; do echo -n "${TOP_DIR}/${k}/${n} "; done)
+    j=$(for n in ${j}; do p=$(echo ${n}|cut -c1); [ "${p}" = "/" ] && echo -n "${n}" || echo -n "${TOP_DIR}/${q}/${n} "; done)
 
     cat << EOB >> ${TARGET_FILE}
 ${OUTPUT_DIR}/usr/bin/${i}: \\

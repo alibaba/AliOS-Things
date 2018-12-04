@@ -21,7 +21,7 @@
 #define IOTX_DEVICE_ID          "stMRPCR0yQu.xikan_ota"
 
 /* #define IOTX_PRE_DTLS_SERVER_URI "coaps://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5684" */
-#define IOTX_PRE_NOSEC_SERVER_URI "coap:/* pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683" */
+#define IOTX_PRE_NOSEC_SERVER_URI "coap://pre.iot-as-coap.cn-shanghai.aliyuncs.com:5683"
 
 
 /* #define IOTX_PRE_NOSEC_SERVER_URI "coap://iot-as-coap.alibaba.net:5683" */
