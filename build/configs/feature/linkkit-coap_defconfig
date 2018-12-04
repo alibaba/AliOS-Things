@@ -3,6 +3,9 @@ NAME := feature_linkkit-coap
 $(NAME)_COMPONENTS := feature.linkkit-default
 
 FEATURE_OTA_ENABLED         = n
+FEATURE_UTILS_JSON_PARSER   = y
+FEATURE_UTILS_LITE_CJSON    = y
+
 ##
 ## FEATURE_MQTT_COMM_ENABLED
 ## Brief:    MQTT(Message Queuing Telemetry Transport) is a publish-subscribe-based messaging protocol
