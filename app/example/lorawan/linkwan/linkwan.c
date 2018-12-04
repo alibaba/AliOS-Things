@@ -19,12 +19,12 @@
 
 static void LoraTxData(lora_AppData_t *AppData)
 {
-    uint8_t index = 0;
+    uint8_t i = 0;
 
-    for (index = 0; index < AppData->BuffSize; index++) {
-        AppData->Buff[index] = '0' + index;
+    for (i = 0; i < AppData->BuffSize; i++) {
+        AppData->Buff[i] = '0' + i;
     }
-    AppData->Port = 100;
+    AppData->Port = 10;
     DBG_LINKWAN("tx, port %d, size %d\r\n", AppData->Port, AppData->BuffSize);
 }
 
