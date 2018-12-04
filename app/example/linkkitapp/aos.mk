@@ -19,8 +19,6 @@ $(NAME)_COMPONENTS += network/netmgr \
 $(NAME)_COMPONENTS += middleware/uagent/uota
 ##endif
 
-GLOBAL_DEFINES += UTILS_LITE_CJSON
-
 ifeq ($(case),sched)
 ifneq ($(deprecated),)
 $(NAME)_SOURCES += deprecated/sched.c
