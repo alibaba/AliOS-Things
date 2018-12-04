@@ -340,6 +340,11 @@ static LoRaMacCallback_t *LoRaMacCallbacks;
 static RadioEvents_t RadioEvents;
 
 /*!
+ * Export RadioEvents (Test only)
+ */
+RadioEvents_t *RadioEventsTest = &RadioEvents;
+
+/*!
  * LoRaMac duty cycle delayed Tx timer
  */
 static TimerEvent_t TxDelayedTimer;

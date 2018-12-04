@@ -347,6 +347,11 @@ typedef struct sLoRaMacCtx
  */
 static LoRaMacCtx_t MacCtx;
 
+/*!
+ * Export RadioEvents (Test only)
+ */
+RadioEvents_t *RadioEventsTest = &MacCtx.RadioEvents;
+
 /*
  * Non-volatile module context.
  */
