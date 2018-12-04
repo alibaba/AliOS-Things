@@ -380,9 +380,9 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/network/include -I$(SOURCE_ROOT)app/example
 
 ## Workaround for fixing build failures that can't find headers.
 ## Should be cleaned up after the failures fixed from components side
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)kernel/hal/include \
-                    -I$(SOURCE_ROOT)kernel/hal/include/hal \
-                    -I$(SOURCE_ROOT)kernel/hal/include/hal/soc \
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)include \
+                    -I$(SOURCE_ROOT)include/hal \
+                    -I$(SOURCE_ROOT)include/hal/soc \
                     -I$(SOURCE_ROOT)kernel/fs/vfs/include \
                     -I$(SOURCE_ROOT)network/yloop/include \
                     -I$(SOURCE_ROOT)kernel/fs/kv/include \
