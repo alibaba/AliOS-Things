@@ -1,13 +1,14 @@
 NAME := testcase
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
-GLOBAL_INCLUDES     += include
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := testcase framework
 
-$(NAME)_COMPONENTS  := yunit
+GLOBAL_INCLUDES += include
 
-$(NAME)_SOURCES     := yts_main.c
+$(NAME)_COMPONENTS := yunit
 
-$(NAME)_CFLAGS      += -Wall -Werror
+$(NAME)_SOURCES := yts_main.c
+
+$(NAME)_CFLAGS += -Wall -Werror
 
