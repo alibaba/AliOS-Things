@@ -1,3 +1,54 @@
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+NAME := developerkit_2boot
+
+$(NAME)_MBINS_TYPE   := kernel
+$(NAME)_VERSION      := 0.0.1.0
+$(NAME)_SUMMARY      := Developer Kit is hardware development board base on AliOS-Things
+HOST_ARCH            := Cortex-M4
+HOST_MCU_FAMILY      := stm32l4xx_cube
+HOST_MCU_NAME        := STM32L496VGTx
+
+
+HOST_OPENOCD := stm32l4xx
+GLOBAL_DEFINES += USE_HAL_DRIVER
+GLOBAL_DEFINES += STM32L496xx
+GLOBAL_DEFINES += FLASH_BANK2
+GLOBAL_DEFINES += VECT_TAB_OFFSET=0x1800
+GLOBAL_DEFINES += USING_FLAT_FLASH
+
+
+GLOBAL_INCLUDES := bootloader           \
+                   bootloader/Src       \
+                   bootloader/Drivers/STM32L4xx_HAL_Driver/Inc \
+                   bootloader/Drivers/CMSIS
+
+$(NAME)_SOURCES := bootloader/startup_stm32l496xx_boot.s  \
+                   bootloader/main.c                      \
+	           bootloader/Src/system_stm32l4xx.c      \
+	           bootloader/Src/stm32l4xx_it.c          \
+		   bootloader/Src/hal_boot_flash.c        \
+		   bootloader/Src/hal_boot_process.c      \
+		   bootloader/Src/hal_boot_uart.c         \
+		   bootloader/Src/hal_boot_wdg.c          \
+                   bootloader/Src/hal_boot_gpio.c         \
+		   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c        \
+		   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c \
+		   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.c    \
+	           bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c \
+		   aos/board.c                                                        \
+                   aos/flash_partitions.c
+
+GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/board/developerkit/bootloader/STM32L496VGTx_FLASH_bootloader.ld
+
+CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_developerkit_2boot
+CONFIG_SYSINFO_DEVICE_NAME := developerkit_2boot
+
+GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
+GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
+
+EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/board/developerkit/gen_crc_bin.mk
+
+else
 NAME := developerkit
 
 
@@ -13,6 +64,7 @@ HOST_MCU_NAME        := STM32L496VGTx
 ENABLE_USPACE        := 0
 
 $(NAME)_SOURCES += aos/board.c                         \
+                   aos/flash_partitions.c              \
                    aos/board_cli.c                     \
                    aos/soc_init.c                      \
                    aos/st7789.c                        \
@@ -91,9 +143,14 @@ else
 
 ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_OTA.ld
-GLOBAL_DEFINES += VECT_TAB_OFFSET=0x4000
+GLOBAL_DEFINES += VECT_TAB_OFFSET=0x9000
 GLOBAL_DEFINES += USING_FLAT_FLASH
 GLOBAL_DEFINES += AOS_OTA_BANK_DUAL
+AOS_SDK_2BOOT_SUPPORT := yes
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+GLOBAL_CFLAGS += -DAOS_OTA_RECOVERY_TYPE=1 
+GLOBAL_CFLAGS += -DAOS_OTA_2BOOT_CLI
+endif
 else
 ifeq ($(MBINS),)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
@@ -134,8 +191,9 @@ ifeq (1,$(arduino_io))
 GLOBAL_DEFINES += ARDUINO_SPI_I2C_ENABLED
 endif
 
-ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
-EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/board/developerkit/gen_crc_bin.mk
+#ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
+#EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/board/developerkit/gen_crc_bin.mk
+#endif
 endif
 
 GLOBAL_DEFINES += WORKAROUND_DEVELOPERBOARD_DMA_UART
