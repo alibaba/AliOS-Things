@@ -68,7 +68,6 @@ int lite_cjson_object_item_by_index(
 
 
 /*** lite_cjson create, add and print ***/
-#if defined(ALCS_ENABLED) || defined(DEPRECATED_LINKKIT)
 typedef int cJSON_bool;
 
 #define cJSON_IsReference 256
@@ -131,6 +130,4 @@ lite_cjson_item_t *lite_cjson_create_stringArray(const char **strings, int count
 #define lite_cjson_add_bool_to_object(object,name,b)        lite_cjson_add_item_to_object(object, name, lite_cjson_create_bool(b))
 #define lite_cjson_add_number_to_object(object,name,n)      lite_cjson_add_item_to_object(object, name, lite_cjson_create_number(n))
 #define lite_cjson_add_string_to_object(object,name,s)      lite_cjson_add_item_to_object(object, name, lite_cjson_create_string(s))
-#endif
-
 #endif

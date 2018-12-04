@@ -7,3 +7,8 @@ menuconfig AOS_COMP_LIBIOT_SDK_IMPL
 if AOS_COMP_LIBIOT_SDK_IMPL
 # Configurations for comp libiot_sdk_impl
 endif
+
+config DYNAMIC_REGISTER
+    bool
+    default y
+    select UTILS_LITE_CJSON
