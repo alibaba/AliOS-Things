@@ -5,8 +5,8 @@
 #ifndef AOS_VFS_H
 #define AOS_VFS_H
 
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include "aos/types.h"
 
@@ -55,43 +55,43 @@ typedef struct {
 } inode_t;
 
 typedef struct {
-    inode_t    *node;   /* node for file */
-    void       *f_arg;  /* f_arg for file */
-    size_t      offset; /* offset for file */
+    inode_t *node;   /* node for file */
+    void    *f_arg;  /* f_arg for file */
+    size_t   offset; /* offset for file */
 } file_t;
 
-
 typedef void (*poll_notify_t)(void *pollfd, void *arg);
+
 struct file_ops {
-    int     (*open)  (inode_t *node, file_t *fp);
-    int     (*close) (file_t *fp);
-    ssize_t (*read)  (file_t *fp, void *buf, size_t nbytes);
-    ssize_t (*write) (file_t *fp, const void *buf, size_t nbytes);
-    int     (*ioctl) (file_t *fp, int cmd, unsigned long arg);
-    int     (*poll)  (file_t *fp, int flag, poll_notify_t notify, void *fd, void *arg);
+    int     (*open)(inode_t *node, file_t *fp);
+    int     (*close)(file_t *fp);
+    ssize_t (*read)(file_t *fp, void *buf, size_t nbytes);
+    ssize_t (*write)(file_t *fp, const void *buf, size_t nbytes);
+    int     (*ioctl)(file_t *fp, int cmd, unsigned long arg);
+    int     (*poll)(file_t *fp, int flag, poll_notify_t notify, void *fd, void *arg);
 };
 
 struct fs_ops {
-    int             (*open)     (file_t *fp, const char *path, int flags);
-    int             (*close)    (file_t *fp);
-    ssize_t         (*read)     (file_t *fp, char *buf, size_t len);
-    ssize_t         (*write)    (file_t *fp, const char *buf, size_t len);
-    off_t           (*lseek)    (file_t *fp, off_t off, int whence);
-    int             (*sync)     (file_t *fp);
-    int             (*stat)     (file_t *fp, const char *path, struct stat *st);
-    int             (*unlink)   (file_t *fp, const char *path);
-    int             (*rename)   (file_t *fp, const char *oldpath, const char *newpath);
-    aos_dir_t      *(*opendir)  (file_t *fp, const char *path);
-    aos_dirent_t   *(*readdir)  (file_t *fp, aos_dir_t *dir);
-    int             (*closedir) (file_t *fp, aos_dir_t *dir);
-    int             (*mkdir)    (file_t *fp, const char *path);
-    int             (*rmdir)    (file_t *fp, const char *path);
-    void            (*rewinddir)(file_t *fp, aos_dir_t *dir);
-    long            (*telldir)  (file_t *fp, aos_dir_t *dir);
-    void            (*seekdir)  (file_t *fp, aos_dir_t *dir, long loc);
-    int             (*ioctl)    (file_t *fp, int cmd, unsigned long arg);
-    int             (*statfs)   (file_t *fp, const char *path, struct statfs *suf);
-    int             (*access)   (file_t *fp, const char *path, int amode);
+    int           (*open)(file_t *fp, const char *path, int flags);
+    int           (*close)(file_t *fp);
+    ssize_t       (*read)(file_t *fp, char *buf, size_t len);
+    ssize_t       (*write)(file_t *fp, const char *buf, size_t len);
+    off_t         (*lseek)(file_t *fp, off_t off, int whence);
+    int           (*sync)(file_t *fp);
+    int           (*stat)(file_t *fp, const char *path, struct stat *st);
+    int           (*unlink)(file_t *fp, const char *path);
+    int           (*rename)(file_t *fp, const char *oldpath, const char *newpath);
+    aos_dir_t    *(*opendir)(file_t *fp, const char *path);
+    aos_dirent_t *(*readdir)(file_t *fp, aos_dir_t *dir);
+    int           (*closedir)(file_t *fp, aos_dir_t *dir);
+    int           (*mkdir)(file_t *fp, const char *path);
+    int           (*rmdir)(file_t *fp, const char *path);
+    void          (*rewinddir)(file_t *fp, aos_dir_t *dir);
+    long          (*telldir)(file_t *fp, aos_dir_t *dir);
+    void          (*seekdir)(file_t *fp, aos_dir_t *dir, long loc);
+    int           (*ioctl)(file_t *fp, int cmd, unsigned long arg);
+    int           (*statfs)(file_t *fp, const char *path, struct statfs *suf);
+    int           (*access)(file_t *fp, const char *path, int amode);
 };
 
 /**
@@ -392,3 +392,4 @@ int aos_unregister_fs(const char *path);
 #endif
 
 #endif /* AOS_VFS_H */
+

@@ -8,19 +8,18 @@
 #include <aos/types.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /**
- * @brief init the kv module
+ * Init the kv module.
  *
  * @retrun 0 on success, otherwise will be failed.
  */
 int aos_kv_init(void);
 
 /**
- * @brief deinit the kv module
+ * Deinit the kv module.
  *
  * @retrun none
  */
