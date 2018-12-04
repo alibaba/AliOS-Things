@@ -13,14 +13,14 @@ SAL  := 1
 $(NAME)_COMPONENTS += rhino cjson cli
 
 ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS += network.lwip network.netmgr
+$(NAME)_COMPONENTS += lwip netmgr
 no_with_lwip       := 0
 GLOBAL_DEFINES     += WITH_LWIP
 endif
 
 ifeq ($(SAL),1)
-$(NAME)_COMPONENTS += sal.hal.wifi.esp8266
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal network.netmgr
+$(NAME)_COMPONENTS += device_sal_esp8266
+$(NAME)_COMPONENTS += sal netmgr
 GLOBAL_DEFINES     += WITH_SAL
 endif
 

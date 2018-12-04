@@ -6,7 +6,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu efm32gxx
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
+$(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += rhino
 
 $(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration

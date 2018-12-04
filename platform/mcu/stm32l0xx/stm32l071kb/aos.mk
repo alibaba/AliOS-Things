@@ -8,7 +8,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l071kb
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv6m
+$(NAME)_COMPONENTS += arch_armv6m
 # $(NAME)_COMPONENTS += libc rhino hal netmgr mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += rhino
 

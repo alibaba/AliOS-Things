@@ -9,7 +9,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu MX1101
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
+$(NAME)_COMPONENTS += arch_armv7m
 # $(NAME)_COMPONENTS += libc rhino hal netmgr mbedtls cjson cli digest_algorithm
 $(NAME)_COMPONENTS += rhino
 

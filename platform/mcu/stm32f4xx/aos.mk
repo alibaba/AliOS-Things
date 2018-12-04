@@ -10,8 +10,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino netmgr mbedtls cjson cli digest_algorithm
+$(NAME)_COMPONENTS += arch_armv7m
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr mbedtls cjson cli digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -106,7 +106,7 @@ $(NAME)_SOURCES := platform_init.c              \
 
 GLOBAL_LDFLAGS += -L ./platform/mcu/stm32f4xx/$(TOOLCHAIN_NAME)
 
-$(NAME)_COMPONENTS += network.lwip
+$(NAME)_COMPONENTS += lwip
 # Components
 #$(NAME)_COMPONENTS += $(TOOLCHAIN_NAME)
 
