@@ -11,12 +11,12 @@
         while (1); \
     } while (0)
 
-static klist_t          u_timer_head;
-static sys_time_t       u_timer_count;
-static ktask_t          u_timer_task;
-static kbuf_queue_t     u_timer_queue;
-static cpu_stack_t      u_timer_task_stack[RHINO_CONFIG_TIMER_TASK_STACK_SIZE];
-static k_timer_queue_cb u_timer_queue_cb[RHINO_CONFIG_TIMER_MSG_NUM];
+static klist_t           u_timer_head;
+static sys_time_t        u_timer_count;
+static ktask_t          *u_timer_task;
+static kbuf_queue_t      u_timer_queue;
+static cpu_stack_t       u_timer_task_stack[RHINO_CONFIG_TIMER_TASK_STACK_SIZE];
+static k_timer_queue_cb  u_timer_queue_cb[RHINO_CONFIG_TIMER_MSG_NUM];
 
 static void timer_list_pri_insert(klist_t *head, ktimer_t *timer)
 {
