@@ -9,6 +9,6 @@ if AOS_COMP_LIBIOT_SDK_IMPL
 endif
 
 config DYNAMIC_REGISTER
-    bool
+    bool "FEATURE_DYNAMIC_REGISTER"
     default y
     select UTILS_LITE_CJSON
