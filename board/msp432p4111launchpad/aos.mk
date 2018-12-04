@@ -1,4 +1,4 @@
-NAME := msp432p4111launchpad
+NAME := board_msp432p4111launchpad
 
 #It's useless for now, just use this code for no reason
 MODULE := 1062

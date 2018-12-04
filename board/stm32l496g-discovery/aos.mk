@@ -1,4 +1,4 @@
-NAME := stm32l496g-discovery
+NAME := board_stm32l496g-discovery
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
