@@ -169,7 +169,7 @@ static void pmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
             break;
     }
 
-    if (pos == NULL || pos == argv[1] || nunits > 0x1000) {
+    if (pos == NULL || pos == argv[1] || nunits > 0x1000 || addr == NULL) {
         cli_printf("p <addr> <nunits> <width>\r\n"
                    "addr  : address to display\r\n"
                    "nunits: number of units to display (default is 16)\r\n"
