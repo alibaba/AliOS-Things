@@ -378,8 +378,8 @@ int32_t vfs_unlink(const char *path)
     }
 
     if (INODE_IS_FS(node)) {
-        if ((node->ops.i_fops->sync) != NULL) {
-            ret = (node->ops.i_fops->sync)(f);
+        if ((node->ops.i_fops->unlink) != NULL) {
+            ret = (node->ops.i_fops->unlink)(f, path);
         }
     }
 

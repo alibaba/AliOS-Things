@@ -11,9 +11,9 @@ typedef struct {
 } vfs_stat_t;
 
 typedef struct {
-    int32_t  d_ino;  /* file number */
-    uint8_t  d_type; /* type of file */
-    char    *d_name; /* file name */
+    int32_t d_ino;    /* file number */
+    uint8_t d_type;   /* type of file */
+    char    d_name[]; /* file name */
 } vfs_dirent_t;
 
 typedef struct {
