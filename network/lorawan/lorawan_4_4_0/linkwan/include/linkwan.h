@@ -136,6 +136,9 @@ bool set_lora_dev_eui(uint8_t *eui);
 bool set_lora_app_eui(uint8_t *eui);
 bool set_lora_app_key(uint8_t *key);
 
+bool set_lora_freq_band(int8_t freqband);
+void get_lora_freq_band(int8_t *freqband);
+
 node_freq_mode_t get_lora_freq_mode(void);
 bool             set_lora_freq_mode(node_freq_mode_t mode);
 bool             set_lora_tx_datarate(int8_t datarate);

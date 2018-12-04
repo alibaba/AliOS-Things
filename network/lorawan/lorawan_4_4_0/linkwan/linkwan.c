@@ -46,13 +46,27 @@ static LoRaParam_t lora_param = {
     JOIN_MODE_OTAA
 };
 
+/*!
+ * LoRaWAN compliance tests support data
+ */
+struct ComplianceTest_s {
+    bool Running;
+    uint8_t State;
+    bool IsTxConfirmed;
+    uint16_t DownLinkCounter;
+    bool LinkCheck;
+    uint8_t DemodMargin;
+    uint8_t NbGateways;
+    uint8_t uplink_cycle;
+} ComplianceTest;
+
 static TimerEvent_t           TxNextPacketTimer;
 volatile static DeviceState_t device_state = DEVICE_STATE_INIT;
 lora_dev_t                    g_lora_dev   = { LORAWAN_DEVICE_EUI,
                           LORAWAN_APPLICATION_EUI,
                           LORAWAN_APPLICATION_KEY,
-                          0,
-                          DR_5,
+                          1,
+                          DR_2,
                           CLASS_A,
                           NODE_MODE_NORMAL,
                           0xffff,
@@ -68,6 +82,15 @@ static uint8_t  gJoinState    = 0;
 static uint8_t  gAutoJoin     = 1;
 static uint16_t gJoinInterval = 8;
 
+#define LORA_BANDWIDTH                              0         // [0: 125 kHz]
+#define LORA_SPREADING_FACTOR                       10        // [SF7..SF12]
+#define LORA_CODINGRATE                             1         // [1: 4/5]
+#define LORA_SYMBOL_TIMEOUT                         5         // Symbols
+#define LORA_PREAMBLE_LENGTH                        8         // Same for Tx and Rx
+#define LORA_FIX_LENGTH_PAYLOAD_ON                  false
+#define LORA_IQ_INVERSION_ON                        false
+
+#define TX_OUTPUT_POWER                             14        // dBm
 
 static void start_dutycycle_timer(void);
 static bool send_frame(void)
@@ -108,8 +131,32 @@ static bool send_frame(void)
 
 static void prepare_tx_frame(void)
 {
-    if (lora_param.TxEvent == TX_ON_TIMER) {
-        app_callbacks->LoraTxData(&tx_data);
+    if ( ComplianceTest.Running == true ) {
+        if ( ComplianceTest.LinkCheck == true ) {
+            ComplianceTest.LinkCheck = false;
+            tx_data.BuffSize = 3;
+            tx_data.Buff[0] = 5;
+            tx_data.Buff[1] = ComplianceTest.DemodMargin;
+            tx_data.Buff[2] = ComplianceTest.NbGateways;
+            ComplianceTest.State = 1;
+        } else {
+            switch ( ComplianceTest.State ) {
+                case 4:
+                    ComplianceTest.State = 1;
+                    break;
+                case 1:
+                    tx_data.BuffSize = 2;
+                    tx_data.Buff[0] = ComplianceTest.DownLinkCounter >> 8;
+                    tx_data.Buff[1] = ComplianceTest.DownLinkCounter;
+                    break;
+            }
+        }
+    } else {
+
+        if (lora_param.TxEvent == TX_ON_TIMER) {
+            app_callbacks->LoraTxData(&tx_data);
+        }
+
     }
 }
 
@@ -277,6 +324,11 @@ static void mcps_confirm(McpsConfirm_t *mcpsConfirm)
     next_tx = true;
 }
 
+static void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
+{
+    DBG_LINKWAN( "rssi = %d, snr = %d\r\n", rssi, snr);
+}
+
 static void McpsIndication(McpsIndication_t *mcpsIndication)
 {
     if (mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK) {
@@ -318,9 +370,271 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
     DBG_LINKWAN("rssi = %d, snr = %d, datarate = %d\r\n", mcpsIndication->Rssi,
                 mcpsIndication->Snr, mcpsIndication->RxDatarate);
 
+    if ( ComplianceTest.Running == true ) {
+        ComplianceTest.DownLinkCounter++;
+    }
+
     if (mcpsIndication->RxData == true) {
         switch (mcpsIndication->Port) {
             case 224:
+                if ( ComplianceTest.Running == false ) {
+                    // Check compliance test enable command (i)
+                    if ( (mcpsIndication->BufferSize == 4) &&
+                         (mcpsIndication->Buffer[0] == 0x01) &&
+                         (mcpsIndication->Buffer[1] == 0x01) &&
+                         (mcpsIndication->Buffer[2] == 0x01) &&
+                         (mcpsIndication->Buffer[3] == 0x01) ) {
+                        ComplianceTest.IsTxConfirmed = false;
+                        set_lora_tx_cfm_flag(ComplianceTest.IsTxConfirmed);
+                        tx_data.Port = 224;
+                        tx_data.BuffSize = 2;
+                        ComplianceTest.DownLinkCounter = 0;
+                        ComplianceTest.LinkCheck = false;
+                        ComplianceTest.DemodMargin = 0;
+                        ComplianceTest.NbGateways = 0;
+                        ComplianceTest.Running = true;
+                        ComplianceTest.uplink_cycle = 5;
+                        ComplianceTest.State = 1;
+
+                        MibRequestConfirm_t mibReq;
+                        mibReq.Type = MIB_ADR;
+                        mibReq.Param.AdrEnable = true;
+                        LoRaMacMibSetRequestConfirm( &mibReq );
+
+#if defined(REGION_EU868)
+                        LoRaMacTestSetDutyCycleOn(false);
+#endif
+                        set_lora_tx_dutycycle(ComplianceTest.uplink_cycle * 1000);
+                        device_state = DEVICE_STATE_SEND;
+                    }
+                } else {
+                    ComplianceTest.State = mcpsIndication->Buffer[0];
+                    switch ( ComplianceTest.State ) {
+                        case 0: // Check compliance test disable command (ii)
+                            ComplianceTest.DownLinkCounter = 0;
+                            ComplianceTest.Running = false;
+                            tx_data.Port = 0;
+                            set_lora_tx_dutycycle(0);
+
+                            MibRequestConfirm_t mibReq;
+                            mibReq.Type = MIB_ADR;
+                            mibReq.Param.AdrEnable = lora_param.AdrEnable;
+                            LoRaMacMibSetRequestConfirm( &mibReq );
+#if defined(REGION_EU868)
+                            lora_config_duty_cycle_set(LORAWAN_DUTYCYCLE_ON ? ENABLE : DISABLE);
+#endif
+                            break;
+                        case 1: // (iii, iv)
+                            tx_data.BuffSize = 2;
+                            break;
+                        case 2: // Enable confirmed messages (v)
+                            ComplianceTest.IsTxConfirmed = true;
+                            set_lora_tx_cfm_flag(ComplianceTest.IsTxConfirmed);
+                            ComplianceTest.State = 1;
+                            break;
+                        case 3: // Disable confirmed messages (vi)
+                            ComplianceTest.IsTxConfirmed = false;
+                            set_lora_tx_cfm_flag(ComplianceTest.IsTxConfirmed);
+                            ComplianceTest.State = 1;
+                            break;
+                        case 4: // (vii)
+                            tx_data.BuffSize = mcpsIndication->BufferSize;
+
+                            tx_data.Buff[0] = 4;
+                            for ( uint8_t i = 1; i < tx_data.BuffSize; i++ ) {
+                                tx_data.Buff[i] = (mcpsIndication->Buffer[i] + 1) % 256;
+                            }
+                            break;
+                        case 5: { // (viii)
+                            MlmeReq_t mlmeReq;
+                            mlmeReq.Type = MLME_LINK_CHECK;
+                            if (next_tx == true && LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK) {
+                                DBG_LINKWAN("start to send LinkCheckReq\r\n");
+                            } else {
+                                DBG_LINKWAN("fail to send LinkCheckReq\r\n");
+                            }
+                        }
+                        break;
+                        case 6: { // (ix)
+                            // Disable TestMode and revert back to normal operation
+                            ComplianceTest.DownLinkCounter = 0;
+                            ComplianceTest.Running = false;
+                            set_lora_tx_cfm_flag(1);
+                            set_lora_tx_dutycycle(0);
+
+                            MibRequestConfirm_t mibReq;
+                            mibReq.Type = MIB_ADR;
+                            mibReq.Param.AdrEnable = lora_param.AdrEnable;
+                            LoRaMacMibSetRequestConfirm( &mibReq );
+#if defined(REGION_EU868)
+                            lora_config_duty_cycle_set(LORAWAN_DUTYCYCLE_ON ? ENABLE : DISABLE);
+#endif
+                            MibRequestConfirm_t mib_req;
+                            mib_req.Type = MIB_NETWORK_JOINED;
+                            LoRaMacStatus_t status = LoRaMacMibGetRequestConfirm(&mib_req);
+                            if (status == LORAMAC_STATUS_OK) {
+                                if (mib_req.Param.IsNetworkJoined == true) {
+                                    mib_req.Type = MIB_NETWORK_JOINED;
+                                    mib_req.Param.IsNetworkJoined = false;
+                                    LoRaMacMibSetRequestConfirm(&mib_req);
+                                }
+                                DBG_LINKWAN("Rejoin again...\r");
+                                reset_join_state();
+                                g_join_method = DEF_JOIN_METHOD;
+                                TimerStop(&TxNextPacketTimer);
+                                TimerSetValue(&TxNextPacketTimer, gJoinInterval * 1000);
+                                TimerStart(&TxNextPacketTimer);
+                            }
+                        }
+                        break;
+                        case 7: { // (x)
+
+                            if (next_tx != true) {
+                                DBG_LINKWAN("tx running, txcw can't be set!\r\n");
+                                break;
+                            }
+
+                            if ( mcpsIndication->BufferSize == 3 ) {
+                                MlmeReq_t mlmeReq;
+                                mlmeReq.Type = MLME_TXCW;
+                                mlmeReq.Req.TxCw.Timeout = (uint16_t)
+                                                           ((mcpsIndication->Buffer[1] << 8) |
+                                                            mcpsIndication->Buffer[2]);
+                                LoRaMacMlmeRequest( &mlmeReq );
+                            } else if ( mcpsIndication->BufferSize == 7 ) {
+                                MlmeReq_t mlmeReq;
+                                mlmeReq.Type = MLME_TXCW_1;
+                                mlmeReq.Req.TxCw.Timeout = (uint16_t)
+                                                           ((mcpsIndication->Buffer[1] << 8) |
+                                                            mcpsIndication->Buffer[2]);
+                                mlmeReq.Req.TxCw.Frequency =
+                                    (uint32_t) ((mcpsIndication->Buffer[3] << 16) |
+                                                (mcpsIndication->Buffer[4] << 8) |
+                                                mcpsIndication->Buffer[5]) * 100;
+                                mlmeReq.Req.TxCw.Power = mcpsIndication->Buffer[6];
+                                LoRaMacMlmeRequest( &mlmeReq );
+                            }
+                            ComplianceTest.State = 1;
+                        }
+                        break;
+                        case 9: { // Switch end device Class
+                            DeviceClass_t class;
+
+                            MibRequestConfirm_t mibReq;
+                            mibReq.Type = MIB_DEVICE_CLASS;
+                            // CLASS_A = 0, CLASS_B = 1, CLASS_C = 2
+                            class = ( DeviceClass_t )mcpsIndication->Buffer[1];
+                            mibReq.Param.Class = class;
+                            set_lora_class(class);
+
+                            LoRaMacStatus_t status = LoRaMacMibSetRequestConfirm(&mibReq);
+                            if (status != LORAMAC_STATUS_OK) {
+                                DBG_LINKWAN("STATUS error: %d\r\n", status);
+                                break;
+                            }
+
+                            device_state = DEVICE_STATE_SEND;
+                        }
+                        break;
+                        case 0x81: {
+                            if (mcpsIndication->BufferSize == 2 && mcpsIndication->Buffer[1] != 0) {
+                                ComplianceTest.uplink_cycle = mcpsIndication->Buffer[1];
+                                set_lora_tx_dutycycle(ComplianceTest.uplink_cycle * 1000);
+                                ComplianceTest.State = 1;
+                            } else {
+                                DBG_LINKWAN("param error\r\n");
+                            }
+                        }
+                        break;
+                        case 0x82: {
+                            // Don't Disable TestMode
+                            MibRequestConfirm_t mibReq;
+                            mibReq.Type = MIB_ADR;
+                            mibReq.Param.AdrEnable = lora_param.AdrEnable;
+                            LoRaMacMibSetRequestConfirm( &mibReq );
+#if defined(REGION_EU868)
+                            lora_config_duty_cycle_set(LORAWAN_DUTYCYCLE_ON ? ENABLE : DISABLE);
+#endif
+                            MibRequestConfirm_t mib_req;
+                            mib_req.Type = MIB_NETWORK_JOINED;
+                            LoRaMacStatus_t status = LoRaMacMibGetRequestConfirm(&mib_req);
+                            if (status == LORAMAC_STATUS_OK) {
+                                if (mib_req.Param.IsNetworkJoined == true) {
+                                    mib_req.Type = MIB_NETWORK_JOINED;
+                                    mib_req.Param.IsNetworkJoined = false;
+                                    LoRaMacMibSetRequestConfirm(&mib_req);
+                                }
+                                DBG_LINKWAN("Rejoin again...\r");
+                                reset_join_state();
+                                g_join_method = DEF_JOIN_METHOD;
+                                TimerStop(&TxNextPacketTimer);
+                                TimerSetValue(&TxNextPacketTimer, gJoinInterval * 1000);
+                                TimerStart(&TxNextPacketTimer);
+                                ComplianceTest.State = 1;
+                            }
+                        }
+                        break;
+                        case 0xf1: {
+                            uint32_t rf_frequency;
+                            if (device_state != DEVICE_STATE_SLEEP) {
+                                DBG_LINKWAN("device state not sleep\r\n");
+                                break;
+                            }
+
+                            if (mcpsIndication->BufferSize == 4) {
+                                rf_frequency =
+                                    (uint32_t) ((mcpsIndication->Buffer[1] << 16) |
+                                                (mcpsIndication->Buffer[2] << 8) |
+                                                mcpsIndication->Buffer[3]) * 100;
+                            } else {
+                                DBG_LINKWAN("param error: no rf frequency\r\n");
+                                break;
+                            }
+
+                            extern RadioEvents_t *RadioEventsTest;
+
+                            next_tx = false;
+                            set_lora_tx_dutycycle(0);
+                            RadioEventsTest->RxDone = OnRxDone;
+
+                            Radio.SetChannel(rf_frequency);
+                            DBG_LINKWAN("radio rx freq %d\r\n", rf_frequency);
+                            Radio.SetRxConfig(MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
+                                              LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
+                                              LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
+                                              0, true, 0, 0, LORA_IQ_INVERSION_ON, true);
+                            Radio.Rx(0); // Continuous Rx
+                        }
+
+                        break;
+                        case 0xf2: {
+                            uint32_t rf_frequency;
+                            if (mcpsIndication->BufferSize == 4) {
+                                rf_frequency =
+                                    (uint32_t) ((mcpsIndication->Buffer[1] << 16) |
+                                                (mcpsIndication->Buffer[2] << 8) |
+                                                mcpsIndication->Buffer[3]) * 100;
+                            } else {
+                                DBG_LINKWAN("param error: no rf frequency\r\n");
+                                break;
+                            }
+
+                            set_lora_tx_dutycycle(0);
+                            Radio.SetChannel(rf_frequency);
+                            DBG_LINKWAN("radio tx freq %d\r\n", rf_frequency);
+
+                            Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
+                                               LORA_SPREADING_FACTOR, LORA_CODINGRATE,
+                                               LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
+                                               true, 0, 0, LORA_IQ_INVERSION_ON, 3000 );
+                            Radio.Send( "PING", 4 );
+
+                        }
+                        break;
+                        default:
+                            break;
+                    }
+                }
                 break;
             default:
                 rx_data.Port     = mcpsIndication->Port;
@@ -413,6 +727,11 @@ static void MlmeConfirm(MlmeConfirm_t *mlmeConfirm)
             if (mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK) {
                 // Check DemodMargin
                 // Check NbGateways
+                if ( ComplianceTest.Running == true ) {
+                    ComplianceTest.LinkCheck = true;
+                    ComplianceTest.DemodMargin = mlmeConfirm->DemodMargin;
+                    ComplianceTest.NbGateways = mlmeConfirm->NbGateways;
+                }
             }
             break;
         }
@@ -445,6 +764,112 @@ void lora_reboot(int8_t mode)
     }
 }
 
+int lora_compliance_test(uint8_t idx)
+{
+    McpsIndication_t mcpsIndication;
+    char buffer[10] = {'\0'};
+
+    memset(&mcpsIndication, '\0', sizeof(mcpsIndication));
+
+    mcpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+    mcpsIndication.McpsIndication = MCPS_UNCONFIRMED;
+    mcpsIndication.RxData = true;
+    mcpsIndication.Port = 224;
+    mcpsIndication.Buffer = buffer;
+
+    switch (idx) {
+        case 0x0:
+            mcpsIndication.BufferSize = 1;
+            mcpsIndication.Buffer[0] = 0x0;
+            break;
+
+        case 0x1:
+            mcpsIndication.BufferSize = 4;
+            mcpsIndication.Buffer[0] = 0x01;
+            mcpsIndication.Buffer[1] = 0x01;
+            mcpsIndication.Buffer[2] = 0x01;
+            mcpsIndication.Buffer[3] = 0x01;
+            break;
+
+        case 0x2:
+            mcpsIndication.BufferSize = 1;
+            mcpsIndication.Buffer[0] = 0x2;
+            break;
+
+        case 0x3:
+            mcpsIndication.BufferSize = 1;
+            mcpsIndication.Buffer[0] = 0x3;
+            break;
+
+        case 0x4:
+            mcpsIndication.BufferSize = 4;
+            mcpsIndication.Buffer[0] = 4;
+            mcpsIndication.Buffer[1] = 256;
+            mcpsIndication.Buffer[2] = 0x2;
+            mcpsIndication.Buffer[3] = 0x3;
+            break;
+
+        case 0x5:
+            mcpsIndication.BufferSize = 1;
+            mcpsIndication.Buffer[0] = 5;
+            break;
+
+        case 0x6:
+            mcpsIndication.BufferSize = 1;
+            mcpsIndication.Buffer[0] = 6;
+            break;
+
+        case 0x7:
+            mcpsIndication.BufferSize = 3;
+            mcpsIndication.Buffer[0] = 7;
+            mcpsIndication.Buffer[1] = 0;
+            mcpsIndication.Buffer[2] = 0x8;
+            break;
+
+        case 0x80:
+            mcpsIndication.BufferSize = 2;
+            mcpsIndication.Buffer[0] = 0x80;
+            mcpsIndication.Buffer[1] = 2;
+            break;
+
+        case 0xf0:
+            mcpsIndication.BufferSize = 2;
+            mcpsIndication.Buffer[0] = 0x80;
+            mcpsIndication.Buffer[1] = 0;
+            break;
+
+        case 0x81:
+            mcpsIndication.BufferSize = 2;
+            mcpsIndication.Buffer[0] = 0x81;
+            mcpsIndication.Buffer[1] = 15;
+            break;
+
+        case 0x82:
+            break;
+
+        case 0x83:
+            mcpsIndication.BufferSize = 4;
+            mcpsIndication.Buffer[0] = 0x83;
+            mcpsIndication.Buffer[1] = 0x48;
+            mcpsIndication.Buffer[2] = 0x01;
+            mcpsIndication.Buffer[3] = 0x98;
+            break;
+
+        case 0x84:
+            mcpsIndication.BufferSize = 4;
+            mcpsIndication.Buffer[0] = 0x84;
+            mcpsIndication.Buffer[1] = 0x48;
+            mcpsIndication.Buffer[2] = 0x01;
+            mcpsIndication.Buffer[3] = 0x98;
+            break;
+
+        default:
+            return false;
+    }
+
+    McpsIndication(&mcpsIndication);
+    return true;
+}
 
 void lora_init(LoRaMainCallback_t *callbacks)
 {
@@ -907,6 +1332,24 @@ int8_t get_lora_class(void)
     return lora_dev.class;
 }
 
+bool set_lora_freq_band(int8_t freqband)
+{
+    lora_dev_t lora_dev;
+
+    read_lora_dev(&lora_dev);
+    lora_dev.freqband = freqband;
+    write_lora_dev(&lora_dev);
+    return true;
+}
+
+void get_lora_freq_band(int8_t *freqband)
+{
+    lora_dev_t lora_dev;
+
+    read_lora_dev(&lora_dev);
+    *freqband = lora_dev.freqband;
+}
+
 bool set_lora_dev_eui(uint8_t *eui)
 {
     lora_dev_t lora_dev;
@@ -1363,8 +1806,16 @@ bool lora_tx_data_payload(uint8_t confirm, uint8_t Nbtrials, uint8_t *payload,
     if (status == LORAMAC_STATUS_OK) {
         if (mib_req.Param.IsNetworkJoined == true) {
             is_tx_confirmed = confirm;
-            memcpy(tx_data.Buff, payload, len);
-            tx_data.BuffSize = len;
+
+            int i;
+            char tmp_str[3] = {'\0'};
+            for (i = 0; i < len / 2; i++) {
+                memcpy(tmp_str, payload + i * 2, 2);
+                tx_data.Buff[i] = (int)strtol(tmp_str, NULL, 16);
+            }
+
+            tx_data.BuffSize = len / 2;
+
             set_lora_tx_cfm_trials(Nbtrials);
             device_state = DEVICE_STATE_SEND;
             return true;

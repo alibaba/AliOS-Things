@@ -11,6 +11,7 @@
 
 // mandatory
 #define LORA_AT_CJOINMODE "+CJOINMODE"  // join mode
+#define LORA_AT_CFREQBAND "+CFREQBAND"  // freq band (OTAA)
 #define LORA_AT_CDEVEUI "+CDEVEUI"  // dev eui (OTAA)
 #define LORA_AT_CAPPEUI "+CAPPEUI"  // app eui (OTAA)
 #define LORA_AT_CAPPKEY "+CAPPKEY"  // app key (OTAA)
@@ -62,6 +63,8 @@
 #define LORA_AT_ILOGLVL "+ILOGLVL"  // log level
 #define LORA_AT_IREBOOT "+IREBOOT"
 #define LORA_AT_IDEFAULT "+IDEFAULT"
+
+#define LORA_AT_CTEST "+CTEST"
 
 void linkwan_serial_input(uint8_t cmd);
 int linkwan_serial_output(uint8_t *buffer, int len);
