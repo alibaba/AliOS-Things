@@ -35,7 +35,7 @@ GLOBAL_DEFINES += STDIO_UART=0
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/stm32l432kc-nucleo/STM32L432KCUx_FLASH.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config
+GLOBAL_LDFLAGS += --config board/stm32l432kc-nucleo/STM32L432.icf
 else
 GLOBAL_LDFLAGS += -T board/stm32l432kc-nucleo/STM32L432KCUx_FLASH.ld
 endif
