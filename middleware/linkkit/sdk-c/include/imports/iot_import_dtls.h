@@ -2,13 +2,17 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#ifndef __IMPORT_DTLS_H__
+#define __IMPORT_DTLS_H__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdarg.h>
-
-#ifndef __IMPORT_DTLS_H__
-#define __IMPORT_DTLS_H__
 
 #define DTLS_ERROR_BASE                (1<<24)
 #define DTLS_SUCCESS                   (0)
@@ -123,4 +127,7 @@ DLL_HAL_API unsigned int HAL_DTLSSession_free(DTLSContext *context);
 /** @} */ /* end of platform_dtls */
 /** @} */ /* end of platform */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

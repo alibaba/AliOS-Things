@@ -2,15 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef IOTX_EXPORT_EVENT_H
 #define IOTX_EXPORT_EVENT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
 
 /**
  * @brief event list used for iotx_regist_event_monitor_cb

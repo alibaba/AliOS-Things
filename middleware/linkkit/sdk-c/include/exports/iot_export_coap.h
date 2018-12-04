@@ -2,10 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __IOTX_COAP_API_H__
 #define __IOTX_COAP_API_H__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define IOTX_PRODUCT_KEY_LEN     (20)   /* IoTx product key length  */
 #define IOTX_DEVICE_NAME_LEN     (32)   /* IoTx device name length */
@@ -199,4 +201,7 @@ DLL_IOT_API int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t 
 /** @} */ /* end of api_coap */
 /** @} */ /* end of api */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

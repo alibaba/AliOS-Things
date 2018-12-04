@@ -2,10 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __IOT_EXPORT_ERRNO__
 #define __IOT_EXPORT_ERRNO__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* From utils_error.h */
 typedef enum IOT_RETURN_CODES {
@@ -238,4 +240,7 @@ typedef enum IOT_RETURN_CODES {
 } iotx_err_t;
 /* From utils_error.h */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif /* __IOT_EXPORT_ERRNO__ */
