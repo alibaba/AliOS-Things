@@ -40,7 +40,9 @@ else
 ifeq (1,$(words $(TARGET)))
 
 $(if $(filter modinfo,$(MAKECMDGOALS)), \
-    $(info SRCS_$(TARGET) = $(subst $(TOP_DIR)/,,$(SRCS))) \
+    $(info SRCS_$(TARGET) = $(if $(SRCS_$(TARGET)), \
+        $(subst $(TOP_DIR)/,,$(SRCS_$(TARGET))), \
+        $(subst $(TOP_DIR)/$(MODULE_NAME)/,,$(SRCS)))) \
 )
 
 else
