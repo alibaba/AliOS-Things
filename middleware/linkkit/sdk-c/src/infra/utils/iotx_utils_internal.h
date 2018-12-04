@@ -2,13 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef __LITE_UTILS_INTERNAL_H__
 #define __LITE_UTILS_INTERNAL_H__
-
-#define _GNU_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
