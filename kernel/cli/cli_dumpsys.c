@@ -261,7 +261,7 @@ static uint32_t dumpsys_info_func(char *buf, uint32_t len)
 #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
 #ifdef AOS_DEBUG_PANIC
 #if (RHINO_CONFIG_CPU_USAGE_PERIOD == 0)
-    aos_debug_task_cpu_usage_stats();
+    debug_task_cpu_usage_stats();
 #endif
 #endif
 
