@@ -118,7 +118,7 @@ static int user_service_request_event_handler(const int devid, const char *servi
 
         /* Send Service Response To Cloud */
         *response_len = strlen(response_fmt) + 10 + 1;
-        *response = HAL_Malloc(*response_len);
+        *response = (char *)HAL_Malloc(*response_len);
         if (*response == NULL) {
             EXAMPLE_TRACE("Memory Not Enough");
             return -1;
@@ -139,7 +139,7 @@ static int user_service_request_event_handler(const int devid, const char *servi
 
         /* Send Service Response To Cloud */
         *response_len = strlen(response_fmt) + 10 + 1;
-        *response = HAL_Malloc(*response_len);
+        *response = (char *)HAL_Malloc(*response_len);
         if (*response == NULL) {
             EXAMPLE_TRACE("Memory Not Enough");
             return -1;
