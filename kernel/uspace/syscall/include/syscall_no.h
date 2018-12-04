@@ -90,8 +90,8 @@
 /* ----------------- proc msg -----------------*/
 #define U_PROC_MSG_BASE (K_BUF_QUEUE_END + 1)
 
-#define SYS_KRHINO_MSG_GET (U_PROC_MSG_BASE +0)
-#define SYS_KRHINO_MSG_SND (U_PROC_MSG_BASE + 1)
+#define SYS_KRHINO_MSG_GET  (U_PROC_MSG_BASE + 0)
+#define SYS_KRHINO_MSG_SND  (U_PROC_MSG_BASE + 1)
 #define SYS_KRHINO_MSG_RECV (U_PROC_MSG_BASE + 2)
 
 #define U_PROC_MSG_END (SYS_KRHINO_MSG_RECV)
@@ -99,16 +99,46 @@
 /* ----------------- hal uart -----------------*/
 #define HAL_UART_BASE (U_PROC_MSG_END + 1)
 
-#define SYS_HAL_UART_INIT (HAL_UART_BASE +0)
-#define SYS_HAL_UART_SEND (HAL_UART_BASE + 1)
-#define SYS_HAL_UART_RECV (HAL_UART_BASE + 2)
-#define SYS_HAL_UART_RECV_II (HAL_UART_BASE + 3)
+#define SYS_HAL_UART_INIT     (HAL_UART_BASE + 0)
+#define SYS_HAL_UART_SEND     (HAL_UART_BASE + 1)
+#define SYS_HAL_UART_RECV     (HAL_UART_BASE + 2)
+#define SYS_HAL_UART_RECV_II  (HAL_UART_BASE + 3)
 #define SYS_HAL_UART_FINALIZE (HAL_UART_BASE + 4)
 
 #define HAL_UART_END (SYS_HAL_UART_FINALIZE)
 
+/* ------------------- lwip ------------------*/
+#define LWIP_BASE (HAL_UART_END + 1)
+
+#define SYS_LWIP_ACCEPT      (LWIP_BASE + 0)
+#define SYS_LWIP_BIND        (LWIP_BASE + 1)
+#define SYS_LWIP_SHUTDOWN    (LWIP_BASE + 2)
+#define SYS_LWIP_GETPEERNAME (LWIP_BASE + 3)
+#define SYS_LWIP_GETSOCKNAME (LWIP_BASE + 4)
+#define SYS_LWIP_GETSOCKOPT  (LWIP_BASE + 5)
+#define SYS_LWIP_SETSOCKET   (LWIP_BASE + 6)
+#define SYS_LWIP_CLOSE       (LWIP_BASE + 7)
+#define SYS_LWIP_CONNECT     (LWIP_BASE + 8)
+#define SYS_LWIP_LISTEN      (LWIP_BASE + 9)
+#define SYS_LWIP_RECV        (LWIP_BASE + 10)
+#define SYS_LWIP_READ        (LWIP_BASE + 11)
+#define SYS_LWIP_RECVFROM    (LWIP_BASE + 12)
+#define SYS_LWIP_SEND        (LWIP_BASE + 13)
+#define SYS_LWIP_SENDMSG     (LWIP_BASE + 14)
+#define SYS_LWIP_SENDTO      (LWIP_BASE + 15)
+#define SYS_LWIP_SOCKET      (LWIP_BASE + 16)
+#define SYS_LWIP_WRITE       (LWIP_BASE + 17)
+#define SYS_LWIP_WRITEV      (LWIP_BASE + 18)
+#define SYS_LWIP_SELECT      (LWIP_BASE + 19)
+#define SYS_LWIP_IOCTL       (LWIP_BASE + 20)
+#define SYS_LWIP_FCNTL       (LWIP_BASE + 21)
+#define SYS_LWIP_EVENTFD     (LWIP_BASE + 22)
+#define SYS_LWIP_TRY_WAKEUP  (LWIP_BASE + 23)
+
+#define LWIP_END (SYS_LWIP_TRY_WAKEUP)
+
 /* ------------------- end -------------------*/
-#define MAX_SYSCALL_NO (HAL_UART_END)
+#define MAX_SYSCALL_NO (LWIP_END)
 
 #endif /* SYSCALL_NO_H */
 
