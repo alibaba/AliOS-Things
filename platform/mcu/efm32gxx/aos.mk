@@ -42,7 +42,6 @@ $(NAME)_SOURCES += iar/startup_efm32g.c
 else
 $(NAME)_SOURCES += gcc/startup_efm32g.c
 GLOBAL_CFLAGS   += -mcpu=cortex-m3           \
-                   -march=armv7-m            \
                    -mthumb -mthumb-interwork \
                    -mlittle-endian
 GLOBAL_CFLAGS += -w

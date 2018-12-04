@@ -31,7 +31,6 @@ global_cflags = Split('''
         -mcpu=cortex-m3
         -mthumb
         -mfloat-abi=soft
-        -march=armv7-m
         -mthumb -mthumb-interwork
         -mlittle-endian
         -w

@@ -22,7 +22,6 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4
 
 GLOBAL_CFLAGS += -mcpu=cortex-m3           \
-                 -march=armv7-m            \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian
 

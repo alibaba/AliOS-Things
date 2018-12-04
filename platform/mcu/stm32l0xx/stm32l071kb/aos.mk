@@ -26,7 +26,6 @@ GLOBAL_INCLUDES += include \
                    driver
 
 GLOBAL_CFLAGS += -mcpu=cortex-m0plus       \
-                 -march=armv6-m            \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian
 

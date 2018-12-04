@@ -12,13 +12,13 @@ GLOBAL_CFLAGS += -DCORE_M4
 GLOBAL_CFLAGS += -fmessage-length=0
 GLOBAL_CFLAGS += -fno-builtin -ffunction-sections -fdata-sections -fno-common -std=c99 -DSDK_DEBUGCONSOLE=1
 #GLOBAL_CFLAGS += $(CPU_CFLAGS) -mlittle-endian
-GLOBAL_CFLAGS += -mcpu=cortex-m4 -mlittle-endian -mthumb -mthumb-interwork -march=armv7e-m -w
+GLOBAL_CFLAGS += -mcpu=cortex-m4 -mlittle-endian -mthumb -mthumb-interwork -w
 
 GLOBAL_CFLAGS += -DRHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4/
 GLOBAL_INCLUDES += ./lwip-2.0.2/port/
-#GLOBAL_LDFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -march=armv7e-m -mlittle-endian -mthumb-interwork -nostartfiles
+#GLOBAL_LDFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlittle-endian -mthumb-interwork -nostartfiles
 GLOBAL_LDFLAGS  += -mcpu=cortex-m4           \
                    -mthumb -mthumb-interwork \
                    -mlittle-endian           \

@@ -28,7 +28,6 @@ GLOBAL_INCLUDES += ./aos                                      \
 
 #-mthumb -mthumb-interwork
 GLOBAL_CFLAGS += -mcpu=cortex-a9    \
-                 -march=armv7-a     \
                  -mfpu=vfpv3        \
                  -mfloat-abi=softfp \
                  -mthumb-interwork  \
@@ -37,7 +36,6 @@ GLOBAL_CFLAGS += -mcpu=cortex-a9    \
 GLOBAL_CFLAGS += -w
 
 GLOBAL_ASMFLAGS += -mcpu=cortex-a9    \
-                   -march=armv7-a     \
                    -mfpu=vfpv3        \
                    -mfloat-abi=softfp \
                    -mlittle-endian    \
