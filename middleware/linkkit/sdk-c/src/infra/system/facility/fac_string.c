@@ -25,8 +25,6 @@ int iotx_facility_json_print(const char *str, int level, ...)
     int             indent  = 0;
     int             i = 0, j = 0;
     int             curr_level = LITE_get_loglevel();
-    int             res = -1;
-    lite_cjson_t    lite;
     va_list         ap;
     int             mark = ' ';
 
@@ -41,10 +39,14 @@ int iotx_facility_json_print(const char *str, int level, ...)
         return -1;
     }
 
+#ifdef UTILS_LITE_CJSON
+    int             res = -1;
+    lite_cjson_t    lite;
     res = lite_cjson_parse(str, strlen(str), &lite);
     if (res != SUCCESS_RETURN || !lite_cjson_is_object(&lite)) {
         return -2;
     }
+#endif
 
     length = strlen(str);
     HAL_Printf("%s%s", "\033", lvl_color[level]);
