@@ -6,3 +6,7 @@ menuconfig AOS_COMP_LIBIOT_UTILS
 if AOS_COMP_LIBIOT_UTILS
 # Configurations for comp libiot_utils
 endif
+
+config UTILS_LITE_CJSON
+    bool
+    default n
