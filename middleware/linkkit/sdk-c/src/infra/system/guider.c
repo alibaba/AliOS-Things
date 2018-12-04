@@ -467,7 +467,7 @@ static int guider_get_iotId_iotToken(
     sys_info("Downstream Payload:");
     iotx_facility_json_print(iotx_payload, LOG_INFO_LEVEL, '<');
 
-    pvalue = LITE_json_value_of("code", iotx_payload);
+    pvalue = LITE_json_value_of("code", iotx_payload, MEM_MAGIC, "sys.preauth");
     if (!pvalue) {
         goto do_exit;
     }
