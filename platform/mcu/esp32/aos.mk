@@ -6,8 +6,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp32
 
-$(NAME)_COMPONENTS := kernel.fs.kv
-$(NAME)_COMPONENTS += network.lwip alicrypto netmgr
+$(NAME)_COMPONENTS := kv
+$(NAME)_COMPONENTS += lwip alicrypto netmgr
 
 ESP_INC_PATH    := bsp/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)
@@ -108,7 +108,7 @@ $(NAME)_PREBUILT_LIBRARY += lib/libespos.a
 $(NAME)_PREBUILT_LIBRARY += lib/libfreertos.a
 $(NAME)_PREBUILT_LIBRARY += lib/libheap.a
 else
-$(NAME)_COMPONENTS       += rhino platform/arch/xtensa/lx6
+$(NAME)_COMPONENTS       += rhino arch_xtensa_lx6
 $(NAME)_SOURCES          += aos/hook_impl.c
 $(NAME)_SOURCES          += aos/soc_impl.c
 $(NAME)_SOURCES          += aos/heap_wrapper.c
@@ -116,12 +116,12 @@ endif
 
 mesh               ?= 0
 ifneq ($(mesh),0)
-$(NAME)_COMPONENTS += network.umesh
+$(NAME)_COMPONENTS += umesh
 endif
 
 ble                      ?= 0
 ifneq ($(ble),0)
-$(NAME)_COMPONENTS       += network.bluetooth.bt
+$(NAME)_COMPONENTS       += bt
 GLOBAL_INCLUDES          += $(ESP_INC_PATH)/bt/include
 $(NAME)_INCLUDES         += ../../../network/bluetooth/port
 $(NAME)_INCLUDES         += ../../../network/bluetooth/host
@@ -133,10 +133,10 @@ $(NAME)_SOURCES          += ble_hci_driver/hci_driver.c
 GLOBAL_CFLAGS            += -DBLE_4_2
 else
 ifeq ($(ble_controller),nrf51822)
-$(NAME)_COMPONENTS       += bluetooth.nrf51822
+$(NAME)_COMPONENTS       += hci_h4_nrf51822
 GLOBAL_CFLAGS            += -DBLE_4_0
 else ifeq ($(ble_controller),nrf52840)
-$(NAME)_COMPONENTS       += bluetooth.nrf52840
+$(NAME)_COMPONENTS       += hci_h4_nrf52840
 GLOBAL_CFLAGS            += -DBLE_4_2
 else
 error("Invalid ble controller.")

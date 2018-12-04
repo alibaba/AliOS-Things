@@ -6,9 +6,9 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp8266
 
-$(NAME)_COMPONENTS := yloop kernel.fs.kv libc debug
-$(NAME)_COMPONENTS += network.lwip network.netmgr alicrypto
-$(NAME)_COMPONENTS += middleware.uagent.uota.src.2nd_boot digest_algorithm
+$(NAME)_COMPONENTS := yloop kv newlib_stub debug
+$(NAME)_COMPONENTS += lwip netmgr alicrypto
+$(NAME)_COMPONENTS += ota_2nd_boot digest_algorithm
 
 use_private_lwip := 1
 
@@ -101,7 +101,7 @@ GLOBAL_CFLAGS            += -I $(SDK8266_PATH)/include/freertos
 $(NAME)_PREBUILT_LIBRARY += lib/libespos.a
 $(NAME)_PREBUILT_LIBRARY += lib/libfreertos.a
 else
-$(NAME)_COMPONENTS       += rhino platform/arch/xtensa/lx106
+$(NAME)_COMPONENTS       += rhino arch_xtensa_lx106
 $(NAME)_SOURCES          += aos/hook_impl.c
 $(NAME)_SOURCES          += aos/soc_impl.c
 endif

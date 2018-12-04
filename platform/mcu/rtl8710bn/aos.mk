@@ -18,12 +18,12 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu rtl8710bn
 
 ifeq ($(AOS_2BOOT_SUPPORT), yes)
-$(NAME)_COMPONENTS += middleware/uagent/uota/src/2nd_boot
+$(NAME)_COMPONENTS += ota_2nd_boot
 $(NAME)_LIBSUFFIX  := _2boot
 else
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
+$(NAME)_COMPONENTS += arch_armv7m
 #$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli digest_algorithm
-$(NAME)_COMPONENTS += libc rhino netmgr cli digest_algorithm network.lwip network.netmgr
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr cli digest_algorithm lwip netmgr
 endif
 
 #GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
