@@ -2,10 +2,9 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef IOT_EXPORT_HTTP2_STREAM_H
 #define IOT_EXPORT_HTTP2_STREAM_H
+
 #include "iot_export_http2.h"
 
 #ifdef __cplusplus

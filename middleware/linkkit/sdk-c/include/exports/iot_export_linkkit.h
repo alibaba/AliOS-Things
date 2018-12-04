@@ -2,10 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef _IOT_EXPORT_LINKKIT_H_
 #define _IOT_EXPORT_LINKKIT_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "iot_export.h"
 
@@ -163,4 +165,7 @@ DLL_IOT_API int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, u
  */
 DLL_IOT_API int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

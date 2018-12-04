@@ -2,10 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef _IOT_EXPORT_HTTP_H_
 #define _IOT_EXPORT_HTTP_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* IoTx http initial param */
 typedef struct {
@@ -122,4 +124,7 @@ DLL_IOT_API void     IOT_HTTP_Disconnect(void *handle);
 /** @} */ /* end of api_http */
 /** @} */ /* end of api */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif
