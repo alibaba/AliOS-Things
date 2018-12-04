@@ -2,5 +2,7 @@
         bool "FEATURE_DEV_BIND_ENABLED"
         depends on MQTT_COMM_ENABLED
         default y
+        select UTILS_JSON_PARSER
+
         help
             Enable customers to bind device to current user
