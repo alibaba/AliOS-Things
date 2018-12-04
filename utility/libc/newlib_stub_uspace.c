@@ -92,13 +92,7 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
     memset(&uart_stdio, 0, sizeof(uart_stdio));
     uart_stdio.port = 0;
 
-    for (i = 0; i < nbytes; i++) {
-        if (*tmp == '\n') {
-            hal_uart_send(&uart_stdio, (void *)"\r", 1, AOS_WAIT_FOREVER);
-        }
-        hal_uart_send(&uart_stdio, (void *)tmp, 1, AOS_WAIT_FOREVER);
-        tmp++;
-    }
+    hal_uart_send(&uart_stdio, buf, nbytes, AOS_WAIT_FOREVER);
 
     return nbytes;
 }
