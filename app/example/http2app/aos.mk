@@ -13,7 +13,9 @@ $(NAME)_COMPONENTS += feature.linkkit-http2 \
                       kernel/cli
 
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI ON_DAILY
+GLOBAL_DEFINES += CONFIG_AOS_CLI \
+                  ON_DAILYa \
+                  UTILS_LITE_CJSON
 
 
 ifeq ($(LWIP),1)
