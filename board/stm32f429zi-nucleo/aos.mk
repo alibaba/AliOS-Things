@@ -33,12 +33,12 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=14 #(1 << 14) = 16kb
 #depends on sal module if select sal function via build option "AOS_NETWORK_SAL=y"
 AOS_NETWORK_SAL    ?= n
 ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal network.netmgr
+$(NAME)_COMPONENTS += sal netmgr
 module             ?= wifi.mk3060
 else
 $(NAME)_SOURCES    += ethernetif.c
 $(NAME)_SOURCES    += httpserver-netconn.c
-$(NAME)_COMPONENTS += network.lwip network.netmgr
+$(NAME)_COMPONENTS += lwip netmgr
 endif
 
 ifeq ($(COMPILER), armcc)
