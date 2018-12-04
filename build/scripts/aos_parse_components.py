@@ -40,6 +40,7 @@ def write_config_file(source_root, config_file, mklist):
     patten = re.compile(source_root + "(/*|\\\\*)(.*)(/|\\\\.*mk)")
 
     for mkfile in mklist:
+        mkfile = mkfile.replace("\\", "/")
         name = get_comp_name(mkfile)
 
         if not name:
