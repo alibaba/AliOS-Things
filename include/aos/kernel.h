@@ -97,6 +97,15 @@ extern "C"
     void aos_task_exit(int code);
 
     /**
+     * Delete a task by name
+     *
+     * @param[in]  name  task name.
+     *
+     * @return  0: success.
+     */
+    int aos_task_delete(char *name);
+
+    /**
      * Get task name.
      *
      * @return  the name of the task
