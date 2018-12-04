@@ -10,8 +10,11 @@ extern "C" {
 #endif
 
 #if defined(__GNUC__)&&!defined(__CC_ARM)||defined(_WIN32)
+
 #include <errno.h>
+
 #else
+
 #define  EPERM         1  /* Operation not permitted */
 #define  ENOENT        2  /* No such file or directory */
 #define  ESRCH         3  /* No such process */
@@ -23,9 +26,11 @@ extern "C" {
 #define  EBADF         9  /* Bad file number */
 #define  ECHILD       10  /* No child processes */
 #define  EAGAIN       11  /* Try again */
+
 #ifdef   ENOMEM
 #undef   ENOMEM
 #endif
+
 #define  ENOMEM       12  /* Out of memory */
 #define  EACCES       13  /* Permission denied */
 #define  EFAULT       14  /* Bad address */
@@ -36,9 +41,11 @@ extern "C" {
 #define  ENODEV       19  /* No such device */
 #define  ENOTDIR      20  /* Not a directory */
 #define  EISDIR       21  /* Is a directory */
+
 #ifdef   EINVAL
 #undef   EINVAL
 #endif
+
 #define  EINVAL       22  /* Invalid argument */
 #define  ENFILE       23  /* File table overflow */
 #define  EMFILE       24  /* Too many open files */
@@ -50,14 +57,17 @@ extern "C" {
 #define  EROFS        30  /* Read-only file system */
 #define  EMLINK       31  /* Too many links */
 #define  EPIPE        32  /* Broken pipe */
+
 #ifdef   EDOM
 #undef   EDOM
 #define  EDOM         33  /* Math argument out of domain of func */
 #endif
+
 #ifdef   ERANGE
 #undef   ERANGE
 #define  ERANGE       34  /* Math result not representable */
 #endif
+
 #define  EDEADLK      35  /* Resource deadlock would occur */
 #define  ENAMETOOLONG 36  /* File name too long */
 #define  ENOLCK       37  /* No record locks available */
@@ -109,9 +119,11 @@ extern "C" {
 #define  ELIBSCN      81  /* .lib section in a.out corrupted */
 #define  ELIBMAX      82  /* Attempting to link in too many shared libraries */
 #define  ELIBEXEC     83  /* Cannot exec a shared library directly */
+
 #ifdef   EILSEQ
 #undef   EILSEQ
 #endif
+
 #define  EILSEQ       84  /* Illegal byte sequence */
 #define  ERESTART     85  /* Interrupted system call should be restarted */
 #define  ESTRPIPE     86  /* Streams pipe error */
@@ -175,29 +187,31 @@ extern "C" {
 #define ENSRDESTRUCTION         175 /* Application terminated lookup */
 #define ENSRQUERYDOMAINTOOLONG  176 /* Domain name is too long */
 #define ENSRCNAMELOOP           177 /* Domain name is too long */
-#endif
+
+#endif /* defined(__GNUC__)&&!defined(__CC_ARM)||defined(_WIN32) */
 
 
 /**
  * Redefine the errno, Only use in framework/app
- *
  */
 #ifdef BUILD_BIN
 
 #undef set_errno
 #define set_errno(err) do { if (err) { errno = (err); } } while(0)
 
+#else /* BUILD_BIN */
 
-#else
 #ifdef BUILD_APP
-extern int get_errno(void);
+
+extern int  get_errno(void);
 extern void set_errno(int err);
 
 #undef errno
 #define errno get_errno()
 
-#endif
-#endif
+#endif /* BUILD_APP */
+
+#endif /* BUILD_BIN */
 
 #ifdef __cplusplus
 }
