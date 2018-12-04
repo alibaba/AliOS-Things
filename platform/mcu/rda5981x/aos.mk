@@ -35,7 +35,6 @@ GLOBAL_INCLUDES += include         \
 GLOBAL_CFLAGS += -DRDA5981x
 
 GLOBAL_CFLAGS += -mcpu=cortex-m4           \
-                 -march=armv7e-m           \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian
 

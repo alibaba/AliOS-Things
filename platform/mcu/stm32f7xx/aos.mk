@@ -77,7 +77,6 @@ GLOBAL_CFLAGS += --cpu=Cortex-M7  \
                  --endian=little
 else
 GLOBAL_CFLAGS += -mcpu=cortex-m7           \
-                 -march=armv7e-m           \
                  -mlittle-endian           \
                  -mthumb -mthumb-interwork \
                  -w
@@ -91,7 +90,6 @@ GLOBAL_ASMFLAGS += --cpu Cortex-M7  \
                    --endian little
 else
 GLOBAL_ASMFLAGS += -mcpu=cortex-m7           \
-                   -march=armv7e-m           \
                    -mlittle-endian           \
                    -mthumb -mthumb-interwork \
                    -w
