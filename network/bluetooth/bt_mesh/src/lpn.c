@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#ifdef CONFIG_BT_MESH_LOW_POWER
+
 #include <stdint.h>
 #include <zephyr.h>
 #include <misc/byteorder.h>
@@ -26,6 +28,7 @@
 #include "beacon.h"
 #include "foundation.h"
 #include "lpn.h"
+#include <errno.h>
 
 #if defined(CONFIG_BT_MESH_LPN_AUTO)
 #define LPN_AUTO_TIMEOUT          K_SECONDS(CONFIG_BT_MESH_LPN_AUTO_TIMEOUT)
@@ -1043,3 +1046,5 @@ int bt_mesh_lpn_init(void)
 
 	return 0;
 }
+
+#endif // CONFIG_BT_MESH_LOW_POWER

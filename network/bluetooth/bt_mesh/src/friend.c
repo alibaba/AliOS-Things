@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#ifdef CONFIG_BT_MESH_FRIEND
+
 #include <stdint.h>
 #include <zephyr.h>
 #include <misc/byteorder.h>
@@ -25,6 +27,7 @@
 #include "access.h"
 #include "foundation.h"
 #include "friend.h"
+#include <errno.h>
 
 #define FRIEND_BUF_SIZE     (BT_MESH_ADV_DATA_SIZE - BT_MESH_NET_HDR_LEN)
 
@@ -52,6 +55,16 @@ struct friend_pdu_info {
 #if 0
 NET_BUF_POOL_DEFINE(friend_buf_pool, FRIEND_BUF_COUNT,
 		    BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
+#else
+static struct {
+    struct net_buf buf;
+    u8_t data[BT_MESH_ADV_DATA_SIZE] __net_buf_align;
+    u8_t ud[ROUND_UP(BT_MESH_ADV_USER_DATA_SIZE, 4)] __net_buf_align;
+} _net_buf_friend_buf_pool_name[FRIEND_BUF_COUNT];
+
+struct net_buf_pool friend_buf_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(friend_buf_pool, \
+                                  _net_buf_friend_buf_pool_name, FRIEND_BUF_COUNT, \
+                                  BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
 #endif
 
 static struct friend_adv {
@@ -1311,3 +1324,5 @@ void bt_mesh_friend_clear_incomplete(struct bt_mesh_subnet *sub, u16_t src,
 		}
 	}
 }
+
+#endif
