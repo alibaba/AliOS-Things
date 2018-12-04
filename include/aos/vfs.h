@@ -27,9 +27,9 @@ struct statfs {
 };
 
 typedef struct {
-    int32_t  d_ino;  /* file number */
-    uint8_t  d_type; /* type of file */
-    char    *d_name; /* file name */
+    int32_t d_ino;    /* file number */
+    uint8_t d_type;   /* type of file */
+    char    d_name[]; /* file name */
 } aos_dirent_t;
 
 typedef struct {
