@@ -1,6 +1,6 @@
 HOST_OPENOCD := esp32
 
-NAME := esp32
+NAME := mcu_esp32
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

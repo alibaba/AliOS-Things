@@ -1,5 +1,5 @@
 HOST_OPENOCD := MIMXRT1052
-NAME         := mimxrt1052impl
+NAME         := mcu_mimxrt1052impl
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

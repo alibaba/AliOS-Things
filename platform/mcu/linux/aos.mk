@@ -1,6 +1,6 @@
 HOST_OPENOCD := linux
 
-NAME := linuximpl
+NAME := mcu_linuximpl
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

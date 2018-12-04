@@ -1,4 +1,4 @@
-NAME := armv5
+NAME := arch_armv5
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1.0

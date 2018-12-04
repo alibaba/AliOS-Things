@@ -1,4 +1,4 @@
-NAME := efm32gxx
+NAME := mcu_efm32gxx
 
 HOST_OPENOCD := efm32gxx
 

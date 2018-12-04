@@ -1,5 +1,5 @@
 HOST_OPENOCD := MKL43Z4
-NAME         := mkl43z4impl
+NAME         := mcu_mkl43z4impl
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

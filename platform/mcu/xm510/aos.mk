@@ -1,4 +1,4 @@
-NAME := xm510
+NAME := mcu_xm510
 
 HOST_OPENOCD := xm510
 

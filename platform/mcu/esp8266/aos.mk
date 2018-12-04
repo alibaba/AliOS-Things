@@ -1,6 +1,6 @@
 HOST_OPENOCD := esp8266
 
-NAME := esp8266
+NAME := mcu_esp8266
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

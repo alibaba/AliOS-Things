@@ -1,4 +1,4 @@
-NAME := nrf52xxx
+NAME := mcu_nrf52xxx
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
