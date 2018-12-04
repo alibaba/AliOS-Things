@@ -2,10 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __SHADOW_EXPORT_H__
 #define __SHADOW_EXPORT_H__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* From shadow.h */
 #include <sys/types.h>
@@ -229,4 +231,7 @@ iotx_err_t IOT_Shadow_Pull(void *handle);
 /** @} */ /* end of api_shadow */
 /** @} */ /* end of api */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif /* __SHADOW_EXPORT_H__ */

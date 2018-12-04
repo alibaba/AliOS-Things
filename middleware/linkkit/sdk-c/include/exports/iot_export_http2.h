@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef IOT_EXPORT_HTTP2_H
 #define IOT_EXPORT_HTTP2_H
 

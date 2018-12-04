@@ -2,10 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef _IOT_EXPORT_MQTT_H_
 #define _IOT_EXPORT_MQTT_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define MUTLI_SUBSCIRBE_MAX                                     (5)
 
@@ -350,4 +352,8 @@ DLL_IOT_API int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, in
 
 /** @} */ /* end of api */
 #endif /* MAL_ENABLED */
+
+#if defined(__cplusplus)
+}
+#endif
 #endif
