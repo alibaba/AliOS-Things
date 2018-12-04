@@ -3,7 +3,8 @@ NAME := feature_linkkit
 $(NAME)_COMPONENTS := feature.linkkit-default
 
 FEATURE_OTA_ENABLED         = n
-
+FEATURE_UTILS_JSON_PARSER   = y
+FEATURE_UTILS_LITE_CJSON    = y
 
 ## FEATURE_DEV_BIND_ENABLED
 ##
