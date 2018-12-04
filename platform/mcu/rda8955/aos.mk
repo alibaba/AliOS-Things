@@ -1,5 +1,5 @@
 
-NAME := RDA8955
+NAME := mcu_RDA8955
 
 HOST_OPENOCD := rda8955
 

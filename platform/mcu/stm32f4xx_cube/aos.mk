@@ -1,4 +1,4 @@
-NAME         := stm32f4xx_cube
+NAME         := mcu_stm32f4xx_cube
 HOST_OPENOCD := stm32f4xx
 
 $(NAME)_MBINS_TYPE := kernel

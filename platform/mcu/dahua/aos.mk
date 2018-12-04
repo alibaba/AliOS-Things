@@ -1,6 +1,6 @@
 HOST_OPENOCD := dahua
 
-NAME := dahua
+NAME := mcu_dahua
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

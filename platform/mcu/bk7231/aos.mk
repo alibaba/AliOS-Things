@@ -1,4 +1,4 @@
-NAME := bk7231
+NAME := mcu_bk7231
 
 HOST_OPENOCD := bk7231
 

@@ -1,4 +1,4 @@
-NAME := armv7a
+NAME := arch_armv7a
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1.0

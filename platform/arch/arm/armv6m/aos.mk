@@ -1,4 +1,4 @@
-NAME := armv6m
+NAME := arch_armv6m
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1.0

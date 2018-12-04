@@ -1,5 +1,5 @@
 HOST_OPENOCD := MKL27Z644
-NAME         := mkl27z644impl
+NAME         := mcu_mkl27z644impl
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

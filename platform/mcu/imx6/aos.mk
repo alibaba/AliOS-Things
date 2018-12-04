@@ -1,4 +1,4 @@
-NAME := imx6
+NAME := mcu_imx6
 
 HOST_OPENOCD := imx6
 

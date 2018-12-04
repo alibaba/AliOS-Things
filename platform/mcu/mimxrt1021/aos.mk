@@ -1,5 +1,5 @@
 HOST_OPENOCD := MIMXRT1021
-NAME         := mimxrt1021impl
+NAME         := mcu_mimxrt1021impl
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
