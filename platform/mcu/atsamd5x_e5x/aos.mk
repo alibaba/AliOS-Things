@@ -1,4 +1,4 @@
-NAME := atsame54
+NAME := mcu_atsame54
 
 # Host architecture is ARM Cortex M4
 HOST_ARCH := Cortex-M4

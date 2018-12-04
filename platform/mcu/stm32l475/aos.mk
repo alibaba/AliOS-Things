@@ -1,5 +1,5 @@
 
-NAME := stm32l475
+NAME := mcu_stm32l475
 
 HOST_OPENOCD := stm32l475
 

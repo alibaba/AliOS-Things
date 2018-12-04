@@ -1,4 +1,4 @@
-NAME := xtensa_lx6
+NAME := arch_xtensa_lx6
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1.0

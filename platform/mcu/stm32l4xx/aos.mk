@@ -1,4 +1,4 @@
-NAME         := stm32l4xx
+NAME         := mcu_stm32l4xx
 HOST_OPENOCD := stm32l433
 
 $(NAME)_MBINS_TYPE := kernel

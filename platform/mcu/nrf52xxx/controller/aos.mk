@@ -1,4 +1,4 @@
-NAME := controller
+NAME := mcu_controller
 
 $(NAME)_TYPE := kernel
 $(NAME)_MBINS_TYPE := kernel

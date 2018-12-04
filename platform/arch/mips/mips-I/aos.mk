@@ -1,4 +1,4 @@
-NAME := mips-I
+NAME := arch_mips-I
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1.0

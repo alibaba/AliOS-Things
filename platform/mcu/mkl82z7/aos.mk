@@ -1,5 +1,5 @@
 HOST_OPENOCD := MKL82Z7
-NAME         := mkl82z7impl
+NAME         := mcu_mkl82z7impl
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

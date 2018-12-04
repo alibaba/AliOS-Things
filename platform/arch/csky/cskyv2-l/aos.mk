@@ -1,4 +1,4 @@
-NAME := cskyv2-l
+NAME := arch_cskyv2-l
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1.0

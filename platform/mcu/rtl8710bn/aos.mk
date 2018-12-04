@@ -7,7 +7,7 @@
 #  permission of MXCHIP Corporation.
 #
 
-NAME := rtl8710bn
+NAME := mcu_rtl8710bn
 
 HOST_OPENOCD := rtl8710bn
 
