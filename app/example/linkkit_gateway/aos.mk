@@ -13,8 +13,8 @@ $(NAME)_COMPONENTS += network/netmgr \
 
 $(NAME)_COMPONENTS += feature.linkkit-gateway
 
-GLOBAL_CFLAGS += \
-                 -DMQTT_DIRECT   \
+GLOBAL_CFLAGS += -DMQTT_DIRECT \
+                 -DUTILS_LITE_CJSON
 
 ifneq ($(deprecated),)
 $(NAME)_SOURCES += deprecated/gateway.c
