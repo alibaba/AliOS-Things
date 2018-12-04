@@ -1,6 +1,6 @@
 HOST_OPENOCD := csky
 
-NAME := csky
+NAME := mcu_csky
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

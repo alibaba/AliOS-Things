@@ -1,4 +1,4 @@
-NAME := stm32l071kb
+NAME := mcu_stm32l071kb
 
 HOST_OPENOCD := stm32l071kb
 

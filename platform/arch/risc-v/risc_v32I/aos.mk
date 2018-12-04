@@ -1,4 +1,4 @@
-NAME := risc_v32I
+NAME := arch_risc_v32I
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1.0

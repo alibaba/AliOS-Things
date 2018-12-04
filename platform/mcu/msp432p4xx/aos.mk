@@ -1,4 +1,4 @@
-NAME         := msp432p4xx
+NAME         := mcu_msp432p4xx
 HOST_OPENOCD := msp432p4xx
 
 $(NAME)_MBINS_TYPE := kernel

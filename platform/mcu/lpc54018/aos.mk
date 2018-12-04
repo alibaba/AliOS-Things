@@ -1,5 +1,5 @@
 HOST_OPENOCD := LPC54018
-NAME := lpc54018impl
+NAME := mcu_lpc54018impl
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

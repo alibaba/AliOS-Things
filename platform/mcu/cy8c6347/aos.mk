@@ -1,4 +1,4 @@
-NAME := cy8c6347
+NAME := mcu_cy8c6347
 
 HOST_OPENOCD := cy8c6347
 
