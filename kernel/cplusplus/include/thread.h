@@ -9,7 +9,7 @@ namespace AliOS {
 
 #define Thread_WAIT_FOREVER 0xFFFFFFFFU
 
-    class Thread
+    class thread
     {
       public:
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
@@ -29,11 +29,11 @@ namespace AliOS {
                        tick_t ticks, size_t stack_size, task_entry_t entry,
                        uint8_t autorun);
 
-        Thread(const name_t *name, void *arg, uint8_t prio,
+        thread(const name_t *name, void *arg, uint8_t prio,
                 tick_t ticks, size_t stack_size, task_entry_t entry, uint8_t autorun);
 
 
-        Thread();
+        thread();
 
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
@@ -62,7 +62,7 @@ namespace AliOS {
          * @return  the operation status, RHINO_SUCCESS is OK, others is error
          */
         kstat_t terminate(void);
-        ~Thread(void);
+        ~thread(void);
 
 #endif
 
