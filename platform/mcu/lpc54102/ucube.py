@@ -133,7 +133,6 @@ global_cflags = Split('''
         -mlittle-endian 
         -mthumb 
         -mthumb-interwork 
-        -march=armv7e-m
         -Wno-format 
         -Wno-incompatible-pointer-types
 ''')
