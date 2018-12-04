@@ -247,7 +247,7 @@ CPU_LDFLAGS        := -mthumb $(CPU_BASE_FLAGS) -Wl,-A,thumb -Wl,-z,max-page-siz
 endif
 
 ifeq ($(HOST_ARCH),ARM968E-S)
-CPU_BASE_FLAGS     := -mcpu=arm968e-s -march=armv5te -marm -mlittle-endian -mthumb-interwork
+CPU_BASE_FLAGS     := -mcpu=arm968e-s -marm -mlittle-endian -mthumb-interwork
 CPU_CFLAGS         := $(CPU_BASE_FLAGS)
 CPU_CXXFLAGS       := $(CPU_BASE_FLAGS)
 CPU_ASMFLAGS       := $(CPU_BASE_FLAGS)
@@ -262,7 +262,7 @@ CPU_LDFLAGS    := -mthumb -mcpu=cortex-m7 -Wl,-A,thumb
 endif
 
 ifeq ($(HOST_ARCH),Cortex-A5)
-CPU_BASE_FLAGS     := -Wall -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mtune=cortex-a5 -mcpu=cortex-a5 -mthumb-interwork -marm
+CPU_BASE_FLAGS     := -Wall -mfloat-abi=softfp -mfpu=vfpv3-d16 -mtune=cortex-a5 -mcpu=cortex-a5 -mthumb-interwork -marm
 CPU_CFLAGS         := $(CPU_BASE_FLAGS)
 CPU_CXXFLAGS       := $(CPU_BASE_FLAGS)
 CPU_ASMFLAGS       := $(CPU_BASE_FLAGS)
