@@ -74,7 +74,7 @@ C99_FLAGS = -std=gnu99 -fgnu89-inline
 
 # Generate code specifically for ARMv7-A, cortex-ax CPU.
 # Use the ARM Procedure Call Standard.
-ARM_FLAGS = -march=armv7-a -mcpu=$(CPU) -mtune=$(CPU) -mapcs
+ARM_FLAGS = -mcpu=$(CPU) -mtune=$(CPU) -mapcs
 
 ifeq "$(USE_THUMB)" "1"
     # Generate thumb2 instructions (mixed 16/32-bit).

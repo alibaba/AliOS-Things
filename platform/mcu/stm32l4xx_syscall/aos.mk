@@ -114,7 +114,6 @@ $(NAME)_SOURCES += aos/soc_impl.c         \
                    hal/hw.c
 
 GLOBAL_CFLAGS += -mcpu=cortex-m4           \
-                 -march=armv7-m            \
                  -mlittle-endian           \
                  -mthumb -mthumb-interwork \
                  -mfloat-abi=hard          \

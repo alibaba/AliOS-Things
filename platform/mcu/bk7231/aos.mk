@@ -20,7 +20,6 @@ GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 
 GLOBAL_CFLAGS += -mcpu=arm968e-s           \
-                 -march=armv5te            \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian
 
@@ -42,7 +41,6 @@ GLOBAL_INCLUDES += beken/lwip-2.0.2/port \
                    beken
 
 GLOBAL_LDFLAGS += -mcpu=arm968e-s          \
-                 -march=armv5te            \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian           \
                  --specs=nosys.specs       \
