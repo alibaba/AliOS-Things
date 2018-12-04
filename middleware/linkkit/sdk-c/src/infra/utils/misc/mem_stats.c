@@ -297,7 +297,7 @@ int _count_malloc_internal(const char *f, const int l, OS_malloc_record *os_mall
             }
 
             memset(entry, 0, sizeof(calling_stack_t));
-            entry->func_name = strdup(f);
+            entry->func_name = LITE_strdup(f);
             entry->line = l;
             list_add(&entry->func_head, &pos->mem_statis.calling_stack.func_head);
         }
