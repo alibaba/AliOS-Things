@@ -12,7 +12,17 @@
 
 unsigned int aos_log_level = AOS_LL_V_DEBUG | AOS_LL_V_INFO | AOS_LL_V_WARN |
                              AOS_LL_V_ERROR | AOS_LL_V_FATAL;
-aos_mutex_t log_mutex;
+static aos_mutex_t log_mutex;
+
+int log_get_mutex()
+{
+    return 0 == aos_mutex_lock(&log_mutex, AOS_WAIT_FOREVER);
+}
+
+void log_release_mutex()
+{
+    aos_mutex_unlock(&log_mutex);
+}
 
 #ifndef csp_printf
 #ifdef _WIN32
@@ -24,16 +34,13 @@ __attribute__((weak)) int csp_printf(const char *fmt, ...)
     va_list args;
     int     ret;
 
-    ret = aos_mutex_lock(&log_mutex, AOS_WAIT_FOREVER);
-    if (ret == 0) {
-        va_start(args, fmt);
-        ret = vprintf(fmt, args);
-        va_end(args);
 
-        fflush(stdout);
-    }
+    va_start(args, fmt);
+    ret = vprintf(fmt, args);
+    va_end(args);
 
-    aos_mutex_unlock(&log_mutex);
+    fflush(stdout);
+
 
     return ret;
 }

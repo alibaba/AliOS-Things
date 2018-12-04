@@ -49,15 +49,22 @@ enum log_level_bit {
 #define COL_MAG "\x1B[35m"
 
 #include <aos/kernel.h>
+
+extern int log_get_mutex();
+
+extern void log_release_mutex();
 extern int csp_printf(const char *fmt, ...);
 #ifdef CONFIG_LOGMACRO_DETAILS
-#define log_print(CON, MOD, COLOR, LVL, ...) \
-    do {                                          \
-        if (CON) {                                \
-            long long ms = aos_now_ms();;         \
-            csp_printf(COLOR " [%4d.%03d]<%s> %s [%s#%d] : ", (int)(ms/1000), (int)(ms%1000), LVL, MOD, __FUNCTION__, __LINE__); \
-            csp_printf(__VA_ARGS__); \
-            csp_printf("\r\n"); \
+#define log_print(CON, MOD, COLOR, LVL, ...)  \
+    do {                                      \
+        if (CON) {                            \
+            if(log_get_mutex()){              \
+                long long ms = aos_now_ms();  \
+                csp_printf(COLOR " [%4d.%03d]<%s> %s [%s#%d] : ", (int)(ms/1000), (int)(ms%1000), LVL, MOD, __FUNCTION__, __LINE__); \
+                csp_printf(__VA_ARGS__);      \
+                csp_printf("\r\n");           \
+            log_release_mutex();              \
+            }\
         } \
     } while (0)
 
@@ -65,9 +72,12 @@ extern int csp_printf(const char *fmt, ...);
 #define log_print(CON, MOD, COLOR, LVL, ...) \
     do { \
         if (CON) { \
-            csp_printf("[%06d]<" LVL "> ", (unsigned)aos_now_ms(), __VA_ARGS__); \
-            csp_printf(__VA_ARGS__); \
-            csp_printf("\r\n"); \
+            if(log_get_mutex()){             \
+                csp_printf("[%06d]<" LVL "> ", (unsigned)aos_now_ms(), __VA_ARGS__); \
+                csp_printf(__VA_ARGS__);     \
+                csp_printf("\r\n");          \
+                log_release_mutex();         \
+            }                                \
         } \
     } while (0)
 
