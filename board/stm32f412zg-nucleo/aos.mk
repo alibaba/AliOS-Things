@@ -28,7 +28,7 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=17 #(1 << 17) = 128kb
 
 AOS_NETWORK_SAL    ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal network.netmgr
+$(NAME)_COMPONENTS += sal netmgr
 module             ?= wifi.mk3060
 endif
 

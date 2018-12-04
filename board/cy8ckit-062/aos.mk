@@ -17,7 +17,7 @@ GLOBAL_DEFINES  += RHINO_CONFIG_TICK_TASK=0
 
 AOS_NETWORK_SAL ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
+$(NAME)_COMPONENTS += sal
 module             ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
