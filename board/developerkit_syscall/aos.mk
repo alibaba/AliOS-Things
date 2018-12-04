@@ -1,4 +1,4 @@
-NAME := developerkit_syscall
+NAME := board_developerkit_syscall
 
 
 $(NAME)_MBINS_TYPE   := kernel
