@@ -60,7 +60,7 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=32768 CONFIG_AOS_KV_BLKBITS=14
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/stm32f429zi-nucleo/STM32F429ZITx.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config board/stm32f429zi-nucleo/STM32L433.icf
+GLOBAL_LDFLAGS += --config board/stm32f429zi-nucleo/STM32F429.icf
 else
 GLOBAL_LDFLAGS += -T board/stm32f429zi-nucleo/STM32F429ZITx_FLASH.ld
 endif
