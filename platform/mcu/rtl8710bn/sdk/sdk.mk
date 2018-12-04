@@ -7,7 +7,6 @@
 #  permission of MXCHIP Corporation.
 #
 
-$(NAME)_INCLUDES += ../../../kernel/hal/include/soc
 $(NAME)_INCLUDES += ../../../network/lwip/include
 $(NAME)_INCLUDES += ./
 
