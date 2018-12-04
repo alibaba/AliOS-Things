@@ -1,5 +1,5 @@
 ifeq ($(AOS_2BOOT_SUPPORT), yes)
-NAME := developerkit_2boot
+NAME := board_developerkit_2boot
 
 $(NAME)_MBINS_TYPE   := kernel
 $(NAME)_VERSION      := 0.0.1.0
@@ -49,7 +49,7 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/board/developerkit/gen_crc_bin.mk
 
 else
-NAME := developerkit
+NAME := board_developerkit
 
 
 $(NAME)_MBINS_TYPE   := kernel

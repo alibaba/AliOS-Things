@@ -1,4 +1,4 @@
-NAME := stm32f401re-nucleo
+NAME := board_stm32f401re-nucleo
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

@@ -1,4 +1,4 @@
-NAME := stm32l432kc-nucleo
+NAME := board_stm32l432kc-nucleo
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1

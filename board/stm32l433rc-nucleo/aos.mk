@@ -1,4 +1,4 @@
-NAME := stm32l433rc-nucleo
+NAME := board_stm32l433rc-nucleo
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
