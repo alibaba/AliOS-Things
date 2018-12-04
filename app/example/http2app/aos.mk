@@ -14,8 +14,7 @@ $(NAME)_COMPONENTS += feature.linkkit-http2 \
 
 
 GLOBAL_DEFINES += CONFIG_AOS_CLI \
-                  ON_DAILYa \
-                  UTILS_LITE_CJSON
+                  ON_DAILY \
 
 
 ifeq ($(LWIP),1)
