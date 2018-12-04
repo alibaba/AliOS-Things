@@ -19,7 +19,7 @@ GLOBAL_CFLAGS                += -D__NEWLIB__
 
 AOS_NETWORK_SAL ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal
+$(NAME)_COMPONENTS += sal
 module             ?= wifi.mk3060
 endif
 

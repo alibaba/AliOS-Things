@@ -36,7 +36,7 @@ GLOBAL_CFLAGS += -DSTM32L433xx
 GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 
-$(NAME)_COMPONENTS += drivers.sensor
+$(NAME)_COMPONENTS += sensor
 AOS_SENSOR_ACC_MIR3_DA217 = y
 AOS_SENSOR_ALS_LITEON_LTR553 = y
 AOS_SENSOR_PS_LITEON_LTR553 = y
@@ -54,7 +54,7 @@ endif
 no_tls             ?= 1
 AOS_NETWORK_SAL    ?= y
 ifeq (y,$(AOS_NETWORK_SAL))
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal network.netmgr
+$(NAME)_COMPONENTS += sal netmgr
 module             ?= wifi.bk7231
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
