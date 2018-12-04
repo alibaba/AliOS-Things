@@ -9,6 +9,7 @@
 #include "errno_mapping.h"
 #include <time.h>
 #include "aos_common.h"
+#include "debug_api.h"
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC == 0)
 #warning "RHINO_CONFIG_KOBJ_DYN_ALLOC is disabled!"
@@ -55,6 +56,28 @@ void aos_task_exit(int code)
     (void)code;
 
     krhino_task_dyn_del(NULL);
+}
+
+int aos_task_delete(char *name)
+{
+    int ret;
+    ktask_t *task;
+
+    if (name == NULL) {
+        return -EINVAL;
+    }
+
+    task = debug_task_find(name);
+    if (task == NULL) {
+        return -EINVAL;
+    }
+
+    ret = (int)krhino_task_dyn_del(task);
+    if (ret == RHINO_SUCCESS) {
+        return 0;
+    }
+
+    ERRNO_MAPPING(ret);
 }
 #endif
 

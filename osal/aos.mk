@@ -42,7 +42,7 @@ endif
 
 ifeq ($(osal),rhino)
 GLOBAL_DEFINES     += OSAL_RHINO AOS_HAL
-$(NAME)_COMPONENTS += rhino
+$(NAME)_COMPONENTS += rhino debug
 
 ifeq ($(HOST_MCU_FAMILY),esp32)
 include osal/espos/espos.mk
@@ -64,10 +64,6 @@ endif
 
 ifeq ($(AOS_KV), 1)
 $(NAME)_SOURCES += aos/aos_kv.c
-endif
-
-ifeq ($(AOS_DEBUG_PANIC),1)
-$(NAME)_SOURCES += aos/aos_debug.c
 endif
 
 ifeq ($(AOS_COMP_MBMASTER),1)
