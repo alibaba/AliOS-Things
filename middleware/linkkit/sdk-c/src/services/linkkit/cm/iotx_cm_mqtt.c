@@ -184,7 +184,18 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
                 CM_ERR("sub handle is null!");
                 return;
             }
-            topic_handle_func(_mqtt_conncection->fd, topic_info->ptopic, topic_info->payload, topic_info->payload_len, NULL);
+
+            char *topic = cm_malloc(topic_info->topic_len + 1);
+            if (topic == NULL) {
+                CM_ERR("topic malloc failed");
+                return;
+            }
+            memset(topic,0,topic_info->topic_len + 1);
+            memcpy(topic,topic_info->ptopic,topic_info->topic_len);
+
+            topic_handle_func(_mqtt_conncection->fd, topic, topic_info->payload, topic_info->payload_len, NULL);
+
+            cm_free(topic);
         }
         break;
 
