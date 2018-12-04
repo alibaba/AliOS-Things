@@ -7,6 +7,7 @@ config DEVICE_MODEL_ENABLED
     default y
     select AOS_COMP_LIBIOT_CM
     select AOS_COMP_LIBIOT_DM
+    select UTILS_LITE_CJSON
 
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK

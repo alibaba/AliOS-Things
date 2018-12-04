@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#ifdef UTILS_LITE_CJSON
 
 #include <stdio.h>
 #include <string.h>
@@ -1851,4 +1849,5 @@ lite_cjson_item_t *lite_cjson_create_stringArray(const char **strings, int count
 
     return a;
 }
+#endif
 #endif

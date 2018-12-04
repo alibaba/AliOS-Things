@@ -2,6 +2,8 @@
 config COAP_COMM_ENABLED
     bool "FEATURE_COAP_COMM_ENABLED"
     default n
+    select UTILS_LITE_CJSON
+
     help
         Establish non-persistent connection with AliCloud via CoAP-based protocol
 

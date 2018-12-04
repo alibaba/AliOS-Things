@@ -1,8 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
+#ifdef IMPL_DYNAMIC_REGISTER
 
 #include "sdk-impl_internal.h"
 
@@ -195,3 +194,4 @@ int perform_dynamic_register(_IN_ char product_key[PRODUCT_KEY_MAXLEN],
 
     return SUCCESS_RETURN;
 }
+#endif
