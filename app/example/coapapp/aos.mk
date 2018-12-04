@@ -12,8 +12,7 @@ $(NAME)_COMPONENTS += feature.linkkit-coap \
                       utility/cjson \
                       kernel/cli
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI \
-                  UTILS_LITE_CJSON
+GLOBAL_DEFINES += CONFIG_AOS_CLI
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
