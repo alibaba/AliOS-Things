@@ -7,8 +7,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu RDA8955
 
-$(NAME)_COMPONENTS += platform/arch/mips/mips-I
-$(NAME)_COMPONENTS := libc rhino netmgr cjson digest_algorithm network.lwip
+$(NAME)_COMPONENTS += arch_mips-I
+$(NAME)_COMPONENTS := newlib_stub rhino netmgr cjson digest_algorithm lwip
 
 #dual_os ?= no
 

@@ -9,8 +9,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu imx6
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7a
-$(NAME)_COMPONENTS += libc rhino
+$(NAME)_COMPONENTS += arch_armv7a
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_INCLUDES += ../../../arch/arm/armv7a/gcc/a9
 GLOBAL_INCLUDES += ./aos                                      \

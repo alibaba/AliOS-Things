@@ -1,8 +1,8 @@
 ifeq ($(AOS_2BOOT_SUPPORT), yes)
-NAME := stm32l4xx_cube_2boot
+NAME := mcu_stm32l4xx_cube_2boot
 HOST_OPENOCD := stm32l4xx
 
-$(NAME)_COMPONENTS += middleware/uagent/uota/src/2nd_boot
+$(NAME)_COMPONENTS += ota_2nd_boot
 
 GLOBAL_INCLUDES := Rec/
 
@@ -28,15 +28,15 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
                   --specs=nosys.specs
 
 else
-NAME := stm32l4xx_cube
+NAME := mcu_stm32l4xx_cube
 HOST_OPENOCD := stm32l4xx
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l4xx_cube
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino kernel.fs.vfs digest_algorithm kernel.fs.kv
+$(NAME)_COMPONENTS += arch_armv7m
+$(NAME)_COMPONENTS += newlib_stub rhino vfs digest_algorithm kv
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6

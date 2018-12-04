@@ -9,8 +9,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu e310
 
-$(NAME)_COMPONENTS += platform/arch/risc-v/risc_v32I
-$(NAME)_COMPONENTS += libc rhino hal
+$(NAME)_COMPONENTS += arch_risc_v32I
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_INCLUDES += ../../../arch/risc-v/risc_v32I/gcc
 GLOBAL_INCLUDES += ../../../../include/hal/soc/

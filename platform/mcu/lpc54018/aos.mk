@@ -5,8 +5,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu lpc54018impl
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += rhino libc cli kernel.fs.vfs
+$(NAME)_COMPONENTS += arch_armv7m
+$(NAME)_COMPONENTS += rhino newlib_stub cli vfs
 
 GLOBAL_CFLAGS  += -DA_LITTLE_ENDIAN
 GLOBAL_CFLAGS  += -DCPU_LPC54018JET180

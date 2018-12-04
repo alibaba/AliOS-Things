@@ -9,27 +9,26 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu xm510
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7a
-$(NAME)_COMPONENTS += libc rhino network.lwip rhino.cplusplus
+$(NAME)_COMPONENTS += arch_armv7a
+$(NAME)_COMPONENTS += newlib_stub rhino lwip cplusplus
 
 #add the following line to the code if POSIX API is needed
-$(NAME)_COMPONENTS += rhino.posix
+$(NAME)_COMPONENTS += posix
 
 #add the following lines to the code if POSIX DEVICE IO is needed
-$(NAME)_COMPONENTS += kernel.fs.vfs.posix
 GLOBAL_DEFINES     += POSIX_DEVICE_IO_NEED
 
 #sd card
-$(NAME)_COMPONENTS += kernel.fs.vfs 3rdparty.experimental.fs.fatfs
+$(NAME)_COMPONENTS += vfs fatfs
 GLOBAL_DEFINES     += CONFIG_AOS_FATFS_SUPPORT_MMC
 
 #jffs
-$(NAME)_COMPONENTS += 3rdparty.experimental.fs.jffs2
+$(NAME)_COMPONENTS += jffs2
 #cramfs
-$(NAME)_COMPONENTS += 3rdparty.experimental.fs.cramfs
+$(NAME)_COMPONENTS += cramfs
 
 #ramfs
-$(NAME)_COMPONENTS += kernel.fs.ramfs
+$(NAME)_COMPONENTS += ramfs
 
 # kv related if kv is enabled
 GLOBAL_DEFINES += CONFIG_AOS_KV_BLKBITS=16

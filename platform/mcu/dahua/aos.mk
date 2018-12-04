@@ -10,17 +10,16 @@ LWIP := 1
 SAL  := 0
 
 #$(NAME)_COMPONENTS += platform/arch/dahua/dahuav2-l
-$(NAME)_COMPONENTS += rhino cjson cli network.netmgr
+$(NAME)_COMPONENTS += rhino cjson cli netmgr
 
 ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS += network.lwip
+$(NAME)_COMPONENTS += lwip
 no_with_lwip       := 0
 GLOBAL_DEFINES     += WITH_LWIP
 endif
 
 ifeq ($(SAL),1)
-$(NAME)_COMPONENTS += linkkit/sdk-c/src/services/mdal/sal \
-                      sal.hal.wifi.esp8266
+$(NAME)_COMPONENTS += sal device_sal_esp8266
 GLOBAL_DEFINES     += WITH_SAL
 endif
 
