@@ -8,8 +8,8 @@
 #include "platform_mcu_peripheral.h" /* Include MCU-specific types */
 #include "RingBufferUtils.h"
 #include "board.h"
-#include "gpio.h"
-#include "uart.h"
+#include "hal/soc/gpio.h"
+#include "hal/soc/uart.h"
 
 #ifdef __cplusplus
 extern "C" {

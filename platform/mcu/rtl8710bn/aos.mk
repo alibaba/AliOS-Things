@@ -46,13 +46,11 @@ GLOBAL_INCLUDES += sdk
 GLOBAL_INCLUDES += aos
 GLOBAL_INCLUDES += peripherals
 GLOBAL_INCLUDES += ../include
-GLOBAL_INCLUDES += ../../../kernel/hal/include/soc
 GLOBAL_INCLUDES += ../../../network/lwip/include
 GLOBAL_INCLUDES += ../../../network/lwip/include/lwip
 
 $(NAME)_INCLUDES += .
 $(NAME)_INCLUDES += ../include
-$(NAME)_INCLUDES += ../../../kernel/hal/include/soc
 $(NAME)_INCLUDES += ../../../network/lwip/include
 $(NAME)_INCLUDES += ../../../network/lwip/include/lwip
 $(NAME)_INCLUDES += arch
