@@ -104,7 +104,7 @@ $(NAME)_SOURCES := platform_init.c              \
 
 ###      wifi/src/wifi.c hal/hw.c hal/wifi_port.c  hal/flash_port.c
 
-GLOBAL_LDFLAGS += -L ./platform/mcu/$(NAME)/$(TOOLCHAIN_NAME)
+GLOBAL_LDFLAGS += -L ./platform/mcu/stm32f4xx/$(TOOLCHAIN_NAME)
 
 $(NAME)_COMPONENTS += network.lwip
 # Components
@@ -142,7 +142,7 @@ ifneq ($(filter spi_flash_write, $(APP)),)
 ####################################################################################
 
 PRE_APP_BUILDS  += bootloader
-GLOBAL_LDFLAGS  += -T platform/mcu/$(NAME)/$(TOOLCHAIN_NAME)/app_ram$(LINK_SCRIPT_SUFFIX)
+GLOBAL_LDFLAGS  += -T platform/mcu/stm32f4xx/$(TOOLCHAIN_NAME)/app_ram$(LINK_SCRIPT_SUFFIX)
 GLOBAL_DEFINES  += __JTAG_FLASH_WRITER_DATA_BUFFER_SIZE__=16384
 GLOBAL_INCLUDES +=
 
@@ -152,7 +152,7 @@ else
 ####################################################################################
 
 PRE_APP_BUILDS  += bootloader
-GLOBAL_LDFLAGS  += -T  platform/mcu/$(NAME)/$(TOOLCHAIN_NAME)/app_with_bootloader$(LINK_SCRIPT_SUFFIX)
+GLOBAL_LDFLAGS  += -T  platform/mcu/stm32f4xx/$(TOOLCHAIN_NAME)/app_with_bootloader$(LINK_SCRIPT_SUFFIX)
 GLOBAL_INCLUDES +=
 
 endif # APP=spi_flash_write
