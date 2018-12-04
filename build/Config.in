@@ -26,7 +26,7 @@ source "platform/mcu/Config.in"
 endmenu
 
 menu "Device Configuration"
-source "device/Config.in"
+source "drivers/Config.in"
 endmenu
 
 menu "Kernel Configuration"
