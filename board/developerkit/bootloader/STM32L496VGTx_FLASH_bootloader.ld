@@ -37,12 +37,11 @@ _estack = 0x20050000;    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x200;      /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
-
 /* Specify the memory areas */
 MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 320K
-FLASH (rx)      : ORIGIN = 0x8009000, LENGTH = 464K
+FLASH (rx)      : ORIGIN = 0x8001800, LENGTH = 30K
 }
 
 /* Define output sections */
@@ -60,6 +59,7 @@ SECTIONS
   .text :
   {
     . = ALIGN(8);
+    *(.text.Reset_Handler)
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.glue_7)         /* glue arm to thumb code */
@@ -184,17 +184,12 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM
-
   
-
   /* Remove information from the standard libraries */
-  /DISCARD/ :
-  {
-    libc.a ( * )
-    libm.a ( * )
-    libgcc.a ( * )
-  }
-
+   PROVIDE(_rec_heap_start = .);
+   PROVIDE(_rec_heap_end = _estack - (_Min_Heap_Size +_Min_Stack_Size));
+   PROVIDE(_rec_heap_len = _rec_heap_end - _rec_heap_start);
+ 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
 
