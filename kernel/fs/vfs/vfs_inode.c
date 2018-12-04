@@ -168,6 +168,9 @@ int32_t vfs_inode_reserve(const char *path, vfs_inode_t **p_node)
     }
 
     vfs_inode_ptr_get(ret, &node);
+    if (node == NULL) {
+        return VFS_ERR_NOMEM;
+    }
 
     ret = vfs_inode_set_name(path, &node);
     if (ret != VFS_OK) {
