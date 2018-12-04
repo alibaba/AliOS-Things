@@ -1,11 +1,12 @@
 NAME := ramfs_test
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
-$(NAME)_COMPONENTS  += kernel.fs.ramfs
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := testcase for ramfs
 
-$(NAME)_SOURCES     += ramfs_test.c
+$(NAME)_COMPONENTS += kernel.fs.ramfs
 
-$(NAME)_CFLAGS      += -Wall -Werror
+$(NAME)_SOURCES += ramfs_test.c
+
+$(NAME)_CFLAGS += -Wall -Werror
 
