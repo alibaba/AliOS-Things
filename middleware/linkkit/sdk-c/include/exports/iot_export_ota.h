@@ -5,6 +5,10 @@
 #ifndef __OTA_EXPORT_H__
 #define __OTA_EXPORT_H__
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #include "iot_import.h"
 
 #define OTA_CH_SIGNAL_MQTT      (0)
@@ -227,5 +231,9 @@ DLL_IOT_API int IOT_OTA_GetLastError(void *handle);
 
 /** @} */ /* end of api_ota */
 /** @} */ /* end of api */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* __OTA_EXPORT_H__ */

@@ -5,6 +5,10 @@
 #ifndef __IOT_EXPORT_COMPAT_H__
 #define __IOT_EXPORT_COMPAT_H__
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /* for forward compatibility */
 
 /* V2.3.0 */
@@ -22,5 +26,8 @@
 
 #define IOT_Linkkit_Post            IOT_Linkkit_Report
 
+#if defined(__cplusplus)
+}
+#endif
 #endif  /* __IOT_EXPORT_COMPAT_H__ */
 
