@@ -7,9 +7,8 @@
 
 void idle_task(void *arg)
 {
-    CPSR_ALLOC();
-
 #if (RHINO_CONFIG_CPU_NUM > 1)
+    CPSR_ALLOC();
     klist_t *head;
     ktask_t *task_del;
     head =  &task_del_head;
@@ -34,9 +33,7 @@ void idle_task(void *arg)
         }
         RHINO_CPU_INTRPT_ENABLE();
 #endif
-        RHINO_CPU_INTRPT_DISABLE();
         g_idle_count[cpu_cur_get()]++;
-        RHINO_CPU_INTRPT_ENABLE();
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
         krhino_idle_hook();
