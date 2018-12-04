@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#ifdef UTILS_JSON_PARSER
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -254,3 +252,4 @@ char *json_get_value_by_name_len(char *p_cJsonStr, int iStrLen, char *p_cName, i
     }
     return stNV.pV;
 }
+#endif
