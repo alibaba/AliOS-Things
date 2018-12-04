@@ -46,8 +46,7 @@ COREFILES=core/init.c \
 	core/tcp_in.c \
 	core/tcp_out.c \
 	core/timeouts.c \
-	core/udp.c \
-        core/af_packet.c
+	core/udp.c
 
 CORE4FILES=core/ipv4/autoip.c \
 	core/ipv4/dhcp.c \
