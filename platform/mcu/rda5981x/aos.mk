@@ -7,8 +7,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu RDA5981x
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS := libc rhino netmgr cjson cli digest_algorithm network.lwip
+$(NAME)_COMPONENTS += arch_armv7m
+$(NAME)_COMPONENTS := newlib_stub rhino netmgr cjson cli digest_algorithm lwip
 
 GLOBAL_DEFINES += DEVICE_SERIAL=1
 GLOBAL_DEFINES += DEVICE_STDIO_MESSAGES=1

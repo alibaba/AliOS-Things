@@ -5,8 +5,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu mimxrt1052impl
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += rhino libc kernel.fs.kv cli kernel.fs.vfs digest_algorithm
+$(NAME)_COMPONENTS += arch_armv7m
+$(NAME)_COMPONENTS += rhino newlib_stub kv cli vfs digest_algorithm
 
 GLOBAL_CFLAGS += -DA_LITTLE_ENDIAN
 GLOBAL_CFLAGS += -DCPU_MIMXRT1052DVL6B

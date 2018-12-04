@@ -5,8 +5,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu msp432p4xx
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino kernel.fs.vfs digest_algorithm
+$(NAME)_COMPONENTS += arch_armv7m
+$(NAME)_COMPONENTS += newlib_stub rhino vfs digest_algorithm
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6

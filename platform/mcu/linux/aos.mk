@@ -8,7 +8,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu linuximpl
 
 no_with_lwip ?= 1
 
-$(NAME)_COMPONENTS := log arch.linux network.netmgr
+$(NAME)_COMPONENTS := log arch_linux netmgr
 
 ifeq ($(openssl),1)
 GLOBAL_LDFLAGS += -lssl -lcrypto

@@ -7,8 +7,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l475
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino kernel.fs.kv kernel.fs.vfs digest_algorithm netmgr
+$(NAME)_COMPONENTS += arch_armv7m
+$(NAME)_COMPONENTS += newlib_stub rhino kv vfs digest_algorithm netmgr
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6

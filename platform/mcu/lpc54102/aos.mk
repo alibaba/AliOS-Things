@@ -5,8 +5,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu lpc54102impl
 
-$(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += libc rhino netmgr mbedtls cjson cli digest_algorithm sal
+$(NAME)_COMPONENTS += arch_armv7m
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr mbedtls cjson cli digest_algorithm sal
 
 GLOBAL_CFLAGS += -DCORE_M4
 GLOBAL_CFLAGS += -fmessage-length=0
