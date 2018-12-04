@@ -1,4 +1,34 @@
-NAME         := stm32l4xx_cube
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+NAME := stm32l4xx_cube_2boot
+HOST_OPENOCD := stm32l4xx
+
+$(NAME)_COMPONENTS += middleware/uagent/uota/src/2nd_boot
+
+GLOBAL_INCLUDES := Rec/
+
+$(NAME)_SOURCES := Rec/rec_flash.c             \
+		           Rec/rec_uart.c              \
+		           Rec/rec_sys.c               \
+		           Rec/rec_wdt.c
+
+GLOBAL_CFLAGS += -mcpu=cortex-m4 \
+                 -march=armv7-m  \
+                 -mlittle-endian \
+                 -mthumb -mthumb-interwork \
+                 -w
+
+GLOBAL_ASMFLAGS += -mcpu=cortex-m4 \
+                   -mlittle-endian \
+                   -mthumb \
+                   -w
+
+GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
+                  -mlittle-endian  \
+                  -mthumb -mthumb-interwork \
+                  --specs=nosys.specs
+
+else
+NAME := stm32l4xx_cube
 HOST_OPENOCD := stm32l4xx
 
 $(NAME)_MBINS_TYPE := kernel
@@ -181,4 +211,4 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4           \
                   -mfpu=fpv4-sp-d16         \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 endif
-
+endif
