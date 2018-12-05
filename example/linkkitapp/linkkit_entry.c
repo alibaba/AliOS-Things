@@ -22,6 +22,8 @@
 
 #include <k_api.h>
 
+#include "ota_service.h"
+
 static char linkkit_started = 0;
 static char awss_running    = 0;
 
@@ -275,10 +277,28 @@ static void duration_work(void *p)
 }
 #endif
 
+static int mqtt_connected_event_handler(void)
+{
+    LOG("MQTT Construct  OTA start");
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[DEVICE_SECRET_LEN + 1] = {0};
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    HAL_GetDeviceSecret(device_secret);
+    static ota_service_t ctx = {0};
+    memset(&ctx, 0, sizeof(ota_service_t));
+    strncpy(ctx.pk, product_key, sizeof(ctx.pk)-1);
+    strncpy(ctx.dn, device_name, sizeof(ctx.dn)-1);
+    strncpy(ctx.ds, device_secret, sizeof(ctx.ds)-1);
+    ctx.trans_protcol = 0;
+    ctx.dl_protcol = 3;
+    ota_service_init(&ctx);
+    return 0;
+}
+
 int application_start(int argc, char **argv)
 {
-
-
 #ifdef CONFIG_PRINT_HEAP
     print_heap();
     aos_post_delayed_action(5000, duration_work, NULL);
@@ -304,6 +324,7 @@ int application_start(int argc, char **argv)
     aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
+    IOT_RegisterCallback(ITE_MQTT_CONNECT_SUCC,mqtt_connected_event_handler);
 
 #ifdef CONFIG_AOS_CLI
     aos_cli_register_command(&resetcmd);
