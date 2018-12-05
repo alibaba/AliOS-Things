@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#ifdef UTILS_STRING
 
 #include "iotx_utils_internal.h"
 #include "string_utils.h"
@@ -231,4 +232,4 @@ void LITE_replace_substr(char originalString[], char key[], char swap[])
 }
 
 #endif  /* #if WITH_STRING_UTILS_EXT */
-
+#endif

@@ -22,3 +22,7 @@ config UTILS_HTTPC
 config UTILS_BASE64
     bool
     default n
+
+config UTILS_STRING
+    bool
+    default y
