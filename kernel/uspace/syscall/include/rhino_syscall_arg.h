@@ -193,7 +193,6 @@ typedef struct {
 typedef struct {
     kbuf_queue_t **queue;
     const char    *name;
-    void          *buf;
     size_t         msg_size;
     size_t         msg_num;
 } krhino_fix_buf_queue_dyn_create_syscall_arg_t;

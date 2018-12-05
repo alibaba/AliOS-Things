@@ -14,7 +14,7 @@
 static klist_t           u_timer_head;
 static sys_time_t        u_timer_count;
 static ktask_t          *u_timer_task;
-static kbuf_queue_t      u_timer_queue;
+static kbuf_queue_t     *u_timer_queue;
 static cpu_stack_t       u_timer_task_stack[RHINO_CONFIG_TIMER_TASK_STACK_SIZE];
 static k_timer_queue_cb  u_timer_queue_cb[RHINO_CONFIG_TIMER_MSG_NUM];
 
@@ -114,7 +114,7 @@ kstat_t krhino_timer_del(ktimer_t *timer)
 
     cb.timer  = timer;
     cb.cb_num = TIMER_CMD_DEL;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb,
+    err = krhino_buf_queue_send(u_timer_queue, &cb,
                                 sizeof(k_timer_queue_cb));
 
     return err;
@@ -157,7 +157,7 @@ kstat_t krhino_timer_dyn_del(ktimer_t *timer)
 
     cb.timer  = timer;
     cb.cb_num = TIMER_CMD_DYN_DEL;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(u_timer_queue, &cb, sizeof(k_timer_queue_cb));
 
     return err;
 }
@@ -172,7 +172,7 @@ kstat_t krhino_timer_start(ktimer_t *timer)
 
     cb.timer  = timer;
     cb.cb_num = TIMER_CMD_START;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(u_timer_queue, &cb, sizeof(k_timer_queue_cb));
 
     return err;
 }
@@ -186,7 +186,7 @@ kstat_t krhino_timer_stop(ktimer_t *timer)
 
     cb.timer  = timer;
     cb.cb_num = TIMER_CMD_STOP;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(u_timer_queue, &cb, sizeof(k_timer_queue_cb));
 
     return err;
 }
@@ -215,7 +215,7 @@ kstat_t krhino_timer_change(ktimer_t *timer, sys_time_t first,
     cb.first   = first;
     cb.u.round = round;
     cb.cb_num  = TIMER_CMD_CHG;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(u_timer_queue, &cb, sizeof(k_timer_queue_cb));
 
     return err;
 }
@@ -230,7 +230,7 @@ kstat_t krhino_timer_arg_change(ktimer_t *timer, void *arg)
     cb.timer  = timer;
     cb.u.arg  = arg;
     cb.cb_num = TIMER_ARG_CHG;
-    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(u_timer_queue, &cb, sizeof(k_timer_queue_cb));
 
     return err;
 }
@@ -246,7 +246,7 @@ kstat_t krhino_timer_arg_change_auto(ktimer_t *timer, void *arg)
     cb.u.arg  = arg;
     cb.cb_num = TIMER_ARG_CHG_AUTO;
 
-    err = krhino_buf_queue_send(&u_timer_queue, &cb, sizeof(k_timer_queue_cb));
+    err = krhino_buf_queue_send(u_timer_queue, &cb, sizeof(k_timer_queue_cb));
 
     return err;
 }
@@ -413,7 +413,7 @@ static void timer_task(void *pa)
     (void)pa;
 
     while (RHINO_TRUE) {
-        err = krhino_buf_queue_recv(&u_timer_queue,
+        err = krhino_buf_queue_recv(u_timer_queue,
                                     RHINO_WAIT_FOREVER,
                                     &cb_msg, &msg_size);
         tick_end   = krhino_sys_tick_get();
@@ -432,7 +432,7 @@ static void timer_task(void *pa)
             tick_start = krhino_sys_tick_get();
             delta = (sys_time_i_t)timer->match - (sys_time_i_t)tick_start;
             if (delta > 0) {
-                err = krhino_buf_queue_recv(&u_timer_queue,
+                err = krhino_buf_queue_recv(u_timer_queue,
                                             (tick_t)delta,
                                             &cb_msg, &msg_size);
                 tick_end = krhino_sys_tick_get();
@@ -457,11 +457,16 @@ static void timer_task(void *pa)
 
 void timer_init(void)
 {
+    kstat_t ret;
+
     klist_init(&u_timer_head);
 
-    krhino_fix_buf_queue_create(&u_timer_queue, "timer_queue",
-                                u_timer_queue_cb, sizeof(u_timer_queue_cb),
-                                RHINO_CONFIG_TIMER_MSG_NUM);
+    ret = krhino_fix_buf_queue_dyn_create(&u_timer_queue, "timer_queue",
+                                          sizeof(k_timer_queue_cb),
+                                          RHINO_CONFIG_TIMER_MSG_NUM);
+    if (RHINO_SUCCESS != ret) {
+        return;
+    }
 
     krhino_utask_create(&u_timer_task, "timer_task", NULL,
                         RHINO_CONFIG_TIMER_TASK_PRI, (tick_t)0u,

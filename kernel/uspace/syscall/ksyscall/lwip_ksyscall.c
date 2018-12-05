@@ -5,6 +5,7 @@
 #include <k_config.h>
 
 #if (CONFIG_LWIP_SYSCALL > 0)
+
 #include <lwip/sockets.h>
 #include <lwip_syscall_arg.h>
 
@@ -172,7 +173,7 @@ int sys_lwip_eventfd_stub(void *arg)
 }
 
 #if LWIP_PACKET
-int sys_lwip_try_wakeup_stub(int s, int rcvevent, int sendevent, int errevent)
+int sys_lwip_try_wakeup_stub(void *arg)
 {
     lwip_try_wakeup_syscall_arg_t *_arg = arg;
 

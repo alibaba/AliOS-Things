@@ -275,7 +275,7 @@ kstat_t sys_krhino_fix_buf_queue_dyn_create_stub(void *arg)
 
     krhino_fix_buf_queue_dyn_create_syscall_arg_t *_arg = arg;
 
-    return krhino_fix_buf_queue_dyn_create(_arg->queue, _arg->name, _arg->buf,
+    return krhino_fix_buf_queue_dyn_create(_arg->queue, _arg->name,
                                            _arg->msg_size, _arg->msg_num);
 }
 
