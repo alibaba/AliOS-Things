@@ -158,8 +158,12 @@ endif
 ifeq ($(modbus_sensor_enable),1)
 =======
 ifeq ($(AOS_SENSOR_MODBUS_ENABLE),y)
+<<<<<<< HEAD
 >>>>>>> 44f3c13a5 ( BugID:17532990: sensor automatic init)
 $(NAME)_SOURCES += drv/drv_modbus_sensors.c
+=======
+$(NAME)_SOURCES += drv/modbus_sensors/drv_modbus_sensors.c
+>>>>>>> 4ab0e73c5 (BugID:16833564:fix sensor error return bug,adapt modbus sensor to new modbus lib)
 $(NAME)_COMPONENTS  += kernel.bus.mbmaster
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
