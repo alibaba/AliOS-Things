@@ -11,7 +11,7 @@ $(NAME)_INCLUDES    := ../../../network/bluetooth/include \
 
 ble = 1
 
-$(NAME)_COMPONENTS  += network.bluetooth.bt yloop cli bluetooth.profile
+$(NAME)_COMPONENTS  += network.bluetooth.bt yloop cli bluetooth.bt_profile
 GLOBAL_DEFINES      += AOS_NO_WIFI CONFIG_BT_SMP
 
 GLOBAL_INCLUDES += ../
