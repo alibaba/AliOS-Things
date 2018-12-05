@@ -18,3 +18,7 @@ config UTILS_JSON_PARSER
 config UTILS_HTTPC
     bool
     default n
+
+config UTILS_BASE64
+    bool
+    default n

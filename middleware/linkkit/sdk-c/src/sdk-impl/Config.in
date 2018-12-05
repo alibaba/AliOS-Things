@@ -12,3 +12,4 @@ config DYNAMIC_REGISTER
     bool "FEATURE_DYNAMIC_REGISTER"
     default y
     select UTILS_LITE_CJSON
+    select UTILS_HTTPC
