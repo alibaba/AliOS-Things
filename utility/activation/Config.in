@@ -1,0 +1,6 @@
+config AOS_ACTIVATION
+    bool "activation"
+    help
+      Help message for component activation
+
+comment "for device activation"
