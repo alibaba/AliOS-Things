@@ -8,7 +8,7 @@
 #include "json_parser.h"
 #include "CoAPPlatform.h"
 #include "CoAPResource.h"
-#include "utils_hmac.h"
+#include "utils_base64.h"
 
 #define RES_FORMAT "{\"id\":\"%.*s\",\"code\":%d,\"data\":{%s}}"
 
@@ -16,6 +16,16 @@
 
 int sessionid_seed = 0xff;
 static int default_heart_expire = 120000;
+
+void utils_hmac_sha1_base64(const char *msg, int msg_len, const char *key, int key_len, char *digest, int *digest_len)
+{
+    char buf[SHA1_DIGEST_SIZE];
+    utils_hmac_sha1_raw(msg, msg_len, buf, key, key_len);
+
+    uint32_t outlen;
+    utils_base64encode((unsigned char *)buf, SHA1_DIGEST_SIZE, *digest_len, (unsigned char *)digest, &outlen);
+    *digest_len = outlen;
+}
 
 void alcs_rec_auth_select(CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAPMessage *resMsg)
 {

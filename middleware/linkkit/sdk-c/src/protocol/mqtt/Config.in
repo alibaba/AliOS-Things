@@ -9,7 +9,6 @@ config MQTT_COMM_ENABLED
     select AOS_COMP_LIBIOT_LOG 
     select AOS_COMP_LIBIOT_SYSTEM 
     select AOS_COMP_LIBIOT_UTILS
-    select UTILS_BASE64
     help
         Establish persistent connection with AliCloud via MQTT-based protocol
 

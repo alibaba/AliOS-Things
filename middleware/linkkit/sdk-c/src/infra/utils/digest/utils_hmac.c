@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #include <string.h>
 #include "iotx_utils_internal.h"
 #include "utils_md5.h"
@@ -254,14 +251,4 @@ void utils_hmac_sha1_raw(const char *msg, int msg_len, char *digest, const char 
     utils_sha1_finish(&context, out);                       /* finish up 2nd pass */
 
     memcpy(digest, out, SHA1_DIGEST_SIZE);
-}
-
-void utils_hmac_sha1_base64(const char *msg, int msg_len, const char *key, int key_len, char *digest, int *digest_len)
-{
-    char buf[SHA1_DIGEST_SIZE];
-    utils_hmac_sha1_raw(msg, msg_len, buf, key, key_len);
-
-    uint32_t outlen;
-    utils_base64encode((unsigned char *)buf, SHA1_DIGEST_SIZE, *digest_len, (unsigned char *)digest, &outlen);
-    *digest_len = outlen;
 }
