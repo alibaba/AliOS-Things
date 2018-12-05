@@ -66,13 +66,13 @@ static int als_led1_gpio_config(uint8_t led_config)
     do {
         switch (led_config) {
             case LED_ON_LOW_DEFAULT:
-                ret = hal_gpio_output_low(&brd_gpio_table[GPIO_ALS_LED]);
+                hal_gpio_output_low(&brd_gpio_table[GPIO_LED_1]);
                 break;
             case LED_OFF_HIGH:
-                ret = hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
+                hal_gpio_output_high(&brd_gpio_table[GPIO_LED_1]);
                 break;
             default:
-                ret = hal_gpio_output_high(&brd_gpio_table[GPIO_ALS_LED]);
+                hal_gpio_output_high(&brd_gpio_table[GPIO_LED_1]);
                 break;
         }
     } while (0);
