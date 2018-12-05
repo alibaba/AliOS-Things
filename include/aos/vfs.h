@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-struct statfs {
+struct aos_statfs {
     long f_type;    /* fs type */
     long f_bsize;   /* optimized transport block size */
     long f_blocks;  /* total blocks */
@@ -24,6 +24,11 @@ struct statfs {
     long f_ffree;   /* available file nodes */
     long f_fsid;    /* fs id */
     long f_namelen; /* max file name length */
+};
+
+struct aos_stat {
+    uint16_t st_mode;
+    uint32_t st_size;
 };
 
 typedef struct {
@@ -78,7 +83,7 @@ struct fs_ops {
     ssize_t       (*write)(file_t *fp, const char *buf, size_t len);
     off_t         (*lseek)(file_t *fp, off_t off, int whence);
     int           (*sync)(file_t *fp);
-    int           (*stat)(file_t *fp, const char *path, struct stat *st);
+    int           (*stat)(file_t *fp, const char *path, struct aos_stat *st);
     int           (*unlink)(file_t *fp, const char *path);
     int           (*rename)(file_t *fp, const char *oldpath, const char *newpath);
     aos_dir_t    *(*opendir)(file_t *fp, const char *path);
@@ -90,7 +95,7 @@ struct fs_ops {
     long          (*telldir)(file_t *fp, aos_dir_t *dir);
     void          (*seekdir)(file_t *fp, aos_dir_t *dir, long loc);
     int           (*ioctl)(file_t *fp, int cmd, unsigned long arg);
-    int           (*statfs)(file_t *fp, const char *path, struct statfs *suf);
+    int           (*statfs)(file_t *fp, const char *path, struct aos_statfs *suf);
     int           (*access)(file_t *fp, const char *path, int amode);
 };
 
@@ -209,7 +214,7 @@ int aos_sync(int fd);
  * @return  0 on success, negative error code on failure.
  *
  */
-int aos_stat(const char *path, struct stat *st);
+int aos_stat(const char *path, struct aos_stat *st);
 
 /**
  * Remove a file from the filesystem.
@@ -322,7 +327,7 @@ void aos_seekdir(aos_dir_t *dir, long loc);
  * @return  0 on success, negative error code on failure.
  *
  */
-int aos_statfs(const char *path, struct statfs *buf);
+int aos_statfs(const char *path, struct aos_statfs *buf);
 
 /**
  * get access info.
