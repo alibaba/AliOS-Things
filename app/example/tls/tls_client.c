@@ -12,7 +12,7 @@
 #include <aos/aos.h>
 #include <netmgr.h>
 
-#include <aos/mbedtls_ssl.h>
+#include "mbedtls/mbedtls_ssl.h"
 #include "mbedtls/net_sockets.h"
 
 struct cookie {
