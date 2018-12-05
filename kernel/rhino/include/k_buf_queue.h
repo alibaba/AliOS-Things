@@ -85,7 +85,7 @@ kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_fix_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
-                                   void *buf, size_t msg_size, size_t msg_num);
+                                                      size_t msg_size, size_t msg_num);
 
 /**
  * This function will delete a dyn-queue

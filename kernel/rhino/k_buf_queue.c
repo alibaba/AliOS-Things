@@ -155,7 +155,7 @@ kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
 }
 
 kstat_t krhino_fix_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
-                                   void *buf, size_t msg_size, size_t msg_num)
+                                                      size_t msg_size, size_t msg_num)
 {
     kstat_t stat;
     stat = buf_queue_dyn_create(queue, name, msg_size * msg_num,
