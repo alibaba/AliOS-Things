@@ -7,6 +7,10 @@
 
 #include "sensor.h"
 
+#define SENSOR_DRV_ADD(func) \
+int __sensor_##func##_func__(void){ \
+    return func(); \
+}
 
 typedef int (*SENSOR_INIT_FUN)(void);
 
