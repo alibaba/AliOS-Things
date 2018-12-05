@@ -3,6 +3,14 @@ NAME := feature_linkkit-mqtt
 $(NAME)_COMPONENTS := feature.linkkit-default
 
 FEATURE_OTA_ENABLED         = n
+FEATURE_UTILS_STRING        = y
+FEATURE_UTILS_HTTPC         = y
+FEATURE_UTILS_SHA1          = y
+FEATURE_UTILS_HMAC          = y
+FEATURE_UTILS_MD5           = y
+FEATURE_UTILS_SHA256        = y
+FEATURE_UTILS_BASE64        = y
+
 ##
 ## FEATURE_MQTT_COMM_ENABLED
 ## Brief:    MQTT(Message Queuing Telemetry Transport) is a publish-subscribe-based messaging protocol
