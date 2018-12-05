@@ -372,7 +372,7 @@ static int fatfs_sync(file_t *fp)
     return ret;
 }
 
-static int fatfs_stat(file_t *fp, const char *path, struct stat *st)
+static int fatfs_stat(file_t *fp, const char *path, struct aos_stat *st)
 {
     char   *relpath = NULL;
     FILINFO info;

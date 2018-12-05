@@ -244,7 +244,7 @@ static int _spiffs_sync(file_t *fp)
     return ret;
 }
 
-static int _spiffs_stat(file_t *fp, const char *path, struct stat *st)
+static int _spiffs_stat(file_t *fp, const char *path, struct aos_stat *st)
 {
     int ret;
     spiffs_stat s;

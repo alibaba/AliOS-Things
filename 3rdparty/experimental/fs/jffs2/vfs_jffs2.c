@@ -168,18 +168,22 @@ static int _jffs2_sync(file_t *fp)
     return jffs2_result_to_vfs(ret);
 }
 
-static int _jffs2_stat(file_t *fp, const char *path, struct stat *st)
+static int _jffs2_stat(file_t *fp, const char *path, struct aos_stat *st)
 {
     int ret;
     char *relpath = NULL;
+    struct stat file_st;
 
     relpath = translate_relative_path(path);
     if (!relpath)
         return -EINVAL;
 
     krhino_mutex_lock(&g_jffs2_lock, RHINO_WAIT_FOREVER);
-    ret = jffs2_stat(g_mte, g_mte->root, relpath, st);
+    ret = jffs2_stat(g_mte, g_mte->root, relpath, &file_st);
     krhino_mutex_unlock(&g_jffs2_lock);
+
+    st->st_mode = file_st.st_mode;
+    st->st_size = file_st.st_size;
 
     krhino_mm_free(relpath);
     return jffs2_result_to_vfs(ret);
@@ -384,7 +388,7 @@ static void _jffs2_seekdir(file_t *fp, aos_dir_t *dir, long loc)
     return;
 }
 
-static int _jffs2_statfs(file_t *fp, const char *path, struct statfs *buf)
+static int _jffs2_statfs(file_t *fp, const char *path, struct aos_statfs *buf)
 {
     struct super_block *jffs2_sb_data = NULL;
 
