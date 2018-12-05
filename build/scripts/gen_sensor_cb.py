@@ -19,7 +19,7 @@ if compiler == 'tool_armcc':
 		index = 0
 		for word in line.split():
 			index = index+1
-			if str(word).startswith('drv_') and str(word).endswith('_init'):
+			if str(word).startswith('__sensor_') and str(word).endswith('_func__'):
 				dataout = dataout + word + "," + "\n"
 				func = "extern int " + word + "(void);" + "\n"
 				fd_out.writelines(func)
@@ -31,7 +31,7 @@ elif compiler == 'tool_rvct':
 		index = 0
 		for word in line.split():
 			index = index+1
-			if str(word).startswith('drv_') and str(word).endswith('_init'):
+			if str(word).startswith('__sensor_') and str(word).endswith('_func__'):
 				dataout = dataout + word + "," + "\n"
 				func = "extern int " + word + "(void);" + "\n"
 				fd_out.writelines(func)
@@ -46,7 +46,7 @@ elif compiler == 'tool_iar':
 			index = index+1
 			if (index == 1):
 				continue
-			if str(word).startswith('drv_') and str(word).endswith('_init'):
+			if str(word).startswith('__sensor_') and str(word).endswith('_func__'):
 				dataout = dataout + word + "," + "\n"
 				func = "extern int " + word + "(void);" + "\n"
 				fd_out.writelines(func)
@@ -66,7 +66,7 @@ else:
 			if index != 6:
 				continue
 
-			if str(word).startswith('drv_') and str(word).endswith('_init'):
+			if str(word).startswith('__sensor_') and str(word).endswith('_func__'):
 				dataout = dataout + word + "," + "\n"
 				func = "extern int " + word + "(void);" + "\n"
 				fd_out.writelines(func)
@@ -75,12 +75,13 @@ else:
 
 		line = fd_in.readline()
 
+sum = sum+1
 str = "\nconst int g_sensor_drv_num = " + str(sum) + ";\n"
 fd_out.writelines(str)
 
 str_start = "\nconst SENSOR_INIT_FUN g_sensor_func[] = {" + "\n"
 fd_out.writelines(str_start)
-
+fd_out.writelines("NULL,\n")
 fd_out.writelines(dataout)
 
 str_end = "};" + "\n"
