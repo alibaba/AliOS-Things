@@ -199,7 +199,7 @@ static int32_t vfs_ramfs_closedir(file_t *fp, aos_dir_t *dir)
     return 0;
 }
 
-static int32_t vfs_ramfs_stat(file_t *fp, const char *path, struct stat *st)
+static int32_t vfs_ramfs_stat(file_t *fp, const char *path, struct aos_stat *st)
 {
     ramfs_stat_t ramfs_st;
 
@@ -238,7 +238,7 @@ static int32_t vfs_ramfs_stat(file_t *fp, const char *path, struct stat *st)
     return ret;
 }
 
-static int32_t vfs_ramfs_statfs(file_t *fp, const char *path, struct statfs *buf)
+static int32_t vfs_ramfs_statfs(file_t *fp, const char *path, struct aos_statfs *buf)
 {
     if (buf == NULL) {
         return -1;
