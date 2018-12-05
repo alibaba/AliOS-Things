@@ -118,12 +118,12 @@ static int abs_data_set_timer_interval(uint32_t abs_index, uint32_t inerval)
 
     return 0;
 }
-#ifndef UDATA_MODBUS
+
 static bool abs_data_get_timer_status(void)
 {
     return is_timer_work;
 }
-#endif
+
 uint32_t abs_data_get_maxmum(void)
 {
     return abs_data_max_num;
@@ -360,12 +360,10 @@ static int abs_data_timer_update(uint32_t abs_index, int interval)
         if (unlikely(ret)) {
             return -1;
         }
-        #ifndef UDATA_MODBUS
         ret = abs_data_timer_start();
         if (unlikely(ret)) {
             return -1;
         }
-        #endif
     } else {
         ret = aos_timer_change(&g_abs_data_timer,  (int)value);
         if (unlikely(ret)) {
@@ -595,7 +593,6 @@ static int abs_data_create_obj(uint32_t abs_index, uData_service_t *service)
         }
     }
 
-#ifndef UDATA_MODBUS
     memset(&info, 0, sizeof(info));
     info.config.id = SENSOR_IOCTL_GET_SENSOR_MODE;
 
@@ -612,12 +609,15 @@ static int abs_data_create_obj(uint32_t abs_index, uData_service_t *service)
         return -1;
     }
     
+#ifndef UDATA_MODBUS
     if (sensor->mode == DEV_POLLING) {
         ret      = abs_data_timer_update(abs_index, interval);
         if (unlikely(ret)) {
             return -1;
         }
     }
+#endif
+
     if ((sensor->mode == DEV_INT) ||
                (sensor->mode == DEV_DATA_READY) ||
                (sensor->mode == DEV_FIFO)) {
@@ -655,14 +655,6 @@ static int abs_data_create_obj(uint32_t abs_index, uData_service_t *service)
         LOG("abs_data_create_obj_ctx error\n");
         return -1;
     }
-
-#else
-    ret = abs_data_create_obj_ctx(abs_index, interval,  service);
-    if (unlikely(ret)) {
-        LOG("abs_data_create_obj_ctx error\n");
-        return -1;
-    }
-#endif
 
     return 0;
 }
@@ -766,7 +758,7 @@ int abs_data_read_ext(uint32_t abs_index, void *pdata)
 int abs_data_read(uint32_t abs_index, void *pdata, uint32_t nbyte)
 {
     int    ret   = 0;
-    size_t size  = 0;
+    int    size  = 0;
     sensor_msg_pkg_t data_msg;
     
     if(abs_index >= abs_data_max_num){
