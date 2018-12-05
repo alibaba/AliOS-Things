@@ -423,6 +423,7 @@ typedef struct _sensor_obj_t
     gpio_dev_t             gpio;
     dev_sensor_full_info_t info;
     uint8_t                ref;
+    uint8_t                drv_index;
     int (*open)(void);
     int (*close)(void);
     int (*read)(void *, size_t);

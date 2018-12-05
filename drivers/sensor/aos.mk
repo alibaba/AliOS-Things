@@ -26,7 +26,7 @@ GLOBAL_DEFINES += SENSOR_DRV_AUTO_INIT
 endif
 
 ifeq ($(AOS_SENSOR_MODBUS_ENABLE),y)
-$(NAME)_SOURCES += drv/drv_modbus_sensors.c
+$(NAME)_SOURCES += drv/modbus_sensors/drv_modbus_sensors.c
 $(NAME)_COMPONENTS  += kernel.bus.mbmaster
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
