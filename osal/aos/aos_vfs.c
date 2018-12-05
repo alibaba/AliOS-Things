@@ -82,21 +82,9 @@ int aos_sync(int fd)
     return _vfs_to_aos_res(vfs_sync(fd));
 }
 
-int aos_stat(const char *path, struct stat *st)
+int aos_stat(const char *path, struct aos_stat *st)
 {
-    int ret;
-    vfs_stat_t stat;
-
-    memset(&stat, 0, sizeof(vfs_stat_t));
-    ret = _vfs_to_aos_res(vfs_stat(path, &stat));
-
-    st->st_mode = stat.st_mode;
-
-#if VFS_STAT_INCLUDE_SIZE
-    st->st_size = stat.st_size;
-#endif
-
-    return ret;
+    return _vfs_to_aos_res(vfs_stat(path, (vfs_stat_t *)st));
 }
 
 int aos_unlink(const char *path)
@@ -149,7 +137,7 @@ void aos_seekdir(aos_dir_t *dir, long loc)
     vfs_seekdir((vfs_dir_t *)dir, loc);
 }
 
-int aos_statfs(const char *path, struct statfs *buf)
+int aos_statfs(const char *path, struct aos_statfs *buf)
 {
     return _vfs_to_aos_res(vfs_statfs(path, (vfs_statfs_t *)buf));
 }
