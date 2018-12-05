@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef IMPL_DYNAMIC_REGISTER
+#ifdef DYNAMIC_REGISTER
 
 #include "sdk-impl_internal.h"
 
