@@ -30,7 +30,7 @@ $(NAME)_SOURCES-y += host/hci_ecc.c
 
 bt_controller?=0
 ifeq ($(bt_controller), 1)
-$(NAME)_COMPONENTS-y += platform.mcu.nrf52xxx.controller
+$(NAME)_COMPONENTS-y += platform.mcu.nrf52xxx.bt_controller
 GLOBAL_DEFINES-y += CONFIG_BT_CTLR
 endif
 
