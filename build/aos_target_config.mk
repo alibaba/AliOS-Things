@@ -375,21 +375,12 @@ PLATFORM    :=$(notdir $(PLATFORM_FULL))
 reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 $(foreach defconfig, $(call reverse,$(DEFCONFIG_LIST)), $(eval include $(defconfig)))
 
-ifeq ($(STRICT),)
-# Add some default values
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/network/include -I$(SOURCE_ROOT)app/example/$(APP_FULL) -I$(OUTPUT_DIR)/includes
-
 ## Workaround for fixing build failures that can't find headers.
 ## Should be cleaned up after the failures fixed from components side
 AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)include \
                     -I$(SOURCE_ROOT)include/hal \
                     -I$(SOURCE_ROOT)include/hal/soc \
-                    -I$(SOURCE_ROOT)kernel/fs/vfs/include \
-                    -I$(SOURCE_ROOT)network/yloop/include \
-                    -I$(SOURCE_ROOT)kernel/fs/kv/include \
-                    -I$(SOURCE_ROOT)kernel/cli/include \
-                    -I$(SOURCE_ROOT)utility/log/include
-endif
+                    -I$(SOURCE_ROOT)include/network
 
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
