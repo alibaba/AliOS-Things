@@ -8,7 +8,7 @@
 
 int32_t hal_uart_init(uart_dev_t *uart)
 {
-    volatile hal_uart_init_syscall_arg_t _arg;
+    hal_uart_init_syscall_arg_t _arg;
 
     _arg.uart = uart;
 
@@ -18,7 +18,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size,
                       uint32_t timeout)
 {
-    volatile hal_uart_send_syscall_arg_t _arg;
+    hal_uart_send_syscall_arg_t _arg;
 
     _arg.uart    = uart;
     _arg.data    = data;
@@ -31,7 +31,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size,
 int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t timeout)
 {
-    volatile hal_uart_recv_syscall_arg_t _arg;
+    hal_uart_recv_syscall_arg_t _arg;
 
     _arg.uart        = uart;
     _arg.data        = data;
@@ -44,7 +44,7 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size,
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                          uint32_t *recv_size, uint32_t timeout)
 {
-    volatile hal_uart_recv_II_syscall_arg_t _arg;
+    hal_uart_recv_II_syscall_arg_t _arg;
 
     _arg.uart        = uart;
     _arg.data        = data;
@@ -57,7 +57,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
 int32_t hal_uart_finalize(uart_dev_t *uart)
 {
-    volatile hal_uart_finalize_syscall_arg_t _arg;
+    hal_uart_finalize_syscall_arg_t _arg;
 
     _arg.uart = uart;
 
