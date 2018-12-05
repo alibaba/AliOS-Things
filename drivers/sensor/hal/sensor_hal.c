@@ -11,14 +11,7 @@
 #include "sensor.h"
 #include "sensor_hal.h"
 
-#ifdef UDATA_MODBUS
-#include "mbmaster_api.h"
-#endif
-
 #define SENSOR_MS_TO_ODR(ms)     ((1000/(ms)) + 1)
-#define MODBUS_CONFIG_STACK_SIZE (256 * 4)
-#define MODBUS_UART_PORT 2
-#define MODBUS_UART_BAUDRATE 9600
 
 static int sensor_open(inode_t *node, file_t *file);
 static int sensor_close(file_t *file);
@@ -228,6 +221,7 @@ int sensor_create_obj(sensor_obj_t* sensor)
     g_sensor_obj[index]->power =
       DEV_POWER_OFF;                     // will update the status later
     g_sensor_obj[index]->ref = 0; // count the ref of this sensor
+    g_sensor_obj[index]->drv_index  = sensor->drv_index;
 
     if ((sensor->mode == DEV_INT) || (sensor->mode == DEV_DATA_READY) ||
         (sensor->mode == DEV_FIFO)) {
@@ -343,6 +337,9 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len)
     if (f == NULL) {
         return -1;
     }
+    if (buf == NULL) {
+        goto error;
+    }
 
     index = find_selected_sensor(f->node->i_name);
     if ((index < 0) || (index >= SENSOR_MAX_NUM)){
@@ -350,19 +347,16 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len)
     }
 #ifdef UDATA_MODBUS
     if(g_sensor_obj[index]->io_port = MODBUS_PORT){
-        ret = modbus_sensor_read(buf, len, index);
-        if (ret <= 0) {
+        int* index_data = (int *)buf;
+        *index_data = g_sensor_obj[index]->drv_index;    
+        if(*index_data < 0)
+        {
             goto error;
         }
-        return ret;
     }
 #endif
 
     if ((g_sensor_obj[index]->read == NULL)) {
-        goto error;
-    }
-
-    if (buf == NULL) {
         goto error;
     }
 
@@ -470,36 +464,7 @@ static int sensor_hal_register(void)
     return 0;
 }
 
-#ifdef UDATA_MODBUS
-static void mb_task()
-{
 
-    mb_init(MB_RTU, MODBUS_UART_PORT, MODBUS_UART_BAUDRATE, MB_PAR_NONE); /* uart2 */
-    mb_enable();
-
-    while (1) {
-        mb_poll();
-    }
-}
-
-
-int modbus_init(void)
-{
-    int rc = 0;
-    int ret;
-
-    ret = aos_task_new("mbtask", mb_task, NULL, MODBUS_CONFIG_STACK_SIZE);
-    if (ret != 0) {
-        printf("mbtask create error\n");
-        return -1;
-    }
-
-    modbus_sensor_drv_init();
-
-    LOG("modbus initialized\n");
-    return rc;
-}
-#endif
 
 
 int sensor_init(void)

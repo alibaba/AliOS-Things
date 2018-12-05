@@ -13,6 +13,11 @@
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #endif
+#define MODBUS_CONFIG_STACK_SIZE (256 * 4)
+#define MODBUS_UART_PORT 2
+#define MODBUS_UART_BAUDRATE 9600
+
+mb_handler_t* modbus_handler = NULL;
 
 // extern const modbus_sensor_t modbus_sensors[];
 
@@ -68,18 +73,22 @@ static int modbus_sensor_close(void)
     return 0;
 }
 
-
-int modbus_sensor_read(void *buffer, size_t length, int index)
+int modbus_sensor_read(void *buf, size_t len)
 {
-    integer_data_t *pdata = (integer_data_t *)buffer;
+    if(modbus_handler == NULL|| buf == NULL){
+        return -1;
+    }
+    int modbus_index = *(int *)buf;
+    
+    integer_data_t *pdata = (integer_data_t *)buf;
 
-    modbus_sensor_t *sns = &modbus_sensors[index];
+    modbus_sensor_t *sns = &modbus_sensors[modbus_index];
 
     if (sns->reg_cnt > SNS_VALUE_BYTES_MAX) {
         LOG("%s: register length invalid !\n", __func__);
         return -EINVAL;
     }
-    mb_exception_t status;
+    mb_status_t status;
 
     unsigned int fdata   = 0;
     int          datalen = 2 * sns->reg_cnt;
@@ -87,10 +96,11 @@ int modbus_sensor_read(void *buffer, size_t length, int index)
     unsigned char data[10];
     unsigned int  respond_cnt = 0;
 
-    status = mb_read_holding_reginster(sns->slave, sns->addr, sns->reg_cnt,
+    status = mbmaster_read_holding_reginster(modbus_handler,sns->slave, sns->addr, sns->reg_cnt,
                                        data, (uint8_t*)&respond_cnt);
-    if (status != MB_EX_NONE) {
+    if (status != MB_SUCCESS) {
         LOG("mb_read_holding_reginster error status:0x%x.", status);
+        return -1;
     }
 
     if (sns->byte_reverse == 0) {
@@ -109,7 +119,20 @@ int modbus_sensor_read(void *buffer, size_t length, int index)
 }
 
 
-int modbus_sensor_init(modbus_sensor_t modbus_sensor)
+static int modbus_sensor_ioctl(int cmd, unsigned long arg)
+{
+    int ret = 0;
+
+    switch (cmd) {
+        default:
+            break;
+    }
+
+    return 0;
+
+}
+
+int modbus_sensor_init(modbus_sensor_t modbus_sensor,uint8_t drv_index)
 {
     sensor_obj_t sensor;
     sensor_tag_e tag = modbus_sensor.tag;
@@ -122,13 +145,18 @@ int modbus_sensor_init(modbus_sensor_t modbus_sensor)
     sensor.open    = modbus_sensor_open;
     sensor.close   = modbus_sensor_close;
     sensor.path    = modbus_sensor.path;
-    sensor.read    = NULL;
-
+    sensor.read    = modbus_sensor_read;
+    sensor.ioctl   = modbus_sensor_ioctl;
+    sensor.mode    = DEV_POLLING;
+    sensor.data_len = sizeof(integer_data_t);
+    sensor.write       = NULL;
+    sensor.irq_handle  =  NULL;
+    sensor.drv_index   = drv_index;
     if (sensor_create_obj(&sensor)) {
         LOG("%s create modbus sensor %d obj failed !\n", uDATA_STR, tag);
         return -ENODEV;
     }
-
+    printf("yftest sensor.index=%d\n",sensor.drv_index);
     LOG("%s modbus sensor %d init success\n", uDATA_STR, tag);
     return 0;
 }
@@ -138,7 +166,7 @@ void modbus_sensor_drv_init()
 {
     for (int i = 0; i < ARRAY_SIZE(modbus_sensors); i++) {
         if (modbus_sensors[i].ability == SENSOR_OPEN)
-            modbus_sensor_init(modbus_sensors[i]);
+            modbus_sensor_init(modbus_sensors[i],i);
     }
 }
 
@@ -160,3 +188,21 @@ int find_ModbusSensors(char *path)
     }
     return -1;
 }
+
+
+int modbus_init(void)
+{
+
+    mb_status_t status = mbmaster_rtu_init(&modbus_handler,MODBUS_UART_PORT,MODBUS_UART_BAUDRATE,MB_PAR_NONE);
+    if(status != MB_SUCCESS)
+    {        
+        LOG("mbmaster_rtu_init  error STATUS=%d\n",status);
+        return -1;
+    }
+    modbus_sensor_drv_init();
+  
+    
+    LOG("modbus initialized\n");
+    return 0;
+}
+
