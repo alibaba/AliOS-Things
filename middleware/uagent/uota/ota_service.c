@@ -11,10 +11,6 @@
 #include "ota_log.h"
 #include "ota_base64.h"
 
-#if (defined BOARD_ESP8266)
-#include "aos/aos_debug.h"
-#endif
-
 extern ota_hal_module_t ota_hal_module;
 const char *ota_to_capital(char *value, int len)
 {
@@ -206,10 +202,7 @@ static void ota_download_thread(void *hand)
         return;
     }
 #if (defined BOARD_ESP8266)
-    ktask_t* h = NULL;
-    h = aos_debug_task_find("linkkit");
-    if(h)
-    krhino_task_dyn_del(h);
+    aos_task_delete("linkkit");
     ota_msleep(500);
     #ifdef WIFI_PROVISION_ENABLED
        extern int awss_suc_notify_stop(void);
@@ -220,9 +213,7 @@ static void ota_download_thread(void *hand)
     awss_dev_bind_notify_stop();
     #endif
     OTA_LOG_I("awss_notify stop.");
-    h = aos_debug_task_find("event_task");
-    if(h)
-    krhino_task_dyn_del(h);
+    aos_task_delete("event_task");
     ota_msleep(500);
 #endif
     tmp_breakpoint = ota_get_break_point();
