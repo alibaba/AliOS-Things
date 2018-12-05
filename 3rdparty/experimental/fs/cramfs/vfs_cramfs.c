@@ -135,10 +135,11 @@ static off_t _cramfs_lseek(file_t *fp, off_t off, int whence)
     return ret;
 }
 
-static int _cramfs_stat(file_t *fp, const char *path, struct stat *st)
+static int _cramfs_stat(file_t *fp, const char *path, struct aos_stat *st)
 {
     int ret;
     char *relpath = NULL;
+    struct stat file_st;
 
     relpath = translate_relative_path(path);
     if (!relpath) {
@@ -146,14 +147,17 @@ static int _cramfs_stat(file_t *fp, const char *path, struct stat *st)
     }
 
     krhino_mutex_lock(&g_cramfs_lock, RHINO_WAIT_FOREVER);
-    ret = cramfs_stat(g_root, relpath, st);
+    ret = cramfs_stat(g_root, relpath, &file_st);
     krhino_mutex_unlock(&g_cramfs_lock);
+
+    st->st_mode = file_st.st_mode;
+    st->st_size = file_st.st_size;
 
     krhino_mm_free(relpath);
     return ret;
 }
 
-static int _cramfs_statfs(file_t *fp, const char *path, struct statfs *buf)
+static int _cramfs_statfs(file_t *fp, const char *path, struct aos_statfs *buf)
 {
     if (buf == NULL) {
         return -1;
