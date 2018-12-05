@@ -132,11 +132,10 @@ ifneq ($(hci_h4),1)
 $(NAME)_SOURCES          += ble_hci_driver/hci_driver.c
 GLOBAL_CFLAGS            += -DBLE_4_2
 else
-ifeq ($(ble_controller),nrf51822)
-$(NAME)_COMPONENTS       += hci_h4_nrf51822
-GLOBAL_CFLAGS            += -DBLE_4_0
-else ifeq ($(ble_controller),nrf52840)
-$(NAME)_COMPONENTS       += hci_h4_nrf52840
+
+ifeq ($(ble_controller),nrf52840)
+GLOBAL_DEFINES += HCI_H4_NRF52840
+$(NAME)_SOURCES          += nrf52840/nrf52840.c
 GLOBAL_CFLAGS            += -DBLE_4_2
 else
 error("Invalid ble controller.")
