@@ -4,7 +4,6 @@ config OTA_ENABLED
     bool "FEATURE_OTA_ENABLED"
     default y
     select UTILS_HTTPC
-    select UTILS_BASE64
 
     help
         OTA (Over The Air) means upgrade device's firmware or configuration remotely via Internet
