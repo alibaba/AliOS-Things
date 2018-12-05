@@ -1,4 +1,4 @@
-NAME := profile
+NAME := bt_profile
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 0.0.1
