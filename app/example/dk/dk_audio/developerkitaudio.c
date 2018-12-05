@@ -7,13 +7,23 @@
 #include "soc_init.h"
 #include "isd9160.h"
 
-#define VERSION_REC_PB          "v1.01"
-#define VERSION_VR              "v2.01"
 #define AUDIO_FILE_SDCARD       "audio.data"
 #define FIRMWARE_FILE_SDCARD    "isd9160_fw.bin"
 
-#define VRCMD_WAKEUP_LED        GPIO_ALS_LED
-#define VRCMD_INDICATOR_LED     GPIO_GS_LED
+#define VRCMD_WAKEUP_LED        GPIO_LED_1
+#define VRCMD_INDICATOR_LED     GPIO_LED_2
+
+#define RECORD_LED              GPIO_LED_1
+#define PLAYBACK_LED            GPIO_LED_2
+#define UPGRADE_LED             GPIO_LED_3
+
+typedef enum {
+    INDICATE_START,
+    INDICATE_SUCCESS,
+    INDICATE_FAILED,
+
+    INDICATE_END
+} INDICATE_ENUM;
 
 typedef struct {
     int last_time;
@@ -41,6 +51,66 @@ static const char *g_vrcmd_list[] = {
     "Turn off light",
 };
 
+static int is_recpb_version(const char *ver)
+{
+    int i;
+    const char *recpb_version_table[] = {
+        "v1.01",
+        "v1.02",
+    };
+    const int recpb_version_item = sizeof(recpb_version_table) / sizeof(char *);
+
+    for (i = 0; i < recpb_version_item; ++i) {
+        if (strcmp(ver, recpb_version_table[i]) == 0) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int is_vr_version(const char *ver)
+{
+    int i;
+    const char *vr_version_table[] = {
+        "v2.01",
+    };
+    const int vr_version_item = sizeof(vr_version_table) / sizeof(char *);
+
+    for (i = 0; i < vr_version_item; ++i) {
+        if (strcmp(ver, vr_version_table[i]) == 0) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static void blink_led(BOARD_GPIO led, INDICATE_ENUM indicate)
+{
+    switch (indicate) {
+        case INDICATE_START:
+            hal_gpio_output_low(&brd_gpio_table[led]);
+            break;
+        case INDICATE_SUCCESS:
+            hal_gpio_output_high(&brd_gpio_table[led]);
+            aos_msleep(200);
+            hal_gpio_output_low(&brd_gpio_table[led]);
+            aos_msleep(200);
+            hal_gpio_output_high(&brd_gpio_table[led]);
+            aos_msleep(200);
+            hal_gpio_output_low(&brd_gpio_table[led]);
+            aos_msleep(200);
+            hal_gpio_output_high(&brd_gpio_table[led]);
+            break;
+        case INDICATE_FAILED:
+            hal_gpio_output_high(&brd_gpio_table[led]);
+            break;
+        default:
+            printf("blink_led parameters is invalid.\n");
+    }
+}
+
 static void isd9160_loop(void *arg)
 {
     int ret = 0;
@@ -48,19 +118,37 @@ static void isd9160_loop(void *arg)
     isd9160_loop_once();
     if (key_flag == 1) {
         stop_flag = 0;
+        blink_led(RECORD_LED, INDICATE_START);
         printf("handle_record begin, press the same key again to stop it\n");
         ret = handle_record(AUDIO_FILE_SDCARD, &stop_flag);
         printf("handle_record return %d\n", ret);
+        if (ret == 0) {
+            blink_led(RECORD_LED, INDICATE_SUCCESS);
+        } else {
+            blink_led(RECORD_LED, INDICATE_FAILED);
+        }
         key_flag = 0;
     } else if (key_flag == 2) {
+        blink_led(PLAYBACK_LED, INDICATE_START);
         printf("handle_playback begin\n");
         ret = handle_playback(AUDIO_FILE_SDCARD);
         printf("handle_playback return %d\n", ret);
+        if (ret == 0) {
+            blink_led(PLAYBACK_LED, INDICATE_SUCCESS);
+        } else {
+            blink_led(PLAYBACK_LED, INDICATE_FAILED);
+        }
         key_flag = 0;
     } else if (key_flag == 3) {
+        blink_led(UPGRADE_LED, INDICATE_START);
         printf("handle_upgrade begin\n");
         ret = handle_upgrade(FIRMWARE_FILE_SDCARD);
         printf("handle_upgrade return %d\n", ret);
+        if (ret == 0) {
+            blink_led(UPGRADE_LED, INDICATE_SUCCESS);
+        } else {
+            blink_led(UPGRADE_LED, INDICATE_FAILED);
+        }
         key_flag = 0;
     }
     aos_post_delayed_action(1000, isd9160_loop, NULL);
@@ -147,16 +235,16 @@ void isd9160_bootup(const char *sw_ver)
 {
     int ret = 0;
 
-    if (!strcmp(sw_ver, VERSION_REC_PB)) {
+    if (is_recpb_version(sw_ver)) {
         ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_1],
-                                IRQ_TRIGGER_RISING_EDGE, key1_handle, NULL);
+                IRQ_TRIGGER_RISING_EDGE, key1_handle, NULL);
         ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_2],
-                                IRQ_TRIGGER_RISING_EDGE, key2_handle, NULL);
+                IRQ_TRIGGER_RISING_EDGE, key2_handle, NULL);
         if (ret != 0) {
             printf("hal_gpio_enable_irq key return failed.\n");
         }
         printf("Ready for record and playback.\n");
-    } else if (!strcmp(sw_ver, VERSION_VR)) {
+    } else if (is_vr_version(sw_ver)) {
         ret |= hal_gpio_disable_irq(&brd_gpio_table[GPIO_KEY_1]);
         ret |= hal_gpio_disable_irq(&brd_gpio_table[GPIO_KEY_2]);
         if (ret != 0) {
@@ -181,7 +269,7 @@ int application_start(int argc, char *argv[])
     isd9160_i2c_init();
     audio_init();
     ret = hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_3],
-                                IRQ_TRIGGER_RISING_EDGE, key3_handle, NULL);
+            IRQ_TRIGGER_RISING_EDGE, key3_handle, NULL);
     if (ret != 0) {
         printf("hal_gpio_enable_irq key return failed.\n");
     }
