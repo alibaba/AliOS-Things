@@ -14,3 +14,7 @@ config UTILS_LITE_CJSON
 config UTILS_JSON_PARSER
     bool
     default n
+
+config UTILS_HTTPC
+    bool
+    default n

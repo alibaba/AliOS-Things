@@ -81,7 +81,7 @@ int IOT_SetupConnInfo(const char *product_key,
             *(device_secret_actual + device_secret_len) = 0;
             HAL_SetDeviceSecret(device_secret_actual);
         } else {
-#ifdef IMPL_DYNAMIC_REGISTER
+#ifdef DYNAMIC_REGISTER
             char product_secret[PRODUCT_SECRET_MAXLEN] = {0};
 
             /* KV not exit, goto dynamic register */

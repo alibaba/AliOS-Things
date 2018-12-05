@@ -3,6 +3,7 @@ config OTA_ENABLED
     depends on MQTT_COMM_ENABLED
     bool "FEATURE_OTA_ENABLED"
     default y
+    select UTILS_HTTPC
 
     help
         OTA (Over The Air) means upgrade device's firmware or configuration remotely via Internet
