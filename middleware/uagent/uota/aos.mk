@@ -1,7 +1,7 @@
 NAME := ota
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := An over-the-air update is the wireless delivery of new software. 
 
 #default gcc
@@ -11,10 +11,10 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-$(NAME)_COMPONENTS += middleware.uagent.uota.hal
-$(NAME)_COMPONENTS += middleware.uagent.uota.src.transport
-$(NAME)_COMPONENTS += middleware.uagent.uota.src.download
-$(NAME)_COMPONENTS += middleware.uagent.uota.src.verify
+$(NAME)_COMPONENTS += ota_hal
+$(NAME)_COMPONENTS += ota_transport
+$(NAME)_COMPONENTS += ota_download
+$(NAME)_COMPONENTS += ota_verify
 
 $(NAME)_SOURCES := ota_service.c
 
