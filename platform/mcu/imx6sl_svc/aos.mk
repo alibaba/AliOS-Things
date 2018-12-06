@@ -12,8 +12,6 @@ HOST_ARCH := Cortex-A9
 $(NAME)_COMPONENTS += arch_armv7a
 $(NAME)_COMPONENTS += newlib_stub rhino vfs
 
-GLOBAL_INCLUDES += ../../../arch/arm/armv7a/gcc/syscall/a9
-
 GLOBAL_INCLUDES += aos                                      \
                    imx6_platform_sdk/sdk                    \
                    imx6_platform_sdk/sdk/core               \

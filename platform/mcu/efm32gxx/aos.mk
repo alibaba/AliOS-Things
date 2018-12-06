@@ -18,8 +18,7 @@ GLOBAL_INCLUDES += .                 \
                    drivers/emlib/inc \
                    CMSIS/Include     \
                    hal               \
-                   include           \
-                   ../../../platform/arch/arm/armv7m/gcc/m3
+                   include
 
 $(NAME)_SOURCES := aos/soc_impl.c                \
                    main/main.c                   \

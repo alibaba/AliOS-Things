@@ -12,8 +12,6 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu e310
 $(NAME)_COMPONENTS += arch_risc_v32I
 $(NAME)_COMPONENTS += newlib_stub rhino
 
-GLOBAL_INCLUDES += ../../../arch/risc-v/risc_v32I/gcc
-GLOBAL_INCLUDES += ../../../../include/hal/soc/
 GLOBAL_INCLUDES += ../aos                                        \
                    ../freedom-e-sdk/bsp/env                      \
                    ../freedom-e-sdk/bsp/env/freedom-e300-hifive1 \

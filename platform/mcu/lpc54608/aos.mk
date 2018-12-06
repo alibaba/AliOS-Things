@@ -16,7 +16,14 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4 -mlittle-endian -mthumb -mthumb-interwork -w
 
 GLOBAL_CFLAGS += -DRHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 
-GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4/
+GLOBAL_INCLUDES += ./ \
+                   CMSIS/Include \
+                   drivers \
+                   gcc \
+                   utilities \
+                   utilities/str \
+                   utilities/log \
+                   utilities/io
 GLOBAL_INCLUDES += ./lwip-2.0.2/port/
 #GLOBAL_LDFLAGS += -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlittle-endian -mthumb-interwork -nostartfiles
 GLOBAL_LDFLAGS  += -mcpu=cortex-m4           \

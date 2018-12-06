@@ -12,7 +12,6 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu imx6
 $(NAME)_COMPONENTS += arch_armv7a
 $(NAME)_COMPONENTS += newlib_stub rhino
 
-GLOBAL_INCLUDES += ../../../arch/arm/armv7a/gcc/a9
 GLOBAL_INCLUDES += ./aos                                      \
                    ./imx6_platform_sdk/sdk                    \
                    ./imx6_platform_sdk/sdk/core               \
