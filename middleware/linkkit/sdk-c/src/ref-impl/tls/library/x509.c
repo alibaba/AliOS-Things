@@ -14,6 +14,7 @@
  *  http://www.itu.int/ITU-T/studygroups/com17/languages/X.680-0207.pdf
  *  http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
  */
+#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -1082,3 +1083,4 @@ int mbedtls_x509_self_test( int verbose )
 #endif /* MBEDTLS_SELF_TEST */
 
 #endif /* MBEDTLS_X509_USE_C */
+#endif

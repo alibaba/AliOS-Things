@@ -1,8 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
+#ifdef SUPPORT_TLS
 
 
 #if !defined(MBEDTLS_CONFIG_FILE)
@@ -451,3 +450,4 @@ const char *mbedtls_md_get_name( const mbedtls_md_info_t *md_info )
 }
 
 #endif /* MBEDTLS_MD_C */
+#endif

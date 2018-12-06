@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -3389,3 +3387,4 @@ int mbedtls_ssl_handshake_client_step( mbedtls_ssl_context *ssl )
     return( ret );
 }
 #endif /* MBEDTLS_SSL_CLI_C */
+#endif

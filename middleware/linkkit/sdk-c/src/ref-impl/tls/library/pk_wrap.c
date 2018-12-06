@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -497,3 +495,4 @@ const mbedtls_pk_info_t mbedtls_rsa_alt_info = {
 #endif /* MBEDTLS_PK_RSA_ALT_SUPPORT */
 
 #endif /* MBEDTLS_PK_C */
+#endif
