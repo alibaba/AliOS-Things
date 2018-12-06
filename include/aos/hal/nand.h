@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 typedef struct {
     uint32_t page_size;       /* NAND memory page size w/o spare area */
     uint32_t spare_area_size; /* NAND memory spare area size */

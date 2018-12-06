@@ -5,7 +5,7 @@
 #ifndef HAL_NET_H
 #define HAL_NET_H
 
-#include <hal/base.h>
+#include "aos/hal/base.h"
 
 typedef struct hal_net_module_s hal_net_module_t;
 

@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 typedef struct {
     uint32_t freq; /* communication frequency Hz */
 } qspi_config_t;

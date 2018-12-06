@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #define HAL_SPI_MODE_MASTER 1 /* spi communication is master mode */
 #define HAL_SPI_MODE_SLAVE  2 /* spi communication is slave mode */
 
