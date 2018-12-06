@@ -1,7 +1,7 @@
 NAME := sal_modulue_gt202
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := sal hal implementation for gt202
 
 $(NAME)_SOURCES += gt202_sal.c
