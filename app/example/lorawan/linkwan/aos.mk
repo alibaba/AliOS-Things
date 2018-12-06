@@ -1,7 +1,7 @@
 NAME := linkwan
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := linkwan
 GLOBAL_INCLUDES += .
 
@@ -10,11 +10,11 @@ linkwan := 1
 $(NAME)_SOURCES := linkwan.c
 
 ifeq ($(lorawanback), 0)
-$(NAME)_COMPONENTS := network.lorawan.lorawan_4_4_2
+$(NAME)_COMPONENTS := lorawan_4_4_2
 else ifeq ($(lorawanback), 1)
-$(NAME)_COMPONENTS := network.lorawan.lorawan_4_4_0
+$(NAME)_COMPONENTS := lorawan_4_4_0
 endif
 
-$(NAME)_COMPONENTS += kernel.fs.kv
+$(NAME)_COMPONENTS += kv
 
 GLOBAL_INCLUDES += ./

@@ -1,12 +1,12 @@
 NAME := meshapp
 no_with_lwip := 0
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := uMesh sample application
 
 $(NAME)_SOURCES     := main.c
 
-$(NAME)_COMPONENTS  += network.umesh cli netmgr
+$(NAME)_COMPONENTS  += umesh cli netmgr
 GLOBAL_DEFINES      += TAPIF_DEFAULT_OFF DEBUG
 
 ifeq ($(MESHAUTH), 1)
@@ -15,7 +15,7 @@ endif
 
 LWIP ?=1
 ifeq ($(LWIP), 1)
-$(NAME)_COMPONENTS  += network.lwip
+$(NAME)_COMPONENTS  += lwip
 endif
 
 
