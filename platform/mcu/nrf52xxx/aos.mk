@@ -131,3 +131,6 @@ include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/nrf52832.mk
 else ifeq ($(HOST_MCU_NAME),nrf52810)
 include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/nrf52810.mk
 endif
+
+include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/bt_controller/bt_controller.mk
+GLOBAL_DEFINES-y += CONFIG_BT_CTLR
