@@ -23,9 +23,6 @@ GLOBAL_CFLAGS += -DCONFIG_NO_TCPIP
 GLOBAL_CFLAGS += -DCPU_LPC54018JET180
 
 GLOBAL_INCLUDES += .
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54018/
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54018/CMSIS/Include
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54018/drivers
 
 $(NAME)_SOURCES :=
 $(NAME)_SOURCES += ./board.c
