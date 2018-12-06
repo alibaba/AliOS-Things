@@ -8,13 +8,17 @@
 #include "iot_export_linkkit.h"
 #include "cJSON.h"
 
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+    #include "ota_service.h"
+#endif
+
 #define USE_CUSTOME_DOMAIN      (0)
 
 // for demo only
-#define PRODUCT_KEY      "a16UKrlKekO"
-#define PRODUCT_SECRET   "RDluqbn3LQazrdqM"
-#define DEVICE_NAME      "gateway_test01"
-#define DEVICE_SECRET    "AT2XFOPOIbJaKfXsKeaEhabJ8TLhMQYp"
+#define PRODUCT_KEY      "a1X2bEnP82z"
+#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
+#define DEVICE_NAME      "example1"
+#define DEVICE_SECRET    "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
@@ -59,6 +63,9 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+    ota_service_init(NULL);
+#endif
     return 0;
 }
 

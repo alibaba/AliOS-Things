@@ -39,7 +39,10 @@ static void sys_init(void)
     aos_kv_init();
     aos_loop_init();
     aos_framework_init();
-	dumpsys_cli_init();
+    dumpsys_cli_init();
+#ifdef AOS_FOTA
+    ota_service_init();
+#endif
     application_start(0, NULL);
 #endif
 }
