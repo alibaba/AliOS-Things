@@ -5,9 +5,6 @@ $(NAME)_VERSION := 0.0.1
 $(NAME)_SUMMARY := Ble adv example.
 $(NAME)_SOURCES     := main.c
 
-$(NAME)_INCLUDES    := ../../../network/bluetooth/include \
-                       ../../../network/bluetooth/core/include
-
 ble = 1
 
 $(NAME)_COMPONENTS  += network.bluetooth.bt yloop cli
