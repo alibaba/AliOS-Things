@@ -7,7 +7,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "typedef.h"
-#include "hal/soc/flash.h"
+#include "aos/hal/flash.h"
 #include "rec_hal.h"
 
 #ifndef OTA_MAX_VER_LEN
