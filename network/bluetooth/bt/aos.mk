@@ -7,9 +7,7 @@ $(NAME)_SUMMARY := BLE stack.
 GLOBAL_DEFINES-y += AOS_BT
 
 GLOBAL_INCLUDES-y += include \
-                   include/drivers
-
-$(NAME)_INCLUDES +=  ../../rhino/core/include
+                     include/drivers
 
 $(NAME)_COMPONENTS-y += yloop
 

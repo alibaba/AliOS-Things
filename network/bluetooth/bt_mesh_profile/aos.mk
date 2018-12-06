@@ -8,12 +8,4 @@ $(NAME)_COMPONENTS-y := network.bluetooth.bt_mesh
 
 $(NAME)_SOURCES-y := bt_mesh_profile.c
 
-$(NAME)_INCLUDES-y := ./ \
-                      ../bt_mesh/inc \
-                      ../bt_mesh_inc/api \
-                      ../../bluetooth/bt/include \
-                      ../../bluetooth/bt/common/tinycrypt/include \
-                      ../../../platform/mcu/nrf52xxx/Drivers/drivers_nrf \
-                      ../../../kernel/rhino/hal
-
 GLOBAL_INCLUDES-y := ./
