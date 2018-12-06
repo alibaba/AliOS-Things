@@ -30,45 +30,11 @@ NOTICE: This file has been modified by Nordic Semiconductor ASA.
 #endif
 #endif
 
-    .section .stack
-#if defined(__STARTUP_CONFIG)
-    .align __STARTUP_CONFIG_STACK_ALIGNEMENT
-    .equ    Stack_Size, __STARTUP_CONFIG_STACK_SIZE
-#elif defined(__STACK_SIZE)
-    .align 3
-    .equ    Stack_Size, __STACK_SIZE
-#else
-    .align 3
-    .equ    Stack_Size, 2048
-#endif
-    .globl __StackTop
-    .globl __StackLimit
-__StackLimit:
-    .space Stack_Size
-    .size __StackLimit, . - __StackLimit
-__StackTop:
-    .size __StackTop, . - __StackTop
+    .extern heap_len
+    .extern __StackTop
+    .extern kernel_type
 
-    .section .heap
-    .align 3
-#if defined(__STARTUP_CONFIG)
-    .equ Heap_Size, __STARTUP_CONFIG_HEAP_SIZE
-#elif defined(__HEAP_SIZE)
-    .equ Heap_Size, __HEAP_SIZE
-#else
-    .equ    Heap_Size, 2048
-#endif
-    .globl __HeapBase
-    .globl __HeapLimit
-__HeapBase:
-    .if Heap_Size
-    .space Heap_Size
-    .endif
-    .size __HeapBase, . - __HeapBase
-__HeapLimit:
-    .size __HeapLimit, . - __HeapLimit
-
-    .section .isr_vector
+    .section ".isr_vector", "ax"
     .align 2
     .globl __isr_vector
 __isr_vector:

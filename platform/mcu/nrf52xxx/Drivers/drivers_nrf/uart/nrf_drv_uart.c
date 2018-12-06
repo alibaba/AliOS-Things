@@ -385,12 +385,17 @@ __STATIC_INLINE ret_code_t nrf_drv_uart_tx_for_uarte(const nrf_drv_uart_t * p_in
     {
         bool endtx;
         bool txstopped;
+        uint32_t loop = 50000;
         do
         {
             endtx     = nrf_uarte_event_check(p_instance->reg.p_uarte, NRF_UARTE_EVENT_ENDTX);
             txstopped = nrf_uarte_event_check(p_instance->reg.p_uarte, NRF_UARTE_EVENT_TXSTOPPED);
         }
-        while ((!endtx) && (!txstopped));
+        while ((!endtx) && (!txstopped) && (loop-- > 1));
+        if(loop == 0)
+        {
+            nrf_uarte_task_trigger(p_instance->reg.p_uarte, NRF_UARTE_TASK_STARTTX);
+        }
 
         if (txstopped)
         {
