@@ -36,6 +36,18 @@ for iter in ${ALL_SUB_DIRS}; do
          | cut -d' ' -f2- \
          | awk '{ printf("    | %-5s | %-35s | %14s | %26s |\n", $1, $2, $3, $4); }'
 
+    if [ "${BUILD_LITE_SDK_MQTT}" ];then
+        for j in ${ITER_OBJS}; do
+            OBJ_SIZE=$(size $j | ${SED} '1d' | awk '{print $1}')
+            SRC_PATH=$(echo $j | ${SED} 's?^./??' | ${SED} 's?o$?c?')
+            if [ "$OBJ_SIZE" -ne 0 ];then
+                mkdir -p ${DIST_DIR}/release/sdk-lite/src
+                mkdir -p ${DIST_DIR}/release/sdk-lite/include
+                cp -f ${TOP_DIR}/${iter}/${SRC_PATH} ${DIST_DIR}/release/sdk-lite/src
+            fi
+        done
+    fi
+
     cd ${OLDPWD}
 done
 
