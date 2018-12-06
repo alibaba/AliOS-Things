@@ -1,7 +1,7 @@
 NAME := spiffs
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := SPIFFS filesystem
 
 $(NAME)_SOURCES += spiffs_port.c \
