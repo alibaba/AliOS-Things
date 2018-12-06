@@ -60,6 +60,7 @@ void utils_hmac_md5(const char *msg, int msg_len, char *digest, const char *key,
     }
 }
 
+#if defined(DEV_BIND_ENABLED)
 void utils_hmac_sha1_hex(const char *msg, int msg_len, char *digest, const char *key, int key_len)
 {
     if ((NULL == msg) || (NULL == digest) || (NULL == key)) {
@@ -105,6 +106,7 @@ void utils_hmac_sha1_hex(const char *msg, int msg_len, char *digest, const char 
     utils_sha1_finish(&context, out);                       /* finish up 2nd pass */
     memcpy(digest, out, SHA1_DIGEST_SIZE);
 }
+#endif  /* #if defined(DEV_BIND_ENABLED) */
 
 void utils_hmac_sha256(const char *msg, int msg_len, char *digest, const char *key, int key_len)
 {
@@ -206,6 +208,7 @@ void utils_hmac_sha1(const char *msg, int msg_len, char *digest, const char *key
     }
 }
 
+#if defined(ALCS_ENABLED)
 void utils_hmac_sha1_raw(const char *msg, int msg_len, char *digest, const char *key, int key_len)
 {
     if ((NULL == msg) || (NULL == digest) || (NULL == key)) {
@@ -252,3 +255,4 @@ void utils_hmac_sha1_raw(const char *msg, int msg_len, char *digest, const char 
 
     memcpy(digest, out, SHA1_DIGEST_SIZE);
 }
+#endif  /* #if defined(ALCS_ENABLED) */
