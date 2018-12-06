@@ -29,7 +29,7 @@
 #else
 #include <aos/aos.h>
 #include <aos/yloop.h>
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 #endif
 
 /*Memory realloc*/
