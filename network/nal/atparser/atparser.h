@@ -6,7 +6,7 @@
 #define _AT_PARSER_H_
 
 #include <stdarg.h>
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 #include <aos/aos.h>
 
 #ifdef AOS_ATCMD

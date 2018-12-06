@@ -3,7 +3,7 @@
  */
 #ifndef _HDLC_H_
 #define _HDLC_H_
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 
 #define MAX_HDLC_TX_BUF_LEN 1024
 #define MAX_HDLC_RX_BUF_LEN 1024

@@ -8,7 +8,7 @@
 #include <string.h>
 #include <errno.h>
 #include <aos/aos.h>
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 #include <aos/network.h>
 #include "lwip/apps/telnetserver.h"
 

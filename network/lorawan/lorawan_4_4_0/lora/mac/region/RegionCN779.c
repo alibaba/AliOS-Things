@@ -27,7 +27,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include <math.h>
 
 #include "radio.h"
-//#include "timer.h"
+//#include "aos/hal/timer.h"
 #include "timeServer.h"
 #include "LoRaMac.h"
 

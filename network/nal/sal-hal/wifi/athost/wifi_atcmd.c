@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <hal/base.h>
+#include "aos/hal/base.h"
 #include <hal/wifi.h>
 #include "atparser.h"
 
