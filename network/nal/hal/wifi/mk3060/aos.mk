@@ -9,7 +9,7 @@ GLOBAL_DEFINES += DEV_SAL_MK3060
 $(NAME)_COMPONENTS += yloop
 
 ifneq (1, $(at_adapter))
-$(NAME)_COMPONENTS += network.sal.atparser
+$(NAME)_COMPONENTS += network.nal.atparser
 
 $(NAME)_SOURCES += mk3060.c
 endif

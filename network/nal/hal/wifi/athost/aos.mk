@@ -9,7 +9,7 @@ GLOBAL_DEFINES += DEV_SAL_ATHOST
 $(NAME)_COMPONENTS += yloop
 
 ifneq (1, $(at_adapter))
-$(NAME)_COMPONENTS += sal network.sal.atparser
+$(NAME)_COMPONENTS += sal network.nal.atparser
 
 $(NAME)_SOURCES += athost.c
 endif
