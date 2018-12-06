@@ -24,7 +24,7 @@
  */
 
 #include "type.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 
 
 uint32_t OutRegAddr, OutRegBitMsk, DelayLoops;

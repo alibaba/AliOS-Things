@@ -29,7 +29,7 @@
 #ifdef CONFIG_SPI_DMA
 #include "ck_dmac.h"
 #endif
-#include "soc.h"   /*CONFIG_SPI_NUM*/
+
 #include "csi_core.h"
 
 #define ERR_SPI(errno) (CSI_DRV_ERRNO_SPI_BASE | errno)

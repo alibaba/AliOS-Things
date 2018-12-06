@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <hal/soc/sd.h>
+#include "aos/hal/sd.h"
 
 #define SD_BLOCK_SIZE 512
 

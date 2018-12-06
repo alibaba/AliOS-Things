@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stm32l0xx_hal.h"
-#include "hal/soc/timer.h"
+#include "aos/hal/timer.h"
 #include "stm32l0xx_hal_tim.h"
 #include "hal_timer_stm32l0.h"
 #include "stm32l0xx_hal_adc.h"

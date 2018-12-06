@@ -2,9 +2,9 @@
 #include <string.h>
 #include "type.h"
 #include "app_config.h"
-#include "i2c.h"
+#include "aos/hal/i2c.h"
 #include "clk.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 #include "RDA5876A.h"
 #include "dev_detect_driver.h"
 #ifdef FUNC_RADIO_RDA5876A_EN

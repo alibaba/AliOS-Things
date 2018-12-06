@@ -21,9 +21,9 @@
 #include <fcntl.h>
 
 #include <aos/aos.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
+#include "aos/hal/soc.h"
+#include "aos/hal/timer.h"
+#include "aos/hal/base.h"
 #include <hal/wifi.h>
 #include <arg_options.h>
 

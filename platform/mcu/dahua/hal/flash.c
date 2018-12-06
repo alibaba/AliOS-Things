@@ -20,7 +20,7 @@
 #include <lcsfc.h>
 #include <dh_type.h>
 
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 
 extern DH_S32 DH_MDK_LCSFC_Erase(DH_U32 u32StartAddr, DH_U32 u32Length);
 extern DH_S32 DH_MDK_LCSFC_WriteFlash(DH_U32 u32Addr, DH_U32 u32Cnt, DH_U8 *pu8Buf);

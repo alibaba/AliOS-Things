@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <hal/base.h>
+#include "aos/hal/base.h"
 #include <hal/wifi.h>
 
 static uint8_t fixmac[6] = {0xd8,0x96,0xe0,0x03,0x04,0x01};

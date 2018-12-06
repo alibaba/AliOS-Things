@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "drv_usart.h"
 #include "pin.h"
 #include "ringbuffer.h"

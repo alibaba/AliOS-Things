@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-#include <soc.h>
+#include "aos/hal/soc.h"
 //#include <arch/arm/cortex_m/cmsis.h>
 #include <debug.h>
 

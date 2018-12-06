@@ -26,7 +26,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <csi_config.h>
-#include <soc.h>
+#include "soc.h"
 
 extern uint32_t dump_mmleak(void);
 

@@ -1,5 +1,5 @@
 #include <string.h>
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "flash_api.h"
 #include "flash_data.h"
 #include "aos/kernel.h"

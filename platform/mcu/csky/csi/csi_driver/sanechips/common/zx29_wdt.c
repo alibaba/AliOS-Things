@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <drv_wdt.h>
 #include <drv_intc.h>
-#include <soc.h>
+#include "soc.h"
 #include <io.h>
 #include <zx29_wdt.h>
 #include <csi_core.h>

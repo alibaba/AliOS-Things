@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
-#include <soc.h>
+#include "soc.h"
 #include <sys/types.h>
 #include "csi_core.h"
 #include "drv_timer.h"

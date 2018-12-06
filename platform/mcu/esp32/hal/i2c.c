@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #define i2c_dev_t aos_i2c_dev_t
 #define i2c_config_t aos_i2c_config_t
-#include "hal/soc/i2c.h"
+#include "aos/hal/i2c.h"
 #undef i2c_dev_t
 #undef i2c_config_t
 #include "rom/ets_sys.h"

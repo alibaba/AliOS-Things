@@ -27,7 +27,6 @@
 #include "ck_rtc.h"
 #include "csi_core.h"
 #include "drv_rtc.h"
-#include "soc.h"
 
 #define ERR_RTC(errno) (CSI_DRV_ERRNO_RTC_BASE | errno)
 

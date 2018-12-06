@@ -1,6 +1,6 @@
 #include "k_api.h"
 #include "soc_init.h"
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 #include "rda5981.h"
 #include "cmsis_nvic.h"
 

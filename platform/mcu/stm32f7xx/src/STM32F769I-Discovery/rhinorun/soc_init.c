@@ -42,7 +42,7 @@
 #include <stdint.h>
 #include "soc_init.h"
 #include "k_config.h"
-#include <hal/soc/uart.h>
+#include "aos/hal/uart.h"
 #include "hal_uart_stm32f7.h"
 
 /* USER CODE END Includes */

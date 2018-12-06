@@ -1,4 +1,4 @@
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "board.h"
 #include "uart_port.h"
 #include <project.h>

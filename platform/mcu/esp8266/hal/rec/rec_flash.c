@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 #include <string.h>
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "c_types.h"
 #include "spi_flash.h"
 #include "esp_system.h"

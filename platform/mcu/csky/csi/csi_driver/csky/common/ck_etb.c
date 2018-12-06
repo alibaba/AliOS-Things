@@ -20,7 +20,7 @@
  * @version  V1.0
  * @date     28. Octorber 2017
  ******************************************************************************/
-#include <soc.h>
+
 #include <io.h>
 #include <drv_etb.h>
 #include <drv_errno.h>

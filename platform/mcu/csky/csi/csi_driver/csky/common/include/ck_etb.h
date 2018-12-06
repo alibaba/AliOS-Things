@@ -22,7 +22,7 @@
 #ifndef _CK_ETB_H_
 #define _CK_ETB_H_
 
-#include <soc.h>
+#include "soc.h"
 
 #define ETB_CHANNEL_FUNC_ERROR     1
 #define ETB_NO_SUCH_TRIGGER        2

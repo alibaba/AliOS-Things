@@ -12,8 +12,8 @@
 #include <string.h>
 #include "type.h"
 #include "app_config.h"
-#include "gpio.h"
-#include "i2c.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/i2c.h"
 
 #define MAX_I2C_MASTER   2
 

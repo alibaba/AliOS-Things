@@ -18,7 +18,7 @@
 
 #include <aos/kernel.h>
 #include "mmcsd_core.h"
-#include "sd.h"
+#include "aos/hal/sd.h"
 
 static const uint32_t tran_unit[] =
 {

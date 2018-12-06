@@ -9,7 +9,7 @@
 #include "app_config.h"
 #include "beep.h"
 #include "sys_app.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "dev_detect_driver.h"
 
 #if (defined(FUNC_ADC_KEY_EN) || defined(FUNC_IR_KEY_EN) || defined(FUNC_CODING_KEY_EN) || defined(FUNC_POWER_KEY_EN))

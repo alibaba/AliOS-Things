@@ -64,7 +64,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <k_api.h>
-#include "hal/soc/flash.h"
+#include "aos/hal/flash.h"
 #include "fsl_clock.h"
 #include "fsl_flash.h"
 

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <aos/aos.h>
-#include <hal/soc/dac.h>
+#include "aos/hal/dac.h"
 #include "driver/dac.h"
 #include "soc/soc.h"
 

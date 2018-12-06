@@ -2,7 +2,7 @@
 #include "aos/kernel.h"
 #include "k_api.h"
 #include "errno.h"
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 #include "app_uart.h"
 #include "app_error.h"
 #include "nrf.h"

@@ -1,4 +1,4 @@
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "scb/cy_scb_common.h"
 #include "scb/cy_scb_uart.h"
 #include "board.h"

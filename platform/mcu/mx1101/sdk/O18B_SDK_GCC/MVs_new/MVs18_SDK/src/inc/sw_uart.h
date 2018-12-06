@@ -34,7 +34,7 @@ extern "C" {
 
 
 #include "type.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 
 /* GPIO bank selection */
 #define  SWUART_GPIO_PORT_A    GPIO_A_IN

@@ -8,8 +8,8 @@
 
 #include "type.h"
 #include "app_config.h"
-#include "gpio.h"
-#include "uart.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/uart.h"
 
 #ifdef FUNC_BT_EN
 //

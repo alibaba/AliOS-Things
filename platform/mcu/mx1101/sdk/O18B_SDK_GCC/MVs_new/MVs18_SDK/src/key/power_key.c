@@ -14,10 +14,10 @@
 //					2014-09-25	Created Source File
 ///////////////////////////////////////////////////////////////////////////////
 #include "type.h"
-#include "adc.h"
+#include "aos/hal/adc.h"
 #include "app_config.h"
 #include "os.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 #include "irqs.h"
 #include "msgq.h"
 #include "app_msg.h"
