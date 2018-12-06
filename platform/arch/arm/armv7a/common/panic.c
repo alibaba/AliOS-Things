@@ -229,7 +229,7 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
             print_func("Exception Type: Unknown\r\n");
             break;
     }
-    
+
     regs = &flt_ctx->SP;
     /* show PANIC_CONTEXT */
     for (x = 0; x < sizeof(s_panic_ctx) / REG_NAME_WIDTH; x++) {

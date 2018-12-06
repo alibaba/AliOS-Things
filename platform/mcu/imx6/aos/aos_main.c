@@ -13,7 +13,6 @@ extern void platform_init(void);
 #define AOS_START_STACK 2048
 ktask_t *g_aos_init;
 
-
 static kinit_t kinit = {
     .argc = 0,
     .argv = NULL,
@@ -25,7 +24,7 @@ static void sys_init(void)
 {
     int ret = 0;
     hal_uart_init(NULL);
-    
+
     printf("sys_init in\r\n");
 
 	time_init_global_tick();
@@ -43,7 +42,7 @@ static void sys_init(void)
     //test_certificate();
 
     while(1) {
-        
+
         //printf("tick = %d\r\n", qq_tick++);
 
         aos_msleep(100);
@@ -64,11 +63,11 @@ void  isr_stk_init(void)
     cpu_stack_t *p_stk;
     int coreid;
     cpu_stack_t * isr_base_ptr;// = &isr_stk[0];
-    
+
     coreid = cpu_cur_get();
     isr_base_ptr = &(isr_stk[coreid][0]);
 
-    p_stk = isr_base_ptr;                            // Clear the ISR stack                                   
+    p_stk = isr_base_ptr;                            // Clear the ISR stack
     for (i = 0u; i < isr_stk_size; i++) {
         *p_stk++ = (cpu_stack_t)0u;
     }
@@ -81,26 +80,26 @@ void sys_start(void)
     int ret;
 	platform_init();
 
-    
+
 #if (RHINO_CONFIG_CPU_NUM > 1)
     extern void smp_cpu_init(void);
     smp_cpu_init();
-#endif    
+#endif
 
-    k_cpu_vectable_set();
+    k_vectable_set();
 	//isr_stk_init();
     aos_init();
-    
+
     #if (RHINO_CONFIG_CPU_NUM > 1)
     /*bind 0 core*/
     ret = krhino_task_cpu_dyn_create(&g_aos_init, "aos-init", 0, 2, 0, AOS_START_STACK, sys_init, 0,1);
-  
+
     //soc_driver_init();
     #else
     ret = krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 2, 0, AOS_START_STACK, sys_init, 1);
 
-    #endif    
-       
+    #endif
+
     aos_start();
 }
 
