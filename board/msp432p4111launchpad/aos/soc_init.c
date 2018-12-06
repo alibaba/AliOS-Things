@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 #include "k_config.h"
 #include "Board.h"
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>

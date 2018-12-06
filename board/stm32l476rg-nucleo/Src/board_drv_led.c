@@ -1,4 +1,4 @@
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 #include "hal_gpio_stm32l4.h"
 
 enum {

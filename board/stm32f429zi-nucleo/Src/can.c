@@ -49,13 +49,13 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "can.h"
-#include "gpio.h"
-
+#include "aos/hal/gpio.h"
+#include "stm32f4xx_hal.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <hal/base.h>
+#include "aos/hal/base.h"
 #include "common.h"
 //#include "sensor.h"
 
