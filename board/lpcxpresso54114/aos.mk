@@ -23,9 +23,6 @@ GLOBAL_CFLAGS += -DCONFIG_NO_TCPIP
 GLOBAL_CFLAGS += -DCPU_LPC54114J256BD64_cm4
 
 GLOBAL_INCLUDES += .
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54114/
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54114/CMSIS/Include
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54114/drivers
 
 $(NAME)_SOURCES :=
 $(NAME)_SOURCES += ./board.c
