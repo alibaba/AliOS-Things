@@ -16,7 +16,9 @@ GLOBAL_CFLAGS += -Wno-format -Wno-incompatible-pointer-types
 GLOBAL_ASMFLAGS += -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99
 GLOBAL_ASMFLAGS += -D__STARTUP_CLEAR_BSS
 GLOBAL_ASMFLAGS += -mcpu=cortex-m0plus -mfloat-abi=soft
-GLOBAL_INCLUDES += ../../arch/arm/armv6m/gcc/m0plus/
+GLOBAL_INCLUDES += ./ \
+                   CMSIS/Include \
+                   drivers
 
 GLOBAL_LDFLAGS += --specs=nano.specs --specs=nosys.specs
 GLOBAL_LDFLAGS += -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99

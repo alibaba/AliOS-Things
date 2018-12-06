@@ -123,11 +123,6 @@ ble                      ?= 0
 ifneq ($(ble),0)
 $(NAME)_COMPONENTS       += bt
 GLOBAL_INCLUDES          += $(ESP_INC_PATH)/bt/include
-$(NAME)_INCLUDES         += ../../../network/bluetooth/port
-$(NAME)_INCLUDES         += ../../../network/bluetooth/host
-$(NAME)_INCLUDES         += ../../../network/bluetooth/host/bt_mesh
-$(NAME)_INCLUDES         += ../../../network/bluetooth/core/include
-$(NAME)_INCLUDES         += ../../../network/bluetooth/include/bluetooth
 ifneq ($(hci_h4),1)
 $(NAME)_SOURCES          += ble_hci_driver/hci_driver.c
 GLOBAL_CFLAGS            += -DBLE_4_2

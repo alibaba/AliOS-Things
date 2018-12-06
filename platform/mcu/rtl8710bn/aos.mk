@@ -14,7 +14,7 @@ HOST_OPENOCD := rtl8710bn
 #SPI_WIFI_ENABLED := true
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu rtl8710bn
 
 ifeq ($(AOS_2BOOT_SUPPORT), yes)
@@ -26,10 +26,6 @@ $(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += newlib_stub rhino netmgr cli digest_algorithm lwip netmgr
 endif
 
-#GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/platform/mcu/rtl8710bn
-#GLOBAL_LDFLAGS  += -I $(SOURCE_ROOT)/platform/mcu/rtl8710bn
-#GLOBAL_LDFLAGS  += -I $(SOURCE_ROOT)\kernel\rhino\core\include
-
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
@@ -38,16 +34,12 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += CONFIG_AOS_CLI_STACK_SIZE=4096
 #GLOBAL_DEFINES += WITH_LWIP
 
-GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4
-GLOBAL_INCLUDES += ../../../board/amebaz_dev
 GLOBAL_INCLUDES += .
 GLOBAL_INCLUDES += arch
 GLOBAL_INCLUDES += sdk
 GLOBAL_INCLUDES += aos
 GLOBAL_INCLUDES += peripherals
 GLOBAL_INCLUDES += ../include
-GLOBAL_INCLUDES += ../../../network/lwip/include
-GLOBAL_INCLUDES += ../../../network/lwip/include/lwip
 
 $(NAME)_INCLUDES += .
 $(NAME)_INCLUDES += ../include
