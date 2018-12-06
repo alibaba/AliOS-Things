@@ -6,7 +6,7 @@
 #include "spiffs_config.h"
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 
 #include "aos/vfs.h"
 

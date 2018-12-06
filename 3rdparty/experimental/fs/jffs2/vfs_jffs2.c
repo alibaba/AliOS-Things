@@ -8,7 +8,7 @@
 
 #include "aos/vfs.h"
 
-#include <hal/soc/nor.h>
+#include "aos/hal/nor.h"
 #include "jffs2_port.h"
 #include "include/linux/jffs2.h"
 #include "include/os-alios.h"
