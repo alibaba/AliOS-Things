@@ -37,4 +37,4 @@ config UTILS_SHA1
 
 config UTILS_SHA256
     bool
-    default y
+    default n
