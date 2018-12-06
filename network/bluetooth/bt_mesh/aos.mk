@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := BLE Mesh stack.
 $(NAME)_COMPONENTS-y += network.bluetooth.bt.bt_common network.bluetooth.bt_mesh.port
 
 $(NAME)_INCLUDES-y += ./inc/ \
-                      ./inc/api/mesh/
+                      ./inc/api/mesh
 
 $(NAME)_COMPONENTS-y += yloop
 
@@ -29,6 +29,6 @@ $(NAME)_SOURCES-y := ./src/access.c \
                      ./src/shell.c
 
 GLOBAL_INCLUDES-y += ./inc/ \
-                     ./inc/api/
+                     ./inc/api
 
 GLOBAL_DEFINES-y += CONFIG_BT_MESH
