@@ -47,7 +47,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 //#include "main.h"
-#include "flash.h"
+#include "B-L475E-IOT01/hal/flash.h"
 #include <string.h>
 #include <stdbool.h>
 #include "stm32l4xx.h"

@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 #include "hal/wifi.h"
 
 #define AOS_START_STACK 1536
@@ -146,9 +146,9 @@ static void platform_init(void)
 
 #include <k_api.h>
 #include <aos/log.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
+#include "aos/hal/soc.h"
+#include "aos/hal/timer.h"
+#include "aos/hal/base.h"
 #include <hal/wifi.h>
 
 #define TAG "hw"

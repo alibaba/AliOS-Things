@@ -6,7 +6,7 @@
 #include <aos/kernel.h>
 #include "atmel_start.h"
 #include <k_api.h>
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 #include <hal/wifi.h>
 
 #define AOS_START_STACK 1536

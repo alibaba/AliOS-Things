@@ -63,7 +63,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <errno.h>
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "fsl_device_registers.h"
 #include "fsl_common.h"
 #include "fsl_clock.h"

@@ -7,7 +7,7 @@
 
 #define uart_dev_t aos_uart_dev_t
 #define uart_config_t aos_uart_config_t
-#include <hal/soc/soc.h>
+#include "aos/hal/uart.h"
 #undef uart_dev_t
 #undef uart_config_t
 

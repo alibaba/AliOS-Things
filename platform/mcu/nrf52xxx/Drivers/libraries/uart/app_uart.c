@@ -43,7 +43,7 @@
 #include "nrf_drv_uart.h"
 #include "nrf_assert.h"
 #include "k_api.h"
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 
 
 #define MAX_BUF_UART_BYTES   32

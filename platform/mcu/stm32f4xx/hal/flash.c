@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "mico_rtos.h"
 #include "platform_mcu_peripheral.h"
 #include "debug.h"

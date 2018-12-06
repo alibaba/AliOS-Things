@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 #include "rec_flash.h"
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "flash_api.h"
 #include "hal_platform.h"
 

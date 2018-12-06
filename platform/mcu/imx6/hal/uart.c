@@ -3,7 +3,7 @@
  */
 
 #include "k_api.h"
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 #include "imx_uart.h"
 
 #if (RHINO_CONFIG_CPU_NUM > 1)

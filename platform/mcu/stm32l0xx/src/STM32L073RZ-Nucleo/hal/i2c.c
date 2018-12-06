@@ -3,7 +3,7 @@
  */
 
 #include <stdio.h>
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 
 int32_t hal_i2c_init(i2c_dev_t *i2c)
 {

@@ -18,7 +18,7 @@ extern "C" {
 #include "drc.h"
 #include "three_d.h"	
 #include "virtual_bass.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "bt_device_type.h"
 #include "timeout.h"
 #include "delay.h"

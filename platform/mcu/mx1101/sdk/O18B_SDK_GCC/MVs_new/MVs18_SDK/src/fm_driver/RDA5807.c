@@ -12,13 +12,13 @@
 #include<string.h>
 #include "type.h"
 #include "app_config.h"
-#include "i2c.h"
+#include "aos/hal/i2c.h"
 #include "clk.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 #include "QN8035.h"
 #include "dev_detect_driver.h"
 #include "rda5807.h"
-#include "i2c.h"
+#include "aos/hal/i2c.h"
 
 
 #ifdef FUNC_RADIO_RDA5807_EN

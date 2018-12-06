@@ -16,7 +16,7 @@
 #include "nvm.h"
 #include "dev_detect_driver.h"
 #include "eq_params.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 #include "mixer.h"
 #include "bt_app_func.h"
 

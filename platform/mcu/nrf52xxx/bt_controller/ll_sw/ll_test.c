@@ -9,7 +9,7 @@
 
 #include <toolchain.h>
 #include <zephyr/types.h>
-#include <soc.h>
+#include "aos/hal/soc.h"
 #include <clock_control.h>
 
 #include "hal/cpu.h"

@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "hal/soc/soc.h"
-#include "gpio.h"
+#include "aos/hal/soc.h"
+#include "aos/hal/gpio.h"
 #include "nrf_gpio.h"
 
 /*use port elem in gpio_dev_t as pin number for nrf52 soc*/

@@ -9,7 +9,7 @@
 #include "app_config.h"
 #include "sound_remind.h"
 #include "task_decoder.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "clk.h"
 #include "bt_app_func.h"
 #include "pcm_fifo.h"

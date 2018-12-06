@@ -1,6 +1,6 @@
 #include <aos/aos.h>
 #include <string.h>
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "c_types.h"
 #include "spi_flash.h"
 #include "k_api.h"

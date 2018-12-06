@@ -1,17 +1,17 @@
 
-#include "gpio.h"
-#include "uart.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/uart.h"
 #include "irqs.h"
 #include "clk.h"
-#include "uart.h"
-#include "gpio.h"
+#include "aos/hal/uart.h"
+#include "aos/hal/gpio.h"
 #include "spi_flash.h"
 #include "watchdog.h"
 #include "timeout.h"
 #include "cache.h"
 #include "delay.h"
 #include "wakeup.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 
 #include <aos/aos.h>
 #include <k_api.h>
@@ -101,7 +101,7 @@ int main( void )
     return 0;
 }
 
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 
 uart_dev_t uart_0;
 

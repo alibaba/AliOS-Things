@@ -1,5 +1,5 @@
 #include "k_api.h"
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 #include <platform.h>
 #include "encoding.h"
 #include <stdarg.h>

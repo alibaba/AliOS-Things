@@ -46,7 +46,7 @@
 #include "nrf_delay.h"
 
 #include "k_api.h"
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 
 
 #define MAX_BUF_UART_BYTES  256

@@ -14,7 +14,7 @@
 #include "tcpip.h"
 #include <osdep_service.h>
 #include <device_lock.h>
-#include <hal/base.h>
+#include "aos/hal/base.h"
 #include <hal/wifi.h>
 
 #if CONFIG_EXAMPLE_WLAN_FAST_CONNECT || CONFIG_JD_SMART

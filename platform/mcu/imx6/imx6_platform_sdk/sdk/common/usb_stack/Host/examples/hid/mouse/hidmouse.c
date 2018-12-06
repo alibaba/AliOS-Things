@@ -43,7 +43,7 @@
 #include "khci.h"
 #include "usb_bsp.h"
 #include "sci.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "poll.h"
 #include <string.h>
 #include <stdio.h>

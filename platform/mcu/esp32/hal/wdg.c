@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <hal/soc/wdg.h>
+#include "aos/hal/wdg.h"
 #include "soc/rtc.h"
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"

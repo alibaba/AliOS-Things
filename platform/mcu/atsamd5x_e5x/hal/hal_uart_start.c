@@ -1,5 +1,5 @@
 #include <atmel_start.h>
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 #include <string.h>
 #include <aos/errno.h>
 

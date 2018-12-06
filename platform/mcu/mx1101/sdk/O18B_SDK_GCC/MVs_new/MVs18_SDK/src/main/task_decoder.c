@@ -22,9 +22,9 @@ maintainer: Aissen
 #include "micro_adjust.h"
 #include "bt_stack_api.h"
 #include "bt_app_func.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "clk.h"
-#include "uart.h"
+#include "aos/hal/uart.h"
 #include "dev_detect_driver.h"
 
 

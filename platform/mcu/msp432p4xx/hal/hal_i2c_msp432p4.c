@@ -4,7 +4,7 @@
  
 
 #include <aos/aos.h>
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 
 #include <ti/drivers/I2C.h>
 #include <ti/drivers/i2c/I2CMSP432.h>

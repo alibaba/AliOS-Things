@@ -40,7 +40,7 @@
 #include "soc_init.h"
 #include "k_config.h"
 #include "stm32l0xx_hal.h"
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)

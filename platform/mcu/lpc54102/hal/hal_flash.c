@@ -68,7 +68,7 @@
 #include "fsl_common.h"
 #include "fsl_clock.h"
 #include "fsl_power.h"
-#include "hal/soc/flash.h"
+#include "aos/hal/flash.h"
 #include "fsl_flashiap.h"
 
 

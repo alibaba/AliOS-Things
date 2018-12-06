@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <aos/aos.h>
 #include <k_api.h>
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 
 #include "port_mcu.h"
 #include "util_buf.h"

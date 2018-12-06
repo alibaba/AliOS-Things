@@ -20,7 +20,7 @@
 /* MiCO SDK APIs */
 #include "debug.h"
 #include "common.h"
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 
 #include "mico_rtos.h"
 //#include "mico_socket.h"

@@ -4,7 +4,7 @@
 
 #include "k_api.h"
 #include "Board.h"
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include <ti/drivers/NVS.h>
 
 /* Private typedef -----------------------------------------------------------*/

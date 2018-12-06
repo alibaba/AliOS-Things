@@ -41,7 +41,7 @@ Include the USB stack header files.
 #include "hidef.h"
 #include "usb_bsp.h"
 #include "sci.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "usb_host_hub_sm.h"
 #include "diskio.h"
 #if (defined _MCF51MM256_H) || (defined _MCF51JE256_H)

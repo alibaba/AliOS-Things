@@ -17,7 +17,7 @@
 #ifndef YUNOS_SPI_CTRL_H
 #define YUNOS_SPI_CTRL_H
 
-#include <spi.h>
+#include "aos/hal/spi.h"
 #include <board.h>
 
 /**
