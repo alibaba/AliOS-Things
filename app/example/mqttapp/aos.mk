@@ -1,17 +1,11 @@
 NAME := mqttapp
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := mqtt examples
 
-$(NAME)_SOURCES := app_entry.c \
-
-$(NAME)_COMPONENTS += feature.linkkit-mqtt \
-                      network/netmgr \
-                      middleware/common \
-                      utility/cjson \
-                      kernel/cli
-
+$(NAME)_SOURCES := app_entry.c 
+$(NAME)_COMPONENTS := feature.linkkit-mqtt netmgr cjson cli
 
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 
@@ -37,4 +31,3 @@ endif
 
 GLOBAL_INCLUDES += ./
 
-HTTP2APP = 1

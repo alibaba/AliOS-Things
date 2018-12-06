@@ -1,17 +1,14 @@
 NAME := athostapp
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := An example for receiving and processing AT command sets.
 $(NAME)_SOURCES := athostapp.c
-$(NAME)_COMPONENTS := network/nal/athost \
-                      network/netmgr \
-                      kernel/cli \
-                      yloop
+$(NAME)_COMPONENTS := athost netmgr cli yloop
 
 no_atparser ?= 0
 ifneq (1,$(no_atparser))
-$(NAME)_COMPONENTS += network/nal/atparser
+$(NAME)_COMPONENTS += atparser
 endif
 
 no_mqttreport ?= 0

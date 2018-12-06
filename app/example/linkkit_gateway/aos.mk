@@ -1,16 +1,12 @@
 NAME := linkkit_gateway
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := linkkit gateway examples
 
-$(NAME)_SOURCES := app_entry.c \
+$(NAME)_SOURCES := app_entry.c 
 
-$(NAME)_COMPONENTS += network/netmgr \
-                      middleware/common \
-                      middleware/uagent/uota  \
-                      utility/cjson
-
+$(NAME)_COMPONENTS := netmgr ota cjson
 $(NAME)_COMPONENTS += feature.linkkit-gateway
 
 GLOBAL_CFLAGS += -DMQTT_DIRECT
@@ -32,7 +28,7 @@ $(NAME)_DEFINES += CONFIG_PRINT_HEAP
 endif
 
 
-ifneq ($(HOST_MCU_FAMILY),mcu_esp8266)
+ifneq ($(HOST_MCU_FAMILY),esp8266)
 $(NAME)_COMPONENTS  += cli
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 else
@@ -47,5 +43,3 @@ endif
 #end
 
 GLOBAL_INCLUDES += ./
-
-HTTP2APP = 1

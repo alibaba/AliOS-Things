@@ -6,11 +6,7 @@ $(NAME)_SUMMARY := coap cloud example
 $(NAME)_SOURCES := app_entry.c \
                    coap_example.c
 
-$(NAME)_COMPONENTS += feature.linkkit-coap \
-                      network/netmgr \
-                      middleware/common \
-                      utility/cjson \
-                      kernel/cli
+$(NAME)_COMPONENTS += feature.linkkit-coap netmgr cjson cli
 
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 
@@ -25,4 +21,3 @@ endif
 
 GLOBAL_INCLUDES += ./
 
-HTTP2APP = 1
