@@ -12,7 +12,7 @@ extern "C"
 #include <string.h>
 #include <aos/aos.h>
 #include <hal/wifi.h>
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 #include <netmgr.h>
 #include "iot_import.h"
 #include "ali_crypto.h"
