@@ -1,10 +1,10 @@
 NAME := bt_mesh
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := BLE Mesh stack.
 
-$(NAME)_COMPONENTS-y += network.bluetooth.bt.bt_common network.bluetooth.bt_mesh.port
+$(NAME)_COMPONENTS-y += bt_common bt_mesh_port
 
 $(NAME)_INCLUDES-y += ./inc/ \
                       ./inc/api/mesh

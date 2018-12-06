@@ -2,7 +2,7 @@
 NAME := breeze
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := breeze provides secure BLE connection to Alibaba IoT cloud and services.
 
 $(NAME)_SOURCES-y += core/core.c
@@ -22,7 +22,7 @@ endif
 
 btstack ?= zephyr
 ifeq (zephyr, $(btstack))
-$(NAME)_COMPONENTS-y += bluetooth.breeze.hal.ble
+$(NAME)_COMPONENTS-y += breeze_hal
 endif
 
 $(NAME)_SOURCES-y += api/breeze_export.c
