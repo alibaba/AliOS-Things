@@ -614,9 +614,11 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
         return IOTX_ERR_INVALID_PARAM;
     }
 
+#if defined(WITH_FAC_JSON_FLOW)
     COAP_INFO("Upstream Topic: '%s'", p_path);
     COAP_INFO("Upstream Payload:");
     iotx_facility_json_print((const char *)p_message->p_payload, LOG_INFO_LEVEL, '>');
+#endif
 
     /* as this function only support POST request message, type ACK and RST shall be considered error parameters */
     if (p_message->msg_type != IOTX_MESSAGE_CON && p_message->msg_type != IOTX_MESSAGE_NON) {
