@@ -23,7 +23,11 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_INCLUDES += ../../../arch/arm/armv6m/gcc/m0plus
 GLOBAL_INCLUDES += include \
                    startup \
-                   driver
+                   driver  \
+                   ../Drivers/STM32L0xx_HAL_Driver/Inc          \
+                   ../Drivers/STM32L0xx_HAL_Driver/Inc/Legacy   \
+                   ../Drivers/CMSIS/Device/ST/STM32L0xx/Include \
+                   ../Drivers/CMSIS/Include
 
 GLOBAL_CFLAGS += -mcpu=cortex-m0plus       \
                  -mthumb -mthumb-interwork \
