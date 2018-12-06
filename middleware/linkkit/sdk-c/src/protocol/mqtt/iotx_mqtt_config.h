@@ -28,7 +28,7 @@
 #endif
 
 #ifndef WITH_MQTT_DYN_CONNINFO
-    #define WITH_MQTT_DYN_CONNINFO              (0)
+    #define WITH_MQTT_DYN_CONNINFO              (1)
 #endif
 
 /* maximum republish elements in list */
