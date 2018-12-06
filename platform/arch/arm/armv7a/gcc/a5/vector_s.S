@@ -137,6 +137,9 @@ vector_reset:
     @ Enabling VFP support
     MRC     P15, 0, R0, C1, C1, 2               @ Read NSACR, Non-Secure Access Control Register
     ORR     R0, R0, #3<<10                      @ enable Non-secure access to fpu
+    #if defined(__ARM_NEON)
+    BIC     R0, R0, #3<<14                      @ clear nsasedis/nsd32dis
+    #endif
     MCR     P15, 0, R0, C1, C1, 2               @ Write NSACR
 
     MRC     P15, 0, R0, C1, C0, 2               @ Read CPACR, Non-Secure Access Control Register
