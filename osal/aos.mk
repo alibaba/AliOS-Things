@@ -1,7 +1,7 @@
 NAME := osal
 
 $(NAME)_MBINS_TYPE := share
-$(NAME)_VERSION    := 0.0.1.0
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := os interface adaptation layer
 
 GLOBAL_INCLUDES += ./aos
