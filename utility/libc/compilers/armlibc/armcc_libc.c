@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include "k_config.h"
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 
 volatile int errno = 0;
 extern uart_dev_t uart_0;
