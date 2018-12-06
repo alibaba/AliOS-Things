@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <hal/base.h>
+#include "aos/hal/base.h"
 
 #include "sensor.h"
 #include "sensor_hal.h"
