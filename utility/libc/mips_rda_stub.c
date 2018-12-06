@@ -8,7 +8,7 @@
 #include <sys/time.h>
 #include <k_api.h>
 #include <aos/aos.h>
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 
 
 #if (RHINO_CONFIG_MM_TLF > 0)
