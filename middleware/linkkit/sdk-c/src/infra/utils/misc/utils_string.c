@@ -129,6 +129,12 @@ int LITE_get_randstr(_OU_ char *random, _IN_ int length)
     return SUCCESS_RETURN;
 }
 
+int8_t utils_hb2hex(uint8_t hb)
+{
+    hb = hb & 0xF;
+    return (int8_t)(hb < 10 ? '0' + hb : hb - 10 + 'a');
+}
+
 #if WITH_STRING_UTILS_EXT
 char *LITE_format_string(const char *fmt, ...)
 {

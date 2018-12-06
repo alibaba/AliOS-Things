@@ -1722,7 +1722,7 @@ int dm_msg_thing_topo_add(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char d
                  device_name, product_key, timestamp);
 
     /* dm_log_debug("Sign Srouce: %s", sign_source); */
-
+#if 0
     if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACMD5) == 0) {
         utils_hmac_md5(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
     } else if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACSHA1) == 0) {
@@ -1733,6 +1733,9 @@ int dm_msg_thing_topo_add(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char d
         DM_free(sign_source);
         return FAIL_RETURN;
     }
+#else
+    utils_hmac_sha1(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
+#endif
     DM_free(sign_source);
     /* dm_log_debug("Sign : %s", sign); */
 
@@ -1889,7 +1892,7 @@ int dm_msg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char de
                  device_name, product_key, timestamp);
 
     /* dm_log_debug("Sign Srouce: %s", sign_source); */
-
+#if 0
     if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACMD5) == 0) {
         utils_hmac_md5(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
     } else if (strcmp(sign_method, DM_MSG_SIGN_METHOD_HMACSHA1) == 0) {
@@ -1900,6 +1903,9 @@ int dm_msg_combine_login(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char de
         DM_free(sign_source);
         return FAIL_RETURN;
     }
+#else
+    utils_hmac_sha1(sign_source, strlen(sign_source), sign, device_secret, strlen(device_secret));
+#endif
     DM_free(sign_source);
     /* dm_log_debug("Sign : %s", sign); */
 

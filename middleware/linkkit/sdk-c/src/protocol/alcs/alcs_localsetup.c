@@ -6,6 +6,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
+#include "alcs_api_internal.h"
 #include "json_parser.h"
 #include "iotx_utils.h"
 #include "CoAPExport.h"
@@ -78,7 +79,7 @@ static localsetup_status __fill_key(const char *pk, uint16_t pk_len,
     HAL_Snprintf(key_source, sizeof(key_source), "%.*s%.*s.l", pk_len, pk, dn_len, dn);
 
     utils_md5((const unsigned char *)key_source, strlen(key_source), key_md5);
-    utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
+    alcs_utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
     return ALCS_LOCALSETUP_SUCCESS;
 }
 
