@@ -53,7 +53,7 @@
 */
 
 #include <aos/aos.h>
-#include <hal/base.h>
+#include "aos/hal/base.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
