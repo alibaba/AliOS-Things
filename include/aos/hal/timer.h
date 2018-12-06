@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #define TIMER_RELOAD_AUTO  1 /* timer reload automatic */
 #define TIMER_RELOAD_MANU  2 /* timer reload manual */
 

@@ -8,6 +8,7 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
 #include "usb_device.h"
 
 /* Endpoint transfer status, for endpoints > 0 */

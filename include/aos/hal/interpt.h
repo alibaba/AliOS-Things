@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 typedef void (*hal_interpt_t)(int32_t vec, void *para);
 
 typedef struct {

@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 typedef enum {
     SD_STAT_RESET,
     SD_STAT_READY,
