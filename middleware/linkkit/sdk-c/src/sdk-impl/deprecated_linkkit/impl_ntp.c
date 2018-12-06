@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
 #ifdef DEPRECATED_LINKKIT
 
 #include <stdio.h>
@@ -177,4 +176,4 @@ NTP_REQ_ERR:
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
 #endif
-#endif  /* #ifdef DEPRECATED_LINKKIT */
+#endif

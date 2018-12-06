@@ -7,8 +7,8 @@
 #ifndef IOTX_MQTT_CONFIG_H__
 #define IOTX_MQTT_CONFIG_H__
 
-#ifndef WITH_MQTT_JSON_FLOW
-    #define WITH_MQTT_JSON_FLOW                 (0)
+#ifndef WITH_FAC_JSON_FLOW
+    #define WITH_FAC_JSON_FLOW                 (0)
 #endif
 
 #ifndef WITH_MQTT_DYN_BUF

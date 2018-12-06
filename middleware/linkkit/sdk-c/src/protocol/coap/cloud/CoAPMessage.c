@@ -341,10 +341,11 @@ static int Cloud_CoAPRespMessage_handle(Cloud_CoAPContext *context, Cloud_CoAPMe
         if (0 != node->tokenlen && node->tokenlen == message->header.tokenlen
             && 0 == memcmp(node->token, message->token, message->header.tokenlen)) {
 
+#if defined(WITH_FAC_JSON_FLOW)
             COAP_DEBUG("Find the node by token");
             COAP_INFO("Downstream Payload:");
             iotx_facility_json_print((const char *)message->payload, LOG_INFO_LEVEL, '<');
-
+#endif
             message->user  = node->user;
             if (COAP_MSG_CODE_400_BAD_REQUEST <= message->header.code) {
                 /* TODO:i */

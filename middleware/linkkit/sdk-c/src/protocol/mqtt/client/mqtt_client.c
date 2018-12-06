@@ -8,8 +8,6 @@
 #include "iot_export.h"
 #include "iotx_system.h"
 #include "iotx_utils.h"
-#include "utils_hmac.h"
-#include "string_utils.h"
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "iotx_mqtt_internal.h"
@@ -509,14 +507,14 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
         return MQTT_NETWORK_ERROR;
     }
 
-#if WITH_MQTT_JSON_FLOW
+#if WITH_FAC_JSON_FLOW
     const char     *json_payload = (const char *)topic_msg->payload;
 
     mqtt_info("Upstream Topic: '%s'", topicName);
     mqtt_info("Upstream Payload:");
     iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '>');
 
-#endif  /* #if WITH_MQTT_JSON_FLOW */
+#endif  /* #if WITH_FAC_JSON_FLOW */
     _reset_send_buffer(c);
     HAL_MutexUnlock(c->lock_write_buf);
     HAL_MutexUnlock(c->lock_list_pub);
@@ -1611,14 +1609,14 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     topic_msg.qos = (unsigned char)qos;
     topic_msg.payload_len = payload_len;
 
-#if WITH_MQTT_JSON_FLOW
+#if WITH_FAC_JSON_FLOW
 
     const char     *json_payload = (const char *)topic_msg.payload;
     mqtt_info("Downstream Topic: '%.*s'", topicName.lenstring.len, topicName.lenstring.data);
     mqtt_info("Downstream Payload:");
     iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '<');
 
-#endif  /* #if WITH_MQTT_JSON_FLOW */
+#endif  /* #if WITH_FAC_JSON_FLOW */
 
     mqtt_debug("%20s : %08d", "Packet Ident", topic_msg.packet_id);
     mqtt_debug("%20s : %d", "Topic Length", topicName.lenstring.len);
@@ -3065,7 +3063,6 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
     iotx_mc_client_t   *pclient;
     iotx_mqtt_param_t *mqtt_params = NULL;
     iotx_conn_info_t *conn_info = NULL;
-    void *callback = NULL;
 
     if (pInitParams != NULL) {
         if (g_mqtt_client != NULL) {
@@ -3191,11 +3188,14 @@ void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams)
 #endif
     g_mqtt_client = pclient;
 
+#if defined(DEVICE_MODEL_ENABLED) && !(DEPRECATED_LINKKIT)
+    void *callback = NULL;
     /* MQTT Connected Callback */
     callback = iotx_event_callback(ITE_MQTT_CONNECT_SUCC);
     if (callback) {
         ((int (*)(void))callback)();
     }
+#endif
 
     return pclient;
 }
