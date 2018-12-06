@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <aos/aos.h>
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 #include <atparser.h>
 #include <sal_import.h>
 

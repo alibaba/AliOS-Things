@@ -27,7 +27,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include <stdint.h>
 #include <math.h>
 
-//#include "timer.h"
+//#include "aos/hal/timer.h"
 #include "timeServer.h"
 #include "utilities.h"
 #include "LoRaMac.h"
