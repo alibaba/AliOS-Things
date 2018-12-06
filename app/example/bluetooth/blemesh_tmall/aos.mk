@@ -6,9 +6,6 @@ $(NAME)_SUMMARY := Sample code to demenstrate how to join AliGenie BLE Mesh netw
 
 $(NAME)_SOURCES-y   := main.c
 
-$(NAME)_INCLUDES    := ../../../network/bluetooth/bt_mesh_profile \
-                       ../../../../kernel/rhino/hal
-
 ble = 1
 bt_mesh = 1
 
