@@ -20,6 +20,7 @@
  *      https://gmplib.org/manual/index.html
  *
  */
+#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -2433,3 +2434,4 @@ cleanup:
 #endif /* MBEDTLS_SELF_TEST */
 
 #endif /* MBEDTLS_BIGNUM_C */
+#endif

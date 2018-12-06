@@ -3,6 +3,7 @@
         depends on MQTT_COMM_ENABLED
         default y
         select UTILS_JSON_PARSER
+        select SUPPORT_TLS
 
         help
             Enable customers to bind device to current user
