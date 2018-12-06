@@ -55,6 +55,16 @@ int32_t hal_timer_start(timer_dev_t *tim);
 void hal_timer_stop(timer_dev_t *tim);
 
 /**
+ * change the config of a hardware timer
+ *
+ * @param[in]  tim   timer device
+ * @param[in]  para  timer config
+ *
+ * @return  0 : on success, EIO : if an error occurred with any step
+ */
+int32_t hal_timer_para_chg(timer_dev_t *tim, timer_config_t para);
+
+/**
  * De-initialises an TIMER interface, Turns off an TIMER hardware interface
  *
  * @param[in]  tim  timer device
