@@ -200,7 +200,11 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
                          ;
     /* fault_context_t map to s_panic_ctx */
 #ifdef FPU_AVL
+#ifdef __ARM_NEON
+    char aMap[] = {66,65,0,51,52,53,54,55,56,57,58,59,60,61,62,63,64};
+#else
     char aMap[] = {50,49,0,35,36,37,38,39,40,41,42,43,44,45,46,47,48};
+#endif
 #else
     char aMap[] = {16,15,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14};
 #endif

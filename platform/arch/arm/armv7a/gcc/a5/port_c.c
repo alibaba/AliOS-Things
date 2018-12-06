@@ -35,14 +35,20 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
     ctx->LR     = (long)krhino_task_deathbed;
     ctx->PC     = (long)entry & ~1u;
 
-#if (FPU_AVL > 0)
+#ifdef FPU_AVL
     uint32_t i;
 
     ctx->FPSCR = 0;                     /* Initialize Floating point status & control register  */
+    ctx->FPEXC = 0x40000000;            /* Initialize Floating-Point Exception Register (Enable)*/
+#ifdef __ARM_NEON
+    for (i = 0u; i < 64; i++) {         /* Initialize general-purpose Floating point registers  */
+        ctx->FPU[i] = 0;
+    }
+#else
     for (i = 0u; i < 32; i++) {         /* Initialize general-purpose Floating point registers  */
         ctx->FPU[i] = 0;
     }
-    ctx->FPEXC = 0x40000000;            /* Initialize Floating-Point Exception Register (Enable)*/
+#endif
 #endif
 
     return (void *)ctx;

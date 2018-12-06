@@ -303,9 +303,14 @@ RHINO_INLINE void os_set_CONTEXTIDR(uint32_t reg)
 typedef struct {
 #ifdef FPU_AVL
 	long FPEXC;
+    long FPSCR;
+#ifdef __ARM_NEON
+	/* The Cortex-A5 FPU is a SIMD v2 + VFPv4-D32 implementation of the ARMv7 floating-point architecture */
+    long FPU[64];
+#else
 	/* The Cortex-A5 FPU is a VFPv4-D16 implementation of the ARMv7 floating-point architecture */
     long FPU[32];
-    long FPSCR;
+#endif
 #endif
     long CPSR;
     long R0;
