@@ -18,7 +18,7 @@
 
 #include "iot_import.h"
 #include "aos/uData.h"
-#include "hal/soc/gpio.h"
+#include "aos/hal/gpio.h"
 
 
 #ifdef GW_LINKEDGE_WS

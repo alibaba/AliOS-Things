@@ -17,7 +17,7 @@
 
 #include "umesh.h"
 #include "umesh_hal.h"
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 
 #ifdef MESHAPP_LIGHT_ENABLED
 static gpio_dev_t gpio_led;
