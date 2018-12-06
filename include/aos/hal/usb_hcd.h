@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 /**
  * @brief Initialize The USB Host Controller
  *

@@ -6,7 +6,7 @@
 #define HAL_WIFI_H
 
 #include <stdint.h>
-#include <hal/base.h>
+#include "aos/hal/base.h"
 #ifdef STM32L475xx
 #include "stm32_wifi.h"
 #endif

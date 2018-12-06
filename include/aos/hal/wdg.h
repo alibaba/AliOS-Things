@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 typedef struct {
     uint32_t timeout; /* Watchdag timeout */
 } wdg_config_t;

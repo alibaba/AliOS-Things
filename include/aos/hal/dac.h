@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 typedef struct {
     uint8_t port;   /* dac port */
     void   *priv;   /* priv data */

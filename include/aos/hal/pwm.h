@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 typedef struct {
     float    duty_cycle; /* the pwm duty_cycle */
     uint32_t freq;       /* the pwm freq */
