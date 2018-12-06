@@ -73,7 +73,7 @@ $(NAME)_SOURCES += aos/aos.c                                    \
 
 ifeq ($(SAL),1)
 $(NAME)_SOURCES += hal/wifi_port.c
-GLOBAL_INCLUDES += ../../../network/sal/wifi/esp8266
+GLOBAL_INCLUDES += ../../../network/nal/hal/wifi/esp8266
 endif
 
 ifeq ($(LWIP),1)
