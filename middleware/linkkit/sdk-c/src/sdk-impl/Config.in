@@ -13,3 +13,4 @@ config DYNAMIC_REGISTER
     default y
     select UTILS_LITE_CJSON
     select UTILS_HTTPC
+    select UTILS_SHA256

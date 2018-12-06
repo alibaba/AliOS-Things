@@ -6,7 +6,7 @@ config COAP_COMM_ENABLED
     select UTILS_JSON_PARSER
     select UTILS_HTTPC
     select WITH_FAC_JSON_FLOW
-
+    select UTILS_SHA256
     help
         Establish non-persistent connection with AliCloud via CoAP-based protocol
 

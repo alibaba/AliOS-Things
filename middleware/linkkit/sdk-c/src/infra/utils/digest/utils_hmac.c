@@ -210,5 +210,4 @@ void utils_hmac_sha1_hex(const char *msg, int msg_len, char *digest, const char 
     utils_sha1_finish(&context, out);                       /* finish up 2nd pass */
     memcpy(digest, out, SHA1_DIGEST_SIZE);
 }
-
 #endif  /* #ifdef UTILS_SHA1 */
