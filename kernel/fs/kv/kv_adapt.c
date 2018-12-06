@@ -7,7 +7,7 @@
 #include "kv_conf.h"
 #include "kv_adapt.h"
 
-#include "hal/soc/flash.h"
+#include "aos/hal/flash.h"
 
 int32_t kv_flash_read(uint32_t offset, void *buf, uint32_t nbytes)
 {

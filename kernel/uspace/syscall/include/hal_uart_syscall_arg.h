@@ -5,7 +5,7 @@
 #ifndef HAL_UART_SYSCALL_ARG_H
 #define HAL_UART_SYSCALL_ARG_H
 
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 
 typedef struct {
     uart_dev_t *uart;

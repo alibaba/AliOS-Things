@@ -4,7 +4,7 @@
 
 #include "k_api.h"
 
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 
 #include "cli_conf.h"
 #include "cli_adapt.h"
