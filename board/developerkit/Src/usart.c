@@ -39,8 +39,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
-
-#include "gpio.h"
+#include "stm32l4xx_hal.h"
+#include "aos/hal/gpio.h"
 #include "dma.h"
 
 /* USER CODE BEGIN 0 */
