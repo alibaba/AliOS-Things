@@ -8,10 +8,10 @@
 #define HAL_SENSOR_H
 
 #include <stdint.h>
-#include <hal/base.h>
-#include "hal/soc/soc.h"
-#include "hal/soc/gpio.h"
-#include "hal/soc/i2c.h"
+#include "aos/hal/base.h"
+#include "aos/hal/soc.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/i2c.h"
 
 #if defined ( __CC_ARM )//KEIL
 #ifndef UNUSED
