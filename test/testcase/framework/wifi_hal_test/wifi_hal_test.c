@@ -8,11 +8,11 @@
 #include <aos/aos.h>
 #include <aos/kernel.h>
 
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 
 #include <yunit.h>
 #include <yts.h>
-#include <hal/base.h>
+#include "aos/hal/base.h"
 #include <hal/wifi.h>
 
 
