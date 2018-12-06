@@ -20,6 +20,7 @@ config ALCS_ENABLED
     select AOS_COMP_LIBIOT_COAP_LOCAL
     select UTILS_BASE64
     select UTILS_SHA1
+    select UTILS_MD5
     help
         ALCS(Alibaba Local Communication Service) enable customers communicate with IoT devices from cellphone without Internet
     # FEATURE_ALCS_CLIENT_ENABLED
