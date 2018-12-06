@@ -21,5 +21,5 @@ for i in global_macros:
     component.add_global_macros(i)
 
 if at_adapter == 1:
-    component.add_comp_deps('network/sal')
+    component.add_comp_deps('network/nal')
     src.add_sources('esp8266.c')
