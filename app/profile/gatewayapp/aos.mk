@@ -1,7 +1,7 @@
 NAME := gatewayapp
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := gatewayapp
 
 
@@ -26,7 +26,7 @@ GLOBAL_DEFINES      +=  MQTT_DIRECT  ALIOT_DEBUG IOTX_DEBUG USE_LPTHREAD COAP_WI
 
 $(NAME)_SOURCES     := gateway.c gateway_app.c gateway_tsl.c
 
-$(NAME)_COMPONENTS := feature.linkkit-noawss drivers/sensor utility/cjson network/netmgr middleware/udata kernel.bus.mbmaster
+$(NAME)_COMPONENTS := feature.linkkit-noawss sensor cjson netmgr udata mbmaster
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
@@ -55,7 +55,7 @@ else
 
 $(NAME)_SOURCES := gateway.c
 
-$(NAME)_COMPONENTS := network/netmgr middleware/udata drivers/sensor kernel.bus.mbmaster utility/cjson
+$(NAME)_COMPONENTS := netmgr udata sensor mbmaster cjson
 
 GLOBAL_INCLUDES += .
 
