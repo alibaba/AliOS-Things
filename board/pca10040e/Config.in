@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_PCA10040E
+    bool "board_pca10040e"
+    select AOS_MCU_NRF52810
+    help
+
+if AOS_BOARD_PCA10040E
+# Configurations for board board_pca10040e
+endif
