@@ -15,13 +15,16 @@ for iter in ${ALL_SUB_DIRS}; do
     [ "${ITER_OBJS}" != "" ] || continue
     ${STRIP} ${ITER_OBJS} 2>/dev/null
 
+    ITER_SIZE=$(size ${ITER_OBJS} | ${SED} '1d' | awk '{ sum += $1 } END { print sum }')
+
+    [ "${ITER_SIZE}" != "0" ] && \
     printf "    |-%-.5s-|-%-.35s-|-%.14s-|-%.26s-|\n" \
         "-----------------------------------------" \
         "-----------------------------------------" \
         "-----------------------------------------" \
         "-----------------------------------------"
 
-    ITER_SIZE=$(size ${ITER_OBJS} | ${SED} '1d' | awk '{ sum += $1 } END { print sum }')
+
     for j in ${ITER_OBJS}; do
         size $j | ${SED} '1d' \
             | awk -v sum="${ITER_SIZE}" \
