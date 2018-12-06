@@ -6,7 +6,7 @@
 #include "ff.h"
 
 #ifdef CONFIG_AOS_FATFS_SUPPORT_MMC
-#include <hal/soc/sd.h>
+#include "aos/hal/sd.h"
 
 static sd_dev_t sdmmc;
 static DSTATUS  SDMMC_initialize()
