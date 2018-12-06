@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 #include "k_config.h"
 
 uart_dev_t uart_0;

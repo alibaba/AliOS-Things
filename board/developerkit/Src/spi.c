@@ -38,9 +38,9 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "spi.h"
-
-#include "gpio.h"
+#include "aos/hal/spi.h"
+#include "stm32l4xx_hal.h"
+#include "aos/hal/gpio.h"
 
 /* USER CODE BEGIN 0 */
 

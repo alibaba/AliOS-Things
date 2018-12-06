@@ -39,10 +39,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include "i2c.h"
+#include "aos/hal/i2c.h"
 #include "usart.h"
 #include "usb_otg.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 
 /* USER CODE BEGIN Includes */
 

@@ -40,7 +40,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
 
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 
 /* USER CODE BEGIN 0 */
 

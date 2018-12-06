@@ -44,7 +44,7 @@
 #include "eth.h"
 #include "usart.h"
 #include "usb_otg.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 
 /* USER CODE BEGIN Includes */
 

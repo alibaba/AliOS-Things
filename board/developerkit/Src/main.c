@@ -39,19 +39,19 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32l4xx_hal.h"
-#include "adc.h"
+#include "aos/hal/adc.h"
 #include "crc.h"
 #include "dcmi.h"
 #include "dma.h"
-#include "i2c.h"
+#include "aos/hal/i2c.h"
 #include "irtim.h"
 #include "usart.h"
 #include "sai.h"
 #include "sdmmc.h"
-#include "spi.h"
+#include "aos/hal/spi.h"
 #include "tim.h"
 #include "usb_otg.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 
 /* USER CODE BEGIN Includes */
 

@@ -5,7 +5,7 @@
 #include <k_config.h>
 #if (RHINO_CONFIG_MODBUS > 0)
 #include <mbmaster_api.h>
-#include <hal/soc/uart.h>
+#include "aos/hal/uart.h"
 #include "stm32f4xx_hal.h"
 
 static uart_dev_t  uart_mb;

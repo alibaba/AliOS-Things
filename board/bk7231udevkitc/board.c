@@ -21,7 +21,7 @@ const hal_logic_partition_t hal_partitions[] =
 	{
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "Application",
-	    .partition_start_addr       = 0x11000,//phy is 0x11000
+	    .partition_start_addr       = 0x00000,//phy is 0x11000
         .partition_length           = 0xAF000, //700k bytes
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
 	},
@@ -53,7 +53,7 @@ const hal_logic_partition_t hal_partitions[] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER3",
-        .partition_start_addr       = 0x1B2000,
+        .partition_start_addr       = 0x1FF000,
         .partition_length           = 0x1000, // 4k bytes
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
@@ -61,7 +61,7 @@ const hal_logic_partition_t hal_partitions[] =
     {
         .partition_owner            = HAL_FLASH_EMBEDDED,
         .partition_description      = "PARAMETER4",
-        .partition_start_addr       = 0x1B3000,
+        .partition_start_addr       = 0x1B2000,
         .partition_length           = 0x1000, // 4k bytes
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
@@ -69,14 +69,14 @@ const hal_logic_partition_t hal_partitions[] =
 	{
 	    .partition_owner            = HAL_FLASH_EMBEDDED,
 	    .partition_description      = "RF parameter",
-	    .partition_start_addr       = 0x1B4000,// rf parameter is 0x1A2000
+	    .partition_start_addr       = 0x1FE000,// rf parameter is 0x1A2000
         .partition_length           = 0x1000,  // 4k bytes
 	    .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
 	},
 };
 
 
-#define KEY_BOOT   15
+#define KEY_BOOT   17
 #define KEY_PS     14
 static uint64_t   elink_time = 0;
 static uint64_t   ps_time = 0;
