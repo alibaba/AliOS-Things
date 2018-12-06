@@ -1,7 +1,7 @@
 NAME := posix
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := posix for alios things
 
 $(NAME)_SOURCES := pthread.c

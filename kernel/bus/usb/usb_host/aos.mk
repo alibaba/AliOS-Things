@@ -1,7 +1,7 @@
 NAME := usb_host
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := USB Host Stack
 
 $(NAME)_SOURCES += core/src/usb_host_core.c \

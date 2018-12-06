@@ -1,7 +1,7 @@
 NAME := uspace
 
 $(NAME)_MBINS_TYPE := share
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := syscall uprocess utask utimer IPC
 
 ifeq ($(COMPILER),)
