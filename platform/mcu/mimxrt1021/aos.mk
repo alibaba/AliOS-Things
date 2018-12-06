@@ -14,7 +14,6 @@ GLOBAL_CFLAGS += -DA_LITTLE_ENDIAN
 GLOBAL_CFLAGS += -DCPU_MIMXRT1021DAG5A
 
 ifeq ($(COMPILER),iar)
-GLOBAL_INCLUDES += ../../arch/arm/armv7m/iccarm/m7/
 GLOBAL_CFLAGS   += --cpu=Cortex-M7.fp.dp \
                    --cpu_mode=thumb      \
                    --endian=little

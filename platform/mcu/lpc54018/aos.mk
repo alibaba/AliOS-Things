@@ -13,7 +13,6 @@ GLOBAL_CFLAGS  += -DCPU_LPC54018JET180
 GLOBAL_DEFINES += CONFIG_AOS_CLI_STACK_SIZE=8192
 
 ifeq ($(COMPILER),iar)
-GLOBAL_INCLUDES += ../../arch/arm/armv7m/iccarm/m4/
 GLOBAL_CFLAGS   += --cpu=Cortex-M4  \
                    --cpu_mode=thumb \
                    --endian=little
@@ -29,7 +28,6 @@ GLOBAL_ASMFLAGS += -D__STARTUP_CLEAR_BSS
 
 GLOBAL_ASMFLAGS += -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
-GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4/
 GLOBAL_LDFLAGS  += -Lplatform/mcu/lpc54018/gcc/
 GLOBAL_LDFLAGS  += -lpower_hardabi
 GLOBAL_LDFLAGS  += --specs=nano.specs --specs=nosys.specs
@@ -43,6 +41,10 @@ $(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uni
 $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-variable
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 endif
+
+GLOBAL_INCLUDES += ./ \
+                   CMSIS/Include \
+                   drivers
 
 $(NAME)_SOURCES :=
 

@@ -20,6 +20,7 @@ GLOBAL_DEFINES += RDA5991H_HW_VER=4
 GLOBAL_DEFINES  += RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4 \
                    ../../../network/lwip/include
+
 GLOBAL_INCLUDES += include         \
                    startup         \
                    driver          \

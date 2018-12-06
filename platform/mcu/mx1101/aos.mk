@@ -19,8 +19,6 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 
-GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4
-
 GLOBAL_CFLAGS += -mcpu=cortex-m3           \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian
