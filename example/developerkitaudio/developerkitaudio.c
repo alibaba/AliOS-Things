@@ -8,12 +8,25 @@
 #include "isd9160.h"
 
 #define VERSION_REC_PB          "v1.01"
+#define VERSION_REC_PB_FIX_BUG  "v1.02"
 #define VERSION_VR              "v2.01"
 #define AUDIO_FILE_SDCARD       "audio.data"
 #define FIRMWARE_FILE_SDCARD    "isd9160_fw.bin"
 
 #define VRCMD_WAKEUP_LED        GPIO_ALS_LED
 #define VRCMD_INDICATOR_LED     GPIO_GS_LED
+
+#define RECORD_LED              GPIO_ALS_LED
+#define PLAYBACK_LED            GPIO_GS_LED
+#define UPGRADE_LED             GPIO_COMPASS_LED
+
+typedef enum {
+    INDICATE_START,
+    INDICATE_SUCCESS,
+    INDICATE_FAILED,
+
+    INDICATE_END
+} INDICATE_ENUM;
 
 typedef struct {
     int last_time;
@@ -41,6 +54,31 @@ static const char *g_vrcmd_list[] = {
     "Turn off light",
 };
 
+static void blink_led(BOARD_GPIO led, INDICATE_ENUM indicate)
+{
+    switch (indicate) {
+        case INDICATE_START:
+            hal_gpio_output_low(&brd_gpio_table[led]);
+            break;
+        case INDICATE_SUCCESS:
+            hal_gpio_output_high(&brd_gpio_table[led]);
+            aos_msleep(200);
+            hal_gpio_output_low(&brd_gpio_table[led]);
+            aos_msleep(200);
+            hal_gpio_output_high(&brd_gpio_table[led]);
+            aos_msleep(200);
+            hal_gpio_output_low(&brd_gpio_table[led]);
+            aos_msleep(200);
+            hal_gpio_output_high(&brd_gpio_table[led]);
+            break;
+        case INDICATE_FAILED:
+            hal_gpio_output_high(&brd_gpio_table[led]);
+            break;
+        default:
+            printf("blink_led parameters is invalid.\n");
+    }
+}
+
 static void isd9160_loop(void *arg)
 {
     int ret = 0;
@@ -48,19 +86,37 @@ static void isd9160_loop(void *arg)
     isd9160_loop_once();
     if (key_flag == 1) {
         stop_flag = 0;
+        blink_led(RECORD_LED, INDICATE_START);
         printf("handle_record begin, press the same key again to stop it\n");
         ret = handle_record(AUDIO_FILE_SDCARD, &stop_flag);
         printf("handle_record return %d\n", ret);
+        if (ret == 0) {
+            blink_led(RECORD_LED, INDICATE_SUCCESS);
+        } else {
+            blink_led(RECORD_LED, INDICATE_FAILED);
+        }
         key_flag = 0;
     } else if (key_flag == 2) {
+        blink_led(PLAYBACK_LED, INDICATE_START);
         printf("handle_playback begin\n");
         ret = handle_playback(AUDIO_FILE_SDCARD);
         printf("handle_playback return %d\n", ret);
+        if (ret == 0) {
+            blink_led(PLAYBACK_LED, INDICATE_SUCCESS);
+        } else {
+            blink_led(PLAYBACK_LED, INDICATE_FAILED);
+        }
         key_flag = 0;
     } else if (key_flag == 3) {
+        blink_led(UPGRADE_LED, INDICATE_START);
         printf("handle_upgrade begin\n");
         ret = handle_upgrade(FIRMWARE_FILE_SDCARD);
         printf("handle_upgrade return %d\n", ret);
+        if (ret == 0) {
+            blink_led(UPGRADE_LED, INDICATE_SUCCESS);
+        } else {
+            blink_led(UPGRADE_LED, INDICATE_FAILED);
+        }
         key_flag = 0;
     }
     aos_post_delayed_action(1000, isd9160_loop, NULL);
@@ -147,7 +203,7 @@ void isd9160_bootup(const char *sw_ver)
 {
     int ret = 0;
 
-    if (!strcmp(sw_ver, VERSION_REC_PB)) {
+    if (!strcmp(sw_ver, VERSION_REC_PB) || !strcmp(sw_ver, VERSION_REC_PB_FIX_BUG)) {
         ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_1],
                                 IRQ_TRIGGER_RISING_EDGE, key1_handle, NULL);
         ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_2],
