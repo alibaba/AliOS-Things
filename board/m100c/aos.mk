@@ -33,20 +33,6 @@ GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/board/m100c
 
 GLOBAL_INCLUDES += .
 
-ifeq ($(lorawanback), 0)
-GLOBAL_INCLUDES += ../../network/lorawan/lorawan_4_4_2/lorachip/sx1276 \
-                   ../../network/lorawan/lorawan_4_4_2/lora/system     \
-                   ../../network/lorawan/lorawan_4_4_2/lora/mac        \
-                   ../../network/lorawan/lorawan_4_4_2/lora/radio      \
-                   ../../network/lorawan/lorawan_4_4_2/linkwan/include
-else ifeq ($(lorawanback), 1)
-GLOBAL_INCLUDES += ../../network/lorawan/lorawan_4_4_0/lorachip/sx1276 \
-                   ../../network/lorawan/lorawan_4_4_0/lora/system     \
-                   ../../network/lorawan/lorawan_4_4_0/lora/mac        \
-                   ../../network/lorawan/lorawan_4_4_0/lora/radio      \
-                   ../../network/lorawan/lorawan_4_4_0/linkwan/include
-endif
-
 $(NAME)_SOURCES := board.c
 $(NAME)_SOURCES += hw.c
 $(NAME)_SOURCES += debug.c
