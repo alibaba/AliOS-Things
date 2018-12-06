@@ -26,3 +26,8 @@ config UTILS_BASE64
 config UTILS_STRING
     bool
     default y
+
+config UTILS_MD5
+    bool
+    default y
+

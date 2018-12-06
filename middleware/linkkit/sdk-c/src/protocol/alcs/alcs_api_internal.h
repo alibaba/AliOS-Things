@@ -172,5 +172,6 @@ int alcs_resource_register_secure (CoAPContext *context, const char* pk, const c
             unsigned int ctype, unsigned int maxage, CoAPRecvMsgHandler callback);
 void alcs_resource_cb_deinit(void);
 void alcs_auth_list_deinit(void);
+void alcs_utils_md5_hexstr(unsigned char input[16], unsigned char output[32]);
 
 #endif

@@ -13,6 +13,7 @@
 
 int LITE_get_randstr(_OU_ char *random, _IN_ int length);
 
+int8_t utils_hb2hex(uint8_t hb);
 
 #endif  /* __COMMON_UTILS_H__ */
 
