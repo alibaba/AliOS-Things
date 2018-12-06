@@ -13,7 +13,7 @@
 #include <bluetooth/bluetooth.h>
 #include <tinycrypt/sha256.h>
 #include <tinycrypt/constants.h>
-#include <soc/gpio.h>
+#include <aos/hal/gpio.h>
 
 #include "bt_mesh_profile.h"
 #include "bt_mesh_profile_config.h"

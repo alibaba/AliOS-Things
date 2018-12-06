@@ -5,7 +5,7 @@
 #ifndef _SAL_CONFIG_MODULE
 #define _SAL_CONFIG_MODULE
 
-#include <hal/soc/uart.h>
+#include "aos/hal/uart.h"
 #include "drv_usart.h"
 #include <csi_kernel.h>
 #include "ringbuffer.h"
