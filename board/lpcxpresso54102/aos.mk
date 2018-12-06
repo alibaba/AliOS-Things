@@ -26,14 +26,6 @@ endif
 GLOBAL_LDFLAGS +=
 
 GLOBAL_INCLUDES += .
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/CMSIS/Include
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/drivers
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/mcuxpresso
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/utilities
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/utilities/str
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/utilities/log
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54102/utilities/io
 
 $(NAME)_SOURCES :=
 $(NAME)_SOURCES += ./board.c

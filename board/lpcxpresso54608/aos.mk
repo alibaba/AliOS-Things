@@ -19,14 +19,6 @@ GLOBAL_CFLAGS                += -D__NEWLIB__
 GLOBAL_LDFLAGS +=
 
 GLOBAL_INCLUDES += .
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54608/
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54608/CMSIS/Include
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54608/drivers
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54608/gcc
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54608/utilities
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54608/utilities/str
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54608/utilities/log
-GLOBAL_INCLUDES += ../../platform/mcu/lpc54608/utilities/io
 
 $(NAME)_SOURCES :=
 $(NAME)_SOURCES += ./board.c

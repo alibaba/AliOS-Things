@@ -16,13 +16,8 @@ GLOBAL_CFLAGS                += -DSYSINFO_ARCH=\"$(HOST_ARCH)\"
 GLOBAL_CFLAGS                += -DSYSINFO_MCU=\"$(HOST_MCU_FAMILY)\"
 GLOBAL_CFLAGS                += -DCONFIG_NO_TCPIP
 GLOBAL_CFLAGS                += -DFRDM_KL28Z -DFREEDOM
-GLOBAL_LDFLAGS               +=
 
 GLOBAL_INCLUDES += .
-GLOBAL_INCLUDES += ../../platform/mcu/mkl28z7/
-GLOBAL_INCLUDES += ../../platform/mcu/mkl28z7/CMSIS/Include
-GLOBAL_INCLUDES += ../../platform/mcu/mkl28z7/drivers
-
 
 $(NAME)_SOURCES :=
 $(NAME)_SOURCES += ./board.c
