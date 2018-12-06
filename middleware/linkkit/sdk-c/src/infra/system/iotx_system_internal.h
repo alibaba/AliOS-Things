@@ -34,7 +34,7 @@
 #define GUIDER_DEVCODE_LEN          (256)
 #define GUIDER_URLENCODE_LEN        (256)
 
-#define SHA_METHOD              "hmacsha1"
+#define SHA_METHOD              "hmacsha256"        /* use hmacSha256 default */
 #define MD5_METHOD              "hmacmd5"
 
 #define sys_emerg(...)          log_emerg("sys", __VA_ARGS__)

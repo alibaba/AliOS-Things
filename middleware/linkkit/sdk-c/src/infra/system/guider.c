@@ -125,12 +125,13 @@ int iotx_guider_set_custom_domain(int domain_type, const char *domain)
     return SUCCESS_RETURN;
 }
 
+/* sign used hmacSha256 default */ 
 static int _calc_hmac_signature(
             char *hmac_sigbuf,
             const int hmac_buflen,
             const char *timestamp_str)
 {
-    char                    signature[64];
+    char                    signature[65];
     char                    hmac_source[512];
     int                     rc = -1;
     iotx_device_info_t     dev;
@@ -152,12 +153,13 @@ static int _calc_hmac_signature(
                       timestamp_str);
     LITE_ASSERT(rc < sizeof(hmac_source));
 
-    utils_hmac_sha1(hmac_source, strlen(hmac_source),
+    utils_hmac_sha256(hmac_source, strlen(hmac_source),
                     signature,
                     dev.device_secret,
                     strlen(dev.device_secret));
 
-    memcpy(hmac_sigbuf, signature, hmac_buflen);
+    memcpy(hmac_sigbuf, signature, sizeof(signature));
+
     return 0;
 }
 
