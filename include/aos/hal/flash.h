@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #define PAR_OPT_READ_POS  ( 0 )
 #define PAR_OPT_WRITE_POS ( 1 )
 

@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 typedef struct {
     uint32_t block_size; /* NOR memory block size number of bytes */
     uint32_t chip_size;  /* NOR memory chip size measured in number of blocks */
