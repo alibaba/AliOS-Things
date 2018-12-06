@@ -1,7 +1,7 @@
 NAME := sensor
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := Hardware abstract layer for sensors
 
 $(NAME)_SOURCES += \
@@ -147,7 +147,7 @@ $(NAME)_SOURCES += $(addprefix drv/,$(SENSOR_SRC_FILE))
 
 CONFIG_DRV_SET = $(word 1,$(CONFIG_SENSOR_DRV_NAME))
 
-$(NAME)_COMPONENTS += kernel.fs.vfs
+$(NAME)_COMPONENTS += vfs
 
 ifneq ($(CONFIG_DRV_SET),)
 GLOBAL_DEFINES += SENSOR_DRV_AUTO_INIT
@@ -163,14 +163,17 @@ ifeq ($(AOS_SENSOR_MODBUS_ENABLE),y)
 $(NAME)_SOURCES += drv/drv_modbus_sensors.c
 =======
 $(NAME)_SOURCES += drv/modbus_sensors/drv_modbus_sensors.c
+<<<<<<< HEAD
 >>>>>>> 4ab0e73c5 (BugID:16833564:fix sensor error return bug,adapt modbus sensor to new modbus lib)
 $(NAME)_COMPONENTS  += kernel.bus.mbmaster
+=======
+$(NAME)_COMPONENTS  += mbmaster
+>>>>>>> e5d87d740 (BugID: 18138458: header file included check)
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
 
 ifeq ($(AOS_SENSOR_GPS_SIMCOM_SIM868),y)
-$(NAME)_COMPONENTS += network.sal network.sal.atparser
-$(NAME)_COMPONENTS += network.sal.gprs.sim800
+$(NAME)_COMPONENTS += sal atparser device_sal_sim800
 $(NAME)_SOURCES += drv/drv_gps_simcom_sim868.c
 GLOBAL_DEFINES += AOS_SENSOR_GPS_SIMCON_SIM868
 endif
