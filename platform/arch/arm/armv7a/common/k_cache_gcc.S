@@ -7,17 +7,9 @@
 @******************************************************************************
 @                            EXPORT FUNCTIONS
 @******************************************************************************
-
-/*
-not useful in muticore
-Cache maintenance by set/way does not happen on multiple processors, and cannot be made to happen atomically
-for each address on each processor. Therefore in multiprocessor systems, the use of cache maintenance to clean, or
-clean and invalidate, the entire cache for coherency management with very large buffers or with buffers with
-unknown address can fail to provide the expected coherency results because of speculation by other processors.
-*/
-.global k_cpu_dcache_clean_all
-.global k_cpu_dcache_invalidate_all
-.global k_cpu_dcache_clean_invalidate_all
+.global k_dcache_clean_all
+.global k_dcache_invalidate_all
+.global k_dcache_clean_invalidate_all
 
 @******************************************************************************
 @                        CODE GENERATION DIRECTIVES
@@ -27,19 +19,19 @@ unknown address can fail to provide the expected coherency results because of sp
 
 @******************************************************************************
 @ Functions:
-@     void k_cpu_dcache_clean_all(void);
+@     void k_dcache_clean_all(void);
 @ reference:
 @   "ARM ®  Architecture Reference Manual ARMv7-A and ARMv7-R edition"
 @   --Example code for cache maintenance operations
 @******************************************************************************
-k_cpu_dcache_clean_all:
+k_dcache_clean_all:
     PUSH {R4-R11}
     MRC p15, #1, R0, c0, c0, #1   @ Read CLIDR into R0
     ANDS R3, R0, #0x07000000
     MOV R3, R3, LSR #23           @ Cache level value (naturally aligned)
     BEQ A_Finished
     MOV R10, #0
-A_Loop1: 
+A_Loop1:
     ADD R2, R10, R10, LSR #1      @ Work out 3 x cachelevel
     MOV R1, R0, LSR R2            @ bottom 3 bits are the Cache type for this level
     AND R1, R1, #7                @ get those 3 bits alone
@@ -76,19 +68,19 @@ A_Finished:
 
 @******************************************************************************
 @ Functions:
-@     void k_cpu_dcache_invalidate_all(void);
+@     void k_dcache_invalidate_all(void);
 @ reference:
 @   "ARM ®  Architecture Reference Manual ARMv7-A and ARMv7-R edition"
 @   --Example code for cache maintenance operations
 @******************************************************************************
-k_cpu_dcache_invalidate_all:
+k_dcache_invalidate_all:
     PUSH {R4-R11}
     MRC p15, #1, R0, c0, c0, #1   @ Read CLIDR into R0
     ANDS R3, R0, #0x07000000
     MOV R3, R3, LSR #23           @ Cache level value (naturally aligned)
     BEQ B_Finished
     MOV R10, #0
-B_Loop1: 
+B_Loop1:
     ADD R2, R10, R10, LSR #1      @ Work out 3 x cachelevel
     MOV R1, R0, LSR R2            @ bottom 3 bits are the Cache type for this level
     AND R1, R1, #7                @ get those 3 bits alone
@@ -125,19 +117,19 @@ B_Finished:
 
 @******************************************************************************
 @ Functions:
-@     void k_cpu_dcache_clean_invalidate_all(void);
+@     void k_dcache_clean_invalidate_all(void);
 @ reference:
 @   "ARM ®  Architecture Reference Manual ARMv7-A and ARMv7-R edition"
 @   --Example code for cache maintenance operations
 @******************************************************************************
-k_cpu_dcache_clean_invalidate_all:
+k_dcache_clean_invalidate_all:
     PUSH {R4-R11}
     MRC p15, #1, R0, c0, c0, #1   @ Read CLIDR into R0
     ANDS R3, R0, #0x07000000
     MOV R3, R3, LSR #23           @ Cache level value (naturally aligned)
     BEQ C_Finished
     MOV R10, #0
-C_Loop1: 
+C_Loop1:
     ADD R2, R10, R10, LSR #1      @ Work out 3 x cachelevel
     MOV R1, R0, LSR R2            @ bottom 3 bits are the Cache type for this level
     AND R1, R1, #7                @ get those 3 bits alone

@@ -46,7 +46,8 @@ GLOBAL_CFLAGS += -mcpu=cortex-a5    \
                  -mfpu=vfpv3-d16    \
                  -mfloat-abi=softfp \
                  -mthumb-interwork  \
-                 -mlittle-endian
+                 -mlittle-endian    \
+                 -Wno-incompatible-pointer-types
 
 GLOBAL_CFLAGS += -fno-omit-frame-pointer
 GLOBAL_CFLAGS += -Wall -Wno-format

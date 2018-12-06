@@ -181,7 +181,7 @@ struct rt_mmcsd_req {
  * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
  */
 
-static inline uint32_t fls(uint32_t val)
+static inline uint32_t find_last_bit(uint32_t val)
 {
 	uint32_t  bit = 32;
 

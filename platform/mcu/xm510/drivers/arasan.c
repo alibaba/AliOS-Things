@@ -125,7 +125,7 @@ static void arasan_adma_table_pre(struct arasan_host *host, struct rt_mmcsd_data
 	uint16_t len = 0;
 	desc = host->adma_desc;
 
-	k_cpu_dcache_clean_invalidate(addr, size);
+	k_dcache_clean_invalidate(addr, size);
 
 	while(size > ARASAN_DMA_DESC_BUFF_SIZE)
 	{
@@ -163,7 +163,7 @@ static void arasan_adma_table_pre(struct arasan_host *host, struct rt_mmcsd_data
 	DBG("desc last len is \033[32m0x%x\033[0m\n", len);
 
 	host->adma_addr = (uint32_t)(host->adma_desc);
-	k_cpu_dcache_clean_invalidate(host->adma_addr, (ARASAN_DMA_DESC_NUM * 2 + 1) * 4);
+	k_dcache_clean_invalidate(host->adma_addr, (ARASAN_DMA_DESC_NUM * 2 + 1) * 4);
 
 	writel(host->adma_addr, host->base + ARASAN_ADMA_ADDRESS);
 	DBG("%s: adma_addr is 0x%8lx\n", __func__, host->adma_addr);

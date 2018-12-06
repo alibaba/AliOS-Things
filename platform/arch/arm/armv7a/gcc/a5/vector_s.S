@@ -6,8 +6,8 @@
 @******************************************************************************
 @                            EXTERN SYMBOLS
 @******************************************************************************
-.extern __bss_start @ defined in *.ld 
-.extern __bss_end   @ defined in *.ld 
+.extern __bss_start @ defined in *.ld
+.extern __bss_end   @ defined in *.ld
 .extern sys_start
 .extern _interrupt_handler
 
@@ -23,7 +23,7 @@
 @******************************************************************************
 @                               EQUATES
 @******************************************************************************
-@ Bits in CPSR (Current Program Status Register) 
+@ Bits in CPSR (Current Program Status Register)
 .equ CPSR_Mode_USR,             0x10
 .equ CPSR_Mode_FIQ,             0x11
 .equ CPSR_Mode_IRQ,             0x12
@@ -32,11 +32,11 @@
 .equ CPSR_Mode_UND,             0x1B
 .equ CPSR_Mode_SYS,             0x1F
 
-.equ CPSR_FIQ_DIS,              0x40           @ Disable FIQ. 
-.equ CPSR_IRQ_DIS,              0x80           @ Disable IRQ. 
+.equ CPSR_FIQ_DIS,              0x40           @ Disable FIQ.
+.equ CPSR_IRQ_DIS,              0x80           @ Disable IRQ.
 .equ CPSR_INT_DIS,              CPSR_FIQ_DIS | CPSR_IRQ_DIS
 
-@ Stack size for all modes 
+@ Stack size for all modes
 .equ UND_Stack_Size,            0x20
 .equ ABT_Stack_Size,            0x20
 .equ FIQ_Stack_Size,            0x20
@@ -46,12 +46,13 @@
 @ Stack size for ISR & Fault & Reset
 .equ SYS_Stack_Size,            RHINO_CONFIG_SYSTEM_STACK_SIZE
 
-@ bits in SCTLR (System Control Register) 
+@ bits in SCTLR (System Control Register)
 .equ SCTLR_M,                   0x0001
+.equ SCTLR_A,                   0x0002
 .equ SCTLR_C,                   0x0004
 .equ SCTLR_I,                   0x1000
 
-@ Exception type 
+@ Exception type
 .equ ARM_EXCEPT_RESET,          0x00
 .equ ARM_EXCEPT_UNDEF_INSTR,    0x01
 .equ ARM_EXCEPT_SWI,            0x02
@@ -101,7 +102,7 @@ _resv:  .word vector_resv
 _irq:   .word vector_irq
 _fiq:   .word vector_fiq
 
-@ magicword 
+@ magicword
 .balignl 16, 0xe7f000f0
 
 @******************************************************************************
@@ -109,24 +110,45 @@ _fiq:   .word vector_fiq
 @******************************************************************************
 .section .text.isr, "ax"
 .arm
-@ reset entry 
+@ reset entry
 vector_reset:
-    @ Disable MMU & Cache 
-    MRC     P15, 0, R0, C1, C0, 0               @ Read SCTRL 
-    BIC	    R0, R0, #SCTLR_M                    @ Disable MMU 
-    BIC	    R0, R0, #SCTLR_C                    @ Disable data cache 
-    BIC	    R0, R0, #SCTLR_I                    @ Disable instruction cache 
-    MCR     P15, 0, R0, C1, C0, 0               @ Write SCTRL 
+    @ Disable MMU & Cache
+    MRC     P15, 0, R0, C1, C0, 0               @ Read SCTLR
+    BIC     R0, R0, #SCTLR_M                    @ Disable MMU
+    BIC     R0, R0, #SCTLR_C                    @ Disable data cache
+    BIC     R0, R0, #SCTLR_I                    @ Disable instruction cache
+    MCR     P15, 0, R0, C1, C0, 0               @ Write SCTLR
 
-    @ Invalidate all cache 
+    @ Invalidate all cache
     MOV     R0, #0X0
-    MCR     P15, 0, R0, C7, C5, 6               @ Invalidate entire branch predictor array. 
+    MCR     P15, 0, R0, C7, C5, 6               @ Invalidate entire branch predictor array.
     MOV     R0, #0X0
-    MCR     P15, 0, R0, C8, C7, 0               @ Invalidate entire Unified TLB 
+    MCR     P15, 0, R0, C8, C7, 0               @ Invalidate entire Unified TLB
     MOV     R0, #0
     MCR     P15, 0, R0, C7, C5, 0               @ Invalidate all instruction caches to PoU.
-                                                @ Also flushes branch target cache. 
-    @ Setup Stack for each mode 
+                                                @ Also flushes branch target cache.
+
+    @ Alignment check disable
+    MRC     P15, 0, R0, C1, C0, 0               @ Read SCTLR
+    BIC	    R0, R0, #SCTLR_A                    @ Disable Alignment fault checking
+    MCR     P15, 0, R0, C1, C0, 0               @ Write SCTLR
+
+    #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
+    @ Enabling VFP support
+    MRC     P15, 0, R0, C1, C1, 2               @ Read NSACR, Non-Secure Access Control Register
+    ORR     R0, R0, #3<<10                      @ enable Non-secure access to fpu
+    MCR     P15, 0, R0, C1, C1, 2               @ Write NSACR
+
+    MRC     P15, 0, R0, C1, C0, 2               @ Read CPACR, Non-Secure Access Control Register
+    ORR     R0, R0, #0XF<<20                    @ Set access permission for VFP
+    MCR     P15, 0, R0, C1, C0, 2               @ Write CPACR
+    ISB
+
+    MOV     R0, #0X40000000
+    VMSR    FPEXC, R0                           @ Set the FPEXC.EN bit to enable the FPU
+    #endif
+
+    @ Setup Stack for each mode
     LDR     R0, = mode_stack_top
     MSR     CPSR_c, #CPSR_Mode_UND | CPSR_INT_DIS
     MOV     SP, R0
@@ -158,28 +180,14 @@ bss_loop:
     STRLO   R0,[R1],#4                          @ clear 4 bytes
     BLO     bss_loop                            @ loop until done
 
-    #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    @ Enabling VFP support
-    MRC     P15, 0, R0, C1, C1, 2               @ Read NSACR, Non-Secure Access Control Register
-    ORR     R0, R0, #3<<10                      @ enable Non-secure access to fpu 
-    MCR     P15, 0, R0, C1, C1, 2               @ Write NSACR
 
-    MRC     P15, 0, R0, C1, C0, 2               @ Read CPACR, Non-Secure Access Control Register
-    ORR     R0, R0, #0XF<<20                    @ Set access permission for VFP
-    MCR     P15, 0, R0, C1, C0, 2               @ Write CPACR
-    ISB
-
-    MOV     R0, #0X40000000
-    VMSR    FPEXC, R0                           @ Set the FPEXC.EN bit to enable the FPU 
-    #endif
-
-    @ start Kernel 
+    @ start Kernel
     LDR     PC, entry_main
     B       .                                   @ never reach here
 entry_main:
     .word   sys_start
 
-@ exception handlers: undef, swi, padt, dabt, resv, irq, fiq 
+@ exception handlers: undef, swi, padt, dabt, resv, irq, fiq
 vector_undef:
     STMFD   SP!, {R0-R3}                        @ Push R0-R3 registers.
     MOV     R0, #ARM_EXCEPT_UNDEF_INSTR         @ Set exception type to ARM_EXCEPT_UNDEF_INSTR.

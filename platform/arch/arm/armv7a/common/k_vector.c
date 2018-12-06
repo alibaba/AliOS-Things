@@ -33,18 +33,18 @@ void cpu_interrupt_handler(unsigned int except_id)
 }
 
 /* set vector table base address */
-void *k_cpu_vectable_get()
+void *k_vectable_get()
 {
     return (void *)&_vector_table[0];
 }
 
 /* set vector table base address */
-void k_cpu_vectable_set()
+void k_vectable_set()
 {
     uint32_t reg;
-    
+
     reg  = os_get_SCTLR();
-    /* 
+    /*
     SCTLR.V, bit[13]   Vectors bit.
     0  Low exception vectors,
     1  High exception vectors (Hivecs), base address 0xFFFF0000.

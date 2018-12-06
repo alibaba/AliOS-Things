@@ -7,7 +7,7 @@
 
 #include "k_vector.h"
 #include "k_cache.h"
-#include "k_mmu_sd.h"
+#include "k_mmu.h"
 
 size_t cpu_intrpt_save(void);
 void   cpu_intrpt_restore(size_t cpsr);
