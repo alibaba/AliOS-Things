@@ -5,7 +5,7 @@
 #ifndef _ATCMD_CONFIG_MODULE
 #define _ATCMD_CONFIG_MODULE
 
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 
 /**
  * AT related platform-dependent things are here, including:

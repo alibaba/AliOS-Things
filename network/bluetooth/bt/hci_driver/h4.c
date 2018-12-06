@@ -15,7 +15,7 @@
 #include <bluetooth/hci_driver.h>
 #include <common/log.h>
 
-#include <hal/soc/uart.h>
+#include "aos/hal/uart.h"
 
 #if defined(CONFIG_BLUETOOTH_NRF51_PM)
 #include "../nrf51_pm.h"

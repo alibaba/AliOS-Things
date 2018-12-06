@@ -17,7 +17,7 @@
 #include <drivers/console/uart_pipe.h>
 #include <misc/byteorder.h>
 #include <misc/printk.h>
-#include <uart.h>
+#include "aos/hal/uart.h"
 
 #include <bluetooth/buf.h>
 

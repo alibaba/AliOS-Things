@@ -17,7 +17,7 @@
 #include <misc/byteorder.h>
 #include <misc/stack.h>
 #include <misc/__assert.h>
-#include <soc.h>
+#include "aos/hal/soc.h"
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
