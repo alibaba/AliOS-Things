@@ -10,7 +10,7 @@
 #include <aos/kernel.h>
 
 #include <misc/printk.h>
-#include <soc/gpio.h>
+#include <aos/hal/gpio.h>
 
 #include "bt_mesh_profile.h"
 

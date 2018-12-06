@@ -19,7 +19,7 @@
 #include <netmgr.h>
 #include <aos/cli.h>
 
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 #include "sensor.h"
 #include "aos/udata.h"
 #include "service_data_to_cloud.h"

@@ -13,7 +13,7 @@
 
 #include "json_parser.h"
 
-#include <hal/soc/uart.h>
+#include "aos/hal/uart.h"
 
 #include <cJson.h>
 #include "device.h"
