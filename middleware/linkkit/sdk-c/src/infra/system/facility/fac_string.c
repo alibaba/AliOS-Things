@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#if WITH_FAC_JSON_FLOW
 
 #include "iotx_system_internal.h"
 
@@ -149,3 +150,4 @@ int iotx_facility_json_print(const char *str, int level, ...)
     return 0;
 }
 
+#endif

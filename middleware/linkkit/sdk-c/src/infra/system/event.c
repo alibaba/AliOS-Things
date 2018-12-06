@@ -1,3 +1,5 @@
+#if defined(DEVICE_MODEL_ENABLED) && !(DEPRECATED_LINKKIT) || defined(WIFI_PROVISION_ENABLED)
+
 #include "iot_export.h"
 
 typedef struct {
@@ -55,3 +57,4 @@ DEFINE_EVENT_CALLBACK(ITE_FOTA,                 int (*callback)(const int, const
 DEFINE_EVENT_CALLBACK(ITE_COTA,                 int (*callback)(const int, const char *, int, const char *,
                       const char *, const char *, const char *))
 DEFINE_EVENT_CALLBACK(ITE_MQTT_CONNECT_SUCC,    int (*callback)(void))
+#endif
