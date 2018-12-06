@@ -101,7 +101,12 @@ gen_standard_images_2boot: gen_crc_bin_2boot
 	$(PYTHON) $(GEN_COMMON_BIN_OUTPUT_FILE_SCRIPT) -o $(MOC_ALL_BIN_OUTPUT_FILE) -f $(APP_OFFSET)  $(MOC_APP_BIN_OUTPUT_FILE)
 	$(PYTHON) $(GEN_COMMON_BIN_OUTPUT_FILE_SCRIPT) -o $(MOC_ALL_BIN_OUTPUT_FILE) -f $(ATE_OFFSET)  $(ATE_BIN_FILE)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 >>>>>>> 6177c74fe (code synchronization at 2018-06-06@13:59)
 =======
 >>>>>>> ea3b1f788 (BugID:17115756:[OTA] support mk3080 2nd bootloader)
+=======
+	$(RM) $(MOC_APP_BIN_OUTPUT_FILE)
+	$(CP) $(MOC_ALL_BIN_OUTPUT_FILE) $(MOC_APP_BIN_OUTPUT_FILE)
+>>>>>>> 92313b42b (BugID:17115756:[OTA]change final bin name)
