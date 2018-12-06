@@ -13,10 +13,10 @@
 #include "type.h"
 #include "utility.h"
 #include "debug.h"
-#include "timer.h"
+#include "aos/hal/timer.h"
 #include "Sysctrl.h"
 #include "KT0830.h"
-#include "i2c.h"
+#include "aos/hal/i2c.h"
 #include "breakpoint.h"
 #include "RadioCtrl.h"
 

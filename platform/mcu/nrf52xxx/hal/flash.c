@@ -3,7 +3,7 @@
  */
 
 #include "k_api.h"
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "nrf.h"
 #include "nrf_soc.h"
 #include "nordic_common.h"

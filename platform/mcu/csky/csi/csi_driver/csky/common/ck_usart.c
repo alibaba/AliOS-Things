@@ -29,7 +29,7 @@
 #if defined CONFIG_CHIP_SH810 || defined CONFIG_CHIP_SH807 || defined CONFIG_CHIP_SH610 || defined CONFIG_CHIP_SH610M
 #include <drv_intc.h>
 #endif
-#include "soc.h"
+
 #include "csi_core.h"
 
 #define ERR_USART(errno) (CSI_DRV_ERRNO_USART_BASE | errno)

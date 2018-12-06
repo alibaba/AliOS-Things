@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <k_api.h>
 #include <drv_timer.h>
-#include <soc.h>
+#include "soc.h"
 #include <csi_core.h>
 
 #define THIS_MODULE MODULE_NONE

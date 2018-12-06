@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "rda5981_sys_data.h"
 #include "rda_def.h"
-#include <hal/soc/flash.h>
+#include "aos/hal/flash.h"
 #include "rda_flash.h"
 
 static r_u32 sys_data_location = 0;

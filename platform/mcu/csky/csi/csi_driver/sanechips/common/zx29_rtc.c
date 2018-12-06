@@ -31,7 +31,7 @@
 #include "drv_rtc.h"
 #include "drv_intc.h"
 #include <io.h>
-#include <soc.h>
+#include "soc.h"
 
 /*******************************************************************************
  *                             Macro definitions                               *

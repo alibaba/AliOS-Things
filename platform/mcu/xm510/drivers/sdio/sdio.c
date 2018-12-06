@@ -22,7 +22,7 @@
 #include <assert.h>
 #include "mmcsd_core.h"
 #include "sdio.h"
-#include "sd.h"
+#include "aos/hal/sd.h"
 
 #ifndef RT_SDIO_STACK_SIZE
 #define RT_SDIO_STACK_SIZE 512

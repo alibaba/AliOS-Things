@@ -8,10 +8,10 @@
 
 #include "type.h"
 #include "app_config.h"
-#include "uart.h"
-#include "adc.h"
+#include "aos/hal/uart.h"
+#include "aos/hal/adc.h"
 #include "clk.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 #include "wakeup.h"
 #include "sys_app.h"
 

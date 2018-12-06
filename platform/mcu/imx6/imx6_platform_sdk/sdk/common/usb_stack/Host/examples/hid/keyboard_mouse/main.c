@@ -10,7 +10,7 @@
 #include "usbevent.h"
 #include "usb_bsp.h"
 #include "sci.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "poll.h"
 
 #if (defined _MCF51MM256_H) || (defined _MCF51JE256_H)

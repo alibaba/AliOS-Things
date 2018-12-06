@@ -17,7 +17,7 @@
 #include "ir.h"
 #include "app_config.h"
 #include "os.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 #include "irqs.h"
 #include "msgq.h"
 #include "app_msg.h"

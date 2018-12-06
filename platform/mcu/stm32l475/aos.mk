@@ -33,7 +33,8 @@ GLOBAL_INCLUDES += src/common/csp/lwip/include             \
                    Drivers/BSP/Components/mx25r6435f       \
                    Drivers/BSP/Components/Common           \
                    Drivers/CMSIS/Include                   \
-                   Middlewares/USB_Device/Core/Inc
+                   Middlewares/USB_Device/Core/Inc         \
+                   src
 
 GLOBAL_CFLAGS += -DSTM32L475xx
 

@@ -1,4 +1,4 @@
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "spi_api.h"
 #include "rda5981x_pinconfig.h"
 

@@ -3,7 +3,7 @@
  */
 
 #include <stdio.h>
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 #include "k_types.h"
 #include "errno.h"
 

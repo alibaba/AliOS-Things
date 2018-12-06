@@ -107,6 +107,6 @@
 
 //#include "smartconfig.h"
 //#include "spi_flash.h"
-//#include "pwm.h"
+//#include "aos/hal/pwm.h"
 
 #endif

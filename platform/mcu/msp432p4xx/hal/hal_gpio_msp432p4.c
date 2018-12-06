@@ -15,7 +15,7 @@
 #include <ti/drivers/GPIO.h>
 #include <ti/drivers/gpio/GPIOMSP432.h>
 
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 
 extern const GPIOMSP432_Config GPIOMSP432_config;
 

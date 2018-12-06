@@ -15,7 +15,7 @@
 #include <ti/drivers/UART.h>
 #include <ti/drivers/uart/UARTMSP432.h>
 
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 
 
 extern char *g_pc_buf_queue_uart[];

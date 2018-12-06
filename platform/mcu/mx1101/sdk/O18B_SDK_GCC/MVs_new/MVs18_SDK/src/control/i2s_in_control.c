@@ -15,7 +15,7 @@
 #include "sys_vol.h"
 #include "i2s_in_control.h"
 #include "mixer.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "eq_params.h"
 
 #ifdef FUNC_I2SIN_EN

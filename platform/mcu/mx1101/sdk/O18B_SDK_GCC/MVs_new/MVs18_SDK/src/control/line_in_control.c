@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "app_config.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "beep.h"
 #include "echo.h"
 #include "audio_adc.h"

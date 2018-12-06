@@ -8,7 +8,7 @@
 #include "app_config.h"
 #include "os.h"
 #include "rtc_control.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "sys_app.h"
 #include "recorder_control.h"
 #include "dev_detect_driver.h"

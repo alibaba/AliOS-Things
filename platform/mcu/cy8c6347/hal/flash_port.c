@@ -1,4 +1,4 @@
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "flash/cy_flash.h"
 #include <aos/aos.h>
 #include <stdio.h>

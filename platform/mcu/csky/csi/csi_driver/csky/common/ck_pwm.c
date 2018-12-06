@@ -24,7 +24,6 @@
 #include <csi_config.h>
 #include "ck_pwm.h"
 #include "drv_pwm.h"
-#include "soc.h"
 
 #define ERR_PWM(errno) (CSI_DRV_ERRNO_PWM_BASE | errno)
 

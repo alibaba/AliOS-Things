@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <config.h>
 #include <drv_intc.h>
-#include <soc.h>
+#include "soc.h"
 //#include <core_ck803S.h>
 #include "dw_intc.h"
 

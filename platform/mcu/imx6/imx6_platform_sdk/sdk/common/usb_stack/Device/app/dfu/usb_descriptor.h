@@ -30,7 +30,7 @@
 #include "flash_hcs.h"
 #endif
 #ifdef _MCF51_H
-#include "flash.h"
+#include "aos/hal/flash.h"
 #endif
 #ifdef __MCF52xxx_H__
 	#ifdef USED_EXTERNAL_FLASH

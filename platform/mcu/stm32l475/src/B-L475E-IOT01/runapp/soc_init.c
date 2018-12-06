@@ -48,7 +48,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "board.h"
 #include "soc_init.h"
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "aos/kernel.h"
 #include "k_api.h"
 #include "errno.h"

@@ -28,7 +28,7 @@
 #include "hal_sys.h"
 #include "hal_gpio.h"
 #include "cfg_regs.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 #include "hal_gpio.h"
 #include "pmd_m.h"
 #include "rfd_xcv.h"
