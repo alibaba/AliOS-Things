@@ -1,7 +1,7 @@
 NAME := bt
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := BLE stack.
 
 GLOBAL_DEFINES-y += AOS_BT
@@ -11,7 +11,7 @@ GLOBAL_INCLUDES-y += include \
 
 $(NAME)_COMPONENTS-y += yloop
 
-$(NAME)_COMPONENTS-y += network.bluetooth.bt.bt_common
+$(NAME)_COMPONENTS-y += bt_common
 
 $(NAME)_SOURCES-y := host/uuid.c \
                      host/hci_core.c \

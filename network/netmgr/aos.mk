@@ -1,7 +1,7 @@
 NAME := netmgr
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := network manager manages different types of RF.
 $(NAME)_SOURCES-y := netmgr.c
 
@@ -27,8 +27,8 @@ $(NAME)_SOURCES-y += interfaces/netmgr_net.c
 GLOBAL_INCLUDES-y += ../include/hal/
 endif
 
-$(NAME)_COMPONENTS-y += kernel.fs.kv yloop
+$(NAME)_COMPONENTS-y += kv yloop
 
-GLOBAL_INCLUDES-y += include ../../middleware/alink/protocol/os/platform/
+GLOBAL_INCLUDES-y += include
 
 GLOBAL_DEFINES-y += AOS_NETMGR
