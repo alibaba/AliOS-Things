@@ -43,7 +43,7 @@
 #if defined BOARD_USE_CODEC
 #include "fsl_wm8904.h"
 #endif
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 
 /*******************************************************************************
  * Definitions

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 
 /* Logic partition on flash devices */
 const hal_logic_partition_t hal_partitions[] =

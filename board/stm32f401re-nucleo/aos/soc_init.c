@@ -3,7 +3,7 @@
  */
 
 #include <stdint.h>
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 #include "k_config.h"
 #include "board.h"
 #include "stm32f4xx_hal.h"

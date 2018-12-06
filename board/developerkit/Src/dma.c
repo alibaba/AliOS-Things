@@ -38,7 +38,7 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "dma.h"
-
+#include "stm32l4xx_hal.h"
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */

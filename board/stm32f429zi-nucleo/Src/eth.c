@@ -39,8 +39,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "eth.h"
-
-#include "gpio.h"
+#include "stm32f4xx_hal.h"
+#include "aos/hal/gpio.h"
 
 /* USER CODE BEGIN 0 */
 
