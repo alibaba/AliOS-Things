@@ -20,7 +20,6 @@ $(NAME)_SOURCES-y := host/uuid.c \
                      host/att.c \
                      host/gatt.c \
                      host/crypto.c \
-                     host/smp.c \
                      host/keys.c \
                      host/rpa.c
 
@@ -44,11 +43,18 @@ endif
 
 GLOBAL_DEFINES-y += CONFIG_AOS_BLUETOOTH
 GLOBAL_DEFINES-y += CONFIG_BLUETOOTH
+#GLOBAL_DEFINES-y += CONFIG_BT_CENTRAL
 GLOBAL_DEFINES-y += CONFIG_BT_PERIPHERAL
-GLOBAL_DEFINES-y += CONFIG_BT_SMP
 GLOBAL_DEFINES-y += CONFIG_BT_CONN
-
 GLOBAL_DEFINES-y += CONFIG_BLE_50
+
+en_bt_smp ?= 1
+ifeq ($(en_bt_smp),1)
+GLOBAL_DEFINES-y += CONFIG_BT_SMP
+$(NAME)_SOURCES-y += host/smp.c
+else
+$(NAME)_SOURCES-y += host/smp_null.c
+endif
 
 ## BLE debug log general control macro (Note: still to be affected by DEBUG)
 ## Enable below macros if BLE stack debug needed
