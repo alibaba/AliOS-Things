@@ -11,7 +11,6 @@
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "iotx_mqtt_internal.h"
-#include "utils_md5.h"
 #include "report.h"
 
 #define MQTT_DEFAULT_MSG_LEN 1280
@@ -140,17 +139,19 @@ static int _alloc_recv_buffer(iotx_mc_client_t *c, int len)
 
 
 #if WITH_MQTT_ZIP_TOPIC
-#define MQTT_MD5_PATH_DEFAULT_LEN (16)
+#include "utils_sha256.h"
+#define MQTT_ZIP_PATH_DEFAULT_LEN (32)
 
-static int iotx_mc_get_md5_topic(const char *path, int len, char outbuf[], int outlen)
+static int iotx_mc_get_zip_topic(const char *path, int len, char outbuf[], int outlen)
 {
-    unsigned char md5[16] = {0};
+    unsigned char comp_data[MQTT_ZIP_PATH_DEFAULT_LEN] = {0};
     if (!path || !len || !outbuf || !outlen) {
         return -1;
     }
 
-    utils_md5((unsigned char *)path, (size_t)len, md5);
-    memcpy(outbuf, md5, outlen > 16 ? 16 : outlen);
+    utils_sha256((unsigned char *)path, (size_t)len, comp_data);
+
+    memcpy(outbuf, comp_data, outlen > MQTT_ZIP_PATH_DEFAULT_LEN ? MQTT_ZIP_PATH_DEFAULT_LEN : outlen);
     return 0;
 }
 #endif
@@ -584,14 +585,14 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         handler->topic_type = TOPIC_FILTER_TYPE;
         memcpy((char *)handler->topic_filter, topicFilter, strlen(topicFilter) + 1);
     } else {
-        handler->topic_filter = mqtt_malloc(MQTT_MD5_PATH_DEFAULT_LEN);
+        handler->topic_filter = mqtt_malloc(MQTT_ZIP_PATH_DEFAULT_LEN);
         if (NULL == handler->topic_filter) {
             mqtt_free(handler);
             return FAIL_RETURN;
         }
         handler->topic_type = TOPIC_NAME_TYPE;
-        if (iotx_mc_get_md5_topic(topicFilter, strlen(topicFilter), (char *)handler->topic_filter,
-                                  MQTT_MD5_PATH_DEFAULT_LEN) != 0) {
+        if (iotx_mc_get_zip_topic(topicFilter, strlen(topicFilter), (char *)handler->topic_filter,
+                                  MQTT_ZIP_PATH_DEFAULT_LEN) != 0) {
             mqtt_free(handler->topic_filter);
             mqtt_free(handler);
             return FAIL_RETURN;
@@ -717,14 +718,14 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
         handler->topic_type = TOPIC_FILTER_TYPE;
         memcpy((char *)handler->topic_filter, topicFilter, strlen(topicFilter) + 1);
     } else {
-        handler->topic_filter = mqtt_malloc(MQTT_MD5_PATH_DEFAULT_LEN);
+        handler->topic_filter = mqtt_malloc(MQTT_ZIP_PATH_DEFAULT_LEN);
         if (NULL == handler->topic_filter) {
             mqtt_free(handler);
             return FAIL_RETURN;
         }
         handler->topic_type = TOPIC_NAME_TYPE;
-        if (iotx_mc_get_md5_topic(topicFilter, strlen(topicFilter), (char *)handler->topic_filter,
-                                  MQTT_MD5_PATH_DEFAULT_LEN) != 0) {
+        if (iotx_mc_get_zip_topic(topicFilter, strlen(topicFilter), (char *)handler->topic_filter,
+                                  MQTT_ZIP_PATH_DEFAULT_LEN) != 0) {
             mqtt_free(handler->topic_filter);
             mqtt_free(handler);
             return FAIL_RETURN;
@@ -782,7 +783,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
     if (handler->topic_type == TOPIC_FILTER_TYPE) {
         cur_topic.lenstring.len = strlen(handler->topic_filter) + 1;
     } else {
-        cur_topic.lenstring.len = MQTT_MD5_PATH_DEFAULT_LEN;
+        cur_topic.lenstring.len = MQTT_ZIP_PATH_DEFAULT_LEN;
     }
 #endif
 
@@ -1310,7 +1311,7 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
 #if WITH_MQTT_ZIP_TOPIC
 
     MQTTString      md5_topic;
-    char            md5_topic_data[MQTT_MD5_PATH_DEFAULT_LEN] = {0};
+    char            md5_topic_data[MQTT_ZIP_PATH_DEFAULT_LEN] = {0};
     char           *net_topic;
     uint32_t        net_topic_len;
 
@@ -1323,8 +1324,8 @@ static void iotx_mc_deliver_message(iotx_mc_client_t *c, MQTTString *topicName, 
     }
     md5_topic.cstring = NULL;
     md5_topic.lenstring.data = md5_topic_data;
-    md5_topic.lenstring.len = MQTT_MD5_PATH_DEFAULT_LEN;
-    iotx_mc_get_md5_topic(net_topic, net_topic_len, md5_topic_data, MQTT_MD5_PATH_DEFAULT_LEN);
+    md5_topic.lenstring.len = MQTT_ZIP_PATH_DEFAULT_LEN;
+    iotx_mc_get_zip_topic(net_topic, net_topic_len, md5_topic_data, MQTT_ZIP_PATH_DEFAULT_LEN);
     /* we have to find the right message handler - indexed by topic */
     HAL_MutexLock(c->lock_generic);
     iotx_mc_topic_handle_t *h;
@@ -1941,7 +1942,7 @@ static int iotx_mc_check_handle_is_identical(iotx_mc_topic_handle_t *messageHand
     }
 
     if (messageHandlers1->topic_type == TOPIC_NAME_TYPE) {
-        for (i = 0; i < MQTT_MD5_PATH_DEFAULT_LEN; i++) {
+        for (i = 0; i < MQTT_ZIP_PATH_DEFAULT_LEN; i++) {
             if (messageHandler2->topic_filter[i] != messageHandlers1->topic_filter[i]) {
                 return 1;
             }
@@ -2001,7 +2002,7 @@ static int iotx_mc_check_handle_is_identical_ex(iotx_mc_topic_handle_t *messageH
     }
 
     if (messageHandlers1->topic_type == TOPIC_NAME_TYPE) {
-        for (i = 0; i < MQTT_MD5_PATH_DEFAULT_LEN; i++) {
+        for (i = 0; i < MQTT_ZIP_PATH_DEFAULT_LEN; i++) {
             if (messageHandler2->topic_filter[i] != messageHandlers1->topic_filter[1]) {
                 return 1;
             }
