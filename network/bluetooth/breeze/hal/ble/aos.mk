@@ -16,5 +16,5 @@ $(NAME)_SOURCES-y += aes_mbed.c
 $(NAME)_INCLUDES += include/mbedtls
 endif
 
-en_bt_smp = 1
+en_bt_smp = 0
 
