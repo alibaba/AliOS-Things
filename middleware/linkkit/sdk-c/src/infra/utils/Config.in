@@ -31,3 +31,10 @@ config UTILS_MD5
     bool
     default y
 
+config UTILS_SHA1
+    bool
+    default n
+
+config UTILS_SHA256
+    bool
+    default y

@@ -20,7 +20,7 @@ static int default_heart_expire = 120000;
 void utils_hmac_sha1_base64(const char *msg, int msg_len, const char *key, int key_len, char *digest, int *digest_len)
 {
     char buf[SHA1_DIGEST_SIZE];
-    utils_hmac_sha1_raw(msg, msg_len, buf, key, key_len);
+    utils_hmac_sha1_hex(msg, msg_len, buf, key, key_len);
 
     uint32_t outlen;
     utils_base64encode((unsigned char *)buf, SHA1_DIGEST_SIZE, *digest_len, (unsigned char *)digest, &outlen);
@@ -258,7 +258,7 @@ void alcs_rec_auth(CoAPContext *ctx, const char *paths, NetworkAddr *from, CoAPM
         dn[dnlen] = tmp2;
 
         HAL_Snprintf(buf, sizeof(buf), "%.*s%s", randomkeylen, randomkey, session->randomKey);
-        utils_hmac_sha1_raw(buf, strlen(buf), session->sessionKey, accessToken, tokenlen);
+        utils_hmac_sha1_hex(buf, strlen(buf), session->sessionKey, accessToken, tokenlen);
 
         /*calc sign, save in buf*/
         calc_sign_len = sizeof(buf);
