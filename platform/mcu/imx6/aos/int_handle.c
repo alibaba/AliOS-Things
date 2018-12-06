@@ -14,13 +14,11 @@
 #define  OS_CPU_ARM_EXCEPT_FIQ                        0x07u
 #define  OS_CPU_ARM_EXCEPT_NBR                        0x08u
 
-
-
 void aos_cpu_except_handler(int except_id) {
 
     switch (except_id) {
     case OS_CPU_ARM_EXCEPT_FIQ:
-        
+
         IRQ_HDLR();
         break;
 

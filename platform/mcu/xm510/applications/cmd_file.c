@@ -6,8 +6,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <aos/cli.h>
-#include <vfs.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -205,7 +203,7 @@ void cmd_pwd(char *pwbuf, int blen, int argc, char **argv)
 void cmd_ls(char *pwbuf, int blen, int argc, char **argv)
 {
 	char *path = NULL;
-    struct stat stat;
+    struct aos_stat stat;
 	const char *file_system[] = {"/sdcard", "/jffs2", "/ramfs", "/cramfs"};
 	int i = 0;
 	if(argc == 1) {
@@ -251,7 +249,7 @@ void cmd_ls(char *pwbuf, int blen, int argc, char **argv)
 				printf("full path %s/%s out of memory\n", path, out_dirent->d_name);
 				break ;
 			}
-            memset(&stat, 0, sizeof(struct stat));
+            memset(&stat, 0, sizeof(struct aos_stat));
             if (aos_stat(full_path, &stat) < 0) {
                 printf("BAD file: %s\n", full_path);
             } else {
@@ -332,7 +330,7 @@ void cmd_touch(char *pwbuf, int blen, int argc, char **argv)
 {
 	int fd;
 	char *path = NULL;
-	struct stat stat;
+	struct aos_stat stat;
 	if(argc != 2) {
 		printf("Usage: touch [FILE]\n");
 		return ;
@@ -340,7 +338,7 @@ void cmd_touch(char *pwbuf, int blen, int argc, char **argv)
 
 	path = _normalize_path(argv[1]);
 
-    memset(&stat, 0, sizeof(struct stat));
+    memset(&stat, 0, sizeof(struct aos_stat));
 	if (aos_stat(path, &stat) >= 0)
     {
         printf("file %s exist\n", argv[1]);
@@ -428,7 +426,7 @@ void cmd_cp(char *pwbuf, int blen, int argc, char **argv)
 	char *src = NULL;
 	char dst[XM_PATH_MAX] = {0};
 	char *path = NULL;
-	struct stat stat;
+	struct aos_stat stat;
 	if(argc != 3) {
 		printf("Usage: cp SOURCE DEST\n");
 		return;

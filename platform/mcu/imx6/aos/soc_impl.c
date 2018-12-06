@@ -89,7 +89,7 @@ static void soc_print_stack()
 void soc_err_proc(kstat_t err)
 {
     (void)err;
-    
+
     assert(0);
 }
 

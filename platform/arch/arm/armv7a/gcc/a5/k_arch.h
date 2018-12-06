@@ -119,15 +119,15 @@ RHINO_INLINE uint32_t os_get_TTBR0(void)
     OS_GET_CP15(0, reg, 2, 0, 0);
     return reg;
 }
-RHINO_INLINE void os_set_TTBR0(void *reg)
+RHINO_INLINE void os_set_TTBR0(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 2, 0, 0);
 }
 
 /* TTBCR, Translation Table Base Control Register */
-RHINO_INLINE void *os_get_TTBCR(void)
+RHINO_INLINE uint32_t os_get_TTBCR(void)
 {
-    void *reg;
+    uint32_t reg;
     OS_GET_CP15(0, reg, 2, 0, 2);
     return reg;
 }
@@ -198,6 +198,14 @@ RHINO_INLINE void os_set_IFAR(uint32_t reg)
 }
 
 /********** CP15 c7 register summary, Cache maintenance, address translation, and other functions **********/
+/* PAR, Physical Address Register */
+RHINO_INLINE uint32_t os_get_PAR(void)
+{
+    uint32_t reg;
+    OS_GET_CP15(0, reg, 7, 4, 0);
+    return reg;
+}
+
 /* ICIALLU, Invalidate all instruction caches to PoU */
 RHINO_INLINE void os_set_ICIALLU(uint32_t reg)
 {
@@ -220,6 +228,18 @@ RHINO_INLINE void os_set_DCIMVAC(uint32_t reg)
 RHINO_INLINE void os_set_DCISW(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 7, 6, 2);
+}
+
+/* ATS1CPR, PL1 read translation */
+RHINO_INLINE void os_set_ATS1CPR(uint32_t reg)
+{
+    OS_SET_CP15(0, reg, 7, 8, 0);
+}
+
+/* ATS1CPW, PL1 write translation */
+RHINO_INLINE void os_set_ATS1CPW(uint32_t reg)
+{
+    OS_SET_CP15(0, reg, 7, 8, 1);
 }
 
 /* DCCMVAC, Clean data cache line by MVA to PoC */
@@ -265,6 +285,20 @@ RHINO_INLINE void os_set_VBAR(uint32_t reg)
 {
     OS_SET_CP15(0, reg, 12, 0, 0);
 }
+
+/********** CP15 c13 register summary, Process, context and thread ID registers **********/
+/* CONTEXTIDR, Context ID Register */
+RHINO_INLINE uint32_t os_get_CONTEXTIDR(void)
+{
+    uint32_t reg;
+    OS_GET_CP15(0, reg, 13, 0, 1);
+    return reg;
+}
+RHINO_INLINE void os_set_CONTEXTIDR(uint32_t reg)
+{
+    OS_SET_CP15(0, reg, 13, 0, 1);
+}
+
 
 typedef struct {
 #ifdef FPU_AVL

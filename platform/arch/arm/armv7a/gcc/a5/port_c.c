@@ -9,7 +9,7 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
                           void *arg, task_entry_t entry)
 {
     context_t *ctx;
-    
+
     /* stack aligned by 8 byte */
     ctx = (context_t *)((long)(stack_base + stack_size)&0xfffffff8);
     ctx--;
@@ -32,9 +32,9 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
     ctx->R10    = 0x10101010u;
     ctx->R11    = 0x11111111u;
     ctx->R12    = 0x12121212u;
-    ctx->LR     = (long)krhino_task_deathbed; 
+    ctx->LR     = (long)krhino_task_deathbed;
     ctx->PC     = (long)entry & ~1u;
-    
+
 #if (FPU_AVL > 0)
     uint32_t i;
 

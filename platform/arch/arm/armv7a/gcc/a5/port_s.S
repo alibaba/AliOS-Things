@@ -49,7 +49,7 @@
 @******************************************************************************
 @                        MACRO DEFINED
 @******************************************************************************
-@ ortex-A5, ARMv7 VFPv4-D16
+@ Cortex-A5, ARMv7 VFPv4-D16
 .macro POP_FP_REG reg
     POP     {\reg}
     VMSR    FPEXC, \reg                                 @ Pop FPEXC.
@@ -217,7 +217,7 @@ _interrupt_while_init:
     ADD     SP, SP, R1
 
     BL      _context_restore
- 
+
 _panic_handler:
     @ change to SVC mode & disable interruptions.
     MSR     CPSR_c, #(CPSR_INT_DIS | CPSR_Mode_SVC)
