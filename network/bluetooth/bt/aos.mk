@@ -25,12 +25,6 @@ $(NAME)_SOURCES-y := host/uuid.c \
 
 $(NAME)_SOURCES-y += host/hci_ecc.c
 
-bt_controller?=0
-ifeq ($(bt_controller), 1)
-$(NAME)_COMPONENTS-y += platform.mcu.nrf52xxx.bt_controller
-GLOBAL_DEFINES-y += CONFIG_BT_CTLR
-endif
-
 ifeq ($(hci_h4),1)
 $(NAME)_SOURCES-y += hci_driver/h4.c
 endif
