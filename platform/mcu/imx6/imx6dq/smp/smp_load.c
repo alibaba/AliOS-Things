@@ -66,7 +66,7 @@ void smp_cpu_init(void)
     
         platform_init();
         
-        k_cpu_vectable_set();
+        k_vectable_set();
         //isr_stk_init();
 
         /*int cross core init*/

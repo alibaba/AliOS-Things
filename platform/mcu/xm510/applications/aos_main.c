@@ -44,7 +44,7 @@ void sys_start(void)
 {
     mmu_init();
 
-    k_cpu_vectable_set();
+    k_vectable_set();
 
     os_hw_interrupt_init();
 

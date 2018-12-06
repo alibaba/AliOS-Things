@@ -111,29 +111,24 @@ void mmu_disable()
 void mmu_init()
 {
     
-    k_cpu_icache_invalidate_all();
+    k_icache_invalidate_all();
 
     if(0 == cpu_get_current()){
-        k_cpu_dcache_clean_invalidate_all();
+        k_dcache_clean_invalidate_all();
     }
     else{
-        //k_cpu_dcache_invalidate_all();
+        //k_dcache_invalidate_all();
     }
     
-    k_cpu_tlb_invalidate();
-    k_cpu_bp_invalidate();
-
-    k_cpu_dcache_disable();
-    k_cpu_icache_disable();
-    k_cpu_mmu_disable();
+    k_dcache_disable();
+    k_icache_disable();
+    k_mmu_disable();
 
     // Get the L1 page table base address.
     uint32_t * table = (uint32_t *)&__l1_page_table_start;
     uint32_t share_attr = kShareable;
 
-	/* become clients for all domains */
-	k_cpu_mmu_domain_set(0xffffffff);
-    //k_cpu_mmu_ttb_set(table);
+    //k_mmu_ttb_set(table);
     // write table address to TTBR0
     _ARM_MCR(15, 0, table, 2, 0, 0);
 
@@ -173,9 +168,9 @@ void mmu_init()
 #endif
     }
 
-	k_cpu_mmu_enable();
-	k_cpu_icache_enable();
-	k_cpu_dcache_enable();
+	k_mmu_enable();
+	k_icache_enable();
+	k_dcache_enable();
 
 }
 
