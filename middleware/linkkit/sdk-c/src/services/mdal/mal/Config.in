@@ -2,6 +2,7 @@ config MAL_ENABLED
     bool "FEATURE_MAL_ENABLED"
     depends on !MQTT_COMM_ENABLED
     default n
+    select UTILS_SHA1
     help
         Establish persistent connection with AliCloud via MAL(MQTT Adapter Layer).
 
