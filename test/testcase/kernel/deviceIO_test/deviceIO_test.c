@@ -12,8 +12,8 @@
 
 #include "yunit.h"
 
-#include "hal/soc/adc.h"
-#include "hal/soc/soc.h"
+#include "aos/hal/adc.h"
+#include "aos/hal/soc.h"
 
 #include "vfs_api.h"
 
