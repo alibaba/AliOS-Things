@@ -5,7 +5,7 @@ MEMORY
 {
     /* If ICache is enable, use virtual flash base address */
     /* Use partition index: 0 */
-    FLASH (rx)      : ORIGIN = 0x18001000, LENGTH = 900K
+    FLASH (rx)      : ORIGIN = 0x18004000, LENGTH = 900K
     /* Use partition index: 1 */
     /* FLASH (rx)      : ORIGIN = 0x1807E000, LENGTH = 500K */
 

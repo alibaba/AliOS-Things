@@ -6,7 +6,8 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/protocol/linkkit/hal \
                       framework/netmgr \
                       framework/common \
-                      utility/cjson 
+                      utility/cjson \
+                      framework/uOTA 
                    
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE  \
                  -DMQTT_DIRECT \
