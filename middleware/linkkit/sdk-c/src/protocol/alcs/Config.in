@@ -9,6 +9,8 @@ config ALCS_ENABLED
     bool "FEATURE_ALCS_ENABLED"
     depends on (DEVICE_MODEL_ENABLED)
     default n
+    select SUPPORT_TLS
+    select UTILS_JSON_PARSER
 
     select AOS_COMP_LIBIOT_LOG 
     select AOS_COMP_LIBIOT_SYSTEM 
