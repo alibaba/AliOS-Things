@@ -20,8 +20,8 @@ $(NAME)_SOURCES += armcc/a5/vector_s.S
 $(NAME)_SOURCES += armcc/a5/port_c.c
 GLOBAL_INCLUDES += armcc/a5
 else ifeq ($(HOST_ARCH),Cortex-A7)
-$(NAME)_SOURCES := panic/panic_c.c
 $(NAME)_SOURCES += armcc/a7/port_s.S
+$(NAME)_SOURCES += armcc/a7/vector_s.S
 $(NAME)_SOURCES += armcc/a7/port_c.c
 GLOBAL_INCLUDES += armcc/a7
 else ifeq ($(HOST_ARCH),Cortex-A9)
@@ -41,8 +41,8 @@ $(NAME)_SOURCES += iccarm/a5/vector_s.S
 $(NAME)_SOURCES += iccarm/a5/port_c.c
 GLOBAL_INCLUDES += iccarm/a5
 else ifeq ($(HOST_ARCH),Cortex-A7)
-$(NAME)_SOURCES := panic/panic_c.c
 $(NAME)_SOURCES += iccarm/a7/port_s.S
+$(NAME)_SOURCES += iccarm/a7/vector_s.S
 $(NAME)_SOURCES += iccarm/a7/port_c.c
 GLOBAL_INCLUDES += iccarm/a7
 else ifeq ($(HOST_ARCH),Cortex-A9)
@@ -62,8 +62,8 @@ $(NAME)_SOURCES += gcc/a5/vector_s.S
 $(NAME)_SOURCES += gcc/a5/port_c.c
 GLOBAL_INCLUDES += gcc/a5
 else ifeq ($(HOST_ARCH),Cortex-A7)
-$(NAME)_SOURCES := panic/panic_c.c
 $(NAME)_SOURCES += gcc/a7/port_s.S
+$(NAME)_SOURCES += gcc/a7/vector_s.S
 $(NAME)_SOURCES += gcc/a7/port_c.c
 GLOBAL_INCLUDES += gcc/a7
 else ifeq ($(HOST_ARCH),Cortex-A9)

@@ -53,15 +53,25 @@
 .macro POP_FP_REG reg
     POP     {\reg}
     VMSR    FPEXC, \reg                                 @ Pop FPEXC.
-    VPOP    {D0-D15}
     POP     {\reg}
     VMSR    FPSCR, \reg                                 @ Pop FPSCR.
+#ifdef __ARM_NEON
+    VPOP    {Q0-Q7}
+    VPOP    {Q8-Q15}
+#else
+    VPOP    {D0-D15}
+#endif
 .endm
 
 .macro PUSH_FP_REG reg
+#ifdef __ARM_NEON
+    VPUSH   {Q8-Q15}
+    VPUSH   {Q0-Q7}
+#else
+    VPUSH   {D0-D15}
+#endif
     VMRS    \reg, FPSCR                                 @ Save FPSCR.
     PUSH    {\reg}                                      @ Save floating-point registers.
-    VPUSH   {D0-D15}
     VMRS    \reg, FPEXC                                 @ Save FPEXC.
     PUSH    {\reg}
 .endm
