@@ -8,6 +8,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 
+#include "alcs_api_internal.h"
 #include "json_parser.h"
 #include "iotx_utils.h"
 #include "CoAPExport.h"
@@ -115,7 +116,7 @@ alcs_mqtt_status_e __alcs_mqtt_prefix_secret_save(const char *pk, uint16_t pk_le
     HAL_Snprintf(key_source, pk_len + dn_len + 1, "%.*s%.*s", pk_len, pk, dn_len, dn);
 
     utils_md5((const unsigned char *)key_source, strlen(key_source), key_md5);
-    utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
+    alcs_utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
 
     /* Calculate Value */
     value = ALCS_ADAPTER_malloc(prefix_len + secret_len + 3);
@@ -170,7 +171,7 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_load(const char *pk, uint16_t pk_len,
     HAL_Snprintf(key_source, pk_len + dn_len + 1, "%.*s%.*s", pk_len, pk, dn_len, dn);
 
     utils_md5((const unsigned char *)key_source, strlen(key_source), key_md5);
-    utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
+    alcs_utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
 
     /* Get Value */
     if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_get(key_md5_hexstr, value, &value_len)) {
@@ -210,7 +211,7 @@ alcs_mqtt_status_e alcs_mqtt_prefix_secret_del(const char *pk, uint16_t pk_len,
     HAL_Snprintf(key_source, pk_len + dn_len + 1, "%.*s%.*s", pk_len, pk, dn_len, dn);
 
     utils_md5((const unsigned char *)key_source, strlen(key_source), key_md5);
-    utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
+    alcs_utils_md5_hexstr(key_md5, (unsigned char *)key_md5_hexstr);
 
     if (ALCS_MQTT_STATUS_SUCCESS != __alcs_mqtt_kv_del(key_md5_hexstr)) {
         COAP_ERR("ALCS KV Get Prefix And Secret Fail");

@@ -75,10 +75,5 @@ void utils_md5_process(iot_md5_context *ctx, const unsigned char data[64]);
  */
 void utils_md5(const unsigned char *input, size_t ilen, unsigned char output[16]);
 
-
-int8_t utils_hb2hex(uint8_t hb);
-
-void utils_md5_hexstr(unsigned char input[16], unsigned char output[32]);
-
 #endif
 
