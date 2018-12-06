@@ -31,7 +31,7 @@ void sys_start(void)
 
     platform_init();
 
-    k_cpu_vectable_set();
+    k_vectable_set();
 
     aos_init();
 
