@@ -16,4 +16,5 @@ $(NAME)_SOURCES-y += aes_mbed.c
 $(NAME)_INCLUDES += include/mbedtls
 endif
 
-GLOBAL_DEFINES-y += CONFIG_BT_SMP
+en_bt_smp = 1
+
