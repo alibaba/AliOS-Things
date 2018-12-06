@@ -27,8 +27,6 @@ EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/middleware/udata/gen_cjson_data.mk
 GLOBAL_DEFINES += UDATA_CJSON_SUPPORTED
 endif
 
-$(NAME)_INCLUDES := ../../drivers/sensor/include
-
 GLOBAL_INCLUDES += ./include \
                    ./include/aos
 
