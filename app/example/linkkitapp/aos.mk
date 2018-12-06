@@ -1,22 +1,18 @@
 NAME := linkkitapp
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := linkkitapp
 
 $(NAME)_SOURCES :=   app_entry.c
 $(NAME)_COMPONENTS += feature.linkkit
 
-
-
-$(NAME)_COMPONENTS += network/netmgr \
-                      middleware/common \
-                      utility/cjson
+$(NAME)_COMPONENTS += netmgr cjson
 
 ##ifeq ($(COMPILER),iar)
 ##$(NAME)_COMPONENTS += feature.linkkit-nouota
 ##else
-$(NAME)_COMPONENTS += middleware/uagent/uota
+$(NAME)_COMPONENTS += ota
 ##endif
 
 ifeq ($(case),sched)
@@ -51,7 +47,7 @@ ifeq ($(print_heap),1)
 $(NAME)_DEFINES += CONFIG_PRINT_HEAP
 endif
 
-ifneq ($(HOST_MCU_FAMILY),mcu_esp8266)
+ifneq ($(HOST_MCU_FAMILY),esp8266)
 $(NAME)_COMPONENTS  += cli
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 else
@@ -60,9 +56,7 @@ endif
 
 en_comboapp := 0
 ifeq ($(en_comboapp), 1)
-$(NAME)_COMPONENTS += bluetooth/breeze \
-                      bluetooth/breeze/hal/ble \
-                      bluetooth/bt_profile
+$(NAME)_COMPONENTS += breeze breeze_hal bt_profile
 $(NAME)_SOURCES += combo/combo_net.c
 GLOBAL_DEFINES += EN_COMBO_NET
 bz_en_auth := 1
@@ -72,5 +66,3 @@ endif
 
 
 GLOBAL_INCLUDES += ./
-
-HTTP2APP = 1

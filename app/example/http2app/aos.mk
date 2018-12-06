@@ -1,22 +1,17 @@
 NAME := http2app
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := http2 stream examples
 
 $(NAME)_SOURCES := app_entry.c   http2_example_stream.c
 
-$(NAME)_COMPONENTS += feature.linkkit-http2 \
-                      network/netmgr \
-                      middleware/common \
-                      utility/cjson \
-                      kernel/cli
+$(NAME)_COMPONENTS += feature.linkkit-http2 netmgr cjson cli
 
 
 GLOBAL_DEFINES += CONFIG_AOS_CLI \
                   ON_DAILY \
 
-HTTP2APP = 1
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip

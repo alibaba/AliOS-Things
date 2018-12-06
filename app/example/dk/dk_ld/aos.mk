@@ -1,20 +1,19 @@
 NAME := dk_ld
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := Developer Kit example with link develop
 $(NAME)_SOURCES    := ldapp.c
 
-$(NAME)_COMPONENTS := cli drivers.sensor cjson middleware.uagent.uota netmgr feature.linkkit-mqtt
+$(NAME)_COMPONENTS := cli sensor cjson ota netmgr feature.linkkit-mqtt
 GLOBAL_DEFINES += CONFIG_AOS_CLI USE_LPTHREAD
 
-GLOBAL_INCLUDES += ../../../../drivers/sensor/include
 # for developerkit board
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),developerkit)
 $(NAME)_SOURCES    += AliOS_Things_logo.c
 $(NAME)_SOURCES    += sensor_display.c
 GLOBAL_DEFINES += LITTLEVGL_DISPLAY
-$(NAME)_COMPONENTS += 3rdparty.experimental.gui.littlevGL
+$(NAME)_COMPONENTS += littlevGL
 GLOBAL_DEFINES += LITTLEVGL_DEVELOPERKIT
 GLOBAL_DEFINES += DEV_BOARD_DEVELOPERKIT
 endif

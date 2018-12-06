@@ -1,7 +1,7 @@
 NAME := devkit_gui
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := Developer Kit GUI example
 $(NAME)_SOURCES := developerkitgui.c AliOS_Things_logo.c sensor_display.c house.c weather.c
 
@@ -18,7 +18,7 @@ endif
 
 $(NAME)_INCLUDES    += .
 
-$(NAME)_COMPONENTS += 3rdparty.experimental.gui.littlevGL
+$(NAME)_COMPONENTS += littlevGL
 
 GLOBAL_DEFINES += LITTLEVGL_DEVELOPERKIT
 
