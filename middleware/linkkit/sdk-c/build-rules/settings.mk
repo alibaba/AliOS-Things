@@ -80,6 +80,8 @@ ifdef DEBUG_SHELL
 SHELL_DBG       := set -x;
 endif
 
+BUILD_LITE_SDK_MQTT :=
+
 # Setting of downloading toolchains
 TOOLCHAIN_DLDIR := $(OUTPUT_DIR)/compiler
 
