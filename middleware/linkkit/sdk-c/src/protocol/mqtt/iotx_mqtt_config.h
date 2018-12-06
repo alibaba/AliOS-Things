@@ -31,6 +31,10 @@
     #define WITH_MQTT_DYN_CONNINFO              (1)
 #endif
 
+#ifndef WITH_MQTT_ZIP_TOPIC
+    #define WITH_MQTT_ZIP_TOPIC                 (1)
+#endif
+
 /* maximum republish elements in list */
 #define IOTX_MC_REPUB_NUM_MAX                   (20)
 
