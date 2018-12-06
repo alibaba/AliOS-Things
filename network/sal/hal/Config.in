@@ -1,6 +1,0 @@
-source "network/sal/hal/gprs/sim800/Config.in"
-source "network/sal/hal/wifi/bk7231/Config.in"
-source "network/sal/hal/wifi/mk3060/Config.in"
-source "network/sal/hal/wifi/gt202/Config.in"
-source "network/sal/hal/wifi/athost/Config.in"
-source "network/sal/hal/wifi/esp8266/Config.in"
