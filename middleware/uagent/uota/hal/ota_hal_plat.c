@@ -5,7 +5,7 @@
 
 #include <errno.h>
 #include <aos/aos.h>
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 #include "ota_hal_plat.h"
 #include "ota_hal_os.h"
 #include "ota_crc.h"
