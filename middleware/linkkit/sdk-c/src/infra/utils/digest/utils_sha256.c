@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#ifdef UTILS_SHA256
 
 #include <stdlib.h>
 #include <string.h>
@@ -341,3 +342,5 @@ void utils_sha256(const unsigned char *input, size_t ilen, unsigned char output[
     utils_sha256_finish(&ctx, output);
     utils_sha256_free(&ctx);
 }
+
+#endif
