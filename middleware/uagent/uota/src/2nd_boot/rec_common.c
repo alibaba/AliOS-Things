@@ -6,8 +6,8 @@
 #include "rec_pub.h"
 #include "rec_define.h"
 #include "rec_common.h"
-#include "hal/soc/flash.h"
-#include "hal/soc/wdg.h"
+#include "aos/hal/flash.h"
+#include "aos/hal/wdg.h"
 
 void rec_read_status(PatchStatus *status)
 {
