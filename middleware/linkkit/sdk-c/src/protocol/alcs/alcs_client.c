@@ -288,7 +288,7 @@ void  auth_cb(CoAPContext *ctx, CoAPReqResult result, void *userdata, NetworkAdd
 
                 char buf[32];
                 HAL_Snprintf(buf, sizeof(buf), "%s%.*s", session->randomKey, tmplen, tmp);
-                utils_hmac_sha1_raw(buf, strlen(buf), session->sessionKey, auth_param->accessToken, strlen(auth_param->accessToken));
+                utils_hmac_sha1_hex(buf, strlen(buf), session->sessionKey, auth_param->accessToken, strlen(auth_param->accessToken));
                 session->authed_time = HAL_UptimeMs();
                 session->heart_time = session->authed_time;
                 session->interval = default_heart_interval;
