@@ -13,7 +13,7 @@
 #include "usb_host_os.h"
 #include "usb_host_debug.h"
 #include "usb_host_spec.h"
-#include "usb_hcd.h"
+#include "aos/hal/usb_hcd.h"
 
 /*
  * Return Value Assert

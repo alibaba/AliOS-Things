@@ -3,7 +3,7 @@
  */
 
 #include "stdint.h"
-#include "usb_device_hal.h"
+#include "aos/hal/usb_device_hal.h"
 #include "usb_device_hid.h"
 #include <assert.h>
 

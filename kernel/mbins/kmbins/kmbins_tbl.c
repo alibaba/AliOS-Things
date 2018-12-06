@@ -4,7 +4,7 @@
 
 #include <k_api.h>
 #include <aos/aos.h>
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 #include <stdarg.h>
 #include <stdio.h>
 

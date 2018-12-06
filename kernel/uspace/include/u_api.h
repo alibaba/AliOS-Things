@@ -6,7 +6,7 @@
 #define U_API_H
 
 #include <k_api.h>
-#include <hal/hal.h>
+#include "aos/hal/hal.h"
 
 #include <u_mm.h>
 #include <u_task.h>

@@ -6,7 +6,7 @@
 
 #include "k_api.h"
 
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 
 #include "cli_conf.h"
 #include "cli_api.h"
