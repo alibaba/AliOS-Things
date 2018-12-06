@@ -197,9 +197,36 @@ static void linkkit_event_monitor(int event)
     }
 }
 
+static void awss_close_dev_ap(void *p)
+{
+    awss_dev_ap_stop();
+    LOG("%s exit\n", __func__);
+    aos_task_exit(0);
+}
+
+static void awss_open_dev_ap(void *p)
+{
+    iotx_event_regist_cb(linkkit_event_monitor);
+    LOG("%s\n", __func__);
+    if (netmgr_start(false) != 0) {
+        aos_msleep(2000);
+        awss_dev_ap_start();
+    }
+    aos_task_exit(0);
+}
+
+static void stop_netmgr(void *p)
+{
+    awss_stop();
+    LOG("%s\n", __func__);
+    aos_task_exit(0);
+}
+
 static void start_netmgr(void *p)
 {
     iotx_event_regist_cb(linkkit_event_monitor);
+    LOG("%s\n", __func__);
+    aos_msleep(2000);
     netmgr_start(true);
     aos_task_exit(0);
 }
@@ -212,6 +239,18 @@ void do_awss_active()
     extern int awss_config_press();
     awss_config_press();
     #endif
+}
+
+void do_awss_dev_ap()
+{
+    aos_task_new("netmgr_stop", stop_netmgr, NULL, 4096);
+    aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
+}
+
+void do_awss()
+{
+    aos_task_new("dap_close", awss_close_dev_ap, NULL, 2048);
+    aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
 }
 
 static void linkkit_reset(void *p)
@@ -260,13 +299,29 @@ static void handle_active_cmd(char *pwbuf, int blen, int argc, char **argv)
     aos_schedule_call(do_awss_active, NULL);
 }
 
+static void handle_dev_ap_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    aos_schedule_call(do_awss_dev_ap, NULL);
+}
+
+static void handle_awss_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    aos_schedule_call(do_awss, NULL);
+}
+
 static struct cli_command resetcmd = { .name     = "reset",
                                        .help     = "factory reset",
                                        .function = handle_reset_cmd };
 
-static struct cli_command ncmd = { .name     = "active_awss",
-                                   .help     = "active_awss [start]",
-                                   .function = handle_active_cmd };
+static struct cli_command awss_enable_cmd = { .name     = "active_awss",
+                                              .help     = "active_awss [start]",
+                                              .function = handle_active_cmd };
+static struct cli_command awss_dev_ap_cmd = { .name     = "dev_ap",
+                                              .help     = "awss_dev_ap [start]",
+                                              .function = handle_dev_ap_cmd };
+static struct cli_command awss_cmd = { .name     = "awss",
+                                       .help     = "awss [start]",
+                                       .function = handle_awss_cmd };
 #endif
 
 #ifdef CONFIG_PRINT_HEAP
@@ -319,6 +374,7 @@ int application_start(int argc, char **argv)
 
 
     aos_set_log_level(AOS_LL_DEBUG);
+    IOT_SetLogLevel(5);
 
     netmgr_init();
     aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
@@ -328,10 +384,18 @@ int application_start(int argc, char **argv)
 
 #ifdef CONFIG_AOS_CLI
     aos_cli_register_command(&resetcmd);
-    aos_cli_register_command(&ncmd);
+    aos_cli_register_command(&awss_enable_cmd);
+    aos_cli_register_command(&awss_dev_ap_cmd);
+    aos_cli_register_command(&awss_cmd);
 #endif
     set_iotx_info();
-    aos_task_new("netmgr", start_netmgr, NULL, 4096);
+#ifdef AWSS_SUPPORT_DEV_AP
+    aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
+    //aos_task_new("dap_close", awss_close_dev_ap, NULL, 2048);
+#else
+    aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
+    //aos_task_new("netmgr_stop", stop_netmgr, NULL, 4096);
+#endif
 
     aos_loop_run();
 

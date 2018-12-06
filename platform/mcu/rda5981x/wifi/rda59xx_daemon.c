@@ -517,6 +517,7 @@ static r_void rda59xx_daemon(r_void *arg)
                     break;
                 }
                 res = rda59xx_ap_enable_internal((rda59xx_ap_info*)msg.arg1);
+                module_state |= STATE_AP;
                 rda_sem_release((r_void *)msg.arg3);
                 break;
             case DAEMON_AP_DISABLE:
@@ -528,6 +529,7 @@ static r_void rda59xx_daemon(r_void *arg)
                 }
                 r_memset(&r_ap_info, 0, sizeof(rda59xx_ap_info));
                 res = rda59xx_ap_disable_internal();
+                module_state &= ~(STATE_AP);
                 rda_sem_release((r_void *)msg.arg3);
                 break;   
             default:

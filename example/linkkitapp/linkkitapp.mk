@@ -12,7 +12,8 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE  \
                  -DMQTT_DIRECT \
                  -DCONFIG_YWSS \
-                 -DWIFI_PROVISION_ENABLED
+                 -DWIFI_PROVISION_ENABLED \
+                 -DAWSS_SUPPORT_DEV_AP
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
