@@ -43,7 +43,7 @@ GLOBAL_INCLUDES += cpu/include \
 
 #-mthumb -mthumb-interwork
 GLOBAL_CFLAGS += -mcpu=cortex-a5    \
-                 -mfpu=vfpv3-d16    \
+                 -mfpu=vfpv3-d16-fp16 \
                  -mfloat-abi=softfp \
                  -mthumb-interwork  \
                  -mlittle-endian    \
@@ -53,6 +53,7 @@ GLOBAL_CFLAGS += -fno-omit-frame-pointer
 GLOBAL_CFLAGS += -Wall -Wno-format
 
 GLOBAL_ASMFLAGS += -mcpu=cortex-a5 \
+                   -mfpu=vfpv3-d16-fp16 \
                    -mlittle-endian \
                    -mthumb-interwork
 
