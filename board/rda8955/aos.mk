@@ -20,8 +20,6 @@ no_with_lwip := 1
 
 use_private_lwip := 1
 
-bt_controller := 1
-
 GLOBAL_CFLAGS += -include fpconfig.h
 
 GLOBAL_DEFINES += STDIO_UART=0 CONFIG_NO_TCPIP BOARD_RDA8955 CONFIG_GPIO_AS_PINRESET FLOAT_ABI_HARD   
