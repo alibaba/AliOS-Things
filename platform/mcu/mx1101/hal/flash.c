@@ -1,4 +1,4 @@
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 
 
 extern const hal_logic_partition_t hal_partitions[];

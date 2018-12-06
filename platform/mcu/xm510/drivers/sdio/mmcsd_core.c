@@ -20,7 +20,7 @@
 #include <aos/kernel.h>
 #include <assert.h>
 #include "mmcsd_core.h"
-#include "sd.h"
+#include "aos/hal/sd.h"
 #include "mmc.h"
 #include "sdio.h"
 

@@ -22,7 +22,7 @@
 #ifndef _CK_ADC_H_
 #define _CK_ADC_H_
 #include <stdio.h>
-#include <soc.h>
+#include "soc.h"
 
 #define ADC_BUF_CAPABILITY  16
 

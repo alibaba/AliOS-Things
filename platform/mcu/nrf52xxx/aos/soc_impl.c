@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
 void soc_hw_timer_init(void)

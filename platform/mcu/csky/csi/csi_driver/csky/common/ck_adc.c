@@ -21,7 +21,6 @@
  * @date     16. October 2017
  ******************************************************************************/
 #include <csi_config.h>
-#include <soc.h>
 #include <csi_core.h>
 #include <drv_adc.h>
 #include <ck_adc.h>

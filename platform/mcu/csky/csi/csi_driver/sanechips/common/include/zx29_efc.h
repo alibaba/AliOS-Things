@@ -30,7 +30,7 @@
 #include <stdint.h>
 #include <drv_eflash.h>
 #include <addrspace.h>
-#include <soc.h>
+#include "soc.h"
 #include <io.h>
 
 

@@ -1,5 +1,5 @@
 #include "gd32f4xx.h"
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "ringbuf.h"
 #include <aos/aos.h>
 #include <k_api.h>

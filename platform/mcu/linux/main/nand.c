@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <aos/aos.h>
-#include <hal/soc/nand.h>
+#include "aos/hal/nand.h"
 
 #define CONFIG_FLASH_START_ADDR 0
 #define CONFIG_FLASH_PAGE_SIZE  512

@@ -6,7 +6,7 @@
  */
 
 #include <zephyr/types.h>
-#include <soc.h>
+#include "aos/hal/soc.h"
 
 #include "hal/cntr.h"
 #include "memq.h"

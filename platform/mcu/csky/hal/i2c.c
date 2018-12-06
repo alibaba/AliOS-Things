@@ -3,7 +3,8 @@
  */
 
 #include <stdio.h>
-#include "hal/soc/soc.h"
+#include "soc.h"
+#include "aos/hal/soc.h"
 
 int32_t hal_i2c_init(i2c_dev_t *i2c)
 {

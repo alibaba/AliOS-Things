@@ -6,7 +6,7 @@
 #ifdef HAL_FLASH_MODULE_ENABLED
 
 #include <k_api.h>
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "stm32f4xx_hal_flash.h"
 
 /* Base address of the Flash sectors Bank 1 */

@@ -26,7 +26,7 @@
 #include "zx29_gpio.h"
 #include <io.h>
 #include <pinmux.h>
-#include <soc.h>
+#include "soc.h"
 #include <csi_core.h>
 
 #define ERR_GPIO(errno) (CSI_DRV_ERRNO_GPIO_BASE | errno)

@@ -1,7 +1,7 @@
 #include <xm580_reg.h>
 #include <common.h>
-#include <uart.h>
-#include <flash.h>
+#include "aos/hal/uart.h"
+#include "aos/hal/flash.h"
 #include <gic.h>
 #include <cmd.h>
 #include <nand_flash.h>

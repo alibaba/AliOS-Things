@@ -19,7 +19,8 @@
 #include <string.h>
 #include <drv_eflash.h>
 
-#include "hal/soc/soc.h"
+#include "soc.h"
+#include "aos/hal/soc.h"
 
 #define EFLASH_SECTOR_SIZE 512
 

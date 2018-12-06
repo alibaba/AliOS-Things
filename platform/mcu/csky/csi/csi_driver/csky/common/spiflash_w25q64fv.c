@@ -23,7 +23,6 @@
 #include <string.h>
 #include "drv_spiflash.h"
 #include "spiflash_w25q64fv.h"
-#include "soc.h"
 #include "pin.h"
 
 

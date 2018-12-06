@@ -8,7 +8,7 @@
 #include <zephyr/types.h>
 #include <string.h>
 #include "errno.h"
-#include <soc.h>
+#include "aos/hal/soc.h"
 #include <device.h>
 #include <clock_control.h>
 #ifdef CONFIG_CLOCK_CONTROL_NRF5

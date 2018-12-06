@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "k_api.h"
-#include <hal/soc/soc.h>
+#include "aos/hal/soc.h"
 #include <hal/wifi.h>
 #include <aos/aos.h>
 #include <sdkconfig.h>
@@ -13,7 +13,7 @@
 #include <soc/cpu.h>
 #include <esp_panic.h>
 #include <cache.h>
-#include <rtc.h>
+#include "rtc.h"
 #include <esp_intr.h>
 
 

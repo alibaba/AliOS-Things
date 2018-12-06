@@ -10,7 +10,7 @@
 #include <string.h>
 //#include <version.h>
 
-#include <soc.h>
+#include "aos/hal/soc.h"
 #include <toolchain.h>
 #include <errno.h>
 #include <atomic.h>

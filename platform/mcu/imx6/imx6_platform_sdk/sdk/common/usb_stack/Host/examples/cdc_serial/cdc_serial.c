@@ -43,7 +43,7 @@
 #include "usbevent.h"
 #include "usb_bsp.h"
 #include "sci.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "poll.h"
 #include "io.h"
 #include <stdio.h>

@@ -40,7 +40,7 @@
 #include <stdint.h>
 
 #include "soc_init.h"
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include "k_config.h"
 
 #include "stm32l4xx_hal.h"

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <k_api.h>
 #include <assert.h>
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 
 #ifdef AOS_DEBUG_PANIC
 #include <debug_api.h>

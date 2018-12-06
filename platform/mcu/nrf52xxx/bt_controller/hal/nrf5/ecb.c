@@ -6,7 +6,7 @@
  */
 
 #include <string.h>
-#include <soc.h>
+#include "aos/hal/soc.h"
 //#include <arch/arm/cortex_m/cmsis.h>
 
 #include "util/mem.h"

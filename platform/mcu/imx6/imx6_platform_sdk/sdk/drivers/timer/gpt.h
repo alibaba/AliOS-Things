@@ -40,7 +40,7 @@
 #define __GPT_H__
 
 #include "sdk.h"
-#include "timer.h"
+#include "aos/hal/timer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Definitions

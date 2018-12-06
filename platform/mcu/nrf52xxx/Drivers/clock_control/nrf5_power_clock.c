@@ -6,7 +6,7 @@
  */
 #include "k_api.h"
 
-#include <soc.h>
+#include "aos/hal/soc.h"
 //#include <errno.h>
 #include <atomic.h>
 #include <device.h>

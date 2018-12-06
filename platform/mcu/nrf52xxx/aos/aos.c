@@ -17,7 +17,7 @@
 #include "nrf_delay.h"
 #include "nrf_drv_gpiote.h"
 #include "boards.h"
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 
 #include "nrf_drv_systick.h"
 

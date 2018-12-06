@@ -1,5 +1,5 @@
 #include "driver/ledc.h"
-#include <hal/soc/pwm.h>
+#include "aos/hal/pwm.h"
 #include "math.h"
 
 #define DEFAULT_LEDC_SPEED_MODE LEDC_HIGH_SPEED_MODE

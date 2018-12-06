@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "usb_device_hal.h"
+#include "aos/hal/usb_device_hal.h"
 #include "usb_device_os.h"
 #include "usbendpoints_stm32.h"
 #include "stm32l4xx_hal.h"

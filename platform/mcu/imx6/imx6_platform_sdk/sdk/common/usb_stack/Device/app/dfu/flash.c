@@ -21,7 +21,7 @@
 /*********************************** Includes ***********************************/
 #include <hidef.h> /* for EnableInterrupts macro */
 #include "derivative.h" /* include peripheral declarations */
-#include "flash.h" /* include flash driver header file */
+#include "aos/hal/flash.h" /* include flash driver header file */
 #include "string.h"
 /*********************************** Macros ************************************/
 

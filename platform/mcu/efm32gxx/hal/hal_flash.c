@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <k_api.h>
-#include "hal/soc/flash.h"
+#include "aos/hal/flash.h"
 #include "errno.h"
 #include "port_mcu.h"
 #include "em_msc.h"

@@ -23,9 +23,9 @@
 #include "os.h"
 #include "debug.h"
 #include "app_msg.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "wakeup.h"
-#include "uart.h"
+#include "aos/hal/uart.h"
 #include "sys_app.h"
 
 #ifdef CFG_SHELL_DEBUG

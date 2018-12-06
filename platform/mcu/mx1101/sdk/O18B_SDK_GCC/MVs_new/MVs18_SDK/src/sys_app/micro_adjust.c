@@ -11,7 +11,7 @@
 #include "type.h"
 #include "app_config.h"
 #include "sra.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "pcm_fifo.h"
 #include "bt_stack_api.h"
 

@@ -7,10 +7,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <k_api.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
-#include <hal/hal.h>
+#include "aos/hal/soc.h"
+#include "aos/hal/timer.h"
+#include "aos/hal/base.h"
+#include "aos/hal/hal.h"
 #include "board.h"
 #include "debug.h"
 

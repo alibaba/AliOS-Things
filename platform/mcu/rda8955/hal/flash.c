@@ -1,4 +1,4 @@
-#include "hal/soc/soc.h"
+#include "aos/hal/soc.h"
 #include <hal_spi_flash.h>
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))

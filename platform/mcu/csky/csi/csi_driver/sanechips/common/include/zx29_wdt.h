@@ -23,7 +23,7 @@
 #ifndef _WDT_SI_H_
 #define _WDT_SI_H_
 
-#include <soc.h>
+#include "soc.h"
 
 #define FAILURE    -1
 #define SUCCESS     0

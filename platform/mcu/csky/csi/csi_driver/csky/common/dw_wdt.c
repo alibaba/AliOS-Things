@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include "drv_wdt.h"
 #include "dw_wdt.h"
-#include "soc.h"
 #include "csi_core.h"
 
 #define ERR_WDT(errno) (CSI_DRV_ERRNO_WDT_BASE | errno)

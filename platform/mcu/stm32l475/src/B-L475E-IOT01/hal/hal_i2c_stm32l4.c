@@ -1,4 +1,4 @@
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 #include "soc_init.h"
 #include "k_types.h"
 #include "errno.h"

@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "aos/kernel.h"
-#include "hal/hal.h"
+#include "aos/hal/hal.h"
 #include "board.h"
 
 

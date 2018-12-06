@@ -65,7 +65,7 @@
 #include "fsl_device_registers.h"
 #include "fsl_common.h"
 #include "fsl_clock.h"
-#include "hal/soc/flash.h"
+#include "aos/hal/flash.h"
 #include "aos/kernel.h"
 #include "aos/errno.h"
 #include "fsl_mini_bl.h"
