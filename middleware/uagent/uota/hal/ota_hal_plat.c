@@ -177,6 +177,7 @@ static int ota_boot(void *something)
             ota_param.crc = param->crc;
             ota_param.splict_size = param->splict_size;
             ota_param.diff = 1;
+            ota_param.upg_flag = REC_RECOVERY_FLAG;
             CRC16_Ctx ctx;
             unsigned short crc;
             ota_CRC16_Init(&ctx);
@@ -209,9 +210,14 @@ static int ota_boot(void *something)
             extern int app_download_addr;
             extern int kernel_download_addr;
             hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
+#ifndef AOS_OTA_2BOOT_UPDATE_SUPPORT
             param->src_adr = part_info->partition_start_addr;
             param->dst_adr = (param->upg_flag == OTA_APP)? (int)&app_download_addr : (int)&kernel_download_addr;
-            //param->upg_flag = REC_SWAP_UPDATE_FLAG;
+#else
+            param->src_adr  = 0;
+            param->dst_adr  = 0;
+            param->upg_flag = REC_SWAP_UPDATE_FLAG;
+#endif
             ota_CRC16_Init(&ctx);
             ota_CRC16_Update(&ctx, param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
             ota_CRC16_Final(&ctx, &crc);
