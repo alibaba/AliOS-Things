@@ -248,7 +248,7 @@ void aos_show_welcome(void)
 #endif
 }
 
-int aos_kernel_init(kinit_t *kinit)
+int aos_components_init(kinit_t *kinit)
 {
 #ifdef AOS_VFS
     vfs_init();
@@ -300,9 +300,6 @@ int aos_kernel_init(kinit_t *kinit)
     if (app_info->app_entry) {
         app_info->app_entry((void *)kmbins_tbl, 0, NULL);
     }
-#else
-
-    application_start(kinit->argc, kinit->argv);
 #endif
 
     return 0;
