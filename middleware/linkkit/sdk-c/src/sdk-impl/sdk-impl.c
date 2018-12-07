@@ -200,6 +200,15 @@ int IOT_Ioctl(int option, void *data)
             /* todo */
         }
         break;
+#ifdef DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_SUBDEV_OTA
+        case IOTX_IOCTL_SET_OTA_DEV_ID: {
+            int devid = *(int *)(data);
+            res = iotx_dm_ota_switch_device(devid);
+        }
+        break;
+#endif
+#endif
 #endif
         default: {
             sdk_err("Unknown Ioctl Option");

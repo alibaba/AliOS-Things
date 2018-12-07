@@ -11,6 +11,7 @@ const char DM_URI_EXT_SESSION_PREFIX[]                DM_READ_ONLY = "/ext/sessi
 const char DM_URI_EXT_NTP_PREFIX[]                    DM_READ_ONLY = "/ext/ntp/%s/%s/";
 const char DM_URI_EXT_ERROR_PREFIX[]                  DM_READ_ONLY = "/ext/error/%s/%s";
 const char DM_URI_REPLY_SUFFIX[]                      DM_READ_ONLY = "_reply";
+const char DM_URI_OTA_DEVICE_INFORM[]                 DM_READ_ONLY = "/ota/device/inform/%s/%s";
 
 /* From Cloud To Local Request And Response*/
 const char DM_URI_THING_MODEL_DOWN_RAW[]              DM_READ_ONLY = "thing/model/down_raw";

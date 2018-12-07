@@ -219,6 +219,10 @@ int iotx_dm_subdev_logout(_IN_ int devid);
 int iotx_dm_get_device_type(_IN_ int devid, _OU_ int *type);
 int iotx_dm_get_device_avail_status(_IN_ int devid, _OU_ iotx_dm_dev_avail_t *status);
 int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
+#ifdef DEVICE_MODEL_SUBDEV_OTA
+    int iotx_dm_send_firmware_version(int devid, const char *firmware_version);
+    int iotx_dm_ota_switch_device(_IN_ int devid);
+#endif
 #endif
 
 #ifdef DEPRECATED_LINKKIT
