@@ -76,7 +76,7 @@ supported boards' code here. It includes board init related codes.
         * [bk7231devkitc](./bk7231devkitc/README.md)
         * [bk7231udevkitc](./bk7231udevkitc/README.md)
         * [mk3060](./mk3060/README.md)
-        * 
+        *
 * xtensa
     * [esp32devkitc](./esp32devkitc/README.md)
     * [esp8266](./esp8266/README.md)
