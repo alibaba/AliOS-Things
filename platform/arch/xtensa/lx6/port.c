@@ -9,10 +9,6 @@
 #include <k_api.h>
 #include "esp_log.h"
 
-/* ARMCC || IAR || GNU */
-#define FPU_AVL ((defined(__CC_ARM) && defined(__TARGET_FPU_VFP)) \
-                || (defined(__ICCARM__) && defined(__ARMVFP__))   \
-                || (defined(__GNUC__) && defined(__VFP_FP__) && !defined(__SOFTFP__)))
 extern void _xt_coproc_init(void);
 extern void _frxt_tick_timer_init(void);
 extern void _frxt_setup_switch();

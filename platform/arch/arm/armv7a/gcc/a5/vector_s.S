@@ -10,6 +10,7 @@
 .extern __bss_end   @ defined in *.ld
 .extern sys_start
 .extern _interrupt_handler
+.extern _panic_handler
 
 @******************************************************************************
 @                            EXPORT SYMBOLS
@@ -101,9 +102,6 @@ _dabt:  .word vector_dabt
 _resv:  .word vector_resv
 _irq:   .word vector_irq
 _fiq:   .word vector_fiq
-
-@ magicword
-.balignl 16, 0xe7f000f0
 
 @******************************************************************************
 @                           vectors function

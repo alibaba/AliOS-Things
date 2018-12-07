@@ -7,14 +7,6 @@
 
 extern int fpu_reg_count(void);
 
-
-/* ARMCC || IAR || GNU */
-#define FPU_AVL                                          \
-    ((defined(__CC_ARM) && defined(__TARGET_FPU_VFP)) || \
-     (defined(__ICCARM__) && defined(__ARMVFP__)) ||     \
-     (defined(__GNUC__) && defined(__VFP_FP__) && !defined(__SOFTFP__)))
-
-
 void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size, void *arg,
                           task_entry_t entry)
 {
@@ -26,7 +18,7 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size, void *arg,
     temp &= 0xfffffff0;
     stk = (cpu_stack_t *)temp;
 
-    /*        
+    /*
         mstatus
         epc
         x1          (ra)
@@ -39,7 +31,7 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size, void *arg,
         x12-17      (a2-7)
         x18-27      (s2-11)
         x28-31      (t3-6)
-    */    
+    */
 
     *(stk - 22) = (cpu_stack_t)arg;                  /* Reg R0 : argument */
     *(stk - 30) = (cpu_stack_t)krhino_task_deathbed; /* ra */
