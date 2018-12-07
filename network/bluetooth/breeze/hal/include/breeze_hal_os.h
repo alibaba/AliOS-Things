@@ -111,49 +111,6 @@ void os_msleep(int ms);
 long long os_now_ms();
 
 /**
- * Post an asynchronous event. The implementation must ensure
- * the event can be receviced by the event filter.
- *
- * @param[in]  type   event type.
- * @param[in]  code   event code.
- * @param[in]  value  event value.
- *
- * @return  the operation status, 0 is OK, others is error.
- */
-int os_post_event(os_event_type_t type, os_event_code_t code,
-                  unsigned long value);
-
-/**
- * Register system event filter callback. The callback is expected to be
- * called once the event is post/triggered.
- *
- * Note: it's implementation dependent how the events are dispatched.
- *       e.g. event dispatcher as a distinguished thread, or in a main loop.
- *
- * @param[in]  type  event type interested.
- * @param[in]  cb    system event callback.
- * @param[in]  priv  private data past to cb.
- *
- * @return  the operation status, 0 is OK, others is error.
- */
-int os_register_event_filter(os_event_type_t type, os_event_cb_t cb,
-                             void *priv);
-
-/**
- * Post a delayed action to be executed in event thread.
- *
- * @param[in]  ms      milliseconds to wait, -1 means don't care.
- * @param[in]  action  action to be executed.
- * @param[in]  arg     private data past to action.
- */
-void os_post_delayed_action(int ms, void (*action)(void *arg), void *arg);
-
-/**
- * Start a event thread.
- */
-void os_start_event_dispatcher();
-
-/**
  * Add a new KV pair.
  *
  * @param[in]  key    the key of the KV pair.
@@ -188,5 +145,12 @@ int os_kv_get(const char *key, void *buffer, int *buffer_len);
  * @return  0 on success, negative error on failure.
  */
 int os_kv_del(const char *key);
+
+/**
+ * Generate random number.
+ *
+ * @return  random value implemented by platform.
+ */
+int os_rand(void);
 
 #endif
