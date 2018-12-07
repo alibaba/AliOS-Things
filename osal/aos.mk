@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := share
 $(NAME)_VERSION    := 0.0.1.0
 $(NAME)_SUMMARY    := os interface adaptation layer
 
-GLOBAL_INCLUDES += ./mico/include ./aos
+GLOBAL_INCLUDES += ./aos
 
 #default gcc
 ifeq ($(COMPILER),)
@@ -43,18 +43,6 @@ endif
 ifeq ($(osal),rhino)
 GLOBAL_DEFINES     += OSAL_RHINO AOS_HAL
 $(NAME)_COMPONENTS += rhino debug
-
-ifeq ($(HOST_MCU_FAMILY),esp32)
-include osal/espos/espos.mk
-else
-ifeq ($(HOST_MCU_FAMILY),esp8266)
-include osal/espos/espos.mk
-endif
-endif
-
-ifneq (,$(filter $(PLATFORM), linuxhost mk3060 mk3239 mk3166 mk3165))
-$(NAME)_SOURCES += mico/mico_rhino.c
-endif
 
 ifeq ($(MBINS),app)
 $(NAME)_SOURCES += aos/aos_rhino_uspace.c
