@@ -9,6 +9,9 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
                           void *arg, task_entry_t entry)
 {
     context_t *ctx;
+#ifdef FPU_AVL
+    uint32_t i;
+#endif
 
     /* stack aligned by 8 byte */
     ctx = (context_t *)((long)(stack_base + stack_size)&0xfffffff8);
@@ -36,11 +39,9 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
     ctx->PC     = (long)entry & ~1u;
 
 #ifdef FPU_AVL
-    uint32_t i;
-
     ctx->FPSCR = 0;                     /* Initialize Floating point status & control register  */
     ctx->FPEXC = 0x40000000;            /* Initialize Floating-Point Exception Register (Enable)*/
-#ifdef __ARM_NEON
+#ifdef NEON_AVL
     for (i = 0u; i < 64; i++) {         /* Initialize general-purpose Floating point registers  */
         ctx->FPU[i] = 0;
     }

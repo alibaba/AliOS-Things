@@ -4,8 +4,10 @@
 @                            EXTERN SYMBOLS
 @******************************************************************************
 .extern g_active_task
+.extern g_sys_stat
 .extern g_preferred_ready_task
 .extern krhino_stack_ovf_check
+.extern krhino_task_sched_stats_get
 .extern sys_stack_top
 .extern exceptionHandler
 .extern cpu_interrupt_handler
@@ -89,7 +91,7 @@ cpu_intrpt_save:
 
 cpu_intrpt_restore:
     DSB                                                 @ no need dsb here?
-    MSR     CPSR, R0
+    MSR     CPSR_c, R0
     BX      LR
 
 @******************************************************************************
