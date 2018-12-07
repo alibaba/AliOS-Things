@@ -999,7 +999,6 @@ static int _iotx_linkkit_slave_connect(int devid)
         _iotx_linkkit_mutex_unlock();
         return FAIL_RETURN;
     }
-
     semaphore = HAL_SemaphoreCreate();
     if (semaphore == NULL) {
         _iotx_linkkit_mutex_unlock();
@@ -1220,7 +1219,6 @@ static int _iotx_linkkit_subdev_login(int devid)
     }
 
     iotx_dm_send_aos_active(devid);
-
     void *callback = iotx_event_callback(ITE_INITIALIZE_COMPLETED);
     if (callback) {
         ((int (*)(const int))callback)(devid);
@@ -1355,6 +1353,14 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #endif
         }
         break;
+#ifdef DEVICE_MODEL_GATEWAY
+#ifdef DEVICE_MODEL_SUBDEV_OTA
+        case ITM_MSG_REPORT_SUBDEV_FIRMWARE_VERSION: {
+            res = iotx_dm_send_firmware_version(devid, (const char *)payload);
+        }
+        break;
+#endif
+#endif
         default: {
             sdk_err("Unknown Message Type");
             res = FAIL_RETURN;

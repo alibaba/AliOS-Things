@@ -966,6 +966,52 @@ int dm_mgr_upstream_combine_logout(_IN_ int devid)
 
     return res;
 }
+
+#ifdef DEVICE_MODEL_SUBDEV_OTA
+int dm_mgr_upstream_thing_firmware_version_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0, res1 = 0;
+    dm_mgr_dev_node_t *node = NULL;
+    char *uri = NULL;
+    dm_msg_request_t request;
+
+    if (devid < 0 || payload == NULL || payload_len <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    res = _dm_mgr_search_dev_by_devid(devid, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    memset(&request, 0, sizeof(dm_msg_request_t));
+    request.service_prefix = DM_URI_OTA_DEVICE_INFORM;
+    request.service_name = NULL;
+    memcpy(request.product_key, node->product_key, strlen(node->product_key));
+    memcpy(request.device_name, node->device_name, strlen(node->device_name));
+
+    /* Request URI */
+    res = dm_utils_service_name(request.service_prefix, request.service_name,
+                                request.product_key, request.device_name, &uri);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    dm_log_info("DM Send Raw Data:");
+    HEXDUMP_INFO(payload, payload_len);
+
+    res = dm_client_publish(uri, (unsigned char *)payload, strlen(payload), dm_client_thing_model_up_raw_reply);
+
+    if (res < SUCCESS_RETURN || res1 < SUCCESS_RETURN) {
+        dm_log_info("res of pub is %d:", res);
+        DM_free(uri);
+        return FAIL_RETURN;
+    }
+
+    DM_free(uri);
+    return SUCCESS_RETURN;
+}
+#endif
 #endif
 
 int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
@@ -1120,6 +1166,7 @@ int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_
 
     return res;
 }
+
 
 int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {

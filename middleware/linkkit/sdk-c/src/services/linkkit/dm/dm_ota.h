@@ -17,5 +17,9 @@ int dm_ota_init(void);
 int dm_ota_sub(void);
 int dm_ota_deinit(void);
 int dm_ota_get_ota_handle(void **handle);
-
+#ifdef DEVICE_MODEL_GATEWAY
+    #ifdef DEVICE_MODEL_SUBDEV_OTA
+        int dm_ota_switch_device(int devid);
+    #endif
+#endif
 #endif
