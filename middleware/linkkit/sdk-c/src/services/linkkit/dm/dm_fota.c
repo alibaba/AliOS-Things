@@ -103,7 +103,11 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len)
         }
 
         /* Write Config File Into Stroage */
-        HAL_Firmware_Persistence_Write(output, file_download);
+        int ret = HAL_Firmware_Persistence_Write(output, file_download);
+        if (-1 == ret) {
+            IOT_OTA_ReportProgress(ota_handle, IOT_OTAP_BURN_FAILED, NULL);
+            dm_log_err("Fota write firmware failed");
+        }
 
         /* Get OTA information */
         IOT_OTA_Ioctl(ota_handle, IOT_OTAG_FETCHED_SIZE, &file_downloaded, 4);
