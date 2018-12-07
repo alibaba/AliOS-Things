@@ -52,6 +52,68 @@ extern "C" {
 		.buf.size = _size,                   \
 	}))
 
+/* ----- Modified 2018/12/06 to support NET_BUF_POOL_FIXED_DEFINE, start ----- */
+struct net_buf_data_cb {
+        u8_t * (*alloc)(struct net_buf *buf, size_t *size, s32_t timeout);
+        u8_t * (*ref)(struct net_buf *buf, u8_t *data);
+        void   (*unref)(struct net_buf *buf, u8_t *data);
+};
+
+struct net_buf_data_alloc {
+        const struct net_buf_data_cb *cb;
+        void *alloc_data;
+};
+
+struct net_buf_pool_fixed {
+        size_t data_size;
+        u8_t *data_pool;
+};
+
+extern const struct net_buf_data_cb net_buf_fixed_cb;
+
+/** @def NET_BUF_POOL_FIXED_DEFINE
+ *  @brief Define a new pool for buffers based on fixed-size data
+ *
+ *  Defines a net_buf_pool struct and the necessary memory storage (array of
+ *  structs) for the needed amount of buffers. After this, the buffers can be
+ *  accessed from the pool through net_buf_alloc. The pool is defined as a
+ *  static variable, so if it needs to be exported outside the current module
+ *  this needs to happen with the help of a separate pointer rather than an
+ *  extern declaration.
+ *
+ *  The data payload of the buffers will be allocated from a byte array
+ *  of fixed sized chunks. This kind of pool does not support blocking on
+ *  the data allocation, so the timeout passed to net_buf_alloc will be
+ *  always treated as K_NO_WAIT when trying to allocate the data. This means
+ *  that allocation failures, i.e. NULL returns, must always be handled
+ *  cleanly.
+ *
+ *  If provided with a custom destroy callback, this callback is
+ *  responsible for eventually calling net_buf_destroy() to complete the
+ *  process of returning the buffer to the pool.
+ *
+ *  @param _name      Name of the pool variable.
+ *  @param _count     Number of buffers in the pool.
+ *  @param _data_size Maximum data payload per buffer.
+ *  @param _destroy   Optional destroy callback when buffer is freed.
+ */
+#define NET_BUF_POOL_FIXED_DEFINE(_name, _count, _data_size, _destroy)        \
+        static struct net_buf net_buf_##_name[_count] /*__noinit*/;               \
+        static u8_t /*__noinit*/ net_buf_data_##_name[_count][_data_size];        \
+        static const struct net_buf_pool_fixed net_buf_fixed_##_name = {      \
+                .data_size = _data_size,                                      \
+                .data_pool = (u8_t *)net_buf_data_##_name,                    \
+        };                                                                    \
+        static const struct net_buf_data_alloc net_buf_fixed_alloc_##_name = {\
+                .cb = &net_buf_fixed_cb,                                      \
+                .alloc_data = (void *)&net_buf_fixed_##_name,                 \
+        };                                                                    \
+        struct net_buf_pool _name __net_buf_align                             \
+                        __in_section(_net_buf_pool, static, _name) =          \
+                NET_BUF_POOL_INITIALIZER(_name, &net_buf_fixed_alloc_##_name, \
+                                         net_buf_##_name, _count, _destroy)
+/* ----- Modified 2018/12/06 to support NET_BUF_POOL_FIXED_DEFINE, end ----- */
+
 /** @brief Simple network buffer representation.
  *
  *  This is a simpler variant of the net_buf object (in fact net_buf uses
@@ -537,7 +599,7 @@ struct net_buf_pool {
 		struct net_buf buf;                                          \
 		u8_t data[_size] __net_buf_align;	                     \
 		u8_t ud[ROUND_UP(_ud_size, 4)] __net_buf_align;              \
-	} _net_buf_##_name[_count] __noinit;                                 \
+	} _net_buf_##_name[_count] /*__noinit*/;                                 \
 	struct net_buf_pool _name __net_buf_align                            \
 			__in_section(_net_buf_pool, static, _name) =         \
 		NET_BUF_POOL_INITIALIZER(_name, _net_buf_##_name,            \

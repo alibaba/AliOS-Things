@@ -28,6 +28,7 @@
 #include "foundation.h"
 #include "friend.h"
 #include <errno.h>
+#include "bt_mesh_custom_log.h"
 
 #define FRIEND_BUF_SIZE     (BT_MESH_ADV_DATA_SIZE - BT_MESH_NET_HDR_LEN)
 
@@ -55,7 +56,7 @@ struct friend_pdu_info {
 #if 0
 NET_BUF_POOL_DEFINE(friend_buf_pool, FRIEND_BUF_COUNT,
 		    BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
-#else
+#elif 0
 static struct {
     struct net_buf buf;
     u8_t data[BT_MESH_ADV_DATA_SIZE] __net_buf_align;
@@ -65,6 +66,11 @@ static struct {
 struct net_buf_pool friend_buf_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(friend_buf_pool, \
                                   _net_buf_friend_buf_pool_name, FRIEND_BUF_COUNT, \
                                   BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
+#elif 0
+NET_BUF_POOL_FIXED_DEFINE(friend_buf_pool, FRIEND_BUF_COUNT,
+                          BT_MESH_ADV_DATA_SIZE, NULL);
+#else
+extern struct net_buf_pool friend_buf_pool;
 #endif
 
 static struct friend_adv {
@@ -562,6 +568,8 @@ int bt_mesh_friend_poll(struct bt_mesh_net_rx *rx, struct net_buf_simple *buf)
 	struct bt_mesh_ctl_friend_poll *msg = (void *)buf->data;
 	struct bt_mesh_friend *frnd;
 
+	BT_DBG("%s: friend poll pkt received.");
+
 	if (buf->len < sizeof(*msg)) {
 		BT_WARN("Too short Friend Poll");
 		return -EINVAL;
@@ -807,6 +815,8 @@ int bt_mesh_friend_req(struct bt_mesh_net_rx *rx, struct net_buf_simple *buf)
 	u32_t poll_to;
 	int i;
 
+	BT_DBG("%s, friend request packaet received.", __func__);
+
 	if (buf->len < sizeof(*msg)) {
 		BT_WARN("Too short Friend Request");
 		return -EINVAL;
@@ -999,7 +1009,11 @@ static void buf_send_end(int err, void *user_data)
 		BT_DBG("Waiting %u ms for next poll", frnd->poll_to);
 	} else {
 		/* Friend offer timeout is 1 second */
-		k_delayed_work_submit(&frnd->timer, K_SECONDS(1));
+		/**
+                 * TODO: spec requires friend offer to poll to be within 1 s, 
+                 * but outs needs more than 1, hmm ...
+                 */
+		k_delayed_work_submit(&frnd->timer, K_SECONDS(2));
 		BT_DBG("Waiting for first poll");
 	}
 }
@@ -1050,6 +1064,8 @@ send_last:
 int bt_mesh_friend_init(void)
 {
 	int i;
+
+	k_lifo_init(&friend_buf_pool.free);
 
 	for (i = 0; i < ARRAY_SIZE(bt_mesh.frnd); i++) {
 		struct bt_mesh_friend *frnd = &bt_mesh.frnd[i];
