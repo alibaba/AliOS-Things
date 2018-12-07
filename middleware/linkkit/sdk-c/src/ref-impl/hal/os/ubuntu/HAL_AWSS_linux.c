@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#ifdef WIFI_PROVISION_ENABLED
 
 #include <string.h>
 #include "iot_import.h"
@@ -261,3 +262,5 @@ int HAL_Wifi_Get_Ap_Info(
 {
     return 0;
 }
+
+#endif
