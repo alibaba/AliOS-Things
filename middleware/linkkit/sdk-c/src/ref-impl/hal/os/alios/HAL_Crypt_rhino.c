@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#if defined(ALCS_ENABLED) || defined(COAP_COMM_ENABLED) || defined(DEV_BIND_ENABLED)
 
 #include <string.h>
 #include <aos/aos.h>
@@ -215,3 +216,4 @@ int HAL_Aes128_Cfb_Decrypt(_IN_ p_HAL_Aes128_t aes, _IN_ const void *src,
     return platform_aes128_encrypt_decrypt(aes, src, length, dst, AES_CFB128);
 }
 //#endif
+#endif

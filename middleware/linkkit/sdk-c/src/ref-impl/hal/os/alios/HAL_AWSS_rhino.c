@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#if defined(DEV_BIND_ENABLED)
 
 #ifdef __cplusplus
 extern "C"
@@ -493,4 +494,5 @@ int platform_sys_net_is_ready(void)
 
 #ifdef __cplusplus
 }
+#endif
 #endif

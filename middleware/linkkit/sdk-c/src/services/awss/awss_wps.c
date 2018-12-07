@@ -17,6 +17,7 @@
 #include "awss_aplist.h"
 #include "zconfig_ieee80211.h"
 #include "zconfig_protocol.h"
+#include "iotx_utils.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
