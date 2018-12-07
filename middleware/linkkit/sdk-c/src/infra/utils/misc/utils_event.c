@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#ifdef UTILS_EVENT
 
 #include <stdio.h>
 
@@ -30,3 +28,4 @@ int iotx_event_post(int event)
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+#endif

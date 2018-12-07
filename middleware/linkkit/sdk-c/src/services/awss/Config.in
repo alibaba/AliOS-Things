@@ -4,6 +4,8 @@ config WIFI_PROVISION_ENABLED
     depends on DEV_BIND_ENABLED
     default y
     select UTILS_SHA1
+    select UTILS_EVENT
+
     help
         AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
 
