@@ -23,6 +23,7 @@
 #include "common/log.h"
 
 #include "foundation.h"
+#include "bt_mesh_custom_log.h"
 
 #define CID_NVAL 0xffff
 

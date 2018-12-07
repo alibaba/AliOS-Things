@@ -29,6 +29,7 @@
 #include "foundation.h"
 #include "lpn.h"
 #include <errno.h>
+#include "bt_mesh_custom_log.h"
 
 #if defined(CONFIG_BT_MESH_LPN_AUTO)
 #define LPN_AUTO_TIMEOUT          K_SECONDS(CONFIG_BT_MESH_LPN_AUTO_TIMEOUT)
@@ -266,6 +267,8 @@ static void friend_req_sent(u16_t duration, int err, void *user_data)
 		return;
 	}
 
+	BT_DBG("Sending Friend Request succeed.");
+
 	lpn->adv_duration = duration;
 
 	if (IS_ENABLED(CONFIG_BT_MESH_LPN_ESTABLISHMENT)) {
@@ -368,9 +371,10 @@ static int send_friend_poll(void)
 	u8_t fsn = lpn->fsn;
 	int err;
 
-	BT_DBG("lpn->sent_req 0x%02x", lpn->sent_req);
+	BT_DBG("%s: lpn->sent_req 0x%02x", __func__, lpn->sent_req);
 
 	if (lpn->sent_req) {
+		BT_DBG("%s %d", __func__, __LINE__);
 		if (lpn->sent_req != TRANS_CTL_OP_FRIEND_POLL) {
 			lpn->pending_poll = 1;
 		}
@@ -378,13 +382,17 @@ static int send_friend_poll(void)
 		return 0;
 	}
 
+	BT_DBG("%s %d", __func__, __LINE__);
+
 	err = bt_mesh_ctl_send(&tx, TRANS_CTL_OP_FRIEND_POLL, &fsn, 1,
 			       NULL, &req_sent_cb, NULL);
 	if (err == 0) {
+		BT_DBG("%s %d", __func__, __LINE__);
 		lpn->pending_poll = 0;
 		lpn->sent_req = TRANS_CTL_OP_FRIEND_POLL;
 	}
 
+	BT_DBG("%s %d", __func__, __LINE__);
 	return err;
 }
 
@@ -444,7 +452,7 @@ int bt_mesh_lpn_set(bool enable)
 
 static void friend_response_received(struct bt_mesh_lpn *lpn)
 {
-	BT_DBG("lpn->sent_req 0x%02x", lpn->sent_req);
+	BT_DBG("%s: lpn->sent_req 0x%02x", __func__, lpn->sent_req);
 
 	if (lpn->sent_req == TRANS_CTL_OP_FRIEND_POLL) {
 		lpn->fsn++;
@@ -514,6 +522,7 @@ int bt_mesh_lpn_friend_offer(struct bt_mesh_net_rx *rx,
 
 	cred = friend_cred_create(sub, lpn->frnd, lpn->counter, frnd_counter);
 	if (!cred) {
+		BT_DBG("friend_cred_create failed.");
 		lpn->frnd = BT_MESH_ADDR_UNASSIGNED;
 		return -ENOMEM;
 	}
@@ -525,14 +534,19 @@ int bt_mesh_lpn_friend_offer(struct bt_mesh_net_rx *rx,
 	lpn->recv_win = msg->recv_win;
 	lpn->queue_size = msg->queue_size;
 
+	BT_DBG("Will send_friend_poll");
+
 	err = send_friend_poll();
 	if (err) {
+		BT_DBG("send_friend_poll failed.");
 		friend_cred_clear(cred);
 		lpn->frnd = BT_MESH_ADDR_UNASSIGNED;
 		lpn->recv_win = 0;
 		lpn->queue_size = 0;
 		return err;
 	}
+
+	BT_DBG("send_friend_poll succeed.");
 
 	lpn->counter++;
 
