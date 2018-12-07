@@ -71,6 +71,7 @@
 #include "hal/soc/flash.h"
 #include "fsl_flashiap.h"
 
+#define EIO 5
 
 typedef int32_t (*flash_device_erase)(uint32_t phy_address, uint32_t size);
 typedef int32_t (*flash_device_write)(uint32_t phy_address, const void *data, uint32_t size);
