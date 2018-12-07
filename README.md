@@ -48,7 +48,9 @@ AliOS Things can help you connect your devices to [Alibaba Cloud IoT platform](h
 ## Community
 
 * [DingTalk Group](https://img.alicdn.com/tfs/TB1X2HOhYPpK1RjSZFFXXa5PpXa-970-1280.png)
-* [Alibaba Cloud IoT Community](https://dev.iot.aliyun.com/)
+* [WeChat Group](https://img.alicdn.com/tfs/TB1L3zOhYPpK1RjSZFFXXa5PpXa-560-790.jpg)
+* [Technical Blog](https://yq.aliyun.com/teams/184)
+* [Technical Forum](https://bbs.aliyun.com/thread/410.html)
 
 ## License
 
