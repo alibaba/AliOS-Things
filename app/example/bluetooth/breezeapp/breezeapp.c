@@ -10,11 +10,19 @@
 #define SOFTWARE_VERSION "0.2.0"
 #define SOFTWARE_VERSION_LEN 5
 
+#if 1
 #define PRODUCT_ID     213226
 #define DEVICE_SECRET  "cNwnA4W7amnkgG6s8zGXSJD3nI1c7kO1"
 #define DEVICE_NAME    "112233445566"
 #define PRODUCT_KEY    "b1XVhqfan1X"
 #define PRODUCT_SECRET "iX6XqAjaCTXBv4h3"
+#else
+#define PRODUCT_ID     619359
+#define DEVICE_SECRET  "XtwYkcdFLHSdrzZSjNV1IhpIFhRduHLr"
+#define DEVICE_NAME    "ABCDEF12345678"
+#define PRODUCT_KEY    "a1aIpTlmQ2b"
+#define PRODUCT_SECRET "xpxzSuaKhMXVzzSm"
+#endif
 
 static bool ble_connected = false;
 
@@ -96,11 +104,6 @@ static void alink_work(void *arg)
     init_alink.set_cb            = set_dev_status_handler;
     init_alink.get_cb            = get_dev_status_handler;
     init_alink.apinfo_cb         = apinfo_handler;
-#ifdef CONFIG_AIS_OTA
-    init_alink.enable_ota = true;
-#endif
-    init_alink.enable_auth = true;
-    init_alink.auth_type   = ALI_AUTH_BY_PRODUCT_SECRET;
 
     init_alink.secret_len = strlen(DEVICE_SECRET);
     memcpy(init_alink.secret, DEVICE_SECRET, init_alink.secret_len);
@@ -132,7 +135,7 @@ int application_start(void)
 #ifdef CONTINUE_BEL_ADV
     aos_post_delayed_action(5000, adv_work, NULL);
 #endif
+    aos_loop_run();
 
-    breeze_event_dispatcher();
     return 0;
 }

@@ -13,6 +13,8 @@
 #include <aos/list.h>
 #include <dis.h>
 
+#define BLE_TX_INDICATION_COMPLETED 0
+static void (*g_indication_txdone)(uint8_t res);
 struct bt_conn *g_conn       = NULL;
 ais_bt_init_t * bt_init_info = NULL;
 
@@ -306,6 +308,20 @@ enum
     AIS_ATTR_NUM,
 };
 
+static void ble_event_handler(input_event_t *event, void *priv_data)
+{
+    if (event->type != EV_BLE) {
+        return;
+    }
+    switch (event->code) {
+        case BLE_TX_INDICATION_COMPLETED:
+            g_indication_txdone(0);
+            break;
+        default:
+            break;
+    }
+}
+
 ais_err_t ble_stack_init(ais_bt_init_t *info)
 {
     int              err;
@@ -380,6 +396,8 @@ ais_err_t ble_stack_init(ais_bt_init_t *info)
     bt_gatt_service_register(&ais_svc);
     dis_init("AIS", "AliOSThings");
 
+    aos_register_event_filter(EV_BLE, ble_event_handler, NULL);
+
     return AIS_ERR_SUCCESS;
 }
 
@@ -421,7 +439,7 @@ static void indicate_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr,
     }
 }
 
-ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length)
+ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length, void (*txdone)(uint8_t res))
 {
     int                             err;
     struct bt_gatt_indicate_params *ind_params;
@@ -454,6 +472,8 @@ ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length)
         aos_free(param);
         return AIS_ERR_GATT_INDICATE_FAIL;
     } else {
+	g_indication_txdone = txdone;
+        aos_post_event(EV_BLE, BLE_TX_INDICATION_COMPLETED, 1);
         return AIS_ERR_SUCCESS;
     }
 }
