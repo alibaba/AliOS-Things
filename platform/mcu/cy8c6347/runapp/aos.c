@@ -22,7 +22,7 @@ static kinit_t kinit;
 extern int application_start(int argc, char **argv);
 extern void board_init(void);
 extern int default_UART_Init(void);
-	
+
 static void var_init()
 {
     kinit.argc = 0;
@@ -43,16 +43,19 @@ static void sys_init(void)
 {
     Cy_SysTick_Init(CY_SYSTICK_CLOCK_SOURCE_CLK_CPU, CYDEV_CLK_HFCLK0__HZ/RHINO_CONFIG_TICKS_PER_SECOND);
     Cy_SysTick_SetCallback(0, SysTick_IRQ);
-	
+
     default_UART_Init();
-	
+
 #ifdef BOOTLOADER
     main();
 #else
     hw_start_hal();
     board_init();
     var_init();
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 #endif
 }
 
@@ -70,7 +73,7 @@ static void sys_start(void)
 int main(void)
 {
     __enable_irq(); /* Enable global interrupts. */
-	  
+      
     sys_start();
     return 0;
 }

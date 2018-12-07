@@ -43,7 +43,10 @@ static void sys_init(void)
     hw_start_hal();
     board_init();
     var_init();
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 #endif
 }
 

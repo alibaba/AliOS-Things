@@ -30,17 +30,20 @@ kinit_t kinit;
 
 int main(void)
 {
-  uint32_t core_frequency = 0;
-  platform_init();
-  
-  aos_init();
-  hal_uart_init(&uart_0);
-  
-  core_frequency = SystemCoreClockGet();
-  
-  SysTick_Config(core_frequency / RHINO_CONFIG_TICKS_PER_SECOND);
- 
-  aos_kernel_init(&kinit);
-  
-  while(1);
+    uint32_t core_frequency = 0;
+    platform_init();
+
+    aos_init();
+    hal_uart_init(&uart_0);
+
+    core_frequency = SystemCoreClockGet();
+
+    SysTick_Config(core_frequency / RHINO_CONFIG_TICKS_PER_SECOND);
+
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
+
+    while(1);
 }

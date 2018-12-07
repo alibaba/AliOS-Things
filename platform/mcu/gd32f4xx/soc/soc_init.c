@@ -12,7 +12,7 @@ aos_task_t g_init_task;
 uart_dev_t  uart_0;
 static kinit_t kinit;
 
-int aos_kernel_init(kinit_t *kinit);
+int aos_components_init(kinit_t *kinit);
 void soc_init(void);
 void dev_wifi_error_reset(void);
 
@@ -77,7 +77,10 @@ void init_task(void *p)
     hal_uart_init(&uart_0);
     tcpip_init( NULL, NULL );
     hal_wifi_register_module(&aos_wifi_module_mk3060);
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 }
 uint32_t g_wifireset_flag = 0;
 void soc_init(void)
@@ -122,11 +125,6 @@ void dev_wifi_error_reset(void)
     *(uint32_t *)(0x20020000) = 0xaabbccdd;
     p_recovery = (p_recovery_t)(*(uint32_t*)0x08000004);
     (*p_recovery)();
-}
-
-void aos_components_init(void)
-{
-
 }
 
 //int application_start(int argc, char *argv[])

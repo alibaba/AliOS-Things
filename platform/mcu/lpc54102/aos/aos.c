@@ -79,7 +79,10 @@ static void sys_init(void)
     HTS221_ctx.port = 0;
 #endif
 
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 
 #endif
 }
@@ -209,5 +212,4 @@ int main(void)
     aos_start();
     return 0;
 }
-
 

@@ -64,7 +64,10 @@ static void app_entry(void *arg)
 #endif
     hw_start_hal(&options);
 
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 }
 
 static void start_app(void)
