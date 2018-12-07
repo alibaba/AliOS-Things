@@ -33,6 +33,7 @@
 #include "prov.h"
 
 #include "bt_mesh_glue.h"
+#include "bt_mesh_custom_log.h"
 
 /* 3 transmissions, 20ms interval */
 #define PROV_XMIT_COUNT        2

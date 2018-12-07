@@ -77,6 +77,17 @@ static struct {
     u8_t data[BT_MESH_ADV_DATA_SIZE] __net_buf_align;
     u8_t ud[ROUND_UP(BT_MESH_ADV_USER_DATA_SIZE, 4)] __net_buf_align;
 } _net_buf_adv_buf_pool_name[CONFIG_BT_MESH_ADV_BUF_COUNT];
+
+#ifdef CONFIG_BT_MESH_FRIEND
+#include <mesh_config.h>
+#define FRIEND_BUF_COUNT2    ((CONFIG_BT_MESH_FRIEND_QUEUE_SIZE + 1) * \
+                             CONFIG_BT_MESH_FRIEND_LPN_COUNT)
+static struct {
+    struct net_buf buf;
+    u8_t data[BT_MESH_ADV_DATA_SIZE] __net_buf_align;
+    u8_t ud[ROUND_UP(BT_MESH_ADV_USER_DATA_SIZE, 4)] __net_buf_align;
+} _net_buf_friend_buf_pool_name[FRIEND_BUF_COUNT2];
+#endif
 #endif
 
 struct net_buf_pool hci_cmd_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(hci_cmd_pool, \
@@ -95,7 +106,20 @@ struct net_buf_pool adv_buf_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(adv_
                                   _net_buf_adv_buf_pool_name, CONFIG_BT_MESH_ADV_BUF_COUNT, \
                                   BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
 
-struct net_buf_pool *net_buf_pool_list[] = { &hci_cmd_pool, &hci_rx_pool, &acl_tx_pool, &adv_buf_pool };
+#ifdef CONFIG_BT_MESH_FRIEND
+struct net_buf_pool friend_buf_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(friend_buf_pool, \
+                                  _net_buf_friend_buf_pool_name, FRIEND_BUF_COUNT2, \
+                                  BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
+#endif
+
+struct net_buf_pool *net_buf_pool_list[] = { &hci_cmd_pool
+                                           , &hci_rx_pool
+                                           , &acl_tx_pool
+                                           , &adv_buf_pool
+#ifdef CONFIG_BT_MESH_FRIEND
+                                           , &friend_buf_pool
+#endif
+                                           };
 #else
 struct net_buf_pool *net_buf_pool_list[] = { &hci_cmd_pool, &hci_rx_pool, &acl_tx_pool };
 #endif
