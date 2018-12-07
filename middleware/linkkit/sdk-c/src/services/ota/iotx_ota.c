@@ -918,6 +918,8 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
                     *((uint32_t *)buf) = 1;
                 } else {
                     *((uint32_t *)buf) = 0;
+                    IOT_OTA_ReportProgress(h_ota, IOT_OTAP_CHECK_FALIED, NULL);
+                    OTA_LOG_ERROR("image checksum compare failed");
                 }
                 return 0;
             }
