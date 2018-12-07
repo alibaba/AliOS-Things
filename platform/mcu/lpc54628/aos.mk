@@ -16,7 +16,7 @@ ifeq ($(COMPILER),iar)
 GLOBAL_CFLAGS   += --cpu=Cortex-M4  \
                    --cpu_mode=thumb \
                    --endian=little
-GLOBAL_LDFLAGS  += --silent --cpu=Cortex-M4
+GLOBAL_LDFLAGS  += --silent --cpu=Cortex-M4.vfp
 GLOBAL_LDFLAGS  += --config platform/mcu/lpc54628/iar/LPC54628J512_flash.icf
 GLOBAL_LDFLAGS += -Lplatform/mcu/lpc54628/iar/
 GLOBAL_LDFLAGS += -liar_power
