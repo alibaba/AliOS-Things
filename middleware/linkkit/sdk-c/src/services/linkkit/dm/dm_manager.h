@@ -82,6 +82,9 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
         _IN_ char *payload, _IN_ int payload_len, _IN_ void *ctx);
 int dm_mgr_upstream_rrpc_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *rrpcid, _IN_ int rrpcid_len, _IN_ char *payload, _IN_ int payload_len);
+#ifdef DEVICE_MODEL_SUBDEV_OTA
+    int dm_mgr_upstream_thing_firmware_version_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+#endif
 #endif
 #ifdef DEPRECATED_LINKKIT
 int dm_mgr_deprecated_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t tsl_source);

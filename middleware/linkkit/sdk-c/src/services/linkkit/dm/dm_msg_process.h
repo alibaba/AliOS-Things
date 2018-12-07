@@ -14,6 +14,7 @@ extern const char DM_URI_EXT_SESSION_PREFIX[]  DM_READ_ONLY;
 extern const char DM_URI_EXT_NTP_PREFIX[]      DM_READ_ONLY;
 extern const char DM_URI_EXT_ERROR_PREFIX[]    DM_READ_ONLY;
 extern const char DM_URI_REPLY_SUFFIX[]        DM_READ_ONLY;
+extern const char DM_URI_OTA_DEVICE_INFORM[]   DM_READ_ONLY;
 
 /* From Cloud To Local Request And Response*/
 extern const char DM_URI_THING_MODEL_DOWN_RAW[]              DM_READ_ONLY;

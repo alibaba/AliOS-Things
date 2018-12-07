@@ -61,6 +61,9 @@ typedef enum {
     /* only for master device, request fota image from cloud */
     ITM_MSG_REQUEST_FOTA_IMAGE,
 
+    /* report subdev's firmware version */
+    ITM_MSG_REPORT_SUBDEV_FIRMWARE_VERSION,
+
     IOTX_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
 
