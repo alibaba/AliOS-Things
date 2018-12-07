@@ -112,14 +112,29 @@ void soc_err_proc(kstat_t err)
 krhino_err_proc_t g_err_proc = soc_err_proc;
 
 #include "k_api.h"
+
+#if defined (__CC_ARM) /* Keil / armcc */
+#define HEAP_BUFFER_SIZE 1024*20
+uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
+k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
+int           g_region_num = 1;
+#elif defined (__ICCARM__)/* IAR */
+#define HEAP_BUFFER_SIZE 1024*20
+uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
+k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
+int           g_region_num = 1;
+void aos_heap_set(void)
+{
+}
+#else /* GCC */
 extern void *__HeapBase;
 extern void *__Heap2Base;
 k_mm_region_t g_mm_region[] = {
 {(uint8_t *)&__HeapBase, (uint32_t)0x8000},
 {(uint8_t *)&__Heap2Base, (uint32_t)0x8000},
 };
-
 int g_region_num = sizeof(g_mm_region)/sizeof(k_mm_region_t);
+#endif
 
 void SysTick_Handler(void)
 {
