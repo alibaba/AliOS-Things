@@ -1,0 +1,3 @@
+menuconfig AOS_APP_UART
+    bool "uart"
+    help
