@@ -19,7 +19,7 @@ AliOS Things适配了分层架构和组件架构。包括以下部分：
 - Security: 包括TLS, TFS(Trusted Framework Service), TEE(Trusted Exexcution Environment)等
 - AOS API: AliOS Things 提供给应用软件和中间件的API
 - Middleware: 阿里巴巴增值和常用的物联网组件
-- Examples: 手把手的示例代码
+- Examples: 手把手的示例代码，以及一些严格测试的应用程序，像是 [linkkitapp](./app/example/linkkitapp)
 
 所有的模块都作为组件的形式存在，每一个组件都有自己的`.mk`文件，用来描述与其他组件的描述关系，应用程序可以很方便的通过这种形式选择需要的组件。
 

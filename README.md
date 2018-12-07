@@ -19,7 +19,7 @@ AliOS Things adapts Layered Architecture and Component Architecture. includes:
 - Security: TLS, TFS(Trusted Framework Service), TEE(Trusted Exexcution Environment)
 - AOS API: AliOS Things exposed APIs for Application and Middleware
 - Middleware: Alibaba's value-added and commonly seen IoT components included
-- Examples: hands-on sample codes
+- Examples: hands-on sample codes, and well tested applications such as [linkkitapp](./app/example/linkkitapp)
 
 All modules have been organized as Components, and each component has its own .mk file to describe its dependency with other Components, which enables applications to choose components needed easily.
 
@@ -52,6 +52,7 @@ AliOS Things can help you connect your devices to [Alibaba Cloud IoT platform](h
 
 ## License
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -119,3 +120,6 @@ AliOS Things 是 AliOS 家族旗下的、面向 IoT 领域的、轻量级物联�
 =======
   AliOS Things is released under the [Apache 2.0 license](LICENSE)
 >>>>>>> 2a6fe3e27 (update README (#862))
+=======
+  AliOS Things is released under the [Apache 2.0 license](LICENSE)
+>>>>>>> 895a68ed8 (BugID:16944760: merge github master back)
