@@ -16,8 +16,17 @@ ifeq ($(COMPILER),iar)
 GLOBAL_CFLAGS   += --cpu=Cortex-M4  \
                    --cpu_mode=thumb \
                    --endian=little
-GLOBAL_LDFLAGS  += --silent --cpu=Cortex-M4
+GLOBAL_LDFLAGS  += --silent --cpu=Cortex-M4.vfp
+GLOBAL_LDFLAGS += -Lplatform/mcu/lpc54018/iar/
+GLOBAL_LDFLAGS += -liar_power
 GLOBAL_LDFLAGS  += --config platform/mcu/lpc54018/iar/LPC54018_spifi_flash.icf
+else ifeq ($(COMPILER), armcc)
+GLOBAL_INCLUDES += ../../arch/arm/armv7m/armcc/m4/
+GLOBAL_ASMFLAGS +=  -c --cpu Cortex-M4.fp --apcs=interwork
+GLOBAL_CFLAGS +=  --c99 -c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork --split_sections
+GLOBAL_LDFLAGS += --cpu=Cortex-M4.fp
+GLOBAL_LDFLAGS += -L --scatter=platform/mcu/lpc54018/arm/LPC54018_spifi_flash.scf
+GLOBAL_LDFLAGS += -L platform/mcu/lpc54018/arm/keil_lib_power.lib
 else
 GLOBAL_CFLAGS   += -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99
 GLOBAL_CFLAGS   += -mcpu=cortex-m4 -mfloat-abi=hard -MMD -MP -mfpu=fpv4-sp-d16
@@ -67,6 +76,8 @@ $(NAME)_SOURCES += ./system_LPC54018.c
 
 ifeq ($(COMPILER),iar)
 $(NAME)_SOURCES += ./iar/startup_LPC54018.s
+else ifeq ($(COMPILER), armcc)
+$(NAME)_SOURCES += ./arm/startup_LPC54018.s
 else
 $(NAME)_SOURCES += ./gcc/startup_LPC54018.S
 endif
