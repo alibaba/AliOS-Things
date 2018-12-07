@@ -211,8 +211,8 @@ menuconfig: prebuilt/ubuntu/bin/kconfig-mconf
 
 litesdk:
 	$(TOP_Q) \
-		$(MAKE) distclean
+		$(MAKE) --no-print-directory distclean
 	$(TOP_Q) \
 		cp -f $(TOP_DIR)/build-rules/misc/config.mqtt.make $(TOP_DIR)/make.settings
 	$(TOP_Q) \
-		$(MAKE) BUILD_LITE_SDK_MQTT=1
+		$(MAKE) --no-print-directory BUILD_LITE_SDK_MQTT=1

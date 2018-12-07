@@ -37,15 +37,27 @@ for iter in ${ALL_SUB_DIRS}; do
          | awk '{ printf("    | %-5s | %-35s | %14s | %26s |\n", $1, $2, $3, $4); }'
 
     if [ "${BUILD_LITE_SDK_MQTT}" ];then
+        DIST_SRC_DIR=${DIST_DIR}/release/sdk-lite/src
+        DIST_INC_DIR=${DIST_DIR}/release/sdk-lite/include
         for j in ${ITER_OBJS}; do
             OBJ_SIZE=$(size $j | ${SED} '1d' | awk '{print $1}')
             SRC_PATH=$(echo $j | ${SED} 's?^./??' | ${SED} 's?o$?c?')
             if [ "$OBJ_SIZE" -ne 0 ];then
-                mkdir -p ${DIST_DIR}/release/sdk-lite/src
-                mkdir -p ${DIST_DIR}/release/sdk-lite/include
-                cp -f ${TOP_DIR}/${iter}/${SRC_PATH} ${DIST_DIR}/release/sdk-lite/src
+                mkdir -p ${DIST_SRC_DIR}
+                mkdir -p ${DIST_INC_DIR}
+                cp -f ${TOP_DIR}/${iter}/${SRC_PATH} ${DIST_SRC_DIR}
             fi
         done
+        cp -f ${TOP_DIR}/include/iot_export.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/include/iot_import.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/include/imports/iot_import_config.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/include/imports/iot_import_product.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/system/iotx_system.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/utils_sysinfo.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/system/report.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/include/imports/iot_import_tcp.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/protocol/mqtt/iotx_mqtt_internal.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/protocol/mqtt/MQTTPacket/* ${DIST_INC_DIR}
     fi
 
     cd ${OLDPWD}

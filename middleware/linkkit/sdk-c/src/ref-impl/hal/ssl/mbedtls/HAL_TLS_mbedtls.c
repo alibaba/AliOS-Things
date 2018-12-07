@@ -562,13 +562,13 @@ int32_t HAL_SSL_Destroy(uintptr_t handle)
 int HAL_SSLHooks_set(ssl_hooks_t *hooks)
 {
     if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
-        return DTLS_INVALID_PARAM;
+        return -1;
     }
 
     g_ssl_hooks.malloc = hooks->malloc;
     g_ssl_hooks.free = hooks->free;
 
-    return DTLS_SUCCESS;
+    return 0;
 }
 
 uintptr_t HAL_SSL_Establish(const char *host,

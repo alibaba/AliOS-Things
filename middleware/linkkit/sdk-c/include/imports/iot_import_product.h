@@ -11,11 +11,6 @@
 #define IOTX_URI_MAX_LEN            (135)  /* IoTx CoAP/HTTP uri & MQTT topic maximal length */
 #define PID_STR_MAXLEN              (64)
 #define MID_STR_MAXLEN              (64)
-#define PRODUCT_KEY_MAXLEN          (20 + 1)
-#define DEVICE_NAME_MAXLEN          (32 + 1)
-#define DEVICE_ID_MAXLEN            (64 + 1)
-#define DEVICE_SECRET_MAXLEN        (64 + 1)
-#define PRODUCT_SECRET_MAXLEN       (64 + 1)
 #define FIRMWARE_VERSION_MAXLEN     (32 + 1)
 #define HAL_CID_LEN                 (64 + 1)
 

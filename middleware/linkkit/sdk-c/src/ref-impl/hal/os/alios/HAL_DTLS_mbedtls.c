@@ -10,6 +10,7 @@
 #include <sys/time.h>
 #include <aos/aos.h>
 
+#include "iot_import.h"
 #ifdef COAP_DTLS_SUPPORT
 #include "ali_crypto.h"
 #include "mbedtls/config.h"
@@ -28,19 +29,6 @@
 #define platform_info(format, ...)  // LOGI(LOG_TAG, format,##__VA_ARGS__)
 #define platform_err(format, ...) LOGE(LOG_TAG, format, ##__VA_ARGS__)
 
-#define DTLS_ERROR_BASE (1 << 24)
-
-
-#define DTLS_SUCCESS 0
-#define DTLS_INVALID_PARAM (DTLS_ERROR_BASE | 1)
-#define DTLS_INVALID_CA_CERTIFICATE (DTLS_ERROR_BASE | 2)
-#define DTLS_HANDSHAKE_IN_PROGRESS (DTLS_ERROR_BASE | 3)
-#define DTLS_HANDSHAKE_FAILED (DTLS_ERROR_BASE | 4)
-#define DTLS_FATAL_ALERT_MESSAGE (DTLS_ERROR_BASE | 5)
-#define DTLS_PEER_CLOSE_NOTIFY (DTLS_ERROR_BASE | 6)
-#define DTLS_SESSION_CREATE_FAILED (DTLS_ERROR_BASE | 7)
-#define DTLS_READ_DATA_FAILED (DTLS_ERROR_BASE | 8)
-
 static dtls_hooks_t g_dtls_hooks = {HAL_Malloc, HAL_Free};
 
 #if defined(MBEDTLS_DEBUG_C)
@@ -57,14 +45,6 @@ static void ssl_debug(void *ctx, int level, const char *file, int line,
     return;
 }
 #endif
-
-typedef struct
-{
-    unsigned char *p_ca_cert_pem;
-    char *         p_host;
-    unsigned short port;
-} coap_dtls_options_t;
-
 
 typedef void DTLSContext;
 

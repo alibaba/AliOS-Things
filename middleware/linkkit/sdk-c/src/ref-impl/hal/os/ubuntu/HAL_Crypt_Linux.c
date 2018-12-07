@@ -2,6 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#if defined(ALCS_ENABLED) || defined(COAP_COMM_ENABLED) || defined(DEV_BIND_ENABLED)
+
 #include <string.h>
 #include "iot_import.h"
 #include "mbedtls/aes.h"
@@ -136,4 +138,5 @@ int HAL_Aes128_Cfb_Decrypt(
                                    &offset, p_aes128->iv, src, dst);
     return ret;
 }
+#endif
 #endif

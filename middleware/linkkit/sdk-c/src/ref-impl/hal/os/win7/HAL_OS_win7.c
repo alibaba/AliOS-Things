@@ -576,6 +576,8 @@ int HAL_Sys_Net_Is_Ready()
     return 0;
 }
 
+#if defined(ALCS_ENABLED) || defined(COAP_COMM_ENABLED) || defined(DEV_BIND_ENABLED)
+
 p_HAL_Aes128_t HAL_Aes128_Init(
             _IN_ const uint8_t *key,
             _IN_ const uint8_t *iv,
@@ -609,6 +611,16 @@ int HAL_Aes128_Cfb_Decrypt(
     return 0;
 }
 
+int HAL_Aes128_Cbc_Encrypt(
+            _IN_ p_HAL_Aes128_t aes,
+            _IN_ const void *src,
+            _IN_ size_t blockNum,
+            _OU_ void *dst)
+{
+    return 0;
+}
+#endif
+
 void    HAL_Reboot(void)
 {
     return;
@@ -620,16 +632,6 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
 }
 
 int     HAL_Kv_Del(const char *key)
-{
-    return 0;
-}
-
-
-int HAL_Aes128_Cbc_Encrypt(
-            _IN_ p_HAL_Aes128_t aes,
-            _IN_ const void *src,
-            _IN_ size_t blockNum,
-            _OU_ void *dst)
 {
     return 0;
 }
