@@ -92,7 +92,7 @@ static HAL_StatusTypeDef st7789_write(int is_cmd, uint8_t data)
   uint8_t pData[2] = {0};
 
   if (hspi_lcd == NULL) {
-    _Error_Handler(__FILE__, __LINE__);
+    Error_Handler();
     return HAL_ERROR;
   }
   pData[0] = data;
@@ -108,7 +108,7 @@ static HAL_StatusTypeDef st7789_write(int is_cmd, uint8_t data)
 static HAL_StatusTypeDef st7789_write_fb(uint16_t *data, uint16_t size)
 {
   if (hspi_lcd == NULL) {
-    _Error_Handler(__FILE__, __LINE__);
+    Error_Handler();
     return HAL_ERROR;
   }
 
@@ -192,7 +192,7 @@ static void spec_send_fb(uint16_t color, uint16_t pixel_num)
   for (i = 0; i < LCD_MAX_MEM16_BLOCK; ++i) {
     real_mem[i] = color;
   }
-  HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+  hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_DCX]);
   if (pixel_num <= LCD_MAX_MEM16_BLOCK) {
     st7789_write_fb(real_mem, pixel_num << 1);
   } else {
@@ -227,7 +227,7 @@ void camera_dispaly(uint16_t *data, uint32_t pixel_num)
 
 	count = pixel_num / LCD_MAX_MEM16_BLOCK;
 	remain = pixel_num % LCD_MAX_MEM16_BLOCK;
-	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+	hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_DCX]);
 
 	for (i = 0; i < count; ++i) {
 		st7789_write_fb(pdata , LCD_MAX_MEM16_BLOCK << 1);
@@ -248,7 +248,7 @@ void camera_display_gray(uint8_t *data, uint32_t pixel_num)
 
 	count = pixel_num / LCD_MAX_MEM16_BLOCK;
 	remain = pixel_num % LCD_MAX_MEM16_BLOCK;
-	HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+	hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_DCX]);
 
 	for (i = 0; i < count; ++i) {
     for(j=0; j<LCD_MAX_MEM16_BLOCK; j++){
@@ -399,6 +399,6 @@ void LcdWriteData(uint8_t Data)
 */
 void LcdWriteDataMultiple(uint8_t * pData, int NumItems) 
 {
-  HAL_GPIO_WritePin(LCD_DCX_GPIO_Port, LCD_DCX_Pin, GPIO_PIN_SET);
+  hal_gpio_output_high(&brd_gpio_table[GPIO_LCD_DCX]);
   HAL_SPI_Transmit(&hspi1, pData, NumItems, 10);
 }

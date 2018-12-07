@@ -1,3 +1,4 @@
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.h
@@ -36,24 +37,52 @@
   *
   ******************************************************************************
   */
+/* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H__
-#define __MAIN_H__
+#ifndef __MAIN_H
+#define __MAIN_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
+#include "stm32l4xx_hal.h"
 
+/* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
-/* Private define ------------------------------------------------------------*/
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
+/* USER CODE END ET */
+
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
+
+/* USER CODE END EC */
+
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+
+/* USER CODE END EM */
+
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
+
+/* USER CODE BEGIN EFP */
+
+/* USER CODE END EFP */
+
+/* Private defines -----------------------------------------------------------*/
 #define SIM_DET_Pin GPIO_PIN_2
 #define SIM_DET_GPIO_Port GPIOE
-#define GS_LED_Pin GPIO_PIN_3
-#define GS_LED_GPIO_Port GPIOE
+#define LED_2_Pin GPIO_PIN_3
+#define LED_2_GPIO_Port GPIOE
 #define PCIE_RST_Pin GPIO_PIN_13
 #define PCIE_RST_GPIO_Port GPIOC
 #define LCD_DCX_Pin GPIO_PIN_6
@@ -84,13 +113,9 @@
 #define KEY_2_EXTI_IRQn EXTI15_10_IRQn
 #define SECURE_RST_Pin GPIO_PIN_15
 #define SECURE_RST_GPIO_Port GPIOE
-#define HTS_LED_Pin GPIO_PIN_11
-#define HTS_LED_GPIO_Port GPIOD
-#define PS_LED_Pin GPIO_PIN_14
-#define PS_LED_GPIO_Port GPIOD
-#define COMPASS_LED_Pin GPIO_PIN_15
-#define COMPASS_LED_GPIO_Port GPIOD
-#define CAM_MCLK_Pin GPIO_PIN_8
+#define LED_3_Pin GPIO_PIN_15
+#define LED_3_GPIO_Port GPIOD
+#define CAM_MCLK_Pin GPIO_PIN_9
 #define CAM_MCLK_GPIO_Port GPIOA
 #define ALS_INT_Pin GPIO_PIN_15
 #define ALS_INT_GPIO_Port GPIOA
@@ -103,32 +128,18 @@
 #define AUDIO_RST_GPIO_Port GPIOD
 #define USB_PCIE_SW_Pin GPIO_PIN_5
 #define USB_PCIE_SW_GPIO_Port GPIOB
-#define ALS_LED_Pin GPIO_PIN_6
-#define ALS_LED_GPIO_Port GPIOB
+#define LED_1_Pin GPIO_PIN_6
+#define LED_1_GPIO_Port GPIOB
 #define CAM_RST_Pin GPIO_PIN_8
 #define CAM_RST_GPIO_Port GPIOB
-
-/* ########################## Assert Selection ############################## */
-/**
-  * @brief Uncomment the line below to expanse the "assert_param" macro in the 
-  *        HAL drivers code
-  */
-/* #define USE_FULL_ASSERT    1U */
-
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
- extern "C" {
-#endif
-void _Error_Handler(char *, int);
-
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
-#ifdef __cplusplus
 }
 #endif
 
-#endif /* __MAIN_H__ */
+#endif /* __MAIN_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

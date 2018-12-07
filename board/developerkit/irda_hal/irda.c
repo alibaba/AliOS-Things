@@ -1,4 +1,5 @@
 #include "k_api.h"
+#include "soc_init.h"
 #include "stm32l4xx_hal.h"
 #include "irda.h"
 #include <stdlib.h>

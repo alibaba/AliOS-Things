@@ -64,7 +64,7 @@ void MX_SAI2_Init(void)
   hsai_BlockA2.Init.TriState = SAI_OUTPUT_NOTRELEASED;
   if (HAL_SAI_InitProtocol(&hsai_BlockA2, SAI_I2S_STANDARD, SAI_PROTOCOL_DATASIZE_16BIT, 2) != HAL_OK)
   {
-    _Error_Handler(__FILE__, __LINE__);
+    Error_Handler();
   }
 
 }
@@ -91,8 +91,7 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
     /**SAI2_A_Block_A GPIO Configuration    
     PB12     ------> SAI2_FS_A
     PB15     ------> SAI2_SD_A
-    PD10     ------> SAI2_SCK_A
-    PC6     ------> SAI2_MCLK_A 
+    PD10     ------> SAI2_SCK_A 
     */
     GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -108,13 +107,6 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
     GPIO_InitStruct.Alternate = GPIO_AF13_SAI2;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_6;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF13_SAI2;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
     /* Peripheral DMA init*/
     
     hdma_sai2_a.Instance = DMA1_Channel6;
@@ -128,7 +120,7 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
     hdma_sai2_a.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_sai2_a) != HAL_OK)
     {
-      _Error_Handler(__FILE__, __LINE__);
+      Error_Handler();
     }
 
     /* Several peripheral DMA handle pointers point to the same DMA handle.
@@ -155,14 +147,11 @@ void HAL_SAI_MspDeInit(SAI_HandleTypeDef* hsai)
     /**SAI2_A_Block_A GPIO Configuration    
     PB12     ------> SAI2_FS_A
     PB15     ------> SAI2_SD_A
-    PD10     ------> SAI2_SCK_A
-    PC6     ------> SAI2_MCLK_A 
+    PD10     ------> SAI2_SCK_A 
     */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12|GPIO_PIN_15);
 
     HAL_GPIO_DeInit(GPIOD, GPIO_PIN_10);
-
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_6);
 
     HAL_DMA_DeInit(hsai->hdmarx);
     HAL_DMA_DeInit(hsai->hdmatx);

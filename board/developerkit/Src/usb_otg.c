@@ -40,8 +40,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usb_otg.h"
 
-#include "gpio.h"
-
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -56,13 +54,5 @@ void MX_USB_OTG_FS_USB_Init(void)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

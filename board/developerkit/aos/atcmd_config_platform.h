@@ -5,7 +5,9 @@
 #ifndef _ATCMD_CONFIG_PLATFORM_H_
 #define _ATCMD_CONFIG_PLATFORM_H_
 
+extern int get_devloperkit_atuart(void);
+
 // AT uart
-#define AT_UART_PORT 3
+#define AT_UART_PORT get_devloperkit_atuart()
 
 #endif

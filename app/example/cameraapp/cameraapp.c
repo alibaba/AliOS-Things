@@ -8,6 +8,7 @@
 #include "gc0329.h" // camera
 #include "camera_demo.h"
 #include "fatfs.h"
+#include "soc_init.h"
 
 uint8_t g_sd_valid = 0;
 static uint8_t keyB = 0;

@@ -1,6 +1,7 @@
 #include <k_api.h>
 #include "stm32l4xx_hal.h"
 #include "gc0329.h"
+#include "soc_init.h"
 
 extern i2c_dev_t brd_i2c3_dev;
 
@@ -673,34 +674,15 @@ void gc0329_mclk_onoff(int on)
 void gc0329_power_onoff(int on)
 {
 	if(on){
-#ifdef ALIOS_HAL
-		//gc0329_mclk_onoff(1);
-		hal_gpio_output_high(&brd_gpio_table[GPIO_CAM_PD]);
-		hal_gpio_output_low(&brd_gpio_table[GPIO_CAM_RST]);
-		krhino_task_sleep(krhino_ms_to_ticks(50));
 		hal_gpio_output_low(&brd_gpio_table[GPIO_CAM_PD]);
-	       krhino_task_sleep(krhino_ms_to_ticks(50));
-		hal_gpio_output_high(&brd_gpio_table[GPIO_CAM_RST]);
-		krhino_task_sleep(krhino_ms_to_ticks(100));
-#else
-		HAL_GPIO_WritePin(CAM_PD_GPIO_Port, CAM_PD_Pin, GPIO_PIN_RESET);
-              krhino_task_sleep(krhino_ms_to_ticks(10));
-		HAL_GPIO_WritePin(CAM_RST_GPIO_Port, CAM_RST_Pin, GPIO_PIN_RESET);
 		krhino_task_sleep(krhino_ms_to_ticks(50));
-	  	HAL_GPIO_WritePin(CAM_RST_GPIO_Port, CAM_RST_Pin, GPIO_PIN_SET);
-#endif
-	}
-	else{
-#ifdef ALIOS_HAL
 		hal_gpio_output_low(&brd_gpio_table[GPIO_CAM_RST]);
-		krhino_task_sleep(krhino_ms_to_ticks(10));
-		hal_gpio_output_high(&brd_gpio_table[GPIO_CAM_PD]);
-		//gc0329_mclk_onoff(0);
-#else
-		HAL_GPIO_WritePin(CAM_RST_GPIO_Port, CAM_RST_Pin, GPIO_PIN_RESET);
 		krhino_task_sleep(krhino_ms_to_ticks(50));
-		HAL_GPIO_WritePin(CAM_PD_GPIO_Port, CAM_PD_Pin, GPIO_PIN_SET);
-#endif
+		hal_gpio_output_high(&brd_gpio_table[GPIO_CAM_RST]);
+	}else{
+		hal_gpio_output_low(&brd_gpio_table[GPIO_CAM_RST]);
+		krhino_task_sleep(krhino_ms_to_ticks(50));
+		hal_gpio_output_high(&brd_gpio_table[GPIO_CAM_PD]);
 	}
 }
 

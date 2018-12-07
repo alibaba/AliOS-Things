@@ -54,12 +54,4 @@ void MX_IRTIM_Init(void)
 
 /* USER CODE END 1 */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

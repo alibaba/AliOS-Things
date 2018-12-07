@@ -1,6 +1,7 @@
 #include "stm32l4xx_hal.h"
 #include <k_api.h>
 #include "secure_demo.h"
+#include "soc_init.h"
 
 SC_ATR g_card_atr;
 uint8_t SC_ATR_Table[40] = {0};

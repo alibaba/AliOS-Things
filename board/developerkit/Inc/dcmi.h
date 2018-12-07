@@ -44,7 +44,6 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l4xx_hal.h"
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
@@ -56,8 +55,6 @@ extern DCMI_HandleTypeDef hdcmi;
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
-
-extern void _Error_Handler(char *, int);
 
 void MX_DCMI_Init(void);
 

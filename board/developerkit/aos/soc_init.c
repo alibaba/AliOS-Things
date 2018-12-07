@@ -6,6 +6,7 @@
 #include "hal/hal.h"
 #include "k_config.h"
 #include "soc_init.h"
+#include "secure_demo.h"
 
 #include "Inc/adc.h"
 #include "Inc/crc.h"
@@ -65,6 +66,7 @@ void stm32_soc_init(void)
     //sufficient time to make the initial GPIO level works, especially wifi reset
     aos_msleep(50);
     hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
+	hal_gpio_output_high(&brd_gpio_table[GPIO_PCIE_RST]);
     MX_DMA_Init();
     MX_ADC3_Init();
     MX_USART2_SMARTCARD_Init();
@@ -118,7 +120,7 @@ gpio_dev_t brd_gpio_table[] = {
     {LCD_DCX, OUTPUT_PUSH_PULL, &gpio_set},
     {LCD_PWR, OUTPUT_PUSH_PULL, &gpio_reset},
     {LCD_RST, OUTPUT_PUSH_PULL, &gpio_set},
-    {PCIE_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {PCIE_RST, OUTPUT_PUSH_PULL, &gpio_reset},
     {SECURE_RST, OUTPUT_PUSH_PULL, &gpio_reset},
     {SIM_DET, INPUT_HIGH_IMPEDANCE, NULL},
     {USB_PCIE_SW, OUTPUT_PUSH_PULL, &gpio_set},
@@ -143,6 +145,52 @@ static void brd_peri_init(void)
     hal_i2c_init(&brd_i2c3_dev);
     hal_i2c_init(&brd_i2c4_dev);
 }
+
+BOARD_HW_VERSION get_devloperkit_hwver(void)
+{
+    static BOARD_HW_VERSION board_hwver = BOARD_HW_UNKNOW;
+    int ret = 0;
+    
+    if (board_hwver != BOARD_HW_UNKNOW) {
+        return board_hwver;
+    }
+    
+    ret = id2_test_se();
+    if (ret == 0) {
+        board_hwver = BOARD_HW_VER13;
+    } else {
+        extern SMARTCARD_HandleTypeDef hsmartcard2;
+        HAL_SMARTCARD_DeInit(&hsmartcard2);
+        board_hwver = BOARD_HW_VER12;
+    }
+    
+    return board_hwver;
+}
+
+int get_devloperkit_atuart(void)
+{
+    BOARD_HW_VERSION board_hwver = BOARD_HW_UNKNOW;
+    int ret = -1;
+    
+#ifdef DEV_SAL_BK7231
+    ret = 3;
+#else
+    board_hwver = get_devloperkit_hwver();
+    switch (board_hwver) {
+        case BOARD_HW_VER12:
+            ret = 2;
+            break;
+        case BOARD_HW_VER13:
+            ret = 4;
+            break;
+        default:
+            ret = -1;
+    }
+#endif
+    
+    return ret;
+}
+
 /**
 * @brief This function handles System tick timer.
 */

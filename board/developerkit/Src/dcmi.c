@@ -40,9 +40,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "dcmi.h"
 
-#include "gpio.h"
-#include "dma.h"
-
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -68,7 +65,7 @@ void MX_DCMI_Init(void)
   hdcmi.Init.LineSelectStart = DCMI_OELS_ODD;
   if (HAL_DCMI_Init(&hdcmi) != HAL_OK)
   {
-    _Error_Handler(__FILE__, __LINE__);
+    Error_Handler();
   }
 
 }
@@ -76,7 +73,7 @@ void MX_DCMI_Init(void)
 void HAL_DCMI_MspInit(DCMI_HandleTypeDef* dcmiHandle)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct;
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   if(dcmiHandle->Instance==DCMI)
   {
   /* USER CODE BEGIN DCMI_MspInit 0 */
@@ -85,6 +82,11 @@ void HAL_DCMI_MspInit(DCMI_HandleTypeDef* dcmiHandle)
     /* DCMI clock enable */
     __HAL_RCC_DCMI_CLK_ENABLE();
   
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
     /**DCMI GPIO Configuration    
     PE4     ------> DCMI_D4
     PE5     ------> DCMI_D6
@@ -120,12 +122,12 @@ void HAL_DCMI_MspInit(DCMI_HandleTypeDef* dcmiHandle)
     GPIO_InitStruct.Alternate = GPIO_AF10_DCMI;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_9;
+    GPIO_InitStruct.Pin = CAM_MCLK_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF5_DCMI;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(CAM_MCLK_GPIO_Port, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = GPIO_PIN_3;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -158,7 +160,7 @@ void HAL_DCMI_MspInit(DCMI_HandleTypeDef* dcmiHandle)
     hdma_dcmi.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_dcmi) != HAL_OK)
     {
-      _Error_Handler(__FILE__, __LINE__);
+      Error_Handler();
     }
 
     __HAL_LINKDMA(dcmiHandle,DMA_Handle,hdma_dcmi);
@@ -203,7 +205,7 @@ void HAL_DCMI_MspDeInit(DCMI_HandleTypeDef* dcmiHandle)
 
     HAL_GPIO_DeInit(GPIOC, GPIO_PIN_7);
 
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9);
+    HAL_GPIO_DeInit(CAM_MCLK_GPIO_Port, CAM_MCLK_Pin);
 
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_7);
 
@@ -221,13 +223,5 @@ void HAL_DCMI_MspDeInit(DCMI_HandleTypeDef* dcmiHandle)
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
