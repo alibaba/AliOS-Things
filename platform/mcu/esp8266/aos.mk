@@ -106,5 +106,7 @@ $(NAME)_SOURCES          += aos/hook_impl.c
 $(NAME)_SOURCES          += aos/soc_impl.c
 endif
 
+include platform/mcu/esp8266/espos/espos.mk
+
 ifneq ($(mesh),0)
 endif
