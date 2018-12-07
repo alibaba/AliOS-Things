@@ -15,7 +15,7 @@ typedef struct {
     bool cli_enable;
 } kinit_t;
 
-extern int aos_kernel_init(kinit_t *kinit);
+extern int aos_components_init(kinit_t *kinit);
 
 #ifdef AOS_BINS
 #include <k_api.h>
