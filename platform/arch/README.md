@@ -41,7 +41,7 @@ supported CPU code here. It includes CPU architecture's shcedule codes.
         |-- mips-I
     |--risc-v
         |-- risc_v32I
-    |--rl78 
+    |--rl78
         |-- iar
         |-- ccrl
     |--rx600
