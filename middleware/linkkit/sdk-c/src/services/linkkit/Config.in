@@ -9,6 +9,7 @@ config DEVICE_MODEL_ENABLED
     select AOS_COMP_LIBIOT_DM
     select UTILS_LITE_CJSON
     select WITH_FAC_JSON_FLOW
+    select UTILS_EVENT
 
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
