@@ -5,6 +5,10 @@
 #ifndef PORT_H
 #define PORT_H
 
+#include "k_vector.h"
+#include "k_cache.h"
+#include "k_mmu.h"
+
 size_t cpu_intrpt_save(void);
 void   cpu_intrpt_restore(size_t cpsr);
 void   cpu_intrpt_switch(void);
@@ -17,10 +21,12 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
     return 0;
 }
 
-#define CPSR_ALLOC() size_t cpsr
+/*  Cortex-A5 processor: The cache line length is eight words.  */
+#define RHINO_CACHE_LINE_SIZE       32
 
-#define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save(); }
-#define RHINO_CPU_INTRPT_ENABLE()  { cpu_intrpt_restore(cpsr); }
+#define CPSR_ALLOC()                size_t cpsr
+#define RHINO_CPU_INTRPT_DISABLE()  do{ cpsr = cpu_intrpt_save(); }while(0)
+#define RHINO_CPU_INTRPT_ENABLE()   do{ cpu_intrpt_restore(cpsr); }while(0)
 
 #endif /* PORT_H */
 

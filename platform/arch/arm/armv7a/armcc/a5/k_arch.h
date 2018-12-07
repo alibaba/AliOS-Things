@@ -45,24 +45,21 @@
 #define CPSR_SVC_ARM                        (CPSR_Mode_SVC | CPSR_ARM)
 
 /* Instruction Synchronization Barrier */
-#define OS_ISB() \
-    __asm volatile ("isb sy":::"memory")
+#define OS_ISB()    __isb()
 
 /* Data Memory Barrier */
-#define OS_DMB() \
-    __asm volatile ("dmb sy":::"memory")
+#define OS_DMB()    __dmb()
 
 /* Data Synchronization Barrier */
-#define OS_DSB() \
-    __asm volatile ("dsb sy":::"memory")
+#define OS_DSB()    __dsb()
 
 /* Get coprocessor 15 ( System control functionality ) */
 #define OS_GET_CP15(op1, Rt, CRn, CRm, op2) \
-    __asm volatile("mrc p15, " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : "=r" (Rt) : : "memory" )
+    __asm ("mrc p15, " # op1 ", " # Rt ", c" # CRn ", c" # CRm ", " # op2)
 
 /* Set coprocessor 15 ( System control functionality ) */
 #define OS_SET_CP15(op1, Rt, CRn, CRm, op2) \
-    __asm volatile("mcr p15, " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : : "r" (Rt) : "memory" )
+    __asm ("mcr p15, " # op1 ", " # Rt ", c" # CRn ", c" # CRm ", " # op2)
 
 
 /********** CP15 c0 register summary, identification registers **********/
