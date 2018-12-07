@@ -48,6 +48,8 @@ for iter in ${ALL_SUB_DIRS}; do
                 cp -f ${TOP_DIR}/${iter}/${SRC_PATH} ${DIST_SRC_DIR}
             fi
         done
+        cp -f ${TOP_DIR}/src/protocol/mqtt/MQTTPacket/*.c ${DIST_SRC_DIR}
+
         cp -f ${TOP_DIR}/include/iot_export.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/include/iot_import.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/include/imports/iot_import_config.h ${DIST_INC_DIR}
@@ -57,7 +59,7 @@ for iter in ${ALL_SUB_DIRS}; do
         cp -f ${TOP_DIR}/src/infra/system/report.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/include/imports/iot_import_tcp.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/src/protocol/mqtt/iotx_mqtt_internal.h ${DIST_INC_DIR}
-        cp -f ${TOP_DIR}/src/protocol/mqtt/MQTTPacket/* ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/protocol/mqtt/MQTTPacket/*.h ${DIST_INC_DIR}
     fi
 
     cd ${OLDPWD}
