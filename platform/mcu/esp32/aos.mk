@@ -153,3 +153,4 @@ $(NAME)_SOURCES  += hal/wdg.c
 
 $(NAME)_SOURCES  += hal/rtc.c
 
+include platform/mcu/esp32/espos/espos.mk
