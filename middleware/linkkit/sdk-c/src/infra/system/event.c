@@ -1,6 +1,6 @@
 #if defined(DEVICE_MODEL_ENABLED) && !(DEPRECATED_LINKKIT) || defined(WIFI_PROVISION_ENABLED)
 
-#include "iot_export.h"
+#include "iot_import.h"
 
 typedef struct {
     int eventid;

@@ -87,7 +87,7 @@ static int iotx_calc_sign(const char *p_device_secret, const char *p_msg, char *
 {
     http_info("| method: %s", IOTX_SHA_METHOD);
     utils_hmac_sha1(p_msg, strlen(p_msg), sign, p_device_secret, strlen(p_device_secret));
-    return IOTX_SUCCESS;
+    return SUCCESS_RETURN;
 }
 
 static int calc_snprintf_string_length(char *fmt, ...)
@@ -232,10 +232,10 @@ void *IOT_HTTP_Init(iotx_http_param_t *pInitParams)
 
     /*It should be implement by the user*/
     memset(iotx_http_context->p_devinfo, 0x00, sizeof(iotx_device_info_t));
-    strncpy(iotx_http_context->p_devinfo->device_id,     p_devinfo->device_id,     IOTX_DEVICE_ID_LEN);
-    strncpy(iotx_http_context->p_devinfo->product_key,   p_devinfo->product_key,   IOTX_PRODUCT_KEY_LEN);
-    strncpy(iotx_http_context->p_devinfo->device_secret, p_devinfo->device_secret, IOTX_DEVICE_SECRET_LEN);
-    strncpy(iotx_http_context->p_devinfo->device_name,   p_devinfo->device_name,   IOTX_DEVICE_NAME_LEN);
+    strncpy(iotx_http_context->p_devinfo->device_id,     p_devinfo->device_id,     strlen(p_devinfo->device_id));
+    strncpy(iotx_http_context->p_devinfo->product_key,   p_devinfo->product_key,   strlen(p_devinfo->product_key));
+    strncpy(iotx_http_context->p_devinfo->device_secret, p_devinfo->device_secret, strlen(p_devinfo->device_secret));
+    strncpy(iotx_http_context->p_devinfo->device_name,   p_devinfo->device_name,   strlen(p_devinfo->device_name));
 
     iotx_http_context->httpc = HTTP_API_MALLOC(sizeof(httpclient_t));
     if (NULL == iotx_http_context->httpc) {

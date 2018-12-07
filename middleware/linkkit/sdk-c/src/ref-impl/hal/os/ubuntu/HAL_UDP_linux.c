@@ -19,6 +19,7 @@
 #include "iotx_hal_internal.h"
 #include "iot_import.h"
 
+#if defined(WITH_UDP_NTP_CLIENT) || defined(COAP_COMM_ENABLED) || defined(DEV_BIND_ENABLED)
 
 intptr_t HAL_UDP_create(char *host, unsigned short port)
 {
@@ -444,3 +445,4 @@ int HAL_UDP_sendto(_IN_ intptr_t sockfd,
 
     return (ret) > 0 ? ret : -1;
 }
+#endif

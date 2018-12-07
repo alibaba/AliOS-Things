@@ -34,6 +34,12 @@ extern "C" {
 #define DEVICE_SECRET_LEN   (64)
 #define PRODUCT_SECRET_LEN  (64)
 
+#define PRODUCT_KEY_MAXLEN          (20 + 1)
+#define DEVICE_NAME_MAXLEN          (32 + 1)
+#define DEVICE_ID_MAXLEN            (64 + 1)
+#define DEVICE_SECRET_MAXLEN        (64 + 1)
+#define PRODUCT_SECRET_MAXLEN       (64 + 1)
+
 #define LINKKIT_VERSION     "2.3.0"
 #define MODULE_VENDOR_ID    (32)    /* Partner ID */
 
@@ -237,17 +243,17 @@ DLL_IOT_API int IOT_Ioctl(int option, void *data);
 
 /** @} */ /* end of api */
 
-#include "exports/iot_export_compat.h"
-#include "exports/iot_export_errno.h"
-#include "exports/iot_export_awss.h"
-#include "exports/iot_export_mqtt.h"
-#include "exports/iot_export_shadow.h"
-#include "exports/iot_export_coap.h"
-#include "exports/iot_export_ota.h"
-#include "exports/iot_export_http.h"
-#include "exports/iot_export_event.h"
-#include "exports/iot_export_http2.h"
-#include "exports/iot_export_http2_stream.h"
+#include "iot_export_compat.h"
+#include "iot_export_errno.h"
+#include "iot_export_awss.h"
+#include "iot_export_mqtt.h"
+#include "iot_export_shadow.h"
+#include "iot_export_coap.h"
+#include "iot_export_ota.h"
+#include "iot_export_http.h"
+#include "iot_export_event.h"
+#include "iot_export_http2.h"
+#include "iot_export_http2_stream.h"
 
 #if defined(__cplusplus)
 }

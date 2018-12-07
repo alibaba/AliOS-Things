@@ -242,7 +242,6 @@ int iotx_report_firmware_version(void *pclient)
     int ret;
     char topic_name[IOTX_URI_MAX_LEN + 1] = {0};
     char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
-    /* iotx_mqtt_topic_info_t topic_info; */
     char version[FIRMWARE_VERSION_MAXLEN] = {0};
 
     if (info_report_func == NULL) {
@@ -307,7 +306,6 @@ int iotx_report_mid(void *pclient)
 {
     int                         ret;
     char                        topic_name[IOTX_URI_MAX_LEN + 1];
-    iotx_mqtt_topic_info_t      topic_info;
     char                        requestId[MIDREPORT_REQID_LEN + 1] = {0};
     char                        pid[PID_STRLEN_MAX + 1] = {0};
     char                        mid[MID_STRLEN_MAX + 1] = {0};
@@ -354,8 +352,6 @@ int iotx_report_mid(void *pclient)
                            pid);
 
     VERSION_DEBUG("MID Report: json data = '%s'", msg);
-
-    memset(&topic_info, 0, sizeof(iotx_mqtt_topic_info_t));
 
     ret = iotx_midreport_topic(topic_name,
                                "",

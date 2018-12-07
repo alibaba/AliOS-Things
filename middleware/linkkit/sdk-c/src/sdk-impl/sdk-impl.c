@@ -51,7 +51,6 @@ int IOT_SetupConnInfo(const char *product_key,
 {
     int                 rc = 0;
     char                device_secret_actual[DEVICE_SECRET_MAXLEN] = {0};
-    int                 device_secret_len = DEVICE_SECRET_MAXLEN;
     sdk_impl_ctx_t     *ctx = sdk_impl_get_ctx();
 
     STRING_PTR_SANITY_CHECK(product_key, -1);
@@ -74,6 +73,9 @@ int IOT_SetupConnInfo(const char *product_key,
         }
 #endif
     } else {
+#ifdef DYNAMIC_REGISTER
+        int device_secret_len = DEVICE_SECRET_MAXLEN;
+
         /* Check if Device Secret exit in KV */
         if (HAL_Kv_Get(KV_KEY_DEVICE_SECRET, device_secret_actual, &device_secret_len) == 0) {
             sdk_info("Get DeviceSecret from KV succeed");
@@ -81,7 +83,6 @@ int IOT_SetupConnInfo(const char *product_key,
             *(device_secret_actual + device_secret_len) = 0;
             HAL_SetDeviceSecret(device_secret_actual);
         } else {
-#ifdef DYNAMIC_REGISTER
             char product_secret[PRODUCT_SECRET_MAXLEN] = {0};
 
             /* KV not exit, goto dynamic register */
@@ -108,11 +109,11 @@ int IOT_SetupConnInfo(const char *product_key,
             }
 
             HAL_SetDeviceSecret(device_secret_actual);
-#else
-            sdk_info("DeviceSecret KV not exist, But Dynamic Register Is Disabled");
-            return FAIL_RETURN;
-#endif
         }
+#else
+        sdk_info("DeviceSecret KV not exist, But Dynamic Register Is Disabled");
+        return FAIL_RETURN;
+#endif
     }
 
     /* iotx_device_info_set(product_key, device_name, device_secret_actual); */

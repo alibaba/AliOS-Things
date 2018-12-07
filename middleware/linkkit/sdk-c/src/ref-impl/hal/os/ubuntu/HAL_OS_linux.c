@@ -626,8 +626,6 @@ uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
     return ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
 }
 
-// static kv_file_t *kvfile = NULL;
-
 static long long os_time_get(void)
 {
     struct timeval tv;
@@ -749,7 +747,6 @@ int HAL_GetNetifInfo(char *nif_str)
 #endif
     return strlen(nif_str);
 }
-
 
 int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
 {

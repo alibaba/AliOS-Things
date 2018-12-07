@@ -14,6 +14,7 @@
 #include "awss_wifimgr.h"
 #include "awss_crypt.h"
 #include "zconfig_utils.h"
+#include "iotx_utils.h"
 
 #ifndef AWSS_DISABLE_ENROLLEE
 

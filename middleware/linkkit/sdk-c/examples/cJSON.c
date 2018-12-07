@@ -19,6 +19,7 @@ THE SOFTWARE.
 
 /* cJSON */
 /* JSON parser in C. */
+#if defined(DYNAMIC_REGISTER) || defined(ALCS_ENABLED) || defined(WIFI_PROVISION_ENABLED)
 
 #ifdef __GNUC__
     #pragma GCC visibility push(default)
@@ -2267,3 +2268,4 @@ CJSON_PUBLIC(void) cJSON_free(void *object)
 {
     global_hooks.deallocate(object);
 }
+#endif

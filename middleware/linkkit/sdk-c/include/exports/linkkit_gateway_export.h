@@ -185,7 +185,7 @@ typedef struct {
      *
      * @return output data size. < 0 when fail.
      */
-    ssize_t (*down_rawdata)(const void *in, int in_len, void *out, int out_len, void *ctx);
+    int (*down_rawdata)(const void *in, int in_len, void *out, int out_len, void *ctx);
 
     /**
      * @brief return data from cloud when calling linkkit_gateway_post_rawdata().
