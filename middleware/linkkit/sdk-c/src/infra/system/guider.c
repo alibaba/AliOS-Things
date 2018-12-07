@@ -738,6 +738,7 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 #ifdef SUPPORT_ITLS
                       ",authtype=id2"
 #endif
+                      ",ver=c-sdk-%s"
                       "|"
                       , dev.device_id
                       , secure_mode
@@ -746,6 +747,7 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
                       , ext
                       , partner_id
                       , module_id
+                      , LINKKIT_VERSION
                      );
 
     guider_print_conn_info(conn);
