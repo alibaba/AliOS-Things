@@ -35,9 +35,11 @@ static void sys_init(void)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
     hal_wifi_init();
 #endif
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
 
-    application_start(0, NULL);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 }
 
 int main(void)

@@ -29,14 +29,14 @@ static void sys_init(void *arg)
 {
     int ret = 0;
 
-	xm_driver_init();
-	xm_cli_init();
+    xm_driver_init();
+    xm_cli_init();
 
-	//test_certificate();
-	application_start(kinit.argc, kinit.argv);
+    //test_certificate();
+    application_start(kinit.argc, kinit.argv);
 
     while(1) {
-		aos_msleep(20000);
+        aos_msleep(20000);
     }
 }
 
@@ -56,7 +56,7 @@ void sys_start(void)
 
     soc_driver_init();
 
-    //aos_kernel_init(&kinit);
+    //aos_components_init(&kinit);
     tcpip_init(NULL, NULL);
 
     vfs_init();
@@ -74,5 +74,5 @@ void sys_start(void)
 
     krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 50, 0, AOS_START_STACK, sys_init, 1);
 
-	aos_start();
+    aos_start();
 }

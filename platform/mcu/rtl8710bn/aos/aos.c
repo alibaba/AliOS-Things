@@ -123,15 +123,15 @@ static void board_mode_check(void)
             qc_test(0);
     }
     if(elink == 0){
-	if(OTA_INDEX_1 == ota_get_cur_index()) {
-             OTA_Change(OTA_INDEX_2);
-             printf("-----change OTA 2 \r\n");
-	} else {
-             OTA_Change(OTA_INDEX_1);
-             printf("-----change OTA 1 \r\n");
-	}
-	aos_msleep(1000);
-	hal_reboot();
+        if(OTA_INDEX_1 == ota_get_cur_index()) {
+            OTA_Change(OTA_INDEX_2);
+            printf("-----change OTA 2 \r\n");
+        } else {
+            OTA_Change(OTA_INDEX_1);
+            printf("-----change OTA 1 \r\n");
+        }
+        aos_msleep(1000);
+        hal_reboot();
     }
 
     board_init();
@@ -139,9 +139,9 @@ static void board_mode_check(void)
 
 void sys_init_func(void)
 {
-	hal_init();
+    hal_init();
 
-	hw_start_hal();
+    hw_start_hal();
 
     hal_wlan_init();
 
@@ -152,7 +152,10 @@ void sys_init_func(void)
     board_mode_check();
 #endif
 
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 
     krhino_task_dyn_del(NULL);
 }
