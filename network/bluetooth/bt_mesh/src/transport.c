@@ -30,6 +30,7 @@
 #include "access.h"
 #include "foundation.h"
 #include "transport.h"
+#include "bt_mesh_custom_log.h"
 
 #define AID_MASK                    ((u8_t)(BIT_MASK(6)))
 
@@ -764,10 +765,15 @@ static int ctl_recv(struct bt_mesh_net_rx *rx, u8_t hdr,
 		return trans_heartbeat(rx, buf);
 	}
 
+	BT_DBG("%s %d", __func__, __LINE__);
+
 	/* Only acks and heartbeats may need processing without local_match */
 	if (!rx->local_match) {
 		return 0;
 	}
+
+	bool estblshed = bt_mesh_lpn_established();
+	BT_DBG("%s %d, estblshed: %d", __func__, __LINE__, estblshed);
 
 	if (IS_ENABLED(CONFIG_BT_MESH_FRIEND) && !bt_mesh_lpn_established()) {
 		switch (ctl_op) {
@@ -788,6 +794,7 @@ static int ctl_recv(struct bt_mesh_net_rx *rx, u8_t hdr,
 
 #if defined(CONFIG_BT_MESH_LOW_POWER)
 	if (ctl_op == TRANS_CTL_OP_FRIEND_OFFER) {
+		BT_DBG("%s friend offer pkt received.", __func__);
 		return bt_mesh_lpn_friend_offer(rx, buf);
 	}
 

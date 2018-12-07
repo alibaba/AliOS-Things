@@ -28,6 +28,7 @@
 #include "prov.h"
 #include "proxy.h"
 #include "bt_mesh_adv.h"
+#include "bt_mesh_custom_log.h"
 
 /* Window and Interval are equal for continuous scanning */
 #define MESH_SCAN_INTERVAL 0x10

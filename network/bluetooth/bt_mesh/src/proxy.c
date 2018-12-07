@@ -27,6 +27,7 @@
 #include "foundation.h"
 #include "access.h"
 #include "proxy.h"
+#include "bt_mesh_custom_log.h"
 
 #define PDU_TYPE(data)     (data[0] & BIT_MASK(6))
 #define PDU_SAR(data)      (data[0] >> 6)
