@@ -30,7 +30,7 @@
 
 #include "iot_import.h"
 #include "iotx_hal_internal.h"
-#include "kv.h"
+#include "hash_kv.h"
 
 #define __DEMO__
 
@@ -626,43 +626,7 @@ uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
     return ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
 }
 
-static kv_file_t *kvfile = NULL;
-
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
-{
-    if (!kvfile) {
-        kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile) {
-            return -1;
-        }
-    }
-
-    return kv_set_blob(kvfile, (char *)key, (char *)val, len);
-}
-
-int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
-{
-    if (!kvfile) {
-        kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile) {
-            return -1;
-        }
-    }
-
-    return kv_get_blob(kvfile, (char *)key, buffer, buffer_len);
-}
-
-int HAL_Kv_Del(const char *key)
-{
-    if (!kvfile) {
-        kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile) {
-            return -1;
-        }
-    }
-
-    return kv_del(kvfile, (char *)key);
-}
+// static kv_file_t *kvfile = NULL;
 
 static long long os_time_get(void)
 {
@@ -784,4 +748,21 @@ int HAL_GetNetifInfo(char *nif_str)
     // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
 #endif
     return strlen(nif_str);
+}
+
+
+int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
+{
+    return kv_set(key, (void *)val, len);
+}
+
+int HAL_Kv_Get(const char *key, void *val, int *buffer_len)
+{
+    return kv_get(key, val, buffer_len);
+}
+
+int HAL_Kv_Del(const char *key)
+{
+
+    return kv_del(key);
 }
