@@ -10,7 +10,8 @@ $(NAME)_COMPONENTS += newlib_stub rhino vfs kv digest_algorithm
 
 GLOBAL_DEFINES += USE_HAL_DRIVER
 
-GLOBAL_INCLUDES += hal                                     \
+GLOBAL_INCLUDES += include                                 \
+                   hal                                     \
                    Drivers/STM32F4xx_HAL_Driver/Inc        \
                    Drivers/STM32F4xx_HAL_Driver/Inc/Legacy \
                    Drivers/CMSIS/Include                   \

@@ -100,6 +100,10 @@ $(NAME)_SOURCES := platform_init.c              \
                    hal/uart.c                   \
                    hal/flash.c                  \
 
+GLOBAL_INCLUDES += ./mico/include
+
+$(NAME)_SOURCES += mico/mico_rhino.c
+
 ###      wifi/src/wifi.c hal/hw.c hal/wifi_port.c  hal/flash_port.c
 
 GLOBAL_LDFLAGS += -L ./platform/mcu/stm32f4xx/$(TOOLCHAIN_NAME)
