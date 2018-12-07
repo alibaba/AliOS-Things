@@ -196,6 +196,8 @@ typedef struct{
     r_u8 pw[MAX_PW_LEN];
     r_u8 channel;
     r_u8 secure;
+    r_u8 hidden;
+    r_u16 beacon;
     r_u32 ip;
     r_u32 netmask;
     r_u32 gateway;
