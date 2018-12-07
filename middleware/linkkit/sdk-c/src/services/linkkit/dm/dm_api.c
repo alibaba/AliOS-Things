@@ -791,6 +791,51 @@ int iotx_dm_get_device_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status)
 
     return res;
 }
+#ifdef DEVICE_MODEL_SUBDEV_OTA
+int iotx_dm_firmware_version_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    if (devid < 0 || payload == NULL || payload_len <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    _dm_api_lock();
+    res = dm_mgr_upstream_thing_firmware_version_update(devid, payload, payload_len);
+    if (res < SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return res;
+}
+
+int iotx_dm_send_firmware_version(int devid, const char *version)
+{
+    char msg[FIRMWARE_VERSION_MSG_LEN] = {0};
+    /* firmware report message json data generate */
+    int ret = HAL_Snprintf(msg,
+                           FIRMWARE_VERSION_MSG_LEN,
+                           "{\"id\":\"%d\",\"params\":{\"version\":\"%s\"}}",
+                           iotx_report_id(),
+                           version
+                          );
+    if (ret <= 0) {
+        printf("firmware report message json data generate err");
+        return FAIL_RETURN;
+    }
+    int msg_len = strlen(msg);
+
+    ret = iotx_dm_firmware_version_update(devid, msg, msg_len);
+    return SUCCESS_RETURN;
+}
+
+int iotx_dm_ota_switch_device(_IN_ int devid)
+{
+    return dm_ota_switch_device(devid);
+}
+#endif
 #endif
 
 #ifdef DEPRECATED_LINKKIT
