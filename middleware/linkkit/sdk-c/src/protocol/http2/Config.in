@@ -2,6 +2,7 @@ menuconfig AOS_COMP_LIBIOT_HTTP2
     default y
     select AOS_COMP_LIBIOT_UTILS
     select UTILS_SHA1
+
     help
       Nghttp2 and its encapsulation
 

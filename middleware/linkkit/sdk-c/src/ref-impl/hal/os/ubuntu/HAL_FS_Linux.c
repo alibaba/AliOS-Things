@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#ifdef FS_ENABLED
 
 #include <string.h>
 #include <stdio.h>
@@ -34,3 +35,4 @@ long HAL_Ftell(void *stream)
 {
     return ftell((FILE *)stream);
 }
+#endif
