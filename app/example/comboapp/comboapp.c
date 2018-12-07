@@ -321,10 +321,10 @@ int application_start(int argc, char **argv)
     };
 
     if (combo_init() == 0) {
-        breeze_awss_start(apinfo_ready_handler, &dinfo);
+        breeze_awss_init(apinfo_ready_handler, &dinfo);
     }
 
-    breeze_event_dispatcher();
+    breeze_awss_start();
 
     return 0;
 }

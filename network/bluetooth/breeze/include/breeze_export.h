@@ -31,12 +31,6 @@ typedef enum
     NONE
 } breeze_event_t;
 
-typedef enum
-{
-    ALI_AUTH_BY_PRODUCT_SECRET, /**< Authentication by product secret. */
-    ALI_AUTH_BY_DEVICE_SECRET,  /**< Authentication by device secret. */
-} ali_auth_type_t;
-
 typedef struct
 {
     char    ssid[32 + 1];
@@ -85,6 +79,14 @@ typedef void (*set_dev_status_cb)(uint8_t *buffer, uint32_t length);
  */
 typedef void (*get_dev_status_cb)(uint8_t *buffer, uint32_t length);
 
+/**
+ * @brief Callback when ap info obtained.
+ *
+ * @param[out] model @n ap info struct.
+ * @return None.
+ * @see None.
+ * @note This API should be implemented by user and will be called by SDK.
+ */
 typedef void (*apinfo_ready_cb)(breeze_apinfo_t *ap);
 
 /**
@@ -105,9 +107,6 @@ struct device_config
     char            product_secret[STR_PROD_SEC_LEN];
     uint8_t         product_secret_len;
     char            version[STR_VER_LEN];
-    bool            enable_ota;
-    bool            enable_auth;
-    ali_auth_type_t auth_type;
     dev_status_changed_cb status_changed_cb;
     set_dev_status_cb     set_cb;
     get_dev_status_cb     get_cb;
@@ -131,6 +130,27 @@ int breeze_start(struct device_config *dev_conf);
  * @note This API is called by user to stop the breeze services.
  */
 int breeze_end(void);
+
+/**
+ * @brief Initialize breeze awss module.
+ *
+ * @param[in] cb    The callback to be called by breeze SDK when AP info ready.
+ * @param[in] info  The device information required by breeze SDK.
+ * @return None.
+ * @see None.
+ */
+void breeze_awss_init(apinfo_ready_cb cb, breeze_dev_info_t *info);
+
+/**
+ * @brief Start breeze awss process.
+ *
+ * @param None.
+ * @return None.
+ * @see None.
+ *
+ * @note When this API is called, do not call breeze_start anymore.
+ */
+void breeze_awss_start();
 
 /**
  * @brief Post device status.
@@ -191,16 +211,6 @@ void breeze_append_adv_data(uint8_t *data, uint32_t len);
  */
 void breeze_restart_advertising();
 
-/**
- * @brief Start breeze awss process.
- *
- * @param[in] cb    The callback to be called by breeze SDK when AP info ready.
- * @param[in] info  The device information required by breeze SDK.
- * @return None.
- * @see None.
- * @note When this API is called, do not call breeze_start anymore.
- */
-void breeze_awss_start(apinfo_ready_cb cb, breeze_dev_info_t *info);
 
 #if defined(__cplusplus) /* If this is a C++ compiler, use C linkage */
 }

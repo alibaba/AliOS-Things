@@ -293,7 +293,7 @@ ais_err_t ble_send_notification(uint8_t *p_data, uint16_t length);
  * @parma[in]  length  data length.
  * @return     0 on success, erro code if failure.
  */
-ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length);
+ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length, void (*txdone)(uint8_t res));
 
 /**
  * API to disconnect BLE connection.
