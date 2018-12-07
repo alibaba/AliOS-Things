@@ -21,7 +21,10 @@ static kinit_t kinit = {
 
 static void app_entry(void *arg)
 {
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 }
 
 #ifdef ENABLE_WIFI

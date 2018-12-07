@@ -53,7 +53,10 @@ static void sys_init(void)
 #ifdef AOS_CPLUSPLUS
     cpp_init();
 #endif
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 #endif
 }
 

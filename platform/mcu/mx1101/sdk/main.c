@@ -27,18 +27,18 @@ extern int application_start(int argc, char **argv);
 
 void fuart_init(void )
 {
-	ClkModuleEn( FUART_CLK_EN );
+    ClkModuleEn( FUART_CLK_EN );
 
-	GpioFuartTxIoConfig(1);
-	GpioFuartRxIoConfig(1);
+    GpioFuartTxIoConfig(1);
+    GpioFuartRxIoConfig(1);
 
-	FuartInit(115200, 8, 0, 1);
-	FuartIOctl(UART_IOCTL_RXINT_SET, 1);
+    FuartInit(115200, 8, 0, 1);
+    FuartIOctl(UART_IOCTL_RXINT_SET, 1);
 }
 
 void fuart_send(const uint8_t *buf, uint32_t size )
 {
-	FuartSend((uint8_t *)buf, size);
+    FuartSend((uint8_t *)buf, size);
 }
 
 static kinit_t kinit = {
@@ -54,48 +54,51 @@ void trace_start(void)
 
 static void sys_init(void)
 {
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 }
 
 int main( void )
 {
-	/* Setup the interrupt vectors address */
-	*SCB_VTOR_ADDRESS = 0xB000;
-	
-	//  /* Configure Clocks */
-	ClkModuleDis(ALL_MODULE_CLK_SWITCH &(~(FSHC_CLK_EN)));	
-	ClkModuleEn( FSHC_CLK_EN );
-	//ClkModuleEn( FSHC_CLK_EN | FUART_CLK_EN | SD_CLK_EN | BUART_CLK_EN );	//enable Fuart clock for debugging
-	ClkModuleGateEn( ALL_MODULE_CLK_GATE_SWITCH );        //open all clk gating  
+    /* Setup the interrupt vectors address */
+    *SCB_VTOR_ADDRESS = 0xB000;
 
-	ClkPorRcToDpll(0);              //clock src is 32768hz OSC
-	ClkDpllClkGatingEn(1);
+    //  /* Configure Clocks */
+    ClkModuleDis(ALL_MODULE_CLK_SWITCH &(~(FSHC_CLK_EN)));
+    ClkModuleEn( FSHC_CLK_EN );
+    //ClkModuleEn( FSHC_CLK_EN | FUART_CLK_EN | SD_CLK_EN | BUART_CLK_EN ); /enable Fuart clock for debugging
+    ClkModuleGateEn( ALL_MODULE_CLK_GATE_SWITCH );        //open all clk gating
 
-	CacheInit();
+    ClkPorRcToDpll(0);              //clock src is 32768hz OSC
+    ClkDpllClkGatingEn(1);
 
-	//Disable Watchdog
-	WdgDis();
-	
-	NVIC_SetPriorityGrouping(__NVIC_PRIO_BITS + 1);
-	NVIC_SetPriority(FUART_IRQn,  FUART_IRQn_PRIO);
-	NVIC_SetPriority(BUART_IRQn,  BUART_IRQn_PRIO);
-	
-	fuart_init();
-	printf("Hello world\r\n");
-	printf("Built at %s, %s\r\n",__DATE__,__TIME__);
+    CacheInit();
 
-	platform_flash_init();
+    //Disable Watchdog
+    WdgDis();
 
-	SysTick_Config(MCU_CLOCK_HZ/1000);
-	
-	aos_init();
-	krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, 2048, sys_init, 1);
-	aos_start();
+    NVIC_SetPriorityGrouping(__NVIC_PRIO_BITS + 1);
+    NVIC_SetPriority(FUART_IRQn,  FUART_IRQn_PRIO);
+    NVIC_SetPriority(BUART_IRQn,  BUART_IRQn_PRIO);
 
-	/* Should never get here, unless there is an error in vTaskStartScheduler */
-	for(;;);
+    fuart_init();
+    printf("Hello world\r\n");
+    printf("Built at %s, %s\r\n",__DATE__,__TIME__);
 
-	return 0;
+    platform_flash_init();
+
+    SysTick_Config(MCU_CLOCK_HZ/1000);
+
+    aos_init();
+    krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, 2048, sys_init, 1);
+    aos_start();
+
+    /* Should never get here, unless there is an error in vTaskStartScheduler */
+    for(;;);
+
+    return 0;
 }
 
 #include <hal/soc/soc.h>
@@ -104,25 +107,25 @@ uart_dev_t uart_0;
 
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
-	fuart_send(data, size);
+    fuart_send(data, size);
     return 0;
 }
 
 int _write( int file, char *ptr, int len )
 {
-	hal_uart_send(&uart_0, ptr, len, 0xFFFFFFFF);
-	return len;
+    hal_uart_send(&uart_0, ptr, len, 0xFFFFFFFF);
+    return len;
 }
 
 void SysTick_Handler(void)
 {
-	static uint32_t tick = 0;
-	tick++;
+    static uint32_t tick = 0;
+    tick++;
 
-	if (0 == tick % 10) 
-	{
-		krhino_intrpt_enter();
-		krhino_tick_proc();
-		krhino_intrpt_exit();
-	}
+    if (0 == tick % 10)
+    {
+        krhino_intrpt_enter();
+        krhino_tick_proc();
+        krhino_intrpt_exit();
+    }
 }
