@@ -1,9 +1,39 @@
+## Contents
+
+## Introduction
+supported boards' code here. It includes board init related codes.
+    * board init codes
+    * kernel config codes
+    * startup.c which include main function
+    * ld\scatter file
+    * peripheral drivers for this board
+
+### Features
+- board supported
+
+### Standand directories layout
+```sh
+|--board
+    |--xxx
+        |--config
+        |   --board.h                   : board config file, define for user, such as uart port num             Y
+        |   --k_config.c                : user's kernel hook and mm memory region define                        Y
+        |   --k_config.h                : kernel config file .h                                                 Y
+        |   --partition_conf.c          : board flash config file                                               N
+        |--drivers                      : board peripheral driver                                               N
+        |--startup
+        |   --board.c                   : board config implement                                                Y
+        |   --startup.c                 : main entry file                                                       Y
+        |--xxx.ld                       : link script                                                           Y
+        |--aos.mk                       : board makefile                                                        Y
+        |--README
+```
 ### Supported Boards
 
 * ARM
     * Cortex-M0
         * [eml3047](./eml3047/README.md)
-		* [frdmkl26z](./frdmkl26z/README.md)
+        * [frdmkl26z](./frdmkl26z/README.md)
         * [frdmkl27z](./frdmkl27z/README.md)
         * [frdmkl28z](./frdmkl28z/README.md)
         * [frdmkl43z](./frdmkl43z/README.md)
@@ -56,6 +86,7 @@
 * C-Sky
     * CK802
         * [cb2210](./cb2210/README.md)
-* RISC-V
-    * RISCY
-        * [rv32m1_vega](./rv32m1_vega/README.md)
+
+### Dependencies
+
+## Reference
