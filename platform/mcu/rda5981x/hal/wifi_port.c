@@ -329,6 +329,8 @@ static int start_ap(hal_wifi_module_t *m, const char *ssid, const char *passwd, 
     strncpy(aws_ap_info.pw, passwd, sizeof(aws_ap_info.pw));
 
     aws_ap_info.channel = 6;
+    aws_ap_info.hidden = hide;
+    aws_ap_info.beacon = interval;
 
 	aws_ap_info.dhcps=inet_addr("10.10.100.1");
 	aws_ap_info.dhcpe=inet_addr("10.10.100.255");
