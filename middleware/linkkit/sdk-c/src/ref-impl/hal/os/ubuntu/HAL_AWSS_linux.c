@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifdef WIFI_PROVISION_ENABLED
+#ifdef DEV_BIND_ENABLED
 
 #include <string.h>
 #include "iot_import.h"

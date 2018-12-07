@@ -42,6 +42,10 @@ extern "C" {
 #define IOT_TRUE                    (1)     /* indicate boolean value true */
 #define IOT_FALSE                   (0)     /* indicate boolean value false */
 
+#ifndef NULL
+#define NULL (void *)0
+#endif
+
 /** @defgroup group_platform platform
  *  @{
  */
@@ -516,15 +520,15 @@ DLL_HAL_API int HAL_Fclose(void *stream);
 DLL_HAL_API long HAL_Ftell(void *stream);
 
 #include "iot_export.h"
-#include "imports/iot_import_config.h"
-#include "imports/iot_import_product.h"
-#include "imports/iot_import_crypt.h"
-#include "imports/iot_import_awss.h"
-#include "imports/iot_import_dtls.h"
-#include "imports/iot_import_tls.h"
-#include "imports/iot_import_tcp.h"
-#include "imports/iot_import_udp.h"
-#include "imports/iot_import_ota.h"
+#include "iot_import_config.h"
+#include "iot_import_product.h"
+#include "iot_import_tcp.h"
+#include "iot_import_crypt.h"
+#include "iot_import_awss.h"
+#include "iot_import_dtls.h"
+#include "iot_import_tls.h"
+#include "iot_import_udp.h"
+#include "iot_import_ota.h"
 
 #endif  /* SIM7000C_DAM */
 #if defined(__cplusplus)

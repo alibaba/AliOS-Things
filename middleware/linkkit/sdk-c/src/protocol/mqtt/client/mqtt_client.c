@@ -7,7 +7,6 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iotx_system.h"
-#include "iotx_utils.h"
 
 #include "MQTTPacket/MQTTPacket.h"
 #include "iotx_mqtt_internal.h"
