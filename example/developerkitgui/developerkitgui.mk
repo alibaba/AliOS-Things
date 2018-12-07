@@ -2,7 +2,7 @@ NAME := developerkitgui
 
 $(NAME)_SOURCES := developerkitgui.c AliOS_Things_logo.c sensor_display.c
 
-$(NAME)_COMPONENTS := yloop cli board.developerkit.camera_hal board.developerkit.irda_hal
+$(NAME)_COMPONENTS := yloop cli sensor board.developerkit.camera_hal board.developerkit.irda_hal
 
 ifeq ($(BENCHMARKS),1)
 $(NAME)_COMPONENTS  += benchmarks
