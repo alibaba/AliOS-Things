@@ -11,10 +11,18 @@
 #define USE_CUSTOME_DOMAIN      (0)
 
 // for demo only
+#if 0
 #define PRODUCT_KEY      "a16UKrlKekO"
 #define PRODUCT_SECRET   "RDluqbn3LQazrdqM"
 #define DEVICE_NAME      "gateway_test01"
 #define DEVICE_SECRET    "AT2XFOPOIbJaKfXsKeaEhabJ8TLhMQYp"
+#else
+#define PRODUCT_KEY      "a1X2bEnP82z"
+#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
+#define DEVICE_NAME      "example1"
+#define DEVICE_SECRET    "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
+#endif
+
 
 #if USE_CUSTOME_DOMAIN
     #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
