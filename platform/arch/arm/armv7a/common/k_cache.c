@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
 #include "k_arch.h"
 
 void k_icache_enable()
@@ -34,6 +33,29 @@ void k_icache_disable()
     */
     reg &= ~0x1000;
     os_set_SCTLR(reg);
+    OS_ISB();
+}
+
+void k_icache_invalidate(uintptr_t text, uintptr_t size)
+{
+    uint32_t reg;
+    uint32_t line;
+	uintptr_t ptr;
+
+    /* get the cache line size from CCSIDR:
+       LineSize, bits[2:0], (Log2(Number of words in cache line)) -2 */
+    reg  = os_get_CCSIDR();
+    line = 1 << ((reg & 0x7) + 4);
+
+	ptr = text & ~(line - 1);
+    OS_DSB();
+	while (ptr < text + size)
+	{
+        os_set_ICIMVAU(ptr);
+        os_set_BPIMVA(ptr);
+		ptr += line;
+	}
+    OS_DSB();
     OS_ISB();
 }
 
@@ -76,42 +98,63 @@ void k_dcache_disable()
 
 void k_dcache_clean(uintptr_t buffer, uintptr_t size)
 {
-	unsigned int ptr;
+    uint32_t reg;
+    uint32_t line;
+	uintptr_t ptr;
 
-	ptr = buffer & ~(RHINO_CACHE_LINE_SIZE - 1);
+    /* get the cache line size from CCSIDR:
+       LineSize, bits[2:0], (Log2(Number of words in cache line)) -2 */
+    reg  = os_get_CCSIDR();
+    line = 1 << ((reg & 0x7) + 4);
+
+	ptr = buffer & ~(line - 1);
 
 	while (ptr < buffer + size)
 	{
 	    os_set_DCCMVAC(ptr);
-		ptr += RHINO_CACHE_LINE_SIZE;
+		ptr += line;
 	}
     OS_DMB();
 }
 
 void k_dcache_invalidate(uintptr_t buffer, uintptr_t size)
 {
-	unsigned int ptr;
+    uint32_t reg;
+    uint32_t line;
+	uintptr_t ptr;
 
-	ptr = buffer & ~(RHINO_CACHE_LINE_SIZE - 1);
+    /* get the cache line size from CCSIDR:
+       LineSize, bits[2:0], (Log2(Number of words in cache line)) -2 */
+    reg  = os_get_CCSIDR();
+    line = 1 << ((reg & 0x7) + 4);
+
+	ptr = buffer & ~(line - 1);
 
 	while (ptr < buffer + size)
 	{
 	    os_set_DCIMVAC(ptr);
-		ptr += RHINO_CACHE_LINE_SIZE;
+		ptr += line;
 	}
     OS_DMB();
 }
 
 void k_dcache_clean_invalidate(uintptr_t buffer, uintptr_t size)
 {
-	unsigned int ptr;
+    uint32_t reg;
+    uint32_t line;
+	uintptr_t ptr;
 
-	ptr = buffer & ~(RHINO_CACHE_LINE_SIZE - 1);
+    /* get the cache line size from CCSIDR:
+       LineSize, bits[2:0], (Log2(Number of words in cache line)) -2 */
+    reg  = os_get_CCSIDR();
+    line = 1 << ((reg & 0x7) + 4);
+
+	ptr = buffer & ~(line - 1);
 
 	while(ptr < buffer + size)
 	{
 		os_set_DCCIMVAC(ptr);
-		ptr += RHINO_CACHE_LINE_SIZE;
+		ptr += line;
 	}
     OS_DMB();
 }

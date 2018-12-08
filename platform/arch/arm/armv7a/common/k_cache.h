@@ -3,6 +3,7 @@
 
 void k_icache_enable(void);
 void k_icache_disable(void);
+void k_dcache_invalidate(uintptr_t text, uintptr_t size);
 void k_icache_invalidate_all(void);
 
 void k_dcache_enable(void);
