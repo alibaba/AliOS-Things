@@ -2,6 +2,8 @@
 
 #define HAL_IWDG_DEFAULT_TIMEOUT            48u
 
+static unsigned char wdt_init_flag = 0;
+
 HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
 {
     uint32_t tickstart;
@@ -46,13 +48,7 @@ void hal_boot_wdg_init(unsigned int feed_tm)
     if(feed_tm == 0) {
         feed_tm = 3;
     }
-
-    if(__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET) {
-        ;
-    }
-    else  {
-        ;
-    }
+    __HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST);
     __HAL_RCC_CLEAR_RESET_FLAGS();
     uwLsiFreq = 31616;
     IwdgHandle.Instance = IWDG;
@@ -65,10 +61,13 @@ void hal_boot_wdg_init(unsigned int feed_tm)
             ;
         }
     }
+    wdt_init_flag = 1;
 }
 
 void hal_boot_feed_dg()
 {
+    if(wdt_init_flag == 0)
+        return;
     if(HAL_IWDG_Refresh(&IwdgHandle) != HAL_OK) {
         hal_uart_send_string("feed dog failed\r\n");
     }

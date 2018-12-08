@@ -104,6 +104,16 @@ void SystemClock_Config(void)
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
+static uint32_t delay_i, delay_j, delay_k;
+static void delay()
+{
+
+    for(delay_i = 0; delay_i < 100; delay_i++) {
+        for(delay_j = 0; delay_j < 100; delay_j++)
+            for(delay_k = 0; delay_k < 100; delay_k++){}
+    }
+}
+
 int main(void)
 {
     int ret = 0, i = 0;
@@ -113,30 +123,32 @@ int main(void)
     HAL_Init();
     SystemClock_Config();
     hal_uart_Init();
-    rec_printf("hello 2nd boot!\r\n");
+    rec_printf("boot up ...\r\n");
     if(recovery_check() != REC_NORMAL_START) {
         recovery_main();
     }
     bank = hal_get_boot_bank();
     recovery_get_flag_info(&ota_packet_info);
-    if(ota_packet_info.flag == 0x01) {//REC_WHOLE_OTA_FLAG
-        rec_printf("boot switch Bank%d bootup!\r\n", bank);
-        if(ota_packet_info.num == 0) {
-            ota_packet_info.num = 1;
+    if(ota_packet_info.flag == REC_DUAL_UPDATE_FLAG) {
+        if(ota_packet_info.num == 0x00) {
+            ota_packet_info.num = 0x01;
             recovery_set_flag_info(&ota_packet_info);
         }
-        else if(ota_packet_info.num <= 3){
-            ota_packet_info.num++;
-            if(ota_packet_info.num > 3) {
-                rec_printf("application boot failed over 3 times, switch bank%d\r\n", bank);
-                ota_packet_info.num = 0;
-                recovery_set_flag_info(&ota_packet_info);
-                sw_bank();
-                rec_reboot();
-            }
+        else if(ota_packet_info.num < 0x03) {
+            ota_packet_info.num++; 
             recovery_set_flag_info(&ota_packet_info);
-            rec_printf("application boot failed, reboot count = %d\r\n", ota_packet_info.num);
         }
+        else {
+            rec_printf("application boot failed over 3 times, switch bank\r\n");
+            ota_packet_info.flag = 0x00;
+            ota_packet_info.num = 0x00;
+            recovery_set_flag_info(&ota_packet_info);
+            delay();
+            sw_bank();
+            delay();
+            rec_reboot();
+        }
+        rec_printf("boot count = %d\r\n", ota_packet_info.num);
         hal_boot_wdg_init(WDT_INIT_TIME_SECOND);
     }
     else {
@@ -163,4 +175,3 @@ void assert_failed(uint8_t* file, uint32_t line)
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
