@@ -9,7 +9,10 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
                           void *arg, task_entry_t entry)
 {
     context_t *ctx;
-    
+#ifdef FPU_AVL
+    uint32_t i;
+#endif
+
     /* stack aligned by 8 byte */
     ctx = (context_t *)((long)(stack_base + stack_size)&0xfffffff8);
     ctx--;
@@ -32,17 +35,21 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
     ctx->R10    = 0x10101010u;
     ctx->R11    = 0x11111111u;
     ctx->R12    = 0x12121212u;
-    ctx->LR     = (long)krhino_task_deathbed; 
+    ctx->LR     = (long)krhino_task_deathbed;
     ctx->PC     = (long)entry & ~1u;
-    
-#if (FPU_AVL > 0)
-    uint32_t i;
 
+#ifdef FPU_AVL
     ctx->FPSCR = 0;                     /* Initialize Floating point status & control register  */
+    ctx->FPEXC = 0x40000000;            /* Initialize Floating-Point Exception Register (Enable)*/
+#ifdef NEON_AVL
+    for (i = 0u; i < 64; i++) {         /* Initialize general-purpose Floating point registers  */
+        ctx->FPU[i] = 0;
+    }
+#else
     for (i = 0u; i < 32; i++) {         /* Initialize general-purpose Floating point registers  */
         ctx->FPU[i] = 0;
     }
-    ctx->FPEXC = 0x40000000;            /* Initialize Floating-Point Exception Register (Enable)*/
+#endif
 #endif
 
     return (void *)ctx;

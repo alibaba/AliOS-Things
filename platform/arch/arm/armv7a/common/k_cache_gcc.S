@@ -21,7 +21,7 @@
 @ Functions:
 @     void k_dcache_clean_all(void);
 @ reference:
-@   "ARM ®  Architecture Reference Manual ARMv7-A and ARMv7-R edition"
+@   "ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition"
 @   --Example code for cache maintenance operations
 @******************************************************************************
 k_dcache_clean_all:
