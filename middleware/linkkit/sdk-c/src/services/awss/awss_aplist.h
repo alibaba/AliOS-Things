@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef __AWSS_APLIST__
-#define __AWSS_APLIST__
+#ifndef __AWSS_APLIST_H__
+#define __AWSS_APLIST_H__
 
 #include <stdint.h>
 #include "os.h"
