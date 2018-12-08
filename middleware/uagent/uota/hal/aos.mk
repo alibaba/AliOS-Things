@@ -11,6 +11,8 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
+$(NAME)_COMPONENTS += base64
+
 $(NAME)_SOURCES := \
     ota_hal_module.c \
     ota_hal_os.c \

@@ -12,9 +12,7 @@
 #include "ota_log.h"
 #include "ota_hal_os.h"
 #include "ota_hal_plat.h"
-#include "ota_hash.h"
 #include "ota_verify.h"
-
 
 #ifndef EINTR
 #define EINTR 4
@@ -37,7 +35,7 @@ Connection: close\r\n\
 Range: bytes=%d-\r\n\
 Host:%s:%d\r\n\r\n"
 
-#if !defined AOS_OTA_ITLS
+#if defined AOS_OTA_TLS
 static const char *ca = \
 {
     \
@@ -108,7 +106,7 @@ static void http_gethost_info(char *src, char **web, char **file, int *port)
     } else {
         (*web)[strlen(pa)] = 0;
     }
-#if defined AOS_OTA_HTTPS || defined AOS_OTA_ITLS
+#if defined AOS_OTA_TLS || defined AOS_OTA_ITLS
     isHttps = 1;
 #else
     isHttps = 0;
@@ -171,23 +169,23 @@ static int ota_download_start(void *pctx)
     if (isHttps) {
 #if defined AOS_OTA_ITLS
         char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN] = {0};
-        int len = strlen(ota_get_service()->pk);
-        strncpy(pkps, ota_get_service()->pk, len);
+        int len = strlen(ctx->pk);
+        strncpy(pkps, ctx->pk, len);
         HAL_GetProductSecret(pkps + len + 1);
         len += strlen(pkps + len + 1) + 2;
         ssl = ota_ssl_connect(host_addr, port, pkps,len);
-#else
+#elif defined AOS_OTA_TLS
         ssl = ota_ssl_connect(host_addr, port, ca, strlen(ca)+1);
 #endif
         if (ssl == NULL) {
-            OTA_LOG_E("ota_ssl_socket_connect error\n ");
+            OTA_LOG_E("ssl_connect error\n ");
             ret = OTA_DOWNLOAD_CON_FAIL;
             return ret;
         }
     } else {
         sockfd = ota_socket_connect(host_addr, port);
         if (sockfd < 0) {
-            OTA_LOG_E("ota_socket_connect error\n ");
+            OTA_LOG_E("socket connect error\n ");
             ret = OTA_DOWNLOAD_CON_FAIL;
             return ret;
         }
@@ -348,7 +346,7 @@ static ota_download_t dl_http = {
     .stop  = ota_download_stop,
 };
 
-ota_download_t *ota_get_download_http(void)
+ota_download_t *ota_get_download(void)
 {
     return &dl_http;
 }

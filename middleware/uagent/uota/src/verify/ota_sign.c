@@ -1,38 +1,38 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+#include "string.h"
 #include "ota_log.h"
 #include "ota_service.h"
 #include "ota_public_key_config.h"
-#include "ota_base64.h"
-#include "ota_hash.h"
-#include "ota_hal_os.h"
+#include "ota_verify.h"
 
 
-static char ota_get_sign_hash_method()
+static char ota_get_sign_hash_method(void)
 {
     return SHA256;
 }
-static int ota_get_public_key_bitnumb()
+
+static const unsigned char *ota_get_pubkey_n(void)
+{
+    return ota_pubn_buf;
+}
+
+static const unsigned char *ota_get_pubkey_e(void)
+{
+    return ota_pube_buf;
+}
+
+int ota_get_public_key_bitnumb(void)
 {
     unsigned int ota_rsabitnumb = 0;
     ota_rsabitnumb = sizeof(ota_pubn_buf) * 8;
     return ota_rsabitnumb;
 }
 
-static const unsigned char *ota_get_pubkey_n()
-{
-    return ota_pubn_buf;
-}
-
-static const unsigned char *ota_get_pubkey_e()
-{
-    return ota_pube_buf;
-}
-
 int ota_make_public_key(unsigned char* pub_key)
 {
-    OTA_VERIFY_E ret = 0;
+    int ret = 0;
     int pubkey_n_size = 0;
     int pubkey_e_size = 0;
     int bitnumb = ota_get_public_key_bitnumb();
@@ -92,9 +92,8 @@ OTA_DIG_OVER:
     return ret;
 }
 
-int ota_verify_rsa_sign(unsigned char* src_value, int src_len, int rsabitnumb, unsigned char* signature_value)
+static int ota_verify_rsa_sign(unsigned char* src_value, int src_len, int rsabitnumb, unsigned char* signature_value)
 {
-
     if((rsabitnumb < 2048) || (NULL == src_value) ||
         (src_len == 0) || (NULL == signature_value)) {
         OTA_LOG_E("ota verify rsa sign: input parameters error ");

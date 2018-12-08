@@ -1,4 +1,4 @@
-#include "ota_sha256.h"
+#include "ota_hal_os.h"
 #include "string.h"
 
 #ifndef GET_UINT32_BE
