@@ -7,7 +7,7 @@
 
 #include "k_vector.h"
 #include "k_cache.h"
-#include "k_mmu_sd.h"
+#include "k_mmu.h"
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
 #include "smp_port.h"

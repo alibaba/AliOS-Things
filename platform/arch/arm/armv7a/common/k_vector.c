@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 #include "k_arch.h"
 
 /* sdk interrupt entry */
@@ -27,8 +27,9 @@ void cpu_interrupt_handler(unsigned int except_id)
             break;
 
         default:
-            __asm__ __volatile__("udf":::"memory");
-    }
+            //__asm__ __volatile__("udf 0":::"memory");
+            break;
+   }
     krhino_intrpt_exit();
 }
 
