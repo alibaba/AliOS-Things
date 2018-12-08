@@ -6,10 +6,8 @@
 #include "ota_service.h"
 #include "ota_hal_os.h"
 #include "ota_verify.h"
-#include "ota_rsa_verify.h"
 #include "ota_hal_plat.h"
 #include "ota_log.h"
-#include "ota_base64.h"
 
 extern ota_hal_module_t ota_hal_module;
 const char *ota_to_capital(char *value, int len)
@@ -161,7 +159,7 @@ static int ota_parse(void* pctx, const char *json)
            ctx->sign_en = OTA_SIGN_ON;
            ctx->sign_len = strlen(digestSign->valuestring);
            OTA_LOG_I("sign value = %s", digestSign->valuestring);
-           if(ota_base64_decode(sign, (unsigned int*)&ctx->sign_len, (const unsigned char*)digestSign->valuestring, strlen(digestSign->valuestring)) != 0 ) {
+           if(ota_base64_decode((const unsigned char*)digestSign->valuestring, strlen(digestSign->valuestring),sign, &ctx->sign_len) != 0 ) {
                 OTA_LOG_E("decode base64 failed");
                 return -1;
             }
@@ -324,8 +322,6 @@ int ota_service_init(ota_service_t *ctx) {
         ctx = ota_malloc(sizeof(ota_service_t));
         memset(ctx, 0, sizeof(ota_service_t));
         OTA_LOG_I("OTA init def ctx.");
-        ctx->trans_protcol = OTA_PROTCOL_MQTT;
-        ctx->dl_protcol    = OTA_PROTCOL_HTTPS;
     }
     if(!ctx) {
         OTA_LOG_E("ota context is NULL.");
@@ -363,17 +359,8 @@ int ota_service_init(ota_service_t *ctx) {
     }
     strncpy(ctx->sys_ver, ota_hal_get_version(ctx->dev_type),sizeof(ctx->sys_ver) -1);
     memset(ctx->sign, 0, OTA_SIGN_LEN);
-    if(OTA_PROTCOL_COAP == ctx->trans_protcol){
-        ctx->h_tr = ota_get_transport_coap();
-    }else{
-        ctx->h_tr = ota_get_transport_mqtt();
-    }
-
-    if(OTA_PROTCOL_COAP == ctx->dl_protcol){
-        ctx->h_dl = ota_get_download_coap();
-    }else{
-        ctx->h_dl = ota_get_download_http();
-    }
+    ctx->h_tr = ota_get_transport();
+    ctx->h_dl = ota_get_download();
     ret = ctx->h_tr->init();
     if(ret < 0){
         OTA_LOG_E("transport init\n");

@@ -7,7 +7,6 @@
 #include "ota_log.h"
 #include "ota_service.h"
 #include "ota_verify.h"
-#include "ota_rsa_verify.h"
 #include "ota_hal_os.h"
 
 // Generate topic name according to @ota_topic_type, @product_key, @device_name
@@ -235,7 +234,7 @@ static ota_transport_t trans_coap = {
     .deinit                = ota_trans_deinit,
 };
 
-ota_transport_t *ota_get_transport_coap(void)
+ota_transport_t *ota_get_transport(void)
 {
     return &trans_coap;
 }

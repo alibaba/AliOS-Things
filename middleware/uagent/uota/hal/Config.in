@@ -1,6 +1,6 @@
 menuconfig AOS_COMP_OTA_HAL
     bool "ota_hal"
-    default n
+    default y
     help
 
 if AOS_COMP_OTA_HAL

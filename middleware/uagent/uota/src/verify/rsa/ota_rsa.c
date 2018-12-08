@@ -1,9 +1,8 @@
 #include "ota_pub.h"
-#include "ota_rsa_param.h"
+#include "ota_verify.h"
 #include "ota_rsa.h"
 #include "ota_oid.h"
 #include "ota_asn1.h"
-#include "ota_hash.h"
 
 #define OTA_OID_SIZE(x) (sizeof(x) - 1)
 #define ADD_LEN(s)      s, OTA_OID_SIZE(s)
@@ -365,7 +364,7 @@ void ota_rsa_free( ota_rsa_context *ctx )
 
 
 /* tee rsa_key -> mbed rsa_key */
-static OTA_VERIFY_E _ota_rsa_key_decode(
+static int ota_rsa_key_decode(
                              unsigned int type, void *in_key, void *out_key)
 {
     int ret;
@@ -427,7 +426,7 @@ static ota_md_type_t _ota_get_hash_type(OTA_HASH_E type)
     return hash_type;
 }
 
-OTA_VERIFY_E ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size)
+int ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size)
 {
     if (size == NULL) {
         return OTA_CRYPTO_INVALID_ARG;
@@ -442,7 +441,7 @@ OTA_VERIFY_E ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size)
     return OTA_CRYPTO_SUCCESS;
 }
 
-OTA_VERIFY_E ota_rsa_init_pubkey(unsigned int keybits,
+int ota_rsa_init_pubkey(unsigned int keybits,
                       const unsigned char *n, unsigned int n_size,
                       const unsigned char *e, unsigned int e_size,
                       ota_rsa_pubkey_t *pubkey)
@@ -471,7 +470,7 @@ OTA_VERIFY_E ota_rsa_init_pubkey(unsigned int keybits,
     return OTA_CRYPTO_SUCCESS;
 }
 
-OTA_VERIFY_E ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
+int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
                       const uint8_t *dig, size_t dig_size,
                       const uint8_t *sig, size_t sig_size,
                       ota_rsa_padding_t padding, bool *p_result)
@@ -482,7 +481,7 @@ OTA_VERIFY_E ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
     OTA_HASH_E ali_hash_type;
     ota_md_type_t hash_type = OTA_MD_SHA256;
     ota_rsa_context ctx;
-    OTA_VERIFY_E result = OTA_CRYPTO_SUCCESS;
+    int result = OTA_CRYPTO_SUCCESS;
 
     if (pub_key == NULL || NULL == p_result ||
         dig == NULL || dig_size == 0 ||
@@ -521,7 +520,7 @@ OTA_VERIFY_E ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
         return OTA_CRYPTO_ERROR;
     }
     ota_rsa_init(&ctx, OTA_RSA_PKCS_V15, hash_type);
-    result = _ota_rsa_key_decode(PK_PUBLIC, (void *)pub_key, &ctx);
+    result = ota_rsa_key_decode(PK_PUBLIC, (void *)pub_key, &ctx);
     if (OTA_CRYPTO_SUCCESS != result) {
         OTA_GO_RET(OTA_CRYPTO_INVALID_KEY,
                 "Rsa_verify: rsa key decode fail(%08x)\n", result);
@@ -560,5 +559,3 @@ _OUT:
     ota_rsa_free(&ctx);
     return result;
 }
-
-

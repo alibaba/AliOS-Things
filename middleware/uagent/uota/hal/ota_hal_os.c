@@ -12,6 +12,9 @@
 #include <string.h>
 #include "ota_hal_os.h"
 #include "ota_log.h"
+#include "mbedtls/sha256.h"
+#include "mbedtls/md5.h"
+#include "base64.h"
 
 #if (OTA_SIGNAL_CHANNEL) == 1
 #include "iot_export.h"
@@ -430,46 +433,6 @@ END:
     pthread_mutex_unlock(&mutex_kv);
     return 0;
 }
-
-/*Timer create*/
-void *ota_timer_create(const char *name, void (*func)(void *), void *user_data)
-{
-    timer_t *timer = NULL;
-    struct sigevent ent;
-    /* check parameter */
-    if (func == NULL)
-        return NULL;
-    timer = (timer_t *)malloc(sizeof(time_t));
-    /* Init */
-    memset(&ent, 0x00, sizeof(struct sigevent));
-    /* create a timer */
-    ent.sigev_notify = SIGEV_THREAD;
-    ent.sigev_notify_function = (void (*)(union sigval))func;
-    ent.sigev_value.sival_ptr = user_data;
-    if (timer_create(CLOCK_MONOTONIC, &ent, timer) != 0) {
-        OTA_LOG_E("timer_create");
-        return NULL;
-    }
-    return (void *)timer;
-}
-
-/*Timer start*/
-int ota_timer_start(void *timer, int ms)
-{
-    struct itimerspec ts;
-    /* check parameter */
-    if (timer == NULL)
-        return -1;
-    /* it_interval=0: timer run only once */
-    ts.it_interval.tv_sec = 0;
-    ts.it_interval.tv_nsec = 0;
-
-    /* it_value=0: stop timer */
-    ts.it_value.tv_sec = ms / 1000;
-    ts.it_value.tv_nsec = (ms % 1000) * 1000;
-
-    return timer_settime(*(timer_t *)timer, 0, &ts, NULL);
-}
 #endif /*Linux end*/
 
 /*Socket API*/
@@ -535,6 +498,131 @@ int ota_ssl_recv(void *ssl, char *buf, int len)
     #else
     return 0;
     #endif
+}
+
+#if !defined (AOS_OTA_RSA)
+/*SHA256*/
+#if !defined(ESPOS_FOR_ESP32)
+extern void mbedtls_sha256_free_alt(mbedtls_sha256_context* ctx);
+extern void mbedtls_sha256_init_alt(mbedtls_sha256_context*ctx);
+extern void mbedtls_sha256_starts_alt(mbedtls_sha256_context*ctx, int is224);
+extern void mbedtls_sha256_update_alt(mbedtls_sha256_context*ctx, const unsigned char *input, unsigned int ilen);
+extern void mbedtls_sha256_finish_alt(mbedtls_sha256_context*ctx, unsigned char output[32]);
+#endif
+void ota_sha256_free(ota_sha256_context *ctx){
+#if !defined(ESPOS_FOR_ESP32)
+    mbedtls_sha256_free_alt((mbedtls_sha256_context*)ctx);
+#endif
+}
+void ota_sha256_init(ota_sha256_context *ctx){
+#if !defined(ESPOS_FOR_ESP32)
+    mbedtls_sha256_init_alt((mbedtls_sha256_context*)ctx);
+#endif
+}
+void ota_sha256_starts(ota_sha256_context *ctx, int is224){
+#if !defined(ESPOS_FOR_ESP32)
+    mbedtls_sha256_starts_alt((mbedtls_sha256_context*)ctx, is224);
+#endif
+}
+void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input, unsigned int ilen){
+#if !defined(ESPOS_FOR_ESP32)
+    mbedtls_sha256_update_alt((mbedtls_sha256_context*)ctx, input, ilen);
+#endif
+}
+void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32]){
+#if !defined(ESPOS_FOR_ESP32)
+    mbedtls_sha256_finish_alt((mbedtls_sha256_context*)ctx, output);
+#endif
+}
+/*MD5*/
+extern void mbedtls_md5_free_alt(mbedtls_md5_context*ctx);
+extern void mbedtls_md5_init_alt(mbedtls_md5_context*ctx);
+extern void mbedtls_md5_starts_alt(mbedtls_md5_context*ctx);
+extern void mbedtls_md5_update_alt(mbedtls_md5_context*ctx, const unsigned char *input, unsigned int ilen);
+extern void mbedtls_md5_finish_alt(mbedtls_md5_context*ctx, unsigned char output[32]);
+void ota_md5_free(ota_md5_context *ctx){
+    mbedtls_md5_free_alt((mbedtls_md5_context*)ctx);
+}
+void ota_md5_init(ota_md5_context *ctx){
+    mbedtls_md5_init_alt((mbedtls_md5_context*)ctx);
+}
+void ota_md5_starts(ota_md5_context *ctx){
+    mbedtls_md5_starts_alt((mbedtls_md5_context*)ctx);
+}
+void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen){
+    mbedtls_md5_update_alt((mbedtls_md5_context*)ctx, input, ilen);
+}
+void ota_md5_finish(ota_md5_context *ctx, unsigned char output[16]){
+    mbedtls_md5_finish_alt((mbedtls_md5_context*)ctx, output);
+}
+/*RSA*/
+extern int ali_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size);
+extern int ali_rsa_init_pubkey(unsigned int keybits, const unsigned char *n, unsigned int n_size,
+                      const unsigned char *e, unsigned int e_size, ota_rsa_pubkey_t *pubkey);
+extern int ali_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, unsigned int dig_size,
+                      const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result);
+
+int ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size) {
+    return ali_rsa_get_pubkey_size(keybits, size);
+}
+int ota_rsa_init_pubkey(unsigned int keybits, const unsigned char *n, unsigned int n_size,
+                      const unsigned char *e, unsigned int e_size, ota_rsa_pubkey_t *pubkey){
+    return ali_rsa_init_pubkey(keybits, n, n_size, e, e_size, pubkey);
+}
+int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, unsigned int dig_size,
+                      const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result){
+    return ali_rsa_verify(pub_key,dig,dig_size,sig,sig_size,padding,p_result);
+}
+#endif
+/*base64*/
+int ota_base64_decode(const unsigned char *src, int slen,
+                             unsigned char *dst, int *dlen){
+    unsigned char* out = NULL;
+    out = base64_decode(src, slen, dst, dlen);
+    if(NULL == out) {
+        return -1;
+    }
+    return 0;
+}
+/*CRC16*/
+static unsigned short update_crc16(unsigned short crcIn, unsigned char byte)
+{
+    unsigned int crc = crcIn;
+    unsigned int in = byte | 0x100;
+
+    do {
+        crc <<= 1;
+        in <<= 1;
+        if (in & 0x100) {
+            ++crc;
+        }
+        if (crc & 0x10000) {
+            crc ^= 0x1021;
+        }
+    } while (!(in & 0x10000));
+    return crc & 0xffffu;
+}
+
+void ota_crc16_init(ota_crc16_ctx *inCtx)
+{
+    inCtx->crc = 0;
+}
+
+
+void ota_crc16_update(ota_crc16_ctx *inCtx, const void *inSrc, size_t inLen)
+{
+    const unsigned char *src = (const unsigned char *) inSrc;
+    const unsigned char *srcEnd = src + inLen;
+    while ( src < srcEnd ) {
+        inCtx->crc = update_crc16(inCtx->crc, *src++);
+    }
+}
+
+void ota_crc16_final(ota_crc16_ctx *inCtx, unsigned short *outResult )
+{
+    inCtx->crc = update_crc16(inCtx->crc, 0);
+    inCtx->crc = update_crc16(inCtx->crc, 0);
+    *outResult = inCtx->crc & 0xffffu;
 }
 
 /*MQTT API*/
