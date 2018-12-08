@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>            /* strcpy, memset() */
 #include <ctype.h>             /* isascii() */
-#include <stdio.h>             /* HAL_Snprintf */
+#include <stdio.h>             /* snprintf */
 #include "os.h"
 #include "zconfig_utils.h"
 #include "zconfig_ieee80211.h"

@@ -339,6 +339,8 @@ rescanning:
                 break;
         }
 
+        if (aws_stop == AWS_STOPPING)  /* interrupt by user */
+            goto timeout_scanning;
         if (aws_state != AWS_SCANNING) {
             break;
         }
@@ -379,6 +381,9 @@ rescanning:
     while (aws_state != AWS_SUCCESS) {
         /* 80211 frame handled by callback */
         os_msleep(300);
+
+        if (aws_stop == AWS_STOPPING)
+            goto timeout_recving;
 #ifdef AWSS_SUPPORT_APLIST
         aws_try_adjust_chan();
 #endif
@@ -401,20 +406,29 @@ timeout_scanning:
     awss_debug("aws timeout scanning!\r\n");
 timeout_recving:
     awss_debug("aws timeout recving!\r\n");
-    if (rescan_timer == NULL) {
-        rescan_timer = HAL_Timer_Create("rescan", (void(*)(void *))rescan_monitor, NULL);
-    }
-    HAL_Timer_Stop(rescan_timer);
-    HAL_Timer_Start(rescan_timer, RESCAN_MONITOR_TIMEOUT_MS);
-    while (rescan_available == 0) {
-        if (awss_get_config_press()) {  /* user interrupt sleep */
-            HAL_Timer_Stop(rescan_timer);
+    do {
+        if (aws_stop == AWS_STOPPING)
             break;
+        if (rescan_timer == NULL)
+            rescan_timer = HAL_Timer_Create("rescan", (void(*)(void *))rescan_monitor, NULL);
+        HAL_Timer_Stop(rescan_timer);
+        HAL_Timer_Start(rescan_timer, RESCAN_MONITOR_TIMEOUT_MS);
+        while (rescan_available == 0) {
+            if (awss_get_config_press() ||
+                aws_stop == AWS_STOPPING) {  /* user interrupt sleep */
+                HAL_Timer_Stop(rescan_timer);
+                break;
+            }
+            os_msleep(200);
         }
-        os_msleep(200);
+        rescan_available = 0;
+    } while (0);
+
+    if (aws_stop == AWS_STOPPING) {  /* interrupt by user */
+        aws_stop = AWS_STOPPED;
+        goto success;
     }
-    rescan_available = 0;
-    aws_stop = AWS_SCANNING;
+
     aws_state = AWS_SCANNING;
 #ifdef AWSS_SUPPORT_APLIST
     if (awss_is_ready_clr_aplist()) {
@@ -439,13 +453,16 @@ success:
      * Note: hiflying will reboot after calling this func, so
      *    aws_get_ssid_passwd() was called in os_awss_monitor_close()
      */
+    if (aws_stop == AWS_STOPPED) {
+        zconfig_force_destroy();
+    }
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-    if (strcmp((const char *)aws_result_ssid, (const char *)zc_adha_ssid) == 0 ||
+    else if (strcmp((const char *)aws_result_ssid, (const char *)zc_adha_ssid) == 0 ||
         strcmp((const char *)aws_result_ssid, (const char *)zc_default_ssid) == 0) {
         zconfig_destroy();
-    } else
+    }
 #endif
-    {
+    else {
         zconfig_force_destroy();
     }
 }
@@ -515,14 +532,28 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
     aws_main_thread_func();
 }
 
+static void *aws_mutex = NULL;
+
 void aws_destroy(void)
 {
-    if (aws_info == NULL) {
+    if (aws_mutex == NULL)
+        aws_mutex = HAL_MutexCreate();
+    if (aws_mutex)
+        HAL_MutexLock(aws_mutex);
+
+    if (aws_info == NULL)
         return;
-    }
+
+    if (aws_stop == AWS_STOPPED)
+        return;
 
     aws_stop = AWS_STOPPING;
-    while (aws_state != AWS_SUCCESS && aws_state != AWS_TIMEOUT) {
+
+    os_awss_close_monitor();
+
+    while (aws_stop != AWS_STOPPED) {
+        if (aws_state == AWS_SUCCESS)
+            break;
         os_msleep(100);
     }
 
@@ -532,6 +563,16 @@ void aws_destroy(void)
 #ifndef AWSS_DISABLE_ENROLLEE
     awss_destroy_enrollee_info();
 #endif
+    if (aws_mutex)
+        HAL_MutexUnlock(aws_mutex);
+}
+
+void aws_release_mutex()
+{
+    if (aws_mutex) {
+        HAL_MutexDestroy(aws_mutex);
+        aws_mutex = NULL;
+    }
 }
 
 int aws_get_ssid_passwd(char *ssid, char *passwd, uint8_t *bssid,
