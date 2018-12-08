@@ -12,7 +12,6 @@
 #include "ota_log.h"
 #include "ota_hal_os.h"
 #include "ota_hal_plat.h"
-#include "ota_hash.h"
 #include "ota_verify.h"
 
 #define OTA_COAP_BLOCK_SIZE 1024
@@ -140,7 +139,7 @@ static ota_download_t dl_coap = {
     .stop  = ota_download_stop,
 };
 
-ota_download_t *ota_get_download_coap(void)
+ota_download_t *ota_get_download(void)
 {
     return &dl_coap;
 }

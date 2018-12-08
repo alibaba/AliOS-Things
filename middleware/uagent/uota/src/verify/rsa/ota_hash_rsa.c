@@ -1,4 +1,4 @@
-#include "ota_hash.h"
+#include "ota_verify.h"
 #include "ota_rsa.h"
 
 static void _md5_starts_wrap(void *ctx )

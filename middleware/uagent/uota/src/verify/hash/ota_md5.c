@@ -1,4 +1,4 @@
-#include "ota_md5.h"
+#include "ota_hal_os.h"
 #include "string.h"
 
 #ifndef ota_memset

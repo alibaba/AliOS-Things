@@ -1,9 +1,10 @@
 menuconfig AOS_COMP_OTA
-    bool "OTA configuration"
+    bool "OTA Component"
     default y
     help
 
 if AOS_COMP_OTA
+source "middleware/uagent/uota/hal/Config.in"
 source "middleware/uagent/uota/src/verify/Config.in"
 source "middleware/uagent/uota/src/transport/Config.in"
 source "middleware/uagent/uota/src/2nd_boot/Config.in"

@@ -1,26 +1,14 @@
 ## Contents
 
 ```sh
-verify
-├── base64
-│   ├── ota_base64.c
-│   └── ota_base64.h
+├── aos.mk
 ├── Config.in
-├── crc
-│   ├── ota_crc.c
-│   └── ota_crc.h
 ├── hash
-│   ├── ota_hash.c
-│   ├── ota_hash.h
 │   ├── ota_md5.c
-│   ├── ota_md5.h
-│   ├── ota_sha256.c
-│   └── ota_sha256.h
+│   └── ota_sha256.c
+├── ota_hash.c
 ├── ota_public_key_config.h
-├── ota_rsa_param.h
-├── ota_rsa_verify.c
-├── ota_rsa_verify.h
-├── ota_verify.c
+├── ota_sign.c
 ├── ota_verify.h
 ├── README.md
 └── rsa

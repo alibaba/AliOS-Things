@@ -8,11 +8,59 @@
 #include "aos/hal/soc.h"
 #include "ota_hal_plat.h"
 #include "ota_hal_os.h"
-#include "ota_crc.h"
 #include "ota_log.h"
+
+#if defined (AOS_OTA_RECOVERY_TYPE)
+#include "rec_define.h"
+#endif
+
+
 #if defined (BOARD_ESP8266)
 #include "esp_system.h"
 #include "upgrade.h"
+#elif defined (RDA5981x) || defined (RDA5981A)
+#include "rda_def.h"
+#include "rda_flash.h"
+
+r_u32 g_crc_result = ~0UL;
+r_u32 g_ota_off_set = 0;
+
+#define CRC32_TABLE_ADDR    0xbb5c
+#define CRC32_ADDR          0x8dff
+#define CRC32_TABLE_ADDR_4  0xbbd8
+#define CRC32_ADDR_4        0x8e33
+
+static r_u32 bootrom_crc32(r_u8 *p, r_u32 len)
+{
+    r_u32 func = CRC32_ADDR;
+    if (rda_ccfg_hwver() >= 4) {
+        func = CRC32_ADDR_4;
+    }
+    return ((r_u32(*)(r_u8 *, r_u32))func)(p, len);
+}
+
+static r_u32 crc32(const r_u8 *p, r_u32 len, r_u32 crc)
+{
+    const r_u32 *crc32_tab = (const r_u32 *)CRC32_TABLE_ADDR;
+
+    if (rda_ccfg_hwver() >= 4) {
+        crc32_tab = (const r_u32 *)CRC32_TABLE_ADDR_4;
+    }
+    /* Calculate CRC */
+    while (len--)
+    {
+         crc = crc32_tab[((crc & 0xFF) ^ *p++)] ^ (crc >> 8);
+    }
+
+    return crc;
+}
+#elif defined (STM32L496xx)
+#define OTA_CACHE_SIZE       2048
+uint8_t *ota_cache = NULL;
+uint8_t *ota_cache_actual = NULL;
+uint32_t ota_cache_len = 0;
+uint32_t ota_fw_size = 0;
+uint32_t ota_receive_total_len = 0;
 #endif
 
 #if defined (AOS_OTA_RECOVERY_TYPE)
@@ -22,17 +70,7 @@
 #define OTA_CRC16  "ota_file_crc16"
 static int boot_part = HAL_PARTITION_OTA_TEMP;
 static unsigned int _offset = 0;
-static  CRC16_Ctx ctx;
-
-#if defined (STM32L496xx)
-#define OTA_CACHE_SIZE       2048
-uint8_t *ota_cache = NULL;
-uint8_t *ota_cache_actual = NULL;
-uint32_t ota_cache_len = 0;
-uint32_t ota_fw_size = 0;
-uint32_t ota_receive_total_len = 0;
-#endif
-
+static ota_crc16_ctx ctx = {0};
 
 unsigned short ota_get_crc16(void)
 {
@@ -55,7 +93,7 @@ void ota_reboot_bank(void)
     system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
     system_upgrade_reboot();
 #elif defined (STM32L496xx)
-extern int flash_sw_bank(void);
+    extern int flash_sw_bank(void);
     flash_sw_bank();
 #endif
 }
@@ -90,25 +128,25 @@ static int ota_init(void *something)
             OTA_LOG_E("OTA flash Erase failed\r\n");
             return -1;
         }
-        ota_CRC16_Init( &ctx );
+        ota_crc16_init(&ctx);
     }
     else {
         ctx.crc=ota_get_crc16();
-        OTA_LOG_I("Get crc16:0x%04x--------\n",ctx.crc);
+        OTA_LOG_I("init crc16:0x%04x \n",ctx.crc);
     }
     return 0;
 }
 
 static int ota_write(int* off, char* in_buf ,int in_buf_len)
 {
-#if defined (STM32L496xx)
     int ret = 0;
+#if defined (STM32L496xx)
     uint32_t tocopy = 0;
     if(in_buf_len > OTA_CACHE_SIZE) {
         OTA_LOG_E("ota input data lenght too long!\n");
         return -1;
     }
-    ota_CRC16_Update( &ctx, in_buf, in_buf_len);
+    ota_crc16_update(&ctx, in_buf, in_buf_len);
     if (in_buf_len <= OTA_CACHE_SIZE - ota_cache_len) {
         tocopy = in_buf_len;
     }
@@ -146,9 +184,15 @@ static int ota_write(int* off, char* in_buf ,int in_buf_len)
         }
     }
     return ret;
+#elif defined (RDA5981x) || defined (RDA5981A)
+    g_crc_result = crc32(in_buf, in_buf_len, g_crc_result);
+    ret = hal_flash_write(boot_part, (uint32_t*)&_offset, in_buf, in_buf_len);
+    g_ota_off_set += in_buf_len;
+    return ret;
 #else
-    ota_CRC16_Update( &ctx, in_buf, in_buf_len);
-    return hal_flash_write(boot_part, (uint32_t*)&_offset, in_buf, in_buf_len);
+    ota_crc16_update(&ctx, in_buf, in_buf_len);
+    ret = hal_flash_write(boot_part, (uint32_t*)&_offset, in_buf, in_buf_len);
+    return ret;
 #endif
 }
 
@@ -164,7 +208,7 @@ static int ota_boot(void *something)
         return -1;
     }
     if (param->res_type == OTA_FINISH) {
-        ota_CRC16_Final( &ctx, &param->crc);
+        ota_crc16_final(&ctx, &param->crc);
         if (param->upg_flag == OTA_DIFF) {
 #if defined (AOS_OTA_RECOVERY_TYPE)
             int offset = 0x00;
@@ -178,11 +222,11 @@ static int ota_boot(void *something)
             ota_param.splict_size = param->splict_size;
             ota_param.diff = 1;
             ota_param.upg_flag = REC_RECOVERY_FLAG;
-            CRC16_Ctx ctx;
+            ota_crc16_ctx ctx1;
             unsigned short crc;
-            ota_CRC16_Init(&ctx);
-            ota_CRC16_Update(&ctx, &ota_param, sizeof(PatchStatus) - sizeof(unsigned short));
-            ota_CRC16_Final(&ctx, &crc);
+            ota_crc16_init(&ctx1);
+            ota_crc16_update(&ctx1, &ota_param, sizeof(PatchStatus) - sizeof(unsigned short));
+            ota_crc16_final(&ctx1, &crc);
             ota_param.patch_crc = crc;
             offset = 0x00;
             hal_flash_erase(param_part, offset, sizeof(PatchStatus));
@@ -191,20 +235,34 @@ static int ota_boot(void *something)
             offset = 0x00;
             memset(&ota_param_r, 0, sizeof(PatchStatus));
             hal_flash_read(param_part, (uint32_t*)&offset, &ota_param_r, sizeof(PatchStatus));
-            OTA_LOG_I("OTA Diff dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x pcrc:0x%04x splict:%d.\r\n",ota_param_r.dst_adr,
-                      ota_param_r.src_adr, ota_param_r.len, ota_param_r.crc, ota_param_r.patch_crc, ota_param_r.splict_size);
+            OTA_LOG_I("diff dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x pcrc:0x%04x splict:%d.\r\n",ota_param_r.dst_adr,ota_param_r.src_adr, ota_param_r.len, ota_param_r.crc, ota_param_r.patch_crc, ota_param_r.splict_size);
             if(memcmp(&ota_param, &ota_param_r, sizeof(PatchStatus)) != 0) {
-                 OTA_LOG_E("OTA DIFF compare failed!\r\n");
+                 OTA_LOG_E("diff compare failed!\r\n");
                  return -1;
             }
-            OTA_LOG_I("OTA Diff finish!\r\n");
+            OTA_LOG_I("enter diff upgrade.\n");
 #endif
         }
         else {
-            OTA_LOG_I("ota upgrade finish, set_reboot.\n");
+            OTA_LOG_I("ota upgrade finish.\n");
+#if defined (RDA5981x) || defined (RDA5981A)
+            hal_logic_partition_t *partition_info;
+            hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
+            partition_info = hal_flash_get_info(pno);
+            core_util_critical_section_enter();
+            spi_flash_flush_cache();
+            r_u32 crc32_check = bootrom_crc32((r_u8 *)partition_info->partition_start_addr, g_ota_off_set);
+            core_util_critical_section_exit();
+            printf("rda5981 upgrade finish:0x%08x:0x%08x\r\n", g_crc_result, crc32_check);
+            if (crc32_check == g_crc_result) {
+                 ota_reboot();
+            } else {
+                 printf("ERR!!!crc32 error\r\n");
+            }
+#endif
 #ifdef AOS_OTA_BANK_SINGLE
             int offset = 0x00;
-            CRC16_Ctx ctx;
+            ota_crc16_ctx ctx1;
             unsigned short crc;
             int param_part = HAL_PARTITION_PARAMETER_1;
             extern int app_download_addr;
@@ -218,9 +276,9 @@ static int ota_boot(void *something)
             param->dst_adr  = 0;
             param->upg_flag = REC_SWAP_UPDATE_FLAG;
 #endif
-            ota_CRC16_Init(&ctx);
-            ota_CRC16_Update(&ctx, param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
-            ota_CRC16_Final(&ctx, &crc);
+            ota_crc16_init(&ctx1);
+            ota_crc16_update(&ctx1, param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
+            ota_crc16_final(&ctx1, &crc);
             param->param_crc = crc;
             ota_boot_param_t param_r;
             offset = 0x00;
@@ -267,12 +325,12 @@ static int ota_rollback(void *something)
     memset(&param_w, 0, sizeof(ota_boot_param_t));
     hal_flash_read(param_part, (uint32_t*)&offset, &param_w, sizeof(ota_boot_param_t));
     if(param_w.boot_count != 0) {
-        CRC16_Ctx ctx;
+        ota_crc16_ctx ctx1;
         unsigned short crc;
         param_w.boot_count = 0; /*Clear bootcount to avoid rollback*/
-        ota_CRC16_Init(&ctx);
-        ota_CRC16_Update(&ctx, &param_w, sizeof(ota_boot_param_t) - sizeof(unsigned short));
-        ota_CRC16_Final(&ctx, &crc);
+        ota_crc16_init(&ctx1);
+        ota_crc16_update(&ctx1, &param_w, sizeof(ota_boot_param_t) - sizeof(unsigned short));
+        ota_crc16_final(&ctx1, &crc);
         param_w.param_crc = crc;
         offset = 0x00;
         hal_flash_erase(param_part, offset, sizeof(ota_boot_param_t));
@@ -286,7 +344,7 @@ static int ota_rollback(void *something)
             return -1;
         }
     }
-    OTA_LOG_I("OTA rollback boot count:%d \r\n",param_r.boot_count);
+    OTA_LOG_I("rollback count:%d \n",param_r.boot_count);
     return 0;
 }
 
