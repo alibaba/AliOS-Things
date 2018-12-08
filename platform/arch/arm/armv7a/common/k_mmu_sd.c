@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "k_api.h"
 #include "k_arch.h"
+#include "k_cache.h"
 #include "k_mmu_sd.h"
 
 /*
@@ -673,11 +673,11 @@ void os_mmu_print(uintptr_t vaddr, uintptr_t paddr, size_t len, int32_t isKenrel
 {
     if ( isKenrel == 1 )
     {
-        printf("  [Kernel]: vaddr = %p, paddr = %p, len = 0x%x\n", vaddr, paddr, len);
+        printf("  [Kernel]: vaddr = %p, paddr = %p, len = 0x%x\n", (void *)vaddr, (void *)paddr, len);
     }
     else
     {
-        printf("  [User]  : vaddr = %p, paddr = %p, len = 0x%x\n", vaddr, paddr, len);
+        printf("  [User]  : vaddr = %p, paddr = %p, len = 0x%x\n", (void *)vaddr, (void *)paddr, len);
     }
 }
 
@@ -686,7 +686,7 @@ void k_mmu_show(void)
     int32_t ret;
 
     printf("[mmu show] SCTLR = 0x%x, PA of TableBase = %p, VA of TableBase = %p\n",
-           os_get_SCTLR(), os_mmu_ttb_get(), g_pgtbl_lvl1);
+           os_get_SCTLR(), (void *)os_mmu_ttb_get(), g_pgtbl_lvl1);
     ret = os_mmu_traversal(0, os_mmu_print);
     if ( ret != 0 )
     {

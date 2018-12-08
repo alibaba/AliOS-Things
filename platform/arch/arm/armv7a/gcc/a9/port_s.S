@@ -4,8 +4,10 @@
 @                            EXTERN SYMBOLS
 @******************************************************************************
 .extern g_active_task
+.extern g_sys_stat
 .extern g_preferred_ready_task
 .extern krhino_stack_ovf_check
+.extern krhino_task_sched_stats_get
 .extern sys_stack_top
 .extern exceptionHandler
 .extern cpu_interrupt_handler
@@ -23,7 +25,6 @@
 .global _panic_handler
 .global _interrupt_return_address
 .global cpu_get_cpuid
-
 
 @******************************************************************************
 @                                 EQUATES
@@ -55,22 +56,32 @@
 .macro POP_FP_REG reg
     POP     {\reg}
     VMSR    FPEXC, \reg                                 @ Pop FPEXC.
-    VPOP    {D0-D15}
     POP     {\reg}
     VMSR    FPSCR, \reg                                 @ Pop FPSCR.
+#ifdef __ARM_NEON
+    VPOP    {Q0-Q7}
+    VPOP    {Q8-Q15}
+#else
+    VPOP    {D0-D15}
+#endif
 .endm
 
 .macro PUSH_FP_REG reg
+#ifdef __ARM_NEON
+    VPUSH   {Q8-Q15}
+    VPUSH   {Q0-Q7}
+#else
+    VPUSH   {D0-D15}
+#endif
     VMRS    \reg, FPSCR                                 @ Save FPSCR.
     PUSH    {\reg}                                      @ Save floating-point registers.
-    VPUSH   {D0-D15}
     VMRS    \reg, FPEXC                                 @ Save FPEXC.
     PUSH    {\reg}
 .endm
 
 
 .macro getcoreid reg
-    mrc   p15, 0, \reg, c0, c0, 5    
+    mrc   p15, 0, \reg, c0, c0, 5
     and   \reg, \reg, #3
 .endm
 
@@ -88,7 +99,7 @@ cpu_intrpt_save:
 
 cpu_intrpt_restore:
     DSB                                                 @ no need dsb here?
-    MSR     CPSR, R0
+    MSR     CPSR_c, R0
     BX      LR
 
 @******************************************************************************
@@ -122,7 +133,7 @@ cpu_task_switch:
     @g_active_task->task_stack = context region
     LDR     R1, =g_active_task                                  @ g_active_task->task_stack = SP;
     ADD     R1, R1, R3
-    
+
     LDR     R1, [R1]
     STR     SP, [R1]
 
@@ -153,21 +164,20 @@ cpu_intrpt_switch:
     #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
     BL      krhino_task_sched_stats_get
     #endif
-    
+
     getcoreid 	R3
-    LSL     R3, R3, #2    
-    
+    LSL     R3, R3, #2
+
     LDR     R0, =g_active_task                          @ g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
-    
+
     ADD     R0, R0, R3
     ADD     R1, R1, R3
-       
+
     LDR     R2, [R1]
     STR     R2, [R0]
 
     POP     {FP, PC}
-
 
 @******************************************************************************
 @ _task_restore
@@ -179,10 +189,10 @@ _task_restore:
 
     LDR     R0, =g_active_task                          @ g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
-    
+
     ADD     R0, R0, R3
     ADD     R1, R1, R3
-    
+
     LDR     R2, [R1]
     STR     R2, [R0]                                    @ R0 = g_active_task->task_stack = context region
 
@@ -224,19 +234,19 @@ _interrupt_handler:
 _interrupt_while_task:
     @ g_active_task->task_stack = context region
     LDR     R3, =g_active_task                                @ g_active_task->task_stack = SP;
-    
+
     getcoreid   R5
     LSL     R5,R5,#2
     ADD     R3, R3, R5
-    
+
     LDR     R4, [R3]
     STR     SP, [R4]
 
     LDR     R3, =sys_stack_top                          @ Switch to system stack.
     MOV     R4, #RHINO_EACHCORE_SYSTEM_STACK_SIZE
-    MUL     R4, R4, R5 
-    SUB     R3, R3, R4    
-    
+    MUL     R4, R4, R5
+    SUB     R3, R3, R4
+
     MOV     SP, R3
 
     BL      cpu_interrupt_handler                       @ cpu_interrupt_handler(except_type = R0)
@@ -246,7 +256,7 @@ _interrupt_return_address:
     getcoreid   R4
     LSL     R4,R4,#2
     ADD     R3, R3, R4
-    
+
     LDR     R4, [R3]
     LDR     SP, [R4]
 
@@ -264,7 +274,7 @@ _interrupt_while_init:
     ADD     SP, SP, R1
 
     BL      _context_restore
- 
+
 _panic_handler:
     @ change to SVC mode & disable interruptions.
     MSR     CPSR_c, #(CPSR_INT_DIS | CPSR_Mode_SVC)
@@ -302,7 +312,7 @@ _panic_handler:
 
   @ int cpu_get_cpuid(void)@
   @ get current CPU ID
-cpu_get_cpuid: 
+cpu_get_cpuid:
     mrc   p15, 0, r0, c0, c0, 5
     and   r0, r0, #3
     BX    lr
