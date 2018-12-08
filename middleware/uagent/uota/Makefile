@@ -14,19 +14,14 @@ OTA_EXT_DIR := ./ext
 $(NAME)_SOURCES += \
     $(OTA_SRC_DIR)/ota_service.c \
     $(OTA_SRC_DIR)/transport/ota_transport_mqtt.c \
-    $(OTA_SRC_DIR)/transport/ota_transport_coap.c \
     $(OTA_SRC_DIR)/download/ota_download_http.c \
-    $(OTA_SRC_DIR)/download/ota_download_coap.c \
-    $(OTA_SRC_DIR)/verify/ota_verify.c \
-    $(OTA_SRC_DIR)/verify/crc/ota_crc.c \
-    $(OTA_SRC_DIR)/verify/ota_rsa_verify.c \
-    $(OTA_SRC_DIR)/verify/hash/ota_hash.c \
+    $(OTA_SRC_DIR)/verify/ota_sign.c \
+    $(OTA_SRC_DIR)/verify/ota_hash.c \
     $(OTA_SRC_DIR)/verify/hash/ota_md5.c \
     $(OTA_SRC_DIR)/verify/hash/ota_sha256.c \
     $(OTA_SRC_DIR)/verify/rsa/ota_bignum.c \
     $(OTA_SRC_DIR)/verify/rsa/ota_rsa.c \
     $(OTA_SRC_DIR)/verify/rsa/ota_hash_rsa.c \
-    $(OTA_SRC_DIR)/verify/base64/ota_base64.c \
     $(OTA_HAL_DIR)/ota_hal_os.c \
     $(OTA_HAL_DIR)/ota_hal_host.c \
     $(OTA_HAL_DIR)/ota_hal_module.c
@@ -39,8 +34,6 @@ $(NAME)_INCLUDES += $(OTA_HAL_DIR) \
     $(OTA_SRC_DIR)/verify  \
     $(OTA_SRC_DIR)/verify/rsa  \
     $(OTA_SRC_DIR)/verify/hash  \
-    $(OTA_SRC_DIR)/verify/crc \
-    $(OTA_SRC_DIR)/verify/base64 \
 
 ########## coap #################
 COAP_SRC_DIR := $(OTA_EXT_DIR)/linkkit/sdk-c/src/protocol/coap/cloud

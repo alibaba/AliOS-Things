@@ -9,7 +9,6 @@
 #include "ota_hal_os.h"
 #include "ota_hal_plat.h"
 #include "ota_verify.h"
-#include "ota_rsa_verify.h"
 
 static int ota_gen_info_msg(char *buf, int len, int id, const char *ver)
 {
@@ -238,7 +237,7 @@ static ota_transport_t trans_mqtt = {
     .deinit           = ota_trans_deinit,
 };
 
-ota_transport_t *ota_get_transport_mqtt(void)
+ota_transport_t *ota_get_transport(void)
 {
     return &trans_mqtt;
 }

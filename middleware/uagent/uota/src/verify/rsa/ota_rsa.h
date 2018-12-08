@@ -40,7 +40,7 @@ ota_rsa_context;
 
 #define OTA_GO_RET(_ret, _f, _a ...) do {               \
     OTA_LOG_E(_f, ##_a);                           \
-    result =(OTA_VERIFY_E)_ret;                \
+    result = _ret;                \
     goto _OUT;                                      \
 } while (0);
 
@@ -127,6 +127,9 @@ struct ota_md_info_t
     void (*process_func)( void *ctx, const unsigned char *input );
 };
 
+typedef struct ota_md_info_t ota_hash_info_t;
+unsigned char ota_hash_get_size(const struct ota_md_info_t *md_info);
+const ota_hash_info_t *ota_hash_info_from_type(ota_md_type_t md_type);
 void ota_rsa_set_padding( ota_rsa_context *ctx, int padding, int hash_id );
 int ota_rsa_rsassa_pkcs1_v15_verify( ota_rsa_context *ctx,
                                  int (*f_rng)(void *, unsigned char *, unsigned int),
