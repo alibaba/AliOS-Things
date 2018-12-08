@@ -32,10 +32,12 @@ void sw_bank(void)
 		hal_uart_send_string("HAL_FLASHEx_OBProgram failed\r\n");
 	}
 	if (HAL_FLASH_OB_Launch() != HAL_OK) {
-		while (1) {
-			hal_uart_send_string("HAL_FLASH_OB_Launch failed\r\n");
-		}
+	    while (1) {
+                hal_uart_send_string("HAL_FLASH_OB_Launch failed\r\n");
+	    }
 	}
+        HAL_FLASH_OB_Lock();
+        HAL_FLASH_Lock();
 }
 
 void load_app(unsigned int app_addr)

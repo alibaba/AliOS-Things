@@ -2,7 +2,7 @@
 #define __MAIN_H__
 #include "stm32l4xx_hal.h"
 
-#define WDT_INIT_TIME_SECOND        (6)
+#define WDT_INIT_TIME_SECOND        (15)
 
 
 #ifdef __cplusplus
