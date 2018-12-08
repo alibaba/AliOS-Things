@@ -29,6 +29,14 @@ HAL_StatusTypeDef HAL_FLASH_Unlock(void)
     return status;
 }
 
+HAL_StatusTypeDef HAL_FLASH_OB_Lock(void)
+{
+  /* Set the OPTLOCK Bit to lock the FLASH Option Byte Registers access */
+  SET_BIT(FLASH->CR, FLASH_CR_OPTLOCK);
+  
+  return HAL_OK;  
+}
+
 HAL_StatusTypeDef HAL_FLASH_Lock(void)
 {
     SET_BIT(FLASH->CR, FLASH_CR_LOCK);
@@ -805,44 +813,48 @@ uint32_t boot_flash_flat_addr(uint32_t addr)
     return flat_addr;
 }
 
+static uint32_t delay_i, delay_j, delay_k;
+static void delay()
+{
+   
+    for(delay_i = 0; delay_i < 100; delay_i++) {
+        for(delay_j = 0; delay_j < 20; delay_j++)
+            for(delay_k = 0; delay_k < 10; delay_k++){}
+    }
+}
+
 int boot_flash_write_at(uint32_t address, uint64_t *pData, uint32_t len_bytes)
 {
-    int i;
-    int last_bytes = len_bytes;
-    int ret = -1;
+    uint32_t i;
+    volatile uint32_t last_bytes = 0;
+    uint8_t status = HAL_OK;
     uint64_t *src_ptr = pData;
     uint32_t dst_addr = address;
     uint64_t double_word = 0;
+    last_bytes = len_bytes;
     while(last_bytes >= 8) {
         __disable_irq();
-        ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, dst_addr, *src_ptr);
+        status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, dst_addr, *src_ptr);
         __enable_irq();
-        if (ret != HAL_OK) {
+        if (status != HAL_OK) {
+            rec_printf("flash write failed status = %d\n", status);
             return -1;
         }
         last_bytes -= 8;
         dst_addr += 8;
         src_ptr++;
+        delay();
     }
     if(last_bytes) {
         rec_memcpy((void*)&double_word, (void*)src_ptr, last_bytes);
         __disable_irq();
-        ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, dst_addr, *src_ptr);
+        status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, dst_addr, *src_ptr);
         __enable_irq();
-        if (ret != HAL_OK) {
+        if (status != HAL_OK) {
             return -1;
         }
     }
-    for (i = 0; i < len_bytes; i += 4) {
-        uint32_t *dst = (uint32_t *)(address + i);
-        uint32_t *src = ((uint32_t *) pData) + (i / 4);
-
-        if ( *dst != *src ) {
-            break;
-        }
-        ret = 0;
-    }
-    return ret;
+    return status;
 }
 
 int boot_flash_read_at(uint32_t address, uint64_t *pData, uint32_t len_bytes)
@@ -866,6 +878,7 @@ int  hal_boot_flash_write(unsigned int  addr, const void *buf , unsigned int  bu
         return -1;
     }
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
+    delay();
     start_addr = boot_flash_flat_addr(addr);
     if(boot_flash_write_at(start_addr, (uint64_t*)buf, buf_size) != 0) {
         ret = -1;
@@ -876,7 +889,7 @@ int  hal_boot_flash_write(unsigned int  addr, const void *buf , unsigned int  bu
     return ret;
 }
 
-int  hal_boot_flash_read(unsigned int  addr, void *buf, unsigned int  buf_size)
+int  hal_boot_flash_read(unsigned int  addr, void *buf, unsigned int buf_size)
 {
     uint32_t start_addr, len;
     uint64_t *pdata;
@@ -885,7 +898,7 @@ int  hal_boot_flash_read(unsigned int  addr, void *buf, unsigned int  buf_size)
     }
     start_addr = boot_flash_flat_addr(addr);
     len = (((buf_size % 8) == 0) ? buf_size : (ROUND_DOWN(buf_size, 8) + 8));
-    pdata = (uint64_t *)rec_malloc(len);
+    pdata = (uint64_t* )rec_malloc(len);
     if (pdata == NULL) {
         return -1;
     }
@@ -897,26 +910,35 @@ int  hal_boot_flash_read(unsigned int  addr, void *buf, unsigned int  buf_size)
     return 0;
 }
 
-int hal_boot_flash_erase(unsigned int  address, unsigned int  len_bytes)
+int hal_boot_flash_erase(unsigned int address, unsigned int len_bytes)
 {
     int ret = -1;
-    uint32_t PageError = 0;
+    uint32_t start_addr;
     FLASH_EraseInitTypeDef EraseInit;
+    uint32_t PageError = 0;
+    HAL_FLASH_Unlock();
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
+
+    start_addr = ROUND_DOWN(address, FLASH_PAGE_SIZE);
+    start_addr = boot_flash_flat_addr(address);
+    delay();
+    //rec_printf("erase addr = %x\r\n", start_addr);
     EraseInit.TypeErase = FLASH_TYPEERASE_PAGES;
-    EraseInit.Banks = boot_flash_get_bank(address);
-    if (EraseInit.Banks != boot_flash_get_bank(address + len_bytes - 1)) {
-        ;
+    EraseInit.Banks = boot_flash_get_bank(start_addr);
+    if (EraseInit.Banks != boot_flash_get_bank(start_addr + len_bytes - 1)) {
+        rec_printf("banks error\r\n");
     } else {
-        EraseInit.Page = boot_flash_get_pageinbank(address);
-        EraseInit.NbPages = boot_flash_get_pageinbank(address + len_bytes - 1) - EraseInit.Page + 1;
+        EraseInit.Page = boot_flash_get_pageinbank(start_addr);
+        EraseInit.NbPages = boot_flash_get_pageinbank(start_addr + len_bytes - 1) - EraseInit.Page + 1;
         ret = HAL_FLASHEx_Erase(&EraseInit, &PageError);
         if (ret == HAL_OK) {
             ret = 0;
         }
         else {
-            ;
+            rec_printf("erase error\r\n");;
         }
     }
+    HAL_FLASH_Lock();
     return ret;
 }
 
