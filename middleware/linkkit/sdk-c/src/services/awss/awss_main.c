@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include <stdlib.h>
 #include "aws_lib.h"
 #include "zconfig_lib.h"
@@ -23,7 +21,7 @@ extern "C"
 {
 #endif
 
-char awss_finished = 0;
+char awss_finished = 2;
 char awss_stop_connecting = 0;
 
 int __awss_start(void)
@@ -44,7 +42,12 @@ int __awss_start(void)
     ret = aws_get_ssid_passwd(&ssid[0], &passwd[0], &bssid[0],
             (char *)&auth, (char *)&encry, &channel);
     if (!ret)
-	    awss_warn("awss timeout!");
+        awss_warn("awss timeout!");
+
+    if (awss_stop_connecting) {
+        awss_finished = 1;
+        return -1;
+    }
 
     aws_destroy();
 
@@ -54,8 +57,9 @@ int __awss_start(void)
         int adha = 0;
 #endif
 
-        if (awss_stop_connecting)
+        if (awss_stop_connecting || strlen(ssid) == 0) {
             break;
+        }
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
         if ((adha = strcmp(ssid, ADHA_SSID)) == 0 || strcmp(ssid, DEFAULT_SSID) == 0) {
             awss_notify_needed = 0;
@@ -107,7 +111,6 @@ int __awss_stop(void)
 {
     awss_stop_connecting = 1;
     aws_destroy();
-    awss_dev_bind_notify_stop();
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
     awss_devinfo_notify_stop();
 #endif
@@ -115,11 +118,18 @@ int __awss_stop(void)
 #ifndef AWSS_DISABLE_REGISTRAR
     awss_registrar_deinit();
 #endif
+    if (awss_finished < 2) {
+        awss_cmp_local_deinit(1);
+    } else {
+        awss_cmp_local_deinit(0);
+    }
 
     while (1) {
         if (awss_finished) break;
         os_msleep(300);
     }
+    aws_release_mutex();
+    awss_finished = 2;
     return 0;
 }
 

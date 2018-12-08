@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef __AWSS_SMARTCONFIG__
-#define __AWSS_SMARTCONFIG__
+#ifndef __AWSS_SMARTCONFIG_H__
+#define __AWSS_SMARTCONFIG_H__
 
 #include <stdint.h>
 #include "os.h"
