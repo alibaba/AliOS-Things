@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef __AWSS_AHA__
-#define __AWSS_AHA__
+#ifndef __AWSS_AHA_H__
+#define __AWSS_AHA_H__
 
 #include <stdint.h>
 #include "os.h"

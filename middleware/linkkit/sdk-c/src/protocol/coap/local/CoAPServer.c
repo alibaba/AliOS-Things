@@ -185,13 +185,11 @@ void CoAPServer_deinit(CoAPContext *context)
         HAL_MutexDestroy(coap_yield_mutex);
         coap_yield_mutex = NULL;
     }
-    HAL_ThreadDelete(g_coap_thread);
 #endif
     if (NULL != context) {
         CoAPContext_free(context);
         g_context = NULL;
     }
-    HAL_SleepMs(1000);
 }
 
 int CoAPServer_register(CoAPContext *context, const char *uri, CoAPRecvMsgHandler callback)
@@ -218,7 +216,7 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
 
 
     CoAPMessage_init(&message);
-    CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
+    CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_NON);
     CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
     CoAPMessageId_set(&message, CoAPMessageId_gen(context));
     tokenlen = CoAPServerToken_get(token);
@@ -251,7 +249,7 @@ int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char
     }
 
     CoAPMessage_init(&response);
-    CoAPMessageType_set(&response, COAP_MESSAGE_TYPE_CON);
+    CoAPMessageType_set(&response, COAP_MESSAGE_TYPE_NON);
     CoAPMessageCode_set(&response, COAP_MSG_CODE_205_CONTENT);
     CoAPMessageId_set(&response, request->header.msgid);
     CoAPMessageToken_set(&response, request->token, request->header.tokenlen);

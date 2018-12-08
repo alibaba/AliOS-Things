@@ -99,6 +99,7 @@ void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd, uint8_t *b
 void zconfig_force_rescan(void);
 void aws_set_dst_chan(int channel);
 void aws_switch_channel(void);
+void aws_release_mutex(void);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

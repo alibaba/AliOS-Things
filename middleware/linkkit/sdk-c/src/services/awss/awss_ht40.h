@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef __AWSS_HT40__
-#define __AWSS_HT40__
+#ifndef __AWSS_HT40_H__
+#define __AWSS_HT40_H__
 
 #ifdef  AWSS_SUPPORT_HT40
 

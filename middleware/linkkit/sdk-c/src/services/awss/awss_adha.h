@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef __AWSS_ADHA__
-#define __AWSS_ADHA__
+#ifndef __AWSS_ADHA_H__
+#define __AWSS_ADHA_H__
 
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
 

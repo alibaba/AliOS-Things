@@ -22,7 +22,7 @@ extern "C" {
 #define AWSS_PRESS_TIMEOUT_MS  (60000)
 
 extern int switch_ap_done;
-static uint8_t awss_stopped = 0;
+static uint8_t awss_stopped = 1;
 static uint8_t g_user_press = 0;
 static void *press_timer = NULL;
 
@@ -41,11 +41,16 @@ int awss_success_notify(void)
 
 int awss_start(void)
 {
+    if (awss_stopped == 0) {
+        awss_debug("awss already running\n");
+        return -1;
+    }
+
+    awss_stopped = 0;
     awss_event_post(AWSS_START);
     produce_random(aes_random, sizeof(aes_random));
 
     do {
-        awss_stopped = 0;
         __awss_start();
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
         do {
@@ -64,6 +69,8 @@ int awss_start(void)
 
                     awss_open_adha_monitor();
                     while (!awss_is_ready_switch_next_adha()) {
+                        if (awss_stopped)
+                            break;
                         os_msleep(50);
                     }
                     awss_cmp_local_deinit(0);
@@ -82,7 +89,7 @@ int awss_start(void)
             if (switch_ap_done) {
                 break;
             }
-
+            os_wifi_get_ap_info(ssid , NULL, NULL);
             if (strlen(ssid) > 0 && strcmp(ssid, DEFAULT_SSID)) { /* not AHA */
                 break;
             }
@@ -100,6 +107,8 @@ int awss_start(void)
                         dest_ap = 1;
                         break;
                     }
+                    if (awss_stopped)
+                        break;
                     os_msleep(50);
                 }
 
@@ -126,6 +135,9 @@ int awss_start(void)
         }
     } while (1);
 
+    if (awss_stopped)
+        return -1;
+
 #ifdef AWSS_SUPPORT_AHA
     awss_close_aha_monitor();
 #endif
@@ -134,21 +146,25 @@ int awss_start(void)
 #endif
 
     awss_success_notify();
+    awss_stopped = 1;
 
     return 0;
 }
 
 int awss_stop(void)
 {
+    awss_stopped = 1;
 #ifdef AWSS_SUPPORT_AHA
     awss_close_aha_monitor();
 #endif
 #ifdef AWSS_SUPPORT_ADHA
     awss_close_adha_monitor();
 #endif
+    g_user_press = 0;
+    awss_press_timeout();
+
     __awss_stop();
-    awss_cmp_local_deinit(0);
-    awss_stopped = 1;
+
     return 0;
 }
 
