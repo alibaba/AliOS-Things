@@ -2,10 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -30,7 +26,6 @@
 
 #include "iot_import.h"
 #include "iotx_hal_internal.h"
-#include "hash_kv.h"
 
 #define __DEMO__
 
@@ -748,18 +743,3 @@ int HAL_GetNetifInfo(char *nif_str)
     return strlen(nif_str);
 }
 
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
-{
-    return kv_set(key, (void *)val, len);
-}
-
-int HAL_Kv_Get(const char *key, void *val, int *buffer_len)
-{
-    return kv_get(key, val, buffer_len);
-}
-
-int HAL_Kv_Del(const char *key)
-{
-
-    return kv_del(key);
-}
