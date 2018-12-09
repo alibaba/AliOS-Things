@@ -2719,43 +2719,55 @@ static int MQTTPubInfoProc(iotx_mc_client_t *pClient)
 /* connect */
 int iotx_mc_connect(iotx_mc_client_t *pClient)
 {
+#define RETRY_TIME_LIMIT    (8+1)
+#define RETRY_INTV_PERIOD   (2000)
+
     int rc = FAIL_RETURN;
+    int try_count = 1;
 
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
 
     /* Establish TCP or TLS connection */
-    rc = pClient->ipstack->connect(pClient->ipstack);
-    if (SUCCESS_RETURN != rc) {
-        pClient->ipstack->disconnect(pClient->ipstack);
-        mqtt_err("TCP or TLS Connection failed");
+    do {
+        rc = pClient->ipstack->connect(pClient->ipstack);
+        if (SUCCESS_RETURN != rc) {
+            pClient->ipstack->disconnect(pClient->ipstack);
+            mqtt_err("TCP or TLS Connection failed");
 
-        if (ERROR_CERTIFICATE_EXPIRED == rc) {
-            mqtt_err("certificate is expired!");
-            return ERROR_CERT_VERIFY_FAIL;
-        } else {
-            return MQTT_NETWORK_CONNECT_ERROR;
+            if (ERROR_CERTIFICATE_EXPIRED == rc) {
+                mqtt_err("certificate is expired!");
+                return ERROR_CERT_VERIFY_FAIL;
+            } else {
+                return MQTT_NETWORK_CONNECT_ERROR;
+            }
         }
-    }
 
-    /* remove */
-    /*mqtt_debug("start MQTT connection with parameters: clientid=%s, username=%s, password=%s",
-              pClient->connect_data.clientID.cstring,
-              pClient->connect_data.username.cstring,
-              pClient->connect_data.password.cstring);*/
+        rc = MQTTConnect(pClient);
 
-    rc = MQTTConnect(pClient);
-    if (rc  != SUCCESS_RETURN) {
-        pClient->ipstack->disconnect(pClient->ipstack);
-        mqtt_err("send connect packet failed");
-        return  rc;
-    }
+        if (rc != SUCCESS_RETURN) {
+            pClient->ipstack->disconnect(pClient->ipstack);
+            mqtt_err("send connect packet failed, rc = %d", rc);
+            return rc;
+        }
 
-    if (SUCCESS_RETURN != iotx_mc_wait_CONNACK(pClient)) {
-        (void)MQTTDisconnect(pClient);
-        pClient->ipstack->disconnect(pClient->ipstack);
-        mqtt_err("wait connect ACK timeout, or receive a ACK indicating error!");
+        if (SUCCESS_RETURN != iotx_mc_wait_CONNACK(pClient)) {
+            mqtt_err("wait connect ACK timeout, or receive a ACK indicating error!");
+            mqtt_warning("tried [%d/%d] times CONN, waiting for %d ms...", try_count, RETRY_TIME_LIMIT - 1, RETRY_INTV_PERIOD);
+
+            HAL_SleepMs(RETRY_INTV_PERIOD);
+
+            (void)MQTTDisconnect(pClient);
+            pClient->ipstack->disconnect(pClient->ipstack);
+            continue;
+        } else {
+            break;
+        }
+
+    } while (++try_count < RETRY_TIME_LIMIT);
+
+    if (try_count == RETRY_TIME_LIMIT) {
         return MQTT_CONNECT_ERROR;
     }
 
