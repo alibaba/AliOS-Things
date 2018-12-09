@@ -8,6 +8,7 @@ config DEV_BIND_ENABLED
     select UTILS_MD5
 
     select HAL_AWSS
+    select HAL_CRYPTO
 
     help
         Enable customers to bind device to current user

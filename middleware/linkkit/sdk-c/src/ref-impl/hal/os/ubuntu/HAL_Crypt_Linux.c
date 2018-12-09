@@ -1,8 +1,8 @@
+#if defined(HAL_CRYPTO)
+
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-#if defined(ALCS_ENABLED) || defined(COAP_COMM_ENABLED) || defined(DEV_BIND_ENABLED)
 
 #include <string.h>
 #include "iot_import.h"
@@ -139,4 +139,6 @@ int HAL_Aes128_Cfb_Decrypt(
     return ret;
 }
 #endif
-#endif
+
+#endif  /* #if defined(HAL_CRYPTO) */
+
