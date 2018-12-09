@@ -13,6 +13,7 @@ config ALCS_ENABLED
     select UTILS_JSON_PARSER
 
     select HAL_KV
+    select HAL_CRYPTO
 
     select AOS_COMP_LIBIOT_LOG 
     select AOS_COMP_LIBIOT_SYSTEM 
