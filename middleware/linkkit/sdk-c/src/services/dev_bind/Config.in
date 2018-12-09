@@ -1,10 +1,13 @@
-    config DEV_BIND_ENABLED
-        bool "FEATURE_DEV_BIND_ENABLED"
-        depends on MQTT_COMM_ENABLED
-        default y
-        select UTILS_JSON_PARSER
-        select SUPPORT_TLS
-        select UTILS_MD5
-        
-        help
-            Enable customers to bind device to current user
+config DEV_BIND_ENABLED
+    bool "FEATURE_DEV_BIND_ENABLED"
+    depends on MQTT_COMM_ENABLED
+    default y
+
+    select UTILS_JSON_PARSER
+    select SUPPORT_TLS
+    select UTILS_MD5
+
+    select HAL_AWSS
+
+    help
+        Enable customers to bind device to current user
