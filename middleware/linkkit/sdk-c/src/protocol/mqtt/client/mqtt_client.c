@@ -414,7 +414,7 @@ int MQTTConnect(iotx_mc_client_t *pClient)
     }
 
     if ((len = MQTTSerialize_connect((unsigned char *)pClient->buf_send, pClient->buf_size_send, pConnectParams)) <= 0) {
-        mqtt_err("Serialize connect packet failed,len = %d", len);
+        mqtt_err("Serialize connect packet failed, len = %d", len);
         _reset_send_buffer(pClient);
         HAL_MutexUnlock(pClient->lock_write_buf);
         return MQTT_CONNECT_PACKET_ERROR;
