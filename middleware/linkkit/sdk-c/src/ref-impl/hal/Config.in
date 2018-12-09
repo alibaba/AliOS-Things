@@ -6,10 +6,6 @@ config HAL_AWSS
     bool
     default n
 
-config HAL_FS
-    bool
-    default n
-
 config HAL_CRYPTO
     bool
     default n
