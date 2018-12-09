@@ -1,9 +1,7 @@
+#if defined(HAL_UDP)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,8 +16,6 @@
 #include <pthread.h>
 #include "iotx_hal_internal.h"
 #include "iot_import.h"
-
-#if defined(WITH_UDP_NTP_CLIENT) || defined(COAP_COMM_ENABLED) || defined(DEV_BIND_ENABLED)
 
 intptr_t HAL_UDP_create(char *host, unsigned short port)
 {
@@ -445,4 +441,6 @@ int HAL_UDP_sendto(_IN_ intptr_t sockfd,
 
     return (ret) > 0 ? ret : -1;
 }
-#endif
+
+#endif  /* #if defined(HAL_UDP) */
+

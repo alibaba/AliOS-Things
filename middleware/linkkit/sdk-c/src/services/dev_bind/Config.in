@@ -9,6 +9,7 @@ config DEV_BIND_ENABLED
 
     select HAL_AWSS
     select HAL_CRYPTO
+    select HAL_UDP
 
     help
         Enable customers to bind device to current user
