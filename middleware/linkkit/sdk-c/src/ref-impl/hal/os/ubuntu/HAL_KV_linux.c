@@ -1,3 +1,4 @@
+#if defined(HAL_KV)
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -7,25 +8,16 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "hash_kv.h"
-
-#define hal_err(fmt, ...)  \
-    do { \
-        printf("%s|%03d :: ", __func__, __LINE__); \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("%s", "\r\n"); \
-    } while(0)
+#include "iotx_hal_internal.h"
 
 #define TABLE_COL_SIZE    (384)
 #define TABLE_ROW_SIZE    (2)
 
 #define ITEM_MAX_KEY_LEN     128 /* The max key length for key-value item */
 #define ITEM_MAX_VAL_LEN     512 /* The max value length for key-value item */
-
 #define ITEM_MAX_LEN         sizeof(kv_item_t)
 
-#define KV_FILE_NAME          "linkkit_kv.bin"
-
+#define KV_FILE_NAME         "linkkit_kv.bin"
 
 typedef struct kv {
     char key[ITEM_MAX_KEY_LEN];
@@ -38,7 +30,9 @@ typedef struct kv_file_s {
     pthread_mutex_t lock;
 } kv_file_t;
 
-
+static int kv_get(const char *key, void *value, int *value_len);
+static int kv_set(const char *key, void *value, int value_len);
+static int kv_del(const char *key);
 static unsigned int hash_gen(const char *key);
 static int hash_table_put(kv_file_t *file, const  char *key, void *value, int value_len);
 static int hash_table_get(kv_file_t *file, const char *key, void *value, int *len);
@@ -382,7 +376,7 @@ int __kv_del(kv_file_t *file, const  char *key)
 }
 
 static kv_file_t *file = NULL;
-int kv_get(const char *key, void *value, int *value_len)
+static int kv_get(const char *key, void *value, int *value_len)
 {
     if (!file) {
         file = kv_open(KV_FILE_NAME);
@@ -395,7 +389,7 @@ int kv_get(const char *key, void *value, int *value_len)
     return __kv_get(file, key, value, value_len);
 }
 
-int kv_set(const char *key, void *value, int value_len)
+static int kv_set(const char *key, void *value, int value_len)
 {
     if (!file) {
         file = kv_open(KV_FILE_NAME);
@@ -408,7 +402,7 @@ int kv_set(const char *key, void *value, int value_len)
     return __kv_set(file, key, value, value_len);
 }
 
-int kv_del(const char *key)
+static int kv_del(const char *key)
 {
     if (!file) {
         file = kv_open(KV_FILE_NAME);
@@ -420,3 +414,22 @@ int kv_del(const char *key)
 
     return __kv_del(file, key);
 }
+
+int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
+{
+    return kv_set(key, (void *)val, len);
+}
+
+int HAL_Kv_Get(const char *key, void *val, int *buffer_len)
+{
+    return kv_get(key, val, buffer_len);
+}
+
+int HAL_Kv_Del(const char *key)
+{
+
+    return kv_del(key);
+}
+
+#endif  /* #if defined(HAL_KV) */
+

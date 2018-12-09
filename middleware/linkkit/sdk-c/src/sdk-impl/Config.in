@@ -14,3 +14,5 @@ config DYNAMIC_REGISTER
     select UTILS_LITE_CJSON
     select UTILS_HTTPC
     select UTILS_SHA256
+
+    select HAL_KV

@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef __PLATFORM_DEBUG_H__
 #define __PLATFORM_DEBUG_H__
 
