@@ -1778,9 +1778,11 @@ static int iotx_mc_wait_CONNACK(iotx_mc_client_t *c)
         }
     } while (packetType != CONNACK);
     HAL_MutexLock(c->lock_read_buf);
+
     rc = iotx_mc_handle_recv_CONNACK(c);
     _reset_recv_buffer(c);
     HAL_MutexUnlock(c->lock_read_buf);
+
     if (SUCCESS_RETURN != rc) {
         mqtt_err("recvConnackProc error,result = %d", rc);
     }
@@ -2752,13 +2754,20 @@ int iotx_mc_connect(iotx_mc_client_t *pClient)
             return rc;
         }
 
-        if (SUCCESS_RETURN != iotx_mc_wait_CONNACK(pClient)) {
-            mqtt_err("wait connect ACK timeout, or receive a ACK indicating error!");
+        rc = iotx_mc_wait_CONNACK(pClient);
+
+        if (rc <= MQTT_CONNACK_NOT_AUTHORIZED_ERROR && rc >= MQTT_CONANCK_UNACCEPTABLE_PROTOCOL_VERSION_ERROR) {
+            mqtt_err("received reject ACK from MQTT server! rc = %d", rc);
+            pClient->ipstack->disconnect(pClient->ipstack);
+            return MQTT_CONNECT_ERROR;
+        }
+
+        if (SUCCESS_RETURN != rc) {
+            mqtt_err("wait connect ACK timeout! rc = %d", rc);
             mqtt_warning("tried [%d/%d] times CONN, waiting for %d ms...", try_count, RETRY_TIME_LIMIT - 1, RETRY_INTV_PERIOD);
 
             HAL_SleepMs(RETRY_INTV_PERIOD);
 
-            (void)MQTTDisconnect(pClient);
             pClient->ipstack->disconnect(pClient->ipstack);
             continue;
         } else {
