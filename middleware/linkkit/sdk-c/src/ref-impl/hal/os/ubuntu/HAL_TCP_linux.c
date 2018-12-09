@@ -1,10 +1,7 @@
+#if defined(HAL_TCP)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
-
 
 #include <stdio.h>
 #include <string.h>
@@ -102,7 +99,6 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     return (uintptr_t)rc;
 }
 
-
 int HAL_TCP_Destroy(uintptr_t fd)
 {
     int rc;
@@ -122,7 +118,6 @@ int HAL_TCP_Destroy(uintptr_t fd)
 
     return 0;
 }
-
 
 int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
 {
@@ -197,7 +192,6 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     }
 }
 
-
 int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
     int ret, err_code;
@@ -252,3 +246,6 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     /* It will get error code on next calling */
     return (0 != len_recv) ? len_recv : err_code;
 }
+
+#endif  /* #if defined(HAL_TCP) */
+
