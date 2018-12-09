@@ -1,0 +1,3 @@
+config HAL_KV
+    bool
+    default n

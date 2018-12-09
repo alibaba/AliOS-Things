@@ -12,6 +12,8 @@ config DEVICE_MODEL_ENABLED
     select UTILS_EVENT
     select UTILS_SHA1
 
+    select HAL_KV
+
     help
         Enable providing Thing-Model-Management/Alink-Protocol encapulation in SDK
 
