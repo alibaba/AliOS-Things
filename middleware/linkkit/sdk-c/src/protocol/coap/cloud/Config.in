@@ -10,6 +10,7 @@ config COAP_COMM_ENABLED
     select UTILS_MD5
 
     select HAL_CRYPTO
+    select HAL_UDP
 
     help
         Establish non-persistent connection with AliCloud via CoAP-based protocol
