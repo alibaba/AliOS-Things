@@ -1,5 +1,3 @@
-   
-
 source "$SRCPATH/src/protocol/mqtt/Config.in"
 source "$SRCPATH/src/services/linkkit/Config.in"
 source "$SRCPATH/src/protocol/coap/cloud/Config.in"
@@ -10,7 +8,4 @@ source "$SRCPATH/src/services/mdal/Config.in"
 source "$SRCPATH/src/services/awss/Config.in"
 source "$SRCPATH/src/services/http2_stream/Config.in"
 source "$SRCPATH/src/security/Config.in"
-
-
-
-
+source "$SRCPATH/src/ref-impl/hal/Config.in"

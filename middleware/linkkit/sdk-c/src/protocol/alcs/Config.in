@@ -12,6 +12,8 @@ config ALCS_ENABLED
     select SUPPORT_TLS
     select UTILS_JSON_PARSER
 
+    select HAL_KV
+
     select AOS_COMP_LIBIOT_LOG 
     select AOS_COMP_LIBIOT_SYSTEM 
     select AOS_COMP_LIBIOT_UTILS
