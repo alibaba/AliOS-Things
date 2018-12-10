@@ -35,30 +35,34 @@ extern "C" {
 #ifdef SAL_USE_AOS_HAL
 #ifdef SAL_USE_DEBUG
 #define SAL_DEBUG(format, ...)  LOGD(SAL_TAG, format, ##__VA_ARGS__)
-#else
-#define SAL_DEBUG(format, ...)
-#endif
-
 #define SAL_ERROR(format, ...)  LOGE(SAL_TAG, format, ##__VA_ARGS__)
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
             LOGE(SAL_TAG, msg);} \
-    } while (0)
+        } while (0)
+#else
+#define SAL_DEBUG(format, ...)
+#define SAL_ERROR(format, ...)
+#define SAL_ASSERT(msg, assertion)
+#endif
 
 #define SAL_SNPRINTF snprintf
 #else
 #ifdef SAL_USE_DEBUG
 #define SAL_DEBUG(format, ...)  log_debug(SAL_TAG, format, ##__VA_ARGS__)
-#else
-#define SAL_DEBUG(format, ...)
-#endif
-
 #define SAL_ERROR(format, ...)  log_err(SAL_TAG, format, ##__VA_ARGS__)
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
             log_err(SAL_TAG, msg);} \
-    } while (0)
+        } while (0)
+#else
+#define SAL_DEBUG(format, ...)
+#define SAL_ERROR(format, ...)
+#define SAL_ASSERT(msg, assertion)
+#endif
 
 #define SAL_SNPRINTF HAL_Snprintf
 #endif
+
+#define SAL_SOCKET_UNSUPPORT -1
 
 /* Helpers to process several netconn_types by the same code */
 #define NETCONNTYPE_GROUP(t)         ((t)&0xF0)
@@ -202,10 +206,6 @@ typedef struct sal_netconn {
 #define SAL_SOCKET_MAX_PAYLOAD_SIZE  1512
 #define SAL_SOCKET_IP4_ANY_ADDR      "0.0.0.0"
 #define SAL_SOCKET_IP4_ADDR_LEN      16
-
-void sal_deal_event(int s, enum netconn_evt evt);
-
-#define API_EVENT_SIMPLE(s,e) sal_deal_event(s,e)
 
 #define EAI_NONAME      200
 #define EAI_SERVICE     201

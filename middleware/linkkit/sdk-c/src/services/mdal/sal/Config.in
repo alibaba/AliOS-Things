@@ -5,6 +5,16 @@ config SAL_ENABLED
 menu "SAL Configurations"
     depends on SAL_ENABLED
 
+    config SAL_SELECT_SUPPORT
+        bool "FEATURE_SAL_SELECT_SUPPORT"
+        default y
+        help
+            Provides socket API select which is open by default
+
+            Switching to "y" leads to socket API select enabled.
+            Switching to "n" leads to socket API select disabled.
+
+
     config SAL_PACKET_SEND_MODE_ASYNC
         bool "FEATURE_SAL_PACKET_SEND_MODE_ASYNC"
         default n
@@ -22,5 +32,15 @@ menu "SAL Configurations"
 
             Switching to "y" leads to enable UDP client socket APIs.
             Switching to "n" leads to disable UDP client socket APIs.
+
+    config SAL_USE_DEBUG
+        bool "FEATURE_SAL_USE_DEBUG"
+        default n
+        help
+            Provides sal debug mode which is closed by default
+
+            Switching to "y" leads to sal debug modet enabled.
+            Switching to "n" leads to sal debug mode disabled.
+
 
 endmenu
