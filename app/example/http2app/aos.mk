@@ -16,6 +16,7 @@ $(NAME)_COMPONENTS += feature.linkkit-http2 \
 GLOBAL_DEFINES += CONFIG_AOS_CLI \
                   ON_DAILY \
 
+HTTP2APP = 1
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
