@@ -5,7 +5,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <aos/network.h>
+#include <network/network.h>
 #include "hal/wifi.h"
 #include "esp_smartconfig.h"
 #include "esp_wifi_types.h"
