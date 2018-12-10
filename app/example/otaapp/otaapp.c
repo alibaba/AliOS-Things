@@ -10,7 +10,7 @@
 #include "iot_export.h"
 #include "aos/log.h"
 #include "aos/yloop.h"
-#include "aos/network.h"
+#include "network/network.h"
 #include <netmgr.h>
 
 #ifdef CONFIG_AOS_CLI
