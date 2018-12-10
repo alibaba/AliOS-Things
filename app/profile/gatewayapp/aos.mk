@@ -33,7 +33,7 @@ $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
-ifneq ($(HOST_MCU_FAMILY),esp8266)
+ifneq ($(HOST_MCU_FAMILY),mcu_esp8266)
 $(NAME)_COMPONENTS  += cli
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 else
