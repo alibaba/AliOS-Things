@@ -7,7 +7,6 @@ config DEV_BIND_ENABLED
     select SUPPORT_TLS
     select UTILS_MD5
 
-    select HAL_AWSS
     select HAL_CRYPTO
     select HAL_UDP
 

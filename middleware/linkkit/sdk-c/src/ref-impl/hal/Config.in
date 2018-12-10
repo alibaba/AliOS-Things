@@ -2,10 +2,6 @@ config HAL_KV
     bool
     default n
 
-config HAL_AWSS
-    bool
-    default n
-
 config HAL_CRYPTO
     bool
     default n
