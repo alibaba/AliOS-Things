@@ -22,7 +22,7 @@
 #include <kmbins_tbl.h>
 
 #ifdef WITH_LWIP
-#include <aos/network.h>
+#include <network/network.h>
 #endif
 
 #ifdef AOS_BT
