@@ -12,7 +12,6 @@ $(NAME)_SOURCES := HAL_OS_rhino.c \
                    HAL_AWSS_rhino.c
 
 $(NAME)_COMPONENTS += \
-                      digest_algorithm \
                       utility/log \
                       activation \
                       chip_code \

@@ -6,8 +6,6 @@ $(NAME)_SUMMARY := Alibaba Wireless Setup service
 
 $(NAME)_DEFINES := USE_LPTHREAD
 
-$(NAME)_COMPONENTS := digest_algorithm
-
 $(NAME)_INCLUDES += . ../dev_bind/os/ ../dev_bind/os/product/ ../dev_bind/os/platform/
 $(NAME)_SOURCES :=
 $(NAME)_SOURCES += awss.c       awss_aha.c      awss_registrar.c     zconfig_protocol.c       awss_smartconfig.c
