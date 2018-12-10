@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <aos/network.h>
+#include <network/network.h>
 #include <sys/time.h>
 
 #include "mbedtls/config.h"
