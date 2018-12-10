@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <aos/network.h>
+#include <network/network.h>
 #include <aos/aos.h>
 #include <netmgr.h>
 
