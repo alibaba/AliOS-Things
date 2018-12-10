@@ -248,10 +248,11 @@ $(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MA
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/resources)
 	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_auto_code.py $(OUTPUT_DIR)/config_2boot.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build_2boot.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
-	$(QUIET)$(ECHO) Build 2boot complete
+	$(QUIET)$(ECHO) Build 2nd boot complete
+	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
 else
 2boot:
-	@
+	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
 endif
 
 ifeq (littlevgl_simulate@linuxhost,$(CLEANED_BUILD_STRING))
