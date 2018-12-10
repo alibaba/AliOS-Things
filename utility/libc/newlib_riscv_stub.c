@@ -11,7 +11,7 @@
 #include <aos/aos.h>
 #include "aos/hal/soc.h"
 #include "vfs_conf.h"
-#include "aos/network.h"
+#include "network/network.h"
 
 #define FD_VFS_START VFS_FD_OFFSET
 #define FD_VFS_END (FD_VFS_START + VFS_MAX_FILE_NUM - 1)
