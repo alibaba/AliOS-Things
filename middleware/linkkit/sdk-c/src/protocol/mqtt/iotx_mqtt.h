@@ -9,7 +9,11 @@
 
 #include "iotx_mqtt_config.h"
 #include "iotx_utils.h"
+#ifdef BUILD_AOS
 #include "MQTTPacket/MQTTPacket.h"
+#else
+#include "MQTTPacket.h"
+#endif
 
 typedef enum {
     IOTX_MC_CONNECTION_ACCEPTED = 0,

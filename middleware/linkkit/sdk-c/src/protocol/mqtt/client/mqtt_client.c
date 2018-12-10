@@ -8,7 +8,7 @@
 #include "iot_export.h"
 #include "iotx_system.h"
 
-#include "MQTTPacket/MQTTPacket.h"
+#include "MQTTPacket.h"
 #include "iotx_mqtt_internal.h"
 #include "report.h"
 
