@@ -105,7 +105,7 @@ static int ota_init(void *something)
     hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
     OTA_LOG_I("ota init off:0x%08x part:%d len:0x%08x\n",param->off_bp,boot_part,param->len);
     if(part_info->partition_length < param->len || param->len == 0) {
-        OTA_LOG_E("ota init error:",part_info->partition_length);
+        OTA_LOG_E("ota init error");
         return -1;
     }
 #if defined (STM32L496xx)
