@@ -14,11 +14,11 @@ testcases = Split('''
     test/testcase/kernel/deviceIO_test
     test/testcase/kernel/modules/fatfs_test
     test/testcase/kernel/modules/kv_test
-    test/testcase/network/umesh_test
     test/testcase/kernel/rhino_test
     test/testcase/osal_test
     test/testcase/kernel/vfs_test
-    test/testcase/kernel/yloop_test
+    test/testcase/network/protocols/umesh_test
+    test/testcase/network/yloop_test
     test/testcase/security/alicrypto_test
     test/testcase/security/id2_test
     test/testcase/security/tls_test
