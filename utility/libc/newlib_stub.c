@@ -11,7 +11,7 @@
 #include <aos/aos.h>
 #include "aos/hal/soc.h"
 #include "vfs_conf.h"
-#include "aos/network.h"
+#include "network/network.h"
 #ifdef WITH_LWIP_TELNETD
 #include "lwip/apps/telnetserver.h"
 #endif
