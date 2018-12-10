@@ -8,7 +8,7 @@
 #include <aos/errno.h>
 #include <aos/log.h>
 #include <aos/aos.h>
-#include "network/network.h"
+#include <network/network.h>
 #include "iot_import.h"
 
 #define TRANSPORT_ADDR_LEN 16
