@@ -47,7 +47,8 @@ GLOBAL_DEFINES += USE_HAL_DRIVER
 GLOBAL_INCLUDES += Drivers/STM32L4xx_HAL_Driver/Inc        \
                    Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
                    Drivers/CMSIS/Include                   \
-                   Drivers/CMSIS/Device/ST/STM32L4xx/Include
+                   Drivers/CMSIS/Device/ST/STM32L4xx/Include \
+                   Rec/
 
 $(NAME)_SOURCES := Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c               \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_adc.c           \
@@ -140,6 +141,10 @@ $(NAME)_SOURCES := Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c             
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_usb.c            \
                    Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_utils.c          \
                    Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
+
+ifeq ($(AOS_DEVELOPERKIT_ENABLE_OTA),1)
+$(NAME)_SOURCES += Rec/rec_clear_ota_flag.c
+endif
 
 $(NAME)_SOURCES += aos/soc_impl.c          \
                    aos/hook_impl.c         \
