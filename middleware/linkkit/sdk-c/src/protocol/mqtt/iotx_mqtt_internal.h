@@ -30,8 +30,6 @@
 
 #define MQTT_DYNBUF_RECV_MARGIN                      (8)
 
-#define MQTT_CONNECT_REQUIRED_BUFLEN                 (256+32)
-
 /* MQTT send publish packet */
 
 #endif  /* __IOTX_MQTT_INTERNAL_H__ */
