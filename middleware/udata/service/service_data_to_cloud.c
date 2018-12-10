@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "aos/log.h"
-#include "aos/network.h"
+#include "network/network.h"
 #include <aos/kernel.h>
 #include "aos/udata.h"
 #include "service_mgr.h"
