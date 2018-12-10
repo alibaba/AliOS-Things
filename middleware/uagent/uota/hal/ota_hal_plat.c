@@ -295,6 +295,35 @@ static int ota_boot(void *something)
                  return -1;
             }
 #elif defined  AOS_OTA_BANK_DUAL
+            int offset = 0x00;
+            ota_crc16_ctx tmp_ctx;
+            unsigned short crc;
+            int param_part = HAL_PARTITION_PARAMETER_1;
+            param->src_adr = 0x00;
+            param->dst_adr = 0x00;
+#if defined (AOS_OTA_RECOVERY_TYPE)
+            param->upg_flag = REC_DUAL_UPDATE_FLAG;
+#else
+            param->upg_flag = 0x00;
+#endif
+            ota_crc16_init(&tmp_ctx);
+            ota_crc16_update(&tmp_ctx, param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
+            ota_crc16_final(&tmp_ctx, &crc);
+            param->param_crc = crc;
+            ota_boot_param_t param_r;
+            offset = 0x00;
+            hal_flash_erase(param_part, offset, sizeof(ota_boot_param_t));
+            offset = 0x00;
+            hal_flash_write(param_part, (uint32_t*)&offset, param, sizeof(ota_boot_param_t));
+            offset = 0x00;
+            memset(&param_r, 0, sizeof(ota_boot_param_t));
+            hal_flash_read(param_part, (uint32_t*)&offset, &param_r, sizeof(ota_boot_param_t));
+            OTA_LOG_I("OTA finish:dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x.\r\n", param_r.dst_adr,
+                      param_r.src_adr, param_r.len, param_r.crc);
+            if(memcmp(param, &param_r, sizeof(ota_boot_param_t)) != 0) {
+                 OTA_LOG_E("OTA compare failed!\r\n");
+                 return -1;
+            }
             ota_reboot_bank();
 #endif
             OTA_LOG_I("OTA successful!\r\n");
@@ -324,9 +353,10 @@ static int ota_rollback(void *something)
     ota_boot_param_t param_w, param_r;
     memset(&param_w, 0, sizeof(ota_boot_param_t));
     hal_flash_read(param_part, (uint32_t*)&offset, &param_w, sizeof(ota_boot_param_t));
-    if(param_w.boot_count != 0) {
+    if((param_w.boot_count != 0) && (param_w.boot_count != 0xff)) {
         ota_crc16_ctx ctx1;
         unsigned short crc;
+        param_w.upg_flag = 0;
         param_w.boot_count = 0; /*Clear bootcount to avoid rollback*/
         ota_crc16_init(&ctx1);
         ota_crc16_update(&ctx1, &param_w, sizeof(ota_boot_param_t) - sizeof(unsigned short));
@@ -344,7 +374,7 @@ static int ota_rollback(void *something)
             return -1;
         }
     }
-    OTA_LOG_I("rollback count:%d \n",param_r.boot_count);
+    OTA_LOG_I("OTA rollback boot count:%d \r\n",param_w.boot_count);
     return 0;
 }
 
