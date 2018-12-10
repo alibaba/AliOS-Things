@@ -46,7 +46,7 @@
 #include "stm32f4xx_hal.h"
 #include "aos/aos.h"
 #include <k_api.h>
-#include "aos/network.h"
+#include "network/network.h"
 #include <lwip/tcpip.h>
 #include "netif/etharp.h"
 
