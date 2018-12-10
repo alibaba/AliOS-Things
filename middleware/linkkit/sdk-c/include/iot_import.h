@@ -523,12 +523,19 @@ DLL_HAL_API long HAL_Ftell(void *stream);
 #include "iot_import_config.h"
 #include "iot_import_product.h"
 #include "iot_import_tcp.h"
-#include "iot_import_crypt.h"
+
+#if defined(DEV_BIND_ENABLED)
 #include "iot_import_awss.h"
+#endif
+
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
+#include "iot_import_ota.h"
+#endif
+
+#include "iot_import_crypt.h"
 #include "iot_import_dtls.h"
 #include "iot_import_tls.h"
 #include "iot_import_udp.h"
-#include "iot_import_ota.h"
 
 #endif  /* SIM7000C_DAM */
 #if defined(__cplusplus)
