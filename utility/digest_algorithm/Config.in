@@ -1,3 +1,0 @@
-config AOS_COMP_DIGEST_ALGORITHM
-    bool "digest_algorithm"
-    default n
