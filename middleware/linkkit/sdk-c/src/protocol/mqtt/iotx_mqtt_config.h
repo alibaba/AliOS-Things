@@ -66,7 +66,7 @@
 #define IOTX_MC_REQUEST_TIMEOUT_DEFAULT_MS      (2000)
 
 /* Max times of keepalive which has been send and did not received response package */
-#define IOTX_MC_KEEPALIVE_PROBE_MAX             (3)
+#define IOTX_MC_KEEPALIVE_PROBE_MAX             (2)
 
 
 #endif  /* IOTX_MQTT_CONFIG_H__ */
