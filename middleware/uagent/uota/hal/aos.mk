@@ -25,6 +25,10 @@ $(NAME)_SOURCES += \
     ota_hal_plat.c
 endif
 
+ifeq ($(VERIFY),RSA)
+GLOBAL_DEFINES += AOS_OTA_RSA
+endif
+
 GLOBAL_INCLUDES += . \
     ../inc \
     ../src/verify/crc \
