@@ -122,15 +122,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 endif
 
+include $($(NAME)_LOCATION)/$(HOST_MCU_NAME).mk
 
-ifeq ($(HOST_MCU_NAME), nrf52840)
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/nrf52840.mk
-else ifeq ($(HOST_MCU_NAME), nrf52832)
-$(NAME)_COMPONENTS += kv
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/nrf52832.mk
-else ifeq ($(HOST_MCU_NAME),nrf52810)
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/nrf52810.mk
-endif
-
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/bt_controller/bt_controller.mk
+include $($(NAME)_LOCATION)/bt_controller/bt_controller.mk
 GLOBAL_DEFINES-y += CONFIG_BT_CTLR
