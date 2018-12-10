@@ -1,8 +1,5 @@
 /*
- * flash_hal.c
- *
- *  Created on: 2017年11月16日
- *      Author: ting.guit
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 #include "flash_hal.h"
 #include "nbpatch.h"
@@ -90,8 +87,8 @@ int patch_flash_erase(int par, unsigned long offset, size_t esize)
 }
 
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
-int patch_flash_copy(int par, unsigned long dst_offset, unsigned long src_offset, size_t size) {
-    hal_logic_partition_t *partition_info;
+int patch_flash_copy(int par, unsigned long dst_offset, unsigned long src_offset, size_t size)
+{
     unsigned char tmp_buf[SECTOR_SIZE];
     uint32_t pos = 0;
     int ret = 0;
@@ -118,8 +115,8 @@ int patch_flash_copy(int par, unsigned long dst_offset, unsigned long src_offset
     return 0;
 }
 
-int patch_flash_copy_par(int dst_par, int src_par, unsigned long offset, size_t size) {
-    hal_logic_partition_t *partition_info;
+int patch_flash_copy_par(int dst_par, int src_par, unsigned long offset, size_t size)
+{
     unsigned char tmp_buf[SECTOR_SIZE];
     uint32_t pos = 0;
     int ret = 0;
@@ -129,7 +126,7 @@ int patch_flash_copy_par(int dst_par, int src_par, unsigned long offset, size_t 
         ret = patch_flash_read(src_par, tmp_buf, offset + pos, SECTOR_SIZE);
         if ( ret == -1 )
         {
-            LOG("%d, offset 0x%x, err\r\n", src_par, offset + pos);
+            LOG("%d, off 0x%x, err\r\n", src_par, offset + pos);
             return -1;
         }
 
@@ -137,7 +134,7 @@ int patch_flash_copy_par(int dst_par, int src_par, unsigned long offset, size_t 
         ret = patch_flash_write(dst_par, tmp_buf, offset + pos, SECTOR_SIZE);
         if ( ret == -1 )
         {
-            LOG("%d, offset 0x%x, error\r\n", dst_par, offset + pos);
+            LOG("%d, off 0x%x, err\r\n", dst_par, offset + pos);
             return -1;
         }
         pos += SECTOR_SIZE;
