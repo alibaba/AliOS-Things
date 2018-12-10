@@ -3,12 +3,12 @@ NAME := board_amebaz_dev
 JTAG := jlink_swd
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board amabaz_dev
 
 MODULE               := AmebaZ
 HOST_ARCH            := Cortex-M4
-HOST_MCU_FAMILY      := rtl8710bn
+HOST_MCU_FAMILY      := mcu_rtl8710bn
 SUPPORT_MBINS        := no
 
 $(NAME)_SOURCES := board.c
@@ -25,9 +25,9 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 #GLOBAL_CFLAGS += -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
 #include $(SOURCE_ROOT)/board/rtl8710bn/export-rom_symbol_v01.txt
 
-GLOBAL_CFLAGS += -L $(SOURCE_ROOT)/board/amebaz_dev
+GLOBAL_CFLAGS += -L $($(NAME)_LOCATION)
 
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/download.mk
-EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/download.mk
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk

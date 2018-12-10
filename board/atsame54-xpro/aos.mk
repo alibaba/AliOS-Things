@@ -2,12 +2,12 @@ NAME := board_atsame54-xpro
 
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board atsame54-xpro
 
 MODULE               := 1062
 HOST_ARCH            := Cortex-M4
-HOST_MCU_FAMILY      := atsamd5x_e5x
+HOST_MCU_FAMILY      := mcu_atsame54
 SUPPORT_MBINS        := no
 HOST_MCU_NAME        := ATSAME54P20A
 
