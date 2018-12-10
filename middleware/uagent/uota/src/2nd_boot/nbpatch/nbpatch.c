@@ -27,7 +27,6 @@
 #include "nbpatch.h"
 
 int err_code;
-extern PatchStatus * nbpatch_get_pstatus();
 static void *nbpatch_buffer;
 
 void nbpatch_buffer_init()
@@ -162,7 +161,7 @@ off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, of
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
         pstatus->pending_size = pendingsize;
         pstatus->seekpos = seekpos;
-        nbpatch_ota_addr_free(seekpos);  // 已经解压过的OTA包，flash空间可以释放掉。
+        nbpatch_ota_addr_free(seekpos);  //already unpacked, can free now
         pstatus->num = ++num;
 #endif
         pstatus->patched_size = patchsize;
@@ -396,7 +395,6 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
         goto patch_error;
     }
 
-    //如果有主备分区
 #if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_DIRECT)
         ret = save_bakeup_data((unsigned long )newbuf, newsize);
         if(ret < 0) {
