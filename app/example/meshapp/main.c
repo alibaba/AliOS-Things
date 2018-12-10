@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <aos/aos.h>
-#include <aos/network.h>
+#include <network/network.h>
 #ifdef CONFIG_AOS_DDA
 #include <stdlib.h>
 #include <dda.h>

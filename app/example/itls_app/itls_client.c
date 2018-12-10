@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include <aos/network.h>
+#include <network/network.h>
 #include <aos/aos.h>
 #include <netmgr.h>
 
