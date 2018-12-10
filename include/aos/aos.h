@@ -15,6 +15,7 @@ extern "C" {
 #include <aos/cli.h>
 #endif
 
+#include <aos/debug.h>
 #include <aos/kernel.h>
 
 #ifdef AOS_KV
