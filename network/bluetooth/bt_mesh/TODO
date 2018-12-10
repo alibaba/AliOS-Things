@@ -12,7 +12,7 @@ Bluetooth Mesh implementation tasks
  * Find a way to overlay provisioning memory with network memory
    (linker magic?)
 
- * friend and low power supoort
+ * friend and low power support
 
  * os layer porting move to here
 
