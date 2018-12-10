@@ -40,6 +40,9 @@ extern void hw_start_hal(void);
 #include "aos/hal/uart.h"
 #include "hal/hal_uart_stm32l4.h"
 #include "board.h"
+#if defined (AOS_OTA_RECOVERY_TYPE)
+#include "rec_clear_ota_flag.h"
+#endif
 
 static void sys_init(void)
 {
@@ -52,6 +55,9 @@ static void sys_init(void)
     var_init();
 #ifdef AOS_CPLUSPLUS
     cpp_init();
+#endif
+#if defined (AOS_OTA_RECOVERY_TYPE)
+    sys_clear_ota_flag();
 #endif
     aos_components_init(&kinit);
 #ifndef AOS_BINS

@@ -13,8 +13,8 @@
 #define SECTOR_SIZE         0x1000
 
 #define SPLICT_SIZE  0x10000
-#define SPLISE_NUM   (1024*1024/SPLICT_SIZE)          // OTA 分区1M
-#define OTA_ADDR_NUM (512*1024/SPLICT_SIZE)           // OTA 内容 256k
+#define SPLISE_NUM   (512*1024/SPLICT_SIZE)
+#define OTA_ADDR_NUM (512*1024/SPLICT_SIZE)
 
 extern unsigned int rec_xz_backup_flash_addr;
 extern unsigned int rec_conf_backup_flash_addr;

@@ -2,6 +2,8 @@
 #include "hal_boot_flash.h"
 #include "hal_boot_process.h"
 
+#define FLASH_SECTOR_SIZE    0x1000
+
 /* Logic partition on flash devices */
 extern const hal_logic_partition_t hal_partitions[];
 extern const size_t hal_partitions_amount;
@@ -14,7 +16,8 @@ void rec_flash_init(void)
 /* offset means physical address */
 void rec_flash_erase(unsigned long offset)
 {
-    ;
+    offset &= ~(FLASH_SECTOR_SIZE - 1);
+    hal_boot_flash_erase(offset, FLASH_SECTOR_SIZE);
 }
 
 /* offset means physical address */
