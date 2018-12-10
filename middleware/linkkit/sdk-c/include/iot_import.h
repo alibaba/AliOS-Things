@@ -8,6 +8,13 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <inttypes.h>
+
 #ifdef _WIN32
 #if !defined(CC_IS_MINGW32)
 #ifdef DLL_HAL_EXPORTS
@@ -22,12 +29,6 @@ extern "C" {
 #define DLL_HAL_API
 #endif
 
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <inttypes.h>
 #if defined(_PLATFORM_IS_LINUX_)
 #include <pthread.h>
 #endif
@@ -540,7 +541,10 @@ DLL_HAL_API long HAL_Ftell(void *stream);
 #include "iot_import_crypt.h"
 #endif
 
+#if defined(COAP_COMM_ENABLED) || defined(COAP_DTLS_SUPPORT)
 #include "iot_import_dtls.h"
+#endif
+
 #include "iot_import_tls.h"
 
 #endif  /* SIM7000C_DAM */
