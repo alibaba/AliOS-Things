@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <aos/aos.h>
-#include <aos/network.h>
+#include <network/network.h>
 #include "aos/hal/hal.h"
 #include <hal/net.h>
 
