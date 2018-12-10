@@ -6,8 +6,10 @@ $(NAME)_SUMMARY := socket adapter layer
 
 GLOBAL_DEFINES += WITH_SAL                   \
                   SAL_USE_AOS_HAL            \
+                  SAL_SELECT_SUPPORT         \
                   SAL_UDP_CLIENT_ENABLED     \
-                  SAL_PACKET_SEND_MODE_ASYNC
+                  SAL_PACKET_SEND_MODE_ASYNC #\
+                  SAL_USE_DEBUG
 
 $(NAME)_SOURCES := ./src/sal_sockets.c \
                    ./src/sal_err.c     \
