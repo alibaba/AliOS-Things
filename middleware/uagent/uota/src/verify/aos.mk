@@ -16,7 +16,6 @@ $(NAME)_SOURCES := ota_sign.c \
                    ota_verify.c
 
 ifeq ($(VERIFY),RSA)
-GLOBAL_DEFINES += AOS_OTA_RSA
 $(NAME)_SOURCES += hash/ota_sha256.c \
                    hash/ota_md5.c \
                    rsa/ota_bignum.c \
