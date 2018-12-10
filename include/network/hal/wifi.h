@@ -6,7 +6,9 @@
 #define HAL_WIFI_H
 
 #include <stdint.h>
+
 #include "aos/hal/base.h"
+
 #ifdef STM32L475xx
 #include "stm32_wifi.h"
 #endif
@@ -33,20 +35,22 @@ typedef struct {
  *  Scan result using normal scan.
  */
 typedef struct {
-    char ap_num;       /* The number of access points found in scanning. */
+    char ap_num; /* The number of access points found in scanning. */
+
     ap_list_t *ap_list;
 } hal_wifi_scan_result_t;
 
 typedef struct {
-    char ssid[32 + 1];  /* The SSID of an access point. */
-    char ap_power;    /* Signal strength, min:0, max:100 */
-    char bssid[6];    /* The BSSID of an access point. */
-    char channel;     /* The RF frequency, 1-13 */
-    uint8_t security; /* Security type, @ref wlan_sec_type_t */
+    char    ssid[32 + 1]; /* The SSID of an access point. */
+    char    ap_power;     /* Signal strength, min:0, max:100 */
+    char    bssid[6];     /* The BSSID of an access point. */
+    char    channel;      /* The RF frequency, 1-13 */
+    uint8_t security;     /* Security type, @ref wlan_sec_type_t */
 } ap_list_adv_t;
 
 typedef struct {
-    char ap_num;          /* The number of access points found in scanning. */
+    char ap_num; /* The number of access points found in scanning. */
+
     ap_list_adv_t *ap_list;
 } hal_wifi_scan_result_adv_t;
 
@@ -61,16 +65,16 @@ typedef enum {
 
 typedef struct {
     char    ssid[32 + 1]; /* SSID of the wlan that needs to be connected. Example: "SSID String". */
-    char    bssid[6]; /* BSSID of the wlan needs to be connected. Example: {0xC8 0x93 0x46 0x11 0x22 0x33}. */
-    uint8_t channel;  /* Wlan's RF frequency, channel 0-13. 1-13 means a fixed channelthat can speed up a connection procedure,
-                         0 is not a fixed input means all channels are possible*/
+    char    bssid[6];     /* BSSID of the wlan needs to be connected. Example: {0xC8 0x93 0x46 0x11 0x22 0x33}. */
+    uint8_t channel;      /* Wlan's RF frequency, channel 0-13. 1-13 means a fixed channelthat can speed up a connection procedure,
+                             0 is not a fixed input means all channels are possible*/
     uint8_t security;
 } hal_wifi_ap_info_adv_t;
 
 typedef struct {
     char wifi_mode;              /* DHCP mode: @ref wlanInterfaceTypedef. */
-    char wifi_ssid[32 + 1];          /* SSID of the wlan needs to be connected. */
-    char wifi_key[64 + 1];           /* Security key of the wlan needs to be connected, ignored in an open system. */
+    char wifi_ssid[32 + 1];      /* SSID of the wlan needs to be connected. */
+    char wifi_key[64 + 1];       /* Security key of the wlan needs to be connected, ignored in an open system. */
     char local_ip_addr[16];      /* Static IP configuration, Local IP address. */
     char net_mask[16];           /* Static IP configuration, Netmask. */
     char gateway_ip_addr[16];    /* Static IP configuration, Router IP address. */
@@ -123,7 +127,7 @@ enum {
 typedef struct {
     int     is_connected;  /* The link to wlan is established or not, 0: disconnected, 1: connected. */
     int     wifi_strength; /* Signal strength of the current connected AP */
-    uint8_t ssid[32 + 1];    /* SSID of the current connected wlan */
+    uint8_t ssid[32 + 1];  /* SSID of the current connected wlan */
     uint8_t bssid[6];      /* BSSID of the current connected wlan */
     int     channel;       /* Channel of the current connected wlan */
 } hal_wifi_link_stat_t;
@@ -154,17 +158,16 @@ typedef struct {
 typedef void (*monitor_data_cb_t)(uint8_t *data, int len, hal_wifi_link_info_t *info);
 
 struct hal_wifi_module_s {
-    hal_module_base_t    base;
+    hal_module_base_t base;
+
     const hal_wifi_event_cb_t *ev_cb;
 
     int  (*init)(hal_wifi_module_t *m);
     void (*get_mac_addr)(hal_wifi_module_t *m, uint8_t *mac);
     void (*set_mac_addr)(hal_wifi_module_t *m, const uint8_t *mac);
     int  (*start)(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para);
-    int  (*start_adv)(hal_wifi_module_t *m,
-                      hal_wifi_init_type_adv_t *init_para_adv);
-    int  (*get_ip_stat)(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para,
-                        hal_wifi_type_t wifi_type);
+    int  (*start_adv)(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv);
+    int  (*get_ip_stat)(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type);
     int  (*get_link_stat)(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat);
     void (*start_scan)(hal_wifi_module_t *m);
     void (*start_scan_adv)(hal_wifi_module_t *m);
