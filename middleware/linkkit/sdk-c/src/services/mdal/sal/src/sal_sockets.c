@@ -4,6 +4,7 @@
 
 #include "internal/sal_sockets_internal.h"
 
+static void sal_deal_event(int s, enum netconn_evt evt);
 static int  sal_selscan(int maxfdp1, fd_set *readset_in, fd_set *writeset_in,
                         fd_set *exceptset_in, fd_set *readset_out,
                         fd_set *writeset_out, fd_set *exceptset_out);
@@ -339,8 +340,7 @@ int sal_eventfd(unsigned int initval, int flags)
     return -1;
 }
 
-static struct sal_event *
-tryget_event(int s)
+static struct sal_event *tryget_event(int s)
 {
     s -= SAL_EVENT_OFFSET;
     if ((s < 0) || (s >= NUM_EVENTS)) {
@@ -568,7 +568,7 @@ static err_t salnetconn_connect(sal_netconn_t *conn, int8_t *addr, u16_t port)
 #if SAL_PACKET_SEND_MODE_ASYNC
     struct sal_sock *sock;
 #endif
-    char *ipv4anyadrr = "0.0.0.0";
+    char *ipv4anyadrr = SAL_SOCKET_IP4_ANY_ADDR;
     err_t err = ERR_OK;
 
     if (NULL == conn) {
@@ -719,6 +719,7 @@ static err_t salnetconn_recv_data(sal_netconn_t *conn, sal_netbuf_t **new_buf)
 int sal_select(int maxfdp1, fd_set *readset, fd_set *writeset,
                fd_set *exceptset, struct timeval *timeout)
 {
+#if SAL_SELECT_SUPPORT
     uint32_t waitres = 0;
     int nready;
     fd_set lreadset, lwriteset, lexceptset;
@@ -916,6 +917,9 @@ return_copy_fdsets:
         *exceptset = lexceptset;
     }
     return nready;
+#else
+    return SAL_SOCKET_UNSUPPORT;
+#endif
 }
 
 /* 把有事件的标出来 */
@@ -1317,7 +1321,7 @@ int sal_packet_input(int s, void *data, size_t len, char remote_ip[16], uint16_t
     return ret;
 }
 
-void sal_deal_event(int s, enum netconn_evt evt)
+static void sal_deal_event(int s, enum netconn_evt evt)
 {
     struct sal_select_cb *scb;
     int last_select_cb_ctr;
