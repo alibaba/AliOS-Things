@@ -62,6 +62,5 @@ source "test/testcase/osal_test/Config.in"
 source "test/testcase/security/id2_test/Config.in"
 source "test/testcase/security/tls_test/Config.in"
 source "test/testcase/utility/cjson_test/Config.in"
-source "test/testcase/utility/digest_algorithm_test/Config.in"
 source "test/yunit/Config.in"
 ## --- End ---
