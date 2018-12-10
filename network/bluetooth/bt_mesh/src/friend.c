@@ -815,7 +815,7 @@ int bt_mesh_friend_req(struct bt_mesh_net_rx *rx, struct net_buf_simple *buf)
 	u32_t poll_to;
 	int i;
 
-	BT_DBG("%s, friend request packaet received.", __func__);
+	BT_DBG("%s, friend request packet received.", __func__);
 
 	if (buf->len < sizeof(*msg)) {
 		BT_WARN("Too short Friend Request");
