@@ -1,16 +1,14 @@
-PLATFORM_MCU_BOARD	:=$(subst .,/,$(HOST_MCU_FAMILY))
-
 ifeq ($(HOST_OS),Win32)
-ENCRYPT := "$(SOURCE_ROOT)/platform/mcu/$(PLATFORM_MCU_BOARD)/encrypt_win.exe"
+ENCRYPT := "$($(HOST_MCU_FAMILY)_LOCATION)/encrypt_win.exe"
 else  # Win32
 ifeq ($(HOST_OS),Linux32)
-ENCRYPT := "$(SOURCE_ROOT)/platform/mcu/$(PLATFORM_MCU_BOARD)/encrypt_linux"
+ENCRYPT := "$($(HOST_MCU_FAMILY)_LOCATION)/encrypt_linux"
 else # Linux32
 ifeq ($(HOST_OS),Linux64)
-ENCRYPT := "$(SOURCE_ROOT)/platform/mcu/$(PLATFORM_MCU_BOARD)/encrypt_linux"
+ENCRYPT := "$($(HOST_MCU_FAMILY)_LOCATION)/encrypt_linux"
 else # Linux64
 ifeq ($(HOST_OS),OSX)
-ENCRYPT := "$(SOURCE_ROOT)/platform/mcu/$(PLATFORM_MCU_BOARD)/encrypt_osx"
+ENCRYPT := "$($(HOST_MCU_FAMILY)_LOCATION)/encrypt_osx"
 else # OSX
 $(error not surport for $(HOST_OS))
 endif # OSX

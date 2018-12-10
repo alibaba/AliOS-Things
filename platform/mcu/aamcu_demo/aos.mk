@@ -82,9 +82,5 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4           \
                   $(CLIB_LDFLAGS_NANO_FLOAT)
 endif
 
+include $($(NAME)_LOCATION)/$(HOST_MCU_NAME).mk
 
-ifeq ($(HOST_MCU_NAME), aamcu1_demo)
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/aamcu1_demo.mk
-else ifeq ($(HOST_MCU_NAME),aamcu2_demo)
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/aamcu2_demo.mk
-endif

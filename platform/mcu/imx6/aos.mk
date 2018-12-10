@@ -82,19 +82,8 @@ $(NAME)_SOURCES +=  ./imx6_platform_sdk/sdk/core/src/mmu.c                      
                     ./aos/soc_init.c                                                \
                     ./hal/uart.c
 
-#./aos/soc_init.c   \
-#./imx6_platform_sdk/sdk/core/src/vectors.S   \
-
-#cpu/vector_table.S \
-# cpu/startup.S \
-
 GLOBAL_LDS_FILES += platform/mcu/imx6/imx6_platform_sdk/apps/common/basic_alios_app_ocram.ld.S
 
 GLOBAL_DEFINES += CONFIG_ARM
 
-ifeq ($(HOST_MCU_NAME), imx6sl)
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/imx6sl.mk
-else ifeq ($(HOST_MCU_NAME), imx6dq)
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/imx6dq.mk
-endif
-
+include $($(NAME)_LOCATION)/$(HOST_MCU_NAME).mk
