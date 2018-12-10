@@ -23,7 +23,6 @@ testcases = Split('''
     test/testcase/security/id2_test
     test/testcase/security/tls_test
     test/testcase/utility/cjson_test
-    test/testcase/utility/digest_algorithm_test
 ''')
 
 component.set_global_testcases(testcases)
