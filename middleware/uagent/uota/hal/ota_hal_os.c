@@ -12,8 +12,10 @@
 #include <string.h>
 #include "ota_hal_os.h"
 #include "ota_log.h"
+#if !defined (AOS_OTA_RSA)
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
+#endif
 #include "base64.h"
 
 #if (OTA_SIGNAL_CHANNEL) == 1
