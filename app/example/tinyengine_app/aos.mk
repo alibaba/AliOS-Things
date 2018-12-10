@@ -14,3 +14,5 @@ $(NAME)_COMPONENTS += 3rdparty.experimental.fs.spiffs
 $(NAME)_COMPONENTS += middleware.tinyengine
 
 GLOBAL_INCLUDES += ./
+
+HTTP2APP = 1

@@ -23,7 +23,6 @@ for i in global_macros:
 if aos_global_config.get('MESHAUTH') == 1:
     dependencis=Split(''' 
         utility/base64
-        utility/digest_algorithm
         security/alicrypto
     ''')
     component.add_comp_deps(*dependencis) 
