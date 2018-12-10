@@ -11,8 +11,8 @@
 #include <unistd.h>
 #include <time.h>
 #include "cJSON.h"
+#include "iot_export.h"
 #include "iot_import.h"
-#include "iot_export_linkkit.h"
 #include "app_entry.h"
 
 #ifdef LINKKIT_GATEWAY_TEST_CMD
