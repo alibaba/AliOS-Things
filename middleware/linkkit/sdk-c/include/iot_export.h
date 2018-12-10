@@ -245,15 +245,41 @@ DLL_IOT_API int IOT_Ioctl(int option, void *data);
 
 #include "iot_export_compat.h"
 #include "iot_export_errno.h"
+
+#if defined(DEV_BIND_ENABLED)
 #include "iot_export_awss.h"
-#include "iot_export_mqtt.h"
-#include "iot_export_shadow.h"
-#include "iot_export_coap.h"
-#include "iot_export_ota.h"
+#endif
+
+#if defined(HTTP_COMM_ENABLED)
 #include "iot_export_http.h"
+#endif
+
+#if defined(UTILS_EVENT)
 #include "iot_export_event.h"
+#endif
+
+#if defined(HTTP2_COMM_ENABLED)
 #include "iot_export_http2.h"
 #include "iot_export_http2_stream.h"
+#endif
+
+#if defined(MQTT_COMM_ENABLED)
+#include "iot_export_mqtt.h"
+#endif
+
+#if defined(MQTT_SHADOW)
+#include "iot_export_shadow.h"
+#endif
+
+#if defined(OTA_ENABLED) && !defined(BUILD_AOS)
+#include "iot_export_ota.h"
+#endif
+
+#include "iot_export_coap.h"
+
+#if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
+#include "iot_export_linkkit.h"
+#endif
 
 #if defined(__cplusplus)
 }
