@@ -3,7 +3,7 @@
  */
 
 #include <aos/aos.h>
-#include <aos/network.h>
+#include <network/network.h>
 
 #include <stdio.h>
 #include <limits.h>

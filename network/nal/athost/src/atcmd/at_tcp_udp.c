@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include <aos/aos.h>
-#include <aos/network.h>
+#include <network/network.h>
 
 #include "at_util.h"
 

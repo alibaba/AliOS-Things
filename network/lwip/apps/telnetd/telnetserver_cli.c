@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <aos/aos.h>
 #include "aos/hal/hal.h"
-#include <aos/network.h>
+#include <network/network.h>
 #include "lwip/apps/telnetserver.h"
 
 #define MAX_COMMANDLINE_LENGTH 512U
