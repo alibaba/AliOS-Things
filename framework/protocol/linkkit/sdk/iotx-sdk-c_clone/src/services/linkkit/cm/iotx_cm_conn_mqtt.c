@@ -69,7 +69,7 @@ static int _delete_topic(iotx_cloud_conn_mqtt_t *mqtt_ctx, unsigned int packet_i
     iotx_connection_topic_t *pre = NULL;
 
     if (!mqtt_ctx || !mqtt_ctx->topic_list) {
-        CM_ERR(cm_log_warning_no_list);
+        CM_WARNING(cm_log_warning_no_list);
         return FAIL_RETURN;
     }
 
