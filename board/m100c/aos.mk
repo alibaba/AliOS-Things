@@ -3,12 +3,12 @@ NAME := board_m100c
 JTAG := jlink_swd
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board m100c
 
 MODULE          := 1062
 HOST_ARCH       := Cortex-M3
-HOST_MCU_FAMILY := efm32gxx
+HOST_MCU_FAMILY := mcu_efm32gxx
 SUPPORT_MBINS   := no
 
 lorawanback      ?= 0
@@ -29,7 +29,7 @@ CONFIG_SYSINFO_DEVICE_NAME   := M100C
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 
-GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/board/m100c
+GLOBAL_LDFLAGS += -L $($(NAME)_LOCATION)
 
 GLOBAL_INCLUDES += .
 

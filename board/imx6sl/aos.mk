@@ -1,11 +1,11 @@
 NAME := board_imx6sl
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board imx6sl
 MODULE             := imx6sl
 HOST_ARCH          := Cortex-A9
-HOST_MCU_FAMILY    := imx6
+HOST_MCU_FAMILY    := mcu_imx6
 HOST_MCU_NAME      := imx6sl
 SUPPORT_MBINS      := no
 

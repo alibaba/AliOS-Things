@@ -3,11 +3,11 @@ NAME := board_mk3165
 JTAG := jlink_swd
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board mk3165
 MODULE             := 3165
 HOST_ARCH          := Cortex-M4
-HOST_MCU_FAMILY    := stm32f4xx
+HOST_MCU_FAMILY    := mcu_stm32f4xx
 HOST_MCU_VARIANT   := STM32F411
 SUPPORT_MBINS      := no
 
@@ -30,7 +30,7 @@ CONFIG_SYSINFO_DEVICE_NAME   := MK3165
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 
-GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/board/mk3165
+GLOBAL_LDFLAGS += -L $($(NAME)_LOCATION)
 
 # Global defines
 # HSE_VALUE = STM32 crystal frequency = 26MHz (needed to make UART work correctly)
@@ -42,6 +42,5 @@ FILESYSTEM_IMAGE_SECTOR_START := 256    #0x100000
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
-#EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
 
 GLOBAL_DEFINES += LOCAL_PORT_ENHANCED_RAND

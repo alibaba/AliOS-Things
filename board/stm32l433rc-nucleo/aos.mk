@@ -1,11 +1,11 @@
 NAME := board_stm32l433rc-nucleo
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board stm32l433rc-nucleo
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
-HOST_MCU_FAMILY    := stm32l4xx_cube
+HOST_MCU_FAMILY    := mcu_stm32l4xx_cube
 SUPPORT_MBINS      := no
 HOST_MCU_NAME      := STM32L433RC-Nucleo
 ENABLE_VFP         := 1
