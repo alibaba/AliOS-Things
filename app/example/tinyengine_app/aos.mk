@@ -15,4 +15,3 @@ $(NAME)_COMPONENTS += tiny_engine
 
 GLOBAL_INCLUDES += ./
 
-HTTP2APP = 1

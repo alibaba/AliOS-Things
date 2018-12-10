@@ -26,4 +26,3 @@ endif
 
 GLOBAL_INCLUDES += ./
 
-HTTP2APP = 1
