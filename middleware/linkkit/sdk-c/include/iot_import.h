@@ -537,7 +537,7 @@ DLL_HAL_API long HAL_Ftell(void *stream);
 #include "iot_import_udp.h"
 #endif
 
-#if defined(COAP_COMM_ENABLED) || defined(ALCS_ENABLED) || defined(DEV_BIND_ENABLED)
+#if defined(HAL_CRYPTO)
 #include "iot_import_crypt.h"
 #endif
 
