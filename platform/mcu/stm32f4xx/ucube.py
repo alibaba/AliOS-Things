@@ -22,7 +22,6 @@ deps = Split('''
         security/mbedtls
         utility/cjson
         kernel/cli
-        utility/digest_algorithm
         osal
         kernel/init
         platform/mcu/stm32f4xx/spi_flash
