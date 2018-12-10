@@ -275,7 +275,9 @@ DLL_IOT_API int IOT_Ioctl(int option, void *data);
 #include "iot_export_ota.h"
 #endif
 
+#if defined(COAP_COMM_ENABLED)
 #include "iot_export_coap.h"
+#endif
 
 #if defined(DEVICE_MODEL_ENABLED) && !defined(DEPRECATED_LINKKIT)
 #include "iot_export_linkkit.h"
