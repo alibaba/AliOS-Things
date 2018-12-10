@@ -47,4 +47,15 @@ int read_patch_status(PatchStatus *status);
 off_t save_bakeup_data(unsigned long src, off_t bsize);
 
 off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset);
+
+void nbpatch_ota_addr_free(off_t range);
+off_t nbpatch_ota_addr_get(off_t old_offset);
+int nbpatch_flash_status_check(uint32_t addr);
+void nbpatch_ota_status_set(off_t offset, uint32_t status);
+void nbpatch_ota_addr_set(off_t old_offset, off_t new_offset);
+off_t nbpatch_find_free_space(void);
+int nbpatch_flash_status_check(uint32_t addr);
+
+void nbpatch_buffer_init();
+
 #endif /* NBPATCH_H_ */

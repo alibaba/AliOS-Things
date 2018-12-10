@@ -9,29 +9,31 @@ PatchStatus *nbpatch_get_pstatus(void)
 {
     if(g_pstatus == NULL)
     {
-        g_pstatus = (PatchStatus *)malloc(sizeof(PatchStatus)); // 使用动态内存，在recovery不运行时节省内存。该内存不需要释放。
-        memset(g_pstatus, 0, sizeof(PatchStatus));
+        g_pstatus = (PatchStatus *)malloc(sizeof(PatchStatus)); // this memory will not free
+        if(NULL != g_pstatus) {
+            memset(g_pstatus, 0, sizeof(PatchStatus));
+        }
     }
     return g_pstatus;
 }
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
-void nbpatch_flash_status_init(uint32_t ota_len) {
+void nbpatch_flash_status_init(uint32_t ota_len)
+{
     uint32_t i   = 0;
     uint32_t num = 0;
     PatchStatus* pstatus = nbpatch_get_pstatus();
     uint32_t     par_len = patch_flash_get_partion_length(HAL_PARTITION_OTA_TEMP);
 
-    //将空间状态初始化为OTA_FLASH_STATUS_NULL
     memset(pstatus->REC_FLASH_STAT_E, OTA_FLASH_STATUS_NULL, SPLISE_NUM);
     memset(pstatus->ota_addr, 0xFF, OTA_ADDR_NUM * sizeof(uint16_t));
 
     num = ota_len / SPLICT_SIZE + (((ota_len % SPLICT_SIZE) == 0)?0:1);
     if(num > OTA_ADDR_NUM){
-        num = OTA_ADDR_NUM;   // 超过4个，说明ota差分包大小超过了256k。实际不可能发生
+        num = OTA_ADDR_NUM;
     }
     for(i = 0; i < num; i++) {
         pstatus->REC_FLASH_STAT_E[i] = OTA_FLASH_STATUS_USED;
-        pstatus->ota_addr[i] = i;  // 此处地址为相对于分区头的偏移，为64k的个数
+        pstatus->ota_addr[i] = i; // addr is the number of SPLICT_SIZE
     }
 
     num = par_len / SPLICT_SIZE ;
@@ -44,7 +46,8 @@ void nbpatch_flash_status_init(uint32_t ota_len) {
     save_patch_status(pstatus);
 }
 
-int nbpatch_flash_status_check(uint32_t addr) {
+int nbpatch_flash_status_check(uint32_t addr)
+{
     PatchStatus* pstatus = nbpatch_get_pstatus();
 
     if(addr / SPLICT_SIZE >= SPLISE_NUM) {
@@ -54,7 +57,8 @@ int nbpatch_flash_status_check(uint32_t addr) {
     return pstatus->REC_FLASH_STAT_E[addr / SPLICT_SIZE];
 }
 
-void nbpatch_ota_status_set(off_t offset, uint32_t status) {
+void nbpatch_ota_status_set(off_t offset, uint32_t status)
+{
     PatchStatus* pstatus = nbpatch_get_pstatus();
 
     if(offset / SPLICT_SIZE >= SPLISE_NUM) {
@@ -65,9 +69,9 @@ void nbpatch_ota_status_set(off_t offset, uint32_t status) {
     save_patch_status(pstatus);
 }
 
-void nbpatch_ota_addr_set(off_t old_offset, off_t new_offset) {
+void nbpatch_ota_addr_set(off_t old_offset, off_t new_offset)
+{
     uint32_t i = 0;
-    uint32_t num;
     PatchStatus* pstatus = nbpatch_get_pstatus();
 
     if ((old_offset / SPLICT_SIZE >= SPLISE_NUM) || (new_offset / SPLICT_SIZE >= SPLISE_NUM)){
@@ -84,7 +88,8 @@ void nbpatch_ota_addr_set(off_t old_offset, off_t new_offset) {
     save_patch_status(pstatus);
 }
 
-off_t nbpatch_ota_addr_get(off_t old_offset) {
+off_t nbpatch_ota_addr_get(off_t old_offset)
+{
     off_t new_offset;
     PatchStatus* pstatus = nbpatch_get_pstatus();
 
@@ -97,10 +102,10 @@ off_t nbpatch_ota_addr_get(off_t old_offset) {
     return new_offset;
 }
 
-// 从后往前找
-off_t nbpatch_find_free_space(void){
+// find free space from end to front
+off_t nbpatch_find_free_space(void)
+{
     int i   = 0;
-    uint32_t num = 0;
     PatchStatus* pstatus = nbpatch_get_pstatus();
 
     for(i = SPLISE_NUM - 1; i >= 0; i--) {
@@ -111,7 +116,8 @@ off_t nbpatch_find_free_space(void){
     return 0xFFFFFFFF;
 }
 
-void nbpatch_ota_addr_free(off_t range) {
+void nbpatch_ota_addr_free(off_t range)
+{
     int i = 0;
     PatchStatus* pstatus = nbpatch_get_pstatus();
 
@@ -228,7 +234,8 @@ int nbpatch_swap_section(int par1, int par2, int offset, size_t swap_size, unsig
     return 0;
 }
 
-int nbpatch_swap_app2ota(unsigned char all_flag)   // AB分区差异部分互换，完成最终升级
+//swap the difference between the app and ota partion
+int nbpatch_swap_app2ota(unsigned char all_flag)
 {
     unsigned int i   = 0;
     unsigned int sec = 0;
@@ -239,7 +246,6 @@ int nbpatch_swap_app2ota(unsigned char all_flag)   // AB分区差异部分互换
     read_patch_status(pstatus);
     rec_wdt_feed();
 
-    // 开始交换
     if(REC_PHASE_SWAP == pstatus->recovery_phase) {
 	    i = pstatus->swap_addr;
     }
@@ -273,33 +279,31 @@ int nbpatch_swap_app2ota(unsigned char all_flag)   // AB分区差异部分互换
 
     return 0;
 }
-
 #endif
 
 int nbpatch_main(void)
 {
     int ret = 0;
-    uint32_t addr = 0;
-    uint32_t ota_len;
+    int nbpatch_size = 0;
     PatchStatus * pstatus = NULL;
 
     LOG("nbpatch enter\r\n");
 
     pstatus = nbpatch_get_pstatus();
     if(pstatus == NULL) {
-        LOG("error:pstatus is NULL\n");
+        LOG("err: p is NULL\n");
         return -1;
     }
 
     read_patch_status(pstatus);
 
     if (pstatus->dst_adr > HAL_PARTITION_OTA_TEMP || pstatus->src_adr > HAL_PARTITION_OTA_TEMP) {
-        LOG("pstatus adr overflow\r\n");
+        LOG("p adr overflow\r\n");
         return -1;
     }
 
     if (!pstatus->diff) {
-        LOG("pstatus diff ver error\r\n");
+        LOG("p diff ver error\r\n");
         return -1;
     }
 
@@ -311,7 +315,6 @@ int nbpatch_main(void)
 
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
     if(pstatus->patch_index == 0) {
-        //初始化空闲flash位置
         nbpatch_flash_status_init(pstatus->len);
     }
     pstatus->patch_index += 1;
@@ -343,24 +346,23 @@ int nbpatch_main(void)
     }
 
     nbpatch_buffer_init();
-    int nbpatch_size = nbpatch(pstatus->dst_adr, old_size, pstatus->src_adr,  pstatus->len, SPLICT_SIZE);
+    nbpatch_size = nbpatch(pstatus->dst_adr, old_size, pstatus->src_adr,  pstatus->len, SPLICT_SIZE);
     if(nbpatch_size <= 0) {
         LOG("nbpatch error \r\n");
         ret = -1;
     }
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
     else{
-        LOG("nbpatch_size 0x%x\r\n", nbpatch_size);
         nbpatch_copy_lable:
         nbpatch_copy_app2ota();
-        LOG("copy app text to ota end\r\n");
+        LOG("copy app to ota end\r\n");
 
         ret = rec_verify_firmware(pstatus->src_adr, nbpatch_size);
         LOG("nbpatch success adr:0x%x len:0x%x verify:0x%x\r\n", pstatus->src_adr, nbpatch_size,ret);
 
         #if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBACK)
         nbpatch_swap_lable:
-        ret = nbpatch_swap_app2ota(FALSE);   // AB分区差异部分互换，完成最终升级
+        ret = nbpatch_swap_app2ota(FALSE);
         #endif
     }
 #endif

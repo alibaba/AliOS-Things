@@ -239,13 +239,13 @@ off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
         memset(buffer, 0, SECTOR_SIZE);
         ret = patch_flash_read(HAL_PARTITION_OTA_TEMP, buffer, DIFF_BACKUP_OFFSET + pos, bsiz);
         if(ret < 0) {
-            LOG("load_bakeup_data read  error\r\n");
+            LOG("read error\r\n");
             return ret;
         }
 
         ret = patch_flash_write(HAL_PARTITION_APPLICATION, buffer, dst + pos, bsiz);
         if(ret < 0) {
-            LOG("load_bakeup_data write error\r\n");
+            LOG("write error\r\n");
             return ret;
         }
         CRC16_Update(&crc_context, buffer, bsiz);
@@ -271,12 +271,10 @@ off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
     CRC16_Context crc_context;
     CRC16_Init(&crc_context);
 
-    //判断目的区间是否有被使用
     if(nbpatch_flash_status_check(dst) != 0) {
-        // 如果已经被使用了，查找一个空闲区间
         free_offset = nbpatch_find_free_space();
         if(free_offset == 0xFFFFFFFF) {
-            LOG("free fail\r\n");
+            LOG("find free space fail\r\n");
             return -1;
         }
         patch_flash_copy(PARTITION_OTA, free_offset, dst, SPLICT_SIZE);
@@ -285,10 +283,11 @@ off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
     }
 
     patch_flash_erase(PARTITION_OTA, dst + pos, size);
-    //从内存中将解压数据拷贝到目的区间
+
+    //copy decompressed data from memory to destination flash partion
     while (size > 0) {
         bsiz = size > SECTOR_SIZE ? SECTOR_SIZE : size;
-        ret = patch_flash_write(PARTITION_OTA, (char *)((uint32_t)buf + pos), dst + pos, bsiz);
+        ret = patch_flash_write(PARTITION_OTA, (const unsigned char *)((uint32_t)buf + pos), dst + pos, bsiz);
         if(ret < 0) {
             LOG("write err\r\n");
             return ret;
