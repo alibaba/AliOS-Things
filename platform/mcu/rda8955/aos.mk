@@ -95,4 +95,4 @@ else ifeq ($(vcall), rhino_sxr_mutios)
 #GLOBAL_INCLUDES += test/include
 endif
 
-EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk
