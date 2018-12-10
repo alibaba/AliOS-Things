@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <aos/errno.h>
 
-#include <aos/network.h>
+#include <network/network.h>
 
 
 #if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
