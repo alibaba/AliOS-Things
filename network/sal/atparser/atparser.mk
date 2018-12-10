@@ -20,6 +20,8 @@ endif
 
 # Follow original modification, it seems needed to sleep a little bit
 # due to developerkit(bk7231 wifi module inside) limited resource
-ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),developerkit)
+ifeq ($(CONFIG_SYSINFO_DEVICE_NAME).$(module),developerkit.wifi.bk7231)
+GLOBAL_DEFINES += AT_PARSER_DELAY_FLAG
+else ifeq ($(CONFIG_SYSINFO_DEVICE_NAME).$(module),developerkit.lte.m02h)
 GLOBAL_DEFINES += AT_PARSER_DELAY_FLAG
 endif
