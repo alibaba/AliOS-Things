@@ -32,4 +32,4 @@ endif
 GLOBAL_INCLUDES += . \
     ../inc \
     ../src/verify/crc \
-    ../src/2nd_boot \
+    ../src/2nd_boot
