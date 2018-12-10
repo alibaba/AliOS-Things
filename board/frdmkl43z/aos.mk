@@ -1,12 +1,12 @@
 NAME := board_frdmkl43z
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board frdmkl43z
 
 MODULE          := 43
 HOST_ARCH       := Cortex-M0
-HOST_MCU_FAMILY := mkl43z4
+HOST_MCU_FAMILY := mcu_mkl43z4impl
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_MKL43Z4
 CONFIG_SYSINFO_DEVICE_NAME   := MKL43Z4

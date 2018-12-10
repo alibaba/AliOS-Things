@@ -3,11 +3,11 @@ NAME := board_cy8ckit-062
 JTAG := jlink
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board cy8ckit-062
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
-HOST_MCU_FAMILY    := cy8c6347
+HOST_MCU_FAMILY    := mcu_cy8c6347
 SUPPORT_MBINS      := no
 
 $(NAME)_SOURCES := board.c
@@ -33,7 +33,7 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 ifeq ($(COMPILER),armcc)
 else ifeq ($(COMPILER),iar)
 else
-GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/board/cy8ckit-062
+GLOBAL_LDFLAGS += -L $($(NAME)_LOCATION)/cy8ckit-062
 endif
 
 # Global defines
@@ -46,7 +46,6 @@ FILESYSTEM_IMAGE_SECTOR_START := 256    #0x100000
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
-#EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
 
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))

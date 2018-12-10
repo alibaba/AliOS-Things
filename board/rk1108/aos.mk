@@ -1,11 +1,11 @@
 NAME := board_rk1108
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board rk1108
 MODULE             := 1062
 HOST_ARCH          := rockchiplinux
-HOST_MCU_FAMILY    := linux
+HOST_MCU_FAMILY    := mcu_linuximpl
 SUPPORT_MBINS      := no
 
 #GLOBAL_CFLAGS += -I$(SOURCE_ROOT)/board/armhflinux/include

@@ -1,11 +1,11 @@
 NAME := board_evkmimxrt1020
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board evkmimxrt1020
 MODULE             := 1020
 HOST_ARCH          := Cortex-M7
-HOST_MCU_FAMILY    := mimxrt1021
+HOST_MCU_FAMILY    := mcu_mimxrt1021impl
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_MIMXRT1021
 CONFIG_SYSINFO_DEVICE_NAME   := MIMXRT1021

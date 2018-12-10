@@ -3,11 +3,11 @@ NAME := board_b_l475e
 JTAG := stlink-v2-1
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board b_l475e
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
-HOST_MCU_FAMILY    := stm32l475
+HOST_MCU_FAMILY    := mcu_stm32l475
 SUPPORT_MBINS      := no
 
 $(NAME)_SOURCES := board.c osa_flash.c
@@ -35,7 +35,7 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 ifeq ($(COMPILER),armcc)
 else ifeq ($(COMPILER),iar)
 else
-GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/b_l475e
+GLOBAL_LDFLAGS  += -L $($(NAME)_LOCATION)
 endif
 
 # Global defines
@@ -48,7 +48,6 @@ FILESYSTEM_IMAGE_SECTOR_START := 256    #0x100000
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
-#EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
 
 # Define default component testcase set
 ifneq (, $(findstring yts, $(BUILD_STRING)))

@@ -1,11 +1,11 @@
 NAME := board_esp8266
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board esp8266
 MODULE             := 1062
 HOST_ARCH          := xtensa
-HOST_MCU_FAMILY    := esp8266
+HOST_MCU_FAMILY    := mcu_esp8266
 SUPPORT_MBINS      := no
 
 # todo: remove these after rhino/lwip ready
@@ -24,6 +24,6 @@ GLOBAL_CFLAGS += -DBOARD_ESP8266
 GLOBAL_INCLUDES += .
 $(NAME)_SOURCES := board.c
 
-EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk
 
 GLOBAL_DEFINES += LOCAL_PORT_ENHANCED_RAND WITH_VENDOR_LWIP

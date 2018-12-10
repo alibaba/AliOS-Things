@@ -3,12 +3,12 @@ NAME := board_cb2201
 JTAG := jlink
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board cb2201
 MODULE             := CH2201
 HOST_CHIP          := ch2201
 HOST_ARCH          := ck802
-HOST_MCU_FAMILY    := csky
+HOST_MCU_FAMILY    := mcu_csky
 SUPPORT_MBINS      := no
 
 #$(NAME)_COMPONENTS   :=  tfs
@@ -45,4 +45,4 @@ GLOBAL_LDFLAGS += -Wl,-ckmap='cb2201.map' -Wl,-zmax-page-size=1024 -lm
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
-EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
+EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk

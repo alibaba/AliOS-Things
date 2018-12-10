@@ -1,12 +1,12 @@
 NAME := board_frdmkl26z
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board frdmkl26z
 
 MODULE          := 26
 HOST_ARCH       := Cortex-M0
-HOST_MCU_FAMILY := mkl26z4
+HOST_MCU_FAMILY := mcu_mkl26z4impl
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_MKL26Z4
 CONFIG_SYSINFO_DEVICE_NAME   := MKL26Z4
