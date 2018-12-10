@@ -9,7 +9,7 @@
 
 #include <errno.h>
 #include <aos/aos.h>
-#include <aos/network.h>
+#include <network/network.h>
 
 #include "loop_hal.h"
 #include "yloop.h"
