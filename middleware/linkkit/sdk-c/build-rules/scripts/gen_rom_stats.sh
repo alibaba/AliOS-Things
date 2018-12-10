@@ -37,6 +37,7 @@ for iter in ${ALL_SUB_DIRS}; do
          | awk '{ printf("    | %-5s | %-35s | %14s | %26s |\n", $1, $2, $3, $4); }'
 
     if [ "${BUILD_LITE_SDK_MQTT}" ];then
+        DIST_ROOT_DIR=${DIST_DIR}/release/sdk-lite
         DIST_SRC_DIR=${DIST_DIR}/release/sdk-lite/src
         DIST_INC_DIR=${DIST_DIR}/release/sdk-lite/include
         for j in ${ITER_OBJS}; do
@@ -52,14 +53,50 @@ for iter in ${ALL_SUB_DIRS}; do
 
         cp -f ${TOP_DIR}/include/iot_export.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/include/iot_import.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/include/exports/iot_export_compat.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/include/exports/iot_export_errno.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/include/exports/iot_export_mqtt.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/include/imports/iot_import_config.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/include/imports/iot_import_product.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/include/imports/iot_import_tcp.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/include/imports/iot_import_tls.h ${DIST_INC_DIR}
+
         cp -f ${TOP_DIR}/src/infra/system/iotx_system.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/src/infra/utils/misc/utils_sysinfo.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/src/infra/system/report.h ${DIST_INC_DIR}
-        cp -f ${TOP_DIR}/include/imports/iot_import_tcp.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/iotx_utils.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/iotx_utils_config.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/utils_net.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/log/iotx_log.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/log/iotx_log_config.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/digest/utils_hmac.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/utils_httpc.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/lite-cjson.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/lite-list.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/string_utils.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/json_parser.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/digest/utils_md5.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/digest/utils_sha256.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/utils_timer.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/compat_aos_list.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/iotx_utils_internal.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/sdk-impl/sdk-impl_internal.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/digest/utils_sha1.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/digest/utils_base64.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/system/iotx_system_internal.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/log/iotx_log_internal.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/infra/utils/misc/mem_stats.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/ref-impl/hal/iotx_hal_internal.h ${DIST_INC_DIR}
+
+        cp -f ${TOP_DIR}/src/protocol/mqtt/iotx_mqtt.h ${DIST_INC_DIR}
+        cp -f ${TOP_DIR}/src/protocol/mqtt/iotx_mqtt_config.h ${DIST_INC_DIR}
+        
+
         cp -f ${TOP_DIR}/src/protocol/mqtt/iotx_mqtt_internal.h ${DIST_INC_DIR}
         cp -f ${TOP_DIR}/src/protocol/mqtt/MQTTPacket/*.h ${DIST_INC_DIR}
+
+        cp -f ${TOP_DIR}/build-rules/misc/makefile.mqtt ${DIST_ROOT_DIR}/Makefile
+        cp -f ${TOP_DIR}/examples/litesdk/mqtt_example.c ${DIST_ROOT_DIR}
     fi
 
     cd ${OLDPWD}
