@@ -11,6 +11,7 @@
 #include <aos/yloop.h>
 #include "netmgr.h"
 #include "iot_export.h"
+#include "iot_import.h"
 
 #ifdef CSP_LINUXHOST
 #include <signal.h>

@@ -6,7 +6,8 @@
 #else
 
 #include "stdio.h"
-#include "iot_export_linkkit.h"
+#include "iot_export.h"
+#include "iot_import.h"
 #include "app_entry.h"
 
 #define PRODUCT_KEY      "a1ybTpus98a"
