@@ -5,7 +5,8 @@
 #include "deprecated/sched.c"
 #else
 #include "stdio.h"
-#include "iot_export_linkkit.h"
+#include "iot_export.h"
+#include "iot_import.h"
 #include "cJSON.h"
 #include "app_entry.h"
 
