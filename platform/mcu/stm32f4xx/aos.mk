@@ -11,7 +11,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino netmgr mbedtls cjson cli digest_algorithm
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr mbedtls cjson cli
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6

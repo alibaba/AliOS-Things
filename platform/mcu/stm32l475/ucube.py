@@ -87,7 +87,6 @@ component.add_comp_deps('kernel/init')
 component.add_comp_deps('kernel/hal')
 component.add_comp_deps('kernel/fs/kv')
 component.add_comp_deps('kernel/vfs')
-component.add_comp_deps('utility/digest_algorithm')
 
 component.set_global_arch('Cortex-M4')
 

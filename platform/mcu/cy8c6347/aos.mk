@@ -7,7 +7,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu cy8c6347
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino kv vfs digest_algorithm
+$(NAME)_COMPONENTS += newlib_stub rhino kv vfs
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6

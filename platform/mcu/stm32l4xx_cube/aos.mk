@@ -35,7 +35,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l4xx_cube
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino vfs digest_algorithm kv
+$(NAME)_COMPONENTS += newlib_stub rhino vfs kv
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
