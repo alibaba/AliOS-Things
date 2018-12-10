@@ -8,7 +8,7 @@
 
 #include <aos/kernel.h>
 #include <aos/aos.h>
-#include <aos/network.h>
+#include <network/network.h>
 
 #include "yunit.h"
 
