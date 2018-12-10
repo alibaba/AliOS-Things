@@ -31,7 +31,7 @@ GLOBAL_INCLUDES += include \
                    feature/sysdata
 
 
-GLOBAL_CFLAGS += -DRDA5981x
+GLOBAL_CFLAGS += -DRDA5981x -DLOG_SIMPLE
 
 GLOBAL_CFLAGS += -mcpu=cortex-m4 \
                  -march=armv7-m \
