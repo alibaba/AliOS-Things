@@ -10,6 +10,6 @@ $(NAME)_SOURCES += \
                     espos/platform/rhino/espos_time.c      \
                     espos/platform/rhino/espos_timer.c
 
-ifeq ($(HOST_MCU_FAMILY),esp32)
+ifeq ($(HOST_MCU_FAMILY),mcu_esp32)
 $(NAME)_SOURCES += espos/platform/rhino/espos_spinlock.c
 endif
