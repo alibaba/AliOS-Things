@@ -1,7 +1,7 @@
+#if defined(HAL_CRYPTO)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#if defined(ALCS_ENABLED) || defined(COAP_COMM_ENABLED) || defined(DEV_BIND_ENABLED)
 
 #include <string.h>
 #include <aos/aos.h>
