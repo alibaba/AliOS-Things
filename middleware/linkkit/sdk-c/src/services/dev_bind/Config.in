@@ -4,7 +4,6 @@ config DEV_BIND_ENABLED
     default y
 
     select UTILS_JSON_PARSER
-    select SUPPORT_TLS
     select UTILS_MD5
 
     select HAL_CRYPTO
