@@ -1,6 +1,7 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_target_func.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
+# <comp>_LOCATION and <comp>_MAKEFILE defined in aos_all_components.mk
 include $(OUTPUT_DIR)/aos_all_components.mk
 
 APPDIR ?=
@@ -21,7 +22,7 @@ COMPONENT_DIRECTORIES := . \
                          tools     \
                          test      \
                          test/develop      \
-                         device    \
+                         drivers    \
                          security
 
 TEST_COMPONENT_DIRECTORIES := test
@@ -238,7 +239,7 @@ endef
 # Macro PROCESS_COMPONENT
 # $(1) is the list of components left to process. $(COMP) is set as the first element in the list
 define PROCESS_COMPONENT
-AOS_SDK_DEFINES += MCU_FAMILY=\"$(PLATFORM_MCU_BOARD)\"
+AOS_SDK_DEFINES += MCU_FAMILY=\"$(HOST_MCU_FAMILY)\"
 $(info all components: $(REAL_COMPONENTS_LOCS))
 $(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 
@@ -307,10 +308,8 @@ $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
 
 include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/aos.mk
 
-PLATFORM_MCU_BOARD	:=$(subst .,/,$(HOST_MCU_FAMILY))
-
-$(eval CURDIR := $(SOURCE_ROOT)/platform/mcu/$(PLATFORM_MCU_BOARD)/)
-include $(SOURCE_ROOT)platform/mcu/$(PLATFORM_MCU_BOARD)/aos.mk
+$(eval CURDIR := $($(HOST_MCU_FAMILY)_LOCATION)/)
+include $($(HOST_MCU_FAMILY)_LOCATION)/aos.mk
 MAIN_COMPONENT_PROCESSING :=1
 
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
@@ -334,7 +333,7 @@ endif
 
 # Process all the components + AOS
 
-COMPONENTS += platform/mcu/$(PLATFORM_MCU_BOARD) osal init
+COMPONENTS += $(HOST_MCU_FAMILY) osal init
 
 ifneq ($(ONLY_BUILD_LIBRARY), yes)
 COMPONENTS += auto_component
