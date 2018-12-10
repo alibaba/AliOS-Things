@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/errno.h>
-#include <aos/network.h>
+#include <network/network.h>
 
 #include <mbedtls/mbedtls_ssl.h>
 
