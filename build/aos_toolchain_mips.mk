@@ -1,7 +1,7 @@
 ifneq ($(filter MIPS% , $(HOST_ARCH)),)
 
 TOOLCHAIN_PATH ?=
-ifneq ($(filter $(HOST_MCU_FAMILY), rda8955), )
+ifneq ($(filter $(HOST_MCU_FAMILY), mcu_rda8955), )
 TOOLCHAIN_PREFIX := mips-elf-
 endif
 

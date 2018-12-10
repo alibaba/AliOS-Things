@@ -48,7 +48,7 @@ LDS_FILE_DIR              := $(OUTPUT_DIR)/ld
 
 ifeq (,$(SUB_BUILD))
 ifneq (,$(EXTRA_TARGET_MAKEFILES))
-$(foreach makefile_name,$(EXTRA_TARGET_MAKEFILES),$(eval include $(makefile_name)))
+$(foreach makefile_name,$(EXTRA_TARGET_MAKEFILES),$(eval -include $(makefile_name)))
 endif
 endif
 
