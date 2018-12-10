@@ -174,10 +174,7 @@ $(NAME)_SOURCES := aos/soc_impl.c   \
                    hal/gpio.c       \
                    hal/wdg.c
 
-ifneq ($(HTTP2APP),1)
 $(NAME)_SOURCES += CheckSumUtils.c
-endif
-
 
 include ./platform/mcu/rtl8710bn/peripherals/peripherals.mk
 endif
