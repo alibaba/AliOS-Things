@@ -11,7 +11,7 @@
 #include <aos/aos.h>
 #include <k_api.h>
 #include <aos/kernel.h>
-#include <aos/network.h>
+#include <network/network.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
