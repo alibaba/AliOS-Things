@@ -88,7 +88,7 @@ static int _delete_topic(unsigned int packet_id)
     iotx_connection_topic_t *pre = NULL;
 
     if (NULL == _mqtt_pt->topic_list) {
-        CM_ERR(cm_log_warning_no_list);
+        CM_WARNING(cm_log_warning_no_list);
         return FAIL_RETURN;
     }
 
@@ -133,7 +133,7 @@ static char *_find_topic(unsigned int packet_id)
     iotx_connection_topic_t *pre = NULL;
 
     if (NULL == _mqtt_pt->topic_list) {
-        CM_ERR(cm_log_warning_no_list);
+        CM_WARNING(cm_log_warning_no_list);
         return NULL;
     }
 
@@ -156,7 +156,7 @@ static void _delete_all()
     iotx_connection_topic_t *next = NULL;
 
     if (NULL == _mqtt_pt->topic_list) {
-        CM_ERR(cm_log_warning_no_list);
+        CM_WARNING(cm_log_warning_no_list);
         return;
     }
 
