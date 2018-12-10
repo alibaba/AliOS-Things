@@ -5,10 +5,10 @@ NAME := board_developerkit
 endif
 
 $(NAME)_MBINS_TYPE   := kernel
-$(NAME)_VERSION      := 0.0.1.0
+$(NAME)_VERSION      := 1.0.0
 $(NAME)_SUMMARY      := Developer Kit is hardware development board base on AliOS-Things
 HOST_ARCH            := Cortex-M4
-HOST_MCU_FAMILY      := stm32l4xx_cube
+HOST_MCU_FAMILY      := mcu_stm32l4xx_cube
 HOST_MCU_NAME        := STM32L496VGTx
 
 ifeq ($(AOS_2BOOT_SUPPORT), yes)
@@ -41,12 +41,12 @@ $(NAME)_SOURCES := bootloader/startup_stm32l496xx_boot.s  \
 		   aos/board.c                                                        \
                    aos/flash_partitions.c
 
-GLOBAL_LDFLAGS += -T $(SOURCE_ROOT)/board/developerkit/bootloader/STM32L496VGTx_FLASH_bootloader.ld
+GLOBAL_LDFLAGS += -T ./board/developerkit/bootloader/STM32L496VGTx_FLASH_bootloader.ld
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_developerkit_2boot
 CONFIG_SYSINFO_DEVICE_NAME := developerkit_2boot
 
-EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/board/developerkit/gen_crc_bin.mk
+EXTRA_TARGET_MAKEFILES +=  ./board/developerkit/gen_crc_bin.mk
 
 else
 

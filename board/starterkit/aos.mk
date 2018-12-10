@@ -1,11 +1,11 @@
 NAME := board_starterkit
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board starterkit
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
-HOST_MCU_FAMILY    := stm32l4xx_cube
+HOST_MCU_FAMILY    := mcu_stm32l4xx_cube
 SUPPORT_MBINS      := no
 ENABLE_VFP         := 1
 HOST_MCU_NAME      := STM32L433CCTx

@@ -1,12 +1,12 @@
 NAME := board_rda8955
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board rda8955
 SUPPORT_MBINS      := no
 MODULE             := 1062
 HOST_ARCH          := MIPS-I
-HOST_MCU_FAMILY    := rda8955
+HOST_MCU_FAMILY    := mcu_RDA8955
 HOST_MCU_NAME      := rda8955
 
 GLOBAL_INCLUDES += .
@@ -39,7 +39,6 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
-#EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
 
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))

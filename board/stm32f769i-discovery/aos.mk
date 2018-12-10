@@ -1,11 +1,11 @@
 NAME := board_b_f769
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board b_f769
 MODULE             := 1062
 HOST_ARCH          := Cortex-M7
-HOST_MCU_FAMILY    := stm32f7xx
+HOST_MCU_FAMILY    := mcu_stm32f7xx
 SUPPORT_MBINS      := no
 HOST_MCU_NAME      := STM32F769I-Discovery
 

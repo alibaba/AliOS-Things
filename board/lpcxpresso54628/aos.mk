@@ -1,12 +1,12 @@
 NAME := board_lpcxpresso54628
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board lpcxpresso54628
 
 MODULE          := 54628
 HOST_ARCH       := Cortex-M4
-HOST_MCU_FAMILY := lpc54628
+HOST_MCU_FAMILY := mcu_lpc54628impl
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_LPC54628
 CONFIG_SYSINFO_DEVICE_NAME   := LPC54628

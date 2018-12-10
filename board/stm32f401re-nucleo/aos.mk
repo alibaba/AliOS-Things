@@ -1,11 +1,11 @@
 NAME := board_stm32f401re-nucleo
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board stm32f401re-nucleo
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
-HOST_MCU_FAMILY    := stm32f4xx_cube
+HOST_MCU_FAMILY    := mcu_stm32f4xx_cube
 SUPPORT_MBINS      := no
 HOST_MCU_NAME      := STM32F401RET
 ENABLE_VFP         := 1

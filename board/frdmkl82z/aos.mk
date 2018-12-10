@@ -1,12 +1,12 @@
 NAME := board_frdmkl82z
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board frdmkl82z
 
 MODULE          := 82
 HOST_ARCH       := Cortex-M0
-HOST_MCU_FAMILY := mkl82z7
+HOST_MCU_FAMILY := mcu_mkl82z7impl
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_MKL82Z7
 CONFIG_SYSINFO_DEVICE_NAME   := MKL28Z7

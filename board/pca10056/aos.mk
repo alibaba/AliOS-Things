@@ -1,12 +1,12 @@
 NAME := board_pca10056
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board pca10056
 SUPPORT_MBINS      := no
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
-HOST_MCU_FAMILY    := nrf52xxx
+HOST_MCU_FAMILY    := mcu_nrf52xxx
 HOST_MCU_NAME      := nrf52840
 
 GLOBAL_INCLUDES += .
@@ -27,7 +27,6 @@ GLOBAL_CFLAGS  += -DBLE_4_2
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
-#EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/gen_crc_bin.mk
 
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))
