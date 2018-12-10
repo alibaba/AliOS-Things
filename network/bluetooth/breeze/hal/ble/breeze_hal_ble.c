@@ -479,11 +479,6 @@ ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length, void (*txdone)(u
     }
 }
 
-static struct bt_data ad[3] = {
-    BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-    BT_DATA_BYTES(BT_DATA_UUID16_ALL, 0x0a, 0x18),
-};
-
 static const struct bt_data sd[] = {
     BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME,
             sizeof(CONFIG_BT_DEVICE_NAME) - 1),
@@ -492,7 +487,7 @@ static const struct bt_data sd[] = {
 ais_err_t ble_advertising_start(ais_adv_init_t *adv)
 {
     int            err;
-    uint8_t        flag = 0, dis[] = { 0x0a, 0x18 }, ad_len = 3, sd_len = 1;
+    uint8_t        flag = 0, srv[] = { 0xb3, 0xfe }, ad_len = 3, sd_len = 1;
     struct bt_data ad[ad_len];
     struct bt_data sd[sd_len];
 
@@ -512,8 +507,8 @@ ais_err_t ble_advertising_start(ais_adv_init_t *adv)
     ad[0].data_len = 1;
 
     ad[1].type     = BT_DATA_UUID16_ALL;
-    ad[1].data     = dis;
-    ad[1].data_len = sizeof(dis);
+    ad[1].data     = srv;
+    ad[1].data_len = sizeof(srv);
 
     if (adv->vdata.len != 0) {
         ad[2].type     = 0xFF;
