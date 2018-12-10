@@ -18,6 +18,7 @@
 
 #if (OTA_SIGNAL_CHANNEL) == 1
 #include "iot_export.h"
+#include "iot_import.h"
 #include "iot_export_coap.h"
 #endif
 #if (OTA_SIGNAL_CHANNEL) == 2
