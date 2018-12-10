@@ -9,8 +9,6 @@
 extern "C" {
 #endif
 
-#include "iot_import.h"
-
 #define OTA_CH_SIGNAL_MQTT      (0)
 #define OTA_CH_SIGNAL_COAP      (1)
 #define OTA_CH_FETCH_HTTP       (1)
@@ -216,7 +214,7 @@ DLL_IOT_API int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, ui
  * @retval < 0 : Failed, the value is error code.
  * @see None.
  */
-DLL_IOT_API int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_len);
+DLL_IOT_API int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, int buf_len);
 
 
 /**
