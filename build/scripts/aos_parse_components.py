@@ -78,6 +78,7 @@ def write_config_file(source_root, config_file, mklist):
 
         for key in config_keys:
             f.write("%s_MAKEFILE := %s\n" % (key, config_contents[key]))
+            f.write("%s_LOCATION := %s\n" % (key, os.path.dirname(config_contents[key])))
 
 def main(argv):
     if len(argv) < 3:
