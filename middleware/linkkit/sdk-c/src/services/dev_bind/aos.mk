@@ -6,8 +6,6 @@ $(NAME)_SUMMARY := Bind embedded devices with user account
 
 $(NAME)_DEFINES := USE_LPTHREAD
 
-$(NAME)_COMPONENTS := digest_algorithm
-
 $(NAME)_INCLUDES += . ./os/ ./os/product/ ./os/platform/ ../linkkit/dev_reset/
 
 ifeq (y,$(FEATURE_WIFI_PROVISION_ENABLED))

@@ -59,7 +59,6 @@ extern uint32_t os_htobe32(uint32_t data);
 extern uint64_t os_htobe64(uint64_t data);
 extern uint32_t os_be32toh(uint32_t data);
 
-#ifndef BUILD_AOS
 static uint8_t is_little_endian()
 {
     static uint32_t _endian_x_ = 1;
@@ -76,9 +75,7 @@ static  uint32_t reverse_32bit(uint32_t data)
     data = (data >> 16) | (data << 16);
     return ((data & 0xff00ff00UL) >> 8) | ((data & 0x00ff00ffUL) << 8);
 }
-#endif
 
-#ifndef BUILD_AOS
 /* host byte order to big endian */
 uint32_t os_htobe32(uint32_t data)
 {
@@ -110,7 +107,6 @@ uint64_t os_htobe64(uint64_t data)
 
     return reverse_64bit(data);
 }
-#endif
 
 static void utils_sha256_zeroize(void *v, size_t n)
 {
