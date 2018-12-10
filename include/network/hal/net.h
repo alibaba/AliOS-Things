@@ -34,6 +34,7 @@ typedef struct {
 
 struct hal_net_module_s {
     hal_module_base_t base;
+
     const hal_net_event_cb_t *ev_cb;
 
     int  (*init)(hal_net_module_t *m);
@@ -76,4 +77,5 @@ int hal_net_init(void);
  */
 int hal_net_get_mac_addr(hal_net_module_t *m, uint8_t *mac);
 
-#endif  /* HAL_NET_H */
+#endif /* HAL_NET_H */
+
