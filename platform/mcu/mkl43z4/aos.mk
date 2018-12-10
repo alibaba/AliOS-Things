@@ -6,7 +6,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu mkl43z4impl
 
 $(NAME)_COMPONENTS += arch_armv6m
-$(NAME)_COMPONENTS += rhino newlib_stub kv cli vfs digest_algorithm
+$(NAME)_COMPONENTS += rhino newlib_stub kv cli vfs
 
 GLOBAL_CFLAGS += -DCPU_MKL43Z256VLH4
 GLOBAL_CFLAGS += -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99
