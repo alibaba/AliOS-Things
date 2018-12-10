@@ -47,6 +47,14 @@ static offline_sub_list_t *_mqtt_offline_subs_list = NULL;
 static int _in_yield_cb;
 
 #if  WITH_MQTT_DYN_BUF
+extern int MQTTPacket_len(int rem_len);
+extern int MQTTSerialize_connectLength(MQTTPacket_connectData *options);
+
+static int _get_connect_length(MQTTPacket_connectData *options)
+{
+    return MQTTPacket_len(MQTTSerialize_connectLength(options));
+}
+
 static int _reset_send_buffer(iotx_mc_client_t *c)
 {
     ARGUMENT_SANITY_CHECK(c != NULL, FAIL_RETURN);
@@ -118,6 +126,11 @@ static int _alloc_recv_buffer(iotx_mc_client_t *c, int len)
 }
 
 #else
+static int _get_connect_length(MQTTPacket_connectData *options)
+{
+    return 0;
+}
+
 static int _reset_send_buffer(iotx_mc_client_t *c)
 {
     return 0;
@@ -408,7 +421,9 @@ int MQTTConnect(iotx_mc_client_t *pClient)
     pConnectParams = &pClient->connect_data;
     HAL_MutexLock(pClient->lock_write_buf);
 
-    if (_alloc_send_buffer(pClient, MQTT_CONNECT_REQUIRED_BUFLEN) != SUCCESS_RETURN) {
+    len = _get_connect_length(pConnectParams);
+
+    if (_alloc_send_buffer(pClient, len) != SUCCESS_RETURN) {
         HAL_MutexUnlock(pClient->lock_write_buf);
         return FAIL_RETURN;
     }
