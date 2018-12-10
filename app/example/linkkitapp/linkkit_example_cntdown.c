@@ -11,7 +11,6 @@
 
 #include "iot_import.h"
 #include "iot_export.h"
-#include "iot_export_linkkit.h"
 #include "linkkit_export.h"
 #include "cJSON.h"
 #include "app_entry.h"
