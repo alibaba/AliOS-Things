@@ -21,4 +21,3 @@ $(NAME)_INCLUDES := ./
 
 GLOBAL_INCLUDES += ./
 
-HTTP2APP = 1
