@@ -5,7 +5,7 @@ $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk &ble controller for platform/mcu nrf52810 nrf52832 or nrf52840
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino vfs digest_algorithm bt
+$(NAME)_COMPONENTS += newlib_stub rhino vfs bt
 
 #$(NAME)_LIBSUFFIX := $(PLATFORM_MCU_BOARD)
 

@@ -45,7 +45,6 @@ dependencis =Split('''
     kernel/rhino
     kernel/hal
     kernel/vfs
-    utility/digest_algorithm
 ''')
 for i in dependencis:
     component.add_comp_deps(i)

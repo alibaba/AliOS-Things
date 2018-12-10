@@ -114,7 +114,6 @@ dependencis = Split('''
         security/mbedtls
         utility/cjson
         kernel/cli
-        utility/digest_algorithm
         frameworkd/fota
         network/sal
         osal
