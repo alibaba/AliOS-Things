@@ -44,7 +44,7 @@ EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))
 GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=1
-TEST_COMPONENTS += basic api wifi_hal rhino osal kv yloop alicrypto cjson digest_algorithm
+TEST_COMPONENTS += basic api wifi_hal rhino osal kv yloop alicrypto cjson
 else
 GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=0
 endif
