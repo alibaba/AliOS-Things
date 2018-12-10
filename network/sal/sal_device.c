@@ -30,6 +30,16 @@ int sal_device_init()
     ret = sim800_sal_init();
 #endif
 
+#ifdef DEV_SAL_M02H
+    extern int m02h_sal_init(void);
+    ret = m02h_sal_init();
+#endif
+
+#ifdef DEV_SAL_N26A
+    extern int n26a_sal_init(void);
+    ret = n26a_sal_init();
+#endif
+
 #ifdef DEV_SAL_ESP8266
     extern int esp8266_sal_init(void);
     ret = esp8266_sal_init();

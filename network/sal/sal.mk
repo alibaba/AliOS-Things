@@ -15,6 +15,10 @@ else ifeq (wifi.bk7231,$(module))
 $(NAME)_COMPONENTS += sal.wifi.bk7231
 else ifeq (gprs.sim800,$(module))
 $(NAME)_COMPONENTS += sal.gprs.sim800
+else ifeq (lte.m02h,$(module))
+$(NAME)_COMPONENTS += sal.lte.m02h
+else ifeq (nbiot.n26a,$(module))
+$(NAME)_COMPONENTS += sal.nbiot.n26a
 else ifeq (wifi.esp8266,$(module))
 $(NAME)_COMPONENTS += sal.wifi.esp8266
 else ifeq (wifi.athost,$(module))
