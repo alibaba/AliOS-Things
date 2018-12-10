@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef AOS_NETWORK_H
-#define AOS_NETWORK_H
+#ifndef NETWORK_NETWORK_H
+#define NETWORK_NETWORK_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,11 +19,11 @@ extern "C" {
 #include <lwip/sockets.h>
 #elif defined(_WIN32)
 #include "unistd.h"
-#define read(fd,buf,len)          recv(fd,(char*)buf,(int) len,0)
-#define write(fd,buf,len)         send(fd,(char*)buf,(int) len,0)
-#define close(fd)                 closesocket(fd)
-#define inet_aton(strptr,addrptr) inet_pton(AF_INET,strptr,addrptr)
-#define bzero(b,len) memset((b), '\0', (len))
+#define read(fd, buf, len)         recv(fd, (char*)buf, (int)len, 0)
+#define write(fd, buf, len)        send(fd, (char*)buf, (int)len, 0)
+#define close(fd)                  closesocket(fd)
+#define inet_aton(strptr, addrptr) inet_pton(AF_INET, strptr, addrptr)
+#define bzero(b, len)              memset((b), '\0', (len))
 #elif defined(WITH_SAL)
 #include <sal_arch.h>
 #include <sal_def.h>
@@ -37,11 +37,11 @@ extern "C" {
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/eventfd.h>
-#endif
+#endif /* WITH_LWIP */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* AOS_NETWORK_H */
+#endif /* NETWORK_NETWORK_H */
 
