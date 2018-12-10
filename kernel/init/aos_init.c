@@ -9,7 +9,7 @@
 #include <aos/kernel.h>
 #include <hal/wifi.h>
 
-#include <aos/network.h>
+#include <network/network.h>
 #ifdef WITH_LWIP_TFTP
 #include "lwip/ip_addr.h"
 #include "lwip/apps/tftp.h"

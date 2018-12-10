@@ -3,7 +3,7 @@
  */
 
 #include "posix_dirent.h"
-#include "aos/network.h"
+#include "network/network.h"
 
 #if (POSIX_DIRENT_ENABLE > 0)
 
