@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include <k_api.h>
+#include <aos/errno.h>
 #include <aos/kernel.h>
 
 /* Board Header files */

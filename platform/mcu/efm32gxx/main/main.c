@@ -9,7 +9,7 @@
 #include <k_api.h>
 #include "aos/hal/soc.h"
 #include "aos/hal/timer.h"
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include "aos/hal/hal.h"
 #include "board.h"
 #include "debug.h"
