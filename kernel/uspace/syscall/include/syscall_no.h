@@ -8,19 +8,19 @@
 /* ------------------- task --------------------*/
 #define K_TASK_BASE (0)
 
-#define SYS_KRHINO_CUR_TASK_GET       (K_TASK_BASE + 0)
-#define SYS_KRHINO_TASK_SLEEP         (K_TASK_BASE + 1)
-#define SYS_KRHINO_UTASK_CREATE       (K_TASK_BASE + 2)
-#define SYS_KRHINO_UTASK_DEL          (K_TASK_BASE + 3)
+#define SYS_KRHINO_CUR_TASK_GET (K_TASK_BASE + 0)
+#define SYS_KRHINO_TASK_SLEEP   (K_TASK_BASE + 1)
+#define SYS_KRHINO_UTASK_CREATE (K_TASK_BASE + 2)
+#define SYS_KRHINO_UTASK_DEL    (K_TASK_BASE + 3)
 
 #define K_TASK_END (SYS_KRHINO_UTASK_DEL)
 
 /* ------------------- process --------------------*/
 #define K_UPROCESS_BASE (K_TASK_END + 1)
 
-#define SYS_KRHINO_UPROCESS_CREATE    (K_UPROCESS_BASE + 0)
-#define SYS_KRHINO_UPROCESS_EXIT      (K_UPROCESS_BASE + 1)
-#define SYS_KRHINO_UPROCESS_RES_GET   (K_UPROCESS_BASE + 2)
+#define SYS_KRHINO_UPROCESS_CREATE  (K_UPROCESS_BASE + 0)
+#define SYS_KRHINO_UPROCESS_EXIT    (K_UPROCESS_BASE + 1)
+#define SYS_KRHINO_UPROCESS_RES_GET (K_UPROCESS_BASE + 2)
 
 #define K_UPROCESS_END (SYS_KRHINO_UPROCESS_RES_GET)
 
@@ -107,8 +107,130 @@
 
 #define HAL_UART_END (SYS_HAL_UART_FINALIZE)
 
+/* ----------------- hal adc -----------------*/
+#define HAL_ADC_BASE (HAL_UART_END + 1)
+
+#define SYS_HAL_ADC_INIT      (HAL_ADC_BASE + 0)
+#define SYS_HAL_ADC_VALUE_GET (HAL_ADC_BASE + 1)
+#define SYS_HAL_ADC_FINALIZE  (HAL_ADC_BASE + 2)
+
+#define HAL_ADC_END (SYS_HAL_ADC_FINALIZE)
+
+/* ----------------- hal dac -----------------*/
+#define HAL_DAC_BASE (HAL_ADC_END + 1)
+
+#define SYS_HAL_DAC_INIT      (HAL_DAC_BASE + 0)
+#define SYS_HAL_DAC_START     (HAL_DAC_BASE + 1)
+#define SYS_HAL_DAC_STOP      (HAL_DAC_BASE + 2)
+#define SYS_HAL_DAC_SET_VALUE (HAL_DAC_BASE + 3)
+#define SYS_HAL_DAC_GET_VALUE (HAL_DAC_BASE + 4)
+#define SYS_HAL_DAC_FINALIZE  (HAL_DAC_BASE + 5)
+
+#define HAL_DAC_END (SYS_HAL_DAC_FINALIZE)
+
+/* ----------------- hal flash -----------------*/
+#define HAL_FLASH_BASE (HAL_DAC_END + 1)
+
+#define SYS_HAL_FLASH_GET_INFO      (HAL_FLASH_BASE + 0)
+#define SYS_HAL_FLASH_ERASE         (HAL_FLASH_BASE + 1)
+#define SYS_HAL_FLASH_WRITE         (HAL_FLASH_BASE + 2)
+#define SYS_HAL_FLASH_ERASE_WRITE   (HAL_FLASH_BASE + 3)
+#define SYS_HAL_FLASH_READ          (HAL_FLASH_BASE + 4)
+#define SYS_HAL_FLASH_ENABLE_SECURE (HAL_FLASH_BASE + 5)
+#define SYS_HAL_FLASH_DIS_SECURE    (HAL_FLASH_BASE + 6)
+
+#define HAL_FLASH_END (SYS_HAL_FLASH_DIS_SECURE)
+
+/* ----------------- hal gpio -----------------*/
+#define HAL_GPIO_BASE (HAL_FLASH_END + 1)
+
+#define SYS_HAL_GPIO_INIT          (HAL_GPIO_BASE + 0)
+#define SYS_HAL_GPIO_OUTPUT_HIGH   (HAL_GPIO_BASE + 1)
+#define SYS_HAL_GPIO_OUTPUT_LOW    (HAL_GPIO_BASE + 2)
+#define SYS_HAL_GPIO_OUTPUT_TOGGLE (HAL_GPIO_BASE + 3)
+#define SYS_HAL_GPIO_INPUT_GET     (HAL_GPIO_BASE + 4)
+#define SYS_HAL_GPIO_ENABLE_IRQ    (HAL_GPIO_BASE + 5)
+#define SYS_HAL_GPIO_DISABLE_IRQ   (HAL_GPIO_BASE + 6)
+#define SYS_HAL_GPIO_CLEAR_IRQ     (HAL_GPIO_BASE + 7)
+#define SYS_HAL_GPIO_FINALIZE      (HAL_GPIO_BASE + 8)
+
+#define HAL_GPIO_END (SYS_HAL_GPIO_FINALIZE)
+
+/* ----------------- hal i2c -----------------*/
+#define HAL_I2C_BASE (HAL_GPIO_END + 1)
+
+#define SYS_HAL_I2C_INIT        (HAL_I2C_BASE + 0)
+#define SYS_HAL_I2C_MASTER_SEND (HAL_I2C_BASE + 1)
+#define SYS_HAL_I2C_MASTER_RECV (HAL_I2C_BASE + 2)
+#define SYS_HAL_I2C_SLAVE_SEND  (HAL_I2C_BASE + 3)
+#define SYS_HAL_I2C_SLAVE_RECV  (HAL_I2C_BASE + 4)
+#define SYS_HAL_I2C_MEM_WRITE   (HAL_I2C_BASE + 5)
+#define SYS_HAL_I2C_MEM_READ    (HAL_I2C_BASE + 6)
+#define SYS_HAL_I2C_FINALIZE    (HAL_I2C_BASE + 7)
+
+#define HAL_I2C_END (SYS_HAL_I2C_FINALIZE)
+
+/* ----------------- hal nand -----------------*/
+#define HAL_NAND_BASE (HAL_I2C_END + 1)
+
+#define SYS_HAL_NAND_INIT        (HAL_NAND_BASE + 0)
+#define SYS_HAL_NAND_READ_PAGE   (HAL_NAND_BASE + 1)
+#define SYS_HAL_NAND_WRITE_PAGE  (HAL_NAND_BASE + 2)
+#define SYS_HAL_NAND_READ_SPARE  (HAL_NAND_BASE + 3)
+#define SYS_HAL_NAND_WRITE_SPARE (HAL_NAND_BASE + 4)
+#define SYS_HAL_NAND_ERASE_BLOCK (HAL_NAND_BASE + 5)
+#define SYS_HAL_NAND_FINALIZE    (HAL_NAND_BASE + 6)
+
+#define HAL_NAND_END (SYS_HAL_NAND_FINALIZE)
+
+/* ----------------- hal nor ------------------*/
+#define HAL_NOR_BASE (HAL_NAND_END + 1)
+
+#define SYS_HAL_NOR_INIT        (HAL_NOR_BASE + 0)
+#define SYS_HAL_NOR_READ        (HAL_NOR_BASE + 1)
+#define SYS_HAL_NOR_WRITE       (HAL_NOR_BASE + 2)
+#define SYS_HAL_NOR_ERASE_BLOCK (HAL_NOR_BASE + 3)
+#define SYS_HAL_NOR_ERASE_CHIP  (HAL_NOR_BASE + 4)
+#define SYS_HAL_NOR_FINALIZE    (HAL_NOR_BASE + 5)
+
+#define HAL_NOR_END (SYS_HAL_NOR_FINALIZE)
+
+/* ----------------- hal  rtc-----------------*/
+#define HAL_RTC_BASE (HAL_NOR_END + 1)
+
+#define SYS_HAL_RTC_INIT     (HAL_RTC_BASE + 0)
+#define SYS_HAL_RTC_GET_TIME (HAL_RTC_BASE + 1)
+#define SYS_HAL_RTC_SET_TIME (HAL_RTC_BASE + 2)
+#define SYS_HAL_RTC_FINALIZE (HAL_RTC_BASE + 3)
+
+#define HAL_RTC_END (SYS_HAL_RTC_FINALIZE)
+
+/* ----------------- hal sd -----------------*/
+#define HAL_SD_BASE (HAL_RTC_END + 1)
+
+#define SYS_HAL_SD_INIT       (HAL_SD_BASE + 0)
+#define SYS_HAL_SD_BLKS_READ  (HAL_SD_BASE + 1)
+#define SYS_HAL_SD_BLKS_WRITE (HAL_SD_BASE + 2)
+#define SYS_HAL_SD_ERASE      (HAL_SD_BASE + 3)
+#define SYS_HAL_SD_STAT_GET   (HAL_SD_BASE + 4)
+#define SYS_HAL_SD_INFO_GET   (HAL_SD_BASE + 5)
+#define SYS_HAL_SD_FINALIZE   (HAL_SD_BASE + 6)
+
+#define HAL_SD_END (SYS_HAL_SD_FINALIZE)
+
+/* ----------------- hal spi -----------------*/
+#define HAL_SPI_BASE (HAL_SD_END + 1)
+
+#define SYS_HAL_SPI_INIT      (HAL_SPI_BASE + 0)
+#define SYS_HAL_SPI_SEND      (HAL_SPI_BASE + 1)
+#define SYS_HAL_SPI_RECV      (HAL_SPI_BASE + 2)
+#define SYS_HAL_SPI_SEND_RECV (HAL_SPI_BASE + 3)
+#define SYS_HAL_SPI_FINALIZE  (HAL_SPI_BASE + 4)
+
+#define HAL_SPI_END (SYS_HAL_SPI_FINALIZE)
+
 /* ------------------- lwip ------------------*/
-#define LWIP_BASE (HAL_UART_END + 1)
+#define LWIP_BASE (HAL_SPI_END + 1)
 
 #define SYS_LWIP_ACCEPT      (LWIP_BASE + 0)
 #define SYS_LWIP_BIND        (LWIP_BASE + 1)
