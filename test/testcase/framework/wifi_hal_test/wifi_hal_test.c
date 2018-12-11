@@ -12,7 +12,7 @@
 
 #include <yunit.h>
 #include <yts.h>
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include <hal/wifi.h>
 
 
