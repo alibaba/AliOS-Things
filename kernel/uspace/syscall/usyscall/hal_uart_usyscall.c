@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <stdint.h>
 #include <arch_syscall.h>
 #include <hal_uart_syscall_arg.h>
 #include <syscall_no.h>
