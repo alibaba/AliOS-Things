@@ -20,7 +20,6 @@
 .global mode_stack_top
 .global sys_stack_base
 .global sys_stack_top
-.global _vector_table
 
 @******************************************************************************
 @                               EQUATES
@@ -70,13 +69,13 @@
 .section .bss
 .align 3
 mode_stack_base:
-.fill MODE_Stack_Size*RHINO_CONFIG_CPU_NUM
+.fill MODE_Stack_Size
 mode_stack_top:
 
 .section .bss.isr
 .align 3
 sys_stack_base:
-.fill SYS_Stack_Size*RHINO_CONFIG_CPU_NUM
+.fill SYS_Stack_Size
 sys_stack_top:
 
 @******************************************************************************
@@ -111,10 +110,6 @@ _fiq:   .word vector_fiq
 .arm
 @ reset entry
 vector_reset:
-    @ save R0 for secondary cores, R0 arg field passed by ROM
-    @ r0 is a function pointer for secondary cpus
-    MOV     R4, R0
-
     @ Disable MMU & Cache
     MRC     P15, 0, R0, C1, C0, 0               @ Read SCTLR
     BIC     R0, R0, #SCTLR_M                    @ Disable MMU
@@ -154,16 +149,8 @@ vector_reset:
     VMSR    FPEXC, R0                           @ Set the FPEXC.EN bit to enable the FPU
     #endif
 
-    @ get cpu id, and subtract the offset from the stacks base address
-    MRC     P15, 0, R5, C0, C0, 5               @ read multiprocessor affinity register
-    AND     R5, R5, #3                          @ mask off, leaving CPU ID field
-
     @ Setup Stack for each mode
     LDR     R0, = mode_stack_top
-    MOV     R1, #MODE_Stack_Size
-    MUL     R1, R1, R5
-    SUB     R0, R0, R1                          @ get mode stack for current core
-
     MSR     CPSR_c, #CPSR_Mode_UND | CPSR_INT_DIS
     MOV     SP, R0
     SUB     R0, R0, #UND_Stack_Size
@@ -182,19 +169,9 @@ vector_reset:
 
     @ Setup Stack for SVC
     LDR     R0, = sys_stack_top
-    MOV     R1, #SYS_Stack_Size
-    MUL     R1, R1, R5
-    SUB     R0, R0, R1                          @ get svc stack for current core
-
     MSR     CPSR_c, #CPSR_Mode_SVC | CPSR_INT_DIS
     MOV     SP, R0
 
-    @ check cpu id - cpu0 is primary cpu
-    CMP     R5, #0
-    BEQ     primary_cpu_init
-    BX      R4                                  @ for secondary cores, jump to argument function pointer passed in by ROM
-
-primary_cpu_init:
     @ clear .bss
     MOV     R0,#0                               @ get a zero
     LDR     R1,=__bss_start                     @ bss start
