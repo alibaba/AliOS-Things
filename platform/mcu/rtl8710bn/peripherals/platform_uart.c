@@ -29,6 +29,7 @@
 ******************************************************************************
 */ 
 
+#include "aos_debug.h"
 
 #include "mico_rtos.h"
 #include "mico_platform.h"
