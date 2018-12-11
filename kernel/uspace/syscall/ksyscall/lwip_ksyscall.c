@@ -99,7 +99,8 @@ int sys_lwip_recvfrom_stub(void *arg)
 {
     lwip_recvfrom_syscall_arg_t *_arg = arg;
 
-    return lwip_recvfrom(_arg->s, _arg->mem, _arg->len, _arg->flags, _arg->from, _arg->fromlen);
+    return lwip_recvfrom(_arg->s, _arg->mem, _arg->len, _arg->flags,
+                         _arg->from, _arg->fromlen);
 }
 
 int sys_lwip_send_stub(void *arg)
@@ -120,7 +121,8 @@ int sys_lwip_sendto_stub(void *arg)
 {
     lwip_sendto_syscall_arg_t *_arg = arg;
 
-    return lwip_sendto(_arg->s, _arg->dataptr, _arg->size, _arg->flags, _arg->to, _arg->tolen);
+    return lwip_sendto(_arg->s, _arg->dataptr, _arg->size,
+                       _arg->flags, _arg->to, _arg->tolen);
 }
 
 int sys_lwip_socket(void *arg)
@@ -148,7 +150,8 @@ int sys_lwip_select_stub(void *arg)
 {
     lwip_select_syscall_arg_t *_arg = arg;
 
-    return lwip_select(_arg->maxfdp1, _arg->readset, _arg->writeset, _arg->exceptset, _arg->timeout);
+    return lwip_select(_arg->maxfdp1, _arg->readset, _arg->writeset,
+                       _arg->exceptset, _arg->timeout);
 }
 
 int sys_lwip_ioctl_stub(void *arg)
@@ -181,5 +184,5 @@ int sys_lwip_try_wakeup_stub(void *arg)
 }
 #endif
 
-#endif / *CONFIG_LWIP_SYSCALL */
+#endif /* CONFIG_LWIP_SYSCALL */
 
