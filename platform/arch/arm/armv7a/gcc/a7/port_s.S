@@ -1,110 +1,82 @@
-/*
-*
-* @file port_s.S
-*
-*/
+#include <k_config.h>
 
 @******************************************************************************
-@                            EXTERN PARAMETERS
+@                            EXTERN SYMBOLS
 @******************************************************************************
-
-.extern  g_active_task
-.extern  g_preferred_ready_task
-.extern  krhino_stack_ovf_check
+.extern g_active_task
+.extern g_sys_stat
+.extern g_preferred_ready_task
+.extern krhino_stack_ovf_check
+.extern krhino_task_sched_stats_get
+.extern sys_stack_top
+.extern exceptionHandler
+.extern cpu_interrupt_handler
 
 @******************************************************************************
-@                            EXPORT FUNCTIONS
+@                            EXPORT SYMBOLS
 @******************************************************************************
+.global cpu_intrpt_save
+.global cpu_intrpt_restore
+.global cpu_task_switch
+.global cpu_intrpt_switch
+.global cpu_first_task_start
 
-.global  fpu_reg_count
-.global  cpu_intrpt_save
-.global  cpu_intrpt_restore
-.global  cpu_task_switch
-.global  cpu_intrpt_switch
-.global  cpu_first_task_start
-
-.global  vector_undef
-.global  vector_swi
-.global  vector_pabt
-.global  vector_dabt
-.global  vector_resv
-.global  vector_irq
-.global  vector_fiq
-
-.global  except_sp
+.global _interrupt_handler
+.global _panic_handler
+.global _interrupt_return_address
 
 @******************************************************************************
 @                                 EQUATES
 @******************************************************************************
+@ Bits in CPSR (Current Program Status Register)
+.equ CPSR_Mode_USR,             0x10
+.equ CPSR_Mode_FIQ,             0x11
+.equ CPSR_Mode_IRQ,             0x12
+.equ CPSR_Mode_SVC,             0x13
+.equ CPSR_Mode_ABT,             0x17
+.equ CPSR_Mode_UND,             0x1B
+.equ CPSR_Mode_SYS,             0x1F
 
-.equ AMR_Mode_USR,               0x10
-.equ AMR_Mode_FIQ,               0x11
-.equ AMR_Mode_IRQ,               0x12
-.equ AMR_Mode_SVC,               0x13
-.equ AMR_Mode_ABT,               0x17
-.equ AMR_Mode_UND,               0x1B
-.equ AMR_Mode_SYS,               0x1F
-
-.equ ARM_CONTROL_INT_DIS,        0xC0                     @ Disable both FIQ and IRQ.
-.equ ARM_CONTROL_FIQ_DIS,        0x40                     @ Disable FIQ.
-.equ ARM_CONTROL_IRQ_DIS,        0x80                     @ Disable IRQ.
-.equ ARM_CONTROL_THUMB,          0x20                     @ Set THUMB mode.
-.equ ARM_CONTROL_ARM,            0x00                     @ Set ARM mode.
-
-.equ ARM_EXCEPT_RESET,           0x00
-.equ ARM_EXCEPT_UNDEF_INSTR,     0x01
-.equ ARM_EXCEPT_SWI,             0x02
-.equ ARM_EXCEPT_PREFETCH_ABORT,  0x03
-.equ ARM_EXCEPT_DATA_ABORT,      0x04
-.equ ARM_EXCEPT_ADDR_ABORT,      0x05
-.equ ARM_EXCEPT_IRQ,             0x06
-.equ ARM_EXCEPT_FIQ,             0x07
-
-@******************************************************************************
-@                        DATA
-@******************************************************************************
-
-.section .data
-.align  2
-except_sp:
-.rept   1
-.long   0x0
-.endr
+.equ CPSR_FIQ_DIS,              0x40                    @ Disable FIQ.
+.equ CPSR_IRQ_DIS,              0x80                    @ Disable IRQ.
+.equ CPSR_INT_DIS,              CPSR_FIQ_DIS | CPSR_IRQ_DIS
+.equ CPSR_THUMB,                0x20                    @ Set Thumb mode.
 
 @******************************************************************************
 @                        CODE GENERATION DIRECTIVES
 @******************************************************************************
-
-.text
-.align 2
+.section .text.isr, "ax"
+.arm
 
 @******************************************************************************
 @                        MACRO DEFINED
 @******************************************************************************
-
+@ Cortex-A5, ARMv7 VFPv4-D16
 .macro POP_FP_REG reg
     POP     {\reg}
-    VMSR    FPEXC, \reg                     /* Pop FPEXC */
-    FLDMIAS SP!, {S0-S31}                  /* Pop floating point registers. */
+    VMSR    FPEXC, \reg                                 @ Pop FPEXC.
     POP     {\reg}
-    VMSR    FPSCR, \reg                     /* Pop  FPSCR. */
+    VMSR    FPSCR, \reg                                 @ Pop FPSCR.
+#ifdef __ARM_NEON
+    VPOP    {Q0-Q7}
+    VPOP    {Q8-Q15}
+#else
+    VPOP    {D0-D15}
+#endif
 .endm
 
 .macro PUSH_FP_REG reg
-    VMRS    \reg, FPSCR                     /* Save FPSCR */
-    PUSH    {\reg}                          /* Save floating-point registers. */
-    FSTMDBS SP!, {S0-S31}
-    VMRS    \reg, FPEXC                     /* Save FPEXC. */
+#ifdef __ARM_NEON
+    VPUSH   {Q8-Q15}
+    VPUSH   {Q0-Q7}
+#else
+    VPUSH   {D0-D15}
+#endif
+    VMRS    \reg, FPSCR                                 @ Save FPSCR.
+    PUSH    {\reg}                                      @ Save floating-point registers.
+    VMRS    \reg, FPEXC                                 @ Save FPEXC.
     PUSH    {\reg}
 .endm
-
-@******************************************************************************
-@ Functions:
-@     size_t fpu_reg_count(void);
-@******************************************************************************
-fpu_reg_count:
-    MOV     R0, #16
-    BX      LR
 
 @******************************************************************************
 @ Functions:
@@ -112,40 +84,23 @@ fpu_reg_count:
 @     void cpu_intrpt_restore(size_t cpsr);
 @******************************************************************************
 cpu_intrpt_save:
-    mrs r0, cpsr
+    MRS     R0, CPSR
     CPSID   IF
-    dsb
-    bx  lr
+    DSB                                                 @ no need dsb here?
+    BX      LR
 
 cpu_intrpt_restore:
-    dsb
-    msr cpsr, r0
-    bx  lr
+    DSB                                                 @ no need dsb here?
+    MSR     CPSR_c, R0
+    BX      LR
 
 @******************************************************************************
 @ Functions:
 @     void   cpu_first_task_start(void);
 @******************************************************************************
 cpu_first_task_start:
-    MSR     CPSR_c, #(ARM_CONTROL_INT_DIS | AMR_Mode_SVC)                   @ change to SVC mode.
-
-    @ switch to highest priority task:
-    LDR     R0, =g_active_task                                              @ g_active_task = g_preferred_ready_task;
-    LDR     R1, =g_preferred_ready_task
-    LDR     R2, [R1]
-    STR     R2, [R0]                                                        @ R0 = g_active_task->task_stack = context region
-
-    LDR     SP, [R2]
-
-    #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    POP_FP_REG R0                                                           @ Pop fpu register.
-    #endif
-
-    LDR     R0, [SP], #4                                                    @ R0 = SPSR; SP = SP + 4
-
-    MSR     SPSR_cxsf, R0                                                   @ restore new task CPSR
-
-    LDMFD   SP!, {R0-R12, LR, PC}^                                          @ restore new task context.
+    MSR     CPSR_c, #(CPSR_INT_DIS | CPSR_Mode_SVC)     @ change to SVC mode.
+    BL      _task_restore
 
 @******************************************************************************
 @ Functions:
@@ -153,254 +108,158 @@ cpu_first_task_start:
 @******************************************************************************
 cpu_task_switch:
     @ save current task context:
-    STMFD   SP!, {LR}                                           @ Push return address.
-    STMFD   SP!, {LR}
-    STMFD   SP!, {R0-R12}                                       @ Push R0-R12 registers
-    MRS     R0, CPSR                                            @ Push old task CPSR
-    TST     LR, #1                                              @ test if called from Thumb mode,
-    ORRNE   R0, R0, #ARM_CONTROL_THUMB                   @ if yes, set the T-bit.
-    STMFD   SP!, {R0}
+    PUSH    {LR}                                        @ Push PC.
+    PUSH    {R0-R12, LR}                                @ Push R0-R12 LR
+    MRS     R0, CPSR                                    @ Push old task CPSR
+    TST     LR, #1                                      @ test if called from Thumb mode,
+    ORRNE   R0, R0, #CPSR_THUMB                         @ if yes, set the T-bit.
+    PUSH    {R0}
 
     #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    PUSH_FP_REG R0                                              @ Push fpu register.
+    PUSH_FP_REG R0                                      @ Push fpu register.
     #endif
 
     @g_active_task->task_stack = context region
-    LDR     R1, =g_active_task                                  @ g_active_task->task_stack = SP;
+    LDR     R1, =g_active_task                          @ g_active_task->task_stack = SP;
     LDR     R1, [R1]
     STR     SP, [R1]
 
-    bl      krhino_stack_ovf_check
-
-    LDR     R0, =g_active_task                                  @ g_active_task = g_preferred_ready_task;
-    LDR     R1, =g_preferred_ready_task
-    LDR     R2, [R1]
-    STR     R2, [R0]                                             @ R0 = g_active_task->task_stack = context region
-
-    LDR     SP, [R2]
-
-    #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    POP_FP_REG R0                                               @ Pop fpu register.
+    #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
+    BL      krhino_stack_ovf_check
     #endif
 
-    LDMFD   SP!, {R0}                                           @ restore CPSR
-    MSR     SPSR_cxsf, R0
+    #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    BL      krhino_task_sched_stats_get
+    #endif
 
-    LDMFD   SP!, {R0-R12, LR, PC}^                              @ restore new task context.
+    BL      _task_restore
 
 @******************************************************************************
 @ Functions:
 @     void   cpu_intrpt_switch(void);
 @******************************************************************************
 cpu_intrpt_switch:
-    LDR     R0, =g_active_task                                  @ g_active_task = g_preferred_ready_task;
+    PUSH    {FP, LR}
+
+    #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
+    BL      krhino_stack_ovf_check
+    #endif
+
+    #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    BL      krhino_task_sched_stats_get
+    #endif
+
+    LDR     R0, =g_active_task                          @ g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
     LDR     R2, [R1]
-    STR     R2, [R0]                                             @ R0 = g_active_task->task_stack = context region
+    STR     R2, [R0]
+
+    POP     {FP, PC}
+
+@******************************************************************************
+@ _task_restore
+@ _context_restore
+@******************************************************************************
+_task_restore:
+    LDR     R0, =g_active_task                          @ g_active_task = g_preferred_ready_task;
+    LDR     R1, =g_preferred_ready_task
+    LDR     R2, [R1]
+    STR     R2, [R0]                                    @ R0 = g_active_task->task_stack = context region
 
     LDR     SP, [R2]
 
+_context_restore:
     #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    POP_FP_REG R0                                               @ Pop fpu register.
+    POP_FP_REG R0                                       @ Pop fpu register.
     #endif
 
-    LDMFD   SP!, {R0}                                           @ Pop new task CPSR
+    POP     {R0}                                        @ Pop cpsr of task
     MSR     SPSR_cxsf, R0
+    LDMFD   SP!, {R0-R12, LR, PC}^                      @ switch to task
 
-    LDMFD   SP!, {R0-R12, LR, PC}^                              @ restore new task context.
+@******************************************************************************
+@ _interrupt_handler
+@******************************************************************************
+@ R0 exc_cause, R1 SPSR, R2 PC, R3 SP of old mode
+_interrupt_handler:
+    @ change to SVC mode & disable interruptions.
+    MSR     CPSR_c, #(CPSR_INT_DIS | CPSR_Mode_SVC)
 
+    PUSH    {R2}                                        @ Push old task PC,
+    PUSH    {LR}                                        @ Push old task LR,
+    PUSH    {R4-R12}                                    @ Push old task R12-R4,
+    LDMFD   R3!, {R5-R8}                                @ Pop old task R3-R0 from mode stack.
+    PUSH    {R5-R8}                                     @ Push old task R3-R0,
+    PUSH    {R1}                                        @ Push task CPSR.
 
-.section .text.isr, "ax"
-/* exception handlers: undef, swi, padt, dabt, resv, irq, fiq */
-.align  5
-vector_undef:
-    STMFD   SP!, {R0-R3}                                        @ Push R0-R3 registers.
-    MOV     R0, #ARM_EXCEPT_UNDEF_INSTR                         @ Set exception type to ARM_EXCEPT_UNDEF_INSTR.
-    MRS     R1, SPSR                                            @ Save CPSR
-    MOV     R2, LR                                              @ Save LR(PC) register.
-    MOV     R3, SP                                              @ Save SP register.
-    ADD     SP, SP, #(4 * 4)                                    @ set SP to undef stack top.
-    B       common_except_handler                               @ bl to common_except_handler.
+    #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
+    PUSH_FP_REG R1                                      @ Push task fpu register.
+    #endif
 
-.align  5
-vector_swi:
-    STMFD   SP!, {R0-R3}                                        @ Push R0-R3 registers.
-    MOV     R0, #ARM_EXCEPT_SWI                                 @ Set exception type to ARM_EXCEPT_SWI.
-    MRS     R1, SPSR                                            @ Save CPSR
-    MOV     R2, LR                                              @ Save LR(PC) register.
-    MOV     R3, SP                                              @ Save SP register.
-    ADD     SP, SP, #(4 * 4)                                    @ set SP to swi stack top.
-    B       common_except_handler                               @ bl to common_except_handler.
+    LDR     R3, =g_sys_stat                             @ if (g_sys_stat == RHINO_RUNNING)
+    LDR     R4, [R3]
+    CMP     R4, #3                                      @ RHINO_RUNNING = 3
+    BNE     _interrupt_while_init
 
-.align  5
-vector_pabt:
-    STMFD   SP!, {R0-R3}                                        @ Push R0-R3 registers.
-    MOV     R0, #ARM_EXCEPT_PREFETCH_ABORT                      @ Set exception type to ARM_EXCEPT_PREFETCH_ABORT.
-    MRS     R1, SPSR                                            @ Save CPSR.
-    SUB     R2, LR, #4                                          @ Save LR(PC) register: -4.
-    MOV     R3, SP                                              @ Save SP register.
-    ADD     SP, SP, #(4 * 4)                                    @ set SP to padt stack top.
-    B       common_except_handler                               @ bl to common_except_handler.
+_interrupt_while_task:
+    LDR     R3, =g_active_task                          @ g_active_task->task_stack = SP;
+    LDR     R4, [R3]
+    STR     SP, [R4]
 
-.align  5
-vector_dabt:
-    STMFD   SP!, {R0-R3}                                        @ Push R0-R3 registers.
-    MOV     R0, #ARM_EXCEPT_DATA_ABORT                          @ Set exception type to ARM_EXCEPT_DATA_ABORT.
-    MRS     R1, SPSR                                            @ Save CPSR.
-    SUB     R2, LR, #8                                          @ Save LR(PC) register: -8.
-    MOV     R3, SP                                              @ Save SP register.
-    ADD     SP, SP, #(4 * 4)                                    @ set SP to dabt stack top.
-    B       common_except_handler                               @ bl to common_except_handler.
+    LDR     R3, =sys_stack_top                          @ Switch to system stack.
+    MOV     SP, R3
 
-.align  5
-vector_resv:
-    STMFD   SP!, {R0-R3}                                        @ Push R0-R3 registers.
-    MOV     R0, #ARM_EXCEPT_ADDR_ABORT                          @ Set exception type to ARM_EXCEPT_ADDR_ABORT.
-    MRS     R1, SPSR                                            @ Save CPSR.
-    SUB     R2, LR, #8                                          @ Save LR(PC) register: -8.
-    MOV     R3, SP                                              @ Save SP register.
-    ADD     SP, SP, #(4 * 4)                                    @ set SP to resv stack top.
-    B       common_except_handler                               @ bl to common_except_handler.
+    BL      cpu_interrupt_handler                       @ cpu_interrupt_handler(except_type = R0)
+_interrupt_return_address:
+    LDR     R3, =g_active_task                          @ SP = g_active_task->task_stack;
+    LDR     R4, [R3]
+    LDR     SP, [R4]
 
-.align  5
-vector_irq:
-    STMFD   SP!, {R0-R3}                                        @ Push R0-R3 registers.
-    MOV     R0, #ARM_EXCEPT_IRQ                                 @ Set exception type to ARM_EXCEPT_IRQ.
-    MRS     R1, SPSR                                            @ Save CPSR.
-    SUB     R2, LR, #4                                          @ Save LR(PC) register: -4.
-    MOV     R3, SP                                              @ Save SP register.
-    ADD     SP, SP, #(4 * 4)                                    @ set SP to irq stack top.
-    B       common_except_handler                               @ bl to common_except_handler.
+    BL      _context_restore
 
-.align  5
-vector_fiq:
-    STMFD   SP!, {R0-R3}                                        @ Push R0-R3 registers.
-    MOV     R0, #ARM_EXCEPT_FIQ                                 @ Set exception type to ARM_EXCEPT_FIQ.
-    MRS     R1, SPSR                                            @ Save CPSR.
-    SUB     R2, LR, #4                                          @ Save LR(PC) register: -4.
-    MOV     R3, SP                                              @ Save SP register.
-    ADD     SP, SP, #(4 * 4)                                    @ set SP to fiq stack top.
-    B       common_except_handler                               @ bl to common_except_handler.
+_interrupt_while_init:
+    @ align SP to 8 byte.
+    MOV     R1, SP
+    AND     R1, R1, #4
+    SUB     SP, SP, R1
+    PUSH    {R1, LR}
 
-common_except_handler:
-        @ change to SVC mode & disable interruptions.
-        MSR     CPSR_c, #(ARM_CONTROL_INT_DIS | AMR_Mode_SVC)
+    BL      cpu_interrupt_handler                       @ cpu_interrupt_handler(except_type = R0)
+    POP     {R1, LR}
+    ADD     SP, SP, R1
 
-        STMFD   SP!, {R2}                                        @   Push old task PC,
-        STMFD   SP!, {LR}                                        @   Push old task LR,
-        STMFD   SP!, {R4-R12}                                    @   Push old task R12-R4,
-        LDMFD   R3!, {R5-R8}                                     @   Pop old task R3-R0 from irq stack.
-        STMFD   SP!, {R5-R8}                                     @   Push old task R3-R0,
-        STMFD   SP!, {R1}                                        @   Push task CPSR.
+    BL      _context_restore
 
-        #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-        PUSH_FP_REG R1                                            @  Push task fpu register.
-        #endif
-                                                                  @ if (g_sys_stat == RHINO_RUNNING)
-        LDR     R3, =g_sys_stat
-        LDR     R4, [R3]
-        CMP     R4, #3                                            @ RHINO_RUNNING = 3
-        BNE     except_before_task_running
+_panic_handler:
+    @ change to SVC mode & disable interruptions.
+    MSR     CPSR_c, #(CPSR_INT_DIS | CPSR_Mode_SVC)
 
-        PUSH    {R0}
-        BL      krhino_intrpt_enter                               @ g_intrpt_nested_level++;
-        POP     {R0}
+    PUSH    {R2}                                        @ Push old task PC,
+    ADD     R2, SP, #4
+    PUSH    {LR}                                        @ Push old task LR,
+    PUSH    {R4-R12}                                    @ Push old task R12-R4,
+    LDMFD   R3!, {R5-R8}                                @ Pop old task R3-R0 from mode stack.
+    PUSH    {R5-R8}                                     @ Push old task R3-R0,
+    PUSH    {R1}                                        @ Push task CPSR.
 
-        LDR     R3,=g_intrpt_nested_level
-        LDRB    R4, [R3]
-        CMP     R4, #1                                            @ if (g_intrpt_nested_level == 1)
-        BNE     except_from_intrpt
+    #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
+    PUSH_FP_REG R1                                      @ Push task fpu register.
+    #endif
 
-except_from_task:
-        @ g_active_task->task_stack = context region
-        LDR     R3, =g_active_task                                @ g_active_task->task_stack = SP;
-        LDR     R4, [R3]
-        STR     SP, [R4]
+    PUSH    {R0, R2}                                    @ Push SP and exc_type
 
-        LDR     R3, =except_stack_top                             @ Switch to except stack.
-        MOV     SP, R3
+    @ align SP to 8 byte.
+    MOV     R0, SP
+    MOV     R1, SP
+    AND     R1, R1, #4
+    SUB     SP, SP, R1
+    PUSH    {R1, LR}
 
-        BL      aos_cpu_except_handler                             @ aos_cpu_except_handler(except_type = R0)
+    BL      exceptionHandler
 
-        @ change to SVC mode & disable interruptions.
-        MSR     CPSR_c, #(ARM_CONTROL_INT_DIS | AMR_Mode_SVC)
+    POP     {R1, LR}
+    ADD     SP, SP, R1
+    POP     {R0, R2}
 
-        @ call krhino_intrpt_exit() to return if a ready task with higher priority.
-        BL      krhino_intrpt_exit
-
-        LDR     R3, =g_active_task                                 @ SP = g_active_task->task_stack;
-        LDR     R4, [R3]
-        LDR     SP, [R4]
-
-        #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-        POP_FP_REG R0                                              @  Pop task fpu register.
-        #endif
-
-        LDMFD   SP!, {R0}                                          @ Pop new task CPSR,
-        MSR     SPSR_cxsf, R0
-
-        LDMFD   SP!, {R0-R12, LR, PC}^                             @ restore new task context.
-
-except_from_intrpt:
-        LDR     R1, =except_sp
-        STR     SP, [R1]
-
-        @ align SP to 8 byte
-        MOV     R1, SP
-        AND     R1, R1, #4
-        SUB     SP, SP, R1
-        STMFD   SP!, {R1, LR}
-
-        BL      aos_cpu_except_handler                               @ aos_cpu_except_handler(except_type = R0)
-
-        LDMIA   SP!, {R1, LR}
-        ADD     SP, SP, R1
-
-        @ change to SVC mode & disable interruptions.
-        MSR     CPSR_c, #(ARM_CONTROL_INT_DIS | AMR_Mode_SVC)
-
-        LDR     R3,=g_intrpt_nested_level                           @ g_intrpt_nested_level--;
-        LDRB     R4, [R3]
-        SUB      R4, R4, #1
-        STRB     R4, [R3]
-
-        #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-        POP_FP_REG R0                                               @  Pop task fpu register.
-        #endif
-
-        LDMFD   SP!, {R0}                                           @ Pop old task CPSR,
-        MSR     SPSR_cxsf, R0
-
-        LDMFD   SP!, {R0-R12, LR, PC}^                              @ restore working registers and return from exception.
-
-
-except_before_task_running:
-        LDR     R1, =except_sp
-        STR     SP, [R1]
-
-        @ align SP to 8 byte.
-        MOV     R1, SP
-        AND     R1, R1, #4
-        SUB     SP, SP, R1
-        STMFD   SP!, {R1, LR}
-
-        LDR     R3,=aos_cpu_except_handler                           @ aos_cpu_except_handler(except_type = R0)
-        MOV     LR, PC
-        BX      R3
-
-        LDMIA   SP!, {R1, LR}
-        ADD     SP, SP, R1
-
-        @ change to SVC mode & disable interruptions.
-        MSR     CPSR_c, #(ARM_CONTROL_INT_DIS | AMR_Mode_SVC)
-
-        #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-        POP_FP_REG R0                                               @  Pop task fpu register.
-        #endif
-
-        LDMFD   SP!, {R0}                                           @ Pop old CPSR,
-        MSR     SPSR_cxsf, R0
-
-        LDMFD   SP!, {R0-R12, LR, PC}^                              @ restore working registers and return from exception.
-
+    BL      _context_restore
 

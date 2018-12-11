@@ -20,6 +20,7 @@
     EXPORT cpu_task_switch
     EXPORT cpu_intrpt_switch
     EXPORT cpu_first_task_start
+    EXPORT cpu_get_cpuid
 
     EXPORT _interrupt_handler
     EXPORT _panic_handler
@@ -80,6 +81,13 @@ CPSR_THUMB       EQU    0x20                    ; Set Thumb mode.
     PUSH    {$reg}
     MEND
 
+; get core id
+    MACRO
+    GET_CORE_ID $reg
+    MRC     p15, 0, $reg, c0, c0, 5
+    AND     $reg, $reg, #3
+    MEND
+
 ;******************************************************************************
 ; Functions:
 ;     size_t cpu_intrpt_save(void);
@@ -123,8 +131,9 @@ cpu_task_switch
 
     ;g_active_task->task_stack = context region
     LDR     R1, =g_active_task                          ; g_active_task->task_stack = SP;
-    LDR     R1, [R1]
-    STR     SP, [R1]
+    GET_CORE_ID R5
+    LDR     R1, [R1, R5, LSL #2]
+    STR     SP, [R1, R5, LSL #2]
 
   IF (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
     BL      krhino_stack_ovf_check
@@ -132,6 +141,10 @@ cpu_task_switch
 
   IF (RHINO_CONFIG_TASK_SCHED_STATS > 0)
     BL      krhino_task_sched_stats_get
+  ENDIF
+
+  IF (RHINO_CONFIG_CPU_NUM > 1)
+    BL      os_unlock_sys_spin
   ENDIF
 
     BL      _task_restore
@@ -153,8 +166,10 @@ cpu_intrpt_switch
 
     LDR     R0, =g_active_task                          ; g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
-    LDR     R2, [R1]
-    STR     R2, [R0]
+
+    GET_CORE_ID R5
+    LDR     R2, [R1, R5, LSL #2]
+    STR     R2, [R0, R5, LSL #2]
 
     POP     {FP, PC}
 
@@ -165,8 +180,10 @@ cpu_intrpt_switch
 _task_restore
     LDR     R0, =g_active_task                          ; g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
-    LDR     R2, [R1]
-    STR     R2, [R0]                                    ; R0 = g_active_task->task_stack = context region
+
+    GET_CORE_ID R5
+    LDR     R2, [R1, R5, LSL #2]
+    STR     R2, [R0, R5, LSL #2]                        ; R0 = g_active_task->task_stack = context region
 
     LDR     SP, [R2]
 
@@ -204,17 +221,25 @@ _interrupt_handler
     BNE     _interrupt_while_init
 
 _interrupt_while_task
+    ; g_active_task->task_stack = context region
     LDR     R3, =g_active_task                          ; g_active_task->task_stack = SP;
-    LDR     R4, [R3]
+
+    GET_CORE_ID R5
+    LDR     R4, [R3, R5, LSL #2]
     STR     SP, [R4]
 
     LDR     R3, =sys_stack_top                          ; Switch to system stack.
+    MOV     R4, #RHINO_CONFIG_SYSTEM_STACK_SIZE
+    MUL     R4, R4, R5
+    SUB     R3, R3, R4
+
     MOV     SP, R3
 
     BL      cpu_interrupt_handler                       ; cpu_interrupt_handler(except_type = R0)
 _interrupt_return_address
     LDR     R3, =g_active_task                          ; SP = g_active_task->task_stack;
-    LDR     R4, [R3]
+    GET_CORE_ID R5
+    LDR     R4, [R3, R5, LSL #2]
     LDR     SP, [R4]
 
     BL      _context_restore
@@ -264,6 +289,16 @@ _panic_handler
     POP     {R0, R2}
 
     BL      _context_restore
+
+;******************************************************************************
+; cpu_get_cpuid
+;******************************************************************************
+; int cpu_get_cpuid(void);
+; get current CPU ID
+cpu_get_cpuid
+    MRC     p15, 0, R0, c0, c0, 5
+    AND     R0, R0, #3
+    BX      LR
 
     END
 

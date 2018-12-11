@@ -20,11 +20,11 @@
 .global cpu_task_switch
 .global cpu_intrpt_switch
 .global cpu_first_task_start
+.global cpu_get_cpuid
 
 .global _interrupt_handler
 .global _panic_handler
 .global _interrupt_return_address
-.global cpu_get_cpuid
 
 @******************************************************************************
 @                                 EQUATES
@@ -52,7 +52,7 @@
 @******************************************************************************
 @                        MACRO DEFINED
 @******************************************************************************
-@ ortex-A9, ARMv7 VFPv4-D16
+@ Cortex-A9, ARMv7 VFPv3-D16
 .macro POP_FP_REG reg
     POP     {\reg}
     VMSR    FPEXC, \reg                                 @ Pop FPEXC.
@@ -79,12 +79,11 @@
     PUSH    {\reg}
 .endm
 
-
-.macro getcoreid reg
-    mrc   p15, 0, \reg, c0, c0, 5
-    and   \reg, \reg, #3
+@ get core id
+.macro GET_CORE_ID reg
+    MRC     P15, 0, \reg, C0, C0, 5
+    AND     \reg, \reg, #3
 .endm
-
 
 @******************************************************************************
 @ Functions:
@@ -127,15 +126,12 @@ cpu_task_switch:
     PUSH_FP_REG R0                                      @ Push fpu register.
     #endif
 
-    getcoreid   R3
-    LSL     R3,R3,#2
-
     @g_active_task->task_stack = context region
-    LDR     R1, =g_active_task                                  @ g_active_task->task_stack = SP;
-    ADD     R1, R1, R3
+    LDR     R1, =g_active_task                          @ g_active_task->task_stack = SP;
 
-    LDR     R1, [R1]
-    STR     SP, [R1]
+    GET_CORE_ID R5
+    LDR     R1, [R1, R5, LSL #2]
+    STR     SP, [R1, R5, LSL #2]
 
     #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
     BL      krhino_stack_ovf_check
@@ -144,6 +140,7 @@ cpu_task_switch:
     #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
     BL      krhino_task_sched_stats_get
     #endif
+
     #if (RHINO_CONFIG_CPU_NUM > 1)
     BL      os_unlock_sys_spin
     #endif
@@ -165,17 +162,12 @@ cpu_intrpt_switch:
     BL      krhino_task_sched_stats_get
     #endif
 
-    getcoreid 	R3
-    LSL     R3, R3, #2
-
     LDR     R0, =g_active_task                          @ g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
 
-    ADD     R0, R0, R3
-    ADD     R1, R1, R3
-
-    LDR     R2, [R1]
-    STR     R2, [R0]
+    GET_CORE_ID R5
+    LDR     R2, [R1, R5, LSL #2]
+    STR     R2, [R0, R5, LSL #2]
 
     POP     {FP, PC}
 
@@ -184,17 +176,12 @@ cpu_intrpt_switch:
 @ _context_restore
 @******************************************************************************
 _task_restore:
-    getcoreid 	R3
-    LSL     R3, R3, #2
-
     LDR     R0, =g_active_task                          @ g_active_task = g_preferred_ready_task;
     LDR     R1, =g_preferred_ready_task
 
-    ADD     R0, R0, R3
-    ADD     R1, R1, R3
-
-    LDR     R2, [R1]
-    STR     R2, [R0]                                    @ R0 = g_active_task->task_stack = context region
+    GET_CORE_ID R5
+    LDR     R2, [R1, R5, LSL #2]
+    STR     R2, [R0, R5, LSL #2]                        @ R0 = g_active_task->task_stack = context region
 
     LDR     SP, [R2]
 
@@ -233,17 +220,14 @@ _interrupt_handler:
 
 _interrupt_while_task:
     @ g_active_task->task_stack = context region
-    LDR     R3, =g_active_task                                @ g_active_task->task_stack = SP;
+    LDR     R3, =g_active_task                          @ g_active_task->task_stack = SP;
 
-    getcoreid   R5
-    LSL     R5,R5,#2
-    ADD     R3, R3, R5
-
-    LDR     R4, [R3]
+    GET_CORE_ID R5
+    LDR     R4, [R3, R5, LSL #2]
     STR     SP, [R4]
 
     LDR     R3, =sys_stack_top                          @ Switch to system stack.
-    MOV     R4, #RHINO_EACHCORE_SYSTEM_STACK_SIZE
+    MOV     R4, #RHINO_CONFIG_SYSTEM_STACK_SIZE
     MUL     R4, R4, R5
     SUB     R3, R3, R4
 
@@ -251,13 +235,9 @@ _interrupt_while_task:
 
     BL      cpu_interrupt_handler                       @ cpu_interrupt_handler(except_type = R0)
 _interrupt_return_address:
-
-    LDR     R3, =g_active_task                                 @ SP = g_active_task->task_stack;
-    getcoreid   R4
-    LSL     R4,R4,#2
-    ADD     R3, R3, R4
-
-    LDR     R4, [R3]
+    LDR     R3, =g_active_task                          @ SP = g_active_task->task_stack;
+    GET_CORE_ID R5
+    LDR     R4, [R3, R5, LSL #2]
     LDR     SP, [R4]
 
     BL      _context_restore
@@ -308,12 +288,13 @@ _panic_handler:
 
     BL      _context_restore
 
-
-
-  @ int cpu_get_cpuid(void)@
-  @ get current CPU ID
+@******************************************************************************
+@ cpu_get_cpuid
+@******************************************************************************
+@ int cpu_get_cpuid(void)@
+@ get current CPU ID
 cpu_get_cpuid:
-    mrc   p15, 0, r0, c0, c0, 5
-    and   r0, r0, #3
-    BX    lr
+    MRC     P15, 0, R0, C0, C0, 5
+    AND     R0, R0, #3
+    BX      LR
 
