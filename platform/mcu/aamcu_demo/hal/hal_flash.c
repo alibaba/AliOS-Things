@@ -5,7 +5,6 @@
 #ifdef HAL_FLASH_MODULE_ENABLED
 
 #include "aos/hal/flash.h"
-#include "k_api.h"
 
 hal_logic_partition_t *hal_flash_get_info(hal_partition_t pno)
 {

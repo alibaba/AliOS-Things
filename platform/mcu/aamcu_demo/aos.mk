@@ -83,4 +83,3 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4           \
 endif
 
 include $($(NAME)_LOCATION)/$(HOST_MCU_NAME).mk
-

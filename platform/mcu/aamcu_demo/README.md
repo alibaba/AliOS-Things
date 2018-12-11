@@ -1,7 +1,7 @@
 This is a mcu demo for consuling, not a true realization.
 Directory structure:
 ==============================================
---Drivers           : SDK files
+--drivers           : SDK files
 --hal               : hal layer for driver
 --aos.mk            : mcu makefile
 
