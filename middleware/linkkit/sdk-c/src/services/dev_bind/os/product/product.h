@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include "platform.h"
+#include "os/platform.h"
 
 /** @defgroup group_product product
  *  @{
