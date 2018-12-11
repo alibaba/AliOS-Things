@@ -2,10 +2,11 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "hal/hal.h"
+#include "k_api.h"
 
 #ifdef HAL_GPIO_MODULE_ENABLED
 

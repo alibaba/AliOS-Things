@@ -3,6 +3,7 @@
 #include "aos/hal/soc.h"
 #include <stdarg.h>
 #include "aos/hal/hal.h"
+#include "network/hal/wifi.h"
 #include "CheckSumUtils.h"
 #include "platform_toolchain.h"
 

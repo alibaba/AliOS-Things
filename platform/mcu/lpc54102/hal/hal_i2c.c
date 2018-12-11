@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "aos/hal/hal.h"
+#include "aos/log.h"
 #include "k_types.h"
 #include "errno.h"
 
@@ -124,13 +125,13 @@ int32_t hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
 	uint16_t size, uint32_t timeout)
 {
 	if (!i2c || !data) {
-		LOGE(TAG, "%s: invalid arguments !", __func__);
+		LOGE(LOG_TAG, "%s: invalid arguments !", __func__);
 		return -1;
 	}
 
 	I2C_Type *base = hal_get_i2c_base(i2c->port);
 	if (!base) {
-		LOGE(TAG, "%s: I2C%u base not found !",
+		LOGE(LOG_TAG, "%s: I2C%u base not found !",
 			__func__, i2c->port);
 		return -2;
 	}
@@ -157,7 +158,7 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
 
     I2C_Type *base = hal_get_i2c_base(i2c->port);
 	if (!base) {
-		LOGE(TAG, "%s: I2C%u base not found !", __func__, i2c->port);
+		LOGE(LOG_TAG, "%s: I2C%u base not found !", __func__, i2c->port);
 		return -1;
 	}
 
