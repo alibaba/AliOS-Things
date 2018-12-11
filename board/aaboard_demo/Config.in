@@ -1,0 +1,7 @@
+menuconfig AOS_BOARD_AABOARD_DEMO
+    bool "aaboard_demo"
+    select AOS_MCU_AAMCU_DEMO
+    help
+
+if AOS_BOARD_AABOARD_DEMO
+# Configurations for board aaboard_demo

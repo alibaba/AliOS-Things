@@ -3,15 +3,17 @@
  */
 
 #include <k_api.h>
+#include <assert.h>
+#include <stdio.h>
+#include <sys/time.h>
 
 /**
- * soc api for k_soc.h
- * -- start
- */
+* soc api for k_soc.h
+* -- start
+*/
 #if (RHINO_CONFIG_HW_COUNT > 0)
 void soc_hw_timer_init(void)
 {
-
 }
 
 hr_timer_t soc_hr_hw_cnt_get(void)
@@ -24,6 +26,19 @@ lr_timer_t soc_lr_hw_cnt_get(void)
     return 0;
 }
 #endif /* RHINO_CONFIG_HW_COUNT */
+
+#if (RHINO_CONFIG_INTRPT_GUARD > 0)
+void soc_intrpt_guard(void)
+{
+}
+#endif
+
+#if (RHINO_CONFIG_INTRPT_STACK_REMAIN_GET > 0)
+size_t soc_intrpt_stack_remain_get(void)
+{
+    return 0;
+}
+#endif
 
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void)
