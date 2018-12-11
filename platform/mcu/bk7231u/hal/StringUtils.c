@@ -1,6 +1,7 @@
 
 #include "StringUtils.h"
 #include "aos/aos.h"
+#include "aos_debug.h"
 #include <stddef.h>
 #include <stdarg.h>
 
