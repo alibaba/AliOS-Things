@@ -8,7 +8,7 @@
 #define HAL_SENSOR_H
 
 #include <stdint.h>
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include "aos/hal/soc.h"
 #include "aos/hal/gpio.h"
 #include "aos/hal/i2c.h"
