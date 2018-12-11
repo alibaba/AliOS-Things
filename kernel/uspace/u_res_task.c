@@ -4,6 +4,7 @@
 
 #include <k_api.h>
 #include <u_task.h>
+#include <mm.h>
 
 #define RES_TASK_USTACK 512u
 #define RES_TASK_KSTACK 512u
@@ -25,6 +26,8 @@ void res_task(void *arg)
 
         krhino_uprocess_res_get(1, &msg);
         if (msg != 0) {
+            krhino_queue_dyn_del(res);
+            tlsf_destroy(NULL);
             krhino_utask_del(res_task_obj);
         }
     }
