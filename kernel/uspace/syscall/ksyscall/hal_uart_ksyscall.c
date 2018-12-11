@@ -2,7 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "aos/hal/hal.h"
+#include <stdint.h>
+#include <aos/hal/uart.h>
 #include <hal_uart_syscall_arg.h>
 
 int32_t sys_hal_uart_init_stub(void *arg)

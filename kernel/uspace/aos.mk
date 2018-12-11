@@ -12,21 +12,41 @@ endif
 
 ifeq ($(ENABLE_USPACE),1)
 ifeq ($(MBINS),kernel)
-$(NAME)_SOURCES    := u_task.c
-$(NAME)_SOURCES    += u_proc_msg.c
-$(NAME)_SOURCES    += syscall/ksyscall/rhino_ksyscall.c
-$(NAME)_SOURCES    += syscall/ksyscall/hal_uart_ksyscall.c
-$(NAME)_SOURCES    += syscall/ksyscall/lwip_ksyscall.c
-$(NAME)_SOURCES    += syscall/ksyscall/syscall_tbl.c
+$(NAME)_SOURCES := u_task.c
+$(NAME)_SOURCES += u_proc_msg.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_adc_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_dac_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_flash_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_gpio_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_i2c_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_nand_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_nor_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_rtc_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_sd_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_spi_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/hal_uart_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/lwip_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/rhino_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/syscall_tbl.c
 
 $(NAME)_INCLUDES   += syscall/ksyscall
 else ifeq ($(MBINS),app)
-$(NAME)_SOURCES    := u_timer.c
-$(NAME)_SOURCES    += u_res_task.c
-$(NAME)_SOURCES    += u_mm.c
-$(NAME)_SOURCES    += syscall/usyscall/rhino_usyscall.c
-$(NAME)_SOURCES    += syscall/usyscall/hal_uart_usyscall.c
-$(NAME)_SOURCES    += syscall/usyscall/lwip_usyscall.c
+$(NAME)_SOURCES := u_timer.c
+$(NAME)_SOURCES += u_res_task.c
+$(NAME)_SOURCES += u_mm.c
+$(NAME)_SOURCES += syscall/usyscall/hal_adc_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_dac_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_flash_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_gpio_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_i2c_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_nand_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_nor_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_rtc_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_sd_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_spi_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/hal_uart_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/lwip_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/rhino_usyscall.c
 
 GLOBAL_DEFINES += AOS_USPACE
 
