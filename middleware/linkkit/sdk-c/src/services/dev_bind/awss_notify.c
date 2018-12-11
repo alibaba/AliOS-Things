@@ -11,7 +11,7 @@
 #include "awss_timer.h"
 #include "awss_cmp.h"
 #include "awss_log.h"
-#include "platform.h"
+#include "os/platform.h"
 #include "passwd.h"
 #include "os.h"
 

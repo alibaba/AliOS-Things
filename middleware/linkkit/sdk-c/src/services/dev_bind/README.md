@@ -32,8 +32,7 @@
 ├── passwd.c
 ├── passwd.h
 ├── README.md
-├── sha256.c
-└── sha256.h
+
 ```
 
 ## Introduction
