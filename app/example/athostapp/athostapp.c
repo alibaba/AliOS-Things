@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <string.h>
-
 #include <aos/aos.h>
 
 #ifdef AOS_ATCMD
@@ -20,7 +18,7 @@ int HAL_Athost_Read(char *outbuf, uint32_t len)
     int ret = 0;
 
 #ifdef AOS_ATCMD
-    ret = at_read(outbuf, len);
+    ret = at.parse(outbuf, len);
 #endif
     return ret;
 }
@@ -31,29 +29,7 @@ int HAL_Athost_Write(const char *header, const uint8_t *data, uint32_t len,
     int ret = 0;
 
 #ifdef AOS_ATCMD
-    if (!header) {
-        LOGE(TAG, "Invalid null header\n");
-        return -1;
-    }
-
-    if ((ret = at_send_no_reply(header, strlen(header), false)) != 0) {
-        LOGE(TAG, "uart send packet header failed");
-        return -1;
-    }
-
-    if (data && len) {
-        if ((ret = at_send_no_reply((char *)data, len, false)) != 0) {
-            LOGE(TAG, "uart send packet failed");
-            return -1;
-        }
-    }
-
-    if (tailer) {
-        if ((ret = at_send_no_reply(tailer, strlen(tailer), false)) != 0) {
-            LOGE(TAG, "uart send packet tailer failed");
-            return -1;
-        }
-    }
+    ret = at.send_data_3stage_no_rsp(header, data, len, tailer);
 #endif
 
     return ret;
@@ -65,7 +41,7 @@ int HAL_Athost_HandleRegisterCb(const char              *prefix,
     int ret = 0;
 
 #ifdef AOS_ATCMD
-    at_register_callback(prefix, NULL, 0, fn, NULL);
+    at.oob(prefix, NULL, 0, fn, NULL);
 #endif
 
     return ret;
