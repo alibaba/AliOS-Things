@@ -29,7 +29,7 @@ supported boards' code here. It includes board init related codes.
         |--README
 ```
 ### Supported Boards
-
+Aaboard_demo is a board demo for consuling, not a true realization.
 * ARM
     * Cortex-M0
         * [eml3047](./eml3047/README.md)
