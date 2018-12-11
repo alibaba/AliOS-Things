@@ -654,8 +654,7 @@ static int drv_gps_simcom_sim868_env_init()
 {
     int ret = 0;
 #ifdef AOS_ATCMD
-    ret = at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, 
-                  AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 10000);
+    ret = at_init();
     if(0 != ret){
         LOG("%s :   line %d  ret %d\n",__func__,__LINE__,ret);
         return -1;
