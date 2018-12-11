@@ -60,7 +60,7 @@ typedef void (*wifi_event_cb_t)(WIFI_EVENT evt, void* info);
 #define STATE_SNIFFER       BIT1
 #define STATE_STA           BIT2
 #define STATE_STA_RC        BIT3
-#define STATE_AP            BIT3
+#define STATE_AP            BIT5
 #define STATE_P2P           BIT4
 
 extern r_s32 rda59xx_wifi_init();

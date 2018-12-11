@@ -10,7 +10,7 @@
 #include "rda5981_sys_data.h"
 #include "trng_api.h"
 
-//#define WIFISTACK_DEBUG
+#define WIFISTACK_DEBUG
 #ifdef WIFISTACK_DEBUG
 #define WIFISTACK_PRINT(fmt, ...) do {\
             printf(fmt, ##__VA_ARGS__);\
@@ -22,8 +22,8 @@
 //debug info
 //dbg level, 0 ~ close 1 ~ error 2 ~ info 3 ~ debug
 //dump, 0 ~ close 1 ~ open
-r_u32 rda_wland_dbg_level = 0;
-r_u32 rda_wpa_dbg_level = 0;
+r_u32 rda_wland_dbg_level = 2;
+r_u32 rda_wpa_dbg_level = 3;
 r_u32 rda_maclib_dbg_level = 0;
 r_u32 rda_wland_dump = 0;
 r_u32 rda_wpa_dump = 0;
@@ -175,7 +175,8 @@ static r_s32 rda59xx_sta_disconnect_internal()
     netif_set_down(&lwip_sta_netif);
     
     msg.type = RDA59XX_WLAND_STA_DISCONNECT;
-    res = rda59xx_send_wland_msg(&msg, 1000);
+ //   res = rda59xx_send_wland_msg(&msg, 1000);
+  res = rda59xx_send_wland_msg(&msg, RDA_WAIT_FOREVER);
     if(res != R_NOERR){
         WIFISTACK_PRINT("Send disconnect cmd failed!\r\n");
         return R_ERR;
@@ -354,7 +355,8 @@ static r_s32 rda59xx_ap_disable_internal()
     netif_set_down(&lwip_ap_netif);
     
     msg.type = RDA59XX_WLAND_AP_STOP;
-    rda59xx_send_wland_msg(&msg, 1000);
+ //   rda59xx_send_wland_msg(&msg, 1000);
+	rda59xx_send_wland_msg(&msg, RDA_WAIT_FOREVER);
     dhcps_deinit();
 
     return res;
