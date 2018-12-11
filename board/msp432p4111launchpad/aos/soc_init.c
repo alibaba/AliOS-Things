@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include "aos/kernel.h"
 #include "aos/hal/hal.h"
 #include "k_config.h"
 #include "Board.h"
