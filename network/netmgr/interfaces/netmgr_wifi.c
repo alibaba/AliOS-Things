@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <aos/aos.h>
 #include <network/network.h>
-#include "aos/hal/hal.h"
+#include "network/hal/wifi.h"
 
 #ifdef WITH_LWIP
 #include <lwip/priv/tcp_priv.h>
