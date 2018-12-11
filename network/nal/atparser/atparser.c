@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include <assert.h>
-#include <aos/log.h>
+
+#include <aos/aos.h>
 #include "atparser.h"
 
 #ifdef CENTRALIZE_MAPPING
@@ -20,10 +20,20 @@
 #define MODULE_NAME            "atparser"
 #define TASK_DEFAULT_WAIT_TIME 5000
 
+#ifndef AT_WORKER_STACK_SIZE
+#define AT_WORKER_STACK_SIZE   1024
+#endif
+
+#ifndef AT_WORKER_PRIORITY
+#define AT_WORKER_PRIORITY     AOS_DEFAULT_APP_PRI
+#endif
+
+#ifndef AT_UART_TIMEOUT_MS
+#define AT_UART_TIMEOUT_MS     1000
+#endif
+
 static uint8_t    inited = 0;
 static uart_dev_t at_uart;
-static uint32_t   at_worker_stacksize = 1024;
-static int        at_worker_priority  = 0;
 
 #ifdef HDLC_UART
 static encode_context_t hdlc_encode_ctx;
@@ -63,16 +73,6 @@ static int at_init_uart()
     return 0;
 }
 
-static void at_set_worker_stack_size(uint16_t size)
-{
-    at_worker_stacksize = size;
-}
-
-static void at_set_worker_priority(int prio)
-{
-    at_worker_priority = prio;
-}
-
 static void at_set_timeout(int timeout)
 {
     at._timeout = timeout;
@@ -106,7 +106,7 @@ static int at_init_task_mutex()
     return 0;
 }
 
-static void at_uinit_task_mutex()
+static void at_deinit_task_mutex()
 {
     if (aos_mutex_is_valid(&at.task_mutex)) {
         aos_mutex_free(&at.task_mutex);
@@ -114,20 +114,20 @@ static void at_uinit_task_mutex()
     return;
 }
 
-static int at_init_at_mutex()
+static int at_init_uart_recv_mutex()
 {
-    if (0 != aos_mutex_new(&at.at_mutex)) {
-        LOGE(MODULE_NAME, "Creating at mutex failed\r\n");
+    if (0 != aos_mutex_new(&at.at_uart_recv_mutex)) {
+        LOGE(MODULE_NAME, "Creating at_uart_recv_mutex failed\r\n");
         return -1;
     }
 
     return 0;
 }
 
-static void at_uinit_at_mutex()
+static void at_deinit_uart_recv_mutex()
 {
-    if (aos_mutex_is_valid(&at.at_mutex)) {
-        aos_mutex_free(&at.at_mutex);
+    if (aos_mutex_is_valid(&at.at_uart_recv_mutex)) {
+        aos_mutex_free(&at.at_uart_recv_mutex);
     }
     return;
 }
@@ -148,17 +148,14 @@ static void at_worker_uart_send_mutex_uinit()
     }
 }
 
-static int at_init(const char *recv_prefix, const char *recv_success_postfix,
-                   const char *recv_fail_postfix, const char *send_delimiter,
-                   int timeout)
+int at_init()
 {
     aos_task_t  task;
-
-    if (!recv_prefix || !recv_success_postfix || !recv_fail_postfix ||
-        !send_delimiter || (timeout < 0)) {
-        LOGE(MODULE_NAME, "%s: invalid argument", __func__);
-        return -1;
-    }
+    char *recv_prefix = AT_RECV_PREFIX;
+    char *recv_success_postfix = AT_RECV_SUCCESS_POSTFIX;
+    char *recv_fail_postfix = AT_RECV_FAIL_POSTFIX;
+    char *send_delimiter = AT_SEND_DELIMITER;
+    int  timeout = AT_UART_TIMEOUT_MS;
 
     if (inited == 1) {
         LOGI(MODULE_NAME, "have already inited ,it will init again\r\n");
@@ -176,17 +173,13 @@ static int at_init(const char *recv_prefix, const char *recv_success_postfix,
     at_set_recv_delimiter(recv_prefix, recv_success_postfix, recv_fail_postfix);
     at_set_send_delimiter(send_delimiter);
 
-    LOGD(MODULE_NAME,
-         "at worker rcv prefix is %s success postfix is %s fail postfix is %s "
-         "\r\n",
-         recv_prefix, recv_success_postfix, recv_fail_postfix);
-    if (at_init_at_mutex() != 0) {
-        LOGE(MODULE_NAME, "at uart mutex init fail \r\n");
+    if (at_init_uart_recv_mutex() != 0) {
+        LOGE(MODULE_NAME, "at_uart_recv_mutex init fail \r\n");
         return -1;
     }
 
     if (at_init_task_mutex() != 0) {
-        at_uinit_at_mutex();
+        at_deinit_uart_recv_mutex();
         LOGE(MODULE_NAME, "at mutex init fail \r\n");
         return -1;
     }
@@ -194,16 +187,16 @@ static int at_init(const char *recv_prefix, const char *recv_success_postfix,
     slist_init(&at.task_l);
 
     if (at_worker_uart_send_mutex_init() != 0) {
-        at_uinit_at_mutex();
-        at_uinit_task_mutex();
+        at_deinit_uart_recv_mutex();
+        at_deinit_task_mutex();
         LOGE(MODULE_NAME, "fail to creat at worker sem\r\n");
     }
 
     if (aos_task_new_ext(&task, "at_worker", at_worker,
-                         NULL, at_worker_stacksize,
-                         AOS_DEFAULT_APP_PRI + at_worker_priority) != 0) {
-        at_uinit_at_mutex();
-        at_uinit_task_mutex();
+                         NULL, AT_WORKER_STACK_SIZE,
+                         AT_WORKER_PRIORITY) != 0) {
+        at_deinit_uart_recv_mutex();
+        at_deinit_task_mutex();
         at_worker_uart_send_mutex_uinit();
         LOGE(MODULE_NAME, "fail to creat at task\r\n");
         return -1;
@@ -212,23 +205,33 @@ static int at_init(const char *recv_prefix, const char *recv_success_postfix,
     return 0;
 }
 
-static int at_putc(char c)
+static int at_sendto_lower(uart_dev_t *uart, void *data, uint32_t size,
+                           uint32_t timeout, bool ackreq)
 {
-    int ret = 0;
-    if (inited == 0) {
-        LOGE(MODULE_NAME, "at have not init yet\r\n");
-        return -1;
-    }
+    int ret = -1;
 
-    LOGD(MODULE_NAME, "uart sending %c(0x%02x)\r\n", c, c);
-    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
 #ifdef HDLC_UART
-    ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)&c, 1,
-                         at._timeout, false);
+    ret = hdlc_uart_send(&hdlc_encode_ctx, uart, data,
+                         size, timeout, ackreq);
 #else
-    ret = hal_uart_send(at._pstuart, (void *)&c, 1, at._timeout);
+    (void) ackreq;
+    ret = hal_uart_send(uart, data, size, timeout);
 #endif
-    aos_mutex_unlock(&at.at_uart_send_mutex);
+
+    return ret;
+}
+
+static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
+                             uint32_t *recv_size, uint32_t timeout)
+{
+    int ret = -1;
+
+#ifdef HDLC_UART
+    ret = hdlc_uart_recv(&hdlc_decode_ctx, uart, data, expect_size,
+                         recv_size, timeout);
+#else
+    ret = hal_uart_recv_II(uart, data, expect_size, recv_size, timeout);
+#endif
 
     return ret;
 }
@@ -248,23 +251,17 @@ static int at_getc(char *c)
         return -1;
     }
 
-    aos_mutex_lock(&at.at_mutex, AOS_WAIT_FOREVER);
-#ifdef HDLC_UART
-    ret = hdlc_uart_recv(&hdlc_decode_ctx, at._pstuart, (void *)&data, 1,
-                         &recv_size, at._timeout);
-#else
-    ret =
-      hal_uart_recv_II(at._pstuart, (void *)&data, 1, &recv_size, at._timeout);
-#endif
-    aos_mutex_unlock(&at.at_mutex);
+    aos_mutex_lock(&at.at_uart_recv_mutex, AOS_WAIT_FOREVER);
+    ret = at_recvfrom_lower(at._pstuart, (void *)&data, 1, &recv_size, at._timeout);
+    aos_mutex_unlock(&at.at_uart_recv_mutex);
 
     if (ret != 0) {
 #ifdef WORKAROUND_DEVELOPERBOARD_DMA_UART
         if (ret == 1) {
-            printf("--->AT dma fail, restart!\n");
+            LOGW(MODULE_NAME, "--->AT dma fail, restart!\n");
             hal_uart_finalize(at._pstuart);
             at_init_uart();
-            printf("<----AT dma fail, restart!\n");
+            LOGW(MODULE_NAME, "<----AT dma fail, restart!\n");
         }
 #endif
         return -1;
@@ -288,12 +285,8 @@ static int at_write(const char *data, int size)
     }
 
     aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
-#ifdef HDLC_UART
-    ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)data, size,
+    ret = at_sendto_lower(at._pstuart, (void *)data, size,
                          AOS_WAIT_FOREVER, true);
-#else
-    ret = hal_uart_send(at._pstuart, (void *)data, size, AOS_WAIT_FOREVER);
-#endif
     aos_mutex_unlock(&at.at_uart_send_mutex);
 
     if (ret != 0) {
@@ -313,16 +306,10 @@ static int at_read(char *data, int size)
         return -1;
     }
 
-    aos_mutex_lock(&at.at_mutex, AOS_WAIT_FOREVER);
+    aos_mutex_lock(&at.at_uart_recv_mutex, AOS_WAIT_FOREVER);
     while (total_read < size) {
-#ifdef HDLC_UART
-        ret = hdlc_uart_recv(&hdlc_decode_ctx, at._pstuart,
-                             (void *)(data + total_read), size - total_read,
-                             &recv_size, at._timeout);
-#else
-        ret = hal_uart_recv_II(at._pstuart, (void *)(data + total_read),
+        ret = at_recvfrom_lower(at._pstuart, (void *)(data + total_read),
                                size - total_read, &recv_size, at._timeout);
-#endif
         if (ret != 0) {
             LOGE(MODULE_NAME, "at_read failed on uart_recv.");
             break;
@@ -336,7 +323,7 @@ static int at_read(char *data, int size)
             break;
         }
     }
-    aos_mutex_unlock(&at.at_mutex);
+    aos_mutex_unlock(&at.at_uart_recv_mutex);
 
     if (ret != 0) {
         return -1;
@@ -436,40 +423,22 @@ static int at_send_raw_self_define_respone_formate_internal(
 
     at_worker_task_add(tsk);
 
-    // uart operation should be inside mutex lock
-#ifdef HDLC_UART
-    if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)command,
-                              cmdlen, at._timeout, true)) != 0)
-#else
-    if ((ret = hal_uart_send(at._pstuart, (void *)command, cmdlen,
-                             at._timeout)) != 0)
-#endif
-    {
+    if ((ret = at_sendto_lower(at._pstuart, (void *)command, cmdlen,
+                              at._timeout, true)) != 0) {
         LOGE(MODULE_NAME, "uart send command failed");
         goto end;
     }
-    LOGD(MODULE_NAME, "Sending command %s", command);
 
-#ifdef HDLC_UART
-    if ((ret = hdlc_uart_send(
-           &hdlc_encode_ctx, at._pstuart, (void *)at._send_delimiter,
-           strlen(at._send_delimiter), at._timeout, false)) != 0)
-#else
-    if ((ret = hal_uart_send(at._pstuart, (void *)at._send_delimiter,
-                             strlen(at._send_delimiter), at._timeout)) != 0)
-#endif
-    {
+    if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
+                strlen(at._send_delimiter), at._timeout, false)) != 0) {
         LOGE(MODULE_NAME, "uart send delimiter failed");
         goto end;
     }
-    LOGD(MODULE_NAME, "Sending delimiter %s", at._send_delimiter);
 
     if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
-        LOGD(MODULE_NAME, "sem_wait failed");
+        LOGE(MODULE_NAME, "sem_wait failed");
         goto end;
     }
-
-    LOGD(MODULE_NAME, "sem_wait succeed.");
 
 end:
     at_worker_task_del(tsk);
@@ -504,21 +473,6 @@ static int at_send_raw(const char *command, char *rsp, uint32_t rsplen)
                                                    NULL, NULL);
 }
 
-#ifdef DEBUG
-static void dump_payload(uint8_t *p, uint32_t len)
-{
-    if (!p || !len) {
-        return;
-    }
-
-    printf("\r\n");
-    while (len-- > 0) {
-        printf(" %02x", *p++);
-    }
-    printf("\r\n");
-}
-#endif
-
 /**
  * This API can be used to send packet, without response required.
  *
@@ -545,56 +499,30 @@ static int at_send_data_3stage_no_rsp(const char *header, const uint8_t *data,
     aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
 
     if (header) {
-#ifdef HDLC_UART
-        if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)header,
-                                  strlen(header), at._timeout, true)) != 0)
-#else
-        if ((ret = hal_uart_send(at._pstuart, (void *)header, strlen(header),
-                                 at._timeout)) != 0)
-#endif
-        {
+         if ((ret = at_sendto_lower(at._pstuart, (void *)header,
+                     strlen(header), at._timeout, true)) != 0) {
             LOGE(MODULE_NAME, "uart send packet header failed");
             aos_mutex_unlock(&at.at_uart_send_mutex);
-            assert(0);
             return -1;
         }
-
-        LOGD(MODULE_NAME, "Packet header sent: %s", header);
     }
 
     if (data && len) {
-#ifdef HDLC_UART
-        if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)data,
-                                  len, at._timeout, true)) != 0)
-#else
-        if ((ret =
-               hal_uart_send(at._pstuart, (void *)data, len, at._timeout)) != 0)
-#endif
-        {
+        if ((ret = at_sendto_lower(at._pstuart, (void *)data,
+                    len, at._timeout, true)) != 0) {
             LOGE(MODULE_NAME, "uart send packet failed");
             aos_mutex_unlock(&at.at_uart_send_mutex);
-            assert(0);
             return -1;
         }
-        LOGD(MODULE_NAME, "Packet sent, len: %d", len);
     }
 
     if (tailer) {
-#ifdef HDLC_UART
-        if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)tailer,
-                                  strlen(tailer), at._timeout, false)) != 0)
-#else
-        if ((ret = hal_uart_send(at._pstuart, (void *)tailer, strlen(tailer),
-                                 at._timeout)) != 0)
-#endif
-        {
+        if ((ret = at_sendto_lower(at._pstuart, (void *)tailer,
+                    strlen(tailer), at._timeout, false)) != 0) {
             LOGE(MODULE_NAME, "uart send packet tailer failed");
             aos_mutex_unlock(&at.at_uart_send_mutex);
-            assert(0);
             return -1;
         }
-
-        LOGD(MODULE_NAME, "Packet tailer sent: %s", tailer);
     }
 
     aos_mutex_unlock(&at.at_uart_send_mutex);
@@ -612,27 +540,14 @@ static int at_send_raw_no_rsp(const char *content)
     int ret;
 
     aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
-
     if (content) {
-#ifdef HDLC_UART
-        if ((ret =
-               hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)content,
-                              strlen(content), at._timeout, true)) != 0)
-#else
-        if ((ret = hal_uart_send(at._pstuart, (void *)content, strlen(content),
-                                 at._timeout)) != 0)
-#endif
-        {
+        if ((ret = at_sendto_lower(at._pstuart, (void *)content,
+                    strlen(content), at._timeout, true)) != 0) {
             LOGE(MODULE_NAME, "uart send raw content (%s) failed", content);
             aos_mutex_unlock(&at.at_uart_send_mutex);
-            assert(0);
             return -1;
         }
-
-        LOGD(MODULE_NAME, "Raw content (%s) with no response required sent.",
-             content);
     }
-
     aos_mutex_unlock(&at.at_uart_send_mutex);
 
     return 0;
@@ -682,9 +597,6 @@ static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
         goto end;
     }
 
-    LOGD(MODULE_NAME, "at task created: %d, smpr: %d", (uint32_t)tsk,
-         (uint32_t)&tsk->smpr);
-
     tsk->command = (char *)fst;
     tsk->rsp     = rsp;
     tsk->rsp_len = rsplen;
@@ -694,52 +606,29 @@ static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
     at_worker_task_add(tsk);
 
     // uart operation should be inside mutex lock
-#ifdef HDLC_UART
-    if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)fst,
-                              strlen(fst), at._timeout, true)) != 0)
-#else
-    if ((ret = hal_uart_send(at._pstuart, (void *)fst, strlen(fst),
-                             at._timeout)) != 0)
-#endif
-    {
+    if ((ret = at_sendto_lower(at._pstuart, (void *)fst,
+                    strlen(fst), at._timeout, true)) != 0) {
         LOGE(MODULE_NAME, "uart send command failed");
         goto end;
     }
-    LOGD(MODULE_NAME, "Sending command %s", fst);
 
-#ifdef HDLC_UART
-    if ((ret = hdlc_uart_send(
-           &hdlc_encode_ctx, at._pstuart, (void *)at._send_delimiter,
-           strlen(at._send_delimiter), at._timeout, false)) != 0)
-#else
-    if ((ret = hal_uart_send(at._pstuart, (void *)at._send_delimiter,
-                             strlen(at._send_delimiter), at._timeout)) != 0)
-#endif
-    {
+    if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
+                    strlen(at._send_delimiter), at._timeout, false)) != 0) {
         LOGE(MODULE_NAME, "uart send delimiter failed");
         goto end;
     }
-    LOGD(MODULE_NAME, "Sending delimiter %s", at._send_delimiter);
 
-#ifdef HDLC_UART
-    if ((ret = hdlc_uart_send(&hdlc_encode_ctx, at._pstuart, (void *)data, len,
-                              at._timeout, true)) != 0)
-#else
-    if ((ret = hal_uart_send(at._pstuart, (void *)data, len, at._timeout)) != 0)
-#endif
-    {
+    if ((ret = at_sendto_lower(at._pstuart, (void *)data, len,
+                               at._timeout, true)) != 0) {
         LOGE(MODULE_NAME, "uart send 2stage data failed");
         goto end;
     }
-
-    LOGD(MODULE_NAME, "Sending 2stage data %s", data);
 
     if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
         LOGE(MODULE_NAME, "sem_wait failed");
         goto end;
     }
 
-    LOGD(MODULE_NAME, "sem_wait succeed.");
 end:
     at_worker_task_del(tsk);
     aos_mutex_unlock(&at.at_uart_send_mutex);
@@ -993,20 +882,12 @@ static void at_worker(void *arg)
 
 at_parser_t at = { ._oobs                 = { { 0 } },
                    ._oobs_num             = 0,
-                   .init                  = at_init,
-                   .set_timeout           = at_set_timeout,
-                   .set_recv_delimiter    = at_set_recv_delimiter,
-                   .set_worker_stack_size = at_set_worker_stack_size,
-                   .set_worker_priority   = at_set_worker_priority,
-                   .set_send_delimiter    = at_set_send_delimiter,
                    .send_raw_self_define_respone_formate =
                      at_send_raw_self_define_respone_formate,
                    .send_raw                = at_send_raw,
                    .send_data_2stage        = at_send_data_2stage,
                    .send_data_3stage_no_rsp = at_send_data_3stage_no_rsp,
                    .send_raw_no_rsp         = at_send_raw_no_rsp,
-                   .putch                   = at_putc,
-                   .getch                   = at_getc,
                    .write                   = at_write,
                    .read                    = at_read,
                    .parse                   = at_read,
