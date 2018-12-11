@@ -10,6 +10,7 @@ Peripheral drivers for board should be added to board directory.
 ### Directories
 
 ```sh
+Aamcu_demo is a mcu demo for consuling, not a true realization.
 |--mcu                                   #supported MCU list
     |--atsamd5x_e5x
     |--bk7231
