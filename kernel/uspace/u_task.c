@@ -248,11 +248,43 @@ kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
 
 kstat_t krhino_uprocess_exit(void)
 {
+    CPSR_ALLOC();
+
     kstat_t   ret;
     ktask_t  *cur_task;
+    ktask_t  *task_del;
+    ktask_t  *cur_proc;
+    klist_t  *head;
+    klist_t  *end;
+    klist_t  *tmp;
 
-    /* to do ....... */
     cur_task = krhino_cur_task_get();
+
+    cur_proc = cur_task->proc_addr;
+
+    head = &(cur_proc->task_head);
+    end = head;
+
+    /*head to user task*/
+    RHINO_CRITICAL_ENTER();
+    head = head->next->next;
+    tmp = head->next;
+    RHINO_CRITICAL_EXIT();
+
+    /*step 1:delete user task*/
+    while (tmp != end) {
+
+        task_del = krhino_list_entry(tmp, ktask_t, task_user);
+
+        RHINO_CRITICAL_ENTER();
+        klist_rm(tmp);
+        tmp = tmp->next;
+        RHINO_CRITICAL_EXIT();
+
+        ret = krhino_task_dyn_del(task_del);
+    }
+
+    /*step 2: delete utask*/
     ret = krhino_task_dyn_del(cur_task->proc_addr);
     return ret;
 }

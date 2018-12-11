@@ -1113,6 +1113,7 @@ tlsf_t tlsf_create_with_pool(void* mem, size_t bytes)
 void tlsf_destroy(tlsf_t tlsf)
 {
     /* Nothing to do. */
+    krhino_mutex_dyn_del(tlsf_mutex);
     (void)tlsf;
 }
 
