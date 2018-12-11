@@ -3,7 +3,8 @@
  */
 
 #include <stdio.h>
-#include "aos/hal/hal.h"
+
+#include "network/hal/wifi.h"
 
 static AOS_DLIST_HEAD(g_wifi_module);
 
