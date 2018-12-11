@@ -4,7 +4,7 @@
 *
 */
 #include <aos/aos.h>
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

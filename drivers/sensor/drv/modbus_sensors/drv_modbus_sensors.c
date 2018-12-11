@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <aos/aos.h>
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include "aos/uData.h"
 #include "sensor.h"
 #include "sensor_drv_conf.h"

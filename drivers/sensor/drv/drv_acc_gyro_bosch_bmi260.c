@@ -60,7 +60,7 @@
 >>>>>>> ccbf6d929 (add driver for sensor BMP38x BMA4xy BMI160 BMI260)
 
 #include <aos/aos.h>
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
