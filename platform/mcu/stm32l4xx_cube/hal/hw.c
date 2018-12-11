@@ -10,7 +10,7 @@
 #include <aos/log.h>
 #include "aos/hal/soc.h"
 #include "aos/hal/timer.h"
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include <hal/wifi.h>
 
 #include "stm32l4xx_hal.h"

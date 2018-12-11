@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "aos/hal/base.h"
+#include "network/hal/wifi.h"
 #include <hal/wifi.h>
 
 #include <platform/platform_stdlib.h>

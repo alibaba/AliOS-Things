@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include <hal/wifi.h>
 
 hal_wifi_module_t sim_aos_wifi_beken;

@@ -23,7 +23,7 @@
 #include <aos/aos.h>
 #include "aos/hal/soc.h"
 #include "aos/hal/timer.h"
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include <hal/wifi.h>
 #include <arg_options.h>
 
