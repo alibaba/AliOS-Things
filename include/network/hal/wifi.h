@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 
 #ifdef STM32L475xx
 #include "stm32_wifi.h"

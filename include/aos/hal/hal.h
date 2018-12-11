@@ -8,9 +8,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "aos/hal/base.h"
-#include "hal/wifi.h"
-
 #include "aos/hal/soc.h"
 
 #endif /* HAL_HAL_H */
