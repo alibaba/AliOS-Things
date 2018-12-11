@@ -13,22 +13,22 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 
-GLOBAL_INCLUDES += drivers/        \
+GLOBAL_INCLUDES += drivers/ \
                    hal/include
 
-$(NAME)_SOURCES := drivers/driver_demo.c    \
-                   hal/hal_uart.c  \
-                   hal/hal_flash.c \
-                   hal/hal_sd.c    \
-                   hal/hal_adc.c   \
-                   hal/hal_i2c.c   \
-                   hal/hal_gpio.c  \
-                   hal/hal_rtc.c   \
-                   hal/hal_spi.c   \
-                   hal/hal_qspi.c  \
-                   hal/hal_nand.c  \
-                   hal/hal_nor.c   \
-                   hal/hw.c        \
+$(NAME)_SOURCES := drivers/driver_demo.c \
+                   hal/hal_uart.c        \
+                   hal/hal_flash.c       \
+                   hal/hal_sd.c          \
+                   hal/hal_adc.c         \
+                   hal/hal_i2c.c         \
+                   hal/hal_gpio.c        \
+                   hal/hal_rtc.c         \
+                   hal/hal_spi.c         \
+                   hal/hal_qspi.c        \
+                   hal/hal_nand.c        \
+                   hal/hal_nor.c         \
+                   hal/hw.c
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS   += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections

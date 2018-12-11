@@ -11,7 +11,7 @@
 #include <aos/log.h>
 #include "aos/hal/soc.h"
 #include "aos/hal/timer.h"
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include <hal/wifi.h>
 #include "rda5981.h"
 

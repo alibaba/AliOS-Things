@@ -5,4 +5,4 @@ Directory structure:
 --hal               : hal layer for driver
 --aos.mk            : mcu makefile
 
-Attention: If there are several mcu	types here, use independent sub mk file to put different config.
+Attention: If there are several mcu types here, use independent sub mk file to put different config.
