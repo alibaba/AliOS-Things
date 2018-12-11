@@ -5,6 +5,7 @@
  * uData service task
  */
 
+#include "aos/yloop.h"
 #include "udata_queue.h"
 #include "abs_data_model.h"
 #include "service_mgr.h"

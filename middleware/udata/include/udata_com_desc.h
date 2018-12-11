@@ -12,6 +12,8 @@
 #ifndef UDATA_OBJ_DESC_H
 #define UDATA_OBJ_DESC_H
 
+#include <stdbool.h>
+
 #include <aos/kernel.h>
 #include "sensor.h"
 #include "aos/log.h"
