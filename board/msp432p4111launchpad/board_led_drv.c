@@ -2,6 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <stdbool.h>
+
 #include "aos/hal/hal.h"
 #include "Board.h"
 
