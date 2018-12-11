@@ -10,14 +10,14 @@ SUPPORT_MBINS       := no
 HOST_MCU_NAME      := aamcu1_demo
 ENABLE_VFP         := 1
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=32768 #32kb
-GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=14 #(1 << 14) = 16kb
+GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=32768 # 32kb
+GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=14       # (1 << 14) = 16kb
 GLOBAL_CFLAGS  += -DSTM32F429xx -DCENTRALIZE_MAPPING
 
-$(NAME)_SOURCES += config/k_config.c \
-                   config/partition_conf.c  \
-                   drivers/msp_conf.c    \
-                   startup/board.c   \
+$(NAME)_SOURCES += config/k_config.c       \
+                   config/partition_conf.c \
+                   drivers/msp_conf.c      \
+                   startup/board.c         \
                    startup/startup.c
 
 ifeq ($(COMPILER), armcc)
@@ -32,7 +32,7 @@ $(NAME)_SOURCES    += startup/startup_gcc.s
 GLOBAL_LDFLAGS += -T board/aaboard_demo/aaboard_demo.ld
 endif
 
-GLOBAL_INCLUDES += .    \
-                   config/   \
-                   drivers/  \
-                   startup/  \
+GLOBAL_INCLUDES += .        \
+                   config/  \
+                   drivers/ \
+                   startup/
