@@ -17,7 +17,7 @@ $(NAME)_SOURCES := \
     ota_hal_module.c \
     ota_hal_os.c \
 
-ifneq (,$(filter linux,$(HOST_MCU_FAMILY)))
+ifneq (,$(filter mcu_linuximpl,$(HOST_MCU_FAMILY)))
 $(NAME)_SOURCES += \
     ota_hal_host.c
 else
