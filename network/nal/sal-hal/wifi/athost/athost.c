@@ -883,6 +883,7 @@ static int athost_client_status_notify(netconn_client_status_notify_t cb)
 
 int sal_device_init(void)
 {
+    at_init();
     return 0;
 }
 
