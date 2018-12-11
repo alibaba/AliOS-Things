@@ -58,7 +58,7 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
     return cpu_get_cpuid();
 }
 
-static inline void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
+static __inline void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
 {
 	uint32_t oldval, newval;
 	uint32_t res;
@@ -66,14 +66,13 @@ static inline void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, u
     newval = *set;
 
 	do {
-		__asm__ __volatile__(
-    		"ldrex	 %1, [%3]\n"
-    		"mov     %0, #0\n"
-    		"cmp     %1, %4\n"
-    		"strexeq %0, %5, [%3]\n"
-		    : "=&r" (res), "=&r" (oldval), "+Qo" (*addr)
-		    : "r" (addr), "Ir" (compare), "r" (newval)
-		    : "cc", "memory");
+    	oldval = __ldrex(addr);
+        if ( oldval != compare)
+        {
+            break;
+        }
+    	res = __strex(newval, addr);
+        /* if the STREX instruction succeeds, res = 0 */
 	} while (res);
 
     *set = oldval;
