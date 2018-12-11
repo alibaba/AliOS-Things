@@ -131,7 +131,7 @@ cpu_task_switch:
 
     GET_CORE_ID R5
     LDR     R1, [R1, R5, LSL #2]
-    STR     SP, [R1, R5, LSL #2]
+    STR     SP, [R1]
 
     #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
     BL      krhino_stack_ovf_check
