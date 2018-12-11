@@ -848,7 +848,6 @@ int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 
 int sal_device_init(void)
 {
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
-            AT_SEND_DELIMITER, 1000);
+    at_init();
     return 0;
 }

@@ -5,8 +5,6 @@
 #ifndef _AT_PARSER_H_
 #define _AT_PARSER_H_
 
-#include <stdarg.h>
-#include "aos/hal/soc.h"
 #include <aos/aos.h>
 
 #ifdef AOS_ATCMD
@@ -64,12 +62,6 @@ typedef struct at_task_s
     uint32_t  rsp_len;
 } at_task_t;
 
-typedef enum
-{
-    AT_SEND_RAW = 0,
-    AT_SEND_PBUF
-} at_send_t;
-
 /**
  * Parser structure for parsing AT commands
  */
@@ -88,38 +80,12 @@ typedef struct
     int         _send_delim_size;
     oob_t       _oobs[OOB_MAX];
     int         _oobs_num;
-    aos_mutex_t at_mutex;
+    aos_mutex_t at_uart_recv_mutex;
     aos_mutex_t at_uart_send_mutex;
     aos_mutex_t task_mutex;
 
     // can be used externally
     slist_t task_l;
-
-    /**
-     * initialization
-     *
-     * @param u uart port used for AT communication.
-     * @param send_delimiter string of characters to use as line delimiters for
-     * sending
-     * @param recv_delimiter string of characters to use as line delimiters for
-     * receiving
-     * @param timeout timeout of the connection
-     */
-    int (*init)(const char *recv_prefix, const char *recv_success_postfix,
-                const char *recv_fail_postfix, const char *send_delimiter,
-                int timeout);
-
-    void (*set_timeout)(int timeout);
-
-    void (*set_recv_delimiter)(const char *recv_prefix,
-                               const char *recv_success_postfix,
-                               const char *recv_fail_postfix);
-
-    void (*set_send_delimiter)(const char *delimiter);
-
-    void (*set_worker_stack_size)(uint16_t size);
-
-    void (*set_worker_priority)(int prio);
 
     int (*send_raw_self_define_respone_formate)(const char *command, char *rsp,
                                                 uint32_t rsplen,
@@ -171,16 +137,6 @@ typedef struct
     int (*send_raw_no_rsp)(const char *content);
 
     /**
-     * Write a single byte to the buffer.
-     */
-    int (*putch)(char c);
-
-    /**
-     * Get a single byte from the buffer.
-     */
-    int (*getch)(char *c);
-
-    /**
      * Write an array of bytes to the underlying stream.
      */
     int (*write)(const char *data, int size);
@@ -203,4 +159,61 @@ typedef struct
 } at_parser_t;
 
 extern at_parser_t at;
+
+
+typedef struct {
+    char *reply_prefix;
+    char *reply_success_postfix;
+    char *reply_fail_postfix;
+} atcmd_config_t;
+
+typedef void (*at_recv_cb)(void *arg, char *buf, int buflen);
+
+/**
+ * initialization
+ * 
+ */
+int at_init();
+
+/**
+ * at send and wait reply
+ *
+ * @param cmd sending buf.
+ * @param replybuf reply buffer.
+ * @param bufsize reply buffer size
+ * @param atcmdconfig AT cmd reply format config. Use default if NULL 
+ */
+int _at_send_wait_reply(const char *cmd, char *replybuf, int bufsize,
+                        const atcmd_config_t *atcmdconfig);
+
+/**
+ * at send and does not wait reply
+ *
+ * @param data sending buffer.
+ * @param datalen sending length.
+ */
+int _at_send_no_reply(const char *data, int datalen);
+
+
+/**
+ * at read for certain bytes of data
+ *
+ * @param outbuf output buffer.
+ * @param readsize read size.
+ */
+int _at_read(char *outbuf, int readsize);
+
+
+/**
+ * at register callback for recv
+ *
+ * @param prefix interested string.
+ * @param postfix intersted postfix.
+ * @param maxlen max recv data len
+ * @param cb callback handle function
+ * @param arg callback handle function args
+ */
+int _at_register_callback(const char *prefix, const char *postfix,
+                         int maxlen, at_recv_cb cb, void *arg);
+
 #endif
