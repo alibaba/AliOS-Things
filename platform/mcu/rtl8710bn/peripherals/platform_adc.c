@@ -37,7 +37,6 @@
 #include "platform_peripheral.h"
 #include "platform_logging.h"
 #include "analogin_api.h"
-
 /******************************************************
  *                    Constants
  ******************************************************/
