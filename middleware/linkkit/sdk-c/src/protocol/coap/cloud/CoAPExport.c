@@ -11,6 +11,7 @@
 
 #include "Cloud_CoAPNetwork.h"
 #include "Cloud_CoAPExport.h"
+#include "iotx_system.h"
 
 #define COAP_DEFAULT_PORT           5683 /* CoAP default UDP port */
 #define COAPS_DEFAULT_PORT          5684 /* CoAP default UDP port for secure transmission */
@@ -20,7 +21,7 @@
 #define COAP_DEFAULT_WAIT_TIME_MS   2000
 
 unsigned int Cloud_CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_type,
-                           char host[COAP_DEFAULT_HOST_LEN], unsigned short *port)
+                                 char host[COAP_DEFAULT_HOST_LEN], unsigned short *port)
 {
     int len = 0;
     char *p = NULL, *q = NULL;
@@ -46,8 +47,7 @@ unsigned int Cloud_CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_typ
         --len;
         *p_endpoint_type = COAP_ENDPOINT_DTLS;
         *port     = COAPS_DEFAULT_PORT;
-    }
-    else if(*p == '-'){
+    } else if (*p == '-') {
         ++p;
         --len;
         q = (char *)"psk";
@@ -61,8 +61,7 @@ unsigned int Cloud_CoAPUri_parse(char *p_uri, coap_endpoint_type *p_endpoint_typ
         }
         *p_endpoint_type = COAP_ENDPOINT_PSK;
         *port     = COAP_DEFAULT_PORT;
-    }
-    else {
+    } else {
         *p_endpoint_type = COAP_ENDPOINT_NOSEC;
         *port     = COAP_DEFAULT_PORT;
     }
@@ -174,8 +173,7 @@ Cloud_CoAPContext *Cloud_CoAPContext_create(Cloud_CoAPInitParam *param)
 
 #ifdef COAP_DTLS_SUPPORT
     if (COAP_ENDPOINT_DTLS == network_param.ep_type) {
-        extern const char *iotx_coap_get_ca(void);
-        network_param.p_ca_cert_pem  = (unsigned char *)iotx_coap_get_ca();
+        network_param.p_ca_cert_pem  = (unsigned char *)iotx_ca_get();
     }
 #endif
     if (COAP_ENDPOINT_NOSEC == network_param.ep_type
