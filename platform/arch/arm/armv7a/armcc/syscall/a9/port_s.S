@@ -1,4 +1,5 @@
 #include <k_config.h>
+#include <aux_config.h>
 
 ;******************************************************************************
 ;                            EXTERN SYMBOLS
@@ -36,6 +37,7 @@ CPSR_Mode_IRQ    EQU    0x12
 CPSR_Mode_SVC    EQU    0x13
 CPSR_Mode_ABT    EQU    0x17
 CPSR_Mode_UND    EQU    0x1B
+CPSR_Mode_SYS    EQU    0x1F
 CPSR_Mode_SYS    EQU    0x1F
 
 CPSR_FIQ_DIS     EQU    0x40                    ; Disable FIQ.
@@ -119,7 +121,14 @@ cpu_first_task_start
 cpu_task_switch
     ; save current task context:
     PUSH    {LR}                                        ; Push PC.
-    PUSH    {R0-R12, LR}                                ; Push R0-R12 LR
+    PUSH    {LR}                                        ; Push LR
+    ADD     LR, SP, #0x08
+    PUSH    {R0-R12, LR}                                ; Push R0-R12 SP
+
+    ; Note: when ;cpu_task_switch is called, the task
+    ; is running at SVC mode, the next time the task
+    ; is switched in, it should run in the same mode.
+    ; so, we save CPSR, rather than SPSR.
     MRS     R0, CPSR                                    ; Push old task CPSR
     TST     LR, #1                                      ; test if called from Thumb mode,
     ORRNE   R0, R0, #CPSR_THUMB                         ; if yes, set the T-bit.
@@ -131,6 +140,7 @@ cpu_task_switch
 
     ;g_active_task->task_stack = context region
     LDR     R1, =g_active_task                          ; g_active_task->task_stack = SP;
+
     GET_CORE_ID R5
     LDR     R1, [R1, R5, LSL #2]
     STR     SP, [R1]
@@ -185,7 +195,7 @@ _task_restore
     LDR     R2, [R1, R5, LSL #2]
     STR     R2, [R0, R5, LSL #2]                        ; R0 = g_active_task->task_stack = context region
 
-    LDR     SP, [R2]
+    LDR     SP, [R2, #RHINO_CONFIG_TASK_KSTACK_OFFSET]
 
 _context_restore
   IF {FPU} != "SoftVFP"
@@ -194,7 +204,26 @@ _context_restore
 
     POP     {R0}                                        ; Pop cpsr of task
     MSR     SPSR_cxsf, R0
-    LDMFD   SP!, {R0-R12, LR, PC}^                      ; switch to task
+
+    ; judge which mode should the task running at
+    AND     R0, R0, #CPSR_Mode_MASK
+    CMP     R0, #CPSR_Mode_USR
+    BNE     1f
+
+    ; user mode
+    MOV     LR, SP
+    ; pop {R0-R15}
+    ADD     SP, SP, #0x40
+    LDMIA   LR!, {R0-R12}
+    LDMIA   LR, {SP, LR}^
+    ADD     LR, LR, #0x08
+    LDMIA   LR, {PC}^
+
+1:
+    ; svc mode
+    MOV     R0, SP
+    ADD     SP, SP, #0x40
+    LDMFD   R0, {R0-R12, SP, LR, PC}^
 
 ;******************************************************************************
 ; _interrupt_handler
@@ -204,8 +233,21 @@ _interrupt_handler
     ; change to SVC mode & disable interruptions.
     MSR     CPSR_c, #(CPSR_INT_DIS:OR:CPSR_Mode_SVC)
 
-    PUSH    {R2}                                        ; Push old task PC,
-    PUSH    {LR}                                        ; Push old task LR,
+    PUSH    {R2}                                        ; Push old task PC
+    AND     R2, R1, #CPSR_Mode_MASK
+    CMP     R2, #CPSR_Mode_USR
+    BNE     1f
+
+    ; user mode
+    SUB     SP, SP, #0x08
+    MOV     R2, SP
+    STMIA   R2, {SP, LR}^
+    B       2f
+1:
+    ; svc mode
+    ADD     R2, SP, #0x04
+    PUSH    {R2, LR}     ; Push SP,LR */
+2:
     PUSH    {R4-R12}                                    ; Push old task R12-R4,
     LDMFD   R3!, {R5-R8}                                ; Pop old task R3-R0 from mode stack.
     PUSH    {R5-R8}                                     ; Push old task R3-R0,
@@ -264,6 +306,8 @@ _panic_handler
     PUSH    {R2}                                        ; Push old task PC,
     ADD     R2, SP, #4
     PUSH    {LR}                                        ; Push old task LR,
+    ADD     LR, SP, #0x08
+    PUSH    {LR}                                        ; Push old SP
     PUSH    {R4-R12}                                    ; Push old task R12-R4,
     LDMFD   R3!, {R5-R8}                                ; Pop old task R3-R0 from mode stack.
     PUSH    {R5-R8}                                     ; Push old task R3-R0,
