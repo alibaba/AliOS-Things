@@ -2,11 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "aos/hal/adc.h"
-#include "k_api.h"
 
 #ifdef HAL_ADC_MODULE_ENABLED
 
