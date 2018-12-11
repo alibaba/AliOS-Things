@@ -59,70 +59,53 @@
 .syntax unified
 .file "svc.S"
 
-@******************************************************************************
-@                            EXTERN SYMBOLS
-@******************************************************************************
-.extern syscall_tbl
-
-@******************************************************************************
-@                            EXPORT SYMBOLS
-@******************************************************************************
-.global SVC_Handler
-
-@******************************************************************************
-@                        MACRO DEFINED
-@******************************************************************************
-@ Cortex-A9, ARMv7 VFPv3-D16
+/**********************************************
+*                        MACRO DEFINED
+**********************************************/
+/* ortex-A9, ARMv7 VFPv4-D16 */
 .macro POP_FP_REG reg
     POP     {\reg}
-    VMSR    FPEXC, \reg                                 @ Pop FPEXC.
-    POP     {\reg}
-    VMSR    FPSCR, \reg                                 @ Pop FPSCR.
-#ifdef __ARM_NEON
-    VPOP    {Q0-Q7}
-    VPOP    {Q8-Q15}
-#else
+    /* Pop FPEXC. */
+    VMSR    FPEXC, \reg
     VPOP    {D0-D15}
-#endif
+    POP     {\reg}
+    /* Pop FPSCR. */
+    VMSR    FPSCR, \reg
 .endm
 
 .macro PUSH_FP_REG reg
-#ifdef __ARM_NEON
-    VPUSH   {Q8-Q15}
-    VPUSH   {Q0-Q7}
-#else
+    /* Save FPSCR. */
+    VMRS    \reg, FPSCR
+    /* Save floating-point registers. */
+    PUSH    {\reg}
     VPUSH   {D0-D15}
-#endif
-    VMRS    \reg, FPSCR                                 @ Save FPSCR.
-    PUSH    {\reg}                                      @ Save floating-point registers.
-    VMRS    \reg, FPEXC                                 @ Save FPEXC.
+    /* Save FPEXC. */
+    VMRS    \reg, FPEXC
     PUSH    {\reg}
 .endm
 
-@ get core id
-.macro GET_CORE_ID reg
-    MRC     P15, 0, \reg, C0, C0, 5
-    AND     \reg, \reg, #3
+.macro getcoreid reg
+    mrc   p15, 0, \reg, c0, c0, 5
+    and   \reg, \reg, #3
 .endm
 
+.extern syscall_tbl
 
-@******************************************************************************
-@                        Functions
-@******************************************************************************
-.section .text.isr, "ax"
-.arm
+.text
+.global SVC_Handler
+.type SVC_Handler, function
 SVC_Handler:
-    @ which stack are we running on???
-    @ we are using the tasks kstack which was set
-    @ when task are scheded in.
-    @
+    /* which stack are we running on???
+     * we are using the task's kstack which was set
+     * when task are scheded in.
+     */
 
-    @ {spsr, r0 ... r12, sp, lr, pc}
+    /* {spsr, r0 ... r12, sp, lr, pc} */
     sub     sp, sp, #(REG_SIZE - REG_R0)
     stmia   sp, {r0-r12}
     mrs     r2, spsr
     push    {r2}
-    @ {spsr, r0 ... r12} is done
+    /*       {spsr, r0 ... r12} is done */
 
     mov     r4, sp
     add     r1, sp, #REG_SP
