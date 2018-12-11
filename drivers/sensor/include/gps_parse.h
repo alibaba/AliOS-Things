@@ -15,7 +15,7 @@
 #include <string.h>
 #include <limits.h>
 #include <aos/aos.h>
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include "sensor.h"
 
 #define GPS_RCV_DATA_LEN        (256)

@@ -9,7 +9,7 @@
 #include <string.h>
 #include <aos/aos.h>
 #include <k_api.h>
-#include "aos/hal/base.h"
+#include "network/hal/base.h"
 #include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
