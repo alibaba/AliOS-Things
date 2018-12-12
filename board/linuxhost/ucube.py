@@ -30,4 +30,4 @@ aos_global_config.set('MESHLOWPOWER',1)
 
 build_types=""
 
-linux_only_targets="athostapp coapapp helloworld http2app linkkit_gateway linkkitapp meshapp mqttapp otaapp tls yts"
+linux_only_targets="athostapp coapapp helloworld http2app id2_app itls_app linkkit_gateway linkkitapp meshapp mqttapp otaapp prov_app tls yts"

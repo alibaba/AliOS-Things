@@ -1,1 +1,1 @@
-linux_only_targets="helloworld udataapp"
+linux_only_targets="helloworld udataapp yts"
