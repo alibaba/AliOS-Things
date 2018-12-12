@@ -6,7 +6,7 @@
 #define SENSOR_DRV_API_H
 
 #include <aos/aos.h>
-#include "aos/hal/soc.h"
+
 #include "aos/hal/i2c.h"
 #include "sensor.h"
 #include "aos/hal/spi.h"
