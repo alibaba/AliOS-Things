@@ -8,7 +8,7 @@
 #include "uffs/uffs_flash.h"
 
 #include "uffs_port.h"
-#include "aos/hal/hal.h"
+
 
 #define UFFS_NAME_LEN   256
 
