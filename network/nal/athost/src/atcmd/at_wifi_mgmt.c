@@ -388,22 +388,22 @@ static atcmd_hdl_ptr_t get_atcmd_wifi_handler()
     char single;
     int  index = -1;
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
 
     switch (single) {
         case 'J':
             // Eat AP
-            at_read(prefix, 2);
+            atcmd_read(prefix, 2);
             if (memcmp(prefix, "AP", 2) != 0) {
                 LOGE(TAG, "invalid wifi prefix %s\n", prefix);
                 break;
             }
 
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             if (single == '=') {
                 index = ATCMD_WJAP_CONN;
             } else if (single == 'I') {
-                at_read(prefix, 2);
+                atcmd_read(prefix, 2);
                 if (memcmp(prefix, "P?", 2) == 0) {
                     index = ATCMD_WJAP_IP;
                 } else {
@@ -416,7 +416,7 @@ static atcmd_hdl_ptr_t get_atcmd_wifi_handler()
             break;
 
         case 'M':
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
             if (memcmp(prefix, "AC?", 3) == 0) {
                 index = ATCMD_WJAP_MAC;
             } else {

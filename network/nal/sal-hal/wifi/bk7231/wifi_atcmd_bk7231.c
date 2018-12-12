@@ -129,7 +129,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 
     LOGI(TAG, "Will connect via at cmd: %s\r\n", in);
 
-    if (at.send_raw(in, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(in, strlen(in), true, out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s\r\n", in, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", in);
@@ -161,7 +161,8 @@ static int get_mac_helper(char *mac)
         return -1;
     }
 
-    if (at.send_raw(AT_CMD_OBTAIN_MAC, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(AT_CMD_OBTAIN_MAC, strlen(AT_CMD_OBTAIN_MAC), true,
+                           out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_MAC, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", AT_CMD_OBTAIN_MAC);
@@ -191,7 +192,8 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
         return -1;
     }
 
-    if (at.send_raw(AT_CMD_OBTAIN_IP, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(AT_CMD_OBTAIN_IP, strlen(AT_CMD_OBTAIN_IP), true,
+                           out, sizeof(out), NULL) == 0) {
         LOGD(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_IP, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", AT_CMD_OBTAIN_IP);

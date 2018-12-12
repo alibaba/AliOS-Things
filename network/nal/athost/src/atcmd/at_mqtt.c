@@ -889,7 +889,7 @@ static int         atcmd_imqtt_mode()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid mqtt mode prefix %c!\n", single);
         error_no = CME_ERROR_TXT_STR_INVALID_CHAR;
@@ -936,7 +936,7 @@ static int         atcmd_imqtt_mode()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&mode, 1);
+        atcmd_read(&mode, 1);
 
         if ('?' == mode) {
             // MQTTMODE prefix + \"mode\"
@@ -962,7 +962,7 @@ static int         atcmd_imqtt_mode()
                 goto err;
             }
         } else if ('0' == mode || '1' == mode) {
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             if (single == '\r') {
                 m_mqtt_config.mode = mode - '0';
             } else {
@@ -1020,7 +1020,7 @@ static int         atcmd_imqtt_open()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid mqtt open prefix %c!\n", single);
         goto err;
@@ -1064,7 +1064,7 @@ static int         atcmd_imqtt_open()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // MQTTOPEN prefix + \"hostname\" + \"port\"
@@ -1168,7 +1168,7 @@ static int atcmd_imqtt_auth()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid mqtt auth prefix %c!\n", single);
         error_no = CME_ERROR_TXT_STR_INVALID_CHAR;
@@ -1223,7 +1223,7 @@ static int atcmd_imqtt_auth()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // MQTTAUTH prefix + \"PRODUCT_KEY\" + \"DEVICE_NAME\" +
@@ -1274,7 +1274,7 @@ static int atcmd_imqtt_auth()
             }
 
             // eat \"
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             ret =
               atcmd_socket_data_info_get(devicename, sizeof(devicename), NULL);
             if (ret < 0) {
@@ -1294,7 +1294,7 @@ static int atcmd_imqtt_auth()
             }
 
             // eat \"
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             ret = atcmd_socket_data_info_get(devicesecret, sizeof(devicesecret),
                                              NULL);
             if (ret <= 0) {
@@ -1488,7 +1488,7 @@ static int atcmd_imqtt_para()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid mqtt para prefix %c!\n", single);
         goto err;
@@ -1543,7 +1543,7 @@ static int atcmd_imqtt_para()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // MQTTPARA + \"ParaTag\" + \"ParaValue\"
@@ -1617,7 +1617,7 @@ static int atcmd_imqtt_conn()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '\r' != single) {
         LOGE(TAG, "Invalid mqtt conn prefix %c!\n", single);
         error_no = CME_ERROR_TXT_STR_INVALID_CHAR;
@@ -1625,7 +1625,7 @@ static int atcmd_imqtt_conn()
     }
 
     if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' != single) {
             LOGE(TAG, "Invalid mqtt conn prefix %c!\n", single);
@@ -1698,7 +1698,7 @@ static int atcmd_imqtt_pub()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid mqtt pub prefix %c!\n", single);
         error_no = CME_ERROR_TXT_STR_INVALID_CHAR;
@@ -1754,7 +1754,7 @@ static int atcmd_imqtt_pub()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // prefix
@@ -1821,7 +1821,7 @@ static int atcmd_imqtt_pub()
             }
 
             // eat "
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             ret = atcmd_socket_text_info_get(m_attempt_pub_msg.msg_pub,
                                              sizeof(m_attempt_pub_msg.msg_pub),
                                              NULL);
@@ -1960,7 +1960,7 @@ static int atcmd_imqtt_sub()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid mqtt sub prefix %c!\n", single);
         error_no = CME_ERROR_TXT_STR_INVALID_CHAR;
@@ -2011,7 +2011,7 @@ static int atcmd_imqtt_sub()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // \"topic\" + \"qos\"
@@ -2137,7 +2137,7 @@ static int atcmd_imqtt_unsub()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid mqtt unsub prefix %c!\n", single);
         error_no = CME_ERROR_TXT_STR_INVALID_CHAR;
@@ -2183,7 +2183,7 @@ static int atcmd_imqtt_unsub()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // \"topic\"
@@ -2293,14 +2293,14 @@ static int atcmd_imqtt_rcvpub()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid mqtt recvpub prefix %c!\n", single);
         goto err;
     }
 
     if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' != single) {
             LOGE(TAG, "Invalid mqtt recvpub prefix %c!\n", single);
@@ -2402,7 +2402,7 @@ static int atcmd_imqtt_state()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid mqtt state prefix %c!\n", single);
         goto err;
@@ -2420,7 +2420,7 @@ static int atcmd_imqtt_state()
     }
 
     if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' != single) {
             LOGE(TAG, "Invalid mqtt state prefix %c!\n", single);
@@ -2489,7 +2489,7 @@ static int atcmd_imqtt_disconn()
 
     memset(response, 0, MAX_ATCMD_MQTT_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '\r' != single) {
         LOGE(TAG, "Invalid mqtt disconn prefix %c!\n", single);
         error_no = CME_ERROR_TXT_STR_INVALID_CHAR;
@@ -2497,7 +2497,7 @@ static int atcmd_imqtt_disconn()
     }
 
     if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' != single) {
             LOGE(TAG, "Invalid mqtt disconn prefix %c!\n", single);
@@ -2650,17 +2650,17 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
     int         index = -1;
 
     // Eat "QTT"
-    at_read(prefix, strlen(atcmd_prefix));
+    atcmd_read(prefix, strlen(atcmd_prefix));
     if (memcmp(prefix, atcmd_prefix, strlen(atcmd_prefix)) != 0) {
         goto err;
     }
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     memset(prefix, 0, sizeof(prefix));
 
     switch (single) {
         case 'M':
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
 
             if (memcmp(prefix, "ODE", 3) != 0)
                 goto err;
@@ -2668,7 +2668,7 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
             index = ATCMD_IMQTT_MODE;
             break;
         case 'O':
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
 
             if (memcmp(prefix, "PEN", 3) != 0)
                 goto err;
@@ -2676,7 +2676,7 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
             index = ATCMD_IMQTT_OPEN;
             break;
         case 'A':
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
 
             if (memcmp(prefix, "UTH", 3) != 0)
                 goto err;
@@ -2684,10 +2684,10 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
             index = ATCMD_IMQTT_AUTH;
             break;
         case 'P':
-            at_read(prefix, 2);
+            atcmd_read(prefix, 2);
 
             if (memcmp(prefix, "AR", 2) == 0) {
-                at_read(&single, 1);
+                atcmd_read(&single, 1);
 
                 if (single != 'A')
                     goto err;
@@ -2703,7 +2703,7 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
 
             break;
         case 'C':
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
 
             if (memcmp(prefix, "ONN", 3) != 0)
                 goto err;
@@ -2711,13 +2711,13 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
             index = ATCMD_IMQTT_CONN;
             break;
         case 'S':
-            at_read(prefix, 2);
+            atcmd_read(prefix, 2);
 
             if (memcmp(prefix, "UB", 2) == 0) {
                 index = ATCMD_IMQTT_SUB;
             } else if (memcmp(prefix, "TA", 2) == 0) {
                 memset(prefix, 0, sizeof(prefix));
-                at_read(prefix, 2);
+                atcmd_read(prefix, 2);
 
                 if (memcmp(prefix, "TE", 2) != 0)
                     goto err;
@@ -2729,7 +2729,7 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
 
             break;
         case 'U': //"UNSUB":
-            at_read(prefix, 4);
+            atcmd_read(prefix, 4);
 
             if (memcmp(prefix, "NSUB", 4) != 0)
                 goto err;
@@ -2737,7 +2737,7 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
             index = ATCMD_IMQTT_UNSUB;
             break;
         case 'R': //"CVPUB":
-            at_read(prefix, 5);
+            atcmd_read(prefix, 5);
 
             if (memcmp(prefix, "CVPUB", 5) != 0)
                 goto err;
@@ -2745,7 +2745,7 @@ static atcmd_hdl_ptr_t get_atcmd_mqtt_handler()
             index = ATCMD_IMQTT_RCVPUB;
             break;
         case 'D': //"DIS": "DBG":
-            at_read(prefix, 6);
+            atcmd_read(prefix, 6);
 
             if (memcmp(prefix, "ISCONN", 6) == 0) {
                 index = ATCMD_IMQTT_DISCONN;

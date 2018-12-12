@@ -103,7 +103,7 @@ int atcmd_socket_text_info_get(char *buf, uint32_t buflen,
     }
 
     do {
-        at_read(&buf[i], 1);
+        atcmd_read(&buf[i], 1);
         if (!finish) {
             if (buf[i] == '\"' && (i == 0 || (i > 0 && buf[i - 1] != '\\'))){
                finish = true;
@@ -156,7 +156,7 @@ int atcmd_socket_data_info_get(char *buf, uint32_t buflen,
     }
 
     do {
-        at_read(&buf[i], 1);
+        atcmd_read(&buf[i], 1);
         if (buf[i] == ',') {
             buf[i] = 0;
             break;
@@ -239,13 +239,13 @@ void free_uart_send_msg(uart_send_info_t *msgptr)
 }
 
 // at
-int at_read(char *outbuf, uint32_t len)
+int atcmd_read(char *outbuf, uint32_t len)
 {
     return HAL_Athost_Read(outbuf, len);
 }
 
-int at_write(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
-             uint16_t datalen)
+int atcmd_write(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
+                uint16_t datalen)
 {
     char * tail = NULL;
 
@@ -572,7 +572,7 @@ void atcmd_handle_entry()
     LOGD(TAG, "%s entry.", __func__);
 
     // uart_echo();
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     one_more = 0;
 
     // search handler
@@ -583,7 +583,7 @@ void atcmd_handle_entry()
                 handler = atcmd_handlers[i]->get_atcmd_handler();
             } else if (strlen(atcmd_handlers[i]->prefix) == 2) {
                 if (one_more == 0)
-                    at_read(&one_more, 1);
+                    atcmd_read(&one_more, 1);
 
                 if (atcmd_handlers[i]->prefix[1] == one_more) {
                     handler = atcmd_handlers[i]->get_atcmd_handler();

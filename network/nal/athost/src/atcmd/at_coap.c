@@ -566,7 +566,7 @@ static int         atcmd_icoap_para()
 
     memset(response, 0, MAX_ATCMD_COAP_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid coap para prefix %c!\n", single);
         goto err;
@@ -611,7 +611,7 @@ static int         atcmd_icoap_para()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // COAPARA + \"ParaTag\" + \"ParaValue\"
@@ -640,7 +640,7 @@ static int         atcmd_icoap_para()
                 goto err;
             }
         } else {
-            at_read(body, strlen(TAG_TIMEOUT_STR));
+            atcmd_read(body, strlen(TAG_TIMEOUT_STR));
             if (memcmp(body, "TIMEOUT\",", strlen(TAG_TIMEOUT_STR)) != 0) {
                 LOGE(TAG, "Invalid para tag %s !\n", body);
                 error_no = CME_ERROR_INCORRECT_PARA;
@@ -705,7 +705,7 @@ static int atcmd_icoap_open()
 
     memset(response, 0, MAX_ATCMD_COAP_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid coap open prefix %c!\n", single);
         goto err;
@@ -749,7 +749,7 @@ static int atcmd_icoap_open()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // COAPOPEN prefix + \"hostname\" + \"port\"
@@ -864,7 +864,7 @@ static int atcmd_icoap_auth()
 
     memset(response, 0, MAX_ATCMD_COAP_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid coap auth prefix %c!\n", single);
         error_no = CME_ERROR_TXT_STR_INVALID_CHAR;
@@ -917,7 +917,7 @@ static int atcmd_icoap_auth()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // COAPAUTH prefix + \"PRODUCT_KEY\" + \"DEVICE_NAME\" +
@@ -974,7 +974,7 @@ static int atcmd_icoap_auth()
             }
 
             // eat \"
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             ret =
               atcmd_socket_data_info_get(devicename, sizeof(devicename), NULL);
             if (ret < 0) {
@@ -994,7 +994,7 @@ static int atcmd_icoap_auth()
             }
 
             // eat \"
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             ret = atcmd_socket_data_info_get(devicesecret, sizeof(devicesecret),
                                              NULL);
             if (ret <= 0) {
@@ -1067,7 +1067,7 @@ static int atcmd_icoap_sendreq()
     int         offset   = 0;
     char        response[MAX_ATCMD_COAP_MSG_RSP_LEN] = {0};
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('N' == single) {
         return atcmd_icoap_sendreqn();
     } else if ('=' != single && '?' != single) {
@@ -1123,7 +1123,7 @@ static int atcmd_icoap_sendreq()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // prefix
@@ -1164,7 +1164,7 @@ static int atcmd_icoap_sendreq()
 
             body[0] = single;
             // eat ,
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             if (memcmp(&single, SEPARATOR_STR, 1) != 0) {
                 LOGE(TAG, "Invalid method %c%c!\n", body[0], single);
                 error_no = CME_ERROR_INCORRECT_PARA;
@@ -1180,7 +1180,7 @@ static int atcmd_icoap_sendreq()
             }
 
             // eat \"
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             ret = atcmd_socket_data_info_get(
               m_attempt_send_req.path, sizeof(m_attempt_send_req.path), NULL);
             if (ret < 0) {
@@ -1202,7 +1202,7 @@ static int atcmd_icoap_sendreq()
             }
 
             // eat \"
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             ret = atcmd_socket_data_info_get(
               m_attempt_send_req.msg, sizeof(m_attempt_send_req.msg), NULL);
             if (ret < 0) {
@@ -1340,7 +1340,7 @@ static int atcmd_icoap_sendreqn()
 
     memset(response, 0, MAX_ATCMD_COAP_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid coap sendreqn prefix %c!\n", single);
         error_no = CME_ERROR_TXT_STR_INVALID_CHAR;
@@ -1394,7 +1394,7 @@ static int atcmd_icoap_sendreqn()
             goto err;
         }
     } else if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' == single) {
             // prefix
@@ -1437,7 +1437,7 @@ static int atcmd_icoap_sendreqn()
 
             body[0] = single;
             // eat ,
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             if ((m_attempt_send_req_noack.method = atoi(body)) < 0) {
                 LOGE(TAG, "Invalid method %d !\n",
                      m_attempt_send_req_noack.method);
@@ -1446,7 +1446,7 @@ static int atcmd_icoap_sendreqn()
             }
 
             // eat \"
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             ret = atcmd_socket_data_info_get(
               m_attempt_send_req_noack.path,
               sizeof(m_attempt_send_req_noack.path), NULL);
@@ -1469,7 +1469,7 @@ static int atcmd_icoap_sendreqn()
             }
 
             // eat \"
-            at_read(&single, 1);
+            atcmd_read(&single, 1);
             ret = atcmd_socket_data_info_get(
               m_attempt_send_req_noack.msg,
               sizeof(m_attempt_send_req_noack.msg), NULL);
@@ -1609,14 +1609,14 @@ static int atcmd_icoap_rcvrsp()
 
     memset(response, 0, MAX_ATCMD_COAP_MSG_RSP_LEN);
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single && '?' != single) {
         LOGE(TAG, "Invalid coap rcvrsp prefix %c!\n", single);
         goto err;
     }
 
     if ('=' == single) {
-        at_read(&single, 1);
+        atcmd_read(&single, 1);
 
         if ('?' != single) {
             LOGE(TAG, "Invalid coap rcvrsp prefix %c!\n", single);
@@ -1775,17 +1775,17 @@ static atcmd_hdl_ptr_t get_atcmd_coap_handler()
     int         index = -1;
 
     // Eat "OAP"
-    at_read(prefix, strlen(atcmd_prefix));
+    atcmd_read(prefix, strlen(atcmd_prefix));
     if (memcmp(prefix, atcmd_prefix, strlen(atcmd_prefix)) != 0) {
         goto err;
     }
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     memset(prefix, 0, sizeof(prefix));
 
     switch (single) {
         case 'O':
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
 
             if (memcmp(prefix, "PEN", 3) != 0)
                 goto err;
@@ -1793,13 +1793,13 @@ static atcmd_hdl_ptr_t get_atcmd_coap_handler()
             index = ATCMD_ICOAP_OPEN;
             break;
         case 'A':
-            at_read(prefix, 2);
+            atcmd_read(prefix, 2);
 
             if (memcmp(prefix, "RA", 2) == 0) {
 
                 index = ATCMD_ICOAP_PARA;
             } else if (memcmp(prefix, "UT", 2) == 0) {
-                at_read(&single, 1);
+                atcmd_read(&single, 1);
                 if (single != 'H')
                     goto err;
 
@@ -1810,19 +1810,19 @@ static atcmd_hdl_ptr_t get_atcmd_coap_handler()
 
             break;
         case 'S':
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
 
             if (memcmp(prefix, "END", 3) != 0)
                 goto err;
 
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
             // shared by SENDREQ and SENDREQN
             if (memcmp(prefix, "REQ", 3) == 0) {
                 index = ATCMD_ICOAP_SENDREQ;
             } else if (memcmp(prefix, "BIN", 3) == 0) {
                 index = ATCMD_ICOAP_SENDBIN;
             } else if (memcmp(prefix, "NBI", 2) == 0) {
-                at_read(&single, 1);
+                atcmd_read(&single, 1);
                 if (single != 'N')
                     goto err;
 
@@ -1833,12 +1833,12 @@ static atcmd_hdl_ptr_t get_atcmd_coap_handler()
 
             break;
         case 'R':
-            at_read(prefix, 2);
+            atcmd_read(prefix, 2);
 
             if (memcmp(prefix, "CV", 2) != 0)
                 goto err;
 
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
             if (memcmp(prefix, "RSP", 3) == 0) {
                 index = ATCMD_ICOAP_RCVRSP;
             } else if (memcmp(prefix, "BIN", 3) == 0) {
