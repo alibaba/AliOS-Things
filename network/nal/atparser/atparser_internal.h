@@ -5,6 +5,8 @@
 #ifndef _ATPARSER_INTERNAL_H_
 #define _ATPARSER_INTERNAL_H_
 
+#include "aos/hal/uart.h"
+
 #ifndef bool
 #define bool unsigned char
 #endif
