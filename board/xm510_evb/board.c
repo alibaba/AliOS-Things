@@ -17,7 +17,7 @@
  */
 
 #include <board.h>
-#include "aos/hal/soc.h"
+
 
 /* Logic partition on flash devices */
 const hal_logic_partition_t hal_partitions[] =
