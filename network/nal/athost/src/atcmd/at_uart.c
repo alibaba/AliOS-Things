@@ -30,7 +30,7 @@ static int uart_echo()
             break;
         }
 
-        if (at_read(&buf[i], 1) <= 0) {
+        if (atcmd_read(&buf[i], 1) <= 0) {
             LOGE(TAG, "read fail\r\n");
             break;
         }
@@ -75,7 +75,7 @@ static int atcmd_uart_echo()
     }
 
     // Eat '='
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single) {
         LOGE(TAG, "Invalid cip start prefix %c !", single);
         goto err;
@@ -126,13 +126,13 @@ static atcmd_hdl_ptr_t get_atcmd_uart_handler()
     int         index = -1;
 
     // Eat "ART"
-    at_read(prefix, strlen(cmd_prefix));
+    atcmd_read(prefix, strlen(cmd_prefix));
     if (memcmp(prefix, cmd_prefix, strlen(cmd_prefix)) != 0) {
         LOGE(TAG, "invalid uart prefix %s\n", prefix);
         return;
     }
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
 
     switch (single) {
         case 'E':

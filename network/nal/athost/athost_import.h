@@ -5,7 +5,7 @@
 #ifndef _ATHOST_IMPORT_H_
 #define _ATHOST_IMPORT_H_
 
-typedef void (*athost_atcmd_handle_cb_t)();
+typedef void (*athost_atcmd_handle_cb_t)(void *arg, char *buf, int buflen);
 
 int HAL_Athost_Read(char *outbuf, uint32_t len);
 

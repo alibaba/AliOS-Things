@@ -2,67 +2,92 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef _ATPARSER_export_H_
-#define _ATPARSER_export_H_
+#ifndef _ATPARSER_INTERNAL_H_
+#define _ATPARSER_INTERNAL_H_
 
-typedef struct {
-    char *reply_prefix,
-    char *reply_success_postfix,
-    char *reply_fail_postfix
-} at_reply_format_t;
+#ifndef bool
+#define bool unsigned char
+#endif
 
-typedef void (*at_recv_cb)(void *arg, char *buf, int buflen);
+#ifndef true
+#define true 1
+#endif
+#ifndef false
+#define false 0
+#endif
+
+#define OOB_MAX 5
+
+typedef struct oob_s
+{
+    char *     prefix;
+    char *     postfix;
+    char *     oobinputdata;
+    uint32_t   reallen;
+    uint32_t   maxlen;
+    at_recv_cb cb;
+    void *     arg;
+} oob_t;
+
+/*
+ * --> | slist | --> | slist | --> NULL
+ *     ---------     ---------
+ *     | smhr  |     | smpr  |
+ *     ---------     ---------
+ *     | rsp   |     | rsp   |
+ *     ---------     ---------
+ */
+typedef struct at_task_s
+{
+    slist_t   next;
+    aos_sem_t smpr;
+    char *    command;
+    char *    rsp;
+    char *    rsp_prefix;
+    char *    rsp_success_postfix;
+    char *    rsp_fail_postfix;
+    uint32_t  rsp_prefix_len;
+    uint32_t  rsp_success_postfix_len;
+    uint32_t  rsp_fail_postfix_len;
+    uint32_t  rsp_offset;
+    uint32_t  rsp_len;
+} at_task_t;
 
 /**
- * initialization
- *
- * @param replyformat AT reply format definition.
- * @param send_delimiter string of characters to use as line delimiters for
- * sending
- * @param send/recv timeout timeout of uart layer
+ * Parser structure for parsing AT commands
  */
-int at_init(const at_reply_format_t *replyformat, 
-            const char *send_delimiter, int timeout);
+typedef struct
+{
+    /// used only internally
+    uart_dev_t *_pstuart;
+    int         _timeout;
+    char *      _default_recv_prefix;
+    char *      _default_recv_success_postfix;
+    char *      _default_recv_fail_postfix;
+    char *      _send_delimiter;
+    int         _recv_prefix_len;
+    int         _recv_success_postfix_len;
+    int         _recv_fail_postfix_len;
+    int         _send_delim_size;
+    oob_t       _oobs[OOB_MAX];
+    int         _oobs_num;
+    aos_mutex_t at_uart_recv_mutex;
+    aos_mutex_t at_uart_send_mutex;
+    aos_mutex_t task_mutex;
+    slist_t task_l;    
+} at_parser_t;
 
-/**
- * at send and wait reply
- *
- * @param cmd sending buf.
- * @param replybuf reply buffer.
- * @param bufsize reply buffer size
- * @param replyformat AT reply format definition
- */
-int at_send_wait_reply(const char *cmd, char *replybuf, int bufsize,
-                       const at_reply_format_t *replyformat);
+#define TASK_DEFAULT_WAIT_TIME 5000
 
-/**
- * at send and does not wait reply
- *
- * @param data sending buffer.
- * @param datalen sending length.
- */
-int at_send_no_reply(const char *data, int datalen);
+#ifndef AT_WORKER_STACK_SIZE
+#define AT_WORKER_STACK_SIZE   1024
+#endif
 
+#ifndef AT_WORKER_PRIORITY
+#define AT_WORKER_PRIORITY     AOS_DEFAULT_APP_PRI
+#endif
 
-/**
- * at read for certain bytes of data
- *
- * @param outbuf output buffer.
- * @param readsize read size.
- */
-int at_read(char *outbuf, int readsize);
-
-
-/**
- * at register callback for recv
- *
- * @param prefix interested string.
- * @param postfix intersted postfix. 
- * @param maxlen max recv data len
- * @param cb callback handle function
- * @param arg callback handle function args
- */
-int at_register_callback(const char *prefix, const char *postfix,
-                         int maxlen, at_recv_cb cb, void *arg);
-
+#ifndef AT_UART_TIMEOUT_MS
+#define AT_UART_TIMEOUT_MS     1000
+#endif
 #endif

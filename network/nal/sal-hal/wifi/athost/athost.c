@@ -57,7 +57,7 @@ static void handle_tcp_udp_client_conn_state(uint8_t link_id)
 {
     char s[32] = {0};
 
-    at.read(s, 6);
+    at_read(s, 6);
     if (strstr(s, "CLOSED") != NULL) {
         LOGI(TAG, "Server closed event.");
         if (aos_sem_is_valid(&g_link[link_id].sem_close)) {
@@ -67,14 +67,14 @@ static void handle_tcp_udp_client_conn_state(uint8_t link_id)
         LOGI(TAG, "Server conn (%d) closed.", link_id);
     } else if (strstr(s, "CONNEC") != NULL) {
         LOGI(TAG, "Server conn (%d) successful.", link_id);
-        at.read(s, 3);
+        at_read(s, 3);
         if (aos_sem_is_valid(&g_link[link_id].sem_start)) {
             LOGD(TAG, "sem is going to be waked up: 0x%x", &g_link[link_id].sem_start);
             aos_sem_signal(&g_link[link_id].sem_start); // wakeup send task
         }
     } else if (strstr(s, "DISCON") != NULL) {
         LOGI(TAG, "Server conn (%d) disconnected.", link_id);
-        at.read(s, 6);
+        at_read(s, 6);
     } else {
         LOGW(TAG, "No one handle this unkown event!!!");
     }
@@ -106,7 +106,7 @@ static void handle_remote_client_conn_state()
     char ipaddr[16] = {0};
 
     /* Eat the "LIENT," */
-    at.read(reader, 6);
+    at_read(reader, 6);
     if (memcmp(reader, "LIENT,", strlen("LIENT,")) != 0) {
         LOGE(TAG, "0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x invalid event format!!!\r\n",
              reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
@@ -201,7 +201,7 @@ static int socket_data_info_get(char *buf, uint32_t buflen, at_data_check_cb_t v
     }
 
     do {
-        at.read(&buf[i], 1);
+        at_read(&buf[i], 1);
         if (buf[i] == ','
 #ifdef SAL_SERVER
             || buf[i] == '\r'
@@ -239,7 +239,7 @@ static void handle_socket_data()
     char single;
 
     /* Eat the "OCKET," */
-    at.read(reader, 6);
+    at_read(reader, 6);
     if (memcmp(reader, "OCKET,", strlen("OCKET,")) != 0) {
         LOGE(TAG, "0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x invalid event format!!!\r\n",
              reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
@@ -292,13 +292,13 @@ static void handle_socket_data()
         return;
     }
 
-    ret = at.read(recvdata, len);
+    ret = at_read(recvdata, len);
     if (ret != len) {
         LOGE(TAG, "at read error recv %d want %d!\n", ret, len);
         goto err;
     }
 
-    at.read(&single, 1);
+    at_read(&single, 1);
     if (single != '\r') {
         LOGE(TAG, "at fail to read delimiter %d after data %d!\n", '\r', single);
         goto err;
@@ -334,7 +334,7 @@ static void handle_udp_broadcast_data()
     char *recvdata = NULL;
 
     /* Eat the "DP_BROADCAST," */
-    at.read(reader, 13);
+    at_read(reader, 13);
     if (memcmp(reader, "DP_BROADCAST,", strlen("DP_BROADCAST,")) != 0) {
         LOGE(TAG, "%s invalid event format!!!\r\n",
              reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
@@ -389,7 +389,7 @@ static void handle_udp_broadcast_data()
         return;
     }
 
-    at.read(recvdata, len);
+    at_read(recvdata, len);
     recvdata[len] = '\0';
 
     hal_wifi_ip_stat_t ip_stat;
@@ -425,19 +425,19 @@ static void net_event_handler(void *arg, char *buf, int buflen)
     char s[32] = {0};
     LOGD(TAG, "%s entry.", __func__);
 
-    at.read(&c, 1);
+    at_read(&c, 1);
     if (c >= '0' && c < ('0' + LINK_ID_MAX)) {
         int link_id = c - '0';
-        at.read(&c, 1);
+        at_read(&c, 1);
         if (c != ',') {
             LOGE(TAG, "!!!Error: wrong CIPEVENT string. 0x%02x\r\n", c);
             return;
         }
-        at.read(&c, 1);
+        at_read(&c, 1);
         if (c == 'S') {
             LOGD(TAG, "%s server conn state event, linkid: %d.", __func__, link_id);
             /* Eat the "ERVER," */
-            at.read(s, 6);
+            at_read(s, 6);
             if (memcmp(s, "ERVER,", strlen("ERVER,")) != 0) {
                 LOGE(TAG, "invalid event format 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
                      s[0], s[1], s[2], s[3], s[4], s[5]);
@@ -447,7 +447,7 @@ static void net_event_handler(void *arg, char *buf, int buflen)
         } else if (c == 'U') {
             LOGD(TAG, "%s UDP conn state event.", __func__);
             /* Eat the "DP," */
-            at.read(s, 3);
+            at_read(s, 3);
             if (memcmp(s, "DP,", strlen("DP,")) != 0) {
                 LOGE(TAG, "%s invalid event format 0x%02x 0x%02x 0x%02x \r\n", __FUNCTION__, s[0], s[1], s[2]);
                 return;
@@ -479,7 +479,8 @@ static void athost_uart_echo_off()
 {
     char out[64] = {0};
 
-    at.send_raw(AT_CMD_EHCO_OFF, out, sizeof(out));
+    at_send_wait_reply(AT_CMD_EHCO_OFF, strlen(AT_CMD_EHCO_OFF), true,
+                       out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, AT_RSP_FAIL) != NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -516,7 +517,7 @@ int HAL_SAL_Init(void)
         snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link);
         LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-        at.send_raw(cmd, out, sizeof(out));
+        at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
         LOGD(TAG, "The AT response is: %s", out);
         if (strstr(out, AT_RSP_FAIL) != NULL) {
             LOGD(TAG, "%s %d failed", __func__, __LINE__);
@@ -529,7 +530,7 @@ int HAL_SAL_Init(void)
         snprintf(cmd, STOP_AUTOCONN_CMD_LEN - 1, "%s=%d,0", STOP_AUTOCONN_CMD, link);
         LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-        at.send_raw(cmd, out, sizeof(out));
+        at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
         LOGD(TAG, "The AT response is: %s", out);
         if (strstr(out, AT_RSP_FAIL) != NULL) {
             LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -538,7 +539,7 @@ int HAL_SAL_Init(void)
         memset(cmd, 0, sizeof(cmd));
     }
 
-    at.oob(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
+    at_register_callback(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
     inited = 1;
 
     return 0;
@@ -549,8 +550,6 @@ int HAL_SAL_Deinit(void)
     if (!inited) {
         return 0;
     }
-
-    // at.exitoob(NET_OOB_PREFIX); // <TODO>
 
     aos_mutex_free(&g_link_mutex);
 
@@ -640,7 +639,7 @@ int HAL_SAL_Start(sal_conn_t *c)
 
     LOGD(TAG, "\r\n%s %d - AT cmd to run: %s \r\n", __func__, __LINE__, cmd);
 
-    at.send_raw(cmd, out, sizeof(out));
+    at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, AT_RSP_FAIL) != NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -703,6 +702,32 @@ static int fd_to_linkid(int fd)
     return link_id;
 }
 
+static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
+                               char *rsp, uint32_t rsplen) 
+{
+    if (NULL == fst) {
+        printf("%s invalid input \r\n", __FUNCTION__);
+        return -1;
+    }
+
+    if (NULL == rsp || 0 == rsplen) {
+        printf("%s invalid input \r\n", __FUNCTION__);
+        return -1;
+    }
+
+    if (at_send_no_reply(fst, strlen(fst), true) != 0) {
+        printf("at send %s failed\n", fst);
+        return -1;
+    }
+
+    if (at_send_wait_reply(data, len, false, rsp, rsplen, NULL) != 0) {
+        printf("at send data len %d failed\n", len);
+        return -1;
+    }
+
+    return 0;
+}
+
 #define SEND_CMD "AT+CIPSEND"
 #define SEND_CMD_LEN (sizeof(SEND_CMD)+1+1+5+1+DATA_LEN_MAX+1)
 int HAL_SAL_Send(int fd,
@@ -738,7 +763,7 @@ int HAL_SAL_Send(int fd,
 
     LOGD(TAG, "\r\n%s %d - AT cmd to run: %s\r\n", __func__, __LINE__, cmd);
 
-    at.send_data_2stage((const char *)cmd, (const char *)data, len, out, sizeof(out));
+    at_send_data_2stage((const char *)cmd, (const char *)data, len, out, sizeof(out));
     LOGD(TAG, "\r\nThe AT response is: %s\r\n", out);
 
     if (strstr(out, AT_RSP_FAIL) != NULL) {
@@ -761,9 +786,9 @@ int HAL_SAL_DomainToIp(char *domain,
     snprintf(cmd, DOMAIN_CMD_LEN - 1, "%s=%s", DOMAIN_CMD, domain);
     LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-    at.send_raw(cmd, out, sizeof(out));
+    at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
-    if (strstr(out, at._default_recv_success_postfix) == NULL) {
+    if (strstr(out, AT_RECV_SUCCESS_POSTFIX) == NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
         return -1;
     }
@@ -788,16 +813,16 @@ int HAL_SAL_DomainToIp(char *domain,
 
 
     head++;
-    if (memcmp(head, at._default_recv_prefix, at._recv_prefix_len) != 0) {
+    if (memcmp(head, AT_RECV_PREFIX, strlen(AT_RECV_PREFIX)) != 0) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
         goto err;
     }
 
     /* We find the IP head */
-    head += at._recv_prefix_len;
+    head += strlen(AT_RECV_PREFIX);
 
     end = head;
-    while (((end - head) < 15) && (*end != at._default_recv_prefix[0])) {
+    while (((end - head) < 15) && (*end != '\r')) {
         end++;
     }
     if (((end - head) < 6) || ((end - head) > 15)) {
@@ -831,7 +856,7 @@ int HAL_SAL_Close(int fd,
     snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link_id);
     LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-    at.send_raw(cmd, out, sizeof(out));
+    at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, AT_RSP_FAIL) != NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
