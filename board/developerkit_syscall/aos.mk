@@ -2,7 +2,7 @@ NAME := board_developerkit_syscall
 
 
 $(NAME)_MBINS_TYPE   := kernel
-$(NAME)_VERSION      := 0.0.1
+$(NAME)_VERSION      := 1.0.0
 $(NAME)_SUMMARY      := configuration for board developerkit_syscall
 SUPPORT_MBINS        := yes
 MODULE               := 1062
