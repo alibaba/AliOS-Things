@@ -8,7 +8,7 @@
 #include <string.h>
 #include <aos/aos.h>
 #include <hal/wifi.h>
-#include "aos/hal/hal.h"
+
 
 #include "activation.h"
 #include "chip_code.h"
