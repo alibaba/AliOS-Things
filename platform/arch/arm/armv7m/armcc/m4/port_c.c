@@ -4,17 +4,17 @@
 
 #include <k_api.h>
 
-void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size, void *arg,
-                          task_entry_t entry)
+void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
+                          void *arg, task_entry_t entry)
 {
     cpu_stack_t *stk;
-    uint32_t     temp = (uint32_t)(stack_base + stack_size);
+    uint32_t temp = (uint32_t)(stack_base + stack_size);
 
     /* stack aligned by 8 byte */
-    temp &= 0xfffffff8;
+    temp &= 0xfffffff8; 
     stk = (cpu_stack_t *)temp;
 
-    /* Exception stack frame with non-floating-point state  */
+    /* task context saved & restore by hardware: */
     *(--stk) = (cpu_stack_t)0x01000000L; /* xPSR: EPSR.T = 1, thumb mode   */
     *(--stk) = (cpu_stack_t)entry;       /* Entry Point                    */
     *(--stk) = (cpu_stack_t)krhino_task_deathbed; /* R14 (LR)              */
@@ -24,6 +24,7 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size, void *arg,
     *(--stk) = (cpu_stack_t)0x01010101L; /* R1                             */
     *(--stk) = (cpu_stack_t)arg;         /* R0 : argument                  */
 
+    /* task context saved & restore by software: */
     /* EXC_RETURN = 0xFFFFFFFDL
        Task begin state: Thread mode +  non-floating-point state + PSP */
     *(--stk) = (cpu_stack_t)0xFFFFFFFDL;
@@ -39,3 +40,4 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size, void *arg,
 
     return stk;
 }
+

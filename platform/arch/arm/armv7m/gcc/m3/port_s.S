@@ -1,10 +1,12 @@
 @******************************************************************************
 @                            EXTERN PARAMETERS
 @******************************************************************************
+#include <k_config.h>
 
 .extern  g_active_task
 .extern  g_preferred_ready_task
 .extern  krhino_stack_ovf_check
+.extern  krhino_task_sched_stats_get
 
 @******************************************************************************
 @                            EXPORT FUNCTIONS
@@ -127,7 +129,13 @@ PendSV_Handler:
     LDR     R1, [R1]
     STR     R0, [R1]
 
-    bl      krhino_stack_ovf_check
+#if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
+    BL      krhino_stack_ovf_check
+#endif
+#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    BL      krhino_task_sched_stats_get
+#endif
+
 .thumb_func
 _pendsv_handler_nosave:
     LDR     R0, =g_active_task
@@ -144,9 +152,6 @@ _pendsv_handler_nosave:
     @return stack = PSP
     MSR     PSP, R0
 
-    @after exception return: stack = PSP
-    ORR     LR, LR, #0x04
-    
     CPSIE   I
     @hardware restore R0~R3,R12,LR,PC,xPSR
     BX      LR
