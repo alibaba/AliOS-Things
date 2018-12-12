@@ -1,28 +1,45 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
+;
+; Copyright (C) 2015-2017 Alibaba Group Holding Limited
+;
 
 #include <k_config.h>
 #include <k_default_config.h>
 #include <aux_config.h>
 #include <svc.h>
+#include <syscall_no.h>
 
-/**
- *   SVC exception description:
- *
- *   --------------------------------------------
- *   |  no  | description                       |
- *   --------------------------------------------
- *   | 0x02 | return to user task               |
- *   --------------------------------------------
- *   | 0x03 | syscall                           |
- *   --------------------------------------------
- *   |others| reserved                          |
- *   --------------------------------------------
- *
- *   svc no is defined in svc.h
- */
+;
+;  SVC exception description:
+;
+;  --------------------------------------------
+;  |  no  | description                       |
+;  --------------------------------------------
+;  | 0x03 | syscall                           |
+;  --------------------------------------------
+;  |others| reserved                          |
+;  --------------------------------------------
+;
+;  svc no is defined in svc.h
+;
 
+;**************************************************************
+;                  EXTERN SYMBOLS
+;**************************************************************
+
+    IMPORT exceptionHandler
+    IMPORT _context_restore
+    IMPORT syscall_tbl
+    IMPORT syscall_pre_debug
+    IMPORT syscall_post_debug
+
+;**************************************************************
+;                  EXPORT SYMBOLS
+;**************************************************************
+    EXPORT SVC_Handler
+
+;**************************************************************
+;                  DEFINES
+;**************************************************************
 #define USER_MODE       0x10
 #define FIQ_MODE        0x11
 #define IRQ_MODE        0x12
@@ -34,7 +51,7 @@
 
 #define FIQ_DIS         0x40
 #define IRQ_DIS         0x80
-#deinfe INT_DIS         FIQ_DIS | IRQ_DIS
+#define INT_DIS         (FIQ_DIS :OR: IRQ_DIS)
 
 #define REG_SPSR        0x00
 #define REG_R0          0x04
@@ -53,156 +70,197 @@
 #define REG_SP          0x38
 #define REG_LR          0x3c
 #define REG_PC          0x40
-
 #define REG_SIZE        0x44
 
-.syntax unified
-.file "svc.S"
+;***********************************************************
+;                  CODE GENERATION DIRECTIVES
+;***********************************************************
+    AREA ||.text||, CODE, READONLY, ALIGN=5
+    ALIGN 32
+    PRESERVE8
 
-/**********************************************
-*                        MACRO DEFINED
-**********************************************/
-/* ortex-A9, ARMv7 VFPv4-D16 */
-.macro POP_FP_REG reg
-    POP     {\reg}
-    /* Pop FPEXC. */
-    VMSR    FPEXC, \reg
-    VPOP    {D0-D15}
-    POP     {\reg}
-    /* Pop FPSCR. */
-    VMSR    FPSCR, \reg
-.endm
+;***********************************************************
+;                  MACRO DEFINED
+;***********************************************************
+; ortex-A9, ARMv7 VFPv4-D16
+    MACRO
+    POP_FP_REG $reg
+        POP     {$reg}          ; Pop FPEXC.
+        VMSR    FPEXC, $reg
+        POP     {$reg}          ; Pop FPSCR.
+        VMSR    FPSCR, $reg
+    IF :DEF:TARGET_FEATURE_NEON
+        VPOP    {Q0-Q7}
+        VPOP    {Q8-Q15}
+    ELSE
+        VPOP    {D0-D15}
+    ENDIF
+    MEND
 
-.macro PUSH_FP_REG reg
-    /* Save FPSCR. */
-    VMRS    \reg, FPSCR
-    /* Save floating-point registers. */
-    PUSH    {\reg}
-    VPUSH   {D0-D15}
-    /* Save FPEXC. */
-    VMRS    \reg, FPEXC
-    PUSH    {\reg}
-.endm
+    MACRO
+    PUSH_FP_REG $reg
+    IF :DEF: TARGET_FEATURE_NEON
+        VPUSH   {Q8-Q15}
+        VPUSH   {Q0-Q7}
+    ELSE
+        VPUSH   {D0-D15}        ; Save floating-point registers.
+    ENDIF
+        VMRS    $reg, FPSCR     ; Save FPSCR.
+        PUSH    {$reg}
+        VMRS    $reg, FPEXC     ; Save FPEXC.
+        PUSH    {$reg}
+    MEND
 
-.macro getcoreid reg
-    mrc   p15, 0, \reg, c0, c0, 5
-    and   \reg, \reg, #3
-.endm
+;***********************************************************
+; Functions:
+;       void SVC_Handler(void);
+;***********************************************************
+SVC_Handler
+    ; which stack are we running on???
+    ; we are using the task's stack which was set
+    ; when task are scheded in.
 
-.extern syscall_tbl
+    ; save {SPSR, R0 ... R12, SP, LR, PC}
+    SUB     SP, SP, #(REG_SIZE - 4)
+    STMIA   SP, {R0-R12}
+    MRS     R2, SPSR
+    PUSH    {R2}
+    ;       {SPSR, R0 ... R12} is done
 
-.text
-.global SVC_Handler
-.type SVC_Handler, function
-SVC_Handler:
-    /* which stack are we running on???
-     * we are using the task's kstack which was set
-     * when task are scheded in.
-     */
+    MOV     R4, SP
+    ADD     R1, R4, #REG_SP
+    AND     R2, R2, #MODE_MASK
+    CMP     R2, #USER_MODE
+    BNE     _svc_enter_svc
 
-    /* {spsr, r0 ... r12, sp, lr, pc} */
-    sub     sp, sp, #(REG_SIZE - REG_R0)
-    stmia   sp, {r0-r12}
-    mrs     r2, spsr
-    push    {r2}
-    /*       {spsr, r0 ... r12} is done */
+    ; come from user mode, save user mode SP and LR
+    STMIA   R1, {SP, LR}^
+    ADD     R1, R1, #8     ; none wirte back allowed on arm
+    B       _store_pc
 
-    mov     r4, sp
-    add     r1, sp, #REG_SP
-    and     r2, r2, #MODE_MASK
-    cmp     r2, #USER_MODE
-    bne     .svc_enter_svc
+_svc_enter_svc
+    ; save svc mode SP and LR
+    ADD     R2, R4, #REG_SIZE
+    STMIA   R1!, {R2, LR}
 
-    /* come from user mode */
-    /* save user mode sp and lr */
-    stmia   r1!, {sp, lr}^
-    b       .store_pc
+_store_pc
+    ;      stroe LR as PC
+    STMIA   R1!, {LR}
 
-.svc_enter_svc:
-    /* save svc mode sp and lr */
-    add     r2, r4, #REG_SIZE
-    stmia   r1!, {r2, lr}
+    IF  {FPU} != "SoftVFP"
+        ; Push task fpu register.
+        PUSH_FP_REG R1
+        ;#endif
+    ENDIF
 
-.store_pc:
-    /* stroe lr as pc */
-    stmia   r1!, {lr}
+    ; align stack to 8 bytes
+    MOV     R5, SP
+    BIC     SP, SP, #0x07
 
-#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    /* Push task fpu register. */
-    PUSH_FP_REG r1
-#endif
+    IF (CONFIG_SYSCALL_DEBUG > 0)
+        ; syscall pre debug
+        MOV     R0, R5
+        BL      syscall_pre_debug
+    ENDIF
 
-    /* get svc intruction */
-    ldr     r1, [r4, #REG_PC]
-    sub     r1, r1, #4
-    ldrh    r1, [r1]
-    cmp     r1, #SVC_syscall
-    beq     .svc_syscall
+    ; get svc intruction
+    LDR     R1, [R4, #REG_PC]
+    ; judge arm or thumb2 instruction
+    LDR     R2, [R4, #REG_SPSR]
+    TST     R2, #0x20
+    SUBEQ   R1, R1, #4
+    SUBNE   R1, R1, #2
+    LDRHEQ  R1, [R1]
+    LDRBNE  R1, [R1]
+    CMP     R1, #SVC_syscall
+    BNE     _svc_exception
 
-.bad_svc_no:
-    b       .bad_svc_no
+_svc_syscall
+    ; enable interrput
+    MRS     R1, CPSR
+    BIC     R1, #IRQ_DIS
+    MSR     CPSR_c, R1
 
-.svc_syscall:
-    /* enable interrput */
-    mrs     r1, cpsr
-    bic     r1, #IRQ_DIS
-    msr     cpsr_c, r1
+    ; prepare args for _do_syscall
+    LDR     R0, [R4, #REG_R0]
+    LDR     R1, [R4, #REG_R1]
+    BL      _do_syscall
+    ; save syscall return data
+    STR     R0, [R4, #REG_R0]
+    STR     R1, [R4, #REG_R1]
 
-    ldr     r0, [r4, #REG_R0]
-    ldr     r1, [r4, #REG_R1]
-    /* align the stack to 8 bytes */
-    mov     r5, sp
-    push    {r5}
-    bic     sp, sp, #0x07
-    bl      do_syscall
-    pop     {r5}
-    mov     sp, r5
-    str     r0, [r4, #REG_R0]
-    str     r1, [r4, #REG_R1]
+    ; disable interrupt
+    MRS     R1, CPSR
+    ORR     R1, R1, #IRQ_DIS
+    MSR     CPSR_c, R1
 
-#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    /* Pop task fpu register. */
-    POP_FP_REG r1
-#endif
+    ; restore SP
+    MOV     SP, R5
 
-    pop     {r0}
-    msr     spsr, r0
+    IF (CONFIG_SYSCALL_DEBUG > 0)
+        ; syscall post debug
+        MOV     R0, SP
+        BL      syscall_post_debug
+    ENDIF
 
-    and     r0, r0, #MODE_MASK
-    cmp     r0, #USER_MODE
-    bne     .ret_to_svc
+    IF  {FPU} != "SoftVFP"
+        ; Pop task fpu register.
+        POP_FP_REG R1
+    ENDIF
 
-    /* return to user mode */
-    /* need disable interrupt??? */
-    mrs     r1, cpsr
-    orr     r1, r1, #IRQ_DIS
-    msr     cpsr_c, r1
+    POP     {R0}
+    MSR     SPSR, R0
 
-    mov     lr, sp
-    add     sp, sp, #0x40
-    ldmia   lr!, {r0-r12}
-    ldmia   lr, {sp, lr}^
-    add     lr, lr, #0x08
-    ldmia   lr, {pc}^
+    AND     R0, R0, #MODE_MASK
+    CMP     R0, #USER_MODE
+    BNE     _ret_to_svc
 
-.ret_to_svc:
-    /* don't worry sp is not poped properly,
-     * new sp will be restored to svc mode
-     */
-    ldmia   sp, {r0-r15}^
+    ; return to user mode
+    MOV     LR, SP
+    ADD     SP, SP, #(REG_SIZE - 4)
+    LDMIA   LR!, {R0-R12}
+    LDMIA   LR, {SP, LR}^
+    ADD     LR, LR, #0x08
+    LDMIA   LR, {PC}^
 
-.size SVC_Handler, .-SVC_Handler
+_ret_to_svc
+    ; don't worry SP is not poped properly,
+    ; new SP will be restored to svc mode
+    LDMIA   SP, {R0-R15}^
 
-.text
-.type do_syscall, function
-do_syscall:
-    push    {ip, lr}
-    ldr     ip, =syscall_tbl
-    ldr     ip, [ip, r0, lsl #2]
-    mov     r0, r1
-    blx     ip
+;***********************************************************
+; Functions:
+;     static unsigned long long _do_syscall(int syscall_no, void *arg);
+;***********************************************************
+_do_syscall
+    PUSH    {IP, LR}
+    CMP     R0, #MAX_SYSCALL_NO
+    BGT     _bad_syscall
+    LDR     IP, =syscall_tbl
+    LDR     IP, [IP, R0, LSL #2]
+    MOV     R0, R1
+    CMP     IP, #0x0
+    BEQ     _bad_syscall
+    BLX     IP
+    POP     {IP, PC}
 
-    pop     {ip, pc}
+_bad_syscall
+    ; disable interrupt
+    MRS     R1, CPSR
+    ORR     R1, R1, #IRQ_DIS
+    MSR     CPSR_c, R1
+    ADD     SP, #0x08
 
-.size do_syscall, .-do_syscall
+_svc_exception
+    LDR     R2, [R4, #REG_SP]
+    ; set SWI exception
+    MOV     R0, #0x02
+    PUSH    {R0, R2}
+    MOV     R0, SP
+
+    BL      exceptionHandler
+    MOV     SP, R5
+    BL      _context_restore
+
+    END
 
