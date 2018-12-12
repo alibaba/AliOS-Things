@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include "py/mpconfig.h"
 #include "py/runtime.h"
-#include "aos/hal/hal.h"
+
 #include <k_api.h>
 
 /*
