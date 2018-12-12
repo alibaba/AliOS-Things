@@ -620,7 +620,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen,
         goto err;
     }
 
-    if (at_write(sendbuf, (uint8_t *) databuf, strlen(sendbuf), datalen) != 0) {
+    if (atcmd_write(sendbuf, (uint8_t *) databuf, strlen(sendbuf), datalen) != 0) {
         LOGE(TAG, "Error send msg fail\r\n");
         goto err;
     }
@@ -960,7 +960,7 @@ int atcmd_cip_start()
     }
 
     // Eat '='
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single) {
         LOGE(TAG, "Invalid cip start prefix %c !", single);
         goto err;
@@ -1195,7 +1195,7 @@ int at_cip_send()
     }
 
     // Eat '='
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single) {
         LOGE(TAG, "Invalid cip send prefix %c !", single);
         goto err;
@@ -1249,7 +1249,7 @@ int at_cip_send()
         goto err;
     }
 
-    if ((readsize = at_read(recvdata, datalen)) <= 0) {
+    if ((readsize = atcmd_read(recvdata, datalen)) <= 0) {
         LOGE(TAG, "Error at read data \r\n");
         goto err;
     }
@@ -1318,7 +1318,7 @@ int atcmd_cip_stop()
     }
 
     // Eat '='
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single) {
         LOGE(TAG, "Invalid cip start prefix %c !", single);
         goto err;
@@ -1364,7 +1364,7 @@ int atcmd_cip_auto_connect()
     }
 
     // Eat '='
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single) {
         LOGE(TAG, "Invalid cip start prefix %c !", single);
         goto err;
@@ -1380,7 +1380,7 @@ int atcmd_cip_auto_connect()
     }
 
     // set bit
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if (single != '0' && single != '1') {
         LOGE(TAG, "Invalid auto connect set %c !!!\r\n", single);
         goto err;
@@ -1430,7 +1430,7 @@ int atcmd_cip_domain_dns()
     }
 
     // Eat '='
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
     if ('=' != single) {
         LOGE(TAG, "Invalid cip start prefix %c !", single);
         goto err;
@@ -1559,21 +1559,21 @@ static atcmd_hdl_ptr_t get_atcmd_cip_handler()
     int         index = -1;
 
     // Eat "IP"
-    at_read(prefix, strlen(cmd_prefix));
+    atcmd_read(prefix, strlen(cmd_prefix));
     if (memcmp(prefix, cmd_prefix, strlen(cmd_prefix)) != 0) {
         LOGE(TAG, "invalid cip prefix %s\n", prefix);
         return NULL;
     }
 
-    at_read(&single, 1);
+    atcmd_read(&single, 1);
 
     switch (single) {
         case 'S':
-            at_read(prefix, 3);
+            atcmd_read(prefix, 3);
 
             if (memcmp(prefix, "TAR", 3) == 0) {
                 // Eat 'T'
-                at_read(&single, 1);
+                atcmd_read(&single, 1);
                 index = ATCMD_CIP_START;
             } else if (memcmp(prefix, "TOP", 3) == 0) {
                 index = ATCMD_CIP_STOP;
@@ -1586,13 +1586,13 @@ static atcmd_hdl_ptr_t get_atcmd_cip_handler()
 
         case 'D':
             // Eat "OMAIN"
-            at_read(prefix, 5);
+            atcmd_read(prefix, 5);
             index = ATCMD_CIP_DOMAIN;
             break;
 
         case 'A':
             // Eat "UTOCONN"
-            at_read(prefix, 7);
+            atcmd_read(prefix, 7);
             index = ATCMD_CIP_AUTOCONN;
             break;
 
