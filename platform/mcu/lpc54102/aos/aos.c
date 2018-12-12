@@ -7,6 +7,10 @@
 #include "fsl_gpio.h"
 
 #include "pin_mux.h"
+
+#include "aos/hal/i2c.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/spi.h"
  
 #include <aos/aos.h>
 #include <k_api.h>
@@ -14,7 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "aos/hal/soc.h"
+
+#include "aos/hal/i2c.h"
+
 #include "hal/wifi.h"
 
 #define AOS_START_STACK 1536
@@ -146,7 +152,7 @@ static void platform_init(void)
 
 #include <k_api.h>
 #include <aos/log.h>
-#include "aos/hal/soc.h"
+
 #include "aos/hal/timer.h"
 #include "network/hal/base.h"
 #include <hal/wifi.h>

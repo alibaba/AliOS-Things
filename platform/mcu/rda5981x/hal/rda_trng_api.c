@@ -1,5 +1,5 @@
 #include "rda_dma.h"
-#include "aos/hal/soc.h"
+
 #include "rda5981.h"
 
 #ifdef RDA_HW_ACCELERATE_ENABLE

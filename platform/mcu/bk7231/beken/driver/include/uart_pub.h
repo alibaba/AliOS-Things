@@ -2,7 +2,7 @@
 #define _UART_PUB_H
 
 #include <stdio.h>
-#include "aos/hal/soc.h"
+
 
 #if CFG_RELEASE_FIRMWARE
 #define os_printf                       os_null_printf

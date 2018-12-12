@@ -3,7 +3,8 @@
  */
 
 //#include "platform_peripheral.h"
-#include "aos/hal/soc.h"
+
+#include "aos/hal/flash.h"
 #include "board.h"
 #include "flash_api.h"
 #include "hal_platform.h"

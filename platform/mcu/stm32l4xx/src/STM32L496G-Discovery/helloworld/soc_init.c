@@ -40,7 +40,7 @@
 #include "soc_init.h"
 #include "k_config.h"
 #include "stm32l4xx_hal.h"
-#include "aos/hal/soc.h"
+
 
 
 #if defined (__CC_ARM) && defined(__MICROLIB)

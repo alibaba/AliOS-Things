@@ -7,8 +7,8 @@
 #include <errno.h>
 #include <k_api.h>
 #include <aos/aos.h>
-#include "aos/hal/hal.h"
-#include "aos/hal/soc.h"
+
+#include "aos/hal/spi.h"
 
 #include "fsl_device_registers.h"
 #include "fsl_common.h"

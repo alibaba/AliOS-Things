@@ -101,7 +101,7 @@ int main( void )
     return 0;
 }
 
-#include "aos/hal/soc.h"
+
 
 uart_dev_t uart_0;
 

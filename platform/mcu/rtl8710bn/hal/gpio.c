@@ -29,10 +29,11 @@
 ******************************************************************************
 */ 
 
+#include "aos/hal/gpio.h"
 #include "PinNames.h"
 #include "objects.h"
 #include "gpio_irq_api.h"
-#include "aos/hal/soc.h"
+
 
 const static uint8_t gpio_remap[] =
 {

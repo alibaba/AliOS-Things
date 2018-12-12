@@ -8,7 +8,7 @@
 
 #include <k_api.h>
 #include <aos/log.h>
-#include "aos/hal/soc.h"
+
 #include "aos/hal/timer.h"
 #include "network/hal/base.h"
 #include <hal/wifi.h>

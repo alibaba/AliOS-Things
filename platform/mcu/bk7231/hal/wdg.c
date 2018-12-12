@@ -2,7 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "aos/hal/soc.h"
+
+#include "aos/hal/wdg.h"
+
 #include "rtos_pub.h"
 #include "wdt_pub.h"
 #include "icu_pub.h"

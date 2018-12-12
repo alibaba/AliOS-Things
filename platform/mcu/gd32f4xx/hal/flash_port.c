@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+
 #include "gd32f4xx_fmc.h"
 #include <stdio.h>
 #include <string.h>

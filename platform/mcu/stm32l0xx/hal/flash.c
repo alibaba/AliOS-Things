@@ -1,7 +1,8 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#include "aos/hal/soc.h"
+
+#include "aos/hal/flash.h"
 #include "stm32l0xx.h"
 #include "stm32l0xx_hal_flash.h"
 

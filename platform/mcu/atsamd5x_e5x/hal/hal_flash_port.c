@@ -1,4 +1,6 @@
-#include "aos/hal/soc.h"
+
+#include "aos/hal/flash.h"
+
 #include <atmel_start.h>
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))

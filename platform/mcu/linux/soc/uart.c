@@ -14,7 +14,8 @@
 #include <cpu_event.h>
 #include <pthread.h>
 #include <signal.h>
-#include "aos/hal/soc.h"
+
+#include "aos/hal/uart.h"
 
 #ifdef OSAL_RHINO
 #include <k_api.h>

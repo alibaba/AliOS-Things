@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 #include "stm32f4xx_hal.h"
-#include "aos/hal/soc.h"
+
 
 #if defined(STM32L496xx)
 #include "stm32l496xx.h"

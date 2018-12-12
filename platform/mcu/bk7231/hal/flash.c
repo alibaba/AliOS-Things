@@ -2,7 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "aos/hal/soc.h"
+#include "aos/hal/flash.h"
+#include "aos/hal/wdg.h"
 #include "rtos_pub.h"
 #include "drv_model_pub.h"
 #include "flash_pub.h"

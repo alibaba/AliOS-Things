@@ -2,7 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "aos/hal/soc.h"
+
+#include "aos/hal/wdg.h"
 #include "wdt_api.h"
 
 #ifndef TRUE

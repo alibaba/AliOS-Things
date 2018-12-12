@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "aos/hal/soc.h"
+#include "aos/hal/uart.h"
 #include <hal/wifi.h>
 #include <aos/aos.h>
 #include <sdkconfig.h>

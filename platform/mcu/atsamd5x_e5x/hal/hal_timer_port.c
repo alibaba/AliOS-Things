@@ -5,9 +5,13 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "aos/hal/timer.h"
+
 #include <atmel_start.h>
+
 #include "soc_init.h"
-#include "aos/hal/soc.h"
+
 
 #define us2tick(us) \
     ((us * RHINO_CONFIG_TICKS_PER_SECOND + 999999) / 1000000)

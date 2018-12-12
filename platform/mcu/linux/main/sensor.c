@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 #include <errno.h>
-#include "aos/hal/hal.h"
+
 #include "aos/aos.h"
 
 static const char *TAG      = "yoc_sensor";

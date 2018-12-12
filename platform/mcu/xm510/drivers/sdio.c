@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+
 #include <assert.h>
 #include "board.h"
 #include "arasan.h"

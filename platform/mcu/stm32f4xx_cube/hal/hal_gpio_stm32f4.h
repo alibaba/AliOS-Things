@@ -14,8 +14,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+
+#include "aos/hal/gpio.h"
 #include "aos/kernel.h"
-#include "aos/hal/hal.h"
+
 #include "board.h"
 
 typedef struct{ 

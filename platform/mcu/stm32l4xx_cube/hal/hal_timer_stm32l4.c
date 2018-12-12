@@ -5,7 +5,9 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "aos/hal/hal.h"
+
+#include "aos/hal/timer.h"
+
 #include "stm32l4xx_hal.h"
 #include "hal_timer_stm32l4.h"
 #include "stm32l4xx_hal_adc.h"

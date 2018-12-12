@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "aos/hal/soc.h"
+
 #include "hal/cntr.h"
 
 #include "common/log.h"

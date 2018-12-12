@@ -48,7 +48,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "board.h"
 #include "soc_init.h"
-#include "aos/hal/soc.h"
+
+#include "aos/hal/gpio.h"
+#include "aos/hal/spi.h"
+#include "aos/hal/uart.h"
 #include "aos/kernel.h"
 #include "k_api.h"
 #include "errno.h"
