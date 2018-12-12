@@ -2,10 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <stddef.h>
 #include <stdint.h>
 
-#include "aos/hal/soc.h"
-
+#include "aos/hal/wdg.h"
 #include "vfs_api.h"
 
 /* cmd for ioctl */
