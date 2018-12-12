@@ -2,6 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#include <string.h>
+
 #include <aos/aos.h>
 
 #include "at_util.h"
