@@ -3,8 +3,9 @@
  */
 
 #include <stdint.h>
-#include "aos/hal/hal.h"
+
 #include "k_config.h"
+#include "aos/hal/uart.h"
 #include "board.h"
 
 #include "stm32l4xx_hal.h"

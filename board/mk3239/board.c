@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+
 #include <aos/kernel.h>
 #include "platform_bluetooth.h"
 

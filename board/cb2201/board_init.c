@@ -23,12 +23,12 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "drv_usart.h"
-#include "aos/hal/soc.h"
+
 #include <csi_core.h>
 #include <csi_config.h>
 #include "pin.h"
 
-#include "aos/hal/soc.h"
+#include <aos/hal/flash.h>
 #include <aos/kernel.h>
 
 extern usart_handle_t console_handle;
