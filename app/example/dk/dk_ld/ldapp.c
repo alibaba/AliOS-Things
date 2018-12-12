@@ -19,7 +19,7 @@
 #include <netmgr.h>
 #include <aos/cli.h>
 
-#include "aos/hal/hal.h"
+
 #include "sensor.h"
 
 #ifdef LITTLEVGL_DISPLAY
