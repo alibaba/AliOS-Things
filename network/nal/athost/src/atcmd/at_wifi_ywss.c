@@ -27,6 +27,9 @@ static void extract_frame_info(uint8_t *data, int len, frame_info_t *info)
 #define MONITOR_PKT_MAX_LEN 2000
 #endif
 
+static const char *at_ok_str = "\r\nOK\r\n";
+static const char *at_err_str = "\r\nERROR\r\n";
+
 /**
  * YWSS monitor AT data event:
  *    +YEVENT:rssi,len,data
@@ -42,14 +45,18 @@ static void monitor_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
         return;
     }
 
-    at.send_data_3stage_no_rsp(header, data, len, NULL);
+    if (atcmd_write(header, data, strlen(header), len) != 0) {
+        LOGE(TAG, "uart send packet header failed");
+        return;
+    }
 }
 
 static int at_ywss_start_monitor()
 {
-    LOGD(TAG, "hello %s\r\n", __func__);
-    at.send_raw_no_rsp("\r\nOK\r\n");
-    at.send_raw_no_rsp("\r\n+YEVENT:MONITOR_UP\r\n");
+    char *at_moinit_up_str = "\r\n+YEVENT:MONITOR_UP\r\n";
+
+    atcmd_write(at_ok_str, NULL, strlen(at_ok_str), 0);
+    atcmd_write(at_moinit_up_str, NULL, strlen(at_moinit_up_str), 0)
     aos_msleep(200);
     hal_wifi_register_monitor_cb(NULL, monitor_cb);
     hal_wifi_start_wifi_monitor(NULL);
@@ -57,11 +64,12 @@ static int at_ywss_start_monitor()
 
 static int at_ywss_stop_monitor()
 {
-    LOGD(TAG, "hello %s\r\n", __func__);
-    at.send_raw_no_rsp("\r\nOK\r\n");
+    char *at_moinit_down_str = "\r\n+YEVENT:MONITOR_DOWN\r\n";
+
+    atcmd_write(at_ok_str, NULL, strlen(at_ok_str), 0);
     hal_wifi_register_monitor_cb(NULL, NULL);
     hal_wifi_stop_wifi_monitor(NULL);
-    at.send_raw_no_rsp("\r\n+YEVENT:MONITOR_DOWN\r\n");
+    atcmd_write(at_moinit_down_str, NULL, strlen(at_moinit_down_str), 0);
 }
 
 static int at_ywss_set_channel()
@@ -73,10 +81,10 @@ static int at_ywss_set_channel()
     LOGD(TAG, "hello %s entry\r\n", __func__);
 
     while (1) {
-        at_read(&c, 1);
+        atcmd_read(&c, 1);
         if (c == sdelmiter[0]) {
             if (strlen(AT_SEND_DELIMITER) > 1) {
-                at_read(tmp, strlen(AT_SEND_DELIMITER) - 1);
+                atcmd_read(tmp, strlen(AT_SEND_DELIMITER) - 1);
                 if (memcmp(tmp, &sdelmiter[1], strlen(AT_SEND_DELIMITER) - 1) !=
                     0) {
                     LOGE(TAG,
@@ -102,9 +110,9 @@ static int at_ywss_set_channel()
     if (doswitch) {
         LOGD(TAG, "channel to switch to %d", ch);
         hal_wifi_set_channel(NULL, ch);
-        at.send_raw_no_rsp("\r\nOK\r\n");
+        atcmd_write(at_ok_str, NULL, strlen(at_ok_str), 0);
     } else {
-        at.send_raw_no_rsp("\r\nERROR\r\n");
+        atcmd_write(at_err_str, NULL, strlen(at_err_str), 0);
     }
 
     LOGD(TAG, "hello %s exit\r\n", __func__);
@@ -115,9 +123,9 @@ static int at_ywss_suspend_sta()
     int ret = hal_wifi_suspend_station(NULL);
 
     if (ret == 0) {
-        at.send_raw_no_rsp("\r\nOK\r\n");
+        atcmd_write(at_ok_str, NULL, strlen(at_ok_str), 0);
     } else {
-        at.send_raw_no_rsp("\r\nERROR\r\n");
+        atcmd_write(at_err_str, NULL, strlen(at_err_str), 0);
     }
 }
 
@@ -159,7 +167,7 @@ static atcmd_hdl_ptr_t get_atcmd_ywss_handler()
     index += len;
 
     len = strlen("WSS");
-    at_read(prefix + index, len);
+    atcmd_read(prefix + index, len);
     if (strcmp(prefix + index, "WSS") != 0) {
         LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
         return NULL;
@@ -168,17 +176,17 @@ static atcmd_hdl_ptr_t get_atcmd_ywss_handler()
 
     len    = 1;
     single = prefix + index;
-    at_read(single, len);
+    atcmd_read(single, len);
     switch (*single) {
         case 'S':
             index += len;
             len = 3;
-            at_read(prefix + index, len);
+            atcmd_read(prefix + index, len);
             if (strcmp(prefix + index, "TOP") == 0) { /* AT+YWSSSTOPMONITOR */
                 index += len;
 
                 len = strlen("MONITOR" AT_SEND_DELIMITER);
-                at_read(prefix + index, len);
+                atcmd_read(prefix + index, len);
                 if (strcmp(prefix + index, "MONITOR" AT_SEND_DELIMITER) != 0) {
                     LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
                     break;
@@ -191,7 +199,7 @@ static atcmd_hdl_ptr_t get_atcmd_ywss_handler()
                 index += len;
 
                 len = strlen("TMONITOR" AT_SEND_DELIMITER);
-                at_read(prefix + index, len);
+                atcmd_read(prefix + index, len);
                 if (strcmp(prefix + index, "TMONITOR" AT_SEND_DELIMITER) != 0) {
                     LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
                     break;
@@ -204,7 +212,7 @@ static atcmd_hdl_ptr_t get_atcmd_ywss_handler()
                 index += len;
 
                 len = strlen("HANNEL,");
-                at_read(prefix + index, len);
+                atcmd_read(prefix + index, len);
                 if (strcmp(prefix + index, "HANNEL,") != 0) {
                     LOGE(TAG, "invalid cmd prefix found (%s)", prefix);
                     break;
@@ -217,7 +225,7 @@ static atcmd_hdl_ptr_t get_atcmd_ywss_handler()
                 index += len;
 
                 len = strlen("ENDSTATION" AT_SEND_DELIMITER);
-                at_read(prefix + index, len);
+                atcmd_read(prefix + index, len);
                 if (strcmp(prefix + index, "ENDSTATION" AT_SEND_DELIMITER) !=
                     0) {
                     LOGE(TAG, "invalid cmd prefix found (%s)", prefix);

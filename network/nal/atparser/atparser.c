@@ -8,6 +8,7 @@
 
 #include <aos/aos.h>
 #include "atparser.h"
+#include "atparser_internal.h"
 
 #ifdef CENTRALIZE_MAPPING
 #include "board.h"
@@ -18,19 +19,6 @@
 #endif
 
 #define MODULE_NAME            "atparser"
-#define TASK_DEFAULT_WAIT_TIME 5000
-
-#ifndef AT_WORKER_STACK_SIZE
-#define AT_WORKER_STACK_SIZE   1024
-#endif
-
-#ifndef AT_WORKER_PRIORITY
-#define AT_WORKER_PRIORITY     AOS_DEFAULT_APP_PRI
-#endif
-
-#ifndef AT_UART_TIMEOUT_MS
-#define AT_UART_TIMEOUT_MS     1000
-#endif
 
 static uint8_t    inited = 0;
 static uart_dev_t at_uart;
@@ -39,6 +27,9 @@ static uart_dev_t at_uart;
 static encode_context_t hdlc_encode_ctx;
 static decode_context_t hdlc_decode_ctx;
 #endif
+
+static at_parser_t at = { ._oobs     = { { 0 } },
+                          ._oobs_num = 0};
 
 static void at_worker(void *arg);
 
@@ -141,7 +132,7 @@ static int at_worker_uart_send_mutex_init()
     return 0;
 }
 
-static void at_worker_uart_send_mutex_uinit()
+static void at_worker_uart_send_mutex_deinit()
 {
     if (aos_mutex_is_valid(&at.at_uart_send_mutex)) {
         aos_mutex_free(&at.at_uart_send_mutex);
@@ -197,7 +188,7 @@ int at_init()
                          AT_WORKER_PRIORITY) != 0) {
         at_deinit_uart_recv_mutex();
         at_deinit_task_mutex();
-        at_worker_uart_send_mutex_uinit();
+        at_worker_uart_send_mutex_deinit();
         LOGE(MODULE_NAME, "fail to creat at task\r\n");
         return -1;
     }
@@ -234,6 +225,157 @@ static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
 #endif
 
     return ret;
+}
+
+static int at_worker_task_add(at_task_t *tsk)
+{
+    if (NULL == tsk) {
+        LOGE(MODULE_NAME, "invalid input %s \r\n", __func__);
+        return -1;
+    }
+
+    aos_mutex_lock(&at.task_mutex, AOS_WAIT_FOREVER);
+    slist_add_tail(&tsk->next, &at.task_l);
+    aos_mutex_unlock(&at.task_mutex);
+
+    return 0;
+}
+
+static int at_worker_task_del(at_task_t *tsk)
+{
+    if (NULL == tsk) {
+        LOGE(MODULE_NAME, "invalid input %s \r\n", __func__);
+        return -1;
+    }
+
+    aos_mutex_lock(&at.task_mutex, AOS_WAIT_FOREVER);
+    slist_del(&tsk->next, &at.task_l);
+    aos_mutex_unlock(&at.task_mutex);
+    if (aos_sem_is_valid(&tsk->smpr)) {
+        aos_sem_free(&tsk->smpr);
+    }
+    if (tsk) {
+        aos_free(tsk);
+    }
+
+    return 0;
+}
+
+int at_send_wait_reply(const char *data, int datalen, bool delimiter,
+                       char *replybuf, int bufsize,
+                       const atcmd_config_t *atcmdconfig)
+{ 
+    int ret = 0;
+
+    if (inited == 0) {
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+
+    if (NULL == data || datalen <= 0) {
+        LOGE(MODULE_NAME, "%s invalid input \r\n", __FUNCTION__);
+        return -1;
+    }
+
+    if (NULL == replybuf || 0 == bufsize) {
+        LOGE(MODULE_NAME, "%s invalid input \r\n", __FUNCTION__);
+        return -1;
+    }
+
+    at_task_t *tsk = (at_task_t *)aos_malloc(sizeof(at_task_t));
+    if (NULL == tsk) {
+        LOGE(MODULE_NAME, "tsk buffer allocating failed");
+        return -1;
+    }
+    memset(tsk, 0, sizeof(at_task_t));
+
+    if ((ret = aos_sem_new(&tsk->smpr, 0)) != 0) {
+        LOGE(MODULE_NAME, "failed to allocate semaphore");
+        goto end;
+    }
+
+    if (atcmdconfig) {
+        if (NULL != atcmdconfig->reply_prefix) {
+            tsk->rsp_prefix     = atcmdconfig->reply_prefix;
+            tsk->rsp_prefix_len = strlen(atcmdconfig->reply_prefix);
+        }
+
+        if (NULL != atcmdconfig->reply_success_postfix) {
+            tsk->rsp_success_postfix     = atcmdconfig->reply_success_postfix;
+            tsk->rsp_success_postfix_len = strlen(atcmdconfig->reply_success_postfix);
+        }
+
+        if (NULL != atcmdconfig->reply_fail_postfix) {
+            tsk->rsp_fail_postfix     = atcmdconfig->reply_fail_postfix;
+            tsk->rsp_fail_postfix_len = strlen(atcmdconfig->reply_fail_postfix);
+        }
+    }
+
+    tsk->command = (char *)data;
+    tsk->rsp     = replybuf;
+    tsk->rsp_len = bufsize;
+
+    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
+    at_worker_task_add(tsk);
+
+    if ((ret = at_sendto_lower(at._pstuart, (void *)data, datalen,
+                               at._timeout, true)) != 0) {
+        LOGE(MODULE_NAME, "uart send command failed");
+        goto end;
+    }
+
+    if (delimiter) {
+        if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
+                    strlen(at._send_delimiter), at._timeout, false)) != 0) {
+            LOGE(MODULE_NAME, "uart send delimiter failed");
+            goto end;
+        }
+    }
+
+    if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
+        LOGE(MODULE_NAME, "sem_wait failed");
+        goto end;
+    }
+
+end:
+    at_worker_task_del(tsk);
+    aos_mutex_unlock(&at.at_uart_send_mutex);
+    return ret;
+}
+
+int at_send_no_reply(const char *data, int datalen, bool delimiter)
+{
+    int ret;
+
+    if (inited == 0) {
+        LOGE(MODULE_NAME, "at have not init yet\r\n");
+        return -1;
+    }
+
+    if (NULL == data || datalen <= 0) {
+        LOGE(MODULE_NAME, "invalid input \r\n");
+        return -1;
+    }
+
+    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
+    if ((ret = at_sendto_lower(at._pstuart, (void *)data,
+                               datalen, at._timeout, true)) != 0) {
+        LOGE(MODULE_NAME, "uart send raw content (%s) failed", data);
+        aos_mutex_unlock(&at.at_uart_send_mutex);
+        return -1;
+    }
+
+    if (delimiter) {
+        if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
+                    strlen(at._send_delimiter), at._timeout, false)) != 0) {
+            LOGE(MODULE_NAME, "uart send delimiter failed");
+            aos_mutex_unlock(&at.at_uart_send_mutex);
+            return -1;
+        }
+    }
+    aos_mutex_unlock(&at.at_uart_send_mutex);
+
+    return 0;
 }
 
 static int at_getc(char *c)
@@ -275,28 +417,7 @@ static int at_getc(char *c)
     }
 }
 
-static int at_write(const char *data, int size)
-{
-    int ret = 0;
-
-    if (inited == 0) {
-        LOGE(MODULE_NAME, "at have not init yet\r\n");
-        return -1;
-    }
-
-    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
-    ret = at_sendto_lower(at._pstuart, (void *)data, size,
-                         AOS_WAIT_FOREVER, true);
-    aos_mutex_unlock(&at.at_uart_send_mutex);
-
-    if (ret != 0) {
-        return -1;
-    }
-
-    return size;
-}
-
-static int at_read(char *data, int size)
+int at_read(char *outbuf, int readsize)
 {
     int      ret = 0;
     uint32_t recv_size, total_read = 0;
@@ -307,9 +428,9 @@ static int at_read(char *data, int size)
     }
 
     aos_mutex_lock(&at.at_uart_recv_mutex, AOS_WAIT_FOREVER);
-    while (total_read < size) {
-        ret = at_recvfrom_lower(at._pstuart, (void *)(data + total_read),
-                               size - total_read, &recv_size, at._timeout);
+    while (total_read < readsize) {
+        ret = at_recvfrom_lower(at._pstuart, (void *)(outbuf + total_read),
+                                readsize - total_read, &recv_size, at._timeout);
         if (ret != 0) {
             LOGE(MODULE_NAME, "at_read failed on uart_recv.");
             break;
@@ -319,7 +440,7 @@ static int at_read(char *data, int size)
             continue;
         }
         total_read += recv_size;
-        if (total_read >= size) {
+        if (total_read >= readsize) {
             break;
         }
     }
@@ -332,239 +453,6 @@ static int at_read(char *data, int size)
     return total_read;
 }
 
-static int at_worker_task_add(at_task_t *tsk)
-{
-    if (NULL == tsk) {
-        LOGE(MODULE_NAME, "invalid input %s \r\n", __func__);
-        return -1;
-    }
-
-    aos_mutex_lock(&at.task_mutex, AOS_WAIT_FOREVER);
-    slist_add_tail(&tsk->next, &at.task_l);
-    aos_mutex_unlock(&at.task_mutex);
-
-    return 0;
-}
-
-static int at_worker_task_del(at_task_t *tsk)
-{
-    if (NULL == tsk) {
-        LOGE(MODULE_NAME, "invalid input %s \r\n", __func__);
-        return -1;
-    }
-
-    aos_mutex_lock(&at.task_mutex, AOS_WAIT_FOREVER);
-    slist_del(&tsk->next, &at.task_l);
-    aos_mutex_unlock(&at.task_mutex);
-    if (aos_sem_is_valid(&tsk->smpr)) {
-        aos_sem_free(&tsk->smpr);
-    }
-    if (tsk) {
-        aos_free(tsk);
-    }
-
-    return 0;
-}
-
-static int at_send_raw_self_define_respone_formate_internal(
-  const char *command, uint32_t cmdlen, char *rsp, uint32_t rsplen,
-  char *rsp_prefix, char *rsp_success_postfix, char *rsp_fail_postfix)
-{
-    int ret = 0;
-
-    if (inited == 0) {
-        LOGE(MODULE_NAME, "at have not init yet\r\n");
-        return -1;
-    }
-
-    if (NULL == command) {
-        LOGE(MODULE_NAME, "%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (NULL == rsp || 0 == rsplen) {
-        LOGE(MODULE_NAME, "%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    at_task_t *tsk = (at_task_t *)aos_malloc(sizeof(at_task_t));
-    if (NULL == tsk) {
-        LOGE(MODULE_NAME, "tsk buffer allocating failed");
-        return -1;
-    }
-    memset(tsk, 0, sizeof(at_task_t));
-
-    if ((ret = aos_sem_new(&tsk->smpr, 0)) != 0) {
-        LOGE(MODULE_NAME, "failed to allocate semaphore");
-        goto end;
-    }
-
-    LOGD(MODULE_NAME, "at task created: %d, smpr: %d", (uint32_t)tsk,
-         (uint32_t)&tsk->smpr);
-
-    if (NULL != rsp_prefix) {
-        tsk->rsp_prefix     = rsp_prefix;
-        tsk->rsp_prefix_len = strlen(rsp_prefix);
-    }
-
-    if (NULL != rsp_success_postfix) {
-        tsk->rsp_success_postfix     = rsp_success_postfix;
-        tsk->rsp_success_postfix_len = strlen(rsp_success_postfix);
-    }
-
-    if (NULL != rsp_fail_postfix) {
-        tsk->rsp_fail_postfix     = rsp_fail_postfix;
-        tsk->rsp_fail_postfix_len = strlen(rsp_fail_postfix);
-    }
-
-    tsk->command = (char *)command;
-    tsk->rsp     = rsp;
-    tsk->rsp_len = rsplen;
-
-    at_worker_task_add(tsk);
-
-    if ((ret = at_sendto_lower(at._pstuart, (void *)command, cmdlen,
-                              at._timeout, true)) != 0) {
-        LOGE(MODULE_NAME, "uart send command failed");
-        goto end;
-    }
-
-    if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
-                strlen(at._send_delimiter), at._timeout, false)) != 0) {
-        LOGE(MODULE_NAME, "uart send delimiter failed");
-        goto end;
-    }
-
-    if ((ret = aos_sem_wait(&tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
-        LOGE(MODULE_NAME, "sem_wait failed");
-        goto end;
-    }
-
-end:
-    at_worker_task_del(tsk);
-    return ret;
-}
-
-static int at_send_raw_self_define_respone_formate(const char *command,
-                                                   char *rsp, uint32_t rsplen,
-                                                   char *rsp_prefix,
-                                                   char *rsp_success_postfix,
-                                                   char *rsp_fail_postfix)
-{
-    int ret = 0;
-
-    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
-    ret = at_send_raw_self_define_respone_formate_internal(
-      command, strlen(command), rsp, rsplen, rsp_prefix, rsp_success_postfix,
-      rsp_fail_postfix);
-    aos_mutex_unlock(&at.at_uart_send_mutex);
-
-    return ret;
-}
-
-static int at_send_raw(const char *command, char *rsp, uint32_t rsplen)
-{
-    if (inited == 0) {
-        LOGE(MODULE_NAME, "at have not init yet\r\n");
-        return -1;
-    }
-
-    return at_send_raw_self_define_respone_formate(command, rsp, rsplen, NULL,
-                                                   NULL, NULL);
-}
-
-/**
- * This API can be used to send packet, without response required.
- *
- * AT stream format as below:
- *    <header>, [data], [tailer]
- *
- * In which, data and tailer is optional.
- */
-static int at_send_data_3stage_no_rsp(const char *header, const uint8_t *data,
-                                      uint32_t len, const char *tailer)
-{
-    int ret;
-
-    if (inited == 0) {
-        LOGE(MODULE_NAME, "at have not init yet\r\n");
-        return -1;
-    }
-
-    if (!header) {
-        LOGE(MODULE_NAME, "Invalid null header\n");
-        return -1;
-    }
-
-    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
-
-    if (header) {
-         if ((ret = at_sendto_lower(at._pstuart, (void *)header,
-                     strlen(header), at._timeout, true)) != 0) {
-            LOGE(MODULE_NAME, "uart send packet header failed");
-            aos_mutex_unlock(&at.at_uart_send_mutex);
-            return -1;
-        }
-    }
-
-    if (data && len) {
-        if ((ret = at_sendto_lower(at._pstuart, (void *)data,
-                    len, at._timeout, true)) != 0) {
-            LOGE(MODULE_NAME, "uart send packet failed");
-            aos_mutex_unlock(&at.at_uart_send_mutex);
-            return -1;
-        }
-    }
-
-    if (tailer) {
-        if ((ret = at_sendto_lower(at._pstuart, (void *)tailer,
-                    strlen(tailer), at._timeout, false)) != 0) {
-            LOGE(MODULE_NAME, "uart send packet tailer failed");
-            aos_mutex_unlock(&at.at_uart_send_mutex);
-            return -1;
-        }
-    }
-
-    aos_mutex_unlock(&at.at_uart_send_mutex);
-
-    return 0;
-}
-
-/**
- * This API is used, usually by athost, to send stream content without response
- * required. The content is usually status event, such as
- * YEVENT:MONITOR_UP/MONITOR_DOWN, etc.
- */
-static int at_send_raw_no_rsp(const char *content)
-{
-    int ret;
-
-    aos_mutex_lock(&at.at_uart_send_mutex, AOS_WAIT_FOREVER);
-    if (content) {
-        if ((ret = at_sendto_lower(at._pstuart, (void *)content,
-                    strlen(content), at._timeout, true)) != 0) {
-            LOGE(MODULE_NAME, "uart send raw content (%s) failed", content);
-            aos_mutex_unlock(&at.at_uart_send_mutex);
-            return -1;
-        }
-    }
-    aos_mutex_unlock(&at.at_uart_send_mutex);
-
-    return 0;
-}
-
-/**
- * Example:
- *          AT+ENETRAWSEND=<len>
- *          ><data>
- *          OK
- *
- * Send data in 2 stages. These 2 stages must be finished inside
- * one mutex lock.
- *   1. Send 'fst' string (first stage);
- *   2. Receving prompt, usually ">" character;
- *   3. Send data (second stage) in 'len' length.
- */
 static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
                                char *rsp, uint32_t rsplen)
 {
@@ -635,10 +523,9 @@ end:
     return ret;
 }
 
-
 // register oob
-static int at_oob(const char *prefix, const char *postfix, int maxlen,
-                  oob_cb cb, void *arg)
+int at_register_callback(const char *prefix, const char *postfix,
+                         int maxlen, at_recv_cb cb, void *arg)
 {
     oob_t *oob = NULL;
     int    i   = 0;
@@ -647,9 +534,6 @@ static int at_oob(const char *prefix, const char *postfix, int maxlen,
         LOGE(MODULE_NAME, "%s invalid input \r\n", __func__);
         return -1;
     }
-
-    LOGD(MODULE_NAME, "New oob to register pre (%s) post %s \r\n", prefix,
-         ((postfix == NULL) ? "NULL" : postfix));
 
     if (at._oobs_num >= OOB_MAX) {
         LOGW(MODULE_NAME, "No place left in OOB.\r\n");
@@ -879,16 +763,3 @@ static void at_worker(void *arg)
 
     return;
 }
-
-at_parser_t at = { ._oobs                 = { { 0 } },
-                   ._oobs_num             = 0,
-                   .send_raw_self_define_respone_formate =
-                     at_send_raw_self_define_respone_formate,
-                   .send_raw                = at_send_raw,
-                   .send_data_2stage        = at_send_data_2stage,
-                   .send_data_3stage_no_rsp = at_send_data_3stage_no_rsp,
-                   .send_raw_no_rsp         = at_send_raw_no_rsp,
-                   .write                   = at_write,
-                   .read                    = at_read,
-                   .parse                   = at_read,
-                   .oob                     = at_oob };

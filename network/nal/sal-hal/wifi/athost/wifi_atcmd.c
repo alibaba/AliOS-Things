@@ -87,14 +87,14 @@ static void wifi_event_handler(void *arg, char *buf, int buflen)
 {
     char evt[16] = {0};
 
-    at.read(evt, strlen("STATION_UP"));
+    at_read(evt, strlen("STATION_UP"));
     if (strcmp(evt, "STATION_UP") == 0) {
         LOGD(TAG, "STATION_UP event received.");
         printf("STATION_UP event received.\r\n");
         aos_loop_schedule_work(0, wevent_up_handler, NULL, NULL, NULL);
     } else if (strcmp(evt, "STATION_DO") == 0) {
         memset(evt, 0, sizeof(evt));
-        at.read(evt, 2);
+        at_read(evt, 2);
         if (strcmp(evt, "WN") == 0) {
             LOGD(TAG, "STATION_DOWN event received.");
             aos_loop_schedule_work(0, wevent_down_handler, NULL, NULL, NULL);
@@ -169,7 +169,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 
     if (!wevt_oob) {
         wevt_oob = wifi_event_handler;
-        at.oob(WIFIEVENT_OOB_PREFIX, NULL, 0, wevt_oob, NULL);
+        at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, 0, wevt_oob, NULL);
     }
 
     if (strcmp(init_para->wifi_key, "open") == 0) {
@@ -182,7 +182,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 
     LOGI(TAG, "Will connect via at cmd: %s\r\n", in);
 
-    if (at.send_raw(in, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(in, strlen(in), true, out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s\r\n", in, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", in);
@@ -221,7 +221,8 @@ static int get_mac_helper(char *mac)
         return 0;
     }
 
-    if (at.send_raw(AT_CMD_OBTAIN_MAC, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(AT_CMD_OBTAIN_MAC, strlen(AT_CMD_OBTAIN_MAC), true,
+                           out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_MAC, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", AT_CMD_OBTAIN_MAC);
@@ -253,7 +254,8 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
         return -1;
     }
 
-    if (at.send_raw(AT_CMD_OBTAIN_IP, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(AT_CMD_OBTAIN_IP, strlen(AT_CMD_OBTAIN_IP), true,
+                           out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_IP, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", AT_CMD_OBTAIN_IP);
@@ -326,7 +328,8 @@ static int suspend_station(hal_wifi_module_t *m)
     char out[32] = {0};
     int ret = 0;
 
-    if (at.send_raw(AT_CMD_SUSPEND_STA, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(AT_CMD_SUSPEND_STA, strlen(AT_CMD_SUSPEND_STA), true,
+                           out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_SUSPEND_STA, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", AT_CMD_SUSPEND_STA);
@@ -355,7 +358,7 @@ static int set_channel(hal_wifi_module_t *m, int ch)
 
     snprintf(cmd, sizeof(cmd), "%s,%d", AT_CMD_SETCH, ch);
 
-    if (at.send_raw(cmd, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s", cmd, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", cmd);
@@ -399,11 +402,11 @@ static void ywss_cb(void *arg, char *buff, int bufflen)
     uint32_t len = 0;
     hal_wifi_link_info_t info;
 
-    at.read(&c, 1);
+    at_read(&c, 1);
     switch (c) {
         case 'M':
             memset(buf, 0, 32);
-            at.read(buf, 9);
+            at_read(buf, 9);
             if (strcmp(buf, "ONITOR_UP") == 0) {
                 LOGD(TAG, "ywss monitor UP event received.");
                 if (aos_sem_is_valid(&start_monitor_sem)) {
@@ -411,7 +414,7 @@ static void ywss_cb(void *arg, char *buff, int bufflen)
                 }
             } else if (strcmp(buf, "ONITOR_DO") == 0) {
                 memset(buf, 0, 32);
-                at.read(buf, 2);
+                at_read(buf, 2);
                 if (strcmp(buf, "WN") == 0) {
                     LOGD(TAG, "ywss monitor DOWN event received.");
                     if (aos_sem_is_valid(&stop_monitor_sem)) {
@@ -439,7 +442,7 @@ static void ywss_cb(void *arg, char *buff, int bufflen)
         case '-':
             if (c == '-') {
                 nflag = -1;
-                at.read(&c, 1);
+                at_read(&c, 1);
             }
 
             /* rssi */
@@ -449,7 +452,7 @@ static void ywss_cb(void *arg, char *buff, int bufflen)
                     assert(0);
                 }
                 rssi = (rssi << 3) + (rssi << 1) + (c - '0');
-                at.read(&c, 1);
+                at_read(&c, 1);
             }
 
             if (c != ',') {
@@ -458,14 +461,14 @@ static void ywss_cb(void *arg, char *buff, int bufflen)
             }
 
             /* len */
-            at.read(&c, 1);
+            at_read(&c, 1);
             while (c != ',' && len < MONITOR_PKT_MAX_LEN) {
                 if (c > '9' || c < '0') {
                     LOGE(TAG, "ywss packet event reading len value failed (%c is not number char).", c);
                     assert(0);
                 }
                 len = (len << 3) + (len << 1) + (c - '0');
-                at.read(&c, 1);
+                at_read(&c, 1);
             }
 
             if (c != ',') {
@@ -484,7 +487,7 @@ static void ywss_cb(void *arg, char *buff, int bufflen)
 
             LOGD(TAG, "The packet len value is %d", len);
 
-            at.read(payload, len);
+            at_read(payload, len);
             dump_hex(payload, len);
 
             info.rssi = rssi;
@@ -509,7 +512,7 @@ static void start_monitor(hal_wifi_module_t *m)
 
     if (!cb) {
         cb = ywss_cb;
-        at.oob("+YEVENT:", NULL, MONITOR_PKT_MAX_LEN,
+        at_register_callback("+YEVENT:", NULL, MONITOR_PKT_MAX_LEN,
                cb, NULL);
     }
 
@@ -518,7 +521,8 @@ static void start_monitor(hal_wifi_module_t *m)
         return;
     }
 
-    if (at.send_raw(AT_CMD_START_MONITOR, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(AT_CMD_START_MONITOR, strlen(AT_CMD_START_MONITOR), true,
+                           out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_START_MONITOR, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", AT_CMD_START_MONITOR);
@@ -549,7 +553,8 @@ static void stop_monitor(hal_wifi_module_t *m)
         return;
     }
 
-    if (at.send_raw(AT_CMD_STOP_MONITOR, out, sizeof(out)) == 0) {
+    if (at_send_wait_reply(AT_CMD_STOP_MONITOR, strlen(AT_CMD_STOP_MONITOR), true,
+                           out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_STOP_MONITOR, out);
     } else {
         LOGE(TAG, "AT command %s failed\r\n", AT_CMD_STOP_MONITOR);
