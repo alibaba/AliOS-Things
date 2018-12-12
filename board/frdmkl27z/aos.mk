@@ -24,6 +24,6 @@ $(NAME)_SOURCES += ./board.c
 $(NAME)_SOURCES += ./clock_config.c
 $(NAME)_SOURCES += ./pin_mux.c
 
-TEST_COMPONENTS += certificate
+TEST_COMPONENTS += certificate_test
 GLOBAL_CFLAGS   += -DTEST_CONFIG_KV_ENABLED=0
 GLOBAL_CFLAGS   += -DTEST_CONFIG_YLOOP_ENABLED=1

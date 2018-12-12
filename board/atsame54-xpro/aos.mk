@@ -34,5 +34,5 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 
 # Define default component testcase set
 ifneq (, $(findstring yts, $(BUILD_STRING)))
-TEST_COMPONENTS += basic api wifi_hal rhino kv yloop alicrypto cjson
+TEST_COMPONENTS += basic_test api_test wifi_hal_test rhino_test kv_test yloop_test cjson_test
 endif
