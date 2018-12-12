@@ -4,8 +4,10 @@
 #include <unistd.h>
 
 #include <errno.h>
-#include <aos/aos.h>
-#include "aos/hal/soc.h"
+
+#include "aos/aos.h"
+#include "aos/hal/flash.h"
+
 #include "ota_hal_plat.h"
 #include "ota_hal_os.h"
 #include "ota_log.h"
