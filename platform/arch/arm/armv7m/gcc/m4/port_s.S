@@ -138,10 +138,10 @@ PendSV_Handler:
     STR     R0, [R1]
 
 #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
-    bl      krhino_stack_ovf_check
+    BL      krhino_stack_ovf_check
 #endif
 #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
-    bl      krhino_task_sched_stats_get
+    BL      krhino_task_sched_stats_get
 #endif
 
 .thumb_func

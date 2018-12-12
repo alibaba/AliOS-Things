@@ -24,9 +24,10 @@ void *cpu_task_stack_init(cpu_stack_t *stack_base, size_t stack_size,
     *(--stk) = (cpu_stack_t)0x01010101L; /* R1                             */
     *(--stk) = (cpu_stack_t)arg;         /* R0 : argument                  */
 
+    /* task context saved & restore by software: */
     /* EXC_RETURN = 0xFFFFFFFDL
-       Task begin state: Thread mode + PSP */
-    *(--stk) = (cpu_stack_t)0xFFFFFFFDL; 
+       Task begin state: Thread mode +  non-floating-point state + PSP */
+    *(--stk) = (cpu_stack_t)0xFFFFFFFDL;
 
     *(--stk) = (cpu_stack_t)0x11111111L; /* R11 */
     *(--stk) = (cpu_stack_t)0x10101010L; /* R10 */
