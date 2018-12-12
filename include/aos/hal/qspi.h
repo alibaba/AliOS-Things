@@ -11,6 +11,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#define HAL_WAIT_FOREVER 0xFFFFFFFFU
+
 typedef struct {
     uint32_t freq; /* communication frequency Hz */
 } qspi_config_t;

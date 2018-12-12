@@ -11,6 +11,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#define HAL_WAIT_FOREVER 0xFFFFFFFFU
+
 #define I2C_MODE_MASTER 1 /* i2c communication is master mode */
 #define I2C_MODE_SLAVE  2 /* i2c communication is slave mode */
 

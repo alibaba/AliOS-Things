@@ -11,6 +11,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#define HAL_WAIT_FOREVER 0xFFFFFFFFU
+
 /*
  * UART data width
  */
