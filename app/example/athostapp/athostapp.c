@@ -2,11 +2,10 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <aos/aos.h>
+
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif
@@ -21,7 +20,7 @@ int HAL_Athost_Read(char *outbuf, uint32_t len)
     int ret = 0;
 
 #ifdef AOS_ATCMD
-    ret = at.parse(outbuf, len);
+    ret = at_read(outbuf, len);
 #endif
     return ret;
 }
@@ -32,7 +31,29 @@ int HAL_Athost_Write(const char *header, const uint8_t *data, uint32_t len,
     int ret = 0;
 
 #ifdef AOS_ATCMD
-    ret = at.send_data_3stage_no_rsp(header, data, len, tailer);
+    if (!header) {
+        LOGE(TAG, "Invalid null header\n");
+        return -1;
+    }
+
+    if ((ret = at_send_no_reply(header, strlen(header), false)) != 0) {
+        LOGE(TAG, "uart send packet header failed");
+        return -1;
+    }
+
+    if (data && len) {
+        if ((ret = at_send_no_reply((char *)data, len, false)) != 0) {
+            LOGE(TAG, "uart send packet failed");
+            return -1;
+        }
+    }
+
+    if (tailer) {
+        if ((ret = at_send_no_reply(tailer, strlen(tailer), false)) != 0) {
+            LOGE(TAG, "uart send packet tailer failed");
+            return -1;
+        }
+    }
 #endif
 
     return ret;
@@ -44,7 +65,7 @@ int HAL_Athost_HandleRegisterCb(const char              *prefix,
     int ret = 0;
 
 #ifdef AOS_ATCMD
-    at.oob(prefix, NULL, 0, fn, NULL);
+    at_register_callback(prefix, NULL, 0, fn, NULL);
 #endif
 
     return ret;
@@ -60,11 +81,7 @@ static void app_delayed_action(void *arg)
 int application_start(int argc, char *argv[])
 {
 #ifdef AOS_ATCMD
-    // mk3060: 4096 mk3165: 1024
-    at.set_worker_stack_size(4096);
-    at.set_worker_priority(-2);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
-            AT_SEND_DELIMITER, 1000);
+    at_init();
 #endif
 
     athost_instance_init();
