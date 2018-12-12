@@ -35,7 +35,7 @@
 #else
 #include <aos/aos.h>
 #include <aos/yloop.h>
-#include "aos/hal/hal.h"
+
 #endif
 
 /*Memory realloc*/
