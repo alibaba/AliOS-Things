@@ -2,10 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <stddef.h>
 #include <stdint.h>
 
-#include "aos/hal/soc.h"
-
+#include "aos/hal/uart.h"
 #include "vfs_api.h"
 
 static int32_t vfs_uart_open(vfs_inode_t *node, vfs_file_t *fp);
