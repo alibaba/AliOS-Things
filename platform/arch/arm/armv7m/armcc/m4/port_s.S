@@ -1,10 +1,12 @@
 ;******************************************************************************
 ;                            EXTERN PARAMETERS
 ;******************************************************************************
+#include <k_config.h>
 
     IMPORT  g_active_task
     IMPORT  g_preferred_ready_task
     IMPORT  krhino_stack_ovf_check
+    IMPORT  krhino_task_sched_stats_get
 
 ;******************************************************************************
 ;                            EXPORT FUNCTIONS
@@ -113,6 +115,14 @@ PendSV_Handler
     ;hardware saved R0~R3,R12,LR,PC,xPSR
 
     ;save context
+    IF      {FPU} != "SoftVFP"
+    ;if the switchout task use FPU, save the FPU regs
+    TST     LR, #0x10
+    IT      EQ
+    VSTMFDEQ R0!, {D8 - D15}
+    ;hardware saved D0~D7, FPSCR
+    ENDIF
+
     SUBS    R0, R0, #0x24
     STM     R0, {R4-R11, LR}
 
@@ -121,7 +131,12 @@ PendSV_Handler
     LDR     R1, [R1]
     STR     R0, [R1]
 
-    bl      krhino_stack_ovf_check
+#if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
+    BL      krhino_stack_ovf_check
+#endif
+#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    BL      krhino_task_sched_stats_get
+#endif
 
 _pendsv_handler_nosave
     LDR     R0, =g_active_task
@@ -135,12 +150,17 @@ _pendsv_handler_nosave
     LDM     R0, {R4-R11, LR}
     ADDS    R0, R0, #0x24
 
+    IF	    {FPU} != "SoftVFP"
+    ;if the switchin task use FPU, save the FPU regs
+    TST     LR, #0x10
+    IT      EQ
+    VLDMFDEQ R0!, {D8 - D15}
+    ;hardware will restore D0~D7, FPSCR
+    ENDIF
+
     ;return stack = PSP
     MSR     PSP, R0
 
-    ;after exception return: stack = PSP
-    ORR     LR, LR, #0x04
-    
     CPSIE   I
     ;hardware restore R0~R3,R12,LR,PC,xPSR
     BX      LR
