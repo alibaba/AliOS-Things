@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include "network/hal/base.h"
-#include "aos/hal/soc.h"
+
 #include "aos/hal/gpio.h"
 #include "aos/hal/i2c.h"
 
