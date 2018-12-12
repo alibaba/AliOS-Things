@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <stdio.h>
-#include "aos/hal/hal.h"
+
 
 int errno;
 

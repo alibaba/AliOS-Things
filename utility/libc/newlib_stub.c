@@ -7,9 +7,12 @@
 #include <sys/unistd.h>
 #include <sys/time.h>
 #include <stdarg.h>
+
 #include <k_api.h>
 #include <aos/aos.h>
-#include "aos/hal/soc.h"
+
+#include "aos/hal/uart.h"
+
 #include "vfs_conf.h"
 #include "network/network.h"
 #ifdef WITH_LWIP_TELNETD
