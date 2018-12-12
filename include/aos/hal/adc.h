@@ -11,6 +11,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#define HAL_WAIT_FOREVER 0xFFFFFFFFU
+
 typedef struct {
     uint32_t sampling_cycle;  /* sampling period in number of ADC clock cycles */
 } adc_config_t;
