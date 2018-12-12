@@ -11,7 +11,7 @@
 
 #include "yunit.h"
 
-#include "aos/hal/soc.h"
+
 
 #define UDATA_SUCCES    0
 
