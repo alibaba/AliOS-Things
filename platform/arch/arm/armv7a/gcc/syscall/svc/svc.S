@@ -1,27 +1,26 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
+@
+@ Copyright (C) 2015-2017 Alibaba Group Holding Limited
+@
 
 #include <k_config.h>
 #include <k_default_config.h>
 #include <aux_config.h>
 #include <svc.h>
+#include <syscall_no.h>
 
-/**
- *   SVC exception description:
- *
- *   --------------------------------------------
- *   |  no  | description                       |
- *   --------------------------------------------
- *   | 0x02 | return to user task               |
- *   --------------------------------------------
- *   | 0x03 | syscall                           |
- *   --------------------------------------------
- *   |others| reserved                          |
- *   --------------------------------------------
- *
- *   svc no is defined in svc.h
- */
+@
+@  SVC exception description:
+@
+@  --------------------------------------------
+@  |  no  | description                       |
+@  --------------------------------------------
+@  | 0x03 | syscall                           |
+@  --------------------------------------------
+@  |others| reserved                          |
+@  --------------------------------------------
+@
+@  svc no is defined in svc.h
+@
 
 #define USER_MODE       0x10
 #define FIQ_MODE        0x11
@@ -34,7 +33,7 @@
 
 #define FIQ_DIS         0x40
 #define IRQ_DIS         0x80
-#deinfe INT_DIS         FIQ_DIS | IRQ_DIS
+#define INT_DIS         FIQ_DIS | IRQ_DIS
 
 #define REG_SPSR        0x00
 #define REG_R0          0x04
@@ -53,7 +52,6 @@
 #define REG_SP          0x38
 #define REG_LR          0x3c
 #define REG_PC          0x40
-
 #define REG_SIZE        0x44
 
 .syntax unified
@@ -63,6 +61,10 @@
 @                            EXTERN SYMBOLS
 @******************************************************************************
 .extern syscall_tbl
+.extern syscall_pre_debug
+.extern syscall_post_debug
+.extern exceptionHandler
+.extern _context_restore
 
 @******************************************************************************
 @                            EXPORT SYMBOLS
@@ -75,9 +77,9 @@
 @ Cortex-A9, ARMv7 VFPv3-D16
 .macro POP_FP_REG reg
     POP     {\reg}
-    VMSR    FPEXC, \reg                                 @ Pop FPEXC.
+    VMSR    FPEXC, \reg                      @ Pop FPEXC.
     POP     {\reg}
-    VMSR    FPSCR, \reg                                 @ Pop FPSCR.
+    VMSR    FPSCR, \reg                      @ Pop FPSCR.
 #ifdef __ARM_NEON
     VPOP    {Q0-Q7}
     VPOP    {Q8-Q15}
@@ -93,133 +95,169 @@
 #else
     VPUSH   {D0-D15}
 #endif
-    VMRS    \reg, FPSCR                                 @ Save FPSCR.
-    PUSH    {\reg}                                      @ Save floating-point registers.
-    VMRS    \reg, FPEXC                                 @ Save FPEXC.
+    VMRS    \reg, FPSCR                      @ Save FPSCR.
+    PUSH    {\reg}                           @ Save floating-point registers.
+    VMRS    \reg, FPEXC                      @ Save FPEXC.
     PUSH    {\reg}
 .endm
 
-@ get core id
-.macro GET_CORE_ID reg
-    MRC     P15, 0, \reg, C0, C0, 5
-    AND     \reg, \reg, #3
-.endm
-
-
 @******************************************************************************
-@                        Functions
+@                        CODE GENERATION DIRECTIVES
 @******************************************************************************
 .section .text.isr, "ax"
 .arm
+
+@******************************************************************************
+@ Functions:
+@       void SVC_Handler(void);
+@******************************************************************************
 SVC_Handler:
     @ which stack are we running on???
     @ we are using the tasks kstack which was set
     @ when task are scheded in.
     @
 
-    @ {spsr, r0 ... r12, sp, lr, pc}
-    sub     sp, sp, #(REG_SIZE - REG_R0)
-    stmia   sp, {r0-r12}
-    mrs     r2, spsr
-    push    {r2}
-    @ {spsr, r0 ... r12} is done
+    @ {spsr, R0 ... R12, SP, LR, PC}
+    SUB     SP, SP, #(REG_SIZE - 4)
+    STMIA   SP, {R0-R12}
+    MRS     R2, SPSR
+    PUSH    {R2}
+    @ {SPSR, R0 ... R12} is done
 
-    mov     r4, sp
-    add     r1, sp, #REG_SP
-    and     r2, r2, #MODE_MASK
-    cmp     r2, #USER_MODE
-    bne     .svc_enter_svc
+    MOV     R4, SP
+    ADD     R1, R4, #REG_SP
+    AND     R2, R2, #MODE_MASK
+    CMP     R2, #USER_MODE
+    BNE     .svc_enter_svc
 
-    /* come from user mode */
-    /* save user mode sp and lr */
-    stmia   r1!, {sp, lr}^
-    b       .store_pc
+    @ come from user mode
+    @ save user mode SP and LR
+    STMIA   R1, {SP, LR}^
+    ADD     R1, R1, #8
+    B       .store_pc
 
 .svc_enter_svc:
-    /* save svc mode sp and lr */
-    add     r2, r4, #REG_SIZE
-    stmia   r1!, {r2, lr}
+    @ save svc mode SP and LR
+    ADD     R2, R4, #REG_SIZE
+    STMIA   R1!, {R2, LR}
 
 .store_pc:
-    /* stroe lr as pc */
-    stmia   r1!, {lr}
+    @ stroe LR as PC
+    STMIA   R1!, {LR}
 
 #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    /* Push task fpu register. */
-    PUSH_FP_REG r1
+    @ Push task fpu register.
+    PUSH_FP_REG R1
 #endif
 
-    /* get svc intruction */
-    ldr     r1, [r4, #REG_PC]
-    sub     r1, r1, #4
-    ldrh    r1, [r1]
-    cmp     r1, #SVC_syscall
-    beq     .svc_syscall
+    @ align stack to 8 bytes
+    MOV     R5, SP
+    BIC     SP, SP, #0x07
 
-.bad_svc_no:
-    b       .bad_svc_no
+#if (CONFIG_SYSCALL_DEBUG > 0)
+    @ syscall pre debug
+    MOV     R0, R5
+    BL      syscall_pre_debug
+#endif
+
+    @ get svc intruction
+    LDR     R1, [R4, #REG_PC]
+    @ judge arm or thumb2 instruction
+    LDR     R2, [R4, #REG_SPSR]
+    TST     R2, #0x20
+    SUBEQ   R1, R1, #4
+    SUBNE   R1, R1, #2
+    LDRHEQ  R1, [R1]
+    LDRBNE  R1, [R1]
+    CMP     R1, #SVC_syscall
+    BNE     .svc_exception
 
 .svc_syscall:
-    /* enable interrput */
-    mrs     r1, cpsr
-    bic     r1, #IRQ_DIS
-    msr     cpsr_c, r1
+    @ enable interrput
+    MRS     R1, CPSR
+    BIC     R1, #IRQ_DIS
+    MSR     CPSR_c, R1
 
-    ldr     r0, [r4, #REG_R0]
-    ldr     r1, [r4, #REG_R1]
-    /* align the stack to 8 bytes */
-    mov     r5, sp
-    push    {r5}
-    bic     sp, sp, #0x07
-    bl      do_syscall
-    pop     {r5}
-    mov     sp, r5
-    str     r0, [r4, #REG_R0]
-    str     r1, [r4, #REG_R1]
+    @ prepare args for _do_syscall
+    LDR     R0, [R4, #REG_R0]
+    LDR     R1, [R4, #REG_R1]
+    BL      _do_syscall
+    @ save syscall return data
+    STR     R0, [R4, #REG_R0]
+    STR     R1, [R4, #REG_R1]
 
-#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
-    /* Pop task fpu register. */
-    POP_FP_REG r1
+    @ disable interrupt
+    MRS     R1, CPSR
+    ORR     R1, R1, #IRQ_DIS
+    MSR     CPSR_c, R1
+
+    @ restore SP
+    MOV     SP, R5
+
+#if (CONFIG_SYSCALL_DEBUG> 0)
+    @ syscall post debug
+    MOV     R0, SP
+    BL      syscall_post_debug
 #endif
 
-    pop     {r0}
-    msr     spsr, r0
+#if (defined(__VFP_FP__) && !defined(__SOFTFP__))
+    @ Pop task fpu register.
+    POP_FP_REG R1
+#endif
 
-    and     r0, r0, #MODE_MASK
-    cmp     r0, #USER_MODE
-    bne     .ret_to_svc
+    POP     {R0}
+    MSR     SPSR, R0
 
-    /* return to user mode */
-    /* need disable interrupt??? */
-    mrs     r1, cpsr
-    orr     r1, r1, #IRQ_DIS
-    msr     cpsr_c, r1
+    AND     R0, R0, #MODE_MASK
+    CMP     R0, #USER_MODE
+    BNE     .ret_to_svc
 
-    mov     lr, sp
-    add     sp, sp, #0x40
-    ldmia   lr!, {r0-r12}
-    ldmia   lr, {sp, lr}^
-    add     lr, lr, #0x08
-    ldmia   lr, {pc}^
+    @ return to user mode
+    MOV     LR, SP
+    ADD     SP, SP, #(REG_SIZE - 4)
+    LDMIA   LR!, {R0-R12}
+    LDMIA   LR, {SP, LR}^
+    ADD     LR, LR, #0x08
+    LDMIA   LR, {PC}^
 
 .ret_to_svc:
-    /* don't worry sp is not poped properly,
-     * new sp will be restored to svc mode
-     */
-    ldmia   sp, {r0-r15}^
+    @ don't worry SP is not poped properly,
+    @ new SP will be restored to svc mode
+    LDMIA   SP, {R0-R15}^
 
-.size SVC_Handler, .-SVC_Handler
-
+@******************************************************************************
+@ Functions:
+@       static unsigned long long _do_syscall(int syscall_no, void *arg);
+@******************************************************************************
 .text
-.type do_syscall, function
-do_syscall:
-    push    {ip, lr}
-    ldr     ip, =syscall_tbl
-    ldr     ip, [ip, r0, lsl #2]
-    mov     r0, r1
-    blx     ip
+.type _do_syscall, function
+_do_syscall:
+    PUSH    {IP, LR}
+    CMP     R0, #MAX_SYSCALL_NO
+    BGT     .bad_syscall
+    LDR     IP, =syscall_tbl
+    LDR     IP, [IP, R0, LSL #2]
+    MOV     R0, R1
+    CMP     IP, #0x0
+    BEQ     .bad_syscall
+    BLX     IP
+    POP     {IP, PC}
 
-    pop     {ip, pc}
+.bad_syscall:
+    @ disable interrupt
+    MRS     R1, CPSR
+    ORR     R1, R1, #IRQ_DIS
+    MSR     CPSR_c, R1
+    ADD     SP, #0x08
 
-.size do_syscall, .-do_syscall
+.svc_exception:
+    LDR     R2, [R4, #REG_SP]
+    @ set SWI exception
+    MOV     R0, #0x02
+    PUSH    {R0, R2}
+    MOV     R0, SP
+
+    BL      exceptionHandler
+    MOV     SP, R5
+    BL      _context_restore
 
