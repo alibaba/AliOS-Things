@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "aos/hal/soc.h"
+
 #include <k_api.h>
 #include "platform_peripheral.h"
 #include "RingBufferUtils.h"

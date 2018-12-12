@@ -4,11 +4,11 @@
 #include <unistd.h>
 #include <k_api.h>
 #include <aos/log.h>
-#include "aos/hal/soc.h"
+
 #include "aos/hal/timer.h"
 #include "network/hal/base.h"
 #include <aos/aos.h>
-#include "aos/hal/hal.h"
+
 #include "board.h"
 
 #include "port_mcu.h"

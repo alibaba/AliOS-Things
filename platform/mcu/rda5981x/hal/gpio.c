@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+#include "aos/hal/gpio.h"
 #include "pinnames.h"
 #include "gpio_api.h"
 

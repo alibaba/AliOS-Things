@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+#include "aos/hal/uart.h"
 #include "serial_api.h"
 #include "rda5981x_pinconfig.h"
 

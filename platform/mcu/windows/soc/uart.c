@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 #include <signal.h>
-#include "aos/hal/soc.h"
+
 
 
 

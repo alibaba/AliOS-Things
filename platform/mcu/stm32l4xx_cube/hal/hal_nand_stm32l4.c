@@ -1,6 +1,8 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+#include "aos/hal/nand.h"
+
 #include "stm32l4xx.h"
 #include "stm32l4xx_hal.h"
 /*

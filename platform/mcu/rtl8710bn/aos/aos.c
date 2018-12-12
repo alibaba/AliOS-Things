@@ -7,8 +7,9 @@
 #include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "aos/hal/soc.h"
+
 #include "aos/hal/wdg.h"
+#include "aos/hal/gpio.h"
 #include "diag.h"
 #include "platform_stdlib.h"
 #include "rtl8710b.h"

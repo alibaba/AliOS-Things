@@ -1,7 +1,9 @@
 #include <atmel_start.h>
-#include "aos/hal/soc.h"
+
 #include <string.h>
-#include <aos/errno.h>
+
+#include "aos/hal/uart.h"
+#include "aos/errno.h"
 
 int32_t hal_uart_init(uart_dev_t *uart)
 {

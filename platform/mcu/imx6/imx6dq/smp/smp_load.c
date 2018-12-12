@@ -7,7 +7,7 @@
 #include "k_api.h"
 #include "k_arch.h"
 
-#include "aos/hal/soc.h"
+
 #include <aos/aos.h>
 
 extern void os_crosscore_int_init();

@@ -9,11 +9,12 @@
 #include <unistd.h>
 #include <k_api.h>
 #include <aos/log.h>
-#include "aos/hal/soc.h"
+
+#include "aos/hal/uart.h"
 #include "aos/hal/timer.h"
 #include "network/hal/base.h"
 #include <aos/aos.h>
-#include "aos/hal/hal.h"
+
 #include "board.h"
 #include "fsl_gpio.h"
 #include "pin_mux.h"

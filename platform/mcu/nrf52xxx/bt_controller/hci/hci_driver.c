@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include <zephyr.h>
-#include "aos/hal/soc.h"
+
 //#include <init.h>
 #include <device.h>
 #include <clock_control.h>

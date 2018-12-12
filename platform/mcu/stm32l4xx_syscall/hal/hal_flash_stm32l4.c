@@ -7,7 +7,7 @@
 #ifdef HAL_FLASH_MODULE_ENABLED
 
 #include <k_api.h>
-#include "aos/hal/soc.h"
+
 #include "stm32l4xx_hal_flash.h"
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))

@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "aos/hal/gpio.h"
+
 #include <k_api.h>
 #include <aos/kernel.h>
 
@@ -15,7 +17,7 @@
 #include <ti/drivers/GPIO.h>
 #include <ti/drivers/gpio/GPIOMSP432.h>
 
-#include "aos/hal/hal.h"
+
 
 extern const GPIOMSP432_Config GPIOMSP432_config;
 

@@ -15,12 +15,13 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <lcsfc.h>
 #include <dh_type.h>
 
-#include "aos/hal/soc.h"
+#include "aos/hal/flash.h"
 
 extern DH_S32 DH_MDK_LCSFC_Erase(DH_U32 u32StartAddr, DH_U32 u32Length);
 extern DH_S32 DH_MDK_LCSFC_WriteFlash(DH_U32 u32Addr, DH_U32 u32Cnt, DH_U8 *pu8Buf);
