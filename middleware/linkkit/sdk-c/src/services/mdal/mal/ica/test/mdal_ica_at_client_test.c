@@ -15,11 +15,7 @@ int HAL_MDAL_MAL_ICA_Init()
    initialize at module here. */
 #if 0
     int ret;
-    ret = at.init(AT_RECV_PREFIX,
-            AT_RECV_SUCCESS_POSTFIX,
-            AT_RECV_FAIL_POSTFIX,
-            AT_SEND_DELIMITER,
-            1000);
+    ret = at_init();
 
     if(ret != 0)
     {
@@ -33,11 +29,11 @@ int HAL_MDAL_MAL_ICA_Init()
 int HAL_MDAL_MAL_ICA_InputCb(const char *prefix, const char *postfix, int maxlen,
                   oob_cb cb, void *arg)
 {
-    at.oob(prefix, postfix, maxlen, cb, arg);
+    at_register_callback(prefix, postfix, maxlen, cb, arg);
     return 0;
 }
 
 int HAL_MDAL_MAL_ICA_Write(const char* at_cmd)
 {
-    return at.send_raw_no_rsp(at_cmd);
+    return at_send_no_reply(at_cmd, strlen(at_cmd), false);
 }
