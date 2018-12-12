@@ -5,6 +5,7 @@
 /* system includes */
 #include <aos/aos.h>
 
+#include "sal_opts.h"
 #include "sal_err.h"
 #include "sal_arch.h"
 #include "internal/sal_arch_internal.h"
