@@ -3,7 +3,7 @@
  */
 
 #include <aos/aos.h>
-#include "aos/hal/soc.h"
+#include "aos/hal/gpio.h"
 
 /**
  * Brief:
