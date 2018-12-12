@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "aos/hal/hal.h"
+
 #include "lwip/ip_addr.h"
 #include "lwip/debug.h"
 #include "lwip/apps/tftp.h"
