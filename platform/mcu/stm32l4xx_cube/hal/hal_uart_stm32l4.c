@@ -5,7 +5,9 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "aos/hal/hal.h"
+
+#include "aos/hal/uart.h"
+
 #include "stm32l4xx.h"
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_dma.h"

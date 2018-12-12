@@ -1,3 +1,4 @@
+#include "aos/hal/pwm.h"
 #include "driver/ledc.h"
 #include "aos/hal/pwm.h"
 #include "math.h"

@@ -5,7 +5,7 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "aos/hal/hal.h"
+
 #include "platform.h"
 #include "plic_driver.h"
 

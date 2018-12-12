@@ -5,7 +5,7 @@
 #include "platform_mcu_peripheral.h" /* Include MCU-specific types */
 #include "RingBufferUtils.h"
 #include "aos/hal/gpio.h"
-#include "aos/hal/soc.h"
+#include "aos/hal/uart.h"
 #include "aos/hal/flash.h"
 #include "board.h"
 

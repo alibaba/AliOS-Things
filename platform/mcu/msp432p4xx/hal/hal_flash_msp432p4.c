@@ -2,9 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include "aos/hal/flash.h"
 #include "k_api.h"
 #include "Board.h"
-#include "aos/hal/soc.h"
+
 #include <ti/drivers/NVS.h>
 
 /* Private typedef -----------------------------------------------------------*/

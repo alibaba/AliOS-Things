@@ -10,6 +10,7 @@
     defined(STM32L496xx) || defined(STM32L4A6xx) || \
     defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
 
+#include "aos/hal/nand.h"
 
 #include "hal_nand_stm32f4.h"
 

@@ -3,10 +3,12 @@
  */
 
 #include <stdio.h>
-#include "aos/hal/hal.h"
+
 #include "aos/log.h"
 #include "k_types.h"
 #include "errno.h"
+
+#include "aos/hal/i2c.h"
 
 #include <fsl_i2c.h>
 #include <LPC54102_cm4.h>

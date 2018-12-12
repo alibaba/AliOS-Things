@@ -3,7 +3,7 @@
 #include "hal_uart.h"
 #include <aos/types.h>
 #include <k_api.h>
-#include "aos/hal/soc.h"
+
 
 #define DIV_ROUND_CLOSEST(x, divisor)(			\
 {							\

@@ -11,7 +11,7 @@
 #include "drv_usart.h"
 #include "pin.h"
 #include "ringbuffer.h"
-#include "aos/hal/soc.h"
+#include "aos/hal/uart.h"
 #include "aos/kernel.h"
 
 #define MAX_UART_NUM 3

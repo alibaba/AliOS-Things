@@ -5,7 +5,9 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "aos/hal/hal.h"
+
+#include "aos/hal/gpio.h"
+
 #include "stm32l4xx_hal.h"
 #include "hal_gpio_stm32l4.h"
 #ifdef HAL_GPIO_MODULE_ENABLED

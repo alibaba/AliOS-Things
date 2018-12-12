@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
 

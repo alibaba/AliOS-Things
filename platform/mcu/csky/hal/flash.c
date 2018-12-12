@@ -20,7 +20,7 @@
 #include <drv_eflash.h>
 
 #include "soc.h"
-#include "aos/hal/soc.h"
+#include "aos/hal/flash.h"
 
 #define EFLASH_SECTOR_SIZE 512
 
