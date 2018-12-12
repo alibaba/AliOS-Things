@@ -70,5 +70,5 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'starterkit'+'\\"')
 
 component.set_enable_vfp()
 
-linux_only_targets="blink coapapp helloworld http2app mqttapp tls udataapp yts"
+linux_only_targets="blink coapapp helloworld http2app mqttapp otaapp sk.sk_gui tls udataapp yts"
 windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"
