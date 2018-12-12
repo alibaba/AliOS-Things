@@ -33,4 +33,4 @@ $(NAME)_SOURCES := board.c                                 \
                    boot/evkmimxrt1020_mini_bl.c            \
                    boot/evkmimxrt1020_sdram_ini_dcd.c
 
-TEST_COMPONENTS += certificate
+TEST_COMPONENTS += certificate_test
