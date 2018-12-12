@@ -398,7 +398,7 @@ void user_post_property(void)
     if (example_index == 0) {
         /* Normal Example */
         property_payload = "{\"LightSwitch\":1}";
-        example_index++;
+        example_index+=3;
     } else if (example_index == 1) {
         /* Wrong Property ID */
         property_payload = "{\"LightSwitchxxxx\":1}";
@@ -442,7 +442,7 @@ void user_post_event(void)
     if (example_index == 0) {
         /* Normal Example */
         event_payload = "{\"ErrorCode\":0}";
-        example_index++;
+        example_index+=3;
     } else if (example_index == 1) {
         /* Wrong Property ID */
         event_payload = "{\"ErrorCodexxx\":0}";
