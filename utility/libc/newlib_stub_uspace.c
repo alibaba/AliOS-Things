@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include <k_api.h>
 #include <aos/aos.h>
-#include "aos/hal/soc.h"
+
 
 #include <u_mm.h>
 
