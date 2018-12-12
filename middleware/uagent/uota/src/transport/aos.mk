@@ -8,7 +8,7 @@ $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := ota transport message on clould.
 
 ifeq ($(TRANSPORT),coap)
