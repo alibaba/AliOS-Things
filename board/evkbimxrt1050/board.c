@@ -31,12 +31,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "aos/hal/flash.h"
 #include "fsl_common.h"
 #include "board.h"
 #if defined(SDK_I2C_BASED_COMPONENT_USED) && SDK_I2C_BASED_COMPONENT_USED
 #include "fsl_lpi2c.h"
 #endif /* SDK_I2C_BASED_COMPONENT_USED */
-#include "aos/hal/soc.h"
+
 /*******************************************************************************
  * Variables
  ******************************************************************************/

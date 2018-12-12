@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+#include "aos/hal/flash.h"
 #include <aos/kernel.h>
 
 #define HAL_PARTITION_SYS_DATA HAL_PARTITION_MAX

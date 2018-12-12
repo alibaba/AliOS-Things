@@ -43,7 +43,11 @@
 /* Includes ------------------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "aos/hal/hal.h"
+#include "aos/hal/i2c.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/spi.h"
+#include "aos/hal/uart.h"
+
 #include "hal/hal_gpio_stm32l4.h"
 #include "hal/hal_i2c_stm32l4.h"
 #include "hal/hal_uart_stm32l4.h"

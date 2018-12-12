@@ -3,7 +3,7 @@
  */
 
 #include <stdint.h>
-#include "aos/hal/hal.h"
+
 #include "k_config.h"
 #include "soc_init.h"
 

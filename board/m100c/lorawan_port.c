@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "aos/hal/soc.h"
 
+#include "aos/hal/uart.h"
 #include "em_device.h"
 #include "em_cmu.h"
 #include "em_rtc.h"

@@ -3,6 +3,8 @@
 #define HARDWARE_REVISION   "V1.0"
 #define MODEL               "STM32F412"
 
+#include "aos/hal/flash.h"
+
 #ifdef BOOTLOADER
 #define STDIO_UART 0
 #define STDIO_UART_BUADRATE 115200
