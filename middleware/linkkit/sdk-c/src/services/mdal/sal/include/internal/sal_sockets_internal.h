@@ -14,6 +14,7 @@
     #include "iotx_log.h"
 #endif
 
+#include "sal_opts.h"
 #include "sal_arch.h"
 #include "sal_def.h"
 #include "sal_ipaddr.h"
@@ -33,7 +34,7 @@ extern "C" {
 #define SAL_TAG  "sal"
 
 #ifdef SAL_USE_AOS_HAL
-#ifdef SAL_USE_DEBUG
+#if SAL_USE_DEBUG
 #define SAL_DEBUG(format, ...)  LOGD(SAL_TAG, format, ##__VA_ARGS__)
 #define SAL_ERROR(format, ...)  LOGE(SAL_TAG, format, ##__VA_ARGS__)
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
@@ -47,7 +48,7 @@ extern "C" {
 
 #define SAL_SNPRINTF snprintf
 #else
-#ifdef SAL_USE_DEBUG
+#if SAL_USE_DEBUG
 #define SAL_DEBUG(format, ...)  log_debug(SAL_TAG, format, ##__VA_ARGS__)
 #define SAL_ERROR(format, ...)  log_err(SAL_TAG, format, ##__VA_ARGS__)
 #define SAL_ASSERT(msg, assertion) do { if (!(assertion)) { \
