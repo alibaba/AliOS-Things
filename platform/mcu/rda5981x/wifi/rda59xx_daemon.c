@@ -22,8 +22,8 @@
 //debug info
 //dbg level, 0 ~ close 1 ~ error 2 ~ info 3 ~ debug
 //dump, 0 ~ close 1 ~ open
-r_u32 rda_wland_dbg_level = 2;
-r_u32 rda_wpa_dbg_level = 3;
+r_u32 rda_wland_dbg_level = 0;
+r_u32 rda_wpa_dbg_level = 0;
 r_u32 rda_maclib_dbg_level = 0;
 r_u32 rda_wland_dump = 0;
 r_u32 rda_wpa_dump = 0;
