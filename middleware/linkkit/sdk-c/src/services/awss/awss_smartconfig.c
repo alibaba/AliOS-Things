@@ -1083,11 +1083,6 @@ pos_unsync:
                 }
                 zc_pos_unsync ++; /* unsync pkg counter */
                 awss_trace("\tX+%d [%d] %-3x %c %-3x\r\n", index, tmp_score(index), sn, flag_tods(tods), len);
-                if (zc_pos_unsync > 3) {
-                    zc_pos_unsync = 0;
-                    zconfig_force_rescan();
-                    goto drop;
-                }
                 goto update_sn;/* FIXME: update prev_sn or not? */
             }
 
