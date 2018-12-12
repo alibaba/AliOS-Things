@@ -3,7 +3,7 @@
  */
 
 #include <aos/aos.h>
-#include "aos/hal/soc.h"
+
 
 #ifdef AOS_BINS
 

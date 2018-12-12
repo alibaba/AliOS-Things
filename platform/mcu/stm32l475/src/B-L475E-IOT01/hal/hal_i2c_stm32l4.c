@@ -1,4 +1,6 @@
-#include "aos/hal/hal.h"
+
+#include "aos/hal/i2c.h"
+
 #include "soc_init.h"
 #include "k_types.h"
 #include "errno.h"

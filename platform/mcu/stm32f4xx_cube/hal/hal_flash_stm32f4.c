@@ -5,8 +5,10 @@
 #include "stm32f4xx_hal.h"
 #ifdef HAL_FLASH_MODULE_ENABLED
 
+#include "aos/hal/flash.h"
+
 #include <k_api.h>
-#include "aos/hal/soc.h"
+
 #include "stm32f4xx_hal_flash.h"
 
 /* Base address of the Flash sectors Bank 1 */

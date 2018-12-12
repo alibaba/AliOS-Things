@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "aos/hal/hal.h"
+
 #include "k_types.h"
 #include "errno.h"
 #include "hal_i2c_stm32l4.h"

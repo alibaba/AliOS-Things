@@ -21,8 +21,11 @@
 #include <fcntl.h>
 
 #include <aos/aos.h>
-#include "aos/hal/soc.h"
+
 #include "aos/hal/timer.h"
+#include "aos/hal/flash.h"
+#include "aos/hal/uart.h"
+
 #include "network/hal/base.h"
 #include <hal/wifi.h>
 #include <arg_options.h>

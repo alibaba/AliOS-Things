@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+
 
 #include <csi_config.h>
 
@@ -7,6 +7,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "aos/hal/flash.h"
+#include "aos/hal/uart.h"
 
 #include <hal/wifi.h>
 

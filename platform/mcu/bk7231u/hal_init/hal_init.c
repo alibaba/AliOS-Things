@@ -1,6 +1,10 @@
 #include <sys/unistd.h>
 #include <sys/errno.h>
-#include "aos/hal/soc.h"
+
+#include "aos/hal/flash.h"
+#include "aos/hal/wdg.h"
+#include "aos/hal/uart.h"
+
 #include "board.h"
 
 extern int errno;

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "aos/hal/soc.h"
+
 #include "aos/hal/gpio.h"
 #include "nrf_gpio.h"
 

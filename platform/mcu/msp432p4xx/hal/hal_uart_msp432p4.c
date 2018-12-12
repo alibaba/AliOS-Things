@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "aos/hal/uart.h"
 #include <k_api.h>
 #include <aos/errno.h>
 #include <aos/kernel.h>
@@ -16,7 +17,7 @@
 #include <ti/drivers/UART.h>
 #include <ti/drivers/uart/UARTMSP432.h>
 
-#include "aos/hal/hal.h"
+
 
 
 extern char *g_pc_buf_queue_uart[];

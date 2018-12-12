@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+
 #include "peripheralnames.h"
 #include "pwmout_api.h"
 

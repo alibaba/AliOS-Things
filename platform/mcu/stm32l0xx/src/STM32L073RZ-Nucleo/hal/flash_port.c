@@ -1,4 +1,4 @@
-#include "aos/hal/soc.h"
+
 #include "stm32l0xx.h"
 #include "stm32l0xx_hal_flash.h"
 

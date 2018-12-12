@@ -9,7 +9,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "aos/hal/soc.h"
+
 //#include <device.h>
 //#include <clock_control.h>
 #include <bluetooth/hci.h>

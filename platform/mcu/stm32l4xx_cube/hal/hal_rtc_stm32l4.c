@@ -5,7 +5,8 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "aos/hal/hal.h"
+
+#include "aos/hal/rtc.h"
 #include "stm32l4xx_hal.h"
 #include "hal_rtc_stm32l4.h"
 #include "stm32l4xx_hal_rtc.h"

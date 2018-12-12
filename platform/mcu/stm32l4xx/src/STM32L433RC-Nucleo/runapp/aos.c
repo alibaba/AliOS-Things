@@ -32,7 +32,7 @@ static void var_init()
 
 extern void hw_start_hal(void);
 
-#include "aos/hal/soc.h"
+
 #include "hal/hal_uart_stm32l4.h"
 #include "board.h"
 
