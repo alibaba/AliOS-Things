@@ -1,5 +1,5 @@
 #include "hal/soc/soc.h"
-#include "serial_api.h"
+//#include "serial_api.h"
 #include <aos/kernel.h>
 
 
@@ -83,13 +83,14 @@ const hal_logic_partition_t hal_partitions[] =
         .partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
     },
 };
-
+extern uart_dev_t uart_0;
+/*
 uart_dev_t uart_0 = {
     0,
     {921600, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED},
     NULL,
 };
-
+*/
 void board_init(void)
 {
     hal_uart_init(&uart_0);
