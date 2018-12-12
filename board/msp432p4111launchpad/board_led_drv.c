@@ -3,8 +3,9 @@
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 
-#include "aos/hal/hal.h"
+#include "aos/hal/gpio.h"
 #include "Board.h"
 
 /*

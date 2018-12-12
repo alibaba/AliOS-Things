@@ -3,7 +3,12 @@
  */
 
 #include <stdint.h>
-#include "aos/hal/hal.h"
+
+#include "aos/hal/uart.h"
+#include "aos/hal/spi.h"
+#include "aos/hal/i2c.h"
+#include "aos/hal/gpio.h"
+
 #include "k_config.h"
 #include "board.h"
 #include "stm32f4xx_hal.h"

@@ -3,9 +3,13 @@
  */
 
 #include <stdint.h>
-#include "aos/hal/hal.h"
+
 #include "k_config.h"
 #include "board.h"
+
+#include "aos/hal/uart.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/i2c.h"
 
 #include "stm32f4xx_hal.h"
 

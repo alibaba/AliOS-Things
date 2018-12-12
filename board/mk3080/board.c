@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "aos/hal/soc.h"
+#include "aos/hal/gpio.h"
 #include <aos/kernel.h>
 #include <aos/aos.h>
 
