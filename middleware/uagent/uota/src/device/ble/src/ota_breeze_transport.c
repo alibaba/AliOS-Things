@@ -148,7 +148,7 @@ static uint32_t ota_breeze_send_crc_result(uint8_t crc_ok)
 static void ota_breeze_send_fwup_success()
 {
     uint32_t err_code;
-    uint8_t tx_buf[2] = {0x00, 0x01};
+    uint8_t tx_buf[2] = {0x01, 0x00};
     err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_UPDATE_PROCESS, tx_buf, 1);
     if (err_code != OTA_BREEZE_SUCCESS) {
         OTA_LOG_E("ota breeze send fwup failed");
@@ -187,7 +187,7 @@ static uint32_t ota_breeze_check_upgrade_fw_version(ota_breeze_version_t *versio
 	}
     }
 
-    if(ret = 1){
+    if(ret == 1){
         return OTA_BREEZE_SUCCESS;
     } else{
         return OTA_BREEZE_ERROR_FORBIDDEN;
