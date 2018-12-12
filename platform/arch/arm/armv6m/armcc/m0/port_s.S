@@ -1,10 +1,12 @@
 ;******************************************************************************
 ;                            EXTERN PARAMETERS
 ;******************************************************************************
+#include <k_config.h>
 
     IMPORT  g_active_task
     IMPORT  g_preferred_ready_task
     IMPORT  krhino_stack_ovf_check
+    IMPORT  krhino_task_sched_stats_get
 
 ;******************************************************************************
 ;                            EXPORT FUNCTIONS
@@ -124,7 +126,12 @@ PendSV_Handler
 
     ;save and restore LR
     MOV     R4, LR
-    bl      krhino_stack_ovf_check
+#if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
+    BL      krhino_stack_ovf_check
+#endif
+#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    BL      krhino_task_sched_stats_get
+#endif
     MOV     LR, R4
 
 _pendsv_handler_nosave
