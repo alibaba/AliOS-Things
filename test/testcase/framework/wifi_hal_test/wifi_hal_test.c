@@ -5,10 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <aos/aos.h>
-#include <aos/kernel.h>
-
-#include "aos/hal/soc.h"
+#include "aos/aos.h"
+#include "aos/hal/timer.h"
+#include "aos/kernel.h"
 
 #include <yunit.h>
 #include <yts.h>

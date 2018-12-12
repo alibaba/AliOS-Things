@@ -6,6 +6,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "aos/hal/adc.h"
+#include "aos/hal/i2c.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/rtc.h"
+
 #include <aos/kernel.h>
 #include <aos/aos.h>
 #include <network/network.h>
@@ -13,7 +18,7 @@
 #include "yunit.h"
 
 #include "aos/hal/adc.h"
-#include "aos/hal/soc.h"
+
 
 #include "vfs_api.h"
 
