@@ -28,8 +28,6 @@
 #include <csi_config.h>
 #include "soc.h"
 
-extern uint32_t dump_mmleak(void);
-
 #define AUTORUN  1
 #define TMR_ONE_SHOT_DLY             10
 #define TMR_PERIODIC_PERIOD          10

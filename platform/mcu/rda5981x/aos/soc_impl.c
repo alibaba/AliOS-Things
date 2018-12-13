@@ -41,17 +41,6 @@ void soc_intrpt_stack_ovf_check(void)
 }
 #endif
 
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-void soc_tick_interrupt_set(tick_t next_ticks,tick_t elapsed_ticks)
-{
-}
-
-tick_t soc_elapsed_ticks_get(void)
-{
-    return 0;
-}
-#endif
-
 extern void         *heap_start;
 extern void         *heap_end;
 extern void         *heap_len;
@@ -60,24 +49,9 @@ extern void         *__IramLeftLen;
 extern void         *__SmemLeft;
 extern void         *__SmemLeftLen;
 
-
-k_mm_region_t g_mm_region[] = 
+k_mm_region_t g_mm_region[] =
     {{(uint8_t*)&heap_start,(size_t)&heap_len},{(uint8_t*)&__SmemLeft,(size_t)&__SmemLeftLen},{(uint8_t*)&__IramLeft,(size_t)&__IramLeftLen}};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
-
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int __bss_start__, __bss_end__, __data_start__, __data_end__;
-
-void aos_mm_leak_region_init(void)
-{
-    //printf("heap_start = 0x%x, heap_len = 0x%x\n", (size_t)&heap_start, (size_t)&heap_len);
-    //krhino_add_mm_region(g_kmm_head, heap_start, heap_end - heap_start);
-#if (RHINO_CONFIG_MM_DEBUG > 0)
-    krhino_mm_leak_region_init(&__bss_start__, &__bss_end__);
-    krhino_mm_leak_region_init(&__data_start__, &__data_end__);
-#endif
-}
 
 size_t soc_get_cur_sp()
 {
@@ -88,7 +62,6 @@ size_t soc_get_cur_sp()
     return sp;
 }
 
-#endif
 static void soc_print_stack()
 {
 
