@@ -13,19 +13,17 @@
 #include "aos/hal/gpio.h"
 #include "aos/hal/i2c.h"
 
-#if defined ( __CC_ARM )//KEIL
 #ifndef UNUSED
+#if defined ( __CC_ARM )
 #define UNUSED    __attribute__((unused))
-#endif
 #elif defined ( __ICCARM__ )
-#ifndef UNUSED
 #define UNUSED    __attribute__((unused))
-#endif
-#elif defined ( __GNUC__ ) 
-#ifndef UNUSED
+#elif defined ( __GNUC__ )
 #define UNUSED    __attribute__((unused))
+#else
+#define UNUSED
 #endif
-#endif 
+#endif
 
 #define SENSOR_MAX_NUM      (16)
 #define SENSOR_NAME_LEN     (32)
@@ -52,10 +50,27 @@ typedef enum
 
 
 #ifndef likely
+#if defined ( __CC_ARM )
 #define likely(x) __builtin_expect(!!(x), 1)
+#elif defined ( __ICCARM__ )
+#define likely(x) (x)
+#elif defined ( __GNUC__ )
+#define likely(x) __builtin_expect(!!(x), 1)
+#else
+#define likely(x) (x)
 #endif
+#endif
+
 #ifndef unlikely
+#if defined ( __CC_ARM )
 #define unlikely(x) __builtin_expect(!!(x), 0)
+#elif defined ( __ICCARM__ )
+#define unlikely(x)  (x)
+#elif defined ( __GNUC__ )
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#define unlikely(x)  (x)
+#endif
 #endif
 
 /* Physical generic sensor data defs generic structs here*/
