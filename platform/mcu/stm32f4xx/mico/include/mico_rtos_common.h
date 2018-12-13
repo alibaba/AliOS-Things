@@ -44,7 +44,7 @@ extern OSStatus mico_rtos_init  ( void );
 extern OSStatus mico_rtos_deinit( void );
 
 /* Entry point for user Application */
-extern void application_start          ( void );
+extern int application_start(int argc, char **argv);
 
 
 #ifdef __cplusplus
