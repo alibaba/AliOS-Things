@@ -161,7 +161,7 @@ static void alink_work(void *arg)
     }
 }
 
-int application_start(void)
+int application_start(int argc, char **argv)
 {
     alink_work(NULL);
 

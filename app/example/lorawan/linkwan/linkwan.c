@@ -49,7 +49,7 @@ static void lora_task_entry(void *arg)
     lora_fsm();
 }
 
-int application_start( void )
+int application_start(int argc, char **argv)
 {
     lora_task_entry(NULL);
 }
