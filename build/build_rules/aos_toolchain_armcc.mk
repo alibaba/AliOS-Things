@@ -71,7 +71,7 @@ CPU_LDFLAGS    :=
 #COMPILER_SPECIFIC_MAPFILE_TO_CSV = $(PYTHON) $(MAPFILE_PARSER) $(1) > $(2)
 
 #TODO
-#MAPFILE_PARSER            :=$(MAKEFILES_PATH)/scripts/map_parse_armcc.py
+#MAPFILE_PARSER            :=$(MAKEFILES_PATH)/map_parse_armcc.py
 
 # $(1) is map file, $(2) is CSV output file
 #COMPILER_SPECIFIC_MAPFILE_DISPLAY_SUMMARY = $(PYTHON) $(MAPFILE_PARSER) $(1)
