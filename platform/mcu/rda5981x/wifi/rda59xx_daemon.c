@@ -79,30 +79,31 @@ static r_s32 rda59xx_send_daemon_msg(rda_msg *msg, r_u32 wait_time)
 
 r_void rda59xx_get_macaddr(r_u8 *macaddr, r_u32 mode)
 {
-#ifdef DELETE_HFILOP_CODE 
+#if 0
     macaddr[0] = 0xD6;
     macaddr[1] = 0x71;
     macaddr[2] = 0x36;
     macaddr[3] = 0x60;
     macaddr[4] = 0xD8;
-    macaddr[5] = 0xF0;
-    
+    macaddr[5] = 0xF3;
+#else
+    r_s32 ret = 0;
+    ret = rda5981_read_sys_data(macaddr, 6, RDA5981_SYS_DATA_FLAG_MAC);
+    if((ret != 0) || (is_zero_ether_addr(macaddr))){
+        rda_get_random_bytes(macaddr, 6);
+        macaddr[0] &= 0xfe;
+        macaddr[0] |= 0x02;
+        rda5981_write_sys_data(macaddr, 6, RDA5981_SYS_DATA_FLAG_MAC);
+    }
+#endif
     if(mode == 1){
         if(macaddr[0] & 0x04)
            macaddr[0] &= 0xFB;
         else
            macaddr[0] |= 0x04;
     }
-#else
-    extern unsigned char *hfilop_layer_get_mac(void);
-    memcpy((char *)macaddr, hfilop_layer_get_mac(), 6);
-    if(mode == 1)
-        macaddr[5] ^= 0x01;
-#endif
     return;
-	}
-
-
+}
 
 r_void rda59xx_set_macaddr(r_u8 *macaddr, r_u32 mode)
 {
@@ -270,14 +271,7 @@ reconn:
         if(res == R_NOERR){
             WIFISTACK_PRINT("Connect successful!\r\n");
             rda59xx_set_data_rate(0, 0);
-#ifndef DELETE_HFILOP_CODE
-             r_memcpy(&r_bss_info, &ap, 6+33);//bssid, ssid, channel, secure type, RSSI
-             r_bss_info.channel = ap.channel;
-             r_bss_info.secure = ap.secure_type;
-             r_bss_info.rssi = ap.RSSI;
-#else
             r_memcpy(&r_bss_info, &ap, 6+33+1+1+1);//bssid, ssid, channel, secure type, RSSI
-#endif
             r_bss_info.ipaddr = lwip_sta_netif.ip_addr.addr;
             r_bss_info.mask = lwip_sta_netif.netmask.addr;
             r_bss_info.gateway = lwip_sta_netif.gw.addr;
@@ -309,17 +303,6 @@ r_s32 rda59xx_sta_connect(rda59xx_sta_info *sta_info)
     rda59xx_send_daemon_msg(&msg, RDA_WAIT_FOREVER);
     return 0;        
 }
-
-#ifndef DELETE_HFILOP_CODE
-r_s32 rda59xx_sta_connect_ex(rda59xx_sta_info *sta_info)
-{
-    rda_msg msg;
-    msg.type = DAEMON_STA_CONNECT;
-    msg.arg1 = (r_u32)sta_info;
-    rda59xx_send_daemon_msg(&msg, 1000);
-    return 0;        
-}
-#endif
 
 r_s32 rda59xx_sta_get_ip(r_u32 ip_addr)
 {

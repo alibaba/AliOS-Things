@@ -21,7 +21,7 @@
 #endif
 
 #include <k_api.h>
-#include "hfilop/hfilop.h"
+
 #include "ota_service.h"
 
 static char linkkit_started = 0;
@@ -352,16 +352,6 @@ static int mqtt_connected_event_handler(void)
     return 0;
 }
 
-
-static int uart_data_process(char *data, uint32_t len)
-{
-    LOG("uart_data_process:(%d)[%s]\n", len,data);
-    if(hfilop_uart_in_cmd_mode()!=0)
-        return len;
-    hfilop_uart_send_data((unsigned char*)data,len);
-    return 0;
-}
-
 int application_start(int argc, char **argv)
 {
 #ifdef CONFIG_PRINT_HEAP
@@ -378,15 +368,6 @@ int application_start(int argc, char **argv)
             AT_SEND_DELIMITER, 1000);
 #endif
 
-    hfilop_init_rf_type(MODULE_TYPE);
-    hfilop_uart_task_start(uart_data_process, NULL);
-    hfilop_assis_task_start();
-    hfilop_check_ota_state();
-    if(strlen(hfilop_layer_get_product_key()) <=0 || strlen(hfilop_layer_get_device_name()) <=0)
-    {
-        while(1)
-            aos_msleep(1000);
-    }
 #ifdef WITH_SAL
     sal_init();
 #endif
@@ -407,7 +388,7 @@ int application_start(int argc, char **argv)
     aos_cli_register_command(&awss_dev_ap_cmd);
     aos_cli_register_command(&awss_cmd);
 #endif
-  //  set_iotx_info();
+    set_iotx_info();
 #ifdef AWSS_SUPPORT_DEV_AP
     aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
     //aos_task_new("dap_close", awss_close_dev_ap, NULL, 2048);
@@ -415,9 +396,6 @@ int application_start(int argc, char **argv)
     aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
     //aos_task_new("netmgr_stop", stop_netmgr, NULL, 4096);
 #endif
-	
-
-
 
     aos_loop_run();
 
