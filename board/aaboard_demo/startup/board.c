@@ -32,9 +32,6 @@ void board_init(void)
     /*mm heap set*/
     aos_heap_set();
 
-    /*hal layer init*/
-    hal_init();
-
     /*choosen to init flash partition , for kv¡¢flash¡¢ota and so on*/
     flash_partition_init();
 
