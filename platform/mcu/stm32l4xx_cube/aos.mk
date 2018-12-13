@@ -1,6 +1,12 @@
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
-NAME := mcu_stm32l4xx_cube_2boot
+NAME := mcu_stm32l4xx_cube
+
 HOST_OPENOCD := stm32l4xx
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l4xx_cube
+
+ifeq ($(AOS_2BOOT_SUPPORT), yes)
+$(NAME)_LIBSUFFIX := _2boot
 
 $(NAME)_COMPONENTS += ota_2nd_boot
 
@@ -27,12 +33,6 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
                   --specs=nosys.specs
 
 else
-NAME := mcu_stm32l4xx_cube
-HOST_OPENOCD := stm32l4xx
-
-$(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
-$(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l4xx_cube
 
 $(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += newlib_stub rhino vfs kv
