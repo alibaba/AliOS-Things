@@ -10,6 +10,8 @@ HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := mcu_stm32l475
 SUPPORT_MBINS      := no
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES := board.c osa_flash.c
 
 GLOBAL_INCLUDES += .
