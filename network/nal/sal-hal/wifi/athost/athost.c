@@ -706,22 +706,22 @@ static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
                                char *rsp, uint32_t rsplen) 
 {
     if (NULL == fst) {
-        printf("%s invalid input \r\n", __FUNCTION__);
+        LOGE(TAG, "%s invalid input \r\n", __FUNCTION__);
         return -1;
     }
 
     if (NULL == rsp || 0 == rsplen) {
-        printf("%s invalid input \r\n", __FUNCTION__);
+        LOGE(TAG, "%s invalid input \r\n", __FUNCTION__);
         return -1;
     }
 
     if (at_send_no_reply(fst, strlen(fst), true) != 0) {
-        printf("at send %s failed\n", fst);
+        LOGE(TAG, "at send %s failed\n", fst);
         return -1;
     }
 
     if (at_send_wait_reply(data, len, false, rsp, rsplen, NULL) != 0) {
-        printf("at send data len %d failed\n", len);
+        LOGE(TAG, "at send data len %d failed\n", len);
         return -1;
     }
 
