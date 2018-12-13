@@ -327,16 +327,6 @@ ifndef CC
 $(error No matching toolchain found for architecture $(HOST_ARCH))
 endif
 
-
-
-# Process all the components + AOS
-
-COMPONENTS += $(HOST_MCU_FAMILY) osal init
-
-ifneq ($(ONLY_BUILD_LIBRARY), yes)
-COMPONENTS += auto_component
-endif
-
 # MBINS build support
 ifeq ($(MBINS),app)
 COMPONENTS += mbins.umbins
