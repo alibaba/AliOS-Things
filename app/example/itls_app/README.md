@@ -1,10 +1,10 @@
-# tls sample
+# itls sample
   
 It is a sample for using itls lib in alios things. 
 ## Contents
 
 ```sh
-tls
+itls_app
 └── itls_client.c        # iTLS test code
 ```
 
