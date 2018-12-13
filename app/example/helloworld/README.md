@@ -4,7 +4,7 @@
 helloworld
 ├── helloworld.c    # helloworld source code
 ├── Config.in       # kconfig file
-├── helloworld.mk   # aos build system file(for make)
+├── aos.mk          # aos build system file(for make)
 ├── k_app_config.h  # aos app config file
 └── ucube.py        # aos build system file(for scons)
 ```
