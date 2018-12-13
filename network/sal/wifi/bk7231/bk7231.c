@@ -284,7 +284,7 @@ static void bk7231_get_local_ip_addr()
         return ;
     }
     LOGD(TAG, "local ip is %s \r\n", ip_stat.ip);
-    strcpy(localipaddr, ip_stat.ip);
+    strncpy(localipaddr, ip_stat.ip, sizeof(localipaddr));
 }
 /*
  * Wifi station event handler. include:
@@ -437,6 +437,7 @@ static int sal_wifi_init(void)
         g_link[link].fd = -1;
     }
 
+    aos_msleep(2000);
     /*wifi module fw version print */
     snprintf(cmd, FWVER_CMD_LEN, "%s", FWVER_CMD);
     at.send_raw(cmd, out, sizeof(out));
