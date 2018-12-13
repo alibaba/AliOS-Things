@@ -12,6 +12,7 @@ GLOBAL_INCLUDES += common
 
 ifeq ($(COMPILER),armcc)
 
+GLOBAL_ASMFLAGS += --cpreproc
 $(NAME)_SOURCES += common/k_cache_armcc.S
 
 ifeq ($(HOST_ARCH),Cortex-A5)
