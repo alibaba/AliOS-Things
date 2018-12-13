@@ -113,7 +113,7 @@ flash_configs['esp8266'] = esp8266
 # Flash configs for esp8266 board
 mk3060 = {
 'cmd': [
-    '@AOSROOT@/build/aos_firmware_update.py',
+    '@AOSROOT@/build/scripts/aos_firmware_update.py',
     '@PORT@',
     '0x13200',
     '@AOSROOT@/out/@TARGET@/binary/@TARGET@.bin'
