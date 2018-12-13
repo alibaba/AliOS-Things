@@ -129,7 +129,7 @@
 #define ETS_CACHED_ADDR(addr) (addr) 
 
 #ifndef __ASSEMBLER__
-#define BIT(nr)                 (1UL << (nr))
+#define BIT(nr)                 (1ULL << (nr))
 #else
 #define BIT(nr)                 (1 << (nr))
 #endif
