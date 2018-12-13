@@ -1,8 +1,4 @@
-ifeq ($(AOS_2BOOT_SUPPORT), yes)
-NAME := board_developerkit_2boot
-else
 NAME := board_developerkit
-endif
 
 $(NAME)_MBINS_TYPE   := kernel
 $(NAME)_VERSION      := 1.0.0
@@ -12,6 +8,8 @@ HOST_MCU_FAMILY      := mcu_stm32l4xx_cube
 HOST_MCU_NAME        := STM32L496VGTx
 
 ifeq ($(AOS_2BOOT_SUPPORT), yes)
+$(NAME)_LIBSUFFIX := _2boot
+
 HOST_OPENOCD := stm32l4xx
 GLOBAL_DEFINES += USE_HAL_DRIVER
 GLOBAL_DEFINES += STM32L496xx
