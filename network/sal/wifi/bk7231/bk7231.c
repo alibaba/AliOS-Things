@@ -437,6 +437,7 @@ static int sal_wifi_init(void)
         g_link[link].fd = -1;
     }
 
+    aos_msleep(2000);
     /*wifi module fw version print */
     snprintf(cmd, FWVER_CMD_LEN, "%s", FWVER_CMD);
     at.send_raw(cmd, out, sizeof(out));
