@@ -12,14 +12,6 @@ extern void         *heap_len;
 k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len}};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
-extern int __bss_start__, __bss_end__, _sdata, _edata;
-
-void aos_mm_leak_region_init(void)
-{
-    krhino_mm_leak_region_init(&__bss_start__, &__bss_end__);
-    krhino_mm_leak_region_init(&_sdata, &_edata);
-}
-
 size_t soc_get_cur_sp()
 {
     size_t sp = 0;
