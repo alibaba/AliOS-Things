@@ -1,16 +1,53 @@
-ifneq ($(filter $(HOST_ARCH), linux),)
+ifneq ($(filter $(HOST_ARCH), xtensa),)
 
+TOOLCHAIN_PATH ?=
+ifneq ($(filter $(HOST_MCU_FAMILY), mcu_esp8266), )
+TOOLCHAIN_PREFIX := xtensa-lx106-elf-
+TOOLCHAIN_DEFAULT_FOLDER := gcc-xtensa-lx106
+endif
+ifneq ($(filter $(HOST_MCU_FAMILY), mcu_esp32), )
+TOOLCHAIN_PREFIX := xtensa-esp32-elf-
+TOOLCHAIN_DEFAULT_FOLDER := gcc-xtensa-esp32
+endif
+
+ifneq (,$(wildcard $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin))
+TOOLCHAIN_PATH := $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin/
+endif
+
+SYSTEM_TOOLCHAIN_PATH :=
+ifeq ($(HOST_OS),Win32)
+SYSTEM_GCC_PATH = $(shell where $(TOOLCHAIN_PREFIX)gcc.exe)
+ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc.exe,$(SYSTEM_GCC_PATH)))
+SYSTEM_TOOLCHAIN_PATH := $(subst $(TOOLCHAIN_PREFIX)gcc.exe,,$(SYSTEM_GCC_PATH))
+endif
+else #WIN32
+ifneq (,$(filter $(HOST_OS),Linux32 Linux64 OSX))
+SYSTEM_GCC_PATH = $(shell which $(TOOLCHAIN_PREFIX)gcc)
+ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc,$(SYSTEM_GCC_PATH)))
+SYSTEM_TOOLCHAIN_PATH := $(subst $(TOOLCHAIN_PREFIX)gcc,,$(SYSTEM_GCC_PATH))
+endif
+else #Linux32 Linux64 OSX
+$(error unsupport OS $(HOST_OS))
+endif #Linux32 Linux64 OSX
+endif #WIN32
+
+ifeq (,$(TOOLCHAIN_PATH))
+ifneq (,$(SYSTEM_TOOLCHAIN_PATH))
 TOOLCHAIN_PATH :=
+else
+DOWNLOAD_URL   = "https://esp-idf.readthedocs.io/en/latest/get-started/index.html\#setup-toolchain"
+$(error can not find compiler toolchain, please setup toolchain as $(DOWNLOAD_URL) instructed)
+endif #SYSTEM_TOOLCHAIN_PATH
+endif #TOOLCHAIN_PATH
 
-PATH    := $(PATH):/bin:/usr/bin:/usr/local/bin
 CC      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
 CXX     := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)g++
 AS      := $(CC)
 AR      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ar
 LD      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ld
+CPP     := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)cpp
 OPTIONS_IN_FILE_OPTION    := @
 
-export PATH
 ADD_COMPILER_SPECIFIC_STANDARD_CFLAGS   = $(1) $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Werror)
 ADD_COMPILER_SPECIFIC_STANDARD_CXXFLAGS = $(1) $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Werror)
 ADD_COMPILER_SPECIFIC_STANDARD_ADMFLAGS = $(1)
@@ -31,13 +68,13 @@ COMPILER_SPECIFIC_DEBUG_LDFLAGS    := -Wl,--gc-sections -Wl,--cref
 COMPILER_SPECIFIC_RELEASE_LOG_CFLAGS   := -ggdb $(COMPILER_SPECIFIC_OPTIMIZED_CFLAGS)
 COMPILER_SPECIFIC_RELEASE_LOG_CXXFLAGS := -ggdb $(COMPILER_SPECIFIC_OPTIMIZED_CFLAGS)
 COMPILER_SPECIFIC_RELEASE_LOG_ASFLAGS  :=
-COMPILER_SPECIFIC_RELEASE_LOG_LDFLAGS  := -Wl,--gc-sections -Wl,$(COMPILER_SPECIFIC_OPTIMIZED_CFLAGS) -Wl,--cref
+COMPILER_SPECIFIC_RELEASE_LOG_LDFLAGS  := -Wl,--gc-sections -Wl,$(COMPILER_SPECIFIC_OPTIMIZED_CFLAGS) -Wl,--cref -nostdlib
 
 #release: optimize and log disable
 COMPILER_SPECIFIC_RELEASE_CFLAGS   := -DNDEBUG $(COMPILER_SPECIFIC_OPTIMIZED_CFLAGS)
 COMPILER_SPECIFIC_RELEASE_CXXFLAGS := -DNDEBUG $(COMPILER_SPECIFIC_OPTIMIZED_CFLAGS)
 COMPILER_SPECIFIC_RELEASE_ASFLAGS  :=
-COMPILER_SPECIFIC_RELEASE_LDFLAGS  := -Wl,--gc-sections -Wl,$(COMPILER_SPECIFIC_OPTIMIZED_CFLAGS) -Wl,--cref
+COMPILER_SPECIFIC_RELEASE_LDFLAGS  := -Wl,--gc-sections -Wl,$(COMPILER_SPECIFIC_OPTIMIZED_CFLAGS) -Wl,--cref -nostdlib
 
 COMPILER_SPECIFIC_DEPS_FLAG        := -MD
 COMPILER_SPECIFIC_COMP_ONLY_FLAG   := -c
@@ -61,19 +98,19 @@ CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs -u _printf_float
 CPU_CFLAGS     :=
 CPU_CXXFLAGS   := 
 CPU_ASMFLAGS   := 
-CPU_LDFLAGS    := 
+CPU_LDFLAGS    :=
 CLIB_LDFLAGS_NANO       += 
 CLIB_LDFLAGS_NANO_FLOAT += 
 
 # $(1) is map file, $(2) is CSV output file
 COMPILER_SPECIFIC_MAPFILE_TO_CSV = $(PYTHON) $(MAPFILE_PARSER) $(1) > $(2)
 
-MAPFILE_PARSER            :=$(MAKEFILES_PATH)/scripts/map_parse_gcc.py
+MAPFILE_PARSER            :=$(SCRIPTS_PATH)/map_parse_gcc.py
 
 # $(1) is map file, $(2) is CSV output file
 COMPILER_SPECIFIC_MAPFILE_DISPLAY_SUMMARY = $(PYTHON) $(MAPFILE_PARSER) $(1)
 
-KILL_OPENOCD_SCRIPT := $(MAKEFILES_PATH)/scripts/kill_openocd.py
+KILL_OPENOCD_SCRIPT := $(SCRIPTS_PATH)/kill_openocd.py
 
 KILL_OPENOCD = $(PYTHON) $(KILL_OPENOCD_SCRIPT)
 
@@ -82,12 +119,12 @@ OBJCOPY := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objcopy$(EXECUTABLE_SUFFIX)"
 STRIP   := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)strip$(EXECUTABLE_SUFFIX)"
 NM      := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)nm$(EXECUTABLE_SUFFIX)"
 
-STRIP_OUTPUT_PREFIX := -o 
+STRIP_OUTPUT_PREFIX := -o
 OBJCOPY_BIN_FLAGS   := -O binary -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes
 OBJCOPY_HEX_FLAGS   := -O ihex -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes
 
 LINK_OUTPUT_SUFFIX  :=.elf
-BIN_OUTPUT_SUFFIX   :=.bin
-HEX_OUTPUT_SUFFIX   :=.hex
+BIN_OUTPUT_SUFFIX :=.bin
+HEX_OUTPUT_SUFFIX :=.hex
 
 endif

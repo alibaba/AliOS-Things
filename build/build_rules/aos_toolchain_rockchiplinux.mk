@@ -91,12 +91,12 @@ CLIB_LDFLAGS_NANO_FLOAT +=
 # $(1) is map file, $(2) is CSV output file
 COMPILER_SPECIFIC_MAPFILE_TO_CSV = $(PYTHON) $(MAPFILE_PARSER) $(1) > $(2)
 
-MAPFILE_PARSER            :=$(MAKEFILES_PATH)/scripts/map_parse_gcc.py
+MAPFILE_PARSER            :=$(SCRIPTS_PATH)/map_parse_gcc.py
 
 # $(1) is map file, $(2) is CSV output file
 COMPILER_SPECIFIC_MAPFILE_DISPLAY_SUMMARY = $(PYTHON) $(MAPFILE_PARSER) $(1)
 
-KILL_OPENOCD_SCRIPT := $(MAKEFILES_PATH)/scripts/kill_openocd.py
+KILL_OPENOCD_SCRIPT := $(SCRIPTS_PATH)/kill_openocd.py
 
 KILL_OPENOCD = $(PYTHON) $(KILL_OPENOCD_SCRIPT)
 

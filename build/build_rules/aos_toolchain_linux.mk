@@ -1,27 +1,8 @@
-ifneq ($(filter $(HOST_ARCH), armhflinux),)
+ifneq ($(filter $(HOST_ARCH), linux),)
 
-TOOLCHAIN_PATH ?=
-TOOLCHAIN_PREFIX := arm-linux-gnueabihf-
-
-SYSTEM_TOOLCHAIN_PATH :=
-ifneq (,$(filter $(HOST_OS),Linux32 Linux64 OSX))
-SYSTEM_GCC_PATH = $(shell which $(TOOLCHAIN_PREFIX)gcc)
-ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc,$(SYSTEM_GCC_PATH)))
-SYSTEM_TOOLCHAIN_PATH := $(subst $(TOOLCHAIN_PREFIX)gcc,,$(SYSTEM_GCC_PATH))
-endif
-else #Linux32 Linux64 OSX
-$(error unsupport OS $(HOST_OS))
-endif #Linux32 Linux64 OSX
-
-ifeq (,$(TOOLCHAIN_PATH))
-ifneq (,$(SYSTEM_TOOLCHAIN_PATH))
 TOOLCHAIN_PATH :=
-else
-$(warning can not find compiler toolchain, please install gcc-arm-linux-gnueabihf toolchain first)
-$(error please use command: sudo apt install gcc-arm-linux-gnueabihf)
-endif #SYSTEM_TOOLCHAIN_PATH
-endif #TOOLCHAIN_PATH
 
+PATH    := $(PATH):/bin:/usr/bin:/usr/local/bin
 CC      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
 CXX     := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)g++
 AS      := $(CC)
@@ -29,6 +10,7 @@ AR      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ar
 LD      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ld
 OPTIONS_IN_FILE_OPTION    := @
 
+export PATH
 ADD_COMPILER_SPECIFIC_STANDARD_CFLAGS   = $(1) $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Werror)
 ADD_COMPILER_SPECIFIC_STANDARD_CXXFLAGS = $(1) $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Werror)
 ADD_COMPILER_SPECIFIC_STANDARD_ADMFLAGS = $(1)
@@ -86,12 +68,12 @@ CLIB_LDFLAGS_NANO_FLOAT +=
 # $(1) is map file, $(2) is CSV output file
 COMPILER_SPECIFIC_MAPFILE_TO_CSV = $(PYTHON) $(MAPFILE_PARSER) $(1) > $(2)
 
-MAPFILE_PARSER            :=$(MAKEFILES_PATH)/scripts/map_parse_gcc.py
+MAPFILE_PARSER            :=$(SCRIPTS_PATH)/map_parse_gcc.py
 
 # $(1) is map file, $(2) is CSV output file
 COMPILER_SPECIFIC_MAPFILE_DISPLAY_SUMMARY = $(PYTHON) $(MAPFILE_PARSER) $(1)
 
-KILL_OPENOCD_SCRIPT := $(MAKEFILES_PATH)/scripts/kill_openocd.py
+KILL_OPENOCD_SCRIPT := $(MAKEFILES_PATH)/kill_openocd.py
 
 KILL_OPENOCD = $(PYTHON) $(KILL_OPENOCD_SCRIPT)
 
