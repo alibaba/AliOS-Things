@@ -58,9 +58,6 @@ $(foreach makefile_name,$(EXTRA_TARGET_MAKEFILES),$(eval include $(makefile_name
 endif
 endif
 
-include $(MAKEFILES_PATH)/aos_resources.mk
-include $(MAKEFILES_PATH)/aos_images_download.mk
-
 ##################################
 # Macros
 ##################################
