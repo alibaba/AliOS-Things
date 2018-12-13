@@ -6,7 +6,7 @@ $(NAME)_SUMMARY    := testcase framework
 
 GLOBAL_INCLUDES += include
 
-$(NAME)_COMPONENTS := yunit
+$(NAME)_COMPONENTS := yunit auto_component
 
 $(NAME)_SOURCES := yts_main.c
 
