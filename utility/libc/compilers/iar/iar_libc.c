@@ -21,7 +21,7 @@ __ATTRIBUTES void *malloc(unsigned int size)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_malloc(size | AOS_UNSIGNED_INT_MSB);
 #else
     mem = aos_malloc(size);
@@ -34,7 +34,7 @@ __ATTRIBUTES void *realloc(void *old, unsigned int newlen)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_realloc(old, newlen | AOS_UNSIGNED_INT_MSB);
 #else
     mem = aos_realloc(old, newlen);
@@ -47,7 +47,7 @@ __ATTRIBUTES void *calloc(size_t len, size_t elsize)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_malloc((elsize * len) | AOS_UNSIGNED_INT_MSB);
 #else
     mem = aos_malloc(elsize * len);
