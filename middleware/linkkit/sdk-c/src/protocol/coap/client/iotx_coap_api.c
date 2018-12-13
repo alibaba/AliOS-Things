@@ -5,7 +5,6 @@
 #include <stdio.h>
 
 #include "iot_export_errno.h"
-
 #include "iotx_utils.h"
 #include "utils_hmac.h"
 #include "json_parser.h"
@@ -31,7 +30,6 @@
 #define IOTX_AUTH_DEVICENAME_STR_WITH_SEQ "{\"productKey\":\"%s\",\"deviceName\":\"%s\",\"clientId\":\"%s\",\"sign\":\"%s\",\"seq\":\"%d\"}"
 
 #define IOTX_COAP_ONLINE_DTLS_SERVER_URL "coaps://%s.coap.cn-shanghai.link.aliyuncs.com:5684"
-
 iotx_coap_context_t *g_coap_context = NULL;
 
 typedef struct {
@@ -286,19 +284,19 @@ int iotx_get_well_known(iotx_coap_context_t *p_context)
     p_coap_ctx = (Cloud_CoAPContext *)p_iotx_coap->p_coap_ctx;
 
 
-    Cloud_CoAPMessage_init(&message);
-    Cloud_CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
-    Cloud_CoAPMessageCode_set(&message, COAP_MSG_CODE_GET);
-    Cloud_CoAPMessageId_set(&message, Cloud_CoAPMessageId_gen(p_coap_ctx));
+    CoAPMessage_init(&message);
+    CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
+    CoAPMessageCode_set(&message, COAP_MSG_CODE_GET);
+    CoAPMessageId_set(&message, Cloud_CoAPMessageId_gen(p_coap_ctx));
     len = iotx_get_coap_token(p_iotx_coap, token);
-    Cloud_CoAPMessageToken_set(&message, token, len);
+    CoAPMessageToken_set(&message, token, len);
     Cloud_CoAPMessageHandler_set(&message, iotx_get_well_known_handler);
-    Cloud_CoAPStrOption_add(&message, COAP_OPTION_URI_PATH, (unsigned char *)".well-known", strlen(".well-known"));
-    Cloud_CoAPStrOption_add(&message, COAP_OPTION_URI_PATH, (unsigned char *)"core", strlen("core"));
-    Cloud_CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_LINK_FORMAT);
-    Cloud_CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
+    CoAPStrOption_add(&message, COAP_OPTION_URI_PATH, (unsigned char *)".well-known", strlen(".well-known"));
+    CoAPStrOption_add(&message, COAP_OPTION_URI_PATH, (unsigned char *)"core", strlen("core"));
+    CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_LINK_FORMAT);
+    CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
     Cloud_CoAPMessage_send(p_coap_ctx, &message);
-    Cloud_CoAPMessage_destory(&message);
+    CoAPMessage_destory(&message);
     return IOTX_SUCCESS;
 }
 
@@ -462,23 +460,23 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
 
     p_coap_ctx = (Cloud_CoAPContext *)p_iotx_coap->p_coap_ctx;
 
-    Cloud_CoAPMessage_init(&message);
-    Cloud_CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
-    Cloud_CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
-    Cloud_CoAPMessageId_set(&message, Cloud_CoAPMessageId_gen(p_coap_ctx));
+    CoAPMessage_init(&message);
+    CoAPMessageType_set(&message, COAP_MESSAGE_TYPE_CON);
+    CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
+    CoAPMessageId_set(&message, Cloud_CoAPMessageId_gen(p_coap_ctx));
     len = iotx_get_coap_token(p_iotx_coap, token);
-    Cloud_CoAPMessageToken_set(&message, token, len);
+    CoAPMessageToken_set(&message, token, len);
     Cloud_CoAPMessageHandler_set(&message, iotx_device_name_auth_callback);
 
-    Cloud_CoAPStrOption_add(&message, COAP_OPTION_URI_PATH, (unsigned char *)IOTX_AUTH_STR, strlen(IOTX_AUTH_STR));
-    Cloud_CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
-    Cloud_CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_JSON);
+    CoAPStrOption_add(&message, COAP_OPTION_URI_PATH, (unsigned char *)IOTX_AUTH_STR, strlen(IOTX_AUTH_STR));
+    CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
+    CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_JSON);
 
-    Cloud_CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
+    CoAPMessageUserData_set(&message, (void *)p_iotx_coap);
 
     p_payload = coap_malloc(COAP_MSG_MAX_PDU_LEN);
     if (NULL == p_payload) {
-        Cloud_CoAPMessage_destory(&message);
+        CoAPMessage_destory(&message);
         return IOTX_ERR_NO_MEM;
     }
     memset(p_payload, 0x00, COAP_MSG_MAX_PDU_LEN);
@@ -503,12 +501,12 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
                      p_iotx_coap->p_devinfo->device_id,
                      sign);
     }
-    Cloud_CoAPMessagePayload_set(&message, p_payload, strlen((char *)p_payload));
+    CoAPMessagePayload_set(&message, p_payload, strlen((char *)p_payload));
     COAP_DEBUG("The payload is: %s", message.payload);
     COAP_DEBUG("Send authentication message to server");
     ret = Cloud_CoAPMessage_send(p_coap_ctx, &message);
     coap_free(p_payload);
-    Cloud_CoAPMessage_destory(&message);
+    CoAPMessage_destory(&message);
 
     if (COAP_SUCCESS != ret) {
         COAP_DEBUG("Send authentication message to server failed, ret = %d", ret);
@@ -567,7 +565,7 @@ static int iotx_split_path_2_option(char *uri, Cloud_CoAPMessage *message)
                 memset(path, 0x00, sizeof(path));
                 strncpy(path, pstr, ptr - pstr);
                 COAP_DEBUG("path: %s,len=%d", path, (int)(ptr - pstr));
-                Cloud_CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
+                CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
                                         (unsigned char *)path, (int)strlen(path));
             }
             pstr = ptr + 1;
@@ -577,7 +575,7 @@ static int iotx_split_path_2_option(char *uri, Cloud_CoAPMessage *message)
             memset(path, 0x00, sizeof(path));
             strncpy(path, pstr, sizeof(path) - 1);
             COAP_DEBUG("path: %s,len=%d", path, (int)strlen(path));
-            Cloud_CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
+            CoAPStrOption_add(message, COAP_OPTION_URI_PATH,
                                     (unsigned char *)path, (int)strlen(path));
         }
         ptr ++;
@@ -594,6 +592,7 @@ uint32_t IOT_CoAP_GetCurToken(iotx_coap_context_t *p_context)
 
     return p_iotx_coap->coap_token;
 }
+
 int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_message_t *p_message)
 {
 
@@ -633,13 +632,14 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
     p_coap_ctx = (Cloud_CoAPContext *)p_iotx_coap->p_coap_ctx;
     if (p_iotx_coap->is_authed) {
 
-        Cloud_CoAPMessage_init(&message);
-        Cloud_CoAPMessageType_set(&message, p_message->msg_type);
-        Cloud_CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
-        Cloud_CoAPMessageId_set(&message, Cloud_CoAPMessageId_gen(p_coap_ctx));
+        /* CoAPMessage_init(&message); */
+        CoAPMessage_init(&message);
+        CoAPMessageType_set(&message, p_message->msg_type);
+        CoAPMessageCode_set(&message, COAP_MSG_CODE_POST);
+        CoAPMessageId_set(&message, Cloud_CoAPMessageId_gen(p_coap_ctx));
         len = iotx_get_coap_token(p_iotx_coap, token);
-        Cloud_CoAPMessageToken_set(&message, token, len);
-        Cloud_CoAPMessageUserData_set(&message, (void *)p_message->user_data);
+        CoAPMessageToken_set(&message, token, len);
+        CoAPMessageUserData_set(&message, (void *)p_message->user_data);
         Cloud_CoAPMessageHandler_set(&message, p_message->resp_callback);
 
         ret = iotx_split_path_2_option(p_path, &message);
@@ -648,13 +648,13 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
         }
 
         if (IOTX_CONTENT_TYPE_CBOR == p_message->content_type) {
-            Cloud_CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_CBOR);
-            Cloud_CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_OCTET_STREAM);
+            CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_CBOR);
+            CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_OCTET_STREAM);
         } else {
-            Cloud_CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
-            Cloud_CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_OCTET_STREAM);
+            CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
+            CoAPUintOption_add(&message, COAP_OPTION_ACCEPT, COAP_CT_APP_OCTET_STREAM);
         }
-        Cloud_CoAPStrOption_add(&message,  COAP_OPTION_AUTH_TOKEN,
+        CoAPStrOption_add(&message,  COAP_OPTION_AUTH_TOKEN,
                                 (unsigned char *)p_iotx_coap->p_auth_token, strlen(p_iotx_coap->p_auth_token));
         if (COAP_ENDPOINT_PSK == p_iotx_coap->p_coap_ctx->network.ep_type) {
             unsigned char buff[32] = {0};
@@ -662,7 +662,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
             HAL_Snprintf((char *)buff, sizeof(buff) - 1, "%d", p_iotx_coap->seq++);
             len = iotx_aes_cbc_encrypt(buff, strlen((char *)buff), p_iotx_coap->key, seq);
             if (0 < len) {
-                Cloud_CoAPStrOption_add(&message,  COAP_OPTION_SEQ, (unsigned char *)seq, len);
+                CoAPStrOption_add(&message,  COAP_OPTION_SEQ, (unsigned char *)seq, len);
             } else {
                 COAP_INFO("Encrypt seq failed");
             }
@@ -681,12 +681,12 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
             }
 
             HEXDUMP_DEBUG(payload, len);
-            Cloud_CoAPMessagePayload_set(&message, payload, len);
+            CoAPMessagePayload_set(&message, payload, len);
         } else {
-            Cloud_CoAPMessagePayload_set(&message, p_message->p_payload, p_message->payload_len);
+            CoAPMessagePayload_set(&message, p_message->p_payload, p_message->payload_len);
         }
         ret = Cloud_CoAPMessage_send(p_coap_ctx, &message);
-        Cloud_CoAPMessage_destory(&message);
+        CoAPMessage_destory(&message);
         if (NULL != payload) {
             coap_free(payload);
             payload = NULL;

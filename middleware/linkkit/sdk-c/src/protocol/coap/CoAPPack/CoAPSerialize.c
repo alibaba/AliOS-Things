@@ -6,10 +6,12 @@
 
 
 #include <stdio.h>
-#include "Cloud_CoAPSerialize.h"
-#include "Cloud_CoAPExport.h"
+#include <string.h>
+#include "CoAPSerialize.h"
+#include "lite-list.h"
+#include "../iotx_coap_internal.h"
 
-int Cloud_CoAPSerialize_Header(Cloud_CoAPMessage *msg, unsigned char *buf, unsigned short buflen)
+int CoAPSerialize_Header(CoAPMessage *msg, unsigned char *buf, unsigned short buflen)
 {
     if(4 > buflen){
         return 0;
@@ -24,7 +26,7 @@ int Cloud_CoAPSerialize_Header(Cloud_CoAPMessage *msg, unsigned char *buf, unsig
     return 4;
 }
 
-int Cloud_CoAPSerialize_Token(Cloud_CoAPMessage *msg, unsigned char * buf, unsigned short buflen)
+int CoAPSerialize_Token(CoAPMessage *msg, unsigned char * buf, unsigned short buflen)
 {
     int i = 0;
 
@@ -37,7 +39,7 @@ int Cloud_CoAPSerialize_Token(Cloud_CoAPMessage *msg, unsigned char * buf, unsig
     return msg->header.tokenlen;
 }
 
-static unsigned short Cloud_CoAPSerialize_Option(Cloud_CoAPMsgOption *option, unsigned char *buf)
+static unsigned short CoAPSerialize_Option(CoAPMsgOption *option, unsigned char *buf)
 {
     unsigned char *ptr   = buf;
 
@@ -90,15 +92,15 @@ static unsigned short Cloud_CoAPSerialize_Option(Cloud_CoAPMsgOption *option, un
     return (int)(ptr - buf);
 }
 
-unsigned short Cloud_CoAPSerialize_Options(Cloud_CoAPMessage *msg,  unsigned char * buf, unsigned short buflen)
+unsigned short CoAPSerialize_Options(CoAPMessage *msg,  unsigned char * buf, unsigned short buflen)
 {
     int i      = 0;
     unsigned short count  = 0;
 
-    for (i = 0; i < msg->optnum; i++)
+    for (i = 0; i < msg->optcount; i++)
     {
         unsigned short len = 0;
-        len = Cloud_CoAPSerialize_Option(&msg->options[i], &buf[count]);
+        len = CoAPSerialize_Option(&msg->options[i], &buf[count]);
         if (0 < len){
             count += len;
         }
@@ -110,7 +112,7 @@ unsigned short Cloud_CoAPSerialize_Options(Cloud_CoAPMessage *msg,  unsigned cha
     return count;
 }
 
-static unsigned short Cloud_CoAPSerialize_OptionLen(Cloud_CoAPMsgOption *option)
+static unsigned short CoAPSerialize_OptionLen(CoAPMsgOption *option)
 {
     unsigned short  len  = 1;
 
@@ -137,15 +139,15 @@ static unsigned short Cloud_CoAPSerialize_OptionLen(Cloud_CoAPMsgOption *option)
 }
 
 
-unsigned short Cloud_CoAPSerialize_OptionsLen(Cloud_CoAPMessage *msg)
+unsigned short CoAPSerialize_OptionsLen(CoAPMessage *msg)
 {
     int i      = 0;
     unsigned short count  = 0;
 
-    for (i = 0; i < msg->optnum; i++)
+    for (i = 0; i < msg->optcount; i++)
     {
         unsigned short len = 0;
-        len = Cloud_CoAPSerialize_OptionLen(&msg->options[i]);
+        len = CoAPSerialize_OptionLen(&msg->options[i]);
         if (0 < len){
             count += len;
         }
@@ -158,10 +160,10 @@ unsigned short Cloud_CoAPSerialize_OptionsLen(Cloud_CoAPMessage *msg)
 }
 
 
-int Cloud_CoAPSerialize_Payload(Cloud_CoAPMessage *msg, unsigned char *buf, int buflen)
+int CoAPSerialize_Payload(CoAPMessage *msg, unsigned char *buf, int buflen)
 {
     if(msg->payloadlen + 1 > buflen){
-        return -1;
+        return 0;
     }
     if(msg->payloadlen > 0 && NULL != msg->payload)
     {
@@ -176,12 +178,12 @@ int Cloud_CoAPSerialize_Payload(Cloud_CoAPMessage *msg, unsigned char *buf, int 
 }
 
 
-unsigned short Cloud_CoAPSerialize_MessageLength(Cloud_CoAPMessage *msg)
+unsigned short CoAPSerialize_MessageLength(CoAPMessage *msg)
 {
     unsigned short msglen = 4;
 
     msglen += msg->header.tokenlen;
-    msglen += Cloud_CoAPSerialize_OptionsLen(msg);
+    msglen += CoAPSerialize_OptionsLen(msg);
 
     if(0 < msg->payloadlen){
         msglen += msg->payloadlen;
@@ -191,7 +193,7 @@ unsigned short Cloud_CoAPSerialize_MessageLength(Cloud_CoAPMessage *msg)
     return msglen;
 }
 
-int Cloud_CoAPSerialize_Message(Cloud_CoAPMessage *msg, unsigned char *buf, unsigned short buflen)
+int CoAPSerialize_Message(CoAPMessage *msg, unsigned char *buf, unsigned short buflen)
 {
     unsigned char *ptr   = buf;
     unsigned short count = 0;
@@ -201,20 +203,19 @@ int Cloud_CoAPSerialize_Message(Cloud_CoAPMessage *msg, unsigned char *buf, unsi
         return COAP_ERROR_INVALID_PARAM;
     }
 
-    count = Cloud_CoAPSerialize_Header(msg, ptr, remlen);
+    count = CoAPSerialize_Header(msg, ptr, remlen);
     ptr += count;
     remlen -= count;
 
-    count = Cloud_CoAPSerialize_Token(msg, ptr, remlen);
+    count = CoAPSerialize_Token(msg, ptr, remlen);
     ptr += count;
     remlen -= count;
 
-
-    count = Cloud_CoAPSerialize_Options(msg, ptr, remlen);
+    count = CoAPSerialize_Options(msg, ptr, remlen);
     ptr += count;
     remlen -= count;
 
-    count = Cloud_CoAPSerialize_Payload(msg, ptr, remlen);
+    count = CoAPSerialize_Payload(msg, ptr, remlen);
     ptr += count;
     remlen -= count;
 
