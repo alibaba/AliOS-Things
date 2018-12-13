@@ -20,4 +20,10 @@
 /* debug, assert, error log support */
 #define SAL_USE_DEBUG                 SAL_OPT_DISABLED
 
+/* input mbox default size */
+#define SAL_DEFAULT_INPUTMBOX_SIZE        32
+
+/* output mbox default size. Only effective if SAL_PACKET_SEND_MODE_ASYNC enabled */
+#define SAL_DEFAULT_OUTPUTMBOX_SIZE       8
+
 #endif
