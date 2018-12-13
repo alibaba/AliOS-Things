@@ -10,13 +10,17 @@
 /*
 main task stask size(byte)
 */
-#define AOS_MAIN_TASK_STACK 0x400
+#define OS_MAIN_TASK_STACK 0x400
+#define OS_MAIN_TASK_PRI 32
+
 /*  For user config
     kinit.argc = 0;
     kinit.argv = NULL;
     kinit.cli_enable = 1;
 */
 static kinit_t kinit = {0, NULL, 1};
+static ktask_t *g_main_task;
+
 
 extern void board_init(void);
 
@@ -47,15 +51,16 @@ int main(void)
     Put them in sys_init which will be called after aos_start.
     Irq for task schedule should be enabled here, such as PendSV for cortex-M4.
     */
-    board_init();   //including aos_heap_set(); hal_init(); flash_partition_init();
+    board_init();   //including aos_heap_set();  flash_partition_init();
 
-    /*General, users should call aos API but not krhino function API directly link krhino_init.
-    If user mode and kernel mode are seperated when using SVC, you should use krhino API here, because the system firstly get into kernel mode.
-    */
-    aos_init();  //kernel init, malloc can use after this!
-    aos_task_new("main_task",sys_init, NULL, AOS_MAIN_TASK_STACK);  /*main task to run */
+    /*kernel init, malloc can use after this!*/
+    krhino_init();
 
-    aos_start();//kernel start schedule!
+    /*main task to run */
+    krhino_task_dyn_create(&g_main_task, "main_task", 0, OS_MAIN_TASK_PRI, 0, OS_MAIN_TASK_STACK, (task_entry_t)sys_init, 1);
+
+    /*kernel start schedule!*/
+    krhino_start();
 
     /*never run here*/
     return 0;
