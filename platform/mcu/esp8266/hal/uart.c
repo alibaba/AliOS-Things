@@ -6,12 +6,9 @@
 #include <stdint.h>
 #include "aos/hal/uart.h"
 #include "k_api.h"
-#include "aos/hal/uart.h"
+#include "driver/uart.h"
+
 int32_t uart_receive_buffer_queue(uint8_t *data);
-
-extern void uart_init_new(void);
-extern void uart0_write_char(char c);
-
 #define UART0_BUF_QUEUE_BYTES 128
 
 kbuf_queue_t g_buf_queue_uart;
@@ -72,19 +69,16 @@ int32_t hal_uart_init(uart_dev_t *uart)
 {
     int32_t ret = -1;
 
-	if (uart == NULL) 
-	{
-	    return -1;
-	}
-	
-	if(uart->port == 0)
-	{
-	    uart_init_new();
-       krhino_buf_queue_create(&g_buf_queue_uart, "buffer_queue_uart0", g_buf_uart, UART0_BUF_QUEUE_BYTES,1);
-       ret = 0;
-	}
+    if (uart == NULL) 
+    {
+        return -1;
+    }
 
-   return ret;
+    uart_init_new(uart);
+    krhino_buf_queue_create(&g_buf_queue_uart, "buffer_queue_uart0", g_buf_uart, UART0_BUF_QUEUE_BYTES,1);
+    ret = 0;
+
+    return ret;
 }
 
 int32_t hal_uart_finalize(uart_dev_t *uart)

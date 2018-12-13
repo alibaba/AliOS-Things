@@ -34,6 +34,10 @@ extern "C" {
 #define UART_INTR_MASK          0x1ff
 #define UART_LINE_INV_MASK      (0x3f<<19)
 
+#include "aos/hal/uart.h"
+#include "c_types.h"
+#include "uart_register.h"
+
 typedef enum {
     UART_WordLength_5b = 0x0,
     UART_WordLength_6b = 0x1,
@@ -277,7 +281,7 @@ void UART_SetLineInverse(UART_Port uart_no, UART_LineLevelInverse inverse_mask) 
   *  
   * @return  null
   */
-void uart_init_new(void);
+void uart_init_new(uart_dev_t *uart);
 
 /**
   * @}
