@@ -11,6 +11,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/http2/nghttp2)
 
 FILE (GLOB src_protocol_http2_SRCS
     ${PROJECT_SOURCE_DIR}/src/protocol/http2/*.c
+    ${PROJECT_SOURCE_DIR}/src/protocol/http2/nghttp2/*.c
 )
 
 ADD_LIBRARY (iot_http2 OBJECT

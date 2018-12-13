@@ -2,20 +2,18 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "Cloud_CoAPNetwork.h"
-#include "iotx_utils.h"
-#include "iotx_log.h"
-
-#ifndef __COAP_EXPORT_H__
-#define __COAP_EXPORT_H__
-
-/* #define COAP_DTLS_SUPPORT */
 
 
-#define COAP_MSG_MAX_TOKEN_LEN    12
-#define COAP_MSG_MAX_OPTION_NUM   12
-#define COAP_MSG_MAX_PATH_LEN     32
-#define COAP_MSG_MAX_PDU_LEN      1280
+#ifndef __IOTX_COAP_INTERNAL__
+#define __IOTX_COAP_INTERNAL__
+
+
+#include "iot_import.h"
+#include "iotx_coap_config.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /*CoAP Content Type*/
 #define COAP_CT_TEXT_PLAIN                 0   /* text/plain (UTF-8) */
@@ -32,6 +30,7 @@
 #define COAP_OPTION_URI_HOST        3   /* C, String,  1-255 B, destination address */
 #define COAP_OPTION_ETAG            4   /* E, opaque,  1-8 B, (none) */
 #define COAP_OPTION_IF_NONE_MATCH   5   /* empty,      0 B, (none) */
+#define COAP_OPTION_OBSERVE         6   /* E, empty/uint, 0 B/0-3 B, (none)*/
 #define COAP_OPTION_URI_PORT        7   /* C, uint,    0-2 B, destination port */
 #define COAP_OPTION_LOCATION_PATH   8   /* E, String,  0-255 B, - */
 #define COAP_OPTION_URI_PATH       11   /* C, String,  0-255 B, (none) */
@@ -45,9 +44,14 @@
 #define COAP_OPTION_PROXY_URI      35   /* C, String,  1-1024 B, (none) */
 #define COAP_OPTION_PROXY_SCHEME   39   /* C, String,  1-255 B, (none) */
 #define COAP_OPTION_SIZE1          60   /* E, uint,    0-4 B, (none) */
-#define COAP_OPTION_AUTH_TOKEN     2088 /* C, String,  1-255B, (none)*/
-#define COAP_OPTION_SEQ            2089
+#define COAP_OPTION_AUTH_TOKEN     61   /* C, String,  1-255B, (none)*/
 
+#define COAP_PERM_NONE             0x0000
+#define COAP_PERM_GET              0x0001
+#define COAP_PERM_POST             0x0002
+#define COAP_PERM_PUT              0x0004
+#define COAP_PERM_DELETE           0x0008
+#define COAP_PERM_OBSERVE          0x0100
 
 /*CoAP Message types*/
 #define COAP_MESSAGE_TYPE_CON   0
@@ -63,14 +67,18 @@
 #define COAP_SUCCESS                           (0)                    /* Successful */
 #define COAP_ERROR_INVALID_PARAM               (COAP_ERROR_BASE | 1)  /* Invalid Parameter */
 #define COAP_ERROR_NULL                        (COAP_ERROR_BASE | 2)  /* Null Pointer */
-#define COAP_ERROR_INVALID_LENGTH              (COAP_ERROR_BASE | 3)  /* Invalid Length */
-#define COAP_ERROR_DATA_SIZE                   (COAP_ERROR_BASE | 4)  /* Data size exceeds limit */
-#define COAP_ERROR_INVALID_URI                 (COAP_ERROR_BASE | 5)
-#define COAP_ERROR_NOT_FOUND                   (COAP_ERROR_BASE | 6)
-#define COAP_ERROR_NET_INIT_FAILED             (COAP_ERROR_BASE | 7)
-#define COAP_ERROR_INTERNAL                    (COAP_ERROR_BASE | 8)  /* Internal Error */
-#define COAP_ERROR_WRITE_FAILED                (COAP_ERROR_BASE | 9)
-#define COAP_ERROR_READ_FAILED                 (COAP_ERROR_BASE | 10)
+#define COAP_ERROR_MALLOC                      (COAP_ERROR_BASE | 3)
+#define COAP_ERROR_INVALID_LENGTH              (COAP_ERROR_BASE | 4)  /* Invalid Length */
+#define COAP_ERROR_DATA_SIZE                   (COAP_ERROR_BASE | 5)  /* Data size exceeds limit */
+#define COAP_ERROR_INVALID_URI                 (COAP_ERROR_BASE | 6)
+#define COAP_ERROR_NOT_FOUND                   (COAP_ERROR_BASE | 7)
+#define COAP_ERROR_NET_INIT_FAILED             (COAP_ERROR_BASE | 8)
+#define COAP_ERROR_INTERNAL                    (COAP_ERROR_BASE | 9)  /* Internal Error */
+#define COAP_ERROR_WRITE_FAILED                (COAP_ERROR_BASE | 10)
+#define COAP_ERROR_READ_FAILED                 (COAP_ERROR_BASE | 11)
+#define COAP_ERROR_ENCRYPT_FAILED              (COAP_ERROR_BASE | 12)
+#define COAP_ERROR_UNSUPPORTED                 (COAP_ERROR_BASE | 13)
+#define COAP_ERROR_OBJ_ALREADY_EXIST           (COAP_ERROR_BASE | 14)
 
 #define COAP_MSG_CODE_DEF(N) (((N)/100 << 5) | (N)%100)
 
@@ -114,8 +122,17 @@ typedef enum {
     COAP_MSG_CODE_504_GATEWAY_TIMEOUT            = COAP_MSG_CODE_DEF(504),  /* Mapping to CoAP code 5.04, Hex:0xA4, Gateway Timeout */
     COAP_MSG_CODE_505_PROXYING_NOT_SUPPORTED     = COAP_MSG_CODE_DEF(505)   /* Mapping to CoAP code 5.05, Hex:0xA5, Proxying Not Supported */
 
-} Cloud_CoAPMessageCode;
+} CoAPMessageCode;
 
+typedef enum {
+    COAP_REQUEST_SUCCESS,
+    COAP_RECV_RESP_TIMEOUT,
+} CoAPReqResult;
+
+typedef struct {
+    int len;
+    unsigned char *data;
+} CoAPLenString;
 
 typedef struct {
     unsigned char                  version   : 2;
@@ -123,79 +140,89 @@ typedef struct {
     unsigned char                  tokenlen  : 4;
     unsigned char                  code;
     unsigned short                 msgid;
-} Cloud_CoAPMsgHeader;
+} CoAPMsgHeader;
 
 
 typedef struct {
     unsigned short num;
     unsigned short len;
     unsigned char *val;
-} Cloud_CoAPMsgOption;
+} CoAPMsgOption;
 
-typedef void (*Cloud_CoAPRespMsgHandler)(void *data, void *message);
+typedef void  CoAPContext;
+typedef struct CoAPMessage  CoAPMessage;
 
-typedef void (*Cloud_CoAPEventNotifier)(unsigned int event, void *p_message);
+typedef void (*CoAPSendMsgHandler)(CoAPContext *context, CoAPReqResult result, void *userdata, NetworkAddr *remote,
+                                   CoAPMessage *message);
 
-typedef struct {
-    void                    *user;
-    unsigned short           msgid;
-    char                     acked;
-    unsigned char            tokenlen;
-    unsigned char            token[8];
-    unsigned char            retrans_count;
-    unsigned short           timeout;
-    unsigned short           timeout_val;
-    unsigned char           *message;
-    unsigned int             msglen;
-    Cloud_CoAPRespMsgHandler       handler;
-    struct list_head         sendlist;
-} Cloud_CoAPSendNode;
+typedef void (*CoAPEventNotifier)(unsigned int event, NetworkAddr *remote, void *message);
 
-typedef struct {
-    unsigned char            count;
-    unsigned char            maxcount;
-    struct list_head         sendlist;
-} Cloud_CoAPSendList;
+typedef void (*CoAPRecvMsgHandler) (CoAPContext *context, const char *paths, NetworkAddr *remote, CoAPMessage *message);
 
+typedef int (*CoAPDataEncrypt)(CoAPContext *context, const char *paths, NetworkAddr *addr, CoAPMessage *message,
+                               CoAPLenString *src, CoAPLenString *dest);
+typedef void (*CoAPRespMsgHandler)(void *data, void *message);
 
-typedef struct {
-    Cloud_CoAPMsgHeader   header;
+struct CoAPMessage {
+    CoAPMsgHeader   header;
     unsigned char   token[COAP_MSG_MAX_TOKEN_LEN];
-    Cloud_CoAPMsgOption   options[COAP_MSG_MAX_OPTION_NUM];
-    unsigned char   optnum;
-    unsigned short  optdelta;
-    unsigned char  *payload;
+    CoAPMsgOption   options[COAP_MSG_MAX_OPTION_NUM];
+    unsigned char   optcount;
+    unsigned char   optdelta;
     unsigned short  payloadlen;
-    Cloud_CoAPRespMsgHandler handler;
+    unsigned char  *payload;
+    CoAPSendMsgHandler handler;
+    CoAPRespMsgHandler resp;
     void           *user;
-} Cloud_CoAPMessage;
+    int             keep;
+};
 
-typedef struct {
-    char       *url;
-    unsigned char        maxcount;  /*list maximal count*/
-    unsigned int         waittime;
-    Cloud_CoAPEventNotifier    notifier;
-} Cloud_CoAPInitParam;
 
-typedef struct {
-    unsigned short           message_id;
-    coap_network_t           network;
-    Cloud_CoAPEventNotifier        notifier;
-    unsigned char            *sendbuf;
-    unsigned char            *recvbuf;
-    Cloud_CoAPSendList             list;
-    unsigned int             waittime;
-} Cloud_CoAPContext;
+/* CoAP message options APIs*/
+extern int CoAPStrOption_add(CoAPMessage *message, unsigned short optnum,
+                             unsigned char *data, unsigned short datalen);
 
-#define COAP_TRC(...)     log_debug("coap_cloud", __VA_ARGS__)
-#define COAP_DUMP(...)    log_debug("coap_cloud", __VA_ARGS__)
-#define COAP_DEBUG(...)   log_debug("coap_cloud", __VA_ARGS__)
-#define COAP_INFO(...)    log_info("coap_cloud", __VA_ARGS__)
-#define COAP_WRN(...)     log_warning("coap_cloud", __VA_ARGS__)
-#define COAP_ERR(...)     log_err("coap_cloud", __VA_ARGS__)
+extern int CoAPStrOption_get(CoAPMessage *message, unsigned short optnum,
+                             unsigned char *data, unsigned short *datalen);
 
-Cloud_CoAPContext *Cloud_CoAPContext_create(Cloud_CoAPInitParam *param);
-void Cloud_CoAPContext_free(Cloud_CoAPContext *p_ctx);
+extern int CoAPUintOption_add(CoAPMessage *message, unsigned short  optnum,
+                              unsigned int data);
+
+extern int CoAPUintOption_get(CoAPMessage *message,
+                              unsigned short  optnum,
+                              unsigned int *data);
+
+extern int CoAPOption_present(CoAPMessage *message, unsigned short option);
+
+
+
+extern int CoAPMessageId_set(CoAPMessage *message, unsigned short msgid);
+
+extern int CoAPMessageType_set(CoAPMessage *message, unsigned char type);
+
+extern int CoAPMessageCode_set(CoAPMessage *message, CoAPMessageCode code);
+
+extern int CoAPMessageCode_get(CoAPMessage *message, CoAPMessageCode *code);
+
+extern int CoAPMessageToken_set(CoAPMessage *message, unsigned char *token,
+                                unsigned char tokenlen);
+
+extern int CoAPMessageUserData_set(CoAPMessage *message, void *userdata);
+
+extern int CoAPMessageKeep_Set(CoAPMessage *message, int keep);
+
+extern int CoAPMessagePayload_set(CoAPMessage *message, unsigned char *payload,
+                                  unsigned short payloadlen);
+
+extern int CoAPMessageHandler_set(CoAPMessage *message, CoAPSendMsgHandler handler);
+
+extern int CoAPMessage_init(CoAPMessage *message);
+
+extern int CoAPMessage_destory(CoAPMessage *message);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 
 #endif

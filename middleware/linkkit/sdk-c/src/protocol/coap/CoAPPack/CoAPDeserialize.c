@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "CoAPExport.h"
+#include "../iotx_coap_internal.h"
 
 int CoAPDeserialize_Header(CoAPMessage *msg, unsigned char *buf)
 {
