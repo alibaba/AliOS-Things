@@ -9,8 +9,8 @@
 #include "stdio.h"
 #include "iotx_system.h"
 #include "Cloud_CoAPExport.h"
-#include "Cloud_CoAPSerialize.h"
-#include "Cloud_CoAPDeserialize.h"
+#include "CoAPSerialize.h"
+#include "CoAPDeserialize.h"
 #include "Cloud_CoAPPlatform.h"
 
 
@@ -44,68 +44,6 @@
 #define COAP_ACK_RANDOM_FACTOR  1
 #define COAP_MAX_TRANSMISSION_SPAN   10
 
-int Cloud_CoAPStrOption_add(Cloud_CoAPMessage *message, unsigned short optnum, unsigned char *data,
-                            unsigned short datalen)
-{
-    unsigned char *ptr = NULL;
-    if (COAP_MSG_MAX_OPTION_NUM <= message->optnum) {
-        return COAP_ERROR_INVALID_PARAM;
-    }
-
-    message->options[message->optnum].num = optnum - message->optdelta;
-    message->options[message->optnum].len = datalen;
-    ptr = (unsigned char *)coap_malloc(datalen);
-    if (NULL != ptr) {
-        memcpy(ptr, data, datalen);
-    }
-    message->options[message->optnum].val = ptr;
-    message->optdelta = optnum;
-    message->optnum ++;
-
-    return COAP_SUCCESS;
-
-}
-
-int Cloud_CoAPUintOption_add(Cloud_CoAPMessage *message, unsigned short  optnum, unsigned int data)
-{
-    unsigned char *ptr = NULL;
-    if (COAP_MSG_MAX_OPTION_NUM <= message->optnum) {
-        return COAP_ERROR_INVALID_PARAM;
-    }
-    message->options[message->optnum].num = optnum - message->optdelta;
-
-    if (0 == data) {
-        message->options[message->optnum].len = 0;
-    } else if (256 >= data) {
-        message->options[message->optnum].len = 1;
-        ptr = (unsigned char *)coap_malloc(1);
-        if (NULL != ptr) {
-            *ptr = (unsigned char)data;
-        }
-    } else if (65535 >= data) {
-        message->options[message->optnum].len = 2;
-        ptr  = (unsigned char *)coap_malloc(2);
-        if (NULL != ptr) {
-            *ptr     = (unsigned char)((data & 0xFF00) >> 8);
-            *(ptr + 1) = (unsigned char)(data & 0x00FF);
-        }
-    } else {
-        message->options[message->optnum].len = 4;
-        ptr   = (unsigned char *)coap_malloc(4);
-        if (NULL != ptr) {
-            *ptr     = (unsigned char)((data & 0xFF000000) >> 24);
-            *(ptr + 1) = (unsigned char)((data & 0x00FF0000) >> 16);
-            *(ptr + 2) = (unsigned char)((data & 0x0000FF00) >> 8);
-            *(ptr + 3) = (unsigned char)(data & 0x000000FF);
-        }
-    }
-    message->options[message->optnum].val = ptr;
-    message->optdelta = optnum;
-    message->optnum   += 1;
-
-    return COAP_SUCCESS;
-}
-
 unsigned short Cloud_CoAPMessageId_gen(Cloud_CoAPContext *context)
 {
     unsigned short msg_id = 0;
@@ -113,118 +51,12 @@ unsigned short Cloud_CoAPMessageId_gen(Cloud_CoAPContext *context)
     return msg_id;
 }
 
-
-int Cloud_CoAPMessageId_set(Cloud_CoAPMessage *message, unsigned short msgid)
+int Cloud_CoAPMessageHandler_set(Cloud_CoAPMessage *message, Cloud_CoAPRespMsgHandler resp)
 {
     if (NULL == message) {
         return COAP_ERROR_NULL;
     }
-    message->header.msgid = msgid;
-    return COAP_SUCCESS;
-}
-
-int Cloud_CoAPMessageType_set(Cloud_CoAPMessage *message, unsigned char type)
-{
-    if (NULL == message) {
-        return COAP_ERROR_NULL;
-    }
-    if (COAP_MESSAGE_TYPE_CON != type && COAP_MESSAGE_TYPE_NON != type
-        && COAP_MESSAGE_TYPE_ACK != type && COAP_MESSAGE_TYPE_RST != type) {
-        return COAP_ERROR_INVALID_PARAM;
-    }
-
-    message->header.type = type;
-    return COAP_SUCCESS;
-}
-
-int Cloud_CoAPMessageCode_set(Cloud_CoAPMessage *message, Cloud_CoAPMessageCode code)
-{
-    if (NULL == message) {
-        return COAP_ERROR_NULL;
-    }
-    message->header.code  = code;
-    return COAP_SUCCESS;
-}
-
-int Cloud_CoAPMessageToken_set(Cloud_CoAPMessage *message, unsigned char *token,
-                               unsigned char tokenlen)
-{
-    if (NULL == message || NULL == token) {
-        return COAP_ERROR_NULL;
-    }
-    if (COAP_MSG_MAX_TOKEN_LEN < tokenlen) {
-        return COAP_ERROR_INVALID_LENGTH;
-    }
-    memcpy(message->token, token, tokenlen);
-    message->header.tokenlen = tokenlen;
-
-    return COAP_SUCCESS;
-}
-
-int Cloud_CoAPMessageUserData_set(Cloud_CoAPMessage *message, void *userdata)
-{
-    if (NULL == message || NULL == userdata) {
-        return COAP_ERROR_NULL;
-    }
-    message->user = userdata;
-    return COAP_SUCCESS;
-}
-
-int Cloud_CoAPMessagePayload_set(Cloud_CoAPMessage *message, unsigned char *payload,
-                                 unsigned short payloadlen)
-{
-    if (NULL == message || (0 < payloadlen && NULL == payload)) {
-        return COAP_ERROR_NULL;
-    }
-    message->payload = payload;
-    message->payloadlen = payloadlen;
-
-    return COAP_SUCCESS;
-}
-
-int Cloud_CoAPMessageHandler_set(Cloud_CoAPMessage *message, Cloud_CoAPRespMsgHandler handler)
-{
-    if (NULL == message) {
-        return COAP_ERROR_NULL;
-    }
-    message->handler = handler;
-    return COAP_SUCCESS;
-}
-
-int Cloud_CoAPMessage_init(Cloud_CoAPMessage *message)
-{
-    if (NULL == message) {
-        return COAP_ERROR_NULL;
-    }
-    memset(message, 0x00, sizeof(Cloud_CoAPMessage));
-    message->header.version    = COAP_CUR_VERSION;
-    message->header.type       = COAP_MESSAGE_TYPE_ACK;
-    message->header.tokenlen   = 0;
-    message->header.code       = COAP_MSG_CODE_EMPTY_MESSAGE;
-    message->header.msgid      = 0;
-    message->payload           = NULL;
-    message->payloadlen        = 0;
-    message->optnum            = 0;
-    message->optdelta          = 0;
-    message->handler           = NULL;
-
-    return COAP_SUCCESS;
-}
-
-int Cloud_CoAPMessage_destory(Cloud_CoAPMessage *message)
-{
-    int count = 0;
-    if (NULL == message) {
-        return COAP_ERROR_NULL;
-    }
-
-    for (count = 0; count < COAP_MSG_MAX_TOKEN_LEN; count++) {
-        if (NULL != message->options[count].val) {
-            coap_free(message->options[count].val);
-            message->options[count].val = NULL;
-        }
-    }
-
+    message->resp = resp;
     return COAP_SUCCESS;
 }
 
@@ -237,7 +69,7 @@ static int Cloud_CoAPMessageList_add(Cloud_CoAPContext *context, Cloud_CoAPMessa
         node->acked        = 0;
         node->user         = message->user;
         node->msgid        = message->header.msgid;
-        node->handler      = message->handler;
+        node->resp = message->resp;
         node->msglen       = len;
         node->timeout_val   = COAP_ACK_TIMEOUT * COAP_ACK_RANDOM_FACTOR;
 
@@ -278,14 +110,15 @@ int Cloud_CoAPMessage_send(Cloud_CoAPContext *context, Cloud_CoAPMessage *messag
     }
 
     /* TODO: get the message length */
-    msglen = Cloud_CoAPSerialize_MessageLength(message);
+    /* msglen = CoAPSerialize_MessageLength(message); */
+    msglen = CoAPSerialize_MessageLength(message);
     if (COAP_MSG_MAX_PDU_LEN < msglen) {
         COAP_INFO("The message length %d is too loog", msglen);
         return COAP_ERROR_DATA_SIZE;
     }
 
     memset(context->sendbuf, 0x00, COAP_MSG_MAX_PDU_LEN);
-    msglen = Cloud_CoAPSerialize_Message(message, context->sendbuf, COAP_MSG_MAX_PDU_LEN);
+    msglen = CoAPSerialize_Message(message, context->sendbuf, COAP_MSG_MAX_PDU_LEN);
     COAP_DEBUG("----The message length %d-----", msglen);
 
 
@@ -323,8 +156,8 @@ static int Cloud_CoAPAckMessage_handle(Cloud_CoAPContext *context, Cloud_CoAPMes
 static int Cloud_CoAPAckMessage_send(Cloud_CoAPContext *context, unsigned short msgid)
 {
     Cloud_CoAPMessage message;
-    Cloud_CoAPMessage_init(&message);
-    Cloud_CoAPMessageId_set(&message, msgid);
+    CoAPMessage_init(&message);
+    CoAPMessageId_set(&message, msgid);
     return Cloud_CoAPMessage_send(context, &message);
 }
 
@@ -354,8 +187,8 @@ static int Cloud_CoAPRespMessage_handle(Cloud_CoAPContext *context, Cloud_CoAPMe
                 }
             }
 
-            if (NULL != node->handler) {
-                node->handler(node->user, message);
+            if (NULL != node->resp) {
+                node->resp(node->user, message);
             }
             COAP_DEBUG("Remove the message id %d from list", node->msgid);
             list_del_init(&node->sendlist);
@@ -380,7 +213,7 @@ static void Cloud_CoAPMessage_handle(Cloud_CoAPContext *context,
     unsigned char code, msgclass, detail;
     memset(&message, 0x00, sizeof(Cloud_CoAPMessage));
 
-    ret = Cloud_CoAPDeserialize_Message(&message, buf, datalen);
+    ret = CoAPDeserialize_Message(&message, buf, datalen);
     code = (unsigned char)message.header.code;
     msgclass = code >> 5;
     detail = code & 0x1F;
@@ -389,7 +222,7 @@ static void Cloud_CoAPMessage_handle(Cloud_CoAPContext *context,
     COAP_DEBUG("Code        : %d.%02d(0x%x)", msgclass, detail, code);
     COAP_DEBUG("Type        : 0x%x", message.header.type);
     COAP_DEBUG("Msgid       : %d", message.header.msgid);
-    COAP_DEBUG("Option      : %d", message.optnum);
+    COAP_DEBUG("Option      : %d", message.optcount);
     COAP_DEBUG("Payload Len : %d", message.payloadlen);
 
     if (COAP_SUCCESS != ret) {

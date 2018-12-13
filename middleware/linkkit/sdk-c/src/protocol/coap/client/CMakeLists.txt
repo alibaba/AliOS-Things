@@ -9,14 +9,14 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system/facility)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/coap/local/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/coap/client/)
 
-FILE (GLOB src_protocol_coap_local_SRCS
-    ${PROJECT_SOURCE_DIR}/src/protocol/coap/local/*.c
+FILE (GLOB src_protocol_coap_client_SRCS
+    ${PROJECT_SOURCE_DIR}/src/protocol/coap/client/*.c
 )
 
-ADD_LIBRARY (iot_coap_local OBJECT
-    ${src_protocol_coap_local_SRCS}
+ADD_LIBRARY (iot_coap_cloud OBJECT
+    ${src_protocol_coap_client_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

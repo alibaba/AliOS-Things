@@ -34,7 +34,7 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/include/exports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include/imports \
 $(ROOT_DIR)middleware/linkkit/sdk-c/include \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/alcs \
-$(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/coap/local \
+$(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/coap/server \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/linkkit/dev_reset \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind \
 $(ROOT_DIR)middleware/linkkit/sdk-c/src/services/dev_bind/os \
@@ -83,13 +83,13 @@ endif
 
 ifeq (y,$(FEATURE_DEV_BIND_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/dev_bind \
-    middleware/linkkit/sdk-c/src/protocol/coap/local \
+    middleware/linkkit/sdk-c/src/protocol/coap/server \
     middleware/linkkit/sdk-c/src/protocol/mqtt 
 endif
 
 ifeq (y,$(FEATURE_WIFI_PROVISION_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/awss \
-    middleware/linkkit/sdk-c/src/protocol/coap/local
+    middleware/linkkit/sdk-c/src/protocol/coap/server
 endif
 
 ifeq (y,$(FEATURE_MQTT_COMM_ENABLED))
@@ -101,7 +101,7 @@ $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/shadow
 endif
 
 ifeq (y,$(FEATURE_COAP_COMM_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/coap/cloud
+$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/coap/client
 endif
 
 ifeq (y,$(FEATURE_HTTP_COMM_ENABLED))
@@ -110,7 +110,7 @@ endif
 
 ifeq (y,$(FEATURE_ALCS_ENABLED))
 $(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/alcs \
-    middleware/linkkit/sdk-c/src/protocol/coap/local  
+    middleware/linkkit/sdk-c/src/protocol/coap/server
 
 endif
 
