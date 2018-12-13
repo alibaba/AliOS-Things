@@ -1,3 +1,4 @@
+## Run for helloworld now!
 ## Environment setup
 
 1. Download the pre-built pulp-riscv-gcc toolchain from [open-isa.org](www.open-isa.org). Extract and
