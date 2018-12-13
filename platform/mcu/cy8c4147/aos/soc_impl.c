@@ -42,17 +42,6 @@ void soc_intrpt_stack_ovf_check(void)
 }
 #endif
 
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-void soc_tick_interrupt_set(tick_t next_ticks,tick_t elapsed_ticks)
-{
-}
-
-tick_t soc_elapsed_ticks_get(void)
-{
-    return 0;
-}
-#endif
-
 size_t soc_get_cur_sp()
 {
     size_t sp = 0;
@@ -98,8 +87,8 @@ krhino_err_proc_t g_err_proc = soc_err_proc;
 #if defined (__GNUC__)&&!defined(__CC_ARM)
 extern uint32_t __cy_heap_start[];
 extern uint32_t __cy_heap_end[];
-/* 
- * If need to use all rest RAM area, then need to define __cy_heap_size in linker file. 
+/*
+ * If need to use all rest RAM area, then need to define __cy_heap_size in linker file.
  * But remember, regenerate code will overwrite linker file content.
  * For now, define 0x2f00 as heap size which will not overflow ram.
 */

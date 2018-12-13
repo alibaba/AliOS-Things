@@ -49,9 +49,6 @@
 #ifndef RHINO_CONFIG_SCHED_RR
 #define RHINO_CONFIG_SCHED_RR                0
 #endif
-#ifndef RHINO_CONFIG_TIMER_RATE
-#define RHINO_CONFIG_TIMER_RATE              1
-#endif
 #ifndef RHINO_CONFIG_TIMER
 #define RHINO_CONFIG_TIMER                   1
 #endif
@@ -120,9 +117,6 @@
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE 62
 #endif
 
-#ifndef RHINO_CONFIG_TIMER_RATE
-#define RHINO_CONFIG_TIMER_RATE 1
-#endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI 5
 #endif

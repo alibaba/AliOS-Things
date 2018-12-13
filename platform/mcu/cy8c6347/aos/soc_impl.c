@@ -43,23 +43,12 @@ void soc_intrpt_stack_ovf_check(void)
 }
 #endif
 
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-void soc_tick_interrupt_set(tick_t next_ticks,tick_t elapsed_ticks)
-{
-}
-
-tick_t soc_elapsed_ticks_get(void)
-{
-    return 0;
-}
-#endif
-
 #if (RHINO_CONFIG_MM_TLF > 0)
 
 #if !defined (__CC_ARM) /* Keil / armcc */
 extern char __HeapLimit[];
 extern char __HeapBase[];
-  
+
 #elif defined (__CC_ARM)
 extern char __heap_base[];
 extern char __heap_limit[];
@@ -74,21 +63,6 @@ k_mm_region_t g_mm_region[] = {{(uint8_t *)__HeapBase, 0x19000}};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
 #endif
-
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int __bss_start__, __bss_end__, _sdata, _edata;
-
-void aos_mm_leak_region_init(void)
-{
-#if (RHINO_CONFIG_MM_DEBUG > 0)
-    krhino_mm_leak_region_init(&__bss_start__, &__bss_end__);
-    krhino_mm_leak_region_init(&_sdata, &_edata);
-#endif
-}
-
-#endif
-
 
 #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
 size_t soc_get_cur_sp()
@@ -126,7 +100,7 @@ static void soc_print_stack()
 void soc_err_proc(kstat_t err)
 {
     (void)err;
-    
+
     #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
     soc_print_stack();
     #endif

@@ -53,12 +53,6 @@ static void app_pre_init(void)
 
     krhino_add_mm_region(g_kmm_head, (void *)(app_info->heap_start),
                          app_info->heap_end - app_info->heap_start);
-
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0)
-    krhino_mm_leak_region_init((void *)(app_info->data_ram_start), (void *)(app_info->data_ram_end));
-    krhino_mm_leak_region_init((void *)(app_info->bss_start), (void *)(app_info->bss_end));
-#endif
-
 }
 #endif
 
