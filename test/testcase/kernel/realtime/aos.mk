@@ -1,8 +1,8 @@
 NAME := realtime
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
-$(NAME)_SUMMARY :=
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := test code of realtime
 
 $(NAME)_COMPONENTS += rhino
 
