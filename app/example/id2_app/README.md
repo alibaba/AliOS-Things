@@ -1,4 +1,4 @@
-# tls sample
+# id2 sample
   
 It is a sample for using id2 in alios things. 
 ## Contents
