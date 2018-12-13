@@ -23,7 +23,7 @@
  */
 
 #include "esp_common.h"
-
+#include "aos/hal/uart.h"
 #include "uart.h"
 #include "k_api.h"
 #include "espos_task.h"
@@ -409,31 +409,71 @@ uart0_rx_isr(void *para)
 }
 
 void
-uart_init_new(void)
+uart_init_new(uart_dev_t *uart)
 {
     UART_WaitTxFifoEmpty(UART0);
     UART_WaitTxFifoEmpty(UART1);
 
-    UART_ConfigTypeDef uart_config;
-    uart_config.baud_rate    = BIT_RATE_921600;
-    uart_config.data_bits     = UART_WordLength_8b;
-    uart_config.parity          = USART_Parity_None;
-    uart_config.stop_bits     = USART_StopBits_1;
-    uart_config.flow_ctrl      = USART_HardwareFlowControl_None;
-    uart_config.UART_RxFlowThresh = 120;
-    uart_config.UART_InverseMask = UART_None_Inverse;
-    UART_ParamConfig(UART0, &uart_config);
+    if (uart == NULL)
+    {
+        return;
+    }
 
-    UART_IntrConfTypeDef uart_intr;
-    uart_intr.UART_IntrEnMask = UART_RXFIFO_TOUT_INT_ENA | UART_FRM_ERR_INT_ENA | UART_RXFIFO_FULL_INT_ENA | UART_TXFIFO_EMPTY_INT_ENA;
-    uart_intr.UART_RX_FifoFullIntrThresh = 10;
-    uart_intr.UART_RX_TimeOutIntrThresh = 2;
-    uart_intr.UART_TX_FifoEmptyIntrThresh = 20;
-    UART_IntrConfig(UART0, &uart_intr);
+    if (uart->port == 1)
+    {
+        //printf("port= 1\n ");
 
-    UART_SetPrintPort(UART0);
-    UART_intr_handler_register(uart0_rx_isr, NULL);
-    ETS_UART_INTR_ENABLE();
+        //uart1 setting
+        UART_ConfigTypeDef uart_config;
+        uart_config.baud_rate = uart->config.baud_rate;
+        uart_config.data_bits = UART_WordLength_8b;
+        uart_config.parity = USART_Parity_None;
+        uart_config.stop_bits = USART_StopBits_1;
+        uart_config.flow_ctrl = USART_HardwareFlowControl_None;
+        uart_config.UART_RxFlowThresh = 120;
+        uart_config.UART_InverseMask = UART_None_Inverse;
+        UART_ParamConfig(UART0, &uart_config);
+
+        //uart2 setting for log
+        uart_config.baud_rate = uart->config.baud_rate;
+        UART_ParamConfig(UART1, &uart_config);
+
+        UART_IntrConfTypeDef uart_intr;
+        uart_intr.UART_IntrEnMask = UART_RXFIFO_TOUT_INT_ENA | UART_FRM_ERR_INT_ENA | UART_RXFIFO_FULL_INT_ENA | UART_TXFIFO_EMPTY_INT_ENA;
+        uart_intr.UART_RX_FifoFullIntrThresh = 100;
+        uart_intr.UART_RX_TimeOutIntrThresh = 10;
+        uart_intr.UART_TX_FifoEmptyIntrThresh = 20;
+        UART_IntrConfig(UART0, &uart_intr);
+
+        UART_SetPrintPort(UART1);
+        UART_intr_handler_register(uart0_rx_isr, NULL);
+        ETS_UART_INTR_ENABLE();
+    }
+    else
+    {
+        //printf("port= 0 \n ");
+        UART_ConfigTypeDef uart_config;
+        uart_config.baud_rate = BIT_RATE_921600;
+        uart_config.data_bits = UART_WordLength_8b;
+        uart_config.parity = USART_Parity_None;
+        uart_config.stop_bits = USART_StopBits_1;
+        uart_config.flow_ctrl = USART_HardwareFlowControl_None;
+        uart_config.UART_RxFlowThresh = 120;
+        uart_config.UART_InverseMask = UART_None_Inverse;
+        UART_ParamConfig(UART0, &uart_config);
+
+        UART_IntrConfTypeDef uart_intr;
+        uart_intr.UART_IntrEnMask = UART_RXFIFO_TOUT_INT_ENA | UART_FRM_ERR_INT_ENA | UART_RXFIFO_FULL_INT_ENA | UART_TXFIFO_EMPTY_INT_ENA;
+        uart_intr.UART_RX_FifoFullIntrThresh = 10;
+        uart_intr.UART_RX_TimeOutIntrThresh = 2;
+        uart_intr.UART_TX_FifoEmptyIntrThresh = 20;
+        UART_IntrConfig(UART0, &uart_intr);
+
+        UART_SetPrintPort(UART0);
+        UART_intr_handler_register(uart0_rx_isr, NULL);
+        ETS_UART_INTR_ENABLE();
+    }
+
 
     /*
     UART_SetWordLength(UART0,UART_WordLength_8b);
