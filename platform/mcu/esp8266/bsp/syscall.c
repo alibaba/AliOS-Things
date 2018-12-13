@@ -33,7 +33,7 @@ void* malloc(size_t size)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_malloc(size | AOS_UNSIGNED_INT_MSB);
     aos_alloc_trace(mem, (size_t)__builtin_return_address(0));
 #else
@@ -47,7 +47,7 @@ void* calloc(size_t count, size_t size)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_malloc((count * size) | AOS_UNSIGNED_INT_MSB);
     aos_alloc_trace(mem, (size_t)__builtin_return_address(0));
 #else
@@ -70,7 +70,7 @@ void* realloc(void* ptr, size_t size)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_realloc(ptr, size | AOS_UNSIGNED_INT_MSB);
     aos_alloc_trace(mem, (size_t)__builtin_return_address(0));
 #else
@@ -84,7 +84,7 @@ void *zalloc(size_t size)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_zalloc(size | AOS_UNSIGNED_INT_MSB);
     aos_alloc_trace(mem, (size_t)__builtin_return_address(0));
 #else

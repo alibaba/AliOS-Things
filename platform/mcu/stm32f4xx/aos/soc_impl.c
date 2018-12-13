@@ -62,20 +62,6 @@ k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len},{(uint8
 #endif
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int __bss_start__, __bss_end__, _sdata, _edata;
-
-void aos_mm_leak_region_init(void)
-{
-#if (RHINO_CONFIG_MM_DEBUG > 0)
-    krhino_mm_leak_region_init(&__bss_start__, &__bss_end__);
-    krhino_mm_leak_region_init(&_sdata, &_edata);
-#endif
-}
-
-#endif
-
 #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
 size_t soc_get_cur_sp()
 {

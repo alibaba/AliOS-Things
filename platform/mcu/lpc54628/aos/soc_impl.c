@@ -42,30 +42,6 @@ void soc_intrpt_stack_ovf_check(void)
 {
 }
 #endif
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int __bss_start__, __bss_end__, _sdata, _edata;
-
-void aos_mm_leak_region_init(void)
-{
-#if (RHINO_CONFIG_MM_DEBUG > 0)
-    krhino_mm_leak_region_init(&__bss_start__, &__bss_end__);
-    krhino_mm_leak_region_init(&_sdata, &_edata);
-#endif
-}
-
-#endif
-
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-void soc_tick_interrupt_set(tick_t next_ticks,tick_t elapsed_ticks)
-{
-}
-
-tick_t soc_elapsed_ticks_get(void)
-{
-    return 0;
-}
-#endif
 
 size_t soc_get_cur_sp()
 {

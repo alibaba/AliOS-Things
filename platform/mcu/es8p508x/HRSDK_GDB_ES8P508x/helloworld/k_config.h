@@ -7,21 +7,21 @@
 
 /* chip level conf */
 #ifndef RHINO_CONFIG_LITTLE_ENDIAN
-#define RHINO_CONFIG_LITTLE_ENDIAN           1          
+#define RHINO_CONFIG_LITTLE_ENDIAN           1
 #endif
 #ifndef RHINO_CONFIG_CPU_STACK_DOWN
-#define RHINO_CONFIG_CPU_STACK_DOWN          1          
+#define RHINO_CONFIG_CPU_STACK_DOWN          1
 #endif
 
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
-#define RHINO_CONFIG_SEM                     1          
+#define RHINO_CONFIG_SEM                     1
 #endif
 #ifndef RHINO_CONFIG_QUEUE
-#define RHINO_CONFIG_QUEUE                   1         
+#define RHINO_CONFIG_QUEUE                   1
 #endif
 #ifndef RHINO_CONFIG_TASK_SEM
-#define RHINO_CONFIG_TASK_SEM                0          
+#define RHINO_CONFIG_TASK_SEM                0
 #endif
 #ifndef RHINO_CONFIG_EVENT_FLAG
 #define RHINO_CONFIG_EVENT_FLAG              0
@@ -36,7 +36,7 @@
 #define RHINO_CONFIG_MM_BLK                  1
 #endif
 #ifndef RHINO_CONFIG_MM_DEBUG
-#define RHINO_CONFIG_MM_DEBUG                1          
+#define RHINO_CONFIG_MM_DEBUG                1
 #endif
 
 #ifndef RHINO_CONFIG_MM_TLF
@@ -47,12 +47,6 @@
 #endif
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          19
-#endif
-#ifndef RHINO_CONFIG_GCC_RETADDR
-#define RHINO_CONFIG_GCC_RETADDR             0
-#endif
-#ifndef RHINO_CONFIG_MM_LEAKCHECK
-#define RHINO_CONFIG_MM_LEAKCHECK            0
 #endif
 #ifndef RHINO_CONFIG_RINGBUF_VENDOR
 #define RHINO_CONFIG_RINGBUF_VENDOR          0
@@ -84,7 +78,7 @@
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
 #endif
 #ifndef RHINO_CONFIG_SCHED_RR
-#define RHINO_CONFIG_SCHED_RR                1      
+#define RHINO_CONFIG_SCHED_RR                1
 #endif
 #ifndef RHINO_CONFIG_TIME_SLICE_DEFAULT
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      50
@@ -114,12 +108,12 @@
 #define RHINO_CONFIG_HW_COUNT                0
 #endif
 #ifndef RHINO_CONFIG_TICK_TASK
-#define RHINO_CONFIG_TICK_TASK               0              
+#define RHINO_CONFIG_TICK_TASK               0
 #endif
 
 #if (RHINO_CONFIG_TICK_TASK > 0)
 #ifndef RHINO_CONFIG_TICK_TASK_STACK_SIZE
-#define RHINO_CONFIG_TICK_TASK_STACK_SIZE    256            
+#define RHINO_CONFIG_TICK_TASK_STACK_SIZE    256
 #endif
 #ifndef RHINO_CONFIG_TICK_TASK_PRI
 #define RHINO_CONFIG_TICK_TASK_PRI           1
@@ -130,7 +124,7 @@
 #define RHINO_CONFIG_TICKLESS                0
 #endif
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
-#define RHINO_CONFIG_TICKS_PER_SECOND        100            
+#define RHINO_CONFIG_TICKS_PER_SECOND        100
 #endif
 /* must be 2^n size!, such as 1, 2, 4, 8, 16,32, etc....... */
 #ifndef RHINO_CONFIG_TICK_HEAD_ARRAY
@@ -140,9 +134,6 @@
 /*must reserve enough stack size for timer cb will consume*/
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   300
-#endif
-#ifndef RHINO_CONFIG_TIMER_RATE
-#define RHINO_CONFIG_TIMER_RATE              1              
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
@@ -186,7 +177,7 @@
 
 /* kernel hook conf */
 #ifndef RHINO_CONFIG_USER_HOOK
-#define RHINO_CONFIG_USER_HOOK               1      
+#define RHINO_CONFIG_USER_HOOK               1
 #endif
 
 /* kernel stats conf */

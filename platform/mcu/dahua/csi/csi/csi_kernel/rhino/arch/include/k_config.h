@@ -49,7 +49,6 @@
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
 #define RHINO_CONFIG_TICK_HEAD_ARRAY         1
 #define RHINO_CONFIG_SCHED_RR                0
-#define RHINO_CONFIG_TIMER_RATE              1
 #define RHINO_CONFIG_TIMER                   1
 */
 
@@ -82,7 +81,6 @@
 #define RHINO_CONFIG_TICK_HEAD_ARRAY         1
 
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
-#define RHINO_CONFIG_TIMER_RATE              1
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 
 /* kernel intrpt conf */

@@ -40,18 +40,6 @@ void soc_intrpt_stack_ovf_check(void)
 }
 #endif
 
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-void soc_tick_interrupt_set(tick_t next_ticks,tick_t elapsed_ticks)
-{
-}
-
-tick_t soc_elapsed_ticks_get(void)
-{
-    return 0;
-}
-#endif
-
-
 #include <k_api.h>
 
 void soc_hw_timer_init()
@@ -127,10 +115,10 @@ void krhino_idle_hook(void)
     GLOBAL_INT_DISABLE();
     if((INT32)(global_tick + (UINT32)1 - g_tick_count) <=  0)
 	{
-	    
+
 	    mcu_miss_tick = mcu_power_save(mcu_ps_tick);
         #if 0
-	    RHINO_CPU_INTRPT_DISABLE();   
+	    RHINO_CPU_INTRPT_DISABLE();
 	    g_tick_count += mcu_miss_tick;
 	    global_tick = g_tick_count;
 	    RHINO_CPU_INTRPT_ENABLE();
@@ -151,18 +139,6 @@ extern void         *heap_len;
 k_mm_region_t g_mm_region[] = {(uint8_t*)&heap_start,(size_t)&heap_len};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
-
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int _bss_start, _bss_end, _data_ram_begin, _data_ram_end;
-
-void aos_mm_leak_region_init(void)
-{
-    krhino_mm_leak_region_init(&_bss_start, &_bss_end);
-    krhino_mm_leak_region_init(&_data_ram_begin, &_data_ram_end);
-}
-
-#endif
 
 #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
 size_t soc_get_cur_sp()
