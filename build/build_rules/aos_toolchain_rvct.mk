@@ -1,13 +1,12 @@
 TOOLCHAIN_PATH ?=
-TOOLCHAIN_PREFIX :=
-CC      := $(TOOLCHAIN_PATH)iccarm
-CXX     := $(TOOLCHAIN_PATH)iccarm
-AS      := $(TOOLCHAIN_PATH)iasmarm
-AR      := $(TOOLCHAIN_PATH)iarchive
-LD      := $(TOOLCHAIN_PATH)ilinkarm
-CPP     := $(TOOLCHAIN_PATH)iccarm
+TOOLCHAIN_PREFIX := arm
+CC      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)cc
+CXX     := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)cc
+AS      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)asm
+AR      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ar
+LD      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)link
+CPP     := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)cc
 
-OPTIONS_IN_FILE_OPTION_PREFIX_DIRECT  = $
 OPTIONS_IN_FILE_OPTION_PREFIX         = $$
 OPTIONS_IN_FILE_OPTION                = (file < 
 OPTIONS_IN_FILE_OPTION_SUFFIX         = )
@@ -19,9 +18,9 @@ ADD_COMPILER_SPECIFIC_STANDARD_ADMFLAGS = $(1)
 COMPILER_SPECIFIC_OPTIMIZED_CFLAGS     := -Os
 COMPILER_SPECIFIC_UNOPTIMIZED_CFLAGS   := -O0
 COMPILER_SPECIFIC_PEDANTIC_CFLAGS      := $(COMPILER_SPECIFIC_STANDARD_CFLAGS)
-COMPILER_SPECIFIC_ARFLAGS_CREATE       := --create
-COMPILER_SPECIFIC_ARFLAGS_ADD          := --create
-COMPILER_SPECIFIC_ARFLAGS_VERBOSE      := -V
+COMPILER_SPECIFIC_ARFLAGS_CREATE       := -rcs
+COMPILER_SPECIFIC_ARFLAGS_ADD          := -rcs
+COMPILER_SPECIFIC_ARFLAGS_VERBOSE      := -v
 
 #debug: no optimize and log enable
 COMPILER_SPECIFIC_DEBUG_CFLAGS         := -DDEBUG -Dgdb $(COMPILER_SPECIFIC_UNOPTIMIZED_CFLAGS)
@@ -41,17 +40,19 @@ COMPILER_SPECIFIC_RELEASE_CXXFLAGS     := -DNDEBUG $(COMPILER_SPECIFIC_OPTIMIZED
 COMPILER_SPECIFIC_RELEASE_ASFLAGS      :=
 COMPILER_SPECIFIC_RELEASE_LDFLAGS      := 
 
-# -MD -> --dependencies xx.d
-COMPILER_SPECIFIC_DEPS_FLAG                := --vla -e --dlib_config=full -D_TIMESPEC_DEFINED --silent --only_stdout --no_warnings --diag_warning=Pe167,Pe144,Pe513
-COMPILER_SPECIFIC_COMP_ONLY_FLAG           := 
-COMPILER_SPECIFIC_LINK_MAP                  = --map $(1)
-COMPILER_SPECIFIC_LINK_FILES                = $(addprefix --whole_archive , $(filter-out %alicrypto.a,$(1))) $(filter %alicrypto.a,$(1))
+COMPILER_SPECIFIC_DEPS_FLAG                := --md
+COMPILER_SPECIFIC_DEPS_FILE                 = --depend="$(1)"
+COMPILER_UNI_CFLAGS                        := --c90 --gnu -W
+COMPILER_UNI_SFLAGS                        := 
+COMPILER_SPECIFIC_COMP_ONLY_FLAG           := -c
+COMPILER_SPECIFIC_LINK_MAP                  = --list=$(1)
+COMPILER_SPECIFIC_LINK_FILES                = $(1)
 COMPILER_SPECIFIC_LINK_SCRIPT_DEFINE_OPTION = 
 COMPILER_SPECIFIC_LINK_SCRIPT               =
 
 LINKER                             := $(LD)
-LINK_SCRIPT_SUFFIX                 := .icf
-TOOLCHAIN_NAME := iar
+LINK_SCRIPT_SUFFIX                 := .ld
+TOOLCHAIN_NAME := armcc
 
 ENDIAN_CFLAGS_LITTLE   := --littleend
 ENDIAN_CXXFLAGS_LITTLE := --littleend
@@ -70,23 +71,24 @@ CPU_LDFLAGS    :=
 #COMPILER_SPECIFIC_MAPFILE_TO_CSV = $(PYTHON) $(MAPFILE_PARSER) $(1) > $(2)
 
 #TODO
-#MAPFILE_PARSER            :=$(MAKEFILES_PATH)/scripts/map_parse_armcc.py
+#MAPFILE_PARSER            :=$(SCRIPTS_PATH)/map_parse_armcc.py
 
 # $(1) is map file, $(2) is CSV output file
-# iar map file format is different 
 #COMPILER_SPECIFIC_MAPFILE_DISPLAY_SUMMARY = $(PYTHON) $(MAPFILE_PARSER) $(1)
+#TODO treat mapfile
 
-OBJDUMP := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ielfdumparm$(EXECUTABLE_SUFFIX)"
-OBJCOPY := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ielftool$(EXECUTABLE_SUFFIX)"
-# -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes -> iobjmanip --remvoe_secton
-OBJCOPY_BIN_FLAGS   := --bin --silent
-OBJCOPY_HEX_FLAGS   := --ihex --silent
+OBJDUMP := "$(TOOLCHAIN_PATH)fromelf$(EXECUTABLE_SUFFIX)"
+OBJCOPY := "$(TOOLCHAIN_PATH)fromelf$(EXECUTABLE_SUFFIX)"
 
 #no need to strip in arm fromelf
-STRIP   := "$(TOOLCHAIN_PATH)ielftool"
-STRIPFLAGS := --strip --silent
+STRIP   := "$(TOOLCHAIN_PATH)fromelf$(EXECUTABLE_SUFFIX)"
 
-LINK_OUTPUT_SUFFIX  :=.iarElf
+STRIP_OUTPUT_PREFIX     := --output=
+STRIPFLAGS              := --strip=debug,symbols --elf 
+OBJCOPY_BIN_FLAGS       := --bin 
+OBJCOPY_OUTPUT_PREFIX   := --output=
+OBJCOPY_HEX_FLAGS       := --i32
+
+LINK_OUTPUT_SUFFIX  :=.axf
 BIN_OUTPUT_SUFFIX   :=.bin
 HEX_OUTPUT_SUFFIX   :=.hex
-
