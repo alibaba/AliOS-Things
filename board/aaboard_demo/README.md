@@ -8,13 +8,12 @@ aaboard_demo # configuration files for board aaboard_demo
 =============================================================================================================
 Dir\File                                Description                                           Necessary for kernel run
 =============================================================================================================
+|-- drivers                  # board peripheral driver                                              N
 |-- config
 |   |-- board.h              # board config file, define for user, such as uart port num            Y
 |   |-- k_config.c           # user's kernel hook and mm memory region define                       Y
 |   |-- k_config.h           # kernel config file .h                                                Y
 |   |-- partition_conf.c     # board flash config file                                              N
-|-- drivers                  # board peripheral driver                                              N
-|   |-- xx_hal_conf.h        # board related module config                                          N
 |-- startup
 |   |-- board.c              # board_init implement                                                 Y
 |   |-- startup.c            # main entry file                                                      Y
