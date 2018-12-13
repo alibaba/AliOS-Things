@@ -7,10 +7,12 @@
 #include "stdio.h"
 #include "iot_export_linkkit.h"
 #include "cJSON.h"
+#include "hfilop/hfilop.h"
 
 #define USE_CUSTOME_DOMAIN      (0)
 
 // for demo only
+/*
 #if 0
 #define PRODUCT_KEY      "a16UKrlKekO"
 #define PRODUCT_SECRET   "RDluqbn3LQazrdqM"
@@ -22,6 +24,11 @@
 #define DEVICE_NAME      "example1"
 #define DEVICE_SECRET    "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
 #endif
+*/
+char *PRODUCT_KEY=NULL;
+	char *PRODUCT_SECRET=NULL;
+	char *DEVICE_NAME=NULL;
+	char *DEVICE_SECRET=NULL;
 
 
 #if USE_CUSTOME_DOMAIN
@@ -513,7 +520,7 @@ static int user_master_dev_available(void)
 
     return 0;
 }
-
+/*
 void set_iotx_info()
 {
     HAL_SetProductKey(PRODUCT_KEY);
@@ -521,7 +528,7 @@ void set_iotx_info()
     HAL_SetDeviceName(DEVICE_NAME);
     HAL_SetDeviceSecret(DEVICE_SECRET);
 }
-
+*/
 static int max_running_seconds = 0;
 int linkkit_main(void *paras)
 {
@@ -546,7 +553,7 @@ int linkkit_main(void *paras)
 #endif
 
 #if !defined(WIFI_PROVISION_ENABLED) || !defined(BUILD_AOS)
-    set_iotx_info();
+ //   set_iotx_info();
 #endif
 
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
@@ -566,6 +573,11 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_FOTA, user_fota_event_handler);
     IOT_RegisterCallback(ITE_COTA, user_cota_event_handler);
+	PRODUCT_KEY=hfilop_layer_get_product_key();
+	PRODUCT_SECRET=hfilop_layer_get_product_secret();
+	DEVICE_NAME=hfilop_layer_get_device_name();
+	DEVICE_SECRET=hfilop_layer_get_device_secret();
+	HFILOP_PRINTF("PRODUCT_KEY=%s PRODUCT_SECRET=%s DEVICE_NAME=%s DEVICE_SECRET=%s\r\n",PRODUCT_KEY,PRODUCT_SECRET,DEVICE_NAME,DEVICE_SECRET);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));

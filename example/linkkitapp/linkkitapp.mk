@@ -1,4 +1,5 @@
 NAME := linkkitapp
+GLOBAL_LDFLAGS += example/linkkitapp/hfilop/hfilop.a
 $(NAME)_SOURCES := linkkit_sample_solo.c \
                    linkkit_entry.c
 
