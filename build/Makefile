@@ -8,7 +8,7 @@ export AOS_SDK_VERSION_REVISION :=  3
 
 export SOURCE_ROOT ?= ./
 
-export MAKEFILES_PATH := $(SOURCE_ROOT)/build
+export MAKEFILES_PATH := $(SOURCE_ROOT)/build/build_rules
 export SCRIPTS_PATH := $(SOURCE_ROOT)/build/scripts
 
 export UNDERLINE
@@ -119,7 +119,7 @@ export VERBOSE
 export SUB_BUILD
 export OPENOCD_LOG_FILE
 
-COMPONENT_DEPENDENCY_SCRIPT := $(MAKEFILES_PATH)/scripts/component_dependencies.py
+COMPONENT_DEPENDENCY_SCRIPT := $(SCRIPTS_PATH)/component_dependencies.py
 COMPONENT_DEPENDENCY = $(PYTHON) $(COMPONENT_DEPENDENCY_SCRIPT)
 export COMPONENT_DEPENDENCY
 
@@ -172,10 +172,10 @@ TEST_COMPONENT_COLLECTION = $(AUTO_COMPONENT_DIR)/test_collection.default
 endif
 
 $(AUTO_COMPONENT): $(TEST_COMPONENT_COLLECTION)
-	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/auto_component.py $(AUTO_COMPONENT_DIR)
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/auto_component.py $(AUTO_COMPONENT_DIR)
 
 $(TEST_COMPONENT_COLLECTION):
-	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
 
 ifeq ($(COMPILER),armcc)
  TOOLCHAIN_MK = aos_toolchain_armcc.mk
@@ -227,7 +227,7 @@ main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/ao
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/resources)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/includes)
-	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_auto_code.py $(OUTPUT_DIR)/config.mk $(AUTO_COMPONENT_DIR)
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
 	$(QUIET)$(ECHO) Build complete
 
@@ -246,13 +246,13 @@ $(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MA
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/modules)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/resources)
-	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_auto_code.py $(OUTPUT_DIR)/config_2boot.mk $(AUTO_COMPONENT_DIR)
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config_2boot.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build_2boot.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
 	$(QUIET)$(ECHO) Build 2nd boot complete
-	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
 else
 2boot:
-	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
 endif
 
 ifeq (littlevgl_simulate@linuxhost,$(CLEANED_BUILD_STRING))
@@ -281,10 +281,10 @@ endif
 
 export_linkkit_sdk:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR))
-	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/gen_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
 
 restore_linkkit_sdk:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR))
-	$(QUIET)$(PYTHON) $(MAKEFILES_PATH)/scripts/restore_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/restore_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
 
 

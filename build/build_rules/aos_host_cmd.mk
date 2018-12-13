@@ -3,7 +3,7 @@ COMPILER_ROOT ?=$(TOOLS_ROOT)/compiler
 
 
 OPENOCD_PATH      := $(TOOLS_ROOT)/OpenOCD/${HOST_OS}/
-OPENOCD_CFG_PATH  := $(MAKEFILES_PATH)/OpenOCD/${HOST_OS}/
+OPENOCD_CFG_PATH  := $(TOOLS_ROOT)/OpenOCD/${HOST_OS}/
 PATH :=
 
 JTAG         ?= jlink_swd

@@ -207,7 +207,7 @@ else ifeq ($(COMPILER), iar)
 else
 	$(QUIET)$(OBJDUMP) -t -w $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym
 endif
-	@python build/scripts/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym drivers/sensor/hal/sensor_config.c
+	@python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym drivers/sensor/hal/sensor_config.c
 	$(CC) $(sensor_C_OPTS) drivers/sensor/hal/sensor_config.c -o $(OUTPUT_DIR)/Modules/drivers/sensor/hal/sensor_config.o
 	$(QUIET)rm -rf $(OUTPUT_DIR)/libraries/sensor.a
 	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
@@ -413,4 +413,4 @@ endif
 $(EXTRA_POST_BUILD_TARGETS): build_done
 
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done)
-	$(PYTHON) $(MAKEFILES_PATH)/scripts/ota_gen_md5_bin.py $(BIN_OUTPUT_FILE)
+	$(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(BIN_OUTPUT_FILE)
