@@ -30,12 +30,12 @@ extern uart_dev_t uart_1;
 
 void platform_init(void)
 {
-    CMU_HFRCOBandSet(cmuHFRCOBand_14MHz);                 
-    CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);  
-    
-    CMU_ClockEnable(cmuClock_HFPER, true); 
-    
-    CMU_ClockEnable(cmuClock_GPIO, true); 
+    CMU_HFRCOBandSet(cmuHFRCOBand_14MHz);
+    CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);
+
+    CMU_ClockEnable(cmuClock_HFPER, true);
+
+    CMU_ClockEnable(cmuClock_GPIO, true);
 
     GPIO_PinModeSet(gpioPortC, 0, gpioModePushPull, 0); //PC0 TXD
     GPIO_PinModeSet(gpioPortC, 1, gpioModeInputPull, 0); //PC1 RXD
@@ -59,7 +59,7 @@ void platform_init(void)
 static ktask_t lora_task_obj;
 cpu_stack_t lora_task_buf[LORA_TASK_STACKSIZE];
 
-extern int application_start(void);
+extern int application_start(int argc, char **argv);
 
 void aos_app_entry(void *args)
 {
@@ -76,7 +76,7 @@ void aos_app_entry(void *args)
 
     HW_Init();
 
-    application_start();
+    application_start(0,NULL);
 }
 
 int main(void)
