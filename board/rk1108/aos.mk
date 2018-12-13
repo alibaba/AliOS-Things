@@ -8,6 +8,8 @@ HOST_ARCH          := rockchiplinux
 HOST_MCU_FAMILY    := mcu_linuximpl
 SUPPORT_MBINS      := no
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 #GLOBAL_CFLAGS += -I$(SOURCE_ROOT)/board/armhflinux/include
 #GLOBAL_LDFLAGS += -L$(SOURCE_ROOT)/board/armhflinux/lib
 GLOBAL_DEFINES += RHINO_CONFIG_CPU_NUM=1 RHINO_CONFIG_TASK_STACK_CUR_CHECK=1

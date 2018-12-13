@@ -11,6 +11,8 @@ HOST_ARCH            := ARM968E-S
 HOST_MCU_FAMILY      := mcu_bk7231
 SUPPORT_MBINS        := no
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES := board.c
 
 GLOBAL_INCLUDES += .

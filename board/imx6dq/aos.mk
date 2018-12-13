@@ -9,6 +9,8 @@ HOST_MCU_FAMILY    := mcu_imx6
 HOST_MCU_NAME      := imx6dq
 SUPPORT_MBINS      := no
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES := board.c
 
 GLOBAL_INCLUDES += .

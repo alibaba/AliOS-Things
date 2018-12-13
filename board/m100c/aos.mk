@@ -11,6 +11,8 @@ HOST_ARCH       := Cortex-M3
 HOST_MCU_FAMILY := mcu_efm32gxx
 SUPPORT_MBINS   := no
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 lorawanback      ?= 0
 ifeq ($(lorawanback), 0)
 $(NAME)_COMPONENTS += lorachip_4_4_2 lorawan_4_4_2

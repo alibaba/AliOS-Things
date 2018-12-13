@@ -53,6 +53,8 @@ MODULE               := 1062
 ENABLE_VFP           := 1
 ENABLE_USPACE        := 0
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES += aos/board.c                         \
                    aos/flash_partitions.c              \
                    aos/board_cli.c                     \

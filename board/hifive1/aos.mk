@@ -8,6 +8,8 @@ HOST_ARCH          := RISC-V
 HOST_MCU_FAMILY    := mcu_e310
 SUPPORT_MBINS      := no
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES := board.c
 
 GLOBAL_INCLUDES += .
