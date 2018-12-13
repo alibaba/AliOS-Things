@@ -11,6 +11,8 @@ SUPPORT_MBINS   := no
 SUPPORT_MBINS   := yes
 ENABLE_USPACE   := 1
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES := src/board.c \
                    src/main.c  \
                    src/uspace_init.c

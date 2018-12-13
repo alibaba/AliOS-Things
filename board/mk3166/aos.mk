@@ -13,6 +13,8 @@ SUPPORT_MBINS      := no
 
 BUS := SDIO
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES          := board.c
 $(NAME)_PREBUILT_LIBRARY := MiCO.$(MODULE).$(TOOLCHAIN_NAME).a
 

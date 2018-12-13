@@ -11,6 +11,8 @@ HOST_ARCH          := ck803
 HOST_MCU_FAMILY    := mcu_dahua
 SUPPORT_MBINS      := no
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES := board_init.c
 
 ifeq ($(LWIP),1)
