@@ -87,8 +87,11 @@ def main(argv):
 
     source_root = argv[1]
     config_file = argv[2]
+    print "Parsing all components ..."
     mklist = find_comp_mkfile(source_root)
-    write_config_file(source_root, config_file, mklist)
+    ret = write_config_file(source_root, config_file, mklist)
+    if ret:
+        print "Failed to create %s ...\n" % config_file
 
 if __name__ == "__main__":
     ret = main(sys.argv)

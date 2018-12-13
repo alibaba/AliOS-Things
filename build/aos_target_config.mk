@@ -2,7 +2,9 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_target_func.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 # <comp>_LOCATION and <comp>_MAKEFILE defined in aos_all_components.mk
-include $(OUTPUT_DIR)/aos_all_components.mk
+$(if $(wildcard $(OUTPUT_DIR)/aos_all_components.mk), \
+    $(eval include $(OUTPUT_DIR)/aos_all_components.mk), \
+    $(error No such file: $(OUTPUT_DIR)/aos_all_components.mk) )
 
 APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
