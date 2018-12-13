@@ -1,30 +1,27 @@
+#include <k_config.h>
+
 @******************************************************************************
 @                            EXTERN PARAMETERS
 @******************************************************************************
-#include <k_config.h>
-
-.extern  g_active_task
-.extern  g_preferred_ready_task
-.extern  krhino_stack_ovf_check
-.extern  krhino_task_sched_stats_get
+.extern g_active_task
+.extern g_preferred_ready_task
+.extern krhino_stack_ovf_check
+.extern krhino_task_sched_stats_get
 
 @******************************************************************************
 @                            EXPORT FUNCTIONS
 @******************************************************************************
+.global cpu_intrpt_save
+.global cpu_intrpt_restore
+.global cpu_task_switch
+.global cpu_intrpt_switch
+.global cpu_first_task_start
 
-.global  cpu_intrpt_save
-.global  cpu_intrpt_restore
-.global  cpu_task_switch
-.global  cpu_intrpt_switch
-.global  cpu_first_task_start
-
-.global  PendSV_Handler
-.global  _first_task_restore
+.global PendSV_Handler
 
 @******************************************************************************
 @                                 EQUATES
 @******************************************************************************
-
 .equ SCB_ICSR,        0xE000ED04 @ Interrupt Control and State Register.
 .equ SCB_VTOR,        0xE000ED08 @ Vector Table Offset Register.
 .equ ICSR_PENDSVSET,  0x10000000 @ Value to trigger PendSV exception.
@@ -87,7 +84,7 @@ cpu_first_task_start:
     LDR     R0, =SHPR3_PRI_14
     LDR     R1, =PRI_LVL_PENDSV
     STRB    R1, [R0]
-    
+
     @set Systick prority to the lowest
     LDR     R0, =SHPR3_PRI_15
     LDR     R1, =PRI_LVL_SYSTICK
