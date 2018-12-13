@@ -29,10 +29,6 @@
 #define RHINO_CONFIG_BITMAP_HW               0
 #endif
 
-#ifndef RHINO_CONFIG_GCC_RETADDR
-#define RHINO_CONFIG_GCC_RETADDR             0
-#endif
-
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
 #define RHINO_CONFIG_SEM                     0
@@ -107,10 +103,6 @@
 
 #ifndef RHINO_CONFIG_MM_DEBUG
 #define RHINO_CONFIG_MM_DEBUG                0
-#endif
-
-#ifndef RHINO_CONFIG_MM_LEAKCHECK
-#define RHINO_CONFIG_MM_LEAKCHECK            0
 #endif
 
 /* kernel mm_region conf */

@@ -35,9 +35,9 @@ void *sys_aos_malloc(unsigned int size, size_t allocator)
         return NULL;
     }
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if ((size & AOS_UNSIGNED_INT_MSB) == 0) {
-        krhino_owner_attach(g_kmm_head, tmp, allocator);
+        krhino_owner_attach(tmp, allocator);
     }
 #endif
 
@@ -52,9 +52,9 @@ void *sys_aos_realloc(void *mem, unsigned int size, size_t allocator)
         return NULL;
     }
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if ((size & AOS_UNSIGNED_INT_MSB) == 0) {
-        krhino_owner_attach(g_kmm_head, tmp, allocator);
+        krhino_owner_attach(tmp, allocator);
     }
 #endif
 
@@ -69,9 +69,9 @@ void *sys_aos_zalloc(unsigned int size, size_t allocator)
         return NULL;
     }
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if ((size & AOS_UNSIGNED_INT_MSB) == 0) {
-        krhino_owner_attach(g_kmm_head, tmp, allocator);
+        krhino_owner_attach(tmp, allocator);
     }
 #endif
 

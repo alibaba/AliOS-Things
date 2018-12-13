@@ -9,7 +9,6 @@
 #if (RHINO_CONFIG_MM_TLF > 0)
 extern k_mm_region_t   g_mm_region[];
 extern int             g_region_num;
-extern void aos_mm_leak_region_init(void);
 
 void k_mm_init(void)
 {
@@ -20,10 +19,6 @@ void k_mm_init(void)
     for (e = 1 ; e < g_region_num ; e++) {
         krhino_add_mm_region(g_kmm_head, g_mm_region[e].start, g_mm_region[e].len);
     }
-
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-    aos_mm_leak_region_init();
-#endif
 }
 
 /* init a region, contain 3 mmblk
@@ -737,28 +732,28 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
     return ptr_aux;
 }
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
-void krhino_owner_attach(k_mm_head *mmhead, void *addr, size_t allocator)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
+void krhino_owner_attach(void *addr, size_t allocator)
 {
     k_mm_list_t *blk;
 
-    if (!mmhead || !addr) {
+    if (NULL == addr) {
         return;
     }
 
 #if (RHINO_CONFIG_MM_BLK > 0)
     /* fix blk, do not support debug info */
-    if (krhino_mblk_check(mmhead->fix_pool, addr)) {
+    if (krhino_mblk_check(g_kmm_head->fix_pool, addr)) {
         return;
     }
 #endif
 
-    MM_CRITICAL_ENTER(mmhead);
+    MM_CRITICAL_ENTER(g_kmm_head);
 
     blk = MM_GET_THIS_BLK(addr);
     blk->owner = allocator;
 
-    MM_CRITICAL_EXIT(mmhead);
+    MM_CRITICAL_EXIT(g_kmm_head);
 }
 #endif
 
@@ -766,7 +761,7 @@ void *krhino_mm_alloc(size_t size)
 {
     void *tmp;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     uint32_t app_malloc = size & AOS_UNSIGNED_INT_MSB;
     size = size & (~AOS_UNSIGNED_INT_MSB);
 #endif
@@ -786,9 +781,6 @@ void *krhino_mm_alloc(size_t size)
         }
         dumped = 1;
         dumpsys_mm_info_func(0);
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0)
-        dump_mmleak();
-#endif
         k_err_proc(RHINO_NO_MEM);
 #endif
     }
@@ -797,13 +789,9 @@ void *krhino_mm_alloc(size_t size)
     krhino_mm_alloc_hook(tmp, size);
 #endif
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if (app_malloc == 0) {
-#if defined (__CC_ARM)
-        krhino_owner_attach(g_kmm_head, tmp, __return_address());
-#elif defined (__GNUC__)
-        krhino_owner_attach(g_kmm_head, tmp, (size_t)__builtin_return_address(0));
-#endif /* __CC_ARM */
+        krhino_owner_return_addr(tmp);
     }
 #endif
 
@@ -819,20 +807,16 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize)
 {
     void *tmp;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     uint32_t app_malloc = newsize & AOS_UNSIGNED_INT_MSB;
     newsize = newsize & (~AOS_UNSIGNED_INT_MSB);
 #endif
 
     tmp = k_mm_realloc(g_kmm_head, oldmem, newsize);
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if (app_malloc == 0) {
-#if defined (__CC_ARM)
-        krhino_owner_attach(g_kmm_head, tmp, __return_address());
-#elif defined (__GNUC__)
-        krhino_owner_attach(g_kmm_head, tmp, (size_t)__builtin_return_address(0));
-#endif /* __CC_ARM */
+        krhino_owner_return_addr(tmp);
     }
 #endif
     if (tmp == NULL && newsize != 0) {
@@ -844,9 +828,6 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize)
         }
         reallocdumped = 1;
         dumpsys_mm_info_func(0);
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0)
-        dump_mmleak();
-#endif
         k_err_proc(RHINO_SYS_FATAL_ERR);
 #endif
     }
