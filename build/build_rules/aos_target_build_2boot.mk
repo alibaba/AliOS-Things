@@ -58,9 +58,6 @@ PARSE_RESOURSE_TO_SYSCALL_FILE = $(PYTHON) $(CREATE_SYSCALLFILE) $(1) $(2)
 PROCESS_PRECOMPILED_FILES := $(OUTPUT_DIR)/precompile/mark.i
 endif
 
-include $(MAKEFILES_PATH)/aos_resources.mk
-include $(MAKEFILES_PATH)/aos_images_download.mk
-
 ##################################
 # Macros
 ##################################
