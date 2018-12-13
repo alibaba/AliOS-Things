@@ -25,6 +25,8 @@ SUPPORT_MBINS      := no
 #CONFIG_TFS_SW        := y
 #CONFIG_TFS_TEST      := n
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES := board_init.c
 
 ifeq ($(LWIP),1)

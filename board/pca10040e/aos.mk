@@ -10,6 +10,8 @@ HOST_MCU_FAMILY    := mcu_nrf52xxx
 SUPPORT_MBINS      := no
 HOST_MCU_NAME      := nrf52810
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 GLOBAL_INCLUDES += .
 
 bt_controller := 1

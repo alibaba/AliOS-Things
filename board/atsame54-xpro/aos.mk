@@ -11,6 +11,8 @@ HOST_MCU_FAMILY      := mcu_atsame54
 SUPPORT_MBINS        := no
 HOST_MCU_NAME        := ATSAME54P20A
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES += board.c
 
 GLOBAL_INCLUDES += .

@@ -10,6 +10,8 @@ HOST_ARCH          := Cortex-M0
 HOST_MCU_FAMILY    := mcu_stm32l071kb
 SUPPORT_MBINS      := no
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES := board.c          \
                    src/debug.c      \
                    src/hw_gpio.c    \

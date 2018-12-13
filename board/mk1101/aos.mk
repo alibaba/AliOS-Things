@@ -9,6 +9,8 @@ MODULE             := 1062
 HOST_ARCH          := Cortex-M3
 HOST_MCU_FAMILY    := mcu_MX1101
 
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+
 $(NAME)_SOURCES := board.c
 
 GLOBAL_INCLUDES += .
