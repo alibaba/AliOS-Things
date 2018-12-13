@@ -17,6 +17,10 @@ typedef struct {
 
 extern int aos_components_init(kinit_t *kinit);
 
+#ifndef AOS_BINS
+extern int application_start(int argc, char **argv);
+#endif
+
 #ifdef AOS_BINS
 #include <k_api.h>
 
