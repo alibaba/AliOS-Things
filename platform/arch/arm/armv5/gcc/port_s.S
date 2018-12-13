@@ -3,9 +3,10 @@
 @******************************************************************************
 @                            EXTERN PARAMETERS
 @******************************************************************************
-
 .extern g_active_task
 .extern g_preferred_ready_task
+.extern krhino_stack_ovf_check
+.extern krhino_task_sched_stats_get
 
 @******************************************************************************
 @                            EXPORT FUNCTIONS
@@ -15,8 +16,6 @@
 .global cpu_task_switch
 .global cpu_intrpt_switch
 .global cpu_first_task_start
-.global krhino_stack_ovf_check
-.global krhino_task_sched_stats_get
 
 @******************************************************************************
 @                        CODE GENERATION DIRECTIVES
@@ -65,13 +64,12 @@ cpu_task_switch:
     LDR     R0, [R0]
     STR     SP, [R0]
 
-    #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
+#if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
     BL      krhino_stack_ovf_check
-    #endif
-
-    #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#endif
+#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
     BL      krhino_task_sched_stats_get
-    #endif
+#endif
 
 .type cpu_intrpt_switch, %function
 cpu_intrpt_switch:
