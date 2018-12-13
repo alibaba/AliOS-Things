@@ -1,30 +1,27 @@
+#include <k_config.h>
+
 ;******************************************************************************
 ;                            EXTERN PARAMETERS
 ;******************************************************************************
-#include <k_config.h>
-
-    IMPORT  g_active_task
-    IMPORT  g_preferred_ready_task
-    IMPORT  krhino_stack_ovf_check
-    IMPORT  krhino_task_sched_stats_get
+    EXTERN g_active_task
+    EXTERN g_preferred_ready_task
+    EXTERN krhino_stack_ovf_check
+    EXTERN krhino_task_sched_stats_get
 
 ;******************************************************************************
 ;                            EXPORT FUNCTIONS
 ;******************************************************************************
+    PUBLIC cpu_intrpt_save
+    PUBLIC cpu_intrpt_restore
+    PUBLIC cpu_task_switch
+    PUBLIC cpu_intrpt_switch
+    PUBLIC cpu_first_task_start
 
-    PUBLIC  cpu_intrpt_save
-    PUBLIC  cpu_intrpt_restore
-    PUBLIC  cpu_task_switch
-    PUBLIC  cpu_intrpt_switch
-    PUBLIC  cpu_first_task_start
-
-    PUBLIC  PendSV_Handler
-    PUBLIC  _first_task_restore
+    PUBLIC PendSV_Handler
 
 ;******************************************************************************
 ;                                 EQUATES
 ;******************************************************************************
-
 SCB_ICSR              EQU      0xE000ED04 ; Interrupt Control and State Register.
 SCB_VTOR              EQU      0xE000ED08 ; Vector Table Offset Register.
 ICSR_PENDSVSET        EQU      0x10000000 ; Value to trigger PendSV exception.
