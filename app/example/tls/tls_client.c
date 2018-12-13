@@ -232,7 +232,7 @@ static void handle_event(input_event_t *event, void *arg)
     aos_post_delayed_action(1000, app_delayed_action, arg);
 }
 
-int application_start(void)
+int application_start(int argc, char **argv)
 {
     struct cookie *cookie = aos_malloc(sizeof(*cookie));
     bzero(cookie, sizeof(*cookie));
