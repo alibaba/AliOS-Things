@@ -341,6 +341,27 @@ int aos_statfs(const char *path, struct aos_statfs *buf);
 int aos_access(const char *path, int amode);
 
 /**
+ * set the pathname of the current working directory
+ *
+ * @param path The path to set.
+ *
+ * @return  0 on success, negative error code on failure.
+ *
+ */
+int aos_chdir(const char *path);
+
+/**
+ * get the pathname of the current working directory.
+ *
+ * @param buf  The buffer to save the current working directory.
+ * @param size The size of buffer.
+ *
+ * @return  NULL if error occured, buf if succeed.
+ *
+ */
+char *aos_getcwd(char *buf, size_t size);
+
+/**
  * get VFS fd offset
  *
  * @return VFS fd offset
