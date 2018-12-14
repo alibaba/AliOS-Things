@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include "k_config.h"
 
+#include "aos/hal/uart.h"
 
 volatile int errno = 0;
 extern uart_dev_t uart_0;
@@ -29,7 +30,6 @@ volatile int *__aeabi_errno_addr()
 {
     return &errno;
 }
-
 
 #if (RHINO_CONFIG_MM_TLF > 0)
 #define AOS_UNSIGNED_INT_MSB (1u << (sizeof(unsigned int) * 8 - 1))
