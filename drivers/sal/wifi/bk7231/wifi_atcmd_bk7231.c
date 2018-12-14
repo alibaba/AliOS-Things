@@ -5,8 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "aos/log.h"
+
 #include "network/hal/base.h"
 #include <hal/wifi.h>
+
 #include "atparser.h"
 
 #define TAG "wifi_port"

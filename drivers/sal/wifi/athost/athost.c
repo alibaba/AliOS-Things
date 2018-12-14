@@ -6,7 +6,9 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <aos/aos.h>
+
+#include "aos/kernel"
+#include "aos/log.h"
 
 #include <atparser.h>
 #include <sal_import.h>
