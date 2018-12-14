@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_api.h>
 
 #define AOS_START_STACK 0x200
