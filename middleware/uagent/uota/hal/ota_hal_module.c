@@ -16,7 +16,6 @@ void ota_hal_register_module(ota_hal_module_t *module)
 int ota_hal_init(void *something)
 {
     if (ota_module == NULL) {
-        OTA_LOG_I("ota init is NULL");
         return -1;
     }
 
@@ -29,7 +28,6 @@ int ota_hal_init(void *something)
 int ota_hal_write(int *off_set, char *in_buf , int in_buf_len)
 {
     if (ota_module == NULL) {
-        OTA_LOG_I("ota write is NULL");
         return -1;
     }
 
@@ -43,7 +41,6 @@ int ota_hal_write(int *off_set, char *in_buf , int in_buf_len)
 int ota_hal_read(int *off_set, char *out_buf, int out_buf_len)
 {
     if (ota_module == NULL) {
-        OTA_LOG_I("ota read is NULL");
         return -1;
     }
 
@@ -57,7 +54,6 @@ int ota_hal_read(int *off_set, char *out_buf, int out_buf_len)
 int ota_hal_boot(void *something)
 {
     if (ota_module == NULL) {
-        OTA_LOG_I("ota boot is NULL");
         return -1;
     }
 
@@ -71,7 +67,6 @@ int ota_hal_boot(void *something)
 int ota_hal_rollback(void *something)
 {
     if (ota_module == NULL) {
-        OTA_LOG_I("ota rollback is NULL");
         return -1;
     }
 
@@ -85,7 +80,6 @@ int ota_hal_rollback(void *something)
 const char *ota_hal_get_version(unsigned char dev_type)
 {
     if (ota_module == NULL) {
-        OTA_LOG_I("ota get version is NULL");
         return NULL;
     }
 

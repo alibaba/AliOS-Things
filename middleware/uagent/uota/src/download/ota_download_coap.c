@@ -37,20 +37,17 @@ static int ota_download_start(void *pctx)
     char   path[128] = {0};
     ota_service_t* ctx = pctx;
     if (!ctx || !(ctx->h_ch)) {
-        OTA_LOG_E("coap invalid param.");
         return -1;
     }
 
     ret = ota_snprintf(path, sizeof(path), DOWNLOAD_PATH, ctx->pk, ctx->dn);
     if (ret < 0) {
-        OTA_LOG_E("ota_snprintf failed");
         return -1;
     }
 
     retry_cnt  = 0;
     breakpoint = ota_get_break_point();
     if (breakpoint) {
-        OTA_LOG_I("----resume download breakpoint=%d------", breakpoint);
         block_cur_num = breakpoint / OTA_COAP_BLOCK_SIZE;
     } else {
         breakpoint    = 0;
@@ -74,10 +71,9 @@ static int ota_download_start(void *pctx)
         }
     }
     if (block_more == 0 && block_cur_num) {
-        OTA_LOG_I("----OTA_DOWNLOAD_FINISH------");
+        OTA_LOG_I("download finish.");
         ota_set_break_point(0);
     } else {
-        OTA_LOG_E("download read error %s", strerror(errno));
         ota_set_break_point(breakpoint);
     }
     return ret;
@@ -93,13 +89,10 @@ static void iotx_response_block_handler(void *arg, void *p_response)
     char   *p_payload = NULL;
     iotx_coap_resp_code_t resp_code;
     ota_coap_get_code(p_response, &resp_code);
-    OTA_LOG_D("Message response code: %d\r\n", resp_code);
     if (resp_code == 0x45) {
         ota_coap_get_payload(p_response, (const char**)&p_payload, &len);
-        if (ota_coap_parse_block(p_response, COAP_OPTION_BLOCK2,
-                                           &cur_num, &more, &size)) {
-            OTA_LOG_I("[block]: cur_num: %d, more: %d,size: %d \r\n", cur_num,
-                      more, size);
+        if (ota_coap_parse_block(p_response, COAP_OPTION_BLOCK2, &cur_num, &more, &size)) {
+            OTA_LOG_I("num: %d, more: %d,size: %d", cur_num, more, size);
             block_size = size;
             if (cur_num == block_cur_num) {
                 if (more == 0) {
@@ -108,11 +101,11 @@ static void iotx_response_block_handler(void *arg, void *p_response)
                     block_cur_num++;
                 }
                 total_size += len;
-                // OTA_LOG_I("size nbytes %d, %d", size, nbytes);
+                // OTA_LOG_I("size:%d, n:%d", size, nbytes);
                 int ret = 0;
                 ret = ota_hal_write(&breakpoint, p_payload,len);
                 if (ret < 0) {
-                      OTA_LOG_I("write error:%d\n", ret);
+                      OTA_LOG_E("write err:%d\n", ret);
                       return;
                 }
             }

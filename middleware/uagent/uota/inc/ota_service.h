@@ -27,6 +27,8 @@ typedef enum{
 }OTA_PROTCOL_E;
 
 typedef enum {
+    OTA_PARAM_FAIL = -17,
+    OTA_PARSE_FAIL = -16,
     OTA_REBOOT_FAIL = -15,
     OTA_UPGRADE_DIFF_FAIL = -14,
     OTA_UPGRADE_FAIL = -13,

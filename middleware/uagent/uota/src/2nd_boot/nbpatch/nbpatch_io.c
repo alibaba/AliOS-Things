@@ -21,7 +21,6 @@ int nbpatch_read(unsigned long src, const unsigned char *buffer, unsigned long p
         read_size = size > SECTOR_SIZE ? SECTOR_SIZE : size;
         ret = patch_flash_read(src, buffer+pos-base, pos, read_size);
         if(ret < 0) {
-            LOG("nbpatch_read %0x error\r\n", src);
             return -1;
         }
         pos += read_size;
@@ -57,8 +56,7 @@ int nbpatch_read(unsigned long src, const unsigned char *buffer, unsigned long p
 
 		ret = patch_flash_read(new_src, buffer + pos - base, (is_old==0)?nbpatch_ota_addr_get(pos):pos, read_size);
 		if (ret < 0) {
-			LOG("r %d err\r\n", src);
-			return -1;
+		    return ret;
 		}
 		pos += read_size;
 		size -= read_size;
@@ -76,8 +74,7 @@ int nbpatch_write(unsigned long dst, const unsigned char *buffer, unsigned long 
         write_size = size > SECTOR_SIZE? SECTOR_SIZE:size;
         ret = patch_flash_write(dst, buffer+pos-base, pos, write_size);
         if(ret < 0) {
-            LOG("w %d err\r\n", dst);
-            return -1;
+            return ret;
         }
         pos += write_size;
         size -= write_size;
@@ -97,58 +94,54 @@ uint16_t cal_crc(void *addr, off_t len)
 
 int save_patch_status(PatchStatus *status)
 {
-    int ret;
+    int ret = 0;
     uint16_t patch_crc = 0;
     if (!status) {
-        LOG("st err\r\n");
         return -1;
     }
 
     patch_crc = cal_crc(status, sizeof(PatchStatus) - sizeof(uint16_t));
     status->patch_crc = patch_crc;
-
     ret = patch_flash_erase(PARTITION_PARAM, DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if(ret < 0) {
-        LOG("er err\r\n");
-        return ret;
+        goto ERR;
     }
 
     ret = patch_flash_write(PARTITION_PARAM, (unsigned char *) status,
             DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if (ret < 0) {
-        LOG("wr err\r\n");
-        return ret;
+        goto ERR;
     }
 
     //bakeup patchstatus
     ret = patch_flash_erase(PARTITION_BACKUP_PARAM, DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if (ret < 0) {
-        LOG("er err\r\n");
-        return ret;
+        goto ERR;
     }
 
     ret = patch_flash_write(PARTITION_BACKUP_PARAM, (unsigned char *) status,
             DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if (ret < 0) {
-        LOG("w err\r\n");
-        return ret;
+        goto ERR;
     }
 
     return 0;
+
+ERR:
+    LOG("st err:%d",ret);
+    return ret;
 }
 
 int read_patch_status(PatchStatus *status)
 {
     uint16_t patch_crc = 0;
     if (!status) {
-        LOG("st err\r\n");
         return -1;
     }
 
     int ret = patch_flash_read(PARTITION_PARAM,
             (unsigned char *) status, DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if(ret < 0) {
-        LOG("read err\r\n");
         return ret;
     }
 
@@ -161,7 +154,6 @@ int read_patch_status(PatchStatus *status)
     ret = patch_flash_read(PARTITION_BACKUP_PARAM, (unsigned char *) status,
             DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if (ret < 0) {
-        LOG("read2 err\r\n");
         return ret;
     }
 
@@ -171,7 +163,7 @@ int read_patch_status(PatchStatus *status)
         return 0;
     }
 
-    LOG("crc %d, %d b err\r\n", patch_crc, patch_crc2);
+    LOG("crc err %d, %d", patch_crc, patch_crc2);
     return -1;
 }
 
@@ -190,7 +182,6 @@ off_t save_bakeup_data(unsigned long src, off_t size)
 
     ret = patch_flash_erase(PARTITION_OTA, DIFF_BACKUP_OFFSET, size);
     if(ret < 0) {
-        LOG("erase err\r\n");
         return ret;
     }
 
@@ -198,16 +189,14 @@ off_t save_bakeup_data(unsigned long src, off_t size)
         bsiz = size > SECTOR_SIZE ? SECTOR_SIZE : size;
         ret = patch_flash_write(PARTITION_OTA, (const unsigned char *)(src + pos), DIFF_BACKUP_OFFSET + pos, bsiz);
         if(ret < 0) {
-            LOG("write err\r\n");
             return ret;
         }
         ret = patch_flash_read(PARTITION_OTA, buffer, DIFF_BACKUP_OFFSET + pos, bsiz);
         if(ret < 0) {
-            LOG("read err\r\n");
             return ret;
         }
         if(memcmp((const void *)buffer, (const void *)(src+pos), bsiz) != 0) {
-            LOG("crc %d err\r\n", crc_context.crc);
+            LOG("crc %d err", crc_context.crc);
             return -1;
         }
         CRC16_Update(&crc_context, buffer, bsiz);
@@ -239,13 +228,11 @@ off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
         memset(buffer, 0, SECTOR_SIZE);
         ret = patch_flash_read(HAL_PARTITION_OTA_TEMP, buffer, DIFF_BACKUP_OFFSET + pos, bsiz);
         if(ret < 0) {
-            LOG("read error\r\n");
             return ret;
         }
 
         ret = patch_flash_write(HAL_PARTITION_APPLICATION, buffer, dst + pos, bsiz);
         if(ret < 0) {
-            LOG("write error\r\n");
             return ret;
         }
         CRC16_Update(&crc_context, buffer, bsiz);
@@ -274,7 +261,7 @@ off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
     if(nbpatch_flash_status_check(dst) != 0) {
         free_offset = nbpatch_find_free_space();
         if(free_offset == 0xFFFFFFFF) {
-            LOG("find free space fail\r\n");
+            LOG("find space err\n");
             return -1;
         }
         patch_flash_copy(PARTITION_OTA, free_offset, dst, SPLICT_SIZE);
@@ -283,13 +270,11 @@ off_t load_bakeup_data(unsigned long dst, off_t size, off_t offset) {
     }
 
     patch_flash_erase(PARTITION_OTA, dst + pos, size);
-
     //copy decompressed data from memory to destination flash partion
     while (size > 0) {
         bsiz = size > SECTOR_SIZE ? SECTOR_SIZE : size;
         ret = patch_flash_write(PARTITION_OTA, (const unsigned char *)((uint32_t)buf + pos), dst + pos, bsiz);
         if(ret < 0) {
-            LOG("write err\r\n");
             return ret;
         }
         CRC16_Update(&crc_context, buffer, bsiz);
