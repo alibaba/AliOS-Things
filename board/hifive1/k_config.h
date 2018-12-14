@@ -44,7 +44,6 @@
 #ifndef RHINO_CONFIG_MM_DEBUG
 #define RHINO_CONFIG_MM_DEBUG                0
 #endif
-#define K_MM_STATISTIC                       1
 #ifndef RHINO_CONFIG_KOBJ_SET
 #define RHINO_CONFIG_KOBJ_SET                1
 #endif
@@ -118,9 +117,6 @@
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   256
 #endif
-#ifndef RHINO_CONFIG_TIMER_RATE
-#define RHINO_CONFIG_TIMER_RATE              1
-#endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 #endif
@@ -169,12 +165,6 @@
 /* kernel stats conf */
 #ifndef RHINO_CONFIG_SYSTEM_STATS
 #define RHINO_CONFIG_SYSTEM_STATS            1
-#endif
-#ifndef RHINO_CONFIG_DISABLE_SCHED_STATS
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
-#endif
-#ifndef RHINO_CONFIG_DISABLE_INTRPT_STATS
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
 #endif
 #ifndef RHINO_CONFIG_TASK_SCHED_STATS
 #define RHINO_CONFIG_TASK_SCHED_STATS        0

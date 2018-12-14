@@ -11,8 +11,6 @@
 extern char  app1_info_addr;
 extern char  app2_info_addr;
 
-extern k_mm_head  *g_kmm_head;
-
 /*
  * to match nature number,
  * valid app bin starts from 1
