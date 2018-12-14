@@ -14,7 +14,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "network/hal/base.h"
 #include "sensor.h"
 
