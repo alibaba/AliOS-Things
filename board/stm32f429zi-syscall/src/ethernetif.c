@@ -44,7 +44,7 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-#include "aos/aos.h"
+#include "aos/kernel.h"
 #include <k_api.h>
 #include "network/network.h"
 #include <lwip/tcpip.h>

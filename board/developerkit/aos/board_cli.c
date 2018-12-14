@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <aos/aos.h>
+
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "aos/log.h"
+#include "aos/yloop.h"
+
 #include <atparser.h>
 
 

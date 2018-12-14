@@ -4,7 +4,7 @@
 
 
 #include <aos/kernel.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/hal/flash.h>
 
 /* Logic partition on flash devices */

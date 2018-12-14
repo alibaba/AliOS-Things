@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 #include "board.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
