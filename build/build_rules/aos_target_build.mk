@@ -141,7 +141,7 @@ endif
 define BUILD_COMPONENT_RULES
 
 $(eval $(1)_SOURCES += $($(1)_SOURCES-y))
-$(eval LINK_LIBS +=$(if $($(1)_SOURCES),$(LIBS_DIR)/$(1).a))
+$(eval LINK_LIBS +=$(if $(strip $($(1)_SOURCES)),$(LIBS_DIR)/$(1).a))
 $(eval LINK_LIBS +=$(if $($(1)_SELF_BUIlD_COMP_targets),$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets) )))
 $(eval POPULATE_INCLUDE_DIRS := $(addsuffix _populate_include, $(foreach incdir,$($(1)_POPULATE_INCLUDES),$(if $(wildcard $(SOURCE_ROOT)/$(incdir)),$(incdir)))))
 
