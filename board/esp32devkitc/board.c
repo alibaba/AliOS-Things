@@ -4,7 +4,7 @@
 
 #include "aos/hal/flash.h"
 #include <aos/kernel.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 /* Logic partition on flash devices */
 const hal_logic_partition_t hal_partitions[] =

@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <aos/aos.h>
+
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "aos/log.h"
+
 #include <atparser.h>
 
+#include "aos/yloop.h"
 
 #define STARTERKIT_WIFI_MODULE_FOTA "AT+FOTA"
 #define FOTA_OOB_PREFIX "+FOTAEVENT:"

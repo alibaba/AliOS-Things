@@ -62,7 +62,7 @@
 #ifdef CONFIG_NETIF_ETH
 
 //#include <csi_syslog.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <string.h>
 #include "lwip/opt.h"
 #include "lwip/def.h"

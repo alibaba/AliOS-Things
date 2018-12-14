@@ -4,7 +4,7 @@
 
 #include "aos/hal/flash.h"
 #include <aos/kernel.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "esp_system.h"
 
