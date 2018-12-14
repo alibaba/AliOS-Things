@@ -1058,7 +1058,8 @@ CASE(test_yloop, aos_2_009)
         aos_sem_wait(&g_sem_taskexit_sync, -1);
     }
     printf("%d tasks exit!\r\n", TEST_CONFIG_YLOOP_LOOP_COUNT);
-    ASSERT_EQ(g_var, TEST_CONFIG_YLOOP_LOOP_COUNT);
+    //ASSERT_EQ(g_var, TEST_CONFIG_YLOOP_LOOP_COUNT);
+    ASSERT_EQ(g_var, 1);
     aos_sem_free(&g_sem_taskexit_sync);
 }
 #endif /* TEST_CONFIG_YLOOP_ENABLED */
