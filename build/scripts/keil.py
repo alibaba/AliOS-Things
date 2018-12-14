@@ -47,26 +47,18 @@ def add_group(parent, name, files, project_path):
 
 # automation to do
 def changeItemForMcu( tree ):
-    Path_TargetArmAds = 'Targets/Target/TargetOption/TargetArmAds/'
-    ScatterFile = tree.find(Path_TargetArmAds + 'LDads/ScatterFile')
-    IRAM1Size = tree.find(Path_TargetArmAds + 'ArmAdsMisc/OnChipMemories/OCR_RVCT9/Size')
-    IRAM2Size = tree.find(Path_TargetArmAds + 'ArmAdsMisc/OnChipMemories/OCR_RVCT10/Size')
-    FlashSize = tree.find(Path_TargetArmAds + 'ArmAdsMisc/OnChipMemories/OCR_RVCT4/Size')
-	
-    if 'starterkit' in buildstring:
-        ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\STM32L433.sct'
-    if 'stm32l432' in buildstring:
-        ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L432KC-Nucleo\STM32L432.sct'
-    if 'stm32l053' in buildstring:
-        ScatterFile.text = '..\..\..\..\\board\stm32l053r8-nucleo\STM32L053.sct'
-        IRAM1Size.text='0x2000'
-        IRAM2Size.text=''
-        FlashSize.text='0x10000'
-    if 'stm32l031' in buildstring:
-        ScatterFile.text = '..\..\..\..\\board\stm32l031k6-nucleo\STM32L031.sct'
-        IRAM1Size.text='0x2000'
-        IRAM2Size.text=''
-        FlashSize.text='0x8000'
+    ScatterFile = tree.find('Targets/Target/TargetOption/TargetArmAds/LDads/ScatterFile')
+    try:
+        print "ld_script:", config_mk.ld_script
+        ScatterFile.text = '../../../../' + config_mk.ld_script
+    except:
+        print "ld_script is not written in config_mk.py"
+        if 'starterkit' in buildstring:
+            ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\STM32L433.sct'
+        if 'stm32l432' in buildstring:
+            ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L432KC-Nucleo\STM32L432.sct'
+        if 'es8p5088fllq' in buildstring:
+            ScatterFile.text = '..\..\..\..\\board\es8p5088fllq\es8p508x.sct'
     
 # change key word in project file. automation to do
 def ModifyProjString( projString ):
@@ -74,32 +66,8 @@ def ModifyProjString( projString ):
         projString = projString.replace('STM32L475VGTx','STM32L433RCTx')
     if 'stm32l432' in buildstring:
         projString = projString.replace('STM32L475VGTx','STM32L432KCTx')
-    if 'stm32l053' in buildstring:
-        projString = projString.replace('STM32L475VGTx','STM32L053R8Tx')
-        projString = projString.replace('STM32L4xx_1024','STM32L0xx_64')
-        projString = projString.replace('STM32L4xx','STM32L0xx')
-        projString = projString.replace('stm32l4xx','stm32l0xx')
-        projString = projString.replace('STM32L4x5', 'STM32L053x')
-        projString = projString.replace('IRAM(0x20000000,0x00018000) IRAM2(0x10000000,0x00008000) IROM(0x08000000,0x00100000) \
-CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE', 'IRAM(0x20000000-0x20001FFF) IROM(0x8000000-0x800FFFF) CLOCK(8000000) \
-CPUTYPE("Cortex-M0+")')
-        projString = projString.replace('DCM.DLL','DARMCM1.DLL')
-        projString = projString.replace('-MPU','')
-        projString = projString.replace('-pCM4','-pCM0+')
-        projString = projString.replace('TCM.DLL','TARMCM1.DLL')
-    if 'stm32l031' in buildstring:
-        projString = projString.replace('STM32L475VGTx','STM32L031K6Tx')
-        projString = projString.replace('STM32L4xx_1024','STM32L0xx_32')
-        projString = projString.replace('STM32L4xx','STM32L0xx')
-        projString = projString.replace('stm32l4xx','stm32l0xx')
-        projString = projString.replace('STM32L4x5', 'STM32L031x')
-        projString = projString.replace('IRAM(0x20000000,0x00018000) IRAM2(0x10000000,0x00008000) IROM(0x08000000,0x00100000) \
-CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE', 'IRAM(0x20000000-0x20001FFF) IROM(0x8000000-0x8007FFF) CLOCK(8000000) \
-CPUTYPE("Cortex-M0+")')
-        projString = projString.replace('DCM.DLL','DARMCM1.DLL')
-        projString = projString.replace('-MPU','')
-        projString = projString.replace('-pCM4','-pCM0+')
-        projString = projString.replace('TCM.DLL','TARMCM1.DLL')	
+    if 'es8p5088fllq' in buildstring:
+        projString = projString.replace('STM32L475VGTx','ES8P5088FLLQ')
     return  projString   
     
 def gen_project(tree, target, script):
