@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef SAL_USE_AOS_HAL
-    #include <aos/aos.h>
+    #include "aos/kernel.h"
 #else
     #include "iotx_log.h"
 #endif

@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <fcntl.h>
 #include "internal/sal_sockets_internal.h"
 
 static void sal_deal_event(int s, enum netconn_evt evt);
