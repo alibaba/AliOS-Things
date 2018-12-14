@@ -60,7 +60,6 @@ void sys_start(void)
     tcpip_init(NULL, NULL);
 
     vfs_init();
-    vfs_device_init();
     aos_cli_init();
     dumpsys_cli_init();
 
@@ -69,6 +68,7 @@ void sys_start(void)
 #endif
 
 #ifdef AOS_LOOP
+    vfs_device_init();
     aos_loop_init();
 #endif
 
