@@ -31,7 +31,7 @@
  */
 
 /* system includes */
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 /* lwIP includes. */
 #include "lwip/debug.h"

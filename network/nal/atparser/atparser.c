@@ -6,7 +6,9 @@
 #include <string.h>
 #include <stdint.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "aos/log.h"
+
 #include "aos/hal/uart.h"
 
 #include "atparser.h"
