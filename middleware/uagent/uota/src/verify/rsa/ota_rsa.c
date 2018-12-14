@@ -48,7 +48,6 @@ int ota_oid_get_md_alg( const ota_asn1_buf *oid, ota_md_type_t * md_alg )
 {
   const ota_oid_md_alg_t *data = ota_oid_md_alg_from_asn1(oid);
   if( data == NULL ) {
-      OTA_LOG_E("oid is null\n");
       return -1;
   }           
   *md_alg = data->md_alg;
@@ -107,7 +106,6 @@ int ota_asn1_get_len( unsigned char **p,
   return( 0 );
 }
 
-
 int ota_asn1_get_tag( unsigned char **p,
                 const unsigned char *end,
                 unsigned int*len, int tag )
@@ -122,8 +120,6 @@ int ota_asn1_get_tag( unsigned char **p,
 
   return( ota_asn1_get_len( p, end, len ) );
 }
-//end asn1parse.c
-
 
 void ota_rsa_init( ota_rsa_context *ctx,
              int padding,
@@ -177,10 +173,8 @@ int ota_rsa_public( ota_rsa_context *ctx,
 
   OTA_MPI_CHK( ota_mpi_read_binary( &T, input, ctx->len ) );
 
-  if( ota_mpi_cmp_mpi( &T, &ctx->N ) >= 0 )
-  {
+  if( ota_mpi_cmp_mpi( &T, &ctx->N ) >= 0 ) {
       ret = OTA_ERR_MPI_BAD_INPUT_DATA;
-      OTA_LOG_E(" err mpi bad input data\n");
       goto cleanup;
   }
 
@@ -191,7 +185,6 @@ int ota_rsa_public( ota_rsa_context *ctx,
 cleanup:
   ota_mpi_free( &T );
   if( ret != 0 ) {
-     OTA_LOG_E("\n rsa pub 4\n");
      return( OTA_ERR_RSA_PUBLIC_FAILED + ret );
   }
 
@@ -199,7 +192,6 @@ cleanup:
 }
 
 
-//#if defined(MBEDTLS_PKCS1_V15)
 /*
 * Implementation of the PKCS#1 v2.1 RSASSA-PKCS1-v1_5-VERIFY function
 */
@@ -220,28 +212,23 @@ int ota_rsa_rsassa_pkcs1_v15_verify( ota_rsa_context *ctx,
   ota_asn1_buf oid;
   unsigned char buf[OTA_MPI_MAX_SIZE];
   if(mode == OTA_RSA_PRIVATE && ctx->padding != OTA_RSA_PKCS_V15) {
-      OTA_LOG_E("ota err rsa Bad input data.\n");
       return( OTA_ERR_RSA_BAD_INPUT_DATA );
   }
   siglen = ctx->len;
   if(siglen < 16 || siglen > sizeof( buf )){
-      OTA_LOG_E("ota err rsa Bad input data1.\n");
       return( OTA_ERR_RSA_BAD_INPUT_DATA );
   }
   ret = ota_rsa_public(ctx, sig, buf);
   if( ret != 0 ) {
-      OTA_LOG_E("\nrsa public error\n");
       return( ret );
   }
   p = buf;
   if(*p++ != 0 || *p++ != OTA_RSA_SIGN) {
-      OTA_LOG_E("ota err rsa invalid padding\n");
       return( OTA_ERR_RSA_INVALID_PADDING );
   }
   while(*p != 0)
   {
       if( p >= buf + siglen - 1 || *p != 0xFF ){
-          OTA_LOG_E("ota err rsa invalid padding.\n");
           return( OTA_ERR_RSA_INVALID_PADDING );
       }
       p++;
@@ -252,13 +239,11 @@ int ota_rsa_rsassa_pkcs1_v15_verify( ota_rsa_context *ctx,
       if( memcmp(p, hash, hashlen) == 0 )
           return 0;
       else {
-          OTA_LOG_E("ota err rsa VERIFY_FAILED.\n");
           return OTA_ERR_RSA_VERIFY_FAILED;
       }
   }
   md_info = ota_hash_info_from_type(md_alg);
   if(md_info == NULL) {
-      OTA_LOG_E("ota err rsa BAD_INPUT_DATA.\n");
       return OTA_ERR_RSA_BAD_INPUT_DATA;
   }
   hashlen = ota_hash_get_size(md_info);
@@ -267,41 +252,32 @@ int ota_rsa_rsassa_pkcs1_v15_verify( ota_rsa_context *ctx,
   /*
    * Parse the ASN.1 structure inside the PKCS#1 v1.5 structure
    */
-  if((ret = ota_asn1_get_tag(&p, end, &asn1_len,
-          OTA_ASN1_CONSTRUCTED | OTA_ASN1_SEQUENCE)) != 0){
-      OTA_LOG_E("ota err rsa verify failed.\n");
+  if((ret = ota_asn1_get_tag(&p, end, &asn1_len, OTA_ASN1_CONSTRUCTED | OTA_ASN1_SEQUENCE)) != 0){
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
   if(asn1_len + 2 != len) {
-      OTA_LOG_E("ota err rsa verify failed 1.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
-  if((ret = ota_asn1_get_tag( &p, end, &asn1_len,
-          OTA_ASN1_CONSTRUCTED | OTA_ASN1_SEQUENCE)) != 0){
-      OTA_LOG_E("ota err rsa verify failed 2.\n");
+  if((ret = ota_asn1_get_tag( &p, end, &asn1_len, OTA_ASN1_CONSTRUCTED | OTA_ASN1_SEQUENCE)) != 0){
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
   if(asn1_len + 6 + hashlen != len) {
-      OTA_LOG_E("ota err rsa verify failed 3.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
   if((ret = ota_asn1_get_tag(&p, end, (unsigned int*)(&oid.len), OTA_ASN1_OID)) != 0){
-      OTA_LOG_E("ota err rsa verify failed 4.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
   oid.p = p;
   p += oid.len;
   if(ota_oid_get_md_alg( &oid, &msg_md_alg) != 0){
-      OTA_LOG_E("ota err rsa verify failed 5.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
   if(md_alg != msg_md_alg){
-      OTA_LOG_E("ota err rsa verify failed 6.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
@@ -309,28 +285,23 @@ int ota_rsa_rsassa_pkcs1_v15_verify( ota_rsa_context *ctx,
    * assume the algorithm parameters must be NULL
    */
   if((ret = ota_asn1_get_tag(&p, end, (unsigned int*)(&asn1_len), OTA_ASN1_NULL)) != 0){
-      OTA_LOG_E("ota err rsa verify failed 7.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
   if((ret = ota_asn1_get_tag( &p, end, &asn1_len, OTA_ASN1_OCTET_STRING)) != 0){
-      OTA_LOG_E("ota err rsa verify failed 8.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
   if(asn1_len != hashlen){
-      OTA_LOG_E("ota err rsa verify failed 9.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
   if(memcmp(p, hash, hashlen) != 0 ){
-      OTA_LOG_E("ota err rsa verify failed 10.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
 
   p += hashlen;
   if(p != end){
-      OTA_LOG_E("ota err rsa verify failed 11.\n");
       return OTA_ERR_RSA_VERIFY_FAILED;
   }
   return 0;
@@ -369,7 +340,6 @@ static int ota_rsa_key_decode(
 {
     int ret;
     ota_rsa_context *key;
-
     if (in_key == NULL || out_key == NULL) {
         return OTA_CRYPTO_INVALID_ARG;
     }
@@ -404,7 +374,7 @@ static unsigned int _ota_get_hash_size(OTA_HASH_E type)
             hash_size = 16;
             break;
         default:
-            OTA_LOG_E("get_hash_size: invalid type(%d)\n", type);
+            OTA_LOG_E("invalid %d", type);
     }
 
     return hash_size;
@@ -421,7 +391,7 @@ static ota_md_type_t _ota_get_hash_type(OTA_HASH_E type)
             hash_type = OTA_MD_MD5;
             break;
         default:
-            OTA_LOG_E("get_hash_type: invalid type(%d)\n", type);
+            OTA_LOG_E("err type:%d", type);
     }
     return hash_type;
 }
@@ -433,11 +403,10 @@ int ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size)
     }
 
     if (keybits < TEE_MIN_RSA_KEY_SIZE || keybits > TEE_MAX_RSA_KEY_SIZE) {
-        OTA_LOG_E("get_pubkey_size: invalid keybits(%d)\n", (int)keybits);
+        OTA_LOG_E("invalid keybits:%d", (int)keybits);
     }
 
     *size = sizeof(ota_rsa_pubkey_t);
-
     return OTA_CRYPTO_SUCCESS;
 }
 
@@ -450,13 +419,11 @@ int ota_rsa_init_pubkey(unsigned int keybits,
     if (pubkey == NULL ||
         n == NULL || n_size == 0 ||
         e == NULL || e_size == 0) {
-        OTA_LOG_E("Init_pubkey: invalid args!\n");
         return OTA_CRYPTO_ERROR;
     }
 
     if ((n_size << 3) > keybits ||
         (e_size << 3) > keybits) {
-        OTA_LOG_E("Init_pubkey: key param size not match with key size\n");
         return OTA_CRYPTO_ERROR;
     }
 
@@ -486,14 +453,12 @@ int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
     if (pub_key == NULL || NULL == p_result ||
         dig == NULL || dig_size == 0 ||
         sig == NULL || sig_size == 0) {
-        OTA_LOG_E("Rsa_verify: invalid input args!\n");
         if(p_result != NULL)
             *p_result = 0;
         return OTA_CRYPTO_ERROR;
     }
 
     if (!IS_VALID_CTX_MAGIC(((ota_rsa_pubkey_t *)pub_key)->magic)) {
-        OTA_LOG_E("Rsa_verify: invalid pubkey!\n");
         *p_result = 0;
         return OTA_CRYPTO_ERROR;
     }
@@ -502,43 +467,35 @@ int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
         ali_hash_type = padding.pad.rsassa_v1_5.type;
     }
     else {
-        OTA_LOG_E("padding.type only support RSASSA_PKCS1_V1_5\n");
         *p_result = 0;
         return OTA_CRYPTO_ERROR;
     }
     hash_size = _ota_get_hash_size(ali_hash_type);
     if (dig_size != hash_size) {
         *p_result = 0;
-        OTA_LOG_E("Rsa_verify: invalid dig size(%d vs %d)\n",
-                   (int)dig_size, (int)hash_size);
         return OTA_CRYPTO_ERROR;
     }
     hash_type = _ota_get_hash_type(ali_hash_type);
     if (0 == hash_type) {
         *p_result = 0;
-        OTA_LOG_E("Rsa_verify: invalid hash type!\n");
         return OTA_CRYPTO_ERROR;
     }
     ota_rsa_init(&ctx, OTA_RSA_PKCS_V15, hash_type);
     result = ota_rsa_key_decode(PK_PUBLIC, (void *)pub_key, &ctx);
     if (OTA_CRYPTO_SUCCESS != result) {
-        OTA_GO_RET(OTA_CRYPTO_INVALID_KEY,
-                "Rsa_verify: rsa key decode fail(%08x)\n", result);
+        OTA_GO_RET(OTA_CRYPTO_INVALID_KEY, "decode err:%08x", result);
     }
     ret = ota_rsa_check_pubkey(&ctx);
     if (0 != ret) {
-        OTA_GO_RET(OTA_CRYPTO_INVALID_KEY,
-                "Rsa_verify: rsa key invalid(%08x)\n", ret);
+        OTA_GO_RET(OTA_CRYPTO_INVALID_KEY, "key invalid:%08x", ret);
     }
     key_size = ota_mpi_size(&ctx.N);
     if (sig_size != key_size) {
-        OTA_GO_RET(OTA_CRYPTO_LENGTH_ERR,
-            "Rsa_verify: invalid src size(%d)\n", (int)sig_size);
+        OTA_GO_RET(OTA_CRYPTO_LENGTH_ERR, "invalid size:%d", (int)sig_size);
     }
     ctx.len = key_size;
     if (dig_size + 11 > key_size) {
-        OTA_GO_RET(OTA_CRYPTO_LENGTH_ERR,
-            "Rsa_verify: invalid dig_size(%d)\n", (int)dig_size);
+        OTA_GO_RET(OTA_CRYPTO_LENGTH_ERR, "invalid dig_size:%d", (int)dig_size);
     }
     ret = ota_rsa_pkcs1_verify(&ctx, NULL, NULL,
                           OTA_RSA_PUBLIC, (ota_md_type_t)hash_type,
@@ -546,8 +503,7 @@ int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key,
                           (const unsigned char *)dig,
                           (const unsigned char *)sig);
     if(0 != ret) {
-        OTA_GO_RET(OTA_CRYPTO_ERROR,
-            "Rsa_verify: mbedtls_rsa_pkcs1_verify fail %d\n", ret);
+        OTA_GO_RET(OTA_CRYPTO_ERROR, "pkcs1 err:%d", ret);
     }
 
 _OUT:

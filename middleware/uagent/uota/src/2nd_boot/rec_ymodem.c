@@ -248,7 +248,7 @@ int ymodem_recv_file(unsigned int flash_addr)
                     return 0;
                 }
             } else if (3 == c) {  // ctrl+c abort ymodem
-                printf("Abort ymodem receive file\r\n");
+                printf("Abort ymodem file.\n");
                 return 0;
             }
 
@@ -308,16 +308,15 @@ void rec_ymodem_cmd()
         }
     }
 
-    printf("\nInput flash addr is %s \r\n", buf);
-
+    printf("\nflash addr:%s \n", buf);
     addr = ymodem_str2int(buf, 64);
     if(addr == 0) {
         printf("addr %s is invalid!\n", buf);
         return;
     }
 
-    printf("Please start the ymodem on your computer ... (press ctrl+c to cancel)\r\n");
+    printf("Please start ymodem ... (press ctrl+c to cancel)\n");
     ymodem_flash_addr = addr;
     ymodem_recv_file(addr);
-    printf("Receive file to flash addr 0x%x end\r\n", addr);
+    printf("Rece flash addr 0x%x \n", addr);
 }
