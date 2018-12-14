@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "test_realtime.h"
 

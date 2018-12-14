@@ -3,7 +3,8 @@
  */
 
 #include <aos/kernel.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "aos/yloop.h"
 #include "network/hal/base.h"
 #include <hal/wifi.h>
 #include <yunit.h>
