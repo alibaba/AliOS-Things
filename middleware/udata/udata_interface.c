@@ -5,7 +5,7 @@
  * uData api for external part
  */
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <fcntl.h>
