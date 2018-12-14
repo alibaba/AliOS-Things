@@ -47,10 +47,6 @@
 #ifndef RHINO_CONFIG_MM_DEBUG
 #define RHINO_CONFIG_MM_DEBUG                1
 #endif
-#ifndef RHINO_CONFIG_GCC_RETADDR
-#define RHINO_CONFIG_GCC_RETADDR             1
-#endif
-#define K_MM_STATISTIC                       1
 #ifndef RHINO_CONFIG_KOBJ_SET
 #define RHINO_CONFIG_KOBJ_SET                1
 #endif
@@ -126,9 +122,6 @@
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   256
-#endif
-#ifndef RHINO_CONFIG_TIMER_RATE
-#define RHINO_CONFIG_TIMER_RATE              1
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
