@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include <aos/kernel.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/uData.h>
 
 #include "yunit.h"

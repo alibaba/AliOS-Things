@@ -4,7 +4,9 @@
 
 #include <stdlib.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "aos/list.h"
+#include "aos/types.h"
 
 #include "yunit.h"
 

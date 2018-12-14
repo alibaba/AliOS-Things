@@ -5,7 +5,7 @@
 #ifndef REAL_TIME_DEFAULT_CONFIG_H
 #define REAL_TIME_DEFAULT_CONFIG_H
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_api.h>
 
 #ifndef ENABLE_INTRPT_RESPOND_WAKEUP
