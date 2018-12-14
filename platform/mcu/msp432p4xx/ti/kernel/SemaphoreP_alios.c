@@ -37,7 +37,7 @@
 #include <ti/drivers/dpl/SemaphoreP.h>
 #include <ti/drivers/dpl/HwiP.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 /*
  *  Maximum count for a semaphore.

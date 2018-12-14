@@ -6,7 +6,8 @@
 #include <osdep_service.h>
 #include <stdio.h>
 #include <freertos/wrapper.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include <aos/errno.h>
 #include <freertos_pmu.h>
 /********************* os depended utilities ********************/
 

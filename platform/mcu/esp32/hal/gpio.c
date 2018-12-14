@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #define gpio_dev_t aos_gpio_dev_t
 #define gpio_config_t aos_gpio_config_t

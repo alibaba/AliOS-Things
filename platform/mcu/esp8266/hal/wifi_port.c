@@ -8,6 +8,8 @@
 #include "network/hal/base.h"
 #include <hal/wifi.h>
 
+#include "aos/log.h"
+
 #include <stddef.h>
 #include "espressif/c_types.h"
 #include "lwipopts.h"

@@ -3,7 +3,11 @@
 
 #include "aos/hal/uart.h"
 #include <hal/wifi.h>
-#include <aos/aos.h>
+
+#include "aos/init.h"
+#include "aos/kernel.h"
+#include "aos/log.h"
+
 #include <sdkconfig.h>
 
 #include <xtensa_api.h>

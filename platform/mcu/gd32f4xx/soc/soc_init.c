@@ -1,5 +1,5 @@
 #include "gd32f4xx.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/kernel.h>
 #include <k_api.h>
 #include "gd32f450z_eval.h"

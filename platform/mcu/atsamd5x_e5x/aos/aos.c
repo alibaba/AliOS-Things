@@ -2,8 +2,8 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
-#include <aos/kernel.h>
+#include "aos/init.h"
+#include "aos/kernel.h"
 #include "atmel_start.h"
 #include <k_api.h>
 

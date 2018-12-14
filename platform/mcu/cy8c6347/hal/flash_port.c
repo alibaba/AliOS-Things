@@ -1,6 +1,6 @@
 
 #include "flash/cy_flash.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <stdio.h>
 #include <string.h>
 

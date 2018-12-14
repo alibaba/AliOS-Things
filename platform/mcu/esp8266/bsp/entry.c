@@ -6,7 +6,9 @@
 #include "aos/hal/uart.h"
 #include <hal/wifi.h>
 
-#include <aos/aos.h>
+#include "aos/cli.h"
+#include "aos/init.h"
+#include "aos/kernel.h"
 
 #include "c_types.h"
 #include "ets_sys.h"

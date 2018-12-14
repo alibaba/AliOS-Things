@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "aos/hal/timer.h"
 #include "aos/hal/flash.h"

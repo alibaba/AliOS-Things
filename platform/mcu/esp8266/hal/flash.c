@@ -1,4 +1,4 @@
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include <string.h>
 

@@ -1,5 +1,5 @@
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <stdio.h>
 #include <string.h>
 #include <CyFlash.h>

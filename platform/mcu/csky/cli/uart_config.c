@@ -2,7 +2,9 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include <aos/aos.h>
+
+#include "aos/cli.h"
+#include "aos/kernel.h"
 
 #include "config_esp8266.h"
 
