@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <network/network.h>
 
 #include <hal/net.h>

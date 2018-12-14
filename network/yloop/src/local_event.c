@@ -5,7 +5,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/vfs.h"
+#include "aos/yloop.h"
 
 #include "event_device.h"
 #include "yloop.h"

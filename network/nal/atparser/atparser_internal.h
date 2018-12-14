@@ -5,6 +5,10 @@
 #ifndef _ATPARSER_INTERNAL_H_
 #define _ATPARSER_INTERNAL_H_
 
+#include "aos/list.h"
+
+#include "aos/hal/uart.h"
+
 #define OOB_MAX 5
 
 typedef struct oob_s
