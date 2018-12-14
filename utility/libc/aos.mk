@@ -5,7 +5,15 @@ $(NAME)_SUMMARY := libc adaptation layer
 $(NAME)_MBINS_TYPE := share
 
 ifeq ($(COMPILER),armcc)
+ifeq ($(MBINS),app)
+ifeq ($(ENABLE_USPACE),1)
+$(NAME)_SOURCES := compilers/armlibc/armcc_libc_uspace.c
+else
 $(NAME)_SOURCES := compilers/armlibc/armcc_libc.c
+endif
+else
+$(NAME)_SOURCES := compilers/armlibc/armcc_libc.c
+endif
 GLOBAL_INCLUDES += compilers/armlibc
 else ifeq ($(COMPILER),rvct)
 $(NAME)_SOURCES := compilers/armlibc/armcc_libc.c
