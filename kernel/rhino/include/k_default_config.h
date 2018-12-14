@@ -130,7 +130,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_TASK_WAIT_ABORT
-#define RHINO_CONFIG_TASK_WAIT_ABORT         0
+#define RHINO_CONFIG_TASK_WAIT_ABORT         1
 #endif
 
 #ifndef RHINO_CONFIG_SCHED_RR
