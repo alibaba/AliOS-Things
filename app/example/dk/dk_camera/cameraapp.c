@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 #include <k_api.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "fatfs.h"
 #include "st7789.h" // LCD
 #include "gc0329.h" // camera

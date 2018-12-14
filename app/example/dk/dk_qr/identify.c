@@ -17,8 +17,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+
 #include "quirc_internal.h"
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
 
 #define TIMING(x) do{\
             long long current_ms = aos_now_ms();\

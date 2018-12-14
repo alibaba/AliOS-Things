@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/mbmaster.h>
 
 #define DEVICE1_SLAVE_ADDR 0x1

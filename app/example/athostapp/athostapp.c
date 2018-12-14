@@ -2,7 +2,11 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
 
 #ifdef AOS_ATCMD
 #include <atparser.h>
