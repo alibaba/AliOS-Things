@@ -6,7 +6,9 @@
 #include <stdio.h>
 
 #include <aos/kernel.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/yloop.h"
 
 #include <yunit.h>
 #include <yts.h>

@@ -8,7 +8,9 @@
 #include <yunit.h>
 #include <yts.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "aos/types.h"
+
 #include <cJSON.h>
 
 static void test_simple_case(void)

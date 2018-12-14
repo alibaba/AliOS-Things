@@ -12,7 +12,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_api.h>
 
 #include "test_realtime.h"

@@ -8,7 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <aos/errno.h>
+#include "aos/types.h"
+
 #include <network/network.h>
 
 #include <mbedtls/mbedtls_ssl.h>
