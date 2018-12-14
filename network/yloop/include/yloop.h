@@ -5,6 +5,8 @@
 #ifndef YLOOP_H
 #define YLOOP_H
 
+#include "aos/list.h"
+
 typedef struct {
     int              sock;
     void            *private_data;

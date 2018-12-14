@@ -2,7 +2,10 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
+#include <stdbool.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
 
 #include "at_util.h"
 #include "athost_export.h"

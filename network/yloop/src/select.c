@@ -2,9 +2,13 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "aos/types.h"
+#include "aos/vfs.h"
+
 #include <network/network.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>

@@ -6,7 +6,8 @@
 #include <misc/util.h>
 #include <misc/dlist.h>
 
-#include <aos/aos.h>
+#include "aos/errno.h"
+#include "aos/kernel.h"
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BLUETOOTH_DEBUG_CORE)
 

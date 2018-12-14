@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <atparser.h>
 #include <hal/wifi.h>
 

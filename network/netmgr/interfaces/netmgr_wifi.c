@@ -6,8 +6,14 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <aos/aos.h>
-#include <network/network.h>
+
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "aos/kv.h"
+#include "aos/log.h"
+#include "aos/yloop.h"
+
+#include "network/network.h"
 #include "network/hal/wifi.h"
 
 #ifdef WITH_LWIP

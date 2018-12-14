@@ -5,7 +5,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <breeze_hal_sec.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
+
 #include "ali_crypto.h"
 
 #define KEY_LEN 16
