@@ -33,7 +33,6 @@ static void sys_init(void)
 {
 #ifdef AOS_VFS
     vfs_init();
-    vfs_device_init();
 #endif
 
 #ifdef CONFIG_AOS_CLI
@@ -45,6 +44,7 @@ static void sys_init(void)
 #endif
 
 #ifdef AOS_LOOP
+    vfs_device_init();
     aos_loop_init();
 #endif
 
