@@ -6,7 +6,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
+
 #include <atparser.h>
 #include <sal_arch.h>
 #include <sal_ipaddr.h>

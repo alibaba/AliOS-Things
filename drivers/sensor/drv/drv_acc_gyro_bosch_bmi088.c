@@ -3,7 +3,7 @@
 *
 *
 */
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "network/hal/base.h"
 #include <stdio.h>
 #include <stdlib.h>

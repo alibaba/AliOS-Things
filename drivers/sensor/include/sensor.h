@@ -7,7 +7,9 @@
 #ifndef HAL_SENSOR_H
 #define HAL_SENSOR_H
 
+#include <stddef.h>
 #include <stdint.h>
+
 #include "network/hal/base.h"
 
 #include "aos/hal/gpio.h"

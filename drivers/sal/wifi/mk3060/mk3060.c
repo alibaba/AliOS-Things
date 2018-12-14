@@ -5,7 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
+
 #include "network/hal/wifi.h"
 #include <atparser.h>
 #include <sal_import.h>

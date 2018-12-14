@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <atparser.h>
 #include "sensor.h"
 #include "gps_parse.h"
