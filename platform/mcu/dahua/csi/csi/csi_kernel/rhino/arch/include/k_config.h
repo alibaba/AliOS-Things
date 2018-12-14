@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef K_CONFIG_H
+#define K_CONFIG_H
 
 #include <csi_config.h>
-
-#define RHINO_CONFIG_STD_MALLOC              1
-
-/* chip level conf */
-#define RHINO_CONFIG_LITTLE_ENDIAN           1
-#define RHINO_CONFIG_CPU_STACK_DOWN          1
 
 /* kernel feature conf */
 #define RHINO_CONFIG_SEM                     1
@@ -35,8 +29,6 @@
 #define RHINO_CONFIG_MM_BLK                  1
 
 #define RHINO_CONFIG_MM_DEBUG                0
-#define RHINO_CONFIG_KOBJ_SET                1
-#define RHINO_CONFIG_RINGBUF_VENDOR          0
 
 /* kernel dynamic tick conf */
 #ifdef CONFIG_LPM_TICKLESS_SLEEP
@@ -47,16 +39,13 @@
 
 /*
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
-#define RHINO_CONFIG_TICK_HEAD_ARRAY         1
 #define RHINO_CONFIG_SCHED_RR                0
 #define RHINO_CONFIG_TIMER                   1
 */
 
 /* kernel task conf */
-#define RHINO_CONFIG_TASK_SUSPEND            1
 #define RHINO_CONFIG_TASK_INFO               0
 #define RHINO_CONFIG_TASK_DEL                1
-#define RHINO_CONFIG_TASK_WAIT_ABORT         0
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
 
 #define RHINO_CONFIG_SCHED_RR                1
@@ -77,25 +66,6 @@
 #endif
 
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
-/* must be 2^n size!, such as 1, 2, 4, 8, 16,32, etc....... */
-#define RHINO_CONFIG_TICK_HEAD_ARRAY         1
-
-#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
-#define RHINO_CONFIG_TIMER_TASK_PRI          5
-
-/* kernel intrpt conf */
-#define RHINO_CONFIG_INTRPT_STACK_REMAIN_GET 1
-#define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
-#define RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL 188u
-#define RHINO_CONFIG_INTRPT_GUARD            0
-#define RHINO_CONFIG_STACK_OVF_CHECK_HW      0
-
-/* kernel dyn alloc conf */
-#if defined (__CSKY_DSP__) || defined (__CSKY_HARD_FLOAT__)
-#define CSK_CPU_STACK_EXTRAL    68
-#else
-#define CSK_CPU_STACK_EXTRAL    0
-#endif
 
 #define RHINO_CONFIG_KOBJ_DYN_ALLOC          1
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
@@ -115,5 +85,5 @@
 #define RHINO_CONFIG_SCHED_STATS             0
 #define RHINO_CONFIG_INTRPT_STATS            0
 #define RHINO_CONFIG_TASK_SCHED_STATS        0
-#endif /* CONFIG_H */
+#endif /* K_CONFIG_H */
 

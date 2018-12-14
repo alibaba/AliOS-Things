@@ -28,10 +28,6 @@
 extern size_t __heap_start;
 extern size_t __heap_end;
 
-#ifndef RHINO_CONFIG_STD_MALLOC
-static k_mm_region_head_t hobbit_mm_region_head;
-#endif
-
 #if (RHINO_CONFIG_HW_COUNT > 0)
 void soc_hw_timer_init(void)
 {
