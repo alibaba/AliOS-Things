@@ -5,7 +5,7 @@
 #ifndef HAL_BASE_H
 #define HAL_BASE_H
 
-#include "aos/aos.h"
+#include "aos/list.h"
 
 /*
  * HAL Module define
