@@ -2,16 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
-
-/* chip level conf */
-#ifndef RHINO_CONFIG_LITTLE_ENDIAN
-#define RHINO_CONFIG_LITTLE_ENDIAN 1
-#endif
-#ifndef RHINO_CONFIG_CPU_STACK_DOWN
-#define RHINO_CONFIG_CPU_STACK_DOWN 1
-#endif
+#ifndef K_CONFIG_H
+#define K_CONFIG_H
 
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
@@ -35,16 +27,9 @@
 #ifndef RHINO_CONFIG_MM_BLK
 #define RHINO_CONFIG_MM_BLK 1
 #endif
-#ifndef RHINO_CONFIG_KOBJ_SET
-#define RHINO_CONFIG_KOBJ_SET 1
-#endif
-
 /*
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
-#endif
-#ifndef RHINO_CONFIG_TICK_HEAD_ARRAY
-#define RHINO_CONFIG_TICK_HEAD_ARRAY         1
 #endif
 #ifndef RHINO_CONFIG_SCHED_RR
 #define RHINO_CONFIG_SCHED_RR                0
@@ -58,17 +43,11 @@
 #endif
 
 /* kernel task conf */
-#ifndef RHINO_CONFIG_TASK_SUSPEND
-#define RHINO_CONFIG_TASK_SUSPEND 1
-#endif
 #ifndef RHINO_CONFIG_TASK_INFO
 #define RHINO_CONFIG_TASK_INFO 1
 #endif
 #ifndef RHINO_CONFIG_TASK_DEL
 #define RHINO_CONFIG_TASK_DEL 1
-#endif
-#ifndef RHINO_CONFIG_TASK_WAIT_ABORT
-#define RHINO_CONFIG_TASK_WAIT_ABORT 1
 #endif
 #ifndef RHINO_CONFIG_TASK_STACK_OVF_CHECK
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK 1
@@ -121,15 +100,8 @@
 #define RHINO_CONFIG_TIMER_TASK_PRI 5
 #endif
 
-/* kernel intrpt conf */
-#ifndef RHINO_CONFIG_INTRPT_STACK_REMAIN_GET
-#define RHINO_CONFIG_INTRPT_STACK_REMAIN_GET 1
-#endif
 #ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK 0
-#endif
-#ifndef RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL
-#define RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL 188u
 #endif
 #ifndef RHINO_CONFIG_INTRPT_GUARD
 #define RHINO_CONFIG_INTRPT_GUARD 0
@@ -175,4 +147,4 @@
 #define RHINO_CONFIG_TASK_SCHED_STATS 0
 #endif
 
-#endif /* CONFIG_H */
+#endif /* K_CONFIG_H */
