@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/time.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "iot_import.h"
 #ifdef COAP_DTLS_SUPPORT

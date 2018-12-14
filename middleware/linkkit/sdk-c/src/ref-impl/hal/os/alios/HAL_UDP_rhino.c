@@ -7,7 +7,7 @@
 #include <string.h>
 #include <aos/errno.h>
 #include <aos/log.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <network/network.h>
 #include "iot_import.h"
 

@@ -3,7 +3,7 @@
  */
 
 /* system includes */
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "sal_opts.h"
 #include "sal_err.h"
