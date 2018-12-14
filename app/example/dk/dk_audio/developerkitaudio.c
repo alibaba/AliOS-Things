@@ -3,7 +3,7 @@
  */
 
 #include <k_api.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "soc_init.h"
 #include "isd9160.h"
 

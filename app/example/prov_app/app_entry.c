@@ -3,7 +3,10 @@
  */
 
 #include <stdio.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
+
 #include <km.h>
 #include <plat_gen.h>
 #include <prov_test_id2.h>

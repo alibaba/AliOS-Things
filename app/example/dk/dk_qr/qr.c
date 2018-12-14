@@ -3,7 +3,11 @@
  */
 
 #include <k_api.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
+#include "aos/yloop.h"
+
 #include <soc_init.h>
 #include "quirc.h"
 #include <camera.h>

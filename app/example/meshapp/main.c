@@ -5,9 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "aos/kernel.h"
+#include "aos/log.h"
+#include "aos/yloop.h"
+
 #include "aos/hal/gpio.h"
 
-#include <aos/aos.h>
 #include <network/network.h>
 #ifdef CONFIG_AOS_DDA
 #include <stdlib.h>

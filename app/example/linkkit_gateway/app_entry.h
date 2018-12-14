@@ -4,7 +4,7 @@
 #ifndef __APP_ENTRY_H__
 #define __APP_ENTRY_H__
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #ifdef OTA_ALIOS 
 #include "ota_service.h"

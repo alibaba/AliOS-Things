@@ -19,7 +19,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/kernel.h>
 
 #include <misc/byteorder.h>
