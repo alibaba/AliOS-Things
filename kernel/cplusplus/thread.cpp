@@ -105,10 +105,7 @@ thread::~thread(void)
     krhino_task_dyn_del(p_thread_def);
 }
 
-
 #endif
-
-#if (RHINO_CONFIG_TASK_SUSPEND > 0)
 
 /**
  * This function will start current thread
@@ -129,8 +126,6 @@ kstat_t thread::stop(void)
 {
     return krhino_task_suspend(p_thread_def);
 }
-
-#endif
 
 /**
  * This function will cause a task to sleep for some millisec
