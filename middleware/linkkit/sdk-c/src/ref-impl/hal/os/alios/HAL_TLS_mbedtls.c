@@ -6,7 +6,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <string.h>
-#include "aos/aos.h"
+
+#include "aos/errno.h"
+#include "aos/kernel.h"
+#include "aos/log.h"
 
 #include "mbedtls/config.h"
 #include "mbedtls/error.h"
