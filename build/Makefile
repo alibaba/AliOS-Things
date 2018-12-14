@@ -155,14 +155,16 @@ endif
 
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
 ifeq ($(COMPILER),armcc)
- include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
+ TOOLCHAIN_MK = $(MAKEFILES_PATH)/toolchain/aos_toolchain_armcc.mk
 else ifeq ($(COMPILER),rvct)
- include $(MAKEFILES_PATH)/aos_toolchain_rvct.mk
+ TOOLCHAIN_MK = $(MAKEFILES_PATH)/toolchain/aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
- include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
+ TOOLCHAIN_MK = $(MAKEFILES_PATH)/toolchain/aos_toolchain_iar.mk
 else
- include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
+ TOOLCHAIN_MK = $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
 endif
+
+include $(TOOLCHAIN_MK)
 
 AUTO_COMPONENT = $(AUTO_COMPONENT_DIR)/auto_component.mk
 ifneq ($(test), )
@@ -177,17 +179,7 @@ $(AUTO_COMPONENT): $(TEST_COMPONENT_COLLECTION)
 $(TEST_COMPONENT_COLLECTION):
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
 
-ifeq ($(COMPILER),armcc)
- TOOLCHAIN_MK = aos_toolchain_armcc.mk
-else ifeq ($(COMPILER),rvct)
- TOOLCHAIN_MK = aos_toolchain_rvct.mk
-else ifeq ($(COMPILER),iar)
- TOOLCHAIN_MK = aos_toolchain_iar.mk
-else
- TOOLCHAIN_MK = aos_toolchain_gcc.mk
-endif
-
-$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/$(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
+$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/precompile))
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall/syscall_kapi))
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall/syscall_fapi))
@@ -232,7 +224,7 @@ main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/ao
 	$(QUIET)$(ECHO) Build complete
 
 ifeq (yes,$(AOS_SDK_2BOOT_SUPPORT))
-$(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(MAKEFILES_PATH)/$(TOOLCHAIN_MK) $(AOS_SDK_2BOOT_MAKEFILES) $(AUTO_COMPONENT)
+$(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MK) $(AOS_SDK_2BOOT_MAKEFILES) $(AUTO_COMPONENT)
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/precompile))
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call PARSE_RESOURSE_TO_SYSCALL_FILE, $(OUTPUT_DIR), pre-create))
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_2BOOT_MAKEFILES),Applying changes made to: $?,Making config file for first time)

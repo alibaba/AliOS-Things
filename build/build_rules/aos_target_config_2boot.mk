@@ -279,13 +279,13 @@ MAIN_COMPONENT_PROCESSING :=1
 CC :=
 
 ifeq ($(COMPILER),armcc)
-include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
+include $(MAKEFILES_PATH)/toolchain/aos_toolchain_armcc.mk
 else ifeq ($(COMPILER),rvct)
-include $(MAKEFILES_PATH)/aos_toolchain_rvct.mk
+include $(MAKEFILES_PATH)/toolchain/aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
-include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
+include $(MAKEFILES_PATH)/toolchain/aos_toolchain_iar.mk
 else
-include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
+include $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
 endif
 
 ifndef CC
@@ -493,7 +493,7 @@ ifeq ($(IDE),iar)
 PROJ_GEN_DIR   := projects/IAR/$(CLEANED_BUILD_STRING)
 PROJECT_GEN := $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewp
 $(MAKECMDGOALS): $(PROJECT_GEN)
-$(PROJECT_GEN): build/scripts/iar.py build/aos_target_config.mk $(CONFIG_FILE)
+$(PROJECT_GEN): $(SCRIPTS_PATH)/iar.py $(MAKEFILES_PATH)/aos_target_config.mk $(CONFIG_FILE)
 	$(QUIET)echo Making $(IDE) Project
 	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_PY_FILE) ,Projects = [)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_COMPOENT_PY ))
@@ -508,7 +508,7 @@ ifeq ($(IDE),keil)
 PROJ_GEN_DIR   := projects/Keil/$(CLEANED_BUILD_STRING)
 PROJECT_GEN := $(PROJ_GEN_DIR)/keil_project/$(CLEANED_BUILD_STRING).uvprojx
 $(MAKECMDGOALS): $(PROJECT_GEN)
-$(PROJECT_GEN): build/scripts/keil.py build/aos_target_config.mk $(CONFIG_FILE)
+$(PROJECT_GEN): $(SCRIPTS_PATH)/keil.py $(MAKEFILES_PATH)/aos_target_config.mk $(CONFIG_FILE)
 	$(QUIET)echo Making $(IDE) Project
 	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_PY_FILE) ,Projects = [)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_COMPOENT_PY ))
