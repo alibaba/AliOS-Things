@@ -147,6 +147,16 @@ int aos_access(const char *path, int amode)
     return _vfs_to_aos_res(vfs_access(path, amode));
 }
 
+int aos_chdir(const char *path)
+{
+    return _vfs_to_aos_res(vfs_chdir(path));
+}
+
+char *aos_getcwd(char *buf, size_t size)
+{
+    return vfs_getcwd(buf, size);
+}
+
 int aos_vfs_fd_offset_get(void)
 {
     return vfs_fd_offset_get();
