@@ -4,7 +4,7 @@
 
 #include <k_api.h>
 #include <errno.h>
-#include <aos/aos.h>
+#include <aos/kernel.h>
 #include <stdio.h>
 #include "errno_mapping.h"
 #include <time.h>
