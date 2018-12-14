@@ -8,14 +8,15 @@
 #include <time.h>
 #include <stdio.h>
 
+#include "aos/hal/uart.h"
 
 int errno;
 
-extern void *aos_malloc(unsigned int size);
-extern void aos_alloc_trace(void *addr, size_t allocator);
-extern void aos_free(void *mem);
-extern void *aos_realloc(void *mem, unsigned int size);
-extern long long aos_now_ms(void);
+extern void      *aos_malloc(unsigned int size);
+extern void       aos_alloc_trace(void *addr, size_t allocator);
+extern void       aos_free(void *mem);
+extern void      *aos_realloc(void *mem, unsigned int size);
+extern long long  aos_now_ms(void);
 
 __ATTRIBUTES void *malloc(unsigned int size)
 {
@@ -151,3 +152,4 @@ void optarg()
 }
 
 #endif
+
