@@ -4,7 +4,9 @@
 
 #ifdef CONFIG_AOS_CLI
 
-#include "aos/aos.h"
+#include "aos/cli.h"
+#include "aos/kernel.h"
+
 #include "esp_ota_ops.h"
 #include "esp_log.h"
 #include <string.h>

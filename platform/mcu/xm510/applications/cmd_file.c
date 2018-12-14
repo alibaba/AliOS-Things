@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <fatfs.h>
 #include <sys/types.h>
 #include <sys/stat.h>

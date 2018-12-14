@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 #include "compiler.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 /**
  * \brief Semaphore max count declaration 
  */

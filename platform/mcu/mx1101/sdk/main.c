@@ -13,7 +13,7 @@
 #include "wakeup.h"
 #include "aos/hal/rtc.h"
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_api.h>
 #include <aos/kernel.h>
 

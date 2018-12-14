@@ -3,7 +3,7 @@
  */
  
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "aos/hal/i2c.h"
 
 #include <ti/drivers/I2C.h>

@@ -1,9 +1,9 @@
 /**
  * File : aos.c
  */
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "aos/log.h"
 #include <k_api.h>
-#include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
 #define AOS_START_STACK 2048

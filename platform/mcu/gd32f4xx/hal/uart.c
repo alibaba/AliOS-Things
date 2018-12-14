@@ -1,7 +1,7 @@
 #include "gd32f4xx.h"
 
 #include "ringbuf.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_api.h>
 #include <stdio.h>
 #define MAX_UART_NUM 4

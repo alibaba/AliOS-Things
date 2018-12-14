@@ -10,7 +10,7 @@
 #include "nrf_dfu_flash.h"
 #include "nrf_dfu_settings.h"
 #include "nrf_fstorage.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/storage.h>

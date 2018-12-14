@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "ais_ota.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/storage.h>
 #include <bluetooth/hci.h>

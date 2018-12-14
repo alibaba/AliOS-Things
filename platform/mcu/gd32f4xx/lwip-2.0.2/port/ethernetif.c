@@ -36,7 +36,7 @@
 *
 */
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "K_api.h"
 #include "lwip/opt.h"
 #include "lwip/def.h"

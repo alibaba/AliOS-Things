@@ -42,7 +42,7 @@
 #include "i2c_api.h"
 #include "pwmout_api.h"
 #include "spi_api.h"
-#include "aos/aos.h"
+#include "aos/kernel.h"
 //#include "platform_peripheral.h"
 
 #ifdef __cplusplus
