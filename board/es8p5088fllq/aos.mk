@@ -1,0 +1,28 @@
+NAME := board_es8p5088fllq
+
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION    := 0.0.1
+$(NAME)_SUMMARY    := configuration for board es8p5088fllq
+MODULE             := 1062
+HOST_ARCH          := Cortex-M0
+HOST_MCU_FAMILY    := mcu_es8p508x
+SUPPORT_MBINS      := no
+HOST_MCU_NAME      := es8p508x
+ENABLE_VFP         := 0
+
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub
+
+$(NAME)_SOURCES += config/k_config.c \
+                   startup/board.c   \
+                   startup/startup.c
+
+ifeq ($(COMPILER), armcc)
+$(NAME)_SOURCES    += startup/startup_keil.s
+$(NAME)_LINK_FILES := startup/startup_keil.o
+GLOBAL_LDFLAGS += -L --scatter=board/es8p5088fllq/es8p508x.sct
+endif
+
+GLOBAL_INCLUDES += .    \
+                   config/   \
+                   drivers/  \
+                   startup/  \
