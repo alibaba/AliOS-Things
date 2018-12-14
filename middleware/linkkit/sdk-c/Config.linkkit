@@ -1,6 +1,6 @@
 source "$SRCPATH/src/protocol/mqtt/Config.in"
 source "$SRCPATH/src/services/linkkit/Config.in"
-source "$SRCPATH/src/protocol/coap/cloud/Config.in"
+source "$SRCPATH/src/protocol/coap/client/Config.in"
 source "$SRCPATH/src/services/ota/Config.in"
 source "$SRCPATH/src/protocol/http/Config.in"
 source "$SRCPATH/src/sdk-impl/Config.in"

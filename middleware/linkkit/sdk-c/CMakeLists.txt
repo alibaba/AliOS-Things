@@ -50,7 +50,6 @@ ADD_DEFINITIONS (-DDEVICE_MODEL_ENABLED)
 ADD_DEFINITIONS (-DDEV_BIND_ENABLED)
 ADD_DEFINITIONS (-DDYNAMIC_REGISTER)
 ADD_DEFINITIONS (-DFORCE_SSL_VERIFY)
-ADD_DEFINITIONS (-DHAL_AWSS)
 ADD_DEFINITIONS (-DHAL_CRYPTO)
 ADD_DEFINITIONS (-DHAL_KV)
 ADD_DEFINITIONS (-DHAL_TCP)
@@ -82,7 +81,7 @@ ADD_SUBDIRECTORY (src/services/linkkit/cm)
 ADD_SUBDIRECTORY (src/services/linkkit/dm)
 ADD_SUBDIRECTORY (src/services/linkkit/dev_reset)
 ADD_SUBDIRECTORY (src/protocol/coap/server)
-ADD_SUBDIRECTORY (src/protocol/coap/CoAPPack)
+ADD_SUBDIRECTORY (src/protocol/coap/CoAPPacket)
 ADD_SUBDIRECTORY (src/services/awss)
 ADD_SUBDIRECTORY (src/services/dev_bind)
 
@@ -101,7 +100,7 @@ ADD_LIBRARY (iot_sdk SHARED
     $<TARGET_OBJECTS:iot_dm>
     $<TARGET_OBJECTS:iot_reset>
     $<TARGET_OBJECTS:iot_coap_local>
-    $<TARGET_OBJECTS:iot_coap_CoAPPack>
+    $<TARGET_OBJECTS:iot_coap_CoAPPacket>
     $<TARGET_OBJECTS:iot_awss>
     $<TARGET_OBJECTS:iot_bind>
 )
