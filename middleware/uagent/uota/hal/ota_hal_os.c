@@ -310,19 +310,16 @@ static int hal_fopen(FILE **fp, int *size, int *num)
 {
     /* create an file to save the kv */
     if ((*fp = fopen(KV_FILE_PATH, "a+")) == NULL) {
-        OTA_LOG_E("fopen(create) %s error:%s\n", KV_FILE_PATH, strerror(errno));
+        OTA_LOG_E("open err:%s\n", strerror(errno));
         return -1;
     }
     fseek(*fp, 0L, SEEK_END);
-    OTA_LOG_I("ftell:%d\n", (int)ftell(*fp));
     if ((*size = ftell(*fp)) % ITEM_LEN) {
-        OTA_LOG_E("%s is not an kv file\n", KV_FILE_PATH);
         fclose(*fp);
         return -1;
     }
     *num = ftell(*fp) / ITEM_LEN;
     fseek(*fp, 0L, SEEK_SET);
-    OTA_LOG_I("file size:%d, block num:%d\n", *size, *num);
     return 0;
 }
 /*KV set*/
@@ -349,7 +346,6 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
         }
         /* key compared */
         if (strcmp(kv_item.key, key) == 0) {
-            OTA_LOG_I("HAL_Kv_Set@key compared:%s\n", key);
             /* set value and write to file */
             memset(kv_item.val, 0, ITEM_MAX_VAL_LEN);
             memcpy(kv_item.val, val, len);
@@ -360,7 +356,6 @@ int ota_kv_set(const char *key, const void *val, int len, int sync)
         }
     }
 
-    OTA_LOG_I("HAL_Kv_Set key:%s\n", key);
     /* key not compared, append an kv to file */
     memset(&kv_item, 0, sizeof(kv_t));
     strcpy(kv_item.key, key);
@@ -374,7 +369,7 @@ ERR:
         pthread_mutex_unlock(&mutex_kv);
         return -1;
     }
-    OTA_LOG_E("read %s error:%s\n", KV_FILE_PATH, strerror(errno));
+    OTA_LOG_E("read err:%s\n", strerror(errno));
     fflush(fp);
     fclose(fp);
     pthread_mutex_unlock(&mutex_kv);
@@ -411,21 +406,19 @@ int ota_kv_get(const char *key, void *buffer, int *len)
         }
         /* key compared */
         if (strcmp(kv_item.key, key) == 0) {
-            OTA_LOG_I("HAL_Kv_Get@key compared:%s\n", key);
             /* set value and write to file */
             *len = kv_item.state.val_len;
             memcpy(buffer, kv_item.val, *len);
             goto END;
         }
     }
-    OTA_LOG_I("can not find the key:%s\n", key);
     goto END;
 ERR:
     if (fp == NULL) {
         pthread_mutex_unlock(&mutex_kv);
         return -1;
     }
-    OTA_LOG_E("read %s error:%s\n", KV_FILE_PATH, strerror(errno));
+    OTA_LOG_E("read err:%s\n", strerror(errno));
     fflush(fp);
     fclose(fp);
     pthread_mutex_unlock(&mutex_kv);
@@ -732,7 +725,6 @@ int ota_coap_init(void)
             OTA_LOG_E("COAP error");
             return ret;
         }
-        OTA_LOG_D("IOT_CoAP_DeviceNameAuth. success.");
     }
     #else
     return 0;

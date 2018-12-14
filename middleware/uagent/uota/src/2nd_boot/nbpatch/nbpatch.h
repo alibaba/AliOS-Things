@@ -24,6 +24,14 @@
 #define NBDIFF_PATCH_OP_FAIL        5
 #define NBDIFF_CRC_OP_FAIL          6
 
+
+enum {
+    NBPATCH_ST_FAIL=-4,
+    NBPATCH_PARAM_FAIL=-3,
+    NBPATCH_DIFF_FAIL=-2,
+    NBPATCH_SIZE_FAIL=-1,
+};
+
 off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, off_t new_size, off_t splict_size);
 
 int nbpatch_error(unsigned long src);
