@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <arg_options.h>
 
 #define TAG "main"

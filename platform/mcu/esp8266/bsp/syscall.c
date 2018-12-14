@@ -27,7 +27,7 @@
 #include <sys/types.h>
 
 #include <k_api.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 void* malloc(size_t size)
 {

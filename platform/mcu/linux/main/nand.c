@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "aos/hal/nand.h"
 
 #define CONFIG_FLASH_START_ADDR 0

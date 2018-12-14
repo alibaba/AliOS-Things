@@ -4,7 +4,7 @@
 
 #include <k_api.h>
 #include <errno.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "errno_mapping.h"
 
 #define MS2TICK(ms) krhino_ms_to_ticks(ms)

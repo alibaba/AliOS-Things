@@ -2,7 +2,7 @@
 #include "gd32f4xx_fmc.h"
 #include <stdio.h>
 #include <string.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 /* base address of the FMC sectors */
 #define ADDR_FMC_SECTOR_0     ((uint32_t)0x08000000) /*!< base address of sector 0, 16 kbytes */
 #define ADDR_FMC_SECTOR_1     ((uint32_t)0x08004000) /*!< base address of sector 1, 16 kbytes */

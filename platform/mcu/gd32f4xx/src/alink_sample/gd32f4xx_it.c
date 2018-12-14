@@ -1,6 +1,6 @@
 #include "gd32f4xx_it.h"
 #include "k_api.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 /*!
     \brief      this function handles NMI exception

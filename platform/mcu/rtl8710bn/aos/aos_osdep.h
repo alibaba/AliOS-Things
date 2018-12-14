@@ -5,7 +5,7 @@
 #define __AOS_OSDEP_SERVICE_H_
 
 #include "dlist.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_api.h>
 // --------------------------------------------
 //	Platform dependent include file

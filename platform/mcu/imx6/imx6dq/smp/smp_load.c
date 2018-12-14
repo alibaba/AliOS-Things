@@ -8,7 +8,7 @@
 #include "k_arch.h"
 
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 extern void os_crosscore_int_init();
 extern void cpu_first_task_start(void);

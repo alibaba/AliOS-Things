@@ -38,7 +38,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_config.h>
 
 #include <ti/devices/msp432p4xx/inc/msp.h>

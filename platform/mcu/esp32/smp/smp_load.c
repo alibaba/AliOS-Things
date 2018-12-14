@@ -7,7 +7,7 @@
 #include "k_api.h"
 
 #include <hal/wifi.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <sdkconfig.h>
 #include <soc/dport_reg.h>
 #include <soc/cpu.h>
