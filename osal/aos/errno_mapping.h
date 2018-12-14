@@ -6,7 +6,6 @@
 #define ERRNO_MAPPING_H
 
 #include <errno.h>
-#include <aos/aos.h>
 
 #define ERRNO_MAPPING(ret)                           \
     do{                                              \
