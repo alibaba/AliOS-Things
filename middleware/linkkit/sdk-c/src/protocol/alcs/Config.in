@@ -3,7 +3,7 @@ source "$SRCPATH/src/infra/log/Config.in"
 source "$SRCPATH/src/infra/system/Config.in"
 source "$SRCPATH/src/infra/utils/Config.in"
 source "$SRCPATH/src/sdk-impl/Config.in"
-source "$SRCPATH/src/protocol/coap/local/Config.in"
+source "$SRCPATH/src/protocol/coap/server/Config.in"
 
 config ALCS_ENABLED
     bool "FEATURE_ALCS_ENABLED"

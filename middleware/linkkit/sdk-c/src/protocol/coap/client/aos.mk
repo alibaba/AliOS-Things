@@ -14,7 +14,7 @@ $(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/infra/utils \
                       middleware/linkkit/sdk-c/src/infra/log \
                       middleware/linkkit/sdk-c/src/infra/system \
                       middleware/linkkit/sdk-c/src/sdk-impl \
-                      middleware/linkkit/sdk-c/src/protocol/coap/CoAPPack \
+                      middleware/linkkit/sdk-c/src/protocol/coap/CoAPPacket \
 
 $(NAME)_INCLUDES := ../../../../src/infra \
                     ../../../../src/infra/log \
