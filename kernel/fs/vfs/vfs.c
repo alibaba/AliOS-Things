@@ -19,6 +19,10 @@
 static uint8_t  g_vfs_init     = 0;
 static void    *g_vfs_lock_ptr = NULL;
 
+#if (CURRENT_WORKING_DIRECTORY_ENBALE > 0)
+char g_current_working_directory[VFS_PATH_MAX];
+#endif
+
 int32_t vfs_init(void)
 {
     if (g_vfs_init == 1) {
@@ -31,6 +35,12 @@ int32_t vfs_init(void)
     }
 
     vfs_inode_init();
+
+#if (CURRENT_WORKING_DIRECTORY_ENBALE > 0)
+    /* init current working directory */
+    memset(g_current_working_directory, 0, sizeof(g_current_working_directory));
+    strcpy(g_current_working_directory, "/default");
+#endif
 
     g_vfs_init = 1;
 
@@ -812,6 +822,43 @@ int32_t vfs_access(const char *path, int32_t amode)
     vfs_unlock(g_vfs_lock_ptr);
 
     return ret;
+}
+
+int vfs_chdir(const char *path)
+{
+#if (CURRENT_WORKING_DIRECTORY_ENBALE > 0)
+    if ((path == NULL) || (strlen(path) > VFS_PATH_MAX)){
+        return VFS_ERR_NAMETOOLONG;
+    }
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    memset(g_current_working_directory, 0, sizeof(g_current_working_directory));
+    strcpy(g_current_working_directory, path);
+
+    vfs_unlock(g_vfs_lock_ptr);
+
+    return VFS_OK;
+#else
+    return VFS_ERR_INVAL;
+#endif
+}
+
+char *vfs_getcwd(char *buf, size_t size)
+{
+#if (CURRENT_WORKING_DIRECTORY_ENBALE > 0)
+    if ((buf == NULL) || (size < strlen(g_current_working_directory))) {
+        return NULL;
+    }
+
+    strcpy(buf, g_current_working_directory);
+
+    return buf;
+#else
+    return NULL;
+#endif
 }
 
 int32_t vfs_fd_offset_get(void)
