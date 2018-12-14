@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "testcmd_lock.h"
 #include "linkkit_gateway_export.h"
 #include "iot_import.h"

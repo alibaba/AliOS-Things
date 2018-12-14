@@ -2,7 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
+#include <fcntl.h>
+
+#include "aos/kernel.h"
 #include "lvgl/lvgl.h"
 #include <k_api.h>
 #include "sensor_display.h"

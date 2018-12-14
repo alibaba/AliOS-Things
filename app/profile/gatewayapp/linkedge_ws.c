@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <unistd.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <time.h>
 
 #include "libwebsockets.h"

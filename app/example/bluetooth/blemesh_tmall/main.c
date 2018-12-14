@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/kernel.h>
 
 #include <misc/printk.h>

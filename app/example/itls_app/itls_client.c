@@ -11,7 +11,8 @@
 #include <sys/time.h>
 
 #include <network/network.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "aos/yloop.h"
 #include <netmgr.h>
 
 #include "ali_crypto.h"
