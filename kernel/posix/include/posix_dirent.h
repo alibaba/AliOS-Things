@@ -13,8 +13,7 @@ extern "C"
 #include <stdio.h>
 
 #include "k_api.h"
-#include "vfs.h"
-#include "vfs_inode.h"
+#include "aos/vfs.h"
 #include "posix_default_config.h"
 
 #define DT_UNKNOWN 0
@@ -65,7 +64,6 @@ long           telldir(DIR *dirp);
 void           seekdir(DIR *dirp, long loc);
 off_t          lseek(int fildes, off_t offset, int whence);
 int            stat(const char *path, struct stat *buf);
-int            statfs(const char *path, struct statfs *buf);
 int            unlink(const char *path);
 int            remove(const char *filename);
 int            rename(const char *oldname, const char *newname);
@@ -74,6 +72,9 @@ int            mkdir(const char *path, mode_t mode);
 int            rmdir(const char *path);
 void           rewinddir(DIR *dirp);
 int            ioctl(int fildes, int request, ... /* arg */);
+int            chdir(const char *path);
+char          *getcwd(char *buf, size_t size);
+int            creat(const char *path, mode_t mode);
 
 extern int ioctl(int fildes, int request, ... /* arg */);
 
