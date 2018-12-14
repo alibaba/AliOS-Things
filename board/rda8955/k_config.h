@@ -2,16 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
-
-/* chip level conf */
-#ifndef RHINO_CONFIG_LITTLE_ENDIAN
-#define RHINO_CONFIG_LITTLE_ENDIAN           1
-#endif
-#ifndef RHINO_CONFIG_CPU_STACK_DOWN
-#define RHINO_CONFIG_CPU_STACK_DOWN          1
-#endif
+#ifndef K_CONFIG_H
+#define K_CONFIG_H
 
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
@@ -44,17 +36,10 @@
 #ifndef RHINO_CONFIG_MM_DEBUG
 #define RHINO_CONFIG_MM_DEBUG                0
 #endif
-#ifndef RHINO_CONFIG_KOBJ_SET
-#define RHINO_CONFIG_KOBJ_SET                1
-#endif
-
 #define RHINO_CONFIG_64_BIT_TYPE             0
 
 
 /* kernel task conf */
-#ifndef RHINO_CONFIG_TASK_SUSPEND
-#define RHINO_CONFIG_TASK_SUSPEND            1
-#endif
 #ifndef RHINO_CONFIG_TASK_INFO
 #define RHINO_CONFIG_TASK_INFO               1
 #endif
@@ -65,9 +50,6 @@
 
 #ifndef RHINO_CONFIG_TASK_DEL
 #define RHINO_CONFIG_TASK_DEL                1
-#endif
-#ifndef RHINO_CONFIG_TASK_WAIT_ABORT
-#define RHINO_CONFIG_TASK_WAIT_ABORT         1
 #endif
 #ifndef RHINO_CONFIG_TASK_STACK_OVF_CHECK
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
@@ -107,15 +89,8 @@
 #endif
 #endif
 
-#ifndef RHINO_CONFIG_TICKLESS
-#define RHINO_CONFIG_TICKLESS                0
-#endif
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
 #define RHINO_CONFIG_TICKS_PER_SECOND        16384        /*HAL_TICK1S*/
-#endif
-/* must be 2^n size!, such as 1, 2, 4, 8, 16,32, etc....... */
-#ifndef RHINO_CONFIG_TICK_HEAD_ARRAY
-#define RHINO_CONFIG_TICK_HEAD_ARRAY         8
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   256
@@ -124,15 +99,8 @@
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 #endif
 
-/* kernel intrpt conf */
-#ifndef RHINO_CONFIG_INTRPT_STACK_REMAIN_GET
-#define RHINO_CONFIG_INTRPT_STACK_REMAIN_GET 1
-#endif
 #ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
-#endif
-#ifndef RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL
-#define RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL 188u
 #endif
 #ifndef RHINO_CONFIG_INTRPT_GUARD
 #define RHINO_CONFIG_INTRPT_GUARD            0
@@ -200,5 +168,5 @@
 
 #define RHINO_SCHED_NONE_PREEMPT             1
 
-#endif /* CONFIG_H */
+#endif /* K_CONFIG_H */
 
