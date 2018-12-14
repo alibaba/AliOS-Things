@@ -66,7 +66,6 @@ namespace AliOS {
 
 #endif
 
-#if (RHINO_CONFIG_TASK_SUSPEND > 0)
         /**
          * This function will start current thread
          * @param[in]  NULL
@@ -80,8 +79,6 @@ namespace AliOS {
          * @return  the operation status, RHINO_SUCCESS is OK, others is error
          */
         kstat_t stop(void);
-
-#endif
 
         /**
          * This function will cause a task to sleep for some millisec
