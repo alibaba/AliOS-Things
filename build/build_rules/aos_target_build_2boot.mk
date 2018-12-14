@@ -7,15 +7,15 @@ include $(CONFIG_FILE)
 # Include all toolchain makefiles - one of them will handle the architecture
 # default gcc
 ifeq ($(COMPILER),)
-include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
+include $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
 else ifeq ($(COMPILER),gcc)
-include $(MAKEFILES_PATH)/aos_toolchain_gcc.mk
+include $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
 else ifeq ($(COMPILER),armcc)
-include $(MAKEFILES_PATH)/aos_toolchain_armcc.mk
+include $(MAKEFILES_PATH)/toolchain/aos_toolchain_armcc.mk
 else ifeq ($(COMPILER),rvct)
-include $(MAKEFILES_PATH)/aos_toolchain_rvct.mk
+include $(MAKEFILES_PATH)/toolchain/aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
-include $(MAKEFILES_PATH)/aos_toolchain_iar.mk
+include $(MAKEFILES_PATH)/toolchain/aos_toolchain_iar.mk
 endif
 
 .PHONY: display_map_summary build_done
