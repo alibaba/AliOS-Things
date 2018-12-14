@@ -7,7 +7,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
+
 #include <sal_arch.h>
 #include <sal_ipaddr.h>
 #include <sal_import.h>

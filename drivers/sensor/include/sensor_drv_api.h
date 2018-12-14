@@ -5,7 +5,7 @@
 #ifndef SENSOR_DRV_API_H
 #define SENSOR_DRV_API_H
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "aos/hal/i2c.h"
 #include "sensor.h"

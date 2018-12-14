@@ -5,7 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
+#include "aos/vfs.h"
+
 #include "network/hal/base.h"
 
 #include "sensor.h"
