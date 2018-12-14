@@ -2,18 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef K_CONFIG_H
+#define K_CONFIG_H
 
 #include "k_app_config.h"
-
-/* chip level conf */
-#ifndef RHINO_CONFIG_LITTLE_ENDIAN
-#define RHINO_CONFIG_LITTLE_ENDIAN           1
-#endif
-#ifndef RHINO_CONFIG_CPU_STACK_DOWN
-#define RHINO_CONFIG_CPU_STACK_DOWN          1
-#endif
 
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
@@ -49,18 +41,8 @@
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          19
 #endif
-#ifndef RHINO_CONFIG_RINGBUF_VENDOR
-#define RHINO_CONFIG_RINGBUF_VENDOR          0
-#endif
-
-#ifndef RHINO_CONFIG_KOBJ_SET
-#define RHINO_CONFIG_KOBJ_SET                1
-#endif
 
 /* kernel task conf */
-#ifndef RHINO_CONFIG_TASK_SUSPEND
-#define RHINO_CONFIG_TASK_SUSPEND            1
-#endif
 #ifndef RHINO_CONFIG_TASK_INFO
 #define RHINO_CONFIG_TASK_INFO               1
 #endif
@@ -72,9 +54,6 @@
 #define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
 #endif
 
-#ifndef RHINO_CONFIG_TASK_WAIT_ABORT
-#define RHINO_CONFIG_TASK_WAIT_ABORT         1
-#endif
 #ifndef RHINO_CONFIG_TASK_STACK_OVF_CHECK
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
 #endif
@@ -121,15 +100,8 @@
 #endif
 #endif
 
-#ifndef RHINO_CONFIG_TICKLESS
-#define RHINO_CONFIG_TICKLESS                0
-#endif
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
-#endif
-/* must be 2^n size!, such as 1, 2, 4, 8, 16,32, etc....... */
-#ifndef RHINO_CONFIG_TICK_HEAD_ARRAY
-#define RHINO_CONFIG_TICK_HEAD_ARRAY         8
 #endif
 
 /*must reserve enough stack size for timer cb will consume*/
@@ -140,15 +112,8 @@
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 #endif
 
-/* kernel intrpt conf */
-#ifndef RHINO_CONFIG_INTRPT_STACK_REMAIN_GET
-#define RHINO_CONFIG_INTRPT_STACK_REMAIN_GET 0
-#endif
 #ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
-#endif
-#ifndef RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL
-#define RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL 188u
 #endif
 #ifndef RHINO_CONFIG_INTRPT_GUARD
 #define RHINO_CONFIG_INTRPT_GUARD            0
@@ -208,5 +173,5 @@
 #define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x400
 #endif
 
-#endif /* CONFIG_H */
+#endif /* K_CONFIG_H */
 
