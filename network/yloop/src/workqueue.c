@@ -2,7 +2,11 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "aos/kernel.h"
+#include "aos/yloop.h"
+
+#include "k_api.h"
+
 #include "errno_mapping.h"
 
 #if (RHINO_CONFIG_WORKQUEUE>0)
