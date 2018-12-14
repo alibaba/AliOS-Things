@@ -4,7 +4,7 @@
 #ifndef __APP_ENTRY_H__
 #define __APP_ENTRY_H__
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 typedef struct {
     int argc;

@@ -1,7 +1,9 @@
 /*
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/log.h"
 
 extern void id2_client_test();
 

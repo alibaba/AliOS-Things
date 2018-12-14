@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/yloop.h>
 #include "aos/udata.h"
 #include "udata_queue.h"
