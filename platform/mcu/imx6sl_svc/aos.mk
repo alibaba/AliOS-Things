@@ -1,7 +1,7 @@
 NAME := mcu_imx6sl_svc
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu imx6sl_svc
 
 HOST_OPENOCD := imx6sx

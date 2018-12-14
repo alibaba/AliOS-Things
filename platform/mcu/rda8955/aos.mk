@@ -4,7 +4,7 @@ NAME := mcu_RDA8955
 HOST_OPENOCD := rda8955
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION    := 0.0.1
+$(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu RDA8955
 
 $(NAME)_COMPONENTS += arch_mips-I
