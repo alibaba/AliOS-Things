@@ -78,7 +78,7 @@ static int ota_init(void *something)
     }
 #if !defined PLAT_RASPBERRY
     if(param->len > 0x3100000){
-        OTA_LOG_E("init err--> firmware size is too big.\n");
+        OTA_LOG_E("firmware size is too big.\n");
         return -1;
     }
 #endif

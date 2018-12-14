@@ -75,7 +75,6 @@ size_t xz_read(xzReadHandler *handler, struct xz_buf *b,struct xz_dec *s, unsign
     {  return 0; };
 
     if(buf_len == 0) {
-         //LOG("read buf_len 0\n");
          return 0;
     }
 
@@ -91,7 +90,6 @@ size_t xz_read(xzReadHandler *handler, struct xz_buf *b,struct xz_dec *s, unsign
 
             handler->avail_size -= readsize;
             handler->read_pos += readsize;
-            //LOG(" readsize %ld, %ld\n", readsize, handler->avail_size);
             b->in_pos = 0;
             b->in = handler->in_buf;
         }
@@ -152,7 +150,6 @@ size_t xz_Read(xzReadHandler *handler, lzma_stream *strm, unsigned long in_file,
         }
 
         if (nbpatch_eof(in_end)) {
-            //LOG("in_fininshed\n");
             in_finished = 1;
         }
 

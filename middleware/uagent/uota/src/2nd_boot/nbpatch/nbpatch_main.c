@@ -139,6 +139,7 @@ void nbpatch_ota_addr_free(off_t range)
 void nbpatch_copy_app2ota() {
     int i   = 0;
     int num = 0;
+    int ret = 0;
     PatchStatus* pstatus = nbpatch_get_pstatus();
     unsigned int par_len = patch_flash_get_partion_length(HAL_PARTITION_OTA_TEMP);
 
@@ -148,8 +149,9 @@ void nbpatch_copy_app2ota() {
     num = par_len  / SPLICT_SIZE;
     for(i = 0; i < num; i++) {
         if((pstatus->REC_FLASH_STAT_E[i] != OTA_FLASH_STATUS_REVY) && (pstatus->REC_FLASH_STAT_E[i] != OTA_FLASH_STATUS_SYNC)) {
-            printf("copy app to ota addr 0x%x, status %d\n", i * SPLICT_SIZE, pstatus->REC_FLASH_STAT_E[i]);
-            patch_flash_copy_par(HAL_PARTITION_OTA_TEMP, HAL_PARTITION_APPLICATION, i * SPLICT_SIZE, SPLICT_SIZE);
+            LOG("copy to addr 0x%x, status %d\n", i * SPLICT_SIZE, pstatus->REC_FLASH_STAT_E[i]);
+            ret = patch_flash_copy_par(HAL_PARTITION_OTA_TEMP, HAL_PARTITION_APPLICATION, i * SPLICT_SIZE, SPLICT_SIZE);
+            LOG("copy to addr 0x%x, st:%d ret:%d\n", i * SPLICT_SIZE, pstatus->REC_FLASH_STAT_E[i], ret);
             pstatus->REC_FLASH_STAT_E[i] = OTA_FLASH_STATUS_SYNC;
             save_patch_status(pstatus);
         }
@@ -252,9 +254,8 @@ int nbpatch_swap_app2ota(unsigned char all_flag)
     if(0 != i) {
         sec = pstatus->swaped_idx;
     }
-	LOG("swap begin, offset 0x%x, index %d\r\n", i*SPLICT_SIZE, sec);
-
-	pstatus->recovery_phase = REC_PHASE_SWAP;
+    LOG("swap offset 0x%x, index %d\r\n", i*SPLICT_SIZE, sec);
+    pstatus->recovery_phase = REC_PHASE_SWAP;
     save_patch_status(pstatus);
 
     for(; i < par_len / SPLICT_SIZE; i++) {
@@ -266,17 +267,12 @@ int nbpatch_swap_app2ota(unsigned char all_flag)
     }
 
     pstatus->recovery_phase = REC_PHASE_DONE;
-
     //switch the version string
     memset(version, 0, OTA_MAX_VER_LEN);
     memcpy(version, pstatus->app_version, OTA_MAX_VER_LEN);
     memcpy(pstatus->app_version, pstatus->ota_version, OTA_MAX_VER_LEN);
     memcpy(pstatus->ota_version, version, OTA_MAX_VER_LEN);
-
     save_patch_status(pstatus);
-
-    LOG("swap end\r\n");
-
     return 0;
 }
 #endif
@@ -286,31 +282,27 @@ int nbpatch_main(void)
     int ret = 0;
     int nbpatch_size = 0;
     PatchStatus * pstatus = NULL;
-
-    LOG("nbpatch enter\r\n");
-
     pstatus = nbpatch_get_pstatus();
     if(pstatus == NULL) {
-        LOG("err: p is NULL\n");
-        return -1;
+        ret = NBPATCH_ST_FAIL;
+        goto END;
     }
 
     read_patch_status(pstatus);
-
     if (pstatus->dst_adr > HAL_PARTITION_OTA_TEMP || pstatus->src_adr > HAL_PARTITION_OTA_TEMP) {
-        LOG("p adr overflow\r\n");
-        return -1;
+        ret = NBPATCH_PARAM_FAIL;
+        goto END;
     }
 
     if (!pstatus->diff) {
-        LOG("p diff ver error\r\n");
-        return -1;
+        ret = NBPATCH_DIFF_FAIL;
+        goto END;
     }
 
     uint32_t old_size = patch_flash_get_partion_length(pstatus->dst_adr);
     if(pstatus->len > old_size || pstatus->len == 0) {
-        LOG("p overflow \r\n");
-        return -1;
+        ret = NBPATCH_DIFF_FAIL;
+        goto END;
     }
 
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
@@ -348,17 +340,15 @@ int nbpatch_main(void)
     nbpatch_buffer_init();
     nbpatch_size = nbpatch(pstatus->dst_adr, old_size, pstatus->src_adr,  pstatus->len, SPLICT_SIZE);
     if(nbpatch_size <= 0) {
-        LOG("nbpatch error \r\n");
-        ret = -1;
+        ret = NBPATCH_DIFF_FAIL;
+        goto END;
     }
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
     else{
         nbpatch_copy_lable:
         nbpatch_copy_app2ota();
-        LOG("copy app to ota end\r\n");
-
         ret = rec_verify_firmware(pstatus->src_adr, nbpatch_size);
-        LOG("nbpatch success adr:0x%x len:0x%x verify:0x%x\r\n", pstatus->src_adr, nbpatch_size,ret);
+        LOG("verify fw adr:0x%x len:0x%x ret:0x%x\r\n", pstatus->src_adr, nbpatch_size,ret);
 
         #if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBACK)
         nbpatch_swap_lable:
@@ -372,5 +362,7 @@ int nbpatch_main(void)
     pstatus->recovery_phase = REC_PHASE_SWITCH;
 #endif
     save_patch_status(pstatus);
+END:
+    LOG("nbpatch end:%d",ret);
     return ret;
 }
