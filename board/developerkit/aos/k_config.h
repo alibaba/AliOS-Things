@@ -49,12 +49,6 @@
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          19
 #endif
-#ifndef RHINO_CONFIG_GCC_RETADDR
-#define RHINO_CONFIG_GCC_RETADDR             1
-#endif
-#ifndef RHINO_CONFIG_MM_LEAKCHECK
-#define RHINO_CONFIG_MM_LEAKCHECK            0
-#endif
 #ifndef RHINO_CONFIG_RINGBUF_VENDOR
 #define RHINO_CONFIG_RINGBUF_VENDOR          0
 #endif
@@ -141,9 +135,6 @@
 /*must reserve enough stack size for timer cb will consume*/
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   300
-#endif
-#ifndef RHINO_CONFIG_TIMER_RATE
-#define RHINO_CONFIG_TIMER_RATE              1
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
