@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <yunit.h>
 #include <yts.h>
 #include <ramfs.h>

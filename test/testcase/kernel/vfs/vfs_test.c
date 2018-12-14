@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #include <aos/kernel.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "dirent.h"
 

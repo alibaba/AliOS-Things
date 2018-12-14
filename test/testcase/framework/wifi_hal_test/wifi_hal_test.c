@@ -5,9 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "aos/aos.h"
-#include "aos/hal/timer.h"
 #include "aos/kernel.h"
+#include "aos/types.h"
+
+#include "aos/hal/timer.h"
 
 #include <yunit.h>
 #include <yts.h>
@@ -232,4 +233,6 @@ void test_wifi_hal(void)
 {
     yunit_add_test_suites(suites);
 }
+
 AOS_TESTCASE(test_wifi_hal);
+

@@ -7,7 +7,10 @@
 
 #include <yunit.h>
 #include <yts.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/kv.h"
+#include "aos/types.h"
 
 #include "aos/hal/flash.h"
 

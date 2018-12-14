@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/log.h>
 #include <k_err.h>
 #include <yunit.h>
