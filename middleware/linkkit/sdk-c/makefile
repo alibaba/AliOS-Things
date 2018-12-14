@@ -18,7 +18,7 @@ $(call CompLib_Map, FEATURE_MQTT_COMM_ENABLED,  src/protocol/mqtt)
 $(call CompLib_Map, FEATURE_OTA_ENABLED,        src/services/ota)
 $(call CompLib_Map, FEATURE_COAP_COMM_ENABLED, \
       src/protocol/coap/client \
-      src/protocol/coap/CoAPPack \
+      src/protocol/coap/CoAPPacket \
  )
 $(call CompLib_Map, FEATURE_HTTP_COMM_ENABLED,  src/protocol/http)
 $(call CompLib_Map, FEATURE_MQTT_SHADOW,        src/services/shadow)
@@ -35,17 +35,17 @@ $(call CompLib_Map, FEATURE_HTTP2_COMM_ENABLED, \
 )
 $(call CompLib_Map, FEATURE_WIFI_PROVISION_ENABLED, \
     src/protocol/coap/server \
-    src/protocol/coap/CoAPPack \
+    src/protocol/coap/CoAPPacket \
     src/services/awss \
 )
 $(call CompLib_Map, FEATURE_DEV_BIND_ENABLED, \
     src/protocol/coap/server \
-    src/protocol/coap/CoAPPack \
+    src/protocol/coap/CoAPPacket \
     src/services/dev_bind \
 )
 $(call CompLib_Map, FEATURE_ALCS_ENABLED, \
     src/protocol/coap/server \
-    src/protocol/coap/CoAPPack \
+    src/protocol/coap/CoAPPacket \
     src/protocol/alcs \
 )
 $(call CompLib_Map, FEATURE_MAL_ENABLED, \
