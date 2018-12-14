@@ -1,32 +1,8 @@
-ifneq ($(filter $(HOST_ARCH), rockchiplinux),)
+ifneq ($(filter $(HOST_ARCH), linux),)
 
-TOOLCHAIN_PATH ?=
-TOOLCHAIN_PREFIX := arm-rockchip-linux-gnueabihf-
-
-TOOLCHAIN_DEFAULT_FOLDER := usr
-
-ifneq (,$(wildcard $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/bin))
-TOOLCHAIN_PATH := $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/bin/
-endif
-
-SYSTEM_TOOLCHAIN_PATH :=
-ifneq (,$(filter $(HOST_OS),Linux32 Linux64 OSX))
-SYSTEM_GCC_PATH = $(shell which $(TOOLCHAIN_PREFIX)gcc)
-ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc,$(SYSTEM_GCC_PATH)))
-SYSTEM_TOOLCHAIN_PATH := $(subst $(TOOLCHAIN_PREFIX)gcc,,$(SYSTEM_GCC_PATH))
-endif
-else #Linux32 Linux64 OSX
-$(error unsupport OS $(HOST_OS))
-endif #Linux32 Linux64 OSX
-
-ifeq (,$(TOOLCHAIN_PATH))
-ifneq (,$(SYSTEM_TOOLCHAIN_PATH))
 TOOLCHAIN_PATH :=
-else
-$(error can not find compiler toolchain, please install gcc-arm-linux-gnueabihf toolchain first)
-endif #SYSTEM_TOOLCHAIN_PATH
-endif #TOOLCHAIN_PATH
 
+PATH    := $(PATH):/bin:/usr/bin:/usr/local/bin
 CC      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gcc
 CXX     := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)g++
 AS      := $(CC)
@@ -34,6 +10,7 @@ AR      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ar
 LD      := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)ld
 OPTIONS_IN_FILE_OPTION    := @
 
+export PATH
 ADD_COMPILER_SPECIFIC_STANDARD_CFLAGS   = $(1) $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Werror)
 ADD_COMPILER_SPECIFIC_STANDARD_CXXFLAGS = $(1) $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Werror)
 ADD_COMPILER_SPECIFIC_STANDARD_ADMFLAGS = $(1)
@@ -82,11 +59,11 @@ CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs -u _printf_float
 # Chip specific flags for GCC
 
 CPU_CFLAGS     :=
-CPU_CXXFLAGS   :=
-CPU_ASMFLAGS   :=
-CPU_LDFLAGS    :=
-CLIB_LDFLAGS_NANO       +=
-CLIB_LDFLAGS_NANO_FLOAT +=
+CPU_CXXFLAGS   := 
+CPU_ASMFLAGS   := 
+CPU_LDFLAGS    := 
+CLIB_LDFLAGS_NANO       += 
+CLIB_LDFLAGS_NANO_FLOAT += 
 
 # $(1) is map file, $(2) is CSV output file
 COMPILER_SPECIFIC_MAPFILE_TO_CSV = $(PYTHON) $(MAPFILE_PARSER) $(1) > $(2)
@@ -96,16 +73,16 @@ MAPFILE_PARSER            :=$(SCRIPTS_PATH)/map_parse_gcc.py
 # $(1) is map file, $(2) is CSV output file
 COMPILER_SPECIFIC_MAPFILE_DISPLAY_SUMMARY = $(PYTHON) $(MAPFILE_PARSER) $(1)
 
-KILL_OPENOCD_SCRIPT := $(SCRIPTS_PATH)/kill_openocd.py
+#KILL_OPENOCD_SCRIPT := $(MAKEFILES_PATH)/kill_openocd.py
 
-KILL_OPENOCD = $(PYTHON) $(KILL_OPENOCD_SCRIPT)
+#KILL_OPENOCD = $(PYTHON) $(KILL_OPENOCD_SCRIPT)
 
 OBJDUMP := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objdump$(EXECUTABLE_SUFFIX)"
 OBJCOPY := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)objcopy$(EXECUTABLE_SUFFIX)"
 STRIP   := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)strip$(EXECUTABLE_SUFFIX)"
 NM      := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)nm$(EXECUTABLE_SUFFIX)"
 
-STRIP_OUTPUT_PREFIX := -o
+STRIP_OUTPUT_PREFIX := -o 
 OBJCOPY_BIN_FLAGS   := -O binary -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes
 OBJCOPY_HEX_FLAGS   := -O ihex -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes
 
