@@ -4,7 +4,8 @@
 
 
 #include <aos/kernel.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "aos/yloop.h"
 
 #include <aos/hal/flash.h>
 #include <aos/hal/gpio.h>

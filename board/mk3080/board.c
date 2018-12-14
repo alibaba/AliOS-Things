@@ -2,9 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include "aos/yloop.h"
 #include "aos/hal/gpio.h"
 #include <aos/kernel.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #define KEY_AWSS   12
 

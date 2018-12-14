@@ -3,7 +3,7 @@
  */
 
 #include <string.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/kernel.h>
 #include <k_api.h>
 #include <uapp.h>
