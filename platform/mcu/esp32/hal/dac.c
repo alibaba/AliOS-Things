@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include "aos/hal/dac.h"
 #include "driver/dac.h"
 #include "soc/soc.h"

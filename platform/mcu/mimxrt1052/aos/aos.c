@@ -13,7 +13,7 @@
 #include "aos/hal/timer.h"
 #include "aos/hal/uart.h"
 #include "network/hal/base.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "board.h"
 #include "fsl_gpio.h"

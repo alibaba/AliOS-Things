@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include <k_api.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "aos/hal/timer.h"
 #include "network/hal/base.h"

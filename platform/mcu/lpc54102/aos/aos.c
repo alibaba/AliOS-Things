@@ -11,15 +11,14 @@
 #include "aos/hal/i2c.h"
 #include "aos/hal/gpio.h"
 #include "aos/hal/spi.h"
- 
-#include <aos/aos.h>
+
+#include "aos/init.h"
+#include "aos/kernel.h"
+
 #include <k_api.h>
-#include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
-#include "aos/hal/i2c.h"
 
 #include "hal/wifi.h"
 

@@ -8,8 +8,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <aos/aos.h>
 #include <arg_options.h>
+
+#include "aos/init.h"
+#include "aos/kernel.h"
+#include "aos/log.h"
 
 #ifndef CONFIG_OSAL_POSIX
 #include <k_api.h>

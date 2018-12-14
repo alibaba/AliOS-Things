@@ -50,7 +50,7 @@
 #include <stdbool.h>
 #include "stm32l4xx.h"
 #include "stm32l4xx_hal_flash.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private defines -----------------------------------------------------------*/
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))

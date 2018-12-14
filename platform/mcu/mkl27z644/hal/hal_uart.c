@@ -63,7 +63,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <errno.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_api.h>
 
 #include "aos/hal/uart.h"

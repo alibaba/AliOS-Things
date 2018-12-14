@@ -59,7 +59,7 @@
 
 #define MEM_LIBC_MALLOC                 1
 #if MEM_LIBC_MALLOC
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #define mem_clib_malloc aos_malloc
 #define mem_clib_free aos_free
 #define mem_clib_calloc(n, m) aos_zalloc( (n) * (m) )
