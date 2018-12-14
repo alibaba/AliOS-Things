@@ -6,7 +6,10 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <aos/aos.h>
+
+#include "aos/kernel.h"
+#include "aos/yloop.h"
+
 #include <hal/wifi.h>
 
 
