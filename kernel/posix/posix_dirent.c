@@ -87,4 +87,19 @@ int access(const char *filenpath, int mode)
     return aos_access(filenpath, mode);
 }
 
+int chdir(const char *path)
+{
+    return aos_chdir(path);
+}
+
+char *getcwd(char *buf, size_t size)
+{
+    return aos_getcwd(buf, size);
+}
+
+int creat(const char *path, mode_t mode)
+{
+    return open(path ,(O_CREAT|O_WRONLY|O_TRUNC));
+}
+
 #endif
