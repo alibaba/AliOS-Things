@@ -9,8 +9,9 @@
 #include <bluetooth/conn.h>
 #include <bluetooth/uuid.h>
 #include <bluetooth/gatt.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/list.h>
+#include <aos/yloop.h>
 #include <dis.h>
 #include "breeze_hal_os.h"
 

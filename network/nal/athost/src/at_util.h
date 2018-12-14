@@ -5,6 +5,8 @@
 #ifndef _AT_UTIL_H_
 #define _AT_UTIL_H_
 
+#include <stdint.h>
+
 #define MAX_ATCMD_PREFIX_LEN 40
 #define MAX_ATCMD_DOMAIN_LEN 260
 #define MAX_ATCMD_PORT_LEN   10

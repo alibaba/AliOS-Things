@@ -5,6 +5,8 @@
 #ifndef _AT_PARSER_H_
 #define _AT_PARSER_H_
 
+#include <stdbool.h>
+
 #ifdef AOS_ATCMD
 #include <atcmd_config_platform.h>
 #include <atcmd_config_module.h>
