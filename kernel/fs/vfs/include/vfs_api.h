@@ -252,6 +252,27 @@ int32_t vfs_statfs(const char *path, vfs_statfs_t *buf);
 int32_t vfs_access(const char *path, int32_t amode);
 
 /**
+ * set the pathname of the current working directory
+ *
+ * @param path The path to set.
+ *
+ * @return  0 on success, negative error code on failure.
+ *
+ */
+int vfs_chdir(const char *path);
+
+/**
+ * get the pathname of the current working directory.
+ *
+ * @param buf  The buffer to save the current working directory.
+ * @param size The size of buf.
+ *
+ * @return  NULL if error occured, buf if succeed.
+ *
+ */
+char *vfs_getcwd(char *buf, size_t size);
+
+/**
  * @brief Get file descriptor offset
  *
  * @return the vfs file descriptor offset
