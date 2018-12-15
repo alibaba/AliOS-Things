@@ -77,11 +77,6 @@ static kstat_t buf_queue_send_sxr(kbuf_queue_t *queue, void *msg, size_t msg_siz
 
     uint8_t  cur_cpu_num;
 
-    /* this is only needed when system zero interrupt feature is enabled */
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-    soc_intrpt_guard();
-#endif
-
     RHINO_CRITICAL_ENTER();
 
     if (queue->blk_obj.obj_type != RHINO_BUF_QUEUE_OBJ_TYPE) {
