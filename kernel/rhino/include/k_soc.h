@@ -20,10 +20,6 @@ lr_timer_t soc_lr_hw_cnt_get(void);
 #define LR_COUNT_GET() 0u
 #endif /* RHINO_CONFIG_TASK_SCHED_STATS */
 
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-void soc_intrpt_guard(void);
-#endif
-
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void);
 #endif

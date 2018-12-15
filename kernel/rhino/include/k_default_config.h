@@ -175,10 +175,6 @@
 #endif
 
 /* kernel intrpt conf */
-#ifndef RHINO_CONFIG_INTRPT_GUARD
-#define RHINO_CONFIG_INTRPT_GUARD            0
-#endif
-
 /* kernel stack ovf check */
 #ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
@@ -228,11 +224,6 @@
 
 #ifndef RHINO_CONFIG_TASK_SCHED_STATS
 #define RHINO_CONFIG_TASK_SCHED_STATS        0
-#endif
-
-/* kernel trace conf */
-#ifndef RHINO_CONFIG_TRACE
-#define RHINO_CONFIG_TRACE                   0
 #endif
 
 #ifndef RHINO_CONFIG_CPU_NUM
