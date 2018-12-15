@@ -13,8 +13,6 @@ config MQTT_COMM_ENABLED
     select UTILS_JSON_PARSER if !MQTT_DIRECT
     select UTILS_HTTPC if !MQTT_DIRECT
 
-    select HAL_TCP
-
     help
         Establish persistent connection with AliCloud via MQTT-based protocol
 

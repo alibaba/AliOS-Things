@@ -119,7 +119,9 @@ static int connect_ssl(utils_network_pt pNetwork)
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
         /* utils_memory_free((void *)pNetwork->handle); */
+#ifdef UTILS_EVENT
         iotx_event_post(IOTX_CONN_CLOUD_FAIL);
+#endif
         return -1;
     }
 }

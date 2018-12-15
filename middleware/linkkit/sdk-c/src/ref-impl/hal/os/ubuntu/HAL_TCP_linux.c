@@ -1,4 +1,3 @@
-#if defined(HAL_TCP)
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
@@ -246,6 +245,3 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     /* It will get error code on next calling */
     return (0 != len_recv) ? len_recv : err_code;
 }
-
-#endif  /* #if defined(HAL_TCP) */
-
