@@ -26,19 +26,6 @@ lr_timer_t soc_lr_hw_cnt_get(void)
 }
 #endif /* RHINO_CONFIG_HW_COUNT */
 
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-void soc_intrpt_guard(void)
-{
-}
-#endif
-
-#if (RHINO_CONFIG_INTRPT_STACK_REMAIN_GET > 0)
-size_t soc_intrpt_stack_remain_get(void)
-{
-    return 0;
-}
-#endif
-
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void)
 {
