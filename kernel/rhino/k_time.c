@@ -6,10 +6,6 @@
 
 void krhino_tick_proc(void)
 {
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-    soc_intrpt_guard();
-#endif
-
 #if (RHINO_CONFIG_USER_HOOK > 0)
     krhino_tick_hook();
 #endif
