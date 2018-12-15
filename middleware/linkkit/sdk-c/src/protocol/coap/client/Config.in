@@ -2,6 +2,7 @@
 config COAP_COMM_ENABLED
     bool "FEATURE_COAP_COMM_ENABLED"
     default n
+    select COAP_PACKET_ENABLED
     select UTILS_LITE_CJSON
     select UTILS_JSON_PARSER
     select UTILS_HTTPC

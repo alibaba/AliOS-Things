@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#if defined (MQTT_COMM_ENABLED)
 #include <stdio.h>
 #include <string.h>
 #include "iot_export.h"
@@ -169,4 +170,5 @@ int awss_stop_report_reset()
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }
+#endif
 #endif
