@@ -33,9 +33,6 @@
 #ifndef RHINO_CONFIG_MM_TLF
 #define RHINO_CONFIG_MM_TLF                  1
 #endif
-#ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
-#define RHINO_CONFIG_MM_MAXMSIZEBIT          17
-#endif
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_INFO
 #define RHINO_CONFIG_TASK_INFO               1
@@ -97,10 +94,6 @@
 #ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
 #endif
-#ifndef RHINO_CONFIG_INTRPT_GUARD
-#define RHINO_CONFIG_INTRPT_GUARD            0
-#endif
-
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         0
 #define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
 /* kernel dyn alloc conf */
@@ -108,9 +101,6 @@
 #define RHINO_CONFIG_KOBJ_DYN_ALLOC          1
 #endif
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-#ifndef RHINO_CONFIG_K_DYN_QUEUE_MSG
-#define RHINO_CONFIG_K_DYN_QUEUE_MSG         30
-#endif
 #ifndef RHINO_CONFIG_K_DYN_TASK_STACK
 #define RHINO_CONFIG_K_DYN_TASK_STACK        64
 #endif
@@ -133,22 +123,8 @@
 #ifndef RHINO_CONFIG_SYSTEM_STATS
 #define RHINO_CONFIG_SYSTEM_STATS            1
 #endif
-#ifndef RHINO_CONFIG_CPU_USAGE_STATS
-#define RHINO_CONFIG_CPU_USAGE_STATS         0
-#endif
-#ifndef RHINO_CONFIG_CPU_USAGE_TASK_PRI
-#define RHINO_CONFIG_CPU_USAGE_TASK_PRI      (RHINO_CONFIG_PRI_MAX - 2)
-#endif
 #ifndef RHINO_CONFIG_TASK_SCHED_STATS
 #define RHINO_CONFIG_TASK_SCHED_STATS        0
-#endif
-#ifndef RHINO_CONFIG_CPU_USAGE_TASK_STACK
-#define RHINO_CONFIG_CPU_USAGE_TASK_STACK    256
-#endif
-
-/* kernel trace conf */
-#ifndef RHINO_CONFIG_TRACE
-#define RHINO_CONFIG_TRACE                   0
 #endif
 
 #ifndef RHINO_CONFIG_CPU_NUM
