@@ -9,8 +9,3 @@ config HAL_CRYPTO
 config HAL_UDP
     bool
     default n
-
-config HAL_TCP
-    bool
-    default n
-
