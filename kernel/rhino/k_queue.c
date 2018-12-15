@@ -188,11 +188,6 @@ static kstat_t msg_send(kqueue_t *p_q, void *p_void, uint8_t opt_wake_all)
 
     NULL_PARA_CHK(p_q);
 
-    /* this is only needed when system zero interrupt feature is enabled */
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-    soc_intrpt_guard();
-#endif
-
     RHINO_CRITICAL_ENTER();
 
     if (p_q->blk_obj.obj_type != RHINO_QUEUE_OBJ_TYPE) {

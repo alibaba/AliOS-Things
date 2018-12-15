@@ -265,15 +265,11 @@ osStatus osThreadYield (void)
 */
 osStatus osThreadSetPriority (osThreadId thread_id, osPriority priority)
 {
-#if (RHINO_CONFIG_TASK_PRI_CHG > 0)
     if (RHINO_SUCCESS == task_pri_change((ktask_t *)thread_id, makeRhinoPriority(priority))) {
         return osOK;
     } else {
         return osErrorOS;
     }
-#else
-    return osErrorOS;
-#endif
 }
 
 /**

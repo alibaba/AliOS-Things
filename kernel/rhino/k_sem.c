@@ -161,11 +161,6 @@ static kstat_t sem_give(ksem_t *sem, uint8_t opt_wake_all)
     uint8_t  cur_cpu_num;
     klist_t *blk_list_head;
 
-    /* this is only needed when system zero interrupt feature is enabled */
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-    soc_intrpt_guard();
-#endif
-
     RHINO_CRITICAL_ENTER();
 
     if (sem->blk_obj.obj_type != RHINO_SEM_OBJ_TYPE) {

@@ -256,11 +256,6 @@ static kstat_t event_set(kevent_t *event, uint32_t flags, uint8_t opt)
     uint8_t   status;
     uint32_t  cur_event_flags;
 
-    /* this is only needed when system zero interrupt feature is enabled */
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-    soc_intrpt_guard();
-#endif
-
     status = RHINO_FALSE;
 
     RHINO_CRITICAL_ENTER();
