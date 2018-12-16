@@ -19,5 +19,5 @@ if aos_global_config.get('sal', 1) == 1:
     module = aos_global_config.get('module', 'wifi.mk3060')
     if module == 'wifi.mk3060':
         aos_global_config.set('module', 'wifi.mk3060')
-linux_only_targets="blink helloworld tls udataapp yts"
+linux_only_targets="blink helloworld modbus_demo tls udataapp yts"
 windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"
