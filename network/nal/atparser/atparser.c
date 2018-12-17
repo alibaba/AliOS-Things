@@ -7,6 +7,8 @@
 #include <stdint.h>
 
 #include <aos/aos.h>
+#include "aos/hal/uart.h"
+
 #include "atparser.h"
 #include "atparser_internal.h"
 
