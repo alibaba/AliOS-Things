@@ -5,13 +5,11 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include <stdint.h>
-
 #define RHINO_TASK_STACK_OVF_MAGIC   0xdeadbeafu     /* 32 bit or 64 bit stack overflow magic value */
 #define RHINO_INTRPT_STACK_OVF_MAGIC 0xdeaddeadu     /* 32 bit or 64 bit stack overflow magic value */
 #define RHINO_MM_CORRUPT_DYE         0xFEFEFEFE
 #define RHINO_MM_FREE_DYE            0xABABABAB
-#define RHINO_INLINE                 static inline /* inline keyword, it may change under different compilers */
+#define RHINO_INLINE                 static __inline /* inline keyword, it may change under different compilers */
 
 typedef char     name_t;
 typedef uint32_t sem_count_t;
