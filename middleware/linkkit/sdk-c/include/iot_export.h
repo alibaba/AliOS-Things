@@ -263,7 +263,7 @@ DLL_IOT_API int IOT_Ioctl(int option, void *data);
 #include "iot_export_http2_stream.h"
 #endif
 
-#if defined(MQTT_COMM_ENABLED)
+#if defined(MQTT_COMM_ENABLED) || defined(MAL_ENABLED)
 #include "iot_export_mqtt.h"
 #endif
 
