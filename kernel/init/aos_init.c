@@ -5,9 +5,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <aos/aos.h>
-#include <aos/kernel.h>
-#include <hal/wifi.h>
+
+#include "aos/init.h"
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "hal/wifi.h"
 
 #include <network/network.h>
 #ifdef WITH_LWIP_TFTP
@@ -15,12 +17,12 @@
 #include "lwip/apps/tftp.h"
 #endif /* WITH_LWIP_TFTP */
 
-extern int vfs_init(void);
-extern int vfs_device_init(void);
-extern int aos_kv_init(void);
+extern int  vfs_init(void);
+extern int  vfs_device_init(void);
+extern int  aos_kv_init(void);
 extern void ota_service_init(void);
 extern void dumpsys_cli_init(void);
-extern int application_start(int argc, char **argv);
+extern int  application_start(int argc, char **argv);
 //extern void aos_components_init(void);
 
 #ifdef WITH_SAL
