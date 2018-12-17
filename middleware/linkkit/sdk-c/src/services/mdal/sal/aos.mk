@@ -16,15 +16,15 @@ GLOBAL_INCLUDES += ./                  \
                    ./include
 
 ifeq (wifi.gt202,$(module))
-$(NAME)_COMPONENTS += nal.sal-hal.wifi.gt202
+$(NAME)_COMPONENTS += drivers.sal.wifi.gt202
 else ifeq (wifi.mk3060,$(module))
-$(NAME)_COMPONENTS += nal.sal-hal.wifi.mk3060
+$(NAME)_COMPONENTS += drivers.sal.wifi.mk3060
 else ifeq (wifi.bk7231,$(module))
-$(NAME)_COMPONENTS += nal.sal-hal.wifi.bk7231
+$(NAME)_COMPONENTS += drivers.sal.wifi.bk7231
 else ifeq (gprs.sim800,$(module))
-$(NAME)_COMPONENTS += nal.sal-hal.gprs.sim800
+$(NAME)_COMPONENTS += drivers.sal.gprs.sim800
 else ifeq (wifi.esp8266,$(module))
-$(NAME)_COMPONENTS += nal.sal-hal.wifi.esp8266
+$(NAME)_COMPONENTS += drivers.sal.wifi.esp8266
 else ifeq (wifi.athost,$(module))
-$(NAME)_COMPONENTS += nal.sal-hal.wifi.athost
+$(NAME)_COMPONENTS += drivers.sal.wifi.athost
 endif
