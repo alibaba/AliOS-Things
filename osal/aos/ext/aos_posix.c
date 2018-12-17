@@ -13,7 +13,7 @@
 
 #undef WITH_LWIP
 #undef WITH_SAL
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <poll.h>
 
 void aos_reboot(void)

@@ -10,7 +10,7 @@
 #include <freertos/task.h>
 #include <freertos/semphr.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #define ms2tick(ms) (((ms)+portTICK_PERIOD_MS-1)/portTICK_PERIOD_MS)
 
