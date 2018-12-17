@@ -18,7 +18,7 @@ ifeq ($(shell uname -o), Msys)
 	CURRENT_TIME = $(shell ${DATE} +%Y%m%d.%H%M)
 endif
 
-#CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.0.1
+#CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.3.4
 
 CONFIG_SYSINFO_OS_VERSION := $(call get-os-version)
 
