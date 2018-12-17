@@ -33,8 +33,9 @@
 #include <pthread.h>
 #include <sys/reboot.h>
 #else
-#include <aos/aos.h>
-#include <aos/yloop.h>
+#include "aos/kernel.h"
+#include "aos/kv.h"
+#include "aos/yloop.h"
 
 #endif
 
