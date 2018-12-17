@@ -4,6 +4,9 @@
     ], 
     "atsame54-xpro": [
         "atsame54.json"
+    ],
+    "saml21_iot_sk": [
+        "atsaml21.json"
     ], 
     "b_l475e": [
         "stm32_stlink.json"
