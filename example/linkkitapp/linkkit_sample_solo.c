@@ -284,7 +284,7 @@ static int user_property_get_event_handler(const int devid, const char *request,
 
     *response = cJSON_PrintUnformatted(response_root);
     if (*response == NULL) {
-        EXAMPLE_TRACE("No Enough Memory");
+        EXAMPLE_TRACE("cJSON_PrintUnformatted Error");
         cJSON_Delete(response_root);
         return -1;
     }
