@@ -12,7 +12,7 @@
 #endif
 
 #include <stdlib.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 
 /**
