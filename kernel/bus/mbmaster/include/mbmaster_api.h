@@ -13,7 +13,7 @@ extern "C" {
 #include <string.h>
 
 #include <k_api.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "mbmaster_default_config.h"
 #include "../adu/adu.h"
