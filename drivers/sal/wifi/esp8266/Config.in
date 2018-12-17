@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_DEVICE_SAL_ESP8266
+    bool "device_sal_esp8266"
+    default n
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_COMP_DEVICE_SAL_ESP8266
+# Configurations for comp device_sal_esp8266
+endif
