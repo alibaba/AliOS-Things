@@ -27,7 +27,7 @@ int HAL_MDAL_MAL_ICA_Init()
 }
 
 int HAL_MDAL_MAL_ICA_InputCb(const char *prefix, const char *postfix, int maxlen,
-                  oob_cb cb, void *arg)
+                             at_recv_cb cb, void *arg)
 {
     at_register_callback(prefix, postfix, maxlen, cb, arg);
     return 0;
