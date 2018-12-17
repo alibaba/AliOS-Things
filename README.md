@@ -6,6 +6,7 @@ EN | [中文](./README-zh.md)
 
 AliOS Things is Alibaba's IoT version of AliOS Family, it was announced in [The Computing Conference 2017](https://yunqi.aliyun.com) in Hangzhou by Alibaba Cloud, and open sourced in 20<sup>th</sup>, October, 2017 at github:https://github.com/alibaba/AliOS-Things.
 
+
 ## Architecture Overview
 
 AliOS Things supports multiple architectures, including ARM, C-Sky, MIPS, rl78, rx600 and xtensa, AliOS Things also supports a large number of [boards](./board/README.md).
