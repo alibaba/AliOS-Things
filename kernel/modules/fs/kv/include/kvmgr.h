@@ -24,6 +24,10 @@ extern "C"
 #define KV_PTN    CONFIG_AOS_KV_PTN
 #endif
 
+#ifdef CONFIG_AOS_KV_DEBUG
+#define KV_DBG_ENABLE 1
+#endif
+
 /**
  * @brief init the kv module.
  *

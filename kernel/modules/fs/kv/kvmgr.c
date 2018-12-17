@@ -794,6 +794,8 @@ int aos_kv_get(const char *key, void *buffer, int *buffer_len)
 
 /* CLI Support */
 #ifdef CONFIG_AOS_CLI
+
+#ifdef KV_DBG_ENABLE
 static int __item_print_cb(kv_item_t *item, const char *key)
 {
     char *p_key = NULL;
@@ -819,13 +821,18 @@ static int __item_print_cb(kv_item_t *item, const char *key)
 
     return RES_CONT;
 }
+#endif
 
 static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[1] : "";
-    int i, ret = 0;
+    int ret = 0;
     char *buffer = NULL;
-    int len = BLK_SIZE;
+    int len = ITEM_MAX_LEN;
+
+#ifdef KV_DBG_ENABLE
+    int i = 0;
+#endif
 
     if (strcmp(rtype, "set") == 0) {
         if (argc != 4) {
@@ -865,17 +872,26 @@ static void handle_kv_cmd(char *pwbuf, int blen, int argc, char **argv)
         if (ret != 0) {
             aos_cli_printf("cli kv del failed\r\n");
         }
+#ifdef KV_DBG_ENABLE
     } else if (strcmp(rtype, "list") == 0) {
         for (i = 0; i < BLK_NUMS; i++) {
             kv_item_traverse(__item_print_cb, i, NULL);
         }
+#endif
+    } else {
+        aos_cli_printf("\"kv %s\" not support!\r\n", rtype);
     }
+
     return;
 }
 
 static struct cli_command ncmd = {
     "kv",
+#ifdef KV_DBG_ENABLE
     "kv [set key value | get key | del key | list]",
+#else
+    "kv [set key value | get key | del key]",
+#endif
     handle_kv_cmd
 };
 #endif
