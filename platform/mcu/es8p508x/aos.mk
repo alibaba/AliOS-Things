@@ -13,6 +13,8 @@ GLOBAL_INCLUDES += drivers/        \
                    drivers/library/Include \
                    drivers/cmsis
 
+$(NAME)_SOURCES += hal/hw.c
+
 # The library is built by Keil4 (source file is under driver directory)
 $(NAME)_PREBUILT_LIBRARY := drivers/ES8P508x.a
 
