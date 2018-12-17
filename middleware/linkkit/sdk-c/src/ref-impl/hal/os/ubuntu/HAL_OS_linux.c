@@ -127,25 +127,6 @@ uint64_t HAL_UptimeMs(void)
 
     return time_ms;
 }
-
-char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
-{
-    struct timeval tv;
-    struct tm      tm;
-    int str_len    = 0;
-
-    if (buf == NULL || len < 28) {
-        return NULL;
-    }
-    gettimeofday(&tv, NULL);
-    localtime_r(&tv.tv_sec, &tm);
-    strftime(buf, 28, "%m-%d %H:%M:%S", &tm);
-    str_len = strlen(buf);
-    if (str_len + 3 < len) {
-        snprintf(buf + str_len, len, ".%3.3d", (int)(tv.tv_usec) / 1000);
-    }
-    return buf;
-}
 #endif
 
 void HAL_SleepMs(_IN_ uint32_t ms)
