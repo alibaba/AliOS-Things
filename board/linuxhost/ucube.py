@@ -4,7 +4,6 @@ component = aos_board_component('board_linuxhost', 'linux', src)
 
 # Define the default component testcase set for this board
 testcases = Split('''
-    test/testcase/aosapi/api_test
     test/testcase/basic_test
     test/testcase/framework/alink_test
     test/testcase/middleware/uagent/uota_test
