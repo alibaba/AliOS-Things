@@ -11,7 +11,6 @@ testcases = Split('''
     test/testcase/framework/mqtt_test 
     test/testcase/network/netmgr_test 
     test/testcase/framework/wifi_hal_test 
-    test/testcase/kernel/deviceIO_test 
     test/testcase/kernel/modules/fatfs_test
     test/testcase/kernel/modules/kv_test 
     test/testcase/kernel/rhino_test 
