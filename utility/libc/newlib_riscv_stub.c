@@ -8,7 +8,7 @@
 #include <sys/time.h>
 #include <stdarg.h>
 #include <k_api.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "vfs_conf.h"
 #include "network/network.h"
