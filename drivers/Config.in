@@ -1,3 +1,4 @@
 ## --- Generated Automatically ---
 source "drivers/sensor/Config.in"
+source "drivers/sal/Config.in"
 ## --- End ---

@@ -1,0 +1,10 @@
+menuconfig AOS_COMP_DEVICE_SAL_BK7231
+    bool "device_sal_bk7231"
+    default n
+    select AOS_COMP_ATPARSER if @CONDITION@
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_COMP_DEVICE_SAL_BK7231
+# Configurations for comp device_sal_bk7231
+endif
