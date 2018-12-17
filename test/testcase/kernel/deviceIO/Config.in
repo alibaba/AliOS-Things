@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_DEVICEIO_TEST
-    bool "deviceIO_test"
-    default n
-    help
-
-if AOS_COMP_DEVICEIO_TEST
-# Configurations for comp deviceIO_test
-endif
