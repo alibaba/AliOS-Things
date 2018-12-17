@@ -5,7 +5,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <aos/aos.h>
+
+#include "log_impl.h"
+#include "aos/kernel.h"
+#include "aos/log.h"
 #ifdef CONFIG_AOS_CLI
 #include <aos/cli.h>
 #endif // CONFIG_AOS_CLI

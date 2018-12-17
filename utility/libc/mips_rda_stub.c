@@ -7,7 +7,7 @@
 #include <sys/unistd.h>
 #include <sys/time.h>
 #include <k_api.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 
 

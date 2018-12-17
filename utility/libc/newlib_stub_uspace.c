@@ -7,7 +7,7 @@
 #include <sys/unistd.h>
 #include <stdarg.h>
 #include <k_api.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <aos/hal/uart.h>
 
 #include <u_mm.h>
