@@ -142,7 +142,7 @@
 #endif
 
 #ifndef RHINO_SCHED_NONE_PREEMPT
-#define RHINO_SCHED_NONE_PREEMPT             1
+#define RHINO_SCHED_NONE_PREEMPT             0
 #endif
 
 #define RHINO_CONFIG_BITMAP_HW               1
