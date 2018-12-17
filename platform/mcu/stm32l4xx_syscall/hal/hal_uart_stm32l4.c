@@ -9,6 +9,7 @@
 #include "stm32l4xx.h"
 #include "stm32l4xx_hal.h"
 #include "hal_uart_stm32l4.h"
+#include <aos/hal/uart.h>
 
 #ifdef HAL_UART_MODULE_ENABLED
 
