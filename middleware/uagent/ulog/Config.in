@@ -1,0 +1,7 @@
+config AOS_COMP_ULOG
+    bool "ulog"
+    default y
+    
+config AOS_COMP_ULOG_ASYNC
+    bool "ulog_async"
+    default n
