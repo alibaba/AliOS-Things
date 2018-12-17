@@ -10,6 +10,17 @@
 #include <atcmd_config_module.h>
 #endif
 
+#ifndef bool
+#define bool unsigned char
+#endif
+
+#ifndef true
+#define true 1
+#endif
+#ifndef false
+#define false 0
+#endif
+
 typedef struct {
     char *reply_prefix;
     char *reply_success_postfix;

@@ -5,19 +5,6 @@
 #ifndef _ATPARSER_INTERNAL_H_
 #define _ATPARSER_INTERNAL_H_
 
-#include "aos/hal/uart.h"
-
-#ifndef bool
-#define bool unsigned char
-#endif
-
-#ifndef true
-#define true 1
-#endif
-#ifndef false
-#define false 0
-#endif
-
 #define OOB_MAX 5
 
 typedef struct oob_s
