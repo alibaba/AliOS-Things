@@ -396,7 +396,7 @@ class dependency_process_impl(process):
 
         testcase_file = os.path.join(auto_component_dir,'testcase_register.c')
         source_codes = "/*\n * warning: testcase collection code is auto generate, please don't change!!!\n */\n\n"
-        source_codes += "#include <aos/aos.h>\n\n"
+        source_codes += "#include \"aos/kernel.h\"\n\n"
 
         for function_name in test_function:
             source_codes +=  "extern void %s(void);\n"%(function_name)
