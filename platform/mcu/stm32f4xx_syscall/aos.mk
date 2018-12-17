@@ -5,7 +5,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx_syscall
 
-$(NAME)_COMPONENTS += arch_armv7m
+$(NAME)_COMPONENTS += arch_armv7m-svc
 $(NAME)_COMPONENTS += newlib_stub rhino vfs
 
 GLOBAL_DEFINES += USE_HAL_DRIVER

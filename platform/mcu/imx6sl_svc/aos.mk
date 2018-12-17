@@ -9,7 +9,7 @@ HOST_OPENOCD := imx6sx
 # Host architecture is ARM Cortex A9
 HOST_ARCH := Cortex-A9
 
-$(NAME)_COMPONENTS += arch_armv7a
+$(NAME)_COMPONENTS += arch_armv7a-svc
 $(NAME)_COMPONENTS += newlib_stub rhino vfs
 
 GLOBAL_INCLUDES += aos                                      \
