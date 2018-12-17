@@ -5,6 +5,8 @@
  *      Author: petera
  */
 
+#include <stdint.h>
+
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
 
