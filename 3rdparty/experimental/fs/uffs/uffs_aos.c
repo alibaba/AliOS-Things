@@ -3,7 +3,7 @@
  */
 #include "uffs_port.h"
 #include "uffs/uffs_os.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <stdio.h>
 #include <stdlib.h>
 

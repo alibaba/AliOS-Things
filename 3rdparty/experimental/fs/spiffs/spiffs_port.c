@@ -8,6 +8,8 @@
 #include "spiffs_nucleus.h"
 
 #include "aos/hal/flash.h"
+
+#include "aos/errno.h"
 #include "aos/vfs.h"
 
 static const char *spiffs_mnt_path = "/spiffs";
