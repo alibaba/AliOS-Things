@@ -6,13 +6,6 @@
 #include "k_config.h"
 #include "lib_config.h"
 
-#if defined (__CC_ARM) && defined(__MICROLIB)
-void __aeabi_assert(const char *expr, const char *file, int line)
-{
-    while (1);
-}
-#endif
-
 void SystemTick_Config(void);
 static void UARTInit(void);
 static void LEDInit(void);
@@ -20,9 +13,9 @@ static void KeyInit(void);
 
 void board_init(void)
 {
-    SystemClockConfig();                
-    DeviceClockAllEnable();             
-    SystemTick_Config();               
+    SystemClockConfig();
+    DeviceClockAllEnable();
+    SystemTick_Config();
 
     UARTInit();
     LEDInit();
