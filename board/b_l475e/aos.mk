@@ -53,5 +53,5 @@ EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
 
 # Define default component testcase set
 ifneq (, $(findstring yts, $(BUILD_STRING)))
-TEST_COMPONENTS += basic_test api_test wifi_hal_test rhino_test kv_test yloop_test cjson_test
+TEST_COMPONENTS += basic_test osal_test wifi_hal_test rhino_test kv_test yloop_test cjson_test
 endif
