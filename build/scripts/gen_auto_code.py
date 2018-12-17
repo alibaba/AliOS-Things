@@ -34,7 +34,7 @@ def process_component_test(source_directory):
     code_list = []
 
     source_codes = "/*\n * warning: testcase collection code is auto generate, please don't change!!!\n */\n\n"
-    source_codes += "#include <aos/aos.h>\n\n"
+    source_codes += "#include \"aos/kernel.h\"\n\n"
 
     components = re.findall(r"COMPONENTS\s+\:\=\s+.+\n", config_mk_str)[0]
     for name in components.split(" "):
@@ -88,7 +88,7 @@ def process_component_init(init_dir):
 
     component_init_src = "component_init.c"
 
-    init_codes = "/*\n * warning: component init code, don't change!!!\n */\n\n#include <aos/aos.h>\n\nvoid aos_components_gen_init(void) {\n"
+    init_codes = "/*\n * warning: component init code, don't change!!!\n */\n\n#include \"aos/kernel.h\"\n\nvoid aos_components_gen_init(void) {\n"
 
     # find all head file through config.mk 
     for root, dirs, files in  chain.from_iterable(os.walk(path.strip()) for path in \
