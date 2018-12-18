@@ -18,7 +18,7 @@ else ifeq ($(COMPILER),iar)
 include $(MAKEFILES_PATH)/toolchain/aos_toolchain_iar.mk
 endif
 
-.PHONY: display_map_summary build_done  
+.PHONY: display_map_summary build_done
 
 ##################################
 # Filenames
@@ -36,6 +36,7 @@ MAP_OUTPUT_FILE           :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.map)
 # out/helloworld@xx/binary/helloworld@xx.map
 MAP_CSV_OUTPUT_FILE       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_map.csv)
 # out/helloworld@xx/binary/helloworld@xx_map.csv
+BIN_OUTPUT_FILE_TMP       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.tmptmp.bin)
 
 ifeq ($(PING_PONG_OTA),1)
 LINK_OUTPUT_FILE_XIP2     :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.xip2$(LINK_OUTPUT_SUFFIX))
@@ -159,7 +160,7 @@ $(eval $(1)_LIB_OBJS := $(addprefix $(strip $(OUTPUT_DIR)/Modules/$(call GET_BAR
 
 $(LIBS_DIR)/$(1).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_C_OPTS:=$(subst $(COMMA),$$(COMMA), $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $(COMPILER_UNI_CFLAGS) $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES)))
-	$(eval C_OPTS_IAR := $(subst =\",="\",$($(1)_C_OPTS)) ) 
+	$(eval C_OPTS_IAR := $(subst =\",="\",$($(1)_C_OPTS)) )
 	$(eval C_OPTS_IAR := $(subst \" ,\"" ,$(C_OPTS_IAR) ) )
 	$(eval C_OPTS_IAR := $(filter-out -I% --cpu=% --endian% --dlib_config%,$(C_OPTS_IAR)) )
 	$(eval C_OPTS_KEIL := $(subst -I.,-I../../../../.,$($(1)_C_OPTS)) )
@@ -177,7 +178,7 @@ $(LIBS_DIR)/$(1).as_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_S_OPTS:=$(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES))
 	$(eval S_OPTS_KEIL := $(subst -I.,-I../../../../., $($(1)_S_OPTS) ) )
 	$(eval S_OPTS_IAR := $(filter-out --cpu Cortex-M4, $($(1)_S_OPTS) ) )
-	$(eval S_OPTS_FILE := $($(1)_S_OPTS) )    
+	$(eval S_OPTS_FILE := $($(1)_S_OPTS) )
 	$(if $(IDE_KEIL_FLAG),$(eval S_OPTS_FILE:=$(S_OPTS_KEIL)),)
 	$(if $(IDE_IAR_FLAG),$(eval S_OPTS_FILE:=$(S_OPTS_IAR)),)
 	$$(file >$$@, $(S_OPTS_FILE) )
@@ -302,7 +303,7 @@ $(LDS_FILE_DIR):
 	$(QUIET)$(call MKDIR, $(dir $@))
 
 LINK_OPTS := $(AOS_SDK_LINK_SCRIPT_CMD) $(call COMPILER_SPECIFIC_LINK_MAP,$(MAP_OUTPUT_FILE))  $(call COMPILER_SPECIFIC_LINK_FILES, $(AOS_SDK_LINK_FILES) $(filter %.a,$^) $(LINK_LIBS)) $(AOS_SDK_LDFLAGS)
-	
+
 # FIXME GCC Whole archive not ready in all platform
 $(LINK_OPTS_FILE): $(OUTPUT_DIR)/config.mk $(LDS_FILES)
 ifeq ($(COMPILER),armcc)
@@ -351,9 +352,10 @@ PROJ_GEN_DIR_IAR   := projects/IAR/$(CLEANED_BUILD_STRING)
 PROJ_GEN_DIR_KEIL   := projects/Keil/$(CLEANED_BUILD_STRING)
 
 # Bin file target - uses objcopy to convert the stripped elf into a binary file
-$(BIN_OUTPUT_FILE): $(STRIPPED_LINK_OUTPUT_FILE)
-	$(QUIET)$(ECHO) Making $(notdir $@)
-	$(QUIET)$(OBJCOPY) $(OBJCOPY_BIN_FLAGS) $< $(OBJCOPY_OUTPUT_PREFIX)$@ 
+$(BIN_OUTPUT_FILE_TMP): $(STRIPPED_LINK_OUTPUT_FILE)
+	$(ECHO) Making $(notdir $(BIN_OUTPUT_FILE))
+	$(QUIET)$(RM) $(BIN_OUTPUT_FILE)
+	$(QUIET)$(OBJCOPY) $(OBJCOPY_BIN_FLAGS) $< $(OBJCOPY_OUTPUT_PREFIX)$(BIN_OUTPUT_FILE)
 ifeq ($(IDE),iar)
 	echo copy iar opt files..
 	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR_IAR)/iar_project/opts)
@@ -362,15 +364,15 @@ else ifeq ($(IDE),keil)
 	echo copy keil opt files..
 	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR_KEIL)/keil_project/opts)
 	$(QUIET)cp -rf $(OUTPUT_DIR)/libraries/*_opts $(PROJ_GEN_DIR_KEIL)/keil_project/opts
-endif	
-	
+endif
+
 ifeq ($(PING_PONG_OTA),1)
 $(STRIPPED_LINK_OUTPUT_FILE_XIP2): $(LINK_OUTPUT_FILE_XIP2)
 	$(QUIET)$(STRIP) $(STRIP_OUTPUT_PREFIX)$@ $(STRIPFLAGS) $<
 
 $(BIN_OUTPUT_FILE_XIP2): $(STRIPPED_LINK_OUTPUT_FILE_XIP2)
 	$(QUIET)$(ECHO) Making $(notdir $@)
-	$(QUIET)$(OBJCOPY) $(OBJCOPY_BIN_FLAGS) $< $(OBJCOPY_OUTPUT_PREFIX)$@ 
+	$(QUIET)$(OBJCOPY) $(OBJCOPY_BIN_FLAGS) $< $(OBJCOPY_OUTPUT_PREFIX)$@
 endif
 
 $(HEX_OUTPUT_FILE): $(STRIPPED_LINK_OUTPUT_FILE)
@@ -404,7 +406,7 @@ ifeq ($(PING_PONG_OTA),1)
 $(BIN_OUTPUT_FILE_XIP2): $(BIN_OUTPUT_FILE)
 build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_XIP2) $(HEX_OUTPUT_FILE) display_map_summary
 else
-build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE) $(HEX_OUTPUT_FILE) display_map_summary
+build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_TMP) $(HEX_OUTPUT_FILE) display_map_summary
 endif
 
 $(EXTRA_POST_BUILD_TARGETS): build_done
