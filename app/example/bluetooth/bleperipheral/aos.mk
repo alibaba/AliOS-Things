@@ -9,7 +9,7 @@ $(NAME)_SOURCES     := main.c
 ble = 1
 en_bt_smp = 1
 
-$(NAME)_COMPONENTS  += bt yloop cli bt_profile
+$(NAME)_COMPONENTS  += bluetooth.bt_host yloop cli bluetooth.bt_host.profile
 GLOBAL_DEFINES      += AOS_NO_WIFI
 
 GLOBAL_INCLUDES += ../
