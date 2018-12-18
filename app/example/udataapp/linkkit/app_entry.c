@@ -15,8 +15,8 @@
 #include "linkkit_export.h"
 #include "iot_export_linkkit.h"
 
-#include "sensor.h"
-#include "aos/udata.h"
+#include "udata/hal/sensor.h"
+#include "udata/udata.h"
 
 #include "app_entry.h"
 
