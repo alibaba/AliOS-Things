@@ -5,7 +5,7 @@
 #ifndef ERRNO_MAPPING_H
 #define ERRNO_MAPPING_H
 
-#include <errno.h>
+#include "aos/errno.h"
 
 #define ERRNO_MAPPING(ret)                           \
     do{                                              \
