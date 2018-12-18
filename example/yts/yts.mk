@@ -5,6 +5,8 @@ $(NAME)_COMPONENTS := testcase rhino.test log vfs yloop hal
 
 $(NAME)_CFLAGS += -Wall -Werror -Wno-unused-variable
 
+GLOBAL_DEFINES += DELETE_HFILOP_CODE
+
 ifneq (,$(findstring linux, $(BUILD_STRING)))
 $(NAME)_COMPONENTS += protocols.net netmgr modules.fs.fatfs framework.common
 

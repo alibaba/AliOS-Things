@@ -7,7 +7,9 @@
 #include "hal/wifi.h"
 #include "lwip/ip4_addr.h"
 #include "lwip/inet.h"
+#ifndef DELETE_HFILOP_CODE
 #include "ota_hal_plat.h"
+#endif
 
 typedef enum {
     SCAN_NORMAL,
