@@ -209,8 +209,8 @@ static int decrypt_ssid_passwd(
     p_bssid = ie;
     ie += ETH_ALEN; /* eating bssid len */
 
-    aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0], os_get_conn_encrypt_type(),
-                       2); /* aes128 cfb */
+    aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0],
+            1, os_get_conn_encrypt_type(), 0, (const char *)aes_random); /*aes128 cfb*/
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
         awss_debug("registrar(passwd invalid!");
         return -1;

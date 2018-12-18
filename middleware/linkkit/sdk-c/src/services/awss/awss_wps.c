@@ -152,7 +152,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         memset(zc_pre_ssid, 0, sizeof(zconfig_data->android_pre_ssid));
         memset(zc_android_ssid, 0, sizeof(zconfig_data->android_ssid));
         memset(zc_android_bssid, 0, sizeof(zconfig_data->android_bssid));
-        awss_debug("wps crc check error: recv 0x%x != 0x%x\r\n", crc, cal_crc);
+        /*awss_debug("wps crc check error: recv 0x%x != 0x%x\r\n", crc, cal_crc);*/
         awss_event_post(AWSS_CS_ERR);
         /*
          * use zconfig_checksum_v3() because
@@ -204,7 +204,8 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
             decode_chinese(tmp_passwd, passwd_len, passwd_cipher, &passwd_cipher_len, 7);
             passwd_len = passwd_cipher_len;
             memset(tmp_passwd, 0, ZC_MAX_PASSWD_LEN);
-            aes_decrypt_string((char *)passwd_cipher, (char *)tmp_passwd, passwd_len, os_get_encrypt_type(), 0);
+            aes_decrypt_string((char *)passwd_cipher, (char *)tmp_passwd, passwd_len,
+                    1, os_get_encrypt_type(), 0, NULL);
             os_free(passwd_cipher);
             if (is_utf8((const char *)tmp_passwd, passwd_len) == 0) {
                 /* memset(zconfig_data, 0, sizeof(*zconfig_data)); */

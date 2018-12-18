@@ -358,7 +358,8 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         decode_chinese(pbuf, passwd_len, tmp, &passwd_cipher_len, 6);
         passwd_len = passwd_cipher_len;
         memset(zc_passwd, 0, ZC_MAX_PASSWD_LEN);
-        aes_decrypt_string((char *)tmp, (char *)zc_passwd, passwd_len, os_get_encrypt_type(), 0);
+        aes_decrypt_string((char *)tmp, (char *)zc_passwd, passwd_len,
+                1, os_get_encrypt_type(), 0, NULL);
         if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
             awss_trace("passwd err\r\n");
             memset(zconfig_data, 0, sizeof(*zconfig_data));

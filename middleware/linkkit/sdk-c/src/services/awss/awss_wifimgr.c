@@ -403,7 +403,8 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
             if (str_len < (PLATFORM_MAX_PASSWD_LEN * 2) - 1) {
                 char encoded[PLATFORM_MAX_PASSWD_LEN * 2 + 1] = {0};
                 memcpy(encoded, str, str_len);
-                aes_decrypt_string(encoded, passwd, str_len, os_get_conn_encrypt_type(), 1); /* 64bytes=2x32bytes */
+                aes_decrypt_string(encoded, passwd, str_len,
+                        0, os_get_conn_encrypt_type(), 1, (const char *)aes_random);
             } else {
                 HAL_Snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
                 success = 0;
