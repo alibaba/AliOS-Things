@@ -555,6 +555,12 @@ $(PROJECT_GEN): $(SCRIPTS_PATH)/keil.py $(MAKEFILES_PATH)/aos_target_config.mk $
 	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_PY_FILE) ,Projects = [)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_COMPOENT_PY ))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,keil_device = "$(strip $(foreach comp,$(PROCESSED_COMPONENTS),$(if $($(comp)_KEIL_DEVICE),$($(comp)_KEIL_DEVICE),)))")
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_cflags = "$(strip $(AOS_SDK_CFLAGS))")
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_ldflags = "$(strip $(AOS_SDK_LDFLAGS))")
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_includes = "$(strip $(AOS_SDK_INCLUDES))")
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_defines = "$(strip $(AOS_SDK_DEFINES))")
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,host_arch = "$(strip $(HOST_ARCH))")
 	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/keil_project)
 	python build/scripts/keil.py $(CLEANED_BUILD_STRING)
 	$(QUIET)echo ----------- keil project has generated in $(PROJ_GEN_DIR)/keil_project ----------- 
