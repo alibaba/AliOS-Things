@@ -37,8 +37,6 @@
 /* ------------------- mutex --------------------*/
 #define K_MUTEX_BASE (K_TIME_END + 1)
 
-#define SYS_KRHINO_MUTEX_CREATE     (K_MUTEX_BASE + 0)
-#define SYS_KRHINO_MUTEX_DEL        (K_MUTEX_BASE + 1)
 #define SYS_KRHINO_MUTEX_DYN_CREATE (K_MUTEX_BASE + 2)
 #define SYS_KRHINO_MUTEX_DYN_DEL    (K_MUTEX_BASE + 3)
 #define SYS_KRHINO_MUTEX_LOCK       (K_MUTEX_BASE + 4)
@@ -49,8 +47,6 @@
 /* ------------------ semphore -------------------*/
 #define K_SEM_BASE (K_MUTEXT_END + 1)
 
-#define SYS_KRHINO_SEM_CREATE     (K_SEM_BASE + 0)
-#define SYS_KRHINO_SEM_DEL        (K_SEM_BASE + 1)
 #define SYS_KRHINO_SEM_DYN_CREATE (K_SEM_BASE + 2)
 #define SYS_KRHINO_SEM_DYN_DEL    (K_SEM_BASE + 3)
 #define SYS_KRHINO_SEM_TAKE       (K_SEM_BASE + 4)
@@ -61,8 +57,6 @@
 /* -------------------- queue --------------------*/
 #define K_QUEUE_BASE (K_SEM_END + 1)
 
-#define SYS_KRHINO_QUEUE_CREATE     (K_QUEUE_BASE + 0)
-#define SYS_KRHINO_QUEUE_DEL        (K_QUEUE_BASE + 1)
 #define SYS_KRHINO_QUEUE_DYN_CREATE (K_QUEUE_BASE + 2)
 #define SYS_KRHINO_QUEUE_DYN_DEL    (K_QUEUE_BASE + 3)
 #define SYS_KRHINO_QUEUE_BACK_SEND  (K_QUEUE_BASE + 4)
@@ -75,9 +69,6 @@
 /* ------------------ buf queue -------------------*/
 #define K_BUF_QUEUE_BASE (K_QUEUE_END + 1)
 
-#define SYS_KRHINO_BUF_QUEUE_CREATE         (K_BUF_QUEUE_BASE + 0)
-#define SYS_KRHINO_FIX_BUF_QUEUE_CREATE     (K_BUF_QUEUE_BASE + 1)
-#define SYS_KRHINO_BUF_QUEUE_DEL            (K_BUF_QUEUE_BASE + 2)
 #define SYS_KRHINO_BUF_QUEUE_DYN_CREATE     (K_BUF_QUEUE_BASE + 3)
 #define SYS_KRHINO_FIX_BUF_QUEUE_DYN_CREATE (K_BUF_QUEUE_BASE + 4)
 #define SYS_KRHINO_BUF_QUEUE_DYN_DEL        (K_BUF_QUEUE_BASE + 5)
@@ -257,7 +248,11 @@
 #define SYS_LWIP_EVENTFD     (LWIP_BASE + 22)
 #define SYS_LWIP_TRY_WAKEUP  (LWIP_BASE + 23)
 
-#define LWIP_END (SYS_LWIP_TRY_WAKEUP)
+#define SYS_LWIP_GETHOSTBYNAME_R    (LWIP_BASE + 24)
+#define SYS_LWIP_FREEADDRINFO       (LWIP_BASE + 25)
+#define SYS_LWIP_GETADDRINOF        (LWIP_BASE + 26)
+
+#define LWIP_END (SYS_LWIP_GETADDRINOF)
 
 /* ------------------- end -------------------*/
 #define MAX_SYSCALL_NO (LWIP_END)

@@ -33,10 +33,6 @@ tick_t sys_krhino_ms_to_ticks_stub(void *arg);
 sys_time_t sys_krhino_ticks_to_ms_stub(void *arg);
 
 /* ------------------ mutex ------------------ */
-kstat_t sys_krhino_mutex_create_stub(void *arg);
-
-kstat_t sys_krhino_mutex_del_stub(void *arg);
-
 kstat_t sys_krhino_mutex_dyn_create_stub(void *arg);
 
 kstat_t sys_krhino_mutex_dyn_del_stub(void *arg);
@@ -46,10 +42,6 @@ kstat_t sys_krhino_mutex_lock_stub(void *arg);
 kstat_t sys_krhino_mutex_unlock_stub(void *arg);
 
 /* ------------------ semphore ------------------ */
-kstat_t sys_krhino_sem_create_stub(void *arg);
-
-kstat_t sys_krhino_sem_del_stub(void *arg);
-
 kstat_t sys_krhino_sem_dyn_create_stub(void *arg);
 
 kstat_t sys_krhino_sem_dyn_del_stub(void *arg);
@@ -59,10 +51,6 @@ kstat_t sys_krhino_sem_give_stub(void *arg);
 kstat_t sys_krhino_sem_take_stub(void *arg);
 
 /* -------------------- queue --------------------*/
-kstat_t sys_krhino_queue_create_stub(void *arg);
-
-kstat_t sys_krhino_queue_del_stub(void *arg);
-
 kstat_t sys_krhino_queue_dyn_create_stub(void *arg);
 
 kstat_t sys_krhino_queue_dyn_del_stub(void *arg);
@@ -76,12 +64,6 @@ kstat_t sys_krhino_queue_recv_stub(void *arg);
 kstat_t sys_krhino_queue_flush_stub(void *arg);
 
 /* ------------------ buf queue -------------------*/
-kstat_t sys_krhino_buf_queue_create_stub(void *arg);
-
-kstat_t sys_krhino_fix_buf_queue_create_stub(void *arg);
-
-kstat_t sys_krhino_buf_queue_del_stub(void *arg);
-
 kstat_t sys_krhino_buf_queue_dyn_create_stub(void *arg);
 
 kstat_t sys_krhino_fix_buf_queue_dyn_create_stub(void *arg);
