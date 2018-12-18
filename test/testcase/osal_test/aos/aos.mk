@@ -1,4 +1,4 @@
-NAME := osal_test
+NAME := osal_aos_test
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION    := 0.0.1
@@ -17,4 +17,3 @@ $(NAME)_SOURCES += aos_timer_test.c
 $(NAME)_SOURCES += aos_workqueue_test.c
 
 $(NAME)_CFLAGS += -Wall -Werror
-
