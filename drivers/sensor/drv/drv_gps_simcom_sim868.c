@@ -12,6 +12,9 @@
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif
+#ifdef AOS_LOOP
+#include <aos/yloop.h>
+#endif
 
 
 #define GPS_EV_UDATA                        (0x40)

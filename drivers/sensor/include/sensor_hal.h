@@ -4,8 +4,10 @@
 
 #ifndef SENSOR_HAL_H
 #define SENSOR_HAL_H
-
-#include "sensor.h"
+#include <aos/init.h>
+#include <aos/errno.h>
+#include "aos/log.h"
+#include "udata/hal/sensor.h"
 
 #define SENSOR_DRV_ADD(func) \
 int __sensor_##func##_func__(void){ \
@@ -14,9 +16,11 @@ int __sensor_##func##_func__(void){ \
 
 typedef int (*SENSOR_INIT_FUN)(void);
 
-extern int sensor_hal_init(void);
-extern int sensor_create_obj(sensor_obj_t *sensor);
+int sensor_hal_init(void);
+int sensor_create_obj(sensor_obj_t *sensor);
 
-
+#ifdef UDATA_MODBUS
+int modbus_init(void);
+#endif
 
 #endif /* SENSOR_HAL_H */
