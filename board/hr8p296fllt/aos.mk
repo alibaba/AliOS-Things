@@ -26,3 +26,6 @@ GLOBAL_INCLUDES += .    \
                    config/   \
                    drivers/  \
                    startup/  \
+
+# Keil project support
+$(NAME)_KEIL_DEVICE = HR8P296FLLT
