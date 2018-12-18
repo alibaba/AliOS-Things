@@ -36,6 +36,7 @@ MAP_OUTPUT_FILE           :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.map)
 # out/helloworld@xx/binary/helloworld@xx.map
 MAP_CSV_OUTPUT_FILE       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_map.csv)
 # out/helloworld@xx/binary/helloworld@xx_map.csv
+BIN_OUTPUT_FILE_TMP       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.tmptmp.bin)
 
 OPENOCD_LOG_FILE          ?= $(OUTPUT_DIR)/openocd_log.txt
 
@@ -314,11 +315,10 @@ LINK_OUTPUT_FILE_OPTIONS = $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPT
 endef
 
 $(LINK_OUTPUT_FILE): $(LINK_LIBS) $(AOS_SDK_2BOOT_LINK_SCRIPT) $(LINK_OPTS_FILE) $(LINT_DEPENDENCY) | $(EXTRA_PRE_LINK_TARGETS)
-	$(ECHO) Making $(notdir $@)
-	$(ECHO) $(LINKER) $(LINK_OPTS) $(COMPILER_SPECIFIC_STDOUT_REDIRECT) -o $@
-	$(LINKER) $(LINK_OPTS) $(COMPILER_SPECIFIC_STDOUT_REDIRECT) -o $@
-	$(ECHO_BLANK_LINE)
-	$(call COMPILER_SPECIFIC_MAPFILE_TO_CSV,$(MAP_OUTPUT_FILE),$(MAP_CSV_OUTPUT_FILE))
+	$(QUIET)$(ECHO) Making $(notdir $@)
+	$(QUIET)$(LINKER) $(LINK_OPTS) $(COMPILER_SPECIFIC_STDOUT_REDIRECT) -o $@
+	$(QUIET)$(ECHO_BLANK_LINE)
+	$(QUIET)$(call COMPILER_SPECIFIC_MAPFILE_TO_CSV,$(MAP_OUTPUT_FILE),$(MAP_CSV_OUTPUT_FILE))
 
 # Stripped elf file target - Strips the full elf file and outputs to a new .stripped.elf file
 $(STRIPPED_LINK_OUTPUT_FILE): $(LINK_OUTPUT_FILE)
@@ -329,9 +329,10 @@ else
 endif
 
 # Bin file target - uses objcopy to convert the stripped elf into a binary file
-$(BIN_OUTPUT_FILE): $(STRIPPED_LINK_OUTPUT_FILE)
-	$(QUIET)$(ECHO) Making $(notdir $@)
-	$(QUIET)$(OBJCOPY) $(OBJCOPY_BIN_FLAGS) $< $(OBJCOPY_OUTPUT_PREFIX)$@
+$(BIN_OUTPUT_FILE_TMP): $(STRIPPED_LINK_OUTPUT_FILE)
+	$(ECHO) Making $(notdir $(BIN_OUTPUT_FILE))
+	$(QUIET)$(RM) $(BIN_OUTPUT_FILE)
+	$(QUIET)$(OBJCOPY) $(OBJCOPY_BIN_FLAGS) $< $(OBJCOPY_OUTPUT_PREFIX)$(BIN_OUTPUT_FILE)
 ifeq ($(IDE),iar)
 	PROJ_GEN_DIR   := projects/IAR/$(CLEANED_BUILD_STRING)
 	echo copy iar opt files..
@@ -363,11 +364,11 @@ display_map_summary: $(LINK_OUTPUT_FILE) $(AOS_SDK_CONVERTER_OUTPUT_FILE) $(AOS_
 
 # Main Target - Ensures the required parts get built
 # $(info $(BIN_OUTPUT_FILE))
-build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE) $(HEX_OUTPUT_FILE) display_map_summary
+build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_TMP) $(HEX_OUTPUT_FILE) display_map_summary
 
 APP_BIN_OUTPUT_FILE := $(BIN_OUTPUT_FILE:.2boot.bin=.bin)
 
 $(EXTRA_POST_BUILD_TARGETS_2BOOT): build_done
 
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS_2BOOT),$(EXTRA_POST_BUILD_TARGETS_2BOOT),build_done)
-	$(ECHO) " "
+
