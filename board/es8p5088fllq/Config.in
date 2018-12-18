@@ -1,7 +1,7 @@
-menuconfig AOS_BOARD_AABOARD_DEMO
-    bool "aaboard_demo"
-    select AOS_MCU_AAMCU_DEMO
+menuconfig AOS_BOARD_ES8P5088FLLQ
+    bool "es8p5088fllq"
+    select AOS_MCU_ES8P508X
     help
 
-if AOS_BOARD_AABOARD_DEMO
-# Configurations for board aaboard_demo
+if AOS_BOARD_ES8P5088FLLQ
+# Configurations for board es8p5088fllq
