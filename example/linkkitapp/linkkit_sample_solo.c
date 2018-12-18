@@ -577,7 +577,8 @@ int linkkit_main(void *paras)
 	PRODUCT_SECRET=hfilop_layer_get_product_secret();
 	DEVICE_NAME=hfilop_layer_get_device_name();
 	DEVICE_SECRET=hfilop_layer_get_device_secret();
-	HFILOP_PRINTF("PRODUCT_KEY=%s PRODUCT_SECRET=%s DEVICE_NAME=%s DEVICE_SECRET=%s\r\n",PRODUCT_KEY,PRODUCT_SECRET,DEVICE_NAME,DEVICE_SECRET);
+	/* HFILOP_PRINTF("PRODUCT_KEY=%s PRODUCT_SECRET=%s DEVICE_NAME=%s DEVICE_SECRET=%s\r\n",PRODUCT_KEY,PRODUCT_SECRET,DEVICE_NAME,DEVICE_SECRET); */
+    HFILOP_PRINTF("PRODUCT_KEY=%s DEVICE_NAME=%s \r\n",PRODUCT_KEY,DEVICE_NAME);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
