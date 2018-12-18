@@ -6,13 +6,14 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "aos/kernel.h"
+#include <ctype.h>
 #include <aos/kernel.h>
+#include <aos/cli.h>
 
 #include <misc/printk.h>
 #include <aos/hal/gpio.h>
 
-#include "bt_mesh_profile.h"
+#include "tmall_model.h"
 
 // use LED1 on nrf52832 pca10040 dev board for demo
 #define LED1_PIN 17
@@ -100,9 +101,64 @@ static void app_delayed_action(void *arg)
     blemesh_tmall_profile();
 }
 
+#ifdef CONFIG_AOS_CLI
+static void handle_set_mac(char *pwbuf, int blen, int argc, char **argv);
+
+static struct cli_command tmall_cmds[] = {
+    {
+        .name     = "set_mac",
+        .help     = "set_mac <MAC address in xx:xx:xx:xx:xx:xx format>",
+        .function = handle_set_mac
+    },
+    /* Add more commands here per necessary. */
+};
+
+static uint8_t char2u8(char *c)
+{
+    uint8_t ret = 0;
+
+    if (isdigit(*c)) {
+        ret = *c - '0';
+    } else if (*c >= 'A' && *c <= 'F') {
+        ret = *c - 'A' + 10;
+    } else if (*c >= 'a' && *c <= 'f') {
+        ret = *c - 'a' + 10;
+    }
+
+    return ret;
+}
+
+static void handle_set_mac(char *pwbuf, int blen, int argc, char **argv)
+{
+    char *p;
+    uint8_t mac[6] = {0}, i;
+
+    if (argc < 2) {
+        printf("Invalid argument.\r\n");
+        printf("Usage: %s\r\n", tmall_cmds[0].help);
+        return;
+    }
+
+    for (p = argv[1], i = 0; *p != '\0'; p += 3, i += 3) {
+        if (!isxdigit(*p) || !isxdigit(*(p+1))) {
+            printf("Invalid format, MAC not set!!!\r\n");
+            return;
+        }
+
+        mac[i / 3] = ((char2u8(p) & 0x0f) << 4) | (char2u8(p+1) & 0x0f);
+    }
+
+    ais_set_mac(mac);
+}
+#endif
+
 int application_start(int argc, char **argv)
 {
+#ifdef CONFIG_AOS_CLI
+    aos_cli_register_commands(&tmall_cmds[0], sizeof(tmall_cmds) / sizeof(tmall_cmds[0]));
+#endif
     aos_post_delayed_action(1000, app_delayed_action, NULL);
+    ais_ota_bt_storage_init();
     aos_loop_run();
     return 0;
 }
