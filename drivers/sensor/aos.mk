@@ -173,7 +173,7 @@ GLOBAL_DEFINES += UDATA_MODBUS
 endif
 
 ifeq ($(AOS_SENSOR_GPS_SIMCOM_SIM868),y)
-$(NAME)_COMPONENTS += network.nal.atparser network.nal.sal-hal.gprs.sim800
+$(NAME)_COMPONENTS += network.nal.atparser drivers.sal.gprs.sim800
 $(NAME)_SOURCES += drv/drv_gps_simcom_sim868.c
 GLOBAL_DEFINES += AOS_SENSOR_GPS_SIMCON_SIM868
 endif

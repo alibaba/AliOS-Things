@@ -1,6 +1,6 @@
 #ifndef SENSOR_CALIBRATE_H
 #define SENSOR_CALIBRATE_H
-#include "sensor.h"
+#include "udata/hal/sensor.h"
 
 
 int sensor_calibrate_entry(sensor_tag_e tag,int sensor_index,int axis, void *buf);

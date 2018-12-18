@@ -14,9 +14,10 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
+#include "aos/log.h"
 #include "aos/kernel.h"
 #include "network/hal/base.h"
-#include "sensor.h"
+#include "udata/hal/sensor.h"
 
 #define GPS_RCV_DATA_LEN        (256)
 #define GPS_CONV_DATA_LEN       (64)

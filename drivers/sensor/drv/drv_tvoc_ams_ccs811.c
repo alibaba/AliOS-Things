@@ -8,14 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aos/kernel.h"
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
-#include <hal/base.h>
-#include "common.h"
-#include "sensor.h"
+#include "network/hal/base.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
+
 
 #define CCS811_I2C_ADDR1            (0x5A)          /* When ADDR is high the 7bit I2C address is 0x5B */
 #define CCS811_I2C_ADDR_TRANS(n)    ((n)<<1)  
@@ -97,7 +93,7 @@ static int drv_voc_ams_ccs811_validate_id(i2c_dev_t* drv, uint8_t id_value)
 }
 
 
-static int  drv_voc_ams_ccs811_soft_reset(i2c_dev_t* drv)
+UNUSED static int  drv_voc_ams_ccs811_soft_reset(i2c_dev_t* drv)
 {
     int     ret = 0;
     uint8_t data[4];
@@ -186,7 +182,7 @@ static int drv_voc_ams_ccs811_set_default_config(i2c_dev_t* drv)
 
 }
 
-static int drv_voc_ams_ccs811_set_work_mode(i2c_dev_t* drv,uint8_t mode)
+UNUSED static int drv_voc_ams_ccs811_set_work_mode(i2c_dev_t* drv,uint8_t mode)
 {
     uint8_t ret = 0;
     uint8_t value = 0;
@@ -366,3 +362,4 @@ int drv_voc_ams_ccs811_init(void)
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_voc_ams_ccs811_init);

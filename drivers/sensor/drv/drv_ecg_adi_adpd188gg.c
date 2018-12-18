@@ -8,14 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aos/kernel.h"
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
-#include <hal/base.h>
-#include "common.h"
-#include "sensor.h"
+#include "network/hal/base.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
+
 
 
 #define ADPD188GG_I2C_ADDR1               (0x64)
@@ -607,3 +603,4 @@ int drv_ecg_adi_adpd188gg_init(void){
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_ecg_adi_adpd188gg_init);

@@ -57,7 +57,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
 #define BMP380_BIT(x)                       ((uint8_t)(x))
