@@ -9,7 +9,7 @@
 #include "lvgl/lvgl.h"
 #include <k_api.h>
 #include "sensor_display.h"
-#include "sensor.h"
+#include "udata/hal/sensor.h"
 #include "st7789.h"
 #include "soc_init.h"
 

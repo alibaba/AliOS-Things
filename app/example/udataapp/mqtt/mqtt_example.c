@@ -20,8 +20,8 @@
 #include <aos/cli.h>
 
 
-#include "sensor.h"
-#include "aos/udata.h"
+#include "udata/hal/sensor.h"
+#include "udata/udata.h"
 #include "service_data_to_cloud.h"
 
 
@@ -33,9 +33,9 @@
 #define MQTT_APP_PARAMS_LEN  (128)
 
 
-#define PRODUCT_KEY   "b1GadfPW0om"
-#define DEVICE_NAME   "DwMNwfxBhWwUD9oDuJnj"
-#define DEVICE_SECRET "sywXYWM0WY0HVHU1I3dfhU2JS3Hkcpnr"
+#define PRODUCT_KEY   "a1Aeb21CMq5"
+#define DEVICE_NAME   "eaSkr41w8gz8sdVOFwA9"
+#define DEVICE_SECRET "34nReP7DWHw8wNLHhNXxOnu3o5U8GXif"
 
 typedef void (*task_fun)(void *);
 

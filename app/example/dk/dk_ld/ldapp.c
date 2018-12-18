@@ -20,7 +20,7 @@
 #include <aos/cli.h>
 
 
-#include "sensor.h"
+#include "udata/hal/sensor.h"
 
 #ifdef LITTLEVGL_DISPLAY
 #include "sensor_display.h"

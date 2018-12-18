@@ -10,7 +10,7 @@
 
 #include "aos/kernel.h"
 #include <aos/yloop.h>
-#include "aos/udata.h"
+#include "udata/udata.h"
 #include "udata_queue.h"
 #include "service_mgr.h"
 
@@ -176,7 +176,7 @@ int uData_local_publish(udata_type_e type, void* pdata, uint32_t len)
 
     switch (type) {
     
-         case UDATA_SERVICE_PEDOMETER: {
+         case UDATA_SERVICE_ACC: {
              accel_data_t *acc = (accel_data_t *)pdata;
              UDATA_SHOW_UINT_3(type, (uint32_t)acc->timestamp, acc->data[0], acc->data[1], acc->data[2]);
              break;
@@ -304,20 +304,6 @@ int udata_sample(void)
 }
 
 
-static int uData_test_service_ioctl(udata_type_e type, uint32_t abs_index)
-{
-    (void)type;
-    (void)abs_index;
-    return 0;
-}
-
-static size_t uData_test_service_process(uint32_t abs_index, void *arg,
-                                                 uint32_t len)
-{
-    LOG("enter udata_std_service_process  %d\n",abs_index);
-    return DATA_SIZE;
-}
-
 int application_start(int argc, char **argv)
 {
     int ret;
@@ -340,8 +326,6 @@ int application_start(int argc, char **argv)
     mqtt_sample_start();
     aos_cli_register_command(&dtccmd);
 #endif
-
-    uData_service_cb_register(UDATA_SERVICE_HUMI,uData_test_service_process,uData_test_service_ioctl);
 
     (void)udata_sample();
 
