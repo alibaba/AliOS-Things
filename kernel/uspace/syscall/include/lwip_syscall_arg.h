@@ -163,5 +163,25 @@ typedef struct {
 } lwip_try_wakeup_syscall_arg_t;
 #endif
 
+typedef struct {
+    const char      *name;
+    struct hostent  *ret;
+    char            *buf;
+    size_t           buflen;
+    struct hostent **result;
+    int             *h_errnop;
+} lwip_gethostbyname_r_syscall_arg_t;
+
+typedef struct {
+    struct addrinfo *ai;
+} lwip_freeaddrinfo_syscall_arg_t;
+
+typedef struct {
+    const char             *nodename;
+    const char             *servname;
+    const struct addrinfo  *hints;
+    struct addrinfo       **res;
+} lwip_getaddrinfo_syscall_arg_t;
+
 #endif /* LWIP_SYSCALL_ARH_H */
 

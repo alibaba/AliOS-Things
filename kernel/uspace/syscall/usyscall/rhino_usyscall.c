@@ -122,25 +122,6 @@ sys_time_t krhino_ticks_to_ms(tick_t ticks)
 }
 
 /* ------------------ mutex ------------------ */
-kstat_t krhino_mutex_create(kmutex_t *mutex, const name_t *name)
-{
-    krhino_mutex_create_syscall_arg_t _arg;
-
-    _arg.mutex = mutex;
-    _arg.name  = name;
-
-    return (kstat_t)SYSCALL(SYS_KRHINO_MUTEX_CREATE, (void*)&_arg);
-}
-
-kstat_t krhino_mutex_del(kmutex_t *mutex)
-{
-    krhino_mutex_del_syscall_arg_t _arg;
-
-    _arg.mutex = mutex;
-
-    return (kstat_t)SYSCALL(SYS_KRHINO_MUTEX_DEL, (void*)&_arg);
-}
-
 kstat_t krhino_mutex_dyn_create(kmutex_t **mutex, const name_t *name)
 {
     krhino_mutex_dyn_create_syscall_arg_t _arg;
@@ -180,26 +161,6 @@ kstat_t krhino_mutex_unlock(kmutex_t *mutex)
 }
 
 /* ------------------ semphore ------------------ */
-kstat_t krhino_sem_create(ksem_t *sem, const name_t *name, sem_count_t count)
-{
-    krhino_sem_create_syscall_arg_t _arg;
-
-    _arg.sem   = sem;
-    _arg.name  = name;
-    _arg.count = count;
-
-    return (kstat_t)SYSCALL(SYS_KRHINO_SEM_CREATE, (void*)&_arg);
-}
-
-kstat_t krhino_sem_del(ksem_t *sem)
-{
-    krhino_sem_del_syscall_arg_t _arg;
-
-    _arg.sem = sem;
-
-    return (kstat_t)SYSCALL(SYS_KRHINO_SEM_DEL, (void*)&_arg);
-}
-
 kstat_t krhino_sem_dyn_create(ksem_t **sem, const name_t *name, sem_count_t count)
 {
     krhino_sem_dyn_create_syscall_arg_t _arg;
@@ -240,28 +201,6 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
 }
 
 /* -------------------- queue ---------------------*/
-kstat_t krhino_queue_create(kqueue_t *queue, const name_t *name,
-                            void **start, size_t msg_num)
-{
-    krhino_queue_create_syscall_arg_t _arg;
-
-    _arg.queue   = queue;
-    _arg.name    = name;
-    _arg.start   = start;
-    _arg.msg_num = msg_num;
-
-    return (kstat_t)SYSCALL(SYS_KRHINO_QUEUE_CREATE, (void*)&_arg);
-}
-
-kstat_t krhino_queue_del(kqueue_t *queue)
-{
-    krhino_queue_del_syscall_arg_t _arg;
-
-    _arg.queue = queue;
-
-    return (kstat_t)SYSCALL(SYS_KRHINO_QUEUE_DEL, (void*)&_arg);
-}
-
 kstat_t krhino_queue_dyn_create(kqueue_t **queue, const name_t *name,
                                 size_t msg_num)
 {
@@ -324,43 +263,6 @@ kstat_t krhino_queue_flush(kqueue_t *queue)
 }
 
 /* ------------------ buf queue -------------------*/
-kstat_t krhino_buf_queue_create(kbuf_queue_t *queue, const name_t *name,
-                                void *buf, size_t size, size_t max_msg)
-{
-    krhino_buf_queue_create_syscall_arg_t _arg;
-
-    _arg.queue   = queue;
-    _arg.name    = name;
-    _arg.buf     = buf;
-    _arg.size    = size;
-    _arg.max_msg = max_msg;
-
-    return (kstat_t)SYSCALL(SYS_KRHINO_BUF_QUEUE_CREATE, (void*)&_arg);
-}
-
-kstat_t krhino_fix_buf_queue_create(kbuf_queue_t *queue, const name_t *name,
-                                    void *buf, size_t msg_size, size_t msg_num)
-{
-    krhino_fix_buf_queue_create_syscall_arg_t _arg;
-
-    _arg.queue    = queue;
-    _arg.name     = name;
-    _arg.buf      = buf;
-    _arg.msg_size = msg_size;
-    _arg.msg_num  = msg_num;
-
-    return (kstat_t)SYSCALL(SYS_KRHINO_FIX_BUF_QUEUE_CREATE, (void*)&_arg);
-}
-
-kstat_t krhino_buf_queue_del(kbuf_queue_t *queue)
-{
-    krhino_buf_queue_del_syscall_arg_t _arg;
-
-    _arg.queue = queue;
-
-    return (kstat_t)SYSCALL(SYS_KRHINO_BUF_QUEUE_DEL, (void*)&_arg);
-}
-
 kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
                                     size_t size, size_t max_msg)
 {
