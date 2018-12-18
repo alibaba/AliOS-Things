@@ -5,7 +5,7 @@
 ## Directories
 
 ```sh
-osal_test # test for osal
+osal_aos_test # test for osal
 ```
 
 ## Board Hardware Resources
