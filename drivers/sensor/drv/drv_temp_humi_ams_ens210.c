@@ -8,14 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aos/kernel.h"
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
-#include <hal/base.h>
-#include "common.h"
-#include "sensor.h"
+#include "network/hal/base.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
+
 
 #define ENS210_I2C_ADDR1            (0x43)
 #define ENS210_I2C_ADDR_TRANS(n)    ((n)<<1)  
@@ -251,7 +247,7 @@ static int drv_ens210_read_temp_and_humi(i2c_dev_t* drv, int32_t *temperature, u
     return 0;
 }
 
-static int drv_ens210_update_data(i2c_dev_t* drv)
+UNUSED static int drv_ens210_update_data(i2c_dev_t* drv)
 {
     static uint32_t prev_update_tick = 0;
     uint32_t now_tick = 0;
@@ -302,7 +298,7 @@ static int drv_temp_humi_ams_ens210_validate_id(i2c_dev_t* drv, uint8_t id_value
 }
 
 
-static int  drv_temp_humi_ams_ens210_soft_reset(i2c_dev_t* drv)
+UNUSED static int  drv_temp_humi_ams_ens210_soft_reset(i2c_dev_t* drv)
 {
     int     ret = 0;
     uint8_t value, value2;
@@ -330,7 +326,7 @@ static int drv_temp_humi_ams_ens210_set_power_mode(i2c_dev_t* drv, dev_power_mod
     return 0;
 }
 
-static int drv_temp_humi_ams_ens210_set_default_config(i2c_dev_t* drv)
+UNUSED static int drv_temp_humi_ams_ens210_set_default_config(i2c_dev_t* drv)
 {
      int     ret = 0;
     uint8_t value = 0x00;  
@@ -350,12 +346,12 @@ static int drv_temp_humi_ams_ens210_set_default_config(i2c_dev_t* drv)
 
 
 
-static int  drv_temp_humi_ams_ens210_get_calib_param(i2c_dev_t* drv)
+UNUSED static int  drv_temp_humi_ams_ens210_get_calib_param(i2c_dev_t* drv)
 {
     return 0;
 }
 
-static int drv_temp_humi_ams_ens210_set_work_mode(i2c_dev_t* drv,uint8_t mode)
+UNUSED static int drv_temp_humi_ams_ens210_set_work_mode(i2c_dev_t* drv,uint8_t mode)
 {
     return 0;
 }
@@ -573,3 +569,6 @@ int drv_humi_ams_ens210_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_temp_ams_ens210_init);
+SENSOR_DRV_ADD(drv_humi_ams_ens210_init);

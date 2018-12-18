@@ -5,10 +5,11 @@
 #ifndef SENSOR_DRV_API_H
 #define SENSOR_DRV_API_H
 
-#include "aos/kernel.h"
 
+#include "aos/kernel.h"
+#include "aos/log.h"
 #include "aos/hal/i2c.h"
-#include "sensor.h"
+#include "udata/hal/sensor.h"
 #include "aos/hal/spi.h"
 
 typedef struct  _sensor_io_dev_t{

@@ -10,7 +10,6 @@
 #include "vl53l0x/vl53l0x_def.h"
 #include "vl53l0x/vl53l0x_api.h"
 #include "vl53l0x_platform.h"
-#include "sensor.h"
 #include "sensor_drv_api.h"
 
 

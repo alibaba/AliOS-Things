@@ -10,12 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aos/kernel.h"
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
-#include <hal/base.h>
-#include "common.h"
-#include "sensor.h"
+#include "network/hal/base.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
 
@@ -271,3 +266,5 @@ int drv_tvoc_sensirion_sgp30_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_tvoc_sensirion_sgp30_init);

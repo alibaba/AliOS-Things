@@ -1,6 +1,6 @@
 #ifndef SENSOR_DRV_CONF_H
 #define SENSOR_DRV_CONF_H
-
+#include "sensor_hal.h"
 typedef enum
 {
     SENSOR_CLOSE = 0, /* sensor disable */
