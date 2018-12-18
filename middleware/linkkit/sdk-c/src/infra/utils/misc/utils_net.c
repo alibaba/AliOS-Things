@@ -12,46 +12,9 @@
 #include "utils_net.h"
 #include "iotx_utils_internal.h"
 
-/*** TCP connection ***/
-int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
-{
-    return HAL_TCP_Read(pNetwork->handle, buffer, len, timeout_ms);
-}
-
-
-static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
-{
-    return HAL_TCP_Write(pNetwork->handle, buffer, len, timeout_ms);
-}
-
-static int disconnect_tcp(utils_network_pt pNetwork)
-{
-    if (pNetwork->handle == (uintptr_t)(-1)) {
-        return -1;
-    }
-
-    HAL_TCP_Destroy(pNetwork->handle);
-    pNetwork->handle = -1;
-    return 0;
-}
-
-static int connect_tcp(utils_network_pt pNetwork)
-{
-    if (NULL == pNetwork) {
-        utils_err("network is null");
-        return 1;
-    }
-
-    pNetwork->handle = HAL_TCP_Establish(pNetwork->pHostAddress, pNetwork->port);
-    if (pNetwork->handle == (uintptr_t)(-1)) {
-        return -1;
-    }
-
-    return 0;
-}
 
 /*** SSL connection ***/
-#ifdef SUPPORT_TLS
+#ifdef  SUPPORT_TLS
 static void *ssl_malloc(uint32_t size)
 {
     return LITE_malloc(size, MEM_MAGIC, "tls");
@@ -60,7 +23,9 @@ static void ssl_free(void *ptr)
 {
     LITE_free(ptr);
 }
+#endif
 
+#if  defined(SUPPORT_TLS) || defined(SUPPORT_ITLS)
 static int read_ssl(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     if (NULL == pNetwork) {
@@ -96,13 +61,28 @@ static int disconnect_ssl(utils_network_pt pNetwork)
 
 static int connect_ssl(utils_network_pt pNetwork)
 {
-    ssl_hooks_t ssl_hooks;
 
     if (NULL == pNetwork) {
         utils_err("network is null");
         return 1;
     }
 
+#if defined(SUPPORT_ITLS)
+    char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN + 3] = {0};
+
+    HAL_GetProductKey(pkps);
+    int len = strlen(pkps);
+    HAL_GetProductSecret(pkps + len + 1);
+    len += strlen(pkps + len + 1) + 2;
+
+    if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
+            pNetwork->pHostAddress,
+            pNetwork->port,
+            pkps, len))) {
+        return 0;
+    }
+#else
+    ssl_hooks_t ssl_hooks;
     memset(&ssl_hooks, 0, sizeof(ssl_hooks_t));
     ssl_hooks.malloc = ssl_malloc;
     ssl_hooks.free = ssl_free;
@@ -115,7 +95,9 @@ static int connect_ssl(utils_network_pt pNetwork)
             pNetwork->ca_crt,
             pNetwork->ca_crt_len + 1))) {
         return 0;
-    } else {
+    }
+#endif
+    else {
         /* TODO SHOLUD not remove this handle space */
         /* The space will be freed by calling disconnect_ssl() */
         /* utils_memory_free((void *)pNetwork->handle); */
@@ -125,86 +107,61 @@ static int connect_ssl(utils_network_pt pNetwork)
         return -1;
     }
 }
-#endif  /* #ifndef SUPPORT_TLS */
-
-/*** iTLS connection ***/
-#if defined(SUPPORT_ITLS)
-static int read_itls(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
+#else
+/*** TCP connection ***/
+static int read_tcp(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
-    if (NULL == pNetwork) {
-        utils_err("network is null");
-        return -1;
-    }
-
-    return HAL_SSL_Read((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
+    return HAL_TCP_Read(pNetwork->handle, buffer, len, timeout_ms);
 }
 
-static int write_itls(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
-{
-    if (NULL == pNetwork) {
-        utils_err("network is null");
-        return -1;
-    }
 
-    return HAL_SSL_Write((uintptr_t)pNetwork->handle, buffer, len, timeout_ms);
+static int write_tcp(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
+{
+    return HAL_TCP_Write(pNetwork->handle, buffer, len, timeout_ms);
 }
 
-static int disconnect_itls(utils_network_pt pNetwork)
+static int disconnect_tcp(utils_network_pt pNetwork)
 {
-    if (NULL == pNetwork) {
-        utils_err("network is null");
+    if (pNetwork->handle == (uintptr_t)(-1)) {
         return -1;
     }
 
-    HAL_SSL_Destroy((uintptr_t)pNetwork->handle);
-    pNetwork->handle = 0;
-
+    HAL_TCP_Destroy(pNetwork->handle);
+    pNetwork->handle = -1;
     return 0;
 }
 
-static int connect_itls(utils_network_pt pNetwork)
+static int connect_tcp(utils_network_pt pNetwork)
 {
     if (NULL == pNetwork) {
         utils_err("network is null");
         return 1;
     }
 
-    char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN] = {0};
-    int len = strlen(pNetwork->product_key);
-    strncpy(pkps, pNetwork->product_key, len);
-    HAL_GetProductSecret(pkps + len + 1);
-    len += strlen(pkps + len + 1) + 2;
-
-    if (0 != (pNetwork->handle = (intptr_t)HAL_SSL_Establish(
-            pNetwork->pHostAddress,
-            pNetwork->port,
-            pkps, len))) {
-        return 0;
-    } else {
-        /* TODO SHOLUD not remove this handle space */
-        /* The space will be freed by calling disconnect_ssl() */
-        /* utils_memory_free((void *)pNetwork->handle); */
+    pNetwork->handle = HAL_TCP_Establish(pNetwork->pHostAddress, pNetwork->port);
+    if (pNetwork->handle == (uintptr_t)(-1)) {
         return -1;
     }
+
+    return 0;
 }
-#endif  /* #ifndef IOTX_WITHOUT_iTLS */
+#endif  /* #ifdef SUPPORT_TLS */
 
 /****** network interface ******/
 int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     int     ret = 0;
-
-    if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
-        ret = read_tcp(pNetwork, buffer, len, timeout_ms);
-    }
-#if defined(SUPPORT_ITLS)
-    else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
-        ret = read_itls(pNetwork, buffer, len, timeout_ms);
-    }
-#endif
 #ifdef SUPPORT_TLS
-    else if (NULL != pNetwork->ca_crt && NULL == pNetwork->product_key) {
+    if (NULL != pNetwork->ca_crt) {
         ret = read_ssl(pNetwork, buffer, len, timeout_ms);
+    }
+#else
+    if (NULL == pNetwork->ca_crt) {
+#ifdef SUPPORT_ITLS
+        ret = read_ssl(pNetwork, buffer, len, timeout_ms);
+#else
+        ret = read_tcp(pNetwork, buffer, len, timeout_ms);
+#endif
     }
 #endif
     else {
@@ -218,20 +175,20 @@ int utils_net_read(utils_network_pt pNetwork, char *buffer, uint32_t len, uint32
 int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len, uint32_t timeout_ms)
 {
     int     ret = 0;
-
-    if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
-        ret = write_tcp(pNetwork, buffer, len, timeout_ms);
-    }
-#if defined(SUPPORT_ITLS)
-    else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
-        ret = write_itls(pNetwork, buffer, len, timeout_ms);
-    }
-#endif
 #ifdef SUPPORT_TLS
-    else if (NULL != pNetwork->ca_crt && NULL == pNetwork->product_key) {
+    if (NULL != pNetwork->ca_crt) {
         ret = write_ssl(pNetwork, buffer, len, timeout_ms);
     }
+#else
+    if (NULL == pNetwork->ca_crt) {
+#ifdef SUPPORT_ITLS
+        ret = write_ssl(pNetwork, buffer, len, timeout_ms);
+#else
+        ret = write_tcp(pNetwork, buffer, len, timeout_ms);
 #endif
+    }
+#endif
+
     else {
         ret = -1;
         utils_err("no method match!");
@@ -243,18 +200,17 @@ int utils_net_write(utils_network_pt pNetwork, const char *buffer, uint32_t len,
 int iotx_net_disconnect(utils_network_pt pNetwork)
 {
     int     ret = 0;
-
-    if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
-        ret = disconnect_tcp(pNetwork);
-    }
-#if defined(SUPPORT_ITLS)
-    else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
-        ret = disconnect_itls(pNetwork);
-    }
-#endif
 #ifdef SUPPORT_TLS
-    else if (NULL != pNetwork->ca_crt && NULL == pNetwork->product_key) {
+    if (NULL != pNetwork->ca_crt) {
         ret = disconnect_ssl(pNetwork);
+    }
+#else
+    if (NULL == pNetwork->ca_crt) {
+#ifdef SUPPORT_ITLS
+        ret = disconnect_ssl(pNetwork);
+#else
+        ret = disconnect_tcp(pNetwork);
+#endif
     }
 #endif
     else {
@@ -268,18 +224,17 @@ int iotx_net_disconnect(utils_network_pt pNetwork)
 int iotx_net_connect(utils_network_pt pNetwork)
 {
     int     ret = 0;
-
-    if (NULL == pNetwork->ca_crt && NULL == pNetwork->product_key) {
-        ret = connect_tcp(pNetwork);
-    }
-#if defined(SUPPORT_ITLS)
-    else if (NULL == pNetwork->ca_crt && NULL != pNetwork->product_key) {
-        ret = connect_itls(pNetwork);
-    }
-#endif
 #ifdef SUPPORT_TLS
-    else if (NULL != pNetwork->ca_crt && NULL == pNetwork->product_key) {
+    if (NULL != pNetwork->ca_crt) {
         ret = connect_ssl(pNetwork);
+    }
+#else
+    if (NULL == pNetwork->ca_crt) {
+#ifdef SUPPORT_ITLS
+        ret = connect_ssl(pNetwork);
+#else
+        ret = connect_tcp(pNetwork);
+#endif
     }
 #endif
     else {
@@ -290,7 +245,7 @@ int iotx_net_connect(utils_network_pt pNetwork)
     return ret;
 }
 
-int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt, char *product_key)
+int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, const char *ca_crt)
 {
     if (!pNetwork || !host) {
         utils_err("parameter error! pNetwork=%p, host = %p", pNetwork, host);
@@ -299,11 +254,6 @@ int iotx_net_init(utils_network_pt pNetwork, const char *host, uint16_t port, co
     pNetwork->pHostAddress = host;
     pNetwork->port = port;
     pNetwork->ca_crt = ca_crt;
-#if !defined(SUPPORT_ITLS)
-    pNetwork->product_key = NULL;
-#else
-    pNetwork->product_key = product_key;
-#endif
 
     if (NULL == ca_crt) {
         pNetwork->ca_crt_len = 0;

@@ -20,9 +20,6 @@
 
 #define MAX_HTTP2_HOST_LEN                   (128)
 
-#define IOTX_H2_SUPPORT
-
-#define IOTX_HTTP_CA_GET                iotx_ca_get()
 #define NGHTTP2_DBG                     h2_info
 
 enum { IO_NONE, WANT_READ, WANT_WRITE };
@@ -38,7 +35,7 @@ extern int httpclient_connect(httpclient_t *client);
 static int http2_nv_copy_nghttp2_nv(nghttp2_nv *nva, int start, http2_header *nva_copy, int end);
 /*static int http2_parse_host(char *url, char *host, size_t maxHostLen);*/
 
-int g_recv_timeout = 50;
+int g_recv_timeout = 10;
 
 int set_http2_recv_timeout(int timeout)
 {
@@ -473,11 +470,8 @@ static int http2_client_conn(httpclient_t *pclient, char *url, int port)
     /*http2_parse_host(url, host, sizeof(host));*/
     if (0 == pclient->net.handle) {
         /* Establish connection if no. */
-#ifdef IOTX_H2_SUPPORT
-        ret = iotx_net_init(&pclient->net, url, port, iotx_ca_get(), NULL);
-#else
-        ret = iotx_net_init(&pclient->net, url, port, NULL, NULL);
-#endif
+        ret = iotx_net_init(&pclient->net, url, port, iotx_ca_get());
+
         if (0 != ret) {
             return ret;
         }
@@ -731,7 +725,6 @@ int iotx_http2_update_window_size(http2_connection_t *conn)
 {
     int rv;
 
-    set_http2_recv_timeout(100);
     rv = nghttp2_session_recv(conn->session);
     if (rv < 0) {
         return -1;
