@@ -45,7 +45,7 @@ static const char *cal_passwd(void *key, void *random, void *passwd)
     return passwd;
 }
 
-int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc)
+int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int sec_lvl, char cbc, const char *rand)
 {
     char res = 0;
     char decrypt = 1;
@@ -58,16 +58,24 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc
         return -1;
     }
 
-    if (cbc == 0) {  /* for smartconfig */
-        memset(random, 0, sizeof(random));
+    if (cipher_hex == 0) {
+        /*
+         * mobile-ap, router, dev-ap
+         */
+        utils_str_to_hex(cipher, len, decoded, len);
+    } else {
+        /*
+         * smartconfig/wps, zconfig
+         */
         memcpy(decoded, cipher, len);
-    } else {  /* for mobile-ap, router, zconfig */
-        if (cbc == 2) { /* zconfig */
-            memcpy(decoded, cipher, len);
-        } else { /* mobile-ap, router */
-            utils_str_to_hex(cipher, len, decoded, len);
-        }
-        memcpy(random, aes_random, sizeof(random));
+    }
+
+    if (rand) {
+        /*
+         * smartconfig/wps uses zero
+         * zconfig/dev-ap/mobile-ap/router uses random
+         */
+        memcpy(random, rand, sizeof(random));
     }
 
     awss_debug("security level: %d", sec_lvl);
@@ -87,15 +95,6 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc
             memcpy(iv, random, sizeof(random));
             break;
         }
-#if 0
-        case SEC_LVL_AES128_MANU: {
-            char manu_sec[OS_MANU_SECRET_LEN + 1] = {0};
-            os_get_manufacture_secret(manu_sec);
-            cal_passwd(manu_sec, random, key);
-            memcpy(iv, random, sizeof(random));
-            break;
-        }
-#endif
         default: {
             decrypt = 0;
             awss_debug("wrong security level: %d\n", sec_lvl);
@@ -108,15 +107,19 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc
 
     if (decrypt) {
         p_aes128_t aes = os_aes128_init(key, iv, PLATFORM_AES_DECRYPTION);
-        if (cbc == 1) { /* AP */
+        if (cbc) { /* AP */
+            /*
+             * mobile-ap, dev-ap, router
+             */
             os_aes128_cbc_decrypt(aes, decoded, len / AES128_KEY_LEN / 2, plain);
         } else {  /* smartconfig */
+            /*
+             * smartconfig/wps, zconfig
+             */
             os_aes128_cfb_decrypt(aes, decoded, len, plain);
         }
         os_aes128_destroy(aes);
     }
-
-    /* awss_debug("descrypted '%s'\n", plain); */
 
     os_free(decoded);
 
