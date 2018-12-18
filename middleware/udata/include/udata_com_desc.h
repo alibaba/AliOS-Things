@@ -15,7 +15,8 @@
 #include <stdbool.h>
 
 #include <aos/kernel.h>
-#include "sensor.h"
+#include "udata/hal/sensor.h"
+#include "udata/udata.h"
 #include "aos/log.h"
 
 #define UDATA_SENSOR_ALL                (0XFFFFFFFF)
@@ -68,53 +69,15 @@ typedef int (*fn_cb)(void *pData); /* callback for calibrated algo */
 
 typedef enum
 {
-    UDATA_SERVICE_ACC = 0, /* Accelerometer */
-    UDATA_SERVICE_MAG,     /* Magnetometer */
-    UDATA_SERVICE_GYRO,    /* Gyroscope */
-    UDATA_SERVICE_ALS,     /* Ambient light sensor */
-    UDATA_SERVICE_PS,      /* Proximity */
-    UDATA_SERVICE_BARO,    /* Barometer */
-    UDATA_SERVICE_TEMP,    /* Temperature  */
-    UDATA_SERVICE_UV,      /* Ultraviolet */
-    UDATA_SERVICE_HUMI,    /* Humidity */
-    UDATA_SERVICE_NOISE,   /* Noise Loudness */
-    UDATA_SERVICE_PM25,    /* PM2.5 */
-    UDATA_SERVICE_PM1P0,   /* PM1.0 */
-    UDATA_SERVICE_PM10,    /* PM10 */
-    UDATA_SERVICE_CO2,     /* CO2Level */
-    UDATA_SERVICE_HCHO,    /* HCHO Level */
-    UDATA_SERVICE_TVOC,    /* TVOC Level */
-    UDATA_SERVICE_PH,    /* PH value */
-    UDATA_SERVICE_VWC,  /* volumetric water content value */
-    UDATA_SERVICE_EC,   /* EC value */
-    UDATA_SERVICE_SALINITY, /* SALINITY value */
-    UDATA_SERVICE_TDS,      /* Total dissolved solids */
-    UDATA_SERVICE_WINDSPD,
-    UDATA_SERVICE_WINDDIR,
-    UDATA_SERVICE_RAIN,
-    UDATA_SERVICE_HALL,    /* HALL sensor */
-    UDATA_SERVICE_HR,      /* Heart Rate sensor */
-    UDATA_SERVICE_RGB,      /* RGB sensor */
-    UDATA_SERVICE_GS,      /* Gesture sensor */
-    UDATA_SERVICE_IR,      /* IR sensor */
-    UDATA_SERVICE_PEDOMETER,
-    UDATA_SERVICE_PDR,
-    UDATA_SERVICE_VDR,
-    UDATA_SERVICE_GPS,
-    UDATA_SERVICE_RTC,
-
-    UDATA_MAX_CNT,
-} udata_type_e;
-
-typedef enum
-{
     UDATA_QUEUE_CLOSE = 0,
     UDATA_QUEUE_OPEN,
 } udata_queue_cb_status;
 
 /* the max size of the dat buf */
-#define DATA_SIZE 64
+#define MAX_DATA_SIZE 64
 #define ABS_DATA_MAX_CNT TAG_DEV_SENSOR_NUM_MAX
+#define UATA_PAYLOAD_SIZE    ((MAX_DATA_SIZE + sizeof(uint64_t) - 1) / sizeof(uint64_t))
+#define DATA_SIZE            (UATA_PAYLOAD_SIZE * sizeof(uint64_t))
 
 struct _abs_cali_cb_t
 {
@@ -139,7 +102,7 @@ struct _abs_data_pkg_t
     dev_sensor_full_info_t full_info;
 };
 typedef struct _abs_data_pkg_t abs_data_pkg_t;
-typedef size_t (*SERVICE_PROCESS_CB)(uint32_t abs_index, void *pdata,uint32_t len); 
+typedef size_t (*SERVICE_PROCESS_CB)(udata_type_e type,uint32_t abs_index, void *pdata,uint32_t len); 
 typedef int (*SERVICE_IOCTL_CB)(udata_type_e type,uint32_t abs_index);
 
 /* sensor service manager layer*/
@@ -195,7 +158,7 @@ typedef struct _udata_pkg_t
 {
     bool                             valid;
     udata_type_e                     type;
-    __attribute__((aligned(4))) char payload[DATA_SIZE];
+    uint64_t                         payload[UATA_PAYLOAD_SIZE];
 } udata_pkg_t;
 
 #endif /*UDATA_OBJ_DESC_H*/
