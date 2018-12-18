@@ -10,14 +10,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "aos/kernel.h"
-#include <vfs_conf.h>
-#include <vfs_err.h>
-#include <vfs_register.h>
-#include <hal/base.h>
-#include "common.h"
-#include "sensor.h"
+#include "network/hal/base.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
+
 #define POLYNOMIAL  0x131
 
 #define SCD30_I2C_SLAVE_ADDR                            0x61
@@ -86,9 +82,11 @@ static uint8_t SCD30_CalcCrc(uint8_t data[], uint8_t nbrOfBytes)
 }
 static float scd30_convert_to_float(uint8_t *data)
 {
+    void* addr;
     uint32_t val = (((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) |
                     ((uint32_t)data[3] << 8) | ((uint32_t)data[4]));
-    return *(float *)(&val);
+    addr = (void*)(&val);
+    return *(float *)addr;
 }
 
 static void scd30_delay_ms(uint32_t delay_time)
@@ -272,3 +270,5 @@ int drv_co2_sensirion_scd30_init(void)
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
+
+SENSOR_DRV_ADD(drv_co2_sensirion_scd30_init);

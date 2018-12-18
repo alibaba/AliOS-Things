@@ -12,7 +12,6 @@
 #include "aos/log.h"
 
 #include "network/hal/base.h"
-#include "sensor.h"
 #include "sensor_drv_api.h"
 #include "sensor_hal.h"
 

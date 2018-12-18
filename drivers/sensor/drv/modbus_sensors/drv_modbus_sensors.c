@@ -3,8 +3,7 @@
 #include <string.h>
 #include "aos/kernel.h"
 #include "network/hal/base.h"
-#include "aos/uData.h"
-#include "sensor.h"
+#include "udata/udata.h"
 #include "sensor_drv_conf.h"
 #include "mbmaster_api.h"
 #include "sensor_drv_api.h"
@@ -121,8 +120,6 @@ int modbus_sensor_read(void *buf, size_t len)
 
 static int modbus_sensor_ioctl(int cmd, unsigned long arg)
 {
-    int ret = 0;
-
     switch (cmd) {
         default:
             break;
@@ -153,11 +150,11 @@ int modbus_sensor_init(modbus_sensor_t modbus_sensor,uint8_t drv_index)
     sensor.irq_handle  =  NULL;
     sensor.drv_index   = drv_index;
     if (sensor_create_obj(&sensor)) {
-        LOG("%s create modbus sensor %d obj failed !\n", uDATA_STR, tag);
+        LOG("%s create modbus sensor %d obj failed !\n", SENSOR_STR, tag);
         return -ENODEV;
     }
     printf("yftest sensor.index=%d\n",sensor.drv_index);
-    LOG("%s modbus sensor %d init success\n", uDATA_STR, tag);
+    LOG("%s modbus sensor %d init success\n", SENSOR_STR, tag);
     return 0;
 }
 
