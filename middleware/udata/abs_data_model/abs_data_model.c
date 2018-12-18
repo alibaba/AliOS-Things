@@ -13,7 +13,6 @@
 
 #include "aos/vfs.h"
 
-#include "sensor.h"
 #include "abs_data_model.h"
 #include "service_mgr.h"
 #include "udata_queue.h"
@@ -122,7 +121,7 @@ static int abs_data_set_timer_interval(uint32_t abs_index, uint32_t inerval)
     return 0;
 }
 
-static bool abs_data_get_timer_status(void)
+bool abs_data_get_timer_status(void)
 {
     return is_timer_work;
 }

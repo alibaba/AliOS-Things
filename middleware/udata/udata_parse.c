@@ -10,7 +10,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <fcntl.h>
-#include <sensor.h>
 #include "abs_data_model.h"
 #include "service_mgr.h"
 #include "udata_queue.h"
@@ -178,18 +177,15 @@ int uData_service_num_get(uint32_t* pNum)
     
     root = cJSON_Parse(service_config_str);
     if (root == NULL || !cJSON_IsObject(root)) {
-printf("%s == %d\n",__func__,__LINE__);
         return -1;
     }
     g_uDataItem = cJSON_GetObjectItem(root,UDATA_CONFIG_DESC_NAME);
     if (g_uDataItem == NULL) {
-printf("%s == %d\n",__func__,__LINE__);
         return -1;
     }
 
     ret = cJSON_GetArraySize(g_uDataItem);
     if(ret <= 0){
-printf("%s == %d\n",__func__,__LINE__);
         return -1;
     }
     *pNum = (uint32_t)ret;

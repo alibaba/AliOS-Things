@@ -18,9 +18,15 @@ static int udata_std_service_ioctl_cb(udata_type_e type, uint32_t abs_index)
     return 0;
 }
 
-static size_t udata_std_service_process_callback(uint32_t abs_index, void *arg,
+static size_t udata_std_service_process_callback(udata_type_e type, uint32_t abs_index, void *arg,
                                                  uint32_t len)
 {
+    int ret;
+    ret = uData_install_report_pkg(type, arg, len);
+    if(unlikely(ret)){
+        return 0;
+    }
+    
     return DATA_SIZE;
 }
 
