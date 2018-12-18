@@ -60,15 +60,6 @@ typedef struct {
 
 /* ----------------- mutex ------------------- */
 typedef struct {
-    kmutex_t     *mutex;
-    const name_t *name;
-} krhino_mutex_create_syscall_arg_t;
-
-typedef struct {
-    kmutex_t *mutex;
-} krhino_mutex_del_syscall_arg_t;
-
-typedef struct {
     kmutex_t     **mutex;
     const name_t  *name;
 } krhino_mutex_dyn_create_syscall_arg_t;
@@ -87,16 +78,6 @@ typedef struct {
 } krhino_mutex_unlock_syscall_arg_t;
 
 /* ---------------- semphore ---------------- */
-typedef struct {
-    ksem_t       *sem;
-    const name_t *name;
-    sem_count_t   count;
-} krhino_sem_create_syscall_arg_t;
-
-typedef struct {
-    ksem_t *sem;
-} krhino_sem_del_syscall_arg_t;
-
 typedef struct {
     ksem_t       **sem;
     const name_t  *name;
@@ -121,17 +102,6 @@ typedef struct {
 } krhino_sem_give_all_syscall_arg_t;
 
 /* -------------------- queue ---------------------*/
-typedef struct {
-    kqueue_t      *queue;
-    const name_t  *name;
-    void         **start;
-    size_t         msg_num;
-} krhino_queue_create_syscall_arg_t;
-
-typedef struct {
-    kqueue_t *queue;
-} krhino_queue_del_syscall_arg_t;
-
 typedef struct {
     kqueue_t     **queue;
     const name_t  *name;
@@ -163,25 +133,6 @@ typedef struct {
 } krhino_queue_flush_syscall_arg_t;
 
 /* ---------------- buf queue -----------------*/
-typedef struct {
-    kbuf_queue_t *queue;
-    const char   *name;
-    void         *buf;
-    size_t        size;
-    size_t        max_msg;
-} krhino_buf_queue_create_syscall_arg_t;
-
-typedef struct {
-    kbuf_queue_t *queue;
-    const char   *name;
-    void         *buf;
-    size_t        msg_size;
-    size_t        msg_num;
-} krhino_fix_buf_queue_create_syscall_arg_t;
-
-typedef struct {
-    kbuf_queue_t *queue;
-} krhino_buf_queue_del_syscall_arg_t;
 
 typedef struct {
     kbuf_queue_t **queue;

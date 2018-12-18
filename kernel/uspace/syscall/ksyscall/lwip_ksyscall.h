@@ -49,11 +49,17 @@ int sys_lwip_ioctl_stub(void *arg);
 
 int sys_lwip_fcntl_stub(void *arg);
 
-int sys_lwip_eventfd_stub(unsigned int initval, int flags);
+int sys_lwip_eventfd_stub(void *arg);
 
 #if LWIP_PACKET
-int sys_lwip_try_wakeup_stub(int s, int rcvevent, int sendevent, int errevent);
+int sys_lwip_try_wakeup_stub(void *arg);
 #endif
+
+int sys_lwip_gethostbyname_r_stub(void *arg);
+
+void sys_lwip_freeaddrinfo_stub(void *arg);
+
+int sys_lwip_getaddrinfo_stub(void *arg);
 
 #endif /* LWIP_KSYSCALL_H */
 
