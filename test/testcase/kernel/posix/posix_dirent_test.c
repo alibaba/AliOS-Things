@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "posix_dirent.h"
 #include "k_api.h"
+#include "posix/dirent.h"
 
 #define MAX_PATH_BYTES 32
 

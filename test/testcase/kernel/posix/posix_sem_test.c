@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "pthread.h"
 #include "k_api.h"
-#include "posix_semaphore.h"
+#include "posix/pthread.h"
+#include "posix/semaphore.h"
 
 void posix_sem_case1(void);
 void posix_sem_case2(void);
