@@ -25,7 +25,7 @@
 #include "aos/kernel.h"
 #include <aos/yloop.h>
 #include "netmgr.h"
-#include "aos/uData.h"
+#include "udata/udata.h"
 
 #ifdef DATA_TO_CLOUD
 

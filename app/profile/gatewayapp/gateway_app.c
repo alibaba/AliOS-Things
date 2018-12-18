@@ -17,7 +17,7 @@
 #include "iot_export.h"
 
 #include "iot_import.h"
-#include "aos/uData.h"
+#include "udata/udata.h"
 #include "aos/hal/gpio.h"
 
 
