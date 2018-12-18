@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "pthread.h"
 #include "k_api.h"
+#include "posix/pthread.h"
 
 static pthread_mutex_t mutex;
 
