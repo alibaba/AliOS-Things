@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "pthread.h"
 #include "k_api.h"
+#include "posix/pthread.h"
 
 void posix_task_case1(void);
 void posix_task_case2(void);

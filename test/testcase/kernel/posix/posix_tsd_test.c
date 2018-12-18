@@ -3,14 +3,14 @@
  */
 
 #include "aos/kernel.h"
-#include "pthread.h"
+#include "posix/pthread.h"
 
 static pthread_t thread1;
 static pthread_t thread2;
 static pthread_t thread3;
 static pthread_t thread4;
 
-pthread_key_t key; 
+pthread_key_t key;
 pthread_key_t key1;
 pthread_key_t key2;
 
