@@ -313,7 +313,6 @@ int uData_service_unregister(udata_type_e type)
 
 static int uData_service_process(uint32_t abs_index, void *data, uint32_t len)
 {
-    int    ret      = 0;
     int    index    = 0;
     size_t size = 0;
     uint64_t time_stamp;
@@ -332,12 +331,8 @@ static int uData_service_process(uint32_t abs_index, void *data, uint32_t len)
             (!g_service_db[index]->task_flag) &&
             (g_service_db[index]->service_process_cb != NULL) &&
             (time_stamp - g_service_db[index]->time[abs_index] >= (uint64_t)(g_service_db[index]->interval[abs_index]))) {
-            size = g_service_db[index]->service_process_cb(abs_index, data, len);
+            size = g_service_db[index]->service_process_cb(g_service_db[index]->type, abs_index, data, len);
             if (size != 0) {
-                ret = uData_install_report_pkg(g_service_db[index]->type, data, size);
-                if (unlikely(ret)) {
-                    return -1;
-                }
                 uData_data_publish(g_service_db[index]->type);
             }
             g_service_db[index]->time[abs_index] = time_stamp;

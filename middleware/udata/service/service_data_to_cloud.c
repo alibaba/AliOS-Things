@@ -12,7 +12,7 @@
 #include "aos/log.h"
 #include "network/network.h"
 #include <aos/kernel.h>
-#include "aos/udata.h"
+#include "udata/udata.h"
 #include "service_mgr.h"
 #include "service_data_to_cloud.h"
 #include "udata_queue.h"
