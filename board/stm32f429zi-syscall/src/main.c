@@ -23,12 +23,14 @@ extern void board_init(void);
 
 extern void hw_start_hal(void);
 
+extern int lwip_tcpip_init(void);
 
 static void sys_init(void)
 {
     stm32_soc_init();
 
     //hw_start_hal();
+    lwip_tcpip_init();
 
     aos_run_app();
 }

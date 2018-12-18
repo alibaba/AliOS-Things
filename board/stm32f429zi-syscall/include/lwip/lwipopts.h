@@ -49,11 +49,13 @@
 #define DEFAULT_THREAD_PRIO             1
 
 /* Disable lwIP asserts */
-#define LWIP_NOASSERT			1
+#define LWIP_NOASSERT            1
 
 #define LWIP_DEBUG                      1
 #define LWIP_DEBUG_TRACE                0
 #define SOCKETS_DEBUG                   LWIP_DBG_OFF // | LWIP_DBG_MASK_LEVEL
+
+#define LWIP_DBG_TYPES_ON  (LWIP_DBG_ON)
 
 #define IP_DEBUG                        LWIP_DBG_OFF
 #define ETHARP_DEBUG                    LWIP_DBG_OFF
@@ -87,7 +89,7 @@
 #define SNMP_MSG_DEBUG                  LWIP_DBG_OFF
 #define SNMP_MIB_DEBUG                  LWIP_DBG_OFF
 #define DNS_DEBUG                       LWIP_DBG_OFF
-//#define LWIP_COMPAT_MUTEX      		1
+//#define LWIP_COMPAT_MUTEX              1
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
  * critical regions during buffer allocation, deallocation and memory
@@ -123,7 +125,7 @@
  * space. Hence do not consider these sockets for memory computation
  */
 #define TCP_MEM_SIZE     (MAX_SOCKETS_TCP * \
-							PBUF_POOL_BUFSIZE * (TCP_SND_BUF/TCP_MSS))
+                            PBUF_POOL_BUFSIZE * (TCP_SND_BUF/TCP_MSS))
 
 /* Buffer size needed for UDP: Max. number of UDP sockets * Size of pbuf
  */
@@ -195,8 +197,8 @@
  * given point in time. This number must be sum of max. TCP sockets, max. TCP
  * sockets used for listening, and max. number of UDP sockets
  */
-#define MEMP_NUM_NETCONN	(MAX_SOCKETS_TCP + \
-	MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP)
+#define MEMP_NUM_NETCONN    (MAX_SOCKETS_TCP + \
+    MAX_LISTENING_SOCKETS_TCP + MAX_SOCKETS_UDP)
 
 
 
@@ -232,11 +234,11 @@
 #define LWIP_RAW                        1
 #define LWIP_IPV6                       0
 
-/* Enable IPv4 Auto IP	*/
+/* Enable IPv4 Auto IP    */
 #ifdef CONFIG_AUTOIP
 #define LWIP_AUTOIP                     1
 #define LWIP_DHCP_AUTOIP_COOP           1
-#define LWIP_DHCP_AUTOIP_COOP_TRIES		5
+#define LWIP_DHCP_AUTOIP_COOP_TRIES        5
 #endif
 
 /*
@@ -248,7 +250,7 @@
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */
 #define LWIP_SOCKET                     1
-#define LWIP_NETIF_API			1
+#define LWIP_NETIF_API            1
 
 /**
  * LWIP_RECV_CB==1: Enable callback when a socket receives data.
@@ -258,7 +260,7 @@
  * SO_REUSE==1: Enable SO_REUSEADDR option.
  */
 #define SO_REUSE                        1
-#define SO_REUSE_RXTOALL 				1
+#define SO_REUSE_RXTOALL                 1
 
 /**
  * Enable TCP_KEEPALIVE
@@ -307,7 +309,7 @@
 /* TODO: Number of active UDP PCBs is equal to number of active UDP sockets plus
  * two. Need to find the users of these 2 PCBs
  */
-#define MEMP_NUM_UDP_PCB		(MAX_SOCKETS_UDP + 2)
+#define MEMP_NUM_UDP_PCB        (MAX_SOCKETS_UDP + 2)
 /* NOTE: some times the socket() call for SOCK_DGRAM might fail if you dont
  * have enough MEMP_NUM_UDP_PCB */
 
@@ -336,11 +338,11 @@
 /**
  * TCP_LISTEN_BACKLOG==1: Handle backlog connections.
  */
-#define TCP_LISTEN_BACKLOG		1
+#define TCP_LISTEN_BACKLOG        1
 
-#define LWIP_PROVIDE_ERRNO		1
+#define LWIP_PROVIDE_ERRNO        1
 #include <errno.h>
-#define ERRNO				1
+#define ERRNO                1
 
 //#define LWIP_SNMP 1
 
@@ -385,6 +387,8 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
   #define CHECKSUM_GEN_UDP                1
   /* CHECKSUM_GEN_TCP==1: Generate checksums in software for outgoing TCP packets.*/
   #define CHECKSUM_GEN_TCP                1
+  /* CHECKSUM_GEN_ICMP==0: To ensure generate ICMP CHECKSUM by hardware */
+  #define CHECKSUM_GEN_ICMP               0
   /* CHECKSUM_CHECK_IP==1: Check checksums in software for incoming IP packets.*/
   #define CHECKSUM_CHECK_IP               1
   /* CHECKSUM_CHECK_UDP==1: Check checksums in software for incoming UDP packets.*/
@@ -464,7 +468,7 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 */
 /**
  * LWIP_NETCONN==1: Enable Netconn API (require to use api_lib.c)
-												
+
  */
 #define LWIP_NETCONN                    1
 
