@@ -1,6 +1,7 @@
 import os
 import sys
 import string
+import re
 
 import xml.etree.ElementTree as etree
 import config_mk
@@ -8,7 +9,85 @@ from xml.etree.ElementTree import SubElement
 from xml_format import gen_indent
 from config_mk import Projects
 
+#
+# config_mk.py was generated while building, it defines:
+#
+# Projects = [
+#  { 'name':'alicrypto',
+#    'src':[ sources ... ],
+#    'include': [ include_dirs ... ],
+#  },
+#  ...
+# ]                      -> <GroupName>name</GroupName>
+#                             <Files> ... </Files>
+# keil_device = ...      -> Device
+# global_cflags = ...    -> MiscControls
+# global_ldflags = ...   -> Get ScatterFile
+# global_includes = ...  -> IncludePath
+# global_defines = ...   -> Define
+#
+
+# Global Definitions
+AOS_RELATIVE_PATH = "../../../../"
+OPT_DIR = "opts/"
+TEMPLATE_PROJX = "build/scripts/template.uvprojx"
+TEMPLATE_OPTX = "build/scripts/template.uvoptx"
+
+# Elements need to be changed:
+element_dict = {
+    "TargetName": { "xpath": "Targets/Target/TargetName" },
+    "Device": { "xpath": "Targets/Target/TargetOption/TargetCommonOption/Device" },
+    "Vendor": { "xpath": "Targets/Target/TargetOption/TargetCommonOption/Vendor" },
+    "OutputName": { "xpath": "Targets/Target/TargetOption/TargetCommonOption/OutputName" },
+    "ScatterFile": { "xpath": "Targets/Target/TargetOption/TargetArmAds/LDads/ScatterFile" },
+    "AdsCpuType": { "xpath": "Targets/Target/TargetOption/TargetArmAds/ArmAdsMisc/AdsCpuType" },
+    "Define": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Aads/VariousControls/Define" },
+    "IncludePath": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Aads/VariousControls/IncludePath" },
+    "MiscControls": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Aads/VariousControls/MiscControls" },
+}
+
+def get_element_value(element_dict, buildstring):
+    """ Get elements value """
+
+    # TargetName, OutputName = app@board
+    element_dict["TargetName"]["value"] = buildstring
+    element_dict["OutputName"]["value"] = buildstring
+
+    # Device = $(NAME)_KEIL_DEVICE that defined in board makefile
+    element_dict["Device"]["value"] = config_mk.keil_device
+
+    # Vendor = the start 2 letters of Device
+    if len(config_mk.keil_device) >= 2:
+        element_dict["Vendor"]["value"] = config_mk.keil_device[0:2]
+    else:
+        element_dict["Vendor"]["value"] = ""
+
+    # ScatterFile = the matched part in LDFLAGS "--scatter=(*.sct)"
+    patten = re.compile(r".*scatter=(.*\.sct).*")
+    match = patten.match(config_mk.global_ldflags)
+    if match:
+        scatterfile = AOS_RELATIVE_PATH + match.group(1)
+        element_dict["ScatterFile"]["value"] = scatterfile
+    else:
+        element_dict["ScatterFile"]["value"] = ""
+
+    # AdsCpuType = HOST_ARCH that defined in board makefile
+    element_dict["AdsCpuType"]["value"] = config_mk.host_arch
+
+    # Define = global defines splitted by ","
+    element_dict["Define"]["value"] = config_mk.global_defines.replace(" ",",")
+
+    # IncludePath = global include dirs splitted by ";"
+    include_path = config_mk.global_includes.replace("./", "")
+    include_path = include_path.replace("-I","")
+    include_path = ";".join([AOS_RELATIVE_PATH + item for item in include_path.split()])
+    element_dict["IncludePath"]["value"] = include_path
+
+    # MiscControls = global cflags
+    element_dict["MiscControls"]["value"] = config_mk.global_cflags
+
 def file_type_value(fn):
+    """ Mapping Number and Filetype """
     if fn.endswith('.h'):
         return 5        
     if fn.endswith('.s') or fn.endswith('.S'):
@@ -22,10 +101,18 @@ def file_type_value(fn):
     
     return 5
 
-    
-#ProjectFiles use for remove same name files
-#add files
 def add_group(parent, name, files, project_path):
+    """ Create xml SubElenent:
+    <Group>
+      <GroupName>group_name.text</GroupName>
+      <Files>
+        <File>
+          <FileName>file_name.text</FileName>
+          <FileType>file_type.text</FileType>
+          <FilePath>file_path.text</FilePath>
+        </File>
+      </Files>
+    """
     cur_encoding = sys.getfilesystemencoding()
     group = SubElement(parent, 'Group')
     group_name = SubElement(group, 'GroupName')
@@ -41,62 +128,36 @@ def add_group(parent, name, files, project_path):
         file_type = SubElement(file, 'FileType')
         file_type.text = '%d' % file_type_value(name)
         file_path = SubElement(file, 'FilePath')
-        file_path.text = (aos_relative_path + f).decode(cur_encoding)
+        file_path.text = (AOS_RELATIVE_PATH + f).decode(cur_encoding)
 
     return group
 
-# automation to do
-def changeItemForMcu( tree ):
-    ScatterFile = tree.find('Targets/Target/TargetOption/TargetArmAds/LDads/ScatterFile')
-    try:
-        print "ld_script:", config_mk.ld_script
-        ScatterFile.text = '../../../../' + config_mk.ld_script
-    except:
-        print "ld_script is not written in config_mk.py"
-        if 'starterkit' in buildstring:
-            ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L433RC-Nucleo\STM32L433.sct'
-        if 'stm32l432' in buildstring:
-            ScatterFile.text = '..\..\..\..\platform\mcu\stm32l4xx\src\STM32L432KC-Nucleo\STM32L432.sct'
-        if 'es8p5088fllq' in buildstring:
-            ScatterFile.text = '..\..\..\..\\board\es8p5088fllq\es8p508x.sct'
-        if 'hr8p287fjlt' in buildstring:
-            ScatterFile.text = '..\..\..\..\\board\\hr8p287fjlt\\hr8p287.sct'
-        if 'hr8p296fllt' in buildstring:
-            ScatterFile.text = '..\..\..\..\\board\\hr8p296fllt\\hr8p296.sct'
-    
-# change key word in project file. automation to do
-def ModifyProjString( projString ):
-    if 'starterkit' in buildstring:
-        projString = projString.replace('STM32L475VGTx','STM32L433RCTx')
-    if 'stm32l432' in buildstring:
-        projString = projString.replace('STM32L475VGTx','STM32L432KCTx')
-    if 'es8p5088fllq' in buildstring:
-        projString = projString.replace('STM32L475VGTx','ES8P5088FLLQ')
-    if 'hr8p287fjlt' in buildstring:
-        projString = projString.replace('STM32L475VGTx','HR8P287FJLT')
-    if 'hr8p296fllt' in buildstring:
-        projString = projString.replace('STM32L475VGTx','HR8P296FLLT')
-    return  projString   
-    
-def gen_project(tree, target, script):
+def changeItemForMcu(tree, xpath, value):
+    """ Set Element's value """
+    element = tree.find(xpath)
+    element.text = value
+
+def gen_projxfile(tree, target, buildstring, Projects):
     project_path = os.path.dirname(os.path.abspath(target))
+    boardname = buildstring.split("@")[1]
 
     root = tree.getroot()
     out = file(target, 'wb')
     out.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
     
-    #change target name
-    TargetName = tree.find('Targets/Target/TargetName')
-    TargetName.text = buildstring
-    OutputName = tree.find('Targets/Target/TargetOption/TargetCommonOption/OutputName')
-    OutputName.text = buildstring
-    
+    get_element_value(element_dict, buildstring)
+
+    for key in element_dict:
+        xpath = element_dict[key]["xpath"]
+        value = element_dict[key]["value"]
+        changeItemForMcu(tree, xpath, value)
+
     # add group
     groups = tree.find('Targets/Target/Groups')
     if groups is None:
         groups = SubElement(tree.find('Targets/Target'), 'Groups')
     groups.clear() # clean old groups
-    for group in script:
+    for group in Projects:
         # don't add an empty group
         if len(group['src']) != 0:
             group_tree = add_group(groups, group['name'], group['src'], project_path)
@@ -107,61 +168,44 @@ def gen_project(tree, target, script):
             Cads            = SubElement(GroupArmAds, 'Cads')
             VariousControls = SubElement(Cads, 'VariousControls')
             MiscControls    = SubElement(VariousControls, 'MiscControls')
-            MiscControls.text = '--via '+opt_dir+group['name']+'.c_opts'
+            MiscControls.text = "--via %s%s.c_opts" % (OPT_DIR, group["name"])
             
             Aads            = SubElement(GroupArmAds, 'Aads')
             VariousControls = SubElement(Aads, 'VariousControls')
             MiscControls    = SubElement(VariousControls, 'MiscControls')
-            MiscControls.text = '--via '+opt_dir+group['name']+'.as_opts'
-    
-    # set <OutputName>B-L475E-IOT01</OutputName> 
+            MiscControls.text = "--via %s%s.as_opts" % (OPT_DIR, group["name"])
     
     gen_indent(root)
     
-    changeItemForMcu(tree)
-    projString = ModifyProjString( etree.tostring(root, encoding='utf-8') )
-    out.write(projString)
-    out.close()
+    with open(target, 'wb') as f:
+        f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
+        f.write(etree.tostring(root, encoding='utf-8'))
 
-def gen_main(target, script):
-    template_tree = etree.parse('build/scripts/template.uvprojx')
-    # create uvprojx file
-    gen_project(template_tree, target, script)
-    
-    # create uvoptx file
-    opt_file = target.replace('.uvprojx', '.uvoptx')
-    opt_tree = etree.parse('build/scripts/template.uvoptx')
-    TargetName = opt_tree.find('Target/TargetName')
+def gen_optxfile(optx_tree, optx_file, buildstring):
+    TargetName = optx_tree.find('Target/TargetName')
     TargetName.text = buildstring
-    out = file(opt_file, 'wb')
-    projString = ModifyProjString( etree.tostring(opt_tree.getroot(), encoding='utf-8') )
-    out.write(projString)
-    out.close()
 
-'''
-Projects = [
-{'name':'alicrypto', 
-'src':[ 
-'a.c',
-'a_1.s',
-]
-},
-{'name':'alinkapp', 
-'src':[ 
-'./app/example/alinkapp/alink_sample.c',
-]
-}
-]
-'''
+    with open(optx_file, "wb") as f:
+        f.write(etree.tostring(optx_tree.getroot(), encoding='utf-8'))
 
-#argv[1]: buildstring, eg: nano@b_l475e
-buildstring = sys.argv[1]
-proj_output_dir = 'projects/Keil/'+buildstring+'/keil_project'
-#use in xml text
-aos_relative_path = '../../../../'
-projectPath = proj_output_dir+'/'+buildstring+'.uvprojx'
-opt_dir = 'opts/'
+def main():
+    # buildstring, eg: nano@b_l475e
+    buildstring = sys.argv[1]
 
-print 'Making keil project '+buildstring
-gen_main(projectPath, Projects)
-print 'keil project: '+ projectPath + ' has generated over'
+    projx_file = "projects/Keil/%s/keil_project/%s.uvprojx" % (buildstring, buildstring)
+    optx_file = projx_file.replace('.uvprojx', '.uvoptx')
+
+    print "Creating keil project %s" % (buildstring)
+    projx_tree = etree.parse(TEMPLATE_PROJX)
+    optx_tree = etree.parse(TEMPLATE_OPTX)
+
+    # create uvprojx file
+    gen_projxfile(projx_tree, projx_file, buildstring, Projects)
+
+    # create uvoptx file
+    gen_optxfile(optx_tree, optx_file, buildstring)
+
+    print "Keil project created at %s" % (projx_file)
+
+if __name__ == "__main__":
+    main()
