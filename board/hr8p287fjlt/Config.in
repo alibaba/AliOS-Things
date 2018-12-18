@@ -1,0 +1,7 @@
+menuconfig AOS_BOARD_HR8P287FJLT
+    bool "hr8p287fjlt"
+    select AOS_MCU_HR8P2XX
+    help
+
+if AOS_BOARD_HR8P287FJLT
+# Configurations for board hr8p287fjlt

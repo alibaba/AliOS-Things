@@ -4,7 +4,7 @@
 
 ## Directories
 ```sh
-es8p5088fllq # configuration files for board es8p5088fllq
+hr8p287fjlt # configuration files for board hr8p287fjlt
 ```
 
 ## Board Hardware Resources:Introduce the hardware of the board, such as ram , rom and the number of uart , i2c, gpio and so on.
