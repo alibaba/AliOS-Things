@@ -190,7 +190,6 @@ extern "C" {
 
 #endif /* defined(__GNUC__)&&!defined(__CC_ARM)||defined(_WIN32) */
 
-
 /**
  * Redefine the errno, Only use in framework/app
  */
