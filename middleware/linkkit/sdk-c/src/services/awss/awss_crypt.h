@@ -14,6 +14,6 @@ enum {
     SEC_LVL_AES128_MANU,    /* AES128 with key from manufacturer_sec */
 };
 
-int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc);
+int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int sec_lvl, char cbc, const char *rand);
 
 #endif
