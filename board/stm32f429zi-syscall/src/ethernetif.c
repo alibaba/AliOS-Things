@@ -43,15 +43,15 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
-#include "aos/kernel.h"
-#include <k_api.h>
-#include "network/network.h"
-#include <lwip/tcpip.h>
-#include "netif/etharp.h"
-
-#include "ethernetif.h"
 #include <string.h>
+#include <k_api.h>
+#include <aos/kernel.h>
+#include <aos/log.h>
+#include <lwip/tcpip.h>
+#include <netif/etharp.h>
+#include <network/network.h>
+#include <stm32f4xx_hal.h>
+#include "ethernetif.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
