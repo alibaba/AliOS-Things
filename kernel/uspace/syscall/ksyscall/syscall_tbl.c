@@ -39,24 +39,18 @@ void *syscall_tbl[] = {
     [SYS_KRHINO_TICKS_TO_MS]  = sys_krhino_ticks_to_ms_stub,
 
     /* ------------------- mutex ---------------------*/
-    [SYS_KRHINO_MUTEX_CREATE]     = sys_krhino_mutex_create_stub,
-    [SYS_KRHINO_MUTEX_DEL]        = sys_krhino_mutex_del_stub,
     [SYS_KRHINO_MUTEX_DYN_CREATE] = sys_krhino_mutex_dyn_create_stub,
     [SYS_KRHINO_MUTEX_DYN_DEL]    = sys_krhino_mutex_dyn_del_stub,
     [SYS_KRHINO_MUTEX_LOCK]       = sys_krhino_mutex_lock_stub,
     [SYS_KRHINO_MUTEX_UNLOCK]     = sys_krhino_mutex_unlock_stub,
 
     /* ------------------ semphore --------------------*/
-    [SYS_KRHINO_SEM_CREATE]     = sys_krhino_sem_create_stub,
-    [SYS_KRHINO_SEM_DEL]        = sys_krhino_sem_del_stub,
     [SYS_KRHINO_SEM_DYN_CREATE] = sys_krhino_sem_dyn_create_stub,
     [SYS_KRHINO_SEM_DYN_DEL]    = sys_krhino_sem_dyn_del_stub,
     [SYS_KRHINO_SEM_TAKE]       = sys_krhino_sem_take_stub,
     [SYS_KRHINO_SEM_GIVE]       = sys_krhino_sem_give_stub,
 
     /* --------------------- queue -----------------------*/
-    [SYS_KRHINO_QUEUE_CREATE]     = sys_krhino_queue_create_stub,
-    [SYS_KRHINO_QUEUE_DEL]        = sys_krhino_queue_del_stub,
     [SYS_KRHINO_QUEUE_DYN_CREATE] = sys_krhino_queue_dyn_create_stub,
     [SYS_KRHINO_QUEUE_DYN_DEL]    = sys_krhino_queue_dyn_del_stub,
     [SYS_KRHINO_QUEUE_BACK_SEND]  = sys_krhino_queue_back_send_stub,
@@ -65,9 +59,6 @@ void *syscall_tbl[] = {
     [SYS_KRHINO_QUEUE_FLUSH]      = sys_krhino_queue_flush_stub,
 
     /* ------------------ buf queue --------------------*/
-    [SYS_KRHINO_BUF_QUEUE_CREATE]         = sys_krhino_buf_queue_create_stub,
-    [SYS_KRHINO_FIX_BUF_QUEUE_CREATE]     = sys_krhino_fix_buf_queue_create_stub,
-    [SYS_KRHINO_BUF_QUEUE_DEL]            = sys_krhino_buf_queue_del_stub,
     [SYS_KRHINO_BUF_QUEUE_DYN_CREATE]     = sys_krhino_buf_queue_dyn_create_stub,
     [SYS_KRHINO_FIX_BUF_QUEUE_DYN_CREATE] = sys_krhino_fix_buf_queue_dyn_create_stub,
     [SYS_KRHINO_BUF_QUEUE_DYN_DEL]        = sys_krhino_buf_queue_dyn_del_stub,
@@ -86,6 +77,13 @@ void *syscall_tbl[] = {
     [SYS_HAL_UART_RECV]     = sys_hal_uart_recv_stub,
     [SYS_HAL_UART_RECV_II]  = sys_hal_uart_recv_II_stub,
     [SYS_HAL_UART_FINALIZE] = sys_hal_uart_finalize_stub,
+
+    /* ------------------ hal_adc -------------------*/
+#if (CONFIG_HAL_ADC_SYSCALL > 0)
+    [SYS_HAL_ADC_INIT]      = sys_hal_adc_init_stub,
+    [SYS_HAL_ADC_VALUE_GET] = sys_hal_adc_value_get_stub,
+    [SYS_HAL_ADC_FINALIZE]  = sys_hal_adc_finalize_stub,
+#endif
 
     /* ------------------- hal flash ---------------------*/
 #if (CONFIG_HAL_FLASH_SYSCALL > 0)
@@ -119,7 +117,7 @@ void *syscall_tbl[] = {
     [SYS_HAL_I2C_SLAVE_SEND]  = sys_hal_i2c_slave_send_stub,
     [SYS_HAL_I2C_SLAVE_RECV]  = sys_hal_i2c_slave_recv_stub,
     [SYS_HAL_I2C_MEM_WRITE]   = sys_hal_i2c_mem_write_stub,
-    [SYS_HAL_I2C_MEM_READV]   = sys_hal_i2c_mem_readv_stub,
+    [SYS_HAL_I2C_MEM_READ]   = sys_hal_i2c_mem_read_stub,
     [SYS_HAL_I2C_FINALIZE]    = sys_hal_i2c_finalize_stub,
 #endif /* CONFIG_HAL_I2C_SYSCALL */
 
@@ -208,7 +206,10 @@ void *syscall_tbl[] = {
     [SYS_LWIP_EVENTFD]     = sys_lwip_eventfd_stub,
 #if LWIP_PACKET
     [SYS_LWIP_TRY_WAKEUP]  = sys_lwip_try_wakeup_stub,
-#endif /* LWIP_PACKET */
+#endif
+    [SYS_LWIP_GETHOSTBYNAME_R]    = sys_lwip_gethostbyname_r_stub,
+    [SYS_LWIP_FREEADDRINFO]       = sys_lwip_freeaddrinfo_stub,
+    [SYS_LWIP_GETADDRINOF]        = sys_lwip_getaddrinfo_stub,
 #endif /* CONFIG_LWIP_SYSCALL */
 
     /* ---------------- end ------------------*/

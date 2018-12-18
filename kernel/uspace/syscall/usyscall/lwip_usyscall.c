@@ -285,3 +285,39 @@ int lwip_try_wakeup(int s, int rcvevent, int sendevent, int errevent)
 }
 #endif
 
+int lwip_gethostbyname_r(const char *name, struct hostent *ret, char *buf,
+                         size_t buflen, struct hostent **result, int *h_errnop)
+{
+    lwip_gethostbyname_r_syscall_arg_t _arg;
+
+    _arg.name = name;
+    _arg.ret = ret;
+    _arg.buf = buf;
+    _arg.buflen = buflen;
+    _arg.result = result;
+    _arg.h_errnop = h_errnop;
+
+    return (int)SYSCALL(SYS_LWIP_GETHOSTBYNAME_R, (void*)&_arg);
+}
+
+void lwip_freeaddrinfo(struct addrinfo *ai)
+{
+    lwip_freeaddrinfo_syscall_arg_t _arg;
+
+    _arg.ai = ai;
+
+    return (int)SYSCALL(SYS_LWIP_FREEADDRINFO, (void*)&_arg);
+}
+
+int lwip_getaddrinfo(const char *nodename, const char *servname,
+                     const struct addrinfo *hints, struct addrinfo **res)
+{
+    lwip_getaddrinfo_syscall_arg_t _arg;
+
+    _arg.nodename = nodename;
+    _arg.servname = servname;
+    _arg.hints = hints;
+    _arg.res = res;
+
+    return (int)SYSCALL(SYS_LWIP_GETADDRINOF, (void*)&_arg);
+}

@@ -5,9 +5,11 @@
 #include <k_config.h>
 
 #if (CONFIG_LWIP_SYSCALL > 0)
-
+#include <k_api.h>
 #include <lwip/sockets.h>
+#include <lwip/netdb.h>
 #include <lwip_syscall_arg.h>
+#include <string.h>
 
 int sys_lwip_accept_stub(void *arg)
 {
@@ -183,6 +185,62 @@ int sys_lwip_try_wakeup_stub(void *arg)
     return lwip_try_wakeup(_arg->s, _arg->rcvevent, _arg->sendevent, _arg->errevent);
 }
 #endif
+
+int sys_lwip_gethostbyname_r_stub(void *arg)
+{
+    lwip_gethostbyname_r_syscall_arg_t *_arg = arg;
+
+    char *hostname;
+    char *temp_buf;
+    int   ret;
+
+    struct helper {
+        ip_addr_t *addr_list[2];
+        ip_addr_t  addr;
+        char      *aliases;
+    } *h;
+
+    temp_buf = (char*)krhino_mm_alloc(_arg->buflen);
+    if (NULL == temp_buf) {
+        return -1;
+    }
+
+    ret = lwip_gethostbyname_r(_arg->name, _arg->ret, temp_buf, _arg->buflen,
+                                _arg->result, _arg->h_errnop);
+
+    memcpy(_arg->buf, temp_buf, _arg->buflen);
+    krhino_mm_free(temp_buf);
+
+    h = (struct helper*)LWIP_MEM_ALIGN(_arg->buf);
+    hostname = ((char*)h) + sizeof(struct helper);
+    h->addr_list[0] = &h->addr;
+    h->addr_list[1] = NULL;
+    h->aliases = NULL;
+    _arg->ret->h_name = hostname;
+    _arg->ret->h_aliases = &h->aliases;
+    _arg->ret->h_addrtype = AF_INET;
+    _arg->ret->h_length = sizeof(ip_addr_t);
+    _arg->ret->h_addr_list = (char**)&h->addr_list;
+
+    *(_arg->result) = _arg->ret;
+
+    return ret;
+}
+
+void sys_lwip_freeaddrinfo_stub(void *arg)
+{
+    lwip_freeaddrinfo_syscall_arg_t *_arg = arg;
+
+    return lwip_freeaddrinfo(_arg->ai);
+}
+
+int sys_lwip_getaddrinfo_stub(void *arg)
+{
+    lwip_getaddrinfo_syscall_arg_t *_arg = arg;
+
+    return lwip_getaddrinfo(_arg->nodename, _arg->servname, _arg->hints, _arg->res);
+}
+
 
 #endif /* CONFIG_LWIP_SYSCALL */
 
