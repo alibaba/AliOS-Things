@@ -1,4 +1,4 @@
-NAME := posix_test
+NAME := osal_posix_test
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION    := 0.0.1

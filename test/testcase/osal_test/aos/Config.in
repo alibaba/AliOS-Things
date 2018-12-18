@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_OSAL_AOS_TEST
+    bool "osal_aos_test"
+    default n
+    select AOS_COMP_OSAL_AOS_TEST
+    help
+
+if AOS_COMP_OSAL_AOS_TEST
+# Configurations for comp osal_aos_test
+endif

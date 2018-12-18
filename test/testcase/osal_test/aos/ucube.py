@@ -10,7 +10,7 @@ src = Split('''
     aos_workqueue_test.c
 ''')
 
-component = aos_component('osal_test', src)
+component = aos_component('osal_aos_test', src)
 
 component.add_comp_deps('osal')
 
