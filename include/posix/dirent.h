@@ -26,6 +26,15 @@ extern "C"
 #define DT_SOCK    12
 #define DT_WHT     14
 
+#define TMP_MAX      1024
+#define PATH_MAX     64
+#define NAME_MAX     64
+#define FILESIZEBITS (NAME_MAX * 8)
+#define LINK_MAX     0
+
+/* temp file will be saved in this dirctory */
+#define TEMP_FILE_NAME_MAGIC "/ramfs/du2s5sz3p1jdi97ds"
+
 typedef aos_dir_t DIR;
 
 struct dirent {
@@ -75,6 +84,11 @@ int            ioctl(int fildes, int request, ... /* arg */);
 int            chdir(const char *path);
 char          *getcwd(char *buf, size_t size);
 int            creat(const char *path, mode_t mode);
+
+/* the bytes of s must bigger than 32 */
+char          *tmpnam(char *s);
+/* ramfs must be added to the prj if you want to use tmpfile */
+FILE          *tmpfile(void);
 
 extern int ioctl(int fildes, int request, ... /* arg */);
 
