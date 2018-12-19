@@ -41,6 +41,7 @@ typedef struct {
     void            *res_q;
     klist_t          task_head;
     klist_t          task_user;
+    kobj_list_t      kobj_list;
 #endif
 
     cpu_stack_t     *task_stack_base;
