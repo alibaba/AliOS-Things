@@ -102,4 +102,59 @@ int creat(const char *path, mode_t mode)
     return open(path ,(O_CREAT|O_WRONLY|O_TRUNC));
 }
 
+#if (POSIX_DIRENT_TMPFILE_ENABLE > 0)
+
+kmutex_t g_tmpnam_mutex;
+
+int tmpnam_lock_init(void)
+{
+    return krhino_mutex_create(&g_tmpnam_mutex, "g_tmpnam_mutex");
+}
+
+char *tmpnam(char *s)
+{
+    static int temp_name_series = 0;
+
+    char *temp_name_prefix = TEMP_FILE_NAME_MAGIC;
+    int   ret           = -1;
+    char  temp_name_series_buf[8];
+
+    if (temp_name_series >= TMP_MAX) {
+        return NULL;
+    }
+
+    memset(temp_name_series_buf, 0, sizeof(temp_name_series_buf));
+
+    ret = krhino_mutex_lock(&g_tmpnam_mutex, RHINO_WAIT_FOREVER);
+    if (ret != 0) {
+        return NULL;
+    }
+
+    strcpy(s, temp_name_prefix);
+    sprintf(temp_name_series_buf, "_%d", temp_name_series);
+    strcat(s, temp_name_series_buf);
+
+    temp_name_series++;
+
+    krhino_mutex_unlock(&g_tmpnam_mutex);
+
+    return s;
+}
+
+FILE *tmpfile(void)
+{
+    char *pname = NULL;
+    int   ret   = 0;
+    char  path[PATH_MAX];
+
+    pname = tmpnam(path);
+    if (pname == NULL) {
+        return NULL;
+    }
+
+    return fopen(pname, O_RDWR);
+}
+
+#endif
+
 #endif
