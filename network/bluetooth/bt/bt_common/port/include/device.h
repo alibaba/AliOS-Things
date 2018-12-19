@@ -23,7 +23,6 @@
  */
 
 #include <zephyr/types.h>
-#include <common.h>
 
 
 #ifdef __cplusplus
