@@ -7,7 +7,7 @@
 
 #include "k_api.h"
 
-#include "errno_mapping.h"
+#include "aos/errno.h"
 
 #if (RHINO_CONFIG_WORKQUEUE>0)
 
@@ -116,7 +116,7 @@ static int work_init(aos_work_t *work, void (*fn)(void *), void *arg, int dly)
     ret = krhino_work_init(w, fn, arg, MS2TICK(dly));
     if (ret != RHINO_SUCCESS) {
         aos_free(w);
-        ERRNO_MAPPING(ret);
+        return ret;
     }
 
     work->hdl = w;
@@ -137,7 +137,7 @@ static int work_sched(aos_work_t *work)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 void *aos_loop_schedule_work(int ms, aos_call_t action, void *arg1,
