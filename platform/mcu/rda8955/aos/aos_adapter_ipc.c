@@ -164,7 +164,7 @@ int aos_queue_send_sxr(aos_queue_t *queue, void *msg, unsigned int size)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 
