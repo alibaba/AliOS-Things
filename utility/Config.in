@@ -1,6 +1,7 @@
 ## --- Generated Automatically ---
+source "utility/activation/Config.in"
+source "utility/activation/chip_code/Config.in"
 source "utility/base64/Config.in"
-source "utility/chip_code/Config.in"
 source "utility/cjson/Config.in"
 source "utility/libc/Config.in"
 source "utility/log/Config.in"
