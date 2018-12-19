@@ -5,3 +5,4 @@ menuconfig AOS_BOARD_AABOARD_DEMO
 
 if AOS_BOARD_AABOARD_DEMO
 # Configurations for board aaboard_demo
+endif
