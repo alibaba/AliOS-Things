@@ -1,5 +1,6 @@
 ## --- Generated Automatically ---
 source "security/alicrypto/Config.in"
+source "security/dpm/Config.in"
 source "security/id2/Config.in"
 source "security/irot/Config.in"
 source "security/irot/km/Config.in"
