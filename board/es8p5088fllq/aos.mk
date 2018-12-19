@@ -28,4 +28,5 @@ GLOBAL_INCLUDES += .    \
                    startup/  \
 
 # Keil project support
-$(NAME)_KEIL_DEVICE = ES8P5088FLLQ
+$(NAME)_KEIL_VENDOR = ES
+$(NAME)_KEIL_DEVICE = ES8P508xFLXX
