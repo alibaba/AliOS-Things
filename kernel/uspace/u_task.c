@@ -91,6 +91,13 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
         task->proc_addr = task;
         klist_init(&task->task_head);
         klist_insert(&task->task_head, &task->task_user);
+        /* process kobj init */
+        klist_init(&(task.kobj_list.task_head));
+        klist_init(&(task.kobj_list.mutex_head));
+        klist_init(&(task.kobj_list.sem_head));
+        klist_init(&(task.kobj_list.queue_head));
+        klist_init(&(task.kobj_list.buf_queue_head));
+        klist_init(&(task.kobj_list.event_head));
     }
     else {
         cur_task = krhino_cur_task_get();
@@ -234,9 +241,10 @@ kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
     task_tmp = *task;
     ret = krhino_queue_dyn_create(&queue, "res_queue", PROC_MSG_NUM);
     if (ret != RHINO_SUCCESS) {
-        krhino_mm_free(task_tmp->task_stack_base);
-        krhino_mm_free(task_tmp);
+        krhino_task_dyn_del(task_tmp);
+        return ret;
     }
+
     task_tmp->res_q = queue;
 
     if (autorun > 0) {
