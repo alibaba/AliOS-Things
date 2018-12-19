@@ -5,3 +5,4 @@ menuconfig AOS_BOARD_HR8P296FLLT
 
 if AOS_BOARD_HR8P296FLLT
 # Configurations for board hr8p296fllt
+endif
