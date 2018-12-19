@@ -95,6 +95,7 @@ static int dm_impl_set_property_value(void *_self, const void *thing_id, const v
            (value || value_str));
 
     HAL_MutexLock(thing_manager_object->_usercall_mutex);
+    thing_manager_object->_property_identifier_set_from_cloud = 0;
     res = (*thing_manager)->set_thing_property_value(thing_manager, thing_id, identifier, value, value_str);
     HAL_MutexUnlock(thing_manager_object->_usercall_mutex);
 
