@@ -94,7 +94,7 @@
 #define CONFIG_BT_RX_BUF_COUNT 5
 #else
 #ifndef CONFIG_BT_RX_BUF_COUNT
-#define CONFIG_BT_RX_BUF_COUNT 10
+#define CONFIG_BT_RX_BUF_COUNT 3
 #endif
 #endif
 
@@ -141,7 +141,7 @@
 #undef CONFIG_BT_L2CAP_TX_BUF_COUNT
 #define CONFIG_BT_L2CAP_TX_BUF_COUNT 3
 #else
-#define CONFIG_BT_L2CAP_TX_BUF_COUNT 10
+#define CONFIG_BT_L2CAP_TX_BUF_COUNT 3
 #endif
 #endif
 
