@@ -107,6 +107,7 @@ typedef struct {
     void                *_ota;
     void                *_thing_id;
     void                *_identifier;
+    int                  _property_identifier_set_from_cloud;
     void                *_property_identifier_post; /* used when event = thing.event.property.post */
     void                *_property_identifier_set; /* used when event = thing.service.property.set */
     void                *_property_identifier_value_set; /* used when event = thing.service.property.set */
