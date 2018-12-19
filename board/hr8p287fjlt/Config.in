@@ -5,3 +5,4 @@ menuconfig AOS_BOARD_HR8P287FJLT
 
 if AOS_BOARD_HR8P287FJLT
 # Configurations for board hr8p287fjlt
+endif

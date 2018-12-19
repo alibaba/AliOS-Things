@@ -5,3 +5,4 @@ menuconfig AOS_BOARD_ES8P5088FLLQ
 
 if AOS_BOARD_ES8P5088FLLQ
 # Configurations for board es8p5088fllq
+endif
