@@ -28,4 +28,5 @@ GLOBAL_INCLUDES += .    \
                    startup/  \
 
 # Keil project support
+$(NAME)_KEIL_VENDOR = HR
 $(NAME)_KEIL_DEVICE = HR8P296FLLT
