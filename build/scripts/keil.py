@@ -21,6 +21,7 @@ from config_mk import Projects
 # ]                      -> <GroupName>name</GroupName>
 #                             <Files> ... </Files>
 # keil_device = ...      -> Device
+# keil_vendor = ...      -> Vendor
 # global_cflags = ...    -> MiscControls
 # global_ldflags = ...   -> Get ScatterFile
 # global_includes = ...  -> IncludePath
@@ -41,9 +42,9 @@ element_dict = {
     "OutputName": { "xpath": "Targets/Target/TargetOption/TargetCommonOption/OutputName" },
     "ScatterFile": { "xpath": "Targets/Target/TargetOption/TargetArmAds/LDads/ScatterFile" },
     "AdsCpuType": { "xpath": "Targets/Target/TargetOption/TargetArmAds/ArmAdsMisc/AdsCpuType" },
-    "Define": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Aads/VariousControls/Define" },
-    "IncludePath": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Aads/VariousControls/IncludePath" },
-    "MiscControls": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Aads/VariousControls/MiscControls" },
+    "Define": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/Define" },
+    "IncludePath": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/IncludePath" },
+    "MiscControls": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/MiscControls" },
 }
 
 def get_element_value(element_dict, buildstring):
@@ -56,11 +57,8 @@ def get_element_value(element_dict, buildstring):
     # Device = $(NAME)_KEIL_DEVICE that defined in board makefile
     element_dict["Device"]["value"] = config_mk.keil_device
 
-    # Vendor = the start 2 letters of Device
-    if len(config_mk.keil_device) >= 2:
-        element_dict["Vendor"]["value"] = config_mk.keil_device[0:2]
-    else:
-        element_dict["Vendor"]["value"] = ""
+    # Vendor = $(NAME)_KEIL_VENDOR that defined in board makefile
+    element_dict["Vendor"]["value"] = config_mk.keil_vendor
 
     # ScatterFile = the matched part in LDFLAGS "--scatter=(*.sct)"
     patten = re.compile(r".*scatter=(.*\.sct).*")
