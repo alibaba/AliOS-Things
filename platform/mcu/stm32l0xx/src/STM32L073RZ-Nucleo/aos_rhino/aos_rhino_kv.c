@@ -5,7 +5,6 @@
 #include <k_api.h>
 #include <errno.h>
 #include "aos/kernel.h"
-#include "errno_mapping.h"
 
 #define MS2TICK(ms) krhino_ms_to_ticks(ms)
 
@@ -23,7 +22,7 @@ int aos_task_new(const char *name, void (*fn)(void *), void *arg,
         return 0;
     }
 */
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 void aos_task_exit(int code)
@@ -51,7 +50,7 @@ int aos_mutex_new(aos_mutex_t *mutex)
     ret = krhino_mutex_create(m, "AOS");
     if (ret != RHINO_SUCCESS) {
         aos_free(m);
-        ERRNO_MAPPING(ret);
+        return ret;
     }
 
     mutex->hdl = m;
@@ -95,7 +94,7 @@ int aos_mutex_lock(aos_mutex_t *mutex, unsigned int timeout)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 int aos_mutex_unlock(aos_mutex_t *mutex)
@@ -116,7 +115,7 @@ int aos_mutex_unlock(aos_mutex_t *mutex)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 int aos_sem_new(aos_sem_t *sem, int count)
@@ -136,7 +135,7 @@ int aos_sem_new(aos_sem_t *sem, int count)
     ret = krhino_sem_create(s, "AOS", count);
     if (ret != RHINO_SUCCESS) {
         aos_free(s);
-        ERRNO_MAPPING(ret);
+        return ret;
     }
 
     sem->hdl = s;
@@ -175,7 +174,7 @@ int aos_sem_wait(aos_sem_t *sem, unsigned int timeout)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 void aos_sem_signal(aos_sem_t *sem)
