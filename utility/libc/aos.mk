@@ -14,7 +14,7 @@ endif
 else
 $(NAME)_SOURCES := compilers/armlibc/armcc_libc.c
 endif
-GLOBAL_INCLUDES += compilers/armlibc
+GLOBAL_INCLUDES += compilers/armlibc compilers/armlibc/sys
 else ifeq ($(COMPILER),rvct)
 $(NAME)_SOURCES := compilers/armlibc/armcc_libc.c
 GLOBAL_INCLUDES += compilers/armlibc \
