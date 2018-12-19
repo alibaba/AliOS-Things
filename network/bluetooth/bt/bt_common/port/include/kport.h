@@ -72,8 +72,6 @@ enum
 #define _OBJECT_TRACING_NEXT_PTR(type)
 #endif
 
-typedef sys_dlist_t _wait_q_t;
-
 #define SYS_LOG_DBG(...) LOGD(BT_MOD, ##__VA_ARGS__)
 #define SYS_LOG_INF(...) LOGI(BT_MOD, ##__VA_ARGS__)
 #define SYS_LOG_WRN(...) LOGW(BT_MOD, ##__VA_ARGS__)
