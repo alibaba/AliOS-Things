@@ -10,11 +10,7 @@ kmutex_t g_pthread_mutex;
 
 int pthread_lock_init(void)
 {
-    int ret = -1;
-
-    ret = krhino_mutex_create(&g_pthread_mutex, "g_pthread_mutex");
-
-    return ret;
+    return krhino_mutex_create(&g_pthread_mutex, "g_pthread_mutex");
 }
 
 void pthread_cleanup_pop(int execute)

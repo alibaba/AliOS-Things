@@ -18,11 +18,7 @@ kmutex_t g_timer_mutex;
 
 int timer_lock_init(void)
 {
-    int ret = -1;
-
-    ret = krhino_mutex_create(&g_timer_mutex, "g_timer_mutex");
-
-    return ret;
+    return krhino_mutex_create(&g_timer_mutex, "g_timer_mutex");
 }
 
 int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *restrict timerid)
