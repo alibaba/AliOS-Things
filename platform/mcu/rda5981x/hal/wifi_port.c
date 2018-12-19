@@ -22,7 +22,7 @@ unsigned int filter_backup = 0;
 void wifi_event_cb(WIFI_EVENT evt, void* info)
 {
     hal_wifi_module_t *m = hal_wifi_get_default_module();
-    
+
     rda59xx_bss_info bss_info;
     switch (evt) {
         case EVENT_STA_GOT_IP: {
@@ -201,14 +201,14 @@ static void wifi_set_mac_addr(hal_wifi_module_t *m, const uint8_t *mac)
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
     rda59xx_sta_info sta_info;
-    
+
     memset(&sta_info, 0, sizeof(rda59xx_sta_info));
     memcpy(sta_info.ssid, init_para->wifi_ssid, 32+1);
     memcpy(sta_info.pw, init_para->wifi_key, 64+1);
     if(init_para->dhcp_mode){
-        sta_info.dhcp = 1;       
+        sta_info.dhcp = 1;
     }else{
-        sta_info.dhcp = 0;   
+        sta_info.dhcp = 0;
         ip4addr_aton((const char *)(init_para->local_ip_addr), (ip4_addr_t*)&(sta_info.ip));
         ip4addr_aton((const char *)(init_para->net_mask), (ip4_addr_t*)&(sta_info.netmask));
         ip4addr_aton((const char *)(init_para->gateway_ip_addr), (ip4_addr_t*)&(sta_info.gateway));
@@ -260,7 +260,7 @@ static int get_link_stat(hal_wifi_module_t *m,
     rda59xx_bss_info bss_info;
     unsigned int state = 0;
     state = rda59xx_get_module_state();
-    
+
     out_stat->is_connected = 0;
     if(state & STATE_STA){
         rda59xx_sta_get_bss_info(&bss_info);
@@ -278,16 +278,16 @@ typedef int (*wifi_scan_callback_t)(ap_list_adv_t *);
 static int transform_rssi(int rssi_dbm)
 {
 	int ret;
-	ret = (rssi_dbm+95)*2;	
+	ret = (rssi_dbm+95)*2;
 
-	if (ret < 70) 
+	if (ret < 70)
 		ret = ret -(15 - ret/5);
 
-	if(ret < 0)	
+	if(ret < 0)
 		ret = 0;
-	else if(ret >100)	
+	else if(ret >100)
 		ret = 100;
-	
+
 	return ret;
 }
 
@@ -314,7 +314,7 @@ int hfilop_wifi_scan(wifi_scan_callback_t cb)
 
 		rda59xx_get_scan_result(ap_records, ap_num);
 
-		for (i = 0; i < ap_num; i++) 
+		for (i = 0; i < ap_num; i++)
 		{
 			rda59xx_scan_result *r = ap_records + i;
 			memset(&ap_info, 0, sizeof(ap_info));
@@ -323,7 +323,7 @@ int hfilop_wifi_scan(wifi_scan_callback_t cb)
 			ap_info.ap_power = transform_rssi(r->RSSI);
 			ap_info.channel = r->channel;
 			ap_info.security = r->secure_type;
-			
+
 			cb(&ap_info);
 		}
 		if (ap_records)
@@ -392,7 +392,7 @@ static int get_channel(hal_wifi_module_t *m)
 {
     rda59xx_bss_info bss_info;
     unsigned int state = 0;
-    
+
     if(state & STATE_STA){
         rda59xx_sta_get_bss_info(&bss_info);
         return bss_info.channel;
