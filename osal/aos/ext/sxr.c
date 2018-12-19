@@ -16,9 +16,10 @@
 #include "sxr_tksd.hp"
 #include "sxs_io.h"
 #include "sxr_tim.h"
-#include "aos_common.h"
 
 #define AOS_CONFIG_TASK_INFO_NUM RHINO_CONFIG_TASK_INFO_NUM
+
+extern const char* SYSINFO_KERNEL_VERSION;
 
 static unsigned int used_bitmap;
 static u8 g_task_load = SXR_NO_TASK;
