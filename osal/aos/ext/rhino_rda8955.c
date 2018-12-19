@@ -4,12 +4,9 @@
 
 #include <k_api.h>
 #include <errno.h>
-#include <aos/kernel.h>
-#include <stdio.h>
-#include "errno_mapping.h"
-#include <time.h>
-#include "aos_common.h"
-#include "debug_api.h"
+#include "aos/kernel.h"
+
+extern const char* SYSINFO_KERNEL_VERSION;
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC == 0)
 #warning "RHINO_CONFIG_KOBJ_DYN_ALLOC is disabled!"
@@ -18,6 +15,22 @@
 #define MS2TICK(ms) krhino_ms_to_ticks(ms)
 
 static unsigned int used_bitmap;
+
+extern void hal_reboot(void);
+void        aos_reboot(void)
+{
+    hal_reboot();
+}
+
+int aos_get_hz(void)
+{
+    return RHINO_CONFIG_TICKS_PER_SECOND;
+}
+
+const char *aos_version_get(void)
+{
+    return SYSINFO_KERNEL_VERSION;
+}
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 int aos_task_new(const char *name, void (*fn)(void *), void *arg,
@@ -34,7 +47,7 @@ int aos_task_new(const char *name, void (*fn)(void *), void *arg,
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *),
@@ -48,7 +61,7 @@ int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *),
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 void aos_task_exit(int code)
@@ -56,28 +69,6 @@ void aos_task_exit(int code)
     (void)code;
 
     krhino_task_dyn_del(NULL);
-}
-
-int aos_task_delete(char *name)
-{
-    int ret;
-    ktask_t *task;
-
-    if (name == NULL) {
-        return -EINVAL;
-    }
-
-    task = debug_task_find(name);
-    if (task == NULL) {
-        return -EINVAL;
-    }
-
-    ret = (int)krhino_task_dyn_del(task);
-    if (ret == RHINO_SUCCESS) {
-        return 0;
-    }
-
-    ERRNO_MAPPING(ret);
 }
 #endif
 
@@ -120,7 +111,7 @@ int aos_task_setspecific(aos_task_key_t key, void *vp)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 void *aos_task_getspecific(aos_task_key_t key)
@@ -151,7 +142,7 @@ int aos_mutex_new(aos_mutex_t *mutex)
     ret = krhino_mutex_create(m, "AOS");
     if (ret != RHINO_SUCCESS) {
         aos_free(m);
-        ERRNO_MAPPING(ret);
+        return ret;
     }
 
     mutex->hdl = m;
@@ -195,7 +186,7 @@ int aos_mutex_lock(aos_mutex_t *mutex, unsigned int timeout)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 int aos_mutex_unlock(aos_mutex_t *mutex)
@@ -216,7 +207,7 @@ int aos_mutex_unlock(aos_mutex_t *mutex)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 int aos_mutex_is_valid(aos_mutex_t *mutex)
@@ -255,7 +246,7 @@ int aos_sem_new(aos_sem_t *sem, int count)
     ret = krhino_sem_create(s, "AOS", count);
     if (ret != RHINO_SUCCESS) {
         aos_free(s);
-        ERRNO_MAPPING(ret);
+        return ret;
     }
 
     sem->hdl = s;
@@ -294,7 +285,7 @@ int aos_sem_wait(aos_sem_t *sem, unsigned int timeout)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 void aos_sem_signal(aos_sem_t *sem)
@@ -353,7 +344,7 @@ int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg)
     ret = krhino_buf_queue_create(q, "AOS", buf, size, max_msg);
     if (ret != RHINO_SUCCESS) {
         aos_free(q);
-        ERRNO_MAPPING(ret);
+        return ret;
     }
 
     queue->hdl = q;
@@ -387,7 +378,7 @@ int aos_queue_send(aos_queue_t *queue, void *msg, unsigned int size)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg,
@@ -404,7 +395,7 @@ int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg,
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 int aos_queue_is_valid(aos_queue_t *queue)
@@ -435,26 +426,82 @@ void *aos_queue_buf_ptr(aos_queue_t *queue)
 #endif
 
 #if (RHINO_CONFIG_TIMER > 0)
+#include "sxs_io.h"
+#include "sxr_tim.h"
+
+#define AOS_TIMER_UNUSED 0
+#define AOS_TIMER_USED 1
+#define AOS_MAX_TIMERS 20
+struct aos_timer_array_t
+{
+    aos_timer_t *timer;
+    void (*callbackFunc)(void *, void *);
+    void *arg;
+    UINT8 flags;
+    int   ms;
+    int   repeat;
+};
+static struct aos_timer_array_t aos_timer_array[AOS_MAX_TIMERS];
+
+void rhino_TimerDelivery(UINT32 *Id)
+{
+    sxs_Raise(_SXR, "Timer not handled %x\n", Id);
+}
+
+void aos_Timer_Initialise(void)
+{
+#ifdef RHINO_ONLY
+    sxr_InitTimer(rhino_TimerDelivery, 0, 0, 0);
+#endif
+    memset(aos_timer_array, 0, sizeof(aos_timer_array));
+}
+
+void aos_timer_callback(void *pArgs)
+{
+    struct aos_timer_array_t *timer = (struct aos_timer_array_t *)pArgs;
+    if (timer->repeat == 1) {
+        sxr_StartFunctionTimer(COS_Msec2Tick(timer->ms), aos_timer_callback,
+                               timer, 0);
+    }
+    timer->callbackFunc(timer->timer, timer->arg);
+}
+
 int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
                   int ms, int repeat)
 {
     kstat_t ret;
+    UINT32  csStatus;
+    UINT8   i;
 
     if (timer == NULL) {
         return -EINVAL;
     }
 
-    if (repeat == 0) {
-        ret = krhino_timer_dyn_create(((ktimer_t **)(&timer->hdl)), "AOS",
-                                      (timer_cb_t)fn, MS2TICK(ms), 0, arg, 1);
-    } else {
-        ret = krhino_timer_dyn_create(((ktimer_t **)(&timer->hdl)), "AOS",
-                                      (timer_cb_t)fn, MS2TICK(ms), MS2TICK(ms),
-                                      arg, 1);
+    for (i = 0; i < AOS_MAX_TIMERS; i++) {
+        if (aos_timer_array[i].flags == AOS_TIMER_UNUSED) {
+            csStatus = hal_SysEnterCriticalSection();
+            if (aos_timer_array[i].flags == AOS_TIMER_UNUSED) {
+                aos_timer_array[i].callbackFunc = fn;
+                aos_timer_array[i].timer        = timer;
+                aos_timer_array[i].arg          = arg;
+                aos_timer_array[i].ms           = ms;
+                aos_timer_array[i].repeat       = repeat;
+                aos_timer_array[i].flags        = AOS_TIMER_USED;
+
+                //_sxr_StopFunctionTimer2(aos_timer_callback,
+                //&aos_timer_array[i], aos_timer_array[i].id);
+                sxr_StartFunctionTimer(COS_Msec2Tick(aos_timer_array[i].ms),
+                                       aos_timer_callback, &aos_timer_array[i],
+                                       0);
+                hal_SysExitCriticalSection(csStatus);
+                break;
+            }
+            hal_SysExitCriticalSection(csStatus);
+        }
     }
 
-    if (ret != RHINO_SUCCESS) {
-        ERRNO_MAPPING(ret);
+    if (i == AOS_MAX_TIMERS) {
+        return -1;
     }
 
     return 0;
@@ -480,7 +527,7 @@ int aos_timer_new_ext(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
     }
 
     if (ret != RHINO_SUCCESS) {
-        ERRNO_MAPPING(ret);
+        return ret;
     }
 
     return 0;
@@ -488,61 +535,124 @@ int aos_timer_new_ext(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
 
 void aos_timer_free(aos_timer_t *timer)
 {
+    UINT32 csStatus;
+    UINT8  i;
+
     if (timer == NULL) {
-        return;
+        return -EINVAL;
     }
 
-    krhino_timer_dyn_del(timer->hdl);
-    timer->hdl = NULL;
+    for (i = 0; i < AOS_MAX_TIMERS; i++) {
+        if (aos_timer_array[i].flags == AOS_TIMER_USED) {
+            csStatus = hal_SysEnterCriticalSection();
+            if ((UINT32)aos_timer_array[i].timer == (UINT32)timer) {
+                memset(&aos_timer_array[i], 0,
+                       sizeof(struct aos_timer_array_t));
+                hal_SysExitCriticalSection(csStatus);
+                break;
+            }
+            hal_SysExitCriticalSection(csStatus);
+        }
+    }
+
+    if (i == AOS_MAX_TIMERS) {
+        return -1;
+    }
+
+    return 0;
 }
 
 int aos_timer_start(aos_timer_t *timer)
 {
-    int ret;
+    int    ret;
+    UINT32 sc;
+    UINT8  i;
 
     if (timer == NULL) {
         return -EINVAL;
     }
 
-    ret = krhino_timer_start(timer->hdl);
-    if (ret == RHINO_SUCCESS) {
-        return 0;
+    for (i = 0; i < AOS_MAX_TIMERS; i++) {
+        if (aos_timer_array[i].flags == AOS_TIMER_USED) {
+            sc = hal_SysEnterCriticalSection();
+            if ((UINT32)aos_timer_array[i].timer == (UINT32)timer) {
+                //_sxr_StopFunctionTimer2(aos_timer_callback,
+                //&aos_timer_array[i], aos_timer_array[i].id);
+                sxr_StartFunctionTimer(COS_Msec2Tick(aos_timer_array[i].ms),
+                                       aos_timer_callback, &aos_timer_array[i],
+                                       0);
+                hal_SysExitCriticalSection(sc);
+                break;
+            }
+            hal_SysExitCriticalSection(sc);
+        }
     }
 
-    ERRNO_MAPPING(ret);
+    if (i == AOS_MAX_TIMERS) {
+        return -1;
+    }
+
+    return 0;
 }
 
 int aos_timer_stop(aos_timer_t *timer)
 {
-    int ret;
+    int    ret;
+    UINT32 sc;
+    UINT8  i;
 
     if (timer == NULL) {
         return -EINVAL;
     }
 
-    ret = krhino_timer_stop(timer->hdl);
-    if (ret == RHINO_SUCCESS) {
-        return 0;
+    for (i = 0; i < AOS_MAX_TIMERS; i++) {
+        if (aos_timer_array[i].flags == AOS_TIMER_USED) {
+            sc = hal_SysEnterCriticalSection();
+            if ((UINT32)aos_timer_array[i].timer == (UINT32)timer) {
+                sxr_StopFunctionTimer2(aos_timer_callback, &aos_timer_array[i]);
+                hal_SysExitCriticalSection(sc);
+                break;
+            }
+            hal_SysExitCriticalSection(sc);
+        }
     }
 
-    ERRNO_MAPPING(ret);
+    if (i == AOS_MAX_TIMERS) {
+        return -1;
+    }
+
+    return 0;
 }
 
 int aos_timer_change(aos_timer_t *timer, int ms)
 {
-    int ret;
+    int    ret;
+    UINT32 sc;
+    UINT8  i;
 
     if (timer == NULL) {
         return -EINVAL;
     }
 
-    ret = krhino_timer_change(timer->hdl, MS2TICK(ms), MS2TICK(ms));
-    if (ret == RHINO_SUCCESS) {
-        return 0;
+    for (i = 0; i < AOS_MAX_TIMERS; i++) {
+        if (aos_timer_array[i].flags == AOS_TIMER_USED) {
+            sc = hal_SysEnterCriticalSection();
+            if ((UINT32)aos_timer_array[i].timer == (UINT32)timer) {
+                aos_timer_array[i].ms = ms;
+                hal_SysExitCriticalSection(sc);
+                break;
+            }
+            hal_SysExitCriticalSection(sc);
+        }
     }
 
-    ERRNO_MAPPING(ret);
+    if (i == AOS_MAX_TIMERS) {
+        return -1;
+    }
+
+    return 0;
 }
+
 #endif
 
 #if (RHINO_CONFIG_WORKQUEUE > 0)
@@ -577,7 +687,7 @@ int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size)
     if (ret != RHINO_SUCCESS) {
         aos_free(wq);
         aos_free(stk);
-        ERRNO_MAPPING(ret);
+        return ret;
     }
 
     workqueue->hdl = wq;
@@ -603,7 +713,7 @@ int aos_work_init(aos_work_t *work, void (*fn)(void *), void *arg, int dly)
     ret = krhino_work_init(w, fn, arg, MS2TICK(dly));
     if (ret != RHINO_SUCCESS) {
         aos_free(w);
-        ERRNO_MAPPING(ret);
+        return ret;
     }
 
     work->hdl = w;
@@ -643,7 +753,7 @@ int aos_work_run(aos_workqueue_t *workqueue, aos_work_t *work)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 int aos_work_sched(aos_work_t *work)
@@ -659,7 +769,7 @@ int aos_work_sched(aos_work_t *work)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ret;
 }
 
 int aos_work_cancel(aos_work_t *work)
@@ -679,6 +789,7 @@ int aos_work_cancel(aos_work_t *work)
 }
 #endif
 
+#if (RHINO_CONFIG_MM_TLF > 0)
 void *aos_zalloc(unsigned int size)
 {
     void *tmp = NULL;
@@ -771,6 +882,7 @@ void aos_free(void *mem)
 
     krhino_mm_free(mem);
 }
+#endif
 
 long long aos_now(void)
 {
@@ -781,29 +893,17 @@ long long aos_now_ms(void)
 {
     return krhino_sys_time_get();
 }
-
-char *aos_now_time_str(char *buffer, const int len)
-{
-    const long long ms = aos_now_ms();
-    if (buffer != NULL && len > 0) {
-        time_t actualTime = { ms / 1000 };
-        memset(buffer, 0, len);
-        strftime(buffer, len, "%m-%d %H:%M:%S", gmtime(&actualTime));
-        if ((int)(len - strlen(buffer) - 1) > 0) {
-            const int milli    = ms % 1000;
-            char      msStr[8] = "";
-	    memset(msStr, 0, sizeof(msStr));
-            snprintf(msStr, sizeof(msStr), ".%03d", milli);
-            strncat(buffer, msStr, len - strlen(buffer) - 1);
-        }
-    }
-
-    return buffer;
-}
-
+#if 0
 void aos_msleep(int ms)
 {
     krhino_task_sleep(MS2TICK(ms));
+}
+#endif
+
+void aos_msleep(int ms)
+{
+    // krhino_task_sleep(MS2TICK(ms));
+    rhino_to_sxr_sleep(ms * 16384 / 1000);
 }
 
 void aos_init(void)
@@ -815,4 +915,3 @@ void aos_start(void)
 {
     krhino_start();
 }
-

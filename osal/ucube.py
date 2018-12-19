@@ -12,13 +12,13 @@ def osal_pre(comp):
     osal = aos_global_config.get('osal', 'rhino')
     if osal == 'freertos':
         comp.add_global_macros('OSAL_FREERTOS')
-        comp.add_sources('aos/aos_freertos.c')
+        comp.add_sources('aos/freertos.c')
     elif osal == 'posix':
         comp.add_global_macros('OSAL_POSIX')
-        comp.add_sources('aos/aos_posix.c')
+        comp.add_sources('aos/posix.c')
     elif osal == 'winmsvs':
         comp.add_global_macros('OSAL_MSVS')
-        comp.add_sources('aos/aos_winnt.c')
+        comp.add_sources('aos/winnt.c')
     else:
         comp.add_global_macros('OSAL_RHINO')
         comp.add_comp_deps('kernel/rhino')
@@ -29,5 +29,5 @@ def osal_pre(comp):
         if aos_global_config.board == 'linuxhost' or aos_global_config.board == 'mk3060' \
                 or aos_global_config.board == 'mk3239' or aos_global_config.board == 'mk3166' or aos_global_config.board == 'mk3165':
             comp.add_sources('mico/mico_rhino.c')
-        comp.add_sources('aos/aos_rhino.c')
+        comp.add_sources('aos/rhino.c')
 osal_pre(component)
