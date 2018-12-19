@@ -8,6 +8,7 @@
 
 
 //#include <errno.h>
+#include <stdbool.h>
 #include <atomic.h>
 #include <device.h>
 #include <clock_control.h>
