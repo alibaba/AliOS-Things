@@ -38,13 +38,15 @@ User service APIs:
 /*ULOG export service APIs*/
 void ulog_init(const uint8_t host_name[8], const uint16_t depth);
 ULOG(M, S, F, L, ...);
-ULOGOS(S, ...);```
+ULOGOS(S, ...);
+```
 
 ## Simple use it
-Step 1. Depend middleware.uagent.ulog in your program, e.g. aos.mk in helloworld
+Step 1. Depend ulog in your program, e.g. aos.mk in helloworld. Actually, the module kernel/init has already depends on ulog as default. 
 Step 2. Include ulog declaration header aos/ulog.h
 Step 3. Initialize ulog function via  ulog_init("SOC", 64), parameter fill as you wish, 2nd parameter 64 is recommended, depends on your log frequncy and system resouce
 Step 4. ULOGOS(LOG_ERR, "error happens, param %d", param) to log your action.
+Step 5. Add compiler argument "log_async=1" to build the project, like "aos make helloworld@esp8266 log_async=1"
 
 ## Other
 
