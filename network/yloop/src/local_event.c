@@ -4,7 +4,12 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+
+#if defined(__ICCARM__) || defined(__CC_ARM)
+#include <sys/errno.h>
+#else
 #include <errno.h>
+#endif
 
 #include "aos/kernel.h"
 #include "aos/vfs.h"
