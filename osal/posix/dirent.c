@@ -42,9 +42,19 @@ int stat(const char *path, struct stat *buf)
     return aos_stat(path, buf);
 }
 
+int fstat(int fh, struct stat *buf)
+{
+    return aos_fstat(fh, buf);
+}
+
 int statfs(const char *path, struct statfs *buf)
 {
     return aos_statfs(path, buf);
+}
+
+int link(const char *path1, const char *path2)
+{
+    return aos_link(path1, path2);
 }
 
 int unlink(const char *path)
@@ -52,9 +62,9 @@ int unlink(const char *path)
     return aos_unlink(path);
 }
 
-int remove(const char *filename)
+int remove(const char *path)
 {
-    return aos_unlink(filename);
+    return aos_remove(path);
 }
 
 int rename(const char *oldname, const char *newname)
@@ -100,6 +110,16 @@ char *getcwd(char *buf, size_t size)
 int creat(const char *path, mode_t mode)
 {
     return open(path ,(O_CREAT|O_WRONLY|O_TRUNC));
+}
+
+long pathconf(const char *path, int name)
+{
+    return aos_pathconf(path, name);
+}
+
+long fpathconf(int fildes, int name)
+{
+    return aos_fpathconf(fildes, name);
 }
 
 #if (POSIX_DIRENT_TMPFILE_ENABLE > 0)
