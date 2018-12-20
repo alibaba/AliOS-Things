@@ -1,7 +1,7 @@
 NAME := modbus_demo
 
 $(NAME)_MBINS_TYPE := app
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY :=
 $(NAME)_SOURCES := modbus_test.c
 $(NAME)_SOURCES += modbus_demo.c
