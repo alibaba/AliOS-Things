@@ -7,7 +7,6 @@ $(NAME)_SUMMARY    := panic debug and cpuusage
 GLOBAL_INCLUDES += ./ ./include
 
 GLOBAL_DEFINES  += AOS_DEBUG_PANIC
-AOS_DEBUG_PANIC :=1
 
 #default gcc
 ifeq ($(COMPILER),)
