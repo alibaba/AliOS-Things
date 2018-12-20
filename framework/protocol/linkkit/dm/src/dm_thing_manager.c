@@ -1162,6 +1162,7 @@ static void dm_cm_register_uri_handler_property_set(
     property_set_param_obj = cJSON_Parse(cm_message_info->parameter);
     assert(property_set_param_obj && cJSON_IsObject(property_set_param_obj));
 
+    dm_thing_manager->_property_identifier_set_from_cloud = 1;
     property_iterator(thing,
                       find_and_set_lite_property_for_service_property_set,
                       dm_thing_manager, property_set_param_obj, thing, NULL);
@@ -2739,7 +2740,7 @@ static void set_property_value(void *_thing, va_list *params)
         if (strchr(dm_thing_manager->_identifier, '.') == NULL &&
             strchr(dm_thing_manager->_identifier, '[') == NULL &&
             strchr(dm_thing_manager->_identifier, ']') == NULL) {
-            if (dm_thing_manager->_ret == 0)
+            if (dm_thing_manager->_ret == 0 && dm_thing_manager->_property_identifier_set_from_cloud)
                 invoke_callback_list(dm_thing_manager,
                                      dm_callback_type_property_value_set);
         }
