@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 
+#include "debug_api.h"
 #include "k_config.h"
 #include "soc_init.h"
 
