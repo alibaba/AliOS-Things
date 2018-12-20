@@ -5,7 +5,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu aamcu_demo
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino vfs digest_algorithm kv
+$(NAME)_COMPONENTS += newlib_stub rhino vfs kv
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
