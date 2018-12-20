@@ -18,6 +18,7 @@
 .global cpu_first_task_start
 
 .global PendSV_Handler
+.global _first_task_restore
 
 @******************************************************************************
 @                                 EQUATES
