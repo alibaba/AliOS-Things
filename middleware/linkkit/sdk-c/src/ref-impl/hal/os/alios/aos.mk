@@ -12,7 +12,7 @@ $(NAME)_SOURCES := HAL_OS_rhino.c \
                    HAL_AWSS_rhino.c
 
 $(NAME)_COMPONENTS += \
-                      utility/log \
+                      ulog \
                       activation \
                       chip_code \
                       network/netmgr
