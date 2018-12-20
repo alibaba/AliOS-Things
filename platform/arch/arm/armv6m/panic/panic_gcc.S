@@ -1,8 +1,5 @@
 #include "k_config.h"
-
-#ifdef AOS_DEBUG_PANIC
 #include "debug_dft_config.h"
-#endif
 
 @******************************************************************************
 @                                 EQUATES
