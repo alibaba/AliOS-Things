@@ -41,6 +41,8 @@
 //#define LWIP_NETIF_LOOPBACK_MULTITHREADING       1
 //#define LWIP_LOOPBACK_MAX_PBUFS         8
 
+#define TCP_MAXRTX                      3
+
 #define TCPIP_THREAD_NAME               "tcp/ip"
 #define TCPIP_THREAD_STACKSIZE          3072
 #define TCPIP_THREAD_PRIO               32
