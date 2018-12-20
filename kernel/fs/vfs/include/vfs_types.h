@@ -77,7 +77,10 @@ struct vfs_filesystem_ops {
     uint32_t      (*lseek)     (vfs_file_t *fp, uint32_t off, int32_t whence);
     int32_t       (*sync)      (vfs_file_t *fp);
     int32_t       (*stat)      (vfs_file_t *fp, const char *path, vfs_stat_t *st);
+    int32_t       (*fstat)     (vfs_file_t *fp, vfs_stat_t *st);
+    int32_t       (*link)      (vfs_file_t *fp, const char *path1, const char *path2);
     int32_t       (*unlink)    (vfs_file_t *fp, const char *path);
+    int32_t       (*remove)    (vfs_file_t *fp, const char *path);
     int32_t       (*rename)    (vfs_file_t *fp, const char *oldpath, const char *newpath);
     vfs_dir_t    *(*opendir)   (vfs_file_t *fp, const char *path);
     vfs_dirent_t *(*readdir)   (vfs_file_t *fp, vfs_dir_t *dir);
@@ -90,6 +93,8 @@ struct vfs_filesystem_ops {
     int32_t       (*ioctl)     (vfs_file_t *fp, int32_t cmd, uint32_t arg);
     int32_t       (*statfs)    (vfs_file_t *fp, const char *path, vfs_statfs_t *suf);
     int32_t       (*access)    (vfs_file_t *fp, const char *path, int32_t amode);
+    int32_t       (*pathconf)  (vfs_file_t *fp, const char *path, int name);
+    int32_t       (*fpathconf) (vfs_file_t *fp, int name);
 };
 
 #endif /* VFS_TYPES_H */
