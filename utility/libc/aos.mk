@@ -14,14 +14,12 @@ endif
 else
 $(NAME)_SOURCES := compilers/armlibc/armcc_libc.c
 endif
-GLOBAL_INCLUDES += compilers/armlibc compilers/armlibc/sys
+GLOBAL_INCLUDES += compilers/armlibc
 else ifeq ($(COMPILER),rvct)
 $(NAME)_SOURCES := compilers/armlibc/armcc_libc.c
-GLOBAL_INCLUDES += compilers/armlibc \
-                   compilers/armlibc/sys
+GLOBAL_INCLUDES += compilers/armlibc
 else ifeq ($(COMPILER),iar)
-GLOBAL_INCLUDES += compilers/iar \
-                   compilers/iar/sys
+GLOBAL_INCLUDES += compilers/iar
 $(NAME)_SOURCES := compilers/iar/iar_libc.c
 else ifeq ($(HOST_MCU_FAMILY),mcu_rda8955)
 $(NAME)_SOURCES := mips_rda_stub.c
