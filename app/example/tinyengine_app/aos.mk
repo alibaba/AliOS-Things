@@ -9,7 +9,7 @@ $(NAME)_SOURCES := tinyengine_app.c
 #export AOS_CONFIG_TINYENGINE_TYPE=JSE_DUKTAPE
 export AOS_CONFIG_TINYENGINE_TYPE=JSE_TINYENGINE
 
-$(NAME)_COMPONENTS := log yloop cli feature.linkkit-mqtt cjson netmgr ota
+$(NAME)_COMPONENTS := ulog yloop cli feature.linkkit-mqtt cjson netmgr ota
 $(NAME)_COMPONENTS += spiffs
 $(NAME)_COMPONENTS += tiny_engine
 
