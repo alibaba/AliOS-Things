@@ -250,7 +250,7 @@ void aos_loop_run(void)
 
         int res = aos_poll(ctx->pollfds, readers, delayed_ms);
 
-        if (res < 0 && errno != EINTR) {
+        if (res < 0 && res != EINTR) {
             LOGE(TAG, "aos_poll");
             return;
         }
