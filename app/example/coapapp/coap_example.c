@@ -62,7 +62,8 @@ int iotx_get_devinfo(iotx_deviceinfo_t *p_devinfo)
     HAL_GetProductKey(p_devinfo->product_key);
     HAL_GetDeviceName(p_devinfo->device_name);
     HAL_GetDeviceSecret(p_devinfo->device_secret);
-    HAL_GetDeviceID(p_devinfo->device_id);
+    HAL_Snprintf(p_devinfo->device_id, DEVICE_ID_LEN, "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
+    p_devinfo->device_id[DEVICE_ID_LEN - 1] = '\0';
     /**< end*/
 
     fprintf(stderr, "*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
