@@ -8,6 +8,6 @@ ifneq ($(ENABLE_USPACE),1)
 $(NAME)_SOURCES := aos_init.c
 endif
 
-$(NAME)_COMPONENTS += log
+$(NAME)_COMPONENTS += ulog
 
 GLOBAL_INCLUDES += include
