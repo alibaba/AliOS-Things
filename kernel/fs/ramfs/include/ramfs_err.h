@@ -18,6 +18,9 @@
 #define RAMFS_ERR_OUT_OF_MEM -10009 /* Not enough memory for an interal operation */
 #define RAMFS_ERR_INV_PARAM  -10010 /* Invalid parameter among arguments */
 #define RAMFS_ERR_UNKOWN     -10011 /* Other unknown error */
+#define RAMFS_ERR_PATH       -10012 /* Path error */
+#define RAMFS_ERR_MALLOC     -10013 /* Malloc error */
+#define RAMFS_ERR_LINK_MAX   -10014 /* Exceed RAMFS_LINK_MAX */
 
 #endif /* RAMFS_ERR_H */
 

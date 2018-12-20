@@ -86,7 +86,7 @@ static void ramfs_ll_init(ramfs_ll_t *ll, uint32_t size)
  */
 static void *ramfs_ll_ins_head(ramfs_ll_t *ll)
 {
-    ramfs_ll_node_t *new;
+    ramfs_ll_node_t *new = NULL;
 
     new = ramfs_mm_alloc(ll->size + RAMFS_LL_NODE_META_SIZE);
 
@@ -226,6 +226,28 @@ static void ramfs_ll_remove(ramfs_ll_t *ll, void *node)
 }
 
 /**
+ * @brief Search path in link
+ *
+ * @param[in] fn file name
+ *
+ * @return 0 if get path in link, RAMFS_ERR_FS if failed
+ */
+static int ramfs_search_link(ramfs_entry_t *entry, char *path)
+{
+    link_name_t *link_name = entry->link;
+
+    while (link_name != NULL) {
+        if (strncmp(link_name->name, path, strlen(path)) == 0) {
+            return RAMFS_OK;
+        } else {
+            link_name = link_name->next;
+        }
+    }
+
+    return RAMFS_ERR_FS;
+}
+
+/**
  * @brief Give the ramfs entry from a filename
  *
  * @param[in] fn file name
@@ -235,11 +257,18 @@ static void ramfs_ll_remove(ramfs_ll_t *ll, void *node)
  */
 static ramfs_entry_t *ramfs_entry_get(const char *fn)
 {
-    ramfs_entry_t *fp;
+    ramfs_entry_t *entry;
+    link_name_t   *link_name;
+    int            ret = -1;
 
-    RAMFS_LL_READ(g_file_ll, fp) {
-        if (strncmp(fp->fn, fn, strlen(fn)) == 0) {
-            return fp;
+    RAMFS_LL_READ(g_file_ll, entry) {
+        if (strncmp(entry->fn, fn, strlen(fn)) == 0) {
+            return entry;
+        } else {
+            ret = ramfs_search_link(entry, fn);
+            if (ret == RAMFS_OK) {
+                return entry;
+            }
         }
     }
 
@@ -271,6 +300,8 @@ static ramfs_entry_t *ramfs_entry_new(const char *fn)
     new_entry->refs       = 0;
     new_entry->const_data = 0;
     new_entry->is_dir     = 0;
+    new_entry->link       = NULL;
+    new_entry->link_count = 0;
 
     return new_entry;
 }
@@ -367,6 +398,7 @@ int32_t ramfs_open(void *fp, const char* fn, uint32_t mode)
 
     return RAMFS_OK;
 }
+
 int32_t ramfs_create_const(const char *fn, const void *data, uint32_t len)
 {
     int32_t res;
@@ -421,6 +453,9 @@ int32_t ramfs_remove(const char *fn)
 {
     ramfs_entry_t *entry = ramfs_entry_get(fn);
 
+    link_name_t *link_name      = NULL;
+    link_name_t *link_name_next = NULL;
+
     if (entry->refs != 0) {
         return RAMFS_ERR_DENIED;
     }
@@ -428,6 +463,14 @@ int32_t ramfs_remove(const char *fn)
     ramfs_ll_remove(&g_file_ll, entry);
     ramfs_mm_free(entry->fn);
     entry->fn = NULL;
+
+    link_name = entry->link;
+    while(link_name != NULL) {
+        link_name_next = link_name->next;
+        ramfs_mm_free(link_name->name);
+        ramfs_mm_free(link_name);
+        link_name = link_name_next;
+    }
 
     if (entry->const_data == 0) {
         ramfs_mm_free(entry->data);
@@ -762,3 +805,202 @@ int32_t ramfs_stat(const char *path, ramfs_stat_t *st)
     return RAMFS_OK;
 }
 
+int ramfs_add_link(ramfs_entry_t *entry, char *path)
+{
+    link_name_t *link_name   = entry->link;
+    link_name_t *link_name_c = NULL;
+
+    link_name_c = ramfs_mm_alloc(sizeof(link_name_t));
+
+    if (link_name_c != NULL) {
+        link_name_c->name = ramfs_mm_alloc(strlen(path));
+        if (link_name_c->name != NULL) {
+            strcpy(link_name_c->name, path);
+            link_name_c->next = NULL;
+            entry->link_count += 1;
+        } else {
+            ramfs_mm_free(link_name_c);
+            return RAMFS_ERR_MALLOC;
+        }
+    } else {
+        return RAMFS_ERR_MALLOC;
+    }
+
+    if (link_name == NULL) {
+        entry->link = link_name_c;
+    } else {
+        while (link_name->next != NULL) {
+            link_name = link_name->next;
+        }
+
+        link_name->next = link_name_c;
+    }
+
+    return 0;
+}
+
+int ramfs_remove_link(ramfs_entry_t *entry, char *path)
+{
+    link_name_t *link_name   = entry->link;
+    link_name_t *link_name_c = NULL;
+    link_name_t *link_name_l = NULL;
+
+    if (link_name == NULL) {
+         return RAMFS_ERR_INV_PARAM;
+    }
+
+    if (strncmp(link_name->name, path, strlen(path)) == 0) {
+        ramfs_mm_free(link_name->name);
+        link_name->name = ramfs_mm_alloc(strlen(link_name->next->name));
+        if (link_name->name == NULL) {
+            return RAMFS_ERR_MALLOC;
+        }
+
+        strcpy(link_name->name, link_name->next->name);
+        link_name->next = link_name->next->next;
+        entry->link_count -= 1;
+    } else {
+        link_name_l = link_name;
+        link_name_c = link_name->next;
+
+        while (link_name_c != NULL) {
+            if (strncmp(link_name_c->name, path, strlen(path)) == 0) {
+                link_name_l->next = link_name_c->next;
+                ramfs_mm_free(link_name_c->name);
+                ramfs_mm_free(link_name_c);
+                entry->link_count -= 1;
+            }
+
+            link_name_l = link_name_c;
+            link_name_c = link_name_c->next;
+        }
+    }
+
+    return 0;
+}
+
+int ramfs_link(const char *path1, const char *path2)
+{
+    ramfs_entry_t *entry = NULL;
+    int            ret = -1;
+
+    entry = ramfs_entry_get(path2);
+    if (entry != NULL) {
+        return RAMFS_ERR_PATH;
+    }
+
+    entry = ramfs_entry_get(path1);
+    if (entry == NULL) {
+        return RAMFS_ERR_NOT_EXIST;
+    }
+
+    if ((entry != NULL) && (entry->is_dir == 1)) {
+        return RAMFS_ERR_PATH;
+    }
+
+    if (entry->link_count >= RAMFS_LINK_MAX) {
+        return RAMFS_ERR_LINK_MAX;
+    }
+
+    ret = ramfs_add_link(entry, path2);
+    if (ret != 0) {
+        return RAMFS_ERR_MALLOC;
+    }
+
+    return 0;
+}
+
+int ramfs_unlink(const char *path)
+{
+    ramfs_entry_t *entry = NULL;
+    int            ret = -1;
+
+    entry = ramfs_entry_get(path);
+    if (entry == NULL) {
+        return RAMFS_ERR_PATH;
+    }
+
+    if (strncmp(entry->fn, path, strlen(path)) == 0) {
+        ret = ramfs_remove(path);
+    } else {
+        ret = ramfs_remove_link(entry, path);
+    }
+
+    return ret;
+}
+
+int32_t ramfs_pathconf(int32_t name)
+{
+    int32_t val = 0;
+
+    switch (name) {
+        case _PC_FILESIZEBITS :
+            val = -1;
+            break;
+        case _PC_LINK_MAX :
+            val = RAMFS_LINK_MAX;
+            break;
+        case _PC_MAX_CANON :
+            val = -1;
+            break;
+        case _PC_MAX_INPUT :
+            val = -1;
+            break;
+        case _PC_NAME_MAX :
+            val = RAMFS_NAME_MAX;
+            break;
+        case _PC_PATH_MAX :
+            val = RAMFS_PATH_MAX;
+            break;
+        case _PC_PIPE_BUF :
+            val = -1;
+            break;
+        case _PC_2_SYMLINKS :
+            val = -1;
+            break;
+        case _PC_ALLOC_SIZE_MIN :
+            val = RAMFS_ALLOC_SIZE_MIN;
+            break;
+        case _PC_REC_INCR_XFER_SIZE :
+            val = -1;
+            break;
+        case _PC_REC_MAX_XFER_SIZE :
+            val = -1;
+            break;
+        case _PC_REC_MIN_XFER_SIZE :
+            val = -1;
+            break;
+        case _PC_REC_XFER_ALIGN :
+            val = -1;
+            break;
+        case _PC_SYMLINK_MAX :
+            val = -1;
+            break;
+        case _PC_CHOWN_RESTRICTED :
+            val = -1;
+            break;
+        case _PC_NO_TRUNC :
+            val = -1;
+            break;
+        case _PC_VDISABLE :
+            val = -1;
+            break;
+        case _PC_ASYNC_IO :
+            val = -1;
+            break;
+        case _PC_PRIO_IO :
+            val = -1;
+            break;
+        case _PC_SYNC_IO :
+            val = -1;
+            break;
+        case _PC_TIMESTAMP_RESOLUTION :
+            val = -1;
+            break;
+        default:
+            val = -1;
+            break;
+    }
+
+    return val;
+}
