@@ -84,7 +84,10 @@ struct fs_ops {
     off_t         (*lseek)(file_t *fp, off_t off, int whence);
     int           (*sync)(file_t *fp);
     int           (*stat)(file_t *fp, const char *path, struct aos_stat *st);
+    int           (*fstat)(file_t *fp, struct aos_stat *st);
+    int           (*link)(file_t *fp, const char *path1, const char *path2);
     int           (*unlink)(file_t *fp, const char *path);
+    int           (*remove)(file_t *fp, const char *path);
     int           (*rename)(file_t *fp, const char *oldpath, const char *newpath);
     aos_dir_t    *(*opendir)(file_t *fp, const char *path);
     aos_dirent_t *(*readdir)(file_t *fp, aos_dir_t *dir);
@@ -97,6 +100,8 @@ struct fs_ops {
     int           (*ioctl)(file_t *fp, int cmd, unsigned long arg);
     int           (*statfs)(file_t *fp, const char *path, struct aos_statfs *suf);
     int           (*access)(file_t *fp, const char *path, int amode);
+    long          (*pathconf)(file_t *fp, const char *path, int name);
+    long          (*fpathconf)(file_t *fp, int name);
 };
 
 /**
