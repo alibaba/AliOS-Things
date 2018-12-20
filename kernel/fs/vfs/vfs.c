@@ -357,6 +357,75 @@ int32_t vfs_stat(const char *path, vfs_stat_t *st)
     return ret;
 }
 
+int32_t vfs_fstat(int fd, vfs_stat_t *st)
+{
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    f = vfs_file_get(fd);
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
+    }
+
+    node = f->node;
+
+    if (INODE_IS_FS(node)) {
+        if ((node->ops.i_fops->fstat) != NULL) {
+            ret = (node->ops.i_fops->fstat)(f, st);
+        }
+    }
+
+    return ret;
+}
+
+int32_t vfs_link(const char *path1, const char *path2)
+{
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    if ((path1 == NULL)||(path2 == NULL)) {
+        return VFS_ERR_INVAL;
+    }
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    node = vfs_inode_open(path1);
+
+    if (node == NULL) {
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
+    }
+
+    f = vfs_file_new(node);
+
+    vfs_unlock(g_vfs_lock_ptr);
+
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
+    }
+
+    if (INODE_IS_FS(node)) {
+        if ((node->ops.i_fops->link) != NULL) {
+            ret = (node->ops.i_fops->link)(f, path1, path2);
+        }
+    }
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
+
+    return ret;
+}
+
 int32_t vfs_unlink(const char *path)
 {
     int32_t ret = VFS_ERR_NOSYS;
@@ -390,6 +459,52 @@ int32_t vfs_unlink(const char *path)
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->unlink) != NULL) {
             ret = (node->ops.i_fops->unlink)(f, path);
+        }
+    }
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
+
+    return ret;
+}
+
+int32_t vfs_remove(const char *path)
+{
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    if (path == NULL) {
+        return VFS_ERR_INVAL;
+    }
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    node = vfs_inode_open(path);
+
+    if (node == NULL) {
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
+    }
+
+    f = vfs_file_new(node);
+
+    vfs_unlock(g_vfs_lock_ptr);
+
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
+    }
+
+    if (INODE_IS_FS(node)) {
+        if ((node->ops.i_fops->remove) != NULL) {
+            ret = (node->ops.i_fops->remove)(f, path);
         }
     }
 
@@ -859,6 +974,76 @@ char *vfs_getcwd(char *buf, size_t size)
 #else
     return NULL;
 #endif
+}
+
+
+int32_t vfs_pathconf(const char *path, int name)
+{
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    if (path == NULL) {
+        return VFS_ERR_INVAL;
+    }
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    node = vfs_inode_open(path);
+
+    if (node == NULL) {
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
+    }
+
+    f = vfs_file_new(node);
+
+    vfs_unlock(g_vfs_lock_ptr);
+
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
+    }
+
+    if (INODE_IS_FS(node)) {
+        if ((node->ops.i_fops->pathconf) != NULL) {
+            ret = (node->ops.i_fops->pathconf)(f, path, name);
+        }
+    }
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
+
+    return ret;
+}
+
+int32_t vfs_fpathconf(int fd, int name)
+{
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *file;
+    vfs_inode_t *node;
+
+    file = vfs_file_get(fd);
+    if (file == NULL) {
+        return VFS_ERR_NOENT;
+    }
+
+    node = file->node;
+
+    if (INODE_IS_FS(node)) {
+        if ((node->ops.i_fops->fpathconf) != NULL) {
+            ret = (node->ops.i_fops->fpathconf)(file, name);
+        }
+    }
+
+    return ret;
 }
 
 int32_t vfs_fd_offset_get(void)

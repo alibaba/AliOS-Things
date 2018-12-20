@@ -164,7 +164,17 @@ static off_t vfs_ramfs_lseek(file_t *fp, off_t off, int32_t whence)
     return fp->offset;
 }
 
+static int32_t vfs_ramfs_link(file_t *fp, const char *path1, const char *path2)
+{
+    return ramfs_link(path1, path2);
+}
+
 static int32_t vfs_ramfs_unlink(file_t *fp, const char *path)
+{
+    return ramfs_unlink(path);
+}
+
+static int32_t vfs_ramfs_remove(file_t *fp, const char *path)
 {
     return ramfs_remove(path);
 }
@@ -238,6 +248,49 @@ static int32_t vfs_ramfs_stat(file_t *fp, const char *path, struct aos_stat *st)
     return ret;
 }
 
+static int32_t vfs_ramfs_fstat(file_t *fp, struct aos_stat *st)
+{
+    ramfs_stat_t ramfs_st;
+    ramfs_file_t ramfs_file;
+
+    int32_t ret = 0;
+
+    if (st == NULL) {
+        return -1;
+    }
+
+    memset(&ramfs_st, 0, sizeof(ramfs_st));
+    memset(&ramfs_file, 0, sizeof(ramfs_file));
+
+    ramfs_file.entry = (ramfs_entry_t *)fp->f_arg;
+
+    ret = ramfs_stat(ramfs_file.entry->fn, &ramfs_st);
+
+    if (ret == 0) {
+        st->st_size = ramfs_st.st_size;
+        st->st_mode = S_IXUSR | S_IXGRP | S_IXOTH;
+
+        if ((ramfs_st.st_mode & RAMFS_MODE_RD) == RAMFS_MODE_RD) {
+            st->st_mode |= S_IRUSR | S_IRGRP | S_IROTH;
+        }
+
+        if ((ramfs_st.st_mode & RAMFS_MODE_WR) == RAMFS_MODE_WR) {
+            st->st_mode |= S_IWUSR | S_IWGRP | S_IWOTH;
+        }
+
+        if (ramfs_st.is_dir == 1) {
+            st->st_mode |= S_IFDIR;
+        } else {
+            st->st_mode |= S_IFREG;
+        }
+
+    } else {
+        ret = -1;
+    }
+
+    return ret;
+}
+
 static int32_t vfs_ramfs_statfs(file_t *fp, const char *path, struct aos_statfs *buf)
 {
     if (buf == NULL) {
@@ -281,23 +334,38 @@ static aos_dirent_t *vfs_ramfs_readdir(file_t *fp, aos_dir_t *dir)
     return ret;
 }
 
-fs_ops_t fs_ops_ramfs = { .open     = &vfs_ramfs_open,
-                          .close    = &vfs_ramfs_close,
-                          .read     = &vfs_ramfs_read,
-                          .write    = &vfs_ramfs_write,
-                          .access   = &vfs_ramfs_access,
-                          .lseek    = &vfs_ramfs_lseek,
-                          .sync     = NULL,
-                          .stat     = &vfs_ramfs_stat,
-                          .statfs   = &vfs_ramfs_statfs,
-                          .unlink   = &vfs_ramfs_unlink,
-                          .rename   = NULL,
-                          .opendir  = &vfs_ramfs_opendir,
-                          .readdir  = &vfs_ramfs_readdir,
-                          .closedir = &vfs_ramfs_closedir,
-                          .mkdir    = &vfs_ramfs_mkdir,
-                          .seekdir  = NULL,
-                          .ioctl    = NULL };
+static int32_t vfs_ramfs_pathconf(file_t *fp, const char *path, int32_t name)
+{
+    return ramfs_pathconf(name);
+}
+
+static int32_t vfs_ramfs_fpathconf(file_t *fp, int32_t name)
+{
+    return ramfs_pathconf(name);
+}
+
+fs_ops_t fs_ops_ramfs = { .open      = &vfs_ramfs_open,
+                          .close     = &vfs_ramfs_close,
+                          .read      = &vfs_ramfs_read,
+                          .write     = &vfs_ramfs_write,
+                          .access    = &vfs_ramfs_access,
+                          .lseek     = &vfs_ramfs_lseek,
+                          .sync      = NULL,
+                          .stat      = &vfs_ramfs_stat,
+                          .fstat     = &vfs_ramfs_fstat,
+                          .statfs    = &vfs_ramfs_statfs,
+                          .link      = &vfs_ramfs_link,
+                          .unlink    = &vfs_ramfs_unlink,
+                          .remove    = &vfs_ramfs_remove,
+                          .rename    = NULL,
+                          .opendir   = &vfs_ramfs_opendir,
+                          .readdir   = &vfs_ramfs_readdir,
+                          .closedir  = &vfs_ramfs_closedir,
+                          .mkdir     = &vfs_ramfs_mkdir,
+                          .seekdir   = NULL,
+                          .ioctl     = NULL,
+                          .pathconf  = &vfs_ramfs_pathconf,
+                          .fpathconf = &vfs_ramfs_fpathconf };
 
 int32_t ramfs_register(const char *mount_path)
 {
