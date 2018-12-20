@@ -3,9 +3,9 @@
  */
 
 #include <stdint.h>
-#include "hal/hal.h"
 #include "k_config.h"
 #include "board.h"
+#include "aos/hal/uart.h"
 
 /*
 * @ default logic uart port: PORT_UART_STD to map with different physical GPIO port
