@@ -5,7 +5,6 @@
 
 
 
-
 #include "iot_import.h"
 #include "shadow_debug.h"
 #include "iotx_utils.h"
@@ -149,9 +148,15 @@ iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt
         CHECK_SNPRINTF_RET(ret, size_free_space);
         pformat->offset += ret;
     }
-    HAL_GetDeviceID(device_id);
+
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    HAL_Snprintf(device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
+    device_id[DEVICE_ID_LEN-1] = '\0';
     size_free_space = pformat->buf_size - pformat->offset;
-    
+
     ret = HAL_Snprintf(pformat->buf + pformat->offset,
                        size_free_space,
                        UPDATE_JSON_STR_END,
