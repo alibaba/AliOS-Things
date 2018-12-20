@@ -12,43 +12,18 @@
 #error "CONFIG_BLUETOOTH not defined,this header shoudn't include"
 #endif
 
-/**
- * CONFIG_BT_HCI_RX_STACK_SIZE: rx thread stack size
- */
 #if defined(BLE_APP_RECONFIG_AISILOP) || defined(BLE_APP_RECONFIG_MESHSRV)
 #undef CONFIG_BT_HCI_RX_STACK_SIZE
-#define CONFIG_BT_HCI_RX_STACK_SIZE 512
+#define CONFIG_BT_HCI_RX_STACK_SIZE 288
 #else
 #ifndef CONFIG_BT_HCI_RX_STACK_SIZE
-#define CONFIG_BT_HCI_RX_STACK_SIZE 512
+#define CONFIG_BT_HCI_RX_STACK_SIZE 256
 #endif
 #endif
 
-#if defined(BLE_APP_RECONFIG_AISILOP) || defined(BLE_APP_RECONFIG_MESHSRV)
-#undef CONFIG_BT_RX_STACK_SIZE
-#define CONFIG_BT_RX_STACK_SIZE 800
-#else
-#ifndef CONFIG_BT_RX_STACK_SIZE
-#define CONFIG_BT_RX_STACK_SIZE 512
-#endif
-#endif
-
-
-#if defined(BLE_APP_RECONFIG_AISILOP) || defined(BLE_APP_RECONFIG_MESHSRV)
-#undef CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE
-#define CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE 200
-#else
-#ifndef CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE
-#define CONFIG_BT_CTLR_RX_PRIO_STACK_SIZE 156
-#endif
-#endif
 /**
  * CONFIG_BT_HCI_RX_PRIO: rx thread priority
  */
-/*
-#ifndef CONFIG_BT_HCI_RX_PRIO
-#define CONFIG_BT_HCI_RX_PRIO 41
-#endif*/
 
 #ifndef CONFIG_BT_RX_PRIO
 #define CONFIG_BT_RX_PRIO 21
