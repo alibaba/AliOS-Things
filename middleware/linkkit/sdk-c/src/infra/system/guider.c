@@ -125,7 +125,7 @@ int iotx_guider_set_custom_domain(int domain_type, const char *domain)
     return SUCCESS_RETURN;
 }
 
-/* sign used hmacSha256 default */ 
+/* sign used hmacSha256 default */
 static int _calc_hmac_signature(
             char *hmac_sigbuf,
             const int hmac_buflen,
@@ -154,9 +154,9 @@ static int _calc_hmac_signature(
     LITE_ASSERT(rc < sizeof(hmac_source));
 
     utils_hmac_sha256(hmac_source, strlen(hmac_source),
-                    signature,
-                    dev.device_secret,
-                    strlen(dev.device_secret));
+                      signature,
+                      dev.device_secret,
+                      strlen(dev.device_secret));
 
     memcpy(hmac_sigbuf, signature, sizeof(signature));
 
@@ -789,8 +789,8 @@ int iotx_device_info_get(iotx_device_info_t *device_info)
     HAL_GetProductKey(device_info->product_key);
     HAL_GetDeviceName(device_info->device_name);
     HAL_GetDeviceSecret(device_info->device_secret);
-    HAL_GetDeviceID(device_info->device_id);
-
+    HAL_Snprintf(device_info->device_id, DEVICE_ID_LEN, "%s.%s", device_info->product_key, device_info->device_name);
+    device_info->device_id[DEVICE_ID_LEN - 1] = '\0';
     return 0;
 }
 

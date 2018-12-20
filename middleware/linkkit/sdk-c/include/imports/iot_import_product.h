@@ -38,15 +38,6 @@ DLL_HAL_API int HAL_GetPartnerID(_OU_ char pid_str[PID_STR_MAXLEN]);
  */
 DLL_HAL_API int HAL_GetModuleID(_OU_ char mid_str[MID_STR_MAXLEN]);
 
-
-/**
- * @brief   获取设备的`DeviceID`, 用于标识设备单品的ID
- *
- * @param   device_id : 用来存放DeviceID字符串的数组
- * @return  写到device_id[]数组中的字符长度, 单位是字节(Byte)
- */
-DLL_HAL_API int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_LEN]);
-
 /**
  * @brief   获取唯一的芯片ID字符串
  *

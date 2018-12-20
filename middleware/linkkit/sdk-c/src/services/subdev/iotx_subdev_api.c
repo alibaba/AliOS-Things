@@ -704,7 +704,8 @@ void *being_deprecated IOT_Gateway_Construct(iotx_gateway_param_pt gateway_param
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
     HAL_GetDeviceSecret(device_secret);
-    HAL_GetDeviceID(device_id);
+    HAL_Snprintf(device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
+    device_id[DEVICE_ID_LEN-1] = '\0';
 #endif
 
     PARAMETER_NULL_CHECK_WITH_RESULT(gateway_param, NULL);
