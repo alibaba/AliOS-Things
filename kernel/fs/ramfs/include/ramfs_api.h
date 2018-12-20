@@ -197,6 +197,36 @@ int32_t ramfs_closedir(void *dp);
  */
 int32_t ramfs_stat(const char *path, ramfs_stat_t *st);
 
+/**
+ * @brief Get path info
+ *
+ * @param[in] name the kind of path conf to get
+ *
+ * @return value of path info
+ */
+int32_t ramfs_pathconf(int32_t name);
+
+/**
+ * @brief link path2 to path1
+ *
+ * @param[in] path1 the path to be linked
+ * @param[in] path2 the path to link
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int ramfs_link(const char *path1, const char *path2);
+
+/**
+ * @brief Remove a file from the filesystem
+ *
+ * @param[in] path the path of the file to remove
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int ramfs_unlink(const char *path);
+
 #ifdef __cplusplus
 }
 #endif

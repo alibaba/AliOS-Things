@@ -8,6 +8,18 @@
 #define RAMFS_MAGIC  0x890910
 #define RAMFS_LETTER 'U'
 
+#define RAMFS_PATH_MAX       128
+#define RAMFS_NAME_MAX       RAMFS_PATH_MAX
+#define RAMFS_LINK_MAX       1024
+#define RAMFS_ALLOC_SIZE_MIN 1
+
+/* Description of a link name */
+typedef struct link_name_s
+{
+    char  *name;
+    struct link_name_s *next;
+} link_name_t;
+
 /* Description of a file entry */
 typedef struct {
     char     *fn;
@@ -18,6 +30,9 @@ typedef struct {
     uint8_t   is_dir : 1;
     uint8_t   ar : 1;     /* 1: Access for read is enabled */
     uint8_t   aw : 1;     /* 1: Access for write is enabled */
+
+    link_name_t *link;
+    uint16_t     link_count;
 } ramfs_entry_t;
 
 /* Description of a file */
