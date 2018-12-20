@@ -54,7 +54,7 @@
 #define IOTX_MC_RECONNECT_INTERVAL_MIN_MS       (1000)
 
 /* Maximum interval of MQTT reconnect in millisecond */
-#define IOTX_MC_RECONNECT_INTERVAL_MAX_MS       (60000)
+#define IOTX_MC_RECONNECT_INTERVAL_MAX_MS       (16000)
 
 /* Minimum timeout interval of MQTT request in millisecond */
 #define IOTX_MC_REQUEST_TIMEOUT_MIN_MS          (500)
