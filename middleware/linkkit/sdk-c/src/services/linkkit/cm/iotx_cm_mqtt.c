@@ -190,8 +190,8 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
                 CM_ERR("topic malloc failed");
                 return;
             }
-            memset(topic,0,topic_info->topic_len + 1);
-            memcpy(topic,topic_info->ptopic,topic_info->topic_len);
+            memset(topic, 0, topic_info->topic_len + 1);
+            memcpy(topic, topic_info->ptopic, topic_info->topic_len);
 
             topic_handle_func(_mqtt_conncection->fd, topic, topic_info->payload, topic_info->payload_len, NULL);
 
@@ -229,7 +229,8 @@ static int  _mqtt_connect(uint32_t timeout)
 
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
-    HAL_GetDeviceID(device_id);
+    HAL_Snprintf(device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
+    device_id[DEVICE_ID_LEN-1] = '\0';
     HAL_GetDeviceSecret(device_secret);
 
     ARGUMENT_SANITY_CHECK(strlen(device_name), FAIL_RETURN);
