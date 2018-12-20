@@ -1,0 +1,10 @@
+menuconfig AOS_MCU_SSCP131
+    bool "sscp131"
+    default n
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_SSCP131
+# Configurations for mcu sscp131
+endif
