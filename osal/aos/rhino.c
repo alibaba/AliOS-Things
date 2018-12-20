@@ -3,7 +3,7 @@
  */
 
 #include <k_api.h>
-#include <errno.h>
+#include <aos/errno.h>
 #include <aos/kernel.h>
 #include <stdio.h>
 #include <time.h>
