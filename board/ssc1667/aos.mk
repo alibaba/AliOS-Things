@@ -1,13 +1,13 @@
-NAME := board_hr8p296fllt
+NAME := board_ssc1667
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
-$(NAME)_SUMMARY    := configuration for board hr8p296fllt
+$(NAME)_SUMMARY    := configuration for board ssc1667
 MODULE             := 1062
-HOST_ARCH          := Cortex-M0
-HOST_MCU_FAMILY    := mcu_hr8p2xx
+HOST_ARCH          := Cortex-M3
+HOST_MCU_FAMILY    := mcu_sscp131
 SUPPORT_MBINS      := no
-HOST_MCU_NAME      := HR8P296
+HOST_MCU_NAME      := SSCP131
 ENABLE_VFP         := 0
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub
@@ -20,7 +20,7 @@ $(NAME)_SOURCES += config/k_config.c \
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup/startup_keil.s
 $(NAME)_LINK_FILES := startup/startup_keil.o
-GLOBAL_LDFLAGS += -L --scatter=board/hr8p296fllt/hr8p296.sct
+GLOBAL_LDFLAGS += -L --scatter=board/ssc1667/ssc1667.sct
 endif
 
 GLOBAL_INCLUDES += .    \
@@ -29,5 +29,5 @@ GLOBAL_INCLUDES += .    \
                    startup/  \
 
 # Keil project support
-$(NAME)_KEIL_VENDOR = HR
-$(NAME)_KEIL_DEVICE = HR8P296FLLT
+$(NAME)_KEIL_VENDOR = ARM
+$(NAME)_KEIL_DEVICE = Cortex-M3

@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_SSC1667
+    bool "ssc1667"
+    select AOS_MCU_SCCP131
+    help
+
+if AOS_BOARD_SSC1667
+# Configurations for board ssc1667
+endif
