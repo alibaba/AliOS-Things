@@ -62,8 +62,8 @@
  */
 #include <stdarg.h>
 #include <stdio.h>
-#include <errno.h>
 
+#include "aos/errno.h"
 #include "aos/hal/uart.h"
 
 #include "fsl_device_registers.h"

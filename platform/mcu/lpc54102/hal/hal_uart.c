@@ -62,9 +62,9 @@
  */
 #include <stdarg.h>
 #include <stdio.h>
-#include <errno.h>
 #include <k_api.h>
 
+#include "aos/errno.h"
 #include "aos/kernel.h"
 #include "aos/log.h"
 
