@@ -25,4 +25,4 @@ global_macros =Split('''
 for i in global_macros:
     component.add_global_macros(i)
 
-linux_only_targets="blink bluetooth.bleadv helloworld modbus_demo yts"
+linux_only_targets="blink bluetooth.bleadv bluetooth.bleperipheral helloworld modbus_demo yts"
