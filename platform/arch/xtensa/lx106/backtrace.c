@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include "k_api.h"
-
-#ifdef AOS_DEBUG_PANIC
 #include "debug_api.h"
-#endif
 
 #define BACK_TRACE_LIMIT 64
 
