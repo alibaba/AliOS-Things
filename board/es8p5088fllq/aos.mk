@@ -14,7 +14,8 @@ $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub
 
 $(NAME)_SOURCES += config/k_config.c \
                    startup/board.c   \
-                   startup/startup.c
+                   startup/startup.c \
+                   drivers/irqhandler.c
 
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES    += startup/startup_keil.s
