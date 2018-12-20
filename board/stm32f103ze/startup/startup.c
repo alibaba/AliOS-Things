@@ -10,7 +10,7 @@
 /*
 main task stask size(byte)
 */
-#define OS_MAIN_TASK_STACK 0x400
+#define OS_MAIN_TASK_STACK 1024
 #define OS_MAIN_TASK_PRI 32
 
 /*  For user config
@@ -31,7 +31,7 @@ extern int application_start(int argc, char **argv);
 static void sys_init(void)
 {
     /* user code start*/
-
+    stm32_soc_peripheral_init();
     /*insert driver to enable irq for example: starting to run tick time.
      drivers to trigger irq is forbidden before aos_start, which will start core schedule.
     */

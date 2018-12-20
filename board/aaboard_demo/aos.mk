@@ -5,7 +5,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board aaboard_demo
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
-HOST_MCU_FAMILY    := aamcu_demo
+HOST_MCU_FAMILY    := mcu_aamcu_demo
 SUPPORT_MBINS       := no
 HOST_MCU_NAME      := aamcu1_demo
 ENABLE_VFP         := 1
@@ -38,3 +38,9 @@ GLOBAL_INCLUDES += .        \
                    config/  \
                    drivers/ \
                    startup/
+
+CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_aaboard_demo
+CONFIG_SYSINFO_DEVICE_NAME   := aaboard_demo
+
+GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
+GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
