@@ -11,6 +11,7 @@ extern "C"
 #endif
 
 #include <stdio.h>
+#include <unistd.h>
 
 #include "k_api.h"
 #include "aos/vfs.h"
@@ -73,6 +74,8 @@ long           telldir(DIR *dirp);
 void           seekdir(DIR *dirp, long loc);
 off_t          lseek(int fildes, off_t offset, int whence);
 int            stat(const char *path, struct stat *buf);
+int            fstat(int fh, struct stat *buf);
+int            link(const char *path1, const char *path2);
 int            unlink(const char *path);
 int            remove(const char *filename);
 int            rename(const char *oldname, const char *newname);
@@ -84,6 +87,8 @@ int            ioctl(int fildes, int request, ... /* arg */);
 int            chdir(const char *path);
 char          *getcwd(char *buf, size_t size);
 int            creat(const char *path, mode_t mode);
+long           pathconf(const char *path, int name);
+long           fpathconf(int fildes, int name);
 
 /* the bytes of s must bigger than 32 */
 char          *tmpnam(char *s);
