@@ -15,5 +15,3 @@ else
 $(NAME)_COMPONENTS += cli
 endif
 
-GLOBAL_DEFINES += DELETE_HFILOP_CODE
-

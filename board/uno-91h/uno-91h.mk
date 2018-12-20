@@ -2,20 +2,20 @@ NAME := board_uno-91h
 
 JTAG := jlink
 
-$(NAME)_TYPE 		 := kernel
+$(NAME)_TYPE         := kernel
 MODULE               := xxx
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := rda5981x
 
-$(NAME)_SOURCES := board.c	\
-		   startup_uno-91h.s
+$(NAME)_SOURCES := board.c    \
+                   startup_uno-91h.s
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES  += STDIO_UART=0
 GLOBAL_DEFINES  += RHINO_CONFIG_TICK_TASK=0 RHINO_CONFIG_WORKQUEUE=0
 
 ifeq ($(shell uname -o), Msys)
-	CURRENT_TIME = $(shell ${DATE} +%Y%m%d.%H%M)
+    CURRENT_TIME = $(shell ${DATE} +%Y%m%d.%H%M)
 endif
 
 #CONFIG_SYSINFO_KERNEL_VERSION = AOS-R-1.3.4
@@ -33,7 +33,17 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_CFLAGS += -DSYSINFO_KERNEL_VERSION=\"$(CONFIG_SYSINFO_KERNEL_VERSION)\"
 GLOBAL_CFLAGS += -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
 
-GLOBAL_LDFLAGS  += -L $(SOURCE_ROOT)/board/uno-91h
+GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/board/uno-91h
+
+ifeq ($(APP_FULL), linkkitapp)
+GLOBAL_LDFLAGS += board/uno-91h/hfilop/hfilop.a
+$(NAME)_COMPONENTS += uOTA
+else ifeq ($(APP_FULL), linkkit_gateway)
+GLOBAL_LDFLAGS += board/uno-91h/hfilop/hfilop.a
+$(NAME)_COMPONENTS += uOTA
+else
+GLOBAL_DEFINES += DELETE_HFILOP_CODE
+endif
 
 # Global defines
 GLOBAL_DEFINES += $$(if $$(NO_CRLF_STDIO_REPLACEMENT),,CRLF_STDIO_REPLACEMENT)
