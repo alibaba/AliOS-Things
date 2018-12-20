@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 #if defined(__ICCARM__) || defined(__CC_ARM)
-#include "errno.h"
+#include <sys/errno.h>
 #else
 #include <errno.h>
 #endif
