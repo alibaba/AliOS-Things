@@ -38,15 +38,12 @@ sys_time_t krhino_sys_time_get(void)
 tick_t krhino_ms_to_ticks(sys_time_t ms)
 {
     uint16_t  padding;
-    uint16_t  surplus;
     tick_t    ticks;
 
-    surplus = ms % 1000;
-    ticks = (ms / 1000) * RHINO_CONFIG_TICKS_PER_SECOND;
     padding = 1000 / RHINO_CONFIG_TICKS_PER_SECOND;
     padding = (padding > 0) ? (padding - 1) : 0;
 
-    ticks += ((surplus + padding) * RHINO_CONFIG_TICKS_PER_SECOND) / 1000;
+    ticks = ((ms + padding) * RHINO_CONFIG_TICKS_PER_SECOND) / 1000;
 
     return ticks;
 }
@@ -54,16 +51,12 @@ tick_t krhino_ms_to_ticks(sys_time_t ms)
 sys_time_t krhino_ticks_to_ms(tick_t ticks)
 {
     uint32_t   padding;
-    uint32_t   surplus;
     sys_time_t time;
 
-    surplus = ticks % RHINO_CONFIG_TICKS_PER_SECOND;
-    time = (ticks / RHINO_CONFIG_TICKS_PER_SECOND) * 1000;
     padding = RHINO_CONFIG_TICKS_PER_SECOND / 1000;
     padding = (padding > 0) ? (padding - 1) : 0;
 
-    time += ((surplus + padding) * 1000) / RHINO_CONFIG_TICKS_PER_SECOND;
+    time = ((ticks + padding) * 1000) / RHINO_CONFIG_TICKS_PER_SECOND;
 
     return time;
 }
-
