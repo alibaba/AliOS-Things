@@ -171,18 +171,6 @@ char *HAL_GetChipID(_OU_ char *cid_str)
 }
 
 
-int HAL_GetDeviceID(_OU_ char *device_id)
-{
-    memset(device_id, 0x0, DEVICE_ID_LEN);
-#ifdef __DEMO__
-    HAL_Snprintf(device_id, DEVICE_ID_LEN, "%s.%s", _product_key, _device_name);
-    device_id[DEVICE_ID_LEN - 1] = '\0';
-#endif
-
-    return strlen(device_id);
-}
-
-
 /**
  * @brief   获取设备的固件版本字符串
  *
