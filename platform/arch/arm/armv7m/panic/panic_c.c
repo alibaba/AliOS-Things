@@ -2,9 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifdef AOS_DEBUG_PANIC
 #include "debug_api.h"
-#endif
 
 #if (RHINO_CONFIG_BACKTRACE > 0)
 
