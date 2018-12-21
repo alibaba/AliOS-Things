@@ -8,12 +8,12 @@
 typedef void (*ota_breeze_get_data_t) (breeze_otainfo_t* breeze_info);
 
 typedef struct _ota_ble_version_{
-    uint8_t fw_ver[OTA_BREEZE_FW_VER_LEN];
-    uint32_t fw_ver_len;
+    unsigned char fw_ver[OTA_BREEZE_FW_VER_LEN];
+    unsigned int fw_ver_len;
 }ota_breeze_version_t;
 
 typedef struct _ota_ble_service_dat{
-    uint8_t is_ota_enable;
+    unsigned char is_ota_enable;
     ota_breeze_version_t verison;
     ota_breeze_get_data_t get_dat_cb;
 }ota_breeze_service_manage_t;
