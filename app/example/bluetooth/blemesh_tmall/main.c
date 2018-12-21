@@ -148,7 +148,7 @@ static void handle_set_mac(char *pwbuf, int blen, int argc, char **argv)
         mac[i / 3] = ((char2u8(p) & 0x0f) << 4) | (char2u8(p+1) & 0x0f);
     }
 
-    ais_set_mac(mac);
+    //ais_set_mac(mac);
 }
 #endif
 
@@ -158,7 +158,7 @@ int application_start(int argc, char **argv)
     aos_cli_register_commands(&tmall_cmds[0], sizeof(tmall_cmds) / sizeof(tmall_cmds[0]));
 #endif
     aos_post_delayed_action(1000, app_delayed_action, NULL);
-    ais_ota_bt_storage_init();
+    //ais_ota_bt_storage_init();
     aos_loop_run();
     return 0;
 }
