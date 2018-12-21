@@ -142,6 +142,7 @@ typedef struct {
     r_u8 channel;
     r_u8 scan_mode;
     r_u8 scan_time;
+    r_u8 country_code;
 }rda59xx_scan_info;
 
 extern r_void rda59xx_set_country_code(r_u8 c_code);
@@ -184,7 +185,7 @@ typedef struct {
 } rda59xx_bss_info;
 
 extern r_s32 rda59xx_get_joined_AP(rda59xx_scan_result *bss);
-
+extern void rda5981_set_auth_timeout(r_u8 timeout_enable);
 /****************************************ap************************************************/
 typedef struct {
     r_u8 mac[ETH_ALEN];
@@ -206,7 +207,7 @@ typedef struct{
 }rda59xx_ap_info;
 
 extern r_u32 rda59xx_get_ap_join_info(rda59xx_apsta_info_t *buf, const r_u32 len);
-extern r_void rda59xx_set_AP_link_num(r_u8 num);
+
 extern r_void rda59xx_set_AP_white_list(r_u32 flag, r_u8 *mac);
 
 #endif /* _RDA59XX_WIFI_INCLUDE_H_ */
