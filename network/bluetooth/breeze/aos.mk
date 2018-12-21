@@ -27,15 +27,19 @@ endif
 
 $(NAME)_SOURCES-y += api/breeze_export.c
 
-bz_en_awss ?= 1
-ifeq ($(bz_en_awss), 1)
-GLOBAL_DEFINES-y += EN_COMBO_NET
-$(NAME)_SOURCES-y += core/extcmd.c
-$(NAME)_SOURCES-y += api/breeze_awss_export.c
-endif
-
 bz_en_auth ?= 1
 ifeq ($(bz_en_auth), 1)
 GLOBAL_DEFINES-y += EN_AUTH
 $(NAME)_SOURCES-y += core/auth.c
 endif
+
+bz_en_awss ?= 1
+ifeq ($(bz_en_awss), 1)
+ifeq ($(bz_en_auth), 0)
+$(error awss need authentication, please set "bz_en_auth = 1")
+endif
+GLOBAL_DEFINES-y += EN_COMBO_NET
+$(NAME)_SOURCES-y += core/extcmd.c
+$(NAME)_SOURCES-y += api/breeze_awss_export.c
+endif
+
