@@ -1,4 +1,4 @@
-NAME := devkit_gui
+NAME := dk_gui
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
