@@ -211,7 +211,7 @@ static ret_code_t send_fragment(void)
 static void trans_rx_dispatcher(void)
 {
     if (!is_valid_rx_command(g_transport.rx.cmd)) {
-            return;
+        return;
     }
 
     if((g_transport.rx.cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH){

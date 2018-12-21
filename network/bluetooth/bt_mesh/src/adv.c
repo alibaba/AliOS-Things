@@ -62,11 +62,8 @@ static const u8_t adv_type[] = {
     [BT_MESH_ADV_BEACON] = BT_DATA_MESH_BEACON,
 };
 
-#if 0
 NET_BUF_POOL_DEFINE(adv_buf_pool, CONFIG_BT_MESH_ADV_BUF_COUNT,
                     BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
-#endif
-extern struct net_buf_pool adv_buf_pool;
 
 static struct bt_mesh_adv adv_pool[CONFIG_BT_MESH_ADV_BUF_COUNT];
 

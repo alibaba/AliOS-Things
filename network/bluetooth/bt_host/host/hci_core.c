@@ -68,9 +68,9 @@ struct bt_dev bt_dev = {
 #else
     .ncmd_sem = _K_SEM_INITIALIZER(bt_dev.ncmd_sem, 0, 1),
 #endif
-    .cmd_tx_queue = _K_FIFO_INITIALIZER(bt_dev.cmd_tx_queue),
+    .cmd_tx_queue = K_FIFO_INITIALIZER(bt_dev.cmd_tx_queue),
 #if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
-    .rx_queue = _K_FIFO_INITIALIZER(bt_dev.rx_queue),
+    .rx_queue = K_FIFO_INITIALIZER(bt_dev.rx_queue),
 #endif
 };
 
@@ -125,10 +125,11 @@ struct acl_data
  * the same buffer is also used for the response.
  */
 #define CMD_BUF_SIZE BT_BUF_RX_SIZE
-extern struct net_buf_pool hci_cmd_pool;
-extern struct net_buf_pool hci_rx_pool;
+NET_BUF_POOL_DEFINE(hci_cmd_pool, CONFIG_BT_HCI_CMD_COUNT,
+                    CMD_BUF_SIZE, BT_BUF_USER_DATA_MIN, NULL);
 
-extern struct k_sem g_poll_sem;
+NET_BUF_POOL_DEFINE(hci_rx_pool, CONFIG_BT_RX_BUF_COUNT,
+                    BT_BUF_RX_SIZE, BT_BUF_USER_DATA_MIN, NULL);
 
 #if defined(CONFIG_BT_HCI_ACL_FLOW_CONTROL)
 static void report_completed_packet(struct net_buf *buf)
@@ -236,7 +237,6 @@ int bt_hci_cmd_send(u16_t opcode, struct net_buf *buf)
     }
 
     net_buf_put(&bt_dev.cmd_tx_queue, buf);
-    k_sem_give(&g_poll_sem);
     return 0;
 }
 
@@ -263,7 +263,6 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf,
     net_buf_ref(buf);
 
     net_buf_put(&bt_dev.cmd_tx_queue, buf);
-    k_sem_give(&g_poll_sem);
 
     err = k_sem_take(&sync_sem, HCI_CMD_TIMEOUT);
     __ASSERT(err == 0, "k_sem_take failed with err %d", err);
@@ -552,7 +551,6 @@ static void hci_num_completed_packets(struct net_buf *buf)
 
             k_fifo_put(&conn->tx_notify, node);
             k_sem_give(bt_conn_get_pkts(conn));
-            k_sem_give(&g_poll_sem);
         }
 
         bt_conn_unref(conn);
@@ -3253,6 +3251,7 @@ static void process_events(struct k_poll_event *ev, int count)
 #define EV_COUNT 1
 #endif
 
+extern struct k_work_q g_work_queue;
 static void hci_tx_thread(void *p1, void *p2, void *p3)
 {
     static struct k_poll_event events[EV_COUNT] = {
@@ -3265,9 +3264,19 @@ static void hci_tx_thread(void *p1, void *p2, void *p3)
 
     while (1) {
         int ev_count, err;
+        int delayed_ms = 0;
+
+        if (k_queue_is_empty(&g_work_queue) == 0) {
+            struct k_work *work = k_queue_first_entry(&g_work_queue);
+            uint32_t now = (uint32_t)aos_now_ms();
+
+            if (now < (work->start_ms + work->timeout)) {
+                delayed_ms = work->start_ms + work->timeout - now;
+            }
+        }
 
         events[0].state = K_POLL_STATE_NOT_READY;
-        ev_count        = 1;
+        ev_count = 1;
 
         if (IS_ENABLED(CONFIG_BT_CONN)) {
             ev_count += bt_conn_prepare_events(&events[1]);
@@ -3275,14 +3284,23 @@ static void hci_tx_thread(void *p1, void *p2, void *p3)
 
         BT_DBG("Calling k_poll with %d events", ev_count);
 
-        err = k_poll(events, ev_count, K_FOREVER);
+        if (delayed_ms == 0) {
+            delayed_ms = 1;
+        }
+        err = k_poll(events, ev_count, delayed_ms);
         BT_ASSERT(err == 0);
 
         process_events(events, ev_count);
 
-        /* Make sure we don't hog the CPU if there's all the time
-         * some ready events.
-         */
+        if (k_queue_is_empty(&g_work_queue) == 0) {
+            struct k_work *work = k_queue_first_entry(&g_work_queue);
+            uint32_t now = (uint32_t)aos_now_ms();
+
+            if (now >= (work->start_ms + work->timeout)) {
+                k_queue_remove(&g_work_queue, work);
+                work->handler(work);
+            }
+        }
         k_yield();
     }
 }
@@ -4469,13 +4487,8 @@ int bt_enable(bt_ready_cb_t cb)
 #else
     k_sem_init(&bt_dev.ncmd_sem, 0, 1);
 #endif
-    k_fifo_init(&bt_dev.cmd_tx_queue);
-#if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
-    k_fifo_init(&bt_dev.rx_queue);
-#endif
-    k_lifo_init(&hci_cmd_pool.free);
-    k_lifo_init(&hci_rx_pool.free);
 
+    extern struct k_sem g_poll_sem;
     k_sem_init(&g_poll_sem, 0, 1);
 
     ready_cb = cb;

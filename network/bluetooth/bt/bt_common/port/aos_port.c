@@ -26,88 +26,12 @@
 #include <k_ringbuf.h>
 #include <k_obj.h>
 #include <k_sem.h>
-#include <k_queue.h>
 #include <k_buf_queue.h>
 #include <k_stats.h>
 #include <k_time.h>
 #include <k_task.h>
 #include <port.h>
 #endif
-
-
-void k_queue_init(struct k_queue *queue)
-{
-    int     stat;
-    uint8_t blk_size = sizeof(void *) + 1;
-
-    stat = krhino_buf_queue_create(&queue->_queue, "ble", queue->msg_start,
-                                   QUEUE_DEF_SIZE * blk_size, blk_size);
-    if (stat) {
-        SYS_LOG_ERR("buf queue exhausted\n");
-    }
-    sys_dlist_init(&queue->poll_events);
-}
-
-static inline void handle_poll_events(struct k_queue *queue, u32_t state)
-{
-    _handle_obj_poll_events(&queue->poll_events, state);
-}
-
-void k_queue_cancel_wait(struct k_queue *queue)
-{
-    handle_poll_events(queue, K_POLL_STATE_NOT_READY);
-}
-
-void k_queue_insert(struct k_queue *queue, void *prev, void *data)
-{
-    krhino_buf_queue_send(&queue->_queue, &data, sizeof(void *));
-    handle_poll_events(queue, K_POLL_STATE_DATA_AVAILABLE);
-}
-
-void k_queue_append(struct k_queue *queue, void *data)
-{
-    k_queue_insert(queue, NULL, data);
-}
-
-void k_queue_prepend(struct k_queue *queue, void *data)
-{
-    k_queue_insert(queue, NULL, data);
-}
-
-void k_queue_append_list(struct k_queue *queue, void *head, void *tail)
-{
-    struct net_buf *buf_tail = (struct net_buf *)head;
-
-    for (buf_tail = (struct net_buf *)head; buf_tail;
-         buf_tail = buf_tail->frags) {
-        k_queue_append(queue, buf_tail);
-    }
-    handle_poll_events(queue, K_POLL_STATE_DATA_AVAILABLE);
-}
-
-void *k_queue_get(struct k_queue *queue, s32_t timeout)
-{
-    void *       msg = NULL;
-    unsigned int len;
-    tick_t       ticks;
-
-    if (timeout == K_FOREVER) {
-        ticks = RHINO_WAIT_FOREVER;
-    } else {
-        ticks = krhino_ms_to_ticks(timeout);
-    }
-
-    if (0 == (krhino_buf_queue_recv(&queue->_queue, ticks, &msg, &len))) {
-        return msg;
-    } else {
-        return NULL;
-    }
-}
-
-int k_queue_is_empty(struct k_queue *queue)
-{
-    return queue->_queue.cur_num ? 0 : 1;
-}
 
 int k_sem_init(struct k_sem *sem, unsigned int initial_count,
                unsigned int limit)
