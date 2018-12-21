@@ -5,13 +5,30 @@
 #ifndef AOS_CLI_H
 #define AOS_CLI_H
 
+#ifndef AOS_CLI_MINI_SIZE
+#define AOS_CLI_MINI_SIZE       0
+#endif
+
+#if(AOS_CLI_MINI_SIZE > 0)
+
+/*can config to cut mem size*/
+#define INBUF_SIZE   64
+#define OUTBUF_SIZE  200    /*not use now*/
+#define MAX_COMMANDS 10
+
+#define CLI_MAX_ARG_NUM    8
+#define CLI_MAX_ONCECMD_NUM    1
+
+#else
+/*can config to cut mem size*/
 #define MAX_COMMANDS 64
 #define INBUF_SIZE   256
 #define OUTBUF_SIZE  2048
-#define HIS_SIZE     5
 
 #define CLI_MAX_ARG_NUM    16
 #define CLI_MAX_ONCECMD_NUM    6
+
+#endif
 
 
 #ifndef FUNCPTR
@@ -36,11 +53,12 @@ struct cli_st {
     unsigned int bp; /* buffer pointer */
 
     char inbuf[INBUF_SIZE];
-    char outbuf[OUTBUF_SIZE];
-
+    char *outbuf;
+    #if(AOS_CLI_MINI_SIZE <= 0)
     int his_idx;
     int his_cur;
-    char history[HIS_SIZE][INBUF_SIZE];
+    char history[INBUF_SIZE];
+	#endif
 };
 
 #define CLI_ARGS char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv

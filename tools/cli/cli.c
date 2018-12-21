@@ -69,7 +69,7 @@ static const struct cli_command *lookup_command(char *name, int len)
 
 /*proc one cli cmd and to run the according funtion
 * Returns: 0 on success:
-           1 fail 
+           1 fail
 */
 static int proc_onecmd(int argc,char * argv[])
 {
@@ -97,10 +97,18 @@ static int proc_onecmd(int argc,char * argv[])
         return 1;
     }
 
+    cli->outbuf = aos_malloc(OUTBUF_SIZE);
+    if (NULL == cli->outbuf) {
+        cli_putstr("Error! cli alloc mem fail!\r\n");
+        return 1;
+    }
     memset(cli->outbuf, 0, OUTBUF_SIZE);
 
     command->function(cli->outbuf, OUTBUF_SIZE, argc, argv);
     cli_putstr(cli->outbuf);
+
+    aos_free(cli->outbuf);
+    cli->outbuf = NULL;
     return 0;
 }
 
@@ -203,7 +211,7 @@ static int handle_input(char *inbuf)
                         if(++cmdnum < CLI_MAX_ONCECMD_NUM) {
                             pargc = &argcall[cmdnum];
                         }
-                    }    
+                    }
                 }
 
                 break;
@@ -275,6 +283,105 @@ static void tab_complete(char *inbuf, unsigned int *bp)
     aos_cli_printf("%s%s", PROMPT, inbuf);
 }
 
+
+#if(AOS_CLI_MINI_SIZE <= 0)
+
+static void cli_history_input(void)
+{
+    char *inbuf = cli->inbuf;
+    int charnum = strlen(cli->inbuf) + 1;
+
+    int his_cur = cli->his_cur;
+    int left_num = INBUF_SIZE - his_cur;
+    char lastchar;
+    int tmp_idx;
+
+    cli->his_idx = his_cur;
+
+    if (left_num >= charnum) {
+        tmp_idx = his_cur + charnum - 1;
+        lastchar = cli->history[tmp_idx];
+        strncpy(&(cli->history[his_cur]), inbuf, charnum);
+
+    } else {
+        tmp_idx = (his_cur + charnum - 1) % INBUF_SIZE;
+        lastchar = cli->history[tmp_idx];
+        strncpy(&(cli->history[his_cur]), inbuf, left_num);
+        strncpy(&(cli->history[0]), inbuf + left_num, charnum - left_num);
+    }
+    tmp_idx = (tmp_idx + 1) % INBUF_SIZE;
+    cli->his_cur = tmp_idx;
+
+    /*overwrite*/
+    if ('\0' != lastchar) {
+
+        while (cli->history[tmp_idx] != '\0') {
+            cli->history[tmp_idx] = '\0';
+            tmp_idx = (tmp_idx + 1) % INBUF_SIZE;
+        }
+    }
+
+}
+
+
+static void cli_up_history(char *inaddr)
+{
+    int index;
+    int lastindex = 0;
+
+    lastindex = cli->his_idx;
+    index = (cli->his_idx - 1 + INBUF_SIZE) % INBUF_SIZE;
+
+    while ((cli->history[index] == '\0') && (index != cli->his_idx)) {
+        index = (index - 1 + INBUF_SIZE) % INBUF_SIZE;
+    }
+    if (index != cli->his_idx) {
+        while (cli->history[index] != '\0') {
+            index = (index - 1 + INBUF_SIZE) % INBUF_SIZE;
+        }
+        index = (index + 1) % INBUF_SIZE;
+    }
+    cli->his_idx = index;
+
+    while (cli->history[lastindex] != '\0' ) {
+
+        *inaddr++ = cli->history[lastindex];
+        lastindex = (lastindex + 1) % INBUF_SIZE;
+    }
+    *inaddr = '\0';
+
+    return ;
+}
+
+static void cli_down_history(char *inaddr)
+{
+    int index;
+    int lastindex = 0;
+
+    lastindex = cli->his_idx;
+    index = cli->his_idx;
+
+    while ((cli->history[index] != '\0')) {
+        index = (index + 1) % INBUF_SIZE;
+    }
+    if (index != cli->his_idx) {
+        while (cli->history[index] == '\0') {
+            index = (index + 1) % INBUF_SIZE;
+        }
+    }
+    cli->his_idx = index;
+
+    while (cli->history[lastindex] != '\0' ) {
+        *inaddr++ = cli->history[lastindex];
+        lastindex = (lastindex + 1) % INBUF_SIZE;
+    }
+
+    *inaddr = '\0';
+
+    return ;
+}
+#endif
+
 /* Get an input line.
  *
  * Returns: 1 if there is input, 0 if the line should be ignored.
@@ -288,7 +395,6 @@ static int get_input(char *inbuf, unsigned int *bp)
         return 0;
     }
 
-    cli->his_idx = (cli->his_cur + HIS_SIZE - 1) % HIS_SIZE;
     while (cli_getchar(&c) == 1) {
         if (c == RET_CHAR || c == END_CHAR) {   /* end of input line */
             inbuf[*bp] = '\0';
@@ -348,10 +454,14 @@ static int get_input(char *inbuf, unsigned int *bp)
                 continue;
             }
 
+            #if(AOS_CLI_MINI_SIZE > 0)
+            if (key2 == 0x41 || key2 == 0x42){
+                csp_printf("\r\n" PROMPT "Warning! mini cli mode do not support history cmds!");
+            }
+
+            #else
             if (key2 == 0x41) { /* UP */
-                char *cmd = cli->history[cli->his_idx];
-                cli->his_idx = (cli->his_idx + HIS_SIZE - 1) % HIS_SIZE;
-                strncpy(inbuf, cmd, INBUF_SIZE);
+                cli_up_history(inbuf);
                 csp_printf("\r\n" PROMPT "%s", inbuf);
                 *bp = strlen(inbuf);
                 esc_tag[0] = '\x0';
@@ -361,9 +471,7 @@ static int get_input(char *inbuf, unsigned int *bp)
             }
 
             if (key2 == 0x42) { /* DOWN */
-                char *cmd = cli->history[cli->his_idx];
-                cli->his_idx = (cli->his_idx + 1) % HIS_SIZE;
-                strncpy(inbuf, cmd, INBUF_SIZE);
+                cli_down_history(inbuf);
                 csp_printf("\r\n" PROMPT "%s", inbuf);
                 *bp = strlen(inbuf);
                 esc_tag[0] = '\x0';
@@ -371,7 +479,7 @@ static int get_input(char *inbuf, unsigned int *bp)
                 esc = 0; /* quit escape sequence */
                 continue;
             }
-
+            #endif
 
             /* ESC_TAG */
             if (esc_tag_len >= sizeof(esc_tag)) {
@@ -462,10 +570,11 @@ static void cli_main(void *data)
                 break;
             }
 #endif
+            #if(AOS_CLI_MINI_SIZE <= 0)
             if (strlen(cli->inbuf) > 0) {
-                strncpy(cli->history[cli->his_cur], cli->inbuf, INBUF_SIZE);
-                cli->his_cur = (cli->his_cur + 1) % HIS_SIZE;
+                cli_history_input();
             }
+            #endif
 
             ret = handle_input(msg);
             if (ret == 1) {
@@ -490,9 +599,11 @@ static void cli_main(void *data)
 
 static void help_cmd(char *buf, int len, int argc, char **argv);
 static void version_cmd(char *buf, int len, int argc, char **argv);
+#if(AOS_CLI_MINI_SIZE <= 0)
 static void echo_cmd(char *buf, int len, int argc, char **argv);
 static void exit_cmd(char *buf, int len, int argc, char **argv);
 static void devname_cmd(char *buf, int len, int argc, char **argv);
+#endif
 static void reboot_cmd(char *buf, int len, int argc, char **argv);
 static void uptime_cmd(char *buf, int len, int argc, char **argv);
 static void ota_cmd(char *buf, int len, int argc, char **argv);
@@ -500,9 +611,12 @@ static void ota_cmd(char *buf, int len, int argc, char **argv);
 static const struct cli_command built_ins[] = {
     /*cli self*/
     {"help",        NULL,       help_cmd},
+	#if(AOS_CLI_MINI_SIZE <= 0)
     {"echo",        NULL,       echo_cmd},
+
     {"exit",        "CLI exit", exit_cmd},
     {"devname",     "print device name", devname_cmd},
+    #endif
 
     /*rhino*/
     {"sysver",      NULL,       version_cmd},
@@ -554,6 +668,10 @@ static void version_cmd(char *buf, int len, int argc, char **argv)
 #endif
 }
 
+
+
+#if(AOS_CLI_MINI_SIZE <= 0)
+
 static void echo_cmd(char *buf, int len, int argc, char **argv)
 {
     if (argc == 1) {
@@ -582,6 +700,7 @@ static void devname_cmd(char *buf, int len, int argc, char **argv)
     aos_cli_printf("device name: %s\r\n", SYSINFO_DEVICE_NAME);
 }
 
+#endif
 
 static void reboot_cmd(char *buf, int len, int argc, char **argv)
 {
