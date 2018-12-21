@@ -13,6 +13,7 @@
 #include "nrf_drv_clock.h"
 #include "nrf_fstorage_nvmc.h"
 
+#define FLASH_ERASE_PAGE_SIZE     (0x1000)
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
 #define FLASH_ALIGN_MASK ~(sizeof(uint32_t) - 1)
@@ -171,6 +172,12 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
 
     return 0;
 
+}
+
+
+uint32_t hal_flash_erase_sector_size()
+{
+    return FLASH_ERASE_PAGE_SIZE;
 }
 
 int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)

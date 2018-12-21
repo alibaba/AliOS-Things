@@ -25,7 +25,11 @@
 #include "nrf_drv_power.h"
 #endif
 
+#ifndef NRF52810_XXAA
+#define AOS_START_STACK 2000
+#else
 #define AOS_START_STACK 300
+#endif
 
 #define WIFI_PRODUCT_INFO_SIZE                      ES_WIFI_MAX_SSID_NAME_SIZE
 
