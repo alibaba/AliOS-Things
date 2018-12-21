@@ -38,9 +38,6 @@ GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/board/uno-91h
 ifeq ($(APP_FULL), linkkitapp)
 GLOBAL_LDFLAGS += board/uno-91h/hfilop/hfilop.a
 $(NAME)_COMPONENTS += uOTA
-else ifeq ($(APP_FULL), linkkit_gateway)
-GLOBAL_LDFLAGS += board/uno-91h/hfilop/hfilop.a
-$(NAME)_COMPONENTS += uOTA
 else
 GLOBAL_DEFINES += DELETE_HFILOP_CODE
 endif
