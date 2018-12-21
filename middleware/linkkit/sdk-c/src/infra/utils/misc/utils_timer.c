@@ -18,9 +18,9 @@ void iotx_time_start(iotx_time_t *timer)
     timer->time = HAL_UptimeMs();
 }
 
-uint32_t utils_time_spend(iotx_time_t *start)
+uint64_t utils_time_spend(iotx_time_t *start)
 {
-    uint32_t now, res;
+    uint64_t now, res;
 
     if (!start) {
         return 0;
@@ -31,9 +31,9 @@ uint32_t utils_time_spend(iotx_time_t *start)
     return res;
 }
 
-uint32_t iotx_time_left(iotx_time_t *end)
+uint64_t iotx_time_left(iotx_time_t *end)
 {
-    uint32_t now, res;
+    uint64_t now, res;
 
     if (!end) {
         return 0;
@@ -48,9 +48,9 @@ uint32_t iotx_time_left(iotx_time_t *end)
     return res;
 }
 
-uint32_t utils_time_is_expired(iotx_time_t *timer)
+int utils_time_is_expired(iotx_time_t *timer)
 {
-    uint32_t cur_time;
+    uint64_t cur_time;
 
     if (!timer) {
         return 1;
@@ -62,7 +62,7 @@ uint32_t utils_time_is_expired(iotx_time_t *timer)
      *
      *  check whether it reach destination time or not.
      */
-    if ((cur_time - timer->time) < (UINT32_MAX / 2)) {
+    if ((cur_time - timer->time) < (UINT64_MAX / 2)) {
         return 1;
     } else {
         return 0;
@@ -78,7 +78,7 @@ void iotx_time_init(iotx_time_t *timer)
     timer->time = 0;
 }
 
-void utils_time_countdown_ms(iotx_time_t *timer, uint32_t millisecond)
+void utils_time_countdown_ms(iotx_time_t *timer, uint64_t millisecond)
 {
     if (!timer) {
         return;
@@ -87,7 +87,7 @@ void utils_time_countdown_ms(iotx_time_t *timer, uint32_t millisecond)
     timer->time = HAL_UptimeMs() + millisecond;
 }
 
-uint32_t utils_time_get_ms(void)
+uint64_t utils_time_get_ms(void)
 {
     return HAL_UptimeMs();
 }
