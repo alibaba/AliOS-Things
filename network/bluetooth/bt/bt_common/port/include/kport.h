@@ -18,14 +18,11 @@
 #include <k_api.h>
 
 #define UINT_MAX 0xffffffff
-typedef kbuf_queue_t _queue_t;
 typedef ksem_t       _sem_t;
 typedef aos_task_t   _task_t;
 typedef cpu_stack_t  _stack_element_t;
 typedef kmutex_t     _mutex_t;
 
-#define _POLL_EVENT_OBJ_INIT(obj) \
-    .poll_events = SYS_DLIST_STATIC_INIT(&obj.poll_events),
 #define _POLL_EVENT sys_dlist_t poll_events
 
 
@@ -77,88 +74,6 @@ enum
 #define SYS_LOG_WRN(...) LOGW(BT_MOD, ##__VA_ARGS__)
 #define SYS_LOG_ERR(...) LOGE(BT_MOD, ##__VA_ARGS__)
 #define SYS_LOG_FAT(...) LOGF(BT_MOD, ##__VA_ARGS__)
-
-#define QUEUE_DEF_SIZE 7
-
-struct k_queue
-{
-    _queue_t    _queue;
-    uint8_t     msg_start[QUEUE_DEF_SIZE * (sizeof(void *) + 1)];
-    sys_dlist_t poll_events;
-};
-
-/*attention: this is intialied as zero,the queue variable shoule use
- * k_queue_init\k_lifo_init\k_fifo_init again*/
-#define _K_QUEUE_INITIALIZER(obj) \
-    {                             \
-        {                         \
-            {                     \
-                {                 \
-                    0             \
-                }                 \
-            }                     \
-        }                         \
-    }
-#define K_QUEUE_INITIALIZER DEPRECATED_MACRO _K_QUEUE_INITIALIZER
-
-extern void  k_queue_init(struct k_queue *queue);
-extern void  k_queue_uninit(struct k_queue *queue);
-extern void  k_queue_cancel_wait(struct k_queue *queue);
-extern void  k_queue_append(struct k_queue *queue, void *data);
-extern void  k_queue_prepend(struct k_queue *queue, void *data);
-extern void  k_queue_insert(struct k_queue *queue, void *prev, void *data);
-extern void  k_queue_append_list(struct k_queue *queue, void *head, void *tail);
-extern void *k_queue_get(struct k_queue *queue, s32_t timeout);
-extern int   k_queue_is_empty(struct k_queue *queue);
-
-/* lifo define*/
-struct k_lifo
-{
-    struct k_queue _queue;
-};
-
-#define _K_LIFO_INITIALIZER(obj)                   \
-    {                                              \
-        ._queue = _K_QUEUE_INITIALIZER(obj._queue) \
-    }
-
-#define K_LIFO_INITIALIZER DEPRECATED_MACRO _K_LIFO_INITIALIZER
-
-#define k_lifo_init(lifo) k_queue_init((struct k_queue *)lifo)
-
-#define k_lifo_put(lifo, data) k_queue_prepend((struct k_queue *)lifo, data)
-
-#define k_lifo_get(lifo, timeout) k_queue_get((struct k_queue *)lifo, timeout)
-
-#define K_LIFO_DEFINE(name)                                   \
-    struct k_lifo name __in_section(_k_queue, static, name) = \
-      _K_LIFO_INITIALIZER(name)
-
-struct k_fifo
-{
-    struct k_queue _queue;
-};
-
-#define _K_FIFO_INITIALIZER(obj)                   \
-    {                                              \
-        ._queue = _K_QUEUE_INITIALIZER(obj._queue) \
-    }
-#define K_FIFO_INITIALIZER DEPRECATED_MACRO _K_FIFO_INITIALIZER
-
-#define k_fifo_init(fifo) k_queue_init((struct k_queue *)fifo)
-
-#define k_fifo_cancel_wait(fifo) k_queue_cancel_wait((struct k_queue *)fifo)
-
-#define k_fifo_put(fifo, data) k_queue_append((struct k_queue *)fifo, data)
-
-#define k_fifo_put_list(fifo, head, tail) \
-    k_queue_append_list((struct k_queue *)fifo, head, tail)
-
-#define k_fifo_get(fifo, timeout) k_queue_get((struct k_queue *)fifo, timeout)
-
-#define K_FIFO_DEFINE(name)                                   \
-    struct k_fifo name __in_section(_k_queue, static, name) = \
-      _K_FIFO_INITIALIZER(name)
 
 /* sem define*/
 struct k_sem

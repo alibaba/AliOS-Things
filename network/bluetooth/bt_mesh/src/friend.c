@@ -53,25 +53,8 @@ struct friend_pdu_info {
 	u32_t  iv_index;
 };
 
-#if 0
 NET_BUF_POOL_DEFINE(friend_buf_pool, FRIEND_BUF_COUNT,
 		    BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
-#elif 0
-static struct {
-    struct net_buf buf;
-    u8_t data[BT_MESH_ADV_DATA_SIZE] __net_buf_align;
-    u8_t ud[ROUND_UP(BT_MESH_ADV_USER_DATA_SIZE, 4)] __net_buf_align;
-} _net_buf_friend_buf_pool_name[FRIEND_BUF_COUNT];
-
-struct net_buf_pool friend_buf_pool __net_buf_align = NET_BUF_POOL_INITIALIZER(friend_buf_pool, \
-                                  _net_buf_friend_buf_pool_name, FRIEND_BUF_COUNT, \
-                                  BT_MESH_ADV_DATA_SIZE, BT_MESH_ADV_USER_DATA_SIZE, NULL);
-#elif 0
-NET_BUF_POOL_FIXED_DEFINE(friend_buf_pool, FRIEND_BUF_COUNT,
-                          BT_MESH_ADV_DATA_SIZE, NULL);
-#else
-extern struct net_buf_pool friend_buf_pool;
-#endif
 
 static struct friend_adv {
 	struct bt_mesh_adv adv;
