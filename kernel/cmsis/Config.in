@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_CMSIS
-    bool "cmsis"
-    default n
-    help
-
-if AOS_COMP_CMSIS
-# Configurations for comp cmsis
-endif
