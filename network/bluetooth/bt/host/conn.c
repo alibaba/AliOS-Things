@@ -33,6 +33,10 @@
 #include "smp.h"
 #include "att_internal.h"
 
+NET_BUF_POOL_DEFINE(acl_tx_pool, CONFIG_BT_L2CAP_TX_BUF_COUNT,
+                    BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU),
+                    BT_BUF_USER_DATA_MIN, NULL);
+
 #ifdef CONFIG_BLE_LINK_PARAMETERS
 #define  SUP_TO_LIMIT         (400)//limit LSP_TO to 4s
 #define  CONN_SUP_TIMEOUT     (400)//*10, link superversion timeout
@@ -41,7 +45,6 @@
 #endif
 
 extern struct net_buf_pool acl_tx_pool;
-extern struct k_sem        g_poll_sem;
 
 /* How long until we cancel HCI_LE_Create_Connection */
 #define CONN_TIMEOUT K_SECONDS(3)
@@ -1062,7 +1065,6 @@ int bt_conn_send_cb(struct bt_conn *conn, struct net_buf *buf,
     conn_tx(buf)->cb = cb;
 
     net_buf_put(&conn->tx_queue, buf);
-    k_sem_give(&g_poll_sem);
     return 0;
 }
 

@@ -104,7 +104,6 @@ extern "C"
         {
             void *                obj;
             struct k_poll_signal *signal;
-            struct k_sem *        sem;
             struct k_fifo *       fifo;
             struct k_queue *      queue;
         };
@@ -124,9 +123,8 @@ extern "C"
 #define K_POLL_STATE_DATA_AVAILABLE 4
 #define K_POLL_STATE_FIFO_DATA_AVAILABLE K_POLL_STATE_DATA_AVAILABLE
 
-#define K_POLL_TYPE_IGNORE 0
+#define K_POLL_TYPE_WORK 0
 #define K_POLL_TYPE_SIGNAL 1
-#define K_POLL_TYPE_SEM_AVAILABLE 2
 #define K_POLL_TYPE_DATA_AVAILABLE 3
 #define K_POLL_TYPE_FIFO_DATA_AVAILABLE K_POLL_TYPE_DATA_AVAILABLE
 

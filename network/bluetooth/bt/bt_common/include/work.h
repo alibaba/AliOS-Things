@@ -6,9 +6,10 @@
 #define WORK_H
 #include "atomic.h"
 #include "zephyr.h"
+#include "queue.h"
 
 struct k_work_q {
-    struct k_fifo fifo;
+    struct k_queue queue;
 };
 
 int k_work_q_start();
@@ -19,10 +20,13 @@ enum {
 struct k_work;
 /* work define*/
 typedef void (*k_work_handler_t)(struct k_work *work);
+
 struct k_work {
     void *_reserved;
     k_work_handler_t handler;
     atomic_t flags[1];
+    uint32_t start_ms;
+    uint32_t timeout;
 };
 
 #define _K_WORK_INITIALIZER(work_handler) \
@@ -37,11 +41,10 @@ struct k_work {
 int k_work_init(struct k_work *work, k_work_handler_t handler);
 void k_work_submit(struct k_work *work);
 
+
 /*delay work define*/
 struct k_delayed_work {
     struct k_work work;
-    struct k_work_q *work_q;
-    k_timer_t timer;
 };
 
 void k_delayed_work_init(struct k_delayed_work *work, k_work_handler_t handler);
