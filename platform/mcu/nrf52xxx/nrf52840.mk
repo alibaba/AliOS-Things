@@ -16,12 +16,9 @@ GLOBAL_INCLUDES += \
 $(NAME)_SOURCES += src/pca10056/base_pro/soc_init.c \
                    Drivers/toolchain/system_nrf52840.c
 
-ifeq ($(ble),1)
-$(NAME)_SOURCES  += hal/ais_ota_port.c
-endif
-
-$(NAME)_SOURCES  += hal/misc.c \
-                    hal/gpio.c
+$(NAME)_SOURCES  += hal/misc.c  \
+                    hal/gpio.c  \
+                    hal/flash.c
 
 GLOBAL_CFLAGS += -DNRF52840_XXAA -DBOARD_PCA10056
                    
