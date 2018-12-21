@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-
+#include <stdio.h>
 #include "aos/kernel.h"
 #include "aos/log.h"
 
@@ -26,6 +26,8 @@
 #define GPIO_LED_IO     18
 #define GPIO_TRIGGER_IO 4
 #define GPIO_INPUT_IO   5
+// add for st nucleo board
+#define GPIO_LED_NUCLEO     5
 
 static void app_trigger_low_action(void *arg);
 static void app_trigger_high_action(void *arg);
@@ -33,6 +35,8 @@ static void app_trigger_high_action(void *arg);
 gpio_dev_t led;
 gpio_dev_t trigger;
 gpio_dev_t input;
+//add for st nucleo board
+gpio_dev_t led_nucleo;
 
 static void gpio_isr_handler(void* arg)
 {
@@ -57,6 +61,8 @@ static void app_trigger_high_action(void *arg)
 
 int application_start(int argc, char *argv[])
 {
+#ifdef STM32L496xx
+    // developerkit 	
     /* gpio port config */
     led.port = GPIO_LED_IO;
     /* set as output mode */
@@ -82,7 +88,23 @@ int application_start(int argc, char *argv[])
     hal_gpio_enable_irq(&input, IRQ_TRIGGER_BOTH_EDGES, gpio_isr_handler, (void *) GPIO_INPUT_IO);
 
     aos_post_delayed_action(1000, app_trigger_low_action, NULL);
-    aos_loop_run();
+#else
+    //add for st nucleo board , if debug on developerkit board, please comment it
+     /* gpio port config */
+    led_nucleo.port = GPIO_LED_NUCLEO;
+    /* set as output mode */
+    led_nucleo.config = OUTPUT_PUSH_PULL;
+    /* configure GPIO with the given settings */
+    hal_gpio_init(&led_nucleo);
 
+    while (1)
+    {
+      /* Insert delay 1000 ms */
+         aos_msleep(1000);
+         printf(" toggle led \n");
+         hal_gpio_output_toggle(&led_nucleo);
+    }
+#endif
+    aos_loop_run();
     return 0;
 }
