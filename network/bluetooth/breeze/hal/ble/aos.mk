@@ -16,5 +16,7 @@ $(NAME)_SOURCES-y += aes_mbed.c
 $(NAME)_INCLUDES += include/mbedtls
 endif
 
+GLOBAL_DEFINES-y += MBEDTLS_AES_ROM_TABLES
+
 en_bt_smp = 0
 
