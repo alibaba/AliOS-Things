@@ -441,7 +441,7 @@ static void indicate_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 
 ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length, void (*txdone)(uint8_t res))
 {
-    int                             err;
+    int err;
     struct bt_gatt_indicate_params *ind_params;
     bt_gatt_indicate_param_t *      param;
 
