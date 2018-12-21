@@ -6,7 +6,9 @@ $(NAME)_SUMMARY := ble device upgrade
 
 $(NAME)_SOURCES += \
     src/ota_breeze.c \
-    src/ota_breeze_transport.c
+    src/ota_breeze_service.c \
+    src/ota_breeze_transport.c \
+    src/ota_breeze_plat.c
 
 $(NAME)_COMPONENTS += middleware.uagent.uota.hal
 

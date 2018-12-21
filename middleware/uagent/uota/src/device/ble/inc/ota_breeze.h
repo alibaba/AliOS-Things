@@ -2,7 +2,6 @@
 #define _OTA_BREEZE_H
 
 #include "ota_breeze_export.h"
-#include "ota_log.h"
 
 #ifndef true
 #define true    (1)
@@ -14,18 +13,6 @@
 
 #ifndef NULL
 #define NULL 0
-#endif
-
-#ifndef OTA_BLE_LOG_INFO
-#define OTA_LOG_I
-#endif
-
-#ifndef OTA_BLE_LOG_DEBUG
-#define OTA_LOG_D
-#endif
-
-#ifndef OTA_BLE_LOG_ERR
-#define OTA_LOG_E
 #endif
 
 #define OTA_BREEZE_BIN_TYPE_INFO_OFFSET 0x28
@@ -49,7 +36,7 @@ typedef enum {
 } ota_breeze_flash_err_t;
 
 
-#define OTA_BREEZE_CMD_TYPE_MASK           0xF0 
+#define OTA_BREEZE_CMD_TYPE_MASK           0xF0
 
 /* Error codes. */
 #define OTA_BREEZE_SUCCESS                              (0)
@@ -97,10 +84,10 @@ typedef enum {
 #define OTA_BREEZE_EVENT_TX_DONE    (0x02)
 
 typedef struct _ota_breeze_rec_data_{
-    uint8_t cmd;
-    uint8_t num_frames;
-    uint16_t length;
-    uint8_t rec_buf[OTA_BREEZE_REC_PER_FRAME_LEN];
+    unsigned char cmd;
+    unsigned char num_frames;
+    unsigned short length;
+    unsigned char rec_buf[OTA_BREEZE_REC_PER_FRAME_LEN];
 }ota_breeze_rec_t;
 
 
@@ -110,38 +97,33 @@ typedef enum
     OTA_BREEZE_STATE_IDLE,             /**< Idle, expects commands 0x20 (version query) or 0x22 (update request) */
     OTA_BREEZE_STATE_RECEIVE,          /**< Receive firmware, expects commands 0x27 (progress query) or 0x2F (Firmware data). */
     OTA_BREEZE_STATE_RECEIVE_ERR,      /**< Receive firmware, but frame discontinuity happened, waiting for error (cmd=0x0F) sent. */
-    OTA_BREEZE_STATE_WRITE,            /**< Flash write, expects flash completion event. */
     OTA_BREEZE_STATE_WRITE_SETTINGS,   /**< Settings write after flash write, expects bootloader_settings completion event. */
     OTA_BREEZE_STATE_FW_CHECK,         /**< Flash check, expects command 0x28 (Firmware check) to make sure the peer will not send anything in between. */
     OTA_BREEZE_STATE_RESET_PREPARE,    /**< Reset prepare, expects Tx-done event to make sure commands 0x25 (firmware check result) is sent. */
-    OTA_BREEZE_STATE_UPGRADE_REPORT,   /**< Upgrade report, expects auth-done event to trigger the sending of command 0x26 (update result). */
 } ota_breeze_state_t;
 
 typedef struct _ota_ble_global_dat{
     ota_breeze_version_t verison;
-    volatile uint8_t feature_enable;
-    volatile uint8_t ota_breeze_task_active_ctrl;
-    volatile uint8_t ota_breeze_task_active_flag;
-    volatile uint8_t ota_breeze_status;
-    uint32_t rx_fw_size;                /**< Size of firmware to be received. */
-    uint32_t bytes_recvd;               /**< Size of firmware received. */
-    uint16_t frames_recvd;              /**< Number of frames of firmware received. */
-    uint16_t crc;
-    uint32_t bank_1_addr;
+    volatile unsigned char feature_enable;
+    volatile unsigned char ota_breeze_task_active_ctrl;
+    volatile unsigned char ota_breeze_task_active_flag;
+    volatile unsigned char ota_breeze_status;
+    unsigned int rx_fw_size;                /**< Size of firmware to be received. */
+    unsigned int bytes_recvd;               /**< Size of firmware received. */
+    unsigned short frames_recvd;              /**< Number of frames of firmware received. */
+    unsigned short crc;
 }_ota_ble_global_dat_t;
 
 typedef struct {
     ota_breeze_bin_type_t type;
-    uint32_t magic;
+    unsigned int magic;
 } ota_breeze_bin_info_t;
 
 _ota_ble_global_dat_t* ota_breeze_get_global_data_center(void);
-void ota_breeze_get_data(uint8_t ota_cmd, uint8_t num_frame, uint8_t *buffer, uint32_t length);
-void ota_breeze_relate_event(uint8_t event_type, uint8_t sub_status);
-void ota_breeze_set_task_active_flag(volatile uint8_t flag);
-volatile uint8_t ota_breeze_get_task_active_flag(void);
-void ota_breeze_set_task_active_ctrl(volatile uint8_t is_enable);
-volatile uint8_t ota_breeze_get_task_active_ctrl_status(void);
-void ota_breeze_on_fw_data(uint8_t *buffer, uint32_t length, uint8_t num_frames);
-
+void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigned char *buffer, unsigned int length);
+void ota_breeze_relate_event(unsigned char event_type, unsigned char sub_status);
+void ota_breeze_set_task_active_flag(volatile unsigned char flag);
+volatile unsigned char ota_breeze_get_task_active_flag(void);
+void ota_breeze_set_task_active_ctrl(volatile unsigned char is_enable);
+volatile unsigned char ota_breeze_get_task_active_ctrl_status(void);
 #endif
