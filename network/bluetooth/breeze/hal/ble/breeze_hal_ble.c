@@ -334,8 +334,6 @@ ais_err_t ble_stack_init(ais_bt_init_t *info)
     bt_init_info = info;
 
     hci_driver_init();
-    ais_ota_bt_storage_init();
-
     err = bt_enable(NULL);
     if (err) {
         printf("Bluetooth init failed (err %d)\n", err);
@@ -560,7 +558,7 @@ ais_err_t ble_get_mac(uint8_t *mac)
     ais_err_t    err;
     bt_addr_le_t laddr;
 
-    err = ais_ota_get_local_addr(&laddr);
+    err = bt_mac_addr_get(&laddr);
     if (err != AIS_ERR_SUCCESS) {
         printf("Failed to get local addr.\r\n");
     } else {
