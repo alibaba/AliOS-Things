@@ -25,6 +25,7 @@ registry_board = {
     'mk3165': ['stm32_stlink.json'],
     'mk3166': ['stm32_stlink.json'],
     'mk3239': ['stm32_stlink.json'],
+    'pca10040': ['pca10040.json'],
     'ALLOTHERS': ['stm32_stlink.json'],
 }
 
@@ -167,6 +168,18 @@ stm32_openocd = {
 ],
 }
 #flash_configs['stm32_openocd'] = stm32_openocd
+
+pca10040 = {
+'cmd': [
+    'python',
+    '@AOSROOT@/build/site_scons/jlink.py',
+    '-d', 'nRF52840_xxAA',
+    '-i', 'swd',
+    '-f', '@AOSROOT@/out/@TARGET@/binary/@TARGET@.bin',
+    '-p', '0x00010000'
+],
+}
+flash_configs['pca10040'] = pca10040
 
 def main():
     # Write flash commands to json file
