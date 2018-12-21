@@ -18,6 +18,6 @@ $(NAME)_COMPONENTS  += protocols.net
 no_with_lwip := 0
 endif
 
-ifeq ($(loop),1)
+ifneq ($(loop),0)
 $(NAME)_DEFINES      += TEST_LOOP
 endif

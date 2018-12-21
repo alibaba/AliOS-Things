@@ -33,9 +33,18 @@
 #include <signal.h>
 #endif
 
+typedef struct {
+    int argc;
+    char **argv;
+}app_main_paras_t;
+
+int linkkit_main(void *paras);
+
 static char linkkit_started = 0;
 
-extern void iotx_main(void *p);
+static app_main_paras_t entry_paras;
+
+typedef void (*task_fun)(void *);
 
 static void wifi_service_event(input_event_t *event, void *priv_data)
 {
@@ -57,33 +66,27 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
     }
 
     if (!linkkit_started) {
-        aos_task_new("iotx_example",iotx_main,NULL,1024*6);
+        aos_task_new("iotx_example",(task_fun)linkkit_main,(void *)&entry_paras,1024*6);
         linkkit_started = 1;
     }
 }
 
-static void cloud_service_event(input_event_t *event, void *priv_data)
-{
-    if (event->type != EV_YUNIO) {
-        return;
-    }
-
-    LOG("cloud_service_event %d", event->code);
-
-    if (event->code == CODE_YUNIO_ON_CONNECTED) {
-        LOG("user sub and pub here");
-        return;
-    }
-
-    if (event->code == CODE_YUNIO_ON_DISCONNECTED) {
-    }
-}
-
+#ifdef TEST_LOOP
+const  char *input_data[2]= {"mqttapp","loop"};
+#endif
 int application_start(int argc, char **argv)
 {
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
+
+#ifdef TEST_LOOP
+    argc = 2;
+    argv = (char **)input_data;
+#endif    
+    entry_paras.argc = argc;
+    entry_paras.argv = argv;
+
 #if AOS_ATCMD
     at.set_mode(ASYN);
     at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
@@ -94,19 +97,21 @@ int application_start(int argc, char **argv)
 #ifdef WITH_SAL
     sal_init();
 #endif
+
+#ifdef MDAL_MAL_ICA_TEST
+    HAL_MDAL_MAL_Init();
+#endif
+
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
-    //aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
+
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
-    aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
 
 #ifdef CONFIG_AOS_CLI
-    //aos_cli_register_command(&resetcmd);
-    //aos_cli_register_command(&ncmd);
+
 #endif
     netmgr_start(false);
-    //aos_task_new("netmgr", start_netmgr, NULL, 4096);
 
     aos_loop_run();
 

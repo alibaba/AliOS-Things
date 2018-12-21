@@ -263,7 +263,7 @@ int mqtt_client(void)
     return 0;
 }
 
-void iotx_main(void *paras)
+int linkkit_main(void *paras)
 {
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
