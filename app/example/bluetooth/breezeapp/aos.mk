@@ -21,6 +21,9 @@ GLOBAL_DEFINES += BUILD_AOS
 
 bz_en_ota ?= 0
 ifeq ($(bz_en_ota),1)
+ifeq ($(bz_en_auth), 0)
+$(error OTA need authentication, please set "bz_en_auth = 1")
+endif
 GLOBAL_DEFINES += CONFIG_AIS_OTA
 $(NAME)_COMPONENTS += ota_ble
 endif
