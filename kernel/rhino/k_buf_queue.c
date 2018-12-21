@@ -315,7 +315,7 @@ kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg,
         return RHINO_KOBJ_TYPE_ERR;
     }
 
-    if (!ringbuf_is_empty(&(queue->ringbuf))) {
+    if (queue->cur_num > 0u) {
         ringbuf_pop(&(queue->ringbuf), msg, size);
         queue->cur_num --;
         RHINO_CRITICAL_EXIT();

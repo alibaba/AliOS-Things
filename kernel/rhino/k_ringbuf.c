@@ -107,10 +107,6 @@ kstat_t ringbuf_pop(k_ringbuf_t *p_ringbuf, void *pdata, size_t *plen)
     uint8_t  c_len[RING_BUF_LEN] = {0};
     size_t   len_bytes = 0;
 
-    if (ringbuf_is_empty(p_ringbuf)) {
-        return RHINO_RINGBUF_EMPTY;
-    }
-
     if (p_ringbuf->type == RINGBUF_TYPE_FIX) {
         if (p_ringbuf->head == p_ringbuf->end) {
             p_ringbuf->head = p_ringbuf->buf;
@@ -283,7 +279,11 @@ kstat_t krhino_ringbuf_pop(k_ringbuf_t *p_ringbuf, void *pdata, size_t *plen)
     }
 
     RHINO_CRITICAL_ENTER();
-    err = ringbuf_pop(p_ringbuf, pdata, plen);
+    if (!ringbuf_is_empty(p_ringbuf)) {
+        err = ringbuf_pop(p_ringbuf, pdata, plen);
+    } else {
+        return RHINO_RINGBUF_EMPTY;
+    }
     RHINO_CRITICAL_EXIT();
 
     return err;
