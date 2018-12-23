@@ -72,15 +72,6 @@ typedef struct
     unsigned char reserved_buf3[RESERVED_SIZE3];         //reserved for expanding in the future
 } ota_settings_t;
 
-
-typedef struct _ota_breeze_info_{
-    unsigned int m_image_magic;
-    unsigned int m_image_version;
-    unsigned int m_image_size;
-    unsigned int m_progress_offset;
-    unsigned char init_command[BREEZE_OTA_INFO_CMD_LEN];
-} ota_breeze_info_t;
-
 int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int* break_point, bool breakpoint_valid);
 int ota_breeze_write(unsigned int* off, char* in_buf ,int in_buf_len);
 int ota_breeze_read(unsigned int* off, char* out_buf, int out_buf_len);

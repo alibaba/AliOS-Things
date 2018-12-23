@@ -232,6 +232,7 @@ void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigne
                 }
                 tm_cnt++;
             }
+            ota_breeze_set_status(OTA_BREEZE_STATE_IDLE);
         }
 
         if(ota_breeze_init_receive_buf() != OTA_BREEZE_SUCCESS) {
@@ -249,6 +250,7 @@ void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigne
     }
     else {
         ota_breeze_set_task_active_ctrl(false);
+        ota_breeze_set_status(OTA_BREEZE_STATE_IDLE);
         printf("ota status error\r\n");
     }
 
