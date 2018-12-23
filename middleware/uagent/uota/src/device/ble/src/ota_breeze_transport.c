@@ -160,7 +160,7 @@ unsigned int ota_breeze_send_bytes_received()
 
     err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_BYTES_RECEIVED, tx_buff, sizeof(unsigned short) + sizeof(unsigned int));
     if (err_code != OTA_BREEZE_SUCCESS) {
-        OTA_LOG_E("ota breeze send bytes recvd failed");
+        printf("send recvd err\r\n");
     }
     return err_code;
 }
@@ -173,7 +173,7 @@ unsigned int ota_breeze_send_crc_result(unsigned char crc_ok)
     tx_buff[0] = (crc_ok) ? 1 : 0;
     err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_CHECK_RESULT, tx_buff, 1);
     if (err_code != OTA_BREEZE_SUCCESS) {
-        OTA_LOG_E("ota breeze send crc result failed");
+        printf("send crc err\r\n");
     }
     return err_code;
 }
@@ -272,6 +272,9 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
         goto OTA_BREEZE_TRANS_ERRO;
     }
     percent = p_ota->bytes_recvd * 100 / p_ota->rx_fw_size; /* Ensure no overflow */
+    if(percent < last_percent) {
+        last_percent = 0;//breakpoint need to clear last_percent
+    }
     if ((percent - last_percent) >= 2) {
         printf("===>%dB\t%d%% ...\r\n", p_ota->bytes_recvd, percent);
         last_percent = percent;
@@ -299,7 +302,7 @@ void ota_breeze_reset()
     if(p_ota == NULL) {
         return;
     }
-    printf("ble disconnect\r\n");
+    printf("disconnect\r\n");
     /* Reset state machine. */
     p_ota->ota_breeze_status = OTA_BREEZE_STATE_OFF;
     p_ota->rx_fw_size   = 0;
@@ -346,7 +349,6 @@ void ota_breeze_on_auth(unsigned char is_authenticated)
     if(p_ota == NULL) {
         goto OTA_BREEZE_AUTH_OVER;
     }
-    printf("i am in auth\r\n");
     if (ota_breeze_rollback() == 0) {
         printf("ota success\r\n");
         ota_breeze_send_fwup_success();
