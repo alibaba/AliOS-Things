@@ -9,6 +9,7 @@
 
 #include "aos/list.h"
 #include "aos/vfs.h"
+#include "aos/yloop.h"
 
 #include <event_device.h>
 
