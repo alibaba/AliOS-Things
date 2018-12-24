@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_FM33A0XX-DISCOVERY
+    bool "fm33a0xx-discovery"
+    select AOS_MCU_FM33A0XX
+    help
+
+if AOS_BOARD_FM33A0XX-DISCOVERY
+# Configurations for board fm33a0xx-discovery
+endif
