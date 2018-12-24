@@ -1,0 +1,10 @@
+menuconfig AOS_MCU_FM33A0XX
+    bool "fm33a0xx"
+    default n
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_FM33A0XX
+# Configurations for mcu fm33a0xx
+endif
