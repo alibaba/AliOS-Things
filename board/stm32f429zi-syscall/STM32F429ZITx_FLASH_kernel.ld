@@ -192,13 +192,6 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
 
-    PROVIDE(kernel_text_start = ORIGIN(FLASH));
-    /* kernel has full access to all flash */
-    PROVIDE(kernel_text_size = 256K);
-    PROVIDE(kernel_data_start = ORIGIN(RAM));
-    /* kernel has full access to all RAM */
-    PROVIDE(kernel_data_size = 256K);
-
     /* stay the same with the value of app's linkscript */
     PROVIDE(app_info_addr = 0x8040000);
     PROVIDE(kernel_download_addr = 0x0);
