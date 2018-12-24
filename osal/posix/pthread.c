@@ -4,7 +4,7 @@
 
 #include "posix/pthread.h"
 
-#if (POSIX_PTHREAD_ENABLE > 0)
+#if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 
 kmutex_t g_pthread_mutex;
 
@@ -138,7 +138,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     }
 
     *thread = ptcb->tid;
-    ptcb->tid->user_info[PTHREAD_USER_INFO_POS] = ptcb;
+    ptcb->tid->user_info[PTHREAD_CONFIG_USER_INFO_POS] = ptcb;
 
     ret = krhino_task_resume(ptcb->tid);
     if (ret == RHINO_SUCCESS) {

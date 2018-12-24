@@ -5,7 +5,7 @@
 #include <stdarg.h>
 #include "posix/prctl.h"
 
-#if (POSIX_PRCTL_ENABLE > 0)
+#if (POSIX_CONFIG_PRCTL_ENABLE > 0)
 
 extern kmutex_t g_pthread_mutex;
 

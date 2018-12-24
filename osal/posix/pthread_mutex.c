@@ -4,7 +4,7 @@
 
 #include "posix/pthread.h"
 
-#if (POSIX_PTHREAD_ENABLE > 0)
+#if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 
 int pthread_mutex_init(pthread_mutex_t *p_mutex, const pthread_mutexattr_t *attr)
 {
