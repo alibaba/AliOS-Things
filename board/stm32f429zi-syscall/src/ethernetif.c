@@ -44,9 +44,9 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include <string.h>
+#include <stdio.h>
 #include <k_api.h>
 #include <aos/kernel.h>
-#include <aos/log.h>
 #include <lwip/tcpip.h>
 #include <netif/etharp.h>
 #include <network/network.h>
@@ -499,13 +499,13 @@ static void tcpip_dhcpc_cb(struct netif *pstnetif)
 err_t tcpip_dhcpc_start(struct netif *pstnetif)
 {
     if (NULL == pstnetif){
-        LOG("%s input netif is NULL \r\n");
+        printf("%s input netif is NULL \r\n");
         return -1;
     }
 
     if (netif_is_up(pstnetif)) {
         if (dhcp_start(pstnetif) != ERR_OK) {
-            LOG("dhcp client start failed");
+            printf("dhcp client start failed");
             return -1;
         }
     }
@@ -535,7 +535,7 @@ static void tcpip_init_done(void *arg)
     netif_set_default(&lwip_netif);
     netif_set_up(&lwip_netif);
     tcpip_dhcpc_start(&lwip_netif);
-    LOG("TCP/IP initialized.");
+    printf("TCP/IP initialized.");
 }
 
 int lwip_tcpip_init(void)

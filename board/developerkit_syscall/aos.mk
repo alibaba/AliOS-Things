@@ -12,7 +12,7 @@ ENABLE_VFP           := 1
 HOST_MCU_NAME        := STM32L496VGTx
 ENABLE_USPACE        := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal
 
 $(NAME)_SOURCES += src/soc_init.c            \
                    src/startup_stm32l496xx.s \
