@@ -1,9 +1,19 @@
-#include "gd32f4xx.h"
+/*
+    Copyright (C) 2017 GigaDevice
 
-#include "ringbuf.h"
-#include "aos/kernel.h"
-#include <k_api.h>
+    2017-06-28, V1.0.0, demo for GD32F3x0
+*/
+
 #include <stdio.h>
+
+#include "k_api.h"
+
+#include "aos/kernel.h"
+#include "aos/hal/uart.h"
+
+#include "gd32f4xx.h"
+#include "ringbuf.h"
+
 #define MAX_UART_NUM 4
 
 
@@ -386,3 +396,4 @@ void UART4_IRQHandler(void)
     uart_rx_cb(4);  
     krhino_intrpt_exit();    
 }
+
