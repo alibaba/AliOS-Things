@@ -131,7 +131,7 @@ typedef struct {
     unsigned char  sign_en;     /*Sign is on/off*/
     int            sign_len;    /*Sign len*/
     unsigned char  sign_type;   /*default:0--> sha256 1--> md5 2-->RSA*/
-    unsigned char  upg_status;  /*Upgrade status in progress*/
+    char           upg_status;  /*Upgrade status in progress*/
     char*          url;         /*Dowdload URL*/
     char*          hash;        /*Dowdload hash*/
     unsigned char* sign;        /*Dowdload signatue*/
