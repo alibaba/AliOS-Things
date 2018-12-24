@@ -6,7 +6,6 @@
 #include <stdlib.h>
 
 #include "aos/kernel.h"
-#include "aos/types.h"
 
 #include "aos/hal/timer.h"
 

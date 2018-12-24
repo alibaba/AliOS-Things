@@ -3,7 +3,8 @@
  */
 
 #include <aos/kernel.h>
-#include <aos/types.h>
+
+#include "yunit.h"
 #include "cutest/cut.h"
 
 #ifndef SYSINFO_ARCH
