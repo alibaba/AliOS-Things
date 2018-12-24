@@ -5,3 +5,4 @@ menuconfig AOS_BOARD_STM32F103ZE
 
 if AOS_BOARD_STM32F103ZE
 # Configurations for board stm32f103ze
+endif
