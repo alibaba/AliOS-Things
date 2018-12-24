@@ -5,10 +5,12 @@
 #ifndef AOS_VFS_H
 #define AOS_VFS_H
 
+#include <stddef.h>
+#include <stdint.h>
+#include <unistd.h>
+
 #include <sys/stat.h>
 #include <sys/types.h>
-
-#include "aos/types.h"
 
 #ifdef __cplusplus
 extern "C" {
