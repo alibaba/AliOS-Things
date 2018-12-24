@@ -179,6 +179,7 @@ _pendsv_handler_nosave:
     MRS      R1, CONTROL
     ORR      R1, #0x01
     MSR      CONTROL, R1
+    ISB
 
     LDR      R0, [R2, #RHINO_CONFIG_TASK_USTACK_OFFSET]
     B        .restore_context
@@ -187,6 +188,7 @@ _pendsv_handler_nosave:
     MRS      R1, CONTROL
     BIC      R1, #0x01
     MSR      CONTROL, R1
+    ISB
 
     LDR     R0, [R2, #RHINO_CONFIG_TASK_KSTACK_OFFSET]
 
