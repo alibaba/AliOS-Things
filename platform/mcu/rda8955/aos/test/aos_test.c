@@ -3,7 +3,6 @@
  */
 
 #include <aos/kernel.h>
-//#include <aos/types.h>
 #include "cut.h"
 
 #ifndef SYSINFO_ARCH
