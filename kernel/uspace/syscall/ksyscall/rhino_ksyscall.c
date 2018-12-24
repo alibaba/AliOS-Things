@@ -97,14 +97,43 @@ sys_time_t sys_krhino_ticks_to_ms_stub(void *arg)
 /* ------------------ mutex ------------------ */
 kstat_t sys_krhino_mutex_dyn_create_stub(void *arg)
 {
+    CPSR_ALLOC();
+
     krhino_mutex_dyn_create_syscall_arg_t *_arg = arg;
 
-    return krhino_mutex_dyn_create(_arg->mutex, _arg->name);
+    ktask_t  *cur_task, *proc_task;
+    kstat_t   ret;
+    kmutex_t *mutex;
+
+    ret = krhino_mutex_dyn_create(_arg->mutex, _arg->name);
+    if (ret != RHINO_SUCCESS) {
+        printf("mutex create syscall errno: %d\n", ret);
+        return ret;
+    }
+
+    mutex = *(_arg->mutex);
+
+    cur_task = krhino_cur_task_get();
+    proc_task = (ktask_t *)cur_task->proc_addr;
+
+    RHINO_CRITICAL_ENTER();
+    klist_insert(&(proc_task->kobj_list.mutex_head), &mutex->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
+
+    return ret;
 }
 
 kstat_t sys_krhino_mutex_dyn_del_stub(void *arg)
 {
+    CPSR_ALLOC();
+
     krhino_mutex_dyn_del_syscall_arg_t *_arg = arg;
+
+    kmutex_t *mutex = _arg->mutex;
+
+    RHINO_CRITICAL_ENTER();
+    klist_rm(&mutex->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
 
     return krhino_mutex_dyn_del(_arg->mutex);
 }
@@ -126,14 +155,43 @@ kstat_t sys_krhino_mutex_unlock_stub(void *arg)
 /* ------------------ semphore ------------------ */
 kstat_t sys_krhino_sem_dyn_create_stub(void *arg)
 {
+    CPSR_ALLOC();
+
     krhino_sem_dyn_create_syscall_arg_t *_arg = arg;
 
-    return krhino_sem_dyn_create(_arg->sem, _arg->name, _arg->count);
+    ktask_t *cur_task, *proc_task;
+    kstat_t  ret;
+    ksem_t  *sem;
+
+    ret = krhino_sem_dyn_create(_arg->sem, _arg->name, _arg->count);
+    if (ret != RHINO_SUCCESS) {
+        printf("sem create syscall errno: %d\n", ret);
+        return ret;
+    }
+
+    sem = *(_arg->sem);
+
+    cur_task = krhino_cur_task_get();
+    proc_task = (ktask_t *)cur_task->proc_addr;
+
+    RHINO_CRITICAL_ENTER();
+    klist_insert(&(proc_task->kobj_list.sem_head), &sem->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
+
+    return ret;
 }
 
 kstat_t sys_krhino_sem_dyn_del_stub(void *arg)
 {
+    CPSR_ALLOC();
+
     krhino_sem_dyn_del_syscall_arg_t *_arg = arg;
+
+    ksem_t *sem = _arg->sem;
+
+    RHINO_CRITICAL_ENTER();
+    klist_rm(&sem->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
 
     return krhino_sem_dyn_del(_arg->sem);
 }
@@ -155,14 +213,43 @@ kstat_t sys_krhino_sem_take_stub(void *arg)
 /* -------------------- queue --------------------*/
 kstat_t sys_krhino_queue_dyn_create_stub(void *arg)
 {
+    CPSR_ALLOC();
+
     krhino_queue_dyn_create_syscall_arg_t *_arg = arg;
 
-    return krhino_queue_dyn_create(_arg->queue, _arg->name, _arg->msg_num);
+    ktask_t  *cur_task, *proc_task;
+    kstat_t   ret;
+    kqueue_t *queue;
+
+    ret = krhino_queue_dyn_create(_arg->queue, _arg->name, _arg->msg_num);
+    if (ret != RHINO_SUCCESS) {
+        printf("queue create syscall errno: %d\n", ret);
+        return ret;
+    }
+
+    queue = *(_arg->queue);
+
+    cur_task = krhino_cur_task_get();
+    proc_task = (ktask_t *)cur_task->proc_addr;
+
+    RHINO_CRITICAL_ENTER();
+    klist_insert(&(proc_task->kobj_list.queue_head), &queue->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
+
+    return ret;
 }
 
 kstat_t sys_krhino_queue_dyn_del_stub(void *arg)
 {
+    CPSR_ALLOC();
+
     krhino_queue_dyn_del_syscall_arg_t *_arg = arg;
+
+    kqueue_t *queue = _arg->queue;
+
+    RHINO_CRITICAL_ENTER();
+    klist_rm(&queue->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
 
     return krhino_queue_dyn_del(_arg->queue);
 }
@@ -198,25 +285,74 @@ kstat_t sys_krhino_queue_all_send_stub(void *arg)
 /* ------------------ buf queue -------------------*/
 kstat_t sys_krhino_buf_queue_dyn_create_stub(void *arg)
 {
+    CPSR_ALLOC();
 
     krhino_buf_queue_dyn_create_syscall_arg_t *_arg = arg;
 
-    return krhino_buf_queue_dyn_create(_arg->queue, _arg->name,
-                                       _arg->size, _arg->max_msg);
+    ktask_t  *cur_task, *proc_task;
+    kstat_t   ret;
+    kbuf_queue_t *buf_queue;
+
+    ret = krhino_buf_queue_dyn_create(_arg->queue, _arg->name,
+            _arg->size, _arg->max_msg);
+    if (ret != RHINO_SUCCESS) {
+        printf("buf queue create syscall errno: %d\n", ret);
+        return ret;
+    }
+
+    buf_queue = *(_arg->queue);
+
+    cur_task = krhino_cur_task_get();
+    proc_task = (ktask_t *)cur_task->proc_addr;
+
+    RHINO_CRITICAL_ENTER();
+    klist_insert(&(proc_task->kobj_list.buf_queue_head), &buf_queue->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
+
+    return ret;
 }
 
 kstat_t sys_krhino_fix_buf_queue_dyn_create_stub(void *arg)
 {
 
+    CPSR_ALLOC();
+
     krhino_fix_buf_queue_dyn_create_syscall_arg_t *_arg = arg;
 
-    return krhino_fix_buf_queue_dyn_create(_arg->queue, _arg->name,
-                                           _arg->msg_size, _arg->msg_num);
+    ktask_t  *cur_task, *proc_task;
+    kstat_t   ret;
+    kbuf_queue_t *buf_queue;
+
+    ret = krhino_fix_buf_queue_dyn_create(_arg->queue, _arg->name,
+            _arg->msg_size, _arg->msg_num);
+    if (ret != RHINO_SUCCESS) {
+        printf("fix buf queue create syscall errno: %d\n", ret);
+        return ret;
+    }
+
+    buf_queue = *(_arg->queue);
+
+    cur_task = krhino_cur_task_get();
+    proc_task = (ktask_t *)cur_task->proc_addr;
+
+    RHINO_CRITICAL_ENTER();
+    klist_insert(&(proc_task->kobj_list.buf_queue_head), &buf_queue->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
+
+    return ret;
 }
 
 kstat_t sys_krhino_buf_queue_dyn_del_stub(void *arg)
 {
+    CPSR_ALLOC();
+
     krhino_buf_queue_dyn_del_syscall_arg_t *_arg = arg;
+
+    kbuf_queue_t *buf_queue = _arg->queue;
+
+    RHINO_CRITICAL_ENTER();
+    klist_rm(&buf_queue->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
 
     return krhino_buf_queue_dyn_del(_arg->queue);
 }

@@ -26,8 +26,6 @@ void res_task(void *arg)
 
         krhino_uprocess_res_get(1, &msg);
         if (msg != 0) {
-            krhino_queue_dyn_del(res);
-            tlsf_destroy(NULL);
             krhino_utask_del(res_task_obj);
         }
     }
