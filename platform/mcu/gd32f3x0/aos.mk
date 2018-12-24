@@ -16,7 +16,6 @@ GLOBAL_INCLUDES += drivers/Firmware/CMSIS \
 
 $(NAME)_SOURCES += hal/uart.c \
                    hal/flash.c \
-                   hal/wifi.c \
                    drivers/Firmware/CMSIS/GD/GD32F3x0/Source/system_gd32f3x0.c \
                    drivers/Firmware/GD32F3x0_standard_peripheral/Source/gd32f3x0_dma.c \
                    drivers/Firmware/GD32F3x0_standard_peripheral/Source/gd32f3x0_exti.c \
