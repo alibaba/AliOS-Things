@@ -11,8 +11,7 @@ extern "C" {
 
 #include <stddef.h>
 #include <stdint.h>
-
-#include "aos/types.h"
+#include <unistd.h>
 
 #include "aos/hal/gpio.h"
 #include "aos/hal/i2c.h"
@@ -119,8 +118,8 @@ typedef enum {
 
 #define sensor_node_path       "/dev/sensor"
 
-#define GPS_STR "gps: "
-#define RTC_STR "rtc: "
+#define GPS_STR    "gps: "
+#define RTC_STR    "rtc: "
 #define SENSOR_STR "sensor: " /* sensor debug header */
 #define ERROR_LINE "error on line is "
 
