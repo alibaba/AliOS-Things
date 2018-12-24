@@ -6,7 +6,6 @@
 
 #include "aos/kernel.h"
 #include "aos/list.h"
-#include "aos/types.h"
 
 #include "yunit.h"
 

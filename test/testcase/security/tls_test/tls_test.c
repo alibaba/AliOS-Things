@@ -10,7 +10,6 @@
 #include <string.h>
 
 #include <aos/errno.h>
-#include "aos/types.h"
 
 #include <network/network.h>
 

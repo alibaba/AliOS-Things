@@ -9,7 +9,6 @@
 #include <yts.h>
 
 #include "aos/kernel.h"
-#include "aos/types.h"
 
 #include <cJSON.h>
 
