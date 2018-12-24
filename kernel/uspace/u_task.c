@@ -92,12 +92,12 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
         klist_init(&task->task_head);
         klist_insert(&task->task_head, &task->task_user);
         /* process kobj init */
-        klist_init(&(task.kobj_list.task_head));
-        klist_init(&(task.kobj_list.mutex_head));
-        klist_init(&(task.kobj_list.sem_head));
-        klist_init(&(task.kobj_list.queue_head));
-        klist_init(&(task.kobj_list.buf_queue_head));
-        klist_init(&(task.kobj_list.event_head));
+        klist_init(&(task->kobj_list.task_head));
+        klist_init(&(task->kobj_list.mutex_head));
+        klist_init(&(task->kobj_list.sem_head));
+        klist_init(&(task->kobj_list.queue_head));
+        klist_init(&(task->kobj_list.buf_queue_head));
+        klist_init(&(task->kobj_list.event_head));
     }
     else {
         cur_task = krhino_cur_task_get();
@@ -227,6 +227,8 @@ kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
                                size_t ustack, size_t kstack, task_entry_t entry,
                                uint32_t pid, uint8_t autorun)
 {
+    CPSR_ALLOC();
+
     ktask_t  *task_tmp;
     kqueue_t *queue;
     kstat_t   ret;
@@ -247,6 +249,10 @@ kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
 
     task_tmp->res_q = queue;
 
+    RHINO_CRITICAL_ENTER();
+    klist_insert(&(task_tmp->kobj_list.queue_head), &queue->blk_obj.obj_list);
+    RHINO_CRITICAL_EXIT();
+
     if (autorun > 0) {
         krhino_task_resume(task_tmp);
     }
@@ -262,21 +268,18 @@ kstat_t krhino_uprocess_exit(void)
     ktask_t  *cur_task;
     ktask_t  *task_del;
     ktask_t  *cur_proc;
-    klist_t  *head;
-    klist_t  *end;
-    klist_t  *tmp;
+    klist_t  *head, *head_tmp, *end, *tmp;
 
     cur_task = krhino_cur_task_get();
-
     cur_proc = cur_task->proc_addr;
 
     head = &(cur_proc->task_head);
-    end = head;
+    end  = head;
 
-    /*head to user task*/
+    /*head_tmp point to user task*/
     RHINO_CRITICAL_ENTER();
-    head = head->next->next;
-    tmp = head->next;
+    head_tmp = head->next->next;
+    tmp      = head_tmp->next;
     RHINO_CRITICAL_EXIT();
 
     /*step 1:delete user task*/
@@ -285,7 +288,6 @@ kstat_t krhino_uprocess_exit(void)
         task_del = krhino_list_entry(tmp, ktask_t, task_user);
 
         RHINO_CRITICAL_ENTER();
-        klist_rm(tmp);
         tmp = tmp->next;
         RHINO_CRITICAL_EXIT();
 
