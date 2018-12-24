@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 #include "aos/kernel.h"
-#include "aos/types.h"
 
 #define MAX_AUTH_LEN   256
 #define MAX_CRYPTO_LEN 4096

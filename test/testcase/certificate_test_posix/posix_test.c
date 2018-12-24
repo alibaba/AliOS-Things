@@ -5,7 +5,6 @@
 #ifdef AOS_POSIX
 
 #include <aos/kernel.h>
-#include <aos/types.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include "cutest/cut.h"
