@@ -4,7 +4,7 @@
 
 #include "posix/mqueue.h"
 
-#if (POSIX_MQUEUE_ENABLE > 0)
+#if (POSIX_CONFIG_MQUEUE_ENABLE > 0)
 
 mqd_t mq_open(const char *name, int oflag, ...)
 {

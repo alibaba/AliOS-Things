@@ -4,7 +4,7 @@
 
 #include "posix/pthread.h"
 
-#if (POSIX_PTHREAD_ENABLE > 0)
+#if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 
 int sched_yield(void)
 {
