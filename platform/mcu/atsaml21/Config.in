@@ -1,0 +1,10 @@
+menuconfig AOS_MCU_ATSAML21
+    bool "atsaml21"
+    default n
+    select AOS_ARCH_ARMV6M
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_ATSAML21
+# Configurations for mcu atsaml21
+endif
