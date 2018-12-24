@@ -1,7 +1,6 @@
 #include <board.h>
 
 #include "hal_uart.h"
-#include <aos/types.h>
 #include <k_api.h>
 
 

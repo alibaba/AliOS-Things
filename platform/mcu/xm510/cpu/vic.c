@@ -1,7 +1,5 @@
 #include <board.h>
 #include "vic.h"
-#include <aos/types.h>
-
 
 /*vic handle*/
 
