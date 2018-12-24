@@ -29,7 +29,8 @@ static void sys_init(void)
 {
     stm32_soc_init();
 
-    //hw_start_hal();
+    /* hw_start_hal(); */
+
     lwip_tcpip_init();
 
     aos_run_app();

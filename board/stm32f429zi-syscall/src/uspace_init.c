@@ -40,11 +40,6 @@ static void app_pre_init(uapp_info_t *app_info)
            app_info->bss_end - app_info->bss_start);
 }
 
-static int app_init(void)
-{
-    return arch_app_init();
-}
-
 static void app_start(void)
 {
     int i;
@@ -64,20 +59,19 @@ static void app_start(void)
         app_pre_init(app_info);
 
         pid = g_pid;
+        g_pid++;
 
         ret = arch_app_prepare(app_info, pid);
         if (ret != 0)
             continue;
 
-        krhino_uprocess_create(app_info->task_struct, "utask", 0,
+        krhino_uprocess_create(app_info->task, "utask", 0,
                                app_info->priority, (tick_t)0,
                                app_info->ustack,
                                app_info->ustack_size, // ustasck size
                                app_info->kstack_size, // kstasck size
                                (task_entry_t)app_info->main_entry,
                                pid, 1);
-
-        g_pid++;
     }
 }
 
@@ -85,7 +79,7 @@ int aos_run_app(void)
 {
     int ret;
 
-    ret = app_init();
+    ret = arch_mpu_init();
     if (ret) {
         return ret;
     }
