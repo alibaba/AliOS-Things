@@ -39,7 +39,6 @@ source "app/example/tls/Config.in"
 source "app/example/uart/Config.in"
 source "app/example/udataapp/Config.in"
 source "app/example/yts/Config.in"
-source "app/example/yts/publish/Config.in"
 ## --- End ---
 
 endchoice
