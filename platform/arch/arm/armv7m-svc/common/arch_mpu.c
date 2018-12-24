@@ -14,26 +14,48 @@
 #define DEBUG(fmt, arg...)
 #endif
 
-#define KERNEL_RNG_NO   0
-#define APP_RNG_NO      2
+#define  ARCH_CODE_REGION_START         0x00000000UL
+#define  ARCH_CODE_REGION_SIZE          0x20000000UL
+#define  ARCH_SRAM_REGION_START         0x20000000UL
+#define  ARCH_SRAM_REGION_SIZE          0x20000000UL
+#define  ARCH_PERIPHERAL_REGION_START   0x40000000UL
+#define  ARCH_PERIPHERAL_REGION_SZIE    0x20000000UL
+#define  ARCH_REST_REGION_START         0xE0000000UL
+#define  ARCH_REST_REGION_SIZE          0x20000000UL
+
+typedef struct {
+    unsigned long start;
+    unsigned long size;
+    unsigned long mpusize;
+} mem_region_t;
+
+typedef struct {
+    mem_region_t text_region;
+    mem_region_t data_region;
+} app_mem_region_t;
+
+enum {
+    APP_CODE_REGION = 0,
+    APP_DATA_REGION,
+    SYSTEM_CODE_REGION,
+    SYSTEM_SRAM_REGION,
+    SYSTEM_PERIPHERAL_REGION,
+    SYSTEM_REST_REGION,
+    SYSTEM_REGION_NUM,
+};
+
+#define APP_RNG_NO      APP_CODE_REGION
 
 #define MAX_RNG_NO      7
 
-typedef struct {
-    unsigned long text_start_addr;
-    unsigned long text_size;
-    unsigned long data_start_addr;
-    unsigned long data_size;
-} mem_region_t;
+static mem_region_t system_region[] = {
+    {ARCH_CODE_REGION_START, ARCH_CODE_REGION_SIZE, 0},
+    {ARCH_SRAM_REGION_START, ARCH_SRAM_REGION_SIZE, 0},
+    {ARCH_PERIPHERAL_REGION_START, ARCH_PERIPHERAL_REGION_SZIE, 0},
+    {ARCH_REST_REGION_START, ARCH_REST_REGION_SIZE, 0}
+};
 
-mem_region_t *g_active_app_mem_region = NULL;
-
-// defined in linker script
-extern char kernel_text_start, kernel_text_size;
-extern char kernel_data_start, kernel_data_size;
-
-// the first one is kernel
-static mem_region_t g_mm_map[MAX_APP_BINS + 1];
+static app_mem_region_t app_mem_region[MAX_APP_BINS];
 
 static int mpu_region_check(unsigned int addr,
                             unsigned int size)
@@ -48,258 +70,216 @@ static int mpu_region_check(unsigned int addr,
 }
 
 
-static int kernel_mem_region_init(void)
+static int system_mem_region_init(void)
 {
-    int ret;
-    unsigned long addr, size;
+    int           ret;
+    unsigned long start;
+    unsigned long size;
+    unsigned long mpusize;
+    int           i;
+    int           sys_region;
 
-    DEBUG("init kernel region\r\n");
-    addr = &kernel_text_start;
-    size = &kernel_text_size;
-    ret = mpu_region_check(addr, size);
-    if (!ret) {
-        g_mm_map[0].text_start_addr = addr;
-        g_mm_map[0].text_size = size_to_mpusize(size);
-    } else {
-        return ret;
+    for (i = SYSTEM_CODE_REGION; i < SYSTEM_REGION_NUM; i++) {
+        sys_region = i - SYSTEM_CODE_REGION;
+        start   = system_region[sys_region].start;
+        size    = system_region[sys_region].size;
+        mpusize = size_to_mpusize(size);
+
+        DEBUG("system_region[%d] start 0x%x, size 0x%x, mpusize 0x%x\r\n",
+              sys_region, start, size, mpusize);
+
+        ret = mpu_region_check(start, size);
+        if (!ret) {
+            system_region[sys_region].mpusize = mpusize;
+        } else {
+            return ret;
+        }
     }
-
-    addr = &kernel_data_start;
-    size = &kernel_data_size;
-    ret = mpu_region_check(addr, size);
-    if (!ret) {
-        g_mm_map[0].data_start_addr = addr;
-        g_mm_map[0].data_size = size_to_mpusize(size);
-    } else {
-        return ret;
-    }
-
-    DEBUG("kernel text addr 0x%x, mpusize 0x%x, "
-          "data addr 0x%x, mpusize 0x%x\r\n",
-            g_mm_map[0].text_start_addr,
-            g_mm_map[0].text_size,
-            g_mm_map[0].data_start_addr,
-            g_mm_map[0].data_size);
 
     return 0;
 }
 
 static int app_mem_region_init(uapp_info_t *app_info, int id)
 {
-    int ret;
+    int           ret;
+    unsigned long start;
+    unsigned long size;
+    unsigned long mpusize;
 
-    unsigned long addr, size;
-    unsigned long text_start_addr, text_mpusize;
-    unsigned long data_start_addr, data_mpusize;
-
-    if ((app_info == NULL)
-        || (id == 0) || (id >= MAX_APP_BINS)) {
+    if ((app_info == NULL) || (id >= MAX_APP_BINS)) {
         DEBUG("%s: invalid arg, app_info %p, id %d\r\n",
                 __func__, app_info, id);
         return -1;
     }
 
-    addr = app_info->text_flash_begin;
-    size = app_info->text_flash_end - app_info->text_flash_begin;
-    ret = mpu_region_check(addr, size);
+    start   = app_info->text_flash_begin;
+    size    = app_info->text_flash_end - app_info->text_flash_begin;
+    mpusize = size_to_mpusize(size);
+
+    DEBUG("app_mem_region[%d] text start 0x%x, size 0x%x, mpusize 0x%x\r\n",
+          id, start, size, mpusize);
+
+    ret = mpu_region_check(start, size);
     if (!ret) {
-        text_start_addr = addr;
-        text_mpusize = size_to_mpusize(size);
+        app_mem_region[id].text_region.start   = start;
+        app_mem_region[id].text_region.size    = size;
+        app_mem_region[id].text_region.mpusize = mpusize;
     } else {
         return ret;
     }
 
-    addr = app_info->data_ram_start;
-    size = app_info->heap_end - app_info->data_ram_start;
-    ret = mpu_region_check(addr, size);
+    start   = app_info->data_ram_start;
+    size    = app_info->heap_end - app_info->data_ram_start;
+    mpusize = size_to_mpusize(size);
+
+    DEBUG("app_mem_region[%d] data start 0x%x, size 0x%x, mpusize 0x%x\r\n",
+          id, start, size, mpusize);
+
+    ret = mpu_region_check(start, size);
     if (!ret) {
-        data_start_addr = addr;
-        data_mpusize = size_to_mpusize(size);
+        app_mem_region[id].data_region.start   = start;
+        app_mem_region[id].data_region.size    = size;
+        app_mem_region[id].data_region.mpusize = mpusize;
     } else {
         return ret;
     }
-
-    g_mm_map[id].text_start_addr = text_start_addr;
-    g_mm_map[id].text_size = text_mpusize;
-    g_mm_map[id].data_start_addr = data_start_addr;
-    g_mm_map[id].data_size = data_mpusize;
-
-    DEBUG("%s: text addr 0x%x, mpusize 0x%x, "
-          "data addr 0x%x, mpusize 0x%x\r\n",
-            __func__,
-            g_mm_map[id].text_start_addr,
-            g_mm_map[id].text_size,
-            g_mm_map[id].data_start_addr,
-            g_mm_map[id].data_size);
 
     return 0;
 }
 
-static int enable_kernel_region(void)
+static void enable_region(mem_region_t *region, int rng_no,
+                          int subregion_disable, int ext_type,
+                          int access_permission, int disable_exec,
+                          int shareable, int cacheable, int bufferable)
 {
-    int ret = -1;
     MPU_Region_Init_t init;
-    mem_region_t *mem_region;
-    int rng_no;
 
     CPSR_ALLOC();
+
+    init.range_no          = rng_no;
+    init.base_addr         = region->start;
+    init.size              = region->mpusize;
+    init.subregion_disable = subregion_disable;
+    init.ext_type          = ext_type;
+    init.access_permission = access_permission;
+    init.disable_exec      = disable_exec;
+    init.shareable         = shareable;
+    init.cacheable         = cacheable;
+    init.bufferable        = bufferable;
+    init.enable            = 1;
 
     RHINO_CRITICAL_ENTER();
 
-    rng_no = KERNEL_RNG_NO;
-    mem_region = &g_mm_map[0];
-
-    init.range_no = rng_no;
-    init.base_addr = mem_region->text_start_addr;
-    init.size = mem_region->text_size;
-    init.subregion_disable = 0;
-    init.ext_type = 0;
-    init.access_permission = MPU_AP_RO_NA;
-    init.disable_exec = 0;
-    init.shareable = 0;
-    init.cacheable = 1;
-    init.bufferable = 1;
-    init.enable = 1;
     mpu_config_region(&init);
 
-    init.range_no = rng_no + 1;
-    init.base_addr = mem_region->data_start_addr;
-    init.size = mem_region->data_size;
-    init.subregion_disable = 0;
-    init.ext_type = 0;
-    init.access_permission = MPU_AP_RW_NA;
-    init.disable_exec = 0;
-    init.shareable = 0;
-    init.cacheable = 1;
-    init.bufferable = 1;
-    init.enable = 1;
-    mpu_config_region(&init);
+    RHINO_CRITICAL_EXIT();
+}
+
+static int enable_system_region(void)
+{
+    int ret = -1;
+
+    mem_region_t *region;
+    int           sys_region;
 
     mpu_enable();
 
-    RHINO_CRITICAL_EXIT();
+    sys_region = SYSTEM_CODE_REGION - SYSTEM_CODE_REGION;
+    region = &system_region[sys_region];
+    enable_region(region, sys_region, 0, 0, MPU_AP_RO_NA, 0, 0, 1, 1);
+
+    sys_region = SYSTEM_SRAM_REGION - SYSTEM_CODE_REGION;
+    region = &system_region[sys_region];
+    enable_region(region, sys_region, 0, 0, MPU_AP_RW_NA, 0, 0, 1, 1);
+
+    sys_region = SYSTEM_PERIPHERAL_REGION - SYSTEM_CODE_REGION;
+    region = &system_region[sys_region];
+    enable_region(region, sys_region, 0, 0, MPU_AP_RW_NA, 1, 0, 1, 1);
+
+    sys_region = SYSTEM_REST_REGION - SYSTEM_CODE_REGION;
+    region = &system_region[sys_region];
+    enable_region(region, sys_region, 0, 0, MPU_AP_RW_NA, 1, 0, 1, 1);
 
     return 0;
 }
 
-static int enable_app_region(int id, int rng_no)
+static int enable_app_region(int id)
 {
-    MPU_Region_Init_t init;
-    mem_region_t *mem_region;
+    mem_region_t *region;
+    int rng_no;
 
-    CPSR_ALLOC();
+    rng_no = APP_CODE_REGION;
 
     if ((rng_no > MAX_RNG_NO - 1)
         || (id > MAX_APP_BINS - 1)) {
         return -1;
     }
 
-    RHINO_CRITICAL_ENTER();
+    region = &app_mem_region[id].text_region;
+    enable_region(region, rng_no, 0, 0, MPU_AP_RO_RO, 0, 0, 1, 1);
 
-    mem_region = &g_mm_map[id];
-
-    mpu_disable();
-
-    init.range_no = rng_no;
-    init.base_addr = mem_region->text_start_addr;
-    init.size = mem_region->text_size;
-    init.subregion_disable = 0;
-    init.ext_type = 0;
-    init.access_permission = MPU_AP_RO_RO;
-    init.disable_exec = 0;
-    init.shareable = 0;
-    init.cacheable = 1;
-    init.bufferable = 1;
-    init.enable = 1;
-    mpu_config_region(&init);
-
-    init.range_no = rng_no + 1;
-    init.base_addr = mem_region->data_start_addr;
-    init.size = mem_region->data_size;
-    init.subregion_disable = 0;
-    init.ext_type = 0;
-    init.access_permission = MPU_AP_RW_RW;
-    init.disable_exec = 0;
-    init.shareable = 0;
-    init.cacheable = 1;
-    init.bufferable = 1;
-    init.enable = 1;
-    mpu_config_region(&init);
-
-    mpu_enable();
-
-    g_active_app_mem_region = mem_region;
-
-    RHINO_CRITICAL_EXIT();
+    region = &app_mem_region[id].data_region;
+    enable_region(region, rng_no + 1, 0, 0, MPU_AP_RW_RW, 0, 0, 1, 1);
 
     return 0;
 }
 
-static int disable_region(int rng_no)
+static int disable_app_region(int id)
 {
     MPU_Region_Init_t init;
-
-    if (rng_no > MAX_RNG_NO - 1)
-        return -1;
+    int rng_no;
 
     CPSR_ALLOC();
 
+    rng_no = APP_CODE_REGION;
+
     RHINO_CRITICAL_ENTER();
-    mpu_disable();
 
     init.range_no = rng_no;
-    init.enable = 0;
+    init.enable   = 0;
     mpu_config_region(&init);
 
     init.range_no = rng_no + 1;
-    init.enable = 0;
+    init.enable   = 0;
     mpu_config_region(&init);
-
-    mpu_enable();
-
-    g_active_app_mem_region = NULL;
 
     RHINO_CRITICAL_EXIT();
 
     return 0;
 }
 
-int arch_app_init(void)
+int arch_mpu_init(void)
 {
     int ret;;
     unsigned int type;
 
-    memset((void*)g_mm_map, 0, sizeof(g_mm_map));
+    memset((void*)app_mem_region, 0, sizeof(app_mem_region));
 
-    ret = kernel_mem_region_init();
+    ret = system_mem_region_init();
     if (ret) {
-        DEBUG("%s: kernel region init failed\r\n",
-              __func__);
         return ret;
     }
 
     type = mpu_get_type();
     if (!type) {
-        DEBUG("%s: system doesn't support mpu\r\n",
-              __func__);
+        DEBUG("%s: system doesn't support mpu\r\n", __func__);
         return -1;
     } else {
-        DEBUG("%s: system mpu type 0x%x\r\n",
-              __func__, type);
+        DEBUG("%s: system mpu type 0x%x\r\n", __func__, type);
     }
 
-    return enable_kernel_region();
+    return enable_system_region();
 }
 
 
-int arch_app_prepare(uapp_info_t *app_info, int id)
+int arch_app_prepare(uapp_info_t *app_info, int pid)
 {
     int ret;
 
-    ret = app_mem_region_init(app_info, id);
+    ret = app_mem_region_init(app_info, PID_TO_APP_ID(pid));
     if (ret) {
         DEBUG("%s: app mem region init failed, id %d\r\n",
-              __func__, id);
+              __func__, PID_TO_APP_ID(pid));
     }
 
     return ret;
@@ -311,10 +291,10 @@ void cpu_mm_hook(ktask_t *new, ktask_t *old)
         return;
 
     if (new->pid == 0) {
-        disable_region(APP_RNG_NO);
+        disable_app_region(PID_TO_APP_ID(old->pid));
     } else {
-        disable_region(APP_RNG_NO);
-        enable_app_region(new->pid, APP_RNG_NO);
+        disable_app_region(PID_TO_APP_ID(old->pid));
+        enable_app_region(PID_TO_APP_ID(new->pid));
     }
 }
 
