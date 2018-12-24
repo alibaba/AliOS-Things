@@ -4,7 +4,7 @@
 
 #include "posix/semaphore.h"
 
-#if (POSIX_SEMAPHORE_ENABLE > 0)
+#if (POSIX_CONFIG_SEMAPHORE_ENABLE > 0)
 
 int sem_init(sem_t *sem, int pshared, unsigned int value)
 {
