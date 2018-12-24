@@ -29,6 +29,7 @@ GLOBAL_CFLAGS  += -DBLE_4_2
 
 # Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
+EXTRA_TARGET_MAKEFILES += ./board/pca10056/gen_crc_bin.mk
 
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))
