@@ -105,7 +105,7 @@ RHINO_INLINE _pthread_tcb_t *_pthread_get_tcb(pthread_t thread)
         return NULL;
     }
 
-    ptcb = (_pthread_tcb_t *)thread->user_info[PTHREAD_USER_INFO_POS];
+    ptcb = (_pthread_tcb_t *)thread->user_info[PTHREAD_CONFIG_USER_INFO_POS];
     if (ptcb != NULL) {
         if (ptcb->magic != PTHREAD_MAGIC) {
             ptcb = NULL;
