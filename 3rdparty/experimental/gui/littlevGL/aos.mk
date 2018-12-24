@@ -14,6 +14,6 @@ GLOBAL_DEFINES      += __BSD_VISIBLE
 endif
 
 GLOBAL_INCLUDES     += .
-GLOBAL_DEFINES      += AOS_LITTLEVGL
+GLOBAL_DEFINES      += AOS_COMP_LITTLEVGL
 
 include ./3rdparty/experimental/gui/littlevGL/lvgl/lvgl.mk
