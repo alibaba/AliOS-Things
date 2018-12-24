@@ -365,7 +365,7 @@ static int iotx_mc_check_topic(const char *topicName, iotx_mc_topic_type_t type)
 static int MQTTKeepalive(iotx_mc_client_t *pClient)
 {
     int len = 0;
-    int rc = 0;
+    int rc = FAIL_RETURN;
     /* there is no ping outstanding - send ping packet */
     iotx_time_t timer;
 
@@ -397,14 +397,10 @@ static int MQTTKeepalive(iotx_mc_client_t *pClient)
     if (SUCCESS_RETURN != rc) {
         /* ping outstanding, then close socket unsubscribe topic and handle callback function */
         mqtt_err("ping outstanding is error,result = %d", rc);
-
-        _reset_send_buffer(pClient);
-        HAL_MutexUnlock(pClient->lock_write_buf);
-        return MQTT_NETWORK_ERROR;
     }
     _reset_send_buffer(pClient);
     HAL_MutexUnlock(pClient->lock_write_buf);
-    return SUCCESS_RETURN;
+    return rc;
 }
 
 /* MQTT send connect packet */
@@ -413,7 +409,7 @@ int MQTTConnect(iotx_mc_client_t *pClient)
     MQTTPacket_connectData *pConnectParams;
     iotx_time_t connectTimer;
     int len = 0;
-
+    int rc = FAIL_RETURN;
     if (!pClient) {
         return FAIL_RETURN;
     }
@@ -438,15 +434,13 @@ int MQTTConnect(iotx_mc_client_t *pClient)
     /* send the connect packet */
     iotx_time_init(&connectTimer);
     utils_time_countdown_ms(&connectTimer, pClient->request_timeout_ms);
-    if ((iotx_mc_send_packet(pClient, pClient->buf_send, len, &connectTimer)) != SUCCESS_RETURN) {
-        mqtt_err("send connect packet failed");
-        _reset_send_buffer(pClient);
-        HAL_MutexUnlock(pClient->lock_write_buf);
-        return MQTT_NETWORK_ERROR;
+    rc = iotx_mc_send_packet(pClient, pClient->buf_send, len, &connectTimer);
+    if (SUCCESS_RETURN != rc) {
+        mqtt_err("send packet err,result = %d", rc);
     }
     _reset_send_buffer(pClient);
     HAL_MutexUnlock(pClient->lock_write_buf);
-    return SUCCESS_RETURN;
+    return rc;
 }
 
 int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info_pt topic_msg)
@@ -455,6 +449,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     iotx_time_t         timer;
     MQTTString          topic = MQTTString_initializer;
     int                 len = 0;
+    int                 rc;
 
     if (!c || !topicName || !topic_msg) {
         return FAIL_RETURN;
@@ -508,7 +503,9 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
     }
 #endif
     /* send the publish packet */
-    if (iotx_mc_send_packet(c, c->buf_send, len, &timer) != SUCCESS_RETURN) {
+    rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);
+    if (rc != SUCCESS_RETURN) {
+        mqtt_err("send packet err,result = %d", rc);
 #if !WITH_MQTT_ONLY_QOS0
         if (topic_msg->qos > IOTX_MQTT_QOS0) {
             /* If not even successfully sent to IP stack, meaningless to wait QOS1 ack, give up waiting */
@@ -516,25 +513,21 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
             mqtt_free(node);
         }
 #endif
-        _reset_send_buffer(c);
-        HAL_MutexUnlock(c->lock_write_buf);
-        HAL_MutexUnlock(c->lock_list_pub);
-        return MQTT_NETWORK_ERROR;
-    }
-
+    } else {
 #if WITH_FAC_JSON_FLOW
-    const char     *json_payload = (const char *)topic_msg->payload;
+        const char     *json_payload = (const char *)topic_msg->payload;
 
-    mqtt_info("Upstream Topic: '%s'", topicName);
-    mqtt_info("Upstream Payload:");
-    iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '>');
+        mqtt_info("Upstream Topic: '%s'", topicName);
+        mqtt_info("Upstream Payload:");
+        iotx_facility_json_print(json_payload, LOG_INFO_LEVEL, '>');
 
 #endif  /* #if WITH_FAC_JSON_FLOW */
+    }
     _reset_send_buffer(c);
     HAL_MutexUnlock(c->lock_write_buf);
     HAL_MutexUnlock(c->lock_list_pub);
 
-    return SUCCESS_RETURN;
+    return rc;
 }
 
 static int remove_handle_from_list(iotx_mc_client_t *c, iotx_mc_topic_handle_t *h)
@@ -558,6 +551,7 @@ static int remove_handle_from_list(iotx_mc_client_t *c, iotx_mc_topic_handle_t *
 static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt_qos_t qos, unsigned int msgId,
                          iotx_mqtt_event_handle_func_fpt messageHandler, void *pcontext)
 {
+    int                         rc = FAIL_RETURN;
     int                         len = 0;
     iotx_time_t                 timer;
     MQTTString                  topic = MQTTString_initializer;
@@ -660,7 +654,8 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     HEXDUMP_DEBUG(c->buf_send, len);
 #endif
 
-    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
+    rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);
+    if (rc != SUCCESS_RETURN) { /* send the subscribe packet */
         /* If send failed, remove it */
 #if !(WITH_MQTT_SUB_SHORTCUT)
         HAL_MutexLock(c->lock_list_sub);
@@ -668,12 +663,12 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
         mqtt_free(node);
         HAL_MutexUnlock(c->lock_list_sub);
 #endif
-        mqtt_err("run sendPacket error!");
+        mqtt_err("run sendPacket error! rc = %d", rc);
         mqtt_free(handler->topic_filter);
         mqtt_free(handler);
         _reset_send_buffer(c);
         HAL_MutexUnlock(c->lock_write_buf);
-        return MQTT_NETWORK_ERROR;
+        return rc;
     }
     _reset_send_buffer(c);
     HAL_MutexUnlock(c->lock_write_buf);
@@ -696,6 +691,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
     iotx_time_t timer;
     MQTTString topic = MQTTString_initializer;
     int len = 0;
+    int rc = FAIL_RETURN;
     /*iotx_mc_topic_handle_t handler = {topicFilter, {NULL, NULL}};*/
     iotx_mc_topic_handle_t *handler = NULL;
 
@@ -774,8 +770,10 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
         return MQTT_PUSH_TO_LIST_ERROR;
     }
 
-    if ((iotx_mc_send_packet(c, c->buf_send, len, &timer)) != SUCCESS_RETURN) { /* send the subscribe packet */
+    rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);
+    if (rc != SUCCESS_RETURN) { /* send the subscribe packet */
         /* remove from list */
+        mqtt_err("send packet failed! rc = %d", rc);
         HAL_MutexLock(c->lock_list_sub);
         list_del(&node->linked_list);
         mqtt_free(node);
@@ -784,7 +782,7 @@ static int MQTTUnsubscribe(iotx_mc_client_t *c, const char *topicFilter, unsigne
         mqtt_free(handler);
         _reset_send_buffer(c);
         HAL_MutexUnlock(c->lock_write_buf);
-        return MQTT_NETWORK_ERROR;
+        return rc;
     }
 
     MQTTString cur_topic;
@@ -848,7 +846,11 @@ static int MQTTDisconnect(iotx_mc_client_t *c)
 
     if (len > 0) {
         rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);           /* send the disconnect packet */
+        if (SUCCESS_RETURN != rc) {
+            mqtt_err("send packet err,result = %d", rc);
+        }
     }
+
     _reset_send_buffer(c);
     HAL_MutexUnlock(c->lock_write_buf);
     return rc;
@@ -903,15 +905,12 @@ static int MQTTPuback(iotx_mc_client_t *c, unsigned int msgId, enum msgTypes typ
     }
 
     rc = iotx_mc_send_packet(c, c->buf_send, len, &timer);
-    if (rc != SUCCESS_RETURN) {
-        _reset_send_buffer(c);
-        HAL_MutexUnlock(c->lock_write_buf);
-        return MQTT_NETWORK_ERROR;
+    if (SUCCESS_RETURN != rc) {
+        mqtt_err("send packet err,result = %d", rc);
     }
-
     _reset_send_buffer(c);
     HAL_MutexUnlock(c->lock_write_buf);
-    return SUCCESS_RETURN;
+    return rc;
 }
 
 #if !WITH_MQTT_ONLY_QOS0
@@ -2669,19 +2668,18 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
 /* republish */
 static int MQTTRePublish(iotx_mc_client_t *c, char *buf, int len)
 {
+    int rc = FAIL_RETURN;
     iotx_time_t timer;
     iotx_time_init(&timer);
     utils_time_countdown_ms(&timer, c->request_timeout_ms);
 
     HAL_MutexLock(c->lock_write_buf);
-
-    if (iotx_mc_send_packet(c, buf, len, &timer) != SUCCESS_RETURN) {
-        HAL_MutexUnlock(c->lock_write_buf);
-        return MQTT_NETWORK_ERROR;
+    rc = iotx_mc_send_packet(c, buf, len, &timer);
+    if (SUCCESS_RETURN != rc) {
+        mqtt_err("send packet err,result = %d", rc);
     }
-
     HAL_MutexUnlock(c->lock_write_buf);
-    return SUCCESS_RETURN;
+    return rc;
 }
 
 
