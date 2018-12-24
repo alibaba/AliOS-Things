@@ -1,0 +1,10 @@
+menuconfig AOS_MCU_GD32F4XX
+    bool "gd32f4xx"
+    default n
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_GD32F4XX
+# Configurations for mcu gd32f4xx
+endif

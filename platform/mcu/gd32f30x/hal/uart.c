@@ -1,9 +1,19 @@
-#include "gd32f30x.h"
-#include "hal/soc/soc.h"
-#include "ringbuf.h"
-#include <aos/aos.h>
-#include <k_api.h>
+/*
+    Copyright (C) 2017 GigaDevice
+
+    2017-06-28, V1.0.0, demo for GD32F3x0
+*/
+
 #include <stdio.h>
+
+#include "k_api.h"
+
+#include "aos/kernel.h"
+#include "aos/hal/uart.h"
+
+#include "gd32f30x.h"
+#include "ringbuf.h"
+
 #define MAX_UART_NUM 4
 
 
