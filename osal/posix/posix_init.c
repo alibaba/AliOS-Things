@@ -14,22 +14,22 @@ int posix_init(void)
 {
     int ret = -1;
 
-#if (POSIX_PTHREAD_ENABLE > 0)
+#if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
     ret = pthread_lock_init();
     if (ret != 0) {
         return -1;
     }
 #endif
 
-#if (POSIX_TIMER_ENABLE > 0)
+#if (POSIX_CONFIG_TIMER_ENABLE > 0)
     ret = timer_lock_init();
     if (ret != 0) {
         return -1;
     }
 #endif
 
-#if (POSIX_DIRENT_ENABLE > 0)
-#if (POSIX_DIRENT_TMPFILE_ENABLE > 0)
+#if (POSIX_CONFIG_DIRENT_ENABLE > 0)
+#if (POSIX_CONFIG_DIRENT_TMPFILE_ENABLE > 0)
     ret = tmpnam_lock_init();
     if (ret != 0) {
         return -1;

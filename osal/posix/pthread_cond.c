@@ -4,7 +4,7 @@
 
 #include "posix/pthread.h"
 
-#if (POSIX_PTHREAD_ENABLE > 0)
+#if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 
 int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
 {

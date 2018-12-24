@@ -5,7 +5,7 @@
 #include "posix/dirent.h"
 #include "network/network.h"
 
-#if (POSIX_DIRENT_ENABLE > 0)
+#if (POSIX_CONFIG_DIRENT_ENABLE > 0)
 
 DIR *opendir(const char *dirname)
 {
@@ -122,7 +122,7 @@ long fpathconf(int fildes, int name)
     return aos_fpathconf(fildes, name);
 }
 
-#if (POSIX_DIRENT_TMPFILE_ENABLE > 0)
+#if (POSIX_CONFIG_DIRENT_TMPFILE_ENABLE > 0)
 
 kmutex_t g_tmpnam_mutex;
 

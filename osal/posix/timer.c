@@ -5,7 +5,7 @@
 #include "posix/timer.h"
 #include "posix/signal.h"
 
-#if (POSIX_TIMER_ENABLE > 0)
+#if (POSIX_CONFIG_TIMER_ENABLE > 0)
 
 timer_list_t *timer_list_head;
 
