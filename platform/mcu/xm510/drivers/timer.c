@@ -20,7 +20,6 @@
 
 #include <k_api.h>
 #include <board.h>
-#include <aos/types.h>
 
 static unsigned long free_timer_overflows; 
 
