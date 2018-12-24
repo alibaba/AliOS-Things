@@ -1,9 +1,0 @@
-menuconfig AOS_COMP_OSAL_POSIX_TEST
-    bool "osal_posix_test"
-    default n
-    select AOS_COMP_OSAL_POSIX_TEST
-    help
-
-if AOS_COMP_OSAL_POSIX_TEST
-# Configurations for comp osal_posix_test
-endif
