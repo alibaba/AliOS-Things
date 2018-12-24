@@ -5,13 +5,31 @@
 #ifndef AOS_YLOOP_H
 #define AOS_YLOOP_H
 
-#include <aos/types.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 #include <event_type_code.h>
+
+#if defined(WITH_LWIP) || defined(CONFIG_NO_TCPIP) || defined(WITH_SAL)
+#define POLLIN  0x1
+#define POLLOUT 0x2
+#define POLLERR 0x4
+
+struct pollfd {
+    int   fd;
+    short events;
+    short revents;
+};
+
+#else
+
+#include <poll.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif /* defined(WITH_LWIP) || defined(CONFIG_NO_TCPIP) || defined(WITH_SAL) */
 
 #ifndef AOS_DOXYGEN_MODE
 
