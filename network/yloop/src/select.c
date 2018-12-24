@@ -3,8 +3,9 @@
  */
 
 #include "aos/kernel.h"
-#include "aos/types.h"
 #include "aos/vfs.h"
+
+#include "aos/yloop.h"
 
 #include <network/network.h>
 
