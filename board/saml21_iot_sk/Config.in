@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_SAML21_IOT_SK
+    bool "saml21_iot_sk"
+    select AOS_MCU_ATSAML21
+    help
+
+if AOS_BOARD_SAML21_IOT_SK
+# Configurations for board saml21_iot_sk
+endif

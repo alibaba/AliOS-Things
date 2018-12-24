@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := GD32F307VCT6
 ENABLE_VFP         := 0
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub init vfs
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub init vfs netmgr
 
 GLOBAL_DEFINES += GD32F30X_CL CONFIG_NO_TCPIP
 
