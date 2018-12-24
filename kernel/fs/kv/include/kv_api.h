@@ -5,6 +5,8 @@
 #ifndef KV_API_H
 #define KV_API_H
 
+#include <stdint.h>
+
 #include "kv_err.h"
 
 #ifdef __cplusplus

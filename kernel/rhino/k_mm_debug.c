@@ -7,7 +7,6 @@
 #include <k_api.h>
 
 #ifdef CONFIG_AOS_CLI
-#include "aos/types.h"
 #include "aos/cli.h"
 extern int csp_printf(const char *fmt, ...);
 #define print aos_cli_printf
