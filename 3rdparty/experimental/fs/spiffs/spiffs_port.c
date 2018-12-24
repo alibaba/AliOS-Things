@@ -2,13 +2,14 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
+#include <fcntl.h>
 #include <stdio.h>
+
 #include "spiffs_config.h"
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
 
 #include "aos/hal/flash.h"
-
 #include "aos/errno.h"
 #include "aos/vfs.h"
 
