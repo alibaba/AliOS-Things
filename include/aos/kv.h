@@ -5,7 +5,6 @@
 #ifndef AOS_KV_H
 #define AOS_KV_H
 
-#include <aos/types.h>
 
 #ifdef __cplusplus
 extern "C" {
