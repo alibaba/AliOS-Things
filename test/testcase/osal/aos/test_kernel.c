@@ -3,7 +3,6 @@
  */
 
 #include <yunit.h>
-#include <aos/types.h>
 
 static int init(void)
 {
