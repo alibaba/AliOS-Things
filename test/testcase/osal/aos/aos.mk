@@ -1,4 +1,4 @@
-NAME := osal_aos_test
+NAME := aos_test
 
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION    := 0.0.1
