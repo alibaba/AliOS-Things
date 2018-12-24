@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_GD32F350R-EVAL
+    bool "gd32f350r-eval"
+    select AOS_MCU_GD32F3X0
+    help
+
+if AOS_BOARD_GD32F350R-EVAL
+# Configurations for board gd32f350r-eval
+endif

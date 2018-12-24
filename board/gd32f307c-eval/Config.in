@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_GD32F307C-EVAL
+    bool "gd32f307c-eval"
+    select AOS_MCU_GD32F30X
+    help
+
+if AOS_BOARD_GD32F307C-EVAL
+# Configurations for board gd32f307c-eval
+endif
