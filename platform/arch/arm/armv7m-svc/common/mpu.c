@@ -13,6 +13,9 @@ void mpu_enable(void)
 {
     MPU->ctrl = MPU_CTRL_ENABLE_MASK | MPU_CTRL_PRIVDEFENA_MASK;
 
+    /* Enable memory manage fault */
+    *(SHCSR) |= (1<<16);
+
     __asm__ ("dsb 0xf\t\n"
              "isb\t\n"
              :::"memory");
@@ -20,10 +23,11 @@ void mpu_enable(void)
 
 void mpu_disable(void)
 {
-    __asm__("dmb 0xf\t\n"
-            :::"memory");
-
     MPU->ctrl = 0U;
+
+    __asm__("dsb 0xf\t\n"
+            "isb\t\n"
+            :::"memory");
 }
 
 
@@ -34,18 +38,22 @@ void mpu_config_region(MPU_Region_Init_t *init)
     if (init->enable) {
         MPU->rbar = init->base_addr;
         MPU->rasr = (init->disable_exec << MPU_RASR_XN_OFFSET
-            | init->access_permission << MPU_RASR_AP_OFFSET
-            | init->ext_type << MPU_RASR_TEX_OFFSET
-            | init->shareable << MPU_RASR_S_OFFSET
-            | init->cacheable << MPU_RASR_C_OFFSET
-            | init->bufferable << MPU_RASR_B_OFFSET
-            | init->subregion_disable << MPU_RASR_SRD_OFFSET
-            | init->size << MPU_RASR_SIZE_OFFSET
-            | init->enable << MPU_RASR_ENABLE_OFFSET);
+                    | init->access_permission << MPU_RASR_AP_OFFSET
+                    | init->ext_type << MPU_RASR_TEX_OFFSET
+                    | init->shareable << MPU_RASR_S_OFFSET
+                    | init->cacheable << MPU_RASR_C_OFFSET
+                    | init->bufferable << MPU_RASR_B_OFFSET
+                    | init->subregion_disable << MPU_RASR_SRD_OFFSET
+                    | init->size << MPU_RASR_SIZE_OFFSET
+                    | init->enable << MPU_RASR_ENABLE_OFFSET);
     } else {
         MPU->rbar = 0;
         MPU->rasr = 0;
     }
+
+    __asm__("dsb 0xf\t\n"
+            "isb\t\n"
+            :::"memory");
 }
 
 unsigned int size_to_mpusize(unsigned int size)

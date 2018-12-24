@@ -27,9 +27,12 @@ typedef struct {
 } MPU_t;
 
 
+/* System Handler Control and State register */
+#define SHCSR                   ((unsigned int*)0xE000ED24UL)
+
 /* MPU registers */
 
-#define MPU_BASE                 (0xe000ed90)
+#define MPU_BASE                 (0xE000ED90UL)
 #define MPU                      ((MPU_t*)(MPU_BASE))
 
 #define MPU_TYPE_IREGION_OFFSET     (16U)

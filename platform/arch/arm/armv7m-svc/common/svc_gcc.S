@@ -77,6 +77,7 @@ SVC_Handler:
     MRS     R2, control
     ORR     R2, #0x01
     MSR     CONTROL, R2
+    ISB
     @ TODO: test stub, remove it later
     MRS     R2, CONTROL
 

@@ -7,7 +7,6 @@
 #include <string.h>
 
 #include <k_api.h>
-#include <aos/log.h>
 
 #include "aos/hal/timer.h"
 #include "network/hal/base.h"
@@ -64,10 +63,10 @@ extern hal_wifi_module_t aos_wifi_module_mk3060;
 
 void hw_start_hal(void)
 {
-    LOG(">>> start hal");
+    printf(">>> start hal");
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 #endif
-    
+
     hal_wifi_init();
 }
