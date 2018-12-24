@@ -334,6 +334,7 @@ ais_err_t ble_stack_init(ais_bt_init_t *info)
     bt_init_info = info;
 
     hci_driver_init();
+    ble_storage_init();
     err = bt_enable(NULL);
     if (err) {
         printf("Bluetooth init failed (err %d)\n", err);
