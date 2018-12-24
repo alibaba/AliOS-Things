@@ -182,5 +182,9 @@
 #define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x400
 #endif
 
+#ifndef RHINO_CONFIG_PANIC
+#define RHINO_CONFIG_PANIC                  1
+#endif
+
 #endif /* K_CONFIG_H */
 

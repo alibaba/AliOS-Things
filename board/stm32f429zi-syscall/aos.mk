@@ -11,10 +11,10 @@ HOST_MCU_NAME      := STM32F429ZIT6
 ENABLE_VFP         := 1
 ENABLE_USPACE      := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init lwip
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal lwip
 
 $(NAME)_SOURCES += src/stm32f4xx_hal_msp.c \
-	               src/board.c \
+                   src/board.c \
                    src/soc_init.c \
                    src/eth.c \
                    src/gpio.c \
