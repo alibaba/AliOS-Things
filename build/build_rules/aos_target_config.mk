@@ -45,7 +45,7 @@ GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(str
 
 define PREPROCESS_TEST_COMPONENT
 $(if $(filter yts,$(COMPONENTS)), \
-$(if $(test), $(eval TEST_COMPONENTS := $(strip $(subst $(COMMA), $(SPACE), $(test)))),) \
+$(if $(test), $(eval TEST_COMPONENTS := $(foreach tmpcomp,$(strip $(subst $(COMMA),$(SPACE),$(test))),$(if $(findstring _test,$(tmpcomp)),$(tmpcomp),$(addsuffix _test,$(tmpcomp))))),) \
 $(eval COMPONENTS += $(TEST_COMPONENTS)))
 endef
 
