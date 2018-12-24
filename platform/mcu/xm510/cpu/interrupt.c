@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "vic.h"
-#include <aos/types.h>
 #include "interrupt.h"
 
 /* exception and interrupt handler table */
