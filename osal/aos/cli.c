@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "aos/types.h"
 #include "aos/cli.h"
 #include "aos/errno.h"
 
