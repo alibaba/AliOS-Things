@@ -5,6 +5,8 @@
 #ifndef CLI_API_H
 #define CLI_API_H
 
+#include <stdint.h>
+
 #include "cli_err.h"
 
 #ifdef __cplusplus

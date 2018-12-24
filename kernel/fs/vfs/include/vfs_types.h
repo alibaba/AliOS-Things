@@ -5,6 +5,8 @@
 #ifndef VFS_TYPES_H
 #define VFS_TYPES_H
 
+#include <stdint.h>
+
 typedef struct {
     uint16_t st_mode;
     uint32_t st_size;
