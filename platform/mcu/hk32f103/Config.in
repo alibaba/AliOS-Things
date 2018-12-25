@@ -1,0 +1,10 @@
+menuconfig AOS_MCU_HK32F103
+    bool "hk32f103"
+    default n
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_HK32F103
+# Configurations for mcu hk32f103
+endif
