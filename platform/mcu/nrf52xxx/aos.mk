@@ -126,4 +126,3 @@ include $($(NAME)_LOCATION)/$(HOST_MCU_NAME).mk
 
 include $($(NAME)_LOCATION)/bt_controller/bt_controller.mk
 #$(NAME)_COMPONENTS += bt_controller
-GLOBAL_DEFINES-y += CONFIG_BT_CTLR
