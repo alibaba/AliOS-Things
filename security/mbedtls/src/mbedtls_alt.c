@@ -57,6 +57,19 @@
 #include "ali_crypto.h"
 #endif
 
+#if defined(LOG_SIMPLE)
+#define MBEDTLS_ALT_PRINT(_f, ...) \
+    printf("Mbedtls Error: %s %d\n", __FUNCTION__, __LINE__)
+
+#define MBEDTLS_ALT_ASSERT(_x)                                         \
+    do {                                                               \
+        if (!(_x)) {                                                   \
+            printf("Mbedtls ASSERT: %s %d\n", __FUNCTION__, __LINE__); \
+            while (1) /* loop */                                       \
+                ;                                                      \
+        }                                                              \
+    } while (0)
+#else
 #define MBEDTLS_ALT_PRINT(_f, ...) \
     printf("%s %d: "_f, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
@@ -69,6 +82,7 @@
                 ;                                                      \
         }                                                              \
     } while (0)
+#endif
 
 #if defined(MBEDTLS_AES_ALT)
 /* Implementation that should never be optimized out by the compiler */
