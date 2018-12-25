@@ -15,6 +15,61 @@
 
 static unsigned int used_bitmap;
 
+
+static int error_mapping(int ret)
+{
+    switch(ret) {
+        case RHINO_SYS_SP_ERR:
+        case RHINO_NULL_PTR:
+        case RHINO_MM_FREE_ADDR_ERR:
+            return -EFAULT;
+        case RHINO_INV_PARAM:
+        case RHINO_INV_ALIGN:
+        case RHINO_KOBJ_TYPE_ERR:
+        case RHINO_MM_POOL_SIZE_ERR:
+        case RHINO_MM_ALLOC_SIZE_ERR:
+        case RHINO_INV_SCHED_WAY:
+        case RHINO_TASK_INV_STACK_SIZE:
+        case RHINO_BEYOND_MAX_PRI:
+        case RHINO_BUF_QUEUE_INV_SIZE:
+        case RHINO_BUF_QUEUE_SIZE_ZERO:
+        case RHINO_BUF_QUEUE_MSG_SIZE_OVERFLOW:
+        case RHINO_QUEUE_FULL:
+        case RHINO_QUEUE_NOT_FULL:
+        case RHINO_SEM_OVF:
+        case RHINO_WORKQUEUE_EXIST:
+        case RHINO_WORKQUEUE_NOT_EXIST:
+        case RHINO_WORKQUEUE_WORK_EXIST:
+            return -EINVAL;
+        case RHINO_KOBJ_BLK:
+            return -EAGAIN;
+        case RHINO_NO_MEM:
+            return -ENOMEM;
+        case RHINO_KOBJ_DEL_ERR:
+        case RHINO_SCHED_DISABLE:
+        case RHINO_SCHED_ALREADY_ENABLED:
+        case RHINO_SCHED_LOCK_COUNT_OVF:
+        case RHINO_TASK_NOT_SUSPENDED:
+        case RHINO_TASK_DEL_NOT_ALLOWED:
+        case RHINO_TASK_SUSPEND_NOT_ALLOWED:
+        case RHINO_SUSPENDED_COUNT_OVF:
+        case RHINO_PRI_CHG_NOT_ALLOWED:
+        case RHINO_NOT_CALLED_BY_INTRPT:
+        case RHINO_NO_THIS_EVENT_OPT:
+        case RHINO_TIMER_STATE_INV:
+        case RHINO_BUF_QUEUE_FULL:
+        case RHINO_SEM_TASK_WAITING:
+        case RHINO_MUTEX_NOT_RELEASED_BY_OWNER:
+        case RHINO_WORKQUEUE_WORK_RUNNING:
+            return -EPERM;
+        case RHINO_TRY_AGAIN:
+        case RHINO_WORKQUEUE_BUSY:
+            return -EAGAIN;
+        default:
+            return -1;
+    }
+}
+
 extern void hal_reboot(void);
 void aos_reboot(void)
 {
@@ -45,7 +100,7 @@ int aos_task_new(const char *name, void (*fn)(void *), void *arg,
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *), void *arg,
@@ -58,7 +113,7 @@ int aos_task_new_ext(aos_task_t *task, const char *name, void (*fn)(void *), voi
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 void aos_task_exit(int code)
@@ -108,7 +163,7 @@ int aos_task_setspecific(aos_task_key_t key, void *vp)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 void *aos_task_getspecific(aos_task_key_t key)
@@ -139,7 +194,7 @@ int aos_mutex_new(aos_mutex_t *mutex)
     ret = krhino_mutex_create(m, "AOS");
     if (ret != RHINO_SUCCESS) {
         aos_free(m);
-        ERRNO_MAPPING(ret);
+        return ERRNO_MAPPING(ret);
     }
 
     mutex->hdl = m;
@@ -183,7 +238,7 @@ int aos_mutex_lock(aos_mutex_t *mutex, unsigned int timeout)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_mutex_unlock(aos_mutex_t *mutex)
@@ -204,7 +259,7 @@ int aos_mutex_unlock(aos_mutex_t *mutex)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_mutex_is_valid(aos_mutex_t *mutex)
@@ -243,7 +298,7 @@ int aos_sem_new(aos_sem_t *sem, int count)
     ret = krhino_sem_create(s, "AOS", count);
     if (ret != RHINO_SUCCESS) {
         aos_free(s);
-        ERRNO_MAPPING(ret);
+        return ERRNO_MAPPING(ret);
     }
 
     sem->hdl = s;
@@ -282,7 +337,7 @@ int aos_sem_wait(aos_sem_t *sem, unsigned int timeout)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 void aos_sem_signal(aos_sem_t *sem)
@@ -332,7 +387,7 @@ int aos_event_new(aos_event_t *event, unsigned int flags)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 void aos_event_free(aos_event_t *event)
@@ -348,8 +403,8 @@ void aos_event_free(aos_event_t *event)
 
 int aos_event_get
     (
-    aos_event_t *event, 
-    unsigned int flags, 
+    aos_event_t *event,
+    unsigned int flags,
     unsigned char opt,
     unsigned int *actl_flags,
     unsigned int timeout
@@ -371,7 +426,7 @@ int aos_event_get
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_event_set(aos_event_t *event, unsigned int flags, unsigned char opt)
@@ -388,7 +443,7 @@ int aos_event_set(aos_event_t *event, unsigned int flags, unsigned char opt)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 #endif
 
@@ -411,7 +466,7 @@ int aos_queue_new(aos_queue_t *queue, void *buf, unsigned int size, int max_msg)
     ret = krhino_buf_queue_create(q, "AOS", buf, size, max_msg);
     if (ret != RHINO_SUCCESS) {
         aos_free(q);
-        ERRNO_MAPPING(ret);
+        return ERRNO_MAPPING(ret);
     }
 
     queue->hdl = q;
@@ -445,7 +500,7 @@ int aos_queue_send(aos_queue_t *queue, void *msg, unsigned int size)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg,
@@ -462,7 +517,7 @@ int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg,
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_queue_is_valid(aos_queue_t *queue)
@@ -510,7 +565,7 @@ int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *),
     }
 
     if (ret != RHINO_SUCCESS) {
-        ERRNO_MAPPING(ret);
+        return ERRNO_MAPPING(ret);
     }
 
     return 0;
@@ -533,7 +588,7 @@ int aos_timer_new_ext(aos_timer_t *timer, void (*fn)(void *, void *),
     }
 
     if (ret != RHINO_SUCCESS) {
-        ERRNO_MAPPING(ret);
+        return ERRNO_MAPPING(ret);
     }
 
     return 0;
@@ -562,7 +617,7 @@ int aos_timer_start(aos_timer_t *timer)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_timer_stop(aos_timer_t *timer)
@@ -578,7 +633,7 @@ int aos_timer_stop(aos_timer_t *timer)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_timer_change(aos_timer_t *timer, int ms)
@@ -594,7 +649,7 @@ int aos_timer_change(aos_timer_t *timer, int ms)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 #endif
 
@@ -630,7 +685,7 @@ int aos_workqueue_create(aos_workqueue_t *workqueue, int pri, int stack_size)
     if (ret != RHINO_SUCCESS) {
         aos_free(wq);
         aos_free(stk);
-        ERRNO_MAPPING(ret);
+        return ERRNO_MAPPING(ret);
     }
 
     workqueue->hdl = wq;
@@ -656,7 +711,7 @@ int aos_work_init(aos_work_t *work, void (*fn)(void *), void *arg, int dly)
     ret = krhino_work_init(w, fn, arg, MS2TICK(dly));
     if (ret != RHINO_SUCCESS) {
         aos_free(w);
-        ERRNO_MAPPING(ret);
+        return ERRNO_MAPPING(ret);
     }
 
     work->hdl = w;
@@ -696,7 +751,7 @@ int aos_work_run(aos_workqueue_t *workqueue, aos_work_t *work)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_work_sched(aos_work_t *work)
@@ -712,7 +767,7 @@ int aos_work_sched(aos_work_t *work)
         return 0;
     }
 
-    ERRNO_MAPPING(ret);
+    return ERRNO_MAPPING(ret);
 }
 
 int aos_work_cancel(aos_work_t *work)
@@ -759,7 +814,7 @@ void *aos_zalloc(unsigned int size)
     tmp = krhino_mm_alloc(size);
 #endif
 
-    if (tmp) {		
+    if (tmp) {
         memset(tmp, 0, size);
     }
 
