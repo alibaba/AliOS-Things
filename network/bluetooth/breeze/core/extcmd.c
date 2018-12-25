@@ -374,7 +374,6 @@ void extcmd_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
     }
 #endif
 
-    /* process TLV one at a time (see specification v1.0.5, ch. 5.6) */
     while (length > 0 && err_code == BZ_SUCCESS) {
         if (length >= 2) {
             /* get TLV type. */
@@ -407,7 +406,6 @@ void extcmd_rx_command(uint8_t cmd, uint8_t *p_data, uint16_t length)
             break;
         }
 
-        /* find the TLV type handler in table. */
         uint32_t n, n_max = sizeof(m_tlv_type_handler_table) / sizeof(ext_tlv_type_handler_t);
         for (n = 0; n < n_max; n++) {
             if (m_tlv_type_handler_table[n].tlv_type == tlv_type) {
