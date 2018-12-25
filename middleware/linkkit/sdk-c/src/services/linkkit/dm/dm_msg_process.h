@@ -15,7 +15,10 @@ extern const char DM_URI_EXT_NTP_PREFIX[]      DM_READ_ONLY;
 extern const char DM_URI_EXT_ERROR_PREFIX[]    DM_READ_ONLY;
 extern const char DM_URI_REPLY_SUFFIX[]        DM_READ_ONLY;
 extern const char DM_URI_OTA_DEVICE_INFORM[]   DM_READ_ONLY;
-
+extern const char DM_URI_THING_PROPERTY_DESIRED_GET[]  DM_READ_ONLY;
+extern const char DM_URI_THING_PROPERTY_DESIRED_DELETE[]  DM_READ_ONLY;
+extern const char DM_URI_THING_PROPERTY_DESIRED_GET_REPLY[] DM_READ_ONLY;
+extern const char DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY[] DM_READ_ONLY;
 /* From Cloud To Local Request And Response*/
 extern const char DM_URI_THING_MODEL_DOWN_RAW[]              DM_READ_ONLY;
 extern const char DM_URI_THING_MODEL_DOWN_RAW_REPLY[]        DM_READ_ONLY;
@@ -102,6 +105,8 @@ int dm_msg_proc_thing_service_property_set(_IN_ dm_msg_source_t *source, _IN_ dm
 int dm_msg_proc_thing_service_property_get(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,
         _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response,
         _OU_ unsigned char **data, int *data_len);
+int dm_msg_proc_thing_property_desired_get_reply(_IN_ dm_msg_source_t *source);
+int dm_msg_proc_thing_property_desired_delete_reply(_IN_ dm_msg_source_t *source);
 int dm_msg_proc_thing_service_property_post(_IN_ dm_msg_source_t *source, _IN_ dm_msg_dest_t *dest,
         _OU_ dm_msg_request_payload_t *request, _OU_ dm_msg_response_t *response);
 int dm_msg_proc_thing_service_request(_IN_ dm_msg_source_t *source);

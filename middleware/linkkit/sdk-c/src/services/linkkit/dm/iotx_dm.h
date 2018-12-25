@@ -70,6 +70,8 @@ typedef enum {
     IOTX_DM_EVENT_NEW_DATA_RECEIVED,
     IOTX_DM_EVENT_PROPERTY_SET,
     IOTX_DM_EVENT_PROPERTY_GET,
+    IOTX_DM_EVENT_PROPERTY_DESIRED_GET_REPLY,
+    IOTX_DM_EVENT_PROPERTY_DESIRED_DELETE_REPLY,
     IOTX_DM_EVENT_TOPO_ADD_NOTIFY,
     IOTX_DM_EVENT_THING_SERVICE_REQUEST,
     IOTX_DM_EVENT_THING_DISABLE,
@@ -182,6 +184,8 @@ int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_le
 int iotx_dm_set_opt(int opt, void *data);
 int iotx_dm_get_opt(int opt, void *data);
 int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_property_desired_get(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int iotx_dm_property_desired_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,
                        _IN_ int payload_len);
 

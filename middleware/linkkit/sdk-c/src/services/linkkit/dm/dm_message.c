@@ -609,6 +609,91 @@ int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len
 
     return SUCCESS_RETURN;
 }
+#ifdef DEVICE_MODEL_SHADOW
+const char DM_MSG_EVENT_PROPERTY_DESIRED_GET_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"data\":%.*s}";
+int dm_msg_thing_property_desired_get_reply(dm_msg_response_payload_t *response)
+{
+    int res = 0, id = 0, message_len = 0;
+    char *message = NULL;
+    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+
+    /* Message ID */
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
+    memcpy(int_id, response->id.value, response->id.value_length);
+    id = atoi(int_id);
+
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+    res = dm_msg_cache_search(id, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+#endif
+
+    message_len = strlen(DM_MSG_EVENT_PROPERTY_DESIRED_GET_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 2 + 1 +
+                  response->data.value_length;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_DESIRED_GET_REPLY_FMT, id, response->code.value_int,
+                 response->data.value_length, response->data.value);
+
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROPERTY_DESIRED_GET_REPLY, message);
+    if (res != SUCCESS_RETURN) {
+        DM_free(message);
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+const char DM_MSG_EVENT_PROPERTY_DESIRED_DELETE_REPLY_FMT[] DM_READ_ONLY =
+            "{\"id\":%d,\"code\":%d,\"data\":%.*s,\"devid\":%d}";
+int dm_msg_thing_property_desired_delete_reply(dm_msg_response_payload_t *response)
+{
+    int res = 0, id = 0, devid = 0,  message_len = 0;
+    char *message = NULL;
+    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    /* Message ID */
+    if (response->id.value_length > DM_UTILS_UINT32_STRLEN) {
+        return FAIL_RETURN;
+    }
+    memcpy(int_id, response->id.value, response->id.value_length);
+    id = atoi(int_id);
+
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    dm_msg_cache_node_t *node = NULL;
+    res = dm_msg_cache_search(id, &node);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+    devid = node->devid;
+#endif
+
+    message_len = strlen(DM_MSG_EVENT_PROPERTY_DESIRED_DELETE_REPLY_FMT) + DM_UTILS_UINT32_STRLEN * 3 + 1 +
+                  response->data.value_length;
+    message = DM_malloc(message_len);
+    if (message == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(message, 0, message_len);
+    HAL_Snprintf(message, message_len, DM_MSG_EVENT_PROPERTY_DESIRED_DELETE_REPLY_FMT, id, response->code.value_int,
+                 response->data.value_length, response->data.value, devid);
+
+    res = _dm_msg_send_to_user(IOTX_DM_EVENT_PROPERTY_DESIRED_DELETE_REPLY, message);
+    if (res != SUCCESS_RETURN) {
+        DM_free(message);
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+#endif
+
 
 const char DM_MSG_EVENT_DEVICEINFO_UPDATE_REPLY_FMT[] DM_READ_ONLY = "{\"id\":%d,\"code\":%d,\"devid\":%d}";
 int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response)
