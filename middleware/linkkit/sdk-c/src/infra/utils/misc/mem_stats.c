@@ -355,7 +355,9 @@ void *LITE_malloc_internal(const char *f, const int l, int size, ...)
     if (!ptr) {
         return NULL;
     }
-
+    if (mutex_mem_stats == NULL) {
+        mutex_mem_stats = HAL_MutexCreate();
+    }
     HAL_MutexLock(mutex_mem_stats);
 
     iterations_allocated += 1;
@@ -450,6 +452,9 @@ void LITE_free_internal(void *ptr)
         return;
     }
 
+    if (mutex_mem_stats == NULL) {
+        mutex_mem_stats = HAL_MutexCreate();
+    }
     HAL_MutexLock(mutex_mem_stats);
 
     pos = NULL;
