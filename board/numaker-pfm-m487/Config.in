@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_NUMAKER-PFM-M487
+    bool "numaker-pfm-m487"
+    select AOS_MCU_M487JIDAE
+    help
+
+if AOS_BOARD_NUMAKER-PFM-M487
+# Configurations for board numaker-pfm-m487
+endif

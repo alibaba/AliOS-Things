@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_NUTINY-EVB-NANO130
+    bool "nutiny-evb-nano130"
+    select AOS_MCU_NANO130KE3BN
+    help
+
+if AOS_BOARD_NUTINY-EVB-NANO130
+# Configurations for board nutiny-evb-nano130
+endif
