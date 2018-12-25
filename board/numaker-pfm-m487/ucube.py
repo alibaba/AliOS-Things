@@ -1,1 +1,1 @@
-linux_only_targets="helloworld modbus_demo yts linkkitapp mqttapp"
+linux_only_targets="athostapp blink coapapp helloworld http2app linkkit_gateway linkkitapp meshapp modbus_demo mqttapp otaapp udataapp yts"
