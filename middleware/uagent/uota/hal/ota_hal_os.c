@@ -227,14 +227,16 @@ static void task_wrapper(void *arg)
 #define OTA_THREAD_SIZE 4096
 #define OTA_THREAD_PRI 30
 /*Thread create*/
-int ota_thread_create(void **thread_handle, void *(*work_routine)(void *), void *arg, void *pm, int *stack_used)
+int ota_thread_create(void **thread_handle, void *(*work_routine)(void *), void *arg, void *pm, int stack_size)
 {
     int ret = -1;
 #if defined OTA_WITH_LINKKIT
     ret = HAL_ThreadCreate(thread_handle, work_routine, arg, NULL, 0);
 #elif !defined OTA_LINUX
     char * tname = OTA_THREAD_NAME;
-    int    ssize = OTA_THREAD_SIZE;
+    if(stack_size <= 0) {
+        stack_size = OTA_THREAD_SIZE;
+    }
     task_context_t *task = aos_malloc(sizeof(task_context_t));
     if (!task) {
         return -1;
@@ -243,7 +245,7 @@ int ota_thread_create(void **thread_handle, void *(*work_routine)(void *), void 
     task->arg      = arg;
     task->routine  = work_routine;
 
-    ret = aos_task_new_ext(&task->task, tname, task_wrapper, task, ssize,OTA_THREAD_PRI);
+    ret = aos_task_new_ext(&task->task, tname, task_wrapper, task, stack_size, OTA_THREAD_PRI);
     *thread_handle = (void *)task;
 #else
     ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
