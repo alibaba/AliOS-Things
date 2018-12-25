@@ -8,8 +8,6 @@
 
 #include <k_api.h>
 #include <aos/log.h>
-#include <hal/soc/soc.h>
-#include <hal/base.h>
 
 #include "NuMicro.h"
 
