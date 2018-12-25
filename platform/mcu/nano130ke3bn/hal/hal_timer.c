@@ -19,7 +19,7 @@
 #include "nu_bitutil.h"
 #include "hal_status.h"
 #include <k_api.h>
-#include <hal/hal.h>
+#include "aos/hal/timer.h"
 #include "board.h"
 
 #define us2tick(us) 	((us * RHINO_CONFIG_TICKS_PER_SECOND + 999999) / 1000000)

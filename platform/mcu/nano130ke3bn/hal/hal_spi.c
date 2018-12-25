@@ -19,7 +19,7 @@
 #include "nu_bitutil.h"
 #include "hal_status.h"
 #include <k_api.h>
-#include <hal/hal.h>
+#include "aos/hal/spi.h"
 #include "board.h"
 
 #define NU_SPI_FRAME_MIN    8
