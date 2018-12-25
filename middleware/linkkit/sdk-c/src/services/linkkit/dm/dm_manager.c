@@ -1085,6 +1085,76 @@ static int _dm_mgr_upstream_request_assemble(_IN_ int msgid, _IN_ int devid, _IN
 
     return SUCCESS_RETURN;
 }
+#ifdef DEVICE_MODEL_SHADOW
+int dm_mgr_upstream_thing_property_desired_get(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+    dm_msg_request_t request;
+
+    if (devid < 0 || payload == NULL || payload_len <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    memset(&request, 0, sizeof(dm_msg_request_t));
+    res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX, DM_URI_THING_PROPERTY_DESIRED_GET,
+                                            payload, payload_len, "thing.property.desired.get", &request);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Callback */
+    request.callback = dm_client_thing_property_desired_get_reply;
+
+    /* Send Message To Cloud */
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
+    /*TODO */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (res == SUCCESS_RETURN) {
+        int prop_desired_get_reply = 0;
+        res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_GET_REPLY, &prop_desired_get_reply);
+        if (res == SUCCESS_RETURN && prop_desired_get_reply) {
+            dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_PROPERTY_DESIRED_GET_REPLY, NULL);
+        }
+        res = request.msgid;
+    }
+#endif
+    return res;
+}
+
+int dm_mgr_upstream_thing_property_desired_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+    dm_msg_request_t request;
+
+    if (devid < 0 || payload == NULL || payload_len <= 0) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    memset(&request, 0, sizeof(dm_msg_request_t));
+    res = _dm_mgr_upstream_request_assemble(iotx_report_id(), devid, DM_URI_SYS_PREFIX,
+                                            DM_URI_THING_PROPERTY_DESIRED_DELETE,
+                                            payload, payload_len, "thing.property.desired.delete", &request);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Callback */
+    request.callback = dm_client_thing_property_desired_delete_reply;
+    /* Send Message To Cloud */
+    res = dm_msg_request(DM_MSG_DEST_CLOUD, &request);
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    if (res == SUCCESS_RETURN) {
+        int prop_desired_delete_reply = 0;
+        res = dm_opt_get(DM_OPT_DOWNSTREAM_EVENT_PROPERTY_DESIRED_DELETE_REPLY, &prop_desired_delete_reply);
+        if (res == SUCCESS_RETURN && prop_desired_delete_reply) {
+            dm_msg_cache_insert(request.msgid, request.devid, IOTX_DM_EVENT_PROPERTY_DESIRED_DELETE_REPLY, NULL);
+        }
+        res = request.msgid;
+    }
+#endif
+    return res;
+}
+#endif
 
 int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {

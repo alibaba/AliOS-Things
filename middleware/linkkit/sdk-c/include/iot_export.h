@@ -139,6 +139,7 @@ typedef enum {
     ITE_SERVICE_REQUST,
     ITE_PROPERTY_SET,
     ITE_PROPERTY_GET,
+    ITE_PROPERTY_DESIRED_GET_REPLY,
     ITE_REPORT_REPLY,
     ITE_TRIGGER_EVENT_REPLY,
     ITE_TIMESTAMP_REPLY,
@@ -164,6 +165,7 @@ DECLARE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*cb)(const int, const unsi
 DECLARE_EVENT_CALLBACK(ITE_SERVICE_REQUST,       int (*cb)(const int, const char *, const int, const char *, const int,
                        char **, int *))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*cb)(const int, const char *, const int))
+DECLARE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*cb)(const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*cb)(const int, const char *, const int, char **, int *))
 DECLARE_EVENT_CALLBACK(ITE_REPORT_REPLY,         int (*cb)(const int, const int, const int, const char *, const int))
 DECLARE_EVENT_CALLBACK(ITE_TRIGGER_EVENT_REPLY,  int (*cb)(const int, const int, const int, const char *, const int,
