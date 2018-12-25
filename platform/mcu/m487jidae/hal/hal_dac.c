@@ -19,7 +19,8 @@
 #include "nu_bitutil.h"
 #include "hal_status.h"
 #include <k_api.h>
-#include <hal/hal.h>
+
+#include "aos/hal/dac.h"
 #include "board.h"
 
 static const struct nu_modinit_s dac_modinit_tab[] = {

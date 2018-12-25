@@ -19,7 +19,8 @@
 #include "nu_bitutil.h"
 #include "hal_status.h"
 #include <k_api.h>
-#include <hal/hal.h>
+
+#include "aos/hal/pwm.h"
 #include "board.h"
 
 
