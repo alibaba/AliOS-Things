@@ -1,0 +1,10 @@
+menuconfig AOS_COMP_BT
+    bool "bt"
+    default n
+    select AOS_COMP_CONTROLLER if @CONDITION@
+    select AOS_COMP_YLOOP
+    help
+
+if AOS_COMP_BT
+# Configurations for comp bt
+endif
