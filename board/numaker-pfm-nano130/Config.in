@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_NUMAKER-PFM-NANO130
+    bool "numaker-pfm-nano130"
+    select AOS_MCU_NANO130KE3BN
+    help
+
+if AOS_BOARD_NUMAKER-PFM-NANO130
+# Configurations for board numaker-pfm-nano130
+endif
