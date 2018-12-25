@@ -43,7 +43,7 @@ int ota_thread_create(
     void *(*work_routine)(void *),
     void *arg,
     void *param,
-    int *stack_used);
+    int  stack_size);
 void ota_thread_exit(void *thread);
 void ota_msleep(int ms);
 

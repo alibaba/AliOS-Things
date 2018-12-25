@@ -209,7 +209,7 @@ static unsigned int ota_breeze_start_task()
     int ret = 0;
     unsigned int error_code = 0;
     void *thread = NULL;
-    ret = ota_thread_create(&thread, (void *)ota_breeze_start, (void *)NULL, NULL, 0);
+    ret = ota_thread_create(&thread, (void *)ota_breeze_start, (void *)NULL, NULL, 2048);
     if (ret != 0) {
         printf("creat task failed\r\n");
         error_code = OTA_BREEZE_ERROR_BUSY;
