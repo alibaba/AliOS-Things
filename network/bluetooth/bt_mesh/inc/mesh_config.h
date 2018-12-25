@@ -133,14 +133,6 @@
 #define CONFIG_BT_MESH_LPN_GROUPS 8
 #endif
 
-#ifndef CONFIG_
-#define CONFIG_
-#endif
-
-#ifndef CONFIG_
-#define CONFIG_
-#endif
-
 #endif // CONFIG_BT_MESH_LOW_POWER
 
 #ifdef CONFIG_BT_MESH_PROXY
