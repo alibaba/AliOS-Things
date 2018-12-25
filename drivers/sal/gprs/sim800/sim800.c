@@ -753,8 +753,8 @@ int HAL_SAL_Start(sal_conn_t *conn)
         case TCP_CLIENT:
             snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"TCP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
                      conn->r_port);
-            atcmd_config_t atcmd_config = { NULL, AT_CMD_CLIENT_CONNECT_OK, AT_CMD_CLIENT_CONNECT_FAIL}; 
-            at_send_wait_reply(pccmd, strlen(pccmd), true, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config);
+            atcmd_config_t atcmd_config_client = { NULL, AT_CMD_CLIENT_CONNECT_OK, AT_CMD_CLIENT_CONNECT_FAIL};
+            at_send_wait_reply(pccmd, strlen(pccmd), true, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config_client);
             if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL) {
                 LOGE(TAG, "pccmd %s fail, rsp %s \r\n", pccmd, rsp);
                 goto err;
@@ -763,8 +763,8 @@ int HAL_SAL_Start(sal_conn_t *conn)
         case UDP_UNICAST:
             snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"UDP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
                      conn->r_port);
-            atcmd_config_t atcmd_config = { NULL, AT_CMD_CLIENT_CONNECT_OK, AT_CMD_CLIENT_CONNECT_FAIL}; 
-            at_send_wait_reply(pccmd, strlen(pccmd), true, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config);
+            atcmd_config_t atcmd_config_unicast = { NULL, AT_CMD_CLIENT_CONNECT_OK, AT_CMD_CLIENT_CONNECT_FAIL};
+            at_send_wait_reply(pccmd, strlen(pccmd), true, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config_unicast);
             if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL) {
                 LOGE(TAG, "pccmd %s fail, rsp %s \r\n", pccmd, rsp);
                 goto err;
@@ -823,22 +823,22 @@ static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
                                char *rsp, uint32_t rsplen) 
 {
     if (NULL == fst) {
-        LOGE("%s invalid input \r\n", __FUNCTION__);
+        LOGE(TAG, "%s invalid input \r\n", __FUNCTION__);
         return -1;
     }
 
     if (NULL == rsp || 0 == rsplen) {
-        LOGE("%s invalid input \r\n", __FUNCTION__);
+        LOGE(TAG, "%s invalid input \r\n", __FUNCTION__);
         return -1;
     }
 
     if (at_send_no_reply(fst, strlen(fst), true) != 0) {
-        LOGE("at send %s failed\n", fst);
+        LOGE(TAG, "at send %s failed\n", fst);
         return -1;
     }
 
     if (at_send_wait_reply(data, len, false, rsp, rsplen, NULL) != 0) {
-        LOGE("at send data len %d failed\n", len);
+        LOGE(TAG, "at send data len %d failed\n", len);
         return -1;
     }
 
