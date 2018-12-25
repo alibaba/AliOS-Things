@@ -1,18 +1,22 @@
 #include "iotx_dm_internal.h"
 
 static dm_client_uri_map_t g_dm_client_uri_map[] = {
-    {DM_URI_THING_MODEL_DOWN_RAW,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_model_down_raw               },
-    {DM_URI_THING_MODEL_UP_RAW_REPLY,         DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_model_up_raw_reply           },
+    {DM_URI_THING_MODEL_DOWN_RAW,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_model_down_raw               },
+    {DM_URI_THING_MODEL_UP_RAW_REPLY,         DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_model_up_raw_reply           },
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-    {DM_URI_THING_SERVICE_PROPERTY_SET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_service_property_set         },
-    {DM_URI_THING_SERVICE_REQUEST_WILDCARD,   DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_service_request              },
-    {DM_URI_THING_EVENT_POST_REPLY_WILDCARD,  DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_event_post_reply             },
-    {DM_URI_THING_DEVICEINFO_UPDATE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_deviceinfo_update_reply      },
-    {DM_URI_THING_DEVICEINFO_DELETE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_deviceinfo_delete_reply      },
-    {DM_URI_THING_DYNAMICTSL_GET_REPLY,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_thing_dynamictsl_get_reply         },
-    {DM_URI_RRPC_REQUEST_WILDCARD,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL,     (void *)dm_client_rrpc_request_wildcard              },
-    {DM_URI_NTP_RESPONSE,                     DM_URI_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_ALL,     (void *)dm_client_ntp_response                       },
-    {NULL,                                    DM_URI_EXT_ERROR_PREFIX,   IOTX_DM_DEVICE_ALL,     (void *)dm_client_ext_error                          },
+    {DM_URI_THING_SERVICE_PROPERTY_SET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_property_set         },
+#ifdef DEVICE_MODEL_SHADOW
+    {DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY, DM_URI_SYS_PREFIX,      IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_property_desired_delete_reply},
+    {DM_URI_THING_PROPERTY_DESIRED_GET_REPLY, DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_property_desired_get_reply   },
+#endif
+    {DM_URI_THING_SERVICE_REQUEST_WILDCARD,   DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_request              },
+    {DM_URI_THING_EVENT_POST_REPLY_WILDCARD,  DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_event_post_reply             },
+    {DM_URI_THING_DEVICEINFO_UPDATE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_deviceinfo_update_reply      },
+    {DM_URI_THING_DEVICEINFO_DELETE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_deviceinfo_delete_reply      },
+    {DM_URI_THING_DYNAMICTSL_GET_REPLY,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_dynamictsl_get_reply         },
+    {DM_URI_RRPC_REQUEST_WILDCARD,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_rrpc_request_wildcard              },
+    {DM_URI_NTP_RESPONSE,                     DM_URI_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_ALL, (void *)dm_client_ntp_response                       },
+    {NULL,                                    DM_URI_EXT_ERROR_PREFIX,   IOTX_DM_DEVICE_ALL, (void *)dm_client_ext_error                          },
 #endif
 #ifdef DEVICE_MODEL_GATEWAY
     {DM_URI_THING_TOPO_ADD_NOTIFY,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, (void *)dm_client_thing_topo_add_notify              },
@@ -163,7 +167,6 @@ void dm_client_thing_model_up_raw_reply(int fd, const char *topic, const char *p
 
     dm_msg_proc_thing_model_up_raw_reply(&source);
 }
-
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 void dm_client_thing_service_property_set(int fd, const char *topic, const char *payload, unsigned int payload_len,
         void *context)
@@ -229,6 +232,37 @@ void dm_client_thing_event_post_reply(int fd, const char *topic, const char *pay
 
     dm_msg_proc_thing_event_post_reply(&source);
 }
+#ifdef DEVICE_MODEL_SHADOW
+void dm_client_thing_property_desired_get_reply(int fd, const char *topic, const char *payload,
+        unsigned int payload_len, void *context)
+{
+    dm_msg_source_t source;
+
+    memset(&source, 0, sizeof(dm_msg_source_t));
+
+    source.uri = topic;
+    source.payload = (unsigned char *)payload;
+    source.payload_len = payload_len;
+    source.context = NULL;
+
+    dm_msg_proc_thing_property_desired_get_reply(&source);
+}
+
+void dm_client_thing_property_desired_delete_reply(int fd, const char *topic, const char *payload,
+        unsigned int payload_len, void *context)
+{
+    dm_msg_source_t source;
+
+    memset(&source, 0, sizeof(dm_msg_source_t));
+
+    source.uri = topic;
+    source.payload = (unsigned char *)payload;
+    source.payload_len = payload_len;
+    source.context = NULL;
+
+    dm_msg_proc_thing_property_desired_delete_reply(&source);
+}
+#endif
 
 void dm_client_thing_deviceinfo_update_reply(int fd, const char *topic, const char *payload, unsigned int payload_len,
         void *context)

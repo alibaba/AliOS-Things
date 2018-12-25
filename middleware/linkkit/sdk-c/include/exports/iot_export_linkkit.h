@@ -64,6 +64,12 @@ typedef enum {
     /* report subdev's firmware version */
     ITM_MSG_REPORT_SUBDEV_FIRMWARE_VERSION,
 
+    /* get a device's desired property */
+    ITM_MSG_PROPERTY_DESIRED_GET,
+
+    /* delete a device's desired property */
+    ITM_MSG_PROPERTY_DESIRED_DELETE,
+
     IOTX_LINKKIT_MSG_MAX
 } iotx_linkkit_msg_type_t;
 

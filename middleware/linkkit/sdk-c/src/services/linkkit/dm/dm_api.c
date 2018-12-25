@@ -311,6 +311,39 @@ int iotx_dm_get_opt(int opt, void *data)
 
     return dm_opt_get(opt, data);
 }
+#ifdef DEVICE_MODEL_SHADOW
+int iotx_dm_property_desired_get(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    _dm_api_lock();
+
+    res = dm_mgr_upstream_thing_property_desired_get(devid, payload, payload_len);
+    if (res < SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return res;
+}
+
+int iotx_dm_property_desired_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    _dm_api_lock();
+
+    res = dm_mgr_upstream_thing_property_desired_delete(devid, payload, payload_len);
+    if (res < SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return res;
+}
+#endif
 
 int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
 {

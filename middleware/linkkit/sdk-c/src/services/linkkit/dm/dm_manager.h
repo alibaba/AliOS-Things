@@ -53,6 +53,8 @@ int dm_mgr_set_dev_status(_IN_ int devid, _IN_ iotx_dm_dev_status_t status);
 int dm_mgr_get_dev_status(_IN_ int devid, _OU_ iotx_dm_dev_status_t *status);
 int dm_mgr_set_device_secret(_IN_ int devid, _IN_ char device_secret[DEVICE_SECRET_MAXLEN]);
 int dm_mgr_dev_initialized(int devid);
+int dm_mgr_upstream_thing_property_desired_get(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+int dm_mgr_upstream_thing_property_desired_delete(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 
 #ifdef DEVICE_MODEL_GATEWAY
     int dm_mgr_upstream_thing_sub_register(_IN_ int devid);
