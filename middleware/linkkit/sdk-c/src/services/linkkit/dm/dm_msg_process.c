@@ -32,7 +32,12 @@ const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY = "thing/mode
     const char DM_URI_THING_SERVICE_REQUEST_WILDCARD[]    DM_READ_ONLY = "thing/service/+";
     const char DM_URI_THING_SERVICE_REQUEST[]             DM_READ_ONLY = "thing/service/%s";
     const char DM_URI_THING_SERVICE_RESPONSE[]            DM_READ_ONLY = "thing/service/%.*s_reply";
-
+    #ifdef DEVICE_MODEL_SHADOW
+        const char DM_URI_THING_PROPERTY_DESIRED_GET[]        DM_READ_ONLY = "thing/property/desired/get";
+        const char DM_URI_THING_PROPERTY_DESIRED_DELETE[]     DM_READ_ONLY = "thing/property/desired/delete";
+        const char DM_URI_THING_PROPERTY_DESIRED_GET_REPLY[]  DM_READ_ONLY = "thing/property/desired/get_reply";
+        const char DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY[]  DM_READ_ONLY = "thing/property/desired/delete_reply";
+    #endif
     /* From Local To Cloud Request And Response*/
     const char DM_URI_THING_EVENT_PROPERTY_POST[]         DM_READ_ONLY = "thing/event/property/post";
     const char DM_URI_THING_EVENT_PROPERTY_POST_REPLY[]   DM_READ_ONLY = "thing/event/property/post_reply";
@@ -327,6 +332,58 @@ int dm_msg_proc_thing_event_post_reply(_IN_ dm_msg_source_t *source)
 #endif
     return SUCCESS_RETURN;
 }
+
+#ifdef DEVICE_MODEL_SHADOW
+int dm_msg_proc_thing_property_desired_get_reply(_IN_ dm_msg_source_t *source)
+{
+    int res = 0;
+    dm_msg_response_payload_t response;
+
+    dm_log_info(DM_URI_THING_PROPERTY_DESIRED_GET_REPLY);
+
+    /* Response */
+    res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Operation */
+    res = dm_msg_thing_property_desired_get_reply(&response);
+
+    /* Remove Message From Cache */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    memcpy(int_id, response.id.value, response.id.value_length);
+    dm_msg_cache_remove(atoi(int_id));
+#endif
+    return SUCCESS_RETURN;
+}
+
+int dm_msg_proc_thing_property_desired_delete_reply(_IN_ dm_msg_source_t *source)
+{
+    int res = 0;
+    dm_msg_response_payload_t response;
+
+    dm_log_info(DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY);
+
+    /* Response */
+    res = dm_msg_response_parse((char *)source->payload, source->payload_len, &response);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* Operation */
+    res = dm_msg_thing_property_desired_delete_reply(&response);
+
+    /* Remove Message From Cache */
+#if !defined(DM_MESSAGE_CACHE_DISABLED)
+    char int_id[DM_UTILS_UINT32_STRLEN] = {0};
+    memcpy(int_id, response.id.value, response.id.value_length);
+    dm_msg_cache_remove(atoi(int_id));
+#endif
+    return SUCCESS_RETURN;
+}
+#endif
 
 int dm_msg_proc_thing_deviceinfo_update_reply(_IN_ dm_msg_source_t *source)
 {

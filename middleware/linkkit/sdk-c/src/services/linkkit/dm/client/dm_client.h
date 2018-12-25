@@ -18,6 +18,10 @@ void dm_client_thing_model_up_raw_reply(int fd, const char *topic, const char *p
                                         void *context);
 
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+void dm_client_thing_property_desired_get_reply(int fd, const char *topic, const char *payload,
+        unsigned int payload_len, void *context);
+void dm_client_thing_property_desired_delete_reply(int fd, const char *topic, const char *payload,
+        unsigned int payload_len, void *context);
 void dm_client_thing_service_property_set(int fd, const char *topic, const char *payload, unsigned int payload_len,
         void *context);
 void dm_client_thing_service_property_get(int fd, const char *topic, const char *payload, unsigned int payload_len,

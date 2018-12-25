@@ -16,6 +16,9 @@ static impl_event_map_t g_impl_event_map[] = {
     {ITE_SERVICE_REQUST,       NULL},
     {ITE_PROPERTY_SET,         NULL},
     {ITE_PROPERTY_GET,         NULL},
+#ifdef DEVICE_MODEL_SHADOW
+    {ITE_PROPERTY_DESIRED_GET_REPLY,         NULL},
+#endif
     {ITE_REPORT_REPLY,         NULL},
     {ITE_TRIGGER_EVENT_REPLY,  NULL},
     {ITE_TIMESTAMP_REPLY,      NULL},
@@ -43,6 +46,9 @@ DEFINE_EVENT_CALLBACK(ITE_RAWDATA_ARRIVED,      int (*callback)(const int, const
 DEFINE_EVENT_CALLBACK(ITE_SERVICE_REQUST,       int (*callback)(const int, const char *, const int, const char *,
                       const int, char **, int *))
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_SET,         int (*callback)(const int, const char *, const int))
+#ifdef DEVICE_MODEL_SHADOW
+    DEFINE_EVENT_CALLBACK(ITE_PROPERTY_DESIRED_GET_REPLY,         int (*callback)(const char *, const int))
+#endif
 DEFINE_EVENT_CALLBACK(ITE_PROPERTY_GET,         int (*callback)(const int, const char *, const int, char **, int *))
 DEFINE_EVENT_CALLBACK(ITE_REPORT_REPLY,         int (*callback)(const int, const int, const int, const char *,
                       const int))

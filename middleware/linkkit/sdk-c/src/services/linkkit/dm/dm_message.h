@@ -117,6 +117,8 @@ int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_event_post_reply(_IN_ char *identifier, _IN_ int identifier_len,
                                   _IN_ dm_msg_response_payload_t *response);
 int dm_msg_thing_deviceinfo_update_reply(dm_msg_response_payload_t *response);
+int dm_msg_thing_property_desired_get_reply(dm_msg_response_payload_t *response);
+int dm_msg_thing_property_desired_delete_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_deviceinfo_delete_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_dsltemplate_get_reply(dm_msg_response_payload_t *response);
 int dm_msg_thing_dynamictsl_get_reply(dm_msg_response_payload_t *response);

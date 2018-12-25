@@ -35,6 +35,7 @@
 #define IOTX_LINKKIT_KEY_TOPO        "topo"
 #define IOTX_LINKKIT_KEY_PRODUCT_KEY "productKey"
 #define IOTX_LINKKIT_KEY_TIME        "time"
+#define IOTX_LINKKIT_KEY_DATA        "data"
 
 #define IOTX_LINKKIT_SYNC_DEFAULT_TIMEOUT_MS 10000
 
@@ -420,6 +421,35 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             IMPL_LINKKIT_FREE(property_payload);
         }
         break;
+#ifdef DEVICE_MODEL_SHADOW
+        case IOTX_DM_EVENT_PROPERTY_DESIRED_GET_REPLY: {
+            char *property_data = NULL;
+            lite_cjson_t lite_item_data;
+            dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_DATA, strlen(IOTX_LINKKIT_KEY_DATA), cJSON_Invalid,
+                                      &lite_item_data);
+            if (payload == NULL || lite_item_data.type != cJSON_Object) {
+                return;
+            }
+            sdk_debug("Current Data: %.*s", lite_item_data.value_length, lite_item_data.value);
+
+            property_data = IMPL_LINKKIT_MALLOC(lite_item_data.value_length + 1);
+            if (property_data == NULL) {
+                sdk_err("No Enough Memory");
+                return;
+            }
+            memset(property_data, 0, lite_item_data.value_length + 1);
+            memcpy(property_data, lite_item_data.value, lite_item_data.value_length);
+
+            callback = iotx_event_callback(ITE_PROPERTY_DESIRED_GET_REPLY);
+            if (callback) {
+                ((int (*)(const char *, const int))callback)(property_data,
+                        lite_item_data.value_length);
+            }
+
+            IMPL_LINKKIT_FREE(property_data);
+        }
+        break;
+#endif
         case IOTX_DM_EVENT_PROPERTY_GET: {
             int response_len = 0;
             char *request = NULL, *response = NULL;
@@ -469,6 +499,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
         break;
         case IOTX_DM_EVENT_EVENT_PROPERTY_POST_REPLY:
         case IOTX_DM_EVENT_DEVICEINFO_UPDATE_REPLY:
+#ifdef DEVICE_MODEL_SHADOW
+        case IOTX_DM_EVENT_PROPERTY_DESIRED_DELETE_REPLY:
+#endif
         case IOTX_DM_EVENT_DEVICEINFO_DELETE_REPLY: {
             char *user_payload = NULL;
             int user_payload_length = 0;
@@ -477,7 +510,6 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                 || lite_item_devid.type != cJSON_Number) {
                 return;
             }
-
             sdk_debug("Current Id: %d", lite_item_id.value_int);
             sdk_debug("Current Code: %d", lite_item_code.value_int);
             sdk_debug("Current Devid: %d", lite_item_devid.value_int);
@@ -1301,6 +1333,26 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
             res = iotx_dm_post_property(devid, (char *)payload, payload_len);
         }
         break;
+#ifdef DEVICE_MODEL_SHADOW
+        case ITM_MSG_PROPERTY_DESIRED_GET: {
+            if (payload == NULL || payload_len <= 0) {
+                sdk_err("Invalid Parameter");
+                _iotx_linkkit_mutex_unlock();
+                return FAIL_RETURN;
+            }
+            res = iotx_dm_property_desired_get(devid, (char *)payload, payload_len);
+        }
+        break;
+        case ITM_MSG_PROPERTY_DESIRED_DELETE: {
+            if (payload == NULL || payload_len <= 0) {
+                sdk_err("Invalid Parameter");
+                _iotx_linkkit_mutex_unlock();
+                return FAIL_RETURN;
+            }
+            res = iotx_dm_property_desired_delete(devid, (char *)payload, payload_len);
+        }
+        break;
+#endif
         case ITM_MSG_DEVICEINFO_UPDATE: {
             if (payload == NULL || payload_len <= 0) {
                 sdk_err("Invalid Parameter");
