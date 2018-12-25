@@ -1,7 +1,8 @@
 #include <k_api.h>
 #include <string.h>
-#include "hal/hal.h"
 #include <CheckSumUtils.h>
+
+#include "aos/hal/flash.h"
 
 #define KV_HAL_OTA_CRC16                "hal_ota_crc16"
 #define OTA_FLAG_MAGIC                  0xA5A5A5A5
