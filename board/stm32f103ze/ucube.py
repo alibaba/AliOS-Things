@@ -1,1 +1,1 @@
-linux_only_targets="helloworld"
+linux_only_targets="blink helloworld"
