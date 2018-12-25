@@ -23,7 +23,7 @@ GLOBAL_LDFLAGS  += --config platform/mcu/lpc54018/iar/LPC54018_spifi_flash.icf
 else ifeq ($(COMPILER), armcc)
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/armcc/m4/
 GLOBAL_ASMFLAGS +=  -c --cpu Cortex-M4.fp --apcs=interwork
-GLOBAL_CFLAGS +=  --c99 -c --cpu Cortex-M4.fp -D__EVAL -D__MICROLIB -g -O0 --apcs=interwork --split_sections
+GLOBAL_CFLAGS +=  --c99 -c --cpu Cortex-M4.fp -D__EVAL -g --apcs=interwork --split_sections
 GLOBAL_LDFLAGS += --cpu=Cortex-M4.fp
 GLOBAL_LDFLAGS += -L --scatter=platform/mcu/lpc54018/arm/LPC54018_spifi_flash.scf
 GLOBAL_LDFLAGS += -L platform/mcu/lpc54018/arm/keil_lib_power.lib
@@ -78,6 +78,7 @@ ifeq ($(COMPILER),iar)
 $(NAME)_SOURCES += ./iar/startup_LPC54018.s
 else ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += ./arm/startup_LPC54018.s
+$(NAME)_LINK_FILES := ./arm/startup_LPC54018.o
 else
 $(NAME)_SOURCES += ./gcc/startup_LPC54018.S
 endif
