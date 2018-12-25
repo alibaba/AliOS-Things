@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef K_CONFIG_H
+#define K_CONFIG_H
 
 /* chip level conf */
 #ifndef RHINO_CONFIG_LITTLE_ENDIAN
@@ -49,7 +49,7 @@
 #define RHINO_CONFIG_GCC_RETADDR             1
 #endif
 #ifndef RHINO_CONFIG_MM_LEAKCHECK
-#define RHINO_CONFIG_MM_LEAKCHECK            1
+#define RHINO_CONFIG_MM_LEAKCHECK            0
 #endif
 #ifndef RHINO_CONFIG_RINGBUF_VENDOR
 #define RHINO_CONFIG_RINGBUF_VENDOR          0

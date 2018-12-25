@@ -61,7 +61,7 @@ extern void         *__SmemLeft;
 extern void         *__SmemLeftLen;
 
 
-k_mm_region_t g_mm_region[] = 
+k_mm_region_t g_mm_region[] =
     {{(uint8_t*)&heap_start,(size_t)&heap_len},{(uint8_t*)&__SmemLeft,(size_t)&__SmemLeftLen},{(uint8_t*)&__IramLeft,(size_t)&__IramLeftLen}};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
@@ -78,6 +78,7 @@ void aos_mm_leak_region_init(void)
     krhino_mm_leak_region_init(&__data_start__, &__data_end__);
 #endif
 }
+#endif
 
 size_t soc_get_cur_sp()
 {
@@ -88,7 +89,6 @@ size_t soc_get_cur_sp()
     return sp;
 }
 
-#endif
 static void soc_print_stack()
 {
 
