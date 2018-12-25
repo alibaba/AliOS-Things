@@ -64,13 +64,8 @@
 #define RHINO_CONFIG_USER_PRI_MAX            (RHINO_CONFIG_PRI_MAX - 2)
 #endif
 
-/* kernel workqueue conf */
-#ifndef RHINO_CONFIG_WORKQUEUE
-#define RHINO_CONFIG_WORKQUEUE               1
-#endif
-#ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
-#define RHINO_CONFIG_WORKQUEUE_STACK_SIZE    512
-#endif
+/* no work queue on BLE */
+#define RHINO_CONFIG_WORKQUEUE               0
 
 /* kernel mm_region conf */
 #ifndef RHINO_CONFIG_MM_REGION_MUTEX
