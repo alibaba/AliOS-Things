@@ -132,7 +132,7 @@ uint32_t debug_total_cpu_usage_get(uint32_t cpuid)
     return total_cpu_usage;
 }
 
-#if (RHINO_CONFIG_CPU_USAGE_PERIOD > 0)
+#if (DEBUG_CONFIG_CPU_USAGE_PERIOD > 0)
 static ktimer_t cpu_usage_timer;
 
 static void cpu_usage_timer_handler(void *timer, void *args)
@@ -143,7 +143,7 @@ static void cpu_usage_timer_handler(void *timer, void *args)
 kstat_t debug_task_cpu_usage_init()
 {
     kstat_t ret = RHINO_SUCCESS;
-    sys_time_t cpu_usage_period = krhino_ms_to_ticks(RHINO_CONFIG_CPU_USAGE_PERIOD);
+    sys_time_t cpu_usage_period = krhino_ms_to_ticks(DEBUG_CONFIG_CPU_USAGE_PERIOD);
 
     if (cpu_usage_period == 0) {
         return RHINO_INV_PARAM;
