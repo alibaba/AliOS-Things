@@ -288,7 +288,7 @@ int32_t vfs_access(const char *path, int32_t amode);
  *
  * @param path The path to set.
  *
- * @return  0 on success, negative error code on failure.
+ * @return 0 on success, negative error code on failure.
  *
  */
 int vfs_chdir(const char *path);
@@ -299,7 +299,7 @@ int vfs_chdir(const char *path);
  * @param buf  The buffer to save the current working directory.
  * @param size The size of buf.
  *
- * @return  NULL if error occured, buf if succeed.
+ * @return NULL if error occured, buf if succeed.
  *
  */
 char *vfs_getcwd(char *buf, size_t size);
@@ -322,6 +322,16 @@ int32_t vfs_pathconf(const char *path, int name);
  * @return value of path info
  */
 int32_t vfs_fpathconf(int fd, int name);
+
+/**
+ * @brief Set the access and modification times
+ *
+ * @param[in] path the path conf to get from
+ * @param[in] times the buffer to store time info
+ *
+ * @return 0 on success, negative error code on failure
+ */
+int vfs_utime(const char *path, const vfs_utimbuf_t *times);
 
 /**
  * @brief Get file descriptor offset

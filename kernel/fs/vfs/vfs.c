@@ -1046,6 +1046,52 @@ int32_t vfs_fpathconf(int fd, int name)
     return ret;
 }
 
+int vfs_utime(const char *path, const vfs_utimbuf_t *times)
+{
+    int32_t ret = VFS_ERR_NOSYS;
+
+    vfs_file_t  *f;
+    vfs_inode_t *node;
+
+    if (path == NULL) {
+        return VFS_ERR_INVAL;
+    }
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    node = vfs_inode_open(path);
+
+    if (node == NULL) {
+        vfs_unlock(g_vfs_lock_ptr);
+        return VFS_ERR_NODEV;
+    }
+
+    f = vfs_file_new(node);
+
+    vfs_unlock(g_vfs_lock_ptr);
+
+    if (f == NULL) {
+        return VFS_ERR_NOENT;
+    }
+
+    if (INODE_IS_FS(node)) {
+        if ((node->ops.i_fops->utime) != NULL) {
+            ret = (node->ops.i_fops->utime)(f, path, times);
+        }
+    }
+
+    if (vfs_lock(g_vfs_lock_ptr) != VFS_OK) {
+        return VFS_ERR_LOCK;
+    }
+
+    vfs_file_del(f);
+    vfs_unlock(g_vfs_lock_ptr);
+
+    return ret;
+}
+
 int32_t vfs_fd_offset_get(void)
 {
     return VFS_FD_OFFSET;
