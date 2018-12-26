@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <hal/soc/soc.h>
-//#include <k_api.h>
+#include "aos/hal/uart.h"
+
 #include "wm_uart.h"
 #include "wm_regs.h"
 
