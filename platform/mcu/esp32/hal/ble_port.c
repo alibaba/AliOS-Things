@@ -8,6 +8,7 @@
 
 #include <aos/kernel.h>
 #include <aos/hal/flash.h>
+#include <aos/errno.h>
 
 #include "ble_port.h"
 
@@ -43,25 +44,23 @@ static ssize_t storage_read(const bt_addr_le_t *addr, u16_t key, void *data,
         memcpy(mac, (uint8_t*)local_storage.local_mac.a.val, sizeof(mac));
     }
 #endif
-    if(err_code != 0){
-        printf("KV read failed(%d)\n", err_code);
-	return -1;
-    }
-    
-    if(BT_STORAGE_ID_ADDR == key){
-        uint8_t mac[6];
-        memcpy(mac ,((bt_addr_le_t *)data)->a.val, 6);
-        if ((mac[0] == 0xFF && mac[1] == 0xFF && mac[2] == 0xFF && \
-            mac[3] == 0xFF && mac[4] == 0xFF && mac[5] == 0xFF) || \
-            (mac[0] == 0x00 && mac[1] == 0x00 && mac[2] == 0x00 && \
-            mac[3] == 0x00 && mac[4] == 0x00 && mac[5] == 0x00)) {
+
+    if(err_code == 0){
+        if(BT_STORAGE_ID_ADDR == key){
+            uint8_t mac[6];
+            memcpy(mac ,((bt_addr_le_t *)data)->a.val, 6);
+            printf("%s: valid mac read - 0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x\r\n",
+                       __func__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+            return sizeof(bt_addr_le_t);
+       }
+    } else if(err_code == -ENOENT){
+        if(BT_STORAGE_ID_ADDR == key){
             printf("%s: no valid mac read\r\n", __func__);
             return 0;
-        } else {
-            printf("%s: valid mac read - 0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x\r\n",
-                   __func__, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-            return sizeof(bt_addr_le_t);
-        }
+	}
+    } else{
+        printf("KV read failed(%d)\n", err_code);
+        return -1;
     }
 }
 
