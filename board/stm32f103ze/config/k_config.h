@@ -211,10 +211,6 @@
 #define RHINO_CONFIG_TRACE                   0
 #endif
 
-#ifndef RHINO_CONFIG_BACKTRACE
-#define RHINO_CONFIG_BACKTRACE               1
-#endif
-
 #ifndef RHINO_CONFIG_SYSTEM_STACK_SIZE
 #define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x180
 #endif

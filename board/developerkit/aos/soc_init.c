@@ -187,7 +187,7 @@ void SysTick_Handler(void)
     krhino_intrpt_exit();
 }
 
-#if (RHINO_CONFIG_PANIC != 1)
+#if (DEBUG_CONFIG_PANIC != 1)
 void HardFault_Handler(void)
 {
   while (1)
