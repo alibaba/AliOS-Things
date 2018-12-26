@@ -9,7 +9,7 @@
 #include <time.h>
 #include "debug_api.h"
 
-extern const char* SYSINFO_KERNEL_VERSION;
+extern const char* sysinfo_kernel_version;
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC == 0)
 #warning "RHINO_CONFIG_KOBJ_DYN_ALLOC is disabled!"
