@@ -2,7 +2,150 @@ menuconfig AOS_COMP_RHINO
     bool "rhino"
     default y
     help
+        rhino core
 
 if AOS_COMP_RHINO
 # Configurations for component rhino
+
+config RHINO_CONFIG_SEM
+    int "RHINO_CONFIG_SEM"
+    range 0 1
+    default 1
+    help
+       set to 1 if you want to enable sem, set to 0 to disable sem,
+       default 1
+
+config RHINO_CONFIG_QUEUE
+    int "RHINO_CONFIG_QUEUE"
+    range 0 1
+    default 1
+    help
+       set to 1 if you want to enable queue, set to 0 to disable queue,
+       default 1
+
+config RHINO_CONFIG_BUF_QUEUE
+    int "RHINO_CONFIG_BUF_QUEUE"
+    range 0 1
+    default 1
+    help
+       set to 1 if you want to enable buf_queue, set to 0 to disable buf_queue,
+       default 1
+
+config RHINO_CONFIG_WORKQUEUE
+    int "RHINO_CONFIG_WORKQUEUE"
+    range 0 1
+    default 0
+    help
+       set to 1 if you want to enable workqueue, set to 0 to disable workqueue,
+       default 0
+
+if RHINO_CONFIG_WORKQUEUE = 1
+
+config RHINO_CONFIG_WORKQUEUE_STACK_SIZE
+    int "RHINO_CONFIG_WORKQUEUE_STACK_SIZE"
+    default 512
+    help
+       setting the task stack size of the workqueue task, default 512 * 4 bytes
+
+config RHINO_CONFIG_WORKQUEUE_TASK_PRIO
+    int "RHINO_CONFIG_WORKQUEUE_TASK_PRIO"
+    range 0 256
+    default 20
+    help
+       setting the task pri of the workqueue task, default 20
+
+endif
+
+config RHINO_CONFIG_TIMER
+    int "RHINO_CONFIG_TIMER"
+    range 0 1
+    default 1
+    help
+       set to 1 if you want to enable timer, set to 0 to disable timer, default 1
+
+if RHINO_CONFIG_TIMER = 1
+
+config RHINO_CONFIG_TIMER_TASK_STACK_SIZE
+    int "RHINO_CONFIG_TIMER_TASK_STACK_SIZE"
+    default 200
+    help
+       setting the task stack size of the timer task, default 200 * 4 bytes
+       (depend on the stack size of the timer hook function)
+
+config RHINO_CONFIG_TIMER_TASK_PRI
+    int "RHINO_CONFIG_TIMER_TASK_PRI"
+    range 0 256
+    default 5
+    help
+       setting the task pri of the timer task, default 5
+
+endif
+
+config RHINO_CONFIG_MM_TLF
+    int "RHINO_CONFIG_MM_TLF"
+    range 0 1
+    default 1
+    help
+       set to 1 if you want to enable mm tlf, set to 0 to disable mm tlf,
+       default 1
+
+if RHINO_CONFIG_MM_TLF = 1
+
+config RHINO_CONFIG_MM_DEBUG
+    int "RHINO_CONFIG_MM_DEBUG"
+    range 0 1
+    default 0
+    help
+       set to 1 if you want to enable mm debug, set to 0 to disable debug,
+       default 0
+
+endif
+
+config RHINO_CONFIG_SCHED_RR
+    int "RHINO_CONFIG_SCHED_RR"
+    range 0 1
+    default 0
+    help
+       set to 1 if you want to enable round robin, set to 0 to disable round robin,
+       default 0
+
+if RHINO_CONFIG_SCHED_RR = 1
+
+config RHINO_CONFIG_TIME_SLICE_DEFAULT
+    int "RHINO_CONFIG_TIME_SLICE_DEFAULT"
+    default 50
+    help
+       setting the value of time slice, default 50ms
+
+endif
+
+config RHINO_CONFIG_TICKS_PER_SECOND
+    int "RHINO_CONFIG_TICKS_PER_SECOND"
+    default 100
+    help
+       setting the value of ticks/s, default 100
+
+config RHINO_CONFIG_PRI_MAX
+    int "RHINO_CONFIG_PRI_MAX"
+    range 0 256
+    default 62
+    help
+       setting the max value of task pri, default 62, max=256,
+       the higher of the value, the lower of the priority
+
+config RHINO_CONFIG_TASK_STACK_OVF_CHECK
+    int "RHINO_CONFIG_TASK_STACK_OVF_CHECK"
+    range 0 1
+    default 1
+    help
+       set to 1 if you want to enable stack overflow check,
+       set to 0 to disable stack overflow check, default 1
+
+config RHINO_CONFIG_IDLE_TASK_STACK_SIZE
+    int "RHINO_CONFIG_IDLE_TASK_STACK_SIZE"
+    default 100
+    help
+       setting the task stack size of the idle task, default 100 * 4 bytes
+       (depend on the stack size of the idle hook function)
+
 endif
