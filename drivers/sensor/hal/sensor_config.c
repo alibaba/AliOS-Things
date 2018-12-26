@@ -1,8 +1,24 @@
 #include "sensor_hal.h"
 
+extern int __sensor_drv_acc_st_lsm6dsl_init_func__(void);
+extern int __sensor_drv_gyro_st_lsm6dsl_init_func__(void);
+extern int __sensor_drv_als_liteon_ltr553_init_func__(void);
+extern int __sensor_drv_ps_liteon_ltr553_init_func__(void);
+extern int __sensor_drv_baro_bosch_bmp280_init_func__(void);
+extern int __sensor_drv_mag_memsic_mmc3680kj_init_func__(void);
+extern int __sensor_drv_humi_sensirion_shtc1_init_func__(void);
+extern int __sensor_drv_temp_sensirion_shtc1_init_func__(void);
 
-const int g_sensor_drv_num = 1;
+const int g_sensor_drv_num = 9;
 
 const SENSOR_INIT_FUN g_sensor_func[] = {
 NULL,
+__sensor_drv_acc_st_lsm6dsl_init_func__,
+__sensor_drv_gyro_st_lsm6dsl_init_func__,
+__sensor_drv_als_liteon_ltr553_init_func__,
+__sensor_drv_ps_liteon_ltr553_init_func__,
+__sensor_drv_baro_bosch_bmp280_init_func__,
+__sensor_drv_mag_memsic_mmc3680kj_init_func__,
+__sensor_drv_humi_sensirion_shtc1_init_func__,
+__sensor_drv_temp_sensirion_shtc1_init_func__,
 };
