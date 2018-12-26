@@ -133,9 +133,6 @@
 #ifndef RHINO_CONFIG_TASK_STACK_CUR_CHECK
 #define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
 #endif
-#ifndef RHINO_CONFIG_CPU_USAGE_PERIOD
-#define RHINO_CONFIG_CPU_USAGE_PERIOD        1000
-#endif
 
 /* kernel workqueue conf */
 #ifndef RHINO_CONFIG_WORKQUEUE
