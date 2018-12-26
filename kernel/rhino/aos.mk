@@ -38,3 +38,4 @@ $(NAME)_SOURCES := k_err.c          \
                    k_time.c         \
                    k_spin_lock.c
 
+GLOBAL_DEFINES += AOS_COMP_RHINO
