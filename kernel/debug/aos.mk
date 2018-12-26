@@ -6,8 +6,6 @@ $(NAME)_SUMMARY    := panic debug and cpuusage
 
 GLOBAL_INCLUDES += ./ ./include
 
-GLOBAL_DEFINES  += AOS_DEBUG_PANIC
-
 #default gcc
 ifeq ($(COMPILER),)
 $(NAME)_CFLAGS += -Wall -Werror

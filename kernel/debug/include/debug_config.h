@@ -16,15 +16,15 @@
 #endif
 
 /* If AliOS task over the cpu usage feature */
-#ifndef RHINO_CONFIG_CPU_USAGE_PERIOD
-#define RHINO_CONFIG_CPU_USAGE_PERIOD 0
+#ifndef DEBUG_CONFIG_CPU_USAGE_PERIOD
+#define DEBUG_CONFIG_CPU_USAGE_PERIOD 0
 #endif
 
-#if ((RHINO_CONFIG_TIMER == 0) && (RHINO_CONFIG_CPU_USAGE_PERIOD >= 1))
+#if ((RHINO_CONFIG_TIMER == 0) && (DEBUG_CONFIG_CPU_USAGE_PERIOD >= 1))
 #error "you need enable RHINO_CONFIG_TIMER as well."
 #endif
 
-#if ((RHINO_CONFIG_TASK_SCHED_STATS == 0) && (RHINO_CONFIG_CPU_USAGE_PERIOD >= 1))
+#if ((RHINO_CONFIG_TASK_SCHED_STATS == 0) && (DEBUG_CONFIG_CPU_USAGE_PERIOD >= 1))
 #error "you need enable RHINO_CONFIG_TASK_SCHED_STATS as well."
 #endif
 
