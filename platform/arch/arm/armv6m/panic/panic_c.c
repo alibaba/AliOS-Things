@@ -4,7 +4,7 @@
 
 #include "debug_api.h"
 
-#if (RHINO_CONFIG_BACKTRACE > 0)
+#if (DEBUG_CONFIG_BACKTRACE > 0)
 
 #if defined(__CC_ARM)
 #ifdef __BIG_ENDIAN
@@ -332,7 +332,7 @@ int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
 
 #endif
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 #define REG_NAME_WIDTH 7
 
 typedef struct
@@ -415,7 +415,7 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
     }
 }
 
-#if (RHINO_CONFIG_BACKTRACE > 0)
+#if (DEBUG_CONFIG_BACKTRACE > 0)
 /* backtrace start with PC and SP, find LR from stack memory
    return levels os callstack */
 int panicBacktraceCaller(char *PC, int *SP,

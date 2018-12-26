@@ -4,7 +4,7 @@
 
 #include <debug_api.h>
 
-#if (RHINO_CONFIG_BACKTRACE > 0)
+#if (DEBUG_CONFIG_BACKTRACE > 0)
 
 /** WARNING: to use call trace facilities, enable
  *  compiler's frame pointer feature:
