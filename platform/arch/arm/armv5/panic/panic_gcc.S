@@ -1,5 +1,5 @@
 #include "k_config.h"
-#include "debug_dft_config.h"
+#include "debug_config.h"
 
 @******************************************************************************
 @                                 EQUATES
@@ -12,7 +12,7 @@
 .align 2
 .syntax unified
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 
 @******************************************************************************
 @                            EXTERN PARAMETERS

@@ -62,7 +62,7 @@ void NMI_Handler(void)
 /**
 * @brief This function handles Hard fault interrupt.
 */
-#if (RHINO_CONFIG_PANIC == 0)
+#if (DEBUG_CONFIG_PANIC == 0)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
