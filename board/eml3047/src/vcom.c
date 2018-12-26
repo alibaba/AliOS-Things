@@ -182,7 +182,7 @@ void DBG_Uart_Init( void )
     LL_USART_EnableIT_RXNE(USART4);
 }
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 //use DBG_Send in exception print
 void print_str() __attribute__ ((alias ("DBG_Send")));
 #endif
