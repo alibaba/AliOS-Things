@@ -1,6 +1,6 @@
 #include <k_config.h>
 
-const char *SYSINFO_KERNEL_VERSION="AOS-R-2.0.0";
+const char *sysinfo_kernel_version="AOS-R-2.0.0";
 
 extern void hal_reboot(void);
 
@@ -16,5 +16,5 @@ int aos_get_hz(void)
 
 const char *aos_version_get(void)
 {
-    return SYSINFO_KERNEL_VERSION;
+    return sysinfo_kernel_version;
 }

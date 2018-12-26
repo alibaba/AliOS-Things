@@ -6,7 +6,7 @@
 #include <errno.h>
 #include "aos/kernel.h"
 
-extern const char* SYSINFO_KERNEL_VERSION;
+extern const char* sysinfo_kernel_version;
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC == 0)
 #warning "RHINO_CONFIG_KOBJ_DYN_ALLOC is disabled!"
@@ -29,7 +29,7 @@ int aos_get_hz(void)
 
 const char *aos_version_get(void)
 {
-    return SYSINFO_KERNEL_VERSION;
+    return sysinfo_kernel_version;
 }
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
