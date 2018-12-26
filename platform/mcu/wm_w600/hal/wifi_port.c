@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <hal/base.h>
-#include <hal/wifi.h>
+
+#include "network/hal/base.h"
+#include "network/hal/wifi.h"
 
 #include "wm_wifi.h"
 #include "wm_ram_config.h"
