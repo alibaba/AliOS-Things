@@ -9,13 +9,13 @@
 extern "C" {
 #endif
 
-#if (RHINO_CONFIG_BACKTRACE > 0)
+#if (DEBUG_CONFIG_BACKTRACE > 0)
 
 /* show backtrace now */
-void krhino_backtrace_now(void);
+void debug_backtrace_now(void);
 
 /* show backtrace for the task */
-void krhino_backtrace_task(char *taskname);
+void debug_backtrace_task(char *taskname);
 
 #endif
 
