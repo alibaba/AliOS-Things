@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_XR809
+    bool "xr809"
+    select AOS_MCU_XR871
+    help
+
+if AOS_BOARD_XR809
+# Configurations for board xr809
+endif
