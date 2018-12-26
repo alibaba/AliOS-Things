@@ -14,6 +14,7 @@ extern "C" {
 #include "k_api.h"
 
 #include "debug_dft_config.h"
+#include "debug_config.h"
 #include "debug_infoget.h"
 #include "debug_overview.h"
 #include "debug_panic.h"
