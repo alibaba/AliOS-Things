@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 /* fault/exception entry
  * notice: this function maybe reentried by double exception
  */

@@ -30,13 +30,13 @@ __attribute__((weak)) int print_str(const char *fmt, ...)
  */
 #endif
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 
 /* functions followed should defined by arch\...\panic_c.c */
 extern void panicShowRegs(void *context,
                           int (*print_func)(const char *fmt, ...));
 extern void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP);
-#if (RHINO_CONFIG_BACKTRACE > 0)
+#if (DEBUG_CONFIG_BACKTRACE > 0)
 extern int  panicBacktraceCaller(char *PC, int *SP,
                                  int (*print_func)(const char *fmt, ...));
 extern int  panicBacktraceCallee(char *PC, int *SP, char *LR,
@@ -62,7 +62,7 @@ void panicHandler(void *context)
     char prt_stack[] =
       "stack(0x        ): 0x         0x         0x         0x         \r\n";
     int x;
-#if (RHINO_CONFIG_BACKTRACE > 0)
+#if (DEBUG_CONFIG_BACKTRACE > 0)
     int lvl;
 #endif
     static int  *SP = NULL;
@@ -99,7 +99,7 @@ void panicHandler(void *context)
             }
             g_crash_steps++;
         case 3:
-#if (RHINO_CONFIG_BACKTRACE > 0)
+#if (DEBUG_CONFIG_BACKTRACE > 0)
             /* Backtrace: assume ReturnAddr is saved in stack when exception */
             if (SP != NULL) {
                 print_str("========== Call stack ==========\r\n");
@@ -113,7 +113,7 @@ void panicHandler(void *context)
             g_crash_steps++;
         case 4:
             if (g_crash_steps == 4) {
-#if (RHINO_CONFIG_BACKTRACE > 0)
+#if (DEBUG_CONFIG_BACKTRACE > 0)
                 /* Backtrace: assume ReturnAddr is saved in LR when exception */
                 if (SP != NULL) {
                     (void)panicBacktraceCallee(PC, SP, LR, print_str);
@@ -121,7 +121,6 @@ void panicHandler(void *context)
 #endif
                 g_crash_steps++;
             }
-#if (RHINO_CONFIG_PANIC_OVERVIEW > 0)
         case 5:
 #if (RHINO_CONFIG_MM_TLF > 0)
             print_str("========== Heap Info  ==========\r\n");
@@ -151,7 +150,6 @@ void panicHandler(void *context)
 #endif
             g_crash_steps++;
         case 10:
-#endif
             print_str("!!!!!!!!!! dump end   !!!!!!!!!!\r\n");
             g_crash_steps++;
         default:
