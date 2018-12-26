@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := component for sending and receiving AT command over uart
 
 GLOBAL_INCLUDES += ./
 
-$(NAME)_SOURCES := atparser.c
+$(NAME)_SOURCES := atparser.c atparser_arch.c
 GLOBAL_DEFINES += AOS_ATCMD
 
 ifeq (y,$(FEATURE_HDLC_UART))
