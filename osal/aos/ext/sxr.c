@@ -19,7 +19,7 @@
 
 #define AOS_CONFIG_TASK_INFO_NUM RHINO_CONFIG_TASK_INFO_NUM
 
-extern const char* SYSINFO_KERNEL_VERSION;
+extern const char* sysinfo_kernel_version;
 
 static unsigned int used_bitmap;
 static u8 g_task_load = SXR_NO_TASK;
@@ -36,7 +36,7 @@ int aos_get_hz(void)
 
 const char *aos_version_get(void)
 {
-    return SYSINFO_KERNEL_VERSION;
+    return sysinfo_kernel_version;
 }
 
 static u8 get_task_id(void)
