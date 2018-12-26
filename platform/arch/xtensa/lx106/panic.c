@@ -9,7 +9,7 @@
 
 extern int printf(const char *fmt, ...);
 extern int ets_printf(const char *fmt, ...);
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 extern volatile uint32_t g_crash_steps;
 #endif
 
@@ -84,7 +84,7 @@ void xtensaPanic(void *context)
     vPortETSIntrLock();
     krhino_sched_disable();
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
     if(g_crash_steps == 0x87654321) {
         while (1);
     }

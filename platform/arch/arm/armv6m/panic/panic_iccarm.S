@@ -1,5 +1,5 @@
 #include "k_config.h"
-#include "debug_dft_config.h"
+#include "debug_config.h"
 
 ;******************************************************************************
 ;                                 EQUATES
@@ -14,7 +14,7 @@ CONTEXT_REGION  EQU  80   ;bigger than sizeof(PANIC_CONTEXT)
     REQUIRE8
     PRESERVE8
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 
 ;******************************************************************************
 ;                            EXTERN PARAMETERS
@@ -138,7 +138,7 @@ sp_save:
     BX      LR
 
 panic_entry:
-#if (RHINO_CONFIG_PANIC_PRT_INT > 0)
+#if (DEBUG_CONFIG_PANIC_PRT_INT > 0)
     MRS     R1, CONTROL
     MOVS    R2, #2
     BICS    R1, R2

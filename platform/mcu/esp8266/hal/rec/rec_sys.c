@@ -15,7 +15,7 @@ extern void vPortETSIntrUnlock(void);
 
 unsigned int rec_xz_backup_flash_addr;
 unsigned int rec_conf_backup_flash_addr;
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 extern volatile uint32_t g_crash_steps;
 #endif
 
@@ -73,7 +73,7 @@ void rec_reboot(void)
     printf("reboot!\n");
 
     vPortETSIntrLock();
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
     g_crash_steps = 0x87654321;
 #endif
     rec_wdt_stop();
