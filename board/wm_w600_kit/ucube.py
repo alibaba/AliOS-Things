@@ -1,1 +1,1 @@
-linux_only_targets="helloworld yts mqttapp modbus_demo"
+linux_only_targets="helloworld yts linkkitapp mqttapp modbus_demo"
