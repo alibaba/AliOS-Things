@@ -33,7 +33,7 @@ typedef struct oob_s
 typedef struct at_task_s
 {
     slist_t   next;
-    aos_sem_t smpr;
+    void *    smpr;
     char *    command;
     char *    rsp;
     char *    rsp_prefix;
@@ -64,9 +64,9 @@ typedef struct
     int         _send_delim_size;
     oob_t       _oobs[OOB_MAX];
     int         _oobs_num;
-    aos_mutex_t at_uart_recv_mutex;
-    aos_mutex_t at_uart_send_mutex;
-    aos_mutex_t task_mutex;
+    void       *at_uart_recv_mutex;
+    void       *at_uart_send_mutex;
+    void       *task_mutex;
     slist_t task_l;    
 } at_parser_t;
 
@@ -83,4 +83,17 @@ typedef struct
 #ifndef AT_UART_TIMEOUT_MS
 #define AT_UART_TIMEOUT_MS     1000
 #endif
+
+void *atpsr_malloc(uint32_t size);
+void atpsr_free(void *ptr);
+void *atpsr_mutex_new(void);
+void atpsr_mutex_free(void *mutex);
+void atpsr_mutex_lock(void *mutex);
+void atpsr_mutex_unlock(void *mutex);
+void *atpsr_sem_new(void);
+void atpsr_sem_free(void *sem);
+void atpsr_sem_signal(void *sem);
+int atpsr_sem_wait(void *sem, uint32_t timeout_ms);
+int atpsr_task_new_ext(void *task, char *name, void (*fn)(void *),
+                       void *arg, int stack_size, int prio);
 #endif
