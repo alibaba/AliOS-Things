@@ -21,6 +21,7 @@
 #define RAMFS_ERR_PATH       -10012 /* Path error */
 #define RAMFS_ERR_MALLOC     -10013 /* Malloc error */
 #define RAMFS_ERR_LINK_MAX   -10014 /* Exceed RAMFS_LINK_MAX */
+#define RAMFS_ERR_EXIST      -10015 /* File or directory is existed */
 
 #endif /* RAMFS_ERR_H */
 

@@ -77,6 +77,16 @@ int32_t ramfs_close(void *fp);
 int32_t ramfs_remove(const char *fn);
 
 /**
+ * @brief Remove a file, the file should not be opened
+ *
+ * @param[in] old pointer to old name
+ * @param[in] new pointer to new name
+ *
+ * @return 0 on success, otherwise will be failed
+ */
+int32_t ramfs_rename(const char *old, const char *new);
+
+/**
  * @brief Read data from an opened file
  *
  * @param[in]  fp  pointer to a ramfs file object
@@ -186,6 +196,15 @@ int32_t ramfs_readdir(void *dp, char *fn);
  * @return 0 on success, otherwise will be failed
  */
 int32_t ramfs_closedir(void *dp);
+
+/**
+ * @brief Remove a directory
+ *
+ * @param[in]  path the path of the directory
+ *
+ * @return 0 on success, otherwise will be failed
+ */
+int32_t ramfs_rmdir(const char *path);
 
 /**
  * @brief Get file info

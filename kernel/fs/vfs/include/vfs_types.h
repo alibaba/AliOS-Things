@@ -6,10 +6,18 @@
 #define VFS_TYPES_H
 
 #include <stdint.h>
+#include <time.h>
 
 typedef struct {
-    uint16_t st_mode;
-    uint32_t st_size;
+    time_t actime;  /* time of last access */
+    time_t modtime; /* time of last modification */
+} vfs_utimbuf_t;
+
+typedef struct {
+    uint16_t st_mode;    /* mode of file */
+    uint32_t st_size;    /* bytes of file */
+    time_t   st_actime;  /* time of last access */
+    time_t   st_modtime; /* time of last modification */
 } vfs_stat_t;
 
 typedef struct {
@@ -97,6 +105,7 @@ struct vfs_filesystem_ops {
     int32_t       (*access)    (vfs_file_t *fp, const char *path, int32_t amode);
     int32_t       (*pathconf)  (vfs_file_t *fp, const char *path, int name);
     int32_t       (*fpathconf) (vfs_file_t *fp, int name);
+    int32_t       (*utime)     (vfs_file_t *fp, const char *path, const vfs_utimbuf_t *times);
 };
 
 #endif /* VFS_TYPES_H */
