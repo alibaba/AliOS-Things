@@ -52,7 +52,7 @@ int aos_get_hz(void);
 /**
  * Get kernel version.
  *
- * @return  SYSINFO_KERNEL_VERSION.
+ * @return  sysinfo_kernel_version.
  */
 const char *aos_version_get(void);
 
