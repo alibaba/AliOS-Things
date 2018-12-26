@@ -91,8 +91,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
 #endif
 
 #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
-#ifdef AOS_DEBUG_PANIC
-#if (RHINO_CONFIG_CPU_USAGE_PERIOD == 0)
+#if (DEBUG_CONFIG_CPU_USAGE_PERIOD == 0)
     debug_task_cpu_usage_stats();
 #endif
 
@@ -100,7 +99,6 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
         total_cpu_usage[corenum] = debug_total_cpu_usage_get(corenum);
     }
 
-#endif
 #endif
 
     for (tmp = taskhead->next; tmp != taskend; tmp = tmp->next) {
@@ -128,11 +126,9 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
             free_size = 0;
         }
 
-#ifdef AOS_DEBUG_PANIC
 #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
         time_total = (sys_time_t)(task->task_time_total_run / 20);
         task_cpu_usage = debug_task_cpu_usage_get(task);
-#endif
 #endif
 
         if (task->task_name != NULL) {
@@ -259,26 +255,20 @@ static uint32_t dumpsys_info_func(char *buf, uint32_t len)
       sprintf(buf + plen, "%s---------------------------------------------\r\n",
               esc_tag);
 #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
-#ifdef AOS_DEBUG_PANIC
-#if (RHINO_CONFIG_CPU_USAGE_PERIOD == 0)
+#if (DEBUG_CONFIG_CPU_USAGE_PERIOD == 0)
     debug_task_cpu_usage_stats();
-#endif
 #endif
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
     for (uint32_t corenum = 0; corenum < RHINO_CONFIG_CPU_NUM; corenum++) {
-#ifdef AOS_DEBUG_PANIC
         total_cpu_usage[corenum] = debug_total_cpu_usage_get(corenum);
-#endif
         plen += sprintf(buf + plen, "%sCPU%d usage :%3d.%02d     \r\n", esc_tag,
                         corenum, (int32_t)total_cpu_usage[corenum] / 100, 
                         (int32_t)total_cpu_usage[corenum] % 100);
     }
 
 #else
-#ifdef AOS_DEBUG_PANIC
     total_cpu_usage[0] = debug_total_cpu_usage_get(0);
-#endif
     plen += sprintf(buf + plen, "%sCPU usage :%3d.%02d     \r\n", esc_tag,
                     (int32_t)total_cpu_usage[0] / 100, 
                     (int32_t)total_cpu_usage[0] % 100);

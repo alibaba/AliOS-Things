@@ -14,8 +14,8 @@
 
 #endif
 
-#ifndef RHINO_CONFIG_NORMAL_PRT
-#define RHINO_CONFIG_NORMAL_PRT 1
+#ifndef DEBUG_CONFIG_NORMAL_PRT
+#define DEBUG_CONFIG_NORMAL_PRT 1
 #endif
 
 #endif /* DEBUG_DFTDBG_CONFIG_H */
