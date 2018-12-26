@@ -1,0 +1,43 @@
+#!/bin/bash
+
+XZ=""
+if [ "$1" == "-z" ];then
+XZ=".xz"
+fi
+
+BOOT=boot.bin
+APP=app.bin
+XIP=app-xip.bin
+NET=net.bin${XZ}
+NETAP=net_ap.bin${XZ}
+WLANBL=wlan_bl.bin
+WLANFW=wlan_fw.bin
+WLANSDD=wlan_sdd.bin
+
+BOOT_SZ=`ls -l ${BOOT} | awk '{print $5}'`
+APP_SZ=`ls -l ${APP} | awk '{print $5}'`
+XIP_SZ=`ls -l ${XIP} | awk '{print $5}'`
+NET_SZ=`ls -l ${NET} | awk '{print $5}'`
+NETAP_SZ=`ls -l ${NETAP} | awk '{print $5}'`
+WLANBL_SZ=`ls -l ${WLANBL} | awk '{print $5}'`
+WLANFW_SZ=`ls -l ${WLANFW} | awk '{print $5}'`
+WLANSDD_SZ=`ls -l ${WLANSDD} | awk '{print $5}'`
+
+BOOT_OFFS=0
+#APP_OFFS=$[BOOT_OFFS + BOOT_SZ + 64 + $[1024 - $[$[BOOT_SZ + 64] & 1023]]]
+APP_OFFS=32768
+XIP_OFFS=$[APP_OFFS  + APP_SZ  + 64 + $[1024 - $[$[APP_SZ + 64] & 1023]]]
+NET_OFFS=$[XIP_OFFS  + XIP_SZ  + 64 + $[1024 - $[$[XIP_SZ + 64] & 1023]]]
+NETAP_OFFS=$[NET_OFFS + NET_SZ + 64 + $[1024 - $[$[NET_SZ + 64] & 1023]]]
+WLANBL_OFFS=$[NETAP_OFFS + NETAP_SZ + 64 + $[1024 - $[$[NETAP_SZ + 64] & 1023]]]
+WLANFW_OFFS=$[WLANBL_OFFS + WLANBL_SZ + 64 + $[1024 - $[$[WLANBL_SZ + 64] & 1023]]]
+WLANSDD_OFFS=$[WLANFW_OFFS + WLANFW_SZ + 64 + $[1024 - $[$[WLANFW_SZ + 64] & 1023]]]
+
+printf "%-16s sz: %-8d offs: %-dK\n" $BOOT    $BOOT_SZ      $[BOOT_OFFS/1024]
+printf "%-16s sz: %-8d offs: %-dK\n" $APP     $APP_SZ       $[APP_OFFS/1024]
+printf "%-16s sz: %-8d offs: %-dK\n" $XIP     $XIP_SZ       $[XIP_OFFS/1024]  
+printf "%-16s sz: %-8d offs: %-dK\n" $NET     $NET_SZ       $[NET_OFFS/1024]
+printf "%-16s sz: %-8d offs: %-dK\n" $NETAP   $NETAP_SZ     $[NETAP_OFFS/1024]
+printf "%-16s sz: %-8d offs: %-dK\n" $WLANBL  $WLANBL_SZ    $[WLANBL_OFFS/1024]
+printf "%-16s sz: %-8d offs: %-dK\n" $WLANFW  $WLANFW_SZ    $[WLANFW_OFFS/1024]
+printf "%-16s sz: %-8d offs: %-dK\n" $WLANSDD $WLANSDD_SZ   $[WLANSDD_OFFS/1024]
