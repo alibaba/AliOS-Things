@@ -11,7 +11,7 @@
 static char debug_tx_buf[128];
 extern uart_dev_t uart_1;
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 //use DBG_Send in exception print
 void print_str() __attribute__ ((alias ("dbg_send")));
 #endif
