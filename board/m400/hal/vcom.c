@@ -197,7 +197,7 @@ void vcom_Init( void )
     LowPower_Disable( e_LOW_POWER_UART );
 }
 
-#if (RHINO_CONFIG_PANIC > 0)
+#if (DEBUG_CONFIG_PANIC > 0)
 //use DBG_Send in exception print
 void print_str() __attribute__ ((alias ("vcom_Send")));
 #endif
