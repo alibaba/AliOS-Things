@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_USB_HOST
-    bool "usb_host"
-    default n
-    help
-
-if AOS_COMP_USB_HOST
-# Configurations for component usb_host
-endif
