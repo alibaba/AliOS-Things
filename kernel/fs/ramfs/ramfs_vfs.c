@@ -179,6 +179,11 @@ static int32_t vfs_ramfs_remove(file_t *fp, const char *path)
     return ramfs_remove(path);
 }
 
+static int32_t vfs_ramfs_rename(file_t *fp, const char *old, const char *new)
+{
+    return ramfs_rename(old, new);
+}
+
 static aos_dir_t *vfs_ramfs_opendir(file_t *fp, const char *path)
 {
     vfs_ramfs_dir_t *dp  = NULL;
@@ -344,6 +349,28 @@ static int32_t vfs_ramfs_fpathconf(file_t *fp, int32_t name)
     return ramfs_pathconf(name);
 }
 
+static int32_t vfs_ramfs_utime(file_t *fp, const char *path, const struct aos_utimbuf *times)
+{
+    /* ramfs do not support utime, this is only for test */
+    printf("times->actime %d\n", times->actime);
+    printf("times->modtime %d\n", times->modtime);
+
+    return -1;
+}
+
+static void vfs_ramfs_rewinddir(file_t *fp, aos_dir_t *dir)
+{
+    vfs_ramfs_dir_t *dp  = NULL;
+
+    dp = fp->f_arg;
+    dp->ramfs_dir.last_entry = NULL;
+}
+
+static int vfs_ramfs_rmdir(file_t *fp, const char *path)
+{
+    return ramfs_rmdir(path);
+}
+
 fs_ops_t fs_ops_ramfs = { .open      = &vfs_ramfs_open,
                           .close     = &vfs_ramfs_close,
                           .read      = &vfs_ramfs_read,
@@ -357,7 +384,7 @@ fs_ops_t fs_ops_ramfs = { .open      = &vfs_ramfs_open,
                           .link      = &vfs_ramfs_link,
                           .unlink    = &vfs_ramfs_unlink,
                           .remove    = &vfs_ramfs_remove,
-                          .rename    = NULL,
+                          .rename    = &vfs_ramfs_rename,
                           .opendir   = &vfs_ramfs_opendir,
                           .readdir   = &vfs_ramfs_readdir,
                           .closedir  = &vfs_ramfs_closedir,
@@ -365,7 +392,10 @@ fs_ops_t fs_ops_ramfs = { .open      = &vfs_ramfs_open,
                           .seekdir   = NULL,
                           .ioctl     = NULL,
                           .pathconf  = &vfs_ramfs_pathconf,
-                          .fpathconf = &vfs_ramfs_fpathconf };
+                          .fpathconf = &vfs_ramfs_fpathconf,
+                          .utime     = &vfs_ramfs_utime,
+                          .rewinddir = &vfs_ramfs_rewinddir,
+                          .rmdir     = vfs_ramfs_rmdir };
 
 int32_t ramfs_register(const char *mount_path)
 {

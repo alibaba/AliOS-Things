@@ -237,6 +237,28 @@ static int ramfs_search_link(ramfs_entry_t *entry, char *path)
     link_name_t *link_name = entry->link;
 
     while (link_name != NULL) {
+        if (strcmp(link_name->name, path) == 0) {
+            return RAMFS_OK;
+        } else {
+            link_name = link_name->next;
+        }
+    }
+
+    return RAMFS_ERR_FS;
+}
+
+/**
+ * @brief Search path in link
+ *
+ * @param[in] fn file name
+ *
+ * @return 0 if get path in link, RAMFS_ERR_FS if failed
+ */
+static int ramfs_search_link_part(ramfs_entry_t *entry, char *path)
+{
+    link_name_t *link_name = entry->link;
+
+    while (link_name != NULL) {
         if (strncmp(link_name->name, path, strlen(path)) == 0) {
             return RAMFS_OK;
         } else {
@@ -262,7 +284,7 @@ static ramfs_entry_t *ramfs_entry_get(const char *fn)
     int            ret = -1;
 
     RAMFS_LL_READ(g_file_ll, entry) {
-        if (strncmp(entry->fn, fn, strlen(fn)) == 0) {
+        if (strcmp(entry->fn, fn) == 0) {
             return entry;
         } else {
             ret = ramfs_search_link(entry, fn);
@@ -276,6 +298,67 @@ static ramfs_entry_t *ramfs_entry_get(const char *fn)
 }
 
 /**
+ * @brief Create dir involved in path
+ *
+ * @param[in] fn file name
+ *
+ * @return poiner to the dynamically allocated new entry
+ *         NULL if no space for the entry
+ */
+static int ramfs_entry_dir_new(const char *path)
+{
+    int    i    = 0;
+    size_t len  = 0;
+    int    ret  = -1;
+    int    flag = 0;
+
+    char dir_buf[RAMFS_PATH_MAX];
+
+    ramfs_entry_t *new_entry = NULL;
+
+    /* create dir involved in path, if path is "/ramfs/f1/f2/file1", then
+       create dir "/ramfs/f1" and "/ramfs/f1/f2" */
+    for(i = 1; i < strlen(path); i++) {
+        if (path[i] == '/') {
+            memset(dir_buf, 0, sizeof(dir_buf));
+            memcpy(dir_buf, path, i);
+
+            flag = 0;
+            new_entry = NULL;
+
+            /* if the same dir is found, ignore this dir */
+            RAMFS_LL_READ(g_file_ll, new_entry) {
+                if ((strcmp(new_entry->fn, dir_buf) == 0) && (new_entry->is_dir == 1)) {
+                    flag = 1;
+                    break;
+                }
+            }
+
+            if (flag == 0) {
+                new_entry = ramfs_ll_ins_head(&g_file_ll); /* Create a new file */
+                if (new_entry == NULL) {
+                    return RAMFS_ERR_MALLOC;
+                }
+
+                new_entry->fn = ramfs_mm_alloc(i + 1);
+                memset(new_entry->fn, 0, (i + 1));
+                strncpy(new_entry->fn, path, i);
+
+                new_entry->data       = NULL;
+                new_entry->size       = 0;
+                new_entry->refs       = 0;
+                new_entry->const_data = 0;
+                new_entry->is_dir     = 1;
+                new_entry->link       = NULL;
+                new_entry->link_count = 0;
+            }
+        }
+    }
+
+    return RAMFS_OK;
+}
+
+/**
  * @brief Create a new entry with 'fn' file name
  *
  * @param[in] fn file name
@@ -286,6 +369,15 @@ static ramfs_entry_t *ramfs_entry_get(const char *fn)
 static ramfs_entry_t *ramfs_entry_new(const char *fn)
 {
     ramfs_entry_t *new_entry = NULL;
+
+    int ret = -1;
+
+    /* create dir involved in path, if path is "/ramfs/f1/f2/file1", then
+       create dir "/ramfs/f1" and "/ramfs/f1/f2" */
+    ret = ramfs_entry_dir_new(fn);
+    if (ret != RAMFS_OK) {
+        return NULL;
+    }
 
     new_entry = ramfs_ll_ins_head(&g_file_ll); /* Create a new file */
     if (new_entry == NULL) {
@@ -304,54 +396,6 @@ static ramfs_entry_t *ramfs_entry_new(const char *fn)
     new_entry->link_count = 0;
 
     return new_entry;
-}
-
-/**
- * @brief Create a directory
- *
- * @param[in] fn   name of the file
- * @param[in] data pointer to a constant data
- * @param[in] len  length of the data in bytes
- *
- * @return 0 on success, otherwise will be failed
- */
-static int32_t ramfs_dir_create(const char *fn, const void *data, uint32_t len)
-{
-    int32_t res;
-
-    ramfs_file_t   file;
-    ramfs_entry_t *entry;
-
-    /* Error if the file already exist */
-    res = ramfs_open(&file, fn, RAMFS_MODE_RD);
-    if (res == RAMFS_OK) {
-        ramfs_close(&file);
-        return RAMFS_ERR_DENIED;
-    }
-
-    res = ramfs_open(&file, fn, RAMFS_MODE_WR);
-    if (res != RAMFS_OK) {
-        return res;
-    }
-
-    entry = file.entry;
-
-    if (entry->data != NULL) {
-        return RAMFS_ERR_DENIED;
-    }
-
-    entry->data   = (void *)data;
-    entry->size   = len;
-    entry->is_dir = 1;
-    entry->ar     = 1;
-    entry->aw     = 1;
-
-    res = ramfs_close(&file);
-    if (res != RAMFS_OK) {
-        return res;
-    }
-
-    return RAMFS_OK;
 }
 
 void ramfs_init(void)
@@ -456,6 +500,14 @@ int32_t ramfs_remove(const char *fn)
     link_name_t *link_name      = NULL;
     link_name_t *link_name_next = NULL;
 
+    if (entry == NULL) {
+        return RAMFS_ERR_NOT_EXIST;
+    }
+
+    if (entry->is_dir == 1) {
+        return ramfs_rmdir(fn);
+    }
+
     if (entry->refs != 0) {
         return RAMFS_ERR_DENIED;
     }
@@ -478,6 +530,40 @@ int32_t ramfs_remove(const char *fn)
     }
 
     ramfs_mm_free(entry);
+
+    return RAMFS_OK;
+}
+
+int32_t ramfs_rename(const char *old, const char *new)
+{
+    ramfs_entry_t *entry = NULL;
+
+    int ret = -1;
+
+    entry = ramfs_entry_get(new);
+    if (entry != NULL) {
+        return RAMFS_ERR_PATH;
+    }
+
+    entry = ramfs_entry_get(old);
+    if (entry == NULL) {
+        return RAMFS_ERR_NOT_EXIST;
+    }
+
+    if ((entry != NULL) && (entry->is_dir == 1)) {
+        return RAMFS_ERR_PATH;
+    }
+
+    /* rename linked name is not supported */
+    if (strcmp(entry->fn, old) != 0) {
+        return RAMFS_ERR_NOT_IMP;
+    }
+
+    entry->fn = ramfs_mm_realloc(entry->fn, strlen(new));
+    strcpy(entry->fn, new);
+    if (entry->fn == NULL) {
+        return RAMFS_ERR_MALLOC;
+    }
 
     return RAMFS_OK;
 }
@@ -670,7 +756,20 @@ int32_t ramfs_access(const char *path, int32_t mode)
 
 int32_t ramfs_mkdir(const char *path)
 {
-    return ramfs_dir_create(path, NULL, 0);
+    ramfs_entry_t *entry = ramfs_entry_get(path);
+
+    if ((entry != NULL) && (entry->is_dir == 1)) {
+        return RAMFS_ERR_EXIST;
+    }
+
+    entry = ramfs_entry_new(path);
+    if (entry == NULL) {
+        return RAMFS_ERR_FULL;
+    }
+
+    entry->is_dir = 1;
+
+    return RAMFS_OK;
 }
 
 int32_t ramfs_opendir(void *dp, const char *path)
@@ -679,26 +778,33 @@ int32_t ramfs_opendir(void *dp, const char *path)
     ramfs_entry_t *entry;
 
     ramfs_dp = (ramfs_dir_t *)dp;
-    entry    = ramfs_entry_get(path);
+    entry = ramfs_entry_get(path);
 
     if (entry == NULL) {
         return RAMFS_ERR_NOT_EXIST;
     }
 
-    if (entry->is_dir == 1) {
-        ramfs_dp->dir_name = ramfs_mm_alloc(strlen(path));
-
-        if (ramfs_dp->dir_name == NULL) {
-            return RAMFS_ERR_FULL;
-        } else {
-            strcpy(ramfs_dp->dir_name, path);
-            ramfs_dp->last_entry = NULL;
-
-            return RAMFS_OK;
+    if (entry->is_dir != 1) {
+        entry = ramfs_entry_get(path);
+        if (entry == NULL) {
+            return RAMFS_ERR_NOT_EXIST;
         }
-    } else {
-        return RAMFS_ERR_NOT_EXIST;
+
+        if (entry->is_dir != 1) {
+            return RAMFS_ERR_NOT_EXIST;
+        }
     }
+
+    ramfs_dp->dir_name = ramfs_mm_alloc(strlen(path));
+
+    if (ramfs_dp->dir_name == NULL) {
+        return RAMFS_ERR_FULL;
+    }
+
+    strcpy(ramfs_dp->dir_name, path);
+    ramfs_dp->last_entry = NULL;
+
+    return RAMFS_OK;
 }
 
 int32_t ramfs_readdir(void *dp, char *fn)
@@ -714,45 +820,27 @@ int32_t ramfs_readdir(void *dp, char *fn)
 
     if (ramfs_dp->last_entry == NULL) {
         ramfs_dp->last_entry = ramfs_ll_get_head(&g_file_ll);
-    } else {
-        ramfs_dp->last_entry = ramfs_ll_get_next(&g_file_ll, ramfs_dp->last_entry);
     }
 
-    while (search == 1) {
-        if (ramfs_dp->last_entry != NULL) {
-            if (strcmp(ramfs_dp->dir_name, ramfs_dp->last_entry->fn) == 0) {
-                search = 1;
+    while ((search == 1) && (ramfs_dp->last_entry != NULL)) {
+        if ((strncmp(ramfs_dp->dir_name, ramfs_dp->last_entry->fn, strlen(ramfs_dp->dir_name)) == 0)
+          &&(*(ramfs_dp->last_entry->fn + strlen(ramfs_dp->dir_name)) != '\0')) {
+            name = ramfs_dp->last_entry->fn + strlen(ramfs_dp->dir_name) + 1;
+            data = name;
+            len  = strlen(ramfs_dp->last_entry->fn) - strlen(ramfs_dp->dir_name);
 
-            } else if (strncmp(ramfs_dp->dir_name, ramfs_dp->last_entry->fn,
-                               strlen(ramfs_dp->dir_name)) != 0) {
-                search = 1;
-
-            } else if (*(ramfs_dp->last_entry->fn + strlen(ramfs_dp->dir_name)) != '/') {
-                search = 1;
-
-            } else {
-                name = ramfs_dp->last_entry->fn + strlen(ramfs_dp->dir_name) + 1;
-                data = name;
-                len  = strlen(ramfs_dp->last_entry->fn) - strlen(ramfs_dp->dir_name);
-
-                search = 0;
-
-                for (i = 0; i < len; i++) {
-                    if (*name == '/') {
-                        search = 1;
-                        break;
-                    }
-                    name++;
-                }
-            }
-
-            if (search == 1) {
-                ramfs_dp->last_entry = ramfs_ll_get_next(&g_file_ll, 
-                                                          ramfs_dp->last_entry);
-            }
-        } else {
             search = 0;
+
+            for (i = 0; i < len; i++) {
+                if (*name == '/') {
+                    search = 1;
+                    break;
+                }
+                name++;
+            }
         }
+
+        ramfs_dp->last_entry = ramfs_ll_get_next(&g_file_ll, ramfs_dp->last_entry);
     }
 
     if (ramfs_dp->last_entry != NULL) {
@@ -773,6 +861,45 @@ int32_t ramfs_closedir(void *dp)
     }
 
     return RAMFS_OK;
+}
+
+int32_t ramfs_rmdir(const char *path)
+{
+    ramfs_entry_t *entry;
+    link_name_t   *link_name;
+    int            ret = -1;
+    int flag = 0;
+
+    /* if file existed in the dir return error ! */
+    RAMFS_LL_READ(g_file_ll, entry) {
+        if ((strncmp(entry->fn, path, strlen(path)) == 0) && (entry->is_dir == 0)
+            && (entry->fn + strlen(entry->fn) != "/")) {
+            flag = 1;
+            break;
+        } else {
+            ret = ramfs_search_link_part(entry, path);
+            if (ret == RAMFS_OK) {
+                flag = 1;
+                break;
+            }
+        }
+    }
+
+    if (flag == 1) {
+        return RAMFS_ERR_DENIED;
+    }
+
+    /* if no file existed in the dir remove the dir ! */
+    RAMFS_LL_READ(g_file_ll, entry) {
+        if ((strncmp(entry->fn, path, strlen(path)) == 0) && (entry->is_dir == 1)) {
+            ramfs_ll_remove(&g_file_ll, entry);
+            ramfs_mm_free(entry->fn);
+            entry->fn = NULL;
+            ramfs_mm_free(entry);
+        }
+    }
+
+    return NULL;
 }
 
 int32_t ramfs_stat(const char *path, ramfs_stat_t *st)
