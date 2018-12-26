@@ -12,6 +12,7 @@ extern "C"
 
 #include <stdio.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "k_api.h"
 #include "aos/vfs.h"
@@ -37,6 +38,23 @@ extern "C"
 #define TEMP_FILE_NAME_MAGIC "/ramfs/du2s5sz3p1jdi97ds"
 
 typedef aos_dir_t DIR;
+
+struct utimbuf {
+    time_t actime;  /* time of last access */
+    time_t modtime; /* time of last modify */
+};
+
+struct statfs {
+    long f_type;    /* fs type */
+    long f_bsize;   /* optimized transport block size */
+    long f_blocks;  /* total blocks */
+    long f_bfree;   /* available blocks */
+    long f_bavail;  /* number of blocks that non-super users can acquire */
+    long f_files;   /* total number of file nodes */
+    long f_ffree;   /* available file nodes */
+    long f_fsid;    /* fs id */
+    long f_namelen; /* max file name length */
+};
 
 struct dirent {
     int     d_ino;    /* file number    */
