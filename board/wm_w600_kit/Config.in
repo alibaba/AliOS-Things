@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_WM_W600_KIT
+    bool "wm_w600_kit"
+    select AOS_MCU_WM_W600
+    help
+
+if AOS_BOARD_WM_W600_KIT
+# Configurations for board wm_w600_kit
+endif
