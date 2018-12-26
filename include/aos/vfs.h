@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -15,6 +16,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct aos_utimbuf {
+    time_t actime;  /* time of last access */
+    time_t modtime; /* time of last modification */
+};
 
 struct aos_statfs {
     long f_type;    /* fs type */
@@ -29,8 +35,10 @@ struct aos_statfs {
 };
 
 struct aos_stat {
-    uint16_t st_mode;
-    uint32_t st_size;
+    uint16_t st_mode;    /* mode of file */
+    uint32_t st_size;    /* bytes of file */
+    time_t   st_actime;  /* time of last access */
+    time_t   st_modtime; /* time of last modification */
 };
 
 typedef struct {
@@ -104,6 +112,7 @@ struct fs_ops {
     int           (*access)(file_t *fp, const char *path, int amode);
     long          (*pathconf)(file_t *fp, const char *path, int name);
     long          (*fpathconf)(file_t *fp, int name);
+    int           (*utime)(file_t *fp, const char *path, const struct aos_utimbuf *times);
 };
 
 /**
@@ -224,6 +233,28 @@ int aos_sync(int fd);
 int aos_stat(const char *path, struct aos_stat *st);
 
 /**
+ * Store information about the file in a vfs_stat structure
+ *
+ * @param[in]  fh the fh of the file to find information about
+ * @param[out] st the vfs_stat buffer to write to
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int aos_fstat(int fh, struct aos_stat *st);
+
+/**
+ * @brief link path2 to path1
+ *
+ * @param[in] path1 the path to be linked
+ * @param[in] path2 the path to link
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int aos_link(const char *path1, const char *path2);
+
+/**
  * Remove a file from the filesystem.
  *
  * @param[in]  path  The path of the file to remove.
@@ -232,6 +263,16 @@ int aos_stat(const char *path, struct aos_stat *st);
  *
  */
 int aos_unlink(const char *path);
+
+/**
+ * @brief Remove a file from the filesystem
+ *
+ * @param[in] path the path of the file to remove
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int aos_remove(const char *path);
 
 /**
  * Rename a file in the filesystem.
@@ -367,6 +408,35 @@ int aos_chdir(const char *path);
  *
  */
 char *aos_getcwd(char *buf, size_t size);
+
+/**
+ * @brief Get path conf
+ *
+ * @param[in] path the path conf to get from
+ * @param[in] name the kind of path conf to get
+ *
+ * @return value of path info
+ */
+long aos_pathconf(const char *path, int name);
+
+/**
+ * @brief Get path info
+ *
+ * @param[in]  name the path info to get
+ *
+ * @return value of path info
+ */
+long aos_fpathconf(int fd, int name);
+
+/**
+ * @brief Set the access and modification times
+ *
+ * @param[in] path the path conf to get from
+ * @param[in] times the buffer to store time info
+ *
+ * @return 0 on success, negative error code on failure
+ */
+int aos_utime(const char *path, const struct aos_utimbuf *times);
 
 /**
  * get VFS fd offset
