@@ -1,6 +1,19 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+/**
+******************************************************************************
+* @file    hal_gpio_stm32f4.h
+* @author  MCU China FAE team
+* @version 1.0
+* @date    26/12/2018
+* @brief   aos porting layer
+******************************************************************************
+*
+* COPYRIGHT(c) 2018 STMicroelectronics
+*
+******************************************************************************
+*/
 
 #ifndef __HAL_GPIO_STM32F4_H
 #define __HAL_GPIO_STM32F4_H
@@ -22,6 +35,10 @@
 #define GROUP_GPIOC    2
 #define GROUP_GPIOD    3	 
 #define GROUP_GPIOE    4
+#define GROUP_GPIOF    5
+#define GROUP_GPIOG    6
+#define GROUP_GPIOH    7
+
 	 
 #define HAL_GPIO_0                 ((uint8_t)0)        /* represent GPIOA pin 0 */
 #define HAL_GPIO_1                 ((uint8_t)1)        /* represent GPIOA pin 1 */

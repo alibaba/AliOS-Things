@@ -1,7 +1,19 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-
+/**
+ ******************************************************************************
+ * @file    hal_gpio_stm32f4.c
+ * @author  MCU China FAE team
+ * @version 1.0
+ * @date    26/12/2018
+ * @brief   aos porting layer
+ ******************************************************************************
+ *
+ * COPYRIGHT(c) 2018 STMicroelectronics
+ *
+ ******************************************************************************
+ */
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -333,5 +345,11 @@ uint32_t get_gpio_pin(uint8_t pin)
 
     return result;
 }
+int32_t hal_gpio_finalize(gpio_dev_t *gpio)
+{
+
+    return 0;
+}
+
 #endif
 

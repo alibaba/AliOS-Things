@@ -67,6 +67,11 @@ def changeItemForMcu( tree ):
         IRAM1Size.text='0x2000'
         IRAM2Size.text=''
         FlashSize.text='0x8000'
+    if 'stm32f429' in buildstring:
+        ScatterFile.text = '..\..\..\..\\board\stm32f429zi-nucleo\STM32F429.sct'
+        IRAM1Size.text='0x40000'
+        IRAM2Size.text=''
+        FlashSize.text='0x200000'
     
 # change key word in project file. automation to do
 def ModifyProjString( projString ):
@@ -99,7 +104,16 @@ CPUTYPE("Cortex-M0+")')
         projString = projString.replace('DCM.DLL','DARMCM1.DLL')
         projString = projString.replace('-MPU','')
         projString = projString.replace('-pCM4','-pCM0+')
-        projString = projString.replace('TCM.DLL','TARMCM1.DLL')	
+        projString = projString.replace('TCM.DLL','TARMCM1.DLL')
+    if 'stm32f429' in buildstring:
+        projString = projString.replace('STM32L475VGTx','STM32F429ZITx')
+        projString = projString.replace('STM32L4xx_1024','STM32F4xx_2048')
+        projString = projString.replace('STM32L4xx','STM32F4xx')
+        projString = projString.replace('stm32l4xx','stm32f4xx')
+        projString = projString.replace('STM32L4x5', 'STM32F429x')
+        projString = projString.replace('IRAM(0x20000000,0x00018000) IRAM2(0x10000000,0x00008000) IROM(0x08000000,0x00100000) \
+CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE', 'IRAM(0x20000000-0x2002FFFF) IRAM2(0x10000000-0x1000FFFF) IROM(0x8000000-0x81FFFFF) \
+CLOCK(25000000) FPU2 CPUTYPE("Cortex-M4")')		
     return  projString   
     
 def gen_project(tree, target, script):

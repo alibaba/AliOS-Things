@@ -113,6 +113,8 @@ def changeItemForMcu( tree ):
                                 option.find('state').text = '$PROJ_DIR$\../../../../'+'board/stm32l053r8-nucleo/STM32L053.icf'
                             if 'stm32l031' in buildstring:
                                 option.find('state').text = '$PROJ_DIR$\../../../../'+'board/stm32l031k6-nucleo/STM32L031.icf'
+                            if 'stm32f429' in buildstring:
+                                option.find('state').text = '$PROJ_DIR$\../../../../'+'board/stm32f429zi-nucleo/STM32F429.icf'
                           
 work_space_content = '''<?xml version="1.0" encoding="UTF-8"?>
 
@@ -172,6 +174,8 @@ def gen_project(target, script):
         projString = projString.replace('STM32L475VG','STM32L053R8')
     if 'stm32l031' in buildstring:
         projString = projString.replace('STM32L475VG','STM32L031K6')
+    if 'stm32f429' in buildstring:
+        projString = projString.replace('STM32L475VG','STM32F429ZI')
     out.write(projString)
     out.close()
 

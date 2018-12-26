@@ -2,9 +2,9 @@
 *****************************************************************************
 **
 
-**  File        : LinkerScript.ld
+**  File        : stm32_flash.ld
 **
-**  Abstract    : Linker script for STM32F429ZITx Device with
+**  Abstract    : Linker script for STM32F429ZI Device with
 **                2048KByte FLASH, 192KByte RAM
 **
 **                Set heap size, stack size and stack location according
@@ -14,17 +14,16 @@
 **
 **  Target      : STMicroelectronics STM32
 **
+**  Environment : Atollic TrueSTUDIO(R)
 **
 **  Distribution: The file is distributed as is, without any warranty
 **                of any kind.
 **
-**  (c)Copyright Ac6.
+**  (c)Copyright Atollic AB.
 **  You may use this file as-is or modify it according to the needs of your
-**  project. Distribution of this file (unmodified or modified) is not
-**  permitted. Ac6 permit registered System Workbench for MCU users the
-**  rights to distribute the assembled, compiled & linked contents of this
-**  file as part of an application binary file, provided that it is built
-**  using the System Workbench for MCU toolchain.
+**  project. This file may only be built (assembled or compiled and linked)
+**  using the Atollic TrueSTUDIO(R) product. The use of this file together
+**  with other tools than Atollic TrueSTUDIO(R) is not permitted.
 **
 *****************************************************************************
 */
@@ -165,12 +164,12 @@ SECTIONS
   /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack :
   {
-    . = ALIGN(8);
+    . = ALIGN(4);
     PROVIDE ( end = . );
     PROVIDE ( _end = . );
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
-    . = ALIGN(8);
+    . = ALIGN(4);
   } >RAM
 
   

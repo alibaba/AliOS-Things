@@ -1,7 +1,19 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-
+/**
+ ******************************************************************************
+ * @file    hw.c
+ * @author  MCU China FAE team
+ * @version 1.0
+ * @date    26/12/2018
+ * @brief   aos porting layer
+ ******************************************************************************
+ *
+ * COPYRIGHT(c) 2018 STMicroelectronics
+ *
+ ******************************************************************************
+ */
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -12,62 +24,50 @@
 #include <hal/soc/timer.h>
 #include <hal/base.h>
 #include <hal/wifi.h>
-
-#include "stm32f4xx_hal.h"
-
+#include <hal/ota.h>
+#include "board.h"
 
 #define TAG "hw"
 
-#define us2tick(us) \
-    ((us * RHINO_CONFIG_TICKS_PER_SECOND + 999999) / 1000000)
+#define us2tick(us) ((us * RHINO_CONFIG_TICKS_PER_SECOND + 999999) / 1000000)
 
+void hal_reboot(void) { HAL_NVIC_SystemReset(); }
 
-void hal_reboot(void)
-{
-    HAL_NVIC_SystemReset();
+static void _timer_cb(void *timer, void *arg) {
+  timer_dev_t *tmr = arg;
+  tmr->config.cb(tmr->config.arg);
 }
 
-static void _timer_cb(void *timer, void *arg)
-{
-    timer_dev_t *tmr = arg;
-    tmr->config.cb(tmr->config.arg);
+int32_t hal_timer_init(timer_dev_t *tim) {
+  if (tim->config.reload_mode == TIMER_RELOAD_AUTO) {
+    krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+                            us2tick(tim->config.period),
+                            us2tick(tim->config.period), tim, 0);
+  } else {
+    krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+                            us2tick(tim->config.period), 0, tim, 0);
+  }
 }
 
-int32_t hal_timer_init(timer_dev_t *tim)
-{
-    if (tim->config.reload_mode == TIMER_RELOAD_AUTO) {
-        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
-                                us2tick(tim->config.period), us2tick(tim->config.period), tim, 0);
-    }
-    else {
-        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
-                                us2tick(tim->config.period), 0, tim, 0);
-    }
+int32_t hal_timer_start(timer_dev_t *tmr) {
+  return krhino_timer_start(tmr->priv);
 }
 
-int32_t hal_timer_start(timer_dev_t *tmr)
-{
-    return krhino_timer_start(tmr->priv);
+void hal_timer_stop(timer_dev_t *tmr) {
+  krhino_timer_stop(tmr->priv);
+  krhino_timer_dyn_del(tmr->priv);
+  tmr->priv = NULL;
 }
-
-
-void hal_timer_stop(timer_dev_t *tmr)
-{
-    krhino_timer_stop(tmr->priv);
-    krhino_timer_dyn_del(tmr->priv);
-    tmr->priv = NULL;
-}
-
+extern struct hal_ota_module_s stm32f4xx_ota_module;
 #if defined(DEV_SAL_MK3060)
 extern hal_wifi_module_t aos_wifi_module_mk3060;
 #endif
 
-void hw_start_hal(void)
-{
-    printf("start-----------hal\n");
+void hw_start_hal(void) {
+  printf("start-----------hal\n");
 #if defined(DEV_SAL_MK3060)
-    hal_wifi_register_module(&aos_wifi_module_mk3060);
+  hal_wifi_register_module(&aos_wifi_module_mk3060);
 #endif
-    
-    hal_wifi_init();
+  hal_ota_register_module(&stm32f4xx_ota_module);
+  hal_wifi_init();
 }
