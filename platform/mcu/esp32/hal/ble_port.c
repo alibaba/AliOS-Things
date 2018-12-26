@@ -31,7 +31,7 @@ static ssize_t storage_read(const bt_addr_le_t *addr, u16_t key, void *data,
 {
     uint8_t mac[6];
     int err_code;
-    uint8_t s[10];
+    uint8_t s[20];
     sprintf(s ,"BT_STORAGE_%02x", key);
 #ifdef AOS_KV
      err_code = aos_kv_get(s, data, length, 1);
@@ -69,7 +69,7 @@ static ssize_t storage_write(const bt_addr_le_t *addr, u16_t key,
 {
     uint32_t err_code;
     uint8_t mac[6];
-    uint8_t s[10];
+    uint8_t s[20];
 
     sprintf(s ,"BT_STORAGE_%02x", key);
 #ifdef AOS_KV
