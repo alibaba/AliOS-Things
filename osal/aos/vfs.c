@@ -177,14 +177,19 @@ int aos_vfs_fd_offset_get(void)
     return vfs_fd_offset_get();
 }
 
-int aos_pathconf(const char *path, int name)
+long aos_pathconf(const char *path, int name)
 {
     return vfs_pathconf(path, name);
 }
 
-int aos_fpathconf(int fh, int name)
+long aos_fpathconf(int fh, int name)
 {
     return vfs_fpathconf(fh, name);
+}
+
+int aos_utime(const char *path, const struct aos_utimbuf *times)
+{
+    return _vfs_to_aos_res(vfs_utime(path, (vfs_utimbuf_t *)times));
 }
 
 int aos_register_driver(const char *path, file_ops_t *ops, void *arg)
