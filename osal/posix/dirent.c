@@ -3,7 +3,6 @@
  */
 
 #include "posix/dirent.h"
-#include "network/network.h"
 
 #if (POSIX_CONFIG_DIRENT_ENABLE > 0)
 
@@ -39,16 +38,54 @@ off_t lseek(int fildes, off_t offset, int whence)
 
 int stat(const char *path, struct stat *buf)
 {
-    return aos_stat(path, buf);
+    struct aos_stat stat_temp;
+    int             ret = -1;
+
+    ret = aos_stat(path, &stat_temp);
+    if (ret == 0) {
+        buf->st_mode = stat_temp.st_mode;
+        buf->st_size = stat_temp.st_size;
+        buf->st_atime = stat_temp.st_actime;
+        buf->st_mtime = stat_temp.st_modtime;
+    }
+
+    return ret;
 }
 
 int fstat(int fh, struct stat *buf)
 {
-    return aos_fstat(fh, buf);
+    struct aos_stat stat_temp;
+    int             ret = -1;
+
+    ret = aos_fstat(fh, &stat_temp);
+    if (ret == 0) {
+        buf->st_mode = stat_temp.st_mode;
+        buf->st_size = stat_temp.st_size;
+        buf->st_atime = stat_temp.st_actime;
+        buf->st_mtime = stat_temp.st_modtime;
+    }
+
+    return ret;
 }
 
 int statfs(const char *path, struct statfs *buf)
 {
+    struct aos_statfs statfs_temp;
+    int               ret = -1;
+
+    ret = aos_statfs(path, &statfs_temp);
+    if (ret == 0) {
+        buf->f_type    = statfs_temp.f_type;
+        buf->f_bsize   = statfs_temp.f_bsize;
+        buf->f_blocks  = statfs_temp.f_blocks;
+        buf->f_bfree   = statfs_temp.f_bfree;
+        buf->f_bavail  = statfs_temp.f_bavail;
+        buf->f_files   = statfs_temp.f_files;
+        buf->f_ffree   = statfs_temp.f_ffree;
+        buf->f_fsid    = statfs_temp.f_fsid;
+        buf->f_namelen = statfs_temp.f_namelen;
+    }
+
     return aos_statfs(path, buf);
 }
 
@@ -109,7 +146,7 @@ char *getcwd(char *buf, size_t size)
 
 int creat(const char *path, mode_t mode)
 {
-    return open(path ,(O_CREAT|O_WRONLY|O_TRUNC));
+    return open(path, O_WRONLY|O_CREAT|O_TRUNC, mode);
 }
 
 long pathconf(const char *path, int name)
@@ -176,5 +213,18 @@ FILE *tmpfile(void)
 }
 
 #endif
+
+int utime(const char *path, const struct utimbuf *times)
+{
+    struct aos_utimbuf utimbuf_temp;
+    int             ret = -1;
+
+    utimbuf_temp.actime = times->actime;
+    utimbuf_temp.modtime = times->modtime;
+
+    ret = aos_utime(path, &utimbuf_temp);
+
+    return ret;
+}
 
 #endif
