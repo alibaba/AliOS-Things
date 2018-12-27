@@ -16,7 +16,6 @@ testcases = Split('''
     test/testcase/osal/aos/aos_test
     test/testcase/kernel/vfs_test
     test/testcase/network/protocols/umesh_test
-    test/testcase/network/yloop_test
     test/testcase/security/alicrypto_test
     test/testcase/security/id2_test
     test/testcase/security/tls_test
