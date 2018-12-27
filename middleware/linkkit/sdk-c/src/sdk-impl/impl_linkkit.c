@@ -457,7 +457,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             void *property_get_ctx = NULL;
 
             if (payload == NULL || lite_item_id.type != cJSON_String || lite_item_devid.type != cJSON_Number ||
-                lite_item_payload.type != cJSON_Array || lite_item_ctx.type != cJSON_String) {
+                lite_item_payload.type != cJSON_Array) {
                 return;
             }
 
