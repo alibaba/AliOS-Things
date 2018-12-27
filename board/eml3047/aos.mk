@@ -28,9 +28,9 @@ $(NAME)_SOURCES += src/lorawan_port.c \
 
 lorawanback      ?= 0
 ifeq ($(lorawanback), 0)
-$(NAME)_COMPONENTS += lorachip_4_4_2 lorawan_4_4_2
+$(NAME)_COMPONENTS += lorawan_4_4_2
 else ifeq ($(lorawanback), 1)
-$(NAME)_COMPONENTS += lorachip_4_4_0 lorawan_4_4_0
+$(NAME)_COMPONENTS += lorawan_4_4_0
 endif
 
 LORACHIP          := sx1276
