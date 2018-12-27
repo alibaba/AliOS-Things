@@ -15,13 +15,3 @@ menuconfig AOS_COMP_LIBIOT_DM
 if AOS_COMP_LIBIOT_DM
 # Configurations for comp libiot_dm
 endif
-
-
-config DEVICE_MODEL_SUBDEV_OTA
-    bool
-    default n
-
-
-config DEVICE_MODEL_SHADOW
-    bool
-    default n

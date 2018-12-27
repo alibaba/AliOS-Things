@@ -52,5 +52,23 @@ menu "Device Model Configurations"
 
             Switching to "y" leads to SDK being compiled only raw data function
             Switching to "n" leads to SDK being compiled both raw data and thing model function
+
+
+    config DEVICE_MODEL_SUBDEV_OTA
+        bool "FEATURE_DEVICE_MODEL_SUBDEV_OTA"
+        depends on (DEVICE_MODEL_ENABLED)
+        depends on (DEVICE_MODEL_GATEWAY)
+        depends on (OTA_ENABLED)
+        default n
+        help
+            Enable sub devices which are connected to a gateway to do FOTA
+
+    config DEVICE_MODEL_SHADOW
+        bool "FEATURE_DEVICE_MODEL_SHADOW"
+        depends on (DEVICE_MODEL_ENABLED)
+        default n
+        help
+            Enable devices to aquire a property's expected value set by the user from the cloud 
+
 endmenu
 
