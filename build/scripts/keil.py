@@ -16,6 +16,10 @@ from config_mk import Projects
 #  { 'name':'alicrypto',
 #    'src':[ sources ... ],
 #    'include': [ include_dirs ... ],
+#    'c_opts_iar': '...',
+#    'as_opts_iar': '...',
+#    'c_opts_keil': '...',
+#    'as_opts_keil': '...',
 #  },
 #  ...
 # ]                      -> <GroupName>name</GroupName>
@@ -46,6 +50,11 @@ element_dict = {
     "IncludePath": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/IncludePath" },
     "MiscControls": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/MiscControls" },
 }
+
+def create_file(data, filename):
+    """ Create *_opts files """
+    with open(filename, "w") as f:
+        f.write(data)
 
 def get_element_value(element_dict, buildstring):
     """ Get elements value """
@@ -139,6 +148,10 @@ def gen_projxfile(tree, target, buildstring, Projects):
     project_path = os.path.dirname(os.path.abspath(target))
     boardname = buildstring.split("@")[1]
 
+    project_opts_path = os.path.join(project_path, "opts")
+    if not os.path.isdir(project_opts_path):
+        os.makedirs(project_opts_path)
+
     root = tree.getroot()
     out = file(target, 'wb')
     out.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
@@ -172,6 +185,14 @@ def gen_projxfile(tree, target, buildstring, Projects):
             VariousControls = SubElement(Aads, 'VariousControls')
             MiscControls    = SubElement(VariousControls, 'MiscControls')
             MiscControls.text = "--via %s%s.as_opts" % (OPT_DIR, group["name"])
+
+        if group['c_opts_keil']:
+            filename = os.path.join(project_opts_path, "%s.c_opts" % group['name'])
+            create_file(group['c_opts_keil'], filename)
+
+        if group['as_opts_keil']:
+            filename = os.path.join(project_opts_path, "%s.as_opts" % group['name'])
+            create_file(group['as_opts_keil'], filename)
     
     gen_indent(root)
     
