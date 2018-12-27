@@ -14,21 +14,19 @@
 #include "k_api.h"
 
 typedef struct {
-    char task_name[32];
-    uint32_t task_state;
-    uint32_t stack_size;
-    size_t free_size;
+    char       task_name[32];
+    uint32_t   task_state;
+    uint32_t   stack_size;
+    size_t     free_size;
     sys_time_t time_total;
-    uint32_t task_cpu_usage;
-    
-    uint8_t task_prio;
-    char     candidate;
-    #if (RHINO_CONFIG_CPU_NUM > 1)
-    uint8_t cpu_binded;
-    uint8_t cpu_num;
-    uint8_t cur_exc;
-    #endif
-
+    uint32_t   task_cpu_usage;
+    uint8_t    task_prio;
+    char       candidate;
+#if (RHINO_CONFIG_CPU_NUM > 1)
+    uint8_t    cpu_binded;
+    uint8_t    cpu_num;
+    uint8_t    cur_exc;
+#endif
 } dumpsys_task_info_t;
 
 
@@ -66,6 +64,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
 
     int32_t tasknum = 0;
     int32_t taskindex = 0;
+
     dumpsys_task_info_t *taskinfo;
     dumpsys_task_info_t *taskinfoeach;
 
@@ -73,7 +72,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
 #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
     uint32_t total_cpu_usage[RHINO_CONFIG_CPU_NUM] = {0};
 #endif
-    
+
     cli_printf("-----------------------------------------------------------"
                "-------------\r\n");
 
@@ -165,18 +164,18 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
         taskinfoeach->time_total = time_total;
         taskinfoeach->task_cpu_usage = task_cpu_usage;
         taskinfoeach->candidate = yes;
-        #if (RHINO_CONFIG_CPU_NUM > 1)
+#if (RHINO_CONFIG_CPU_NUM > 1)
         taskinfoeach->cpu_binded = task->cpu_binded;
         taskinfoeach->cpu_num = task->cpu_num;
         taskinfoeach->cur_exc = task->cur_exc;
-        #endif
+#endif
 
         /* if not support %-N.Ms,cut it manually */
         if (strlen(task_name) > 18) {
             memset(name_cut, 0, sizeof(name_cut));
             memcpy(name_cut, task->task_name, 18);
             task_name = name_cut;
-            
+
             strncpy(taskinfoeach->task_name,task_name,strlen(task_name));
         }
     }
@@ -184,7 +183,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
     krhino_sched_enable();
 
     /*print out info*/
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)    
+#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
 #if (RHINO_CONFIG_CPU_NUM > 1)
     for (corenum = 0; corenum < RHINO_CONFIG_CPU_NUM; corenum++) {
         cli_printf("CPU%d usage : %3d.%02d                    \r\n",
@@ -212,28 +211,25 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
         taskinfoeach = taskinfo + taskindex;
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
-        cli_printf( 
-          "%-19s%-9s%-5d%-10d%-12u%-9u%3d.%02d   %-11c%-10d%-10d%-10d\r\n",
-          taskinfoeach->task_name, cpu_stat[taskinfoeach->task_state], 
-          taskinfoeach->task_prio, taskinfoeach->stack_size,
-          taskinfoeach->free_size, (uint32_t)taskinfoeach->time_total, 
-          taskinfoeach->task_cpu_usage/100, taskinfoeach->task_cpu_usage%100, 
-          taskinfoeach->candidate, taskinfoeach->cpu_binded, 
-          taskinfoeach->cpu_num, taskinfoeach->cur_exc);
+        cli_printf("%-19s%-9s%-5d%-10d%-12u%-9u%3d.%02d   %-11c%-10d%-10d%-10d\r\n",
+                    taskinfoeach->task_name, cpu_stat[taskinfoeach->task_state],
+                    taskinfoeach->task_prio, taskinfoeach->stack_size,
+                    taskinfoeach->free_size, (uint32_t)taskinfoeach->time_total,
+                    taskinfoeach->task_cpu_usage/100, taskinfoeach->task_cpu_usage%100,
+                    taskinfoeach->candidate, taskinfoeach->cpu_binded,
+                    taskinfoeach->cpu_num, taskinfoeach->cur_exc);
 #else
-        cli_printf("%-19s%-9s%-5d%-10d%-12u%-9u%3d.%02d   %-11c \r\n", 
-                   taskinfoeach->task_name, cpu_stat[taskinfoeach->task_state], 
-                   taskinfoeach->task_prio, taskinfoeach->stack_size,
-                   taskinfoeach->free_size, (uint32_t)taskinfoeach->time_total, 
-                   taskinfoeach->task_cpu_usage / 100, 
-                   taskinfoeach->task_cpu_usage % 100,
-                   taskinfoeach->candidate);
+        cli_printf("%-19s%-9s%-5d%-10d%-12u%-9u%3d.%02d   %-11c \r\n",
+                    taskinfoeach->task_name, cpu_stat[taskinfoeach->task_state],
+                    taskinfoeach->task_prio, taskinfoeach->stack_size,
+                    taskinfoeach->free_size, (uint32_t)taskinfoeach->time_total,
+                    taskinfoeach->task_cpu_usage / 100,
+                    taskinfoeach->task_cpu_usage % 100,
+                    taskinfoeach->candidate);
 #endif
+    }
 
-    }  
-    
     cli_free(taskinfo);
-
     cli_printf("-----------------------------------------------------------"
                "-------------\r\n");
 
@@ -263,14 +259,14 @@ static uint32_t dumpsys_info_func(char *buf, uint32_t len)
     for (uint32_t corenum = 0; corenum < RHINO_CONFIG_CPU_NUM; corenum++) {
         total_cpu_usage[corenum] = debug_total_cpu_usage_get(corenum);
         plen += sprintf(buf + plen, "%sCPU%d usage :%3d.%02d     \r\n", esc_tag,
-                        corenum, (int32_t)total_cpu_usage[corenum] / 100, 
+                        corenum, (int32_t)total_cpu_usage[corenum] / 100,
                         (int32_t)total_cpu_usage[corenum] % 100);
     }
 
 #else
     total_cpu_usage[0] = debug_total_cpu_usage_get(0);
     plen += sprintf(buf + plen, "%sCPU usage :%3d.%02d     \r\n", esc_tag,
-                    (int32_t)total_cpu_usage[0] / 100, 
+                    (int32_t)total_cpu_usage[0] / 100,
                     (int32_t)total_cpu_usage[0] % 100);
 
 #endif
@@ -365,8 +361,7 @@ int dump_task_stack(ktask_t *task)
 {
     size_t  offset = 0;
     kstat_t rst    = RHINO_SUCCESS;
-
-    void *cur, *end;
+    void   *cur, *end;
 
     int32_t  i = 0;
     int32_t *p;
@@ -400,10 +395,10 @@ int dump_task_stack(ktask_t *task)
     totallen = (totallen > stacklen) ? stacklen :totallen;
     memcpy(printbuf,cur,totallen);
     krhino_sched_enable();
-    
+
     cur = printbuf;
     end = (void *)(printbuf + totallen);
-          
+
     p = (int32_t *)cur;
     while (p < (int32_t *)end) {
         if (i % 4 == 0) {
@@ -413,7 +408,7 @@ int dump_task_stack(ktask_t *task)
         i++;
         p++;
     }
-    
+
     cli_free(printbuf);
     cli_printf("%s\r\n-----------------end----------------\r\n\r\n",esc_tag);
 
