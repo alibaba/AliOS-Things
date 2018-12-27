@@ -24,7 +24,7 @@ endif
 
 # Don't read in .config for these targets
 noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \
-    defconfig savedefconfig %-defconfig list-defconfigs
+    defconfig savedefconfig %-defconfig list-defconfigs alldefconfig
 
 .PHONY: $(noconfig_targets)
 
@@ -62,6 +62,9 @@ oldconfig silentoldconfig olddefconfig: $(KCONFIG_CONF)
 
 defconfig: $(KCONFIG_CONF)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< --defconfig$(if $(AOS_DEFCONFIG),=$(AOS_DEFCONFIG)) $(AOS_CONFIG_IN)
+
+alldefconfig: $(KCONFIG_CONF)
+	$(COMMON_CONFIG_ENV) $< --alldefconfig $(AOS_CONFIG_IN)
 
 savedefconfig: $(KCONFIG_CONF)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< \
