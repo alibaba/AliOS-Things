@@ -1,6 +1,8 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_target_func.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
+include $(MAKEFILES_PATH)/aos_3rd_project.mk
+
 # <comp>_LOCATION and <comp>_MAKEFILE defined in aos_all_components.mk
 $(if $(wildcard $(OUTPUT_DIR)/aos_all_components.mk), \
     $(eval include $(OUTPUT_DIR)/aos_all_components.mk), \
@@ -510,60 +512,3 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,PING_PONG_OTA 					:= $(PING_PONG_OTA))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_CPLUSPLUS_FLAGS:= $(AOS_CPLUSPLUS_FLAGS))
 endif
-
-CONFIG_PY_FILE := build/scripts/config_mk.py
-
-# write a component name in python format
-define WRITE_COMPOENT_PY
-$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,{'name':'$(comp)'$(COMMA) )
-$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'src':[ )
-$(eval SOURCES_FULLPATH := $(addprefix $($(comp)_LOCATION), $($(comp)_SOURCES)))
-$(foreach src,$(SOURCES_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(src)'$(COMMA)))
-$(eval LIB_FULLPATH := $(addprefix $($(comp)_LOCATION), $($(comp)_PREBUILT_LIBRARY)))
-$(foreach complib,$(LIB_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(complib)'$(COMMA)))
-$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
-
-$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'include':[ )
-$(eval INCLUDE_FULLPATH := $(addprefix $($(comp)_LOCATION),$($(comp)_INCLUDES)) )
-$(eval INCLUDE_FULLPATH += $(subst -I.,.,$(call unique,$(AOS_SDK_INCLUDES))) )
-$(foreach inc,$(INCLUDE_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(inc)'$(COMMA)))
-$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
-$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,}$(COMMA))
-endef
-
-ifeq ($(IDE),iar)
-PROJ_GEN_DIR   := projects/IAR/$(CLEANED_BUILD_STRING)
-PROJECT_GEN := $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewp
-$(MAKECMDGOALS): $(PROJECT_GEN)
-$(PROJECT_GEN): $(SCRIPTS_PATH)/iar.py $(MAKEFILES_PATH)/aos_target_config.mk $(CONFIG_FILE)
-	$(QUIET)echo Making $(IDE) Project
-	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_PY_FILE) ,Projects = [)
-	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_COMPOENT_PY ))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
-	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/iar_project)
-	$(QUIET)cp -f  build/scripts/template.ewd $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewd
-	python build/scripts/iar.py $(CLEANED_BUILD_STRING)
-	$(QUIET)echo ----------- iar project has generated in $(PROJ_GEN_DIR)/iar_project ----------- 
-endif
-
-ifeq ($(IDE),keil)
-PROJ_GEN_DIR   := projects/Keil/$(CLEANED_BUILD_STRING)
-PROJECT_GEN := $(PROJ_GEN_DIR)/keil_project/$(CLEANED_BUILD_STRING).uvprojx
-$(MAKECMDGOALS): $(PROJECT_GEN)
-$(PROJECT_GEN): $(SCRIPTS_PATH)/keil.py $(MAKEFILES_PATH)/aos_target_config.mk $(CONFIG_FILE)
-	$(QUIET)echo Making $(IDE) Project
-	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_PY_FILE) ,Projects = [)
-	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_COMPOENT_PY ))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,keil_device = "$(strip $(foreach comp,$(PROCESSED_COMPONENTS),$(if $($(comp)_KEIL_DEVICE),$($(comp)_KEIL_DEVICE),)))")
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,keil_vendor = "$(strip $(foreach comp,$(PROCESSED_COMPONENTS),$(if $($(comp)_KEIL_VENDOR),$($(comp)_KEIL_VENDOR),)))")
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_cflags = "$(strip $(AOS_SDK_CFLAGS))")
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_ldflags = "$(strip $(AOS_SDK_LDFLAGS))")
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_includes = "$(strip $(AOS_SDK_INCLUDES))")
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_defines = "$(strip $(AOS_SDK_DEFINES))")
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,host_arch = "$(strip $(HOST_ARCH))")
-	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/keil_project)
-	python build/scripts/keil.py $(CLEANED_BUILD_STRING)
-	$(QUIET)echo ----------- keil project has generated in $(PROJ_GEN_DIR)/keil_project ----------- 
-endif
-
