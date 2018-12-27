@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_BT_COMMON
-    bool "Bluetooth common utilities (queue, timer, fifo, etc.)"
+    #bool "Bluetooth common utilities (queue, timer, fifo, etc.)"
     default n
     help
       AliOS Things NETWORK - Bluetooth common utilities (queue, timer, fifo, etc.)

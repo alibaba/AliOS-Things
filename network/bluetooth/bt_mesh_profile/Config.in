@@ -1,8 +1,9 @@
-menuconfig AOS_COMP_BT_MESH_PROFILE
-    bool "bt_mesh_profile"
+menuconfig AOS_COMP_BT_MESH_TMALL_MODEL
+    #bool "Tmall AliGenie BLE Model"
     default n
+    select AOS_COMP_BT_MESH
     help
 
-if AOS_COMP_BT_MESH_PROFILE
-# Configurations for comp bt_mesh_profile
+if AOS_COMP_BT_MESH_TMALL_MODEL
+# Configurations for comp ble mesh tmall model
 endif
