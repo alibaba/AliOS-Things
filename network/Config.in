@@ -2,10 +2,6 @@ config AOS_NETWORK
     bool "Network Configuration"
     default y
 
-config AOS_NETWORK_SAL
-    bool "Support SAL"
-    default n
-
 if AOS_NETWORK
 
 ## --- Generated Automatically ---
@@ -22,8 +18,6 @@ source "network/lorawan/lorawan_4_4_0/lorachip_4_4_0/Config.in"
 source "network/lorawan/lorawan_4_4_2/Config.in"
 source "network/lorawan/lorawan_4_4_2/lorachip_4_4_2/Config.in"
 source "network/lwip/Config.in"
-source "network/nal/athost/Config.in"
-source "network/nal/atparser/Config.in"
 source "network/netmgr/Config.in"
 source "network/umesh/Config.in"
 source "network/yloop/Config.in"
