@@ -124,15 +124,6 @@ $(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.o, 
 	$(QUIET)$(AS) $($(1)_S_OPTS) -o $$@ $$< $(COMPILER_SPECIFIC_STDOUT_REDIRECT)
 endef
 
-IDE_IAR_FLAG :=
-IDE_KEIL_FLAG :=
-
-ifeq ($(IDE),iar)
-IDE_IAR_FLAG := 1
-else ifeq ($(IDE),keil)
-IDE_KEIL_FLAG := 1
-endif
-
 ###############################################################################
 # MACRO: BUILD_COMPONENT_RULES
 # Creates targets for building an entire component
@@ -160,13 +151,7 @@ $(eval $(1)_LIB_OBJS := $(addprefix $(strip $(OUTPUT_DIR)/Modules/$(call GET_BAR
 
 $(LIBS_DIR)/$(1).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_C_OPTS:=$(subst $(COMMA),$$(COMMA), $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $(COMPILER_UNI_CFLAGS) $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES)))
-	$(eval C_OPTS_IAR := $(subst =\",="\",$($(1)_C_OPTS)) )
-	$(eval C_OPTS_IAR := $(subst \" ,\"" ,$(C_OPTS_IAR) ) )
-	$(eval C_OPTS_IAR := $(filter-out -I% --cpu=% --endian% --dlib_config%,$(C_OPTS_IAR)) )
-	$(eval C_OPTS_KEIL := $(subst -I.,-I../../../../.,$($(1)_C_OPTS)) )
 	$(eval C_OPTS_FILE := $($(1)_C_OPTS) )
-	$(if $(IDE_IAR_FLAG),$(eval C_OPTS_FILE:=$(C_OPTS_IAR)),)
-	$(if $(IDE_KEIL_FLAG),$(eval C_OPTS_FILE:=$(C_OPTS_KEIL)),)
 	$$(call WRITE_FILE_CREATE, $$@, $(C_OPTS_FILE))
 	$$(file >$$@, $(C_OPTS_FILE) )
 
@@ -176,11 +161,7 @@ $(LIBS_DIR)/$(1).cpp_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR
 
 $(LIBS_DIR)/$(1).as_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_S_OPTS:=$(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES))
-	$(eval S_OPTS_KEIL := $(subst -I.,-I../../../../., $($(1)_S_OPTS) ) )
-	$(eval S_OPTS_IAR := $(filter-out --cpu Cortex-M4, $($(1)_S_OPTS) ) )
 	$(eval S_OPTS_FILE := $($(1)_S_OPTS) )
-	$(if $(IDE_KEIL_FLAG),$(eval S_OPTS_FILE:=$(S_OPTS_KEIL)),)
-	$(if $(IDE_IAR_FLAG),$(eval S_OPTS_FILE:=$(S_OPTS_IAR)),)
 	$$(file >$$@, $(S_OPTS_FILE) )
 
 $(LIBS_DIR)/$(1).ar_opts: $(CONFIG_FILE) | $(LIBS_DIR)
@@ -348,23 +329,11 @@ else
 	$(QUIET)$(STRIP) $(STRIP_OUTPUT_PREFIX)$@ $(STRIPFLAGS) $<
 endif
 
-PROJ_GEN_DIR_IAR   := projects/IAR/$(CLEANED_BUILD_STRING)
-PROJ_GEN_DIR_KEIL   := projects/Keil/$(CLEANED_BUILD_STRING)
-
 # Bin file target - uses objcopy to convert the stripped elf into a binary file
 $(BIN_OUTPUT_FILE_TMP): $(STRIPPED_LINK_OUTPUT_FILE)
 	$(ECHO) Making $(notdir $(BIN_OUTPUT_FILE))
 	$(QUIET)$(RM) $(BIN_OUTPUT_FILE)
 	$(QUIET)$(OBJCOPY) $(OBJCOPY_BIN_FLAGS) $< $(OBJCOPY_OUTPUT_PREFIX)$(BIN_OUTPUT_FILE)
-ifeq ($(IDE),iar)
-	echo copy iar opt files..
-	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR_IAR)/iar_project/opts)
-	$(QUIET)cp -rf $(OUTPUT_DIR)/libraries/*_opts $(PROJ_GEN_DIR_IAR)/iar_project/opts
-else ifeq ($(IDE),keil)
-	echo copy keil opt files..
-	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR_KEIL)/keil_project/opts)
-	$(QUIET)cp -rf $(OUTPUT_DIR)/libraries/*_opts $(PROJ_GEN_DIR_KEIL)/keil_project/opts
-endif
 
 ifeq ($(PING_PONG_OTA),1)
 $(STRIPPED_LINK_OUTPUT_FILE_XIP2): $(LINK_OUTPUT_FILE_XIP2)
