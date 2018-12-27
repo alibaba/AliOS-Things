@@ -14,7 +14,7 @@
 /*can config to cut mem size*/
 #define INBUF_SIZE   64
 #define OUTBUF_SIZE  200    /*not use now*/
-#define MAX_COMMANDS 10
+#define MAX_COMMANDS 32
 
 #define CLI_MAX_ARG_NUM    8
 #define CLI_MAX_ONCECMD_NUM    1
