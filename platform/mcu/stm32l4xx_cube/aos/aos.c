@@ -26,7 +26,7 @@ static kinit_t kinit;
 
 extern int application_start(int argc, char **argv);
 extern void board_init(void);
-#ifdef AOS_CPLUSPLUS
+#ifdef AOS_COMP_CPLUSPLUS
 extern void cpp_init(void);
 #endif
 
@@ -55,7 +55,7 @@ static void sys_init(void)
     hw_start_hal();
     board_init();
     var_init();
-#ifdef AOS_CPLUSPLUS
+#ifdef AOS_COMP_CPLUSPLUS
     cpp_init();
 #endif
 #if defined (AOS_OTA_RECOVERY_TYPE)
