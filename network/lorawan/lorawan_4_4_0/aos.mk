@@ -12,7 +12,12 @@ $(NAME)_SOURCES := lora/system/crypto/aes.c                \
                    lora/mac/region/Region.c         \
                    lora/mac/region/RegionCommon.c   \
                    lora/mac/LoRaMac.c               \
-                   lora/mac/LoRaMacCrypto.c
+                   lora/mac/LoRaMacCrypto.c 
+
+ifeq ($(LORACHIP), sx1276)
+$(NAME)_SOURCES += lora/radio/sx1276/sx1276.c
+GLOBAL_INCLUDES += lora/radio/sx1276
+endif
 
 GLOBAL_INCLUDES +=  . \
                     lora/system/crypto \
