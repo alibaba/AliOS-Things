@@ -1,7 +1,6 @@
 ## --- Generated Automatically ---
 source "kernel/bus/mbmaster/Config.in"
-source "kernel/bus/usb/usb_device/Config.in"
-source "kernel/bus/usb/usb_host/Config.in"
+source "kernel/bus/usb/Config.in"
 source "kernel/cli/Config.in"
 source "kernel/cplusplus/Config.in"
 source "kernel/debug/Config.in"
