@@ -225,21 +225,23 @@ int mqtt_client(void)
 
     do {
         /* Generate topic message */
-        cnt++;
-        msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\",\"attr_value\":\"%d\"}", cnt);
-        if (msg_len < 0) {
-            EXAMPLE_TRACE("Error occur! Exit program");
-            return -1;
-        }
+        if(IOT_MQTT_CheckStateNormal(pclient)) {
+            cnt++;
+            msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"temperature\",\"attr_value\":\"%d\"}", cnt);
+            if (msg_len < 0) {
+                EXAMPLE_TRACE("Error occur! Exit program");
+                return -1;
+            }
 
-        topic_msg.payload = (void *)msg_pub;
-        topic_msg.payload_len = msg_len;
-
-        rc = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
-        if (rc < 0) {
-            EXAMPLE_TRACE("error occur when publish");
-        }
-        EXAMPLE_TRACE("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
+            topic_msg.payload = (void *)msg_pub;
+            topic_msg.payload_len = msg_len;
+            
+            rc = IOT_MQTT_Publish(pclient, TOPIC_DATA, &topic_msg);
+            if (rc < 0) {
+                EXAMPLE_TRACE("error occur when publish");
+            }
+            EXAMPLE_TRACE("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
+        } 
 
         /* handle the MQTT packet received from TCP or SSL connection */
         IOT_MQTT_Yield(pclient, 200);
@@ -294,5 +296,5 @@ int linkkit_main(void *paras)
 
     EXAMPLE_TRACE("out of sample!");
 
-    return;
+    return 0;
 }
