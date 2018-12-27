@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_NETMGR
-    bool "netmgr"
+    #bool "netmgr"
     default n
     select AOS_COMP_HAL
     select AOS_COMP_KV

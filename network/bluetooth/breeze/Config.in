@@ -1,10 +1,11 @@
 menuconfig AOS_COMP_BREEZE
-    bool "breeze"
+    bool "Breeze SDK"
     default n
     select AOS_COMP_BLE if @CONDITION@
     select AOS_COMP_CHIP_CODE
+    select AOS_COMP_BT_BREEZE_HAL
     help
-      AliOS things NETMGR -- smart config support component
+      AliOS things Breeze SDK
 
 if AOS_COMP_BREEZE
 # Configurations for comp breeze
