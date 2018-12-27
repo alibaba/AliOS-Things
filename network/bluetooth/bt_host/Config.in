@@ -1,8 +1,9 @@
 menuconfig AOS_COMP_BT
-    bool "bt"
+    bool "Bluetooth Stack"
     default n
     select AOS_COMP_CONTROLLER if @CONDITION@
     select AOS_COMP_YLOOP
+    select AOS_COMP_BT_COMMON
     help
 
 if AOS_COMP_BT

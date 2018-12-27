@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_BT_MESH
-	bool "Bluetooth Mesh"
+	bool "Bluetooth Mesh Stack"
 	default n
 	select AOS_COMP_YLOOP
 	select AOS_COMP_BT_COMMON
