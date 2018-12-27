@@ -70,7 +70,12 @@ flash_configs['atsam'] = atsam
 # Flash configs for esp32* board
 esp32 = {
 'cmd': [
-    'esptool.py',
+    {
+        "Linux32": "esptool.py",
+        "Linux64": "esptool.py",
+        "OSX": "esptool.py",
+        "Win32": "esptool.exe"
+    },
     '--chip',
     'esp32',
     '--port', '@PORT@',
@@ -95,7 +100,12 @@ flash_configs['esp32'] = esp32
 # Flash configs for esp8266 board
 esp8266 = {
 'cmd': [
-    'esptool.py',
+    {
+        "Linux32": "esptool.py",
+        "Linux64": "esptool.py",
+        "OSX": "esptool.py",
+        "Win32": "esptool.exe"
+    },
     '--chip', 'esp8266',
     '--port', '@PORT@',
     '--baud', '921600',
