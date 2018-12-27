@@ -1468,16 +1468,23 @@ int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid
     memset(&request, 0, sizeof(dm_msg_request_payload_t));
     memset(&response, 0, sizeof(dm_msg_response_t));
 
+    /* Send Property Get Response Message To Local */
+    const char *reply_service_name = DM_URI_THING_SERVICE_PROPERTY_GET;
+    dm_msg_dest_type_t reply_msg_type = DM_MSG_DEST_LOCAL;
+
+    /* Send Property Get Response Message To Cloud */
+    if (NULL == ctx) {
+        reply_service_name = DM_URI_THING_SERVICE_PROPERTY_GET_REPLY;
+        reply_msg_type = DM_MSG_DEST_CLOUD;
+    }
+
     res = _dm_mgr_upstream_response_assemble(devid, msgid, msgid_len, DM_URI_SYS_PREFIX,
-            DM_URI_THING_SERVICE_PROPERTY_GET, code, &request, &response);
+            reply_service_name, code, &request, &response);
     if (res != SUCCESS_RETURN) {
         return FAIL_RETURN;
     }
-
-    dm_log_debug("Current Service Name: %s", DM_URI_THING_SERVICE_PROPERTY_GET);
-
-    /* Send Property Get Response Message To Local */
-    dm_msg_response(DM_MSG_DEST_LOCAL, &request, &response, payload, payload_len, ctx);
+    dm_log_debug("Current Service Name: %s", reply_service_name);
+    dm_msg_response(reply_msg_type, &request, &response, payload, payload_len, ctx);
 
 #ifdef ALCS_ENABLED
     dm_server_alcs_context_t *alcs_context = (dm_server_alcs_context_t *)ctx;

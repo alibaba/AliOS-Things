@@ -8,6 +8,7 @@ static dm_client_uri_map_t g_dm_client_uri_map[] = {
 #ifdef DEVICE_MODEL_SHADOW
     {DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY, DM_URI_SYS_PREFIX,      IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_property_desired_delete_reply},
     {DM_URI_THING_PROPERTY_DESIRED_GET_REPLY, DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_property_desired_get_reply   },
+    {DM_URI_THING_SERVICE_PROPERTY_GET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_property_get         },
 #endif
     {DM_URI_THING_SERVICE_REQUEST_WILDCARD,   DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_request              },
     {DM_URI_THING_EVENT_POST_REPLY_WILDCARD,  DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_event_post_reply             },
@@ -202,6 +203,37 @@ void dm_client_thing_service_property_set(int fd, const char *topic, const char 
         }
     }
 }
+
+#ifdef DEVICE_MODEL_SHADOW
+void dm_client_thing_service_property_get(int fd, const char *topic, const char *payload, unsigned int payload_len,
+        void *context)
+{
+    int res = 0;
+    dm_msg_source_t source;
+    dm_msg_dest_t dest;
+    dm_msg_request_payload_t request;
+    dm_msg_response_t response;
+    unsigned char *data = NULL;
+    int data_len = 0;
+
+    memset(&source, 0, sizeof(dm_msg_source_t));
+    memset(&dest, 0, sizeof(dm_msg_dest_t));
+    memset(&request, 0, sizeof(dm_msg_request_payload_t));
+    memset(&response, 0, sizeof(dm_msg_response_t));
+
+    source.uri = topic;
+    source.payload = (unsigned char *)payload;
+    source.payload_len = payload_len;
+    source.context = NULL;
+
+    dest.uri_name = DM_URI_THING_SERVICE_PROPERTY_GET_REPLY;
+
+    res = dm_msg_proc_thing_service_property_get(&source, &dest, &request, &response, &data, &data_len);
+    if (res < SUCCESS_RETURN) {
+        return;
+    }
+}
+#endif
 
 void dm_client_thing_service_request(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                      void *context)
