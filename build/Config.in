@@ -25,7 +25,7 @@ source "platform/arch/Config.in"
 source "platform/mcu/Config.in"
 endmenu
 
-menu "Device Configuration"
+menu "Drivers Configuration"
 source "drivers/Config.in"
 endmenu
 
