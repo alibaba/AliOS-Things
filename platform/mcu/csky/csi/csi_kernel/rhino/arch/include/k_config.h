@@ -30,13 +30,6 @@
 
 #define RHINO_CONFIG_MM_DEBUG                0
 
-/* kernel dynamic tick conf */
-#ifdef CONFIG_LPM_TICKLESS_SLEEP
-#define RHINO_CONFIG_CPU_PWR_MGMT            1
-#else
-#define RHINO_CONFIG_CPU_PWR_MGMT            0
-#endif
-
 /*
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
 #define RHINO_CONFIG_SCHED_RR                0
