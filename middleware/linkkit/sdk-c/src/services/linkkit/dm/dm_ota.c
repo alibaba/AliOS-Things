@@ -63,6 +63,18 @@ int dm_ota_switch_device(int devid)
     }
     dm_log_info("do subdevice ota, pk, dn is %s, %s", pk, dn);
 
+    void *ota_handle = NULL;
+    int res = dm_ota_get_ota_handle(&ota_handle);
+    if (res != SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+
+    /* if currently a device is doing OTA, do not interrupt */
+    if (IOT_OTA_IsFetching(ota_handle)) {
+        dm_log_info("OTA is processing, can not switch to another device");
+        return FAIL_RETURN;
+    }
+
     dm_ota_deinit();
     dm_ota_ctx_t *ctx = _dm_ota_get_ctx();
     memset(ctx, 0, sizeof(dm_ota_ctx_t));
