@@ -74,6 +74,8 @@ $(PROJECT_GEN): $(SCRIPTS_PATH)/iar.py $(MAKEFILES_PATH)/aos_target_config.mk $(
 	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_PY_FILE) ,Projects = [)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_COMPOENT_PY, $(comp) ))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,iar_ogcmenu = "$(strip $(foreach comp,$(PROCESSED_COMPONENTS),$(if $($(comp)_IAR_OGCMENU),$($(comp)_IAR_OGCMENU),)))")
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_ldflags = "$(strip $(AOS_SDK_LDFLAGS))")
 	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/iar_project)
 	$(QUIET)cp -f  build/scripts/template.ewd $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewd
 	python build/scripts/iar.py $(CLEANED_BUILD_STRING)
@@ -94,6 +96,7 @@ $(PROJECT_GEN): $(SCRIPTS_PATH)/keil.py $(MAKEFILES_PATH)/aos_target_config.mk $
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,keil_vendor = "$(strip $(foreach comp,$(PROCESSED_COMPONENTS),$(if $($(comp)_KEIL_VENDOR),$($(comp)_KEIL_VENDOR),)))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_cflags = "$(strip $(AOS_SDK_CFLAGS))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_ldflags = "$(strip $(AOS_SDK_LDFLAGS))")
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_asmflags = "$(strip $(subst ",\",$(AOS_SDK_ASMFLAGS)))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_includes = "$(strip $(AOS_SDK_INCLUDES))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_defines = "$(strip $(AOS_SDK_DEFINES))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,host_arch = "$(strip $(HOST_ARCH))")
