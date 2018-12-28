@@ -8,7 +8,7 @@
 #include "LoRaMac.h"
 #include "Region.h"
 #include "RegionCN470A.h"
-#include "timeServer.h"
+#include "system/timer.h"
 #include "radio.h"
 #ifdef AOS_KV
 #include <assert.h>
@@ -75,7 +75,7 @@ lora_dev_t                    g_lora_dev   = { LORAWAN_DEVICE_EUI,
 lora_abp_id_t g_lora_abp_id = { LORAWAN_DEVICE_ADDRESS, LORAWAN_NWKSKEY,
                                 LORAWAN_APPSKEY, INVALID_LORA_CONFIG };
 
-node_freq_mode_t g_freq_mode = FREQ_MODE_INTRA;
+node_freq_mode_t g_freq_mode = FREQ_MODE_INTER;
 join_method_t    g_join_method;
 
 static uint8_t  gJoinState    = 0;
