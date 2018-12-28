@@ -1,23 +1,23 @@
 /*
  / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
+ ( (____  _____ ____ _| |_ _____  ____| |__
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
+ (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ (C)2013 Semtech
 
-Description: contains all hardware driver
+ Description: Bleeper board GPIO driver implementation
 
-License: Revised BSD License, see LICENSE.TXT file include in the project
+ License: Revised BSD License, see LICENSE.TXT file include in the project
 
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+ Maintainer: Miguel Luis and Gregory Cristian
+ */
 /******************************************************************************
- * @file    hw.h
+ * @file    eml3047_it.c
  * @author  MCD Application Team
  * @version V1.1.1
  * @date    01-June-2017
- * @brief   contains all hardware driver
+ * @brief   manages interupt
  ******************************************************************************
  * @attention
  *
@@ -58,51 +58,67 @@ Maintainer: Miguel Luis and Gregory Cristian
  ******************************************************************************
  */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __HW_H__
-#define __HW_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 /* Includes ------------------------------------------------------------------*/
-#include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include "hw_conf.h"
-#include "gpio-board.h"
-#include "rtc-board.h"
-#include "hw_msp.h"
-#include "debug.h"
+#include "hw.h"
+#include "m400_it.h"
+#include "low_power.h"
 #include "uart-board.h"
 
-typedef enum
+#include <k_api.h>
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Functions Definition ------------------------------------------------------*/
+
+
+void UARTX_IRQHandler( void )
 {
-  HW_UNLOCKED = 0x00U,
-  HW_LOCKED   = 0x01U
-} HW_LockTypeDef;
-
-#define HW_LOCK(__HANDLE__)               \
-  do {                                    \
-    if ((__HANDLE__)->Lock == HW_LOCKED)  \
-    {                                     \
-      return;                             \
-    }                                     \
-    else                                  \
-    {                                     \
-      (__HANDLE__)->Lock = HW_LOCKED;     \
-    }                                     \
-  } while (0)
-
-#define HW_UNLOCK(__HANDLE__)             \
-  do {                                    \
-    (__HANDLE__)->Lock = HW_UNLOCKED;     \
-  } while (0)
-
-#ifdef __cplusplus
+    vcom_IRQHandler( );
 }
+
+void USART2_IRQHandler( void )
+{
+   // vcom_IRQHandler( );
+    int rx_ready = 0;
+    char rx;
+
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
+
+    if ( LL_USART_IsActiveFlag_RXNE(USART2) && (LL_USART_IsEnabledIT_RXNE(USART2) != RESET) )
+    {
+        /* no need to clear the RXNE flag because it is auto cleared by reading the data*/
+        rx = LL_USART_ReceiveData8( USART2 );
+        rx_ready = 1;
+    }
+    if (rx_ready) {
+#ifdef CONFIG_LINKWAN_AT
+        extern void linkwan_serial_input(uint8_t cmd);
+        linkwan_serial_input(rx);
 #endif
+    }
 
-#endif /* __HW_H__ */
+    RHINO_CPU_INTRPT_ENABLE();
+}
+
+int linkwan_serial_output(uint8_t *buffer, int len)
+{
+    int index;
+
+    for (index = 0; index < len; index++ ) {
+        LL_USART_ClearFlag_TC(USART2);
+        LL_USART_TransmitData8(USART2, buffer[index]);
+        while (LL_USART_IsActiveFlag_TC(USART2) != SET) {
+            ;
+        }
+    }
+    LL_USART_ClearFlag_TC(USART2);
+    return len;
+}
+
+/* Private functions ---------------------------------------------------------*/
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-
