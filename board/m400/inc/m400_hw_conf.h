@@ -72,50 +72,54 @@ extern "C" {
 
 /* LORA I/O definition */
 
-#define RADIO_RESET                               PB_0
+#define RADIO_RESET                               PB_4
 
-#define RADIO_MOSI                                PB_5
+#define RADIO_MOSI                                PA_7
 
-#define RADIO_MISO                                PB_4
+#define RADIO_MISO                                PA_6
 
 #define RADIO_SCLK                                PA_5
 
 #define RADIO_NSS                                 PA_4
 
-#define RADIO_DIO_0                               PB_6
+#define RADIO_DIO_0                               PA_12
 
-#define RADIO_DIO_1                               PA_12
+#define RADIO_DIO_1                               PA_11
 
-#define RADIO_DIO_2                               PA_11
+#define RADIO_DIO_2                               PA_10
 
-#define RADIO_DIO_3                               PA_8
+#define RADIO_DIO_3                               PA_9
 
-#ifdef RADIO_DIO_4
-#define RADIO_DIO_4                               PA_9
-#endif
+#define RADIO_DIO_4                               PA_8
 
-#ifdef RADIO_DIO_5
-#define RADIO_DIO_5                               PC_7
-#endif
+#define RADIO_DIO_5                               PB_1
 
+//#define RADIO_TCXO_VCC_PORT                       GPIOA
+//#define RADIO_TCXO_VCC_PIN                        GPIO_PIN_12
 
-#define RADIO_ANT_SWITCH                          PA_7
+#define RADIO_RF_FEM_CPS                          PB_5
 
-#define BAT_LEVEL                                 PA_4
+#define RADIO_ANT_SWITCH                          PB_6
+
 /*  SPI MACRO redefinition */
 
 #define SPI_CLK_ENABLE()                __HAL_RCC_SPI1_CLK_ENABLE()
 
-#define SPI1_AF                          GPIO_AF0_SPI1
+#define SPI_AF                          GPIO_AF0_SPI1
 
 /* ADC MACRO redefinition */
-
-#define BAT_LEVEL_PORT  PA_4 //CRF2
-#define ADC_READ_CHANNEL                 ADC_CHANNEL_4
+#define BAT_LEVEL_PORT                   GPIOA
+#define BAT_LEVEL_PIN                    GPIO_PIN_0
+#define ADC_READ_CHANNEL                 ADC_CHANNEL_0
 #define ADCCLK_ENABLE()                 __HAL_RCC_ADC1_CLK_ENABLE();
 #define ADCCLK_DISABLE()                __HAL_RCC_ADC1_CLK_DISABLE();
 
+#define APP_WAKE_PORT                  GPIOB
+#define APP_WAKE_PIN                   GPIO_PIN_7
+#define APP_TO_SLEEP                   1
 
+#define APP_LED_PORT                   GPIOB
+#define APP_LED_PIN                    GPIO_PIN_0
 
 /* --------------------------- RTC HW definition -------------------------------- */
 
@@ -133,10 +137,12 @@ extern "C" {
 #define UARTX_FORCE_RESET()             LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_LPUART1)
 #define UARTX_RELEASE_RESET()           LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_LPUART1)
 
-#define UARTX_TX_GPIO                   PA_0
-#define UARTX_TX_AF                     GPIO_AF6_LPUART1
-#define UARTX_RX_GPIO                   PA_1
-#define UARTX_RX_AF                     GPIO_AF6_LPUART1
+#define UARTX_TX_PIN                    GPIO_PIN_2
+#define UARTX_TX_GPIO_PORT              GPIOA
+#define UARTX_TX_AF                     GPIO_AF4_USART2
+#define UARTX_RX_PIN                    GPIO_PIN_3
+#define UARTX_RX_GPIO_PORT              GPIOA
+#define UARTX_RX_AF                     GPIO_AF4_USART2
 
 /* Definition for USARTx's NVIC */
 #define UARTX_IRQn                      LPUART1_IRQn

@@ -56,7 +56,7 @@ extern "C" {
 #include <string.h>
 #include <stdio.h>
 #include "hw_conf.h"
-#include "vcom.h"
+#include "uart-board.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -71,18 +71,18 @@ extern "C" {
 #define DBG(x)  do { x } while (0)
 
 #ifdef LORA_TRACE
-#include "hw_rtc.h"
+#include "rtc-board.h"
 
-#define DBG_PRINTF(format, ...)    do {DBG_Send("[%d][%s:%4d] " format "", HW_RTC_GetTimerValue(), __FILE__, __LINE__, ##__VA_ARGS__);}while(0==1)//DBG_Send(__VA_ARGS__)//vcom_Send(__VA_ARGS__)
+#define DBG_PRINTF(format, ...)    do {DBG_Send("[%d][%s:%4d] " format "", RtcGetTimerValue(), __FILE__, __LINE__, ##__VA_ARGS__);}while(0==1)//DBG_Send(__VA_ARGS__)//vcom_Send(__VA_ARGS__)
 
 #define LOG_PRINTF(format, ...) do {DBG_Send(format, HW_RTC_GetTimerValue(), ##__VA_ARGS__);}while(0==1)
 
-#define DBG_PRINTF_CRITICAL(...)  
+#define DBG_PRINTF_CRITICAL(...)
 
 #else /*TRACE*/
 #define DBG_PRINTF(...)
 
-#define DBG_PRINTF_CRITICAL(...) 
+#define DBG_PRINTF_CRITICAL(...)
 #endif /*TRACE*/
 
 #else /* DEBUG */
@@ -92,7 +92,7 @@ extern "C" {
 #define DBG_GPIO_RST(gpio, n)
 #define DBG(x) do {  } while (0)
 #define DBG_PRINTF(...)
-#define DBG_PRINTF_CRITICAL(...) 
+#define DBG_PRINTF_CRITICAL(...)
 #define DBG_RTC_OUTPUT LL_RTC_ALARMOUT_DISABLE
 
 #endif /* DEBUG */

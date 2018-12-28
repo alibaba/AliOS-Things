@@ -61,7 +61,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hw.h"
 #include "radio.h"
-#include "inc/debug.h"
+#include "debug.h"
 #include "uart-board.h"
 #include "sx1276.h"
 
@@ -273,21 +273,21 @@ static void HW_AdcInit( void );
 static uint16_t HW_AdcReadChannel( uint32_t Channel );
 
 /* Exported functions ---------------------------------------------------------*/
-Gpio_t g_stLedGpio;
+Gpio_t       g_stLedGpio;
 
-#define SYS_LED_PORT GPIOA
-#define SYS_LED_PIN GPIO_PIN_6
+#define SYS_LED_PORT                   APP_LED_PORT
+#define SYS_LED_PIN                    APP_LED_PIN
 
-#define SYS_LED_GPIO  PA_6
+#define SYS_LED_GPIO                   PB_0
 
 void SYS_LED_ON( void )
 {
-    SYS_LED_PORT->BRR = SYS_LED_PIN;
+    SYS_LED_PORT->BSRR = SYS_LED_PIN;
 }
 
 void SYS_LED_OFF( void )
 {
-    SYS_LED_PORT->BSRR = SYS_LED_PIN;
+    SYS_LED_PORT->BRR = SYS_LED_PIN;
 }
 
 void SYS_LED_Deinit( void )
@@ -300,7 +300,6 @@ void SYS_LED_Init( void )
     GpioInit( &g_stLedGpio, SYS_LED_GPIO, PIN_OUTPUT, PIN_PUSH_PULL , PIN_PUSH_PULL, 0);
     SYS_LED_OFF( );
 }
-
 
 void HW_Reset( void )
 {
@@ -317,14 +316,12 @@ void HW_Init( void )
         NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x3000);
 #endif
 
-#if defined(EML3047_LORAWAN)
         SX1276IoInit( );
-#endif
-        SpiInit(&SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, RADIO_NSS );
+        SpiInit(&SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, RADIO_NSS);
         RtcInit( );
 
 #ifdef LORA_DEBUG
-        DBG_Uart_Init( );
+        vcom_Init( );
         SYS_LED_Init( );
 #endif
 
@@ -334,11 +331,11 @@ void HW_Init( void )
 
 void HW_DeInit( void )
 {
-    SpiDeInit(&SX1276.Spi);
+    HW_SPI_DeInit( );
     SX1276IoDeInit( );
 
 #ifdef LORA_DEBUG
-    DBG_Uart_Deinit( );
+    vcom_DeInit( );
     SYS_LED_Deinit( );
 #endif
 
@@ -350,15 +347,15 @@ void HW_GpioInit( void )
     Gpio_t      st_gpioInit = {0};
     uint32_t    i;
 
-    /* Configure all GPIO as analog to reduce current consumption on non used IOs */
-    /* Clocks are enabled in HW_GPIO_Init on GPIO A, B, C and H*/
+    /*  Configure all GPIO as analog to reduce current consumption on non used IOs */
+    /*  Clocks are enabled in HW_GPIO_Init on GPIO A, B, C and H*/
 
-    /* All GPIOs except debug pins (SWCLK and SWD) */
+    /*  All GPIOs except debug pins (SWCLK and SWD) */
     for (i = PA_0; i <PA_13; i++) {
         GpioInit(&st_gpioInit, i, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0);
     }
 
-    /* All GPIOs */
+    /*  All GPIOs */
     GpioInit(&st_gpioInit, PA_15, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0);
 
     for (i = PB_0; i <= PB_15; i++) {
@@ -422,7 +419,33 @@ void HW_GetUniqueId( uint8_t *id )
 
 uint8_t HW_GetBatteryLevel( void )
 {
-    return 0xff;
+    uint8_t batteryLevel = 0;
+    uint16_t measuredLevel = 0;
+    uint32_t batteryLevelmV;
+
+    measuredLevel = HW_AdcReadChannel( LL_ADC_CHANNEL_VREFINT );
+
+    if ( measuredLevel == 0 )
+    {
+        batteryLevelmV = 0;
+    }
+    else
+    {
+        batteryLevelmV = (((uint32_t) VDDA_VREFINT_CAL * (*VREFINT_CAL)) / measuredLevel);
+    }
+    if ( batteryLevelmV > VDD_BAT )
+    {
+        batteryLevel = LORAWAN_MAX_BAT;
+    }
+    else if ( batteryLevelmV < VDD_MIN )
+    {
+        batteryLevel = 0;
+    }
+    else
+    {
+        batteryLevel = (((uint32_t) (batteryLevelmV - VDD_MIN) * LORAWAN_MAX_BAT) / (VDD_BAT - VDD_MIN));
+    }
+    return batteryLevel;
 }
 
 void HW_EnterStopMode( void )
@@ -528,21 +551,32 @@ void HW_EnterSleepMode( void )
 }
 
 /* Private functions ---------------------------------------------------------*/
+
 void HW_SPI_IoInit( void )
 {
-    GpioInit(&SX1276.Spi.Sclk, RADIO_SCLK, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
-    GpioInit(&SX1276.Spi.Miso, RADIO_MISO, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
-    GpioInit(&SX1276.Spi.Mosi, RADIO_MOSI, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
-
+    GpioInit(&SX1276.Spi.Sclk, RADIO_SCLK, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, 0);
+    GpioInit(&SX1276.Spi.Miso, RADIO_MISO, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, 0);
+    GpioInit(&SX1276.Spi.Mosi, RADIO_MOSI, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, 0);
     GpioInit(&SX1276.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1);
 }
+
+void HW_SPI_IoDeInit( void )
+{
+    GpioInit(&SX1276.Spi.Sclk, RADIO_SCLK, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
+    GpioInit(&SX1276.Spi.Miso, RADIO_MISO, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
+    GpioInit(&SX1276.Spi.Mosi, RADIO_MOSI, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0);
+    GpioInit(&SX1276.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1);
+
+    GpioInit(&SX1276.Reset, RADIO_RESET, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0);
+}
+
 
 static void HW_IoInit( void )
 {
     HW_SPI_IoInit( );
     SX1276IoInit( );
 #ifdef LORA_DEBUG
-    DBG_Uart_Init( );
+    vcom_Init( );
     SYS_LED_Init( );
 #endif
     //vcom_IoInit();
@@ -550,16 +584,14 @@ static void HW_IoInit( void )
 
 static void HW_IoDeInit( void )
 {
-    GpioInit(&SX1276.Spi.Mosi, RADIO_MOSI, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0);
-    GpioInit(&SX1276.Spi.Miso, RADIO_MISO, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0);
-    GpioInit(&SX1276.Spi.Sclk, RADIO_SCLK, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0);
-    GpioInit(&SX1276.Spi.Nss, RADIO_NSS, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0);
-
     SX1276IoDeInit( );
 #ifdef LORA_DEBUG
-    DBG_Uart_Deinit( );
+    vcom_DeInit( );
     SYS_LED_Deinit( );
 #endif
+    //vcom_IoDeInit();
+
+    SpiDeInit(&SX1276.Spi);
 }
 
 static void HW_RCC_OscConfig( void )
@@ -587,7 +619,6 @@ static void HW_RCC_OscConfig( void )
     }
 
     /* Adjusts the Internal High Speed oscillator (HSI) calibration value.*/
-#define RCC_HSICALIBRATION_DEFAULT ((uint32_t)0x10U) /* Default HSI calibration trimming value */
     LL_RCC_HSI_SetCalibTrimming( RCC_HSICALIBRATION_DEFAULT );
 
     /*-------------------------------- PLL Configuration -----------------------*/
@@ -711,12 +742,11 @@ static void HW_ADC_Init( void )
                   (adcinit_Resolution == LL_ADC_RESOLUTION_6B) );
     assert_param( (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_1CYCLE_5) ||
                   (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_7CYCLES_5) ||
-                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_13CYCLES_5) ||
-                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_28CYCLES_5) ||
-                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_41CYCLES_5) ||
-                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_55CYCLES_5) ||
-                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_71CYCLES_5) ||
-                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_239CYCLES_5) );
+                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_12CYCLES_5) ||
+                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_19CYCLES_5) ||
+                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_39CYCLES_5) ||
+                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_79CYCLES_5) ||
+                  (adcinit_SamplingTime == LL_ADC_SAMPLINGTIME_160CYCLES_5) );
     assert_param( (adcinit_ScanConvMode == LL_ADC_REG_SEQ_SCAN_DIR_FORWARD) ||
                   (adcinit_ScanConvMode == LL_ADC_REG_SEQ_SCAN_DIR_BACKWARD) );
     assert_param( (adcinit_DataAlign == LL_ADC_DATA_ALIGN_RIGHT) ||
