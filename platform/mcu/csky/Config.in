@@ -1,6 +1,7 @@
 menuconfig AOS_MCU_CSKY
     bool "csky"
     default n
+    select AOS_ARCH_CSKYV2-L
     select AOS_COMP_COMMON
     select AOS_COMP_HAL
     select AOS_COMP_CLI
