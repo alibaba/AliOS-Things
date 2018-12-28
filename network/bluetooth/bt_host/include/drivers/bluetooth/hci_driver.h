@@ -141,6 +141,7 @@ struct bt_hci_driver {
 	 * @return 0 on success or negative error number on failure.
 	 */
 	int (*send)(struct net_buf *buf);
+        int (*recv)(void);
 };
 
 /**

@@ -47,11 +47,14 @@ static inline void set_event_ready(struct k_poll_event *event, u32_t state)
     event->state |= state;
 }
 
+extern int has_tx_sem(struct k_poll_event *event);
 static int _signal_poll_event(struct k_poll_event *event, u32_t state,
                               int *must_reschedule)
 {
     *must_reschedule = 0;
-    set_event_ready(event, state);
+    if (event->type != K_POLL_TYPE_DATA_AVAILABLE || has_tx_sem(event)) {
+        set_event_ready(event, state);
+    }
     k_sem_give(&g_poll_sem);
     return 0;
 }
@@ -72,6 +75,9 @@ static inline int is_condition_met(struct k_poll_event *event, u32_t *state)
 {
     switch (event->type) {
         case K_POLL_TYPE_DATA_AVAILABLE:
+            if (has_tx_sem(event) == 0) {
+                return 0;
+            }
             if (!k_queue_is_empty(event->queue)) {
                 *state = K_POLL_STATE_FIFO_DATA_AVAILABLE;
                 return 1;
@@ -83,6 +89,11 @@ static inline int is_condition_met(struct k_poll_event *event, u32_t *state)
                 return 1;
             }
             break;
+        case K_POLL_TYPE_DATA_RECV:
+            if (event->signal->signaled) {
+                *state = K_POLL_STATE_DATA_RECV;
+                return 1;
+            }
         default:
             __ASSERT(0, "invalid event type (0x%x)\n", event->type);
             break;
@@ -108,6 +119,10 @@ static inline int register_event(struct k_poll_event *event,
             break;
         case K_POLL_TYPE_SIGNAL:
             __ASSERT(event->signal, "invalid poll signal\n");
+            add_event(&event->signal->poll_events, event, poller);
+            break;
+        case K_POLL_TYPE_DATA_RECV:
+            __ASSERT(event->queue, "invalid queue\n");
             add_event(&event->signal->poll_events, event, poller);
             break;
         default:
