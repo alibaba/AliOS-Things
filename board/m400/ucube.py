@@ -1,1 +1,1 @@
-linux_only_targets="lorawan.linkwan"
+linux_only_targets="helloworld lorawan.linkwan"
