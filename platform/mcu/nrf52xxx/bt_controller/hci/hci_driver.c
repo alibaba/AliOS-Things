@@ -44,66 +44,47 @@
 #define NODE_RX(_node) CONTAINER_OF(_node, struct radio_pdu_node_rx, \
 				    hdr.onion.node)
 
-static K_SEM_DEFINE(sem_prio_recv, 0, UINT_MAX);
-
-struct k_thread prio_recv_thread_data;
-static BT_STACK_NOINIT(prio_recv_thread_stack, CONFIG_BT_HCI_RX_STACK_SIZE);
-
-#if defined(CONFIG_INIT_STACKS)
-static u32_t prio_ts;
-static u32_t rx_ts;
-#endif
-
 static inline struct net_buf *process_node(struct radio_pdu_node_rx *node_rx);
+struct k_poll_signal g_pkt_recv = K_POLL_SIGNAL_INITIALIZER(g_pkt_recv);
 
-static void prio_recv_thread(void *p1, void *p2, void *p3)
+int hci_driver_recv(void)
 {
-	while (1) {
-		struct radio_pdu_node_rx *node_rx = NULL;
-		struct net_buf *buf = NULL;
-		u8_t num_cmplt;
-		u16_t handle;
+    if (g_pkt_recv.signaled > 0) {
+        g_pkt_recv.signaled--;
+    }
 
-		while ((num_cmplt = radio_rx_get(&node_rx, &handle))) {
+    while (1) {
+        struct radio_pdu_node_rx *node_rx = NULL;
+        struct net_buf *buf = NULL;
+        u8_t num_cmplt = 0;
+        u16_t handle;
+
+        while ((num_cmplt = radio_rx_get(&node_rx, &handle))) {
 #if defined(CONFIG_BT_CONN)
-			struct net_buf *buf;
+            struct net_buf *buf;
 
-			buf = bt_buf_get_rx(BT_BUF_EVT, K_FOREVER);
-			hci_num_cmplt_encode(buf, handle, num_cmplt);
-			BT_DBG("Num Complete: 0x%04x:%u", handle, num_cmplt);
-			bt_recv_prio(buf);
-			k_yield();
+            buf = bt_buf_get_rx(BT_BUF_EVT, K_FOREVER);
+            hci_num_cmplt_encode(buf, handle, num_cmplt);
+            bt_recv_prio(buf);
 #endif
-		}
+        }
 
-		if (node_rx) {
-                    radio_rx_dequeue();
-                    buf = process_node(node_rx);
-		}
+        if (node_rx) {
+            radio_rx_dequeue();
+            buf = process_node(node_rx);
+        }
 
-		if (buf) {
-			if (buf->len) {
-				BT_DBG("Packet in: type:%u len:%u",
-					bt_buf_get_type(buf), buf->len);
-				bt_recv(buf);
-			} else {
-				net_buf_unref(buf);
-			}
-			continue;
-		}
-
-		BT_DBG("sem take...");
-		k_sem_take(&sem_prio_recv, K_FOREVER);
-		BT_DBG("sem taken");
-
-#if defined(CONFIG_INIT_STACKS)
-		if (k_uptime_get_32() - prio_ts > K_SECONDS(5)) {
-			STACK_ANALYZE("prio recv thread stack",
-				      prio_recv_thread_stack);
-			prio_ts = k_uptime_get_32();
-		}
-#endif
-	}
+        if (buf) {
+            if (buf->len) {
+                bt_recv(buf);
+            } else {
+                net_buf_unref(buf);
+            }
+            continue;
+        }
+        break;
+    }
+    return 0;
 }
 
 static inline struct net_buf *encode_node(struct radio_pdu_node_rx *node_rx,
@@ -213,7 +194,6 @@ static int hci_driver_send(struct net_buf *buf)
 	}
 
 	if (!err) {
-        
 		net_buf_unref(buf);
 	}
     else
@@ -225,37 +205,38 @@ static int hci_driver_send(struct net_buf *buf)
 	return err;
 }
 
+void pkt_recv_callback(void)
+{
+    extern struct k_sem g_poll_sem;
+    unsigned int key;
+
+    key = irq_lock();
+    g_pkt_recv.signaled++;
+    irq_unlock(key);
+
+    k_sem_give(&g_poll_sem);
+}
+
 static int hci_driver_open(void)
 {
 	u32_t err;
 
 	DEBUG_INIT();
-
-    k_sem_init(&sem_prio_recv, 0, UINT_MAX);
-    
-	err = ll_init(&sem_prio_recv);
+	err = ll_init(pkt_recv_callback);
 	if (err) {
 		BT_ERR("LL initialization failed: %u", err);
 		return err;
 	}
-
 	hci_init(NULL);
-
-	k_thread_create(&prio_recv_thread_data, prio_recv_thread_stack,
-			K_THREAD_STACK_SIZEOF(prio_recv_thread_stack),
-			prio_recv_thread, NULL, NULL, NULL,
-			K_PRIO_COOP(CONFIG_BT_CTLR_RX_PRIO), 0, K_NO_WAIT);
-
-	BT_DBG("Success.");
-
 	return 0;
 }
 
 static const struct bt_hci_driver drv = {
-	.name	= "Controller",
-	.bus	= BT_HCI_DRIVER_BUS_VIRTUAL,
-	.open	= hci_driver_open,
-	.send	= hci_driver_send,
+	.name = "Controller",
+	.bus = BT_HCI_DRIVER_BUS_VIRTUAL,
+	.open = hci_driver_open,
+	.send = hci_driver_send,
+        .recv = hci_driver_recv,
 };
 
 static int _hci_driver_init(struct device *unused)
@@ -269,11 +250,8 @@ static int _hci_driver_init(struct device *unused)
 
 int hci_driver_init()
 {
-
-	bt_hci_driver_register(&drv);
-
-	return 0;
+    bt_hci_driver_register(&drv);
+    return 0;
 }
-
 
 SYS_INIT(_hci_driver_init, POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE);
