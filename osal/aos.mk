@@ -58,6 +58,10 @@ ifeq ($(AOS_COMP_MBMASTER),1)
 $(NAME)_SOURCES += aos/mbmaster.c
 endif
 
+ifeq ($(AOS_COMP_PWRMGMT),1)
+$(NAME)_SOURCES += aos/pwrmgmt.c
+endif
+
 ifeq ($(AOS_CLI),1)
 $(NAME)_SOURCES += aos/cli.c
 endif
