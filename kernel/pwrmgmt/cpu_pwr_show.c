@@ -10,12 +10,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "cpu_pwr_api.h"
+#include "pwrmgmt_api.h"
 #include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
-#include "pwr_debug.h"
+#include "pwrmgmt_debug.h"
 
-#if (RHINO_CONFIG_CPU_PWR_SHOW > 0)
+#if (PWRMGMT_CONFIG_SHOW > 0)
 extern cpu_pwr_t *p_cpu_pwr_root_node;
 extern cpu_pwr_t *p_cpu_node_array[];
 
@@ -71,7 +71,7 @@ void cpu_pwr_info_show(void)
     (void)printf("\n    CPU NODE     CAPABILITIES\n"
                  "---------------  ---------------\n");
 
-    for (cpu_idx = 0; cpu_idx < CPUS_NUM_MAX; cpu_idx++) {
+    for (cpu_idx = 0; cpu_idx < RHINO_CONFIG_CPU_NUM; cpu_idx++) {
         p_cpu_node = p_cpu_node_array[cpu_idx];
         (void)printf("%s%u (CPU%d)\n", p_cpu_node->name, p_cpu_node->unit, cpu_idx);
         cpu_pwr_c_support_print(p_cpu_node, "       ");
@@ -89,7 +89,7 @@ void cpu_pwr_state_show(void)
     printf("\n    CPU     C-STATE\n"
            "----------  ----------\n");
 
-    for (cpu_idx = 0; cpu_idx < CPUS_NUM_MAX; cpu_idx++) {
+    for (cpu_idx = 0; cpu_idx < RHINO_CONFIG_CPU_NUM; cpu_idx++) {
         cpu_pwr_c_state_get(cpu_idx, &cState);
         printf("CPU%-5u         C%-2u\n", cpu_idx, cState);
     }
@@ -99,7 +99,7 @@ void cpu_pwr_state_show(void)
 
 #endif /* RHINO_CONFIG_CPU_PWR_SHOW */
 
-#if (RHINO_CONFIG_CPU_PWR_DEBUG > 0)
+#if (PWRMGMT_CONFIG_DEBUG > 0)
 void pwr_debug(pwr_debug_level_t debug_level, const char *fmt_str, ...)
 {
     va_list param;

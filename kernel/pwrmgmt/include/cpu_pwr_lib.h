@@ -2,8 +2,8 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#ifndef K_CPU_PWR_LIB_H
-#define K_CPU_PWR_LIB_H
+#ifndef CPU_PWR_LIB_H
+#define CPU_PWR_LIB_H
 
 #ifdef __cplusplus
 extern "C"
@@ -12,16 +12,16 @@ extern "C"
 
 #include <k_api.h>
 
-#include "pwr_state.h"
+#include "pwrmgmt_state.h"
 
 #ifndef container_of
 #define container_of(ptr, type, member) \
         ((type *)((char *)(ptr) - offsetof(type, member)))
 #endif /* container_of */
 
-extern void cpu_pwrmgmt_init(void);
-extern void cpu_pwr_down(void);
-extern void cpu_pwr_up(void);
+int  cpu_pwrmgmt_init(void);
+void cpu_pwr_down(void);
+void cpu_pwr_up(void);
 
 extern void (*_func_cpu_tickless_up)(void);
 extern void (*_func_cpu_tickless_down)(void);
@@ -30,4 +30,4 @@ extern void (*_func_cpu_tickless_down)(void);
 }
 #endif
 
-#endif /* K_CPU_PWR_LIB_H */
+#endif /* CPU_PWR_LIB_H */

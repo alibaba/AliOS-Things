@@ -9,10 +9,6 @@
 #define RHINO_CONFIG_USER_SPACE              0
 #endif
 
-#ifndef RHINO_CONFIG_CPU_PWR_MGMT
-#define RHINO_CONFIG_CPU_PWR_MGMT            0
-#endif
-
 #ifndef RHINO_SCHED_NONE_PREEMPT
 #define RHINO_SCHED_NONE_PREEMPT             0
 #endif

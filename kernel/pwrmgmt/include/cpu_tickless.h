@@ -2,8 +2,8 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#ifndef K_CPU_TICKLSEE_H
-#define K_CPU_TICKLSEE_H
+#ifndef CPU_TICKLSEE_H
+#define CPU_TICKLSEE_H
 
 #ifdef __cplusplus
 extern "C"
@@ -12,7 +12,7 @@ extern "C"
 
 #include <k_api.h>
 
-#include "pwr_state.h"
+#include "pwrmgmt_state.h"
 
 typedef pwr_status_t (*one_shot_init_t)(void);
 typedef uint32_t     (*one_shot_seconds_max_t)(void);
@@ -34,4 +34,4 @@ extern void         tickless_one_shot_timer_save(cpu_cstate_t c_state, one_shot_
 }
 #endif
 
-#endif /* K_CPU_TICKLSEE_H */
+#endif /* CPU_TICKLSEE_H */

@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#include "cpu_pwr_api.h"
+#include "pwrmgmt_api.h"
 #include "cpu_pwr_hal_lib.h"
 #include "cpu_pwr_lib.h"
 #include "cpu_tickless.h"
@@ -18,11 +18,11 @@ void (*_func_cpu_tickless_up)(void);
 /**
  * cpu_pwrmgmt_init() is the entry of whole cpu power manamgement system.
  */
-void cpu_pwrmgmt_init(void)
+int cpu_pwrmgmt_init(void)
 {
     /* avoid reentry */
     if (cpu_pwr_init_flag) {
-        return;
+        return -1;
     }
 
     krhino_spin_lock_init(&cpu_pwr_spin);
@@ -35,6 +35,8 @@ void cpu_pwrmgmt_init(void)
 
     /* save the job complete flag */
     cpu_pwr_init_flag = 1;
+
+    return 0;
 }
 
 /**

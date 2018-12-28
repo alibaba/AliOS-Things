@@ -7,8 +7,8 @@ DESCRIPTION
 This file provides APIs for management CPU power.
 */
 
-#ifndef K_CPU_PWR_API_H
-#define K_CPU_PWR_API_H
+#ifndef PWRMGMT_API_H
+#define PWRMGMT_API_H
 
 #ifdef __cplusplus
 extern "C"
@@ -17,10 +17,10 @@ extern "C"
 
 #include <k_api.h>
 
-#include "cpu_pwr_default_config.h"
+#include "pwrmgmt_default_config.h"
 #include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
-#include "pwr_state.h"
+#include "pwrmgmt_state.h"
 
 /*
  * CPU power management operates in one of three possible modes:
@@ -48,13 +48,13 @@ extern pwr_status_t cpu_pwr_c_state_capability_get(uint32_t cpu_idx, uint32_t *p
 extern pwr_status_t  cpu_pwr_idle_mode_set(CPU_IDLE_MODE mode);
 extern CPU_IDLE_MODE cpu_pwr_idle_mode_get(void);
 
-#if (CPU_PWR_SHOW > 0)
+#if (PWRMGMT_CONFIG_SHOW > 0)
 extern void cpu_pwr_state_show(void);
 extern void cpu_pwr_info_show(void);
-#endif /* CPU_PWR_SHOW */
+#endif /* PWRMGMT_CONFIG_SHOW */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* K_CPU_PWR_API_H */
+#endif /* PWRMGMT_API_H */
