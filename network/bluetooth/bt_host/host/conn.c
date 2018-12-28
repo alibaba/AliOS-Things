@@ -1289,6 +1289,13 @@ int bt_conn_prepare_events(struct k_poll_event events[])
     k_poll_event_init(&events[ev_count++], K_POLL_TYPE_SIGNAL,
                       K_POLL_MODE_NOTIFY_ONLY, &conn_change);
 
+#ifdef CONFIG_CONTROLLER_IS_RX_THREAD
+    extern struct k_poll_signal g_pkt_recv;
+    k_poll_event_init(&events[ev_count], K_POLL_TYPE_DATA_RECV,
+                  K_POLL_MODE_NOTIFY_ONLY, &g_pkt_recv);
+    events[ev_count++].tag = BT_EVENT_CONN_RX;
+#endif
+
     for (i = 0; i < ARRAY_SIZE(conns); i++) {
         struct bt_conn *conn = &conns[i];
 
