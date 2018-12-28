@@ -466,22 +466,6 @@ static int thing_prop_changed(const void *thing_id, const char *property,
     return 0;
 }
 
-
-/* there is some data transparent transmission by linkkit */
-static int linkit_data_arrived(const void *thing_id, const void *params,
-                               int len, void *ctx)
-{
-    EXAMPLE_TRACE("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id,
-                  len, (const char *)params);
-
-    /* do user's data arrived process logical here. */
-
-    /* ............................... */
-
-    /* user's data arrived process logical complete */
-    return 0;
-}
-
 static int is_active(sample_context_t *sample_ctx)
 {
 #ifdef LOCAL_CONN_ENABLE
@@ -667,8 +651,7 @@ int linkkit_example()
         .thing_call_service =
         thing_call_service, /* self-defined service handler */
         .thing_prop_changed = thing_prop_changed, /* property set handler */
-        .linkit_data_arrived =
-        linkit_data_arrived, /* transparent transmission data handler */
+        .linkit_data_arrived = NULL,
     };
 
     EXAMPLE_TRACE("linkkit start");
