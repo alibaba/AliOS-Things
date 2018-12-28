@@ -256,7 +256,7 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf,
 
     BT_DBG("buf %p opcode 0x%04x len %u", buf, opcode, buf->len);
 
-    k_sem_init(&sync_sem, 0, 1);
+    k_sem_init(&sync_sem, 0, UINT_MAX);
     cmd(buf)->sync = &sync_sem;
 
     /* Make sure the buffer stays around until the command completes */
@@ -3208,6 +3208,21 @@ static void send_cmd(void)
     }
 }
 
+int has_tx_sem(struct k_poll_event *event)
+{
+    struct bt_conn *conn = NULL;
+
+    if (event->tag == BT_EVENT_CONN_TX_NOTIFY) {
+        conn = CONTAINER_OF(event->fifo, struct bt_conn, tx_notify);
+    } else if (event->tag == BT_EVENT_CONN_TX_QUEUE) {
+        conn = CONTAINER_OF(event->fifo, struct bt_conn, tx_queue);
+    }
+    if (conn && k_sem_count_get(bt_conn_get_pkts(conn)) == 0) {
+        return 0;
+    }
+    return 1;
+}
+
 static void process_events(struct k_poll_event *ev, int count)
 {
     BT_DBG("count %d", count);
@@ -3234,6 +3249,13 @@ static void process_events(struct k_poll_event *ev, int count)
                     }
                 }
                 break;
+            case K_POLL_STATE_DATA_RECV:
+                if (ev->tag == BT_EVENT_CONN_RX) {
+                    if (bt_dev.drv->recv) {
+                        bt_dev.drv->recv();
+                    }
+                }
+                break;
             case K_POLL_STATE_NOT_READY:
                 break;
             default:
@@ -3245,7 +3267,7 @@ static void process_events(struct k_poll_event *ev, int count)
 
 #if defined(CONFIG_BT_CONN)
 /* command FIFO + conn_change signal + MAX_CONN * 2 (tx & tx_notify) */
-#define EV_COUNT (2 + (CONFIG_BT_MAX_CONN * 2))
+#define EV_COUNT (3 + (CONFIG_BT_MAX_CONN * 2))
 #else
 /* command FIFO */
 #define EV_COUNT 1
@@ -3305,7 +3327,6 @@ static void hci_tx_thread(void *p1, void *p2, void *p3)
     }
 }
 
-
 static void read_local_ver_complete(struct net_buf *buf)
 {
     struct bt_hci_rp_read_local_version_info *rp = (void *)buf->data;
@@ -3338,22 +3359,7 @@ static void read_le_features_complete(struct net_buf *buf)
     memcpy(bt_dev.le.features, rp->features, sizeof(bt_dev.le.features));
 }
 
-#if defined(CONFIG_BT_BREDR)
-static void read_buffer_size_complete(struct net_buf *buf)
-{
-    struct bt_hci_rp_read_buffer_size *rp = (void *)buf->data;
-    u16_t                              pkts;
-
-    BT_DBG("status %u", rp->status);
-
-    bt_dev.br.mtu = sys_le16_to_cpu(rp->acl_max_len);
-    pkts          = sys_le16_to_cpu(rp->acl_max_num);
-
-    BT_DBG("ACL BR/EDR buffers: pkts %u mtu %u", pkts, bt_dev.br.mtu);
-
-    k_sem_init(&bt_dev.br.pkts, pkts, pkts);
-}
-#elif defined(CONFIG_BT_CONN)
+#if defined(CONFIG_BT_CONN)
 static void read_buffer_size_complete(struct net_buf *buf)
 {
     struct bt_hci_rp_read_buffer_size *rp = (void *)buf->data;

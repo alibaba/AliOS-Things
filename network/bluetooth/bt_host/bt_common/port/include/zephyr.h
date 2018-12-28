@@ -122,11 +122,13 @@ extern "C"
 #define K_POLL_STATE_SEM_AVAILABLE 3
 #define K_POLL_STATE_DATA_AVAILABLE 4
 #define K_POLL_STATE_FIFO_DATA_AVAILABLE K_POLL_STATE_DATA_AVAILABLE
+#define K_POLL_STATE_DATA_RECV 5
 
 #define K_POLL_TYPE_WORK 0
 #define K_POLL_TYPE_SIGNAL 1
 #define K_POLL_TYPE_DATA_AVAILABLE 3
 #define K_POLL_TYPE_FIFO_DATA_AVAILABLE K_POLL_TYPE_DATA_AVAILABLE
+#define K_POLL_TYPE_DATA_RECV 5
 
 #define K_POLL_EVENT_STATIC_INITIALIZER(event_type, event_mode, event_obj,     \
                                         event_tag)                             \
