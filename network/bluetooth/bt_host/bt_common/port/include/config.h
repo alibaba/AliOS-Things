@@ -96,10 +96,14 @@
 
 /**
  * CONFIG_BT_L2CAP_TX_MTU: Max L2CAP MTU for L2CAP tx buffer
- * range 65 to 2000 if SMP enabled,otherwise range 23 to 2000
- */
+* range 65 to 2000 if SMP enabled,otherwise range 23 to 2000
+  */
 #ifndef CONFIG_BT_L2CAP_TX_MTU
+#ifdef CONFIG_BT_SMP
+#define CONFIG_BT_L2CAP_TX_MTU 65
+#else
 #define CONFIG_BT_L2CAP_TX_MTU 23
+#endif
 #endif
 
 /**
