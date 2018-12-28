@@ -6,18 +6,18 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: contains all hardware driver
+Description: Bleeper board GPIO driver implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
 /******************************************************************************
- * @file    hw.h
+ * @file    hw_gpio.h
  * @author  MCD Application Team
  * @version V1.1.1
  * @date    01-June-2017
- * @brief   contains all hardware driver
+ * @brief   Header for driver hw_rtc.c module
  ******************************************************************************
  * @attention
  *
@@ -59,50 +59,42 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __HW_H__
-#define __HW_H__
+#ifndef __HW_GPIO_H__
+#define __HW_GPIO_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /* Includes ------------------------------------------------------------------*/
-#include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include "hw_conf.h"
-#include "gpio-board.h"
-#include "rtc-board.h"
-#include "hw_msp.h"
-#include "debug.h"
-#include "uart-board.h"
 
-typedef enum
-{
-  HW_UNLOCKED = 0x00U,
-  HW_LOCKED   = 0x01U
-} HW_LockTypeDef;
+/*
+ * Force the include of HAL GPIO in order to benefit from enum and structure
+ * definition which are used in LoRa modules
+ * Note that the code size is slighty increased by about 40 bytes on classA application because
+ * "Pin" of structure "GPIO_InitTypeDef" is not used in our HW_GPIO_xxx() implementation
+ */
+#include "system/gpio.h"
 
-#define HW_LOCK(__HANDLE__)               \
-  do {                                    \
-    if ((__HANDLE__)->Lock == HW_LOCKED)  \
-    {                                     \
-      return;                             \
-    }                                     \
-    else                                  \
-    {                                     \
-      (__HANDLE__)->Lock = HW_LOCKED;     \
-    }                                     \
-  } while (0)
+/* Exported types ------------------------------------------------------------*/
 
-#define HW_UNLOCK(__HANDLE__)             \
-  do {                                    \
-    (__HANDLE__)->Lock = HW_UNLOCKED;     \
-  } while (0)
+typedef void ( GpioIrqHandler )(void);
+
+/* Exported constants --------------------------------------------------------*/
+/* External variables --------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
+/* Exported functions ------------------------------------------------------- */
+
+
+
+
+
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __HW_H__ */
+#endif /* __HW_GPIO_H__ */
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

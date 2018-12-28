@@ -54,6 +54,8 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
+Gpio_t g_stDbgGpio;
+
 void DBG_Init( void )
 {
 #ifdef LORA_DEBUG
@@ -63,16 +65,10 @@ void DBG_Init( void )
     /* Clock is enabled in HW_GPIO_Init  -  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB); */
 
     /* Configure the GPIO pin */
-    gpioinitstruct.Mode = GPIO_MODE_OUTPUT_PP;
-    gpioinitstruct.Pull = GPIO_PULLUP;
-    gpioinitstruct.Speed = GPIO_SPEED_HIGH;
-    HW_GPIO_Init( GPIOB, (GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15), &gpioinitstruct );
-
-    /* Reset debug Pins */
-    HW_GPIO_Write( GPIOB, GPIO_PIN_12, RESET );
-    HW_GPIO_Write( GPIOB, GPIO_PIN_13, RESET );
-    HW_GPIO_Write( GPIOB, GPIO_PIN_14, RESET );
-    HW_GPIO_Write( GPIOB, GPIO_PIN_15, RESET );
+    GpioInit( &g_stDbgGpio, PB_12, PIN_OUTPUT, PIN_PUSH_PULL , PIN_PULL_UP, 0);
+    GpioInit( &g_stDbgGpio, PB_13, PIN_OUTPUT, PIN_PUSH_PULL , PIN_PULL_UP, 0);
+    GpioInit( &g_stDbgGpio, PB_14, PIN_OUTPUT, PIN_PUSH_PULL , PIN_PULL_UP, 0);
+    GpioInit( &g_stDbgGpio, PB_15, PIN_OUTPUT, PIN_PUSH_PULL , PIN_PULL_UP, 0);
 
     LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_DBGMCU );
     LL_DBGMCU_EnableDBGSleepMode( );

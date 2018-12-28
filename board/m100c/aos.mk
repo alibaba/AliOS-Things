@@ -34,11 +34,18 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_LDFLAGS += -L $($(NAME)_LOCATION)
 
 GLOBAL_INCLUDES += .
+GLOBAL_INCLUDES += ./inc
 
-$(NAME)_SOURCES := board.c
-$(NAME)_SOURCES += hw.c
-$(NAME)_SOURCES += debug.c
-$(NAME)_SOURCES += hw_spi.c
-$(NAME)_SOURCES += hw_rtc.c
-$(NAME)_SOURCES += lorawan_port.c
-$(NAME)_SOURCES += board_sx1278.c
+$(NAME)_SOURCES := src/board.c
+$(NAME)_SOURCES += src/hw.c
+$(NAME)_SOURCES += src/debug.c
+$(NAME)_SOURCES += src/spi-board.c
+$(NAME)_SOURCES += src/rtc-board.c
+$(NAME)_SOURCES += src/gpio-board.c
+$(NAME)_SOURCES += src/delay-board.c
+$(NAME)_SOURCES += src/gpio-board.c
+$(NAME)_SOURCES += src/lorawan_port.c
+$(NAME)_SOURCES += src/sx1276-board.c
+$(NAME)_SOURCES += src/utilities.c
+$(NAME)_SOURCES += src/low_power.c
+

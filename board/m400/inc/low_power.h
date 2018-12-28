@@ -1,23 +1,9 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: contains all hardware driver
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
 /******************************************************************************
- * @file    hw.h
+ * @file    low_power.h
  * @author  MCD Application Team
  * @version V1.1.1
  * @date    01-June-2017
- * @brief   contains all hardware driver
+ * @brief   Header for driver low_power.c module
  ******************************************************************************
  * @attention
  *
@@ -59,50 +45,62 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __HW_H__
-#define __HW_H__
+#ifndef __LOW_POWER_H__
+#define __LOW_POWER_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /* Includes ------------------------------------------------------------------*/
-#include <math.h>
-#include <stdbool.h>
 #include <stdint.h>
-#include "hw_conf.h"
-#include "gpio-board.h"
-#include "rtc-board.h"
-#include "hw_msp.h"
-#include "debug.h"
-#include "uart-board.h"
+/* Exported types ------------------------------------------------------------*/
 
-typedef enum
-{
-  HW_UNLOCKED = 0x00U,
-  HW_LOCKED   = 0x01U
-} HW_LockTypeDef;
+typedef enum {
+    e_LOW_POWER_RTC = (1 << 0),
+    e_LOW_POWER_GPS = (1 << 1),
+    e_LOW_POWER_UART = (1 << 2), /* can be used to forbid stop mode in case of uart Xfer*/
+} e_LOW_POWER_State_Id_t;
 
-#define HW_LOCK(__HANDLE__)               \
-  do {                                    \
-    if ((__HANDLE__)->Lock == HW_LOCKED)  \
-    {                                     \
-      return;                             \
-    }                                     \
-    else                                  \
-    {                                     \
-      (__HANDLE__)->Lock = HW_LOCKED;     \
-    }                                     \
-  } while (0)
+/* Exported constants --------------------------------------------------------*/
+/* External variables --------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
+/* Exported functions ------------------------------------------------------- */
 
-#define HW_UNLOCK(__HANDLE__)             \
-  do {                                    \
-    (__HANDLE__)->Lock = HW_UNLOCKED;     \
-  } while (0)
+/*!
+ * @brief API to set flag allowing power mode
+ *
+ * @param [IN] enum e_LOW_POWER_State_Id_t
+ */
+void LowPower_Disable( e_LOW_POWER_State_Id_t state );
+
+/*!
+ * @brief API to reset flag allowing power mode
+ *
+ * @param [IN] enum e_LOW_POWER_State_Id_t
+ */
+
+void LowPower_Enable( e_LOW_POWER_State_Id_t state );
+
+/*!
+ * @brief API to get flag allowing power mode
+ * @note When flag is 0, low power mode is allowed
+ * @param [IN] non
+ * @retval flag state
+ */
+uint32_t LowPower_GetState( void );
+
+/*!
+ * @brief Manages the entry into ARM cortex deep-sleep mode
+ * @param none
+ * @retval none
+ */
+void LowPower_Handler( void );
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __HW_H__ */
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif /* __LOW_POWER_H__ */
 
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
