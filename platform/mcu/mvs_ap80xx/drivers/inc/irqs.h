@@ -173,7 +173,7 @@ static __asm void __DISABLE_FAULT_IRQ(void)
 
 #define	__DISABLE_FIRQ_FROMISR(Flag)	__DISABLE_IRQ_FROMISR(Flag)
 
-#include <../../CMSIS/Include/core_cm3.h>
+#include <core_cm3.h>
 /** \brief  Get External Interrupt Control Status
  *
  *  The function get a device-specific interrupt enable or disable status 
