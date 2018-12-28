@@ -1,7 +1,8 @@
 import os
 import sys
 import string
-import shutil 
+import shutil
+import re
 
 import xml.etree.ElementTree as etree
 import config_mk
@@ -10,6 +11,28 @@ from os.path import basename
 from xml_format import gen_indent
 from config_mk import Projects
 
+AOS_RELATIVE_PATH = '$PROJ_DIR$/../../../../'
+OPT_DIR = '$PROJ_DIR$/opts/'
+
+element_dict = {
+    "OGChipSelectEditMenu": "",
+    "IlinkOutputFile": "",
+    "IlinkIcfFile": "",
+}
+
+def create_file(data, filename):
+    """ Create *_opts files """
+    with open(filename, "w") as f:
+        f.write(data)
+
+def get_element_value(element_dict, buildstring):
+    element_dict["OGChipSelectEditMenu"] = config_mk.iar_ogcmenu
+    element_dict["IlinkOutputFile"] = buildstring
+
+    patten = re.compile(r".*--config\s+(.*\.icf).*")
+    match = patten.match(config_mk.global_ldflags)
+    if match:
+        element_dict["IlinkIcfFile"] = AOS_RELATIVE_PATH + match.group(1)
 
 def add_group(parent, name, files, includes, project_path):
     cur_encoding = sys.getfilesystemencoding()
@@ -24,13 +47,13 @@ def add_group(parent, name, files, includes, project_path):
             includes.append(os.path.dirname(f))
             fnewName = f.replace('./','')
             fnewName = fnewName.replace('/','_')
-            fnewPath = proj_output_dir+'/'+fnewName
+            fnewPath = project_path+'/'+fnewName
             #print 'copy', f, 'to', fnewPath
             shutil.copyfile(f,fnewPath)
-            f = "$PROJ_DIR$\\"+fnewName
+            f = "$PROJ_DIR$/"+fnewName
             file_name.text = f.decode(cur_encoding)
         else:
-            file_name.text = (aos_relative_path + f).decode(cur_encoding)
+            file_name.text = (AOS_RELATIVE_PATH + f).decode(cur_encoding)
     
     
     group_config = SubElement(group, 'configuration')
@@ -52,7 +75,7 @@ def add_group(parent, name, files, includes, project_path):
     group_option_name = SubElement(group_data_option2, 'name')
     group_option_name.text = 'IExtraOptions'
     group_option_state = SubElement(group_data_option2, 'state')
-    group_option_state.text = '-f '+opt_dir+name+".c_opts"
+    group_option_state.text = '-f '+OPT_DIR+name+".c_opts"
     
     group_data_option3 = SubElement(group_settings_data, 'option')
     group_option_name = SubElement(group_data_option3, 'name')
@@ -60,7 +83,7 @@ def add_group(parent, name, files, includes, project_path):
   
     for i in includes:
         stateTemp = SubElement(group_data_option3, 'state')
-        stateTemp.text = (aos_relative_path + i).decode(cur_encoding)
+        stateTemp.text = (AOS_RELATIVE_PATH + i).decode(cur_encoding)
     
     
     group_config_settings2 = SubElement(group_config, 'settings')
@@ -78,20 +101,17 @@ def add_group(parent, name, files, includes, project_path):
     group_option_name = SubElement(group_data_option2, 'name')
     group_option_name.text = 'AExtraOptionsV2'
     group_option_state = SubElement(group_data_option2, 'state')
-    group_option_state.text = '-f '+opt_dir+name+".as_opts"
+    group_option_state.text = '-f '+OPT_DIR+name+".as_opts"
     
     group_data_option3 = SubElement(group_settings_data, 'option')
     group_option_name = SubElement(group_data_option3, 'name')
     group_option_name.text = 'AUserIncludes'
     for i in includes:
         stateTemp = SubElement(group_data_option3, 'state')
-        stateTemp.text = (aos_relative_path + i).decode(cur_encoding)
-    
-    
-    
+        stateTemp.text = (AOS_RELATIVE_PATH + i).decode(cur_encoding)
 
 # automation to do
-def changeItemForMcu( tree ):
+def changeItemForMcu( tree, element_dict, buildstring ):
     for config in tree.findall('configuration'):
         for settings in config.findall('settings'):
             if settings.find('name').text == 'ILINK':
@@ -100,20 +120,14 @@ def changeItemForMcu( tree ):
                     if option.find('name').text == 'IlinkOutputFile':
                         option.find('state').text = buildstring + '.out'
                     if option.find('name').text == 'IlinkIcfFile': 
-                        try:
-                            print "ld_script:", config_mk.ld_script
-                            option.find('state').text = '$PROJ_DIR$\../../../../'+config_mk.ld_script
-                        except:
-                            print "ld_script is not written in config_mk.py"
-                            if 'starterkit' in buildstring:
-                                option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L433RC-Nucleo/STM32L433.icf'
-                            if 'stm32l432' in buildstring:
-                                option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L432KC-Nucleo/STM32L432.icf'
-                            if 'stm32l053' in buildstring:
-                                option.find('state').text = '$PROJ_DIR$\../../../../'+'board/stm32l053r8-nucleo/STM32L053.icf'
-                            if 'stm32l031' in buildstring:
-                                option.find('state').text = '$PROJ_DIR$\../../../../'+'board/stm32l031k6-nucleo/STM32L031.icf'
-                          
+                        option.find('state').text = element_dict["IlinkIcfFile"]
+
+            if settings.find('name').text == 'General':
+                data = settings.find('data')
+                for option in data.findall('option'):
+                    if option.find('name').text == 'OGChipSelectEditMenu':
+                        option.find('state').text = element_dict["OGChipSelectEditMenu"]
+
 work_space_content = '''<?xml version="1.0" encoding="UTF-8"?>
 
 <workspace>
@@ -126,23 +140,25 @@ work_space_content = '''<?xml version="1.0" encoding="UTF-8"?>
 
 '''
                             
-def gen_workspace(target):
+def gen_workspace(target, buildstring):
     # make an workspace 
     workspace = target.replace('.ewp', '.eww')
-    out = file(workspace, 'wb')
     xml = work_space_content % (buildstring+'.ewp')
-    out.write(xml)
-    out.close()
+    with open (workspace, "w") as out:
+        out.write(xml)
     
 repeat_path=[]
-def gen_project(target, script):
+def gen_project(target, script, buildstring):
     project_path = os.path.dirname(os.path.abspath(target))
 
+    project_opts_path = os.path.join(project_path, "opts")
+    if not os.path.isdir(project_opts_path):
+        os.makedirs(project_opts_path)
+
+    get_element_value(element_dict, buildstring)
     tree = etree.parse('build/scripts/template.ewp')
     root = tree.getroot()
 
-    out = file(target, 'wb')
-    
     existedFileNameString=[]
     # copy repeat source file and replace old one
     for group in script:
@@ -152,42 +168,39 @@ def gen_project(target, script):
                 repeat_path.append(filePath)
             else:
                 existedFileNameString.append(filename)        
+        if group['c_opts_iar']:
+            filename = os.path.join(project_opts_path, "%s.c_opts" % group['name'])
+            create_file(group['c_opts_iar'], filename)
+
+        if group['as_opts_iar']:
+            filename = os.path.join(project_opts_path, "%s.as_opts" % group['name'])
+            create_file(group['as_opts_iar'], filename)
      
     if len(repeat_path):
         print 'repeat name files:', repeat_path
-        print 'will copy them to '+proj_output_dir+'/ !'
+        print 'will copy them to '+project_path+'/ !'
     
     # add group
     for group in script:
         add_group(root, group['name'], group['src'], group['include'], project_path)       
     
-    changeItemForMcu(tree)
+    changeItemForMcu(tree, element_dict, buildstring)
     gen_indent(root)
     projString = etree.tostring(root, encoding='utf-8')
-    if 'starterkit' in buildstring:
-        projString = projString.replace('STM32L475VG','STM32L433RC')
-    if 'stm32l432' in buildstring:
-        projString = projString.replace('STM32L475VG','STM32L432KC')
-    if 'stm32l053' in buildstring:
-        projString = projString.replace('STM32L475VG','STM32L053R8')
-    if 'stm32l031' in buildstring:
-        projString = projString.replace('STM32L475VG','STM32L031K6')
-    out.write(projString)
-    out.close()
+    with open(target, "w") as out:
+        out.write(projString)
 
-    gen_workspace(target)
+    gen_workspace(target, buildstring)
 
-#argv[1]: buildstring, eg: nano@b_l475e
-buildstring = sys.argv[1]
-proj_output_dir = 'projects/IAR/'+buildstring+'/iar_project'
-#use in xml text
-aos_relative_path = '$PROJ_DIR$\\' + '../../../../'
-projectPath = proj_output_dir+'/'+buildstring+'.ewp'
-opt_dir = '$PROJ_DIR$\\opts/'
+def main():
+    #argv[1]: buildstring, eg: nano@b_l475e
+    buildstring = sys.argv[1]
+    projectPath = "projects/IAR/%s/iar_project/%s.ewp" % (buildstring, buildstring)
 
-print 'Making iar project '+buildstring
-gen_project(projectPath, Projects)
-print 'iar project: '+ projectPath + ' has generated over'
+    print 'Making iar project '+buildstring
+    gen_project(projectPath, Projects, buildstring)
+    print 'iar project: '+ projectPath + ' has generated over'
 
-
+if __name__ == "__main__":
+    main()
 
