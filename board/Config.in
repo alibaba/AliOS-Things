@@ -1,3 +1,4 @@
+# --- Generated Automatically ---
 choice
     prompt "Select board"
 
@@ -325,218 +326,322 @@ endif
 
 if AOS_board_amebaz_dev
     source "board/amebaz_dev/Config.in"
+    source "platform/mcu/rtl8710bn/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_ap80a0
     source "board/ap80a0/Config.in"
+    source "platform/mcu/mvs_ap80xx/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_armhflinux
     source "board/armhflinux/Config.in"
+    source "platform/mcu/linux/Config.in"
+    source "platform/arch/linux/Config.in"
 endif
 
 if AOS_board_atsame54-xpro
     source "board/atsame54-xpro/Config.in"
+    source "platform/mcu/atsamd5x_e5x/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_b_l475e
     source "board/b_l475e/Config.in"
+    source "platform/mcu/stm32l475/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_bk7231devkitc
     source "board/bk7231devkitc/Config.in"
+    source "platform/mcu/bk7231/Config.in"
+    source "platform/arch/arm/armv5/Config.in"
 endif
 
 if AOS_board_bk7231udevkitc
     source "board/bk7231udevkitc/Config.in"
+    source "platform/mcu/bk7231u/Config.in"
+    source "platform/arch/arm/armv5/Config.in"
 endif
 
 if AOS_board_cb2201
     source "board/cb2201/Config.in"
+    source "platform/mcu/csky/Config.in"
 endif
 
 if AOS_board_cy8ckit-062
     source "board/cy8ckit-062/Config.in"
+    source "platform/mcu/cy8c6347/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_developerkit
     source "board/developerkit/Config.in"
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_developerkit_syscall
     source "board/developerkit_syscall/Config.in"
+    source "platform/mcu/stm32l4xx_syscall/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_dh5021a_evb
     source "board/dh5021a_evb/Config.in"
+    source "platform/mcu/dahua/Config.in"
 endif
 
 if AOS_board_eml3047
     source "board/eml3047/Config.in"
+    source "platform/mcu/stm32l0xx/stm32l071kb/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_es8p5088fllq
     source "board/es8p5088fllq/Config.in"
+    source "platform/mcu/es8p508x/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_esp32devkitc
     source "board/esp32devkitc/Config.in"
+    source "platform/mcu/esp32/Config.in"
 endif
 
 if AOS_board_esp8266
     source "board/esp8266/Config.in"
+    source "platform/mcu/esp8266/Config.in"
 endif
 
 if AOS_board_evkbimxrt1050
     source "board/evkbimxrt1050/Config.in"
+    source "platform/mcu/mimxrt1052/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_evkmimxrt1020
     source "board/evkmimxrt1020/Config.in"
+    source "platform/mcu/mimxrt1021/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_fm33a0xx-discovery
     source "board/fm33a0xx-discovery/Config.in"
+    source "platform/mcu/fm33a0xx/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_frdmkl26z
     source "board/frdmkl26z/Config.in"
+    source "platform/mcu/mkl26z4/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_frdmkl27z
     source "board/frdmkl27z/Config.in"
+    source "platform/mcu/mkl27z644/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_frdmkl28z
     source "board/frdmkl28z/Config.in"
+    source "platform/mcu/mkl28z7/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_frdmkl43z
     source "board/frdmkl43z/Config.in"
+    source "platform/mcu/mkl43z4/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_frdmkl81z
     source "board/frdmkl81z/Config.in"
+    source "platform/mcu/mkl81z7/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_frdmkl82z
     source "board/frdmkl82z/Config.in"
+    source "platform/mcu/mkl82z7/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_gd32f307c-eval
     source "board/gd32f307c-eval/Config.in"
+    source "platform/mcu/gd32f30x/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_gd32f350r-eval
     source "board/gd32f350r-eval/Config.in"
+    source "platform/mcu/gd32f3x0/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_gd32f450z-eval
     source "board/gd32f450z-eval/Config.in"
+    source "platform/mcu/gd32f30x/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_hc32l136k8ta
     source "board/hc32l136k8ta/Config.in"
+    source "platform/mcu/hc32l136/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_hifive1
     source "board/hifive1/Config.in"
+    source "platform/mcu/freedom-e/e310/Config.in"
+    source "platform/arch/risc-v/risc_v32I/Config.in"
 endif
 
 if AOS_board_hk32f103rb_evb
     source "board/hk32f103rb_evb/Config.in"
+    source "platform/mcu/hk32f103/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_hr8p287fjlt
     source "board/hr8p287fjlt/Config.in"
+    source "platform/mcu/hr8p2xx/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_hr8p296fllt
     source "board/hr8p296fllt/Config.in"
+    source "platform/mcu/hr8p2xx/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_imx6dq
     source "board/imx6dq/Config.in"
+    source "platform/mcu/imx6sl_svc/Config.in"
+    source "platform/arch/arm/armv7a-svc/Config.in"
 endif
 
 if AOS_board_imx6sl
     source "board/imx6sl/Config.in"
+    source "platform/mcu/imx6sl_svc/Config.in"
+    source "platform/arch/arm/armv7a-svc/Config.in"
 endif
 
 if AOS_board_imx6sl_svc
     source "board/imx6sl_svc/Config.in"
+    source "platform/mcu/imx6sl_svc/Config.in"
+    source "platform/arch/arm/armv7a-svc/Config.in"
 endif
 
 if AOS_board_linuxhost
     source "board/linuxhost/Config.in"
+    source "platform/mcu/linux/Config.in"
+    source "platform/arch/linux/Config.in"
 endif
 
 if AOS_board_lpcxpresso54018
     source "board/lpcxpresso54018/Config.in"
+    source "platform/mcu/lpc54018/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_lpcxpresso54102
     source "board/lpcxpresso54102/Config.in"
+    source "platform/mcu/lpc54102/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_lpcxpresso54114
     source "board/lpcxpresso54114/Config.in"
+    source "platform/mcu/lpc54114/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_lpcxpresso54608
     source "board/lpcxpresso54608/Config.in"
+    source "platform/mcu/lpc54608/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_lpcxpresso54628
     source "board/lpcxpresso54628/Config.in"
+    source "platform/mcu/lpc54628/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_m100c
     source "board/m100c/Config.in"
+    source "platform/mcu/efm32gxx/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_m400
     source "board/m400/Config.in"
+    source "platform/mcu/stm32l0xx/stm32l071kb/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_mk1101
     source "board/mk1101/Config.in"
+    source "platform/mcu/mx1101/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_mk3060
     source "board/mk3060/Config.in"
+    source "platform/mcu/moc108/Config.in"
+    source "platform/arch/arm/armv5/Config.in"
 endif
 
 if AOS_board_mk3080
     source "board/mk3080/Config.in"
+    source "platform/mcu/rtl8710bn/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_mk3165
     source "board/mk3165/Config.in"
+    source "platform/mcu/stm32f4xx/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_mk3166
     source "board/mk3166/Config.in"
+    source "platform/mcu/stm32f4xx/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_mk3239
     source "board/mk3239/Config.in"
+    source "platform/mcu/stm32f4xx/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_msp432p4111launchpad
     source "board/msp432p4111launchpad/Config.in"
+    source "platform/mcu/msp432p4xx/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_numaker-pfm-m487
     source "board/numaker-pfm-m487/Config.in"
+    source "platform/mcu/m487jidae/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_numaker-pfm-nano130
     source "board/numaker-pfm-nano130/Config.in"
+    source "platform/mcu/nano130ke3bn/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_nutiny-evb-nano130
     source "board/nutiny-evb-nano130/Config.in"
+    source "platform/mcu/nano130ke3bn/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_pca10040
@@ -553,14 +658,20 @@ endif
 
 if AOS_board_rda8955
     source "board/rda8955/Config.in"
+    source "platform/mcu/rda8955/Config.in"
+    source "platform/arch/mips/mips-I/Config.in"
 endif
 
 if AOS_board_rk1108
     source "board/rk1108/Config.in"
+    source "platform/mcu/linux/Config.in"
+    source "platform/arch/linux/Config.in"
 endif
 
 if AOS_board_saml21_iot_sk
     source "board/saml21_iot_sk/Config.in"
+    source "platform/mcu/atsaml21/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
 endif
 
 if AOS_board_ssc1667
@@ -569,69 +680,104 @@ endif
 
 if AOS_board_starterkit
     source "board/starterkit/Config.in"
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32f103ze
     source "board/stm32f103ze/Config.in"
+    source "platform/mcu/stm32f1xx/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32f401re-nucleo
     source "board/stm32f401re-nucleo/Config.in"
+    source "platform/mcu/stm32f4xx_syscall/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32f411re-nucleo
     source "board/stm32f411re-nucleo/Config.in"
+    source "platform/mcu/stm32f4xx_syscall/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32f412zg-nucleo
     source "board/stm32f412zg-nucleo/Config.in"
+    source "platform/mcu/stm32f4xx_syscall/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32f429zi-nucleo
     source "board/stm32f429zi-nucleo/Config.in"
+    source "platform/mcu/stm32f4xx_syscall/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32f429zi-syscall
     source "board/stm32f429zi-syscall/Config.in"
+    source "platform/mcu/stm32f4xx_syscall/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32f769i-discovery
     source "board/stm32f769i-discovery/Config.in"
+    source "platform/mcu/stm32f7xx/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32l432kc-nucleo
     source "board/stm32l432kc-nucleo/Config.in"
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32l433rc-nucleo
     source "board/stm32l433rc-nucleo/Config.in"
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32l476rg-nucleo
     source "board/stm32l476rg-nucleo/Config.in"
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_stm32l496g-discovery
     source "board/stm32l496g-discovery/Config.in"
+    source "platform/mcu/stm32l4xx_cube/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_uno-91h
     source "board/uno-91h/Config.in"
+    source "platform/mcu/rda5981x/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_wm_w600_kit
     source "board/wm_w600_kit/Config.in"
+    source "platform/mcu/wm_w600/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_xm510_evb
     source "board/xm510_evb/Config.in"
+    source "platform/mcu/xm510/Config.in"
+    source "platform/arch/arm/armv7a-svc/Config.in"
 endif
 
 if AOS_board_xr809
     source "board/xr809/Config.in"
+    source "platform/mcu/xr871/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 if AOS_board_xr871evb
     source "board/xr871evb/Config.in"
+    source "platform/mcu/xr871/Config.in"
+    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
+# --- End ---
