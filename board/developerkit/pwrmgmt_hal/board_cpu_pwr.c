@@ -14,11 +14,11 @@ provides low-level interface for setting CPU P-states.
 
 #include <k_api.h>
 
-#if RHINO_CONFIG_CPU_PWR_MGMT
+#if (AOS_COMP_PWRMGMT > 0)
 
-#include "cpu_pwr_api.h"
+#include "pwrmgmt_api.h"
 #include "cpu_pwr_hal_lib.h"
-#include "pwr_debug.h"
+#include "pwrmgmt_debug.h"
 #include "cpu_tickless.h"
 #include "stm32l4xx_hal.h"
 
@@ -265,5 +265,4 @@ void cpu_pwr_resume_devices() {
 
 }
 
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
-
+#endif /* AOS_COMP_PWRMGMT */

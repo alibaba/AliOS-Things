@@ -5,8 +5,6 @@
 #ifndef K_CONFIG_H
 #define K_CONFIG_H
 
-#define RHINO_CONFIG_CPU_PWR_MGMT            0
-
 #define RHINO_SCHED_NONE_PREEMPT             0
 
 #define RHINO_CONFIG_STK_CHK_WORDS           1u
