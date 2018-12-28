@@ -561,6 +561,7 @@ static r_void rda59xx_daemon(r_void *arg)
                         rda59xx_sniffer_disable_internal();
                         monitor_restore = 1;
                     }    
+                    rda59xx_netif_down(0);
                     msg.type = DAEMON_STA_RECONNECT;
                     res = rda_queue_send(daemon_queue, (r_u32)&msg, 1000);
                     module_state |= STATE_STA_RC;

@@ -214,7 +214,7 @@ r_s32 rda_queue_recv(r_void *handler, r_u32 msg, r_u32 millisec)
 {
     rda_queue_handle *r_handler = (rda_queue_handle*)handler;
     r_s32 size;
-    if(aos_queue_recv((aos_queue_t *)(r_handler->queue), millisec, (r_void*)msg, &size) == 0)
+    if(aos_queue_recv((aos_queue_t *)(r_handler->queue), millisec, (r_void*)msg, &size) != 0)
         return ERR;
     else
         return NO_ERR;
