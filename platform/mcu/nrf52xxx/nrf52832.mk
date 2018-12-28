@@ -10,8 +10,8 @@ GLOBAL_INCLUDES += \
 
 $(NAME)_SOURCES += src/pca10040/base_pro/soc_init.c \
                     Drivers/toolchain/system_nrf52.c \
-                    Drivers/drivers_nrf/power/nrf_drv_power.c
-
+                    Drivers/drivers_nrf/power/nrf_drv_power.c \
+                    Drivers/drivers_nrf/rtc/nrf_drv_rtc.c
 
 ifeq ($(ble),1)
 $(NAME)_SOURCES  += hal/ais_ota_port.c

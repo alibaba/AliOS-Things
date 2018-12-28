@@ -10,7 +10,7 @@
  */
 #include <k_api.h>
 
-#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+#if (AOS_COMP_PWRMGMT > 0)
 #include <nrf.h>
 #include <nrf_drv_rtc.h>
 #include <nrf_drv_clock.h>
@@ -125,4 +125,4 @@ static void nrf_drv_rtc_user_callback(nrf_drv_rtc_int_type_t int_type)
     return;
 }
 
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
+#endif /* AOS_COMP_PWRMGMT */
