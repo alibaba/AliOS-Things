@@ -9,7 +9,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu csky
 LWIP := 0
 SAL  := 1
 
-#$(NAME)_COMPONENTS += platform/arch/csky/cskyv2-l
+$(NAME)_COMPONENTS += arch_cskyv2-l
 $(NAME)_COMPONENTS += rhino cjson cli
 
 ifeq ($(LWIP),1)
@@ -34,8 +34,6 @@ GLOBAL_DEFINES += CONFIG_AOS_CLI
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 GLOBAL_DEFINES += CONFIG_VFS_STAT_INCLUDE_SIZE=0
 
-GLOBAL_INCLUDES += ../../arch/csky/cskyv2-l
-
 GLOBAL_ASMFLAGS += -mcpu=ck802 -ffunction-sections -fdata-sections
 GLOBAL_CFLAGS   += -mcpu=ck802 -c -Wa,-melrw
 
@@ -59,10 +57,6 @@ $(NAME)_INCLUDE := csi/csi_driver/include
 
 $(NAME)_SOURCES := hal/uart.c
 $(NAME)_SOURCES += aos/aos.c                                \
-                   ../../arch/csky/cskyv2-l/cpu_impl.c      \
-                   ../../arch/csky/cskyv2-l/port_s_novic.S  \
-                   ../../arch/csky/cskyv2-l/port_c.c        \
-                   ../../arch/csky/cskyv2-l/entry.S         \
                    modules/libc/minilibc_port.c             \
                    csi/csi_kernel/rhino/adapter/csi_rhino.c \
                    csi/csi_kernel/rhino/driver/systick.c    \

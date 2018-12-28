@@ -9,7 +9,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu dahua
 LWIP := 1
 SAL  := 0
 
-#$(NAME)_COMPONENTS += platform/arch/dahua/dahuav2-l
+$(NAME)_COMPONENTS += arch_cskyv2-l
 $(NAME)_COMPONENTS += rhino cjson cli netmgr
 
 ifeq ($(LWIP),1)
@@ -32,8 +32,7 @@ GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 
-GLOBAL_INCLUDES += ../../arch/csky/cskyv2-l \
-                   csi/include
+GLOBAL_INCLUDES += csi/include
 
 GLOBAL_ASMFLAGS += -mcpu=ck803 -ffunction-sections -fdata-sections
 GLOBAL_CFLAGS   += -mcpu=ck803 -c -Wa,-melrw
@@ -57,10 +56,6 @@ $(NAME)_INCLUDE := csi/csi/csi_driver/include
 
 $(NAME)_SOURCES := hal/uart.c
 $(NAME)_SOURCES += aos/aos.c                                    \
-                   ../../arch/csky/cskyv2-l/cpu_impl.c          \
-                   ../../arch/csky/cskyv2-l/port_s_novic.S      \
-                   ../../arch/csky/cskyv2-l/port_c.c            \
-                   ../../arch/csky/cskyv2-l/entry.S             \
                    modules/libc/minilibc_port.c                 \
                    hal/ringbuffer.c                             \
                    hal/i2c.c                                    \
