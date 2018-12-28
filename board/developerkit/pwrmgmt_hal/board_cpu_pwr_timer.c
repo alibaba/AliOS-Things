@@ -14,7 +14,7 @@
 
 #include <k_api.h>
 
-#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+#if (AOS_COMP_PWRMGMT > 0)
 
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_tim.h"
@@ -321,5 +321,4 @@ void tim5_info_show(void)
 }
 #endif /* TIM5_DBG */
 
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
-
+#endif /* AOS_COMP_PWRMGMT */

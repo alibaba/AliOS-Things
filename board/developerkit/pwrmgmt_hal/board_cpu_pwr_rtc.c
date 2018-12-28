@@ -11,7 +11,7 @@
 
 #include <k_api.h>
 
-#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+#if (AOS_COMP_PWRMGMT > 0)
 
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_rtc.h"
@@ -341,5 +341,4 @@ void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 
 #endif /* RTC_ONE_SHOT_DBG */
 
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
-
+#endif /* AOS_COMP_PWRMGMT */
