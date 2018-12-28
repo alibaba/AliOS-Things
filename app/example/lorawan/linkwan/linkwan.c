@@ -5,7 +5,7 @@
 #include "hw.h"
 #include "low_power.h"
 #include "linkwan.h"
-#include "lora/system/timer.h"
+#include "system/timer.h"
 #include "version.h"
 #include "radio.h"
 #include "delay.h"
