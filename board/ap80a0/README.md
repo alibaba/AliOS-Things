@@ -4,7 +4,7 @@
 
 ## Directories
 ```sh
-ap80 # configuration files for board ap80
+ap80a0 # configuration files for board ap80a0
 ```
 
 ## Board Hardware Resources:Introduce the hardware of the board, such as ram , rom and the number of uart , i2c, gpio and so on.
