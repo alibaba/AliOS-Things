@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := This is an AliOS Things based implementation of Breeze HAP AP
 
 $(NAME)_SOURCES-y := breeze_hal_ble.c breeze_hal_os.c
 
-$(NAME)_COMPONENTS-y := bt bt_profile
+$(NAME)_COMPONENTS-y := bluetooth.bt_host 
 
 enhanced_auth ?= 1
 ifeq ($(enhanced_auth),1)
