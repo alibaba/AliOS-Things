@@ -1,8 +1,8 @@
-NAME := board_ap80
+NAME := board_ap80a0
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
-$(NAME)_SUMMARY    := configuration for board ap80
+$(NAME)_SUMMARY    := configuration for board ap80a0
 MODULE             := 1062
 HOST_ARCH          := Cortex-M3
 HOST_MCU_FAMILY    := mcu_mvs_ap80xx
