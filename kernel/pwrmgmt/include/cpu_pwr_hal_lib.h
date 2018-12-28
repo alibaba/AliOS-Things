@@ -2,8 +2,8 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#ifndef K_CPU_PWR_HAL_H
-#define K_CPU_PWR_HAL_H
+#ifndef CPU_PWR_HAL_H
+#define CPU_PWR_HAL_H
 
 #ifdef __cplusplus
 extern "C"
@@ -12,7 +12,7 @@ extern "C"
 
 #include <k_err.h>
 
-#include "pwr_state.h"
+#include "pwrmgmt_state.h"
 
 #define CPU_PWR_NODE_NAME_LEN 64
 
@@ -59,4 +59,4 @@ extern pwr_status_t cpu_pwr_c_method_set(uint32_t cpu_idx, cpu_cstate_set_t cpu_
 }
 #endif
 
-#endif /* K_CPU_PWR_HAL_H */
+#endif /* CPU_PWR_HAL_H */

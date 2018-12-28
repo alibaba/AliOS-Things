@@ -33,15 +33,15 @@ void idle_task(void *arg)
         }
         RHINO_CPU_INTRPT_ENABLE();
 #endif
-        g_idle_count[cpu_cur_get()]++;
+        /* type conversion is used to avoid compiler optimization */
+        *(volatile idle_count_t*)(&g_idle_count[cpu_cur_get()]) = g_idle_count[cpu_cur_get()] + 1;
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
         krhino_idle_hook();
 #endif
 
-#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+#if (AOS_COMP_PWRMGMT > 0)
         cpu_pwr_down();
 #endif
     }
 }
-

@@ -10,18 +10,15 @@ This file provides Hardware Abstraction Layer of CPU power management support.
 
 #include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
-#include "cpu_pwr_api.h"
-#include "pwr_debug.h"
-
-/* debug switch of this file */
-#undef CPU_PWR_HAL_DBG
+#include "pwrmgmt_api.h"
+#include "pwrmgmt_debug.h"
 
 #define CPU_TREE_MUX_LOCK() \
         (void)krhino_mutex_lock(&cpu_pwr_hal_mux, RHINO_WAIT_FOREVER)
 #define CPU_TREE_MUX_UNLOCK() (void)krhino_mutex_unlock(&cpu_pwr_hal_mux)
 
 /* the index of this p_cpu_node_array implies the cpu logic id */
-cpu_pwr_t         *p_cpu_node_array[CPUS_NUM_MAX];
+cpu_pwr_t         *p_cpu_node_array[RHINO_CONFIG_CPU_NUM];
 static kmutex_t    cpu_pwr_hal_mux;
 static kspinlock_t cpu_pwr_lock;
 
@@ -36,7 +33,7 @@ cpu_pwr_t *cpu_pwr_node_find_by_name(char *p_name, uint32_t index)
 {
     int i = 0;
 
-    for (i = 0; i < CPUS_NUM_MAX; i++) {
+    for (i = 0; i < RHINO_CONFIG_CPU_NUM; i++) {
         if (p_cpu_node_array[i]->name == NULL) {
             continue;
         }
@@ -144,9 +141,9 @@ pwr_status_t cpu_pwr_node_record(cpu_pwr_t *p_cpu_node, uint32_t cpu_idx)
         return PWR_ERR;
     }
 
-    if (cpu_idx >= CPUS_NUM_MAX) {
+    if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
         PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                CPUS_NUM_MAX - 1);
+                RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
@@ -179,9 +176,9 @@ pwr_status_t cpu_pwr_c_method_set(uint32_t cpu_idx, cpu_cstate_set_t cpu_cstate_
     cpu_pwr_t   *p_cpu_node;
     pwr_status_t ret = PWR_OK;
 
-    if (cpu_idx >= CPUS_NUM_MAX) {
+    if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
         PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                CPUS_NUM_MAX - 1);
+                RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
@@ -204,7 +201,7 @@ pwr_status_t cpu_pwr_c_method_set(uint32_t cpu_idx, cpu_cstate_set_t cpu_cstate_
     /* set C state to C0 by default, is here the right place ?*/
     p_cpu_node->current_c_state = CPU_CSTATE_C0;
 
-    PWR_DBG(DBG_INFO, "set CPU(%s%d) C-state-set to 0x%08x\n",
+    PWR_DBG(DBG_INFO, "set CPU(%s%d) C-state-set(function) to 0x%08x\n",
             p_cpu_node->name, p_cpu_node->unit, cpu_cstate_set_func);
     PWR_DBG(DBG_INFO, "set CPU(%s%d) current_c_state to C%d\n",
             p_cpu_node->name, p_cpu_node->unit, p_cpu_node->current_c_state);
@@ -227,15 +224,13 @@ static pwr_status_t cpu_pwr_c_state_set_(cpu_pwr_t *p_cpu_node,
 
     state_c_match = (CPU_STATE_BIT(cpu_c_state) & p_cpu_node->support_bitset_c);
 
-#ifdef CPU_PWR_HAL_DBG
     if ((p_cpu_node->cpu_cstate_set_func != NULL) && (state_c_match == 0)) {
         PWR_DBG(DBG_INFO,
                 "%s%d(with supportCBitset[0x%08x]) "
                 "do not support C state P%d\n",
                 p_cpu_node->name, p_cpu_node->unit,
-                p_cpu_node->support_bitset_c, cpu_c_state, );
+                p_cpu_node->support_bitset_c, cpu_c_state);
     }
-#endif /* CPU_PWR_HAL_DBG */
 
     /*
      * If current p_cpu_node support cpu_cstate_set_func() and match the C state
@@ -315,9 +310,9 @@ static pwr_status_t _cpu_pwr_c_state_get(uint32_t cpu_idx,
 {
     cpu_pwr_t *p_cpu_node;
 
-    if (cpu_idx >= CPUS_NUM_MAX) {
+    if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
         PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                CPUS_NUM_MAX - 1);
+                RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
@@ -598,9 +593,9 @@ pwr_status_t cpu_pwr_c_state_capability_set(uint32_t cpu_idx, uint32_t support_b
     cpu_pwr_t   *p_cpu_node;
     pwr_status_t ret = PWR_OK;
 
-    if (cpu_idx >= CPUS_NUM_MAX) {
+    if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
         PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                CPUS_NUM_MAX - 1);
+                RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
@@ -636,9 +631,9 @@ pwr_status_t cpu_pwr_c_state_capability_get(uint32_t cpu_idx,
     cpu_pwr_t   *p_cpu_node;
     pwr_status_t ret = PWR_OK;
 
-    if (cpu_idx >= CPUS_NUM_MAX) {
+    if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
         PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                CPUS_NUM_MAX - 1);
+                RHINO_CONFIG_CPU_NUM - 1);
 
         return PWR_ERR;
     }
@@ -796,9 +791,9 @@ pwr_status_t cpu_pwr_c_state_latency_save(uint32_t cpu_idx, cpu_cstate_t cpu_c_s
     cpu_pwr_t   *p_cpu_node;
     pwr_status_t ret = PWR_OK;
 
-    if (cpu_idx >= CPUS_NUM_MAX) {
+    if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
         PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                CPUS_NUM_MAX - 1);
+                RHINO_CONFIG_CPU_NUM - 1);
         return PWR_ERR;
     }
 
@@ -879,9 +874,9 @@ uint32_t cpu_pwr_c_state_latency_get(uint32_t cpu_idx, cpu_cstate_t cpu_c_state)
 {
     cpu_pwr_t *p_cpu_node;
 
-    if (cpu_idx >= CPUS_NUM_MAX) {
+    if (cpu_idx >= RHINO_CONFIG_CPU_NUM) {
         PWR_DBG(DBG_ERR, "cpu_idx(%d) error, it should be 0 ~ %d\n", cpu_idx,
-                CPUS_NUM_MAX - 1);
+                RHINO_CONFIG_CPU_NUM - 1);
 
         return (uint32_t)CPU_LATENCY_UNKNOW;
     }
@@ -901,7 +896,7 @@ uint32_t cpu_pwr_c_state_latency_get(uint32_t cpu_idx, cpu_cstate_t cpu_c_state)
 void cpu_pwr_hal_lib_init(void)
 {
     /* clean the space */
-    memset(p_cpu_node_array, 0, sizeof(cpu_pwr_t *) *CPUS_NUM_MAX);
+    memset(p_cpu_node_array, 0, sizeof(cpu_pwr_t *) *RHINO_CONFIG_CPU_NUM);
 
     krhino_spin_lock_init(&cpu_pwr_lock);
 

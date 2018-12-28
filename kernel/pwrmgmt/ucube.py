@@ -7,4 +7,4 @@ src     = Split('''
 component = aos_component('pwrmgmt', src)
 
 component.add_global_includes('include')
-component.add_global_macros('AOS_PWRMGMT')
+component.add_global_macros('AOS_COMP_PWRMGMT')
