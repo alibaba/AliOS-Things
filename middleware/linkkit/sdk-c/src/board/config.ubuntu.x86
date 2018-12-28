@@ -19,6 +19,7 @@ CONFIG_ENV_CFLAGS   += \
     -DCONFIG_MBEDTLS_DEBUG_LEVEL=0 \
 
 
+
 ifneq (Darwin,$(strip $(shell uname)))
 CONFIG_ENV_CFLAGS   += -rdynamic
 CONFIG_ENV_CFLAGS   += -Werror
