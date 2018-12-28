@@ -1,4 +1,4 @@
-NAME := numaker-pfm-m487
+NAME := numaker-iot-m487
 
 $(NAME)_TYPE         := kernel
 MODULE               := 1062
@@ -26,7 +26,7 @@ $(NAME)_SOURCES += startup_M480.c
 GLOBAL_INCLUDES += . \
                    aos
            	   
-GLOBAL_CFLAGS += -DNUMAKER_PFM_M487
+GLOBAL_CFLAGS += -DNUMAKER_IOT_M487=1
 
 GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += STDIO_UART_BUADRATE=115200
@@ -43,14 +43,14 @@ HW_CRYPTO_AES_NUVOTON := 1
 GLOBAL_DEFINES += WITH_LWIP
 GLOBAL_DEFINES += LWIP_MAILBOX_QUEUE
 GLOBAL_DEFINES += LWIP_TIMEVAL_PRIVATE=0
-else ifeq ($(WIFI),1)
-SAL := 1
-press_test := 1
-no_with_lwip := 1
-GLOBAL_DEFINES += WITH_SAL
-GLOBAL_DEFINES += DEV_SAL_MK3060
-$(NAME)_COMPONENTS  += sal sal.wifi.mk3060
-module ?= wifi.mk3060
+#else ifeq ($(WIFI),1)
+#SAL := 1
+#press_test := 1
+#no_with_lwip := 1
+#GLOBAL_DEFINES += WITH_SAL
+#GLOBAL_DEFINES += DEV_SAL_ESP8266
+#$(NAME)_COMPONENTS  += sal sal.atparser sal.wifi.esp8266
+#module ?= wifi.esp8266
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif
