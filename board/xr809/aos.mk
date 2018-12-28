@@ -29,6 +29,8 @@ $(NAME)_SOURCES += config/k_config.c \
 
 $(NAME)_SOURCES += startup/startup_gcc.s
 
+$(NAME)_ASMFLAGS += -c -x assembler-with-cpp
+
 include $(SOURCE_ROOT)/platform/mcu/xr871/config.mk
 ifneq ($(no_with_xip),1)
 GLOBAL_LDFLAGS += -T board/xr871evb/xr871-xip.ld
