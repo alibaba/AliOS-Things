@@ -13,10 +13,10 @@ idle is entered when all CPUs are ready.
 
 #include <stdlib.h>
 
-#include "cpu_pwr_api.h"
+#include "pwrmgmt_api.h"
 #include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
-#include "pwr_debug.h"
+#include "pwrmgmt_debug.h"
 #include "cpu_tickless.h"
 
 /* 100 * 365 * 24 * 3600 * 1000 * 1000 = 0xB342EB7C38000 */
@@ -26,8 +26,8 @@ static uint32_t     tickless_ctate_mask; /* C-states support set */
 static cpu_cstate_t c_state_entered;
 static int          is_current_tickless = FALSE;
 
-static uint32_t          cStateConfig[CPUS_NUM_MAX];
-static uint32_t          cStateLatency[CPUS_NUM_MAX][CPU_CSTATE_MAX + 1];
+static uint32_t          cStateConfig[RHINO_CONFIG_CPU_NUM];
+static uint32_t          cStateLatency[RHINO_CONFIG_CPU_NUM][CPU_CSTATE_MAX + 1];
 static one_shot_timer_t *cStateOneShotTimer[CPU_CSTATE_MAX + 1];
 
 /*
@@ -108,7 +108,7 @@ pwr_status_t tickless_init(void)
     /* set cpu idle mode to run until initialization completes */
     cpu_pwr_idle_mode_set(CPU_IDLE_MODE_RUN);
 
-    for (cpu_idx = 0; cpu_idx < CPUS_NUM_MAX; cpu_idx++) {
+    for (cpu_idx = 0; cpu_idx < RHINO_CONFIG_CPU_NUM; cpu_idx++) {
         if (cpu_pwr_c_state_capability_get(cpu_idx, &cStateConfig[cpu_idx]) != PWR_OK) {
             return PWR_ERR;
         }

@@ -144,7 +144,7 @@ kstat_t krhino_intrpt_enter(void)
     g_intrpt_nested_level[cpu_cur_get()]++;
     RHINO_CPU_INTRPT_ENABLE();
 
-#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+#if (AOS_COMP_PWRMGMT > 0)
     cpu_pwr_up();
 #endif
 

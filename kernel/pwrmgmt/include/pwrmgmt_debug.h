@@ -2,8 +2,8 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 
-#ifndef K_PWR_DEBUG_H
-#define K_PWR_DEBUG_H
+#ifndef PWRMGMT_DEBUG_H
+#define PWRMGMT_DEBUG_H
 
 #ifdef __cplusplus
 extern "C"
@@ -13,7 +13,7 @@ extern "C"
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "cpu_pwr_default_config.h"
+#include "pwrmgmt_default_config.h"
 
 /*
  * when use debug, do not close uart when turn into pwr down state
@@ -29,14 +29,14 @@ typedef enum {
 
 void pwr_debug(pwr_debug_level_t debug_level, const char *fmt_str, ...);
 
-#if (RHINO_CONFIG_CPU_PWR_DEBUG > 0)
+#if (PWRMGMT_CONFIG_DEBUG > 0)
 #define PWR_DBG pwr_debug
 #else
 #define PWR_DBG(lvl, ...)
-#endif /* RHINO_CONFIG_CPU_PWR_DEBUG > DBG_OFF */
+#endif /* PWRMGMT_CONFIG_DEBUG > DBG_OFF */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* K_PWR_DEBUG_H */
+#endif /* PWRMGMT_DEBUG_H */
