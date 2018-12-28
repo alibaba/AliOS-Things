@@ -379,7 +379,6 @@ ais_err_t ble_stack_init(ais_bt_init_t *info)
 
     bt_conn_cb_register(&conn_callbacks);
     bt_gatt_service_register(&ais_svc);
-    dis_init("AIS", "AliOSThings");
     return AIS_ERR_SUCCESS;
 }
 
