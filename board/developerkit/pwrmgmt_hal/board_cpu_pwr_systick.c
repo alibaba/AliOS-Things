@@ -15,7 +15,7 @@ detail for how to implement these two functions.
 
 #include <k_api.h>
 
-#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+#if (AOS_COMP_PWRMGMT > 0)
 extern void HAL_SuspendTick(void);
 extern void HAL_ResumeTick(void);
 
@@ -28,5 +28,4 @@ void systick_resume(void)
 {
     HAL_ResumeTick();
 }
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
-
+#endif /* AOS_COMP_PWRMGMT */
