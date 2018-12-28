@@ -32,6 +32,7 @@ SRCS_linkkit-example-sched      := app_entry.c cJSON.c linkkit/linkkit_example_s
 SRCS_linkkit-example-solo       := app_entry.c cJSON.c linkkit/linkkit_example_solo.c
 SRCS_linkkit-example-countdown  := app_entry.c cJSON.c linkkit/linkkit_example_cntdown.c
 SRCS_linkkit-example-gw         := app_entry.c cJSON.c linkkit/linkkit_example_gateway.c
+SRCS_linkkit-example-dev-shadow := app_entry.c cJSON.c linkkit/linkkit_example_dev_shadow.c
 
 # Syntax of Append_Conditional
 # ---
@@ -75,6 +76,7 @@ $(call Append_Conditional, TARGET, linkkit-example-gw,          DEVICE_MODEL_ENA
 else
 $(call Append_Conditional, TARGET, linkkit-example-solo,        DEVICE_MODEL_ENABLED)
 $(call Append_Conditional, TARGET, linkkit-example-gw,          DEVICE_MODEL_ENABLED  DEVICE_MODEL_GATEWAY)
+$(call Append_Conditional, TARGET, linkkit-example-dev-shadow,  DEVICE_MODEL_ENABLED  DEVICE_MODEL_SHADOW)
 endif
 
 $(call Append_Conditional, TARGET, linkkit-example-countdown,   DEVICE_MODEL_ENABLED, DEVICE_MODEL_GATEWAY)
