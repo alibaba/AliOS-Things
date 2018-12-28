@@ -21,8 +21,8 @@ endmenu
 
 menu "BSP Configuration"
 source "board/Config.in"
-source "platform/arch/Config.in"
-source "platform/mcu/Config.in"
+#source "platform/arch/Config.in"
+#source "platform/mcu/Config.in"
 endmenu
 
 menu "Drivers Configuration"
