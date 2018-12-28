@@ -19,3 +19,5 @@ $(NAME)_SOURCES := debug_cpuusage.c  \
                    debug_panic.c     \
                    debug_backtrace.c \
                    debug_infoget.c
+
+GLOBAL_DEFINES += AOS_COMP_DEBUG
