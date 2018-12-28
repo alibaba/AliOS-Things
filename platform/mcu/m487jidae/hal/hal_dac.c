@@ -33,7 +33,7 @@ static int32_t platform_analogout_init(struct analogout_s *obj, PinName pin )
 {
 		struct nu_modinit_s *modinit;
 	
-		if ( obj->dac != (DACName) pinmap_peripheral(pin, PinMap_ADC))
+		if ( obj->dac != (DACName) pinmap_peripheral(pin, PinMap_DAC))
 			goto exit_platform_analogout_init;
 
 		if ( (modinit = get_modinit(obj->dac, dac_modinit_tab)) == NULL )
@@ -53,14 +53,15 @@ static int32_t platform_analogout_init(struct analogout_s *obj, PinName pin )
         // Enable clock of paired channels
         CLK_EnableModuleClock(modinit->clkidx);
 
-				/* This function make DAC module be ready to convert. */
-				DAC_Open(dac_base, 0, DAC_SOFTWARE_TRIGGER );
-
-				/* The DAC conversion settling time is 1us */
-				DAC_SetDelayTime(dac_base, 1);
-			
-				DAC_ENABLE_RIGHT_ALIGN(dac_base);
     }
+
+	/* This function make DAC module be ready to convert. */
+	DAC_Open(dac_base, 0, DAC_SOFTWARE_TRIGGER );
+
+	/* The DAC conversion settling time is 1us */
+	DAC_SetDelayTime(dac_base, 1);
+		
+    DAC_ENABLE_RIGHT_ALIGN(dac_base);
 
     uint32_t modinx =  NU_MODINDEX(obj->dac);
 
@@ -82,12 +83,24 @@ exit_platform_analogout_init:
 static void platform_analogout_finalize(struct analogout_s *obj )
 {
 	uint32_t modinx =  NU_MODINDEX(obj->dac);
+	struct nu_modinit_s *modinit;
+	DAC_T *dac_base;
+	
+	if ( (modinit = get_modinit(obj->dac, dac_modinit_tab)) == NULL )
+			goto exit_platform_analogout_finalize;
+		
+	dac_base = (DAC_T *) NU_MODBASE(obj->dac);
+	DAC_Close(dac_base, 0);
+
 	dac_modinit_mask &= ~(1 << modinx);
 	if ( !dac_modinit_mask )
 	{
-		DAC_T *dac_base = (DAC_T *) NU_MODBASE(obj->dac);
-		DAC_Close(dac_base, 0);
+		  // Disable clock of paired channels
+      CLK_DisableModuleClock(modinit->clkidx);		
 	}
+	
+exit_platform_analogout_finalize:
+		return;
 }
 
 static struct analogout_s* hal_get_analogout_s ( dac_dev_t *dac )

@@ -22,7 +22,7 @@
 #include <hal/hal.h>
 #include "board.h"
 
-#define MAX_BUF_UART_BYTES		1024
+#define MAX_BUF_UART_BYTES		(512)
 
 struct nu_uart_var {
     uint32_t    ref_cnt;                // Reference count of the H/W module
@@ -82,13 +82,13 @@ static uint32_t uart_modinit_mask = 0;
 
 static void hal_uart_rxbuf_irq ( struct nu_uart_var* psNuUartVar )
 {
-		uint8_t dat;
-		struct serial_s *obj = psNuUartVar->obj;
-		UART_T *uart_base = (UART_T *) NU_MODBASE(obj->uart);
-		do {
-				dat = (uint8_t)uart_base->DAT;
-				krhino_buf_queue_send(&psNuUartVar->fifo_queue_rx, &dat, 1);
-		} while (0);// ( (uart_base->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk) != 0 );
+	uint8_t dat;
+	struct serial_s *obj = psNuUartVar->obj;
+	UART_T *uart_base = (UART_T *) NU_MODBASE(obj->uart);
+	while ( UART_IS_RX_READY(uart_base) ) {
+		dat = (uint8_t)uart_base->DAT;
+		krhino_buf_queue_send(&psNuUartVar->fifo_queue_rx, &dat, 1);
+	}
 }
 
 static void uart_irq(struct nu_uart_var* psNuUartVar)
@@ -100,7 +100,7 @@ static void uart_irq(struct nu_uart_var* psNuUartVar)
         // Simulate clear of the interrupt flag. Temporarily disable the interrupt here and to be recovered on next read.
         UART_DISABLE_INT(uart_base, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
         hal_uart_rxbuf_irq ( psNuUartVar );
-				UART_ENABLE_INT ( uart_base, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk) );			
+		UART_ENABLE_INT ( uart_base, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk) );			
     }
 
 #if 0
@@ -443,21 +443,22 @@ exit_hal_uart_send:
 
 int32_t platform_uart_read(struct nu_uart_var *var, uint8_t pu8RxBuf[], uint32_t u32ReadBytes, uint32_t timeout )
 {
-		int32_t	ret=0, i, rev_size=0;
-		int rx_count = 0;
-		struct serial_s *pserial_s = var->obj;	
-		kbuf_queue_t *pBuffer_queue = &var->fifo_queue_rx;
-
-    for (i = 0; i < u32ReadBytes; i++)
-    {
-//			ret = krhino_buf_queue_recv(pBuffer_queue, timeout, &pu8RxBuf[i], &rev_size);
-			ret = krhino_buf_queue_recv(pBuffer_queue, RHINO_WAIT_FOREVER, &pu8RxBuf[i], &rev_size);
-      if (ret == 0 && (rev_size==1)) {
-          rx_count++;
-      } else break;
-    }
-	
-		return rx_count;
+	struct serial_s *pserial_s = var->obj;	
+	kbuf_queue_t *pBuffer_queue = &var->fifo_queue_rx;
+	uint32_t rx_count = 0;
+	size_t rev_size = 0;
+	int32_t	ret;
+	while (rx_count < u32ReadBytes) {
+		rev_size = u32ReadBytes - rx_count;
+		ret = krhino_buf_queue_recv(pBuffer_queue, krhino_ms_to_ticks(timeout), &pu8RxBuf[rx_count], &rev_size);
+		if ( u32ReadBytes < 1 )
+			printf("%s %d %d %d\r\n", __func__, u32ReadBytes, rx_count, rev_size);			
+		if((ret == 0) && (rev_size == 1)) {
+			rx_count += rev_size;
+		} else
+			break;
+	}
+	return rx_count;
 }
 
 /**
@@ -498,21 +499,21 @@ int32_t hal_uart_recv(uart_dev_t *uart, void *data, uint32_t expect_size, uint32
 	pserial_s = var->obj;
 
 	/* Wait for Lock */
-  stat = krhino_mutex_lock(&var->port_rx_mutex, timeout);
-  if (stat != RHINO_SUCCESS)
-     goto exit_hal_uart_recv;
+	stat = krhino_mutex_lock(&var->port_rx_mutex, timeout);
+	if (stat != RHINO_SUCCESS)
+		goto exit_hal_uart_recv;
 
 	count = platform_uart_read(var, (uint8_t*)data, expect_size, timeout);	
 
 	/* Unlock before exiting. */
-  stat = krhino_mutex_unlock(&var->port_rx_mutex);
-  if (stat != RHINO_SUCCESS)
-    goto exit_hal_uart_recv;
+	stat = krhino_mutex_unlock(&var->port_rx_mutex);
+	if (stat != RHINO_SUCCESS)
+		goto exit_hal_uart_recv;
 	
 	if ( count != expect_size  )
 		goto exit_hal_uart_recv;
 
-  return HAL_OK;
+	return HAL_OK;
     
 exit_hal_uart_recv:
 

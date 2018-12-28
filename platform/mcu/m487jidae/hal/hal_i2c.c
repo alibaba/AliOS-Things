@@ -667,16 +667,19 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
 		pinmap_pinout(pi2c_s->pin_sda, PinMap_I2C_SDA);
 		pinmap_pinout(pi2c_s->pin_scl, PinMap_I2C_SCL);
 
-    // NOTE: Setting I2C bus clock to 100 KHz is required.
-    I2C_Open((I2C_T *) NU_MODBASE(s_I2cName), 100000);
-		
-    // NOTE: INTEN bit and FSM control bits (STA, STO, SI, AA) are packed in one register CTL0. We cannot control interrupt through
-    //       INTEN bit without impacting FSM control bits. Use NVIC_EnableIRQ/NVIC_DisableIRQ instead for interrupt control.
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(s_I2cName);
-    i2c_base->CTL0 |= (I2C_CTL0_INTEN_Msk | I2C_CTL0_I2CEN_Msk);
+		// NOTE: Setting I2C bus clock to 100 KHz is required.
+		I2C_Open((I2C_T *) NU_MODBASE(s_I2cName), 100000);
+			
+		// NOTE: INTEN bit and FSM control bits (STA, STO, SI, AA) are packed in one register CTL0. We cannot control interrupt through
+		//       INTEN bit without impacting FSM control bits. Use NVIC_EnableIRQ/NVIC_DisableIRQ instead for interrupt control.
+		I2C_T *i2c_base = (I2C_T *) NU_MODBASE(s_I2cName);
+		i2c_base->CTL0 |= (I2C_CTL0_INTEN_Msk | I2C_CTL0_I2CEN_Msk);
 		
 		// Slave mode?
 		platform_i2c_mode(s_I2cName, i2c->config.mode);		
+
+		/* Link parent and children. */
+		var->obj = pi2c_s ;
 
 	} // if (! var->ref_cnt)
 	
@@ -686,7 +689,7 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
 		// Mark this module to be inited.
 		int i = modinit - i2c_modinit_tab;
 		i2c_modinit_mask |= 1 << i;
-  }
+	}
 	
 	return HAL_OK;
 	
