@@ -25,7 +25,7 @@ Jaeckle ( STACKFORCE )
 #include <math.h>
 
 #include "radio.h"
-#include "timeServer.h"
+#include "system/timer.h"
 #include "LoRaMac.h"
 
 #include "utilities.h"
