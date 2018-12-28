@@ -1,23 +1,9 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: contains all hardware driver
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
-/******************************************************************************
- * @file    hw.h
+/*******************************************************************************
+ * @file    low_power.c
  * @author  MCD Application Team
  * @version V1.1.1
  * @date    01-June-2017
- * @brief   contains all hardware driver
+ * @brief   driver for low power
  ******************************************************************************
  * @attention
  *
@@ -58,51 +44,85 @@ Maintainer: Miguel Luis and Gregory Cristian
  ******************************************************************************
  */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __HW_H__
-#define __HW_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 /* Includes ------------------------------------------------------------------*/
-#include <math.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include "hw_conf.h"
-#include "gpio-board.h"
-#include "rtc-board.h"
-#include "hw_msp.h"
+#include "low_power.h"
+#include "lorawan_port.h"
 #include "debug.h"
-#include "uart-board.h"
 
-typedef enum
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+
+/**
+ * \brief Flag to indicate if MCU can go to low power mode
+ *        When 0, MCU is authorized to go in low power mode
+ */
+static uint32_t LowPower_State = 0;
+
+/* Private function prototypes -----------------------------------------------*/
+
+
+/* Exported functions
+ * ---------------------------------------------------------*/
+
+/**
+ * \brief API to set flag allowing power mode
+ *
+ * \param [IN] enum e_LOW_POWER_State_Id_t
+ */
+void LowPower_Disable(e_LOW_POWER_State_Id_t state)
 {
-  HW_UNLOCKED = 0x00U,
-  HW_LOCKED   = 0x01U
-} HW_LockTypeDef;
-
-#define HW_LOCK(__HANDLE__)               \
-  do {                                    \
-    if ((__HANDLE__)->Lock == HW_LOCKED)  \
-    {                                     \
-      return;                             \
-    }                                     \
-    else                                  \
-    {                                     \
-      (__HANDLE__)->Lock = HW_LOCKED;     \
-    }                                     \
-  } while (0)
-
-#define HW_UNLOCK(__HANDLE__)             \
-  do {                                    \
-    (__HANDLE__)->Lock = HW_UNLOCKED;     \
-  } while (0)
-
-#ifdef __cplusplus
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
+    LowPower_State |= state;
+    RHINO_CPU_INTRPT_ENABLE();
 }
-#endif
 
-#endif /* __HW_H__ */
+/**
+ * \brief API to reset flag allowing power mode
+ *
+ * \param [IN] enum e_LOW_POWER_State_Id_t
+ */
+void LowPower_Enable(e_LOW_POWER_State_Id_t state)
+{
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
+    LowPower_State &= ~state;
+    RHINO_CPU_INTRPT_ENABLE();
+}
+
+/**
+ * \brief API to get flag allowing power mode
+ * \note When flag is 0, low power mode is allowed
+ * \param [IN] state
+ * \retval flag state
+ */
+uint32_t LowPower_GetState(void)
+{
+    return LowPower_State;
+}
+
+/**
+ * @brief  Handle Low Power
+ * @param  None
+ * @retval None
+ */
+
+void BoardLowPowerHandler(void)
+{
+    CPSR_ALLOC();
+    RHINO_CPU_INTRPT_DISABLE();
+
+    if (LowPower_State == 0) {
+        aos_lrwan_chg_mode.enter_stop_mode();
+        /* mcu dependent. to be implemented by user*/
+        aos_lrwan_chg_mode.exit_stop_mode();
+        RtcSetMcuWakeUpTime();
+    } else {
+        aos_lrwan_chg_mode.enter_sleep_mode();
+    }
+
+    RHINO_CPU_INTRPT_ENABLE();
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

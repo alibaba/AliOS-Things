@@ -71,10 +71,11 @@ extern "C" {
 #include <stdint.h>
 #include "hw_conf.h"
 #include "gpio-board.h"
+#include "system/spi.h"
 #include "rtc-board.h"
 #include "hw_msp.h"
 #include "debug.h"
-#include "uart-board.h"
+#include "sx1276-m400.h"
 
 typedef enum
 {
@@ -105,4 +106,3 @@ typedef enum
 
 #endif /* __HW_H__ */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

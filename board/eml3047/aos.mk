@@ -12,19 +12,22 @@ SUPPORT_MBINS      := no
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
 
-$(NAME)_SOURCES := board.c          \
-                   src/debug.c      \
-                   src/hw_gpio.c    \
-                   src/hw_spi.c     \
-                   src/hw_rtc.c     \
-                   src/eml3047_hw.c \
-                   src/eml3047_it.c \
-                   src/vcom.c
+$(NAME)_SOURCES := board.c           \
+                   src/debug.c       \
+                   src/gpio-board.c  \
+                   src/spi-board.c   \
+                   src/rtc-board.c   \
+                   src/delay-board.c \
+                   src/eml3047_hw.c  \
+                   src/eml3047_it.c  \
+                   src/uart-board.c  \
+                   src/low_power.c   \
+                   src/utilities.c
 
 linkwan         ?= 1
 ifeq ($(linkwan), 1)
 $(NAME)_SOURCES += src/lorawan_port.c \
-                   src/eml3047_lrwan.c
+                   src/sx1276-eml3047.c
 
 lorawanback      ?= 0
 ifeq ($(lorawanback), 0)
