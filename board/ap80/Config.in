@@ -1,8 +1,0 @@
-menuconfig AOS_BOARD_AP80
-    bool "ap80"
-    select AOS_MCU_MVS_AP80XX
-    help
-
-if AOS_BOARD_AP80
-# Configurations for board ap80
-endif
