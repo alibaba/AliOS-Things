@@ -234,6 +234,7 @@ static struct bt_hci_driver drv = {
     .bus    = BT_HCI_DRIVER_BUS_VIRTUAL,
     .open   = esp32_hci_driver_open,
     .send   = esp32_hci_driver_send,
+    .recv   = NULL,
 };
 
 int hci_driver_init()

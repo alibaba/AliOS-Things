@@ -42,8 +42,6 @@
 #include <arch_isr.h>
 #include "kport.h"
 
-
-
 /* Global singletons */
 
 /* memory for storing Random number */
@@ -78,7 +76,7 @@ static u8_t MALIGN(4) _ticker_user_ops[TICKER_USER_OPS][TICKER_USER_OP_T_SIZE];
 /* memory for Bluetooth Controller (buffers, queues etc.) */
 static u8_t MALIGN(4) _radio[LL_MEM_TOTAL];
 
-static struct k_sem *sem_recv;
+static rcvd_callback_t pkt_recv;
 
 static struct {
 	u8_t pub_addr[BDADDR_SIZE];
@@ -152,8 +150,9 @@ void radio_active_callback(u8_t active)
 
 void radio_event_callback(void)
 {
-	k_sem_give(sem_recv);
+    pkt_recv();
 }
+
 /*
 ISR_DIRECT_DECLARE(radio_nrf5_isr)
 {
@@ -216,21 +215,19 @@ void RNG_IRQHandler(void *arg)
 void SWI4_EGU4_IRQHandler(void *arg)
 {
     krhino_intrpt_enter();
-
-	mayfly_run(MAYFLY_CALL_ID_1);
-    
+    mayfly_run(MAYFLY_CALL_ID_1);
     krhino_intrpt_exit();
 }
 
-int ll_init(struct k_sem *sem_rx)
+int ll_init(rcvd_callback_t pkt_rcvd)
 {
 	struct device *clk_k32;
 	struct device *clk_m16;
 	u32_t err;
 
-	sem_recv = sem_rx;
-    extern struct k_mutex mutex_rand;
-    k_mutex_init(&mutex_rand);
+        pkt_recv = pkt_rcvd;
+        extern struct k_mutex mutex_rand;
+        k_mutex_init(&mutex_rand);
 
 	/* TODO: bind and use RNG driver */
 	rand_init(rand_context, sizeof(rand_context), RAND_THREAD_THRESHOLD);

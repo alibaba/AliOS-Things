@@ -8,7 +8,8 @@
 #ifndef _LL_H_
 #define _LL_H_
 
-int ll_init(struct k_sem *sem_rx);
+typedef void (* rcvd_callback_t)(void);
+int ll_init(rcvd_callback_t pkt_rcvd);
 void ll_reset(void);
 void ll_radio_state_abort(void);
 u32_t ll_radio_state_is_idle(void);
