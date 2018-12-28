@@ -26,8 +26,9 @@ from config_mk import Projects
 #                             <Files> ... </Files>
 # keil_device = ...      -> Device
 # keil_vendor = ...      -> Vendor
-# global_cflags = ...    -> MiscControls
-# global_ldflags = ...   -> Get ScatterFile
+# global_cflags = ...    -> MiscControls (cflags)
+# global_ldflags = ...   -> ScatterFile, Misc
+# global_asmflags = ...  -> MiscControls (asmflags)
 # global_includes = ...  -> IncludePath
 # global_defines = ...   -> Define
 #
@@ -45,10 +46,12 @@ element_dict = {
     "Vendor": { "xpath": "Targets/Target/TargetOption/TargetCommonOption/Vendor" },
     "OutputName": { "xpath": "Targets/Target/TargetOption/TargetCommonOption/OutputName" },
     "ScatterFile": { "xpath": "Targets/Target/TargetOption/TargetArmAds/LDads/ScatterFile" },
+    "Misc": { "xpath": "Targets/Target/TargetOption/TargetArmAds/LDads/Misc" },
     "AdsCpuType": { "xpath": "Targets/Target/TargetOption/TargetArmAds/ArmAdsMisc/AdsCpuType" },
     "Define": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/Define" },
     "IncludePath": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/IncludePath" },
-    "MiscControls": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/MiscControls" },
+    "MiscControls_cflags": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/MiscControls" },
+    "MiscControls_asmflags": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Aads/VariousControls/MiscControls" },
 }
 
 def create_file(data, filename):
@@ -70,13 +73,16 @@ def get_element_value(element_dict, buildstring):
     element_dict["Vendor"]["value"] = config_mk.keil_vendor
 
     # ScatterFile = the matched part in LDFLAGS "--scatter=(*.sct)"
-    patten = re.compile(r".*scatter=(.*\.sct).*")
+    # Misc = global ldflags
+    patten = re.compile(r"(.*)-L\s+--scatter=(.*\.sct)(.*)")
     match = patten.match(config_mk.global_ldflags)
     if match:
-        scatterfile = AOS_RELATIVE_PATH + match.group(1)
+        scatterfile = AOS_RELATIVE_PATH + match.group(2)
         element_dict["ScatterFile"]["value"] = scatterfile
+        element_dict["Misc"]["value"] = match.group(1) + match.group(3)
     else:
         element_dict["ScatterFile"]["value"] = ""
+        element_dict["Misc"]["value"] = config_mk.global_ldflags
 
     # AdsCpuType = HOST_ARCH that defined in board makefile
     element_dict["AdsCpuType"]["value"] = config_mk.host_arch
@@ -90,8 +96,11 @@ def get_element_value(element_dict, buildstring):
     include_path = ";".join([AOS_RELATIVE_PATH + item for item in include_path.split()])
     element_dict["IncludePath"]["value"] = include_path
 
-    # MiscControls = global cflags
-    element_dict["MiscControls"]["value"] = config_mk.global_cflags
+    # MiscControls_cflags = global cflags
+    element_dict["MiscControls_cflags"]["value"] = config_mk.global_cflags
+
+    # MiscControls_asmflags = global asmflags
+    element_dict["MiscControls_asmflags"]["value"] = config_mk.global_asmflags
 
 def file_type_value(fn):
     """ Mapping Number and Filetype """
@@ -153,9 +162,6 @@ def gen_projxfile(tree, target, buildstring, Projects):
         os.makedirs(project_opts_path)
 
     root = tree.getroot()
-    out = file(target, 'wb')
-    out.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
-    
     get_element_value(element_dict, buildstring)
 
     for key in element_dict:
