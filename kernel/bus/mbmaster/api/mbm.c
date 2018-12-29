@@ -7,6 +7,7 @@
 #include "../adu/rtu/rtu.h"
 #include "../pdu/pdu.h"
 
+#if (MBMASTER_CONFIG_RTU_ENABLED > 0)
 mb_status_t mbmaster_rtu_init(mb_handler_t **req_handler, uint8_t port, uint32_t baud_rate, mb_parity_t parity)
 {
     mb_handler_t *handler;
@@ -48,3 +49,4 @@ mb_status_t mbmaster_rtu_uninit(mb_handler_t *req_handler)
 
     return status;
 }
+#endif /* MBMASTER_CONFIG_RTU_ENABLED */

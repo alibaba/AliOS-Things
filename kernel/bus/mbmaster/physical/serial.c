@@ -5,6 +5,7 @@
 #include <mbmaster_api.h>
 #include "serial.h"
 
+#if ((MBMASTER_CONFIG_RTU_ENABLED > 0) || (MBMASTER_CONFIG_ASCII_ENABLED > 0))
 static uart_dev_t uart_mb;
 
 mb_status_t mb_serial_init(mb_handler_t *handler, uint8_t port, uint32_t baud_rate, uint8_t data_width, mb_parity_t parity)
@@ -88,3 +89,5 @@ mb_status_t mb_serial_frame_recv(mb_handler_t *handler)
 
     return MB_SLAVE_NO_RESPOND;
 }
+
+#endif /* (MBM_RTU_ENABLED > 0) || (MBM_ASCII_ENABLED > 0) */
