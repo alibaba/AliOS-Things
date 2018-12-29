@@ -1805,7 +1805,11 @@
  * If LWIP_SO_RCVBUF is used, this is the default value for recv_bufsize.
  */
 #if !defined RECV_BUFSIZE_DEFAULT || defined __DOXYGEN__
+#ifdef CELLULAR_SUPPORT
+#define RECV_BUFSIZE_DEFAULT            0x7fffffff
+#else
 #define RECV_BUFSIZE_DEFAULT            INT_MAX
+#endif /* CELLULAR_SUPPORT */
 #endif
 
 /**
@@ -2191,7 +2195,9 @@
  * LWIP_IPV6_DUP_DETECT_ATTEMPTS=[0..7]: Number of duplicate address detection attempts.
  */
 #if !defined LWIP_IPV6_DUP_DETECT_ATTEMPTS || defined __DOXYGEN__
+#ifndef CELLULAR_SUPPORT
 #define LWIP_IPV6_DUP_DETECT_ATTEMPTS   1
+#endif
 #endif
 /**
  * @}
@@ -2302,7 +2308,11 @@
  * (neighbor solicit and router solicit)
  */
 #if !defined LWIP_ND6_MAX_MULTICAST_SOLICIT || defined __DOXYGEN__
+#ifdef CELLULAR_SUPPORT
+#define LWIP_ND6_MAX_MULTICAST_SOLICIT  6
+#else
 #define LWIP_ND6_MAX_MULTICAST_SOLICIT  3
+#endif /* CELLULAR_SUPPORT */
 #endif
 
 /**

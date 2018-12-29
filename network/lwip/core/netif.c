@@ -270,7 +270,11 @@ netif_add(struct netif *netif,
 #endif /* LWIP_NUM_NETIF_CLIENT_DATA */
 #if LWIP_IPV6_AUTOCONFIG
   /* IPv6 address autoconfiguration not enabled by default */
+#ifdef CELLULAR_SUPPORT
+  netif->ip6_autoconfig_enabled = 1;
+#else
   netif->ip6_autoconfig_enabled = 0;
+#endif /* CELLULAR_SUPPORT */
 #endif /* LWIP_IPV6_AUTOCONFIG */
 #if LWIP_IPV6_SEND_ROUTER_SOLICIT
   netif->rs_count = LWIP_ND6_MAX_MULTICAST_SOLICIT;
@@ -305,6 +309,12 @@ netif_add(struct netif *netif,
 #if LWIP_IPV4
   netif_set_addr(netif, ipaddr, netmask, gw);
 #endif /* LWIP_IPV4 */
+#ifdef CELLULAR_SUPPORT
+  for(int i=0; i<DNS_MAX_SERVERS; i++)
+  {
+      ip_addr_set_zero(&netif->dns_srv[i]);
+  }
+#endif
 
   /* call user specified initialization function for netif */
   if (init(netif) != ERR_OK) {
@@ -1172,6 +1182,36 @@ netif_get_ip6_addr_match(struct netif *netif, const ip6_addr_t *ip6addr)
   return -1;
 }
 
+#ifdef CELLULAR_SUPPORT
+void
+netif_create_ip6_linklocal_address_from_if_id(struct netif *netif, u8_t *if_id)
+{
+  u8_t i, addr_index;
+
+  /* Link-local prefix. */
+  ip_2_ip6(&netif->ip6_addr[0])->addr[0] = PP_HTONL(0xfe800000ul);
+  ip_2_ip6(&netif->ip6_addr[0])->addr[1] = 0;
+  ip_2_ip6(&netif->ip6_addr[0])->addr[2] = PP_HTONL(if_id[0]<<24|if_id[1]<<16|if_id[2]<<8|if_id[3]);
+  ip_2_ip6(&netif->ip6_addr[0])->addr[3] = PP_HTONL(if_id[4]<<24|if_id[5]<<16|if_id[6]<<8|if_id[7]);
+  /* Set a link-local zone. Even though the zone is implied by the owning
+   * netif, setting the zone anyway has two important conceptual advantages:
+   * 1) it avoids the need for a ton of exceptions in internal code, allowing
+   *    e.g. ip6_addr_cmp() to be used on local addresses;
+   * 2) the properly zoned address is visible externally, e.g. when any outside
+   *    code enumerates available addresses or uses one to bind a socket.
+   * Any external code unaware of address scoping is likely to just ignore the
+   * zone field, so this should not create any compatibility problems. */
+  ip6_addr_assign_zone(ip_2_ip6(&netif->ip6_addr[0]), IP6_UNICAST, netif);
+  /* Set address state. */
+#if LWIP_IPV6_DUP_DETECT_ATTEMPTS
+  /* Will perform duplicate address detection (DAD). */
+  netif_ip6_addr_set_state(netif, 0, IP6_ADDR_TENTATIVE);
+#else
+  /* Consider address valid. */
+  netif_ip6_addr_set_state(netif, 0, IP6_ADDR_PREFERRED);
+#endif /* LWIP_IPV6_AUTOCONFIG */
+}
+#endif /* CELLULAR_SUPPORT */
 /**
  * @ingroup netif_ip6
  * Create a link-local IPv6 address on a netif (stored in slot 0)
