@@ -11,6 +11,10 @@
 #include "aos/kernel.h"
 #include "hal/wifi.h"
 
+#ifdef AOS_COMP_PWRMGMT
+#include <pwrmgmt_api.h>
+#endif /* AOS_COMP_PWRMGMT */
+
 #include <network/network.h>
 #ifdef WITH_LWIP_TFTP
 #include "lwip/ip_addr.h"
@@ -289,6 +293,10 @@ int aos_components_init(kinit_t *kinit)
 #endif
 
     aos_show_welcome();
+
+#ifdef AOS_COMP_PWRMGMT
+    cpu_pwrmgmt_init();
+#endif /* AOS_COMP_PWRMGMT */
 
 #ifdef AOS_BINS
     app_pre_init();
