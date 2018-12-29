@@ -16,7 +16,7 @@ extern "C"
 
 #include "k_api.h"
 #include "aos/vfs.h"
-#include "posix_default_config.h"
+#include "posix_config.h"
 
 #define DT_UNKNOWN 0
 #define DT_FIFO    1

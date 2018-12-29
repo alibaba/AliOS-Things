@@ -13,7 +13,7 @@ extern "C" {
 
 #include "k_api.h"
 #include "posix/signal.h"
-#include "posix_default_config.h"
+#include "posix_config.h"
 
 #define NANOSECONDS_PER_SECOND       1000000000LL
 #define MICROSECONDS_PER_SECOND      1000000LL
