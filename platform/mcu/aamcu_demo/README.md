@@ -5,7 +5,6 @@ Dir\File                          Description                       Necessary fo
 |-- drivers                 # board peripheral driver                          Y
 |-- hal                     # hal API layer, hal uart is necessary             Y
 |-- aamcu_demo.mk           # mcu makefile                                     Y
-|-- Config.in               # menuconfig component config                      Y
 |-- ucube.py                # aos build system file(for scons)                 N
 |-- README.md                                                                  Y
 
