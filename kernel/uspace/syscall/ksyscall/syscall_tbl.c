@@ -207,6 +207,7 @@ void *syscall_tbl[] = {
 #if LWIP_PACKET
     [SYS_LWIP_TRY_WAKEUP]  = sys_lwip_try_wakeup_stub,
 #endif
+    [SYS_LWIP_GETHOSTBYNAME]      = sys_lwip_gethostbyname_stub,
     [SYS_LWIP_GETHOSTBYNAME_R]    = sys_lwip_gethostbyname_r_stub,
     [SYS_LWIP_FREEADDRINFO]       = sys_lwip_freeaddrinfo_stub,
     [SYS_LWIP_GETADDRINOF]        = sys_lwip_getaddrinfo_stub,

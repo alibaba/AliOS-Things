@@ -9,7 +9,7 @@ int32_t sys_hal_adc_init_stub(void *arg);
 
 int32_t sys_hal_adc_value_get_stub(void *arg);
 
-int32_t sys_hal_hal_adc_finalize_stub(void *arg);
+int32_t sys_hal_adc_finalize_stub(void *arg);
 
 #endif /* HAL_ADC_KSYSCALL_H */
 
