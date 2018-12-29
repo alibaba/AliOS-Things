@@ -20,7 +20,7 @@ int32_t sys_hal_adc_value_get_stub(void *arg)
     return hal_adc_value_get(_arg->adc, _arg->output, _arg->timeout);
 }
 
-int32_t sys_hal_hal_adc_finalize_stub(void *arg)
+int32_t sys_hal_adc_finalize_stub(void *arg)
 {
     hal_adc_finalize_syscall_arg_t *_arg = arg;
 

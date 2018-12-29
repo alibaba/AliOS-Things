@@ -6,6 +6,7 @@
 #define LWIP_SYSCALL_ARH_H
 
 #include <lwip/sockets.h>
+#include <lwip/netdb.h>
 
 typedef struct {
     int              s;
@@ -164,6 +165,13 @@ typedef struct {
 #endif
 
 typedef struct {
+    const char *name;
+    char       *aliases;
+    ip_addr_t  *hostent_addr;
+    char       *hostname;
+} lwip_gethostbyname_syscall_arg_t;
+
+typedef struct {
     const char      *name;
     struct hostent  *ret;
     char            *buf;
@@ -180,7 +188,8 @@ typedef struct {
     const char             *nodename;
     const char             *servname;
     const struct addrinfo  *hints;
-    struct addrinfo       **res;
+    struct addrinfo        *ai;
+    struct sockaddr        *sa;
 } lwip_getaddrinfo_syscall_arg_t;
 
 #endif /* LWIP_SYSCALL_ARH_H */

@@ -55,6 +55,8 @@ int sys_lwip_eventfd_stub(void *arg);
 int sys_lwip_try_wakeup_stub(void *arg);
 #endif
 
+int sys_lwip_gethostbyname_stub(void *arg);
+
 int sys_lwip_gethostbyname_r_stub(void *arg);
 
 void sys_lwip_freeaddrinfo_stub(void *arg);
