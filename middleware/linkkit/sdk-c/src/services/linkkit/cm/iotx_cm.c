@@ -24,13 +24,11 @@ static int inited_conn_num = 0;
     static int yield_task_leave = 1;
 #endif
 
-const char ERR_INVALID_PARAMS[] CM_READ_ONLY  = "invalid parameter";
+const char ERR_INVALID_PARAMS[] = "invalid parameter";
 int iotx_cm_open(iotx_cm_init_param_t *params)
 {
     int fd;
     iotx_cm_connection_t *connection = NULL;
-
-    POINTER_SANITY_CHECK(params, NULL_VALUE_ERROR);
 
     switch (params->protocol_type) {
         case IOTX_CM_PROTOCOL_TYPE_MQTT:
@@ -44,17 +42,16 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 #endif
             break;            
         default:
-            CM_WARN("protocol %d not support yet", params->protocol_type);
             break;
     }
 
     if (connection == NULL) {
-        CM_ERR("iotx_cm_open_mqtt failed");
+        cm_err("cm opon failed");
         return -1;
     }
     fd = _get_fd(connection);
     if (fd < 0) {
-        CM_ERR("get fd failed");
+        cm_err("get fd failed");
         connection->close_func();
         return -1;
     }
@@ -65,7 +62,7 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 int iotx_cm_connect(int fd, uint32_t timeout)
 {
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
     iotx_cm_connect_fp connect_func;
@@ -104,8 +101,11 @@ int iotx_cm_connect(int fd, uint32_t timeout)
 
 static int _iotx_cm_yield(int fd, unsigned int timeout)
 {
-    POINTER_SANITY_CHECK(fd_lock, NULL_VALUE_ERROR);
     iotx_cm_yield_fp yield_func;
+
+    if (fd_lock == NULL) {
+        return NULL_VALUE_ERROR;
+    }
 
     if (fd == -1) {
         int i;
@@ -124,7 +124,7 @@ static int _iotx_cm_yield(int fd, unsigned int timeout)
     }
 
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
@@ -159,12 +159,13 @@ int iotx_cm_yield(int fd, unsigned int timeout)
 int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
                 iotx_cm_data_handle_cb topic_handle_func, void *pcontext)
 {
+    iotx_cm_sub_fp sub_func;
+
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
-    iotx_cm_sub_fp sub_func;
     HAL_MutexLock(fd_lock);
     sub_func =  _cm_fd[fd]->sub_func;
     HAL_MutexUnlock(fd_lock);
@@ -173,12 +174,13 @@ int iotx_cm_sub(int fd, iotx_cm_ext_params_t *ext, const char *topic,
 
 int iotx_cm_unsub(int fd, const char *topic)
 {
+    iotx_cm_unsub_fp unsub_func;
+
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
-    iotx_cm_unsub_fp unsub_func;
     HAL_MutexLock(fd_lock);
     unsub_func =  _cm_fd[fd]->unsub_func;
     HAL_MutexUnlock(fd_lock);
@@ -189,12 +191,13 @@ int iotx_cm_unsub(int fd, const char *topic)
 
 int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char *payload, unsigned int payload_len)
 {
+    iotx_cm_pub_fp pub_func;
+    
     if (_fd_is_valid(fd) == -1) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
-    iotx_cm_pub_fp pub_func;
     HAL_MutexLock(fd_lock);
     pub_func =  _cm_fd[fd]->pub_func;
     HAL_MutexUnlock(fd_lock);
@@ -203,8 +206,10 @@ int iotx_cm_pub(int fd, iotx_cm_ext_params_t *ext, const char *topic, const char
 
 int iotx_cm_close(int fd)
 {
+    iotx_cm_close_fp close_func;
+
     if (_fd_is_valid(fd) != 0) {
-        CM_ERR(ERR_INVALID_PARAMS);
+        cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
 
@@ -217,7 +222,6 @@ int iotx_cm_close(int fd)
 #endif
     }
 
-    iotx_cm_close_fp close_func;
     HAL_MutexLock(fd_lock);
     close_func = _cm_fd[fd]->close_func;
     HAL_MutexUnlock(fd_lock);
@@ -241,9 +245,14 @@ int iotx_cm_close(int fd)
 
 static int inline _fd_is_valid(int fd)
 {
-    POINTER_SANITY_CHECK(fd_lock, NULL_VALUE_ERROR);
+    int ret;
+
+    if (fd_lock == NULL) {
+        return NULL_VALUE_ERROR;
+    }
+
     HAL_MutexLock(fd_lock);
-    int ret = (fd >= 0 && fd < CM_MAX_FD_NUM && _cm_fd[fd] != NULL) ? 0 : -1;
+    ret = (fd >= 0 && fd < CM_MAX_FD_NUM && _cm_fd[fd] != NULL) ? 0 : -1;
     HAL_MutexUnlock(fd_lock);
     return ret;
 }
@@ -271,7 +280,9 @@ static int _recycle_fd(int fd)
 static int _get_fd(iotx_cm_connection_t *handle)
 {
     int i;
-    POINTER_SANITY_CHECK(handle, NULL_VALUE_ERROR);
+    if (handle == NULL) {
+        return NULL_VALUE_ERROR;
+    }
 
     if (fd_lock == NULL) {
         fd_lock = HAL_MutexCreate();
@@ -289,6 +300,6 @@ static int _get_fd(iotx_cm_connection_t *handle)
         }
     }
     HAL_MutexUnlock(fd_lock);
-    CM_ERR("cm fd reached the limit");
+    cm_err("cm fd reached the limit");
     return -1;
 }
