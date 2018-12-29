@@ -6,7 +6,7 @@
 #include "usb_device_endpoints.h"
 #include "usb_device.h"
 #include "usb_device_descriptor.h"
-#include "aos/hal/usb_device_hal.h"
+#include "aos/hal/usbd.h"
 
 
 //#define DEBUG
