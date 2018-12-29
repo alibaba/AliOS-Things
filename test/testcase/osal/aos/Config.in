@@ -1,7 +1,7 @@
 menuconfig AOS_COMP_AOS_TEST
     bool "aos_test"
     default n
-    select AOS_COMP_AOS_TEST
+    select AOS_COMP_OSAL_AOS
     help
 
 if AOS_COMP_AOS_TEST
