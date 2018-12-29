@@ -12,6 +12,8 @@
 #include "hal_uart_stm32f4.h"
 #include "board.h"
 
+#include <aos/log.h>
+
 #define AOS_START_STACK 1536
 
 static ktask_t demo_task_obj;
@@ -30,6 +32,10 @@ static void sys_init(void)
     stm32_soc_init();
 
     /* hw_start_hal(); */
+
+    log_no_cli_init();
+
+    LOG("strart lwip_tcpip_init\r\n");
 
     lwip_tcpip_init();
 
