@@ -43,7 +43,6 @@ test_case_map_t test_fw_map[] = {
     {"tasksem_test", tasksem_test},
     {"mutex_test", mutex_test},
     {"timer_test", timer_test},
-    {"ringbuf_test", ringbuf_test},
     {"queue_test", queue_test},
 #if (RHINO_CONFIG_WORKQUEUE > 0)
     {"workqueue_test", workqueue_test},
