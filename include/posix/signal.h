@@ -11,7 +11,7 @@ extern "C" {
 
 #include "k_api.h"
 #include "pthread.h"
-#include "posix_default_config.h"
+#include "posix_config.h"
 
 #define SIGEV_NONE   0
 #define SIGEV_SIGNAL 1

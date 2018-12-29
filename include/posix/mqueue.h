@@ -12,7 +12,7 @@ extern "C" {
 #include <time.h>
 
 #include "k_api.h"
-#include "posix_default_config.h"
+#include "posix_config.h"
 
 #define DEFAULT_MQUEUE_SIZE  (10 * 1024)
 #define DEFAULT_MAX_MSG_SIZE (1024)
