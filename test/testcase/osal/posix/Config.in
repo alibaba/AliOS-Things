@@ -1,7 +1,7 @@
 menuconfig AOS_COMP_POSIX_TEST
     bool "posix_test"
     default n
-    select AOS_COMP_POSIX_TEST
+    select AOS_COMP_POSIX
     help
 
 if AOS_COMP_POSIX_TEST
