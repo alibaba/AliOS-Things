@@ -38,7 +38,7 @@ posix
 $(NAME)_COMPONENTS  += posix
 ```
 #### step2. Config POSIX
-    open "include/posix/posix_default_config.h" to enable the features you need, all of features are enabled by default.
+    open "include/posix/posix_config.h" to enable the features you need, all of features are enabled by default.
     note: 1.If you want to use function "tmpfile", ramfs must be added to the project.
           2.If you want to use "pathconf/fpathconf", you must open "kernel/fs/vfs/include/vfs_conf.h" and set "CURRENT_WORKING_DIRECTORY_ENBALE" to 1.
           3.If you want to use Pthread, you must add the following code to "hook_impl.c" or "k_config.c".
