@@ -12,17 +12,10 @@
 #define cm_malloc(size)     LITE_malloc(size, MEM_MAGIC, "cm")
 #define cm_free(p)          LITE_free(p)
 
-#ifdef ESP8266
-    #include "esp_common.h"
-    #define CM_READ_ONLY ICACHE_RODATA_ATTR STORE_ATTR
-#else
-    #define CM_READ_ONLY
-#endif
-
-#define CM_DEBUG(...)        log_debug("CM", __VA_ARGS__)
-#define CM_INFO(...)         log_info("CM", __VA_ARGS__)
-#define CM_WARN(...)         log_warning("CM", __VA_ARGS__)
-#define CM_ERR(...)          log_err("CM", __VA_ARGS__)
+#define cm_debug(...)        log_debug("CM", __VA_ARGS__)
+#define cm_info(...)         log_info("CM", __VA_ARGS__)
+#define cm_warning(...)      log_warning("CM", __VA_ARGS__)
+#define cm_err(...)          log_err("CM", __VA_ARGS__)
 
 typedef int (*iotx_cm_connect_fp)(uint32_t timeout);
 typedef int (*iotx_cm_yield_fp)(unsigned int timeout);
@@ -51,5 +44,5 @@ typedef struct iotx_connection_st {
 
 } iotx_cm_connection_t;
 
-extern const char ERR_INVALID_PARAMS[] CM_READ_ONLY;
+extern const char ERR_INVALID_PARAMS[];
 #endif /* _LINKKIT_CM_H_ */
