@@ -145,10 +145,6 @@
 #define RHINO_CONFIG_USER_PRI_MAX            (RHINO_CONFIG_PRI_MAX - 2)
 #endif
 
-#ifndef RHINO_CONFIG_RINGBUF_VENDOR
-#define RHINO_CONFIG_RINGBUF_VENDOR          0
-#endif
-
 /* kernel timer&tick conf */
 #ifndef RHINO_CONFIG_HW_COUNT
 #define RHINO_CONFIG_HW_COUNT                0
