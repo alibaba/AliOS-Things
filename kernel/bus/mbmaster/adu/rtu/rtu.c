@@ -7,6 +7,7 @@
 #include "../../pdu/pdu.h"
 #include "mbcrc.h"
 
+#if (MBMASTER_CONFIG_RTU_ENABLED > 0)
 mb_status_t rtu_assemble(mb_handler_t *handler)
 {
     uint16_t    crc_16;
@@ -63,3 +64,4 @@ mb_status_t rtu_disassemble(mb_handler_t *handler)
     }
     return status;
 }
+#endif /* MBMASTER_CONFIG_RTU_ENABLED */

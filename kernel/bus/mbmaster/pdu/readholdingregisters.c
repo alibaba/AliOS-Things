@@ -12,9 +12,8 @@
 
 #define PDU_RESP_READ_REGCNT_OFF (PDU_DATA_FIELD_OFF + 0)
 #define PDU_RESP_READ_VALUE_OFF  (PDU_DATA_FIELD_OFF + 1)
- 
-#if (MBM_FUNC_READ_HOLDING_ENABLED > 0)
 
+#if (MBMASTER_CONFIG_READ_HOLDING > 0)
 mb_status_t read_holding_reginster_assemble(mb_handler_t *req_handler, uint16_t start_addr, uint16_t quantity)
 {
     mb_status_t status  = MB_SUCCESS;
@@ -66,4 +65,4 @@ mb_status_t read_holding_reginster_disassemble(mb_handler_t *req_handler, uint8_
     return status;
 }
 
-#endif /* MBM_FUNC_READ_HOLDING_ENABLED */
+#endif /* MBMASTER_CONFIG_READ_HOLDING */
