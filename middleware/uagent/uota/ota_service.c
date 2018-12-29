@@ -187,9 +187,8 @@ static void ota_download_thread(void *hand)
     ota_hash_t last_hash  = {0};
     ota_service_t* ctx = hand;
     if (!ctx) {
-        ret = OTA_PARAM_FAIL;
-        ctx->upg_status = OTA_DOWNLOAD_FAIL;
-        goto ERR;
+        OTA_LOG_E("ctx is NULL.\n");
+        return;
     }
     ota_boot_param_t *ota_param = (ota_boot_param_t *)ctx->boot_param;
     if (!ctx->boot_param) {
