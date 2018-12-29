@@ -68,33 +68,31 @@ iotx_cm_connection_t *iotx_cm_open_coap(iotx_cm_init_param_t *params)
     iotx_device_info_t       *deviceinfo = NULL;
 
     if (_coap_conncection != NULL) {
-        CM_WARN("mqtt connection is opened already,return it");
+        cm_warning("mqtt connection is opened already,return it");
         return _coap_conncection;
     }
 
-    POINTER_SANITY_CHECK(params, NULL);
-
     _coap_conncection = (iotx_cm_connection_t *)cm_malloc(sizeof(iotx_cm_connection_t));
     if (_coap_conncection == NULL) {
-        CM_ERR("_coap_conncection malloc failed!");
+        cm_err("_coap_conncection malloc failed!");
         goto failed;
     }
 
     _coap_conncection->list_lock = HAL_MutexCreate();
     if (_coap_conncection->list_lock == NULL) {
-        CM_ERR("list_lock create failed!");
+        cm_err("list_lock create failed!");
         goto failed;
     }
 
     coap_config = (iotx_coap_config_t *)cm_malloc(sizeof(iotx_coap_config_t));
     if (coap_config == NULL) {
-        CM_ERR("coap_config malloc failed!");
+        cm_err("coap_config malloc failed!");
         goto failed;
     }
     memset(coap_config, 0, sizeof(iotx_coap_config_t));
     deviceinfo = (iotx_device_info_t *)cm_malloc(sizeof(iotx_device_info_t));
     if (deviceinfo == NULL) {
-        CM_ERR("deviceinfo malloc failed!");
+        cm_err("deviceinfo malloc failed!");
         goto failed;
     }
 
@@ -147,10 +145,10 @@ static int iotx_set_devinfo(iotx_device_info_t *p_devinfo)
     HAL_Snprintf(p_devinfo->device_id, DEVICE_ID_LEN, "%s.%s", p_devinfo->product_key, p_devinfo->device_name);
     p_devinfo->device_id[DEVICE_ID_LEN-1] = '\0';
     /**< end*/
-    CM_INFO("*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
-    CM_INFO("*****The Device Name  : %s *****\r\n", p_devinfo->device_name);
-    CM_INFO("*****The Device Secret: %s *****\r\n", p_devinfo->device_secret);
-    CM_INFO("*****The Device ID    : %s *****\r\n", p_devinfo->device_id);
+    cm_info("*****The Product Key  : %s *****\r\n", p_devinfo->product_key);
+    cm_info("*****The Device Name  : %s *****\r\n", p_devinfo->device_name);
+    cm_info("*****The Device Secret: %s *****\r\n", p_devinfo->device_secret);
+    cm_info("*****The Device ID    : %s *****\r\n", p_devinfo->device_id);
     return IOTX_SUCCESS;
 }
 
@@ -163,10 +161,15 @@ static int  _coap_connect(uint32_t timeout)
     iotx_coap_context_t *p_ctx = NULL;
     char product_key[PRODUCT_KEY_LEN + 1] = {0};
 
-    POINTER_SANITY_CHECK(_coap_conncection, NULL_VALUE_ERROR);
+    if (_coap_conncection == NULL) {
+        return NULL_VALUE_ERROR;
+    }
+
     HAL_GetProductKey(product_key);
     config = _coap_conncection->open_params;
-    POINTER_SANITY_CHECK(config, NULL_VALUE_ERROR);
+    if (config == NULL) {
+        return NULL_VALUE_ERROR;
+    }
 
     HAL_Snprintf(url, 100, IOTX_COAP_SERVER_URI, product_key);
     config->p_url = url;
@@ -182,10 +185,10 @@ static int  _coap_connect(uint32_t timeout)
         }
         ret = IOT_CoAP_DeviceNameAuth(p_ctx);
         if (ret == 0) {
-            _coap_conncection->context = p_ctx;
             iotx_cm_event_msg_t event;
             event.type = IOTX_CM_EVENT_CLOUD_CONNECTED;
             event.msg = NULL;
+            _coap_conncection->context = p_ctx;
 
             if (_coap_conncection->event_handler) {
                 _coap_conncection->event_handler(_coap_conncection->fd, &event, (void *)_coap_conncection);
@@ -194,20 +197,21 @@ static int  _coap_connect(uint32_t timeout)
         }
     } while (!utils_time_is_expired(&timer));
 
-    iotx_cm_event_msg_t event;
-    event.type = IOTX_CM_EVENT_CLOUD_CONNECT_FAILED;
-    event.msg = NULL;
+    {
+        iotx_cm_event_msg_t event;
+        event.type = IOTX_CM_EVENT_CLOUD_CONNECT_FAILED;
+        event.msg = NULL;
 
-    if (_coap_conncection->event_handler) {
-        _coap_conncection->event_handler(_coap_conncection->fd, &event, (void *)_coap_conncection);
+        if (_coap_conncection->event_handler) {
+            _coap_conncection->event_handler(_coap_conncection->fd, &event, (void *)_coap_conncection);
+        }
     }
-    CM_ERR("mqtt connect failed");
+    cm_err("mqtt connect failed");
     return -1;
 }
 
 static void _coap_response_default(void *p_arg, void *p_message)
 {
-
     int ret;
     int len = 0;
     unsigned char *p_payload = NULL;
@@ -215,27 +219,27 @@ static void _coap_response_default(void *p_arg, void *p_message)
     iotx_coap_resp_code_t resp_code;
 
     if (_coap_conncection == NULL || p_message == NULL) {
-        CM_ERR("paras err");
+        cm_err("paras err");
         return;
     }
 
     ret = IOT_CoAP_GetMessageCode(p_message, &resp_code);
     if (ret < 0) {
-        CM_ERR("get msg code err");
+        cm_err("get msg code err");
         return;
     }
 
-    CM_INFO("resp_code = %d", resp_code);
+    cm_info("resp_code = %d", resp_code);
 
     ret = IOT_CoAP_GetMessagePayload(p_message, &p_payload, &len);
     if (ret < 0) {
-        CM_ERR("get msg payload err");
+        cm_err("get msg payload err");
         return;
     }
 
     ret = IOT_CoAP_GetMessageToken(p_message, &token);
     if (ret < 0) {
-        CM_ERR("get msg token err");
+        cm_err("get msg token err");
         return;
     }
 
@@ -250,7 +254,7 @@ static void _coap_response_default(void *p_arg, void *p_message)
             unsigned int topic_len = strlen(node->topic) + 1;
             char *topic = cm_malloc(topic_len);
             if (topic == NULL) {
-                CM_ERR("topic malloc failed");
+                cm_err("topic malloc failed");
                 continue;
             }
             memset(topic, 0, topic_len);
