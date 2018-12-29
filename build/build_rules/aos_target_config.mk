@@ -336,9 +336,10 @@ COMPONENTS += mm
 COMPONENTS += uspace
 else
 COMPONENTS += mbins.umbins
+AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf, -Wl,-wrap,fflsuh
 endif
 AOS_SDK_DEFINES += BUILD_APP
-AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflush -nostartfiles
+AOS_SDK_LDFLAGS += -nostartfiles
 else ifeq ($(MBINS),kernel)
 ifeq ($(ENABLE_USPACE),1)
 COMPONENTS += uspace
