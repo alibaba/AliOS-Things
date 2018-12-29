@@ -182,8 +182,11 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
                 cm_err("sub handle is null!");
                 return;
             }
-
+            #ifdef DEVICE_MODEL_ALINK2
+            topic_handle_func(_mqtt_conncection->fd, topic_info->ptopic, topic_info->topic_len, topic_info->payload, topic_info->payload_len, NULL);
+            #else
             topic_handle_func(_mqtt_conncection->fd, topic_info->ptopic, topic_info->payload, topic_info->payload_len, NULL);
+            #endif
         }
         break;
 
@@ -208,7 +211,6 @@ static int  _mqtt_connect(uint32_t timeout)
     char product_key[PRODUCT_KEY_LEN + 1] = {0};
     char device_name[DEVICE_NAME_LEN + 1] = {0};
     char device_secret[DEVICE_SECRET_LEN + 1] = {0};
-    char device_id[DEVICE_ID_LEN + 1] = {0};
 
     if (_mqtt_conncection == NULL) {
         return NULL_VALUE_ERROR;
@@ -218,8 +220,6 @@ static int  _mqtt_connect(uint32_t timeout)
 
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
-    HAL_Snprintf(device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
-    device_id[DEVICE_ID_LEN-1] = '\0';
     HAL_GetDeviceSecret(device_secret);
 
     /* Device AUTH */
