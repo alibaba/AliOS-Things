@@ -1,11 +1,10 @@
-
-menuconfig OSAL_ENABLED
-    bool "FEATURE_OSAL_ENABLE"
+menuconfig AOS_COMP_OSAL_AOS
+    bool "osal_aos"
     default y
     help
         AliOS things OSAL -- interface adaptation layer
 
-if OSAL_ENABLED
+if AOS_COMP_OSAL_AOS
 menu "OSAL Configurations"
 
 endmenu
