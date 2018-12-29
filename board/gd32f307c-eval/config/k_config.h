@@ -75,8 +75,6 @@
 
 #define RHINO_CONFIG_USER_PRI_MAX            (RHINO_CONFIG_PRI_MAX - 2)
 
-#define RHINO_CONFIG_RINGBUF_VENDOR          0
-
 /* kernel mm_region conf */
 #define RHINO_CONFIG_MM_REGION_MUTEX         1
 
