@@ -6,7 +6,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx_syscall
 
 $(NAME)_COMPONENTS += arch_armv7m-svc
-$(NAME)_COMPONENTS += newlib_stub rhino vfs
+$(NAME)_COMPONENTS += newlib_stub rhino vfs log
 
 GLOBAL_DEFINES += USE_HAL_DRIVER
 
@@ -102,20 +102,12 @@ $(NAME)_SOURCES := Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c             
                    Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
 
 $(NAME)_SOURCES += aos/soc_impl.c          \
-                   aos/aos.c               \
                    hal/hal_uart_stm32f4.c  \
                    hal/hw.c                \
                    hal/hal_flash_stm32f4.c \
                    hal/hal_gpio_stm32f4.c  \
                    hal/hal_spi_stm32f4.c   \
-                   hal/hal_i2c_stm32f4.c #\
-                   hal/hal_sd_stm32f4.c \
-                   hal/hal_adc_stm32f4.c \
-                   hal/hal_rtc_stm32f4.c \
-                   hal/hal_spi_stm32f4.c \
-                   hal/hal_qspi_stm32f4.c \
-                   hal/hal_nand_stm32f4.c \
-                   hal/hal_nor_stm32f4.c
+                   hal/hal_i2c_stm32f4.c
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections
