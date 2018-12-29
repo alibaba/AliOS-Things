@@ -87,8 +87,12 @@ typedef struct {
     uint32_t  payload_len;
 } event_msg_data_t;
 
+#ifdef DEVICE_MODEL_ALINK2
+typedef void (*iotx_cm_data_handle_cb)(int fd, const char *topic, uint32_t topic_len, const char *payload, unsigned int payload_len, void *context);
+#else
 typedef void (*iotx_cm_data_handle_cb)(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                        void *context);
+#endif
 
 typedef void (*iotx_cm_event_handle_cb)(int fd, iotx_cm_event_msg_t *event, void *context);
 
@@ -102,6 +106,10 @@ typedef struct {
     iotx_cm_protocol_types_t      protocol_type;
     iotx_cm_event_handle_cb       handle_event;             /* Specify MQTT event handle */
     void                          *context;
+#ifdef DEVICE_MODEL_ALINK2
+    iotx_dev_meta_info_t         *dev_info;
+    iotx_mqtt_region_types_t      region;
+#endif
 } iotx_cm_init_param_t;
 
 typedef struct {

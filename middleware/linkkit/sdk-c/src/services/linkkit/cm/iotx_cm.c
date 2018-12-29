@@ -61,18 +61,20 @@ int iotx_cm_open(iotx_cm_init_param_t *params)
 
 int iotx_cm_connect(int fd, uint32_t timeout)
 {
+    iotx_cm_connect_fp connect_func;
+    int ret;
+
     if (_fd_is_valid(fd) == -1) {
         cm_err(ERR_INVALID_PARAMS);
         return -1;
     }
-    iotx_cm_connect_fp connect_func;
     HAL_MutexLock(fd_lock);
     connect_func = _cm_fd[fd]->connect_func;
     HAL_MutexUnlock(fd_lock);
 
     iotx_event_post(IOTX_CONN_CLOUD);
 
-    int ret = connect_func(timeout);
+    ret = connect_func(timeout);
 
     if (ret == 0) {
         inited_conn_num++;
