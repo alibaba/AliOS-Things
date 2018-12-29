@@ -138,7 +138,7 @@ static int ota_trans_status(int progress, void *pctx)
 {
     int  ret = -1;
     char msg[OTA_MSG_REPORT_LEN] = {0};
-    char err[32];
+    char err[OTA_MAX_VER_LEN] = {0};
     ota_service_t* ctx = pctx;
     if (!ctx) {
         OTA_LOG_E("parameter null.");
@@ -147,52 +147,52 @@ static int ota_trans_status(int progress, void *pctx)
     int  status = ctx->upg_status;
     memset(err, 0x00, sizeof(err));
     if (status < 0) {
-        progress = status;
+            progress = status;
         switch (status) {
             case OTA_INIT_FAIL:
-                sprintf(err, "%s", "ota init failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota init failed");
                 break;
             case OTA_INIT_VER_FAIL:
-                sprintf(err, "%s", "ota version not match");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota version not match");
                 break;
             case OTA_DOWNLOAD_FAIL:
-                sprintf(err, "%s", "ota download failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download failed");
                 break;
             case OTA_DOWNLOAD_URL_FAIL:
-                sprintf(err, "%s", "ota download url failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download url failed");
                 break;
             case OTA_DOWNLOAD_IP_FAIL:
-                sprintf(err, "%s", "ota download ip failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download ip failed");
                 break;
             case OTA_DOWNLOAD_CON_FAIL:
-                sprintf(err, "%s", "ota download connect failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download connect failed");
                 break;
             case OTA_DOWNLOAD_READ_FAIL:
-                sprintf(err, "%s", "ota download read failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download read failed");
                 break;
             case OTA_DOWNLOAD_WRITE_FAIL:
-                sprintf(err, "%s", "ota download write failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download write failed");
                 break;
             case OTA_VERIFY_FAIL:
-                sprintf(err, "%s", "ota verify failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify failed");
                 break;
             case OTA_UPGRADE_FAIL:
-                sprintf(err, "%s", "ota upgrade failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota upgrade failed");
                 break;
             case OTA_REBOOT_FAIL:
-                sprintf(err, "%s", "ota reboot failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota reboot failed");
                 break;
             case OTA_VERIFY_RSA_FAIL:
-                sprintf(err, "%s", "ota verify rsa failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify rsa failed");
                 break;
             case OTA_VERIFY_HASH_FAIL:
-                sprintf(err, "%s", "ota verify hash failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify hash failed");
                 break;
             case OTA_UPGRADE_DIFF_FAIL:
-                sprintf(err, "%s", "ota diff failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota diff failed");
                 break;
             default:
-                sprintf(err, "%s", "ota undefined failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota undefined failed");
                 break;
         }
     }
