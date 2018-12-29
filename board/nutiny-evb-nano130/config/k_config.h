@@ -54,9 +54,6 @@
 #ifndef RHINO_CONFIG_KOBJ_SET
 #define RHINO_CONFIG_KOBJ_SET                1
 #endif
-#ifndef RHINO_CONFIG_RINGBUF_VENDOR
-#define RHINO_CONFIG_RINGBUF_VENDOR          1
-#endif
 
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_SUSPEND
