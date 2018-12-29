@@ -4,6 +4,7 @@
 
 #include "aos/mbmaster.h"
 
+#if (MBMASTER_CONFIG_RTU_ENABLED > 0)
 int aos_mbmaster_rtu_init(mb_handler_t **handler, uint8_t port, uint32_t baud_rate, mb_parity_t parity)
 {
     mb_status_t status;
@@ -35,7 +36,9 @@ int aos_mbmaster_rtu_uninit(mb_handler_t *req_handler)
 
     return 0;
 }
+#endif /* MBMASTER_CONFIG_RTU_ENABLED */
 
+#if (MBMASTER_CONFIG_READ_HOLDING > 0)
 int aos_mbmaster_read_holding_reginster(mb_handler_t *req_handler, uint8_t slave_addr,
                                         uint16_t start_addr, uint16_t quantity, uint8_t *respond_buf,
                                         uint8_t *respond_count)
@@ -55,3 +58,4 @@ int aos_mbmaster_read_holding_reginster(mb_handler_t *req_handler, uint8_t slave
 
     return 0;
 }
+#endif /* MBMASTER_CONFIG_READ_HOLDING */
