@@ -21,6 +21,10 @@
 
 #include "nrf_drv_systick.h"
 
+#ifdef AOS_COMP_PWRMGMT
+#include <pwrmgmt_api.h>
+#endif /* AOS_COMP_PWRMGMT */
+
 #if POWER_ENABLED
 #include "nrf_drv_power.h"
 #endif
@@ -130,6 +134,10 @@ static void sys_init(void)
     vfs_device_init();
     aos_loop_init();
 #endif
+
+#ifdef AOS_COMP_PWRMGMT
+    cpu_pwrmgmt_init();
+#endif /* AOS_COMP_PWRMGMT */
 
 #ifdef AOS_BINS
     app_pre_init();
