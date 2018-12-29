@@ -11,7 +11,7 @@ void mb_log(mb_log_level_t log_level, const char *fmt_str, ...)
 {
     va_list param;
 
-    if (log_level <= MBM_LOG_LEVEL) {
+    if (log_level <= MBMASTER_CONFIG_LOG_LEVEL) {
         va_start(param,fmt_str);
         vprintf(fmt_str,param);
         va_end(param);

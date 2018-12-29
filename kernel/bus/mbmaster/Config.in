@@ -4,5 +4,37 @@ menuconfig AOS_COMP_MBMASTER
     help
 
 if AOS_COMP_MBMASTER
-# Configurations for component mbmaster
+# Configurations for component modbus master
+config MBMASTER_CONFIG_RTU_ENABLED
+    int "MBMASTER_CONFIG_RTU_ENABLED"
+        range 0 1
+        default 1
+        help
+            set to 1 if you want to use modbus master with rtu.
+            default 1
+
+config MBMASTER_CONFIG_READ_HOLDING
+    int "MBMASTER_CONFIG_READ_HOLDING"
+        range 0 1
+        default 1
+        help
+            set to 1 if you want to use the read holding register function of modbus master.
+            default 1
+
+config MBMASTER_CONFIG_HANDLER_MAX
+    int "MBMASTER_CONFIG_HANDLER_MAX"
+        range 0 10
+        default 1
+        help
+            config the number of handler resources. The task which want to communication with modbus master stack
+            must call mb_alloc_handler to alloc a handler.
+            default 1
+
+config MBMASTER_CONFIG_LOG_LEVEL
+    int "MBMASTER_CONFIG_LOG_LEVEL"
+        range 0 1
+        default 0
+        help
+            set 0 to show information only when error happend. set 1 to show more information(error and debug).
+            default 0
 endif
