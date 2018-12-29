@@ -1,0 +1,13 @@
+menuconfig AOS_MCU_AAMCU_DEMO
+    bool "aamcu_demo"
+    default n
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_VFS
+    select AOS_COMP_KV
+    select AOS_COMP_RHINO
+    help
+
+if AOS_MCU_AAMCU_DEMO
+# Configurations for mcu aamcu_demo
+endif
