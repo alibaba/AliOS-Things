@@ -4,13 +4,13 @@
 
 #include <mbmaster_api.h>
 
-static mb_handler_t mb_handler[MBM_HANDLER_MAX]; 
+static mb_handler_t mb_handler[MBMASTER_CONFIG_HANDLER_MAX];
 
 mb_handler_t* mb_alloc_handler(void)
 {
     MB_CRITICAL_ALLOC();
     MB_CRITICAL_ENTER();
-    for (uint8_t i = 0; i < MBM_HANDLER_MAX; i++) {
+    for (uint8_t i = 0; i < MBMASTER_CONFIG_HANDLER_MAX; i++) {
         if (mb_handler[i].used == 0) {
             mb_handler[i].used = 1;
             MB_CRITICAL_EXIT();

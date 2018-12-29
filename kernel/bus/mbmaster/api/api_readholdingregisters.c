@@ -5,6 +5,7 @@
 #include <mbmaster_api.h>
 #include "../pdu/pdu.h"
 
+#if (MBMASTER_CONFIG_READ_HOLDING > 0)
 mb_status_t mbmaster_read_holding_reginster(mb_handler_t *req_handler, uint8_t slave_addr, uint16_t start_addr,
                                             uint16_t quantity, uint8_t *respond_buf, uint8_t *respond_count)
 {
@@ -48,3 +49,4 @@ mb_status_t mbmaster_read_holding_reginster(mb_handler_t *req_handler, uint8_t s
 
     return status;
 }
+#endif /* MBMASTER_CONFIG_READ_HOLDING */
