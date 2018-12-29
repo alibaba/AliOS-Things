@@ -21,7 +21,8 @@ typedef enum {
 } aos_log_level_t;
 
 extern unsigned int aos_log_level;
-/**
+
+/*
  * Get the log level.
  */
 static inline int aos_get_log_level(void)
@@ -29,7 +30,7 @@ static inline int aos_get_log_level(void)
     return aos_log_level;
 }
 
-/**
+/*
  * Set the log level.
  *
  * @param[in]  log_level  level to be set,must be one of AOS_LL_NONE,AOS_LL_FATAL,AOS_LL_ERROR,AOS_LL_WARN,AOS_LL_INFO or AOS_LL_DEBUG.
