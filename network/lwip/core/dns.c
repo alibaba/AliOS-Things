@@ -86,6 +86,9 @@
 #include "lwip/memp.h"
 #include "lwip/dns.h"
 #include "lwip/prot/dns.h"
+#ifdef CELLULAR_SUPPORT
+#include "lwip/netif.h"
+#endif
 
 #include <string.h>
 
@@ -213,7 +216,9 @@ struct dns_table_entry {
     ip_addr_t ipaddr;
     u16_t txid;
     u8_t  state;
+#ifndef CELLULAR_SUPPORT
     u8_t  server_idx;
+#endif
     u8_t  tmr;
     u8_t  retries;
     u8_t  seqno;
@@ -223,6 +228,9 @@ struct dns_table_entry {
     char name[DNS_MAX_NAME_LENGTH];
 #if LWIP_IPV4 && LWIP_IPV6
     u8_t reqaddrtype;
+#endif /* LWIP_IPV4 && LWIP_IPV6 */
+#ifdef CELLULAR_SUPPORT
+    struct netif* netif;
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
 };
 
@@ -285,7 +293,9 @@ static u8_t                   dns_last_pcb_idx;
 static u8_t                   dns_seqno;
 static struct dns_table_entry dns_table[DNS_TABLE_SIZE];
 static struct dns_req_entry   dns_requests[DNS_MAX_REQUESTS];
+#ifndef CELLULAR_SUPPORT
 static ip_addr_t              dns_servers[DNS_MAX_SERVERS];
+#endif
 static uint8_t                num_dns;
 
 /**
@@ -295,11 +305,13 @@ static uint8_t                num_dns;
 void
 dns_init(void)
 {
+#ifndef CELLULAR_SUPPORT
 #ifdef DNS_SERVER_ADDRESS
     /* initialize default DNS server address */
     ip_addr_t dnsserver;
     DNS_SERVER_ADDRESS(&dnsserver);
     dns_setserver(0, &dnsserver);
+#endif /* DNS_SERVER_ADDRESS */
 #endif /* DNS_SERVER_ADDRESS */
 
     LWIP_ASSERT("sanity check SIZEOF_DNS_QUERY",
@@ -330,7 +342,7 @@ dns_init(void)
     dns_init_local();
 #endif
 }
-
+#ifndef CELLULAR_SUPPORT
 /**
  * @ingroup dns
  * Initialize one of the DNS servers.
@@ -369,6 +381,55 @@ dns_getserver(u8_t numdns)
         return IP4_ADDR_ANY;
     }
 }
+#else
+/**
+ * @ingroup dns
+ * Initialize one of the DNS servers in the netif.
+ *
+ * @param numdns the index of the DNS server to set must be < DNS_MAX_SERVERS
+ * @param dnsserver IP address of the DNS server to set
+ */
+void
+dns_setserver_if(u8_t numdns, const ip_addr_t *dnsserver, struct netif* netif)
+{
+    if((numdns >= DNS_MAX_SERVERS) ||
+       (netif == NULL)             ||
+       !netif_is_up(netif))
+    {
+        return ;
+    }
+    if(dnsserver == NULL)
+    {
+            netif->dns_srv[numdns] = *IP4_ADDR_ANY;
+    }
+    else
+    {
+            netif->dns_srv[numdns] = (*dnsserver);
+    }
+}
+
+/**
+ * @ingroup dns
+ * Obtain one of the netif configured DNS server.
+ *
+ * @param numdns the index of the DNS server
+ * @return IP address of the indexed DNS server or "ip_addr_any" if the DNS
+ *         server has not been configured.
+ */
+const ip_addr_t *
+dns_getserver_if(u8_t numdns, struct netif* netif)
+{
+    ip_addr_t *addr;
+
+    if((netif == NULL) || 
+       !netif_is_up(netif))
+    {
+       return NULL;
+    }
+
+    return &netif->dns_srv[numdns];
+}
+#endif
 
 /**
  * The DNS resolver client timer - handle retries and timeouts and should
@@ -690,6 +751,7 @@ dns_send(u8_t idx)
     u8_t pcb_idx;
     struct dns_table_entry *entry = &dns_table[idx];
 
+#ifndef CELLULAR_SUPPORT
     LWIP_DEBUGF(DNS_DEBUG, ("dns_send: dns_servers[%"U16_F"] \"%s\": request\n",
                             (u16_t)(entry->server_idx), entry->name));
     LWIP_ASSERT("dns server out of array", entry->server_idx < DNS_MAX_SERVERS);
@@ -701,7 +763,21 @@ dns_send(u8_t idx)
         entry->state = DNS_STATE_UNUSED;
         return ERR_OK;
     }
+#else
+    struct netif* netif;
+    int valid_dnssrv_num = 0;
+    NETIF_FOREACH(netif)
+    {
+       if(netif_is_up(netif))
+       {
+           entry->netif = netif;
 
+         for(int i=0; i<DNS_MAX_SERVERS;i++)
+        {
+            if(!ip_addr_isany_val(netif->dns_srv[i]))
+            {
+			    valid_dnssrv_num ++;
+#endif
     /* if here, we have either a new query or a retry on a previous query to process */
     p = pbuf_alloc(PBUF_TRANSPORT, (u16_t)(SIZEOF_DNS_HDR + strlen(entry->name) + 2 +
                                            SIZEOF_DNS_QUERY), PBUF_RAM);
@@ -745,16 +821,33 @@ dns_send(u8_t idx)
 #else
         pcb_idx = 0;
 #endif
+#ifdef CELLULAR_SUPPORT
         /* send dns packet */
+        LWIP_DEBUGF(DNS_DEBUG, ("sending DNS request ID %d for name \"%s\"\r\n",
+                                entry->txid, entry->name));
+        err = udp_sendto_if(dns_pcbs[pcb_idx], p, &entry->netif->dns_srv[i], DNS_SERVER_PORT, entry->netif); 
+#else
         LWIP_DEBUGF(DNS_DEBUG, ("sending DNS request ID %d for name \"%s\" to server %d\r\n",
                                 entry->txid, entry->name, entry->server_idx));
         err = udp_sendto(dns_pcbs[pcb_idx], p, &dns_servers[entry->server_idx], DNS_SERVER_PORT);
-
+#endif
         /* free pbuf */
         pbuf_free(p);
     } else {
         err = ERR_MEM;
     }
+#ifdef CELLULAR_SUPPORT
+    }//end of while
+   }
+ }// end of if
+}// end of foreach
+  if(valid_dnssrv_num == 0)
+  {
+      dns_call_found(idx, NULL);
+      entry->state = DNS_STATE_UNUSED;
+      return ERR_OK;
+  }
+#endif
 
     return err;
 }
@@ -938,7 +1031,11 @@ dns_check_entry(u8_t i)
             /* initialize new entry */
             entry->txid = dns_create_txid();
             entry->state = DNS_STATE_ASKING;
+#ifdef CELLULAR_SUPPORT
+            entry->netif = NULL;
+#else
             entry->server_idx = 0;
+#endif
             entry->tmr = 1;
             entry->retries = 0;
 
@@ -962,12 +1059,22 @@ dns_check_entry(u8_t i)
                 } else {
                     entry->tmr = 1;
                 }
-
+#ifndef CELLULAR_SUPPORT
                 index = (entry->server_idx + 1) % num_dns;
                 if ((index < DNS_MAX_SERVERS) && !ip_addr_isany_val(dns_servers[index])) {
                     entry->server_idx = index;
                 }
-
+#else
+                struct netif* netif;
+                NETIF_FOREACH(netif)
+                {
+                   if(netif_is_up(netif) && (netif != entry->netif))
+                   {
+                       entry->netif = netif;
+                       break;
+                   }
+                }
+#endif
                 /* send DNS packet for this entry */
                 err = dns_send(i);
                 if (err != ERR_OK) {
@@ -1089,9 +1196,24 @@ dns_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, 
 
                 /* Check whether response comes from the same network address to which the
                    question was sent. (RFC 5452) */
+#ifdef CELLULAR_SUPPORT
+                int valid_dns_rsp = 0;
+                for(int i=0; i<DNS_MAX_SERVERS; i++)
+                {
+                    if (ip_addr_cmp(addr, &entry->netif->dns_srv[i])) {
+                        valid_dns_rsp = 1;
+                        break;
+                    }
+                }
+                if(valid_dns_rsp == 0)
+                {
+                    goto memerr; /* ignore this packet */
+                }
+#else
                 if (!ip_addr_cmp(addr, &dns_servers[entry->server_idx])) {
                     goto memerr; /* ignore this packet */
                 }
+#endif
 
                 /* Check if the name in the "question" part match with the name in the entry and
                    skip it if equal. */
@@ -1448,10 +1570,26 @@ dns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr, dns_found_call
     LWIP_UNUSED_ARG(dns_addrtype);
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
 
+#ifdef CELLULAR_SUPPORT
+    struct netif* netif;
+    NETIF_FOREACH(netif)
+    {
+       if(netif_is_up(netif))
+       {
+           break;
+       }
+    }
+    /* no netif is up, return error */ 
+    if(netif == NULL)
+    {
+       return ERR_VAL;
+    }
+#else
     /* prevent calling found callback if no server is set, return error instead */
     if (ip_addr_isany_val(dns_servers[0])) {
         return ERR_VAL;
     }
+#endif
 
     /* queue query with specified callback */
     return dns_enqueue(hostname, hostnamelen, found, callback_arg LWIP_DNS_ADDRTYPE_ARG(dns_addrtype));
