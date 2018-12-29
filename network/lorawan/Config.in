@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_LORAWAN_ENABLE
+    bool "LoRaWAN Enable"
+    default n
+    help
+
+if AOS_COMP_LORAWAN_ENABLE
+    source "network/lorawan/lorawan_4_4_0/Config.in"
+    source "network/lorawan/lorawan_4_4_2/Config.in"
+endif
