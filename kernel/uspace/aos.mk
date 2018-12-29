@@ -55,5 +55,12 @@ AOS_VFS := 0
 endif
 GLOBAL_INCLUDES    += syscall/include
 GLOBAL_INCLUDES    += ./include
+
+ifeq ($(AOS_COMP_USER_SPACE),y)
+GLOBAL_DEFINES     += RHINO_CONFIG_USER_SPACE=1
+else
+GLOBAL_DEFINES     += RHINO_CONFIG_USER_SPACE=0
+endif
+
 endif
 
