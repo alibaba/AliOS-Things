@@ -84,7 +84,7 @@ static void format_ip(uint32_t ip, char *buf)
 {
     int i = 0;
 
-    unsigned char octet[4] = { 0, 0, 0, 0 };
+    uint8_t octet[4] = { 0, 0, 0, 0 };
 
     for (i = 0; i < 4; i++) {
         octet[i] = (ip >> ((3 - i) * 8)) & 0xFF;
