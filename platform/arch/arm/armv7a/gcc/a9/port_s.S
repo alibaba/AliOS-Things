@@ -20,7 +20,7 @@
 .global cpu_task_switch
 .global cpu_intrpt_switch
 .global cpu_first_task_start
-.global cpu_get_cpuid
+.global cpu_cur_get
 
 .global _interrupt_handler
 .global _panic_handler
@@ -289,11 +289,11 @@ _panic_handler:
     BL      _context_restore
 
 @******************************************************************************
-@ cpu_get_cpuid
+@ cpu_cur_get
 @******************************************************************************
-@ int cpu_get_cpuid(void)@
+@ int cpu_cur_get(void)@
 @ get current CPU ID
-cpu_get_cpuid:
+cpu_cur_get:
     MRC     P15, 0, R0, C0, C0, 5
     AND     R0, R0, #3
     BX      LR
