@@ -69,7 +69,6 @@ global_ldflags = Split('''
 ''')
 
 global_macro = Split('''
-        CONFIG_AOS_KV_BUFFER_SIZE=8192
         CONFIG_ESP_LWIP
         XT_USE_THREAD_SAFE_CLIB=0
 ''')

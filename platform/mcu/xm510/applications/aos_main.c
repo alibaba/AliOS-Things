@@ -63,7 +63,7 @@ void sys_start(void)
     aos_cli_init();
     dumpsys_cli_init();
 
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_init();
 #endif
 

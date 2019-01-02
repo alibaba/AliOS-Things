@@ -13,12 +13,6 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx
 $(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += newlib_stub rhino netmgr mbedtls cjson cli
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
-GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
-
 # Global defines
 GLOBAL_DEFINES  := USE_STDPERIPH_DRIVER \
                    _STM3x_              \
