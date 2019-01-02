@@ -11,4 +11,4 @@ if aos_global_config.ide != 'keil':
 
 component.add_global_includes('include')
 
-component.add_global_macros('AOS_VFS')
+component.add_global_macros('AOS_COMP_VFS')

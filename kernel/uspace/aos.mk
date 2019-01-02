@@ -52,7 +52,7 @@ $(NAME)_SOURCES += syscall/usyscall/rhino_usyscall.c
 
 GLOBAL_DEFINES += AOS_USPACE
 
-AOS_VFS := 0
+AOS_COMP_VFS := 0
 
 endif
 GLOBAL_INCLUDES    += syscall/include

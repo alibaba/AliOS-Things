@@ -34,7 +34,7 @@ static void mmem_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 
 extern void log_cli_init(void);
 
-#ifdef CONFIG_AOS_CLI_BOARD
+#if (CLI_SUPPORT_BOARD_CMD > 0)
 extern int board_cli_init(void);
 #endif
 
@@ -281,7 +281,7 @@ int32_t cli_register_default_commands(void)
         return ret;
     }
 
-#ifdef CONFIG_AOS_CLI_BOARD
+#if (CLI_SUPPORT_BOARD_CMD > 0)
     board_cli_init();
 #endif
 
