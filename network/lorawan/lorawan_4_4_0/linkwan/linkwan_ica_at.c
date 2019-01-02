@@ -960,7 +960,7 @@ void process_linkwan_at(void)
             LoRaMacParams_t *mMacP;
             mMacP = get_lora_mac_params();
             memcpy(&gMacParams, mMacP, sizeof(LoRaMacParams_t));
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
             aos_kv_set("gLoRaMacPara", &gMacParams, sizeof(LoRaMacParams_t), 1);
 #endif
 #if 0
@@ -979,7 +979,7 @@ void process_linkwan_at(void)
             strcmp(&rxcmd[strlen(LORA_AT_CRESTORE)], "=?") == 0) {
             snprintf(atcmd, ATCMD_SIZE, "\r\n%s\r\nOK\r\n", LORA_AT_CSAVE);
         } else if (rxcmd_index == strlen(LORA_AT_CRESTORE)) {
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
             aos_kv_set("gLoRaMacPara", &LoRaMacParamsDefaults,
                        sizeof(LoRaMacParams_t), 1);
 #endif
