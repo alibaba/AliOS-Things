@@ -99,7 +99,8 @@ static int wifi_module_fota(char *pcsize, char *pcversion, char *pcurl, char *pc
         goto end;
     }
 
-    ret = at_send_wait_reply(pcatcmd, strlen(pcatcmd), true, out, sizeof(out), NULL);
+    ret = at_send_wait_reply(pcatcmd, strlen(pcatcmd), true,
+                             NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, AT_RECV_FAIL_POSTFIX) != NULL || ret != 0) {
         printf("%s %d failed", __func__, __LINE__);
