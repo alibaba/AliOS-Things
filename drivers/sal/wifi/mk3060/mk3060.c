@@ -540,7 +540,7 @@ static void mk3060_uart_echo_off()
     char out[64] = {0};
 
     at_send_wait_reply(at_echo_str, strlen(AT_CMD_EHCO_OFF), true,
-                       out, sizeof(out), NULL);
+                       NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -577,7 +577,7 @@ int HAL_SAL_Init(void)
         snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link);
         LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-        at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
+        at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
         LOGD(TAG, "The AT response is: %s", out);
         if (strstr(out, CMD_FAIL_RSP) != NULL) {
             LOGD(TAG, "%s %d failed", __func__, __LINE__);
@@ -590,7 +590,7 @@ int HAL_SAL_Init(void)
         snprintf(cmd, STOP_AUTOCONN_CMD_LEN - 1, "%s=%d,0", STOP_AUTOCONN_CMD, link);
         LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-        at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
+        at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
         LOGD(TAG, "The AT response is: %s", out);
         if (strstr(out, CMD_FAIL_RSP) != NULL) {
             LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -700,7 +700,7 @@ int HAL_SAL_Start(sal_conn_t *c)
 
     LOGD(TAG, "\r\n%s %d - AT cmd to run: %s \r\n", __func__, __LINE__, cmd);
 
-    at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -763,32 +763,6 @@ static int fd_to_linkid(int fd)
     return link_id;
 }
 
-static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
-                               char *rsp, uint32_t rsplen) 
-{
-    if (NULL == fst) {
-        LOGE(TAG, "%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (NULL == rsp || 0 == rsplen) {
-        LOGE(TAG, "%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (at_send_no_reply(fst, strlen(fst), true) != 0) {
-        LOGE(TAG, "at send %s failed\n", fst);
-        return -1;
-    }
-
-    if (at_send_wait_reply(data, len, false, rsp, rsplen, NULL) != 0) {
-        LOGE(TAG, "at send data len %d failed\n", len);
-        return -1;
-    }
-
-    return 0;
-}
-
 #define SEND_CMD "AT+CIPSEND"
 #define SEND_CMD_LEN (sizeof(SEND_CMD)+1+1+5+1+DATA_LEN_MAX+1)
 int HAL_SAL_Send(int fd,
@@ -843,10 +817,12 @@ int HAL_SAL_Send(int fd,
     }
     outdata[len] = checksum;
 
-    at_send_data_2stage((const char *)cmd, (const char *)outdata, len + 1, out, sizeof(out));
+    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)outdata, len + 1, out, sizeof(out),
+                               NULL);
     aos_free(outdata);
 #else
-    at_send_data_2stage((const char *)cmd, (const char *)data, len, out, sizeof(out));
+    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)data, len, out, sizeof(out),
+                               NULL);
 #endif
 
     LOGD(TAG, "\r\nThe AT response is: %s\r\n", out);
@@ -871,7 +847,7 @@ int HAL_SAL_DomainToIp(char *domain,
     snprintf(cmd, DOMAIN_CMD_LEN - 1, "%s=%s", DOMAIN_CMD, domain);
     LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-    at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, AT_RECV_SUCCESS_POSTFIX) == NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -941,7 +917,7 @@ int HAL_SAL_Close(int fd,
     snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link_id);
     LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-    at_send_wait_reply(cmd, strlen(cmd), true, out, sizeof(out), NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
