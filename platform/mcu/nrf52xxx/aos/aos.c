@@ -107,22 +107,18 @@ void soc_init(void)
 static void sys_init(void)
 {
     int i = 0;
-    //app_timer_init();
-    //nrf_drv_systick_init();
+
     soc_init();
 
-#ifdef BOOTLOADER
-
-#else
-#ifdef AOS_VFS
+#ifdef AOS_COMP_VFS
     vfs_init();
 #endif
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_init();
 #endif
 
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_init();
 #endif
 
@@ -149,7 +145,6 @@ static void sys_init(void)
     application_start(0, NULL);
 #endif
 
-#endif
 }
 
 extern void *__isr_vector;

@@ -54,13 +54,8 @@ global_ldflags = Split('''
 
 
 global_macro = Split('''
-        CONFIG_AOS_KV_MULTIPTN_MODE
-        CONFIG_AOS_KV_PTN=6
-        CONFIG_AOS_KV_SECOND_PTN=7
-        CONFIG_AOS_KV_PTN_SIZE=4096
-        CONFIG_AOS_KV_BUFFER_SIZE=8192
-        CONFIG_AOS_CLI_BOARD
-        CONFIG_AOS_CLI
+        KV_CONFIG_TOTAL_SIZE=2048
+        CLI_CONFIG_SUPPORT_BOARD_CMD
         CONFIG_AOS_UOTA_BREAKPOINT
         WITH_LWIP
 ''')

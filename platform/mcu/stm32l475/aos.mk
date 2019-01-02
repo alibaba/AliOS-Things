@@ -10,12 +10,6 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l475
 $(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += newlib_stub rhino kv vfs netmgr
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
-GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
-
 GLOBAL_INCLUDES += src/common/csp/lwip/include             \
                    src/common/csp/wifi/inc                 \
                    src/B-L475E-IOT01/include               \

@@ -9,12 +9,6 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu cy8c6347
 $(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += newlib_stub rhino kv vfs
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
-GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
-
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4
 
 GLOBAL_INCLUDES += drivers                                  \
