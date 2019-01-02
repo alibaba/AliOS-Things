@@ -335,7 +335,7 @@ static int drv_gps_simcom_sim868_power_on(at_cb_mode_e mode)
 
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_POWER_ON, strlen(SIM868_AT_CMD_GPS_POWER_ON),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((0 != ret) || (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL)) {
         LOG("%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -343,7 +343,7 @@ static int drv_gps_simcom_sim868_power_on(at_cb_mode_e mode)
 
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_LASTPARSE_SET, strlen(SIM868_AT_CMD_GPS_LASTPARSE_SET),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((0 != ret) || (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL)) {
         LOG("%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -352,11 +352,11 @@ static int drv_gps_simcom_sim868_power_on(at_cb_mode_e mode)
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     if(AT_CB_OFF == mode){
         ret = at_send_wait_reply(SIM868_AT_CMD_GPS_INTERVAL_CLOSE, strlen(SIM868_AT_CMD_GPS_INTERVAL_CLOSE),
-                                 true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                                 true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     }
     else{
         ret = at_send_wait_reply(SIM868_AT_CMD_GPS_INTERVAL_SET, strlen(SIM868_AT_CMD_GPS_INTERVAL_SET),
-                                 true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                                 true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     }
     
     if ((0 != ret) ||  (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL)) {
@@ -366,7 +366,7 @@ static int drv_gps_simcom_sim868_power_on(at_cb_mode_e mode)
 
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_SEND_MODE_SET, strlen(SIM868_AT_CMD_GPS_SEND_MODE_SET),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((0 != ret) || (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL)) {
         LOG("%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -382,7 +382,7 @@ static int drv_gps_simcom_sim868_power_off()
     
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_POWER_OFF, strlen(SIM868_AT_CMD_GPS_POWER_OFF),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((0 != ret) || (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL)) {
         LOG("%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -398,7 +398,7 @@ static int drv_gps_simcom_sim868_check(void)
 
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_POWER_CHECK, strlen(SIM868_AT_CMD_GPS_POWER_CHECK),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((0 != ret) || (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL)) {
         LOG("%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -407,7 +407,7 @@ static int drv_gps_simcom_sim868_check(void)
 
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_LASTPARSE_CHECK, strlen(SIM868_AT_CMD_GPS_LASTPARSE_CHECK),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((0 != ret) || (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL))  {
         LOG("%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -416,7 +416,7 @@ static int drv_gps_simcom_sim868_check(void)
 
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_POSITION_GET, strlen(SIM868_AT_CMD_GPS_POSITION_GET),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((0 != ret) || (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL))  {
         LOG("%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -425,7 +425,7 @@ static int drv_gps_simcom_sim868_check(void)
 
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_INTERVAL_CHECK, strlen(SIM868_AT_CMD_GPS_INTERVAL_CHECK),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((0 != ret) || (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL))  {
         LOG("%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -435,7 +435,7 @@ static int drv_gps_simcom_sim868_check(void)
 
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_SEND_MODE_CHECK, strlen(SIM868_AT_CMD_GPS_SEND_MODE_CHECK),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((0 != ret) || (strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL))  {
         LOG("%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -471,7 +471,7 @@ static int drv_gps_simcom_sim868_poll_read(char* rsp)
     int ret = 0;
     memset(rsp, 0, SIM868_GPS_DEFAULT_RSP_LEN);
     ret = at_send_wait_reply(SIM868_AT_CMD_GPS_POSITION_GET, strlen(SIM868_AT_CMD_GPS_POSITION_GET),
-                             true, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
+                             true, NULL, 0, rsp, SIM868_GPS_DEFAULT_RSP_LEN, NULL);
     if ((strstr(rsp, SIM868_AT_CMD_SUCCESS_RSP) == NULL) || (ret != 0)) {
         LOG("%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
