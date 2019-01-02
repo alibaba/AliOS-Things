@@ -7,7 +7,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board mk1101
 MODULE             := 1062
 HOST_ARCH          := Cortex-M3
-HOST_MCU_FAMILY    := mcu_MX1101
+HOST_MCU_FAMILY    := mcu_mx1101
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
 

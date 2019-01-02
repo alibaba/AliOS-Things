@@ -218,10 +218,5 @@
 #define SYSINFO_DEVICE_NAME                 "HK32F103RBEVB"
 #endif
 
-
-//#ifndef  CONFIG_AOS_CLI
-//#define CONFIG_AOS_CLI                 0
-//#endif
-
 #endif /* CONFIG_H */
 

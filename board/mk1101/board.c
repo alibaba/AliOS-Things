@@ -49,17 +49,9 @@ const hal_logic_partition_t hal_partitions[] =
     .partition_owner           = HAL_FLASH_SPI,
     .partition_description     = "PARAMETER1",
     .partition_start_addr      = 0x1DB000,
-    .partition_length          = 0x1000, // 4k bytes
+    .partition_length          = 0x2000, // 4k bytes
     .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
   },
-  [HAL_PARTITION_PARAMETER_2] =
-  {
-    .partition_owner           = HAL_FLASH_SPI,
-    .partition_description     = "PARAMETER2",
-    .partition_start_addr      = 0x1DC000,
-    .partition_length          = 0x1000, //4k bytes
-    .partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN,
-  }
 };
 
 void board_init(void)
