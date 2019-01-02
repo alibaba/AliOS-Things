@@ -15,7 +15,7 @@
 
 typedef union {
     unsigned char all;  /**< all connect flags */
-#if defined(REVERSED)
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
     struct {
         unsigned int username : 1;          /**< 3.1 user name */
         unsigned int password : 1;          /**< 3.1 password */
@@ -87,7 +87,7 @@ typedef struct {
 
 typedef union {
     unsigned char all;  /**< all connack flags */
-#if defined(REVERSED)
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
     struct {
         unsigned int sessionpresent : 1;    /**< session present flag */
         unsigned int : 7;                 /**< unused */
