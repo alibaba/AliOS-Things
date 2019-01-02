@@ -128,7 +128,6 @@ Help:
 clean:
 	$(QUIET)$(ECHO) Cleaning...
 	$(QUIET)$(CLEAN_COMMAND)
-	$(QUIET)$(RM) -rf .gdbinit .gdbinitkernel .gdbinitframework .gdbinitapp
 	$(QUIET)rm -rf build/scripts/config_mk.py
 ifneq (,$(wildcard build/scripts/*.pyc))
 	$(QUIET)rm -rf build/scripts/*.pyc
@@ -204,7 +203,7 @@ PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) exp
 $(PASSDOWN_TARGETS):
 	@:
 
-$(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app $(if $(SUB_BUILD),,.gdbinit .gdbinit$(MBINSTYPE_LOWER)) 2boot
+$(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app 2boot
 
 main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/aos_target_build.mk
 	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
@@ -245,26 +244,6 @@ endif
 
 ifeq (littlevgl_simulate@linuxhost,$(CLEANED_BUILD_STRING))
 	./out/littlevgl_simulate@linuxhost/binary/littlevgl_simulate@linuxhost.elf
-endif
-
-ifeq ($(SUB_BUILD),)
-.gdbinit: $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk main_app
-	$(QUIET)$(ECHO) Making $@
-ifeq ($(HOST_OS), Win32)
-	$(QUIET)$(ECHO) #GDB_PATH=$(GDB_COMMAND) > $@
-else
-	$(QUIET)$(ECHO) '#GDB_PATH=$(GDB_COMMAND)' > $@
-endif
-	$(QUIET)$(ECHO) set remotetimeout 20 >> $@
-	$(QUIET)$(ECHO) $(GDB_KILL_OPENOCD) >> $@
-	$(QUIET)$(ECHO) $(GDBINIT_STRING) >> $@
-
-ifneq ($(MBINS),)
-.gdbinit$(MBINSTYPE_LOWER): $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk main_app
-	$(QUIET)$(ECHO) Making $@
-	$(QUIET)$(ECHO) $(SUBGDBINIT_STRING) >> $@
-endif
-
 endif
 
 export_linkkit_sdk:
