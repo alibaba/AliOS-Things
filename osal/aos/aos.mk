@@ -50,7 +50,7 @@ else
 $(NAME)_SOURCES += rhino.c
 endif
 
-ifeq ($(AOS_KV), 1)
+ifeq ($(AOS_COMP_KV), 1)
 $(NAME)_SOURCES += kv.c
 endif
 
@@ -62,11 +62,11 @@ ifeq ($(AOS_COMP_PWRMGMT),1)
 $(NAME)_SOURCES += pwrmgmt.c
 endif
 
-ifeq ($(AOS_CLI),1)
+ifeq ($(AOS_COMP_CLI),1)
 $(NAME)_SOURCES += cli.c
 endif
 
-ifeq ($(AOS_VFS),1)
+ifeq ($(AOS_COMP_VFS),1)
 $(NAME)_SOURCES += vfs.c
 endif
 
