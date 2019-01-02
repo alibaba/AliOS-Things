@@ -45,10 +45,15 @@ void stm32_soc_init(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /**Configure the Systick interrupt time 
+    /**Configure the Systick interrupt time
     */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
-    
+
+    /* PendSV_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(PendSV_IRQn, 0xf, 0xf);
+    /* SysTick_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(SysTick_IRQn, 0xf, 0xf);
+
     /*default uart init*/
     stduart_init();
     brd_peri_init();
@@ -114,10 +119,10 @@ static void brd_peri_init(void)
     for (i = 0; i < gpcfg_num; ++i) {
         hal_gpio_init(&brd_gpio_table[i]);
     }
-    
+
     hal_i2c_init(&brd_i2c1_dev);
     hal_i2c_init(&brd_i2c2_dev);
-    
+
 }
 /**
 * @brief This function handles System tick timer.
@@ -169,7 +174,7 @@ GETCHAR_PROTOTYPE
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
   uint8_t ch = EOF;
   int32_t ret = -1;
-  
+
   uint32_t recv_size;
   ret = hal_uart_recv_II(&uart_0, &ch, 1, &recv_size, HAL_WAIT_FOREVER);
 
