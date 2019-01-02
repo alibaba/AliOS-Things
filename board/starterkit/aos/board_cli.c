@@ -119,7 +119,7 @@ end:
     return ret;
 }
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 static void handle_module_fota_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     int ret = 0;
@@ -204,7 +204,7 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
     
     if (event->code == CODE_WIFI_ON_GOT_IP){
         at_register_callback(FOTA_OOB_PREFIX, FOTA_OOB_POSTFIX, 64, fota_event_handler, NULL);
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
         aos_cli_register_commands(&module_ota_cli_cmd[0],sizeof(module_ota_cli_cmd) / sizeof(struct cli_command));
 #endif
         LOG("Hello, WiFi GOT_IP event! at %s %d\r\n", __FILE__, __LINE__);

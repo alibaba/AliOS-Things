@@ -31,11 +31,11 @@
  * +------------+
  * | NULL       |   (phy: 0x13000~0x13200)
  * +------------+  0x00012000
- * |rec text    |   14.5k  (phy: 0x13200~0x16FA0)
- * +------------+  0x00015A00
- * | NULL       |   0.5k
- * +------------+  0x00015C00
- * |rec flags   |   3k  (phy: 0x171C0~0x17E80)
+ * |rec text    |   14.5k  (phy: 0x13200~0x17E80)
+ * +------------+
+ * |            |
+ * +------------+
+ * |            |
  * +------------+  0x00016800
  * | NULL       |   1k
  * +------------+  0x00016c00
@@ -44,8 +44,8 @@
  * |data        |
  * |            |
  * +------------+  0x00097800
- * | NULL       |
- * +------------+
+ * | NULL       |  1k
+ * +------------+  0x00097c00 (phy: 0xA13c0)
  * |OTA temp    |
  * |            |
  * |            |
@@ -72,6 +72,6 @@
 /* Split memory into area for vectors and ram */
 MEMORY
 {
-   flash  (rx) : ORIGIN = 0x1a5c0, LENGTH = 892K
-   ram   (rwx): ORIGIN = 0x00400020, LENGTH = 256k-32
+    flash_rec_text (rx) : ORIGIN = 0x12000, LENGTH = 0x7000-0x900
+    ram   (rwx): ORIGIN = 0x00400020, LENGTH = 256k-32
 }
