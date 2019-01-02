@@ -20,7 +20,6 @@ global_macros =Split('''
     ALIOT_DEBUG
     IOTX_DEBUG
     USE_LPTHREAD
-    CONFIG_AOS_CLI
 ''')
 for i in global_macros:
     component.add_global_macros(i)

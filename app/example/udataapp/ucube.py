@@ -18,7 +18,6 @@ for i in dependencis:
     component.add_comp_deps(i)
 
 global_macros =Split('''
-    CONFIG_AOS_CLI
 ''')
 for i in global_macros:
     component.add_global_macros(i)
