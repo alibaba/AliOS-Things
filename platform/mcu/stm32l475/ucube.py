@@ -114,11 +114,6 @@ for i in include_tmp:
     component.add_global_includes(i)
     
 macro_tmp = Split('''
-   CONFIG_AOS_KV_MULTIPTN_MODE
-   CONFIG_AOS_KV_PTN=6
-   CONFIG_AOS_KV_SECOND_PTN=7
-   CONFIG_AOS_KV_PTN_SIZE=4096
-   CONFIG_AOS_KV_BUFFER_SIZE=8192
    STM32L475xx
    RHINO_CONFIG_WORKQUEUE=1
 ''') 

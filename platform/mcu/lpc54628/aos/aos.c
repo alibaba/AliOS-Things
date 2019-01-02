@@ -32,15 +32,15 @@ ktask_t *g_aos_app;
 
 static void sys_init(void)
 {
-#ifdef AOS_VFS
+#ifdef AOS_COMP_VFS
     vfs_init();
 #endif
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_init();
 #endif
 
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_init();
 #endif
 
