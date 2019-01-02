@@ -2,10 +2,6 @@ default: Help
 
 unexport NAME # For compatibility with Windows Subsystem Linux
 
-export AOS_SDK_VERSION_MAJOR    :=  3
-export AOS_SDK_VERSION_MINOR    :=  2
-export AOS_SDK_VERSION_REVISION :=  3
-
 export SOURCE_ROOT ?= ./
 
 export MAKEFILES_PATH := $(SOURCE_ROOT)/build/build_rules

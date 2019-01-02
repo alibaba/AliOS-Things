@@ -31,8 +31,6 @@ endif
 
 COMPONENT_DIRECTORIES += $(APPDIR)
 
-AOS_SDK_VERSION ?= $(AOS_SDK_VERSION_MAJOR).$(AOS_SDK_VERSION_MINOR).$(AOS_SDK_VERSION_REVISION)
-
 ##################################
 # Macros
 ##################################
@@ -258,11 +256,8 @@ APP         :=$(notdir $(APP_FULL))
 
 PLATFORM_DIRECTORY := $(PLATFORM_FULL)
 
-EXTRA_CFLAGS :=    -DAOS_SDK_VERSION_MAJOR=$(AOS_SDK_VERSION_MAJOR) \
-                   -DAOS_SDK_VERSION_MINOR=$(AOS_SDK_VERSION_MINOR) \
-                   -DAOS_SDK_VERSION_REVISION=$(AOS_SDK_VERSION_REVISION) \
-                   -I$(OUTPUT_DIR)/resources/  \
-                   -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END)
+EXTRA_CFLAGS := -I$(OUTPUT_DIR)/resources/  \
+                -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END)
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
 $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
