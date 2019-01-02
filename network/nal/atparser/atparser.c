@@ -34,10 +34,9 @@ static encode_context_t hdlc_encode_ctx;
 static decode_context_t hdlc_decode_ctx;
 #endif
 
-static at_parser_t at = { ._oobs     = { { 0 } },
-                          ._oobs_num = 0};
+static at_parser_t at;
 
-#ifndef AT_SINGLE_TASK
+#if !ATPSR_SINGLE_TASK
 static void at_worker(void *arg);
 #endif
 
@@ -137,15 +136,20 @@ static int at_worker_uart_send_mutex_init()
     return 0;
 }
 
-#ifndef AT_SINGLE_TASK
+#if !ATPSR_SINGLE_TASK
 static void at_worker_uart_send_mutex_deinit()
 {
     atpsr_mutex_free(at.at_uart_send_mutex);
 }
 #endif
 
-int at_init()
+int at_init(void)
 {
+#if !ATPSR_SINGLE_TASK
+    void  *task;
+    slist_init(&at.task_l);
+#endif
+
     char *recv_prefix = AT_RECV_PREFIX;
     char *recv_success_postfix = AT_RECV_SUCCESS_POSTFIX;
     char *recv_fail_postfix = AT_RECV_FAIL_POSTFIX;
@@ -157,6 +161,8 @@ int at_init()
         atpsr_debug("have already inited ,it will init again\r\n");
         return -1;
     }
+
+    memset(&at, 0, sizeof(at_parser_t));
 
     if (at_init_uart() != 0) {
         atpsr_err("at uart init fail \r\n");
@@ -186,12 +192,9 @@ int at_init()
         atpsr_err("fail to creat at worker sem\r\n");
     }
 
-#ifdef AT_SINGLE_TASK
+#if ATPSR_SINGLE_TASK
     inited = true;
 #else
-    void  *task;
-    slist_init(&at.task_l);
-
     if (atpsr_task_new_ext(&task, "at_worker", at_worker,
                            NULL, AT_WORKER_STACK_SIZE,
                            AT_WORKER_PRIORITY) != 0) {
@@ -234,122 +237,6 @@ static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
     ret = hal_uart_recv_II(uart, data, expect_size, recv_size, timeout);
 #endif
 
-    return ret;
-}
-
-static int at_worker_task_add(at_task_t *tsk)
-{
-    if (NULL == tsk) {
-        atpsr_err("invalid input %s \r\n", __func__);
-        return -1;
-    }
-
-    atpsr_mutex_lock(at.task_mutex);
-    slist_add_tail(&tsk->next, &at.task_l);
-    atpsr_mutex_unlock(at.task_mutex);
-
-    return 0;
-}
-
-static int at_worker_task_del(at_task_t *tsk)
-{
-    if (NULL == tsk) {
-        atpsr_err("invalid input %s \r\n", __func__);
-        return -1;
-    }
-
-    atpsr_mutex_lock(at.task_mutex);
-    slist_del(&tsk->next, &at.task_l);
-    atpsr_mutex_unlock(at.task_mutex);
-    if (tsk->smpr != NULL) {
-        atpsr_sem_free(tsk->smpr);
-    }
-    if (tsk) {
-        atpsr_free(tsk);
-    }
-
-    return 0;
-}
-
-int at_send_wait_reply(const char *data, int datalen, bool delimiter,
-                       char *replybuf, int bufsize,
-                       const atcmd_config_t *atcmdconfig)
-{ 
-    int ret = 0;
-
-    if (inited == 0) {
-        atpsr_err("at have not init yet\r\n");
-        return -1;
-    }
-
-    if (NULL == data || datalen <= 0) {
-        atpsr_err("%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (NULL == replybuf || 0 == bufsize) {
-        atpsr_err("%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    at_task_t *tsk = (at_task_t *)atpsr_malloc(sizeof(at_task_t));
-    if (NULL == tsk) {
-        atpsr_err("tsk buffer allocating failed");
-        return -1;
-    }
-    memset(tsk, 0, sizeof(at_task_t));
-
-    if (NULL == (tsk->smpr = atpsr_sem_new())) {
-        atpsr_err("failed to allocate semaphore");
-        goto end;
-    }
-
-    if (atcmdconfig) {
-        if (NULL != atcmdconfig->reply_prefix) {
-            tsk->rsp_prefix     = atcmdconfig->reply_prefix;
-            tsk->rsp_prefix_len = strlen(atcmdconfig->reply_prefix);
-        }
-
-        if (NULL != atcmdconfig->reply_success_postfix) {
-            tsk->rsp_success_postfix     = atcmdconfig->reply_success_postfix;
-            tsk->rsp_success_postfix_len = strlen(atcmdconfig->reply_success_postfix);
-        }
-
-        if (NULL != atcmdconfig->reply_fail_postfix) {
-            tsk->rsp_fail_postfix     = atcmdconfig->reply_fail_postfix;
-            tsk->rsp_fail_postfix_len = strlen(atcmdconfig->reply_fail_postfix);
-        }
-    }
-
-    tsk->command = (char *)data;
-    tsk->rsp     = replybuf;
-    tsk->rsp_len = bufsize;
-
-    atpsr_mutex_lock(at.at_uart_send_mutex);
-    at_worker_task_add(tsk);
-
-    if ((ret = at_sendto_lower(at._pstuart, (void *)data, datalen,
-                               at._timeout, true)) != 0) {
-        atpsr_err("uart send command failed");
-        goto end;
-    }
-
-    if (delimiter) {
-        if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
-                    strlen(at._send_delimiter), at._timeout, false)) != 0) {
-            atpsr_err("uart send delimiter failed");
-            goto end;
-        }
-    }
-
-    if ((ret = atpsr_sem_wait(tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
-        atpsr_err("sem_wait failed");
-        goto end;
-    }
-
-end:
-    at_worker_task_del(tsk);
-    atpsr_mutex_unlock(at.at_uart_send_mutex);
     return ret;
 }
 
@@ -462,6 +349,156 @@ int at_read(char *outbuf, int readsize)
 
     return total_read;
 }
+
+#if ATPSR_SINGLE_TASK
+int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
+                       const char *data, int datalen,
+                       char *replybuf, int bufsize,
+                       const atcmd_config_t *atcmdconfig)
+{
+    if (at_send_no_reply(cmd, cmdlen, delimiter) < 0) {
+        return -1;
+    }
+
+    if (data && datalen) {
+        if (at_send_no_reply(data, datalen, false) < 0) {
+            return -1;
+        }
+    }
+
+    if (at_yield(replybuf, bufsize, atcmdconfig, timeout_ms) <  0) {
+        return -1;
+    }
+
+    return 0;
+}
+#else
+static int at_worker_task_add(at_task_t *tsk)
+{
+    if (NULL == tsk) {
+        atpsr_err("invalid input %s \r\n", __func__);
+        return -1;
+    }
+
+    atpsr_mutex_lock(at.task_mutex);
+    slist_add_tail(&tsk->next, &at.task_l);
+    atpsr_mutex_unlock(at.task_mutex);
+
+    return 0;
+}
+
+static int at_worker_task_del(at_task_t *tsk)
+{
+    if (NULL == tsk) {
+        atpsr_err("invalid input %s \r\n", __func__);
+        return -1;
+    }
+
+    atpsr_mutex_lock(at.task_mutex);
+    slist_del(&tsk->next, &at.task_l);
+    atpsr_mutex_unlock(at.task_mutex);
+
+    if (tsk->smpr != NULL) {
+        atpsr_sem_free(tsk->smpr);
+    }
+    if (tsk) {
+        atpsr_free(tsk);
+    }
+
+    return 0;
+}
+
+int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
+                       const char *data, int datalen,
+                       char *replybuf, int bufsize,
+                       const atcmd_config_t *atcmdconfig)
+{ 
+    int ret = 0;
+
+    if (inited == 0) {
+        atpsr_err("at have not init yet\r\n");
+        return -1;
+    }
+
+    if (NULL == cmd || cmdlen <= 0) {
+        atpsr_err("%s invalid input \r\n", __FUNCTION__);
+        return -1;
+    }
+
+    if (NULL == replybuf || 0 == bufsize) {
+        atpsr_err("%s invalid input \r\n", __FUNCTION__);
+        return -1;
+    }
+
+    atpsr_mutex_lock(at.at_uart_send_mutex);
+    at_task_t *tsk = (at_task_t *)atpsr_malloc(sizeof(at_task_t));
+    if (NULL == tsk) {
+        atpsr_err("tsk buffer allocating failed");
+        atpsr_mutex_unlock(at.at_uart_send_mutex);
+        return -1;
+    }
+    memset(tsk, 0, sizeof(at_task_t));
+
+    if (NULL == (tsk->smpr = atpsr_sem_new())) {
+        atpsr_err("failed to allocate semaphore");
+        goto end;
+    }
+
+    if (atcmdconfig) {
+        if (NULL != atcmdconfig->reply_prefix) {
+            tsk->rsp_prefix     = atcmdconfig->reply_prefix;
+            tsk->rsp_prefix_len = strlen(atcmdconfig->reply_prefix);
+        }
+
+        if (NULL != atcmdconfig->reply_success_postfix) {
+            tsk->rsp_success_postfix     = atcmdconfig->reply_success_postfix;
+            tsk->rsp_success_postfix_len = strlen(atcmdconfig->reply_success_postfix);
+        }
+
+        if (NULL != atcmdconfig->reply_fail_postfix) {
+            tsk->rsp_fail_postfix     = atcmdconfig->reply_fail_postfix;
+            tsk->rsp_fail_postfix_len = strlen(atcmdconfig->reply_fail_postfix);
+        }
+    }
+
+    tsk->command = (char *)cmd;
+    tsk->rsp     = replybuf;
+    tsk->rsp_len = bufsize;
+
+    at_worker_task_add(tsk);
+
+    if ((ret = at_sendto_lower(at._pstuart, (void *)cmd, cmdlen,
+                               at._timeout, true)) != 0) {
+        atpsr_err("uart send command failed");
+        goto end;
+    }
+
+    if (delimiter) {
+        if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
+                    strlen(at._send_delimiter), at._timeout, false)) != 0) {
+            atpsr_err("uart send delimiter failed");
+            goto end;
+        }
+    }
+
+    if (data && datalen > 0) {
+        if ((ret = at_sendto_lower(at._pstuart, (void *)data, datalen, at._timeout, true)) != 0) {
+            atpsr_err("uart send delimiter failed");
+            goto end;
+        }
+    }
+
+    if ((ret = atpsr_sem_wait(tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
+        atpsr_err("sem_wait failed");
+        goto end;
+    }
+
+end:
+    at_worker_task_del(tsk);
+    atpsr_mutex_unlock(at.at_uart_send_mutex);
+    return ret;
+}
+#endif
 
 // register oob
 int at_register_callback(const char *prefix, const char *postfix,
@@ -584,7 +621,7 @@ static void at_scan_for_callback(char c, char *buf, int *index)
     return;
 }
 
-#ifdef AT_SINGLE_TASK
+#if ATPSR_SINGLE_TASK
 static char at_rx_buf[RECV_BUFFER_SIZE];
 int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
              int timeout_ms)
@@ -596,7 +633,7 @@ int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
     int        rsp_fail_postfix_len    = 0;
     int        at_reply_begin          = 0;
     int        at_reply_offset         = 0;
-    char       c;
+    char       c                       = 0;
     char      *buf                 = NULL;
     char      *rsp_prefix          = NULL;
     char      *rsp_success_postfix = NULL;
@@ -708,8 +745,8 @@ static void at_worker(void *arg)
     int        rsp_prefix_len          = 0;
     int        rsp_success_postfix_len = 0;
     int        rsp_fail_postfix_len    = 0;
-    char       c;
-    at_task_t *tsk;
+    char       c                       = 0;
+    at_task_t *tsk                 = NULL;
     char      *buf                 = NULL;
     char      *rsp_prefix          = NULL;
     char      *rsp_success_postfix = NULL;
@@ -744,6 +781,7 @@ static void at_worker(void *arg)
 
         atpsr_mutex_lock(at.task_mutex);
         at_task_empty = slist_empty(&at.task_l);
+        tsk = NULL;
 
         if (!at_task_empty) {
             tsk = slist_first_entry(&at.task_l, at_task_t, next);
@@ -751,7 +789,7 @@ static void at_worker(void *arg)
         atpsr_mutex_unlock(at.task_mutex);
 
         // if no task, continue recv
-        if (at_task_empty) {
+        if (at_task_empty || NULL == tsk) {
             atpsr_debug("No task in queue");
             goto check_buffer;
         }
