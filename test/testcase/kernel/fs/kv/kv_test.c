@@ -150,10 +150,10 @@ static void test_kv_error_cycle(void)
 
 
 /* The physical parition for key-value store */
-#ifndef CONFIG_AOS_KV_PTN
+#ifndef KV_CONFIG_PARTITION
 #define KV_TEST_PTN    6
 #else
-#define KV_TEST_PTN    CONFIG_AOS_KV_PTN
+#define KV_TEST_PTN    KV_CONFIG_PARTITION
 #endif
 
 #define KV_TOTAL_SIZE 8192
