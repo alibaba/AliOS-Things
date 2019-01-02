@@ -19,4 +19,4 @@ $(NAME)_CFLAGS += -Wall -Werror
 endif
 
 GLOBAL_INCLUDES += include spiffs/include
-GLOBAL_DEFINES  += AOS_SPIFFS
+GLOBAL_DEFINES  += AOS_COMP_SPIFFS

@@ -14,4 +14,4 @@ $(NAME)_CFLAGS += -Wall -Werror -Wno-strict-aliasing -Wno-uninitialized
 endif
 
 GLOBAL_INCLUDES += include
-GLOBAL_DEFINES  += AOS_UFFS
+GLOBAL_DEFINES  += AOS_COMP_UFFS
