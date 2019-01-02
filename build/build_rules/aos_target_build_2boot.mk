@@ -53,12 +53,6 @@ $(foreach makefile_name,$(EXTRA_TARGET_MAKEFILES),$(eval -include $(makefile_nam
 endif
 endif
 
-ifneq (,$(BINS))
-CREATE_SYSCALLFILE :=$(MAKEFILES_PATH)/gen_syscalls.py
-PARSE_RESOURSE_TO_SYSCALL_FILE = $(PYTHON) $(CREATE_SYSCALLFILE) $(1) $(2)
-PROCESS_PRECOMPILED_FILES := $(OUTPUT_DIR)/precompile/mark.i
-endif
-
 ##################################
 # Macros
 ##################################
