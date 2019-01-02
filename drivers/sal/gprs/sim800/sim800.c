@@ -310,7 +310,7 @@ static int sim800_uart_init(void)
 
     /*turn off echo*/
     at_send_wait_reply(AT_CMD_ECHO_OFF, strlen(AT_CMD_ECHO_OFF), true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -318,7 +318,8 @@ static int sim800_uart_init(void)
 
     /*set baudrate 115200*/
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_BAUDRATE_SET, AT_UART_BAUDRATE);
-    at_send_wait_reply(cmd, strlen(cmd), true, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0,
+                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -329,7 +330,8 @@ static int sim800_uart_init(void)
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     /*turn off flow control*/
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_FLOW_CONTROL, 0, 0);
-    at_send_wait_reply(cmd, strlen(cmd), true, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0,
+                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -338,7 +340,7 @@ static int sim800_uart_init(void)
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     /*save configuration */
     at_send_wait_reply(AT_CMD_SAVE_CONFIG, strlen(AT_CMD_SAVE_CONFIG), true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -353,7 +355,7 @@ static int sim800_gprs_status_check(void)
 
     /*sim card status check*/
     at_send_wait_reply(AT_CMD_SIM_PIN_CHECK, strlen(AT_CMD_SIM_PIN_CHECK), true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -362,7 +364,7 @@ static int sim800_gprs_status_check(void)
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     /*Signal quaility check*/
     at_send_wait_reply(AT_CMD_SIGNAL_QUALITY_CHECK, strlen(AT_CMD_SIGNAL_QUALITY_CHECK), true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -372,7 +374,7 @@ static int sim800_gprs_status_check(void)
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     /*network registration check*/
     at_send_wait_reply(AT_CMD_NETWORK_REG_CHECK, strlen(AT_CMD_NETWORK_REG_CHECK), true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -383,7 +385,7 @@ static int sim800_gprs_status_check(void)
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     /*GPRS attach check*/
     at_send_wait_reply(AT_CMD_GPRS_ATTACH_CHECK, strlen(AT_CMD_GPRS_ATTACH_CHECK),true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -400,7 +402,7 @@ static int sim800_gprs_ip_init(void)
 
     /*Deactivate GPRS PDP Context*/
     at_send_wait_reply(AT_CMD_GPRS_PDP_DEACTIVE, strlen(AT_CMD_GPRS_PDP_DEACTIVE), true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -409,7 +411,7 @@ static int sim800_gprs_ip_init(void)
     /*set multi ip connection mode*/
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_MULTI_IP_CONNECTION, 1);
-    at_send_wait_reply(cmd, strlen(cmd), true, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -420,7 +422,7 @@ static int sim800_gprs_ip_init(void)
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_TCPIP_MODE, 0);
-    at_send_wait_reply(cmd, strlen(cmd), true, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
         return -1;
@@ -430,7 +432,7 @@ static int sim800_gprs_ip_init(void)
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_SEND_DATA_PROMPT_SET, 0);
-    at_send_wait_reply(cmd, strlen(cmd), true, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -440,7 +442,7 @@ static int sim800_gprs_ip_init(void)
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_RECV_DATA_FORMAT_SET, 1);
-    at_send_wait_reply(cmd, strlen(cmd), true, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -463,7 +465,7 @@ static int sim800_gprs_got_ip(void)
 
     /*start gprs stask*/
     at_send_wait_reply(AT_CMD_START_TASK, strlen(AT_CMD_START_TASK), true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -472,7 +474,7 @@ static int sim800_gprs_got_ip(void)
     /*bring up wireless connectiong with gprs*/
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     at_send_wait_reply(AT_CMD_BRING_UP_GPRS_CONNECT, strlen(AT_CMD_BRING_UP_GPRS_CONNECT), true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         //return -1;
@@ -481,8 +483,8 @@ static int sim800_gprs_got_ip(void)
     /*try to got ip*/
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
 
-    at_send_wait_reply(AT_CMD_GOT_LOCAL_IP, strlen(AT_CMD_GOT_LOCAL_IP), true, rsp, SIM800_DEFAULT_RSP_LEN,
-                       &atcmd_config);
+    at_send_wait_reply(AT_CMD_GOT_LOCAL_IP, strlen(AT_CMD_GOT_LOCAL_IP), true,
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config);
     if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         //return -1;
@@ -500,7 +502,7 @@ static int sim800_gprs_get_ip_only()
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
     atcmd_config_t atcmd_config = {NULL, AT_RECV_PREFIX, NULL};
     at_send_wait_reply(AT_CMD_GOT_LOCAL_IP, strlen(AT_CMD_GOT_LOCAL_IP), true,
-                       rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config);
+                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config);
     if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
@@ -642,7 +644,7 @@ int HAL_SAL_DomainToIp(char *domain, char ip[16])
 
     aos_mutex_lock(&g_domain_mutex, AOS_WAIT_FOREVER);
 restart:
-    at_send_wait_reply(pccmd, strlen(pccmd), true, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+    at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         goto err;
@@ -744,7 +746,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
     switch (conn->type) {
         case TCP_SERVER:
             snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,%d", AT_CMD_START_TCP_SERVER, 1, conn->l_port);
-            at_send_wait_reply(pccmd, strlen(pccmd), true, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+            at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
             if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
                 LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
                 goto err;
@@ -754,7 +756,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
             snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"TCP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
                      conn->r_port);
             atcmd_config_t atcmd_config_client = { NULL, AT_CMD_CLIENT_CONNECT_OK, AT_CMD_CLIENT_CONNECT_FAIL};
-            at_send_wait_reply(pccmd, strlen(pccmd), true, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config_client);
+            at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config_client);
             if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL) {
                 LOGE(TAG, "pccmd %s fail, rsp %s \r\n", pccmd, rsp);
                 goto err;
@@ -764,7 +766,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
             snprintf(pccmd, SIM800_CONN_CMD_LEN - 1, "%s=%d,\"UDP\",\"%s\",%d", AT_CMD_START_CLIENT_CONN, linkid, conn->addr,
                      conn->r_port);
             atcmd_config_t atcmd_config_unicast = { NULL, AT_CMD_CLIENT_CONNECT_OK, AT_CMD_CLIENT_CONNECT_FAIL};
-            at_send_wait_reply(pccmd, strlen(pccmd), true, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config_unicast);
+            at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config_unicast);
             if (strstr(rsp, AT_CMD_CLIENT_CONNECT_FAIL) != NULL) {
                 LOGE(TAG, "pccmd %s fail, rsp %s \r\n", pccmd, rsp);
                 goto err;
@@ -806,7 +808,7 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
     }
 
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_STOP_CONN, linkid);
-    at_send_wait_reply(cmd, strlen(cmd), true, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
+    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "cmd %s rsp is %s \r\n", cmd, rsp);
         ret = -1;
@@ -817,32 +819,6 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
     aos_mutex_unlock(&g_link_mutex);
 
     return ret;
-}
-
-static int at_send_data_2stage(const char *fst, const char *data, uint32_t len,
-                               char *rsp, uint32_t rsplen) 
-{
-    if (NULL == fst) {
-        LOGE(TAG, "%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (NULL == rsp || 0 == rsplen) {
-        LOGE(TAG, "%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (at_send_no_reply(fst, strlen(fst), true) != 0) {
-        LOGE(TAG, "at send %s failed\n", fst);
-        return -1;
-    }
-
-    if (at_send_wait_reply(data, len, false, rsp, rsplen, NULL) != 0) {
-        LOGE(TAG, "at send data len %d failed\n", len);
-        return -1;
-    }
-
-    return 0;
 }
 
 int HAL_SAL_Send(int fd,
@@ -870,7 +846,8 @@ int HAL_SAL_Send(int fd,
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_SEND_DATA, linkid, len);
 
     /*TODO data send fail rsp is SEND FAIL*/
-    at_send_data_2stage((const char *)cmd, (const char *)data, len, rsp, sizeof(rsp));
+    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)data, len,
+                        rsp, sizeof(rsp), NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "cmd %s rsp %s at %s %d failed \r\n", cmd, rsp, __func__, __LINE__);
         return -1;
