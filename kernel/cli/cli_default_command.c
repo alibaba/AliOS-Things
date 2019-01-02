@@ -285,8 +285,5 @@ int32_t cli_register_default_commands(void)
     board_cli_init();
 #endif
 
-    /* Need move to utility log module */
-    log_cli_init();
-
     return CLI_OK;
 }
