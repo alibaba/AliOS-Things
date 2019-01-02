@@ -169,6 +169,31 @@ typedef struct {
     kbuf_queue_t *queue;
 } krhino_buf_queue_flush_syscall_arg_t;
 
+/* ----------------- event ------------------ */
+typedef struct {
+    kevent_t     **event;
+    const name_t  *name;
+    uint32_t       flags;
+} krhino_event_dyn_create_syscall_arg_t;
+
+typedef struct {
+    kevent_t *event;
+} krhino_event_dyn_del_syscall_arg_t;
+
+typedef struct {
+    kevent_t *event;
+    uint32_t  flags;
+    uint8_t   opt;
+    uint32_t *actl_flags;
+    tick_t    ticks;
+} krhino_event_get_syscall_arg_t;
+
+typedef struct {
+    kevent_t *event;
+    uint32_t  flags;
+    uint8_t   opt;
+} krhino_event_set_syscall_arg_t;
+
 /* ---------------- proc msg ---------------- */
 typedef struct {
     uint32_t key;
