@@ -8,7 +8,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu RDA8955
 
 $(NAME)_COMPONENTS += arch_mips-I
-$(NAME)_COMPONENTS := newlib_stub rhino netmgr cjson lwip
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr cjson lwip
 
 #dual_os ?= no
 
@@ -23,9 +23,6 @@ GLOBAL_DEFINES += DEVICE_FLASH=1
 GLOBAL_DEFINES += TARGET_FLASH_CMSIS_ALGO=1
 
 GLOBAL_DEFINES += RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
-
-GLOBAL_INCLUDES += ../../arch/mips/mips-I/gcc \
-                   ../../../network/lwip/include
 
 GLOBAL_INCLUDES += inc/target/include
 GLOBAL_INCLUDES += include
@@ -81,9 +78,7 @@ $(NAME)_SOURCES := aos/aos_adapter.c                   \
                    aos/hook_impl.c                     \
                    aos/soc_impl.c                      \
                    aos/aos_adapter_timeout.c           \
-                   hal/flash.c                         \
-                   ../../arch/mips/mips-I/gcc/port_c.c \
-                   ../../arch/mips/mips-I/gcc/port_s.S
+                   hal/flash.c
 
 ifeq ($(vcall), rhino_sxr)
 $(NAME)_SOURCES += aos/test/aos_test.c aos/test/cut.c
