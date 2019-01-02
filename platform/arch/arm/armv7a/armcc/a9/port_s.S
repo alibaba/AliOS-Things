@@ -20,7 +20,7 @@
     EXPORT cpu_task_switch
     EXPORT cpu_intrpt_switch
     EXPORT cpu_first_task_start
-    EXPORT cpu_get_cpuid
+    EXPORT cpu_cur_get
 
     EXPORT _interrupt_handler
     EXPORT _panic_handler
@@ -291,11 +291,11 @@ _panic_handler
     BL      _context_restore
 
 ;******************************************************************************
-; cpu_get_cpuid
+; cpu_cur_get
 ;******************************************************************************
-; int cpu_get_cpuid(void);
+; int cpu_cur_get(void);
 ; get current CPU ID
-cpu_get_cpuid
+cpu_cur_get
     MRC     p15, 0, R0, c0, c0, 5
     AND     R0, R0, #3
     BX      LR
