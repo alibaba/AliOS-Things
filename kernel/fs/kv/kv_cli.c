@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef CONFIG_AOS_CLI
+#ifndef AOS_COMP_CLI
 void kv_register_cli_command(void) {}
 #else
 

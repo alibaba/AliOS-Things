@@ -5,4 +5,49 @@ menuconfig AOS_COMP_VFS
 
 if AOS_COMP_VFS
 # Configurations for component vfs
+
+config VFS_CONFIG_DEVICE_NODES
+    int "VFS_CONFIG_DEVICE_NODES"
+    default 25
+    help
+        set the maximum of the vfs device node.
+        default 25
+
+config VFS_CONFIG_FD_OFFSET
+    int "VFS_CONFIG_FD_OFFSET"
+    default 512
+    help
+        set the vfs file description offset.
+        default 512 (1 ~ 512 is LWIP fds)
+
+config VFS_CONFIG_PATH_MAX
+    int "VFS_CONFIG_PATH_MAX"
+    default 256
+    help
+        set the maximum of the device path.
+        default 256
+
+config VFS_CONFIG_MAX_FILE_NUM
+    int "VFS_CONFIG_MAX_FILE_NUM"
+    default 50
+    help
+        set the maximum of the vfs files.
+        default 50 (= 2 * VFS_CONFIG_DEVICE_NODES)
+
+config VFS_CONFIG_STAT_INCLUDE_SIZE
+    int "VFS_CONFIG_STAT_INCLUDE_SIZE"
+    range 0 1
+    default 1
+    help
+        indicate whether the stat structure have 'size' member.
+        default 1 (Depend on C library)
+
+config VFS_CONFIG_CURRENT_DIRECTORY_ENABLE
+    int "VFS_CONFIG_CURRENT_DIRECTORY_ENABLE"
+    range 0 1
+    default 0
+    help
+        enable/disable to record the current working directory.
+        default 0
+
 endif
