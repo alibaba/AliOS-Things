@@ -76,6 +76,15 @@ kstat_t sys_krhino_buf_queue_recv_stub(void *arg);
 
 kstat_t sys_krhino_buf_queue_flush_stub(void *arg);
 
+/* ----------------- event ------------------ */
+kstat_t sys_krhino_event_dyn_create_stub(void *arg);
+
+kstat_t sys_krhino_event_dyn_del_stub(void *arg);
+
+kstat_t sys_krhino_event_get_stub(void *arg);
+
+kstat_t sys_krhino_event_set_stub(void *arg);
+
 /* ----------------- proc msg -------------------- */
 size_t sys_krhino_msg_get_stub(void *arg);
 

@@ -78,8 +78,18 @@
 
 #define K_BUF_QUEUE_END (SYS_KRHINO_BUF_QUEUE_FLUSH)
 
+/* ------------------ event -------------------*/
+#define K_EVENT_BASE (K_BUF_QUEUE_END + 1)
+
+#define SYS_KRHINO_EVENT_DYN_CREATE (K_EVENT_BASE + 0)
+#define SYS_KRHINO_EVENT_DYN_DEL    (K_EVENT_BASE + 1)
+#define SYS_KRHINO_EVENT_GET        (K_EVENT_BASE + 2)
+#define SYS_KRHINO_EVENT_SET        (K_EVENT_BASE + 3)
+
+#define K_EVENT_END (SYS_KRHINO_EVENT_SET)
+
 /* ----------------- proc msg -----------------*/
-#define U_PROC_MSG_BASE (K_BUF_QUEUE_END + 1)
+#define U_PROC_MSG_BASE (K_EVENT_END + 1)
 
 #define SYS_KRHINO_MSG_GET  (U_PROC_MSG_BASE + 0)
 #define SYS_KRHINO_MSG_SND  (U_PROC_MSG_BASE + 1)
