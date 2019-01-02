@@ -16,7 +16,6 @@ endif
 $(NAME)_COMPONENTS += ulog debug
 
 GLOBAL_INCLUDES += include
-GLOBAL_DEFINES  += CONFIG_AOS_CLI
+GLOBAL_DEFINES  += AOS_COMP_CLI
 
-# temporary solution, need remove after config.in enable
-AOS_CLI ?= 1
+AOS_COMP_CLI ?= 1

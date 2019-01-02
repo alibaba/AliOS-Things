@@ -6,4 +6,54 @@ menuconfig AOS_COMP_KV
 
 if AOS_COMP_KV
 # Configurations for component kv
+
+config KV_CONFIG_TOTAL_SIZE
+    int "KV_CONFIG_TOTAL_SIZE"
+    default 8192
+    help
+        set the key-value module partition size.
+        default 8192
+
+config KV_CONFIG_PARTITION
+    int "KV_CONFIG_PARTITION"
+    default 6
+    help
+        set the index number of the kv module partition.
+        default 6 (HAL_PARTITION_PARAMETER_2 defined in aos/hal/flash.h)
+
+config KV_CONFIG_BLOCK_SIZE_BITS
+    int "KV_CONFIG_BLOCK_SIZE_BITS"
+    default 12
+    help
+        set the number of bits for flash block (erase sector) size.
+        default 12 (1 << 12 = 4096 bytes)
+
+config KV_CONFIG_TASK_PRIORITY
+    int "KV_CONFIG_TASK_PRIORITY"
+    default 32
+    help
+        set the task priority of the kv garbage collection task.
+        default 32
+
+config KV_CONFIG_TASK_STACK_SIZE
+    int "KV_CONFIG_TASK_STACK_SIZE"
+    default 1024
+    help
+        set the task stack size of the kv garbage collection task.
+        default 1024
+
+config KV_CONFIG_MAX_KEY_LEN
+    int "KV_CONFIG_MAX_KEY_LEN"
+    default 128
+    help
+        set the maximum of key buffer length.
+        default 128
+
+config KV_CONFIG_MAX_VAL_LEN
+    int "KV_CONFIG_MAX_VAL_LEN"
+    default 512
+    help
+        set the maximum of value buffer length.
+        default 512
+
 endif

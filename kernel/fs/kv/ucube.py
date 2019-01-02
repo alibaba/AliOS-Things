@@ -8,4 +8,4 @@ component = aos_component('kv', src)
 
 component.add_global_includes('include')
 
-component.add_global_macros('AOS_KV')
+component.add_global_macros('AOS_COMP_KV')
