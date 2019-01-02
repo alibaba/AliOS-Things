@@ -10,7 +10,7 @@ ifneq (,$(wildcard $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin))
 TOOLCHAIN_PATH    := $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin/
 endif
 
-BINS ?=
+MBINS ?=
 
 ifeq ($(HOST_OS),Win32)
 ################
@@ -142,18 +142,16 @@ LINK_SCRIPT_SUFFIX                 := .ld
 TOOLCHAIN_NAME := GCC
 OPTIONS_IN_FILE_OPTION    := @
 
-ENDIAN_CFLAGS_LITTLE   := 
-ENDIAN_CXXFLAGS_LITTLE := 
+ENDIAN_CFLAGS_LITTLE   :=
+ENDIAN_CXXFLAGS_LITTLE :=
 ENDIAN_ASMFLAGS_LITTLE :=
-ENDIAN_LDFLAGS_LITTLE  := 
+ENDIAN_LDFLAGS_LITTLE  :=
 CLIB_LDFLAGS_NANO      := --specs=nano.specs
-ifeq ($(BINS),)
+ifeq ($(MBINS),)
 CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs -u _printf_float
-else ifeq ($(BINS),kernel)
+else ifeq ($(MBINS),kernel)
 CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs -u _printf_float
-else ifeq ($(BINS),framework)
-CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs
-else ifeq ($(BINS),app)
+else ifeq ($(MBINS),app)
 CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs
 endif
 
@@ -177,31 +175,31 @@ COMPILER_SPECIFIC_MAPFILE_DISPLAY_SUMMARY = $(PYTHON) $(MAPFILE_PARSER) $(1)
 
 #KILL_OPENOCD = $(PYTHON) $(KILL_OPENOCD_SCRIPT)
 
-ifneq ($(BINS),)
+ifneq ($(MBINS),)
 ifeq ($(HOST_OS),Win32)
 DOWNLOAD_BRACKETS := )
 DOWNLOAD_COMMA := ;
-BINS_DOWNLOAD_ADDR = $(subst $(DOWNLOAD_COMMA),, $(subst $(DOWNLOAD_BRACKETS),, $(filter 0x%, $(subst X,x,$(strip $(shell findstr /d:$(OUTPUT_DIR)/ld "$(BINSTYPE_LOWER)_download_addr" *.ld))))))
-READELF_STR         = $(call CONV_SLASHES, $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX))
+MBINS_DOWNLOAD_ADDR = $(subst $(DOWNLOAD_COMMA),, $(subst $(DOWNLOAD_BRACKETS),, $(filter 0x%, $(subst X,x,$(strip $(shell findstr /d:$(OUTPUT_DIR)/ld "$(MBINSTYPE_LOWER)_download_addr" *.ld))))))
+READELF_STR         = $(call CONV_SLASHES, $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(MBINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX))
 LOAD_SYMBOL_ADDRSTR = $(shell $(READELF) -S $(READELF_STR) | findstr ".text")
 LOAD_SYMBOL_ADDR    = 0x$(wordlist 5, 5, $(LOAD_SYMBOL_ADDRSTR))
 endif  # Win32
 ifeq ($(HOST_OS),Linux32)
-BINS_DOWNLOAD_ADDR = `$(TOOLS_ROOT)/cmd/linux32/grep -nr "$(BINSTYPE_LOWER)_download_addr" $(OUTPUT_DIR)/ld | $(TOOLS_ROOT)/cmd/linux32/awk -F '=' '{print $$2}' | $(TOOLS_ROOT)/cmd/linux32/awk -F ')' '{print $$1}'`
-LOAD_SYMBOL_ADDR    = 0x`$(READELF) -S $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX) | $(TOOLS_ROOT)/cmd/linux32/grep ".text" | $(TOOLS_ROOT)/cmd/linux32/awk '{print $$5}'`
+MBINS_DOWNLOAD_ADDR = `$(TOOLS_ROOT)/cmd/linux32/grep -nr "$(MBINSTYPE_LOWER)_download_addr" $(OUTPUT_DIR)/ld | $(TOOLS_ROOT)/cmd/linux32/awk -F '=' '{print $$2}' | $(TOOLS_ROOT)/cmd/linux32/awk -F ')' '{print $$1}'`
+LOAD_SYMBOL_ADDR    = 0x`$(READELF) -S $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(MBINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX) | $(TOOLS_ROOT)/cmd/linux32/grep ".text" | $(TOOLS_ROOT)/cmd/linux32/awk '{print $$5}'`
 endif  # Linux32
 ifeq ($(HOST_OS),Linux64)
-BINS_DOWNLOAD_ADDR = `$(TOOLS_ROOT)/cmd/linux64/grep -nr "$(BINSTYPE_LOWER)_download_addr" $(OUTPUT_DIR)/ld | $(TOOLS_ROOT)/cmd/linux64/awk -F '=' '{print $$2}' | $(TOOLS_ROOT)/cmd/linux64/awk -F ')' '{print $$1}'`
-LOAD_SYMBOL_ADDR    = 0x`$(READELF) -S $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX) | $(TOOLS_ROOT)/cmd/linux64/grep ".text" | $(TOOLS_ROOT)/cmd/linux64/awk '{print $$5}'`
+MBINS_DOWNLOAD_ADDR = `$(TOOLS_ROOT)/cmd/linux64/grep -nr "$(MBINSTYPE_LOWER)_download_addr" $(OUTPUT_DIR)/ld | $(TOOLS_ROOT)/cmd/linux64/awk -F '=' '{print $$2}' | $(TOOLS_ROOT)/cmd/linux64/awk -F ')' '{print $$1}'`
+LOAD_SYMBOL_ADDR    = 0x`$(READELF) -S $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(MBINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX) | $(TOOLS_ROOT)/cmd/linux64/grep ".text" | $(TOOLS_ROOT)/cmd/linux64/awk '{print $$5}'`
 endif  # Linux64
 ifeq ($(HOST_OS),OSX)
-BINS_DOWNLOAD_ADDR = `$(TOOLS_ROOT)/cmd/osx/grep -nr "$(BINSTYPE_LOWER)_download_addr" $(OUTPUT_DIR)/ld | $(TOOLS_ROOT)/cmd/osx/awk -F '=' '{print $$2}' | $(TOOLS_ROOT)/cmd/osx/awk -F ')' '{print $$1}'`
-LOAD_SYMBOL_ADDR    = 0x`$(READELF) -S $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(BINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX) | $(TOOLS_ROOT)/cmd/osx/grep ".text" | $(TOOLS_ROOT)/cmd/osx/awk '{print $$5}'`
+MBINS_DOWNLOAD_ADDR = `$(TOOLS_ROOT)/cmd/osx/grep -nr "$(MBINSTYPE_LOWER)_download_addr" $(OUTPUT_DIR)/ld | $(TOOLS_ROOT)/cmd/osx/awk -F '=' '{print $$2}' | $(TOOLS_ROOT)/cmd/osx/awk -F ')' '{print $$1}'`
+LOAD_SYMBOL_ADDR    = 0x`$(READELF) -S $(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING).$(MBINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX) | $(TOOLS_ROOT)/cmd/osx/grep ".text" | $(TOOLS_ROOT)/cmd/osx/awk '{print $$5}'`
 endif  # OSX
-SUBGDBINIT_STRING   = add-symbol-file $(BUILD_DIR)/eclipse_debug/$(BINSTYPE_LOWER)_built.elf $(LOAD_SYMBOL_ADDR)
+SUBGDBINIT_STRING   = add-symbol-file $(BUILD_DIR)/eclipse_debug/$(MBINSTYPE_LOWER)_built.elf $(LOAD_SYMBOL_ADDR)
 else
-BINS_DOWNLOAD_ADDR = 0x13200
-endif # BINS
+MBINS_DOWNLOAD_ADDR = 0x13200
+endif # MBINS
 
 STRIP_OUTPUT_PREFIX := -o 
 OBJCOPY_BIN_FLAGS   := -O binary -R .eh_frame -R .init -R .fini -R .comment -R .ARM.attributes 
