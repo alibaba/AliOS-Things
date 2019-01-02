@@ -79,9 +79,6 @@ int application_start(int argc, char **argv)
 
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
-#ifdef CONFIG_AOS_CLI
-
-#endif
     netmgr_start(false);
 
     aos_loop_run();

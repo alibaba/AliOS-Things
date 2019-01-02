@@ -237,7 +237,7 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
     }
 }
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 static void handle_reset_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     aos_schedule_call(do_awss_reset, NULL);
@@ -283,7 +283,7 @@ int linkkit_sample_start(void)
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_register_command(&resetcmd);
     aos_cli_register_command(&ncmd);
 #endif

@@ -23,7 +23,6 @@ global_macros =Split('''
     IOTX_DEBUG
     USE_LPTHREAD
     TEST_ALCS
-    CONFIG_AOS_CLI
 ''')
 for i in global_macros:
     component.add_global_macros(i)
@@ -38,7 +37,6 @@ if aos_global_config.get('print_heap') == 1:
 if aos_global_config.mcu_family == 'esp8266':
     component.add_global_macros('ESP8266_CHIPSET')
 else :
-    component.add_global_macros('CONFIG_AOS_CLI')
     component.add_comp_deps("cli")
 
 

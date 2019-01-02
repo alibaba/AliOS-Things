@@ -34,7 +34,6 @@ global_macros =Split('''
     FOTA_RAM_LIMIT_MODE
     COAP_WITH_YLOOP
     TEST_ALCS
-    CONFIG_AOS_CLI
     ON_PRE2=1
     DATA_TO_CLOUD
     PT_SCANNER=1

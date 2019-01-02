@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := Developer Kit example with link develop
 $(NAME)_SOURCES    := ldapp.c
 
 $(NAME)_COMPONENTS := cli sensor cjson ota netmgr feature.linkkit-mqtt
-GLOBAL_DEFINES += CONFIG_AOS_CLI USE_LPTHREAD
+GLOBAL_DEFINES += USE_LPTHREAD
 
 # for developerkit board
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME),developerkit)

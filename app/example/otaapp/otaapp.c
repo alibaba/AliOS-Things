@@ -13,7 +13,7 @@
 #include "network/network.h"
 #include <netmgr.h>
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 #include <aos/cli.h>
 #endif
 
@@ -50,7 +50,7 @@ static void ota_work(void *ctx)
     }
 }
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 static void handle_ota_cmd(char *buf, int blen, int argc, char **argv)
 {
     if (argc <= 3) {
@@ -120,7 +120,7 @@ int application_start(int argc, char *argv[])
     aos_set_log_level(AOS_LL_DEBUG);
     netmgr_init();
     netmgr_start(true);
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_register_command(&otacmd);
     aos_cli_register_command(&diffcmd);
 #endif
