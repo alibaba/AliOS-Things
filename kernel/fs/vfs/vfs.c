@@ -19,7 +19,7 @@
 static uint8_t  g_vfs_init     = 0;
 static void    *g_vfs_lock_ptr = NULL;
 
-#if (CURRENT_WORKING_DIRECTORY_ENBALE > 0)
+#if (CURRENT_WORKING_DIRECTORY_ENABLE > 0)
 char g_current_working_directory[VFS_PATH_MAX];
 #endif
 
@@ -36,7 +36,7 @@ int32_t vfs_init(void)
 
     vfs_inode_init();
 
-#if (CURRENT_WORKING_DIRECTORY_ENBALE > 0)
+#if (CURRENT_WORKING_DIRECTORY_ENABLE > 0)
     /* init current working directory */
     memset(g_current_working_directory, 0, sizeof(g_current_working_directory));
     strcpy(g_current_working_directory, "/default");
@@ -941,7 +941,7 @@ int32_t vfs_access(const char *path, int32_t amode)
 
 int vfs_chdir(const char *path)
 {
-#if (CURRENT_WORKING_DIRECTORY_ENBALE > 0)
+#if (CURRENT_WORKING_DIRECTORY_ENABLE > 0)
     if ((path == NULL) || (strlen(path) > VFS_PATH_MAX)){
         return VFS_ERR_NAMETOOLONG;
     }
@@ -963,7 +963,7 @@ int vfs_chdir(const char *path)
 
 char *vfs_getcwd(char *buf, size_t size)
 {
-#if (CURRENT_WORKING_DIRECTORY_ENBALE > 0)
+#if (CURRENT_WORKING_DIRECTORY_ENABLE > 0)
     if ((buf == NULL) || (size < strlen(g_current_working_directory))) {
         return NULL;
     }

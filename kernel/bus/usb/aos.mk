@@ -22,7 +22,6 @@ GLOBAL_INCLUDES += usb_host \
                    usb_host/class/msd/include \
                    usb_host/class/rndis/include
 
-GLOBAL_DEFINES += AOS_USB_HOST
 
 else ifeq ($(USB_MODE), device)
 
@@ -39,8 +38,6 @@ GLOBAL_INCLUDES += usb_device \
                    usb_device/class/msd/include \
                    usb_device/class/hid/include
 
-GLOBAL_DEFINES += AOS_USB_DEVICE
-
 endif
 
 #default gcc
@@ -50,3 +47,4 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS += -Wall -Werror
 endif
 
+GLOBAL_DEFINES += AOS_COMP_USB

@@ -57,7 +57,7 @@ static void app_pre_init(void)
 
 
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 
 
 #ifndef CONFIG_NO_TCPIP
@@ -251,11 +251,11 @@ void aos_show_welcome(void)
 
 int aos_components_init(kinit_t *kinit)
 {
-#ifdef AOS_VFS
+#ifdef AOS_COMP_VFS
     vfs_init();
 #endif
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     cli_service_init(kinit);
 #endif
 
@@ -263,7 +263,7 @@ int aos_components_init(kinit_t *kinit)
     ulog_init("A");
 #endif
 
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_init();
 #endif
 
