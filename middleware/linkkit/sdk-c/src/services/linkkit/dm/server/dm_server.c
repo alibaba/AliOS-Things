@@ -48,9 +48,11 @@ static void _dm_server_free_context(_IN_ dm_server_alcs_context_t *context)
 }
 
 static dm_server_uri_map_t g_dm_server_uri_map[] = {
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     {DM_URI_THING_SERVICE_PROPERTY_SET,       DM_URI_SYS_PREFIX,         IOTX_DM_LOCAL_AUTH,      dm_server_thing_service_property_set         },
     {DM_URI_THING_SERVICE_PROPERTY_GET,       DM_URI_SYS_PREFIX,         IOTX_DM_LOCAL_AUTH,      dm_server_thing_service_property_get         },
     {DM_URI_THING_EVENT_PROPERTY_POST,        DM_URI_SYS_PREFIX,         IOTX_DM_LOCAL_AUTH,      dm_server_thing_service_property_post        },
+#endif
     {DM_URI_DEV_CORE_SERVICE_DEV,            NULL,                      IOTX_DM_LOCAL_NO_AUTH,   dm_server_thing_dev_core_service_dev         },
 };
 
@@ -87,6 +89,7 @@ void dm_server_alcs_event_handler(void *pcontext, void *phandle, iotx_alcs_event
 
 }
 
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 void dm_server_thing_service_property_set(CoAPContext *context, const char *paths, NetworkAddr *remote,
         CoAPMessage *message)
 {
@@ -195,6 +198,7 @@ void dm_server_thing_service_property_post(CoAPContext *context, const char *pat
     _dm_server_free_context(alcs_context);
 }
 
+#endif
 void dm_server_thing_dev_core_service_dev(CoAPContext *context, const char *paths, NetworkAddr *remote,
         CoAPMessage *message)
 {
