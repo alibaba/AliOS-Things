@@ -17,4 +17,4 @@ $(NAME)_CFLAGS += -Wall -Werror
 endif
 
 GLOBAL_INCLUDES += include ff/include
-GLOBAL_DEFINES  += AOS_FATFS
+GLOBAL_DEFINES  += AOS_COMP_FATFS
