@@ -237,26 +237,14 @@ LINK_LIBS += $(RESOURCES_LIBRARY)
 
 # $(info Components: $(COMPONENTS))
 # Create targets for components
-ifeq (app, $(BINS))
-# precompile kernel/framework file
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),kernel))))
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),framework))))
-# Create targets for components
-$(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_TYPE), $(if $(filter app app&framework app&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX))), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
-else ifeq (framework, $(BINS))
-# precompile kernel/framework file
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),kernel))))
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),framework))))
-# Create targets for components
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter framework app&framework framework&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
-else ifeq (kernel, $(BINS))
-# precompile kernel file
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel, $($(comp)_TYPE)), $(call PRECOMPILED_RESOURCE_FILE,$(comp),kernel))))
-# Create targets for components
-$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel app&kernel framework&kernel share, $($(comp)_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
-else ifeq (,$(BINS))
+ifeq (app, $(MBINS))
+$(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_MBINS_TYPE), $(if $(filter app share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp))), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
+else ifeq (kernel, $(MBINS))
+$(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX)))))
+else ifeq (,$(MBINS))
 $(foreach comp,$(COMPONENTS),$(eval $(call BUILD_COMPONENT_RULES,$(comp),$($(comp)_LIBSUFFIX))))
 endif
+
 
 # handle lds file, lds -> ld
 $(foreach ldsfile,$(AOS_SDK_2BOOT_LDS_FILES),$(eval $(call PROCESS_LDS_FILE,$(ldsfile))))
@@ -264,7 +252,7 @@ $(foreach ldsfile,$(AOS_SDK_2BOOT_LDS_INCLUDES),$(eval $(call PROCESS_LDS_FILE,$
 $(foreach ldsfile,$(AOS_SDK_2BOOT_LDS_FILES),$(eval AOS_SDK_LDFLAGS += -T $(notdir $(ldsfile:.ld.S=.ld))))
 $(if $(AOS_SDK_2BOOT_LDS_FILES),$(eval AOS_SDK_LDFLAGS += -L $(LDS_FILE_DIR)))
 
-ifneq (,$(BINS))
+ifneq (,$(MBINS))
 $(PROCESS_PRECOMPILED_FILES): $(PRECOMPILED_FILES)
 	$(QUIET)$(TOUCH) $@
 	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call PARSE_RESOURSE_TO_SYSCALL_FILE, $(OUTPUT_DIR), create))
