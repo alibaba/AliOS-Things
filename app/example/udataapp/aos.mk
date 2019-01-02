@@ -30,7 +30,6 @@ no_with_lwip := 0
 endif
 
 GLOBAL_INCLUDES += ./
-GLOBAL_DEFINES += CONFIG_AOS_CLI
 GLOBAL_DEFINES += DTC_LINKKIT
 
 else ifeq ($(AOS_CONFIG_DTC_MQTT),y)
@@ -38,7 +37,7 @@ else ifeq ($(AOS_CONFIG_DTC_MQTT),y)
 $(NAME)_SOURCES    += mqtt/mqtt_example.c
 
 $(NAME)_COMPONENTS += netmgr feature.linkkit-mqtt
-GLOBAL_DEFINES     += CONFIG_AOS_CLI USE_LPTHREAD
+GLOBAL_DEFINES     += USE_LPTHREAD
 
 GLOBAL_DEFINES     += DTC_MQTT
 endif

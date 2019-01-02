@@ -7,8 +7,6 @@ $(NAME)_SUMMARY := mqtt examples
 $(NAME)_SOURCES := app_entry.c 
 $(NAME)_COMPONENTS := feature.linkkit-mqtt netmgr cjson cli
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI
-
 ifeq ($(case),rrpc)
 $(NAME)_SOURCES += mqtt_example_rrpc.c
 else ifeq ($(case),multithread)
