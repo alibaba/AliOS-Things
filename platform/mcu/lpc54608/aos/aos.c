@@ -29,18 +29,15 @@ static void sys_init(void)
 {
     int i = 0;
 
-#ifdef BOOTLOADER
-
-#else
-#ifdef AOS_VFS
+#ifdef AOS_COMP_VFS
     vfs_init();
 #endif
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_init();
 #endif
 
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_init();
 #endif
 
@@ -55,7 +52,6 @@ static void sys_init(void)
 
 	lwip_tcpip_init();
     application_start(0, NULL);	
-#endif
 }
 static void platform_init(void)
 {
