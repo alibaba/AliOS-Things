@@ -15,6 +15,7 @@
 #include "hal_gpio_ksyscall.h"
 #include "hal_sd_ksyscall.h"
 #include "hal_uart_ksyscall.h"
+#include "cli_ksyscall.h"
 #include "lwip_ksyscall.h"
 
 /**************************************************************
@@ -178,6 +179,11 @@ void *syscall_tbl[] = {
     [SYS_HAL_SPI_SEND_RECV] = sys_hal_spi_send_recv_stub,
     [SYS_HAL_SPI_FINALIZE]  = sys_hal_spi_finalize_stub,
 #endif /* CONFIG_HAL_SPI_SYSCALL */
+
+    /* ----------------   cli  ------------------*/
+#if (CONFIG_CLI_SYSCALL > 0)
+    [SYS_CLI_REGISTER_CMD] = sys_cli_register_command_stub,
+#endif /* CONFIG_CLI_SYSCALL */
 
     /* ---------------- lwip --------------------*/
 #if (CONFIG_LWIP_SYSCALL > 0)
