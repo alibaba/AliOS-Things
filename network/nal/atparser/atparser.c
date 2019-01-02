@@ -366,7 +366,7 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
         }
     }
 
-    if (at_yield(replybuf, bufsize, atcmdconfig, timeout_ms) <  0) {
+    if (at_yield(replybuf, bufsize, atcmdconfig, at._timeout) <  0) {
         return -1;
     }
 
