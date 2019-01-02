@@ -10,7 +10,7 @@
 bool log_init = false;
 
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 
 #ifdef ULOG_CONFIG_ASYNC
 
@@ -86,7 +86,7 @@ static struct cli_command ulog_cmd[] = {
 #endif
 };
 
-#endif /*CONFIG_AOS_CLI*/
+#endif /* AOS_COMP_CLI */
 
 void ulog_init(const uint8_t host_name[8])
 {
@@ -95,7 +95,7 @@ void ulog_init(const uint8_t host_name[8])
 #ifdef ULOG_CONFIG_ASYNC
         ulog_async_init(host_name);
 #endif
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
         aos_cli_register_commands(&ulog_cmd[0], sizeof(ulog_cmd)/sizeof(struct cli_command));
 #endif
     log_init = true;
