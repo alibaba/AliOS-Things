@@ -1,7 +1,6 @@
-# <img src="http://o7spigzvd.bkt.clouddn.com/aos-logo-compact-1502x272.png" height="60">
+# <img src="https://img.alicdn.com/tfs/TB1e1U7vyAnBKNjSZFvXXaTKXXa-973-200.png" height="60">
 
 [![Join the chat at https://gitter.im/aliosthings/Lobby](https://img.shields.io/gitter/room/aliosthings/Lobby.svg?style=flat-square)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![](https://img.shields.io/travis/alibaba/AliOS-Things/master.svg?style=flat-square)](https://travis-ci.org/alibaba/AliOS-Things)
 
 [EN](./README.md) | 中文
 
@@ -20,7 +19,7 @@ AliOS Things 支持多种CPU架构，包括：ARM，C-Sky，MIPS，rl78，rx600�
 - Security: 包括TLS, TFS(Trusted Framework Service), TEE(Trusted Exexcution Environment)等
 - AOS API: AliOS Things 提供给应用软件和中间件的API
 - Middleware: 阿里巴巴增值和常用的物联网组件
-- Examples: 手把手的示例代码，以及一些严格测试的应用程序，像是 [linkkitapp](./example/linkkitapp/README.md)
+- Examples: 手把手的示例代码，以及一些严格测试的应用程序，像是 [linkkitapp](./app/example/linkkitapp)
 
 所有的模块都作为组件的形式存在，每一个组件都有自己的`.mk`文件，用来描述与其他组件的描述关系，应用程序可以很方便的通过这种形式选择需要的组件。
 
@@ -44,10 +43,10 @@ AliOS Things使用 [vscode](https://code.visualstudio.com/) 作为IDE，支持Wi
 
 # 社区
 
-  * [Technical Blog | 云栖社区](https://yq.aliyun.com/teams/184)
-  * [Technical Forum | 开发者论坛](https://bbs.aliyun.com/thread/410.html)
-  * [技术交流群(微信)](http://o7spigzvd.bkt.clouddn.com/qr_wechat_100+.jpeg) - 人数过多，请联系管理员手动拉入
-  * [技术交流群(钉钉)](http://o7spigzvd.bkt.clouddn.com/qr_dingtalk_github.png)
+* [技术交流群(钉钉)](https://img.alicdn.com/tfs/TB1X2HOhYPpK1RjSZFFXXa5PpXa-970-1280.png)
+* [技术交流群(微信)](https://img.alicdn.com/tfs/TB1L3zOhYPpK1RjSZFFXXa5PpXa-560-790.jpg)
+* [云栖社区](https://yq.aliyun.com/teams/184)
+* [开发者论坛](https://bbs.aliyun.com/thread/410.html)
 
 # License
 

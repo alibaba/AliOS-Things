@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 /*#define SH200Q_DEBUG*/
@@ -159,7 +161,7 @@ static void drv_acc_senodia_sh200q_dump_reg(void)
   for(i=0; i<n;i++) {
     ret = sensor_i2c_read(&sh200q_ctx, reg_map[i], &rw_buffer[i],I2C_REG_LEN, I2C_OP_RETRIES);
     if(unlikely(ret)){
-        return -1;
+        return;
     }
 
     SH200Q_LOG("Reg 0x%x = 0x%x ", reg_map[i], rw_buffer[i]);
@@ -307,7 +309,7 @@ static int drv_acc_gyro_senodia_sh200q_validate_id(i2c_dev_t* drv, uint8_t id_va
 
 static int drv_acc_senodia_sh200q_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
-    uint8_t value,value1 = 0x00;
+    uint8_t value = 0x00;
     int ret = 0;
 
 
@@ -641,6 +643,7 @@ static int drv_acc_senodia_sh200q_ioctl(int cmd, unsigned long arg)
 int drv_acc_senodia_sh200q_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;
@@ -1064,7 +1067,6 @@ static int drv_acc_gyro_senodia_sh200q_self_test(i2c_dev_t* drv, int32_t* diff)
 static int drv_gyro_senodia_sh200q_ioctl(int cmd, unsigned long arg)
 {
     int ret = 0;
-	dev_sensor_info_t *info = (dev_sensor_info_t *)arg;
     
     switch(cmd){
         case SENSOR_IOCTL_ODR_SET:{
@@ -1110,6 +1112,7 @@ static int drv_gyro_senodia_sh200q_ioctl(int cmd, unsigned long arg)
 int drv_gyro_senodia_sh200q_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;

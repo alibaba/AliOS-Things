@@ -1,0 +1,37 @@
+===============================================
+
+STREAM is the de facto industry standard benchmark
+for measuring sustained memory bandwidth.
+
+Documentation for STREAM is on the web at:
+   http://www.cs.virginia.edu/stream/ref.html
+
+===============================================
+NEWS UPDATE: February 19 2009:
+
+The most recent "official" versions have been renamed
+"stream.f" and "stream.c" -- all other versions have
+been moved to the "Versions" subdirectory and should be
+considered obsolete.
+
+The "official" timer (was "second_wall.c") has been
+renamed "mysecond.c".   This is embedded in the C version
+("stream.c"), but still needs to be externally linked to
+the FORTRAN version ("stream.f").  The new version defines
+entry points both with and without trailing underscores,
+so it *should* link automagically with any Fortran compiler.
+
+===============================================
+
+STREAM is a project of "Dr. Bandwidth":
+	John D. McCalpin, Ph.D.
+	john@mccalpin.com
+
+===============================================
+
+The STREAM web and ftp sites are currently hosted at
+the Department of Computer Science at the University of
+Virginia under the generous sponsorship of Professor Bill
+Wulf and Professor Alan Batson.
+
+===============================================

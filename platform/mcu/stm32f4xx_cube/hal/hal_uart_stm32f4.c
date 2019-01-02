@@ -12,9 +12,6 @@
 
 #ifdef HAL_UART_MODULE_ENABLED
 
-/* Init function for uart1 */
-static int32_t uart1_init(uart_dev_t *uart);
-static int32_t uart2_init(uart_dev_t *uart);
 
 /* function used to transform hal para to stm32l4 para */
 static int32_t uart_dataWidth_transform(hal_uart_data_width_t data_width_hal, uint32_t *data_width_stm32l4);
@@ -22,57 +19,208 @@ static int32_t uart_parity_transform(hal_uart_parity_t parity_hal, uint32_t *par
 static int32_t uart_stop_bits_transform(hal_uart_stop_bits_t stop_bits_hal, uint32_t *stop_bits_stm32l4);
 static int32_t uart_flow_control_transform(hal_uart_flow_control_t flow_control_hal, uint32_t *flow_control_stm32l4);
 static int32_t uart_mode_transform(hal_uart_mode_t mode_hal, uint32_t *mode_stm32l4);
-static UART_HandleTypeDef * uart_get_handle(uint8_t port);
+static UART_HandleTypeDef * uart_get_handle(const uint8_t port);
 
 /* function used to add buffer queue */
-static void HAL_UART_IRQHandler_Buf_Queue(UART_HandleTypeDef *huart);
-static HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart, uint8_t *pData, uint32_t timeout);
+static PORT_UART_TYPE GetAppPortFromPhyInstanse(const void* uartIns);
 
-/* handle for uart */
-UART_HandleTypeDef hal_uart_handle[PORT_UART_MAX_NUM];
-/* bufferQueue for uart */
-kbuf_queue_t g_buf_queue_uart[PORT_UART_MAX_NUM];
-char *g_pc_buf_queue_uart[PORT_UART_MAX_NUM] = {0};
+
+typedef struct {
+  aos_mutex_t uart_tx_mutex;
+  aos_mutex_t uart_rx_mutex;
+  aos_sem_t uart_rx_sem;
+  uint16_t  uart_rx_in;
+  uint16_t  uart_rx_out;
+  uint8_t   inited;
+  UART_HandleTypeDef hal_uart_handle;
+  char*      UartRxBuf;
+}stm32_uart_t;
+
+static stm32_uart_t stm32_uart[PORT_UART_SIZE];
+
+static HAL_StatusTypeDef UART_Receive_IT(UART_HandleTypeDef *huart)
+{
+  uint16_t* tmp;    
+  
+  /* Check that a Rx process is ongoing */
+  if(huart->RxState == HAL_UART_STATE_BUSY_RX) 
+  {
+    uint8_t data = 0xFF;
+    if(huart->Init.WordLength == UART_WORDLENGTH_8B)
+    {
+      if(huart->Init.Parity == UART_PARITY_NONE)
+      {
+        data = (uint8_t)(huart->Instance->DR & (uint8_t)0x00FF);      
+      }
+      else
+      {
+        data = (uint8_t)(huart->Instance->DR & (uint8_t)0x007F);       
+      }
+        const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(huart->Instance);
+    	if( appPort!=PORT_UART_INVALID )
+    	{
+            if(stm32_uart[appPort].inited!=0)
+            {
+                stm32_uart[appPort].UartRxBuf[stm32_uart[appPort].uart_rx_in++] = data;
+                if(stm32_uart[appPort].uart_rx_in==MAX_BUF_UART_BYTES)
+                {
+                    stm32_uart[appPort].uart_rx_in=0;
+                }
+                aos_sem_signal(&stm32_uart[appPort].uart_rx_sem);            
+            }
+
+    	}   
+    }
+ 
+
+    return HAL_OK;
+  }
+  else
+  {
+    return HAL_BUSY;
+  }
+}
+
+
+void HAL_UART_IRQHandler_User(UART_HandleTypeDef *huart)
+{
+   uint32_t isrflags   = READ_REG(huart->Instance->SR);
+   uint32_t cr1its     = READ_REG(huart->Instance->CR1);
+   uint32_t cr3its     = READ_REG(huart->Instance->CR3);
+   uint32_t errorflags = 0x00U;
+   uint32_t dmarequest = 0x00U;
+
+  /* If no error occurs */
+  errorflags = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
+  if(errorflags == RESET)
+  {
+    /* UART in mode Receiver -------------------------------------------------*/
+    if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
+    {
+      UART_Receive_IT(huart);
+      return;
+    }
+  }  
+    /* If some errors occur */
+  if((errorflags != RESET) && (((cr3its & USART_CR3_EIE) != RESET) || ((cr1its & (USART_CR1_RXNEIE | USART_CR1_PEIE)) != RESET)))
+  {
+    /* UART parity error interrupt occurred ----------------------------------*/
+    if(((isrflags & USART_SR_PE) != RESET) && ((cr1its & USART_CR1_PEIE) != RESET))
+    {
+      huart->ErrorCode |= HAL_UART_ERROR_PE;
+    }
+    
+    /* UART noise error interrupt occurred -----------------------------------*/
+    if(((isrflags & USART_SR_NE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
+    {
+      huart->ErrorCode |= HAL_UART_ERROR_NE;
+    }
+    
+    /* UART frame error interrupt occurred -----------------------------------*/
+    if(((isrflags & USART_SR_FE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
+    {
+      huart->ErrorCode |= HAL_UART_ERROR_FE;
+    }
+    
+    /* UART Over-Run interrupt occurred --------------------------------------*/
+    if(((isrflags & USART_SR_ORE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
+    { 
+      huart->ErrorCode |= HAL_UART_ERROR_ORE;
+    }
+    return;
+  } /* End if some error occurs */
+
+}
+
+    
+//USART3->Logical Port
+static void SaveUartBuf( const USART_TypeDef* ins )
+{
+   const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(ins);
+   if( appPort!=PORT_UART_INVALID )
+   {
+     HAL_UART_IRQHandler_User(&stm32_uart[appPort].hal_uart_handle);
+   }
+}
+
+//Get UART Instanse & attribute from Logical Port
+static UART_MAPPING* GetUARTMapping(const PORT_UART_TYPE port)
+{
+    int8_t i = 0;
+    UART_MAPPING* rc = NULL;
+    for(i=0; i<PORT_UART_SIZE; i++)
+    {
+        if(UART_MAPPING_TABLE[i].uartFuncP == port)
+        {
+            rc = &UART_MAPPING_TABLE[i];
+            break;
+        }
+    }
+    return rc;
+}
+
+static PORT_UART_TYPE GetAppPortFromPhyInstanse(const void* uartIns)
+{
+    PORT_UART_TYPE rc = PORT_UART_INVALID;
+    int8_t i = 0;
+    for(i; i<PORT_UART_SIZE; i++)
+    {
+        if( (USART_TypeDef*)UART_MAPPING_TABLE[i].uartPhyP == (USART_TypeDef*)uartIns)
+        {
+            rc = UART_MAPPING_TABLE[i].uartFuncP;
+            break;
+        }
+    }
+    return rc;
+}
 
 void USART1_IRQHandler(void)
 {
    krhino_intrpt_enter();
-   HAL_UART_IRQHandler_Buf_Queue(&hal_uart_handle[PORT_UART1]);
+   SaveUartBuf(USART1);
+   
    krhino_intrpt_exit();
 }
 
 void USART2_IRQHandler(void)
 {
    krhino_intrpt_enter();
-   HAL_UART_IRQHandler_Buf_Queue(&hal_uart_handle[PORT_UART2]);
+   SaveUartBuf(USART2);   
    krhino_intrpt_exit();
 }
 
 void USART3_IRQHandler(void)
 {
-   krhino_intrpt_enter();
-   HAL_UART_IRQHandler_Buf_Queue(&hal_uart_handle[PORT_UART3]);
+   krhino_intrpt_enter();   
+   SaveUartBuf(USART3); 
    krhino_intrpt_exit();
 }
 
 void UART4_IRQHandler(void)
 {
    krhino_intrpt_enter();
-   HAL_UART_IRQHandler_Buf_Queue(&hal_uart_handle[PORT_UART4]);
+   SaveUartBuf(UART4); 
    krhino_intrpt_exit();
 }
 
 void UART5_IRQHandler(void)
 {
    krhino_intrpt_enter();
-   HAL_UART_IRQHandler_Buf_Queue(&hal_uart_handle[PORT_UART5]);
+   SaveUartBuf(UART5);
    krhino_intrpt_exit();
 }
 
-void LPUART1_IRQHandler(void)
+void USART6_IRQHandler(void)
 {
    krhino_intrpt_enter();
-   HAL_UART_IRQHandler_Buf_Queue(&hal_uart_handle[PORT_UART6]);
+   SaveUartBuf(USART6);   
+   krhino_intrpt_exit();
+}
+
+void UART7_IRQHandler(void)
+{
+   krhino_intrpt_enter();
+   SaveUartBuf(UART7);   
    krhino_intrpt_exit();
 }
 
@@ -84,8 +232,13 @@ int32_t hal_uart_init(uart_dev_t *uart)
     if (uart == NULL) {
         return -1;
     }
+    UART_MAPPING* uartIns = GetUARTMapping(uart->port);
+    if( NULL== uartIns ){ //no found this port in function-physical uartIns, no need initialization
+        return -1;
+    }
+    memset(&stm32_uart[uart->port],0,sizeof(stm32_uart_t));
 
-    pstuarthandle = &hal_uart_handle[uart->port];
+    pstuarthandle = &stm32_uart[uart->port].hal_uart_handle;
     pstuarthandle->Init.BaudRate               = uart->config.baud_rate;
     ret = uart_dataWidth_transform(uart->config.data_width, &pstuarthandle->Init.WordLength);
     ret |= uart_parity_transform(uart->config.parity, &pstuarthandle->Init.Parity);
@@ -95,72 +248,40 @@ int32_t hal_uart_init(uart_dev_t *uart)
     if (ret) {
         printf("invalid uart data \r\n");
         memset(pstuarthandle, 0, sizeof(*pstuarthandle));
-    }
+    }    
 
-    g_pc_buf_queue_uart[uart->port] = aos_malloc(MAX_BUF_UART_BYTES);
-    if (NULL == g_pc_buf_queue_uart[uart->port]) {
-        printf("fail to malloc memory size %d at %s %d \r\d", MAX_BUF_UART_BYTES, __FILE__, __LINE__);
+    if(NULL == stm32_uart[uart->port].UartRxBuf){
+        stm32_uart[uart->port].UartRxBuf = aos_malloc(MAX_BUF_UART_BYTES);
+    }
+    
+    if (NULL == stm32_uart[uart->port].UartRxBuf) {
+        printf("Fail to malloc memory size %d at %s %d \r\d", MAX_BUF_UART_BYTES, __FILE__, __LINE__);
         return -1;
     }
-    memset(g_pc_buf_queue_uart[uart->port], 0, MAX_BUF_UART_BYTES);
-
-    ret = krhino_buf_queue_create(&g_buf_queue_uart[uart->port], "buf_queue_uart",
-          g_pc_buf_queue_uart[uart->port], MAX_BUF_UART_BYTES, 1);
+    memset(stm32_uart[uart->port].UartRxBuf, 0, MAX_BUF_UART_BYTES);
 
     uart->priv = pstuarthandle;
 
-    switch (uart->port) {
-        case PORT_UART1:
-            pstuarthandle->Instance = UART1;
-            pstuarthandle->Init.OverSampling           = UART1_OVER_SAMPLING;
-            //pstuarthandle->Init.OneBitSampling         = UART1_ONE_BIT_SAMPLING;
-            //pstuarthandle->AdvancedInit.AdvFeatureInit = UART1_ADV_FEATURE_INIT;
-
-            UART1_TX_GPIO_CLK_ENABLE();
-            UART1_RX_GPIO_CLK_ENABLE();
-            UART1_CLK_ENABLE();
-
-            HAL_NVIC_SetPriority(UART1_IRQn, 0, 1);
-            HAL_NVIC_EnableIRQ(UART1_IRQn);
-        break;
-        case PORT_UART2:
-            pstuarthandle->Instance = UART2;
-            pstuarthandle->Init.OverSampling           = UART2_OVER_SAMPLING;
-            //pstuarthandle->Init.OneBitSampling         = UART2_ONE_BIT_SAMPLING;
-            //pstuarthandle->AdvancedInit.AdvFeatureInit = UART2_ADV_FEATURE_INIT;
-
-            UART2_TX_GPIO_CLK_ENABLE();
-            UART2_RX_GPIO_CLK_ENABLE();
-            UART2_CLK_ENABLE();
-
-            HAL_NVIC_SetPriority(UART2_IRQn, 0, 1);
-            HAL_NVIC_EnableIRQ(UART2_IRQn);
-        break;
-#if defined(UART3)
-        case PORT_UART3:
-            pstuarthandle->Instance = UART3;
-            pstuarthandle->Init.OverSampling           = UART3_OVER_SAMPLING;
-            //pstuarthandle->Init.OneBitSampling         = UART3_ONE_BIT_SAMPLING;
-            //pstuarthandle->AdvancedInit.AdvFeatureInit = UART3_ADV_FEATURE_INIT;
-
-            UART3_TX_GPIO_CLK_ENABLE();
-            UART3_RX_GPIO_CLK_ENABLE();
-            UART3_CLK_ENABLE();
-
-            HAL_NVIC_SetPriority(UART3_IRQn, 0, 1);
-            HAL_NVIC_EnableIRQ(UART3_IRQn);
-        break;
-#endif
-        default :
-            printf("uart %d invalid\r\n", uart->port);
-        return -1;
-    }
+    pstuarthandle->Instance = (USART_TypeDef*)uartIns->uartPhyP;
+    pstuarthandle->Init.OverSampling = uartIns->attr.overSampling;
+    
+    HAL_NVIC_SetPriority(uartIns->attr.irqNumber, uartIns->attr.pPri, uartIns->attr.sPri);
+    HAL_NVIC_EnableIRQ(uartIns->attr.irqNumber);
 
     /* init uart */
-    HAL_UART_Init(pstuarthandle);
+    HAL_UART_Init(pstuarthandle);    
 
+    aos_mutex_new(&stm32_uart[uart->port].uart_tx_mutex);
+    aos_mutex_new(&stm32_uart[uart->port].uart_rx_mutex);
+    aos_sem_new(&stm32_uart[uart->port].uart_rx_sem, 0);
+    if(HAL_UART_Receive_IT(pstuarthandle,&stm32_uart[uart->port].UartRxBuf,MAX_BUF_UART_BYTES)!= HAL_OK)
+    {
+       Error_Handler(); 
+    }
+    stm32_uart[uart->port].inited = 1;
     return ret;
 }
+
 
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
@@ -169,42 +290,86 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 
     if ((uart == NULL) || (data == NULL)) {
         return -1;
-    }
+    }    
 
     handle = uart_get_handle(uart->port);
     if (handle == NULL) {
         return -1;
     }
+    if(stm32_uart[uart->port].inited!=1)
+    {
+        int a = stm32_uart[uart->port].inited;
+        return -1;
+    }
 
-    ret = HAL_UART_Transmit(handle, (uint8_t *)data, size, 30000);
+    uint8_t retry = 0;
+    HAL_StatusTypeDef sendRlt = HAL_BUSY;
+    aos_mutex_lock(&stm32_uart[uart->port].uart_tx_mutex, AOS_WAIT_FOREVER);
+    do
+    {
+        sendRlt = HAL_UART_Transmit(handle, (uint8_t *)data, size, 30000);
+        if(HAL_BUSY != sendRlt)
+        {
+            break;
+        }
+        aos_msleep(10);
+    }while(retry++<3);
+    aos_mutex_unlock(&stm32_uart[uart->port].uart_tx_mutex);
 
-    return ret;
+    return (sendRlt==HAL_OK)?0:-1;
 }
 
 int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
                       uint32_t *recv_size, uint32_t timeout)
 {
-    uint8_t *pdata = (uint8_t *)data;
-    UART_HandleTypeDef *handle = NULL;
-    int i = 0;
+    uint8_t *pdata = (uint8_t *)data;  
     uint32_t rx_count = 0;
     int32_t ret = -1;
-
+    
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
 
-    handle = uart_get_handle(uart->port);
-    if (handle == NULL) {
-        return -1;
-    }
+    aos_mutex_lock(&stm32_uart[uart->port].uart_rx_mutex, AOS_WAIT_FOREVER); 
 
-    for (i = 0; i < expect_size; i++)
+    while ( rx_count < expect_size )
     {
-        ret = HAL_UART_Receive_IT_Buf_Queue_1byte(handle, &pdata[i], timeout);
-        if (ret == 0) {
-            rx_count++;
-        } else {
+        while(stm32_uart[uart->port].uart_rx_out != stm32_uart[uart->port].uart_rx_in)
+        {
+            pdata[rx_count++] = stm32_uart[uart->port].UartRxBuf[stm32_uart[uart->port].uart_rx_out++];
+            if(stm32_uart[uart->port].uart_rx_out == MAX_BUF_UART_BYTES)
+            {
+                stm32_uart[uart->port].uart_rx_out = 0;
+            }
+        
+            if(rx_count==expect_size)
+            {
+                break;
+            }
+        }
+        if(rx_count==expect_size)
+        {
+            break;
+        }
+
+        if(RHINO_SUCCESS==aos_sem_wait(&stm32_uart[uart->port].uart_rx_sem, timeout))
+        {
+            while(stm32_uart[uart->port].uart_rx_out != stm32_uart[uart->port].uart_rx_in)
+            {
+                pdata[rx_count++] = stm32_uart[uart->port].UartRxBuf[stm32_uart[uart->port].uart_rx_out++];
+                if(stm32_uart[uart->port].uart_rx_out == MAX_BUF_UART_BYTES)
+                {
+                    stm32_uart[uart->port].uart_rx_out = 0;
+                }
+
+                if(rx_count==expect_size)
+                {
+                    break;
+                }
+            }
+        }
+        else
+        {
             break;
         }
     }
@@ -222,6 +387,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     {
         ret = -1;
     }
+    aos_mutex_unlock(&stm32_uart[uart->port].uart_rx_mutex);
 
     return ret;
 }
@@ -234,7 +400,26 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
         return -1;
     }
 
-    return HAL_UART_DeInit(&hal_uart_handle[uart->port]);;
+    ret = HAL_UART_DeInit(&stm32_uart[uart->port].hal_uart_handle);
+    if(NULL != stm32_uart[uart->port].UartRxBuf){
+        free(stm32_uart[uart->port].UartRxBuf);
+        stm32_uart[uart->port].UartRxBuf = NULL;
+    }
+
+    if (aos_mutex_is_valid(&stm32_uart[uart->port].uart_tx_mutex)) {
+        aos_mutex_free(&stm32_uart[uart->port].uart_tx_mutex);
+    }
+
+    if (aos_sem_is_valid(&stm32_uart[uart->port].uart_rx_sem)) {
+        aos_sem_free(&stm32_uart[uart->port].uart_rx_sem);
+    }
+
+    if (aos_mutex_is_valid(&stm32_uart[uart->port].uart_rx_mutex)) {
+        aos_mutex_free(&stm32_uart[uart->port].uart_rx_mutex);
+    }
+
+
+    return ret;
 }
 
 int32_t uart_dataWidth_transform(hal_uart_data_width_t data_width_hal,
@@ -387,13 +572,18 @@ int32_t uart_mode_transform(hal_uart_mode_t mode_hal, uint32_t *mode_stm32l4)
     return ret;
 }
 
-UART_HandleTypeDef * uart_get_handle(uint8_t port)
+/**
+  * @brief  Get UART Handler
+  * @param  port Logical UART Port, e.g. STD UART is always 0
+  * @retval UART Handler
+  */
+UART_HandleTypeDef * uart_get_handle(const uint8_t port)
 {
     UART_HandleTypeDef *handle = NULL;
     int32_t ret = 0;
 
-    if (port < PORT_UART_MAX_NUM) {
-        handle = &hal_uart_handle[port];
+    if (port < PORT_UART_SIZE) {
+        handle = &stm32_uart[port].hal_uart_handle;
     } else {
         handle = NULL;
     }
@@ -401,425 +591,4 @@ UART_HandleTypeDef * uart_get_handle(uint8_t port)
     return handle;
 }
 
-/**
-  * @brief  Receives an amount of data in non blocking mode 
-  * @param  huart pointer to a UART_HandleTypeDef structure that contains
-  *                the configuration information for the specified UART module.
-  * @param  pData Pointer to data buffer
-  * @param  Size Amount of data to be received
-  * @retval HAL status
-  */
-HAL_StatusTypeDef HAL_UART_Receive_IT_Buf_Queue_1byte(UART_HandleTypeDef *huart, uint8_t *pData, uint32_t timeout)
-{
-    size_t rev_size = 0;
-    int ret = HAL_OK;
-    kbuf_queue_t *pBuffer_queue = NULL;
-
-    /* Check that a Rx process is not already ongoing */ 
-    if(huart->RxState == HAL_UART_STATE_READY)
-    {
-        if((pData == NULL )) 
-        {
-            return HAL_ERROR;
-        }
-    
-        /* Process Locked */
-        __HAL_LOCK(huart);
-        
-        huart->RxXferCount = 1;
-        
-        huart->ErrorCode = HAL_UART_ERROR_NONE;
-        huart->RxState = HAL_UART_STATE_BUSY_RX;
-        
-        /* Process Unlocked */
-        __HAL_UNLOCK(huart);
-            
-        /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-        SET_BIT(huart->Instance->CR3, USART_CR3_EIE);
-
-        /* Enable the UART Parity Error and Data Register not empty Interrupts */
-        SET_BIT(huart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
-        
-        if (huart->Instance == UART1) {
-            pBuffer_queue = &g_buf_queue_uart[PORT_UART1];
-        }
-        else if (huart->Instance == UART2) {
-            pBuffer_queue = &g_buf_queue_uart[PORT_UART2];
-        }
-    #if defined(UART3)
-        else if (huart->Instance == UART3) {
-            pBuffer_queue = &g_buf_queue_uart[PORT_UART3];
-        }
-    #endif
-    #if defined(UART4)
-        else if (huart->Instance == UART4) {
-            pBuffer_queue = &g_buf_queue_uart[PORT_UART4];
-        }
-    #endif
-    #if defined(UART5)
-        else if (huart->Instance == UART5) {
-            pBuffer_queue = &g_buf_queue_uart[PORT_UART5];
-        }
-    #endif
-    #if defined(UART6)
-        else if (huart->Instance == UART6) {
-            pBuffer_queue = &g_buf_queue_uart[PORT_UART6];
-        }
-    #endif
-        else {
-            ret = HAL_ERROR;
-        }
-
-        if (ret == HAL_OK)
-        {
-            if(timeout != HAL_MAX_DELAY)
-            {
-              ret = krhino_buf_queue_recv(pBuffer_queue, timeout, pData, &rev_size);
-            }
-            else
-            {
-              ret = krhino_buf_queue_recv(pBuffer_queue, RHINO_WAIT_FOREVER, pData, &rev_size);
-            }
-
-            if((ret == 0) && (rev_size == 1))
-            {
-              ret = HAL_OK;
-            }
-            else
-            {
-              ret = HAL_BUSY;
-            }
-        }
-
-        return ret;
-    }
-    else
-    {
-        return HAL_BUSY; 
-    }
-}
-
-/**
-  * @brief  Receives an amount of data in non blocking mode 
-  * @param  huart pointer to a UART_HandleTypeDef structure that contains
-  *                the configuration information for the specified UART module.
-  * @retval HAL status
-  */
-static HAL_StatusTypeDef UART_Receive_IT_Buf_Queue(UART_HandleTypeDef *huart)
-{
-  uint16_t tmp;
-  uint8_t data; 
-  kbuf_queue_t *pBuffer_queue = NULL;
-  int ret = 0;
-
-  /* Check that a Rx process is ongoing */
-  if(huart->RxState == HAL_UART_STATE_BUSY_RX) 
-  {
-
-    if (huart->Instance == UART1) {
-        pBuffer_queue = &g_buf_queue_uart[PORT_UART1];
-    } else if (huart->Instance == UART2) {
-        pBuffer_queue = &g_buf_queue_uart[PORT_UART2];
-    }
-#if defined(UART3)
-    else if (huart->Instance == UART3) {
-        pBuffer_queue = &g_buf_queue_uart[PORT_UART3];
-    }
-#endif
-#if defined(UART4)
-    else if (huart->Instance == UART4) {
-        pBuffer_queue = &g_buf_queue_uart[PORT_UART4];
-    }
-#endif
-#if defined(UART5)
-    else if (huart->Instance == UART5) {
-        pBuffer_queue = &g_buf_queue_uart[PORT_UART5];
-    }
-#endif
-#if defined(UART6)
-    else if (huart->Instance == UART6) {
-        pBuffer_queue = &g_buf_queue_uart[PORT_UART6];
-    }
-#endif
-    else {
-        ret = HAL_ERROR;
-    }
-
-    if (ret == HAL_OK)
-    {
-        if(huart->Init.WordLength == UART_WORDLENGTH_9B)
-        {
-          if(huart->Init.Parity == UART_PARITY_NONE)
-          {
-            tmp = (uint16_t)(huart->Instance->DR & (uint16_t)0x01FF);
-            krhino_buf_queue_send(pBuffer_queue, &tmp, 2);
-          }
-          else
-          {
-            tmp = (uint16_t)(huart->Instance->DR & (uint16_t)0x00FF);
-            data = (uint8_t)tmp;
-            krhino_buf_queue_send(pBuffer_queue, &data, 1);
-          }
-        }
-        else
-        {
-          if(huart->Init.Parity == UART_PARITY_NONE)
-          {
-            data = (uint8_t)(huart->Instance->DR & (uint8_t)0x00FF);
-          }
-          else
-          {
-            data = (uint8_t)(huart->Instance->DR & (uint8_t)0x007F);
-          }
-          krhino_buf_queue_send(pBuffer_queue, &data, 1);
-        }
-    }
-
-    if(--huart->RxXferCount == 0U)
-    {
-      /* Disable the UART Parity Error Interrupt and RXNE interrupt*/
-      CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
-
-      /* Disable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-      CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
-
-      /* Rx process is completed, restore huart->RxState to Ready */
-      huart->RxState = HAL_UART_STATE_READY;
-     
-      HAL_UART_RxCpltCallback(huart);
-
-      return HAL_OK;
-    }
-    return HAL_OK;
-  }
-  else
-  {
-    return HAL_BUSY;
-  }
-}
-
-
-/**
-  * @brief  Sends an amount of data in non blocking mode.
-  * @param  huart Pointer to a UART_HandleTypeDef structure that contains
-  *                the configuration information for the specified UART module.
-  * @retval HAL status
-  */
-static HAL_StatusTypeDef UART_Transmit_IT(UART_HandleTypeDef *huart)
-{
-  uint16_t* tmp;
-  
-  /* Check that a Tx process is ongoing */
-  if(huart->gState == HAL_UART_STATE_BUSY_TX)
-  {
-    if(huart->Init.WordLength == UART_WORDLENGTH_9B)
-    {
-      tmp = (uint16_t*) huart->pTxBuffPtr;
-      huart->Instance->DR = (uint16_t)(*tmp & (uint16_t)0x01FF);
-      if(huart->Init.Parity == UART_PARITY_NONE)
-      {
-        huart->pTxBuffPtr += 2U;
-      }
-      else
-      {
-        huart->pTxBuffPtr += 1U;
-      }
-    } 
-    else
-    {
-      huart->Instance->DR = (uint8_t)(*huart->pTxBuffPtr++ & (uint8_t)0x00FF);
-    }
-
-    if(--huart->TxXferCount == 0U)
-    {
-      /* Disable the UART Transmit Complete Interrupt */
-      CLEAR_BIT(huart->Instance->CR1, USART_CR1_TXEIE);
-
-      /* Enable the UART Transmit Complete Interrupt */    
-      SET_BIT(huart->Instance->CR1, USART_CR1_TCIE);
-    }
-    return HAL_OK;
-  }
-  else
-  {
-    return HAL_BUSY;
-  }
-}
-
-/**
-  * @brief  Wraps up transmission in non blocking mode.
-  * @param  huart pointer to a UART_HandleTypeDef structure that contains
-  *                the configuration information for the specified UART module.
-  * @retval HAL status
-  */
-static HAL_StatusTypeDef UART_EndTransmit_IT(UART_HandleTypeDef *huart)
-{
-  /* Disable the UART Transmit Complete Interrupt */    
-  CLEAR_BIT(huart->Instance->CR1, USART_CR1_TCIE);
-  
-  /* Tx process is ended, restore huart->gState to Ready */
-  huart->gState = HAL_UART_STATE_READY;
-    
-  HAL_UART_TxCpltCallback(huart);
-  
-  return HAL_OK;
-}
-
-/**
-  * @brief  End ongoing Rx transfer on UART peripheral (following error detection or Reception completion).
-  * @param  huart UART handle.
-  * @retval None
-  */
-static void UART_EndRxTransfer(UART_HandleTypeDef *huart)
-{
-  /* Disable RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
-  CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
-
-  /* At end of Rx process, restore huart->RxState to Ready */
-  huart->RxState = HAL_UART_STATE_READY;
-}
-
-/**
-  * @brief  DMA UART communication abort callback, when initiated by HAL services on Error
-  *         (To be called at end of DMA Abort procedure following error occurrence).
-  * @param  hdma DMA handle.
-  * @retval None
-  */
-static void UART_DMAAbortOnError(DMA_HandleTypeDef *hdma)
-{
-  UART_HandleTypeDef* huart = ( UART_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  huart->RxXferCount = 0U;
-  huart->TxXferCount = 0U;
-
-  HAL_UART_ErrorCallback(huart);
-}
-
-
-/**
-  * @brief  This function handles UART interrupt request.
-  * @param  huart pointer to a UART_HandleTypeDef structure that contains
-  *                the configuration information for the specified UART module.
-  * @retval None
-  */
-void HAL_UART_IRQHandler_Buf_Queue(UART_HandleTypeDef *huart)
-{
-   uint32_t isrflags   = READ_REG(huart->Instance->SR);
-   uint32_t cr1its     = READ_REG(huart->Instance->CR1);
-   uint32_t cr3its     = READ_REG(huart->Instance->CR3);
-   uint32_t errorflags = 0x00U;
-   uint32_t dmarequest = 0x00U;
-
-  /* If no error occurs */
-  errorflags = (isrflags & (uint32_t)(USART_SR_PE | USART_SR_FE | USART_SR_ORE | USART_SR_NE));
-  if(errorflags == RESET)
-  {
-    /* UART in mode Receiver -------------------------------------------------*/
-    if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
-    {
-      UART_Receive_IT_Buf_Queue(huart);
-      return;
-    }
-  }  
-
-  /* If some errors occur */
-  if((errorflags != RESET) && (((cr3its & USART_CR3_EIE) != RESET) || ((cr1its & (USART_CR1_RXNEIE | USART_CR1_PEIE)) != RESET)))
-  {
-    /* UART parity error interrupt occurred ----------------------------------*/
-    if(((isrflags & USART_SR_PE) != RESET) && ((cr1its & USART_CR1_PEIE) != RESET))
-    {
-      huart->ErrorCode |= HAL_UART_ERROR_PE;
-    }
-    
-    /* UART noise error interrupt occurred -----------------------------------*/
-    if(((isrflags & USART_SR_NE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
-    {
-      huart->ErrorCode |= HAL_UART_ERROR_NE;
-    }
-    
-    /* UART frame error interrupt occurred -----------------------------------*/
-    if(((isrflags & USART_SR_FE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
-    {
-      huart->ErrorCode |= HAL_UART_ERROR_FE;
-    }
-    
-    /* UART Over-Run interrupt occurred --------------------------------------*/
-    if(((isrflags & USART_SR_ORE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
-    { 
-      huart->ErrorCode |= HAL_UART_ERROR_ORE;
-    }
-
-    /* Call UART Error Call back function if need be --------------------------*/    
-    if(huart->ErrorCode != HAL_UART_ERROR_NONE)
-    {
-      /* UART in mode Receiver -----------------------------------------------*/
-      if(((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
-      {
-        UART_Receive_IT_Buf_Queue(huart);
-      }
-
-      /* If Overrun error occurs, or if any error occurs in DMA mode reception,
-         consider error as blocking */
-      dmarequest = HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAR);
-      if(((huart->ErrorCode & HAL_UART_ERROR_ORE) != RESET) || dmarequest)
-      {
-        /* Blocking error : transfer is aborted
-           Set the UART state ready to be able to start again the process,
-           Disable Rx Interrupts, and disable Rx DMA request, if ongoing */
-        UART_EndRxTransfer(huart);
-        
-        /* Disable the UART DMA Rx request if enabled */
-        if(HAL_IS_BIT_SET(huart->Instance->CR3, USART_CR3_DMAR))
-        {
-          CLEAR_BIT(huart->Instance->CR3, USART_CR3_DMAR);
-          
-          /* Abort the UART DMA Rx channel */
-          if(huart->hdmarx != NULL)
-          {
-            /* Set the UART DMA Abort callback : 
-               will lead to call HAL_UART_ErrorCallback() at end of DMA abort procedure */
-            huart->hdmarx->XferAbortCallback = UART_DMAAbortOnError;
-            if(HAL_DMA_Abort_IT(huart->hdmarx) != HAL_OK)
-            {
-              /* Call Directly XferAbortCallback function in case of error */
-              huart->hdmarx->XferAbortCallback(huart->hdmarx);
-            }
-          }
-          else
-          {
-            /* Call user error callback */
-            HAL_UART_ErrorCallback(huart);
-          }
-        }
-        else
-        {
-          /* Call user error callback */
-          HAL_UART_ErrorCallback(huart);
-        }
-      }
-      else
-      {
-        /* Non Blocking error : transfer could go on. 
-           Error is notified to user through user error callback */
-        HAL_UART_ErrorCallback(huart);
-        huart->ErrorCode = HAL_UART_ERROR_NONE;
-      }
-    }
-    return;
-  } /* End if some error occurs */
-
-  /* UART in mode Transmitter ------------------------------------------------*/
-  if(((isrflags & USART_SR_TXE) != RESET) && ((cr1its & USART_CR1_TXEIE) != RESET))
-  {
-    UART_Transmit_IT(huart);
-    return;
-  }
-  
-  /* UART in mode Transmitter end --------------------------------------------*/
-  if(((isrflags & USART_SR_TC) != RESET) && ((cr1its & USART_CR1_TCIE) != RESET))
-  {
-    UART_EndTransmit_IT(huart);
-    return;
-  }
-}
 #endif

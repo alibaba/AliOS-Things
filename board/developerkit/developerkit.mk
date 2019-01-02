@@ -1,18 +1,24 @@
 NAME := developerkit
 
 
-$(NAME)_TYPE := kernel
+$(NAME)_MBINS_TYPE   := kernel
+SUPPORT_MBINS 	     := yes
 MODULE               := 1062
 HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := stm32l4xx_cube
-SUPPORT_BINS         := no
 ENABLE_VFP           := 1
 HOST_MCU_NAME        := STM32L496VGTx
+ENABLE_USPACE        := 0
 
 $(NAME)_SOURCES += aos/board.c \
                    aos/board_cli.c \
                    aos/soc_init.c \
-                   aos/st7789.c
+                   aos/st7789.c \
+                   pwrmgmt_hal/board_cpu_pwr.c \
+                   pwrmgmt_hal/board_cpu_pwr_rtc.c \
+                   pwrmgmt_hal/board_cpu_pwr_systick.c \
+                   pwrmgmt_hal/board_cpu_pwr_timer.c \
+                   mbmaster_hal/port_serial.c
                    
 $(NAME)_SOURCES += Src/adc.c \
 $(NAME)_SOURCES += Src/crc.c \
@@ -28,6 +34,7 @@ $(NAME)_SOURCES += Src/stm32l4xx_hal_msp.c \
 $(NAME)_SOURCES += Src/tim.c \
 $(NAME)_SOURCES += Src/usart.c \
 $(NAME)_SOURCES += Src/usb_otg.c \
+$(NAME)_SOURCES += Src/gpio.c \
 
                    
 ifeq ($(COMPILER), armcc)
@@ -61,18 +68,23 @@ GLOBAL_DEFINES += AOS_SENSOR_GYRO_ST_LSM6DSL
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/developerkit/STM32L496.sct
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config STM32L496.icf
+GLOBAL_LDFLAGS += --config board/developerkit/STM32L496.icf
 else
 ifeq ($(post_run),1)
-GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_app.ld
+GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
 GLOBAL_DEFINES += VECT_TAB_OFFSET=0x4000
 GLOBAL_DEFINES += USING_FLAT_FLASH
 else
+ifeq ($(MBINS),)
 GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH.ld
+else ifeq ($(MBINS),app)
+GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_app.ld
+else ifeq ($(MBINS),kernel)
+GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_kernel.ld
+endif
 endif
 endif
 
-ywss_support ?= 0
 sal ?= 1
 ifeq (1,$(sal))
 $(NAME)_COMPONENTS += sal

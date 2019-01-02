@@ -84,10 +84,10 @@ if aos_global_config.compiler == 'armcc':
 component.add_comp_deps('platform/arch/arm/armv7m')
 component.add_comp_deps('utility/libc')
 component.add_comp_deps('kernel/rhino')
-component.add_comp_deps('kernel/vcall')
+component.add_comp_deps('osal')
 component.add_comp_deps('kernel/init')
 component.add_comp_deps('kernel/hal')
-component.add_comp_deps('kernel/modules/fs/kv')
+component.add_comp_deps('kernel/rhino/fs/kv')
 component.add_comp_deps('kernel/vfs')
 component.add_comp_deps('utility/digest_algorithm')
 
@@ -109,7 +109,7 @@ include_tmp = Split('''
        Drivers/BSP/Components/lsm6dsl 
        Drivers/BSP/Components/vl53l0x 
        Drivers/CMSIS/Include 
-       ../../../include/hal 
+       ../../../kernel/hal/include 
        Middlewares/USB_Device/Core/Inc
 ''')
 

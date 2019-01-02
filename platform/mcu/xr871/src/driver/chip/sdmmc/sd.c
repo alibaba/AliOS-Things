@@ -41,12 +41,12 @@
 #include "_sd.h"
 
 #ifdef CONFIG_USE_SD
-static const unsigned int tran_exp[] __xip_rodata = {
+static const unsigned int tran_exp[] = { /* about KB/S .xraido@.*/
 	10000,		100000,		1000000,	10000000,
 	0,		0,		0,		0
 };
 
-static const unsigned char tran_mant[] __xip_rodata = {
+static const unsigned char tran_mant[] = { /* time value*10  .xraido@.*/
 	0,	10,	12,	13,	15,	20,	25,	30,
 	35,	40,	45,	50,	55,	60,	70,	80,
 };
@@ -61,13 +61,15 @@ static const unsigned int tacc_mant[] = {
 };
 */
 
-__xip_text
 static int32_t mmc_send_app_op_cond(struct mmc_host *host, uint32_t ocr, uint32_t *rocr)
 {
 	struct mmc_command cmd = {0};
 	int32_t i, err;
 
-	SD_BUG_ON(!host);
+	if (!host) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return -1;
+	}
 
 	cmd.opcode = SD_APP_OP_COND;
 	cmd.arg = ocr;
@@ -78,7 +80,7 @@ static int32_t mmc_send_app_op_cond(struct mmc_host *host, uint32_t ocr, uint32_
 		if (err)
 			break;
 
-		/* otherwise wait until reset completes */
+		/* otherwise wait until reset completes .xraido@.*/
 		if (cmd.resp[0] & MMC_CARD_BUSY)
 			break;
 
@@ -95,7 +97,6 @@ static int32_t mmc_send_app_op_cond(struct mmc_host *host, uint32_t ocr, uint32_
 	return err;
 }
 
-__xip_text
 int32_t mmc_app_sd_status(struct mmc_card *card, uint8_t *ssr)
 {
 	struct mmc_request mrq;
@@ -103,7 +104,10 @@ int32_t mmc_app_sd_status(struct mmc_card *card, uint8_t *ssr)
 	struct mmc_data data = {0};
 	struct scatterlist sg;
 
-	SD_BUG_ON(!ssr);
+	if (!ssr) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return -1;
+	}
 
 	if (mmc_app_cmd(card->host, card)) {
 		return -1;
@@ -135,7 +139,6 @@ int32_t mmc_app_sd_status(struct mmc_card *card, uint8_t *ssr)
 	return 0;
 }
 
-__xip_text
 int32_t mmc_app_send_scr(struct mmc_card *card, uint32_t *raw_scr)
 {
 	struct mmc_command cmd = {0};
@@ -176,34 +179,32 @@ int32_t mmc_app_send_scr(struct mmc_card *card, uint32_t *raw_scr)
 }
 
 /*
- * Given the decoded CSD structure, decode the raw CID to our CID structure.
+ * Given the decoded CSD structure, decode the raw CID to our CID structure..xraido@.
  */
-__xip_text
 void mmc_decode_cid(struct mmc_card *card, uint32_t *resp)
 {
 	memset(&card->cid, 0, sizeof(struct mmc_cid));
 
 	/*
 	 * SD doesn't currently have a version field so we will
-	 * have to assume we can parse this.
+	 * have to assume we can parse this..xraido@.
 	 */
 	card->cid.manfid = UNSTUFF_BITS(resp, 120, 8);
 	card->cid.oemid = UNSTUFF_BITS(resp, 104, 8);
-//	card->cid.prod_name[0] = UNSTUFF_BITS(resp, 96, 8);
-//	card->cid.prod_name[1] = UNSTUFF_BITS(resp, 88, 8);
-//	card->cid.prod_name[2] = UNSTUFF_BITS(resp, 80, 8);
-//	card->cid.prod_name[3] = UNSTUFF_BITS(resp, 72, 8);
-//	card->cid.prod_name[4] = UNSTUFF_BITS(resp, 64, 8);
+	//card->cid.prod_name[0] = UNSTUFF_BITS(resp, 96, 8);
+	//card->cid.prod_name[1] = UNSTUFF_BITS(resp, 88, 8);
+	//card->cid.prod_name[2] = UNSTUFF_BITS(resp, 80, 8);
+	//card->cid.prod_name[3] = UNSTUFF_BITS(resp, 72, 8);
+	//card->cid.prod_name[4] = UNSTUFF_BITS(resp, 64, 8);
 	card->cid.hwrev = UNSTUFF_BITS(resp, 60, 4);
 	card->cid.fwrev = UNSTUFF_BITS(resp, 56, 4);
-//	card->cid.serial = UNSTUFF_BITS(resp, 24, 32);
-//	card->cid.year = UNSTUFF_BITS(resp, 12, 8);
-//	card->cid.month = UNSTUFF_BITS(resp, 8, 4);
+	card->cid.serial = UNSTUFF_BITS(resp, 24, 32);
+	card->cid.year = UNSTUFF_BITS(resp, 12, 8);
+	card->cid.month = UNSTUFF_BITS(resp, 8, 4);
 
-	card->cid.year += 2000; /* SD cards year offset */
+	card->cid.year += 2000; /* SD cards year offset .xraido@.*/
 }
 
-__xip_text
 int32_t mmc_send_cid(struct mmc_card *card)
 {
 	struct mmc_command cmd = {0};
@@ -226,11 +227,14 @@ int32_t mmc_send_cid(struct mmc_card *card)
 	return 0;
 }
 
-__xip_text
-static int32_t mmc_decode_csd(struct mmc_card *card, uint32_t *csd)
+/*
+ * Given a 128-bit response, decode to our card CSD structure..xraido@.
+ */
+static int32_t mmc_decode_csd(struct mmc_card *card, uint32_t *raw_csd)
 {
 	int32_t e, m, csd_struct;
-	uint32_t *resp = csd;
+	uint32_t *resp = raw_csd;
+	struct mmc_csd *csd = &card->csd;
 
 	csd_struct = UNSTUFF_BITS(resp, 126, 2);
 	card->csd.csd_ver = csd_struct;
@@ -244,17 +248,17 @@ static int32_t mmc_decode_csd(struct mmc_card *card, uint32_t *csd)
 
 		m = UNSTUFF_BITS(resp, 99, 4);
 		e = UNSTUFF_BITS(resp, 96, 3);
-		card->csd.max_dtr = tran_exp[e] * tran_mant[m];
-		card->csd.cmdclass =  UNSTUFF_BITS(resp, 84, 12);
+		csd->max_dtr = tran_exp[e] * tran_mant[m];
+		csd->cmdclass =  UNSTUFF_BITS(resp, 84, 12);
+
+		m = UNSTUFF_BITS(resp, 80, 4);
+		csd->read_blk_len = 1 << m;
 
 		e = UNSTUFF_BITS(resp, 47, 3);
 		m = UNSTUFF_BITS(resp, 62, 12);
-		card->csd.c_size_mult = e;
-		card->csd.c_size = m;
-		card->csd.capacity = (1 + m) << (e + 2);
+		csd->capacity = (1 + m) * (1 << (e + 2)) * csd->read_blk_len;
 
 		//csd->read_blkbits = UNSTUFF_BITS(resp, 80, 4);
-		card->csd.read_blk_len = UNSTUFF_BITS(resp, 80, 4);
 		//csd->read_partial = UNSTUFF_BITS(resp, 79, 1);
 		//csd->write_misalign = UNSTUFF_BITS(resp, 78, 1);
 		//csd->read_misalign = UNSTUFF_BITS(resp, 77, 1);
@@ -283,18 +287,15 @@ static int32_t mmc_decode_csd(struct mmc_card *card, uint32_t *csd)
 
 		m = UNSTUFF_BITS(resp, 99, 4);
 		e = UNSTUFF_BITS(resp, 96, 3);
-		card->csd.cmdclass =  UNSTUFF_BITS(resp, 84, 12);
-		card->csd.read_blk_len = UNSTUFF_BITS(resp, 80, 4);
-		card->csd.max_dtr = tran_exp[e] * tran_mant[m];
+		csd->max_dtr = tran_exp[e] * tran_mant[m];
+		csd->cmdclass =  UNSTUFF_BITS(resp, 84, 12);
+		csd->read_blk_len = UNSTUFF_BITS(resp, 80, 4);
 
 		m = UNSTUFF_BITS(resp, 48, 22);
-		card->csd.c_size = m;
-		card->csd.capacity = (1 + m) << 9;
-		/* SDXC cards have a minimum C_SIZE of 0x00FFFF */
-		if (card->csd.c_size >= 0xFFFF)
+		csd->capacity = (1 + m) << 9;
+		/* SDXC cards have a minimum C_SIZE of 0x00FFFF .xraido@.*/
+		if (m >= 0xFFFF)
 			mmc_card_set_ext_capacity(card);
-
-		card->csd.c_size_mult = 0;
 
 		//csd->read_blkbits = 9;
 		//csd->read_partial = 0;
@@ -312,16 +313,14 @@ static int32_t mmc_decode_csd(struct mmc_card *card, uint32_t *csd)
 	}
 
 	//card->erase_size = csd->erase_size;
-	SD_LOGD("%s %d c_z:%d ca:%d %d\n", __func__, csd_struct, card->csd.c_size,
-	        card->csd.capacity, card->csd.c_size_mult);
+	SD_LOGD("%s %d ca:%d\n", __func__, csd_struct, csd->capacity);
 
 	return 0;
 }
 
 /*
- * Given a 64-bit response, decode to our card SCR structure.
+ * Given a 64-bit response, decode to our card SCR structure..xraido@.
  */
-__xip_text
 static int32_t mmc_decode_scr(struct mmc_card *card, uint32_t *raw_scr)
 {
 	struct sd_scr *scr = &card->scr;
@@ -333,7 +332,7 @@ static int32_t mmc_decode_scr(struct mmc_card *card, uint32_t *raw_scr)
 
 	scr_struct = UNSTUFF_BITS(resp, 60, 4);
 	if (scr_struct != 0) {
-		SD_LOGW("sdc unrecognised SCR structure version %d\n", scr_struct);
+		SD_LOGW("sdc unrecognised SCR structure version %u\n", scr_struct);
 		return -1;
 	}
 
@@ -342,7 +341,7 @@ static int32_t mmc_decode_scr(struct mmc_card *card, uint32_t *raw_scr)
 	scr->bus_widths = UNSTUFF_BITS(resp, 48, 4);
 
 	if (scr->sda_vsn == SCR_SPEC_VER_2)
-		/* Check if Physical Layer Spec v3.0 is supported */
+		/* Check if Physical Layer Spec v3.0 is supported .xraido@.*/
 		scr->sda_spec3 = UNSTUFF_BITS(resp, 47, 1);
 
 	//if (UNSTUFF_BITS(resp, 55, 1))
@@ -360,9 +359,8 @@ static int32_t mmc_decode_scr(struct mmc_card *card, uint32_t *raw_scr)
 }
 
 /*
- * Fetch and process SD Status register.
+ * Fetch and process SD Status register..xraido@.
  */
-__xip_text
 static int32_t mmc_read_ssr(struct mmc_card *card)
 {
 	int32_t err, i;
@@ -391,9 +389,8 @@ out:
 }
 
 /*
- * Fetches and decodes switch information
+ * Fetches and decodes switch information.xraido@.
  */
-__xip_text
 static int32_t mmc_read_switch(struct mmc_card *card)
 {
 	int32_t err;
@@ -401,15 +398,16 @@ static int32_t mmc_read_switch(struct mmc_card *card)
 	uint8_t *p_sta = (uint8_t *)status;
 
 	if (card->scr.sda_vsn < SCR_SPEC_VER_1) {
-		SD_LOGW("Card ver. does not support to read switch info!\n");
-		return -1;
-	}
-	if (!(card->csd.cmdclass & CCC_SWITCH)) {
-		SD_LOGW("Card cmdclass does not support to read switch info!\n");
-		return -1;
+		SD_LOGN("Card ver. does not support to read switch info!\n");
+		return 0;
 	}
 
-	/* Find out the supported Bus Speed Modes. */
+	if (!(card->csd.cmdclass & CCC_SWITCH)) {
+		SD_LOGW("card lacks mandatory switch function, performance might suffer.\n");
+		return 0;
+	}
+
+	/* Find out the supported Bus Speed Modes. .xraido@.*/
 	err = mmc_sd_switch(card, SD_SWITCH_CHECK, SD_SWITCH_GRP_ACCESS_MODE,
 	                    SD_SWITCH_ACCESS_HS, p_sta);
 	if (err) {
@@ -423,7 +421,7 @@ static int32_t mmc_read_switch(struct mmc_card *card)
 	if (card->scr.sda_spec3) {
 		card->sw_caps.sd3_bus_mode = p_sta[13];
 
-		/* Find out Driver Strengths supported by the card */
+		/* Find out Driver Strengths supported by the card .xraido@.*/
 		err = mmc_sd_switch(card, SD_SWITCH_CHECK, SD_SWITCH_GRP_DRV_STRENGTH,
 		                    SD_SWITCH_ACCESS_HS, p_sta);
 		if (err) {
@@ -433,7 +431,7 @@ static int32_t mmc_read_switch(struct mmc_card *card)
 
 		card->sw_caps.sd3_drv_type = p_sta[9];
 
-		/* Find out Current Limits supported by the card */
+		/* Find out Current Limits supported by the card .xraido@.*/
 		err = mmc_sd_switch(card, SD_SWITCH_CHECK, SD_SWITCH_GRP_CUR_LIMIT,
 		                    SD_SWITCH_ACCESS_HS, p_sta);
 		if (err) {
@@ -449,9 +447,8 @@ out:
 }
 
 /*
- * Test if the card supports high-speed mode and, if so, switch to it.
+ * Test if the card supports high-speed mode and, if so, switch to it..xraido@.
  */
-__xip_text
 int32_t mmc_sd_switch_hs(struct mmc_card *card)
 {
 	int32_t err;
@@ -459,19 +456,22 @@ int32_t mmc_sd_switch_hs(struct mmc_card *card)
 	uint8_t *p_sta = (uint8_t *)status;
 
 	if (card->scr.sda_vsn < SCR_SPEC_VER_1) {
-		SD_LOGW("Card ver. does not support to switch to high speed!\n");
-		return -1;
+		SD_LOGN("Card ver. does not support to switch to high speed!\n");
+		return 0;
 	}
 
 	if (!(card->csd.cmdclass & CCC_SWITCH)) {
-		SD_LOGW("Card cmdclass not support to switch to high speed!\n");
-		return -1;
+		SD_LOGN("Card cmdclass not support to switch to high speed!\n");
+		return 0;
 	}
 
 	if (!(card->host->caps & MMC_CAP_SD_HIGHSPEED))
-		return -1;
+		return 0;
 
-	/* Check function */
+	if (card->sw_caps.hs_max_dtr == 0)
+		return 0;
+
+	/* Check function .xraido@.*/
 	err = mmc_sd_switch(card, SD_SWITCH_CHECK, SD_SWITCH_GRP_ACCESS_MODE,
 	                    SD_SWITCH_ACCESS_HS, p_sta);
 	if (err)
@@ -479,22 +479,23 @@ int32_t mmc_sd_switch_hs(struct mmc_card *card)
 
 	if ((p_sta[16] & 0x0F) != 1) {
 		SD_LOGW("%s: Problem switching card into high-speed mode!\n", __func__);
-		err = -1;
-	} else {
 		err = 0;
+	} else {
+		err = 1;
 	}
 
 	return err;
 }
 
-__xip_text
 static int32_t mmc_send_cxd_native(struct mmc_host *host, uint32_t arg, uint32_t *cxd, int32_t opcode)
 {
 	int32_t err;
 	struct mmc_command cmd = {0};
 
-	SD_BUG_ON(!host);
-	SD_BUG_ON(!cxd);
+	if (!host || !cxd) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return -1;
+	}
 
 	cmd.opcode = opcode;
 	cmd.arg = arg;
@@ -509,20 +510,18 @@ static int32_t mmc_send_cxd_native(struct mmc_host *host, uint32_t arg, uint32_t
 	return 0;
 }
 
-__xip_text
 int32_t mmc_send_csd(struct mmc_card *card, uint32_t *csd)
 {
 	return mmc_send_cxd_native(card->host, card->rca << 16,
 				csd, MMC_SEND_CSD);
 }
 
-__xip_text
 int32_t mmc_sd_get_csd(struct mmc_card *card)
 {
 	int32_t err;
 	uint32_t csd[4] = {0};
 
-	/* Fetch CSD from card. */
+	/* Fetch CSD from card. .xraido@.*/
 	err = mmc_send_csd(card, csd);
 	if (err)
 		return err;
@@ -537,14 +536,13 @@ int32_t mmc_sd_get_csd(struct mmc_card *card)
 	return 0;
 }
 
-__xip_text
 int32_t mmc_sd_setup_card(struct mmc_host *host, struct mmc_card *card)
 {
 	int32_t err;
 	int32_t retries;
 	uint32_t raw_scr[2] = {0};
 
-	/* Fetch SCR from card. */
+	/* Fetch SCR from card. .xraido@.*/
 	err = mmc_app_send_scr(card, raw_scr);
 	if (err)
 		return err;
@@ -556,12 +554,12 @@ int32_t mmc_sd_setup_card(struct mmc_host *host, struct mmc_card *card)
 	if (err)
 		return err;
 
-	/* Fetch and process SD Status register. */
+	/* Fetch and process SD Status register. .xraido@.*/
 	err = mmc_read_ssr(card);
 	if (err)
 		return err;
 
-	/* Fetch switch information from card. */
+	/* Fetch switch information from card. .xraido@.*/
 	for (retries = 1; retries <= 3; retries++) {
 		err = mmc_read_switch(card);
 		if (!err) {
@@ -581,7 +579,6 @@ int32_t mmc_sd_setup_card(struct mmc_host *host, struct mmc_card *card)
 	return 0;
 }
 
-__xip_text
 uint32_t mmc_sd_get_max_clock(struct mmc_card *card)
 {
 	uint32_t max_dtr = (uint32_t)-1;
@@ -597,21 +594,20 @@ uint32_t mmc_sd_get_max_clock(struct mmc_card *card)
 }
 
 /*
- * Handle the detection and initialisation of a card.
+ * Handle the detection and initialisation of a card..xraido@.
  *
  * In the case of a resume, "oldcard" will contain the card
- * we're trying to reinitialise.
+ * we're trying to reinitialise..xraido@.
  */
-__xip_text
 static int32_t mmc_sd_init_card(struct mmc_card *card, struct mmc_host *host)
 {
 	int32_t err = 0;
 
 	/*
-	 * I/O voltage should be 3.3 V here for the initialization needed.
+	 * I/O voltage should be 3.3 V here for the initialization needed..xraido@.
 	 */
 
-	/* cmd2, send cid, check if card support 3.3V */
+	/* cmd2, send cid, check if card support 3.3V .xraido@.*/
 	err = mmc_all_send_cid(host, card->cidno);
 	if (err) {
 		SD_LOGW("Cards all send CID number failed !!\n");
@@ -621,7 +617,7 @@ static int32_t mmc_sd_init_card(struct mmc_card *card, struct mmc_host *host)
 
 	card->type = MMC_TYPE_SD;
 
-	/* cmd3, For native busses: get card RCA and quit open drain mode. */
+	/* cmd3, For native busses: get card RCA and quit open drain mode. .xraido@.*/
 	err = mmc_send_relative_addr(card->host, &card->rca);
 	if (err) {
 		SD_LOGW("Card public new RCA failed !!\n");
@@ -629,19 +625,19 @@ static int32_t mmc_sd_init_card(struct mmc_card *card, struct mmc_host *host)
 	} else
 		SD_LOGD("Card public new RCA:%x\n", card->rca);
 
-	/* cmd10, get CID register */
+	/* cmd10, get CID register .xraido@.*/
 	if (mmc_send_cid(card)) {
 		SD_LOGW("Card send CID reg failed !!\n");
 		return -1;
 	}
 
-	/* cmd9, get CSD register */
+	/* cmd9, get CSD register .xraido@.*/
 	if (mmc_sd_get_csd(card)) {
 		SD_LOGW("Card send CSD reg failed !!\n");
 		return -1;
 	}
 
-	/* cmd7, Select card  to standby state, as all following commands rely on that. */
+	/* cmd7, Select card  to standby state, as all following commands rely on that. .xraido@.*/
 	if (mmc_select_card(card, 1)) {
 		SD_LOGW("mmc_select_card failed !!\n");
 		return -1;
@@ -651,7 +647,7 @@ static int32_t mmc_sd_init_card(struct mmc_card *card, struct mmc_host *host)
 	if (err)
 		goto free_card;
 
-	/* Initialization sequence for UHS-I cards */
+	/* Initialization sequence for UHS-I cards .xraido@.*/
 	{
 		uint32_t clk;
 		uint32_t retries = 3;
@@ -659,7 +655,7 @@ static int32_t mmc_sd_init_card(struct mmc_card *card, struct mmc_host *host)
 		while (retries) {
 			err = mmc_sd_switch_hs(card);
 			if (err < 0) {
-				SD_LOGE("%s: Re-switch hs, err %d (retries = %d)\n",
+				SD_LOGE("%s: Re-switch hs, err %d (retries = %u)\n",
 				        __func__, err, retries);
 				mmc_mdelay(5);
 				retries--;
@@ -668,21 +664,24 @@ static int32_t mmc_sd_init_card(struct mmc_card *card, struct mmc_host *host)
 			break;
 		}
 
-		if (err) {
+		if (err <= 0) {
 			SD_LOGW("switch to high speed error, use DS: 25 MHz\n");
 			clk = 25000000;
-			HAL_SDC_Update_Clk(card->host, clk);
-			err = 0;
+			err = HAL_SDC_Update_Clk(card->host, clk);
+			if (err)
+				return -1;
 		} else {
 			mmc_card_set_highspeed(card);
 			card->sd_bus_speed = HIGH_SPEED_BUS_SPEED;
 
 			clk = mmc_sd_get_max_clock(card);
-			HAL_SDC_Update_Clk(card->host, clk);
-			SD_LOGN("card is switched to high speed mode, clk:%d KHz\n", clk/1000);
+			err = HAL_SDC_Update_Clk(card->host, clk);
+			if (err)
+				return -1;
+			SD_LOGN("card is switched to high speed mode, clk:%u KHz\n", clk/1000);
 		}
 
-		/* Switch to wider bus (if supported). */
+		/* Switch to wider bus (if supported). .xraido@.*/
 		if ((host->caps & MMC_CAP_4_BIT_DATA) &&
 		    (card->scr.bus_widths & SD_SCR_BUS_WIDTH_4)) {
 			err = mmc_app_set_bus_width(card, MMC_BUS_WIDTH_4);
@@ -691,7 +690,7 @@ static int32_t mmc_sd_init_card(struct mmc_card *card, struct mmc_host *host)
 				return -1;
 			}
 
-			/* config SDMMC controller bus width */
+			/* config SDMMC controller bus width .xraido@.*/
 			HAL_SDC_Set_BusWidth(card->host, MMC_BUS_WIDTH_4);
 			SD_LOGN("Set bus width type: %d\n", MMC_BUS_WIDTH_4);
 		}
@@ -712,18 +711,36 @@ static uint32_t mmc_sd_suspending;
 
 static int32_t mmc_sd_suspend(struct mmc_host *host)
 {
+	struct mmc_card *card;
+	card = mmc_card_open(host->sdc_id);
+	if (card == NULL) {
+		SD_LOGE("card open fail\n");
+		return -1;
+	}
+
 	mmc_sd_suspending = 1;
 	mmc_card_deinit(host->card);
 	SD_LOGD("%s ok\n", __func__);
+
+	mmc_card_close(host->sdc_id);
 
 	return 0;
 }
 
 static int32_t mmc_sd_resume(struct mmc_host *host)
 {
-	mmc_rescan(host->card, host->sdc_id);
+	struct mmc_card *card;
+	card = mmc_card_open(host->sdc_id);
+	if (card == NULL) {
+		SD_LOGE("card open fail\n");
+		return -1;
+	}
+
+	mmc_rescan(card, host->sdc_id);
 	mmc_sd_suspending = 0;
 	SD_LOGD("%s ok\n", __func__);
+
+	mmc_card_close(host->sdc_id);
 
 	return 0;
 }
@@ -735,17 +752,19 @@ static const struct mmc_bus_ops sd_bus_ops = {
 #endif
 
 /*
- * Starting point for SD card init.
+ * Starting point for SD card init..xraido@.
  */
-__xip_text
 int32_t mmc_attach_sd(struct mmc_card *card, struct mmc_host *host)
 {
 	int32_t err = 0;
 	uint32_t ocr;
 
-	SD_BUG_ON(!host);
+	if (!host) {
+		SD_LOGE("%s,%d err", __func__, __LINE__);
+		return -1;
+	}
 
-	/* send cmd41/55 to check operation condition */
+	/* send cmd41/55 to check operation condition .xraido@.*/
 	err = mmc_send_app_op_cond(host, 0, &ocr);
 	if (err) {
 		return err;
@@ -754,7 +773,7 @@ int32_t mmc_attach_sd(struct mmc_card *card, struct mmc_host *host)
 
 	/*
 	 * Sanity check the voltages that the card claims to
-	 * support.
+	 * support..xraido@.
 	 */
 	if (ocr & 0x7F) {
 		SD_LOGW("%s: card claims to support voltages below the defined range."
@@ -762,7 +781,7 @@ int32_t mmc_attach_sd(struct mmc_card *card, struct mmc_host *host)
 		ocr &= ~0x7F;
 	}
 
-	card->ocr.ocr = 0x7fffffff & ocr; /* set card not in busy state */
+	card->ocr.ocr = 0x7fffffff & ocr; /* set card not in busy state .xraido@.*/
 
 	err = mmc_sd_init_card(card, host);
 
@@ -775,17 +794,17 @@ int32_t mmc_attach_sd(struct mmc_card *card, struct mmc_host *host)
 	return err;
 }
 
-__xip_text
 void mmc_deattach_sd(struct mmc_card *card, struct mmc_host *host)
 {
-	mmc_select_card(host->card, 0);
-	host->card->state &= ~MMC_STATE_HIGHSPEED;
+	mmc_select_card(card, 0);
+	card->state &= ~MMC_STATE_HIGHSPEED;
 
 #ifdef CONFIG_SD_PM
 	if (!mmc_sd_suspending) {
 		mmc_detach_bus(host);
 	}
 #endif
+	host->card = NULL;
 }
 
-#endif /* CONFIG_USE_SD */
+#endif /* CONFIG_USE_SD .xraido@.*/

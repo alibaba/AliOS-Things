@@ -4,10 +4,9 @@ HOST_OPENOCD := xr871
 
 $(NAME)_TYPE := kernel
 
-no_with_lwip := 0
-no_with_xip := 0
-no_with_ota := 0
+include $(SOURCE_ROOT)/platform/mcu/xr871/config.mk
 
+GLOBAL_DEFINES += RHINO_CONFIG_TICKS_PER_SECOND=1000
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
 GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
@@ -26,27 +25,29 @@ GLOBAL_INCLUDES += project/main
 GLOBAL_INCLUDES += project/common/framework
 GLOBAL_INCLUDES += project/common/board/xr871_evb_main
 
+#$(NAME)_SOURCES += src/net/lwip/checksum.c src/net/lwip/memcpy.c
+
 $(NAME)_COMPONENTS += platform/arch/arm/armv7m
-$(NAME)_COMPONENTS += rhino hal protocols.net yloop framework.common  netmgr mbedtls modules.fs.fatfs vcall libc digest_algorithm
+$(NAME)_COMPONENTS += rhino hal network.lwip yloop middleware.common netmgr mbedtls osal libc digest_algorithm
+$(NAME)_COMPONENTS += 3rdparty.experimental.fs.fatfs
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/driver/chip
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/image
-$(NAME)_COMPONENTS += platform/mcu/xr871/src/net/udhcp
+#$(NAME)_COMPONENTS += platform/mcu/xr871/src/net/udhcp
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/net/wlan
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/ota
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/pm
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/efpg
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/sys
+#$(NAME)_COMPONENTS += platform/mcu/xr871/src/xz
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/net/lwip
 $(NAME)_COMPONENTS += platform/mcu/xr871/src/console
 $(NAME)_COMPONENTS += platform/mcu/xr871/project
 $(NAME)_COMPONENTS += platform/mcu/xr871/aos
 
-$(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/audio_manager
-$(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/audio_pcm
-#$(NAME)_COMPONENTS += platform/mcu/xr871/src/cedarx
-#$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libmp3
-#$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libamr
-#$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libamren
+$(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/manager
+$(NAME)_COMPONENTS += platform/mcu/xr871/src/audio/pcm
+$(NAME)_COMPONENTS += platform/mcu/xr871/lib
+$(NAME)_COMPONENTS += platform/mcu/xr871/lib/libxz
 
 GLOBAL_ASMFLAGS += -mcpu=cortex-m4     \
                  -mthumb             \
@@ -58,7 +59,8 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4     \
                  -mfpu=fpv4-sp-d16  \
                  -mfloat-abi=softfp
 
-GLOBAL_CFLAGS += -include prj_config.h
+#GLOBAL_CFLAGS += -include common/prj_conf_opt.h
+#GLOBAL_CFLAGS += -include prj_config.h
 GLOBAL_CFLAGS += -w
 GLOBAL_CFLAGS  += -fno-common \
                   -fmessage-length=0 \
@@ -86,6 +88,11 @@ GLOBAL_CFLAGS  += -D__PRJ_CONFIG_WLAN_STA_AP
 
 ifneq ($(no_with_xip),1)
 GLOBAL_CFLAGS  += -D__PRJ_CONFIG_XIP
+endif
+
+ifneq ($(no_with_image_compress),1)
+GLOBAL_CFLAGS  += -D__CONFIG_BIN_COMPRESS
+GLOBAL_CFLAGS  += -D__PRJ_CONFIG_IMG_COMPRESS
 endif
 
 GLOBAL_LDFLAGS += -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=softfp

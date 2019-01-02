@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_types.h"
@@ -10,7 +10,8 @@
 
 extern int32_t sw_to_lpm(void *msg);
 
-int32_t dispatcher_main(uint32_t smcid, uint32_t subcmd, uint32_t buf, uint32_t rsvd)
+int32_t dispatcher_main(uint32_t smcid, uint32_t subcmd, uint32_t buf,
+                        uint32_t rsvd)
 {
     int32_t ret = COMM_MSG_DONE;
 

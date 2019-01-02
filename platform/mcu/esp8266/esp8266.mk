@@ -4,8 +4,9 @@ NAME := esp8266
 
 $(NAME)_TYPE := kernel 
 
-$(NAME)_COMPONENTS := framework.common yloop modules.fs.kv libc
-$(NAME)_COMPONENTS += protocols.net alicrypto hal
+$(NAME)_COMPONENTS := middleware.common yloop rhino.fs.kv libc
+$(NAME)_COMPONENTS += network.lwip alicrypto hal
+$(NAME)_COMPONENTS += middleware/uagent/uota/src/recovery digest_algorithm
 
 use_private_lwip := 1
 
@@ -16,6 +17,8 @@ GLOBAL_INCLUDES  += $(ESP_INC_PATH)/lwip $(ESP_INC_PATH)/lwip/ipv4 $(ESP_INC_PAT
 
 # $(NAME)_INCLUDES := $(ESP_INC_PATH)/driver
 GLOBAL_INCLUDES  += $(ESP_INC_PATH)/driver
+
+GLOBAL_INCLUDES  += common hal/rec
 
 GLOBAL_CFLAGS    += -u call_user_start \
 				    -fno-inline-functions \
@@ -66,13 +69,18 @@ $(NAME)_SOURCES  += bsp/driver/uart.c
 $(NAME)_SOURCES  += hal/uart.c
 $(NAME)_SOURCES  += hal/flash.c
 $(NAME)_SOURCES  += hal/misc.c
+$(NAME)_SOURCES  += hal/gpio.c
 $(NAME)_SOURCES  += hal/wifi_port.c
 $(NAME)_SOURCES  += hal/ota_port.c
 $(NAME)_SOURCES  += hal/upgrade_lib.c
+$(NAME)_SOURCES  += hal/rec/rec_flash.c
+$(NAME)_SOURCES  += hal/rec/rec_sys.c
+$(NAME)_SOURCES  += hal/rec/rec_uart.c
 $(NAME)_SOURCES  += bsp/driver/gpio.c
 $(NAME)_SOURCES  += bsp/driver/hw_timer.c
 $(NAME)_SOURCES  += bsp/driver/i2c_master.c
 $(NAME)_SOURCES  += bsp/driver/spi_interface.c
+$(NAME)_SOURCES  += bsp/wdt.c
 
 $(NAME)_CFLAGS   := -std=gnu99
 
@@ -87,7 +95,7 @@ libs := $(foreach lib,$(libs),lib/$(notdir $(lib)))
 $(NAME)_PREBUILT_LIBRARY := $(libs)
 endif
 
-ifeq ($(vcall),freertos)
+ifeq ($(osal),freertos)
 GLOBAL_CFLAGS            += -I $(SDK8266_PATH)/include/espos
 GLOBAL_CFLAGS            += -I $(SDK8266_PATH)/include/freertos
 $(NAME)_PREBUILT_LIBRARY += lib/libespos.a

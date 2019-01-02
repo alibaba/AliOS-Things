@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef K_TYPES_H
+#define K_TYPES_H
 
 #define RHINO_TASK_STACK_OVF_MAGIC   0xdeadbeafu     /* 32 bit or 64 bit stack overflow magic value */
 #define RHINO_INTRPT_STACK_OVF_MAGIC 0xdeaddeadu     /* 32 bit or 64 bit stack overflow magic value */
@@ -14,8 +14,8 @@
 typedef char     name_t;
 typedef uint32_t sem_count_t;
 typedef uint32_t cpu_stack_t;
-typedef uint32_t hr_timer_t;
-typedef uint32_t lr_timer_t;
+typedef uint64_t hr_timer_t;
+typedef uint64_t lr_timer_t;
 typedef uint32_t mutex_nested_t;
 typedef uint8_t  suspend_nested_t;
 typedef uint64_t ctx_switch_t;

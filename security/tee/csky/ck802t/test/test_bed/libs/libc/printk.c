@@ -1,23 +1,23 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  *
  */
 
 #include <stdarg.h>
 #include "test_bed.h"
 
-#define BUF_SZ  (128)
+#define BUF_SZ (128)
 
 extern void putch(int8_t ch);
 
 int32_t vsnprintk(int8_t *buf, uint32_t size, const int8_t *fmt, va_list ap)
 {
-    int8_t *p;
-    int32_t i, base, idx, width, sign = 0, lead, uc = 0;
-    int32_t val, flag;
+    int8_t * p;
+    int32_t  i, base, idx, width, sign = 0, lead, uc = 0;
+    int32_t  val, flag;
     uint32_t uval;
-    int8_t *s, *digit;
-    int8_t tmp[20];
+    int8_t * s, *digit;
+    int8_t   tmp[20];
 
     p = (int8_t *)fmt;
     /* keep one char for '\0' */
@@ -51,7 +51,7 @@ int32_t vsnprintk(int8_t *buf, uint32_t size, const int8_t *fmt, va_list ap)
                 buf[i++] = '%';
                 continue;
             case 'c':
-                val = va_arg(ap, int32_t);
+                val      = va_arg(ap, int32_t);
                 buf[i++] = val & 0xFF;
                 continue;
             case 's':
@@ -84,16 +84,16 @@ int32_t vsnprintk(int8_t *buf, uint32_t size, const int8_t *fmt, va_list ap)
             digit = (int8_t *)"0123456789abcdef";
         }
         flag = 0;
-        val = va_arg(ap, int32_t);
+        val  = va_arg(ap, int32_t);
         if (sign && val < 0) {
-            val = -val;
+            val  = -val;
             flag = 1;
         }
 
         uval = (uint32_t)val;
-        idx = 0;
+        idx  = 0;
         do {
-            tmp[idx++] = digit[uval%base];
+            tmp[idx++] = digit[uval % base];
             uval /= base;
         } while (uval);
 
@@ -122,25 +122,25 @@ int32_t vsnprintk(int8_t *buf, uint32_t size, const int8_t *fmt, va_list ap)
     return i;
 }
 
-static void delay (int sec)
+static void delay(int sec)
 {
-    int i;
+    int          i;
     volatile int j;
 
-    for (i = 0x00; i < sec * 100; i ++)
+    for (i = 0x00; i < sec * 100; i++)
         j = i;
 }
 
 int32_t printk(const int8_t *fmt, ...)
 {
     va_list args;
-    int8_t buf[BUF_SZ];
+    int8_t  buf[BUF_SZ];
     int8_t *ptr;
 
-    //FIXME, only used in ck-sky
+    // FIXME, only used in ck-sky
     delay(1);
 
-    va_start (args, fmt);
+    va_start(args, fmt);
     vsnprintk(buf, sizeof(buf) - 1, fmt, args);
     va_end(args);
 
@@ -164,15 +164,15 @@ static void uart_putc(unsigned char c)
 static void hex_to_char(unsigned char data, char *h, char *l)
 {
     unsigned char tmp = data;
-    char h_tmp, l_tmp;
+    char          h_tmp, l_tmp;
 
     tmp &= 0xff;
-    l_tmp = (((tmp & 0xf) > 9) ? ('a' + ((tmp & 0xf) - 10) ) :
-                                ( '0' + (tmp & 0xf) ) );
-    h_tmp = ((((tmp >> 4) & 0xf) > 9) ? ('a' + (((tmp >> 4) & 0xf) - 10) ) :
-                                ( '0' + ((tmp >> 4) & 0xf) ) );
-    *h = h_tmp;
-    *l = l_tmp;
+    l_tmp =
+      (((tmp & 0xf) > 9) ? ('a' + ((tmp & 0xf) - 10)) : ('0' + (tmp & 0xf)));
+    h_tmp = ((((tmp >> 4) & 0xf) > 9) ? ('a' + (((tmp >> 4) & 0xf) - 10))
+                                      : ('0' + ((tmp >> 4) & 0xf)));
+    *h    = h_tmp;
+    *l    = l_tmp;
     return;
 }
 
@@ -218,7 +218,7 @@ void uart_print_uint32(unsigned int data)
 static void uart_print_string(char *data)
 {
     unsigned int i = 0;
-    while(data[i]) {
+    while (data[i]) {
         if (data[i] == '\n')
             uart_putc('\r');
         uart_putc(data[i++]);
@@ -232,8 +232,8 @@ void dump_data(char *prefix, unsigned char *data, unsigned int size)
     uart_print_string(prefix);
     uart_print_string(" :\n");
 
-    for (i=0; i<size; i++) {
-        if ((i&0xf) == 0) {
+    for (i = 0; i < size; i++) {
+        if ((i & 0xf) == 0) {
             uart_print_string("\n");
         }
         uart_print_uint8(data[i]);
@@ -250,8 +250,8 @@ void dump_code(char *name, unsigned char *data, unsigned int size)
     uart_print_string(name);
     uart_print_string("[] = {");
 
-    for (i=0; i<size; i++) {
-        if ((i&0xf) == 0) {
+    for (i = 0; i < size; i++) {
+        if ((i & 0xf) == 0) {
             uart_print_string("\n");
         }
         uart_print_uint8(data[i]);

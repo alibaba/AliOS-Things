@@ -420,6 +420,24 @@ static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_p
 
 static int get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, hal_wifi_type_t wifi_type)
 {
+    u8 *ip, *gw, *mask, *mac;
+
+    if (!out_net_para)
+        return -1;
+
+    ip   = LwIP_GetIP(&xnetif[0]);
+    gw   = LwIP_GetGW(&xnetif[0]);
+    mask = LwIP_GetMASK(&xnetif[0]);
+    mac  = LwIP_GetMAC(&xnetif[0]);
+
+    out_net_para->dhcp = DHCP_CLIENT;
+
+    snprintf(out_net_para->ip, 16, "%d.%d.%d.%d",  ip[0],  ip[1],  ip[2],  ip[3]);
+    snprintf(out_net_para->gate, 16, "%d.%d.%d.%d",  gw[0],  gw[1],  gw[2],  gw[3]);
+    snprintf(out_net_para->mask, 16, "%d.%d.%d.%d",  mask[0],  mask[1],  mask[2],  mask[3]);
+    snprintf(out_net_para->dns, 16, "%d.%d.%d.%d",  gw[0],  gw[1],  gw[2],  gw[3]);
+    snprintf(out_net_para->mac, 16, "%x%x%x%x%x%x",  mac[0],  mac[1],  mac[2],  mac[3], mac[4], mac[5]);
+
     DBG_8195A("get_ip_stat\r\n");            
     return 0;
 }

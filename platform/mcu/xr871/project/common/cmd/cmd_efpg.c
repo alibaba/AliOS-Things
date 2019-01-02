@@ -45,6 +45,20 @@
  * efpg get chipid
  */
 
+extern void stdout_enable(uint8_t en);
+
+static void cmd_efpg_start_cb(void)
+{
+	console_disable();
+	stdout_enable(0);
+}
+
+static void cmd_efpg_stop_cb(void)
+{
+	console_enable();
+	stdout_enable(1);
+}
+
 static enum cmd_status cmd_efpg_start(void)
 {
 	const char *efpg_key = "efpgtest";
@@ -57,7 +71,8 @@ static enum cmd_status cmd_efpg_start(void)
 		return CMD_STATUS_ACKED;
 	}
 
-	if (efpg_start((uint8_t *)efpg_key, strlen(efpg_key), uart_id, console_disable, console_enable) < 0) {
+	if (efpg_start((uint8_t *)efpg_key, strlen(efpg_key), uart_id,
+		cmd_efpg_start_cb, cmd_efpg_stop_cb) < 0) {
 		CMD_ERR("efpg program failed\n");
 		return CMD_STATUS_ACKED;
 	}

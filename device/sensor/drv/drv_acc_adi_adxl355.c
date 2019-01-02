@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 #define ADXL355_I2C_ADDR1 (0x1D)
@@ -125,7 +127,7 @@ static int drv_acc_adi_adxl355_soft_reset(i2c_dev_t *drv)
     ret = sensor_i2c_write(drv, ADI_ADXL355_SRESET, &value, I2C_DATA_LEN,
                            I2C_OP_RETRIES);
 
-    return 0;
+    return ret;
 }
 
 static int drv_acc_adi_adxl355_validate_id(i2c_dev_t *drv, uint8_t id_value)
@@ -427,6 +429,7 @@ int drv_acc_adi_adxl355_init(void)
 {
     int          ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;

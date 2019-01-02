@@ -85,21 +85,22 @@ typedef struct {
 #define ADC	((ADC_T *)GPADC_BASE) /* address: 0x40043000 */
 
 /* ADC->SAMPLE_RATE */
-#define ADC_FS_DIV_SHIFT		16
-#define ADC_FS_DIV_MASK			(0xFFFFU << ADC_FS_DIV_SHIFT)
+#define ADC_FS_DIV_SHIFT				16
+#define ADC_FS_DIV_MASK					(0xFFFFU << ADC_FS_DIV_SHIFT)
 
-#define ADC_TACQ_SHIFT			0
-#define ADC_TACQ_MASK			(0xFFFFU << ADC_TACQ_SHIFT)
+#define ADC_TACQ_SHIFT					0
+#define ADC_TACQ_MASK					(0xFFFFU << ADC_TACQ_SHIFT)
 
 /* ADC->CTRL */
-#define ADC_FIRST_DELAY_SHIFT	24
-#define ADC_FIRST_DELAY_MASK	(0xFFU << ADC_FIRST_DELAY_SHIFT)
+#define ADC_FIRST_DELAY_SHIFT			24
+#define ADC_FIRST_DELAY_MASK			(0xFFU << ADC_FIRST_DELAY_SHIFT)
 
-#define ADC_OP_BIAS_SHIFT		20
-#define ADC_OP_BIAS_MASK		(0x3U << ADC_OP_BIAS_SHIFT)
+#define ADC_OP_BIAS_SHIFT				20
+#define ADC_OP_BIAS_MASK				(0x3U << ADC_OP_BIAS_SHIFT)
 
-#define ADC_WORK_MODE_SHIFT		18
-#define ADC_WORK_MODE_MASK		(0x3U << ADC_WORK_MODE_SHIFT)
+#define ADC_WORK_MODE_SHIFT				18
+#define ADC_WORK_MODE_MASK				(0x3U << ADC_WORK_MODE_SHIFT)
+
 typedef enum {
 	ADC_SINGLE_CONV		= 0U,
 	ADC_SINGLE_CYCLE	= 1U,
@@ -107,45 +108,64 @@ typedef enum {
 	ADC_BURST_CONV		= 3U
 } ADC_WorkMode;
 
-#define ADC_CALIB_EN_BIT		HAL_BIT(17)
-#define ADC_EN_BIT				HAL_BIT(16)
-#define ADC_VBAT_EN_BIT			HAL_BIT(4)
-#define ADC_LDO_EN_BIT			HAL_BIT(0)
+#define ADC_CALIB_EN_BIT				HAL_BIT(17)
+#define ADC_EN_BIT						HAL_BIT(16)
+#define ADC_VBAT_EN_BIT					HAL_BIT(4)
+#define ADC_LDO_EN_BIT					HAL_BIT(0)
 
 /* ADC->CMP_SEL_EN */
-#define ADC_CMP_EN_SHIFT		16
-#define ADC_CMP_EN_MASK			(0x1FFU << ADC_CMP_EN_SHIFT)
+#define ADC_CMP_EN_SHIFT				16
+#define ADC_CMP_EN_MASK					(0x1FFU << ADC_CMP_EN_SHIFT)
 
-#define ADC_SEL_EN_SHIFT		0
-#define ADC_SEL_EN_MASK			(0x1FFU << ADC_SEL_EN_SHIFT)
+#define ADC_SEL_EN_SHIFT				0
+#define ADC_SEL_EN_MASK					(0x1FFU << ADC_SEL_EN_SHIFT)
 
 /*
  * ADC->LOW_CONFIG
  * ADC->HIGH_CONFIG
  * ADC->DATA_CONFIG
  */
-#define ADC_LOW_IRQ_MASK		0x1FFU
-#define ADC_HIGH_IRQ_MASK		0x1FFU
-#define ADC_DATA_IRQ_MASK		0x1FFU
+#define ADC_LOW_IRQ_MASK				0x1FFU
+#define ADC_HIGH_IRQ_MASK				0x1FFU
+#define ADC_DATA_IRQ_MASK				0x1FFU
+
+/*
+ * ADC->FIFO_CTRL
+ */
+#define ADC_FIFO_LEVEL_SHIFT			8
+#define ADC_FIFO_DATA_DRQ_MASK			HAL_BIT(18)
+#define ADC_FIFO_OVERUN_IRQ_MASK		HAL_BIT(17)
+#define ADC_FIFO_DATA_IRQ_MASK			HAL_BIT(16)
+#define ADC_FIFO_LEVEL_MASK				(0x3FU << ADC_FIFO_LEVEL_SHIFT)
+#define ADC_FIFO_FLUSH_MASK				HAL_BIT(4)
+
+/*
+ * ADC->FIFO_STATUS
+ */
+#define ADC_FIFO_DATA_PENDING_MASK		HAL_BIT(16)
+#define ADC_FIFO_OVERUN_PENDING_MASK	HAL_BIT(17)
+
+/* ADC->FIFO_DATA */
+#define ADC_FIFO_DATA_MASK				0xFFFU
 
 /*
  * ADC->LOW_STATUS
  * ADC->HIGH_STATUS
  * ADC->DATA_STATUS
  */
-#define ADC_LOW_PENDING_MASK	0x1FFU
-#define ADC_HIGH_PENDING_MASK	0x1FFU
-#define ADC_DATA_PENDING_MASK	0x1FFU
+#define ADC_LOW_PENDING_MASK			0x1FFU
+#define ADC_HIGH_PENDING_MASK			0x1FFU
+#define ADC_DATA_PENDING_MASK			0x1FFU
 
 /* ADC->CMP_DATA */
-#define ADC_HIGH_DATA_SHIFT		16
-#define ADC_HIGH_DATA_MASK		(0xFFFU << ADC_HIGH_DATA_SHIFT)
+#define ADC_HIGH_DATA_SHIFT				16
+#define ADC_HIGH_DATA_MASK				(0xFFFU << ADC_HIGH_DATA_SHIFT)
 
-#define ADC_LOW_DATA_SHIFT		0
-#define ADC_LOW_DATA_MASK		(0xFFFU << ADC_LOW_DATA_SHIFT)
+#define ADC_LOW_DATA_SHIFT				0
+#define ADC_LOW_DATA_MASK				(0xFFFU << ADC_LOW_DATA_SHIFT)
 
 /* ADC->DATA */
-#define ADC_DATA_MASK			0xFFFU
+#define ADC_DATA_MASK					0xFFFU
 
 /******************************************************************************/
 
@@ -153,8 +173,9 @@ typedef enum {
  * @brief ADC channel initialization parameters
  */
 typedef struct {
-	uint32_t	freq;  /* ADC sample frequency */
-	uint8_t		delay; /* the number of delayed samples in first conversion */
+	uint32_t		freq;	/* ADC sample frequency */
+	uint8_t			delay;	/* the number of delayed samples in first conversion */
+	ADC_WorkMode	mode;	/* ADC work mode */
 } ADC_InitParam;
 
 /**
@@ -203,10 +224,13 @@ HAL_Status HAL_ADC_EnableIRQCallback(ADC_Channel chan, ADC_IRQCallback cb, void 
 HAL_Status HAL_ADC_DisableIRQCallback(ADC_Channel chan);
 
 HAL_Status HAL_ADC_ConfigChannel(ADC_Channel chan, ADC_Select select, ADC_IRQMode mode, uint32_t lowValue, uint32_t highValue);
+HAL_Status HAL_ADC_FifoConfigChannel(ADC_Channel chan, ADC_Select select);
 HAL_Status HAL_ADC_Start_Conv_IT(void);
 HAL_Status HAL_ADC_Stop_Conv_IT(void);
 ADC_IRQState HAL_ADC_GetIRQState(ADC_Channel chan);
 uint32_t HAL_ADC_GetValue(ADC_Channel chan);
+uint32_t HAL_ADC_GetFifoData(void);
+uint8_t HAL_ADC_GetFifoDataCount(void);
 
 #ifdef __cplusplus
 }

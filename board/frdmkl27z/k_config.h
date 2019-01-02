@@ -50,7 +50,6 @@
 #ifndef RHINO_CONFIG_MM_LEAKCHECK
 #define RHINO_CONFIG_MM_LEAKCHECK            0
 #endif
-#define K_MM_STATISTIC                       0
 #ifndef RHINO_CONFIG_KOBJ_SET
 #define RHINO_CONFIG_KOBJ_SET                1
 #endif
@@ -63,7 +62,7 @@
 #define RHINO_CONFIG_TASK_SUSPEND            1
 #endif
 #ifndef RHINO_CONFIG_TASK_INFO
-#define RHINO_CONFIG_TASK_INFO               10
+#define RHINO_CONFIG_TASK_INFO               1
 #endif
 #ifndef RHINO_CONFIG_TASK_DEL
 #define RHINO_CONFIG_TASK_DEL                1
@@ -178,23 +177,14 @@
 #ifndef RHINO_CONFIG_SYSTEM_STATS
 #define RHINO_CONFIG_SYSTEM_STATS            1
 #endif
-#ifndef RHINO_CONFIG_DISABLE_SCHED_STATS
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
+#ifndef RHINO_CONFIG_SCHED_STATS
+#define RHINO_CONFIG_SCHED_STATS             0
 #endif
-#ifndef RHINO_CONFIG_DISABLE_INTRPT_STATS
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
-#endif
-#ifndef RHINO_CONFIG_CPU_USAGE_STATS
-#define RHINO_CONFIG_CPU_USAGE_STATS         0
-#endif
-#ifndef RHINO_CONFIG_CPU_USAGE_TASK_PRI
-#define RHINO_CONFIG_CPU_USAGE_TASK_PRI      (RHINO_CONFIG_PRI_MAX - 2)
+#ifndef RHINO_CONFIG_INTRPT_STATS
+#define RHINO_CONFIG_INTRPT_STATS            0
 #endif
 #ifndef RHINO_CONFIG_TASK_SCHED_STATS
 #define RHINO_CONFIG_TASK_SCHED_STATS        0
-#endif
-#ifndef RHINO_CONFIG_CPU_USAGE_TASK_STACK
-#define RHINO_CONFIG_CPU_USAGE_TASK_STACK    256
 #endif
 
 /* kernel trace conf */

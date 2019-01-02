@@ -6,13 +6,13 @@
 #include <rtl8710b_ota.h>
 #include <flash_api.h>
 #include <device_lock.h>
+#include <hal/soc/flash.h>
 
 static u32 alinknewImg2Addr = 0xFFFFFFFF;
 
 char *HeadBuffer = NULL;
-#define OTA_HEADER_BUF_SIZE		1460
-int alink_size = 0; 
-#define ALINK_BUF_SIZE		512
+#define OTA_HEADER_BUF_SIZE  1024
+int alink_size = 0;
 u8 alink_signature[9] = {0};
 extern const update_file_img_id OtaImgId[2];
 uint32_t alink_ota_target_index = OTA_INDEX_2;
@@ -20,7 +20,7 @@ update_ota_target_hdr OtaTargetHdr;
 
 static int aliota_total_len = 0, aliota_flag = 1, aliota_count = 0;
 static uint32_t aliota_address;
-static int aliota_RemainBytes = 0;	
+static int aliota_RemainBytes = 0;
 static int aliota_ota_exit = 0;
 static int aliota_ota_flag = 1;
 static unsigned long aliota_tick1, aliota_tick2;
@@ -28,7 +28,10 @@ static u32 aliota_OtaFg = 0;
 static u32 aliota_SigCnt = 0;
 static int aliota_end_sig = 0;
 
-
+hal_logic_partition_t *partition_info = NULL;
+#ifndef OTA2_DEFAULT_ADDR
+#define OTA2_DEFAULT_ADDR   (0x08100000)
+#endif
 
 int check_ota_index()
 {
@@ -44,6 +47,53 @@ int check_ota_index()
 	return ota_index;
 }
 
+bool prepare_ota_address(u32 ota_target_index, u32 * new_addr)
+{
+	IMAGE_HEADER *OTA1Hdr = NULL;
+	uint32_t OTA1Len = 0;
+	IMAGE_HEADER *FlashImgDataHdr = NULL;
+	uint32_t ota2_addr;
+
+	ota2_addr = HAL_READ32(SPI_FLASH_BASE, OFFSET_DATA);
+	printf("ota2_addr = %x\n", ota2_addr);
+	/*if the OTA2 address is not programmed in system data zone, the default OTA2
+	address is used.	This operation is just used in the local OTA update demo. For the
+	cloud OTA upgrade based on this demo, this operation may not be used.*/
+	if(ota2_addr == 0xffffffff) {
+		ota_write_ota2_addr(OTA2_DEFAULT_ADDR);
+		ota2_addr = HAL_READ32(SPI_FLASH_BASE, OFFSET_DATA);
+	}
+
+	if((ota2_addr%4096) != 0) {
+		printf("\n\r[%s] ota addr in sys data space not 4k aligned 0x%x", __FUNCTION__, ota2_addr);
+		goto error;
+	}
+
+	if(ota_target_index == OTA_INDEX_2) {
+		/* OAT2 address should not in OTA1 image & should 4K alignment */
+		OTA1Hdr = (IMAGE_HEADER *)(OTA1_ADDR);
+		OTA1Len = OTA1Hdr->image_size;
+		FlashImgDataHdr = (IMAGE_HEADER *)((u32)OTA1Hdr + OTA1Len + IMAGE_HEADER_LEN);
+		if ((ota2_addr < ((u32)FlashImgDataHdr + FlashImgDataHdr->image_size + IMAGE_HEADER_LEN)) && ((ota2_addr & 0xfff) == 0)) {
+			printf("\n\r[%s] illegal ota addr 0x%x", __FUNCTION__, ota2_addr);
+			goto error;
+		}
+		*new_addr = ota2_addr;
+	} else {
+		*new_addr = OTA1_ADDR;
+	}
+
+	if(*new_addr == 0xFFFFFFFF) {
+		printf("\n\r[%s] update address is invalid \n", __FUNCTION__);
+		goto error;
+	}
+	printf("OTA update address: 0x%x\n", *new_addr);
+	return TRUE;
+
+error:
+	return FALSE;
+}
+
 bool rtl8710bn_ota_prepare()
 {
     alink_size = 0;
@@ -56,8 +106,30 @@ bool rtl8710bn_ota_prepare()
     aliota_OtaFg = 0;
     aliota_SigCnt = 0;
     aliota_end_sig = 0;
-
+    uint32_t part = HAL_PARTITION_OTA_TEMP;
     alink_ota_target_index = check_ota_index();
+	if(prepare_ota_address(alink_ota_target_index, &alinknewImg2Addr) != TRUE){
+		printf("\n get OTA address failed\n");
+		return FALSE;
+	}
+
+	if(alink_ota_target_index == OTA_INDEX_1) {
+		part = HAL_PARTITION_APPLICATION;
+	}else if(alink_ota_target_index == OTA_INDEX_2) {
+		part = HAL_PARTITION_OTA_TEMP;
+	}else {
+	    printf("flash INDEX failed\n");
+		return FALSE;
+	}
+
+	partition_info = hal_flash_get_info(part);
+	if(partition_info == NULL) {
+	    printf("hal_flash_get_info failed\n");
+		return FALSE;
+	}
+
+	/*-------------------erase flash space for new firmware--------------*/
+	erase_ota_target_flash(alinknewImg2Addr, partition_info->partition_length);
     DBG_INFO_MSG_OFF(_DBG_SPI_FLASH_);
     HeadBuffer = rtw_malloc(OTA_HEADER_BUF_SIZE);
     if (HeadBuffer == NULL) {
@@ -68,22 +140,17 @@ bool rtl8710bn_ota_prepare()
 }
 
 static int rtl8710bn_ota_init(hal_ota_module_t *m, void *something)
-{    
-        LOG("rtl8710bn_ota_init\n");
-        uint32_t offset = *(uint32_t*)something;
+{
+    LOG("rtl8710bn_ota_init\n");
+    uint32_t offset = *(uint32_t*)something;
 
-        if(offset==0) {
-            /* prepare to os update  */
-            if (rtl8710bn_ota_prepare() != TRUE) { 
-                return -1; 
-            }
-            
+    if(offset==0) {
+        /* prepare to os update  */
+        if (rtl8710bn_ota_prepare() != TRUE) {
+                return -1;
         }
-        else {
-
-        }
-    
-        return 0;
+    }
+    return 0;
 }
 
 static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* off_set,uint8_t *buffer,uint32_t len)
@@ -92,23 +159,19 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
     flash_t	flash;
     update_file_hdr OtaFileHdr;
 
-
     if (aliota_ota_flag) {
         aliota_tick1 = rtw_get_current_time();
         aliota_ota_flag = 0;
     }
-
-
         //printf("write ota offset %x, len %d\r\n", off_set, len);
-      
 	/*-----read 4 Dwords from server, get image header number and header length*/
 	buf = HeadBuffer + aliota_total_len;
 	aliota_total_len += len;
 	if (aliota_total_len < 128) {
 		memcpy(buf, buffer, len);
 		aliota_count += len;
-		return -1;
-		
+                printf("copy head len:%d \n",len);
+		return 0;
 	} else if (aliota_total_len >= 128 && aliota_total_len <= OTA_HEADER_BUF_SIZE) {
 		if (aliota_flag == 1) {
 			buf = HeadBuffer;
@@ -125,17 +188,30 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
 				goto update_ota_exit;
 			}
 
-			/*get new image addr and check new address validity*/
-			if(!get_ota_address(alink_ota_target_index, &alinknewImg2Addr, &OtaTargetHdr)) {
-				printf("\n get OTA address failed\n");
-				goto update_ota_exit;
+			if (alinknewImg2Addr == 0xFFFFFFFF) {
+				/*get new image addr and check new address validity*/
+				if (!get_ota_address(alink_ota_target_index, &alinknewImg2Addr, &OtaTargetHdr)) {
+					printf("\n get OTA address failed\n");
+					goto update_ota_exit;
+				}
+			} else {
+				/*Image size should not bigger than OTA_SIZE_MAX */
+				if(partition_info != NULL) {
+					if(OtaTargetHdr.FileImgHdr.ImgLen > partition_info->partition_length){
+						printf("\n\r[%s] illegal new image length 0x%x", __FUNCTION__, OtaTargetHdr.FileImgHdr.ImgLen);
+						goto update_ota_exit;
+					}
+				}
 			}
 			/*get new image length from the firmware header*/
 			uint32_t NewImg2Len = 0, NewImg2BlkSize = 0;
 			NewImg2Len = OtaTargetHdr.FileImgHdr.ImgLen;
 			NewImg2BlkSize = ((NewImg2Len - 1)/4096) + 1;
+#if 0
+			//It takes too long to erase flash ?
 			/*-------------------erase flash space for new firmware--------------*/
 			erase_ota_target_flash(alinknewImg2Addr, NewImg2Len);
+#endif
 			
 			/*the upgrade space should be masked, because the encrypt firmware is used 
 			for checksum calculation*/
@@ -234,20 +310,16 @@ static int rtl8710bn_ota_write_ota_cb(hal_ota_module_t *m, volatile uint32_t* of
 				}
 			}
 		}
-	}    
+	}
 
     return 0;
-
 update_ota_exit:
 	if (HeadBuffer != NULL) {
 		rtw_free(HeadBuffer);
 	}
-
-    
         aliota_ota_exit = 1;
-	printf("Update task exit");	
-	return -1;	
-    
+	printf("Update task exit");
+	return -1;
 }
 
 static int rtl8710bn_ota_finish_cb(hal_ota_module_t *m, void *something)

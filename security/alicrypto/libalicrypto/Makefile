@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017 The YunOS Project. All rights reserved.
+# Copyright (C) 2017  Alibaba Group Holding Limited.
 #
 
 TOP := ../
@@ -19,9 +19,7 @@ CRYPT_TYPE := MBED
 
 LIB := $(TOP)/mbedtls/library/libmbedcrypto.a
 
-CFLAGS = -Wall -g -O2 -I$(LOCAL_DIR)/mbed/inc -I$(LOCAL_DIR)/sw \
-	-I$(LOCAL_DIR)/inc -I$(TOP)/mbedtls/include/mbedtls/ \
-	-I$(TOP)/../yunos_iot/aos/include
+CFLAGS = -Wall -g -O2 -I$(LOCAL_DIR)/inc -I$(TOP)/../yunos_iot/aos/include
 
 ifeq ($(m32),1)
 CFLAGS += -m32
@@ -56,12 +54,10 @@ TEST_SRCS += \
 	       $(LOCAL_DIR)/test/ali_crypto_test_rsa.c  \
 	       $(LOCAL_DIR)/test/ali_crypto_test_hmac.c \
 
-CFLAGS += -I$(LOCAL_DIR)/test/inc
 OUT_E := ali_crypto_test
 endif
 
 SRCS += $(LOCAL_DIR)/sw/ali_crypto_rand.c
-CFLAGS += -I$(LOCAL_DIR)/sw/inc
 
 SRCS += $(LOCAL_DIR)/ali_crypto.c
 OBJS := $(patsubst %.cxx,%.o,$(patsubst %.c,%.o,$(SRCS)))

@@ -4,6 +4,7 @@ import string
 import shutil 
 
 import xml.etree.ElementTree as etree
+import config_mk
 from xml.etree.ElementTree import SubElement
 from os.path import basename
 from xml_format import gen_indent
@@ -15,6 +16,22 @@ def add_group(parent, name, files, includes, project_path):
     group = SubElement(parent, 'group')
     group_name = SubElement(group, 'name')
     group_name.text = name
+    
+    for f in files:
+        file = SubElement(group, 'file')
+        file_name = SubElement(file, 'name')
+        if repeat_path.count(f):
+            includes.append(os.path.dirname(f))
+            fnewName = f.replace('./','')
+            fnewName = fnewName.replace('/','_')
+            fnewPath = proj_output_dir+'/'+fnewName
+            #print 'copy', f, 'to', fnewPath
+            shutil.copyfile(f,fnewPath)
+            f = "$PROJ_DIR$\\"+fnewName
+            file_name.text = f.decode(cur_encoding)
+        else:
+            file_name.text = (aos_relative_path + f).decode(cur_encoding)
+    
     
     group_config = SubElement(group, 'configuration')
     group_config_name = SubElement(group_config, 'name')
@@ -63,18 +80,15 @@ def add_group(parent, name, files, includes, project_path):
     group_option_state = SubElement(group_data_option2, 'state')
     group_option_state.text = '-f '+opt_dir+name+".as_opts"
     
+    group_data_option3 = SubElement(group_settings_data, 'option')
+    group_option_name = SubElement(group_data_option3, 'name')
+    group_option_name.text = 'AUserIncludes'
+    for i in includes:
+        stateTemp = SubElement(group_data_option3, 'state')
+        stateTemp.text = (aos_relative_path + i).decode(cur_encoding)
     
-    for f in files:
-        if repeat_path.count(f):
-            fnewName = f.replace('./','')
-            fnewName = fnewName.replace('/','_')
-            fnewPath = proj_output_dir+'/'+fnewName
-            #print 'copy', f, 'to', fnewPath
-            shutil.copyfile(f,fnewPath)
-            f = fnewPath
-        file = SubElement(group, 'file')
-        file_name = SubElement(file, 'name')
-        file_name.text = (aos_relative_path + f).decode(cur_encoding)
+    
+    
 
 # automation to do
 def changeItemForMcu( tree ):
@@ -86,11 +100,19 @@ def changeItemForMcu( tree ):
                     if option.find('name').text == 'IlinkOutputFile':
                         option.find('state').text = buildstring + '.out'
                     if option.find('name').text == 'IlinkIcfFile': 
-                        if 'starterkit' in buildstring:
-                            option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L433RC-Nucleo/STM32L433.icf'
-                        if 'stm32l432' in buildstring:
-                            option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L432KC-Nucleo/STM32L432.icf'
-
+                        try:
+                            print "ld_script:", config_mk.ld_script
+                            option.find('state').text = '$PROJ_DIR$\../../../../'+config_mk.ld_script
+                        except:
+                            print "ld_script is not written in config_mk.py"
+                            if 'starterkit' in buildstring:
+                                option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L433RC-Nucleo/STM32L433.icf'
+                            if 'stm32l432' in buildstring:
+                                option.find('state').text = '$PROJ_DIR$\../../../../'+'platform/mcu/stm32l4xx/src/STM32L432KC-Nucleo/STM32L432.icf'
+                            if 'stm32l053' in buildstring:
+                                option.find('state').text = '$PROJ_DIR$\../../../../'+'board/stm32l053r8-nucleo/STM32L053.icf'
+                            if 'stm32l031' in buildstring:
+                                option.find('state').text = '$PROJ_DIR$\../../../../'+'board/stm32l031k6-nucleo/STM32L031.icf'
                           
 work_space_content = '''<?xml version="1.0" encoding="UTF-8"?>
 
@@ -146,6 +168,10 @@ def gen_project(target, script):
         projString = projString.replace('STM32L475VG','STM32L433RC')
     if 'stm32l432' in buildstring:
         projString = projString.replace('STM32L475VG','STM32L432KC')
+    if 'stm32l053' in buildstring:
+        projString = projString.replace('STM32L475VG','STM32L053R8')
+    if 'stm32l031' in buildstring:
+        projString = projString.replace('STM32L475VG','STM32L031K6')
     out.write(projString)
     out.close()
 

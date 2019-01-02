@@ -1,7 +1,6 @@
 # <img src="https://img.alicdn.com/tfs/TB1e1U7vyAnBKNjSZFvXXaTKXXa-973-200.png" height="60">
 
 [![Join the chat at https://gitter.im/aliosthings/Lobby](https://img.shields.io/gitter/room/aliosthings/Lobby.svg?style=flat-square)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![](https://img.shields.io/travis/alibaba/AliOS-Things/master.svg?style=flat-square)](https://travis-ci.org/alibaba/AliOS-Things)
 
 EN | [中文](./README-zh.md)
 
@@ -20,7 +19,7 @@ From an architectural point of view, AliOS Things adapts Layered Architecture an
 - Security: TLS, TFS(Trusted Framework Service), TEE(Trusted Exexcution Environment)
 - AOS API: AliOS Things exposed APIs for Application and Middleware
 - Middleware: Alibaba's value-added and commonly seen IoT components included
-- Examples: hands-on sample codes, and well tested applications such as [linkkitapp](./example/linkkitapp/README.md)
+- Examples: hands-on sample codes, and well tested applications such as [linkkitapp](./app/example/linkkitapp)
 
 All modules have been organized as Components, and each component has its own .mk file to describe its dependency with other Components, which enables applications to choose components needed easily.
 
@@ -44,10 +43,10 @@ Please refer to [AliOS Things Studio](https://github.com/alibaba/AliOS-Things/wi
 
 # Community
 
-  * [Technical Blog | 云栖社区](https://yq.aliyun.com/teams/184)
-  * [Technical Forum | 开发者论坛](https://bbs.aliyun.com/thread/410.html)
-  * [技术交流群(微信)](http://o7spigzvd.bkt.clouddn.com/qr_wechat_100+.jpeg) - 人数过多，请联系管理员手动拉入
-  * [技术交流群(钉钉)](http://o7spigzvd.bkt.clouddn.com/qr_dingtalk_github.png)
+* [DingTalk Group](https://img.alicdn.com/tfs/TB1X2HOhYPpK1RjSZFFXXa5PpXa-970-1280.png)
+* [WeChat Group](https://img.alicdn.com/tfs/TB1L3zOhYPpK1RjSZFFXXa5PpXa-560-790.jpg)
+* [Technical Blog](https://yq.aliyun.com/teams/184)
+* [Technical Forum](https://bbs.aliyun.com/thread/410.html)
 
 # License
 

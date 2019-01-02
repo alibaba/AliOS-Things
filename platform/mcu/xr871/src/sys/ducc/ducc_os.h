@@ -31,113 +31,75 @@
 #define _SYS_DUCC_DUCC_OS_H_
 
 #include "kernel/os/os.h"
+#include "compiler.h"
 #include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define DUCC_WAIT_FOREVER	OS_WAIT_FOREVER
-#define DUCC_OS_OK		OS_OK
+#define DUCC_WAIT_FOREVER   OS_WAIT_FOREVER
 
 /* Semaphore */
 typedef OS_Semaphore_t ducc_semaphore_t;
 
-static __inline int ducc_semaphore_create(ducc_semaphore_t *sem, uint32_t initCount)
-{
-	return OS_SemaphoreCreate(sem, initCount, OS_SEMAPHORE_MAX_COUNT) == OS_OK ? 0 : -1;
-}
+#define ducc_semaphore_create(sem, initCount) \
+	(OS_SemaphoreCreate(sem, initCount, OS_SEMAPHORE_MAX_COUNT) == OS_OK ? 0 : -1)
 
-static __inline void ducc_semaphore_delete(ducc_semaphore_t *sem)
-{
-	OS_SemaphoreDelete(sem);
-}
+#define ducc_semaphore_delete(sem) \
+	OS_SemaphoreDelete(sem)
 
-static __inline int ducc_semaphore_wait(ducc_semaphore_t *sem)
-{
-	return OS_SemaphoreWait(sem, OS_WAIT_FOREVER) == OS_OK ? 0 : -1;
-}
+#define ducc_semaphore_wait(sem) \
+	(OS_SemaphoreWait(sem, OS_WAIT_FOREVER) == OS_OK ? 0 : -1)
 
-static __inline void ducc_semaphore_release(ducc_semaphore_t *sem)
-{
-	OS_SemaphoreRelease(sem);
-}
+#define ducc_semaphore_release(sem) \
+	OS_SemaphoreRelease(sem)
 
 /* Mutex */
 typedef OS_Mutex_t ducc_mutex_t;
 
-static __inline int ducc_mutex_create(ducc_mutex_t *mtx)
-{
-	return OS_MutexCreate(mtx) == OS_OK ? 0 : -1;
-}
-
-static __inline void ducc_mutex_delete(ducc_mutex_t *mtx)
-{
-	OS_MutexDelete(mtx);
-}
-
-static __inline void ducc_mutex_lock(ducc_mutex_t *mtx)
-{
-	OS_MutexLock(mtx, OS_WAIT_FOREVER);
-}
-
-static __inline void ducc_mutex_unlock(ducc_mutex_t *mtx)
-{
-	OS_MutexUnlock(mtx);
-}
+#define ducc_mutex_create(mtx)  (OS_MutexCreate(mtx) == OS_OK ? 0 : -1)
+#define ducc_mutex_delete(mtx)  OS_MutexDelete(mtx)
+#define ducc_mutex_lock(mtx)    OS_MutexLock(mtx, OS_WAIT_FOREVER)
+#define ducc_mutex_unlock(mtx)  OS_MutexUnlock(mtx)
 
 /* Message Queue */
 typedef OS_Queue_t ducc_msgqueue_t;
 
-static __inline int ducc_msgqueue_create(ducc_msgqueue_t *queue, uint32_t queueLen)
-{
-	return OS_MsgQueueCreate(queue, queueLen) == OS_OK ? 0 : -1;
-}
+#define ducc_msgqueue_create(queue, queueLen) \
+	(OS_MsgQueueCreate(queue, queueLen) == OS_OK ? 0 : -1)
 
-static __inline void ducc_msgqueue_delete(ducc_msgqueue_t *queue)
-{
-	OS_MsgQueueDelete(queue);
-}
+#define ducc_msgqueue_delete(queue) \
+	OS_MsgQueueDelete(queue)
 
-static __inline int ducc_msgqueue_send(ducc_msgqueue_t *queue, void *msg, uint32_t waitMS)
-{
-	return OS_MsgQueueSend(queue, msg, waitMS) == OS_OK ? 0 : -1;
-}
+#define ducc_msgqueue_send(queue, msg, waitMS) \
+	(OS_MsgQueueSend(queue, msg, waitMS) == OS_OK ? 0 : -1)
 
-static __inline int ducc_msgqueue_recv(ducc_msgqueue_t *queue, void **msg, uint32_t waitMS)
-{
-	return OS_MsgQueueReceive(queue, msg, waitMS) == OS_OK ? 0 : -1;
-}
+#define ducc_msgqueue_recv(queue, msg, waitMS) \
+	(OS_MsgQueueReceive(queue, msg, waitMS) == OS_OK ? 0 : -1)
 
-static __inline int ducc_msgqueue_is_valid(ducc_msgqueue_t *queue)
-{
-	return OS_QueueIsValid(queue);
-}
+#define ducc_msgqueue_is_valid(queue) \
+	OS_QueueIsValid(queue)
 
 /* Thread */
 typedef OS_Thread_t ducc_thread_t;
 typedef OS_ThreadEntry_t ducc_thread_entry_t;
 
-static __inline int ducc_thread_create(ducc_thread_t *thread,
-                          ducc_thread_entry_t entry, void *arg,
-                          int priority, uint32_t stack_size)
-{
-	return OS_ThreadCreate(thread, "ducc", entry, arg, priority, stack_size)== OS_OK ? 0 : -1;
-}
+#define ducc_thread_create(thread, name, entry, arg, priority, stack_size) \
+	(OS_ThreadCreate(thread, name, entry, arg, priority, stack_size) == OS_OK ? 0 : -1)
 
-static __inline void ducc_thread_exit(ducc_thread_t *thread)
-{
-	OS_ThreadDelete(thread);
-}
+#define ducc_thread_exit(thread)        OS_ThreadDelete(thread)
+#define ducc_thread_is_valid(thread)    OS_ThreadIsValid(thread)
+#define ducc_msleep(msec)               OS_MSleep(msec)
 
 /* memory */
-//#define ducc_malloc(l)		malloc(l)
-//#define ducc_free(p)		free(p)
-#define ducc_memcpy(d, s, l)	memcpy(d, s, l)
-#define ducc_memset(d, c, l)	memset(d, c, l)
-#define ducc_memcmp(a, b, l)	memcmp(a, b, l)
-#define ducc_memmove(d, s, n)	memmove(d, s, n)
-#define ducc_strcmp(a, b)	strcmp(a, b)
+//#define ducc_malloc(l)        malloc(l)
+//#define ducc_free(p)          free(p)
+#define ducc_memcpy(d, s, l)    memcpy(d, s, l)
+#define ducc_memset(d, c, l)    memset(d, c, l)
+#define ducc_memcmp(a, b, l)    memcmp(a, b, l)
+#define ducc_memmove(d, s, n)   memmove(d, s, n)
+#define ducc_strcmp(a, b)       strcmp(a, b)
 
 
 #ifdef __cplusplus

@@ -62,6 +62,9 @@ void stm32_soc_init(void)
     /*default uart init*/
     stduart_init();
     brd_peri_init();
+    //sufficient time to make the initial GPIO level works, especially wifi reset
+    aos_msleep(50);
+    hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
     MX_DMA_Init();
     MX_ADC3_Init();
     MX_DCMI_Init();
@@ -100,15 +103,14 @@ static uint8_t gpio_reset = 0;
 
 gpio_dev_t brd_gpio_table[] = {
     {ALS_INT, IRQ_MODE, &mode_rising},
-    {ALS_LED, OUTPUT_PUSH_PULL, &gpio_set},
     {AUDIO_CTL, OUTPUT_PUSH_PULL, &gpio_reset},
     {AUDIO_RST, OUTPUT_PUSH_PULL, &gpio_set},
     {AUDIO_WU, OUTPUT_PUSH_PULL, &gpio_set},
     {CAM_PD, OUTPUT_PUSH_PULL, &gpio_set},
     {CAM_RST, OUTPUT_PUSH_PULL, &gpio_set},
-    {COMPASS_LED, OUTPUT_PUSH_PULL, &gpio_set},
-    {GS_LED, OUTPUT_PUSH_PULL, &gpio_set},
-    {HTS_LED, OUTPUT_PUSH_PULL, &gpio_set},
+    {LED_1, OUTPUT_PUSH_PULL, &gpio_set},
+    {LED_2, OUTPUT_PUSH_PULL, &gpio_set},
+    {LED_3, OUTPUT_PUSH_PULL, &gpio_set},
     {KEY_1, IRQ_MODE, &mode_rising},
     {KEY_2, IRQ_MODE, &mode_rising},
     {KEY_3, IRQ_MODE, &mode_rising},
@@ -116,13 +118,12 @@ gpio_dev_t brd_gpio_table[] = {
     {LCD_PWR, OUTPUT_PUSH_PULL, &gpio_reset},
     {LCD_RST, OUTPUT_PUSH_PULL, &gpio_set},
     {PCIE_RST, OUTPUT_PUSH_PULL, &gpio_set},
-    {PS_LED, OUTPUT_PUSH_PULL, &gpio_set},
     {SECURE_CLK, OUTPUT_PUSH_PULL, &gpio_set},
     {SECURE_IO, OUTPUT_PUSH_PULL, &gpio_set},
     {SECURE_RST, OUTPUT_PUSH_PULL, &gpio_set},
     {SIM_DET, INPUT_HIGH_IMPEDANCE, NULL},
     {USB_PCIE_SW, OUTPUT_PUSH_PULL, &gpio_set},
-    {WIFI_RST, OUTPUT_PUSH_PULL, &gpio_set},
+    {WIFI_RST, OUTPUT_PUSH_PULL, &gpio_reset}, /*Low Level will reset wifi*/
     {WIFI_WU, OUTPUT_PUSH_PULL, &gpio_set},
     {ZIGBEE_INT, IRQ_MODE, &mode_rising},
     {ZIGBEE_RST, OUTPUT_PUSH_PULL, &gpio_set},
@@ -149,16 +150,19 @@ static void brd_peri_init(void)
 */
 void SysTick_Handler(void)
 {
-    HAL_IncTick();
     krhino_intrpt_enter();
+
+    HAL_IncTick();
     krhino_tick_proc();
-    krhino_intrpt_exit();
 
 #ifdef LITTLEVGL_DEVELOPERKIT
     lv_tick_inc(1);
 #endif
+
+    krhino_intrpt_exit();
 }
 
+#if (RHINO_CONFIG_PANIC != 1)
 void HardFault_Handler(void)
 {
   while (1)
@@ -168,6 +172,7 @@ void HardFault_Handler(void)
    // #endif
   }
 }
+#endif
 
 /**
   * @brief  Retargets the C library printf function to the USART.

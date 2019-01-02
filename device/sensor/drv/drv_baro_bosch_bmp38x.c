@@ -57,8 +57,9 @@
 #include <vfs_err.h>
 #include <vfs_register.h>
 #include "common.h"
-#include "hal/sensor.h"
-
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 #define BMP380_BIT(x)                       ((uint8_t)(x))
 #define BMP380_CHIP_ID_VAL                  BMP380_BIT(0X50)
 #define BMP380_I2C_SLAVE_ADDR_LOW           (0X76)
@@ -871,7 +872,7 @@ int drv_baro_bosch_bmp380_init(void)
 {
     int          ret = 0;
     sensor_obj_t sensor;
-
+    memset(&sensor, 0, sizeof(sensor));
     /* fill the sensor obj parameters here */
     sensor.tag = TAG_DEV_BARO;
     sensor.path = dev_baro_path;

@@ -89,6 +89,7 @@ typedef struct {
 
 #define UART0 ((UART_T *)UART0_BASE)    /* address: 0x40040C00 */
 #define UART1 ((UART_T *)UART1_BASE)    /* address: 0x40041000 */
+#define NUART ((UART_T *)UARTN_BASE)    /* address: 0xA0042000 */
 
 /* UARTx->RBR_THR_DLL.RX_BUF, R */
 #define UART_RX_DATA_MASK   0xFFU

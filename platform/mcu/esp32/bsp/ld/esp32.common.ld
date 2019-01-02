@@ -84,7 +84,7 @@ SECTIONS
     *(.iram1 .iram1.*)
     *rhino.a:(.literal .text .literal.* .text.*)
     *espos.a:(.literal .text .literal.* .text.*)
-    *vcall.a:(.literal .text .literal.* .text.*)
+    *osal.a:(.literal .text .literal.* .text.*)
     *esp32.a:(.literal .text .literal.* .text.*)
     *xtensa.a:(.literal .text .literal.* .text.*)
     *libfreertos.a:(.literal .text .literal.* .text.*)

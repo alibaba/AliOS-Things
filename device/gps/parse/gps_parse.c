@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <aos/aos.h>
 #include <atparser.h>
-#include <hal/sensor.h>
+#include "sensor.h"
 #include "gps_hal.h"
 #include "gps_parse.h"
 

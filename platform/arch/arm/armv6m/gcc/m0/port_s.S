@@ -17,12 +17,14 @@
 .global  cpu_first_task_start
 
 .global  PendSV_Handler
+.global  _first_task_restore
 
 @******************************************************************************
 @                                 EQUATES
 @******************************************************************************
 
 .equ SCB_ICSR,        0xE000ED04 @ Interrupt Control and State Register.
+.equ SCB_VTOR,        0xE000ED08 @ Vector Table Offset Register.
 .equ ICSR_PENDSVSET,  0x10000000 @ Value to trigger PendSV exception.
 
 .equ SHPR3_PRI_14_15, 0xE000ED20 @ System Handler Priority Register 3 (PendSV + SysTick).
@@ -88,12 +90,6 @@ cpu_first_task_start:
     MOVS    R0, #0
     MSR     PSP, R0
 
-    @align MSP to 8 byte
-    MRS     R0, MSP
-    LSRS    R0, R0, #3
-    LSLS    R0, R0, #3
-    MSR     MSP, R0
-
     @make PendSV exception pending
     LDR     R0, =SCB_ICSR
     LDR     R1, =ICSR_PENDSVSET
@@ -111,12 +107,12 @@ cpu_first_task_start:
 PendSV_Handler:
     CPSID   I
     MRS     R0, PSP
-    CMP     R0, #0
     @branch if cpu_first_task_start
-    BEQ     _pendsv_handler_nosave
+    CMP     R0, #0
+    BEQ     _first_task_restore
 
     @hardware saved R0~R3,R12,LR,PC,xPSR
-    
+
     @save context
     SUBS    R0, R0, #0x20
     STMIA   R0!, {R4 - R7}
@@ -166,6 +162,16 @@ _pendsv_handler_nosave:
     CPSIE   I
     @hardware restore R0~R3,R12,LR,PC,xPSR
     BX      LR
+
+.thumb_func
+_first_task_restore:
+    @set MSP to the base of system stack
+    LDR     R0, =SCB_VTOR
+    LDR     R0, [R0]
+    LDR     R0, [R0]
+    MSR     MSP, R0
+
+    B       _pendsv_handler_nosave
 
 .end
 

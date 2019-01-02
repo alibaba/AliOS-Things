@@ -3,9 +3,14 @@ NAME := chip
 $(NAME)_TYPE := kernel
 $(NAME)_SOURCES := \
                    codec/hal_ac101.c          \
+                   codec/hal_ac102.c          \
                    codec/hal_codec.c          \
                    flashchip/flash_chip.c     \
                    flashchip/flash_default.c  \
+                   flashchip/flash_EN25QHXXA.c  \
+                   flashchip/flash_P25QXXH.c  \
+                   flashchip/flash_XM25QHXXA.c  \
+                   flashchip/flash_XT25FXXB.c  \
                    hal_adc.c                  \
                    hal_board.c                \
                    hal_ccm.c                  \
@@ -36,6 +41,7 @@ $(NAME)_SOURCES := \
                    hal_wakeup.c               \
                    hal_wdg.c                  \
                    hal_xip.c                  \
+                   hal_swd.c                  \
                    ir_nec.c                   \
                    sdmmc/core.c               \
                    sdmmc/hal_sdhost.c         \

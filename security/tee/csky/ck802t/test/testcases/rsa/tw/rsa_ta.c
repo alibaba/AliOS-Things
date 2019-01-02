@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 The YunOS Project. All rights reserved.
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
 #include "tee_srv.h"
@@ -17,10 +17,9 @@ static void _RSA_Test_DestroyEntryPoint(void)
     return;
 }
 
-static TEE_Result _RSA_Test_OpenSessionEntryPoint(
-        uint32_t paramTypes,
-        TEE_Param params[4],
-        void **sessionContext)
+static TEE_Result _RSA_Test_OpenSessionEntryPoint(uint32_t  paramTypes,
+                                                  TEE_Param params[4],
+                                                  void **   sessionContext)
 {
     return TEE_SUCCESS;
 }
@@ -30,19 +29,16 @@ static void _RSA_Test_CloseSessionEntryPoint(void *sessionContext)
     return;
 }
 
-static TEE_Result _RSA_Test_InvokeCommandEntryPoint(
-        void *sessionContext,
-        uint32_t commandID,
-        uint32_t paramTypes,
-        TEE_Param params[4])
+static TEE_Result _RSA_Test_InvokeCommandEntryPoint(void *    sessionContext,
+                                                    uint32_t  commandID,
+                                                    uint32_t  paramTypes,
+                                                    TEE_Param params[4])
 {
     TEE_Result ret = TEE_SUCCESS;
 
-    if (paramTypes != TEE_PARAM_TYPES(
-                TEE_PARAM_TYPE_NONE,
-                TEE_PARAM_TYPE_NONE,
-                TEE_PARAM_TYPE_NONE,
-                TEE_PARAM_TYPE_NONE)) {
+    if (paramTypes != TEE_PARAM_TYPES(TEE_PARAM_TYPE_NONE, TEE_PARAM_TYPE_NONE,
+                                      TEE_PARAM_TYPE_NONE,
+                                      TEE_PARAM_TYPE_NONE)) {
         return TEE_ERROR_BAD_PARAMETERS;
     }
 
@@ -50,19 +46,19 @@ static TEE_Result _RSA_Test_InvokeCommandEntryPoint(
 
         /* Crypto Level Test */
         tee_dbg_print(INF, "rsa crypto test v1:\n");
-        if(0 != rsa_test_v1()) {
+        if (0 != rsa_test_v1()) {
             return TEE_ERROR_GENERIC;
         }
         tee_dbg_print(INF, "rsa crypto test v2:\n");
-        if(0 != rsa_test_v2()) {
+        if (0 != rsa_test_v2()) {
             return TEE_ERROR_GENERIC;
         }
         tee_dbg_print(INF, "rsa crypto test v3:\n");
-        if(0 != rsa_test_v3()) {
+        if (0 != rsa_test_v3()) {
             return TEE_ERROR_GENERIC;
         }
         tee_dbg_print(INF, "rsa crypto test v4:\n");
-        if(0 != rsa_test_v4()) {
+        if (0 != rsa_test_v4()) {
             return TEE_ERROR_GENERIC;
         }
         ret = TEE_SUCCESS;
@@ -73,11 +69,10 @@ static TEE_Result _RSA_Test_InvokeCommandEntryPoint(
     return ret;
 }
 
-TEE_SRV_DATA_START(_RSA_Test_CreateEntryPoint,
-        _RSA_Test_DestroyEntryPoint,
-        _RSA_Test_OpenSessionEntryPoint,
-        _RSA_Test_CloseSessionEntryPoint,
-        _RSA_Test_InvokeCommandEntryPoint)
+TEE_SRV_DATA_START(_RSA_Test_CreateEntryPoint, _RSA_Test_DestroyEntryPoint,
+                   _RSA_Test_OpenSessionEntryPoint,
+                   _RSA_Test_CloseSessionEntryPoint,
+                   _RSA_Test_InvokeCommandEntryPoint)
 TEE_SRV_UUID_PROPERTY("gpd.ta.appID", RSA_SRV_UUID)
 TEE_SRV_BOOL_PROPERTY("gpd.ta.singleInstance", true)
 TEE_SRV_BOOL_PROPERTY("gpd.ta.multiSession", true)

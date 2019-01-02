@@ -13,7 +13,9 @@
 #include <vfs_register.h>
 #include <hal/base.h>
 #include "common.h"
-#include "hal/sensor.h"
+#include "sensor.h"
+#include "sensor_drv_api.h"
+#include "sensor_hal.h"
 
 
 #define I3G4250D_I2C_ADDR1                	(0x68)
@@ -115,7 +117,7 @@ static int drv_gyro_st_i3g4250d_set_bdu(i2c_dev_t* drv)
 
 static int drv_gyro_st_i3g4250d_set_power_mode(i2c_dev_t* drv, dev_power_mode_e mode)
 {
-    uint8_t value,value1 = 0x00;
+    uint8_t value = 0x00;
     int ret = 0;
     
     ret = sensor_i2c_read(drv, I3G4250D_GYRO_CTRL1, &value, I2C_DATA_LEN, I2C_OP_RETRIES);
@@ -173,7 +175,6 @@ static uint8_t drv_gyro_st_i3g4250d_hz2odr(uint32_t hz)
 static int drv_gyro_st_i3g4250d_set_odr(i2c_dev_t* drv, uint32_t hz)
 {
     int ret = 0;
-    uint8_t value = 0x00;
     uint8_t odr = drv_gyro_st_i3g4250d_hz2odr(hz);
 		
     ret = sensor_i2c_write(drv, I3G4250D_GYRO_CTRL1, &odr, I2C_DATA_LEN, I2C_OP_RETRIES);
@@ -270,7 +271,6 @@ static int drv_gyro_st_i3g4250d_read(void *buf, size_t len)
     int ret = 0;
     size_t size;
     uint8_t reg[6];
-    uint8_t value = 0x00;
     gyro_data_t *gyro = (gyro_data_t *)buf;
     if(buf == NULL){
         return -1;
@@ -340,6 +340,7 @@ static int drv_gyro_st_i3g4250d_ioctl(int cmd, unsigned long arg)
 int drv_gyro_st_i3g4250d_init(void){
     int ret = 0;
     sensor_obj_t sensor;
+    memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
     sensor.io_port    = I2C_PORT;

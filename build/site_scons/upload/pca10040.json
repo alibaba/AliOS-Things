@@ -1,0 +1,14 @@
+{
+    "cmd": [
+        "python", 
+        "@AOSROOT@/build/site_scons/jlink.py", 
+        "-d", 
+        "nRF52840_xxAA", 
+        "-i", 
+        "swd", 
+        "-f", 
+        "@AOSROOT@/out/@TARGET@/binary/@TARGET@.bin", 
+        "-p", 
+        "0x00010000"
+    ]
+}

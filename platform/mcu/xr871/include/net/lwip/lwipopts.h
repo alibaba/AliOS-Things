@@ -70,7 +70,7 @@
 #define LWIP_XR_IMPL                    1  // XRadio's implementation
 #define LWIP_XR_MEM                     1  // XRadio's implementation of memory
 #define LWIP_XR_DEINIT                  0  // LwIP deinit
-#define LWIP_SUPPRESS_WARNING           1
+#define LWIP_SUPPRESS_WARNING           0
 #define LWIP_RESOURCE_TRACE             0  // trace resource usage for debugging
 #define LWIP_MBOX_TRACE                 0  // trace mbox usage for debugging
 
@@ -417,7 +417,7 @@
  * The default number of timeouts is calculated here for all enabled modules.
  * The formula expects settings to be either '0' or '1'.
  */
-#define MEMP_NUM_SYS_TIMEOUT            (LWIP_TCP + IP_REASSEMBLY + LWIP_ARP + (2*LWIP_DHCP) + LWIP_AUTOIP + LWIP_IGMP + LWIP_DNS + (PPP_SUPPORT*6*MEMP_NUM_PPP_PCB) + (LWIP_IPV6 ? (1 + LWIP_IPV6_REASS + LWIP_IPV6_MLD) : 0))
+//#define MEMP_NUM_SYS_TIMEOUT            (LWIP_TCP + IP_REASSEMBLY + LWIP_ARP + (2*LWIP_DHCP) + LWIP_AUTOIP + LWIP_IGMP + LWIP_DNS + (PPP_SUPPORT*6*MEMP_NUM_PPP_PCB) + (LWIP_IPV6 ? (1 + LWIP_IPV6_REASS + LWIP_IPV6_MLD) : 0))
 
 /**
  * MEMP_NUM_NETBUF: the number of struct netbufs.
@@ -463,7 +463,7 @@
 #if (MEMP_MEM_MALLOC && LWIP_XR_MEM)
 #define PBUF_POOL_SIZE                  14
 #else
-#define PBUF_POOL_SIZE                  8
+#define PBUF_POOL_SIZE                  10
 #endif
 
 /** MEMP_NUM_API_MSG: the number of concurrently active calls to various
@@ -622,7 +622,7 @@
  * PBUF_POOL_SIZE > IP_REASS_MAX_PBUFS so that the stack is still able to receive
  * packets even if the maximum amount of fragments is enqueued for reassembly!
  */
-#define IP_REASS_MAX_PBUFS              4
+#define IP_REASS_MAX_PBUFS              7
 
 /**
  * IP_DEFAULT_TTL: Default value for Time-To-Live used by transport layers.
@@ -634,13 +634,13 @@
  * filter per pcb on udp and raw send operations. To enable broadcast filter
  * on recv operations, you also have to set IP_SOF_BROADCAST_RECV=1.
  */
-#define IP_SOF_BROADCAST                1
+#define IP_SOF_BROADCAST                0
 
 /**
  * IP_SOF_BROADCAST_RECV (requires IP_SOF_BROADCAST=1) enable the broadcast
  * filter on recv operations.
  */
-#define IP_SOF_BROADCAST_RECV           1
+#define IP_SOF_BROADCAST_RECV           0
 
 /**
  * IP_FORWARD_ALLOW_TX_ON_RX_NETIF==1: allow ip_forward() to send packets back
@@ -656,7 +656,7 @@
  * local TCP/UDP pcb (default==0). This can prevent creating predictable port
  * numbers after booting a device.
  */
-#define LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS 0
+#define LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS 1
 /**
  * @}
  */
@@ -744,7 +744,7 @@
  * netif drivers might not set this flag, the default is off. If enabled,
  * netif_set_link_up() must be called to continue dhcp starting.
  */
-#define LWIP_DHCP_CHECK_LINK_UP         1 // ???
+#define LWIP_DHCP_CHECK_LINK_UP         1
 
 /**
  * LWIP_DHCP_BOOTP_FILE==1: Store offered_si_addr and boot_file_name.
@@ -792,7 +792,7 @@
  * LWIP_DHCP_AUTOIP_COOP==1: Allow DHCP and AUTOIP to be both enabled on
  * the same interface at the same time.
  */
-#define LWIP_DHCP_AUTOIP_COOP           0
+#define LWIP_DHCP_AUTOIP_COOP           LWIP_AUTOIP
 
 /**
  * LWIP_DHCP_AUTOIP_COOP_TRIES: Set to the number of DHCP DISCOVER probes
@@ -801,7 +801,7 @@
  * very  quickly, but you should be prepared to handle a changing IP address
  * when DHCP overrides AutoIP.
  */
-#define LWIP_DHCP_AUTOIP_COOP_TRIES     9
+#define LWIP_DHCP_AUTOIP_COOP_TRIES     5
 /**
  * @}
  */
@@ -968,7 +968,7 @@
  * with scaling applied. Maximum window value in the TCP header
  * will be TCP_WND >> TCP_RCV_SCALE
  */
-#define TCP_WND                         (4 * TCP_MSS)
+#define TCP_WND                         (6 * TCP_MSS)
 
 /**
  * TCP_MAXRTX: Maximum number of retransmissions of data segments.
@@ -1010,27 +1010,27 @@
  * TCP_SND_BUF: TCP sender buffer space (bytes).
  * To achieve good performance, this should be at least 2 * TCP_MSS.
  */
-#define TCP_SND_BUF                     (2 * TCP_MSS)
+#define TCP_SND_BUF                     (6 * TCP_MSS)
 
 /**
  * TCP_SND_QUEUELEN: TCP sender buffer space (pbufs). This must be at least
  * as much as (2 * TCP_SND_BUF/TCP_MSS) for things to work.
  */
-#define TCP_SND_QUEUELEN                ((4 * (TCP_SND_BUF) + (TCP_MSS - 1))/(TCP_MSS))
+#define TCP_SND_QUEUELEN                LWIP_MIN(MEMP_NUM_TCP_SEG, ((4 * (TCP_SND_BUF) + (TCP_MSS - 1))/(TCP_MSS))) //((4 * (TCP_SND_BUF) + (TCP_MSS - 1))/(TCP_MSS))
 
 /**
  * TCP_SNDLOWAT: TCP writable space (bytes). This must be less than
  * TCP_SND_BUF. It is the amount of space which must be available in the
  * TCP snd_buf for select to return writable (combined with TCP_SNDQUEUELOWAT).
  */
-#define TCP_SNDLOWAT                    LWIP_MIN(LWIP_MAX(((TCP_SND_BUF)/2), (2 * TCP_MSS) + 1), (TCP_SND_BUF) - 1)
+#define TCP_SNDLOWAT                    (TCP_MSS - 1) //LWIP_MIN(LWIP_MAX(((TCP_SND_BUF)/2), (2 * TCP_MSS) + 1), (TCP_SND_BUF) - 1)
 
 /**
  * TCP_SNDQUEUELOWAT: TCP writable bufs (pbuf count). This must be less
  * than TCP_SND_QUEUELEN. If the number of pbufs queued on a pcb drops below
  * this number, select returns writable (combined with TCP_SNDLOWAT).
  */
-#define TCP_SNDQUEUELOWAT               LWIP_MAX(((TCP_SND_QUEUELEN)/2), 5)
+#define TCP_SNDQUEUELOWAT               (TCP_SND_QUEUELEN - 1) //LWIP_MAX(((TCP_SND_QUEUELEN)/2), 5)
 
 /**
  * TCP_OOSEQ_MAX_BYTES: The maximum number of bytes queued on ooseq per pcb.
@@ -1495,17 +1495,17 @@
 /**
  * LWIP_SO_RCVBUF==1: Enable SO_RCVBUF processing.
  */
-#define LWIP_SO_RCVBUF                  0
+#define LWIP_SO_RCVBUF                  1
 
 /**
  * LWIP_SO_LINGER==1: Enable SO_LINGER processing.
  */
-#define LWIP_SO_LINGER                  0 // ???
+#define LWIP_SO_LINGER                  1
 
 /**
  * If LWIP_SO_RCVBUF is used, this is the default value for recv_bufsize.
  */
-#define RECV_BUFSIZE_DEFAULT            INT_MAX // ???
+#define RECV_BUFSIZE_DEFAULT            (10 * 1024)
 
 /**
  * By default, TCP socket/netconn close waits 20 seconds max to send the FIN
@@ -1550,7 +1550,7 @@
 /**
  * LWIP_STATS==1: Enable statistics collection in lwip_stats.
  */
-#define LWIP_STATS                      1 // ???
+#define LWIP_STATS                      0
 
 #if LWIP_STATS
 
