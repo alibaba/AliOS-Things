@@ -590,7 +590,7 @@ static void read_persistent_conf(void)
     get_wifi_ssid();
 }
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 static void handle_netmgr_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[1] : "";
@@ -675,7 +675,7 @@ int netmgr_wifi_init(void)
 
     aos_register_event_filter(EV_WIFI, netmgr_events_executor, NULL);
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_register_command(&ncmd);
 #endif
 
