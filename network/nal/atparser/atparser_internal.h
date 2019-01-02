@@ -5,9 +5,10 @@
 #ifndef _ATPARSER_INTERNAL_H_
 #define _ATPARSER_INTERNAL_H_
 
-#include "aos/list.h"
 
 #include "aos/hal/uart.h"
+
+#include "atparser_opts.h"
 
 #define OOB_MAX 5
 
@@ -22,6 +23,8 @@ typedef struct oob_s
     void *     arg;
 } oob_t;
 
+#if !ATPSR_SINGLE_TASK
+#include "aos/list.h"
 /*
  * --> | slist | --> | slist | --> NULL
  *     ---------     ---------
@@ -45,6 +48,7 @@ typedef struct at_task_s
     uint32_t  rsp_offset;
     uint32_t  rsp_len;
 } at_task_t;
+#endif
 
 /**
  * Parser structure for parsing AT commands
@@ -67,7 +71,9 @@ typedef struct
     void       *at_uart_recv_mutex;
     void       *at_uart_send_mutex;
     void       *task_mutex;
-    slist_t task_l;    
+#if !ATPSR_SINGLE_TASK
+    slist_t task_l;
+#endif
 } at_parser_t;
 
 #define TASK_DEFAULT_WAIT_TIME 5000

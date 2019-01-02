@@ -32,27 +32,31 @@ typedef struct {
 typedef void (*at_recv_cb)(void *arg, char *buf, int buflen);
 
 /**
- * initialization
- * 
+ * Initialization
+ * Configuration (e.g. AT_UART_PORT, UART_BAUDRATE) can be found
+ * in atcmd_config_platform.h and atcmd_config_module.h
  */
-int at_init();
+int at_init(void);
 
 /**
- * at send and wait reply
- *
- * @param data sending buf.
- * @param datalen sending length.
+ * at send (format: command + delimiter + data) and wait reply
+ * 
+ * @param cmd at command sending buf. MUST not be NULL.
+ * @param cmdlen at command length.
  * @param delimiter whether sending delimiter, usually value is true
- * @param replybuf reply buffer.
+ * @param data data sending buf. NULL if no data.
+ * @param datalen data length. Zero if no data.
+ * @param replybuf reply buffer. MUST not be NULL.
  * @param bufsize reply buffer size
  * @param atcmdconfig AT cmd reply format config. Use default if NULL 
  */
-int at_send_wait_reply(const char *data, int datalen, bool delimiter,
+int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
+                       const char *data, int datalen,
                        char *replybuf, int bufsize,
                        const atcmd_config_t *atcmdconfig);
 
 /**
- * at send and does not wait reply
+ * at send (format: data + delimiter) and does not wait reply
  *
  * @param data sending buffer.
  * @param datalen sending length.
