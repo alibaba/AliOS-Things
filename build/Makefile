@@ -119,7 +119,7 @@ COMPONENT_DEPENDENCY_SCRIPT := $(SCRIPTS_PATH)/component_dependencies.py
 COMPONENT_DEPENDENCY = $(PYTHON) $(COMPONENT_DEPENDENCY_SCRIPT)
 export COMPONENT_DEPENDENCY
 
-.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader .gdbinit .gdbinit$(MBINSTYPE_LOWER) export_linkkit_sdk restore_linkkit_sdk
+.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader export_linkkit_sdk restore_linkkit_sdk
 
 Help:
 	$(TOOLCHAIN_HOOK_TARGETS)
