@@ -40,7 +40,7 @@ int at_init(void);
 
 /**
  * at send (format: command + delimiter + data) and wait reply
- * 
+ *
  * @param cmd at command sending buf. MUST not be NULL.
  * @param cmdlen at command length.
  * @param delimiter whether sending delimiter, usually value is true
