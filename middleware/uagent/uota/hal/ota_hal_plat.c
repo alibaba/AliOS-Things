@@ -256,6 +256,7 @@ static int ota_boot(void *something)
 #else
             param->src_adr  = 0;
             param->dst_adr  = 0;
+            param->len      = 0;
             param->upg_flag = REC_SWAP_UPDATE_FLAG;
 #endif
             ota_crc16_init(&ctx1);
