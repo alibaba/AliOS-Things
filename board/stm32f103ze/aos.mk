@@ -23,8 +23,8 @@ $(NAME)_SOURCES += config/k_config.c \
 
 ywss_support    ?= 0
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=32768 #32kb
-GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=14 #(1 << 14) = 16kb
+GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=32768 #32kb
+GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=14 #(1 << 14) = 16kb
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 
 #depends on sal module if select sal function via build option "AOS_NETWORK_SAL=y"

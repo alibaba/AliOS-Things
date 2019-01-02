@@ -29,8 +29,8 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
 $(NAME)_SOURCES += drv/board_drv_led.c
 ywss_support    ?= 0
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=32768 #32kb
-GLOBAL_DEFINES += CONFIG_AOS_KV_BLK_BITS=14 #(1 << 14) = 16kb
+GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=32768 #32kb
+GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=14 #(1 << 14) = 16kb
 
 #depends on sal module if select sal function via build option "AOS_NETWORK_SAL=y"
 AOS_NETWORK_SAL    ?= n
@@ -57,7 +57,6 @@ GLOBAL_INCLUDES += .    \
                    Inc/
 
 GLOBAL_CFLAGS  += -DSTM32F429xx -DCENTRALIZE_MAPPING
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=32768 CONFIG_AOS_KV_BLKBITS=14
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_LDFLAGS += -L --scatter=board/stm32f429zi-nucleo/STM32F429ZITx.sct
