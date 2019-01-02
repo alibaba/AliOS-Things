@@ -67,6 +67,12 @@ void *syscall_tbl[] = {
     [SYS_KRHINO_BUF_QUEUE_RECV]           = sys_krhino_buf_queue_recv_stub,
     [SYS_KRHINO_BUF_QUEUE_FLUSH]          = sys_krhino_buf_queue_flush_stub,
 
+    /* ------------------ event -------------------*/
+    [SYS_KRHINO_EVENT_DYN_CREATE] = sys_krhino_event_dyn_create_stub,
+    [SYS_KRHINO_EVENT_DYN_DEL]    =  sys_krhino_event_dyn_del_stub,
+    [SYS_KRHINO_EVENT_GET]        =  sys_krhino_event_get_stub,
+    [SYS_KRHINO_EVENT_SET]        = sys_krhino_event_set_stub,
+
     /* ------------------ u_proc_msg -------------------*/
     [SYS_KRHINO_MSG_GET]  = sys_krhino_msg_get_stub,
     [SYS_KRHINO_MSG_SND]  = sys_krhino_msg_snd_stub,

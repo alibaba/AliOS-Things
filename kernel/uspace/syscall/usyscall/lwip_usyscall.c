@@ -288,43 +288,45 @@ int lwip_try_wakeup(int s, int rcvevent, int sendevent, int errevent)
 struct hostent* lwip_gethostbyname(const char *name)
 {
     static struct hostent s_hostent;
+
     static char *s_aliases;
-    static ip_addr_t s_hostent_addr;
+
+    static ip_addr_t  s_hostent_addr;
     static ip_addr_t *s_phostent_addr[2];
+
     char s_hostname[DNS_MAX_NAME_LENGTH + 1];
 
     lwip_gethostbyname_syscall_arg_t _arg;
 
-    _arg.name = name;
-    _arg.aliases = s_aliases;
+    _arg.name         = name;
+    _arg.aliases      = s_aliases;
     _arg.hostent_addr = &s_hostent_addr;
-    _arg.hostname = s_hostname;
+    _arg.hostname     = s_hostname;
 
     SYSCALL(SYS_LWIP_GETHOSTBYNAME, (void*)&_arg);
 
     s_phostent_addr[0] = &s_hostent_addr;
     s_phostent_addr[1] = NULL;
 
-    s_hostent.h_name = s_hostname;
-    s_hostent.h_aliases = &s_aliases;
-    s_hostent.h_addrtype = AF_INET;
-    s_hostent.h_length = sizeof(ip_addr_t);
+    s_hostent.h_name      = s_hostname;
+    s_hostent.h_aliases   = &s_aliases;
+    s_hostent.h_addrtype  = AF_INET;
+    s_hostent.h_length    = sizeof(ip_addr_t);
     s_hostent.h_addr_list = (char**)&s_phostent_addr;
 
     return &s_hostent;
 }
-
 
 int lwip_gethostbyname_r(const char *name, struct hostent *ret, char *buf,
                          size_t buflen, struct hostent **result, int *h_errnop)
 {
     lwip_gethostbyname_r_syscall_arg_t _arg;
 
-    _arg.name = name;
-    _arg.ret = ret;
-    _arg.buf = buf;
-    _arg.buflen = buflen;
-    _arg.result = result;
+    _arg.name     = name;
+    _arg.ret      = ret;
+    _arg.buf      = buf;
+    _arg.buflen   = buflen;
+    _arg.result   = result;
     _arg.h_errnop = h_errnop;
 
     return (int)SYSCALL(SYS_LWIP_GETHOSTBYNAME_R, (void*)&_arg);
@@ -332,9 +334,10 @@ int lwip_gethostbyname_r(const char *name, struct hostent *ret, char *buf,
 
 void lwip_freeaddrinfo(struct addrinfo *ai)
 {
+    char   *name;
+    struct  sockaddr *sa;
+
     lwip_freeaddrinfo_syscall_arg_t _arg;
-    char *name;
-    struct sockaddr *sa;
 
     if (ai == NULL) {
         return;
@@ -356,12 +359,15 @@ void lwip_freeaddrinfo(struct addrinfo *ai)
 int lwip_getaddrinfo(const char *nodename, const char *servname,
                      const struct addrinfo *hints, struct addrinfo **res)
 {
-    lwip_getaddrinfo_syscall_arg_t _arg;
-    int namelen;
-    char *name;
     struct addrinfo *ai;
     struct sockaddr *sa;
+
+    char *name;
+    int   namelen;
+
     int ret;
+
+    lwip_getaddrinfo_syscall_arg_t _arg;
 
     namelen = strlen(nodename);
     name = (char*)malloc(namelen + 1);
@@ -388,16 +394,15 @@ int lwip_getaddrinfo(const char *nodename, const char *servname,
     _arg.sa       = sa;
 
     ret = (int)SYSCALL(SYS_LWIP_GETADDRINOF, (void*)&_arg);
-
     if (ret != 0) {
         goto free_sa;
     }
 
     memcpy(name, nodename, namelen);
-    name[namelen] = 0;
+    name[namelen]    = 0;
     ai->ai_canonname = name;
-    ai->ai_addr = sa;
-    *res = ai;
+    ai->ai_addr      = sa;
+    *res             = ai;
 
     return ret;
 
@@ -410,5 +415,5 @@ free_name:
     *res = NULL;
 
     return ret;
-
 }
+

@@ -16,7 +16,6 @@ static sys_time_t        u_timer_count;
 static ktask_t          *u_timer_task;
 static kbuf_queue_t     *u_timer_queue;
 static cpu_stack_t       u_timer_task_stack[RHINO_CONFIG_TIMER_TASK_STACK_SIZE];
-static k_timer_queue_cb  u_timer_queue_cb[RHINO_CONFIG_TIMER_MSG_NUM];
 
 static void timer_list_pri_insert(klist_t *head, ktimer_t *timer)
 {
@@ -438,19 +437,17 @@ static void timer_task(void *pa)
                 tick_end = krhino_sys_tick_get();
                 if (err == RHINO_BLK_TIMEOUT) {
                     u_timer_count = tick_end;
-                }
-                else if (err == RHINO_SUCCESS) {
+                } else if (err == RHINO_SUCCESS) {
                     u_timer_count = tick_end;
                     timer_cmd_proc(&cb_msg);
-                }
-                else {
+                } else {
                     err_proc(RHINO_SYS_FATAL_ERR);
                 }
-            }
-            else {
+            } else {
                 u_timer_count = tick_start;
             }
-                timer_cb_proc();
+
+            timer_cb_proc();
         }
     }
 }

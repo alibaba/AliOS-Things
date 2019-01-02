@@ -378,6 +378,36 @@ kstat_t sys_krhino_buf_queue_flush_stub(void *arg)
     return krhino_buf_queue_flush(_arg->queue);
 }
 
+/* ----------------- event ------------------ */
+kstat_t sys_krhino_event_dyn_create_stub(void *arg)
+{
+    krhino_event_dyn_create_syscall_arg_t *_arg = arg;
+
+    return krhino_event_dyn_create(_arg->event, _arg->name, _arg->flags);
+}
+
+kstat_t sys_krhino_event_dyn_del_stub(void *arg)
+{
+    krhino_event_dyn_del_syscall_arg_t *_arg = arg;
+
+    return krhino_event_dyn_del(_arg->event);
+}
+
+kstat_t sys_krhino_event_get_stub(void *arg)
+{
+    krhino_event_get_syscall_arg_t *_arg = arg;
+
+    return krhino_event_get(_arg->event, _arg->flags, _arg->opt,
+                            _arg->actl_flags, _arg->ticks);
+}
+
+kstat_t sys_krhino_event_set_stub(void *arg)
+{
+    krhino_event_set_syscall_arg_t *_arg = arg;
+
+    return krhino_event_set(_arg->event, _arg->flags, _arg->opt);
+}
+
 /* ----------------- proc msg -------------------- */
 size_t sys_krhino_msg_get_stub(void *arg)
 {
