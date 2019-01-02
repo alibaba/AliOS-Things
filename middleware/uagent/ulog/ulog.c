@@ -2,18 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
-#include "aos/aos.h"
-#include "k_api.h"
-typedef enum{
-    SESSION_DIRECTION,  //default out direction, usually uart for rtos, termial for Linux
-    SESSION_UDP,        //Allow syslog, which support udp, port 514 is default for syslog watcher
-#if 0                   //Swich on these on ulog develop pharse 2
-    SESSION_FILE,       //log on local file system
-    SESSION_USB,
-#endif
-    SESSION_CNT
-}SESSION_TYPE;
+#include <time.h>
+#include "ulog/ulog.h"
+#include "aos/kernel.h"
+#include "k_config.h"
 
 typedef struct{
     uint8_t stop_filter_level;//stop filter, any level <= stop_filter_level(value >= this value) will be abonded
@@ -38,9 +30,6 @@ const char months[][4] = {"Jan", "Feb", "Mar", "Apr", "May",
 static aos_mutex_t ulog_mutex;
 
 uint8_t push_stop_filter_level = LOG_EMERG;
-bool log_init = false;
-
-
 
 static session_filter_para_t session_filter_para[SESSION_CNT] =
 {
@@ -130,30 +119,6 @@ osi_uring_fifo os_related =
     trim_file_path
 };
 
-static void on_filter_level_change(const SESSION_TYPE session, const uint8_t level)
-{
-    bool next_handle = false;
-    if(session==SESSION_CNT){//only happen on init, get the first push level
-        push_stop_filter_level = LOG_EMERG;
-        next_handle = true;
-    }else if(session<SESSION_CNT && level<=LOG_NONE){
-        session_filter_para[session].stop_filter_level = level;
-        push_stop_filter_level = session_filter_para[session].stop_filter_level;
-        if(push_stop_filter_level>session_filter_para[session].stop_filter_level){//push_stop_filter may adjust
-            next_handle = true;
-        }
-    }
-    if(next_handle){
-        uint8_t i = 0;
-        for(; i<SESSION_CNT;i++)
-        {
-            if(push_stop_filter_level<session_filter_para[i].stop_filter_level){
-                push_stop_filter_level = session_filter_para[i].stop_filter_level;
-            }
-        }
-    }
-}
-
 static void pop_out_sessions(void* para, const void* log_text, const uint16_t log_len)
 {
     if( (log_text!=NULL) && log_len>0 ) {
@@ -191,64 +156,45 @@ static void log_routine(void* para)
     }
 }
 
-#ifdef CONFIG_AOS_CLI
-static void cmd_cli_ulog(char *pwbuf, int blen, int argc, char *argv[])
+
+void ulog_async_init(const uint8_t host_name[8])
 {
-    bool exit_loop = false;
-    uint8_t session = 0xFF;
-    uint8_t level   = 0xFF;
-    uint8_t i;
-	for (i = 1; i < argc && !exit_loop; i+=2)
-	{
-		const char* option = argv[i];
-        const char* param  = argv[i+1];
-        if(option!=NULL && param!=NULL && strlen(option)==1){
-            switch(option[0])
-            {
-                case 's'://session
-                session = strtoul(param, NULL, 10);
-                break;
-
-                case 'l'://level
-                level = strtoul(param, NULL, 10);
-                break;
-
-                default: //unknown option
-                exit_loop = true;
-                break;
+    uring_fifo_init(DEFAULT_ASYNC_SYSLOG_DEPTH);
+    if( 0==aos_sem_new(&sem_log, 0) ) {
+        if( 0==aos_task_new_ext(&ulog_routine,
+            "ulog",
+            log_routine,
+            NULL,
+            LOG_ROUTINE_TASK_STACK_DEPTH,
+            RHINO_CONFIG_USER_PRI_MAX) ) {
+            on_filter_level_change(SESSION_CNT,LOG_NONE);
+            if(NULL!=host_name) {
+                strncpy(g_host_name, host_name, sizeof(g_host_name));
+                g_host_name[sizeof(g_host_name)-1] = '\0';
             }
-        }else{//unknown format
-            break;
         }
-	}
-
-    if( (session<SESSION_CNT) && (level<=LOG_NONE) ){
-        on_filter_level_change(session, level);
     }
 }
 
-static struct cli_command ulog_cmd = {
-    .name = "ulog",
-    .help = "ulog [option param]",
-    .function = cmd_cli_ulog,
-};
-#endif /*CONFIG_AOS_CLI*/
-
-void ulog_init(const uint8_t host_name[8], const uint16_t depth)
+void on_filter_level_change(const SESSION_TYPE session, const uint8_t level)
 {
-    if(!log_init){
-        uring_fifo_init(depth);
-        if( 0==aos_sem_new(&sem_log, 0) ) {
-            if( 0==aos_task_new_ext(&ulog_routine, "ulog", log_routine, NULL,LOG_ROUTINE_TASK_STACK_DEPTH,RHINO_CONFIG_USER_PRI_MAX) ) {
-                log_init = true;
-                on_filter_level_change(SESSION_CNT,LOG_NONE);
-#ifdef CONFIG_AOS_CLI
-                aos_cli_register_command(&ulog_cmd);
-#endif
-                if(NULL!=host_name) {
-                    strncpy(g_host_name, host_name, sizeof(g_host_name));
-                    g_host_name[sizeof(g_host_name)-1] = '\0';
-                }
+    bool next_handle = false;
+    if(session==SESSION_CNT){//only happen on init, get the first push level
+        push_stop_filter_level = LOG_EMERG;
+        next_handle = true;
+    }else if(session<SESSION_CNT && level<=LOG_NONE){
+        session_filter_para[session].stop_filter_level = level;
+        push_stop_filter_level = session_filter_para[session].stop_filter_level;
+        if(push_stop_filter_level>session_filter_para[session].stop_filter_level){//push_stop_filter may adjust
+            next_handle = true;
+        }
+    }
+    if(next_handle){
+        uint8_t i = 0;
+        for(; i<SESSION_CNT;i++)
+        {
+            if(push_stop_filter_level<session_filter_para[i].stop_filter_level){
+                push_stop_filter_level = session_filter_para[i].stop_filter_level;
             }
         }
     }
