@@ -331,6 +331,52 @@ kstat_t krhino_buf_queue_flush(kbuf_queue_t *queue)
     return (kstat_t)SYSCALL(SYS_KRHINO_BUF_QUEUE_FLUSH, (void*)&_arg);
 }
 
+/* ----------------- event ------------------ */
+kstat_t krhino_event_dyn_create(kevent_t **event, const name_t *name, uint32_t flags)
+{
+    krhino_event_dyn_create_syscall_arg_t _arg;
+
+    _arg.event = event;
+    _arg.name  = name;
+    _arg.flags = flags;
+
+    return (kstat_t)SYSCALL(SYS_KRHINO_EVENT_DYN_CREATE, (void*)&_arg);
+}
+
+kstat_t krhino_event_dyn_del(kevent_t *event)
+{
+    krhino_event_dyn_del_syscall_arg_t _arg;
+
+    _arg.event = event;
+
+    return (kstat_t)SYSCALL(SYS_KRHINO_EVENT_DYN_DEL, (void*)&_arg);
+}
+
+kstat_t krhino_event_get(kevent_t *event, uint32_t flags, uint8_t opt,
+                         uint32_t *actl_flags, tick_t ticks)
+{
+    krhino_event_get_syscall_arg_t _arg;
+
+    _arg.event      = event;
+    _arg.flags      = flags;
+    _arg.opt        = opt;
+    _arg.actl_flags = actl_flags;
+    _arg.ticks      = ticks;
+
+    return (kstat_t)SYSCALL(SYS_KRHINO_EVENT_GET, (void*)&_arg);
+}
+
+kstat_t krhino_event_set(kevent_t *event, uint32_t flags, uint8_t opt)
+{
+    krhino_event_set_syscall_arg_t _arg;
+
+    _arg.event = event;
+    _arg.flags = flags;
+    _arg.opt   = opt;
+
+    return (kstat_t)SYSCALL(SYS_KRHINO_EVENT_SET, (void*)&_arg);
+}
+
 /* ----------------- proc msg ----------------- */
 size_t krhino_msg_get(uint32_t key, uint32_t flg, size_t size)
 {
