@@ -37,7 +37,7 @@ Jaeckle ( STACKFORCE )
 #include "LoRaMacTest.h"
 #include "linkwan.h"
 
-#if defined(CONFIG_LINKWAN) && defined(AOS_KV)
+#if defined(CONFIG_LINKWAN) && defined(AOS_COMP_KV)
 #include <assert.h>
 #include <aos/kv.h>
 #endif
@@ -2350,7 +2350,7 @@ LoRaMacStatus_t LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
 
     ResetMacParameters();
 
-#if defined(CONFIG_LINKWAN) && defined(AOS_KV)
+#if defined(CONFIG_LINKWAN) && defined(AOS_COMP_KV)
     uint32_t len = sizeof(LoRaMacParamsLoaded);
     if (aos_kv_get("gLoRaMacPara", &LoRaMacParamsLoaded, &len) == 0) {
         memcpy(&LoRaMacParams, &LoRaMacParamsLoaded,
