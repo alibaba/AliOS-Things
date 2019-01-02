@@ -18,10 +18,10 @@ The Freedom KL26Z is an ultra-low-cost development platform for Kinetis® L seri
    - In file test/testcase/certificate_test/aos_test.c:
      > Change TEST_CONFIG_YLOOP_EVENT_COUNT to 50
      > Change TEST_CONFIG_YLOOP_LOOP_COUNT  to 2
-   - In file kernel/cli/cli.c:
-     > Change CONFIG_AOS_CLI_STACK_SIZE to 1024
-   - In file include/aos/cli.h:
-     > Change OUTBUF_SIZE to 256
+   - In file kernel/cli/include/cli_conf.h:
+     > Change CLI_CONFIG_STACK_SIZE to 1024
+   - In file kernel/cli/include/cli_conf.h:
+     > Change CLI_CONFIG_OUTBUF_SIZE to 256
 2. Run the command to build the image:
    > "aos make yts@fremkl26z test=certificate"
 3. Connect a USB cable between the host PC and the OpenSDA USB port on the target board.
