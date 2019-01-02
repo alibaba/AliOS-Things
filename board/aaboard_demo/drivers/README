@@ -1,0 +1,6 @@
+Dir:board/**/drivers
+=================================
+To Add Peripheral Driver here!
+For example:
+xx_hal_conf.h include hal module config!
+msp_conf.c: for hal maps relalized!
