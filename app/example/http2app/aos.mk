@@ -9,8 +9,7 @@ $(NAME)_SOURCES := app_entry.c   http2_example_stream.c
 $(NAME)_COMPONENTS += feature.linkkit-http2 netmgr cjson cli
 
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI \
-                  ON_DAILY \
+GLOBAL_DEFINES += ON_DAILY
 
 
 ifeq ($(LWIP),1)

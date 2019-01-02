@@ -8,8 +8,6 @@ $(NAME)_SOURCES := app_entry.c \
 
 $(NAME)_COMPONENTS += feature.linkkit-coap netmgr cjson cli
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI
-
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
