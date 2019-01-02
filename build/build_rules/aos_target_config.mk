@@ -30,7 +30,6 @@ COMPONENT_DIRECTORIES := . \
                          security
 
 ifneq ($(ONLY_BUILD_LIBRARY), yes)
-COMPONENT_DIRECTORIES += $(OUTPUT_DIR)/syscall
 COMPONENT_DIRECTORIES += $(OUTPUT_DIR)
 endif
 
