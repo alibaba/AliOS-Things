@@ -220,8 +220,15 @@
 
 #define HAL_SPI_END (SYS_HAL_SPI_FINALIZE)
 
+/* -----------------  cli  -----------------*/
+#define CLI_BASE (HAL_SPI_END + 1)
+
+#define SYS_CLI_REGISTER_CMD (CLI_BASE + 0)
+
+#define CLI_END (SYS_CLI_REGISTER_CMD)
+
 /* ------------------- lwip ------------------*/
-#define LWIP_BASE (HAL_SPI_END + 1)
+#define LWIP_BASE (CLI_END + 1)
 
 #define SYS_LWIP_ACCEPT      (LWIP_BASE + 0)
 #define SYS_LWIP_BIND        (LWIP_BASE + 1)
