@@ -10,7 +10,7 @@
 #include "RegionCN470.h"
 #include "system/timer.h"
 #include "radio.h"
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
 #include <assert.h>
 #include <aos/kv.h>
 #endif
@@ -281,7 +281,7 @@ static void read_lora_dev(lora_dev_t *lora_dev)
     memset(lora_dev, 0, sizeof(lora_dev_t));
 
     len = sizeof(lora_dev_t);
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_get("lora_dev", lora_dev, &len);
 
     crc = crc16((uint8_t *)lora_dev, len - 2);
@@ -299,7 +299,7 @@ static void read_lora_dev(lora_dev_t *lora_dev)
 static void write_lora_dev(lora_dev_t *lora_dev)
 {
     lora_dev->crc = crc16((uint8_t *)lora_dev, sizeof(lora_dev_t) - 2);
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_set("lora_dev", lora_dev, sizeof(lora_dev_t), 1);
 #else
     memcpy1(&g_lora_dev, lora_dev, sizeof(lora_dev_t));
@@ -1017,7 +1017,7 @@ void lora_init(LoRaMainCallback_t *callbacks, app_class_type_t class_type)
 
     app_classType = class_type;
 
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     assert(aos_kv_init() == 0);
 #endif
 #ifdef CONFIG_LINKWAN_AT
@@ -1034,7 +1034,7 @@ void lora_fsm(void)
     lora_dev_t    lora_dev;
     lora_abp_id_t lora_abp_id;
 
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     len = sizeof(lora_dev);
     memset(&lora_dev, 0, sizeof(lora_dev));
     aos_kv_get("lora_dev", &lora_dev, &len);
@@ -1344,7 +1344,7 @@ bool set_lora_join_mode(JoinMode_t mode)
 
 node_freq_mode_t get_lora_freq_mode(void)
 {
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     int len;
     aos_kv_get("lora_uldl_mode", &g_freq_mode, &len);
 #endif
@@ -1357,7 +1357,7 @@ bool set_lora_freq_mode(node_freq_mode_t mode)
         return false;
     }
     g_freq_mode = mode;
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_set("lora_uldl_mode", &g_freq_mode, sizeof(g_freq_mode), 1);
 #endif
     return true;
@@ -1824,7 +1824,7 @@ void set_lora_devaddr(uint8_t *devaddr)
 {
     memcpy1(g_lora_abp_id.devaddr, devaddr, 4);
     g_lora_abp_id.flag = VALID_LORA_CONFIG;
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_set("lora_abp", &g_lora_abp_id, sizeof(g_lora_abp_id), 1);
 #endif
 }
@@ -1832,7 +1832,7 @@ void set_lora_devaddr(uint8_t *devaddr)
 void get_lora_devaddr(uint8_t *devaddr)
 {
     int    len;
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_get("lora_abp", &g_lora_abp_id, &len);
 #endif
     memcpy1(devaddr, g_lora_abp_id.devaddr, 4);
@@ -1842,7 +1842,7 @@ void set_lora_appskey(uint8_t *buf)
 {
     memcpy1(g_lora_abp_id.appskey, buf, 16);
     g_lora_abp_id.flag = VALID_LORA_CONFIG;
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_set("lora_abp", &g_lora_abp_id, sizeof(g_lora_abp_id), 1);
 #endif
 }
@@ -1850,7 +1850,7 @@ void set_lora_appskey(uint8_t *buf)
 void get_lora_appskey(uint8_t *buf)
 {
     int    len;
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_get("lora_abp", &g_lora_abp_id, &len);
 #endif
     memcpy1(buf, g_lora_abp_id.appskey, 16);
@@ -1861,14 +1861,14 @@ void set_lora_nwkskey(uint8_t *buf)
 {
     memcpy1(g_lora_abp_id.nwkskey, buf, 16);
     g_lora_abp_id.flag = VALID_LORA_CONFIG;
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_set("lora_abp", &g_lora_abp_id, sizeof(g_lora_abp_id), 1);
 #endif
 }
 void get_lora_nwkskey(uint8_t *buf)
 {
     int      len;
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_get("lora_abp", &g_lora_abp_id, &len);
 #endif
 
