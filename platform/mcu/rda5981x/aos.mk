@@ -8,7 +8,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu RDA5981x
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS := newlib_stub rhino netmgr cjson cli lwip
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr cjson cli lwip
 
 GLOBAL_DEFINES += DEVICE_SERIAL=1
 GLOBAL_DEFINES += DEVICE_STDIO_MESSAGES=1
@@ -18,8 +18,6 @@ GLOBAL_DEFINES += TARGET_FLASH_CMSIS_ALGO=1
 GLOBAL_DEFINES += RDA5991H_HW_VER=4
 
 GLOBAL_DEFINES  += RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
-GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4 \
-                   ../../../network/lwip/include
 
 GLOBAL_INCLUDES += include         \
                    startup         \
@@ -58,8 +56,6 @@ $(NAME)_CFLAGS += -Wno-unused-value -Wno-strict-aliasing
 #GLOBAL_LDFLAGS += -T platform/mcu/rda5981x/rda5981x.ld
 
 $(NAME)_SOURCES := startup/soc_init.c                    \
-                   ../../arch/arm/armv7m/gcc/m4/port_c.c \
-                   ../../arch/arm/armv7m/gcc/m4/port_s.S \
                    aos/aos.c                             \
                    aos/soc_impl.c                        \
                    hal/system_rda5981x.c                 \
