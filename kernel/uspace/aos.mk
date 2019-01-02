@@ -25,6 +25,7 @@ $(NAME)_SOURCES += syscall/ksyscall/hal_rtc_ksyscall.c
 $(NAME)_SOURCES += syscall/ksyscall/hal_sd_ksyscall.c
 $(NAME)_SOURCES += syscall/ksyscall/hal_spi_ksyscall.c
 $(NAME)_SOURCES += syscall/ksyscall/hal_uart_ksyscall.c
+$(NAME)_SOURCES += syscall/ksyscall/cli_ksyscall.c
 $(NAME)_SOURCES += syscall/ksyscall/lwip_ksyscall.c
 $(NAME)_SOURCES += syscall/ksyscall/rhino_ksyscall.c
 $(NAME)_SOURCES += syscall/ksyscall/syscall_tbl.c
@@ -45,6 +46,7 @@ $(NAME)_SOURCES += syscall/usyscall/hal_rtc_usyscall.c
 $(NAME)_SOURCES += syscall/usyscall/hal_sd_usyscall.c
 $(NAME)_SOURCES += syscall/usyscall/hal_spi_usyscall.c
 $(NAME)_SOURCES += syscall/usyscall/hal_uart_usyscall.c
+$(NAME)_SOURCES += syscall/usyscall/cli_usyscall.c
 $(NAME)_SOURCES += syscall/usyscall/lwip_usyscall.c
 $(NAME)_SOURCES += syscall/usyscall/rhino_usyscall.c
 
