@@ -1048,6 +1048,40 @@ static unsigned char get_decimal_point(void)
 #endif
 }
 
+static int remove_zero(unsigned char buffer[26], int length)
+{
+    int idx = 0, found = 0;
+
+    for (idx = 0;idx < 26;idx++) {
+        if (buffer[idx] == '.') {
+            found = 1;
+            continue;
+        }
+        if (buffer[idx] == '\0') {
+            break;
+        }
+    }
+
+    if (found == 0) {
+        return length;
+    }
+
+    for (;idx > 0;idx--) {
+        if (buffer[idx-1] == '0') {
+            buffer[idx-1] = '\0';
+            length--;
+        }else{
+            if (buffer[idx-1] == '.') {
+                buffer[idx-1] = '\0';
+                length--;
+            }
+            break;
+        }
+    }
+
+    return length;
+}
+
 /* Render the number nicely from the given item into a string. */
 static cJSON_bool print_number(const lite_cjson_item_t *const item, printbuffer *const output_buffer)
 {
@@ -1057,6 +1091,7 @@ static cJSON_bool print_number(const lite_cjson_item_t *const item, printbuffer 
     size_t i = 0;
     unsigned char number_buffer[26]; /* temporary buffer to print the number into */
     unsigned char decimal_point = get_decimal_point();
+    float test_float;
     double test;
 
     if (output_buffer == NULL) {
@@ -1067,13 +1102,20 @@ static cJSON_bool print_number(const lite_cjson_item_t *const item, printbuffer 
     if ((d * 0) != 0) {
         length = sprintf((char *)number_buffer, "null");
     } else {
-        /* Try 15 decimal places of precision to avoid nonsignificant nonzero digits */
-        length = sprintf((char *)number_buffer, "%1.15g", d);
+        /* Try float data type */
+        length = sprintf((char *)number_buffer, "%f", d);
 
-        /* Check whether the original double can be recovered */
-        if ((sscanf((char *)number_buffer, "%lg", &test) != 1) || ((double)test != d)) {
-            /* If not, print with 17 decimal places of precision */
-            length = sprintf((char *)number_buffer, "%1.17g", d);
+        if ((sscanf((char *)number_buffer, "%f", &test_float) != 1) || ((double)test_float != d)) {
+            /* Try 15 decimal places of precision to avoid nonsignificant nonzero digits */
+            length = sprintf((char *)number_buffer, "%1.15g", d);
+
+            /* Check whether the original double can be recovered */
+            if ((sscanf((char *)number_buffer, "%lg", &test) != 1) || ((double)test != d)) {
+                /* If not, print with 17 decimal places of precision */
+                length = sprintf((char *)number_buffer, "%1.17g", d);
+            }
+        }else{
+            length = remove_zero(number_buffer,length);
         }
     }
 
