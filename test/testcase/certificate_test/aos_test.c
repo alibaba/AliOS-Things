@@ -59,15 +59,6 @@
 #define TEST_CONFIG_KV_TIMES                    (10000)
 #endif
 
-/* yloop test */
-#ifndef TEST_CONFIG_YLOOP_ENABLED
-#define TEST_CONFIG_YLOOP_ENABLED               (1)
-#endif
-#if (TEST_CONFIG_YLOOP_ENABLED)
-#define TEST_CONFIG_YLOOP_EVENT_COUNT           (1000)
-#define TEST_CONFIG_YLOOP_LOOP_COUNT            (4)
-#endif
-
 static unsigned int g_var = 0;
 static aos_sem_t    g_sem_taskexit_sync;
 static aos_mutex_t  g_mutex;
@@ -125,11 +116,6 @@ static int dump_test_config(void)
     PRINT_CONFIG(TEST_CONFIG_KV_TIMES);
 #endif
 
-    PRINT_CONFIG(TEST_CONFIG_YLOOP_ENABLED);
-#if (TEST_CONFIG_YLOOP_ENABLED)
-    PRINT_CONFIG(TEST_CONFIG_YLOOP_EVENT_COUNT);
-    PRINT_CONFIG(TEST_CONFIG_YLOOP_LOOP_COUNT);
-#endif
     return 0;
 }
 
@@ -899,184 +885,6 @@ SUITE(test_kv) = {
     ADD_CASE_NULL
 };
 
-#if (TEST_CONFIG_YLOOP_ENABLED > 0)
-#include <aos/yloop.h>
-#define EV_USER_TYPE1   (EV_USER+1)
-#define EV_USER_TYPE2   (EV_USER+2)
-
-static void ev_callback1(input_event_t *event, void *private_data)
-{
-    printf("ev_callback1 is called\r\n");
-    g_var = 0x5A;
-    aos_loop_exit();
-}
-
-static void delayed_action1(void *arg)
-{
-    g_var++;
-    printf("delayed_action1 called, %d\r\n", g_var);
-    aos_post_delayed_action(1000, delayed_action1, NULL);
-    aos_cancel_delayed_action(1000, delayed_action1, NULL);
-}
-
-static void delayed_action2(void *arg)
-{
-    g_var++;
-    printf("delayed_action2 called, %d\r\n", g_var);
-    aos_loop_exit();
-}
-
-static void delayed_action3(void *arg)
-{
-    g_var++;
-}
-
-static void task_loop1(void *arg)
-{
-    int ret = -1;
-    aos_loop_t loop = NULL;
-
-    g_var = 0;
-    printf("task name: %s\r\n", aos_task_name());
-
-    loop = aos_loop_init();
-    if (loop == NULL) {
-        g_var = -1;
-        aos_sem_signal(&g_sem_taskexit_sync);
-        aos_task_exit(-1);
-    }
-
-    ret = aos_post_delayed_action(200, delayed_action2, NULL);
-    if(ret != 0) {
-        g_var = -2;
-        aos_sem_signal(&g_sem_taskexit_sync);
-        aos_task_exit(-2);
-    }
-
-    aos_loop_run();
-    aos_loop_destroy();
-    aos_sem_signal(&g_sem_taskexit_sync);
-    aos_task_exit(0);
-}
-
-CASE(test_yloop, aos_2_004)
-{
-    int ret = -1;
-    g_var = 0;
-
-    ret = aos_register_event_filter(EV_USER_TYPE1, ev_callback1, NULL);
-    ASSERT_EQ(ret, 0);
-
-    ret = aos_post_event(EV_USER_TYPE1, 0, 0);
-    // ASSERT_EQ(ret, 0);
-
-    aos_loop_run();
-    aos_unregister_event_filter(EV_USER_TYPE1, ev_callback1, NULL);
-    ASSERT_EQ(g_var, 0x5A);
-}
-
-CASE(test_yloop, aos_2_005)
-{
-    int ret = -1;
-    g_var = 0;
-
-    ret = aos_post_delayed_action(500, delayed_action1, NULL);
-    ASSERT_EQ(ret, 0);
-
-    ret = aos_post_delayed_action(3000, delayed_action2, NULL);
-    ASSERT_EQ(ret, 0);
-
-    aos_loop_run();
-    ASSERT_EQ(g_var, 2);
-}
-
-CASE(test_yloop, aos_2_006)
-{
-    int ret = -1;
-    int stack_size = 1024;
-
-    g_var = 0;
-    ret = aos_sem_new(&g_sem_taskexit_sync, 0);
-    ASSERT_EQ(ret, 0);
-
-    ret = aos_task_new("task_loop1",  task_loop1, NULL, stack_size);
-    ASSERT_EQ(ret, 0);
-
-    aos_sem_wait(&g_sem_taskexit_sync, 1000);
-    ASSERT_EQ(g_var, 1);
-
-    aos_sem_free(&g_sem_taskexit_sync);
-}
-
-CASE(test_yloop, aos_2_007)
-{
-    int ret = -1;
-    g_var = 0;
-
-    ret = aos_post_delayed_action(200, delayed_action2, NULL);
-    ASSERT_EQ(ret, 0);
-
-    aos_loop_run();
-    ASSERT_EQ(g_var, 1);
-}
-
-CASE(test_yloop, aos_2_008)
-{
-    int ret = -1;
-    int i = 0;
-    g_var = 0;
-
-    for(i=0; i<TEST_CONFIG_YLOOP_EVENT_COUNT; i++) {
-        ret = aos_post_delayed_action(i, delayed_action3, NULL);
-        ASSERT_EQ(ret, 0);
-        aos_msleep(1);
-    }
-
-    ret = aos_post_delayed_action(TEST_CONFIG_YLOOP_EVENT_COUNT+1000, delayed_action2, NULL);
-    ASSERT_EQ(ret, 0);
-    aos_loop_run();
-    ASSERT_EQ(g_var, TEST_CONFIG_YLOOP_EVENT_COUNT+1);
-}
-
-CASE(test_yloop, aos_2_009)
-{
-    int i = 0;
-    int ret = -1;
-    int stack_size = TEST_CONFIG_STACK_SIZE;
-    char task_name[10] = {0};
-
-    g_var = 0;
-    aos_sem_new(&g_sem_taskexit_sync, 0);
-
-    for(i=0; i<TEST_CONFIG_YLOOP_LOOP_COUNT; i++) {
-        memset(task_name, 0, sizeof(task_name));
-        snprintf(task_name, 10, "task%02d", i);
-        ret = aos_task_new(task_name, task_loop1, NULL, stack_size);
-        ASSERT_EQ(ret, 0);
-        aos_msleep(1);
-    }
-    for(i=0; i<TEST_CONFIG_YLOOP_LOOP_COUNT; i++) {
-        aos_sem_wait(&g_sem_taskexit_sync, -1);
-    }
-    printf("%d tasks exit!\r\n", TEST_CONFIG_YLOOP_LOOP_COUNT);
-    ASSERT_EQ(g_var, TEST_CONFIG_YLOOP_LOOP_COUNT);
-    aos_sem_free(&g_sem_taskexit_sync);
-}
-#endif /* TEST_CONFIG_YLOOP_ENABLED */
-
-/* yloop test suite */
-SUITE(test_yloop) = {
-#if (TEST_CONFIG_YLOOP_ENABLED > 0)
-    ADD_CASE(test_yloop, aos_2_005),
-    ADD_CASE(test_yloop, aos_2_004),
-    ADD_CASE(test_yloop, aos_2_006),
-    ADD_CASE(test_yloop, aos_2_007),
-    ADD_CASE(test_yloop, aos_2_008),
-    ADD_CASE(test_yloop, aos_2_009),
-#endif
-    ADD_CASE_NULL
-};
-
 void test_certificate(void)
 {
     if (0 == dump_test_config()) {
@@ -1086,7 +894,6 @@ void test_certificate(void)
         ADD_SUITE(test_task_comm);
         ADD_SUITE(test_timer);
         ADD_SUITE(test_kv);
-        ADD_SUITE(test_yloop);
         cut_main(0, NULL);
         printf("test finished!\r\n");
     }
