@@ -5,7 +5,7 @@
 #include <k_api.h>
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "aos/yloop.h"
 
 #include <soc_init.h>

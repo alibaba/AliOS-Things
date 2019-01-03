@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #ifdef AOS_ATCMD
 #include <atparser.h>
