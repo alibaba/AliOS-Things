@@ -166,7 +166,7 @@ uint8_t ringbuf_is_empty(k_ringbuf_t *p_ringbuf);
 void    workqueue_init(void);
 void    k_mm_init(void);
 
-#if (AOS_COMP_PWRMGMT > 0)
+#if (RHINO_CONFIG_PWRMGMT > 0)
 void cpu_pwr_down(void);
 void cpu_pwr_up(void);
 #endif
