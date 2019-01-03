@@ -202,10 +202,6 @@ uint32_t breeze_post_fast(uint8_t *buffer, uint32_t length)
 
 uint32_t breeze_post_ext(uint8_t cmd, uint8_t *buffer, uint32_t length)
 {
-    if (length == 0 || length > BZ_MAX_PAYLOAD_SIZE) {
-        return BZ_EDATASIZE;
-    }
-
     if (cmd == 0) {
         cmd = BZ_CMD_STATUS;
     }

@@ -258,10 +258,14 @@ ret_code_t transport_tx(uint8_t tx_type, uint8_t cmd,
 {
     uint16_t pkt_payload_len;
 
-    if (p_data == NULL && length != 0) {
-        return BZ_ENULL;
+    if(cmd != BZ_CMD_ERR){
+        if (p_data == NULL && length != 0) {
+            return BZ_ENULL;
+        }
+	if(length > BZ_MAX_PAYLOAD_SIZE){
+            return BZ_EDATASIZE;
+	}
     }
-
     if (g_transport.p_key != NULL &&
         (cmd == BZ_CMD_STATUS || cmd == BZ_CMD_REPLY || cmd == BZ_CMD_EXT_UP ||
          ((cmd & BZ_CMD_TYPE_MASK) == BZ_CMD_AUTH && cmd != BZ_CMD_AUTH_RAND))) {
@@ -293,11 +297,13 @@ ret_code_t transport_tx(uint8_t tx_type, uint8_t cmd,
         g_transport.tx.msg_id = 0;
     }
 
-    g_transport.tx.total_frame = length / pkt_payload_len;
-    if (g_transport.tx.total_frame * pkt_payload_len == length && length != 0) {
-        g_transport.tx.total_frame--;
+    if(p_data != NULL && length != 0){
+        g_transport.tx.total_frame = length / pkt_payload_len;
+        if (g_transport.tx.total_frame * pkt_payload_len == length && length != 0) {
+            g_transport.tx.total_frame--;
+        }
     }
-
+   
     if (tx_type == TX_NOTIFICATION) {
         g_transport.tx.active_func = ble_ais_send_notification;
     } else {
