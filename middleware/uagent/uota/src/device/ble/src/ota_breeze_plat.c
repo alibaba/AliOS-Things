@@ -126,10 +126,10 @@ static int ota_breeze_get_parttion_id(unsigned char bin_type)
     int part_id = 0xff;
     switch(bin_type) {
         case OTA_BIN_TYPE_APP:
-            part_id = HAL_PARTITION_APP;
+            part_id = HAL_PARTITION_MBINS_APP;
             break;
         case OTA_BIN_TYPE_KERNEL:
-            part_id = HAL_PARTITION_KERNEL;
+            part_id = HAL_PARTITION_MBINS_KERNEL;
             break;
         case OTA_BIN_TYPE_APP_KERNEL:
             part_id = HAL_PARTITION_APPLICATION;
