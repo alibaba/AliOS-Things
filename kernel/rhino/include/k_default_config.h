@@ -227,6 +227,10 @@
 #define RHINO_CONFIG_SYSTEM_STACK_SIZE       0
 #endif
 
+#ifndef RHINO_CONFIG_PWRMGMT
+#define RHINO_CONFIG_PWRMGMT                 0
+#endif
+
 #if ((RHINO_CONFIG_TIMER >= 1) && (RHINO_CONFIG_BUF_QUEUE == 0))
 #error "RHINO_CONFIG_BUF_QUEUE should be 1 when RHINO_CONFIG_TIMER is enabled."
 #endif
