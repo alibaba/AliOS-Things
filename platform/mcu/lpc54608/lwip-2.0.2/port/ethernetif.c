@@ -76,7 +76,7 @@
 #include "lwip/prot/dhcp.h"
 #if USE_RTOS && defined(FSL_RTOS_AOS)
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "aos/yloop.h"
 #endif
 

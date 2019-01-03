@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "k_types.h"
 #include "errno.h"
 
