@@ -66,15 +66,6 @@
 // #define TEST_CONFIG_KV_TIMES                    (10000)
 // #endif
 
-// /* yloop test */
-// #ifndef TEST_CONFIG_YLOOP_ENABLED
-// #define TEST_CONFIG_YLOOP_ENABLED               (1)
-// #endif
-// #if (TEST_CONFIG_YLOOP_ENABLED)
-// #define TEST_CONFIG_YLOOP_EVENT_COUNT           (1000)
-// #define TEST_CONFIG_YLOOP_LOOP_COUNT            (5)
-// #endif
-
 static unsigned int g_var = 0;
 static aos_sem_t    g_sem_taskexit_sync;
 static aos_mutex_t  g_mutex;
@@ -132,11 +123,6 @@ static int dump_test_config(void)
     PRINT_CONFIG(TEST_CONFIG_KV_TIMES);
 #endif
 
-    PRINT_CONFIG(TEST_CONFIG_YLOOP_ENABLED);
-#if (TEST_CONFIG_YLOOP_ENABLED)
-    PRINT_CONFIG(TEST_CONFIG_YLOOP_EVENT_COUNT);
-    PRINT_CONFIG(TEST_CONFIG_YLOOP_LOOP_COUNT);
-#endif
     return 0;
 }
 
