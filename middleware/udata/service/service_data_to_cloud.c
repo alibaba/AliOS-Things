@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "network/network.h"
 #include <aos/kernel.h>
 #include "udata/udata.h"
