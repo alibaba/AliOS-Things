@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <k_api.h>
-#include <aos\kernel.h>
+#include <aos/kernel.h>
 
 uart_dev_t uart_0;
 #ifndef CERTIFICATION

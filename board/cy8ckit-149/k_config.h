@@ -47,7 +47,7 @@
 #ifndef RHINO_CONFIG_MM_LEAKCHECK
 #define RHINO_CONFIG_MM_LEAKCHECK            0
 #endif
-#define K_MM_STATISTIC                       0
+//#define K_MM_STATISTIC                       0
 #ifndef RHINO_CONFIG_KOBJ_SET
 #define RHINO_CONFIG_KOBJ_SET                1
 #endif
@@ -64,6 +64,9 @@
 #endif
 #ifndef RHINO_CONFIG_TASK_DEL
 #define RHINO_CONFIG_TASK_DEL                1
+#endif
+#ifndef RHINO_CONFIG_TASK_STACK_CUR_CHECK
+#define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
 #endif
 #ifndef RHINO_CONFIG_TASK_WAIT_ABORT
 #define RHINO_CONFIG_TASK_WAIT_ABORT         1
@@ -144,7 +147,7 @@
 #endif
 
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         1024
-#define RHINO_CONFIG_TASK_STACK_CUR_CHECK    0
+
 /* kernel dyn alloc conf */
 #ifndef RHINO_CONFIG_KOBJ_DYN_ALLOC
 #define RHINO_CONFIG_KOBJ_DYN_ALLOC          1

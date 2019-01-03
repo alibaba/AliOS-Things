@@ -6,7 +6,7 @@
 #include "project.h"
 #include <k_api.h>
 #include <stdio.h>
-#include <aos\aos.h>
+#include <aos/aos.h>
 
 #define AOS_START_STACK 1024
 
@@ -18,6 +18,7 @@ void board_init(void);
 int default_UART_Init(void);
 void test_certificate(void);
 
+#if 0
 int application_start(int argc, char **argv)
 {
     //supress warning
@@ -27,6 +28,7 @@ int application_start(int argc, char **argv)
     test_certificate();
     return 0;
 }
+#endif
 
 void PendSV_Handler(void);
 

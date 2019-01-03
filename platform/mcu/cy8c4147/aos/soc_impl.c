@@ -103,11 +103,11 @@ extern uint32_t __cy_heap_end[];
  * But remember, regenerate code will overwrite linker file content.
  * For now, define 0x2f00 as heap size which will not overflow ram.
 */
-//extern uint32_t __cy_heap_size[];
+extern uint32_t __cy_heap_size[];
 
 k_mm_region_t g_mm_region[] = {
 {
-   (uint8_t *)__cy_heap_start, (uint32_t)0x2f00},
+   (uint8_t *)__cy_heap_start, (uint32_t)__cy_heap_size}
 };
 #elif defined (__CC_ARM)
 extern uint32_t Image$$ARM_LIB_HEAP$$ZI$$Base[];
