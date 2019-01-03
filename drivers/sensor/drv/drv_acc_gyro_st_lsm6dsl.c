@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "aos/kernel.h"
 #include "network/hal/base.h"
 #include "sensor_drv_api.h"

@@ -8,7 +8,7 @@
 #include <assert.h>
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #include <atparser.h>
 #include <sal_arch.h>
