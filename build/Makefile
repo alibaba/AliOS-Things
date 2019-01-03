@@ -7,17 +7,19 @@ export SOURCE_ROOT ?= ./
 export MAKEFILES_PATH := $(SOURCE_ROOT)/build/build_rules
 export SCRIPTS_PATH := $(SOURCE_ROOT)/build/scripts
 
-export UNDERLINE
-export RADIXPOINT
+# Specify build jobs
+JOBS ?=4
+ifeq (,$(SUB_BUILD))
+JOBSNO := -j$(JOBS)
+endif
 
-export MBINSTYPE_UPPER
-export MBINSTYPE_LOWER
-export BIN2BOOTTYPE_LOWER
+# Specify sub build stage:
+# - config: generate config.mk
+# - export_keil: export keil project only
+# - export_iar: export iar project only
+CMD ?=
 
-MAKEFILE_TARGETS := clean Help # targets used by makefile
-
-MBINS ?=
-MBINS_APP ?=
+MAKEFILE_TARGETS := clean Help $(CMD) # targets used by makefile
 
 #define BUILD_STRING, AOS toolchain commands on different hosts
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
@@ -26,6 +28,43 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 include $(MAKEFILES_PATH)/aos_prebuild.mk
 
+# Support for MBINS build
+export UNDERLINE
+export RADIXPOINT
+
+export MBINSTYPE_UPPER
+export MBINSTYPE_LOWER
+export BIN2BOOTTYPE_LOWER
+
+MBINS ?=
+MBINS_APP ?=
+ifeq (,$(MBINS))
+MBINSTYPE_UPPER :=
+MBINSTYPE_LOWER :=
+UNDERLINE :=
+RADIXPOINT :=
+else ifeq (app,$(MBINS))
+MBINSTYPE_UPPER :=APP
+MBINSTYPE_LOWER :=app
+UNDERLINE :=_
+RADIXPOINT :=.
+else ifeq (kernel,$(MBINS))
+MBINSTYPE_UPPER :=KERNEL
+MBINSTYPE_LOWER :=kernel
+UNDERLINE :=_
+RADIXPOINT :=.
+else
+$(error ***** MBINS Error, Valid MBINS: [MBINS=app MBINS=kernel] ***** ***)
+endif
+
+define MBINS_EXIT
+$(error ***** This Platform Not Support Multi-Bins! [SUPPORT_MBINS:=$(SUPPORT_MBINS)] Not Use Option:[MBINs=*] ***** ***)
+endef
+
+# Support for 2nd bootloader
+BIN2BOOTTYPE_LOWER := .2boot
+
+# Define help message
 define USAGE_TEXT
 Aborting due to invalid targets
 
@@ -80,27 +119,6 @@ Usage: make <target> [download] [run | debug] [JTAG=xxx] [total] [VERBOSE=1] [MB
       $> make clean
 endef
 
-ifeq (,$(MBINS))
-MBINSTYPE_UPPER :=
-MBINSTYPE_LOWER :=
-UNDERLINE :=
-RADIXPOINT :=
-else ifeq (app,$(MBINS))
-MBINSTYPE_UPPER :=APP
-MBINSTYPE_LOWER :=app
-UNDERLINE :=_
-RADIXPOINT :=.
-else ifeq (kernel,$(MBINS))
-MBINSTYPE_UPPER :=KERNEL
-MBINSTYPE_LOWER :=kernel
-UNDERLINE :=_
-RADIXPOINT :=.
-else
-$(error ***** MBINS Error, Valid MBINS: [MBINS=app MBINS=kernel] ***** ***)
-endif
-
-BIN2BOOTTYPE_LOWER := .2boot
-
 ############################
 # Extra options:
 #                CHECK_HEADERS=1 : builds header files to test for their completeness
@@ -137,6 +155,7 @@ endif
 ifneq ($(BUILD_STRING),)
 -include $(OUTPUT_DIR)/config.mk
 
+# Figure out target architecture and include toolchain makefile
 ifeq ($(IDE),iar)
 COMPILER := iar
 CLEANED_BUILD_STRING += COMPILER=iar
@@ -148,7 +167,6 @@ COMPILER := rvct
 CLEANED_BUILD_STRING += COMPILER=rvct
 endif
 
-# Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
 ifeq ($(COMPILER),armcc)
  TOOLCHAIN_MK = $(MAKEFILES_PATH)/toolchain/aos_toolchain_armcc.mk
 else ifeq ($(COMPILER),rvct)
@@ -161,6 +179,7 @@ endif
 
 include $(TOOLCHAIN_MK)
 
+# Support for test suite - create auto_component and register init functions for test components
 AUTO_COMPONENT = $(AUTO_COMPONENT_DIR)/auto_component.mk
 ifneq ($(test), )
 TEST_COMPONENT_COLLECTION = $(AUTO_COMPONENT_DIR)/test_collection.$(test)
@@ -174,29 +193,17 @@ $(AUTO_COMPONENT): $(TEST_COMPONENT_COLLECTION)
 $(TEST_COMPONENT_COLLECTION):
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
 
+# Target to create config.mk file
 $(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
-	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/precompile))
-	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall/syscall_kapi))
-	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/syscall/syscall_fapi))
-	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call PARSE_RESOURSE_TO_SYSCALL_FILE, $(OUTPUT_DIR), pre-create))
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_MAKEFILES),Applying changes made to: $?,Making config file for first time)
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config.mk $(CLEANED_BUILD_STRING)
 
-endif
-
-define MBINS_EXIT
-$(error ***** This Platform Not Support Multi-Bins! [SUPPORT_MBINS:=$(SUPPORT_MBINS)] Not Use Option:[MBINs=*] ***** ***)
-endef
+endif # ifneq ($(BUILD_STRING),)
 
 ifneq ($(MBINS),)
 ifneq ($(SUPPORT_MBINS),yes)
 MBINS_ERROR := error
 endif
-endif
-
-JOBS ?=4
-ifeq (,$(SUB_BUILD))
-JOBSNO := -j$(JOBS)
 endif
 
 PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) export_linkkit_sdk restore_linkkit_sdk,$(MAKECMDGOALS))) #download total
@@ -210,9 +217,7 @@ main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/ao
 	$(QUIET)$(ECHO) Build AOS Now
 	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/modules)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/resources)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/includes)
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
@@ -220,8 +225,6 @@ main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/ao
 
 ifeq (yes,$(AOS_SDK_2BOOT_SUPPORT))
 $(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MK) $(AOS_SDK_2BOOT_MAKEFILES) $(AUTO_COMPONENT)
-	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call MKDIR, $(OUTPUT_DIR)/precompile))
-	$(QUIET)$(if $(PARSE_RESOURSE_TO_SYSCALL_FILE), $(call PARSE_RESOURSE_TO_SYSCALL_FILE, $(OUTPUT_DIR), pre-create))
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_2BOOT_MAKEFILES),Applying changes made to: $?,Making config file for first time)
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(CLEANED_BUILD_STRING)
 
@@ -230,9 +233,7 @@ $(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MA
 	$(QUIET)$(ECHO) Build AOS Second Boot Now
 	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/modules)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/resources)
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config_2boot.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build_2boot.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
 	$(QUIET)$(ECHO) Build 2nd boot complete
