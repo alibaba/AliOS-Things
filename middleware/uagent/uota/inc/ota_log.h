@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 #if defined(OTA_ALIOS)
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #define OTA_LOG_D(fmt, ...) LOGD("uota",fmt,##__VA_ARGS__)
 #define OTA_LOG_I(fmt, ...) LOGI("uota",fmt,##__VA_ARGS__)
 #define OTA_LOG_W(fmt, ...) LOGW("uota",fmt,##__VA_ARGS__)
