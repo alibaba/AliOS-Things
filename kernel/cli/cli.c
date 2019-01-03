@@ -12,6 +12,10 @@
 #include "cli_api.h"
 #include "cli_adapt.h"
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+#include "uapp.h"
+#endif
+
 #define RET_CHAR '\n'
 #define END_CHAR '\r'
 #define PROMPT   "# "
@@ -45,6 +49,13 @@ struct cli_status {
 
     const struct cli_command_st *cmds[CLI_MAX_COMMANDS];
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    /* user cli: pid = 1,2,3..*/
+    const struct cli_command_st *u_cmds[MAX_APP_BINS + 1][CLI_MAX_COMMANDS];
+    uint32_t     u_num[MAX_APP_BINS + 1];
+    kqueue_t    *u_cli_queue[MAX_APP_BINS + 1];
+#endif
+
 #if (CLI_MINIMUM_MODE <= 0)
     int32_t his_idx;
     int32_t his_cur;
@@ -60,6 +71,26 @@ static int32_t volatile g_cli_exit = 0;
 
 static char    g_cli_tag[64] = {0};
 static uint8_t g_cli_tag_len =  0;
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+static uint32_t lookup_command_pid(const char *name)
+{
+    uint32_t pid_i = 1, j = 0, user_cmd_num = 0;
+
+    while (pid_i < (MAX_APP_BINS + 1)) {
+
+        user_cmd_num = g_cli->u_num[pid_i];
+
+        for (j = 0; j < user_cmd_num; j++) {
+            if (!strcmp(g_cli->u_cmds[pid_i][j]->name, name))
+                return pid_i;
+        }
+
+        pid_i++;
+    }
+    return 0;
+}
+#endif
 
 static const struct cli_command_st *lookup_command(char *name, int len)
 {
@@ -98,6 +129,11 @@ static int32_t proc_onecmd(int argc, char *argv[])
 
     const struct cli_command_st *command = NULL;
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    uint32_t  pid;
+    kqueue_t *cli_q;
+#endif
+
     if (argc < 1) {
         return 0;
     }
@@ -120,6 +156,16 @@ static int32_t proc_onecmd(int argc, char *argv[])
     if (command == NULL) {
         return 1;
     }
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    pid = lookup_command_pid(command->name);
+
+    if ((pid > 0) && (pid < (MAX_APP_BINS + 1))) {
+        cli_q = g_cli->u_cli_queue[pid];
+        krhino_queue_back_send(cli_q, command);
+        return 0;
+    }
+#endif
 
     g_cli->outbuf = cli_malloc(CLI_OUTBUF_SIZE);
     if (NULL == g_cli->outbuf) {
@@ -253,7 +299,7 @@ static int32_t cli_handle_input(char *inbuf)
  * @param[in] bp    the current buffer pointer
  *
  * @return none
- * 
+ *
  */
 static void cli_tab_complete(char *inbuf, unsigned int *bp)
 {
@@ -309,7 +355,7 @@ static void cli_history_input(void)
     int32_t  left_num = CLI_INBUF_SIZE - his_cur;
 
     char    lastchar;
-    int32_t tmp_idx; 
+    int32_t tmp_idx;
 
     g_cli->his_idx = his_cur;
 
@@ -463,7 +509,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 if (key2 == 't') {
                     g_cli_tag[0]  = 0x1b;
                     g_cli_tag[1]  = key1;
-                    g_cli_tag_len = 2;   
+                    g_cli_tag_len = 2;
                 }
             }
 
@@ -484,7 +530,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 if (!g_cli->echo_disabled) {
                     cli_printf("\x1b%c%c", key1, key2);
                 }
-                continue; 
+                continue;
             }
 
 #if CLI_MINIMUM_MODE > 0
@@ -507,7 +553,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 esc           = 0;
 
                 cli_printf("\r\n" PROMPT "%s", inbuf);
-                continue; 
+                continue;
             }
 
             if (key2 == 0x42) {
@@ -519,7 +565,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 esc           = 0;
 
                 cli_printf("\r\n" PROMPT "%s", inbuf);
-                continue;                 
+                continue;
             }
 #endif
             /* ESC_TAG */
@@ -529,7 +575,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
                 esc           = 0;
 
                 cli_printf("Error: cli tag buffer overflow\r\n");
-                continue;                
+                continue;
             }
 
             g_cli_tag[g_cli_tag_len++] = c;
@@ -569,7 +615,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
         if (c == '\t') {
             inbuf[*bp] = '\0';
             cli_tab_complete(inbuf, bp);
-            continue; 
+            continue;
         }
 
         if (!g_cli->echo_disabled) {
@@ -577,7 +623,7 @@ static int32_t cli_get_input(char *inbuf, uint32_t *bp)
             g_cli_tag_len = 0;
 
             cli_printf("%c", c);
-            g_cli_tag_len = tmp;            
+            g_cli_tag_len = tmp;
         }
 
         (*bp)++;
@@ -713,6 +759,12 @@ int32_t cli_register_command(const struct cli_command_st *cmd)
 {
     int32_t i = 0;
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    uint32_t  pid = 0;
+    void     *cli_q;
+    ktask_t  *cur_task, *cur_proc;
+#endif
+
     if (g_cli == NULL) {
         return CLI_ERR_DENIED;
     }
@@ -736,6 +788,22 @@ int32_t cli_register_command(const struct cli_command_st *cmd)
     }
 
     g_cli->cmds[g_cli->num++] = cmd;
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    cur_task = krhino_cur_task_get();
+    cur_proc = cur_task->proc_addr;
+
+    pid   = (ktask_t *)cur_proc->pid;
+    cli_q = (ktask_t *)cur_proc->cli_q;
+
+    /*user app pid:1,2,3..*/
+    if ((pid > 0) && (pid < (MAX_APP_BINS + 1))) {
+        g_cli->u_cmds[pid][g_cli->u_num[pid]] = cmd;
+        g_cli->u_num[pid] ++;
+        if (g_cli->u_cli_queue[pid] == NULL)
+            g_cli->u_cli_queue[pid] = (kqueue_t *)cli_q;
+    }
+#endif
 
     return CLI_OK;
 }
@@ -795,7 +863,7 @@ int32_t cli_unregister_commands(const struct cli_command_st *cmds, int32_t num)
         }
     }
 
-    return CLI_OK;  
+    return CLI_OK;
 }
 
 int32_t cli_printf(const char *buffer, ...)
