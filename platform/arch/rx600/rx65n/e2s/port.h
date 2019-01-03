@@ -19,17 +19,17 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
     return 0;
 }
 
-#define  IPL_BOUNDARY  12u                                             
-#ifdef   IPL_BOUNDARY
-#define  cpu_intrpt_save()          get_ipl();set_ipl(IPL_BOUNDARY)
+#define IPL_BOUNDARY  12u
+#ifdef  IPL_BOUNDARY
+#define cpu_intrpt_save()           get_ipl();set_ipl(IPL_BOUNDARY)
 #else
-#define  cpu_intrpt_save()          get_ipl();set_ipl(12)
+#define cpu_intrpt_save()           get_ipl();set_ipl(12)
 #endif
-#define  cpu_intrpt_restore()       set_ipl(cpsr);
-                                             
-#define CPSR_ALLOC() uint8_t cpsr
-#define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save(); }
-#define RHINO_CPU_INTRPT_ENABLE()  { cpu_intrpt_restore(cpsr); }
+#define cpu_intrpt_restore()        set_ipl(cpsr);
+
+#define CPSR_ALLOC()                cpu_cpsr_t cpsr
+#define RHINO_CPU_INTRPT_DISABLE()  do{cpsr = cpu_intrpt_save();}while(0)
+#define RHINO_CPU_INTRPT_ENABLE()   do{cpu_intrpt_restore(cpsr);}while(0)
 
 #endif
 
