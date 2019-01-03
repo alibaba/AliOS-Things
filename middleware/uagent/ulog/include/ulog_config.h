@@ -54,7 +54,11 @@ typedef enum{
 * If this value is SET then extream log text will be recored, then the log text not support syslog format,
 * only pure message will be loged, syslog format cost about 45 bytes for each log.
 */
+#ifndef ULOG_CONFIG_EXTREAM_LOG_TEXT
 #define EXTREAM_LOG_TEXT 0
+#else
+#define EXTREAM_LOG_TEXT ULOG_CONFIG_EXTREAM_LOG_TEXT
+#endif
 
 /**
 * the max length of every trace log to be recorded, include syslog format(if EXTREAM_LOG_TEXT
@@ -62,11 +66,15 @@ typedef enum{
 * Log Content will be trimmed if it's too long.
 * SYSLOG_SIZE*SYSLOG_SIZE is the log mechanism cost heap size
 */
+#ifndef ULOG_CONFIG_SYSLOG_SIZE
 #define SYSLOG_SIZE         128
+#else
+#define SYSLOG_SIZE         ULOG_CONFIG_SYSLOG_SIZE
+#endif
 
 /**
 * The minimal depth of queue that used to record under aync mode.
-* NOT RECOMMEND MODIFY THIS VALUE
+* NOT RECOMMEND MODIFY THIS VALUE, READ ONLY!!
 */
 #define MIN_SYSLOG_DEPTH        32
 
@@ -76,25 +84,41 @@ typedef enum{
 * More RAM will be costed if it set too large
 * So consider balance of this value and system resouce
 */
+#ifndef ULOG_CONFIG_DEFAULT_ASYNC_SYSLOG_DEPTH
 #define DEFAULT_ASYNC_SYSLOG_DEPTH    64
+#else
+#define DEFAULT_ASYNC_SYSLOG_DEPTH    ULOG_CONFIG_DEFAULT_ASYNC_SYSLOG_DEPTH
+#endif
 
 /**
 * Level Stop Filter of default direction(uart for rtos), any log level qual or lower than this (value higher than it)
 * will be abondoned LOG_EMERG will make none log pop out.
 */
-#define       STOP_FILTER_DEFAULT   LOG_NOTICE
+#ifndef ULOG_CONFIG_STOP_FILTER_DEFAULT
+#define STOP_FILTER_DEFAULT   LOG_NOTICE
+#else
+#define STOP_FILTER_DEFAULT   ULOG_CONFIG_STOP_FILTER_DEFAULT
+#endif
 
 /**
 * Level Stop Filter of udp, any log level qual or lower than this (value higher than it)
 * will be abondoned LOG_EMERG will make none log pop out.
 * please keep this value on "LOG_EMERG" if you have no plan to use udp log
 */
-#define       STOP_FILTER_UDP       LOG_EMERG
+#ifndef ULOG_CONFIG_STOP_FILTER_UDP
+#define STOP_FILTER_UDP       LOG_EMERG
+#else
+#define STOP_FILTER_UDP       ULOG_CONFIG_STOP_FILTER_UDP
+#endif
 
 /**
 * STACK DEPTH of Log Task, will cost 512 Byte room
 */
+#ifndef ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
 #define LOG_ROUTINE_TASK_STACK_DEPTH 512
+#else
+#define LOG_ROUTINE_TASK_STACK_DEPTH ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
+#endif
 
 
 #ifdef __cplusplus
