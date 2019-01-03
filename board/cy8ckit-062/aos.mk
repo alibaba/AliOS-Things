@@ -46,8 +46,8 @@ GLOBAL_CFLAGS  += -DSTM32L475xx
 WIFI_FIRMWARE_SECTOR_START    := 2      #0x2000
 FILESYSTEM_IMAGE_SECTOR_START := 256    #0x100000
 
-# Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
+# Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
+EXTRA_TARGET_MAKEFILES +=
 
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))

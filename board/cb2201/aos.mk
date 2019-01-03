@@ -45,6 +45,5 @@ GLOBAL_CFLAGS  += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 GLOBAL_CFLAGS  += -std=gnu99
 GLOBAL_LDFLAGS += -Wl,-ckmap='cb2201.map' -Wl,-zmax-page-size=1024 -lm
 
-# Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
+# Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk

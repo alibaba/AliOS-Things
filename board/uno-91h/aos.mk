@@ -38,5 +38,5 @@ GLOBAL_CFLAGS  += -DRDA5981A
 
 GLOBAL_LDFLAGS += -T uno-91h.ld
 
-# Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES += $(MAKEFILES_PATH)/aos_standard_targets.mk
+# Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
+EXTRA_TARGET_MAKEFILES +=
