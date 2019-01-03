@@ -17,7 +17,7 @@
 #include <aos/kernel.h>
 #include "udata/hal/sensor.h"
 #include "udata/udata.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #define UDATA_SENSOR_ALL                (0XFFFFFFFF)
 #define UDATA_DTC_NAME_LEN              (32)
