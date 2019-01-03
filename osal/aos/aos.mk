@@ -50,7 +50,7 @@ else
 $(NAME)_SOURCES += rhino.c
 endif
 
-ifeq ($(AOS_COMP_KV), 1)
+ifeq ($(AOS_COMP_KV),y)
 $(NAME)_SOURCES += kv.c
 endif
 
@@ -58,11 +58,11 @@ ifeq ($(AOS_COMP_MBMASTER),y)
 $(NAME)_SOURCES += mbmaster.c
 endif
 
-ifeq ($(AOS_COMP_CLI),1)
+ifeq ($(AOS_COMP_CLI),y)
 $(NAME)_SOURCES += cli.c
 endif
 
-ifeq ($(AOS_COMP_VFS),1)
+ifeq ($(AOS_COMP_VFS),y)
 $(NAME)_SOURCES += vfs.c
 endif
 
