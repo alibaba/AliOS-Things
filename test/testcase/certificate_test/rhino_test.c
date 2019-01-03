@@ -59,13 +59,6 @@
 #define TEST_CONFIG_KV_TIMES                    (10000)
 #endif
 
-/* yloop test */
-#define TEST_CONFIG_YLOOP_ENABLED               (0)
-#if (TEST_CONFIG_YLOOP_ENABLED)
-#define TEST_CONFIG_YLOOP_EVENT_COUNT           (1000)
-#define TEST_CONFIG_YLOOP_LOOP_COUNT            (5)
-#endif
-
 static int g_var0 = 0;
 static int g_var1 = 0;
 static cpu_stack_t stack_buf[TEST_CONFIG_MAX_TASK_COUNT][TEST_CONFIG_STACK_SIZE];
@@ -113,11 +106,6 @@ static int dump_test_config(void)
     PRINT_CONFIG(TEST_CONFIG_KV_TIMES);
 #endif
 
-    PRINT_CONFIG(TEST_CONFIG_YLOOP_ENABLED);
-#if (TEST_CONFIG_YLOOP_ENABLED)
-    PRINT_CONFIG(TEST_CONFIG_YLOOP_EVENT_COUNT);
-    PRINT_CONFIG(TEST_CONFIG_YLOOP_LOOP_COUNT);
-#endif
     return 0;
 }
 
