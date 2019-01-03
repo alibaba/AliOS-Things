@@ -51,15 +51,6 @@ typedef struct
     void       *ctx_hash;
 } ota_hash_param_t;
 
-typedef struct
-{
-    unsigned int   image_magic;
-    unsigned int   image_size;
-    unsigned char  image_md5_value[16];
-    unsigned char  image_reserver[2];
-    unsigned short image_crc16;
-} ota_image_t;
-
 typedef struct {
     unsigned int magic;
     unsigned int status;

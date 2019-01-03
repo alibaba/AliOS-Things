@@ -25,6 +25,19 @@
 #define NULL 0
 #endif
 
+
+#define OTA_IMAGE_MD5_LEN          (16)
+#define OTA_IMAGE_RESERVER_SIZE    (2)
+
+typedef struct
+{
+    unsigned int   image_magic;
+    unsigned int   image_size;
+    unsigned char  image_md5_value[OTA_IMAGE_MD5_LEN];
+    unsigned char  image_reserver[OTA_IMAGE_RESERVER_SIZE];
+    unsigned short image_crc16;
+} ota_image_t;
+
 /*memory*/
 void *ota_malloc(int size);
 void *ota_realloc(void *ptr, int size);
