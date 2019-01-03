@@ -10,7 +10,7 @@
 
 #include "stm32f7xx_hal.h"
 #include "hal_uart_stm32f7.h"
-
+#include "aos\hal\uart.h"
 
 UART_HandleTypeDef huart1;
 

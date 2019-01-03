@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <cache.h>
+#include <hal_cache.h>
 
 
 
