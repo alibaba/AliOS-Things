@@ -141,9 +141,7 @@ ret_code_t core_init(ali_init_t const *p_init)
     auth_init(p_init, tx_func_indicate);
 #endif
 
-#if BZ_ENABLE_COMBO_NET
     extcmd_init(p_init, tx_func_indicate);
-#endif
     create_bz_adv_data(p_init->model_id, mac_be);
     adv_data.vdata.len = sizeof(adv_data.vdata.data);
     if (get_bz_adv_data(adv_data.vdata.data, &(adv_data.vdata.len))) {
