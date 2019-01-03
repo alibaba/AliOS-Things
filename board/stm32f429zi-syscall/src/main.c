@@ -12,7 +12,7 @@
 #include "hal_uart_stm32f4.h"
 #include "board.h"
 
-#include <aos/log.h>
+#include "ulog/ulog.h"
 
 #define AOS_START_STACK 1536
 
