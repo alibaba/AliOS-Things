@@ -2,7 +2,7 @@
  * File : aos.c
  */
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>

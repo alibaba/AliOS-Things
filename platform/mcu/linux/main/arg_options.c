@@ -7,7 +7,7 @@
 #include <arg_options.h>
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 static void shift_argv(options_t *options, int i)
 {

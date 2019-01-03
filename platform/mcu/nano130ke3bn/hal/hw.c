@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include <k_api.h>
-#include <aos/log.h>
+#include "ulog/ulog.h"
 
 #include "NuMicro.h"
 

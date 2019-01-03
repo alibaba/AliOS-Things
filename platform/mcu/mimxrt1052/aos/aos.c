@@ -8,7 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <k_api.h>
-#include <aos/log.h>
+#include "ulog/ulog.h"
 
 #include "aos/hal/timer.h"
 #include "aos/hal/uart.h"

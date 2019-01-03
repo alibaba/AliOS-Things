@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include <k_api.h>
-#include <aos/log.h>
+#include "ulog/ulog.h"
 #include <hal/soc/soc.h>
 #include <hal/soc/timer.h>
 #include <hal/base.h>
