@@ -211,10 +211,13 @@ endef
 # $(info Components: $(COMPONENTS))
 # Create targets for components
 ifeq (app, $(MBINS))
+IMAGE_MAGIC:=0xabababab
 $(foreach comp,$(COMPONENTS),$(eval $(if $($(comp)_MBINS_TYPE), $(if $(filter app share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp))), $(call BUILD_COMPONENT_RULES,$(comp)))))
 else ifeq (kernel, $(MBINS))
+IMAGE_MAGIC:=0xcdcdcdcd
 $(foreach comp,$(COMPONENTS),$(eval $(if $(filter kernel share, $($(comp)_MBINS_TYPE)), $(call BUILD_COMPONENT_RULES,$(comp)))))
 else ifeq (,$(MBINS))
+IMAGE_MAGIC:=0xefefefef
 $(foreach comp,$(COMPONENTS),$(eval $(call BUILD_COMPONENT_RULES,$(comp))))
 endif
 
