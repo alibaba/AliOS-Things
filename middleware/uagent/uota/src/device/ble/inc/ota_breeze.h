@@ -15,19 +15,23 @@
 #define NULL 0
 #endif
 
-#define OTA_BREEZE_BIN_TYPE_INFO_OFFSET 0x28
+#define OTA_IMAGE_MAGIC_OFFSET      0x00
+#define OTA_IMAGE_SIZE_OFFSET       0X04
+#define OTA_IMAGE_MD5_OFFSET        0x08
 
-#define OTA_BREEZE_BIN_TYPE_MAGIC_APP    0xabababab
-#define OTA_BREEZE_BIN_TYPE_MAGIC_KERNEL 0xcdcdcdcd
-#define OTA_BREEZE_BIN_TYPE_MAGIC_SINGLE 0xefefefef
+#define OTA_BIN_TYPE_MAGIC_APP         0xabababab
+#define OTA_BIN_TYPE_MAGIC_KERNEL      0xcdcdcdcd
+#define OTA_BIN_TYPE_MAGIC_SINGLE      0xefefefef
+#define OTA_BIN_TYPE_MAGIC_APP_KERNEL  0xabcdabcd
 
 typedef enum
 {
-    OTA_BREEZE_BIN_TYPE_APP = 0,
-    OTA_BREEZE_BIN_TYPE_KERNEL,
-    OTA_BREEZE_BIN_TYPE_SINGLE,
-    OTA_BREEZE_BIN_TYPE_MAX,
-    OTA_BREEZE_BIN_TYPE_INVALID = 0xff
+    OTA_BIN_TYPE_APP = 0,
+    OTA_BIN_TYPE_KERNEL,
+    OTA_BIN_TYPE_SINGLE,
+    OTA_BIN_TYPE_APP_KERNEL,
+    OTA_BIN_TYPE_MAX,
+    OTA_BIN_TYPE_INVALID = 0xff
 } ota_breeze_bin_type_t;
 
 typedef enum {
@@ -60,6 +64,9 @@ typedef enum {
 #define OTA_BREEZE_ERROR_INVALID_BIN_TYPE               (18)
 #define OTA_BREEZE_ERROR_BIN_UPGRADE_NOT_SUPPORTED      (19)
 #define OTA_BREEZE_ERROR_BINS_UPGRADE_NOT_SUPPORTED     (20)
+#define OTA_BREEZE_ERROR_SAVE_BREAKPOINT_FAIL           (21)
+#define OTA_BREEZE_ERROR_GET_BREAKPOINT_FAIL            (22)
+
 
 #define OTA_BREEZE_CMD_TYPE_GENERIC                     0x00                /**< Command type: generic */
 #define OTA_BREEZE_CMD_ERROR         (OTA_BREEZE_CMD_TYPE_GENERIC | 0xF)    /**< Error notification from peripheral to central. */
@@ -108,8 +115,10 @@ typedef struct _ota_ble_global_dat{
     volatile unsigned char ota_breeze_task_active_ctrl;
     volatile unsigned char ota_breeze_task_active_flag;
     volatile unsigned char ota_breeze_status;
-    unsigned int rx_fw_size;                /**< Size of firmware to be received. */
-    unsigned int bytes_recvd;               /**< Size of firmware received. */
+    unsigned int rx_fw_size;                  /**< Size of firmware to be received. */
+    unsigned int valid_fw_size;               /**< After removing image info size*/
+    unsigned int bytes_recvd;                 /**< Size of firmware received. */
+    unsigned int valid_bytes_recvd;           /**< Don't include iamge info FM size*/
     unsigned short frames_recvd;              /**< Number of frames of firmware received. */
     unsigned short crc;
 }_ota_ble_global_dat_t;
