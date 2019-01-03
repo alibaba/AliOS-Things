@@ -4,7 +4,7 @@
 
 #include <string.h>
 #include "aos/kernel.h"
-#include <aos/log.h>
+#include "ulog/ulog.h"
 #include "hdlc.h"
 
 #define MODULE_NAME "hdlc"
