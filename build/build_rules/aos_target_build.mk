@@ -6,6 +6,7 @@ include $(CONFIG_FILE)
 
 # Include all toolchain makefiles - one of them will handle the architecture
 # default gcc
+# TODO: remove duplicate includes for toolchain makefile
 ifeq ($(COMPILER),)
 include $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
 else ifeq ($(COMPILER),gcc)
@@ -24,18 +25,19 @@ endif
 # Filenames
 ##################################
 
-LINK_OUTPUT_FILE          :=$(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING)$(RADIXPOINT)$(MBINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX)
 # out/helloworld@xx/binary/helloworld@xx.elf
-STRIPPED_LINK_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.stripped$(LINK_OUTPUT_SUFFIX))
+LINK_OUTPUT_FILE          :=$(OUTPUT_DIR)/binary/$(CLEANED_BUILD_STRING)$(RADIXPOINT)$(MBINSTYPE_LOWER)$(LINK_OUTPUT_SUFFIX)
 # out/helloworld@xx/binary/helloworld@xx.stripped.elf
+STRIPPED_LINK_OUTPUT_FILE :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.stripped$(LINK_OUTPUT_SUFFIX))
+# out/helloworld@xx/binary/helloworld@xx.bin
 BIN_OUTPUT_FILE           :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=$(BIN_OUTPUT_SUFFIX))
 # out/helloworld@xx/binary/helloworld@xx.bin
 HEX_OUTPUT_FILE           :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=$(HEX_OUTPUT_SUFFIX))
-# out/helloworld@xx/binary/helloworld@xx.bin
-MAP_OUTPUT_FILE           :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.map)
 # out/helloworld@xx/binary/helloworld@xx.map
-MAP_CSV_OUTPUT_FILE       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_map.csv)
+MAP_OUTPUT_FILE           :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.map)
 # out/helloworld@xx/binary/helloworld@xx_map.csv
+MAP_CSV_OUTPUT_FILE       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_map.csv)
+
 BIN_OUTPUT_FILE_TMP       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.tmptmp.bin)
 
 ifeq ($(PING_PONG_OTA),1)
@@ -44,6 +46,7 @@ STRIPPED_LINK_OUTPUT_FILE_XIP2 :=$(LINK_OUTPUT_FILE_XIP2:$(LINK_OUTPUT_SUFFIX)=.
 BIN_OUTPUT_FILE_XIP2      :=$(BIN_OUTPUT_FILE:$(BIN_OUTPUT_SUFFIX)=.xip2$(BIN_OUTPUT_SUFFIX))
 endif
 
+# TODO: cleanup if download support is not needed 
 OPENOCD_LOG_FILE          ?= $(OUTPUT_DIR)/openocd_log.txt
 
 LIBS_DIR                  := $(OUTPUT_DIR)/libraries
@@ -53,6 +56,7 @@ LINT_OPTS_FILE            := $(OUTPUT_DIR)/binary/lint$(UNDERLINE)$(MBINSTYPE_LO
 
 LDS_FILE_DIR              := $(OUTPUT_DIR)/ld
 
+# TODO: remove duplicate includes of EXTRA_TARGET_MAKEFILES
 ifeq (,$(SUB_BUILD))
 ifneq (,$(EXTRA_TARGET_MAKEFILES))
 $(foreach makefile_name,$(EXTRA_TARGET_MAKEFILES),$(eval include $(makefile_name)))
@@ -69,14 +73,6 @@ endif
 # rather than from the cwd
 # $(1) is component
 GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $(subst :,/,$($(1)_LOCATION))))
-
-define SELF_BUILD_RULE
-$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets)): $(OUTPUT_DIR)/config.mk
-	echo CONFIG_ENV_CFLAGS += $(RESOURCE_CFLAGS) > $($(1)_LOCATION)iotx-sdk-c_clone/aos_board_conf.mk
-	echo CROSS_PREFIX := $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX) >> $($(1)_LOCATION)iotx-sdk-c_clone/aos_board_conf.mk
-	sh $($(1)_LOCATION)$($(1)_SELF_BUIlD_COMP_scripts) $(LIBS_DIR)  $(SOURCE_ROOT)app/example/$(APP_FULL)
-endef
-
 
 ###############################################################################
 # MACRO: BUILD_C_RULE
@@ -132,14 +128,8 @@ endef
 # $(1) is component name
 define BUILD_COMPONENT_RULES
 
-$(eval $(1)_SOURCES += $($(1)_SOURCES-y))
 $(eval LINK_LIBS +=$(if $(strip $($(1)_SOURCES)),$(LIBS_DIR)/$(1).a))
 $(eval LINK_LIBS +=$(if $($(1)_SELF_BUIlD_COMP_targets),$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets) )))
-$(eval POPULATE_INCLUDE_DIRS := $(addsuffix _populate_include, $(foreach incdir,$($(1)_POPULATE_INCLUDES),$(if $(wildcard $(SOURCE_ROOT)/$(incdir)),$(incdir)))))
-
-ifeq ($(STRICT),1)
-EXTRA_PRE_BUILD_TARGETS += $(POPULATE_INCLUDE_DIRS)
-endif
 
 ifneq ($($(1)_PRE_BUILD_TARGETS),)
 include $($(1)_MAKEFILE)
@@ -172,10 +162,9 @@ $(LIBS_DIR)/$(1).ar_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 $(foreach src, $(if $(findstring 1,$(CHECK_HEADERS)), $(filter %.h, $($(1)_CHECK_HEADERS)), ),$(eval $(call CHECK_HEADER_RULE,$(1),$(src))))
 
 # Target for build-from-source
-#$(OUTPUT_DIR)/libraries/$(1).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(OUTPUT_DIR)/libraries/$(1).ar_opts $$(if $(AOS_BUILT_WITH_ROM_SYMBOLS),$(ROMOBJCOPY_OPTS_FILE))
-$(LIBS_DIR)/$(1).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(OUTPUT_DIR)/libraries/$(1).ar_opts
+$(LIBS_DIR)/$(1).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(LIBS_DIR)/$(1).ar_opts
 	$(ECHO) Making $$@
-	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
+	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(LIBS_DIR)/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
 ifeq ($(1),sensor)
 ifeq ($(COMPILER), armcc)
 	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym
@@ -195,35 +184,18 @@ ifeq ($(COMPILER),)
 	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1).stripped.a $(OUTPUT_DIR)/libraries/$(1).a
 endif
 # Create targets to built the component's source files into object files
-$(if $($(1)_SELF_BUIlD_COMP_scripts), $(eval $(call SELF_BUILD_RULE,$(1))) )
 $(foreach src, $(filter %.c, $($(1)_SOURCES)),$(eval $(call BUILD_C_RULE,$(1),$(src))))
 $(foreach src, $(filter %.cpp, $($(1)_SOURCES)) $(filter %.cc, $($(1)_SOURCES)),$(eval $(call BUILD_CPP_RULE,$(1),$(src))))
 $(foreach src, $(filter %.s %.S, $($(1)_SOURCES)),$(eval $(call BUILD_S_RULE,$(1),$(src))))
-
 
 $(eval $(1)_LINT_FLAGS +=  $(filter -D% -I%, $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES) ) )
 $(eval LINT_FLAGS +=  $($(1)_LINT_FLAGS) )
 $(eval LINT_FILES +=  $(addprefix $(strip $($(1)_LOCATION)), $(filter %.c, $($(1)_SOURCES))) )
 endef
 
-define PROCESS_C_FILE
-$(OUTPUT_DIR)/precompile/$(3)/$(call GET_BARE_LOCATION,$(1))$(2:.c=.i): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/precompile/$(3)/$(call GET_BARE_LOCATION,$(1))$(2)).i
-	$(QUIET)$(CPP) -P $(subst $(COMMA),$$(COMMA), $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES)) -DAOS_EXPORTX -o $$@ $$<
-$(eval PRECOMPILED_FILES += $(OUTPUT_DIR)/precompile/$(3)/$(call GET_BARE_LOCATION,$(1))$(2:.c=.i))
-endef
-
-define PROCESS_S_FILE
-$(OUTPUT_DIR)/precompile/$(3)/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.i, $(2:.s=.i))): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/precompile/$(3)/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S, %.i, $(2:.s=.i)))).i
-	$(QUIET)$(CPP) -P $(subst $(COMMA),$$(COMMA), $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES)) -DAOS_EXPORTX -o $$@ $$<
-$(eval PRECOMPILED_FILES += $(OUTPUT_DIR)/precompile/$(3)/$(call GET_BARE_LOCATION,$(1))$(strip $(patsubst %.S,%.i, $(2:.s=.i))))
-endef
-
-define PRECOMPILED_RESOURCE_FILE
-$(eval $(1)_SOURCES += $($(1)_SOURCES-y))
-$(foreach src, $(filter %.c, $($(1)_SOURCES)),$(eval $(call PROCESS_C_FILE,$(1),$(src),$(2))))
-$(foreach src, $(filter %.s %.S, $($(1)_SOURCES)),$(eval $(call PROCESS_S_FILE,$(1),$(src),$(2))))
-endef
-
+###############################################################################
+# MACRO: PROCESS_LDS_FILE
+# $(1) is ld file
 define PROCESS_LDS_FILE
 $(LDS_FILE_DIR)/$(notdir $(1:.ld.S=.ld)): $(LDS_FILE_DIR)
 	$(ECHO) Making $$@
@@ -235,11 +207,6 @@ endef
 ##################################
 # Processing
 ##################################
-
-# Create targets for resource files
-# $(info Resources: $(ALL_RESOURCES))
-$(eval $(if $(ALL_RESOURCES),$(call CREATE_ALL_RESOURCE_TARGETS,$(ALL_RESOURCES))))
-LINK_LIBS += $(RESOURCES_LIBRARY)
 
 # $(info Components: $(COMPONENTS))
 # Create targets for components
@@ -270,11 +237,6 @@ $(LIBS_DIR):
 $(LDS_FILE_DIR):
 	$(QUIET)$(call MKDIR, $@)
 
-%_populate_include:
-	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/includes/$*)
-	$(QUIET)$(eval FILES := $(filter-out %.in %.md %.c %.py %.mk,$(foreach file,$(wildcard $*/*),$(file))))
-	$(QUIET)$(if $(FILES),$(call CPDIR, $(FILES), $(OUTPUT_DIR)/includes/$*),$(warning *** No header files in $*, please remove it from "GLOBAL_INCLUDES" ***))
-
 # Directory dependency - causes mkdir to be called once for each directory.
 %/.d:
 	$(QUIET)$(call MKDIR, $(dir $@))
@@ -296,10 +258,6 @@ endif
 $(LINT_OPTS_FILE): $(LINK_LIBS)
 	$(QUIET)$(call WRITE_FILE_CREATE, $@ , )
 	$(QUIET)$(foreach opt,$(sort $(subst \",",$(LINT_FLAGS))) $(sort $(LINT_FILES)),$(call WRITE_FILE_APPEND, $@ ,$(opt)))
-
-define 	LINK_OUTPUT_FILE_OPTIONS_MACRO
-LINK_OUTPUT_FILE_OPTIONS = $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$1$(OPTIONS_IN_FILE_OPTION_SUFFIX)
-endef
 
 ifeq ($(PING_PONG_OTA),1)
 $(LINK_OUTPUT_FILE): $(LINK_LIBS) $(AOS_SDK_LINK_SCRIPT) $(LINK_OPTS_FILE) $(LINT_DEPENDENCY) | $(EXTRA_PRE_LINK_TARGETS)
