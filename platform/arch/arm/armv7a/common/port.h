@@ -14,8 +14,8 @@
 #include "smp_port.h"
 #endif
 
-size_t cpu_intrpt_save(void);
-void   cpu_intrpt_restore(size_t cpsr);
+cpu_cpsr_t cpu_intrpt_save(void);
+void   cpu_intrpt_restore(cpu_cpsr_t cpsr);
 void   cpu_intrpt_switch(void);
 void   cpu_task_switch(void);
 void   cpu_first_task_start(void);
@@ -76,13 +76,15 @@ RHINO_INLINE void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, ui
 extern void k_cpu_spin_lock(kspinlock_t *lock);
 extern void k_cpu_spin_unlock(kspinlock_t *lock);
 
-#define cpu_spin_lock       k_cpu_spin_lock
-#define cpu_spin_unlock     k_cpu_spin_unlock
+#define cpu_spin_lock               k_cpu_spin_lock
+#define cpu_spin_unlock             k_cpu_spin_unlock
 
-#define CPSR_ALLOC() size_t cpsr
+#define CPSR_ALLOC()                cpu_cpsr_t cpsr
 /* normal int lock (can not lock the NMI) */
-#define RHINO_CPU_INTRPT_DISABLE() do{ cpsr = cpu_intrpt_save();krhino_spin_lock(&g_sys_lock); }while(0)
-#define RHINO_CPU_INTRPT_ENABLE()  do{ krhino_spin_unlock(&g_sys_lock); cpu_intrpt_restore(cpsr);}while(0)
+#define RHINO_CPU_INTRPT_DISABLE()  \
+        do{cpsr = cpu_intrpt_save();krhino_spin_lock(&g_sys_lock);}while(0)
+#define RHINO_CPU_INTRPT_ENABLE()   \
+        do{krhino_spin_unlock(&g_sys_lock); cpu_intrpt_restore(cpsr);}while(0)
 
 #else
 
@@ -91,9 +93,9 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
     return 0;
 }
 
-#define CPSR_ALLOC() size_t cpsr
-#define RHINO_CPU_INTRPT_DISABLE() do{ cpsr = cpu_intrpt_save(); }while(0)
-#define RHINO_CPU_INTRPT_ENABLE()  do{ cpu_intrpt_restore(cpsr); }while(0)
+#define CPSR_ALLOC()                cpu_cpsr_t cpsr
+#define RHINO_CPU_INTRPT_DISABLE()  do{cpsr = cpu_intrpt_save();}while(0)
+#define RHINO_CPU_INTRPT_ENABLE()   do{cpu_intrpt_restore(cpsr);}while(0)
 
 #endif /* (RHINO_CONFIG_CPU_NUM > 1) */
 
