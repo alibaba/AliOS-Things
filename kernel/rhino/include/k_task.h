@@ -237,15 +237,6 @@ kstat_t krhino_task_resume(ktask_t *task);
  */
 kstat_t krhino_task_stack_min_free(ktask_t *task, size_t *free);
 
-
-/**
- * This function will get current free stack size
- * @param[in]  task  the task where get free stack size.
- * @param[in]  free  the free task stack size to be filled with.
- * @return  the operation status, RHINO_SUCCESS is OK, others is error
- */
-kstat_t krhino_task_stack_cur_free(ktask_t *task, size_t *free);
-
 /**
  * This function will change the prio of task
  * @param[in]   task     the task to be changed prio
