@@ -7,7 +7,7 @@
 #include "upgrade.h"
 #include "aos/kernel.h"
 #include "k_api.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #define taskENTER_CRITICAL()  RHINO_CRITICAL_ENTER()
 #define taskEXIT_CRITICAL()    RHINO_CRITICAL_EXIT()

@@ -12,7 +12,7 @@
 
 #include "aos/init.h"
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #ifndef CONFIG_OSAL_POSIX
 #include <k_api.h>
