@@ -7,7 +7,6 @@ menuconfig AOS_MCU_NRF52XXX
     select AOS_COMP_HAL
     select AOS_COMP_RHINO
     select AOS_COMP_DIGEST_ALGORITHM
-    select AOS_COMP_VFS
     select AOS_COMP_BT
     help
 
