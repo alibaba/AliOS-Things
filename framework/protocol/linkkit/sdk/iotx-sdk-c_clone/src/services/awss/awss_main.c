@@ -51,7 +51,7 @@ int __awss_start(void)
     aws_destroy();
 
     do {
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
         char awss_notify_needed = 1;
         int adha = 0;
 #endif
@@ -59,7 +59,7 @@ int __awss_start(void)
         if (awss_stop_connecting || strlen(ssid) == 0) {
             break;
         }
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
         if ((adha = strcmp(ssid, ADHA_SSID)) == 0 || strcmp(ssid, DEFAULT_SSID) == 0) {
             awss_notify_needed = 0;
             awss_event_post(adha != 0 ? AWSS_CONNECT_AHA : AWSS_CONNECT_ADHA);
@@ -75,7 +75,7 @@ int __awss_start(void)
             awss_debug("awss connect ssid:%s success", ssid);
             awss_event_post(AWSS_GOT_IP);
 
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
             if (awss_notify_needed == 0) {
                 awss_dev_bind_notify_stop();
                 awss_suc_notify_stop();
@@ -90,7 +90,7 @@ int __awss_start(void)
             }
         } else {
             awss_debug("awss connect ssid:%s fail", ssid);
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
             if (awss_notify_needed == 0) {
                 awss_event_post(adha != 0 ? AWSS_CONNECT_AHA_FAIL : AWSS_CONNECT_ADHA_FAIL);
             } else
@@ -110,7 +110,7 @@ int __awss_stop(void)
 {
     awss_stop_connecting = 1;
     aws_destroy();
-#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORt_AHA)
+#if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
     awss_devinfo_notify_stop();
 #endif
     awss_suc_notify_stop();

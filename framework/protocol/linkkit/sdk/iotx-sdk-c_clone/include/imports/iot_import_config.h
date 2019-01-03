@@ -28,7 +28,7 @@
 #endif
 
 #ifndef CONFIG_MQTT_RX_MAXLEN
-    #define CONFIG_MQTT_RX_MAXLEN           (1024)
+    #define CONFIG_MQTT_RX_MAXLEN           (2048)
 #endif
 
 #ifndef CONFIG_SDK_THREAD_COST

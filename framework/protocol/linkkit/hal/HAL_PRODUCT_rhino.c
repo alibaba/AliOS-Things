@@ -59,17 +59,12 @@ int HAL_SetDeviceName(_IN_ char *device_name)
 int HAL_SetDeviceSecret(_IN_ char *device_secret)
 {
     int len = strlen(device_secret);
-#ifdef DELETE_HFILOP_CODE 
 #ifdef __DEMO__
     if (len > DEVICE_SECRET_LEN) {
         return -1;
     }
     memset(_device_secret, 0x0, DEVICE_SECRET_LEN + 1);
     strncpy(_device_secret, device_secret, len);
-#endif
-#else
-    extern int hfilop_layer_set_device_secret(char * device_secret);
-    hfilop_layer_set_device_secret(device_secret);
 #endif
     return len;
 }
@@ -93,16 +88,8 @@ int HAL_GetProductKey(_OU_ char *product_key)
     int len = strlen(_product_key);
     memset(product_key, 0x0, PRODUCT_KEY_LEN);
 
-#ifdef DELETE_HFILOP_CODE 
-
 #ifdef __DEMO__
     strncpy(product_key, _product_key, len);
-#endif
-
-#else
-    extern char *hfilop_layer_get_product_key(void);
-    strncpy(product_key, hfilop_layer_get_product_key(), PRODUCT_KEY_MAXLEN - 1);
-    len = strlen(product_key);
 #endif
 
     return len;
@@ -113,15 +100,8 @@ int HAL_GetProductSecret(_OU_ char *product_secret)
     int len = strlen(_product_secret);
     memset(product_secret, 0x0, PRODUCT_SECRET_LEN);
 
-#ifdef DELETE_HFILOP_CODE
 #ifdef __DEMO__
     strncpy(product_secret, _product_secret, len);
-#endif
-
-#else
-    extern char *hfilop_layer_get_product_secret(void);
-    strncpy(product_secret, hfilop_layer_get_product_secret(), PRODUCT_SECRET_MAXLEN - 1);
-    len = strlen(product_secret);
 #endif
 
     return len;
@@ -132,15 +112,8 @@ int HAL_GetDeviceName(_OU_ char *device_name)
     int len = strlen(_device_name);
     memset(device_name, 0x0, DEVICE_NAME_LEN);
 
-#ifdef DELETE_HFILOP_CODE 
-
 #ifdef __DEMO__
     strncpy(device_name, _device_name, len);
-#endif
-
-#else
-    extern char *hfilop_layer_get_device_name(void);
-    strncpy(device_name, hfilop_layer_get_device_name(), DEVICE_NAME_MAXLEN - 1);
 #endif
 
     return strlen(device_name);
@@ -151,16 +124,8 @@ int HAL_GetDeviceSecret(_OU_ char *device_secret)
     int len = strlen(_device_secret);
     memset(device_secret, 0x0, DEVICE_SECRET_LEN);
 
-#ifdef DELETE_HFILOP_CODE
-
 #ifdef __DEMO__
     strncpy(device_secret, _device_secret, len);
-#endif
-
-#else
-    extern char *hfilop_layer_get_device_secret(void);
-    strncpy(device_secret, hfilop_layer_get_device_secret(), DEVICE_SECRET_MAXLEN - 1);
-    len = strlen(device_secret);
 #endif
 
     return len;

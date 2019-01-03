@@ -20,7 +20,7 @@ $(NAME)_SOURCES += \
     ota_hal_host.c
 else
 $(NAME)_SOURCES += \
-    ota_hal_rda.c
+    ota_hal_plat.c
 endif
 
 GLOBAL_INCLUDES += . \
