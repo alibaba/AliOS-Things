@@ -13,6 +13,7 @@ CONFIG_FILE_DIR := $(OUTPUT_DIR)
 CONFIG_FILE := $(CONFIG_FILE_DIR)/config.mk
 FEATURE_DIR := $(SOURCE_ROOT)build/configs
 DEFCONFIG_LIST :=
+DEPENDENCY_DICT :=
 
 COMPONENT_DIRECTORIES := . \
                          app/example   \
@@ -29,19 +30,21 @@ COMPONENT_DIRECTORIES := . \
                          drivers    \
                          security
 
-ifneq ($(ONLY_BUILD_LIBRARY), yes)
 COMPONENT_DIRECTORIES += $(OUTPUT_DIR)
-endif
-
 COMPONENT_DIRECTORIES += $(APPDIR)
 
 ##################################
 # Macros
 ##################################
 
-# $(1) is component
+#####################################################################################
+# Macro GET_BARE_LOCATION get relative path from $(SOURCE_ROOT) to component
+# $(1) is component name
 GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $($(1)_LOCATION)))
 
+#####################################################################################
+# Macro PREPROCESS_TEST_COMPONENT get test components from command line:
+#   aos make yts@boardname test="comp1,comp2..."
 define PREPROCESS_TEST_COMPONENT
 $(if $(filter yts,$(COMPONENTS)), \
 $(if $(test), $(eval TEST_COMPONENTS := $(foreach tmpcomp,$(strip $(subst $(COMMA),$(SPACE),$(test))),$(if $(findstring _test,$(tmpcomp)),$(tmpcomp),$(addsuffix _test,$(tmpcomp))))),) \
@@ -50,7 +53,8 @@ endef
 
 #####################################################################################
 # Macro FIND_VARIOUS_COMPONENT use breadth traversal to search features/components
-# $(1) is the list of features/components left to process. $(COMP) is set as the first element in the list
+# $(1) is the list of features/components left to process.
+# $(COMP) is set as the first element in the list
 define FIND_VARIOUS_COMPONENT
 
 $(eval COMP := $(word 1,$(1)))
@@ -112,7 +116,7 @@ $(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
 	$(eval REAL_COMPONENTS_LOCS += $(COMP)) \
 	$(eval iotx_check_RET:=0)\
 	$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS)) \
-	DEPENDENCY += '$(NAME)': '$($(NAME)_COMPONENTS)',)
+	DEPENDENCY_DICT += '$(NAME)': '$($(NAME)_COMPONENTS)',)
     
 endef
 
@@ -228,7 +232,6 @@ endif
 
 endef
 
-
 #####################################################################################
 # Macro PROCESS_COMPONENT
 # $(1) is the list of components left to process. $(COMP) is set as the first element in the list
@@ -246,35 +249,28 @@ endef
 # Separate the build string into components
 COMPONENTS := $(subst @, ,$(MAKECMDGOALS))
 
-ifneq (,$(filter mk3060,$(COMPONENTS)))
-ifneq (,$(filter bootloader,$(COMPONENTS)))
-$(error mk3060 doesn't support bootlaoder option)
-endif
-endif
-
-#Dependency python dict start
-DEPENDENCY := "{
-
+# Valid build types
 BUILD_TYPE_LIST := debug \
                    release_log \
                    release
 
-# Extract out: the debug/release option, OTA option, and the lint option
+# Filter out the BUILD_TYPE from COMPONENTS
 BUILD_TYPE          := $(if $(filter $(BUILD_TYPE_LIST),$(COMPONENTS)),$(firstword $(filter $(BUILD_TYPE_LIST),$(COMPONENTS))),release_log)
 COMPONENTS          := $(filter-out $(BUILD_TYPE_LIST), $(COMPONENTS))
 
-# Set debug/release specific options
+# Set LDFLAGS according to BUILD_TYPE
 ifeq ($(BUILD_TYPE),release)
 AOS_SDK_LDFLAGS  += $(COMPILER_SPECIFIC_RELEASE_LDFLAGS)
 else
 AOS_SDK_LDFLAGS  += $(COMPILER_SPECIFIC_DEBUG_LDFLAGS)
 endif
 
-
 # Check if there are any unknown components; output error if so.
+# TODO: replace with prebuild logic
 $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) $(REAL_COMPONENTS)),,$(error Unknown component: $(comp))))
 
 # Find the matching platform and application from the build string components
+# TODO: repace with prebuild logic
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
 
 APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)app/profile/$(comp) $(SOURCE_ROOT)$(comp) $(SOURCE_ROOT)test/develop/$(comp)),$(comp),)))
@@ -284,17 +280,21 @@ APP         :=$(notdir $(APP_FULL))
 
 PLATFORM_DIRECTORY := $(PLATFORM_FULL)
 
+# Set APP_VERSION used by OTA
 CONFIG_SYSINFO_APP_VERSION = app-1.0.0-$(CURRENT_TIME)
 $(info app_version:${CONFIG_SYSINFO_APP_VERSION})
 
+# Append PLATFORM (Board) and APP_VERSION to EXTRA_CFLAGS
 EXTRA_CFLAGS := \
                 -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END) \
                 -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
 
-# Append -include/--preinclude args to EXTRA_CFLAGS
+# Append "-include/--preinclude auto.h" to EXTRA_CFLAGS
+# TODO: fix auto.h path for Keil/IAR project
 EXTRA_CFLAGS += $(call INCLUDE_AUTOCONF_H) $(call INCLUDE_SYSCONFIG_H)
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
+# TODO: repalce with prebuild logic
 $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
 
 include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/aos.mk
@@ -304,6 +304,7 @@ include $($(HOST_MCU_FAMILY)_LOCATION)/aos.mk
 MAIN_COMPONENT_PROCESSING :=1
 
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
+# TODO: remove the duplicate include for toolchain makefile
 CC :=
 
 ifeq ($(COMPILER),armcc)
@@ -321,6 +322,7 @@ $(error No matching toolchain found for architecture $(HOST_ARCH))
 endif
 
 # MBINS build support
+# TODO: Move to MBINS support makefile
 ifeq ($(MBINS),app)
 ifeq ($(ENABLE_USPACE),1)
 COMPONENTS += mm
@@ -342,23 +344,17 @@ else ifeq (,$(MBINS))
 AOS_SDK_DEFINES += BUILD_BIN
 endif
 
+# Process component metadata
+# TODO: Move to prebuild target
 ALL_MAKEFILES :=
-ifneq ($(CUBE_MAKEFILE), )
-include $(CUBE_MAKEFILE)
-COMPONENTS += $(CUBE_ADD_COMPONENTS)
-COMPONENT_DIRECTORIES += $(CUBE_AOS_DIR)
-endif
-
 CURDIR :=
 $(info processing components: $(COMPONENTS))
 $(eval $(call FIND_VARIOUS_COMPONENT, $(COMPONENTS)))
-# remove repeat component
 $(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
-PLATFORM    :=$(notdir $(PLATFORM_FULL))
-
 # Include feature defconfig files
+# TODO: disable features support, replace with menuconfig
 reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
 $(foreach defconfig, $(call reverse,$(DEFCONFIG_LIST)), $(eval include $(defconfig)))
 
@@ -371,9 +367,8 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)include \
 
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
-ALL_RESOURCES := $(sort $(foreach comp,$(PROCESSED_COMPONENTS),$($(comp)_RESOURCES_EXPANDED)))
-
 # Make sure the user has specified a component from each category
+# TODO: disable after single comp build supported
 $(if $(PLATFORM),,$(error No platform specified. Options are: $(notdir $(wildcard board/*))))
 $(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard app/example/*))))
 
@@ -383,6 +378,7 @@ $(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard 
 #$(if $(WLAN_CHIP_FAMILY),,$(error No WLAN_CHIP_FAMILY has been defined))
 $(if $(HOST_OPENOCD),,$(error No HOST_OPENOCD has been defined))
 
+# TODO: replace with prebuild logic
 VALID_PLATFORMS :=
 INVALID_PLATFORMS :=
 
@@ -394,23 +390,17 @@ $(eval $(if $(VALID_PLATFORMS), $(if $(filter $(VALID_PLATFORMS),$(PLATFORM)),,$
 $(eval $(if $(INVALID_PLATFORMS), $(if $(filter $(INVALID_PLATFORMS),$(PLATFORM)),$(error $(APP) application does not support $(PLATFORM) platform)),))
 $(eval $(if $(VALID_BUILD_TYPES), $(if $(filter $(VALID_BUILD_TYPES),$(BUILD_TYPE)),,$(error $(APP) application does not support $(BUILD_TYPE) build)),))
 
-ifneq ($(ONLY_BUILD_LIBRARY), yes)
-#Dependency python dict end
-DEPENDENCY += }"
-#Call python script
-$(eval DEPENDENCY = $(shell $(COMPONENT_DEPENDENCY) $(OUTPUT_DIR) $(DEPENDENCY)))
+# Write python dict DEPENDENCY_DICT to json file:
+#   DEPENDENCY_DICT = "{ comp: [deplist], ... }"
+dependency_file:
+	$(eval DEPENDENCY_DICT = "{ $(DEPENDENCY_DICT) }")
+	$(PYTHON) $(SCRIPTS_PATH)/component_dependencies.py $(OUTPUT_DIR) $(DEPENDENCY_DICT)
 
-REMOVE_FIRST = $(wordlist 2,$(words $(1)),$(1))
-
+# Support for extra targets defined by component
 EXTRA_TARGET_MAKEFILES :=$(call unique,$(EXTRA_TARGET_MAKEFILES))
 $(foreach makefile_name,$(EXTRA_TARGET_MAKEFILES),$(eval include $(makefile_name)))
 
-$(CONFIG_FILE_DIR):
-	$(QUIET)$(call MKDIR, $@)
-
-endif
 # Summarize all the information into the config file
-
 
 # Fill out full CFLAGS - done here to allow late expansion of macros
 $(foreach comp,$(PROCESSED_COMPONENTS), $(eval $(comp)_CFLAGS_ALL := $(call ADD_COMPILER_SPECIFIC_STANDARD_CFLAGS,$($(comp)_OPTIM_CFLAGS))) )
@@ -421,7 +411,6 @@ $(foreach comp,$(PROCESSED_COMPONENTS), $(eval $(comp)_CXXFLAGS_ALL := $(call AD
 $(foreach comp,$(PROCESSED_COMPONENTS), $(eval $(comp)_CXXFLAGS_ALL += $(EXTRA_CFLAGS)) )
 $(foreach comp,$(PROCESSED_COMPONENTS), $(eval $(comp)_CXXFLAGS_ALL += $($(comp)_CXXFLAGS)) )
 
-ifneq ($(ONLY_BUILD_LIBRARY), yes)
 # select the prebuilt libraries
 ifeq (app, $(MBINS))
 AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $($(comp)_MBINS_TYPE), $(if $(filter app share, $($(comp)_MBINS_TYPE)),$(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
@@ -438,11 +427,14 @@ ifeq ($(ADD_UNIT_TESTS_TO_LINK_FILES),1)
 AOS_SDK_LINK_FILES         += $(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(patsubst %.c,%.o, $(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $$(OUTPUT_DIR)/Modules/$(call GET_BARE_LOCATION,$(comp)),$($(comp)_UNIT_TEST_SOURCES))) )))
 endif
 
-
 # Build target, generate config file
 .PHONY: $(MAKECMDGOALS)
 $(MAKECMDGOALS): $(CONFIG_FILE) $(TOOLCHAIN_HOOK_TARGETS)
 
+$(CONFIG_FILE_DIR):
+	$(QUIET)$(call MKDIR, $@)
+
+# Create config.mk
 $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_FILE) ,AOS_SDK_MAKEFILES           		+= $(AOS_SDK_MAKEFILES))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,TOOLCHAIN_NAME            		:= $(TOOLCHAIN_NAME))
@@ -489,7 +481,6 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach var,$(sort $(FEATURE_SHOW_VARS)), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(var) := $($(var))))
 	
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_UNIT_TEST_SOURCES   		:= $(AOS_SDK_UNIT_TEST_SOURCES))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,ALL_RESOURCES             		:= $(call unique,$(ALL_RESOURCES)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,INTERNAL_MEMORY_RESOURCES 		:= $(call unique,$(INTERNAL_MEMORY_RESOURCES)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,EXTRA_TARGET_MAKEFILES 			:= $(EXTRA_TARGET_MAKEFILES))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,APPS_START_SECTOR 				:= $(APPS_START_SECTOR) )
@@ -508,4 +499,3 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_RAM_STUB_LIST_FILE 			:= $(AOS_RAM_STUB_LIST_FILE))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,PING_PONG_OTA 					:= $(PING_PONG_OTA))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_CPLUSPLUS_FLAGS:= $(AOS_CPLUSPLUS_FLAGS))
-endif
