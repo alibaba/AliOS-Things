@@ -4,6 +4,5 @@ source "utility/activation/chip_code/Config.in"
 source "utility/base64/Config.in"
 source "utility/cjson/Config.in"
 source "utility/libc/Config.in"
-source "utility/log/Config.in"
 source "utility/zlib/Config.in"
 ## --- End ---
