@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #include "network/hal/base.h"
 #include <hal/wifi.h>
