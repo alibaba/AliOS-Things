@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef CPU_H
-#define CPU_H
+#ifndef PORT_H
+#define PORT_H
 #include <xtensa/tie/xt_core.h>
 #include <xtensa/hal.h>
 #include <xtensa/config/core.h>
@@ -24,27 +24,27 @@ void  *cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg, task_entry
 #define cpu_intrpt_save()           XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL)
 #define cpu_intrpt_restore(cpsr)    XTOS_RESTORE_JUST_INTLEVEL(cpsr)
 
-/* normal int lock (can not lock the NMI) */
-#define CPSR_ALLOC() size_t cpsr
-
 #if (RHINO_CONFIG_CPU_NUM > 1)
 extern void k_cpu_spin_lock(kspinlock_t *lock);
 extern void k_cpu_spin_unlock(kspinlock_t *lock);
 
-#define cpu_spin_lock       k_cpu_spin_lock
-#define cpu_spin_unlock     k_cpu_spin_unlock
+#define cpu_spin_lock               k_cpu_spin_lock
+#define cpu_spin_unlock             k_cpu_spin_unlock
 
-
-/* normal int lock (can not lock the NMI) */
-#define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save();krhino_spin_lock(&g_sys_lock); }
-#define RHINO_CPU_INTRPT_ENABLE()  { krhino_spin_unlock(&g_sys_lock); cpu_intrpt_restore(cpsr);}
+#define CPSR_ALLOC()                cpu_cpsr_t cpsr
+#define RHINO_CPU_INTRPT_DISABLE()  \
+        do{cpsr = cpu_intrpt_save();krhino_spin_lock(&g_sys_lock);}while(0)
+#define RHINO_CPU_INTRPT_ENABLE()   \
+        do{krhino_spin_unlock(&g_sys_lock); cpu_intrpt_restore(cpsr);}while(0)
 
 #else
-#define RHINO_CPU_INTRPT_DISABLE() { cpsr = cpu_intrpt_save(); }
-#define RHINO_CPU_INTRPT_ENABLE()  { cpu_intrpt_restore(cpsr); }
+/* normal int lock (can not lock the NMI) */
+#define CPSR_ALLOC()                cpu_cpsr_t cpsr
+#define RHINO_CPU_INTRPT_DISABLE()  \
+        do{cpsr = cpu_intrpt_save();}while(0)
+#define RHINO_CPU_INTRPT_ENABLE()   \
+        do{cpu_intrpt_restore(cpsr);}while(0)
 #endif
-
-
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
 void cpu_signal(uint8_t cpu_num);
@@ -64,7 +64,6 @@ static inline void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, u
         );
 }
 
-
 #else
 RHINO_INLINE uint8_t cpu_cur_get(void)
 {
@@ -72,5 +71,5 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
 }
 #endif
 
-#endif /* CPU_H */
+#endif /* PORT_H */
 
