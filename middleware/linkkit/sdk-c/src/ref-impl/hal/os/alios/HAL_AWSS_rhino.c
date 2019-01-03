@@ -12,7 +12,7 @@ extern "C"
 #include <string.h>
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "aos/yloop.h"
 
 #include <hal/wifi.h>

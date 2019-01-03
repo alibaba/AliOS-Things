@@ -9,7 +9,7 @@
 
 #include "aos/errno.h"
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #include "mbedtls/config.h"
 #include "mbedtls/error.h"
