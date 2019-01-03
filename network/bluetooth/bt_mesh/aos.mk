@@ -9,8 +9,6 @@ $(NAME)_COMPONENTS-y += bt_common bt_mesh_port
 $(NAME)_INCLUDES-y += ./inc/ \
                       ./inc/api/mesh
 
-$(NAME)_COMPONENTS-y += yloop
-
 $(NAME)_SOURCES-y := ./src/access.c \
                      ./src/adv.c \
                      ./src/beacon.c \
