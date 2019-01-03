@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "aos/kernel.h"
-#include <aos/log.h>
+#include "ulog/ulog.h"
 #include <k_err.h>
 #include <yunit.h>
 #include <yts.h>
