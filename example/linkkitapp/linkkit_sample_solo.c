@@ -36,7 +36,7 @@ char *PRODUCT_KEY=NULL;
     #define CUSTOME_DOMAIN_HTTP     "iot-auth.cn-shanghai.aliyuncs.com"
 #endif
 
-#define USER_EXAMPLE_YIELD_TIMEOUT_MS (20)
+#define USER_EXAMPLE_YIELD_TIMEOUT_MS (60)
 
 #define EXAMPLE_TRACE(...)                               \
     do {                                                     \
