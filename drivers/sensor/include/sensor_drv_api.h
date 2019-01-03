@@ -7,7 +7,7 @@
 
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "aos/hal/i2c.h"
 #include "udata/hal/sensor.h"
 #include "aos/hal/spi.h"
