@@ -39,8 +39,8 @@ GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
 GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 
 
-# Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
+# Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
+EXTRA_TARGET_MAKEFILES +=
 
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))

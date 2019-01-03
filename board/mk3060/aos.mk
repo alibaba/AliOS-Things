@@ -43,6 +43,5 @@ GLOBAL_LDS_INCLUDES += $($(NAME)_LOCATION)/memory.ld.S
 
 GLOBAL_2BOOT_LDS_INCLUDES = $($(NAME)_LOCATION)/memory_2boot.ld.S
 
-# Extra build target in mico_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
-EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
+# Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk
