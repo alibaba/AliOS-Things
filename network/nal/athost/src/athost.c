@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #include "at_util.h"
 #include "athost_export.h"
