@@ -166,9 +166,7 @@ int application_start(int argc, char **argv)
     alink_work(NULL);
 
 #ifdef CONTINUE_BEL_ADV
-    aos_post_delayed_action(5000, adv_work, NULL);
+    adv_work(NULL);
 #endif
-    aos_loop_run();
-
     return 0;
 }
