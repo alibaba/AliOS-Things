@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #include <km.h>
 #include <plat_gen.h>

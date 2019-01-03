@@ -10,7 +10,7 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "iot_export_mqtt.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "aos/yloop.h"
 #include "network/network.h"
 #include <netmgr.h>

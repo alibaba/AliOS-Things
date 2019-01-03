@@ -21,7 +21,7 @@
 #include "quirc_internal.h"
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #define TIMING(x) do{\
             long long current_ms = aos_now_ms();\
