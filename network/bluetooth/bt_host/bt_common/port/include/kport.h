@@ -5,7 +5,7 @@
 #ifndef KPORT_H
 #define KPORT_H
 #include "config.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #include <misc/dlist.h>
 
