@@ -34,6 +34,7 @@ $(NAME)_INCLUDES   += syscall/ksyscall
 else ifeq ($(MBINS),app)
 $(NAME)_SOURCES := u_timer.c
 $(NAME)_SOURCES += u_res_task.c
+$(NAME)_SOURCES += u_cli_task.c
 $(NAME)_SOURCES += u_mm.c
 $(NAME)_SOURCES += syscall/usyscall/hal_adc_usyscall.c
 $(NAME)_SOURCES += syscall/usyscall/hal_dac_usyscall.c
