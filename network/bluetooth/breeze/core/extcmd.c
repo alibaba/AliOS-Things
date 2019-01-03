@@ -64,7 +64,10 @@ static const ext_tlv_type_handler_t
   m_tlv_type_handler_table[] = /**< TLV type handler table. */
   { { 0x01, ext_cmd01_rsp}, { 0x02, ext_cmd02_rsp},
     { 0x03, ext_cmd03_rsp}, { 0x04, ext_cmd04_rsp},
-    { 0x05, ext_cmd05_rsp}, { 0x06, ext_cmd06_rsp},
+    { 0x05, ext_cmd05_rsp},
+#if BZ_ENABLE_COMBO_NET
+    { 0x06, ext_cmd06_rsp},
+#endif
 #ifdef CONFIG_AIS_SECURE_ADV
     { 0x07, ext_cmd07_rsp}
 #endif
@@ -182,8 +185,10 @@ static ret_code_t ext_cmd05_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t 
     return err_code;
 }
 
+#if BZ_ENABLE_COMBO_NET
 static ret_code_t ext_cmd06_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen)
 {
+
     ret_code_t err_code = BZ_SUCCESS;
     uint8_t idx = 0, tlvtype, tlvlen;
     static uint8_t ready_flag = 0;
@@ -252,6 +257,7 @@ end:
 
     return err_code;
 }
+#endif
 
 #ifdef CONFIG_AIS_SECURE_ADV
 static ret_code_t ext_cmd07_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen)
