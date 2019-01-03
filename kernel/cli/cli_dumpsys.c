@@ -35,8 +35,6 @@ typedef struct {
 
 ktimer_t g_mm_leak_check_timer;
 
-int dump_task_stack_byname(char *taskname);
-
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
 
 uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
@@ -309,17 +307,6 @@ uint32_t dumpsys_func(char *pcWriteBuffer, int32_t xWriteBufferLen, int32_t argc
 
         return ret;
     }
-#ifndef CSP_LINUXHOST
-    else if (argc >= 2 && 0 == strcmp(argv[1], "task_stack")) {
-        if (argc == 3) {
-            ret = dump_task_stack_byname(argv[2]);
-        } else {
-            ret = dump_task_stack_byname((char *)krhino_cur_task_get()->task_name);
-        }
-
-        return ret;
-    }
-#endif
     else if (argc == 2 && 0 == strcmp(argv[1], "info")) {
         ret = dumpsys_info_func(pcWriteBuffer, xWriteBufferLen);
         return ret;
@@ -356,89 +343,6 @@ uint32_t dumpsys_func(char *pcWriteBuffer, int32_t xWriteBufferLen, int32_t argc
         return RHINO_SUCCESS;
     }
 }
-
-int dump_task_stack(ktask_t *task)
-{
-    size_t  offset = 0;
-    kstat_t rst    = RHINO_SUCCESS;
-    void   *cur, *end;
-
-    int32_t  i = 0;
-    int32_t *p;
-
-    char    *printbuf = NULL;
-    int32_t  totallen = 2048;
-    int32_t  stacklen;
-
-    char *esc_tag = cli_tag_get();
-
-    printbuf = cli_malloc(totallen);
-    if (printbuf ==  NULL) {
-        return RHINO_NO_MEM;
-    }
-    memset(printbuf, 0, totallen);
-
-    krhino_sched_disable();
-
-    end = task->task_stack_base + task->stack_size;
-
-    rst = krhino_task_stack_cur_free(task, &offset);
-    if (rst == RHINO_SUCCESS) {
-        cur = task->task_stack_base + task->stack_size - (uint32_t)offset;
-    } else {
-        k_err_proc(RHINO_SYS_SP_ERR);
-        cli_free(printbuf);
-        krhino_sched_enable();
-        return 1;
-    }
-    stacklen = (int32_t)end - (int32_t)cur;
-    totallen = (totallen > stacklen) ? stacklen :totallen;
-    memcpy(printbuf,cur,totallen);
-    krhino_sched_enable();
-
-    cur = printbuf;
-    end = (void *)(printbuf + totallen);
-
-    p = (int32_t *)cur;
-    while (p < (int32_t *)end) {
-        if (i % 4 == 0) {
-            cli_printf("%s\r\n%08x:", esc_tag, (uint32_t)p);
-        }
-        cli_printf("%s%08x ",esc_tag, *p);
-        i++;
-        p++;
-    }
-
-    cli_free(printbuf);
-    cli_printf("%s\r\n-----------------end----------------\r\n\r\n",esc_tag);
-
-    return 0;
-}
-
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
-int dump_task_stack_byname(char *taskname)
-{
-    klist_t *taskhead = &g_kobj_list.task_head;
-    klist_t *taskend  = taskhead;
-    klist_t *tmp;
-    ktask_t *task;
-    int32_t  printall = 0;
-
-    if (strcmp(taskname, "all") == 0) {
-        printall = 1;
-    }
-
-    for (tmp = taskhead->next; tmp != taskend; tmp = tmp->next) {
-        task = krhino_list_entry(tmp, ktask_t, task_stats_item);
-        if (printall == 1 || strcmp(taskname, task->task_name) == 0) {
-            cli_printf("------task %s stack -------", task->task_name);
-            dump_task_stack(task);
-        }
-    }
-
-    return 0;
-}
-#endif
 
 static void task_cmd(char *buf, int len, int argc, char **argv)
 {
