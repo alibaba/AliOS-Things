@@ -8,8 +8,8 @@ GLOBAL_DEFINES += AOS_COMP_ULOG
 #sync mode is default selected using
 $(NAME)_SOURCES     := log.c ulog_init.c
 
-ifeq ($(log_async),1)
-GLOBAL_DEFINES += ULOG_CONFIG_ASYNC
+ifeq ($(ULOG_CONFIG_ASYNC),y)
+#GLOBAL_DEFINES += ULOG_CONFIG_ASYNC
 $(NAME)_SOURCES     += ulog.c
 $(NAME)_SOURCES     += uring_fifo.c
 endif
