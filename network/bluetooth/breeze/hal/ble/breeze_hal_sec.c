@@ -7,7 +7,7 @@
 #include <breeze_hal_sec.h>
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #include "ali_crypto.h"
 

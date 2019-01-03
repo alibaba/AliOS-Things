@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #include "aos/hal/uart.h"
 
