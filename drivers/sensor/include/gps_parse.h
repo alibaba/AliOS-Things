@@ -14,7 +14,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "aos/kernel.h"
 #include "network/hal/base.h"
 #include "udata/hal/sensor.h"

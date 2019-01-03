@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "aos/kernel.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 
 #include <k_api.h>
 #include "network/hal/base.h"

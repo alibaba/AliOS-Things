@@ -6,7 +6,7 @@
 #define SENSOR_HAL_H
 #include <aos/init.h>
 #include <aos/errno.h>
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "udata/hal/sensor.h"
 
 #define SENSOR_DRV_ADD(func) \
