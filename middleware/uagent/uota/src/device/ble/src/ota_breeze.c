@@ -176,7 +176,6 @@ static unsigned int ota_breeze_start()
                                 if (error_code == OTA_BREEZE_SUCCESS) {
                                     ota_breeze_set_status(OTA_BREEZE_STATE_IDLE);
                                 }
-                                send_err = false;
                                 printf("setboot failed\r\n");
                             }
                         }
@@ -188,19 +187,20 @@ static unsigned int ota_breeze_start()
                     default:
                         break;
                 }
-            }
-            if (send_err) {
-                printf("send error report\r\n");
-                (void)ota_breeze_send_error();
-                break;
+                if(send_err) {
+                    ota_breeze_send_error();
+                    printf("send err report\r\n");
+                    goto OTA_BREEZE_OVER;
+                }
             }
         }
         ota_msleep(1);
     }
 OTA_BREEZE_OVER:
-    printf("task over!");
+    printf("task over!\r\n");
     ota_breeze_destroy_receive_buf();
     ota_breeze_set_task_active_flag(false);
+    ota_breeze_set_status(OTA_BREEZE_STATE_IDLE);
     return 0;
 }
 
@@ -251,7 +251,7 @@ void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigne
     else {
         ota_breeze_set_task_active_ctrl(false);
         ota_breeze_set_status(OTA_BREEZE_STATE_IDLE);
-        printf("ota status error\r\n");
+        printf("ota stus err\r\n");
     }
 
 }
@@ -281,5 +281,4 @@ void ota_breeze_relate_event(unsigned char event_type, unsigned char sub_status)
             break;
     }
 }
-
 
