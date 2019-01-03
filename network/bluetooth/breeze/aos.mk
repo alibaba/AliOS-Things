@@ -10,6 +10,7 @@ $(NAME)_SOURCES-y += core/transport.c
 $(NAME)_SOURCES-y += core/ble_service.c
 $(NAME)_SOURCES-y += core/sha256.c
 $(NAME)_SOURCES-y += core/utils.c
+$(NAME)_SOURCES-y += core/extcmd.c
 
 GLOBAL_INCLUDES-y += api include hal/include
 
@@ -39,7 +40,6 @@ ifeq ($(bz_en_auth), 0)
 $(error awss need authentication, please set "bz_en_auth = 1")
 endif
 GLOBAL_DEFINES-y += EN_COMBO_NET
-$(NAME)_SOURCES-y += core/extcmd.c
 $(NAME)_SOURCES-y += api/breeze_awss_export.c
 endif
 
