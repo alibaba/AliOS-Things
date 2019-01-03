@@ -206,9 +206,9 @@ MBINS_ERROR := error
 endif
 endif
 
-PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) export_linkkit_sdk restore_linkkit_sdk,$(MAKECMDGOALS))) #download total
-$(PASSDOWN_TARGETS):
-	@:
+#PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) export_linkkit_sdk restore_linkkit_sdk,$(MAKECMDGOALS))) #download total
+#$(PASSDOWN_TARGETS):
+#	@:
 
 $(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app 2boot
 
