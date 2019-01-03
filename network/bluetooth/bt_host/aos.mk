@@ -9,8 +9,6 @@ GLOBAL_DEFINES-y += AOS_BT
 GLOBAL_INCLUDES-y += include \
                    include/drivers
 
-$(NAME)_COMPONENTS-y += yloop
-
 $(NAME)_COMPONENTS-y += bluetooth.bt_host.bt_common
 
 $(NAME)_SOURCES-y := host/uuid.c \
