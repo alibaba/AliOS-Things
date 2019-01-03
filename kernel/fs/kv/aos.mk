@@ -16,4 +16,4 @@ endif
 GLOBAL_INCLUDES += . include
 GLOBAL_DEFINES  += AOS_COMP_KV
 
-AOS_COMP_KV ?= 1
+AOS_COMP_KV ?= y
