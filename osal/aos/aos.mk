@@ -54,12 +54,8 @@ ifeq ($(AOS_COMP_KV), 1)
 $(NAME)_SOURCES += kv.c
 endif
 
-ifeq ($(AOS_COMP_MBMASTER),1)
+ifeq ($(AOS_COMP_MBMASTER),y)
 $(NAME)_SOURCES += mbmaster.c
-endif
-
-ifeq ($(AOS_COMP_PWRMGMT),1)
-$(NAME)_SOURCES += pwrmgmt.c
 endif
 
 ifeq ($(AOS_COMP_CLI),1)
