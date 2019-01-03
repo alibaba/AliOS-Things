@@ -28,7 +28,7 @@
  */
 
 #ifndef CONFIG_BT_HCI_TX_STACK_SIZE
-#define CONFIG_BT_HCI_TX_STACK_SIZE 288
+#define CONFIG_BT_HCI_TX_STACK_SIZE 280
 #endif
 
 /**
