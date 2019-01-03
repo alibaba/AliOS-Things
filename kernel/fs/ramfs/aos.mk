@@ -6,7 +6,6 @@ $(NAME)_SUMMARY := RAM file system
 
 $(NAME)_SOURCES += ramfs.c ramfs_adapt.c
 
-AOS_COMP_VFS ?= y
 ifeq ($(AOS_COMP_VFS),y)
 $(NAME)_COMPONENTS += vfs
 $(NAME)_SOURCES    += ramfs_vfs.c
