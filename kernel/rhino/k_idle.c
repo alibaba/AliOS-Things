@@ -40,7 +40,7 @@ void idle_task(void *arg)
         krhino_idle_hook();
 #endif
 
-#if (AOS_COMP_PWRMGMT > 0)
+#if (RHINO_CONFIG_PWRMGMT > 0)
         cpu_pwr_down();
 #endif
     }
