@@ -1,14 +1,13 @@
 menuconfig AOS_MCU_CY8C6347
-    bool "cy8c6347"
+    bool "mcu_cy8c6347"
     default n
-    select AOS_COMP_HAL
-    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_VFS
-    select AOS_COMP_RHINO
-    select AOS_ARCH_ARMV7M
     select AOS_COMP_KV
-    select AOS_COMP_DIGEST_ALGORITHM
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu cy8c6347
 
 if AOS_MCU_CY8C6347
 # Configurations for mcu cy8c6347

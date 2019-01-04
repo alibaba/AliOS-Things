@@ -1,9 +1,10 @@
 menuconfig AOS_MCU_ES8P508X
-    bool "es8p508x"
+    bool "mcu_es8p508x"
     default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu es8p508x
 
 if AOS_MCU_ES8P508X
 # Configurations for mcu es8p508x

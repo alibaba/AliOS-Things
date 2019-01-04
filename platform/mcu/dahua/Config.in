@@ -1,27 +1,17 @@
 menuconfig AOS_MCU_DAHUA
-    bool "dahua"
+    bool "mcu_dahua"
     default n
-    select AOS_ARCH_CSKYV2-L
-    select AOS_COMP_COMMON
-    select AOS_COMP_HAL
+    select AOS_COMP_LWIP if @CONDITION@
     select AOS_COMP_CLI
+    select AOS_COMP_SAL if @CONDITION@
     select AOS_COMP_CJSON
-    select AOS_MCU_HAL_INIT
+    select AOS_COMP_NETMGR
     select AOS_COMP_RHINO
-    select AOS_COMP_SAL if AOS_MCU_DAHUA_SAL
-    select AOS_COMP_LWIP if AOS_MCU_DAHUA_LWIP
+    select AOS_COMP_DEVICE_SAL_ESP8266 if @CONDITION@
+    select AOS_ARCH_CSKYV2-L
     help
+      driver & sdk for platform/mcu dahua
 
 if AOS_MCU_DAHUA
 # Configurations for mcu dahua
-config AOS_MCU_DAHUA_LWIP
-    int "LWIP Support"
-    default 1
-    help
-
-config AOS_MCU_DAHUA_SAL
-    int "SAL Support"
-    default 0
-    help
-
 endif

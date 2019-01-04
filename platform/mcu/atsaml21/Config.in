@@ -1,9 +1,10 @@
 menuconfig AOS_MCU_ATSAML21
-    bool "atsaml21"
+    bool "mcu_atsaml21"
     default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu atsaml21
 
 if AOS_MCU_ATSAML21
 # Configurations for mcu atsaml21

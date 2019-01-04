@@ -1,17 +1,15 @@
 menuconfig AOS_MCU_RDA5981X
-    bool "RDA5981x"
+    bool "mcu_RDA5981x"
     default n
-    select AOS_COMP_COMMON
-    select AOS_COMP_HAL
+    select AOS_COMP_LWIP
     select AOS_COMP_CLI
-    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
-    select AOS_COMP_CJSON
-    select AOS_COMP_LWIP
-    select AOS_COMP_DIGEST_ALGORITHM
+    select AOS_COMP_NEWLIB_STUB
     help
+      driver & sdk for platform/mcu RDA5981x
 
 if AOS_MCU_RDA5981X
 # Configurations for mcu RDA5981x

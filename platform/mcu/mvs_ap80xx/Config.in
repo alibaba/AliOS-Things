@@ -1,9 +1,10 @@
 menuconfig AOS_MCU_MVS_AP80XX
-    bool "mvs_ap80xx"
+    bool "mcu_mvs_ap80xx"
     default n
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu mvs_ap80xx
 
 if AOS_MCU_MVS_AP80XX
 # Configurations for mcu mvs_ap80xx

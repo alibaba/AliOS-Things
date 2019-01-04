@@ -1,19 +1,15 @@
 menuconfig AOS_MCU_RTL8710BN
-    bool "rtl8710bn"
+    bool "mcu_rtl8710bn"
     default n
-    select AOS_COMP_COMMON
-    select AOS_COMP_HAL
-    select AOS_COMP_CLI
-    select AOS_COMP_NEWLIB_STUB
-    select AOS_COMP_NETMGR
-    select AOS_ARCH_ARMV7M
-    select AOS_COMP_RHINO
-    select AOS_MCU_RTL8710BN_PERIPHERAL_DRIVERS
-    select AOS_COMP_LWIP
-    select AOS_COMP_HALWIFI
-    select AOS_MCU_RTL8710BN_SDK
-    select AOS_COMP_DIGEST_ALGORITHM
+    select AOS_COMP_LWIP if @CONDITION@
+    select AOS_COMP_CLI if @CONDITION@
+    select AOS_COMP_NETMGR if @CONDITION@
+    select AOS_ARCH_ARMV7M if @CONDITION@
+    select AOS_COMP_OTA_2ND_BOOT if @CONDITION@
+    select AOS_COMP_RHINO if @CONDITION@
+    select AOS_COMP_NEWLIB_STUB if @CONDITION@
     help
+      driver & sdk for platform/mcu rtl8710bn
 
 if AOS_MCU_RTL8710BN
 # Configurations for mcu rtl8710bn
