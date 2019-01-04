@@ -9,15 +9,6 @@ $(NAME)_SOURCES += vfs_file.c
 $(NAME)_SOURCES += vfs_inode.c
 $(NAME)_SOURCES += vfs_adapt.c
 
-$(NAME)_SOURCES += vfs_device_adc.c  \
-                   vfs_device_gpio.c \
-                   vfs_device_i2c.c  \
-                   vfs_device_pwm.c  \
-                   vfs_device_rtc.c  \
-                   vfs_device_spi.c  \
-                   vfs_device_uart.c \
-                   vfs_device_wdg.c
-
 ifeq ($(HOST_ARCH),linux)
 $(NAME)_DEFINES += IO_NEED_TRAP
 endif
