@@ -38,13 +38,7 @@ LORACHIP           := sx1276
 
 GLOBAL_DEFINES += M400_LORAWAN
 
-#$(NAME)_COMPONENTS += network.lorawan.lorachip network.lorawan
-#LORACHIP := sx1276
-
-#$(NAME)_LINK_FILES := src/eml3047_it.o
-
-GLOBAL_INCLUDES += .                \
-                   ./inc
+GLOBAL_INCLUDES += . ./inc
 
 GLOBAL_DEFINES += USE_HAL_DRIVER \
                   STM32L071xx
