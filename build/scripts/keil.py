@@ -79,10 +79,12 @@ def get_element_value(element_dict, buildstring):
     if match:
         scatterfile = AOS_RELATIVE_PATH + match.group(2)
         element_dict["ScatterFile"]["value"] = scatterfile
-        element_dict["Misc"]["value"] = match.group(1) + match.group(3)
+
+        tmp_ldflags = match.group(1) + match.group(3)
+        element_dict["Misc"]["value"] = tmp_ldflags.replace("-L ", "")
     else:
         element_dict["ScatterFile"]["value"] = ""
-        element_dict["Misc"]["value"] = config_mk.global_ldflags
+        element_dict["Misc"]["value"] = config_mk.global_ldflags.replace("-L ", "")
 
     # AdsCpuType = HOST_ARCH that defined in board makefile
     element_dict["AdsCpuType"]["value"] = config_mk.host_arch
