@@ -145,7 +145,5 @@
 #define RHINO_SCHED_NONE_PREEMPT             0
 #endif
 
-#define RHINO_CONFIG_BITMAP_HW               1
-
 #endif /* K_CONFIG_H */
 
