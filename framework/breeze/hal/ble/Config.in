@@ -1,0 +1,9 @@
+menuconfig AOS_COMP_BT_BREEZE_HAL
+    #bool "bt_breeze_hal"
+    default n
+    select AOS_COMP_BT
+    help
+
+if AOS_COMP_BT_BREEZE_HAL
+# Configurations for comp bt_breeze_hal
+endif

@@ -40,6 +40,9 @@
 #define EV_DDA                      0x0105
 #define CODE_DDA_ON_CONNECTED         1
 
+#define EV_BZ_COMBO                 0x0106
+#define CODE_COMBO_AP_INFO_READY      1
+
 /** General key define */
 #define  EV_KEY              0x0201
 #define  CODE_RECORD           1

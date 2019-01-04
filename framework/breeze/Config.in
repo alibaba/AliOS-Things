@@ -1,0 +1,25 @@
+menuconfig AOS_COMP_BREEZE
+    bool "Breeze SDK"
+    default n
+    select AOS_COMP_BLE if @CONDITION@
+    select AOS_COMP_CHIP_CODE
+    select AOS_COMP_BT_BREEZE_HAL
+    help
+      AliOS things Breeze SDK
+
+if AOS_COMP_BREEZE
+# Configurations for comp breeze
+
+    config CONFIG_AIS_SECURE_ADV
+        bool "Enable secure adv in Breeze"
+        default y
+
+    config EN_COMBO_NET
+        bool "Enable AWSS feature in Breeze"
+        default y
+
+    config EN_AUTH
+        bool "Enable authentication in Breeze"
+        default y
+
+endif
