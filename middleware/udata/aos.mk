@@ -22,7 +22,7 @@ GLOBAL_DEFINES  += DATA_TO_CLOUD
 endif
 
 ifeq ($(UDATA_CONFIG_CJSON_FORMAT),y)
-$(NAME)_COMPONENTS += utility.cjson
+$(NAME)_COMPONENTS += cjson
 EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/middleware/udata/gen_cjson_data.mk
 GLOBAL_DEFINES += UDATA_CJSON_SUPPORTED
 endif
