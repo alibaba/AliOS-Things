@@ -15,10 +15,6 @@
     #include "simulate_subdev/testcmd.h"
 #endif
 
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-#include "ota_service.h"
-#endif
-
 // for demo only
 #define PRODUCT_KEY      "a16UKrlKekO"
 #define PRODUCT_SECRET   "RDluqbn3LQazrdqM"
@@ -329,9 +325,6 @@ static int event_handler(linkkit_event_t *ev, void *ctx)
         /* cloud connected */
         case LINKKIT_EVENT_CLOUD_CONNECTED: {
             EXAMPLE_TRACE("cloud connected\n");
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-            ota_service_init(NULL);
-#endif
             /* modify user's logic in there */
             /* example case just post all property */
             post_all_properties(gw); /* sync to cloud */

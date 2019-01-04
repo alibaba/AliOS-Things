@@ -6,10 +6,6 @@
 
 #include "aos/kernel.h"
 
-#ifdef OTA_ALIOS 
-#include "ota_service.h"
-#endif
-
 typedef struct {
     int argc;
     char **argv;
