@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_LWIP
-    bool "lwip"
+    bool "LwIP"
     default y
     help
       Support LWIP protocol stack.

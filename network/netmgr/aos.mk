@@ -12,6 +12,12 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS-y      += -Wall -Werror
 endif
 
+ifeq ($(net), cellular)
+GLOBAL_DEFINES-y += NET_WITH_CELLULAR
+$(NAME)_SOURCES-y += hal/cellular.c
+$(NAME)_SOURCES-y += interfaces/netmgr_cellular.c
+GLOBAL_INCLUDES-y += ../include/hal/
+endif
 net ?=  wifi
 ifeq ($(net), wifi)
 ifneq (,$(ssid))
