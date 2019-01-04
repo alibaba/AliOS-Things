@@ -44,7 +44,7 @@ void krhino_task_create_hook(ktask_t *task)
 void krhino_task_del_hook(ktask_t *task, res_free_t *arg)
 {
      printf("%s del success!\n\r", task->task_name);
-            
+
 }
 
 void krhino_task_switch_hook(ktask_t *orgin, ktask_t *dest)
@@ -90,7 +90,7 @@ int           g_region_num = 1;
 void aos_heap_set()
 {
     g_mm_region[0].start = (uint8_t*)&Image$$RW_IRAM1$$ZI$$Limit;
-    g_mm_region[0].len   = 
+    g_mm_region[0].len   =
         (g_iram1_start + g_iram1_total_size - (size_t)&Image$$RW_IRAM1$$ZI$$Limit);
       printf("g_mm_region[0].start is 0x%x, g_mm_region[0].len is 0x%x \r\n", (size_t)g_mm_region[0].start, g_mm_region[0].len);
 }
@@ -109,24 +109,10 @@ int           g_region_num = 1;
 void aos_heap_set()
 {
     g_mm_region[0].start = (uint8_t*)&_ebss;
-    g_mm_region[0].len   = 
+    g_mm_region[0].len   =
         ((uint8_t*)&_estack - (uint8_t*)&_ebss) - RHINO_CONFIG_SYSTEM_STACK_SIZE;
 }
 #endif
-#endif
-
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int __bss_start__, __bss_end__, _sdata, _edata;
-
-void aos_mm_leak_region_init(void)
-{
-#if (RHINO_CONFIG_MM_DEBUG > 0)
-    krhino_mm_leak_region_init(&__bss_start__, &__bss_end__);
-    krhino_mm_leak_region_init(&_sdata, &_edata);
-#endif
-}
-
 #endif
 
 
@@ -166,7 +152,7 @@ static void soc_print_stack()
 void soc_err_proc(kstat_t err)
 {
     (void)err;
-    
+
     #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
     soc_print_stack();
     #endif
