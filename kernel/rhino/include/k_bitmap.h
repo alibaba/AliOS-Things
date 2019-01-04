@@ -125,8 +125,9 @@ RHINO_INLINE int32_t krhino_find_first_bit(uint32_t *bitmap)
     }
 
     tmp = *bitmap;
-
-#if (RHINO_CONFIG_BITMAP_HW == 0)
+#ifdef RHINO_BIT_CLZ
+    nr += RHINO_BIT_CLZ(tmp);
+#else
     if (!(tmp & 0XFFFF0000)) {
         tmp <<= 16;
         nr   += 16;
@@ -150,8 +151,6 @@ RHINO_INLINE int32_t krhino_find_first_bit(uint32_t *bitmap)
     if (!(tmp & 0X80000000)) {
         nr   += 1;
     }
-#else
-    nr += cpu_bitmap_clz(tmp);
 #endif
 
     return nr;
