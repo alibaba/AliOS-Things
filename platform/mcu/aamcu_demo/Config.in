@@ -1,12 +1,13 @@
 menuconfig AOS_MCU_AAMCU_DEMO
-    bool "aamcu_demo"
+    bool "mcu_aamcu_demo"
     default n
-    select AOS_COMP_NEWLIB_STUB
-    select AOS_ARCH_ARMV7M
     select AOS_COMP_VFS
     select AOS_COMP_KV
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu aamcu_demo
 
 if AOS_MCU_AAMCU_DEMO
 # Configurations for mcu aamcu_demo

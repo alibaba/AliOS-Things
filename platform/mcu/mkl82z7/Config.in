@@ -1,15 +1,14 @@
 menuconfig AOS_MCU_MKL82Z7IMPL
-    bool "mkl82z7impl"
+    bool "mcu_mkl82z7impl"
     default n
-    select AOS_COMP_COMMON
     select AOS_COMP_CLI
-    select AOS_COMP_NEWLIB_STUB
     select AOS_ARCH_ARMV6M
-    select AOS_COMP_VFS
     select AOS_COMP_RHINO
     select AOS_COMP_KV
-    select AOS_COMP_DIGEST_ALGORITHM
+    select AOS_COMP_VFS
+    select AOS_COMP_NEWLIB_STUB
     help
+      driver & sdk for platform/mcu mkl82z7impl
 
 if AOS_MCU_MKL82Z7IMPL
 # Configurations for mcu mkl82z7impl

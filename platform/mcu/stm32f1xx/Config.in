@@ -1,14 +1,12 @@
 menuconfig AOS_MCU_STM32F1XX
-    bool "stm32f1xx"
+    bool "mcu_stm32f1xx"
     default n
-    select AOS_COMP_HAL
-    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_VFS
-    select AOS_COMP_HALWIFI
     select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO
-    select AOS_COMP_DIGEST_ALGORITHM
     help
+      driver & sdk for platform/mcu stm32l4xx
 
 if AOS_MCU_STM32F1XX
 # Configurations for mcu stm32f1xx

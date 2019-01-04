@@ -1,9 +1,10 @@
 menuconfig AOS_MCU_HR8P2XX
-    bool "hr8p2xx"
+    bool "mcu_hr8p2xx"
     default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu hr8p2xx
 
 if AOS_MCU_HR8P2XX
 # Configurations for mcu hr8p2xx

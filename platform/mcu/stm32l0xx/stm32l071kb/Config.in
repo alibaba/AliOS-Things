@@ -1,9 +1,10 @@
 menuconfig AOS_MCU_STM32L071KB
-    bool "stm32l071kb"
+    bool "mcu_stm32l071kb"
     default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu stm32l071kb
 
 if AOS_MCU_STM32L071KB
 # Configurations for mcu stm32l071kb
