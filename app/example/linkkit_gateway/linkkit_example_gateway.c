@@ -20,7 +20,7 @@
 #endif
 
 #if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    #include "ota_service.h"
+#include "ota/ota_service.h"
 #endif
 
 // for demo only
@@ -198,9 +198,6 @@ static int user_connected_event_handler(void)
     EXAMPLE_TRACE("Cloud Connected");
 
     user_example_ctx->cloud_connected = 1;
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    ota_service_init(NULL);
-#endif
     return 0;
 }
 
@@ -326,13 +323,24 @@ void set_iotx_info()
 static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
 {
     int res = 0, devid = -1;
+
     devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_SLAVE, meta_info);
     if (devid == FAIL_RETURN) {
         EXAMPLE_TRACE("subdev open Failed\n");
         return FAIL_RETURN;
     }
     EXAMPLE_TRACE("subdev open susseed, devid = %d\n", devid);
-
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+    static ota_service_t ctx = {0};
+    memset(&ctx, 0, sizeof(ota_service_t));
+    strncpy(ctx.pk, meta_info->product_key, sizeof(ctx.pk)-1);
+    strncpy(ctx.dn, meta_info->device_name, sizeof(ctx.dn)-1);
+    strncpy(ctx.ds, meta_info->product_secret, sizeof(ctx.ds)-1);
+    ctx.trans_protcol = 0;
+    ctx.dl_protcol = 3;
+    ctx.dev_type = 1;
+    ota_service_init(&ctx);
+#endif
     res = IOT_Linkkit_Connect(devid);
     if (res == FAIL_RETURN) {
         EXAMPLE_TRACE("subdev connect Failed\n");

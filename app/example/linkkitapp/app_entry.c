@@ -24,7 +24,7 @@
 #include <k_api.h>
 
 #if defined(OTA_ENABLED) && defined(BUILD_AOS)
-#include "ota_service.h"
+#include "ota/ota_service.h"
 #endif
 
 static char linkkit_started = 0;
