@@ -21,10 +21,6 @@
 #define RHINO_CONFIG_CPU_STACK_DOWN          1
 #endif
 
-#ifndef RHINO_CONFIG_BITMAP_HW
-#define RHINO_CONFIG_BITMAP_HW               0
-#endif
-
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
 #define RHINO_CONFIG_SEM                     0
