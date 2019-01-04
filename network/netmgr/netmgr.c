@@ -8,7 +8,8 @@ int netmgr_init(void)
 {
 #ifdef NET_WITH_WIFI
     return netmgr_wifi_init();
-#else
+#elif defined(NET_WITH_CELLULAR)
+    return netmgr_cellular_init();
 #endif
 }
 
@@ -16,7 +17,8 @@ void netmgr_deinit(void)
 {
 #ifdef NET_WITH_WIFI
     netmgr_wifi_deinit();
-#else
+#elif defined(NET_WITH_CELLULAR)
+    netmgr_cellular_deinit();
 #endif
 }
 
@@ -24,6 +26,7 @@ int netmgr_start(bool autoconfig)
 {
 #ifdef NET_WITH_WIFI
     return netmgr_wifi_start(autoconfig);
-#else
+#elif defined(NET_WITH_CELLULAR)
+    return netmgr_cellular_start(autoconfig);
 #endif
 }
