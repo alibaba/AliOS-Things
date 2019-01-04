@@ -44,7 +44,7 @@ void krhino_task_create_hook(ktask_t *task)
 void krhino_task_del_hook(ktask_t *task, res_free_t *arg)
 {
      printf("%s del success!\n\r", task->task_name);
-            
+
 }
 
 void krhino_task_switch_hook(ktask_t *orgin, ktask_t *dest)
@@ -95,27 +95,13 @@ void krhino_mm_alloc_hook(void *mem, size_t size)
     extern uint32_t __aos_heap_start;
     extern uint32_t __aos_heap_size;
     void aos_heap_set()
-    {   
+    {
       g_mm_region[0].start = (uint8_t *)&__aos_heap_start;
       g_mm_region[0].len   = (uint32_t)&__aos_heap_size;
     }
 #endif //GCC
 
 #endif
-
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int __bss_start__, __bss_end__, _sdata, _edata;
-
-void aos_mm_leak_region_init(void)
-{
-#if (RHINO_CONFIG_MM_DEBUG > 0)
-    krhino_mm_leak_region_init(&__bss_start__, &__bss_end__);
-    krhino_mm_leak_region_init(&_sdata, &_edata);
-#endif
-}
-
-#endif //#if (RHINO_CONFIG_MM_TLF > 0)
 
 #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
 size_t soc_get_cur_sp()
@@ -128,6 +114,7 @@ size_t soc_get_cur_sp()
 #endif
     return sp;
 }
+
 static void soc_print_stack()
 {
     void    *cur, *end;
@@ -153,7 +140,7 @@ static void soc_print_stack()
 void soc_err_proc(kstat_t err)
 {
     (void)err;
-    
+
     #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
     soc_print_stack();
     #endif

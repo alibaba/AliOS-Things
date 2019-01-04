@@ -38,7 +38,6 @@
 #endif
 #define RHINO_CONFIG_64_BIT_TYPE             0
 
-
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_INFO
 #define RHINO_CONFIG_TASK_INFO               1
