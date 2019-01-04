@@ -17,7 +17,7 @@
 #include <aos/cli.h>
 #endif
 
-#include "ota_service.h"
+#include "ota/ota_service.h"
 
 static ota_service_t ctx = {0};
 
