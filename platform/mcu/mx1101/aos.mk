@@ -1,5 +1,5 @@
 
-NAME := mcu_MX1101
+NAME := mcu_mx1101
 
 HOST_OPENOCD := mx1101
 
