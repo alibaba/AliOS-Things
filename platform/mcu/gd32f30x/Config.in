@@ -1,9 +1,10 @@
 menuconfig AOS_MCU_GD32F30X
-    bool "gd32f30x"
+    bool "mcu_gd32f30x"
     default n
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu gd32f30x
 
 if AOS_MCU_GD32F30X
 # Configurations for mcu gd32f30x

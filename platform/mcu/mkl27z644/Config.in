@@ -1,13 +1,14 @@
 menuconfig AOS_MCU_MKL27Z644IMPL
-    bool "mkl27z644impl"
+    bool "mcu_mkl27z644impl"
     default n
     select AOS_COMP_CLI
-    select AOS_COMP_NEWLIB_STUB
     select AOS_ARCH_ARMV6M
-    select AOS_COMP_VFS
     select AOS_COMP_RHINO
     select AOS_COMP_KV
+    select AOS_COMP_VFS
+    select AOS_COMP_NEWLIB_STUB
     help
+      driver & sdk for platform/mcu mkl27z644impl
 
 if AOS_MCU_MKL27Z644IMPL
 # Configurations for mcu mkl27z644impl

@@ -1,17 +1,15 @@
 menuconfig AOS_MCU_LPC54608IMPL
-    bool "lpc54608impl"
+    bool "mcu_lpc54608impl"
     default n
-    select AOS_COMP_COMMON
-    select AOS_COMP_HAL
+    select AOS_COMP_LWIP
     select AOS_COMP_CLI
-    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
-    select AOS_COMP_CJSON
-    select AOS_COMP_LWIP
-    select AOS_COMP_DIGEST_ALGORITHM
+    select AOS_COMP_NEWLIB_STUB
     help
+      driver & sdk for platform/mcu lpc54608impl
 
 if AOS_MCU_LPC54608IMPL
 # Configurations for mcu lpc54608impl

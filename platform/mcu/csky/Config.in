@@ -1,18 +1,16 @@
 menuconfig AOS_MCU_CSKY
-    bool "csky"
+    bool "mcu_csky"
     default n
-    select AOS_ARCH_CSKYV2-L
-    select AOS_COMP_COMMON
-    select AOS_COMP_HAL
-    select AOS_COMP_CLI
-    select AOS_COMP_CJSON
-    select AOS_MCU_HAL_INIT
-    select AOS_COMP_HALWIFI
-    select AOS_COMP_SAL if @CONDITION@
     select AOS_COMP_LWIP if @CONDITION@
+    select AOS_COMP_CLI
+    select AOS_COMP_SAL if @CONDITION@
+    select AOS_COMP_CJSON
+    select AOS_COMP_NETMGR if @CONDITION@
     select AOS_COMP_RHINO
     select AOS_COMP_DEVICE_SAL_ESP8266 if @CONDITION@
+    select AOS_ARCH_CSKYV2-L
     help
+      driver & sdk for platform/mcu csky
 
 if AOS_MCU_CSKY
 # Configurations for mcu csky

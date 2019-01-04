@@ -1,12 +1,13 @@
 menuconfig AOS_MCU_LPC54628IMPL
-    bool "lpc54628impl"
+    bool "mcu_lpc54628impl"
     default n
-    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_VFS
     select AOS_COMP_CLI
     select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu lpc54628impl
 
 if AOS_MCU_LPC54628IMPL
 # Configurations for mcu lpc54628impl

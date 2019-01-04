@@ -1,12 +1,11 @@
 menuconfig AOS_MCU_IMX6
-    bool "imx6"
+    bool "mcu_imx6"
     default n
-    select AOS_COMP_NEWLIB_STUB
-    select AOS_COMP_COMMON
     select AOS_ARCH_ARMV7A
-    select AOS_COMP_HAL
+    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu imx6
 
 if AOS_MCU_IMX6
 # Configurations for mcu imx6
