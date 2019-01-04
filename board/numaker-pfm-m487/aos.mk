@@ -18,7 +18,7 @@ GLOBAL_DEFINES += NUMICRO_M487 STDIO_UART=0 STDIO_UART_BUADRATE=115200
 GLOBAL_DEFINES += CLI_CONFIG_SUPPORT_BOARD_CMD=1
 
 $(NAME)_SOURCES += config/k_config.c \
-				   config/partition_conf.c \
+                   config/partition_conf.c \
                    startup/board_cli.c \
                    startup/board.c   \
                    startup/startup.c
@@ -49,7 +49,7 @@ else ifeq ($(WIFI),1)
 SAL := 0
 press_test := 1
 no_with_lwip := 1
-$(NAME)_COMPONENTS  += sal sal.wifi.mk3060
+$(NAME)_COMPONENTS  += sal device_sal_mk3060
 GLOBAL_DEFINES += WITH_SAL
 GLOBAL_DEFINES += DEV_SAL_MK3060
 else
