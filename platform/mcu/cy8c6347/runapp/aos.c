@@ -23,19 +23,7 @@ extern int application_start(int argc, char **argv);
 extern int aos_framework_init(void);
 extern void board_init(void);
 extern int default_UART_Init(void);
-
-#ifdef CERTIFICATION
-int application_start(int argc, char **argv)
-{
-    //supress warning
-    (void)argc;
-    (void)argv;
-    
-    test_certificate();
-    return 0;
-}
-#endif
-
+	
 static void var_init()
 {
     kinit.argc = 0;
@@ -62,9 +50,7 @@ static void sys_init(void)
 #ifdef BOOTLOADER
     main();
 #else
-#ifndef CERTIFICATION	
     hw_start_hal();
-#endif
     board_init();
     var_init();
     aos_kernel_init(&kinit);

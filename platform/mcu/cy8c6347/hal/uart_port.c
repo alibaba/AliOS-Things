@@ -1,24 +1,38 @@
 #include "hal/soc/soc.h"
 #include "scb/cy_scb_common.h"
 #include "scb/cy_scb_uart.h"
+#include "gpio/cy_gpio.h"
+#include "sysclk/cy_sysclk.h"
+#include "sysint/cy_sysint.h"
 #include "board.h"
-#include "UART1.h"
-#include "UART5.h"
+#include "atcmd_config_platform.h"
 #include "uart_port.h"
 
 #include <stdio.h>
 #include <k_api.h>
-#include <aos\kernel.h>
+#include <aos/kernel.h>
 
 uart_dev_t uart_0;
 
+/* Allocate context for Stdio UART operation */
+cy_stc_scb_uart_context_t stdio_uartContext;
+
+/* Allocate context for AT UART operation */
+cy_stc_scb_uart_context_t at_uartContext;
+
+UART_MAPPING UART_MAPPING_TABLE[] =
+{
+    { PORT_UART_STD,     UART5},
+    { PORT_UART_AT,      UART1},
+};
+
 static uart_dev_t console_uart={
-  .port=STDIO_UART,
+  .port=PORT_UART_STD,
 };
 
 int default_UART_Init(void)
 {
-    uart_0.port                = STDIO_UART;
+    uart_0.port                = PORT_UART_STD;
     uart_0.config.baud_rate    = STDIO_UART_BAUDRATE;
     uart_0.config.data_width   = DATA_WIDTH_8BIT;
     uart_0.config.parity       = NO_PARITY;
@@ -27,6 +41,66 @@ int default_UART_Init(void)
 
     return hal_uart_init(&uart_0);
 }
+
+/* Populate configuration structure */
+const cy_stc_scb_uart_config_t stdio_uartConfig =
+{
+    .uartMode                   = CY_SCB_UART_STANDARD,
+    .enableMutliProcessorMode   = false,
+    .smartCardRetryOnNack       = false,
+    .irdaInvertRx               = false,
+    .irdaEnableLowPowerReceiver = false,
+    .oversample                 = 12UL,
+    .enableMsbFirst             = false,
+    .dataWidth                  = 8UL,
+    .parity                     = CY_SCB_UART_PARITY_NONE,
+    .stopBits                   = CY_SCB_UART_STOP_BITS_1,
+    .enableInputFilter          = false,
+    .breakWidth                 = 11UL,
+    .dropOnFrameError           = false,
+    .dropOnParityError          = false,
+    .receiverAddress            = 0UL,
+    .receiverAddressMask        = 0UL,
+    .acceptAddrInFifo           = false,
+    .enableCts                  = false,
+    .ctsPolarity                = CY_SCB_UART_ACTIVE_LOW,
+    .rtsRxFifoLevel             = 0UL,
+    .rtsPolarity                = CY_SCB_UART_ACTIVE_LOW,
+    .rxFifoTriggerLevel  = 0UL,
+    .rxFifoIntEnableMask = 0UL,
+    .txFifoTriggerLevel  = 0UL,
+    .txFifoIntEnableMask = 0UL,
+};
+
+/* Populate configuration structure */
+const cy_stc_scb_uart_config_t at_uartConfig =
+{
+    .uartMode                   = CY_SCB_UART_STANDARD,
+    .enableMutliProcessorMode   = false,
+    .smartCardRetryOnNack       = false,
+    .irdaInvertRx               = false,
+    .irdaEnableLowPowerReceiver = false,
+    .oversample                 = 12UL,
+    .enableMsbFirst             = false,
+    .dataWidth                  = 8UL,
+    .parity                     = CY_SCB_UART_PARITY_NONE,
+    .stopBits                   = CY_SCB_UART_STOP_BITS_1,
+    .enableInputFilter          = false,
+    .breakWidth                 = 11UL,
+    .dropOnFrameError           = false,
+    .dropOnParityError          = false,
+    .receiverAddress            = 0UL,
+    .receiverAddressMask        = 0UL,
+    .acceptAddrInFifo           = false,
+    .enableCts                  = false,
+    .ctsPolarity                = CY_SCB_UART_ACTIVE_LOW,
+    .rtsRxFifoLevel             = 0UL,
+    .rtsPolarity                = CY_SCB_UART_ACTIVE_LOW,
+    .rxFifoTriggerLevel  = 0UL,
+    .rxFifoIntEnableMask = 0UL,
+    .txFifoTriggerLevel  = 0UL,
+    .txFifoIntEnableMask = 0UL,
+};
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -128,27 +202,60 @@ GETCHAR_PROTOTYPE
     }
 }
 
-aos_sem_t scb1_tx_sema;
-aos_sem_t scb1_rx_sema;
-aos_sem_t scb5_tx_sema;
-aos_sem_t scb5_rx_sema;
+/* AT and Stdio UART Semaphore for communication with UART Callback */
+aos_sem_t at_uart_tx_sema;
+aos_sem_t at_uart_rx_sema;
+aos_sem_t stdio_uart_tx_sema;
+aos_sem_t stdio_uart_rx_sema;
 
 //for UART driver lock, if not added, kernel test will fail
-aos_mutex_t scb1_tx_mutex;
-aos_mutex_t scb1_rx_mutex;
-aos_mutex_t scb5_tx_mutex;
-aos_mutex_t scb5_rx_mutex;
+aos_mutex_t at_uart_tx_mutex;
+aos_mutex_t at_uart_rx_mutex;
+aos_mutex_t stdio_uart_tx_mutex;
+aos_mutex_t stdio_uart_rx_mutex;
 
-void scb1_callback(uint32_t event)
+//Get UART Instanse & attribute from Logical Port
+static UART_MAPPING* GetUARTMapping(const PORT_UART_TYPE port)
+{
+    int8_t i = 0;
+    UART_MAPPING* rc = NULL;
+    for(i=0; i<PORT_UART_SIZE; i++)
+    {
+        if(UART_MAPPING_TABLE[i].uartFuncP == port)
+        {
+            rc = &UART_MAPPING_TABLE[i];
+            break;
+        }
+    }
+    return rc;
+}
+
+void AT_UART_ISR(void)
+{
+    CySCB_Type *scb_base;
+    scb_base = (CySCB_Type*)(SCB0_BASE + AT_UART*SCB_SECTION_SIZE);
+
+    Cy_SCB_UART_Interrupt(scb_base, &at_uartContext);
+}
+
+void STDIO_UART_ISR(void)
+{
+    CySCB_Type *scb_base;
+    scb_base = (CySCB_Type*)(SCB0_BASE + STDIO_UART*SCB_SECTION_SIZE);
+    
+    Cy_SCB_UART_Interrupt(scb_base, &stdio_uartContext);
+}
+
+void at_uart_callback(uint32_t event)
 {
     switch(event)
     {
         case CY_SCB_UART_TRANSMIT_DONE_EVENT:	
-        aos_sem_signal(&scb1_tx_sema);
+        aos_sem_signal(&at_uart_tx_sema);
         break;
 				
         case CY_SCB_UART_RECEIVE_DONE_EVENT:
-        aos_sem_signal(&scb1_rx_sema);
+        aos_sem_signal(&at_uart_rx_sema);
         break;
 				
         case CY_SCB_UART_TRANSMIT_IN_FIFO_EVENT:
@@ -161,7 +268,6 @@ void scb1_callback(uint32_t event)
         break;	
 
         case CY_SCB_UART_RB_FULL_EVENT:
-        //printf("receive buffer full");
         break;
 				
         default:
@@ -170,16 +276,16 @@ void scb1_callback(uint32_t event)
 
 }
 
-void scb5_callback(uint32_t event)
+void stdio_uart_callback(uint32_t event)
 {
     switch(event)
     {
         case CY_SCB_UART_TRANSMIT_DONE_EVENT:	
-        aos_sem_signal(&scb5_tx_sema);
+        aos_sem_signal(&stdio_uart_tx_sema);
         break;
 				
         case CY_SCB_UART_RECEIVE_DONE_EVENT:
-        aos_sem_signal(&scb5_rx_sema);
+        aos_sem_signal(&stdio_uart_rx_sema);
         break;
 				
         case CY_SCB_UART_TRANSMIT_IN_FIFO_EVENT:
@@ -192,7 +298,6 @@ void scb5_callback(uint32_t event)
         break;	
 
         case CY_SCB_UART_RB_FULL_EVENT:
-        //printf("receive buffer full");
         break;
 				
         default:
@@ -203,24 +308,90 @@ void scb5_callback(uint32_t event)
 
 int32_t hal_uart_init(uart_dev_t *uart)
 {
-    switch(uart->port)
+    CySCB_Type *scb_base;
+    uint32_t divider_val;
+	UART_MAPPING* uartIns = GetUARTMapping(uart->port); 
+    scb_base = (CySCB_Type*)(SCB0_BASE + (uartIns->uartPhyP)*SCB_SECTION_SIZE);
+	
+    switch(uartIns->uartPhyP)
     {        
-        case UART1:
-        UART1_Start();
-        Cy_SCB_UART_RegisterCallback(SCB1, scb1_callback, &UART1_context);
-        aos_sem_new(&scb1_tx_sema,0);
-        aos_sem_new(&scb1_rx_sema,0);
-        aos_mutex_new(&scb1_tx_mutex);
-        aos_mutex_new(&scb1_rx_mutex);
+        case AT_UART:
+        /* Connect WIFI UART function to pins */
+        Cy_GPIO_SetHSIOM(AT_UART_IO_PORT, AT_UART_RX_NUM, AT_UART_RX_FUNC);
+        Cy_GPIO_SetHSIOM(AT_UART_IO_PORT, AT_UART_TX_NUM, AT_UART_TX_FUNC);
+        
+        /* Configure pins for UART operation */
+        Cy_GPIO_SetDrivemode(AT_UART_IO_PORT, AT_UART_RX_NUM, CY_GPIO_DM_HIGHZ);
+        Cy_GPIO_SetDrivemode(AT_UART_IO_PORT, AT_UART_TX_NUM, CY_GPIO_DM_STRONG_IN_OFF);
+
+        divider_val = cy_PeriClkFreqHz/((uart->config.baud_rate)*at_uartConfig.oversample);
+    
+        Cy_SysClk_PeriphAssignDivider(AT_UART_CLOCK, CY_SYSCLK_DIV_8_BIT, 0u);
+	    Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 0u, divider_val-1);
+	    Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 0u);
+    
+        /* Configure UART to operate */
+        Cy_SCB_UART_Init(scb_base, &at_uartConfig, &at_uartContext);
+        
+        /* Populate configuration structure (code specific for CM4) */
+        cy_stc_sysint_t at_uartIntrConfig =
+        {
+            .intrSrc      = AT_UART_INTR_NUM,
+            .intrPriority = AT_UART_INTR_PRIORITY,
+        };
+        
+        /* Hook interrupt service routine and enable interrupt */
+        Cy_SysInt_Init(&at_uartIntrConfig, &AT_UART_ISR);
+        NVIC_EnableIRQ(AT_UART_INTR_NUM);
+        
+        /* Enable UART to operate */
+        Cy_SCB_UART_Enable(scb_base);
+        Cy_SCB_UART_RegisterCallback(scb_base, at_uart_callback, &at_uartContext);
+        
+        /* Semaphore and mutex init */
+        aos_sem_new(&at_uart_tx_sema,0);
+        aos_sem_new(&at_uart_rx_sema,0);
+        aos_mutex_new(&at_uart_tx_mutex);
+        aos_mutex_new(&at_uart_rx_mutex);
         break;
         
-        case UART5:
-        UART5_Start();
-        Cy_SCB_UART_RegisterCallback(SCB5, scb5_callback, &UART5_context);
-        aos_sem_new(&scb5_tx_sema,0);
-        aos_sem_new(&scb5_rx_sema,0);
-        aos_mutex_new(&scb5_tx_mutex);
-        aos_mutex_new(&scb5_rx_mutex);
+        case STDIO_UART:
+        Cy_GPIO_SetHSIOM(STDIO_UART_IO_PORT, STDIO_UART_RX_NUM, STDIO_UART_RX_FUNC);
+        Cy_GPIO_SetHSIOM(STDIO_UART_IO_PORT, STDIO_UART_TX_NUM, STDIO_UART_TX_FUNC);
+        
+        /* Configure pins for UART operation */
+        Cy_GPIO_SetDrivemode(STDIO_UART_IO_PORT, STDIO_UART_RX_NUM, CY_GPIO_DM_HIGHZ);
+        Cy_GPIO_SetDrivemode(STDIO_UART_IO_PORT, STDIO_UART_TX_NUM, CY_GPIO_DM_STRONG_IN_OFF);
+        
+        divider_val = cy_PeriClkFreqHz/((uart->config.baud_rate)*stdio_uartConfig.oversample);
+    
+        Cy_SysClk_PeriphAssignDivider(STDIO_UART_CLOCK, CY_SYSCLK_DIV_8_BIT, 0u);
+	    Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, 0u, divider_val-1);
+	    Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, 0u);
+        
+        /* Configure UART to operate */
+        Cy_SCB_UART_Init(scb_base, &stdio_uartConfig, &stdio_uartContext);
+        
+        /* Populate configuration structure (code specific for CM4) */
+        cy_stc_sysint_t stdio_uartIntrConfig =
+        {
+            .intrSrc      = STDIO_UART_INTR_NUM,
+            .intrPriority = STDIO_UART_INTR_PRIORITY,
+        };
+        
+        /* Hook interrupt service routine and enable interrupt */
+        Cy_SysInt_Init(&stdio_uartIntrConfig, &STDIO_UART_ISR);
+        NVIC_EnableIRQ(STDIO_UART_INTR_NUM);
+        
+        /* Enable UART to operate */
+        Cy_SCB_UART_Enable(scb_base);        
+        Cy_SCB_UART_RegisterCallback(scb_base, stdio_uart_callback, &stdio_uartContext);
+
+        /* Semaphore and mutex init */
+        aos_sem_new(&stdio_uart_tx_sema,0);
+        aos_sem_new(&stdio_uart_rx_sema,0);
+        aos_mutex_new(&stdio_uart_tx_mutex);
+        aos_mutex_new(&stdio_uart_rx_mutex);
         break;
         
         default:
@@ -232,25 +403,29 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
-    if(uart == NULL||data==NULL)
+    CySCB_Type *scb_base;
+    UART_MAPPING* uartIns = GetUARTMapping(uart->port);  
+    scb_base = (CySCB_Type*)(SCB0_BASE + (uartIns->uartPhyP)*SCB_SECTION_SIZE);
+            
+    if(uart == NULL || data == NULL)
     {
         return -1;
     }
 
-    switch(uart->port)
+    switch(uartIns->uartPhyP)
     {
-        case UART1:
-        aos_mutex_lock(&scb1_tx_mutex, AOS_WAIT_FOREVER);
-        Cy_SCB_UART_Transmit(SCB1, (void *)data, size, &UART1_context); 
-        aos_sem_wait(&scb1_tx_sema, AOS_WAIT_FOREVER);
-        aos_mutex_unlock(&scb1_tx_mutex);
+        case AT_UART:
+        aos_mutex_lock(&at_uart_tx_mutex, AOS_WAIT_FOREVER);
+        Cy_SCB_UART_Transmit(scb_base, (void *)data, size, &at_uartContext);
+        aos_sem_wait(&at_uart_tx_sema, AOS_WAIT_FOREVER);
+        aos_mutex_unlock(&at_uart_tx_mutex);
         break;
         
-        case UART5:
-        aos_mutex_lock(&scb5_tx_mutex, AOS_WAIT_FOREVER);
-        Cy_SCB_UART_Transmit(SCB5, (void *)data, size, &UART5_context); 
-        aos_sem_wait(&scb5_tx_sema, AOS_WAIT_FOREVER);
-        aos_mutex_unlock(&scb5_tx_mutex);
+        case STDIO_UART:
+        aos_mutex_lock(&stdio_uart_tx_mutex, AOS_WAIT_FOREVER);
+        Cy_SCB_UART_Transmit(scb_base, (void *)data, size, &stdio_uartContext);
+        aos_sem_wait(&stdio_uart_tx_sema, AOS_WAIT_FOREVER);
+        aos_mutex_unlock(&stdio_uart_tx_mutex);
         break;
         
         default:
@@ -267,27 +442,30 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     int i = 0;
     uint32_t rx_count = 0;
     int32_t ret = -1;
-
+    CySCB_Type *scb_base;
+    UART_MAPPING* uartIns = GetUARTMapping(uart->port); 
+    scb_base = (CySCB_Type*)(SCB0_BASE + (uartIns->uartPhyP)*SCB_SECTION_SIZE);
+        
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
     
-    switch(uart->port)
+    switch(uartIns->uartPhyP)
     {
-    case UART1:
-        aos_mutex_lock(&scb1_rx_mutex, AOS_WAIT_FOREVER);
-        Cy_SCB_UART_Receive(SCB1, pdata, expect_size, &UART1_context);
-        aos_sem_wait(&scb1_rx_sema, timeout);       
-        rx_count = Cy_SCB_UART_GetNumReceived(SCB1, &UART1_context);
-        aos_mutex_unlock(&scb1_rx_mutex);
+    case AT_UART:
+        aos_mutex_lock(&at_uart_rx_mutex, AOS_WAIT_FOREVER);
+        Cy_SCB_UART_Receive(scb_base, pdata, expect_size, &at_uartContext);
+        aos_sem_wait(&at_uart_rx_sema, timeout);
+        rx_count = Cy_SCB_UART_GetNumReceived(scb_base, &at_uartContext);
+        aos_mutex_unlock(&at_uart_rx_mutex);
         break;
 
-    case UART5:
-        aos_mutex_lock(&scb5_rx_mutex, AOS_WAIT_FOREVER);
-        Cy_SCB_UART_Receive(SCB5, pdata, expect_size, &UART5_context);
-        aos_sem_wait(&scb5_rx_sema, timeout);
-        rx_count = Cy_SCB_UART_GetNumReceived(SCB5, &UART5_context);
-        aos_mutex_unlock(&scb5_rx_mutex);
+    case STDIO_UART:
+        aos_mutex_lock(&stdio_uart_rx_mutex, AOS_WAIT_FOREVER);
+        Cy_SCB_UART_Receive(scb_base, pdata, expect_size, &stdio_uartContext);
+        aos_sem_wait(&stdio_uart_rx_sema, timeout);
+        rx_count = Cy_SCB_UART_GetNumReceived(scb_base, &stdio_uartContext);
+        aos_mutex_unlock(&stdio_uart_rx_mutex);
         break;
 
     default:
@@ -313,14 +491,18 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
 int32_t hal_uart_finalize(uart_dev_t *uart)
 {
-    switch(uart->port)
+    CySCB_Type *scb_base;
+    UART_MAPPING* uartIns = GetUARTMapping(uart->port);  
+    scb_base = (CySCB_Type*)(SCB0_BASE + (uartIns->uartPhyP)*SCB_SECTION_SIZE);
+          
+    switch(uartIns->uartPhyP)
     {
-        case UART1:
-        Cy_SCB_UART_DeInit(SCB1);
+        case AT_UART:
+        Cy_SCB_UART_DeInit(scb_base);
         break;
         
-        case UART5:
-        Cy_SCB_UART_DeInit(SCB5);
+        case STDIO_UART:
+        Cy_SCB_UART_DeInit(scb_base);
         break;
         
         default:

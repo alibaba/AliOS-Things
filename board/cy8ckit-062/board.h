@@ -2,9 +2,41 @@
 #define MODEL               "PSOC6"
 
 #ifdef BOOTLOADER
-#define STDIO_UART 5
+#define STDIO_UART UART5
 #define STDIO_UART_BAUDRATE 115200
 #else
-#define STDIO_UART 5
+#define STDIO_UART UART5
 #define STDIO_UART_BAUDRATE 115200
 #endif
+
+#define AT_UART AT_UART_PORT
+
+/* Assign pins for WiFi UART on SCB10: P10[0], P10[1] */
+#define AT_UART_IO_PORT    P10_0_PORT
+#define AT_UART_RX_NUM     P10_0_NUM
+#define AT_UART_TX_NUM     P10_1_NUM
+#define AT_UART_RX_FUNC    P10_0_SCB1_UART_RX
+#define AT_UART_TX_FUNC    P10_1_SCB1_UART_TX
+#define AT_UART_CLOCK      PCLK_SCB1_CLOCK
+#define AT_UART_INTR_NUM   ((IRQn_Type)scb_1_interrupt_IRQn)
+#define AT_UART_INTR_PRIORITY  7
+
+/* Assign pins for Console UART on SCB5: P5[0], P5[1] */
+#define STDIO_UART_IO_PORT    P5_0_PORT
+#define STDIO_UART_RX_NUM     P5_0_NUM
+#define STDIO_UART_TX_NUM     P5_1_NUM
+#define STDIO_UART_RX_FUNC    P5_0_SCB5_UART_RX
+#define STDIO_UART_TX_FUNC    P5_1_SCB5_UART_TX
+#define STDIO_UART_CLOCK      PCLK_SCB5_CLOCK
+#define STDIO_UART_INTR_NUM   ((IRQn_Type)scb_5_interrupt_IRQn)
+#define STDIO_UART_INTR_PRIORITY 7
+
+typedef enum{
+    PORT_UART_STD,
+    PORT_UART_AT,
+    PORT_UART_RS485,
+    PORT_UART_SCANNER,
+    PORT_UART_LORA,
+    PORT_UART_SIZE,
+    PORT_UART_INVALID = 255,
+}PORT_UART_TYPE;

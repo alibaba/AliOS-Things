@@ -7,7 +7,7 @@
 #include <hal/ota.h>
 #include <aos/log.h>
 #include <hal/soc/soc.h>
-#include <CheckSumUtils.h>
+//#include <CheckSumUtils.h>
 
 #define KV_HAL_OTA_CRC16  "hal_ota_get_crc16"
 
@@ -19,7 +19,7 @@ typedef struct
 } ota_reboot_info_t;
 
 static ota_reboot_info_t ota_info;
-static  CRC16_Context contex;
+//static  CRC16_Context contex;
 
 static uint16_t hal_ota_get_crc16(void);
 static void  hal_ota_save_crc16(uint16_t crc16);
@@ -55,10 +55,10 @@ static int cy8c6347_ota_init(hal_ota_module_t *m, void *something)
     if(_off_set==0) {
         partition_info = hal_flash_get_info( pno );
         hal_flash_erase(pno, 0 ,partition_info->partition_length);
-        CRC16_Init( &contex );
+        //CRC16_Init( &contex );
     } else {
-        contex.crc=hal_ota_get_crc16();
-        LOG("--------get crc16 context.crc=%d!--------\n",contex.crc);
+        //contex.crc=hal_ota_get_crc16();
+        //LOG("--------get crc16 context.crc=%d!--------\n",contex.crc);
     }
 
     return 0;
@@ -72,10 +72,10 @@ static int cy8c6347_ota_write(hal_ota_module_t *m, volatile uint32_t* off_set, u
 
     if (ota_info.ota_len == 0) {
         _off_set = 0;
-        CRC16_Init( &contex );
+        //CRC16_Init( &contex );
         memset(&ota_info, 0 , sizeof ota_info);
     }
-    CRC16_Update( &contex, in_buf, in_buf_len);
+    //CRC16_Update( &contex, in_buf, in_buf_len);
 		
     ret = hal_flash_write(pno, &_off_set, in_buf, in_buf_len);
     ota_info.ota_len += in_buf_len;
@@ -98,13 +98,13 @@ static int cy8c6347_ota_set_boot(hal_ota_module_t *m, void *something)
     }
     if (param->result_type==OTA_FINISH)
     {
-        CRC16_Final( &contex, (uint16_t *)&ota_info.ota_crc );
+        //CRC16_Final( &contex, (uint16_t *)&ota_info.ota_crc );
         LOG("switch boot bank\n");
         hal_ota_switch_to_new_fw();
         memset(&ota_info, 0 , sizeof ota_info);
     } else if (param->result_type==OTA_BREAKPOINT) {
         LOG("OTA package is incomplete!\n");
-        hal_ota_save_crc16(contex.crc);
+        //hal_ota_save_crc16(contex.crc);
     }
     return 0;
 }

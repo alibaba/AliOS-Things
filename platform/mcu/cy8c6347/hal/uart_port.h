@@ -18,6 +18,10 @@ typedef enum {
     UART5
 } uart_port;
 
+typedef struct{
+    PORT_UART_TYPE uartFuncP;
+    uart_port      uartPhyP; 
+}UART_MAPPING;
 
 typedef enum {
   HAL_OK       = 0x00U,

@@ -14,6 +14,9 @@
 #include <hal/wifi.h>
 #include <hal/ota.h>
 
+#include <cy_device_headers.h>
+#include <core_cm4.h>
+
 #define TAG "hw"
 
 #define us2tick(us) \

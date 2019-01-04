@@ -57,19 +57,18 @@ tick_t soc_elapsed_ticks_get(void)
 #if (RHINO_CONFIG_MM_TLF > 0)
 
 #if !defined (__CC_ARM) /* Keil / armcc */
-extern char __HeapLimit[];
 extern char __HeapBase[];
-  
+extern char __HeapSize[];  
 #elif defined (__CC_ARM)
 extern char __heap_base[];
-extern char __heap_limit[];
+extern char __heap_size[];
 #endif
 
 
 #if defined (__CC_ARM) /* Keil / armcc */
-k_mm_region_t g_mm_region[] = {{(uint8_t *)__heap_base, 0x19000}};
+k_mm_region_t g_mm_region[] = {{(uint8_t *)__heap_base, (size_t)__heap_size}};
 #else
-k_mm_region_t g_mm_region[] = {{(uint8_t *)__HeapBase, 0x19000}};
+k_mm_region_t g_mm_region[] = {{(uint8_t *)__HeapBase, (size_t)__HeapSize}};
 #endif
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 

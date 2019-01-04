@@ -38,7 +38,6 @@ endif
 # Global defines
 # HSE_VALUE = STM32 crystal frequency = 26MHz (needed to make UART work correctly)
 GLOBAL_DEFINES += $$(if $$(NO_CRLF_STDIO_REPLACEMENT),,CRLF_STDIO_REPLACEMENT)
-GLOBAL_CFLAGS  += -DSTM32L475xx
 
 WIFI_FIRMWARE_SECTOR_START    := 2      #0x2000
 FILESYSTEM_IMAGE_SECTOR_START := 256    #0x100000
@@ -50,7 +49,7 @@ EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk
 # Define default component testcase set
 ifeq (, $(findstring yts, $(BUILD_STRING)))
 GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=1
-TEST_COMPONENTS += basic api wifi_hal rhino vcall kv yloop alicrypto cjson digest_algorithm hashtable
+TEST_COMPONENTS += basic api wifi_hal rhino osal kv yloop alicrypto cjson digest_algorithm hashtable
 else
 GLOBAL_DEFINES += RHINO_CONFIG_WORKQUEUE=0
 endif
