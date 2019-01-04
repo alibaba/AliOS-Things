@@ -22,7 +22,6 @@ $(NAME)_COMPONENTS += ota_2nd_boot
 $(NAME)_LIBSUFFIX  := _2boot
 else
 $(NAME)_COMPONENTS += arch_armv7m
-#$(NAME)_COMPONENTS += libc rhino hal netmgr middleware.common mbedtls cjson cli
 $(NAME)_COMPONENTS += newlib_stub rhino netmgr cli lwip netmgr
 endif
 

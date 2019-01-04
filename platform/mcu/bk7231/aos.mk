@@ -63,7 +63,7 @@ $(NAME)_SOURCES += hal/gpio.c        \
 
 include ./platform/mcu/bk7231/hal_init/hal_init.mk
 
-#ifneq (,$(filter network.umesh,$(COMPONENTS)))
+#ifneq (,$(filter umesh,$(COMPONENTS)))
 $(NAME)_SOURCES +=  hal/mesh_wifi_hal.c
 #endif
 

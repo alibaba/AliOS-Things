@@ -5,7 +5,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk &ble controller for platform/mcu nrf52810 nrf52832 or nrf52840
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub vfs rhino bluetooth.bt_host kv
+$(NAME)_COMPONENTS += newlib_stub vfs rhino bt_host kv
 
 #$(NAME)_LIBSUFFIX := $(PLATFORM_MCU_BOARD)
 
