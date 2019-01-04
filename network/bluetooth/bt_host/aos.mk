@@ -7,9 +7,9 @@ $(NAME)_SUMMARY := BLE stack.
 GLOBAL_DEFINES-y += AOS_BT
 
 GLOBAL_INCLUDES-y += include \
-                   include/drivers
+                     include/drivers
 
-$(NAME)_COMPONENTS-y += bluetooth.bt_host.bt_common
+$(NAME)_COMPONENTS-y += bt_common
 
 $(NAME)_SOURCES-y := host/uuid.c \
                      host/hci_core.c \

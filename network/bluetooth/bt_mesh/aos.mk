@@ -4,9 +4,9 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := BLE Mesh stack.
 
-$(NAME)_COMPONENTS-y += bt_common bt_mesh_port
+$(NAME)_COMPONENTS-y += bt_common port
 
-$(NAME)_INCLUDES-y += ./inc/ \
+$(NAME)_INCLUDES += ./inc/ \
                       ./inc/api/mesh
 
 $(NAME)_SOURCES-y := ./src/access.c \
