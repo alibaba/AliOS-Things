@@ -760,7 +760,7 @@ int bt_mesh_proxy_gatt_enable(void)
 {
     int i;
 
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     //bt_gatt_service_register(&proxy_svc);
     bt_mesh_gatt_service_register(&proxy_svc);
@@ -1004,7 +1004,7 @@ static int node_id_adv(struct bt_mesh_subnet *sub)
     u8_t tmp[16];
     int err;
 
-    BT_DBG("");
+    BT_DBG("%s: advertinsing with node id", __func__);
 
     proxy_svc_data[2] = ID_TYPE_NODE;
 
