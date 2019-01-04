@@ -27,7 +27,7 @@
 #define RHINO_GET_SP()              (void *)__return_address()
 /* get the value of the stack pointer register
    unsigned int __CLZ(unsigned int) */
-#define RHINO_BIT_CLZ(x)            __CLZ(x)
+//#define RHINO_BIT_CLZ(x)            __CLZ(x)
 
 #elif defined(__GNUC__)
 #define RHINO_INLINE                static inline
@@ -41,9 +41,15 @@ __attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_SP(void)
     asm volatile("mov %0, SP\n" : "=r" (sp));
     return sp;
 }
+__attribute__((always_inline)) RHINO_INLINE unsigned char RHINO_BIT_CLZ_(unsigned int bitmap)
+{
+    unsigned char cnt;
+    asm volatile("clz %0, %1":"=r"(cnt):"r"(bitmap));
+    return cnt;
+}
 /* get the number of leading 0-bits in x
    int __builtin_clz (unsigned int x) */
-#define RHINO_BIT_CLZ(x)            __builtin_clz(x)
+#define RHINO_BIT_CLZ(x)            RHINO_BIT_CLZ_(x)
 
 #else
 #error "Unsupported compiler"

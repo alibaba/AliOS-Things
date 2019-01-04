@@ -18,7 +18,7 @@ __attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_SP(void)
 }
 /* get the number of leading 0-bits in x
    int __builtin_clz (unsigned int x) */
-#define RHINO_BIT_CLZ(x)            __builtin_clz(x)
+//#define RHINO_BIT_CLZ(x)            __builtin_clz(x)
 
 #endif /* K_COMPILER_H */
 

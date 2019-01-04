@@ -14,7 +14,7 @@
 #define RHINO_GET_SP()              (void *)__return_address()
 /* get the value of the stack pointer register
    unsigned int __CLZ(unsigned int) */
-#define RHINO_BIT_CLZ(x)            __CLZ(x)
+//#define RHINO_BIT_CLZ(x)            __CLZ(x)
 
 #endif /* K_COMPILER_H */
 
