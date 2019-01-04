@@ -551,7 +551,7 @@ int bt_mesh_friend_poll(struct bt_mesh_net_rx *rx, struct net_buf_simple *buf)
 	struct bt_mesh_ctl_friend_poll *msg = (void *)buf->data;
 	struct bt_mesh_friend *frnd;
 
-	BT_DBG("%s: friend poll pkt received.");
+	BT_DBG("%s: friend poll pkt received.", __func__);
 
 	if (buf->len < sizeof(*msg)) {
 		BT_WARN("Too short Friend Poll");
@@ -798,7 +798,7 @@ int bt_mesh_friend_req(struct bt_mesh_net_rx *rx, struct net_buf_simple *buf)
 	u32_t poll_to;
 	int i;
 
-	BT_DBG("%s, friend request packet received.", __func__);
+	BT_DBG("%s, friend request packaet received.", __func__);
 
 	if (buf->len < sizeof(*msg)) {
 		BT_WARN("Too short Friend Request");
@@ -996,7 +996,7 @@ static void buf_send_end(int err, void *user_data)
                  * TODO: spec requires friend offer to poll to be within 1 s, 
                  * but outs needs more than 1, hmm ...
                  */
-		k_delayed_work_submit(&frnd->timer, K_SECONDS(2));
+		k_delayed_work_submit(&frnd->timer, K_SECONDS(5));
 		BT_DBG("Waiting for first poll");
 	}
 }

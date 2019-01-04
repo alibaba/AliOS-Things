@@ -31,6 +31,8 @@
 #include "proxy.h"
 #include "mesh.h"
 
+#include "bt_mesh_custom_log.h"
+
 static bool provisioned;
 
 int bt_mesh_provision(const u8_t net_key[16], u16_t net_idx,
