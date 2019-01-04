@@ -1,19 +1,19 @@
 menuconfig AOS_COMP_UDATA
     bool "udata"
     default n
-    select AOS_COMP_CJSON if AOS_CONFIG_JSON_FORMAT
+    select AOS_COMP_CJSON if UDATA_CONFIG_CJSON_FORMAT
     help
 
 if AOS_COMP_UDATA
 # Configurations for comp udata
 
-config AOS_CONFIG_CJSON_FORMAT
+config UDATA_CONFIG_CJSON_FORMAT
     bool "udata cjson config"
     default y
     help
         Enable udata cjson config
 
-config AOS_CONFIG_DTC_ENABLE
+config UDATA_CONFIG_DTC_ENABLE
     bool "enable data to cloud"
     default n
     help

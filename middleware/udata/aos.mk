@@ -16,12 +16,12 @@ $(NAME)_SOURCES += \
     udata_service_task.c \
     udata_parse.c
 
-ifeq ($(AOS_CONFIG_DTC_ENABLE),y)
+ifeq ($(UDATA_CONFIG_DTC_ENABLE),y)
 $(NAME)_SOURCES += service/service_data_to_cloud.c
 GLOBAL_DEFINES  += DATA_TO_CLOUD
 endif
 
-ifeq ($(AOS_CONFIG_CJSON_FORMAT),y)
+ifeq ($(UDATA_CONFIG_CJSON_FORMAT),y)
 $(NAME)_COMPONENTS += utility.cjson
 EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/middleware/udata/gen_cjson_data.mk
 GLOBAL_DEFINES += UDATA_CJSON_SUPPORTED
