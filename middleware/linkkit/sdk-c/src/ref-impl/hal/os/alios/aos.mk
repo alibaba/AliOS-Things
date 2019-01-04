@@ -11,19 +11,15 @@ $(NAME)_SOURCES := HAL_OS_rhino.c \
                    HAL_Crypt_rhino.c \
                    HAL_AWSS_rhino.c
 
-$(NAME)_COMPONENTS += \
-                      ulog \
-                      activation \
-                      chip_code \
-                      network/netmgr
+$(NAME)_COMPONENTS += ulog activation chip_code netmgr
 
 
 ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
 $(info FEATURE_SUPPORT_ITLS = y, so using iTLS)
 $(NAME)_SOURCES += HAL_TLS_itls.c
-$(NAME)_COMPONENTS += security/itls
+$(NAME)_COMPONENTS += itls
 else
 $(info FEATURE_SUPPORT_ITLS != y, so using normal TLS)
 $(NAME)_SOURCES += HAL_TLS_mbedtls.c HAL_DTLS_mbedtls.c
-$(NAME)_COMPONENTS += security/mbedtls
+$(NAME)_COMPONENTS += mbedtls
 endif
