@@ -11,8 +11,7 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-$(NAME)_COMPONENTS += middleware.uagent.uota.src.2nd_boot.nbpatch
-$(NAME)_COMPONENTS += middleware.uagent.uota.src.2nd_boot.xz
+$(NAME)_COMPONENTS += ota_2boot_nbpatch ota_2boot_xz
 
 $(NAME)_SOURCES += rec_libc.c rec_main.c rec_2boot.c rec_ymodem.c
 

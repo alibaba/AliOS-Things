@@ -1,4 +1,4 @@
-NAME := ota_2ndboot_nbpatch
+NAME := ota_2boot_nbpatch
 
 $(NAME)_CFLAGS      += -Wall -Werror
 
