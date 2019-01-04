@@ -19,8 +19,7 @@ ifeq (y,$(FEATURE_MAL_ENABLED))
 $(NAME)_SOURCES += iotx_cm_mqtt.c  
 endif
 
-$(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/infra/utils \
-middleware/linkkit/sdk-c/src/infra/log \
+$(NAME)_COMPONENTS := libiot_utils libiot_log
 
 $(NAME)_INCLUDES := ../../../../src/infra \
 ../../../../src/infra/log \

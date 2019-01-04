@@ -10,11 +10,7 @@ $(NAME)_SOURCES := ./iotx_coap_api.c \
                    ./CoAPMessage.c \
                    ./CoAPExport.c \
 
-$(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/infra/utils \
-                      middleware/linkkit/sdk-c/src/infra/log \
-                      middleware/linkkit/sdk-c/src/infra/system \
-                      middleware/linkkit/sdk-c/src/sdk-impl \
-                      middleware/linkkit/sdk-c/src/protocol/coap/CoAPPacket \
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl libiot_coap_coappack
 
 $(NAME)_INCLUDES := ../../../../src/infra \
                     ../../../../src/infra/log \

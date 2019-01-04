@@ -6,9 +6,7 @@ $(NAME)_SUMMARY := http2 stream service
 
 $(NAME)_SOURCES := ./http2_stream.c
  
-$(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/infra/utils \
-middleware/linkkit/sdk-c/src/infra/log \
-middleware/linkkit/sdk-c/src/infra/system \
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system
 
 $(NAME)_INCLUDES := ../../../../src/infra \
 ../../../../src/infra/log \
