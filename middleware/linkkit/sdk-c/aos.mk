@@ -56,67 +56,48 @@ GLOBAL_DEFINES  += \
 #####################################################################
 # Configs for component middleware.linkkit.sdk-c
 #
-# middleware/linkkit/sdk-c/src/infra/utils
-#$(NAME)_COMPONENTS += \
-#    middleware/linkkit/sdk-c/src/infra/log \
-#    middleware/linkkit/sdk-c/src/infra/system \
-#    middleware/linkkit/sdk-c/src/sdk-impl \
-#    middleware/linkkit/sdk-c/src/ref-impl/hal
 
-$(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/ref-impl/hal/os/alios
+$(NAME)_COMPONENTS := iotx-hal
 
 ifeq (y,$(FEATURE_MAL_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/mdal/mal
+$(NAME)_COMPONENTS += libiot_mal
 endif
 ifeq (y,$(FEATURE_SUPPORT_TLS))
-#$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/ref-impl/tls
 endif
 
 
 ifeq (y,$(FEATURE_DEVICE_MODEL_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/linkkit/cm \
-    middleware/linkkit/sdk-c/src/services/linkkit/dm  \
-    middleware/linkkit/sdk-c/src/services/linkkit/dev_reset
+$(NAME)_COMPONENTS += libiot_cm libiot_dm libdev_reset
 endif
 
 
 ifeq (y,$(FEATURE_DEV_BIND_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/dev_bind \
-    middleware/linkkit/sdk-c/src/protocol/coap/server \
-    middleware/linkkit/sdk-c/src/protocol/mqtt 
+$(NAME)_COMPONENTS += libdev_bind libiot_coap_local libiot_mqtt 
 endif
 
 ifeq (y,$(FEATURE_WIFI_PROVISION_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/awss \
-    middleware/linkkit/sdk-c/src/protocol/coap/server
+$(NAME)_COMPONENTS += libawss libiot_coap_local
 endif
 
 ifeq (y,$(FEATURE_MQTT_COMM_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/mqtt
-endif
-
-ifeq (y,$(FEATURE_MQTT_SHADOW))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/services/shadow
+$(NAME)_COMPONENTS += libiot_mqtt
 endif
 
 ifeq (y,$(FEATURE_COAP_COMM_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/coap/client
+$(NAME)_COMPONENTS += libiot_coap_cloud
 endif
 
 ifeq (y,$(FEATURE_HTTP_COMM_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/http
+$(NAME)_COMPONENTS += libiot_http
 endif
 
 ifeq (y,$(FEATURE_ALCS_ENABLED))
-$(NAME)_COMPONENTS += middleware/linkkit/sdk-c/src/protocol/alcs \
-    middleware/linkkit/sdk-c/src/protocol/coap/server
+$(NAME)_COMPONENTS += libiot_alcs libiot_coap_local
 
 endif
 
 ifeq (y,$(FEATURE_HTTP2_COMM_ENABLED))
-$(NAME)_COMPONENTS += \
-    middleware/linkkit/sdk-c/src/protocol/http2  \
-    middleware/linkkit/sdk-c/src/services/http2_stream
+$(NAME)_COMPONENTS += libiot_http2 libiot_http2_stream
 endif
 
 #####################################################################

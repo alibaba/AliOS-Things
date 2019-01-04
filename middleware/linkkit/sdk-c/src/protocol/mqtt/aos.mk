@@ -12,11 +12,7 @@ $(NAME)_SOURCES := ./client/mqtt_client.c \
 ./MQTTPacket/MQTTConnectClient.c \
 ./MQTTPacket/MQTTSerializePublish.c \
  
-$(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/infra/utils \
-middleware/linkkit/sdk-c/src/infra/log \
-middleware/linkkit/sdk-c/src/infra/system \
-middleware/linkkit/sdk-c/src/sdk-impl \
-
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl
 
 $(NAME)_INCLUDES := ../../../src/infra \
 ../../../src/infra/log \

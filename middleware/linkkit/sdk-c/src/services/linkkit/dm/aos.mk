@@ -12,11 +12,7 @@ $(NAME)_SOURCES += $(wildcard $(SOURCE_ROOT)/$(LINKKIT_MODULE)/*/*.c)
 
 $(NAME)_SOURCES := $(foreach S,$($(NAME)_SOURCES),$(subst $(SOURCE_ROOT)/$(LINKKIT_MODULE),.,$(S)))
 
- 
-$(NAME)_COMPONENTS := middleware/linkkit/sdk-c/src/infra/utils \
-middleware/linkkit/sdk-c/src/infra/log \
-middleware/linkkit/sdk-c/src/infra/system \
-
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system
 
 $(NAME)_INCLUDES := ./server \
 ./client \
