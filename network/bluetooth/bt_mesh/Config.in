@@ -572,4 +572,4 @@ config BT_MESH_ADV_PRIO
 
 endif
 
-endif
+endif # BT_MESH
