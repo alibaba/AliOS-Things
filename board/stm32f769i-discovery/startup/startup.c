@@ -36,8 +36,13 @@ static void sys_init(void)
     */
     /*user_trigger_irq();*/  //for example
 
+    /* Configure the system clock */
+    extern void SystemClock_Config(void);
+    SystemClock_Config();
+
     /*aos components init including middleware and protocol and so on !*/
-    /*aos_components_init(&kinit);*/  /*If only run kernel, not use aos_components_init*/
+    /*If only run kernel, not use aos_components_init*/
+    /*aos_components_init(&kinit);*/
 
     #ifndef AOS_BINS
     application_start(0, NULL);  /* jump to app/example entry */
