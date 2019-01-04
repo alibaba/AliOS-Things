@@ -148,15 +148,34 @@ int k_thread_create(struct k_thread *new_thread, k_thread_stack_t *stack,
                     size_t stack_size, k_thread_entry_t entry, void *p1,
                     void *p2, void *p3, int prio, u32_t options, s32_t delay)
 {
-    int ret;
+    if (!stack) { // Use dynamic stack if no static one provided
+        int ret;
 
-    ret = aos_task_new_ext(&(new_thread->task), "ble", (task_entry_t)entry, p1,
-                           stack_size, prio);
-    if (ret) {
-        SYS_LOG_ERR("create ble task fail\n");
+        ret = aos_task_new_ext(&(new_thread->task), "ble", (task_entry_t)entry, p1,
+                               stack_size, prio);
+        if (ret) {
+            SYS_LOG_ERR("create ble task fail\n");
+        }
+
+        return ret;
+    } else { // Use static statck if provided
+        ktask_t *task_obj;
+
+        task_obj = krhino_mm_alloc(sizeof(ktask_t));
+        if (task_obj == NULL) {
+            return RHINO_NO_MEM;
+        }
+
+        /* Free the below handle whenever task exits. */
+        new_thread->task.hdl = (void *)task_obj;
+
+        stack_size = stack_size / sizeof(cpu_stack_t);
+        return krhino_task_create(task_obj, "ble", p1, prio, 0,
+                                  (cpu_stack_t *)stack,
+                                  stack_size ,
+                                  (task_entry_t)entry,
+                                  delay == 0 ? 1: 0);
     }
-
-    return ret;
 }
 
 int k_yield(void)
@@ -253,7 +272,7 @@ unsigned int find_msb_set(u32_t data)
 
 unsigned int find_lsb_set(u32_t data)
 {
-    uint32_t count = 0;
+    uint32_t count = 1;
     uint32_t mask  = 0x00000001;
 
     if (!data) {
@@ -261,7 +280,7 @@ unsigned int find_lsb_set(u32_t data)
     }
     while ((data & mask) == 0) {
         count += 1u;
-        mask = mask >> 1u;
+        mask = mask << 1u;
     }
     return (count);
 }
