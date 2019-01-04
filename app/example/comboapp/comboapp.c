@@ -222,7 +222,7 @@ static void linkkit_event_monitor(int event)
 static void linkkit_reset(void *p)
 {
     netmgr_clear_ap_config();
-    HAL_Sys_reboot();
+    HAL_Reboot();
 }
 
 extern int  awss_report_reset();
@@ -284,15 +284,12 @@ static void linkkit_work(breeze_apinfo_t *info)
     if (!info)
         return;
 
-    printf("%s %d, ssid: %s, pw: %s\r\n", __func__, __LINE__, info->ssid,
-           info->pw);
-
     strncpy(config.ssid, info->ssid, sizeof(config.ssid) - 1);
     strncpy(config.pwd, info->pw, sizeof(config.pwd) - 1);
     memcpy(config.bssid, info->bssid, ETH_ALEN);
     netmgr_set_ap_config(&config);
     hal_wifi_suspend_station(NULL);
-    LOGI("aos_awss", "Will reconnect wifi: %s %s", config.ssid, config.pwd);
+    LOGI("aos_awss", "Will connect WiFi AP: %s", config.ssid);
     netmgr_reconnect_wifi();
 }
 
@@ -325,6 +322,7 @@ int application_start(int argc, char **argv)
     }
 
     breeze_awss_start();
+    aos_loop_run();
 
     return 0;
 }
