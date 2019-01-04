@@ -1,19 +1,33 @@
 NAME := comboapp
-$(NAME)_SOURCES := linkkit_sample_solo.c \
-                   comboapp.c
+$(NAME)_SOURCES := comboapp.c
 
-$(NAME)_COMPONENTS += feature.linkkit \
-                      network/netmgr \
+$(NAME)_COMPONENTS += feature.linkkit
+
+$(NAME)_COMPONENTS += network/netmgr \
                       middleware/common \
-		      middleware/uagent/uota  \
-                      utility/cjson 
+                      middleware/uagent/uota  \
+                      utility/cjson    
 
 $(NAME)_COMPONENTS += bluetooth/breeze \
-                      bluetooth/breeze/hal/ble \
-                      bluetooth/profile
 
-GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE  \
-                 -DMQTT_DIRECT                  
+ifeq ($(case),sched)
+$(NAME)_SOURCES += linkkit_example_sched.c 
+GLOBAL_DEFINES += DEPRECATED_LINKKIT 
+else ifeq ($(case),cntdown)
+ifneq ($(newapi),)
+$(NAME)_SOURCES += newapi/cntdown.c 
+else
+$(NAME)_SOURCES += linkkit_example_cntdown.c 
+GLOBAL_DEFINES += DEPRECATED_LINKKIT 
+endif
+else
+ifneq ($(newapi),)
+$(NAME)_SOURCES += newapi/solo.c 
+else
+$(NAME)_SOURCES += linkkit_example_solo.c 
+GLOBAL_DEFINES += DEPRECATED_LINKKIT 
+endif
+endif
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
@@ -28,13 +42,12 @@ ifneq ($(HOST_MCU_FAMILY),esp8266)
 $(NAME)_COMPONENTS  += cli
 GLOBAL_DEFINES += CONFIG_AOS_CLI
 else
-GLOBAL_DEFINES += FOTA_RAM_LIMIT_MODE
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
-GLOBAL_DEFINES += CONFIG_COMBO_AWSS
-GLOBAL_DEFINES += AWSS_NEED_REBOOT BLE_APP_RECONFIG_AISILOP
-
-ble := 1
+GLOBAL_DEFINES += AWSS_NEED_REBOOT
 
 GLOBAL_INCLUDES += ./
+
+breeze_awss := 1
+ble := 1
