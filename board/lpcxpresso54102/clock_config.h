@@ -64,7 +64,6 @@ void BOARD_InitBootClocks(void);
  ******************************************************************************/
 #define BOARD_BOOTCLOCKIRC12M_CORE_CLOCK           12000000U  /*!< Core clock frequency: 12000000Hz */
 
-
 /*******************************************************************************
  * API for BOARD_BootClockIRC12M configuration
  ******************************************************************************/
@@ -89,7 +88,6 @@ void BOARD_BootClockIRC12M(void);
  * Definitions for BOARD_BootClockPLL48M configuration
  ******************************************************************************/
 #define BOARD_BOOTCLOCKPLL48M_CORE_CLOCK           48000000U  /*!< Core clock frequency: 48000000Hz */
-
 
 /*******************************************************************************
  * API for BOARD_BootClockPLL48M configuration
@@ -116,7 +114,6 @@ void BOARD_BootClockPLL48M(void);
  ******************************************************************************/
 #define BOARD_BOOTCLOCKPLL96M_CORE_CLOCK           96000000U  /*!< Core clock frequency: 96000000Hz */
 
-
 /*******************************************************************************
  * API for BOARD_BootClockPLL96M configuration
  ******************************************************************************/
@@ -141,7 +138,6 @@ void BOARD_BootClockPLL96M(void);
  * Definitions for BOARD_BootClockPLL100M configuration
  ******************************************************************************/
 #define BOARD_BOOTCLOCKPLL100M_CORE_CLOCK         100000000U  /*!< Core clock frequency: 100000000Hz */
-
 
 /*******************************************************************************
  * API for BOARD_BootClockPLL100M configuration

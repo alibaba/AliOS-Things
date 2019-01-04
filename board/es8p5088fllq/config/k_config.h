@@ -7,13 +7,13 @@
 
 /* kernel feature conf */
 #ifndef RHINO_CONFIG_SEM
-#define RHINO_CONFIG_SEM                     1          
+#define RHINO_CONFIG_SEM                     1
 #endif
 #ifndef RHINO_CONFIG_QUEUE
-#define RHINO_CONFIG_QUEUE                   1         
+#define RHINO_CONFIG_QUEUE                   1
 #endif
 #ifndef RHINO_CONFIG_TASK_SEM
-#define RHINO_CONFIG_TASK_SEM                0          
+#define RHINO_CONFIG_TASK_SEM                0
 #endif
 #ifndef RHINO_CONFIG_EVENT_FLAG
 #define RHINO_CONFIG_EVENT_FLAG              0
@@ -37,15 +37,6 @@
 #ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
 #define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
 #endif
-#ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
-#define RHINO_CONFIG_MM_MAXMSIZEBIT          19
-#endif
-#ifndef RHINO_CONFIG_GCC_RETADDR
-#define RHINO_CONFIG_GCC_RETADDR             0
-#endif
-#ifndef RHINO_CONFIG_MM_LEAKCHECK
-#define RHINO_CONFIG_MM_LEAKCHECK            0
-#endif
 
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_INFO
@@ -63,7 +54,7 @@
 #define RHINO_CONFIG_TASK_STACK_OVF_CHECK    1
 #endif
 #ifndef RHINO_CONFIG_SCHED_RR
-#define RHINO_CONFIG_SCHED_RR                1      
+#define RHINO_CONFIG_SCHED_RR                1
 #endif
 #ifndef RHINO_CONFIG_TIME_SLICE_DEFAULT
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      50
@@ -93,12 +84,12 @@
 #define RHINO_CONFIG_HW_COUNT                0
 #endif
 #ifndef RHINO_CONFIG_TICK_TASK
-#define RHINO_CONFIG_TICK_TASK               0              
+#define RHINO_CONFIG_TICK_TASK               0
 #endif
 
 #if (RHINO_CONFIG_TICK_TASK > 0)
 #ifndef RHINO_CONFIG_TICK_TASK_STACK_SIZE
-#define RHINO_CONFIG_TICK_TASK_STACK_SIZE    256            
+#define RHINO_CONFIG_TICK_TASK_STACK_SIZE    256
 #endif
 #ifndef RHINO_CONFIG_TICK_TASK_PRI
 #define RHINO_CONFIG_TICK_TASK_PRI           1
@@ -106,15 +97,12 @@
 #endif
 
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
-#define RHINO_CONFIG_TICKS_PER_SECOND        100            
+#define RHINO_CONFIG_TICKS_PER_SECOND        100
 #endif
 
 /*must reserve enough stack size for timer cb will consume*/
 #ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   300
-#endif
-#ifndef RHINO_CONFIG_TIMER_RATE
-#define RHINO_CONFIG_TIMER_RATE              1              
 #endif
 #ifndef RHINO_CONFIG_TIMER_TASK_PRI
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
@@ -125,19 +113,12 @@
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
 #endif
 
-#ifndef RHINO_CONFIG_INTRPT_GUARD
-#define RHINO_CONFIG_INTRPT_GUARD            0
-#endif
-
 /* kernel dyn alloc conf */
 #ifndef RHINO_CONFIG_KOBJ_DYN_ALLOC
 #define RHINO_CONFIG_KOBJ_DYN_ALLOC          0
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-#ifndef RHINO_CONFIG_K_DYN_QUEUE_MSG
-#define RHINO_CONFIG_K_DYN_QUEUE_MSG         30
-#endif
 #ifndef RHINO_CONFIG_K_DYN_TASK_STACK
 #define RHINO_CONFIG_K_DYN_TASK_STACK        256
 #endif
@@ -153,7 +134,7 @@
 
 /* kernel hook conf */
 #ifndef RHINO_CONFIG_USER_HOOK
-#define RHINO_CONFIG_USER_HOOK               1      
+#define RHINO_CONFIG_USER_HOOK               1
 #endif
 
 /* kernel stats conf */

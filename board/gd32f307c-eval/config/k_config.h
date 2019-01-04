@@ -9,10 +9,6 @@
 
 #define RHINO_CONFIG_STK_CHK_WORDS           1u
 
-/* chip level conf */
-#define RHINO_CONFIG_LITTLE_ENDIAN           1
-#define RHINO_CONFIG_CPU_STACK_DOWN          1
-
 #define RHINO_CONFIG_BITMAP_HW               0
 
 /* kernel feature conf */
@@ -46,17 +42,7 @@
 
 #define RHINO_CONFIG_MM_DEBUG                0
 
-#define RHINO_CONFIG_GCC_RETADDR             0
-
-#define RHINO_CONFIG_MM_LEAKCHECK            0
-
-#define K_MM_STATISTIC                       1
-
 /* kernel task conf */
-#define RHINO_CONFIG_TASK_SUSPEND            1
-
-#define RHINO_CONFIG_TASK_PRI_CHG            1
-
 #define RHINO_CONFIG_TASK_INFO               1
 
 #define RHINO_CONFIG_TASK_INFO_NUM           2
@@ -64,8 +50,6 @@
 #define RHINO_CONFIG_TASK_DEL                1
 
 #define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
-
-#define RHINO_CONFIG_TASK_WAIT_ABORT         0
 
 #define RHINO_CONFIG_SCHED_RR                0
 
@@ -85,18 +69,9 @@
 
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
 
-#define RHINO_CONFIG_TIMER_RATE              1
-
 #define RHINO_CONFIG_TIMER_TASK_PRI          5
 
 #define RHINO_CONFIG_TIMER_MSG_NUM           20
-
-/* kernel intrpt conf */
-#define RHINO_CONFIG_INTRPT_STACK_REMAIN_GET 0
-
-#define RHINO_CONFIG_INTRPT_MAX_NESTED_LEVEL 188u
-
-#define RHINO_CONFIG_INTRPT_GUARD            0
 
 /* kernel stack ovf check */
 #define RHINO_CONFIG_INTRPT_STACK_OVF_CHECK  0
@@ -107,9 +82,6 @@
 #define RHINO_CONFIG_KOBJ_DYN_ALLOC          1
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-
-#define RHINO_CONFIG_K_DYN_QUEUE_MSG         30
-
 #define RHINO_CONFIG_K_DYN_TASK_STACK        256
 
 #define RHINO_CONFIG_K_DYN_MEM_TASK_PRI      RHINO_CONFIG_USER_PRI_MAX
@@ -125,17 +97,7 @@
 /* kernel stats conf */
 #define RHINO_CONFIG_SYSTEM_STATS            1
 
-#define RHINO_CONFIG_DISABLE_SCHED_STATS     0
-
-#define RHINO_CONFIG_DISABLE_INTRPT_STATS    0
-
-#define RHINO_CONFIG_CPU_USAGE_STATS         0
-
-#define RHINO_CONFIG_CPU_USAGE_TASK_PRI      (RHINO_CONFIG_PRI_MAX - 2)
-
 #define RHINO_CONFIG_TASK_SCHED_STATS        0
-
-#define RHINO_CONFIG_CPU_USAGE_TASK_STACK    256
 
 /* kernel trace conf */
 #define RHINO_CONFIG_TRACE                   0

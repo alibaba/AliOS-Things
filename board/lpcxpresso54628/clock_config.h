@@ -44,7 +44,6 @@
 #define BOARD_XTAL32K_CLK_HZ                          32768U  /*!< Board xtal32K frequency in Hz */
 #define BOARD_BootClockRUN BOARD_BootClockFROHF48M
 
-
 /*******************************************************************************
  ********************* Configuration BOARD_BootClockFRO12M ***********************
  ******************************************************************************/
