@@ -9,8 +9,6 @@
 
 #define RHINO_CONFIG_STK_CHK_WORDS           1u
 
-#define RHINO_CONFIG_BITMAP_HW               0
-
 /* kernel feature conf */
 #define RHINO_CONFIG_SEM                     1
 
