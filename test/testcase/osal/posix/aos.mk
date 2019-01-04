@@ -3,7 +3,7 @@ NAME := posix_test
 $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := test code of posix
-$(NAME)_COMPONENTS += osal.posix
+$(NAME)_COMPONENTS += posix
 
 $(NAME)_SOURCES := posix_cond_test.c   \
                    posix_mutex_test.c  \
