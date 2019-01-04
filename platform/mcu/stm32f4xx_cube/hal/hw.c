@@ -27,6 +27,7 @@ void hal_reboot(void)
     HAL_NVIC_SystemReset();
 }
 
+#if 0
 static void _timer_cb(void *timer, void *arg)
 {
     timer_dev_t *tmr = arg;
@@ -57,6 +58,7 @@ void hal_timer_stop(timer_dev_t *tmr)
     krhino_timer_dyn_del(tmr->priv);
     tmr->priv = NULL;
 }
+#endif
 
 #if defined(DEV_SAL_MK3060)
 extern hal_wifi_module_t aos_wifi_module_mk3060;
