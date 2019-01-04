@@ -66,7 +66,7 @@ $(NAME)_SOURCES += main/wifi_port.c
 $(NAME)_SOURCES += main/nand.c
 $(NAME)_SOURCES += main/vfs_trap.c
 
-ifneq (,$(filter 3rdparty.experimental.fs.fatfs,$(COMPONENTS)))
+ifneq (,$(filter fatfs,$(COMPONENTS)))
 $(NAME)_SOURCES += main/sdmmc.c
 endif
 
@@ -84,7 +84,7 @@ $(NAME)_DEFINES += LINUX_MESH_80211
 $(NAME)_CFLAGS  += -Wno-unused-but-set-variable
 endif
 
-ifneq (,$(filter network.lwip,$(COMPONENTS)))
+ifneq (,$(filter lwip,$(COMPONENTS)))
 LWIP := 1
 endif
 
