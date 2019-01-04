@@ -45,7 +45,7 @@ ifeq ($(GW_LINKEDGE_WS),1)
 LINKEDGE_SERVER ?= "192.168.1.100"
 GLOBAL_DEFINES += GW_LINKEDGE_WS=1 LINKEDGE_SERVER="\"${LINKEDGE_SERVER}\""
 $(NAME)_SOURCES += linkedge_ws.c
-$(NAME)_COMPONENTS += network.websockets
+$(NAME)_COMPONENTS += websockets
 else
 
 endif
