@@ -38,6 +38,7 @@ static void sys_init(void)
     /*user_trigger_irq();*/  //for example
 
     /*aos components init including middleware and protocol and so on !*/
+    /*If only run kernel, not use aos_components_init*/
     aos_components_init(&kinit);
 
     #ifndef AOS_BINS

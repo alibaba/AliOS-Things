@@ -2,7 +2,7 @@ NAME := board_stm32f103ze
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
-$(NAME)_SUMMARY    := configuration for board stm32f429zi-nucleo
+$(NAME)_SUMMARY    := configuration for board stm32f103ze
 MODULE             := 1062
 HOST_ARCH          := Cortex-M3
 HOST_MCU_FAMILY    := mcu_stm32f1xx
