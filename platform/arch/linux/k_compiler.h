@@ -20,7 +20,5 @@ __attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_SP(void)
    int __builtin_clz (unsigned int x) */
 #define RHINO_BIT_CLZ(x)            __builtin_clz(x)
 
-#define cpu_bitmap_clz(val)         RHINO_BIT_CLZ(val)
-
 #endif /* K_COMPILER_H */
 
