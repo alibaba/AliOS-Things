@@ -1,9 +1,10 @@
 menuconfig AOS_MCU_WM_W600
-    bool "wm_w600"
+    bool "mcu_wm_w600"
     default n
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
+      driver & sdk for platform/mcu wm_w600
 
 if AOS_MCU_WM_W600
 # Configurations for mcu wm_w600

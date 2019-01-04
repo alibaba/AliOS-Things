@@ -1,15 +1,13 @@
 menuconfig AOS_MCU_ATSAME54
-    bool "atsame54"
+    bool "mcu_atsame54"
     default n
-    select AOS_COMP_HAL
-    select AOS_COMP_NEWLIB_STUB
-    select AOS_ARCH_ARMV7M
-    select AOS_COMP_HALWIFI
     select AOS_COMP_VFS
     select AOS_COMP_KV
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO
-    select AOS_COMP_DIGEST_ALGORITHM
     help
+      driver & sdk for platform/mcu atsame54
 
 if AOS_MCU_ATSAME54
 # Configurations for mcu atsame54

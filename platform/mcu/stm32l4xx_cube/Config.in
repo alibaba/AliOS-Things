@@ -1,15 +1,14 @@
 menuconfig AOS_MCU_STM32L4XX_CUBE
-    bool "stm32l4xx_cube"
+    bool "mcu_stm32l4xx_cube"
     default n
-    select AOS_COMP_HAL
-    select AOS_COMP_NEWLIB_STUB
-    select AOS_COMP_VFS
-    select AOS_COMP_HALWIFI
-    select AOS_ARCH_ARMV7M
-    select AOS_COMP_KV
-    select AOS_COMP_RHINO
-    select AOS_COMP_DIGEST_ALGORITHM
+    select AOS_COMP_NEWLIB_STUB if @CONDITION@
+    select AOS_ARCH_ARMV7M if @CONDITION@
+    select AOS_COMP_OTA_2ND_BOOT if @CONDITION@
+    select AOS_COMP_RHINO if @CONDITION@
+    select AOS_COMP_KV if @CONDITION@
+    select AOS_COMP_VFS if @CONDITION@
     help
+      driver & sdk for platform/mcu stm32l4xx_cube
 
 if AOS_MCU_STM32L4XX_CUBE
 # Configurations for mcu stm32l4xx_cube

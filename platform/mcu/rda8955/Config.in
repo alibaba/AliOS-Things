@@ -1,16 +1,14 @@
 menuconfig AOS_MCU_RDA8955
-    bool "RDA8955"
+    bool "mcu_RDA8955"
     default n
-    select AOS_COMP_COMMON
-    select AOS_COMP_HAL
+    select AOS_ARCH_MIPS-I
+    select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
     select AOS_COMP_RHINO
-    select AOS_COMP_CJSON
-    select AOS_COMP_LWIP
-    select AOS_ARCH_MIPS-I
-    select AOS_COMP_DIGEST_ALGORITHM
     help
+      driver & sdk for platform/mcu RDA8955
 
 if AOS_MCU_RDA8955
 # Configurations for mcu RDA8955
