@@ -201,7 +201,7 @@ static const char *ota_get_version(unsigned char dev_type)
     if(dev_type) {
         return "v1.0.0-20180101-1000";//SYSINFO_APP_VERSION;
     } else {
-        return SYSINFO_APP_VERSION;
+        return "app-1.0.0-20181206.2318";//SYSINFO_APP_VERSION;
     }
 }
 

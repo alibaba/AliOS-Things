@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_OTA_2NDBOOT_NBPATCH
-    bool "ota_2ndboot_nbpatch"
-    default y
-    help
-
-if AOS_COMP_OTA_2NDBOOT_NBPATCH
-# Configurations for comp ota_2ndboot_nbpatch
-endif
