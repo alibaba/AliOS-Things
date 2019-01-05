@@ -34,7 +34,12 @@ static void sys_init(void)
     os_load_slavecpu();
     #endif
     /*
+#ifdef AOS_COMP_CLI
     aos_cli_init();
+#endif
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
 	#ifdef OSAL_RHINO
     dumpsys_cli_init();
 	#endif
