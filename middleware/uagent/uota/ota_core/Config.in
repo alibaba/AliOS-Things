@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_OTA_CORE
+    bool "OTA Core"
+    default y
+    help
+
+if AOS_COMP_OTA_CORE
+source "middleware/uagent/uota/ota_ble/Config.in"
+endif

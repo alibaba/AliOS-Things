@@ -11,15 +11,6 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-$(NAME)_COMPONENTS += ota_hal
-$(NAME)_COMPONENTS += ota_transport
-$(NAME)_COMPONENTS += ota_download
-$(NAME)_COMPONENTS += ota_verify
-
-$(NAME)_SOURCES := ota_service.c
-
-GLOBAL_INCLUDES += inc
-
-GLOBAL_DEFINES += OTA_ALIOS
-GLOBAL_DEFINES += OTA_WITH_LINKKIT
+$(NAME)_COMPONENTS += ota_core ota_hal
 GLOBAL_DEFINES += OTA_SIGNAL_CHANNEL=1
+GLOBAL_DEFINES += OTA_WITH_LINKKIT
