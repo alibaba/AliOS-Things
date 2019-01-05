@@ -130,6 +130,20 @@ void aos_set_log_level(aos_log_level_t log_level);
  */
 extern void ulog_init(const uint8_t host_name[8]);
 
+/**
+ * Function prototype for ulog management
+ *
+ * @param cmd_str command string, user fill the command string to manage ulog, format
+           shall as below:
+           "tcpip on=1" or "tcpip off=1" to notice the tcpip feature is install or not, which
+           have impact on the ulog pop out via udp session;
+           "listen ip=XXX.XXX.XXX.XXX port=XXX" to notice the syslog listener's address
+           and/or port, only passing "listen ip=XXX.XXX.XXX.XXX" if you keep the port.
+           For more command string, you can refer as ulog_man_handler_service in ulog.c
+ */
+extern void ulog_man(const char* cmd_str);
+
+
 #ifdef __cplusplus
 }
 #endif
