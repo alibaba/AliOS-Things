@@ -1,13 +1,21 @@
 NAME := ota_verify
 
+#default gcc
+ifeq ($(COMPILER),)
+$(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
+
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := Verify OTA firmware with Hash or RSA.
 
-$(NAME)_SOURCES := ota_verify.c \
-                   ota_rsa_verify.c \
-                   hash/ota_hash.c \
-                   crc/ota_crc.c \
-                   base64/ota_base64.c 
+$(NAME)_SOURCES := ota_sign.c \
+                   ota_hash.c
 
-GLOBAL_INCLUDES += . ../../inc ../../hal ../verify ./crc ./hash ./rsa
+ifeq ($(MD5_CHECK),0)
+GLOBAL_DEFINES += AOS_OTA_DISABLE_MD5
+endif
+
+GLOBAL_INCLUDES += . ../../inc ../../hal ../verify

@@ -1,15 +1,17 @@
 NAME := ota_hal
 
 $(NAME)_MBINS_TYPE := kernel
-$(NAME)_VERSION := 0.0.1
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := ota porting HAL APIs
 
 #default gcc
 ifeq ($(COMPILER),)
-$(NAME)_CFLAGS      += -Wall
+$(NAME)_CFLAGS      += -Wall -Werror
 else ifeq ($(COMPILER),gcc)
-$(NAME)_CFLAGS      += -Wall
+$(NAME)_CFLAGS      += -Wall -Werror
 endif
+
+$(NAME)_COMPONENTS += base64
 
 $(NAME)_SOURCES := \
     ota_hal_module.c \
@@ -26,4 +28,4 @@ endif
 GLOBAL_INCLUDES += . \
     ../inc \
     ../src/verify/crc \
-    ../src/2nd_boot \
+    ../src/2nd_boot

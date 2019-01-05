@@ -16,18 +16,18 @@ int rec_2boot_cmd_check(void)
     unsigned char c = 0;
     unsigned int  i = 0;
     rec_uart_init();
-    printf("\r\nPress key \'w\' into Second bootloader cmd line, Waiting 100 ms ... \r\n");
+    printf("\r\nPress key \'w\' into 2nd boot cmd, Waiting 100ms ... \r\n");
 
     while(1) {
         if(uart_recv_byte(&c) && ('w' == c)) {
-            printf("Begin aos second bootloader cmd \r\n");
+            printf("2nd boot cmd:\r\n");
             return 0;
         }
         i ++;
         if(i >= 100)break;
         rec_delayms(1);
     }
-    printf("Normal bootup, flag 0x%x, num 0x%x\r\n", rec_flag_info.flag, rec_flag_info.num);
+    printf("Bootup, flag 0x%x, num 0x%x\r\n", rec_flag_info.flag, rec_flag_info.num);
 #endif
     rec_flash_init();
     recovery_get_flag_info(&rec_flag_info);
@@ -42,16 +42,15 @@ int rec_2boot_cmd_check(void)
 #ifdef AOS_OTA_2BOOT_CLI
 void print_usage()
 {
-    printf("aos second bootloader version: " REC_2BOOT_VERSION "\r\n");
-
-    printf("[1] Query  firmware version information \r\n");
-    printf("[2] Update firmware by UART YMODEM \r\n");
-    printf("[3] Update firmware by CANbus \r\n");
-    printf("[4] Update firmware by USB Storage \r\n");
-    printf("[5] Active backup firmware\r\n");
+    printf("aos 2nd bootloader ver: " REC_2BOOT_VERSION "\r\n");
+    printf("[1] Query  FW version info \r\n");
+    printf("[2] Update FW by UART YMODEM \r\n");
+    printf("[3] Update FW by CANbus \r\n");
+    printf("[4] Update FW by USB \r\n");
+    printf("[5] Active Part B\r\n");
     printf("[6] Reboot\r\n");
-    printf("[h] print this help info\r\n");
-    printf("Please input 1-6 to select the corresponding function\r\n");
+    printf("[h] Help info\r\n");
+    printf("Please input 1-6 to select functions\r\n");
 }
 #endif
 
@@ -79,8 +78,8 @@ void rec_2boot_cmd_process()
             printf("%c \r\n", c);
             switch(c) {
                 case '1' :
-                    printf("firmware main partion version: %s\r\n", pstatus->app_version);
-                    printf("firmware back partion version: %s\r\n", pstatus->ota_version);
+                    printf("part A version: %s\r\n", pstatus->app_version);
+                    printf("part B version: %s\r\n", pstatus->ota_version);
                     break;
 
                 case '2' :
@@ -89,15 +88,15 @@ void rec_2boot_cmd_process()
 
                 case '3' :
                 case '4' :
-                    printf("Command %c not supported \r\n", c);
+                    printf("CMD %c not supported \r\n", c);
                     break;
 
                 case '5' :
-                    printf("Begin active backup firmware %s\r\n", pstatus->ota_version);
+                    printf("Active part A %s\r\n", pstatus->ota_version);
                     nbpatch_swap_app2ota(TRUE);
                     //说明：此处激活备区版本后，直接复位，故此处不需要break
                 case '6' :
-                    printf("Begin reboot \r\n");
+                    printf("Reboot \r\n");
                     rec_reboot();
                     break;
 
@@ -106,7 +105,7 @@ void rec_2boot_cmd_process()
                     break;
 
                 default:
-                    printf("Please input 1-6 to select the corresponding function\r\n");
+                    printf("Please input 1-6 to select functions\r\n");
                     break;
             }
             printf("\r\naos boot# ");
@@ -131,14 +130,12 @@ void rec_2boot_roolback_count_clear()
 
 void rec_2boot_rollback(void)
 {
-    printf("begin roll back firmware version...\r\n");
-
 #if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBACK)
     nbpatch_swap_app2ota(TRUE);
 #elif (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBOOT)
 #endif
-	rec_2boot_roolback_count_clear();
-    printf("begin reboot...\r\n");
+    rec_2boot_roolback_count_clear();
+    printf("rec rollback.");
     rec_reboot();
 }
 

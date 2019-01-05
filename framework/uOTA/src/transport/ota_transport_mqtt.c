@@ -9,14 +9,12 @@
 #include "ota_hal_os.h"
 #include "ota_hal_plat.h"
 #include "ota_verify.h"
-#include "ota_rsa_verify.h"
 
 static int ota_gen_info_msg(char *buf, int len, int id, const char *ver)
 {
     int ret = 0;
     ret = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"version\":\"%s\"}}", id, ver);
     if (ret < 0) {
-        OTA_LOG_E("mqtt info failed");
         return -1;
     }
     return 0;
@@ -30,7 +28,6 @@ static int ota_gen_report_msg(char *buf, int len, int id, int progress, const ch
     int ret = 0;
     ret = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}", id, progress, msg?msg:NULL);
     if (ret < 0) {
-        OTA_LOG_E("mqtt report failed");
         return -1;
     }
     return 0;
@@ -44,7 +41,6 @@ static int ota_mqtt_gen_topic_name(char *buf, int len, const char *topic, char *
     int ret = 0;
     ret = ota_snprintf(buf, len, "/ota/device/%s/%s/%s", topic, pk, dn);
     if (ret < 0) {
-        OTA_LOG_E("mqtt topic failed");
         return -1;
     }
     return 0;
@@ -55,19 +51,16 @@ static int ota_mqtt_publish(const char *topic, const char *msg, char *pk, char *
     int ret = 0;
     char name[OTA_MQTT_TOPIC_LEN] = {0};
     if (topic == NULL || msg == NULL || pk == NULL || dn == NULL) {
-        OTA_LOG_E("mqtt pub is null");
         return -1;
     }
     ret = ota_mqtt_gen_topic_name(name, OTA_MQTT_TOPIC_LEN, topic, pk, dn);
     if (ret < 0) {
-        OTA_LOG_E("generate topic name of info failed");
         return -1;
     }
-    OTA_LOG_I("mqtt pub name:%s msg:%s",name,msg);
+    OTA_LOG_I("Public name:%s msg:%s",name,msg);
     ret = ota_hal_mqtt_publish(name, 1, (void *)msg, strlen(msg) + 1);
     if (ret < 0) {
-        OTA_LOG_E("publish failed");
-        return -1;
+        return ret;
     }
     return 0;
 }
@@ -76,7 +69,6 @@ static void ota_mqtt_sub_cb(void *pcontext, void *pclient, void* msg)
 {
     char *payload = NULL;
     if (msg == NULL) {
-        OTA_LOG_E("mqtt is null");
         return;
     }
     ota_mqtt_msg_t *mqtt_msg = (ota_mqtt_msg_t*)msg;
@@ -92,9 +84,8 @@ static void ota_mqtt_sub_cb(void *pcontext, void *pclient, void* msg)
         return;
     }
     ota_service_t* ctx = (ota_service_t*)pcontext;
-    OTA_LOG_E("mqtt cb evt:%d %s", mqtt_msg->event, payload);
+    OTA_LOG_I("mqtt cb evt:%d %s", mqtt_msg->event, payload);
     if ((!ctx)||!(ctx->upgrade_cb)) {
-        OTA_LOG_E("mqtt cb is null.");
         return;
     }
     ctx->upgrade_cb(ctx, payload);
@@ -106,18 +97,15 @@ static int ota_trans_inform(void* pctx)
     char msg[OTA_MSG_INFORM_LEN] = {0};
     ota_service_t* ctx = pctx;
     if (!ctx) {
-        OTA_LOG_E("parameter null.");
         return -1;
     }
     ret = ota_gen_info_msg(msg, OTA_MSG_INFORM_LEN, 0, ctx->sys_ver);
     if (ret != 0) {
-        OTA_LOG_E("inform message failed");
         return -1;
     }
     ret = ota_mqtt_publish("inform", msg, ctx->pk, ctx->dn);
     if (0 != ret) {
-        OTA_LOG_E("mqtt inform failed");
-        return -1;
+        return OTA_TRANSPORT_FAIL;
     }
     return ret;
 }
@@ -128,19 +116,16 @@ static int ota_trans_upgrade(void* pctx)
     char  name[OTA_MQTT_TOPIC_LEN] = {0};
     ota_service_t* ctx = pctx;
     if (!ctx) {
-        OTA_LOG_E("parameter null.");
         return -1;
     }
     ret = ota_mqtt_gen_topic_name(name, OTA_MQTT_TOPIC_LEN, "upgrade", ctx->pk, ctx->dn);
     if (ret < 0) {
-        OTA_LOG_E("mqtt topic upgrade failed");
         return -1;
     }
     OTA_LOG_I("upgrade:%s",name);
     ret = ota_hal_mqtt_subscribe(name, ota_mqtt_sub_cb, pctx);
     if (ret < 0) {
-        OTA_LOG_E("mqtt subscribe failed \n");
-        return -1;
+        return OTA_TRANSPORT_FAIL;
     }
     return ret;
 }
@@ -149,10 +134,9 @@ static int ota_trans_status(int progress, void* pctx)
 {
     int  ret = -1;
     char msg[OTA_MSG_REPORT_LEN] = {0};
-    char err[32];
+    char err[OTA_MAX_VER_LEN] = {0};
     ota_service_t* ctx = pctx;
     if (!ctx) {
-        OTA_LOG_E("parameter null.");
         return -1;
     }
     int  status = ctx->upg_status;
@@ -161,61 +145,59 @@ static int ota_trans_status(int progress, void* pctx)
         progress = status;
         switch (status) {
             case OTA_INIT_FAIL:
-                sprintf(err, "%s", "ota init failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota init failed");
                 break;
             case OTA_INIT_VER_FAIL:
-                sprintf(err, "%s", "ota version not match");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota version not match");
                 break;
             case OTA_DOWNLOAD_FAIL:
-                sprintf(err, "%s", "ota download failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download failed");
                 break;
             case OTA_DOWNLOAD_URL_FAIL:
-                sprintf(err, "%s", "ota download url failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download url failed");
                 break;
             case OTA_DOWNLOAD_IP_FAIL:
-                sprintf(err, "%s", "ota download ip failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download ip failed");
                 break;
             case OTA_DOWNLOAD_CON_FAIL:
-                sprintf(err, "%s", "ota download connect failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download connect failed");
                 break;
             case OTA_DOWNLOAD_READ_FAIL:
-                sprintf(err, "%s", "ota download read failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download read failed");
                 break;
             case OTA_DOWNLOAD_WRITE_FAIL:
-                sprintf(err, "%s", "ota download write failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download write failed");
                 break;
             case OTA_VERIFY_FAIL:
-                sprintf(err, "%s", "ota verify failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify failed");
                 break;
             case OTA_UPGRADE_FAIL:
-                sprintf(err, "%s", "ota upgrade failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota upgrade failed");
                 break;
             case OTA_REBOOT_FAIL:
-                sprintf(err, "%s", "ota reboot failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota reboot failed");
                 break;
             case OTA_VERIFY_RSA_FAIL:
-                sprintf(err, "%s", "ota verify rsa failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify rsa failed");
                 break;
             case OTA_VERIFY_HASH_FAIL:
-                sprintf(err, "%s", "ota verify hash failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify hash failed");
                 break;
             case OTA_UPGRADE_DIFF_FAIL:
-                sprintf(err, "%s", "ota diff failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota diff failed");
                 break;
             default:
-                sprintf(err, "%s", "ota undefined failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota undefined failed");
                 break;
         }
     }
     ret = ota_gen_report_msg(msg, OTA_MSG_REPORT_LEN, 0, progress, err);
     if (0 != ret) {
-        OTA_LOG_E("generate message failed");
         return -1;
     }
     ret = ota_mqtt_publish("progress", msg, ctx->pk, ctx->dn);
     if (0 != ret) {
-        OTA_LOG_E("Report progress failed");
-        return -1;
+        return OTA_TRANSPORT_FAIL;
     }
     return ret;
 }
@@ -238,7 +220,7 @@ static ota_transport_t trans_mqtt = {
     .deinit           = ota_trans_deinit,
 };
 
-ota_transport_t *ota_get_transport_mqtt(void)
+ota_transport_t *ota_get_transport(void)
 {
     return &trans_mqtt;
 }

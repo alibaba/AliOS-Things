@@ -23,7 +23,7 @@ void recovery_get_flag_info(rec_flag_info_t *rec_flag_info)
     ret = patch_flash_read(HAL_PARTITION_PARAMETER_1,
           (unsigned char *) &pstatus, 0, sizeof(PatchStatus));
     if(ret < 0) {
-        LOG("patch_flash_read error\r\n");
+        LOG("read flag err.");
         return;
     }
     rec_flag_info->flag = pstatus.upg_flag;
@@ -38,7 +38,7 @@ void recovery_set_flag_info(rec_flag_info_t *rec_flag_info)
     ret = patch_flash_read(HAL_PARTITION_PARAMETER_1,
           (unsigned char *) &pstatus, 0, sizeof(PatchStatus));
     if(ret < 0) {
-        LOG("patch_flash_read error\r\n");
+        LOG("read err");
         return;
     }
 
@@ -95,7 +95,7 @@ int recovery_flag_update()
     rec_flag_info_t rec_flag_set  = {REC_NORMAL_FLAG, 0};
     recovery_get_flag_info(&rec_flag_info);
 
-    printf("rec_flag_info.flag = 0x%x\n", rec_flag_info.flag);
+    printf("flag = 0x%x\n", rec_flag_info.flag);
     switch (rec_flag_info.flag) {
         case REC_RECOVERY_FLAG :
             if(rec_flag_info.num <= REC_MAX_NUM) {

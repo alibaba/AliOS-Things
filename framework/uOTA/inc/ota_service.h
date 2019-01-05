@@ -27,6 +27,8 @@ typedef enum{
 }OTA_PROTCOL_E;
 
 typedef enum {
+    OTA_PARAM_FAIL = -17,
+    OTA_PARSE_FAIL = -16,
     OTA_REBOOT_FAIL = -15,
     OTA_UPGRADE_DIFF_FAIL = -14,
     OTA_UPGRADE_FAIL = -13,
@@ -140,16 +142,12 @@ typedef struct {
     void*    boot_param;      /*Boot parameter*/
 } ota_service_t;
 
-/*OTA export service APIs*/
+/*OTA export APIs*/
 int ota_service_init(ota_service_t* ctx);
 int ota_service_deinit(ota_service_t* ctx);
 
 /*OTA intenal APIs*/
-ota_service_t *ota_get_service(void);
-ota_transport_t *ota_get_transport_mqtt(void);
-ota_transport_t *ota_get_transport_coap(void);
-ota_download_t *ota_get_download_http(void);
-ota_download_t *ota_get_download_coap(void);
-const char *ota_to_capital(char *value, int len);
+ota_transport_t *ota_get_transport(void);
+ota_download_t *ota_get_download(void);
 int ota_hex_str2buf(const char* src, char* dest, unsigned int dest_len);
 #endif /* OTA_SERVICE_H_ */

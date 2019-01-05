@@ -78,7 +78,7 @@ static int ota_init(void *something)
     }
 #if !defined PLAT_RASPBERRY
     if(param->len > 0x3100000){
-        OTA_LOG_E("init err--> firmware size is too big.\n");
+        OTA_LOG_E("firmware size is too big.\n");
         return -1;
     }
 #endif
@@ -201,7 +201,7 @@ static const char *ota_get_version(unsigned char dev_type)
     if(dev_type) {
         return "v1.0.0-20180101-1000";//SYSINFO_APP_VERSION;
     } else {
-        return aos_get_app_version();
+        return SYSINFO_APP_VERSION;
     }
 }
 

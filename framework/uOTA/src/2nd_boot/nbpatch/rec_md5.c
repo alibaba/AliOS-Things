@@ -1,4 +1,5 @@
 #include "rec_md5.h"
+#include "rec_pub.h"
 
 #ifndef GET_UINT32_LE
 #define GET_UINT32_LE(n,b,i)                            \
@@ -36,8 +37,6 @@ void rec_md5_free( rec_md5_context *ctx )
 
     rec_zeroize( ctx, sizeof( rec_md5_context ) );
 }
-
-
 
 void rec_md5_init( rec_md5_context *ctx )
 {

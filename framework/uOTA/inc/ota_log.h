@@ -12,7 +12,7 @@
 #include "aos/log.h"
 #if defined(LOG_SIMPLE)
 #define OTA_LOG_D(fmt, ...) LOGD("uota","file %s, line %d", __FILE__, __LINE__)
-#define OTA_LOG_I(fmt, ...) LOGI("uota","file %s, line %d", __FILE__, __LINE__)
+#define OTA_LOG_I(fmt, ...) LOGI("uota",fmt,##__VA_ARGS__)
 #define OTA_LOG_W(fmt, ...) LOGW("uota","file %s, line %d", __FILE__, __LINE__)
 #define OTA_LOG_E(fmt, ...) LOGE("uota","file %s, line %d", __FILE__, __LINE__)
 #else
