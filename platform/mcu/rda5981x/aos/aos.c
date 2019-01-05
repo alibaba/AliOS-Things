@@ -34,7 +34,13 @@ static void sys_init(void)
     hw_start_hal();
     vfs_init();
     vfs_device_init();
+#ifdef AOS_COMP_CLI
     aos_cli_init();
+#endif
+
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
     aos_kv_init();
     aos_loop_init();
     dumpsys_cli_init();

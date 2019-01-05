@@ -60,7 +60,13 @@ void sys_start(void)
     tcpip_init(NULL, NULL);
 
     vfs_init();
+#ifdef AOS_COMP_CLI
     aos_cli_init();
+#endif
+
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
     dumpsys_cli_init();
 
 #ifdef AOS_COMP_KV
