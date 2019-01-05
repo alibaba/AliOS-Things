@@ -18,6 +18,7 @@ $(NAME)_SOURCES += aos/board_partition.c \
 
 $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
                    Src/can.c               \
+                   Src/timer.c             \
                    Src/i2c.c               \
                    Src/eth.c               \
                    Src/gpio.c              \
