@@ -37,7 +37,13 @@ static void sys_init(void)
     aos_loop_init();
 #endif
 
+#ifdef AOS_COMP_CLI
     aos_cli_init();
+#endif
+
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
     application_start(0, NULL);	
 }
 

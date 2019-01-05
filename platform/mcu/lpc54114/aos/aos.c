@@ -39,6 +39,10 @@ static void sys_init(void)
     aos_cli_init();
 #endif
 
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
+
 #ifdef AOS_COMP_KV
     aos_kv_init();
 #endif
