@@ -106,21 +106,9 @@ void app_main(void)
     esp_bt_mesh_register();
 #endif
     
-    #if (RHINO_CONFIG_CPU_NUM > 1)
-
-    aos_cli_init();
-    
-#ifdef OSAL_RHINO
-    extern void dumpsys_cli_init(void);
-    dumpsys_cli_init();
-#endif
-
-    #else
 #ifdef TINY_ENGINE
     aos_task_new("main", app_entry, 0, 8192+4096+2048);
 #else
     aos_task_new("main", app_entry, 0, 8192);
 #endif
-    #endif    
-
 }
