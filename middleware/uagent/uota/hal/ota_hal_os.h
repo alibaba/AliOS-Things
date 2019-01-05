@@ -4,7 +4,7 @@
 
 #ifndef OTA_PLATFORM_OS_H_
 #define OTA_PLATFORM_OS_H_
-#include "ota_service.h"
+#include "ota/ota_service.h"
 
 #define OTA_SSL_TIMEOUT 5000
 #define ota_snprintf snprintf

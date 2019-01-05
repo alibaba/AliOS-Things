@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_OTA_VERIFY
-    bool "ota_verify"
-    default y
-    help
-
-if AOS_COMP_OTA_VERIFY
-# Configurations for comp ota_verify
-endif
