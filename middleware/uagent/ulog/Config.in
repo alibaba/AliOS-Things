@@ -61,4 +61,13 @@ config ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
 
 endif
 
+config ULOG_CONFIG_SYSLOG_WATCHER_PORT
+    int "syslog watcher port"
+    default 514
+    range 20 65000
+    help
+        Specify the port of syslog watcher
+
+endif
+
 endif

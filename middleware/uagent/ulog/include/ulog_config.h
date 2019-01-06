@@ -49,6 +49,7 @@ typedef enum{
     SESSION_CNT
 }SESSION_TYPE;
 
+#define ULOG_CMD_PREFIX "#@"
 
 /**
 * If this value is SET then extream log text will be recored, then the log text not support syslog format,
@@ -106,7 +107,7 @@ typedef enum{
 * please keep this value on "LOG_EMERG" if you have no plan to use udp log
 */
 #ifndef ULOG_CONFIG_STOP_FILTER_UDP
-#define STOP_FILTER_UDP       LOG_EMERG
+#define STOP_FILTER_UDP       LOG_WARNING
 #else
 #define STOP_FILTER_UDP       ULOG_CONFIG_STOP_FILTER_UDP
 #endif
@@ -118,6 +119,15 @@ typedef enum{
 #define LOG_ROUTINE_TASK_STACK_DEPTH 512
 #else
 #define LOG_ROUTINE_TASK_STACK_DEPTH ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
+#endif
+
+/**
+* Specify the port of syslog watcher
+*/
+#ifndef ULOG_CONFIG_SYSLOG_WATCHER_PORT
+#define SYSLOG_WATCHER_DEFAULT_PORT 514
+#else
+#define SYSLOG_WATCHER_DEFAULT_PORT ULOG_CONFIG_SYSLOG_WATCHER_PORT
 #endif
 
 
