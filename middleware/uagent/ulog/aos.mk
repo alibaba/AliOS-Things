@@ -9,9 +9,10 @@ GLOBAL_DEFINES += AOS_COMP_ULOG
 $(NAME)_SOURCES     := log.c ulog_init.c
 
 ifeq ($(ULOG_CONFIG_ASYNC),y)
-#GLOBAL_DEFINES += ULOG_CONFIG_ASYNC
+GLOBAL_DEFINES += ULOG_CONFIG_ASYNC
 $(NAME)_SOURCES     += ulog.c
 $(NAME)_SOURCES     += uring_fifo.c
+$(NAME)_SOURCES     += session_udp.c
 endif
 
 GLOBAL_INCLUDES += include

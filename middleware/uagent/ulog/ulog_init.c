@@ -17,6 +17,15 @@ bool log_init = false;
 extern void on_filter_level_change(const SESSION_TYPE session, const uint8_t level);
 extern void ulog_async_init(const uint8_t host_name[8]);
 
+
+__attribute__((weak)) void update_net_cli(const char cmd, const char* param)
+{
+    /* Will be overwrite in session_udp, as this implement take effect only the UDP feature support,
+       I don't like so many compile switcher in the code which result reader is not so comfortable,
+       so weak attribute used here.
+    */
+}
+
 static void cmd_cli_ulog(char *pwbuf, int blen, int argc, char *argv[])
 {
     bool exit_loop = false;
@@ -37,6 +46,12 @@ static void cmd_cli_ulog(char *pwbuf, int blen, int argc, char *argv[])
                 case 'l'://level
                 level = strtoul(param, NULL, 10);
                 break;
+
+                case 'a'://syslog watcher address
+                case 'p'://syslog watcher port
+                update_net_cli(option[0], param);
+
+                    break;
 
                 default: //unknown option
                 exit_loop = true;
@@ -98,7 +113,7 @@ void ulog_init(const uint8_t host_name[8])
 #ifdef AOS_COMP_CLI
         aos_cli_register_commands(&ulog_cmd[0], sizeof(ulog_cmd)/sizeof(struct cli_command));
 #endif
-    log_init = true;
+        log_init = true;
     }
 }
 

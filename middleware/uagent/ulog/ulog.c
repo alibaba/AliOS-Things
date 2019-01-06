@@ -7,15 +7,20 @@
 #include "aos/kernel.h"
 #include "k_config.h"
 
+typedef void(* on_ulog_man_service)(const uint32_t, const uint32_t);
+
+typedef uint8_t session_filter_para_t;
+
 typedef struct{
-    uint8_t stop_filter_level;//stop filter, any level <= stop_filter_level(value >= this value) will be abonded
-    uint8_t condition_session;//0 indicates condition fulfill. bit 1 indicates if udp ready
-}session_filter_para_t;
+    char*                func_mark;
+    char*                sub_func_mark[2];
+    on_ulog_man_service  handler;
+}ulog_man_handler_service_t;
 
-#define CHECK_PASS_POP_OUT(SESSION, LEVEL) (session_filter_para[SESSION].stop_filter_level>LEVEL) &&\
-                                           (0==session_filter_para[SESSION].stop_filter_level)
+#define CHECK_PASS_POP_OUT(SESSION, LEVEL) (stop_filter_level[SESSION]>LEVEL)
 
-static aos_sem_t sem_log;
+/* used for indicates message has been filled into fifo */
+static aos_sem_t sem_log_push;
 
 static aos_task_t ulog_routine;
 static char g_host_name[10];
@@ -31,11 +36,51 @@ static aos_mutex_t ulog_mutex;
 
 uint8_t push_stop_filter_level = LOG_EMERG;
 
-static session_filter_para_t session_filter_para[SESSION_CNT] =
+/* stop filter, any level <= stop_filter_level(value >= this value) will be abonded */
+session_filter_para_t stop_filter_level[SESSION_CNT] =
 {
-    {STOP_FILTER_DEFAULT, 0x00},
-    {STOP_FILTER_UDP    , 0x02}
+    STOP_FILTER_DEFAULT, STOP_FILTER_UDP
 };
+
+extern void on_update_syslog_watcher_addr(const uint32_t ip_d, const uint32_t port );
+extern void on_tcpip_service_on(const uint32_t on, const uint32_t off);
+
+const ulog_man_handler_service_t ulog_man_handler_service[] =
+{
+    { "listen", {"ip","port"}, on_update_syslog_watcher_addr },
+    { "tcpip",  {"on","off" }, on_tcpip_service_on           },
+};
+
+static void ulog_man_handler(const char* raw_str)
+{
+    if(raw_str!=NULL){
+        const uint8_t man_handler_service_size = sizeof(ulog_man_handler_service)/sizeof(ulog_man_handler_service_t);
+        uint8_t i = 0;
+        for(; i<man_handler_service_size; i++){
+            if(0==strncmp(ulog_man_handler_service[i].func_mark, raw_str, strlen(ulog_man_handler_service[i].func_mark))){
+                char* p = &raw_str[strlen(ulog_man_handler_service[i].func_mark)];
+                if(p[0] == ' '){
+                    uint32_t param[2] = {0, 0};
+                    uint8_t j = 0;
+
+                    for(; j<2; j++){
+                        char * q = NULL;
+                        if( NULL != (q=strstr(&p[1], ulog_man_handler_service[i].sub_func_mark[j])) ){
+                            char* val_str = &q[strlen(ulog_man_handler_service[i].sub_func_mark[j])+1];
+                            param[j] = strtoul(val_str, NULL, 10);
+                        }
+                    }
+                    if( (param[0]!=0||param[1]!=0) && (ulog_man_handler_service[i].handler != NULL) ){
+                        ulog_man_handler_service[i].handler(param[0], param[1]);
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+
+
 
 static void* wrapper_mutex_init()
 {
@@ -69,10 +114,10 @@ static char *syslog_format_time(char *buffer, const int len)
         snprintf(buffer,len,"%s ",months[tm->tm_mon<12?tm->tm_mon:0]);
         strftime(&buffer[4], len-4, "%d %H:%M:%S", tm);
         const int32_t milli    = ms % 1000;
-        char      msStr[8] = "";
-	    memset(msStr, 0, sizeof(msStr));
-        snprintf(msStr, sizeof(msStr), ".%03d ", milli);
-        strncat(buffer, msStr, len - strlen(buffer) - 1);
+        char      ms_str[8] = "";
+	    memset(ms_str, 0, sizeof(ms_str));
+        snprintf(ms_str, sizeof(ms_str), ".%03d ", milli);
+        strncat(buffer, ms_str, len - strlen(buffer) - 1);
     }
 
     return buffer;
@@ -80,7 +125,7 @@ static char *syslog_format_time(char *buffer, const int len)
 
 static void ulog_push_cb(void* para)
 {
-    aos_sem_signal(&sem_log);
+    aos_sem_signal(&sem_log_push);
 }
 
 static char* trim_file_path(const char* path)
@@ -119,27 +164,36 @@ osi_uring_fifo os_related =
     trim_file_path
 };
 
-static void pop_out_sessions(void* para, const void* log_text, const uint16_t log_len)
+static void ulog_handler(void* para, const void* log_text, const uint16_t log_len)
 {
     if( (log_text!=NULL) && log_len>0 ) {
         char* str = (char*)log_text;
 #if EXTREAM_LOG_TEXT==0
-        if( (str[0]=='<') && (strchr(str, '>')!=NULL) ) {
+        if( (str[0]=='<') && (strchr(str, '>')!=NULL) ) {//syslog format
             //pri = facility*8+level
             const uint32_t pri = strtoul(&str[1], NULL, 10);
             const uint8_t level = (pri&0x7);
+            if(CHECK_PASS_POP_OUT(SESSION_DIRECTION,level)){
+                if(log_get_mutex()){
+                    puts(log_text);
+                    log_release_mutex();
+                }
+            }
+
+            if(CHECK_PASS_POP_OUT(SESSION_UDP,level)){
+                pop_out_on_udp(log_text,log_len);
+            }
+        }else
+#endif
+        if(0==strncmp(str,ULOG_CMD_PREFIX,strlen(ULOG_CMD_PREFIX))){
+            /* syslog management */
+            ulog_man_handler(&str[strlen(ULOG_CMD_PREFIX)]);
+        }else{
             if(log_get_mutex()){
                 puts(log_text);
                 log_release_mutex();
             }
         }
-#else
-    if(log_get_mutex()){
-        puts(log_text);
-        log_release_mutex();
-    }
-
-#endif
     }
 }
 
@@ -149,18 +203,17 @@ static void log_routine(void* para)
     {
         //PRI      HEADER            MSG
         //<130>Oct 9 22:33:20.111 soc OS_kernel.c[111]: The audit daemon is exiting.
-        if(aos_sem_wait(&sem_log, AOS_WAIT_FOREVER)==0)
+        if(aos_sem_wait(&sem_log_push, AOS_WAIT_FOREVER)==0)
         {
-            uring_fifo_pop_cb(pop_out_sessions, NULL);
+            uring_fifo_pop_cb(ulog_handler, NULL);
         }
     }
 }
 
-
 void ulog_async_init(const uint8_t host_name[8])
 {
     uring_fifo_init(DEFAULT_ASYNC_SYSLOG_DEPTH);
-    if( 0==aos_sem_new(&sem_log, 0) ) {
+    if( 0==aos_sem_new(&sem_log_push, 0) ) {
         if( 0==aos_task_new_ext(&ulog_routine,
             "ulog",
             log_routine,
@@ -178,25 +231,37 @@ void ulog_async_init(const uint8_t host_name[8])
 
 void on_filter_level_change(const SESSION_TYPE session, const uint8_t level)
 {
-    bool next_handle = false;
-    if(session==SESSION_CNT){//only happen on init, get the first push level
+    bool next_handle = true;
+    if(session==SESSION_CNT){//only happen on init, get the initial push level
         push_stop_filter_level = LOG_EMERG;
-        next_handle = true;
     }else if(session<SESSION_CNT && level<=LOG_NONE){
-        session_filter_para[session].stop_filter_level = level;
-        push_stop_filter_level = session_filter_para[session].stop_filter_level;
-        if(push_stop_filter_level>session_filter_para[session].stop_filter_level){//push_stop_filter may adjust
-            next_handle = true;
-        }
+        stop_filter_level[session] = level;
+
+        //suppose we use update session sf(stop filter) as push filter, this value will be updated below
+        push_stop_filter_level = stop_filter_level[session];
+    }else{
+        next_handle = false;
     }
     if(next_handle){
         uint8_t i = 0;
         for(; i<SESSION_CNT;i++)
         {
-            if(push_stop_filter_level<session_filter_para[i].stop_filter_level){
-                push_stop_filter_level = session_filter_para[i].stop_filter_level;
+            if(push_stop_filter_level<stop_filter_level[i]){
+                push_stop_filter_level = stop_filter_level[i];
             }
         }
+    }
+}
+
+void ulog_man(const char* cmd_str)
+{
+    if(cmd_str!=NULL && log_init){
+        const uint16_t cmd_str_size = strlen(cmd_str)+strlen(ULOG_CMD_PREFIX)+1;
+        char* tmpbuf = (char*)aos_malloc(cmd_str_size);
+        strncpy(tmpbuf, ULOG_CMD_PREFIX, cmd_str_size);
+        strncat(tmpbuf, cmd_str, cmd_str_size - strlen(ULOG_CMD_PREFIX) - 1);
+        uring_fifo_push_s(tmpbuf, cmd_str_size);
+        aos_free(tmpbuf);
     }
 }
 

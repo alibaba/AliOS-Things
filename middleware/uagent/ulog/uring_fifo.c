@@ -47,7 +47,7 @@ bool uring_fifo_init(const uint16_t queue_depth)
 }
 
 //Thread Safe to operate this routine.
-bool uring_fifo_push_s(const void* buf, const uint16_t len, push_callback cb, void* cb_data)
+bool uring_fifo_push_s(const void* buf, const uint16_t len)
 {
 	bool rc = false;
 	if(buf!=NULL && len!=0 && len<=SYSLOG_SIZE)	{
@@ -62,9 +62,9 @@ bool uring_fifo_push_s(const void* buf, const uint16_t len, push_callback cb, vo
     			log_buffer[msg_in_ptr].fifo_len=len;
 
     			msg_in_ptr = (msg_in_ptr+1)%syslog_depth;
-                if(NULL != cb)
+                if(NULL != os_related._log_push_cb)
                 {
-                    cb(cb_data);
+                    os_related._log_push_cb(NULL);
                 }
 
     			rc = true;
