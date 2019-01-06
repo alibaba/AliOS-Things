@@ -25,7 +25,7 @@ typedef struct{
     char *  (*_trim_file_path)(const char* path);
 } osi_uring_fifo;
 
-extern bool uring_fifo_push_s(const void* buf, const uint16_t len, push_callback cb, void* cb_data);
+extern bool uring_fifo_push_s(const void* buf, const uint16_t len);
 extern bool post_log(const MOD_TYPE m, const uint8_t s, const char* f, const uint32_t l, const char *fmt, ...);
 
 extern int32_t uring_fifo_pop(void* const buf, const uint16_t _len);
