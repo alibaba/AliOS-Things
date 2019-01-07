@@ -81,22 +81,6 @@
 #endif
 
 /* kernel timer&tick conf */
-#ifndef RHINO_CONFIG_HW_COUNT
-#define RHINO_CONFIG_HW_COUNT                0
-#endif
-#ifndef RHINO_CONFIG_TICK_TASK
-#define RHINO_CONFIG_TICK_TASK               0
-#endif
-
-#if (RHINO_CONFIG_TICK_TASK > 0)
-#ifndef RHINO_CONFIG_TICK_TASK_STACK_SIZE
-#define RHINO_CONFIG_TICK_TASK_STACK_SIZE    256
-#endif
-#ifndef RHINO_CONFIG_TICK_TASK_PRI
-#define RHINO_CONFIG_TICK_TASK_PRI           1
-#endif
-#endif
-
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
 #endif
@@ -138,45 +122,8 @@
 #define RHINO_CONFIG_USER_HOOK               1
 #endif
 
-/* kernel stats conf */
-#ifndef RHINO_CONFIG_SYSTEM_STATS
-#define RHINO_CONFIG_SYSTEM_STATS            1
-#endif
-#ifndef RHINO_CONFIG_TASK_SCHED_STATS
-#define RHINO_CONFIG_TASK_SCHED_STATS        0
-#endif
-
 #ifndef RHINO_CONFIG_CPU_NUM
 #define RHINO_CONFIG_CPU_NUM                 1
-#endif
-
-/* kernel trace conf */
-#ifndef RHINO_CONFIG_TRACE
-#define RHINO_CONFIG_TRACE                   0
-#endif
-
-#if ((RHINO_CONFIG_DYNTICKLESS >= 1) && (RHINO_CONFIG_SCHED_RR != 0))
-#error  "RHINO_CONFIG_SCHED_RR should be 0 when RHINO_CONFIG_DYNTICKLESS is enabled."
-#endif
-
-#if ((RHINO_CONFIG_MM_TLF >= 1) && (RHINO_CONFIG_MM_BLK == 0))
-#error  "RHINO_CONFIG_MM_BLK should be 1 when RHINO_CONFIG_MM_TLF is enabled."
-#endif
-
-#if ((RHINO_CONFIG_KOBJ_DYN_ALLOC >= 1) && (RHINO_CONFIG_MM_TLF == 0))
-#error  "RHINO_CONFIG_MM_TLF should be 1 when RHINO_CONFIG_KOBJ_DYN_ALLOC is enabled."
-#endif
-
-#if (RHINO_CONFIG_PRI_MAX >= 256)
-#error  "RHINO_CONFIG_PRI_MAX must be <= 255."
-#endif
-
-#if ((RHINO_CONFIG_SEM == 0) && (RHINO_CONFIG_TASK_SEM >= 1))
-#error  "you need enable RHINO_CONFIG_SEM as well."
-#endif
-
-#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_TASK_SCHED_STATS >= 1))
-#error  "you need enable RHINO_CONFIG_HW_COUNT as well."
 #endif
 
 #endif /* K_CONFIG_H */

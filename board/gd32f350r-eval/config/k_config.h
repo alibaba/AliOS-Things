@@ -5,11 +5,6 @@
 #ifndef K_CONFIG_H
 #define K_CONFIG_H
 
-#define RHINO_SCHED_NONE_PREEMPT             0
-
-#define RHINO_CONFIG_STK_CHK_WORDS           1u
-
-/* kernel feature conf */
 #define RHINO_CONFIG_SEM                     1
 
 #define RHINO_CONFIG_QUEUE                   1
@@ -61,8 +56,6 @@
 #define RHINO_CONFIG_MM_REGION_MUTEX         1
 
 /* kernel timer&tick conf */
-#define RHINO_CONFIG_HW_COUNT                0
-
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
 
 #define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
@@ -91,14 +84,6 @@
 
 /* kernel hook conf */
 #define RHINO_CONFIG_USER_HOOK               0
-
-/* kernel stats conf */
-#define RHINO_CONFIG_SYSTEM_STATS            1
-
-#define RHINO_CONFIG_TASK_SCHED_STATS        0
-
-/* kernel trace conf */
-#define RHINO_CONFIG_TRACE                   0
 
 #define RHINO_CONFIG_CPU_NUM                 1
 

@@ -31,7 +31,7 @@ void krhino_init_hook(void)
 
 void krhino_start_hook(void)
 {
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     krhino_task_sched_stats_reset();
 #endif
 }
@@ -46,7 +46,7 @@ void krhino_task_create_hook(ktask_t *task)
 void krhino_task_del_hook(ktask_t *task, res_free_t *arg)
 {
      printf("%s del success!\n\r", task->task_name);
-            
+
 }
 
 void krhino_task_switch_hook(ktask_t *orgin, ktask_t *dest)
