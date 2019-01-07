@@ -43,7 +43,7 @@ kstat_t ucli_task_start(void)
                                UCLI_TASK_USTACK, UCLI_TASK_KSTACK, ucli_task, 1);
 
     if (ret != RHINO_SUCCESS) {
-        krhino_utask_del(ucli_task_obj);
+        free(ustack_buf);
         return ret;
     }
 
