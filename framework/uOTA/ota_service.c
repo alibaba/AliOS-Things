@@ -181,7 +181,7 @@ parse_success:
     if (root) {
         cJSON_Delete(root);
     }
-    return 0;
+    return ret;
 }
 
 static void ota_download_thread(void *hand)
