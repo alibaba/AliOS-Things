@@ -72,22 +72,6 @@
 #endif
 
 /* kernel timer&tick conf */
-#ifndef RHINO_CONFIG_HW_COUNT
-#define RHINO_CONFIG_HW_COUNT                0
-#endif
-#ifndef RHINO_CONFIG_TICK_TASK
-#define RHINO_CONFIG_TICK_TASK               1
-#endif
-
-#if (RHINO_CONFIG_TICK_TASK > 0)
-#ifndef RHINO_CONFIG_TICK_TASK_STACK_SIZE
-#define RHINO_CONFIG_TICK_TASK_STACK_SIZE    128
-#endif
-#ifndef RHINO_CONFIG_TICK_TASK_PRI
-#define RHINO_CONFIG_TICK_TASK_PRI           1
-#endif
-#endif
-
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
 #define RHINO_CONFIG_TICKS_PER_SECOND        16384        /*HAL_TICK1S*/
 #endif
@@ -126,18 +110,6 @@
 #endif
 
 /* kernel stats conf */
-#ifndef RHINO_CONFIG_SYSTEM_STATS
-#define RHINO_CONFIG_SYSTEM_STATS            1
-#endif
-#ifndef RHINO_CONFIG_SCHED_STATS
-#define RHINO_CONFIG_SCHED_STATS             0
-#endif
-#ifndef RHINO_CONFIG_INTRPT_STATS
-#define RHINO_CONFIG_INTRPT_STATS            0
-#endif
-#ifndef RHINO_CONFIG_TASK_SCHED_STATS
-#define RHINO_CONFIG_TASK_SCHED_STATS        0
-#endif
 #ifndef RHINO_CONFIG_TASK_STACK_CUR_CHECK
 #define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
 #endif
