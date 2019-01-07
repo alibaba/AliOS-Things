@@ -9,7 +9,7 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
 					utility/cjson \
 					tools/cli 
 
-GLOBAL_DEFINES += CONFIG_AOS_CLI
+GLOBAL_DEFINES += CONFIG_AOS_CLI COAP_DTLS_SUPPORT
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net
