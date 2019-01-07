@@ -40,7 +40,7 @@ void ota_breeze_send_error()
 
     err_code = breeze_post_ext(OTA_BREEZE_CMD_ERROR, NULL, 0);
     if (err_code != OTA_BREEZE_SUCCESS) {
-        printf("send err failed\r\n");
+        OTA_LOG_E("send err failed\r\n");
     }
 }
 
@@ -147,7 +147,7 @@ unsigned int ota_breeze_send_bytes_received()
 
     err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_BYTES_RECEIVED, tx_buff, sizeof(unsigned short) + sizeof(unsigned int));
     if (err_code != OTA_BREEZE_SUCCESS) {
-        printf("send rec err\r\n");
+        OTA_LOG_E("send rec err\r\n");
     }
     return err_code;
 }
@@ -253,7 +253,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
             memcpy(&bin_info, buffer, bin_info_len);
             bin_type = ota_breeze_get_image_type(bin_info.image_magic);
             if(bin_type == OTA_BIN_TYPE_INVALID) {
-                printf("magic error\r\n");
+                OTA_LOG_E("magic error\r\n");
                 err_code = OTA_BREEZE_ERROR_NOT_SUPPORTED;
                 goto OTA_BREEZE_TRANS_ERRO;
             }
@@ -290,7 +290,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
         last_percent = 0;
     }
     if ((percent - last_percent) >= 5) {
-        printf("===>%dB\t%d%% ...\r\n", p_ota->bytes_recvd, percent);
+        OTA_LOG_I("===>%dB\t%d%% ...\r\n", p_ota->bytes_recvd, percent);
         last_percent = percent;
         if(ota_breeze_save_breakpoint(p_ota->valid_bytes_recvd) !=0 ) {
             err_code = OTA_BREEZE_ERROR_SETTINGS_FAIL;
@@ -319,7 +319,7 @@ void ota_breeze_reset()
     if(p_ota == NULL) {
         return;
     }
-    printf("discnt\r\n");
+    OTA_LOG_I("discnt\r\n");
     /* Reset state machine. */
     p_ota->ota_breeze_status = OTA_BREEZE_STATE_OFF;
     p_ota->rx_fw_size   = 0;
@@ -369,7 +369,7 @@ void ota_breeze_on_auth(unsigned char is_authenticated)
         if(ota_breeze_send_fwup_success() != OTA_BREEZE_SUCCESS) {
             goto OTA_BREEZE_AUTH_OVER;
         }
-        printf("OTA OK!\r\n");
+        OTA_LOG_I("OTA OK!\r\n");
     }
     if (!is_authenticated) {
         goto OTA_BREEZE_AUTH_OVER;
@@ -380,10 +380,10 @@ void ota_breeze_on_auth(unsigned char is_authenticated)
         }
     }
     else {
-        printf("err stus\r\n");
+        OTA_LOG_E("err stus\r\n");
     }
 OTA_BREEZE_AUTH_OVER:
-    printf("auth over\r\n");
+    OTA_LOG_I("auth over");
     return;
 }
 
