@@ -17,61 +17,67 @@ hal_wifi_module_t aos_wifi_module_wilc1000;
 #define MAIN_WLAN_SSID        "mchp_demo" /* < Destination SSID */
 #define MAIN_WLAN_AUTH        M2M_WIFI_SEC_WPA_PSK /* < Security manner */
 #define MAIN_WLAN_PSK         "mchp5678" /* < Password for Destination SSID */
-char g_ssid[32+1];
-char g_wifikey[64+1];
+char g_ssid[32 + 1];
+char g_wifikey[64 + 1];
+int g_wifi_connect_state = 0;
 
 static void wifi_cb(uint8 msg_type, void *msg)
 {
-	switch (msg_type) {
-		case M2M_WIFI_RESP_CON_STATE_CHANGED : {
-			tstrM2mWifiStateChanged *ctx = (tstrM2mWifiStateChanged*)msg;
-			if (ctx->u8IfcId == STATION_INTERFACE) {
-				if (ctx->u8CurrState == M2M_WIFI_CONNECTED) {
-					printf("WiFi Connected\r\n");
-					net_interface_up(0x1);
-					m2m_wifi_request_dhcp_client_ex();
-				}
-				if(ctx->u8CurrState == M2M_WIFI_DISCONNECTED) {
-					printf("WiFi Disconnected\r\n");
-					printf("WiFi Reconnecting... ssid=%s, len=%d\r\n", g_ssid, strlen(g_ssid));
-					//net_interface_down(0x1);      // To Do: Comment this because DHCP cannot run when WiFi reconnect 
+    switch (msg_type) {
+    case M2M_WIFI_RESP_CON_STATE_CHANGED : {
+        tstrM2mWifiStateChanged *ctx = (tstrM2mWifiStateChanged*)msg;
+        if (ctx->u8IfcId == STATION_INTERFACE) {
+            if (ctx->u8CurrState == M2M_WIFI_CONNECTED) {
+                g_wifi_connect_state = 1;
+                printf("WiFi Connected\r\n");
+                net_interface_up(0x1);
+                m2m_wifi_request_dhcp_client_ex();
+            }
+            if (ctx->u8CurrState == M2M_WIFI_DISCONNECTED) {
+                if (g_wifi_connect_state == 1)
+                {
+                    printf("WiFi Disconnected\r\n");
+                    printf("WiFi Reconnecting... ssid=%s, len=%d\r\n", g_ssid, strlen(g_ssid));
+                }
+                g_wifi_connect_state = 0;
+                //net_interface_down(0x1);      // To Do: Comment this because DHCP cannot run when WiFi reconnect
 
-                    if (strcmp(g_wifikey, "open") == 0) 
-                    {
-                        m2m_wifi_connect(g_ssid, strlen(g_ssid), M2M_WIFI_SEC_OPEN, g_wifikey, M2M_WIFI_CH_ALL);
-                    }
-                    else
-                    {
-                        m2m_wifi_connect(g_ssid, strlen(g_ssid), M2M_WIFI_SEC_WPA_PSK, g_wifikey, M2M_WIFI_CH_ALL);
-                    }
-		
-				}
-			}
-		}
-		break;
+                if (strcmp(g_wifikey, "open") == 0)
+                {
+                    m2m_wifi_connect(g_ssid, strlen(g_ssid), M2M_WIFI_SEC_OPEN, g_wifikey, M2M_WIFI_CH_ALL);
+                }
+                else
+                {
+                    m2m_wifi_connect(g_ssid, strlen(g_ssid), M2M_WIFI_SEC_WPA_PSK, g_wifikey, M2M_WIFI_CH_ALL);
+                }
+
+            }
+        }
+    }
+    break;
 #if 1
-		case NET_IF_REQ_DHCP_CONF : {
-			tstrM2MIPConfig2 *strIpConfig = msg;
-			uint16_t *a = (void *)strIpConfig->u8StaticIPv6;
-			LOG("wifi_cb: STA M2M_WIFI_REQ_DHCP_CONF\r\n");
-			LOG("wifi_cb: STA IPv4 addr: %d.%d.%d.%d\r\n", strIpConfig->u8StaticIP[0], strIpConfig->u8StaticIP[1],
-			strIpConfig->u8StaticIP[2], strIpConfig->u8StaticIP[3]);
-			//LOG("wifi_cb: STA IPv6 addr: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\r\n",
-			//htons(a[0]), htons(a[1]), htons(a[2]), htons(a[3]),
-			//htons(a[4]), htons(a[5]), htons(a[6]), htons(a[7]));
+    case NET_IF_REQ_DHCP_CONF : {
+        tstrM2MIPConfig2 *strIpConfig = msg;
+        uint16_t *a = (void *)strIpConfig->u8StaticIPv6;
+        LOG("wifi_cb: STA M2M_WIFI_REQ_DHCP_CONF\r\n");
+        LOG("wifi_cb: STA IPv4 addr: %d.%d.%d.%d\r\n", strIpConfig->u8StaticIP[0], strIpConfig->u8StaticIP[1],
+            strIpConfig->u8StaticIP[2], strIpConfig->u8StaticIP[3]);
+        //LOG("wifi_cb: STA IPv6 addr: %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x\r\n",
+        //htons(a[0]), htons(a[1]), htons(a[2]), htons(a[3]),
+        //htons(a[4]), htons(a[5]), htons(a[6]), htons(a[7]));
 
-            hal_wifi_ip_stat_t ip_stat = {0};
-            sprintf(ip_stat.ip, "%d.%d.%d.%d", strIpConfig->u8StaticIP[0], strIpConfig->u8StaticIP[1],
-			strIpConfig->u8StaticIP[2], strIpConfig->u8StaticIP[3]);
-            aos_wifi_module_wilc1000.ev_cb->ip_got(&aos_wifi_module_wilc1000, &ip_stat, NULL);
+        hal_wifi_ip_stat_t ip_stat = {0};
+        sprintf(ip_stat.ip, "%d.%d.%d.%d", strIpConfig->u8StaticIP[0], strIpConfig->u8StaticIP[1],
+                strIpConfig->u8StaticIP[2], strIpConfig->u8StaticIP[3]);
+        aos_wifi_module_wilc1000.ev_cb->ip_got(&aos_wifi_module_wilc1000, &ip_stat, NULL);
 
-		}
-		break;
+    }
+    break;
 #endif
 
-		default:
-		break;
-	}
+    default:
+        break;
+    }
 }
 
 
@@ -79,9 +85,9 @@ static void wifi_cb(uint8 msg_type, void *msg)
 static int wifi_init(hal_wifi_module_t *m)
 {
     tstrWifiInitParam param;
-	memset(&param, 0, sizeof(param));
-	param.pfAppWifiCb = wifi_cb;
-	os_m2m_wifi_init(&param);
+    memset(&param, 0, sizeof(param));
+    param.pfAppWifiCb = wifi_cb;
+    os_m2m_wifi_init(&param);
 
     return 0;
 };
@@ -99,7 +105,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     LOG("wifi_start() In, ssid=%s\r\n", init_para->wifi_ssid);
     if (init_para->wifi_mode == STATION)
     {
-        if (strcmp(init_para->wifi_key, "open") == 0) 
+        if (strcmp(init_para->wifi_key, "open") == 0)
         {
             m2m_wifi_connect(init_para->wifi_ssid, strlen(init_para->wifi_ssid), M2M_WIFI_SEC_OPEN, init_para->wifi_key, M2M_WIFI_CH_ALL);
             strcpy(g_ssid, init_para->wifi_ssid);
@@ -118,8 +124,8 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 
 static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv)
 {
-  
- 
+
+
     return 0;
 }
 
@@ -223,4 +229,3 @@ hal_wifi_module_t aos_wifi_module_wilc1000 = {
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame
 };
-
