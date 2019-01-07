@@ -41,7 +41,7 @@ void krhino_init_hook(void)
 
 void krhino_start_hook(void)
 {
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     krhino_task_sched_stats_reset();
 #endif
 }

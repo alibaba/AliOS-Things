@@ -22,7 +22,7 @@ void krhino_idle_pre_hook(void)
     RHINO_CPU_INTRPT_DISABLE();
     cpu = cpu_cur_get();
     cpu_flag |= (1UL << cpu);
-    
+
     RHINO_CPU_INTRPT_ENABLE();
     #endif
 }
@@ -40,7 +40,7 @@ void krhino_init_hook(void)
 
 void krhino_start_hook(void)
 {
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     krhino_task_sched_stats_reset();
 #endif
 }
