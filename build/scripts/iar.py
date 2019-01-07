@@ -174,7 +174,9 @@ def gen_project(target, script, buildstring):
 
         if group['as_opts_iar']:
             filename = os.path.join(project_opts_path, "%s.as_opts" % group['name'])
-            create_file(group['as_opts_iar'], filename)
+            # strip '--cpu xxx' from as_opts_iar which causes IAR IDE build failed
+            as_opts_tmp = re.sub(r'^\s*Cortex-M\d+ ','',group['as_opts_iar'])
+            create_file(as_opts_tmp, filename)
      
     if len(repeat_path):
         print 'repeat name files:', repeat_path
