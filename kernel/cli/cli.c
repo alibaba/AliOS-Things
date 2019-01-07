@@ -796,6 +796,9 @@ int32_t cli_register_command(const struct cli_command_st *cmd)
     pid   = (ktask_t *)cur_proc->pid;
     cli_q = (ktask_t *)cur_proc->cli_q;
 
+    if (!cli_q)
+        return CLI_ERR_INVALID;
+
     /*user app pid:1,2,3..*/
     if ((pid > 0) && (pid < (MAX_APP_BINS + 1))) {
         g_cli->u_cmds[pid][g_cli->u_num[pid]] = cmd;
