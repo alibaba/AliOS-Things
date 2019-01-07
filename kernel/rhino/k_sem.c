@@ -25,7 +25,7 @@ static kstat_t sem_create(ksem_t *sem, const name_t *name, sem_count_t count,
     sem->blk_obj.blk_policy = BLK_POLICY_PRI;
     sem->mm_alloc_flag      = mm_alloc_flag;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     RHINO_CRITICAL_ENTER();
     klist_insert(&(g_kobj_list.sem_head), &sem->sem_item);
     RHINO_CRITICAL_EXIT();
@@ -73,7 +73,7 @@ kstat_t krhino_sem_del(ksem_t *sem)
         pend_task_rm(krhino_list_entry(blk_list_head->next, ktask_t, task_list));
     }
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&sem->sem_item);
 #endif
 
@@ -140,7 +140,7 @@ kstat_t krhino_sem_dyn_del(ksem_t *sem)
         pend_task_rm(krhino_list_entry(blk_list_head->next, ktask_t, task_list));
     }
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&sem->sem_item);
 #endif
 

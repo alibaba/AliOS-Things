@@ -113,7 +113,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 
     RHINO_CRITICAL_ENTER();
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_insert(&(g_kobj_list.task_head), &task->task_stats_item);
 #endif
 
@@ -763,7 +763,7 @@ kstat_t krhino_task_del(ktask_t *task)
             return RHINO_INV_TASK_STATE;
     }
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&task->task_stats_item);
 #endif
 
@@ -887,7 +887,7 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
             break;
     }
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&task->task_stats_item);
 #endif
 

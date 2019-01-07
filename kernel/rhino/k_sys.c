@@ -36,7 +36,7 @@ kstat_t krhino_init(void)
 
     tick_list_init();
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     kobj_list_init();
 #endif
 
@@ -243,7 +243,7 @@ size_t krhino_global_space_get(void)
            + sizeof(g_timer_queue) + sizeof(timer_queue_cb);
 #endif
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     mem += sizeof(g_kobj_list);
 #endif
 

@@ -4,7 +4,7 @@
 
 #include <k_api.h>
 
-#if (RHINO_CONFIG_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
 static void sched_disable_measure_start(void)
 {
     /* start measure system lock time */
@@ -43,7 +43,7 @@ kstat_t krhino_sched_disable(void)
         return RHINO_SCHED_LOCK_COUNT_OVF;
     }
 
-#if (RHINO_CONFIG_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     sched_disable_measure_start();
 #endif
 
@@ -74,7 +74,7 @@ kstat_t krhino_sched_enable(void)
         return RHINO_SCHED_DISABLE;
     }
 
-#if (RHINO_CONFIG_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     sched_disable_measure_stop();
 #endif
 

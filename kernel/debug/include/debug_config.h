@@ -24,8 +24,8 @@
 #error "you need enable RHINO_CONFIG_TIMER as well."
 #endif
 
-#if ((RHINO_CONFIG_TASK_SCHED_STATS == 0) && (DEBUG_CONFIG_CPU_USAGE_PERIOD >= 1))
-#error "you need enable RHINO_CONFIG_TASK_SCHED_STATS as well."
+#if ((RHINO_CONFIG_SYS_STATS == 0) && (DEBUG_CONFIG_CPU_USAGE_PERIOD >= 1))
+#error "you need enable RHINO_CONFIG_SYS_STATS as well."
 #endif
 
 #endif /* DEBUG_CONFIG_H */

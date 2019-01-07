@@ -11,7 +11,7 @@ typedef struct mutex_s {
     struct mutex_s *mutex_list; /* task mutex list */
     mutex_nested_t  owner_nested;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t         mutex_item;
 #endif
 

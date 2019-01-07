@@ -13,7 +13,7 @@ typedef struct {
     size_t         cur_num;
     size_t         peak_num;
     size_t         min_free_buf_size;
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t        buf_queue_item;
 #endif
 #if (RHINO_CONFIG_USER_SPACE > 0)

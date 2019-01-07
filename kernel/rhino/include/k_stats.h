@@ -5,7 +5,7 @@
 #ifndef K_STATS_H
 #define K_STATS_H
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
 void kobj_list_init(void);
 #endif
 
@@ -16,7 +16,7 @@ void kobj_list_init(void);
 void krhino_stack_ovf_check(void);
 #endif
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
 /**
  * This function will reset task schedule stats
  */
