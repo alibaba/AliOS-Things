@@ -80,7 +80,7 @@ static void rttest_entry(void * arg)
             }
         }
         rttest_aux_show_result_end();
-#if (RHINO_CONFIG_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
         rttest_max_disintrpt();
 #endif
     } else {
