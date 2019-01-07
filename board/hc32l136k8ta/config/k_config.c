@@ -29,7 +29,7 @@ void krhino_init_hook(void)
 
 void krhino_start_hook(void)
 {
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     krhino_task_sched_stats_reset();
 #endif
 }
@@ -97,7 +97,7 @@ size_t soc_get_cur_sp()
 #if defined (__GNUC__)&&!defined(__CC_ARM)
     asm volatile(
         "mov %0,sp\n"
-        :"=r"(sp));   
+        :"=r"(sp));
 #endif
     return sp;
 }
