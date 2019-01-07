@@ -20,6 +20,8 @@
 ├── awss.h
 ├── awss_ht40.c
 ├── awss_ht40.h
+├── awss_info.c
+├── awss_info.h
 ├── awss_main.c
 ├── awss_main.h
 ├── awss_registrar.c
