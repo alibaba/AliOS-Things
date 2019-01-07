@@ -12,7 +12,6 @@
 extern "C" {
 #endif
 
-
 typedef enum {
     AOS_LL_NONE,  /* disable log */
     AOS_LL_FATAL, /* fatal log will output */
@@ -23,6 +22,7 @@ typedef enum {
 } aos_log_level_t;
 
 extern unsigned int aos_log_level;
+
 /**
  * Get the log level.
  */
@@ -117,11 +117,11 @@ void aos_set_log_level(aos_log_level_t log_level);
  * @param  ...  Variable Parameter, Log text try to log
  */
 #define ULOG(M, S, F, L, ...) \
-            if(log_init && S<push_stop_filter_level) { \
-                post_log(M, S, F, L, __VA_ARGS__ );    \
+            if (log_init && S < push_stop_filter_level) { \
+                post_log(M, S, F, L, __VA_ARGS__ );       \
             }
 
-#define ULOGOS(S, ...) ULOG(MOD_OS,S,__FILE__,__LINE__,__VA_ARGS__)
+#define ULOGOS(S, ...) ULOG(MOD_OS, S, __FILE__, __LINE__, __VA_ARGS__)
 
 /**
  * Function prototype for log init
@@ -134,14 +134,14 @@ extern void ulog_init(const uint8_t host_name[8]);
  * Function prototype for ulog management
  *
  * @param cmd_str command string, user fill the command string to manage ulog, format
-           shall as below:
-           "tcpip on=1" or "tcpip off=1" to notice the tcpip feature is install or not, which
-           have impact on the ulog pop out via udp session;
-           "listen ip=XXX.XXX.XXX.XXX port=XXX" to notice the syslog listener's address
-           and/or port, only passing "listen ip=XXX.XXX.XXX.XXX" if you keep the port.
-           For more command string, you can refer as ulog_man_handler_service in ulog.c
+ *        shall as below:
+ *        "tcpip on=1" or "tcpip off=1" to notice the tcpip feature is install or not, which
+ *        have impact on the ulog pop out via udp session;
+ *        "listen ip=XXX.XXX.XXX.XXX port=XXX" to notice the syslog listener's address
+ *        and/or port, only passing "listen ip=XXX.XXX.XXX.XXX" if you keep the port.
+ *        For more command string, you can refer as ulog_man_handler_service in ulog.c
  */
-extern void ulog_man(const char* cmd_str);
+extern void ulog_man(const char *cmd_str);
 
 
 #ifdef __cplusplus
