@@ -12,7 +12,17 @@
 #define _linux_backtrace_depth 10
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
+void soc_hw_timer_init(void)
+{
+
+}
+
 hr_timer_t soc_hr_hw_cnt_get(void)
+{
+    return 0;
+}
+
+lr_timer_t soc_lr_hw_cnt_get(void)
 {
     return 0;
 }
@@ -47,7 +57,7 @@ void _linux_backtrace()
    for (e = 0; e < size; e++) {
        fprintf(stderr, "%d %s \n",e,strings[e]);
    }
-  
+
    free (strings);
 }
 

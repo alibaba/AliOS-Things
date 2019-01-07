@@ -306,7 +306,7 @@ k_status_t csi_kernel_task_yield(void)
 
 uint32_t csi_kernel_task_get_count(void)
 {
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t *taskhead;
     klist_t *taskend;
     klist_t *tmp;
@@ -359,7 +359,7 @@ uint32_t csi_kernel_task_list(k_task_handle_t *task_array, uint32_t array_items)
     }
 
     uint32_t real_tsk_num = 0;
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t *taskhead;
     klist_t *taskend;
     klist_t *tmp;
@@ -422,7 +422,7 @@ uint32_t csi_kernel_task_list(k_task_handle_t *task_array, uint32_t array_items)
     cpu_intrpt_restore(irq_flags);
 
 #endif /* CONFIG_BACKTRACE */
-#endif /* RHINO_CONFIG_SYSTEM_STATS */
+#endif /* RHINO_CONFIG_KOBJ_LIST */
 
     return real_tsk_num;
 }
