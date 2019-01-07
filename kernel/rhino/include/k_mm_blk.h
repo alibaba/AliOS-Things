@@ -14,7 +14,7 @@ typedef struct {
     size_t        blk_whole;    /* num of all blk */
     uint8_t      *avail_list;
     kspinlock_t   blk_lock;
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t       mblkpool_stats_item;
 #endif
 } mblk_pool_t;
@@ -49,10 +49,10 @@ kstat_t krhino_mblk_alloc(mblk_pool_t *pool, void **blk);
 kstat_t krhino_mblk_free(mblk_pool_t *pool, void *blk);
 
 /**
- * is blk in pool? 
+ * is blk in pool?
  * @param[in]  pool  pointer to the pool
  * @param[in]  blk   pointer to the blk
- * @return  yes return 1, no reture 0 
+ * @return  yes return 1, no reture 0
  */
 #define krhino_mblk_check(pool, blk)    \
         ((pool) != NULL                 \

@@ -35,7 +35,7 @@ typedef struct {
 
 ktimer_t g_mm_leak_check_timer;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
 
 uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
 {
@@ -67,7 +67,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
     dumpsys_task_info_t *taskinfoeach;
 
     uint32_t task_cpu_usage = 0;
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     uint32_t total_cpu_usage[RHINO_CONFIG_CPU_NUM] = {0};
 #endif
 
@@ -87,7 +87,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
     candidate = g_preferred_ready_task[cpu_cur_get()];
 #endif
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
 #if (DEBUG_CONFIG_CPU_USAGE_PERIOD == 0)
     debug_task_cpu_usage_stats();
 #endif
@@ -110,11 +110,11 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
     memset(taskinfo, 0, tasknum * sizeof(dumpsys_task_info_t));
 
     for (tmp = taskhead->next; tmp != taskend; tmp = tmp->next) {
-        
+
         char name_cut[19];
         taskinfoeach = taskinfo + taskindex;
         taskindex++;
-        
+
         task = krhino_list_entry(tmp, ktask_t, task_stats_item);
         const name_t *task_name;
         rst = krhino_task_stack_min_free(task, &free_size);
@@ -123,7 +123,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
             free_size = 0;
         }
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
         time_total = (sys_time_t)(task->task_time_total_run / 20);
         task_cpu_usage = debug_task_cpu_usage_get(task);
 #endif
@@ -181,7 +181,7 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
     krhino_sched_enable();
 
     /*print out info*/
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
 #if (RHINO_CONFIG_CPU_NUM > 1)
     for (corenum = 0; corenum < RHINO_CONFIG_CPU_NUM; corenum++) {
         cli_printf("CPU%d usage : %3d.%02d                    \r\n",
@@ -241,14 +241,14 @@ static uint32_t dumpsys_info_func(char *buf, uint32_t len)
 
     char *esc_tag = cli_tag_get();
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     uint32_t total_cpu_usage[RHINO_CONFIG_CPU_NUM] = {0};
 #endif
 
     plen +=
       sprintf(buf + plen, "%s---------------------------------------------\r\n",
               esc_tag);
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
 #if (DEBUG_CONFIG_CPU_USAGE_PERIOD == 0)
     debug_task_cpu_usage_stats();
 #endif
@@ -271,17 +271,13 @@ static uint32_t dumpsys_info_func(char *buf, uint32_t len)
 
 #endif
 
-#if (RHINO_CONFIG_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     plen += sprintf(buf + plen, "%sMax sched disable time  :%-10d\r\n", esc_tag,
                     g_sched_disable_max_time);
-#else
-    plen += sprintf(buf + plen, "%sMax sched disable time  :%-10d\r\n", esc_tag, 0);
-#endif
-
-#if (RHINO_CONFIG_INTRPT_STATS > 0)
     plen += sprintf(buf + plen, "%sMax intrpt disable time :%-10d\r\n", esc_tag,
                     g_intrpt_disable_max_time);
 #else
+    plen += sprintf(buf + plen, "%sMax sched disable time  :%-10d\r\n", esc_tag, 0);
     plen += sprintf(buf + plen, "%sMax intrpt disable time :%-10d\r\n", esc_tag, 0);
 #endif
 
@@ -335,7 +331,7 @@ uint32_t dumpsys_func(char *pcWriteBuffer, int32_t xWriteBufferLen, int32_t argc
           pcWriteBuffer + len, xWriteBufferLen - len,
           "%s\tdumpsys mm_info      : show the memory has alloced.\r\n",
           esc_tag);
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
         len += snprintf(pcWriteBuffer + len, xWriteBufferLen - len,
                         "%s\tdumpsys info         : show the system info\r\n",
                         esc_tag);

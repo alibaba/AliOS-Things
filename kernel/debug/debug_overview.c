@@ -93,7 +93,7 @@ void debug_mm_overview(int (*print_func)(const char *fmt, ...))
 }
 #endif
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
 void debug_task_overview(int (*print_func)(const char *fmt, ...))
 {
     size_t        free_size;
@@ -173,12 +173,12 @@ void debug_task_overview(int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    print_func("RHINO_CONFIG_SYSTEM_STATS in k_config.h is closed!\r\n");
+    print_func("RHINO_CONFIG_KOBJ_LIST in k_config.h is closed!\r\n");
 }
 #endif
 
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
 void debug_buf_queue_overview(int (*print_func)(const char *fmt, ...))
 {
     int           i;
@@ -247,13 +247,13 @@ void debug_buf_queue_overview(int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    print_func("RHINO_CONFIG_SYSTEM_STATS in k_config.h is closed!\r\n");
+    print_func("RHINO_CONFIG_KOBJ_LIST in k_config.h is closed!\r\n");
 }
 #endif
 #endif
 
 #if (RHINO_CONFIG_QUEUE > 0)
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
 void debug_queue_overview(int (*print_func)(const char *fmt, ...))
 {
     int           i;
@@ -318,13 +318,13 @@ void debug_queue_overview(int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    print_func("RHINO_CONFIG_SYSTEM_STATS in k_config.h is closed!\r\n");
+    print_func("RHINO_CONFIG_KOBJ_LIST in k_config.h is closed!\r\n");
 }
 #endif
 #endif
 
 #if (RHINO_CONFIG_SEM > 0)
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
 void debug_sem_overview(int (*print_func)(const char *fmt, ...))
 {
     int           i;
@@ -388,7 +388,7 @@ void debug_sem_overview(int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    print_func("RHINO_CONFIG_SYSTEM_STATS in k_config.h is closed!\r\n");
+    print_func("RHINO_CONFIG_KOBJ_LIST in k_config.h is closed!\r\n");
 }
 #endif
 #endif /* RHINO_CONFIG_SEM */

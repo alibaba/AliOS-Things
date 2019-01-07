@@ -24,7 +24,7 @@ typedef struct queue_s {
     blk_obj_t   blk_obj;
     k_ringbuf_t ringbuf;
     msg_q_t     msg_q;
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t     queue_item;
 #endif
     uint8_t     mm_alloc_flag;

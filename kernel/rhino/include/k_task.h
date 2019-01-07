@@ -53,7 +53,7 @@ typedef struct {
 
     struct mutex_s  *mutex_list;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t          task_stats_item;
 #endif
 
@@ -78,20 +78,14 @@ typedef struct {
     struct sem_s    *task_sem_obj;
 #endif
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     size_t           task_free_stack_size;
     ctx_switch_t     task_ctx_switch_times;
     sys_time_t       task_time_total_run;
     sys_time_t       task_time_total_run_prev;
     lr_timer_t       task_exec_time;
     lr_timer_t       task_time_start;
-#endif
-
-#if (RHINO_CONFIG_INTRPT_STATS > 0)
     hr_timer_t       task_intrpt_disable_time_max;
-#endif
-
-#if (RHINO_CONFIG_SCHED_STATS > 0)
     hr_timer_t       task_sched_disable_time_max;
 #endif
 

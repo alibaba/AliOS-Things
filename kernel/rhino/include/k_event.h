@@ -9,7 +9,7 @@ typedef struct {
     blk_obj_t blk_obj;
     uint32_t  flags;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t   event_item;
 #endif
 

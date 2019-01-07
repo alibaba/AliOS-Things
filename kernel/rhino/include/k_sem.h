@@ -12,7 +12,7 @@ typedef struct sem_s {
     blk_obj_t   blk_obj;
     sem_count_t count;
     sem_count_t peak_count;
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t     sem_item;
 #endif
     uint8_t mm_alloc_flag;
