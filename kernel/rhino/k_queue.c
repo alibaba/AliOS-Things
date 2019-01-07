@@ -41,7 +41,7 @@ static kstat_t queue_create(kqueue_t *queue, const name_t *name, void **start,
     queue->msg_q.peak_num     = 0u;
     queue->mm_alloc_flag      = mm_alloc_flag;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     RHINO_CRITICAL_ENTER();
     klist_insert(&(g_kobj_list.queue_head), &queue->queue_item);
     RHINO_CRITICAL_EXIT();
@@ -89,7 +89,7 @@ kstat_t krhino_queue_del(kqueue_t *queue)
         pend_task_rm(krhino_list_entry(blk_list_head->next, ktask_t, task_list));
     }
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&queue->queue_item);
 #endif
 
@@ -165,7 +165,7 @@ kstat_t krhino_queue_dyn_del(kqueue_t *queue)
         pend_task_rm(krhino_list_entry(blk_list_head->next, ktask_t, task_list));
     }
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&queue->queue_item);
 #endif
 

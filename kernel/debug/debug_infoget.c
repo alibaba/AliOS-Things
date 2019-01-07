@@ -9,7 +9,7 @@ ktask_t *debug_task_find(char *name)
     klist_t *listnode;
     ktask_t *task;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     for (listnode = g_kobj_list.task_head.next;
          listnode != &g_kobj_list.task_head; listnode = listnode->next) {
         task = krhino_list_entry(listnode, ktask_t, task_stats_item);

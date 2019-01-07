@@ -21,7 +21,7 @@ kstat_t mutex_create(kmutex_t *mutex, const name_t *name, uint8_t mm_alloc_flag)
     mutex->mutex_list         = NULL;
     mutex->mm_alloc_flag      = mm_alloc_flag;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     RHINO_CRITICAL_ENTER();
     klist_insert(&(g_kobj_list.mutex_head), &mutex->mutex_item);
     RHINO_CRITICAL_EXIT();
@@ -93,7 +93,7 @@ kstat_t krhino_mutex_del(kmutex_t *mutex)
         pend_task_rm(krhino_list_entry(blk_list_head->next, ktask_t, task_list));
     }
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&mutex->mutex_item);
 #endif
 
@@ -171,7 +171,7 @@ kstat_t krhino_mutex_dyn_del(kmutex_t *mutex)
         pend_task_rm(krhino_list_entry(blk_list_head->next, ktask_t, task_list));
     }
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&mutex->mutex_item);
 #endif
 

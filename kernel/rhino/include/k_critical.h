@@ -5,61 +5,39 @@
 #ifndef K_CRITICAL_H
 #define K_CRITICAL_H
 
-#if (RHINO_CONFIG_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
+#define RHINO_INTDIS_MEAS_START()       intrpt_disable_measure_start()
+#define RHINO_INTDIS_MEAS_STOP()        intrpt_disable_measure_stop()
+#else
+#define RHINO_INTDIS_MEAS_START()
+#define RHINO_INTDIS_MEAS_STOP()
+#endif
+
 #define RHINO_CRITICAL_ENTER()          \
     do {                                \
         RHINO_CPU_INTRPT_DISABLE();     \
-        intrpt_disable_measure_start(); \
+        RHINO_INTDIS_MEAS_START();      \
     } while (0)
-
 #define RHINO_CRITICAL_EXIT()           \
     do {                                \
-        intrpt_disable_measure_stop();  \
+        RHINO_INTDIS_MEAS_STOP();       \
         RHINO_CPU_INTRPT_ENABLE();      \
     } while (0)
-
 #if (RHINO_CONFIG_CPU_NUM > 1)
-#define RHINO_CRITICAL_EXIT_SCHED()         \
-        do {                                \
-            intrpt_disable_measure_stop();  \
-            core_sched();                   \
-            cpu_intrpt_restore(cpsr);       \
-        } while (0)
-#else
-#define RHINO_CRITICAL_EXIT_SCHED()         \
-        do {                                \
-            intrpt_disable_measure_stop();  \
-            RHINO_CPU_INTRPT_ENABLE();      \
-            core_sched();                   \
-        } while (0)
-#endif
-
-#else /* RHINO_CONFIG_INTRPT_STATS */
-#define RHINO_CRITICAL_ENTER()          \
+#define RHINO_CRITICAL_EXIT_SCHED()     \
     do {                                \
-        RHINO_CPU_INTRPT_DISABLE();     \
+        RHINO_INTDIS_MEAS_STOP();       \
+        core_sched();                   \
+        cpu_intrpt_restore(cpsr);       \
     } while (0)
-
-#define RHINO_CRITICAL_EXIT()           \
+#else
+#define RHINO_CRITICAL_EXIT_SCHED()     \
     do {                                \
+        RHINO_INTDIS_MEAS_STOP();       \
         RHINO_CPU_INTRPT_ENABLE();      \
+        core_sched();                   \
     } while (0)
-
-#if (RHINO_CONFIG_CPU_NUM > 1)
-#define RHINO_CRITICAL_EXIT_SCHED()     \
-        do {                            \
-            core_sched();               \
-            cpu_intrpt_restore(cpsr);   \
-        } while (0)
-#else
-#define RHINO_CRITICAL_EXIT_SCHED()     \
-        do {                            \
-            RHINO_CPU_INTRPT_ENABLE();  \
-            core_sched();               \
-        } while (0)
 #endif
-
-#endif /* RHINO_CONFIG_INTRPT_STATS */
 
 #endif /* K_CRITICAL_H */
 
