@@ -1,6 +1,7 @@
 #include <aos/hal/flash.h>
 #include "ota_breeze.h"
 #include "ota_hal_os.h"
+#include "ota_log.h"
 #include "ota_breeze_plat.h"
 
 static unsigned int has_erase_page_numbs = 0;
@@ -217,7 +218,7 @@ int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int* break_p
         total_erase_page_numbs = num_pages + has_erase_page_numbs;
         err_code = hal_flash_erase(ota_part, *break_point, erase_sector_size);
         if (err_code != 0) {
-            printf(" f-erase failed\r\n");
+            OTA_LOG_E(" f-erase failed\r\n");
             ret = -1;
             goto OTA_BREEZE_PROCESS_BREAKPOINT_OVER;
         }
@@ -277,7 +278,7 @@ int ota_breeze_set_boot()
     }
     crc = ota_breeze_get_image_crc16();
     if (crc == p_ota->crc) {
-        printf("crc16 ok\r\n");
+        OTA_LOG_I("crc16 ok\r\n");
         img_crc = ota_breeze_get_image_crc32();
         breeze_ota_settings.ota_flag = OTA_ONLY_UPGRADE_FW;
         breeze_ota_settings.backup_dest_addr = breeze_ota_settings.dest_addr;
@@ -298,7 +299,7 @@ int ota_breeze_set_boot()
         }
     }
     else {
-        printf("crc16 error!\r\n");
+        OTA_LOG_E("crc16 error!\r\n");
         breeze_ota_settings.break_point_offset = 0;
         breeze_ota_settings.image_info_crc16 = 0;
         breeze_ota_settings.bin_type = 0xff;
