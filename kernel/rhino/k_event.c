@@ -22,7 +22,7 @@ static kstat_t event_create(kevent_t *event, const name_t *name, uint32_t flags,
     event->flags              = flags;
     event->mm_alloc_flag      = mm_alloc_flag;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     RHINO_CRITICAL_ENTER();
     klist_insert(&(g_kobj_list.event_head), &event->event_item);
     RHINO_CRITICAL_EXIT();
@@ -72,7 +72,7 @@ kstat_t krhino_event_del(kevent_t *event)
 
     event->flags = 0u;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&event->event_item);
 #endif
 
@@ -144,7 +144,7 @@ kstat_t krhino_event_dyn_del(kevent_t *event)
 
     event->flags = 0u;
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_rm(&event->event_item);
 #endif
 

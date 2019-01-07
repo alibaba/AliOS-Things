@@ -14,7 +14,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_STK_CHK_WORDS
-#define RHINO_CONFIG_STK_CHK_WORDS           1u
+#define RHINO_CONFIG_STK_CHK_WORDS           1
 #endif
 
 #ifndef RHINO_CONFIG_CPU_STACK_DOWN
@@ -62,13 +62,21 @@
 #define RHINO_CONFIG_TIMER                   0
 #endif
 
-#ifndef RHINO_CONFIG_MM_BLK
-#define RHINO_CONFIG_MM_BLK                  1
+#if (RHINO_CONFIG_TIMER > 0)
+
+#ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
+#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
 #endif
 
-#ifndef RHINO_CONFIG_MM_BLK_SIZE
-#define RHINO_CONFIG_MM_BLK_SIZE             32
+#ifndef RHINO_CONFIG_TIMER_TASK_PRI
+#define RHINO_CONFIG_TIMER_TASK_PRI          5
 #endif
+
+#ifndef RHINO_CONFIG_TIMER_MSG_NUM
+#define RHINO_CONFIG_TIMER_MSG_NUM           20
+#endif
+
+#endif /* RHINO_CONFIG_TIMER */
 
 /* heap conf */
 #ifndef RHINO_CONFIG_MM_TLF
@@ -85,10 +93,6 @@
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          20
 #endif
 
-#ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
-#define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
-#endif
-
 #ifndef RHINO_CONFIG_MM_QUICK
 #define RHINO_CONFIG_MM_QUICK                1
 #endif
@@ -97,10 +101,25 @@
 #define RHINO_CONFIG_MM_DEBUG                0
 #endif
 
-/* kernel mm_region conf */
 #ifndef RHINO_CONFIG_MM_REGION_MUTEX
 #define RHINO_CONFIG_MM_REGION_MUTEX         1
 #endif
+
+#ifndef RHINO_CONFIG_MM_BLK
+#define RHINO_CONFIG_MM_BLK                  1
+#endif
+
+#if (RHINO_CONFIG_MM_BLK > 0)
+
+#ifndef RHINO_CONFIG_MM_BLK_SIZE
+#define RHINO_CONFIG_MM_BLK_SIZE             32
+#endif
+
+#ifndef RHINO_CONFIG_MM_TLF_BLK_SIZE
+#define RHINO_CONFIG_MM_TLF_BLK_SIZE         8192
+#endif
+
+#endif /* RHINO_CONFIG_MM_BLK */
 
 #endif /* RHINO_CONFIG_MM_TLF */
 
@@ -146,18 +165,6 @@
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
 #endif
 
-#ifndef RHINO_CONFIG_TIMER_TASK_STACK_SIZE
-#define RHINO_CONFIG_TIMER_TASK_STACK_SIZE   200
-#endif
-
-#ifndef RHINO_CONFIG_TIMER_TASK_PRI
-#define RHINO_CONFIG_TIMER_TASK_PRI          5
-#endif
-
-#ifndef RHINO_CONFIG_TIMER_MSG_NUM
-#define RHINO_CONFIG_TIMER_MSG_NUM           20
-#endif
-
 /* kernel intrpt conf */
 /* kernel stack ovf check */
 #ifndef RHINO_CONFIG_INTRPT_STACK_OVF_CHECK
@@ -174,6 +181,7 @@
 #endif
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
+
 #ifndef RHINO_CONFIG_K_DYN_TASK_STACK
 #define RHINO_CONFIG_K_DYN_TASK_STACK        256
 #endif
@@ -181,6 +189,7 @@
 #ifndef RHINO_CONFIG_K_DYN_MEM_TASK_PRI
 #define RHINO_CONFIG_K_DYN_MEM_TASK_PRI      RHINO_CONFIG_USER_PRI_MAX
 #endif
+
 #endif /* RHINO_CONFIG_KOBJ_DYN_ALLOC */
 
 /* kernel idle conf */
@@ -194,20 +203,12 @@
 #endif
 
 /* kernel stats conf */
-#ifndef RHINO_CONFIG_SYSTEM_STATS
-#define RHINO_CONFIG_SYSTEM_STATS            0
+#ifndef RHINO_CONFIG_KOBJ_LIST
+#define RHINO_CONFIG_KOBJ_LIST               1
 #endif
 
-#ifndef RHINO_CONFIG_SCHED_STATS
-#define RHINO_CONFIG_SCHED_STATS             0
-#endif
-
-#ifndef RHINO_CONFIG_INTRPT_STATS
-#define RHINO_CONFIG_INTRPT_STATS            0
-#endif
-
-#ifndef RHINO_CONFIG_TASK_SCHED_STATS
-#define RHINO_CONFIG_TASK_SCHED_STATS        0
+#ifndef RHINO_CONFIG_SYS_STATS
+#define RHINO_CONFIG_SYS_STATS               0
 #endif
 
 #ifndef RHINO_CONFIG_CPU_NUM
@@ -227,10 +228,6 @@
 #error "RHINO_CONFIG_BUF_QUEUE should be 1 when RHINO_CONFIG_TIMER is enabled."
 #endif
 
-#if ((RHINO_CONFIG_MM_TLF >= 1) && (RHINO_CONFIG_MM_BLK == 0))
-#error "RHINO_CONFIG_MM_BLK should be 1 when RHINO_CONFIG_MM_TLF is enabled."
-#endif
-
 #if (RHINO_CONFIG_PRI_MAX >= 256)
 #error "RHINO_CONFIG_PRI_MAX must be <= 255."
 #endif
@@ -239,15 +236,7 @@
 #error "you need enable RHINO_CONFIG_SEM as well."
 #endif
 
-#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_TASK_SCHED_STATS >= 1))
-#error "you need enable RHINO_CONFIG_HW_COUNT as well."
-#endif
-
-#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_SCHED_STATS >= 1))
-#error "you need enable RHINO_CONFIG_HW_COUNT as well."
-#endif
-
-#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_INTRPT_STATS >= 1))
+#if ((RHINO_CONFIG_HW_COUNT == 0) && (RHINO_CONFIG_SYS_STATS >= 1))
 #error "you need enable RHINO_CONFIG_HW_COUNT as well."
 #endif
 

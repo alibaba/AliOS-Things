@@ -4,10 +4,10 @@
 
 #include "debug_api.h"
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
 
 typedef struct {
-    uint8_t  task_name[32];
+    char     task_name[32];
     uint32_t task_cpu_usage;
 } task_cpuusage_info;
 
@@ -160,4 +160,4 @@ kstat_t debug_task_cpu_usage_init()
 
 #endif
 
-#endif /* (RHINO_CONFIG_TASK_SCHED_STATS > 0) */
+#endif /* (RHINO_CONFIG_SYS_STATS > 0) */
