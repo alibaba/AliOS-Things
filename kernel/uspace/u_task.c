@@ -230,7 +230,7 @@ kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
     CPSR_ALLOC();
 
     ktask_t  *task_tmp;
-    kqueue_t *queue1, *queue2;
+    kqueue_t *queue;
     kstat_t   ret;
 
     ret = utask_create(task, name, arg, pri, ticks, ustack_buf,
@@ -241,26 +241,16 @@ kstat_t krhino_uprocess_create(ktask_t **task, const name_t *name, void *arg,
     }
 
     task_tmp = *task;
-    ret = krhino_queue_dyn_create(&queue1, "res_queue", PROC_MSG_NUM);
+    ret = krhino_queue_dyn_create(&queue, "res_queue", PROC_MSG_NUM);
     if (ret != RHINO_SUCCESS) {
         krhino_task_dyn_del(task_tmp);
         return ret;
     }
 
-    task_tmp->res_q = queue1;
-
-    ret = krhino_queue_dyn_create(&queue2, "cli_queue", PROC_MSG_NUM);
-    if (ret != RHINO_SUCCESS) {
-        krhino_task_dyn_del(task_tmp);
-        krhino_queue_dyn_del(queue1);
-        return ret;
-    }
-
-    task_tmp->cli_q = queue2;
+    task_tmp->res_q = queue;
 
     RHINO_CRITICAL_ENTER();
-    klist_insert(&(task_tmp->kobj_list.queue_head), &queue1->blk_obj.obj_list);
-    klist_insert(&(task_tmp->kobj_list.queue_head), &queue2->blk_obj.obj_list);
+    klist_insert(&(task_tmp->kobj_list.queue_head), &queue->blk_obj.obj_list);
     RHINO_CRITICAL_EXIT();
 
     if (autorun > 0) {
@@ -322,7 +312,7 @@ void krhino_uprocess_res_get(int32_t id, void **res)
     head = &cur_proc->task_head;
     if (id == 0) {
         *res = cur_proc->res_q;
-    } else if (id == 1){
+    } else if (id == 1) {
         RHINO_CRITICAL_ENTER();
         if (head->next->next == head) {
             *res = (void *)1;
