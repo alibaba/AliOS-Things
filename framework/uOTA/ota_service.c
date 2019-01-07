@@ -171,7 +171,7 @@ static int ota_parse(void* pctx, const char *json)
     }
     goto parse_success;
 parse_failed:
-    OTA_LOG_E("parse failed err:%d",ret);
+    OTA_LOG_I("parse failed err:%d",ret);
     if (root) {
         cJSON_Delete(root);
     }
