@@ -122,7 +122,7 @@ void rttest_aux_intrpt_test_init(intrpt_callback_t highp_func, intrpt_callback_t
     lowpri_intrpt_func  = lowp_func;
 }
 
-#if (RHINO_CONFIG_INTRPT_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
 void rttest_max_disintrpt()
 {
     hr_timer_t intrpt_disalbe_time = g_intrpt_disable_max_time;
@@ -134,4 +134,4 @@ void rttest_max_disintrpt()
 
     printf("\nMax intrpt disable time :%6.2fus\n", (float)intrpt_disalbe_time / HR_COUNT_FREQ());
 }
-#endif /* RHINO_CONFIG_INTRPT_STATS > 0 */
+#endif /* RHINO_CONFIG_SYS_STATS > 0 */
