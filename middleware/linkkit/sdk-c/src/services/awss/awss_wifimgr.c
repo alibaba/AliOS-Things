@@ -17,6 +17,7 @@
 #include "awss_adha.h"
 #include "awss_aplist.h"
 #include "awss_cmp.h"
+#include "awss_info.h"
 #include "awss_notify.h"
 #include "awss_timer.h"
 #include "awss_packet.h"
@@ -237,73 +238,14 @@ int wifimgr_process_get_wifilist_request(void *ctx, void *resource, void *remote
     return SHUB_OK;
 }
 
-static int wifimgr_process_get_device_info(void *ctx, void *resource, void *remote, void *request, char is_mcast)
-{
-    char *buf = NULL;
-    char *dev_info = NULL;
-    int len = 0, id_len = 0;
-    char *msg = NULL, *id = NULL;
-    char req_msg_id[MSG_REQ_ID_LEN] = {0};
-
-    buf = os_zalloc(DEV_INFO_LEN_MAX);
-    if (!buf) {
-        goto DEV_INFO_ERR;
-    }
-
-    dev_info = os_zalloc(DEV_INFO_LEN_MAX);
-    if (!dev_info) {
-        goto DEV_INFO_ERR;
-    }
-
-    msg = awss_cmp_get_coap_payload(request, &len);
-    id = json_get_value_by_name(msg, len, "id", &id_len, 0);
-    if (id && id_len < MSG_REQ_ID_LEN) {
-        memcpy(req_msg_id, id, id_len);
-    }
-
-    awss_build_dev_info(AWSS_NOTIFY_DEV_RAND_SIGN, buf, DEV_INFO_LEN_MAX);
-    HAL_Snprintf(dev_info, DEV_INFO_LEN_MAX - 1, "{%s}", buf);
-
-    awss_debug("dev_info:%s\r\n", dev_info);
-    memset(buf, 0x00, DEV_INFO_LEN_MAX);
-    HAL_Snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
-
-    os_free(dev_info);
-
-    awss_debug("sending message to app: %s", buf);
-    char topic[TOPIC_LEN_MAX] = {0};
-    if (is_mcast) {
-        awss_build_topic((const char *)TOPIC_AWSS_GETDEVICEINFO_MCAST, topic, TOPIC_LEN_MAX);
-    } else {
-        awss_build_topic((const char *)TOPIC_AWSS_GETDEVICEINFO_UCAST, topic, TOPIC_LEN_MAX);
-    }
-
-    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request)) {
-        awss_debug("sending awss dev info response failed.");
-    }
-
-    os_free(buf);
-    return SHUB_OK;
-
-DEV_INFO_ERR:
-    if (buf) {
-        os_free(buf);
-    }
-    if (dev_info) {
-        os_free(dev_info);
-    }
-
-    return -1;
-}
-
 int wifimgr_process_mcast_get_device_info(void *ctx, void *resource, void *remote, void *request)
 {
-    return wifimgr_process_get_device_info(ctx, resource, remote, request, 1);
+    return process_get_device_info(ctx, resource, remote, request, 1, AWSS_NOTIFY_DEV_RAND_SIGN);
 }
 
 int wifimgr_process_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request)
 {
-    return wifimgr_process_get_device_info(ctx, resource, remote, request, 0);
+    return process_get_device_info(ctx, resource, remote, request, 0, AWSS_NOTIFY_DEV_RAND_SIGN);
 }
 
 #define WLAN_CONNECTION_TIMEOUT     (30 * 1000) /* 30 seconds */

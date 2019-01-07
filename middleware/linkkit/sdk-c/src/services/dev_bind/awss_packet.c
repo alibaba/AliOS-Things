@@ -69,8 +69,7 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
             char rand_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
             utils_hex_to_str(aes_random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
             len += HAL_Snprintf((char *)dev_info + len, info_len - len - 1, AWSS_DEV_BIND_TOKEN_FMT, rand_str,
-                                awss_token_remain_time(),
-                                0);
+                                awss_token_remain_time(), 0);
             break;
         }
 #ifdef WIFI_PROVISION_ENABLED
