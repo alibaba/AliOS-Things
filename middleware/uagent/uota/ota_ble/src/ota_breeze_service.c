@@ -107,12 +107,12 @@ int ota_breeze_service_init(ota_breeze_service_manage_t* ota_manage)
         return -1;
     }
     if(ota_breeze_parse_firmware_version(ota_manage->verison.fw_ver, ota_manage->verison.fw_ver_len) < 0) {
-        printf("ver parse failed\r\n");
+        OTA_LOG_E("ver parse failed\r\n");
         return -1;
     }
     memset(&g_ctx, 0x00, sizeof(_ota_ble_global_dat_t));
     if(ota_breeze_set_version(ota_manage->verison.fw_ver, ota_manage->verison.fw_ver_len) < 0) {
-        printf("ver set failed");
+        OTA_LOG_E("ver set failed");
         return -1;
     }
     g_ctx.feature_enable = ota_manage->is_ota_enable;
