@@ -84,16 +84,26 @@ int awss_token_timeout()
 
 void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
 {
-    int ret;
-    uint32_t payload_len;
+    int ret, len;
     char *payload;
+    char *id = NULL;
+    char reply_id = 0;
+    uint32_t payload_len;
 
     ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
 
-    if (ret != 0) {
+    if (ret != 0 || payload == NULL || payload_len == 0)
         return;
-    }
 
+    id = json_get_value_by_name(payload, payload_len, AWSS_JSON_ID, &len, NULL);
+    if (id == NULL)
+        return;
+
+    if (id == NULL)
+        return;
+    reply_id = atoi(id);
+    if (reply_id + 1 < awss_report_id)
+        return;
     awss_debug("%s\r\n", __func__);
     awss_report_token_suc = 1;
     awss_stop_timer(report_token_timer);
@@ -296,7 +306,7 @@ static int awss_report_token_to_cloud()
         report_token_timer = HAL_Timer_Create("rp_token", (void (*)(void *))awss_report_token_to_cloud, NULL);
     }
     HAL_Timer_Stop(report_token_timer);
-    HAL_Timer_Start(report_token_timer, MATCH_MONITOR_TIMEOUT_MS);
+    HAL_Timer_Start(report_token_timer, 3 * 1000);
 
     int packet_len = AWSS_REPORT_LEN_MAX;
 

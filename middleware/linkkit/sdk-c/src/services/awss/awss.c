@@ -7,6 +7,7 @@
 #include "zconfig_utils.h"
 #include "awss_enrollee.h"
 #include "awss_cmp.h"
+#include "awss_info.h"
 #include "awss_notify.h"
 #include "awss_timer.h"
 #include "awss_packet.h"
@@ -36,6 +37,7 @@ int awss_success_notify(void)
     awss_cmp_local_init();
     awss_suc_notify_stop();
     awss_suc_notify();
+    awss_start_connectap_monitor();
     return 0;
 }
 
@@ -160,6 +162,7 @@ int awss_stop(void)
 #ifdef AWSS_SUPPORT_ADHA
     awss_close_adha_monitor();
 #endif
+    awss_stop_connectap_monitor();
     g_user_press = 0;
     awss_press_timeout();
 
