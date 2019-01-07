@@ -74,7 +74,7 @@ cpu_intrpt_switch
 ;******************************************************************************
 cpu_first_task_start
     ;set PendSV prority to the lowest
-    LDR     R0, =SHPR3_PRI_14_15                   
+    LDR     R0, =SHPR3_PRI_14_15
     LDR     R2, [R0]
     LDR     R1, =SHPR3_PRI_LVL
     ORRS    R2, R1
@@ -109,7 +109,7 @@ PendSV_Handler
     ;save context
     SUBS    R0, R0, #0x20
     STMIA   R0!, {R4 - R7}
-    MOV     R4, R8                
+    MOV     R4, R8
     MOV     R5, R9
     MOV     R6, R10
     MOV     R7, R11
@@ -126,7 +126,7 @@ PendSV_Handler
 #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
     BL      krhino_stack_ovf_check
 #endif
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     BL      krhino_task_sched_stats_get
 #endif
     MOV     LR, R4
@@ -140,13 +140,13 @@ _pendsv_handler_nosave
     LDR     R0, [R2]
 
     ;restore context
-    LDMIA   R0!, {R4 - R7}          
-    LDMIA   R0!, {R2 - R3}          
-    MOV     R8,  R2                 
-    MOV     R9,  R3                 
-    LDMIA   R0!, {R2 - R3}          
-    MOV     R10,  R2                 
-    MOV     R11,  R3                 
+    LDMIA   R0!, {R4 - R7}
+    LDMIA   R0!, {R2 - R3}
+    MOV     R8,  R2
+    MOV     R9,  R3
+    LDMIA   R0!, {R2 - R3}
+    MOV     R10,  R2
+    MOV     R11,  R3
 
     ;return stack = PSP
     MSR     PSP, R0

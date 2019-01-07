@@ -67,7 +67,7 @@ cpu_task_switch
 #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
     BL      krhino_stack_ovf_check
 #endif
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     BL      krhino_task_sched_stats_get
 #endif
 

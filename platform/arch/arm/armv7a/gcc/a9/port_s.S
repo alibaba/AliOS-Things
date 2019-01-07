@@ -137,7 +137,7 @@ cpu_task_switch:
     BL      krhino_stack_ovf_check
     #endif
 
-    #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    #if (RHINO_CONFIG_SYS_STATS > 0)
     BL      krhino_task_sched_stats_get
     #endif
 
@@ -158,7 +158,7 @@ cpu_intrpt_switch:
     BL      krhino_stack_ovf_check
     #endif
 
-    #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    #if (RHINO_CONFIG_SYS_STATS > 0)
     BL      krhino_task_sched_stats_get
     #endif
 

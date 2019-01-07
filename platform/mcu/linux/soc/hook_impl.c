@@ -4,10 +4,6 @@
 
 #include <k_api.h>
 
-void soc_hw_timer_init()
-{
-}
-
 #if (RHINO_CONFIG_USER_HOOK > 0)
 volatile uint64_t cpu_flag;
 void krhino_idle_pre_hook(void)
@@ -37,7 +33,7 @@ void krhino_init_hook(void)
 
 void krhino_start_hook(void)
 {
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+#if (RHINO_CONFIG_SYS_STATS > 0)
     krhino_task_sched_stats_reset();
 #endif
     cpu_start_hook();
