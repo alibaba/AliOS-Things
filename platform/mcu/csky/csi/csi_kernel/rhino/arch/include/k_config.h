@@ -51,13 +51,6 @@
 #define RHINO_CONFIG_WORKQUEUE               0
 
 /* kernel timer&tick conf */
-#define RHINO_CONFIG_HW_COUNT                0
-#define RHINO_CONFIG_TICK_TASK               1
-#if (RHINO_CONFIG_TICK_TASK > 0)
-#define RHINO_CONFIG_TICK_TASK_STACK_SIZE    50
-#define RHINO_CONFIG_TICK_TASK_PRI           1
-#endif
-
 #define RHINO_CONFIG_TICKS_PER_SECOND        100
 
 #define RHINO_CONFIG_KOBJ_DYN_ALLOC          1
@@ -72,10 +65,5 @@
 /* kernel hook conf */
 #define RHINO_CONFIG_USER_HOOK               1
 
-/* kernel stats conf */
-#define RHINO_CONFIG_SYSTEM_STATS            1
-#define RHINO_CONFIG_SCHED_STATS             0
-#define RHINO_CONFIG_INTRPT_STATS            0
-#define RHINO_CONFIG_TASK_SCHED_STATS        0
 #endif /* K_CONFIG_H */
 
