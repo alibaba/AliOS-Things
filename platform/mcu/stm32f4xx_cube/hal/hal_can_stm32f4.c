@@ -2,9 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-
 #include "stm32f4xx.h"
+
 #ifdef HAL_CAN_MODULE_ENABLED
+
 #include "hal_can_stm32f4.h"
 
 /* REMARK: This header file k_api.h specify the Rhino OS, include this will
@@ -13,94 +14,102 @@
             currently only run on Rhino*/
 #include "k_api.h"
 
-typedef struct{
+typedef struct {
     uint32_t Baudrate;
     uint32_t Prescaler;
     uint32_t SJW;
     uint32_t BS1;
     uint32_t BS2;
-}can_parameter_mapping;
+} can_parameter_mapping;
 
 /* private parameter of ST, only list common baud. User may modify this table
  * if he wouldn't want any of below parameter
  */
 const can_parameter_mapping can_para_baud[] =
-{
-   { can_baud_1M,      7, CAN_SJW_1TQ, CAN_BS1_2TQ, CAN_BS2_3TQ },
-   { can_baud_500K,   14, CAN_SJW_1TQ, CAN_BS1_2TQ, CAN_BS2_3TQ },
-   { can_baud_250K,   28, CAN_SJW_1TQ, CAN_BS1_2TQ, CAN_BS2_3TQ },
-   { can_baud_125K,   56, CAN_SJW_1TQ, CAN_BS1_2TQ, CAN_BS2_3TQ }
-};
+                                              {
+                                                  { can_baud_1M,   7,  CAN_SJW_1TQ, CAN_BS1_2TQ, CAN_BS2_3TQ },
+                                                  { can_baud_500K, 14, CAN_SJW_1TQ, CAN_BS1_2TQ, CAN_BS2_3TQ },
+                                                  { can_baud_250K, 28, CAN_SJW_1TQ, CAN_BS1_2TQ, CAN_BS2_3TQ },
+                                                  { can_baud_125K, 56, CAN_SJW_1TQ, CAN_BS1_2TQ, CAN_BS2_3TQ }
+                                              };
 
 typedef struct {
-    uint8_t                inited;
-    uint8_t                filter_top;
-    uint8_t                start_filter;
-    CAN_TxHeaderTypeDef    tx_header_def;
-    CAN_RxHeaderTypeDef    rx_header_def;
-    CAN_HandleTypeDef      hal_can_handle;
-}stm32_can_t;
+    uint8_t inited;
+    uint8_t filter_top;
+    uint8_t start_filter;
+
+    CAN_TxHeaderTypeDef tx_header_def;
+    CAN_RxHeaderTypeDef rx_header_def;
+    CAN_HandleTypeDef   hal_can_handle;
+} stm32_can_t;
 
 /* will be initialized in hal_can_init */
 static stm32_can_t stm32_can[PORT_CAN_SIZE];
-static int32_t set_can_filter(const uint8_t can_port, const uint32_t check_id, const uint32_t mask, const uint8_t rtr, const uint8_t filter_num);
+
+static int32_t set_can_filter(const uint8_t can_port, const uint32_t check_id,
+                              const uint32_t mask, const uint8_t rtr, const uint8_t filter_num);
 
 /* Get CAN Instanse & attribute from Logical Port */
-CAN_MAPPING* get_can_list_logical(const PORT_CAN_TYPE port)
+CAN_MAPPING *get_can_list_logical(const PORT_CAN_TYPE port)
 {
     int8_t i = 0;
-    CAN_MAPPING* ret = NULL;
-    for(i=0; i<PORT_CAN_SIZE; i++)
-    {
-        if(CAN_MAPPING_TABLE[i].logical_func == port)
-        {
+
+    CAN_MAPPING *ret = NULL;
+
+    for (i = 0; i < PORT_CAN_SIZE; i++) {
+        if (CAN_MAPPING_TABLE[i].logical_func == port) {
             ret = &CAN_MAPPING_TABLE[i];
             break;
         }
     }
+
     return ret;
 }
 
 /* Get CAN Instanse & attribute from instanse */
-static CAN_MAPPING* get_can_list_instanse(const CAN_HandleTypeDef * def)
+static CAN_MAPPING *get_can_list_instanse(const CAN_HandleTypeDef *def)
 {
     int8_t i = 0;
-    CAN_MAPPING* ret = NULL;
-    for(i=0; i<PORT_CAN_SIZE; i++)
-    {
-        if((CAN_HandleTypeDef*)CAN_MAPPING_TABLE[i].physical_port == def)
-        {
+
+    CAN_MAPPING *ret = NULL;
+
+    for (i = 0; i < PORT_CAN_SIZE; i++) {
+        if ((CAN_HandleTypeDef *)CAN_MAPPING_TABLE[i].physical_port == def) {
             ret = &CAN_MAPPING_TABLE[i];
             break;
         }
     }
+
     return ret;
 }
 
 /**
-* @brief This function handles USB low priority or CAN RX0 interrupts.
-*/
+ * @brief This function handles USB low priority or CAN RX0 interrupts.
+ */
 #ifdef CAN1
 void CAN1_RX0_IRQHandler(void)
 {
     krhino_intrpt_enter();
-    if(stm32_can[1].inited){
+
+    if (stm32_can[1].inited) {
         HAL_CAN_IRQHandler(&stm32_can[1].hal_can_handle);
     }
+
     krhino_intrpt_exit();
 }
 #endif
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanHandle)
 {
-    CAN_RxHeaderTypeDef * rx_header;
-    CAN_MAPPING* list = get_can_list_instanse(CanHandle->Instance);
-    if(list!=NULL && list->isr_rx_handler!=NULL){
+    CAN_RxHeaderTypeDef *rx_header;
+
+    CAN_MAPPING *list = get_can_list_instanse(CanHandle->Instance);
+
+    if (list != NULL && list->isr_rx_handler != NULL) {
         list->isr_rx_handler(rx_header, list->isr_rx_para);
     }
 
-    if (HAL_CAN_ActivateNotification(CanHandle, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
-    {
+    if (HAL_CAN_ActivateNotification(CanHandle, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK) {
       /* Reception Error, which will result CAN ISR not work, shall consider restart the CAN bus,
       other than just error_handler */
     }
@@ -109,14 +118,16 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanHandle)
 int32_t hal_can_init(can_dev_t *can)
 {
     int32_t ret = -1;
+
     if (can != NULL) {
         /* no found this port in function-physical canIns, no need initialization */
-        CAN_MAPPING* canIns = get_can_list_logical(can->port);
-        if( NULL != canIns ){
-            memset(&stm32_can[can->port],0,sizeof(stm32_can_t));
-            CAN_TxHeaderTypeDef * tx_header;
-            CAN_RxHeaderTypeDef * rx_header;
-            CAN_HandleTypeDef * const pstcanhandle = &stm32_can[can->port].hal_can_handle;
+        CAN_MAPPING *canIns = get_can_list_logical(can->port);
+
+        if (NULL != canIns) {
+            memset(&stm32_can[can->port], 0, sizeof(stm32_can_t));
+            CAN_TxHeaderTypeDef *tx_header;
+            CAN_RxHeaderTypeDef *rx_header;
+            CAN_HandleTypeDef   * const pstcanhandle = &stm32_can[can->port].hal_can_handle;
             pstcanhandle->Instance = canIns->physical_port;
             const uint8_t para_table_size = sizeof(can_para_baud)/sizeof(can_para_baud[0]);
             uint8_t i = 0;
