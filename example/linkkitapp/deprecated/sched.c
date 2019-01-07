@@ -11,9 +11,6 @@
 #include "linkkit_export.h"
 #include "app_entry.h"
 
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    #include "ota_service.h"
-#endif
 /*
  * please modify this string follow as product's TSL.
  */
@@ -78,9 +75,6 @@ void post_property_cb(const void *thing_id, int response_id, int code, const cha
 #else
     sample_ctx->cloud_connected = 1;
     EXAMPLE_TRACE("%s is connected\n", "cloud");
-#endif
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    ota_service_init(NULL);
 #endif
     /* do user's connect process logical here. */
 

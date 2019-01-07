@@ -7,9 +7,12 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/netmgr \
                       framework/common \
                       utility/cjson \
+                      framework/uOTA
 
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
-                 -DMQTT_DIRECT                   
+                 -DMQTT_DIRECT \
+                 -DOTA_ENABLED \
+                 -DBUILD_AOS      
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += protocols.net

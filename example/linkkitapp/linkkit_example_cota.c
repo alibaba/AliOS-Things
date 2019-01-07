@@ -9,10 +9,6 @@
 #include "iot_export_linkkit.h"
 #include "app_entry.h"
 
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    #include "ota_service.h"
-#endif
-
 #define PRODUCT_KEY      "a1ybTpus98a"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
 #define DEVICE_NAME      "t1_kj"
