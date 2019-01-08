@@ -26,6 +26,7 @@
 #include "transport.h"
 #include "access.h"
 #include "foundation.h"
+#include "bt_mesh_custom_log.h"
 
 #define HEALTH_TEST_STANDARD 0x00
 
@@ -342,7 +343,20 @@ static int health_pub_update(struct bt_mesh_model *mod)
 
 	count = health_get_current(mod, pub->msg);
 	if (!count) {
+        /**
+         * Modified on 2019/01/03.
+         * Bugfix for MESH/HM/CFS/BV-02-C.
+         * Lower tester sets the health publish period to 2s, and then wait
+         * for fault condition from IUT. Before the fault condition is ready,
+         * the period_div is cleared here, which leads to the period not
+         * expected by Lower tester.
+         *
+         * The period_div update behavior is not specified according to spec
+         * 4.4.3.2.1 section, so let's remove it.
+         **/
+#if 0
 		pub->period_div = 0;
+#endif
 	}
 
 	return 0;

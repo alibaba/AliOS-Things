@@ -19,4 +19,8 @@ struct mesh_shell_cmd {
 
 struct mesh_shell_cmd *bt_mesh_get_shell_cmd_list();
 
+#ifdef CONFIG_BT_MESH_BQB
+int cmd_net_send2(int argc, char *argv[]);
+#endif
+
 #endif
