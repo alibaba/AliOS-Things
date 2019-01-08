@@ -59,8 +59,6 @@ config ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
     help
         STACK DEPTH of Log Task, will cost 512 Byte room
 
-endif
-
 config ULOG_CONFIG_SYSLOG_WATCHER_PORT
     int "syslog watcher port"
     default 514
