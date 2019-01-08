@@ -268,7 +268,7 @@ static void ota_download_thread(void *hand)
     ctx->upg_status = OTA_REBOOT;
     ota_set_break_point(0);
 ERR:
-    OTA_LOG_E("upgrade over err:%d",ret);
+    OTA_LOG_E("upgrade over err:%d", ret);
 #if (!defined BOARD_ESP8266)
     ctx->h_tr->status(100,ctx);
 #endif
@@ -277,7 +277,8 @@ ERR:
     ota_reboot();
 }
 
-int ota_upgrade_cb(void* pctx, char *json) {
+int ota_upgrade_cb(void* pctx, char *json)
+{
     ota_service_t* ctx = pctx;
     if (!ctx || !json) {
         return -1;
@@ -297,7 +298,8 @@ int ota_upgrade_cb(void* pctx, char *json) {
     return 0;
 }
 
-int ota_service_init(ota_service_t *ctx) {
+int ota_service_init(ota_service_t *ctx)
+{
     int ret = 0;
     if (!ctx) {
         ctx = ota_malloc(sizeof(ota_service_t));
@@ -313,7 +315,7 @@ int ota_service_init(ota_service_t *ctx) {
     if(!ctx->boot_param) {
         ret = OTA_INIT_FAIL;
         return ret;
-    } 
+    }
     memset(ctx->boot_param,0,sizeof(ota_boot_param_t));
     if(ctx->inited) {
         ret = OTA_INIT_FAIL;
@@ -352,7 +354,8 @@ int ota_service_init(ota_service_t *ctx) {
     return ret;
 }
 
-int ota_service_deinit(ota_service_t *ctx) {
+int ota_service_deinit(ota_service_t *ctx)
+{
     if(!ctx) {
         return -1;
     }
@@ -380,7 +383,7 @@ int ota_service_deinit(ota_service_t *ctx) {
         ctx->boot_param = NULL;
     }
     if(ctx){
-	ota_free(ctx);
+        ota_free(ctx);
         ctx = NULL;
     }
     return 0;
