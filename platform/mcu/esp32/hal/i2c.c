@@ -102,7 +102,7 @@ static void i2c_config_ctr(i2c_dev_t * handle,uint32_t clk)
     handle->ctr.scl_force_out = 1;
     handle->ctr.sample_scl_level = 0;
     handle->fifo_conf.nonfifo_en = 0;
-    handle->timeout.tout = cycle * 8;
+    handle->timeout.tout = 32000; //cycle * 8;
     handle->sda_hold.time = half_cycle / 2;
     handle->sda_sample.time = half_cycle / 2;
     handle->scl_low_period.period = half_cycle;
@@ -114,6 +114,7 @@ static void i2c_config_ctr(i2c_dev_t * handle,uint32_t clk)
 
 }
 
+#define bool uint32_t
 
 static int8_t i2c_config_cmd(i2c_dev_t * handle,uint8_t index,uint8_t op_code,uint8_t byte_num,bool ack_en,bool ack_exp,bool ack_val)
 {
@@ -188,7 +189,7 @@ static int8_t i2c_check_status(i2c_dev_t * handle)
 }
 
 
-static int32_t i2c_write_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width,uint8_t * buff,uint32_t len,int8_t need_stop)
+static int32_t i2c_write_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width,uint8_t * buff,uint32_t len,int8_t need_stop, uint32_t timeout)
 {
     if(NULL == handle || NULL == buff || len == 0) {
         return(-1);
@@ -201,6 +202,7 @@ static int32_t i2c_write_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width
     uint16_t send_counts = 0;
     uint16_t packet_size = 0;
     uint16_t send_len = 0;
+    timeout = (APB_CLK_FREQ / 1000)*timeout;
     while(total_size) {
         packet_size = (total_size > 32) ? 32 : total_size;
         send_len = packet_size;
@@ -235,7 +237,7 @@ static int32_t i2c_write_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width
             if((need_stop && handle->command[2].done) || !handle->status_reg.bus_busy) {
                 break;
             }
-        } while(krhino_sys_time_get()-start < 20);
+        } while(krhino_sys_time_get()-start < timeout);
     }
 
     return 0;
@@ -243,7 +245,7 @@ static int32_t i2c_write_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width
 }
 
 
-static int32_t i2c_read_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width,uint8_t * buff,uint32_t len,int8_t need_stop)
+static int32_t i2c_read_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width,uint8_t * buff,uint32_t len,int8_t need_stop, uint32_t timeout)
 {
     if(NULL == handle || NULL == buff || len == 0) {
         return(-1);
@@ -257,6 +259,7 @@ static int32_t i2c_read_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width,
     uint8_t currentCmdIdx = 0;
     uint8_t cmd_index = 0;
     uint16_t dev_addr = (addr << 1) | 1;
+    timeout = (APB_CLK_FREQ / 1000)*timeout;
     i2c_start_prepare(handle);
     i2c_config_cmd(handle,cmd_index,I2C_CMD_RSTART,0,false,false,false);
     cmd_index = (cmd_index+1)%I2C_CMD_MAX;
@@ -277,7 +280,8 @@ static int32_t i2c_read_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width,
                 nextCmdCount--;
                 if (handle->command[currentCmdIdx].op_code == I2C_CMD_READ) {
                     if(currentCmdIdx >= 2) {
-                        buff[index++] = handle->fifo_data.val & 0xFF;
+                        for(uint32_t i=0; i<handle->command[currentCmdIdx].byte_num; i++)
+                            buff[index++] = handle->fifo_data.val & 0xFF;
                     }
                     handle->fifo_conf.tx_fifo_rst = 1;
                     handle->fifo_conf.tx_fifo_rst = 0;
@@ -290,10 +294,10 @@ static int32_t i2c_read_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width,
                 currentCmdIdx = (currentCmdIdx+1)%I2C_CMD_MAX;
                 if(nextCmdCount < 2) {
                     if(len > 0) {
-                        i2c_config_cmd(handle, cmd_index, I2C_CMD_READ, 1, false, false, (len==1));
+                        i2c_config_cmd(handle, cmd_index, I2C_CMD_READ, (len>=16)?16:1, false, false, (len==1));
                         cmd_index = (cmd_index+1)%I2C_CMD_MAX;
                         nextCmdCount++;
-                        len -= 1;
+                        len -= (len>=16)?16:len;
                     } else {
                         i2c_config_cmd(handle, cmd_index, I2C_CMD_STOP, 0, false, false, false);
                         cmd_index = (cmd_index+1)%I2C_CMD_MAX;
@@ -302,7 +306,7 @@ static int32_t i2c_read_bytes(i2c_dev_t * handle,uint16_t addr,int8_t add_width,
                 }
                 break;
             }
-        } while(krhino_sys_time_get() - startAt < 20);
+        } while(krhino_sys_time_get() - startAt < timeout);
     }
 
     return (0);
@@ -324,26 +328,22 @@ int32_t hal_i2c_init(aos_i2c_dev_t *i2c)
 
 int32_t hal_i2c_master_send(aos_i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *data,uint16_t size, uint32_t timeout)
 {
-    int32_t ret = 0;
     if(NULL == i2c || (I2C_NUM_0 != i2c->port)&&(I2C_NUM_1 != i2c->port)) {
         return (-1);
     }
     i2c_resource_t * resource = &g_dev[i2c->port];
-    uint16_t addr = dev_addr >> 1;
-    i2c_write_bytes(resource->dev,addr,i2c->config.address_width == I2C_MEM_ADDR_SIZE_16BIT,data,size,0);
+    int ret = i2c_write_bytes(resource->dev,dev_addr,i2c->config.address_width == I2C_MEM_ADDR_SIZE_16BIT,data,size,1,timeout);
 
     return ret;
 }
 
 int32_t hal_i2c_master_recv(aos_i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,uint16_t size, uint32_t timeout)
 {
-    int32_t ret = 0;
     if(NULL == i2c || (I2C_NUM_0 != i2c->port)&&(I2C_NUM_1 != i2c->port)) {
         return (-1);
     }
     i2c_resource_t * resource = &g_dev[i2c->port];
-    uint16_t addr = dev_addr >> 1;
-    i2c_read_bytes(resource->dev,addr,i2c->config.address_width == I2C_MEM_ADDR_SIZE_16BIT,data,size,0);
+    int32_t ret = i2c_read_bytes(resource->dev,dev_addr,i2c->config.address_width == I2C_MEM_ADDR_SIZE_16BIT,data,size,1,timeout);
 
     return ret;
 }
@@ -386,5 +386,3 @@ int32_t hal_i2c_finalize(aos_i2c_dev_t *i2c)
 
     return ret;
 }
-
-
