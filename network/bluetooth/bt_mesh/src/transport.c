@@ -408,6 +408,25 @@ struct bt_mesh_app_key *bt_mesh_app_key_find(u16_t app_idx)
 	return NULL;
 }
 
+#ifdef CONFIG_BT_MESH_BQB
+void bt_mesh_app_key_set_manual(u16_t net_idx, u16_t app_idx, uint8_t key_val[16], uint8_t aid)
+{
+    struct bt_mesh_app_key *key;
+
+    if (app_idx >= ARRAY_SIZE(bt_mesh.app_keys)) {
+        printf("Error: app idx exceeds limit. NOT set!\r\n");
+        return;
+    }
+
+    key = &bt_mesh.app_keys[app_idx];
+    key->net_idx = net_idx;
+    key->app_idx = app_idx;
+    key->updated = false;
+    key->keys[0].id = aid;
+    memcpy(key->keys[0].val, key_val, 16);
+}
+#endif
+
 int bt_mesh_trans_send(struct bt_mesh_net_tx *tx, struct net_buf_simple *msg,
 		       const struct bt_mesh_send_cb *cb, void *cb_data)
 {
