@@ -555,36 +555,39 @@ uint8_t get_data_score(uint16_t group_sn, uint16_t sn_now, uint16_t sn_last,
                        uint8_t index_now, uint8_t index_last, uint8_t tods)
 {
     /*
-    example: 1
-     8+3 250 0  d0e cc:fa:00:c8:cf:d2 > ff:ff:ff:ff:ff:ff
-     8+4 2bf 0  d15 cc:fa:00:c8:cf:d2 > ff:ff:ff:ff:ff:ff    两个包index_delta=1, sn_delta=7
+     * example: 1
+     * 8+3 250 0  d0e cc:fa:00:c8:cf:d2 > ff:ff:ff:ff:ff:ff
+     * 8+4 2bf 0  d15 cc:fa:00:c8:cf:d2 > ff:ff:ff:ff:ff:ff    两个包index_delta=1, sn_delta=7
+     *
+     * example: 2
+     * 8 + 0, 3e1,  9a5
+     * 8 + 1, 13f,  9a7
+     * group_sn = 9a7, sn = 9ab - 9a7, pos = e - 9, len = 3ce  here, index_delta=5, sn_delta=4
+     * group_sn = 9a7, sn = 9ac - 9ab, pos = f - 9, len = 454
+     * group_sn = 9a7, sn = 9ad - 9ac, pos = 10 - 9, len = 4d2
+     *
+     * example: 3
+     * 8 + 3, 225,  a32
+     * 8 + 6, 3c7,  a39      此处应该是16+6, index_delta=3, sn_delta=7
+     *
+     * example: 4
+     * 0 + 0, 4e0,  da5
+     * 0 + 7, 441,  dab      此处应该是8+7， index_delta=7, sn_delta=6
+     * 0 + 0, 4e0,  d89
+     * 0 + 8, 4c2,  d8f      此处应该是8+8， index_delta=8, sn_delta=6
+     *
+     * example: 4
+     * 0 + 0 [100] 294 0 4e0
+     * 0 + 1 [60] 2a2 0 11a
+     * 0 + 2 [40] 2aa 0 181
+     * group_sn: 2aa, sn: 2b8 - 2aa = 14, pos: 3 - 2, len: 20a
+     * group_sn: 2aa, sn: 2bc - 2b8 = 18, pos: 4 - 2, len: 28a
+     * group_sn: 2aa, sn: 2c0 - 2bc = 22, pos: 5 - 2, len: 310
+     * group_sn: 2aa, sn: 2c4 - 2c0 = 26, pos: 6 - 2, len: 391
+     * group_sn: 2aa, sn: 2c8 - 2c4 = 30, pos: 7 - 2, len: 412
+     * group_sn: 2aa, sn: 2cc - 2c8 = 34, pos: 8 - 2, len: 493
+     */
 
-    example: 2
-    8 + 0, 3e1,  9a5
-    8 + 1, 13f,  9a7
-    group_sn = 9a7, sn = 9ab - 9a7, pos = e - 9, len = 3ce  here, index_delta=5, sn_delta=4
-                                          group_sn = 9a7, sn = 9ac - 9ab, pos = f - 9, len = 454
-                                                  group_sn = 9a7, sn = 9ad - 9ac, pos = 10 - 9, len = 4d2
-                                                          example: 3
-                                                          8 + 3, 225,  a32
-                                                          8 + 6, 3c7,  a39      此处应该是16+6, index_delta=3, sn_delta=7
-                                                          example: 4
-                                                          0 + 0, 4e0,  da5
-                                                          0 + 7, 441,  dab      此处应该是8+7， index_delta=7, sn_delta=6
-                                                          0 + 0, 4e0,  d89
-                                                          0 + 8, 4c2,  d8f      此处应该是8+8， index_delta=8, sn_delta=6
-
-                                                          example: 4
-                                                          0 + 0 [100] 294 0 4e0
-                                                          0 + 1 [60] 2a2 0 11a
-                                                          0 + 2 [40] 2aa 0 181
-                                                          group_sn: 2aa, sn: 2b8 - 2aa = 14, pos: 3 - 2, len: 20a
-                                                                  group_sn: 2aa, sn: 2bc - 2b8 = 18, pos: 4 - 2, len: 28a
-                                                                          group_sn: 2aa, sn: 2c0 - 2bc = 22, pos: 5 - 2, len: 310
-                                                                                  group_sn: 2aa, sn: 2c4 - 2c0 = 26, pos: 6 - 2, len: 391
-                                                                                          group_sn: 2aa, sn: 2c8 - 2c4 = 30, pos: 7 - 2, len: 412
-                                                                                                  group_sn: 2aa, sn: 2cc - 2c8 = 34, pos: 8 - 2, len: 493
-                                                                                                          */
     static const uint16_t score_level[][2] = {
         {0,      0},
         {1,      2}, /* include, example 1, 3 */
