@@ -120,7 +120,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
 
 #define W_LEN        (32)  /* total_len */
 #define EXTRA_LEN    (3)   /* ssid_len(1B) + checksum(2B) */
-    if (!in || total_len <= 4) {
+    if (!in || total_len <= 4 + EXTRA_LEN) {
         return GOT_NOTHING;
     }
 
@@ -138,11 +138,15 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         encrypt = (ssid_len & P2P_ENCRYPT_BIT_MASK) >> P2P_ENCODE_TYPE_OFFSET;
         ssid_len &= P2P_SSID_LEN_MASK;
     }
+    if (encrypt > P2P_ENCODE_TYPE_ENCRYPT) {
+        return GOT_NOTHING;
+    }
+
     passwd_len = total_len - ssid_len - EXTRA_LEN; /* ssid_len(1B), crc(2B) */
     if (ssid_len > W_LEN - EXTRA_LEN || passwd_len < 0) {
         return GOT_NOTHING;
     }
-
+    /* ssid_len(1B), ssid, passwd, crc(2B) */
     crc = os_get_unaligned_be16(in + 1 + ssid_len + passwd_len);
     /* restore 0xc080 to 0x00 */
     passwd_check_utf8(in + 1 + ssid_len, &passwd_len);
@@ -152,15 +156,13 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         memset(zc_pre_ssid, 0, sizeof(zconfig_data->android_pre_ssid));
         memset(zc_android_ssid, 0, sizeof(zconfig_data->android_ssid));
         memset(zc_android_bssid, 0, sizeof(zconfig_data->android_bssid));
-        /*awss_debug("wps crc check error: recv 0x%x != 0x%x\r\n", crc, cal_crc);*/
+        awss_debug("rx illegal p2p (0x%x != 0x%x)\r\n", crc, cal_crc);
         awss_event_post(AWSS_CS_ERR);
         /*
          * use zconfig_checksum_v3() because
          * java modified UTF-8, U+C080 equal U+00,
-         * ssid & passwd & len can not be 0, but checksum may result 0,
-         * so add checksum_v2() which avoid use 0.
-         *
-         * also ssid_dict_decode_table[] avoid use 0
+         * ssid len & ssid & crc is not be 0,
+         * the content of passwd encrypted may be 0
          */
         return GOT_NOTHING;
     }
