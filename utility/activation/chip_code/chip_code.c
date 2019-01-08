@@ -17,7 +17,8 @@ chip_code_st g_chip_codes[] = {
     {NXP_VENDOR, lpc54102, "mcu_lpc54102impl"}, //0x0008000c
     {NXP_VENDOR, mkl27z644, "mcu_mkl27z644impl"}, //0x0008000d
     {MICO_CHIP_VENDOR, moc108, "mcu_moc108"}, //0x0009000e
-    {MICO_CHIP_VENDOR, mx1101, "mcu_mx1101"}, //0x0009000f
+    {MICO_CHIP_VENDOR, mx1290, "mcu_mx1290"}, //0x0009000f  为了满足和庆科约定，mk3080的庆科单独埋点上报这个值，否则是rtl8710bn，两者实际是一样的
+    {MICO_CHIP_VENDOR, mx1101, "mcu_mx1101"}, //0x00090020
     {NORDIC_CHIP_VENDOR, nrf52xxx, "mcu_nrf52xxx"}, //0x000a0010
     {RENASAS_CHIP_VENDOR, r5f100lea, "mcu_r5f100lea"}, //0x000b0011
     {RENASAS_CHIP_VENDOR, r5f565ne, "mcu_r5f565ne"}, //0x000b0012
