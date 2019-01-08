@@ -7,8 +7,6 @@
 #include <string.h>
 
 #include <k_api.h>
-#include "ulog/ulog.h"
-
 
 void hal_reboot(void)
 {
