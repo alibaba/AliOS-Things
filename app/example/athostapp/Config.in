@@ -1,9 +1,22 @@
 menuconfig AOS_APP_ATHOSTAPP
     bool "athostapp"
-    select AOS_COMP_ATPARSER if @CONDITION@
+    select AOS_COMP_NETMGR
+    select AOS_COMP_ATPARSER if ATHOSTAPP_CONFIG_NO_ATPARSER
     select AOS_COMP_ATHOST
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
     help
+        An example for receiving and processing AT command sets.
 
 if AOS_APP_ATHOSTAPP
 # Configurations for app athostapp
+
+config ATHOSTAPP_CONFIG_NO_ATPARSER
+    bool "no atparser"
+    default n
+
+config ATHOSTAPP_CONFIG_NO_MQTTREPORT
+    bool "no mqtt report"
+    default n
+
 endif
