@@ -1,16 +1,33 @@
 menuconfig AOS_APP_MESHAPP
     bool "meshapp"
-    select AOS_COMP_BASE64 if @CONDITION@
-    select AOS_COMP_LWIP if @CONDITION@
+    select AOS_COMP_BASE64 if MESHAPP_CONFIG_MESHAUTH
     select AOS_COMP_CLI
-    select AOS_COMP_ALICRYPTO if @CONDITION@
+    select AOS_COMP_ALICRYPTO if MESHAPP_CONFIG_MESHAUTH
     select AOS_COMP_NETMGR
-    select AOS_COMP_ID2 if @CONDITION@
+    select AOS_COMP_ID2 if MESHAPP_CONFIG_MESHAUTH
     select AOS_COMP_UMESH
-    select AOS_COMP_DDA if @CONDITION@
-    select AOS_COMP_DIGEST_ALGORITHM if @CONDITION@
     help
+        uMesh sample application
 
 if AOS_APP_MESHAPP
 # Configurations for app meshapp
+
+config MESHAPP_CONFIG_MESHAUTH
+    int "mesh auth"
+    range 0 1
+    default 0
+    help
+
+config MESHAPP_CONFIG_IPV6
+    int "use ipv6"
+    range 0 1
+    default 0
+    help
+
+config MESHAPP_CONFIG_HAL_TEST
+    int "mesh hal test"
+    range 0 1
+    default 0
+    help
+
 endif

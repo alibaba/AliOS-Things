@@ -1,6 +1,5 @@
 menuconfig AOS_APP_UDATAAPP
     bool "udataapp"
-    default n
     select AOS_COMP_CLI
     select AOS_COMP_SENSOR
     select AOS_COMP_UDATA
@@ -14,6 +13,7 @@ menuconfig AOS_APP_UDATAAPP
     #select AOS_COMP_OTA if AOS_CONFIG_DTC_LINKKIT
     select AOS_COMP_LWIP if AOS_CONFIG_DTC_LINKKIT    
     help
+        uData sensor framework demo
 
 if AOS_APP_UDATAAPP
 # Configurations for comp udata

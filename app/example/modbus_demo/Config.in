@@ -1,10 +1,11 @@
-menuconfig AOS_APP_MODBUS_TEST
+menuconfig AOS_APP_MODBUS_DEMO
     bool "modbus_demo"
-    select AOS_COMP_MBMASTER
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
+    select AOS_COMP_MBMASTER
     help
+        This example is an demo of using modbus master stack
 
-if AOS_APP_MODBUS_TEST
-# Configurations for app modbus_test
+if AOS_APP_MODBUS_DEMO
+# Configurations for app modbus_demo
 endif

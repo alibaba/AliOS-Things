@@ -1,7 +1,20 @@
 menuconfig AOS_APP_OTAAPP
     bool "otaapp"
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_OTA
+    select AOS_COMP_CJSON
+#    select AOS_COMP_LINKKIT_MQTT
     help
+        OTA demo app for developers
 
 if AOS_APP_OTAAPP
 # Configurations for app otaapp
+
+config OTAAPP_CONFIG_TEST_LOOP
+    int "test loop"
+    range 0 1
+    default 0
+    help
+
 endif

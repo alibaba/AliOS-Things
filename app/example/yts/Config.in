@@ -1,19 +1,18 @@
 menuconfig AOS_APP_YTS
     bool "yts"
-    select AOS_COMP_COMMON if @CONDITION@
-    select AOS_COMP_UMESH if @CONDITION@
-    select AOS_COMP_HAL
-    select AOS_COMP_LOG
-    select AOS_COMP_TEST
-    select AOS_COMP_NETMGR if @CONDITION@
-    select AOS_COMP_FATFS if @CONDITION@
-    select AOS_COMP_VFS
+    select AOS_COMP_ULOG
+    select AOS_COMP_LWIP if AOS_MCU_LINUXIMPL
+    select AOS_COMP_CLI if ! AOS_MCU_LINUXIMPL
+    select AOS_COMP_NETMGR if AOS_MCU_LINUXIMPL
     select AOS_COMP_TESTCASE
+    select AOS_COMP_UMESH if AOS_MCU_LINUXIMPL
+    select AOS_COMP_FATFS if AOS_MCU_LINUXIMPL
     select AOS_COMP_YLOOP
-    select AOS_COMP_LWIP if @CONDITION@
-    select AOS_COMP_DDA if @CONDITION@
-    select AOS_COMP_CLI if @CONDITION@
+    select AOS_COMP_DDA if AOS_MCU_LINUXIMPL
+    select AOS_COMP_VFS
     help
+      AliOS Things test suite
+
 
 if AOS_APP_YTS
 # Configurations for app yts

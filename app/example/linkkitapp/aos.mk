@@ -15,6 +15,11 @@ $(NAME)_COMPONENTS += netmgr cjson
 $(NAME)_COMPONENTS += ota
 ##endif
 
+deprecated ?= $(LINKKITAPP_CONFIG_DEPRECATED)
+print_heap ?= $(LINKKITAPP_CONFIG_PRINT_HEAP)
+case ?= $(LINKKITAPP_CONFIG_CASE)
+en_comboapp ?= $(LINKKITAPP_CONFIG_COMBOAPP)
+
 ifeq ($(case),sched)
 ifneq ($(deprecated),)
 $(NAME)_SOURCES += deprecated/sched.c
@@ -53,7 +58,7 @@ else
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
-en_comboapp := 0
+#en_comboapp := 0
 ifeq ($(en_comboapp), 1)
 $(NAME)_COMPONENTS += breeze breeze_hal bt_profile
 $(NAME)_SOURCES += combo/combo_net.c
