@@ -39,6 +39,12 @@ The **linkkitapp**  shows linkkit related functions.
 * cli
 * linkkit
 
+### Supported Boards
+
+- mk3060
+- mk3080
+- esp8266
+
 ### Build
 
 > Notice: Please be sure to use **git bash** when build on Windows! Otherwise may resulting in run problem for linkkit. git bash download url https://git-scm.com/download/win

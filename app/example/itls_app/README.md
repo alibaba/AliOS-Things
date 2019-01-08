@@ -28,6 +28,12 @@ The **itls** example need to use id2 do mutual-authentication, so device must ma
 * alicrypto
 * netmgr
 
+### Supported Boards
+
+- mk3060
+- mk3080
+- linuxhost
+
 ## Usage
 
 once flash **itls** into device, you need to config device connect to wifi, input this command on board serial console:

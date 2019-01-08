@@ -33,6 +33,10 @@ in `blink.c` need to redefine the following macro:
 * yloop
 * cli
 
+### Supported Boards
+
+- all
+
 ### Build
 
 ```sh

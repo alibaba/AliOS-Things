@@ -22,6 +22,10 @@ The **http2app**  shows how to connect and send/request data to the iot platform
 * cli
 * http2
 
+### Supported Boards
+
+- mk3060
+
 ### Build
 
 ```sh

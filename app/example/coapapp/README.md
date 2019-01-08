@@ -23,6 +23,10 @@ The **coapapp**  shows how to connect and send data to the iot platform with coa
 * cli
 * coap
 
+### Supported Boards
+
+- mk3060
+
 ### Build
 
 ```sh

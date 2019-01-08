@@ -26,6 +26,12 @@ Need to replace id2 test data with real data (get from id2 datasource sdk) first
 * cli
 * prov
 
+### Supported Boards
+
+- mk3060
+- mk3080
+- linuxhost
+
 ### Result
 ```
 1. "id2 provisioning":

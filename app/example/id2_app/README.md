@@ -26,6 +26,11 @@ If "ID2 OTP" is supported, need to enable "ID2 OTP LOCAL TEST" macro first.
 * alicrypto
 * irot
 
+### Supported Boards
+
+- mk3060
+- mk3080
+- linuxhost
 
 ### Result
 ```
