@@ -17,6 +17,10 @@ Depends on device profile:
 * Modbus sensors
 * CAN bus sensors
 
+### Supported Boards
+
+- stm32f429zi-nucleo
+
 ### Build
 
 ```sh

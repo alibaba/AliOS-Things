@@ -17,6 +17,12 @@ The **Lorawan.linkwan** example will run lorawan app, the example is the entranc
 
 * NA
 
+### Supported Boards
+
+- eml3047
+- m100c
+- m400
+
 ### Build
 
 ```sh

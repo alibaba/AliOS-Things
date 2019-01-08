@@ -32,6 +32,10 @@ Please read [AliOS Things certification process](https://github.com/alibaba/AliO
 * network.lwip netmgr
 * 3rdparty.experimental.fs.fatfs
 
+### Supported Boards
+
+- all
+
 ### Build & Flash
 
 ```sh

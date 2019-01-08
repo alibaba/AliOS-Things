@@ -22,6 +22,10 @@ starterkit/sk_gui
 	└── sk_gui.mk
 ```
 
+### Supported Boards
+
+- starterkit
+
 ### Buid and Flash
 
 ```sh

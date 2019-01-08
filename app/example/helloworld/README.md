@@ -18,6 +18,10 @@ The **helloworld** example will print `hello world` and other information every 
 * yloop
 * cli
 
+### Supported Boards
+
+- all
+
 ### Build
 
 ```sh

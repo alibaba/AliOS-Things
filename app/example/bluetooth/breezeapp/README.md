@@ -28,6 +28,11 @@ breezeapp
 - breeze
 - CLI
 
+### Supported Boards
+
+- pca10040
+- pca10056
+
 ## Usage
 
 Breezeapp demonstrate usage of breeze SDK functionalities.

@@ -25,9 +25,9 @@ developerkitaudio
 
 `yloop`  `cli` `board.developerkit.audio_hal`
 
-### Supported boards
+### Supported Boards
 
-`developerkitaudio` only support the developerkit.
+- developerkit
 
 ### Build
 
