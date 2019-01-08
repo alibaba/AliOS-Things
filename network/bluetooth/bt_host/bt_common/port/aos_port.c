@@ -248,6 +248,11 @@ void k_timer_stop(k_timer_t *timer)
     if (ret) {
         BT_DBG("fail to stop timer");
     }
+    /**
+     * Timer may be reused, so its timeout value
+     * should be cleared when stopped.
+     */
+    timer->timeout = 0;
 }
 
 void k_sleep(s32_t duration)

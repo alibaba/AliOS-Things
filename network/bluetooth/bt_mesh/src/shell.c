@@ -46,15 +46,15 @@ static struct {
 };
 
 static struct bt_mesh_cfg_srv cfg_srv = {
-	.relay = BT_MESH_RELAY_DISABLED,
-	.beacon = BT_MESH_BEACON_DISABLED,
+	.relay = BT_MESH_RELAY_ENABLED,
+	.beacon = BT_MESH_BEACON_ENABLED,
 #if defined(CONFIG_BT_MESH_FRIEND)
-	.frnd = BT_MESH_FRIEND_DISABLED,
+	.frnd = BT_MESH_FRIEND_ENABLED,
 #else
 	.frnd = BT_MESH_FRIEND_NOT_SUPPORTED,
 #endif
 #if defined(CONFIG_BT_MESH_GATT_PROXY)
-	.gatt_proxy = BT_MESH_GATT_PROXY_DISABLED,
+	.gatt_proxy = BT_MESH_GATT_PROXY_ENABLED,
 #else
 	.gatt_proxy = BT_MESH_GATT_PROXY_NOT_SUPPORTED,
 #endif
@@ -377,8 +377,8 @@ static struct bt_mesh_prov prov = {
 	.link_close = link_close,
 	.complete = prov_complete,
 	.reset = prov_reset,
-	.static_val = NULL,
-	.static_val_len = 0,
+	//.static_val = NULL,
+	//.static_val_len = 0,
 	.output_size = 6,
 	.output_actions = (BT_MESH_DISPLAY_NUMBER | BT_MESH_DISPLAY_STRING),
 	.output_number = output_number,
@@ -745,6 +745,75 @@ static int cmd_net_send(int argc, char *argv[])
 
 	return 0;
 }
+
+#ifdef CONFIG_BT_MESH_BQB
+static uint8_t char2u8(char c)
+{
+    if (c >= '0' && c <= '9') return (c - '0');
+    else if (c >= 'a' && c <= 'f') return (c - 'a' + 10);
+    else if (c >= 'A' && c <= 'F') return (c - 'A' + 10);
+    else return 0;
+}
+
+static void str2hex(uint8_t hex[], char *s, uint8_t cnt)
+{
+    uint8_t i;
+
+    if (!s) return;
+
+    for (i = 0; (*s != '\0') && (i < cnt); i++, s += 2) {
+        hex[i] = ((char2u8(*s) & 0x0f) << 4) | ((char2u8(*(s+1))) & 0x0f);
+    }
+}
+
+int cmd_net_send2(int argc, char *argv[])
+{
+        struct net_buf_simple *msg = NET_BUF_SIMPLE(32);
+        struct bt_mesh_msg_ctx ctx = {
+                .send_ttl = BT_MESH_TTL_DEFAULT,
+                //.net_idx = net.net_idx,
+                //.addr = net.dst,
+                //.app_idx = net.app_idx,
+
+        };
+        struct bt_mesh_net_tx tx = {
+                .ctx = &ctx,
+                //.src = net.local,
+                //.xmit = bt_mesh_net_transmit_get(),
+                //.sub = bt_mesh_subnet_get(net.net_idx),
+        };
+        size_t len;
+        int err;
+        uint8_t aid = 0, key_val[16] = {0};
+
+        ctx.send_ttl = (uint8_t)atol(argv[0]);
+        ctx.net_idx = (uint16_t)atol(argv[1]);
+        ctx.addr = (uint16_t)atol(argv[2]);
+        ctx.app_idx = (uint16_t)atol(argv[3]);
+        tx.src = (uint16_t)atol(argv[4]);
+        tx.xmit = bt_mesh_net_transmit_get();
+        tx.sub = bt_mesh_subnet_get(ctx.net_idx);
+        aid = (uint8_t)atol(argv[5]);
+
+        if (!tx.sub) {
+                printk("No matching subnet for NetKey Index 0x%04x\n",
+                       net.net_idx);
+                return;
+        }
+
+        str2hex(key_val, argv[6], 16);
+        bt_mesh_app_key_set_manual(ctx.net_idx, ctx.app_idx, key_val, aid);
+
+        net_buf_simple_init(msg, 0);
+        len = hex2bin(argv[7], msg->data, net_buf_simple_tailroom(msg) - 4);
+        net_buf_simple_add(msg, len);
+
+        err = bt_mesh_trans_send(&tx, msg, NULL, NULL);
+        if (err) {
+                printk("Failed to send (err %d)\n", err);
+        }
+}
+#endif
 
 #if defined(CONFIG_BT_MESH_IV_UPDATE_TEST)
 static int cmd_iv_update(int argc, char *argv[])

@@ -22,6 +22,7 @@
 #include "common/log.h"
 
 #include "foundation.h"
+#include "bt_mesh_custom_log.h"
 
 static s32_t msg_timeout = K_SECONDS(2);
 

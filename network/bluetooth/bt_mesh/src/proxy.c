@@ -1181,7 +1181,7 @@ s32_t bt_mesh_proxy_adv_start(void)
     }
 
 #if defined(CONFIG_BT_MESH_PB_GATT)
-    if (!bt_mesh_is_provisioned()) {
+    if (!bt_mesh_is_provisioned() && !bt_prov_active()) {
         const struct bt_le_adv_param *param;
 
         if (prov_fast_adv) {
@@ -1211,7 +1211,16 @@ s32_t bt_mesh_proxy_adv_start(void)
     }
 #endif /* GATT_PROXY */
 
-    return K_FOREVER;
+    /** 
+     * DO NOT return FOREVER, think about when gatt_proxy_advertise 
+     * needed, and adv_thread is waiting FOREVER; and right inside the 
+     * FOREVER waiting time, the provisioning process triggered and 
+     * the unprovisioned beacon adv stopped, then no one to wake up 
+     * adv_thread's FOREVER wait, which will lead gatt_proxy_advertise 
+     * not getting chance to execute, and futher lead to Node Identity 
+     * adv not sent.
+     **/
+    return bt_prov_active() ? K_SECONDS(10) : K_SECONDS(30);
 }
 
 void bt_mesh_proxy_adv_stop(void)

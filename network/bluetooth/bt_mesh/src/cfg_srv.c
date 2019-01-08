@@ -2777,6 +2777,7 @@ static void heartbeat_pub_set(struct bt_mesh_model *model,
 	}
 
 	feat = sys_le16_to_cpu(param->feat);
+        BT_DBG("%s: feat field from heartbeat pub set is %d", __func__, feat);
 
 	idx = sys_le16_to_cpu(param->net_idx);
 	if (idx > 0xfff) {
@@ -2831,7 +2832,8 @@ static void hb_sub_send_status(struct bt_mesh_model *model,
 	u16_t period;
 	s64_t uptime;
 
-	BT_DBG("src 0x%04x status 0x%02x", ctx->addr, status);
+	BT_DBG("%s: src 0x%04x status 0x%02x, min_hops: %d", __func__,
+               ctx->addr, status, cfg->hb_sub.min_hops);
 
 	uptime = k_uptime_get();
 	if (uptime > cfg->hb_sub.expiry) {
@@ -2856,6 +2858,48 @@ static void hb_sub_send_status(struct bt_mesh_model *model,
 		net_buf_simple_add_u8(msg, cfg->hb_sub.min_hops);
 		net_buf_simple_add_u8(msg, cfg->hb_sub.max_hops);
 	}
+
+	if (bt_mesh_model_send(model, ctx, msg, NULL, NULL)) {
+		BT_ERR("Unable to send Heartbeat Subscription Status");
+	}
+}
+
+static void hb_sub_send_status_4set(struct bt_mesh_model *model,
+			       struct bt_mesh_msg_ctx *ctx, u8_t status)
+{
+	/* Needed size: opcode (2 bytes) + msg + MIC */
+	struct net_buf_simple *msg = NET_BUF_SIMPLE(2 + 9 + 4);
+	struct bt_mesh_cfg_srv *cfg = model->user_data;
+	u16_t period;
+	s64_t uptime;
+
+	BT_DBG("%s: src 0x%04x status 0x%02x, min_hops: %d", __func__,
+               ctx->addr, status, cfg->hb_sub.min_hops);
+
+	uptime = k_uptime_get();
+	if (uptime > cfg->hb_sub.expiry) {
+		period = 0;
+	} else {
+		period = (cfg->hb_sub.expiry - uptime) / 1000;
+	}
+
+	bt_mesh_model_msg_init(msg, OP_HEARTBEAT_SUB_STATUS);
+
+	net_buf_simple_add_u8(msg, status);
+
+	net_buf_simple_add_le16(msg, cfg->hb_sub.src);
+	net_buf_simple_add_le16(msg, cfg->hb_sub.dst);
+
+        // TBD, should be compliant with Spec 4.4.1.2.16
+	//if (cfg->hb_sub.src == BT_MESH_ADDR_UNASSIGNED ||
+	//    cfg->hb_sub.dst == BT_MESH_ADDR_UNASSIGNED) {
+	//	memset(net_buf_simple_add(msg, 4), 0, 4);
+	//} else {
+		net_buf_simple_add_u8(msg, hb_log(period));
+		net_buf_simple_add_u8(msg, hb_log(cfg->hb_sub.count));
+		net_buf_simple_add_u8(msg, cfg->hb_sub.min_hops);
+		net_buf_simple_add_u8(msg, cfg->hb_sub.max_hops);
+	//}
 
 	if (bt_mesh_model_send(model, ctx, msg, NULL, NULL)) {
 		BT_ERR("Unable to send Heartbeat Subscription Status");
@@ -2939,7 +2983,7 @@ static void heartbeat_sub_set(struct bt_mesh_model *model,
 		cfg->hb_sub.expiry = 0;
 	}
 
-	hb_sub_send_status(model, ctx, STATUS_SUCCESS);
+	hb_sub_send_status_4set(model, ctx, STATUS_SUCCESS);
 }
 
 const struct bt_mesh_model_op bt_mesh_cfg_srv_op[] = {
@@ -3013,6 +3057,7 @@ static void hb_publish(struct k_work *work)
 	}
 
 	hb_send(model);
+        BT_DBG("%s: heartbeat publish sent.", __func__);
 
 	if (cfg->hb_pub.count == 0) {
 		return;
