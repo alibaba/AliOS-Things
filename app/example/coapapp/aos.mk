@@ -13,7 +13,7 @@ $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
-ifeq ($(loop),1)
+ifeq ($(COAPAPP_CONFIG_LOOP),y)
 $(NAME)_DEFINES      += TEST_LOOP
 endif
 

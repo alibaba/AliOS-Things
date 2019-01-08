@@ -1,9 +1,25 @@
 menuconfig AOS_APP_LINKKIT_GATEWAY
     bool "linkkit_gateway"
+    select AOS_COMP_CLI if AOS_BOARD_ESP8266
+    select AOS_COMP_OTA
+    select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
-    select AOS_COMP_CLI if @CONDITION@
     help
+        linkkit gateway examples
 
 if AOS_APP_LINKKIT_GATEWAY
 # Configurations for app linkkit_gateway
+
+config LINKKIT_GATEWAY_CONFIG_DEPRECATED
+    int "use deprecated api"
+    range 0 1
+    default 0
+    help
+
+config LINKKIT_GATEWAY_CONFIG_PRINT_HEAP
+    int "show free heap duration"
+    range 0 1
+    default 0
+    help
+
 endif

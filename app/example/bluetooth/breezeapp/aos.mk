@@ -8,17 +8,16 @@ $(NAME)_SOURCES := breezeapp.c
 ble = 1
 bz_en_auth = 1
 bz_en_awss = 1
-bz_en_ota = 0
 
 $(NAME)_COMPONENTS := breeze cli
 
 GLOBAL_DEFINES += DEBUG
 GLOBAL_DEFINES += CONFIG_BLE_LINK_PARAMETERS
 
-GLOBAL_DEFINES += BUILD_AOS
+GLOBAL_DEFINES += BUILD_AOS AOS_OTA_RSA
 
-bz_en_ota ?= 0
-ifeq ($(bz_en_ota),1)
+BREEZEAPP_CONFIG_EN_OTA ?= y
+ifeq ($(BREEZEAPP_CONFIG_EN_OTA),y)
 ifeq ($(bz_en_auth), 0)
 $(error OTA need authentication, please set "bz_en_auth = 1")
 endif

@@ -4,6 +4,8 @@ $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := OTA demo app for developers
 
+loop ?= $(OTAAPP_CONFIG_TEST_LOOP)
+
 $(NAME)_SOURCES := otaapp.c 
 $(NAME)_COMPONENTS := feature.linkkit-mqtt netmgr ota cjson cli
 ifeq ($(LWIP),1)$(NAME)_COMPONENTS  += lwip
