@@ -128,9 +128,9 @@ typedef struct {
     unsigned char  dev_type;                 /* device type: 0-->main dev 1-->sub dev */
     unsigned char  hash_type;                /* Hash algor type */
     unsigned char  sign_en;                  /* Sign is on/off */
-    int            sign_len;                 /* Sign len */
     unsigned char  sign_type;                /* default:0--> sha256 1--> md5 2-->RSA */
-    char           upg_status;               /* Upgrade status in progress */
+    int            sign_len;                 /* Sign len */
+    int            upg_status;               /* Upgrade status in progress */
     char          *url;                      /* Dowdload URL */
     char          *hash;                     /* Dowdload hash */
     unsigned char *sign;                     /* Dowdload signatue */
@@ -142,7 +142,6 @@ typedef struct {
 
     int (*upgrade_cb)(void *ctx, char *json); /* upgrade callback */
 } ota_service_t;
-
 
 int ota_service_init(ota_service_t *ctx);
 
