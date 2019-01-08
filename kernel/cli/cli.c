@@ -12,6 +12,7 @@
 #include "cli_api.h"
 #include "cli_adapt.h"
 
+#include "k_config.h"
 #if (RHINO_CONFIG_USER_SPACE > 0)
 #include "uapp.h"
 #endif
@@ -162,7 +163,7 @@ static int32_t proc_onecmd(int argc, char *argv[])
 
     if ((pid > 0) && (pid < (MAX_APP_BINS + 1))) {
         cli_q = g_cli->u_cli_queue[pid];
-        krhino_queue_back_send(cli_q, command);
+        krhino_queue_back_send(cli_q, (void*)command);
         return 0;
     }
 #endif
@@ -793,8 +794,11 @@ int32_t cli_register_command(const struct cli_command_st *cmd)
     cur_task = krhino_cur_task_get();
     cur_proc = cur_task->proc_addr;
 
-    pid   = (ktask_t *)cur_proc->pid;
-    cli_q = (ktask_t *)cur_proc->cli_q;
+    if (cur_proc == NULL)
+        return 0;
+
+    pid   = cur_proc->pid;
+    cli_q = cur_proc->cli_q;
 
     if (!cli_q)
         return CLI_ERR_INVALID;
