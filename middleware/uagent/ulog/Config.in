@@ -67,3 +67,5 @@ config ULOG_CONFIG_SYSLOG_WATCHER_PORT
         Specify the port of syslog watcher
 
 endif
+
+endif
