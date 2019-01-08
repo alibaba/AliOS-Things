@@ -6,6 +6,18 @@ mainmenu "AliOS Things Configuration"
 config AOS_BUILD
     bool
     default y
+    help
+      This option indicates AOS build env is running.
+
+config AOS_BUILD_BOARD
+    string
+    help
+      This option holds the name of the board that is going to build.
+
+config AOS_BUILD_APP
+    string
+    help
+      This option holds the name of the application that is going to build.
 
 config MBINS
     string
