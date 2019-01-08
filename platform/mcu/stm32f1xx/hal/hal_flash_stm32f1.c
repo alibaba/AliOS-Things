@@ -102,7 +102,7 @@ int32_t hal_flash_write(hal_partition_t pno, uint32_t *poff, const void *buf, ui
 
     if (len_r != 0) {
         ret = FLASH_read_at(ROUND_DOWN(start_addr + buf_size), buffer, FLASH_ALIGN);
-        memcpy(buffer, buf + len_l + len, len_r);
+        memcpy(buffer, (char *)buf + len_l + len, len_r);
         ret = hal_flash_write_lowlevel(ROUND_DOWN(start_addr + buf_size), (uint32_t *)buffer, FLASH_ALIGN);
     }
 
