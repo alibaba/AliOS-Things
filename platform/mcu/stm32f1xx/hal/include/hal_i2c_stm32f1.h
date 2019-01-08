@@ -9,7 +9,7 @@
  extern "C" {
 #endif
 
-#include "stm32l4xx_hal.h"
+#include "stm32f1xx_hal.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

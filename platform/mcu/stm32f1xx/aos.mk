@@ -79,13 +79,12 @@ $(NAME)_SOURCES := Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c  \
 $(NAME)_SOURCES += hal/hal_uart_stm32f1.c \
                    hal/hw.c \
                    hal/hal_flash_stm32f1.c \
-                   hal/hal_gpio_stm32f1.c #\
-                   hal/hal_spi_stm32f1.c \
                    hal/hal_i2c_stm32f1.c \
+                   hal/hal_spi_stm32f1.c \
+                   hal/hal_gpio_stm32f1.c #\
                    hal/hal_sd_stm32f1.c \
                    hal/hal_adc_stm32f1.c \
                    hal/hal_rtc_stm32f1.c \
-                   hal/hal_spi_stm32f1.c \
                    hal/hal_qspi_stm32f1.c \
                    hal/hal_nand_stm32f1.c \
                    hal/hal_nor_stm32f1.c
@@ -125,7 +124,7 @@ GLOBAL_LDFLAGS += -L --cpu=Cortex-M3   \
                   -L --xref -L --callgraph -L --symbols \
                   -L --info=sizes -L --info=totals -L --info=unused -L --info=veneers -L --info=summarysizes
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --silent --cpu=Cortex-M3.vfp
+GLOBAL_LDFLAGS += --silent
 
 else
 GLOBAL_LDFLAGS += -mcpu=cortex-m3  \
