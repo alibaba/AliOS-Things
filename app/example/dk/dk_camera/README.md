@@ -20,6 +20,10 @@ LCD also will show images which capturing by camera with real time. Of course, t
 
 > if there is no SD card, no any images will be stored, but LCD still show these images which captured by camera 
 
+### Supported Boards
+
+- developerkit
+
 ### Build
 
 * Build and flash cameraapp image for developerkit, e.g.:  

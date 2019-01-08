@@ -28,6 +28,12 @@ The **tls** example need to connect network(`alink.tcp.aliyun.com`), so device m
 * alicrypto
 * netmgr
 
+### Supported Boards
+
+- mk3060
+- mk3080
+- linuxhost
+
 ## Usage
 
 once flash **tls** into device, you need to config device connect to wifi, input this command on board serial console:

@@ -18,6 +18,11 @@ This example demenstrates how to join AliGenie BLE Mesh network.
 - AliGenie BLE Mesh provisioning.
 - Light control by user voice via AliGenie BLE Mesh network.
 
+### Supported Boards
+
+- pca10040
+- pca10056
+
 ## API
 
 None.

@@ -31,4 +31,8 @@ devkit/dk_gui
 
 - TODO: To be improved
 
+### Supported Boards
+
+- developerkit
+
 ## Reference

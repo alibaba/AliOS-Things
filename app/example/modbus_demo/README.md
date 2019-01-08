@@ -18,6 +18,10 @@ This example is an demo of using modbus master stack.
 
 You should connecting a modbus slave device to uart2 port of developerkit board. The slave device' address is 0x0, and the slave device can respond fun 0x3 request for register 0x0 and register 0x1.
 
+### Supported Boards
+
+- stm32f429zi-nucleo
+
 ### Features
 
 * modbus master demo

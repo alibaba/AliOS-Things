@@ -32,6 +32,10 @@ udataapp
 - netmgr(optional)
 - feature.linkkit-mqtt(optional)
 
+### Supported Boards
+
+- developerkit
+
 ### Others
 
 When the data links to cloud, it's recommended to use the linkdevelop platform which is designed for developers.

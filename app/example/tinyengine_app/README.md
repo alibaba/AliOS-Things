@@ -37,6 +37,11 @@ more TinyEngine features please check [TinyEngine Github](https://github.com/ali
 * uota
 * spiffs
 
+### Supported Boards
+
+- developerkit
+- esp32devkitc
+
 ### Build & Flash
 
 ```sh

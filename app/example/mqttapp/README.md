@@ -25,6 +25,12 @@ The **mqttapp**  shows mqtt related functions.
 * cli
 * linkkit
 
+### Supported Boards
+
+- mk3060
+- mk3080
+- esp8266
+
 ### Build
 
 
