@@ -29,6 +29,13 @@ An over-the-air update is the wireless delivery of new software or data to smart
 Linkkit MQTT channel
 Linkkit CoAP channel
 
+### Supported Boards
+
+- mk3060
+- mk3080
+- developerkit
+- esp8266
+
 ## API
 
 User service APIs:

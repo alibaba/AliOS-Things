@@ -19,6 +19,10 @@ devkit.dk_qr
 ### Overview
 The ***dk_qr* is a **QR** scan example based on developerkit board.
 
+### Supported Boards
+
+- developerkit
+
 ### Build and Flash
 
 ```sh

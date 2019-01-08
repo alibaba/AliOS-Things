@@ -16,4 +16,8 @@ meshapp
 ### Dependencies
 kernel, lwip, yloop
 
+### Supported Boards
+
+- pca10040
+
 ## Reference

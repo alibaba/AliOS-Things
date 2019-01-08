@@ -28,6 +28,10 @@ aos make athostapp@mk3080
 
 - network/sal/athost
 
+### Supported Boards
+
+- mk3060
+
 ## Reference
 
 None.

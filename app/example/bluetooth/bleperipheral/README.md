@@ -26,6 +26,11 @@ Platform: BLE hardware already support AliOS things BLE stack, take Nordic's nRF
 - CLI
 - Profile of bluetooth
 
+### Supported Boards
+
+- pca10040
+- pca10056
+
 ## Usage
 
 ### Build

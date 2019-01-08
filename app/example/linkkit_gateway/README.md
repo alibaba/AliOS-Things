@@ -30,6 +30,12 @@ The **http2app**  shows linkkit gateway related functions.
 * cli
 * linkkit
 
+### Supported Boards
+
+- mk3060
+- mk3080
+- esp8266
+
 ### Build
 
 ```sh

@@ -14,6 +14,13 @@
 
 >注：Developerkit不需要外接额外的wifi模组（板载已含BK7231）,开发过程类似(参考STM32L476rg-nucleo开发板)
 
+### Supported Boards
+
+- stm32l476rg-nucleo
+- lpcxpresso54102
+- msp432p4111launchpad
+- developerkit
+
 ## 编译
 ```
 aos make ldapp@developerkit
