@@ -1,9 +1,3 @@
 menuconfig AOS_APP_UART
     bool "uart"
-    select AOS_COMP_UART
     help
-        this is a uart sample form hal uart.h
-
-if AOS_APP_UART
-# Configurations for app uart
-endif

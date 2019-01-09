@@ -7,14 +7,6 @@ $(NAME)_SUMMARY := mqtt examples
 $(NAME)_SOURCES := app_entry.c 
 $(NAME)_COMPONENTS := feature.linkkit-mqtt netmgr cjson cli
 
-case ?= $(MQTTAPP_CONFIG_CASE)
-
-ifdef $(MQTTAPP_CONFIG_TEST_LOOP)
-loop ?= $(MQTTAPP_CONFIG_TEST_LOOP)
-else
-loop ?= 0
-endif
-
 ifeq ($(case),rrpc)
 $(NAME)_SOURCES += mqtt_example_rrpc.c
 else ifeq ($(case),multithread)

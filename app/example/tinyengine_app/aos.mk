@@ -6,8 +6,8 @@ $(NAME)_SUMMARY := an engine for javascript application development
 $(NAME)_SOURCES := tinyengine_app.c
 
 #choose JSE_TINYENGINE OR JSE_DUKTAPE here
-#export TINYENGINE_CONFIG_TYPE=JSE_DUKTAPE
-export TINYENGINE_CONFIG_TYPE=JSE_TINYENGINE
+#export AOS_CONFIG_TINYENGINE_TYPE=JSE_DUKTAPE
+export AOS_CONFIG_TINYENGINE_TYPE=JSE_TINYENGINE
 
 $(NAME)_COMPONENTS := ulog yloop cli feature.linkkit-mqtt cjson netmgr ota
 $(NAME)_COMPONENTS += spiffs
