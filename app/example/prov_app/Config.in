@@ -1,19 +1,12 @@
 menuconfig AOS_APP_PROV_APP
     bool "prov_app"
     select AOS_COMP_LIBPROV
+    select AOS_COMP_BENCHMARKS if @CONDITION@
     select AOS_COMP_LIBPROV_TEST
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help
-        id2 provisioning sample app
 
 if AOS_APP_PROV_APP
 # Configurations for app prov_app
-
-config PROVAPP_CONFIG_ERASE
-    int "erase"
-    range 0 1
-    default 0
-    help
-
 endif

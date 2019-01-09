@@ -8,8 +8,6 @@ $(NAME)_SOURCES := app_entry.c
 
 $(NAME)_COMPONENTS := prov yloop cli
 
-ERASE ?= $(PROVAPP_CONFIG_ERASE)
-
 ifeq ($(ERASE), 1)
 $(NAME)_DEFINES     += CONFIG_ERASE_KEY
 endif
