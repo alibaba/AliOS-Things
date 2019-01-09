@@ -4,12 +4,6 @@ $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := gatewayapp
 
-PT_SCANNER ?= $(APP_GATEWAYAPP_CONFIG_PT_SCANNER)
-PT_SENSOR ?= $(APP_GATEWAYAPP_CONFIG_PT_SENSOR)
-dtc ?= $(APP_GATEWAYAPP_CONFIG_DTC)
-GW_LINKEDGE_WS ?= $(APP_GATEWAYAPP_CONFIG_GW_LINKEDGE_WS)
-
-$(NAME)_COMPONENTS += sensor cjson netmgr udata mbmaster
 
 ifeq ($(PT_SCANNER),1)
 GLOBAL_DEFINES += PT_SCANNER=1
@@ -32,7 +26,7 @@ GLOBAL_DEFINES      +=  MQTT_DIRECT  ALIOT_DEBUG IOTX_DEBUG USE_LPTHREAD COAP_WI
 
 $(NAME)_SOURCES     := gateway.c gateway_app.c gateway_tsl.c
 
-$(NAME)_COMPONENTS := feature.linkkit-noawss
+$(NAME)_COMPONENTS := feature.linkkit-noawss sensor cjson netmgr udata mbmaster
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
@@ -59,6 +53,8 @@ endif
 else
 
 $(NAME)_SOURCES := gateway.c
+
+$(NAME)_COMPONENTS := netmgr udata sensor mbmaster cjson
 
 GLOBAL_INCLUDES += .
 

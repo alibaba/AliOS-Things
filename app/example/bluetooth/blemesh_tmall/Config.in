@@ -1,11 +1,10 @@
 menuconfig AOS_APP_BLEMESH_TMALL
     bool "blemesh_tmall"
-    select AOS_COMP_BT_HOST
-    select AOS_COMP_BT_TMALL_MODEL
+    select AOS_COMP_BT_MESH_PROFILE
+    select AOS_COMP_BT
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help
-        Sample code to demenstrate how to join AliGenie BLE Mesh network.
 
 if AOS_APP_BLEMESH_TMALL
 # Configurations for app blemesh_tmall

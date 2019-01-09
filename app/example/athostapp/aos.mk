@@ -6,14 +6,13 @@ $(NAME)_SUMMARY := An example for receiving and processing AT command sets.
 $(NAME)_SOURCES := athostapp.c
 $(NAME)_COMPONENTS := athost netmgr cli yloop
 
-ATHOSTAPP_CONFIG_NO_ATPARSER ?= n
-ATHOSTAPP_CONFIG_NO_MQTTREPORT ?= n
-
-ifeq ($(ATHOSTAPP_CONFIG_NO_ATPARSER),n)
+no_atparser ?= 0
+ifneq (1,$(no_atparser))
 $(NAME)_COMPONENTS += atparser
 endif
 
-ifeq ($(ATHOSTAPP_CONFIG_NO_MQTTREPORT),y)
+no_mqttreport ?= 0
+ifeq (1,$(no_mqttreport))
 GLOBAL_DEFINES += ATHOST_MQTT_REPORT_DISBALED
 endif
 GLOBAL_DEFINES += DEBUG

@@ -1,41 +1,14 @@
 menuconfig AOS_APP_GATEWAYAPP
     bool "gatewayapp"
-    select AOS_COMP_CLI if AOS_BOARD_ESP8266
-    select AOS_COMP_CJSON
-    select AOS_COMP_NETMGR
-    select AOS_COMP_UDATA
-#    select AOS_UNKNOWN_FEATURE/LINKKIT-NOAWSS if APP_GATEWAYAPP_CONFIG_DTC
-    select AOS_COMP_SENSOR
-#    select AOS_UNKNOWN_WEBSOCKETS if @CONDITION@
-    select AOS_COMP_MBMASTER
+    select AOS_COMP_UDATA if @CONDITION@
+    select AOS_COMP_MBMASTER if @CONDITION@
+    select AOS_COMP_SENSOR if @CONDITION@
+    select AOS_COMP_CJSON if @CONDITION@
+    select AOS_COMP_COMMON if @CONDITION@
+    select AOS_COMP_NETMGR if @CONDITION@
+    select AOS_COMP_CLI if @CONDITION@
     help
-      gatewayapp
 
 if AOS_APP_GATEWAYAPP
 # Configurations for app gatewayapp
-
-config APP_GATEWAYAPP_CONFIG_PT_SCANNER
-    int "Device model: scanner"
-    range 0 1
-    default 0
-    help
-
-config APP_GATEWAYAPP_CONFIG_PT_SENSOR
-    int "Device model: MODBUS/CAN sensors"
-    range 0 1
-    default 0
-    help
-
-config APP_GATEWAYAPP_CONFIG_DTC
-    int "data to cloud"
-    range 0 1
-    default 0
-    help
-
-config APP_GATEWAYAPP_CONFIG_GW_LINKEDGE_WS
-    int "link via linkedge server"
-    range 0 1
-    default 0
-    help
-
 endif

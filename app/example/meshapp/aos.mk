@@ -9,24 +9,6 @@ $(NAME)_SOURCES     := main.c
 $(NAME)_COMPONENTS  += umesh cli netmgr
 GLOBAL_DEFINES      += TAPIF_DEFAULT_OFF DEBUG
 
-ifdef $(MESHAPP_CONFIG_MESHAUTH)
-MESHAUTH ?= $(MESHAPP_CONFIG_MESHAUTH)
-else
-MESHAUTH ?= 0
-endif
-
-ifdef $(MESHAPP_CONFIG_IPV6)
-ipv6 ?= $(MESHAPP_CONFIG_IPV6)
-else
-ipv6 ?= 0
-endif
-
-ifdef $(MESHAPP_CONFIG_HAL_TEST)
-mesh_hal_test ?= $(MESHAPP_CONFIG_HAL_TEST)
-else
-mesh_hal_test ?= 0
-endif
-
 ifeq ($(MESHAUTH), 1)
 $(NAME)_COMPONENTS  += base64 alicrypto id2
 endif

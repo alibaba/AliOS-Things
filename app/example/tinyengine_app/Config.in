@@ -1,5 +1,6 @@
 menuconfig AOS_APP_TINYENGINE_APP
     bool "tinyengine_app"
+    select AOS_COMP_COMMON
     select AOS_COMP_SPIFFS
     select AOS_COMP_LOG
     select AOS_COMP_CJSON
@@ -8,9 +9,7 @@ menuconfig AOS_APP_TINYENGINE_APP
     select AOS_COMP_YLOOP
     select AOS_COMP_OTA
     select AOS_COMP_CLI
-#    select AOS_COMP_LINKKIT_MQTT
     help
-        an engine for javascript application development
 
 if AOS_APP_TINYENGINE_APP
 # Configurations for app tinyengine_app

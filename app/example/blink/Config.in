@@ -1,7 +1,8 @@
 menuconfig AOS_APP_BLINK
     bool "blink"
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
     help
-        blink
 
 if AOS_APP_BLINK
 # Configurations for app blink
