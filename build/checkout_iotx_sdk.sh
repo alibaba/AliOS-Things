@@ -8,7 +8,7 @@ if [ ! -d "iotx-sdk-c_clone" ]; then
         exit 1
     fi
     cd iotx-sdk-c_clone
-    # git checkout -b master --track origin/master
+    	git checkout -b rel_ada --track origin/rel_ada
     if [ $? -ne 0 ]; then
         echo "checkout linkplatform_refactor branch fail!"
         exit 1
