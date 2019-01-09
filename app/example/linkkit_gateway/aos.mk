@@ -11,9 +11,6 @@ $(NAME)_COMPONENTS += feature.linkkit-gateway
 
 GLOBAL_CFLAGS += -DMQTT_DIRECT
 
-deprecated ?= $(LINKKIT_GATEWAY_CONFIG_DEPRECATED)
-print_heap ?= $(LINKKIT_GATEWAY_CONFIG_PRINT_HEAP)
-
 ifneq ($(deprecated),)
 $(NAME)_SOURCES += deprecated/gateway.c
 GLOBAL_DEFINES += DEPRECATED_LINKKIT
