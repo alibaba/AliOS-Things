@@ -1,0 +1,10 @@
+menuconfig AOS_APP_BREEZEAPP
+    bool "breezeapp"
+    select AOS_COMP_BREEZE
+    select AOS_COMP_OTA_BLE if @CONDITION@
+    select AOS_COMP_CLI
+    help
+
+if AOS_APP_BREEZEAPP
+# Configurations for app breezeapp
+endif

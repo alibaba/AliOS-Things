@@ -20,9 +20,9 @@ ifeq ($(secure_adv), 1)
 GLOBAL_DEFINES-y += CONFIG_AIS_SECURE_ADV
 endif
 
-#btstack ?= zephyr
+btstack ?= zephyr
 ifeq (zephyr, $(btstack))
-$(NAME)_COMPONENTS += bluetooth.breeze.hal.ble
+$(NAME)_COMPONENTS += framework.bluetooth.breeze.hal.ble
 endif
 
 $(NAME)_SOURCES += api/breeze_export.c

@@ -1,1 +1,1 @@
-supported_targets="bluetooth.bleperipheral bluetooth.aisilopapp"
+supported_targets="bluetooth.bleperipheral bluetooth.breezepapp"

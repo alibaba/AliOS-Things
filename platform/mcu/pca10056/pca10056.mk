@@ -172,3 +172,5 @@ GLOBAL_DEFINES += NRF52840_XXAA
 endif
 
 
+GLOBAL_CFLAGS            += -DBLE_4_2
+

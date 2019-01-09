@@ -56,7 +56,7 @@ endif
 
 en_comboapp := 1
 ifeq ($(en_comboapp), 1)
-$(NAME)_COMPONENTS += framework.breeze
+$(NAME)_COMPONENTS += framework.bluetooth.breeze
 $(NAME)_SOURCES += combo/combo_net.c
 GLOBAL_DEFINES += EN_COMBO_NET
 bz_en_auth := 1
