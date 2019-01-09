@@ -1,0 +1,9 @@
+config AOS_COMP_MBEDTLS
+    bool "mbedtls"
+    default n
+    help
+        AliOS Things Mbed TLS layer
+
+if AOS_COMP_MBEDTLS
+# Configurations for component mbedtls
+endif

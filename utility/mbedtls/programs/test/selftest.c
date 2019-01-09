@@ -280,7 +280,9 @@ const selftest_t selftests[] =
 #endif
 /* Slower test after the faster ones */
 #if defined(MBEDTLS_TIMING_C)
-    {"timing", mbedtls_timing_self_test},
+    /* Modify for AliOS Things begin. 2019-01-09 */
+    /* {"timing", mbedtls_timing_self_test}, */
+    /* Modify for AliOS Things end. 2019-01-09 */
 #endif
 /* Heap test comes last */
 #if defined(MBEDTLS_MEMORY_BUFFER_ALLOC_C)
@@ -290,7 +292,10 @@ const selftest_t selftests[] =
 };
 #endif /* MBEDTLS_SELF_TEST */
 
-int main( int argc, char *argv[] )
+/* Modify for AliOS Things begin. 2019-01-09 */
+/* int main( int argc, char *argv[] ) */
+int mbedtls_selftest_main( int argc, char *argv[] )
+/* Modify for AliOS Things end. 2019-01-09 */
 {
 #if defined(MBEDTLS_SELF_TEST)
     const selftest_t *test;
