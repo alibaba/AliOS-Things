@@ -4,8 +4,14 @@ $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := mqtt examples
 
-$(NAME)_SOURCES := app_entry.c 
+$(NAME)_SOURCES := app_entry.c
 $(NAME)_COMPONENTS := feature.linkkit-mqtt netmgr cjson cli
+
+MQTTAPP_CONFIG_CASE ?=
+MQTTAPP_CONFIG_TEST_LOOP ?= 1
+case ?= $(MQTTAPP_CONFIG_CASE)
+loop ?= $(MQTTAPP_CONFIG_TEST_LOOP)
+
 
 ifeq ($(case),rrpc)
 $(NAME)_SOURCES += mqtt_example_rrpc.c

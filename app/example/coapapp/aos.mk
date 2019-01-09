@@ -13,6 +13,9 @@ $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
+COAPAPP_CONFIG_LOOP ?= 0
+loop ?= $(COAPAPP_CONFIG_LOOP)
+
 ifeq ($(loop),1)
 $(NAME)_DEFINES      += TEST_LOOP
 endif
