@@ -7,7 +7,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp32
 
 $(NAME)_COMPONENTS := kv
-$(NAME)_COMPONENTS += lwip alicrypto mbedtls netmgr
+$(NAME)_COMPONENTS += lwip alicrypto imbedtls netmgr
 
 ESP_INC_PATH    := bsp/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)
