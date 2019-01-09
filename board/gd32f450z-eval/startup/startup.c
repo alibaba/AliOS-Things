@@ -7,6 +7,10 @@
 #include <stdlib.h>
 
 #include "aos/init.h"
+#include "aos/hal/uart.h"
+
+#include "gd32f4xx.h"
+#include "gd32f450z_eval.h"
 
 extern void board_init(void);
 
@@ -15,16 +19,28 @@ extern int application_start(int argc, char **argv);
 #endif
 
 /* main task stask size(byte) */
-#define OS_MAIN_TASK_STACK 0x200
+#define OS_MAIN_TASK_STACK 0x2000
 #define OS_MAIN_TASK_PRI 32
 
 static ktask_t g_main_task;
 cpu_stack_t g_main_task_buf[OS_MAIN_TASK_STACK];
 static kinit_t kinit = {0, NULL, 1};
 
+uart_dev_t  uart_0;
+
 static void sys_init(void)
 {
     /* user code start*/
+    nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
+    SysTick_Config(SystemCoreClock / RHINO_CONFIG_TICKS_PER_SECOND);
+
+    uart_0.port = 0;
+    uart_0.config.baud_rate = 115200;
+    uart_0.config.data_width = DATA_WIDTH_8BIT;
+    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
+    uart_0.config.parity = NO_PARITY;
+    uart_0.config.stop_bits = STOP_BITS_1;
+    hal_uart_init(&uart_0);
 
     /*insert driver to enable irq for example: starting to run tick time.
      drivers to trigger irq is forbidden before aos_start, which will start core schedule.
