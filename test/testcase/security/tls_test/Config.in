@@ -1,8 +1,9 @@
 menuconfig AOS_COMP_TLS_TEST
     bool "tls_test"
     default n
-    select AOS_COMP_MBEDTLS
+    select AOS_COMP_IMBEDTLS
     help
+    TLS test for security/mbedtls
 
 if AOS_COMP_TLS_TEST
 # Configurations for comp tls_test
