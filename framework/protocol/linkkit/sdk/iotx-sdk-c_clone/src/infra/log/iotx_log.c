@@ -1,7 +1,26 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+/* 31, red. 32, green. 33, yellow. 34, blue. 35, magenta. 36, cyan. 37, white. */
+char *lvl_color[] = {
+    "[0m", "[1;31m", "[1;31m", "[1;35m", "[1;33m", "[1;36m", "[1;37m"
+};
 
+#ifdef BUILD_AOS 
+#include "aos/log.h"
+
+extern unsigned int aos_log_level;
+int LITE_get_loglevel(void)
+{
+    return aos_log_level;
+}
+
+void LITE_set_loglevel(int pri)
+{
+    aos_set_log_level((aos_log_level_t)pri);
+}
+
+#else
 #include "iotx_log_internal.h"
 
 static log_client logcb = {
@@ -14,10 +33,6 @@ static char *lvl_names[] = {
     "non", "crt", "err", "wrn", "inf", "dbg", "flw"
 };
 
-/* 31, red. 32, green. 33, yellow. 34, blue. 35, magenta. 36, cyan. 37, white. */
-char *lvl_color[] = {
-    "[0m", "[1;31m", "[1;31m", "[1;35m", "[1;33m", "[1;36m", "[1;37m"
-};
 
 void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params)
 {
@@ -215,4 +230,4 @@ int LITE_hexdump(const char *title, const void *buff, const int len)
 
     return 0;
 }
-
+#endif
