@@ -1,11 +1,11 @@
-menuconfig AOS_APP_CAMERAAPP
-    bool "cameraapp"
-    select AOS_COMP_BENCHMARKS if @CONDITION@
+menuconfig AOS_APP_DK_CAMERA
+    bool "dk_camera"
     select AOS_COMP_FATFS
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help
+        developer kit camera demo
 
-if AOS_APP_CAMERAAPP
-# Configurations for app cameraapp
+if AOS_APP_DK_CAMERA
+# Configurations for app dk_camera
 endif

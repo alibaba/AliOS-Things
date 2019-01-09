@@ -1,7 +1,19 @@
 menuconfig AOS_APP_COAPAPP
     bool "coapapp"
+    select AOS_COMP_CJSON
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
     help
+        coap cloud example
 
 if AOS_APP_COAPAPP
 # Configurations for app coapapp
+
+config COAPAPP_CONFIG_LOOP
+    int "test loop"
+    range 0 1
+    default 0
+    help
+        test loop
+
 endif
