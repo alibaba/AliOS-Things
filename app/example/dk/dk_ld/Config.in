@@ -1,14 +1,14 @@
-menuconfig AOS_APP_LDAPP
+menuconfig AOS_APP_DK_LD
     bool "ldapp"
-    select AOS_COMP_COMMON
-    select AOS_COMP_LITTLEVGL if @CONDITION@
     select AOS_COMP_CLI
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
     select AOS_COMP_OTA
     select AOS_COMP_SENSOR
+    select AOS_COMP_LITTLEVGL if AOS_BOARD_DEVELOPERKIT
     help
+        Developer Kit example with link develop
 
-if AOS_APP_LDAPP
-# Configurations for app ldapp
+if AOS_APP_DK_LD
+# Configurations for app dk_ld
 endif

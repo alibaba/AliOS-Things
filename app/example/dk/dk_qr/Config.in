@@ -1,10 +1,10 @@
-menuconfig AOS_APP_QR
-    bool "qr"
-    select AOS_COMP_BENCHMARKS if @CONDITION@
+menuconfig AOS_APP_DK_QR
+    bool "dk_qr"
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help
+        Developer Kit QR Code demo
 
-if AOS_APP_QR
-# Configurations for app qr
+if AOS_APP_DK_QR
+# Configurations for app dk_qr
 endif

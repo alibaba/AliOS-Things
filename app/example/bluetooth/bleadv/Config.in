@@ -1,9 +1,10 @@
 menuconfig AOS_APP_BLEADV
     bool "bleadv"
-    select AOS_COMP_BT
+    select AOS_COMP_BT_HOST
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help
+        Ble adv example.
 
 if AOS_APP_BLEADV
 # Configurations for app bleadv

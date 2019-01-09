@@ -4,6 +4,7 @@ menuconfig AOS_APP_ID2_CLIENT
     select AOS_COMP_ID2
     select AOS_COMP_ALICRYPTO
     help
+        ID2 Sample and Local Test.
 
 if AOS_APP_ID2_CLIENT
 # Configurations for app id2_client
