@@ -117,6 +117,13 @@ extern "C" {
  * The function pointers for calloc and free.
  */
 #if defined(MBEDTLS_PLATFORM_MEMORY)
+/* Modify for AliOS Things begin. 2019-01-09 */
+#define MBEDTLS_PLATFORM_CALLOC_MACRO aos_mbedtls_calloc
+#define MBEDTLS_PLATFORM_FREE_MACRO aos_mbedtls_free
+void * aos_mbedtls_calloc( size_t n, size_t size );
+void aos_mbedtls_free( void *ptr );
+/* Modify for AliOS Things end. 2019-01-09 */
+
 #if defined(MBEDTLS_PLATFORM_FREE_MACRO) && \
     defined(MBEDTLS_PLATFORM_CALLOC_MACRO)
 #define mbedtls_free       MBEDTLS_PLATFORM_FREE_MACRO

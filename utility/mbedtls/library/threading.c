@@ -120,6 +120,8 @@ int (*mbedtls_mutex_unlock)( mbedtls_threading_mutex_t * ) = threading_mutex_unl
 #endif /* MBEDTLS_THREADING_PTHREAD */
 
 #if defined(MBEDTLS_THREADING_ALT)
+/* Modify for AliOS Things begin. 2019-01-09 */
+#if 0
 static int threading_mutex_fail( mbedtls_threading_mutex_t *mutex )
 {
     ((void) mutex );
@@ -135,6 +137,13 @@ void (*mbedtls_mutex_init)( mbedtls_threading_mutex_t * ) = threading_mutex_dumm
 void (*mbedtls_mutex_free)( mbedtls_threading_mutex_t * ) = threading_mutex_dummy;
 int (*mbedtls_mutex_lock)( mbedtls_threading_mutex_t * ) = threading_mutex_fail;
 int (*mbedtls_mutex_unlock)( mbedtls_threading_mutex_t * ) = threading_mutex_fail;
+#else
+void (*mbedtls_mutex_init)( mbedtls_threading_mutex_t * ) = threading_mutex_init;
+void (*mbedtls_mutex_free)( mbedtls_threading_mutex_t * ) = threading_mutex_free;
+int (*mbedtls_mutex_lock)( mbedtls_threading_mutex_t * ) = threading_mutex_lock;
+int (*mbedtls_mutex_unlock)( mbedtls_threading_mutex_t * ) = threading_mutex_unlock;
+#endif
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /*
  * Set functions pointers and initialize global mutexes

@@ -38,11 +38,15 @@
 
 #if !defined(MBEDTLS_TIMING_ALT)
 
+/* Modify for AliOS Things begin. 2019-01-09 */
+#if 0
 #if !defined(unix) && !defined(__unix__) && !defined(__unix) && \
     !defined(__APPLE__) && !defined(_WIN32) && !defined(__QNXNTO__) && \
     !defined(__HAIKU__)
 #error "This module only works on Unix and Windows, see MBEDTLS_TIMING_C in config.h"
 #endif
+#endif
+/* Modify for AliOS Things end. 2019-01-09 */
 
 #ifndef asm
 #define asm __asm
