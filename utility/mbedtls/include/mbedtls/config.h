@@ -86,7 +86,10 @@
  * example, if double-width division is implemented in software, disabling
  * it can reduce code size in some embedded targets.
  */
-//#define MBEDTLS_NO_UDBL_DIVISION
+/* Modify for AliOS Things begin. 2019-01-09 */
+#define MBEDTLS_NO_UDBL_DIVISION
+/* Modify for AliOS Things end. 2019-01-09 */
+
 
 /**
  * \def MBEDTLS_NO_64BIT_MULTIPLICATION
@@ -108,7 +111,9 @@
  * Note that depending on the compiler, this may decrease performance compared
  * to using the library function provided by the toolchain.
  */
-//#define MBEDTLS_NO_64BIT_MULTIPLICATION
+/* Modify for AliOS Things begin. 2019-01-09 */
+#define MBEDTLS_NO_64BIT_MULTIPLICATION
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_HAVE_SSE2
@@ -153,7 +158,10 @@
  * mbedtls_platform_gmtime_r() at compile-time by using the macro
  * MBEDTLS_PLATFORM_GMTIME_R_ALT.
  */
-#define MBEDTLS_HAVE_TIME_DATE
+/* Modify for AliOS Things begin. 2019-01-09 */
+//#define MBEDTLS_HAVE_TIME_DATE
+/* Modify for AliOS Things end. 2019-01-09 */
+
 
 /**
  * \def MBEDTLS_PLATFORM_MEMORY
@@ -177,7 +185,9 @@
  *
  * Enable this layer to allow use of alternative memory allocators.
  */
-//#define MBEDTLS_PLATFORM_MEMORY
+/* Modify for AliOS Things begin. 2019-01-09 */
+#define MBEDTLS_PLATFORM_MEMORY
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_PLATFORM_NO_STD_FUNCTIONS
@@ -1075,7 +1085,9 @@
  *
  * Enable functions that use the filesystem.
  */
-#define MBEDTLS_FS_IO
+/* Modify for AliOS Things begin. 2019-01-09 */
+//#define MBEDTLS_FS_IO
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
@@ -1099,7 +1111,9 @@
  *
  * Uncomment this macro to disable the built-in platform entropy functions.
  */
-//#define MBEDTLS_NO_PLATFORM_ENTROPY
+/* Modify for AliOS Things begin. 2019-01-09 */
+#define MBEDTLS_NO_PLATFORM_ENTROPY
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_ENTROPY_FORCE_SHA256
@@ -1217,7 +1231,11 @@
  *
  * Enable the checkup functions (*_self_test).
  */
+/* Modify for AliOS Things begin. 2019-01-09 */
+#if defined(CONFIG_MBEDTLS_TEST)
 #define MBEDTLS_SELF_TEST
+#endif
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_SHA256_SMALLER
@@ -1611,7 +1629,9 @@
  *
  * Uncomment this to allow your own alternate threading implementation.
  */
-//#define MBEDTLS_THREADING_ALT
+/* Modify for AliOS Things begin. 2019-01-09 */
+#define MBEDTLS_THREADING_ALT
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_THREADING_PTHREAD
@@ -2118,7 +2138,11 @@
  *
  * This module provides debugging functions.
  */
+/* Modify for AliOS Things begin. 2019-01-09 */
+#if defined(CONFIG_SSL_DEBUG)
 #define MBEDTLS_DEBUG_C
+#endif
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_DES_C
@@ -2246,7 +2270,9 @@
  *
  * This module provides a generic entropy pool
  */
-#define MBEDTLS_ENTROPY_C
+/* Modify for AliOS Things begin. 2019-01-09 */
+//#define MBEDTLS_ENTROPY_C
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_ERROR_C
@@ -2440,7 +2466,9 @@
  *
  * This module provides networking routines.
  */
-#define MBEDTLS_NET_C
+/* Modify for AliOS Things begin. 2019-01-09 */
+//#define MBEDTLS_NET_C
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_OID_C
@@ -2814,7 +2842,9 @@
  *
  * Enable this layer to allow use of mutexes within mbed TLS
  */
-//#define MBEDTLS_THREADING_C
+/* Modify for AliOS Things begin. 2019-01-09 */
+#define MBEDTLS_THREADING_C
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /**
  * \def MBEDTLS_TIMING_C
@@ -3147,7 +3177,10 @@
  * Uncomment to set the maximum plaintext size of the outgoing I/O buffer
  * independently of the incoming I/O buffer.
  */
+/* Modify for AliOS Things begin. 2019-01-09 */
 //#define MBEDTLS_SSL_OUT_CONTENT_LEN             16384
+#define MBEDTLS_SSL_OUT_CONTENT_LEN             5120
+/* Modify for AliOS Things end. 2019-01-09 */
 
 /** \def MBEDTLS_SSL_DTLS_MAX_BUFFERING
  *
