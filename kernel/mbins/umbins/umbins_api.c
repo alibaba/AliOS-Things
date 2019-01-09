@@ -431,26 +431,6 @@ aos_mutex_t* get_log_mutex(void)
     return SYS_CALL0(SYS_GET_LOG_MUTEX, aos_mutex_t*);
 }
 
-__attribute__((weak)) int csp_printf(const char *fmt, ...)
-{
-    va_list args;
-    int     ret;
-
-    ret = aos_mutex_lock(get_log_mutex(), AOS_WAIT_FOREVER);
-    if (ret == 0) {
-        va_start(args, fmt);
-        ret = vprintf(fmt, args);
-        va_end(args);
-
-        fflush(stdout);
-    }
-
-    aos_mutex_unlock(get_log_mutex());
-
-    return ret;
-}
-
-
 /* -----------------end OTHERS-------------------- */
 
 
