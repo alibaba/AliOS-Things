@@ -1,4 +1,4 @@
-NAME := mbedtls
+NAME := imbedtls
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.0.1
