@@ -8,12 +8,9 @@
 
 #include "k_api.h"
 
-#include "aos/hal/uart.h"
-
 #include "gd32f30x.h"
 #include "gd32f307c_eval.h"
 
-uart_dev_t  uart_0;
 extern k_mm_region_t   g_mm_region[];
 
 void hal_reboot(void)
@@ -27,15 +24,4 @@ void board_init(void)
 
     gd_eval_led_init(LED2);
     gd_eval_led_init(LED3);
-
-    nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);
-    SysTick_Config(SystemCoreClock / RHINO_CONFIG_TICKS_PER_SECOND);
-
-    uart_0.port = 0;
-    uart_0.config.baud_rate = 115200;
-    uart_0.config.data_width = DATA_WIDTH_8BIT;
-    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
-    uart_0.config.parity = NO_PARITY;
-    uart_0.config.stop_bits = STOP_BITS_1;
-    hal_uart_init(&uart_0);
 }
