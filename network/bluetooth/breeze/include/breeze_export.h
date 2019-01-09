@@ -177,15 +177,6 @@ void breeze_post(uint8_t *buffer, uint32_t length);
  */
 void breeze_post_fast(uint8_t *buffer, uint32_t length);
 
-
-/**
- * @brief Start event dispatcher. Note that:
- *        1. This API blocks (never return).
- *        2. This API should be called after breeze_start called.
- */
-void breeze_event_dispatcher();
-
-
 /**
  * @brief Append user specific data to the tail of the breeze adv data.
  *
