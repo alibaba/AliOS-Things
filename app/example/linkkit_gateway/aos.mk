@@ -11,7 +11,13 @@ $(NAME)_COMPONENTS += feature.linkkit-gateway
 
 GLOBAL_CFLAGS += -DMQTT_DIRECT
 
-ifneq ($(deprecated),)
+LINKKIT_GATEWAY_CONFIG_DEPRECATED ?= 0
+deprecated ?= $(LINKKIT_GATEWAY_CONFIG_DEPRECATED)
+
+LINKKIT_GATEWAY_CONFIG_PRINT_HEAP ?= 0
+print_heap ?= $(LINKKIT_GATEWAY_CONFIG_PRINT_HEAP)
+
+ifeq ($(deprecated),1)
 $(NAME)_SOURCES += deprecated/gateway.c
 GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else
@@ -35,7 +41,7 @@ GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
 #for test command
-ifneq ($(deprecated),)
+ifeq ($(deprecated),1)
 GLOBAL_CFLAGS += -DLINKKIT_GATEWAY_TEST_CMD
 $(NAME)_SOURCES += simulate_subdev/testcmd.c simulate_subdev/testcmd_lock.c
 endif

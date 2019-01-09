@@ -5,10 +5,11 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := linkwan
 GLOBAL_INCLUDES += .
 
-linkwan := 1
-
 $(NAME)_SOURCES := linkwan.c
 
+linkwan := 1
+
+# lorawanback defined at board/***/aos.mk
 ifeq ($(lorawanback), 0)
 $(NAME)_COMPONENTS := lorawan_4_4_2
 else ifeq ($(lorawanback), 1)
