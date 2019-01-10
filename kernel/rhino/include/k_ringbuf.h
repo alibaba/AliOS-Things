@@ -8,20 +8,6 @@
 #define RINGBUF_TYPE_FIX              0
 #define RINGBUF_TYPE_DYN              1
 
-#define RINGBUF_LEN_MAX_SIZE          3
-#define RINGBUF_LEN_MASK_ONEBIT       0x80 //1000 0000
-#define RINGBUF_LEN_MASK_TWOBIT       0xC0 //1100 0000
-#define RINGBUF_LEN_MASK_CLEAN_TWOBIT 0x3f //0011 1111
-
-
-#define RINGBUF_LEN_VLE_2BYTES        0x80 //1000 0000
-#define RINGBUF_LEN_VLE_3BYTES        0xC0 //1100 0000
-
-#define RINGBUF_LEN_1BYTE_MAXVALUE    0x7f //0111 1111; 127
-#define RINGBUF_LEN_2BYTES_MAXVALUE   0x3fff // 16383
-#define RINGBUF_LEN_3BYTES_MAXVALUE   0x3fffff //4194303
-
-
 #ifndef true
 #define true 1
 #endif
@@ -40,7 +26,31 @@ typedef struct {
     size_t   blk_size;
 } k_ringbuf_t;
 
-#define COMPRESS_LEN(x) ((x) <= RINGBUF_LEN_1BYTE_MAXVALUE ? 1: (x) <= RINGBUF_LEN_2BYTES_MAXVALUE ? 2: \
-                        (x) <= RINGBUF_LEN_3BYTES_MAXVALUE ? 3 : RHINO_INV_PARAM)
+RHINO_INLINE kstat_t ringbuf_queue_push(k_ringbuf_t *p_ringbuf, void *data, size_t len)
+{
+    if (p_ringbuf->tail == p_ringbuf->end) {
+        p_ringbuf->tail = p_ringbuf->buf;
+    }
+
+    memcpy(p_ringbuf->tail, data, p_ringbuf->blk_size);
+    p_ringbuf->tail += p_ringbuf->blk_size;
+    return RHINO_SUCCESS;
+}
+
+RHINO_INLINE kstat_t ringbuf_queue_pop(k_ringbuf_t *p_ringbuf, void *pdata, size_t *plen)
+{
+    if (p_ringbuf->head == p_ringbuf->end) {
+        p_ringbuf->head = p_ringbuf->buf;
+    }
+
+    memcpy(pdata, p_ringbuf->head, p_ringbuf->blk_size);
+    p_ringbuf->head += p_ringbuf->blk_size;
+
+    if (plen != NULL) {
+        *plen = p_ringbuf->blk_size;
+    }
+
+    return RHINO_SUCCESS;
+}
 
 #endif
