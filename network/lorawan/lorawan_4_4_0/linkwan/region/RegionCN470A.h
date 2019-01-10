@@ -185,7 +185,7 @@
 /*!
  * Second reception window channel datarate definition.
  */
-#define CN470A_RX_WND_2_DR DR_2
+#define CN470A_RX_WND_2_DR DR_0
 
 /*!
  * LoRaMac maximum number of bands
