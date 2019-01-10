@@ -17,7 +17,7 @@ extern int application_start(int argc, char **argv);
 #endif
 
 /* main task stask size(byte) */
-#define OS_MAIN_TASK_STACK 0x200
+#define OS_MAIN_TASK_STACK 0x400
 #define OS_MAIN_TASK_PRI 32
 
 static ktask_t g_main_task;
