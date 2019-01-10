@@ -9,7 +9,7 @@ menuconfig AOS_MCU_XM510
     select AOS_COMP_CPLUSPLUS
     select AOS_COMP_RAMFS
     select AOS_COMP_RHINO
-    select AOS_COMP_POSIX
+    select AOS_COMP_OSAL_POSIX
     select AOS_COMP_FATFS
     select AOS_COMP_VFS
     help
