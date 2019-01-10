@@ -1,7 +1,7 @@
 menuconfig AOS_COMP_CMSIS_TEST
     bool "cmsis_test"
     default n
-    select AOS_COMP_CMSIS
+    select AOS_COMP_OSAL_CMSIS
     help
 
 if AOS_COMP_CMSIS_TEST
