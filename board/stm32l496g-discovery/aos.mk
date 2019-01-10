@@ -9,7 +9,7 @@ HOST_MCU_FAMILY    := mcu_stm32l4xx_cube
 SUPPORT_MBINS      := no
 HOST_MCU_NAME      := STM32L496G-DISCOVERY
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos init
 
 $(NAME)_SOURCES += aos/board_partition.c \
                    aos/soc_init.c
