@@ -13,7 +13,7 @@
 ### Directories
 
 ```sh
-posix
+cmsis
  ├── cmsis_os.c           # implement of cmsis
  ├── cmsis_os.h           # head file of cmsis
  └── cmsis_os.mk          # makefile
