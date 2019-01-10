@@ -12,6 +12,7 @@ void hal_reboot(void)
 
 void board_init(void)
 {
+    aos_heap_set();
     /* Initializes MCU, drivers and middleware */
     _init_chip();
 }
