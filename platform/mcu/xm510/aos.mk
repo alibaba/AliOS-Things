@@ -13,7 +13,7 @@ $(NAME)_COMPONENTS += arch_armv7a
 $(NAME)_COMPONENTS += newlib_stub rhino lwip cplusplus
 
 #add the following line to the code if POSIX API is needed
-$(NAME)_COMPONENTS += posix
+$(NAME)_COMPONENTS += osal_posix
 
 #add the following lines to the code if POSIX DEVICE IO is needed
 GLOBAL_DEFINES     += POSIX_DEVICE_IO_NEED
