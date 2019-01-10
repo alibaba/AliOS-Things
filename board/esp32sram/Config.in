@@ -1,0 +1,8 @@
+menuconfig AOS_BOARD_ESP32SRAM
+    bool "board_esp32sram"
+    select AOS_MCU_ESP32
+    help
+
+if AOS_BOARD_ESP32SRAM
+# Configurations for board board_esp32sram
+endif
