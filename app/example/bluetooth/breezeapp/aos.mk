@@ -7,7 +7,7 @@ $(NAME)_SOURCES := breezeapp.c
 
 ble = 1
 bz_en_auth = 1
-bz_en_awss = 1
+bz_en_awss = 0
 bz_en_ota = 1
 
 $(NAME)_COMPONENTS := breeze cli
