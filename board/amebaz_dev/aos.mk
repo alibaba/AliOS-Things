@@ -11,7 +11,7 @@ HOST_ARCH            := Cortex-M4
 HOST_MCU_FAMILY      := mcu_rtl8710bn
 SUPPORT_MBINS        := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos init
 
 $(NAME)_SOURCES := board.c
 

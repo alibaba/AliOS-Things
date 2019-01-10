@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := wm_w600
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub init vfs kv netmgr lwip
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos newlib_stub init vfs kv netmgr lwip
 
 GLOBAL_DEFINES += STDIO_UART=0
 GLOBAL_DEFINES += KV_CONFIG_PARTITION=7

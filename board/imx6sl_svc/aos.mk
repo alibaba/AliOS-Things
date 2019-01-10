@@ -11,7 +11,7 @@ SUPPORT_MBINS   := no
 SUPPORT_MBINS   := yes
 ENABLE_USPACE   := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init vfs
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos init vfs
 
 $(NAME)_SOURCES := src/board.c \
                    src/main.c  \
