@@ -6,18 +6,12 @@
 
 #include "k_api.h"
 #include "aos/kernel.h"
-#include "aos/hal/uart.h"
 
 #include "wm_regs.h"
 #include "wm_io.h"
 #include "wm_gpio.h"
 #include "wm_params.h"
 #include "wm_netif2.0.3.h"
-
-#define MCU_CLOCK_HZ        (80000000)
-
-extern uart_dev_t uart_1;
-extern uart_dev_t uart_0;
 
 void hal_reboot(void)
 {
@@ -28,9 +22,6 @@ void board_init(void)
 {
     tls_sys_clk_set(0);
 
-    hal_uart_init(&uart_0);
-
-    SysTick_Config(MCU_CLOCK_HZ / 100);
 }
 
 void OS_CPU_SysTickHandler(void)
@@ -44,3 +35,4 @@ void SystemInit()
 {
 
 }
+
