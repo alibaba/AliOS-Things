@@ -7,6 +7,12 @@
 #include "errno.h"
 
 struct k_work_q g_work_queue;
+static struct k_mutex  g_work_mutex;
+
+extern void k_mutex_init(struct k_mutex *mutex);
+extern int k_mutex_lock(struct k_mutex *mutex, s32_t timeout);
+extern void k_mutex_unlock(struct k_mutex *mutex);
+
 
 static void k_work_submit_to_queue(struct k_work_q *work_q, struct k_work *work)
 {
@@ -43,12 +49,13 @@ void k_work_submit(struct k_work *work)
 void k_delayed_work_init(struct k_delayed_work *work, k_work_handler_t handler)
 {
     k_work_init(&work->work, handler);
+    k_mutex_init(&g_work_mutex);
 }
 
 int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
 {
-    int key = irq_lock();
     int err = 0;
+    k_mutex_lock(&g_work_mutex, K_FOREVER);
 
     if (atomic_test_and_set_bit(work->work.flags, K_WORK_STATE_PENDING)) {
         err = -EADDRINUSE;
@@ -60,14 +67,14 @@ int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
     k_work_submit_to_queue(&g_work_queue, (struct k_work *)work);
 
 done:
-    irq_unlock(key);
+    k_mutex_unlock(&g_work_mutex);
     return err;
 }
 
 int k_delayed_work_cancel(struct k_delayed_work *work)
 {
     int err = 0;
-    int key = irq_lock();
+    k_mutex_lock(&g_work_mutex, K_FOREVER);
 
     if (atomic_test_bit(work->work.flags, K_WORK_STATE_PENDING)) {
         err = -EINPROGRESS;
@@ -76,7 +83,7 @@ int k_delayed_work_cancel(struct k_delayed_work *work)
     k_work_rm_from_queue(&g_work_queue, (struct k_work *)work);
 
 exit:
-    irq_unlock(key);
+    k_mutex_unlock(&g_work_mutex);
     return err;
 }
 
