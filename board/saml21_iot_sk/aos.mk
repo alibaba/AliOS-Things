@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := saml21b
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub init vfs kv cli
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub init vfs kv cli netmgr
 
 GLOBAL_DEFINES += __SAML21J18B__ MX_DEBUG
 
@@ -61,9 +61,9 @@ GLOBAL_LDFLAGS  += -T board/saml21_iot_sk/saml21j18b_flash.ld
 
 GLOBAL_INCLUDES += config
 
-sal ?= 1
+sal ?= 0
 ifeq (1,$(sal))
-$(NAME)_COMPONENTS += sal netmgr
+$(NAME)_COMPONENTS += sal
 module ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
