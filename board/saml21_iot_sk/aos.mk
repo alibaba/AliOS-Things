@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := saml21b
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub init vfs kv cli netmgr
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos newlib_stub init vfs kv cli netmgr
 
 GLOBAL_DEFINES += __SAML21J18B__ MX_DEBUG
 

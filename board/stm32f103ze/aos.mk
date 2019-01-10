@@ -10,7 +10,7 @@ SUPPORT_MBINS       := no
 HOST_MCU_NAME      := STM32F103ZETx
 ENABLE_VFP         := 0
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos init
 
 $(NAME)_SOURCES += config/k_config.c \
                     config/partition_conf.c  \

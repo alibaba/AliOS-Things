@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := NANO130KE3BN
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub init vfs kv netmgr
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos newlib_stub init vfs kv netmgr
 
 GLOBAL_DEFINES += NUMICRO_NANO130
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
