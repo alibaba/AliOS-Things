@@ -1,4 +1,4 @@
-NAME := posix
+NAME := osal_posix
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
@@ -27,4 +27,4 @@ GLOBAL_DEFINES += __BSD_VISIBLE
 endif
 
 GLOBAL_INCLUDES += include
-GLOBAL_DEFINES  += AOS_COMP_POSIX
+GLOBAL_DEFINES  += AOS_COMP_OSAL_POSIX
