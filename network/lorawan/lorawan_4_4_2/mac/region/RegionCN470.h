@@ -172,7 +172,7 @@
 /*!
  * Second reception window channel datarate definition.
  */
-#define CN470_RX_WND_2_DR                           DR_2
+#define CN470_RX_WND_2_DR                           DR_0
 
 /*
  * CLASS B
