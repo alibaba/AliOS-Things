@@ -35,7 +35,7 @@ posix
 #### step1. Add POSIX component to the project
     For example, if you want to use POSIX in board developerkit, you can add the following code to "board/developerkit/aos.mk"
 ```
-$(NAME)_COMPONENTS  += posix
+$(NAME)_COMPONENTS  += osal_posix
 ```
 #### step2. Config POSIX
     open "include/posix/posix_config.h" to enable the features you need, all of features are enabled by default.
