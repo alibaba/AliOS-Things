@@ -1,7 +1,7 @@
 ## Contents
 
 ## Introduction
-**osal** refers to the system interface adaptation layer(aos).
+**osal_aos** refers to the system interface adaptation layer(aos).
 
 ### Features
 - aos interface
