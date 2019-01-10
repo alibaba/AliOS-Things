@@ -271,7 +271,8 @@ enum
  * @parma[in]  ais_init  Bluetooth stack init parmaters.
  * @return     0 on success, error code if failure.
  */
-ais_err_t ble_stack_init(ais_bt_init_t *ais_init);
+typedef void (* stack_init_done_t)(uint8_t res);
+ais_err_t ble_stack_init(ais_bt_init_t *ais_init, stack_init_done_t init_done);
 
 /**
  * API to de-initialize ble stack.

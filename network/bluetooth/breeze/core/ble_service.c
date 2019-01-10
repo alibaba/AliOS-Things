@@ -9,6 +9,7 @@
 #include "bzopt.h"
 
 ble_ais_t g_ais;
+init_done_t g_init_done;
 
 static void service_enabled(void)
 {
@@ -106,6 +107,11 @@ ais_bt_init_t ais_attr_info = {
     disconnected
 };
 
+static void stack_init_done(uint8_t res)
+{
+    g_init_done(res);
+}
+
 uint32_t ble_ais_init(const ble_ais_init_t *p_ais_init)
 {
     memset(&g_ais, 0, sizeof(ble_ais_t));
@@ -113,8 +119,9 @@ uint32_t ble_ais_init(const ble_ais_init_t *p_ais_init)
     g_ais.is_indication_enabled = false;
     g_ais.is_notification_enabled = false;
     g_ais.max_pkt_size = p_ais_init->mtu - 3;
+    g_init_done = p_ais_init->init_done;
 
-    return ble_stack_init(&ais_attr_info);
+    return ble_stack_init(&ais_attr_info, stack_init_done);
 }
 
 uint32_t ble_ais_send_notification(uint8_t *p_data, uint16_t length)

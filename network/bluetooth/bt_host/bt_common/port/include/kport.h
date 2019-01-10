@@ -69,11 +69,19 @@ enum
 #define _OBJECT_TRACING_NEXT_PTR(type)
 #endif
 
+#if 0
 #define SYS_LOG_DBG(...) LOGD(BT_MOD, ##__VA_ARGS__)
 #define SYS_LOG_INF(...) LOGI(BT_MOD, ##__VA_ARGS__)
 #define SYS_LOG_WRN(...) LOGW(BT_MOD, ##__VA_ARGS__)
 #define SYS_LOG_ERR(...) LOGE(BT_MOD, ##__VA_ARGS__)
 #define SYS_LOG_FAT(...) LOGF(BT_MOD, ##__VA_ARGS__)
+#else
+#define SYS_LOG_DBG(...) LOG(__VA_ARGS__)
+#define SYS_LOG_INF(...) LOG(__VA_ARGS__)
+#define SYS_LOG_WRN(...) LOG(__VA_ARGS__)
+#define SYS_LOG_ERR(...) LOG(__VA_ARGS__)
+#define SYS_LOG_FAT(...) LOG(__VA_ARGS__)
+#endif
 
 /* sem define*/
 struct k_sem
