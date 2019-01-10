@@ -90,7 +90,6 @@ struct bt_att
     struct bt_att_req *   req;
     sys_slist_t           reqs;
     struct k_delayed_work timeout_work;
-    struct k_sem          tx_sem;
 #if CONFIG_BT_ATT_PREPARE_COUNT > 0
     struct k_fifo prep_queue;
 #endif
@@ -132,8 +131,6 @@ static void att_cfm_sent(struct bt_conn *conn)
 #if defined(CONFIG_BT_ATT_ENFORCE_FLOW)
     atomic_clear_bit(att->flags, ATT_PENDING_CFM);
 #endif /* CONFIG_BT_ATT_ENFORCE_FLOW */
-
-    k_sem_give(&att->tx_sem);
 }
 
 static void att_rsp_sent(struct bt_conn *conn)
@@ -145,8 +142,6 @@ static void att_rsp_sent(struct bt_conn *conn)
 #if defined(CONFIG_BT_ATT_ENFORCE_FLOW)
     atomic_clear_bit(att->flags, ATT_PENDING_RSP);
 #endif /* CONFIG_BT_ATT_ENFORCE_FLOW */
-
-    k_sem_give(&att->tx_sem);
 }
 
 static void att_req_sent(struct bt_conn *conn)
@@ -154,8 +149,6 @@ static void att_req_sent(struct bt_conn *conn)
     struct bt_att *att = att_get(conn);
 
     BT_DBG("conn %p att %p att->req %p", conn, att, att->req);
-
-    k_sem_give(&att->tx_sem);
 
     /* Start timeout work */
     if (att->req) {
@@ -168,8 +161,6 @@ static void att_pdu_sent(struct bt_conn *conn)
     struct bt_att *att = att_get(conn);
 
     BT_DBG("conn %p att %p", conn, att);
-
-    k_sem_give(&att->tx_sem);
 }
 
 static bt_conn_tx_cb_t att_cb(struct net_buf *buf)
@@ -267,10 +258,8 @@ static int att_send_req(struct bt_att *att, struct bt_att_req *req)
 
     att->req = req;
 
-    k_sem_take(&att->tx_sem, K_FOREVER);
     if (!att_is_connected(att)) {
         BT_WARN("Disconnected");
-        k_sem_give(&att->tx_sem);
         return -ENOTCONN;
     }
 
@@ -413,7 +402,7 @@ static u8_t find_info_cb(const struct bt_gatt_attr *attr, void *user_data)
     struct find_info_data *data = user_data;
     struct bt_att *        att  = data->att;
 
-    BT_DBG("handle 0x%04x", attr->handle);
+    BT_DBG("%s, handle 0x%04x", __func__, attr->handle);
 
     /* Initialize rsp at first entry */
     if (!data->rsp) {
@@ -1197,7 +1186,7 @@ static u8_t write_cb(const struct bt_gatt_attr *attr, void *user_data)
     struct write_data *data = user_data;
     int                write;
 
-    BT_DBG("handle 0x%04x offset %u", attr->handle, data->offset);
+    BT_DBG("%s, handle 0x%04x offset %u", __func__, attr->handle, data->offset);
 
     /* Check attribute permissions */
     data->err = check_perm(data->conn, attr, BT_GATT_PERM_WRITE_MASK);
@@ -1206,8 +1195,7 @@ static u8_t write_cb(const struct bt_gatt_attr *attr, void *user_data)
     }
 
     /* Read attribute value and store in the buffer */
-    write =
-      attr->write(data->conn, attr, data->value, data->len, data->offset, 0);
+    write = attr->write(data->conn, attr, data->value, data->len, data->offset, 0);
     if (write < 0 || write != data->len) {
         data->err = err_to_att(write);
         return BT_GATT_ITER_STOP;
@@ -1270,7 +1258,7 @@ static u8_t att_write_req(struct bt_att *att, struct net_buf *buf)
 
     handle = net_buf_pull_le16(buf);
 
-    BT_DBG("handle 0x%04x", handle);
+    BT_DBG("%s, handle 0x%04x", __func__, handle);
 
     return att_write_rsp(conn, BT_ATT_OP_WRITE_REQ, BT_ATT_OP_WRITE_RSP, handle,
                          0, buf->data, buf->len);
@@ -1909,7 +1897,6 @@ static void att_reset(struct bt_att *att)
 
     /* Ensure that any waiters are woken up */
     for (i = 0; i < CONFIG_BT_ATT_TX_MAX; i++) {
-        k_sem_give(&att->tx_sem);
     }
 
     /* Notify pending requests */
@@ -2014,10 +2001,8 @@ static void bt_att_encrypt_change(struct bt_l2cap_chan *chan, u8_t hci_status)
         return;
     }
 
-    k_sem_take(&att->tx_sem, K_FOREVER);
     if (!att_is_connected(att)) {
         BT_WARN("Disconnected");
-        k_sem_give(&att->tx_sem);
         return;
     }
 
@@ -2053,7 +2038,6 @@ static int bt_att_accept(struct bt_conn *conn, struct bt_l2cap_chan **chan)
 
         att->chan.chan.ops = &ops;
         atomic_set(att->flags, 0);
-        k_sem_init(&att->tx_sem, CONFIG_BT_ATT_TX_MAX, CONFIG_BT_ATT_TX_MAX);
 
         *chan = &att->chan.chan;
 
@@ -2104,10 +2088,8 @@ int bt_att_send(struct bt_conn *conn, struct net_buf *buf)
         return -ENOTCONN;
     }
 
-    k_sem_take(&att->tx_sem, K_FOREVER);
     if (!att_is_connected(att)) {
         BT_WARN("Disconnected");
-        k_sem_give(&att->tx_sem);
         return -ENOTCONN;
     }
 
@@ -2121,7 +2103,6 @@ int bt_att_send(struct bt_conn *conn, struct net_buf *buf)
         err = bt_smp_sign(conn, buf);
         if (err) {
             BT_ERR("Error signing data");
-            k_sem_give(&att->tx_sem);
             return err;
         }
     }

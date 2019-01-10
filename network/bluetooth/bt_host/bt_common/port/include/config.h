@@ -23,6 +23,7 @@
 #ifndef CONFIG_BT_RX_PRIO
 #define CONFIG_BT_RX_PRIO 21
 #endif
+
 /**
  * CONFIG_BT: Tx thread stack size
  */
