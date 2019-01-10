@@ -29,6 +29,92 @@ extern "C" {
 /* Alignment needed for various parts of the buffer definition */
 #define __net_buf_align __aligned(sizeof(int))
 
+/** @brief Simple network buffer representation.
+ *
+ *  This is a simpler variant of the net_buf object (in fact net_buf uses
+ *  net_buf_simple internally). It doesn't provide any kind of reference
+ *  counting, user data, dynamic allocation, or in general the ability to
+ *  pass through kernel objects such as FIFOs.
+ *
+ *  The main use of this is for scenarios where the meta-data of the normal
+ *  net_buf isn't needed and causes too much overhead. This could be e.g.
+ *  when the buffer only needs to be allocated on the stack or when the
+ *  access to and lifetime of the buffer is well controlled and constrained.
+ *
+ */
+struct net_buf_simple {
+    /** Pointer to the start of data in the buffer. */
+    u8_t *data;
+
+    /** Length of the data behind the data pointer. */
+    u16_t len;
+
+    /** Amount of data that this buffer can store. */
+    u16_t size;
+
+    /** Start of the data storage. Not to be accessed directly
+     *  (the data pointer should be used instead).
+     */
+    u8_t __buf[0] __net_buf_align;
+};
+
+/** @brief Network buffer representation.
+  *
+  * This struct is used to represent network buffers. Such buffers are
+  * normally defined through the NET_BUF_POOL_DEFINE() API and allocated
+  * using the net_buf_alloc() API.
+  */
+struct net_buf {
+    union {
+        /** Allow placing the buffer into sys_slist_t */
+        sys_snode_t node;
+
+        /** Fragments associated with this buffer. */
+        struct net_buf *frags;
+    };
+
+    /** Reference count. */
+    u8_t ref;
+
+    /** Bit-field of buffer flags. */
+    u8_t flags;
+
+    /** Where the buffer should go when freed up. */
+    u8_t pool_id;
+
+    /* Union for convenience access to the net_buf_simple members, also
+     * preserving the old API.
+     */
+    union {
+        /* The ABI of this struct must match net_buf_simple */
+        struct {
+            /** Pointer to the start of data in the buffer. */
+            u8_t *data;
+
+            /** Length of the data behind the data pointer. */
+            u16_t len;
+
+            /** Amount of data that this buffer can store. */
+            u16_t size;
+        };
+
+        struct net_buf_simple b;
+    };
+
+    /** Start of the data storage. Not to be accessed directly
+     *  (the data pointer should be used instead).
+     */
+    u8_t __buf[0] __net_buf_align;
+
+    /** After __buf (as given by the "size" field, which can be 0),
+     *  there may be so-called "user data", which is actually a system
+     *  metadata for this buffer. This area can be accessed using
+     *  net_buf_user_data(). (Its size is equal to
+     *  this->pool->user_data_size.)
+     */
+};
+
+
 /** @def NET_BUF_SIMPLE
  *  @brief Define a net_buf_simple stack variable and get a pointer to it.
  *
@@ -45,12 +131,12 @@ extern "C" {
  *  @return Pointer to stack-allocated net_buf_simple object.
  */
 #define NET_BUF_SIMPLE(_size)                        \
-	((struct net_buf_simple *)(&(struct {        \
-		struct net_buf_simple buf;           \
-		u8_t data[_size] __net_buf_align; \
-	}) {                                         \
-		.buf.size = _size,                   \
-	}))
+    ((struct net_buf_simple *)(&(struct {        \
+        struct net_buf_simple buf;           \
+        u8_t data[_size] __net_buf_align; \
+    }) {                                         \
+        .buf.size = _size,                   \
+    }))
 
 /* ----- Modified 2018/12/06 to support NET_BUF_POOL_FIXED_DEFINE, start ----- */
 struct net_buf_data_cb {
@@ -114,35 +200,6 @@ extern const struct net_buf_data_cb net_buf_fixed_cb;
                                          net_buf_##_name, _count, _destroy)
 /* ----- Modified 2018/12/06 to support NET_BUF_POOL_FIXED_DEFINE, end ----- */
 
-/** @brief Simple network buffer representation.
- *
- *  This is a simpler variant of the net_buf object (in fact net_buf uses
- *  net_buf_simple internally). It doesn't provide any kind of reference
- *  counting, user data, dynamic allocation, or in general the ability to
- *  pass through kernel objects such as FIFOs.
- *
- *  The main use of this is for scenarios where the meta-data of the normal
- *  net_buf isn't needed and causes too much overhead. This could be e.g.
- *  when the buffer only needs to be allocated on the stack or when the
- *  access to and lifetime of the buffer is well controlled and constrained.
- *
- */
-struct net_buf_simple {
-	/** Pointer to the start of data in the buffer. */
-	u8_t *data;
-
-	/** Length of the data behind the data pointer. */
-	u16_t len;
-
-	/** Amount of data that this buffer can store. */
-	u16_t size;
-
-	/** Start of the data storage. Not to be accessed directly
-	 *  (the data pointer should be used instead).
-	 */
-	u8_t __buf[0] __net_buf_align;
-};
-
 /** @brief Initialize a net_buf_simple object.
  *
  *  This needs to be called after creating a net_buf_simple object e.g. using
@@ -184,7 +241,7 @@ void *net_buf_simple_add(struct net_buf_simple *buf, size_t len);
  *  @return The original tail of the buffer.
  */
 void *net_buf_simple_add_mem(struct net_buf_simple *buf, const void *mem,
-			     size_t len);
+    size_t len);
 
 /**
  *  @brief Add (8-bit) byte at the end of the buffer
@@ -454,62 +511,6 @@ static inline void net_buf_simple_restore(struct net_buf_simple *buf,
   * should be used instead.
   */
 #define NET_BUF_FRAGS        BIT(0)
-
-/** @brief Network buffer representation.
-  *
-  * This struct is used to represent network buffers. Such buffers are
-  * normally defined through the NET_BUF_POOL_DEFINE() API and allocated
-  * using the net_buf_alloc() API.
-  */
-struct net_buf {
-	union {
-		/** Allow placing the buffer into sys_slist_t */
-		sys_snode_t node;
-
-		/** Fragments associated with this buffer. */
-		struct net_buf *frags;
-	};
-
-	/** Reference count. */
-	u8_t ref;
-
-	/** Bit-field of buffer flags. */
-	u8_t flags;
-
-	/** Where the buffer should go when freed up. */
-	u8_t pool_id;
-
-	/* Union for convenience access to the net_buf_simple members, also
-	 * preserving the old API.
-	 */
-	union {
-		/* The ABI of this struct must match net_buf_simple */
-		struct {
-			/** Pointer to the start of data in the buffer. */
-			u8_t *data;
-
-			/** Length of the data behind the data pointer. */
-			u16_t len;
-
-			/** Amount of data that this buffer can store. */
-			u16_t size;
-		};
-
-		struct net_buf_simple b;
-	};
-
-	/** Start of the data storage. Not to be accessed directly
-	 *  (the data pointer should be used instead).
-	 */
-	u8_t __buf[0] __net_buf_align;
-
-	/** After __buf (as given by the "size" field, which can be 0),
-	 *  there may be so-called "user data", which is actually a system
-	 *  metadata for this buffer. This area can be accessed using
-	 *  net_buf_user_data(). (Its size is equal to
-	 *  this->pool->user_data_size.)
-	 */
-};
 
 struct net_buf_pool {
 	/** LIFO to place the buffer into when free */
