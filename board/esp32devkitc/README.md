@@ -1,6 +1,8 @@
 ## Over View
 
 ## Feature of Board
+support one core with no sram;
+support two cores with no sram; with build cmds adding "dual=1"
 
 ## Directories
 
