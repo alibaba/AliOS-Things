@@ -1,4 +1,4 @@
-NAME := osal
+NAME := osal_aos
 
 $(NAME)_MBINS_TYPE := share
 $(NAME)_VERSION    := 1.0.0
