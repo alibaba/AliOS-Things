@@ -149,12 +149,23 @@ void rtc_clk_init(rtc_clk_config_t cfg);
 /**
  * @brief Get main XTAL frequency
  *
- * This is the value passed to rtc_clk_init function, or if the value was
- * RTC_XTAL_FREQ_AUTO, the detected XTAL frequency.
+ * This is the value stored in RTC register RTC_XTAL_FREQ_REG by the bootloader. As passed to
+ * rtc_clk_init function, or if the value was RTC_XTAL_FREQ_AUTO, the detected
+ * XTAL frequency.
  *
  * @return XTAL frequency, one of rtc_xtal_freq_t
  */
 rtc_xtal_freq_t rtc_clk_xtal_freq_get();
+
+/**
+ * @brief Update XTAL frequency
+ *
+ * Updates the XTAL value stored in RTC_XTAL_FREQ_REG. Usually this value is ignored
+ * after startup.
+ *
+ * @param xtal_freq New frequency value
+ */
+void rtc_clk_xtal_freq_update(rtc_xtal_freq_t xtal_freq);
 
 /**
  * @brief Enable or disable 32 kHz XTAL oscillator
@@ -174,8 +185,11 @@ bool rtc_clk_32k_enabled();
  * must be called one the 32k XTAL oscillator has started up. This function
  * will initially disable the 32k XTAL oscillator, so it should not be called
  * when the system is using 32k XTAL as RTC_SLOW_CLK.
+ *
+ * @param cycle Number of 32kHz cycles to bootstrap external crystal.
+ *              If 0, no square wave will be used to bootstrap crystal oscillation.
  */
-void rtc_clk_32k_bootstrap();
+void rtc_clk_32k_bootstrap(uint32_t cycle);
 
 /**
  * @brief Enable or disable 8 MHz internal oscillator
@@ -277,6 +291,25 @@ rtc_fast_freq_t rtc_clk_fast_freq_get();
 void rtc_clk_cpu_freq_set(rtc_cpu_freq_t cpu_freq);
 
 /**
+ * @brief Switch CPU frequency
+ *
+ * This is a faster version of rtc_clk_cpu_freq_set, which can handle some of
+ * the frequency switch paths (XTAL -> PLL, PLL -> XTAL).
+ * When switching from PLL to XTAL, PLL is not disabled (unlike rtc_clk_cpu_freq_set).
+ * When switching back from XTAL to PLL, only the same PLL can be used.
+ * Therefore it is not possible to switch 240 -> XTAL -> (80 or 160) using this
+ * function.
+ *
+ * For unsupported cases, this function falls back to rtc_clk_cpu_freq_set.
+ *
+ * Unlike rtc_clk_cpu_freq_set, this function relies on static data, so it is
+ * less safe to use it e.g. from a panic handler (when memory might be corrupted).
+ *
+ * @param cpu_freq  new CPU frequency
+ */
+void rtc_clk_cpu_freq_set_fast(rtc_cpu_freq_t cpu_freq);
+
+/**
  * @brief Get the currently selected CPU frequency
  *
  * Although CPU can be clocked by APLL and RTC 8M sources, such support is not
@@ -295,6 +328,14 @@ rtc_cpu_freq_t rtc_clk_cpu_freq_get();
  * @return CPU frequency, in HZ
  */
 uint32_t rtc_clk_cpu_freq_value(rtc_cpu_freq_t cpu_freq);
+
+/**
+ * @brief Get rtc_cpu_freq_t enum value for given CPU frequency
+ * @param cpu_freq_mhz  CPU frequency, one of 80, 160, 240, 2, and XTAL frequency
+ * @param[out] out_val output, rtc_cpu_freq_t value corresponding to the frequency
+ * @return true if the given frequency value matches one of enum values
+ */
+ bool rtc_clk_cpu_freq_from_mhz(int cpu_freq_mhz, rtc_cpu_freq_t* out_val);
 
 /**
  * @brief Store new APB frequency value into RTC_APB_FREQ_REG
@@ -374,10 +415,18 @@ uint64_t rtc_time_slowclk_to_us(uint64_t rtc_cycles, uint32_t period);
 uint64_t rtc_time_get();
 
 /**
+ * @brief Busy loop until next RTC_SLOW_CLK cycle
+ *
+ * This function returns not earlier than the next RTC_SLOW_CLK clock cycle.
+ * In some cases (e.g. when RTC_SLOW_CLK cycle is very close), it may return
+ * one RTC_SLOW_CLK cycle later.
+ */
+void rtc_clk_wait_for_slow_cycle();
+
+/**
  * @brief sleep configuration for rtc_sleep_init function
  */
 typedef struct {
-    uint32_t soc_clk_sel : 2;           //!< SoC clock select, see RTC_CNTL_SOC_CLK_SEL
     uint32_t lslp_mem_inf_fpu : 1;      //!< force normal voltage in sleep mode (digital domain memory)
     uint32_t rtc_mem_inf_fpu : 1;       //!< force normal voltage in sleep mode (RTC memory)
     uint32_t rtc_mem_inf_follow_cpu : 1;//!< keep low voltage in sleep mode (even if ULP/touch is used)
@@ -394,6 +443,7 @@ typedef struct {
     uint32_t rtc_dbias_slp : 3;         //!< set bias for RTC domain, in sleep mode
     uint32_t lslp_meminf_pd : 1;        //!< remove all peripheral force power up flags
     uint32_t vddsdio_pd_en : 1;         //!< power down VDDSDIO regulator
+    uint32_t xtal_fpu : 1;              //!< keep main XTAL powered up in sleep
 } rtc_sleep_config_t;
 
 /**
@@ -405,7 +455,6 @@ typedef struct {
  * @param RTC_SLEEP_PD_x flags combined using bitwise OR
  */
 #define RTC_SLEEP_CONFIG_DEFAULT(sleep_flags) { \
-    .soc_clk_sel = RTC_CNTL_SOC_CLK_SEL_XTL, \
     .lslp_mem_inf_fpu = 0, \
     .rtc_mem_inf_fpu = 0, \
     .rtc_mem_inf_follow_cpu = ((sleep_flags) & RTC_SLEEP_PD_RTC_MEM_FOLLOW_CPU) ? 1 : 0, \
@@ -418,10 +467,11 @@ typedef struct {
     .wdt_flashboot_mod_en = 0, \
     .dig_dbias_wak = RTC_CNTL_DBIAS_1V10, \
     .dig_dbias_slp = RTC_CNTL_DBIAS_0V90, \
-    .rtc_dbias_wak = RTC_CNTL_DBIAS_0V90, \
+    .rtc_dbias_wak = RTC_CNTL_DBIAS_1V10, \
     .rtc_dbias_slp = RTC_CNTL_DBIAS_0V90, \
     .lslp_meminf_pd = 1, \
     .vddsdio_pd_en = ((sleep_flags) & RTC_SLEEP_PD_VDDSDIO) ? 1 : 0, \
+    .xtal_fpu = ((sleep_flags) & RTC_SLEEP_PD_XTAL) ? 0 : 1 \
 };
 
 #define RTC_SLEEP_PD_DIG                BIT(0)  //!< Deep sleep (power down digital domain)
@@ -430,6 +480,7 @@ typedef struct {
 #define RTC_SLEEP_PD_RTC_FAST_MEM       BIT(3)  //!< Power down RTC FAST memory
 #define RTC_SLEEP_PD_RTC_MEM_FOLLOW_CPU BIT(4)  //!< RTC FAST and SLOW memories are automatically powered up and down along with the CPU
 #define RTC_SLEEP_PD_VDDSDIO            BIT(5)  //!< Power down VDDSDIO regulator
+#define RTC_SLEEP_PD_XTAL               BIT(6)  //!< Power down main XTAL
 
 /**
  * @brief Prepare the chip to enter sleep mode
@@ -527,6 +578,38 @@ typedef struct {
  */
 void rtc_init(rtc_config_t cfg);
 
+#define RTC_VDDSDIO_TIEH_1_8V 0 //!< TIEH field value for 1.8V VDDSDIO
+#define RTC_VDDSDIO_TIEH_3_3V 1 //!< TIEH field value for 3.3V VDDSDIO
+
+/**
+ * Structure describing vddsdio configuration
+ */
+typedef struct {
+    uint32_t force : 1;     //!< If 1, use configuration from RTC registers; if 0, use EFUSE/bootstrapping pins.
+    uint32_t enable : 1;    //!< Enable VDDSDIO regulator
+    uint32_t tieh  : 1;     //!< Select VDDSDIO voltage. One of RTC_VDDSDIO_TIEH_1_8V, RTC_VDDSDIO_TIEH_3_3V
+    uint32_t drefh : 2;     //!< Tuning parameter for VDDSDIO regulator
+    uint32_t drefm : 2;     //!< Tuning parameter for VDDSDIO regulator
+    uint32_t drefl : 2;     //!< Tuning parameter for VDDSDIO regulator
+} rtc_vddsdio_config_t;
+
+/**
+ * Get current VDDSDIO configuration
+ * If VDDSDIO configuration is overridden by RTC, get values from RTC
+ * Otherwise, if VDDSDIO is configured by EFUSE, get values from EFUSE
+ * Otherwise, use default values and the level of MTDI bootstrapping pin.
+ * @return currently used VDDSDIO configuration
+ */
+rtc_vddsdio_config_t rtc_vddsdio_get_config();
+
+/**
+ * Set new VDDSDIO configuration using RTC registers.
+ * If config.force == 1, this overrides configuration done using bootstrapping
+ * pins and EFUSE.
+ *
+ * @param config new VDDSDIO configuration
+ */
+void rtc_vddsdio_set_config(rtc_vddsdio_config_t config);
 
 #ifdef __cplusplus
 }

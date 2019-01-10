@@ -11,7 +11,41 @@
 #include "xtensa_rtos.h"
 #include "k_api.h"
 
+extern volatile uint64_t cpu_flag;
 extern int printf(char *fmt, ...);
+
+
+void os_wait_allcore(void)
+{
+    uint8_t loop = 1;
+
+    while (loop) {
+        //ets_printf( "os_wait_allcoreApp cpu up.,cpu_flag:%d,RHINO_CONFIG_CPU_NUM:%d\r\n",cpu_flag,RHINO_CONFIG_CPU_NUM);
+        krhino_task_sleep(10);
+
+    switch (RHINO_CONFIG_CPU_NUM) {
+        case 2:
+            if (cpu_flag == 3u) {
+                loop = 0;
+            }
+            break;
+        case 3:
+            if (cpu_flag == 7u) {
+                loop = 0;
+            }
+            break;
+        case 4:
+            if (cpu_flag == 15u) {
+                loop = 0;
+            }
+            break;
+        default:
+            printf("too many cpus!!!\n");
+            break;
+        }
+    }
+}
+
 
 void cpu_spin_lock_unnest(kspinlock_t *lock)
 {

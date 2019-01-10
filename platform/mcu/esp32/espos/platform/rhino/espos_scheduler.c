@@ -32,6 +32,8 @@ static espos_critical_t s_critial_status[ESPOS_PROCESSORS_NUM];
 esp_err_t espos_init(void)
 {
     kstat_t ret;
+	extern void ORAM_heap_init(void);
+	ORAM_heap_init();
 
     ret = krhino_init();
 
@@ -75,7 +77,7 @@ espos_stat_t espos_sched_state_get(void)
  */
 bool espos_in_isr(void)
 {
-    return (s_isr_nested_count[0] > 0) ? true : false;
+    return (s_isr_nested_count[espos_get_core_id()] > 0) ? true : false;
 }
 
 /**
@@ -83,7 +85,7 @@ bool espos_in_isr(void)
  */
 bool espos_os_isr(void)
 {
-    return (s_os_nested_count[0] > 0) ? true : false;
+    return (s_os_nested_count[espos_get_core_id()] > 0) ? true : false;
 }
 
 /**
@@ -113,7 +115,6 @@ void _espos_exit_critical(espos_spinlock_t *spinlock, espos_critical_t tmp)
         XTOS_RESTORE_JUST_INTLEVEL(tmp);
     }
 }
-
 
 /**
 * @brief suspend the preempt and the current task will not be preempted
