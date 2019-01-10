@@ -4,7 +4,7 @@ $(NAME)_MBINS_TYPE := app
 $(NAME)_VERSION    := 0.0.1
 $(NAME)_SUMMARY    := test for aos api
 
-$(NAME)_COMPONENTS += rhino osal
+$(NAME)_COMPONENTS += rhino osal_aos
 
 $(NAME)_SOURCES += test_kernel.c
 $(NAME)_SOURCES += aos_sys_test.c
