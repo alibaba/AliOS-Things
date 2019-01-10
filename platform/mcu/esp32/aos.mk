@@ -83,44 +83,45 @@ endif
 $(NAME)_CFLAGS += -I platform/mcu/esp32/bsp
 
 ifeq (0,1)
-libs                     := $(wildcard platform/mcu/esp32/lib$(ESP_LIB_CORE_TYPE)/*.a)
-libs                     := $(foreach lib,$(libs),lib$(ESP_LIB_CORE_TYPE)/$(notdir $(lib)))
+libs                     := $(wildcard platform/mcu/esp32/lib/*.a)
+libs                     := $(foreach lib,$(libs),lib/$(notdir $(lib)))
 $(NAME)_PREBUILT_LIBRARY := $(libs)
 endif
 
 $(NAME)_PREBUILT_LIBRARY := lib$(ESP_LIB_CORE_TYPE)/lib$(ESP_LIB_SRAM)esp32.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libsoc.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libhal.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libnewlib.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libvfs.a
 $(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/lib$(ESP_LIB_SRAM)spi_flash.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/liblog.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libdriver.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libcontainer.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/librtc.a
-
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libcoexist.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libcore.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libnet80211.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libpp.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libwpa.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libwpa2.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libwps.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libphy.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libnvs_flash.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libcxx.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libstdcc++-cache-workaround.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libwpa_supplicant.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libapp_update.a
+$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libsoc.a
 $(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libbootloader_support.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libmesh.a
+
+$(NAME)_PREBUILT_LIBRARY += lib/libhal.a
+$(NAME)_PREBUILT_LIBRARY += lib/libnewlib.a
+$(NAME)_PREBUILT_LIBRARY += lib/libvfs.a
+$(NAME)_PREBUILT_LIBRARY += lib/liblog.a
+$(NAME)_PREBUILT_LIBRARY += lib/libdriver.a
+$(NAME)_PREBUILT_LIBRARY += lib/libcontainer.a
+$(NAME)_PREBUILT_LIBRARY += lib/librtc.a
+
+$(NAME)_PREBUILT_LIBRARY += lib/libcoexist.a
+$(NAME)_PREBUILT_LIBRARY += lib/libcore.a
+$(NAME)_PREBUILT_LIBRARY += lib/libnet80211.a
+$(NAME)_PREBUILT_LIBRARY += lib/libpp.a
+$(NAME)_PREBUILT_LIBRARY += lib/libwpa.a
+$(NAME)_PREBUILT_LIBRARY += lib/libwpa2.a
+$(NAME)_PREBUILT_LIBRARY += lib/libwps.a
+$(NAME)_PREBUILT_LIBRARY += lib/libphy.a
+$(NAME)_PREBUILT_LIBRARY += lib/libnvs_flash.a
+$(NAME)_PREBUILT_LIBRARY += lib/libcxx.a
+$(NAME)_PREBUILT_LIBRARY += lib/libstdcc++-cache-workaround.a
+$(NAME)_PREBUILT_LIBRARY += lib/libwpa_supplicant.a
+$(NAME)_PREBUILT_LIBRARY += lib/libapp_update.a
+$(NAME)_PREBUILT_LIBRARY += lib/libmesh.a
 
 ifeq ($(osal),freertos)
 GLOBAL_CFLAGS            += -I $(IDF_PATH)/components/espos/include
 GLOBAL_CFLAGS            += -I $(IDF_PATH)/components/freertos/include
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libespos.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libfreertos.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libheap.a
+$(NAME)_PREBUILT_LIBRARY += lib/libespos.a
+$(NAME)_PREBUILT_LIBRARY += lib/libfreertos.a
+$(NAME)_PREBUILT_LIBRARY += lib/libheap.a
 else
 $(NAME)_COMPONENTS       += rhino arch_xtensa_lx6
 $(NAME)_SOURCES          += aos/hook_impl.c
@@ -150,8 +151,8 @@ else
 error("Invalid ble controller.")
 endif
 endif
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libbt.a
-$(NAME)_PREBUILT_LIBRARY += lib$(ESP_LIB_CORE_TYPE)/libbtdm_app.a
+$(NAME)_PREBUILT_LIBRARY += lib/libbt.a
+$(NAME)_PREBUILT_LIBRARY += lib/libbtdm_app.a
 GLOBAL_DEFINES           += CONFIG_ESP32_WITH_BLE
 GLOBAL_DEFINES           += CONFIG_XTENSA
 endif
