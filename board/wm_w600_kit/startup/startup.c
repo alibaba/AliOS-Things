@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include "aos/init.h"
+#include "aos/hal/uart.h"
 #include "aos/cli.h"
 #include "network/hal/wifi.h"
 
@@ -90,8 +91,17 @@ void tls_w600_cli_init(void)
     aos_cli_register_commands(&w600_cli_cmd[0],sizeof(w600_cli_cmd) / sizeof(struct cli_command));
 }
 
+#define MCU_CLOCK_HZ        (80000000)
+
+extern uart_dev_t uart_1;
+extern uart_dev_t uart_0;
+
 static void sys_init(void)
 {
+    hal_uart_init(&uart_0);
+
+    SysTick_Config(MCU_CLOCK_HZ / 100);
+
     /* user code start*/
     tls_fls_init();
 
