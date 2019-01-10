@@ -13,9 +13,9 @@
 #include <common/log.h>
 #include <misc/byteorder.h>
 
-#include "bt.h"
+#include "esp_bt.h"
 #include "nvs_flash.h"
-
+#define HCI_DRV_D(...) 
 #define HCI_NONE    0x00
 #define HCI_CMD     0x01
 #define HCI_ACL     0x02
@@ -125,7 +125,7 @@ static int host_rcv_pkt(uint8_t *data, uint16_t len)
 
     g_esp32_hci_recv.type = *pdata++;
     length--;
-
+    HCI_DRV_D("RCV %d",g_esp32_hci_recv.type);
     switch (g_esp32_hci_recv.type) {
         case HCI_EVT:
             pdata += get_hci_evt_hdr(pdata, length);
@@ -174,10 +174,10 @@ static int host_rcv_pkt(uint8_t *data, uint16_t len)
     reset_rx();
 
     if (prio) {
-        BT_DBG("Calling bt_recv_prio(%p)", buf);
+        HCI_DRV_D("Calling bt_recv_prio(%p)", buf);
         bt_recv_prio(buf);
     } else {
-        BT_DBG("Putting buf %p to rx fifo", buf);
+        HCI_DRV_D("Putting buf %p to rx fifo", buf);
         bt_recv(buf);
     }
 
@@ -215,9 +215,15 @@ static int esp32_hci_driver_send(struct net_buf *buf)
 
     BT_DBG("%s", bt_hex(buf->data, buf->len));
 
-    if (esp_vhci_host_check_send_available()) {
-        k_sem_take(&g_esp32_hci_send.send_sem, K_FOREVER);
-        esp_vhci_host_send_packet(g_esp32_hci_send.cmd_buf, buf->len + 1);
+    if(0==k_sem_take(&g_esp32_hci_send.send_sem, K_FOREVER)){
+        if (esp_vhci_host_check_send_available()) {
+            HCI_DRV_D(">>>");
+            esp_vhci_host_send_packet(g_esp32_hci_send.cmd_buf, buf->len + 1);
+        }else{
+            HCI_DRV_D("VHCI NOT AVA");
+        }
+    }else{
+        HCI_DRV_D("WAIT SEND AVA TIMEOUT");
     }
 
     return 0;
@@ -234,31 +240,41 @@ static struct bt_hci_driver drv = {
     .bus    = BT_HCI_DRIVER_BUS_VIRTUAL,
     .open   = esp32_hci_driver_open,
     .send   = esp32_hci_driver_send,
-    .recv   = NULL,
 };
 
 int hci_driver_init()
 {
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+#if 0
     esp_err_t ret = nvs_flash_init();
-
+    LOG(">>> nvs_flash_init %d",ret);
+    return 0;
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK( ret );
+#endif
 
     bt_cfg.controller_task_prio = 23;  // set valid task priority
-    if (esp_bt_controller_init(&bt_cfg) != ESP_OK) {
+    LOG(">>> bt controller init task pri %d",bt_cfg.controller_task_prio);
+    const esp_err_t rc = esp_bt_controller_init(&bt_cfg);
+    if ( rc != ESP_OK) {
+        LOG("### bt controller init fail %d",rc);
         return -1;
     }
 
     if (esp_bt_controller_enable(ESP_BT_MODE_BTDM) != ESP_OK) {
+        LOG("### bt controller enable fail");
         return -1;
     }
 
-    bt_hci_driver_register(&drv);
     k_sem_init(&g_esp32_hci_send.send_sem, 1, 1);
+    HCI_DRV_D("k sem init done");
+
+    bt_hci_driver_register(&drv);
+    HCI_DRV_D("bt_hci_driver_register done");
+
     memset(g_esp32_hci_send.cmd_buf, 0, sizeof(g_esp32_hci_send.cmd_buf));
     return 0;
 }

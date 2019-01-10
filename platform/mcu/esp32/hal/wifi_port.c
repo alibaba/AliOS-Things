@@ -12,6 +12,7 @@
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
 #include "esp_timer.h"
+#include "nvs.h"
 
 typedef enum {
     SCAN_NORMAL,
@@ -337,13 +338,20 @@ static int wifi_getset_ops(hal_wifi_module_t *m, hal_wifi_getset_cmd_t cmd, ...)
 static int wifi_init(hal_wifi_module_t *m)
 {
     static int inited;
+    int ret;
     if (inited)
         return 0;
     inited = 1;
-
+#if 0
+    ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+#endif
     /* Hook Event */
-    int ret = esp_event_loop_init(handle_event_cb, NULL);
-    printf("%s:%d %d\n", __func__, __LINE__, ret);
+    ret = esp_event_loop_init(handle_event_cb, NULL);
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
     return 0;
@@ -491,8 +499,7 @@ static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m,
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m,
                                      uint8_t *buf, int len)
 {
-    extern esp_err_t esp_wifi_80211_tx(wifi_interface_t ifx, const void *buffer, int len);
-    ESP_ERROR_CHECK(esp_wifi_80211_tx(ESP_IF_WIFI_STA, buf, len));
+    ESP_ERROR_CHECK(esp_wifi_80211_tx(ESP_IF_WIFI_STA, buf, len, 1));
 
     return 0;
 }

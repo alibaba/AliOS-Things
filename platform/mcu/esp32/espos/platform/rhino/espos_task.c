@@ -44,7 +44,7 @@ esp_err_t espos_task_create_on_cpu (
     	name = "default_task";
     }
 
-    if (prio > ESPOS_TASK_PRIO_NUM)
+    if (prio > ESPOS_TASK_PRIO_MAX_RHINO)
         return espos_err_map(RHINO_BEYOND_MAX_PRI);
 
     if (ESPOS_TASK_CREATE_NORMAL == opt) {
@@ -60,17 +60,31 @@ esp_err_t espos_task_create_on_cpu (
     os_task_size = stack_size;
 #endif
 
-    prio = RHINO_CONFIG_USER_PRI_MAX - prio;
-    assert(prio > 10);
-    
+    prio = ESPOS_TASK_PRIO_MAX_RHINO - prio * 2;
+    assert(prio <= ESPOS_TASK_PRIO_MAX_RHINO);
+
     if ( strcmp(name,"event_task") == 0 )
     {
         /* default event_task size is too small */
         os_task_size += 64;
     }
-    
-    ret = krhino_task_dyn_create(ptask, name, arg, prio, ticks,
-                        os_task_size, entry, auto_run);
+
+#if (RHINO_CONFIG_CPU_NUM > 1)
+	if(ESPOS_TASK_NO_AFFINITY < 0){    //ESPOS_TASK_NO_AFFINITY
+		ret = krhino_task_dyn_create(ptask, name, arg, prio, ticks,
+							os_task_size, entry, auto_run);
+
+	}else
+    {
+		ret = krhino_task_cpu_dyn_create(ptask, name, arg, prio, ticks,
+							os_task_size, entry,cpu_id, auto_run);
+    }
+
+#else
+	ret = krhino_task_dyn_create(ptask, name, arg, prio, ticks,
+						os_task_size, entry, auto_run);
+
+#endif
 
     /* The following code may open it later */
     #if 0
@@ -218,7 +232,7 @@ esp_err_t espos_task_get_private_data (
 {
     kstat_t ret;
 
-    ktask_t *ptask = (ktask_t *)task;;
+    ktask_t *ptask = (ktask_t *)task;
     ret = krhino_task_info_get(ptask, idx, info);
 
     return espos_err_map(ret);
@@ -261,7 +275,64 @@ struct _reent* __getreent()
         return _GLOBAL_REENT;
     }
     else {
-        return _GLOBAL_REENT;;
+        return _GLOBAL_REENT;
     }
 }
 #endif
+esp_err_t esp_pthread_init(void)
+{
+    return 0;
+}
+
+extern void krhino_idle_add_hook(void * fun, int cpuid);
+
+extern void krhino_idle_del_hook(void * fun, int cpuid);
+
+extern void krhino_tick_add_hook(void * fun, int cpuid);
+
+extern void krhino_tick_del_hook(void * fun, int cpuid);
+
+int espos_add_idle_hook(esp_freertos_idle_cb_t new_idle_cb, int cpuid)
+{
+	krhino_idle_add_hook(new_idle_cb, cpuid);
+}
+int espos_delete_idle_hook(esp_freertos_idle_cb_t old_idle_cb, int cpuid)
+{
+	krhino_idle_del_hook(old_idle_cb, cpuid);
+}
+int espos_add_tick_hook(esp_freertos_tick_cb_t new_tick_cb, int cpuid)
+{
+	krhino_tick_add_hook(new_tick_cb,  cpuid);
+}
+int espos_delete_tick_hook(esp_freertos_tick_cb_t old_tick_cb, int cpuid)
+{
+	krhino_tick_del_hook(old_tick_cb,cpuid);
+}
+
+
+int  espos_task_get_priority(espos_task_t task)
+{
+	ktask_t * taskos = (ktask_t *)task;
+    if(NULL == taskos) {
+        taskos = krhino_cur_task_get();
+    }
+
+	return (ESPOS_TASK_PRIO_MAX_RHINO - taskos->b_prio)/2;
+}
+
+void  espos_task_set_priority(espos_task_t task, unsigned int prio)
+{
+	uint8_t old_pri;
+    ktask_t * taskos = (ktask_t *)task;
+    if(NULL == taskos) {
+        taskos = krhino_cur_task_get();
+    }
+
+	krhino_task_pri_change((ktask_t *)taskos,  ESPOS_TASK_PRIO_MAX_RHINO - prio * 2, &old_pri);
+	(void)old_pri;
+	return;
+}
+
+
+
+

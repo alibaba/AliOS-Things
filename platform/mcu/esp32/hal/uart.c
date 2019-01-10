@@ -13,25 +13,11 @@
 
 #include <rom/ets_sys.h>
 #include <driver/uart.h>
-#if (RHINO_CONFIG_CPU_NUM > 1)
-#include <k_api.h>
-#include "smp_port.h"
 
-kspinlock_t g_smp_printlock;
-#endif
 
 int32_t hal_uart_send(aos_uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
-	#if (RHINO_CONFIG_CPU_NUM > 1)
-    CPSR_ALLOC();
-    cpsr = XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL);
-    krhino_spin_lock(&g_smp_printlock);
-	#endif
     uart_write_bytes(uart->port, data, size);
-	#if (RHINO_CONFIG_CPU_NUM > 1)
-    krhino_spin_unlock(&g_smp_printlock); 
-    XTOS_RESTORE_JUST_INTLEVEL(cpsr);
-	#endif
     return 0;
 }
 
@@ -41,7 +27,7 @@ int32_t hal_uart_recv_II(aos_uart_dev_t *uart, void *data, uint32_t expect_size,
     char *buf = data;
     while (1) {
         char c;
-        int ret = uart_read_bytes(uart->port, &c, 1, 100);
+        int ret = uart_read_bytes(uart->port, &c, 1, timeout);
         if (ret <= 0)
             break;
 
@@ -106,9 +92,7 @@ int32_t hal_uart_init(aos_uart_dev_t *uart)
 #else
     uart_driver_install(uart->port, 256, 0, 0, NULL, 0);
 #endif
-	#if (RHINO_CONFIG_CPU_NUM > 1)
-    krhino_spin_lock_init(&g_smp_printlock);
-	#endif
+
     return 0;
 }
 

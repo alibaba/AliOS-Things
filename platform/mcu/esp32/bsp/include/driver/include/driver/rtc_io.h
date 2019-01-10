@@ -18,54 +18,24 @@
 #include <stdint.h>
 #include "esp_err.h"
 #include "driver/gpio.h"
-
+#include "soc/rtc_gpio_channel.h"
+#include "soc/rtc_periph.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @brief Pin function information for a single GPIO pad's RTC functions.
- *
- * This is an internal function of the driver, and is not usually useful
- * for external use.
- */
-typedef struct {
-    uint32_t reg;       /*!< Register of RTC pad, or 0 if not an RTC GPIO */
-    uint32_t mux;       /*!< Bit mask for selecting digital pad or RTC pad */
-    uint32_t func;      /*!< Shift of pad function (FUN_SEL) field */
-    uint32_t ie;        /*!< Mask of input enable */
-    uint32_t pullup;    /*!< Mask of pullup enable */
-    uint32_t pulldown;  /*!< Mask of pulldown enable */
-    uint32_t slpsel;    /*!< If slpsel bit is set, slpie will be used as pad input enabled signal in sleep mode */
-    uint32_t slpie;     /*!< Mask of input enable in sleep mode */
-    uint32_t hold;      /*!< Mask of hold enable */
-    uint32_t hold_force;/*!< Mask of hold_force bit for RTC IO in RTC_CNTL_HOLD_FORCE_REG */
-    uint32_t drv_v;     /*!< Mask of drive capability */
-    uint32_t drv_s;     /*!< Offset of drive capability */
-    int rtc_num;        /*!< RTC IO number, or -1 if not an RTC GPIO */
-} rtc_gpio_desc_t;
-
 typedef enum {
-    RTC_GPIO_MODE_INPUT_ONLY , /*!< Pad output */
-    RTC_GPIO_MODE_OUTPUT_ONLY, /*!< Pad input */
-    RTC_GPIO_MODE_INPUT_OUTUT, /*!< Pad pull output + input */
+    RTC_GPIO_MODE_INPUT_ONLY , /*!< Pad input */
+    RTC_GPIO_MODE_OUTPUT_ONLY, /*!< Pad output */
+    RTC_GPIO_MODE_INPUT_OUTPUT, /*!< Pad pull input + output */
     RTC_GPIO_MODE_DISABLED,    /*!< Pad (output + input) disable */
 } rtc_gpio_mode_t;
-
-/**
- * @brief Provides access to a constant table of RTC I/O pin
- * function information.
- *
- * This is an internal function of the driver, and is not usually useful
- * for external use.
- */
-extern const rtc_gpio_desc_t rtc_gpio_desc[GPIO_PIN_COUNT];
 
 /**
  * @brief Determine if the specified GPIO is a valid RTC GPIO.
  *
  * @param gpio_num GPIO number
- * @return true if GPIO is valid for RTC GPIO use. talse otherwise.
+ * @return true if GPIO is valid for RTC GPIO use. false otherwise.
  */
 inline static bool rtc_gpio_is_valid_gpio(gpio_num_t gpio_num)
 {
@@ -222,6 +192,24 @@ esp_err_t rtc_gpio_hold_en(gpio_num_t gpio_num);
  *     - ESP_ERR_INVALID_ARG GPIO is not an RTC IO
  */
 esp_err_t rtc_gpio_hold_dis(gpio_num_t gpio_num);
+
+/**
+ * @brief Helper function to disconnect internal circuits from an RTC IO
+ * This function disables input, output, pullup, pulldown, and enables
+ * hold feature for an RTC IO.
+ * Use this function if an RTC IO needs to be disconnected from internal
+ * circuits in deep sleep, to minimize leakage current.
+ *
+ * In particular, for ESP32-WROVER module, call
+ * rtc_gpio_isolate(GPIO_NUM_12) before entering deep sleep, to reduce
+ * deep sleep current.
+ *
+ * @param gpio_num GPIO number (e.g. GPIO_NUM_12).
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if GPIO is not an RTC IO
+ */
+esp_err_t rtc_gpio_isolate(gpio_num_t gpio_num);
 
 /**
  * @brief Disable force hold signal for all RTC IOs
