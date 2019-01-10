@@ -24,7 +24,9 @@
 #define FRAME_SEQ(data) (data[2] & 0x0f)
 #define FRAME_LEN(data) (data[3])
 
+#if BZ_ENABLE_AUTH
 extern bool g_dn_complete;
+#endif
 transport_t g_transport;
 struct rx_cmd_post_t rx_cmd_post;
 
@@ -147,7 +149,7 @@ static uint32_t build_packet(uint8_t *data, uint16_t len)
             do_encrypt(g_transport.tx.buff + HEADER_SIZE, len);
         }
     }
-
+#if BZ_ENABLE_AUTH
     if(g_dn_complete == false){
         g_transport.tx.buff[0] &= (~(0x01 <<4));
     }
@@ -155,6 +157,7 @@ static uint32_t build_packet(uint8_t *data, uint16_t len)
     if (g_dn_complete == true){
         g_transport.tx.buff[3] = len;
     }
+#endif
 
     return ret;
 }
@@ -250,7 +253,9 @@ void transport_reset(void)
 
     ais_aes128_destroy(g_transport.p_aes_ctx);
     g_transport.p_aes_ctx = NULL;
+#if BZ_ENABLE_AUTH
     g_dn_complete = false;
+#endif
 }
 
 ret_code_t transport_tx(uint8_t tx_type, uint8_t cmd,
