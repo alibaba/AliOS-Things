@@ -24,6 +24,10 @@
 
 extern int  vfs_init(void);
 extern int  vfs_device_init(void);
+#ifdef AOS_LOOP
+#include "aos/yloop.h"
+extern aos_loop_t aos_loop_init(void);
+#endif
 extern int  aos_kv_init(void);
 extern void ota_service_init(void);
 extern void dumpsys_cli_init(void);
