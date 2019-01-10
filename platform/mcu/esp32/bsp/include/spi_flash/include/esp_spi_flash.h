@@ -220,6 +220,18 @@ void spi_flash_munmap(spi_flash_mmap_handle_t handle);
  */
 void spi_flash_mmap_dump();
 
+/**
+ * @brief get free pages number which can be mmap
+ *
+ * This function will return number of free pages available in mmu table. This could be useful
+ * before calling actual spi_flash_mmap (maps flash range to DCache or ICache memory) to check
+ * if there is sufficient space available for mapping.
+ *
+ * @param memory memory type of MMU table free page
+ *
+ * @return number of free pages which can be mmaped
+ */
+uint32_t spi_flash_mmap_get_free_pages(spi_flash_mmap_memory_t memory);
 
 #define SPI_FLASH_CACHE2PHYS_FAIL UINT32_MAX /*<! Result from spi_flash_cache2phys() if flash cache address is invalid */
 
@@ -319,6 +331,15 @@ typedef struct {
  * @param funcs pointer to structure holding flash access guard functions.
  */
 void spi_flash_guard_set(const spi_flash_guard_funcs_t* funcs);
+
+
+/**
+ * @brief Get the guard functions used for flash access
+ *
+ * @return The guard functions that were set via spi_flash_guard_set(). These functions
+ * can be called if implementing custom low-level SPI flash operations.
+ */
+const spi_flash_guard_funcs_t *spi_flash_guard_get();
 
 /**
  * @brief Default OS-aware flash access guard functions

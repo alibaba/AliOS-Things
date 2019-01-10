@@ -18,7 +18,10 @@
 #include "soc/rmt_reg.h"
 #include "soc/dport_reg.h"
 #include "soc/rmt_struct.h"
-#include "ringbuf.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "freertos/xtensa_api.h"
+#include "freertos/ringbuf.h"
 #include "driver/gpio.h"
 #include "driver/periph_ctrl.h"
 
@@ -30,14 +33,14 @@ extern "C" {
 #define RMT_MEM_ITEM_NUM  (RMT_MEM_BLOCK_BYTE_NUM/4)
 
 typedef enum {
-    RMT_CHANNEL_0=0, /*!< RMT Channel0 */
-    RMT_CHANNEL_1,   /*!< RMT Channel1 */
-    RMT_CHANNEL_2,   /*!< RMT Channel2 */
-    RMT_CHANNEL_3,   /*!< RMT Channel3 */
-    RMT_CHANNEL_4,   /*!< RMT Channel4 */
-    RMT_CHANNEL_5,   /*!< RMT Channel5 */
-    RMT_CHANNEL_6,   /*!< RMT Channel6 */
-    RMT_CHANNEL_7,   /*!< RMT Channel7 */
+    RMT_CHANNEL_0 = 0, /*!< RMT Channel 0 */
+    RMT_CHANNEL_1,     /*!< RMT Channel 1 */
+    RMT_CHANNEL_2,     /*!< RMT Channel 2 */
+    RMT_CHANNEL_3,     /*!< RMT Channel 3 */
+    RMT_CHANNEL_4,     /*!< RMT Channel 4 */
+    RMT_CHANNEL_5,     /*!< RMT Channel 5 */
+    RMT_CHANNEL_6,     /*!< RMT Channel 6 */
+    RMT_CHANNEL_7,     /*!< RMT Channel 7 */
     RMT_CHANNEL_MAX
 } rmt_channel_t;
 
@@ -48,7 +51,7 @@ typedef enum {
 }rmt_mem_owner_t;
 
 typedef enum {
-    RMT_BASECLK_REF = 0,   /*!< RMT source clock system reference tick, 1MHz by default(Not supported in this version) */
+    RMT_BASECLK_REF = 0,   /*!< RMT source clock system reference tick, 1MHz by default (not supported in this version) */
     RMT_BASECLK_APB,       /*!< RMT source clock is APB CLK, 80Mhz by default */
     RMT_BASECLK_MAX,
 } rmt_source_clk_t;
@@ -60,20 +63,20 @@ typedef enum {
 } rmt_data_mode_t;
 
 typedef enum {
-    RMT_MODE_TX=0,   /*!< RMT TX mode */
-    RMT_MODE_RX,     /*!< RMT RX mode */
+    RMT_MODE_TX = 0,   /*!< RMT TX mode */
+    RMT_MODE_RX,       /*!< RMT RX mode */
     RMT_MODE_MAX
 } rmt_mode_t;
 
 typedef enum {
-    RMT_IDLE_LEVEL_LOW=0,   /*!< RMT TX idle level: low Level */
-    RMT_IDLE_LEVEL_HIGH,    /*!< RMT TX idle level: high Level */
+    RMT_IDLE_LEVEL_LOW = 0,   /*!< RMT TX idle level: low Level */
+    RMT_IDLE_LEVEL_HIGH,      /*!< RMT TX idle level: high Level */
     RMT_IDLE_LEVEL_MAX,
 } rmt_idle_level_t;
 
 typedef enum {
-    RMT_CARRIER_LEVEL_LOW=0,  /*!< RMT carrier wave is modulated for low Level output */
-    RMT_CARRIER_LEVEL_HIGH,   /*!< RMT carrier wave is modulated for high Level output */
+    RMT_CARRIER_LEVEL_LOW = 0,  /*!< RMT carrier wave is modulated for low Level output */
+    RMT_CARRIER_LEVEL_HIGH,     /*!< RMT carrier wave is modulated for high Level output */
     RMT_CARRIER_LEVEL_MAX
 } rmt_carrier_level_t;
 
@@ -81,21 +84,21 @@ typedef enum {
  * @brief Data struct of RMT TX configure parameters
  */
 typedef struct {
-    bool loop_en;                         /*!< RMT loop output mode*/
+    bool loop_en;                         /*!< Enable sending RMT items in a loop */
     uint32_t carrier_freq_hz;             /*!< RMT carrier frequency */
     uint8_t carrier_duty_percent;         /*!< RMT carrier duty (%) */
-    rmt_carrier_level_t carrier_level;    /*!< RMT carrier level */
+    rmt_carrier_level_t carrier_level;    /*!< Level of the RMT output, when the carrier is applied */
     bool carrier_en;                      /*!< RMT carrier enable */
     rmt_idle_level_t idle_level;          /*!< RMT idle level */
-    bool idle_output_en;                  /*!< RMT idle level output enable*/
+    bool idle_output_en;                  /*!< RMT idle level output enable */
 }rmt_tx_config_t;
 
 /**
  * @brief Data struct of RMT RX configure parameters
  */
 typedef struct {
-    bool filter_en;                    /*!< RMT receiver filer enable*/
-    uint8_t filter_ticks_thresh;       /*!< RMT filter tick  number */
+    bool filter_en;                    /*!< RMT receiver filter enable */
+    uint8_t filter_ticks_thresh;       /*!< RMT filter tick number */
     uint16_t idle_threshold;           /*!< RMT RX idle threshold */
 }rmt_rx_config_t;
 
@@ -115,6 +118,42 @@ typedef struct {
 } rmt_config_t;
 
 typedef intr_handle_t rmt_isr_handle_t;
+
+typedef void (*rmt_tx_end_fn_t)(rmt_channel_t channel, void *arg);
+
+/**
+ * @brief Structure encapsulating a RMT TX end callback
+ */
+typedef struct {
+    rmt_tx_end_fn_t function; /*!< Function which is called on RMT TX end */
+    void *arg;                /*!< Optional argument passed to function */
+} rmt_tx_end_callback_t;
+
+/**
+ * @brief User callback function to convert uint8_t type data to rmt format(rmt_item32_t).
+ *
+ *        This function may be called from an ISR, so, the code should be short and efficient.
+ *
+ * @param  src Pointer to the buffer storing the raw data that needs to be converted to rmt format.
+ *
+ * @param[out] dest Pointer to the buffer storing the rmt format data.
+ *
+ * @param  src_size The raw data size.
+ *
+ * @param  wanted_num The number of rmt format data that wanted to get.
+ *
+ * @param[out] translated_size The size of the raw data that has been converted to rmt format,
+ *             it should return 0 if no data is converted in user callback.
+ *
+ * @param[out] item_num The number of the rmt format data that actually converted to, it can be less than wanted_num if there is not enough raw data,
+ *             but cannot exceed wanted_num. it should return 0 if no data was converted.
+ *
+ *       @note
+ *       In fact, item_num should be a multiple of translated_size, e.g. :
+ *       When we convert each byte of uint8_t type data to rmt format data,
+ *       the relation between item_num and translated_size should be `item_num = translated_size*8`.
+ */
+typedef void (*sample_to_rmt_t)(const void* src, rmt_item32_t* dest, size_t src_size, size_t wanted_num, size_t* translated_size, size_t* item_num);
 
 /**
  * @brief Set RMT clock divider, channel clock is divided from source clock.
@@ -183,14 +222,16 @@ esp_err_t rmt_get_rx_idle_thresh(rmt_channel_t channel, uint16_t *thresh);
  *        The 8 channels share a 512x32-bit RAM block which can be read and written
  *        by the processor cores over the APB bus, as well as read by the transmitters
  *        and written by the receivers.
+ *
  *        The RAM address range for channel n is start_addr_CHn to end_addr_CHn, which are defined by:
  *        Memory block start address is RMT_CHANNEL_MEM(n) (in soc/rmt_reg.h),
  *        that is, start_addr_chn = RMT base address + 0x800 + 64 ∗ 4 ∗ n, and
  *        end_addr_chn = RMT base address + 0x800 +  64 ∗ 4 ∗ n + 64 ∗ 4 ∗ RMT_MEM_SIZE_CHn mod 512 ∗ 4
+ *
  *        @note
  *        If memory block number of one channel is set to a value greater than 1, this channel will occupy the memory
  *        block of the next channel.
- *        Channel0 can use at most 8 blocks of memory, accordingly channel7 can only use one memory block.
+ *        Channel 0 can use at most 8 blocks of memory, accordingly channel 7 can only use one memory block.
  *
  * @param channel RMT channel (0-7)
  *
@@ -229,11 +270,9 @@ esp_err_t rmt_get_mem_block_num(rmt_channel_t channel, uint8_t* rmt_mem_num);
  *
  * @param low_level Low level duration of carrier.
  *
- * @param carrier_level Configure the way carrier wave is modulated for channel0-7.
- *
- *                      1'b1:transmit on low output level
- *
- *                      1'b0:transmit on high output level
+ * @param carrier_level Configure the way carrier wave is modulated for channel 0-7.
+ *     - 1'b1:transmit on low output level
+ *     - 1'b0:transmit on high output level
  *
  * @return
  *     - ESP_ERR_INVALID_ARG Parameter error
@@ -275,7 +314,7 @@ esp_err_t rmt_get_mem_pd(rmt_channel_t channel, bool* pd_en);
  * @param channel RMT channel (0-7)
  *
  * @param tx_idx_rst Set true to reset memory index for TX.
- *        Otherwise, transmitter will continue sending from the last index in memory.
+ *                   Otherwise, transmitter will continue sending from the last index in memory.
  *
  * @return
  *     - ESP_ERR_INVALID_ARG Parameter error
@@ -361,10 +400,9 @@ esp_err_t rmt_get_memory_owner(rmt_channel_t channel, rmt_mem_owner_t* owner);
  *
  * @param channel RMT channel (0-7)
  *
- * @param loop_en To enable RMT transmitter loop sending mode.
- *
+ * @param loop_en Enable RMT transmitter loop sending mode.
  *                If set true, transmitter will continue sending from the first data
- *                to the last data in channel0-7 again and again.
+ *                to the last data in channel 0-7 over and over again in a loop.
  *
  * @return
  *     - ESP_ERR_INVALID_ARG Parameter error
@@ -388,7 +426,7 @@ esp_err_t rmt_get_tx_loop_mode(rmt_channel_t channel, bool* loop_en);
 /**
  * @brief Set RMT RX filter.
  *
- *        In receive mode, channel0-7 will ignore input pulse when the pulse width is smaller than threshold.
+ *        In receive mode, channel 0-7 will ignore input pulse when the pulse width is smaller than threshold.
  *        Counted in source clock, not divided counter clock.
  *
  * @param channel RMT channel (0-7)
@@ -406,9 +444,9 @@ esp_err_t rmt_set_rx_filter(rmt_channel_t channel, bool rx_filter_en, uint8_t th
 /**
  * @brief Set RMT source clock
  *
- *        RMT module has two source clock:
+ *        RMT module has two clock sources:
  *        1. APB clock which is 80Mhz
- *        2. REF tick clock, which would be 1Mhz( not supported in this version).
+ *        2. REF tick clock, which would be 1Mhz (not supported in this version).
  *
  * @param channel RMT channel (0-7)
  *
@@ -423,9 +461,9 @@ esp_err_t rmt_set_source_clk(rmt_channel_t channel, rmt_source_clk_t base_clk);
 /**
  * @brief Get RMT source clock
  *
- *        RMT module has two source clock:
+ *        RMT module has two clock sources:
  *        1. APB clock which is 80Mhz
- *        2. REF tick clock, which would be 1Mhz( not supported in this version).
+ *        2. REF tick clock, which would be 1Mhz (not supported in this version).
  *
  * @param channel RMT channel (0-7)
  *
@@ -444,7 +482,7 @@ esp_err_t rmt_get_source_clk(rmt_channel_t channel, rmt_source_clk_t* src_clk);
  *
  * @param idle_out_en To enable idle level output.
  *
- * @param level To set the output signal's level for channel0-7 in idle state.
+ * @param level To set the output signal's level for channel 0-7 in idle state.
  *
  * @return
  *     - ESP_ERR_INVALID_ARG Parameter error
@@ -523,7 +561,7 @@ esp_err_t rmt_set_tx_intr_en(rmt_channel_t channel, bool en);
 /**
  * @brief Set RMT TX threshold event interrupt enable
  *
- * Causes an interrupt when a threshold number of items have been transmitted.
+ * An interrupt will be triggered when the number of transmitted items reaches the threshold value
  *
  * @param channel RMT channel (0 - 7)
  *
@@ -538,7 +576,7 @@ esp_err_t rmt_set_tx_intr_en(rmt_channel_t channel, bool en);
 esp_err_t rmt_set_tx_thr_intr_en(rmt_channel_t channel, bool en, uint16_t evt_thresh);
 
 /**
- * @brief Set RMT pins
+ * @brief Set RMT pin
  *
  * @param channel RMT channel (0 - 7)
  *
@@ -555,7 +593,7 @@ esp_err_t rmt_set_pin(rmt_channel_t channel, rmt_mode_t mode, gpio_num_t gpio_nu
 /**
  * @brief Configure RMT parameters
  *
- * @param rmt_param RMT parameter structor
+ * @param rmt_param RMT parameter struct
  *
  * @return
  *     - ESP_ERR_INVALID_ARG Parameter error
@@ -564,17 +602,18 @@ esp_err_t rmt_set_pin(rmt_channel_t channel, rmt_mode_t mode, gpio_num_t gpio_nu
 esp_err_t rmt_config(const rmt_config_t* rmt_param);
 
 /**
- * @brief   register RMT interrupt handler, the handler is an ISR.
+ * @brief Register RMT interrupt handler, the handler is an ISR.
  *
- *          The handler will be attached to the same CPU core that this function is running on.
- * @note If you already called rmt_driver_install to use system RMT driver,
- *          please do not register ISR handler again.
+ *        The handler will be attached to the same CPU core that this function is running on.
+ *
+ * @note  If you already called rmt_driver_install to use system RMT driver,
+ *        please do not register ISR handler again.
  *
  * @param fn Interrupt handler function.
- * @param arg Parameter for handler function
- * @param  intr_alloc_flags Flags used to allocate the interrupt. One or multiple (ORred)
- *            ESP_INTR_FLAG_* values. See esp_intr_alloc.h for more info.
- * @param  handle If non-zero, a handle to later clean up the ISR gets stored here.
+ * @param arg Parameter for the handler function
+ * @param intr_alloc_flags Flags used to allocate the interrupt. One or multiple (ORred)
+ *        ESP_INTR_FLAG_* values. See esp_intr_alloc.h for more info.
+ * @param handle If non-zero, a handle to later clean up the ISR gets stored here.
  *
  * @return
  *     - ESP_OK Success
@@ -619,6 +658,7 @@ esp_err_t rmt_fill_tx_items(rmt_channel_t channel, const rmt_item32_t* item, uin
  * @param rx_buf_size Size of RMT RX ringbuffer. Can be 0 if the RX ringbuffer is not used.
  *
  * @param intr_alloc_flags Flags for the RMT driver interrupt handler. Pass 0 for default flags. See esp_intr_alloc.h for details.
+ *        If ESP_INTR_FLAG_IRAM is used, please do not use the memory allocated from psram when calling rmt_write_items.
  *
  * @return
  *     - ESP_ERR_INVALID_STATE Driver is already installed, call rmt_driver_uninstall first.
@@ -647,21 +687,22 @@ esp_err_t rmt_driver_uninstall(rmt_channel_t channel);
  * @param channel RMT channel (0 - 7)
  *
  * @param rmt_item head point of RMT items array.
+ *        If ESP_INTR_FLAG_IRAM is used, please do not use the memory allocated from psram when calling rmt_write_items.
  *
  * @param item_num RMT data item number.
  *
- * @param wait_tx_done If set 1, it will block the task and wait for sending done.
+ * @param wait_tx_done
+ *        - If set 1, it will block the task and wait for sending done.
+ *        - If set 0, it will not wait and return immediately.
  *
- *                     If set 0, it will not wait and return immediately.
- *
- *                     @note
- *                     This function will not copy data, instead, it will point to the original items,
- *                     and send the waveform items.
- *                     If wait_tx_done is set to true, this function will block and will not return until
- *                     all items have been sent out.
- *                     If wait_tx_done is set to false, this function will return immediately, and the driver
- *                     interrupt will continue sending the items. We must make sure the item data will not be
- *                     damaged when the driver is still sending items in driver interrupt.
+ *         @note
+ *         This function will not copy data, instead, it will point to the original items,
+ *         and send the waveform items.
+ *         If wait_tx_done is set to true, this function will block and will not return until
+ *         all items have been sent out.
+ *         If wait_tx_done is set to false, this function will return immediately, and the driver
+ *         interrupt will continue sending the items. We must make sure the item data will not be
+ *         damaged when the driver is still sending items in driver interrupt.
  *
  * @return
  *     - ESP_ERR_INVALID_ARG Parameter error
@@ -674,24 +715,24 @@ esp_err_t rmt_write_items(rmt_channel_t channel, const rmt_item32_t* rmt_item, i
  *
  * @param channel RMT channel (0 - 7)
  *
- * @param wait_time Maximum time to wait for transmission to be complete 
+ * @param wait_time Maximum time in ticks to wait for transmission to be complete 
  *
  * @return
  *     - ESP_OK RMT Tx done successfully
- *     - ESP_ERR_TIMEOUT Crossed the 'wait_time' given
+ *     - ESP_ERR_TIMEOUT Exceeded the 'wait_time' given
  *     - ESP_ERR_INVALID_ARG Parameter error
  *     - ESP_FAIL Driver not installed
  */
-esp_err_t rmt_wait_tx_done(rmt_channel_t channel, int wait_time);
+esp_err_t rmt_wait_tx_done(rmt_channel_t channel, TickType_t wait_time);
 
 /**
- * @brief Get ringbuffer from UART.
+ * @brief Get ringbuffer from RMT.
  *
- *        Users can get the RMT RX ringbuffer handler, and process the RX data.
+ *        Users can get the RMT RX ringbuffer handle, and process the RX data.
  *
  * @param channel RMT channel (0 - 7)
  *
- * @param buf_handle Pointer to buffer handler to accept RX ringbuffer handler.
+ * @param buf_handle Pointer to buffer handle to accept RX ringbuffer handle.
  *
  * @return
  *     - ESP_ERR_INVALID_ARG Parameter error
@@ -699,62 +740,55 @@ esp_err_t rmt_wait_tx_done(rmt_channel_t channel, int wait_time);
  */
 esp_err_t rmt_get_ringbuf_handle(rmt_channel_t channel, RingbufHandle_t* buf_handle);
 
-/***************************EXAMPLE**********************************
+/**
+ * @brief Init rmt translator and register user callback.
+ *        The callback will convert the raw data that needs to be sent to rmt format.
+ *        If a channel is initialized more than once, tha user callback will be replaced by the later.
  *
- * @note
- * You can also refer to example/09_rmt_nec_tx_rx to have more information about how to use RMT module.
+ * @param channel RMT channel (0 - 7).
  *
- * ----------------EXAMPLE OF RMT SETTING ---------------------
- * @code{c}
- * //1. enable RMT
- * //enable RMT module, or you can not set any register of it.
- * //this will be done in rmt_config API.
- * periph_module_enable(PERIPH_RMT_MODULE);
- * @endcode
+ * @param fn Point to the data conversion function.
  *
- * @code{c}
- * //2. set RMT transmitter
- * void rmt_tx_init()
- * {
- *     rmt_config_t rmt_tx;
- *     rmt_tx.channel = 0;
- *     rmt_tx.gpio_num = 16;
- *     rmt_tx.mem_block_num = 1;
- *     rmt_tx.clk_div = 100;
- *     rmt_tx.tx_config.loop_en = false;
- *     rmt_tx.tx_config.carrier_duty_percent = 50;
- *     rmt_tx.tx_config.carrier_freq_hz = 38000;
- *     rmt_tx.tx_config.carrier_level = 1;
- *     rmt_tx.tx_config.carrier_en = RMT_TX_CARRIER_EN;
- *     rmt_tx.tx_config.idle_level = 0;
- *     rmt_tx.tx_config.idle_output_en = true;
- *     rmt_tx.rmt_mode = 0;
- *     rmt_config(&rmt_tx);
+ * @return
+ *     - ESP_FAIL Init fail.
+ *     - ESP_OK Init success.
+ */
+esp_err_t rmt_translator_init(rmt_channel_t channel, sample_to_rmt_t fn);
+
+/**
+ * @brief Translate uint8_t type of data into rmt format and send it out.
+ *        Requires rmt_translator_init to init the translator first.
  *
- *     //install system RMT driver, disable rx ringbuffer for transmitter.
- *     rmt_driver_install(rmt_tx.channel, 0, 0);
- * }
+ * @param channel RMT channel (0 - 7).
  *
- * @endcode
- * @code{c}
- * //3. set RMT receiver
- * void rmt_rx_init()
- * {
- *     rmt_config_t rmt_rx;
- *     rmt_rx.channel = 1;
- *     rmt_rx.gpio_num = 19;
- *     rmt_rx.clk_div = 100;
- *     rmt_rx.mem_block_num = 1;
- *     rmt_rx.rmt_mode = RMT_MODE_RX;
- *     rmt_rx.rx_config.filter_en = true;
- *     rmt_rx.rx_config.filter_ticks_thresh = 100;
- *     rmt_rx.rx_config.idle_threshold = 0xffff;
- *     rmt_config(&rmt_rx);
+ * @param src Pointer to the raw data.
  *
- *     //install system RMT driver.
- *     rmt_driver_install(rmt_rx.channel, 1000, 0);
- * }
+ * @param src_size The size of the raw data.
  *
+ * @param wait_tx_done Set true to wait all data send done.
+ *
+ * @return
+ *     - ESP_FAIL Send fail
+ *     - ESP_OK Send success
+ */
+esp_err_t rmt_write_sample(rmt_channel_t channel, const uint8_t *src, size_t src_size, bool wait_tx_done);
+
+/**
+ * @brief Registers a callback that will be called when transmission ends.
+ *
+ *        Called by rmt_driver_isr_default in interrupt context.
+ *
+ * @note Requires rmt_driver_install to install the default ISR handler.
+ *
+ * @param function Function to be called from the default interrupt handler or NULL.
+ * @param arg Argument which will be provided to the callback when it is called.
+ *
+ * @return the previous callback settings (members will be set to NULL if there was none)
+ */
+rmt_tx_end_callback_t rmt_register_tx_end_callback(rmt_tx_end_fn_t function, void *arg);
+
+
+/*
  * ----------------EXAMPLE OF RMT INTERRUPT ------------------
  * @code{c}
  *
@@ -771,7 +805,7 @@ esp_err_t rmt_get_ringbuf_handle(rmt_channel_t channel, RingbufHandle_t* buf_han
  *    //read RMT interrupt status.
  *    uint32_t intr_st = RMT.int_st.val;
  *
- *    //you will find which channels have triggered fade_end interrupt here,
+ *    //you will find which channels have triggered an interrupt here,
  *    //then, you can post some event to RTOS queue to process the event.
  *    //later we will add a queue in the driver code.
  *
@@ -782,8 +816,6 @@ esp_err_t rmt_get_ringbuf_handle(rmt_channel_t channel, RingbufHandle_t* buf_han
  *
  *--------------------------END OF EXAMPLE --------------------------
  */
-
-
 
 
 

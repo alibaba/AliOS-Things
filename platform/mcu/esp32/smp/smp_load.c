@@ -15,59 +15,23 @@
 #include <cache.h>
 #include "rtc.h"
 #include <esp_intr.h>
-
+//#include "smp_sync.h"
 
 extern int _init_start;
 extern void os_crosscore_int_init();
 extern void cpu_first_task_start(void);
 
 extern void esp_cache_err_int_init();
-extern void esp_dport_access_int_init(void);
+extern void dport_access_init_core_aos();
 extern int  ets_printf(const char *fmt, ...);
 extern void ets_set_appcpu_boot_addr(uint32_t start);
 extern void ets_install_uart_printf(void);
 extern void uartAttach(void);
 extern void uart_tx_switch(uint8_t uart_no);
 
-void start_cpu1(void) __attribute__((weak, alias("start_cpu1_default")));
 /*void start_cpu1_default(void) IRAM_ATTR;*/
 
-static void dport_access_init_core(void *arg)
-{
-    int core_id = 0;
-    uint32_t intr_source = ETS_FROM_CPU_INTR2_SOURCE;
-
-    core_id = xPortGetCoreID();
-    if (core_id == 1) {
-        intr_source = ETS_FROM_CPU_INTR3_SOURCE;
-    }
-
-    ESP_INTR_DISABLE(ETS_DPORT_INUM);
-    intr_matrix_set(core_id, intr_source, ETS_DPORT_INUM);
-    ESP_INTR_ENABLE(ETS_DPORT_INUM);
-
-/*
-    dport_access_ref[core_id] = 0;
-    dport_access_start[core_id] = 0;
-    dport_access_end[core_id] = 0;
-    dport_core_state[core_id] = DPORT_CORE_STATE_RUNNING;
-
-    vTaskDelete(NULL);*/
-}
-
-
-void os_dport_access_int_init(void)
-{
-    /*
-    aos_task_cpu_new("dport", dport_access_init_core, NULL,
-                     AOS_DEFAULT_APP_PRI, cpu_cur_get());*/
-    dport_access_init_core(NULL);                 
-
-    //xTaskCreatePinnedToCore(&dport_access_init_core, "dport", configMINIMAL_STACK_SIZE, NULL, 5, NULL, xPortGetCoreID());
-}
-
-
-void start_cpu1_default(void)
+void os_start_cpu1_default(void)
 {
 #if CONFIG_ESP32_TRAX_TWOBANKS
     trax_start_trace(TRAX_DOWNCOUNT_WORDS);
@@ -79,14 +43,12 @@ void start_cpu1_default(void)
     }
 #endif
 
-    //Take care putting stuff here: if asked, FreeRTOS will happily tell you the scheduler
+    //Take care putting stuff here: if asked, os will happily tell you the scheduler
     //has started, but it isn't active *on this CPU* yet.
-    esp_cache_err_int_init();
-    /*esp_crosscore_int_init();*/
+    //esp_cache_err_int_init();
     os_crosscore_int_init();
-    //esp_dport_access_int_init();
-    os_dport_access_int_init();
-    
+    dport_access_init_core_aos();
+
     ets_printf("Starting scheduler on APP CPU.\r\n");
 
     cpu_first_task_start();
@@ -121,10 +83,9 @@ void os_start_cpu1(void)
 
     wdt_reset_cpu1_info_enable();
     ets_printf( "App cpu up.\r\n");
-    start_cpu1();
-    
-}
+    os_start_cpu1_default();
 
+}
 
 void os_load_slavecpu(void)
 {
@@ -154,7 +115,7 @@ void os_load_slavecpu(void)
 
     ets_set_appcpu_boot_addr((uint32_t)os_start_cpu1);
 
-    k_wait_allcores();
+    os_wait_allcore();
     
 }
 

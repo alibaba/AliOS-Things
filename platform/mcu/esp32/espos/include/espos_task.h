@@ -23,8 +23,16 @@
 extern "C" {
 #endif
 
+/*
+ Definitions for the tickhook and idlehook callbacks
+*/
+
+typedef int (*esp_freertos_idle_cb_t)();
+typedef void (*esp_freertos_tick_cb_t)();
+
+
 /* task will run at any CPU */
-#define ESPOS_TASK_NO_AFFINITY  -1
+#define ESPOS_TASK_NO_AFFINITY  0
 
 /* create task and start it automatically */
 #define ESPOS_TASK_CREATE_NORMAL 0
@@ -38,12 +46,20 @@ extern "C" {
  * task priority numbers, we use 26 here because FreeRTOS uses 26 but YunOS uses 62,
  * we should use minimum one of them to be compatible with the current application
  */
+#ifndef ESPOS_TASK_PRIO_NUM_RHINO
+#define ESPOS_TASK_PRIO_NUM_RHINO espos_task_prio_num()
+#endif
+
+/* task maximum priority number */
+#define ESPOS_TASK_PRIO_MAX_RHINO (ESPOS_TASK_PRIO_NUM_RHINO - 1)
+
 #ifndef ESPOS_TASK_PRIO_NUM
-#define ESPOS_TASK_PRIO_NUM espos_task_prio_num()
+#define ESPOS_TASK_PRIO_NUM 26
 #endif
 
 /* task maximum priority number */
 #define ESPOS_TASK_PRIO_MAX (ESPOS_TASK_PRIO_NUM - 1)
+
 
 /**
  * @brief create a task
@@ -200,6 +216,12 @@ esp_err_t espos_task_get_private_data(espos_task_t task, int idx, void **info);
 espos_cpu_t espos_task_get_affinity(espos_task_t task);
 
 size_t espos_task_prio_num(void);
+
+int espos_task_get_priority(espos_task_t task);
+
+
+void espos_task_set_priority(espos_task_t task, unsigned int prio);
+
 
 #ifdef __cplusplus
 }

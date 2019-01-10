@@ -1,4 +1,4 @@
-// Copyright 2010-2017 Espressif Systems (Shanghai) PTE LTD
+// Copyright 2010-2018 Espressif Systems (Shanghai) PTE LTD
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -75,7 +75,9 @@
 #define DR_REG_AES_BASE                         0x3ff01000
 #define DR_REG_RSA_BASE                         0x3ff02000
 #define DR_REG_SHA_BASE                         0x3ff03000
-#define DR_REG_DPORT_END                        0x3ff03FFC
+#define DR_REG_FLASH_MMU_TABLE_PRO              0x3ff10000
+#define DR_REG_FLASH_MMU_TABLE_APP              0x3ff12000
+#define DR_REG_DPORT_END                        0x3ff13FFC
 #define DR_REG_UART_BASE                        0x3ff40000
 #define DR_REG_SPI1_BASE                        0x3ff42000
 #define DR_REG_SPI0_BASE                        0x3ff43000
@@ -87,11 +89,8 @@
 #define DR_REG_RTCCNTL_BASE                     0x3ff48000
 #define DR_REG_RTCIO_BASE                       0x3ff48400
 #define DR_REG_SENS_BASE                        0x3ff48800
+#define DR_REG_RTC_I2C_BASE                     0x3ff48C00
 #define DR_REG_IO_MUX_BASE                      0x3ff49000
-#define DR_REG_RTCMEM0_BASE                     0x3ff61000
-#define DR_REG_RTCMEM1_BASE                     0x3ff62000
-#define DR_REG_RTCMEM2_BASE                     0x3ff63000
-#define DR_REG_SYSCON_BASE                      0x3ff66000
 #define DR_REG_HINF_BASE                        0x3ff4B000
 #define DR_REG_UHCI1_BASE                       0x3ff4C000
 #define DR_REG_I2S_BASE                         0x3ff4F000
@@ -111,12 +110,17 @@
 #define DR_REG_PWM_BASE                         0x3ff5E000
 #define DR_REG_TIMERGROUP0_BASE                 0x3ff5F000
 #define DR_REG_TIMERGROUP1_BASE                 0x3ff60000
+#define DR_REG_RTCMEM0_BASE                     0x3ff61000
+#define DR_REG_RTCMEM1_BASE                     0x3ff62000
+#define DR_REG_RTCMEM2_BASE                     0x3ff63000
 #define DR_REG_SPI2_BASE                        0x3ff64000
 #define DR_REG_SPI3_BASE                        0x3ff65000
-#define DR_REG_APB_CTRL_BASE                    0x3ff66000
+#define DR_REG_SYSCON_BASE                      0x3ff66000
+#define DR_REG_APB_CTRL_BASE                    0x3ff66000    /* Old name for SYSCON, to be removed */
 #define DR_REG_I2C1_EXT_BASE                    0x3ff67000
 #define DR_REG_SDMMC_BASE                       0x3ff68000
 #define DR_REG_EMAC_BASE                        0x3ff69000
+#define DR_REG_CAN_BASE                         0x3ff6B000
 #define DR_REG_PWM1_BASE                        0x3ff6C000
 #define DR_REG_I2S1_BASE                        0x3ff6D000
 #define DR_REG_UART2_BASE                       0x3ff6E000
@@ -129,7 +133,7 @@
 #define ETS_CACHED_ADDR(addr) (addr) 
 
 #ifndef __ASSEMBLER__
-#define BIT(nr)                 (1ULL << (nr))
+#define BIT(nr)                 (1UL << (nr))
 #else
 #define BIT(nr)                 (1 << (nr))
 #endif
@@ -266,6 +270,7 @@
 #define  CPU_CLK_FREQ_ROM                            APB_CLK_FREQ_ROM
 #define  CPU_CLK_FREQ                                APB_CLK_FREQ
 #define  APB_CLK_FREQ                                ( 80*1000000 )       //unit: Hz
+#define  REF_CLK_FREQ                                ( 1000000 )
 #define  UART_CLK_FREQ                               APB_CLK_FREQ
 #define  WDT_CLK_FREQ                                APB_CLK_FREQ
 #define  TIMER_CLK_FREQ                              (80000000>>4) //80MHz divided by 16
@@ -274,12 +279,12 @@
 //}}
 
 /* Overall memory map */
+#define SOC_DROM_LOW    0x3F400000
+#define SOC_DROM_HIGH   0x3F800000
 #define SOC_IROM_LOW    0x400D0000
 #define SOC_IROM_HIGH   0x40400000
 #define SOC_IRAM_LOW    0x40080000
 #define SOC_IRAM_HIGH   0x400A0000
-#define SOC_DROM_LOW    0x3F400000
-#define SOC_DROM_HIGH   0x3F800000
 #define SOC_RTC_IRAM_LOW  0x400C0000
 #define SOC_RTC_IRAM_HIGH 0x400C2000
 #define SOC_RTC_DATA_LOW  0x50000000
@@ -294,6 +299,15 @@
 // Region of memory accessible via DMA. See esp_ptr_dma_capable().
 #define SOC_DMA_LOW  0x3FFAE000
 #define SOC_DMA_HIGH 0x40000000
+
+// Region of memory that is byte-accessible. See esp_ptr_byte_accessible().
+#define SOC_BYTE_ACCESSIBLE_LOW     0x3FF90000
+#define SOC_BYTE_ACCESSIBLE_HIGH    0x40000000
+
+//Region of memory that is internal, as in on the same silicon die as the ESP32 CPUs
+//(excluding RTC data region, that's checked separately.) See esp_ptr_internal().
+#define SOC_MEM_INTERNAL_LOW        0x3FF90000
+#define SOC_MEM_INTERNAL_HIGH       0x400C2000
 
 //Interrupt hardware source table
 //This table is decided by hardware, don't touch this.

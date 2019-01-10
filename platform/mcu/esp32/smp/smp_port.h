@@ -4,7 +4,7 @@
 #ifndef RHINO_SMP_PORT_H
 #define RHINO_SMP_PORT_H
 
-
+#include "k_config.h"
 #if (RHINO_CONFIG_CPU_NUM > 1)
 #if (RHINO_CONFIG_USER_HOOK <= 0)
 #error RHINO_CONFIG_USER_HOOK > 0 is needed in smp for cpu_flag use in krhino_idle_pre_hook

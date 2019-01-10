@@ -5,7 +5,7 @@
 
 #include "esp_spi_flash.h"
 #include "rom/spi_flash.h"
-#include "hal/ota.h"
+//#include "hal/ota.h"
 
 static const char *TAG = "esp32_ota";
 static esp_partition_t  operate_partition;

@@ -53,16 +53,16 @@ static void initialise_wifi(void)
 #else
 static void initialise_wifi(void)
 {
-    
+
 }
 #endif
 
 extern uart_dev_t uart_0;
+extern struct hal_ota_module_s esp32_yos_ota_module;
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
-extern void esp_dport_access_int_init(void);
+extern void dport_access_init_core_aos();
 extern void os_crosscore_int_init(void);
-extern void os_dport_access_int_init(void);
 /*wait another core start*/
 extern void os_load_slavecpu(void);
 extern void  rtc_isr(void *arg);
@@ -76,23 +76,17 @@ extern void os_set_int_muticore(int n);
 
 void app_main(void)
 {
-    
-    initialise_wifi();
-	hal_uart_init(&uart_0);
-
+    hal_uart_init(&uart_0);
     #if (RHINO_CONFIG_CPU_NUM > 1)
-    //esp_dport_access_int_init();
-    os_dport_access_int_init();
-    os_crosscore_int_init();
-
     /*modify all int vector in cpu0 for 2 cpu*/
-
     os_modify_int_handle(24,os_crosscore_isr);
-    
+
     /*wait another core start*/
     os_load_slavecpu();
-    
     #endif
+
+    initialise_wifi();
+
 #ifdef HCI_H4_NRF51822
     extern void nrf51822_h4_set_uart_config();
     nrf51822_h4_set_uart_config();
@@ -105,7 +99,7 @@ void app_main(void)
     extern void esp_bt_mesh_register(void);
     esp_bt_mesh_register();
 #endif
-    
+
 #ifdef TINY_ENGINE
     aos_task_new("main", app_entry, 0, 8192+4096+2048);
 #else
