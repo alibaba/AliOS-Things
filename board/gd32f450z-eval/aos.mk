@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := GD32F450ZKT6
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal newlib_stub init vfs netmgr
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos newlib_stub init vfs netmgr
 
 GLOBAL_DEFINES += GD32F450 CONFIG_NO_TCPIP
 
