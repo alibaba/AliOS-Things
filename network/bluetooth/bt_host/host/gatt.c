@@ -559,7 +559,7 @@ ssize_t bt_gatt_attr_write_ccc(struct bt_conn *conn,
 
 	ccc->cfg[i].value = value;
 
-	BT_DBG("handle 0x%04x value %u", attr->handle, ccc->cfg[i].value);
+	BT_DBG("%s, handle 0x%04x value %u", __func__, attr->handle, ccc->cfg[i].value);
 
 	/* Update cfg if don't match */
 	if (ccc->cfg[i].value != ccc->value) {
@@ -621,7 +621,7 @@ static int gatt_notify(struct bt_conn *conn, u16_t handle, const void *data,
 		return -ENOMEM;
 	}
 
-	BT_DBG("conn %p handle 0x%04x", conn, handle);
+	BT_DBG("%s, conn %p handle 0x%04x", __func__, conn, handle);
 
 	nfy = net_buf_add(buf, sizeof(*nfy));
 	nfy->handle = sys_cpu_to_le16(handle);
@@ -1793,7 +1793,7 @@ static int gatt_exec_write(struct bt_conn *conn,
 	req = net_buf_add(buf, sizeof(*req));
 	req->flags = BT_ATT_FLAG_EXEC;
 
-	BT_DBG("");
+	BT_DBG("%s", __func__);
 
 	return gatt_send(conn, buf, gatt_write_rsp, params, NULL);
 }

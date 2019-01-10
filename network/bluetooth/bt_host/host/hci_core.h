@@ -134,9 +134,6 @@ struct bt_dev {
 	struct bt_dev_br	br;
 #endif
 
-	/* Number of commands controller can accept */
-	struct k_sem		ncmd_sem;
-
 	/* Last sent HCI command */
 	struct net_buf		*sent_cmd;
 

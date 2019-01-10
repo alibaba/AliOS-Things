@@ -16,6 +16,7 @@
 static dev_status_changed_cb m_status_handler;
 static set_dev_status_cb m_ctrl_handler;
 static get_dev_status_cb m_query_handler;
+static ali_init_t init_ali;
 
 #if BZ_ENABLE_COMBO_NET
 static apinfo_ready_cb m_apinfo_handler;
@@ -136,7 +137,6 @@ static void event_handler(ali_event_t *p_event)
 int breeze_start(struct device_config *dev_conf)
 {
     uint32_t err_code;
-    ali_init_t init_ali;
 
     if ((dev_conf == NULL) || (dev_conf->status_changed_cb == NULL) ||
         (dev_conf->set_cb == NULL) || (dev_conf->get_cb == NULL) ||
