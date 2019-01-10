@@ -130,7 +130,7 @@ static int ota_parse(void* pctx, const char *json)
                 goto parse_failed;
             }
             ctx->hash_type = MD5;
-            strncpy(hash, md5->valuestring, strlen(md5->valuestring)+1);
+            strncpy(hash, md5->valuestring, strlen(md5->valuestring) + 1);
             hash[strlen(md5->valuestring)] = '\0';
             ota_to_capital(hash, strlen(hash));
         }
@@ -156,8 +156,12 @@ static int ota_parse(void* pctx, const char *json)
         if (digestSign) {
            memset(sign, 0x00, OTA_SIGN_LEN);
            ctx->sign_en = OTA_SIGN_ON;
-           ctx->sign_len = strlen(digestSign->valuestring);
-           if(ota_base64_decode((const unsigned char*)digestSign->valuestring, strlen(digestSign->valuestring),sign, &ctx->sign_len) != 0 ) {
+           ctx->sign_len = OTA_SIGN_LEN;
+           if(ota_base64_decode((const unsigned char*)digestSign->valuestring, strlen(digestSign->valuestring), sign, &ctx->sign_len) != 0 ) {
+                ret = OTA_PARSE_FAIL;
+                goto parse_failed;
+            }
+            else if(ctx->sign_len != OTA_SIGN_LEN) {
                 ret = OTA_PARSE_FAIL;
                 goto parse_failed;
             }

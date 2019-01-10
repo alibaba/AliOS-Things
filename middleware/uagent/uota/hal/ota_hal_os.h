@@ -111,7 +111,7 @@ void ota_crc16_init(ota_crc16_ctx *ctx);
 void ota_crc16_update(ota_crc16_ctx *ctx, const void *inSrc, unsigned int inLen);
 void ota_crc16_final(ota_crc16_ctx *ctx, unsigned short *outResult);
 /*Base64*/
-int ota_base64_decode(const unsigned char *input, int input_len, unsigned char *output, int *output_len);
+int ota_base64_decode(const unsigned char *input, unsigned int input_len, unsigned char *output, unsigned int *output_len);
 /*RSA*/
 #define HASH_NONE OTA_HASH_NONE
 #define SHA256 OTA_SHA256
