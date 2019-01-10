@@ -462,7 +462,7 @@ void bt_l2cap_send_cb(struct bt_conn *conn, u16_t cid, struct net_buf *buf,
 {
     struct bt_l2cap_hdr *hdr;
 
-    BT_DBG("conn %p cid %u len %zu", conn, cid, net_buf_frags_len(buf));
+    BT_DBG("%s, conn %p cid %u len %d", __func__, conn, cid, net_buf_frags_len(buf));
 
     hdr      = net_buf_push(buf, sizeof(*hdr));
     hdr->len = sys_cpu_to_le16(buf->len - sizeof(*hdr));
@@ -1467,11 +1467,6 @@ void bt_l2cap_recv(struct bt_conn *conn, struct net_buf *buf)
     struct bt_l2cap_hdr * hdr = (void *)buf->data;
     struct bt_l2cap_chan *chan;
     u16_t                 cid;
-
-    if (IS_ENABLED(CONFIG_BT_BREDR) && conn->type == BT_CONN_TYPE_BR) {
-        bt_l2cap_br_recv(conn, buf);
-        return;
-    }
 
     if (buf->len < sizeof(*hdr)) {
         BT_ERR("Too small L2CAP PDU received");

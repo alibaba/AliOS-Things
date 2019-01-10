@@ -7,6 +7,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #include <zephyr.h>
 #include <string.h>
 #include <stdio.h>
@@ -59,15 +63,6 @@ static void init_work(struct k_work *work);
 
 struct bt_dev bt_dev = {
     .init = _K_WORK_INITIALIZER(init_work),
-/* Give cmd_sem allowing to send first HCI_Reset cmd, the only
- * exception is if the controller requests to wait for an
- * initial Command Complete for NOP.
- */
-#if !defined(CONFIG_BT_WAIT_NOP)
-    .ncmd_sem = _K_SEM_INITIALIZER(bt_dev.ncmd_sem, 1, 1),
-#else
-    .ncmd_sem = _K_SEM_INITIALIZER(bt_dev.ncmd_sem, 0, 1),
-#endif
     .cmd_tx_queue = K_FIFO_INITIALIZER(bt_dev.cmd_tx_queue),
 #if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
     .rx_queue = K_FIFO_INITIALIZER(bt_dev.rx_queue),
@@ -84,12 +79,19 @@ static u8_t                  pub_key[64];
 static struct bt_pub_key_cb *pub_key_cb;
 static bt_dh_key_cb_t        dh_key_cb;
 
-#if defined(CONFIG_BT_BREDR)
-static bt_br_discovery_cb_t *  discovery_cb;
-struct bt_br_discovery_result *discovery_results;
-static size_t                  discovery_results_size;
-static size_t                  discovery_results_count;
-#endif /* CONFIG_BT_BREDR */
+
+enum {
+    HOST_INIT,
+    HOST_INIT_DONE,
+
+};
+
+static uint8_t host_state = HOST_INIT;
+
+static bt_addr_t *random_addr = NULL;
+static struct bt_data *adv_sd = NULL;
+static size_t adv_sd_len;
+static struct bt_le_adv_param adv_param;
 
 struct cmd_data
 {
@@ -102,8 +104,7 @@ struct cmd_data
     /** The command OpCode that the buffer contains */
     u16_t opcode;
 
-    /** Used by bt_hci_cmd_send_sync. */
-    struct k_sem *sync;
+    u8_t sync;
 };
 
 struct acl_data
@@ -130,6 +131,8 @@ NET_BUF_POOL_DEFINE(hci_cmd_pool, CONFIG_BT_HCI_CMD_COUNT,
 
 NET_BUF_POOL_DEFINE(hci_rx_pool, CONFIG_BT_RX_BUF_COUNT,
                     BT_BUF_RX_SIZE, BT_BUF_USER_DATA_MIN, NULL);
+
+static void process_cmd_done(struct net_buf *buf);
 
 #if defined(CONFIG_BT_HCI_ACL_FLOW_CONTROL)
 static void report_completed_packet(struct net_buf *buf)
@@ -201,7 +204,7 @@ struct net_buf *bt_hci_cmd_create(u16_t opcode, u8_t param_len)
 
     cmd(buf)->type   = BT_BUF_CMD;
     cmd(buf)->opcode = opcode;
-    cmd(buf)->sync   = NULL;
+    cmd(buf)->sync   = 0;
 
     hdr            = net_buf_add(buf, sizeof(*hdr));
     hdr->opcode    = sys_cpu_to_le16(opcode);
@@ -240,11 +243,9 @@ int bt_hci_cmd_send(u16_t opcode, struct net_buf *buf)
     return 0;
 }
 
-int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf,
-                         struct net_buf **rsp)
+int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp)
 {
-    struct k_sem sync_sem;
-    int          err;
+    int err = 0;
 
     if (!buf) {
         buf = bt_hci_cmd_create(opcode, 0);
@@ -256,32 +257,13 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf,
 
     BT_DBG("buf %p opcode 0x%04x len %u", buf, opcode, buf->len);
 
-    k_sem_init(&sync_sem, 0, UINT_MAX);
-    cmd(buf)->sync = &sync_sem;
-
-    /* Make sure the buffer stays around until the command completes */
-    net_buf_ref(buf);
-
+    cmd(buf)->sync = 1;
+    if (rsp) {
+        *rsp = buf;
+    }
     net_buf_put(&bt_dev.cmd_tx_queue, buf);
 
-    err = k_sem_take(&sync_sem, HCI_CMD_TIMEOUT);
-    __ASSERT(err == 0, "k_sem_take failed with err %d", err);
-
-    BT_DBG("opcode 0x%04x status 0x%02x", opcode, cmd(buf)->status);
-
-    if (cmd(buf)->status) {
-        err = -EIO;
-        net_buf_unref(buf);
-    } else {
-        err = 0;
-        if (rsp) {
-            *rsp = buf;
-        } else {
-            net_buf_unref(buf);
-        }
-    }
 exit:
-    k_sem_delete(&sync_sem);
     return err;
 }
 
@@ -318,17 +300,7 @@ static int set_advertise_enable(bool enable)
     }
 
     err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_ADV_ENABLE, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    if (enable) {
-        atomic_set_bit(bt_dev.flags, BT_DEV_ADVERTISING);
-    } else {
-        atomic_clear_bit(bt_dev.flags, BT_DEV_ADVERTISING);
-    }
-
-    return 0;
+    return err;
 }
 
 static int set_random_address(const bt_addr_t *addr)
@@ -359,14 +331,9 @@ static int set_random_address(const bt_addr_t *addr)
     net_buf_add_mem(buf, addr, sizeof(*addr));
 #endif
 
+    random_addr = addr;
     err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_RANDOM_ADDRESS, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    bt_addr_copy(&bt_dev.random_addr.a, addr);
-    bt_dev.random_addr.type = BT_ADDR_LE_RANDOM;
-    return 0;
+    return err;
 }
 
 #if defined(CONFIG_BT_PRIVACY)
@@ -430,7 +397,6 @@ static int le_set_private_addr(void)
     }
 
     nrpa.val[5] &= 0x3f;
-
     return set_random_address(&nrpa);
 }
 #endif
@@ -1266,1018 +1232,6 @@ static int set_flow_control(void)
 #endif /* CONFIG_BT_HCI_ACL_FLOW_CONTROL */
 #endif /* CONFIG_BT_CONN */
 
-#if defined(CONFIG_BT_BREDR)
-static void reset_pairing(struct bt_conn *conn)
-{
-    atomic_clear_bit(conn->flags, BT_CONN_BR_PAIRING);
-    atomic_clear_bit(conn->flags, BT_CONN_BR_PAIRING_INITIATOR);
-    atomic_clear_bit(conn->flags, BT_CONN_BR_LEGACY_SECURE);
-
-    /* Reset required security level to current operational */
-    conn->required_sec_level = conn->sec_level;
-}
-
-static int reject_conn(const bt_addr_t *bdaddr, u8_t reason)
-{
-    struct bt_hci_cp_reject_conn_req *cp;
-    struct net_buf *                  buf;
-    int                               err;
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_REJECT_CONN_REQ, sizeof(*cp));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    cp = net_buf_add(buf, sizeof(*cp));
-    bt_addr_copy(&cp->bdaddr, bdaddr);
-    cp->reason = reason;
-
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_REJECT_CONN_REQ, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    return 0;
-}
-
-static int accept_sco_conn(const bt_addr_t *bdaddr, struct bt_conn *sco_conn)
-{
-    struct bt_hci_cp_accept_sync_conn_req *cp;
-    struct net_buf *                       buf;
-    int                                    err;
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_ACCEPT_SYNC_CONN_REQ, sizeof(*cp));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    cp = net_buf_add(buf, sizeof(*cp));
-    bt_addr_copy(&cp->bdaddr, bdaddr);
-    cp->pkt_type       = sco_conn->sco.pkt_type;
-    cp->tx_bandwidth   = 0x00001f40;
-    cp->rx_bandwidth   = 0x00001f40;
-    cp->max_latency    = 0x0007;
-    cp->retrans_effort = 0x01;
-    cp->content_format = BT_VOICE_CVSD_16BIT;
-
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_ACCEPT_SYNC_CONN_REQ, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    return 0;
-}
-
-static int accept_conn(const bt_addr_t *bdaddr)
-{
-    struct bt_hci_cp_accept_conn_req *cp;
-    struct net_buf *                  buf;
-    int                               err;
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_ACCEPT_CONN_REQ, sizeof(*cp));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    cp = net_buf_add(buf, sizeof(*cp));
-    bt_addr_copy(&cp->bdaddr, bdaddr);
-    cp->role = BT_HCI_ROLE_SLAVE;
-
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_ACCEPT_CONN_REQ, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    return 0;
-}
-
-static void bt_esco_conn_req(struct bt_hci_evt_conn_request *evt)
-{
-    struct bt_conn *sco_conn;
-
-    sco_conn = bt_conn_add_sco(&evt->bdaddr, evt->link_type);
-    if (!sco_conn) {
-        reject_conn(&evt->bdaddr, BT_HCI_ERR_INSUFFICIENT_RESOURCES);
-        return;
-    }
-
-    if (accept_sco_conn(&evt->bdaddr, sco_conn)) {
-        BT_ERR("Error accepting connection from %s", bt_addr_str(&evt->bdaddr));
-        reject_conn(&evt->bdaddr, BT_HCI_ERR_UNSPECIFIED);
-        bt_sco_cleanup(sco_conn);
-        return;
-    }
-
-    sco_conn->role = BT_HCI_ROLE_SLAVE;
-    bt_conn_set_state(sco_conn, BT_CONN_CONNECT);
-    bt_conn_unref(sco_conn);
-}
-
-static void conn_req(struct net_buf *buf)
-{
-    struct bt_hci_evt_conn_request *evt = (void *)buf->data;
-    struct bt_conn *                conn;
-
-    BT_DBG("conn req from %s, type 0x%02x", bt_addr_str(&evt->bdaddr),
-           evt->link_type);
-
-    if (evt->link_type != BT_HCI_ACL) {
-        bt_esco_conn_req(evt);
-        return;
-    }
-
-    conn = bt_conn_add_br(&evt->bdaddr);
-    if (!conn) {
-        reject_conn(&evt->bdaddr, BT_HCI_ERR_INSUFFICIENT_RESOURCES);
-        return;
-    }
-
-    accept_conn(&evt->bdaddr);
-    conn->role = BT_HCI_ROLE_SLAVE;
-    bt_conn_set_state(conn, BT_CONN_CONNECT);
-    bt_conn_unref(conn);
-}
-
-static void update_sec_level_br(struct bt_conn *conn)
-{
-    if (!conn->encrypt) {
-        conn->sec_level = BT_SECURITY_LOW;
-        return;
-    }
-
-    if (conn->br.link_key) {
-        if (atomic_test_bit(conn->br.link_key->flags,
-                            BT_LINK_KEY_AUTHENTICATED)) {
-            if (conn->encrypt == 0x02) {
-                conn->sec_level = BT_SECURITY_FIPS;
-            } else {
-                conn->sec_level = BT_SECURITY_HIGH;
-            }
-        } else {
-            conn->sec_level = BT_SECURITY_MEDIUM;
-        }
-    } else {
-        BT_WARN("No BR/EDR link key found");
-        conn->sec_level = BT_SECURITY_MEDIUM;
-    }
-
-    if (conn->required_sec_level > conn->sec_level) {
-        BT_ERR("Failed to set required security level");
-        bt_conn_disconnect(conn, BT_HCI_ERR_AUTHENTICATION_FAIL);
-    }
-}
-
-static void synchronous_conn_complete(struct net_buf *buf)
-{
-    struct bt_hci_evt_sync_conn_complete *evt = (void *)buf->data;
-    struct bt_conn *                      sco_conn;
-    u16_t                                 handle = sys_le16_to_cpu(evt->handle);
-
-    BT_DBG("status 0x%02x, handle %u, type 0x%02x", evt->status, handle,
-           evt->link_type);
-
-    sco_conn = bt_conn_lookup_addr_sco(&evt->bdaddr);
-    if (!sco_conn) {
-        BT_ERR("Unable to find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    if (evt->status) {
-        sco_conn->err = evt->status;
-        bt_conn_set_state(sco_conn, BT_CONN_DISCONNECTED);
-        bt_conn_unref(sco_conn);
-        return;
-    }
-
-    sco_conn->handle = handle;
-    bt_conn_set_state(sco_conn, BT_CONN_CONNECTED);
-    bt_conn_unref(sco_conn);
-}
-
-static void conn_complete(struct net_buf *buf)
-{
-    struct bt_hci_evt_conn_complete *      evt = (void *)buf->data;
-    struct bt_conn *                       conn;
-    struct bt_hci_cp_read_remote_features *cp;
-    u16_t handle = sys_le16_to_cpu(evt->handle);
-
-    BT_DBG("status 0x%02x, handle %u, type 0x%02x", evt->status, handle,
-           evt->link_type);
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Unable to find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    if (evt->status) {
-        conn->err = evt->status;
-        bt_conn_set_state(conn, BT_CONN_DISCONNECTED);
-        bt_conn_unref(conn);
-        return;
-    }
-
-    conn->handle  = handle;
-    conn->encrypt = evt->encr_enabled;
-    update_sec_level_br(conn);
-    bt_conn_set_state(conn, BT_CONN_CONNECTED);
-    bt_conn_unref(conn);
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_READ_REMOTE_FEATURES, sizeof(*cp));
-    if (!buf) {
-        return;
-    }
-
-    cp         = net_buf_add(buf, sizeof(*cp));
-    cp->handle = evt->handle;
-
-    bt_hci_cmd_send_sync(BT_HCI_OP_READ_REMOTE_FEATURES, buf, NULL);
-}
-
-static void pin_code_req(struct net_buf *buf)
-{
-    struct bt_hci_evt_pin_code_req *evt = (void *)buf->data;
-    struct bt_conn *                conn;
-
-    BT_DBG("");
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Can't find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    bt_conn_pin_code_req(conn);
-    bt_conn_unref(conn);
-}
-
-static void link_key_notify(struct net_buf *buf)
-{
-    struct bt_hci_evt_link_key_notify *evt = (void *)buf->data;
-    struct bt_conn *                   conn;
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Can't find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    BT_DBG("%s, link type 0x%02x", bt_addr_str(&evt->bdaddr), evt->key_type);
-
-    if (!conn->br.link_key) {
-        conn->br.link_key = bt_keys_get_link_key(&evt->bdaddr);
-    }
-    if (!conn->br.link_key) {
-        BT_ERR("Can't update keys for %s", bt_addr_str(&evt->bdaddr));
-        bt_conn_unref(conn);
-        return;
-    }
-
-    /* clear any old Link Key flags */
-    atomic_set(conn->br.link_key->flags, 0);
-
-    switch (evt->key_type) {
-        case BT_LK_COMBINATION:
-            /*
-             * Setting Combination Link Key as AUTHENTICATED means it was
-             * successfully generated by 16 digits wide PIN code.
-             */
-            if (atomic_test_and_clear_bit(conn->flags,
-                                          BT_CONN_BR_LEGACY_SECURE)) {
-                atomic_set_bit(conn->br.link_key->flags,
-                               BT_LINK_KEY_AUTHENTICATED);
-            }
-            memcpy(conn->br.link_key->val, evt->link_key, 16);
-            break;
-        case BT_LK_AUTH_COMBINATION_P192:
-            atomic_set_bit(conn->br.link_key->flags, BT_LINK_KEY_AUTHENTICATED);
-            /* fall through */
-        case BT_LK_UNAUTH_COMBINATION_P192:
-            /* Mark no-bond so that link-key is removed on disconnection */
-            if (bt_conn_ssp_get_auth(conn) < BT_HCI_DEDICATED_BONDING) {
-                atomic_set_bit(conn->flags, BT_CONN_BR_NOBOND);
-            }
-
-            memcpy(conn->br.link_key->val, evt->link_key, 16);
-            break;
-        case BT_LK_AUTH_COMBINATION_P256:
-            atomic_set_bit(conn->br.link_key->flags, BT_LINK_KEY_AUTHENTICATED);
-            /* fall through */
-        case BT_LK_UNAUTH_COMBINATION_P256:
-            atomic_set_bit(conn->br.link_key->flags, BT_LINK_KEY_SC);
-
-            /* Mark no-bond so that link-key is removed on disconnection */
-            if (bt_conn_ssp_get_auth(conn) < BT_HCI_DEDICATED_BONDING) {
-                atomic_set_bit(conn->flags, BT_CONN_BR_NOBOND);
-            }
-
-            memcpy(conn->br.link_key->val, evt->link_key, 16);
-            break;
-        default:
-            BT_WARN("Unsupported Link Key type %u", evt->key_type);
-            memset(conn->br.link_key->val, 0, sizeof(conn->br.link_key->val));
-            break;
-    }
-
-    bt_conn_unref(conn);
-}
-
-static void link_key_neg_reply(const bt_addr_t *bdaddr)
-{
-    struct bt_hci_cp_link_key_neg_reply *cp;
-    struct net_buf *                     buf;
-
-    BT_DBG("");
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_LINK_KEY_NEG_REPLY, sizeof(*cp));
-    if (!buf) {
-        BT_ERR("Out of command buffers");
-        return;
-    }
-
-    cp = net_buf_add(buf, sizeof(*cp));
-    bt_addr_copy(&cp->bdaddr, bdaddr);
-    bt_hci_cmd_send_sync(BT_HCI_OP_LINK_KEY_NEG_REPLY, buf, NULL);
-}
-
-static void link_key_reply(const bt_addr_t *bdaddr, const u8_t *lk)
-{
-    struct bt_hci_cp_link_key_reply *cp;
-    struct net_buf *                 buf;
-
-    BT_DBG("");
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_LINK_KEY_REPLY, sizeof(*cp));
-    if (!buf) {
-        BT_ERR("Out of command buffers");
-        return;
-    }
-
-    cp = net_buf_add(buf, sizeof(*cp));
-    bt_addr_copy(&cp->bdaddr, bdaddr);
-    memcpy(cp->link_key, lk, 16);
-    bt_hci_cmd_send_sync(BT_HCI_OP_LINK_KEY_REPLY, buf, NULL);
-}
-
-static void link_key_req(struct net_buf *buf)
-{
-    struct bt_hci_evt_link_key_req *evt = (void *)buf->data;
-    struct bt_conn *                conn;
-
-    BT_DBG("%s", bt_addr_str(&evt->bdaddr));
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Can't find conn for %s", bt_addr_str(&evt->bdaddr));
-        link_key_neg_reply(&evt->bdaddr);
-        return;
-    }
-
-    if (!conn->br.link_key) {
-        conn->br.link_key = bt_keys_find_link_key(&evt->bdaddr);
-    }
-
-    if (!conn->br.link_key) {
-        link_key_neg_reply(&evt->bdaddr);
-        bt_conn_unref(conn);
-        return;
-    }
-
-    /*
-     * Enforce regenerate by controller stronger link key since found one
-     * in database not covers requested security level.
-     */
-    if (!atomic_test_bit(conn->br.link_key->flags, BT_LINK_KEY_AUTHENTICATED) &&
-        conn->required_sec_level > BT_SECURITY_MEDIUM) {
-        link_key_neg_reply(&evt->bdaddr);
-        bt_conn_unref(conn);
-        return;
-    }
-
-    link_key_reply(&evt->bdaddr, conn->br.link_key->val);
-    bt_conn_unref(conn);
-}
-
-static void io_capa_neg_reply(const bt_addr_t *bdaddr, const u8_t reason)
-{
-    struct bt_hci_cp_io_capability_neg_reply *cp;
-    struct net_buf *                          resp_buf;
-
-    resp_buf =
-      bt_hci_cmd_create(BT_HCI_OP_IO_CAPABILITY_NEG_REPLY, sizeof(*cp));
-    if (!resp_buf) {
-        BT_ERR("Out of command buffers");
-        return;
-    }
-
-    cp = net_buf_add(resp_buf, sizeof(*cp));
-    bt_addr_copy(&cp->bdaddr, bdaddr);
-    cp->reason = reason;
-    bt_hci_cmd_send_sync(BT_HCI_OP_IO_CAPABILITY_NEG_REPLY, resp_buf, NULL);
-}
-
-static void io_capa_resp(struct net_buf *buf)
-{
-    struct bt_hci_evt_io_capa_resp *evt = (void *)buf->data;
-    struct bt_conn *                conn;
-
-    BT_DBG("remote %s, IOcapa 0x%02x, auth 0x%02x", bt_addr_str(&evt->bdaddr),
-           evt->capability, evt->authentication);
-
-    if (evt->authentication > BT_HCI_GENERAL_BONDING_MITM) {
-        BT_ERR("Invalid remote authentication requirements");
-        io_capa_neg_reply(&evt->bdaddr, BT_HCI_ERR_UNSUPP_FEATURE_PARAM_VAL);
-        return;
-    }
-
-    if (evt->capability > BT_IO_NO_INPUT_OUTPUT) {
-        BT_ERR("Invalid remote io capability requirements");
-        io_capa_neg_reply(&evt->bdaddr, BT_HCI_ERR_UNSUPP_FEATURE_PARAM_VAL);
-        return;
-    }
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Unable to find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    conn->br.remote_io_capa = evt->capability;
-    conn->br.remote_auth    = evt->authentication;
-    atomic_set_bit(conn->flags, BT_CONN_BR_PAIRING);
-    bt_conn_unref(conn);
-}
-
-static void io_capa_req(struct net_buf *buf)
-{
-    struct bt_hci_evt_io_capa_req *       evt = (void *)buf->data;
-    struct net_buf *                      resp_buf;
-    struct bt_conn *                      conn;
-    struct bt_hci_cp_io_capability_reply *cp;
-    u8_t                                  auth;
-
-    BT_DBG("");
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Can't find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    resp_buf = bt_hci_cmd_create(BT_HCI_OP_IO_CAPABILITY_REPLY, sizeof(*cp));
-    if (!resp_buf) {
-        BT_ERR("Out of command buffers");
-        bt_conn_unref(conn);
-        return;
-    }
-
-    /*
-     * Set authentication requirements when acting as pairing initiator to
-     * 'dedicated bond' with MITM protection set if local IO capa
-     * potentially allows it, and for acceptor, based on local IO capa and
-     * remote's authentication set.
-     */
-    if (atomic_test_bit(conn->flags, BT_CONN_BR_PAIRING_INITIATOR)) {
-        if (bt_conn_get_io_capa() != BT_IO_NO_INPUT_OUTPUT) {
-            auth = BT_HCI_DEDICATED_BONDING_MITM;
-        } else {
-            auth = BT_HCI_DEDICATED_BONDING;
-        }
-    } else {
-        auth = bt_conn_ssp_get_auth(conn);
-    }
-
-    cp = net_buf_add(resp_buf, sizeof(*cp));
-    bt_addr_copy(&cp->bdaddr, &evt->bdaddr);
-    cp->capability     = bt_conn_get_io_capa();
-    cp->authentication = auth;
-    cp->oob_data       = 0;
-    bt_hci_cmd_send_sync(BT_HCI_OP_IO_CAPABILITY_REPLY, resp_buf, NULL);
-    bt_conn_unref(conn);
-}
-
-static void ssp_complete(struct net_buf *buf)
-{
-    struct bt_hci_evt_ssp_complete *evt = (void *)buf->data;
-    struct bt_conn *                conn;
-
-    BT_DBG("status %u", evt->status);
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Can't find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    if (evt->status) {
-        bt_conn_disconnect(conn, BT_HCI_ERR_AUTHENTICATION_FAIL);
-    }
-
-    bt_conn_unref(conn);
-}
-
-static void user_confirm_req(struct net_buf *buf)
-{
-    struct bt_hci_evt_user_confirm_req *evt = (void *)buf->data;
-    struct bt_conn *                    conn;
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Can't find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    bt_conn_ssp_auth(conn, sys_le32_to_cpu(evt->passkey));
-    bt_conn_unref(conn);
-}
-
-static void user_passkey_notify(struct net_buf *buf)
-{
-    struct bt_hci_evt_user_passkey_notify *evt = (void *)buf->data;
-    struct bt_conn *                       conn;
-
-    BT_DBG("");
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Can't find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    bt_conn_ssp_auth(conn, sys_le32_to_cpu(evt->passkey));
-    bt_conn_unref(conn);
-}
-
-static void user_passkey_req(struct net_buf *buf)
-{
-    struct bt_hci_evt_user_passkey_req *evt = (void *)buf->data;
-    struct bt_conn *                    conn;
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Can't find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    bt_conn_ssp_auth(conn, 0);
-    bt_conn_unref(conn);
-}
-
-struct discovery_priv
-{
-    u16_t clock_offset;
-    u8_t  pscan_rep_mode;
-    u8_t  resolving;
-} __packed;
-
-static int request_name(const bt_addr_t *addr, u8_t pscan, u16_t offset)
-{
-    struct bt_hci_cp_remote_name_request *cp;
-    struct net_buf *                      buf;
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_REMOTE_NAME_REQUEST, sizeof(*cp));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    cp = net_buf_add(buf, sizeof(*cp));
-
-    bt_addr_copy(&cp->bdaddr, addr);
-    cp->pscan_rep_mode = pscan;
-    cp->reserved       = 0x00; /* reserver, should be set to 0x00 */
-    cp->clock_offset   = offset;
-
-    return bt_hci_cmd_send_sync(BT_HCI_OP_REMOTE_NAME_REQUEST, buf, NULL);
-}
-
-#define EIR_SHORT_NAME 0x08
-#define EIR_COMPLETE_NAME 0x09
-
-static bool eir_has_name(const u8_t *eir)
-{
-    int len = 240;
-
-    while (len) {
-        if (len < 2) {
-            break;
-        };
-
-        /* Look for early termination */
-        if (!eir[0]) {
-            break;
-        }
-
-        /* Check if field length is correct */
-        if (eir[0] > len - 1) {
-            break;
-        }
-
-        switch (eir[1]) {
-            case EIR_SHORT_NAME:
-            case EIR_COMPLETE_NAME:
-                if (eir[0] > 1) {
-                    return true;
-                }
-                break;
-            default:
-                break;
-        }
-
-        /* Parse next AD Structure */
-        len -= eir[0] + 1;
-        eir += eir[0] + 1;
-    }
-
-    return false;
-}
-
-static void report_discovery_results(void)
-{
-    bool resolving_names = false;
-    int  i;
-
-    for (i = 0; i < discovery_results_count; i++) {
-        struct discovery_priv *priv;
-
-        priv = (struct discovery_priv *)&discovery_results[i]._priv;
-
-        if (eir_has_name(discovery_results[i].eir)) {
-            continue;
-        }
-
-        if (request_name(&discovery_results[i].addr, priv->pscan_rep_mode,
-                         priv->clock_offset)) {
-            continue;
-        }
-
-        priv->resolving = 1;
-        resolving_names = true;
-    }
-
-    if (resolving_names) {
-        return;
-    }
-
-    atomic_clear_bit(bt_dev.flags, BT_DEV_INQUIRY);
-
-    discovery_cb(discovery_results, discovery_results_count);
-
-    discovery_cb            = NULL;
-    discovery_results       = NULL;
-    discovery_results_size  = 0;
-    discovery_results_count = 0;
-}
-
-static void inquiry_complete(struct net_buf *buf)
-{
-    struct bt_hci_evt_inquiry_complete *evt = (void *)buf->data;
-
-    if (evt->status) {
-        BT_ERR("Failed to complete inquiry");
-    }
-
-    report_discovery_results();
-}
-
-static struct bt_br_discovery_result *get_result_slot(const bt_addr_t *addr,
-                                                      s8_t             rssi)
-{
-    struct bt_br_discovery_result *result = NULL;
-    size_t                         i;
-
-    /* check if already present in results */
-    for (i = 0; i < discovery_results_count; i++) {
-        if (!bt_addr_cmp(addr, &discovery_results[i].addr)) {
-            return &discovery_results[i];
-        }
-    }
-
-    /* Pick a new slot (if available) */
-    if (discovery_results_count < discovery_results_size) {
-        bt_addr_copy(&discovery_results[discovery_results_count].addr, addr);
-        return &discovery_results[discovery_results_count++];
-    }
-
-    /* ignore if invalid RSSI */
-    if (rssi == 0xff) {
-        return NULL;
-    }
-
-    /*
-     * Pick slot with smallest RSSI that is smaller then passed RSSI
-     * TODO handle TX if present
-     */
-    for (i = 0; i < discovery_results_size; i++) {
-        if (discovery_results[i].rssi > rssi) {
-            continue;
-        }
-
-        if (!result || result->rssi > discovery_results[i].rssi) {
-            result = &discovery_results[i];
-        }
-    }
-
-    if (result) {
-        BT_DBG("Reusing slot (old %s rssi %d dBm)", bt_addr_str(&result->addr),
-               result->rssi);
-
-        bt_addr_copy(&result->addr, addr);
-    }
-
-    return result;
-}
-
-static void inquiry_result_with_rssi(struct net_buf *buf)
-{
-    struct bt_hci_evt_inquiry_result_with_rssi *evt;
-    u8_t num_reports = net_buf_pull_u8(buf);
-
-    if (!atomic_test_bit(bt_dev.flags, BT_DEV_INQUIRY)) {
-        return;
-    }
-
-    BT_DBG("number of results: %u", num_reports);
-
-    evt = (void *)buf->data;
-    while (num_reports--) {
-        struct bt_br_discovery_result *result;
-        struct discovery_priv *        priv;
-
-        BT_DBG("%s rssi %d dBm", bt_addr_str(&evt->addr), evt->rssi);
-
-        result = get_result_slot(&evt->addr, evt->rssi);
-        if (!result) {
-            return;
-        }
-
-        priv                 = (struct discovery_priv *)&result->_priv;
-        priv->pscan_rep_mode = evt->pscan_rep_mode;
-        priv->clock_offset   = evt->clock_offset;
-
-        memcpy(result->cod, evt->cod, 3);
-        result->rssi = evt->rssi;
-
-        /* we could reuse slot so make sure EIR is cleared */
-        memset(result->eir, 0, sizeof(result->eir));
-
-        /*
-         * Get next report iteration by moving pointer to right offset
-         * in buf according to spec 4.2, Vol 2, Part E, 7.7.33.
-         */
-        evt = net_buf_pull(buf, sizeof(*evt));
-    }
-}
-
-static void extended_inquiry_result(struct net_buf *buf)
-{
-    struct bt_hci_evt_extended_inquiry_result *evt = (void *)buf->data;
-    struct bt_br_discovery_result *            result;
-    struct discovery_priv *                    priv;
-
-    if (!atomic_test_bit(bt_dev.flags, BT_DEV_INQUIRY)) {
-        return;
-    }
-
-    BT_DBG("%s rssi %d dBm", bt_addr_str(&evt->addr), evt->rssi);
-
-    result = get_result_slot(&evt->addr, evt->rssi);
-    if (!result) {
-        return;
-    }
-
-    priv                 = (struct discovery_priv *)&result->_priv;
-    priv->pscan_rep_mode = evt->pscan_rep_mode;
-    priv->clock_offset   = evt->clock_offset;
-
-    result->rssi = evt->rssi;
-    memcpy(result->cod, evt->cod, 3);
-    memcpy(result->eir, evt->eir, sizeof(result->eir));
-}
-
-static void remote_name_request_complete(struct net_buf *buf)
-{
-    struct bt_hci_evt_remote_name_req_complete *evt = (void *)buf->data;
-    struct bt_br_discovery_result *             result;
-    struct discovery_priv *                     priv;
-    int                                         eir_len = 240;
-    u8_t *                                      eir;
-    int                                         i;
-
-    result = get_result_slot(&evt->bdaddr, 0xff);
-    if (!result) {
-        return;
-    }
-
-    priv            = (struct discovery_priv *)&result->_priv;
-    priv->resolving = 0;
-
-    if (evt->status) {
-        goto check_names;
-    }
-
-    eir = result->eir;
-
-    while (eir_len) {
-        if (eir_len < 2) {
-            break;
-        };
-
-        /* Look for early termination */
-        if (!eir[0]) {
-            size_t name_len;
-
-            eir_len -= 2;
-
-            /* name is null terminated */
-            name_len = strlen((const char *)evt->name);
-
-            if (name_len > eir_len) {
-                eir[0] = eir_len + 1;
-                eir[1] = EIR_SHORT_NAME;
-            } else {
-                eir[0] = name_len + 1;
-                eir[1] = EIR_SHORT_NAME;
-            }
-
-            memcpy(&eir[2], evt->name, eir[0] - 1);
-
-            break;
-        }
-
-        /* Check if field length is correct */
-        if (eir[0] > eir_len - 1) {
-            break;
-        }
-
-        /* next EIR Structure */
-        eir_len -= eir[0] + 1;
-        eir += eir[0] + 1;
-    }
-
-check_names:
-    /* if still waiting for names */
-    for (i = 0; i < discovery_results_count; i++) {
-        struct discovery_priv *priv;
-
-        priv = (struct discovery_priv *)&discovery_results[i]._priv;
-
-        if (priv->resolving) {
-            return;
-        }
-    }
-
-    /* all names resolved, report discovery results */
-    atomic_clear_bit(bt_dev.flags, BT_DEV_INQUIRY);
-
-    discovery_cb(discovery_results, discovery_results_count);
-
-    discovery_cb            = NULL;
-    discovery_results       = NULL;
-    discovery_results_size  = 0;
-    discovery_results_count = 0;
-}
-
-static void link_encr(const u16_t handle)
-{
-    struct bt_hci_cp_set_conn_encrypt *encr;
-    struct net_buf *                   buf;
-
-    BT_DBG("");
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_SET_CONN_ENCRYPT, sizeof(*encr));
-    if (!buf) {
-        BT_ERR("Out of command buffers");
-        return;
-    }
-
-    encr          = net_buf_add(buf, sizeof(*encr));
-    encr->handle  = sys_cpu_to_le16(handle);
-    encr->encrypt = 0x01;
-
-    bt_hci_cmd_send_sync(BT_HCI_OP_SET_CONN_ENCRYPT, buf, NULL);
-}
-
-static void auth_complete(struct net_buf *buf)
-{
-    struct bt_hci_evt_auth_complete *evt = (void *)buf->data;
-    struct bt_conn *                 conn;
-    u16_t                            handle = sys_le16_to_cpu(evt->handle);
-
-    BT_DBG("status %u, handle %u", evt->status, handle);
-
-    conn = bt_conn_lookup_handle(handle);
-    if (!conn) {
-        BT_ERR("Can't find conn for handle %u", handle);
-        return;
-    }
-
-    if (evt->status) {
-        if (conn->state == BT_CONN_CONNECTED) {
-            /*
-             * Inform layers above HCI about non-zero authentication
-             * status to make them able cleanup pending jobs.
-             */
-            bt_l2cap_encrypt_change(conn, evt->status);
-        }
-        reset_pairing(conn);
-    } else {
-        link_encr(handle);
-    }
-
-    bt_conn_unref(conn);
-}
-
-static void read_remote_features_complete(struct net_buf *buf)
-{
-    struct bt_hci_evt_remote_features *evt    = (void *)buf->data;
-    u16_t                              handle = sys_le16_to_cpu(evt->handle);
-    struct bt_hci_cp_read_remote_ext_features *cp;
-    struct bt_conn *                           conn;
-
-    BT_DBG("status %u handle %u", evt->status, handle);
-
-    conn = bt_conn_lookup_handle(handle);
-    if (!conn) {
-        BT_ERR("Can't find conn for handle %u", handle);
-        return;
-    }
-
-    if (evt->status) {
-        goto done;
-    }
-
-    memcpy(conn->br.features[0], evt->features, sizeof(evt->features));
-
-    if (!BT_FEAT_EXT_FEATURES(conn->br.features)) {
-        goto done;
-    }
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_READ_REMOTE_EXT_FEATURES, sizeof(*cp));
-    if (!buf) {
-        goto done;
-    }
-
-    /* Read remote host features (page 1) */
-    cp         = net_buf_add(buf, sizeof(*cp));
-    cp->handle = evt->handle;
-    cp->page   = 0x01;
-
-    bt_hci_cmd_send_sync(BT_HCI_OP_READ_REMOTE_EXT_FEATURES, buf, NULL);
-
-done:
-    bt_conn_unref(conn);
-}
-
-static void read_remote_ext_features_complete(struct net_buf *buf)
-{
-    struct bt_hci_evt_remote_ext_features *evt = (void *)buf->data;
-    u16_t           handle                     = sys_le16_to_cpu(evt->handle);
-    struct bt_conn *conn;
-
-    BT_DBG("status %u handle %u", evt->status, handle);
-
-    conn = bt_conn_lookup_handle(handle);
-    if (!conn) {
-        BT_ERR("Can't find conn for handle %u", handle);
-        return;
-    }
-
-    if (!evt->status && evt->page == 0x01) {
-        memcpy(conn->br.features[1], evt->features,
-               sizeof(conn->br.features[1]));
-    }
-
-    bt_conn_unref(conn);
-}
-
-static void role_change(struct net_buf *buf)
-{
-    struct bt_hci_evt_role_change *evt = (void *)buf->data;
-    struct bt_conn *               conn;
-
-    BT_DBG("status %u role %u addr %s", evt->status, evt->role,
-           bt_addr_str(&evt->bdaddr));
-
-    if (evt->status) {
-        return;
-    }
-
-    conn = bt_conn_lookup_addr_br(&evt->bdaddr);
-    if (!conn) {
-        BT_ERR("Can't find conn for %s", bt_addr_str(&evt->bdaddr));
-        return;
-    }
-
-    if (evt->role) {
-        conn->role = BT_CONN_ROLE_SLAVE;
-    } else {
-        conn->role = BT_CONN_ROLE_MASTER;
-    }
-
-    bt_conn_unref(conn);
-}
-#endif /* CONFIG_BT_BREDR */
-
 #if defined(CONFIG_BT_SMP)
 static int addr_res_enable(u8_t enable)
 {
@@ -2786,12 +1740,6 @@ static void hci_reset_complete(struct net_buf *buf)
     }
 
     scan_dev_found_cb = NULL;
-#if defined(CONFIG_BT_BREDR)
-    discovery_cb            = NULL;
-    discovery_results       = NULL;
-    discovery_results_size  = 0;
-    discovery_results_count = 0;
-#endif /* CONFIG_BT_BREDR */
 
     /* we only allow to enable once so this bit must be keep set */
     atomic_set(bt_dev.flags, BIT(BT_DEV_ENABLE));
@@ -2812,10 +1760,9 @@ static void hci_cmd_done(u16_t opcode, u8_t status, struct net_buf *buf)
                 cmd(buf)->opcode);
     }
 
-    /* If the command was synchronous wake up bt_hci_cmd_send_sync() */
     if (cmd(buf)->sync) {
         cmd(buf)->status = status;
-        k_sem_give(cmd(buf)->sync);
+        process_cmd_done(buf);
     }
 }
 
@@ -2835,29 +1782,18 @@ static void hci_cmd_complete(struct net_buf *buf)
     status = buf->data[0];
 
     hci_cmd_done(opcode, status, buf);
-
-    /* Allow next command to be sent */
-    if (ncmd) {
-        k_sem_give(&bt_dev.ncmd_sem);
-    }
 }
 
 static void hci_cmd_status(struct net_buf *buf)
 {
     struct bt_hci_evt_cmd_status *evt    = (void *)buf->data;
-    u16_t                         opcode = sys_le16_to_cpu(evt->opcode);
-    u8_t                          ncmd   = evt->ncmd;
+    u16_t opcode = sys_le16_to_cpu(evt->opcode);
 
     BT_DBG("opcode 0x%04x", opcode);
 
     net_buf_pull(buf, sizeof(*evt));
 
     hci_cmd_done(opcode, evt->status, buf);
-
-    /* Allow next command to be sent */
-    if (ncmd) {
-        k_sem_give(&bt_dev.ncmd_sem);
-    }
 }
 
 static int start_le_scan(u8_t scan_type, u16_t interval, u16_t window)
@@ -3182,10 +2118,6 @@ static void send_cmd(void)
     buf = net_buf_get(&bt_dev.cmd_tx_queue, K_NO_WAIT);
     BT_ASSERT(buf);
 
-    /* Wait until ncmd > 0 */
-    BT_DBG("calling sem_take_wait");
-    k_sem_take(&bt_dev.ncmd_sem, K_FOREVER);
-
     /* Clear out any existing sent command */
     if (bt_dev.sent_cmd) {
         BT_ERR("Uncleared pending sent_cmd");
@@ -3200,7 +2132,6 @@ static void send_cmd(void)
     err = bt_send(buf);
     if (err) {
         BT_ERR("Unable to send to driver (err %d)", err);
-        k_sem_give(&bt_dev.ncmd_sem);
         hci_cmd_done(cmd(buf)->opcode, BT_HCI_ERR_UNSPECIFIED, NULL);
         net_buf_unref(bt_dev.sent_cmd);
         bt_dev.sent_cmd = NULL;
@@ -3225,10 +2156,10 @@ int has_tx_sem(struct k_poll_event *event)
 
 static void process_events(struct k_poll_event *ev, int count)
 {
-    BT_DBG("count %d", count);
+    //BT_DBG("count %d", count);
 
     for (; count; ev++, count--) {
-        BT_DBG("ev->state %u", ev->state);
+        //BT_DBG("ev->state %u", ev->state);
 
         switch (ev->state) {
             case K_POLL_STATE_SIGNALED:
@@ -3304,7 +2235,7 @@ static void hci_tx_thread(void *p1, void *p2, void *p3)
             ev_count += bt_conn_prepare_events(&events[1]);
         }
 
-        BT_DBG("Calling k_poll with %d events", ev_count);
+        //BT_DBG("Calling k_poll with %d events", ev_count);
 
         if (delayed_ms == 0) {
             delayed_ms = 1;
@@ -3440,71 +2371,6 @@ static void le_read_supp_states_complete(struct net_buf *buf)
     bt_dev.le.states = sys_get_le64(rp->le_states);
 }
 
-static int common_init(void)
-{
-    struct net_buf *rsp;
-    int             err;
-
-    /* Send HCI_RESET */
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_RESET, NULL, &rsp);
-    if (err) {
-        return err;
-    }
-    hci_reset_complete(rsp);
-    net_buf_unref(rsp);
-
-    /* Read Local Supported Features */
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_LOCAL_FEATURES, NULL, &rsp);
-    if (err) {
-        return err;
-    }
-    read_local_features_complete(rsp);
-    net_buf_unref(rsp);
-
-    /* Read Local Version Information */
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_LOCAL_VERSION_INFO, NULL, &rsp);
-    if (err) {
-        return err;
-    }
-    read_local_ver_complete(rsp);
-    net_buf_unref(rsp);
-
-    /* Read Bluetooth Address */
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_BD_ADDR, NULL, &rsp);
-    if (err) {
-        return err;
-    }
-    read_bdaddr_complete(rsp);
-    net_buf_unref(rsp);
-
-    /* Read Local Supported Commands */
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_SUPPORTED_COMMANDS, NULL, &rsp);
-    if (err) {
-        return err;
-    }
-    read_supported_commands_complete(rsp);
-    net_buf_unref(rsp);
-
-    if (IS_ENABLED(CONFIG_BT_HOST_CRYPTO)) {
-        /* Initialize the PRNG so that it is safe to use it later
-         * on in the initialization process.
-         */
-        err = prng_init();
-        if (err) {
-            return err;
-        }
-    }
-
-#if defined(CONFIG_BT_HCI_ACL_FLOW_CONTROL)
-    err = set_flow_control();
-    if (err) {
-        return err;
-    }
-#endif /* CONFIG_BT_CONN */
-
-    return 0;
-}
-
 static int le_set_event_mask(void)
 {
     struct bt_hci_cp_le_set_event_mask *cp_mask;
@@ -3567,9 +2433,9 @@ static int le_set_event_mask(void)
 static int le_init(void)
 {
     struct bt_hci_cp_write_le_host_supp *cp_le;
-    struct net_buf *                     buf;
-    struct net_buf *                     rsp;
-    int                                  err;
+    struct net_buf *buf;
+    struct net_buf *rsp;
+    int err;
 
     /* For now we only support LE capable controllers */
     if (!BT_FEAT_LE(bt_dev.features)) {
@@ -3579,312 +2445,8 @@ static int le_init(void)
 
     /* Read Low Energy Supported Features */
     err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_LOCAL_FEATURES, NULL, &rsp);
-    if (err) {
-        return err;
-    }
-    read_le_features_complete(rsp);
-    net_buf_unref(rsp);
-
-#if defined(CONFIG_BT_CONN)
-    /* Read LE Buffer Size */
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_BUFFER_SIZE, NULL, &rsp);
-    if (err) {
-        return err;
-    }
-    le_read_buffer_size_complete(rsp);
-    net_buf_unref(rsp);
-#endif
-
-    if (BT_FEAT_BREDR(bt_dev.features)) {
-        buf =
-          bt_hci_cmd_create(BT_HCI_OP_LE_WRITE_LE_HOST_SUPP, sizeof(*cp_le));
-        if (!buf) {
-            return -ENOBUFS;
-        }
-
-        cp_le = net_buf_add(buf, sizeof(*cp_le));
-
-        /* Explicitly enable LE for dual-mode controllers */
-        cp_le->le    = 0x01;
-        cp_le->simul = 0x00;
-        err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_WRITE_LE_HOST_SUPP, buf, NULL);
-        if (err) {
-            return err;
-        }
-    }
-
-    /* Read LE Supported States */
-    if (BT_CMD_LE_STATES(bt_dev.supported_commands)) {
-        err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_SUPP_STATES, NULL, &rsp);
-        if (err) {
-            return err;
-        }
-        le_read_supp_states_complete(rsp);
-        net_buf_unref(rsp);
-    }
-
-    if (IS_ENABLED(CONFIG_BT_CONN) && BT_FEAT_LE_DLE(bt_dev.le.features)) {
-        struct bt_hci_cp_le_write_default_data_len *cp;
-        struct bt_hci_rp_le_read_max_data_len *     rp;
-        struct net_buf *                            buf, *rsp;
-        u16_t                                       tx_octets, tx_time;
-
-        err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_MAX_DATA_LEN, NULL, &rsp);
-        if (err) {
-            return err;
-        }
-
-        rp        = (void *)rsp->data;
-        tx_octets = sys_le16_to_cpu(rp->max_tx_octets);
-        tx_time   = sys_le16_to_cpu(rp->max_tx_time);
-        net_buf_unref(rsp);
-
-        buf =
-          bt_hci_cmd_create(BT_HCI_OP_LE_WRITE_DEFAULT_DATA_LEN, sizeof(*cp));
-        if (!buf) {
-            return -ENOBUFS;
-        }
-
-        cp                = net_buf_add(buf, sizeof(*cp));
-        cp->max_tx_octets = sys_cpu_to_le16(tx_octets);
-        cp->max_tx_time   = sys_cpu_to_le16(tx_time);
-
-        err =
-          bt_hci_cmd_send_sync(BT_HCI_OP_LE_WRITE_DEFAULT_DATA_LEN, buf, NULL);
-        if (err) {
-            return err;
-        }
-    }
-
-#if defined(CONFIG_BT_SMP)
-    if (IS_ENABLED(CONFIG_BT_PRIVACY) &&
-        BT_FEAT_LE_PRIVACY(bt_dev.le.features)) {
-        struct bt_hci_rp_le_read_rl_size *rp;
-        struct net_buf *                  rsp;
-
-        err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_RL_SIZE, NULL, &rsp);
-        if (err) {
-            return err;
-        }
-
-        rp = (void *)rsp->data;
-
-        BT_DBG("Resolving List size %u", rp->rl_size);
-
-        bt_dev.le.rl_size = rp->rl_size;
-
-        net_buf_unref(rsp);
-    }
-#endif
-
-    return le_set_event_mask();
+    return err;
 }
-
-#if defined(CONFIG_BT_BREDR)
-static int read_ext_features(void)
-{
-    int i;
-
-    /* Read Local Supported Extended Features */
-    for (i = 1; i < LMP_FEAT_PAGES_COUNT; i++) {
-        struct bt_hci_cp_read_local_ext_features *cp;
-        struct bt_hci_rp_read_local_ext_features *rp;
-        struct net_buf *                          buf, *rsp;
-        int                                       err;
-
-        buf = bt_hci_cmd_create(BT_HCI_OP_READ_LOCAL_EXT_FEATURES, sizeof(*cp));
-        if (!buf) {
-            return -ENOBUFS;
-        }
-
-        cp       = net_buf_add(buf, sizeof(*cp));
-        cp->page = i;
-
-        err =
-          bt_hci_cmd_send_sync(BT_HCI_OP_READ_LOCAL_EXT_FEATURES, buf, &rsp);
-        if (err) {
-            return err;
-        }
-
-        rp = (void *)rsp->data;
-
-        memcpy(&bt_dev.features[i], rp->ext_features,
-               sizeof(bt_dev.features[i]));
-
-        if (rp->max_page <= i) {
-            net_buf_unref(rsp);
-            break;
-        }
-
-        net_buf_unref(rsp);
-    }
-
-    return 0;
-}
-
-void device_supported_pkt_type(void)
-{
-    /* Device supported features and sco packet types */
-    if (BT_FEAT_HV2_PKT(bt_dev.features)) {
-        bt_dev.br.esco_pkt_type |= (HCI_PKT_TYPE_ESCO_HV2);
-    }
-
-    if (BT_FEAT_HV3_PKT(bt_dev.features)) {
-        bt_dev.br.esco_pkt_type |= (HCI_PKT_TYPE_ESCO_HV3);
-    }
-
-    if (BT_FEAT_LMP_ESCO_CAPABLE(bt_dev.features)) {
-        bt_dev.br.esco_pkt_type |= (HCI_PKT_TYPE_ESCO_EV3);
-    }
-
-    if (BT_FEAT_EV4_PKT(bt_dev.features)) {
-        bt_dev.br.esco_pkt_type |= (HCI_PKT_TYPE_ESCO_EV4);
-    }
-
-    if (BT_FEAT_EV5_PKT(bt_dev.features)) {
-        bt_dev.br.esco_pkt_type |= (HCI_PKT_TYPE_ESCO_EV5);
-    }
-
-    if (BT_FEAT_2EV3_PKT(bt_dev.features)) {
-        bt_dev.br.esco_pkt_type |= (HCI_PKT_TYPE_ESCO_2EV3);
-    }
-
-    if (BT_FEAT_3EV3_PKT(bt_dev.features)) {
-        bt_dev.br.esco_pkt_type |= (HCI_PKT_TYPE_ESCO_3EV3);
-    }
-
-    if (BT_FEAT_3SLOT_PKT(bt_dev.features)) {
-        bt_dev.br.esco_pkt_type |=
-          (HCI_PKT_TYPE_ESCO_2EV5 | HCI_PKT_TYPE_ESCO_3EV5);
-    }
-}
-
-static int br_init(void)
-{
-    struct net_buf *                     buf;
-    struct bt_hci_cp_write_ssp_mode *    ssp_cp;
-    struct bt_hci_cp_write_inquiry_mode *inq_cp;
-    struct bt_hci_write_local_name *     name_cp;
-    int                                  err;
-
-    /* Read extended local features */
-    if (BT_FEAT_EXT_FEATURES(bt_dev.features)) {
-        err = read_ext_features();
-        if (err) {
-            return err;
-        }
-    }
-
-    /* Add local supported packet types to bt_dev */
-    device_supported_pkt_type();
-
-    /* Get BR/EDR buffer size */
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_BUFFER_SIZE, NULL, &buf);
-    if (err) {
-        return err;
-    }
-
-    read_buffer_size_complete(buf);
-    net_buf_unref(buf);
-
-    /* Set SSP mode */
-    buf = bt_hci_cmd_create(BT_HCI_OP_WRITE_SSP_MODE, sizeof(*ssp_cp));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    ssp_cp       = net_buf_add(buf, sizeof(*ssp_cp));
-    ssp_cp->mode = 0x01;
-    err          = bt_hci_cmd_send_sync(BT_HCI_OP_WRITE_SSP_MODE, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    /* Enable Inquiry results with RSSI or extended Inquiry */
-    buf = bt_hci_cmd_create(BT_HCI_OP_WRITE_INQUIRY_MODE, sizeof(*inq_cp));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    inq_cp       = net_buf_add(buf, sizeof(*inq_cp));
-    inq_cp->mode = 0x02;
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_WRITE_INQUIRY_MODE, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    /* Set local name */
-    buf = bt_hci_cmd_create(BT_HCI_OP_WRITE_LOCAL_NAME, sizeof(*name_cp));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    name_cp = net_buf_add(buf, sizeof(*name_cp));
-    strncpy((char *)name_cp->local_name, CONFIG_BT_DEVICE_NAME,
-            sizeof(name_cp->local_name));
-
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_WRITE_LOCAL_NAME, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    /* Set page timeout*/
-    buf = bt_hci_cmd_create(BT_HCI_OP_WRITE_PAGE_TIMEOUT, sizeof(u16_t));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    net_buf_add_le16(buf, CONFIG_BT_PAGE_TIMEOUT);
-
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_WRITE_PAGE_TIMEOUT, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    /* Enable BR/EDR SC if supported */
-    if (BT_FEAT_SC(bt_dev.features)) {
-        struct bt_hci_cp_write_sc_host_supp *sc_cp;
-
-        buf = bt_hci_cmd_create(BT_HCI_OP_WRITE_SC_HOST_SUPP, sizeof(*sc_cp));
-        if (!buf) {
-            return -ENOBUFS;
-        }
-
-        sc_cp             = net_buf_add(buf, sizeof(*sc_cp));
-        sc_cp->sc_support = 0x01;
-
-        err = bt_hci_cmd_send_sync(BT_HCI_OP_WRITE_SC_HOST_SUPP, buf, NULL);
-        if (err) {
-            return err;
-        }
-    }
-
-    return 0;
-}
-#else
-static int br_init(void)
-{
-#if defined(CONFIG_BT_CONN)
-    struct net_buf *rsp;
-    int err;
-
-    if (bt_dev.le.mtu) {
-        return 0;
-    }
-
-    /* Use BR/EDR buffer size if LE reports zero buffers */
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_BUFFER_SIZE, NULL, &rsp);
-    if (err) {
-        return err;
-    }
-
-    read_buffer_size_complete(rsp);
-    net_buf_unref(rsp);
-#endif /* CONFIG_BT_CONN */
-
-    return 0;
-}
-#endif
 
 static int set_event_mask(void)
 {
@@ -4208,50 +2770,33 @@ static void hci_vs_init(void)
 
 static int hci_init(void)
 {
-    int err;
+    return bt_hci_cmd_send_sync(BT_HCI_OP_RESET, NULL, NULL);
+}
 
-    err = common_init();
-    if (err) {
-        return err;
-    }
-
-    err = le_init();
-    if (err) {
-        return err;
-    }
-
-    if (BT_FEAT_BREDR(bt_dev.features)) {
-        err = br_init();
-        if (err) {
-            return err;
-        }
-    } else if (IS_ENABLED(CONFIG_BT_BREDR)) {
-        BT_ERR("Non-BR/EDR controller detected");
-        return -EIO;
-    }
-
-    err = set_event_mask();
-    if (err) {
-        return err;
-    }
-
-#if defined(CONFIG_BT_HCI_VS_EXT)
-    hci_vs_init();
-#endif
-
-    if (!bt_addr_le_cmp(&bt_dev.id_addr, BT_ADDR_LE_ANY) ||
-        !bt_addr_le_cmp(&bt_dev.id_addr, BT_ADDR_LE_NONE)) {
-        BT_DBG("No public address. Trying to set static random.");
-        err = set_static_addr();
-        if (err) {
-            BT_ERR("Unable to set identity address");
-            return err;
-        }
-    }
+static int hci_init_done(void)
+{
+    int err = 0;
 
     show_dev_info();
+    if (IS_ENABLED(CONFIG_BT_CONN)) {
+        err = bt_conn_init();
+        if (err) {
+            goto exit;
+        }
+    }
 
-    return 0;
+#if defined(CONFIG_BT_PRIVACY)
+
+#endif
+    atomic_set_bit(bt_dev.flags, BT_DEV_READY);
+    bt_le_scan_update(false);
+    host_state = HOST_INIT_DONE;
+    if (ready_cb) {
+        ready_cb(err);
+    }
+
+exit:
+    return err;
 }
 
 int bt_send(struct net_buf *buf)
@@ -4273,7 +2818,7 @@ int bt_recv(struct net_buf *buf)
 
     bt_monitor_send(bt_monitor_opcode(buf), buf->data, buf->len);
 
-    BT_DBG("buf %p len %u", buf, buf->len);
+    BT_DBG("%s, buf %p len %u", __func__, buf, buf->len);
 
     pool = net_buf_pool_get(buf->pool_id);
     if (pool->user_data_size < BT_BUF_USER_DATA_MIN) {
@@ -4397,44 +2942,13 @@ static int irk_init(void)
 
 static int bt_init(void)
 {
-    int err;
-
-    err = hci_init();
-    if (err) {
-        return err;
-    }
-
-    if (IS_ENABLED(CONFIG_BT_CONN)) {
-        err = bt_conn_init();
-        if (err) {
-            return err;
-        }
-    }
-
-#if defined(CONFIG_BT_PRIVACY)
-    err = irk_init();
-    if (err) {
-        return err;
-    }
-
-    k_delayed_work_init(&bt_dev.rpa_update, rpa_timeout);
-#endif
-
-    bt_monitor_send(BT_MONITOR_OPEN_INDEX, NULL, 0);
-    atomic_set_bit(bt_dev.flags, BT_DEV_READY);
-    bt_le_scan_update(false);
-
-    return 0;
+    host_state = HOST_INIT;
+    return hci_init();
 }
 
 static void init_work(struct k_work *work)
 {
-    int err;
-
-    err = bt_init();
-    if (ready_cb) {
-        ready_cb(err);
-    }
+    bt_init();
 }
 
 #if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
@@ -4488,11 +3002,6 @@ int bt_enable(bt_ready_cb_t cb)
 
     k_work_init(&bt_dev.init, init_work);
     k_work_q_start();
-#if !defined(CONFIG_BT_WAIT_NOP)
-    k_sem_init(&bt_dev.ncmd_sem, 1, 1);
-#else
-    k_sem_init(&bt_dev.ncmd_sem, 0, 1);
-#endif
 
     extern struct k_sem g_poll_sem;
     k_sem_init(&g_poll_sem, 0, 1);
@@ -4601,9 +3110,8 @@ int bt_le_adv_start(const struct bt_le_adv_param *param,
                     const struct bt_data *ad, size_t ad_len,
                     const struct bt_data *sd, size_t sd_len)
 {
-    struct bt_hci_cp_le_set_adv_param set_param;
-    struct net_buf *                  buf;
-    int                               err;
+    struct net_buf *buf;
+    int err;
 
     if (!valid_adv_param(param)) {
         return -EINVAL;
@@ -4614,106 +3122,14 @@ int bt_le_adv_start(const struct bt_le_adv_param *param,
     }
 
     err = set_ad(BT_HCI_OP_LE_SET_ADV_DATA, ad, ad_len);
-    if (err) {
-        return err;
-    }
-
-    /*
-     * We need to set SCAN_RSP when enabling advertising type that allows
-     * for Scan Requests.
-     *
-     * If sd was not provided but we enable connectable undirected
-     * advertising sd needs to be cleared from values set by previous calls.
-     * Clearing sd is done by calling set_ad() with NULL data and zero len.
-     * So following condition check is unusual but correct.
-     */
-    if (sd || (param->options & BT_LE_ADV_OPT_CONNECTABLE)) {
-        err = set_ad(BT_HCI_OP_LE_SET_SCAN_RSP_DATA, sd, sd_len);
-        if (err) {
-            return err;
+    if (err == 0) {
+        if (sd || (param->options & BT_LE_ADV_OPT_CONNECTABLE)) {
+            adv_sd = sd;
+            adv_sd_len = sd_len;
+            memcpy(&adv_param, param, sizeof(adv_param));
         }
     }
-
-    memset(&set_param, 0, sizeof(set_param));
-
-    set_param.min_interval = sys_cpu_to_le16(param->interval_min);
-    set_param.max_interval = sys_cpu_to_le16(param->interval_max);
-    set_param.channel_map  = 0x07;
-
-    if (param->options & BT_LE_ADV_OPT_CONNECTABLE) {
-        if (IS_ENABLED(CONFIG_BT_PRIVACY)) {
-            err = le_set_private_addr();
-            if (err) {
-                return err;
-            }
-
-            if (BT_FEAT_LE_PRIVACY(bt_dev.le.features)) {
-                set_param.own_addr_type = BT_HCI_OWN_ADDR_RPA_OR_RANDOM;
-            } else {
-                set_param.own_addr_type = BT_ADDR_LE_RANDOM;
-            }
-        } else {
-            /*
-             * If Static Random address is used as Identity
-             * address we need to restore it before advertising
-             * is enabled. Otherwise NRPA used for active scan
-             * could be used for advertising.
-             */
-            if (atomic_test_bit(bt_dev.flags, BT_DEV_ID_STATIC_RANDOM)) {
-                set_random_address(&bt_dev.id_addr.a);
-            }
-
-            set_param.own_addr_type = bt_dev.id_addr.type;
-        }
-
-        set_param.type = BT_LE_ADV_IND;
-    } else {
-        if (param->own_addr) {
-            /* Only NRPA is allowed */
-            if (!BT_ADDR_IS_NRPA(param->own_addr)) {
-                return -EINVAL;
-            }
-
-            err = set_random_address(param->own_addr);
-        } else {
-            err = le_set_private_addr();
-        }
-
-        if (err) {
-            return err;
-        }
-
-        set_param.own_addr_type = BT_ADDR_LE_RANDOM;
-
-        if (sd) {
-            set_param.type = BT_LE_ADV_SCAN_IND;
-        } else {
-            set_param.type = BT_LE_ADV_NONCONN_IND;
-        }
-    }
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_LE_SET_ADV_PARAM, sizeof(set_param));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    net_buf_add_mem(buf, &set_param, sizeof(set_param));
-
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_ADV_PARAM, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    err = set_advertise_enable(true);
-    if (err) {
-        return err;
-    }
-
-    if (!(param->options & BT_LE_ADV_OPT_ONE_TIME)) {
-        atomic_set_bit(bt_dev.flags, BT_DEV_KEEP_ADVERTISING);
-    }
-
-    return 0;
+    return err;
 }
 
 int bt_le_adv_stop(void)
@@ -4871,198 +3287,6 @@ struct net_buf *bt_buf_get_cmd_complete(s32_t timeout)
     return bt_buf_get_rx(BT_BUF_EVT, timeout);
 }
 
-#if defined(CONFIG_BT_BREDR)
-static int br_start_inquiry(const struct bt_br_discovery_param *param)
-{
-    const u8_t                iac[3] = { 0x33, 0x8b, 0x9e };
-    struct bt_hci_op_inquiry *cp;
-    struct net_buf *          buf;
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_INQUIRY, sizeof(*cp));
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    cp = net_buf_add(buf, sizeof(*cp));
-
-    cp->length  = param->length;
-    cp->num_rsp = 0xff; /* we limit discovery only by time */
-
-    memcpy(cp->lap, iac, 3);
-    if (param->limited) {
-        cp->lap[0] = 0x00;
-    }
-
-    return bt_hci_cmd_send_sync(BT_HCI_OP_INQUIRY, buf, NULL);
-}
-
-static bool valid_br_discov_param(const struct bt_br_discovery_param *param,
-                                  size_t num_results)
-{
-    if (!num_results || num_results > 255) {
-        return false;
-    }
-
-    if (!param->length || param->length > 0x30) {
-        return false;
-    }
-
-    return true;
-}
-
-int bt_br_discovery_start(const struct bt_br_discovery_param *param,
-                          struct bt_br_discovery_result *results, size_t cnt,
-                          bt_br_discovery_cb_t cb)
-{
-    int err;
-
-    BT_DBG("");
-
-    if (!valid_br_discov_param(param, cnt)) {
-        return -EINVAL;
-    }
-
-    if (atomic_test_bit(bt_dev.flags, BT_DEV_INQUIRY)) {
-        return -EALREADY;
-    }
-
-    err = br_start_inquiry(param);
-    if (err) {
-        return err;
-    }
-
-    atomic_set_bit(bt_dev.flags, BT_DEV_INQUIRY);
-
-    memset(results, 0, sizeof(*results) * cnt);
-
-    discovery_cb            = cb;
-    discovery_results       = results;
-    discovery_results_size  = cnt;
-    discovery_results_count = 0;
-
-    return 0;
-}
-
-int bt_br_discovery_stop(void)
-{
-    int err;
-    int i;
-
-    BT_DBG("");
-
-    if (!atomic_test_bit(bt_dev.flags, BT_DEV_INQUIRY)) {
-        return -EALREADY;
-    }
-
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_INQUIRY_CANCEL, NULL, NULL);
-    if (err) {
-        return err;
-    }
-
-    for (i = 0; i < discovery_results_count; i++) {
-        struct discovery_priv *              priv;
-        struct bt_hci_cp_remote_name_cancel *cp;
-        struct net_buf *                     buf;
-
-        priv = (struct discovery_priv *)&discovery_results[i]._priv;
-
-        if (!priv->resolving) {
-            continue;
-        }
-
-        buf = bt_hci_cmd_create(BT_HCI_OP_REMOTE_NAME_CANCEL, sizeof(*cp));
-        if (!buf) {
-            continue;
-        }
-
-        cp = net_buf_add(buf, sizeof(*cp));
-        bt_addr_copy(&cp->bdaddr, &discovery_results[i].addr);
-
-        bt_hci_cmd_send_sync(BT_HCI_OP_REMOTE_NAME_CANCEL, buf, NULL);
-    }
-
-    atomic_clear_bit(bt_dev.flags, BT_DEV_INQUIRY);
-
-    discovery_cb            = NULL;
-    discovery_results       = NULL;
-    discovery_results_size  = 0;
-    discovery_results_count = 0;
-
-    return 0;
-}
-
-static int write_scan_enable(u8_t scan)
-{
-    struct net_buf *buf;
-    int             err;
-
-    BT_DBG("type %u", scan);
-
-    buf = bt_hci_cmd_create(BT_HCI_OP_WRITE_SCAN_ENABLE, 1);
-    if (!buf) {
-        return -ENOBUFS;
-    }
-
-    net_buf_add_u8(buf, scan);
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_WRITE_SCAN_ENABLE, buf, NULL);
-    if (err) {
-        return err;
-    }
-
-    if (scan & BT_BREDR_SCAN_INQUIRY) {
-        atomic_set_bit(bt_dev.flags, BT_DEV_ISCAN);
-    } else {
-        atomic_clear_bit(bt_dev.flags, BT_DEV_ISCAN);
-    }
-
-    if (scan & BT_BREDR_SCAN_PAGE) {
-        atomic_set_bit(bt_dev.flags, BT_DEV_PSCAN);
-    } else {
-        atomic_clear_bit(bt_dev.flags, BT_DEV_PSCAN);
-    }
-
-    return 0;
-}
-
-int bt_br_set_connectable(bool enable)
-{
-    if (enable) {
-        if (atomic_test_bit(bt_dev.flags, BT_DEV_PSCAN)) {
-            return -EALREADY;
-        } else {
-            return write_scan_enable(BT_BREDR_SCAN_PAGE);
-        }
-    } else {
-        if (!atomic_test_bit(bt_dev.flags, BT_DEV_PSCAN)) {
-            return -EALREADY;
-        } else {
-            return write_scan_enable(BT_BREDR_SCAN_DISABLED);
-        }
-    }
-}
-
-int bt_br_set_discoverable(bool enable)
-{
-    if (enable) {
-        if (atomic_test_bit(bt_dev.flags, BT_DEV_ISCAN)) {
-            return -EALREADY;
-        }
-
-        if (!atomic_test_bit(bt_dev.flags, BT_DEV_PSCAN)) {
-            return -EPERM;
-        }
-
-        return write_scan_enable(BT_BREDR_SCAN_INQUIRY | BT_BREDR_SCAN_PAGE);
-    } else {
-        if (!atomic_test_bit(bt_dev.flags, BT_DEV_ISCAN)) {
-            return -EALREADY;
-        }
-
-        return write_scan_enable(BT_BREDR_SCAN_PAGE);
-    }
-}
-#endif /* CONFIG_BT_BREDR */
-
 void bt_storage_register(const struct bt_storage *storage)
 {
     bt_storage = storage;
@@ -5215,15 +3439,6 @@ int bt_dh_key_gen(const u8_t remote_pk[64], bt_dh_key_cb_t cb)
     return 0;
 }
 
-#if defined(CONFIG_BT_BREDR)
-int bt_br_oob_get_local(struct bt_br_oob *oob)
-{
-    bt_addr_copy(&oob->addr, &bt_dev.id_addr.a);
-
-    return 0;
-}
-#endif /* CONFIG_BT_BREDR */
-
 int bt_le_oob_get_local(struct bt_le_oob *oob)
 {
     if (IS_ENABLED(CONFIG_BT_PRIVACY)) {
@@ -5251,9 +3466,224 @@ int bt_mac_addr_get(bt_addr_le_t *addr)
     if(!addr)
         return -1;
     if(bt_le_oob_get_local(&oob) != 0) {
-        printf("faliled to get ble local address\r\n");
         return -1;
     }
     memcpy(addr, &(oob.addr), sizeof(oob.addr));
     return 0;
+}
+
+
+static void process_cmd_done(struct net_buf *buf)
+{
+    int err;
+    struct net_buf *rsp;
+
+    struct bt_hci_rp_le_read_max_data_len *rp;
+    struct bt_hci_cp_le_set_data_len * cp;
+    struct bt_hci_cp_le_write_default_data_len *cp_write;
+    u16_t tx_octets;
+    u16_t tx_time;
+    struct bt_hci_cp_le_set_adv_param set_param;
+
+#if defined(CONFIG_BT_SMP)
+    struct bt_hci_rp_le_read_rl_size *rp_le_read_rl;
+#endif
+
+    BT_DBG("Process cmd done,opcode %x, buf %p, status %d", cmd(buf)->opcode, buf, cmd(buf)->status);
+
+    if (cmd(buf)->status) {
+        goto exit;
+    }
+
+    switch (cmd(buf)->opcode) {
+        case BT_HCI_OP_RESET:
+            BT_DBG("BT_HCI_OP_RESET");
+            hci_reset_complete(buf);
+            bt_hci_cmd_send_sync(BT_HCI_OP_READ_LOCAL_FEATURES, NULL, &rsp);
+            break;
+        case BT_HCI_OP_READ_LOCAL_FEATURES:
+            BT_DBG("BT_HCI_OP_READ_LOCAL_FEATURES");
+            read_local_features_complete(buf);
+            bt_hci_cmd_send_sync(BT_HCI_OP_READ_LOCAL_VERSION_INFO, NULL, &rsp);
+            break;
+        case BT_HCI_OP_READ_LOCAL_VERSION_INFO:
+            BT_DBG("BT_HCI_OP_READ_LOCAL_VERSION_INFO");
+            read_local_ver_complete(buf);
+            bt_hci_cmd_send_sync(BT_HCI_OP_READ_BD_ADDR, NULL, NULL);
+            break;
+        case BT_HCI_OP_READ_BD_ADDR:
+            BT_DBG("BT_HCI_OP_READ_BD_ADDR");
+            read_bdaddr_complete(buf);
+            bt_hci_cmd_send_sync(BT_HCI_OP_READ_SUPPORTED_COMMANDS, NULL, NULL);
+            break;
+        case BT_HCI_OP_READ_SUPPORTED_COMMANDS:
+            BT_DBG("BT_HCI_OP_READ_SUPPORTED_COMMANDS");
+            read_supported_commands_complete(buf);
+            if (host_state == HOST_INIT) {
+                err = prng_init();
+            }
+            break;
+        case BT_HCI_OP_LE_RAND:
+            BT_DBG("BT_HCI_OP_LE_RAND");
+            err = prng_process(buf);
+            if (err == 1 && host_state == HOST_INIT) {
+                le_init();
+            }
+            break;
+        case BT_HCI_OP_LE_READ_LOCAL_FEATURES:
+            BT_DBG("BT_HCI_OP_LE_READ_LOCAL_FEATURES");
+            read_le_features_complete(buf);
+#if defined(CONFIG_BT_CONN)
+            err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_BUFFER_SIZE, NULL, &rsp);
+            break;
+        case BT_HCI_OP_LE_READ_BUFFER_SIZE:
+            BT_DBG("BT_HCI_OP_LE_READ_BUFFER_SIZE");
+            le_read_buffer_size_complete(buf);
+#endif
+            if (BT_CMD_LE_STATES(bt_dev.supported_commands)) {
+                err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_SUPP_STATES, NULL, &rsp);
+            }
+            break;
+        case BT_HCI_OP_LE_READ_SUPP_STATES:
+            BT_DBG("BT_HCI_OP_LE_READ_SUPP_STATES");
+            le_read_supp_states_complete(buf);
+            if (IS_ENABLED(CONFIG_BT_CONN) && BT_FEAT_LE_DLE(bt_dev.le.features)) {
+                err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_MAX_DATA_LEN, NULL, &rsp);
+            } else if (host_state == HOST_INIT) {
+                le_set_event_mask();
+            }
+            break;
+        case BT_HCI_OP_LE_READ_MAX_DATA_LEN:
+            BT_DBG("BT_HCI_OP_LE_READ_MAX_DATA_LEN");
+            rp = (void *)buf->data;
+            tx_octets = sys_le16_to_cpu(rp->max_tx_octets);
+            tx_time = sys_le16_to_cpu(rp->max_tx_time);
+            rsp = bt_hci_cmd_create(BT_HCI_OP_LE_WRITE_DEFAULT_DATA_LEN, sizeof(*cp_write));
+            if (!rsp) {
+                return -ENOBUFS;
+            }
+
+            cp_write = net_buf_add(buf, sizeof(*cp_write));
+            cp_write->max_tx_octets = sys_cpu_to_le16(tx_octets);
+            cp_write->max_tx_time = sys_cpu_to_le16(tx_time);
+            err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_WRITE_DEFAULT_DATA_LEN, rsp, NULL);
+            break;
+        case BT_HCI_OP_LE_WRITE_DEFAULT_DATA_LEN:
+            BT_DBG("BT_HCI_OP_LE_WRITE_DEFAULT_DATA_LEN");
+#if defined(CONFIG_BT_SMP)
+            if (host_state == HOST_INIT) {
+                if (IS_ENABLED(CONFIG_BT_PRIVACY) && BT_FEAT_LE_PRIVACY(bt_dev.le.features)) {
+                    struct bt_hci_rp_le_read_rl_size *rp;
+                    err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_RL_SIZE, NULL, &rsp);
+                }
+            }
+            break;
+        case BT_HCI_OP_LE_READ_RL_SIZE:
+            rp_le_read_rl = (void *)buf->data;
+            bt_dev.le.rl_size = rp_le_read_rl->rl_size;
+#endif
+            BT_DBG("BT_HCI_OP_LE_READ_RL_SIZE");
+            le_set_event_mask();
+            break;
+        case BT_HCI_OP_LE_SET_EVENT_MASK:
+            BT_DBG("BT_HCI_OP_LE_SET_EVENT_MASK");
+            err = set_event_mask();
+            break;
+        case BT_HCI_OP_SET_EVENT_MASK:
+            BT_DBG("BT_HCI_OP_SET_EVENT_MASK");
+            if (!bt_addr_le_cmp(&bt_dev.id_addr, BT_ADDR_LE_ANY) ||
+                !bt_addr_le_cmp(&bt_dev.id_addr, BT_ADDR_LE_NONE)) {
+                    BT_DBG("No public address. Trying to set static random.");
+                    err = set_static_addr();
+            }
+            break;
+        case BT_HCI_OP_LE_SET_RANDOM_ADDRESS:
+            BT_DBG("BT_HCI_OP_LE_SET_RANDOM_ADDRESS");
+            bt_addr_copy(&bt_dev.random_addr.a, random_addr);
+            bt_dev.random_addr.type = BT_ADDR_LE_RANDOM;
+            if (host_state == HOST_INIT) {
+                hci_init_done();
+            }
+            break;
+        case BT_HCI_OP_LE_SET_ADV_DATA:
+            if (adv_sd) {
+                err = set_ad(BT_HCI_OP_LE_SET_SCAN_RSP_DATA, adv_sd, adv_sd_len);
+                break;
+            }
+        case BT_HCI_OP_LE_SET_SCAN_RSP_DATA:
+            memset(&set_param, 0, sizeof(set_param));
+            set_param.min_interval = sys_cpu_to_le16(adv_param.interval_min);
+            set_param.max_interval = sys_cpu_to_le16(adv_param.interval_max);
+            set_param.channel_map  = 0x07;
+
+            if (adv_param.options & BT_LE_ADV_OPT_CONNECTABLE) {
+                if (IS_ENABLED(CONFIG_BT_PRIVACY)) {
+                    err = le_set_private_addr();
+                    if (err) {
+                        goto exit;
+                    }
+                    if (BT_FEAT_LE_PRIVACY(bt_dev.le.features)) {
+                        set_param.own_addr_type = BT_HCI_OWN_ADDR_RPA_OR_RANDOM;
+                    } else {
+                        set_param.own_addr_type = BT_ADDR_LE_RANDOM;
+                    }
+                } else {
+                    if (atomic_test_bit(bt_dev.flags, BT_DEV_ID_STATIC_RANDOM)) {
+                        set_random_address(&bt_dev.id_addr.a);
+                    }
+                    set_param.own_addr_type = bt_dev.id_addr.type;
+                }
+                set_param.type = BT_LE_ADV_IND;
+            } else {
+                if (adv_param.own_addr) {
+                    if (!BT_ADDR_IS_NRPA(adv_param.own_addr)) {
+                        err = -EINVAL;
+                        goto exit;
+                    }
+                    err = set_random_address(adv_param.own_addr);
+                } else {
+                    err = le_set_private_addr();
+                }
+                if (err) {
+                    goto exit;
+                }
+
+                set_param.own_addr_type = BT_ADDR_LE_RANDOM;
+                if (adv_sd) {
+                    set_param.type = BT_LE_ADV_SCAN_IND;
+                } else {
+                    set_param.type = BT_LE_ADV_NONCONN_IND;
+                }
+            }
+
+            rsp = bt_hci_cmd_create(BT_HCI_OP_LE_SET_ADV_PARAM, sizeof(set_param));
+            if (!rsp) {
+                err = -ENOBUFS;
+                goto exit;
+            }
+            net_buf_add_mem(rsp, &set_param, sizeof(set_param));
+            err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_ADV_PARAM, rsp, NULL);
+            break;
+        case BT_HCI_OP_LE_SET_ADV_PARAM:
+            err = set_advertise_enable(true);
+            if (err) {
+                goto exit;
+            }
+            if (!(adv_param.options & BT_LE_ADV_OPT_ONE_TIME)) {
+                atomic_set_bit(bt_dev.flags, BT_DEV_KEEP_ADVERTISING);
+            }
+            break;
+        case BT_HCI_OP_LE_SET_ADV_ENABLE:
+            atomic_set_bit(bt_dev.flags, BT_DEV_ADVERTISING);
+#if 0
+            if (enable) {
+                atomic_set_bit(bt_dev.flags, BT_DEV_ADVERTISING);
+            } else {
+                atomic_clear_bit(bt_dev.flags, BT_DEV_ADVERTISING);
+            }
+#endif
+            break;
+    }
+exit:
+    return;
 }

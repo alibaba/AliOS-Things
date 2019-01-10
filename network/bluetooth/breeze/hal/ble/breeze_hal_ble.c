@@ -27,6 +27,10 @@ static struct bt_gatt_ccc_cfg ais_ic_ccc_cfg[BT_GATT_CCC_MAX] = {};
 static struct bt_gatt_ccc_cfg ais_nc_ccc_cfg[BT_GATT_CCC_MAX] = {};
 
 static void (*g_indication_txdone)(uint8_t res);
+static stack_init_done_t stack_init_done;
+
+#define AD_LEN 3
+#define SD_LEN 1
 
 void ble_disconnect(uint8_t reason)
 {
@@ -308,24 +312,18 @@ enum
     AIS_ATTR_NUM,
 };
 
-ais_err_t ble_stack_init(ais_bt_init_t *info)
+static void bt_ready(int err)
 {
-    int              err;
-    uint32_t         attr_cnt = AIS_ATTR_NUM, size;
+    uint32_t attr_cnt = AIS_ATTR_NUM, size;
     ais_char_init_t *c;
 
-    bt_init_info = info;
-
-    hci_driver_init();
-    ble_storage_init();
-    err = bt_enable(NULL);
     if (err) {
         printf("Bluetooth init failed (err %d)\n", err);
         return AIS_ERR_STACK_FAIL;
     }
     printf("Bluetooth init succeed.\n");
 
-    size      = attr_cnt * sizeof(struct bt_gatt_attr);
+    size = attr_cnt * sizeof(struct bt_gatt_attr);
     ais_attrs = (struct bt_gatt_attr *)aos_malloc(size);
     if (!ais_attrs) {
         printf("%s %d memory allocate failed.\r\n", __func__, __LINE__);
@@ -335,22 +333,22 @@ ais_err_t ble_stack_init(ais_bt_init_t *info)
     memset(ais_attrs, 0, size);
 
     /* AIS primary service */
-    setup_ais_service_attr(&ais_attrs[SVC_ATTR_IDX], info->uuid_svc);
+    setup_ais_service_attr(&ais_attrs[SVC_ATTR_IDX], bt_init_info->uuid_svc);
 
     /* rc */
-    c = &(info->rc);
+    c = &(bt_init_info->rc);
     setup_ais_char_attr(&ais_attrs[RC_CHRC_ATTR_IDX], c->uuid, c->prop);
     setup_ais_char_desc_attr(&ais_attrs[RC_DESC_ATTR_IDX], c->uuid, c->perm,
                              read_ais_rc, NULL, NULL);
 
     /* wc */
-    c = &(info->wc);
+    c = &(bt_init_info->wc);
     setup_ais_char_attr(&ais_attrs[WC_CHRC_ATTR_IDX], c->uuid, c->prop);
     setup_ais_char_desc_attr(&ais_attrs[WC_DESC_ATTR_IDX], c->uuid, c->perm,
                              read_ais_wc, write_ais_wc, NULL);
 
     /* ic */
-    c = &(info->ic);
+    c = &(bt_init_info->ic);
     setup_ais_char_attr(&ais_attrs[IC_CHRC_ATTR_IDX], c->uuid, c->prop);
     setup_ais_char_desc_attr(&ais_attrs[IC_DESC_ATTR_IDX], c->uuid, c->perm,
                              read_ais_ic, NULL, NULL);
@@ -359,13 +357,13 @@ ais_err_t ble_stack_init(ais_bt_init_t *info)
                             ais_ic_ccc_cfg_changed);
 
     /* wwnrc */
-    c = &(info->wwnrc);
+    c = &(bt_init_info->wwnrc);
     setup_ais_char_attr(&ais_attrs[WWNRC_CHRC_ATTR_IDX], c->uuid, c->prop);
     setup_ais_char_desc_attr(&ais_attrs[WWNRC_DESC_ATTR_IDX], c->uuid, c->perm,
                              read_ais_wwnrc, write_ais_wwnrc, NULL);
 
     /* nc */
-    c = &(info->nc);
+    c = &(bt_init_info->nc);
     setup_ais_char_attr(&ais_attrs[NC_CHRC_ATTR_IDX], c->uuid, c->prop);
     setup_ais_char_desc_attr(&ais_attrs[NC_DESC_ATTR_IDX], c->uuid, c->perm,
                              read_ais_nc, NULL, NULL);
@@ -379,6 +377,7 @@ ais_err_t ble_stack_init(ais_bt_init_t *info)
 
     bt_conn_cb_register(&conn_callbacks);
     bt_gatt_service_register(&ais_svc);
+    stack_init_done(0);
     return AIS_ERR_SUCCESS;
 }
 
@@ -390,6 +389,18 @@ ais_err_t ble_stack_deinit()
 
     /* Free other memory here when necessary. */
 
+    return AIS_ERR_SUCCESS;
+}
+
+ais_err_t ble_stack_init(ais_bt_init_t *info, stack_init_done_t init_done)
+{
+    int err;
+
+    bt_init_info = info;
+    stack_init_done = init_done;
+    hci_driver_init();
+    ble_storage_init();
+    err = bt_enable(bt_ready);
     return AIS_ERR_SUCCESS;
 }
 
@@ -467,9 +478,9 @@ static const struct bt_data sd[] = {
 ais_err_t ble_advertising_start(ais_adv_init_t *adv)
 {
     int            err;
-    uint8_t        flag = 0, srv[] = { 0xb3, 0xfe }, ad_len = 3, sd_len = 1;
-    struct bt_data ad[ad_len];
-    struct bt_data sd[sd_len];
+    uint8_t        flag = 0, srv[] = { 0xb3, 0xfe }, ad_len = AD_LEN, sd_len = SD_LEN;
+    static struct bt_data ad[AD_LEN];
+    static struct bt_data sd[SD_LEN];
 
     if (adv->flag & AIS_AD_GENERAL) {
         flag |= BT_LE_AD_GENERAL;

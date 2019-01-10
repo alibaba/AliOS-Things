@@ -14,8 +14,11 @@ extern "C" {
 
 #define BLE_UUID_AIS_SERVICE 0xFEB3
 
+typedef void (* init_done_t)(uint8_t res);
+
 typedef struct {
     uint16_t mtu;
+    init_done_t init_done;
 } ble_ais_init_t;
 
 typedef struct ble_gatts_char_handles_s {
