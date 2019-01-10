@@ -7,4 +7,4 @@ if aos_global_config.get('hci_h4', 0):
 
 
 platform_options="wifi=1"
-linux_only_targets="athostapp blink bluetooth.bleadv bluetooth.blemesh_tmall bluetooth.bleperipheral bluetooth.breezeapp coapapp helloworld http2app linkkit_gateway linkkitapp meshapp mqttapp otaapp tinyengine_app tls udataapp yts"
+linux_only_targets="athostapp blink bluetooth.bleadv bluetooth.bleperipheral coapapp helloworld http2app linkkit_gateway linkkitapp meshapp mqttapp otaapp tinyengine_app tls udataapp yts"
