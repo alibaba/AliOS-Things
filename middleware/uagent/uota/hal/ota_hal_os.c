@@ -15,8 +15,8 @@
 #if !defined (AOS_OTA_RSA)
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
+#include "mbedtls/base64.h"
 #endif
-#include "base64.h"
 
 #if (OTA_SIGNAL_CHANNEL) == 1
 #include "iot_export.h"
@@ -276,6 +276,7 @@ int ota_kv_get(const char *key, void *buffer, int *len)
 {
     return HAL_Kv_Get(key, buffer, len);
 }
+
 #elif !defined OTA_LINUX
 /*KV set*/
 int ota_kv_set(const char *key, const void *val, int len, int sync)
@@ -288,6 +289,7 @@ int ota_kv_get(const char *key, void *buffer, int *len)
 {
     return aos_kv_get(key, buffer, len);
 }
+
 #else
 #define KV_FILE_PATH "./uota.kv"
 #define ITEM_MAX_KEY_LEN 128
@@ -508,27 +510,37 @@ extern void mbedtls_sha256_starts_alt(mbedtls_sha256_context*ctx, int is224);
 extern void mbedtls_sha256_update_alt(mbedtls_sha256_context*ctx, const unsigned char *input, unsigned int ilen);
 extern void mbedtls_sha256_finish_alt(mbedtls_sha256_context*ctx, unsigned char output[32]);
 #endif
-void ota_sha256_free(ota_sha256_context *ctx){
+
+void ota_sha256_free(ota_sha256_context *ctx)
+{
 #if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_free_alt((mbedtls_sha256_context*)ctx);
 #endif
 }
-void ota_sha256_init(ota_sha256_context *ctx){
+
+void ota_sha256_init(ota_sha256_context *ctx)
+{
 #if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_init_alt((mbedtls_sha256_context*)ctx);
 #endif
 }
-void ota_sha256_starts(ota_sha256_context *ctx, int is224){
+
+void ota_sha256_starts(ota_sha256_context *ctx, int is224)
+{
 #if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_starts_alt((mbedtls_sha256_context*)ctx, is224);
 #endif
 }
-void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input, unsigned int ilen){
+
+void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input, unsigned int ilen)
+{
 #if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_update_alt((mbedtls_sha256_context*)ctx, input, ilen);
 #endif
 }
-void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32]){
+
+void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32])
+{
 #if !defined(ESPOS_FOR_ESP32)
     mbedtls_sha256_finish_alt((mbedtls_sha256_context*)ctx, output);
 #endif
@@ -539,19 +551,29 @@ extern void mbedtls_md5_init_alt(mbedtls_md5_context*ctx);
 extern void mbedtls_md5_starts_alt(mbedtls_md5_context*ctx);
 extern void mbedtls_md5_update_alt(mbedtls_md5_context*ctx, const unsigned char *input, unsigned int ilen);
 extern void mbedtls_md5_finish_alt(mbedtls_md5_context*ctx, unsigned char output[32]);
-void ota_md5_free(ota_md5_context *ctx){
+
+void ota_md5_free(ota_md5_context *ctx)
+{
     mbedtls_md5_free_alt((mbedtls_md5_context*)ctx);
 }
-void ota_md5_init(ota_md5_context *ctx){
+
+void ota_md5_init(ota_md5_context *ctx)
+{
     mbedtls_md5_init_alt((mbedtls_md5_context*)ctx);
 }
-void ota_md5_starts(ota_md5_context *ctx){
+
+void ota_md5_starts(ota_md5_context *ctx)
+{
     mbedtls_md5_starts_alt((mbedtls_md5_context*)ctx);
 }
-void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen){
+
+void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen)
+{
     mbedtls_md5_update_alt((mbedtls_md5_context*)ctx, input, ilen);
 }
-void ota_md5_finish(ota_md5_context *ctx, unsigned char output[16]){
+
+void ota_md5_finish(ota_md5_context *ctx, unsigned char output[16])
+{
     mbedtls_md5_finish_alt((mbedtls_md5_context*)ctx, output);
 }
 /*RSA*/
@@ -561,26 +583,31 @@ extern int ali_rsa_init_pubkey(unsigned int keybits, const unsigned char *n, uns
 extern int ali_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, unsigned int dig_size,
                       const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result);
 
-int ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size) {
+int ota_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size)
+{
     return ali_rsa_get_pubkey_size(keybits, size);
 }
+
 int ota_rsa_init_pubkey(unsigned int keybits, const unsigned char *n, unsigned int n_size,
                       const unsigned char *e, unsigned int e_size, ota_rsa_pubkey_t *pubkey){
     return ali_rsa_init_pubkey(keybits, n, n_size, e, e_size, pubkey);
 }
+
 int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, unsigned int dig_size,
-                      const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result){
+                      const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result)
+{
     return ali_rsa_verify(pub_key,dig,dig_size,sig,sig_size,padding,p_result);
 }
+
 #endif
 /*base64*/
-int ota_base64_decode(const unsigned char *src, int slen,
-                             unsigned char *dst, int *dlen){
-    unsigned char* out = NULL;
-    out = base64_decode(src, slen, dst, dlen);
-    if(NULL == out) {
+int ota_base64_decode(const unsigned char *src, unsigned int slen, unsigned char *dst, unsigned int *dlen)
+{
+    unsigned int len = 0;
+    if(mbedtls_base64_decode(dst, *dlen, &len, src, slen) != 0) {
         return -1;
     }
+    *dlen = len;
     return 0;
 }
 /*CRC16*/
@@ -612,7 +639,7 @@ void ota_crc16_update(ota_crc16_ctx *inCtx, const void *inSrc, size_t inLen)
 {
     const unsigned char *src = (const unsigned char *) inSrc;
     const unsigned char *srcEnd = src + inLen;
-    while ( src < srcEnd ) {
+    while (src < srcEnd) {
         inCtx->crc = update_crc16(inCtx->crc, *src++);
     }
 }
@@ -688,6 +715,7 @@ int ota_coap_send_block(void *p_context, char *p_path, void *p_message, int bloc
     return 0;
     #endif
 }
+
 int ota_coap_get_payload(void *p_message, const char **pp_payload, int *p_len)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2
@@ -696,6 +724,7 @@ int ota_coap_get_payload(void *p_message, const char **pp_payload, int *p_len)
     return 0;
     #endif
 }
+
 int ota_coap_get_code(void *p_message, void *p_resp_code)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2
@@ -704,6 +733,7 @@ int ota_coap_get_code(void *p_message, void *p_resp_code)
     return 0;
     #endif
 }
+
 int ota_coap_init(void)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2
@@ -733,6 +763,7 @@ int ota_coap_init(void)
     return 0;
     #endif
 }
+
 int ota_coap_deinit(void)
 {
     #if (OTA_SIGNAL_CHANNEL) == 2

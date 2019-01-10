@@ -415,7 +415,7 @@ int ota_check_image(unsigned int size)
     }
     ret = ota_hash_init(image_md5_ctx.hash_method, image_md5_ctx.ctx_hash);
     if (ret < 0) {
-        printf("hash init.\n");
+        OTA_LOG_I("hash init.\n");
         goto err;
     }
     off_set = 0;
@@ -427,7 +427,7 @@ int ota_check_image(unsigned int size)
         }
         ret = ota_hash_update((const uint8_t *)rd_buf, read_size, image_md5_ctx.ctx_hash);
         if (ret < 0) {
-            printf("hash update err.\n");
+            OTA_LOG_E("hash update err.\n");
             goto err;
         }
     }
@@ -435,7 +435,7 @@ int ota_check_image(unsigned int size)
     memset(image_md5_value, 0x00, sizeof(image_md5_value));
     ret = ota_hash_final((unsigned char *)image_md5_value, image_md5_ctx.ctx_hash);
     if (ret < 0) {
-        printf("hash final err.\n");
+        OTA_LOG_E("hash final err.\n");
         goto err;
     }
     memset(download_md5_str_value, 0x00, sizeof(download_md5_str_value));
@@ -444,7 +444,7 @@ int ota_check_image(unsigned int size)
     }
     ret = ota_check_md5((const unsigned char *)image_md5_value, (const char *)&download_md5_str_value);
     if (ret < 0) {
-        printf("hash check err.\n");
+        OTA_LOG_E("hash check err.\n");
         goto err;
     }
 err:
