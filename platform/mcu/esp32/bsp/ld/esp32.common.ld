@@ -83,7 +83,7 @@ SECTIONS
     _iram_text_start = ABSOLUTE(.);
     *(.iram1 .iram1.*)
     *rhino.a:(.literal .text .literal.* .text.*)
-    *osal.a:(.literal .text .literal.* .text.*)
+    *osal_aos.a:(.literal .text .literal.* .text.*)
     *mcu_esp32.a:hook_impl.o(.literal .text .literal.* .text.*)
     *mcu_esp32.a:soc_impl.o(.literal .text .literal.* .text.*)
     *mcu_esp32.a:uart.o(.literal .text .literal.* .text.*)
