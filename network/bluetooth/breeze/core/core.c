@@ -169,7 +169,9 @@ ret_code_t core_init(ali_init_t const *p_init)
 
 void core_reset(void)
 {
+#if BZ_ENABLE_AUTH
     auth_reset();
+#endif
     transport_reset();
 }
 
@@ -191,7 +193,9 @@ void core_handle_err(uint8_t src, uint8_t code)
             }
             break;
         case BZ_AUTH_ERR:
+#if BZ_ENABLE_AUTH
             auth_reset();
+#endif
             if (code == BZ_ETIMEOUT) {
                 ble_disconnect(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
             }
@@ -219,7 +223,9 @@ ret_code_t get_bz_adv_data(uint8_t *p_data, uint16_t *length)
     uint32_t seq;
 
     seq = (++g_seq);
+#if BZ_ENABLE_AUTH
     auth_calc_adv_sign(seq, sign);
+#endif
     memcpy(p_data, g_core.adv_data, g_core.adv_data_len);
     memcpy(p_data + g_core.adv_data_len, sign, 4);
     memcpy(p_data + g_core.adv_data_len + 4, &seq, 4);

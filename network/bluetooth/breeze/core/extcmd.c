@@ -351,9 +351,11 @@ ret_code_t extcmd_init(ali_init_t const *p_init, tx_func_t tx_func)
 {
     memset(&g_extcmd, 0, sizeof(extcmd_t));
     get_os_info();
+#if BZ_ENABLE_AUTH
     auth_get_device_name(&g_extcmd.p_device_name, &g_extcmd.device_name_len);
     auth_get_product_key(&g_extcmd.p_product_key, &g_extcmd.product_key_len);
     auth_get_secret(&g_extcmd.p_secret, &g_extcmd.secret_len);
+#endif
 
     g_extcmd.tx_func = tx_func;
     g_extcmd.model_id = p_init->model_id;
