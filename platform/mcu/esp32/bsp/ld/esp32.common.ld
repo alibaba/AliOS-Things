@@ -83,16 +83,29 @@ SECTIONS
     _iram_text_start = ABSOLUTE(.);
     *(.iram1 .iram1.*)
     *rhino.a:(.literal .text .literal.* .text.*)
-    *espos.a:(.literal .text .literal.* .text.*)
     *osal.a:(.literal .text .literal.* .text.*)
-    *esp32.a:(.literal .text .literal.* .text.*)
-    *xtensa_lx6.a:(.literal .text .literal.* .text.*)
-    *libfreertos.a:(.literal .text .literal.* .text.*)
-    *libheap.a:multi_heap.o(.literal .text .literal.* .text.*)
-    *libheap.a:multi_heap_poisoning.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:hook_impl.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:soc_impl.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:uart.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:flash.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:entry.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:smp_int.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:smp_load.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:smp_sync.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_aos_vcall.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_eventgroup.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_misc.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_mutex.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_queue.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_scheduler.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_semaphore.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_spinlock.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_task.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_time.o(.literal .text .literal.* .text.*)
+    *mcu_esp32.a:espos_timer.o(.literal .text .literal.* .text.*)
+    *arch_xtensa_lx6.a:(.literal .text .literal.* .text.*)
     *libesp32.a:panic.o(.literal .text .literal.* .text.*)
     *libesp32.a:core_dump.o(.literal .text .literal.* .text.*)
-    *libapp_trace.a:(.literal .text .literal.* .text.*)
     *libxtensa-debug-module.a:eri.o(.literal .text .literal.* .text.*)
     *libphy.a:(.literal .text .literal.* .text.*)
     *librtc.a:(.literal .text .literal.* .text.*)
@@ -158,6 +171,7 @@ SECTIONS
   .flash.rodata :
   {
     _rodata_start = ABSOLUTE(.);
+    _irom0_text_start = ABSOLUTE(.);
     *(.rodata)
     *(.rodata.*)
     *(.irom1.text) /* catch stray ICACHE_RODATA_ATTR */
@@ -218,5 +232,6 @@ SECTIONS
        the flash.text segment.
     */
     _flash_cache_start = ABSOLUTE(0);
+    _irom0_text_end = ABSOLUTE(.);
   } >iram0_2_seg
 }

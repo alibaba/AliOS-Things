@@ -139,7 +139,7 @@ static void i2c_start_prepare(i2c_dev_t * handle)
     handle->fifo_conf.tx_fifo_rst = 0;
     handle->fifo_conf.rx_fifo_rst = 1;
     handle->fifo_conf.rx_fifo_rst = 0;
-    memset(handle->command,0x00,sizeof(handle->command));
+    memset((void *)handle->command,0x00,sizeof(handle->command));
     handle->int_clr.val = 0xFFFFFFFF;
 }
 
@@ -330,7 +330,7 @@ int32_t hal_i2c_master_send(aos_i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t
     }
     i2c_resource_t * resource = &g_dev[i2c->port];
     uint16_t addr = dev_addr >> 1;
-    i2c_write_bytes(resource->dev,addr,i2c->config.address_width == I2C_MEM_ADDR_SIZE_16BIT,data,size,0);
+    i2c_write_bytes(resource->dev,addr,i2c->config.address_width == I2C_MEM_ADDR_SIZE_16BIT,(uint8_t *)data,size,0);
 
     return ret;
 }
@@ -343,7 +343,7 @@ int32_t hal_i2c_master_recv(aos_i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data
     }
     i2c_resource_t * resource = &g_dev[i2c->port];
     uint16_t addr = dev_addr >> 1;
-    i2c_read_bytes(resource->dev,addr,i2c->config.address_width == I2C_MEM_ADDR_SIZE_16BIT,data,size,0);
+    i2c_read_bytes(resource->dev,addr,i2c->config.address_width == I2C_MEM_ADDR_SIZE_16BIT,(uint8_t *)data,size,0);
 
     return ret;
 }

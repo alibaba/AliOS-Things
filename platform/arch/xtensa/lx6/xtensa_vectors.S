@@ -93,6 +93,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "xtensa_rtos.h"
 #include "esp_panic.h"
 #include "sdkconfig.h"
+#include "soc/dport_reg.h"
 /*
   Define for workaround: pin no-cpu-affinity tasks to a cpu when fpu is used.
   Please change this when the tcb structure is changed
@@ -101,6 +102,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SUPPORT_YUNOS
 #ifdef SUPPORT_YUNOS
 .extern g_active_task
+.extern .handle_dport_access_int
 #define g_current_task g_active_task
 #else
 .extern pxCurrentTCB
@@ -724,7 +726,7 @@ _xt_user_exc:
 
     rsr     a2, EXCCAUSE                    /* recover exc cause */
     movi    a3, _xt_exception_table
-    get_percpu_entry_for a3, a4
+    get_percpu_entry_for a2, a4
     addx4   a4, a2, a3                      /* a4 = address of exception table entry */
     l32i    a4, a4, 0                       /* a4 = handler address */
     #ifdef __XTENSA_CALL0_ABI__
@@ -1622,6 +1624,13 @@ _xt_highint3:
 
 #if XCHAL_NUM_INTLEVELS >=4 && XCHAL_EXCM_LEVEL <4 && XCHAL_DEBUGLEVEL !=4
 
+#define L4_INTR_STACK_SIZE  8
+#define L4_INTR_A2_OFFSET   0
+#define L4_INTR_A3_OFFSET   4
+    .data
+_l4_intr_stack:
+    .space      L4_INTR_STACK_SIZE
+
     .begin      literal_prefix .Level4InterruptVector
     .section    .Level4InterruptVector.text, "ax"
     .global     _Level4Vector
@@ -1638,6 +1647,11 @@ _Level4Vector:
     .type       _xt_highint4,@function
     .align      4
 _xt_highint4:
+    #if (portNUM_PROCESSORS == 2)
+    rsr     a0, INTERRUPT
+    extui   a0, a0, ETS_DPORT_INUM, 1
+    bnez    a0, .handle_dport_access_int
+    #endif
 
     #ifdef XT_INTEXC_HOOKS
     /* Call interrupt hook if present to (pre)handle interrupts. */
@@ -1680,7 +1694,68 @@ _xt_highint4:
     rsr     a0, EXCSAVE_4                   /* restore a0 */
     rfi     4
 
+.align      4
+
+#if (portNUM_PROCESSORS == 2)
+
+.handle_dport_access_int:
+    /* This section is for dport access register protection */
+    /* Allocate exception frame and save minimal context. */
+    /* Because the interrupt cause code has protection that only
+       allows one cpu to enter in the dport section of the L4
+       interrupt at one time, there's no need to have two
+       _l4_intr_stack for each cpu */
+
+    /* This int is edge-triggered and needs clearing. */
+    movi    a0, (1<<28)
+    wsr     a0, 227
+
+    /* Save A2, A3 so we can use those registers */
+    movi    a0, _l4_intr_stack
+    s32i    a2, a0, 0
+    s32i    a3, a0, 4
+
+    /* handle dport interrupt */
+    /* get CORE_ID */
+    getcoreid   a0
+    beqz    a0, 2f
+
+    /* current cpu is 1 */
+    movi    a0, DPORT_CPU_INTR_FROM_CPU_3_REG
+    movi    a2, 0
+    s32i    a2, a0, 0   /* clear intr */
+    movi    a0, 0       /* other cpu id */
+    j       3f
+2:
+    /* current cpu is 0 */
+    movi    a0, DPORT_CPU_INTR_FROM_CPU_2_REG
+    movi    a2, 0
+    s32i    a2, a0, 0   /* clear intr */
+    movi    a0, 1       /* other cpu id */
+3:
+    /* set and wait flag */
+    movi    a2, dport_access_start
+    addx4   a2, a0, a2
+    movi    a3, 1
+    s32i    a3, a2, 0
+    memw
+    movi    a2, dport_access_end
+    addx4   a2, a0, a2
+.check_dport_access_end:
+    l32i    a3, a2, 0
+    beqz    a3, .check_dport_access_end
+
+    /* Done. Restore registers and return. */
+    movi    a0, _l4_intr_stack
+    l32i    a2, a0, 0
+    l32i    a3, a0, 4
+    rsync                                   /* ensure register restored */
+
+    rsr     a0, EXCSAVE_4                   /* restore a0 */
+    rfi     4
 #endif  /* Level 4 */
+
+#endif
 
 #if XCHAL_NUM_INTLEVELS >=5 && XCHAL_EXCM_LEVEL <5 && XCHAL_DEBUGLEVEL !=5
 

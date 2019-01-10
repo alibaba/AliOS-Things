@@ -17,6 +17,7 @@ int espos_err_map (kstat_t err_code)
 size_t espos_get_free_heap_size(void)
 {
     extern k_mm_head *g_kmm_head;
+	extern size_t ORAM_heap_free_size(void);
 
-    return g_kmm_head->free_size;
+    return g_kmm_head->free_size + ORAM_heap_free_size();
 }

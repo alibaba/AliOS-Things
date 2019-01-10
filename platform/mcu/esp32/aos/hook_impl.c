@@ -22,12 +22,57 @@ void krhino_idle_pre_hook(void)
     RHINO_CPU_INTRPT_DISABLE();
     cpu = cpu_cur_get();
     cpu_flag |= (1UL << cpu);
-
+    
     RHINO_CPU_INTRPT_ENABLE();
     #endif
 }
+
+#define OS_RHINO_IDLE_HOOK_NUM		10
+
+typedef void (*os_hook_cb_t)();
+
+os_hook_cb_t g_rhino_idle_hook[RHINO_CONFIG_CPU_NUM][OS_RHINO_IDLE_HOOK_NUM] = {0};
+
+
+void krhino_idle_add_hook(void * fun, int cpuid)
+{
+	if(fun == 0 || cpuid > RHINO_CONFIG_CPU_NUM){
+		return;
+	}
+
+	for(int i = 0; i< OS_RHINO_IDLE_HOOK_NUM;i++){
+		if(g_rhino_idle_hook[cpuid][i] == NULL){
+			g_rhino_idle_hook[cpuid][i] = fun;
+		}
+	}
+	
+}
+
+void krhino_idle_del_hook(void * fun, int cpuid)
+{
+	if(fun == 0 || cpuid > RHINO_CONFIG_CPU_NUM){
+		return;
+	}
+
+	for(int i = 0; i< OS_RHINO_IDLE_HOOK_NUM;i++){
+		if(g_rhino_idle_hook[cpuid][i] == fun){
+			g_rhino_idle_hook[cpuid][i] = NULL;
+		}
+	}
+
+	
+}
+
+
 void krhino_idle_hook(void)
 {
+	int cpuid = cpu_cur_get();
+	for(int i = 0; i< OS_RHINO_IDLE_HOOK_NUM;i++){
+		if(g_rhino_idle_hook[cpuid][i]){
+			g_rhino_idle_hook[cpuid][i]();
+		}
+	}
+
 }
 
 void krhino_init_hook(void)
@@ -62,8 +107,51 @@ void krhino_task_switch_hook(ktask_t *orgin, ktask_t *dest)
     (void)dest;
 }
 
+
+#define OS_RHINO_TICK_HOOK_NUM		10
+
+os_hook_cb_t g_rhino_tick_hook[RHINO_CONFIG_CPU_NUM][OS_RHINO_TICK_HOOK_NUM] = {0};
+
+
+void krhino_tick_add_hook(void * fun, int cpuid)
+{
+	if(fun == 0 || cpuid > RHINO_CONFIG_CPU_NUM){
+		return;
+	}
+
+	for(int i = 0; i< OS_RHINO_TICK_HOOK_NUM;i++){
+		if(g_rhino_tick_hook[cpuid][i] == NULL){
+			g_rhino_tick_hook[cpuid][i] = fun;
+		}
+	}
+	
+}
+
+void krhino_tick_del_hook(void * fun, int cpuid)
+{
+	if(fun == 0 || cpuid > RHINO_CONFIG_CPU_NUM){
+		return;
+	}
+
+	for(int i = 0; i< OS_RHINO_TICK_HOOK_NUM;i++){
+		if(g_rhino_tick_hook[cpuid][i] == fun){
+			g_rhino_tick_hook[cpuid][i] = NULL;
+		}
+	}
+
+	
+}
+
+
 void krhino_tick_hook(void)
 {
+	int cpuid = cpu_cur_get();
+	for(int i = 0; i< OS_RHINO_TICK_HOOK_NUM;i++){
+		if(g_rhino_tick_hook[cpuid][i]){
+			g_rhino_tick_hook[cpuid][i]();
+		}
+	}
+
 }
 
 void krhino_task_abort_hook(ktask_t *task)

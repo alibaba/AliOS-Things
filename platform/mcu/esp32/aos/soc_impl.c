@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+extern void ets_printf(char *format, ...);
+
 size_t soc_get_cur_sp()
 {
     volatile size_t dummy = (size_t)&dummy;
@@ -37,3 +39,45 @@ void soc_err_proc(kstat_t err)
 
 krhino_err_proc_t g_err_proc = soc_err_proc;
 
+/////////////////////////////////////////////////////////////////
+//stub
+
+void espaos_task_get_snaps_shot_all()
+{
+    ets_printf("call funciont %s\n", __FUNCTION__);
+}
+
+void espos_yield_from_isr()
+{
+
+}
+
+int heap_caps_add_region_with_caps()
+{
+    return 0;
+}
+
+void sc_ack_send()
+{
+    ets_printf("call stub funciont %s\n", __FUNCTION__);
+}
+
+void sc_ack_send_stop()
+{
+    ets_printf("call stub funciont %s\n", __FUNCTION__);
+}
+
+__attribute__((weak))  void esp_wifi_set_promiscous_autoack()
+{
+    ets_printf("call stub funciont %s\n", __FUNCTION__);
+}
+
+int uECC_secp256r1()
+{
+    return 0;
+}
+
+int uECC_verify()
+{
+    return 0;
+}

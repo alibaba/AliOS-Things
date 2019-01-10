@@ -50,10 +50,16 @@ esp_err_t espos_sem_take (
     espos_tick_t wait_ticks
 )
 {
+    uint64_t tick;
     kstat_t ret;
     ksem_t *psem = (ksem_t *)sem;
+    tick = (uint64_t)wait_ticks;
 
-    ret = krhino_sem_take(psem, wait_ticks);
+    if(wait_ticks == 0xffffffffu){
+      tick =  RHINO_WAIT_FOREVER;
+    }
+
+    ret = krhino_sem_take(psem, tick);
 
     return espos_err_map(ret);
 }

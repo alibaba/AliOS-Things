@@ -248,5 +248,7 @@ Xtensa Port Version.
 #define XTENSA_PORT_VERSION             1.4.2
 #define XTENSA_PORT_VERSION_STRING      "1.4.2"
 
+#define ETS_DPORT_INUM 28
+
 #endif /* XTENSA_RTOS_H */
 
