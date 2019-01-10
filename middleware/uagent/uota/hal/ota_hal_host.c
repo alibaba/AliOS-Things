@@ -35,16 +35,16 @@ int getCmdVal(const char *cmd)
         }
         pclose(ptr);
         ptr = NULL;
-        printf("ret:%s\n",ps);
+        OTA_LOG_I("ret:%s\n",ps);
     }
     else
     {
-        printf("popen %s error\n", ps);
+        OTA_LOG_E("popen %s error\n", ps);
     }
     sstr = strstr(ps, "mender_boot_part=");
     if (sstr) {
         sscanf(sstr, "%*[^ ]%d", &boot_part);
-        printf("mender_boot_part:%d \n", boot_part);
+        OTA_LOG_I("mender_boot_part:%d \n", boot_part);
     }
 #if defined PLAT_RASPBERRY
     if(boot_part == 3) {
@@ -59,7 +59,7 @@ int getCmdVal(const char *cmd)
         boot_part_in = 5;
     }
 #endif
-    printf("ota init:%d  boot_part_in:%d\n", boot_part,boot_part_in);
+    OTA_LOG_I("ota init:%d  boot_part_in:%d\n", boot_part,boot_part_in);
     return 0;
 }
 
@@ -179,7 +179,7 @@ static int ota_boot(void *something)
            return -1;
        }
    }
-   printf("Rebooting and updating FLASH now....\n");
+   OTA_LOG_I("Rebooting and updating FLASH now....\n");
    return 0;
 }
 
@@ -190,9 +190,9 @@ static int ota_rollback(void *something)
     sprintf(cmd1, "fw_setenv upgrade_available 0; fw_setenv bootcount 0; sync");
     ret = system(cmd1);
     if(ret < 0) {
-        printf("roll system fail .");
+        OTA_LOG_E("roll system fail .");
     }
-    OTA_LOG_E("roll:%s \n",cmd1);
+    OTA_LOG_I("roll:%s \n",cmd1);
     return 0;
 }
 
