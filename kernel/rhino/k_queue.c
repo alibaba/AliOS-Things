@@ -211,7 +211,7 @@ static kstat_t msg_send(kqueue_t *p_q, void *p_void, uint8_t opt_wake_all)
             p_q->msg_q.peak_num = p_q->msg_q.cur_num;
         }
 
-        ringbuf_push(&p_q->ringbuf, &p_void, sizeof(void *));
+        ringbuf_queue_push(&p_q->ringbuf, &p_void, sizeof(void *));
 
         RHINO_CRITICAL_EXIT();
         return RHINO_SUCCESS;
@@ -270,7 +270,7 @@ kstat_t krhino_queue_recv(kqueue_t *queue, tick_t ticks, void **msg)
     /* if queue has msgs, just receive it */
     if (queue->msg_q.cur_num > 0u) {
 
-        ringbuf_pop(&queue->ringbuf, msg, NULL);
+        ringbuf_queue_pop(&queue->ringbuf, msg, NULL);
 
         queue->msg_q.cur_num--;
 
