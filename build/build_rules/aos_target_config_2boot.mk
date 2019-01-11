@@ -4,7 +4,7 @@ include $(OUTPUT_DIR)/aos_all_components.mk
 
 APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
-CONFIG_FILE := $(CONFIG_FILE_DIR)/config_2boot.mk
+override CONFIG_FILE := $(CONFIG_FILE_DIR)/config_2boot.mk
 FEATURE_DIR := $(SOURCE_ROOT)build/configs
 AOS_2BOOT_SUPPORT := yes
 
