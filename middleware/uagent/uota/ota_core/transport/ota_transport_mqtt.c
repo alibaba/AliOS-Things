@@ -3,7 +3,6 @@
  */
 #include <string.h>
 #include <stdlib.h>
-
 #include "ota_log.h"
 #include "ota/ota_service.h"
 #include "ota_hal_os.h"
@@ -57,7 +56,7 @@ static int ota_mqtt_publish(const char *topic, const char *msg, char *pk, char *
     if (ret < 0) {
         return -1;
     }
-    OTA_LOG_I("Public name:%s msg:%s",name,msg);
+    OTA_LOG_I("Public name:%s msg:%s", name, msg);
     ret = ota_hal_mqtt_publish(name, 1, (void *)msg, strlen(msg) + 1);
     if (ret < 0) {
         return ret;
@@ -145,49 +144,49 @@ static int ota_trans_status(int progress, void* pctx)
         progress = status;
         switch (status) {
             case OTA_INIT_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota init failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota init failed");
                 break;
             case OTA_INIT_VER_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota version not match");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota version not match");
                 break;
             case OTA_DOWNLOAD_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download failed");
                 break;
             case OTA_DOWNLOAD_URL_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download url failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download url failed");
                 break;
             case OTA_DOWNLOAD_IP_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download ip failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download ip failed");
                 break;
             case OTA_DOWNLOAD_CON_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download connect failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download connect failed");
                 break;
             case OTA_DOWNLOAD_READ_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download read failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download read failed");
                 break;
             case OTA_DOWNLOAD_WRITE_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download write failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download write failed");
                 break;
             case OTA_VERIFY_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify failed");
                 break;
             case OTA_UPGRADE_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota upgrade failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota upgrade failed");
                 break;
             case OTA_REBOOT_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota reboot failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota reboot failed");
                 break;
             case OTA_VERIFY_RSA_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify rsa failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify rsa failed");
                 break;
             case OTA_VERIFY_HASH_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify hash failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify hash failed");
                 break;
             case OTA_UPGRADE_DIFF_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota diff failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota diff failed");
                 break;
             default:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota undefined failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota undefined failed");
                 break;
         }
     }
