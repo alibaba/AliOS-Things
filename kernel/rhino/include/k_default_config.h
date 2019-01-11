@@ -98,7 +98,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_MM_QUICK
-#define RHINO_CONFIG_MM_QUICK                1
+#define RHINO_CONFIG_MM_QUICK                0
 #endif
 
 #ifndef RHINO_CONFIG_MM_DEBUG
