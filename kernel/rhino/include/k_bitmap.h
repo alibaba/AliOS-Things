@@ -52,6 +52,9 @@ RHINO_INLINE uint8_t krhino_clz32(uint32_t x)
         return 32;
     }
 
+#ifdef RHINO_BIT_CLZ
+    n += RHINO_BIT_CLZ(x);
+#else
     if ((x & 0XFFFF0000) == 0) {
         x <<= 16;
         n += 16;
@@ -71,6 +74,7 @@ RHINO_INLINE uint8_t krhino_clz32(uint32_t x)
     if ((x & 0X80000000) == 0) {
         n += 1;
     }
+#endif
 
     return n;
 }
