@@ -67,10 +67,6 @@ void sc_ack_send_stop()
     ets_printf("call stub funciont %s\n", __FUNCTION__);
 }
 
-__attribute__((weak))  void esp_wifi_set_promiscous_autoack()
-{
-    ets_printf("call stub funciont %s\n", __FUNCTION__);
-}
 
 int uECC_secp256r1()
 {
