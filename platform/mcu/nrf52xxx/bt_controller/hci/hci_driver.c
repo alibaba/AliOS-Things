@@ -138,15 +138,14 @@ static inline struct net_buf *process_node(struct radio_pdu_node_rx *node_rx)
 
 static int cmd_handle(struct net_buf *buf)
 {
-	struct net_buf *evt;
+    struct net_buf *evt;
 
-	evt = hci_cmd_handle(buf);
-	if (evt) {
-		BT_DBG("Replying with event of %u bytes", evt->len);
-		bt_recv_prio(evt);
-	}
-
-	return 0;
+    evt = hci_cmd_handle(buf);
+    if (evt) {
+        BT_DBG("Replying with event of %u bytes", evt->len);
+        bt_recv_prio(evt);
+    }
+    return 0;
 }
 
 #if defined(CONFIG_BT_CONN)
