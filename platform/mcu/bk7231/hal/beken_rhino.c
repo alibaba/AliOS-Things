@@ -8,6 +8,8 @@
 #include "error.h"
 #include "rtos_pub.h"
 
+#define COMPRESS_LEN(x) (sizeof(size_t))
+
 OSStatus rtos_create_thread( beken_thread_t* thread, uint8_t priority, const char* name, beken_thread_function_t function, uint32_t stack_size, beken_thread_arg_t arg )
 {
     kstat_t ret;
