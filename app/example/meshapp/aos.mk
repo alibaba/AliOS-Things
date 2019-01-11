@@ -10,7 +10,7 @@ $(NAME)_COMPONENTS  += umesh cli netmgr
 GLOBAL_DEFINES      += TAPIF_DEFAULT_OFF DEBUG
 
 ifeq ($(MESHAUTH), 1)
-$(NAME)_COMPONENTS  += base64 alicrypto id2
+$(NAME)_COMPONENTS  += alicrypto id2
 endif
 
 LWIP ?=1
