@@ -1,3 +1,0 @@
-config AOS_COMP_BASE64
-    bool "base64"
-    default n
