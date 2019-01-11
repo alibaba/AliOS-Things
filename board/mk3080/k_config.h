@@ -123,9 +123,5 @@
 #define RHINO_CONFIG_CPU_NUM                 1
 #endif
 
-#ifndef RHINO_CONFIG_MM_QUICK
-#define RHINO_CONFIG_MM_QUICK                0
-#endif
-
 #endif /* K_CONFIG_H */
 
