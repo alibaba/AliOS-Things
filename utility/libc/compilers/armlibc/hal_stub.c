@@ -1,4 +1,4 @@
-#include "RVMDK/platform_toolchain.h"
+#include "aos/compiler.h"
 
 #define adc_dev_t void
 #define pwm_dev_t void
