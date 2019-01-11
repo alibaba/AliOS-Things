@@ -98,14 +98,15 @@ static int ota_parse(void* pctx, const char *json)
         cJSON *signMethod = cJSON_GetObjectItem(json_obj, "signMethod");
         if (signMethod) {
             memset(hash, 0x00, OTA_HASH_LEN);
-            if (0 == strncmp(signMethod->valuestring, "Md5", strlen("Md5"))) {
+            ota_to_capital(signMethod->valuestring, strlen(signMethod->valuestring));
+            if (0 == strncmp(signMethod->valuestring, "MD5", strlen("MD5"))) {
                 cJSON *md5 = cJSON_GetObjectItem(json_obj, "sign");
                 if (!md5) {
                     ret = OTA_PARSE_FAIL;
                     goto parse_failed;
                 }
                 ctx->hash_type = MD5;
-                strncpy(hash, md5->valuestring, strlen(md5->valuestring)+1);
+                strncpy(hash, md5->valuestring, strlen(md5->valuestring) + 1);
                 hash[strlen(md5->valuestring)] = '\0';
                 ota_to_capital(hash, strlen(hash));
             } else if (0 == strncmp(signMethod->valuestring, "SHA256", strlen("SHA256"))) {
@@ -115,7 +116,7 @@ static int ota_parse(void* pctx, const char *json)
                     goto parse_failed;
                 }
                 ctx->hash_type = SHA256;
-                strncpy(hash, sha256->valuestring, strlen(sha256->valuestring)+1);
+                strncpy(hash, sha256->valuestring, strlen(sha256->valuestring) + 1);
                 hash[strlen(sha256->valuestring)] = '\0';
                 ota_to_capital(hash, strlen(hash));
             } else {
@@ -171,7 +172,7 @@ static int ota_parse(void* pctx, const char *json)
     }
     goto parse_success;
 parse_failed:
-    OTA_LOG_E("parse failed err:%d",ret);
+    OTA_LOG_E("parse failed err:%d", ret);
     if (root) {
         cJSON_Delete(root);
     }
@@ -274,7 +275,7 @@ static void ota_download_thread(void *hand)
 ERR:
     OTA_LOG_E("upgrade over err:%d", ret);
 #if (!defined BOARD_ESP8266)
-    ctx->h_tr->status(100,ctx);
+    ctx->h_tr->status(100, ctx);
 #endif
     ota_free_hash_ctx();
     ota_msleep(3000);
@@ -288,7 +289,7 @@ int ota_upgrade_cb(void* pctx, char *json)
         return -1;
     }
     if (0 == ota_parse(ctx, json)) {
-        int is_ota = strncmp(ctx->ota_ver,ctx->sys_ver,strlen(ctx->ota_ver));
+        int is_ota = strncmp(ctx->ota_ver, ctx->sys_ver, strlen(ctx->ota_ver));
         if(is_ota > 0) {
             void *thread = NULL;
             ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 4096);
@@ -320,7 +321,7 @@ int ota_service_init(ota_service_t *ctx)
         ret = OTA_INIT_FAIL;
         return ret;
     }
-    memset(ctx->boot_param,0,sizeof(ota_boot_param_t));
+    memset(ctx->boot_param, 0, sizeof(ota_boot_param_t));
     if(ctx->inited) {
         ret = OTA_INIT_FAIL;
         return ret;
@@ -343,7 +344,7 @@ int ota_service_init(ota_service_t *ctx)
         ret = OTA_INIT_FAIL;
         return ret;
     }
-    strncpy(ctx->sys_ver, ota_hal_get_version(ctx->dev_type),sizeof(ctx->sys_ver) -1);
+    strncpy(ctx->sys_ver, ota_hal_get_version(ctx->dev_type), sizeof(ctx->sys_ver) - 1);
     memset(ctx->sign, 0, OTA_SIGN_LEN);
     ctx->h_tr = ota_get_transport();
     ctx->h_dl = ota_get_download();
@@ -353,7 +354,7 @@ int ota_service_init(ota_service_t *ctx)
         return ret;
     }
     ret = ctx->h_tr->upgrade(ctx);
-    OTA_LOG_I("ota init success, ver:%s type:%d size:%d",ctx->sys_ver, ctx->dev_type);
+    OTA_LOG_I("ota init success, ver:%s type:%d size:%d", ctx->sys_ver, ctx->dev_type);
     ota_hal_rollback(NULL);
     return ret;
 }
