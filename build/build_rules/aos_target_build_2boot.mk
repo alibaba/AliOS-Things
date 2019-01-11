@@ -1,6 +1,6 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
 
-CONFIG_FILE := $(OUTPUT_DIR)/config_2boot.mk
+override CONFIG_FILE := $(OUTPUT_DIR)/config_2boot.mk
 
 include $(CONFIG_FILE)
 
