@@ -12,10 +12,6 @@
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif
-#ifdef AOS_LOOP
-#include <aos/yloop.h>
-#endif
-
 
 #define GPS_EV_UDATA                        (0x40)
 #define GPS_DEV_READ                        (1)
@@ -296,7 +292,6 @@ static int drv_gps_simcom_sim868_proc(const char* str, gps_data_t* pgpsdata)
 {
     int ret;
     int len;
-    char  gpsdata[GPS_CALC_BUF_LEN];
 
     if(0 == str){
         return -1;
@@ -310,11 +305,7 @@ static int drv_gps_simcom_sim868_proc(const char* str, gps_data_t* pgpsdata)
     if(len >= GPS_RCV_DATA_LEN){
         return -1;
     }
-    
-    memcpy(&gpsdata[0], str, len);
-    gpsdata[len] = '\0';
-
-    ret = drv_gps_simcom_sim868_parse(&gpsdata[0],len, pgpsdata);
+    ret = drv_gps_simcom_sim868_parse((char*)str,len, pgpsdata);
     if(0 != ret){
         return -1;
     }
@@ -480,70 +471,20 @@ static int drv_gps_simcom_sim868_poll_read(char* rsp)
     return (int)strlen(rsp);
 }
 
-static void drv_gps_simcom_sim868_dispatcher(input_event_t *event, void *priv_data)
-{
-    int ret = 0;
-    char* str;
-    
-    if ((event == NULL)||(event->type != GPS_EV_UDATA)) {
-        return;
-    }
-    
-    switch(event->code){
-        case GPS_DEV_READ:{
-            str = (char*)(void*)(event->value);
-            if(NULL == str){
-                return;
-            }
-            ret = drv_gps_simcom_sim868_proc(str,&g_gps_sim868_data);
-            if(0 != ret){
-                return;
-            }
-            
-        }break;
-
-        case GPS_DEV_SEND:{
-
-        }break;
-        
-        default:break;
-    }
-    
-}
-
-
-static int drv_gps_simcom_sim868_data_proc_init(at_cb_mode_e mode)
-{
-    int ret = 0;
-    
-    if(AT_CB_ON == mode){
-        ret = aos_register_event_filter(GPS_EV_UDATA, drv_gps_simcom_sim868_dispatcher, NULL);
-        if(unlikely(ret)){
-            return -1;
-        }
-        LOG(" %s successfully \n", __func__);
-    }
-    else{
-        LOG("func : %s no need\n",__func__);
-    }
-
-    return 0;
-}
-
 static void drv_gps_simcom_sim868_ood_cb(void *arg, char* buf, int size)
 {
     int ret;
     char* str;
-    if((NULL == buf) || (0 == size) || (size >= GPS_RCV_DATA_LEN)){
+    if((NULL == buf) || (0 == size) || (size >= GPS_RCV_DATA_LEN-1)){
         return;
     }
 
     str = &g_gps_sim868_addr[0];
     memcpy(str,(void*)buf,size);
     str[size] = '\0';
-    
-    ret = aos_post_event(GPS_EV_UDATA, GPS_DEV_READ, (unsigned long)str);
-    if(ret < 0){
+
+    ret = drv_gps_simcom_sim868_proc(str,&g_gps_sim868_data);
+    if(unlikely(ret)){
         return;
     }
 }
@@ -570,11 +511,6 @@ static int drv_gps_simcom_sim868_cb_unreg(void)
 static int drv_gps_simcom_sim868_open(void)
 {
     int ret;
-    
-    ret = drv_gps_simcom_sim868_data_proc_init(g_sim868_mode);
-    if(0 != ret){
-        return -1;
-    }
     
     ret = drv_gps_simcom_sim868_ood_cb_reg(g_sim868_mode);
     if(0 != ret){
@@ -665,31 +601,12 @@ static int drv_gps_simcom_sim868_ioctl(int cmd, unsigned long arg)
     return 0;
 }
 
-static int drv_gps_simcom_sim868_env_init()
-{
-    int ret = 0;
-#ifdef AOS_ATCMD
-    ret = at_init();
-    if(0 != ret){
-        LOG("%s :   line %d  ret %d\n",__func__,__LINE__,ret);
-        return -1;
-    }
-#endif
-    
-    return 0;
-
-}
-
 
 int drv_gps_simcom_sim868_init(void)
 {
     int ret = 0;
     sensor_obj_t gpsobj;
-    
-    ret = drv_gps_simcom_sim868_env_init();
-    if(unlikely(ret)){
-        return -1;
-    }
+
     /* fill the gps obj parameters here */
     gpsobj.io_port    = UART_PORT;
     gpsobj.tag        = TAG_DEV_GPS;
