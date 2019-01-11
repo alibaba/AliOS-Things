@@ -3,7 +3,7 @@ default: Help
 unexport NAME # For compatibility with Windows Subsystem Linux
 
 export SOURCE_ROOT ?= ./
-
+export BUILD_DIR   ?= out
 export MAKEFILES_PATH := $(SOURCE_ROOT)/build/build_rules
 export SCRIPTS_PATH := $(SOURCE_ROOT)/build/scripts
 
@@ -13,12 +13,6 @@ ifeq (,$(SUB_BUILD))
 JOBSNO := -j$(JOBS)
 endif
 
-# Specify sub build stage:
-# - config: generate config.mk
-# - export_keil: export keil project only
-# - export_iar: export iar project only
-CMD ?=
-
 MAKEFILE_TARGETS := clean Help $(CMD) # targets used by makefile
 
 #define BUILD_STRING, AOS toolchain commands on different hosts
@@ -26,6 +20,26 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 
 # kconfig support
 include $(MAKEFILES_PATH)/aos_kconfig.mk
+
+# Process build strings
+BUILD_SUBTARGETS := .config .compile .image .export-keil .export-iar
+export BUILD_STRING ?= $(strip $(filter-out $(MAKEFILE_TARGETS) download run total export_linkkit_sdk restore_linkkit_sdk, $(MAKECMDGOALS)))
+
+# Set IDE if export-* is specified
+ifneq ($(filter %.export-keil, $(BUILD_STRING)),)
+export IDE := keil
+else ifneq ($(filter %.export-iar, $(BUILD_STRING)),)
+export IDE := iar
+endif
+
+# Strip subtargets from BUILD_STRING
+$(foreach subtarget, $(BUILD_SUBTARGETS), $(eval BUILD_STRING := $(subst $(subtarget),,$(BUILD_STRING))))
+export CLEANED_BUILD_STRING := $(BUILD_STRING)
+
+export OUTPUT_DIR  := $(BUILD_DIR)/$(CLEANED_BUILD_STRING)$(MBINS)
+export CONFIG_FILE := $(OUTPUT_DIR)/config.mk
+export AUTO_COMPONENT_DIR := $(OUTPUT_DIR)/auto_component
+
 include $(MAKEFILES_PATH)/aos_prebuild.mk
 
 # Support for MBINS build
@@ -155,29 +169,24 @@ endif
 ifneq ($(BUILD_STRING),)
 -include $(OUTPUT_DIR)/config.mk
 
-# Figure out target architecture and include toolchain makefile
+# Include toolchain
 ifeq ($(IDE),iar)
-COMPILER := iar
-CLEANED_BUILD_STRING += COMPILER=iar
+export COMPILER := iar
 else ifeq ($(IDE),keil)
-COMPILER := armcc
-CLEANED_BUILD_STRING += COMPILER=armcc
+export COMPILER := armcc
 else ifeq ($(IDE),rvct)
-COMPILER := rvct
-CLEANED_BUILD_STRING += COMPILER=rvct
+export COMPILER := rvct
 endif
 
 ifeq ($(COMPILER),armcc)
- TOOLCHAIN_MK = $(MAKEFILES_PATH)/toolchain/aos_toolchain_armcc.mk
+export TOOLCHAIN_MAKEFILE := $(MAKEFILES_PATH)/toolchain/aos_toolchain_armcc.mk
 else ifeq ($(COMPILER),rvct)
- TOOLCHAIN_MK = $(MAKEFILES_PATH)/toolchain/aos_toolchain_rvct.mk
+export TOOLCHAIN_MAKEFILE := $(MAKEFILES_PATH)/toolchain/aos_toolchain_rvct.mk
 else ifeq ($(COMPILER),iar)
- TOOLCHAIN_MK = $(MAKEFILES_PATH)/toolchain/aos_toolchain_iar.mk
+export TOOLCHAIN_MAKEFILE := $(MAKEFILES_PATH)/toolchain/aos_toolchain_iar.mk
 else
- TOOLCHAIN_MK = $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
+export TOOLCHAIN_MAKEFILE := $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
 endif
-
-include $(TOOLCHAIN_MK)
 
 # Support for test suite - create auto_component and register init functions for test components
 AUTO_COMPONENT = $(AUTO_COMPONENT_DIR)/auto_component.mk
@@ -194,7 +203,7 @@ $(TEST_COMPONENT_COLLECTION):
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
 
 # Target to create config.mk file
-$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MK) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
+$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MAKEFILE) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_MAKEFILES),Applying changes made to: $?,Making config file for first time)
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config.mk $(CLEANED_BUILD_STRING)
 
@@ -206,20 +215,24 @@ MBINS_ERROR := error
 endif
 endif
 
-#PASSDOWN_TARGETS := $(strip $(filter-out $(MAKEFILE_TARGETS) $(BUILD_STRING) export_linkkit_sdk restore_linkkit_sdk,$(MAKECMDGOALS))) #download total
-#$(PASSDOWN_TARGETS):
-#	@:
-
 $(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app 2boot
 
-main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/aos_target_build.mk
-	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
-	$(QUIET)$(ECHO) Build AOS Now
-	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
+ifeq ($(IDE),keil)
+main_app: $(addsuffix .export-keil, $(BUILD_STRING))
+else ifeq ($(IDE),iar)
+main_app: $(addsuffix .export-iar, $(BUILD_STRING))
+endif
+
+init-build-env: $(OUTPUT_DIR)/config.mk
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/includes)
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config.mk $(AUTO_COMPONENT_DIR)
+
+main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/aos_target_build.mk init-build-env
+	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
+	$(QUIET)$(ECHO) Build AOS Now
+	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
 	$(QUIET)$(ECHO) Build complete
 
@@ -255,4 +268,17 @@ restore_linkkit_sdk:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR))
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/restore_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
 
+%.config: $(CONFIG_FILE)
+	$(QUIET)$(ECHO) Build configs complete: $(CONFIG_FILE)
 
+%.export-project: $(CONFIG_FILE)
+	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_3rd_project.mk $*
+
+%.export-keil: %.export-project
+	$(QUIET)$(ECHO) Build Keil project complete
+
+%.export-iar: %.export-project
+	$(QUIET)$(ECHO) Build IAR Project complete
+
+%.compile: %.config
+	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $@
