@@ -9,6 +9,8 @@
 #include "mico_rtos_common.h"
 #include "common.h"
 
+#define COMPRESS_LEN(x) (sizeof(size_t))
+
 typedef struct
 {
     event_handler_t function;
