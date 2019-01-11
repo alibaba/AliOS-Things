@@ -5,7 +5,6 @@
  * uData service task
  */
 
-#include "aos/yloop.h"
 #include "udata_queue.h"
 #include "abs_data_model.h"
 #include "service_mgr.h"
@@ -35,7 +34,7 @@ void process_example(void *arg)
         }
         
         msg = (sensor_msg_pkg_t *)buffer;
-        if (msg->cmd != CODE_UDATA_SERVICE_PROCESS) {
+        if (msg->cmd != UDATA_MSG_SERVICE_PROCESS) {
             continue;
         }
         
