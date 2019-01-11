@@ -7,8 +7,11 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "aos/cli.h"
 #include "aos/kernel.h"
-#include <aos/yloop.h>
+#include "ulog/ulog.h"
+#include "aos/yloop.h"
+
 #include "netmgr.h"
 #include "iot_import.h"
 #include "iot_export.h"
