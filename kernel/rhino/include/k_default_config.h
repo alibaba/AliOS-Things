@@ -42,6 +42,10 @@
 #define RHINO_CONFIG_WORKQUEUE               0
 #endif
 
+#ifndef RHINO_CONFIG_MUTEX_INHERIT
+#define RHINO_CONFIG_MUTEX_INHERIT           1
+#endif
+
 #if (RHINO_CONFIG_WORKQUEUE > 0)
 
 #ifndef RHINO_CONFIG_WORKQUEUE_STACK_SIZE
