@@ -187,6 +187,7 @@ kstat_t krhino_mutex_dyn_del(kmutex_t *mutex)
 
 uint8_t mutex_pri_limit(ktask_t *task, uint8_t pri)
 {
+#if (RHINO_CONFIG_MUTEX_INHERIT > 0)
     kmutex_t *mutex_tmp;
     uint8_t  high_pri;
     ktask_t  *first_blk_task;
@@ -210,10 +211,14 @@ uint8_t mutex_pri_limit(ktask_t *task, uint8_t pri)
     }
 
     return high_pri;
+#else
+    return pri;
+#endif
 }
 
 uint8_t mutex_pri_look(ktask_t *task, kmutex_t *mutex_rel)
 {
+#if (RHINO_CONFIG_MUTEX_INHERIT > 0)
     kmutex_t  *mutex_tmp;
     kmutex_t **prev;
     uint8_t   new_pri;
@@ -249,10 +254,14 @@ uint8_t mutex_pri_look(ktask_t *task, kmutex_t *mutex_rel)
     }
 
     return new_pri;
+#else
+    return task->b_prio;
+#endif
 }
 
 void mutex_task_pri_reset(ktask_t *task)
 {
+#if (RHINO_CONFIG_MUTEX_INHERIT > 0)
     kmutex_t *mutex_tmp;
     ktask_t *mutex_task;
 
@@ -265,6 +274,7 @@ void mutex_task_pri_reset(ktask_t *task)
             mutex_release(mutex_task, NULL);
         }
     }
+#endif
 }
 
 kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
@@ -312,8 +322,10 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
     if (mutex_task == NULL) {
         /* get lock */
         mutex->mutex_task         = g_active_task[cur_cpu_num];
+#if (RHINO_CONFIG_MUTEX_INHERIT > 0)
         mutex->mutex_list         = g_active_task[cur_cpu_num]->mutex_list;
         g_active_task[cur_cpu_num]->mutex_list = mutex;
+#endif
         mutex->owner_nested       = 1u;
 
         TRACE_MUTEX_GET(g_active_task[cur_cpu_num], mutex, ticks);
@@ -334,7 +346,7 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
         RHINO_CRITICAL_EXIT();
         return RHINO_SCHED_DISABLE;
     }
-
+#if (RHINO_CONFIG_MUTEX_INHERIT > 0)
     /* if current task is a higher prio task and block on the mutex
        prio inverse condition happened, prio inherit method is used here */
     if (g_active_task[cur_cpu_num]->prio < mutex_task->prio) {
@@ -343,6 +355,7 @@ kstat_t krhino_mutex_lock(kmutex_t *mutex, tick_t ticks)
         TRACE_TASK_PRI_INV(g_active_task[cur_cpu_num], mutex_task);
 
     }
+#endif
 
     /* any way block the current task */
     pend_to_blk_obj((blk_obj_t *)mutex, g_active_task[cur_cpu_num], ticks);
@@ -424,8 +437,10 @@ kstat_t krhino_mutex_unlock(kmutex_t *mutex)
 
     /* change mutex get task */
     mutex->mutex_task   = task;
+#if (RHINO_CONFIG_MUTEX_INHERIT > 0)
     mutex->mutex_list   = task->mutex_list;
     task->mutex_list    = mutex;
+#endif
     mutex->owner_nested = 1u;
 
     RHINO_CRITICAL_EXIT_SCHED();
