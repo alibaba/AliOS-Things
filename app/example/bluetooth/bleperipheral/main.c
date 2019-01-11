@@ -62,9 +62,11 @@ static void connected(struct bt_conn *conn, uint8_t err)
         default_conn = bt_conn_ref(conn);
 	printf("Connected %s\n", addr);
 
+#ifdef CONFIG_BT_SMP
 	if (bt_conn_security(conn, BT_SECURITY_HIGH)) {
 		printf("Failed to set security\n");
 	}
+#endif
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
@@ -81,6 +83,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	printf("Disconnected from %s (reason %u)\n", addr, reason);
 }
 
+#ifdef CONFIG_BT_SMP
 static void identity_resolved(struct bt_conn *conn, const bt_addr_le_t *rpa,
                               const bt_addr_le_t *identity)
 {
@@ -101,19 +104,22 @@ static void security_changed(struct bt_conn *conn, bt_security_t level)
 
         printf("Security changed: %s level %u\n", addr, level);
 }
+#endif
 
 static struct bt_conn_cb conn_callbacks = {
 	.connected = connected,
 	.disconnected = disconnected,
+#if CONFIG_BT_SMP
         .identity_resolved = identity_resolved,
         .security_changed = security_changed,
+#endif
 };
 
 
 static void bt_ready(int err)
 {
         if (err) {
-                printf("Bluetooth init failed (err %d)\n", err);
+                printf("1Bluetooth init failed (err %d)\n", err);
                 return;
         }
 
@@ -170,7 +176,9 @@ void ble_sample(void)
 		return;
 	}
 
+#ifdef CONFIG_BT_SMP
 	bt_conn_auth_cb_register(&auth_cb_display);
+#endif
 	bt_conn_cb_register(&conn_callbacks);
 
         while (1) {
