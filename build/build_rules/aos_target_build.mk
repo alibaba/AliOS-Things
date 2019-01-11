@@ -1,23 +1,6 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
-
-CONFIG_FILE := $(OUTPUT_DIR)/config.mk
-
 include $(CONFIG_FILE)
-
-# Include all toolchain makefiles - one of them will handle the architecture
-# default gcc
-# TODO: remove duplicate includes for toolchain makefile
-ifeq ($(COMPILER),)
-include $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
-else ifeq ($(COMPILER),gcc)
-include $(MAKEFILES_PATH)/toolchain/aos_toolchain_gcc.mk
-else ifeq ($(COMPILER),armcc)
-include $(MAKEFILES_PATH)/toolchain/aos_toolchain_armcc.mk
-else ifeq ($(COMPILER),rvct)
-include $(MAKEFILES_PATH)/toolchain/aos_toolchain_rvct.mk
-else ifeq ($(COMPILER),iar)
-include $(MAKEFILES_PATH)/toolchain/aos_toolchain_iar.mk
-endif
+include $(TOOLCHAIN_MAKEFILE)
 
 .PHONY: display_map_summary build_done
 
@@ -343,3 +326,6 @@ $(EXTRA_POST_BUILD_TARGETS): build_done
 
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done)
 	$(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(BIN_OUTPUT_FILE)
+
+%.compile: $(LINK_LIBS)
+	$(QUIET)$(ECHO) Build libraries complete
