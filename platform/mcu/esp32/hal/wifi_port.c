@@ -155,7 +155,7 @@ static esp_err_t handle_event_cb(void *ctx, system_event_t *evt)
     switch (eid) {
         case SYSTEM_EVENT_STA_START:
             wifi_status.wifi_started = 1;
-            ESP_ERROR_CHECK(esp_wifi_connect());
+            //ESP_ERROR_CHECK(esp_wifi_connect());
             break;
         case SYSTEM_EVENT_STA_GOT_IP: {
             memcpy(_ip_stat.ip,
@@ -342,18 +342,21 @@ static int wifi_init(hal_wifi_module_t *m)
     if (inited)
         return 0;
     inited = 1;
-#if 0
+
+    /* nvs flash initialization, this function may not used in aos, kv is similar function compared with nvs */
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
       ESP_ERROR_CHECK(nvs_flash_erase());
       ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK(ret);
-#endif
+
     /* Hook Event */
     ret = esp_event_loop_init(handle_event_cb, NULL);
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
+    esp_wifi_set_mode(WIFI_MODE_STA);
+    esp_wifi_start();
     return 0;
 };
 
