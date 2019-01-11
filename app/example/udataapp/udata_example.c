@@ -8,8 +8,8 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "aos/cli.h"
 #include "aos/kernel.h"
-#include <aos/yloop.h>
 #include "udata/udata.h"
 #include "udata_queue.h"
 #include "service_mgr.h"
@@ -329,7 +329,9 @@ int application_start(int argc, char **argv)
 
     (void)udata_sample();
 
-    aos_loop_run();
+    while(1) {
+        aos_msleep(1000);
+    };
     return 0;
 }
 
