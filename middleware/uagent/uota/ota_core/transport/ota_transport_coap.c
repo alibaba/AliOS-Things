@@ -31,7 +31,7 @@ static int otacoap_GenTopicName(char *buf, int len, char *topic, char *pk, char 
 static int otalib_GenReqMsg(char *buf, int len, int id, const char *ver)
 {
     int ret = 0;
-    ret     = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"mode\":\"coap\",\"version\":\"%s\"}}", id, ver? ver: NULL);
+    ret = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"mode\":\"coap\",\"version\":\"%s\"}}", id, ver ? ver : NULL);
     if (ret < 0) {
         return -1;
     }
@@ -44,7 +44,7 @@ static int otalib_GenReqMsg(char *buf, int len, int id, const char *ver)
 static int otalib_GenReportMsg(char *buf, int len, int id, int progress, const char *msg)
 {
     int ret = 0;
-    ret = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}", id,progress, msg?msg:NULL);
+    ret = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}", id, progress, msg ? msg : NULL);
     if (ret < 0) {
         return -1;
     }
@@ -53,9 +53,9 @@ static int otalib_GenReportMsg(char *buf, int len, int id, int progress, const c
 
 static void otacoap_response_handler(void *arg, void *p_response)
 {
-    int              len       = 0;
-    char             *p_payload = NULL;
-    unsigned char    resp_code = 0;
+    int len = 0;
+    char *p_payload = NULL;
+    unsigned char resp_code = 0;
     ota_coap_get_code(p_response, &resp_code);
     ota_coap_get_payload(p_response, (const char **)&p_payload, &len);
     OTA_LOG_I("coap res code = %d, len=%d, msg=%s", resp_code,len, p_payload ? p_payload : NULL);
@@ -72,17 +72,17 @@ static void otacoap_response_handler(void *arg, void *p_response)
 // report progress of OTA
 static int otacoap_Publish(char *topic, char *msg, void* pctx)
 {
-    int              ret = 0;
-    ota_coap_message_t       message;
+    int ret = 0;
+    ota_coap_message_t message;
     ota_service_t* ctx = pctx;
     if (!ctx || !(ctx->h_ch)) {
         return -1;
     }
-    message.p_payload        = (unsigned char *)msg;
-    message.payload_len      = (unsigned short)strlen(msg);
-    message.resp_callback    = otacoap_response_handler;
-    message.msg_type         = COAP_MESSAGE_CON;
-    message.content_type     = COAP_CONTENT_TYPE_JSON;
+    message.p_payload  = (unsigned char *)msg;
+    message.payload_len = (unsigned short)strlen(msg);
+    message.resp_callback = otacoap_response_handler;
+    message.msg_type = COAP_MESSAGE_CON;
+    message.content_type = COAP_CONTENT_TYPE_JSON;
     ret = otacoap_GenTopicName(ctx->url, OTA_COAP_URI_MAX_LEN, topic, ctx->pk, ctx->dn);
     if (ret < 0) {
         return -1;
@@ -150,49 +150,49 @@ static int ota_trans_status(int progress, void *pctx)
             progress = status;
         switch (status) {
             case OTA_INIT_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota init failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota init failed");
                 break;
             case OTA_INIT_VER_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota version not match");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota version not match");
                 break;
             case OTA_DOWNLOAD_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download failed");
                 break;
             case OTA_DOWNLOAD_URL_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download url failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download url failed");
                 break;
             case OTA_DOWNLOAD_IP_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download ip failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download ip failed");
                 break;
             case OTA_DOWNLOAD_CON_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download connect failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download connect failed");
                 break;
             case OTA_DOWNLOAD_READ_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download read failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download read failed");
                 break;
             case OTA_DOWNLOAD_WRITE_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota download write failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota download write failed");
                 break;
             case OTA_VERIFY_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify failed");
                 break;
             case OTA_UPGRADE_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota upgrade failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota upgrade failed");
                 break;
             case OTA_REBOOT_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota reboot failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota reboot failed");
                 break;
             case OTA_VERIFY_RSA_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify rsa failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify rsa failed");
                 break;
             case OTA_VERIFY_HASH_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota verify hash failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota verify hash failed");
                 break;
             case OTA_UPGRADE_DIFF_FAIL:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota diff failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota diff failed");
                 break;
             default:
-                ota_snprintf(err, OTA_MAX_VER_LEN-1, "%s", "ota undefined failed");
+                ota_snprintf(err, OTA_MAX_VER_LEN - 1, "%s", "ota undefined failed");
                 break;
         }
     }
