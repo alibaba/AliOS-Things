@@ -134,7 +134,7 @@ int ota_hash_final(unsigned char *dgst, void *context)
             ota_sha256_finish(&hash_ctx->sha256_ctx, (unsigned char *)dgst);
             ota_sha256_free(&hash_ctx->sha256_ctx);
             break;
-        }  
+        }
         case MD5: {
             ota_md5_finish(&hash_ctx->md5_ctx, (unsigned char *)dgst);
             ota_md5_free(&hash_ctx->md5_ctx);
@@ -273,7 +273,7 @@ int ota_set_cur_hash_ctx(ota_hash_param_t *hash_ctx)
     int body_len = hash_ctx->ctx_size;
     ret = ota_kv_set(KEY_OTA_HASH_CTX_HEAD, hash_ctx, head_len, 1);
     if (ret == 0) {
-        return ota_kv_set(KEY_OTA_HASH_CTX_BODY, hash_ctx->ctx_hash, body_len,1);
+        return ota_kv_set(KEY_OTA_HASH_CTX_BODY, hash_ctx->ctx_hash, body_len, 1);
     } else {
         return ret;
     }
@@ -285,7 +285,7 @@ static int ota_check_md5(const unsigned char *cur_hash, const char *download_has
         return -1;
     }
     char digest_str[33] = {0};
-    int  i              = 0;
+    int  i = 0;
     for (; i < 16; i++) {
         ota_snprintf(digest_str + i * 2, 2 + 1, "%02X", cur_hash[i]);
     }
@@ -302,7 +302,7 @@ static int ota_check_sha256(const unsigned char *cur_hash, const char *download_
         return -1;
     }
     char digest_str[65] = {0};
-    int  i              = 0;
+    int  i = 0;
     for (; i < 32; i++) {
         ota_snprintf(digest_str + i * 2, 2 + 1, "%02X", cur_hash[i]);
     }
@@ -319,9 +319,9 @@ int ota_check_hash(OTA_HASH_E hash_type, char* hash)
     if (hash == NULL) {
         return -1;
     }
-    int                  ret        = -1;
-    unsigned char        digest[64] = { 0 };
-    ota_hash_param_t *hash_ctx   = ota_get_hash_ctx();
+    int ret = -1;
+    unsigned char digest[64] = { 0 };
+    ota_hash_param_t *hash_ctx      = ota_get_hash_ctx();
     if (OTA_CRYPTO_SUCCESS != ota_hash_final(digest, hash_ctx->ctx_hash)) {
         return -1;
     }
@@ -370,17 +370,17 @@ void ota_destroy_bin_md5_context()
 
 int ota_check_image(unsigned int size)
 {
-    int                   ret     = 0;
+    int ret = 0;
 #if !defined (AOS_OTA_DISABLE_MD5)
-    int                   i       = 0;
-    int                    off_set = 0;
-    char                  image_md5_value[33] = {0};
-    char                  download_md5_str_value[33] = {0};
-    unsigned int          read_size    = 0;
-    char                  *rd_buf      = NULL;
-    char                  test_buf[33] = { 0 };
-    int                   bin_size     = size;
-    ota_image_t           ota_image_identity = { 0};
+    int i = 0;
+    int off_set = 0;
+    char image_md5_value[33] = {0};
+    char download_md5_str_value[33] = {0};
+    unsigned int read_size = 0;
+    char *rd_buf = NULL;
+    char test_buf[33] = { 0 };
+    int bin_size = size;
+    ota_image_t ota_image_identity = { 0};
    
     if(size <= sizeof(ota_image_t)){
         ret = OTA_VERIFY_HASH_FAIL;
@@ -396,7 +396,7 @@ int ota_check_image(unsigned int size)
     for (i = 0; i < 16; i++) {
         ota_snprintf((char *)(test_buf + i * 2), 2 + 1, "%02X", ota_image_identity.image_md5_value[i]);
     }
-    OTA_LOG_I("magic:0x%04x size:%d md5:%s crc16:0x%02x",ota_image_identity.image_magic,ota_image_identity.image_size, test_buf, ota_image_identity.image_crc16);
+    OTA_LOG_I("magic:0x%04x size:%d md5:%s crc16:0x%02x", ota_image_identity.image_magic,ota_image_identity.image_size, test_buf, ota_image_identity.image_crc16);
     if ((ota_image_identity.image_magic != AOS_SINGLE_TAG) &&
         (ota_image_identity.image_magic != AOS_KERNEL_TAG) &&
         (ota_image_identity.image_magic != AOS_APP_TAG)) {
