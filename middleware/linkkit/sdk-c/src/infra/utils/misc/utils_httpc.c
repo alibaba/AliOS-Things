@@ -16,7 +16,7 @@
 #define HTTPCLIENT_MAX(x,y) (((x)>(y))?(x):(y))
 
 
-#define HTTPCLIENT_READ_BUF_SIZE     (1024)          /* read payload */
+#define HTTPCLIENT_READ_BUF_SIZE  (1024)          /* read payload */
 #define HTTPCLIENT_RAED_HEAD_SIZE (32)            /* read header */
 #define HTTPCLIENT_SEND_BUF_SIZE  (1024)          /* send */
 
@@ -47,7 +47,8 @@ static int _utils_parse_url(const char *url, char *host,
     char *fragment_ptr;
 
     if (host_ptr == NULL) {
-        return -1; /* URL is invalid */
+        /* URL is invalid */
+        return -1;
     }
     host_ptr += 3;
 
@@ -164,7 +165,7 @@ static int _http_send_header(httpclient_t *client, const char *host, const char 
 
     log_multi_line(LOG_DEBUG_LEVEL, "REQUEST", "%s", send_buf, ">");
 
-    /* ret = httpclient_tcp_send_all(client->net.handle, send_buf, len); */
+    /* send data via the write warpper */
     ret = client->net.write(&client->net, send_buf, len, 5000);
     if (ret <= 0) {
         utils_err("ret =%d");
@@ -179,11 +180,11 @@ int _http_send_userdata(httpclient_t *client, httpclient_data_t *client_data)
     int ret = 0;
 
     if (client_data->post_buf && client_data->post_buf_len) {
-        /* ret = httpclient_tcp_send_all(client->handle, (char *)client_data->post_buf, client_data->post_buf_len); */
         ret = client->net.write(&client->net, (char *)client_data->post_buf, client_data->post_buf_len, 5000);
         utils_debug("client_data->post_buf: %s, ret is %d", client_data->post_buf, ret);
         if (ret <= 0) {
-            return (ret == 0) ? ERROR_HTTP_CLOSED : ERROR_HTTP_CONN; /* Connection was closed by server */
+            /* Connection was closed by server */
+            return (ret == 0) ? ERROR_HTTP_CLOSED : ERROR_HTTP_CONN;
         }
     }
 
@@ -220,7 +221,6 @@ static int _http_recv(httpclient_t *client, char *buf, int max_len, int *p_read_
 #define MIN_TIMEOUT (100)
 #define MAX_RETRY_COUNT (600)
 
-
 static int _utils_check_deadloop(int len, iotx_time_t *timer, int ret, unsigned int *dead_loop_count,
                                  unsigned int *extend_count)
 {
@@ -247,6 +247,7 @@ static int _utils_check_deadloop(int len, iotx_time_t *timer, int ret, unsigned 
         utils_err("extend timer for too many times, exit");
         return ERROR_HTTP_CONN;
     }
+    /* no issue, return */
     return SUCCESS_RETURN;
 }
 
@@ -513,6 +514,7 @@ static int _http_send(httpclient_t *client, const char *url, int port, const cha
     return SUCCESS_RETURN;
 }
 
+/* the main http entry to get data */
 int httpclient_common(httpclient_t *client, const char *url, int port, const char *ca_crt,
                       HTTPCLIENT_REQUEST_TYPE method, uint32_t timeout_ms, httpclient_data_t *client_data)
 {
