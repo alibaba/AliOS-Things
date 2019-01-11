@@ -72,7 +72,7 @@
 /* Then transfer byte larger than the threshold, use non-blocking method. */
 #define UART_TX_INT_THRESHOLD 4
 
-static const uint32_t s_uartBaseAddrs[9] = {0, (uint32_t)LPUART1_BASE, (uint32_t)LPUART2_BASE,
+static const uint32_t s_uartBaseAddrs[8] = {(uint32_t)LPUART1_BASE, (uint32_t)LPUART2_BASE,
 (uint32_t)LPUART3_BASE, (uint32_t)LPUART4_BASE, (uint32_t)LPUART5_BASE, (uint32_t)LPUART6_BASE, (uint32_t)LPUART7_BASE, 
 (uint32_t)LPUART8_BASE};
 static lpuart_handle_t s_handle[9];
@@ -94,43 +94,37 @@ uart_dev_t uart_1 = {
     .priv = NULL                                                                        /* priv data */
 };
 uart_dev_t uart_2 = {
-    .port = 0,                                                                          /* uart port */
+    .port = 2,                                                                          /* uart port */
     .config = {115200, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED}, /* uart config */
     .priv = NULL                                                                        /* priv data */
 };
 
 uart_dev_t uart_3 = {
-    .port = 1,                                                                          /* uart port */
+    .port = 3,                                                                          /* uart port */
     .config = {115200, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED}, /* uart config */
     .priv = NULL                                                                        /* priv data */
 };
 
 uart_dev_t uart_4 = {
-    .port = 0,                                                                          /* uart port */
+    .port = 4,                                                                          /* uart port */
     .config = {115200, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED}, /* uart config */
     .priv = NULL                                                                        /* priv data */
 };
 
 uart_dev_t uart_5 = {
-    .port = 1,                                                                          /* uart port */
+    .port = 5,                                                                          /* uart port */
     .config = {115200, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED}, /* uart config */
     .priv = NULL                                                                        /* priv data */
 };
 
 uart_dev_t uart_6 = {
-    .port = 0,                                                                          /* uart port */
+    .port = 6,                                                                          /* uart port */
     .config = {115200, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED}, /* uart config */
     .priv = NULL                                                                        /* priv data */
 };
 
 uart_dev_t uart_7 = {
-    .port = 1,                                                                          /* uart port */
-    .config = {115200, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED}, /* uart config */
-    .priv = NULL                                                                        /* priv data */
-};
-
-uart_dev_t uart_8 = {
-    .port = 1,                                                                          /* uart port */
+    .port = 8,                                                                          /* uart port */
     .config = {115200, DATA_WIDTH_8BIT, NO_PARITY, STOP_BITS_1, FLOW_CONTROL_DISABLED}, /* uart config */
     .priv = NULL                                                                        /* priv data */
 };

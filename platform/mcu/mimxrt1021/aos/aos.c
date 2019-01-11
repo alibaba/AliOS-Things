@@ -25,7 +25,7 @@
 extern int application_start(int argc, char **argv);
 extern int vfs_init(void);
 extern int vfs_device_init(void);
-extern uart_dev_t uart_1;
+extern uart_dev_t uart_0;
 
 ktask_t *g_aos_app;
 
@@ -78,7 +78,7 @@ int main(void)
    platform_init();
 
    aos_init();
-   hal_uart_init(&uart_1);
+   hal_uart_init(&uart_0);
    krhino_task_dyn_create(&g_aos_app, "aos-init", 0, AOS_DEFAULT_APP_PRI + 2, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
 
    SysTick_Config(SystemCoreClock / RHINO_CONFIG_TICKS_PER_SECOND);
