@@ -98,9 +98,6 @@ static void ais_init_done(uint8_t res)
         ble_get_mac(mac_be);
 
         transport_init(g_ali_init);
-#if BZ_ENABLE_AUTH
-        auth_init(g_ali_init, tx_func_indicate);
-#endif
 
         extcmd_init(g_ali_init, tx_func_indicate);
         create_bz_adv_data(g_ali_init->model_id, mac_be);
@@ -139,6 +136,14 @@ static uint32_t ais_init(ali_init_t const *p_init)
     init_ais.mtu = p_init->max_mtu;
     init_ais.init_done = ais_init_done;
     g_ali_init = p_init;
+#if BZ_ENABLE_AUTH
+    /*this is workaroud for asyn mechanism, auth init should be done first, since data
+     * structures :product key, secret, device name parameters are passed by local variable, p_init,
+     * if we do in asyn callback, ais_init_done, stack of g_ali_init will be corrupted.
+     * */
+    auth_init(g_ali_init, tx_func_indicate);
+#endif
+
     return ble_ais_init(&init_ais);
 }
 
