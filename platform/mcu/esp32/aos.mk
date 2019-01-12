@@ -15,7 +15,7 @@ GLOBAL_INCLUDES += $(ESP_INC_PATH)/esp32/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/soc/esp32/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/soc/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/driver/include
-GLOBAL_INCLUDES += $(ESP_INC_PATH)/ethernet/include
+#GLOBAL_INCLUDES += $(ESP_INC_PATH)/ethernet/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/log/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/nvs_flash/include
 GLOBAL_INCLUDES += $(ESP_INC_PATH)/spi_flash/include
@@ -54,7 +54,7 @@ $(NAME)_SOURCES += hal/misc.c
 $(NAME)_SOURCES += hal/i2c.c
 $(NAME)_SOURCES += hal/gpio.c
 $(NAME)_SOURCES += hal/pwm.c
-$(NAME)_SOURCES += bsp/tcpip_adapter_lwip.c bsp/wlanif.c bsp/ethernetif.c
+$(NAME)_SOURCES += bsp/tcpip_adapter_lwip.c bsp/wlanif.c
 $(NAME)_CFLAGS  := -std=gnu99
 
 ifeq ($(bt_mesh), 1)
