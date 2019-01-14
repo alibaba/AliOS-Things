@@ -468,8 +468,8 @@ void timer_init(void)
     krhino_utask_create(&u_timer_task, "timer_task", NULL,
                         RHINO_CONFIG_TIMER_TASK_PRI, (tick_t)0u,
                         u_timer_task_stack,
-                        RHINO_CONFIG_TIMER_TASK_STACK_SIZE, // ustack
-                        RHINO_CONFIG_TIMER_TASK_STACK_SIZE, // kstack
+                        RHINO_CONFIG_TIMER_TASK_STACK_SIZE, /* ustack */
+                        RHINO_CONFIG_TIMER_TASK_STACK_SIZE, /* kstack */
                         timer_task, 1u);
 }
 

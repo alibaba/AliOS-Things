@@ -11,16 +11,14 @@
 
 extern int printf(const char *fmt, ...);
 
-#define KRHINO_SPINLOCK_FREE_VAL        0xB33FFFFFu
-#define KRHINO_SPINLOCK_MAGIC_VAL		0xB33F0000u
-#define KRHINO_SPINLOCK_MAGIC_MASK		0xFFFF0000u
-#define KRHINO_SPINLOCK_MAGIC_SHIFT		16
-#define KRHINO_SPINLOCK_CNT_MASK		0x0000FF00u
-#define KRHINO_SPINLOCK_CNT_SHIFT		8
-#define KRHINO_SPINLOCK_VAL_MASK		0x000000FFu
-#define KRHINO_SPINLOCK_VAL_SHIFT		0
-
-
+#define KRHINO_SPINLOCK_FREE_VAL    0xB33FFFFFu
+#define KRHINO_SPINLOCK_MAGIC_VAL   0xB33F0000u
+#define KRHINO_SPINLOCK_MAGIC_MASK  0xFFFF0000u
+#define KRHINO_SPINLOCK_MAGIC_SHIFT 16
+#define KRHINO_SPINLOCK_CNT_MASK    0x0000FF00u
+#define KRHINO_SPINLOCK_CNT_SHIFT   8
+#define KRHINO_SPINLOCK_VAL_MASK    0x000000FFu
+#define KRHINO_SPINLOCK_VAL_SHIFT   0
 
 #ifdef RHINO_CONFIG_SPINLOCK_DEBUG
 void k_cpu_spin_lock(kspinlock_t *lock, const char *fnName, int32_t line)
@@ -31,7 +29,8 @@ void k_cpu_spin_lock(kspinlock_t *lock)
     uint32_t res;
     uint32_t recCnt;
     uint32_t cnt=(1<<16);
-    if ( (lock->owner & KRHINO_SPINLOCK_MAGIC_MASK) != KRHINO_SPINLOCK_MAGIC_VAL ) {
+
+    if ((lock->owner & KRHINO_SPINLOCK_MAGIC_MASK) != KRHINO_SPINLOCK_MAGIC_VAL) {
         /*printf("ERROR: k_cpu_spin_lock: spinlock %p is uninitialized (0x%X)! Called from %s line %d.\n", lock, lock->owner, fnName, line);*/
         lock->owner=KRHINO_SPINLOCK_FREE_VAL;
     }
@@ -68,7 +67,6 @@ void k_cpu_spin_lock(kspinlock_t *lock)
 #endif
 
 }
-
 
 #ifdef RHINO_CONFIG_SPINLOCK_DEBUG
 void k_cpu_spin_unlock(kspinlock_t *lock, const char *fnName, int32_t line)
@@ -117,8 +115,6 @@ void k_cpu_spin_unlock(kspinlock_t *lock)
 
 }
 
-
-
 extern volatile uint64_t cpu_flag;
 
 void k_wait_allcores(void)
@@ -126,31 +122,28 @@ void k_wait_allcores(void)
     uint8_t loop = 1;
 
     while (loop) {
-        
-    switch (RHINO_CONFIG_CPU_NUM) {
-        case 2:
-            if (cpu_flag == 2u) {
-                loop = 0;
-            }
-            break;
-        case 3:
-            if (cpu_flag == 6u) {
-                loop = 0;
-            }
-            break;
-        case 4:
-            if (cpu_flag == 14u) {
-                loop = 0;
-            }
-            break;
-        default:
-            printf("too many cpus!!!\n");
-            break;
+        switch (RHINO_CONFIG_CPU_NUM) {
+            case 2:
+                if (cpu_flag == 2u) {
+                    loop = 0;
+                }
+                break;
+            case 3:
+                if (cpu_flag == 6u) {
+                    loop = 0;
+                }
+                break;
+            case 4:
+                if (cpu_flag == 14u) {
+                    loop = 0;
+                }
+                break;
+            default:
+                printf("too many cpus!!!\n");
+                break;
         }
     }
 }
-
-
 
 #endif
 

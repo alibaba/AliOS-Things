@@ -3,23 +3,21 @@
  */
 
 #include "stdint.h"
+
 #include "usb_device_endpoints.h"
 #include "usb_device.h"
 #include "usb_device_descriptor.h"
 #include "aos/hal/usbd.h"
 
-
-//#define DEBUG
-
 static uint16_t current_interface;
-static uint8_t current_alternate;
+static uint8_t  current_alternate;
 
 /* Device status */
-#define DEVICE_STATUS_SELF_POWERED  (1U<<0)
-#define DEVICE_STATUS_REMOTE_WAKEUP (1U<<1)
+#define DEVICE_STATUS_SELF_POWERED  (1U << 0)
+#define DEVICE_STATUS_REMOTE_WAKEUP (1U << 1)
 
 /* Endpoint status */
-#define ENDPOINT_STATUS_HALT        (1U<<0)
+#define ENDPOINT_STATUS_HALT        (1U << 0)
 
 /* Standard feature selectors */
 #define DEVICE_REMOTE_WAKEUP        (1)
@@ -31,27 +29,27 @@ static uint8_t current_alternate;
 
 usbd_stat_t usbd_init(usbd_handle_type_def *pdev, usbd_descriptors_type_def *pdesc)
 {
-    if(pdev == NULL) {
+    if (pdev == NULL) {
 #ifdef DEBUG
         printf("Invalid Device handle\r\n");
 #endif
-        return USBD_FAIL; 
+        return USBD_FAIL;
     }
 
     /* Unlink previous class*/
-    if(pdev->pClass != NULL) {
+    if (pdev->pClass != NULL) {
         pdev->pClass = NULL;
     }
-  
+
     /* Assign USBD Descriptors */
-    if(pdesc != NULL) {
+    if (pdesc != NULL) {
         pdev->pDesc = pdesc;
     }
 
     /* Set initial device state */
-    pdev->device_info.state = POWERED;
+    pdev->device_info.state         = POWERED;
     pdev->device_info.configuration = 0;
-    pdev->device_info.suspended = false;
+    pdev->device_info.suspended     = false;
 
     /* Initialize low level driver */
     usbd_hal_init(pdev);
@@ -78,7 +76,7 @@ usbd_stat_t  usbd_register_class(usbd_handle_type_def *pdev, usbd_class_type_def
 {
     usbd_stat_t status = USBD_OK;
 
-    if(pclass != 0) {
+    if (pclass != 0) {
         /* link the class to the USB Device handle */
         pdev->pClass = pclass;
         status = USBD_OK;
@@ -86,7 +84,7 @@ usbd_stat_t  usbd_register_class(usbd_handle_type_def *pdev, usbd_class_type_def
 #ifdef DEBUG
         printf("Invalid Class handle\r\n");
 #endif
-        status = USBD_FAIL; 
+        status = USBD_FAIL;
     }
 
     return status;
@@ -116,6 +114,7 @@ usbd_stat_t  usbd_stop(usbd_handle_type_def *pdev, void *data)
 bool usbd_request_get_descriptor(usbd_handle_type_def *pdev)
 {
     bool success = false;
+
     control_transfer_t *transfer = &pdev->transfer;
 
 #ifdef DEBUG
@@ -249,8 +248,9 @@ void usbd_decode_setup_packet(uint8_t *data, setup_packet_t *packet)
 bool usbd_control_out(usbd_handle_type_def *pdev)
 {
     /* Control transfer data OUT stage */
-    uint8_t buffer[MAX_PACKET_SIZE_EP0];
+    uint8_t  buffer[MAX_PACKET_SIZE_EP0];
     uint32_t packetSize;
+
     control_transfer_t *transfer = &pdev->transfer;
 
     /* Check we should be transferring data OUT */
