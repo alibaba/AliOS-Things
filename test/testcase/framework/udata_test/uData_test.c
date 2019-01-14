@@ -15,18 +15,18 @@
 
 #define UDATA_SUCCES    0
 
-static int uData_sensor_open(inode_t *node, file_t *file);
-static int uData_sensor_close(file_t *file);
-static ssize_t uData_sensor_read(file_t *f, void *buf, size_t len);
-static ssize_t uData_sensor_write(file_t *f, const void *buf, size_t len);
-static int uData_sensor_ioctl(file_t *f, int cmd, unsigned long arg);
+static int udata_sensor_open(inode_t *node, file_t *file);
+static int udata_sensor_close(file_t *file);
+static ssize_t udata_sensor_read(file_t *f, void *buf, size_t len);
+static ssize_t udata_sensor_write(file_t *f, const void *buf, size_t len);
+static int udata_sensor_ioctl(file_t *f, int cmd, unsigned long arg);
 
-file_ops_t uData_sensor_fops = {
-    .open  = uData_sensor_open,
-    .close = uData_sensor_close,
-    .read  = uData_sensor_read,
-    .write = uData_sensor_write,
-    .ioctl = uData_sensor_ioctl,
+file_ops_t udata_sensor_fops = {
+    .open  = udata_sensor_open,
+    .close = udata_sensor_close,
+    .read  = udata_sensor_read,
+    .write = udata_sensor_write,
+    .ioctl = udata_sensor_ioctl,
 };
 
 static sensor_obj_t *g_sensor_obj[TAG_DEV_SENSOR_NUM_MAX];
@@ -69,7 +69,7 @@ int drv_virtual_sensor_init(void){
     sensor.ioctl = drv_virtual_sensor_ioctl;
     sensor.irq_handle = NULL;
     
-    ret = uData_sensor_create_obj(&sensor);
+    ret = udata_sensor_create_obj(&sensor);
     if(unlikely(ret)){
         return -1;
     }
@@ -79,7 +79,7 @@ int drv_virtual_sensor_init(void){
 }
 
 
-static int uData_find_selected_sensor(char* path )
+static int udata_find_selected_sensor(char* path )
 {
     int i = 0;
         
@@ -94,7 +94,7 @@ static int uData_find_selected_sensor(char* path )
     }
     return -1;
 }    
-static int uData_load_sensor_config(int index )
+static int udata_load_sensor_config(int index )
 {
     int ret = 0;
     g_sensor_obj[index] = (sensor_obj_t*)aos_malloc(sizeof(sensor_obj_t));
@@ -105,10 +105,10 @@ static int uData_load_sensor_config(int index )
     return 0;
 }
 
-static int uData_sensor_obj_register(int index )
+static int udata_sensor_obj_register(int index )
 {
     int ret = 0;
-    ret = aos_register_driver(g_sensor_obj[index]->path, &uData_sensor_fops, NULL);
+    ret = aos_register_driver(g_sensor_obj[index]->path, &udata_sensor_fops, NULL);
     if (ret != 0) {
         return -1;
     }
@@ -116,7 +116,7 @@ static int uData_sensor_obj_register(int index )
     return 0;
 }    
 
-int uData_sensor_create_obj(sensor_obj_t* sensor)
+int udata_sensor_create_obj(sensor_obj_t* sensor)
 {   
     int ret = 0;
     
@@ -141,7 +141,7 @@ int uData_sensor_create_obj(sensor_obj_t* sensor)
     g_sensor_obj[g_sensor_cnt]->power      = DEV_POWER_OFF; // will update the status later
     
     /* register the sensor object into the irq list and vfs */
-    ret = uData_sensor_obj_register(g_sensor_cnt);
+    ret = udata_sensor_obj_register(g_sensor_cnt);
     if (ret != 0) {
         goto error;
     }
@@ -154,7 +154,7 @@ error:
     return -1;
 }
 
-static int uData_sensor_hal_get_dev_list(void* buf)
+static int udata_sensor_hal_get_dev_list(void* buf)
 {
     sensor_list_t* list = buf;
     if(buf == NULL)
@@ -169,7 +169,7 @@ static int uData_sensor_hal_get_dev_list(void* buf)
     return 0;
 }
 
-static int uData_sensor_open(inode_t *node, file_t *file)
+static int udata_sensor_open(inode_t *node, file_t *file)
 {
     int index = 0;
 
@@ -183,7 +183,7 @@ static int uData_sensor_open(inode_t *node, file_t *file)
         return 0;
     }
 
-    index = uData_find_selected_sensor(node->i_name);
+    index = udata_find_selected_sensor(node->i_name);
     if(( g_sensor_obj[index]->open == NULL)||(index < 0)){
         return -1;
     }
@@ -192,7 +192,7 @@ static int uData_sensor_open(inode_t *node, file_t *file)
     return 0;
 }
 
-static int uData_sensor_close(file_t *file)
+static int udata_sensor_close(file_t *file)
 {
     int index = 0;
 
@@ -201,7 +201,7 @@ static int uData_sensor_close(file_t *file)
         return 0;
     }    
     
-    index = uData_find_selected_sensor(file->node->i_name);
+    index = udata_find_selected_sensor(file->node->i_name);
     if(( g_sensor_obj[index]->close == NULL)||(index < 0)){
         return -1;
     }
@@ -209,7 +209,7 @@ static int uData_sensor_close(file_t *file)
     return 0;
 }
 
-static ssize_t uData_sensor_read(file_t *f, void *buf, size_t len)
+static ssize_t udata_sensor_read(file_t *f, void *buf, size_t len)
 {
     int index = 0;
     int ret = 0;
@@ -218,7 +218,7 @@ static ssize_t uData_sensor_read(file_t *f, void *buf, size_t len)
         return -1;
     }
     
-    index = uData_find_selected_sensor(f->node->i_name);
+    index = udata_find_selected_sensor(f->node->i_name);
     if(( g_sensor_obj[index]->read == NULL)||(index < 0)){
         goto error;
     }
@@ -238,13 +238,13 @@ error:
     return -1;
 }
 
-static ssize_t uData_sensor_write(file_t *f, const void *buf, size_t len)
+static ssize_t udata_sensor_write(file_t *f, const void *buf, size_t len)
 {
     /* no need this functionality recently */
     return 0;
 }
 
-static int uData_sensor_ioctl(file_t *f, int cmd, unsigned long arg)
+static int udata_sensor_ioctl(file_t *f, int cmd, unsigned long arg)
 {
     int ret = 0;
     int index = 0;
@@ -254,14 +254,14 @@ static int uData_sensor_ioctl(file_t *f, int cmd, unsigned long arg)
     }
     
     if(cmd == SENSOR_IOCTL_GET_SENSOR_LIST){
-        ret = uData_sensor_hal_get_dev_list(arg);
+        ret = udata_sensor_hal_get_dev_list(arg);
         if(ret != 0){
             return -1;
         }
         return 0;
     }
     
-    index = uData_find_selected_sensor(f->node->i_name);
+    index = udata_find_selected_sensor(f->node->i_name);
     if(( g_sensor_obj[index]->ioctl == NULL)||(index < 0)){
         return -1;
     }
@@ -273,10 +273,10 @@ static int uData_sensor_ioctl(file_t *f, int cmd, unsigned long arg)
     return 0;
 }
 
-static int uData_sensor_hal_register(void)
+static int udata_sensor_hal_register(void)
 {
     int ret = 0;
-    ret = aos_register_driver(sensor_node_path, &uData_sensor_fops, NULL);
+    ret = aos_register_driver(sensor_node_path, &udata_sensor_fops, NULL);
     if (ret != 0) {
         return -1;
     }
@@ -284,14 +284,14 @@ static int uData_sensor_hal_register(void)
     return 0;
 }
 
-int uData_sensor_init(void){
+int udata_sensor_init(void){
     int ret   = 0;
     int index = 0; 
     g_sensor_cnt = 0 ;
     
     drv_virtual_sensor_init();
 
-    ret = uData_sensor_hal_register();
+    ret = udata_sensor_hal_register();
     if(ret != 0){
         return -1;
     }
@@ -302,16 +302,16 @@ int uData_sensor_init(void){
 static void test_udata_subscribe_case(void)
 {   
     int ret = 0;
-    uData_sensor_init();
-    uData_main();
-    ret = uData_subscribe(UDATA_SERVICE_BARO);
+    udata_sensor_init();
+    udata_main();
+    ret = udata_subscribe(UDATA_SERVICE_BARO);
     YUNIT_ASSERT(ret == UDATA_SUCCES);
 }
 
 static void test_udata_unsubscribe_case(void)
 {   
     int ret = 0;
-    ret = uData_unsubscribe(UDATA_SERVICE_BARO);
+    ret = udata_unsubscribe(UDATA_SERVICE_BARO);
     YUNIT_ASSERT(ret == UDATA_SUCCES);
 }
 
