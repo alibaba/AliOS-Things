@@ -15,10 +15,6 @@
 
 #if defined __GNUC__
 #include "platform_toolchain.h"
-#elif defined ( __ICCARM__ )
-#include "EWARM/platform_toolchain.h"
-#elif defined ( __CC_ARM ) //KEIL
-#include "RVMDK/platform_toolchain.h"
 #endif 
 
 //#ifdef CONFIG_PLATFORM_8195A
