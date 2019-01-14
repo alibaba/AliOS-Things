@@ -8,6 +8,7 @@ $(NAME)_SOURCES += \
         hal/sensor_hal.c \
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> b7b8639a0 (BugID: 17115493:add sensor compile file)
         hal/sensor_drv_api.c \
@@ -136,6 +137,9 @@ $(NAME)_SOURCES += \
 =======
         hal/sensor_config.c
 >>>>>>> 44f3c13a5 ( BugID:17532990: sensor automatic init)
+=======
+        hal/sensor_drv_api.c
+>>>>>>> 178b10fab ( BugID:18506933:change config path)
 
 CONFIG_SENSOR =  $(addsuffix .c,$(CONFIG_SENSOR_DRV_NAME))
 SENSOR_ALL_FILE=$(notdir $(wildcard drivers/sensor/drv/*.c))
