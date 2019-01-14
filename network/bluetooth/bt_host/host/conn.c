@@ -6,6 +6,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #include <zephyr.h>
 #include <string.h>
 #include <errno.h>
@@ -86,17 +90,6 @@ static const u8_t ssp_method[4 /* remote */][4 /* local */] = {
     { JUST_WORKS, JUST_WORKS, JUST_WORKS, JUST_WORKS },
 };
 #endif /* CONFIG_BT_BREDR */
-
-struct k_sem *bt_conn_get_pkts(struct bt_conn *conn)
-{
-#if defined(CONFIG_BT_BREDR)
-    if (conn->type == BT_CONN_TYPE_BR || !bt_dev.le.mtu) {
-        return &bt_dev.br.pkts;
-    }
-#endif /* CONFIG_BT_BREDR */
-
-    return &bt_dev.le.pkts;
-}
 
 static inline const char *state2str(bt_conn_state_t state)
 {
@@ -561,7 +554,7 @@ static sys_snode_t *add_pending_tx(struct bt_conn *conn, bt_conn_tx_cb_t cb)
     sys_snode_t *node;
     unsigned int key;
 
-    BT_DBG("conn %p cb %p", conn, cb);
+    BT_DBG("%s, conn %p cb %p", __func__, conn, cb);
 
     __ASSERT(!sys_slist_is_empty(&free_tx), "No free conn TX contexts");
 
@@ -596,10 +589,6 @@ static bool send_frag(struct bt_conn *conn, struct net_buf *buf, u8_t flags,
 
     BT_DBG("conn %p buf %p len %u flags 0x%02x", conn, buf, buf->len, flags);
 
-    /* Wait until the controller can accept ACL packets */
-    k_sem_take(bt_conn_get_pkts(conn), K_FOREVER);
-
-    /* Make sure we notify and free up any pending tx contexts */
     notify_tx();
 
     /* Check for disconnection while waiting for pkts_sem */
@@ -626,7 +615,6 @@ static bool send_frag(struct bt_conn *conn, struct net_buf *buf, u8_t flags,
     return true;
 
 fail:
-    k_sem_give(bt_conn_get_pkts(conn));
     if (always_consume) {
         net_buf_unref(buf);
     }
@@ -635,12 +623,6 @@ fail:
 
 static inline u16_t conn_mtu(struct bt_conn *conn)
 {
-#if defined(CONFIG_BT_BREDR)
-    if (conn->type == BT_CONN_TYPE_BR || !bt_dev.le.mtu) {
-        return bt_dev.br.mtu;
-    }
-#endif /* CONFIG_BT_BREDR */
-
     return bt_dev.le.mtu;
 }
 
@@ -674,36 +656,13 @@ static bool send_buf(struct bt_conn *conn, struct net_buf *buf)
     BT_DBG("conn %p buf %p len %u", conn, buf, buf->len);
 
     /* Send directly if the packet fits the ACL MTU */
-    if (buf->len <= conn_mtu(conn)) {
-        return send_frag(conn, buf, BT_ACL_START_NO_FLUSH, false);
-    }
-
-    /* Create & enqueue first fragment */
-    frag = create_frag(conn, buf);
-    if (!frag) {
+    if ((buf->len <= conn_mtu(conn)) &&
+        (send_frag(conn, buf, BT_ACL_START_NO_FLUSH, false) == false)) {
         return false;
     }
 
-    if (!send_frag(conn, frag, BT_ACL_START_NO_FLUSH, true)) {
-        return false;
-    }
-
-    /*
-     * Send the fragments. For the last one simply use the original
-     * buffer (which works since we've used net_buf_pull on it.
-     */
-    while (buf->len > conn_mtu(conn)) {
-        frag = create_frag(conn, buf);
-        if (!frag) {
-            return false;
-        }
-
-        if (!send_frag(conn, frag, BT_ACL_CONT, true)) {
-            return false;
-        }
-    }
-
-    return send_frag(conn, buf, BT_ACL_CONT, false);
+    conn->tx = buf;
+    return true;
 }
 
 static struct k_poll_signal conn_change =
@@ -774,6 +733,35 @@ int bt_conn_prepare_events(struct k_poll_event events[])
     return ev_count;
 }
 
+void bt_conn_notify_tx_done(struct bt_conn *conn)
+{
+    struct net_buf *frag;
+
+    if (conn->tx->len <= conn_mtu(conn)) {
+        goto exit;
+    }
+
+    if (conn->tx->len > conn_mtu(conn)) {
+        frag = create_frag(conn, conn->tx);
+        if (!frag) {
+            goto exit;
+        }
+
+        if (!send_frag(conn, frag, BT_ACL_CONT, true)) {
+            goto exit;
+        }
+        return;
+    }
+
+    if (conn->tx->len) {
+        send_frag(conn, conn->tx, BT_ACL_CONT, false);
+        return;
+    }
+
+exit:
+    conn->tx = NULL;
+}
+
 void bt_conn_process_tx(struct bt_conn *conn)
 {
     struct net_buf *buf;
@@ -787,11 +775,16 @@ void bt_conn_process_tx(struct bt_conn *conn)
         return;
     }
 
+    if (conn->tx) {
+        return;
+    }
+
     /* Get next ACL packet for connection */
     buf = net_buf_get(&conn->tx_queue, K_NO_WAIT);
-    BT_ASSERT(buf);
-    if (!send_buf(conn, buf)) {
+    if (buf == NULL || (!send_buf(conn, buf))) {
         net_buf_unref(buf);
+        conn->tx = NULL;
+        return;
     }
 }
 
@@ -834,7 +827,7 @@ static void process_unack_tx(struct bt_conn *conn)
 
         tx_free(CONTAINER_OF(node, struct bt_conn_tx, node));
 
-        k_sem_give(bt_conn_get_pkts(conn));
+        bt_conn_notify_tx_done(conn);
     }
 }
 

@@ -6,6 +6,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #include <zephyr.h>
 #include <string.h>
 #include <errno.h>
@@ -644,7 +648,7 @@ static void l2cap_chan_rx_init(struct bt_l2cap_le_chan *chan)
      * be used.
      */
     chan->rx.mps = min(chan->rx.mtu + 2, L2CAP_MAX_LE_MPS);
-    k_sem_init(&chan->rx.credits, 0, UINT_MAX);
+    chan->rx.credits = 0;
 }
 
 static void l2cap_chan_tx_init(struct bt_l2cap_le_chan *chan)
@@ -652,7 +656,7 @@ static void l2cap_chan_tx_init(struct bt_l2cap_le_chan *chan)
     BT_DBG("chan %p", chan);
 
     memset(&chan->tx, 0, sizeof(chan->tx));
-    k_sem_init(&chan->tx.credits, 0, UINT_MAX);
+    chan->tx.credits = 0;
     k_fifo_init(&chan->tx_queue);
 }
 
@@ -661,9 +665,7 @@ static void l2cap_chan_tx_give_credits(struct bt_l2cap_le_chan *chan,
 {
     BT_DBG("chan %p credits %u", chan, credits);
 
-    while (credits--) {
-        k_sem_give(&chan->tx.credits);
-    }
+    chan->tx.credits += credits;
 }
 
 static void l2cap_chan_rx_give_credits(struct bt_l2cap_le_chan *chan,
@@ -671,9 +673,7 @@ static void l2cap_chan_rx_give_credits(struct bt_l2cap_le_chan *chan,
 {
     BT_DBG("chan %p credits %u", chan, credits);
 
-    while (credits--) {
-        k_sem_give(&chan->rx.credits);
-    }
+    chan->rx.credits += credits;
 }
 
 static void l2cap_chan_destroy(struct bt_l2cap_chan *chan)
@@ -1071,8 +1071,7 @@ static int l2cap_chan_le_send(struct bt_l2cap_le_chan *ch, struct net_buf *buf,
 {
     int len;
 
-    /* Wait for credits */
-    if (k_sem_take(&ch->tx.credits, K_NO_WAIT)) {
+    if (ch->tx.credits == 0) {
         BT_DBG("No credits to transmit packet");
         return -EAGAIN;
     }
@@ -1085,8 +1084,7 @@ static int l2cap_chan_le_send(struct bt_l2cap_le_chan *ch, struct net_buf *buf,
         return -ECONNRESET;
     }
 
-    BT_DBG("ch %p cid 0x%04x len %u credits %u", ch, ch->tx.cid, buf->len,
-           k_sem_count_get(&ch->tx.credits));
+    BT_DBG("ch %p cid 0x%04x len %u credits %u", ch, ch->tx.cid, buf->len, ch->tx.credits);
 
     len = buf->len - sdu_hdr_len;
 
@@ -1212,7 +1210,7 @@ static void le_credits(struct bt_l2cap *l2cap, u8_t ident, struct net_buf *buf)
 
     ch = BT_L2CAP_LE_CHAN(chan);
 
-    if (k_sem_count_get(&ch->tx.credits) + credits > UINT16_MAX) {
+    if (ch->tx.credits + credits > UINT16_MAX) {
         BT_ERR("Credits overflow");
         bt_l2cap_chan_disconnect(chan);
         return;
@@ -1220,7 +1218,7 @@ static void le_credits(struct bt_l2cap *l2cap, u8_t ident, struct net_buf *buf)
 
     l2cap_chan_tx_give_credits(ch, credits);
 
-    BT_DBG("chan %p total credits %u", ch, k_sem_count_get(&ch->tx.credits));
+    BT_DBG("chan %p total credits %u", ch, ch->tx.credits);
 
     l2cap_chan_le_send_resume(ch);
 }
@@ -1315,13 +1313,12 @@ static void l2cap_chan_update_credits(struct bt_l2cap_le_chan *chan,
     u16_t                       credits;
 
     /* Only give more credits if it went bellow the defined threshold */
-    if (k_sem_count_get(&chan->rx.credits) >
-        L2CAP_LE_CREDITS_THRESHOLD(chan->rx.init_credits)) {
+    if (chan->rx.credits > L2CAP_LE_CREDITS_THRESHOLD(chan->rx.init_credits)) {
         goto done;
     }
 
     /* Restore credits */
-    credits = chan->rx.init_credits - k_sem_count_get(&chan->rx.credits);
+    credits = chan->rx.init_credits - chan->rx.credits;
     l2cap_chan_rx_give_credits(chan, credits);
 
     buf = l2cap_create_le_sig_pdu(buf, BT_L2CAP_LE_CREDITS, get_ident(),
@@ -1334,7 +1331,7 @@ static void l2cap_chan_update_credits(struct bt_l2cap_le_chan *chan,
     bt_l2cap_send(chan->chan.conn, BT_L2CAP_CID_LE_SIG, buf);
 
 done:
-    BT_DBG("chan %p credits %u", chan, k_sem_count_get(&chan->rx.credits));
+    BT_DBG("chan %p credits %u", chan, chan->rx.credits);
 }
 
 static struct net_buf *l2cap_alloc_frag(struct bt_l2cap_le_chan *chan)
@@ -1405,7 +1402,7 @@ static void l2cap_chan_le_recv(struct bt_l2cap_le_chan *chan,
 {
     u16_t sdu_len;
 
-    if (k_sem_take(&chan->rx.credits, K_NO_WAIT)) {
+    if (chan->rx.credits == 0) {
         BT_ERR("No credits to receive packet");
         bt_l2cap_chan_disconnect(&chan->chan);
         return;

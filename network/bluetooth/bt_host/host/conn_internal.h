@@ -115,6 +115,8 @@ struct bt_conn {
 
 	atomic_t		ref;
 
+        struct net_buf *tx;
+
 	union {
 		struct bt_conn_le	le;
 #if defined(CONFIG_BT_BREDR)
@@ -211,9 +213,6 @@ struct net_buf *bt_conn_create_pdu(struct net_buf_pool *pool, size_t reserve);
 
 /* Initialize connection management */
 int bt_conn_init(void);
-
-/* Selects based on connecton type right semaphore for ACL packets */
-struct k_sem *bt_conn_get_pkts(struct bt_conn *conn);
 
 /* k_poll related helpers for the TX thread */
 int bt_conn_prepare_events(struct k_poll_event events[]);
