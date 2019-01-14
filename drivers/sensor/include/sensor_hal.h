@@ -6,6 +6,7 @@
 #define SENSOR_HAL_H
 #include <aos/init.h>
 #include <aos/errno.h>
+#include <aos/compiler.h>
 #include "ulog/ulog.h"
 #include "udata/hal/sensor.h"
 
@@ -16,7 +17,7 @@ int __sensor_##func##_func__(void){ \
 
 typedef int (*SENSOR_INIT_FUN)(void);
 
-int sensor_hal_init(void);
+int sensor_init(void);
 int sensor_create_obj(sensor_obj_t *sensor);
 
 #ifdef UDATA_MODBUS
