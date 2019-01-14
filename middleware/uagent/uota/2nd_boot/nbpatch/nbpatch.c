@@ -149,7 +149,7 @@ off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, of
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
         pstatus->pending_size = pendingsize;
         pstatus->seekpos = seekpos;
-        nbpatch_ota_addr_free(seekpos);  //already unpacked, can free now
+        nbpatch_ota_addr_free(seekpos);  /* already unpacked, can free now */
         pstatus->num = ++num;
 #endif
         pstatus->patched_size = patchsize;
@@ -187,7 +187,7 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
         goto patch_error;
     }
     off_t seekpos = *seek_pos;
-    
+
     rec_wdt_feed();
 
     old = (u_char *)(malloc(SECTOR_SIZE));
@@ -287,7 +287,7 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
                 goto patch_error;
             }
             ctrl[i] = offtin(buf);
-            //LOG("ctrlp[i] %ld", ctrl[i]);
+            /* LOG("ctrlp[i] %ld", ctrl[i]); */
         };
 
         /* Sanity-check */
@@ -321,15 +321,15 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
                 memset(old, 0, siz);
                 nbpatch_read(src, old, oldpos + base_pos, siz, 1);
                 cp_size -= siz;
-                //LOG("start cp %ld, %ld",cp_size, base_pos);
+                /* LOG("start cp %ld, %ld",cp_size, base_pos); */
             }
             if (i >= base_pos) {
-                //LOG("oldpos %d", old[i - base_pos]);
+                /* LOG("oldpos %d", old[i - base_pos]); */
                 newbuf[newpos + i] += old[i - base_pos];
             }
         }
         rec_wdt_feed();
-        //LOG("oldpos %ld, newpos %ld",oldpos, newpos);
+
         /* Adjust pointers */
         newpos += ctrl[0];
         oldpos += ctrl[0];
