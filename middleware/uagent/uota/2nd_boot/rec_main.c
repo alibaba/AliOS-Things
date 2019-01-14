@@ -95,7 +95,6 @@ int recovery_flag_update()
     rec_flag_info_t rec_flag_set  = {REC_NORMAL_FLAG, 0};
     recovery_get_flag_info(&rec_flag_info);
 
-    printf("flag = 0x%x\n", rec_flag_info.flag);
     switch (rec_flag_info.flag) {
         case REC_RECOVERY_FLAG :
             if(rec_flag_info.num <= REC_MAX_NUM) {
@@ -155,6 +154,7 @@ void rec_start()
 void recovery_process()
 {
     int ret;
+
     /* recovery start */
     ret = nbpatch_main();
     /* recovery end */

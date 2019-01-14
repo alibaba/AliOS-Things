@@ -75,6 +75,7 @@ uint32_t ota_receive_total_len = 0;
 static int boot_part = HAL_PARTITION_OTA_TEMP;
 static unsigned int _offset = 0;
 static ota_crc16_ctx ctx = {0};
+const char ota_board_string[] = "board "SYSINFO_PRODUCT_MODEL;  //don't delete it, used for ota diff recovery
 
 unsigned short ota_get_crc16(void)
 {
@@ -138,6 +139,7 @@ static int ota_init(void *something)
         ctx.crc=ota_get_crc16();
     }
     OTA_LOG_I("ota init off:0x%08x part:%d len:%d crc:0x%04x\n",param->off_bp,boot_part,param->len,ctx.crc);
+    OTA_LOG_I("ota init %s success!\n", ota_board_string);
     return ret;
 }
 
@@ -219,6 +221,7 @@ static int ota_boot(void *something)
             ota_param.len = 0;
             ota_param.crc = param->crc;
             ota_param.splict_size = param->splict_size;
+            ota_param.rec_size = param->rec_size;
             ota_param.diff = 1;
             ota_param.upg_flag = REC_RECOVERY_FLAG;
             ota_crc16_ctx ctx1;
@@ -238,7 +241,9 @@ static int ota_boot(void *something)
                  ret = OTA_REBOOT_FAIL;
                  return ret;
             }
-            OTA_LOG_I("diff dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x pcrc:0x%04x splict:%d.\r\n",ota_param_r.dst_adr,ota_param_r.src_adr, ota_param_r.len, ota_param_r.crc, ota_param_r.patch_crc, ota_param_r.splict_size);
+            OTA_LOG_I("diff dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x pcrc:0x%04x splict:%d.\r\n",
+                        ota_param_r.dst_adr,ota_param_r.src_adr, ota_param_r.rec_size, ota_param_r.crc,
+                        ota_param_r.patch_crc, ota_param_r.splict_size);
 #endif
         }
         else {
@@ -265,7 +270,7 @@ static int ota_boot(void *something)
             param->param_crc = crc;
             ota_boot_param_t param_r;
             offset = 0x00;
-            hal_flash_erase(param_part, offset, sizeof(ota_boot_param_t));
+            hal_flash_erase(param_part, offset, sizeof(ota_boot_param_t)); //PARTITION_BACKUP_PARAM
             offset = 0x00;
             hal_flash_write(param_part, (uint32_t*)&offset, param, sizeof(ota_boot_param_t));
             offset = 0x00;
@@ -361,7 +366,7 @@ static int ota_rollback(void *something)
         memset(&param_r, 0, sizeof(ota_boot_param_t));
         hal_flash_read(param_part, (uint32_t*)&offset, &param_r, sizeof(ota_boot_param_t));
         if(memcmp(&param_w, &param_r, sizeof(ota_boot_param_t)) != 0) {
-            OTA_LOG_E("rollback failed.");
+            OTA_LOG_E("rollback failed\n");
             return -1;
         }
     }

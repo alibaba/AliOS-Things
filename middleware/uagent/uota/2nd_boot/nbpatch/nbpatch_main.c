@@ -139,7 +139,6 @@ void nbpatch_ota_addr_free(off_t range)
 void nbpatch_copy_app2ota() {
     int i   = 0;
     int num = 0;
-    int ret = 0;
     PatchStatus* pstatus = nbpatch_get_pstatus();
     unsigned int par_len = patch_flash_get_partion_length(HAL_PARTITION_OTA_TEMP);
 
@@ -149,9 +148,7 @@ void nbpatch_copy_app2ota() {
     num = par_len  / SPLICT_SIZE;
     for(i = 0; i < num; i++) {
         if((pstatus->REC_FLASH_STAT_E[i] != OTA_FLASH_STATUS_REVY) && (pstatus->REC_FLASH_STAT_E[i] != OTA_FLASH_STATUS_SYNC)) {
-            LOG("copy to addr 0x%x, status %d\n", i * SPLICT_SIZE, pstatus->REC_FLASH_STAT_E[i]);
-            ret = patch_flash_copy_par(HAL_PARTITION_OTA_TEMP, HAL_PARTITION_APPLICATION, i * SPLICT_SIZE, SPLICT_SIZE);
-            LOG("copy to addr 0x%x, st:%d ret:%d\n", i * SPLICT_SIZE, pstatus->REC_FLASH_STAT_E[i], ret);
+            (void)patch_flash_copy_par(HAL_PARTITION_OTA_TEMP, HAL_PARTITION_APPLICATION, i * SPLICT_SIZE, SPLICT_SIZE);
             pstatus->REC_FLASH_STAT_E[i] = OTA_FLASH_STATUS_SYNC;
             save_patch_status(pstatus);
         }
@@ -300,14 +297,14 @@ int nbpatch_main(void)
     }
 
     uint32_t old_size = patch_flash_get_partion_length(pstatus->dst_adr);
-    if(pstatus->len > old_size || pstatus->len == 0) {
+    if(pstatus->rec_size > old_size || pstatus->rec_size == 0) {
         ret = NBPATCH_DIFF_FAIL;
         goto END;
     }
 
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
     if(pstatus->patch_index == 0) {
-        nbpatch_flash_status_init(pstatus->len);
+        nbpatch_flash_status_init(pstatus->rec_size);
     }
     pstatus->patch_index += 1;
     save_patch_status(pstatus);
@@ -338,7 +335,8 @@ int nbpatch_main(void)
     }
 
     nbpatch_buffer_init();
-    nbpatch_size = nbpatch(pstatus->dst_adr, old_size, pstatus->src_adr,  pstatus->len, SPLICT_SIZE);
+    LOG("Begin nbpatch\r\n");
+    nbpatch_size = nbpatch(pstatus->dst_adr, old_size, pstatus->src_adr,  pstatus->rec_size, SPLICT_SIZE);
     if(nbpatch_size <= 0) {
         ret = NBPATCH_DIFF_FAIL;
         goto END;
@@ -346,9 +344,10 @@ int nbpatch_main(void)
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
     else{
         nbpatch_copy_lable:
+        LOG("Begin copy app to ota\r\n");
         nbpatch_copy_app2ota();
         ret = rec_verify_firmware(pstatus->src_adr, nbpatch_size);
-        LOG("verify fw adr:0x%x len:0x%x ret:0x%x\r\n", pstatus->src_adr, nbpatch_size,ret);
+        LOG("Verify fw adr:0x%x len:0x%x ret:0x%x\r\n", pstatus->src_adr, nbpatch_size, ret);
 
         #if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBACK)
         nbpatch_swap_lable:
@@ -363,6 +362,6 @@ int nbpatch_main(void)
 #endif
     save_patch_status(pstatus);
 END:
-    LOG("nbpatch end:%d",ret);
+    LOG("nbpatch end:%d", ret);
     return ret;
 }
