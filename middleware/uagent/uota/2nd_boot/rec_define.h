@@ -18,58 +18,57 @@
 #define SPLISE_NUM   (1024*1024/0x10000)
 #endif
 
-
-//0 recovery start, 1 normal start, 2 upgrade to another partion, 3 first start after recovery
+/* 0 recovery start, 1 normal start, 2 upgrade to another partion, 3 first start after recovery */
 #define REC_RECOVERY_START      0
 #define REC_NORMAL_START        1
-#define REC_UPGRADE_START       2   // just for esp8266
+#define REC_UPGRADE_START       2   /* just for esp8266 */
 #define REC_ROLLBACK_START      3
 #define REC_SWAP_UPDATE_START   4
 
 #define REC_NORMAL_FLAG          0
-#define REC_RECOVERY_FLAG        0x52455659   //"REVY"
-#define REC_UPGRADE_FLAG         0x55504745   //"UPGE"
-#define REC_ROLLBACK_FLAG        0x524F424B   //"ROBK"
-#define REC_RECOVERY_VERIFY_FLAG 0x52455656   //"REVV"
-#define REC_SWAP_UPDATE_FLAG     0x52535546   //"RSUF"
-#define REC_DUAL_UPDATE_FLAG     0x52445546   //"RDUF"
+#define REC_RECOVERY_FLAG        0x52455659   /* "REVY" */
+#define REC_UPGRADE_FLAG         0x55504745   /* "UPGE" */
+#define REC_ROLLBACK_FLAG        0x524F424B   /* "ROBK" */
+#define REC_RECOVERY_VERIFY_FLAG 0x52455656   /* "REVV" */
+#define REC_SWAP_UPDATE_FLAG     0x52535546   /* "RSUF" */
+#define REC_DUAL_UPDATE_FLAG     0x52445546   /* "RDUF" */
 
 #define REC_MAX_NUM         3
 #define REC_WDT_TIMEOUT_MS  6000
 
-#define OTA_RECOVERY_TYPE_DIRECT  0  //直接恢复，无备份回滚
-#define OTA_RECOVERY_TYPE_ABBACK  1  //双分区备份，支持回滚，单启动地址
-#define OTA_RECOVERY_TYPE_ABBOOT  2  //双分区备份，支持回滚，双启动地址
+#define OTA_RECOVERY_TYPE_DIRECT  0  /* Direct recovery, no backup rollback */
+#define OTA_RECOVERY_TYPE_ABBACK  1  /* Dual partition backup, support for rollback, single boot address */
+#define OTA_RECOVERY_TYPE_ABBOOT  2  /* Dual partition backup, support for rollback, dual boot address */
 
 #ifndef OTA_RECOVERY_TYPE
 #define OTA_RECOVERY_TYPE OTA_RECOVERY_TYPE_DIRECT
 #endif
 
 typedef enum {
-    OTA_FLASH_STATUS_FREE = 0,   // 空闲
-    OTA_FLASH_STATUS_USED = 1,   // 已占用
-    OTA_FLASH_STATUS_REVY = 2,   // 已恢复出来
-    OTA_FLASH_STATUS_SYNC = 3,   // 已与主区同步
-    OTA_FLASH_STATUS_NULL,       // 无效
+    OTA_FLASH_STATUS_FREE = 0,
+    OTA_FLASH_STATUS_USED = 1,
+    OTA_FLASH_STATUS_REVY = 2,   /* Alreay recovered */
+    OTA_FLASH_STATUS_SYNC = 3,   /* Already sync to app */
+    OTA_FLASH_STATUS_NULL,
 } REC_FLASH_STAT_E;
 
 typedef enum {
-    REC_PHASE_INIT    = 0,  // 初始化
-    REC_PHASE_NBPATCH = 1,  // 差分恢复中
-    REC_PHASE_COPY    = 2,  // APP拷贝到OTA
-    REC_PHASE_SWAP    = 3,  // APP与OTA交换
-    REC_PHASE_SWITCH  = 4,  // 切换启动地址，仅针对OTA_RECOVERY_TYPE_ABBOOT
-    REC_PHASE_DONE,         // 完成
+    REC_PHASE_INIT    = 0,
+    REC_PHASE_NBPATCH = 1,  /* Differential recovery */
+    REC_PHASE_COPY    = 2,  /* APP copy to OTA */
+    REC_PHASE_SWAP    = 3,  /* APP exchanges with OTA */
+    REC_PHASE_SWITCH  = 4,  /* Switch start address, just for OTA_RECOVERY_TYPE_ABBOOT */
+    REC_PHASE_DONE,         /* Differential recovery done */
 } REC_STAT_PHASE_E;
 
-//该结构体仅用于读flash时使用，写flash时需要使用结构PatchStatus
+/* This Structure used just for flash read，write flash need use structure PatchStatus */
 typedef struct
 {
-    unsigned int flag; // recovery标志
-    unsigned int num;  // recovery序号
+    unsigned int flag; /* recovery flag */
+    unsigned int num;  /* recovery Serial number */
 } rec_flag_info_t;
 
-//该结构体存储与PARAM1，长度不能超过4k
+/* The structure is stored in PARAM1 and cannot exceed 4k in length */
 typedef struct
 {
     unsigned int dst_adr;
@@ -87,12 +86,16 @@ typedef struct
     unsigned short status;
     unsigned char diff;
     unsigned short num;
-    unsigned short swap_addr;  // 分区内，相对于起始地址的偏移，再除以分片size
-    unsigned short swaped_idx; // 分片片内，相对于起始分片的偏移，再除以4k
-    unsigned short swaped_state; //0表示APP数据还在APP区，OTA数据在OTA区；1表示APP数据在备份区；2表示OTA数据拷贝到APP区；3表示完成交换
-    unsigned char patch_index; // 进入patch模式的次数。如果一次patch完成，该值为0，否则会增加
-    unsigned char REC_FLASH_STAT_E[SPLISE_NUM];  // 每1byte代表64k的状态，REC_FLASH_STAT_E
-    unsigned short ota_addr[OTA_ADDR_NUM]; //OTA数据的地址序号，乘以64k后为分区偏移，最多256k，即最多4个64k。
+    unsigned short swap_addr;  /* Within the partition, offset from the starting address, divided by the fragment size */
+    unsigned short swaped_idx; /* Within the slice, offset from the starting slice, divided by 4k */
+    unsigned short swaped_state; /* 0 means APP data is still in the APP area, OTA data is in the OTA area;
+                                    1 means APP data is in the backup area;
+                                    2 means OTA data is copied to the APP area;
+                                    3 means complete exchange */
+    unsigned char patch_index; /* The number of times to enter patch mode. If a patch is completed,
+                                  the value is 0, otherwise it will increase */
+    unsigned char REC_FLASH_STAT_E[SPLISE_NUM];  /* Every 1 byte represents the status of a SLICE */
+    unsigned short ota_addr[OTA_ADDR_NUM]; /* The address number of the OTA data, multiplied by SLICE for the partition offset */
     char ota_version[OTA_MAX_VER_LEN];
     char app_version[OTA_MAX_VER_LEN];
     unsigned short patch_crc;
