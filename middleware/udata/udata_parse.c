@@ -154,7 +154,7 @@ DATA_ASSEMBLE(UDATA_FLOAT),
 };
 
 cJSON* g_uDataItem = NULL;
-void uData_cjson_init(void)
+void udata_cjson_init(void)
 {
     cJSON_Hooks cjson_hooks;
     cjson_hooks.malloc_fn = aos_malloc;
@@ -162,7 +162,7 @@ void uData_cjson_init(void)
     cJSON_InitHooks(&cjson_hooks);
 }
 int g_config_num_flag = 0;
-int uData_service_num_get(uint32_t* pNum)
+int udata_service_num_get(uint32_t* pNum)
 {
     int ret;
     cJSON *root = NULL;
@@ -195,7 +195,7 @@ int uData_service_num_get(uint32_t* pNum)
     return 0;
 }
 
-int uData_service_config_parse(uint32_t index, uData_service_t* svc)
+int udata_service_config_parse(uint32_t index, udata_service_t* svc)
 {
     int ret;
     uint32_t i,j;
@@ -320,7 +320,7 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
 }
 
 
-int uData_dtc_num_get(uint32_t* pNum)
+int udata_dtc_num_get(uint32_t* pNum)
 {
     int ret;
     cJSON *root = NULL;
@@ -352,7 +352,7 @@ int uData_dtc_num_get(uint32_t* pNum)
     return 0;
 }
 
-int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
+int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
 {
     bool dtcFlag = false;
     uint32_t i,j;
@@ -543,7 +543,7 @@ error:
 
 #else
 #include "config/udata_config.c"
-int uData_service_num_get(uint32_t* pNum)
+int udata_service_num_get(uint32_t* pNum)
 {
     uint32_t size = 0;
     if(pNum == NULL){
@@ -555,7 +555,7 @@ int uData_service_num_get(uint32_t* pNum)
     return 0;
 }
 
-int uData_service_config_parse(uint32_t index, uData_service_t* svc)
+int udata_service_config_parse(uint32_t index, udata_service_t* svc)
 {
     int ret;
     uint32_t i;
@@ -606,7 +606,7 @@ int uData_service_config_parse(uint32_t index, uData_service_t* svc)
     return 0;
 }
 
-int uData_dtc_num_get(uint32_t* pNum)
+int udata_dtc_num_get(uint32_t* pNum)
 {
     uint32_t size = 0;
 
@@ -619,7 +619,7 @@ int uData_dtc_num_get(uint32_t* pNum)
     return 0;
 }
 
-int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
+int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc)
 {
     int len;
     char* str;

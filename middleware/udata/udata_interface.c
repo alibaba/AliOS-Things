@@ -1,19 +1,17 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- *
- *
- * uData api for external part
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "aos/kernel.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <fcntl.h>
+
+#include "aos/kernel.h"
 #include "udata_com_desc.h"
 #include "service_mgr.h"
 
 
-int uData_report_publish(udata_type_e type, void *pdata)
+int udata_report_publish(udata_type_e type, void *pdata)
 {
 
     if (pdata == NULL) {
@@ -24,20 +22,20 @@ int uData_report_publish(udata_type_e type, void *pdata)
         return -1;
     }
 
-    return uData_get_report_pkg(type, pdata);
+    return udata_get_report_pkg(type, pdata);
 }
 
-int uData_dev_ioctl(udata_t *pkg, uint8_t cmd, void *parm)
+int udata_dev_ioctl(udata_t *pkg, uint8_t cmd, void *parm)
 {
     /* set the udata_type and related info here */
     // will be supported later
     return 0;
 }
 
-int uData_subscribe(udata_type_e type)
+int udata_subscribe(udata_type_e type)
 {
     int ret = 0;
-    ret     = uData_service_subscribe(type);
+    ret     = udata_service_subscribe(type);
     if (unlikely(ret)) {
         return -1;
     }
@@ -46,10 +44,10 @@ int uData_subscribe(udata_type_e type)
     return 0;
 }
 
-int uData_unsubscribe(udata_type_e type)
+int udata_unsubscribe(udata_type_e type)
 {
     int ret = 0;
-    ret     = uData_service_unsubscribe(type);
+    ret     = udata_service_unsubscribe(type);
     if (unlikely(ret)) {
         return -1;
     }
@@ -57,3 +55,4 @@ int uData_unsubscribe(udata_type_e type)
     LOG("%s %s successfully\n", uDATA_STR, __func__);
     return 0;
 }
+
