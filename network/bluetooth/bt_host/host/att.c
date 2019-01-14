@@ -6,6 +6,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #include <zephyr.h>
 #include <string.h>
 #include <errno.h>
@@ -115,7 +119,6 @@ static void att_req_destroy(struct bt_att_req *req)
 static struct bt_att *att_get(struct bt_conn *conn)
 {
     struct bt_l2cap_chan *chan;
-
     chan = bt_l2cap_le_lookup_tx_cid(conn, BT_L2CAP_CID_ATT);
     __ASSERT(chan, "No ATT channel found");
 
@@ -136,7 +139,6 @@ static void att_cfm_sent(struct bt_conn *conn)
 static void att_rsp_sent(struct bt_conn *conn)
 {
     struct bt_att *att = att_get(conn);
-
     BT_DBG("conn %p att %p", conn, att);
 
 #if defined(CONFIG_BT_ATT_ENFORCE_FLOW)
@@ -1591,49 +1593,49 @@ done:
 
 static u8_t att_handle_find_info_rsp(struct bt_att *att, struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
 
 static u8_t att_handle_find_type_rsp(struct bt_att *att, struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
 
 static u8_t att_handle_read_type_rsp(struct bt_att *att, struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
 
 static u8_t att_handle_read_rsp(struct bt_att *att, struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
 
 static u8_t att_handle_read_blob_rsp(struct bt_att *att, struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
 
 static u8_t att_handle_read_mult_rsp(struct bt_att *att, struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
 
 static u8_t att_handle_write_rsp(struct bt_att *att, struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
@@ -1641,14 +1643,14 @@ static u8_t att_handle_write_rsp(struct bt_att *att, struct net_buf *buf)
 static u8_t att_handle_prepare_write_rsp(struct bt_att * att,
                                          struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
 
 static u8_t att_handle_exec_write_rsp(struct bt_att *att, struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
@@ -1690,7 +1692,7 @@ static u8_t att_indicate(struct bt_att *att, struct net_buf *buf)
 
 static u8_t att_confirm(struct bt_att *att, struct net_buf *buf)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__);
 
     return att_handle_rsp(att, buf->data, buf->len, 0);
 }
@@ -1894,10 +1896,6 @@ static void att_reset(struct bt_att *att)
 #endif
 
     atomic_set_bit(att->flags, ATT_DISCONNECTED);
-
-    /* Ensure that any waiters are woken up */
-    for (i = 0; i < CONFIG_BT_ATT_TX_MAX; i++) {
-    }
 
     /* Notify pending requests */
     SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&att->reqs, req, tmp, node)

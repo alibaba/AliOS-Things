@@ -6,6 +6,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #include <zephyr.h>
 #include <string.h>
 #include <errno.h>
@@ -37,23 +41,20 @@
 static sys_slist_t subscriptions;
 #endif /* CONFIG_BT_GATT_CLIENT */
 
-static const char *gap_name = CONFIG_BT_DEVICE_NAME;
-static const u16_t gap_appearance = CONFIG_BT_DEVICE_APPEARANCE;
-
 static sys_slist_t db;
 
 static ssize_t read_name(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 			 void *buf, u16_t len, u16_t offset)
 {
-	return bt_gatt_attr_read(conn, attr, buf, len, offset, gap_name,
-				 strlen(gap_name));
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, CONFIG_BT_DEVICE_NAME,
+                                 strlen(CONFIG_BT_DEVICE_NAME));
 }
 
 static ssize_t read_appearance(struct bt_conn *conn,
 			       const struct bt_gatt_attr *attr, void *buf,
 			       u16_t len, u16_t offset)
 {
-	u16_t appearance = sys_cpu_to_le16(gap_appearance);
+	u16_t appearance = sys_cpu_to_le16(CONFIG_BT_DEVICE_APPEARANCE);
 
 	return bt_gatt_attr_read(conn, attr, buf, len, offset, &appearance,
 				 sizeof(appearance));
@@ -295,8 +296,7 @@ ssize_t bt_gatt_attr_read(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 
 	len = min(buf_len, value_len - offset);
 
-	BT_DBG("handle 0x%04x offset %u length %u", attr->handle, offset,
-	       len);
+	BT_DBG("%s, handle 0x%04x offset %u length %u", __func__, attr->handle, offset, len);
 
 	memcpy(buf, value + offset, len);
 
