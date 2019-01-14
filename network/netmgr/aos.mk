@@ -33,7 +33,7 @@ $(NAME)_SOURCES-y += interfaces/netmgr_net.c
 GLOBAL_INCLUDES-y += ../include/hal/
 endif
 
-$(NAME)_COMPONENTS-y += kv yloop
+$(NAME)_COMPONENTS-y += kv osal_aos yloop
 
 GLOBAL_INCLUDES-y += include
 
