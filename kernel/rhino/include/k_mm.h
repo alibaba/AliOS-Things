@@ -63,7 +63,7 @@
     krhino_spin_lock_irq_save(&(pmmhead->mm_lock));
 #define MM_CRITICAL_EXIT(pmmhead) \
     krhino_spin_unlock_irq_restore(&(pmmhead->mm_lock));
-#else //(RHINO_CONFIG_MM_REGION_MUTEX != 0)
+#else /* (RHINO_CONFIG_MM_REGION_MUTEX != 0) */
 #define MM_CRITICAL_ENTER(pmmhead)                                   \
     do {                                                             \
         CPSR_ALLOC();                                                \
