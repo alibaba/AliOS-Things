@@ -78,6 +78,7 @@ typedef struct
     unsigned short crc;
     unsigned int  upg_flag;
     unsigned char boot_count;
+    unsigned int  rec_size;
     unsigned int  splict_size;
     unsigned short recovery_phase;
     unsigned int seekpos;

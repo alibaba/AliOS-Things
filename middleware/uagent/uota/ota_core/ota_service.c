@@ -146,6 +146,7 @@ static int ota_parse(void* pctx, const char *json)
         if (diff) {
             int is_diff = diff->valueint;
             if (is_diff) {
+                ota_param->rec_size = size->valueint;
                 ota_param->upg_flag = OTA_DIFF;
                 cJSON *splictSize = cJSON_GetObjectItem(json_obj, "splictSize");
                 if (splictSize) {
