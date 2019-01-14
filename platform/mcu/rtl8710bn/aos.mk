@@ -22,7 +22,7 @@ $(NAME)_COMPONENTS += ota_2nd_boot
 $(NAME)_LIBSUFFIX  := _2boot
 else
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino netmgr cli lwip netmgr
+$(NAME)_COMPONENTS += newlib_stub rhino lwip netmgr
 endif
 
 GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=4096
