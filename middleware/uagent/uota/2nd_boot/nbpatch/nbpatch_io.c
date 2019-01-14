@@ -113,7 +113,7 @@ int save_patch_status(PatchStatus *status)
         goto ERR;
     }
 
-    //bakeup patchstatus
+    /* bakeup patchstatus */
     ret = patch_flash_erase(PARTITION_BACKUP_PARAM, DIFF_CONF_OFFSET, sizeof(PatchStatus));
     if (ret < 0) {
         goto ERR;

@@ -333,7 +333,7 @@ static void *heap_malloc(size_t alloc_size)
     blk_head_t *blk_prev;
     blk_head_t *blk_left;
 
-	//krhino_sched_disable();
+	/* krhino_sched_disable(); */
 
     /* first call to malloc, init is needed */
 	if (freelist_tail == NULL)
@@ -345,7 +345,7 @@ static void *heap_malloc(size_t alloc_size)
       || (alloc_size > heap_free_size))
     {
         /* not enough memory */
-        //krhino_sched_enable();
+        /* krhino_sched_enable(); */
         return NULL;
     }
 
@@ -363,7 +363,7 @@ static void *heap_malloc(size_t alloc_size)
 	if (blk_alloc->next == NULL)
     {
         /* this means "blk_alloc == freelist_tail" */
-        //krhino_sched_enable();
+        /* krhino_sched_enable(); */
         return NULL;
     }
 
@@ -390,7 +390,7 @@ static void *heap_malloc(size_t alloc_size)
     	heap_free_size_min = heap_free_size;
     }
 
-    //krhino_sched_enable();
+    /* krhino_sched_enable(); */
 
     /* blk belong to APP, magic set */
 	blk_alloc->magic_size |= REC_HEAP_MAGIC;
@@ -425,11 +425,11 @@ static void heap_free(void *pfree)
     /* update statistic */
 	heap_free_size += free_blk->magic_size;
 
-	//krhino_sched_disable();
+	/* krhino_sched_disable(); */
 
 	heap_freeblk_insert(free_blk);
 
-    //krhino_sched_enable();
+    /* krhino_sched_enable(); */
 }
 
 void *rec_malloc(size_t alloc_size)
