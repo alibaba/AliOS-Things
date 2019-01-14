@@ -106,7 +106,7 @@ typedef size_t (*SERVICE_PROCESS_CB)(udata_type_e type,uint32_t abs_index, void 
 typedef int (*SERVICE_IOCTL_CB)(udata_type_e type,uint32_t abs_index);
 
 /* sensor service manager layer*/
-struct _uData_service_t
+struct _udata_service_t
 {
     udata_type_e        type;
     b_subscribed        subscribe; /* subscribe only from aliyun side */
@@ -121,7 +121,7 @@ struct _uData_service_t
     SERVICE_PROCESS_CB  service_process_cb;
     SERVICE_IOCTL_CB    service_ioctl_cb; /* ioclt callback for udata service handle */
 };
-typedef struct _uData_service_t uData_service_t;
+typedef struct _udata_service_t udata_service_t;
 
 struct _sensor_msg_pkg_t
 {
@@ -132,11 +132,11 @@ struct _sensor_msg_pkg_t
 typedef struct _sensor_msg_pkg_t sensor_msg_pkg_t;
 
 
-typedef struct _uData_queue_cb_t
+typedef struct _udata_queue_cb_t
 {
     int8_t status;
     void (*msg_cb)(sensor_msg_pkg_t *message);
-} uData_queue_cb_t;
+} udata_queue_cb_t;
 
 /* define the udata serivce struct here, please aline with aliyun side
    for the physical sensor, should be same as the dev sensor struct */

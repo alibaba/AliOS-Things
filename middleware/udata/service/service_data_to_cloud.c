@@ -222,7 +222,7 @@ static int udata_dtc_publish(udata_type_e type, void* pdata, uint32_t len)
 }
 
 
-int uData_msg_report_publish(udata_type_e type)
+int udata_msg_report_publish(udata_type_e type)
 {
     int         ret = 0;
     udata_pkg_t buf;
@@ -237,7 +237,7 @@ int uData_msg_report_publish(udata_type_e type)
     if (false == service_dtc_is_timeout(type)) {
         return -1;
     }
-    ret = uData_report_publish(type, &buf);
+    ret = udata_report_publish(type, &buf);
     if (ret != 0) {
         return -1;
     }
@@ -258,7 +258,7 @@ void service_dtc_handle(sensor_msg_pkg_t *msg)
 
     switch (msg->cmd) {
         case UDATA_MSG_DATA_TO_CLOUD: {
-            ret = uData_msg_report_publish(msg->value);
+            ret = udata_msg_report_publish(msg->value);
             if (ret != 0) {
                 return;
             }
@@ -273,7 +273,7 @@ int service_dtc_connect_set(bool flag)
     int ret;
 
     if ((g_reg_index == -1) && (flag == true)){
-        ret = uData_register_msg_handler(service_dtc_handle);
+        ret = udata_register_msg_handler(service_dtc_handle);
         if (ret == -1) {
             LOG("error occur reg service_dtc_handle \n");
             return -1;
@@ -282,7 +282,7 @@ int service_dtc_connect_set(bool flag)
     }
 
     if ((g_reg_index != -1) && (flag == false)){
-        ret = uData_unregister_msg_handler(g_reg_index);
+        ret = udata_unregister_msg_handler(g_reg_index);
         if (unlikely(ret)){
             LOG("error occur unreg service_dtc_handle \n");
             return -1;
@@ -506,7 +506,7 @@ int service_dtc_init(void)
 
     memset(&g_service_info[0],0,sizeof(g_service_info));
 
-    ret = uData_dtc_num_get(&num);
+    ret = udata_dtc_num_get(&num);
     if (unlikely(ret)) {
         return -1;
     }
@@ -517,7 +517,7 @@ int service_dtc_init(void)
      
      for (i = 0; i < num; i++) {
         memset(&dtc, 0, sizeof(service_pub_info_t));
-        ret = uData_dtc_config_parse(i, &dtc);
+        ret = udata_dtc_config_parse(i, &dtc);
         if(unlikely(ret)){
             continue;
         }  

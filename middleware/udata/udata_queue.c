@@ -32,18 +32,18 @@ struct _servicetask_related_tag_t
 };
 typedef struct _servicetask_related_tag_t servicetask_related_tag_t;
 
-servicetask_related_tag_t g_uData_own_task_tag[UDATA_MAX_OWN_TASK_NUM];
+servicetask_related_tag_t g_udata_own_task_tag[UDATA_MAX_OWN_TASK_NUM];
 
-aos_queue_t             g_uData_queue;
-static uData_queue_cb_t g_uData_queue_cb[UDATA_QUEUE_MAXSLOTS];
-char                    g_uData_msg[UDATA_QUEUE_SIZE] = { 0 };
-aos_task_t              g_uData_task;
-aos_task_t              g_uData_own_task[UDATA_MAX_OWN_TASK_NUM];
-int                     g_uData_own_task_cnt =0;
-aos_queue_t             g_uData_own_task_queue[UDATA_MAX_OWN_TASK_NUM];
-char                    g_uData_own_task_msg[UDATA_MAX_OWN_TASK_NUM][UDATA_QUEUE_SIZE] = { 0 };
+aos_queue_t             g_udata_queue;
+static udata_queue_cb_t g_udata_queue_cb[UDATA_QUEUE_MAXSLOTS];
+char                    g_udata_msg[UDATA_QUEUE_SIZE] = { 0 };
+aos_task_t              g_udata_task;
+aos_task_t              g_udata_own_task[UDATA_MAX_OWN_TASK_NUM];
+int                     g_udata_own_task_cnt =0;
+aos_queue_t             g_udata_own_task_queue[UDATA_MAX_OWN_TASK_NUM];
+char                    g_udata_own_task_msg[UDATA_MAX_OWN_TASK_NUM][UDATA_QUEUE_SIZE] = { 0 };
 
-static void uData_msg_dispatcher(void *arg)
+static void udata_msg_dispatcher(void *arg)
 {
 
     int  ret = 0;
@@ -53,7 +53,7 @@ static void uData_msg_dispatcher(void *arg)
     // all the cmd of sensorhub will be sent to be handled here;
     // the dispatcher will asign the new sub task to the fitted model
     while (DO_FOREVER) {
-        ret = aos_queue_recv(&g_uData_queue, AOS_WAIT_FOREVER,
+        ret = aos_queue_recv(&g_udata_queue, AOS_WAIT_FOREVER,
                              (void *)data, (unsigned int *)(&size));
         
         if (unlikely(ret)) {
@@ -66,17 +66,17 @@ static void uData_msg_dispatcher(void *arg)
 
         msg = (sensor_msg_pkg_t *)data;
         for (int n = 0; n < UDATA_QUEUE_MAXSLOTS; n++) {
-            if (g_uData_queue_cb[n].status == UDATA_QUEUE_OPEN) {
-                g_uData_queue_cb[n].msg_cb(msg);
+            if (g_udata_queue_cb[n].status == UDATA_QUEUE_OPEN) {
+                g_udata_queue_cb[n].msg_cb(msg);
             }
         }
     }
 }
 
-int uData_msg_dispatcher_task_create(void)
+int udata_msg_dispatcher_task_create(void)
 {
     int ret = 0;
-    ret = aos_task_new_ext(&g_uData_task, "uData_queue_task", uData_msg_dispatcher,
+    ret = aos_task_new_ext(&g_udata_task, "udata_queue_task", udata_msg_dispatcher,
                        NULL, UDATA_TASK_STACK_SIZE, UDATA_TASK_PRIO);
     if (unlikely(ret)) {
         return -1;
@@ -85,7 +85,7 @@ int uData_msg_dispatcher_task_create(void)
     return 0;
 }
 
-int uData_register_msg_handler(void *func)
+int udata_register_msg_handler(void *func)
 {
     int index;
     if (func == NULL) {
@@ -93,9 +93,9 @@ int uData_register_msg_handler(void *func)
     }
 
     for (index = 0; index < UDATA_QUEUE_MAXSLOTS; index++) {
-        if (g_uData_queue_cb[index].status == UDATA_QUEUE_CLOSE) {
-            g_uData_queue_cb[index].status = UDATA_QUEUE_OPEN;
-            g_uData_queue_cb[index].msg_cb = func;
+        if (g_udata_queue_cb[index].status == UDATA_QUEUE_CLOSE) {
+            g_udata_queue_cb[index].status = UDATA_QUEUE_OPEN;
+            g_udata_queue_cb[index].msg_cb = func;
             return index;
         }
     }
@@ -103,25 +103,25 @@ int uData_register_msg_handler(void *func)
 }
 
 
-int uData_unregister_msg_handler(int index)
+int udata_unregister_msg_handler(int index)
 {
     if (index >= UDATA_QUEUE_MAXSLOTS || index <= 0)
         return -1;
-    g_uData_queue_cb[index].msg_cb = NULL;
-    g_uData_queue_cb[index].status = UDATA_QUEUE_CLOSE;
+    g_udata_queue_cb[index].msg_cb = NULL;
+    g_udata_queue_cb[index].status = UDATA_QUEUE_CLOSE;
     return 0;
 }
 
 
 int own_task_post_msg(sensor_msg_pkg_t msg)
 {
-    for(int i = 0; i < g_uData_own_task_cnt; i++)
+    for(int i = 0; i < g_udata_own_task_cnt; i++)
     {
-        for(int j =0; j< g_uData_own_task_tag[i].actual_num;j++)
+        for(int j =0; j< g_udata_own_task_tag[i].actual_num;j++)
         {
-            if(g_uData_own_task_tag[i].index[j] == msg.index)
+            if(g_udata_own_task_tag[i].index[j] == msg.index)
             {
-                aos_queue_send(&g_uData_own_task_queue[i],(void *)&msg, sizeof(msg));
+                aos_queue_send(&g_udata_own_task_queue[i],(void *)&msg, sizeof(msg));
                 break;
             }
         }
@@ -131,55 +131,55 @@ int own_task_post_msg(sensor_msg_pkg_t msg)
 }
 
 
-int uData_post_msg(sensor_msg_pkg_t msg)
+int udata_post_msg(sensor_msg_pkg_t msg)
 {
     if(msg.cmd == UDATA_MSG_SERVICE_PROCESS)
     {
         own_task_post_msg(msg);
     }
-    aos_queue_send(&g_uData_queue, (void *)&msg, sizeof(msg));
+    aos_queue_send(&g_udata_queue, (void *)&msg, sizeof(msg));
     return 0;
 }
 
 
-int uData_new_servicetask(const char *name, void (*fn)(void *),void *arg,
+int udata_new_servicetask(const char *name, void (*fn)(void *),void *arg,
                             int stack_size, int prio)
 {
     int ret;
     int taskid;
-    if(g_uData_own_task_cnt >= UDATA_MAX_OWN_TASK_NUM) return -1;
+    if(g_udata_own_task_cnt >= UDATA_MAX_OWN_TASK_NUM) return -1;
     if(name == NULL || fn ==NULL) return -1;
 
-    ret = aos_queue_new(&g_uData_own_task_queue[g_uData_own_task_cnt], (void *)&g_uData_own_task_msg[g_uData_own_task_cnt], 
+    ret = aos_queue_new(&g_udata_own_task_queue[g_udata_own_task_cnt], (void *)&g_udata_own_task_msg[g_udata_own_task_cnt], 
             UDATA_QUEUE_SIZE,UDATA_QUEUE_MAX_MSG_SIZE);
     
     if (unlikely(ret)) {
         return -1;
     }
-    ret = aos_task_new_ext(&g_uData_own_task[g_uData_own_task_cnt], name, fn,
+    ret = aos_task_new_ext(&g_udata_own_task[g_udata_own_task_cnt], name, fn,
                        arg, stack_size, prio);
     
     if (unlikely(ret)) {
-        LOG("uData_new_servicetask error\n");
+        LOG("udata_new_servicetask error\n");
         return -1;
     }
     
-    g_uData_own_task_cnt++;
-    taskid = g_uData_own_task_cnt -1;
+    g_udata_own_task_cnt++;
+    taskid = g_udata_own_task_cnt -1;
     return taskid;
 }
 
-int uData_observe_servicetask_tag(int taskid,sensor_tag_e tag, uint8_t instance)
+int udata_observe_servicetask_tag(int taskid,sensor_tag_e tag, uint8_t instance)
 {
     int i = 0;
     int ret;
     uint32_t index;
     
-    if(taskid >= g_uData_own_task_cnt || taskid < 0) 
+    if(taskid >= g_udata_own_task_cnt || taskid < 0) 
     {
         return -1;
     }
-    int actual_num = g_uData_own_task_tag[taskid].actual_num;
+    int actual_num = g_udata_own_task_tag[taskid].actual_num;
     if( actual_num >= UDATA_SERVICE_TAG_NUM) 
     {
         return -1;
@@ -189,17 +189,17 @@ int uData_observe_servicetask_tag(int taskid,sensor_tag_e tag, uint8_t instance)
         return -1;
     }
     
-    LOG("uData_set_servicetask_tag taskid=%d,actual_num=%d,tag=%d,g_uData_own_task_cnt=%d\n",taskid,actual_num,tag,g_uData_own_task_cnt);
+    LOG("udata_set_servicetask_tag taskid=%d,actual_num=%d,tag=%d,g_udata_own_task_cnt=%d\n",taskid,actual_num,tag,g_udata_own_task_cnt);
     for(i=0; i < actual_num; i++)
     {
-        if(g_uData_own_task_tag[taskid].index[i] == index)
+        if(g_udata_own_task_tag[taskid].index[i] == index)
         {
             return -1;
         }
     }
-    g_uData_own_task_tag[taskid].index[actual_num] = index;
-    g_uData_own_task_tag[taskid].actual_num++;
-    LOG("uData_set_servicetask_tag sucessfull\n");
+    g_udata_own_task_tag[taskid].index[actual_num] = index;
+    g_udata_own_task_tag[taskid].actual_num++;
+    LOG("udata_set_servicetask_tag sucessfull\n");
     return 0;
 }
 
@@ -209,26 +209,26 @@ int aos_msg_recv(int task_id, unsigned int ms, void *msg,
 {
     int ret = 0;
     if(msg == NULL) return -1;
-    if (task_id >= g_uData_own_task_cnt) return -1;
-    ret = aos_queue_recv(&g_uData_own_task_queue[task_id], ms,(void *)msg, size);
+    if (task_id >= g_udata_own_task_cnt) return -1;
+    ret = aos_queue_recv(&g_udata_own_task_queue[task_id], ms,(void *)msg, size);
     return ret;
 }
 
-int uData_start()
+int udata_start()
 {
     int ret;
-    memset(g_uData_queue_cb, 0,UDATA_QUEUE_MAXSLOTS * sizeof(uData_queue_cb_t));
-    memset(g_uData_own_task_tag,0,UDATA_MAX_OWN_TASK_NUM * sizeof(servicetask_related_tag_t));
+    memset(g_udata_queue_cb, 0,UDATA_QUEUE_MAXSLOTS * sizeof(udata_queue_cb_t));
+    memset(g_udata_own_task_tag,0,UDATA_MAX_OWN_TASK_NUM * sizeof(servicetask_related_tag_t));
 
     // create the buf queue for the service dispatcher
-    ret = aos_queue_new(&g_uData_queue, (void *)&g_uData_msg, UDATA_QUEUE_SIZE,
+    ret = aos_queue_new(&g_udata_queue, (void *)&g_udata_msg, UDATA_QUEUE_SIZE,
                         UDATA_QUEUE_MAX_MSG_SIZE);
     if (unlikely(ret)) {
         return -1;
     }
 
     // create the service dispatcher task
-    ret = uData_msg_dispatcher_task_create();
+    ret = udata_msg_dispatcher_task_create();
     if (unlikely(ret)) {
         return -1;
     }

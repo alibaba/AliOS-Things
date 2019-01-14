@@ -18,10 +18,10 @@
 #define TO_STRING(A)                    #A
 #define CONNECT(A,B)                    A##B
 
-int uData_service_num_get(uint32_t* pNum);
-int uData_service_config_parse(uint32_t index, uData_service_t* svc);
+int udata_service_num_get(uint32_t* pNum);
+int udata_service_config_parse(uint32_t index, udata_service_t* svc);
 
-int uData_dtc_num_get(uint32_t* pNum);
-int uData_dtc_config_parse(uint32_t index, service_pub_info_t* dtc);
+int udata_dtc_num_get(uint32_t* pNum);
+int udata_dtc_config_parse(uint32_t index, service_pub_info_t* dtc);
 
 #endif /*UDATA_PARSE_H*/

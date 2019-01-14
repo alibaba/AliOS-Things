@@ -44,9 +44,9 @@ void process_example(void *arg)
         }
 
         if ((tag == TAG_DEV_HUMI) || (tag == TAG_DEV_TEMP)){
-            ret = uData_service_get_payload(msg->index, &data, &len);
+            ret = udata_service_get_payload(msg->index, &data, &len);
         
-            ret = uData_install_report_pkg(UDATA_SERVICE_HUMI, data, len);
+            ret = udata_install_report_pkg(UDATA_SERVICE_HUMI, data, len);
             if (unlikely(ret)) {
                 return;
             }
@@ -56,16 +56,16 @@ void process_example(void *arg)
     
 }
 
-int uData_service_own_task_start(void)
+int udata_service_own_task_start(void)
 {
-    g_taskid = uData_new_servicetask("algo_process_task",process_example,NULL,
+    g_taskid = udata_new_servicetask("algo_process_task",process_example,NULL,
                 UDATA_TASK_STACK_SIZE,UDATA_TASK_PRIO);
     if(g_taskid < 0)
     {
     	return -1;
     }
-    uData_observe_servicetask_tag(g_taskid,TAG_DEV_HUMI, 0);
-    uData_observe_servicetask_tag(g_taskid,TAG_DEV_TEMP, 0);
+    udata_observe_servicetask_tag(g_taskid,TAG_DEV_HUMI, 0);
+    udata_observe_servicetask_tag(g_taskid,TAG_DEV_TEMP, 0);
     
     return 0;
 }

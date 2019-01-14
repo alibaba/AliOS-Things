@@ -1,8 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- *
- *
- * uData main
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #include "abs_data_model.h"
@@ -10,13 +7,13 @@
 #include "udata_queue.h"
 #include "service_data_to_cloud.h"
 
-int uData_main(void)
+int udata_main(void)
 {
     int ret = 0;
 
     /* NOTE:
      * please run the abs data init firstly, then run udata service init */
-    ret = uData_start();
+    ret = udata_start();
     if (unlikely(ret)) {
         return -1;
     }
@@ -26,12 +23,12 @@ int uData_main(void)
         return -1;
     }
 
-    ret = uData_service_mgr_init();
+    ret = udata_service_mgr_init();
     if (unlikely(ret)) {
         return -1;
     }
 
-    ret = uData_service_init();
+    ret = udata_service_init();
     if (unlikely(ret)) {
         return -1;
     }

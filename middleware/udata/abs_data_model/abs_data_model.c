@@ -191,7 +191,7 @@ static int abs_data_create_obj_ctx(int index, int arg, void *pdata)
         goto error;
     }
 
-    uData_service_t *service                            = pdata;
+    udata_service_t *service                            = pdata;
     g_abs_data_db[index]->tag                           = tag;
     g_abs_data_db[index]->instance                      = instance;
     g_abs_data_db[index]->interval                      = arg;
@@ -219,7 +219,7 @@ void abs_sensor_read(uint32_t       abs_index)
     void*    data = NULL;
     uint32_t len  = 0;
 
-    ret = uData_service_get_payload(abs_index, &data, &len);
+    ret = udata_service_get_payload(abs_index, &data, &len);
     if (unlikely(ret)) {
         return;
     }
@@ -456,7 +456,7 @@ void abs_sensor_irq_callback(sensor_tag_e tag, uint8_t instance)
     memset(&data_msg, 0, sizeof(data_msg));
     data_msg.cmd   = UDATA_MSG_DEV_READ;
     data_msg.index = abs_index;
-    ret            = uData_post_msg(data_msg);
+    ret            = udata_post_msg(data_msg);
     if (unlikely(ret)) {
         LOG("abs_sensor_irq_callback post msg fail ret = %d index = %d\n", ret,
             abs_index);
@@ -489,7 +489,7 @@ int abs_sensor_irq_callback_reg(uint32_t abs_index, SENSOR_IRQ_CALLBACK cb)
     return 0;
 }
 
-static int abs_data_timer_config(uint32_t abs_index, uData_service_t *service)
+static int abs_data_timer_config(uint32_t abs_index, udata_service_t *service)
 {
     int                     ret      = 0;
     uint32_t                interval = 0;
@@ -559,7 +559,7 @@ static int abs_data_timer_config(uint32_t abs_index, uData_service_t *service)
 }
 
 
-static int abs_data_create_obj(uint32_t abs_index, uData_service_t *service)
+static int abs_data_create_obj(uint32_t abs_index, udata_service_t *service)
 {
     int                     ret      = 0;
     uint32_t                interval = 0;
@@ -661,7 +661,7 @@ static int abs_data_create_obj(uint32_t abs_index, uData_service_t *service)
     return 0;
 }
 
-int abs_data_open(uData_service_t *service)
+int abs_data_open(udata_service_t *service)
 {
     int                     ret      = 0;
     int                     fd       = 0;
@@ -786,7 +786,7 @@ int abs_data_read(uint32_t abs_index, void *pdata, uint32_t nbyte)
     }
     data_msg.cmd   = UDATA_MSG_SERVICE_PROCESS;
     data_msg.index = abs_index;
-    ret            = uData_post_msg(data_msg);
+    ret            = udata_post_msg(data_msg);
     if (unlikely(ret)) {
         return -1;
     }
