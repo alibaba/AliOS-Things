@@ -28,6 +28,7 @@ typedef struct  {
     unsigned short crc;
     unsigned int  upg_flag;
     unsigned char boot_count;
+    unsigned int  rec_size;
     unsigned int  splict_size;
     int off_bp;   /*Break point offset*/
     OTA_RES_TYPE_E  res_type; /*result type: OTA_FINISH, OTA_BREAKPOINT*/
@@ -98,7 +99,7 @@ int ota_hal_boot(void *something);
 /**
  * Set rollback when failed to boot
  *
- * @param  something 
+ * @param  something
  *
  * @return  kNoErr : On success. kGeneralErr : If an error occurred with any step
  */
