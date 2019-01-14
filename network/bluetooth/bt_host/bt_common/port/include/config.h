@@ -337,10 +337,6 @@
 #define CONFIG_BT_DEBUG_CORE 1
 #endif
 
-#ifndef CONFIG_BT_ATT_TX_MAX
-#define CONFIG_BT_ATT_TX_MAX 1
-#endif
-
 #ifndef CONFIG_BT_CONN_TX_MAX
 #define CONFIG_BT_CONN_TX_MAX 1
 #endif

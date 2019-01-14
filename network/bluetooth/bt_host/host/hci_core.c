@@ -79,11 +79,9 @@ static u8_t                  pub_key[64];
 static struct bt_pub_key_cb *pub_key_cb;
 static bt_dh_key_cb_t        dh_key_cb;
 
-
 enum {
     HOST_INIT,
     HOST_INIT_DONE,
-
 };
 
 static uint8_t host_state = HOST_INIT;
@@ -92,6 +90,7 @@ static bt_addr_t *random_addr = NULL;
 static struct bt_data *adv_sd = NULL;
 static size_t adv_sd_len;
 static struct bt_le_adv_param adv_param;
+static bool adv_enable = false;
 
 struct cmd_data
 {
@@ -191,24 +190,23 @@ NET_BUF_POOL_DEFINE(acl_in_pool, CONFIG_BT_ACL_RX_COUNT, ACL_IN_SIZE,
 struct net_buf *bt_hci_cmd_create(u16_t opcode, u8_t param_len)
 {
     struct bt_hci_cmd_hdr *hdr;
-    struct net_buf *       buf;
+    struct net_buf *buf = NULL;
 
     BT_DBG("opcode 0x%04x param_len %u", opcode, param_len);
 
     buf = net_buf_alloc(&hci_cmd_pool, K_FOREVER);
-    __ASSERT_NO_MSG(buf);
+    if (buf) {
+        BT_DBG("buf %p", buf);
 
-    BT_DBG("buf %p", buf);
+        net_buf_reserve(buf, CONFIG_BT_HCI_RESERVE);
+        cmd(buf)->type = BT_BUF_CMD;
+        cmd(buf)->opcode = opcode;
+        cmd(buf)->sync = 0;
 
-    net_buf_reserve(buf, CONFIG_BT_HCI_RESERVE);
-
-    cmd(buf)->type   = BT_BUF_CMD;
-    cmd(buf)->opcode = opcode;
-    cmd(buf)->sync   = 0;
-
-    hdr            = net_buf_add(buf, sizeof(*hdr));
-    hdr->opcode    = sys_cpu_to_le16(opcode);
-    hdr->param_len = param_len;
+        hdr = net_buf_add(buf, sizeof(*hdr));
+        hdr->opcode = sys_cpu_to_le16(opcode);
+        hdr->param_len = param_len;
+    }
 
     return buf;
 }
@@ -299,6 +297,7 @@ static int set_advertise_enable(bool enable)
         net_buf_add_u8(buf, BT_HCI_LE_ADV_DISABLE);
     }
 
+    adv_enable = enable;
     err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_ADV_ENABLE, buf, NULL);
     return err;
 }
@@ -364,7 +363,7 @@ static int le_set_private_addr(void)
 
 static void rpa_timeout(struct k_work *work)
 {
-    BT_DBG("");
+    BT_DBG("%s", __func__, __LINE__);
 
     /* Invalidate RPA */
     atomic_clear_bit(bt_dev.flags, BT_DEV_RPA_VALID);
@@ -444,7 +443,7 @@ static void hci_acl(struct net_buf *buf)
     struct bt_conn *       conn;
     u8_t                   flags;
 
-    BT_DBG("buf %p", buf);
+    BT_DBG("%s, buf %p", __func__, buf);
 
     handle = sys_le16_to_cpu(hdr->handle);
     flags  = bt_acl_flags(handle);
@@ -516,7 +515,7 @@ static void hci_num_completed_packets(struct net_buf *buf)
             }
 
             k_fifo_put(&conn->tx_notify, node);
-            k_sem_give(bt_conn_get_pkts(conn));
+            bt_conn_notify_tx_done(conn);
         }
 
         bt_conn_unref(conn);
@@ -581,20 +580,6 @@ static void hci_disconn_complete(struct net_buf *buf)
     conn->handle = 0;
 
     if (conn->type != BT_CONN_TYPE_LE) {
-#if defined(CONFIG_BT_BREDR)
-        if (conn->type == BT_CONN_TYPE_SCO) {
-            bt_sco_cleanup(conn);
-            return;
-        }
-        /*
-         * If only for one connection session bond was set, clear keys
-         * database row for this connection.
-         */
-        if (conn->type == BT_CONN_TYPE_BR &&
-            atomic_test_and_clear_bit(conn->flags, BT_CONN_BR_NOBOND)) {
-            bt_keys_link_key_clear(conn->br.link_key);
-        }
-#endif
         bt_conn_unref(conn);
         return;
     }
@@ -630,9 +615,7 @@ static int hci_le_read_remote_features(struct bt_conn *conn)
 
     cp         = net_buf_add(buf, sizeof(*cp));
     cp->handle = sys_cpu_to_le16(conn->handle);
-    bt_hci_cmd_send(BT_HCI_OP_LE_READ_REMOTE_FEATURES, buf);
-
-    return 0;
+    return bt_hci_cmd_send(BT_HCI_OP_LE_READ_REMOTE_FEATURES, buf);
 }
 
 static int hci_le_set_data_len(struct bt_conn *conn)
@@ -662,12 +645,7 @@ static int hci_le_set_data_len(struct bt_conn *conn)
     cp->handle    = sys_cpu_to_le16(conn->handle);
     cp->tx_octets = sys_cpu_to_le16(tx_octets);
     cp->tx_time   = sys_cpu_to_le16(tx_time);
-    err           = bt_hci_cmd_send(BT_HCI_OP_LE_SET_DATA_LEN, buf);
-    if (err) {
-        return err;
-    }
-
-    return 0;
+    return bt_hci_cmd_send(BT_HCI_OP_LE_SET_DATA_LEN, buf);
 }
 
 static int hci_le_set_phy(struct bt_conn *conn)
@@ -686,9 +664,7 @@ static int hci_le_set_phy(struct bt_conn *conn)
     cp->tx_phys  = BT_HCI_LE_PHY_PREFER_2M;
     cp->rx_phys  = BT_HCI_LE_PHY_PREFER_2M;
     cp->phy_opts = BT_HCI_LE_PHY_CODED_ANY;
-    bt_hci_cmd_send(BT_HCI_OP_LE_SET_PHY, buf);
-
-    return 0;
+    return bt_hci_cmd_send(BT_HCI_OP_LE_SET_PHY, buf);
 }
 
 static void update_conn_param(struct bt_conn *conn)
@@ -1511,24 +1487,6 @@ static void hci_encrypt_change(struct net_buf *buf)
         update_sec_level(conn);
     }
 #endif /* CONFIG_BT_SMP */
-#if defined(CONFIG_BT_BREDR)
-    if (conn->type == BT_CONN_TYPE_BR) {
-        update_sec_level_br(conn);
-
-        if (IS_ENABLED(CONFIG_BT_SMP)) {
-            /*
-             * Start SMP over BR/EDR if we are pairing and are
-             * master on the link
-             */
-            if (atomic_test_bit(conn->flags, BT_CONN_BR_PAIRING) &&
-                conn->role == BT_CONN_ROLE_MASTER) {
-                bt_smp_br_send_pairing_req(conn);
-            }
-        }
-
-        reset_pairing(conn);
-    }
-#endif /* CONFIG_BT_BREDR */
 
     bt_l2cap_encrypt_change(conn, evt->status);
     bt_conn_security_changed(conn);
@@ -1569,11 +1527,6 @@ static void hci_encrypt_key_refresh_complete(struct net_buf *buf)
         update_sec_level(conn);
     }
 #endif /* CONFIG_BT_SMP */
-#if defined(CONFIG_BT_BREDR)
-    if (conn->type == BT_CONN_TYPE_BR) {
-        update_sec_level_br(conn);
-    }
-#endif /* CONFIG_BT_BREDR */
 
     bt_l2cap_encrypt_change(conn, evt->status);
     bt_conn_security_changed(conn);
@@ -1862,7 +1815,6 @@ static int start_le_scan(u8_t scan_type, u16_t interval, u16_t window)
         atomic_clear_bit(bt_dev.flags, BT_DEV_ACTIVE_SCAN);
     }
 
-
     return 0;
 }
 
@@ -2021,68 +1973,6 @@ static void hci_event(struct net_buf *buf)
     net_buf_pull(buf, sizeof(*hdr));
 
     switch (hdr->evt) {
-#if defined(CONFIG_BT_BREDR)
-        case BT_HCI_EVT_CONN_REQUEST:
-            conn_req(buf);
-            break;
-        case BT_HCI_EVT_CONN_COMPLETE:
-            conn_complete(buf);
-            break;
-        case BT_HCI_EVT_PIN_CODE_REQ:
-            pin_code_req(buf);
-            break;
-        case BT_HCI_EVT_LINK_KEY_NOTIFY:
-            link_key_notify(buf);
-            break;
-        case BT_HCI_EVT_LINK_KEY_REQ:
-            link_key_req(buf);
-            break;
-        case BT_HCI_EVT_IO_CAPA_RESP:
-            io_capa_resp(buf);
-            break;
-        case BT_HCI_EVT_IO_CAPA_REQ:
-            io_capa_req(buf);
-            break;
-        case BT_HCI_EVT_SSP_COMPLETE:
-            ssp_complete(buf);
-            break;
-        case BT_HCI_EVT_USER_CONFIRM_REQ:
-            user_confirm_req(buf);
-            break;
-        case BT_HCI_EVT_USER_PASSKEY_NOTIFY:
-            user_passkey_notify(buf);
-            break;
-        case BT_HCI_EVT_USER_PASSKEY_REQ:
-            user_passkey_req(buf);
-            break;
-        case BT_HCI_EVT_INQUIRY_COMPLETE:
-            inquiry_complete(buf);
-            break;
-        case BT_HCI_EVT_INQUIRY_RESULT_WITH_RSSI:
-            inquiry_result_with_rssi(buf);
-            break;
-        case BT_HCI_EVT_EXTENDED_INQUIRY_RESULT:
-            extended_inquiry_result(buf);
-            break;
-        case BT_HCI_EVT_REMOTE_NAME_REQ_COMPLETE:
-            remote_name_request_complete(buf);
-            break;
-        case BT_HCI_EVT_AUTH_COMPLETE:
-            auth_complete(buf);
-            break;
-        case BT_HCI_EVT_REMOTE_FEATURES:
-            read_remote_features_complete(buf);
-            break;
-        case BT_HCI_EVT_REMOTE_EXT_FEATURES:
-            read_remote_ext_features_complete(buf);
-            break;
-        case BT_HCI_EVT_ROLE_CHANGE:
-            role_change(buf);
-            break;
-        case BT_HCI_EVT_SYNC_CONN_COMPLETE:
-            synchronous_conn_complete(buf);
-            break;
-#endif
 #if defined(CONFIG_BT_CONN)
         case BT_HCI_EVT_DISCONN_COMPLETE:
             hci_disconn_complete(buf);
@@ -2116,7 +2006,9 @@ static void send_cmd(void)
     /* Get next command */
     BT_DBG("calling net_buf_get");
     buf = net_buf_get(&bt_dev.cmd_tx_queue, K_NO_WAIT);
-    BT_ASSERT(buf);
+    if (buf == NULL) {
+        return;
+    }
 
     /* Clear out any existing sent command */
     if (bt_dev.sent_cmd) {
@@ -2143,13 +2035,13 @@ int has_tx_sem(struct k_poll_event *event)
 {
     struct bt_conn *conn = NULL;
 
-    if (event->tag == BT_EVENT_CONN_TX_NOTIFY) {
-        conn = CONTAINER_OF(event->fifo, struct bt_conn, tx_notify);
-    } else if (event->tag == BT_EVENT_CONN_TX_QUEUE) {
-        conn = CONTAINER_OF(event->fifo, struct bt_conn, tx_queue);
-    }
-    if (conn && k_sem_count_get(bt_conn_get_pkts(conn)) == 0) {
-        return 0;
+    if (IS_ENABLED(CONFIG_BT_CONN)) {
+        if (event->tag == BT_EVENT_CONN_TX_QUEUE) {
+            conn = CONTAINER_OF(event->fifo, struct bt_conn, tx_queue);
+        }
+        if (conn && conn->tx) {
+            return 0;
+        }
     }
     return 1;
 }
@@ -2171,8 +2063,7 @@ static void process_events(struct k_poll_event *ev, int count)
                     struct bt_conn *conn;
 
                     if (ev->tag == BT_EVENT_CONN_TX_NOTIFY) {
-                        conn =
-                          CONTAINER_OF(ev->fifo, struct bt_conn, tx_notify);
+                        conn = CONTAINER_OF(ev->fifo, struct bt_conn, tx_notify);
                         bt_conn_notify_tx(conn);
                     } else if (ev->tag == BT_EVENT_CONN_TX_QUEUE) {
                         conn = CONTAINER_OF(ev->fifo, struct bt_conn, tx_queue);
@@ -2291,36 +2182,11 @@ static void read_le_features_complete(struct net_buf *buf)
 }
 
 #if defined(CONFIG_BT_CONN)
-static void read_buffer_size_complete(struct net_buf *buf)
-{
-    struct bt_hci_rp_read_buffer_size *rp = (void *)buf->data;
-    u16_t pkts;
-
-    BT_DBG("status %u", rp->status);
-
-    /* If LE-side has buffers we can ignore the BR/EDR values */
-    if (bt_dev.le.mtu) {
-        return;
-    }
-
-    bt_dev.le.mtu = sys_le16_to_cpu(rp->acl_max_len);
-    pkts = sys_le16_to_cpu(rp->acl_max_num);
-
-    BT_DBG("ACL BR/EDR buffers: pkts %u mtu %u", pkts, bt_dev.le.mtu);
-
-    pkts = min(pkts, CONFIG_BT_CONN_TX_MAX);
-
-    k_sem_init(&bt_dev.le.pkts, pkts, pkts);
-}
-#endif
-
-#if defined(CONFIG_BT_CONN)
 static void le_read_buffer_size_complete(struct net_buf *buf)
 {
     struct bt_hci_rp_le_read_buffer_size *rp = (void *)buf->data;
-    u8_t                                  le_max_num;
 
-    BT_DBG("status %u", rp->status);
+    BT_DBG("%s, status %u", __func__, rp->status);
 
     bt_dev.le.mtu = sys_le16_to_cpu(rp->le_max_len);
     if (!bt_dev.le.mtu) {
@@ -2328,9 +2194,6 @@ static void le_read_buffer_size_complete(struct net_buf *buf)
     }
 
     BT_DBG("ACL LE buffers: pkts %u mtu %u", rp->le_max_num, bt_dev.le.mtu);
-
-    le_max_num = min(rp->le_max_num, CONFIG_BT_CONN_TX_MAX);
-    k_sem_init(&bt_dev.le.pkts, le_max_num, le_max_num);
 }
 #endif
 
@@ -2340,8 +2203,7 @@ static void read_supported_commands_complete(struct net_buf *buf)
 
     BT_DBG("status %u", rp->status);
 
-    memcpy(bt_dev.supported_commands, rp->commands,
-           sizeof(bt_dev.supported_commands));
+    memcpy(bt_dev.supported_commands, rp->commands, sizeof(bt_dev.supported_commands));
 
     /*
      * Report "LE Read Local P-256 Public Key" and "LE Generate DH Key" as
@@ -2785,9 +2647,6 @@ static int hci_init_done(void)
         }
     }
 
-#if defined(CONFIG_BT_PRIVACY)
-
-#endif
     atomic_set_bit(bt_dev.flags, BT_DEV_READY);
     bt_le_scan_update(false);
     host_state = HOST_INIT_DONE;
@@ -3674,14 +3533,11 @@ static void process_cmd_done(struct net_buf *buf)
             }
             break;
         case BT_HCI_OP_LE_SET_ADV_ENABLE:
-            atomic_set_bit(bt_dev.flags, BT_DEV_ADVERTISING);
-#if 0
-            if (enable) {
+            if (adv_enable) {
                 atomic_set_bit(bt_dev.flags, BT_DEV_ADVERTISING);
             } else {
                 atomic_clear_bit(bt_dev.flags, BT_DEV_ADVERTISING);
             }
-#endif
             break;
     }
 exit:
