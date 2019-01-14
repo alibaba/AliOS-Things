@@ -83,4 +83,4 @@ void recovery_get_flag_info(rec_flag_info_t *rec_flag_info);
 void recovery_set_flag_info(rec_flag_info_t *rec_flag_info);
 
 void rec_ymodem_cmd();
-#endif //_REC_PUB_H_
+#endif /* _REC_PUB_H_ */

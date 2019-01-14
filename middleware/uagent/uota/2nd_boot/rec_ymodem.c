@@ -106,18 +106,18 @@ int ymodem_data_head_parse(unsigned char data_type)
     buffer  = malloc(buf_len);
     memset(buffer, 0, buf_len);
 
-    //SOH HEAD
+    /* SOH HEAD */
     value = ymodem_recv_bytes(buffer, buf_len, UART_RECV_TIMEOUT);
     if( (buf_len != value)  || (0 != buffer[0]) || (0xFF != buffer[1]) ) {
         goto err_exit;
     }
 
-    //check CRC
+    /* check CRC */
     crc = cal_crc(&buffer[2], buf_len-4);
     if (((crc >> 8) != buffer[buf_len - 2]) || ((crc & 0xFF) != buffer[buf_len - 1])) {
         goto err_exit;
     }
-    //parse file name && file length
+    /* parse file name && file length */
     for(i = 2; i < buf_len - 2; i++) {
         if((0 == buffer[i]) && (0 == lp)) {
             lp = i + 1;
@@ -125,7 +125,7 @@ int ymodem_data_head_parse(unsigned char data_type)
         }
 
         if((0 == buffer[i]) && (0 != lp)) {
-            //from buffer[lp] to buffer[i] is file length ascii
+            /* from buffer[lp] to buffer[i] is file length ascii */
             value = ymodem_str2int((char *)&buffer[lp], i - lp);
             if (0 == value) {
                 goto err_exit;
@@ -179,19 +179,19 @@ int ymodem_data_parse(unsigned char data_type, unsigned int *addr)
         goto err_exit;
     }
 
-    //SOH HEAD
+    /* SOH HEAD */
     value = ymodem_recv_bytes(buffer, buf_len, UART_RECV_TIMEOUT);
     if ((buf_len != value) || (0xFF != buffer[0] + buffer[1])) {
         goto err_exit;
     }
 
-    //check CRC
+    /* check CRC */
     crc = cal_crc(&buffer[2], buf_len - 4);
     if (((crc >> 8) != buffer[buf_len - 2]) || ((crc & 0xFF) != buffer[buf_len - 1])) {
         goto err_exit;
     }
 
-    //write data fo flash
+    /* write data fo flash */
     ymodem_write_data_to_flash(&buffer[2], *addr, buf_len - 4);
     *addr += buf_len - 4;
 
@@ -211,7 +211,7 @@ int ymodem_recv_file(unsigned int flash_addr)
     unsigned int  bytes = 0;
     unsigned int  addr  = flash_addr;
 
-    //send C
+    /* send C */
     while (1)
     {
         if(state != YMODEM_STATE_INIT) {
@@ -220,14 +220,14 @@ int ymodem_recv_file(unsigned int flash_addr)
 
         switch (state)
         {
-        case YMODEM_STATE_INIT: // send 'C'
+        case YMODEM_STATE_INIT: /* send 'C' */
             if(i % 500 == 0) {
                 rec_uart_send_byte(YMODEM_CCHAR);
             }
             state = YMODEM_STATE_WAIT_HEAD;
             break;
 
-        case YMODEM_STATE_WAIT_HEAD: // wait SOH
+        case YMODEM_STATE_WAIT_HEAD: /* wait SOH */
             if(1 != bytes) {
                 i ++;
                 state = 0;
@@ -242,19 +242,19 @@ int ymodem_recv_file(unsigned int flash_addr)
                     state = YMODEM_STATE_WAIT_DATA;
                     break;
                 } else {
-                    //end
+                    /* end */
                     rec_uart_send_byte(YMODEM_ACK);
                     rec_delayms(1000);
                     return 0;
                 }
-            } else if (3 == c) {  // ctrl+c abort ymodem
+            } else if (3 == c) {  /* ctrl+c abort ymodem */
                 printf("Abort ymodem file.\n");
                 return 0;
             }
 
             break;
 
-        case YMODEM_STATE_WAIT_DATA: //receive data
+        case YMODEM_STATE_WAIT_DATA: /* receive data */
             if(1 == bytes) {
                 if( (YMODEM_SOH == c) || (YMODEM_STX == c) ) {
                     ret = ymodem_data_parse(c, &addr);
@@ -269,7 +269,7 @@ int ymodem_recv_file(unsigned int flash_addr)
 
             break;
 
-        case YMODEM_STATE_WAIT_END: //receive end eot
+        case YMODEM_STATE_WAIT_END: /* receive end eot */
             if ((1 == bytes) && (YMODEM_EOT == c)) {
                 rec_uart_send_byte(YMODEM_ACK);
                 i     = 0;
