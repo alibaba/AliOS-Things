@@ -158,10 +158,19 @@ else ifeq ($(COMPILER), iar)
 else
 	$(QUIET)$(OBJDUMP) -t -w $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym
 endif
-	@python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym drivers/sensor/hal/sensor_config.c
-	$(CC) $(sensor_C_OPTS) drivers/sensor/hal/sensor_config.c -o $(OUTPUT_DIR)/Modules/drivers/sensor/hal/sensor_config.o
+	@python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/Modules/drivers/sensor/sensor.sym $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.c
+
+ifeq ($(IDE),iar)
+	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.c
+	@python build/scripts/iar.py $(CLEANED_BUILD_STRING)
+else ifeq ($(IDE),keil)
+	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.c
+	@python build/scripts/keil.py $(CLEANED_BUILD_STRING)
+endif
+
+	$(CC) $(sensor_C_OPTS) $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.c -o $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.o
 	$(QUIET)rm -rf $(OUTPUT_DIR)/libraries/sensor.a
-	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
+	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OUTPUT_DIR)/Modules/drivers/sensor/sensor_config.o $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
 endif
 ifeq ($(COMPILER),)
 	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1).stripped.a $(OUTPUT_DIR)/libraries/$(1).a
