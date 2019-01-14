@@ -22,7 +22,7 @@ static size_t udata_std_service_process_callback(udata_type_e type, uint32_t abs
                                                  uint32_t len)
 {
     int ret;
-    ret = uData_install_report_pkg(type, arg, len);
+    ret = udata_install_report_pkg(type, arg, len);
     if(unlikely(ret)){
         return 0;
     }
@@ -35,9 +35,9 @@ int service_process_init(void)
     int i;
     int ret;
     uint32_t num = 0;
-    uData_service_t svc;
+    udata_service_t svc;
 
-    ret = uData_service_num_get(&num);
+    ret = udata_service_num_get(&num);
     if (unlikely(ret)) {
         return -1;
     }
@@ -46,8 +46,8 @@ int service_process_init(void)
         return -1;
     }
     for (i = 0; i < num; i++) {
-        memset(&svc, 0, sizeof(uData_service_t));
-        ret = uData_service_config_parse(i, &svc);
+        memset(&svc, 0, sizeof(udata_service_t));
+        ret = udata_service_config_parse(i, &svc);
         if (unlikely(ret)) {
             //LOG("%s parse service index %d  %d skip\n", uDATA_STR, i,__LINE__);
             continue;
@@ -61,7 +61,7 @@ int service_process_init(void)
         svc.service_ioctl_cb   = udata_std_service_ioctl_cb;
 
 
-        if (uData_service_register(&svc)) {
+        if (udata_service_register(&svc)) {
             //LOG("%s register service index %d type %d skip\n", uDATA_STR, i, svc.type);
             continue;
         }

@@ -17,14 +17,14 @@ typedef struct _udata_tag_para_st{
     int          interval;
 }udata_tag_para_st;
 
-typedef struct uData_service_para_t{
+typedef struct udata_service_para_t{
     udata_type_e        type;
     bool                task_flag;
     uint8_t             dev_num;
     udata_tag_para_st*  p_tag_para;
-}uData_service_para_t;
+}udata_service_para_t;
 
-typedef struct uData_dtc_para_t{
+typedef struct udata_dtc_para_t{
     udata_type_e        type;
     bool                dtc_flag;
     int                 dtc_cycle;
@@ -33,7 +33,7 @@ typedef struct uData_dtc_para_t{
     char*               name;
     uint8_t             name_num;
     char**              para_name;
-}uData_dtc_para_t;
+}udata_dtc_para_t;
 
 udata_tag_para_st g_dev_acc[] = {
 {TAG_DEV_ACC, 0, 1000},
@@ -99,7 +99,7 @@ char* g_para_rtctime[] = {
 "year","month","date","day","hours","minutes","seconds"
 };
 
-uData_service_para_t g_service_para[] = {
+udata_service_para_t g_service_para[] = {
 {UDATA_SERVICE_ACC, false, UDATA_ARRAY_NUM_CALC(g_dev_acc),&g_dev_acc[0]},
 {UDATA_SERVICE_MAG, false, UDATA_ARRAY_NUM_CALC(g_dev_mag),&(g_dev_mag)[0]},
 {UDATA_SERVICE_GYRO, false, UDATA_ARRAY_NUM_CALC(g_dev_gyro),&g_dev_gyro[0]},
@@ -114,7 +114,7 @@ uData_service_para_t g_service_para[] = {
 {UDATA_SERVICE_RTC, false,  UDATA_ARRAY_NUM_CALC(g_dev_rtctime), &g_dev_rtctime[0]}
 };
 
-uData_dtc_para_t g_dtc_para[] = {
+udata_dtc_para_t g_dtc_para[] = {
 {UDATA_SERVICE_ACC, false, 4000,UDATA_FLOAT,1000,"Accelerometer",UDATA_ARRAY_NUM_CALC(g_para_acc),&g_para_acc[0]},
 {UDATA_SERVICE_MAG, false, 4000,UDATA_FLOAT,1000,"Magnetometer",UDATA_ARRAY_NUM_CALC(g_para_mag),&g_para_mag[0]},
 {UDATA_SERVICE_GYRO, false, 4000,UDATA_FLOAT,1000000,"Gyroscope",UDATA_ARRAY_NUM_CALC(g_para_gyro),&g_para_gyro[0]},

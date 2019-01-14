@@ -15,12 +15,12 @@
 #include "udata_queue.h"
 
 
-static uData_service_t *g_service_db[UDATA_MAX_CNT];
+static udata_service_t *g_service_db[UDATA_MAX_CNT];
 static uint32_t         g_service_cnt = 0;
 static udata_pkg_t      g_udata_buf[UDATA_MAX_CNT];
 static udata_pkg_t      g_sensor_buf[SENSOR_MAX_NUM];
 
-static int uData_find_free_index(void)
+static int udata_find_free_index(void)
 {
     int index = 0;
     for (index = 0; index < UDATA_MAX_CNT; index++) {
@@ -33,7 +33,7 @@ static int uData_find_free_index(void)
 }
 
 
-int uData_find_service(udata_type_e type)
+int udata_find_service(udata_type_e type)
 {
     int index = 0;
 
@@ -53,7 +53,7 @@ int uData_find_service(udata_type_e type)
     return -1;
 }
 
-int uData_service_get_payload(uint32_t abs_index, void **pdata, uint32_t *plen)
+int udata_service_get_payload(uint32_t abs_index, void **pdata, uint32_t *plen)
 {
     work_mode_e      mode;
 
@@ -82,7 +82,7 @@ int uData_service_get_payload(uint32_t abs_index, void **pdata, uint32_t *plen)
 }
 
 
-static int uData_dev_enable(uint32_t abs_index)
+static int udata_dev_enable(uint32_t abs_index)
 {
     int ret = 0;
     ret     = abs_data_dev_enable(abs_index);
@@ -91,13 +91,13 @@ static int uData_dev_enable(uint32_t abs_index)
     }
     return 0;
 }
-int uData_data_publish(int idx)
+int udata_data_publish(int idx)
 {
     int ret; 
     int index;
     sensor_msg_pkg_t data_msg;
     
-    index = uData_find_service(idx);
+    index = udata_find_service(idx);
     if ((index < 0) || (index >= UDATA_MAX_CNT)){
         return -1;
     }
@@ -111,7 +111,7 @@ int uData_data_publish(int idx)
         memset(&data_msg, 0, sizeof(data_msg));
         data_msg.cmd   = UDATA_MSG_DATA_TO_CLOUD;
         data_msg.value = g_service_db[index]->type;
-        ret            = uData_post_msg(data_msg);
+        ret            = udata_post_msg(data_msg);
         if (unlikely(ret)) {
             return -1;
         }
@@ -122,7 +122,7 @@ int uData_data_publish(int idx)
         memset(&data_msg, 0, sizeof(data_msg));
         data_msg.cmd   = UDATA_MSG_REPORT_PUBLISH;
         data_msg.value = g_service_db[index]->type;
-        ret            = uData_post_msg(data_msg);
+        ret            = udata_post_msg(data_msg);
         if (unlikely(ret)) {
             return -1;
         }
@@ -130,7 +130,7 @@ int uData_data_publish(int idx)
     return 0;
 }
 
-int uData_get_report_pkg(udata_type_e type,void *buf)
+int udata_get_report_pkg(udata_type_e type,void *buf)
 {
     if (buf == NULL) {
         return -1;
@@ -143,7 +143,7 @@ int uData_get_report_pkg(udata_type_e type,void *buf)
 }
 
 
-int uData_install_report_pkg(udata_type_e type, void *data, size_t len)
+int udata_install_report_pkg(udata_type_e type, void *data, size_t len)
 {
     if (data == NULL) {
         return -1;
@@ -163,12 +163,12 @@ int uData_install_report_pkg(udata_type_e type, void *data, size_t len)
     return 0;
 }
 
-int uData_service_subscribe(udata_type_e type)
+int udata_service_subscribe(udata_type_e type)
 {
     int ret   = 0;
     int index = 0;
 
-    index = uData_find_service(type);
+    index = udata_find_service(type);
     if ((index < 0) || (index >= UDATA_MAX_CNT)){
         return -1;
     }
@@ -186,13 +186,13 @@ int uData_service_subscribe(udata_type_e type)
     return 0;
 }
 
-int uData_service_unsubscribe(udata_type_e type)
+int udata_service_unsubscribe(udata_type_e type)
 {
     int i     = 0;
     int ret   = 0;
     int index = 0;
 
-    index = uData_find_service(type);
+    index = udata_find_service(type);
     if ((index < 0) || (index >= UDATA_MAX_CNT)){
         return -1;
     }
@@ -215,7 +215,7 @@ int uData_service_unsubscribe(udata_type_e type)
 }
 
 
-int uData_service_register(uData_service_t *service)
+int udata_service_register(udata_service_t *service)
 {
 
     int ret = 0;
@@ -224,17 +224,17 @@ int uData_service_register(uData_service_t *service)
         return -1;
     }
 
-    index = uData_find_free_index();
+    index = udata_find_free_index();
     if ((index < 0) || (index >= UDATA_MAX_CNT)){
         return -1;
     }
 
-    g_service_db[index] = (uData_service_t *)aos_malloc(sizeof(uData_service_t));
+    g_service_db[index] = (udata_service_t *)aos_malloc(sizeof(udata_service_t));
     if (g_service_db[index] == NULL) {
         return -1;
     }
 
-    memset(g_service_db[index], 0, sizeof(uData_service_t));
+    memset(g_service_db[index], 0, sizeof(udata_service_t));
 
     /* also can copy the data struct by memcpy here */
     g_service_db[index]->type               = service->type;
@@ -268,7 +268,7 @@ error:
     return -1;
 }
 
-int uData_service_unregister(udata_type_e type)
+int udata_service_unregister(udata_type_e type)
 {
     int i     = 0;
     int index = 0;
@@ -297,7 +297,7 @@ int uData_service_unregister(udata_type_e type)
 
         }
 
-        memset(g_service_db[index], 0, sizeof(uData_service_t));
+        memset(g_service_db[index], 0, sizeof(udata_service_t));
         aos_free(g_service_db[index]);
         g_service_db[index] = NULL;
         
@@ -311,7 +311,7 @@ int uData_service_unregister(udata_type_e type)
 }
 
 
-static int uData_service_process(uint32_t abs_index, void *data, uint32_t len)
+static int udata_service_process(uint32_t abs_index, void *data, uint32_t len)
 {
     int    index    = 0;
     size_t size = 0;
@@ -333,7 +333,7 @@ static int uData_service_process(uint32_t abs_index, void *data, uint32_t len)
             (time_stamp - g_service_db[index]->time[abs_index] >= (uint64_t)(g_service_db[index]->interval[abs_index]))) {
             size = g_service_db[index]->service_process_cb(g_service_db[index]->type, abs_index, data, len);
             if (size != 0) {
-                uData_data_publish(g_service_db[index]->type);
+                udata_data_publish(g_service_db[index]->type);
             }
             g_service_db[index]->time[abs_index] = time_stamp;
         }
@@ -341,7 +341,7 @@ static int uData_service_process(uint32_t abs_index, void *data, uint32_t len)
     return 0;
 }
 
-int uData_service_ioctl(udata_type_e type, void *parm)
+int udata_service_ioctl(udata_type_e type, void *parm)
 {
     int i;
     int index;
@@ -352,7 +352,7 @@ int uData_service_ioctl(udata_type_e type, void *parm)
     }
     sensor_config = parm;
 
-    index = uData_find_service(type);
+    index = udata_find_service(type);
     if ((index < 0) || (index >= UDATA_MAX_CNT)){
         return -1;
     }
@@ -378,7 +378,7 @@ int uData_service_ioctl(udata_type_e type, void *parm)
     return 0;
 }
 
-int uData_service_cb_register(udata_type_e type, SERVICE_PROCESS_CB proc,SERVICE_IOCTL_CB ioctl)
+int udata_service_cb_register(udata_type_e type, SERVICE_PROCESS_CB proc,SERVICE_IOCTL_CB ioctl)
 {
     int i;
     if(type >= UDATA_MAX_CNT){
@@ -414,7 +414,7 @@ int uData_service_cb_register(udata_type_e type, SERVICE_PROCESS_CB proc,SERVICE
 
 
 
-int uData_service_cb_unregister(udata_type_e type)
+int udata_service_cb_unregister(udata_type_e type)
 {
     int i;
     if(type >= UDATA_MAX_CNT){
@@ -442,7 +442,7 @@ int uData_service_cb_unregister(udata_type_e type)
 }
 
 
-void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
+void udata_dispatcher_handle(sensor_msg_pkg_t *msg)
 {
     int ret = 0;
     void *data = NULL;
@@ -456,7 +456,7 @@ void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
 
     switch (msg->cmd) {
         case UDATA_MSG_DEV_READ: {
-            ret = uData_service_get_payload(msg->index, &data, &len);
+            ret = udata_service_get_payload(msg->index, &data, &len);
             if (unlikely(ret)) {
                 return;
             }
@@ -467,11 +467,11 @@ void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
         } break;
 
         case UDATA_MSG_SERVICE_PROCESS: {
-            ret = uData_service_get_payload(msg->index, &data, &len);
+            ret = udata_service_get_payload(msg->index, &data, &len);
             if (unlikely(ret)) {
                 return;
             }
-            ret = uData_service_process(msg->index, data, len);
+            ret = udata_service_process(msg->index, data, len);
             if(unlikely(ret)){
                 return;
             }
@@ -485,7 +485,7 @@ void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
         } break;
 
         case UDATA_MSG_DEV_ENABLE: {
-            ret = uData_dev_enable(msg->index);
+            ret = udata_dev_enable(msg->index);
             if(unlikely(ret)){
                 return;
             }
@@ -495,14 +495,14 @@ void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
         } break;
 
         case UDATA_MSG_SERVICE_SUBSRIBE: {
-            ret = uData_service_subscribe(msg->value);
+            ret = udata_service_subscribe(msg->value);
             if(unlikely(ret)){
                 return;
             }
         } break;
 
         case UDATA_MSG_SERVICE_UNSUBSRIBE: {
-            ret = uData_service_unsubscribe(msg->value);
+            ret = udata_service_unsubscribe(msg->value);
             if(unlikely(ret)){
                 return;
             }
@@ -521,7 +521,7 @@ void uData_dispatcher_handle(sensor_msg_pkg_t *msg)
 }
 
 
-int uData_service_init(void)
+int udata_service_init(void)
 {
     int ret;
 
@@ -532,15 +532,15 @@ int uData_service_init(void)
     return 0;
 }
 
-int uData_service_mgr_init(void)
+int udata_service_mgr_init(void)
 {
     int ret       = 0;
     g_service_cnt = 0;
 
 
-    ret = uData_register_msg_handler(uData_dispatcher_handle);
+    ret = udata_register_msg_handler(udata_dispatcher_handle);
     if (ret == -1) {
-        LOG("error occur reg uData_dispatcher_process \n");
+        LOG("error occur reg udata_dispatcher_process \n");
         return ret;
     }
 

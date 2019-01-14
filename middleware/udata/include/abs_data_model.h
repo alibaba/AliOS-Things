@@ -16,7 +16,7 @@
 
 int         abs_data_cali_init(void);
 int         abs_data_model_init(void);
-int         abs_data_open(uData_service_t *service);
+int         abs_data_open(udata_service_t *service);
 int         abs_data_close(uint32_t abs_index);
 int         abs_data_read(uint32_t abs_index, void *pdata, uint32_t nbyte);
 int         abs_data_ioctl(uint32_t abs_index, void *config);
