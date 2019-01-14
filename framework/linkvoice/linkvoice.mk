@@ -2,7 +2,7 @@ NAME := linkvoice
 
 $(NAME)_TYPE := framework
 
-$(NAME)_COMPONENTS :=  mbedtls alicrypto connectivity/websockets  cjson protocol.alink ywss netmgr
+$(NAME)_COMPONENTS :=  imbedtls alicrypto connectivity/websockets  cjson protocol.alink ywss netmgr
 
 ifeq ($(HOST_ARCH), Cortex-M4)
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/linkvoice.a

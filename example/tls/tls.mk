@@ -9,5 +9,5 @@ $(NAME)_DEFINES     += DTLS_ENABLED
 $(NAME)_SOURCES     += dtls_client.c
 endif
 
-$(NAME)_COMPONENTS  := mbedtls alicrypto netmgr
+$(NAME)_COMPONENTS  := imbedtls alicrypto netmgr
 

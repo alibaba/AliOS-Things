@@ -1,4 +1,4 @@
-NAME := mbedtls
+NAME := imbedtls
 
 DEBUG := no
 

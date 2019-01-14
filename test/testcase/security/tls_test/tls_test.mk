@@ -1,6 +1,6 @@
 NAME := tls_test
 
-$(NAME)_COMPONENTS  += mbedtls 
+$(NAME)_COMPONENTS  += imbedtls
 
 $(NAME)_SOURCES     += tls_test.c
 

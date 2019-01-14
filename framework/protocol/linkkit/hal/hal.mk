@@ -29,5 +29,5 @@ $(NAME)_COMPONENTS += security/itls
 else
 $(info FEATURE_SUPPORT_ITLS != y, so using normal TLS)
 $(NAME)_SOURCES += HAL_TLS_mbedtls.c HAL_DTLS_mbedtls.c
-$(NAME)_COMPONENTS += security/mbedtls
+$(NAME)_COMPONENTS += security/imbedtls
 endif
