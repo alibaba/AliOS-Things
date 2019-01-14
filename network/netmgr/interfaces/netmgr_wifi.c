@@ -61,7 +61,7 @@ typedef struct
     bool                         wifi_scan_complete_cb_finished;
 } netmgr_cxt_t;
 
-extern autoconfig_plugin_t g_alink_smartconfig;
+autoconfig_plugin_t g_alink_smartconfig;
 
 static netmgr_cxt_t g_netmgr_cxt;
 #ifndef WITH_SAL
@@ -734,3 +734,39 @@ int netmgr_wifi_start(bool autoconfig)
 
     return -1;
 }
+
+#ifdef CONFIG_YWSS
+    static int smart_config_start(void)
+    {
+        extern int awss_start();
+        awss_start();
+        return 0;
+    }
+
+    static void smart_config_stop(void)
+    {
+        netmgr_ap_config_t config;
+        memset(&config, 0, sizeof(netmgr_ap_config_t));
+        netmgr_get_ap_config(&config);
+
+        if (strcmp(config.ssid, "adha") == 0 ||
+            strcmp(config.ssid, "aha") == 0) {
+            return;
+        }
+
+        printf("%s %d\r\n", __func__, __LINE__);
+        // awss_stop();
+    }
+
+    static void smart_config_result_cb(int result, uint32_t ip)
+    {
+        aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0u);
+    }
+
+    autoconfig_plugin_t g_alink_smartconfig = {
+        .description      = "alink_smartconfig",
+        .autoconfig_start = smart_config_start,
+        .autoconfig_stop  = smart_config_stop,
+        .config_result_cb = smart_config_result_cb
+    };
+#endif
