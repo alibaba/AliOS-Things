@@ -13,15 +13,12 @@ extern "C"
 
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
-#include "aos/yloop.h"
 
 #include <hal/wifi.h>
 
 #include <netmgr.h>
 #include "iot_import.h"
 #include "ali_crypto.h"
-
-    autoconfig_plugin_t g_alink_smartconfig;
 
     /**
      * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
@@ -458,42 +455,6 @@ int platform_sys_net_is_ready(void)
 
     return !!link_stat.is_connected;
 }
-#endif
-
-#ifdef CONFIG_YWSS
-    static int smart_config_start(void)
-    {
-        extern int awss_start();
-        awss_start();
-        return 0;
-    }
-
-    static void smart_config_stop(void)
-    {
-        netmgr_ap_config_t config;
-        memset(&config, 0, sizeof(netmgr_ap_config_t));
-        netmgr_get_ap_config(&config);
-
-        if (strcmp(config.ssid, "adha") == 0 ||
-            strcmp(config.ssid, "aha") == 0) {
-            return;
-        }
-
-        printf("%s %d\r\n", __func__, __LINE__);
-        // awss_stop();
-    }
-
-    static void smart_config_result_cb(int result, uint32_t ip)
-    {
-        aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0u);
-    }
-
-    autoconfig_plugin_t g_alink_smartconfig = {
-        .description      = "alink_smartconfig",
-        .autoconfig_start = smart_config_start,
-        .autoconfig_stop  = smart_config_stop,
-        .config_result_cb = smart_config_result_cb
-    };
 #endif
 
 #ifdef __cplusplus
