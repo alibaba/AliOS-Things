@@ -1,6 +1,5 @@
-
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef UDATA_H
@@ -49,10 +48,13 @@ typedef enum {
     UDATA_MAX_CNT,
 } udata_type_e;
 
-int uData_report_publish(udata_type_e type, void *pdata);
-int uData_subscribe(udata_type_e type);
-int uData_unsubscribe(udata_type_e type);
-int uData_main(void);
+int udata_report_publish(udata_type_e type, void *pdata);
+
+int udata_subscribe(udata_type_e type);
+
+int udata_unsubscribe(udata_type_e type);
+
+int udata_main(void);
 
 #ifdef __cplusplus
 }
