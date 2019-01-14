@@ -8,8 +8,7 @@
 #include <string.h>
 
 #include "aos/kernel.h"
-#include "aos/yloop.h"
-
+#include "aos/kv.h"
 #include <hal/wifi.h>
 
 
@@ -23,11 +22,10 @@
 
 #define _RHINO_SDK_DEMO__ 1
 
-#define PLATFORM_LINUX_LOG(format, ...)                              \
+#define PLATFORM_LOG(format, ...)                              \
     do {                                                             \
-        printf("Linux:%s:%d %s()| " format "\n", __FILE__, __LINE__, \
-               __FUNCTION__, ##__VA_ARGS__);                         \
-        fflush(stdout);                                              \
+        HAL_Printf("Linux:%s:%d %s()| " format "\n", __FILE__, __LINE__, \
+                   __FUNCTION__, ##__VA_ARGS__);                         \
     } while (0);
 
 void *HAL_MutexCreate(void)
@@ -349,6 +347,9 @@ int HAL_Kv_Del(const char *key)
     return ret;
 }
 
+#ifdef USE_YLOOP
+#include "aos/yloop.h"
+
 typedef struct {
     const char *name;
     int         ms;
@@ -387,8 +388,122 @@ static void schedule_timer_delete(void *p)
     aos_cancel_delayed_action(-1, pdata->cb, pdata->data);
     aos_free(p);
 }
+#else
+typedef void (*hal_timer_cb)(void *);
 
-#define USE_YLOOP
+typedef struct time_data {
+    void *user_data;
+    hal_timer_cb  cb;
+    aos_timer_t  *timer;
+    struct time_data *next;
+} timer_data_t;
+
+static timer_data_t *data_list = NULL;
+static void *mutex = NULL;
+
+static int _list_insert(timer_data_t *data)
+{
+    if (data == NULL) {
+        return -1;
+    }
+    if (mutex == NULL) {
+        mutex = HAL_MutexCreate();
+        if (mutex == NULL) {
+            PLATFORM_LOG("mutex create failed");
+            return -1;
+        }
+    }
+
+    HAL_MutexLock(mutex);
+    data->next = data_list;
+    data_list = data;
+    HAL_MutexUnlock(mutex);
+    return 0;
+}
+
+static int _list_remove(aos_timer_t  *timer)
+{
+    timer_data_t *cur = data_list;
+    timer_data_t *pre = data_list;
+
+    if (timer == NULL) {
+        return -1;
+    }
+
+    if (mutex == NULL) {
+        mutex = HAL_MutexCreate();
+        if (mutex == NULL) {
+            PLATFORM_LOG("mutex create failed");
+            return -1;
+        }
+    }
+
+    HAL_MutexLock(mutex);
+    while (cur != NULL) {
+
+        if (cur->timer == timer) {
+            if (cur == data_list) {
+                data_list = cur->next;
+            } else {
+                pre->next = cur->next;
+            }
+            aos_free(cur->timer);
+            aos_free(cur);
+            break;
+        }
+
+        cur = cur->next;
+        pre = cur;
+    }
+    HAL_MutexUnlock(mutex);
+    return 0;
+
+}
+
+static timer_data_t *_get_timer_data(aos_timer_t *timer)
+{
+    timer_data_t *cur = data_list;
+
+    if (mutex == NULL) {
+        mutex = HAL_MutexCreate();
+        if (mutex == NULL) {
+            PLATFORM_LOG("mutex create failed");
+            return NULL;
+        }
+    }
+
+    HAL_MutexLock(mutex);
+    while (cur != NULL) {
+        if (cur->timer == timer) {
+            HAL_MutexUnlock(mutex);
+            return cur;
+        }
+        cur = cur->next;
+    }
+    HAL_MutexUnlock(mutex);
+    return NULL;
+}
+
+static void timer_cb(void *timer, void *user)
+{
+    timer_data_t *node;
+
+    node = _get_timer_data(user);
+    if (node == NULL) {
+        PLATFORM_LOG("timer node not found");
+        return;
+    }
+    if (node->cb == NULL) {
+        PLATFORM_LOG("no timer cb");
+        return;
+    }
+
+    HAL_MutexLock(mutex);
+    node->cb(node->user_data);
+    HAL_MutexUnlock(mutex);
+
+}
+#endif
 void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
 {
 #ifdef USE_YLOOP
@@ -404,7 +519,26 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
 
     return timer;
 #else
-    return NULL;
+    aos_timer_t *timer = (aos_timer_t *)aos_malloc(sizeof(aos_timer_t));
+    if (timer == NULL) {
+        return NULL;
+    }
+    memset(timer, 0, sizeof(aos_timer_t));
+
+    timer_data_t *node = (timer_data_t *)aos_malloc(sizeof(timer_data_t));
+    if (node == NULL) {
+        aos_free(timer);
+        return NULL;
+    }
+    memset(node, 0, sizeof(timer_data_t));
+    node->timer = timer;
+    node->user_data = user_data;
+    node->cb = func;
+
+    _list_insert(node);
+    aos_timer_new_ext(timer, timer_cb, timer, 2000, 0, 0);
+    return timer;
+
 #endif
 }
 
@@ -418,7 +552,15 @@ int HAL_Timer_Start(void *t, int ms)
     timer->ms               = ms;
     return aos_schedule_call(schedule_timer, t);
 #else
-    return 0;
+    int ret;
+    ret = aos_timer_change(t, ms);
+    if (ret != 0) {
+        PLATFORM_LOG("aos_timer_change failed %d", ret);
+        return -1;
+    }
+    ret = aos_timer_start(t);
+    return ret;
+
 #endif
 }
 
@@ -431,9 +573,10 @@ int HAL_Timer_Stop(void *t)
 
     return aos_schedule_call(schedule_timer_cancel, t);
 #else
-    return 0;
+    return aos_timer_stop(t);
 #endif
 }
+
 int HAL_Timer_Delete(void *timer)
 {
 #ifdef USE_YLOOP
@@ -442,6 +585,8 @@ int HAL_Timer_Delete(void *timer)
     }
     return aos_schedule_call(schedule_timer_delete, timer);
 #else
+    aos_timer_free(timer);
+    _list_remove(timer);
     return 0;
 #endif
 }
