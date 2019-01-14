@@ -5,6 +5,8 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := blink
 $(NAME)_SOURCES := blink.c
 
+$(NAME)_COMPONENTS += osal_aos
+
 GLOBAL_DEFINES += AOS_NO_WIFI
 
 GLOBAL_INCLUDES += ./
