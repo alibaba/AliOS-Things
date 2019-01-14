@@ -296,9 +296,9 @@ uint32_t dumpsys_func(char *pcWriteBuffer, int32_t xWriteBufferLen, int32_t argc
 
     if (argc >= 2 && 0 == strcmp(argv[1], "task")) {
         if (argc == 3 && (0 == strcmp(argv[2], "detail"))) {
-            ret = dumpsys_task_func(pcWriteBuffer, xWriteBufferLen, true);
+            ret = dumpsys_task_func(pcWriteBuffer, xWriteBufferLen, 1);
         } else {
-            ret = dumpsys_task_func(pcWriteBuffer, xWriteBufferLen, false);
+            ret = dumpsys_task_func(pcWriteBuffer, xWriteBufferLen, 0);
         }
 
         return ret;
