@@ -9,7 +9,7 @@ PatchStatus *nbpatch_get_pstatus(void)
 {
     if(g_pstatus == NULL)
     {
-        g_pstatus = (PatchStatus *)malloc(sizeof(PatchStatus)); // this memory will not free
+        g_pstatus = (PatchStatus *)malloc(sizeof(PatchStatus)); /* This memory will not be released */
         if(NULL != g_pstatus) {
             memset(g_pstatus, 0, sizeof(PatchStatus));
         }
@@ -33,7 +33,7 @@ void nbpatch_flash_status_init(uint32_t ota_len)
     }
     for(i = 0; i < num; i++) {
         pstatus->REC_FLASH_STAT_E[i] = OTA_FLASH_STATUS_USED;
-        pstatus->ota_addr[i] = i; // addr is the number of SPLICT_SIZE
+        pstatus->ota_addr[i] = i; /* addr is the number of SPLICT_SIZE */
     }
 
     num = par_len / SPLICT_SIZE ;
@@ -102,7 +102,7 @@ off_t nbpatch_ota_addr_get(off_t old_offset)
     return new_offset;
 }
 
-// find free space from end to front
+/* find free space from end to front */
 off_t nbpatch_find_free_space(void)
 {
     int i   = 0;
@@ -264,7 +264,7 @@ int nbpatch_swap_app2ota(unsigned char all_flag)
     }
 
     pstatus->recovery_phase = REC_PHASE_DONE;
-    //switch the version string
+    /* switch the version string */
     memset(version, 0, OTA_MAX_VER_LEN);
     memcpy(version, pstatus->app_version, OTA_MAX_VER_LEN);
     memcpy(pstatus->app_version, pstatus->ota_version, OTA_MAX_VER_LEN);
@@ -325,7 +325,7 @@ int nbpatch_main(void)
     }
 #endif
 
-    if(pstatus->status > 1) {//first recovery, init patch status
+    if(pstatus->status > 1) {/* first recovery, init patch status */
         pstatus->seekpos = 0;
         pstatus->patched_size = 0;
         pstatus->pending_size = 0;
