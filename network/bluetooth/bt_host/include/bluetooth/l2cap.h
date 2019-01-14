@@ -7,6 +7,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #ifndef __BT_L2CAP_H
 #define __BT_L2CAP_H
 
@@ -99,7 +104,7 @@ struct bt_l2cap_le_endpoint {
 	/** Endpoint initial credits */
 	u16_t			init_credits;
 	/** Endpoint credits */
-	struct k_sem			credits;
+        uint16_t credits;
 };
 
 /** @brief LE L2CAP Channel structure. */
