@@ -272,12 +272,10 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t* bssid, uint8_t channel, uint8_t aut
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
         adha = adha_aplist->cnt;
 #endif
-    awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, auth:%s, %s, %s, rssi:%d, adha:%d\r\n",
+    awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, rssi:%d, adha:%d\r\n",
         i, ssid, bssid[0], bssid[1], bssid[2],
         bssid[3], bssid[4], bssid[5], channel,
-        zconfig_auth_str(auth),
-        zconfig_encry_str(pairwise_cipher),
-        zconfig_encry_str(group_cipher), rssi > 0 ? rssi - 256 : rssi, adha);
+        rssi > 0 ? rssi - 256 : rssi, adha);
     } while (0);
     /*
      * if chn already locked(zc_bssid set),

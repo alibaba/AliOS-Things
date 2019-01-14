@@ -45,6 +45,9 @@ int awss_token_remain_time()
     uint32_t cur = os_get_time_ms();
     uint32_t diff = (uint32_t)(cur - awss_report_token_time);
 
+    if (awss_report_token_suc == 0)
+        return remain;
+
     if (diff < AWSS_TOKEN_TIMEOUT_MS)
         remain = AWSS_TOKEN_TIMEOUT_MS - diff;
 
@@ -290,7 +293,7 @@ static int awss_report_token_to_cloud()
         report_token_timer = HAL_Timer_Create("rp_token", (void (*)(void *))awss_report_token_to_cloud, NULL);
     }
     HAL_Timer_Stop(report_token_timer);
-    HAL_Timer_Start(report_token_timer, MATCH_MONITOR_TIMEOUT_MS);
+     HAL_Timer_Start(report_token_timer, 3 * 1000);
 
     int packet_len = AWSS_REPORT_LEN_MAX;
 

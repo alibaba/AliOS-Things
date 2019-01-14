@@ -279,6 +279,9 @@ static int awss_process_get_devinfo()
             awss_build_topic((const char *)TOPIC_GETDEVICEINFO_UCAST, topic, TOPIC_LEN_MAX);
         }
 
+        /*before tx to app, clear token suc flag*/
+        awss_update_token();
+
         if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), ctx->remote, topic, ctx->request))
             awss_debug("sending failed.");
 
@@ -287,7 +290,6 @@ static int awss_process_get_devinfo()
         coap_session_ctx = NULL;
         awss_stop_timer(get_devinfo_timer);
         get_devinfo_timer = NULL;
-        awss_update_token();
     } while (0);
 
     return 0;
@@ -395,14 +397,17 @@ static int __awss_dev_bind_notify()
         if (i >= RANDOM_MAX_LEN)
             produce_random(aes_random, sizeof(aes_random));
 
-        awss_notify_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, 1);
+        if (awss_token_timeout() == 0) {
+            awss_notify_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, 1);
+            dev_bind_interval += 100;
+            dev_bind_cnt ++;
+        }
 #ifdef DEV_BIND_TEST
         if (dev_bind_cnt > 3)
             os_reboot();
 #endif
 
-        dev_bind_interval += 100;
-        if (dev_bind_cnt ++ < AWSS_NOTIFY_CNT_MAX &&
+        if (dev_bind_cnt < AWSS_NOTIFY_CNT_MAX &&
             awss_notify_resp[AWSS_NOTIFY_DEV_BIND_TOKEN] == 0) {
             if (dev_bind_notify_timer == NULL)
                 dev_bind_notify_timer = HAL_Timer_Create("dev_bind", (void (*)(void *))awss_dev_bind_notify, NULL);

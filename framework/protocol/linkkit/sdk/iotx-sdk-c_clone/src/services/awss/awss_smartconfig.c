@@ -17,8 +17,7 @@ extern "C"
 {
 #endif
 
-//////////////////////////////////////////////////////////////////////////////////
-//following is broadcast protocol related code
+/* following is broadcast protocol related code */
 uint8_t is_start_frame(uint16_t len)
 {
     return (len == START_FRAME);
@@ -778,28 +777,6 @@ int try_to_replace_same_pos(int tods, int pos, int new_len)
     return replace;
 }
 
-
-
-/*
- *    Note: if encry is set, goto encry_collision, because
- *    the way here we used to detection encry mode may mixed tkip & aes
- *    in some cases.
- */
-#define set_encry_type(encry, value, bssid, tods)    \
-do {\
-    if (encry != ZC_ENC_TYPE_INVALID) {\
-        awss_trace("%02x%02x%02x%02x%02x%02x, enc[%c]:%s<->%s!!!\r\n",\
-                bssid[0], bssid[1], bssid[2],\
-                bssid[3], bssid[4], bssid[5],\
-                flag_tods(tods),\
-                zconfig_encry_str(encry),\
-                zconfig_encry_str(value));\
-        goto encry_collision;\
-    } else {\
-        encry = (value);\
-    }\
-} while (0)
-
 #ifdef AWSS_SUPPORT_APLIST
 #define update_apinfo_encry_type(encry_type, bssid, tods)    \
 do {\
@@ -885,18 +862,18 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
 #endif
         {
             if (!ieee80211_has_protected(fc)) {
-                set_encry_type(encry, ZC_ENC_TYPE_NONE, bssid_mac, tods);//open
+                encry = ZC_ENC_TYPE_NONE;
             } else {
                 /* Note: avoid empty null data */
                 if (len < 8)        //IV + ICV + DATA >= 8
                     return ALINK_INVALID;
                 if (!(ieee80211[3] & 0x3F)) {
-                    set_encry_type(encry, ZC_ENC_TYPE_WEP, bssid_mac, tods);//wep
+                    encry = ZC_ENC_TYPE_WEP;
                 } else if (data[3] & (1 << 5)) {//Extended IV
                     if (data[1] == ((data[0] | 0x20) & 0x7F)) //tkip, WEPSeed  = (TSC1 | 0x20 ) & 0x7F
-                        set_encry_type(encry, ZC_ENC_TYPE_TKIP, bssid_mac, tods);
+                        encry = ZC_ENC_TYPE_TKIP;
                     if (data[2] == 0 && (!(data[3] & 0x0F)))
-                        set_encry_type(encry, ZC_ENC_TYPE_AES, bssid_mac, tods);//ccmp
+                        encry = ZC_ENC_TYPE_AES;
 
                     /*
                      * Note: above code use if(tkip) and if(ase)
@@ -911,13 +888,6 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
     if (encry == ZC_ENC_TYPE_INVALID)
         awss_warn("invalid encry type!\r\n");
     res->u.br.encry_type = encry;
-    // apinfo's encry field updated only from beacon/probe resp frame
-    // update_apinfo_encry_type(encry, bssid_mac, tods);
-    return ALINK_BROADCAST;
-
-encry_collision:
-    // set encry type to invalid
-    res->u.br.encry_type = ZC_ENC_TYPE_INVALID;
 
     return ALINK_BROADCAST;
 }
@@ -955,11 +925,11 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         zc_state == STATE_CHN_SCANNING) {
         if (is_hint_frame(encry_type, len, bssid, src, channel, tods, sn)) {
             awss_trace("hint frame: offset:%d, %c, sn:%x\r\n",
-                      zc_frame_offset, flag_tods(tods), sn);
+                       zc_frame_offset, flag_tods(tods), sn);
 
             awss_trace("src:%02x%02x%02x%02x%02x%02x, bssid:%02x%02x%02x%02x%02x%02x\r\n",
-                      src[0], src[1], src[2], src[3], src[4], src[5],
-                      bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
+                       src[0], src[1], src[2], src[3], src[4], src[5],
+                       bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
             pkg_type = PKG_START_FRAME;
             zconfig_set_state(STATE_CHN_LOCKED_BY_BR, tods, channel);
@@ -974,8 +944,8 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                 }
                 memcpy(zc_android_bssid, bssid, ETH_ALEN);
                 awss_trace("src %02x%02x%02x match %02x%02x%02x\r\n",
-                          zc_android_src[0], zc_android_src[1], zc_android_src[2],
-                          zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
+                           zc_android_src[0], zc_android_src[1], zc_android_src[2],
+                           zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
             }
 #endif
         }

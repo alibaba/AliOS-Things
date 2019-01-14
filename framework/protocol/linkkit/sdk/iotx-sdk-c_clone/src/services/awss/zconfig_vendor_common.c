@@ -112,17 +112,12 @@ void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd,
                                       uint8_t *bssid, uint8_t auth, uint8_t encry, uint8_t channel)
 {
     if (bssid) {
-        awss_debug("ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %s, %s, %d\r\n",
-                   ssid,
-                   bssid[0], bssid[1], bssid[2],
-                   bssid[3], bssid[4], bssid[5],
-                   zconfig_auth_str(auth), zconfig_encry_str(encry),
-                   channel);
+        awss_debug("ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %d\r\n",
+                   ssid, bssid[0], bssid[1], bssid[2],
+                   bssid[3], bssid[4], bssid[5], channel);
     } else {
-        awss_debug("ssid:%s, bssid:--, %s, %s, %d\r\n",
-                   ssid,
-                   zconfig_auth_str(auth), zconfig_encry_str(encry),
-                   channel);
+        awss_debug("ssid:%s, bssid:--, %d\r\n",
+                   ssid, channel);
     }
 
     memset(aws_result_ssid, 0, sizeof(aws_result_ssid));

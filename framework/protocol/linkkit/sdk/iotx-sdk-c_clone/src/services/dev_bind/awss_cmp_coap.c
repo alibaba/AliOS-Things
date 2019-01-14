@@ -16,6 +16,7 @@
 #include "awss_notify.h"
 #include "awss_packet.h"
 #ifdef WIFI_PROVISION_ENABLED
+#include "awss_info.h"
 #include "awss_wifimgr.h"
 #ifdef AWSS_SUPPORT_DEV_AP
 #include "awss_dev_ap.h"
@@ -166,20 +167,22 @@ int awss_cmp_coap_deinit()
 const struct awss_cmp_couple awss_local_couple[] = {
 #ifdef WIFI_PROVISION_ENABLED
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-    {TOPIC_AWSS_SWITCHAP,            wifimgr_process_switch_ap_request},
-    {TOPIC_AWSS_WIFILIST,            wifimgr_process_get_wifilist_request},
-    {TOPIC_AWSS_GETDEVICEINFO_MCAST, wifimgr_process_mcast_get_device_info},
-    {TOPIC_AWSS_GETDEVICEINFO_UCAST, wifimgr_process_ucast_get_device_info},
+    {TOPIC_AWSS_SWITCHAP,                 wifimgr_process_switch_ap_request},
+    {TOPIC_AWSS_WIFILIST,                 wifimgr_process_get_wifilist_request},
+    {TOPIC_AWSS_GETDEVICEINFO_MCAST,      wifimgr_process_mcast_get_device_info},
+    {TOPIC_AWSS_GETDEVICEINFO_UCAST,      wifimgr_process_ucast_get_device_info},
 #endif
 #ifdef AWSS_SUPPORT_DEV_AP
-    {TOPIC_AWSS_DEV_AP_SWITCHAP,     wifimgr_process_dev_ap_switchap_request},
+    {TOPIC_AWSS_DEV_AP_SWITCHAP,          wifimgr_process_dev_ap_switchap_request},
 #endif
+    {TOPIC_AWSS_GET_CONNECTAP_INFO_MCAST, awss_process_mcast_get_connectap_info},
+    {TOPIC_AWSS_GET_CONNECTAP_INFO_UCAST, awss_process_ucast_get_connectap_info},
 #ifndef AWSS_DISABLE_REGISTRAR
-    {TOPIC_NOTIFY,                   online_dev_bind_monitor},
+    {TOPIC_NOTIFY,                        online_dev_bind_monitor},
 #endif
 #endif
-    {TOPIC_GETDEVICEINFO_MCAST,      online_mcast_get_device_info},
-    {TOPIC_GETDEVICEINFO_UCAST,      online_ucast_get_device_info}
+    {TOPIC_GETDEVICEINFO_MCAST,           online_mcast_get_device_info},
+    {TOPIC_GETDEVICEINFO_UCAST,           online_ucast_get_device_info}
 };
 
 int awss_cmp_local_init()

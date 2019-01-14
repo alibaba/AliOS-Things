@@ -1,6 +1,11 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+#ifndef AWSS_SUPPORT_DEV_AP
+#define AWSS_SUPPORT_DEV_AP
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include "os.h"
@@ -14,10 +19,6 @@
 #include "awss_packet.h"
 #include "awss_crypt.h"
 #include "zconfig_utils.h"
-
-#ifndef AWSS_SUPPORT_DEV_AP
-#define AWSS_SUPPORT_DEV_AP
-#endif
 
 #ifdef AWSS_SUPPORT_DEV_AP
 
@@ -236,13 +237,14 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     for (i = 0; i < 3; i ++) {
         int result = awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request);
         awss_debug("sending %s.", result == 0 ? "success" : "fail");
+        os_msleep(20);
     }
 
     do {
         if (!success)
             break;
 
-        os_msleep(1000);
+        os_msleep(1940);
         os_awss_close_ap();
         ret = os_awss_connect_ap(30 * 1000, ssid, passwd, 0, 0, NULL, 0);
         if (ret == 0) {

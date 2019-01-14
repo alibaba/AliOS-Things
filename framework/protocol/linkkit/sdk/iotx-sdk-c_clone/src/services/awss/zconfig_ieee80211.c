@@ -383,7 +383,7 @@ int ieee80211_get_ssid(uint8_t *beacon_frame, uint16_t frame_len, uint8_t *ssid)
 {
     uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);//same as u.probe_resp.variable
     const uint8_t *ptr = cfg80211_find_ie(WLAN_EID_SSID,
-                beacon_frame + ieoffset, frame_len - ieoffset);
+                                          beacon_frame + ieoffset, frame_len - ieoffset);
     if (ptr) {
         uint8_t ssid_len = ptr[1];
         if (ssid_len <= 32) {    /* ssid 32 octets at most */
