@@ -6,8 +6,7 @@ $(NAME)_SUMMARY := Hardware abstract layer for sensors
 
 $(NAME)_SOURCES += \
         hal/sensor_hal.c \
-        hal/sensor_drv_api.c \
-        hal/sensor_config.c
+        hal/sensor_drv_api.c
 
 CONFIG_SENSOR =  $(addsuffix .c,$(CONFIG_SENSOR_DRV_NAME))
 SENSOR_ALL_FILE=$(notdir $(wildcard drivers/sensor/drv/*.c))
