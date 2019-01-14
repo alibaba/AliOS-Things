@@ -227,7 +227,7 @@ void gateway_report_demo(sensor_msg_pkg_t *msg)
 
     if (msg->cmd == UDATA_MSG_REPORT_PUBLISH) {
         int ret = 0;
-        ret = uData_report_publish(msg, &buf);
+        ret = udata_report_publish(msg, &buf);
         if (ret != 0) {
             return;
         }
@@ -324,38 +324,38 @@ int gateway_sample(void)
 {
     int ret = 0;
 
-    ret = uData_register_msg_handler(gateway_report_demo);
-    LOG("uData_queue_registerslot service_dtc_handle ret=%d\n", ret);
+    ret = udata_register_msg_handler(gateway_report_demo);
+    LOG("udata_queue_registerslot service_dtc_handle ret=%d\n", ret);
     if (ret == -1) {
-        LOG("error occur reg uData_report_demo \n");
+        LOG("error occur reg udata_report_demo \n");
         return ret;
     }
 
-    ret = uData_subscribe(UDATA_SERVICE_ACC);
+    ret = udata_subscribe(UDATA_SERVICE_ACC);
     if (ret != 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
     }
 
-    ret = uData_subscribe(UDATA_SERVICE_GYRO);
+    ret = udata_subscribe(UDATA_SERVICE_GYRO);
     if (ret != 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
     }
 
-    ret = uData_subscribe(UDATA_SERVICE_RTC);
+    ret = udata_subscribe(UDATA_SERVICE_RTC);
     if (ret != 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
     }
 
-    ret = uData_subscribe(UDATA_SERVICE_TEMP);
+    ret = udata_subscribe(UDATA_SERVICE_TEMP);
     if (ret != 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
     }
 
-    ret = uData_subscribe(UDATA_SERVICE_HUMI);
+    ret = udata_subscribe(UDATA_SERVICE_HUMI);
     if (ret != 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return -1;
@@ -367,7 +367,7 @@ int gateway_sample(void)
 int application_start(int argc, char **argv)
 {
     int ret;
-    ret = uData_main();
+    ret = udata_main();
     if (unlikely(ret)) {
         return -1;
     }

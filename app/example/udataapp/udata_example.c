@@ -22,23 +22,23 @@
 
 #define UDATA_SHOW_UINT_1(TYPE,TIME,DATA1) \
 do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (int)(TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%d)\n", (int)(DATA1)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%u)\n", (unsigned int)(TIME)); \
+    UDATA_PRINT("udata_application::::::::::::::type = (%d)\n", (int)(TYPE)); \
+    UDATA_PRINT("udata_application::::::::::::::data = (%d)\n", (int)(DATA1)); \
+    UDATA_PRINT("udata_application:::::::::timestamp = (%u)\n", (unsigned int)(TIME)); \
 }while(0);
 
 #define UDATA_SHOW_UINT_3(TYPE,TIME,DATA1,DATA2,DATA3) \
 do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (int)(TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%d) (%d) (%d)\n", (int)(DATA1),(int)(DATA2),(int)(DATA3)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%u)\n", (unsigned int)(TIME)); \
+    UDATA_PRINT("udata_application::::::::::::::type = (%d)\n", (int)(TYPE)); \
+    UDATA_PRINT("udata_application::::::::::::::data = (%d) (%d) (%d)\n", (int)(DATA1),(int)(DATA2),(int)(DATA3)); \
+    UDATA_PRINT("udata_application:::::::::timestamp = (%u)\n", (unsigned int)(TIME)); \
 }while(0);
 
 #define UDATA_SHOW_FLOAT_3(TYPE,TIME,DATA1,DATA2,DATA3) \
 do{\
-    UDATA_PRINT("uData_application::::::::::::::type = (%d)\n", (int)(TYPE)); \
-    UDATA_PRINT("uData_application::::::::::::::data = (%f) (%f) (%f)\n", (DATA1),(DATA2),(DATA3)); \
-    UDATA_PRINT("uData_application:::::::::timestamp = (%u)\n", (unsigned int)(TIME)); \
+    UDATA_PRINT("udata_application::::::::::::::type = (%d)\n", (int)(TYPE)); \
+    UDATA_PRINT("udata_application::::::::::::::data = (%f) (%f) (%f)\n", (DATA1),(DATA2),(DATA3)); \
+    UDATA_PRINT("udata_application:::::::::timestamp = (%u)\n", (unsigned int)(TIME)); \
 }while(0);
 
 #define DEFAULT_INTERVAL  (3000)
@@ -167,7 +167,7 @@ static struct cli_command dtccmd = {
     
 
 #endif
-int uData_local_publish(udata_type_e type, void* pdata, uint32_t len)
+int udata_local_publish(udata_type_e type, void* pdata, uint32_t len)
 {
 
     if(pdata == NULL){
@@ -256,7 +256,7 @@ int uData_local_publish(udata_type_e type, void* pdata, uint32_t len)
 
 }
 
-void uData_report_demo(sensor_msg_pkg_t *msg)
+void udata_report_demo(sensor_msg_pkg_t *msg)
 {
     int ret = 0;
     udata_pkg_t buf;
@@ -265,12 +265,12 @@ void uData_report_demo(sensor_msg_pkg_t *msg)
     }
 
     if (msg->cmd == UDATA_MSG_REPORT_PUBLISH) {
-        ret = uData_report_publish(msg->value, &buf);
+        ret = udata_report_publish(msg->value, &buf);
         if (ret != 0) {
             return;
         }
         
-        ret = uData_local_publish(buf.type,buf.payload,0);
+        ret = udata_local_publish(buf.type,buf.payload,0);
         if (ret != 0) {
             return;
         }
@@ -281,19 +281,19 @@ void uData_report_demo(sensor_msg_pkg_t *msg)
 int udata_sample(void)
 {
     int ret = 0;
-    ret = uData_register_msg_handler(uData_report_demo);
+    ret = udata_register_msg_handler(udata_report_demo);
     if (ret < 0) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return ret;
     }
 
-    ret = uData_subscribe(UDATA_SERVICE_HUMI);
+    ret = udata_subscribe(UDATA_SERVICE_HUMI);
     if (unlikely(ret)) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         //return -1;
     }
 
-    ret = uData_subscribe(UDATA_SERVICE_TEMP);
+    ret = udata_subscribe(UDATA_SERVICE_TEMP);
     if (unlikely(ret)) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         //return -1;
@@ -314,7 +314,7 @@ int application_start(int argc, char **argv)
     cJSON_InitHooks(&cjson_hooks);
 #endif
     
-    ret = uData_main();
+    ret = udata_main();
     if (unlikely(ret)) {
         //return -1;
     }
