@@ -8,14 +8,6 @@
 #define RINGBUF_TYPE_FIX              0
 #define RINGBUF_TYPE_DYN              1
 
-#ifndef true
-#define true 1
-#endif
-
-#ifndef false
-#define false 0
-#endif
-
 typedef struct {
     uint8_t *buf;
     uint8_t *end;
