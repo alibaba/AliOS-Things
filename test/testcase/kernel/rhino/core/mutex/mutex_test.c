@@ -23,8 +23,10 @@ static const test_case_t mutex_case_runner[] = {
     mutex_param_test,
     mutex_reinit_test,
     mutex_opr_test,
+#if (RHINO_CONFIG_MUTEX_INHERIT > 0)
     mutex_coopr1_test,
     mutex_coopr2_test,
+#endif
     NULL
 };
 
