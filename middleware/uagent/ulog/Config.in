@@ -53,6 +53,15 @@ config ULOG_CONFIG_STOP_FILTER_UDP
         will be abondoned LOG_EMERG will make none log pop out.
         please keep this value on "LOG_EMERG" if you have no plan to use udp log
 
+config ULOG_CONFIG_STOP_FILTERFS
+    int "level Stop Filter of fs"
+    range 0 7
+    default 4
+    help
+        Level Stop Filter of fs, any log level qual or lower than this (value higher than it)
+        will be abondoned LOG_EMERG will make none log pop out.
+        please keep this value on "LOG_EMERG" if you have no plan to use udp fs
+
 config ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
     int "stack depth of Log Task"
     default 512
@@ -65,6 +74,20 @@ config ULOG_CONFIG_SYSLOG_WATCHER_PORT
     range 20 65000
     help
         Specify the port of syslog watcher
+
+config ULOG_CONFIG_LOCAL_FILE_CNT
+    int "max ulog files on file system"
+    default 5
+    range 1 256
+    help
+        Max log files support in fs, if the recording file more than this value, rolling back mechanism trigged.
+
+config ULOG_CONFIG_LOCAL_FILE_SIZE
+    int "max ulog file size"
+    default 1024
+    range 256 10240
+    help
+        Max log file size locate in local file system, if the recording file larger than this value, new files will be used to be recored.
 
 endif
 
