@@ -292,6 +292,9 @@ EXTRA_CFLAGS := \
 # TODO: fix auto.h path for Keil/IAR project
 EXTRA_CFLAGS += $(call INCLUDE_AUTOCONF_H) $(call INCLUDE_SYSCONFIG_H)
 
+# Some objects are built from .S files, autoconf macros are needed
+EXTRA_ASMFLAGS += $(call INCLUDE_AUTOCONF_H)
+
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
 # TODO: repalce with prebuild logic
 $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
@@ -470,7 +473,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_DEFINES          := $(addprefix -D,$($(comp)_DEFINES))))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_CFLAGS           := $(AOS_SDK_CFLAGS) $($(comp)_CFLAGS_ALL)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_CXXFLAGS         := $(AOS_SDK_CXXFLAGS) $($(comp)_CXXFLAGS_ALL)))
-	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_ASMFLAGS         := $(AOS_SDK_ASMFLAGS) $($(comp)_ASMFLAGS)))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_ASMFLAGS         := $(strip $(AOS_SDK_ASMFLAGS) $(EXTRA_ASMFLAGS) $($(comp)_ASMFLAGS))))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_MAKEFILE         := $($(comp)_MAKEFILE)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PRE_BUILD_TARGETS:= $($(comp)_PRE_BUILD_TARGETS)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PREBUILT_LIBRARY := $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
