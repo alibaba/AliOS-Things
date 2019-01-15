@@ -20,6 +20,14 @@ hr_timer_t debug_data[TEST_ITERATION];
 uint32_t   debud_data_count = 0;
 #endif
 
+static void rttest_aux_float_to_inter(float input, unsigned int *inter, unsigned int *decimals) {
+    unsigned int tmp;
+    tmp       = (unsigned int)(input * 100);
+    *inter    = tmp / 100;
+    *decimals = tmp % 100;
+    return;
+}
+
 void rttest_aux_show_sysconfig(void)
 {
     printf("\n=======================AliOS Things Test Environment===================\n");
@@ -40,6 +48,9 @@ void rttest_aux_show_result_header(void)
 void rttest_aux_show_result(uint32_t test_id, char * test_name, uint32_t test_count,
                             uint64_t time_sum, hr_timer_t time_max, hr_timer_t time_min)
 {
+    unsigned int inter    = 0;
+    unsigned int decimals = 0;
+
 #if RTTEST_DEBUG
     printf("test record data:");
     for (uint32_t i = 0; i < debud_data_count; i++) {
@@ -55,11 +66,14 @@ void rttest_aux_show_result(uint32_t test_id, char * test_name, uint32_t test_co
     printf("T%-6d", test_id);
     printf("%-25s", test_name);
 
-    printf("%-10.2f", (float)time_sum / test_count/HR_COUNT_FREQ());
-    printf("%-10.2f", (float)time_min / HR_COUNT_FREQ());
-    printf("%-10.2f", (float)time_max / HR_COUNT_FREQ());
+    rttest_aux_float_to_inter((float)time_sum / test_count / HR_COUNT_FREQ(), &inter, &decimals);
+    printf("%4u.%02u", inter, decimals);
+    rttest_aux_float_to_inter((float)time_min / HR_COUNT_FREQ(), &inter, &decimals);
+    printf("%4u.%02u", inter, decimals);
+    rttest_aux_float_to_inter((float)time_max / HR_COUNT_FREQ(), &inter, &decimals);
+    printf("%7u.%02u", inter, decimals);
 
-    printf("%-10d\n", test_count);
+    printf("%10d\n", test_count);
 }
 
 void rttest_aux_show_result_end(void)
@@ -125,6 +139,9 @@ void rttest_aux_intrpt_test_init(intrpt_callback_t highp_func, intrpt_callback_t
 #if (RHINO_CONFIG_SYS_STATS > 0)
 void rttest_max_disintrpt()
 {
+    unsigned int inter    = 0;
+    unsigned int decimals = 0;
+
     hr_timer_t intrpt_disalbe_time = g_intrpt_disable_max_time;
     if(intrpt_disalbe_time > g_sys_measure_waste) {
         intrpt_disalbe_time -= g_sys_measure_waste;
@@ -132,6 +149,7 @@ void rttest_max_disintrpt()
         intrpt_disalbe_time = 0;
     }
 
-    printf("\nMax intrpt disable time :%6.2fus\n", (float)intrpt_disalbe_time / HR_COUNT_FREQ());
+    rttest_aux_float_to_inter((float)intrpt_disalbe_time / HR_COUNT_FREQ(), &inter, &decimals);
+    printf("Max intrpt disable time :%3u.%02uus\r\n", inter, decimals);
 }
-#endif /* RHINO_CONFIG_SYS_STATS > 0 */
+#endif /* RHINO_CONFIG_INTRPT_STATS > 0 */
