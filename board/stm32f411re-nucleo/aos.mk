@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := STM32F411RET
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
 
 $(NAME)_SOURCES += aos/board.c \
                    aos/soc_init.c
