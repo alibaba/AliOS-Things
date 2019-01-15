@@ -51,11 +51,10 @@ int CoAPResource_deinit(CoAPContext *context)
 
     HAL_MutexLock(ctx->resource.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->resource.list, reslist, CoAPResource) {
-        list_del_init(&node->reslist);
+        list_del(&node->reslist);
         LITE_hexbuf_convert((unsigned char *)node->path, tmpbuf, COAP_MAX_PATH_CHECKSUM_LEN, 0);
         COAP_DEBUG("Release the resource %s", tmpbuf);
         coap_free(node);
-        node  = NULL;
     }
     ctx->resource.count = 0;
     ctx->resource.maxcount = 0;
