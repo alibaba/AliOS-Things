@@ -3,15 +3,18 @@ NAME := lorawan_4_4_0
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := LoRaWAN Protocal Stack Version 4.4.0
-$(NAME)_SOURCES := system/crypto/aes.c                \
-                   system/crypto/cmac.c               \
-                   system/timer.c      \
-                   system/delay.c           \
-                   system/gpio.c           \
-                   system/spi.c           \
-                   mac/region/Region.c         \
-                   mac/region/RegionCommon.c   \
-                   mac/LoRaMac.c               \
+
+$(NAME)_COMPONENTS += osal_aos
+
+$(NAME)_SOURCES := system/crypto/aes.c       \
+                   system/crypto/cmac.c      \
+                   system/timer.c            \
+                   system/delay.c            \
+                   system/gpio.c             \
+                   system/spi.c              \
+                   mac/region/Region.c       \
+                   mac/region/RegionCommon.c \
+                   mac/LoRaMac.c             \
                    mac/LoRaMacCrypto.c 
 
 ifeq ($(LORACHIP), sx1276)
@@ -19,11 +22,11 @@ $(NAME)_SOURCES += radio/sx1276/sx1276.c
 GLOBAL_INCLUDES += radio/sx1276
 endif
 
-GLOBAL_INCLUDES +=  . \
+GLOBAL_INCLUDES +=  .             \
                     system/crypto \
-                    radio       \
-                    mac         \
-                    mac/region  \
+                    radio         \
+                    mac           \
+                    mac/region    \
                     system
 
 linkwan?=0
