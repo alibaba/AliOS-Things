@@ -12,6 +12,7 @@ ifeq ($(ULOG_CONFIG_ASYNC),y)
 GLOBAL_DEFINES += ULOG_CONFIG_ASYNC
 $(NAME)_SOURCES     += ulog.c
 $(NAME)_SOURCES     += uring_fifo.c
+$(NAME)_SOURCES     += session_fs.c
 $(NAME)_SOURCES     += session_udp.c
 endif
 
