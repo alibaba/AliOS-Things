@@ -214,5 +214,9 @@ typedef struct {
     size_t *msg_sz;
 } krhino_msg_recv_syscall_arg_t;
 
+typedef struct {
+    size_t msq_id;
+} krhino_msg_del_syscall_arg_t;
+
 #endif /* SYSCALL_H */
 

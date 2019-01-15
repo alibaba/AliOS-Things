@@ -92,5 +92,7 @@ kstat_t sys_krhino_msg_snd_stub(void *arg);
 
 kstat_t sys_krhino_msg_recv_stub(void *arg);
 
+kstat_t sys_krhino_msg_del_stub(void *arg);
+
 #endif /* RHINO_KSYSCALL_H */
 
