@@ -1,8 +1,12 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 #ifndef CONFIG_NO_TCPIP
 
-#include "network/network.h"
 #include "ulog_config.h"
 #include <string.h>
+#include "network/network.h"
 
 static struct sockaddr_in* syslog_watcher_addr = NULL;
 static int32_t syslog_watcher_fd = -1;

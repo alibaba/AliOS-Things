@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
+
 #ifndef U_LOG_CONFIG_H_
 #define U_LOG_CONFIG_H_
 
@@ -41,11 +45,15 @@ typedef enum{
 
 typedef enum{
     SESSION_DIRECTION,  //default out direction, usually uart for rtos, termial for Linux
+#ifndef CONFIG_NO_TCPIP
     SESSION_UDP,        //Allow syslog, which support udp, port 514 is default for syslog watcher
-#if 0                   //Swich on these on ulog develop pharse 2
-    SESSION_FILE,       //log on local file system
-    SESSION_USB,
 #endif
+
+#if defined (AOS_COMP_SPIFFS) && defined (AOS_COMP_VFS)
+    SESSION_FILE,       //log on local file system
+#endif
+    SESSION_USB,
+
     SESSION_CNT
 }SESSION_TYPE;
 
@@ -130,6 +138,24 @@ typedef enum{
 #define SYSLOG_WATCHER_DEFAULT_PORT ULOG_CONFIG_SYSLOG_WATCHER_PORT
 #endif
 
+/**
+* Max log files support in fs, if the recording file more than this value, rolling back mechanism trigged.
+*/
+#ifndef ULOG_CONFIG_LOCAL_FILE_CNT
+#define LOCAL_FILE_CNT 5
+#else
+#define LOCAL_FILE_CNT ULOG_CONFIG_LOCAL_FILE_CNT
+#endif
+
+/**
+* Max log file size locate in local file system, if the recording file larger than this value,
+* new files will be used to be recored.
+*/
+#ifndef ULOG_CONFIG_LOCAL_FILE_SIZE
+#define LOCAL_FILE_SIZE 1024
+#else
+#define LOCAL_FILE_CNT ULOG_CONFIG_LOCAL_FILE_CNT
+#endif
 
 #ifdef __cplusplus
 }
