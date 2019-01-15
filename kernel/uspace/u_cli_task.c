@@ -30,7 +30,7 @@ void ucli_task(void *arg)
 
     while (1) {
         krhino_queue_recv(res, RHINO_WAIT_FOREVER, (void**)&cmd);
-        if (msg != 0) {
+        if (cmd != 0) {
             if (cmd->function)
                 ((cli_func)cmd->function)();
         }

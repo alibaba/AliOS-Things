@@ -430,3 +430,10 @@ kstat_t sys_krhino_msg_recv_stub(void *arg)
     return krhino_msg_recv(_arg->msg_id, _arg->ticks, _arg->msg, _arg->msg_sz);
 }
 
+kstat_t sys_krhino_msg_del_stub(void *arg)
+{
+    krhino_msg_del_syscall_arg_t *_arg = arg;
+
+    return krhino_msg_del(_arg->msq_id);
+}
+
