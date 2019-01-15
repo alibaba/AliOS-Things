@@ -94,8 +94,9 @@
 #define SYS_KRHINO_MSG_GET  (U_PROC_MSG_BASE + 0)
 #define SYS_KRHINO_MSG_SND  (U_PROC_MSG_BASE + 1)
 #define SYS_KRHINO_MSG_RECV (U_PROC_MSG_BASE + 2)
+#define SYS_KRHINO_MSG_DEL  (U_PROC_MSG_BASE + 3)
 
-#define U_PROC_MSG_END (SYS_KRHINO_MSG_RECV)
+#define U_PROC_MSG_END (SYS_KRHINO_MSG_DEL)
 
 /* ----------------- hal uart -----------------*/
 #define HAL_UART_BASE (U_PROC_MSG_END + 1)

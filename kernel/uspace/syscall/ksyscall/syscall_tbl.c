@@ -77,6 +77,7 @@ void *syscall_tbl[] = {
     [SYS_KRHINO_MSG_GET]  = sys_krhino_msg_get_stub,
     [SYS_KRHINO_MSG_SND]  = sys_krhino_msg_snd_stub,
     [SYS_KRHINO_MSG_RECV] = sys_krhino_msg_recv_stub,
+    [SYS_KRHINO_MSG_DEL]  = sys_krhino_msg_del_stub,
 
     /* ------------------- hal uart ---------------------*/
     [SYS_HAL_UART_INIT]     = sys_hal_uart_init_stub,
