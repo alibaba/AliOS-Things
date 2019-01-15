@@ -5,6 +5,8 @@
 #ifndef REAL_TIME_TEST_H
 #define REAL_TIME_TEST_H
 
+#include <stdbool.h>
+
 #include <k_api.h>
 
 #include "../common/global_object.h"
