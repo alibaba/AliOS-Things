@@ -1,0 +1,12 @@
+menuconfig AOS_LINKKIT
+    bool "Linkkit Configuration"
+    default n
+
+if AOS_LINKKIT
+    config SRCPATH
+        string
+## --- Generated Automatically ---
+## --- End ---
+
+    source "$SRCPATH/Config.linkkit"
+endif

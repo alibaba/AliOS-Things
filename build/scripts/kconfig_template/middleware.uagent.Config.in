@@ -1,0 +1,10 @@
+menuconfig AOS_UAGENT
+    bool "uAgent Configuration"
+    default y
+
+if AOS_UAGENT
+
+## --- Generated Automatically ---
+## --- End ---
+
+endif
