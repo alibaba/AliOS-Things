@@ -4,6 +4,8 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := Common utilities used in BLE components.
 
+$(NAME)_COMPONENTS-y += osal_aos
+
 $(NAME)_SOURCES-y := ./atomic_c.c \
                      ./buf.c \
                      ./log.c \
