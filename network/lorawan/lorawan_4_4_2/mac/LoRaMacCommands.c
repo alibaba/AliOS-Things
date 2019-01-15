@@ -374,7 +374,7 @@ static bool mcLinkedListInit( MacMcCommandsList_t* list )
 
 static bool mcLinkedListAdd( MacMcCommandsList_t* list, MacMcCommand_t* element )
 {
-    if( ( list == 0 ) && ( element == 0 ) )
+    if( ( list == 0 ) || ( element == 0 ) )
     {
         return false;
     }
@@ -402,7 +402,7 @@ static bool mcLinkedListAdd( MacMcCommandsList_t* list, MacMcCommand_t* element 
 
 static MacMcCommand_t* mcLinkedListGetPrevious( MacMcCommandsList_t* list, MacMcCommand_t* element )
 {
-    if( ( list == 0 ) && ( element == 0 ) )
+    if( ( list == 0 ) || ( element == 0 ) )
     {
         return NULL;
     }
@@ -434,7 +434,7 @@ static MacMcCommand_t* mcLinkedListGetPrevious( MacMcCommandsList_t* list, MacMc
 
 static bool mcLinkedListRemove( MacMcCommandsList_t* list, MacMcCommand_t* element )
 {
-    if( ( list == 0 ) && ( element == 0 ) )
+    if( ( list == 0 ) || ( element == 0 ) )
     {
         return false;
     }
