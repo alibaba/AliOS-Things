@@ -10,7 +10,7 @@ HOST_ARCH          := Cortex-M0
 HOST_MCU_FAMILY    := mcu_stm32l071kb
 SUPPORT_MBINS      := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
 
 $(NAME)_SOURCES := src/board.c     \
                    src/rtc-board.c    \
