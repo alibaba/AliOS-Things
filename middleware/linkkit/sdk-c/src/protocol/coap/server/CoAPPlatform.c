@@ -10,7 +10,7 @@ unsigned int platform_aton(const char *ip_str)
     char c;
     unsigned char base;
     unsigned int  val = 0;
-    unsigned int parts[4];
+    unsigned int parts[4] = {0};
     unsigned int *pp = parts;
 
     c = *ip_str;

@@ -298,7 +298,7 @@ static int _mqtt_sub(iotx_cm_ext_params_t *ext, const char *topic,
 
     int sync = 0;
     int qos = 0;
-    int timeout;
+    int timeout = 0;
     int ret;
 
     if (_mqtt_conncection == NULL || topic == NULL || topic_handle_func == NULL) {
