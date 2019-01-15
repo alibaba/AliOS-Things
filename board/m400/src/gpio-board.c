@@ -595,12 +595,13 @@ void GpioMcuToggle( Gpio_t *obj )
 
 uint32_t GpioMcuRead( Gpio_t *obj )
 {
+    if( obj == NULL )
+    {
+        assert_param( FAIL );
+    }
+
     if( obj->pin < IOE_0 )
     {
-        if( obj == NULL )
-        {
-            assert_param( FAIL );
-        }
         // Check if pin is not connected
         if( obj->pin == NC )
         {
