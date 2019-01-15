@@ -56,6 +56,11 @@ Step 4. ULOGOS(LOG_ERR, "error happens, param %d", param) to log your action.
 Step 5. Add compiler argument "log_async=1" to build the project, e.g. "aos make helloworld@esp8266 ULOG_CONFIG_ASYNC=y".
 Step 6. pop log out via udp: You shall notify the ulog the tcpip is ready via "ulog_man("tcpip on=1");" e.g. in wifi_service_event when got ip. You shall specify the syslog watcher's address via "ulog_man("listen ip=192.168.1.100");" or via CLI(ulog a 192.168.1.100).
 REMARK: If the OS crash once the ulog introduced, maybe because the LOG_ROUTINE_TASK_STACK_DEPTH shall be adjusted, default value 512 is fit in most board, except MK3060 for now. So adjust this value to 1024 if you use ulog in MK3060.
+This function only support on SoC for now.
+Step 7. pop log out via local file system. If component vfs and spiffs are builded in, then the pop out via local file system supported. ulog_000.log ~ ulog_XXX.log may produced under this mechanism.
+ulog_000.log is used in save the log cfg, currently only log file index saved in it which help record up-most log file index in file system, so the new log will saved in this index, or new one after system boot-up.
+ulog_001.log ~ ulog_XXX.log will be produced, the XXX is config item ULOG_CONFIG_LOCAL_FILE_CNT, each log size is not larger than ULOG_CONFIG_LOCAL_FILE_SIZE+ULOG_CONFIG_SYSLOG_SIZE.
+Rolling back mechanism also used to make new file: if ulog_XXX is full, than the new log context will be recorded in ulog_001.log.
 
 ## Other
 

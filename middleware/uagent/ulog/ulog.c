@@ -80,8 +80,6 @@ static void ulog_man_handler(const char* raw_str)
     }
 }
 
-
-
 static void* wrapper_mutex_init()
 {
     void* rc = NULL;
@@ -103,7 +101,7 @@ int32_t wrapper_mutex_unlock(void* param)
 }
 
 //Result is like "Nov 28 15:19:20.122 "
-static char *syslog_format_time(char *buffer, const int len)
+char *syslog_format_time(char *buffer, const int len)
 {
     const long long ms = aos_now_ms();
     if (buffer != NULL && len > 4) {
