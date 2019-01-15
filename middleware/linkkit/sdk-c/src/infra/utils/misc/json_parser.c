@@ -82,7 +82,7 @@ char *json_get_next_object(int type, char *str, char *str_end, char **key, int *
     }
 
     while (p_cPos && *p_cPos && p_cPos < str_end && iValueType > JNONE) {
-        if (iValueType == JBOOLEAN) {
+        if (iValueType == JBOOLEAN && NULL != p_cValue) {
             int     len = strlen(p_cValue);
 
             if ((*p_cValue == 't' || *p_cValue == 'T') && len >= 4
