@@ -12,10 +12,12 @@
 #include <string.h>
 #include "ota_hal_os.h"
 #include "ota_log.h"
+#if !defined (OTA_DEV_BLE)
 #if !defined (AOS_OTA_RSA)
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
 #include "mbedtls/base64.h"
+#endif
 #endif
 
 #if (OTA_SIGNAL_CHANNEL) == 1
@@ -501,6 +503,7 @@ int ota_ssl_recv(void *ssl, char *buf, int len)
     #endif
 }
 
+#if !defined (OTA_DEV_BLE)
 #if !defined (AOS_OTA_RSA)
 /*SHA256*/
 #if !defined(ESPOS_FOR_ESP32)
@@ -598,8 +601,8 @@ int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, un
 {
     return ali_rsa_verify(pub_key,dig,dig_size,sig,sig_size,padding,p_result);
 }
-
 #endif
+
 /*base64*/
 int ota_base64_decode(const unsigned char *src, unsigned int slen, unsigned char *dst, unsigned int *dlen)
 {
@@ -610,6 +613,8 @@ int ota_base64_decode(const unsigned char *src, unsigned int slen, unsigned char
     *dlen = len;
     return 0;
 }
+#endif
+
 /*CRC16*/
 static unsigned short update_crc16(unsigned short crcIn, unsigned char byte)
 {
