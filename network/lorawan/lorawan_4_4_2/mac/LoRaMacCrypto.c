@@ -1039,7 +1039,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     // Add device nonce
 #ifdef NONCE_INC
     CryptoCtx.NvmCtx->DevNonce++;
-#else  
+#else
     CryptoCtx.NvmCtx->DevNonce = (uint16_t) rand1( );
 #endif
     CryptoCtx.EventCryptoNvmCtxChanged( );
@@ -1461,7 +1461,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     }
     FRMPayloadDecryptionKeyID = curItem->AppSkey;
     micComputationKeyID = curItem->NwkSkey;
-		
+
     // Check if it is our address
     if( address != macMsg->FHDR.DevAddr )
     {
@@ -1551,25 +1551,25 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( void )
     uint8_t kekey[16] = { 0 };
 
     retval = SecureElementAesEncrypt( compBase, 16, MC_GEN_APP_KEY, rootkey );
-    
+
     if( retval != SECURE_ELEMENT_SUCCESS )
     {
-        return retval;
+        return (LoRaMacCryptoStatus_t)retval;
     }
-    
+
     SecureElementSetKey( MC_ROOT_KEY, rootkey );
 
     retval = SecureElementAesEncrypt( compBase, 16, MC_ROOT_KEY, kekey );
-    
+
     if( retval != SECURE_ELEMENT_SUCCESS )
     {
-        return retval;
+        return (LoRaMacCryptoStatus_t)retval;
     }
     SecureElementSetKey( MC_KE_KEY, kekey );
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
-#endif 
+#endif
 
 
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t addrID, uint32_t mcAddr )
@@ -1602,12 +1602,12 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t a
     compBaseAppS[2] = ( mcAddr >> 16 ) & 0xFF;
     compBaseAppS[3] = ( mcAddr >> 8 ) & 0xFF;
     compBaseAppS[4] = mcAddr & 0xFF;
-    
+
     compBaseNwkS[1] = ( mcAddr >> 24 ) & 0xFF;
     compBaseNwkS[2] = ( mcAddr >> 16 ) & 0xFF;
     compBaseNwkS[3] = ( mcAddr >> 8 ) & 0xFF;
     compBaseNwkS[4] = mcAddr & 0xFF;
-    
+
     if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBaseAppS, curItem->RootKey, curItem->AppSkey ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
