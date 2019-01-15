@@ -412,3 +412,13 @@ kstat_t krhino_msg_recv(size_t msg_id, tick_t ticks, void *msg, size_t *msg_sz)
     return (kstat_t)SYSCALL(SYS_KRHINO_MSG_RECV, (void*)&_arg);
 }
 
+
+kstat_t krhino_msg_del(size_t msq_id)
+{
+    krhino_msg_del_syscall_arg_t _arg;
+
+    _arg.msq_id = msq_id;
+
+    return (kstat_t)SYSCALL(SYS_KRHINO_MSG_DEL, (void*)&_arg);
+}
+
