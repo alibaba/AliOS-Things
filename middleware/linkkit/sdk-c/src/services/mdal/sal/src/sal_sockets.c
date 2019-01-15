@@ -456,7 +456,7 @@ static void salnetconn_drain(sal_netconn_t *conn)
         s = conn->socket;
         sock = get_socket(s);
 
-        if (sock->sendevent > 0) {
+        if (NULL != sock && sock->sendevent > 0) {
             while (sal_mbox_tryfetch(&conn->sendmbox, (void **)(&mem)) != SAL_MBOX_EMPTY) {
                 if (mem != NULL) {
                     if (mem->payload) {
