@@ -83,19 +83,14 @@ void board_init(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /**Configure the Systick interrupt time
-    */
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
-
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
-
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     MX_DMA_Init();
+	
+	stduart_init();
 
     //WWDG_Init(0X7F,0X5F,3);
 }
@@ -103,7 +98,12 @@ void board_init(void)
 void stm32_soc_peripheral_init(void)
 {
     /*default uart init*/
-    stduart_init();
+    /**Configure the Systick interrupt time
+    */
+    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
+
+    /* PendSV_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
     /*gpio init*/
 //    brd_gpio_init();
     /*i2c pre init*/
@@ -118,8 +118,8 @@ void stm32_soc_peripheral_init(void)
 */
 void SysTick_Handler(void)
 {
-  HAL_IncTick();
   krhino_intrpt_enter();
+  HAL_IncTick();
   krhino_tick_proc();
   krhino_intrpt_exit();
 }

@@ -86,13 +86,7 @@ void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames 
 
     obj->SpiId = spiId;
 
-    if( spiId == SPI_1 )
-    {
-        LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_SPI1 );
-    } else {
-        LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_SPI1 );
-    }
-
+    LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_SPI1 );
     GpioInit(&obj->Sclk, sclk, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
     GpioInit(&obj->Miso, miso, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
     GpioInit(&obj->Mosi, mosi, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0);
