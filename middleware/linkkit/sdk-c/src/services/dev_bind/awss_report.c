@@ -99,8 +99,6 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
     if (id == NULL)
         return;
 
-    if (id == NULL)
-        return;
     reply_id = atoi(id);
     if (reply_id + 1 < awss_report_id)
         return;
