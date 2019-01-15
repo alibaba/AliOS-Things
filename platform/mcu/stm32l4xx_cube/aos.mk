@@ -35,7 +35,7 @@ GLOBAL_LDFLAGS += -mcpu=cortex-m4  \
 else
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino vfs kv
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_DEFINES += USE_HAL_DRIVER
 
