@@ -11,7 +11,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino netmgr imbedtls cjson cli
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr imbedtls
 
 # Global defines
 GLOBAL_DEFINES  := USE_STDPERIPH_DRIVER \
