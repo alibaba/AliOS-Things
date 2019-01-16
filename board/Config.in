@@ -1,4 +1,5 @@
 # --- Generated Automatically ---
+menu "BSP Configuration"
 choice
     prompt "Select board"
 
@@ -1043,5 +1044,6 @@ if AOS_board_xr871evb
     source "platform/mcu/xr871/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
 endif
+endmenu
 
 # --- End ---
