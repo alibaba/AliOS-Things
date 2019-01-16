@@ -1,3 +1,5 @@
+menu "Utility Configuration"
+
 ## --- Generated Automatically ---
 source "utility/activation/Config.in"
 source "utility/activation/chip_code/Config.in"
@@ -6,3 +8,5 @@ source "utility/libc/Config.in"
 source "utility/mbedtls/Config.in"
 source "utility/zlib/Config.in"
 ## --- End ---
+
+endmenu
