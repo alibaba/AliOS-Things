@@ -327,9 +327,10 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         do {  // amend SSID automatically
             struct ap_info *ap = NULL;
             ap = zconfig_get_apinfo(zc_bssid);
+            if (ap == NULL || ap->ssid[0] == '\0')
+                break;
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
-            if (ap == NULL || ap->ssid[0] == '\0' ||
-                strncmp(ap->ssid, zc_adha_ssid, ZC_MAX_SSID_LEN) == 0 ||
+            if (strncmp(ap->ssid, zc_adha_ssid, ZC_MAX_SSID_LEN) == 0 ||
                 strncmp(ap->ssid, zc_default_ssid, ZC_MAX_SSID_LEN) == 0) {
                 memset(zc_bssid, 0, ETH_ALEN);
                 break;
