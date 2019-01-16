@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_RDA8955
     bool "board_rda8955"
     select AOS_MCU_RDA8955
+    select AOS_COMP_KERNEL_INIT
     help
 
 if AOS_BOARD_RDA8955
