@@ -1,8 +1,20 @@
 menuconfig AOS_BOARD_SAML21_IOT_SK
     bool "saml21_iot_sk"
     select AOS_MCU_ATSAML21
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_NETMGR
+    select AOS_COMP_LIBC
+    select SAL_ENABLED if SAL_CONFIG = 1
     help
 
 if AOS_BOARD_SAML21_IOT_SK
 # Configurations for board saml21_iot_sk
+
+config SAL_CONFIG
+    bool "sal config"
+    default 0
+    range 0 1
+    help
+        0: disable sal; 1: enable sal
+
 endif

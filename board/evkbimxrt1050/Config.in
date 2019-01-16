@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_EVKBIMXRT1050
     bool "board_evkbimxrt1050"
     select AOS_MCU_MIMXRT1052IMPL
+    select AOS_COMP_KERNEL_INIT
     help
 
 if AOS_BOARD_EVKBIMXRT1050
