@@ -1,3 +1,5 @@
+menu "Testcase Configuration"
+
 ## --- Generated Automatically ---
 source "test/develop/acapp/Config.in"
 source "test/develop/atapp/Config.in"
@@ -62,3 +64,5 @@ source "test/testcase/security/tls_test/Config.in"
 source "test/testcase/utility/cjson_test/Config.in"
 source "test/yunit/Config.in"
 ## --- End ---
+
+endmenu
