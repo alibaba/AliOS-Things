@@ -34,7 +34,7 @@ extern "C" {
  * ramfs must be added to the prj before this enable
  */
 #ifndef POSIX_CONFIG_DIRENT_TMPFILE_ENABLE
-#define POSIX_CONFIG_DIRENT_TMPFILE_ENABLE 1
+#define POSIX_CONFIG_DIRENT_TMPFILE_ENABLE 0
 #endif
 
 #ifndef POSIX_CONFIG_PRCTL_ENABLE
