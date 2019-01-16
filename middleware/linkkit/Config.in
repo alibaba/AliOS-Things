@@ -5,7 +5,9 @@ menuconfig AOS_LINKKIT
 if AOS_LINKKIT
     config SRCPATH
         string
+## --- Generated Automatically ---
         default "middleware/linkkit/sdk-c"
+## --- End ---
 
     source "$SRCPATH/Config.linkkit"
 endif
