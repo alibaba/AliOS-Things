@@ -79,10 +79,9 @@ CoAPContext *CoAPContext_create(CoAPInitParam *param)
 
     /*Init message send list mutex*/
     p_ctx->sendlist.list_mutex = HAL_MutexCreate();
+    HAL_MutexLock(p_ctx->sendlist.list_mutex);
     /*CoAP message send list*/
     INIT_LIST_HEAD(&p_ctx->sendlist.list);
-
-    HAL_MutexLock(p_ctx->sendlist.list_mutex);
     p_ctx->sendlist.count = 0;
     HAL_MutexUnlock(p_ctx->sendlist.list_mutex);
 

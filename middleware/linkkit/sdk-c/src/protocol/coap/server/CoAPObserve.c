@@ -35,10 +35,9 @@ int CoAPObsServer_deinit(CoAPContext *context)
 
     HAL_MutexLock(ctx->obsserver.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->obsserver.list, obslist, CoapObserver) {
-        list_del_init(&node->obslist);
+        list_del(&node->obslist);
         COAP_DEBUG("Delete %s:%d from observe server", node->remote.addr, node->remote.port);
         coap_free(node);
-        node  = NULL;
     }
     ctx->obsserver.count = 0;
     ctx->obsserver.maxcount = 0;
@@ -135,7 +134,7 @@ int CoapObsServer_delete(CoAPContext *context,          NetworkAddr  *remote,
             (node->remote.port == remote->port)  &&
             (0 == memcmp(node->remote.addr, remote->addr, NETWORK_ADDR_LEN))) {
             ctx->obsserver.count --;
-            list_del_init(&node->obslist);
+            list_del(&node->obslist);
             COAP_DEBUG("Delete %s:%d from observe server", node->remote.addr, node->remote.port);
             coap_free(node);
             break;
@@ -156,11 +155,10 @@ int CoapObsServerAll_delete(CoAPContext *context,          NetworkAddr  *remote)
         if (NULL != node && (node->remote.port == remote->port)  &&
             (0 == memcmp(node->remote.addr, remote->addr, NETWORK_ADDR_LEN))) {
             ctx->obsserver.count --;
-            list_del_init(&node->obslist);
+            list_del(&node->obslist);
             COAP_DEBUG("Delete %s:%d from observe server, cur observe count %d",
                        node->remote.addr, node->remote.port, ctx->obsserver.count);
             coap_free(node);
-            node = NULL;
         }
     }
     HAL_MutexUnlock(ctx->obsserver.list_mutex);
@@ -252,7 +250,7 @@ int CoAPObsClient_deinit(CoAPContext *context)
 
     HAL_MutexLock(ctx->obsclient.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->obsclient.list, obslist, CoAPObservable) {
-        list_del_init(&node->obslist);
+        list_del(&node->obslist);
         coap_free(node);
     }
     ctx->obsclient.count = 0;
@@ -323,10 +321,9 @@ int CoAPObsClient_add(CoAPContext *context, CoAPMessage *message, NetworkAddr *r
         list_for_each_entry_safe(node, next, &ctx->obsclient.list, obslist, CoAPObservable) {
             if (0 != node->tokenlen && node->tokenlen == message->header.tokenlen
                 && 0 == memcmp(node->token, message->token, node->tokenlen)) {
-                list_del_init(&node->obslist);
+                list_del(&node->obslist);
                 ctx->obsclient.count --;
                 coap_free(node);
-                node = NULL;
                 break;
             }
         }
@@ -355,10 +352,9 @@ int CoAPObsClient_delete(CoAPContext *context, CoAPMessage *message)
                 list_for_each_entry_safe(node, next, &ctx->obsclient.list, obslist, CoAPObservable) {
                     if (0 != node->tokenlen && node->tokenlen == message->header.tokenlen
                         && 0 == memcmp(node->token, message->token, node->tokenlen)) {
-                        list_del_init(&node->obslist);
+                        list_del(&node->obslist);
                         ctx->obsclient.count --;
                         coap_free(node);
-                        node = NULL;
                         break;
                     }
                 }
