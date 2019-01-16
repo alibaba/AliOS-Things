@@ -29,18 +29,20 @@ void    LITE_set_loglevel(int level);
 
 #ifdef BUILD_AOS
 #include <aos/log.h>
-extern unsigned int aos_log_level;
-
-#define log_flow(mod, ...) 
+#define log_flow(mod, ...)
 #define log_multi_line(level, title, fmt, payload, mark)
 #define HEXDUMP_DEBUG(buf, len)
-#define HEXDUMP_INFO(buf, len) 
+#define HEXDUMP_INFO(buf, len)
 
-#define log_debug(mod, fmt, ...)    log_print(aos_log_level & AOS_LL_V_DEBUG, mod, COL_WHE, "D", fmt, ##__VA_ARGS__) 
-#define log_info(mod, fmt, ...)     log_print(aos_log_level & AOS_LL_V_DEBUG, mod, COL_WHE, "D", fmt, ##__VA_ARGS__) 
-#define log_warning(mod, fmt, ...)  log_print(aos_log_level & AOS_LL_V_WARN, mod, COL_BLU, "W", fmt, ##__VA_ARGS__)
-#define log_err(mod, fmt, ...)      log_print(aos_log_level & AOS_LL_V_ERROR, mod, COL_YEL, "E", fmt, ##__VA_ARGS__)
-#define log_crit(mod, fmt, ...)     log_print(aos_log_level & AOS_LL_V_FATAL, mod, COL_RED, "F", fmt, ##__VA_ARGS__)
+#if (CONFIG_BLDTIME_MUTE_DBGLOG)
+#define log_debug(mod, fmt, ...)
+#else
+#define log_debug(mod, fmt, ...)    log_print(AOS_LL_V_DEBUG, mod, COL_WHE, "D", fmt, ##__VA_ARGS__)
+#endif
+#define log_info(mod, fmt, ...)     log_print(AOS_LL_V_INFO, mod, COL_WHE, "I", fmt, ##__VA_ARGS__)
+#define log_warning(mod, fmt, ...)  log_print(AOS_LL_V_WARN, mod, COL_BLU, "W", fmt, ##__VA_ARGS__)
+#define log_err(mod, fmt, ...)      log_print(AOS_LL_V_ERROR, mod, COL_YEL, "E", fmt, ##__VA_ARGS__)
+#define log_crit(mod, fmt, ...)     log_print(AOS_LL_V_FATAL, mod, COL_RED, "F", fmt, ##__VA_ARGS__)
 
 #else
 int     LITE_hexdump(const char *title, const void *buf, const int len);

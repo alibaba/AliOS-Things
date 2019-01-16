@@ -31,6 +31,58 @@ __attribute__((weak)) int csp_printf(const char *fmt, ...)
 }
 #endif
 
+#if defined(LOG_SIMPLE)
+void log_print_simple(unsigned int log_level, const char *fmt, ...)
+{
+    va_list args;
+    int     ret;
+    char    level_prt;
+
+    if ( (aos_log_level & log_level) == 0 )
+    {
+        return;
+    }
+
+    switch ( log_level )
+    {
+        case AOS_LL_V_ALL :
+            level_prt = 'A';
+            break;
+        case AOS_LL_V_FATAL :
+            level_prt = 'F';
+            break;
+        case AOS_LL_V_ERROR :
+            level_prt = 'E';
+            break;
+        case AOS_LL_V_WARN :
+            level_prt = 'W';
+            break;
+        case AOS_LL_V_INFO :
+            level_prt = 'I';
+            break;
+        case AOS_LL_V_DEBUG :
+            level_prt = 'D';
+            break;
+        default:
+            level_prt = ' ';
+    }
+
+    ret = aos_mutex_lock(&log_mutex, AOS_WAIT_FOREVER);
+    if (ret != 0) {
+        return;
+    }
+
+    printf("[%06d]<%c> ", (unsigned)aos_now_ms(), level_prt);
+    va_start(args, fmt);
+    ret = vprintf(fmt, args);
+    va_end(args);
+    fflush(stdout);
+    printf("\r\n");
+
+    aos_mutex_unlock(&log_mutex);
+}
+#endif
+
 void aos_set_log_level(aos_log_level_t log_level)
 {
     unsigned int value = 0;
