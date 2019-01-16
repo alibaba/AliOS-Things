@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2019 X-Cite SA (http://www.x-cite.io)
+ * Sensirion SPS30 and Bosch BME680 support added by Lemmer El Assal (lemmer@x-cite.io)
  */
 
 #include <stdio.h>
@@ -513,6 +515,15 @@ int sensor_init(void)
 #ifdef UDATA_MODBUS
     modbus_init();
 #endif /* UDATA_MODBUS */
+
+#ifdef AOS_SENSOR_GR_BARO_TEMP_HUM_BOSCH_BME680
+    drv_bme680_init(0);
+#endif
+
+#ifdef AOS_SENSOR_PM_SENSIRION_SPS30
+    drv_sps30_init();
+#endif
+
 
     ret = sensor_hal_register();
     if(ret != 0){
