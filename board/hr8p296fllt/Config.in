@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_HR8P296FLLT
     bool "hr8p296fllt"
     select AOS_MCU_HR8P2XX
+    select AOS_COMP_LIBC
     help
 
 if AOS_BOARD_HR8P296FLLT

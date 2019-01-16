@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_SSC1667
     bool "ssc1667"
     select AOS_MCU_SCCP131
+    select AOS_COMP_LIBC
     help
 
 if AOS_BOARD_SSC1667
