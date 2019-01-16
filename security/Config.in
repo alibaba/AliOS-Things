@@ -1,3 +1,5 @@
+menu "Security Configuration"
+
 ## --- Generated Automatically ---
 source "security/alicrypto/Config.in"
 source "security/dpm/Config.in"
@@ -12,3 +14,5 @@ source "security/itls/Config.in"
 source "security/mbedtls/Config.in"
 source "security/prov/Config.in"
 ## --- End ---
+
+endmenu
