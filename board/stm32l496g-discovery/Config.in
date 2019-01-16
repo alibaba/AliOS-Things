@@ -1,7 +1,8 @@
 menuconfig AOS_BOARD_STM32L496G-DISCOVERY
     bool "stm32l496g-discovery"
     select AOS_MCU_STM32L4XX_CUBE
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_NETMGR if AOS_NETWORK_SAL
     help
 
 if AOS_BOARD_STM32L496G-DISCOVERY
