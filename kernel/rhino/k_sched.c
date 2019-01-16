@@ -274,12 +274,7 @@ void ready_list_add_tail(runqueue_t *rq, ktask_t *task)
 
 void ready_list_add(runqueue_t *rq, ktask_t *task)
 {
-    /* if task prio is equal current task prio then add to the end */
-    if (task->prio == g_active_task[cpu_cur_get()]->prio) {
-        ready_list_add_tail(rq, task);
-    } else {
-        ready_list_add_head(rq, task);
-    }
+    ready_list_add_tail(rq, task);
 }
 
 void ready_list_rm(runqueue_t *rq, ktask_t *task)
