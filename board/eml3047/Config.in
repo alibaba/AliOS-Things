@@ -1,10 +1,14 @@
 menuconfig AOS_BOARD_EML3047
     bool "board_eml3047"
     select AOS_MCU_STM32L071KB
-    select AOS_COMP_LORAWAN_4_4_2 if @CONDITION@
-    select AOS_COMP_LORACHIP if @CONDITION@
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_LORAWAN_4_4_2 if lorawanback = 0
+    select AOS_COMP_LORAWAN_4_4_0 if lorawanback = 1
     help
 
 if AOS_BOARD_EML3047
 # Configurations for board eml3047
+config lorawanback
+    bool "lorawanback"
+    default 0
 endif
