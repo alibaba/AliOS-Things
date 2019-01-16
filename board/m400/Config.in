@@ -1,10 +1,16 @@
 menuconfig AOS_BOARD_M400
     bool "board_m400"
     select AOS_MCU_STM32L071KB
-    select AOS_COMP_LORAWAN_4_4_2 if @CONDITION@
-    select AOS_COMP_LORACHIP if @CONDITION@
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_LORAWAN_4_4_2 if lorawanback = 0
+    select AOS_COMP_LORAWAN_4_4_0 if lorawanback = 1
     help
 
 if AOS_BOARD_M400
 # Configurations for board board_m400
+
+config lorawanback
+    bool "lorawanback"
+    range 0 1
+    default 0
 endif
