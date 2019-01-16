@@ -20,7 +20,7 @@ typedef struct  sctrl_mcu_ps{
 #define     MCU_PS_CONNECT      CO_BIT(0)
 #define     MCU_PS_ADD_KEY      CO_BIT(1)
 
-#define CHIP_U_MCU_WKUP_USE_TIMER  0
+#define CHIP_U_MCU_WKUP_USE_TIMER  1
 
 
 extern void vTaskStepTick( const TickType_t  );
@@ -38,7 +38,11 @@ extern void mcu_ps_dump(void);
 extern void ps_pwm0_reconfig(UINT32 ,UINT8 );
 extern void ps_pwm0_resume_tick(void);
 extern void ps_pwm0_suspend_tick(UINT32 );
-
+extern void ps_pwm0_disable(void );
+extern void ps_pwm0_enable(void);
+extern UINT32 ps_timer3_disable(void);
+extern void ps_timer3_enable(UINT32 );
+extern UINT32 ps_timer3_measure_prepare(void);
 
 #endif
 

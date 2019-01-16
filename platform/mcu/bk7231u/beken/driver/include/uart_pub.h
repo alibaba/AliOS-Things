@@ -109,6 +109,16 @@ typedef enum
     BK_PARITY_ODD,
     BK_PARITY_EVEN,
 } uart_parity_t;
+
+typedef struct
+{
+    uint32_t				  baud_rate;
+    uart_data_width_t         data_width;
+    uart_parity_t 	          parity;
+    uart_stop_bits_t	      stop_bits;
+    uart_flow_control_t       flow_control;
+    uint8_t				      flags;	 /**< if set, UART can wake up MCU from stop mode, reference: @ref UART_WAKEUP_DISABLE and @ref UART_WAKEUP_ENABLE*/
+} uart_config_t;
 #endif
 /*******************************************************************************
 * Function Declarations

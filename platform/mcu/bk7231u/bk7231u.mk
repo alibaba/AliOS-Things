@@ -8,6 +8,10 @@ $(NAME)_COMPONENTS := platform/arch/arm/armv5
 $(NAME)_COMPONENTS += libc rhino yloop modules.fs.kv alicrypto digest_algorithm
 $(NAME)_COMPONENTS += protocols.net
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/hal_init
+#$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken
+#$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/ip
+#$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/driver/ble
+#$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/alios/entry
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/aos/app_runtime
 $(NAME)_COMPONENTS += prov
@@ -28,6 +32,7 @@ GLOBAL_CFLAGS += -mcpu=arm968e-s \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian
 
+GLOBAL_CFLAGS += -DBLE_4_2
 GLOBAL_CFLAGS += -w
 
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
@@ -46,7 +51,8 @@ GLOBAL_INCLUDES +=  beken/alios/entry \
 					beken/func/uart_debug \
 					beken/driver/include \
 					beken/driver/common \
-					beken/ip/common 
+					beken/ip/common \
+					beken/driver/ble/rw_ble/ip/ble/profiles/AIS/api
 
 GLOBAL_LDFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \
@@ -72,11 +78,9 @@ $(NAME)_SOURCES	 += hal/gpio.c \
                     hal/hw.c \
                     hal/flash.c \
 					hal/uart.c \
-					hal/ringbuf.c \
                     hal/StringUtils.c \
 					hal/wifi_port.c \
 					hal/pwm.c \
-					hal/adc.c \
 					hal/rhino_hal/beken_rhino.c \
 					hal/ble.c \
 					hal/breeze_hal_os.c \
@@ -97,4 +101,3 @@ $(NAME)_PREBUILT_LIBRARY += ip.a
 $(NAME)_PREBUILT_LIBRARY += ble.a
 $(NAME)_PREBUILT_LIBRARY += entry.a
 
-GLOBAL_CFLAGS            += -DBLE_4_2

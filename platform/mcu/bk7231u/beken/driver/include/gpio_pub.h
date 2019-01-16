@@ -21,15 +21,17 @@
 #define GPIO_CMD_MAGIC              (0xcaa0000)
 enum
 {
-    CMD_GPIO_CFG                   = GPIO_CMD_MAGIC + 0,
-    CMD_GPIO_OUTPUT_REVERSE        = GPIO_CMD_MAGIC + 1,
-    CMD_GPIO_ENABLE_SECOND         = GPIO_CMD_MAGIC + 2,
-    CMD_GPIO_INPUT                 = GPIO_CMD_MAGIC + 3,
-    CMD_GPIO_OUTPUT                = GPIO_CMD_MAGIC + 4,
-    CMD_GPIO_CLR_DPLL_UNLOOK_INT   = GPIO_CMD_MAGIC + 5,
-    CMD_GPIO_INT_ENABLE 	= GPIO_CMD_MAGIC + 6,
-    CMD_GPIO_INT_DISABLE	= GPIO_CMD_MAGIC + 7,
-	CMD_GPIO_INT_CLEAR		= GPIO_CMD_MAGIC + 8,
+    CMD_GPIO_CFG                        = GPIO_CMD_MAGIC + 0,
+    CMD_GPIO_OUTPUT_REVERSE             = GPIO_CMD_MAGIC + 1,
+    CMD_GPIO_ENABLE_SECOND              = GPIO_CMD_MAGIC + 2,
+    CMD_GPIO_INPUT                      = GPIO_CMD_MAGIC + 3,
+    CMD_GPIO_OUTPUT                     = GPIO_CMD_MAGIC + 4,
+    CMD_GPIO_CLR_DPLL_UNLOOK_INT_BIT    = GPIO_CMD_MAGIC + 5,
+    CMD_GPIO_EN_DPLL_UNLOOK_INT         = GPIO_CMD_MAGIC + 6,
+    CMD_GPIO_INT_ENABLE 	            = GPIO_CMD_MAGIC + 7,
+    CMD_GPIO_INT_DISABLE	            = GPIO_CMD_MAGIC + 8,
+    CMD_GPIO_EN_USB_PLUG_IN_INT         = GPIO_CMD_MAGIC + 9,
+    CMD_GPIO_EN_USB_PLUG_OUT_INT        = GPIO_CMD_MAGIC + 10,
 };
 
 
@@ -122,6 +124,8 @@ enum
     GFUNC_MODE_ADC6,
     GFUNC_MODE_ADC7,
     GFUNC_MODE_SD1_HOST,
+    GFUNC_MODE_SPI1,
+    GFUNC_MODE_SPI_DMA1,
 };
 
 enum
@@ -217,6 +221,22 @@ __inline static void bk_gpio_output_reverse(GPIO_INDEX id)
 #define GPIO_USB_DN_PIN               GPIO28
 
 extern void gpio_usb_second_function(void);
+#endif
+
+#if(SOC_BK7221U == CFG_SOC_NAME)
+#define USB_PLUG_NO_EVENT            0
+#define USB_PLUG_IN_EVENT            1
+#define USB_PLUG_OUT_EVENT           2
+
+typedef void (*usb_plug_inout_handler)(void *usr_data, UINT32 event);
+typedef struct usb_plug_inout {
+    usb_plug_inout_handler handler;
+    void *usr_data;
+}USB_PLUG_INOUT_ST;
+
+extern USB_PLUG_INOUT_ST usb_plug;
+void usb_plug_inout_isr(void);
+UINT32 usb_is_plug_in(void);
 #endif
 
 extern UINT32 gpio_ctrl(UINT32 cmd, void *param);

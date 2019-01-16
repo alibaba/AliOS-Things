@@ -137,10 +137,20 @@ pwr_status_t board_cpu_pwr_init(void)
                                        C1:    0 us latency
     */
 
+#if (CPU_PWR_SHOW > 0)
     cpu_pwr_info_show();
     cpu_pwr_state_show();
+#endif
 
     return retVal;
+}
+
+void cpu_pwr_suspend_devices()
+{
+}
+
+void cpu_pwr_resume_devices()
+{
 }
 
 #endif /* RHINO_CONFIG_CPU_PWR_MGMT */

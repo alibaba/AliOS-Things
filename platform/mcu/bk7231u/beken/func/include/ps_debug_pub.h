@@ -1,5 +1,6 @@
 #ifndef _PS_DEBUG_H_
 #define _PS_DEBUG_H_
+#include "arm_arch.h"
 
 #define PS_USE_GPIO_TRACE           0
 #define PS_NO_USE_GPIO_WAKE         1
@@ -21,12 +22,12 @@
 #define PS_DOWN_GPIO               (0x0802800 +(20*4))
 #define PS_PWM_GPIO                (0x0802800 +(21*4))
 #elif (CFG_SOC_NAME == SOC_BK7221U)
-#define PS_CK_GPIO                 (0x0802800 +(27*4))
-#define PS_UP_GPIO                 (0x0802800 +(22*4))
-#define PS_RX_GPIO                 (0x0802800 +(23*4))
-#define PS_BCN_GPIO                (0x0802800 +(30*4))
-#define PS_DOWN_GPIO               (0x0802800 +(20*4))
-#define PS_PWM_GPIO                (0x0802800 +(21*4))
+#define PS_CK_GPIO                 (0x0802800 +(21*4))
+#define PS_UP_GPIO                 (0x0802800 +(20*4))
+#define PS_RX_GPIO                 (0x0802800 +(6*4))
+#define PS_BCN_GPIO                (0x0802800 +(22*4))
+#define PS_DOWN_GPIO               (0x0802800 +(23*4))
+#define PS_PWM_GPIO                (0x0802800 +(7*4))
 #endif
 
 #if PS_USE_GPIO_TRACE

@@ -262,12 +262,13 @@ extern int rw_msg_send_connection_loss_ind(u8 vif_index);
 extern int rw_msg_get_bss_info(u8 vif_idx, void *cfm);
 extern int rw_msg_get_channel(void *cfm);
 extern int rw_msg_set_filter(uint32_t filter);
-extern int rw_msg_set_channel(uint32_t channel, void *cfm);
+extern int rw_msg_set_channel(uint32_t channel, uint32_t band_width, void *cfm);
 extern int rw_msg_send_scan_cancel_req(void *cfm);
 extern int rw_msg_send_sm_disconnect_req(DISCONNECT_PARAM_T *param);
 extern int rw_msg_send_sm_connect_req( CONNECT_PARAM_T *sme, void *cfm);
 extern int rw_msg_send_tim_update(u8 vif_idx, u16 aid, u8 tx_status);
 extern int rw_msg_send_apm_stop_req(u8 vif_index);
+extern int rw_msg_set_power(u8 vif_idx, u8 power);
 
 
 

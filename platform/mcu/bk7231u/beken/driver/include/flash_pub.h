@@ -35,8 +35,10 @@ enum
 
 typedef enum
 {
-    NONE,
-    ALL
+    FLASH_PROTECT_NONE,
+    FLASH_PROTECT_ALL,
+    FLASH_PROTECT_HALF,
+    FLASH_UNPROTECT_LAST_BLOCK
 } PROTECT_TYPE;
 
 typedef enum

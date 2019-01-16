@@ -17,7 +17,7 @@ $(NAME)_COMPONENTS := chip_code
 
 secure_adv ?= 1
 ifeq ($(secure_adv), 1)
-GLOBAL_DEFINES-y += CONFIG_AIS_SECURE_ADV
+GLOBAL_DEFINES += CONFIG_AIS_SECURE_ADV
 endif
 
 btstack ?= zephyr

@@ -10,8 +10,13 @@
 #define FIQ_DPLL_UNLOCK                  (28) 
 #define FIQ_SPI_DMA                      (27) 
 #define FIQ_MAC_WAKEUP                   (26)
+#if (CFG_SOC_NAME == SOC_BK7221U)
+#define FIQ_SECURITY                     (25) 
+#define FIQ_USB_PLUG_INOUT               (24) 
+#else
 #define FIQ_MAILBOX1                     (25) 
 #define FIQ_MAILBOX0                     (24) 
+#endif
 #define FIQ_SDIO_DMA                     (23) 
 #define FIQ_MAC_GENERAL                  (22) 
 #define FIQ_MAC_PROT_TRIGGER             (21) 
@@ -49,8 +54,13 @@
 #define PRI_FIQ_DPLL_UNLOCK                  (29) 
 #define PRI_FIQ_SPI_DMA                      (7) 
 #define PRI_FIQ_MAC_WAKEUP                   (9)
+#if (CFG_SOC_NAME == SOC_BK7221U)
+#define PRI_FIQ_SECURITY                     (12) 
+#define PRI_FIQ_USB_PLUG_INOUT               (11) 
+#else
 #define PRI_FIQ_MAILBOX1                     (12) 
 #define PRI_FIQ_MAILBOX0                     (11) 
+#endif
 #define PRI_FIQ_SDIO_DMA                     (8) 
 #define PRI_FIQ_MAC_GENERAL                  (1) 
 #define PRI_FIQ_MAC_PROT_TRIGGER             (6) 

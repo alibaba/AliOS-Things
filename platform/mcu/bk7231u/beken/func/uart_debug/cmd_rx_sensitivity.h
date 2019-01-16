@@ -24,6 +24,7 @@ extern int do_rx_sensitivity(cmd_tbl_t *cmdtp, int flag, int argc, char *const a
 #define RXSENS_DEFUALT_MODE                    (0)
 #define RXSENS_DEFUALT_DURATION                (0)
 #define RXSENS_DEFUALT_CHANNEL                 (6)
+#define RXSENS_DEFUALT_BLE_CHANNEL             (2)
 
 
 #define ENTRY_CMD_RX_SENSITIVITY               \

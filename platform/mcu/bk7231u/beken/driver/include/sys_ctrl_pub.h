@@ -77,8 +77,11 @@ enum
     CMD_SCTRL_DISALBLE_ADC_LINE_IN,
     CMD_SCTRL_SET_DAC_VOLUME_ANALOG,
     CMD_SCTRL_SET_LINEIN_VOLUME_ANALOG,    
-    
+    CMD_SCTRL_SET_VOLUME_PORT,
+    CMD_SCTRL_SET_AUD_DAC_MUTE,
 	#endif // (CFG_SOC_NAME == SOC_BK7221)
+    CMD_SCTRL_SET_LOW_PWR_CLK,
+
 };
 
 /*CMD_SCTRL_MCLK_SELECT*/
@@ -137,7 +140,7 @@ enum
 #define PARAM_VSEL_SYS_LDO_MASK                  (0x3)
 
 #if (CFG_SOC_NAME == SOC_BK7231U)
-#define DEFAULT_TXID_XTAL                        (0x0F)
+#define DEFAULT_TXID_XTAL                        (0x19)
 #elif (CFG_SOC_NAME == SOC_BK7221U)
 #define DEFAULT_TXID_XTAL                        (0x08)
 #endif // (CFG_SOC_NAME == SOC_BK7231U)
@@ -147,6 +150,11 @@ enum
 
 #define PARAM_AUD_DAC_GAIN_MASK                  (0x1F)
 #endif // (CFG_SOC_NAME != SOC_BK7231)
+
+/*CMD_SCTRL_SET_LOW_PWR_CLK*/
+#define LPO_SELECT_ROSC                             (0x0)
+#define LPO_SELECT_32K_XTAL                         (0x1)
+#define LPO_SELECT_32K_DIV                          (0x2)
 
 typedef union
 {
@@ -171,6 +179,12 @@ typedef struct efuse_oper_st
     UINT8 addr;
     UINT8 data;    
 } EFUSE_OPER_ST, *EFUSE_OPER_PTR;
+
+#define AUDIO_DAC_VOL_DIFF_MODE                      (0)
+#define AUDIO_DAC_VOL_SINGLE_MODE                    (1)
+
+#define AUDIO_DAC_ANALOG_UNMUTE                      (0)
+#define AUDIO_DAC_ANALOG_MUTE                        (1)
 
 #define EFUSE_ENCRYPT_WORD_ADDR                      (0)
 #define EFUSE_ENCRYPT_WORD_LEN                       (16)
@@ -206,8 +220,10 @@ extern void sctrl_mcu_init(void);
 extern void sctrl_mcu_sleep(UINT32 );
 extern UINT32 sctrl_mcu_wakeup(void);
 extern void sctrl_ps_dump();
-extern void sctrl_rf_sleep(void);
-extern void sctrl_rf_wakeup(void);
+extern void sctrl_sta_rf_sleep(void);
+extern void sctrl_sta_rf_wakeup(void);
 extern void sctrl_sta_ps_init(void);
 extern void sctrl_flash_select_dco(void);
+extern UINT8 sctrl_if_rf_sleep(void);
+
 #endif // _SCTRL_PUB_H_

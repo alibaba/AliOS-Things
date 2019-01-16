@@ -14,6 +14,17 @@ extern wdg_dev_t wdg;
 
 extern const hal_logic_partition_t hal_partitions[];
 
+static void delay1ms(INT32 num)
+{
+    volatile INT32 i, j;
+
+    for(i = 0; i < num; i ++)
+    {
+        for(j = 0; j < 10000; j ++)
+            ;
+    }
+}
+
 hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
 {
     hal_logic_partition_t *logic_partition;
@@ -57,6 +68,7 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
         GLOBAL_INT_DISABLE();
         ddev_control(flash_hdl, CMD_FLASH_ERASE_SECTOR, (void *)&addr);
         GLOBAL_INT_RESTORE();
+		delay1ms(100);
     }
     hal_wdg_reload(&wdg);
 	ddev_close(flash_hdl);
@@ -144,7 +156,7 @@ int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uin
 {
 	DD_HANDLE flash_hdl;
     UINT32 status;
-	uint32_t param = 1;
+	uint32_t param = FLASH_UNPROTECT_LAST_BLOCK;
 
 	flash_hdl = ddev_open(FLASH_DEV_NAME, &status, 0);
     ASSERT(DD_HANDLE_UNVALID != flash_hdl);
@@ -157,7 +169,7 @@ int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32
 {
 	DD_HANDLE flash_hdl;
     UINT32 status;
-	uint32_t param = 0;
+	uint32_t param = FLASH_PROTECT_NONE;
 
 	flash_hdl = ddev_open(FLASH_DEV_NAME, &status, 0);
     ASSERT(DD_HANDLE_UNVALID != flash_hdl);

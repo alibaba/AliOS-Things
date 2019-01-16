@@ -109,5 +109,17 @@ extern uint32_t MUSB_HfiWrite( uint32_t first_block, uint32_t block_num, uint8_t
                                *dest);
 extern void MGC_RegisterCBTransferComplete(FUNCPTR func);
 extern uint8_t MUSB_GetConnect_Flag(void);
+
+#if (CFG_SOC_NAME == SOC_BK7221U)
+#define USB_PLUG_FAILURE                (1)
+#define USB_PLUG_SUCCESS                (0)
+
+#define USB_PLUG_DEV_NAME               "usb_plug"
+#include "gpio_pub.h"
+
+void usb_plug_inout_init(void);
+void usb_plug_inout_exit(void);
+#endif // (CFG_SOC_NAME == SOC_BK7221U)
+
 #endif //_USB_PUB_H_ 
 

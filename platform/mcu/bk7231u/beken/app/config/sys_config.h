@@ -90,6 +90,8 @@
 #else
 #define CFG_SUPPORT_CALIBRATION                    1
 #define CFG_SUPPORT_MANUAL_CALI                    1
+//tpc rf pa map power for bk7231u
+#define CFG_SUPPORT_TPC_PA_MAP                     0
 #endif
 
 /*section 8-----for netstack*/
@@ -120,6 +122,7 @@
 /*section 16-----support mcu & deep sleep*/
 #define CFG_USE_MCU_PS                             1
 #define CFG_USE_DEEP_PS                            1
+#define CFG_USE_BLE_PS                             0
 
 /*section 17-----support sta power sleep*/
 #define CFG_USE_STA_PS                             1

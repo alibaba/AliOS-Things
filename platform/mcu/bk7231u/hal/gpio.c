@@ -148,7 +148,7 @@ int32_t hal_gpio_clear_irq(gpio_dev_t *gpio)
 
     param = gpio->port;
 
-    sddev_control(GPIO_DEV_NAME, CMD_GPIO_INT_CLEAR, &param);
+    sddev_control(GPIO_DEV_NAME, CMD_GPIO_CLR_DPLL_UNLOOK_INT_BIT, &param);
 
     return 0;
 }

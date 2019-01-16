@@ -39,8 +39,8 @@ enum
 #define PCLK_POSI_I2C1                       (1 << 2)
 #define PCLK_POSI_IRDA                       (1 << 3)
 #define PCLK_POSI_I2C2                       (1 << 4)
-#define PCLK_POSI_SPI                        (1 << 5)
-#define PCLK_POSI_SARADC                     (1 << 6)
+#define PCLK_POSI_SARADC                     (1 << 5)
+#define PCLK_POSI_SPI                        (1 << 6)
 #define PCLK_POSI_PWMS                       (1 << 7)
 #define PCLK_POSI_SDIO                       (1 << 8)
 #define PCLK_POSI_SARADC_AUD                 (1 << 9)
@@ -153,7 +153,11 @@ enum
 #else
 #define TIMER_ARM_WAKEUP_EN_BIT                         (1 << 8)
 #endif
+#define BLE_ARM_WAKEUP_EN_BIT                       	 (1 << 30) 
 #define MAC_ARM_WAKEUP_EN_BIT                       	 (1 << 26) 
+#define MAC_GENERAL_ARM_WAKEUP_EN_BIT                    (1 << 22) 
+#define GENERDMA_ARM_WAKEUP_EN_BIT                      (1 << 15)
+#define AUDIO_ARM_WAKEUP_EN_BIT                         (1 << 10)
 #define GPIO_ARM_WAKEUP_EN_BIT                          (1 << 7)
 #define PWM_ARM_WAKEUP_EN_BIT                           (1 << 9)
 #define UART2_ARM_WAKEUP_EN_BIT                         (1 << 1)
