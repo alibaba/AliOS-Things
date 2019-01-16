@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_ES8P5088FLLQ
     bool "es8p5088fllq"
     select AOS_MCU_ES8P508X
+    select AOS_COMP_LIBC
     help
 
 if AOS_BOARD_ES8P5088FLLQ

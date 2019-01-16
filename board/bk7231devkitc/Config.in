@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_BK7231
     bool "board_bk7231"
     select AOS_MCU_BK7231
+    select AOS_COMP_KERNEL_INIT
     help
       configuration for board bk7231
 

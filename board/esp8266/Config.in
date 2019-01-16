@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_ESP8266
     bool "board_esp8266"
     select AOS_MCU_ESP8266
+    select AOS_COMP_KERNEL_INIT
     help
 
 if AOS_BOARD_ESP8266
