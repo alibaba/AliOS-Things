@@ -1,11 +1,17 @@
 menuconfig AOS_COMP_OSAL_AOS
     bool "osal_aos"
+    select AOS_COMP_DEBUG if OSAL_CONFIG = rhino
+    select AOS_COMP_RHINO if OSAL_CONFIG = rhino
     default y
     help
         AliOS things OSAL -- interface adaptation layer
 
 if AOS_COMP_OSAL_AOS
-menu "OSAL Configurations"
 
-endmenu
+config OSAL_CONFIG
+    string "OSAL_CONFIG"
+    default rhino
+    help
+        osal = rhino/posix/freertos/rhino_sxr/rhino_sxr_mutios
+
 endif
