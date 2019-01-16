@@ -218,7 +218,7 @@ static void _iotx_alcs_adapter_subdev_list_destroy(iotx_alcs_adapter_t *adapter)
     iotx_alcs_send_msg_t *node = NULL;
     iotx_alcs_send_msg_t *next = NULL;
 
-    list_for_each_entry_safe(node, next, &adapter->alcs_send_list, linked_list, iotx_alcs_send_msg_t) {
+    list_for_each_entry_safe(node, next, &adapter->alcs_subdev_list, linked_list, iotx_alcs_send_msg_t) {
         list_del(&node->linked_list);
         LITE_free(node);
     }
@@ -652,7 +652,7 @@ int iotx_alcs_send(void *handle, iotx_alcs_msg_t *msg)
     INIT_LIST_HEAD(&alcs_send_msg->linked_list);
 
     HAL_MutexLock(adapter->mutex);
-    list_add_tail(&adapter->alcs_send_list, &alcs_send_msg->linked_list);
+    list_add_tail(&alcs_send_msg->linked_list, &adapter->alcs_send_list);
     HAL_MutexUnlock(adapter->mutex);
 
     return SUCCESS_RETURN;
