@@ -25,7 +25,7 @@ endif
 ifeq ($(valgrind), 1)
 GLOBAL_CFLAGS += $(shell [ -f /usr/include/valgrind/valgrind.h ] && echo -DHAVE_VALGRIND_VALGRIND_H)
 GLOBAL_CFLAGS += $(shell [ -f /usr/include/valgrind.h ] && echo -DHAVE_VALGRIND_H)
-endif 
+endif
 
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
 $(NAME)_CFLAGS  += -Wno-type-limits -Wno-sign-compare -Wno-pointer-sign -Wno-uninitialized
@@ -37,7 +37,7 @@ GLOBAL_INCLUDES     += include include/aos csp/lwip/include
 GLOBAL_LDFLAGS      += -lpthread -lm -lrt
 GLOBAL_DEFINES      += CONFIG_AOS_RHINO_MMREGION
 GLOBAL_DEFINES      += CONFIG_YSH_CMD_DUMPSYS
-GLOBAL_CFLAGS       += -Wall -Wno-missing-field-initializers -Wno-strict-aliasing -Wno-address -Wno-unused-result 
+GLOBAL_CFLAGS       += -Wall -Wno-missing-field-initializers -Wno-strict-aliasing -Wno-address -Wno-unused-result -Wno-unused-variable
 GLOBAL_DEFINES      += CSP_LINUXHOST
 GLOBAL_DEFINES      += CONFIG_LOGMACRO_DETAILS
 GLOBAL_DEFINES      += CONFIG_AOS_FATFS_SUPPORT
