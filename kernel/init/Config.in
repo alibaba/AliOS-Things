@@ -1,7 +1,7 @@
 menuconfig AOS_COMP_KERNEL_INIT
     bool "kernel_init"
     default n
-    select AOS_COMP_LOG
+    select AOS_COMP_ULOG
     help
 
 if AOS_COMP_KERNEL_INIT
