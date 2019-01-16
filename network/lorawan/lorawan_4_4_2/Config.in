@@ -1,5 +1,6 @@
 menuconfig AOS_COMP_LORAWAN_4_4_2
     bool "LoRaWAN Version 4.4.2"
+    depends on AOS_COMP_LORAWAN_ENABLE
     default n
     help
 
