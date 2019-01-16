@@ -16,6 +16,14 @@ ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 $(NAME)_DEFINES     += XTENSE_MALLOC_IRAM
 endif
 
+ifeq ($(HOST_ARCH),linux)
+CONFIG_MBEDTLS_TLS := y
+else
+ifeq ($(with_lwip),1)
+CONFIG_MBEDTLS_TLS := y
+endif
+endif
+
 # Build crypto
 $(NAME)_SOURCES := library/aes.c
 $(NAME)_SOURCES += library/aesni.c
@@ -89,6 +97,7 @@ $(NAME)_SOURCES += library/x509_csr.c
 $(NAME)_SOURCES += library/x509write_crt.c
 $(NAME)_SOURCES += library/x509write_csr.c
 # Build TLS
+ifeq ($(CONFIG_MBEDTLS_TLS),y)
 $(NAME)_SOURCES += library/debug.c
 $(NAME)_SOURCES += library/net_sockets.c
 $(NAME)_SOURCES += library/ssl_cache.c
@@ -98,11 +107,14 @@ $(NAME)_SOURCES += library/ssl_cookie.c
 $(NAME)_SOURCES += library/ssl_srv.c
 $(NAME)_SOURCES += library/ssl_ticket.c
 $(NAME)_SOURCES += library/ssl_tls.c
+endif
 
 # Adapt for AliOS Things.
 $(NAME)_SOURCES += aos/library/threading_alt.c
 $(NAME)_SOURCES += aos/library/platform.c
+ifeq ($(CONFIG_MBEDTLS_TLS),y)
 $(NAME)_SOURCES += aos/library/net_sockets.c
+endif
 
 # Test program
 $(NAME)_SOURCES += programs/test/selftest.c

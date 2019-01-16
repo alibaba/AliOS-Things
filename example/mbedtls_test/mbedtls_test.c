@@ -3,12 +3,15 @@
  */
 
 #include <aos/kernel.h>
+#include <aos/log.h>
+#ifdef CONFIG_MBEDTLS_TEST_TLS
 #include <aos/yloop.h>
 #include <aos/network.h>
 #include <netmgr.h>
-#include <aos/log.h>
+#endif
 
 extern int mbedtls_selftest_main(int argc, char *argv[]);
+#ifdef CONFIG_MBEDTLS_TEST_TLS
 extern int tls_client_test(void);
 
 static void app_delayed_action(void *arg)
@@ -50,6 +53,8 @@ static int tls_client_test_start(void)
     return 0;
 }
 
+#endif /*CONFIG_MBEDTLS_TEST_TLS*/
+
 static void mbedtls_test(void *arg)
 {
     char *argv[] = {"mbedtls_selftest", NULL};
@@ -57,8 +62,10 @@ static void mbedtls_test(void *arg)
     LOG("mbedtls selftest started.");
     mbedtls_selftest_main(1, argv);
     LOG("mbedtls selftest end.");
+#ifdef CONFIG_MBEDTLS_TEST_TLS
     LOG("mbedtls TLS client test started.");
     tls_client_test_start();
+#endif
 }
 
 int application_start(int argc, char *argv[])
