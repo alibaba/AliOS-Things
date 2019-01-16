@@ -270,8 +270,7 @@ u8_t bt_conn_enc_key_size(struct bt_conn *conn)
         struct net_buf *                           rsp;
         u8_t                                       key_size;
 
-        buf =
-          bt_hci_cmd_create(BT_HCI_OP_READ_ENCRYPTION_KEY_SIZE, sizeof(*cp));
+        buf = bt_hci_cmd_create(BT_HCI_OP_READ_ENCRYPTION_KEY_SIZE, sizeof(*cp));
         if (!buf) {
             return 0;
         }
@@ -390,6 +389,16 @@ void bt_conn_cb_register(struct bt_conn_cb *cb)
     callback_list = cb;
 }
 
+static void bt_conn_reset_tx_state(struct bt_conn *conn)
+{
+    if (!conn->tx) {
+        return;
+    }
+
+    net_buf_unref(conn->tx);
+    conn->tx = NULL;
+}
+
 static void bt_conn_reset_rx_state(struct bt_conn *conn)
 {
     if (!conn->rx_len) {
@@ -397,7 +406,7 @@ static void bt_conn_reset_rx_state(struct bt_conn *conn)
     }
 
     net_buf_unref(conn->rx);
-    conn->rx     = NULL;
+    conn->rx = NULL;
     conn->rx_len = 0;
 }
 
@@ -629,9 +638,12 @@ static inline u16_t conn_mtu(struct bt_conn *conn)
 static struct net_buf *create_frag(struct bt_conn *conn, struct net_buf *buf)
 {
     struct net_buf *frag;
-    u16_t           frag_len;
+    u16_t frag_len;
 
     frag = bt_conn_create_pdu(NULL, 0);
+    if (frag == NULL) {
+        return NULL;
+    }
 
     if (conn->state != BT_CONN_CONNECTED) {
         net_buf_unref(frag);
@@ -680,7 +692,7 @@ static void conn_cleanup(struct bt_conn *conn)
     __ASSERT(sys_slist_is_empty(&conn->tx_pending), "Pending TX packets");
 
     bt_conn_notify_tx(conn);
-
+    bt_conn_reset_tx_state(conn);
     bt_conn_reset_rx_state(conn);
 
     /* Release the reference we took for the very first
@@ -696,13 +708,6 @@ int bt_conn_prepare_events(struct k_poll_event events[])
     conn_change.signaled = 0;
     k_poll_event_init(&events[ev_count++], K_POLL_TYPE_SIGNAL,
                       K_POLL_MODE_NOTIFY_ONLY, &conn_change);
-
-#ifdef CONFIG_CONTROLLER_IS_RX_THREAD
-    extern struct k_poll_signal g_pkt_recv;
-    k_poll_event_init(&events[ev_count], K_POLL_TYPE_DATA_RECV,
-                  K_POLL_MODE_NOTIFY_ONLY, &g_pkt_recv);
-    events[ev_count++].tag = BT_EVENT_CONN_RX;
-#endif
 
     for (i = 0; i < ARRAY_SIZE(conns); i++) {
         struct bt_conn *conn = &conns[i];
@@ -737,7 +742,7 @@ void bt_conn_notify_tx_done(struct bt_conn *conn)
 {
     struct net_buf *frag;
 
-    if (conn->tx->len <= conn_mtu(conn)) {
+    if (conn->tx == NULL || conn->tx->len <= conn_mtu(conn)) {
         goto exit;
     }
 
@@ -826,7 +831,6 @@ static void process_unack_tx(struct bt_conn *conn)
         }
 
         tx_free(CONTAINER_OF(node, struct bt_conn_tx, node));
-
         bt_conn_notify_tx_done(conn);
     }
 }
@@ -835,7 +839,7 @@ void bt_conn_set_state(struct bt_conn *conn, bt_conn_state_t state)
 {
     bt_conn_state_t old_state;
 
-    BT_DBG("%s -> %s", state2str(conn->state), state2str(state));
+    BT_DBG("%s, %s -> %s", __func__, state2str(conn->state), state2str(state));
 
     if (conn->state == state) {
         BT_WARN("no transition");
@@ -1357,10 +1361,10 @@ struct net_buf *bt_conn_create_pdu(struct net_buf_pool *pool, size_t reserve)
     }
 
     buf = net_buf_alloc(pool, K_FOREVER);
-    __ASSERT_NO_MSG(buf);
-
-    reserve += sizeof(struct bt_hci_acl_hdr) + CONFIG_BT_HCI_RESERVE;
-    net_buf_reserve(buf, reserve);
+    if (buf) {
+        reserve += sizeof(struct bt_hci_acl_hdr) + CONFIG_BT_HCI_RESERVE;
+        net_buf_reserve(buf, reserve);
+    }
 
     return buf;
 }

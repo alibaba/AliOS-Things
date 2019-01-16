@@ -51,15 +51,13 @@ static void bt_smp_recv(struct bt_l2cap_chan *chan, struct net_buf *buf)
 	 */
 
 	buf = bt_l2cap_create_pdu(NULL, 0);
-	/* NULL is not a possible return due to K_FOREVER */
-
-	hdr = net_buf_add(buf, sizeof(*hdr));
-	hdr->code = BT_SMP_CMD_PAIRING_FAIL;
-
-	rsp = net_buf_add(buf, sizeof(*rsp));
-	rsp->reason = BT_SMP_ERR_PAIRING_NOTSUPP;
-
-	bt_l2cap_send(conn, BT_L2CAP_CID_SMP, buf);
+        if (buf) {
+            hdr = net_buf_add(buf, sizeof(*hdr));
+            hdr->code = BT_SMP_CMD_PAIRING_FAIL;
+            rsp = net_buf_add(buf, sizeof(*rsp));
+            rsp->reason = BT_SMP_ERR_PAIRING_NOTSUPP;
+            bt_l2cap_send(conn, BT_L2CAP_CID_SMP, buf);
+        }
 }
 
 static int bt_smp_accept(struct bt_conn *conn, struct bt_l2cap_chan **chan)
