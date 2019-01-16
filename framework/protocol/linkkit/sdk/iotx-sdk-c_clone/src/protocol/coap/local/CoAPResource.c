@@ -171,9 +171,7 @@ CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path)
     list_for_each_entry(node, &ctx->resource.list, reslist, CoAPResource) {
         if (0 == memcmp(path_calc, node->path, COAP_PATH_DEFAULT_SUM_LEN)) {
             HAL_MutexUnlock(ctx->resource.list_mutex);
-            if (strcmp("/sys/device/info/notify", path)) {
-                COAP_DEBUG("Found the resource: %s", path);
-            }
+            COAP_DEBUG("Found the resource: %s", path);
             return node;
         }
     }

@@ -154,6 +154,7 @@ int iotx_dm_connect(_IN_ iotx_dm_init_params_t *init_params)
     /* DM Connect Local */
     res = dm_server_connect();
     if (res != SUCCESS_RETURN) {
+        dm_client_close();
         return FAIL_RETURN;
     }
 #endif

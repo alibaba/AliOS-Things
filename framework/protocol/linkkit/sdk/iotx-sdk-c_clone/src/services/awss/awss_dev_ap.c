@@ -18,6 +18,7 @@
 #include "json_parser.h"
 #include "awss_packet.h"
 #include "awss_crypt.h"
+#include "awss_statis.h"
 #include "zconfig_utils.h"
 
 #ifdef AWSS_SUPPORT_DEV_AP
@@ -153,7 +154,9 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         goto DEV_AP_SWITCHAP_END;
     dev_ap_switchap_parsed = 1;
 
-    msg = os_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN); 
+    AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_TIME_START);
+
+    msg = os_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN);
     if (msg == NULL)
         goto DEV_AP_SWITCHAP_END;
     dev_info = os_zalloc(AWSS_DEV_AP_SWITCHA_RSP_LEN);
@@ -222,11 +225,13 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         } else {
             snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
             success = 0;
+            AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
         }
 
         if (success && is_utf8(passwd, strlen(passwd)) == 0) {
             snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -3 , "\"passwd content error\"");
             success = 0;
+            AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
         }
     } while (0);
 
@@ -246,9 +251,12 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
 
         os_msleep(1940);
         os_awss_close_ap();
+        AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
         ret = os_awss_connect_ap(30 * 1000, ssid, passwd, 0, 0, NULL, 0);
         if (ret == 0) {
+            AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
             awss_dev_ap_switchap_done = 1;
+            AWSS_UPDATE_STATIS(AWSS_STATIS_DAP_IDX, AWSS_STATIS_TYPE_TIME_SUC);
         } else {
             awss_dev_ap_setup();
         }

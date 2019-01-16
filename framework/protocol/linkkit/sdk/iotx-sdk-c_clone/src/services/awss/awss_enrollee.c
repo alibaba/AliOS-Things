@@ -12,6 +12,7 @@
 #include "awss_cmp.h"
 #include "awss_packet.h"
 #include "awss_wifimgr.h"
+#include "awss_statis.h"
 #include "awss_crypt.h"
 #include "zconfig_utils.h"
 
@@ -205,10 +206,13 @@ static int decrypt_ssid_passwd(
     p_bssid = ie;
     ie += ETH_ALEN; /* eating bssid len */
 
+    AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_TIME_START);
+
     aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0],
             1, os_get_conn_encrypt_type(), 0, (const char *)aes_random); //aes128 cfb
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
         awss_debug("registrar(passwd invalid!");
+        AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
         return -1;
     }
     awss_debug("ssid:%s\r\n", tmp_ssid);
@@ -277,6 +281,8 @@ int awss_recv_callback_zconfig(struct parser_res *res)
         return PKG_INVALID;
 
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
+
+    AWSS_UPDATE_STATIS(AWSS_STATIS_ROUTE_IDX, AWSS_STATIS_TYPE_TIME_SUC);
 
     return PKG_END;
 }

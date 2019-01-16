@@ -8,6 +8,7 @@
 #include "awss_event.h"
 #include "awss_crypt.h"
 #include "awss_aplist.h"
+#include "awss_statis.h"
 #include "awss_smartconfig.h"
 #include "zconfig_ieee80211.h"
 #include "zconfig_protocol.h"
@@ -293,6 +294,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         tods = tods_tmp;
         ret = -1;
         awss_event_post(AWSS_CS_ERR);
+        AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_CRC_ERR);
         goto exit;
     }
 
@@ -356,6 +358,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
             awss_trace("passwd err\r\n");
             memset(zconfig_data, 0, sizeof(*zconfig_data));
             awss_event_post(AWSS_PASSWD_ERR);
+            AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
             ret = -1;
             goto exit;
         }
@@ -895,6 +898,7 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
 
 int awss_recv_callback_smartconfig(struct parser_res *res)
 {
+    static char statis = 0;
     uint32_t timestamp = os_get_time_ms();
 
     uint8_t *src = res->src;
@@ -925,6 +929,10 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
     if (zc_state == STATE_CHN_LOCKED_BY_P2P ||
         zc_state == STATE_CHN_SCANNING) {
         if (is_hint_frame(encry_type, len, bssid, src, channel, tods, sn)) {
+            if (statis == 0) {
+                statis = 1;
+                AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_TIME_START);
+            }
             awss_trace("hint frame: offset:%d, %c, sn:%x\r\n",
                        zc_frame_offset, flag_tods(tods), sn);
 
@@ -1148,6 +1156,8 @@ is_recv_completed:
             memcpy(zc_bssid, res->bssid, ETH_ALEN);
             if (!zconfig_get_ssid_passwd(tods)) {
                 /* we got it! */
+                AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+                statis = 0;
                 zconfig_set_state(STATE_RCV_DONE, tods, channel);
                 return PKG_END;
             }

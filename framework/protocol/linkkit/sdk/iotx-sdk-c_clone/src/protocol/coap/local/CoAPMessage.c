@@ -726,9 +726,8 @@ static int CoAPRequestMessage_handle(CoAPContext *context, NetworkAddr *remote, 
             }
         }
     }
-    if (strcmp("/sys/device/info/notify", (const char *)path)) {
-        COAP_DEBUG("Request path is %s", path);
-    }
+
+    COAP_DEBUG("Request path is %s", path);
 
     /* CoAP request receive flowControl */
     uint64_t time_curr = 0;

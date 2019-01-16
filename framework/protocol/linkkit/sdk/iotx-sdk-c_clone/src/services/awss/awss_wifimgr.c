@@ -21,6 +21,7 @@
 #include "awss_notify.h"
 #include "awss_timer.h"
 #include "awss_packet.h"
+#include "awss_statis.h"
 #include "zconfig_utils.h"
 #include "zconfig_lib.h"
 #include "zconfig_protocol.h"
@@ -144,6 +145,8 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
     awss_debug("last_ap:%u\r\n", last_ap);
 
     if (last_ap || WIFI_APINFO_LIST_LEN < msg_len + ONE_AP_INFO_LEN_MAX + strlen(AWSS_ACK_FMT)) {
+        if (last_ap)
+            AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_SCAN_STOP);
         if (aplist[msg_len - 1] == ',')
             msg_len--;    /* eating the last ',' */
         msg_len += snprintf(aplist + msg_len, WIFI_APINFO_LIST_LEN - msg_len - 1, "]}");
@@ -187,6 +190,8 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
 static void wifimgr_scan_request()
 {
     wifimgr_scan_init();
+
+    AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_SCAN_START);
     os_wifi_scan(&awss_scan_cb);
 }
 /*
@@ -335,6 +340,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
                         0, os_get_conn_encrypt_type(), 1, (const char *)aes_random);
             } else {
                 snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
+                AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
                 success = 0;
             }
         }
@@ -342,6 +348,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         if (success && is_utf8(passwd, strlen(passwd)) == 0) {
             snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id,
                      enc_lvl == SEC_LVL_OPEN ? -2 : -3 , "\"passwd content error\"");
+            AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
             success = 0;
         }
     } while (0);
@@ -381,12 +388,15 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         }
     } while (0);
 #endif
+    AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
     if (0 != os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT,
                                 ssid, passwd,
                                 AWSS_AUTH_TYPE_INVALID,
                                 AWSS_ENC_TYPE_INVALID,
                                 bssid, 0)) {
     } else {
+        AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+        AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_TIME_SUC);
         switch_ap_done = 1;
         awss_close_aha_monitor();
         HAL_MutexDestroy(g_scan_mutex);

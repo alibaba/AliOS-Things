@@ -43,9 +43,7 @@ static int CoAPServerPath_2_option(char *uri, CoAPMessage *message)
         return COAP_ERROR_INVALID_LENGTH;
     }
 
-    if (strcmp("/sys/device/info/notify", uri)) {
-        COAP_DEBUG("The uri is %s", uri);
-    }
+    COAP_DEBUG("The uri is %s", uri);
 
     ptr = pstr = uri;
     while ('\0' != *ptr) {

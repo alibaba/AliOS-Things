@@ -3208,12 +3208,10 @@ int IOT_MQTT_Destroy(void **phandler)
     } else {
         client = g_mqtt_client;
     }
-
+    g_mqtt_client = NULL;
     POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
-
     iotx_mc_release((iotx_mc_client_t *)client);
     mqtt_free(client);
-    g_mqtt_client = NULL;
 
     return SUCCESS_RETURN;
 }

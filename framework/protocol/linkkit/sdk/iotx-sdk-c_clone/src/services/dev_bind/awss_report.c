@@ -3,9 +3,10 @@
  */
 #include <stdint.h>
 #include "json_parser.h"
-#include "awss_timer.h"
 #include "awss_cmp.h"
+#include "awss_timer.h"
 #include "awss_packet.h"
+#include "awss_bind_statis.h"
 #include "awss_utils.h"
 #include "awss_log.h"
 #include "passwd.h"
@@ -107,6 +108,8 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
     awss_report_token_suc = 1;
     awss_stop_timer(report_token_timer);
     report_token_timer = NULL;
+    AWSS_DB_UPDATE_STATIS(AWSS_DB_STATIS_SUC);
+    AWSS_DB_DISP_STATIS();
     return;
 }
 
@@ -278,6 +281,8 @@ static int awss_report_token_to_cloud()
 #define REPORT_TOKEN_PARAM_LEN  (64)
     if (awss_report_token_suc)  // success ,no need to report
         return 0;
+
+    AWSS_DB_UPDATE_STATIS(AWSS_DB_STATIS_START);
 
     /*
      * it is still failed after try to report token MATCH_REPORT_CNT_MAX times
