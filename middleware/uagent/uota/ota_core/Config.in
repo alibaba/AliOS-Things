@@ -4,5 +4,4 @@ menuconfig AOS_COMP_OTA_CORE
     help
 
 if AOS_COMP_OTA_CORE
-source "middleware/uagent/uota/ota_ble/Config.in"
 endif
