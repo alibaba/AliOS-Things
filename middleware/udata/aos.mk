@@ -5,6 +5,8 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := Sensoring device processing framework
 GLOBAL_DEFINES += AOS_UDATA
 
+$(NAME)_COMPONENTS += osal_aos
+
 $(NAME)_SOURCES += \
     udata_main.c \
     udata_interface.c \
