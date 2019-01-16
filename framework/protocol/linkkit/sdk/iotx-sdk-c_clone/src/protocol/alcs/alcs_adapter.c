@@ -652,7 +652,8 @@ int iotx_alcs_send(void *handle, iotx_alcs_msg_t *msg)
     INIT_LIST_HEAD(&alcs_send_msg->linked_list);
 
     HAL_MutexLock(adapter->mutex);
-    list_add_tail(&adapter->alcs_send_list, &alcs_send_msg->linked_list);
+    //list_add_tail(&adapter->alcs_send_list, &alcs_send_msg->linked_list);
+    list_add_tail(&alcs_send_msg->linked_list, &adapter->alcs_send_list);
     HAL_MutexUnlock(adapter->mutex);
 
     return SUCCESS_RETURN;
