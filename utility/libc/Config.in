@@ -1,5 +1,6 @@
 config AOS_COMP_LIBC
     bool "libc"
     default y
+    select AOS_COMP_VFS
     help
         AliOS Things libc adaptation layer
