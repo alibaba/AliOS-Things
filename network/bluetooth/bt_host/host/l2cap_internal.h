@@ -274,37 +274,4 @@ struct bt_l2cap_chan *bt_l2cap_le_lookup_tx_cid(struct bt_conn *conn,
 						u16_t cid);
 
 /* Lookup channel by Receiver CID */
-struct bt_l2cap_chan *bt_l2cap_le_lookup_rx_cid(struct bt_conn *conn,
-						u16_t cid);
-
-/* Initialize BR/EDR L2CAP signal layer */
-void bt_l2cap_br_init(void);
-
-/* Register fixed channel */
-void bt_l2cap_br_fixed_chan_register(struct bt_l2cap_fixed_chan *chan);
-
-/* Notify BR/EDR L2CAP channels about established new ACL connection */
-void bt_l2cap_br_connected(struct bt_conn *conn);
-
-/* Lookup BR/EDR L2CAP channel by Receiver CID */
-struct bt_l2cap_chan *bt_l2cap_br_lookup_rx_cid(struct bt_conn *conn,
-						u16_t cid);
-
-/* Disconnects dynamic channel */
-int bt_l2cap_br_chan_disconnect(struct bt_l2cap_chan *chan);
-
-/* Make connection to peer psm server */
-int bt_l2cap_br_chan_connect(struct bt_conn *conn, struct bt_l2cap_chan *chan,
-			     u16_t psm);
-
-/* Send packet data to connected peer */
-int bt_l2cap_br_chan_send(struct bt_l2cap_chan *chan, struct net_buf *buf);
-
-/*
- * Handle security level changed on link passing HCI status of performed
- * security procedure.
- */
-void l2cap_br_encrypt_change(struct bt_conn *conn, u8_t hci_status);
-
-/* Handle received data */
-void bt_l2cap_br_recv(struct bt_conn *conn, struct net_buf *buf);
+struct bt_l2cap_chan *bt_l2cap_le_lookup_rx_cid(struct bt_conn *conn, u16_t cid);
