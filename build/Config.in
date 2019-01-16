@@ -31,15 +31,10 @@ config ENABLE_USPACE
 
 endmenu
 
-menu "BSP Configuration"
+## --- Generated Automatically ---
 source "board/Config.in"
-#source "platform/arch/Config.in"
-#source "platform/mcu/Config.in"
-endmenu
 
-menu "Drivers Configuration"
 source "drivers/Config.in"
-endmenu
 
 menu "Kernel Configuration"
 source "kernel/Config.in"
@@ -53,23 +48,17 @@ source "middleware/udata/Config.in"
 source "middleware/tinyengine/Config.in"
 endmenu
 
-menu "Network Configuration"
 source "network/Config.in"
-endmenu
 
-menu "Security Configuration"
 source "security/Config.in"
-endmenu
 
 menu "Application Configuration"
 source "app/example/Config.in"
 source "app/profile/Config.in"
 endmenu
 
-menu "Utility Configuration"
 source "utility/Config.in"
-endmenu
 
-menu "Testcase Configuration"
 source "test/Config.in"
-endmenu
+
+## --- End ---
