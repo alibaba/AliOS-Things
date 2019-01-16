@@ -262,10 +262,10 @@ static struct net_buf *smp_create_pdu(struct bt_conn *conn, u8_t op, size_t len)
     struct net_buf *   buf;
 
     buf = bt_l2cap_create_pdu(NULL, 0);
-    /* NULL is not a possible return due to K_FOREVER */
-
-    hdr       = net_buf_add(buf, sizeof(*hdr));
-    hdr->code = op;
+    if (buf) {
+        hdr = net_buf_add(buf, sizeof(*hdr));
+        hdr->code = op;
+    }
 
     return buf;
 }

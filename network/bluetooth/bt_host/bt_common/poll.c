@@ -94,6 +94,7 @@ static inline int is_condition_met(struct k_poll_event *event, u32_t *state)
                 *state = K_POLL_STATE_DATA_RECV;
                 return 1;
             }
+            break;
         default:
             __ASSERT(0, "invalid event type (0x%x)\n", event->type);
             break;

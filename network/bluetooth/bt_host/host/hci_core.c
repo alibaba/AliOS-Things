@@ -165,8 +165,7 @@ static void report_completed_packet(struct net_buf *buf)
 
     BT_DBG("Reporting completed packet for handle %u", handle);
 
-    buf = bt_hci_cmd_create(BT_HCI_OP_HOST_NUM_COMPLETED_PACKETS,
-                            sizeof(*cp) + sizeof(*hc));
+    buf = bt_hci_cmd_create(BT_HCI_OP_HOST_NUM_COMPLETED_PACKETS, sizeof(*cp) + sizeof(*hc));
     if (!buf) {
         BT_ERR("Unable to allocate new HCI command");
         return;
@@ -554,6 +553,9 @@ static void hci_disconn_complete(struct net_buf *buf)
     struct bt_hci_evt_disconn_complete *evt    = (void *)buf->data;
     u16_t                               handle = sys_le16_to_cpu(evt->handle);
     struct bt_conn *                    conn;
+#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
+    extern struct k_poll_signal g_pkt_recv;
+#endif
 
     BT_DBG("status %u handle %u reason %u", evt->status, handle, evt->reason);
 
@@ -590,6 +592,9 @@ static void hci_disconn_complete(struct net_buf *buf)
     }
 
     bt_conn_unref(conn);
+#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
+    g_pkt_recv.signaled = 0;
+#endif
 
 advertise:
     if (atomic_test_bit(bt_dev.flags, BT_DEV_KEEP_ADVERTISING) &&
@@ -2071,6 +2076,7 @@ static void process_events(struct k_poll_event *ev, int count)
                     }
                 }
                 break;
+#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
             case K_POLL_STATE_DATA_RECV:
                 if (ev->tag == BT_EVENT_CONN_RX) {
                     if (bt_dev.drv->recv) {
@@ -2078,6 +2084,7 @@ static void process_events(struct k_poll_event *ev, int count)
                     }
                 }
                 break;
+#endif
             case K_POLL_STATE_NOT_READY:
                 break;
             default:
@@ -2098,11 +2105,23 @@ static void process_events(struct k_poll_event *ev, int count)
 extern struct k_work_q g_work_queue;
 static void hci_tx_thread(void *p1, void *p2, void *p3)
 {
+#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
+    extern struct k_poll_signal g_pkt_recv;
+    static struct k_poll_event events[EV_COUNT] = {
+        K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_DATA_RECV,
+                                        K_POLL_MODE_NOTIFY_ONLY,
+                                        &g_pkt_recv, BT_EVENT_CONN_RX),
+        K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_FIFO_DATA_AVAILABLE,
+                                        K_POLL_MODE_NOTIFY_ONLY,
+                                        &bt_dev.cmd_tx_queue, BT_EVENT_CMD_TX),
+    };
+#else
     static struct k_poll_event events[EV_COUNT] = {
         K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_FIFO_DATA_AVAILABLE,
                                         K_POLL_MODE_NOTIFY_ONLY,
                                         &bt_dev.cmd_tx_queue, BT_EVENT_CMD_TX),
     };
+#endif
 
     BT_DBG("Started");
 
@@ -2119,11 +2138,17 @@ static void hci_tx_thread(void *p1, void *p2, void *p3)
             }
         }
 
+#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
+        events[0].state = K_POLL_STATE_NOT_READY;
+        events[1].state = K_POLL_STATE_NOT_READY;
+        ev_count = 2;
+#else
         events[0].state = K_POLL_STATE_NOT_READY;
         ev_count = 1;
+#endif
 
         if (IS_ENABLED(CONFIG_BT_CONN)) {
-            ev_count += bt_conn_prepare_events(&events[1]);
+            ev_count += bt_conn_prepare_events(&events[ev_count]);
         }
 
         //BT_DBG("Calling k_poll with %d events", ev_count);

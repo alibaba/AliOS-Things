@@ -674,8 +674,7 @@ static int gatt_indicate(struct bt_conn *conn,
 	struct net_buf *buf;
 	struct bt_att_indicate *ind;
 
-	buf = bt_att_create_pdu(conn, BT_ATT_OP_INDICATE,
-				sizeof(*ind) + params->len);
+	buf = bt_att_create_pdu(conn, BT_ATT_OP_INDICATE, sizeof(*ind) + params->len);
 	if (!buf) {
 		BT_WARN("No buffer available to send indication");
 		return -ENOMEM;
@@ -717,8 +716,7 @@ static void sc_save(struct bt_gatt_ccc_cfg *cfg,
 		goto done;
 	}
 
-	update_range(&stored->start, &stored->end,
-		     data.start, data.end);
+	update_range(&stored->start, &stored->end, data.start, data.end);
 
 done:
 	BT_DBG("peer %s start 0x%04x end 0x%04x", bt_addr_le_str(&cfg->peer),
@@ -1681,8 +1679,7 @@ static int gatt_read_multiple(struct bt_conn *conn,
 	struct net_buf *buf;
 	u8_t i;
 
-	buf = bt_att_create_pdu(conn, BT_ATT_OP_READ_MULT_REQ,
-				params->handle_count * sizeof(u16_t));
+	buf = bt_att_create_pdu(conn, BT_ATT_OP_READ_MULT_REQ, params->handle_count * sizeof(u16_t));
 	if (!buf) {
 		return -ENOMEM;
 	}
@@ -1759,11 +1756,9 @@ int bt_gatt_write_without_response(struct bt_conn *conn, u16_t handle,
 #endif
 
 	if (sign) {
-		buf = bt_att_create_pdu(conn, BT_ATT_OP_SIGNED_WRITE_CMD,
-					sizeof(*cmd) + length + 12);
+		buf = bt_att_create_pdu(conn, BT_ATT_OP_SIGNED_WRITE_CMD, sizeof(*cmd) + length + 12);
 	} else {
-		buf = bt_att_create_pdu(conn, BT_ATT_OP_WRITE_CMD,
-					sizeof(*cmd) + length);
+		buf = bt_att_create_pdu(conn, BT_ATT_OP_WRITE_CMD, sizeof(*cmd) + length);
 	}
 	if (!buf) {
 		return -ENOMEM;
@@ -1832,8 +1827,7 @@ static int gatt_prepare_write(struct bt_conn *conn,
 
 	len = min(params->length, bt_att_get_mtu(conn) - sizeof(*req) - 1);
 
-	buf = bt_att_create_pdu(conn, BT_ATT_OP_PREPARE_WRITE_REQ,
-				sizeof(*req) + len);
+	buf = bt_att_create_pdu(conn, BT_ATT_OP_PREPARE_WRITE_REQ, sizeof(*req) + len);
 	if (!buf) {
 		return -ENOMEM;
 	}
@@ -1874,8 +1868,7 @@ int bt_gatt_write(struct bt_conn *conn, struct bt_gatt_write_params *params)
 		return gatt_prepare_write(conn, params);
 	}
 
-	buf = bt_att_create_pdu(conn, BT_ATT_OP_WRITE_REQ,
-				sizeof(*req) + params->length);
+	buf = bt_att_create_pdu(conn, BT_ATT_OP_WRITE_REQ, sizeof(*req) + params->length);
 	if (!buf) {
 		return -ENOMEM;
 	}
@@ -1932,8 +1925,7 @@ static int gatt_write_ccc(struct bt_conn *conn, u16_t handle, u16_t value,
 	struct net_buf *buf;
 	struct bt_att_write_req *req;
 
-	buf = bt_att_create_pdu(conn, BT_ATT_OP_WRITE_REQ,
-				sizeof(*req) + sizeof(u16_t));
+	buf = bt_att_create_pdu(conn, BT_ATT_OP_WRITE_REQ, sizeof(*req) + sizeof(u16_t));
 	if (!buf) {
 		return -ENOMEM;
 	}

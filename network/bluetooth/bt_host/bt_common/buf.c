@@ -227,6 +227,7 @@ struct net_buf *net_buf_get(struct k_fifo *fifo, s32_t timeout)
 #endif
 {
 	struct net_buf *buf, *frag;
+	unsigned int key;
 
 	NET_BUF_DBG("%s():%d: fifo %p timeout %d", func, line, fifo, timeout);
 
@@ -238,10 +239,8 @@ struct net_buf *net_buf_get(struct k_fifo *fifo, s32_t timeout)
 	NET_BUF_DBG("%s():%d: buf %p fifo %p", func, line, buf, fifo);
 
 	/* Get any fragments belonging to this buffer */
-	for (frag = buf; (frag->flags & NET_BUF_FRAGS); frag = frag->frags) {
+	for (frag = buf; frag && (frag->flags & NET_BUF_FRAGS); frag = frag->frags) {
 		frag->frags = k_fifo_get(fifo, K_NO_WAIT);
-		NET_BUF_ASSERT(frag->frags);
-
 		/* The fragments flag is only for FIFO-internal usage */
 		frag->flags &= ~NET_BUF_FRAGS;
 	}
@@ -294,7 +293,7 @@ struct net_buf *net_buf_slist_get(sys_slist_t *list)
 	}
 
 	/* Get any fragments belonging to this buffer */
-	for (frag = buf; (frag->flags & NET_BUF_FRAGS); frag = frag->frags) {
+	for (frag = buf; frag && (frag->flags & NET_BUF_FRAGS); frag = frag->frags) {
 		key = irq_lock();
 		frag->frags = (void *)sys_slist_get(list);
 		irq_unlock(key);

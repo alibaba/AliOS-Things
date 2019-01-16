@@ -185,7 +185,7 @@ void bt_l2cap_chan_set_state_debug(struct bt_l2cap_chan *chan,
                                    bt_l2cap_chan_state_t state,
                                    const char *func, int line)
 {
-    BT_DBG("chan %p psm 0x%04x %s -> %s", chan, chan->psm,
+    BT_DBG("%s, chan %p psm 0x%04x %s -> %s", __func__, chan, chan->psm,
            bt_l2cap_chan_state_str(chan->state),
            bt_l2cap_chan_state_str(state));
 
@@ -317,11 +317,6 @@ void bt_l2cap_connected(struct bt_conn *conn)
     struct bt_l2cap_fixed_chan *fchan;
     struct bt_l2cap_chan *      chan;
 
-    if (IS_ENABLED(CONFIG_BT_BREDR) && conn->type == BT_CONN_TYPE_BR) {
-        bt_l2cap_br_connected(conn);
-        return;
-    }
-
     SYS_SLIST_FOR_EACH_CONTAINER(&le_channels, fchan, node)
     {
         struct bt_l2cap_le_chan *ch;
@@ -364,12 +359,12 @@ static struct net_buf *l2cap_create_le_sig_pdu(struct net_buf *buf, u8_t code,
     struct bt_l2cap_sig_hdr *hdr;
 
     buf = bt_l2cap_create_pdu(NULL, 0);
-
-    hdr        = net_buf_add(buf, sizeof(*hdr));
-    hdr->code  = code;
-    hdr->ident = ident;
-    hdr->len   = sys_cpu_to_le16(len);
-
+    if (buf) {
+        hdr = net_buf_add(buf, sizeof(*hdr));
+        hdr->code = code;
+        hdr->ident = ident;
+        hdr->len = sys_cpu_to_le16(len);
+    }
     return buf;
 }
 
@@ -402,14 +397,16 @@ static int l2cap_le_conn_req(struct bt_l2cap_le_chan *ch)
 
     ch->chan.ident = get_ident();
 
-    buf = l2cap_create_le_sig_pdu(NULL, BT_L2CAP_LE_CONN_REQ, ch->chan.ident,
-                                  sizeof(*req));
+    buf = l2cap_create_le_sig_pdu(NULL, BT_L2CAP_LE_CONN_REQ, ch->chan.ident, sizeof(*req));
+    if (buf == NULL) {
+        return -ENOMEM;
+    }
 
-    req          = net_buf_add(buf, sizeof(*req));
-    req->psm     = sys_cpu_to_le16(ch->chan.psm);
-    req->scid    = sys_cpu_to_le16(ch->rx.cid);
-    req->mtu     = sys_cpu_to_le16(ch->rx.mtu);
-    req->mps     = sys_cpu_to_le16(ch->rx.mps);
+    req = net_buf_add(buf, sizeof(*req));
+    req->psm = sys_cpu_to_le16(ch->chan.psm);
+    req->scid = sys_cpu_to_le16(ch->rx.cid);
+    req->mtu = sys_cpu_to_le16(ch->rx.mtu);
+    req->mps = sys_cpu_to_le16(ch->rx.mps);
     req->credits = sys_cpu_to_le16(ch->rx.init_credits);
 
     l2cap_chan_send_req(ch, buf, L2CAP_CONN_TIMEOUT);
@@ -439,11 +436,6 @@ void bt_l2cap_encrypt_change(struct bt_conn *conn, u8_t hci_status)
 {
     struct bt_l2cap_chan *chan;
 
-    if (IS_ENABLED(CONFIG_BT_BREDR) && conn->type == BT_CONN_TYPE_BR) {
-        l2cap_br_encrypt_change(conn, hci_status);
-        return;
-    }
-
     SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node)
     {
 #if defined(CONFIG_BT_L2CAP_DYNAMIC_CHANNEL)
@@ -461,8 +453,7 @@ struct net_buf *bt_l2cap_create_pdu(struct net_buf_pool *pool, size_t reserve)
     return bt_conn_create_pdu(pool, sizeof(struct bt_l2cap_hdr) + reserve);
 }
 
-void bt_l2cap_send_cb(struct bt_conn *conn, u16_t cid, struct net_buf *buf,
-                      bt_conn_tx_cb_t cb)
+void bt_l2cap_send_cb(struct bt_conn *conn, u16_t cid, struct net_buf *buf, bt_conn_tx_cb_t cb)
 {
     struct bt_l2cap_hdr *hdr;
 
@@ -1049,6 +1040,9 @@ static struct net_buf *l2cap_chan_create_seg(struct bt_l2cap_le_chan *ch,
 
 segment:
     seg = l2cap_alloc_seg(buf);
+    if (seg == NULL) {
+        return NULL;
+    }
 
     if (sdu_hdr_len) {
         net_buf_add_le16(seg, net_buf_frags_len(buf));
@@ -1077,6 +1071,9 @@ static int l2cap_chan_le_send(struct bt_l2cap_le_chan *ch, struct net_buf *buf,
     }
 
     buf = l2cap_chan_create_seg(ch, buf, sdu_hdr_len);
+    if (buf == NULL) {
+        return 0;
+    }
 
     /* Channel may have been disconnected while waiting for a buffer */
     if (!ch->chan.conn) {
@@ -1556,10 +1553,6 @@ void bt_l2cap_init(void)
     };
 
     bt_l2cap_le_fixed_chan_register(&chan);
-
-    if (IS_ENABLED(CONFIG_BT_BREDR)) {
-        bt_l2cap_br_init();
-    }
 }
 
 #if defined(CONFIG_BT_L2CAP_DYNAMIC_CHANNEL)
@@ -1595,10 +1588,6 @@ int bt_l2cap_chan_connect(struct bt_conn *conn, struct bt_l2cap_chan *chan,
         return -EINVAL;
     }
 
-    if (IS_ENABLED(CONFIG_BT_BREDR) && conn->type == BT_CONN_TYPE_BR) {
-        return bt_l2cap_br_chan_connect(conn, chan, psm);
-    }
-
     if (chan->required_sec_level > BT_SECURITY_FIPS) {
         return -EINVAL;
     } else if (chan->required_sec_level == BT_SECURITY_NONE) {
@@ -1617,10 +1606,6 @@ int bt_l2cap_chan_disconnect(struct bt_l2cap_chan *chan)
 
     if (!conn) {
         return -ENOTCONN;
-    }
-
-    if (IS_ENABLED(CONFIG_BT_BREDR) && conn->type == BT_CONN_TYPE_BR) {
-        return bt_l2cap_br_chan_disconnect(chan);
     }
 
     ch = BT_L2CAP_LE_CHAN(chan);
@@ -1654,10 +1639,6 @@ int bt_l2cap_chan_send(struct bt_l2cap_chan *chan, struct net_buf *buf)
 
     if (!chan->conn || chan->conn->state != BT_CONN_CONNECTED) {
         return -ENOTCONN;
-    }
-
-    if (IS_ENABLED(CONFIG_BT_BREDR) && chan->conn->type == BT_CONN_TYPE_BR) {
-        return bt_l2cap_br_chan_send(chan, buf);
     }
 
     err = l2cap_chan_le_send_sdu(BT_L2CAP_LE_CHAN(chan), &buf, 0);
