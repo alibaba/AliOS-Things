@@ -4,7 +4,9 @@ menuconfig AOS_UAGENT
 
 if AOS_UAGENT
 
-source "middleware/uagent/ulog/Config.in"
+## --- Generated Automatically ---
 source "middleware/uagent/uota/Config.in"
+source "middleware/uagent/ulog/Config.in"
+## --- End ---
 
 endif
