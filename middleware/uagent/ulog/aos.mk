@@ -4,6 +4,8 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := ulog module
 $(NAME)_MBINS_TYPE := kernel
 
+$(NAME)_COMPONENTS += osal_aos
+
 GLOBAL_DEFINES += AOS_COMP_ULOG
 #sync mode is default selected using
 $(NAME)_SOURCES     := log.c ulog_init.c
