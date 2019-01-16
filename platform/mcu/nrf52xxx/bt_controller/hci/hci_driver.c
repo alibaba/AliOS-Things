@@ -5,6 +5,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #include <errno.h>
 #include <stddef.h>
 #include <string.h>
@@ -49,9 +53,7 @@ struct k_poll_signal g_pkt_recv = K_POLL_SIGNAL_INITIALIZER(g_pkt_recv);
 
 int hci_driver_recv(void)
 {
-    if (g_pkt_recv.signaled > 0) {
-        g_pkt_recv.signaled--;
-    }
+    g_pkt_recv.signaled = 0;
 
     while (1) {
         struct radio_pdu_node_rx *node_rx = NULL;
@@ -210,7 +212,7 @@ void pkt_recv_callback(void)
     unsigned int key;
 
     key = irq_lock();
-    g_pkt_recv.signaled++;
+    g_pkt_recv.signaled = 1;
     irq_unlock(key);
 
     k_sem_give(&g_poll_sem);
@@ -227,6 +229,7 @@ static int hci_driver_open(void)
 		return err;
 	}
 	hci_init(NULL);
+
 	return 0;
 }
 
