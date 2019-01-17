@@ -6,7 +6,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f7xx
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino vfs
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 RELATIVE_PATH_MCU = .
 

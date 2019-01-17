@@ -6,7 +6,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu msp432p4xx
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino vfs
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_INCLUDES += . \
                    CMSIS/Include

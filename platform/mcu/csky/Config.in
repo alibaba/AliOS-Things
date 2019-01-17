@@ -3,7 +3,7 @@ menuconfig AOS_MCU_CSKY
     default n
     select AOS_COMP_CLI
     select AOS_COMP_LWIP if LWIP_CONFIG = 1
-    select AOS_COMP_SAL if SAL_CONFIG = 1
+    select SAL_ENABLED if SAL_CONFIG = 1
     select AOS_COMP_NETMGR if SAL_CONFIG = 1 || LWIP_CONFIG = 1
     select AOS_COMP_RHINO
     select AOS_COMP_DEVICE_SAL_ESP8266 if SAL_CONFIG = 1
