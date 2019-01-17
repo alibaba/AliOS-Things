@@ -2,18 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include <stdlib.h>
 #include "os.h"
-
-#ifndef in_range
-#define in_range(c, lo, up)  ((uint8_t)c >= lo && (uint8_t)c <= up)
-#define isdigit(c)           in_range(c, '0', '9')
-#define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
-#define islower(c)           in_range(c, 'a', 'z')
-#define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
-#endif
 
 /****** Convert values between host and big-/little-endian byte order ******/
 
@@ -55,6 +45,28 @@ uint16_t os_le16toh(uint16_t data)
     return os_htole16(data);
 }
 
+//get unaligned data in big endian.
+uint16_t os_get_unaligned_be16(uint8_t * ptr)
+{
+    uint16_t res;
+
+    memcpy(&res, ptr, sizeof(uint16_t));
+
+    return os_be16toh(res);
+}
+
+//get unaligned data in little endian.
+uint16_t os_get_unaligned_le16(uint8_t * ptr)
+{
+    uint16_t res;
+
+    memcpy(&res, ptr, sizeof(uint16_t));
+
+    return os_le16toh(res);
+
+}
+
+#if 0
 //reverse byte order
 static inline uint32_t reverse_32bit(uint32_t data)
 {
@@ -103,7 +115,6 @@ static inline uint64_t reverse_64bit(uint64_t data)
     return ((data & 0xffff0000ffff0000ULL) >> 16) | ((data & 0x0000ffff0000ffffULL) << 16);
 }
 
-#if 0
 //host to big endian
 uint64_t os_htobe64(uint64_t data)
 {
@@ -113,7 +124,6 @@ uint64_t os_htobe64(uint64_t data)
 
     return reverse_64bit(data);
 }
-#endif
 
 //host to little endian
 uint64_t os_htole64(uint64_t data)
@@ -125,39 +135,16 @@ uint64_t os_htole64(uint64_t data)
     return data;
 }
 
-#if 0
 //big endian to host
 uint64_t os_be64toh(uint64_t data)
 {
     return os_htobe64(data);
 }
-#endif
 
 //little endian to host
 uint64_t os_le64toh(uint64_t data)
 {
     return os_htole64(data);
-}
-
-//get unaligned data in big endian.
-uint16_t os_get_unaligned_be16(uint8_t * ptr)
-{
-    uint16_t res;
-
-    memcpy(&res, ptr, sizeof(uint16_t));
-
-    return os_be16toh(res);
-}
-
-//get unaligned data in little endian.
-uint16_t os_get_unaligned_le16(uint8_t * ptr)
-{
-    uint16_t res;
-
-    memcpy(&res, ptr, sizeof(uint16_t));
-
-    return os_le16toh(res);
-
 }
 
 uint32_t os_get_unaligned_be32(uint8_t * ptr)
@@ -168,7 +155,7 @@ uint32_t os_get_unaligned_be32(uint8_t * ptr)
 
     return os_be32toh(res);
 }
-/*
+
 //get unaligned data in little endian.
 uint32_t os_get_unaligned_le32(uint8_t * ptr)
 {
@@ -179,7 +166,7 @@ uint32_t os_get_unaligned_le32(uint8_t * ptr)
     return os_le32toh(res);
 
 }
-*/
+
 uint16_t os_htons(uint16_t n)
 {
     return os_htobe16(n);
@@ -231,7 +218,7 @@ char *os_ntoa(const uint32_t ip, char buf[OS_IP_LEN])
     *--rp = 0;
     return buf;
 }
-
+#endif
 /* format mac string uppercase */
 char *os_wifi_get_mac_str(char mac_str[OS_MAC_LEN])
 {
@@ -249,7 +236,8 @@ char *os_wifi_get_mac_str(char mac_str[OS_MAC_LEN])
         }
     }
 
-    for (i = 0; i < OS_MAC_LEN && mac_str[i]; i++) {
+    /* convert to capital letter */
+    for (i = 0; i < OS_MAC_LEN && mac_str[i]; i ++) {
         if ('a' <= mac_str[i] && mac_str[i] <= 'z') {
             mac_str[i] -= 'a' - 'A';
         }
@@ -258,18 +246,33 @@ char *os_wifi_get_mac_str(char mac_str[OS_MAC_LEN])
     return mac_str;
 }
 
-uint8_t *os_wifi_get_mac(uint8_t mac[OS_ETH_ALEN])
+char *os_wifi_str2mac(char mac_str[OS_MAC_LEN], char mac[OS_ETH_ALEN])
 {
-    char mac_str[OS_MAC_LEN] = { 0 };
     int i = 0;
     char *ptr = mac_str;
+    char mac_addr[OS_ETH_ALEN] = {0};
+
+    if (ptr == NULL)
+        return NULL;
+
+    while (isxdigit(*ptr) && i < OS_ETH_ALEN) {
+        mac_addr[i ++] = (uint8_t)strtol(ptr, &ptr, 16);
+        ++ ptr;
+    }
+
+    if (i < OS_ETH_ALEN)  /* don't touch mac when fail */
+        return NULL;
+
+    if (mac) memcpy(mac, mac_addr, OS_ETH_ALEN);
+
+    return mac;
+}
+
+uint8_t *os_wifi_get_mac(uint8_t mac[OS_ETH_ALEN])
+{
+    char mac_str[OS_MAC_LEN] = {0};
 
     os_wifi_get_mac_str(mac_str);
 
-    while('\0' != *ptr && i < OS_ETH_ALEN) {
-        mac[i++] = (uint8_t)strtol(ptr, &ptr, 16);
-        ++ptr;
-    }
-
-    return mac;
+    return (uint8_t *)os_wifi_str2mac(mac_str, (char *)mac);
 }

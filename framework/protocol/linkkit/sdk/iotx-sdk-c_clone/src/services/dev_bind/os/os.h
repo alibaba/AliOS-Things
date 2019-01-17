@@ -2,16 +2,13 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
-#ifndef __ABSTRAC_H__
-#define __ABSTRAC_H__
+#ifndef __AWSS_OS_H__
+#define __AWSS_OS_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#include <ctype.h>
 #include "iot_import.h"
 #include "iot_export.h"
 #include "product/product.h"
@@ -33,6 +30,15 @@ extern "C" {
 #define OS_DEVICE_NAME_LEN      DEVICE_NAME_LEN
 #define OS_DEVICE_SECRET_LEN    DEVICE_SECRET_LEN
 
+#if 0
+#ifndef in_range
+#define in_range(c, lo, up)     ((uint8_t)(c) >= (lo) && (uint8_t)(c) <= (up))
+#define isdigit(c)              in_range(c, '0', '9')
+#define isxdigit(c)             (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
+#define islower(c)              in_range(c, 'a', 'z')
+#define isspace(c)              ((c) == ' ' || (c) == '\f' || (c) == '\n' || (c) == '\r' || (c) == '\t' || (c) == '\v')
+#endif
+#endif
 /***************************************** Misc Interface *****************************************/
 
 /** @defgroup group_misc misc
@@ -125,7 +131,7 @@ uint32_t os_le32toh(uint32_t data);
  * @see None.
  * @note None.
  */
-uint64_t os_htobe64(uint64_t data);
+//uint64_t os_htobe64(uint64_t data);
 
 /**
  * @brief Convert the data from host to little-endian.
@@ -136,7 +142,7 @@ uint64_t os_htobe64(uint64_t data);
  * @see None.
  * @note None.
  */
-uint64_t os_htole64(uint64_t data);
+//uint64_t os_htole64(uint64_t data);
 
 /**
  * @brief Convert the data from big-endian to host.
@@ -147,7 +153,7 @@ uint64_t os_htole64(uint64_t data);
  * @see None.
  * @note None.
  */
-uint64_t os_be64toh(uint64_t data);
+//uint64_t os_be64toh(uint64_t data);
 
 /**
  * @brief Convert the data from little-endian to host.
@@ -158,7 +164,7 @@ uint64_t os_be64toh(uint64_t data);
  * @see None.
  * @note None.
  */
-uint64_t os_le64toh(uint64_t data);
+//uint64_t os_le64toh(uint64_t data);
 
 /**
  * @brief Get unaligned 16 bits data which is big-endian and convert to host byte order.
@@ -548,6 +554,7 @@ static inline int os_get_conn_encrypt_type(void)
  * @note this func will format mac address string uppercase
  */
 char *os_wifi_get_mac_str(char mac_str[OS_MAC_LEN]);
+char *os_wifi_str2mac(char mac_str[OS_MAC_LEN], char mac[OS_ETH_ALEN]);
 
 /**
  * @brief Get WIFI MAC address(digital form)

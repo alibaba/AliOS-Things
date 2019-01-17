@@ -515,7 +515,7 @@ found_match:
 
         if (ap_info && ap_info->encry[tods] == encry && ap_info->channel) {
             if (channel != ap_info->channel) {
-                awss_debug("fix channel from %d to %d\r\n", channel, ap_info->channel);
+                awss_info("fix channel from %d to %d\r\n", channel, ap_info->channel);
                 zc_channel = ap_info->channel;  // fix by ap_info channel
                 extern void aws_set_dst_chan(int channel);
                 aws_set_dst_chan(zc_channel);
@@ -781,20 +781,6 @@ int try_to_replace_same_pos(int tods, int pos, int new_len)
     return replace;
 }
 
-#ifdef AWSS_SUPPORT_APLIST
-#define update_apinfo_encry_type(encry_type, bssid, tods)    \
-do {\
-    struct ap_info *ap_info = zconfig_get_apinfo(bssid);\
-    if (ap_info && (encry_type) != ap_info->encry[tods]) {\
-        awss_debug("ssid:%s, enc[%c]:%s->%s\r\n",\
-            ap_info->ssid, flag_tods(tods),\
-            zconfig_encry_str(ap_info->encry[tods]),\
-            zconfig_encry_str(encry_type));\
-        ap_info->encry[tods] = encry_type;\
-    }\
-} while (0)
-#endif
-
 int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_type, struct parser_res *res, signed char rssi)
 {
     int hdrlen, fc, seq_ctrl;
@@ -893,6 +879,19 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
         awss_warn("invalid encry type!\r\n");
     res->u.br.encry_type = encry;
 
+    /* convert IEEE 802.11 header + possible LLC headers into Ethernet header
+     * IEEE 802.11 address fields:
+     * ToDS FromDS Addr1 Addr2 Addr3 Addr4
+     *   0     0   DA    SA    BSSID n/a
+     *   0     1   DA    BSSID SA    n/a
+     *   1     0   BSSID SA    DA    n/a
+     *   1     1   RA    TA    DA    SA
+     */
+    res->src = ieee80211_get_SA(hdr);
+    res->dst = ieee80211_get_DA(hdr);
+    res->bssid = ieee80211_get_BSSID(hdr);
+    res->tods = ieee80211_has_tods(fc);
+
     return ALINK_BROADCAST;
 }
 
@@ -915,11 +914,10 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
     uint8_t score = 0, timeout = 0, equal = 0;
 
     uint16_t pos = 0, index = 0;
-#if 0 
-    awss_debug("len=%d, %c, sn=%d, enc=%d, chn=%d, src=%02x%02x%02x%02x%02x%02x\r\n",
+
+    awss_flow("len=%d, %c, sn=%d, enc=%d, chn=%d, src=%02x%02x%02x%02x%02x%02x\r\n",
                len, flag_tods(tods), sn, encry_type, channel,
                src[0], src[1], src[2], src[3], src[4], src[5]);
-#endif
     /*
      * STATE_CHN_LOCKED_BY_P2P is set by v2 wps/action frame, which means
      * APP is sending v2, but if v2 is fail, APP will rollback to v1,
@@ -1085,7 +1083,7 @@ pos_unsync:
 
         /* start from pkg(1), leave pkg(0) for start frame */
         if (pos >= MAX_PKG_NUMS || pos <= 0) {
-            awss_debug("msg index(%d) out of range!\r\n", pos);
+            awss_warn("msg index(%d) out of range!\r\n", pos);
             goto drop;
         }
 

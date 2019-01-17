@@ -146,6 +146,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     char random[RANDOM_MAX_LEN + 1] = {0};
     char *msg = NULL, *dev_info = NULL;
     char *str = NULL, *buf = NULL;
+    char bssid[ETH_ALEN] = {0};
     char ssid_found = 0;
     int ret = -1;
 
@@ -215,6 +216,10 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         }
 
         str_len = 0;
+        str = json_get_value_by_name(buf, len, "bssid", &str_len, 0);
+        if (str) os_wifi_str2mac(str, bssid);
+
+        str_len = 0;
         str = json_get_value_by_name(buf, len, "passwd", &str_len, 0);
 
         if (str_len < (PLATFORM_MAX_PASSWD_LEN * 2) - 1) {
@@ -252,7 +257,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         os_msleep(1940);
         os_awss_close_ap();
         AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
-        ret = os_awss_connect_ap(30 * 1000, ssid, passwd, 0, 0, NULL, 0);
+        ret = os_awss_connect_ap(30 * 1000, ssid, passwd, 0, 0, (uint8_t *)bssid, 0);
         if (ret == 0) {
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
             awss_dev_ap_switchap_done = 1;

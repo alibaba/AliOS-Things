@@ -205,10 +205,11 @@ int awss_notify_dev_info(int type, int count)
 
         snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_DEV_NOTIFY_FMT, ++ g_notify_id, method, dev_info);
 
-        awss_flow("topic:%s, %s\n", topic, buf);
+        awss_info("topic:%s\n", topic);
+        awss_debug("payload:%s\n", buf);
         for (i = 0; i < count; i ++) {
             int ret = awss_cmp_coap_send(buf, strlen(buf), &notify_sa, topic, cb, &g_notify_msg_id);
-            awss_debug("send notify %s", ret == 0 ? "success" : "fail");
+            awss_info("send notify %s", ret == 0 ? "success" : "fail");
             if (count > 1)
                 os_msleep(200 + 100 * i);
 
@@ -271,7 +272,7 @@ static int awss_process_get_devinfo()
         snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
         os_free(dev_info);
 
-        awss_debug("sending message to app: %s", buf);
+        awss_info("sending message to app: %s", buf);
         char topic[TOPIC_LEN_MAX] = { 0 };
         if (ctx->is_mcast) {
             awss_build_topic((const char *)TOPIC_GETDEVICEINFO_MCAST, topic, TOPIC_LEN_MAX);
@@ -283,7 +284,7 @@ static int awss_process_get_devinfo()
         awss_update_token();
 
         if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), ctx->remote, topic, ctx->request))
-            awss_debug("sending failed.");
+            awss_err("sending failed.");
 
         os_free(buf);
         awss_release_coap_ctx(coap_session_ctx);
@@ -330,7 +331,7 @@ static int online_get_device_info(void *ctx, void *resource, void *remote,
      */
     coap_session_ctx = awss_cpy_coap_ctx(request, remote, is_mcast);
     if (coap_session_ctx == NULL) {
-        awss_debug("cpy req ctx fail");
+        awss_err("cpy req ctx fail");
         return -1;
     }
 

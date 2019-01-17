@@ -250,9 +250,9 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     int str_len = 0, success = 1, i  = 0, len = 0, enc_lvl = SEC_LVL_OPEN;
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
     char *str = NULL, *buf = NULL;
+    char bssid[ETH_ALEN] = {0};
     char msg[128] = {0};
     char ssid_found = 0;
-    uint8_t *bssid = NULL;
 
     static char switch_ap_parsed = 0;
     if (switch_ap_parsed != 0)
@@ -295,8 +295,11 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         }
 
         str_len = 0;
+        str = json_get_value_by_name(buf, len, "bssid", &str_len, 0);
+        if (str) os_wifi_str2mac(str, bssid);
+
+        str_len = 0;
         str = json_get_value_by_name(buf, len, "cipherType", &str_len, 0);
-        awss_debug("enr");
         if (!str) {
             success = 0;
             snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -4, "\"no security level error\"");
@@ -378,13 +381,9 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         aplist = zconfig_get_apinfo_by_ssid((uint8_t *)ssid);
         awss_debug("connect '%s'", ssid);
         if (aplist) {
-            bssid = aplist->mac;
+            memcpy(bssid, aplist->mac, ETH_ALEN);
             awss_debug("bssid: %02x:%02x:%02x:%02x:%02x:%02x", \
                        bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
-            if (bssid[0] == 0 && bssid[1] == 0 && bssid[2] == 0 && \
-                bssid[3] == 0 && bssid[4] == 0 && bssid[5] == 0) {
-                bssid = NULL;
-            }
         }
     } while (0);
 #endif
@@ -393,7 +392,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
                                 ssid, passwd,
                                 AWSS_AUTH_TYPE_INVALID,
                                 AWSS_ENC_TYPE_INVALID,
-                                bssid, 0)) {
+                                (uint8_t *)bssid, 0)) {
     } else {
         AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
         AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_TIME_SUC);

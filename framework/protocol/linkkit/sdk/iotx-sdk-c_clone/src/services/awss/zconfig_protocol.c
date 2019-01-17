@@ -29,9 +29,9 @@ extern "C" {
 #endif
 
 /* broadcast mac address */
-const uint8_t br_mac[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+uint8_t br_mac[ETH_ALEN];
 /* all zero mac address */
-const uint8_t zero_mac[ETH_ALEN] = {0, 0, 0, 0, 0, 0};
+uint8_t zero_mac[ETH_ALEN];
 
 /* which channel lock at */
 uint8_t zconfig_channel_locked = INVALID_CHANNEL;/* locked channel */
@@ -136,7 +136,7 @@ uint8_t is_channel_locked(void)
 uint8_t zconfig_callback_channel_locked(uint8_t channel)
 {
     if (channel != zconfig_channel_locked) {
-        awss_debug("channel lock @ %d\r\n", channel);
+        awss_info("channel lock @ %d\r\n", channel);
         zconfig_channel_locked = channel;
     }
 
@@ -153,7 +153,7 @@ uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid)
 {
     uint8_t auth = ZC_AUTH_TYPE_INVALID, encry = ZC_ENC_TYPE_INVALID, channel = 0;
 
-    awss_trace("zconfig done. ssid:%s, mac:%02x%02x%02x%02x%02x%02x\r\n",
+    awss_info("zconfig done. ssid:%s, mac:%02x%02x%02x%02x%02x%02x\r\n",
                ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
     if (zconfig_finished) {
@@ -278,10 +278,13 @@ int zconfig_recv_callback(void *pkt_data, uint32_t pkt_length, uint8_t channel,
 /* init mem & timer */
 void zconfig_init()
 {
-    awss_debug("%s\r\n", __func__);
+    awss_info("%s\r\n", __func__);
 
     zconfig_channel_locked = INVALID_CHANNEL;
     zconfig_finished = 0;
+
+    memset(br_mac, 0xff, ETH_ALEN);
+    memset(zero_mac, 0x00, ETH_ALEN);
 
     zconfig_data = (struct zconfig_data *)os_zalloc(sizeof(struct zconfig_data));
     if (zconfig_data == NULL) {

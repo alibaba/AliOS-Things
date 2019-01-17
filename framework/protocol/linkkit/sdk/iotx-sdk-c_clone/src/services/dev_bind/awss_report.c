@@ -65,7 +65,7 @@ int awss_update_token()
         report_token_timer = HAL_Timer_Create("rp_token", (void (*)(void *))awss_report_token_to_cloud, NULL);
     HAL_Timer_Stop(report_token_timer);
     HAL_Timer_Start(report_token_timer, 10);
-    awss_debug("update token");
+    awss_info("update token");
 
     produce_random(aes_random, sizeof(aes_random));
     return 0;
@@ -104,7 +104,7 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
     reply_id = atoi(id);
     if (reply_id + 1 < awss_report_id)
         return;
-    awss_debug("%s\r\n", __func__);
+    awss_info("%s\r\n", __func__);
     awss_report_token_suc = 1;
     awss_stop_timer(report_token_timer);
     report_token_timer = NULL;
@@ -290,7 +290,7 @@ static int awss_report_token_to_cloud()
     if (awss_report_token_cnt ++ > MATCH_REPORT_CNT_MAX) {
         awss_stop_timer(report_token_timer);
         report_token_timer = NULL;
-        awss_debug("try %d times fail", awss_report_token_cnt);
+        awss_info("try %d times fail", awss_report_token_cnt);
         return -2;
     }
 
@@ -335,7 +335,7 @@ static int awss_report_token_to_cloud()
     awss_build_topic(TOPIC_MATCH_REPORT, topic, TOPIC_LEN_MAX);
 
     int ret = awss_cmp_mqtt_send(topic, packet, packet_len, 1);
-    awss_debug("report token res:%d\r\n", ret);
+    awss_info("report token res:%d\r\n", ret);
     os_free(packet);
 
     return ret;
