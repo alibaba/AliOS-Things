@@ -3078,10 +3078,12 @@ static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt
     iotx_mc_client_t *client = (iotx_mc_client_t *)pclient;
     mqtt_sub_node_t *node = NULL;
     mqtt_sub_node_t *next = NULL;
-    uintptr_t packet_id = (uintptr_t) msg->msg;
+    uintptr_t packet_id;
     if (pclient == NULL || msg == NULL) {
         return;
     }
+
+    packet_id = (uintptr_t) msg->msg;
     mqtt_debug("packet_id = %d, event_type=%d", packet_id, msg->event_type);
 
     HAL_MutexLock(client->lock_generic);
