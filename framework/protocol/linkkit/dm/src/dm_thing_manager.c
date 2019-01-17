@@ -419,6 +419,13 @@ static void dm_cm_event_handler(void *pcontext, iotx_cm_event_msg_t *msg,
                     cm_event_result->result == 0 ? string_success : string_fail,
                     cm_event_result->URI);
 
+        if (strstr(cm_event_result->URI,string_method_name_thing_tsl_get_reply) &&
+            dm_thing_manager->_get_tsl_from_cloud) {
+                /* get tsl template. */
+                send_request_to_uri(dm_thing_manager,
+                                    string_method_name_thing_tsl_get);
+            }
+
         event_str = string_cm_event_type_register_result;
 
     } else if (IOTX_CM_EVENT_UNREGISTER_RESULT == msg->event_id) {
@@ -479,11 +486,6 @@ static void dm_cm_event_handler(void *pcontext, iotx_cm_event_msg_t *msg,
                 dm_lite_free(file_content);
             } else
 #endif /* _PLATFORM_IS_LINUX_ */
-              if (dm_thing_manager->_get_tsl_from_cloud) {
-                /* get tsl template. */
-                send_request_to_uri(dm_thing_manager,
-                                    string_method_name_thing_tsl_get);
-            }
 
             list = (list_t **)dm_thing_manager->_local_thing_list;
 
