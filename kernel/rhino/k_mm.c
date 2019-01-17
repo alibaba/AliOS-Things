@@ -773,7 +773,8 @@ void *krhino_mm_alloc(size_t size)
     if (tmp == NULL) {
 #if (RHINO_CONFIG_MM_DEBUG > 0)
         static int32_t dumped;
-        printf("WARNING, malloc failed!!!!\r\n");
+        printf("WARNING, malloc failed!!!! need size:%d, but free size:%d\r\n",
+                size, get_heap_free_size(g_kmm_head));
         if (dumped) {
             return tmp;
         }
