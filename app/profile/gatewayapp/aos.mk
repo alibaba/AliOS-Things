@@ -21,7 +21,7 @@ GLOBAL_DEFINES      +=  MQTT_DIRECT  ALIOT_DEBUG IOTX_DEBUG USE_LPTHREAD COAP_WI
 
 $(NAME)_SOURCES     := gateway.c gateway_app.c gateway_tsl.c
 
-$(NAME)_COMPONENTS := feature.linkkit-noawss
+$(NAME)_COMPONENTS += feature.linkkit-noawss
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip

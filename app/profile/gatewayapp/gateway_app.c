@@ -19,6 +19,7 @@
 #include "iot_import.h"
 #include "udata/udata.h"
 #include "aos/hal/gpio.h"
+#include "aos/hal/uart.h"
 
 
 #ifdef GW_LINKEDGE_WS
@@ -139,8 +140,6 @@ static int on_connect(void *ctx)
     GW_PRINTF("%s is connected\n", "cloud");
 #endif
 
-    aos_post_event(EV_YUNIO, CODE_YUNIO_ON_CONNECTED, 0);
-
     return 0;
 }
 
@@ -159,8 +158,6 @@ static int on_disconnect(void *ctx)
 #else
     GW_PRINTF("%s is disconnect\n", "cloud");
 #endif
-
-    aos_post_event(EV_YUNIO, CODE_YUNIO_ON_DISCONNECTED, 0);
 
     return 0;
 }
@@ -526,7 +523,7 @@ int gw_app(void)
         linkkit_set_tsl(TSL_STRING, strlen(TSL_STRING));
     }
 
-    cloud_started = true;
+    cloud_started = 1;
 #endif
 
 #ifdef PT_SCANNER
