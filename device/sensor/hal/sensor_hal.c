@@ -41,6 +41,8 @@ static SENSOR_IRQ_CALLBACK g_sensor_irq_cb = NULL;
 static sensor_obj_t       *g_sensor_obj[TAG_DEV_SENSOR_NUM_MAX];
 static uint32_t            g_sensor_cnt = 0;
 
+
+
 static void sensor_set_power_mode(dev_power_mode_e power, int index)
 {
     g_sensor_obj[index]->power = power;
@@ -77,6 +79,7 @@ static int sensor_get_sensor_mode_config(int index, dev_sensor_config_t *config)
     return 0;
 }
 
+#ifdef SENSOR_IRQ
 static void sensor_irq_handle(void *arg)
 {
     uint32_t index = (uint32_t)arg;
@@ -101,6 +104,7 @@ static void sensor_irq_handle(void *arg)
     return;
 }
 
+
 static int  sensor_register_irq(int index )
 {
     int ret;
@@ -117,6 +121,7 @@ static int  sensor_register_irq(int index )
     }
     return 0;
 }
+#endif
 
 static int find_selected_sensor(char *path)
 {
@@ -146,7 +151,7 @@ static int load_sensor_config(int index)
 static int sensor_obj_register(int index )
 {
     int ret = 0;
-
+#ifdef SENSOR_IRQ
     if ((g_sensor_obj[index]->mode == DEV_INT) ||
         (g_sensor_obj[index]->mode == DEV_DATA_READY) ||
         (g_sensor_obj[index]->mode == DEV_FIFO)) {
@@ -155,6 +160,7 @@ static int sensor_obj_register(int index )
             return -1;
         }
     }
+#endif
 
     ret = aos_register_driver(g_sensor_obj[index]->path, &sensor_fops, NULL);
     if (unlikely(ret)) {
@@ -183,7 +189,6 @@ int sensor_create_obj(sensor_obj_t* sensor)
     g_sensor_obj[g_sensor_cnt]->ioctl      = sensor->ioctl;
     g_sensor_obj[g_sensor_cnt]->read       = sensor->read;
     g_sensor_obj[g_sensor_cnt]->write      = sensor->write;
-    g_sensor_obj[g_sensor_cnt]->irq_handle = sensor->irq_handle;
     g_sensor_obj[g_sensor_cnt]->mode       = sensor->mode;
     g_sensor_obj[g_sensor_cnt]->data_buf   = 0;
     g_sensor_obj[g_sensor_cnt]->data_len   = sensor->data_len;
@@ -191,13 +196,15 @@ int sensor_create_obj(sensor_obj_t* sensor)
       DEV_POWER_OFF;                     // will update the status later
     g_sensor_obj[g_sensor_cnt]->ref = 0; // count the ref of this sensor
 
+#ifdef SENSOR_IRQ
+	g_sensor_obj[g_sensor_cnt]->irq_handle = sensor->irq_handle;
     if ((sensor->mode == DEV_INT) || (sensor->mode == DEV_DATA_READY) ||
         (sensor->mode == DEV_FIFO)) {
         g_sensor_obj[g_sensor_cnt]->gpio.port   = sensor->gpio.port;
         g_sensor_obj[g_sensor_cnt]->gpio.config = sensor->gpio.config;
         g_sensor_obj[g_sensor_cnt]->gpio.priv   = sensor->gpio.priv;
     }
-
+#endif
     /* register the sensor object into the irq list and vfs */
 
     ret = sensor_obj_register(g_sensor_cnt);
