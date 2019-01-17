@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_HC32L136K8TA
     bool "hc32l136k8ta"
     select AOS_MCU_HC32L136
+    select AOS_COMP_LIBC
     help
 
 if AOS_BOARD_HC32L136K8TA

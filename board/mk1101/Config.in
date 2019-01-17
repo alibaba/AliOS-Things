@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_MK1101
     bool "board_mk1101"
     select AOS_MCU_MX1101
+    select AOS_COMP_KERNEL_INIT
     help
 
 if AOS_BOARD_MK1101

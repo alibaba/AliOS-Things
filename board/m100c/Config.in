@@ -1,9 +1,17 @@
 menuconfig AOS_BOARD_M100C
     bool "board_m100c"
     select AOS_MCU_EFM32GXX
-    select AOS_COMP_LORACHIP
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_LORAWAN_4_4_2 if lorawanback = 0
+    select AOS_COMP_LORAWAN_4_4_0 if lorawanback = 1
     help
 
 if AOS_BOARD_M100C
 # Configurations for board board_m100c
+
+config lorawanback
+    int "lorawanback"
+    range 0 1
+    default 0
+
 endif

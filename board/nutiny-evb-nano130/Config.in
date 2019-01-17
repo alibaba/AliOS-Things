@@ -1,6 +1,9 @@
 menuconfig AOS_BOARD_NUTINY-EVB-NANO130
     bool "nutiny-evb-nano130"
     select AOS_MCU_NANO130KE3BN
+    select AOS_COMP_LIBC
+    select AOS_COMP_NETMGR
+    select AOS_COMP_KERNEL_INIT
     help
 
 if AOS_BOARD_NUTINY-EVB-NANO130

@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_STM32F103ZE
     bool "stm32f103ze"
     select AOS_MCU_STM32F1XX
+    select AOS_COMP_KERNEL_INIT
     help
 
 if AOS_BOARD_STM32F103ZE

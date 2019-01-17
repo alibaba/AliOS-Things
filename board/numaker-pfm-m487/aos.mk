@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := M487JIDAE
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos newlib_stub init vfs kv netmgr
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub init netmgr
 
 GLOBAL_DEFINES += KV_CONFIG_PARTITION=5
 GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=8192
