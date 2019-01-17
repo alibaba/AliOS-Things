@@ -604,9 +604,10 @@ bool RegionCN470RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         maxPayload = MaxPayloadOfDatarateCN470[dr];
     }
     Radio.SetMaxPayloadLength( MODEM_LORA, maxPayload + LORA_MAC_FRMPAYLOAD_OVERHEAD );
-    PRINTNOW();PRINTF( "RX on freq %d Hz at DR %d,channelIndex=%d,SecondFreqGroupEnable=%d.\r\n", frequency, dr, rxConfig->Channel,SecondFreqGroupEnable);
 
     *datarate = (uint8_t) dr;
+    rxConfig->Frequency = frequency;
+
     return true;
 }
 
