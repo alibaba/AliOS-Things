@@ -10,7 +10,7 @@ LWIP := 1
 SAL  := 0
 
 $(NAME)_COMPONENTS += arch_cskyv2-l
-$(NAME)_COMPONENTS += rhino cjson cli netmgr
+$(NAME)_COMPONENTS += rhino netmgr
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS += lwip

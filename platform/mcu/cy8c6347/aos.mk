@@ -7,7 +7,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu cy8c6347
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino kv vfs
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_INCLUDES += ../../arch/arm/armv7m/gcc/m4
 
