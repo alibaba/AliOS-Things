@@ -11,7 +11,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu atsame54
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino kv vfs
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_INCLUDES += aos                       \
                    Drivers                   \

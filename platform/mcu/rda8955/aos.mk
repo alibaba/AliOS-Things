@@ -8,7 +8,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu RDA8955
 
 $(NAME)_COMPONENTS += arch_mips-I
-$(NAME)_COMPONENTS += newlib_stub rhino netmgr cjson lwip
+$(NAME)_COMPONENTS += newlib_stub rhino netmgr lwip
 
 #dual_os ?= no
 

@@ -1,8 +1,6 @@
 menuconfig AOS_MCU_ATSAME54
     bool "mcu_atsame54"
     default n
-    select AOS_COMP_VFS
-    select AOS_COMP_KV
     select AOS_ARCH_ARMV7M
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO
