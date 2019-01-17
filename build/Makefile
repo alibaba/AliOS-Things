@@ -13,16 +13,15 @@ ifeq (,$(SUB_BUILD))
 JOBSNO := -j$(JOBS)
 endif
 
-MAKEFILE_TARGETS := clean Help $(CMD) # targets used by makefile
+MAKEFILE_TARGETS := clean distclean Help # targets used by makefile
 
 #define BUILD_STRING, AOS toolchain commands on different hosts
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
-
 # kconfig support
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
 # Process build strings
-BUILD_SUBTARGETS := .config .compile .image .export-keil .export-iar
+BUILD_SUBTARGETS := .config .compile .image .export-keil .export-iar .defconfig
 export BUILD_STRING ?= $(strip $(filter-out $(MAKEFILE_TARGETS) download run total export_linkkit_sdk restore_linkkit_sdk, $(MAKECMDGOALS)))
 
 # Set IDE if export-* is specified
@@ -40,6 +39,37 @@ export OUTPUT_DIR  := $(BUILD_DIR)/$(CLEANED_BUILD_STRING)$(MBINS)
 export CONFIG_FILE := $(OUTPUT_DIR)/config.mk
 export AUTO_COMPONENT_DIR := $(OUTPUT_DIR)/auto_component
 
+# Get AOS_BUILD_APP, AOS_BUILD_BOARD from BUILD_STRING for creating
+# AOS_CONFIG if it is not existing
+ifneq ($(BUILD_STRING),)
+components := $(subst @, ,$(BUILD_STRING))
+appname = $(notdir $(subst .,/,$(firstword $(components))))
+boardname = $(word 2, $(components))
+
+ifneq ($(wildcard $(AOS_CONFIG)),)
+include $(AOS_CONFIG)
+
+ifneq ($(AOS_BUILD_APP),)
+ifneq ($(AOS_BUILD_APP),"$(appname)")
+$(warning Build config missmatched: $(AOS_BUILD_APP),"$(appname)")
+CLEAN_CONFIG := yes
+endif
+endif # $(AOS_BUILD_APP)
+
+ifneq ($(AOS_BUILD_BOARD),)
+ifneq ($(AOS_BUILD_BOARD),"$(boardname)")
+$(warning Build config missmatched: $(AOS_BUILD_APP),"$(appname)")
+CLEAN_CONFIG := yes
+endif
+endif # $(AOS_BUILD_BOARD)
+$(if $(CLEAN_CONFIG), $(info Cleaning existing build configs ...) $(shell rm -rf .config .defconfig out/config),)
+endif # $(wildcard $(AOS_CONFIG))
+
+export AOS_BUILD_APP = $(appname)
+export AOS_BUILD_BOARD = $(boardname)
+endif # $(BUILD_STRING)
+
+# prebuild support
 include $(MAKEFILES_PATH)/aos_prebuild.mk
 
 # Support for MBINS build
@@ -166,8 +196,12 @@ ifneq (,$(wildcard build/scripts/*.pyc))
 endif
 	$(QUIET)$(ECHO) Done
 
+distclean: clean
+	$(QUIET)rm -f .config .defconfig
+
 ifneq ($(BUILD_STRING),)
 -include $(OUTPUT_DIR)/config.mk
+-include $(AOS_CONFIG)
 
 # Include toolchain
 ifeq ($(IDE),iar)
@@ -223,13 +257,26 @@ else ifeq ($(IDE),iar)
 main_app: $(addsuffix .export-iar, $(BUILD_STRING))
 endif
 
+.PHONY: show-build-info
+show-build-info:
+	$(QUIET)$(ECHO)
+	$(QUIET)$(ECHO) Build Configuration:
+	$(QUIET)$(ECHO) ====================
+	$(QUIET)$(ECHO) App:   $(AOS_BUILD_APP)
+	$(QUIET)$(ECHO) Board: $(AOS_BUILD_BOARD)
+	$(QUIET)$(ECHO) ====================
+	$(QUIET)$(ECHO)
+
+.PHONY: prebuild
+prebuild: show-build-info $(AOS_PRE_BUILD_TARGETS)
+
 init-build-env: $(OUTPUT_DIR)/config.mk
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/includes)
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config.mk $(AUTO_COMPONENT_DIR)
 
-main_app: $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/aos_target_build.mk init-build-env
+main_app: prebuild $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES_PATH)/aos_target_build.mk init-build-env
 	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
 	$(QUIET)$(ECHO) Build AOS Now
 	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
@@ -282,3 +329,6 @@ restore_linkkit_sdk:
 
 %.compile: %.config
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $@
+
+%.defconfig: defconfig
+	$(QUIET)$(ECHO) Create .config complete
