@@ -11,6 +11,10 @@ void k_err_proc_debug(kstat_t err, char *file, int line)
         extern int printf(const char *fmt, ...);
         printf("\r\nError ! no:%d,file:%s,line:%d\r\n", err, file, line);
 #endif
+
+#if (DEBUG_CONFIG_BACKTRACE > 0)
+        backtrace_now(NULL);
+#endif
         g_err_proc(err);
     }
 }
