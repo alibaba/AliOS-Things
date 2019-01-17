@@ -1,8 +1,6 @@
 menuconfig AOS_MCU_AAMCU_DEMO
     bool "mcu_aamcu_demo"
     default n
-    select AOS_COMP_VFS
-    select AOS_COMP_KV
     select AOS_ARCH_ARMV7M
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO

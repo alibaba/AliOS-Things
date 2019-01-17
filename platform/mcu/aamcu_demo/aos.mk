@@ -5,7 +5,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu aamcu_demo
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino vfs kv
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_INCLUDES += drivers/ \
                    hal/include

@@ -5,7 +5,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32l4xx
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino vfs
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_DEFINES += USE_HAL_DRIVER
 

@@ -1,17 +1,27 @@
 menuconfig AOS_MCU_CSKY
     bool "mcu_csky"
     default n
-    select AOS_COMP_LWIP if @CONDITION@
     select AOS_COMP_CLI
-    select AOS_COMP_SAL if @CONDITION@
-    select AOS_COMP_CJSON
-    select AOS_COMP_NETMGR if @CONDITION@
+    select AOS_COMP_LWIP if LWIP_CONFIG = 1
+    select AOS_COMP_SAL if SAL_CONFIG = 1
+    select AOS_COMP_NETMGR if SAL_CONFIG = 1 || LWIP_CONFIG = 1
     select AOS_COMP_RHINO
-    select AOS_COMP_DEVICE_SAL_ESP8266 if @CONDITION@
+    select AOS_COMP_DEVICE_SAL_ESP8266 if SAL_CONFIG = 1
     select AOS_ARCH_CSKYV2-L
     help
       driver & sdk for platform/mcu csky
 
 if AOS_MCU_CSKY
 # Configurations for mcu csky
+
+config LWIP_CONFIG
+    int "lwip config"
+    range 0 1
+    default 0
+
+config SAL_CONFIG
+    int "sal config"
+    range 0 1
+    default 1
+
 endif
