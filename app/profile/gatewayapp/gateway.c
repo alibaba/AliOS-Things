@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
+ * Copyright (c) 2014-2018 Alibaba Group. All rights reserved.
  * License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -26,6 +26,7 @@
 #include <aos/yloop.h>
 #include "netmgr.h"
 #include "udata/udata.h"
+#include "udata_queue.h"
 
 #ifdef DATA_TO_CLOUD
 
@@ -227,7 +228,7 @@ void gateway_report_demo(sensor_msg_pkg_t *msg)
 
     if (msg->cmd == UDATA_MSG_REPORT_PUBLISH) {
         int ret = 0;
-        ret = udata_report_publish(msg, &buf);
+        ret = udata_report_publish(msg->value, &buf);
         if (ret != 0) {
             return;
         }
