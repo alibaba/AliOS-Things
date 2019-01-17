@@ -185,8 +185,13 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
     const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(huart->Instance);
     UART_MAPPING* uartIns = GetUARTMapping(appPort);
+
+    if (uartIns == NULL) {
+        return;
+    }
+
     //Only try to recover the OVER ERR when the UART RCV using normal ISR
-    if(stm32_uart[appPort].hal_uart_handle.hdmarx == NULL){
+    if (stm32_uart[appPort].hal_uart_handle.hdmarx == NULL) {
         snprintf(error_info,sizeof(error_info),"\n### FATAL UART %d OVER RUN !!!\n",appPort);
         const uint8_t info_size = strlen(error_info);
         uint8_t i = 0;
@@ -428,6 +433,10 @@ static int32_t uart_receive_it(uart_dev_t *uart, void *data, uint32_t expect_siz
 
     UART_MAPPING* uartIns = GetUARTMapping(uart->port);
 
+    if (uartIns == NULL) {
+        return ret;
+    }
+
     while ( rx_count < expect_size )
     {
 
@@ -521,6 +530,10 @@ static int32_t uart_receive_dma(uart_dev_t *uart, void *data, uint32_t expect_si
     int32_t ret = -1;
 
     UART_MAPPING* uartIns = GetUARTMapping(uart->port);
+
+    if (uartIns == NULL) {
+        return ret;
+    }
 
     if (stm32_uart[uart->port].uart_error_count) {
         printf("WARNING : uart %d have already lose %d byte \r\n", uart->port, stm32_uart[uart->port].uart_error_count);
@@ -929,9 +942,14 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart)
     const PORT_UART_TYPE appPort = GetAppPortFromPhyInstanse(huart->Instance);
     UART_MAPPING* uartIns = GetUARTMapping(appPort);
 
-    if(stm32_uart[appPort].uart_dma_stop) {
-        if(stm32_uart[appPort].uart_error_count<0xffffffff)
+    if (uartIns == NULL) {
+        return;
+    }
+
+    if (stm32_uart[appPort].uart_dma_stop) {
+        if (stm32_uart[appPort].uart_error_count < 0xffffffff) {
             stm32_uart[appPort].uart_error_count++;
+        }
     } else {
         left_byte = __HAL_DMA_GET_COUNTER(huart->hdmarx);
         /* if left_byte=0, means DMA transfer complete interrupt maybe has happened
