@@ -11,13 +11,7 @@ $(NAME)_COMPONENTS += feature.linkkit-gateway
 
 GLOBAL_CFLAGS += -DMQTT_DIRECT
 
-LINKKIT_GATEWAY_CONFIG_DEPRECATED ?= 0
-deprecated ?= $(LINKKIT_GATEWAY_CONFIG_DEPRECATED)
-
-LINKKIT_GATEWAY_CONFIG_PRINT_HEAP ?= 0
-print_heap ?= $(LINKKIT_GATEWAY_CONFIG_PRINT_HEAP)
-
-ifeq ($(deprecated),1)
+ifeq ($(LINKKIT_GATEWAY_CONFIG_DEPRECATED),1)
 $(NAME)_SOURCES += deprecated/gateway.c
 GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else
@@ -29,7 +23,7 @@ $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
-ifeq ($(print_heap),1)
+ifeq ($(LINKKIT_GATEWAY_CONFIG_PRINT_HEAP),1)
 $(NAME)_DEFINES += CONFIG_PRINT_HEAP
 endif
 
@@ -41,7 +35,7 @@ GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
 #for test command
-ifeq ($(deprecated),1)
+ifeq ($(LINKKIT_GATEWAY_CONFIG_DEPRECATED),1)
 GLOBAL_CFLAGS += -DLINKKIT_GATEWAY_TEST_CMD
 $(NAME)_SOURCES += simulate_subdev/testcmd.c simulate_subdev/testcmd_lock.c
 endif

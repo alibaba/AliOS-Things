@@ -9,14 +9,6 @@ $(NAME)_COMPONENTS := cli sensor udata
 
 GLOBAL_INCLUDES += ./
 
-ifeq ($(dtc),linkkit)
-AOS_CONFIG_DTC_LINKKIT = y
-UDATA_CONFIG_DTC_ENABLE = y
-else ifeq ($(dtc),mqtt)
-AOS_CONFIG_DTC_MQTT = y
-UDATA_CONFIG_DTC_ENABLE = y
-endif
-
 ifeq ($(AOS_CONFIG_DTC_LINKKIT),y)
 
 $(NAME)_SOURCES += linkkit/app_entry.c
@@ -24,7 +16,7 @@ $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 
 $(NAME)_COMPONENTS += feature.linkkit yloop netmgr cjson
 
-ifeq ($(AOS_CONFIG_LWIP_ENABLE),y)
+ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif

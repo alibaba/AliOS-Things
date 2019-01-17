@@ -3,15 +3,10 @@ menuconfig AOS_APP_UDATAAPP
     select AOS_COMP_CLI
     select AOS_COMP_SENSOR
     select AOS_COMP_UDATA
-    select AOS_COMP_NETMGR if AOS_CONFIG_DTC_MQTT
-    select AOS_COMP_MQTT if AOS_CONFIG_DTC_MQTT
-
-    select AOS_COMP_NETMGR if AOS_CONFIG_DTC_LINKKIT
-    select AOS_COMP_MQTT if AOS_CONFIG_DTC_LINKKIT
+    select AOS_COMP_NETMGR if AOS_CONFIG_DTC_MQTT || AOS_CONFIG_DTC_LINKKIT
+    select AOS_COMP_YLOOP if AOS_CONFIG_DTC_MQTT || AOS_CONFIG_DTC_LINKKIT    
     select AOS_COMP_CJSON if AOS_CONFIG_DTC_LINKKIT
-    select AOS_COMP_LINKKIT if AOS_CONFIG_DTC_LINKKIT
-    #select AOS_COMP_OTA if AOS_CONFIG_DTC_LINKKIT
-    select AOS_COMP_LWIP if AOS_CONFIG_DTC_LINKKIT    
+    select AOS_COMP_LWIP if AOS_CONFIG_DTC_LINKKIT && LWIP = 1   
     help
         uData sensor framework demo
 
@@ -24,6 +19,7 @@ choice
     default AOS_CONFIG_DTC_MQTT
     help
         This is 'choice' list sample
+
     config AOS_CONFIG_DTC_LINKKIT
         bool "linkkit"
         default n
@@ -35,12 +31,5 @@ choice
         help
             Enable mqtt
 endchoice
-
-config AOS_CONFIG_LWIP_ENABLE
-    bool "lwip"
-	depends on AOS_CONFIG_DTC_LINKKIT
-	default n
-	help
-	    Enable lwip
 
 endif
