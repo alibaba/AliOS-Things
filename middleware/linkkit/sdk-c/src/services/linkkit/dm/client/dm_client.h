@@ -47,6 +47,7 @@ void dm_client_ext_error(int fd, const char *topic, const char *payload, unsigne
 #endif
 
 #ifdef DEVICE_MODEL_GATEWAY
+int dm_client_subdev_unsubscribe(char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN]);
 void dm_client_thing_topo_add_notify(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                      void *context);
 void dm_client_thing_disable(int fd, const char *topic, const char *payload, unsigned int payload_len, void *context);

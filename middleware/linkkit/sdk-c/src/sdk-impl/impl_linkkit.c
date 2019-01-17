@@ -1053,6 +1053,26 @@ static int _iotx_linkkit_master_close(void)
     return SUCCESS_RETURN;
 }
 
+#ifdef DEVICE_MODEL_GATEWAY
+static int _iotx_linkkit_slave_close(int devid)
+{
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+
+    _iotx_linkkit_mutex_lock();
+    if (ctx->is_opened == 0) {
+        _iotx_linkkit_mutex_unlock();
+        return FAIL_RETURN;
+    }
+
+    /* Release Subdev Resources */
+    iotx_dm_subdev_destroy(devid);
+
+    _iotx_linkkit_mutex_unlock();
+
+    return SUCCESS_RETURN;
+}
+#endif
+
 int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_info_t *meta_info)
 {
     int res = 0;
@@ -1151,14 +1171,17 @@ int IOT_Linkkit_Close(int devid)
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
         res = _iotx_linkkit_master_close();
-    } else {
-        return FAIL_RETURN;
-    }
-
 #ifdef DEV_BIND_ENABLED
-    extern int awss_bind_deinit(void);
-    awss_bind_deinit();
+        extern int awss_bind_deinit(void);
+        awss_bind_deinit();
 #endif
+    } else {
+#ifdef DEVICE_MODEL_GATEWAY
+        res = _iotx_linkkit_slave_close(devid);
+#else
+        res = FAIL_RETURN;
+#endif
+    }
 
     return res;
 }
