@@ -8,7 +8,6 @@ $(NAME)_SUMMARY := breeze provides secure BLE connection to Alibaba IoT cloud an
 $(NAME)_SOURCES-y += core/core.c
 $(NAME)_SOURCES-y += core/transport.c
 $(NAME)_SOURCES-y += core/ble_service.c
-$(NAME)_SOURCES-y += core/sha256.c
 $(NAME)_SOURCES-y += core/utils.c
 $(NAME)_SOURCES-y += core/extcmd.c
 

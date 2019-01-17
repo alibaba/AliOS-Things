@@ -4,16 +4,17 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <breeze_hal_os.h>
 #include "extcmd.h"
 #include "auth.h"
 #include "common.h"
 #include "core.h"
 #include "utils.h"
-#include "sha256.h"
 #include "breeze_export.h"
 #include "chip_code.h"
 #include "bzopt.h"
+
+#include <breeze_hal_os.h>
+#include <breeze_hal_sec.h>
 
 #define RANDOM_LEN 16
 #define SHA256_DATA_LEN 32
@@ -153,21 +154,21 @@ static void network_signature_calculate(uint8_t *p_buff)
 
     SET_U32_LE(cli_id, g_extcmd.model_id);
     hex2string(cli_id, sizeof(cli_id), str_id);
-    sha256_init(&context);
+    sec_sha256_init(&context);
 
-    sha256_update(&context, CLIENTID_STR, strlen(CLIENTID_STR));
-    sha256_update(&context, str_id, sizeof(str_id));
+    sec_sha256_update(&context, CLIENTID_STR, strlen(CLIENTID_STR));
+    sec_sha256_update(&context, str_id, sizeof(str_id));
 
-    sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR)); /* "deviceName" */
-    sha256_update(&context, g_extcmd.p_device_name, g_extcmd.device_name_len);
+    sec_sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR)); /* "deviceName" */
+    sec_sha256_update(&context, g_extcmd.p_device_name, g_extcmd.device_name_len);
 
-    sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR)); /* "deviceSecret" */
-    sha256_update(&context, g_extcmd.p_secret, g_extcmd.secret_len);
+    sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR)); /* "deviceSecret" */
+    sec_sha256_update(&context, g_extcmd.p_secret, g_extcmd.secret_len);
 
-    sha256_update(&context, PRODUCT_KEY_STR, strlen( PRODUCT_KEY_STR)); /* "productKey" */
-    sha256_update(&context, g_extcmd.p_product_key, g_extcmd.product_key_len);
+    sec_sha256_update(&context, PRODUCT_KEY_STR, strlen( PRODUCT_KEY_STR)); /* "productKey" */
+    sec_sha256_update(&context, g_extcmd.p_product_key, g_extcmd.product_key_len);
 
-    sha256_final(&context, p_buff);
+    sec_sha256_final(&context, p_buff);
 }
 
 static ret_code_t ext_cmd05_rsp(uint8_t *p_buff, uint8_t *p_blen, const uint8_t *p_data, uint8_t dlen)
