@@ -18,6 +18,8 @@
 #endif
 
 #include "ota/ota_service.h"
+#include "ota_hal_plat.h"
+#include "ota_hal_os.h"
 
 static ota_service_t ctx = {0};
 
@@ -72,16 +74,6 @@ static void handle_ota_cmd(char *buf, int blen, int argc, char **argv)
     aos_task_new("ota_example", ota_work, &ctx, 1024 * 6);
 }
 
-typedef struct
-{
-    uint32_t ota_len;
-    uint32_t ota_crc;
-    uint32_t ota_type;
-    uint32_t update_type;
-    uint32_t splict_size;
-    uint8_t  diff_version;
-} ota_reboot_info_t;
-
 static void handle_diff_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[0] : "";
@@ -91,12 +83,13 @@ static void handle_diff_cmd(char *pwbuf, int blen, int argc, char **argv)
         }
         uint32_t ota_size = atoi(argv[1]);
         uint32_t splict_size = atoi(argv[2]);
-        ota_reboot_info_t ota_info;
-        ota_info.ota_len = ota_size;
-        ota_info.ota_type = 1;
-        ota_info.diff_version = 1;
+        ota_boot_param_t ota_info;
+        ota_info.rec_size = ota_size;
         ota_info.splict_size = splict_size;
-        LOG("%s %d %d %p\n", rtype, ota_size, splict_size,&ota_info);
+        ota_info.upg_flag = OTA_DIFF;
+        ota_info.res_type = OTA_FINISH;
+        LOG("%s %d %d %p\n", rtype, ota_size, splict_size, &ota_info);
+        ota_hal_boot(&ota_info);
         //hal_ota_switch_to_new_fw(&ota_info);
     }
 }
