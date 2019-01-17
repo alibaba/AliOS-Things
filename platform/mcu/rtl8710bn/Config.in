@@ -1,13 +1,11 @@
 menuconfig AOS_MCU_RTL8710BN
     bool "mcu_rtl8710bn"
     default n
-    select AOS_COMP_LWIP if @CONDITION@
-    select AOS_COMP_CLI if @CONDITION@
-    select AOS_COMP_NETMGR if @CONDITION@
-    select AOS_ARCH_ARMV7M if @CONDITION@
-    select AOS_COMP_OTA_2ND_BOOT if @CONDITION@
-    select AOS_COMP_RHINO if @CONDITION@
-    select AOS_COMP_NEWLIB_STUB if @CONDITION@
+    select AOS_COMP_LWIP
+    select AOS_COMP_NETMGR
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    select AOS_COMP_LIBC 
     help
       driver & sdk for platform/mcu rtl8710bn
 
