@@ -289,6 +289,11 @@ int dm_mgr_device_destroy(_IN_ int devid)
         dm_shw_destroy(&node->dev_shadow);
     }
 #endif
+
+#ifdef DEVICE_MODEL_GATEWAY
+    dm_client_subdev_unsubscribe(node->product_key,node->device_name);
+#endif
+
     DM_free(node);
 
     return SUCCESS_RETURN;
