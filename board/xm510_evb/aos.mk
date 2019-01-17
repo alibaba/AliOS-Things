@@ -8,7 +8,7 @@ HOST_ARCH          := Cortex-A5
 HOST_MCU_FAMILY    := mcu_xm510
 SUPPORT_MBINS      := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
 
 $(NAME)_SOURCES := board.c
 
