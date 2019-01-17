@@ -1,11 +1,8 @@
 menuconfig AOS_MCU_MIMXRT1052IMPL
     bool "mcu_mimxrt1052impl"
     default n
-    select AOS_COMP_CLI
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
-    select AOS_COMP_KV
-    select AOS_COMP_VFS
     select AOS_COMP_NEWLIB_STUB
     help
       driver & sdk for platform/mcu mimxrt1052impl

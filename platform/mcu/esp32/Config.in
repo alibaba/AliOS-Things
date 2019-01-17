@@ -3,16 +3,33 @@ menuconfig AOS_MCU_ESP32
     default n
     select AOS_COMP_LWIP
     select AOS_COMP_ALICRYPTO
-    select AOS_COMP_BT_HOST if @CONDITION@
+    select AOS_COMP_BT_HOST if BLE_CONFIG = 0
     select AOS_COMP_NETMGR
-    select AOS_ARCH_XTENSA_LX6 if @CONDITION@
-    select AOS_COMP_RHINO if @CONDITION@
+    select AOS_COMP_IMBEDTLS
+    select AOS_ARCH_XTENSA_LX6 if OSAL_CONFIG = rhino
+    select AOS_COMP_RHINO if OSAL_CONFIG = rhino
     select AOS_COMP_MBEDTLS
-    select AOS_COMP_UMESH if @CONDITION@
-    select AOS_COMP_KV
+    select AOS_COMP_UMESH if  MESH_CONFIG = 0
     help
       driver & sdk for platform/mcu esp32
 
 if AOS_MCU_ESP32
 # Configurations for mcu esp32
+
+config OSAL_CONFIG
+    string "osal config"
+    default rhino
+    help
+        osal = rhino/freertos
+
+config MESH_CONFIG
+    int "mesh config"
+    range 0 1
+    default 0
+
+config BLE_CONFIG
+    int "ble config"
+    range 0 1
+    default 0
+
 endif
