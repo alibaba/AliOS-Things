@@ -1,8 +1,7 @@
 # --- Generated Automatically ---
 menuconfig AOS_APP_EXAMPLE
     bool "Builtin Examples"
-    default y
-
+    default n
 if AOS_APP_EXAMPLE
 choice
     prompt "Select example"
