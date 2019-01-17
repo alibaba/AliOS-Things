@@ -10,7 +10,7 @@ HOST_MCU_FAMILY    := mcu_nrf52xxx
 SUPPORT_MBINS      := no
 HOST_MCU_NAME      := nrf52832
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) osal_aos init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
 
 GLOBAL_INCLUDES += .
 
