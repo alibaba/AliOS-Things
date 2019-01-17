@@ -5,6 +5,7 @@ menuconfig AOS_APP_OTAAPP
     select AOS_COMP_OTA
     select AOS_COMP_CJSON
 #    select AOS_COMP_LINKKIT_MQTT
+    select AOS_COMP_LWIP if LWIP = 1
     help
         OTA demo app for developers
 
