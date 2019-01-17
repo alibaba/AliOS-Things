@@ -1,6 +1,7 @@
 menuconfig AOS_BOARD_RK1108
     bool "board_rk1108"
     select AOS_MCU_LINUXIMPL
+    select AOS_COMP_KERNEL_INIT
     help
 
 if AOS_BOARD_RK1108

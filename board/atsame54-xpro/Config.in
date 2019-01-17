@@ -1,7 +1,9 @@
 menuconfig AOS_BOARD_ATSAME54-XPRO
     bool "board_atsame54-xpro"
     select AOS_MCU_ATSAME54
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    select AOS_COMP_KERNEL_INIT
+    select SAL_ENABLED if AOS_NETWORK_SAL
+    select AOS_COMP_NETMGR if AOS_NETWORK_SAL
     help
       configuration for board atsame54-xpro
 
