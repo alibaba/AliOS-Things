@@ -6,7 +6,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu esp8266
 
-$(NAME)_COMPONENTS := yloop kv newlib_stub debug
+$(NAME)_COMPONENTS := yloop newlib_stub debug
 $(NAME)_COMPONENTS += lwip netmgr alicrypto
 $(NAME)_COMPONENTS += ota_2nd_boot
 

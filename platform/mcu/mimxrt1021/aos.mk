@@ -6,7 +6,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu mimxrt1021impl
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += rhino newlib_stub kv cli vfs
+$(NAME)_COMPONENTS += rhino newlib_stub
 
 GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=8192
 

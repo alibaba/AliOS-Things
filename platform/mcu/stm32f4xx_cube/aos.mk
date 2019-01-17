@@ -6,7 +6,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu stm32f4xx_cube
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino vfs kv
+$(NAME)_COMPONENTS += newlib_stub rhino
 
 GLOBAL_DEFINES += USE_HAL_DRIVER
 

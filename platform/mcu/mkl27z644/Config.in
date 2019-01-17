@@ -3,7 +3,7 @@ menuconfig AOS_MCU_MKL27Z644IMPL
     default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
-    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_LIBC
     help
       driver & sdk for platform/mcu mkl27z644impl
 
