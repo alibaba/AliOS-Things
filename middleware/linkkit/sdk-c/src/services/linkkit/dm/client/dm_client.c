@@ -386,6 +386,31 @@ void dm_client_ext_error(int fd, const char *topic, const char *payload, unsigne
 #endif
 
 #ifdef DEVICE_MODEL_GATEWAY
+int dm_client_subdev_unsubscribe(char product_key[PRODUCT_KEY_MAXLEN], char device_name[DEVICE_NAME_MAXLEN])
+{
+    int res = 0, index = 0;
+    int number = sizeof(g_dm_client_uri_map) / sizeof(dm_client_uri_map_t);
+    char *uri = NULL;
+
+    for (index = 0; index < number; index++) {
+        if ((g_dm_client_uri_map[index].dev_type & IOTX_DM_DEVICE_SUBDEV) == 0) {
+            continue;
+        }
+
+        res = dm_utils_service_name((char *)g_dm_client_uri_map[index].uri_prefix, (char *)g_dm_client_uri_map[index].uri_name,
+                                    product_key, device_name, &uri);
+        if (res < SUCCESS_RETURN) {
+            index--;
+            continue;
+        }
+
+        dm_client_unsubscribe(uri);
+        DM_free(uri);
+    }
+
+    return SUCCESS_RETURN;
+}
+
 void dm_client_thing_topo_add_notify(int fd, const char *topic, const char *payload, unsigned int payload_len,
                                      void *context)
 {
