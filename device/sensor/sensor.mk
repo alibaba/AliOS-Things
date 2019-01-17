@@ -15,11 +15,11 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_sensirion_shtc1.c \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
-        drv/drv_mag_temp_memsic_mmc3680kj.c \
-		drv/drv_gr_baro_temp_hum_bosch_bme680/drv_gr_baro_temp_hum_bosch_bme680.c \
-        drv/drv_pm_sensirion_sps30/sensirion_common.c \
-        drv/drv_pm_sensirion_sps30/sps30.c \
-        drv/drv_pm_sensirion_sps30/drv_pm_sensirion_sps30.c 
+        drv/drv_mag_temp_memsic_mmc3680kj.c
+#		drv/drv_gr_baro_temp_hum_bosch_bme680/drv_gr_baro_temp_hum_bosch_bme680.c \
+#        drv/drv_pm_sensirion_sps30/sensirion_common.c \
+#        drv/drv_pm_sensirion_sps30/sps30.c \
+#        drv/drv_pm_sensirion_sps30/drv_pm_sensirion_sps30.c 
 
         
 
