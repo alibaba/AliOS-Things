@@ -383,7 +383,6 @@ int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN
                               _OU_ lite_cjson_t *lite_item)
 {
     int res = 0;
-
     if (lite == NULL || lite->type != cJSON_Object || key == NULL || key_len <= 0 || type < 0 || lite_item == NULL) {
         return DM_INVALID_PARAMETER;
     }
@@ -396,7 +395,6 @@ int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN
 
     res = lite_cjson_object_item(lite, key, key_len, lite_item);
     if (res != SUCCESS_RETURN) {
-        /* dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED, lite->value_length, lite->value); */
         memset(lite_item, 0, sizeof(lite_cjson_t));
         return FAIL_RETURN;
     }

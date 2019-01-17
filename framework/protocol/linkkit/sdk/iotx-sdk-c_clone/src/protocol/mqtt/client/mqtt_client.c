@@ -15,6 +15,9 @@
 #include "iotx_mqtt_internal.h"
 #include "utils_md5.h"
 #include "report.h"
+#ifdef LOG_REPORT_TO_CLOUD
+    #include "iot_export_linkkit.h"
+#endif
 
 #define MQTT_DEFAULT_MSG_LEN 1280
 
@@ -279,12 +282,14 @@ static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 static char iotx_mc_is_topic_matched(char *topicFilter, MQTTString *topicName)
 {
     char *curf = topicFilter;
-    char *curn = topicName->lenstring.data;
-    char *curn_end = curn + topicName->lenstring.len;
+    char *curn;
+    char *curn_end;
 
     if (!topicFilter || !topicName) {
         return 0;
     }
+    curn = topicName->lenstring.data;
+    curn_end = curn + topicName->lenstring.len;
 
     while (*curf && curn < curn_end) {
         if (*curn == '/' && *curf != '/') {
@@ -1683,7 +1688,9 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
     mqtt_debug("%20s : %p", "Receive Buffer", c->buf_read);
     HEXDUMP_DEBUG(topic_msg.payload, topic_msg.payload_len);
 #endif
-
+#ifdef LOG_REPORT_TO_CLOUD
+    get_msgid(topicName.lenstring.data, 1);
+#endif
     topic_msg.ptopic = NULL;
     topic_msg.topic_len = 0;
 
@@ -3037,14 +3044,16 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 
 static void _iotx_mqtt_event_handle_sub(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
 {
-    iotx_mc_client_t *client = (iotx_mc_client_t *)pclient;
-    uintptr_t packet_id = (uintptr_t) msg->msg;
+    iotx_mc_client_t *client;
+    uintptr_t packet_id;
     mqtt_sub_node_t *node = NULL;
     mqtt_sub_node_t *next = NULL;
 
     if (pclient == NULL || msg == NULL) {
         return;
     }
+    client = (iotx_mc_client_t *)pclient;
+    packet_id = (uintptr_t) msg->msg;
 
     mqtt_debug("packet_id = %d, event_type=%d", packet_id, msg->event_type);
 
@@ -3212,6 +3221,7 @@ int IOT_MQTT_Destroy(void **phandler)
     POINTER_SANITY_CHECK(client, NULL_VALUE_ERROR);
     iotx_mc_release((iotx_mc_client_t *)client);
     mqtt_free(client);
+    
 
     return SUCCESS_RETURN;
 }

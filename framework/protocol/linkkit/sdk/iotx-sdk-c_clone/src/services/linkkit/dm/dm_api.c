@@ -229,6 +229,9 @@ int iotx_dm_close(void)
     if (ctx->mutex) {
         HAL_MutexDestroy(ctx->mutex);
     }
+#ifdef LOG_REPORT_TO_CLOUD
+    remove_log_poll();
+#endif
     return SUCCESS_RETURN;
 }
 
@@ -329,6 +332,24 @@ int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_l
     return res;
 }
 
+#ifdef LOG_REPORT_TO_CLOUD
+int iotx_dm_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len)
+{
+    int res = 0;
+
+    _dm_api_lock();
+
+    res = dm_mgr_upstream_thing_log_post(devid, payload, payload_len, 0);
+    if (res < SUCCESS_RETURN) {
+        _dm_api_unlock();
+        return FAIL_RETURN;
+    }
+
+    _dm_api_unlock();
+    return res;
+}
+#endif
+
 int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,
                        _IN_ int payload_len)
 {
@@ -365,7 +386,7 @@ int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifie
 
 int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *identifier,
-                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len, void *ctx)
 {
     int res = 0;
 
@@ -379,7 +400,7 @@ int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
     dm_log_debug("Current Service Response Payload, Length: %d, Payload: %.*s", payload_len, payload_len, payload);
 
     res = dm_mgr_upstream_thing_service_response(devid, msgid, msgid_len, code, identifier, identifier_len, payload,
-            payload_len);
+            payload_len, ctx);
 
     _dm_api_unlock();
     return res;

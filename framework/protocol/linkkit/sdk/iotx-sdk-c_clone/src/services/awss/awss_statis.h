@@ -28,7 +28,10 @@ enum {
     AWSS_STATIS_TYPE_SWITCHAP         /* Increase count of switch ap */
 };
 
+#ifndef AWSS_SUPPORT_STATIS
 #define AWSS_SUPPORT_STATIS
+#endif
+
 #ifdef AWSS_SUPPORT_STATIS
 
 struct awss_statis_conn_router_t {

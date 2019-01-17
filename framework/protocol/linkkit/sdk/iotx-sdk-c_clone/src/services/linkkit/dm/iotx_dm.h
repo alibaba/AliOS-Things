@@ -181,13 +181,16 @@ int iotx_dm_post_rawdata(_IN_ int devid, _IN_ char *payload, _IN_ int payload_le
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 int iotx_dm_set_opt(int opt, void *data);
 int iotx_dm_get_opt(int opt, void *data);
+#ifdef LOG_REPORT_TO_CLOUD
+    int iotx_dm_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+#endif
 int iotx_dm_post_property(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload,
                        _IN_ int payload_len);
 
 int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *identifier,
-                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len, void *ctx);
 int iotx_dm_send_property_get_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
                                        _IN_ iotx_dm_error_code_t code,
                                        _IN_ char *payload, _IN_ int payload_len, _IN_ void *ctx);

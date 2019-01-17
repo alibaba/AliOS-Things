@@ -67,6 +67,9 @@ int dm_mgr_dev_initialized(int devid);
 int dm_mgr_upstream_thing_model_up_raw(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
 int dm_mgr_upstream_thing_property_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
+#ifdef LOG_REPORT_TO_CLOUD
+    int dm_mgr_upstream_thing_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len, int force_update);
+#endif
 int dm_mgr_upstream_thing_event_post(_IN_ int devid, _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *method,
                                      _IN_ char *payload, _IN_ int payload_len);
 int dm_mgr_upstream_thing_deviceinfo_update(_IN_ int devid, _IN_ char *payload, _IN_ int payload_len);
@@ -76,7 +79,7 @@ int dm_mgr_upstream_thing_dynamictsl_get(_IN_ int devid);
 int dm_mgr_upstream_ntp_request(void);
 int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
         _IN_ iotx_dm_error_code_t code,
-        _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+        _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len, void *ctx);
 int dm_mgr_upstream_thing_property_get_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
         _IN_ iotx_dm_error_code_t code,
         _IN_ char *payload, _IN_ int payload_len, _IN_ void *ctx);

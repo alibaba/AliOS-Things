@@ -29,6 +29,7 @@ const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY = "thing/mode
     const char DM_URI_THING_SERVICE_PROPERTY_GET[]        DM_READ_ONLY = "thing/service/property/get";
     const char DM_URI_THING_SERVICE_PROPERTY_GET_REPLY[]  DM_READ_ONLY = "thing/service/property/get_reply";
     const char DM_URI_THING_SERVICE_REQUEST_WILDCARD[]    DM_READ_ONLY = "thing/service/+";
+    const char DM_URI_THING_SERVICE_REQUEST_WILDCARD2[]   DM_READ_ONLY = "thing/service/#";
     const char DM_URI_THING_SERVICE_REQUEST[]             DM_READ_ONLY = "thing/service/%s";
     const char DM_URI_THING_SERVICE_RESPONSE[]            DM_READ_ONLY = "thing/service/%.*s_reply";
 
@@ -38,6 +39,9 @@ const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY = "thing/mode
     const char DM_URI_THING_EVENT_POST[]                  DM_READ_ONLY = "thing/event/%.*s/post";
     const char DM_URI_THING_EVENT_POST_REPLY[]            DM_READ_ONLY = "thing/event/%s/post_reply";
     const char DM_URI_THING_EVENT_POST_REPLY_WILDCARD[]   DM_READ_ONLY = "thing/event/+/post_reply";
+    #ifdef LOG_REPORT_TO_CLOUD
+        const char DM_URI_THING_LOG_POST[]                    DM_READ_ONLY = "thing/log/post";
+    #endif
     const char DM_URI_THING_DEVICEINFO_UPDATE[]           DM_READ_ONLY = "thing/deviceinfo/update";
     const char DM_URI_THING_DEVICEINFO_UPDATE_REPLY[]     DM_READ_ONLY = "thing/deviceinfo/update_reply";
     const char DM_URI_THING_DEVICEINFO_DELETE[]           DM_READ_ONLY = "thing/deviceinfo/delete";
@@ -282,7 +286,7 @@ int dm_msg_proc_thing_service_request(_IN_ dm_msg_source_t *source)
 
     /* Operation */
     return dm_msg_thing_service_request(product_key, device_name, (char *)source->uri + serviceid_pos + 1,
-                                        strlen(source->uri) - serviceid_pos - 1, &request);
+                                        strlen(source->uri) - serviceid_pos - 1, &request, source->context);
 }
 
 int dm_msg_proc_thing_event_post_reply(_IN_ dm_msg_source_t *source)

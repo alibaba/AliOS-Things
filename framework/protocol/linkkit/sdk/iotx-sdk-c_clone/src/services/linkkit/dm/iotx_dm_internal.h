@@ -86,4 +86,20 @@
     #define dm_log_debug(...)
 #endif
 
+#ifdef LOG_REPORT_TO_CLOUD
+#define LOG_POLL_SIZE (CONFIG_MQTT_TX_MAXLEN - 174)
+#define REPORT_LEN (LOG_POLL_SIZE - 110)
+#define OVERFLOW_LEN (LOG_POLL_SIZE - 10)
+
+typedef enum {
+    READY,
+    RUNNING,
+    DONE
+} REPORT_STATE;
+unsigned int add_tail();
+int reset_log_poll();
+int remove_log_poll();
+unsigned int push_log(const char *perform_data, int perform_data_size);
+#endif
+
 #endif
