@@ -4,6 +4,7 @@ menuconfig AOS_APP_MQTTAPP
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
     select AOS_COMP_CJSON
+    select AOS_COMP_LWIP if LWIP = 1
     help
         mqtt examples
 
@@ -11,7 +12,7 @@ if AOS_APP_MQTTAPP
 # Configurations for app mqttapp
 
 config MQTTAPP_CONFIG_CASE
-    string "case, rrpc or multithread or presstest or left blank(default)"
+    string "case option: rrpc/multithread/presstest/blank(default)"
     default ""
     help
 

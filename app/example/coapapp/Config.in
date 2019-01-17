@@ -3,6 +3,7 @@ menuconfig AOS_APP_COAPAPP
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
+    select AOS_COMP_LWIP if LWIP = 1
     help
         coap cloud example
 
