@@ -31,9 +31,9 @@ noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \
 MAKEFILE_TARGETS += $(noconfig_targets)
 
 # Pull in user's configuration file
-ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
--include $(AOS_CONFIG)
-endif
+#ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+#-include $(AOS_CONFIG)
+#endif
 
 # Use -include for GCC and --preinclude for other ARM compilers
 INCLUDE_OPTS = -include
@@ -56,12 +56,29 @@ $(KCONFIG_MCONF) $(KCONFIG_CONF):
 menuconfig: $(KCONFIG_MCONF)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< $(AOS_CONFIG_IN)
 
-oldconfig silentoldconfig olddefconfig: $(KCONFIG_CONF)
+oldconfig silentoldconfig olddefconfig: $(KCONFIG_CONF) $(AOS_CONFIG)
 	$(QUIET)$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< --$@ $(AOS_CONFIG_IN)
 
+# Create .defconfig
+$(AOS_DEFCONFIG):
+	$(QUIET)$(call WRITE_FILE_CREATE,$@,AOS_app_$(AOS_BUILD_APP)=y)
+	$(QUIET)$(call WRITE_FILE_APPEND,$@,AOS_board_$(AOS_BUILD_BOARD)=y)
+
+#####################################################################################
+# Macro LOAD_DEFCONFIG load default configs from AOS_DEFCONFIG:
+# $(1) is command kconfig-conf
+define LOAD_DEFCONFIG
+$(ECHO) Loading default config from $(AOS_DEFCONFIG) ...
+$(COMMON_CONFIG_ENV) $(1) --defconfig$(if $(AOS_DEFCONFIG),=$(AOS_DEFCONFIG)) $(AOS_CONFIG_IN)
+endef
+
+# Create .config
+$(AOS_CONFIG): $(KCONFIG_CONF) $(AOS_DEFCONFIG)
+	$(QUIET)$(call LOAD_DEFCONFIG, $<)
+
 defconfig: $(KCONFIG_CONF)
-	$(QUIET)$(COMMON_CONFIG_ENV) $< --defconfig$(if $(AOS_DEFCONFIG),=$(AOS_DEFCONFIG)) $(AOS_CONFIG_IN)
+	$(QUIET)$(call LOAD_DEFCONFIG, $<)
 
 alldefconfig: $(KCONFIG_CONF)
 	$(COMMON_CONFIG_ENV) $< --alldefconfig $(AOS_CONFIG_IN)
@@ -80,5 +97,5 @@ list-defconfigs:
 	$(QUIET)$(ECHO) "Valid defconfigs:"
 	$(QUIET)$(ECHO) " "$(foreach defconfig,$(wildcard $(AOS_DEFCONFIG_DIR)/*-defconfig),$(call ECHO_DEFCONFIG,$(defconfig)))
 
-$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(AOS_CONFIG)
-	$(QUIET)$(MAKE) silentoldconfig
+$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(AOS_CONFIG) silentoldconfig
+	$(QUIET):
