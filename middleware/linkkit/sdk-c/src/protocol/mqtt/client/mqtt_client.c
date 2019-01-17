@@ -288,13 +288,17 @@ static int iotx_mc_check_rule(char *iterm, iotx_mc_topic_type_t type)
 /* check whether the topic is matched or not */
 static char iotx_mc_is_topic_matched(char *topicFilter, MQTTString *topicName)
 {
-    char *curf = topicFilter;
-    char *curn = topicName->lenstring.data;
-    char *curn_end = curn + topicName->lenstring.len;
+    char *curf;
+    char *curn;
+    char *curn_end;
 
     if (!topicFilter || !topicName) {
         return 0;
     }
+
+    curf = topicFilter;
+    curn = topicName->lenstring.data;
+    curn_end = curn + topicName->lenstring.len;
 
     while (*curf && curn < curn_end) {
         if (*curn == '/' && *curf != '/') {
