@@ -11,6 +11,7 @@
 #include "awss_notify.h"
 #include "awss_timer.h"
 #include "awss_packet.h"
+#include "awss_statis.h"
 #include "awss_event.h"
 #include "awss_adha.h"
 #include "awss_aha.h"
@@ -39,6 +40,7 @@ int awss_success_notify(void)
     awss_suc_notify_stop();
     awss_suc_notify();
     awss_start_connectap_monitor();
+    AWSS_DISP_STATIS();
     return 0;
 }
 
