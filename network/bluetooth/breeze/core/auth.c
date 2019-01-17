@@ -5,12 +5,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include "sha256.h"
 
 #include "auth.h"
 #include "core.h"
 #include "utils.h"
 #include "breeze_hal_ble.h"
+#include "breeze_hal_sec.h"
+
 
 static uint8_t device_secret[MAX_SECRET_LEN] = { 0 };
 static uint8_t product_secret[PRODUCT_SECRET_LEN]  = { 0 };
@@ -153,9 +154,9 @@ static void update_aes_key(bool use_device_key)
     g_auth.ikm[g_auth.ikm_len++] = ',';
     memcpy(g_auth.ikm + g_auth.ikm_len, rand_backup, sizeof(rand_backup));
 
-    sha256_init(&context);
-    sha256_update(&context, g_auth.ikm, g_auth.ikm_len + RANDOM_SEQ_LEN);
-    sha256_final(&context, okm);
+    sec_sha256_init(&context);
+    sec_sha256_update(&context, g_auth.ikm, g_auth.ikm_len + RANDOM_SEQ_LEN);
+    sec_sha256_final(&context, okm);
     memcpy(g_auth.okm, okm, MAX_OKM_LEN);
 
     // notify key updated
@@ -259,21 +260,21 @@ int auth_calc_adv_sign(uint32_t seq, uint8_t *sign)
     uint8_t full_sign[32], i, *p;
 
     make_seq_le(&seq);
-    sha256_init(&context);
+    sec_sha256_init(&context);
 
-    sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR));
-    sha256_update(&context, g_auth.device_name, g_auth.device_name_len);
+    sec_sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR));
+    sec_sha256_update(&context, g_auth.device_name, g_auth.device_name_len);
 
-    sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR));
-    sha256_update(&context, g_auth.secret, DEVICE_SECRET_LEN);
+    sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR));
+    sec_sha256_update(&context, g_auth.secret, DEVICE_SECRET_LEN);
 
-    sha256_update(&context, PRODUCT_KEY_STR, strlen(PRODUCT_KEY_STR));
-    sha256_update(&context, g_auth.product_key, PRODUCT_KEY_LEN);
+    sec_sha256_update(&context, PRODUCT_KEY_STR, strlen(PRODUCT_KEY_STR));
+    sec_sha256_update(&context, g_auth.product_key, PRODUCT_KEY_LEN);
 
-    sha256_update(&context, SEQUENCE_STR, strlen(SEQUENCE_STR));
-    sha256_update(&context, &seq, sizeof(seq));
+    sec_sha256_update(&context, SEQUENCE_STR, strlen(SEQUENCE_STR));
+    sec_sha256_update(&context, &seq, sizeof(seq));
 
-    sha256_final(&context, full_sign);
+    sec_sha256_final(&context, full_sign);
 
     memcpy(sign, full_sign, 4);
 

@@ -115,7 +115,7 @@ static void do_encrypt(uint8_t *data, uint16_t len)
         blk_num++;
         g_transport.tx.buff[3] += bytes_to_pad;
     }
-    ais_aes128_cbc_encrypt(g_transport.p_aes_ctx, data, blk_num, encrypt_data);
+    sec_aes128_cbc_encrypt(g_transport.p_aes_ctx, data, blk_num, encrypt_data);
     memcpy(data, encrypt_data, blk_num << 4);
 }
 
@@ -125,7 +125,7 @@ static void do_decrypt(uint8_t *data, uint16_t len)
     uint8_t *buffer;
     uint8_t decrypt_data[ENCRYPT_DATA_SIZE];
 
-    ais_aes128_cbc_decrypt(g_transport.p_aes_ctx, data, blk_num, decrypt_data);
+    sec_aes128_cbc_decrypt(g_transport.p_aes_ctx, data, blk_num, decrypt_data);
     memcpy(data, decrypt_data, len);
 }
 
@@ -251,7 +251,7 @@ void transport_reset(void)
     reset_tx();
     reset_rx();
 
-    ais_aes128_destroy(g_transport.p_aes_ctx);
+    sec_aes128_destroy(g_transport.p_aes_ctx);
     g_transport.p_aes_ctx = NULL;
 #if BZ_ENABLE_AUTH
     g_dn_complete = false;
@@ -432,10 +432,10 @@ uint32_t transport_update_key(uint8_t *key)
 
     g_transport.p_key = key;
     if (g_transport.p_aes_ctx) {
-        ais_aes128_destroy(g_transport.p_aes_ctx);
+        sec_aes128_destroy(g_transport.p_aes_ctx);
         g_transport.p_aes_ctx = NULL;
     }
 
-    g_transport.p_aes_ctx = ais_aes128_init(g_transport.p_key, iv);
+    g_transport.p_aes_ctx = sec_aes128_init(g_transport.p_key, iv);
     return BZ_SUCCESS;
 }
