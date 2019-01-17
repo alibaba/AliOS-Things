@@ -13,7 +13,7 @@
 
 #define KEY_LEN 16
 
-void *ais_aes128_init(const uint8_t *key, const uint8_t *iv)
+void *sec_aes128_init(const uint8_t *key, const uint8_t *iv)
 {
     ali_crypto_result result;
     void             *aes_ctx;
@@ -42,7 +42,7 @@ void *ais_aes128_init(const uint8_t *key, const uint8_t *iv)
     return aes_ctx;
 }
 
-int ais_aes128_destroy(void *aes)
+int sec_aes128_destroy(void *aes)
 {
     if (aes) {
         aos_free(aes);
@@ -90,14 +90,42 @@ static int platform_aes128_encrypt_decrypt(void *aes_ctx, const void *src,
     return 0;
 }
 
-int ais_aes128_cbc_encrypt(void *aes, const void *src, size_t block_num,
+int sec_aes128_cbc_encrypt(void *aes, const void *src, size_t block_num,
                            void *dst)
 {
     return platform_aes128_encrypt_decrypt(aes, src, block_num, dst, true);
 }
 
-int ais_aes128_cbc_decrypt(void *aes, const void *src, size_t block_num,
+int sec_aes128_cbc_decrypt(void *aes, const void *src, size_t block_num,
                            void *dst)
 {
     return platform_aes128_encrypt_decrypt(aes, src, block_num, dst, false);
+}
+
+void sec_sha256_init(SHA256_CTX *ctx)
+{
+#ifdef USE_EXTERNAL_MEBDTLS
+    mbedtls_sha256_init(ctx);
+    mbedtls_sha256_starts_ret(ctx, 0);
+#else
+    __sha256_init(ctx);
+#endif
+}
+
+void sec_sha256_update(SHA256_CTX *ctx, const BYTE data[], size_t len)
+{
+#ifdef USE_EXTERNAL_MEBDTLS
+    mbedtls_sha256_update_ret(ctx, data, len);
+#else
+    __sha256_update(ctx, data, len);
+#endif
+}
+
+void sec_sha256_final(SHA256_CTX *ctx, BYTE hash[])
+{
+#ifdef USE_EXTERNAL_MEBDTLS
+    mbedtls_sha256_finish_ret(ctx, hash);
+#else
+   __sha256_final(ctx, hash);
+#endif
 }
