@@ -1842,6 +1842,7 @@ static void SetMlmeScheduleUplinkIndication( void )
     MacCtx.MacFlags.Bits.MlmeInd = 1;
 }
 
+
 static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr, LoRaMacRxSlot_t rxSlot )
 {
     uint8_t status = 0;
@@ -1906,6 +1907,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     }
                     // Update MAC index
                     macIndex += linkAdrNbBytesParsed - 1;
+                    SetMlmeScheduleUplinkIndication( );
                 }
                 break;
             }
