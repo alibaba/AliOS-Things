@@ -13,4 +13,11 @@ if AOS_BOARD_STM32F429ZI-NUCLEO
 # Set default value of AOS_NETWORK_SAL
 config AOS_NETWORK_SAL
     default n
+
+config DEBUG_CONFIG_PANIC
+    default 1
+
+config DEBUG_CONFIG_BACKTRACE
+    default 1
+
 endif
