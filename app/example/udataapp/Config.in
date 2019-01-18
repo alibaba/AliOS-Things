@@ -13,23 +13,32 @@ menuconfig AOS_APP_UDATAAPP
 if AOS_APP_UDATAAPP
 # Configurations for comp udata
 
-choice
-    prompt "choice list"
-    depends on AOS_CONFIG_DTC_ENABLE
-    default AOS_CONFIG_DTC_MQTT
+  config AOS_CONFIG_DTC_ENABLE
+    bool "data to cloud"
+    default y
     help
-        This is 'choice' list sample
+ 
+if AOS_CONFIG_DTC_ENABLE
+  choice
+      prompt "Data To Cloud list"
+      default AOS_CONFIG_DTC_MQTT
+      help
+          This is 'DTC choice' list sample
 
-    config AOS_CONFIG_DTC_LINKKIT
-        bool "linkkit"
-        default n
-        help
-            Enable linkkit
-    config AOS_CONFIG_DTC_MQTT
-        bool "mqtt"
-        default n
-        help
-            Enable mqtt
-endchoice
+      config AOS_CONFIG_DTC_LINKKIT
+          bool "linkkit"
+          help
+              Enable linkkit
+      config AOS_CONFIG_DTC_MQTT
+          bool "mqtt"
+          help
+              Enable mqtt
 
+  endchoice
+endif  
 endif
+
+config AOS_CONFIG_DTC_TYPE
+    string
+    default "linkkit" if AOS_CONFIG_DTC_LINKKIT
+    default "mqtt" if AOS_CONFIG_DTC_MQTT

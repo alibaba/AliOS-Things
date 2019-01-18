@@ -16,6 +16,8 @@ $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 
 $(NAME)_COMPONENTS += feature.linkkit yloop netmgr cjson
 
+
+LWIP ?= 1
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
