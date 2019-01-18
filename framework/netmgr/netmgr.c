@@ -421,6 +421,9 @@ static void handle_wifi_disconnect(void)
     }
 #endif
 }
+#ifdef AWSS_SUPPORT_STATIS
+extern void awss_update_statis(int idx, int type);
+#endif
 
 static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
 {
@@ -459,6 +462,10 @@ static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
         case CODE_WIFI_ON_GOT_IP:
             if (g_netmgr_cxt.doing_smartconfig) {
                 g_netmgr_cxt.doing_smartconfig = false;
+            } else {
+#ifdef AWSS_SUPPORT_STATIS
+                awss_update_statis(0, 1);
+#endif
             }
             set_wifi_ssid();
             break;
@@ -467,6 +474,9 @@ static void netmgr_events_executor(input_event_t *eventinfo, void *priv_data)
             g_netmgr_cxt.ip_available = false;
             LOGD("netmgr", "reconnect wifi - %s, %s",
                  g_netmgr_cxt.ap_config.ssid, g_netmgr_cxt.ap_config.pwd);
+#ifdef AWSS_SUPPORT_STATIS
+            awss_update_statis(0, 0);
+#endif
             reconnect_wifi(NULL);
             break;
         default :

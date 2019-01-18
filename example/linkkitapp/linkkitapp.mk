@@ -6,15 +6,16 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/netmgr \
                       framework/common \
                       utility/cjson \
-                      framework/uOTA 
-                   
+                      framework/uOTA
+
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE  \
                  -DMQTT_DIRECT \
                  -DCONFIG_YWSS \
                  -DWIFI_PROVISION_ENABLED \
                  -DAWSS_SUPPORT_DEV_AP \
                  -DOTA_ENABLED \
-                 -DBUILD_AOS
+                 -DBUILD_AOS \
+                 -DAWSS_SUPPORT_STATIS
 
 
 ifeq ($(case),sched)

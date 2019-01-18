@@ -24,6 +24,13 @@ GLOBAL_DEFINES += CONFIG_YWSS
 #GLOBAL_DEFINES += DEV_BIND_TEST
 
 #
+# If chipset or die set doesn't support device AP solution,
+# or product doesn't need device AP solution, please remove
+# the defination of AWSS_SUPPORT_DEV_AP
+#
+GLOBAL_DEFINES += AWSS_SUPPORT_DEV_AP
+
+#
 # If chipset or die set doesn't support smartconfig with broadcast,
 # or product doesn't need smartconfig with broadcast, please remove
 # the defination of AWSS_SUPPORT_SMARCONFIG

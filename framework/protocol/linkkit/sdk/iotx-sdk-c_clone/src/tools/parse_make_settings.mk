@@ -27,6 +27,10 @@ endif
 ifeq (y,$(strip $(FEATURE_WIFI_PROVISION_ENABLED)))
     CFLAGS += -DAWSS_SUPPORT_APLIST
 
+    ifeq (y,$(strip $(FEATURE_AWSS_SUPPORT_DEV_AP)))
+        CFLAGS += -DAWSS_SUPPORT_DEV_AP
+    endif
+
     ifeq (y,$(strip $(FEATURE_AWSS_SUPPORT_SMARTCONFIG)))
         CFLAGS += -DAWSS_SUPPORT_SMARTCONFIG \
                   -DAWSS_SUPPORT_SMARTCONFIG_WPS

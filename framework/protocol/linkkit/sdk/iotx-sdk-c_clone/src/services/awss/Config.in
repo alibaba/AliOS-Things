@@ -27,4 +27,8 @@ menu "AWSS Configurations"
     bool "FEATURE_AWSS_SUPPORT_ZEROCONFIG"
     default y
 
+    config AWSS_SUPPORT_DEV_AP
+    bool "FEATURE_AWSS_SUPPORT_DEV_AP"
+    default y
+
 endmenu

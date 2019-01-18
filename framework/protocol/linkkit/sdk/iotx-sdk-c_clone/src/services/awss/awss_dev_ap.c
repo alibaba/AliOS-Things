@@ -2,10 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef AWSS_SUPPORT_DEV_AP
-#define AWSS_SUPPORT_DEV_AP
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include "os.h"
@@ -22,8 +18,6 @@
 #include "zconfig_utils.h"
 
 #ifdef AWSS_SUPPORT_DEV_AP
-
-#define AWSS_DEV_AP_PASSWD  "12345678"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -48,7 +42,6 @@ static int awss_dev_ap_setup()
         memcpy(mac_str + 13, mac_str + 15, 2);
         mac_str[15] = '\0';
         snprintf(ssid, PLATFORM_MAX_SSID_LEN, "adh_%s_%s", pk, &mac_str[9]);
-        //snprintf(passwd, PLATFORM_MAX_PASSWD_LEN, "%s", AWSS_DEV_AP_PASSWD);
     } while (0);
 
     awss_trace("ssid:%s\n", ssid);
