@@ -246,7 +246,9 @@ struct net_buf *net_buf_get(struct k_fifo *fifo, s32_t timeout)
 	}
 
 	/* Mark the end of the fragment list */
-	frag->frags = NULL;
+        if (frag) {
+	    frag->frags = NULL;
+        }
 
 	return buf;
 }
@@ -305,7 +307,9 @@ struct net_buf *net_buf_slist_get(sys_slist_t *list)
 	}
 
 	/* Mark the end of the fragment list */
-	frag->frags = NULL;
+        if (frag) {
+	    frag->frags = NULL;
+        }
 
 	return buf;
 }
