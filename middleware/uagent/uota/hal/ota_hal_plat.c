@@ -215,6 +215,11 @@ static int ota_boot(void *something)
             int offset = 0x00;
             int param_part = HAL_PARTITION_PARAMETER_1;
             PatchStatus ota_param,ota_param_r;
+            if(param->splict_size != SPLICT_SIZE) {
+                ret = OTA_REBOOT_FAIL;
+                OTA_LOG_E("diff splict size %u error, correct is %u\n", param->splict_size, SPLICT_SIZE);
+                return ret;
+            }
             memset(&ota_param, 0, sizeof(PatchStatus));
             ota_param.dst_adr = HAL_PARTITION_APPLICATION;
             ota_param.src_adr = HAL_PARTITION_OTA_TEMP;
@@ -224,12 +229,14 @@ static int ota_boot(void *something)
             ota_param.rec_size = param->rec_size;
             ota_param.diff = 1;
             ota_param.upg_flag = REC_RECOVERY_FLAG;
+
             ota_crc16_ctx ctx1;
             unsigned short crc;
             ota_crc16_init(&ctx1);
             ota_crc16_update(&ctx1, &ota_param, sizeof(PatchStatus) - sizeof(unsigned short));
             ota_crc16_final(&ctx1, &crc);
             ota_param.patch_crc = crc;
+
             offset = 0x00;
             hal_flash_erase(param_part, offset, sizeof(PatchStatus));
             offset = 0x00;
@@ -241,6 +248,7 @@ static int ota_boot(void *something)
                  ret = OTA_REBOOT_FAIL;
                  return ret;
             }
+
             OTA_LOG_I("diff dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x pcrc:0x%04x splict:%d.\r\n",
                         ota_param_r.dst_adr,ota_param_r.src_adr, ota_param_r.rec_size, ota_param_r.crc,
                         ota_param_r.patch_crc, ota_param_r.splict_size);

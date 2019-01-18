@@ -43,14 +43,11 @@ int rec_2boot_cmd_check(void)
 void print_usage()
 {
     printf("aos 2nd bootloader ver: " REC_2BOOT_VERSION "\r\n");
-    printf("[1] Query  FW version info \r\n");
-    printf("[2] Update FW by UART YMODEM \r\n");
-    printf("[3] Update FW by CANbus \r\n");
-    printf("[4] Update FW by USB \r\n");
-    printf("[5] Active Part B\r\n");
-    printf("[6] Reboot\r\n");
+    printf("[1] Update FW by UART YMODEM \r\n");
+    printf("[2] Active Part B\r\n");
+    printf("[3] Reboot\r\n");
     printf("[h] Help info\r\n");
-    printf("Please input 1-6 to select functions\r\n");
+    printf("Please input 1-3 to select functions\r\n");
 }
 #endif
 
@@ -78,24 +75,16 @@ void rec_2boot_cmd_process()
             printf("%c \r\n", c);
             switch(c) {
                 case '1' :
-                    printf("part A version: %s\r\n", pstatus->app_version);
-                    printf("part B version: %s\r\n", pstatus->ota_version);
-                    break;
-
-                case '2' :
                     rec_ymodem_cmd();
                     break;
 
-                case '3' :
-                case '4' :
-                    printf("CMD %c not supported \r\n", c);
+                case '2' :
+                    printf("Active part B \r\n");
+                    nbpatch_swap_app2ota(TRUE);
+                    rec_reboot();
                     break;
 
-                case '5' :
-                    printf("Active part A %s\r\n", pstatus->ota_version);
-                    nbpatch_swap_app2ota(TRUE);
-                    //说明：此处激活备区版本后，直接复位，故此处不需要break
-                case '6' :
+                case '3' :
                     printf("Reboot \r\n");
                     rec_reboot();
                     break;
@@ -105,7 +94,7 @@ void rec_2boot_cmd_process()
                     break;
 
                 default:
-                    printf("Please input 1-6 to select functions\r\n");
+                    printf("Please input 1-3 to select functions\r\n");
                     break;
             }
             printf("\r\naos boot# ");
