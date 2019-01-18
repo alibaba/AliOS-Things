@@ -18,7 +18,7 @@ $(NAME)_SOURCES += \
     udata_service_task.c \
     udata_parse.c
 
-ifeq ($(UDATA_CONFIG_DTC_ENABLE),y)
+ifeq ($(AOS_CONFIG_DTC_ENABLE),y)
 $(NAME)_SOURCES += service/service_data_to_cloud.c
 GLOBAL_DEFINES  += DATA_TO_CLOUD
 endif
@@ -36,6 +36,3 @@ $(NAME)_CFLAGS      += -Wall -Werror
 else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
-
-
-

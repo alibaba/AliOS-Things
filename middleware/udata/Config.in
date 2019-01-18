@@ -13,10 +13,4 @@ config UDATA_CONFIG_CJSON_FORMAT
     help
         Enable udata cjson config
 
-config UDATA_CONFIG_DTC_ENABLE
-    bool "enable data to cloud"
-    default n
-    help
-        Enable data to cloud
-
 endif
