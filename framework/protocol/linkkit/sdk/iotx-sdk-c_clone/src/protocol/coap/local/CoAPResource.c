@@ -193,7 +193,6 @@ CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path)
     char path_calc[COAP_PATH_DEFAULT_SUM_LEN] = {0};
     CoAPResource *node = NULL;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
-    path_type_t type = PATH_NORMAL;
 
     if (NULL == context || NULL == path) {
         COAP_INFO("%s\n", "NULL == context || NULL == path");
