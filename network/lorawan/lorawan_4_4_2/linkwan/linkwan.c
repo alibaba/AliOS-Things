@@ -25,6 +25,8 @@
 
 #define LORAWAN_DEFAULT_PING_SLOT_PERIODICITY       2
 
+#define LORAWAN_SEND_FAIL_MAX_RETRY                 3
+
 static uint8_t        tx_buf[LORAWAN_APP_DATA_BUFF_SIZE];
 static lora_AppData_t tx_data = { tx_buf, 1, 0 };
 static uint8_t        rx_buf[LORAWAN_APP_DATA_BUFF_SIZE];
@@ -44,6 +46,7 @@ static uint8_t join_trials_counter  = 0;
 static bool    rejoin_flag          = true;
 
 static uint8_t g_freqband_num = 0;
+static uint8_t g_sendfail_count = 0;
 
 static LoRaParam_t lora_param = {
     TX_ON_NONE,    0, true, DR_0, LORAWAN_PUBLIC_NETWORK, JOINREQ_NBTRIALS,
@@ -346,6 +349,9 @@ static void store_lora_config(void)
 static void mcps_confirm(McpsConfirm_t *mcpsConfirm)
 {
     if (mcpsConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK) {
+
+        g_sendfail_count = 0;
+
         switch (mcpsConfirm->McpsRequest) {
             case MCPS_UNCONFIRMED: {
                 // Check Datarate
@@ -378,9 +384,21 @@ static void mcps_confirm(McpsConfirm_t *mcpsConfirm)
                 // Check AckReceived
                 // Check NbTrials
 
-                reset_join_state();
-                g_join_method = DEF_JOIN_METHOD;
-                DBG_LINKWAN("Not receive Ack,Start to Join...\r\n");
+                g_sendfail_count++;
+
+                if (g_sendfail_count > LORAWAN_SEND_FAIL_MAX_RETRY) {
+                    g_sendfail_count = 0;
+
+                    reset_join_state();
+                    g_join_method = DEF_JOIN_METHOD;
+
+                    DBG_LINKWAN("Not receive Ack,Start to Join...\r\n");
+                } else {
+                    device_state = DEVICE_STATE_SEND;
+
+                    DBG_LINKWAN("Not receive Ack,Start to resend...\r\n");
+                }
+
                 break;
             }
             case MCPS_PROPRIETARY: {
