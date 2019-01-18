@@ -15,9 +15,14 @@ GLOBAL_INCLUDES-y += api include hal/include
 
 $(NAME)_COMPONENTS-y := chip_code
 
-secure_adv ?= 1
-ifeq ($(secure_adv), 1)
+bz_secure_adv ?= 0
+ifeq ($(bz_secure_adv), 1)
 GLOBAL_DEFINES-y += CONFIG_AIS_SECURE_ADV
+endif
+
+bz_model_encry ?= 0
+ifeq ($(bz_model_encry), 1)
+GLOBAL_DEFINES-y += CONFIG_MODEL_SEC
 endif
 
 btstack ?= zephyr
