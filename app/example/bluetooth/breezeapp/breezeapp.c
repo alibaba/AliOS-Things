@@ -15,11 +15,11 @@
 #define SOFTWARE_VERSION_LEN 5
 
 #ifndef CONFIG_MODEL_SECURITY
-#define PRODUCT_ID     213226
-#define DEVICE_SECRET  "cNwnA4W7amnkgG6s8zGXSJD3nI1c7kO1"
-#define DEVICE_NAME    "112233445566"
-#define PRODUCT_KEY    "b1XVhqfan1X"
-#define PRODUCT_SECRET "iX6XqAjaCTXBv4h3"
+#define PRODUCT_ID     850958
+#define DEVICE_SECRET  "jDp6NxUImRfZ231nt5Nt1AjEVYPJF4e3"
+#define DEVICE_NAME    "new_bz_test123"
+#define PRODUCT_KEY    "a1oZpFjRUf3"
+#define PRODUCT_SECRET "eZ2JTVukkTz0juw0"
 #else
 #define PRODUCT_ID     577245
 #define DEVICE_SECRET  "FFbidcX3hIuMMFeg70WzCdNEjZL6NZLE"
@@ -74,16 +74,13 @@ static void get_dev_status_handler(uint8_t *buffer, uint32_t length)
 #ifdef CONTINUE_BEL_ADV
 static void adv_work(void *arg)
 {
-#ifdef APPEND_USER_ADV
     static uint8_t user_adv[] = {0x55, 0xaa};
 
     user_adv[0]++;
     user_adv[1]++;
     breeze_append_adv_data(user_adv, sizeof(user_adv) / sizeof(user_adv[0]));
-#endif
 
     if (!ble_connected) breeze_restart_advertising();
-
     aos_post_delayed_action(2000, adv_work, NULL);
 }
 #endif
