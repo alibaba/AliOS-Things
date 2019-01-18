@@ -1,9 +1,18 @@
-menuconfig AOS_COMP_BT_BREEZE_HAL
-    #bool "bt_breeze_hal"
+menuconfig AOS_COMP_BREEZE_HAL
+    bool "Breeze HAL APIs"
     default n
-    select AOS_COMP_BT
+    select AOS_COMP_BT_HOST if BREEZEHAL_CONFIG_BLESTACK
     help
 
-if AOS_COMP_BT_BREEZE_HAL
+if AOS_COMP_BREEZE_HAL
 # Configurations for comp bt_breeze_hal
+
+     config BREEZEHAL_CONFIG_BLESTACK
+ 	bool "inter_ble_stack"
+ 	default 1
+
+     config BREEZEHAL_CONFIG_CRYTPO
+        bool "inter_breeze_crytpo"
+        default 0
+
 endif
