@@ -215,11 +215,13 @@ static int ota_boot(void *something)
             int offset = 0x00;
             int param_part = HAL_PARTITION_PARAMETER_1;
             PatchStatus ota_param,ota_param_r;
+            #if !defined (BOARD_ESP8266)
             if(param->splict_size != SPLICT_SIZE) {
                 ret = OTA_REBOOT_FAIL;
                 OTA_LOG_E("diff splict size %u error, correct is %u\n", param->splict_size, SPLICT_SIZE);
                 return ret;
             }
+            #endif
             memset(&ota_param, 0, sizeof(PatchStatus));
             ota_param.dst_adr = HAL_PARTITION_APPLICATION;
             ota_param.src_adr = HAL_PARTITION_OTA_TEMP;
