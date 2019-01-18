@@ -34,6 +34,7 @@ enum CHIP_VENDOR {
     REALTEK_CHIP_VENDOR,
     STM_CHIP_VENDOR,
     XRADIO_CHIP_VENDOR,
+    MTK_CHIP_VENDOR,
     CHIP_VENDOR_LIMIT = 0xFFFF
 };
 
@@ -53,7 +54,7 @@ enum CHIP_ID {
     lpc54102 ,
     mkl27z644,
     moc108   ,
-    mx1101   ,
+    mx1290   ,
     nrf52xxx ,
     r5f100lea,
     r5f565ne ,
@@ -69,6 +70,8 @@ enum CHIP_ID {
     stm32l4xx,
     stm32l4xx_cube,
     xr871,
+    mtk6261m,
+    mx1101,
     CHIP_ID_LIMIT = 0xFFFF
 };
 

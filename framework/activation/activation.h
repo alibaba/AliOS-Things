@@ -13,6 +13,10 @@
 #define UINT8 unsigned char
 #endif
 
+#ifndef NULL
+#define NULL    ((void *)0)
+#endif
+
 #define VERSION_NUM_SIZE    4
 #define RANDOM_NUM_SIZE     4
 #define MAC_ADDRESS_SIZE    8
@@ -24,7 +28,7 @@
 /*
 	input: version 4byte + random 4 byte + mac 8byte + chip_code 4byte
 	output: output_buffer store the version info process. length at least OUTPUT_SPACE_SIZE
-	return: 0 success, 1 failed	
+	return: 0 success, 1 failed
 */
 extern UINT32 aos_get_version_info (UINT8 version_num[VERSION_NUM_SIZE], UINT8 random_num[RANDOM_NUM_SIZE], UINT8 mac_address[MAC_ADDRESS_SIZE], UINT8 chip_code[CHIP_CODE_SIZE], UINT8 *output_buffer, UINT32 output_buffer_size);
 

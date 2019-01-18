@@ -17,7 +17,8 @@ chip_code_st g_chip_codes[] = {
     {NXP_VENDOR, lpc54102, "lpc54102"}, //0x0008000c
     {NXP_VENDOR, mkl27z644, "mkl27z644"}, //0x0008000d
     {MICO_CHIP_VENDOR, moc108, "moc108"}, //0x0009000e
-    {MICO_CHIP_VENDOR, mx1101, "mx1101"}, //0x0009000f
+    {MICO_CHIP_VENDOR, mx1290, "mx1290"}, //0x0009000f
+    {MICO_CHIP_VENDOR, mx1101, "mx1101"}, //0x00090020
     {NORDIC_CHIP_VENDOR, nrf52xxx, "nrf52xxx"}, //0x000a0010
     {RENASAS_CHIP_VENDOR, r5f100lea, "r5f100lea"}, //0x000b0011
     {RENASAS_CHIP_VENDOR, r5f565ne, "r5f565ne"}, //0x000b0012
@@ -33,6 +34,7 @@ chip_code_st g_chip_codes[] = {
     {STM_CHIP_VENDOR, stm32l4xx, "stm32l4xx"}, //0x000e001c
     {STM_CHIP_VENDOR, stm32l4xx_cube, "stm32l4xx_cube"}, //0x000e001d
     {XRADIO_CHIP_VENDOR, xr871, "xr871"}, //0x000f001e
+    {MTK_CHIP_VENDOR, mtk6261m, "mtk6261m"}, //0x0010001f
 };
 
 chip_code_st *get_chip_code( char *name)
