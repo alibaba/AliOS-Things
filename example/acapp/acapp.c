@@ -30,10 +30,10 @@ int get_version_test_ret()
     }
     printf("aos_get_version_info ret: %d\n", ret );
     printf("output_buffer: %s\n", output_buffer);
-    
+
     //0210042221222019000100012F3C0E0200000302PLAIN
     char *except_result="0210042221222019000100012F3C0E0200000302PLAIN";
-    if( memccpy(except_result,output_buffer) == 0 )
+    if( strcmp(except_result,output_buffer) == 0 )
     {
         printf( "version_verify result: successed\n");
         return 0;
