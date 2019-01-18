@@ -1,4 +1,4 @@
-NAME := port
+NAME := bt_port
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
