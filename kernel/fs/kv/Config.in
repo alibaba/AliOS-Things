@@ -1,6 +1,6 @@
 menuconfig AOS_COMP_KV
     bool "kv"
-    default y
+    default n
     help
       lightweight key-value style storage module
 
