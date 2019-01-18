@@ -27,10 +27,9 @@ config APP_GATEWAYAPP_CONFIG_PT_SENSOR
     default 0
     help
 
-config APP_GATEWAYAPP_CONFIG_DTC
-    int "data to cloud"
-    range 0 1
-    default 0
+config AOS_CONFIG_DTC_ENABLE
+    bool "data to cloud"
+    default n
     help
 
 endif

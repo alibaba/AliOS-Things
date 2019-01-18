@@ -10,10 +10,6 @@
 #include "app_entry.h"
 #include "service_data_to_cloud.h"
 
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    #include "ota_service.h"
-#endif
-
 #define USE_CUSTOME_DOMAIN      (0)
 
 // for demo only
@@ -60,9 +56,6 @@ static int user_connected_event_handler(void)
 
     EXAMPLE_TRACE("Cloud Connected");
     user_example_ctx->cloud_connected = 1;
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    ota_service_init(NULL);
-#endif
     return 0;
 }
 
