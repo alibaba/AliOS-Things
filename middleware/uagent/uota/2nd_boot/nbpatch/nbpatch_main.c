@@ -298,10 +298,12 @@ int nbpatch_main(void)
         goto END;
     }
 
+#if !(defined BOARD_ESP8266)
     if(pstatus->splict_size != SPLICT_SIZE) {
         ret = NBPATCH_DIFF_FAIL;
         goto END;
     }
+#endif
 
 #if (AOS_OTA_RECOVERY_TYPE != OTA_RECOVERY_TYPE_DIRECT)
     if(pstatus->patch_index == 0) {
