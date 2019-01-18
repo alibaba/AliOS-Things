@@ -1,13 +1,22 @@
 menuconfig AOS_COMP_NETMGR
-    #bool "netmgr"
+    bool "network manager"
     default n
-    select AOS_COMP_HAL
+    select AOS_COMP_OSAL_AOS
     select AOS_COMP_KV
     select AOS_COMP_YLOOP
-    select AOS_COMP_HALWIFI if @CONDITION@
     help
       AliOS things NETMGR -- smart config support component
 
 if AOS_COMP_NETMGR
 # Configurations for comp netmgr
+
+    config AOS_CONFIG_NET
+        string "Config network: wifi/cellular/blank"
+        default "wifi"
+
+    config AOS_CONFIG_WIFI_SSID
+        bool "If use ssid in wifi network"
+        default n
+        depends on AOS_CONFIG_NET = "wifi"
+
 endif
