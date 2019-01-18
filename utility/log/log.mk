@@ -2,6 +2,7 @@ NAME := log
 
 $(NAME)_TYPE := share
 $(NAME)_MBINS_TYPE := share
+$(NAME)_SOURCES    := log.c
 
-$(NAME)_SOURCES     := log.c
+GLOBAL_DEFINES += LOG_SIMPLE
 
