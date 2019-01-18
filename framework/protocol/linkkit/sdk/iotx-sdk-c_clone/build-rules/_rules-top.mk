@@ -133,8 +133,8 @@ DL_TOOLCHAIN_VARS = \
     TOOLCHAIN_DLDIR \
     OUTPUT_DIR \
 
-toolchain:
-	@$(foreach V,$(DL_TOOLCHAIN_VARS),$(V)=$($(V))) \
+toolchain:; true
+#	@$(foreach V,$(DL_TOOLCHAIN_VARS),$(V)=$($(V))) \
 	    CC=$(shell basename $(CC)) \
 	    AR=$(shell basename $(AR)) \
 	    RELPATH=` $(call Relative_TcPath,$(shell basename $(CC))) ` \
