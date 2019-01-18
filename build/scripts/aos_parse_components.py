@@ -22,6 +22,7 @@ def find_comp_mkfile(dirname):
     return mklist
 
 def get_comp_name(mkfile):
+    """ Get comp name from mkfile """
     name = None
     patten = re.compile(r'^NAME.*=\s*(.*)\s*')
     with open(mkfile, 'r') as f:
@@ -32,10 +33,32 @@ def get_comp_name(mkfile):
 
     return name
 
+def get_comp_optname(compname, mkfile):
+    """ Return config option name of comp """
+    optname = None
+    compname = compname.upper()
+    if "app/" in mkfile:
+        optname = "AOS_APP_%s" % compname.replace("APP_", "")
+    elif "board/" in mkfile:
+        optname = "AOS_BOARD_%s" % compname.replace("BOARD_", "")
+    elif "mcu/" in mkfile:
+        optname = "AOS_MCU_%s" % compname.replace("MCU_", "")
+    elif "arch/" in mkfile:
+        optname = "AOS_ARCH_%s" % compname.replace("ARCH_", "")
+    else:
+        optname = "AOS_COMP_%s" % compname
+
+    return optname
+
 def write_config_file(source_root, config_file, mklist):
+    """ Parse comps and write data to total config file """
+    # contents will be wrote to config file
     config_contents = {}
+    # sort as keys
     config_keys = []
+    # comp name defined by NAME
     real_names = []
+    # old style with xx.yy.zz
     aliasname = ""
     patten = re.compile(source_root + "(/*|\\\\*)(.*)(/|\\\\.*mk)")
 
@@ -75,6 +98,9 @@ def write_config_file(source_root, config_file, mklist):
 
     with open (config_file, 'w') as f:
         f.write("REAL_COMPONENTS := %s\n" % " ".join(real_names))
+        for compname in real_names:
+            optname = get_comp_optname(compname, config_contents[compname])
+            f.write("OBJ-$(%s) += %s\n" % (optname, compname))
 
         for key in config_keys:
             f.write("%s_MAKEFILE := %s\n" % (key, config_contents[key]))
