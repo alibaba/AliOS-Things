@@ -22,4 +22,3 @@ $(NAME)_SOURCES-y += sha256.c
 $(NAME)_SOURCES-y += aes_mbed.c
 endif
 
-GLOBAL_DEFINES-y += MBEDTLS_AES_ROM_TABLES

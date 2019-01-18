@@ -10,13 +10,10 @@
 #include "extcmd.h"
 #include "common.h"
 #include "ble_service.h"
-#include "breeze_hal_ble.h"
 #include "bzopt.h"
-
 #include "utils.h"
-#ifdef CONFIG_AIS_SECURE_ADV
-#include "sha256.h"
-#endif
+#include "breeze_hal_ble.h"
+#include "breeze_hal_sec.h"
 
 #define FMSK_BLUETOOTH_VER_Pos 0
 #define FMSK_OTA_Pos 2
