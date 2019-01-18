@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_BT_PROFILE
-    #bool "bt_profile"
+    bool
     default n
     help
 
