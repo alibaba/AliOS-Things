@@ -13,7 +13,6 @@
 #include <hal/soc/timer.h>
 #include <hal/base.h>
 #include <hal/wifi.h>
-#include <hal/ota.h>
 #include "rda5981.h"
 
 #define TAG "hw"

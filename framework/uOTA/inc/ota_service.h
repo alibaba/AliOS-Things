@@ -107,6 +107,7 @@ typedef struct
     int  (*init)(void);
     int  (*inform)(void* ctx);
     int  (*upgrade)(void* ctx);
+    int  (*request)(void* pctx);
     int  (*status)(int per, void* ctx);
     int  (*deinit)(void);
 } ota_transport_t;

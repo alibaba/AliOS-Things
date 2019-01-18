@@ -140,7 +140,6 @@ $(NAME)_SOURCES := src/B-L475E-IOT01/runapp/stm32l4xx_hal_msp.c      \
                    src/common/csp/wifi/src/wifi.c              \
                    src/B-L475E-IOT01/hal/hw.c                     \
                    src/B-L475E-IOT01/hal/flash_port.c              \
-                   src/B-L475E-IOT01/hal/ota_port.c              \
                    src/B-L475E-IOT01/hal/hal_i2c_stm32l4.c       \
                    src/B-L475E-IOT01/sensor/vl53l0x_platform.c \
                    src/B-L475E-IOT01/sensor/vl53l0x_proximity.c \

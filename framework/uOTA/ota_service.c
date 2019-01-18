@@ -171,7 +171,7 @@ static int ota_parse(void* pctx, const char *json)
     }
     goto parse_success;
 parse_failed:
-    OTA_LOG_I("parse failed err:%d",ret);
+    OTA_LOG_E("parse failed err:%d",ret);
     if (root) {
         cJSON_Delete(root);
     }
@@ -258,6 +258,7 @@ static void ota_download_thread(void *hand)
         ctx->upg_status = OTA_VERIFY_HASH_FAIL;
         goto ERR;
     }
+#if !defined(BOARD_ESP32)
     if( ctx->sign_en == OTA_SIGN_ON) {
         ret = ota_verify_download_rsa_sign((unsigned char*)ctx->sign, (const char*)ctx->hash, (OTA_HASH_E)ctx->hash_type);
         if(ret < 0) {
@@ -265,6 +266,7 @@ static void ota_download_thread(void *hand)
             goto ERR;
         }
     }
+#endif
     if(ota_param->upg_flag != OTA_DIFF){
         ret = ota_check_image(ota_param->len);
         if (ret < 0) {
@@ -358,6 +360,7 @@ int ota_service_init(ota_service_t *ctx) {
         return ret;
     }
     ret = ctx->h_tr->upgrade(ctx);
+    ret = ctx->h_tr->request(ctx);
     OTA_LOG_I("ota init success, ver:%s type:%d size:%d",ctx->sys_ver, ctx->dev_type);
     ota_hal_rollback(NULL);
     return ret;

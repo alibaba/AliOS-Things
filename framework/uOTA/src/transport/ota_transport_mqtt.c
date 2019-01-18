@@ -110,6 +110,25 @@ static int ota_trans_inform(void* pctx)
     return ret;
 }
 
+static int ota_trans_request(void* pctx)
+{
+    int  ret = 0;
+    char msg[OTA_MSG_INFORM_LEN] = {0};
+    ota_service_t* ctx = pctx;
+    if (!ctx) {
+        return -1;
+    }
+    ret = ota_gen_info_msg(msg, OTA_MSG_INFORM_LEN, 0, ctx->sys_ver);
+    if (ret != 0) {
+        return -1;
+    }
+    ret = ota_mqtt_publish("request", msg, ctx->pk, ctx->dn);
+    if (0 != ret) {
+        return OTA_TRANSPORT_FAIL;
+    }
+    return ret;
+}
+
 static int ota_trans_upgrade(void* pctx)
 {
     int   ret = 0;
@@ -123,6 +142,16 @@ static int ota_trans_upgrade(void* pctx)
         return -1;
     }
     OTA_LOG_I("upgrade:%s",name);
+    ret = ota_hal_mqtt_subscribe(name, ota_mqtt_sub_cb, pctx);
+    if (ret < 0) {
+        return OTA_TRANSPORT_FAIL;
+    }
+    memset(name, 0, OTA_MQTT_TOPIC_LEN);
+    ret = ota_mqtt_gen_topic_name(name, OTA_MQTT_TOPIC_LEN, "request", ctx->pk, ctx->dn);
+    if (ret < 0) {
+        return -1;
+    }
+    OTA_LOG_I("request:%s",name);
     ret = ota_hal_mqtt_subscribe(name, ota_mqtt_sub_cb, pctx);
     if (ret < 0) {
         return OTA_TRANSPORT_FAIL;
@@ -216,6 +245,7 @@ static ota_transport_t trans_mqtt = {
     .init             = ota_trans_init,
     .inform           = ota_trans_inform,
     .upgrade          = ota_trans_upgrade,
+    .request          = ota_trans_request,
     .status           = ota_trans_status,
     .deinit           = ota_trans_deinit,
 };

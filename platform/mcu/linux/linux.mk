@@ -62,7 +62,6 @@ $(NAME)_SOURCES     += main/arg_options.c
 $(NAME)_SOURCES     += main/main.c
 $(NAME)_SOURCES     += main/hw.c
 $(NAME)_SOURCES     += main/wifi_port.c
-$(NAME)_SOURCES     += main/ota_port.c
 $(NAME)_SOURCES     += main/nand.c
 $(NAME)_SOURCES     += main/vfs_trap.c
 

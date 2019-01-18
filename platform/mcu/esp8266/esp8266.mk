@@ -67,7 +67,6 @@ $(NAME)_SOURCES  += hal/uart.c
 $(NAME)_SOURCES  += hal/flash.c
 $(NAME)_SOURCES  += hal/misc.c
 $(NAME)_SOURCES  += hal/wifi_port.c
-$(NAME)_SOURCES  += hal/ota_port.c
 $(NAME)_SOURCES  += hal/upgrade_lib.c
 $(NAME)_SOURCES  += bsp/driver/gpio.c
 $(NAME)_SOURCES  += bsp/driver/hw_timer.c

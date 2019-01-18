@@ -3,7 +3,6 @@
 
 #include <hal/soc/soc.h>
 #include <hal/wifi.h>
-#include <hal/ota.h>
 #include <aos/aos.h>
 #include <sdkconfig.h>
 
@@ -62,6 +61,5 @@ void app_main(void)
     extern void esp_bt_mesh_register(void);
     esp_bt_mesh_register();
 #endif
-    hal_ota_register_module(&esp32_yos_ota_module);
     aos_task_new("main", app_entry, 0, 8192);
 }

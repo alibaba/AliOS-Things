@@ -105,7 +105,6 @@ $(NAME)_SOURCES := platform_init.c          \
                    hal/hw.c \
                    hal/uart.c \
                    hal/flash.c \
-                   hal/ota_port.c 
 
 
 ###      wifi/src/wifi.c hal/hw.c hal/wifi_port.c  hal/flash_port.c   

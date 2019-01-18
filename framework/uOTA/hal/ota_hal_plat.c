@@ -18,46 +18,9 @@
 #include "rec_define.h"
 #endif
 
-
 #if defined (BOARD_ESP8266)
 #include "esp_system.h"
 #include "upgrade.h"
-#elif defined (RDA5981x) || defined (RDA5981A)
-#include "rda_def.h"
-#include "rda_flash.h"
-
-r_u32 g_crc_result = ~0UL;
-r_u32 g_ota_off_set = 0;
-
-#define CRC32_TABLE_ADDR    0xbb5c
-#define CRC32_ADDR          0x8dff
-#define CRC32_TABLE_ADDR_4  0xbbd8
-#define CRC32_ADDR_4        0x8e33
-
-static r_u32 bootrom_crc32(r_u8 *p, r_u32 len)
-{
-    r_u32 func = CRC32_ADDR;
-    if (rda_ccfg_hwver() >= 4) {
-        func = CRC32_ADDR_4;
-    }
-    return ((r_u32(*)(r_u8 *, r_u32))func)(p, len);
-}
-
-static r_u32 crc32(const r_u8 *p, r_u32 len, r_u32 crc)
-{
-    const r_u32 *crc32_tab = (const r_u32 *)CRC32_TABLE_ADDR;
-
-    if (rda_ccfg_hwver() >= 4) {
-        crc32_tab = (const r_u32 *)CRC32_TABLE_ADDR_4;
-    }
-    /* Calculate CRC */
-    while (len--)
-    {
-         crc = crc32_tab[((crc & 0xFF) ^ *p++)] ^ (crc >> 8);
-    }
-
-    return crc;
-}
 #elif defined (STM32L496xx)
 #define OTA_CACHE_SIZE       2048
 uint8_t *ota_cache = NULL;
@@ -65,10 +28,6 @@ uint8_t *ota_cache_actual = NULL;
 uint32_t ota_cache_len = 0;
 uint32_t ota_fw_size = 0;
 uint32_t ota_receive_total_len = 0;
-#endif
-
-#if defined (AOS_OTA_RECOVERY_TYPE)
-#include "rec_define.h"
 #endif
 
 #define OTA_CRC16  "ota_file_crc16"
@@ -107,7 +66,6 @@ static int ota_init(void *something)
     ota_boot_param_t *param = (ota_boot_param_t *)something;
     _offset = param->off_bp;
     hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
-    OTA_LOG_I("ota init off:0x%08x part:%d len:0x%08x\n",param->off_bp,boot_part,param->len);
     if(part_info->partition_length < param->len || param->len == 0) {
         ret = OTA_PARAM_FAIL;
         return ret;
@@ -180,17 +138,11 @@ static int ota_write(int* off, char* in_buf ,int in_buf_len)
             ota_free(ota_cache);
         }
     }
-    return ret;
-#elif defined (RDA5981x) || defined (RDA5981A)
-    g_crc_result = crc32(in_buf, in_buf_len, g_crc_result);
-    ret = hal_flash_write(boot_part, (uint32_t*)&_offset, in_buf, in_buf_len);
-    g_ota_off_set += in_buf_len;
-    return ret;
 #else
     ota_crc16_update(&ctx, in_buf, in_buf_len);
     ret = hal_flash_write(boot_part, (uint32_t*)&_offset, in_buf, in_buf_len);
-    return ret;
 #endif
+    return ret;
 }
 
 static int ota_read(int* off, char* out_buf, int out_buf_len)
@@ -219,6 +171,7 @@ static int ota_boot(void *something)
             ota_param.len = 0;
             ota_param.crc = param->crc;
             ota_param.splict_size = param->splict_size;
+            ota_param.rec_size = param->rec_size;
             ota_param.diff = 1;
             ota_param.upg_flag = REC_RECOVERY_FLAG;
             ota_crc16_ctx ctx1;
@@ -238,45 +191,13 @@ static int ota_boot(void *something)
                  ret = OTA_REBOOT_FAIL;
                  return ret;
             }
-            OTA_LOG_I("diff dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x pcrc:0x%04x splict:%d.\r\n",ota_param_r.dst_adr,ota_param_r.src_adr, ota_param_r.len, ota_param_r.crc, ota_param_r.patch_crc, ota_param_r.splict_size);
+            OTA_LOG_I("diff dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x pcrc:0x%04x splict:%d.\r\n",
+                        ota_param_r.dst_adr,ota_param_r.src_adr, ota_param_r.rec_size, ota_param_r.crc,
+                        ota_param_r.patch_crc, ota_param_r.splict_size);
 #endif
         }
         else {
-#ifdef AOS_OTA_BANK_SINGLE
-            int offset = 0x00;
-            ota_crc16_ctx ctx1;
-            unsigned short crc;
-            int param_part = HAL_PARTITION_PARAMETER_1;
-            extern int app_download_addr;
-            extern int kernel_download_addr;
-            hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
-#ifndef AOS_OTA_2BOOT_UPDATE_SUPPORT
-            param->src_adr = part_info->partition_start_addr;
-            param->dst_adr = (param->upg_flag == OTA_APP)? (int)&app_download_addr : (int)&kernel_download_addr;
-#else
-            param->src_adr  = 0;
-            param->dst_adr  = 0;
-            param->len      = 0;
-            param->upg_flag = REC_SWAP_UPDATE_FLAG;
-#endif
-            ota_crc16_init(&ctx1);
-            ota_crc16_update(&ctx1, param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
-            ota_crc16_final(&ctx1, &crc);
-            param->param_crc = crc;
-            ota_boot_param_t param_r;
-            offset = 0x00;
-            hal_flash_erase(param_part, offset, sizeof(ota_boot_param_t));
-            offset = 0x00;
-            hal_flash_write(param_part, (uint32_t*)&offset, param, sizeof(ota_boot_param_t));
-            offset = 0x00;
-            memset(&param_r, 0, sizeof(ota_boot_param_t));
-            hal_flash_read(param_part, (uint32_t*)&offset, &param_r, sizeof(ota_boot_param_t));
-            if(memcmp(param, &param_r, sizeof(ota_boot_param_t)) != 0) {
-                 ret = OTA_REBOOT_FAIL;
-                 return ret;
-            }
-            OTA_LOG_I("OTA finish dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x.\r\n", param_r.dst_adr, param_r.src_adr, param_r.len, param_r.crc);
-#elif defined  AOS_OTA_BANK_DUAL
+#if defined  AOS_OTA_BANK_DUAL
             int offset = 0x00;
             ota_crc16_ctx tmp_ctx;
             unsigned short crc;
@@ -305,21 +226,44 @@ static int ota_boot(void *something)
             }
             OTA_LOG_I("OTA finish dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x.\r\n", param_r.dst_adr, param_r.src_adr, param_r.len, param_r.crc);
             ota_reboot_bank();
+#else
+            int offset = 0x00;
+            ota_crc16_ctx ctx1;
+            unsigned short crc;
+            int param_part = HAL_PARTITION_PARAMETER_1;
+#if !defined (RDA5981x) && !defined (RDA5981A)
+            extern int app_download_addr;
+            extern int kernel_download_addr;
 #endif
-#if defined (RDA5981x) || defined (RDA5981A)
-            hal_logic_partition_t *partition_info;
-            hal_partition_t pno = HAL_PARTITION_OTA_TEMP;
-            partition_info = hal_flash_get_info(pno);
-            core_util_critical_section_enter();
-            spi_flash_flush_cache();
-            r_u32 crc32_check = bootrom_crc32((r_u8 *)partition_info->partition_start_addr, g_ota_off_set);
-            core_util_critical_section_exit();
-            OTA_LOG_I("OTA finish:0x%08x:0x%08x\r\n", g_crc_result, crc32_check);
-            if (crc32_check == g_crc_result) {
-                 ota_reboot();
-            } else {
-                 OTA_LOG_I("crc32 err.");
+            hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
+#ifndef AOS_OTA_2BOOT_UPDATE_SUPPORT
+#if !defined (RDA5981x) && !defined (RDA5981A)
+            param->src_adr = part_info->partition_start_addr;
+            param->dst_adr = (param->upg_flag == OTA_APP)? (int)&app_download_addr : (int)&kernel_download_addr;
+#endif
+#else
+            param->src_adr  = 0;
+            param->dst_adr  = 0;
+            param->len      = 0;
+            param->upg_flag = REC_SWAP_UPDATE_FLAG;
+#endif
+            ota_crc16_init(&ctx1);
+            ota_crc16_update(&ctx1, param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
+            ota_crc16_final(&ctx1, &crc);
+            param->param_crc = crc;
+            ota_boot_param_t param_r;
+            offset = 0x00;
+            hal_flash_erase(param_part, offset, sizeof(ota_boot_param_t)); //PARTITION_BACKUP_PARAM
+            offset = 0x00;
+            hal_flash_write(param_part, (uint32_t*)&offset, param, sizeof(ota_boot_param_t));
+            offset = 0x00;
+            memset(&param_r, 0, sizeof(ota_boot_param_t));
+            hal_flash_read(param_part, (uint32_t*)&offset, &param_r, sizeof(ota_boot_param_t));
+            if(memcmp(param, &param_r, sizeof(ota_boot_param_t)) != 0) {
+                 ret = OTA_REBOOT_FAIL;
+                 return ret;
             }
+            OTA_LOG_I("OTA finish dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x.\r\n", param_r.dst_adr, param_r.src_adr, param_r.len, param_r.crc);
 #endif
         }
         ota_reboot();
@@ -361,19 +305,20 @@ static int ota_rollback(void *something)
         memset(&param_r, 0, sizeof(ota_boot_param_t));
         hal_flash_read(param_part, (uint32_t*)&offset, &param_r, sizeof(ota_boot_param_t));
         if(memcmp(&param_w, &param_r, sizeof(ota_boot_param_t)) != 0) {
-            OTA_LOG_E("rollback failed.");
+            OTA_LOG_E("rollback failed\n");
             return -1;
         }
     }
     return 0;
 }
 
+const char   *aos_get_app_version(void);
 static const char *ota_get_version(unsigned char dev_type)
 {
     if(dev_type) {
         return "v1.0.0-20180101-1000";//SYSINFO_APP_VERSION;
     } else {
-        return SYSINFO_APP_VERSION;
+        return aos_get_app_version();
     }
 }
 

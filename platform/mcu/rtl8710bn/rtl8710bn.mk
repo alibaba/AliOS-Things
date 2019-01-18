@@ -177,15 +177,14 @@ $(NAME)_SOURCES := aos/soc_impl.c          \
                    hal/flash.c  \
                    hal/hw.c  \
                    hal/wifi_port.c \
-                   hal/ota_port.c \
                    hal/gpio.c \
-                   hal/wdg.c 
+                   hal/wdg.c \
+                   hal/ota_port.c
 		   
 #$(NAME)_SOURCES  += hal/uart.c
 #$(NAME)_SOURCES  += hal/flash.c
 #$(NAME)_SOURCES  += hal/hw.c
 #$(NAME)_SOURCES  += hal/wifi_port.c
-#$(NAME)_SOURCES  += hal/ota_port.c
 #$(NAME)_SOURCES  += hal/misc.c
 
 

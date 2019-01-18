@@ -401,3 +401,4 @@ endif
 $(EXTRA_POST_BUILD_TARGETS): build_done
 
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done)
+	$(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(BIN_OUTPUT_FILE)

@@ -84,7 +84,6 @@ $(NAME)_SOURCES	 += hal/gpio.c \
 					hal/rhino_hal/beken_rhino.c \
 					hal/ble.c \
 					hal/breeze_hal_os.c \
-                    port/ota_port.c
 
 ifneq ($(filter protocols.mesh,$(COMPONENTS)),)
 $(NAME)_SOURCES +=  hal/mesh_wifi_hal.c

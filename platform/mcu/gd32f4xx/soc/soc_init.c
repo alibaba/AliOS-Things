@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include "gd32f450z_eval.h"
 #include <hal/wifi.h>
-#include <hal/ota.h>
 
 aos_task_t g_init_task;
 uart_dev_t  uart_0;
@@ -105,10 +104,6 @@ int aos_framework_init(void)
     version_init();
 #ifdef MESH_GATEWAY_SERVICE
     gateway_service_init();
-#endif
-
-#ifdef AOS_FOTA
-   // ota_service_init();
 #endif
 
     return 0;

@@ -14,8 +14,4 @@ $(NAME)_SUMMARY := Verify OTA firmware with Hash or RSA.
 $(NAME)_SOURCES := ota_sign.c \
                    ota_hash.c
 
-ifeq ($(MD5_CHECK),0)
-GLOBAL_DEFINES += AOS_OTA_DISABLE_MD5
-endif
-
 GLOBAL_INCLUDES += . ../../inc ../../hal ../verify

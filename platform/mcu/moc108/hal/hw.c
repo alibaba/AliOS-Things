@@ -12,7 +12,6 @@
 #include <hal/soc/timer.h>
 #include <hal/base.h>
 #include <hal/wifi.h>
-#include <hal/ota.h>
 
 #define TAG "hw"
 
@@ -45,12 +44,10 @@ void hal_timer_stop(timer_dev_t *tmr)
 }
 
 extern hal_wifi_module_t sim_aos_wifi_beken;
-extern struct hal_ota_module_s moc108_ota_module;
 void hw_start_hal(void)
 {
     printf("start-----------hal\n");
     hal_wifi_register_module(&sim_aos_wifi_beken);
-    hal_ota_register_module(&moc108_ota_module);
 #ifdef CONFIG_AOS_MESH
     extern void beken_wifi_mesh_register(void);
     beken_wifi_mesh_register();
