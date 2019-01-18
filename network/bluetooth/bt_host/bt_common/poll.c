@@ -41,7 +41,7 @@ void k_poll_event_init(struct k_poll_event *event, u32_t type, int mode,
     event->obj    = obj;
 }
 
-static inline void set_event_ready(struct k_poll_event *event, u32_t state)
+static inline void set_event_state(struct k_poll_event *event, u32_t state)
 {
     event->poller = NULL;
     event->state |= state;
@@ -53,9 +53,8 @@ static int _signal_poll_event(struct k_poll_event *event, u32_t state,
 {
     *must_reschedule = 0;
     if (event->type != K_POLL_TYPE_DATA_AVAILABLE || has_tx_sem(event)) {
-        set_event_ready(event, state);
+        set_event_state(event, state);
     }
-    k_sem_give(&g_poll_sem);
     return 0;
 }
 
@@ -179,7 +178,7 @@ static bool polling_events(struct k_poll_event *events, int num_events,
         u32_t state;
         key = irq_lock();
         if (is_condition_met(&events[ii], &state)) {
-            set_event_ready(&events[ii], state);
+            set_event_state(&events[ii], state);
             polling = false;
         } else if (timeout != K_NO_WAIT && polling) {
             rc = register_event(&events[ii], NULL);
