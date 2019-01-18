@@ -2,7 +2,7 @@ menuconfig AOS_BOARD_NUMAKER-PFM-M487
     bool "numaker-pfm-m487"
     select AOS_MCU_M487JIDAE
     select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_LIBC
+    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_NETMGR
     select AOS_COMP_LWIP if ETHERNET_CONFIG = 1
     select AOS_COMP_YLOOP if ETHERNET_CONFIG = 1
