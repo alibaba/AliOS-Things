@@ -20,7 +20,7 @@ static int rec_get_fw_store_md5(unsigned long fw_tag, unsigned int fw_len, unsig
     real_read_size = nbpatch_read(fw_tag, (const unsigned char*)&fw_info, off_set, sizeof(rec_fw_info),2);
     if (real_read_size != sizeof(rec_fw_info)) {
         ret = -1;
-        rec_printf("rec md5 read flash failed!");
+        rec_printf("rec md5 read flash failed!\r\n");
     }
     rec_memcpy(store_md5_value, fw_info.image_md5_value, 16);
     return ret;
@@ -39,21 +39,21 @@ static int rec_get_fw_md5(unsigned long fw_tag, unsigned int fw_len, unsigned ch
     fw_info_size = sizeof(rec_fw_info);
     if(fw_len <= fw_info_size) {
         ret = -1;
-        rec_printf("recovery fw verify input parameters error!\n");
+        rec_printf("recovery fw verify input parameters error!\r\n");
         return ret;
     }
 
     rd_buf = rec_malloc(512);
     if (rd_buf == NULL) {
         ret = -1;
-        rec_printf("rec verify fw malloc failed\n");
+        rec_printf("rec verify fw malloc failed\r\n");
         return ret;
     }
     rec_md5_ctx = rec_malloc(sizeof(rec_md5_context));
 
     if (rec_md5_ctx == NULL) {
         ret = -1;
-        rec_printf("recovery malloc md5 ctx failed!\n");
+        rec_printf("recovery malloc md5 ctx failed!\r\n");
         rec_free(rd_buf);
         return ret;
     }
@@ -70,7 +70,7 @@ static int rec_get_fw_md5(unsigned long fw_tag, unsigned int fw_len, unsigned ch
         real_read_size = nbpatch_read(fw_tag, rd_buf, off_set, read_size,2);
         if (real_read_size < 0) {
             ret = -1;
-            rec_printf("rec md5 read flash failed!");
+            rec_printf("rec md5 read flash failed!\r\n");
             goto REC_HASH_FAILED;
         }
         off_set += real_read_size;
@@ -91,15 +91,15 @@ int rec_verify_firmware(unsigned long fw_tag, unsigned int fw_len)
     rec_memset(rec_fw_store_md5, 0x00, 16);
     rec_memset(rec_fw_real_md5, 0x00, 16);
     if(rec_get_fw_md5(fw_tag, fw_len, rec_fw_real_md5) < 0) {
-        rec_printf("rec get fw md5 failed\n");
+        rec_printf("rec get fw md5 failed\r\n");
         return -1;
     }
     if(rec_get_fw_store_md5(fw_tag, fw_len, rec_fw_store_md5) < 0) {
-        rec_printf("rec get fw md5 failed\n");
+        rec_printf("rec get fw md5 failed\r\n");
         return -1;
     }
     if(rec_memcmp(rec_fw_real_md5, rec_fw_store_md5, sizeof(rec_fw_store_md5)) == 0) {
-        rec_printf("rec md5 verify successfully\n");
+        rec_printf("rec md5 verify successfully\r\n");
         return 0;
     }
     return -1;

@@ -238,7 +238,7 @@ int nbpatch_swap_app2ota(unsigned char all_flag)
 {
     unsigned int i   = 0;
     unsigned int sec = 0;
-    char version[OTA_MAX_VER_LEN];
+
 	unsigned int par_len = patch_flash_get_partion_length(HAL_PARTITION_APPLICATION);
     PatchStatus* pstatus = nbpatch_get_pstatus();
 
@@ -264,11 +264,7 @@ int nbpatch_swap_app2ota(unsigned char all_flag)
     }
 
     pstatus->recovery_phase = REC_PHASE_DONE;
-    /* switch the version string */
-    memset(version, 0, OTA_MAX_VER_LEN);
-    memcpy(version, pstatus->app_version, OTA_MAX_VER_LEN);
-    memcpy(pstatus->app_version, pstatus->ota_version, OTA_MAX_VER_LEN);
-    memcpy(pstatus->ota_version, version, OTA_MAX_VER_LEN);
+
     save_patch_status(pstatus);
     return 0;
 }
@@ -298,6 +294,11 @@ int nbpatch_main(void)
 
     uint32_t old_size = patch_flash_get_partion_length(pstatus->dst_adr);
     if(pstatus->rec_size > old_size || pstatus->rec_size == 0) {
+        ret = NBPATCH_DIFF_FAIL;
+        goto END;
+    }
+
+    if(pstatus->splict_size != SPLICT_SIZE) {
         ret = NBPATCH_DIFF_FAIL;
         goto END;
     }

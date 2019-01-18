@@ -26,7 +26,9 @@
 #include "xzdec.h"
 #include "nbpatch.h"
 
-int err_code;
+int err_code = 0;
+int err_line = 0;
+int err_info = 0;
 static void *nbpatch_buffer;
 
 void nbpatch_buffer_init()
@@ -96,8 +98,7 @@ off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, of
     PatchStatus * pstatus = NULL;
 
     if (!old_t || !new_t || old_size <= 0 || new_size <= 0 || splict_size <= 0) {
-        err_code = NBDIFF_PARAMS_INPUT_ERROR;
-        return err_code;
+        return NBDIFF_PARAMS_INPUT_ERROR;
     }
 
     off_t seekpos = 0;
@@ -106,7 +107,7 @@ off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, of
     int num = 0;
     pstatus = nbpatch_get_pstatus();
     if(pstatus == NULL) {
-        return -1;
+        return NBDIFF_GET_PSTATUS_FAIL;
     }
 
     memset(pstatus, 0, sizeof(PatchStatus));
@@ -122,8 +123,8 @@ off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, of
         if(!pstatus->status) {
             pendingsize = nbpatch_section(old_t, old_size, new_t, &seekpos, splict_size, num);
             if (err_code) {
-                LOG("sec err:%d\n", err_code);
                 nbpatch_buffer_free();
+                ret = err_code;
                 goto nbpatch_error;
             }
             #if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_DIRECT)
@@ -141,6 +142,7 @@ off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, of
         if((copy_size == -1)||(copy_size != (pendingsize - offset))) {
             LOG("err %ld, %ld, err %d", copy_size, pendingsize, err_code = NBDIFF_FILE_OP_FAIL);
             nbpatch_buffer_free();
+            ret = err_code;
             goto nbpatch_error;
         }
 
@@ -159,7 +161,7 @@ off_t nbpatch(unsigned long old_t, off_t old_size, const unsigned long new_t, of
 
     ret = patchsize;
 nbpatch_error:
-    LOG("nbpatch suc:%d\n",ret);
+    LOG("nbpatch relsult: %d\n",ret);
     pstatus->num = 0;
     pstatus->patched_size = 0;
     pstatus->seekpos = 0;
@@ -173,17 +175,29 @@ nbpatch_error:
 static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned long dst, off_t *seek_pos, off_t splict_size, int num)
 {
     off_t newsize = 0;
-    off_t bzctrllen, bzdatalen ,bzextralen;
+    off_t bzctrllen = 0;
+    off_t bzdatalen = 0;
+    off_t bzextralen = 0;
     u_char header[HEADER_SIZE], buf[8];
     u_char *old = NULL;
-    u_char *newbuf;
-    off_t oldpos=0;
-    off_t newpos=0;
-    off_t ctrl[3];
-    off_t lenread;
-    off_t i;
+    u_char *newbuf = NULL;
+    off_t oldpos = 0;
+    off_t newpos = 0;
+    off_t ctrl[3] = {0};
+    off_t lenread = 0;
+    off_t i = 0;
+    struct xz_dec *ctrl_dec = NULL;
+    struct xz_buf cb;
+    struct xz_dec *diff_dec = NULL;
+    struct xz_buf db;
+    struct xz_dec *extra_dec = NULL;
+    struct xz_buf eb;
+    int success = 0;
+
+    ERR_CODE_CLEAR();
+
     if(!src || !dst || !seek_pos ) {
-        err_code = NBDIFF_PARAMS_INPUT_ERROR;
+        ERR_CODE_SET(NBDIFF_PARAMS_INPUT_ERROR, src);
         goto patch_error;
     }
     off_t seekpos = *seek_pos;
@@ -192,7 +206,7 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
 
     old = (u_char *)(malloc(SECTOR_SIZE));
     if (old == NULL){
-        err_code = NBDIFF_MEM_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_MEM_OP_FAIL, 0);
         goto patch_error;
     }
     /*
@@ -210,13 +224,13 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
      */
     int ret = nbpatch_read(dst, header, seekpos, HEADER_SIZE, 0);
     if(ret < 0) {
-        err_code = NBDIFF_FILE_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_FILE_OP_FAIL, ret);
         goto patch_error;
     }
 
     /* Check for appropriate magic */
     if (memcmp(header, "BSDIFF40", 8) != 0) {
-        err_code = NBDIFF_LZAM_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, 0);
         goto patch_error;
     }
 
@@ -227,38 +241,31 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
     newsize = offtin(header + 32);
     uint16_t crc = offtin(header + 40);
     if ((bzctrllen < 0) || (bzdatalen < 0) || (newsize < 0)) {
-        err_code = NBDIFF_LZAM_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, 0);
         goto patch_error;
     }
 
     if ((newbuf = (u_char *)nbpatch_buffer_alloc(newsize + 1)) == 0) {
-        err_code = NBDIFF_MEM_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_MEM_OP_FAIL, 0);
         goto patch_error;
     }
 
-    struct xz_dec *ctrl_dec = NULL;
-    struct xz_buf cb;
-    struct xz_dec *diff_dec = NULL;
-    struct xz_buf db;
-    struct xz_dec *extra_dec = NULL;
-    struct xz_buf eb;
-    int success = 0;
     xz_crc32_init();
     success = xz_init(&ctrl_dec, &cb);
     if (!success) {
-        err_code = NBDIFF_LZAM_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, success);
         goto patch_error;
     }
 
     success = xz_init(&diff_dec, &db);
     if (!success) {
-        err_code = NBDIFF_LZAM_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, success);
         goto patch_error;
     }
 
     success = xz_init(&extra_dec,&eb);
     if (!success) {
-        err_code = NBDIFF_LZAM_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, success);
         goto patch_error;
     }
 
@@ -281,9 +288,8 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
         /* Read control data */
         for (i = 0; i <= 2; i++) {
             lenread = xz_read(&cbhandler, &cb, ctrl_dec, dst, buf, 8);
-            if (lenread < 8)
-            {
-                err_code = NBDIFF_LZAM_OP_FAIL;
+            if (lenread < 8) {
+                ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, lenread);
                 goto patch_error;
             }
             ctrl[i] = offtin(buf);
@@ -292,24 +298,23 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
 
         /* Sanity-check */
         if (newpos + ctrl[0] > newsize){
-            err_code = NBDIFF_LZAM_OP_FAIL;
+            ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, newsize);
             goto patch_error;
         }
 
         /* Read diff string */
         lenread = xz_read(&diffhandler, &db, diff_dec, dst, newbuf + newpos, ctrl[0]);
         if ((lenread < ctrl[0])){
-            err_code = NBDIFF_LZAM_OP_FAIL;
+            ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, lenread);
             goto patch_error;
         }
 
         if(oldpos > old_size || oldpos + ctrl[0] > old_size) {
-            LOG("pos over: %ld, %ld, %ld",oldpos,ctrl[0] ,old_size);
-            err_code = NBDIFF_LZAM_OP_FAIL;
+            ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, oldpos);
             goto patch_error;
         }
 
-        off_t cp_size = ctrl[0];
+        off_t cp_size  = ctrl[0];
         off_t base_pos = 0;
         int num = 0;
         off_t i;
@@ -336,14 +341,14 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
 
         /* Sanity-check */
         if (newpos + ctrl[1] > newsize) {
-            err_code = NBDIFF_LZAM_OP_FAIL;
+            ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, newpos);
             goto patch_error;
         }
 
         /* Read extra string */
         lenread = xz_read(&extrahandler, &eb, extra_dec, dst, newbuf + newpos, ctrl[1]);
         if (lenread < ctrl[1]) {
-            err_code = NBDIFF_LZAM_OP_FAIL;
+            ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, lenread);
             goto patch_error;
         }
 
@@ -354,7 +359,7 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
     };
 
     if(newsize > splict_size) {
-        err_code = NBDIFF_PATCH_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_LZAM_OP_FAIL, newsize);
         goto patch_error;
     }
     uint16_t cal_crc = 0;
@@ -364,14 +369,14 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
     CRC16_Final(&crc_context, &cal_crc);
     if(cal_crc != crc) {
         LOG("cal %0x != crc %0x", cal_crc, crc);
-        err_code = NBDIFF_CRC_OP_FAIL;
+        ERR_CODE_SET(NBDIFF_CRC_OP_FAIL, cal_crc);
         goto patch_error;
     }
 
 #if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_DIRECT)
         ret = save_bakeup_data((unsigned long )newbuf, newsize);
         if(ret < 0) {
-            err_code = NBDIFF_FILE_OP_FAIL;
+            ERR_CODE_SET(NBDIFF_FILE_OP_FAIL, ret);
             goto patch_error;
         }
 #endif
@@ -381,9 +386,14 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
     seekpos += bzdatalen;
     seekpos += bzextralen;
     *seek_pos = seekpos;
-    err_code = 0;
+
 patch_error:
-    LOG("nb section:%d num:%d", err_code,num);
+    if(err_code) {
+        ERR_CODE_LOG();
+    } else {
+        LOG("nbpatch num:%d succ ", num);
+    }
+
     if(ctrl_dec){
         xz_end(ctrl_dec);
         ctrl_dec = NULL;
