@@ -213,7 +213,9 @@ static void _iotx_linkkit_upstream_callback_remove(int msgid, int code)
 #ifdef LOG_REPORT_TO_CLOUD
     int  report_sample = 0;
 #endif
-
+#ifdef ALCS_ENABLED
+    extern void dm_server_free_context(_IN_ void *ctx);
+#endif
 static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 {
     int res = 0;
@@ -409,7 +411,11 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                     HAL_Free(response);
                 }
             }
-
+#ifdef ALCS_ENABLED
+            if (property_get_ctx) {
+                dm_server_free_context(property_get_ctx);
+            }
+#endif
             IMPL_LINKKIT_FREE(request);
         }
         break;

@@ -1088,12 +1088,12 @@ int dm_mgr_upstream_thing_log_post(_IN_ int devid, _IN_ char *payload, _IN_ int 
 
         if (log_size + payload_len < OVERFLOW_LEN) {
             log_size = push_log(payload, payload_len);
-         } else {
+        } else {
             /* it should NOT happen; it means that it is too late to upload log files */
             reset_log_poll();
             dm_log_err("it it too late to upload log, reset pool");
             return FAIL_RETURN;
-         }
+        }
 
         dm_log_info("push log, len is %d, log_size is %d\n", payload_len, log_size);
         extern REPORT_STATE g_report_status;
@@ -1376,16 +1376,6 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN
 
     dm_log_debug("Current Service Name: %s", service_name);
     dm_msg_response(DM_MSG_DEST_ALL, &request, &response, payload, payload_len, ctx);
-
-#ifdef ALCS_ENABLED
-    dm_server_alcs_context_t *alcs_context = (dm_server_alcs_context_t *)ctx;
-
-    if (alcs_context) {
-        DM_free(alcs_context->ip);
-        DM_free(alcs_context->token);
-        DM_free(alcs_context);
-    }
-#endif
 
     DM_free(service_name);
     return SUCCESS_RETURN;
