@@ -9,5 +9,6 @@ if AOS_BOARD_STM32F429ZI-NUCLEO
 
 # Set default value of AOS_NETWORK_SAL
 config AOS_NETWORK_SAL
+    bool "AOS_NETWORK_SAL"
     default n
 endif
