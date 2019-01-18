@@ -121,6 +121,15 @@ void parse_msg_id(_IN_ char *payload, _IN_ int payload_len, _OU_ dm_msg_request_
     dm_utils_json_object_item(&lite, DM_MSG_KEY_ID, strlen(DM_MSG_KEY_ID), cJSON_String, &request->id);
 }
 
+int stop_sample() {
+    if (current_log_pos > g_log_poll) {
+       dm_mgr_upstream_thing_log_post(0, NULL, 0, 1);
+    }
+    switch_status = 0;
+    dm_log_info("stop sample");
+    return remove_log_poll();
+}
+
 void parse_switch_info(_IN_ char *payload, _IN_ int payload_len)
 {
     lite_cjson_t lite, lite_sample_count, lite_sample_interval, lite_sample_target;
@@ -155,11 +164,7 @@ void parse_switch_info(_IN_ char *payload, _IN_ int payload_len)
     int ret = -1;
     /* when it switch off, force upload the remaining log */
     if (0 == sample_count) {
-        if (current_log_pos > g_log_poll) {
-            dm_mgr_upstream_thing_log_post(0, NULL, 0, 1);
-        }
-        switch_status = 0;
-        ret = remove_log_poll();
+        ret = stop_sample();
     } else {
         switch_status = 1;
         ret = create_log_poll();
@@ -222,6 +227,11 @@ void get_msgid(char *payload, int is_cloud)
     parse_msg_id(found, strlen(found), &request);
     if (RUNNING == g_report_status) {
         dm_log_info("current working on a sample, return");
+        return;
+    }
+
+    if (sample_count <= msg_num) {
+        stop_sample();
         return;
     }
 
