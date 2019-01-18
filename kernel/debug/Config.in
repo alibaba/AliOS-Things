@@ -1,7 +1,7 @@
 menuconfig AOS_COMP_DEBUG
     bool "debug"
     depends on AOS_COMP_RHINO
-    default y
+    default n
     help
         panic debug and cpuusage
 
