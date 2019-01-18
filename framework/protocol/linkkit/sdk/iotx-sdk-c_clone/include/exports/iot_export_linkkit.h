@@ -165,6 +165,14 @@ DLL_IOT_API int IOT_Linkkit_Query(int devid, iotx_linkkit_msg_type_t msg_type, u
  */
 DLL_IOT_API int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
 
+#ifdef LOG_REPORT_TO_CLOUD
+    int check_target_msg(const char *input, int len);
+    void get_msgid(char *payload, int is_cloud);
+    void send_permance_info(char *input, int input_len, char *comments, int report_format);
+#endif
+
+
+
 #if defined(__cplusplus)
 }
 #endif

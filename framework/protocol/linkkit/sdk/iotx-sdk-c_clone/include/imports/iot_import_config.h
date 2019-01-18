@@ -24,7 +24,7 @@
 #endif
 
 #ifndef CONFIG_MQTT_TX_MAXLEN
-    #define CONFIG_MQTT_TX_MAXLEN           (1024)
+    #define CONFIG_MQTT_TX_MAXLEN           (2048)
 #endif
 
 #ifndef CONFIG_MQTT_RX_MAXLEN
@@ -44,11 +44,7 @@
 #endif
 
 #ifndef CONFIG_BLDTIME_MUTE_DBGLOG
-#if defined(LOG_SIMPLE)
-    #define CONFIG_BLDTIME_MUTE_DBGLOG      (1)
-#else
     #define CONFIG_BLDTIME_MUTE_DBGLOG      (0)
-#endif
 #endif
 
 #ifndef CONFIG_DISPATCH_QUEUE_MAXLEN
