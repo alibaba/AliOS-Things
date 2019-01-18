@@ -86,3 +86,8 @@ ifeq (y,$(strip $(FEATURE_DEPRECATED_LINKKIT)))
 SUBDIRS += src/tools/linkkit_tsl_convert
 endif
 endif
+
+
+ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_ENABLED)))
+    CFLAGS += -DLOG_REPORT_TO_CLOUD
+endif
