@@ -2097,22 +2097,22 @@ static u8_t smp_ident_addr_info(struct bt_smp *smp, struct net_buf *buf)
         }
 
         bt_id_add(keys);
-    }
+    } else {
+        smp->remote_dist &= ~BT_SMP_DIST_ID_KEY;
 
-    smp->remote_dist &= ~BT_SMP_DIST_ID_KEY;
+        if (smp->remote_dist & BT_SMP_DIST_SIGN) {
+            atomic_set_bit(&smp->allowed_cmds, BT_SMP_CMD_SIGNING_INFO);
+        }
 
-    if (smp->remote_dist & BT_SMP_DIST_SIGN) {
-        atomic_set_bit(&smp->allowed_cmds, BT_SMP_CMD_SIGNING_INFO);
-    }
+        if (IS_ENABLED(CONFIG_BT_CENTRAL) && conn->role == BT_HCI_ROLE_MASTER &&
+            !smp->remote_dist) {
+            bt_smp_distribute_keys(smp);
+        }
 
-    if (IS_ENABLED(CONFIG_BT_CENTRAL) && conn->role == BT_HCI_ROLE_MASTER &&
-        !smp->remote_dist) {
-        bt_smp_distribute_keys(smp);
-    }
-
-    /* if all keys were distributed, pairing is done */
-    if (!smp->local_dist && !smp->remote_dist) {
-        smp_pairing_complete(smp, 0);
+        /* if all keys were distributed, pairing is done */
+        if (!smp->local_dist && !smp->remote_dist) {
+            smp_pairing_complete(smp, 0);
+        }
     }
 
     return 0;
