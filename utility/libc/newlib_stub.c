@@ -155,13 +155,13 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 #ifdef WITH_LWIP_TELNETD
                 TelnetWrite('\r');
 #endif
-                hal_uart_send(&uart_stdio, (void *)"\r", 1, 0);
+                hal_uart_send(&uart_stdio, (void *)"\r", 1, AOS_WAIT_FOREVER);
             }
 
 #ifdef WITH_LWIP_TELNETD
             TelnetWrite(*tmp);
 #endif
-            hal_uart_send(&uart_stdio, (void *)tmp, 1, 0);
+            hal_uart_send(&uart_stdio, (void *)tmp, 1, AOS_WAIT_FOREVER);
             tmp++;
         }
 
