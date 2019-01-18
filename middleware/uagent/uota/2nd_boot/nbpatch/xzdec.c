@@ -18,8 +18,9 @@
 #define DICT_SIZE (1<<14)
 #endif
 
+#if 0
 /* same with "enum xz_ret" */
-static const char *errorinfo[] = 
+static const char *errorinfo[] =
    {"XZ_OK\n",
 	"XZ_STREAM_END\n",
 	"XZ_UNSUPPORTED_CHECK\n",
@@ -31,6 +32,7 @@ static const char *errorinfo[] =
 	"XZ_BUF_ERROR\n",
     "BUG!\n"
     };
+#endif
 
 int geterror(enum xz_ret ret)
 {
@@ -39,10 +41,12 @@ int geterror(enum xz_ret ret)
         return 0;
     }
 
+#if 0
     ret = ret > sizeof(errorinfo)/sizeof(errorinfo[0]) ?
           sizeof(errorinfo)/sizeof(errorinfo[0]) - 1 : ret;
+#endif
+    LOG("xzerr: %d\n", ret);
 
-    LOG("err: %d\n", ret);
     return -1;
 }
 
@@ -66,8 +70,6 @@ bool xz_end(struct xz_dec *s)
     xz_dec_end(s);
     return true;
 }
-
-
 
 size_t xz_read(xzReadHandler *handler, struct xz_buf *b,struct xz_dec *s, unsigned long in_file, u_char *buf, int buf_len) {
 
