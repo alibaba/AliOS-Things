@@ -10,18 +10,14 @@
 #include "aos/hal/flash.h"
 #include "rec_hal.h"
 
-#ifndef OTA_MAX_VER_LEN
-#define OTA_MAX_VER_LEN (64)
-#endif
-
-#ifndef OTA_MAX_VER_LEN
+#ifndef SPLISE_NUM
 #define SPLISE_NUM   (1024*1024/0x10000)
 #endif
 
 /* 0 recovery start, 1 normal start, 2 upgrade to another partion, 3 first start after recovery */
 #define REC_RECOVERY_START      0
 #define REC_NORMAL_START        1
-#define REC_UPGRADE_START       2   /* just for esp8266 */
+#define REC_UPGRADE_START       2   /* Just for esp8266 */
 #define REC_ROLLBACK_START      3
 #define REC_SWAP_UPDATE_START   4
 
@@ -96,8 +92,6 @@ typedef struct
                                   the value is 0, otherwise it will increase */
     unsigned char REC_FLASH_STAT_E[SPLISE_NUM];  /* Every 1 byte represents the status of a SLICE */
     unsigned short ota_addr[OTA_ADDR_NUM]; /* The address number of the OTA data, multiplied by SLICE for the partition offset */
-    char ota_version[OTA_MAX_VER_LEN];
-    char app_version[OTA_MAX_VER_LEN];
     unsigned short patch_crc;
 }__attribute__((packed)) PatchStatus;
 #endif

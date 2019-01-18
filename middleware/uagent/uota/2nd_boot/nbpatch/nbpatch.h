@@ -17,13 +17,36 @@
 #define PARTITION_OTA   HAL_PARTITION_OTA_TEMP
 #define PARTITION_BACKUP_PARAM   HAL_PARTITION_RECOVERY_BACK_PARA
 
-#define NBDIFF_PARAMS_INPUT_ERROR   1
-#define NBDIFF_MEM_OP_FAIL          2
-#define NBDIFF_FILE_OP_FAIL         3
-#define NBDIFF_LZAM_OP_FAIL         4
-#define NBDIFF_PATCH_OP_FAIL        5
-#define NBDIFF_CRC_OP_FAIL          6
+#define NBDIFF_PARAMS_INPUT_ERROR   (-1)
+#define NBDIFF_MEM_OP_FAIL          (-2)
+#define NBDIFF_FILE_OP_FAIL         (-3)
+#define NBDIFF_LZAM_OP_FAIL         (-4)
+#define NBDIFF_PATCH_OP_FAIL        (-5)
+#define NBDIFF_CRC_OP_FAIL          (-6)
+#define NBDIFF_GET_PSTATUS_FAIL     (-7)
 
+extern int err_code;
+extern int err_line;
+extern int err_info;
+
+#define ERR_CODE_SET(code, info) \
+    do {                         \
+        err_code = code;         \
+        err_info = info;         \
+        err_line = __LINE__;     \
+    }while(0);
+
+#define ERR_CODE_CLEAR() \
+    do {                 \
+        err_code = 0;    \
+        err_info = 0;    \
+        err_line = 0;    \
+    }while(0);
+
+#define ERR_CODE_LOG()           \
+    do {                         \
+        LOG("err code %d, info %d, line %d\r\n", err_code, err_info, err_line); \
+    }while(0);
 
 enum {
     NBPATCH_ST_FAIL=-4,

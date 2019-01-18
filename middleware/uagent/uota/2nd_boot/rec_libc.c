@@ -113,6 +113,31 @@ char* uitoa_16(uint32_t value, char *str){
     return str;
 }
 
+char* itoa_10(int32_t value, char *str){
+    char reverse[40];
+    char *p = reverse;
+    int32_t tmp = value;
+
+    *p++ = '\0';
+    if(value < 0) {
+        tmp = -value;
+    }
+    do{
+        *p++ = "0123456789"[tmp%10];
+        tmp /= 10;
+    }while(tmp != 0);
+    if(value < 0) {
+        *p++ = '-';
+    }
+    p--;
+
+    while (p >= reverse){
+        *str++ = *p--;
+    }
+
+    return str;
+}
+
 char* uitoa_10(uint32_t value, char *str){
     char reverse[36];
     char *p = reverse;
@@ -157,6 +182,11 @@ void vsprint(char *buf, const char *fmt, va_list args)
         fmt++;
         switch (*fmt){
             case 'd':
+                itoa_10(va_arg(next_arg, unsigned int),p);
+                p += strlen(p);
+                waiting_fmt = 0;
+                fmt++;
+                break;
             case 'u':
                 uitoa_10(va_arg(next_arg, unsigned int),p);
                 p += strlen(p);
