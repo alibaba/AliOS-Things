@@ -9,6 +9,7 @@ menuconfig AOS_BOARD_EML3047
 if AOS_BOARD_EML3047
 # Configurations for board eml3047
 config lorawanback
-    bool "lorawanback"
+    int "lorawanback"
+    range 0 1
     default 0
 endif

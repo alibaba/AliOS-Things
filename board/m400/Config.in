@@ -10,7 +10,8 @@ if AOS_BOARD_M400
 # Configurations for board board_m400
 
 config lorawanback
-    bool "lorawanback"
+    int "lorawanback"
     range 0 1
     default 0
+
 endif

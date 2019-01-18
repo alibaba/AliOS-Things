@@ -11,7 +11,7 @@ if AOS_BOARD_SAML21_IOT_SK
 # Configurations for board saml21_iot_sk
 
 config SAL_CONFIG
-    bool "sal config"
+    int "sal config"
     default 0
     range 0 1
     help
