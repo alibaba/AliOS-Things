@@ -1,9 +1,9 @@
-menuconfig AOS_ARCH_ARMV7A
-    bool "armv7a"
+menuconfig AOS_ARCH_ARMV7A_SVC
+    bool "armv7a-svc"
     default n
     help
-      arch for armv7a
+      arch for armv7a-svc
 
-if AOS_ARCH_ARMV7A
-# Configurations for arch armv7a
+if AOS_ARCH_ARMV7A_SVC
+# Configurations for arch armv7a-svc
 endif
