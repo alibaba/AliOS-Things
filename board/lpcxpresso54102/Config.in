@@ -10,5 +10,6 @@ if AOS_BOARD_LPCXPRESSO54102
 
 # Set default value of AOS_NETWORK_SAL
 config AOS_NETWORK_SAL
+    bool "AOS_NETWORK_SAL"
     default y
 endif
