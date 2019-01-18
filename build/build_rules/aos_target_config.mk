@@ -2,6 +2,10 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_target_func.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
+# include .config
+$(if $(wildcard $(AOS_CONFIG)), \
+    $(eval include $(AOS_CONFIG)), $(warning No such file: $(AOS_CONFIG)))
+
 # <comp>_LOCATION and <comp>_MAKEFILE defined in aos_all_components.mk
 $(if $(wildcard $(OUTPUT_DIR)/aos_all_components.mk), \
     $(eval include $(OUTPUT_DIR)/aos_all_components.mk), \
@@ -236,7 +240,8 @@ endef
 # $(1) is the list of components left to process. $(COMP) is set as the first element in the list
 define PROCESS_COMPONENT
 AOS_SDK_DEFINES += MCU_FAMILY=\"$(HOST_MCU_FAMILY)\"
-$(info all components: $(REAL_COMPONENTS_LOCS))
+$(info *** All components: $(sort $(REAL_COMPONENTS_LOCS)))
+$(info *** Enabled by config: $(sort $(subst board_,,$(OBJ-y))))
 $(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 
 endef
@@ -480,7 +485,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_MBINS_TYPE             := $($(comp)_MBINS_TYPE)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_POPULATE_INCLUDES      := $($(comp)_POPULATE_INCLUDES)))
 	$(QUIET)$(foreach var,$(sort $(FEATURE_SHOW_VARS)), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(var) := $($(var))))
-	
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,OBJ-y := $(sort $(OBJ-y)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_UNIT_TEST_SOURCES   		:= $(AOS_SDK_UNIT_TEST_SOURCES))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,INTERNAL_MEMORY_RESOURCES 		:= $(call unique,$(INTERNAL_MEMORY_RESOURCES)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,EXTRA_TARGET_MAKEFILES 			:= $(EXTRA_TARGET_MAKEFILES))
