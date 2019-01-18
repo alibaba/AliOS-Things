@@ -1,8 +1,8 @@
 menuconfig AOS_COMP_IROT
-    bool "irot"
+    bool "root of Trust,SE and TEE"
     default n
-    select AOS_COMP_LIBKM_TEE if @CONDITION@
-    select AOS_COMP_LIBKM if @CONDITION@
+    select AOS_COMP_LIBKM_TEE if AOS_BOARD_CB2201
+    select AOS_COMP_LIBKM if AOS_BOARD_MK3060 || AOS_BOARD_MK3080 || AOS_BOARD_LINUXHOST
     help
 
 if AOS_COMP_IROT
