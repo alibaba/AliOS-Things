@@ -30,7 +30,7 @@ config MBINS
     option env="MBINS"
 
 config LWIP
-    int "lwip support: 0/1"
+    int
     range 0 1
     option env="LWIP"
 
