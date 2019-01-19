@@ -55,6 +55,12 @@ include $(OUTPUT_DIR)/aos_all_components.mk
 $(if $(filter $(appname),$(REAL_COMPONENTS)),,$(error Unknown component: $(appname)))
 endif
 
+ifneq ($(findstring profile,$(appmkfile)),)
+export AOS_APP_TYPE := AOS_APP_PROFILE
+else
+export AOS_APP_TYPE := AOS_APP_EXAMPLE
+endif
+
 boardname = $(word 2, $(components))
 
 ifneq ($(wildcard $(AOS_CONFIG)),)
@@ -69,7 +75,7 @@ endif # $(AOS_BUILD_APP)
 
 ifneq ($(AOS_BUILD_BOARD),)
 ifneq ($(AOS_BUILD_BOARD),"$(boardname)")
-$(warning Build config missmatched: $(AOS_BUILD_APP),"$(appname)")
+$(warning Build config missmatched: $(AOS_BUILD_BOARD),"$(boardname)")
 CLEAN_CONFIG := yes
 endif
 endif # $(AOS_BUILD_BOARD)
@@ -248,7 +254,7 @@ $(TEST_COMPONENT_COLLECTION):
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
 
 # Target to create config.mk file
-$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MAKEFILE) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
+$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MAKEFILE) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS) $(AOS_CONFIG_DIR)/autoconf.h
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_MAKEFILES),Applying changes made to: $?,Making config file for first time)
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config.mk $(CLEANED_BUILD_STRING)
 
