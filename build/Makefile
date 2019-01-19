@@ -15,7 +15,7 @@ endif
 
 MAKEFILE_TARGETS := clean distclean Help # targets used by makefile
 
-#define BUILD_STRING, AOS toolchain commands on different hosts
+# define commands on different hosts
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
 # kconfig support
 include $(MAKEFILES_PATH)/aos_kconfig.mk
@@ -43,7 +43,18 @@ export AUTO_COMPONENT_DIR := $(OUTPUT_DIR)/auto_component
 # AOS_CONFIG if it is not existing
 ifneq ($(BUILD_STRING),)
 components := $(subst @, ,$(BUILD_STRING))
-appname = $(notdir $(subst .,/,$(firstword $(components))))
+# get real app name and check if it available
+appdir = $(subst .,/,$(firstword $(components)))
+appmkfile = $(wildcard $(SOURCE_ROOT)app/*/$(appdir)/aos.mk)
+$(if $(appmkfile),\
+    $(eval include $(appmkfile)) $(eval appname = $(NAME)),\
+    $(eval appname = $(notdir $(appdir))))
+
+ifneq ($(wildcard $(OUTPUT_DIR)/aos_all_components.mk),)
+include $(OUTPUT_DIR)/aos_all_components.mk
+$(if $(filter $(appname),$(REAL_COMPONENTS)),,$(error Unknown component: $(appname)))
+endif
+
 boardname = $(word 2, $(components))
 
 ifneq ($(wildcard $(AOS_CONFIG)),)
