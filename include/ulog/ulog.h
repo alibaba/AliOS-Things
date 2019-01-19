@@ -117,11 +117,49 @@ void aos_set_log_level(aos_log_level_t log_level);
  * @param  ...  Variable Parameter, Log text try to log
  */
 #define ULOG(M, S, F, L, ...) \
-            if (log_init && S < push_stop_filter_level) { \
-                post_log(M, S, F, L, __VA_ARGS__ );       \
-            }
+        if (log_init && S < push_stop_filter_level) { \
+            post_log(M, S, F, L, __VA_ARGS__ );       \
+        }
 
+/**
+* Function prototype for log on OS related text, abbreviation of ULOG on OS
+*
+* REMARK: Log produced in OS , "OS_" will be attached in tag of log text
+*
+* @param  S    Serverity of Log, choose from above value,
+* @param  ...  Variable Parameter, Log text try to log
+*/
 #define ULOGOS(S, ...) ULOG(MOD_OS, S, __FILE__, __LINE__, __VA_ARGS__)
+
+/**
+* Function prototype for log on net(ble, CANopen, ...) related text, abbreviation of ULOG on net
+*
+* REMARK: "NT_" will be attached in tag of log text
+*
+* @param  S    Serverity of Log, choose from above value,
+* @param  ...  Variable Parameter, Log text try to log
+*/
+#define ULOGNET(S, ...) ULOG(MOD_NET, S, __FILE__, __LINE__, __VA_ARGS__)
+
+/**
+* Function prototype for log on Cloud related text(e.g. linkkit SDK), abbreviation of ULOG on SDK
+*
+* REMARK: "CD_" will be attached in tag of log text
+*
+* @param  S    Serverity of Log, choose from above value,
+* @param  ...  Variable Parameter, Log text try to log
+*/
+#define ULOGCLOUD(S, ...) ULOG(MOD_CLOUD, S, __FILE__, __LINE__, __VA_ARGS__)
+
+/**
+* Function prototype for log on APP related text, abbreviation of ULOG on APP
+*
+* REMARK: "AP_" will be attached in tag of log text
+*
+* @param  S    Serverity of Log, choose from above value,
+* @param  ...  Variable Parameter, Log text try to log
+*/
+#define ULOGAPP(S, ...) ULOG(MOD_APP, S, __FILE__, __LINE__, __VA_ARGS__)
 
 /**
  * Function prototype for log init
