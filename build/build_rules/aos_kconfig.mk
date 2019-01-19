@@ -62,7 +62,8 @@ oldconfig silentoldconfig olddefconfig: $(KCONFIG_CONF) $(AOS_CONFIG)
 
 # Create .defconfig
 $(AOS_DEFCONFIG):
-	$(QUIET)$(call WRITE_FILE_CREATE,$@,AOS_app_$(AOS_BUILD_APP)=y)
+	$(QUIET)$(call WRITE_FILE_CREATE,$@,$(AOS_APP_TYPE)=y)
+	$(QUIET)$(call WRITE_FILE_APPEND,$@,AOS_app_$(AOS_BUILD_APP)=y)
 	$(QUIET)$(call WRITE_FILE_APPEND,$@,AOS_board_$(AOS_BUILD_BOARD)=y)
 
 #####################################################################################
