@@ -124,8 +124,6 @@ static void alink_work(void *arg)
     init_bzlink.get_cb            = get_dev_status_handler;
     init_bzlink.apinfo_cb         = apinfo_handler;
 
-    init_bzlink.secret_len = strlen(DEVICE_SECRET);
-    memcpy(init_bzlink.secret, DEVICE_SECRET, init_bzlink.secret_len);
 
     init_bzlink.product_secret_len = strlen(PRODUCT_SECRET);
     memcpy(init_bzlink.product_secret, PRODUCT_SECRET,
@@ -133,9 +131,17 @@ static void alink_work(void *arg)
 
     init_bzlink.product_key_len = strlen(PRODUCT_KEY);
     memcpy(init_bzlink.product_key, PRODUCT_KEY, init_bzlink.product_key_len);
-
+#ifndef CONFIG_MODEL_SECURITY
     init_bzlink.device_key_len = strlen(DEVICE_NAME);
     memcpy(init_bzlink.device_key, DEVICE_NAME, init_bzlink.device_key_len);
+
+    init_bzlink.secret_len = strlen(DEVICE_SECRET);
+    memcpy(init_bzlink.secret, DEVICE_SECRET, init_bzlink.secret_len);
+#else
+    init_bzlink.device_key_len = 0;
+    init_bzlink.secret_len = 0;
+#endif
+
 #ifdef CONFIG_AIS_OTA
     ota_module.is_ota_enable = true;
     ota_module.verison.fw_ver_len = strlen(SOFTWARE_VERSION);
