@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #if (RHINO_CONFIG_TASK_SEM > 0)
 kstat_t krhino_task_sem_create(ktask_t *task, ksem_t *sem, const name_t *name,

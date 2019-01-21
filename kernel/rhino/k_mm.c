@@ -2,13 +2,14 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "k_api.h"
+
 #if (RHINO_CONFIG_MM_TLF > 0)
-extern k_mm_region_t   g_mm_region[];
-extern int             g_region_num;
+extern k_mm_region_t g_mm_region[];
+extern int           g_region_num;
 
 void k_mm_init(void)
 {
@@ -34,7 +35,7 @@ RHINO_INLINE k_mm_list_t *init_mm_region(void *regionaddr, size_t len)
 
     /* "regionaddr" and "len" is aligned by caller */
 
-    /*first mmblk for region info*/
+    /* first mmblk for region info */
     firstblk = (k_mm_list_t *) regionaddr;
     firstblk->prev  = NULL;
     firstblk->buf_size = MM_ALIGN_UP(sizeof(k_mm_region_info_t))
@@ -58,13 +59,13 @@ RHINO_INLINE k_mm_list_t *init_mm_region(void *regionaddr, size_t len)
     /* set alloced, can't be merged */
     lastblk->buf_size = 0 | RHINO_MM_ALLOCED | RHINO_MM_PREVFREE;
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
-    lastblk->dye    = RHINO_MM_CORRUPT_DYE;
-    lastblk->owner  = 0;
+    lastblk->dye   = RHINO_MM_CORRUPT_DYE;
+    lastblk->owner = 0;
 #endif
 
     region = (k_mm_region_info_t *)firstblk->mbinfo.buffer;
     region->next = 0;
-    region->end = lastblk;
+    region->end  = lastblk;
 
     return firstblk;
 }
@@ -72,8 +73,8 @@ RHINO_INLINE k_mm_list_t *init_mm_region(void *regionaddr, size_t len)
 /* 2^(N + MM_MIN_BIT) <= size < 2^(1 + N + MM_MIN_BIT) */
 static int32_t size_to_level(size_t size)
 {
-    size_t cnt;
-    cnt = 32 - krhino_clz32(size);
+    size_t cnt = 32 - krhino_clz32(size);
+
     if ( cnt < MM_MIN_BIT ) {
         return 0;
     }
@@ -119,12 +120,12 @@ static void removesize(k_mm_head *mmhead, size_t size)
 }
 
 /* used_size++, free_size--, maybe maxused_size++ */
-#define stats_addsize(mmhead,size, req_size)    addsize(mmhead,size, req_size)
+#define stats_addsize(mmhead,size, req_size) addsize(mmhead,size, req_size)
 /* used_size--, free_size++ */
-#define stats_removesize(mmhead,size)           removesize(mmhead,size)
+#define stats_removesize(mmhead,size)        removesize(mmhead,size)
 #else
-#define stats_addsize(mmhead,size, req_size)    do{}while(0)
-#define stats_removesize(mmhead,size)           do{}while(0)
+#define stats_addsize(mmhead,size, req_size) do{}while(0)
+#define stats_removesize(mmhead,size)        do{}while(0)
 #endif
 
 kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
@@ -148,7 +149,7 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     orig_addr = addr;
     addr = (void *) MM_ALIGN_UP((size_t)addr);
     len -= (size_t)addr - (size_t)orig_addr;
-    len = MM_ALIGN_DOWN(len);
+    len  = MM_ALIGN_DOWN(len);
 
     if ( len == 0
          || len < MIN_FREE_MEMORY_SIZE + RHINO_CONFIG_MM_TLF_BLK_SIZE
@@ -232,8 +233,10 @@ kstat_t krhino_deinit_mm_head(k_mm_head *mmhead)
 kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
 {
     void *orig_addr;
+
     k_mm_region_info_t *region;
-    k_mm_list_t        *firstblk, *nextblk;
+    k_mm_list_t        *firstblk;
+    k_mm_list_t        *nextblk;
 
     NULL_PARA_CHK(mmhead);
     NULL_PARA_CHK(addr);
@@ -241,7 +244,7 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
     orig_addr = addr;
     addr = (void *) MM_ALIGN_UP((size_t)addr);
     len -= (size_t)addr - (size_t)orig_addr;
-    len = MM_ALIGN_DOWN(len);
+    len  = MM_ALIGN_DOWN(len);
 
     if ( !len || len < sizeof(k_mm_region_info_t) + MMLIST_HEAD_SIZE * 3 + MM_MIN_SIZE) {
         return RHINO_MM_POOL_SIZE_ERR;

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #if (RHINO_CONFIG_SYS_STATS > 0)
 static void sched_disable_measure_start(void)

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 
@@ -85,8 +85,7 @@ static void proc_free(ktask_t *task)
 
         RHINO_CRITICAL_EXIT();
         krhino_queue_back_send(res_q, 0);
-    }
-    else {
+    } else {
         if (task->proc_addr != 0) {
             res_q = proc->res_q;
 
@@ -139,8 +138,7 @@ void dyn_mem_proc_task(void *arg)
                 for (i = 0; i < tmp.cnt; i++) {
                     krhino_mm_free(tmp.res[i]);
                 }
-            }
-            else {
+            } else {
                 RHINO_CRITICAL_EXIT();
                 break;
             }
