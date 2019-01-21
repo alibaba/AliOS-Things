@@ -14,10 +14,10 @@ def find_comp_mkfile(dirname):
             mklist += ["%s/aos.mk" % root]
             continue
 
-        oldmk = os.path.basename(root) + '.mk'
-        if oldmk in files:
-            mklist += ["%s/%s" % (root, oldmk)]
-            continue
+        #oldmk = os.path.basename(root) + '.mk'
+        #if oldmk in files:
+        #    mklist += ["%s/%s" % (root, oldmk)]
+        #    continue
 
     return mklist
 
