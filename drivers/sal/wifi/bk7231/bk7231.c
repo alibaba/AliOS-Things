@@ -296,7 +296,7 @@ static void bk7231_get_local_ip_addr()
 
     ret = hal_wifi_get_ip_stat(NULL, &ip_stat, STATION);
     if (ret) {
-        printf("fail to get local ip addr \r\n");
+        LOGE(TAG, "fail to get local ip addr \r\n");
         return ;
     }
     LOGD(TAG, "local ip is %s \r\n", ip_stat.ip);
@@ -331,7 +331,7 @@ static void bk7231wifi_event_handler(void *arg, char *buf, int buflen)
     } else if (strcmp(eventhead, "STA") == 0) {
         at_read(eventotal, 7);
         if (strcmp(eventotal, "TION_UP") == 0) {
-            aos_loop_schedule_work(0, bk7231_get_local_ip_addr, NULL, NULL, NULL);
+            aos_loop_schedule_call(NULL, bk7231_get_local_ip_addr, NULL);
         } else if (strcmp(eventotal, "TION_DO") == 0) {
             /*eat WN*/
             at_read(eventotal, 2);
