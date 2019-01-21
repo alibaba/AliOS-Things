@@ -5,6 +5,8 @@ menuconfig AOS_APP_MQTTAPP
     select AOS_COMP_CLI
     select AOS_COMP_CJSON
     select AOS_COMP_LWIP if LWIP = 1
+    select AOS_COMP_LINKKIT_SDK_C
+    select APP_FEATURE_LINKKIT_MQTT
     help
         mqtt examples
 

@@ -8,7 +8,7 @@ OTAAPP_CONFIG_TEST_LOOP ?= 0
 loop ?= $(OTAAPP_CONFIG_TEST_LOOP)
 
 $(NAME)_SOURCES := otaapp.c 
-$(NAME)_COMPONENTS := feature.linkkit-mqtt netmgr ota cjson cli
+$(NAME)_COMPONENTS := linkkit_sdk_c netmgr ota cjson cli
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
