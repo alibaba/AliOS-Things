@@ -3,7 +3,8 @@
  */
 
 #include <stdio.h>
-#include <k_api.h>
+
+#include "k_api.h"
 
 #if (RHINO_CONFIG_KOBJ_LIST > 0)
 void kobj_list_init(void)
@@ -174,3 +175,4 @@ void krhino_overhead_measure(void)
     g_sys_measure_waste = diff;
 }
 #endif
+

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
 
@@ -149,18 +149,14 @@ static kstat_t buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
 kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
                                                 size_t size, size_t max_msg)
 {
-    kstat_t stat;
-    stat = buf_queue_dyn_create(queue, name, size, max_msg, RINGBUF_TYPE_DYN);
-    return stat;
+    return buf_queue_dyn_create(queue, name, size, max_msg, RINGBUF_TYPE_DYN);
 }
 
 kstat_t krhino_fix_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
                                                       size_t msg_size, size_t msg_num)
 {
-    kstat_t stat;
-    stat = buf_queue_dyn_create(queue, name, msg_size * msg_num,
+    return buf_queue_dyn_create(queue, name, msg_size * msg_num,
                                 msg_size, RINGBUF_TYPE_FIX);
-    return stat;
 }
 
 kstat_t krhino_buf_queue_dyn_del(kbuf_queue_t *queue)

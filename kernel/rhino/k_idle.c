@@ -2,8 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
 #include <stdio.h>
+
+#include "k_api.h"
 
 void idle_task(void *arg)
 {
@@ -45,3 +46,4 @@ void idle_task(void *arg)
 #endif
     }
 }
+

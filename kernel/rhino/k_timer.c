@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #if (RHINO_CONFIG_TIMER > 0)
 static void timer_list_pri_insert(klist_t *head, ktimer_t *timer)
@@ -85,8 +85,7 @@ static kstat_t timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb,
 kstat_t krhino_timer_create(ktimer_t *timer, const name_t *name, timer_cb_t cb,
                             sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run)
 {
-    return timer_create(timer, name, cb, first, round, arg, auto_run,
-                        K_OBJ_STATIC_ALLOC);
+    return timer_create(timer, name, cb, first, round, arg, auto_run, K_OBJ_STATIC_ALLOC);
 }
 
 kstat_t krhino_timer_del(ktimer_t *timer)
@@ -218,7 +217,7 @@ kstat_t krhino_timer_arg_change_auto(ktimer_t *timer, void *arg)
 
     NULL_PARA_CHK(timer);
 
-    cb.timer   = timer;
+    cb.timer  = timer;
     cb.u.arg  = arg;
     cb.cb_num = TIMER_ARG_CHG_AUTO;
 
@@ -261,16 +260,15 @@ static void timer_cb_proc(void)
 
 static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
 {
-    ktimer_t *timer;
-    timer = cb->timer;
+    ktimer_t *timer = cb->timer;
 
     switch (cmd) {
         case TIMER_CMD_START:
-            if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {  
+            if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
                 break;
             }
 
-            if (timer->timer_state == TIMER_ACTIVE) {      
+            if (timer->timer_state == TIMER_ACTIVE) {
                 break;
             }
 
@@ -280,7 +278,7 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
             /* used by timer delete */
             timer->to_head = &g_timer_head;
             timer_list_pri_insert(&g_timer_head, timer);
-            timer->timer_state = TIMER_ACTIVE; 
+            timer->timer_state = TIMER_ACTIVE;
             break;
         case TIMER_CMD_STOP:
             if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
@@ -323,12 +321,12 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
             break;
         case TIMER_CMD_DEL:
             if (timer->obj_type != RHINO_TIMER_OBJ_TYPE) {
-                break;               
+                break;
             }
 
             if (timer->timer_state != TIMER_DEACTIVE) {
-                break;                    
-            } 
+                break;
+            }
 
             if (timer->mm_alloc_flag != K_OBJ_STATIC_ALLOC) {
                 break;
@@ -359,7 +357,7 @@ static void cmd_proc(k_timer_queue_cb *cb, uint8_t cmd)
         default:
             k_err_proc(RHINO_SYS_FATAL_ERR);
             break;
-    }   
+    }
 
 }
 
