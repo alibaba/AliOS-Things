@@ -7,15 +7,15 @@ $(NAME)_SUMMARY := Connection management
 $(NAME)_SOURCES := ./iotx_cm.c 
 
  
- ifeq (y,$(FEATURE_COAP_COMM_ENABLED))
+ ifeq (y,$(COAP_COMM_ENABLED))
 $(NAME)_SOURCES += iotx_cm_coap.c 
 endif
 
- ifeq (y,$(FEATURE_MQTT_COMM_ENABLED))
+ ifeq (y,$(MQTT_COMM_ENABLED))
 $(NAME)_SOURCES += iotx_cm_mqtt.c  
 endif
 
-ifeq (y,$(FEATURE_MAL_ENABLED))
+ifeq (y,$(MAL_ENABLED))
 $(NAME)_SOURCES += iotx_cm_mqtt.c  
 endif
 
