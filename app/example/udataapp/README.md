@@ -28,9 +28,8 @@ udataapp
 - drivers.sensor(necessary)
 - middleware.udata(necessary)
 - utility.cjson(optional)
-- feature.linkkit(optional)
+- linkkit_sdk_c(optional)
 - netmgr(optional)
-- feature.linkkit-mqtt(optional)
 
 ### Supported Boards
 

@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := http2 stream examples
 
 $(NAME)_SOURCES := app_entry.c   http2_example_stream.c
 
-$(NAME)_COMPONENTS += feature.linkkit-http2 netmgr cjson cli
+$(NAME)_COMPONENTS += linkkit_sdk_c netmgr cjson cli
 
 
 GLOBAL_DEFINES += ON_DAILY
