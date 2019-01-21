@@ -1,0 +1,124 @@
+TARGET_DEF  ?= none
+TARGET_CHIP ?= none
+CHIP_NAME   ?= none
+CHIP_ID		?= none
+MCU_DEF		?= none
+
+ifeq ($(strip $(BOARD)), EVB_v1_19M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+ifeq ($(strip $(BOARD)), EVB_v1_20M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+ifeq ($(strip $(BOARD)), EVB_v1_24M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+ifeq ($(strip $(BOARD)), EVB_v1_25M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+ifeq ($(strip $(BOARD)), EVB_v1_26M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+ifeq ($(strip $(BOARD)), EVB_v1_38M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+ifeq ($(strip $(BOARD)), EVB_v1_40M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+ifeq ($(strip $(BOARD)), EVB_v1_52M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+
+ifeq ($(strip $(BOARD)), SSV6006_MP_S197_25M)
+TARGET_DEF  := ASICv2
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+
+ifeq ($(strip $(BOARD)), SSV6006_MP_S197_40M)
+TARGET_DEF  := ASICv2
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+
+_BOARD_SSV6006_LIST := \
+	SSV6006_MP_S236_19M \
+	SSV6006_MP_S236_20M \
+	SSV6006_MP_S236_24M \
+	SSV6006_MP_S236_25M \
+	SSV6006_MP_S236_26M \
+	SSV6006_MP_S236_38M \
+	SSV6006_MP_S236_40M \
+	SSV6006_MP_S236_52M
+
+#ifeq ($(strip $(BOARD)),$(filter $(strip $(BOARD)),SSV6006_MP_S236_19M SSV6006_MP_S236_20M SSV6006_MP_S236_24M SSV6006_MP_S236_25M SSV6006_MP_S236_26M SSV6006_MP_S236_38M SSV6006_MP_S236_40M SSV6006_MP_S236_52M))
+ifeq ($(strip $(BOARD)),$(filter $(strip $(BOARD)), $(_BOARD_SSV6006_LIST)))
+TARGET_DEF  := ASICv2
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+
+ifeq ($(strip $(BOARD)), SSV6006_SHUTTLE_S197_25M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+
+ifeq ($(strip $(BOARD)), SSV6006_SHUTTLE_S197_40M)
+TARGET_DEF  := ASIC
+TARGET_CHIP := turismo
+CHIP_NAME   := ssv6006
+CHIP_ID		:= 6006
+MCU_DEF		:= ANDES_N10
+endif
+
+
+ifeq ($(strip $(TARGET_CHIP)), none)
+$(error please check your TARGET_CHIP)
+endif
+
+ifeq ($(strip $(CHIP_NAME)), none)
+$(error please check your CHIP_NAME)
+endif
+
+export TARGET_DEF TARGET_CHIP CHIP_NAME CHIP_ID MCU_DEF
