@@ -233,7 +233,7 @@ int nbpatch_swap_section(int par1, int par2, int offset, size_t swap_size, unsig
     return 0;
 }
 
-//swap the difference between the app and ota partion
+/* swap the difference between the app and ota partion */
 int nbpatch_swap_app2ota(unsigned char all_flag)
 {
     unsigned int i   = 0;
