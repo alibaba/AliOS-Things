@@ -351,10 +351,6 @@ static int32_t vfs_ramfs_fpathconf(file_t *fp, int32_t name)
 
 static int32_t vfs_ramfs_utime(file_t *fp, const char *path, const struct aos_utimbuf *times)
 {
-    /* ramfs do not support utime, this is only for test */
-    printf("times->actime %d\n", times->actime);
-    printf("times->modtime %d\n", times->modtime);
-
     return -1;
 }
 
