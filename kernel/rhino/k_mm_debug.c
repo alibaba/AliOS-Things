@@ -4,11 +4,10 @@
 
 #include <stdio.h>
 
-#include <k_api.h>
+#include "k_api.h"
 
 #ifdef AOS_COMP_CLI
 #include "aos/cli.h"
-extern int csp_printf(const char *fmt, ...);
 #define print aos_cli_printf
 #else
 #define print printf

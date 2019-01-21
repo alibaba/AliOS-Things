@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 kstat_t      g_sys_stat;
 uint8_t      g_idle_task_spawned[RHINO_CONFIG_CPU_NUM];

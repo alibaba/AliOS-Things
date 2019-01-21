@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #define RING_BUF_LEN sizeof(size_t)
 
@@ -203,3 +203,4 @@ kstat_t ringbuf_reset(k_ringbuf_t *p_ringbuf)
 
     return RHINO_SUCCESS;
 }
+

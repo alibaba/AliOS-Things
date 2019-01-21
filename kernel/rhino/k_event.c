@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #if (RHINO_CONFIG_EVENT_FLAG > 0)
 static kstat_t event_create(kevent_t *event, const name_t *name, uint32_t flags,
