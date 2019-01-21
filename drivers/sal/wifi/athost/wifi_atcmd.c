@@ -90,14 +90,14 @@ static void wifi_event_handler(void *arg, char *buf, int buflen)
     at_read(evt, strlen("STATION_UP"));
     if (strcmp(evt, "STATION_UP") == 0) {
         LOGD(TAG, "STATION_UP event received.");
-        printf("STATION_UP event received.\r\n");
-        aos_loop_schedule_work(0, wevent_up_handler, NULL, NULL, NULL);
+
+        aos_loop_schedule_call(NULL, bk7231_get_local_ip_addr, NULL);
     } else if (strcmp(evt, "STATION_DO") == 0) {
         memset(evt, 0, sizeof(evt));
         at_read(evt, 2);
         if (strcmp(evt, "WN") == 0) {
             LOGD(TAG, "STATION_DOWN event received.");
-            aos_loop_schedule_work(0, wevent_down_handler, NULL, NULL, NULL);
+            aos_loop_schedule_call(NULL, wevent_down_handler, NULL);
         }
     } else {
         LOGE(TAG, "Invalid WEVENT event (%s) receviced.", evt);
@@ -292,18 +292,18 @@ static int get_ip_stat(hal_wifi_module_t *m, hal_wifi_ip_stat_t *out_net_para, h
 
 static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
 {
-    printf("%s not implemented yet!\r\n", __func__);
+    LOGE(TAG, "%s not implemented yet!\r\n", __func__);
     return 0;
 }
 
 static void start_scan(hal_wifi_module_t *m)
 {
-    printf("%s not implemented yet!\r\n", __func__);
+    LOGE(TAG, "%s not implemented yet!\r\n", __func__);
 }
 
 static void start_scan_adv(hal_wifi_module_t *m)
 {
-    printf("%s not implemented yet!\r\n", __func__);
+    LOGE(TAG, "%s not implemented yet!\r\n", __func__);
 }
 
 static int power_off(hal_wifi_module_t *m)
@@ -318,7 +318,7 @@ static int power_on(hal_wifi_module_t *m)
 
 static int suspend(hal_wifi_module_t *m)
 {
-    printf("%s not implemented yet!\r\n", __func__);
+    LOGE(TAG, "%s not implemented yet!\r\n", __func__);
     return 0;
 }
 
@@ -346,7 +346,7 @@ static int suspend_station(hal_wifi_module_t *m)
 
 static int suspend_soft_ap(hal_wifi_module_t *m)
 {
-    printf("%s not implemented yet!\r\n", __func__);
+    LOGE(TAG, "%s not implemented yet!\r\n", __func__);
     return 0;
 }
 
@@ -377,11 +377,11 @@ static void dump_hex(uint8_t *data, uint32_t len)
 {
 #if 0
 #ifdef DEBUG
-    printf("\r\n");
+    LOGD(TAG, "\r\n");
     while (len--) {
-        printf("%02x ", *data++);
+        LOGD(TAG, "%02x ", *data++);
     }
-    printf("\r\n");
+    LOGD(TAG, "\r\n");
 #endif
 #endif
 }
@@ -579,12 +579,12 @@ static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 
 static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-    printf("%s not implemented yet!\r\n", __func__);
+    LOGE(TAG, "%s not implemented yet!\r\n", __func__);
 }
 
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
 {
-    printf("%s not implemented yet!\r\n", __func__);
+    LOGE(TAG, "%s not implemented yet!\r\n", __func__);
     return 0;
 }
 
