@@ -1,0 +1,7 @@
+
+OBJDIR = $(TOPOUT)/$(CURDIR)
+LIBDIR = $(TOPOUT)/$(CURDIR)
+
+CWD	= "`pwd`"
+
+.PHONY: $(PHONY)
