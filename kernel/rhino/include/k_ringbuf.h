@@ -5,8 +5,8 @@
 #ifndef K_MM_RINGBUF_H
 #define K_MM_RINGBUF_H
 
-#define RINGBUF_TYPE_FIX              0
-#define RINGBUF_TYPE_DYN              1
+#define RINGBUF_TYPE_FIX 0
+#define RINGBUF_TYPE_DYN 1
 
 typedef struct {
     uint8_t *buf;
@@ -26,6 +26,7 @@ RHINO_INLINE kstat_t ringbuf_queue_push(k_ringbuf_t *p_ringbuf, void *data, size
 
     memcpy(p_ringbuf->tail, data, p_ringbuf->blk_size);
     p_ringbuf->tail += p_ringbuf->blk_size;
+
     return RHINO_SUCCESS;
 }
 
@@ -46,3 +47,4 @@ RHINO_INLINE kstat_t ringbuf_queue_pop(k_ringbuf_t *p_ringbuf, void *pdata, size
 }
 
 #endif
+
