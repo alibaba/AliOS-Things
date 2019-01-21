@@ -16,6 +16,10 @@ $(NAME)_SOURCES += \
         drv/drv_temp_humi_st_hts221.c \
         drv/drv_mag_st_lis3mdl.c \
         drv/drv_mag_temp_memsic_mmc3680kj.c
+#		drv/drv_gr_baro_temp_hum_bosch_bme680/drv_gr_baro_temp_hum_bosch_bme680.c \
+#        drv/drv_pm_sensirion_sps30/sensirion_common.c \
+#        drv/drv_pm_sensirion_sps30/sps30.c \
+#        drv/drv_pm_sensirion_sps30/drv_pm_sensirion_sps30.c 
 
         
 
@@ -44,3 +48,7 @@ GLOBAL_DEFINES      += AOS_SENSOR
 #GLOBAL_DEFINES      += AOS_SENSOR_TEMP_SENSIRION_SHTC1
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_SENSIRION_SHTC1
 
+#  * Copyright (C) 2019 X-Cite SA (http://www.x-cite.io)
+#  * Written by Lemmer El Assal (lemmer@x-cite.io)
+#GLOBAL_DEFINES      += AOS_SENSOR_GR_BARO_TEMP_HUM_BOSCH_BME680
+#GLOBAL_DEFINES      += AOS_SENSOR_PM_SENSIRION_SPS30

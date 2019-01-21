@@ -2,6 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  *
  *  sensor hal
+ * Copyright (C) 2019 X-Cite SA (http://www.x-cite.io)
+ * Updated by Lemmer El Assal (lemmer@x-cite.io)
  */
 
 #ifndef HAL_SENSOR_H
@@ -83,6 +85,9 @@ typedef enum
 #define dev_gs_path      "/dev/gs"
 #define dev_ir_path      "/dev/ir"
 
+#define dev_gas_resistance_path "/dev/gr" // gas resistance
+#define dev_pm_path "/dev/pm" // pm 0.5, 1.0, 2.5, 4.0, 10.0
+
 #define sensor_node_path "/dev/sensor"
 #define gps_node_path "/dev/nodegps"
 
@@ -103,6 +108,7 @@ typedef enum
 #define DEV_PM25_PATH(x) dev_pm25_path "/" ToString(x)
 #define DEV_PM10_PATH(x) dev_pm10_path "/" ToString(x)
 #define DEV_PM1_PATH(x) dev_pm1_path "/" ToString(x)
+#define DEV_PM_PATH(x) dev_pm_path "/" ToString(x)
 #define DEV_CO2_PATH(x) dev_co2_path "/" ToString(x)
 #define DEV_TVOC_PATH(x) dev_tvoc_path "/" ToString(x)
 
@@ -120,6 +126,7 @@ typedef enum
     TAG_DEV_UV,      /* Ultraviolet */
     TAG_DEV_HUMI,    /* Humidity */
     TAG_DEV_NOISE,   /* NoiseLoudness */
+    TAG_DEV_PM,      /* Collection of PM 0.5 1.0 2.5 4.0 10  - Sensirion SPS30 datatype*/
     TAG_DEV_PM25,    /* PM2.5 */
     TAG_DEV_PM1P0,   /* PM1.0 */
     TAG_DEV_PM10,    /* PM10 */
@@ -140,6 +147,7 @@ typedef enum
     TAG_DEV_GS,         /* Gesture sensor */
     TAG_DEV_IR,         /* IR sensor */
     TAG_DEV_GPS,
+    TAG_DEV_GR,        /* Gas resistance */
     TAG_DEV_SENSOR_NUM_MAX,
 } sensor_tag_e;
 
@@ -157,6 +165,7 @@ typedef enum
     DEV_SENSOR_VENDOR_LITEON,
     DEV_SENSOR_VENDOR_AMS,
     DEV_SENSOR_VENDOR_CNT_MAXIM,
+    DEV_SENSOR_VENDOR_SENSIRION,
 } vendor_id_e;
 
 typedef enum
@@ -202,8 +211,11 @@ typedef enum
     cm,
     pa,
     permillage,
+    percentage,
     bpm,
     dCelsius,
+    ohm,
+    pascal,
 } value_unit_e;
 
 typedef enum {
@@ -325,6 +337,26 @@ typedef struct _dev_gs_data_t
     uint64_t    timestamp;
     gs_type_e   gs_type;
 } gs_data_t;
+
+typedef struct _dev_gr_data_t
+{
+    uint64_t    timestamp;
+    uint32_t    gr;
+} gr_data_t;
+
+typedef struct _dev_pm_data_t {
+    uint64_t    timestamp;
+    float mc_1p0;
+    float mc_2p5;
+    float mc_4p0;
+    float mc_10p0;
+    float nc_0p5;
+    float nc_1p0;
+    float nc_2p5;
+    float nc_4p0;
+    float nc_10p0;
+    float typical_particle_size;
+} pm_data_t;
 
 typedef void (*SENSOR_IRQ_CALLBACK)(sensor_tag_e tag);
 typedef struct _dev_sensor_config_t
