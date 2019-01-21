@@ -31,5 +31,8 @@ GLOBAL_DEFINES += CONTINUE_BEL_ADV
 endif
 
 bz_model_encry ?= 0
+ifeq ($(bz_model_encry), 1)
+GLOBAL_DEFINES += CONFIG_MODEL_SECURITY
+endif
 
 GLOBAL_INCLUDES += ../
