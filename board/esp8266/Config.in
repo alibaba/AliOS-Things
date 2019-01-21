@@ -6,4 +6,21 @@ menuconfig AOS_BOARD_ESP8266
 
 if AOS_BOARD_ESP8266
 # Configurations for board esp8266
+
+menu "BSP SUPPORT FEATURE"
+
+config BSP_SUPPORT_UART
+    bool "BSP_SUPPORT_UART"
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool "BSP_SUPPORT_GPIO"
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool "BSP_SUPPORT_FLASH"
+    default y
+
+endmenu
+
 endif
