@@ -195,6 +195,7 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
     int success = 0;
 
     ERR_CODE_CLEAR();
+    LOG("nbpatch num:%d begin ...", num);
 
     if(!src || !dst || !seek_pos ) {
         ERR_CODE_SET(NBDIFF_PARAMS_INPUT_ERROR, src);
@@ -203,12 +204,12 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
     off_t seekpos = *seek_pos;
 
     rec_wdt_feed();
-
     old = (u_char *)(malloc(SECTOR_SIZE));
     if (old == NULL){
         ERR_CODE_SET(NBDIFF_MEM_OP_FAIL, 0);
         goto patch_error;
     }
+
     /*
      File format:
      0	8	"BSDIFF40"
@@ -316,12 +317,12 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
 
         off_t cp_size  = ctrl[0];
         off_t base_pos = 0;
-        int num = 0;
+        int idx = 0;
         off_t i;
 
         for (i = 0; i < ctrl[0]; i++) {
             if (!(i % SECTOR_SIZE)) {
-                base_pos = (num++) * SECTOR_SIZE;
+                base_pos = (idx++) * SECTOR_SIZE;
                 off_t siz = cp_size > SECTOR_SIZE ? SECTOR_SIZE : cp_size;
                 memset(old, 0, siz);
                 nbpatch_read(src, old, oldpos + base_pos, siz, 1);
@@ -374,11 +375,11 @@ static off_t nbpatch_section(const unsigned long src, off_t old_size, unsigned l
     }
 
 #if (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_DIRECT)
-        ret = save_bakeup_data((unsigned long )newbuf, newsize);
-        if(ret < 0) {
-            ERR_CODE_SET(NBDIFF_FILE_OP_FAIL, ret);
-            goto patch_error;
-        }
+    ret = save_bakeup_data((unsigned long )newbuf, newsize);
+    if(ret < 0) {
+        ERR_CODE_SET(NBDIFF_FILE_OP_FAIL, ret);
+        goto patch_error;
+    }
 #endif
 
     seekpos += HEADER_SIZE;

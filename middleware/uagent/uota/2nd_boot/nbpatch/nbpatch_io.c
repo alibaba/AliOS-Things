@@ -128,7 +128,7 @@ int save_patch_status(PatchStatus *status)
     return 0;
 
 ERR:
-    LOG("st err:%d",ret);
+    LOG("st err:%d", ret);
     return ret;
 }
 
