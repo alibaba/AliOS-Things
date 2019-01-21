@@ -3,6 +3,7 @@
  */
 
 #include "k_api.h"
+#include "debug_api.h"
 
 void k_err_proc_debug(kstat_t err, char *file, int line)
 {
@@ -14,7 +15,7 @@ void k_err_proc_debug(kstat_t err, char *file, int line)
 #endif
 
 #if (DEBUG_CONFIG_BACKTRACE > 0)
-        backtrace_now(NULL);
+        debug_backtrace_now();
 #endif
         g_err_proc(err);
     }

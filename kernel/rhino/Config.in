@@ -104,10 +104,10 @@ endif
 config RHINO_CONFIG_SCHED_RR
     int "RHINO_CONFIG_SCHED_RR"
     range 0 1
-    default 0
+    default 1
     help
        set to 1 if you want to enable round robin, set to 0 to disable round robin,
-       default 0
+       default 1
 
 if RHINO_CONFIG_SCHED_RR = 1
 
