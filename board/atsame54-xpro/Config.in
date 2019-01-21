@@ -15,4 +15,20 @@ config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default y
 
+menu "BSP SUPPORT FEATURE"
+
+config BSP_SUPPORT_UART
+    bool "BSP_SUPPORT_UART"
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool "BSP_SUPPORT_FLASH"
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool "BSP_SUPPORT_TIMER"
+    default y
+
+endmenu
+
 endif

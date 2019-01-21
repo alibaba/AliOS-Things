@@ -12,4 +12,17 @@ config lorawanback
     int "lorawanback"
     range 0 1
     default 0
+
+menu "BSP SUPPORT FEATURE"
+
+config BSP_SUPPORT_I2C
+    bool "BSP_SUPPORT_I2C"
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool "BSP_SUPPORT_FLASH"
+    default y
+
+endmenu
+
 endif
