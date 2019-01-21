@@ -1,5 +1,11 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #ifndef __LITE_LOG_CONFIG_H__
 #define __LITE_LOG_CONFIG_H__
+
+#include "iot_import.h"
 
 #define LITE_printf                     HAL_Printf
 #define LITE_snprintf                   HAL_Snprintf

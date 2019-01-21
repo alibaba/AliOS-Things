@@ -2,7 +2,7 @@ ifneq ($(TOP_DIR),$(CURDIR))
 INTERNAL_INCLUDES += -I$(SYSROOT_INC)
 INTERNAL_INCLUDES += $(foreach d, $(shell find $(SYSROOT_INC) -type d), -I$(d))
 INTERNAL_INCLUDES += -I$(TOP_DIR)
-INTERNAL_INCLUDES += $(foreach d, $(shell find $(TOP_DIR)/$(EXPORT_DIR) -type d), -I$(d))
+INTERNAL_INCLUDES += $(foreach d, $(shell find -L $(TOP_DIR)/$(EXPORT_DIR) -type d), -I$(d))
 INTERNAL_INCLUDES += \
 $(foreach d, \
     $(shell [ -d $(IMPORT_DIR)/$(CONFIG_VENDOR)/include ] && find -L $(IMPORT_DIR)/$(CONFIG_VENDOR)/include -type d), \
@@ -42,10 +42,10 @@ ifeq (dynamic,$(strip $(CONFIG_LIB_EXPORT)))
 CFLAGS  += -fPIC
 endif
 
-# CFLAGS  := $(sort $(strip $(CFLAGS)))
+#CFLAGS  := $(sort $(strip $(CFLAGS)))
 
 LDFLAGS += -L$(SYSROOT_LIB)
-ifeq (y,$(shell [ -d $(TOP_DIR)/$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR) ] && echo y))
+ifeq (y,$(shell [ -e $(TOP_DIR)/$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR) ] && echo y))
 LDFLAGS += -L$(TOP_DIR)/$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR)
 endif
 

@@ -1,26 +1,12 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#if WITH_UDP_NTP_CLIENT
 #include <stdint.h>
 #include "utils_epoch_time.h"
 #include "iotx_utils_internal.h"
 
-#define HTTP_RESP_CONTENT_LEN   (64)
 #define ALIYUN_NTP_SERVER       "ntp%d.aliyun.com"
 #define ALIYUN_NTP_PORT         (123)
 
@@ -242,3 +228,4 @@ uint64_t utils_get_epoch_time_from_ntp(char copy[], int len)
 
     return time_in_ms;
 }
+#endif  /* #if WITH_UDP_NTP_CLIENT */

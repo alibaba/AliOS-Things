@@ -1,45 +1,8 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-/*
- * nghttp2 - HTTP/2 C Library
- *
- * Copyright (c) 2013, 2014 Tatsuhiro Tsujikawa
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+
 
 #include <stdint.h>
 #include <stdio.h>
@@ -51,22 +14,23 @@
 #include "iotx_utils.h"
 #include "h2_debug.h"
 #include "iot_export_http2.h"
-#include "iot_export.h"
-#include "utils_httpc.h"
+
+#define HTTP2_API_MALLOC(size) LITE_malloc(size, MEM_MAGIC, "http2.api")
+#define HTTP2_API_FREE(ptr)    do{if(ptr != NULL) LITE_free(ptr);}while(0)
 
 #define MAX_HTTP2_HOST_LEN                   (128)
 
 #define IOTX_H2_SUPPORT
 
-#define IOTX_HTTP_CA_GET				iotx_ca_get()
+#define IOTX_HTTP_CA_GET                iotx_ca_get()
 #define NGHTTP2_DBG                     h2_info
 
 enum { IO_NONE, WANT_READ, WANT_WRITE };
 
 typedef struct _http2_request_struct_ {
-  /* Stream ID for this request. */
-  int32_t stream_id;
-}http2_request;
+    /* Stream ID for this request. */
+    int32_t stream_id;
+} http2_request;
 
 
 extern const char *iotx_ca_get(void);
@@ -76,7 +40,8 @@ static int http2_nv_copy_nghttp2_nv(nghttp2_nv *nva, int start, http2_header *nv
 
 int g_recv_timeout = 50;
 
-int set_http2_recv_timeout(int timeout) {
+int set_http2_recv_timeout(int timeout)
+{
     g_recv_timeout = timeout;
     return 1;
 }
@@ -89,7 +54,12 @@ static ssize_t send_callback(nghttp2_session *session, const uint8_t *data,
     int rv;
     connection = (http2_connection_t *)user_data;
 
-    NGHTTP2_DBG("send_callback data begins %s * %d!\r\n", (char *)data, (int)length);
+    NGHTTP2_DBG("send_callback data len %d, session->remote_window_size=%d!\r\n", (int)length,
+                session->remote_window_size);
+    if (session->remote_window_size < length * 2) {
+        HAL_SleepMs(50);
+        NGHTTP2_DBG("wait a munite ....");
+    }
     /*if(length < 50)
         LITE_hexdump("data:", data, length);*/
     client = (httpclient_t *)connection->network;
@@ -128,7 +98,7 @@ static ssize_t recv_callback(nghttp2_session *session, uint8_t *buf,
     rv = client->net.read(&client->net, (char *)buf, length, g_recv_timeout);
     /* NGHTTP2_DBG("recv_callback len= %d\r\n", rv); */
     if (rv < 0) {
-            rv = NGHTTP2_ERR_CALLBACK_FAILURE;
+        rv = NGHTTP2_ERR_CALLBACK_FAILURE;
     } else if (rv == 0) {
         rv = 0;
     }
@@ -152,24 +122,32 @@ static int on_frame_send_callback(nghttp2_session *session,
                                   void *user_data)
 {
     size_t i;
-    NGHTTP2_DBG("on_frame_send_callback %d\n", frame->hd.type);
+
+    http2_connection_t *connection  = (http2_connection_t *)user_data;
+
+    if (connection == NULL) {
+        return 0;
+    }
     switch (frame->hd.type) {
-        case NGHTTP2_HEADERS:
-            if (nghttp2_session_get_stream_user_data(session, frame->hd.stream_id)) {
-                const nghttp2_nv *nva = frame->headers.nva;
-                NGHTTP2_DBG("[INFO] C --------> S (HEADERS)\n");
-                for (i = 0; i < frame->headers.nvlen; ++i) {
-                    NGHTTP2_DBG("%s: %s\n", nva[i].name, nva[i].value);
-                }
-                (void)nva;
+        case NGHTTP2_HEADERS: {
+            const nghttp2_nv *nva = frame->headers.nva;
+            NGHTTP2_DBG("[INFO] C --------> S (HEADERS) stream_id [%d]\n", frame->hd.stream_id);
+            for (i = 0; i < frame->headers.nvlen; ++i) {
+                NGHTTP2_DBG("> %s: %s\n", nva[i].name, nva[i].value);
             }
-            break;
+            (void)nva;
+        }
+        break;
         case NGHTTP2_RST_STREAM:
             NGHTTP2_DBG("[INFO] C ------> S (RST_STREAM)\n");
             break;
         case NGHTTP2_GOAWAY:
             NGHTTP2_DBG("[INFO] C -------> S (GOAWAY)\n");
             break;
+    }
+
+    if (connection->cbs && connection->cbs->on_user_frame_send_cb) {
+        connection->cbs->on_user_frame_send_cb(frame->hd.stream_id, frame->hd.type, frame->hd.flags);
     }
     return 0;
 }
@@ -200,26 +178,24 @@ static int on_frame_recv_callback(nghttp2_session *session,
                                   const nghttp2_frame *frame,
                                   void *user_data)
 {
-    size_t i;
-    NGHTTP2_DBG("on_frame_recv_callback %d\n", frame->hd.type);
+    NGHTTP2_DBG("on_frame_recv_callback, type = %d\n", frame->hd.type);
+    NGHTTP2_DBG("on_frame_recv_callback, stream_id = %d\n", frame->hd.stream_id);
     http2_connection_t *connection  = (http2_connection_t *)user_data;
 
-    if(connection == NULL) {
+    if (connection == NULL) {
         return 0;
     }
+
+    http2_request *req;
+    req = nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
+    if (req == NULL) {
+        NGHTTP2_DBG("stream user data is not exist\n");
+    }
+
     switch (frame->hd.type) {
         case NGHTTP2_HEADERS:
             if (frame->headers.cat == NGHTTP2_HCAT_RESPONSE) {
-                const nghttp2_nv *nva = frame->headers.nva;
-                http2_request *req;
-                req = nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
-                if (req) {
-                    NGHTTP2_DBG("[INFO] C <--------- S (HEADERS)\n");
-                    for (i = 0; i < frame->headers.nvlen; ++i) {
-                        NGHTTP2_DBG("%s %s\r\n", nva[i].name, nva[i].value);
-                    }
-                    (void)nva;
-                }
+
             }
             break;
         case NGHTTP2_RST_STREAM:
@@ -228,7 +204,7 @@ static int on_frame_recv_callback(nghttp2_session *session,
             break;
         case NGHTTP2_GOAWAY:
             connection->status = 0;
-            NGHTTP2_DBG("[INFO] C <-------- S (GOAWAY)\n");
+            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY)\n");
             break;
         case NGHTTP2_DATA:
             if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
@@ -236,9 +212,12 @@ static int on_frame_recv_callback(nghttp2_session *session,
             }
             break;
     }
+
+    if (connection->cbs && connection->cbs->on_user_frame_recv_cb) {
+        connection->cbs->on_user_frame_recv_cb(frame->hd.stream_id, frame->hd.type, frame->hd.flags);
+    }
     return 0;
 }
-
 
 /**
 * @brief       Callback function invoked when the stream |stream_id| is closed.
@@ -256,10 +235,15 @@ static int on_frame_recv_callback(nghttp2_session *session,
 *              and `nghttp2_session_mem_send()` functions immediately return :enum:
 *              `NGHTTP2_ERR_CALLBACK_FAILURE`.
  */
-static int on_stream_close_callback(nghttp2_session *session, int32_t stream_id,
-                                    uint32_t error_code,
-                                    void *user_data)
+static int on_h2_stream_close_callback(nghttp2_session *session, int32_t stream_id,
+                                       uint32_t error_code,
+                                       void *user_data)
 {
+    http2_connection_t *connection  = (http2_connection_t *)user_data;
+
+    if (connection == NULL) {
+        return 0;
+    }
     http2_request *req;
     req = nghttp2_session_get_stream_user_data(session, stream_id);
     if (req) {
@@ -269,6 +253,9 @@ static int on_stream_close_callback(nghttp2_session *session, int32_t stream_id,
         if (rv != 0) {
             NGHTTP2_DBG("stream close nghttp2_session_terminate_session\r\n");
         }
+    }
+    if (connection->cbs && connection->cbs->on_user_stream_close_cb) {
+        connection->cbs->on_user_stream_close_cb(stream_id, error_code);
     }
     return 0;
 }
@@ -295,26 +282,28 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
                                        void *user_data)
 {
     http2_request *req;
-    int rlen = 0;
-    http2_connection_t *connection  = (http2_connection_t *)user_data;
+    http2_connection_t *connection = (http2_connection_t *)user_data;
 
-    if(connection == NULL) {
+    if (connection == NULL) {
         return 0;
     }
+
     req = nghttp2_session_get_stream_user_data(session, stream_id);
-    NGHTTP2_DBG("data chunk %s\n", data);
-    rlen = connection->buffer_len;
-    if(len < rlen) {
-        rlen = len;
-    }
-    if(connection->buffer != NULL) {
-        memcpy(connection->buffer, data, rlen);
-        *(connection->len) = rlen;
-    }
     if (req) {
-        NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk)\n" "%lu bytes\n", (unsigned long int)len);
-        NGHTTP2_DBG("data chunk %s\n", data);
+        NGHTTP2_DBG("stream user data is not exist\n");
     }
+    NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk) stream_id [%d] :: %lu bytes\n", stream_id, (unsigned long int)len);
+
+    if (connection->cbs && connection->cbs->on_user_chunk_recv_cb) {
+        connection->cbs->on_user_chunk_recv_cb(stream_id, data, len, flags);
+    }
+
+    nghttp2_session_consume_connection(session, len);
+    nghttp2_session_consume(session, stream_id, len);
+    nghttp2_submit_window_update(session, NGHTTP2_FLAG_NONE, 0, len);
+    nghttp2_submit_window_update(session, NGHTTP2_FLAG_NONE, stream_id, len);
+    nghttp2_session_send(session);
+
     return 0;
 }
 
@@ -336,34 +325,35 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
 *              and `nghttp2_session_mem_send()` functions immediately return :enum:
 *              `NGHTTP2_ERR_CALLBACK_FAILURE`.
 */
+
+
 static int on_header_callback(nghttp2_session *session,
                               const nghttp2_frame *frame, const uint8_t *name,
                               size_t namelen, const uint8_t *value,
                               size_t valuelen, uint8_t flags,
                               void *user_data)
 {
-
+    http2_connection_t *connection  = (http2_connection_t *)user_data;
+    if (connection == NULL) {
+        return 0;
+    }
     switch (frame->hd.type) {
         case NGHTTP2_HEADERS:
+
             if (frame->headers.cat == NGHTTP2_HCAT_RESPONSE) {
                 http2_connection_t *connection  = (http2_connection_t *)user_data;
                 /* Print response headers for the initiated request. */
-                NGHTTP2_DBG("on header callback %s %d %s %d!\n", name, (int)namelen, value, (int)valuelen);
-                if(strncmp((char *)name, "x-file-upload-id", (int)namelen) == 0 &&  connection->file_id[0] == '\0') {
-                    strncpy(connection->file_id, (char *)value, (int)valuelen);
-                }
-                if(strncmp((char *)name, ":status", (int)namelen) == 0) {
-                    strncpy(connection->statuscode, (char *)value, (int)valuelen);
-                }
-                if(strncmp((char *)name, "x-file-store-id", (int)namelen) == 0 && connection->store_id[0] == '\0') {
-                    strncpy(connection->store_id, (char *)value, (int)valuelen);
+                NGHTTP2_DBG("< %s: %s\n", name, value);
+
+                if (connection->cbs && connection->cbs->on_user_header_cb) {
+                    connection->cbs->on_user_header_cb(frame->hd.stream_id, (int)frame->headers.cat, name, namelen, value, valuelen, flags);
                 }
                 break;
             }
+
     }
     return 0;
 }
-
 
 /**
 * @brief        Called when nghttp2 library gets started to receive header block.
@@ -383,7 +373,7 @@ static int on_begin_headers_callback(nghttp2_session *session,
     switch (frame->hd.type) {
         case NGHTTP2_HEADERS:
             if (frame->headers.cat == NGHTTP2_HCAT_RESPONSE) {
-                NGHTTP2_DBG("on begin headers callback stream ID=%d!\n", (int)frame->hd.stream_id);
+                NGHTTP2_DBG("[INFO] C <--------- S (HEADERS) stream_id [%d]\n", (int)frame->hd.stream_id);
             }
             break;
     }
@@ -411,16 +401,16 @@ static void setup_nghttp2_callbacks(nghttp2_session_callbacks *callbacks)
             on_frame_recv_callback);
 
     nghttp2_session_callbacks_set_on_stream_close_callback(
-        callbacks, on_stream_close_callback);
+                callbacks, on_h2_stream_close_callback);
 
     nghttp2_session_callbacks_set_on_data_chunk_recv_callback(
-        callbacks, on_data_chunk_recv_callback);
+                callbacks, on_data_chunk_recv_callback);
 
     nghttp2_session_callbacks_set_on_header_callback(callbacks,
             on_header_callback);
 
     nghttp2_session_callbacks_set_on_begin_headers_callback(
-        callbacks, on_begin_headers_callback);
+                callbacks, on_begin_headers_callback);
 
 }
 
@@ -436,7 +426,7 @@ static ssize_t data_read_callback(nghttp2_session *session, int32_t stream_id,
     if (source->ptr == NULL) {
         return 0;
     }
-    if(connection != NULL && connection->flag != NGHTTP2_FLAG_END_STREAM) {
+    if (connection != NULL && connection->flag != NGHTTP2_FLAG_END_STREAM) {
         *data_flags |= NGHTTP2_DATA_FLAG_NO_END_STREAM;
         connection->flag = NGHTTP2_FLAG_NONE;
     }
@@ -445,7 +435,7 @@ static ssize_t data_read_callback(nghttp2_session *session, int32_t stream_id,
     /*len  = strlen((char *)source->ptr);*/
     len  = source->len;
 
-    if(length < len) {
+    if (length < len) {
         len = length;
     }
     memcpy(buf, source->ptr, len);
@@ -456,7 +446,7 @@ static ssize_t data_read_callback(nghttp2_session *session, int32_t stream_id,
 static int http2_nv_copy_nghttp2_nv(nghttp2_nv *nva, int start, http2_header *nva_copy, int end)
 {
     int i, j;
-    for(i = start, j = 0; j < end; i++, j++) {
+    for (i = start, j = 0; j < end; i++, j++) {
         nva[i].flags = NGHTTP2_NV_FLAG_NONE;
         nva[i].name = (uint8_t *)nva_copy[j].name;
         nva[i].value = (uint8_t *)nva_copy[j].value;
@@ -466,44 +456,7 @@ static int http2_nv_copy_nghttp2_nv(nghttp2_nv *nva, int start, http2_header *nv
     return i;
 }
 
-/**
-* @brief         Pares URL to host.
-* @param[in]     url: destination url.
-* @param[in]     host. destination host.
-* @param[in]     maxHostLen: Maximun length of host.
-* @return        None.
-*/
-#if 0
-static int http2_parse_host(char *url, char *host, size_t maxHostLen)   //Parse URL
-{
-    size_t hostLen = 0;
-    char *hostPtr = NULL;
-    char *pathPtr = NULL;
 
-    hostPtr = (char *) strstr(url, "://");
-    if (hostPtr == NULL) {
-        NGHTTP2_DBG("Could not find host");
-        return 0; /*URL is invalid*/
-    }
-    hostPtr += 3;
-
-    pathPtr = strchr(hostPtr, '/');
-    if(pathPtr == NULL) {
-        int len = strlen(url);
-        hostLen = len - 3;
-    } else {
-        hostLen = pathPtr - hostPtr;
-    }
-    if (maxHostLen < hostLen + 1 ) { /*including NULL-terminating char*/
-        NGHTTP2_DBG("Host str is too small (%d >= %d)", (int)maxHostLen, (int)hostLen + 1);
-        return 0;
-    }
-    memcpy(host, hostPtr, hostLen);
-    host[hostLen] = '\0';
-
-    return 1;
-}
-#endif
 /**
 * @brief          Connect the SSL client.
 * @param[in]      pclient: http client.
@@ -520,11 +473,11 @@ static int http2_client_conn(httpclient_t *pclient, char *url, int port)
     /*http2_parse_host(url, host, sizeof(host));*/
     if (0 == pclient->net.handle) {
         /* Establish connection if no. */
-    #ifdef IOTX_H2_SUPPORT
+#ifdef IOTX_H2_SUPPORT
         ret = iotx_net_init(&pclient->net, url, port, iotx_ca_get(), NULL);
-    #else
+#else
         ret = iotx_net_init(&pclient->net, url, port, NULL, NULL);
-    #endif
+#endif
         if (0 != ret) {
             return ret;
         }
@@ -543,7 +496,7 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
     int send_flag = 0;
     int rv = 0;
     nghttp2_data_provider data_prd;
-    nghttp2_nv nva[15];
+    nghttp2_nv *nva = NULL;
     int nva_size = 0;
     http2_header *header = h2_data->header;
     int header_count = h2_data->header_count;
@@ -552,31 +505,41 @@ int iotx_http2_client_send(http2_connection_t *conn, http2_data *h2_data)
     int stream_id = h2_data->stream_id;
     int flags = h2_data->flag;
 
+
     if (header != NULL && header_count != 0) {
+        nva = (nghttp2_nv *)HTTP2_API_MALLOC(sizeof(nghttp2_nv) * header_count);
+        if (nva == NULL) {
+            return -1;
+        }
         nva_size = http2_nv_copy_nghttp2_nv(nva, nva_size, header, header_count);
     }
     /*upload to server*/
-    if(data != NULL && len != 0) {
+    if (data != NULL && len != 0) {
         data_prd.source.ptr = data;
         data_prd.source.len = len;
         data_prd.read_callback = data_read_callback;
         if (nva_size != 0) {
-            stream_id = nghttp2_submit_request(conn->session, NULL, nva, nva_size, &data_prd, NULL);
+            rv = nghttp2_submit_request(conn->session, NULL, nva, nva_size, &data_prd, NULL);
+            h2_data->stream_id = rv;
         } else {
-            nghttp2_submit_data(conn->session, flags, stream_id, &data_prd);
+            rv = nghttp2_submit_data(conn->session, flags, stream_id, &data_prd);
         }
     } else {
-        stream_id = nghttp2_submit_request(conn->session, NULL, nva, nva_size, NULL, NULL);
+        rv = nghttp2_submit_request(conn->session, NULL, nva, nva_size, NULL, NULL);
+        h2_data->stream_id = rv;
     }
-    h2_data->stream_id = stream_id;
+    HTTP2_API_FREE(nva);
+
+    if (rv < 0) {
+        return rv;
+    }
+
     send_flag = nghttp2_session_want_write(conn->session);
-    if(send_flag) {
+    if (send_flag) {
         rv = nghttp2_session_send(conn->session);
         NGHTTP2_DBG("nghttp2_session_send %d\r\n", rv);
-        if(rv < 0) {
-            return -1;
-        }
     }
+
     return rv;
 }
 
@@ -585,19 +548,16 @@ int iotx_http2_client_recv(http2_connection_t *conn, char *data, int data_len, i
     int rv = 0;
     int read_flag = 0;
 
-    if(conn == NULL) {
+    if (conn == NULL) {
         return -1;
     }
-    conn->buffer = data;
-    conn->len = len;
-    conn->buffer_len = data_len;
 
     set_http2_recv_timeout(timeout);
     read_flag = nghttp2_session_want_read(conn->session);
-    if(read_flag) {
+    if (read_flag) {
         rv = nghttp2_session_recv(conn->session);
         NGHTTP2_DBG("nghttp2_client_recv %d\r\n", rv);
-        if(rv < 0) {
+        if (rv < 0) {
             read_flag = 0;
         }
     }
@@ -616,8 +576,8 @@ http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port
     int rv;
     int ret = 0;
 
-    connection = LITE_calloc(1, sizeof(http2_connection_t));
-    if(connection == NULL) {
+    connection = LITE_calloc(1, sizeof(http2_connection_t), MEM_MAGIC, "http2.api");
+    if (connection == NULL) {
         return NULL;
     }
     if (0 != (ret = http2_client_conn((httpclient_t *)pclient, url, port))) {
@@ -659,15 +619,76 @@ http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port
         LITE_free(connection);
         return NULL;
     }
+    connection->status = 1;
+    return connection;
+}
 
+/**
+* @brief          the http2 client connect.
+* @param[in]      pclient: http client.
+* @return         http2 client connection handler.
+*/
+http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, int port, http2_user_cb_t  *cb)
+{
+    http2_connection_t *connection;
+    nghttp2_session_callbacks *callbacks;
+    int rv;
+    int ret = 0;
+
+    connection = LITE_calloc(1, sizeof(http2_connection_t), MEM_MAGIC, "http2.api");
+    if (connection == NULL) {
+        return NULL;
+    }
+    if (0 != (ret = http2_client_conn((httpclient_t *)pclient, url, port))) {
+        NGHTTP2_DBG("https_client_conn failed %d\r\n", ret);
+        LITE_free(connection);
+        return NULL;
+    }
+    connection->network = pclient;
+
+    rv = nghttp2_session_callbacks_new(&callbacks);
+    if (rv != 0) {
+        NGHTTP2_DBG("nghttp2_session_callbacks_new1 %d", rv);
+        LITE_free(connection);
+        return NULL;
+    }
+
+    connection->cbs = cb;
+    setup_nghttp2_callbacks(callbacks);
+
+    rv = nghttp2_session_client_new((nghttp2_session **)&connection->session, callbacks, connection);
+    if (rv != 0) {
+        NGHTTP2_DBG("nghttp2_session_client_new3 %d", rv);
+        LITE_free(connection);
+        return NULL;
+    }
+    nghttp2_session_callbacks_del(callbacks);
+
+    nghttp2_submit_settings(connection->session, NGHTTP2_FLAG_NONE, NULL, 0);
+#if 0
+
+    parse_uri(&uri, url);
+    request_init(&req, &uri);
+    /* Submit the HTTP request to the outbound queue. */
+    submit_request(connection, &req);
+#endif
+
+    rv = nghttp2_session_send(connection->session);
+    /*request_free(&req);*/
+    if (rv < 0) {
+        NGHTTP2_DBG("nghttp2_session_send fail %d", rv);
+        LITE_free(connection);
+        return NULL;
+    }
+    connection->status = 1;
     return connection;
 }
 
 int iotx_http2_client_disconnect(http2_connection_t *conn)
 {
     /* Resource cleanup */
-    if(conn == NULL) {
-        return 0;
+    if (conn == NULL) {
+        return -1;
     }
     httpclient_close((httpclient_t *)conn->network);
     nghttp2_session_del(conn->session);
@@ -679,14 +700,19 @@ int iotx_http2_client_send_ping(http2_connection_t *conn)
 {
     int rv = 0;
     int send_flag;
-
-    nghttp2_submit_ping(conn->session, NGHTTP2_FLAG_NONE, NULL);
+    if (conn == NULL) {
+        return -1;
+    }
+    rv = nghttp2_submit_ping(conn->session, NGHTTP2_FLAG_NONE, NULL);
+    if (rv < 0) {
+        return rv;
+    }
     send_flag = nghttp2_session_want_write(conn->session);
-    if(send_flag) {
+    if (send_flag) {
         rv = nghttp2_session_send(conn->session);
         NGHTTP2_DBG("nghttp2_session_send %d\r\n", rv);
-        if(rv < 0) {
-            return -1;
+        if (rv < 0) {
+            return rv;
         }
     }
     return 0;
@@ -707,10 +733,31 @@ int iotx_http2_update_window_size(http2_connection_t *conn)
 
     set_http2_recv_timeout(100);
     rv = nghttp2_session_recv(conn->session);
-    if(rv < 0) {
+    if (rv < 0) {
         return -1;
     }
     return 0;
 }
 
+/*
+ * Performs the network I/O.
+ */
+int iotx_http2_exec_io(http2_connection_t *connection)
+{
+    if (nghttp2_session_want_read(connection->session) /*||
+        nghttp2_session_want_write(connection->session)*/) {
 
+        int rv;
+        rv = nghttp2_session_recv(connection->session);
+        if (rv < 0) {
+            NGHTTP2_DBG("nghttp2_session_recv error");
+            return -1;
+        }
+        // rv = nghttp2_session_send(connection->session);
+        // if (rv < 0) {
+        //     NGHTTP2_DBG("nghttp2_session_send error");
+        //     return -1;
+        // }
+    }
+    return 0;
+}

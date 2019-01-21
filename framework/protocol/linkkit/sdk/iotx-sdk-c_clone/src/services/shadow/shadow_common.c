@@ -1,20 +1,8 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
 
 
 
@@ -152,6 +140,8 @@ iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt
 #define UPDATE_JSON_STR_END         ",\"clientToken\":\"%s-%d\",\"version\":%d}"
 
     int ret;
+    char device_id[DEVICE_ID_LEN + 1] = {0};
+
     uint16_t size_free_space = pformat->buf_size - pformat->offset;
 
     if (NULL != tail_str) {
@@ -159,13 +149,13 @@ iotx_err_t iotx_ds_common_format_finalize(iotx_shadow_pt pshadow, format_data_pt
         CHECK_SNPRINTF_RET(ret, size_free_space);
         pformat->offset += ret;
     }
-
+    HAL_GetDeviceID(device_id);
     size_free_space = pformat->buf_size - pformat->offset;
-
+    
     ret = HAL_Snprintf(pformat->buf + pformat->offset,
                        size_free_space,
                        UPDATE_JSON_STR_END,
-                       iotx_device_info_get()->device_id,
+                       device_id,
                        iotx_ds_common_get_tokennum(pshadow),
                        iotx_ds_common_get_version(pshadow));
 
@@ -353,7 +343,8 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
 
     int len, ret;
     char *topic_full = NULL;
-    iotx_device_info_pt pdevice_info = iotx_device_info_get();
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
 
     len = SHADOW_TOPIC_LEN + sizeof(SHADOW_TOPIC_FMT);
 
@@ -363,12 +354,15 @@ char *iotx_ds_common_generate_topic_name(iotx_shadow_pt pshadow, const char *top
         return NULL;
     }
 
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+
     ret = HAL_Snprintf(topic_full,
                        len,
                        SHADOW_TOPIC_FMT,
                        topic,
-                       pdevice_info->product_key,
-                       pdevice_info->device_name);
+                       product_key,
+                       device_name);
     if (ret < 0) {
         LITE_free(topic_full);
         return NULL;

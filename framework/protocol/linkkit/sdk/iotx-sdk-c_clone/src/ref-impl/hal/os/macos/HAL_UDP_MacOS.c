@@ -1,20 +1,8 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
 
 
 #include <stdio.h>
@@ -116,7 +104,7 @@ int HAL_UDP_read(intptr_t p_socket,
     long            socket_id = -1;
     int             count = -1;
 
-    if (NULL == p_data || NULL == p_socket) {
+    if (NULL == p_data || 0 == p_socket) {
         return -1;
     }
 
@@ -136,7 +124,7 @@ int HAL_UDP_readTimeout(intptr_t p_socket,
     fd_set              read_fds;
     long                socket_id = -1;
 
-    if (NULL == p_socket || NULL == p_data) {
+    if (0 == p_socket || NULL == p_data) {
         return -1;
     }
     socket_id = (long)p_socket;

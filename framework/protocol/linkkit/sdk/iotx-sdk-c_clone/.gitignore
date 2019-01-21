@@ -1,3 +1,4 @@
+aos_board_conf.mk
 *.so
 *.exe
 .settings/
@@ -32,4 +33,9 @@ GPATH
 GRTAGS
 GTAGS
 iotx-sdk-c-test/
-aos_board_conf.mk
+
+sdk-c/examples/coapapp
+sdk-c/examples/linkkit_gateway
+sdk-c/examples/linkkit_newapi
+sdk-c/examples/linkkitapp
+sdk-c/examples/mqttapp

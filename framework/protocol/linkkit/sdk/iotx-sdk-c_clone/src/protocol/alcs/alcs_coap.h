@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+
+
 #include "CoAPExport.h"
 
 #ifndef __COAP_ALCS_H__

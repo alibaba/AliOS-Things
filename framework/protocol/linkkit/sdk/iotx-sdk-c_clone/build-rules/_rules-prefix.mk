@@ -1,4 +1,9 @@
+ifeq (,$(findstring llvm,$(CC)))
+CFLAGS  := "$(sort $(CFLAGS) $(CONFIG_ENV_CFLAGS))"
+else
 CFLAGS  := "$(CFLAGS) $(CONFIG_ENV_CFLAGS)"
+endif
+
 LDFLAGS := $(sort $(LDFLAGS) $(CONFIG_ENV_LDFLAGS))
 
 ifeq (dynamic,$(CONFIG_LIB_EXPORT))

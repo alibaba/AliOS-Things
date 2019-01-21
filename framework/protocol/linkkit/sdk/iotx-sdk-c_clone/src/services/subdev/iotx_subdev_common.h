@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+
+
 
 #ifndef SRC_SUBDEVICE_CMP_UTIL_H_
 #define SRC_SUBDEVICE_CMP_UTIL_H_

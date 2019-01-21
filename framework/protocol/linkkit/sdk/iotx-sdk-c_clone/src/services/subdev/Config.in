@@ -1,0 +1,8 @@
+
+config SUBDEVICE_ENABLED
+    bool "FEATURE_SUBDEVICE_ENABLED"
+    depends on !DEVICE_MODEL_ENABLED
+    default n
+    help
+        Deprecated APIs of "IOT_Subdevice_XXX()" and "IOT_Gateway_XXX()", try to avoid using them unless you have to
+

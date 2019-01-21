@@ -1,23 +1,13 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef _IOT_EXPORT_HTTP_H_
 #define _IOT_EXPORT_HTTP_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* IoTx http initial param */
 typedef struct {
@@ -86,7 +76,7 @@ typedef enum {
  * @retval NOT_NULL : The contex of HTTP client.
  * @see None.
  */
-void   *IOT_HTTP_Init(iotx_http_param_t *pInitParams);
+DLL_IOT_API void   *IOT_HTTP_Init(iotx_http_param_t *pInitParams);
 
 /**
  * @brief   De-initialize the HTTP client
@@ -96,7 +86,7 @@ void   *IOT_HTTP_Init(iotx_http_param_t *pInitParams);
  * @return None.
  * @see None.
  */
-void    IOT_HTTP_DeInit(void **handle);
+DLL_IOT_API void    IOT_HTTP_DeInit(void **handle);
 
 /**
  * @brief   Handle device name authentication with remote server.
@@ -107,7 +97,7 @@ void    IOT_HTTP_DeInit(void **handle);
  * @retval -1 : Authenticate failed.
  * @see iotx_err_t.
  */
-int     IOT_HTTP_DeviceNameAuth(void *handle);
+DLL_IOT_API int     IOT_HTTP_DeviceNameAuth(void *handle);
 
 /**
  * @brief   Send a message with specific path to server.
@@ -120,7 +110,7 @@ int     IOT_HTTP_DeviceNameAuth(void *handle);
  * @retval -1 : Failed.
  * @see iotx_err_t.
  */
-int     IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param);
+DLL_IOT_API int     IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param);
 
 /**
  * @brief   close tcp connection from client to server.
@@ -129,15 +119,12 @@ int     IOT_HTTP_SendMessage(void *handle, iotx_http_message_param_t *msg_param)
  * @return None.
  * @see None.
  */
-void     IOT_HTTP_Disconnect(void *handle);
-
-/*
-TEST MACROS
-    Daily Test Environment:         -DTEST_HTTP_DAILY
-    Pre-Online Test Environment:    -DTEST_HTTP_PRE
-*/
+DLL_IOT_API void     IOT_HTTP_Disconnect(void *handle);
 
 /** @} */ /* end of api_http */
 /** @} */ /* end of api */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

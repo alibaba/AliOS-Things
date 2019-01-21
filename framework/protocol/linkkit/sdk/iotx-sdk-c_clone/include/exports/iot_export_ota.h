@@ -1,25 +1,13 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
 
 #ifndef __OTA_EXPORT_H__
 #define __OTA_EXPORT_H__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #include "iot_import.h"
 
@@ -96,7 +84,8 @@ typedef enum {
     IOT_OTAG_MD5SUM,           /* md5 in string format */
     IOT_OTAG_VERSION,          /* version in string format */
     IOT_OTAG_CHECK_FIRMWARE,    /* Check firmware is valid or not */
-    IOT_OTAG_CHECK_CONFIG       /* Check config file is valid or not */
+    IOT_OTAG_CHECK_CONFIG,      /* Check config file is valid or not */
+    IOT_OTAG_RESET_FETCHED_SIZE /* reset the size_fetched parameter to be 0 */
 } IOT_OTA_CmdType_t;
 
 /** @defgroup group_api api
@@ -119,7 +108,7 @@ typedef enum {
  * @retval -1 : Failed.
  * @see None.
  */
-void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal);
+DLL_IOT_API void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_signal);
 
 
 /**
@@ -132,7 +121,7 @@ void *IOT_OTA_Init(const char *product_key, const char *device_name, void *ch_si
  * @retval < 0 : Failed, the value is error code.
  * @see None.
  */
-int IOT_OTA_Deinit(void *handle);
+DLL_IOT_API int IOT_OTA_Deinit(void *handle);
 
 
 /**
@@ -146,22 +135,7 @@ int IOT_OTA_Deinit(void *handle);
  * @retval < 0 : Failed, the value is error code.
  * @see None.
  */
-int IOT_OTA_ReportVersion(void *handle, const char *version);
-
-
-/**
- * @brief Request firmware image from cloud.
- *
- *
- * @param [in] handle: specify the OTA module.
- * @param [in] version: specify the firmware version in string format.
- *
- * @retval   0 : Successful.
- * @retval < 0 : Failed, the value is error code.
- * @see None.
- */
-int IOT_OTA_RequestImage(void *handle, const char *version);
-
+DLL_IOT_API int IOT_OTA_ReportVersion(void *handle, const char *version);
 
 /**
  * @brief Report detail progress to OTA server (optional).
@@ -175,23 +149,7 @@ int IOT_OTA_RequestImage(void *handle, const char *version);
  * @retval < 0 : Failed, the value is error code.
  * @see None.
  */
-int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char *msg);
-
-
-/**
- * @brief Report detail progress to OTA server (optional).
- *        NOTE: please
- *
- * @param [in] handle: specify the OTA module.
- * @param [in] configScope: product or device.
- * @param [in] getType: file or other.
- * @param [in] attributeKeys: attribute key.
- *
- * @retval   0 : Successful.
- * @retval < 0 : Failed, the value is error code.
- * @see None.
- */
-int IOT_OTA_GetConfig(void *handle, const char *configScope, const char *getType, const char *attributeKeys);
+DLL_IOT_API int IOT_OTA_ReportProgress(void *handle, IOT_OTA_Progress_t progress, const char *msg);
 
 
 /**
@@ -203,7 +161,7 @@ int IOT_OTA_GetConfig(void *handle, const char *configScope, const char *getType
  * @retval 0 : No.
  * @see None.
  */
-int IOT_OTA_IsFetching(void *handle);
+DLL_IOT_API int IOT_OTA_IsFetching(void *handle);
 
 
 /**
@@ -215,7 +173,7 @@ int IOT_OTA_IsFetching(void *handle);
  * @retval 0 : False.
  * @see None.
  */
-int IOT_OTA_IsFetchFinish(void *handle);
+DLL_IOT_API int IOT_OTA_IsFetchFinish(void *handle);
 
 
 /**
@@ -232,7 +190,7 @@ int IOT_OTA_IsFetchFinish(void *handle);
  * @retval (0, len] : The length of data be downloaded in 'timeout_s' timeout period in bytes.
  * @see None.
  */
-int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s);
+DLL_IOT_API int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeout_s);
 
 
 /**
@@ -258,7 +216,7 @@ int IOT_OTA_FetchYield(void *handle, char *buf, uint32_t buf_len, uint32_t timeo
  * @retval < 0 : Failed, the value is error code.
  * @see None.
  */
-int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_len);
+DLL_IOT_API int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_len);
 
 
 /**
@@ -269,9 +227,13 @@ int IOT_OTA_Ioctl(void *handle, IOT_OTA_CmdType_t type, void *buf, size_t buf_le
  * @return The error code.
  * @see None.
  */
-int IOT_OTA_GetLastError(void *handle);
+DLL_IOT_API int IOT_OTA_GetLastError(void *handle);
 
 /** @} */ /* end of api_ota */
 /** @} */ /* end of api */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* __OTA_EXPORT_H__ */

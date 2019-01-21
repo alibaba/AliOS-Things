@@ -2,9 +2,12 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/include)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/include/exports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/include/imports)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/log/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/log)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system/facility)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/)
@@ -13,11 +16,13 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/id2)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/itls)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/security/pro/km)
 
+FILE (GLOB src_infra_system_SRCS
+    ${PROJECT_SOURCE_DIR}/src/infra/system/*.c
+    ${PROJECT_SOURCE_DIR}/src/infra/system/facility/*.c
+)
+
 ADD_LIBRARY (iot_system OBJECT
-    ${PROJECT_SOURCE_DIR}/src/infra/system/guider.c
-    ${PROJECT_SOURCE_DIR}/src/infra/system/report.c
-    ${PROJECT_SOURCE_DIR}/src/infra/system/device.c
-    ${PROJECT_SOURCE_DIR}/src/infra/system/ca.c
+    ${src_infra_system_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

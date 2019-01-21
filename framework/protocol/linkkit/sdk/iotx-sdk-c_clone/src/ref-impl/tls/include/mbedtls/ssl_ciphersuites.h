@@ -1,25 +1,9 @@
-/**
- * \file ssl_ciphersuites.h
- *
- * \brief SSL Ciphersuites for mbed TLS
- *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
- *  SPDX-License-Identifier: Apache-2.0
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may
- *  not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
+
 #ifndef MBEDTLS_SSL_CIPHERSUITES_H
 #define MBEDTLS_SSL_CIPHERSUITES_H
 
@@ -285,10 +269,9 @@ typedef struct mbedtls_ssl_ciphersuite_t mbedtls_ssl_ciphersuite_t;
 /**
  * \brief   This structure is used for storing ciphersuite information
  */
-struct mbedtls_ssl_ciphersuite_t
-{
+struct mbedtls_ssl_ciphersuite_t {
     int id;
-    const char * name;
+    const char *name;
 
     mbedtls_cipher_type_t cipher;
     mbedtls_md_type_t mac;
@@ -302,17 +285,17 @@ struct mbedtls_ssl_ciphersuite_t
     unsigned char flags;
 };
 
-const int *mbedtls_ssl_list_ciphersuites( void );
+DLL_TLS_API const int *mbedtls_ssl_list_ciphersuites(void);
 
-const mbedtls_ssl_ciphersuite_t *mbedtls_ssl_ciphersuite_from_string( const char *ciphersuite_name );
-const mbedtls_ssl_ciphersuite_t *mbedtls_ssl_ciphersuite_from_id( int ciphersuite_id );
+DLL_TLS_API const mbedtls_ssl_ciphersuite_t *mbedtls_ssl_ciphersuite_from_string(const char *ciphersuite_name);
+DLL_TLS_API const mbedtls_ssl_ciphersuite_t *mbedtls_ssl_ciphersuite_from_id(int ciphersuite_id);
 
 #if defined(MBEDTLS_PK_C)
-mbedtls_pk_type_t mbedtls_ssl_get_ciphersuite_sig_pk_alg( const mbedtls_ssl_ciphersuite_t *info );
+mbedtls_pk_type_t mbedtls_ssl_get_ciphersuite_sig_pk_alg(const mbedtls_ssl_ciphersuite_t *info);
 #endif
 
-int mbedtls_ssl_ciphersuite_uses_ec( const mbedtls_ssl_ciphersuite_t *info );
-int mbedtls_ssl_ciphersuite_uses_psk( const mbedtls_ssl_ciphersuite_t *info );
+DLL_TLS_API int mbedtls_ssl_ciphersuite_uses_ec(const mbedtls_ssl_ciphersuite_t *info);
+DLL_TLS_API int mbedtls_ssl_ciphersuite_uses_psk(const mbedtls_ssl_ciphersuite_t *info);
 
 #ifdef __cplusplus
 }

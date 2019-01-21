@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+
+
 #ifndef TSL_FORMAT_EXPORT_H
 #define TSL_FORMAT_EXPORT_H
 

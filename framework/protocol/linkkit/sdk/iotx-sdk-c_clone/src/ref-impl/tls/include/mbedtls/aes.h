@@ -1,32 +1,16 @@
-/**
- * \file aes.h
- *
- * \brief AES block cipher
- *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
- *  SPDX-License-Identifier: Apache-2.0
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may
- *  not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
+
 #ifndef MBEDTLS_AES_H
 #define MBEDTLS_AES_H
 
 #if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
+    #include "config.h"
 #else
-#include MBEDTLS_CONFIG_FILE
+    #include MBEDTLS_CONFIG_FILE
 #endif
 
 #include <stddef.h>
@@ -41,7 +25,7 @@
 
 #if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
     !defined(inline) && !defined(__cplusplus)
-#define inline __inline
+    #define inline __inline
 #endif
 
 #if !defined(MBEDTLS_AES_ALT)
@@ -60,8 +44,7 @@ extern "C" {
  *                 - to simplify key expansion in the 256-bit case by
  *                 generating an extra round key
  */
-typedef struct
-{
+typedef struct {
     int nr;                     /*!<  number of rounds  */
     uint32_t *rk;               /*!<  AES round keys    */
     uint32_t buf[68];           /*!<  unaligned data    */
@@ -73,14 +56,14 @@ mbedtls_aes_context;
  *
  * \param ctx      AES context to be initialized
  */
-void mbedtls_aes_init( mbedtls_aes_context *ctx );
+DLL_TLS_API void mbedtls_aes_init(mbedtls_aes_context *ctx);
 
 /**
  * \brief          Clear AES context
  *
  * \param ctx      AES context to be cleared
  */
-void mbedtls_aes_free( mbedtls_aes_context *ctx );
+DLL_TLS_API void mbedtls_aes_free(mbedtls_aes_context *ctx);
 
 /**
  * \brief          AES key schedule (encryption)
@@ -91,8 +74,8 @@ void mbedtls_aes_free( mbedtls_aes_context *ctx );
  *
  * \return         0 if successful, or MBEDTLS_ERR_AES_INVALID_KEY_LENGTH
  */
-int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
-                    unsigned int keybits );
+DLL_TLS_API int mbedtls_aes_setkey_enc(mbedtls_aes_context *ctx, const unsigned char *key,
+                                       unsigned int keybits);
 
 /**
  * \brief          AES key schedule (decryption)
@@ -103,8 +86,8 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
  *
  * \return         0 if successful, or MBEDTLS_ERR_AES_INVALID_KEY_LENGTH
  */
-int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
-                    unsigned int keybits );
+DLL_TLS_API int mbedtls_aes_setkey_dec(mbedtls_aes_context *ctx, const unsigned char *key,
+                                       unsigned int keybits);
 
 /**
  * \brief          AES-ECB block encryption/decryption
@@ -116,10 +99,10 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
  *
  * \return         0 if successful
  */
-int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
-                    int mode,
-                    const unsigned char input[16],
-                    unsigned char output[16] );
+DLL_TLS_API int mbedtls_aes_crypt_ecb(mbedtls_aes_context *ctx,
+                                      int mode,
+                                      const unsigned char input[16],
+                                      unsigned char output[16]);
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
 /**
@@ -144,12 +127,12 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
  *
  * \return         0 if successful, or MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH
  */
-int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
-                    int mode,
-                    size_t length,
-                    unsigned char iv[16],
-                    const unsigned char *input,
-                    unsigned char *output );
+DLL_TLS_API int mbedtls_aes_crypt_cbc(mbedtls_aes_context *ctx,
+                                      int mode,
+                                      size_t length,
+                                      unsigned char iv[16],
+                                      const unsigned char *input,
+                                      unsigned char *output);
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
 #if defined(MBEDTLS_CIPHER_MODE_CFB)
@@ -178,13 +161,13 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
  *
  * \return         0 if successful
  */
-int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
-                       int mode,
-                       size_t length,
-                       size_t *iv_off,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output );
+DLL_TLS_API int mbedtls_aes_crypt_cfb128(mbedtls_aes_context *ctx,
+        int mode,
+        size_t length,
+        size_t *iv_off,
+        unsigned char iv[16],
+        const unsigned char *input,
+        unsigned char *output);
 
 /**
  * \brief          AES-CFB8 buffer encryption/decryption.
@@ -210,12 +193,12 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
  *
  * \return         0 if successful
  */
-int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
-                    int mode,
-                    size_t length,
-                    unsigned char iv[16],
-                    const unsigned char *input,
-                    unsigned char *output );
+DLL_TLS_API int mbedtls_aes_crypt_cfb8(mbedtls_aes_context *ctx,
+                                       int mode,
+                                       size_t length,
+                                       unsigned char iv[16],
+                                       const unsigned char *input,
+                                       unsigned char *output);
 #endif /*MBEDTLS_CIPHER_MODE_CFB */
 
 #if defined(MBEDTLS_CIPHER_MODE_CTR)
@@ -241,13 +224,13 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
  *
  * \return         0 if successful
  */
-int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
-                       size_t length,
-                       size_t *nc_off,
-                       unsigned char nonce_counter[16],
-                       unsigned char stream_block[16],
-                       const unsigned char *input,
-                       unsigned char *output );
+DLL_TLS_API int mbedtls_aes_crypt_ctr(mbedtls_aes_context *ctx,
+                                      size_t length,
+                                      size_t *nc_off,
+                                      unsigned char nonce_counter[16],
+                                      unsigned char stream_block[16],
+                                      const unsigned char *input,
+                                      unsigned char *output);
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
 
 /**
@@ -261,9 +244,9 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
  *
  * \return          0 if successful
  */
-int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
-                                  const unsigned char input[16],
-                                  unsigned char output[16] );
+DLL_TLS_API int mbedtls_internal_aes_encrypt(mbedtls_aes_context *ctx,
+        const unsigned char input[16],
+        unsigned char output[16]);
 
 /**
  * \brief           Internal AES block decryption function
@@ -276,9 +259,9 @@ int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
  *
  * \return          0 if successful
  */
-int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
-                                  const unsigned char input[16],
-                                  unsigned char output[16] );
+DLL_TLS_API int mbedtls_internal_aes_decrypt(mbedtls_aes_context *ctx,
+        const unsigned char input[16],
+        unsigned char output[16]);
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 #if defined(MBEDTLS_DEPRECATED_WARNING)
@@ -298,11 +281,11 @@ int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
  * \param output    Output (ciphertext) block
  */
 MBEDTLS_DEPRECATED static inline void mbedtls_aes_encrypt(
-                                                mbedtls_aes_context *ctx,
-                                                const unsigned char input[16],
-                                                unsigned char output[16] )
+            mbedtls_aes_context *ctx,
+            const unsigned char input[16],
+            unsigned char output[16])
 {
-    mbedtls_internal_aes_encrypt( ctx, input, output );
+    mbedtls_internal_aes_encrypt(ctx, input, output);
 }
 
 /**
@@ -317,11 +300,11 @@ MBEDTLS_DEPRECATED static inline void mbedtls_aes_encrypt(
  * \param output    Output (plaintext) block
  */
 MBEDTLS_DEPRECATED static inline void mbedtls_aes_decrypt(
-                                                mbedtls_aes_context *ctx,
-                                                const unsigned char input[16],
-                                                unsigned char output[16] )
+            mbedtls_aes_context *ctx,
+            const unsigned char input[16],
+            unsigned char output[16])
 {
-    mbedtls_internal_aes_decrypt( ctx, input, output );
+    mbedtls_internal_aes_decrypt(ctx, input, output);
 }
 
 #undef MBEDTLS_DEPRECATED
@@ -344,7 +327,7 @@ extern "C" {
  *
  * \return         0 if successful, or 1 if the test failed
  */
-int mbedtls_aes_self_test( int verbose );
+DLL_TLS_API int mbedtls_aes_self_test(int verbose);
 
 #ifdef __cplusplus
 }

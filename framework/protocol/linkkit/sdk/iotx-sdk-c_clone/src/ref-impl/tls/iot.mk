@@ -3,7 +3,13 @@ CFLAGS      := $(filter-out -ansi,$(CFLAGS))
 HDR_REFS    += src/infra
 
 LIB_SRC_PATTERN := *.c */*.c
-ifneq (,$(filter -DOTA_ENABLED,$(CFLAGS)))
-LIB_SRC_PATTERN += uOTA_required/*.c
-HDR_REFS        += src/services/uOTA/inc
-endif
+
+define Extra_CMake_Head
+    echo 'ADD_DEFINITIONS (-DDLL_TLS_EXPORTS)' $(1)
+    echo '' $(1)
+endef
+
+define Extra_CMake_Foot
+    echo 'SET (LIBRARY_OUTPUT_PATH ../../../out)' $(1)
+    echo '' $(1)
+endef

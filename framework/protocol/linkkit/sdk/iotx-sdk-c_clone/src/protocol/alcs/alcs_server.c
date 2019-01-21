@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+
+
 #include "alcs_api_internal.h"
 #include "json_parser.h"
 #include "CoAPPlatform.h"
@@ -6,7 +12,8 @@
 
 #define RES_FORMAT "{\"id\":\"%.*s\",\"code\":%d,\"data\":{%s}}"
 
-#ifdef ALCSSERVER
+#ifdef ALCS_SERVER_ENABLED
+
 int sessionid_seed = 0xff;
 static int default_heart_expire = 120000;
 
@@ -118,7 +125,7 @@ svr_key_info* is_legal_key(CoAPContext *ctx, const char* keyprefix, int prefixle
                     return &node->keyInfo;
                 }
             }
-            
+
             svr_group_item* gnode = NULL, *gnext = NULL;
             list_for_each_entry_safe(gnode, gnext, &lst->lst_svr_group, lst, svr_group_item) {
                 COAP_DEBUG ("node prefix:%s", gnode->keyInfo.keyprefix);
@@ -220,7 +227,7 @@ void alcs_rec_auth (CoAPContext *ctx, const char *paths, NetworkAddr* from, CoAP
             session = (session_item*)coap_malloc(sizeof(session_item));
             gen_random_key((unsigned char *)session->randomKey, RANDOMKEY_LEN);
             session->sessionId = ++sessionid_seed;
-            char path[100] = {0}; 
+            char path[100] = {0};
             strncpy(path, pk, sizeof(path));
             strncat(path, dn, sizeof(path)-strlen(path)-1);
             CoAPPathMD5_sum (path, strlen(path), session->pk_dn, PK_DN_CHECKSUM_LEN);
@@ -260,7 +267,30 @@ void alcs_rec_auth (CoAPContext *ctx, const char *paths, NetworkAddr* from, CoAP
     alcs_sendrsp (ctx, from, &message, 1, resMsg->header.msgid, &token);
 }
 
-int add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret, bool isGroup)
+static int alcs_remove_low_priority_key (CoAPContext *ctx, ServerKeyPriority priority)
+{
+    auth_list* lst = get_list(ctx);
+    if (!lst) {
+        return COAP_ERROR_NULL;
+    }
+
+    svr_key_item *node = NULL, *next = NULL;
+    HAL_MutexLock(lst->list_mutex);
+
+    list_for_each_entry_safe(node, next, &lst->lst_svr, lst, svr_key_item) {
+        if(node->keyInfo.priority < priority){
+            coap_free(node->keyInfo.secret);
+            list_del(&node->lst);
+            coap_free(node);
+            --lst->svr_count;
+        }
+    }
+    HAL_MutexUnlock(lst->list_mutex);
+
+    return COAP_SUCCESS;
+}
+
+static int add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret, bool isGroup, ServerKeyPriority priority)
 {
     COAP_INFO("add_svr_key\n");
 
@@ -268,22 +298,34 @@ int add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret, bo
     if (!lst || lst->svr_count >= KEY_MAXCOUNT || strlen(keyprefix) != KEYPREFIX_LEN) {
         return COAP_ERROR_INVALID_LENGTH;
     }
+    alcs_remove_low_priority_key (ctx, priority);
 
-    COAP_INFO("call coap_malloc\n");
+    HAL_MutexLock(lst->list_mutex);
+    svr_key_item *node = NULL, *next = NULL;
+    list_for_each_entry_safe(node, next, &lst->lst_svr, lst, svr_key_item) {
+        if(node->keyInfo.priority > priority){
+            //find high priority key
+        HAL_MutexUnlock(lst->list_mutex);
+            return COAP_ERROR_UNSUPPORTED;
+        }
+    }
+
     svr_key_item* item = (svr_key_item*) coap_malloc(sizeof(svr_key_item));
     if (!item) {
+        HAL_MutexUnlock(lst->list_mutex);
         return COAP_ERROR_MALLOC;
     }
 
     item->keyInfo.secret = (char*) coap_malloc(strlen(secret) + 1);
     if (!item->keyInfo.secret) {
+        HAL_MutexUnlock(lst->list_mutex);
         coap_free (item);
         return COAP_ERROR_MALLOC;
     }
     strcpy (item->keyInfo.secret, secret);
     strcpy (item->keyInfo.keyprefix, keyprefix);
+    item->keyInfo.priority = priority;
 
-    HAL_MutexLock(lst->list_mutex);
     list_add_tail(&item->lst, &lst->lst_svr);
     ++lst->svr_count;
     HAL_MutexUnlock(lst->list_mutex);
@@ -291,10 +333,10 @@ int add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret, bo
     return COAP_SUCCESS;
 }
 
-int alcs_add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret)
+int alcs_add_svr_key (CoAPContext *ctx, const char* keyprefix, const char* secret, ServerKeyPriority priority)
 {
-    COAP_INFO("alcs_add_svr_key");
-    return add_svr_key (ctx, keyprefix, secret, 0);
+    COAP_INFO("alcs_add_svr_key, priority=%d", priority);
+    return add_svr_key (ctx, keyprefix, secret, 0, priority);
 }
 
 
@@ -313,6 +355,7 @@ int alcs_remove_svr_key (CoAPContext *ctx, const char* keyprefix)
             coap_free(node->keyInfo.secret);
             list_del(&node->lst);
             coap_free(node);
+            --lst->svr_count;
             break;
         }
     }
@@ -437,10 +480,10 @@ int alcs_resource_register_secure (CoAPContext *context, const char* pk, const c
     CoAPPathMD5_sum (path, strlen(path), item->path, MAX_PATH_CHECKSUM_LEN);
 
     char pk_dn[100] = {0};
-    strncpy(pk_dn, pk, sizeof(pk_dn));
+    strncpy(pk_dn, pk, sizeof(pk_dn) - 1);
     strncat(pk_dn, dn, sizeof(pk_dn)-strlen(pk_dn)-1);
     CoAPPathMD5_sum (pk_dn, strlen(pk_dn), item->pk_dn, PK_DN_CHECKSUM_LEN);
-    
+
     list_add_tail(&item->lst, &secure_resource_cb_head);
 
     return CoAPResource_register (context, path, permission, ctype, maxage, &recv_msg_handler);
@@ -448,14 +491,14 @@ int alcs_resource_register_secure (CoAPContext *context, const char* pk, const c
 
 void alcs_resource_cb_deinit(void)
 {
-	secure_resource_cb_item* del_item = NULL;
+    secure_resource_cb_item* del_item = NULL;
 
-	list_for_each_entry(del_item,&secure_resource_cb_head,lst,secure_resource_cb_item)
-	{
-		list_del(&del_item->lst);
-		coap_free(del_item);
-		del_item = list_entry(&secure_resource_cb_head,secure_resource_cb_item,lst);
-	}
+    list_for_each_entry(del_item,&secure_resource_cb_head,lst,secure_resource_cb_item)
+    {
+        list_del(&del_item->lst);
+        coap_free(del_item);
+        del_item = list_entry(&secure_resource_cb_head,secure_resource_cb_item,lst);
+    }
 }
 
 void alcs_auth_list_deinit(void)
@@ -463,13 +506,11 @@ void alcs_auth_list_deinit(void)
     auth_list* auth_list_ctx = get_list(ctx);
     svr_key_item *del_item = NULL, *next_item = NULL;
 
-#ifdef ALCSSERVER
     list_for_each_entry_safe(del_item,next_item,&auth_list_ctx->lst_svr,lst,svr_key_item) {
         list_del(&del_item->lst);
         if (del_item->keyInfo.secret) {coap_free(del_item->keyInfo.secret);}
         coap_free(del_item);
     }
-#endif
 }
 
 void alcs_rec_heart_beat(CoAPContext *ctx, const char *path, NetworkAddr *remote, CoAPMessage *request)
@@ -521,6 +562,7 @@ void alcs_rec_heart_beat(CoAPContext *ctx, const char *path, NetworkAddr *remote
         CoAPLenString token = {request->header.tokenlen, request->token};
         alcs_sendrsp (ctx, remote, &msg, 1, request->header.msgid, &token);
     }
+    alcs_msg_deinit(&msg);
 }
 
 int observe_data_encrypt(CoAPContext *ctx, const char* path, NetworkAddr* from, CoAPMessage *message, CoAPLenString *src, CoAPLenString *dest)

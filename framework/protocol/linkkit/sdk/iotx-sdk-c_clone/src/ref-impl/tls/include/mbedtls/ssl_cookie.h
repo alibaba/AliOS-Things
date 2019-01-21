@@ -1,32 +1,16 @@
-/**
- * \file ssl_cookie.h
- *
- * \brief DTLS cookie callbacks implementation
- *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
- *  SPDX-License-Identifier: Apache-2.0
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may
- *  not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
+
 #ifndef MBEDTLS_SSL_COOKIE_H
 #define MBEDTLS_SSL_COOKIE_H
 
 #include "ssl.h"
 
 #if defined(MBEDTLS_THREADING_C)
-#include "threading.h"
+    #include "threading.h"
 #endif
 
 /**
@@ -37,7 +21,7 @@
  * \{
  */
 #ifndef MBEDTLS_SSL_COOKIE_TIMEOUT
-#define MBEDTLS_SSL_COOKIE_TIMEOUT     60 /**< Default expiration delay of DTLS cookies, in seconds if HAVE_TIME, or in number of cookies issued */
+    #define MBEDTLS_SSL_COOKIE_TIMEOUT     60 /**< Default expiration delay of DTLS cookies, in seconds if HAVE_TIME, or in number of cookies issued */
 #endif
 
 /* \} name SECTION: Module settings */
@@ -49,8 +33,7 @@ extern "C" {
 /**
  * \brief          Context for the default cookie functions.
  */
-typedef struct
-{
+typedef struct {
     mbedtls_md_context_t    hmac_ctx;   /*!< context for the HMAC portion   */
 #if !defined(MBEDTLS_HAVE_TIME)
     unsigned long   serial;     /*!< serial number for expiration   */
@@ -66,14 +49,14 @@ typedef struct
 /**
  * \brief          Initialize cookie context
  */
-void mbedtls_ssl_cookie_init( mbedtls_ssl_cookie_ctx *ctx );
+DLL_TLS_API void mbedtls_ssl_cookie_init(mbedtls_ssl_cookie_ctx *ctx);
 
 /**
  * \brief          Setup cookie context (generate keys)
  */
-int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
-                      int (*f_rng)(void *, unsigned char *, size_t),
-                      void *p_rng );
+DLL_TLS_API int mbedtls_ssl_cookie_setup(mbedtls_ssl_cookie_ctx *ctx,
+        int (*f_rng)(void *, unsigned char *, size_t),
+        void *p_rng);
 
 /**
  * \brief          Set expiration delay for cookies
@@ -84,12 +67,12 @@ int mbedtls_ssl_cookie_setup( mbedtls_ssl_cookie_ctx *ctx,
  *                 issued in the meantime.
  *                 0 to disable expiration (NOT recommended)
  */
-void mbedtls_ssl_cookie_set_timeout( mbedtls_ssl_cookie_ctx *ctx, unsigned long delay );
+DLL_TLS_API void mbedtls_ssl_cookie_set_timeout(mbedtls_ssl_cookie_ctx *ctx, unsigned long delay);
 
 /**
  * \brief          Free cookie context
  */
-void mbedtls_ssl_cookie_free( mbedtls_ssl_cookie_ctx *ctx );
+DLL_TLS_API void mbedtls_ssl_cookie_free(mbedtls_ssl_cookie_ctx *ctx);
 
 /**
  * \brief          Generate cookie, see \c mbedtls_ssl_cookie_write_t

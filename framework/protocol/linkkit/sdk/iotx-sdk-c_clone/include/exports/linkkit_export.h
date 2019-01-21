@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #ifndef LINKKIT_EXPORT_H
 #define LINKKIT_EXPORT_H
 
@@ -6,9 +10,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include <stdint.h>
-#include <unistd.h>
-
-#include "iotx_dm.h"
 
 typedef void (*handle_post_cb_fp_t)(const void *thing_id, int respons_id, int code, const char *response_message,
                                     void *ctx);
@@ -71,11 +72,7 @@ typedef enum {
  *
  * @return void*
  */
-#if (CONFIG_SDK_THREAD_COST == 1)
-void *linkkit_dispatch(void *params);
-#else
-void *linkkit_dispatch();
-#endif
+DLL_IOT_API void *linkkit_dispatch(void);
 
 typedef enum {
     linkkit_opt_property_post_reply,  /* data type: int */
@@ -84,28 +81,12 @@ typedef enum {
 } linkkit_opt_t;
 
 /**
- * @brief try to set a leave signal.
- *
- *
- * @return none
- */
-void linkkit_try_leave();
-
-/**
  * @brief get leave signal.
  *
  *
  * @return int,0 no leave signal, 1 get a leave signal
  */
-int linkkit_is_try_leave();
-
-/**
- * @brief get linkkit running state.  
- *
- *
- * @return int, 0 running,1 end;
- */
-int linkkit_is_end();
+DLL_IOT_API int being_deprecated linkkit_is_try_leave();
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
@@ -115,7 +96,7 @@ int linkkit_is_end();
  *
  * @return int, 0 when success, -1 when fail.
  */
-int linkkit_set_opt(linkkit_opt_t opt, void *data);
+DLL_IOT_API int being_deprecated linkkit_set_opt(linkkit_opt_t opt, void *data);
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).
@@ -129,8 +110,10 @@ int linkkit_set_opt(linkkit_opt_t opt, void *data);
  *
  * @return int, 0 when success, -1 when fail.
  */
-int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel_t log_level, linkkit_ops_t *ops,
-                  linkkit_cloud_domain_type_t domain_type, void *user_context);
+DLL_IOT_API int being_deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud,
+        linkkit_loglevel_t log_level,
+        linkkit_ops_t *ops,
+        linkkit_cloud_domain_type_t domain_type, void *user_context);
 
 /**
  * @brief stop linkkit routines.
@@ -138,7 +121,7 @@ int linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkkit_loglevel
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_end(void);
+DLL_IOT_API int being_deprecated linkkit_end(void);
 
 /**
  * @brief install user tsl.
@@ -148,7 +131,7 @@ int linkkit_end(void);
  *
  * @return pointer to thing object, NULL when fails.
  */
-void *linkkit_set_tsl(const char *tsl, int tsl_len);
+DLL_IOT_API void *linkkit_set_tsl(const char *tsl, int tsl_len);
 
 /* patterns: */
 /* method:
@@ -178,13 +161,14 @@ typedef enum {
  * @param value. The value to be set, data type decided by data type of property as follows:
  *        int: int*, float: float*, double: double*,
  *        text: char*, enum: int*, date: char*, bool: int*
- * 
+ *
  * @param value_str, value to set in string format if value is null.
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id, const char *identifier,
-                             const void *value, const char *value_str);
+DLL_IOT_API int being_deprecated linkkit_set_value(linkkit_method_set_t method_set, const void *thing_id,
+        const char *identifier,
+        const void *value, const char *value_str);
 
 typedef enum {
     linkkit_method_get_property_value = 0,
@@ -209,17 +193,18 @@ typedef enum {
  * @param value. The variable to store value, data type decided by data type of property as follows:
  *        int: int*, float: float*, double: double*,
  *        text: char**, enum: int*, date: char**, bool: int*
- * 
+ *
  * @param value_str, value to get in string format. If success, memory of *value_str will be allocated,
  *        user should free the memory.
  *
  * @warning if data type is text or date, *value well be end with '\0'.
  *          the memory allocated to *value must be free by user.
- * 
+ *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, const char *identifier,
-                             void *value, char **value_str);
+DLL_IOT_API int being_deprecated linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id,
+        const char *identifier,
+        void *value, char **value_str);
 
 
 /**
@@ -234,7 +219,8 @@ int linkkit_get_value(linkkit_method_get_t method_get, const void *thing_id, con
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_answer_service(const void *thing_id, const char *service_identifier, int response_id, int code);
+DLL_IOT_API int being_deprecated linkkit_answer_service(const void *thing_id, const char *service_identifier,
+        int response_id, int code);
 
 /**
  * @brief answer a down raw service when a raw service requested by cloud, or invoke a up raw service to cloud.
@@ -246,18 +232,8 @@ int linkkit_answer_service(const void *thing_id, const char *service_identifier,
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data, int raw_data_length);
-
-/**
- * @brief perform ota service when "new version detected" reported.
- *
- * @param is_up_raw, specify up raw(not 0) or down raw reply(0).
- * @param data_buf, data buf that used to do ota. ota service will use this buffer to download bin.
- * @param data_buf_length, data buf length that used to do ota.
- *
- * @return 0 when success, -1 when fail.
- */
-int linkkit_invoke_ota_service(void *data_buf, int data_buf_length);
+DLL_IOT_API int being_deprecated linkkit_invoke_raw_service(const void *thing_id, int is_up_raw, void *raw_data,
+        int raw_data_length);
 
 /**
  * @brief trigger extended info update procedure.
@@ -269,7 +245,7 @@ int linkkit_invoke_ota_service(void *data_buf, int data_buf_length);
  * @return 0 when success, -1 when fail.
  */
 
-int linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
+DLL_IOT_API int being_deprecated linkkit_trigger_extended_info_operate(const void *thing_id, const char *params,
         linkkit_extended_info_operate_t linkkit_extended_info_operation);
 
 /**
@@ -281,7 +257,8 @@ int linkkit_trigger_extended_info_operate(const void *thing_id, const char *para
  *
  * @return >=0 when success, -1 when fail.
  */
-int linkkit_trigger_event(const void *thing_id, const char *event_identifier, handle_post_cb_fp_t cb);
+DLL_IOT_API int being_deprecated linkkit_trigger_event(const void *thing_id, const char *event_identifier,
+        handle_post_cb_fp_t cb);
 
 /**
  * @brief post property to cloud.
@@ -292,7 +269,8 @@ int linkkit_trigger_event(const void *thing_id, const char *event_identifier, ha
  *
  * @return >=0 when success, -1 when fail.
  */
-int linkkit_post_property(const void *thing_id, const char *property_identifier, handle_post_cb_fp_t cb);
+DLL_IOT_API int being_deprecated linkkit_post_property(const void *thing_id, const char *property_identifier,
+        handle_post_cb_fp_t cb);
 
 /**
  * @brief this function used to yield when want to receive or send data.
@@ -302,7 +280,7 @@ int linkkit_post_property(const void *thing_id, const char *property_identifier,
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_yield(int timeout_ms);
+DLL_IOT_API int being_deprecated linkkit_yield(int timeout_ms);
 
 typedef enum {
     service_cota_callback_type_new_version_detected = 10,
@@ -324,17 +302,17 @@ typedef void (*handle_service_cota_callback_fp_t)(service_cota_callback_type_t c
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp);
+DLL_IOT_API int being_deprecated linkkit_cota_init(handle_service_cota_callback_fp_t callback_fp);
 
 /**
  * @brief this function used to execute cota process.
  *
  * @param data_buf, data buf that used to do ota. ota service will use this buffer to download bin.
  * @param data_buf_length, data buf length that used to do ota.
- * 
+ *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_invoke_cota_service(void* data_buf, int data_buf_length);
+DLL_IOT_API int being_deprecated linkkit_invoke_cota_service(void *data_buf, int data_buf_length);
 
 /**
  * @brief this function used to trigger cota process.
@@ -345,7 +323,8 @@ int linkkit_invoke_cota_service(void* data_buf, int data_buf_length);
  * @param option, reserved.
  * @return 0 when success, -1 when fail.
  */
-int linkkit_invoke_cota_get_config(const char* config_scope, const char* get_type, const char* attribute_Keys, void* option);
+DLL_IOT_API int being_deprecated linkkit_invoke_cota_get_config(const char *config_scope, const char *get_type,
+        const char *attribute_Keys, void *option);
 
 typedef enum {
     service_fota_callback_type_new_version_detected = 10,
@@ -353,7 +332,7 @@ typedef enum {
     service_fota_callback_type_number,
 } service_fota_callback_type_t;
 
-typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t callback_type, const char* version);
+typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t callback_type, const char *version);
 
 /**
  * @brief this function used to register callback for firmware ota.
@@ -362,17 +341,27 @@ typedef void (*handle_service_fota_callback_fp_t)(service_fota_callback_type_t c
  *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp);
+DLL_IOT_API int being_deprecated linkkit_fota_init(handle_service_fota_callback_fp_t callback_fp);
 
 /**
  * @brief this function used to execute fota process.
  *
  * @param data_buf, data buf that used to do ota. ota service will use this buffer to download bin.
  * @param data_buf_length, data buf length that used to do ota.
- * 
+ *
  * @return 0 when success, -1 when fail.
  */
-int linkkit_invoke_fota_service(void* data_buf, int data_buf_length);
+DLL_IOT_API int being_deprecated linkkit_invoke_fota_service(void *data_buf, int data_buf_length);
+
+/**
+ * @brief this function used to get NTP time from cloud.
+ *
+ * @param ntp_reply_cb, user callback which register to ntp request.
+ *                      when cloud returns ntp reply, sdk would trigger the callback function
+ *
+ * @return 0 when success, -1 when fail.
+ */
+DLL_IOT_API int being_deprecated linkkit_ntp_time_request(void (*ntp_reply_cb)(const char *ntp_offset_time_ms));
 
 #ifdef __cplusplus
 }

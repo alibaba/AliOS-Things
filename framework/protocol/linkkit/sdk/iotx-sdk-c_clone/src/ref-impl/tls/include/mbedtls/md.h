@@ -1,27 +1,9 @@
-/**
- * \file md.h
- *
- * \brief Generic message digest wrapper
- *
- * \author Adriaan de Jong <dejong@fox-it.com>
- *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
- *  SPDX-License-Identifier: Apache-2.0
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may
- *  not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
+
 #ifndef MBEDTLS_MD_H
 #define MBEDTLS_MD_H
 
@@ -37,7 +19,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    MBEDTLS_MD_NONE=0,
+    MBEDTLS_MD_NONE = 0,
     MBEDTLS_MD_MD2,
     MBEDTLS_MD_MD4,
     MBEDTLS_MD_MD5,
@@ -80,7 +62,7 @@ typedef struct {
  * \return          a statically allocated array of digests, the last entry
  *                  is 0.
  */
-const int *mbedtls_md_list( void );
+DLL_TLS_API const int *mbedtls_md_list(void);
 
 /**
  * \brief           Returns the message digest information associated with the
@@ -91,7 +73,7 @@ const int *mbedtls_md_list( void );
  * \return          The message digest information associated with md_name or
  *                  NULL if not found.
  */
-const mbedtls_md_info_t *mbedtls_md_info_from_string( const char *md_name );
+DLL_TLS_API const mbedtls_md_info_t *mbedtls_md_info_from_string(const char *md_name);
 
 /**
  * \brief           Returns the message digest information associated with the
@@ -102,21 +84,21 @@ const mbedtls_md_info_t *mbedtls_md_info_from_string( const char *md_name );
  * \return          The message digest information associated with md_type or
  *                  NULL if not found.
  */
-const mbedtls_md_info_t *mbedtls_md_info_from_type( mbedtls_md_type_t md_type );
+DLL_TLS_API const mbedtls_md_info_t *mbedtls_md_info_from_type(mbedtls_md_type_t md_type);
 
 /**
  * \brief           Initialize a md_context (as NONE)
  *                  This should always be called first.
  *                  Prepares the context for mbedtls_md_setup() or mbedtls_md_free().
  */
-void mbedtls_md_init( mbedtls_md_context_t *ctx );
+DLL_TLS_API void mbedtls_md_init(mbedtls_md_context_t *ctx);
 
 /**
  * \brief           Free and clear the internal structures of ctx.
  *                  Can be called at any time after mbedtls_md_init().
  *                  Mandatory once mbedtls_md_setup() has been called.
  */
-void mbedtls_md_free( mbedtls_md_context_t *ctx );
+DLL_TLS_API void mbedtls_md_free(mbedtls_md_context_t *ctx);
 
 #if ! defined(MBEDTLS_DEPRECATED_REMOVED)
 #if defined(MBEDTLS_DEPRECATED_WARNING)
@@ -138,7 +120,7 @@ void mbedtls_md_free( mbedtls_md_context_t *ctx );
  *                  \c MBEDTLS_ERR_MD_BAD_INPUT_DATA on parameter failure,
  *                  \c MBEDTLS_ERR_MD_ALLOC_FAILED memory allocation failure.
  */
-int mbedtls_md_init_ctx( mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info ) MBEDTLS_DEPRECATED;
+DLL_TLS_API int mbedtls_md_init_ctx(mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info) MBEDTLS_DEPRECATED;
 #undef MBEDTLS_DEPRECATED
 #endif /* MBEDTLS_DEPRECATED_REMOVED */
 
@@ -156,7 +138,7 @@ int mbedtls_md_init_ctx( mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_
  *                  \c MBEDTLS_ERR_MD_BAD_INPUT_DATA on parameter failure,
  *                  \c MBEDTLS_ERR_MD_ALLOC_FAILED memory allocation failure.
  */
-int mbedtls_md_setup( mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info, int hmac );
+DLL_TLS_API int mbedtls_md_setup(mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info, int hmac);
 
 /**
  * \brief           Clone the state of an MD context
@@ -172,8 +154,8 @@ int mbedtls_md_setup( mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_inf
  * \return          \c 0 on success,
  *                  \c MBEDTLS_ERR_MD_BAD_INPUT_DATA on parameter failure.
  */
-int mbedtls_md_clone( mbedtls_md_context_t *dst,
-                      const mbedtls_md_context_t *src );
+DLL_TLS_API int mbedtls_md_clone(mbedtls_md_context_t *dst,
+                                 const mbedtls_md_context_t *src);
 
 /**
  * \brief           Returns the size of the message digest output.
@@ -182,7 +164,7 @@ int mbedtls_md_clone( mbedtls_md_context_t *dst,
  *
  * \return          size of the message digest output in bytes.
  */
-unsigned char mbedtls_md_get_size( const mbedtls_md_info_t *md_info );
+unsigned char mbedtls_md_get_size(const mbedtls_md_info_t *md_info);
 
 /**
  * \brief           Returns the type of the message digest output.
@@ -191,7 +173,7 @@ unsigned char mbedtls_md_get_size( const mbedtls_md_info_t *md_info );
  *
  * \return          type of the message digest output.
  */
-mbedtls_md_type_t mbedtls_md_get_type( const mbedtls_md_info_t *md_info );
+mbedtls_md_type_t mbedtls_md_get_type(const mbedtls_md_info_t *md_info);
 
 /**
  * \brief           Returns the name of the message digest output.
@@ -200,7 +182,7 @@ mbedtls_md_type_t mbedtls_md_get_type( const mbedtls_md_info_t *md_info );
  *
  * \return          name of the message digest output.
  */
-const char *mbedtls_md_get_name( const mbedtls_md_info_t *md_info );
+DLL_TLS_API const char *mbedtls_md_get_name(const mbedtls_md_info_t *md_info);
 
 /**
  * \brief           Prepare the context to digest a new message.
@@ -212,7 +194,7 @@ const char *mbedtls_md_get_name( const mbedtls_md_info_t *md_info );
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int mbedtls_md_starts( mbedtls_md_context_t *ctx );
+DLL_TLS_API int mbedtls_md_starts(mbedtls_md_context_t *ctx);
 
 /**
  * \brief           Generic message digest process buffer
@@ -226,7 +208,7 @@ int mbedtls_md_starts( mbedtls_md_context_t *ctx );
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int mbedtls_md_update( mbedtls_md_context_t *ctx, const unsigned char *input, size_t ilen );
+DLL_TLS_API int mbedtls_md_update(mbedtls_md_context_t *ctx, const unsigned char *input, size_t ilen);
 
 /**
  * \brief           Generic message digest final digest
@@ -239,7 +221,7 @@ int mbedtls_md_update( mbedtls_md_context_t *ctx, const unsigned char *input, si
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int mbedtls_md_finish( mbedtls_md_context_t *ctx, unsigned char *output );
+DLL_TLS_API int mbedtls_md_finish(mbedtls_md_context_t *ctx, unsigned char *output);
 
 /**
  * \brief          Output = message_digest( input buffer )
@@ -252,8 +234,8 @@ int mbedtls_md_finish( mbedtls_md_context_t *ctx, unsigned char *output );
  * \returns        0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                 verification fails.
  */
-int mbedtls_md( const mbedtls_md_info_t *md_info, const unsigned char *input, size_t ilen,
-        unsigned char *output );
+DLL_TLS_API int mbedtls_md(const mbedtls_md_info_t *md_info, const unsigned char *input, size_t ilen,
+                           unsigned char *output);
 
 #if defined(MBEDTLS_FS_IO)
 /**
@@ -267,8 +249,8 @@ int mbedtls_md( const mbedtls_md_info_t *md_info, const unsigned char *input, si
  *                 MBEDTLS_ERR_MD_FILE_IO_ERROR if file input failed,
  *                 MBEDTLS_ERR_MD_BAD_INPUT_DATA if md_info was NULL.
  */
-int mbedtls_md_file( const mbedtls_md_info_t *md_info, const char *path,
-                     unsigned char *output );
+DLL_TLS_API int mbedtls_md_file(const mbedtls_md_info_t *md_info, const char *path,
+                                unsigned char *output);
 #endif /* MBEDTLS_FS_IO */
 
 /**
@@ -282,8 +264,8 @@ int mbedtls_md_file( const mbedtls_md_info_t *md_info, const char *path,
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int mbedtls_md_hmac_starts( mbedtls_md_context_t *ctx, const unsigned char *key,
-                    size_t keylen );
+DLL_TLS_API int mbedtls_md_hmac_starts(mbedtls_md_context_t *ctx, const unsigned char *key,
+                                       size_t keylen);
 
 /**
  * \brief           Generic HMAC process buffer.
@@ -298,8 +280,8 @@ int mbedtls_md_hmac_starts( mbedtls_md_context_t *ctx, const unsigned char *key,
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int mbedtls_md_hmac_update( mbedtls_md_context_t *ctx, const unsigned char *input,
-                    size_t ilen );
+DLL_TLS_API int mbedtls_md_hmac_update(mbedtls_md_context_t *ctx, const unsigned char *input,
+                                       size_t ilen);
 
 /**
  * \brief           Output HMAC.
@@ -313,7 +295,7 @@ int mbedtls_md_hmac_update( mbedtls_md_context_t *ctx, const unsigned char *inpu
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int mbedtls_md_hmac_finish( mbedtls_md_context_t *ctx, unsigned char *output);
+DLL_TLS_API int mbedtls_md_hmac_finish(mbedtls_md_context_t *ctx, unsigned char *output);
 
 /**
  * \brief           Prepare to authenticate a new message with the same key.
@@ -325,7 +307,7 @@ int mbedtls_md_hmac_finish( mbedtls_md_context_t *ctx, unsigned char *output);
  * \returns         0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                  verification fails.
  */
-int mbedtls_md_hmac_reset( mbedtls_md_context_t *ctx );
+DLL_TLS_API int mbedtls_md_hmac_reset(mbedtls_md_context_t *ctx);
 
 /**
  * \brief          Output = Generic_HMAC( hmac key, input buffer )
@@ -340,12 +322,12 @@ int mbedtls_md_hmac_reset( mbedtls_md_context_t *ctx );
  * \returns        0 on success, MBEDTLS_ERR_MD_BAD_INPUT_DATA if parameter
  *                 verification fails.
  */
-int mbedtls_md_hmac( const mbedtls_md_info_t *md_info, const unsigned char *key, size_t keylen,
-                const unsigned char *input, size_t ilen,
-                unsigned char *output );
+DLL_TLS_API int mbedtls_md_hmac(const mbedtls_md_info_t *md_info, const unsigned char *key, size_t keylen,
+                                const unsigned char *input, size_t ilen,
+                                unsigned char *output);
 
 /* Internal use */
-int mbedtls_md_process( mbedtls_md_context_t *ctx, const unsigned char *data );
+DLL_TLS_API int mbedtls_md_process(mbedtls_md_context_t *ctx, const unsigned char *data);
 
 #ifdef __cplusplus
 }

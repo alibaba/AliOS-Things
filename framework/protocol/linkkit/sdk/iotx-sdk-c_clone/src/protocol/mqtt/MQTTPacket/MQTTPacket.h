@@ -1,19 +1,6 @@
-/*******************************************************************************
- * Copyright (c) 2014 IBM Corp.
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Eclipse Distribution License v1.0 which accompany this distribution.
- *
- * The Eclipse Public License is available at
- *    http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at
- *   http://www.eclipse.org/org/documents/edl-v10.php.
- *
- * Contributors:
- *    Ian Craggs - initial API and implementation and/or initial documentation
- *    Xiang Rong - 442039 Add makefile to Embedded C client
- *******************************************************************************/
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
 
 #ifndef MQTTPACKET_H_
 #define MQTTPACKET_H_
@@ -113,8 +100,6 @@ int readMQTTLenString(MQTTString* mqttstring, unsigned char** pptr, unsigned cha
 void writeCString(unsigned char** pptr, const char* string);
 void writeMQTTString(unsigned char** pptr, MQTTString mqttstring);
 
-DLLExport int MQTTPacket_read(unsigned char* buf, int buflen, int (*getfn)(unsigned char*, int));
-
 typedef struct {
 	int (*getfn)(void *, unsigned char*, int); /* must return -1 for error, 0 for call again, or the number of bytes read */
 	void *sck;	/* pointer to whatever the system may use to identify the transport */
@@ -123,8 +108,6 @@ typedef struct {
 	int len;
 	char state;
 }MQTTTransport;
-
-int MQTTPacket_readnb(unsigned char* buf, int buflen, MQTTTransport *trp);
 
 #ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
 }

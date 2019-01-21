@@ -1,33 +1,19 @@
 /*
- * nghttp2 - HTTP/2 C Library
- *
- * Copyright (c) 2014 Tatsuhiro Tsujikawa
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
 #include "nghttp2_callbacks.h"
 
 #include <stdlib.h>
+#include "iotx_utils.h"
+
+#define NGHTTP2_CB_MALLOC(size)         LITE_malloc(size, MEM_MAGIC, "nghttp2.cb")
+#define NGHTTP2_CB_CALLOC(num, size)    LITE_calloc(num, size, MEM_MAGIC, "nghttp2.cb")
+#define NGHTTP2_CB_FREE(ptr)    LITE_free(ptr)
 
 int nghttp2_session_callbacks_new(nghttp2_session_callbacks **callbacks_ptr) {
-  *callbacks_ptr = calloc(1, sizeof(nghttp2_session_callbacks));
+  *callbacks_ptr = NGHTTP2_CB_CALLOC(1, sizeof(nghttp2_session_callbacks));
 
   if (*callbacks_ptr == NULL) {
     return NGHTTP2_ERR_NOMEM;
@@ -37,7 +23,7 @@ int nghttp2_session_callbacks_new(nghttp2_session_callbacks **callbacks_ptr) {
 }
 
 void nghttp2_session_callbacks_del(nghttp2_session_callbacks *callbacks) {
-  free(callbacks);
+  NGHTTP2_CB_FREE(callbacks);
 }
 
 void nghttp2_session_callbacks_set_send_callback(

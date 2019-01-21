@@ -1,8 +1,6 @@
-/**
- * Copyright (C) 2016 The YunOS Project. All rights reserved.
- **/
-
-/* Alibaba TEE Crypto API: version 1.1 */
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
 
 #ifndef _ALI_CRYPTO_H_
 #define _ALI_CRYPTO_H_

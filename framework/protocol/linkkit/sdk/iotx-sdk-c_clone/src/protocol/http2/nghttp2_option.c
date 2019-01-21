@@ -1,33 +1,20 @@
 /*
- * nghttp2 - HTTP/2 C Library
- *
- * Copyright (c) 2014 Tatsuhiro Tsujikawa
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
 #include "nghttp2_option.h"
 
 #include "nghttp2_session.h"
 
+#include "iotx_utils.h"
+
+#define NGHTTP2_OPTION_MALLOC(size)         LITE_malloc(size, MEM_MAGIC, "nghttp2.option")
+#define NGHTTP2_OPTION_CALLOC(num, size)    LITE_calloc(num, size, MEM_MAGIC, "nghttp2.option")
+#define NGHTTP2_OPTION_FREE(ptr)            LITE_free(ptr)
+
 int nghttp2_option_new(nghttp2_option **option_ptr) {
-  *option_ptr = calloc(1, sizeof(nghttp2_option));
+  *option_ptr = NGHTTP2_OPTION_CALLOC(1, sizeof(nghttp2_option));
 
   if (*option_ptr == NULL) {
     return NGHTTP2_ERR_NOMEM;
@@ -36,7 +23,7 @@ int nghttp2_option_new(nghttp2_option **option_ptr) {
   return 0;
 }
 
-void nghttp2_option_del(nghttp2_option *option) { free(option); }
+void nghttp2_option_del(nghttp2_option *option) { NGHTTP2_OPTION_FREE(option); }
 
 void nghttp2_option_set_no_auto_window_update(nghttp2_option *option, int val) {
   option->opt_set_mask |= NGHTTP2_OPT_NO_AUTO_WINDOW_UPDATE;

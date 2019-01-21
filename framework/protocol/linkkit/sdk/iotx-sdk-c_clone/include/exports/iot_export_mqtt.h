@@ -1,24 +1,13 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
 
 #ifndef _IOT_EXPORT_MQTT_H_
 #define _IOT_EXPORT_MQTT_H_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define MUTLI_SUBSCIRBE_MAX                                     (5)
 
@@ -157,17 +146,42 @@ typedef struct {
     uint8_t                     clean_session;            /* Specify MQTT clean session or not*/
     uint32_t                    request_timeout_ms;       /* Specify timeout of a MQTT request in millisecond */
     uint32_t                    keepalive_interval_ms;    /* Specify MQTT keep-alive interval in millisecond */
-
-    char                       *pwrite_buf;               /* Specify write-buffer */
     uint32_t                    write_buf_size;           /* Specify size of write-buffer in byte */
-    char                       *pread_buf;                /* Specify read-buffer */
     uint32_t                    read_buf_size;            /* Specify size of read-buffer in byte */
 
     iotx_mqtt_event_handle_t    handle_event;             /* Specify MQTT event handle */
 
 } iotx_mqtt_param_t, *iotx_mqtt_param_pt;
 
+#ifdef MAL_ENABLED
+#define IOT_MQTT_Construct         MAL_MQTT_Construct
+#define IOT_MQTT_Destroy           MAL_MQTT_Destroy
+#define IOT_MQTT_Yield             MAL_MQTT_Yield
+#define IOT_MQTT_CheckStateNormal  MAL_MQTT_CheckStateNormal
+#define IOT_MQTT_Subscribe_Sync    MAL_MQTT_Subscribe_Sync
+#define IOT_MQTT_Subscribe         MAL_MQTT_Subscribe
+#define IOT_MQTT_Unsubscribe       MAL_MQTT_Unsubscribe
+#define IOT_MQTT_Publish           MAL_MQTT_Publish
+#define IOT_MQTT_Publish_Simple    MAL_MQTT_Publish_Simple
 
+DLL_IOT_API void *MAL_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
+DLL_IOT_API int MAL_MQTT_Destroy(void **phandle);
+DLL_IOT_API int MAL_MQTT_Yield(void *handle, int timeout_ms);
+DLL_IOT_API int MAL_MQTT_Subscribe(void *handle,
+                                   const char *topic_filter,
+                                   iotx_mqtt_qos_t qos,
+                                   iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                   void *pcontext);
+DLL_IOT_API int MAL_MQTT_Subscribe_Sync(void *handle,
+                                        const char *topic_filter,
+                                        iotx_mqtt_qos_t qos,
+                                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                        void *pcontext,
+                                        int timeout_ms);
+DLL_IOT_API int MAL_MQTT_Unsubscribe(void *handle, const char *topic_filter);
+DLL_IOT_API int MAL_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
+DLL_IOT_API int MAL_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
+#else /* MAL_ENABLED */
 /** @defgroup group_api api
  *  @{
  */
@@ -186,20 +200,8 @@ typedef struct {
  * @retval NOT_NULL : The handle of MQTT client.
  * @see None.
  */
-void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
+DLL_IOT_API void *IOT_MQTT_Construct(iotx_mqtt_param_t *pInitParams);
 
-/**
- * @brief Construct the MQTT client by ID2
- *        This function initialize the data structures, establish MQTT connection.
- *        And set mqtt up/down process functions.
- *
- * @param [in] pInitParams: specify the MQTT client parameter.
- *
- * @retval     NULL : Construct failed.
- * @retval NOT_NULL : The handle of MQTT client.
- * @see None.
- */
-void *IOT_MQTT_ConstructSecure(iotx_mqtt_param_t *pInitParams);
 
 /**
  * @brief Deconstruct the MQTT client
@@ -211,7 +213,7 @@ void *IOT_MQTT_ConstructSecure(iotx_mqtt_param_t *pInitParams);
  * @retval -1 : Deconstruct failed.
  * @see None.
  */
-int IOT_MQTT_Destroy(void **phandle);
+DLL_IOT_API int IOT_MQTT_Destroy(void **phandle);
 
 
 /**
@@ -224,8 +226,22 @@ int IOT_MQTT_Destroy(void **phandle);
  * @return status.
  * @see None.
  */
-int IOT_MQTT_Yield(void *handle, int timeout_ms);
+DLL_IOT_API int IOT_MQTT_Yield(void *handle, int timeout_ms);
 
+
+/**
+ * @brief Post log information to cloud.
+ *
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] levle: log level string
+ * @param [in] moduel: module string.
+ * @param [in] msg: log information string.
+ *
+ * @retval 0  : Post successful.
+ * @retval -1 : Post fail.
+ * @see None.
+ */
+DLL_IOT_API int IOT_MQTT_LogPost(void *pHandle, const char *level, const char *module, const char *msg);
 
 /**
  * @brief check whether MQTT connection is established or not.
@@ -236,7 +252,7 @@ int IOT_MQTT_Yield(void *handle, int timeout_ms);
  * @retval false : MQTT in abnormal state.
  * @see None.
  */
-int IOT_MQTT_CheckStateNormal(void *handle);
+DLL_IOT_API int IOT_MQTT_CheckStateNormal(void *handle);
 
 
 /**
@@ -254,11 +270,34 @@ int IOT_MQTT_CheckStateNormal(void *handle);
           The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
  * @see None.
  */
-int IOT_MQTT_Subscribe(void *handle,
-                       const char *topic_filter,
-                       iotx_mqtt_qos_t qos,
-                       iotx_mqtt_event_handle_func_fpt topic_handle_func,
-                       void *pcontext);
+DLL_IOT_API int IOT_MQTT_Subscribe(void *handle,
+                                   const char *topic_filter,
+                                   iotx_mqtt_qos_t qos,
+                                   iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                   void *pcontext);
+
+/**
+ * @brief Subscribe MQTT topic and wait suback.
+ *
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] topic_filter: specify the topic filter.
+ * @param [in] qos: specify the MQTT Requested QoS.
+ * @param [in] topic_handle_func: specify the topic handle callback-function.
+ * @param [in] pcontext: specify context. When call 'topic_handle_func', it will be passed back.
+ * @param [in] timeout_ms: time in ms to wait.
+ *
+ * @retval -1  : Subscribe failed.
+ * @retval >=0 : Subscribe successful.
+          The value is a unique ID of this request.
+          The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
+ */
+DLL_IOT_API int IOT_MQTT_Subscribe_Sync(void *handle,
+                                        const char *topic_filter,
+                                        iotx_mqtt_qos_t qos,
+                                        iotx_mqtt_event_handle_func_fpt topic_handle_func,
+                                        void *pcontext,
+                                        int timeout_ms);
 
 
 /**
@@ -273,7 +312,7 @@ int IOT_MQTT_Subscribe(void *handle,
           The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
  * @see None.
  */
-int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
+DLL_IOT_API int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
 
 
 /**
@@ -290,10 +329,31 @@ int IOT_MQTT_Unsubscribe(void *handle, const char *topic_filter);
         The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
  * @see None.
  */
-int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
+DLL_IOT_API int IOT_MQTT_Publish(void *handle, const char *topic_name, iotx_mqtt_topic_info_pt topic_msg);
+/**
+ * @brief Publish message to specific topic.
+ *
+ * @param [in] handle: specify the MQTT client.
+ * @param [in] topic_name: specify the topic name.
+ * @param [in] qos: specify the MQTT Requested QoS.
+ * @param [in] data: specify the topic message payload.
+ * @param [in] len: specify the topic message payload len.
+ *
+ * @retval -1 :  Publish failed.
+ * @retval  0 :  Publish successful, where QoS is 0.
+ * @retval >0 :  Publish successful, where QoS is >= 0.
+        The value is a unique ID of this request.
+        The ID will be passed back when callback 'iotx_mqtt_param_t:handle_event'.
+ * @see None.
+ */
+DLL_IOT_API int IOT_MQTT_Publish_Simple(void *handle, const char *topic_name, int qos, void *data, int len);
 /* From mqtt_client.h */
 /** @} */ /* end of api_mqtt */
 
 /** @} */ /* end of api */
+#endif /* MAL_ENABLED */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

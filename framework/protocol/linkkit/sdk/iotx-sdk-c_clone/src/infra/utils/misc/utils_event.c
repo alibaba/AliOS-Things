@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+
+
+
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -14,9 +21,8 @@ int iotx_event_regist_cb(void (*monitor_cb)(int event))
 
 int iotx_event_post(int event)
 {
-    if (g_event_monitor == NULL) {
+    if (g_event_monitor == NULL)
         return -1;
-    }
     ((void (*)(int))g_event_monitor)(event);
     return 0;
 }

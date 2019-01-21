@@ -1,20 +1,8 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
 
 
 
@@ -29,7 +17,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include <assert.h>
-#include <net/if.h>	      // struct ifreq
+#include <net/if.h>       // struct ifreq
 //inet_ntoa
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -106,6 +94,16 @@ void *HAL_Malloc(_IN_ uint32_t size)
     return malloc(size);
 }
 
+void *HAL_Realloc(_IN_ void *ptr, _IN_ uint32_t size)
+{
+    return realloc(ptr, size);
+}
+
+void *HAL_Calloc(_IN_ uint32_t nmemb, _IN_ uint32_t size)
+{
+    return calloc(nmemb, size);
+}
+
 void HAL_Free(_IN_ void *ptr)
 {
     free(ptr);
@@ -121,10 +119,13 @@ void HAL_Free(_IN_ void *ptr)
 // clock_gettime is not implemented on older versions of OS X (< 10.12).
 // If implemented, CLOCK_REALTIME will have already been defined.
 
-int clock_gettime(int clk_id, struct timespec* t) {
+int clock_gettime(int clk_id, struct timespec *t)
+{
     struct timeval now;
     int rv = gettimeofday(&now, NULL);
-    if (rv) return rv;
+    if (rv) {
+        return rv;
+    }
     t->tv_sec  = now.tv_sec;
     t->tv_nsec = now.tv_usec * 1000;
     return 0;
@@ -155,8 +156,9 @@ char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
     localtime_r(&tv.tv_sec, &tm);
     strftime(buf, 28, "%m-%d %H:%M:%S", &tm);
     str_len = strlen(buf);
-    if (str_len + 3 < len)
-        snprintf(buf + str_len, len, ".%3.3d", (int)(tv.tv_usec)/1000);
+    if (str_len + 3 < len) {
+        snprintf(buf + str_len, len, ".%3.3d", (int)(tv.tv_usec) / 1000);
+    }
     return buf;
 }
 
@@ -254,7 +256,7 @@ int HAL_SetDeviceSecret(_IN_ char device_secret[DEVICE_SECRET_MAXLEN])
     return strlen(DEMO_CASE_DEVICE_SECRET);
 }
 
-int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
+int HAL_GetFirmwareVersion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
 {
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
     strncpy(version, "1.0", FIRMWARE_VERSION_MAXLEN);
@@ -284,9 +286,14 @@ int HAL_GetProductSecret(_OU_ char product_secret[PRODUCT_SECRET_MAXLEN])
 
 int HAL_SetProductSecret(_IN_ char product_secret[PRODUCT_SECRET_MAXLEN])
 {
-    strncpy(DEMO_CASE_PRODUCT_SECRET, product_secret, PRODUCT_SECRET_MAXLEN -1);
+    strncpy(DEMO_CASE_PRODUCT_SECRET, product_secret, PRODUCT_SECRET_MAXLEN - 1);
     DEMO_CASE_PRODUCT_SECRET[PRODUCT_SECRET_MAXLEN - 1] = '\0';
     return strlen(DEMO_CASE_PRODUCT_SECRET);
+}
+
+int HAL_Awss_Get_Conn_Encrypt_Type()
+{
+    return 4;
 }
 
 
@@ -299,8 +306,9 @@ typedef struct {
 void *HAL_SemaphoreCreate(void)
 {
     os_sem_t *sem = malloc(sizeof(os_sem_t));
-    if (!sem)
+    if (!sem) {
         return NULL;
+    }
     memset(sem, 0, sizeof(os_sem_t));
 
     sem->count = 0;
@@ -323,8 +331,9 @@ void HAL_SemaphoreDestroy(_IN_ void *_sem)
 void HAL_SemaphorePost(_IN_ void *_sem)
 {
     os_sem_t *sem = _sem;
-    if (!sem)
+    if (!sem) {
         return;
+    }
     pthread_mutex_lock(&sem->lock);
     sem->count++;
     pthread_cond_signal(&sem->cond);
@@ -334,12 +343,14 @@ void HAL_SemaphorePost(_IN_ void *_sem)
 int HAL_SemaphoreWait(_IN_ void *_sem, _IN_ uint32_t timeout_ms)
 {
     os_sem_t *sem = _sem;
-    if (!sem)
+    if (!sem) {
         return -1;
+    }
 
     struct timeval tv;
-    if (gettimeofday(&tv, NULL) < 0)
+    if (gettimeofday(&tv, NULL) < 0) {
         return -1;
+    }
 
     struct timespec ts;
     ts.tv_sec  = tv.tv_sec + timeout_ms / 1000;
@@ -353,8 +364,9 @@ int HAL_SemaphoreWait(_IN_ void *_sem, _IN_ uint32_t timeout_ms)
                 pthread_mutex_unlock(&sem->lock);
                 return -1;
             }
-        } else if (ret == 0)
+        } else if (ret == 0) {
             break;
+        }
     }
     sem->count--;
     pthread_mutex_unlock(&sem->lock);
@@ -472,10 +484,10 @@ int HAL_Config_Read(char *buffer, int length)
 }
 
 #define REBOOT_CMD "reboot"
-void HAL_Sys_reboot(void)
+void HAL_Reboot(void)
 {
     if (system(REBOOT_CMD)) {
-        perror("HAL_Sys_reboot failed");
+        perror("HAL_Reboot failed");
     }
 }
 
@@ -565,10 +577,11 @@ char *HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
 
     int i;
     for (i = 0; i < 6; i++) {
-        if (i == 5)
-            ptr += snprintf(ptr, end - ptr, "%02x",  (uint8_t)ifr.ifr_hwaddr.sa_data[i]);
-        else
+        if (i == 5) {
+            ptr += snprintf(ptr, end - ptr, "%02x", (uint8_t)ifr.ifr_hwaddr.sa_data[i]);
+        } else {
             ptr += snprintf(ptr, end - ptr, "%02x:", (uint8_t)ifr.ifr_hwaddr.sa_data[i]);
+        }
     }
 
     return mac_str;
@@ -585,8 +598,8 @@ uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
     int sock = -1;
     char ifname_buff[IFNAMSIZ] = {0};
 
-    if((NULL == ifname || strlen(ifname) == 0) &&
-        NULL == (ifname = _get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))){
+    if ((NULL == ifname || strlen(ifname) == 0) &&
+        NULL == (ifname = _get_default_routing_ifname(ifname_buff, sizeof(ifname_buff)))) {
         perror("get default routeing ifname");
         return -1;
     }
@@ -637,5 +650,39 @@ void HAL_UTC_Set(long long ms)
 long long HAL_UTC_Get(void)
 {
     return 0;
+}
+
+void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
+{
+    return NULL;
+}
+
+int HAL_Timer_Start(void *timer, int ms)
+{
+    return 0;
+}
+
+int HAL_Timer_Stop(void *timer)
+{
+    return 0;
+}
+
+int HAL_Timer_Delete(void *timer)
+{
+    return 0;
+}
+
+int HAL_GetNetifInfo(char *nif_str)
+{
+    memset(nif_str, 0x0, NIF_STRLEN_MAX);
+#ifdef __DEMO__
+    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    const char *net_info = "WiFi|03ACDEFF0032";
+    strncpy(nif_str, net_info, strlen(net_info));
+    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
+    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
+#endif
+    return strlen(nif_str);
 }
 

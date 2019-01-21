@@ -1,21 +1,43 @@
 #! /bin/bash
 set -e
 
-if [ $# != 1 ]; then exit 1; fi
 if [ "$(uname)" = "Darwin" ]; then
     SED=gsed
 else
     SED=sed
 fi
 
-LCOV_DIR=$1
+rm -rf ${OUTPUT_DIR}/${LCOV_DIR} ${DIST_DIR}/${LCOV_DIR}
+lcov --quiet \
+    --capture --initial --directory ${OUTPUT_DIR}/ \
+    -o ${OUTPUT_DIR}/files.info
+lcov --quiet \
+    --capture --directory ${OUTPUT_DIR} \
+    -o ${OUTPUT_DIR}/tests.info
+lcov --quiet \
+    --add-tracefile ${OUTPUT_DIR}/files.info \
+    --add-tracefile ${OUTPUT_DIR}/tests.info \
+    -o ${OUTPUT_DIR}/all.info
+lcov --quiet \
+    --remove ${OUTPUT_DIR}/all.info \
+    -o ${OUTPUT_DIR}/final.info '*.h'
+
+genhtml --quiet \
+    --legend --no-branch-coverage \
+    -o ${OUTPUT_DIR}/${LCOV_DIR} ${OUTPUT_DIR}/final.info 2>/dev/null
+
+cp -rf ${OUTPUT_DIR}/${LCOV_DIR} ${DIST_DIR}/${LCOV_DIR}
+cd ${DIST_DIR}/${LCOV_DIR} && \
+    ${SED} -i 's:\(coverFile.*\)>${OUTPUT_DIR}/:\1>:g' index.html
+cd ${OLDPWD}
+
 SRC_NAME_LENGTH=28
 DIR_NAME_LENGTH=16
 COVERAGE_HIGH=90
 COVERAGE_MID=75
 
 echo ""
-echo "Processing [${LCOV_DIR}] for Coverage Brief"
+echo "Processing [${DIST_DIR}/${LCOV_DIR}] for Coverage Brief"
 echo ""
 #
 #      sdk-example / example.c               : [100.00%]  (7/7)            [100.00%]  (1/1)
@@ -28,7 +50,7 @@ printf "%${DIR_NAME_LENGTH}s   %-${SRC_NAME_LENGTH}s: %-24s %-20s\n\n" \
     "Function Coverage"
 echo -ne "\033[0m"
 
-REPORT_LIST=$(find ${LCOV_DIR} -mindepth 2 -name "index.html")
+REPORT_LIST=$(find ${DIST_DIR}/${LCOV_DIR} -mindepth 2 -name "index.html")
 for R in ${REPORT_LIST}; do
     SOURCE_LIST=$(grep "coverFile" ${R} | awk -F '<' '{ print $3 }' | cut -d'>' -f2)
     for S in ${SOURCE_LIST}; do
@@ -78,5 +100,9 @@ done \
 # 1           2 3         4 5 6       7 8     9 10      11 12
 # sdk-example / example.c : [ 100.00% ] (7/7) [ 100.00% ]  (1/1)
 #
+
+rm -f ${OUTPUT_DIR}/{files,tests,all,final}.info
+find ${OUTPUT_DIR} -name "*.gcno" -o -name "*.gcda" -exec rm -f {} \;
+
 echo ""
 exit 0

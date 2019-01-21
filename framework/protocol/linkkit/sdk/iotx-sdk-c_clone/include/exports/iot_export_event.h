@@ -1,10 +1,13 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #ifndef IOTX_EXPORT_EVENT_H
 #define IOTX_EXPORT_EVENT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
 
 /**
  * @brief event list used for iotx_regist_event_monitor_cb
@@ -26,6 +29,7 @@ enum iotx_event_t {
     IOTX_AWSS_GOT_IP,               // AWSS connects destination successfully and got ip address
     IOTX_AWSS_SUC_NOTIFY,           // AWSS sends out success notify (AWSS sucess)
     IOTX_AWSS_BIND_NOTIFY,          // AWSS sends out bind notify information to support bind between user and device
+    IOTX_AWSS_ENABLE_TIMEOUT,       // AWSS enable timeout(user needs to call awss_config_press again to enable awss)
     IOTX_CONN_CLOUD = 0x2000,       // Device try to connect cloud
     IOTX_CONN_CLOUD_FAIL,           // Device fails to connect cloud, refer to net_sockets.h for error code
     IOTX_CONN_CLOUD_SUC,            // Device connects cloud successfully

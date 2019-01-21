@@ -1,21 +1,6 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
 
 #include <string.h>
 #include <stddef.h>
@@ -218,21 +203,6 @@ int httpclient_get_info(httpclient_t *client, char *send_buf, int *send_idx, cha
     return SUCCESS_RETURN;
 }
 
-void httpclient_set_custom_header(httpclient_t *client, char *header)
-{
-    client->header = header;
-}
-
-int httpclient_basic_auth(httpclient_t *client, char *user, char *password)
-{
-    if ((strlen(user) + strlen(password)) >= HTTPCLIENT_AUTHB_SIZE) {
-        return ERROR_HTTP;
-    }
-    client->auth_user = user;
-    client->auth_password = password;
-    return SUCCESS_RETURN;
-}
-
 int httpclient_send_auth(httpclient_t *client, char *send_buf, int *send_idx)
 {
     char b_auth[(int)((HTTPCLIENT_AUTHB_SIZE + 3) * 4 / 3 + 1)];
@@ -248,6 +218,8 @@ int httpclient_send_auth(httpclient_t *client, char *send_buf, int *send_idx)
     httpclient_get_info(client, send_buf, send_idx, b_auth, 0);
     return SUCCESS_RETURN;
 }
+
+extern int iotx_guider_get_region(void);
 
 int httpclient_send_header(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
 {
@@ -285,11 +257,12 @@ int httpclient_send_header(httpclient_t *client, const char *url, int method, ht
     len = 0; /* Reset send buffer */
 
 #ifdef ON_PRE
-    extern int g_domain_type;
-
-    if (1 == g_domain_type) {
+    if (1 == iotx_guider_get_region()) {
         utils_warning("hacking HTTP auth requeset for singapore+pre-online to 'iot-auth.ap-southeast-1.aliyuncs.com'");
-        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, "iot-auth.ap-southeast-1.aliyuncs.com"); /* Write request */
+        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path,
+                     "iot-auth.ap-southeast-1.aliyuncs.com"); /* Write request */
+    } else {
+        HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
     }
 #else
     HAL_Snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nHost: %s\r\n", meth, path, host); /* Write request */
@@ -541,7 +514,10 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
         }
 
         utils_debug("Total-Payload: %d Bytes; Read: %d Bytes", readLen, len);
-
+        unsigned int deadLoopCount = 0;
+        unsigned int extendCount = 0;
+        const unsigned int MIN_TIMEOUT = 100;
+        const unsigned int MAX_RETRY_COUNT = 600;
         do {
             templen = HTTPCLIENT_MIN(len, readLen);
             if (count + templen < client_data->response_buf_len - 1) {
@@ -570,10 +546,39 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len,
                 int ret;
                 int max_len = HTTPCLIENT_MIN(HTTPCLIENT_CHUNK_SIZE - 1, client_data->response_buf_len - 1 - count);
                 max_len = HTTPCLIENT_MIN(max_len, readLen);
+
+                /* if timeout reduce to zero, it will be translated into NULL for select function in TLS lib */
+                /* it would lead to indenfinite behavior, so we avoid it */
+                if (iotx_time_left(&timer) < MIN_TIMEOUT) {
+                    extendCount++;
+                    utils_time_countdown_ms(&timer, MIN_TIMEOUT);
+                    if (1 == extendCount % 100) {
+                        utils_debug("extend countdown_ms to avoid NULL input to select, tired %d times", extendCount);
+                    }
+                }
+
                 ret = httpclient_recv(client, data, 1, max_len, &len, iotx_time_left(&timer));
                 if (ret == ERROR_HTTP_CONN) {
                     return ret;
                 }
+
+                /* if it falls into deadloop before reconnected to internet, we just quit*/
+                if ((0 == len) && (0 == iotx_time_left(&timer)) && (FAIL_RETURN == ret)) {
+                    deadLoopCount++;
+                    if (deadLoopCount > MAX_RETRY_COUNT) {
+                        utils_err("deadloop detected, exit");
+                        return ret;
+                    }
+                } else {
+                    deadLoopCount = 0;
+                }
+
+                /*if the internet connection is fixed during the loop, the download stream might be disconnected. we have to quit */
+                if ((0 == len) && (extendCount > 2 * MAX_RETRY_COUNT) && (FAIL_RETURN == ret)) {
+                    utils_err("extend timer for too many times, exit");
+                    return ERROR_HTTP_CONN;
+                }
+
             }
         } while (readLen);
 
@@ -834,7 +839,8 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
         httpclient_close(client);
     }
 
-    return (ret >= 0) ? 0 : -1;
+    ret = 0;
+    return ret;
 }
 
 int utils_get_response_code(httpclient_t *client)

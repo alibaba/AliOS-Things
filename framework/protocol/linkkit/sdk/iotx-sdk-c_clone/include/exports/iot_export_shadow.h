@@ -1,23 +1,13 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef __SHADOW_EXPORT_H__
 #define __SHADOW_EXPORT_H__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* From shadow.h */
 #include <sys/types.h>
@@ -101,7 +91,7 @@ typedef struct {
  * @retval NOT_NULL : Construct success.
  * @see None.
  */
-void *IOT_Shadow_Construct(iotx_shadow_para_pt pparam);
+DLL_IOT_API void *IOT_Shadow_Construct(iotx_shadow_para_pt pparam);
 
 /**
  * @brief Deconstruct the specific device shadow.
@@ -121,7 +111,7 @@ iotx_err_t IOT_Shadow_Destroy(void *handle);
  * @return None.
  * @see None.
  */
-void IOT_Shadow_Yield(void *handle, uint32_t timeout_ms);
+DLL_IOT_API void IOT_Shadow_Yield(void *handle, uint32_t timeout_ms);
 
 /**
  * @brief Create a data type registered to the server.
@@ -218,10 +208,10 @@ iotx_err_t IOT_Shadow_Push(
  * @retval          other : See iotx_err_t.
  * @see None.
  */
-int IOT_Shadow_Push_Async(
+DLL_IOT_API int IOT_Shadow_Push_Async(
             void *handle,
             char *data,
-            size_t data_len,
+            unsigned int data_len,
             uint16_t timeout_s,
             iotx_push_cb_fpt cb_fpt,
             void *pcontext);
@@ -241,4 +231,7 @@ iotx_err_t IOT_Shadow_Pull(void *handle);
 /** @} */ /* end of api_shadow */
 /** @} */ /* end of api */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif /* __SHADOW_EXPORT_H__ */

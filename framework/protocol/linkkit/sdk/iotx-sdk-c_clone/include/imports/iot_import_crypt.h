@@ -1,30 +1,10 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- *
- * Alibaba Group retains all right, title and interest (including all
- * intellectual property rights) in and to this computer program, which is
- * protected by applicable intellectual property laws.  Unless you have
- * obtained a separate written license from Alibaba Group., you are not
- * authorized to utilize all or a part of this computer program for any
- * purpose (including reproduction, distribution, modification, and
- * compilation into object code), and you must immediately destroy or
- * return to Alibaba Group all copies of this computer program.  If you
- * are licensed by Alibaba Group, your rights to utilize this computer
- * program are limited by the terms of that license.  To obtain a license,
- * please contact Alibaba Group.
- *
- * This computer program contains trade secrets owned by Alibaba Group.
- * and, unless unauthorized by Alibaba Group in writing, you agree to
- * maintain the confidentiality of this computer program and related
- * information and to not disclose this computer program and related
- * information to any other person or entity.
- *
- * THIS COMPUTER PROGRAM IS PROVIDED AS IS WITHOUT ANY WARRANTIES, AND
- * Alibaba Group EXPRESSLY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED,
- * INCLUDING THE WARRANTIES OF MERCHANTIBILITY, FITNESS FOR A PARTICULAR
- * PURPOSE, TITLE, AND NONINFRINGEMENT.
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-#ifndef __IOT_IMPORTC_CRYPT_H__
+
+
+
+#ifndef __IOT_IMPORT_CRYPT_H__
 #define __IOT_IMPORT_CRYPT_H__
 
 #ifdef __cplusplus
@@ -50,7 +30,7 @@ typedef void *p_HAL_Aes128_t;
  * @see None.
  * @note None.
  */
-p_HAL_Aes128_t HAL_Aes128_Init(
+DLL_HAL_API p_HAL_Aes128_t HAL_Aes128_Init(
             _IN_ const uint8_t *key,
             _IN_ const uint8_t *iv,
             _IN_ AES_DIR_t dir);
@@ -67,7 +47,7 @@ p_HAL_Aes128_t HAL_Aes128_Init(
  * @see None.
  * @note None.
  */
-int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
+DLL_HAL_API int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
 
 /**
  * @brief   以`AES-CBC-128`方式, 根据`HAL_Aes128_Init()`时传入的密钥加密指定的明文
@@ -84,7 +64,7 @@ int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes);
  * @see None.
  * @note None.
  */
-int HAL_Aes128_Cbc_Encrypt(
+DLL_HAL_API int HAL_Aes128_Cbc_Encrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t blockNum,
@@ -105,7 +85,7 @@ int HAL_Aes128_Cbc_Encrypt(
  * @see None.
  * @note None.
  */
-int HAL_Aes128_Cbc_Decrypt(
+DLL_HAL_API int HAL_Aes128_Cbc_Decrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t blockNum,
@@ -127,7 +107,7 @@ int HAL_Aes128_Cbc_Decrypt(
  * @note None.
  */
 
-int HAL_Aes128_Cfb_Encrypt(
+DLL_HAL_API int HAL_Aes128_Cfb_Encrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t length,
@@ -148,7 +128,7 @@ int HAL_Aes128_Cfb_Encrypt(
  * @see None.
  * @note None.
  */
-int HAL_Aes128_Cfb_Decrypt(
+DLL_HAL_API int HAL_Aes128_Cfb_Decrypt(
             _IN_ p_HAL_Aes128_t aes,
             _IN_ const void *src,
             _IN_ size_t length,
@@ -158,5 +138,5 @@ int HAL_Aes128_Cfb_Decrypt(
 }
 #endif
 
-#endif  /* __IOT_IMPORT_AWSS_H__ */
+#endif  /* __IOT_IMPORT_CRYPT_H__ */
 

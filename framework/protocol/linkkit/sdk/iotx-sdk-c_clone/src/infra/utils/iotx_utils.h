@@ -1,21 +1,6 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
 
 #ifndef __IOTX_UTILS_H__
 #define __IOTX_UTILS_H__
@@ -30,9 +15,19 @@
     #include <assert.h>
 #endif
 
-#include "iotx_log.h"
-#include "lite-list.h"
 #include "iotx_utils_config.h"
+
+#include "iotx_log.h"
+
+#include "utils_hmac.h"
+#include "utils_httpc.h"
+#include "lite-cjson.h"
+#include "lite-list.h"
+#include "string_utils.h"
+#include "json_parser.h"
+#include "utils_md5.h"
+#include "utils_sha256.h"
+
 #include "iot_import.h"
 
 #define LITE_TRUE                   (1)
@@ -96,8 +91,8 @@
 #define LITE_realloc(ptr, size, ...)    LITE_realloc_internal(__func__, __LINE__, ptr, size, ##__VA_ARGS__)
 #define LITE_free(ptr)              \
     do { \
-        if(!ptr) { \
-            log_err("%s == NULL! LITE_free(%s) aborted.", #ptr, #ptr); \
+        if (!ptr) { \
+            log_warning("utils", "%s == NULL! LITE_free(%s) aborted.", #ptr, #ptr); \
             break; \
         } \
         \
@@ -116,7 +111,7 @@ char       *LITE_strdup(const char *src, ...);
 char       *LITE_format_string(const char *fmt, ...);
 char       *LITE_format_nstring(const int len, const char *fmt, ...);
 void        LITE_hexbuf_convert(unsigned char *digest, char *out, int buflen, int uppercase);
-void        LITE_hexstr_convert(char *hexstr, uint8_t *out_buf, int len);
+void        LITE_hexstr_convert(char *input, int input_len, unsigned char *output, int output_len);
 void        LITE_replace_substr(char orig[], char key[], char swap[]);
 
 void        LITE_dump_malloc_free_stats(int level);
@@ -133,8 +128,6 @@ list_head_t    *LITE_json_keys_of_ext(char *src, char *prefix, ...);
 int             LITE_json_value_type(char *src, int src_len);
 char           *LITE_json_array_get_item(int index, char *src, int src_len, int *val_len);
 
-int             get_json_item_size(char *src, int src_len);
-
 void            LITE_json_keys_release(list_head_t *keylist);
 
 typedef struct _json_key_t {
@@ -142,15 +135,17 @@ typedef struct _json_key_t {
     list_head_t     list;
 } json_key_t;
 
+#if WITH_JSON_KEYS_OF
 #define foreach_json_keys_in(src, iter_key, keylist, pos)   \
     for(keylist = (void *)LITE_json_keys_of((char *)src, ""), \
         pos = (void *)list_first_entry((list_head_t *)keylist, json_key_t, list), \
         iter_key = ((json_key_t *)pos)->key; \
         (iter_key = ((json_key_t *)pos)->key); \
         pos = list_next_entry((json_key_t *)pos, list, json_key_t))
+#endif
 
-int unittest_string_utils(void);
-int unittest_json_parser(void);
-int unittest_json_token(void);
+#if WITH_MEM_STATS
+    void **LITE_get_mem_mutex(void);
+#endif
 
 #endif  /* __LITE_UTILS_H__ */

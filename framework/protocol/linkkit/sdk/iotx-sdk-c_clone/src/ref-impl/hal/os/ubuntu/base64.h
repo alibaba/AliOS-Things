@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
+
+
 #ifndef __ABASE64_H__
 #define __ABASE64_H__
 

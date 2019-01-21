@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include "alcs_coap.h"
@@ -94,15 +98,14 @@ int alcs_sendrsp(CoAPContext *context, NetworkAddr* addr, CoAPMessage *message, 
 //observe
 int alcs_observe_notify(CoAPContext *context, const char *path, CoAPLenString* payload)
 {
-    int  needAuth = alcs_resource_need_auth (context, path);
-    COAP_INFO("alcs_observe_notify, payload: %.*s", payload->len, payload->data);
-    return CoAPObsServer_notify (context, path, payload->data, payload->len,
+    int needAuth = 0;
 #ifdef USE_ALCS_SECURE
-                                 needAuth? &observe_data_encrypt : NULL);
-
-#else
-        NULL);
+    needAuth = alcs_resource_need_auth (context, path);
 #endif
+    COAP_DEBUG("payload:%s",payload->data);
+    //HEXDUMP_DEBUG(payload->data, payload->len);
+    return CoAPObsServer_notify (context, path, payload->data, payload->len,
+                                 needAuth? &observe_data_encrypt : NULL);
 }
 
 static void send_err_rsp (CoAPContext* ctx, NetworkAddr*addr, int code, CoAPMessage* fromMsg)
@@ -142,9 +145,9 @@ static void recv_msg_handler (CoAPContext *context, const char *path, NetworkAdd
 int alcs_resource_register(CoAPContext *context, const char* pk, const char* dn, const char *path, unsigned short permission,
             unsigned int ctype, unsigned int maxage, char needAuth, CoAPRecvMsgHandler callback)
 {
-    COAP_INFO("alcs_resource_register, ctx:%p", context);
-	COAP_INFO("ALCS Resource Register: %s",path);
-	
+    COAP_DEBUG("alcs_resource_register, ctx:%p", context);
+	COAP_DEBUG("ALCS Resource Register: %s",path);
+
     if (!needAuth) {
         resource_cb_item* item = (resource_cb_item*)coap_malloc (sizeof(resource_cb_item));
         CoAPPathMD5_sum (path, strlen(path), item->path, MAX_PATH_CHECKSUM_LEN);
@@ -196,34 +199,7 @@ ALCSContext* get_context (CoAPContext* ctx) {
     }
     return NULL;
 }
-#else
-ALCSContext* g_alcs_ctx = NULL;
-ALCSContext* get_context (CoAPContext* ctx) {
-    return g_alcs_ctx;
-}
 
-#endif
-
-extern void on_auth_timer (void* arg);
-
-void* thread_routine (void * arg)
-{
-    COAP_INFO("thread_routine");
-
-    ALCSContext*ctx = (ALCSContext*)arg;
-    ctx->loop = 1;
-
-    while (ctx->loop) {
-        CoAPMessage_cycle (ctx->ctx);
-#ifdef USE_ALCS_SECURE
-        on_auth_timer (ctx->ctx);
-#endif
-    }
-
-    return NULL;
-}
-
-#ifdef SUPPORT_MULTI_DEVICES
 CoAPContext *alcs_context_create(CoAPInitParam *param)
 {
     ALCSContext* alcs_ctx = (ALCSContext*) coap_malloc (sizeof(ALCSContext));
@@ -246,6 +222,11 @@ void alcs_context_free(CoAPContext *ctx)
 }
 
 #else
+ALCSContext* g_alcs_ctx = NULL;
+ALCSContext* get_context (CoAPContext* ctx) {
+    return g_alcs_ctx;
+}
+
 CoAPContext* alcs_context_init(CoAPInitParam *param)
 {
     if (g_alcs_ctx) {
@@ -263,9 +244,10 @@ CoAPContext* alcs_context_init(CoAPInitParam *param)
             g_alcs_ctx = NULL;
             return NULL;
         }
+        return g_alcs_ctx->ctx;
+    } else {
+        return NULL;
     }
-
-    return g_alcs_ctx->ctx;
 }
 
 void alcs_context_deinit()
@@ -283,6 +265,25 @@ CoAPContext * alcs_get_context()
 }
 
 #endif
+
+extern void on_auth_timer (void* arg);
+
+void* thread_routine (void * arg)
+{
+    COAP_INFO("thread_routine");
+
+    ALCSContext*ctx = (ALCSContext*)arg;
+    ctx->loop = 1;
+
+    while (ctx->loop) {
+        CoAPMessage_cycle (ctx->ctx);
+#ifdef USE_ALCS_SECURE
+        on_auth_timer (ctx->ctx);
+#endif
+    }
+
+    return NULL;
+}
 
 void alcs_start_loop (CoAPContext *ctx, int newThread)
 {

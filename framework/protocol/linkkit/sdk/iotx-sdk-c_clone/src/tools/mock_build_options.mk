@@ -1,19 +1,16 @@
-SKIP_SSL_VERIFY_MODES = \
-    ID2_DAILY \
-    ID2_PRE \
-    MQTT_DAILY \
-    OTA_DAILY \
-    ON_DAILY \
-    ON_PRE   \
 
-SKIP_MQTT_DIRECT_MODES = \
-    MQTT_DAILY \
-    OTA_DAILY \
-
-ifneq (,$(filter $(foreach M,$(SKIP_SSL_VERIFY_MODES),-DTEST_$(M)),$(CFLAGS)))
-CFLAGS  := $(filter-out -DFORCE_SSL_VERIFY,$(CFLAGS))
+ifneq (,$(filter -D_PLATFORM_IS_WINDOWS_,$(CFLAGS)))
+    CFLAGS := $(filter-out -DOTA_ENABLED,$(CFLAGS))
+    CFLAGS := $(filter-out -DWIFI_PROVISION_ENABLED,$(CFLAGS))
+    CFLAGS := $(filter-out -DDEV_BIND_ENABLED,$(CFLAGS))
 endif
 
-ifneq (,$(filter $(foreach M,$(SKIP_MQTT_DIRECT_MODES),-DTEST_$(M)),$(CFLAGS)))
-CFLAGS  := $(filter-out -DMQTT_DIRECT,$(CFLAGS))
+ifeq (Darwin,$(shell uname))
+    CFLAGS := $(filter-out -DOTA_ENABLED,$(CFLAGS))
+    CFLAGS := $(filter-out -DWIFI_PROVISION_ENABLED,$(CFLAGS))
 endif
+
+ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
+    CFLAGS := $(filter-out -DFORCE_SSL_VERIFY,$(CFLAGS))
+endif
+

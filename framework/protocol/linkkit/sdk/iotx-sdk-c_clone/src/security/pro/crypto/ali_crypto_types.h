@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2017 The YunOS Project. All rights reserved.
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
 #ifndef _ALI_CRYPTO_TYPES_H_

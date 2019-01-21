@@ -1,34 +1,13 @@
 /*
- * nghttp2 - HTTP/2 C Library
- *
- * Copyright (c) 2013, 2014 Tatsuhiro Tsujikawa
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
 #ifndef IOT_EXPORT_HTTP2_H
 #define IOT_EXPORT_HTTP2_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 typedef enum {
 
     HTTP2_FLAG_NONE = 0,
@@ -37,17 +16,37 @@ typedef enum {
 
 } http2_flag;
 
+typedef struct http2_list_s {
+    struct http2_list_s *prev;
+    struct http2_list_s *next;
+} http2_list_t;
+
+typedef void (*on_user_header_callback)(int32_t stream_id, int cat, const uint8_t *name, uint32_t namelen,
+                                        const uint8_t *value, uint32_t valuelen, uint8_t flags);
+
+typedef void (*on_user_chunk_recv_callback)(int32_t stream_id,
+        const uint8_t *data, uint32_t len, uint8_t flags);
+
+typedef void (*on_user_stream_close_callback)(int32_t stream_id, uint32_t error_code);
+
+typedef void (*on_user_frame_send_callback)(int32_t stream_id, int type, uint8_t flags);
+
+typedef void (*on_user_frame_recv_callback)(int32_t stream_id, int type, uint8_t flags);
+
+typedef struct {
+    on_user_header_callback       on_user_header_cb;
+    on_user_chunk_recv_callback   on_user_chunk_recv_cb;
+    on_user_stream_close_callback on_user_stream_close_cb;
+    on_user_frame_send_callback   on_user_frame_send_cb;
+    on_user_frame_recv_callback   on_user_frame_recv_cb;
+} http2_user_cb_t;
+
 typedef struct http2_connection {
     void           *network;       /* iot network ptr */
     void           *session;       /* http2 session */
-    char           *file_id;       /* file id length */
-    char           *buffer;        /* receive buffer */
-    int            buffer_len;     /* receive buffer length */
-    int            *len;           /* receive data length */
     int            flag;           /* check the stream is end or not */
-    char           *statuscode;    /* receive response for check is correct */
-    char           *store_id;      /* store file id */
     int            status;
+    http2_user_cb_t *cbs;
 } http2_connection_t;
 
 typedef struct http2_header_struct {
@@ -72,6 +71,8 @@ typedef struct http2_data_struct {
 * @return         http2 client connection handler.
 */
 extern http2_connection_t *iotx_http2_client_connect(void *pclient, char *url, int port);
+
+http2_connection_t *iotx_http2_client_connect_with_cb(void *pclient, char *url, int port, http2_user_cb_t *cb);
 /**
 * @brief          the http2 client send data.
 * @param[in]      handler: http2 client connection handler.
@@ -113,6 +114,12 @@ extern int iotx_http2_get_available_window_size(http2_connection_t *conn);
 * @return         The result. 0 is ok.
 */
 extern int iotx_http2_update_window_size(http2_connection_t *conn);
+/**
+* @brief          the http2 client performs the network I/O.
+* @param[in]      handler: http2 client connection handler.
+* @return         The result. 0 is ok.
+*/
+extern int iotx_http2_exec_io(http2_connection_t *connection);
 #ifdef __cplusplus
 }
 #endif

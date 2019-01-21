@@ -1,29 +1,32 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
-
 
 #ifndef _IOTX_COMMON_MD5_H_
 #define _IOTX_COMMON_MD5_H_
 
 #include "iot_import.h"
+
+#ifdef BUILD_AOS
+
+#include "mbedtls/md5.h"
+
+#define iot_md5_context       mbedtls_md5_context
+
+#define utils_md5_init        mbedtls_md5_init
+#define utils_md5_free        mbedtls_md5_free
+#define utils_md5_clone       mbedtls_md5_clone
+#define utils_md5_starts      mbedtls_md5_starts
+#define utils_md5_update      mbedtls_md5_update
+#define utils_md5_finish      mbedtls_md5_finish
+#define utils_md5_process     mbedtls_md5_process
+#define utils_md5             mbedtls_md5
+
+int8_t utils_hb2hex(uint8_t hb);
+
+void utils_md5_hexstr(unsigned char input[16],unsigned char output[32]);
+
+#else
 
 typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
@@ -97,3 +100,4 @@ void utils_md5_hexstr(unsigned char input[16], unsigned char output[32]);
 
 #endif
 
+#endif

@@ -1,82 +1,40 @@
-FEATURE_OTA_ENABLED         = y
-##
-## FEATURE_MQTT_COMM_ENABLED
-## Brief:    MQTT(Message Queuing Telemetry Transport) is a publish-subscribe-based messaging protocol
-## Usage:    If the value is "y", it support mqtt protocol connect alibaba cloud and the MQTT_COMM_ENABLED compile option will be defined
-## Note:     Can't switchable
-##
-FEATURE_MQTT_COMM_ENABLED   = y
+#
+# Automatically generated file; DO NOT EDIT.
+# Main Menu
+#
 
-##
-## FEATURE_MQTT_DIRECT
-## Brief:    MQTT DIRECT is a feature to connect alibaba cloud directly, don't use https to get domain name to connect 
-## Usage:    If the value is "y", it support mqtt connect directly. If you are in China, don't turn off this option
-## Note:     Switchable (value is y or n)
-##
-FEATURE_MQTT_DIRECT         = y
+#
+# Configure Link Kit SDK for IoT Embedded Devices
+#
+FEATURE_SRCPATH="."
+FEATURE_MQTT_COMM_ENABLED=y
+FEATURE_ALCS_ENABLED=y
+#
+# MQTT Configurations
+#
+FEATURE_MQTT_DIRECT=y
+# FEATURE_MQTT_SHADOW is not set
+# FEATURE_MQTT_LOGPOST is not set
+FEATURE_DEVICE_MODEL_ENABLED=y
 
-##
-## FEATURE_COAP_COMM_ENABLED
-## Brief:    CoAP(Constrained Application Protocol) is a specialized Internet Application Protocol for constrained devices
-## Usage:    If the value is "y", it support coap protocol to connect alibaba cloud and the COAP_COMM_ENABLED compile option will be defined
-## Note:     Switchable (value is y or n)
-##
-FEATURE_COAP_COMM_ENABLED   = n
+#
+# Device Model Configurations
+#
+# FEATURE_DEVICE_MODEL_GATEWAY is not set
+# FEATURE_ALCS_ENABLED is not set
+# FEATURE_DEPRECATED_LINKKIT is not set
+FEATURE_DEV_BIND_ENABLED=y
+# FEATURE_DEVICE_MODEL_RAWDATA_SOLO is not set
+# FEATURE_COAP_COMM_ENABLED is not set
+# FEATURE_OTA_ENABLED is not set
+# FEATURE_HTTP2_COMM_ENABLED is not set
+# FEATURE_HTTP_COMM_ENABLED is not set
+FEATURE_SUPPORT_TLS=y
+# FEATURE_SAL_ENABLED is not set
+FEATURE_WIFI_PROVISION_ENABLED=y
 
-##
-## FEATURE_HTTP_COMM_ENABLED
-## Brief:    HTTP(Hypertext Transfer Protocol) is an application protocol for distributed, collaborative, and hypermedia information systems
-## Usage:    If the value is "y", it support HTTP protocol and the HTTP_COMM_ENABLED compile option will be defined
-## Note:     Switchable (value is y or n)
-##
-FEATURE_HTTP_COMM_ENABLED   = y
-
-##
-## FEATURE_HTTP2_COMM_ENABLED
-## Brief:    HTTP/2(Hypertext Transfer Protocol 2.0) is a major revision of the HTTP network protocol used by the World Wide Web
-## Usage:    If the value is "y", it support http/2 protocol and the HTTP2_COMM_ENABLED compile option will be defined
-## Note:     Switchable (value is y or n)
-##
-FEATURE_HTTP2_COMM_ENABLED  = n
-
-##
-## FEATURE_SDK_ENHANCE
-## Brief:    SDK ENHANCE is a feature to support Connection management and device management
-## Usage:    If the value is "y", it support connection management and device management
-## Note:     Switchable (value is y or n)
-##
-FEATURE_SDK_ENHANCE        = y
-
-##
-## FEATURE_SUPPORT_TLS & FEATURE_SUPPORT_ITLS
-## Brief:    TLS(Transport Layer Security) is a cryptographic protocol for secure Internet communication
-## Usage:    If you want to support tls, FEATURE_SUPPORT_TLS and FEATURE_SUPPORT_ITLS only select one
-##           ITLS is a saving memory tls's version.
-## Note:     Switchable (value is y or n)
-##
-FEATURE_SUPPORT_TLS         = y
-FEATURE_SUPPORT_ITLS        = n
-
-##
-## FEATURE_SUBDEVICE_ENABLED
-## Brief:    SUB DEVICE is a feature to support device to connect gateway
-## Usage:    If the value is "y", it support sub device feature and the SUBDEVICE_ENABLED compile option will be defined.
-## Note:     Switchable (value is y or n)
-##
-FEATURE_SUBDEVICE_ENABLED   = n
-
-##
-## FEATURE_ALCS_ENABLED
-## Brief:    ALCS(alink local communication service) is a communication between phone and device
-## Usage:    If the value is "y", it support alcs feature and the ALCS_ENABLED compile option will be defined.
-## Note:     Switchable (value is y or n)
-##
-FEATURE_ALCS_ENABLED        = y
-
-##
-## FEATURE_ENHANCED_GATEWAY
-## Brief:    ENHANCED_GATEWAY(gateway product) is a gateway product
-## Usage:    If the value is "y", it support gateway feature and the -DENHANCED_GATEWAY compile option will be defined.
-## Note:     Switchable (value is y or n)
-##
-FEATURE_ENHANCED_GATEWAY    = n
+#
+# AWSS Configurations
+#
+FEATURE_AWSS_SUPPORT_SMARTCONFIG=y
+FEATURE_AWSS_SUPPORT_ZEROCONFIG=y

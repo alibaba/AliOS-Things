@@ -1,76 +1,58 @@
 /*
- * Copyright (c) 2014-2016 Alibaba Group. All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
 
 
 #include <string.h>
 
 #include "iotx_system_internal.h"
 
-static iotx_conn_info_t     iotx_conn_info;
-static iotx_device_info_t   iotx_device_info;
-static int                  iotx_devinfo_inited = 0;
+static iotx_conn_info_t     iotx_conn_info = {0, 0, NULL, NULL, NULL, NULL, NULL};
 
-int iotx_device_info_init(void)
+int iotx_device_info_get(iotx_device_info_t *device_info)
 {
-    if (iotx_devinfo_inited) {
-        sys_debug("device_info already created, return!");
-        return 0;
+    if (device_info == NULL) {
+        return -1;
     }
+    memset(device_info, 0x0, sizeof(iotx_device_info_t));
+    HAL_GetProductKey(device_info->product_key);
+    HAL_GetDeviceName(device_info->device_name);
+    HAL_GetDeviceSecret(device_info->device_secret);
+    HAL_GetDeviceID(device_info->device_id);
 
-    memset(&iotx_device_info, 0x0, sizeof(iotx_device_info_t));
-    memset(&iotx_conn_info, 0x0, sizeof(iotx_conn_info_t));
-    iotx_devinfo_inited = 1;
-
-    sys_info("device_info created successfully!");
-    return SUCCESS_RETURN;
-}
-
-int iotx_device_info_set(
-            const char *product_key,
-            const char *device_name,
-            const char *device_secret)
-{
-    int ret;
-    sys_debug("start to set device info!");
-
-    memset(&iotx_device_info, 0x0, sizeof(iotx_device_info));
-    strncpy(iotx_device_info.product_key, product_key, PRODUCT_KEY_LEN);
-    strncpy(iotx_device_info.device_name, device_name, DEVICE_NAME_LEN);
-    strncpy(iotx_device_info.device_secret, device_secret, DEVICE_SECRET_LEN);
-
-    /* construct device-id(@product_key+@device_name) */
-    ret = HAL_Snprintf(iotx_device_info.device_id, DEVICE_ID_LEN, "%s.%s", product_key, device_name);
-    if ((ret < 0) || (ret >= DEVICE_ID_LEN)) {
-        sys_err("set device info failed");
-        return FAIL_RETURN;
-    }
-
-    sys_debug("device_info set successfully!");
-    return SUCCESS_RETURN;
-}
-
-iotx_device_info_pt iotx_device_info_get(void)
-{
-    return &iotx_device_info;
+    return 0;
 }
 
 iotx_conn_info_pt iotx_conn_info_get(void)
 {
+    return &iotx_conn_info;
+}
+
+void iotx_conn_info_release(void)
+{
+    if (iotx_conn_info.host_name != NULL) {
+        LITE_free(iotx_conn_info.host_name);
+    }
+    if (iotx_conn_info.username != NULL) {
+        LITE_free(iotx_conn_info.username);
+    }
+    if (iotx_conn_info.password != NULL) {
+        LITE_free(iotx_conn_info.password);
+    }
+    if (iotx_conn_info.client_id != NULL) {
+        LITE_free(iotx_conn_info.client_id);
+    }
+    memset(&iotx_conn_info, 0, sizeof(iotx_conn_info));
+}
+
+iotx_conn_info_pt iotx_conn_info_reload(void)
+{
+    iotx_conn_info_release();
+    if (iotx_guider_authenticate(&iotx_conn_info) < 0) {
+        return NULL;
+    }
     return &iotx_conn_info;
 }
 

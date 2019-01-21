@@ -8,7 +8,13 @@ sub-mods: toolchain
 	    JOBS_NUM=32; \
 	    if [ "$${CORE_NUM}" != "" ]; then JOBS_NUM=$${CORE_NUM}; fi; \
 	    if [ "$(Q)" != "@" ]; then JOBS_NUM=0; fi; \
-	    $(MAKE) --no-print-directory clean && \
+	    rm -rf $(OUTPUT_DIR)${bindir}/* && \
+	    if [ -f $(STAMP_LCOV) ] && [ "$(WITH_LCOV)" != "1" ]; then \
+	        $(MAKE) --no-print-directory clean; \
+	    fi && \
+	    if ([ ! -f $(STAMP_LCOV) ] && [ "$(WITH_LCOV)" = "1" ]) || [ $(TOP_DIR)/make.settings -nt $(DIST_DIR) ]; then \
+	        $(MAKE) --no-print-directory clean; \
+	    fi && \
 	    $(MAKE) --no-print-directory -j$$((JOBS_NUM + 1)) -f $(STAMP_ONE_MK) && \
 	    TMPD=$$(mktemp -d) && \
 	    rm -rf $(LIBOBJ_TMPDIR) $${TMPD} && \
@@ -19,7 +25,6 @@ sub-mods: toolchain
 	    if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
 	        set -o pipefail; \
 	        for i in \
-	            $$(echo $(IMPORT_DIR)|$(SED) 's,$(TOP_DIR)/*,,g')/$(CONFIG_VENDOR)/platform \
 	            $(SUBDIRS); do \
 	                if [ ! -d $${i} ]; then continue; fi; \
 	                $(MAKE) --no-print-directory Q=$(Q) $${i} 2>&1 $(SUB_LOG_OPTION); \
@@ -93,7 +98,9 @@ $(STAMP_BLD_VAR): $(foreach d,$(ALL_SUB_DIRS),$(d)/$(MAKE_SEGMENT)) $(STAMP_BLD_
 	            printf "CONFIGURE .............................. [%s]\n" $${i}; \
 	        fi; \
 	        $(SED) -i "1iCONFIG_$${i} = y" $(CONFIG_TPL); \
-	        echo "target-$${i}:; @true" >> $(STAMP_POST_RULE); \
+	        if ! grep -q "target-$${i}:" $(STAMP_POST_RULE) 2>/dev/null; then \
+	            echo "target-$${i}:; @true" >> $(STAMP_POST_RULE); \
+	        fi; \
 	    fi; \
 	    $(foreach V, $(CMDLINE_VARS), $(V)="$($(V))") \
 	        bash $(RULE_DIR)/pre-build.sh $${i} makefile-only > /dev/null; \
@@ -137,9 +144,9 @@ $(ALL_SUB_DIRS): $(if $(filter 0,$(MAKELEVEL)),toolchain) $(STAMP_BLD_VAR)
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
 	$(TOP_Q)$(MAKE) --no-print-directory pre-build target-$@
 ifeq (0,$(MAKELEVEL))
-	$(TOP_Q)$(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$@ clean
+	$(Q)$(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$@ clean
 endif
-	$(TOP_Q) \
+	$(Q) \
 	if [ "$$( $(call Require_Build,$@) )" = "TRUE" ]; then \
 	    $(call Build_Depends,$@) && \
 	    $(call Build_CompLib,$@) && \

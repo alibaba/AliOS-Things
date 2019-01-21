@@ -1,0 +1,60 @@
+config MAL_ENABLED
+    bool "FEATURE_MAL_ENABLED"
+    depends on !MQTT_COMM_ENABLED
+    default n
+    help
+        Establish persistent connection with AliCloud via MAL(MQTT Adapter Layer).
+
+        Switch to "y" leads to building MAL into SDK and MAL_ENABLED included into CFLAGS.
+        Switch to "n" leads to not use MAL method to establish persistent connection with AliCloud.
+
+menu "MAL Configurations"
+    depends on MAL_ENABLED
+
+    config MQTT_DIRECT
+        bool "FEATURE_MQTT_DIRECT"
+        default y
+        help
+            Directly connect MQTT server without perform HTTP authenticate to another HTTP server ahead
+
+            Switching to "y" leads to connect MQTT server directly and MQTT_DIRECT included into CFLAGS
+            Switching to "n" leads to legacy authenticate mode: connnect HTTP server first, then connect MQTT server afterwards
+
+    config MAL_ICA_ENABLED
+        bool "FEATURE_MAL_ICA_ENABLED"
+        default y
+        help
+            USE ICA AT method
+
+            Switching to "y" leads to use ICA at method.
+            Switching to "n" leads to not use ICA at method.
+
+endmenu
+
+config SAL_ENABLED
+    bool "FEATURE_SAL_ENABLED"
+    default n
+
+menu "SAL Configurations"
+    depends on SAL_ENABLED
+
+    config SAL_PACKET_SEND_MODE_ASYNC
+        bool "FEATURE_SAL_PACKET_SEND_MODE_ASYNC"
+        default n
+        help
+            Provides asynchronized sending mode which is closed by default
+
+            Switching to "y" leads to asynchronized sending mode enabled.
+            Switching to "n" leads to synchronized sending mode.
+
+    config SAL_UDP_CLIENT_ENABLED
+        bool "FEATURE_SAL_UDP_CLIENT_ENABLED"
+        default n
+        help
+            Provides UDP client socket APIs
+
+            Switching to "y" leads to enable UDP client socket APIs.
+            Switching to "n" leads to disable UDP client socket APIs.
+
+endmenu
+

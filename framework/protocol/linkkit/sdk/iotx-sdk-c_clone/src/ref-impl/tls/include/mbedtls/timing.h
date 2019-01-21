@@ -1,32 +1,16 @@
-/**
- * \file timing.h
- *
- * \brief Portable interface to the CPU cycle counter
- *
- *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
- *  SPDX-License-Identifier: Apache-2.0
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may
- *  not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- *  This file is part of mbed TLS (https://tls.mbed.org)
+/*
+ * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
+
+
+
 #ifndef MBEDTLS_TIMING_H
 #define MBEDTLS_TIMING_H
 
 #if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
+    #include "config.h"
 #else
-#include MBEDTLS_CONFIG_FILE
+    #include MBEDTLS_CONFIG_FILE
 #endif
 
 #if !defined(MBEDTLS_TIMING_ALT)
@@ -42,16 +26,14 @@ extern "C" {
 /**
  * \brief          timer structure
  */
-struct mbedtls_timing_hr_time
-{
+struct mbedtls_timing_hr_time {
     unsigned char opaque[32];
 };
 
 /**
  * \brief          Context for mbedtls_timing_set/get_delay()
  */
-typedef struct
-{
+typedef struct {
     struct mbedtls_timing_hr_time   timer;
     uint32_t                        int_ms;
     uint32_t                        fin_ms;
@@ -66,7 +48,7 @@ extern volatile int mbedtls_timing_alarmed;
  *                 In particular, it is known to be unreliable on virtual
  *                 machines.
  */
-unsigned long mbedtls_timing_hardclock( void );
+unsigned long mbedtls_timing_hardclock(void);
 
 /**
  * \brief          Return the elapsed time in milliseconds
@@ -74,7 +56,7 @@ unsigned long mbedtls_timing_hardclock( void );
  * \param val      points to a timer structure
  * \param reset    if set to 1, the timer is restarted
  */
-unsigned long mbedtls_timing_get_timer( struct mbedtls_timing_hr_time *val, int reset );
+unsigned long mbedtls_timing_get_timer(struct mbedtls_timing_hr_time *val, int reset);
 
 /**
  * \brief          Setup an alarm clock
@@ -85,7 +67,7 @@ unsigned long mbedtls_timing_get_timer( struct mbedtls_timing_hr_time *val, int 
  *                 context, this means one for the whole process, not one per
  *                 thread.
  */
-void mbedtls_set_alarm( int seconds );
+DLL_TLS_API void mbedtls_set_alarm(int seconds);
 
 /**
  * \brief          Set a pair of delays to watch
@@ -97,7 +79,7 @@ void mbedtls_set_alarm( int seconds );
  * \param fin_ms   Second (final) delay in milliseconds.
  *                 Pass 0 to cancel the current delay.
  */
-void mbedtls_timing_set_delay( void *data, uint32_t int_ms, uint32_t fin_ms );
+DLL_TLS_API void mbedtls_timing_set_delay(void *data, uint32_t int_ms, uint32_t fin_ms);
 
 /**
  * \brief          Get the status of delays
@@ -111,7 +93,7 @@ void mbedtls_timing_set_delay( void *data, uint32_t int_ms, uint32_t fin_ms );
  *                  1 if only the intermediate delay is passed,
  *                  2 if the final delay is passed.
  */
-int mbedtls_timing_get_delay( void *data );
+DLL_TLS_API int mbedtls_timing_get_delay(void *data);
 
 #ifdef __cplusplus
 }
@@ -131,7 +113,7 @@ extern "C" {
  *
  * \return         0 if successful, or 1 if a test failed
  */
-int mbedtls_timing_self_test( int verbose );
+DLL_TLS_API int mbedtls_timing_self_test(int verbose);
 #endif
 
 #ifdef __cplusplus
