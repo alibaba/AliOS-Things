@@ -203,7 +203,9 @@ void recovery_main()
         rec_upgrade_reboot();
         return;
     }
-    // switch the stack space, it's very important for esp8266
+    rec_wdt_init(REC_WDT_TIMEOUT_MS);
+    rec_wdt_feed();
+    /* switch the stack space, it's very important for esp8266 */
     __asm__ volatile("movi a1, 0x3FFFFFF0" : : : "memory");
 #else
     rec_wdt_init(REC_WDT_TIMEOUT_MS);
