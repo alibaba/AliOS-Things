@@ -1,9 +1,9 @@
-menuconfig AOS_ARCH_CSKYV2-L
+menuconfig AOS_ARCH_CSKYV2_L
     bool "cskyv2-l"
     default n
     help
       arch for cskyv2-l
 
-if AOS_ARCH_CSKYV2-L
+if AOS_ARCH_CSKYV2_L
 # Configurations for arch cskyv2-l
 endif
