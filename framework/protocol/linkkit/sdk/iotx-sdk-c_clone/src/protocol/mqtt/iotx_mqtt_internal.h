@@ -20,7 +20,7 @@
 #define mqtt_err(...)               log_err("MQTT", __VA_ARGS__)
 #define mqtt_warning(...)           log_warning("MQTT", __VA_ARGS__)
 #define mqtt_info(...)              log_info("MQTT", __VA_ARGS__)
-#define mqtt_debug(...)             log_info("MQTT", __VA_ARGS__)
+#define mqtt_debug(...)             log_debug("MQTT", __VA_ARGS__)
 
 
 #define mqtt_malloc(size)            LITE_malloc(size, MEM_MAGIC, "mqtt")

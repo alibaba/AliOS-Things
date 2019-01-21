@@ -4,5 +4,4 @@ $(NAME)_TYPE := share
 $(NAME)_MBINS_TYPE := share
 $(NAME)_SOURCES    := log.c
 
-GLOBAL_DEFINES += LOG_SIMPLE
-
+GLOBAL_CFLAGS += -DLOG_SIMPLE
