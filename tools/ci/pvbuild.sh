@@ -3,7 +3,7 @@
 #add your build targets here, one line for one target, in the following format:
 #   "target build args" "target binary path" "target binary name after copy"
 declare -a targets=(
-    "meshapp@mk3060 meshdebug=1 MESHAUTH=1" "out/meshapp@mk3060/binary/meshapp@mk3060.ota.bin" "meshapp@mk3060-meshauth.bin"
+    "meshapp@mk3060 meshdebug=1 MESHAUTH=1" "out/meshapp@mk3060/binary/meshapp@mk3060.bin" "meshapp@mk3060-meshauth.bin"
     "yts@linuxhost" "out/yts@linuxhost/binary/yts@linuxhost.elf" "yts@linuxhost.elf"
     "networkapp@stm32l432kc-nucleo" "out/networkapp@stm32l432kc-nucleo/binary/networkapp@stm32l432kc-nucleo.bin" "networkapp@stm32l432kc-nucleo-general.bin"
     "acapp@mk3060" "out/acapp@mk3060/binary/acapp@mk3060.bin" "acapp@mk3060-general.bin"
@@ -30,8 +30,11 @@ if [ -d prebuild ] || [ -f prebuild ]; then
     rm -rf prebuild
 fi
 mkdir prebuild
-mkdir testscripts
-cp -f tools/testbed/testscripts/*.py testscripts/
+
+if [ -d tools/testbed/testscripts ]; then
+    mkdir testscripts
+    cp -f tools/testbed/testscripts/*.py testscripts/
+fi
 
 arraylength=${#targets[@]}
 if [ $((arraylength%3)) -ne 0 ];then
