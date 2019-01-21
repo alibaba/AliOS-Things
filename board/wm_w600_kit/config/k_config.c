@@ -116,7 +116,3 @@ void soc_err_proc(kstat_t err)
 
 krhino_err_proc_t g_err_proc = soc_err_proc;
 
-unsigned int aos_get_version_info (u8 *version_num, u8 *random_num, u8 *mac_address, u8 *chip_code, u8 *output_buffer, u32 output_buffer_size)
-{
-    return 0;
-}
