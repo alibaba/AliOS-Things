@@ -9,3 +9,178 @@ source "$SRCPATH/src/services/awss/Config.in"
 source "$SRCPATH/src/services/http2_stream/Config.in"
 source "$SRCPATH/src/security/Config.in"
 source "$SRCPATH/src/ref-impl/hal/Config.in"
+
+# Define features used by Applications
+config APP_FEATURE_LINKKIT
+    bool
+    select DEV_BIND_ENABLED
+    select DEVICE_MODEL_ENABLED
+    select HAL_CRYPTO
+    select HTTP_COMM_ENABLED
+    select MQTT_COMM_ENABLED
+    select MQTT_DIRECT
+    select OTA_ENABLED
+    select SUPPORT_TLS
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_JSON_PARSER
+    select UTILS_LITE_CJSON
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    select WIFI_PROVISION_ENABLED
+    default n
+
+config APP_FEATURE_LINKKIT_HTTP2
+    bool
+    select HAL_CRYPTO
+    select HTTP2_COMM_ENABLED
+    select HTTP_COMM_ENABLED
+    select SUPPORT_TLS
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_JSON_PARSER
+    select UTILS_LITE_CJSON
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    default n
+
+config APP_FEATURE_LINKKIT_MQTT
+    bool
+    select HAL_CRYPTO
+    select MQTT_COMM_ENABLED
+    select MQTT_DIRECT
+    select SUPPORT_TLS
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    default n
+
+config APP_FEATURE_LINKKIT_NOAWSS
+    bool
+    select DEVICE_MODEL_ENABLED
+    select HAL_CRYPTO
+    select HTTP_COMM_ENABLED
+    select MQTT_COMM_ENABLED
+    select MQTT_DIRECT
+    select OTA_ENABLED
+    select SUPPORT_TLS
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    default n
+
+config APP_FEATURE_LINKKIT_NOUOTA
+    bool
+    select DEV_BIND_ENABLED
+    select DEVICE_MODEL_ENABLED
+    select HAL_CRYPTO
+    select HTTP_COMM_ENABLED
+    select MQTT_COMM_ENABLED
+    select MQTT_DIRECT
+    select SUPPORT_TLS
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    select WIFI_PROVISION_ENABLED
+    default n
+
+config APP_FEATURE_LINKKIT_COAP
+    bool
+    select COAP_COMM_ENABLED
+    select HAL_CRYPTO
+    select HTTP_COMM_ENABLED
+    select SUPPORT_TLS
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_JSON_PARSER
+    select UTILS_LITE_CJSON
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    default n
+
+config APP_FEATURE_LINKKIT_GATEWAY
+    bool
+    select DEV_BIND_ENABLED
+    select DEVICE_MODEL_ENABLED
+    select DEVICE_MODEL_GATEWAY
+    select HAL_CRYPTO
+    select HTTP_COMM_ENABLED
+    select MQTT_COMM_ENABLED
+    select MQTT_DIRECT
+    select OTA_ENABLED
+    select SUBDEVICE_ENABLED
+    select SUPPORT_TLS
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_JSON_PARSER
+    select UTILS_LITE_CJSON
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    select WIFI_PROVISION_ENABLED
+    default n
+
+config APP_FEATURE_LINKKIT_GATEWAY_NOAWSS
+    bool
+    select DEVICE_MODEL_ENABLED
+    select DEVICE_MODEL_GATEWAY
+    select HAL_CRYPTO
+    select HTTP_COMM_ENABLED
+    select MQTT_COMM_ENABLED
+    select MQTT_DIRECT
+    select SUBDEVICE_ENABLED
+    select SUPPORT_TLS
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    default n
+
+config APP_FEATURE_LINKKIT_GATEWAY_NOUOTA
+    bool
+    select DEV_BIND_ENABLED
+    select DEVICE_MODEL_ENABLED
+    select DEVICE_MODEL_GATEWAY
+    select HAL_CRYPTO
+    select HTTP_COMM_ENABLED
+    select MQTT_COMM_ENABLED
+    select MQTT_DIRECT
+    select SUBDEVICE_ENABLED
+    select SUPPORT_TLS
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_JSON_PARSER
+    select UTILS_LITE_CJSON
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    select WIFI_PROVISION_ENABLED
+    default n
