@@ -1,7 +1,7 @@
 menuconfig AOS_APP_ATHOSTAPP
     bool "athostapp"
     select AOS_COMP_NETMGR
-    select AOS_COMP_ATPARSER if ATHOSTAPP_CONFIG_NO_ATPARSER
+    select AOS_COMP_ATPARSER if ATHOSTAPP_CONFIG_ATPARSER
     select AOS_COMP_ATHOST
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
@@ -11,12 +11,13 @@ menuconfig AOS_APP_ATHOSTAPP
 if AOS_APP_ATHOSTAPP
 # Configurations for app athostapp
 
-config ATHOSTAPP_CONFIG_NO_ATPARSER
-    bool "no atparser"
-    default n
+config ATHOSTAPP_CONFIG_ATPARSER
+    bool "support atparser"
+    default y
 
-config ATHOSTAPP_CONFIG_NO_MQTTREPORT
-    bool "no mqtt report"
-    default n
+config ATHOSTAPP_CONFIG_MQTTREPORT
+    bool "support mqtt report"
+    default y
 
+source "network/nal/athost/Config.in"
 endif

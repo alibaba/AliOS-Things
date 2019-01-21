@@ -5,7 +5,7 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := mqtt examples
 
 $(NAME)_SOURCES := app_entry.c
-$(NAME)_COMPONENTS := feature.linkkit-mqtt netmgr cjson cli
+$(NAME)_COMPONENTS := linkkit_sdk_c netmgr cjson cli
 
 ifeq ($(MQTTAPP_CONFIG_CASE),rrpc)
 $(NAME)_SOURCES += mqtt_example_rrpc.c

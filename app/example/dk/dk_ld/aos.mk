@@ -5,7 +5,7 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := Developer Kit example with link develop
 $(NAME)_SOURCES    := ldapp.c
 
-$(NAME)_COMPONENTS := cli sensor cjson ota netmgr feature.linkkit-mqtt
+$(NAME)_COMPONENTS := cli sensor cjson ota netmgr linkkit_sdk_c
 GLOBAL_DEFINES += USE_LPTHREAD
 
 # for developerkit board

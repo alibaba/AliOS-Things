@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := linkkit gateway examples
 $(NAME)_SOURCES := app_entry.c 
 
 $(NAME)_COMPONENTS := netmgr ota cjson
-$(NAME)_COMPONENTS += feature.linkkit-gateway
+$(NAME)_COMPONENTS += linkkit_sdk_c
 
 GLOBAL_CFLAGS += -DMQTT_DIRECT
 

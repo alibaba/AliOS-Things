@@ -5,15 +5,11 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := linkkitapp
 
 $(NAME)_SOURCES :=   app_entry.c
-$(NAME)_COMPONENTS += feature.linkkit
+$(NAME)_COMPONENTS += linkkit_sdk_c
 
 $(NAME)_COMPONENTS += netmgr cjson
 
-##ifeq ($(COMPILER),iar)
-##$(NAME)_COMPONENTS += feature.linkkit-nouota
-##else
 $(NAME)_COMPONENTS += ota
-##endif
 
 LINKKITAPP_CONFIG_DEPRECATED ?= 0
 LINKKITAPP_CONFIG_PRINT_HEAP ?= 0

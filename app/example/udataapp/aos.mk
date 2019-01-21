@@ -14,7 +14,7 @@ ifeq ($(AOS_CONFIG_DTC_LINKKIT),y)
 $(NAME)_SOURCES += linkkit/app_entry.c
 $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 
-$(NAME)_COMPONENTS += feature.linkkit yloop netmgr cjson
+$(NAME)_COMPONENTS += linkkit_sdk_c yloop netmgr cjson
 
 
 LWIP ?= 1
@@ -30,7 +30,7 @@ else ifeq ($(AOS_CONFIG_DTC_MQTT),y)
 
 $(NAME)_SOURCES    += mqtt/mqtt_example.c
 
-$(NAME)_COMPONENTS += netmgr yloop feature.linkkit-mqtt
+$(NAME)_COMPONENTS += netmgr yloop linkkit_sdk_c
 GLOBAL_DEFINES     += USE_LPTHREAD
 
 GLOBAL_DEFINES     += DTC_MQTT
