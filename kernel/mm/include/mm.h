@@ -9,12 +9,16 @@
 extern "C" {
 #endif
 
-#include <tlsf.h>
+#include "tlsf.h"
 
-tlsf_t tlsf_create_with_pool(void* mem, size_t bytes);
-void* tlsf_malloc(tlsf_t tlsf, size_t bytes);
-void* tlsf_realloc(tlsf_t tlsf, void* ptr, size_t size);
-void tlsf_free(tlsf_t tlsf, void* ptr);
+tlsf_t tlsf_create_with_pool(void *mem, size_t bytes);
+
+void *tlsf_malloc(tlsf_t tlsf, size_t bytes);
+
+void *tlsf_realloc(tlsf_t tlsf, void *ptr, size_t size);
+
+void tlsf_free(tlsf_t tlsf, void *ptr);
+
 void tlsf_destroy(tlsf_t tlsf);
 
 #ifdef __cplusplus
@@ -22,3 +26,4 @@ void tlsf_destroy(tlsf_t tlsf);
 #endif
 
 #endif /* MM_H */
+
