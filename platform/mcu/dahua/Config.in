@@ -6,7 +6,7 @@ menuconfig AOS_MCU_DAHUA
     select AOS_COMP_NETMGR
     select AOS_COMP_RHINO
     select AOS_COMP_DEVICE_SAL_ESP8266 if SAL_CONFIG = 1
-    select AOS_ARCH_CSKYV2-L
+    select AOS_ARCH_CSKYV2_L
     help
       driver & sdk for platform/mcu dahua
 
