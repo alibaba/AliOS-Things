@@ -105,7 +105,7 @@ int MQTTDeserialize_suback(unsigned short *packetid, int maxcount, int *count, i
 
     *count = 0;
     while (curdata < enddata) {
-        if (*count > maxcount) {
+        if (*count >= maxcount) {
             rc = -1;
             goto exit;
         }
