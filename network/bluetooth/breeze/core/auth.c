@@ -38,8 +38,10 @@ static void on_timeout(void *arg1, void *arg2)
 
 static void ikm_init(ali_init_t const *p_init)
 {
+#ifndef CONFIG_MODEL_SECURITY
     device_secret_len = p_init->secret.length;
     memcpy(device_secret, p_init->secret.p_data, device_secret_len);
+#endif
     product_secret_len = p_init->product_secret.length;
     memcpy(product_secret, p_init->product_secret.p_data, product_secret_len);
 
@@ -57,6 +59,7 @@ ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func)
     g_auth.state = AUTH_STATE_IDLE;
     g_auth.tx_func = tx_func;
 
+#ifndef CONFIG_MODEL_SECURITY
     if (p_init->product_key.length == PRODUCT_KEY_LEN &&
         p_init->device_key.length != 0 &&
         p_init->secret.length == DEVICE_SECRET_LEN) {
@@ -65,8 +68,15 @@ ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func)
         memcpy(g_auth.device_name, p_init->device_key.p_data, p_init->device_key.length);
         g_auth.device_name_len = p_init->device_key.length;
     }
+#else
+    if(p_init->product_key.length == PRODUCT_KEY_LEN ){
+        memcpy(g_auth.product_key, p_init->product_key.p_data, PRODUCT_KEY_LEN);
+    }
+#endif
     g_auth.key_len = p_init->device_key.length;
-    memcpy(g_auth.key, p_init->device_key.p_data, g_auth.key_len);
+    if(g_auth.key_len > 0){
+        memcpy(g_auth.key, p_init->device_key.p_data, g_auth.key_len);
+    }
     ikm_init(p_init);
     ret = os_timer_new(&g_auth.timer, on_timeout, &g_auth, BZ_AUTH_TIMEOUT);
     return ret;
@@ -195,11 +205,10 @@ void auth_tx_done(void)
     uint32_t err_code;
 
     if (g_auth.state == AUTH_STATE_SVC_ENABLED) {
-#if BZ_AUTH_MODEL_SEC
         g_auth.state = AUTH_STATE_RAND_SENT;
+#ifdef CONFIG_MODEL_SECURITY
         return;
 #else
-        g_auth.state = AUTH_STATE_RAND_SENT;
         err_code = g_auth.tx_func(BZ_CMD_AUTH_KEY, g_auth.key, g_auth.key_len);
         if (err_code != BZ_SUCCESS) {
             core_handle_err(ALI_ERROR_SRC_AUTH_SEND_KEY, err_code);
@@ -208,7 +217,7 @@ void auth_tx_done(void)
         return;
 #endif
     } else if (g_auth.state == AUTH_STATE_RAND_SENT) {
-#if BZ_AUTH_MODEL_SEC
+#ifdef CONFIG_MODEL_SECURITY
         return;
 #else
         update_aes_key(true);
@@ -223,9 +232,13 @@ bool auth_is_authdone(void)
 
 ret_code_t auth_get_device_name(uint8_t **pp_device_name, uint8_t *p_length)
 {
-    *pp_device_name = g_auth.device_name;
-    *p_length = g_auth.device_name_len;
-    return BZ_SUCCESS;
+    if(g_auth.device_name_len){
+        *pp_device_name = g_auth.device_name;
+        *p_length = g_auth.device_name_len;
+        return BZ_SUCCESS;
+    } else{
+        return BZ_EDATASIZE;
+    }
 }
 
 ret_code_t auth_get_product_key(uint8_t **pp_prod_key, uint8_t *p_length)
@@ -262,11 +275,13 @@ int auth_calc_adv_sign(uint32_t seq, uint8_t *sign)
     make_seq_le(&seq);
     sec_sha256_init(&context);
 
+#ifndef CONFIG_MODEL_SECURITY
     sec_sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR));
     sec_sha256_update(&context, g_auth.device_name, g_auth.device_name_len);
 
     sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR));
     sec_sha256_update(&context, g_auth.secret, DEVICE_SECRET_LEN);
+#endif
 
     sec_sha256_update(&context, PRODUCT_KEY_STR, strlen(PRODUCT_KEY_STR));
     sec_sha256_update(&context, g_auth.product_key, PRODUCT_KEY_LEN);

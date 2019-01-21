@@ -159,11 +159,13 @@ static void network_signature_calculate(uint8_t *p_buff)
     sec_sha256_update(&context, CLIENTID_STR, strlen(CLIENTID_STR));
     sec_sha256_update(&context, str_id, sizeof(str_id));
 
+#ifndef CONFIG_MODEL_SECURITY
     sec_sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR)); /* "deviceName" */
     sec_sha256_update(&context, g_extcmd.p_device_name, g_extcmd.device_name_len);
 
     sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR)); /* "deviceSecret" */
     sec_sha256_update(&context, g_extcmd.p_secret, g_extcmd.secret_len);
+#endif
 
     sec_sha256_update(&context, PRODUCT_KEY_STR, strlen( PRODUCT_KEY_STR)); /* "productKey" */
     sec_sha256_update(&context, g_extcmd.p_product_key, g_extcmd.product_key_len);
