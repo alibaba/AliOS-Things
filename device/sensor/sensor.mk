@@ -102,7 +102,14 @@ $(NAME)_SOURCES += \
 >>>>>>> 056ff03e6 (updata sensitivity definition for sensor I3G4250D and L3GD20H)
 =======
         drv/drv_mag_temp_memsic_mmc3680kj.c
+<<<<<<< HEAD
 >>>>>>> 08bc8fba1 (release aos2.0.0)
+=======
+#		drv/drv_gr_baro_temp_hum_bosch_bme680/drv_gr_baro_temp_hum_bosch_bme680.c \
+#        drv/drv_pm_sensirion_sps30/sensirion_common.c \
+#        drv/drv_pm_sensirion_sps30/sps30.c \
+#        drv/drv_pm_sensirion_sps30/drv_pm_sensirion_sps30.c 
+>>>>>>> 6ad7c776d (I2C HAL for ESP32 fixed, native sensor support for Sensirion SPS30 and Bosch BME680 added. (#840))
 
         
 
@@ -207,4 +214,11 @@ GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA4XY
 >>>>>>> e9139ca4c (add driver for adt7410 adxl345 adxl355)
 =======
 
+<<<<<<< HEAD
 >>>>>>> 08bc8fba1 (release aos2.0.0)
+=======
+#  * Copyright (C) 2019 X-Cite SA (http://www.x-cite.io)
+#  * Written by Lemmer El Assal (lemmer@x-cite.io)
+#GLOBAL_DEFINES      += AOS_SENSOR_GR_BARO_TEMP_HUM_BOSCH_BME680
+#GLOBAL_DEFINES      += AOS_SENSOR_PM_SENSIRION_SPS30
+>>>>>>> 6ad7c776d (I2C HAL for ESP32 fixed, native sensor support for Sensirion SPS30 and Bosch BME680 added. (#840))
