@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #if (RHINO_CONFIG_SEM > 0)
 static kstat_t sem_create(ksem_t *sem, const name_t *name, sem_count_t count,

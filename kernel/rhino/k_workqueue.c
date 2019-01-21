@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #if (RHINO_CONFIG_WORKQUEUE > 0)
 static kstat_t workqueue_is_exist(kworkqueue_t *workqueue)
@@ -30,7 +30,7 @@ static void worker_task(void *arg)
     CPSR_ALLOC();
 
     kstat_t       ret;
-    kwork_t      *work = NULL;
+    kwork_t      *work  = NULL;
     kworkqueue_t *queue = (kworkqueue_t *)arg;
 
     while (1) {
@@ -118,7 +118,6 @@ static void work_timer_cb(void *timer, void *arg)
 
     kstat_t       ret;
     kwork_t      *work = ((ktimer_t *)timer)->priv;
-
     kworkqueue_t *wq   = (kworkqueue_t *)arg;
 
     RHINO_CRITICAL_ENTER();

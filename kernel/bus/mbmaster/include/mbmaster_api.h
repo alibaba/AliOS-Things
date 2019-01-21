@@ -12,15 +12,14 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 
-#include <k_api.h>
-#include "aos/kernel.h"
+#include "k_api.h"
 
 #include "mbmaster_default_config.h"
 #include "../adu/adu.h"
 #include "../auxiliary/auxiliary.h"
 
 typedef enum {
-    MB_PAR_NONE, 
+    MB_PAR_NONE,
     MB_PAR_ODD,
     MB_PAR_EVEN
 } mb_parity_t;
@@ -77,12 +76,16 @@ typedef struct mb_handler {
 } mb_handler_t;
 
 mb_status_t mbmaster_rtu_init(mb_handler_t **handler, uint8_t port, uint32_t baud_rate, mb_parity_t parity);
+
 mb_status_t mbmaster_rtu_uninit(mb_handler_t *req_handler);
-mb_status_t mbmaster_read_holding_reginster(mb_handler_t *req_handler, uint8_t slave_addr, uint16_t start_addr,
-                                            uint16_t quantity, uint8_t *respond_buf, uint8_t *respond_count);
+
+mb_status_t mbmaster_read_holding_reginster(mb_handler_t *req_handler, uint8_t slave_addr,
+                                            uint16_t start_addr, uint16_t quantity,
+                                            uint8_t *respond_buf, uint8_t *respond_count);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* MBMASTER_API_H */
+

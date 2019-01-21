@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 #if (RHINO_CONFIG_QUEUE > 0)
 RHINO_INLINE void task_msg_recv(ktask_t *task, void *msg)
@@ -36,10 +36,10 @@ static kstat_t queue_create(kqueue_t *queue, const name_t *name, void **start,
     ringbuf_init(&queue->ringbuf, (void *)start, msg_num * sizeof(void *),
                  RINGBUF_TYPE_FIX, sizeof(void *));
 
-    queue->msg_q.size         = msg_num;
-    queue->msg_q.cur_num      = 0u;
-    queue->msg_q.peak_num     = 0u;
-    queue->mm_alloc_flag      = mm_alloc_flag;
+    queue->msg_q.size     = msg_num;
+    queue->msg_q.cur_num  = 0u;
+    queue->msg_q.peak_num = 0u;
+    queue->mm_alloc_flag  = mm_alloc_flag;
 
 #if (RHINO_CONFIG_KOBJ_LIST > 0)
     RHINO_CRITICAL_ENTER();

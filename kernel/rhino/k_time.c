@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "k_api.h"
 
 void krhino_tick_proc(void)
 {
@@ -37,8 +37,8 @@ sys_time_t krhino_sys_time_get(void)
 
 tick_t krhino_ms_to_ticks(sys_time_t ms)
 {
-    uint16_t  padding;
-    tick_t    ticks;
+    uint16_t padding;
+    tick_t   ticks;
 
     padding = 1000 / RHINO_CONFIG_TICKS_PER_SECOND;
     padding = (padding > 0) ? (padding - 1) : 0;
@@ -60,3 +60,4 @@ sys_time_t krhino_ticks_to_ms(tick_t ticks)
 
     return time;
 }
+
