@@ -303,6 +303,10 @@ config AOS_board_stm32l496g-discovery
     bool "stm32l496g-discovery"
     select AOS_BOARD_STM32L496G-DISCOVERY
 
+config AOS_board_sv6266_evb
+    bool "sv6266_evb"
+    select AOS_BOARD_SV6266_EVB
+
 config AOS_board_uno-91h
     bool "uno-91h"
     select AOS_BOARD_UNO-91H
@@ -998,6 +1002,14 @@ if AOS_board_stm32l496g-discovery
     source "board/stm32l496g-discovery/Config.in"
     source "platform/mcu/stm32l4xx_cube/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
+endif
+
+if AOS_board_sv6266_evb
+    config AOS_BUILD_BOARD
+        default "sv6266_evb"
+
+    source "board/sv6266_evb/Config.in"
+    source "platform/mcu/sv6266/Config.in"
 endif
 
 if AOS_board_uno-91h
