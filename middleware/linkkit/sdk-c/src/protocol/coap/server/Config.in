@@ -1,4 +1,5 @@
-menuconfig AOS_COMP_LIBIOT_COAP_LOCAL
+config AOS_COMP_LIBIOT_COAP_LOCAL
+    bool
     default n
     select AOS_COMP_LIBIOT_UTILS
     help

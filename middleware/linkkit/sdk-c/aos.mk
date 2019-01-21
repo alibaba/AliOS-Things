@@ -9,6 +9,14 @@ GLOBAL_INCLUDES += \
     include/imports \
     include
 
+GLOBAL_CFLAGS  += -D_IS_LINKKIT_
+GLOBAL_CFLAGS  += -DFORCE_SSL_VERIFY
+GLOBAL_CFLAGS  += \
+    -DCOAP_OBSERVE_SERVER_SUPPORTED \
+    -DCOAP_OBSERVE_CLIENT_SUPPORTED \
+    -DCOAP_SERV_MULTITHREAD \
+    -DCOAP_USE_PLATFORM_MEMORY -DCOAP_USE_PLATFORM_LOG
+
 #from src/board/config.rhino.make
 GLOBAL_CFLAGS  +=
 
@@ -53,52 +61,22 @@ $(ROOT_DIR)middleware/linkkit/sdk-c/src/protocol/mqtt/client
 GLOBAL_DEFINES  += \
     COAP_SERV_MULTITHREAD \
 
+CONFIG_LIB_EXPORT ?= static
+
 #####################################################################
 # Configs for component middleware.linkkit.sdk-c
 #
 
-$(NAME)_COMPONENTS := iotx-hal
-
-ifeq (y,$(FEATURE_MAL_ENABLED))
-$(NAME)_COMPONENTS += libiot_mal
-endif
-ifeq (y,$(FEATURE_SUPPORT_TLS))
-endif
-
-
-ifeq (y,$(FEATURE_DEVICE_MODEL_ENABLED))
-$(NAME)_COMPONENTS += libiot_cm libiot_dm libdev_reset
-endif
-
-
-ifeq (y,$(FEATURE_DEV_BIND_ENABLED))
-$(NAME)_COMPONENTS += libdev_bind libiot_coap_local libiot_mqtt 
-endif
-
-ifeq (y,$(FEATURE_WIFI_PROVISION_ENABLED))
-$(NAME)_COMPONENTS += libawss libiot_coap_local
-endif
-
-ifeq (y,$(FEATURE_MQTT_COMM_ENABLED))
-$(NAME)_COMPONENTS += libiot_mqtt
-endif
-
-ifeq (y,$(FEATURE_COAP_COMM_ENABLED))
-$(NAME)_COMPONENTS += libiot_coap_cloud
-endif
-
-ifeq (y,$(FEATURE_HTTP_COMM_ENABLED))
-$(NAME)_COMPONENTS += libiot_http
-endif
-
-ifeq (y,$(FEATURE_ALCS_ENABLED))
-$(NAME)_COMPONENTS += libiot_alcs libiot_coap_local
-
-endif
-
-ifeq (y,$(FEATURE_HTTP2_COMM_ENABLED))
-$(NAME)_COMPONENTS += libiot_http2 libiot_http2_stream
-endif
+$(NAME)_COMPONENTS-y := iotx-hal
+$(NAME)_COMPONENTS-$(MAL_ENABLED) += libiot_mal
+$(NAME)_COMPONENTS-$(DEVICE_MODEL_ENABLED) += libiot_cm libiot_dm libdev_reset
+$(NAME)_COMPONENTS-$(DEV_BIND_ENABLED) += libdev_bind libiot_coap_local libiot_mqtt
+$(NAME)_COMPONENTS-$(WIFI_PROVISION_ENABLED) += libawss libiot_coap_local
+$(NAME)_COMPONENTS-$(MQTT_COMM_ENABLED) += libiot_mqtt
+$(NAME)_COMPONENTS-$(COAP_COMM_ENABLED) += libiot_coap_cloud
+$(NAME)_COMPONENTS-$(HTTP_COMM_ENABLED) += libiot_http
+$(NAME)_COMPONENTS-$(ALCS_ENABLED) += libiot_alcs libiot_coap_local
+$(NAME)_COMPONENTS-$(HTTP2_COMM_ENABLED) += libiot_http2 libiot_http2_stream
 
 #####################################################################
 # Process dependencies of configurations
@@ -119,7 +97,7 @@ SWITCH_VARS :=  \
     FEATURE_SUPPORT_ITLS \
     FEATURE_SUPPORT_TLS
 
-SWITCH_VARS += $(shell grep -o 'FEATURE_[_A-Z0-9]*' $(FEATURE_DEFCONFIG_FILES)|cut -d: -f2|uniq)
+#SWITCH_VARS += $(shell grep -o 'FEATURE_[_A-Z0-9]*' $(FEATURE_DEFCONFIG_FILES)|cut -d: -f2|uniq)
 SWITCH_VARS := $(sort $(SWITCH_VARS))
 
 $(foreach v, \
@@ -129,13 +107,13 @@ $(foreach v, \
 )
 
 # FEATURE_DEVICE_MODEL_ENABLED
-ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_ENABLED)))
-    ifeq (y,$(strip $(FEATURE_DEVICE_MODEL_GATEWAY)))
+ifeq (y,$(strip $(DEVICE_MODEL_ENABLED)))
+    ifeq (y,$(strip $(DEVICE_MODEL_GATEWAY)))
         GLOBAL_CFLAGS += -DCONFIG_SDK_THREAD_COST=1
     endif
 endif
 
 # FEATURE_HTTP2_COMM_ENABLED
-ifeq (y,$(strip $(FEATURE_HTTP2_COMM_ENABLED)))
+ifeq (y,$(strip $(HTTP2_COMM_ENABLED)))
     GLOBAL_CFLAGS := $(filter-out -DFORCE_SSL_VERIFY,$(GLOBAL_CFLAGS))
 endif

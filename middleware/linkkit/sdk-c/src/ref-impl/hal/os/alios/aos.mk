@@ -16,7 +16,7 @@ $(NAME)_SOURCES-$(FS_ENABLED) += HAL_FS_rhino.c
 $(NAME)_COMPONENTS += ulog activation chip_code netmgr
 
 
-ifeq (y,$(strip $(FEATURE_SUPPORT_ITLS)))
+ifeq (y,$(strip $(SUPPORT_ITLS)))
 $(info FEATURE_SUPPORT_ITLS = y, so using iTLS)
 $(NAME)_SOURCES += HAL_TLS_itls.c
 $(NAME)_COMPONENTS += itls
