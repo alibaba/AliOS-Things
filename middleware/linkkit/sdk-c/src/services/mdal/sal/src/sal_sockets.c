@@ -1684,6 +1684,18 @@ int sal_connect(int s, const struct sockaddr *name, socklen_t namelen)
  */
 static void free_socket(struct sal_sock *sock)
 {
+    sal_netbuf_t  *buf = NULL;
+
+    if (sock->lastdata) {
+        buf = (sal_netbuf_t *)sock->lastdata;
+
+        if (buf->payload) {
+            sal_free(buf->payload);
+            buf->payload = NULL;
+        }
+
+        sal_free(sock->lastdata);
+    }
     sock->lastdata   = NULL;
     sock->lastoffset = 0;
     sock->err        = 0;
