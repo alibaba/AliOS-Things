@@ -121,11 +121,10 @@ int awss_cmp_coap_register_cb(char *topic, void* cb)
     return 0;
 }
 
-int awss_cmp_coap_loop(void *param)
+int awss_cmp_coap_cancel_packet(uint16_t msgid)
 {
-    if (g_coap_ctx == NULL)
-        g_coap_ctx = (void *)CoAPServer_init();
-    return 0;
+    if (g_coap_ctx == NULL) return -1;
+    return CoAPMessageId_cancel(g_coap_ctx, msgid);
 }
 
 int awss_cmp_coap_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb, uint16_t *msgid)
@@ -195,8 +194,6 @@ int awss_cmp_local_init()
         awss_build_topic(awss_local_couple[i].topic, topic, TOPIC_LEN_MAX);
         awss_cmp_coap_register_cb(topic, awss_local_couple[i].cb);
     }
-
-    awss_cmp_coap_loop(NULL);
 
     return 0;
 }

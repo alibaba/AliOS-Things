@@ -32,8 +32,8 @@ struct notify_map_t {
 };
 
 static uint8_t g_notify_id;
-static uint16_t g_notify_msg_id;
 static char awss_notify_resp[AWSS_NOTIFY_TYPE_MAX] = {0};
+static uint16_t g_notify_msg_id[AWSS_NOTIFY_TYPE_MAX] = {0};
 
 #ifdef WIFI_PROVISION_ENABLED
 static void *success_notify_timer = NULL;
@@ -208,7 +208,7 @@ int awss_notify_dev_info(int type, int count)
         awss_info("topic:%s\n", topic);
         awss_debug("payload:%s\n", buf);
         for (i = 0; i < count; i ++) {
-            int ret = awss_cmp_coap_send(buf, strlen(buf), &notify_sa, topic, cb, &g_notify_msg_id);
+            int ret = awss_cmp_coap_send(buf, strlen(buf), &notify_sa, topic, cb, &g_notify_msg_id[type]);
             awss_info("send notify %s", ret == 0 ? "success" : "fail");
             if (count > 1)
                 os_msleep(200 + 100 * i);
@@ -419,6 +419,8 @@ static int __awss_dev_bind_notify()
         }
     } while (0);
 
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_DEV_BIND_TOKEN]);
+    g_notify_msg_id[AWSS_NOTIFY_DEV_BIND_TOKEN] = 0;
     awss_notify_resp[AWSS_NOTIFY_DEV_BIND_TOKEN] = 0;
     dev_bind_interval = 0;
     dev_bind_cnt = 0;
@@ -457,6 +459,9 @@ int awss_dev_bind_notify_stop()
         awss_stop_timer(dev_bind_notify_timer);
         dev_bind_notify_timer = NULL;
     } while (0);
+
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_DEV_BIND_TOKEN]);
+    g_notify_msg_id[AWSS_NOTIFY_DEV_BIND_TOKEN] = 0;
 
     if (dev_bind_notify_mutex) {
         HAL_MutexUnlock(dev_bind_notify_mutex);
@@ -502,6 +507,9 @@ static int __awss_suc_notify()
         }
     } while (0);
 
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_SUCCESS]);
+    g_notify_msg_id[AWSS_NOTIFY_SUCCESS] = 0;
+
     awss_notify_resp[AWSS_NOTIFY_SUCCESS] = 0;
     suc_interval = 0;
     suc_cnt = 0;
@@ -541,6 +549,9 @@ int awss_suc_notify_stop()
         success_notify_timer = NULL;
     } while (0);
 
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_SUCCESS]);
+    g_notify_msg_id[AWSS_NOTIFY_SUCCESS] = 0;
+
     if (success_notify_mutex) {
         HAL_MutexUnlock(success_notify_mutex);
         HAL_MutexDestroy(success_notify_mutex);
@@ -579,6 +590,9 @@ static int __awss_devinfo_notify()
         }
     } while (0);
 
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_DEV_RAND_SIGN]);
+    g_notify_msg_id[AWSS_NOTIFY_DEV_RAND_SIGN] = 0;
+
     awss_notify_resp[AWSS_NOTIFY_DEV_RAND_SIGN] = 0;
     devinfo_interval = 0;
     devinfo_cnt = 0;
@@ -616,6 +630,9 @@ int awss_devinfo_notify_stop()
         awss_stop_timer(devinfo_notify_timer);
         devinfo_notify_timer = NULL;
     } while (0);
+
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_DEV_RAND_SIGN]);
+    g_notify_msg_id[AWSS_NOTIFY_DEV_RAND_SIGN] = 0;
 
     if (devinfo_notify_mutex) {
         HAL_MutexUnlock(devinfo_notify_mutex);
