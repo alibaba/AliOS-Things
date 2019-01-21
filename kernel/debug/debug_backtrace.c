@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include "debug_api.h"
+#include <stdio.h>
 
 #if (DEBUG_CONFIG_BACKTRACE > 0)
 
