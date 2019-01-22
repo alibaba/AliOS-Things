@@ -2,6 +2,7 @@
 //#include "lwip/ip4_addr.h"
 #include "lwip/apps/dhcps.h"
 #include "lwip/tcpip.h"
+#define TAG "DHCPD"
 #ifdef LWIP_IPV4
 //static struct dhcp_server_state dhcp_server_state_machine;
 static uint8_t dhcp_server_state_machine = DHCP_SERVER_STATE_IDLE;
@@ -52,51 +53,51 @@ static struct netif * dhcps_netif = NULL;
 static void mark_ip_in_table(uint8_t d)
 {
 #if (debug_dhcps)   
-  	printf("\r\nmark ip %d\r\n",d);
+  	LOGD(TAG, "\r\nmark ip %d\r\n",d);
 #endif	
 	sys_arch_sem_wait(&dhcps_ip_table_semaphore, 0);
 	if (0 < d && d <= 32) {
 		ip_table.ip_range[0] = MARK_RANGE1_IP_BIT(ip_table, d);	
 #if (debug_dhcps)		
-		printf("\r\n ip_table.ip_range[0] = 0x%x\r\n",ip_table.ip_range[0]);
+		LOGD(TAG, "\r\n ip_table.ip_range[0] = 0x%x\r\n",ip_table.ip_range[0]);
 #endif	
 	} else if (32 < d && d <= 64) {
 	  	ip_table.ip_range[1] = MARK_RANGE2_IP_BIT(ip_table, (d - 32));
 #if (debug_dhcps)	
-		printf("\r\n ip_table.ip_range[1] = 0x%x\r\n",ip_table.ip_range[1]);
+		LOGD(TAG, "\r\n ip_table.ip_range[1] = 0x%x\r\n",ip_table.ip_range[1]);
 #endif	
 	} else if (64 < d && d <= 96) {
 		ip_table.ip_range[2] = MARK_RANGE3_IP_BIT(ip_table, (d - 64));
 #if (debug_dhcps)	
-		printf("\r\n ip_table.ip_range[2] = 0x%x\r\n",ip_table.ip_range[2]);
+		LOGD(TAG, "\r\n ip_table.ip_range[2] = 0x%x\r\n",ip_table.ip_range[2]);
 #endif	
 	} else if (96 < d && d <= 128) {
 		ip_table.ip_range[3] = MARK_RANGE4_IP_BIT(ip_table, (d - 96));
 #if (debug_dhcps)	
-		printf("\r\n ip_table.ip_range[3] = 0x%x\r\n",ip_table.ip_range[3]);
+		LOGD(TAG, "\r\n ip_table.ip_range[3] = 0x%x\r\n",ip_table.ip_range[3]);
 #endif	
 	} else if(128 < d && d <= 160) {
 		ip_table.ip_range[4] = MARK_RANGE5_IP_BIT(ip_table, d);	
 #if (debug_dhcps)		
-		printf("\r\n ip_table.ip_range[4] = 0x%x\r\n",ip_table.ip_range[4]);
+		LOGD(TAG, "\r\n ip_table.ip_range[4] = 0x%x\r\n",ip_table.ip_range[4]);
 #endif	
 	} else if (160 < d && d <= 192) {
 		ip_table.ip_range[5] = MARK_RANGE6_IP_BIT(ip_table, (d - 160));
 #if (debug_dhcps)	
-		printf("\r\n ip_table.ip_range[5] = 0x%x\r\n",ip_table.ip_range[5]);
+		LOGD(TAG, "\r\n ip_table.ip_range[5] = 0x%x\r\n",ip_table.ip_range[5]);
 #endif	
 	} else if (192 < d && d <= 224) {
 		ip_table.ip_range[6] = MARK_RANGE7_IP_BIT(ip_table, (d - 192));
 #if (debug_dhcps)	
-		printf("\r\n ip_table.ip_range[6] = 0x%x\r\n",ip_table.ip_range[6]);
+		LOGD(TAG, "\r\n ip_table.ip_range[6] = 0x%x\r\n",ip_table.ip_range[6]);
 #endif	
 	} else if (224 < d) {
 		ip_table.ip_range[7] = MARK_RANGE8_IP_BIT(ip_table, (d - 224));
 #if (debug_dhcps)	
-		printf("\r\n ip_table.ip_range[7] = 0x%x\r\n",ip_table.ip_range[7]);
+		LOGD(TAG, "\r\n ip_table.ip_range[7] = 0x%x\r\n",ip_table.ip_range[7]);
 #endif	
 	} else {
-		printf("\r\n Request ip over the range(1-128) \r\n");
+		LOGD(TAG, "\r\n Request ip over the range(1-128) \r\n");
 	}
 	sys_sem_signal(&dhcps_ip_table_semaphore);
 	
@@ -109,7 +110,7 @@ static void save_client_addr(ip_addr_t *client_ip, uint8_t *hwaddr)
 	sys_arch_sem_wait(&dhcps_ip_table_semaphore, 0);
 	memcpy(ip_table.client_mac[d], hwaddr, 6); 
 #if (debug_dhcps)	
-	printf("\r\n%s: ip %d.%d.%d.%d, hwaddr %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x\n", __func__,
+	LOGD(TAG, "\r\n%s: ip %d.%d.%d.%d, hwaddr %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x\n", __func__,
 		ip4_addr1(client_ip), ip4_addr2(client_ip), ip4_addr3(client_ip), ip4_addr4(client_ip),
 		hwaddr[0], hwaddr[1], hwaddr[2], hwaddr[3], hwaddr[4], hwaddr[5]);
 #endif	
@@ -121,7 +122,7 @@ static uint8_t check_client_request_ip(ip_addr_t *client_req_ip, uint8_t *hwaddr
 	int ip_addr4 = 0, i;
 
 #if (debug_dhcps)	
-	printf("\r\n%s: ip %d.%d.%d.%d, hwaddr %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x\n", __func__,
+	LOGD(TAG, "\r\n%s: ip %d.%d.%d.%d, hwaddr %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x\n", __func__,
 			ip4_addr1(client_req_ip), ip4_addr2(client_req_ip), ip4_addr3(client_req_ip), ip4_addr4(client_req_ip),
 			hwaddr[0], hwaddr[1], hwaddr[2], hwaddr[3], hwaddr[4], hwaddr[5]);
 #endif	
@@ -130,7 +131,7 @@ static uint8_t check_client_request_ip(ip_addr_t *client_req_ip, uint8_t *hwaddr
 	for(i=DHCP_POOL_START;i<=DHCP_POOL_END;i++)
 	{
 #if (debug_dhcps)
-		printf("client[%d] = %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x\n",i,ip_table.client_mac[i][0],ip_table.client_mac[i][0],ip_table.client_mac[i][1],ip_table.client_mac[i][2],ip_table.client_mac[i][3],ip_table.client_mac[i][4],ip_table.client_mac[i][5]);
+	    LOGD(TAG, "client[%d] = %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x\n",i,ip_table.client_mac[i][0],ip_table.client_mac[i][0],ip_table.client_mac[i][1],ip_table.client_mac[i][2],ip_table.client_mac[i][3],ip_table.client_mac[i][4],ip_table.client_mac[i][5]);
 #endif
 		if(memcmp(ip_table.client_mac[i], hwaddr, 6) == 0){
 			if((ip_table.ip_range[i/32]>>(i%32-1)) & 1){
@@ -152,16 +153,16 @@ static void dump_client_table()
 #if 0
 	int i;
 	uint8_t *p = NULL;
-	printf("\r\nip_range: %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x", 
+	LOGD(TAG, "\r\nip_range: %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x %2.2x", 
 			ip_table.ip_range[0], ip_table.ip_range[1], ip_table.ip_range[2], ip_table.ip_range[3],
 			ip_table.ip_range[4], ip_table.ip_range[5], ip_table.ip_range[6], ip_table.ip_range[7]);
 	for(i=1; i<=DHCPS_MAX_CLIENT_NUM; i++)
 	{
 		p = ip_table.client_mac[i];
-		printf("\r\nClient[%d]: %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
+		LOGD(TAG, "\r\nClient[%d]: %2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x",
 			i, p[0], p[1], p[2], p[3], p[4], p[5]);
 	}
-	printf("\r\n");
+	LOGD(TAG, "\r\n");
 #endif	
 }
 #endif //CONFIG_DHCPS_KEPT_CLIENT_INFO
@@ -229,7 +230,7 @@ static uint8_t *fill_one_option_content(uint8_t *option_base_addr,
 	option_base_addr[1] = option_length;
 	option_data_base_address = option_base_addr + 2;
 #if (debug_dhcps)
-	printf("\r\n[%s] dst=0x%x src=0x%x option_length=%d \r\n", __func__, option_length);
+	LOGD(TAG, "\r\n[%s] dst=0x%x src=0x%x option_length=%d \r\n", __func__, option_length);
 #endif
 	switch (option_length) {
 	case DHCP_OPTION_LENGTH_FOUR:
@@ -246,7 +247,7 @@ static uint8_t *fill_one_option_content(uint8_t *option_base_addr,
 		break;
 	}
 #if (debug_dhcps)
-	printf("\r\n[%s] next_option_start_address 0x%x \r\n", __func__, next_option_start_address);
+	LOGD(TAG, "\r\n[%s] next_option_start_address 0x%x \r\n", __func__, next_option_start_address);
 #endif
 	return next_option_start_address;
 }
@@ -266,7 +267,7 @@ static int8_t add_offer_options(uint8_t *option_start_address)
 	if(option_start_address == NULL)
 	{
 #if (debug_dhcps)
-		printf("\r\n [%s] invalid arguements\r\n", __func__);
+		LOGD(TAG, "\r\n [%s] invalid arguements\r\n", __func__);
 #endif
 		goto ERROR;
 	}
@@ -278,7 +279,7 @@ static int8_t add_offer_options(uint8_t *option_start_address)
 						DHCP_OPTION_LENGTH_FOUR,(void *)&dhcps_local_mask);
 	}else{
 #if (debug_dhcps)
-		printf("\r\n [%s] invalid dhcp options 1\r\n", __func__);
+		LOGD(TAG, "\r\n [%s] invalid dhcp options 1\r\n", __func__);
 #endif
 		goto ERROR;
 	}
@@ -290,7 +291,7 @@ static int8_t add_offer_options(uint8_t *option_start_address)
 						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcps_local_address);
 	}else{
 #if (debug_dhcps)
-		printf("\r\n [%s] invalid dhcp options 3 \r\n", __func__);
+		LOGD(TAG, "\r\n [%s] invalid dhcp options 3 \r\n", __func__);
 #endif
 		goto ERROR;
 	}
@@ -302,7 +303,7 @@ static int8_t add_offer_options(uint8_t *option_start_address)
 						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcps_local_address);	
 	}else{
 #if (debug_dhcps)
-		printf("\r\n [%s] invalid dhcp options 6 \r\n", __func__);
+		LOGD(TAG, "\r\n [%s] invalid dhcp options 6 \r\n", __func__);
 #endif
 		goto ERROR;
 	}
@@ -314,7 +315,7 @@ static int8_t add_offer_options(uint8_t *option_start_address)
 						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcp_option_lease_time);
 	}else{
 #if (debug_dhcps)
-		printf("\r\n [%s] invalid dhcp options 51 \r\n", __func__);
+		LOGD(TAG, "\r\n [%s] invalid dhcp options 51 \r\n", __func__);
 #endif
 		goto ERROR;
 	}
@@ -326,7 +327,7 @@ static int8_t add_offer_options(uint8_t *option_start_address)
 						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcps_local_address);
 	}else{
 #if (debug_dhcps)
-		printf("\r\n [%s] invalid dhcp options 54 \r\n", __func__);
+		LOGD(TAG, "\r\n [%s] invalid dhcp options 54 \r\n", __func__);
 #endif
 		goto ERROR;
 	}
@@ -338,7 +339,7 @@ static int8_t add_offer_options(uint8_t *option_start_address)
 						DHCP_OPTION_LENGTH_FOUR, (void *)&dhcps_subnet_broadcast);
 	}else{
 #if (debug_dhcps)
-		printf("\r\n [%s] invalid dhcp options 28 \r\n", __func__);
+		LOGD(TAG, "\r\n [%s] invalid dhcp options 28 \r\n", __func__);
 #endif
 		goto ERROR;
 	}
@@ -350,7 +351,7 @@ static int8_t add_offer_options(uint8_t *option_start_address)
 						DHCP_OPTION_LENGTH_TWO, (void *) &dhcp_option_interface_mtu);//dhcp_option_interface_mtu_576);
 	}else{
 #if (debug_dhcps)
-		printf("\r\n [%s] invalid dhcp options 26 \r\n", __func__);
+		LOGD(TAG, "\r\n [%s] invalid dhcp options 26 \r\n", __func__);
 #endif
 		goto ERROR;
 	}
@@ -371,7 +372,7 @@ static int8_t add_offer_options(uint8_t *option_start_address)
 	*temp_option_addr++ = DHCP_OPTION_CODE_END;
 	}else{
 #if (debug_dhcps)
-		printf("\r\n [%s] invalid dhcp end error \r\n", __func__);
+		LOGD(TAG, "\r\n [%s] invalid dhcp end error \r\n", __func__);
 #endif
 		goto ERROR;
 	}
@@ -433,12 +434,12 @@ static void dhcps_send_offer(struct pbuf *packet_buffer)
 	newly_malloc_packet_buffer = pbuf_alloc(PBUF_TRANSPORT, DHCP_MSG_LEN + DHCP_OFFER_OPTION_TOTAL_LENGTH_MAX, PBUF_RAM);
 	if(newly_malloc_packet_buffer == NULL)
 	{
-		printf("\r\n[%s] error:  pbuf alloc fail !", __func__);
+		LOGD(TAG, "\r\n[%s] error:  pbuf alloc fail !", __func__);
 		return;
 	}
 	if(pbuf_copy(newly_malloc_packet_buffer, packet_buffer) != ERR_OK)
 	{
-		printf("\r\n[%s] error:  pbuf copy fail !", __func__);
+		LOGD(TAG, "\r\n[%s] error:  pbuf copy fail !", __func__);
 		pbuf_free(newly_malloc_packet_buffer);	
 		return;
 	}	
@@ -452,17 +453,17 @@ static void dhcps_send_offer(struct pbuf *packet_buffer)
 	if(temp_ip == 0)
 		temp_ip = search_next_ip();
 #if (debug_dhcps)	
-	printf("\r\n temp_ip = %d",temp_ip);
+	LOGD(TAG, "\r\n temp_ip = %d",temp_ip);
 #endif	
 	if (temp_ip == 0) {
 #if 0	
 	  	memset(&ip_table, 0, sizeof(struct table));
 		mark_ip_in_table((uint8_t)ip4_addr4(&dhcps_local_address));
-		printf("\r\n reset ip table!!\r\n");	
+		LOGD(TAG, "\r\n reset ip table!!\r\n");	
 #endif	
-		printf("\r\n No useable ip!!!!\r\n");
+		LOGD(TAG, "\r\n No useable ip!!!!\r\n");
 	}
-	printf("\n\r DHCP assign ip = %d.%d.%d.%d\n", /*rtw_get_current_time(),*/ ip4_addr1(&dhcps_network_id),ip4_addr2(&dhcps_network_id),ip4_addr3(&dhcps_network_id),temp_ip);
+	LOGD(TAG, "\n\r DHCP assign ip = %d.%d.%d.%d\n", /*rtw_get_current_time(),*/ ip4_addr1(&dhcps_network_id),ip4_addr2(&dhcps_network_id),ip4_addr3(&dhcps_network_id),temp_ip);
 	IP4_ADDR(&dhcps_allocated_client_address, (ip4_addr1(&dhcps_network_id)),
 			ip4_addr2(&dhcps_network_id), ip4_addr3(&dhcps_network_id), temp_ip);
 #endif   
@@ -511,13 +512,13 @@ uint8_t dhcps_handle_state_machine_change(uint8_t option_message_type)
 	switch (option_message_type) {
 	case DHCP_MESSAGE_TYPE_DECLINE:
 		#if (debug_dhcps)	
-		printf("\r\nget message DHCP_MESSAGE_TYPE_DECLINE\n");
+		LOGD(TAG, "\r\nget message DHCP_MESSAGE_TYPE_DECLINE\n");
 		#endif
 		dhcp_server_state_machine = DHCP_SERVER_STATE_IDLE;
 		break;
 	case DHCP_MESSAGE_TYPE_DISCOVER:
 		#if (debug_dhcps)	
-		printf("\r\nget message DHCP_MESSAGE_TYPE_DISCOVER\n");
+		LOGD(TAG, "\r\nget message DHCP_MESSAGE_TYPE_DISCOVER\n");
 		#endif
 		if (dhcp_server_state_machine == DHCP_SERVER_STATE_IDLE) {
 			dhcp_server_state_machine = DHCP_SERVER_STATE_OFFER;
@@ -525,17 +526,17 @@ uint8_t dhcps_handle_state_machine_change(uint8_t option_message_type)
 		break;
 	case DHCP_MESSAGE_TYPE_REQUEST:
 		#if (debug_dhcps)	
-		printf("\r\n get message DHCP_MESSAGE_TYPE_REQUEST\n"/*, rtw_get_current_time()*/);
+		LOGD(TAG, "\r\n get message DHCP_MESSAGE_TYPE_REQUEST\n"/*, rtw_get_current_time()*/);
 		#endif
 #if (!IS_USE_FIXED_IP) 	
 #if (debug_dhcps)
-		printf("\r\ndhcp_server_state_machine=%d", dhcp_server_state_machine);
-		printf("\r\ndhcps_allocated_client_address=%d.%d.%d.%d", 
+		LOGD(TAG, "\r\ndhcp_server_state_machine=%d", dhcp_server_state_machine);
+	        LOGD(TAG, "\r\ndhcps_allocated_client_address=%d.%d.%d.%d", 
 				ip4_addr1(&dhcps_allocated_client_address),
 				ip4_addr2(&dhcps_allocated_client_address),
 				ip4_addr3(&dhcps_allocated_client_address),
 				ip4_addr4(&dhcps_allocated_client_address));
-		printf("\r\nclient_request_ip=%d.%d.%d.%d\n", 
+		LOGD(TAG, "\r\nclient_request_ip=%d.%d.%d.%d\n", 
 				ip4_addr1(&client_request_ip),
 				ip4_addr2(&client_request_ip),
 				ip4_addr3(&client_request_ip),
@@ -573,7 +574,7 @@ uint8_t dhcps_handle_state_machine_change(uint8_t option_message_type)
 #endif
 		break;
 	case DHCP_MESSAGE_TYPE_RELEASE:
-		printf("get message DHCP_MESSAGE_TYPE_RELEASE\n");
+		LOGD(TAG, "get message DHCP_MESSAGE_TYPE_RELEASE\n");
 		dhcp_server_state_machine = DHCP_SERVER_STATE_IDLE;
 		break;
 	}
@@ -656,16 +657,16 @@ struct pbuf *udp_packet_buffer, struct ip_addr *sender_addr, uint16_t sender_por
   	int16_t total_length_of_packet_buffer;
 	struct pbuf *merged_packet_buffer = NULL;
 
-	printf("\n\r dhcps_receive_udp_packet_handler start \n\r");
+	LOGD(TAG, "\n\r dhcps_receive_udp_packet_handler start \n\r");
 	
 	dhcp_message_repository = (struct dhcp_msg *)udp_packet_buffer->payload;
 	if (udp_packet_buffer == NULL) {
-		printf("\n\r Error!!!! System doesn't allocate any buffer \n\r");
+		LOGD(TAG, "\n\r Error!!!! System doesn't allocate any buffer \n\r");
 		return;  
 	}
-	printf("\n\r dhcps_receive_udp_packet_handler \n\r");
+	LOGD(TAG, "\n\r dhcps_receive_udp_packet_handler \n\r");
 	if (sender_port == DHCP_CLIENT_PORT) {
-		printf("\n\r dhcps_receive_udp_packet_handler 1111\n\r");
+		LOGD(TAG, "\n\r dhcps_receive_udp_packet_handler 1111\n\r");
 		total_length_of_packet_buffer = udp_packet_buffer->tot_len;
 		if (udp_packet_buffer->next != NULL) {
 			merged_packet_buffer = pbuf_coalesce(udp_packet_buffer,
@@ -673,22 +674,22 @@ struct pbuf *udp_packet_buffer, struct ip_addr *sender_addr, uint16_t sender_por
 			if (merged_packet_buffer->tot_len !=
 						total_length_of_packet_buffer) {
 				pbuf_free(udp_packet_buffer);	
-				printf("\n\r dhcps_receive_udp_packet_handler 222\n\r");
+				LOGD(TAG, "\n\r dhcps_receive_udp_packet_handler 222\n\r");
 				return;
 			}
 			udp_packet_buffer = merged_packet_buffer;
 		}
-		printf("\n\r dhcps_receive_udp_packet_handler receive dhcp packet \n\r");
+		LOGD(TAG, "\n\r dhcps_receive_udp_packet_handler receive dhcp packet \n\r");
 		switch (dhcps_check_msg_and_handle_options(udp_packet_buffer)) {
 		case  DHCP_SERVER_STATE_OFFER:
 #if (debug_dhcps)	
-			printf("%s DHCP_SERVER_STATE_OFFER\n",__func__);
+			LOGD(TAG, "%s DHCP_SERVER_STATE_OFFER\n",__func__);
 #endif
 			dhcps_send_offer(udp_packet_buffer);
 			break;
 		case DHCP_SERVER_STATE_ACK:
 #if (debug_dhcps)	
-			printf("%s DHCP_SERVER_STATE_ACK\n",__func__);
+			LOGD(TAG, "%s DHCP_SERVER_STATE_ACK\n",__func__);
 #endif
 			dhcps_send_ack(udp_packet_buffer);
 #if (!IS_USE_FIXED_IP)
@@ -707,14 +708,14 @@ struct pbuf *udp_packet_buffer, struct ip_addr *sender_addr, uint16_t sender_por
 			break;
 		case DHCP_SERVER_STATE_NAK:
 #if (debug_dhcps)	
-			printf("%s DHCP_SERVER_STATE_NAK\n",__func__);
+			LOGD(TAG, "%s DHCP_SERVER_STATE_NAK\n",__func__);
 #endif
 			dhcps_send_nak(udp_packet_buffer);
 			dhcp_server_state_machine = DHCP_SERVER_STATE_IDLE;
 			break;
 		case DHCP_OPTION_CODE_END:
 #if (debug_dhcps)	
-			printf("%s DHCP_OPTION_CODE_END\n",__func__);
+			LOGD(TAG, "%s DHCP_OPTION_CODE_END\n",__func__);
 #endif
 			break;
 		}
@@ -723,7 +724,7 @@ struct pbuf *udp_packet_buffer, struct ip_addr *sender_addr, uint16_t sender_por
 	/* free the UDP connection, so we can accept new clients */
 	udp_disconnect(udp_pcb);
 
-	printf("%s free packet buffer\n",__func__);
+	LOGD(TAG, "%s free packet buffer\n",__func__);
 	/* Free the packet buffer */   
 	if (merged_packet_buffer != NULL)
 		pbuf_free(merged_packet_buffer);
@@ -759,7 +760,7 @@ void dhcps_set_addr_pool(int addr_pool_set, ip_addr_t * addr_pool_start, ip_addr
 void dhcps_init(struct netif * pnetif)
 {	
 	uint8_t *ip;
-	printf("dhcps_init,wlan:%c\n\r",pnetif->name[1]);
+	LOGD(TAG, "dhcps_init,wlan:%c\n\r",pnetif->name[1]);
 #ifdef CONFIG_DHCPS_KEPT_CLIENT_INFO
 	memset(&ip_table, 0, sizeof(struct table));
 //	int i = 0;
@@ -777,7 +778,7 @@ void dhcps_init(struct netif * pnetif)
 
 	dhcps_pcb = udp_new(); 
 	if (dhcps_pcb == NULL) {
-		printf("\n\r Error!!!upd_new error \n\r");
+		LOGD(TAG, "\n\r Error!!!upd_new error \n\r");
 		return;
 	}
 	IP4_ADDR(&dhcps_send_broadcast_address, 255, 255, 255, 255);
