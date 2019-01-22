@@ -6,9 +6,9 @@
 void kv_register_cli_command(void) {}
 #else
 
-#include "kv_types.h"
 #include "kv_api.h"
 #include "kv_adapt.h"
+#include "kv_types.h"
 
 #include "cli_api.h"
 

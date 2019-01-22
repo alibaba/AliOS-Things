@@ -2,9 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "kv_types.h"
 #include "kv_api.h"
 #include "kv_adapt.h"
+#include "kv_types.h"
 
 static kv_mgr_t g_kv_mgr;
 
@@ -859,6 +859,10 @@ int32_t kv_item_set(const char *key, const void *val, int32_t len)
 
     kv_item_t *item = NULL;
 
+#if (KV_SECURE_SUPPORT) && (KV_SECURE_LEVEL > 1)
+    return kv_item_secure_set(key, val, len);
+#endif
+
     if (!key || !val || (len <= 0) || (strlen(key) > KV_MAX_KEY_LEN) || \
         (len > KV_MAX_VAL_LEN)) {
         return KV_ERR_INVALID_PARAM;
@@ -891,6 +895,10 @@ int32_t kv_item_get(const char *key, void *buffer, int32_t *buffer_len)
     int32_t res;
 
     kv_item_t *item = NULL;
+
+#if (KV_SECURE_SUPPORT) && (KV_SECURE_LEVEL > 1)
+    return kv_item_secure_get(key, buffer, buffer_len);
+#endif
 
     if (!key || !buffer || !buffer_len || (*buffer_len <= 0)) {
         return KV_ERR_INVALID_PARAM;
@@ -962,4 +970,116 @@ int32_t kv_item_delete_by_prefix(const char *prefix)
 
     return KV_OK;
 }
+
+#if (KV_SECURE_SUPPORT)
+
+int32_t kv_item_secure_set(const char *key, const void *val, int32_t len)
+{
+    int32_t res;
+
+    uint8_t   *data = NULL;
+    kv_item_t *item = NULL;
+
+    if (!key || !val || (len <= 0) || (strlen(key) > KV_MAX_KEY_LEN) || \
+        (len > KV_MAX_VAL_LEN)) {
+        return KV_ERR_INVALID_PARAM;
+    }
+
+    if (g_kv_mgr.gc_trigger != 0) {
+        g_kv_mgr.gc_waiter++;
+        kv_sem_wait(g_kv_mgr.gc_sem);
+    }
+
+    if ((res = kv_lock(g_kv_mgr.lock)) != KV_OK) {
+        return KV_ERR_OS_LOCK;
+    }
+
+    data = (uint8_t *)kv_malloc(len);
+    if (data == NULL) {
+        return KV_ERR_NO_SPACE;
+    }
+
+    memset(data, 0, len);
+
+    res = kv_secure_encrypt((uint8_t *)val, data, len);
+    if (res != KV_OK) {
+        kv_free(data);
+        data = NULL;
+
+        return KV_ERR_ENCRYPT;
+    }
+
+    item = kv_item_search(key);
+    if (item != NULL) {
+        res = kv_item_update(item, key, data, len);
+        kv_item_free(item);
+
+    } else {
+        res = kv_item_store(key, data, len, 0);
+    }
+
+    kv_unlock(g_kv_mgr.lock);
+
+    kv_free(data);
+    data = NULL;
+
+    return res;
+}
+
+int32_t kv_item_secure_get(const char *key, void *buffer, int32_t *buffer_len)
+{
+    int32_t res;
+
+    uint8_t   *data = NULL;
+    kv_item_t *item = NULL;
+
+    if (!key || !buffer || !buffer_len || (*buffer_len <= 0)) {
+        return KV_ERR_INVALID_PARAM;
+    }
+
+    if ((res = kv_lock(g_kv_mgr.lock)) != KV_OK) {
+        return KV_ERR_OS_LOCK;
+    }
+
+    item = kv_item_search(key);
+
+    kv_unlock(g_kv_mgr.lock);
+
+    if (!item) {
+        return KV_ERR_NOT_FOUND;
+    }
+
+    if (*buffer_len < item->hdr.val_len) {
+        *buffer_len = item->hdr.val_len;
+        kv_item_free(item);
+        return KV_ERR_NO_SPACE;
+    } else {
+        data = (uint8_t *)kv_malloc(item->hdr.val_len);
+        if (data == NULL) {
+            return KV_ERR_NO_SPACE;
+        }
+
+        memset(data, 0, item->hdr.val_len);
+
+        res = kv_secure_decrypt((uint8_t *)(item->store + item->hdr.key_len), data, item->hdr.val_len);
+        if (res != KV_OK) {
+            kv_free(data);
+            data = NULL;
+
+            return KV_ERR_DECRYPT;
+        }
+
+        memcpy(buffer, data, item->hdr.val_len);
+        *buffer_len = item->hdr.val_len;
+    }
+
+    kv_item_free(item);
+
+    kv_free(data);
+    data = NULL;
+
+    return KV_OK;
+}
+
+#endif
 
