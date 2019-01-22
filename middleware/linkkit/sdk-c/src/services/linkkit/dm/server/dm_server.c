@@ -40,8 +40,9 @@ static int _dm_server_malloc_context(_IN_ NetworkAddr *remote, _IN_ CoAPMessage 
     return SUCCESS_RETURN;
 }
 
-static void _dm_server_free_context(_IN_ dm_server_alcs_context_t *context)
+void dm_server_free_context(_IN_ void *ctx)
 {
+    dm_server_alcs_context_t *context = (dm_server_alcs_context_t *)ctx;
     DM_free(context->ip);
     DM_free(context->token);
     DM_free(context);
@@ -52,6 +53,7 @@ static dm_server_uri_map_t g_dm_server_uri_map[] = {
     {DM_URI_THING_SERVICE_PROPERTY_SET,       DM_URI_SYS_PREFIX,         IOTX_DM_LOCAL_AUTH,      dm_server_thing_service_property_set         },
     {DM_URI_THING_SERVICE_PROPERTY_GET,       DM_URI_SYS_PREFIX,         IOTX_DM_LOCAL_AUTH,      dm_server_thing_service_property_get         },
     {DM_URI_THING_EVENT_PROPERTY_POST,        DM_URI_SYS_PREFIX,         IOTX_DM_LOCAL_AUTH,      dm_server_thing_service_property_post        },
+    {DM_URI_THING_SERVICE_REQUEST_WILDCARD2,  DM_URI_SYS_PREFIX,         IOTX_DM_LOCAL_AUTH,      dm_server_thing_service_request              },
 #endif
     {DM_URI_DEV_CORE_SERVICE_DEV,            NULL,                      IOTX_DM_LOCAL_NO_AUTH,   dm_server_thing_dev_core_service_dev         },
 };
@@ -119,12 +121,37 @@ void dm_server_thing_service_property_set(CoAPContext *context, const char *path
 
     res = dm_msg_proc_thing_service_property_set(&source, &dest, &request, &response);
     if (res < SUCCESS_RETURN) {
-        _dm_server_free_context(alcs_context);
+        dm_server_free_context(alcs_context);
         return;
     }
 
     dm_msg_response(DM_MSG_DEST_LOCAL, &request, &response, "{}", strlen("{}"), (void *)alcs_context);
-    _dm_server_free_context(alcs_context);
+    dm_server_free_context(alcs_context);
+}
+
+void dm_server_thing_service_request(CoAPContext *context, const char *paths, NetworkAddr *remote,
+                                     CoAPMessage *message)
+{
+    int res = 0;
+    dm_msg_source_t source;
+
+    dm_server_alcs_context_t *alcs_context = NULL;
+
+    res = _dm_server_malloc_context(remote, message, &alcs_context);
+    if (res != SUCCESS_RETURN) {
+        return;
+    }
+
+    memset(&source, 0, sizeof(dm_msg_source_t));
+
+    source.uri = paths;
+    source.payload = (unsigned char *)message->payload;
+    source.payload_len = message->payloadlen;
+    source.context = alcs_context;
+
+    if (dm_msg_proc_thing_service_request(&source) < 0) {
+        dm_server_free_context(alcs_context);
+    }
 }
 
 void dm_server_thing_service_property_get(CoAPContext *context, const char *paths, NetworkAddr *remote,
@@ -161,7 +188,7 @@ void dm_server_thing_service_property_get(CoAPContext *context, const char *path
 #ifdef DEPRECATED_LINKKIT
     dm_msg_response(DM_MSG_DEST_LOCAL, &request, &response, (char *)data, data_len, alcs_context);
     DM_free(data);
-    _dm_server_free_context(alcs_context);
+    dm_server_free_context(alcs_context);
 #endif
 }
 
@@ -195,7 +222,7 @@ void dm_server_thing_service_property_post(CoAPContext *context, const char *pat
     dm_msg_proc_thing_service_property_post(&source, &dest, &request, &response);
 
     dm_msg_response(DM_MSG_DEST_LOCAL, &request, &response, "{}", strlen("{}"), alcs_context);
-    _dm_server_free_context(alcs_context);
+    dm_server_free_context(alcs_context);
 }
 
 #endif
@@ -238,6 +265,6 @@ void dm_server_thing_dev_core_service_dev(CoAPContext *context, const char *path
     if (response.code == IOTX_DM_ERR_CODE_SUCCESS) {
         DM_free(data);
     }
-    _dm_server_free_context(alcs_context);
+    dm_server_free_context(alcs_context);
 }
 #endif

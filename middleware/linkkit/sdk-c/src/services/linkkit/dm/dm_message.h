@@ -110,7 +110,7 @@ int dm_msg_property_get(_IN_ int devid, _IN_ dm_msg_request_payload_t *request, 
                         _IN_ int *payload_len);
 #endif
 int dm_msg_thing_service_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
-                                 char *identifier, int identifier_len, dm_msg_request_payload_t *request);
+                                 char *identifier, int identifier_len, dm_msg_request_payload_t *request,  _IN_ void *ctx);
 int dm_msg_rrpc_request(_IN_ char product_key[PRODUCT_KEY_MAXLEN], _IN_ char device_name[DEVICE_NAME_MAXLEN],
                         char *messageid, int messageid_len, dm_msg_request_payload_t *request);
 int dm_msg_thing_event_property_post_reply(dm_msg_response_payload_t *response);

@@ -395,9 +395,10 @@ int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifie
     return res;
 }
 
+
 int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *identifier,
-                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len, void *ctx)
 {
     int res = 0;
 
@@ -411,7 +412,7 @@ int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msg
     dm_log_debug("Current Service Response Payload, Length: %d, Payload: %.*s", payload_len, payload_len, payload);
 
     res = dm_mgr_upstream_thing_service_response(devid, msgid, msgid_len, code, identifier, identifier_len, payload,
-            payload_len);
+            payload_len, ctx);
 
     _dm_api_unlock();
     return res;
