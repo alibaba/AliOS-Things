@@ -18,5 +18,9 @@
 #define KV_ERR_OS_LOCK       -10008 /* The error related to os lock */
 #define KV_ERR_OS_SEM        -10009 /* The error related to os semaphose */
 
+#define KV_ERR_ENCRYPT       -10010 /* Data encryption error */
+#define KV_ERR_DECRYPT       -10011 /* Data decryption error */
+#define KV_ERR_NOT_SUPPORT   -10012 /* The function is not support yet */
+
 #endif  /* KV_ERR_H */
 
