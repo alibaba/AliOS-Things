@@ -83,9 +83,6 @@ int zconfig_recv_callback(void *pkt_data, uint32_t pkt_length, uint8_t channel,
 int zconfig_set_apinfo(uint8_t *ssid, uint8_t *bssid, uint8_t channel, uint8_t auth,
                        uint8_t pairwise_cipher, uint8_t group_cipher, signed char rssi);
 
-/* helper function, auth/encry type to string */
-const char *zconfig_auth_str(uint8_t auth);
-const char *zconfig_encry_str(uint8_t encry);
 uint8_t zconfig_get_lock_chn(void);
 
 /* add channel to global scanning channel list */

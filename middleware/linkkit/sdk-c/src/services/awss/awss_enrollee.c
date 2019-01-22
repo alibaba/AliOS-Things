@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include <stddef.h>
 #include "aws_lib.h"
 #include "os.h"
 #include "awss.h"
@@ -12,9 +13,10 @@
 #include "awss_cmp.h"
 #include "awss_packet.h"
 #include "awss_wifimgr.h"
+#include "awss_statis.h"
 #include "awss_crypt.h"
 #include "zconfig_utils.h"
-#include "iotx_utils.h"
+#include "zconfig_ieee80211.h"
 
 #ifndef AWSS_DISABLE_ENROLLEE
 
@@ -45,7 +47,7 @@ static int decrypt_ssid_passwd(uint8_t *ie, uint8_t ie_len,
                                uint8_t out_passwd[OS_MAX_PASSWD_LEN],
                                uint8_t out_bssid[ETH_ALEN]);
 
-void awss_init_enrollee_info(void)/*  void enrollee_raw_frame_init(void) */
+void awss_init_enrollee_info(void)  /* void enrollee_raw_frame_init(void) */
 {
     char *pk = NULL, *dev_name = NULL, *text = NULL;
     uint8_t sign[ENROLLEE_SIGN_SIZE + 1] = {0};
@@ -57,8 +59,8 @@ void awss_init_enrollee_info(void)/*  void enrollee_raw_frame_init(void) */
         return;
     }
 
-    dev_name = os_zalloc(OS_DEVICE_NAME_LEN + 1);
-    pk = os_zalloc(OS_PRODUCT_KEY_LEN + 1);
+    dev_name = awss_zalloc(OS_DEVICE_NAME_LEN + 1);
+    pk = awss_zalloc(OS_PRODUCT_KEY_LEN + 1);
 
     os_product_get_key(pk);
     pk_len = strlen(pk);
@@ -67,7 +69,7 @@ void awss_init_enrollee_info(void)/*  void enrollee_raw_frame_init(void) */
     dev_name_len = strlen(dev_name);
 
     len = RANDOM_MAX_LEN + dev_name_len + pk_len;
-    text = os_zalloc(len + 1); /* +1 for string print */
+    text = awss_zalloc(len + 1); /* +1 for string print */
 
     awss_build_sign_src(text, &len);
     if (os_get_conn_encrypt_type() == 3) { /* aes-key per product */
@@ -77,12 +79,12 @@ void awss_init_enrollee_info(void)/*  void enrollee_raw_frame_init(void) */
     }
     produce_signature(sign, (uint8_t *)text, len, key);
 
-    os_free(text);
+    awss_free(text);
 
     ie_len = pk_len + dev_name_len + ENROLLEE_IE_FIX_LEN;
     enrollee_frame_len = sizeof(probe_req_frame) + ie_len;
 
-    enrollee_frame = os_zalloc(enrollee_frame_len);
+    enrollee_frame = awss_zalloc(enrollee_frame_len);
 
     /* construct the enrollee frame right now */
     len = sizeof(probe_req_frame) - FCS_SIZE;
@@ -124,14 +126,14 @@ void awss_init_enrollee_info(void)/*  void enrollee_raw_frame_init(void) */
     /* update probe request frame src mac */
     os_wifi_get_mac(enrollee_frame + SA_POS);
 
-    os_free(pk);
-    os_free(dev_name);
+    awss_free(pk);
+    awss_free(dev_name);
 }
 
 void awss_destroy_enrollee_info(void)
 {
     if (enrollee_frame_len) {
-        os_free(enrollee_frame);
+        awss_free(enrollee_frame);
         enrollee_frame_len = 0;
         enrollee_frame = NULL;
         g_dev_sign = NULL;
@@ -209,10 +211,13 @@ static int decrypt_ssid_passwd(
     p_bssid = ie;
     ie += ETH_ALEN; /* eating bssid len */
 
+    AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_TIME_START);
+
     aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0],
             1, os_get_conn_encrypt_type(), 0, (const char *)aes_random); /*aes128 cfb*/
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
         awss_debug("registrar(passwd invalid!");
+        AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
         return -1;
     }
     awss_debug("ssid:%s\r\n", tmp_ssid);
@@ -224,8 +229,7 @@ static int decrypt_ssid_passwd(
     return 0;/* success */
 }
 
-int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res,
-                                   signed char rssi)
+int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res, signed char rssi)
 {
     const uint8_t *registrar_ie = NULL;
     struct ieee80211_hdr *hdr;
@@ -289,6 +293,8 @@ int awss_recv_callback_zconfig(struct parser_res *res)
     }
 
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
+
+    AWSS_UPDATE_STATIS(AWSS_STATIS_ROUTE_IDX, AWSS_STATIS_TYPE_TIME_SUC);
 
     return PKG_END;
 }

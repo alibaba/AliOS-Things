@@ -676,7 +676,7 @@ int cfg80211_get_cipher_info(uint8_t *beacon_frame, uint16_t frame_len,
     struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *)beacon_frame;
     uint8_t is_privacy = !!(mgmt->u.beacon.capab_info & WLAN_CAPABILITY_PRIVACY);
 
-    uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);/* same as u.probe_resp.variable */
+    uint16_t ieoffset = offsetof(struct ieee80211_mgmt, u.beacon.variable);  /* same as u.probe_resp.variable */
     const uint8_t *ie = beacon_frame + ieoffset;
     uint16_t ielen = frame_len - ieoffset;
 

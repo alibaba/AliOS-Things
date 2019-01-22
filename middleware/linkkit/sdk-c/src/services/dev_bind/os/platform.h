@@ -27,13 +27,6 @@ extern "C" {
  *  @{
  */
 
-#define PLATFORM_SOCKET_MAXNUMS         (10)
-#define PLATFORM_WAIT_INFINITE          (~0)
-#define PLATFORM_INVALID_FD             ((void *)-1)
-
-#define STR_LONG_LEN                    (128)
-
-
 /* ssid: 32 octets at most, include the NULL-terminated */
 #define PLATFORM_MAX_SSID_LEN           (HAL_MAX_SSID_LEN)
 /* password: 8-63 ascii */
@@ -417,6 +410,9 @@ typedef awss_recv_80211_frame_cb_t platform_awss_recv_80211_frame_cb_t;
  * @note None.
  */
 #define platform_awss_connect_ap HAL_Awss_Connect_Ap
+
+#define platform_awss_open_ap HAL_Awss_Open_Ap
+#define platform_awss_close_ap HAL_Awss_Close_Ap
 
 /* 80211 frame type */
 #define platform_awss_frame_type HAL_Awss_Frame_Type

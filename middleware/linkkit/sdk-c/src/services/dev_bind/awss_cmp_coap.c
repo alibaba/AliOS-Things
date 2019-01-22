@@ -18,6 +18,9 @@
 #ifdef WIFI_PROVISION_ENABLED
 #include "awss_info.h"
 #include "awss_wifimgr.h"
+#ifdef AWSS_SUPPORT_DEV_AP
+#include "awss_dev_ap.h"
+#endif
 #endif
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
@@ -35,21 +38,21 @@ int awss_release_coap_ctx(void *session)
 
     if (ctx->request) {
         void *payload = ((struct CoAPMessage *)ctx->request)->payload;
-        if (payload) os_free(payload);
-        os_free(ctx->request);
+        if (payload) awss_free(payload);
+        awss_free(ctx->request);
     }
-    if (ctx->remote) os_free(ctx->remote);
-    os_free(ctx);
+    if (ctx->remote) awss_free(ctx->remote);
+    awss_free(ctx);
     return 0;
 }
 
 void *awss_cpy_coap_ctx(void *request, void *remote, char mcast)
 {
-    struct coap_session_ctx_t *ctx = os_zalloc(sizeof(struct coap_session_ctx_t));
+    struct coap_session_ctx_t *ctx = awss_zalloc(sizeof(struct coap_session_ctx_t));
     if (ctx == NULL)
         goto CPY_CTX_FAIL;
 
-    ctx->request = os_zalloc(sizeof(struct CoAPMessage));
+    ctx->request = awss_zalloc(sizeof(struct CoAPMessage));
     if (ctx->request == NULL)
         goto CPY_CTX_FAIL;
 
@@ -64,14 +67,14 @@ void *awss_cpy_coap_ctx(void *request, void *remote, char mcast)
         if (payload == NULL)
             break;
 
-        req->payload = os_zalloc(len + 1);
+        req->payload = awss_zalloc(len + 1);
         if (req->payload == NULL)
             goto CPY_CTX_FAIL;
 
         memcpy(req->payload, payload, len);
     } while (0);
 
-    ctx->remote = os_zalloc(sizeof(platform_netaddr_t));
+    ctx->remote = awss_zalloc(sizeof(platform_netaddr_t));
     if (ctx->remote == NULL)
         goto CPY_CTX_FAIL;
 
@@ -118,11 +121,10 @@ int awss_cmp_coap_register_cb(char *topic, void* cb)
     return 0;
 }
 
-int awss_cmp_coap_loop(void *param)
+int awss_cmp_coap_cancel_packet(uint16_t msgid)
 {
-    if (g_coap_ctx == NULL)
-        g_coap_ctx = (void *)CoAPServer_init();
-    return 0;
+    if (g_coap_ctx == NULL) return -1;
+    return CoAPMessageId_cancel(g_coap_ctx, msgid);
 }
 
 int awss_cmp_coap_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb, uint16_t *msgid)
@@ -169,6 +171,9 @@ const struct awss_cmp_couple awss_local_couple[] = {
     {TOPIC_AWSS_GETDEVICEINFO_MCAST,      wifimgr_process_mcast_get_device_info},
     {TOPIC_AWSS_GETDEVICEINFO_UCAST,      wifimgr_process_ucast_get_device_info},
 #endif
+#ifdef AWSS_SUPPORT_DEV_AP
+    {TOPIC_AWSS_DEV_AP_SWITCHAP,          wifimgr_process_dev_ap_switchap_request},
+#endif
     {TOPIC_AWSS_GET_CONNECTAP_INFO_MCAST, awss_process_mcast_get_connectap_info},
     {TOPIC_AWSS_GET_CONNECTAP_INFO_UCAST, awss_process_ucast_get_connectap_info},
 #ifndef AWSS_DISABLE_REGISTRAR
@@ -189,8 +194,6 @@ int awss_cmp_local_init()
         awss_build_topic(awss_local_couple[i].topic, topic, TOPIC_LEN_MAX);
         awss_cmp_coap_register_cb(topic, awss_local_couple[i].cb);
     }
-
-    awss_cmp_coap_loop(NULL);
 
     return 0;
 }
