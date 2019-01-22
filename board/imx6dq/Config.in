@@ -1,4 +1,4 @@
-config AOS_BOARD_IMX6DQ
+menuconfig AOS_BOARD_IMX6DQ
     bool "board_imx6dq"
     select AOS_MCU_IMX6
     select AOS_COMP_KERNEL_INIT

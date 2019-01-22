@@ -1,8 +1,8 @@
-config AOS_BOARD_STARTERKIT
+menuconfig AOS_BOARD_STARTERKIT
     bool "starterkit"
     select AOS_MCU_STM32L4XX_CUBE
     select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    select SAL_ENABLED if AOS_NETWORK_SAL
     select AOS_COMP_NETMGR if AOS_NETWORK_SAL
     select AOS_COMP_SENSOR
     help
@@ -14,10 +14,6 @@ if AOS_BOARD_STARTERKIT
 config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default y
-
-config SAL_MODULE
-    string
-    default "wifi.bk7231"
 
 config DEBUG_CONFIG_PANIC
     int "DEBUG_CONFIG_PANIC"
@@ -55,10 +51,6 @@ config BSP_SUPPORT_SPI
 
 config BSP_SUPPORT_RTC
     bool "BSP_SUPPORT_RTC"
-    default y
-
-config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

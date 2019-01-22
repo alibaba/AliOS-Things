@@ -1,8 +1,8 @@
-config AOS_BOARD_STM32F411RE-NUCLEO
+menuconfig AOS_BOARD_STM32F411RE-NUCLEO
     bool "stm32f411re-nucleo"
     select AOS_MCU_STM32F4XX_CUBE
     select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    select SAL_ENABLED if AOS_NETWORK_SAL
     select AOS_COMP_NETMGR if AOS_NETWORK_SAL
     help
 
@@ -13,10 +13,6 @@ if AOS_BOARD_STM32F411RE-NUCLEO
 config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default y
-
-config SAL_MODULE
-    string
-    default "wifi.mk3060"
 
 menu "BSP SUPPORT FEATURE"
 
@@ -34,10 +30,6 @@ config BSP_SUPPORT_GPIO
 
 config BSP_SUPPORT_I2C
     bool "BSP_SUPPORT_I2C"
-    default y
-
-config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

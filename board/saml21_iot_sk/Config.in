@@ -1,29 +1,20 @@
-config AOS_BOARD_SAML21_IOT_SK
+menuconfig AOS_BOARD_SAML21_IOT_SK
     bool "saml21_iot_sk"
     select AOS_MCU_ATSAML21
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NETMGR
     select AOS_COMP_NEWLIB_STUB
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    select SAL_ENABLED if SAL_CONFIG = 1
     help
 
 if AOS_BOARD_SAML21_IOT_SK
 # Configurations for board saml21_iot_sk
 
-config AOS_NETWORK_SAL
-    bool "AOS_NETWORK_SAL"
-    default n
-
-config SAL_MODULE
-    string
-    default "wifi.mk3060"
-
-menu "BSP SUPPORT FEATURE"
-
-config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
-    default y
-
-endmenu
+config SAL_CONFIG
+    int "sal config"
+    default 0
+    range 0 1
+    help
+        0: disable sal; 1: enable sal
 
 endif

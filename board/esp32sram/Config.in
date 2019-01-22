@@ -1,4 +1,4 @@
-config AOS_BOARD_ESP32SRAM
+menuconfig AOS_BOARD_ESP32SRAM
     bool "board_esp32sram"
     select AOS_MCU_ESP32
     select AOS_COMP_KERNEL_INIT
