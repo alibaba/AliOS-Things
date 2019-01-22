@@ -22,3 +22,4 @@ $(NAME)_SOURCES-y += sha256.c
 $(NAME)_SOURCES-y += aes_mbed.c
 endif
 
+$(NAME)_COMPONENTS-y += ulog 
