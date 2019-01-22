@@ -38,6 +38,8 @@ void test_api(void)
 
     aosapi_kernel_queue_test_entry(suite);
     aosapi_kernel_mm_test_entry(suite);
+#if (RHINO_CONFIG_WORKQUEUE > 0)
     aosapi_kernel_workqueue_test_entry(suite);
+#endif
 }
 AOS_TESTCASE(test_api);
