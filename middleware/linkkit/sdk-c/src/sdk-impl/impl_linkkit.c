@@ -211,6 +211,10 @@ static void _iotx_linkkit_upstream_callback_remove(int msgid, int code)
 }
 #endif
 
+#ifdef ALCS_ENABLED
+    extern void dm_server_free_context(_IN_ void *ctx);
+#endif
+
 static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
 {
     int res = 0;
@@ -357,6 +361,9 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             int response_len = 0;
             char *request = NULL, *response = NULL;
 
+            uintptr_t property_get_ctx_num = 0;
+            void *property_get_ctx = NULL;
+
             if (payload == NULL || lite_item_id.type != cJSON_String || lite_item_devid.type != cJSON_Number ||
                 lite_item_serviceid.type != cJSON_String || lite_item_payload.type != cJSON_Object) {
                 return;
@@ -366,6 +373,11 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             sdk_debug("Current Devid: %d", lite_item_devid.value_int);
             sdk_debug("Current ServiceID: %.*s", lite_item_serviceid.value_length, lite_item_serviceid.value);
             sdk_debug("Current Payload: %.*s", lite_item_payload.value_length, lite_item_payload.value);
+            sdk_debug("Current Ctx: %.*s", lite_item_ctx.value_length, lite_item_ctx.value);
+
+            LITE_hexstr_convert(lite_item_ctx.value, lite_item_ctx.value_length, (unsigned char *)&property_get_ctx_num,
+                                sizeof(uintptr_t));
+            property_get_ctx = (void *)property_get_ctx_num;
 
             request = IMPL_LINKKIT_MALLOC(lite_item_payload.value_length + 1);
             if (request == NULL) {
@@ -386,11 +398,15 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                     iotx_dm_send_service_response(lite_item_devid.value_int, lite_item_id.value, lite_item_id.value_length, code,
                                                   lite_item_serviceid.value,
                                                   lite_item_serviceid.value_length,
-                                                  response, response_len);
+                                                  response, response_len, property_get_ctx);
                     HAL_Free(response);
                 }
             }
-
+#ifdef ALCS_ENABLED
+            if (property_get_ctx) {
+                dm_server_free_context(property_get_ctx);
+            }
+#endif
             IMPL_LINKKIT_FREE(request);
         }
         break;
