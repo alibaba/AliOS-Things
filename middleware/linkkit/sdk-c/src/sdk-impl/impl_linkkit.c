@@ -70,7 +70,8 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
     }
 
     switch (type) {
-        case IOTX_DM_EVENT_CLOUD_CONNECTED: {
+        case IOTX_DM_EVENT_CLOUD_CONNECTED:
+        case IOTX_DM_EVENT_CLOUD_RECONNECT: {
             if (ctx->user_event_handler->connected) {
                 ctx->user_event_handler->connected();
             }
