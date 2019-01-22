@@ -154,6 +154,28 @@ void *kv_malloc(uint32_t size);
  */
 void kv_free(void *ptr);
 
+/**
+ * @brief Encrypt data
+ *
+ * @param[in]  input     the pointer to the input data
+ * @param[out] output    the pointer to the encryption result
+ * @param[in]  input_len the length of the input data
+ *
+ * @return 0 on success, otherwise is failed
+ */
+int32_t kv_secure_encrypt(uint8_t *input, uint8_t *output, uint32_t input_len);
+
+/**
+ * @brief Decrypt data
+ *
+ * @param[in]  input     the pointer to the input data
+ * @param[out] output    the pointer to the decryption result
+ * @param[in]  input_len the length of the input data
+ *
+ * @return 0 on success, otherwise is failed
+ */
+int32_t kv_secure_decrypt(uint8_t *input, uint8_t *output, uint32_t input_len);
+
 #ifdef __cplusplus
 }
 #endif
