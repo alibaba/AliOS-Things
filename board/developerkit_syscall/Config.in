@@ -1,4 +1,4 @@
-config AOS_BOARD_DEVELOPERKIT_SYSCALL
+menuconfig AOS_BOARD_DEVELOPERKIT_SYSCALL
     bool "developerkit_syscall"
     select AOS_MCU_STM32L4XX_SYSCALL
     help

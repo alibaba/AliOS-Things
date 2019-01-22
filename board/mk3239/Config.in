@@ -1,4 +1,4 @@
-config AOS_BOARD_MK3239
+menuconfig AOS_BOARD_MK3239
     bool "board_mk3239"
     select AOS_MCU_STM32F4XX
     select AOS_COMP_KERNEL_INIT
@@ -23,10 +23,6 @@ config BSP_SUPPORT_I2C
 
 config BSP_SUPPORT_TIMER
     bool "BSP_SUPPORT_TIMER"
-    default y
-
-config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

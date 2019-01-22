@@ -13,7 +13,6 @@ ENABLE_VFP         := 1
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub init netmgr lwip
 
 GLOBAL_DEFINES += STDIO_UART=0
-GLOBAL_DEFINES += KV_CONFIG_PARTITION=7
 
 $(NAME)_SOURCES += config/k_config.c \
 				   config/partition_conf.c \
@@ -42,3 +41,4 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 
 EXTRA_TARGET_MAKEFILES +=  $(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_NAME)/mkimage.mk
 
+#GLOBAL_DEFINES += KV_CONFIG_PARTITION=7
