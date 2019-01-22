@@ -9,6 +9,7 @@
 
 #include "uffs_port.h"
 
+#include "aos/hal/nand.h"
 
 #define UFFS_NAME_LEN   256
 
@@ -24,12 +25,12 @@ typedef struct {
 static uffs_mgr_t *g_uffs_mgr = NULL;
 
 typedef struct {
-    aos_dir_t dir;
+    vfs_dir_t dir;
     uffs_DIR *d;
-    aos_dirent_t cur_dirent;
+    vfs_dirent_t cur_dirent;
 } uffs_dir_t;
 
-static int nand_erase_block(uffs_Device *dev, uint32_t block)
+static int32_t nand_erase_block(uffs_Device *dev, uint32_t block)
 {
     nand_addr_t addr;
 
@@ -39,11 +40,11 @@ static int nand_erase_block(uffs_Device *dev, uint32_t block)
     return 0;
 }
 
-static int nand_read_page(uffs_Device *dev, uint32_t block, uint32_t page, uint8_t *data, 
-                            int data_len, uint8_t *ecc,uint8_t *spare, int spare_len)
+static int32_t nand_read_page(uffs_Device *dev, uint32_t block, uint32_t page, uint8_t *data, 
+                              int32_t data_len, uint8_t *ecc, uint8_t *spare, int32_t spare_len)
 {
     nand_addr_t addr;
-    int page_count, page_size, ret;
+    int32_t page_count, page_size, ret;
     uint8_t *spare_buffer, *data_buffer = NULL;
 
     addr.zone = block / (((nand_dev_t *)(dev->_private))->config.zone_size);
@@ -54,7 +55,7 @@ static int nand_read_page(uffs_Device *dev, uint32_t block, uint32_t page, uint8
     page_count = data_len / page_size + ((data_len % page_size) > 0 ? 1 : 0);
 
     if (data == NULL && spare == NULL) {
-        spare_buffer = (uint8_t *)aos_malloc(dev->attr->spare_size);
+        spare_buffer = (uint8_t *)krhino_mm_alloc(dev->attr->spare_size);
         if (!spare_buffer) {
             return -EIO;
         }
@@ -65,19 +66,19 @@ static int nand_read_page(uffs_Device *dev, uint32_t block, uint32_t page, uint8
         ret = *(spare_buffer + dev->attr->block_status_offs) == 0xFF ?
             UFFS_FLASH_NO_ERR : UFFS_FLASH_BAD_BLK;
 
-        aos_free(spare_buffer);
+        krhino_mm_free(spare_buffer);
         return ret;
 
     }
 
     if (data && data_len > 0) {
-        data_buffer = (uint8_t *)aos_malloc(page_size);
+        data_buffer = (uint8_t *)krhino_mm_alloc(page_size);
         if (!data_buffer)
             return -EIO;
         memset(data_buffer, 0, page_size);
         hal_nand_read_page(dev->_private, &addr, data_buffer, page_count);
         memcpy(data, data_buffer, data_len);
-        aos_free(data_buffer);
+        krhino_mm_free(data_buffer);
     }
 
     if (spare && spare_len > 0)
@@ -85,11 +86,11 @@ static int nand_read_page(uffs_Device *dev, uint32_t block, uint32_t page, uint8
     return 0;
 }
 
-static int nand_write_page(uffs_Device *dev, uint32_t block, uint32_t page,
-                            const uint8_t *data, int data_len, const uint8_t *spare, int spare_len)
+static int32_t nand_write_page(uffs_Device *dev, uint32_t block, uint32_t page,
+                               const uint8_t *data, int32_t data_len, const uint8_t *spare, uint32_t spare_len)
 {
     nand_addr_t addr;
-    int page_count, page_size;
+    uint32_t page_count, page_size;
     uint8_t *spare_buffer, *data_buffer = NULL;
 
     addr.zone = block / (((nand_dev_t *)(dev->_private))->config.zone_size);
@@ -100,23 +101,23 @@ static int nand_write_page(uffs_Device *dev, uint32_t block, uint32_t page,
     page_count = data_len / page_size + ((data_len % page_size) > 0 ? 1 : 0);
 
     if (data == NULL && spare == NULL) {
-        spare_buffer = (uint8_t *)aos_malloc(UFFS_MAX_SPARE_SIZE);
+        spare_buffer = (uint8_t *)krhino_mm_alloc(UFFS_MAX_SPARE_SIZE);
         if (!spare_buffer)
             return -EIO;
         memset(spare_buffer, 0, UFFS_MAX_SPARE_SIZE);
         *(spare_buffer + dev->attr->block_status_offs) = 0x00;
         hal_nand_write_spare(dev->_private, &addr, spare_buffer, dev->attr->spare_size);
-        aos_free(spare_buffer);
+        krhino_mm_free(spare_buffer);
     }
 
     if (data && data_len > 0) {
-        data_buffer = (uint8_t *)aos_malloc(page_size);
+        data_buffer = (uint8_t *)krhino_mm_alloc(page_size);
         if (!data_buffer)
             return -EIO;
         memset(data_buffer, 0xff, page_size);
         memcpy(data_buffer, data, data_len);
         hal_nand_write_page(dev->_private, &addr, data_buffer, page_count);
-        aos_free(data_buffer);
+        krhino_mm_free(data_buffer);
     }
 
     if (spare && spare_len > 0) {
@@ -134,7 +135,7 @@ static const uffs_FlashOps uffs_nand_ops =
 
 static char* translate_relative_path(const char *path)
 {
-    int len, prefix_len;
+    int32_t len, prefix_len;
     char *relpath, *p;
 
     if (!path) 
@@ -146,7 +147,7 @@ static char* translate_relative_path(const char *path)
         return NULL;
 
     len = len - prefix_len;
-    relpath = (char *)aos_malloc(len + 1);
+    relpath = (char *)krhino_mm_alloc(len + 1);
     if (!relpath)
         return NULL;
 
@@ -162,7 +163,7 @@ static char* translate_relative_path(const char *path)
     return relpath;
 }
 
-static int _uffs_ret_to_err(int ret)
+static int32_t _uffs_ret_to_err(int32_t ret)
 {
     switch (ret) {
         case UENOERR:
@@ -194,9 +195,10 @@ static int _uffs_ret_to_err(int ret)
     }
 }
 
-static int _uffs_mode_conv(int flags)
+static int32_t _uffs_mode_conv(int32_t flags)
 {
-    int acc_mode, res = 0;
+    int32_t acc_mode, res = 0;
+
     acc_mode = flags & O_ACCMODE;
     if (acc_mode == O_RDONLY) {
         res |= UO_RDONLY;
@@ -216,9 +218,10 @@ static int _uffs_mode_conv(int flags)
     return res;
 }
 
-static int _uffs_open(file_t *fp, const char *path, int flags)
+static int32_t uffs_vfs_open(vfs_file_t *fp, const char *path, int32_t flags)
 {
-    int fd;
+    int32_t fd;
+
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
@@ -233,15 +236,15 @@ static int _uffs_open(file_t *fp, const char *path, int flags)
         fd = _uffs_ret_to_err(uffs_get_error());
     }
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return fd;
 }
 
-static int _uffs_close(file_t *fp)
+static int32_t uffs_vfs_close(vfs_file_t *fp)
 {
-    int fd, ret;
+    int32_t fd, ret;
 
-    fd = (int)(fp->f_arg);
+    fd = (int32_t)(fp->f_arg);
     ret = uffs_close(fd);
     if (ret < 0) {
         ret = _uffs_ret_to_err(uffs_get_error());
@@ -252,12 +255,12 @@ static int _uffs_close(file_t *fp)
     return ret;
 }
 
-static ssize_t _uffs_read(file_t *fp, char *buf, size_t len)
+static int32_t uffs_vfs_read(vfs_file_t *fp, char *buf, uint32_t len)
 {
-    ssize_t nbytes;
-    int fd;
+    int32_t nbytes;
+    int32_t fd;
 
-    fd = (int)(fp->f_arg);
+    fd = (int32_t)(fp->f_arg);
     nbytes = uffs_read(fd, buf, len);
     if (nbytes < 0) {
         nbytes = _uffs_ret_to_err(uffs_get_error());
@@ -266,10 +269,10 @@ static ssize_t _uffs_read(file_t *fp, char *buf, size_t len)
     return nbytes;
 }
 
-static ssize_t _uffs_write(file_t *fp, const char *buf, size_t len)
+static int32_t uffs_vfs_write(vfs_file_t *fp, const char *buf, uint32_t len)
 {
-    ssize_t nbytes;
-    int fd;
+    int32_t nbytes;
+    int32_t fd;
 
     fd = (int)(fp->f_arg);
     nbytes = uffs_write(fd, (void *)buf, len);
@@ -280,12 +283,12 @@ static ssize_t _uffs_write(file_t *fp, const char *buf, size_t len)
     return nbytes;
 }
 
-static off_t _uffs_lseek(file_t *fp, off_t off, int whence)
+static uint32_t uffs_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
 {
-    off_t ret;
-    int fd;
+    uint32_t ret;
+    int32_t  fd;
 
-    fd = (int)(fp->f_arg);
+    fd = (int32_t)(fp->f_arg);
     ret = uffs_seek(fd, off, whence);
     if (ret < 0) {
         ret = _uffs_ret_to_err(uffs_get_error());
@@ -294,11 +297,11 @@ static off_t _uffs_lseek(file_t *fp, off_t off, int whence)
     return ret;
 }
 
-static int _uffs_sync(file_t *fp)
+static int32_t uffs_vfs_sync(vfs_file_t *fp)
 {
-    int ret, fd;
+    int32_t ret, fd;
 
-    fd = (int)(fp->f_arg);
+    fd = (int32_t)(fp->f_arg);
     ret = uffs_flush(fd);
     if (ret < 0) {
         ret = _uffs_ret_to_err(uffs_get_error());
@@ -309,9 +312,10 @@ static int _uffs_sync(file_t *fp)
     return ret;
 }
 
-static int _uffs_stat(file_t *fp, const char *path, struct stat *st)
+static int32_t uffs_vfs_stat(vfs_file_t *fp, const char *path, vfs_stat_t *st)
 {
-    int ret;
+    int32_t ret;
+
     struct uffs_stat s;
     char *relpath = NULL;
 
@@ -327,13 +331,14 @@ static int _uffs_stat(file_t *fp, const char *path, struct stat *st)
         st->st_mode = s.st_mode;
     }
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return ret;
 }
 
-static int _uffs_unlink(file_t *fp, const char *path)
+static int32_t uffs_vfs_unlink(vfs_file_t *fp, const char *path)
 {
-    int ret;
+    int32_t ret;
+
     struct uffs_stat s;
     char *relpath = NULL;
 
@@ -342,7 +347,7 @@ static int _uffs_unlink(file_t *fp, const char *path)
         return -EINVAL;
 
     if (uffs_lstat(relpath, &s) < 0) {
-        aos_free(relpath);
+        krhino_mm_free(relpath);
         return _uffs_ret_to_err(uffs_get_error());
     }
 
@@ -354,7 +359,7 @@ static int _uffs_unlink(file_t *fp, const char *path)
             ret = uffs_rmdir(relpath);
             break;
         default:
-            aos_free(relpath);
+            krhino_mm_free(relpath);
             return -EIO;
     }
 
@@ -362,13 +367,14 @@ static int _uffs_unlink(file_t *fp, const char *path)
         ret = _uffs_ret_to_err(uffs_get_error());
     }
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return ret;
 }
 
-static int _uffs_rename(file_t *fp, const char *oldpath, const char *newpath)
+static int32_t uffs_vfs_rename(vfs_file_t *fp, const char *oldpath, const char *newpath)
 {
-    int ret;
+    int32_t ret;
+
     char *oldname = NULL;
     char *newname = NULL;
 
@@ -378,7 +384,7 @@ static int _uffs_rename(file_t *fp, const char *oldpath, const char *newpath)
 
     newname = translate_relative_path(newpath);
     if (!newname) {
-        aos_free(oldname);
+        krhino_mm_free(oldname);
         return -EINVAL;
     }
 
@@ -387,12 +393,12 @@ static int _uffs_rename(file_t *fp, const char *oldpath, const char *newpath)
         ret = _uffs_ret_to_err(uffs_get_error());
     }
 
-    aos_free(oldname);
-    aos_free(newname);
+    krhino_mm_free(oldname);
+    krhino_mm_free(newname);
     return ret;
 }
 
-static aos_dir_t* _uffs_opendir(file_t *fp, const char *path)
+static vfs_dir_t *uffs_vfs_opendir(vfs_file_t *fp, const char *path)
 {
     uffs_dir_t *dp = NULL;
     char *relpath = NULL;
@@ -402,30 +408,30 @@ static aos_dir_t* _uffs_opendir(file_t *fp, const char *path)
     if (!relpath)
         return NULL;
 
-    dp = (uffs_dir_t *)aos_malloc(sizeof(uffs_dir_t) + UFFS_NAME_LEN);
+    dp = (uffs_dir_t *)krhino_mm_alloc(sizeof(uffs_dir_t) + UFFS_NAME_LEN);
     if (!dp) {
-        aos_free(relpath);
+        krhino_mm_free(relpath);
         return NULL;
     }
 
     memset(dp, 0, sizeof(uffs_dir_t) + UFFS_NAME_LEN);
     dir = uffs_opendir(relpath);
     if (!dir) {
-        aos_free(relpath);
-        aos_free(dp);
+        krhino_mm_free(relpath);
+        krhino_mm_free(dp);
         return NULL;
     }
 
     dp->d = dir;
-    aos_free(relpath);
-    return (aos_dir_t *)dp;
+    krhino_mm_free(relpath);
+    return (vfs_dir_t *)dp;
 }
 
-static aos_dirent_t* _uffs_readdir(file_t *fp, aos_dir_t *dir)
+static vfs_dirent_t *uffs_vfs_readdir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     uffs_dir_t *dp;
     struct uffs_dirent *e;
-    aos_dirent_t *out_dirent;
+    vfs_dirent_t *out_dirent;
 
     dp = (uffs_dir_t *)dir;
     if (!dp)
@@ -449,9 +455,10 @@ static aos_dirent_t* _uffs_readdir(file_t *fp, aos_dir_t *dir)
     return out_dirent;
 }
 
-static int _uffs_closedir(file_t *fp, aos_dir_t *dir)
+static int32_t uffs_vfs_closedir(vfs_file_t *fp, vfs_dir_t *dir)
 {
-    int ret;
+    int32_t ret;
+
     uffs_dir_t *dp = (uffs_dir_t *)dir;
 
     if (!dp)
@@ -462,13 +469,13 @@ static int _uffs_closedir(file_t *fp, aos_dir_t *dir)
         ret = _uffs_ret_to_err(uffs_get_error());
     }
 
-    aos_free(dp);
+    krhino_mm_free(dp);
     return ret;
 }
 
-static int _uffs_mkdir(file_t *fp, const char *path)
+static int32_t uffs_vfs_mkdir(vfs_file_t *fp, const char *path)
 {
-    int ret;
+    int32_t ret;
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
@@ -480,24 +487,24 @@ static int _uffs_mkdir(file_t *fp, const char *path)
         ret = _uffs_ret_to_err(uffs_get_error());
     }
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return ret;
 }
 
-static const fs_ops_t uffs_ops = {
-    .open       = &_uffs_open,
-    .close      = &_uffs_close,
-    .read       = &_uffs_read,
-    .write      = &_uffs_write,
-    .lseek      = &_uffs_lseek,
-    .sync       = &_uffs_sync,
-    .stat       = &_uffs_stat,
-    .unlink     = &_uffs_unlink,
-    .rename     = &_uffs_rename,
-    .opendir    = &_uffs_opendir,
-    .readdir    = &_uffs_readdir,
-    .closedir   = &_uffs_closedir,
-    .mkdir      = &_uffs_mkdir,
+static vfs_filesystem_ops_t uffs_ops = {
+    .open       = &uffs_vfs_open,
+    .close      = &uffs_vfs_close,
+    .read       = &uffs_vfs_read,
+    .write      = &uffs_vfs_write,
+    .lseek      = &uffs_vfs_lseek,
+    .sync       = &uffs_vfs_sync,
+    .stat       = &uffs_vfs_stat,
+    .unlink     = &uffs_vfs_unlink,
+    .rename     = &uffs_vfs_rename,
+    .opendir    = &uffs_vfs_opendir,
+    .readdir    = &uffs_vfs_readdir,
+    .closedir   = &uffs_vfs_closedir,
+    .mkdir      = &uffs_vfs_mkdir,
     .ioctl      = NULL
 };
 
@@ -514,9 +521,9 @@ static URET _uffs_device_release(uffs_Device *dev)
     return U_SUCC;
 }
 
-static int _uffs_fs_init(uffs_mgr_t *mgr)
+static int32_t _uffs_fs_init(uffs_mgr_t *mgr)
 {
-    int ret;
+    int32_t ret;
     /* init low level nand device */
     ret = hal_nand_init(mgr->dev);
     if (ret != 0)
@@ -559,56 +566,56 @@ static void _uffs_deinit(void)
 
     if (g_uffs_mgr->dev) {
         hal_nand_finalize(g_uffs_mgr->dev);
-        aos_free(g_uffs_mgr->dev);
+        krhino_mm_free(g_uffs_mgr->dev);
     }
 
     if (g_uffs_mgr->storage) {
-        aos_free(g_uffs_mgr->storage);
+        krhino_mm_free(g_uffs_mgr->storage);
     }
 
     if (g_uffs_mgr->udev) {
-        aos_free(g_uffs_mgr->udev);
+        krhino_mm_free(g_uffs_mgr->udev);
     }
 
     if (g_uffs_mgr->mtb) {
-        aos_free(g_uffs_mgr->mtb);
+        krhino_mm_free(g_uffs_mgr->mtb);
     }
 
-    aos_free(g_uffs_mgr);
+    krhino_mm_free(g_uffs_mgr);
     g_uffs_mgr = NULL;
 }
 
-static int _uffs_init(void)
+static int32_t _uffs_init(void)
 {
     if (g_uffs_mgr)
         return 0;
 
-    g_uffs_mgr = (uffs_mgr_t *)aos_malloc(sizeof(uffs_mgr_t));
+    g_uffs_mgr = (uffs_mgr_t *)krhino_mm_alloc(sizeof(uffs_mgr_t));
     if (!g_uffs_mgr)
         return -ENOMEM;
 
     memset(g_uffs_mgr, 0, sizeof(uffs_mgr_t));
 
     /* nand flash device */
-    g_uffs_mgr->dev = (nand_dev_t *)aos_malloc(sizeof(nand_dev_t));
+    g_uffs_mgr->dev = (nand_dev_t *)krhino_mm_alloc(sizeof(nand_dev_t));
     if (!g_uffs_mgr->dev)
         goto err;
     memset(g_uffs_mgr->dev, 0, sizeof(nand_dev_t));
 
     /* uffs storage attribute struct */
-    g_uffs_mgr->storage = (struct uffs_StorageAttrSt *)aos_malloc(sizeof(struct uffs_StorageAttrSt));
+    g_uffs_mgr->storage = (struct uffs_StorageAttrSt *)krhino_mm_alloc(sizeof(struct uffs_StorageAttrSt));
     if (!g_uffs_mgr->storage)
         goto err;
     memset(g_uffs_mgr->storage, 0, sizeof(struct uffs_StorageAttrSt));
 
     /* uffs device */
-    g_uffs_mgr->udev = (uffs_Device *)aos_malloc(sizeof(uffs_Device));
+    g_uffs_mgr->udev = (uffs_Device *)krhino_mm_alloc(sizeof(uffs_Device));
     if (!g_uffs_mgr->udev)
         goto err;
     memset(g_uffs_mgr->udev, 0, sizeof(uffs_Device));
 
     /* uffs mount table */
-    g_uffs_mgr->mtb = (uffs_MountTable *)aos_malloc(sizeof(uffs_MountTable));
+    g_uffs_mgr->mtb = (uffs_MountTable *)krhino_mm_alloc(sizeof(uffs_MountTable));
     if (!g_uffs_mgr->mtb)
         goto err;
     memset(g_uffs_mgr->mtb, 0, sizeof(uffs_MountTable));
@@ -621,9 +628,9 @@ err:
     return -1;    
 }
 
-int vfs_uffs_register(void)
+int32_t vfs_uffs_register(void)
 {
-    int ret = U_SUCC;
+    int32_t ret = U_SUCC;
     uffs_SetupDebugOutput();
 
     ret = _uffs_init();
@@ -650,18 +657,18 @@ int vfs_uffs_register(void)
         goto err;
     }
 
-    return aos_register_fs(uffs_mnt_path, &uffs_ops, NULL);
+    return vfs_register_fs(uffs_mnt_path, &uffs_ops, NULL);
 
 err:
     _uffs_deinit();
     return ret;
 }
 
-int vfs_uffs_unregister(void)
+int32_t vfs_uffs_unregister(void)
 {
     uffs_UnMount(g_uffs_mgr->mtb->mount);
     uffs_UnRegisterMountTable(g_uffs_mgr->mtb);
     uffs_ReleaseFileSystemObjects();
     _uffs_deinit();
-    return aos_unregister_fs(uffs_mnt_path);
+    return vfs_unregister_fs(uffs_mnt_path);
 }

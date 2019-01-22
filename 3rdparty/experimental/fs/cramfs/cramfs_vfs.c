@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include "os-alios.h"
 
-#include "aos/vfs.h"
+#include "vfs_api.h"
 
 #include "cramfs_fs.h"
 
@@ -15,14 +15,14 @@ static kmutex_t g_cramfs_lock;
 static struct cramfs_dirent *g_root = NULL;
 
 typedef struct _cramfs_dir_t {
-    aos_dir_t dir;
+    vfs_dir_t dir;
     struct cramfs_dirent cramfs_dir;
-    aos_dirent_t cur_dirent;
+    vfs_dirent_t cur_dirent;
 } cramfs_dir_t;
 
 static char *translate_relative_path(const char *path)
 {
-    int len, prefix_len;
+    int32_t len, prefix_len;
     char *relpath, *p;
 
     if (!path) {
@@ -53,9 +53,9 @@ static char *translate_relative_path(const char *path)
     return relpath;
 }
 
-static int _cramfs_open(file_t *fp, const char *path, int flags)
+static int32_t cramfs_vfs_open(vfs_file_t *fp, const char *path, int32_t flags)
 {
-    int ret;
+    int32_t ret;
     char *relpath = NULL;
     struct cramfs_dirent *dirent = NULL;
 
@@ -83,9 +83,9 @@ static int _cramfs_open(file_t *fp, const char *path, int flags)
     return ret;
 }
 
-static int _cramfs_close(file_t *fp)
+static int32_t cramfs_vfs_close(vfs_file_t *fp)
 {
-    int ret;
+    int32_t ret;
     struct cramfs_dirent *dirent = NULL;
 
     dirent = (struct cramfs_dirent *)(fp->f_arg);
@@ -101,9 +101,9 @@ static int _cramfs_close(file_t *fp)
     return ret;
 }
 
-static ssize_t _cramfs_read(file_t *fp, char *buf, size_t len)
+static int32_t cramfs_vfs_read(vfs_file_t *fp, char *buf, uint32_t len)
 {
-    ssize_t nbytes;
+    int32_t nbytes;
     struct cramfs_dirent *dirent = NULL;
 
     dirent = (struct cramfs_dirent *)(fp->f_arg);
@@ -115,10 +115,10 @@ static ssize_t _cramfs_read(file_t *fp, char *buf, size_t len)
     return nbytes;
 }
 
-static off_t _cramfs_lseek(file_t *fp, off_t off, int whence)
+static uint32_t cramfs_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
 {
-    int ret;
-    off_t pos;
+    int32_t ret;
+    uint32_t pos;
     struct cramfs_dirent *dirent = NULL;
 
     dirent = (struct cramfs_dirent *)(fp->f_arg);
@@ -135,9 +135,9 @@ static off_t _cramfs_lseek(file_t *fp, off_t off, int whence)
     return ret;
 }
 
-static int _cramfs_stat(file_t *fp, const char *path, struct aos_stat *st)
+static int32_t cramfs_vfs_stat(vfs_file_t *fp, const char *path, vfs_stat_t *st)
 {
-    int ret;
+    int32_t ret;
     char *relpath = NULL;
     struct stat file_st;
 
@@ -157,7 +157,7 @@ static int _cramfs_stat(file_t *fp, const char *path, struct aos_stat *st)
     return ret;
 }
 
-static int _cramfs_statfs(file_t *fp, const char *path, struct aos_statfs *buf)
+static int32_t cramfs_vfs_statfs(vfs_file_t *fp, const char *path, vfs_statfs_t *buf)
 {
     if (buf == NULL) {
         return -1;
@@ -176,9 +176,9 @@ static int _cramfs_statfs(file_t *fp, const char *path, struct aos_statfs *buf)
     return 0;
 }
 
-static aos_dir_t *_cramfs_opendir(file_t *fp, const char *path)
+static vfs_dir_t *cramfs_vfs_opendir(vfs_file_t *fp, const char *path)
 {
-    int ret;
+    int32_t ret;
     cramfs_dir_t *dp = NULL;
     char *relpath = NULL;
 
@@ -204,15 +204,15 @@ static aos_dir_t *_cramfs_opendir(file_t *fp, const char *path)
     }
 
     krhino_mm_free(relpath);
-    return (aos_dir_t *)dp;
+    return (vfs_dir_t *)dp;
 }
 
-static aos_dirent_t *_cramfs_readdir(file_t *fp, aos_dir_t *dir)
+static vfs_dirent_t *cramfs_vfs_readdir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     struct cramfs_dirent *dirent;
     cramfs_dir_t *dp = (cramfs_dir_t *)dir;
 
-    memset(&dp->cur_dirent, 0, sizeof(aos_dirent_t) + CRAMFS_MAXPATHLEN);
+    memset(&dp->cur_dirent, 0, sizeof(vfs_dirent_t) + CRAMFS_MAXPATHLEN);
 
     krhino_mutex_lock(&g_cramfs_lock, RHINO_WAIT_FOREVER);
     dirent = cramfs_readdir(&dp->cramfs_dir);
@@ -230,9 +230,9 @@ static aos_dirent_t *_cramfs_readdir(file_t *fp, aos_dir_t *dir)
     return &(dp->cur_dirent);
 }
 
-static int _cramfs_closedir(file_t *fp, aos_dir_t *dir)
+static int32_t cramfs_vfs_closedir(vfs_file_t *fp, vfs_dir_t *dir)
 {
-    int ret;
+    int32_t ret;
     cramfs_dir_t *dp = (cramfs_dir_t *)dir;
 
     krhino_mutex_lock(&g_cramfs_lock, RHINO_WAIT_FOREVER);
@@ -243,7 +243,7 @@ static int _cramfs_closedir(file_t *fp, aos_dir_t *dir)
     return ret;
 }
 
-static void _cramfs_rewinddir(file_t *fp, aos_dir_t *dir)
+static void cramfs_vfs_rewinddir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     cramfs_dir_t *dp = (cramfs_dir_t *)dir;
 
@@ -258,7 +258,7 @@ static void _cramfs_rewinddir(file_t *fp, aos_dir_t *dir)
     return;
 }
 
-static long _cramfs_telldir(file_t *fp, aos_dir_t *dir)
+static int32_t cramfs_vfs_telldir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     cramfs_dir_t *dp = (cramfs_dir_t *)dir;
 
@@ -269,7 +269,7 @@ static long _cramfs_telldir(file_t *fp, aos_dir_t *dir)
     return (dp->cramfs_dir.pos);
 }
 
-static void _cramfs_seekdir(file_t *fp, aos_dir_t *dir, long loc)
+static void cramfs_vfs_seekdir(vfs_file_t *fp, vfs_dir_t *dir, int32_t loc)
 {
     cramfs_dir_t *dp = (cramfs_dir_t *)dir;
 
@@ -289,7 +289,7 @@ static void _cramfs_seekdir(file_t *fp, aos_dir_t *dir, long loc)
     return;
 }
 
-int _cramfs_access(file_t *fp, const char *path, int amode)
+static int32_t cramfs_vfs_access(vfs_file_t *fp, const char *path, int32_t amode)
 {
     char *relpath = NULL;
     struct cramfs_dirent *dirent = NULL;
@@ -319,32 +319,32 @@ int _cramfs_access(file_t *fp, const char *path, int amode)
     return -1;
 }
 
-static const fs_ops_t _cramfs_ops = {
-    .open       = &_cramfs_open,
-    .close      = &_cramfs_close,
-    .read       = &_cramfs_read,
+static const vfs_filesystem_ops_t cramfs_ops = {
+    .open       = &cramfs_vfs_open,
+    .close      = &cramfs_vfs_close,
+    .read       = &cramfs_vfs_read,
     .write      = NULL,
-    .lseek      = &_cramfs_lseek,
+    .lseek      = &cramfs_vfs_lseek,
     .sync       = NULL,
-    .stat       = &_cramfs_stat,
-    .statfs     = &_cramfs_statfs,
+    .stat       = &cramfs_vfs_stat,
+    .statfs     = &cramfs_vfs_statfs,
     .unlink     = NULL,
     .rename     = NULL,
-    .opendir    = &_cramfs_opendir,
-    .readdir    = &_cramfs_readdir,
-    .closedir   = &_cramfs_closedir,
+    .opendir    = &cramfs_vfs_opendir,
+    .readdir    = &cramfs_vfs_readdir,
+    .closedir   = &cramfs_vfs_closedir,
     .mkdir      = NULL,
     .rmdir      = NULL,
-    .rewinddir  = &_cramfs_rewinddir,
-    .telldir    = &_cramfs_telldir,
-    .seekdir    = &_cramfs_seekdir,
-    .access     = &_cramfs_access,
+    .rewinddir  = &cramfs_vfs_rewinddir,
+    .telldir    = &cramfs_vfs_telldir,
+    .seekdir    = &cramfs_vfs_seekdir,
+    .access     = &cramfs_vfs_access,
     .ioctl      = NULL
 };
 
-int vfs_cramfs_register(uint32_t start_addr, uint32_t length)
+int32_t vfs_cramfs_register(uint32_t start_addr, uint32_t length)
 {
-    int ret;
+    int32_t ret;
 
     ret = cramfs_flash_init(start_addr, length);
     if (ret != 0) {
@@ -369,12 +369,12 @@ int vfs_cramfs_register(uint32_t start_addr, uint32_t length)
         return ret;
     }
 
-    return aos_register_fs(cramfs_mnt_path, &_cramfs_ops, NULL);
+    return vfs_register_fs(cramfs_mnt_path, &cramfs_ops, NULL);
 }
 
-int vfs_cramfs_unregister(void)
+int32_t vfs_cramfs_unregister(void)
 {
-    int ret;
+    int32_t ret;
 
     krhino_mutex_lock(&g_cramfs_lock, RHINO_WAIT_FOREVER);
     ret = cramfs_umount(g_root);
@@ -387,6 +387,6 @@ int vfs_cramfs_unregister(void)
     krhino_mutex_del(&g_cramfs_lock);
     krhino_mm_free(g_root);
 
-    return aos_unregister_fs(cramfs_mnt_path);
+    return vfs_unregister_fs(cramfs_mnt_path);
 }
 

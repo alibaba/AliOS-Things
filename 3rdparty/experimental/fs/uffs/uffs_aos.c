@@ -3,55 +3,57 @@
  */
 #include "uffs_port.h"
 #include "uffs/uffs_os.h"
-#include "aos/kernel.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "k_api.h"
 
 #define PFX "os  : "
 #define UFFS_TAG "uffs"
 
-int uffs_SemCreate(OSSEM *sem)
+#define UFFS_WAIT_FOREVER 0xFFFFFFFF
+
+int32_t uffs_SemCreate(OSSEM *sem)
 {
-    return aos_mutex_new((aos_mutex_t *)sem);
+    return krhino_mutex_create((kmutex_t *)sem, "uffs");
 }
 
-int uffs_SemWait(OSSEM sem)
+int32_t uffs_SemWait(OSSEM sem)
 {
-    return aos_mutex_lock((aos_mutex_t *)(&sem), AOS_WAIT_FOREVER);
+    return krhino_mutex_lock((kmutex_t *)(&sem), UFFS_WAIT_FOREVER);
 }
 
-int uffs_SemSignal(OSSEM sem)
+int32_t uffs_SemSignal(OSSEM sem)
 {
-    return aos_mutex_unlock((aos_mutex_t *)(&sem));
+    return krhino_mutex_unlock((kmutex_t *)(&sem));
 }
 
-int uffs_SemDelete(OSSEM *sem)
+int32_t uffs_SemDelete(OSSEM *sem)
 {
-    aos_mutex_free((aos_mutex_t *)sem);
-    *sem = 0;
+    krhino_mutex_free((kmutex_t *)sem);
     return 0;
 }
 
-int uffs_OSGetTaskId(void)
+int32_t uffs_OSGetTaskId(void)
 {
     return 0;
 }
 
-unsigned int uffs_GetCurDateTime(void)
+uint32_t uffs_GetCurDateTime(void)
 {
     return 0;
 }
 
 #if CONFIG_USE_SYSTEM_MEMORY_ALLOCATOR > 0
-static void * sys_malloc(struct uffs_DeviceSt *dev, unsigned int size)
+static void * sys_malloc(struct uffs_DeviceSt *dev, uint32_t size)
 {
     uffs_Perror(UFFS_MSG_NORMAL, "system memory alloc %d bytes", size);
-    return aos_malloc(size);
+    return krhino_mm_alloc(size);
 }
 
 static URET sys_free(struct uffs_DeviceSt *dev, void *p)
 {
-    aos_free(p);
+    krhino_mm_free(p);
     return U_SUCC;
 }
 
