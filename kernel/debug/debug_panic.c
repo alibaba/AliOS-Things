@@ -193,7 +193,7 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     debug_task_overview(print_str);
 
 #if (DEBUG_CONFIG_BACKTRACE > 0)
-    debug_backtrace_now(print_str);
+    debug_backtrace_now();
 #endif
 
 #if 0
