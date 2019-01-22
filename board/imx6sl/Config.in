@@ -6,4 +6,9 @@ menuconfig AOS_BOARD_IMX6SL
 
 if AOS_BOARD_IMX6SL
 # Configurations for board imx6sl
+
+menu "BSP SUPPORT FEATURE"
+
+endmenu
+
 endif
