@@ -1044,6 +1044,64 @@ static int _iotx_linkkit_slave_connect(int devid)
 
     return SUCCESS_RETURN;
 }
+
+static int _iotx_linkkit_subdev_delete_topo(int devid)
+{
+    int res = 0, msgid = 0, code = 0;
+    iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
+    iotx_linkkit_upstream_sync_callback_node_t *node = NULL;
+    void *semaphore = NULL;
+
+    if (ctx->is_connected == 0) {
+        sdk_err("master isn't start");
+        return FAIL_RETURN;
+    }
+
+    if (devid <= 0) {
+        sdk_err("devid invalid");
+        return FAIL_RETURN;
+    }
+
+    /* Subdev Delete Topo */
+    res = iotx_dm_subdev_topo_del(devid);
+    if (res < SUCCESS_RETURN) {
+        return FAIL_RETURN;
+    }
+    msgid = res;
+
+    semaphore = HAL_SemaphoreCreate();
+    if (semaphore == NULL) {
+        return FAIL_RETURN;
+    }
+
+    _iotx_linkkit_upstream_mutex_lock();
+    res = _iotx_linkkit_upstream_sync_callback_list_insert(msgid, semaphore, &node);
+    if (res != SUCCESS_RETURN) {
+        HAL_SemaphoreDestroy(semaphore);
+        _iotx_linkkit_upstream_mutex_unlock();
+        return FAIL_RETURN;
+    }
+    _iotx_linkkit_upstream_mutex_unlock();
+
+    res = HAL_SemaphoreWait(semaphore, IOTX_LINKKIT_SYNC_DEFAULT_TIMEOUT_MS);
+    if (res < SUCCESS_RETURN) {
+        _iotx_linkkit_upstream_mutex_lock();
+        _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
+        _iotx_linkkit_upstream_mutex_unlock();
+        return FAIL_RETURN;
+    }
+
+    _iotx_linkkit_upstream_mutex_lock();
+    code = node->code;
+    _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
+    if (code != SUCCESS_RETURN) {
+        _iotx_linkkit_upstream_mutex_unlock();
+        return FAIL_RETURN;
+    }
+    _iotx_linkkit_upstream_mutex_unlock();
+
+    return SUCCESS_RETURN;
+}
 #endif
 
 static int _iotx_linkkit_master_close(void)
@@ -1405,6 +1463,17 @@ int IOT_Linkkit_Report(int devid, iotx_linkkit_msg_type_t msg_type, unsigned cha
 #endif
         }
         break;
+        case ITM_MSG_DELETE_TOPO: {
+#ifdef DEVICE_MODEL_GATEWAY
+            res = _iotx_linkkit_subdev_delete_topo(devid);
+            if (res != SUCCESS_RETURN) {
+                _iotx_linkkit_mutex_unlock();
+                return FAIL_RETURN;
+            }
+#else
+            res = FAIL_RETURN;
+#endif
+        } break;
 #ifdef DEVICE_MODEL_GATEWAY
 #ifdef DEVICE_MODEL_SUBDEV_OTA
         case ITM_MSG_REPORT_SUBDEV_FIRMWARE_VERSION: {
