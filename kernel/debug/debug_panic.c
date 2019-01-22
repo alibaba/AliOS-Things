@@ -159,5 +159,60 @@ void panicHandler(void *context)
     while (1)
         ;
 }
-
 #endif
+
+#if (DEBUG_CONFIG_ERRDUMP > 0)
+void debug_fatal_error(kstat_t err, char *file, int line)
+{
+    char prt_stack[] =
+      "stack(0x        ): 0x         0x         0x         0x         \r\n";
+    int  x;
+    int *SP = RHINO_GET_SP();
+
+    printf("!!!!!!!!!! Fatal Error !!!!!!!!!!\r\n");
+    printf("errno:%d , file:%s, line:%d\r\n", err, file, line);
+
+    if ( SP != NULL )
+    {
+        print_str("========== Stack info ==========\r\n");
+        for (x = 0; x < 16; x++) {
+            k_int2str((int)&SP[x * 4], &prt_stack[8]);
+            k_int2str(SP[x * 4 + 0], &prt_stack[21]);
+            k_int2str(SP[x * 4 + 1], &prt_stack[32]);
+            k_int2str(SP[x * 4 + 2], &prt_stack[43]);
+            k_int2str(SP[x * 4 + 3], &prt_stack[54]);
+            print_str(prt_stack);
+        }
+    }
+
+#if (RHINO_CONFIG_MM_TLF > 0)
+    print_str("========== Heap Info  ==========\r\n");
+    debug_mm_overview(print_str);
+#endif
+
+    debug_task_overview(print_str);
+
+#if (DEBUG_CONFIG_BACKTRACE > 0)
+    debug_backtrace_now(print_str);
+#endif
+
+#if 0
+#if (RHINO_CONFIG_QUEUE > 0)
+    print_str("========== Queue Info ==========\r\n");
+    debug_queue_overview(print_str);
+#endif
+
+#if (RHINO_CONFIG_BUF_QUEUE > 0)
+    print_str("======== Buf Queue Info ========\r\n");
+    debug_buf_queue_overview(print_str);
+#endif
+
+#if (RHINO_CONFIG_SEM > 0)
+    print_str("=========== Sem Info ===========\r\n");
+    debug_sem_overview(print_str);
+#endif
+#endif
+}
+#endif
+
+

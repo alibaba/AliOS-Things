@@ -190,27 +190,6 @@ uint32_t dumpsys_mm_info_func(uint32_t len)
 
     return RHINO_SUCCESS;
 }
-
-size_t get_heap_free_size(k_mm_head *mmhead)
-{
-
-#if (RHINO_CONFIG_MM_BLK > 0)
-    mblk_pool_t *pool;
-#endif
-
-    if (!mmhead) {
-        return 0;
-    }
-
-#if (RHINO_CONFIG_MM_BLK > 0)
-    pool = mmhead->fix_pool;
-
-    return (mmhead->free_size - pool->blk_avail * RHINO_CONFIG_MM_BLK_SIZE);
-#endif
-
-    return 0;
-}
-
 #endif
 
 #endif

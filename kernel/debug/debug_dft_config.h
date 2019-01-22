@@ -7,11 +7,11 @@
 
 /* If the mcu printf depends on isr */
 #ifndef DEBUG_CONFIG_PANIC_PRT_INT
-#define DEBUG_CONFIG_PANIC_PRT_INT 1
+#define DEBUG_CONFIG_PANIC_PRT_INT      0
 #endif
 
-#ifndef DEBUG_CONFIG_NORMAL_PRT
-#define DEBUG_CONFIG_NORMAL_PRT 1
+#ifndef DEBUG_CONFIG_ERRDUMP
+#define DEBUG_CONFIG_ERRDUMP            0
 #endif
 
 #endif /* DEBUG_DFTDBG_CONFIG_H */

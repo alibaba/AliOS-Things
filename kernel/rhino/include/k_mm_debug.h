@@ -22,9 +22,6 @@ void krhino_owner_attach(void *addr, size_t allocator);
     krhino_owner_attach(addr, (size_t)RHINO_GET_RA())
 
 uint32_t dumpsys_mm_info_func(uint32_t len);
-
-size_t get_heap_free_size(k_mm_head *mmhead);
-
 #ifdef __cplusplus
 }
 #endif
