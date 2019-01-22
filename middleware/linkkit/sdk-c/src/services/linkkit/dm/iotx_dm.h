@@ -191,7 +191,7 @@ int iotx_dm_post_event(_IN_ int devid, _IN_ char *identifier, _IN_ int identifie
 
 int iotx_dm_send_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len, _IN_ iotx_dm_error_code_t code,
                                   _IN_ char *identifier,
-                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len);
+                                  _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len, void *ctx);
 int iotx_dm_send_property_get_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
                                        _IN_ iotx_dm_error_code_t code,
                                        _IN_ char *payload, _IN_ int payload_len, _IN_ void *ctx);

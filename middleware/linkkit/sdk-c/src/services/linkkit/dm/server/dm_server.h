@@ -23,5 +23,7 @@ void dm_server_thing_service_property_post(CoAPContext *context, const char *pat
         CoAPMessage *message);
 void dm_server_thing_dev_core_service_dev(CoAPContext *context, const char *paths, NetworkAddr *remote,
         CoAPMessage *message);
+void dm_server_thing_service_request(CoAPContext *context, const char *paths, NetworkAddr *remote,
+                                     CoAPMessage *message);
 #endif
 #endif

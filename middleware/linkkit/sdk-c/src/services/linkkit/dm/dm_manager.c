@@ -1420,7 +1420,7 @@ static int _dm_mgr_upstream_response_assemble(_IN_ int devid, _IN_ char *msgid, 
 
 int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN_ int msgid_len,
         _IN_ iotx_dm_error_code_t code,
-        _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len)
+        _IN_ char *identifier, _IN_ int identifier_len, _IN_ char *payload, _IN_ int payload_len, void *ctx)
 {
     int res = 0, service_name_len = 0;
     char *service_name = NULL;
@@ -1451,7 +1451,7 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN
     }
 
     dm_log_debug("Current Service Name: %s", service_name);
-    dm_msg_response(DM_MSG_DEST_ALL, &request, &response, payload, payload_len, NULL);
+    dm_msg_response(DM_MSG_DEST_ALL, &request, &response, payload, payload_len, ctx);
 
     DM_free(service_name);
     return SUCCESS_RETURN;
