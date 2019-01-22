@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_BT_COMMON
+config AOS_COMP_BT_COMMON
     bool 
     default n
     select AOS_COMP_OSAL_AOS

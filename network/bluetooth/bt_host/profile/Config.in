@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_BT_PROFILE
+config AOS_COMP_BT_PROFILE
     bool
     default n
     help
