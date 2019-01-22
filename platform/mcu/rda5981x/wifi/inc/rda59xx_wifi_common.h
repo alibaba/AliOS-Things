@@ -1,5 +1,5 @@
-#ifndef _RDA59XX_WIFI_COMMON_H_
-#define _RDA59XX_WIFI_COMMON_H_
+#ifndef __RDA59XX_WIFI_COMMON_H__
+#define __RDA59XX_WIFI_COMMON_H__
 
 #include "rda_def.h"
 
@@ -95,6 +95,7 @@ enum ELEMENTID_T{
     ICTEXT        = 16,  /* Challenge Text           */
     IERPINFO      = 42,  /* ERP Information          */
     IEXSUPRATES   = 50,  /* Extended Supported Rates */
+    HTPARAMS      = 61,  /* HT Info Element          */
     IWAPI         = 68
 };
 
@@ -102,7 +103,8 @@ enum COUNTRY_CODE_T
 {
     JP = 0,
     NA = 1,
-    EU = 2
+    EU = 2,
+    CHONE = 0x10
 };
 
 /* Scan type parameter for scan request */
@@ -130,7 +132,7 @@ inline r_s32 is_same_ether_addr(const r_u8 *addr1, const r_u8 *addr2)
  *
  * Return true if the address is all zeroes.
  */
-static inline r_s32 is_zero_ether_addr(const r_u8 *addr)
+inline r_s32 is_zero_ether_addr(const r_u8 *addr)
 {
     return !(addr[0] | addr[1] | addr[2] | addr[3] | addr[4] | addr[5]);
 }

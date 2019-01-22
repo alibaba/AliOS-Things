@@ -8,8 +8,8 @@
  *
  ******************************************************************************/
 
-#ifndef _MACLIB_TASK_H_
-#define _MACLIB_TASK_H_
+#ifndef __RDA59xx_MACLIB_TASK_H__
+#define __RDA59xx_MACLIB_TASK_H__
 
 #define MAC_LIB_MAX_FLEN    1536
 

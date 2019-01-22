@@ -1,8 +1,9 @@
+#include "rda59xx_daemon.h"
 #include "rda_sys_wrapper.h"
 #include "rda_def.h"
-#include "rda59xx_daemon.h"
 #include "lwip/sys.h"
 #include "lwip/netif.h"
+#include "lwip/inet.h"
 #include "lwip/tcpip.h"
 #include "maclib_task.h"
 #include "rda59xx_lwip.h"
@@ -32,9 +33,11 @@ r_u32 rda_hut_dump = 0;
 #define SCAN_TIMES          10
 #define RECONN_TIMES        3
 #define DAEMON_MAILQ_SIZE   10
-
+static bool rda_lwip_tcpip_init_flag = false;
+static sys_sem_t rda_lwip_tcpip_inited;
 r_void *daemon_queue = NULL;
 r_u32 module_state = STATE_DSIABLE;
+unsigned char g_airkiss_connect_flag = 0;
 static rda59xx_sta_info r_sta_info;
 static rda59xx_bss_info r_bss_info;
 static rda59xx_ap_info r_ap_info;
@@ -47,6 +50,11 @@ struct netif lwip_ap_netif;
 
 extern int sniffer_cb(void *data, unsigned short data_len);
 extern unsigned int filter_backup;
+static void rda59xx_lwip_tcpip_init_irq(void *eh)
+{
+    sys_sem_signal(&rda_lwip_tcpip_inited);
+    rda_lwip_tcpip_init_flag = true;
+}
 
 r_s32 rda59xx_send_wland_msg(rda_msg *msg, r_u32 wait_time)
 {
@@ -77,6 +85,7 @@ static r_s32 rda59xx_send_daemon_msg(rda_msg *msg, r_u32 wait_time)
     return res;
 }
 
+extern r_s32 is_zero_ether_addr(const r_u8 *addr);
 r_void rda59xx_get_macaddr(r_u8 *macaddr, r_u32 mode)
 {
 #if 0
@@ -126,17 +135,25 @@ r_void rda59xx_sta_get_bss_info(rda59xx_bss_info *bss_info)
 static r_s32 rda59xx_sta_init(struct netif *netif)
 {
     static r_u32 init_flag = 0;
+    int netif_no = 0;
     if(init_flag == 1)
         return R_NOERR;
-    
+    //rda_netif.netif_no = 0;
     sys_sem_new(&lwip_sta_netif_linked, 0);
     sys_sem_new(&lwip_sta_netif_has_addr, 0);
+
+    if(rda_lwip_tcpip_init_flag == false){
+        sys_sem_new(&rda_lwip_tcpip_inited, 0);
+        tcpip_init(rda59xx_lwip_tcpip_init_irq, NULL);
+        sys_arch_sem_wait(&rda_lwip_tcpip_inited, 0);
+    }
+   
     r_memset(&lwip_sta_netif, 0, sizeof(struct netif));
     if (!netif_add(&lwip_sta_netif,
 #if LWIP_IPV4
                 0, 0, 0,
 #endif
-                NULL, rda59xx_sta_netif_init, tcpip_input)) {
+        (void *)&netif_no, rda59xx_sta_netif_init, tcpip_input)) {
             return ERR_DEVICE;
     }
     init_flag = 1;
@@ -146,16 +163,25 @@ static r_s32 rda59xx_sta_init(struct netif *netif)
 static r_s32 rda59xx_ap_init(struct netif *netif)
 {
     static r_u32 init_flag = 0;
+
     if(init_flag == 1)
         return R_NOERR;
-    
+    int netif_no = 1;
+    //rda_netif.netif_no = 1;
     sys_sem_new(&lwip_ap_netif_linked, 0);
+
+    if(rda_lwip_tcpip_init_flag == false){
+        sys_sem_new(&rda_lwip_tcpip_inited, 0);
+        tcpip_init(rda59xx_lwip_tcpip_init_irq, NULL);
+        sys_arch_sem_wait(&rda_lwip_tcpip_inited, 0);
+    }
+
     r_memset(&lwip_ap_netif, 0, sizeof(struct netif));
     if (!netif_add(&lwip_ap_netif,
 #if LWIP_IPV4
                 0, 0, 0,
 #endif
-                NULL, rda59xx_ap_netif_init, tcpip_input)) {
+                (void *)&netif_no, rda59xx_ap_netif_init, tcpip_input)) {
             return ERR_DEVICE;
     }
 
@@ -175,11 +201,21 @@ static r_s32 rda59xx_sta_disconnect_internal()
     netif_set_down(&lwip_sta_netif);
     
     msg.type = RDA59XX_WLAND_STA_DISCONNECT;
-    res = rda59xx_send_wland_msg(&msg, 1000);
+    res = rda59xx_send_wland_msg(&msg, RDA_WAIT_FOREVER);
     if(res != R_NOERR){
         WIFISTACK_PRINT("Send disconnect cmd failed!\r\n");
         return R_ERR;
     }
+
+#if LWIP_IPV4
+    char *ip_zero = "0.0.0.0";
+    ip4_addr_t ip_init;
+    inet_aton(ip_zero, &ip_init);
+    netif_set_ipaddr(&lwip_sta_netif, &ip_init);
+#endif
+
+    sys_sem_free(&lwip_sta_netif_has_addr);
+    sys_sem_new(&lwip_sta_netif_has_addr, 0);
 
     return res;
 }
@@ -197,12 +233,14 @@ r_s32 rda59xx_sta_disconnect()
 static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info)
 {
     r_s32 res = R_NOERR, res_t = R_NOERR;
-    r_u8 reconn = 0, scan_times = 0, scan_res = 0, msg_type = 0;
+    r_u8 reconn = 0, scan_times = 0, scan_res = 0;
     r_s32 index = 0;
     rda_msg msg;
     rda59xx_scan_info r_scan_info;
     rda59xx_scan_result ap;
+    r_u16 timeout_val = (g_airkiss_connect_flag) ? 10000 : 6000;
 
+    WIFISTACK_PRINT("rda59xx_sta_connect_internal!\r\n");
     r_memcpy(&r_sta_info, sta_info, sizeof(rda59xx_sta_info));
     
     //scan
@@ -230,13 +268,14 @@ static r_s32 rda59xx_sta_connect_internal(rda59xx_sta_info *sta_info)
         msg.arg1 = (r_u32)(&r_sta_info);
         msg.arg2 = (r_u32)&ap;
         res = rda_queue_send(wland_queue, (r_u32)&msg, 2000);
+
         if(res != R_NOERR){
             WIFISTACK_PRINT("Send connect cmd failed!\r\n");
             return ERR_SEND_MSG;
         }
 
         if (!netif_is_link_up(&lwip_sta_netif)) {
-            res_t = sys_arch_sem_wait(&lwip_sta_netif_linked, 6000);
+            res_t = sys_arch_sem_wait(&lwip_sta_netif_linked, timeout_val);
             if (res_t == SYS_ARCH_TIMEOUT) {
                 res = ERR_CONNECTION;
                 goto reconn;
@@ -352,9 +391,9 @@ static r_s32 rda59xx_ap_disable_internal()
     r_s32 res = R_NOERR;
         
     netif_set_down(&lwip_ap_netif);
-    
+    netif_set_link_down(&lwip_ap_netif);
     msg.type = RDA59XX_WLAND_AP_STOP;
-    rda59xx_send_wland_msg(&msg, 1000);
+    rda59xx_send_wland_msg(&msg, RDA_WAIT_FOREVER);
     dhcps_deinit();
 
     return res;
@@ -437,7 +476,19 @@ static r_void rda59xx_daemon(r_void *arg)
                 break;
             case DAEMON_SCAN:
                 WIFISTACK_PRINT("DAEMON_SCAN!\r\n");
+                r_u32 monitor_restore_scan = 0;
+                if(module_state & STATE_SNIFFER){
+                    module_state &= ~(STATE_SNIFFER);
+                    rda59xx_sniffer_disable_internal();
+                    monitor_restore_scan = 1;
+                }
                 res = rda59xx_scan_internal((rda59xx_scan_info *)msg.arg1);
+                if(monitor_restore_scan == 1){
+                    rda59xx_sniffer_enable_internal(sniffer_cb);
+                    rda59xx_sniffer_set_filter(1, 1, filter_backup);
+                    module_state |= STATE_SNIFFER;
+                    monitor_restore_scan = 0;
+                }
                 rda_sem_release((r_void *)msg.arg3);
                 break;
             case DAEMON_STA_CONNECT:
@@ -446,12 +497,14 @@ static r_void rda59xx_daemon(r_void *arg)
                     WIFISTACK_PRINT("STA has been connected!\r\n");
                     rda_sem_release((r_void *)msg.arg3);
                     break;
-                }                    
+                } 
+/*
                 if(module_state & STATE_AP){
                     rda59xx_ap_disable_internal();
                     module_state &= ~(STATE_AP);
                     r_memset(&r_ap_info, 0, sizeof(rda59xx_ap_info));
-                }    
+                }
+*/
                 res = rda59xx_sta_connect_internal((rda59xx_sta_info*)msg.arg1);
                 if(res == R_NOERR)
                     module_state |= STATE_STA;
@@ -477,6 +530,7 @@ static r_void rda59xx_daemon(r_void *arg)
                         rda59xx_sniffer_disable_internal();
                         monitor_restore = 1;
                     }    
+                    rda59xx_netif_down(0);
                     msg.type = DAEMON_STA_RECONNECT;
                     res = rda_queue_send(daemon_queue, (r_u32)&msg, 1000);
                     module_state |= STATE_STA_RC;
@@ -517,6 +571,7 @@ static r_void rda59xx_daemon(r_void *arg)
                     break;
                 }
                 res = rda59xx_ap_enable_internal((rda59xx_ap_info*)msg.arg1);
+                module_state |= STATE_AP;
                 rda_sem_release((r_void *)msg.arg3);
                 break;
             case DAEMON_AP_DISABLE:
@@ -528,6 +583,7 @@ static r_void rda59xx_daemon(r_void *arg)
                 }
                 r_memset(&r_ap_info, 0, sizeof(rda59xx_ap_info));
                 res = rda59xx_ap_disable_internal();
+                module_state &= ~(STATE_AP);
                 rda_sem_release((r_void *)msg.arg3);
                 break;   
             default:
@@ -539,20 +595,23 @@ static r_void rda59xx_daemon(r_void *arg)
 
 r_s32 rda59xx_wifi_init()
 {
-    static r_u32 init_flag = 0;
+    static r_u32 init_flag = 0, thread_init_flag = 0;
     if(init_flag == 1)
         return R_NOERR;
     daemon_queue = rda_queue_create(DAEMON_MAILQ_SIZE, sizeof(rda_msg));
     module_state = STATE_INIT;
     rda59xx_set_cb_queue(daemon_queue);
     rda59xx_sta_init(&lwip_sta_netif);
-    tcpip_init(NULL, NULL);
-    maclib_init();
-
+    //tcpip_init(NULL, NULL);
+    //maclib_init();
+    if(thread_init_flag == 0){
     rda_thread_new("maclib_thread", maclib_task, NULL, 512*8, AOS_DEFAULT_APP_PRI);
     rda_thread_new("wland_thread", rda59xx_wland_task, NULL, 512*8, AOS_DEFAULT_APP_PRI);
     rda_thread_new("daemon_thread", rda59xx_daemon, NULL, 512*5, AOS_DEFAULT_APP_PRI);
-    rda_msleep(100);//wait for maclib_task running
+        /* Allow the PHY task to detect the initial link state and set up the proper flags */
+        rda_msleep(100);//wait for maclib_task running
+        thread_init_flag = 1;
+    }
     wland_sta_init();
     rda59xx_filter_multicast(0);
     rda59xx_set_channel(6);

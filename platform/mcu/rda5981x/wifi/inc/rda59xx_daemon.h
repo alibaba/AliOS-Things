@@ -1,5 +1,5 @@
-#ifndef _RDA59XX_DAEMON_H
-#define _RDA59XX_DAEMON_H
+#ifndef __RDA59XX_DAEMON_H__
+#define __RDA59XX_DAEMON_H__
 
 #include "rda59xx_wifi_include.h"
 
@@ -12,12 +12,12 @@
 #define ENCRYPT_WEP         BIT4
 
 typedef enum {
-    DAEMON_SCAN,
-    DAEMON_STA_CONNECT,
-    DAEMON_STA_DISCONNECT,
-    DAEMON_STA_RECONNECT,
-    DAEMON_AP_ENABLE,
-    DAEMON_AP_DISABLE,
+    DAEMON_SCAN = 0,
+    DAEMON_STA_CONNECT = 1,
+    DAEMON_STA_DISCONNECT = 2,
+    DAEMON_STA_RECONNECT = 3,
+    DAEMON_AP_ENABLE = 10,
+    DAEMON_AP_DISABLE= 11,
     DAEMON_SNIFFER_ENABLE,
     DAEMON_SNIFFER_DISABLE,
 }DAEMON_MSG;
@@ -35,7 +35,7 @@ typedef enum {
     ERR_AUTH = -3,
     ERR_CONNECTION = -4,
     ERR_DHCP = -5,
-}ERR_TYPE;
+}RDA_ERR_TYPE;
 
 typedef enum {
     DISCONNECT_ACTIVE = 1,
@@ -60,7 +60,7 @@ typedef void (*wifi_event_cb_t)(WIFI_EVENT evt, void* info);
 #define STATE_SNIFFER       BIT1
 #define STATE_STA           BIT2
 #define STATE_STA_RC        BIT3
-#define STATE_AP            BIT3
+#define STATE_AP            BIT5
 #define STATE_P2P           BIT4
 
 extern r_s32 rda59xx_wifi_init();

@@ -29,8 +29,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
-#ifndef __LWIPOPTS_H__
-#define __LWIPOPTS_H__
+#ifndef __RDA59XX_LWIPOPTS_H__
+#define __RDA59XX_LWIPOPTS_H__
 #include "lwip/arch.h"
 
 /**
