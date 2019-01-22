@@ -31,7 +31,7 @@
 #include "umesh.h"
 #endif
 
-#define TAG "netmgr"
+#define TAG "NETMGR_WIFI"
 
 #ifndef WIFI_SSID
 #define DEMO_AP_SSID "cisco-15A7"
@@ -180,7 +180,7 @@ static void ensure_different_seed(unsigned int *seed, seed_history_t *history)
         idx = (i + history->start_idx) % SEED_HISTORAY_MAX;
 
         if (history->hist[idx] == *seed) {
-            printf("Same seed found %d\r\n", history->hist[idx]);
+            LOGD(TAG, "Same seed found %d\r\n", history->hist[idx]);
             *seed = *seed + (unsigned int)aos_now();
         }
     }
@@ -216,11 +216,11 @@ static void dump_seed_history(seed_history_t *history)
     }
 
     for (i = 0; i < history->total_num; i++) {
-        printf("%d ",
+        LOGD(TAG, "%d ",
                history->hist[(history->start_idx + i) % SEED_HISTORAY_MAX]);
     }
 
-    printf("\r\n");
+    LOGD(TAG, "\r\n");
 #endif
 }
 #endif /* LOCAL_PORT_ENHANCED_RAND */
@@ -754,7 +754,7 @@ int netmgr_wifi_start(bool autoconfig)
             return;
         }
 
-        printf("%s %d\r\n", __func__, __LINE__);
+        LOGD(TAG, "%s %d\r\n", __func__, __LINE__);
         // awss_stop();
     }
 
