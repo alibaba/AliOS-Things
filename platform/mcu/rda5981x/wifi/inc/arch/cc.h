@@ -31,8 +31,8 @@
  * to make lwip/arch.h define the codes which are used throughout.
  */
 
-#ifndef __CC_H__
-#define __CC_H__
+#ifndef __RDA59XX_CC_H__
+#define __RDA59XX_CC_H__
 
 //#include "typedef.h"
 // for printf

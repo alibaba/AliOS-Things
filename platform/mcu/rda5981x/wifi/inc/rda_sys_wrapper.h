@@ -1,5 +1,5 @@
-#ifndef _RDA_SYS_WRAPPER_H_
-#define _RDA_SYS_WRAPPER_H_
+#ifndef __RDA59XX_SYS_WRAPPER_H__
+#define __RDA59XX_SYS_WRAPPER_H__
 
 #include "rda_def.h"
 
