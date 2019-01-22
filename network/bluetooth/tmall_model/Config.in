@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_TMALL_MODEL
+config AOS_COMP_TMALL_MODEL
     bool
     default n
     select AOS_COMP_BT_MESH
