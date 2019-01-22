@@ -6,4 +6,29 @@ menuconfig AOS_BOARD_MK3080
 
 if AOS_BOARD_MK3080
 # Configurations for board board_mk3080
+
+menu "BSP SUPPORT FEATURE"
+
+config BSP_SUPPORT_UART
+    bool "BSP_SUPPORT_UART"
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool "BSP_SUPPORT_GPIO"
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool "BSP_SUPPORT_TIMER"
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool "BSP_SUPPORT_FLASH"
+    default y
+
+config BSP_SUPPORT_WDG
+    bool "BSP_SUPPORT_WDG"
+    default y
+
+endmenu
+
 endif
