@@ -241,6 +241,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         int result = awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request);
         awss_debug("sending %s.", result == 0 ? "success" : "fail");
         os_msleep(20);
+        (void)result;
     }
 
     do {

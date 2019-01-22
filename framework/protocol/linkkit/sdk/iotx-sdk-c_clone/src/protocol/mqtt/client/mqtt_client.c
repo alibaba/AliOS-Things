@@ -2881,6 +2881,7 @@ int iotx_mc_disconnect(iotx_mc_client_t *pClient)
     if (iotx_mc_check_state_normal(pClient)) {
         rc = MQTTDisconnect(pClient);
         mqtt_debug("rc = MQTTDisconnect() = %d", rc);
+        (void)rc;
     }
 
     /* close tcp/ip socket or free tls resources */
@@ -3403,7 +3404,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
         HAL_MutexLock(client->lock_generic);
         list_for_each_entry_safe(node, next, &g_mqtt_sub_list, linked_list, mqtt_sub_node_t) {
             if (node->packet_id == ret) {
-                mqtt_debug("node->ack_type=%d cnt=%d", node->ack_type, cnt++);
+                mqtt_debug("node->ack_type=%d cnt=%d", node->ack_type, cnt);
                 if (node->ack_type == IOTX_MQTT_EVENT_SUBCRIBE_SUCCESS) {
                     list_del(&node->linked_list);
                     mqtt_free(node);
@@ -3421,13 +3422,13 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
                     ret = -1; //resub
                     subed = 0;
                 }
+                cnt++;
             }
             break;
         }
         HAL_MutexUnlock(client->lock_generic);
     } while (!utils_time_is_expired(&timer));
     mqtt_debug("time out!!");
-
     HAL_MutexLock(client->lock_generic);
     list_for_each_entry_safe(node, next, &g_mqtt_sub_list, linked_list, mqtt_sub_node_t) {
         if (node->packet_id == ret) {

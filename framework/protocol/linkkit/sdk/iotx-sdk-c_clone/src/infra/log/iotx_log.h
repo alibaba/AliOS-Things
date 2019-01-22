@@ -53,6 +53,7 @@ void    LITE_syslog(char *m, const char *f, const int l, const int level, const 
 
 #if (CONFIG_BLDTIME_MUTE_DBGLOG)
 #define log_debug(mod, ...)
+#define log_flow(mod, ...) 
 #else
 
 #if (CONFIG_RUNTIME_LOG_LEVEL <= LOG_FLOW_LEVEL)
