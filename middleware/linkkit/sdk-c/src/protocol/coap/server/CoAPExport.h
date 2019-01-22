@@ -25,6 +25,10 @@ typedef struct {
     unsigned char        res_maxcount;
 } CoAPInitParam;
 
+typedef enum {
+    PATH_NORMAL,
+    PATH_FILTER,
+} path_type_t;
 
 CoAPContext *CoAPContext_create(CoAPInitParam *param);
 
