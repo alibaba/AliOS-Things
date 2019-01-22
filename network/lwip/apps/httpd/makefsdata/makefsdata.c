@@ -24,6 +24,8 @@
 #include <time.h>
 #include <sys/stat.h>
 
+#define TAG "MAKEFSDATA"
+
 /** Makefsdata can generate *all* files deflate-compressed (where file size shrinks).
  * Since nearly all browsers support this, this is a good way to reduce ROM size.
  * To compress the files, "miniz.c" must be downloaded seperately.
@@ -170,22 +172,22 @@ struct file_entry* last_file = NULL;
 
 static void print_usage(void)
 {
-  printf(" Usage: htmlgen [targetdir] [-s] [-e] [-i] [-11] [-nossi] [-c] [-f:<filename>] [-m] [-svr:<name>]" USAGE_ARG_DEFLATE NEWLINE NEWLINE);
-  printf("   targetdir: relative or absolute path to files to convert" NEWLINE);
-  printf("   switch -s: toggle processing of subdirectories (default is on)" NEWLINE);
-  printf("   switch -e: exclude HTTP header from file (header is created at runtime, default is off)" NEWLINE);
-  printf("   switch -11: include HTTP 1.1 header (1.0 is default)" NEWLINE);
-  printf("   switch -nossi: no support for SSI (cannot calculate Content-Length for SSI)" NEWLINE);
-  printf("   switch -c: precalculate checksums for all pages (default is off)" NEWLINE);
-  printf("   switch -f: target filename (default is \"fsdata.c\")" NEWLINE);
-  printf("   switch -m: include \"Last-Modified\" header based on file time" NEWLINE);
-  printf("   switch -svr: server identifier sent in HTTP response header ('Server' field)" NEWLINE);
+  LOGD(TAG, " Usage: htmlgen [targetdir] [-s] [-e] [-i] [-11] [-nossi] [-c] [-f:<filename>] [-m] [-svr:<name>]" USAGE_ARG_DEFLATE NEWLINE NEWLINE);
+  LOGD(TAG, "   targetdir: relative or absolute path to files to convert" NEWLINE);
+  LOGD(TAG, "   switch -s: toggle processing of subdirectories (default is on)" NEWLINE);
+  LOGD(TAG, "   switch -e: exclude HTTP header from file (header is created at runtime, default is off)" NEWLINE);
+  LOGD(TAG, "   switch -11: include HTTP 1.1 header (1.0 is default)" NEWLINE);
+  LOGD(TAG, "   switch -nossi: no support for SSI (cannot calculate Content-Length for SSI)" NEWLINE);
+  LOGD(TAG, "   switch -c: precalculate checksums for all pages (default is off)" NEWLINE);
+  LOGD(TAG, "   switch -f: target filename (default is \"fsdata.c\")" NEWLINE);
+  LOGD(TAG, "   switch -m: include \"Last-Modified\" header based on file time" NEWLINE);
+  LOGD(TAG, "   switch -svr: server identifier sent in HTTP response header ('Server' field)" NEWLINE);
 #if MAKEFS_SUPPORT_DEFLATE
-  printf("   switch -defl: deflate-compress all non-SSI files (with opt. compr.-level, default=10)" NEWLINE);
-  printf("                 ATTENTION: browser has to support \"Content-Encoding: deflate\"!" NEWLINE);
+  LOGD(TAG, "   switch -defl: deflate-compress all non-SSI files (with opt. compr.-level, default=10)" NEWLINE);
+  LOGD(TAG, "                 ATTENTION: browser has to support \"Content-Encoding: deflate\"!" NEWLINE);
 #endif
-  printf("   if targetdir not specified, htmlgen will attempt to" NEWLINE);
-  printf("   process files in subdirectory 'fs'" NEWLINE);
+  LOGD(TAG, "   if targetdir not specified, htmlgen will attempt to" NEWLINE);
+  LOGD(TAG, "   process files in subdirectory 'fs'" NEWLINE);
 }
 
 int main(int argc, char *argv[])
@@ -202,9 +204,9 @@ int main(int argc, char *argv[])
   memset(path, 0, sizeof(path));
   memset(appPath, 0, sizeof(appPath));
 
-  printf(NEWLINE " makefsdata - HTML to C source converter" NEWLINE);
-  printf("     by Jim Pettinato               - circa 2003 " NEWLINE);
-  printf("     extended by Simon Goldschmidt  - 2009 " NEWLINE NEWLINE);
+  LOGD(TAG, NEWLINE " makefsdata - HTML to C source converter" NEWLINE);
+  LOGD(TAG, "     by Jim Pettinato               - circa 2003 " NEWLINE);
+  LOGD(TAG, "     extended by Simon Goldschmidt  - 2009 " NEWLINE NEWLINE);
 
   strcpy(path, "fs");
   for (i = 1; i < argc; i++) {
@@ -215,7 +217,7 @@ int main(int argc, char *argv[])
       if (strstr(argv[i], "-svr:") == argv[i]) {
         snprintf(serverIDBuffer, sizeof(serverIDBuffer), "Server: %s\r\n", &argv[i][5]);
         serverID = serverIDBuffer;
-        printf("Using Server-ID: \"%s\"\n", serverID);
+        LOGD(TAG, "Using Server-ID: \"%s\"\n", serverID);
       } else if (strstr(argv[i], "-s") == argv[i]) {
         processSubs = 0;
       } else if (strstr(argv[i], "-e") == argv[i]) {
@@ -229,7 +231,7 @@ int main(int argc, char *argv[])
       } else if (strstr(argv[i], "-f:") == argv[i]) {
         strncpy(targetfile, &argv[i][3], sizeof(targetfile) - 1);
         targetfile[sizeof(targetfile) - 1] = 0;
-        printf("Writing to file \"%s\"\n", targetfile);
+        LOGD(TAG, "Writing to file \"%s\"\n", targetfile);
       } else if (strstr(argv[i], "-m") == argv[i]) {
         includeLastModified = 1;
       } else if (strstr(argv[i], "-defl") == argv[i]) {
@@ -241,15 +243,15 @@ int main(int argc, char *argv[])
             if ((defl_level >= 0) && (defl_level <= 10)) {
               deflate_level = defl_level;
             } else {
-              printf("ERROR: deflate level must be [0..10]" NEWLINE);
+              LOGD(TAG, "ERROR: deflate level must be [0..10]" NEWLINE);
               exit(0);
             }
           }
         }
         deflateNonSsiFiles = 1;
-        printf("Deflating all non-SSI files with level %d (but only if size is reduced)" NEWLINE, deflate_level);
+        LOGD(TAG, "Deflating all non-SSI files with level %d (but only if size is reduced)" NEWLINE, deflate_level);
 #else
-        printf("WARNING: Deflate support is disabled\n");
+        LOGD(TAG, "WARNING: Deflate support is disabled\n");
 #endif
       } else if ((strstr(argv[i], "-?")) || (strstr(argv[i], "-h"))) {
         print_usage();
@@ -265,7 +267,7 @@ int main(int argc, char *argv[])
   }
 
   if (!check_path(path, sizeof(path))) {
-    printf("Invalid path: \"%s\"." NEWLINE, path);
+    LOGD(TAG, "Invalid path: \"%s\"." NEWLINE, path);
     exit(-1);
   }
 
@@ -273,32 +275,32 @@ int main(int argc, char *argv[])
   /* if command line param or subdir named 'fs' not found spout usage verbiage */
   if (!CHDIR_SUCCEEDED(CHDIR(path))) {
     /* if no subdir named 'fs' (or the one which was given) exists, spout usage verbiage */
-    printf(" Failed to open directory \"%s\"." NEWLINE NEWLINE, path);
+    LOGE(TAG, " Failed to open directory \"%s\"." NEWLINE NEWLINE, path);
     print_usage();
     exit(-1);
   }
   CHDIR(appPath);
 
-  printf("HTTP %sheader will %s statically included." NEWLINE,
+  LOGD(TAG, "HTTP %sheader will %s statically included." NEWLINE,
     (includeHttpHeader ? (useHttp11 ? "1.1 " : "1.0 ") : ""),
     (includeHttpHeader ? "be" : "not be"));
 
   sprintf(curSubdir, "");  /* start off in web page's root directory - relative paths */
-  printf("  Processing all files in directory %s", path);
+  LOGD(TAG, "  Processing all files in directory %s", path);
   if (processSubs) {
-    printf(" and subdirectories..." NEWLINE NEWLINE);
+    LOGD(TAG, " and subdirectories..." NEWLINE NEWLINE);
   } else {
-    printf("..." NEWLINE NEWLINE);
+    LOGD(TAG, "..." NEWLINE NEWLINE);
   }
 
   data_file = fopen("fsdata.tmp", "wb");
   if (data_file == NULL) {
-    printf("Failed to create file \"fsdata.tmp\"\n");
+    LOGE(TAG, "Failed to create file \"fsdata.tmp\"\n");
     exit(-1);
   }
   struct_file = fopen("fshdr.tmp", "wb");
   if (struct_file == NULL) {
-    printf("Failed to create file \"fshdr.tmp\"\n");
+    LOGE(TAG, "Failed to create file \"fshdr.tmp\"\n");
     fclose(data_file);
     exit(-1);
   }
@@ -340,25 +342,25 @@ int main(int argc, char *argv[])
 
   CHDIR(appPath);
   /* append struct_file to data_file */
-  printf(NEWLINE "Creating target file..." NEWLINE NEWLINE);
+  LOGD(TAG, NEWLINE "Creating target file..." NEWLINE NEWLINE);
   concat_files("fsdata.tmp", "fshdr.tmp", targetfile);
 
   /* if succeeded, delete the temporary files */
   if (remove("fsdata.tmp") != 0) {
-    printf("Warning: failed to delete fsdata.tmp\n");
+    LOGD(TAG, "Warning: failed to delete fsdata.tmp\n");
   }
   if (remove("fshdr.tmp") != 0) {
-    printf("Warning: failed to delete fshdr.tmp\n");
+    LOGD(TAG, "Warning: failed to delete fshdr.tmp\n");
   }
 
-  printf(NEWLINE "Processed %d files - done." NEWLINE, filesProcessed);
+  LOGD(TAG, NEWLINE "Processed %d files - done." NEWLINE, filesProcessed);
 #if MAKEFS_SUPPORT_DEFLATE
   if (deflateNonSsiFiles) {
-    printf("(Deflated total byte reduction: %d bytes -> %d bytes (%.02f%%)" NEWLINE,
+    LOGD(TAG, "(Deflated total byte reduction: %d bytes -> %d bytes (%.02f%%)" NEWLINE,
       (int)overallDataBytes, (int)deflatedBytesReduced, (float)((deflatedBytesReduced*100.0)/overallDataBytes));
   }
 #endif
-  printf(NEWLINE);
+  LOGD(TAG, NEWLINE);
 
   while (first_file != NULL) {
      struct file_entry* fe = first_file;
@@ -399,7 +401,7 @@ static void copy_file(const char *filename_in, FILE *fout)
   void* buf;
   fin = fopen(filename_in, "rb");
   if (fin == NULL) {
-    printf("Failed to open file \"%s\"\n", filename_in);
+    LOGE(TAG, "Failed to open file \"%s\"\n", filename_in);
     exit(-1);
   }
   buf = malloc(COPY_BUFSIZE);
@@ -415,7 +417,7 @@ void concat_files(const char *file1, const char *file2, const char *targetfile)
   FILE *fout;
   fout = fopen(targetfile, "wb");
   if (fout == NULL) {
-    printf("Failed to open file \"%s\"\n", targetfile);
+    LOGE(TAG, "Failed to open file \"%s\"\n", targetfile);
     exit(-1);
   }
   copy_file(file1, fout);
@@ -449,12 +451,12 @@ int process_sub(FILE *data_file, FILE *struct_file)
            strncat(curSubdir, "/", freelen);
            strncat(curSubdir, curName, freelen - 1);
            curSubdir[sizeof(curSubdir) - 1] = 0;
-           printf("processing subdirectory %s/..." NEWLINE, curSubdir);
+           LOGD(TAG, "processing subdirectory %s/..." NEWLINE, curSubdir);
            filesProcessed += process_sub(data_file, struct_file);
            CHDIR("..");
            curSubdir[sublen] = 0;
         } else {
-           printf("WARNING: cannot process sub due to path length restrictions: \"%s/%s\"\n", curSubdir, curName);
+           LOGD(TAG, "WARNING: cannot process sub due to path length restrictions: \"%s/%s\"\n", curSubdir, curName);
         }
       } while (FINDNEXT_SUCCEEDED(FINDNEXT(fret, &fInfo)));
     }
@@ -466,9 +468,9 @@ int process_sub(FILE *data_file, FILE *struct_file)
     do {
       if (FIND_T_IS_FILE(fInfo)) {
         const char *curName = FIND_T_FILENAME(fInfo);
-        printf("processing %s/%s..." NEWLINE, curSubdir, curName);
+        LOGD(TAG, "processing %s/%s..." NEWLINE, curSubdir, curName);
         if (process_file(data_file, struct_file, curName) < 0) {
-          printf(NEWLINE "Error... aborting" NEWLINE);
+          LOGE(TAG, NEWLINE "Error... aborting" NEWLINE);
           return -1;
         }
         filesProcessed++;
@@ -487,13 +489,13 @@ u8_t* get_file_data(const char* filename, int* file_size, int can_be_compressed,
   int rs;
   inFile = fopen(filename, "rb");
   if (inFile == NULL) {
-    printf("Failed to open file \"%s\"\n", filename);
+    LOGE(TAG, "Failed to open file \"%s\"\n", filename);
     exit(-1);
   }
   fseek(inFile, 0, SEEK_END);
   rs = ftell(inFile);
   if (rs < 0) {
-     printf("ftell failed with %d\n", errno);
+     LOGE(TAG, "ftell failed with %d\n", errno);
      exit(-1);
   }
   fsize = (size_t)rs;
@@ -521,13 +523,13 @@ u8_t* get_file_data(const char* filename, int* file_size, int can_be_compressed,
         }
         status = tdefl_init(&g_deflator, NULL, NULL, comp_flags);
         if (status != TDEFL_STATUS_OKAY) {
-          printf("tdefl_init() failed!\n");
+          LOGE(TAG, "tdefl_init() failed!\n");
           exit(-1);
         }
         memset(s_outbuf, 0, sizeof(s_outbuf));
         status = tdefl_compress(&g_deflator, next_in, &in_bytes, next_out, &out_bytes, TDEFL_FINISH);
         if (status != TDEFL_STATUS_DONE) {
-          printf("deflate failed: %d\n", status);
+          LOGE(TAG, "deflate failed: %d\n", status);
           exit(-1);
         }
         LWIP_ASSERT("out_bytes <= COPY_BUFSIZE", out_bytes <= OUT_BUF_SIZE);
@@ -554,17 +556,17 @@ u8_t* get_file_data(const char* filename, int* file_size, int can_be_compressed,
           free(buf);
           buf = ret_buf;
           *file_size = out_bytes;
-          printf(" - deflate: %d bytes -> %d bytes (%.02f%%)" NEWLINE, (int)fsize, (int)out_bytes, (float)((out_bytes*100.0)/fsize));
+          LOGD(TAG, " - deflate: %d bytes -> %d bytes (%.02f%%)" NEWLINE, (int)fsize, (int)out_bytes, (float)((out_bytes*100.0)/fsize));
           deflatedBytesReduced += (size_t)(fsize - out_bytes);
           *is_compressed = 1;
         } else {
-          printf(" - uncompressed: (would be %d bytes larger using deflate)" NEWLINE, (int)(out_bytes - fsize));
+          LOGD(TAG, " - uncompressed: (would be %d bytes larger using deflate)" NEWLINE, (int)(out_bytes - fsize));
         }
       } else {
-        printf(" - uncompressed: (file is larger than deflate bufer)" NEWLINE);
+        LOGD(TAG, " - uncompressed: (file is larger than deflate bufer)" NEWLINE);
       }
     } else {
-      printf(" - SSI file, cannot be compressed" NEWLINE);
+      LOGD(TAG, " - SSI file, cannot be compressed" NEWLINE);
     }
   }
 #else
@@ -656,7 +658,7 @@ static void fix_filename_for_c(char* qualifiedName, size_t max_len)
    int cnt = 0;
    size_t i;
    if (len + 3 == max_len) {
-      printf("File name too long: \"%s\"\n", qualifiedName);
+      LOGE(TAG, "File name too long: \"%s\"\n", qualifiedName);
       exit(-1);
    }
    strcpy(new_name, qualifiedName);
@@ -678,7 +680,7 @@ static void fix_filename_for_c(char* qualifiedName, size_t max_len)
       }
    } while (!filename_ok && (cnt < 999));
    if (!filename_ok) {
-      printf("Failed to get unique file name: \"%s\"\n", qualifiedName);
+      LOGE(TAG, "Failed to get unique file name: \"%s\"\n", qualifiedName);
       exit(-1);
    }
    strcpy(qualifiedName, new_name);
@@ -868,7 +870,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
     }
   }
   if ((file_ext == NULL) || (*file_ext == 0)) {
-    printf("failed to get extension for file \"%s\", using default.\n", filename);
+    LOGE(TAG, "failed to get extension for file \"%s\", using default.\n", filename);
     file_type = HTTP_HDR_DEFAULT_TYPE;
   } else {
     file_type = NULL;
@@ -879,7 +881,7 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
       }
     }
     if (file_type == NULL) {
-      printf("failed to get file type for extension \"%s\", using default.\n", file_ext);
+      LOGE(TAG, "failed to get file type for extension \"%s\", using default.\n", file_ext);
       file_type = HTTP_HDR_DEFAULT_TYPE;
     }
   }
@@ -919,12 +921,12 @@ int file_write_http_header(FILE *data_file, const char *filename, int file_size,
     cur_string = modbuf;
     strcpy(modbuf, "Last-Modified: ");
     if (stat(filename, &stat_data) != 0) {
-       printf("stat(%s) failed with error %d\n", filename, errno);
+       LOGE(TAG, "stat(%s) failed with error %d\n", filename, errno);
        exit(-1);
     }
     t = gmtime(&stat_data.st_mtime);
     if (t == NULL) {
-       printf("gmtime() failed with error %d\n", errno);
+       LOGE(TAG, "gmtime() failed with error %d\n", errno);
        exit(-1);
     }
     strftime(&modbuf[15], sizeof(modbuf)-15, "%a, %d %b %Y %H:%M:%S GMT", t);
