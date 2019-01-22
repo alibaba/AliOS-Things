@@ -1,0 +1,13 @@
+config AOS_COMP_UDEV
+    bool "udev"
+    default n
+    select AOS_COMP_CJSON
+    select AOS_COMP_OTA
+    select AOS_COMP_LINKKIT_MQTT
+    help
+        developerment over the air
+
+if AOS_COMP_UDEV
+# Configurations for component udev
+
+endif
