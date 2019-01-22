@@ -185,6 +185,10 @@ struct hal_wifi_module_s {
     void (*register_wlan_mgnt_monitor_cb)(hal_wifi_module_t *m, monitor_data_cb_t fn);
     int  (*wlan_send_80211_raw_frame)(hal_wifi_module_t *m, uint8_t *buf, int len);
 
+    /* for device ap */
+    int  (*start_ap)(hal_wifi_module_t *m, const char *ssid, const char *passwd, int interval, int hide);
+    int  (*stop_ap)(hal_wifi_module_t *m);
+
     /* debug related */
     void (*start_debug_mode)(hal_wifi_module_t *m);
     void (*stop_debug_mode)(hal_wifi_module_t *m);
