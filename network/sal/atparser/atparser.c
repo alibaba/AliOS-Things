@@ -888,9 +888,8 @@ static void at_worker(void *arg)
                 LOGD(MODULE_NAME, "AT! %s\r\n", oob->prefix);
                 if (oob->postfix == NULL) {
                     oob->cb(oob->arg, NULL, 0);
-                    memset(buf + offset - strlen(oob->prefix), 0,
-                           strlen(oob->prefix));
-                    offset -= strlen(oob->prefix);
+                    memset(buf, 0, offset);
+                    offset = 0;
                 } else {
                     if (oob->reallen == 0) {
                         memset(oob->oobinputdata, 0, oob->maxlen);
