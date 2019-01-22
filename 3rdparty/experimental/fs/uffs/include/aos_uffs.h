@@ -6,14 +6,14 @@
 #define FS_UFFS_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
  
-int vfs_uffs_register(void);
-int vfs_uffs_unregister(void);
+int32_t vfs_uffs_register(void);
+int32_t vfs_uffs_unregister(void);
  
 #ifdef __cplusplus
- }
+}
 #endif
 
  

@@ -6,15 +6,15 @@
 #define FS_FAT_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
  
-int fatfs_register(void);
-int fatfs_unregister(void);
+int32_t fatfs_register(void);
+int32_t fatfs_unregister(void);
  
 #ifdef __cplusplus
- }
+}
 #endif
 
- 
 #endif
+

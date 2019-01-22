@@ -2,13 +2,13 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
 #include <k_api.h>
 #include <errno.h>
 
-#include "aos/vfs.h"
+#include "vfs_api.h"
 
 #include "aos/hal/nor.h"
+
 #include "jffs2_port.h"
 #include "include/linux/jffs2.h"
 #include "include/os-alios.h"
@@ -21,13 +21,14 @@ static nor_dev_t nor_dev;
 
 typedef struct _jffs2_dir_t
 {
-    aos_dir_t dir;
-    aos_dirent_t cur_dirent;
+    vfs_dir_t dir;
+    vfs_dirent_t cur_dirent;
 } jffs2_dir_t;
 
 static char* translate_relative_path(const char *path)
 {
-    int len, prefix_len;
+    int32_t len, prefix_len;
+
     char *relpath, *p;
 
     if (!path)
@@ -55,17 +56,19 @@ static char* translate_relative_path(const char *path)
     return relpath;
 }
 
-static int jffs2_result_to_vfs(int res)
+static int32_t jffs2_result_to_vfs(int32_t res)
 {
     if (res < 0) return res;
     if (res > 0) return -res;
     return 0;
 }
 
-static int _jffs2_open(file_t *fp, const char *path, int flags)
+static int32_t jffs2_vfs_open(vfs_file_t *fp, const char *path, int32_t flags)
 {
-    int ret;
+    int32_t ret;
+
     char *relpath = NULL;
+
     jffs2_file *file = NULL;
 
     relpath = translate_relative_path(path);
@@ -90,9 +93,10 @@ static int _jffs2_open(file_t *fp, const char *path, int flags)
     return jffs2_result_to_vfs(ret);
 }
 
-static int _jffs2_close(file_t *fp)
+static int32_t jffs2_vfs_close(vfs_file_t *fp)
 {
-    int ret;
+    int32_t ret;
+
     jffs2_file *file = NULL;
 
     file = (jffs2_file *)(fp->f_arg);
@@ -108,9 +112,10 @@ static int _jffs2_close(file_t *fp)
     return jffs2_result_to_vfs(ret);
 }
 
-static ssize_t _jffs2_read(file_t *fp, char *buf, size_t len)
+static int32_t jffs2_vfs_read(vfs_file_t *fp, char *buf, uint32_t len)
 {
-    ssize_t nbytes;
+    int32_t nbytes;
+
     jffs2_file *file = NULL;
 
     file = (jffs2_file *)(fp->f_arg);
@@ -121,9 +126,10 @@ static ssize_t _jffs2_read(file_t *fp, char *buf, size_t len)
     return nbytes;
 }
 
-static ssize_t _jffs2_write(file_t *fp, const char *buf, size_t len)
+static int32_t jffs2_vfs_write(vfs_file_t *fp, const char *buf, uint32_t len)
 {
-    ssize_t nbytes;
+    int32_t nbytes;
+
     jffs2_file *file = NULL;
 
     file = (jffs2_file *)(fp->f_arg);
@@ -135,10 +141,11 @@ static ssize_t _jffs2_write(file_t *fp, const char *buf, size_t len)
     return nbytes;
 }
 
-static off_t _jffs2_lseek(file_t *fp, off_t off, int whence)
+static uint32_t jffs2_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
 {
-    int ret;
-    off_t pos;
+    int32_t  ret;
+    uint32_t pos;
+
     jffs2_file *file = NULL;
 
     file = (jffs2_file *)(fp->f_arg);
@@ -154,9 +161,10 @@ static off_t _jffs2_lseek(file_t *fp, off_t off, int whence)
     return jffs2_result_to_vfs(ret);
 }
 
-static int _jffs2_sync(file_t *fp)
+static int32_t jffs2_vfs_sync(vfs_file_t *fp)
 {
-    int ret;
+    int32_t ret;
+
     jffs2_file *file = NULL;
 
     file = (jffs2_file *)(fp->f_arg);
@@ -168,9 +176,10 @@ static int _jffs2_sync(file_t *fp)
     return jffs2_result_to_vfs(ret);
 }
 
-static int _jffs2_stat(file_t *fp, const char *path, struct aos_stat *st)
+static int32_t jffs2_vfs_stat(vfs_file_t *fp, const char *path, vfs_stat_t *st)
 {
-    int ret;
+    int32_t ret;
+
     char *relpath = NULL;
     struct stat file_st;
 
@@ -189,9 +198,10 @@ static int _jffs2_stat(file_t *fp, const char *path, struct aos_stat *st)
     return jffs2_result_to_vfs(ret);
 }
 
-static int _jffs2_unlink(file_t *fp, const char *path)
+static int32_t jffs2_vfs_unlink(vfs_file_t *fp, const char *path)
 {
-    int ret;
+    int32_t ret;
+
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
@@ -206,9 +216,10 @@ static int _jffs2_unlink(file_t *fp, const char *path)
     return jffs2_result_to_vfs(ret);
 }
 
-static int _jffs2_rename(file_t *fp, const char *oldpath, const char *newpath)
+static int32_t jffs2_vfs_rename(vfs_file_t *fp, const char *oldpath, const char *newpath)
 {
-    int ret;
+    int32_t ret;
+
     char *oldname = NULL;
     char *newname = NULL;
 
@@ -231,12 +242,14 @@ static int _jffs2_rename(file_t *fp, const char *oldpath, const char *newpath)
     return jffs2_result_to_vfs(ret);
 }
 
-static aos_dir_t* _jffs2_opendir(file_t *fp, const char *path)
+static vfs_dir_t* jffs2_vfs_opendir(vfs_file_t *fp, const char *path)
 {
-    jffs2_dir_t *dp = NULL;
-    jffs2_file *file = NULL;
+    jffs2_dir_t *dp   = NULL;
+    jffs2_file  *file = NULL;
+
     char *relpath = NULL;
-    int ret;
+
+    int32_t ret;
 
     relpath = translate_relative_path(path);
     if (!relpath)
@@ -272,17 +285,17 @@ static aos_dir_t* _jffs2_opendir(file_t *fp, const char *path)
     return (aos_dir_t *)dp;
 }
 
-static aos_dirent_t* _jffs2_readdir(file_t *fp, aos_dir_t *dir)
+static vfs_dirent_t* jffs2_vfs_readdir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     jffs2_dir_t *dp = (jffs2_dir_t *)dir;
     jffs2_file *file = NULL;
     int ret;
 
     file = (jffs2_file *)(fp->f_arg);
-    memset(&dp->cur_dirent, 0, sizeof(aos_dirent_t) + JFFS2_PATH_MAX);
+    memset(&dp->cur_dirent, 0, sizeof(vfs_dirent_t) + JFFS2_PATH_MAX);
 
     krhino_mutex_lock(&g_jffs2_lock, RHINO_WAIT_FOREVER);
-    ret = jffs2_fo_dirread(file, &dp->cur_dirent, sizeof(aos_dirent_t) + JFFS2_PATH_MAX);
+    ret = jffs2_fo_dirread(file, &dp->cur_dirent, sizeof(vfs_dirent_t) + JFFS2_PATH_MAX);
     krhino_mutex_unlock(&g_jffs2_lock);
 
     if (ret <= 0) {
@@ -292,11 +305,12 @@ static aos_dirent_t* _jffs2_readdir(file_t *fp, aos_dir_t *dir)
     return &(dp->cur_dirent);
 }
 
-static int _jffs2_closedir(file_t *fp, aos_dir_t *dir)
+static int32_t jffs2_vfs_closedir(vfs_file_t *fp, vfs_dir_t *dir)
 {
-    int ret;
-    jffs2_file *file = NULL;
-    jffs2_dir_t *dp = (jffs2_dir_t *)dir;
+    int32_t ret;
+
+    jffs2_file  *file = NULL;
+    jffs2_dir_t *dp   = (jffs2_dir_t *)dir;
 
     file = (jffs2_file *)(fp->f_arg);
     krhino_mutex_lock(&g_jffs2_lock, RHINO_WAIT_FOREVER);
@@ -309,9 +323,10 @@ static int _jffs2_closedir(file_t *fp, aos_dir_t *dir)
     return jffs2_result_to_vfs(ret);
 }
 
-static int _jffs2_mkdir(file_t *fp, const char *path)
+static int32_t jffs2_vfs_mkdir(vfs_file_t *fp, const char *path)
 {
-    int ret;
+    int32_t ret;
+
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
@@ -326,9 +341,10 @@ static int _jffs2_mkdir(file_t *fp, const char *path)
     return jffs2_result_to_vfs(ret);
 }
 
-static int _jffs2_rmdir(file_t *fp, const char *path)
+static int32_t jffs2_vfs_rmdir(vfs_file_t *fp, const char *path)
 {
-    int ret;
+    int32_t ret;
+
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
@@ -344,7 +360,7 @@ static int _jffs2_rmdir(file_t *fp, const char *path)
 
 }
 
-static void _jffs2_rewinddir(file_t *fp, aos_dir_t *dir)
+static void jffs2_vfs_rewinddir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     jffs2_file *file = (jffs2_file *)(fp->f_arg);
 
@@ -358,7 +374,7 @@ static void _jffs2_rewinddir(file_t *fp, aos_dir_t *dir)
     return;
 }
 
-static long _jffs2_telldir(file_t *fp, aos_dir_t *dir)
+static int32_t jffs2_vfs_telldir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     jffs2_file *file = (jffs2_file *)(fp->f_arg);
 
@@ -368,7 +384,7 @@ static long _jffs2_telldir(file_t *fp, aos_dir_t *dir)
     return (file->f_offset);
 }
 
-static void _jffs2_seekdir(file_t *fp, aos_dir_t *dir, long loc)
+static void jffs2_vfs_seekdir(vfs_file_t *fp, vfs_dir_t *dir, int32_t loc)
 {
     jffs2_file *file = NULL;
 
@@ -377,7 +393,6 @@ static void _jffs2_seekdir(file_t *fp, aos_dir_t *dir, long loc)
         return;
 
     if (loc != 0) {
-        printf("Seek dir only allow SEEK_SET to zero !!!\n");
         return;
     }
 
@@ -388,7 +403,7 @@ static void _jffs2_seekdir(file_t *fp, aos_dir_t *dir, long loc)
     return;
 }
 
-static int _jffs2_statfs(file_t *fp, const char *path, struct aos_statfs *buf)
+static int32_t jffs2_vfs_statfs(vfs_file_t *fp, const char *path, vfs_statfs_t *buf)
 {
     struct super_block *jffs2_sb_data = NULL;
 
@@ -426,32 +441,32 @@ int _jffs2_access(file_t *fp, const char *path, int amode)
     return ret;
 }
 
-static const fs_ops_t _jffs2_ops = {
-    .open       = &_jffs2_open,
-    .close      = &_jffs2_close,
-    .read       = &_jffs2_read,
-    .write      = &_jffs2_write,
-    .lseek      = &_jffs2_lseek,
-    .sync       = &_jffs2_sync,
-    .stat       = &_jffs2_stat,
-    .statfs     = &_jffs2_statfs,
-    .unlink     = &_jffs2_unlink,
-    .rename     = &_jffs2_rename,
-    .opendir    = &_jffs2_opendir,
-    .readdir    = &_jffs2_readdir,
-    .closedir   = &_jffs2_closedir,
-    .mkdir      = &_jffs2_mkdir,
-    .rmdir      = &_jffs2_rmdir,
-    .rewinddir  = &_jffs2_rewinddir,
-    .telldir    = &_jffs2_telldir,
-    .seekdir    = &_jffs2_seekdir,
-    .access     = &_jffs2_access,
+static const vfs_filesystem_ops_t jffs2_ops = {
+    .open       = &jffs2_vfs_open,
+    .close      = &jffs2_vfs_close,
+    .read       = &jffs2_vfs_read,
+    .write      = &jffs2_vfs_write,
+    .lseek      = &jffs2_vfs_lseek,
+    .sync       = &jffs2_vfs_sync,
+    .stat       = &jffs2_vfs_stat,
+    .statfs     = &jffs2_vfs_statfs,
+    .unlink     = &jffs2_vfs_unlink,
+    .rename     = &jffs2_vfs_rename,
+    .opendir    = &jffs2_vfs_opendir,
+    .readdir    = &jffs2_vfs_readdir,
+    .closedir   = &jffs2_vfs_closedir,
+    .mkdir      = &jffs2_vfs_mkdir,
+    .rmdir      = &jffs2_vfs_rmdir,
+    .rewinddir  = &jffs2_vfs_rewinddir,
+    .telldir    = &jffs2_vfs_telldir,
+    .seekdir    = &jffs2_vfs_seekdir,
+    .access     = &jffs2_vfs_access,
     .ioctl      = NULL
 };
 
-int vfs_jffs2_register(uint32_t start_addr, uint32_t length)
+int32_t vfs_jffs2_register(uint32_t start_addr, uint32_t length)
 {
-    int ret;
+    int32_t ret;
 
     nor_dev.base_addr = start_addr;
     nor_dev.config.chip_size = length;
@@ -479,12 +494,12 @@ int vfs_jffs2_register(uint32_t start_addr, uint32_t length)
         return jffs2_result_to_vfs(ret);
     }
 
-    return aos_register_fs(jffs2_mnt_path, &_jffs2_ops, NULL);
+    return vfs_register_fs(jffs2_mnt_path, &_jffs2_ops, NULL);
 }
 
-int vfs_jffs2_unregister(void)
+int32_t vfs_jffs2_unregister(void)
 {
-    int ret;
+    int32_t ret;
 
     krhino_mutex_lock(&g_jffs2_lock, RHINO_WAIT_FOREVER);
     ret = jffs2_umount(g_mte);
@@ -496,5 +511,5 @@ int vfs_jffs2_unregister(void)
     krhino_mutex_del(&g_jffs2_lock);
     krhino_mm_free(g_mte);
 
-    return aos_unregister_fs(jffs2_mnt_path);
+    return vfs_unregister_fs(jffs2_mnt_path);
 }

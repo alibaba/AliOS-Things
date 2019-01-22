@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------/
 /  FatFs - Configuration file
 /---------------------------------------------------------------------------*/
-#include "aos/kernel.h"
+#include "k_api.h"
 
 #define FFCONF_DEF 87030	/* Revision ID */
 
@@ -225,7 +225,7 @@
 
 #define FF_FS_REENTRANT	0
 #define FF_FS_TIMEOUT	1000
-#define FF_SYNC_t		aos_mutex_t
+#define FF_SYNC_t		kmutex_t
 /* The option FF_FS_REENTRANT switches the re-entrancy (thread safe) of the FatFs
 /  module itself. Note that regardless of this option, file access to different
 /  volume is always re-entrant and volume control functions, f_mount(), f_mkfs()
