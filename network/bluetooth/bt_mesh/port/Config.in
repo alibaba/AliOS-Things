@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_BT_PORT
+config AOS_COMP_BT_PORT
     bool
     default n
     select AOS_COMP_BT_HOST
