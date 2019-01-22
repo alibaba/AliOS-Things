@@ -13,8 +13,6 @@ $(NAME)_COMPONENTS += arch_armv7m
 # $(NAME)_COMPONENTS += libc rhino hal netmgr mbedtls cjson cli
 $(NAME)_COMPONENTS += rhino
 
-GLOBAL_DEFINES += KV_CONFIG_PARTITION=5
-
 GLOBAL_CFLAGS += -mcpu=cortex-m3           \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian
