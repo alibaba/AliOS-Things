@@ -280,14 +280,13 @@ static int ramfs_search_link_part(ramfs_entry_t *entry, char *path)
 static ramfs_entry_t *ramfs_entry_get(const char *fn)
 {
     ramfs_entry_t *entry;
-    link_name_t   *link_name;
     int            ret = -1;
 
     RAMFS_LL_READ(g_file_ll, entry) {
         if (strcmp(entry->fn, fn) == 0) {
             return entry;
         } else {
-            ret = ramfs_search_link(entry, fn);
+            ret = ramfs_search_link(entry, (char *)fn);
             if (ret == RAMFS_OK) {
                 return entry;
             }
@@ -308,8 +307,6 @@ static ramfs_entry_t *ramfs_entry_get(const char *fn)
 static int ramfs_entry_dir_new(const char *path)
 {
     int    i    = 0;
-    size_t len  = 0;
-    int    ret  = -1;
     int    flag = 0;
 
     char dir_buf[RAMFS_PATH_MAX];
@@ -537,8 +534,6 @@ int32_t ramfs_remove(const char *fn)
 int32_t ramfs_rename(const char *old, const char *new)
 {
     ramfs_entry_t *entry = NULL;
-
-    int ret = -1;
 
     entry = ramfs_entry_get(new);
     if (entry != NULL) {
@@ -866,7 +861,6 @@ int32_t ramfs_closedir(void *dp)
 int32_t ramfs_rmdir(const char *path)
 {
     ramfs_entry_t *entry;
-    link_name_t   *link_name;
     int            ret = -1;
     int flag = 0;
 
@@ -877,7 +871,7 @@ int32_t ramfs_rmdir(const char *path)
             flag = 1;
             break;
         } else {
-            ret = ramfs_search_link_part(entry, path);
+            ret = ramfs_search_link_part(entry, (char *)path);
             if (ret == RAMFS_OK) {
                 flag = 1;
                 break;
@@ -899,7 +893,7 @@ int32_t ramfs_rmdir(const char *path)
         }
     }
 
-    return NULL;
+    return RAMFS_OK;
 }
 
 int32_t ramfs_stat(const char *path, ramfs_stat_t *st)
@@ -1029,7 +1023,7 @@ int ramfs_link(const char *path1, const char *path2)
         return RAMFS_ERR_LINK_MAX;
     }
 
-    ret = ramfs_add_link(entry, path2);
+    ret = ramfs_add_link(entry, (char *)path2);
     if (ret != 0) {
         return RAMFS_ERR_MALLOC;
     }
@@ -1050,7 +1044,7 @@ int ramfs_unlink(const char *path)
     if (strncmp(entry->fn, path, strlen(path)) == 0) {
         ret = ramfs_remove(path);
     } else {
-        ret = ramfs_remove_link(entry, path);
+        ret = ramfs_remove_link(entry, (char *)path);
     }
 
     return ret;
@@ -1119,9 +1113,6 @@ int32_t ramfs_pathconf(int32_t name)
             val = -1;
             break;
         case _PC_SYNC_IO :
-            val = -1;
-            break;
-        case _PC_TIMESTAMP_RESOLUTION :
             val = -1;
             break;
         default:
