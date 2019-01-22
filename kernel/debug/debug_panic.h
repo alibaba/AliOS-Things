@@ -16,6 +16,10 @@ extern "C" {
 void panicHandler(void *context);
 #endif
 
+#if (DEBUG_CONFIG_ERRDUMP > 0)
+void debug_fatal_error(kstat_t err, char *file, int line);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
