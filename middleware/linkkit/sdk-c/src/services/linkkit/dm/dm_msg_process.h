@@ -35,6 +35,7 @@ extern const char DM_URI_THING_MODEL_UP_RAW_REPLY[]          DM_READ_ONLY;
     extern const char DM_URI_THING_SERVICE_PROPERTY_GET[]        DM_READ_ONLY;
     extern const char DM_URI_THING_SERVICE_PROPERTY_GET_REPLY[]  DM_READ_ONLY;
     extern const char DM_URI_THING_SERVICE_REQUEST_WILDCARD[]    DM_READ_ONLY;
+    extern const char DM_URI_THING_SERVICE_REQUEST_WILDCARD2[]   DM_READ_ONLY;
     extern const char DM_URI_THING_SERVICE_REQUEST[]             DM_READ_ONLY;
     extern const char DM_URI_THING_SERVICE_RESPONSE[]            DM_READ_ONLY;
 
