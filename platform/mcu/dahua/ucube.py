@@ -54,8 +54,6 @@ global_ldflags = Split('''
 
 
 global_macro = Split('''
-        KV_CONFIG_TOTAL_SIZE=2048
-        CLI_CONFIG_SUPPORT_BOARD_CMD
         CONFIG_AOS_UOTA_BREAKPOINT
         WITH_LWIP
 ''')
