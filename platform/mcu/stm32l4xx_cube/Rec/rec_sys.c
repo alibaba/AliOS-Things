@@ -2,6 +2,7 @@
 #include "main.h"
 #include "stm32l4xx_hal.h"
 #include "rec_uart.h"
+#include "hal_boot_process.h"
 
 extern void rec_uart_init();
 extern void rec_uart_deinit();
@@ -25,8 +26,14 @@ void rec_err_print(void *errinfo)
 {
     boot_printf("rec Exception.\r\n");
 }
+
 void rec_reboot(void)
 {
     HAL_NVIC_SystemReset();
     for(;;);
+}
+
+void rec_upgrade_reboot()
+{
+    sw_bank();
 }
