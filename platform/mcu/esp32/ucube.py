@@ -82,7 +82,6 @@ prebuild_libs = Split('''
 ''')
 
 global_macro = Split('''
-        CLI_CONFIG_SUPPORT_BOARD_CMD
         SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_ESP32\\"
         SYSINFO_DEVICE_NAME=\\"ESP32\\"
 ''')

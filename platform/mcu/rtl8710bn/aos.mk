@@ -25,7 +25,6 @@ $(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += newlib_stub rhino lwip netmgr
 endif
 
-GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=4096
 #GLOBAL_DEFINES += WITH_LWIP
 
 GLOBAL_INCLUDES += .

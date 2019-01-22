@@ -8,8 +8,6 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu mimxrt1021impl
 $(NAME)_COMPONENTS += arch_armv7m
 $(NAME)_COMPONENTS += rhino newlib_stub
 
-GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=8192
-
 GLOBAL_CFLAGS += -DA_LITTLE_ENDIAN
 GLOBAL_CFLAGS += -DCPU_MIMXRT1021DAG5A
 
