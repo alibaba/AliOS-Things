@@ -471,7 +471,8 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
     }
 
     switch (type) {
-        case IOTX_DM_EVENT_CLOUD_CONNECTED: {
+        case IOTX_DM_EVENT_CLOUD_CONNECTED:
+        case IOTX_DM_EVENT_CLOUD_RECONNECT: {
             if (linkkit_gateway_ctx->init_params.event_cb) {
                 linkkit_event_t event;
 
@@ -933,7 +934,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             linkkit_gateway_dev_callback_node_t *node = NULL;
             lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
             char *output = NULL;
-            
+
             if (payload == NULL) {
                 return;
             }
@@ -1274,7 +1275,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             if (payload == NULL) {
                 return;
             }
-            
+
             /* Parse Payload */
             memset(&lite, 0, sizeof(lite_cjson_t));
             res = lite_cjson_parse(payload, strlen(payload), &lite);
@@ -1450,7 +1451,7 @@ int linkkit_gateway_stop(int devid)
 
     linkkit_gateway_ctx->mutex = NULL;
     linkkit_gateway_ctx->upstream_mutex = NULL;
-    memset(&linkkit_gateway_ctx->init_params,0,sizeof(linkkit_params_t));
+    memset(&linkkit_gateway_ctx->init_params, 0, sizeof(linkkit_params_t));
     linkkit_gateway_ctx->dispatch_thread = NULL;
     linkkit_gateway_ctx->fota_callback = NULL;
     INIT_LIST_HEAD(&linkkit_gateway_ctx->dev_callback_list);
