@@ -6,4 +6,21 @@ menuconfig AOS_BOARD_LPCXPRESSO54608
 
 if AOS_BOARD_LPCXPRESSO54608
 # Configurations for board board_lpcxpresso54608
+
+menu "BSP SUPPORT FEATURE"
+
+config BSP_SUPPORT_UART
+    bool "BSP_SUPPORT_UART"
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool "BSP_SUPPORT_FLASH"
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool "BSP_SUPPORT_TIMER"
+    default y
+
+endmenu
+
 endif
