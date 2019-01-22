@@ -173,7 +173,8 @@ static void _linkkit_event_callback(iotx_dm_event_types_t type, char *payload)
     }
 
     switch (type) {
-        case IOTX_DM_EVENT_CLOUD_CONNECTED: {
+        case IOTX_DM_EVENT_CLOUD_CONNECTED: 
+        case IOTX_DM_EVENT_CLOUD_RECONNECT: {
             linkkit_ops->on_connect(context);
             break;
         }
