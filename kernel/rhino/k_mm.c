@@ -536,12 +536,12 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
     if (free_b->dye == RHINO_MM_FREE_DYE) {
         MM_CRITICAL_EXIT(mmhead);
-        printf("WARNING!! memory maybe double free!!\r\n");
+        printf("WARNING, memory maybe double free!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
     if (free_b->dye != RHINO_MM_CORRUPT_DYE) {
         MM_CRITICAL_EXIT(mmhead);
-        printf("WARNING,memory maybe corrupt!!\r\n");
+        printf("WARNING, memory maybe corrupt!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
     free_b->dye   = RHINO_MM_FREE_DYE;
@@ -564,7 +564,7 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
         if (prev_b->dye != RHINO_MM_FREE_DYE) {
             MM_CRITICAL_EXIT(mmhead);
-            printf("WARNING,memory overwritten!!\r\n");
+            printf("WARNING, memory overwritten!!\r\n");
             k_err_proc(RHINO_SYS_FATAL_ERR);
         }
 #endif
@@ -580,7 +580,7 @@ void  k_mm_free(k_mm_head *mmhead, void *ptr)
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
     if (next_b->dye != RHINO_MM_FREE_DYE && next_b->dye != RHINO_MM_CORRUPT_DYE) {
         MM_CRITICAL_EXIT(mmhead);
-        printf("WARNING,memory overwritten!!\r\n");
+        printf("WARNING, memory overwritten!!\r\n");
         k_err_proc(RHINO_SYS_FATAL_ERR);
     }
 #endif
@@ -776,8 +776,14 @@ void *krhino_mm_alloc(size_t size)
     if (tmp == NULL) {
 #if (RHINO_CONFIG_MM_DEBUG > 0)
         static int32_t dumped;
+        int32_t freesize;
+
+        freesize = g_kmm_head->free_size;
+#if (RHINO_CONFIG_MM_BLK > 0)
+        freesize -= ((mblk_pool_t *)g_kmm_head->fix_pool)->blk_avail * RHINO_CONFIG_MM_BLK_SIZE;
+#endif
         printf("WARNING, malloc failed!!!! need size:%d, but free size:%d\r\n",
-                size, get_heap_free_size(g_kmm_head));
+                size, freesize);
         if (dumped) {
             return tmp;
         }
