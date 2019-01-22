@@ -1,8 +1,8 @@
-config AOS_BOARD_LPCXPRESSO54102
+menuconfig AOS_BOARD_LPCXPRESSO54102
     bool "board_lpcxpresso54102"
     select AOS_MCU_LPC54102IMPL
     select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    select SAL_ENABLED if AOS_NETWORK_SAL
     help
 
 if AOS_BOARD_LPCXPRESSO54102
@@ -12,10 +12,6 @@ if AOS_BOARD_LPCXPRESSO54102
 config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default y
-
-config SAL_MODULE
-    string
-    default "wifi.mk3060"
 
 menu "BSP SUPPORT FEATURE"
 

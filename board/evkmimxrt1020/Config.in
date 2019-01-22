@@ -1,4 +1,4 @@
-config AOS_BOARD_EVKMIMXRT1020
+menuconfig AOS_BOARD_EVKMIMXRT1020
     bool "board_evkmimxrt1020"
     select AOS_MCU_MIMXRT1021IMPL
     select AOS_COMP_KERNEL_INIT

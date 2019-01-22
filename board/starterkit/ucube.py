@@ -38,7 +38,6 @@ for i in global_includes:
 global_macros =Split('''
     STM32L433xx
     STDIO_UART=0
-    CLI_CONFIG_SUPPORT_BOARD_CMD=1
     AOS_SENSOR_ACC_MIR3_DA217
     AOS_SENSOR_ALS_LITEON_LTR553
     AOS_SENSOR_PS_LITEON_LTR553

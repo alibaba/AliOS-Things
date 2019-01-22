@@ -1,4 +1,4 @@
-config AOS_BOARD_STM32F429ZI-NUCLEO
+menuconfig AOS_BOARD_STM32F429ZI-NUCLEO
     bool "stm32f429zi-nucleo"
     select AOS_MCU_STM32F4XX_CUBE
     select AOS_COMP_LWIP
@@ -28,10 +28,6 @@ config BSP_SUPPORT_GPIO
 
 config BSP_SUPPORT_I2C
     bool "BSP_SUPPORT_I2C"
-    default y
-
-config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

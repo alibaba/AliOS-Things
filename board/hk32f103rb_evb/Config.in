@@ -1,4 +1,4 @@
-config AOS_BOARD_HK32F103RB_EVB
+menuconfig AOS_BOARD_HK32F103RB_EVB
     bool "hk32f103rb_evb"
     select AOS_MCU_HK32F103
     select AOS_COMP_NEWLIB_STUB
