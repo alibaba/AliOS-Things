@@ -1,5 +1,5 @@
-#ifndef _WLNAD_LIST_HEAD_H_
-#define _WLNAD_LIST_HEAD_H_
+#ifndef __RDA59XX_LIST_HEAD_H__
+#define __RDA59XX_LIST_HEAD_H__
 #include <stddef.h>
 
 #define _2offsetof(type, member) ((long) &((type *) 0)->member)

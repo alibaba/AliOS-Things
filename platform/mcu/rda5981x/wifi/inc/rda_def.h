@@ -1,5 +1,5 @@
-#ifndef _RDA_DEF_H
-#define _RDA_DEF_H
+#ifndef __RDA59XXX_DEF_H__
+#define __RDA59XXX_DEF_H__
 
 #include <stdbool.h>
 #include <stdio.h>
