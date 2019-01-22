@@ -24,4 +24,8 @@ config BSP_SUPPORT_I2C
 
 endmenu
 
+config VFS_CONFIG_STAT_INCLUDE_SIZE
+    int "VFS_CONFIG_STAT_INCLUDE_SIZE"
+    default 0
+
 endif
