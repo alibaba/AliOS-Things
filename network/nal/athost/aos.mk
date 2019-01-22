@@ -26,7 +26,7 @@ endif
 
 ifeq (y,$(FEATURE_ATHOST_MQTT))
 $(NAME)_SOURCES += ./src/atcmd/at_mqtt.c
-$(NAME)_COMPONENTS += feature.linkkit-mqtt
+$(NAME)_COMPONENTS += linkkit_sdk_c
 GLOBAL_DEFINES +=  MQTT_TEST USE_LPTHREAD
 GLOBAL_DEFINES += ATHOST_MQTT
 endif
@@ -43,7 +43,7 @@ $(NAME)_DEFINES += COAP_ONLINE
 endif
 
 $(NAME)_SOURCES += ./src/atcmd/at_coap.c
-$(NAME)_COMPONENTS += feature.linkkit-coap
+$(NAME)_COMPONENTS += linkkit_sdk_c
 
 GLOBAL_DEFINES += ATHOST_COAP
 endif
