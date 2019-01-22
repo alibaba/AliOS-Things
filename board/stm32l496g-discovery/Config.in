@@ -1,9 +1,8 @@
-config AOS_BOARD_STM32L496G-DISCOVERY
+menuconfig AOS_BOARD_STM32L496G-DISCOVERY
     bool "stm32l496g-discovery"
     select AOS_MCU_STM32L4XX_CUBE
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NETMGR if AOS_NETWORK_SAL
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
     help
 
 if AOS_BOARD_STM32L496G-DISCOVERY
@@ -13,10 +12,6 @@ if AOS_BOARD_STM32L496G-DISCOVERY
 config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default y
-
-config SAL_MODULE
-    string
-    default "wifi.mk3060"
 
 menu "BSP SUPPORT FEATURE"
 
@@ -46,10 +41,6 @@ config BSP_SUPPORT_RTC
 
 config BSP_SUPPORT_TIMER
     bool "BSP_SUPPORT_TIMER"
-    default y
-
-config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

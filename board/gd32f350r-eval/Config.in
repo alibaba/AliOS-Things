@@ -1,4 +1,4 @@
-config AOS_BOARD_GD32F350R-EVAL
+menuconfig AOS_BOARD_GD32F350R-EVAL
     bool "gd32f350r-eval"
     select AOS_MCU_GD32F3X0
     select AOS_COMP_KERNEL_INIT

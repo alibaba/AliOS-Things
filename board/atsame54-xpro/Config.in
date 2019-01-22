@@ -1,8 +1,8 @@
-config AOS_BOARD_ATSAME54-XPRO
+menuconfig AOS_BOARD_ATSAME54-XPRO
     bool "board_atsame54-xpro"
     select AOS_MCU_ATSAME54
     select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    select SAL_ENABLED if AOS_NETWORK_SAL
     select AOS_COMP_NETMGR if AOS_NETWORK_SAL
     help
       configuration for board atsame54-xpro
@@ -14,10 +14,6 @@ if AOS_BOARD_ATSAME54-XPRO
 config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default y
-
-config SAL_MODULE
-    string
-    default "wifi.mk3060"
 
 menu "BSP SUPPORT FEATURE"
 
@@ -31,10 +27,6 @@ config BSP_SUPPORT_FLASH
 
 config BSP_SUPPORT_TIMER
     bool "BSP_SUPPORT_TIMER"
-    default y
-
-config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

@@ -1,4 +1,4 @@
-config AOS_BOARD_B_F769
+menuconfig AOS_BOARD_B_F769
     bool "board_b_f769"
     select AOS_MCU_STM32F7XX
     select AOS_COMP_KERNEL_INIT
@@ -15,10 +15,6 @@ config BSP_SUPPORT_UART
 
 config BSP_SUPPORT_FLASH
     bool "BSP_SUPPORT_FLASH"
-    default y
-
-config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

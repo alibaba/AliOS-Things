@@ -1,4 +1,4 @@
-config AOS_BOARD_BK7231U
+menuconfig AOS_BOARD_BK7231U
     bool "board_bk7231u"
     select AOS_MCU_BK7231U
     select AOS_COMP_KERNEL_INIT
@@ -28,10 +28,6 @@ config BSP_SUPPORT_TIMER
 
 config BSP_SUPPORT_WDG
     bool "BSP_SUPPORT_WDG"
-    default y
-
-config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu
