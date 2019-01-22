@@ -331,6 +331,13 @@ if AOS_app_udataapp
     source "app/example/udataapp/Config.in"
 endif
 
+if AOS_app_udevapp
+    config AOS_BUILD_APP
+        default "udevapp"
+
+    source "app/example/udevapp/Config.in"
+endif
+
 if AOS_app_yts
     config AOS_BUILD_APP
         default "yts"
