@@ -146,20 +146,84 @@ extern "C"
         hal_wifi_stop_wifi_monitor(module);
     }
 
-    /**
-     * @brief   设置Wi-Fi网卡切换到指定的信道(channel)上
-     *
-     * @param[in] primary_channel @n Primary channel.
-     * @param[in] secondary_channel @n Auxiliary channel if 40Mhz channel is
-     * supported, currently this param is always 0.
-     * @param[in] bssid @n A pointer to wifi BSSID on which awss lock the
-     * channel, most HAL may ignore it.
-     */
-    void HAL_Awss_Switch_Channel(_IN_ char     primary_channel,
-                                 _IN_OPT_ char secondary_channel,
-                                 _IN_OPT_ uint8_t bssid[ETH_ALEN])
-    {
-        hal_wifi_module_t *module;
+/**
+  * @brief   开启设备热点（SoftAP模式）
+  *
+  * @param[in] ssid @n 热点的ssid字符；
+  * @param[in] passwd @n 热点的passwd字符；
+  * @param[in] beacon_interval @n 热点的Beacon广播周期（广播间隔）；
+  * @param[in] hide @n 是否是隐藏热点，hide:0, 非隐藏, 其它值：隐藏；
+  * @return，
+ @verbatim
+    = 0: success
+    = -1: unsupported
+    = -2: failure with system error
+    = -3: failure with no memory
+    = -4: failure with invalid parameters
+ @endverbatim
+  * @Note:
+  *       1）ssid和passwd都是以'\0'结尾的字符串，如果passwd字符串的
+  *          长度为0，表示该热点采用Open模式（不加密）；
+  *       2）beacon_interval表示热点的Beacon广播间隔（或周期），单
+  *          位为毫秒，一般会采用默认100ms；
+  *       3）hide表示创建的热点是否是隐藏热点，hide=0表示非隐藏热
+  *         点，其他值表示隐藏热点；
+  */
+
+int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, int hide)
+{
+    hal_wifi_module_t *module;
+
+    module = hal_wifi_get_default_module();
+    if (module == NULL || module->start_ap == NULL) {
+        return -1;
+    }
+    return module->start_ap(module, ssid, passwd, beacon_interval, hide);
+}
+
+/**
+  * @brief   关闭当前设备热点，并把设备由SoftAP模式切换到Station模式
+  *
+  * @return，
+ @verbatim
+    = 0: success
+    = -1: unsupported
+    = -2: failure
+ @endverbatim
+  * @Note:
+  *       1）如果当前设备已经开启热点，关闭当前热点，如果当前设备正
+  *          在开热点，取消开热点的操作；
+  *       2）如果当前设备不是以Station模式（包括Station+SoftAP模式和
+  *          SoftAP模式）工作，设备必须切换到Station模式；
+  *       3）Wi-Fi状态机需要切换到初始化状态，因为接下来很可能进行
+  *          连接某一个路由器操作；
+  */
+
+int HAL_Awss_Close_Ap()
+{
+    hal_wifi_module_t *module;
+
+    module = hal_wifi_get_default_module();
+    if (module == NULL || module->stop_ap == NULL) {
+        return -1;
+    }
+    return module->stop_ap(module);
+}
+
+/**
+ * @brief   设置Wi-Fi网卡切换到指定的信道(channel)上
+ *
+ * @param[in] primary_channel @n Primary channel.
+ * @param[in] secondary_channel @n Auxiliary channel if 40Mhz channel is
+ * supported, currently this param is always 0.
+ * @param[in] bssid @n A pointer to wifi BSSID on which awss lock the
+ * channel, most HAL may ignore it.
+ */
+void HAL_Awss_Switch_Channel(_IN_ char     primary_channel,
+                             _IN_OPT_ char secondary_channel,
+                             _IN_OPT_ uint8_t bssid[ETH_ALEN])
+{
+    hal_wifi_module_t *module;
 
         module = hal_wifi_get_default_module();
         if (module == NULL) {

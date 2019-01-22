@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "os.h"
 #include "awss.h"
 #include "passwd.h"
@@ -15,9 +16,9 @@
 #include "awss_event.h"
 #include "awss_crypt.h"
 #include "awss_aplist.h"
+#include "awss_statis.h"
 #include "zconfig_ieee80211.h"
 #include "zconfig_protocol.h"
-#include "iotx_utils.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C" {
@@ -146,6 +147,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
     if (ssid_len > W_LEN - EXTRA_LEN || passwd_len < 0) {
         return GOT_NOTHING;
     }
+    AWSS_UPDATE_STATIS(AWSS_STATIS_WPS_IDX, AWSS_STATIS_TYPE_TIME_START);
     /* ssid_len(1B), ssid, passwd, crc(2B) */
     crc = os_get_unaligned_be16(in + 1 + ssid_len + passwd_len);
     /* restore 0xc080 to 0x00 */
@@ -158,6 +160,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         memset(zc_android_bssid, 0, sizeof(zconfig_data->android_bssid));
         awss_debug("rx illegal p2p (0x%x != 0x%x)\r\n", crc, cal_crc);
         awss_event_post(AWSS_CS_ERR);
+        AWSS_UPDATE_STATIS(AWSS_STATIS_WPS_IDX, AWSS_STATIS_TYPE_CRC_ERR);
         /*
          * use zconfig_checksum_v3() because
          * java modified UTF-8, U+C080 equal U+00,
@@ -198,7 +201,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
         case P2P_ENCODE_TYPE_ENCRYPT: {
             /* decypt passwd using aes128-cfb */
             uint8_t passwd_cipher_len = 0;
-            uint8_t *passwd_cipher = os_zalloc(128);
+            uint8_t *passwd_cipher = awss_zalloc(128);
             if (passwd_cipher == NULL) {
                 return GOT_NOTHING;
             }
@@ -208,7 +211,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
             memset(tmp_passwd, 0, ZC_MAX_PASSWD_LEN);
             aes_decrypt_string((char *)passwd_cipher, (char *)tmp_passwd, passwd_len,
                     1, os_get_encrypt_type(), 0, NULL);
-            os_free(passwd_cipher);
+            awss_free(passwd_cipher);
             if (is_utf8((const char *)tmp_passwd, passwd_len) == 0) {
                 /* memset(zconfig_data, 0, sizeof(*zconfig_data)); */
                 memset(zc_android_src, 0, sizeof(zconfig_data->android_src));
@@ -218,6 +221,7 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
 
                 awss_warn("p2p decrypt passwd content err\r\n");
                 awss_event_post(AWSS_PASSWD_ERR);
+                AWSS_UPDATE_STATIS(AWSS_STATIS_WPS_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
                 return GOT_NOTHING;
             }
             break;
@@ -336,6 +340,7 @@ chn_locked:
     zconfig_set_state(STATE_CHN_LOCKED_BY_P2P, tods, channel);
     return PKG_START_FRAME;
 rcv_done:
+    AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_TIME_SUC);
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
     return PKG_END;
 }

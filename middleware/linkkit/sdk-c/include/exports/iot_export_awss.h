@@ -14,7 +14,7 @@ extern "C" {
  *
  * @retval  -1 : wifi setup fail
  * @retval  0 : sucess
- * @note: awss_report_cloud must been called to enable wifi setup service
+ * @note: awss_config_press must been called to enable wifi setup service
  */
 DLL_IOT_API int awss_start();
 
@@ -25,6 +25,7 @@ DLL_IOT_API int awss_start();
  * @retval  0 : sucess
  * @note
  *      if awss_stop is called before exit of awss_start, awss and notify will stop.
+ *      it may cause failutre of awss and device bind.
  */
 DLL_IOT_API int awss_stop();
 
@@ -36,6 +37,30 @@ DLL_IOT_API int awss_stop();
  * @note: AWSS dosen't parse awss packet until user touch device using this api.
  */
 DLL_IOT_API int awss_config_press();
+
+/**
+ * @brief   start wifi setup service with device ap
+ *
+ * @retval  -1 : failure
+ * @retval  0 : sucess
+ * @note
+ *      1. if awss_stop or awss_dev_ap_stop is called before exit of awss_dev_ap_start
+ *         awss with device ap and notify will stop, it may cause failutre of device ap
+ *         and device bind.
+ *      2. awss_dev_ap_start doesn't need to call awss_config_press to been enabled.
+ */
+DLL_IOT_API int awss_dev_ap_start();
+
+/**
+ * @brief   stop wifi setup service with device ap
+ *
+ * @retval  -1 : failure
+ * @retval  0 : sucess
+ * @note
+ *      if awss_dev_ap_stop is called before exit of awss_dev_ap_start
+ *      awss with device ap and notify will stop, it may cause failutre of device ap
+ */
+DLL_IOT_API int awss_dev_ap_stop();
 
 /**
  * @brief   report token to cloud after wifi setup success

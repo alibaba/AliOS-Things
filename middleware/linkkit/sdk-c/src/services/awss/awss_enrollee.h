@@ -150,9 +150,9 @@ extern const uint8_t probe_req_frame[ZC_PROBE_LEN];
 
 /* enrollee API */
 #ifdef AWSS_DISABLE_ENROLLEE
-static inline void awss_init_enrollee_info(void) { }
-static inline void awss_broadcast_enrollee_info(void) { }
-static inline void awss_destroy_enrollee_info(void) { }
+static void awss_init_enrollee_info(void) { }
+static void awss_broadcast_enrollee_info(void) { }
+static void awss_destroy_enrollee_info(void) { }
 #else
 void awss_init_enrollee_info(void);
 void awss_broadcast_enrollee_info(void);
@@ -164,8 +164,8 @@ int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type,
 
 /* registrar API */
 #ifdef AWSS_DISABLE_REGISTRAR
-static inline void awss_registrar_deinit(void) { }
-static inline void awss_registrar_init(void) { }
+static void awss_registrar_deinit(void) { }
+static void awss_registrar_init(void) { }
 #else
 void awss_registrar_init(void);
 void awss_registrar_deinit(void);

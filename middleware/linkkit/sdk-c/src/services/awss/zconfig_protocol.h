@@ -48,10 +48,7 @@ enum passwd_encpyt_type {
 
 #define ZC_MAX_CHANNEL            (14)
 #define ZC_MIN_CHANNEL            (1)
-static inline int zconfig_is_valid_channel(int channel)
-{
-    return (ZC_MIN_CHANNEL <= channel && channel <= ZC_MAX_CHANNEL);
-}
+int zconfig_is_valid_channel(int channel);
 
 #define P2P_ENCODE_TYPE_OFFSET    (0x05)
 #define P2P_SSID_LEN_MASK         ((1 << P2P_ENCODE_TYPE_OFFSET) - 1)
@@ -180,12 +177,11 @@ uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid);
 extern const char *zc_default_ssid;
 extern const char *zc_default_passwd;
 extern struct zconfig_data *zconfig_data;
-extern const uint8_t br_mac[ETH_ALEN];
 extern uint8_t zconfig_finished;
 /* broadcast mac address */
-extern const uint8_t br_mac[ETH_ALEN];
+extern uint8_t br_mac[ETH_ALEN];
 /* all zero mac address */
-extern const uint8_t zero_mac[ETH_ALEN];
+extern uint8_t zero_mac[ETH_ALEN];
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

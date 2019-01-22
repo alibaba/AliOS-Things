@@ -2,12 +2,17 @@ LIBA_TARGET     := libiot_awss.a
 
 HDR_REFS        := src/infra
 HDR_REFS        += src/protocol/mqtt
-HDR_REFS        += src/protocol/coap_alcs
+HDR_REFS        += src/protocol/coap/server
 HDR_REFS        += src/services/dev_bind
 HDR_REFS        += src/sdk-impl
 
 ifneq (,$(filter -DWIFI_PROVISION_ENABLED,$(CFLAGS)))
     CFLAGS      += -DAWSS_SUPPORT_APLIST
+    CFLAGS      += -DAWSS_SUPPORT_STATIS
+
+    ifneq (,$(filter -DAWSS_SUPPORT_DEV_AP,$(CFLAGS)))
+        CFLAGS  += -DAWSS_SUPPORT_DEV_AP
+    endif
 
     ifneq (,$(filter -DAWSS_SUPPORT_SMARTCONFIG,$(CFLAGS)))
         CFLAGS  += -DAWSS_SUPPORT_SMARTCONFIG \

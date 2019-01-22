@@ -77,7 +77,7 @@ int awss_init_ieee80211_aplist(void)
     if (zconfig_aplist) {
         return 0;
     }
-    zconfig_aplist = (struct ap_info *)os_zalloc(sizeof(struct ap_info) * MAX_APLIST_NUM);
+    zconfig_aplist = (struct ap_info *)awss_zalloc(sizeof(struct ap_info) * MAX_APLIST_NUM);
     if (zconfig_aplist == NULL) {
         return -1;
     }
@@ -90,7 +90,7 @@ int awss_deinit_ieee80211_aplist(void)
     if (zconfig_aplist == NULL) {
         return 0;
     }
-    os_free(zconfig_aplist);
+    awss_free(zconfig_aplist);
     zconfig_aplist = NULL;
     zconfig_aplist_num = 0;
     return 0;
@@ -296,12 +296,10 @@ int awss_save_apinfo(uint8_t *ssid, uint8_t *bssid, uint8_t channel, uint8_t aut
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
         adha = adha_aplist->cnt;
 #endif
-        awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, auth:%s, %s, %s, rssi:%d, adha:%d\r\n",
-                   i, ssid, bssid[0], bssid[1], bssid[2],
-                   bssid[3], bssid[4], bssid[5], channel,
-                   zconfig_auth_str(auth),
-                   zconfig_encry_str(pairwise_cipher),
-                   zconfig_encry_str(group_cipher), rssi > 0 ? rssi - 256 : rssi, adha);
+        awss_trace("[%d] ssid:%s, mac:%02x%02x%02x%02x%02x%02x, chn:%d, rssi:%d, adha:%d\r\n",
+            i, ssid, bssid[0], bssid[1], bssid[2],
+            bssid[3], bssid[4], bssid[5], channel,
+            rssi > 0 ? rssi - 256 : rssi, adha);
     } while (0);
     /*
      * if chn already locked(zc_bssid set),
@@ -392,8 +390,7 @@ void aws_try_adjust_chan(void)
     aws_switch_channel();
 }
 
-int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res,
-                                  signed char rssi)
+int awss_ieee80211_aplist_process(uint8_t *mgmt_header, int len, int link_type, struct parser_res *res, signed char rssi)
 {
     uint8_t ssid[ZC_MAX_SSID_LEN] = {0}, bssid[ETH_ALEN] = {0};
     uint8_t auth, pairwise_cipher, group_cipher;

@@ -98,11 +98,11 @@ int process_get_device_info(void *ctx, void *resource, void *remote, void *reque
     char topic[TOPIC_LEN_MAX] = {0};
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
 
-    buf = os_zalloc(DEV_INFO_LEN_MAX);
+    buf = awss_zalloc(DEV_INFO_LEN_MAX);
     if (!buf)
         goto DEV_INFO_ERR;
 
-    dev_info = os_zalloc(DEV_INFO_LEN_MAX);
+    dev_info = awss_zalloc(DEV_INFO_LEN_MAX);
     if (!dev_info)
         goto DEV_INFO_ERR;
 
@@ -124,21 +124,21 @@ int process_get_device_info(void *ctx, void *resource, void *remote, void *reque
     memset(buf, 0x00, DEV_INFO_LEN_MAX);
     HAL_Snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
 
-    os_free(dev_info);
+    awss_free(dev_info);
 
-    awss_debug("tx msg to app: %s", buf);
+    awss_info("tx msg to app: %s", buf);
 
     awss_build_topic(topic_fmt, topic, TOPIC_LEN_MAX);
 
     if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request))
-        awss_debug("tx dev info rsp fail.");
+        awss_err("tx dev info rsp fail.");
 
-    os_free(buf);
+    awss_free(buf);
     return 0;
 
 DEV_INFO_ERR:
-    if (buf) os_free(buf);
-    if (dev_info) os_free(dev_info);
+    if (buf) awss_free(buf);
+    if (dev_info) awss_free(dev_info);
 
     return -1;
 }

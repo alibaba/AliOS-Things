@@ -21,6 +21,7 @@
 #include "awss_notify.h"
 #include "awss_timer.h"
 #include "awss_packet.h"
+#include "awss_statis.h"
 #include "zconfig_utils.h"
 #include "zconfig_lib.h"
 #include "zconfig_protocol.h"
@@ -79,10 +80,10 @@ static void wifimgr_scan_tx_wifilist()
                                            &g_wifimgr_req_sa, topic, NULL)) {
                 awss_debug("sending failed.");
             }
-            os_free(item->data);
+            awss_free(item->data);
         }
         list_del(&item->entry);
-        os_free(item);
+        awss_free(item);
         item = NULL;
     }
     HAL_MutexUnlock(g_scan_mutex);
@@ -100,20 +101,20 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
     static int msg_len = 0;
 
     if (aplist == NULL) {
-        aplist = os_zalloc(WIFI_APINFO_LIST_LEN);
+        aplist = awss_zalloc(WIFI_APINFO_LIST_LEN);
         if (aplist == NULL) {
             return SHUB_ERR;
         }
 
         msg_len = 0;
-        msg_len += HAL_Snprintf(aplist + msg_len, WIFI_APINFO_LIST_LEN - msg_len - 1, "{\"awssVer\":%s, \"wifiList\":[",
-                                AWSS_VER);
+        msg_len += HAL_Snprintf(aplist + msg_len, WIFI_APINFO_LIST_LEN - msg_len - 1,
+                "{\"awssVer\":%s, \"wifiList\":[", AWSS_VER);
     }
 
     if ((ssid != NULL) && (ssid[0] != '\0')) {
         uint8_t bssid_connected[ETH_ALEN] = {0};
-        char *other_apinfo = os_zalloc(64);
-        char *encode_ssid = os_zalloc(OS_MAX_SSID_LEN * 2 + 1);
+        char *other_apinfo = awss_zalloc(64);
+        char *encode_ssid = awss_zalloc(OS_MAX_SSID_LEN * 2 + 1);
         int ssid_len = strlen(ssid);
         ssid_len = ssid_len > OS_MAX_SSID_LEN - 1 ? OS_MAX_SSID_LEN - 1 : ssid_len;
 
@@ -141,15 +142,17 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
         }
 
         if (other_apinfo) {
-            os_free(other_apinfo);
+            awss_free(other_apinfo);
         }
         if (encode_ssid) {
-            os_free(encode_ssid);
+            awss_free(encode_ssid);
         }
     }
     awss_debug("last_ap:%u\r\n", last_ap);
 
     if (last_ap || WIFI_APINFO_LIST_LEN < msg_len + ONE_AP_INFO_LEN_MAX + strlen(AWSS_ACK_FMT)) {
+        if (last_ap)
+            AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_SCAN_STOP);
         if (aplist[msg_len - 1] == ',') {
             msg_len--;    /* eating the last ',' */
         }
@@ -157,21 +160,21 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
 
         uint32_t tlen = DEV_SIMPLE_ACK_LEN + msg_len;
         msg_len = 0;
-        char *msg_aplist = os_zalloc(tlen + 1);
+        char *msg_aplist = awss_zalloc(tlen + 1);
         if (!msg_aplist) {
-            os_free(aplist);
+            awss_free(aplist);
             aplist = NULL;
             return SHUB_ERR;
         }
 
         HAL_Snprintf(msg_aplist, tlen, AWSS_ACK_FMT, g_req_msg_id, 200, aplist);
-        os_free(aplist);
+        awss_free(aplist);
         aplist = NULL;
 
-        scan_list_t *list = (scan_list_t *)os_zalloc(sizeof(scan_list_t));
+        scan_list_t *list = (scan_list_t *)awss_zalloc(sizeof(scan_list_t));
         if (!list) {
             awss_debug("scan list fail\n");
-            os_free(msg_aplist);
+            awss_free(msg_aplist);
             return SHUB_ERR;
         }
         list->data = msg_aplist;
@@ -195,6 +198,8 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
 static void wifimgr_scan_request()
 {
     wifimgr_scan_init();
+
+    AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_SCAN_START);
     os_wifi_scan(&awss_scan_cb);
 }
 /*
@@ -257,9 +262,9 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     int str_len = 0, success = 1, i  = 0, len = 0, enc_lvl = SEC_LVL_OPEN;
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
     char *str = NULL, *buf = NULL;
+    char bssid[ETH_ALEN] = {0};
     char msg[128] = {0};
     char ssid_found = 0;
-    uint8_t *bssid = NULL;
 
     static char switch_ap_parsed = 0;
     if (switch_ap_parsed != 0) {
@@ -303,8 +308,11 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         }
 
         str_len = 0;
+        str = json_get_value_by_name(buf, len, "bssid", &str_len, 0);
+        if (str) os_wifi_str2mac(str, bssid);
+
+        str_len = 0;
         str = json_get_value_by_name(buf, len, "cipherType", &str_len, 0);
-        awss_debug("enr");
         if (!str) {
             success = 0;
             HAL_Snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -4, "\"no security level error\"");
@@ -349,6 +357,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
                         0, os_get_conn_encrypt_type(), 1, (const char *)aes_random);
             } else {
                 HAL_Snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
+                AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
                 success = 0;
             }
         }
@@ -356,6 +365,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         if (success && is_utf8(passwd, strlen(passwd)) == 0) {
             HAL_Snprintf(msg, sizeof(msg) - 1, AWSS_ACK_FMT, req_msg_id,
                          enc_lvl == SEC_LVL_OPEN ? -2 : -3, "\"passwd content error\"");
+            AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
             success = 0;
         }
     } while (0);
@@ -375,7 +385,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         }
     }
 
-    os_msleep(1000);
+    awss_msleep(1000);
 
     if (!success) {
         goto SWITCH_AP_END;
@@ -386,22 +396,21 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
         aplist = zconfig_get_apinfo_by_ssid((uint8_t *)ssid);
         awss_debug("connect '%s'", ssid);
         if (aplist) {
-            bssid = aplist->mac;
+            memcpy(bssid, aplist->mac, ETH_ALEN);
             awss_debug("bssid: %02x:%02x:%02x:%02x:%02x:%02x", \
                        bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
-            if (bssid[0] == 0 && bssid[1] == 0 && bssid[2] == 0 && \
-                bssid[3] == 0 && bssid[4] == 0 && bssid[5] == 0) {
-                bssid = NULL;
-            }
         }
     } while (0);
 #endif
+    AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
     if (0 != os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT,
                                 ssid, passwd,
                                 AWSS_AUTH_TYPE_INVALID,
                                 AWSS_ENC_TYPE_INVALID,
-                                bssid, 0)) {
+                                (uint8_t *)bssid, 0)) {
     } else {
+        AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+        AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_TIME_SUC);
         switch_ap_done = 1;
         awss_close_aha_monitor();
         HAL_MutexDestroy(g_scan_mutex);

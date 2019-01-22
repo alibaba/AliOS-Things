@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __COAP_MESSAGE_H__
 #define __COAP_MESSAGE_H__
 #include "CoAPExport.h"
