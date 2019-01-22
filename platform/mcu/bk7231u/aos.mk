@@ -11,7 +11,6 @@ $(NAME)_COMPONENTS += newlib_stub rhino yloop alicrypto
 $(NAME)_COMPONENTS += lwip netmgr
 $(NAME)_COMPONENTS += libprov
 
-GLOBAL_DEFINES += CLI_CONFIG_SUPPORT_BOARD_CMD
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 
 GLOBAL_CFLAGS += -mcpu=arm968e-s           \

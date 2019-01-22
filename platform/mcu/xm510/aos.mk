@@ -30,11 +30,6 @@ $(NAME)_COMPONENTS += cramfs
 #ramfs
 $(NAME)_COMPONENTS += ramfs
 
-# kv related if kv is enabled
-GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=16
-# This value should be same as the kv partition length
-GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=131072
-
 GLOBAL_INCLUDES += ../../arch/arm/armv7a/gcc/a5
 GLOBAL_INCLUDES += cpu/include \
                    drivers     \

@@ -14,8 +14,6 @@ GLOBAL_CFLAGS += -Wall -fno-common -ffunction-sections -fdata-sections -ffreesta
 GLOBAL_CFLAGS += -mcpu=cortex-m7 -mfloat-abi=hard -MMD -MP -mfpu=fpv5-d16
 GLOBAL_CFLAGS += -Wno-format -Wno-incompatible-pointer-types
 
-GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=8192
-
 GLOBAL_ASMFLAGS += -Wall -fno-common -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mthumb -mapcs -std=gnu99
 GLOBAL_ASMFLAGS += -D__STARTUP_CLEAR_BSS
 GLOBAL_ASMFLAGS += -D__STARTUP_INITIALIZE_NONCACHEDATA
