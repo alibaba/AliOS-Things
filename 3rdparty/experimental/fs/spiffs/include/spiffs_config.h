@@ -17,7 +17,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <unistd.h>
-#include "aos/kernel.h"
+#include "k_api.h"
 
 // ----------- >8 ------------
 
@@ -63,11 +63,11 @@ extern void _spiffs_unlock(struct spiffs_t *fs);
 //gravity lite use 512k for fs
 
 #if defined (CONFIG_MX108)
-#define CFG_SPIFFS_PHYS_SZ        (1024 * 256)
+#define CFG_SPIFFS_PHYS_SZ (1024 * 256)
 #elif defined(STM32L496xx)
 #define CFG_SPIFFS_PHYS_SZ (1024 * 256)
 #else
-#define CFG_SPIFFS_PHYS_SZ        (1024 * 512)
+#define CFG_SPIFFS_PHYS_SZ (1024 * 512)
 #endif
 
 #endif

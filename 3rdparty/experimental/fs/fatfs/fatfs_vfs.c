@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/fcntl.h>
@@ -9,7 +10,7 @@
 #include "fatfs_diskio.h"
 #include "ff.h"
 
-#include "aos/vfs.h"
+#include "vfs_api.h"
 
 #if FF_USE_LFN == 0
 #define MAX_NAME_LEN 12
@@ -26,10 +27,10 @@ typedef struct _fsid_map_t
 
 typedef struct _fat_dir_t
 {
-    aos_dir_t    dir;
+    vfs_dir_t    dir;
     FF_DIR       ffdir;
     FILINFO      filinfo;
-    aos_dirent_t cur_dirent;
+    vfs_dirent_t cur_dirent;
 } fat_dir_t;
 
 static fsid_map_t g_fsid[] = { { DEV_MMC, MMC_MOUNTPOINT, MMC_PARTITION_ID },
@@ -44,13 +45,9 @@ static FATFS *g_fatfs[FF_VOLUMES] = { 0 };
 /* Allocate a memory block                                                */
 /*------------------------------------------------------------------------*/
 
-void *ff_memalloc(/* Returns pointer to the allocated memory block (null on not
-                     enough core) */
-                  UINT msize /* Number of bytes to allocate */
-)
+void *ff_memalloc(UINT msize)
 {
-    return (void *)aos_malloc(
-      msize); /* Allocate a new memory block with POSIX API */
+    return (void *)krhino_mm_alloc(msize);
 }
 
 
@@ -58,10 +55,9 @@ void *ff_memalloc(/* Returns pointer to the allocated memory block (null on not
 /* Free a memory block                                                    */
 /*------------------------------------------------------------------------*/
 
-void ff_memfree(void *mblock /* Pointer to the memory block to free */
-)
+void ff_memfree(void *mblock)
 {
-    aos_free(mblock); /* Free the memory block with POSIX API */
+    krhino_mm_free(mblock);
 }
 
 #endif
@@ -80,14 +76,12 @@ void ff_memfree(void *mblock /* Pointer to the memory block to free */
 // const osMutexDef_t Mutex[FF_VOLUMES]; /* CMSIS-RTOS */
 
 
-int ff_cre_syncobj(/* 1:Function succeeded, 0:Could not create the sync object
-                    */
-                   BYTE vol, /* Corresponding volume (logical drive number) */
-                   FF_SYNC_t
-                     *sobj /* Pointer to return the created sync object */
-)
+int32_t ff_cre_syncobj(BYTE vol, FF_SYNC_t *sobj)
 {
-    int ret = aos_mutex_new(sobj);
+    int32_t ret;
+
+    ret = krhino_mutex_create(sobj, "FATFS");
+
     return (ret == FR_OK) ? 1 : 0;
 }
 
@@ -100,13 +94,9 @@ int ff_cre_syncobj(/* 1:Function succeeded, 0:Could not create the sync object
 /  the f_mount() function fails with FR_INT_ERR.
 */
 
-int ff_del_syncobj(/* 1:Function succeeded, 0:Could not delete due to an error
-                    */
-                   FF_SYNC_t sobj /* Sync object tied to the logical drive to be
-                                     deleted */
-)
+int ff_del_syncobj(FF_SYNC_t sobj)
 {
-    aos_mutex_free(&sobj);
+    krhino_mutex_del(&sobj);
     return 1;
 }
 
@@ -118,12 +108,9 @@ int ff_del_syncobj(/* 1:Function succeeded, 0:Could not delete due to an error
 /  When a 0 is returned, the file function fails with FR_TIMEOUT.
 */
 
-int ff_req_grant(/* 1:Got a grant to access the volume, 0:Could not get a grant
-                  */
-                 FF_SYNC_t sobj /* Sync object to wait */
-)
+int ff_req_grant(FF_SYNC_t sobj)
 {
-    int ret = aos_mutex_lock(&sobj, FF_FS_TIMEOUT);
+    int ret = krhino_mutex_lock(&sobj, FF_FS_TIMEOUT);
     return (ret == FR_OK) ? 1 : 0;
 }
 
@@ -134,17 +121,16 @@ int ff_req_grant(/* 1:Got a grant to access the volume, 0:Could not get a grant
 /* This function is called on leaving file functions to unlock the volume.
  */
 
-void ff_rel_grant(FF_SYNC_t sobj /* Sync object to be signaled */
-)
+void ff_rel_grant(FF_SYNC_t sobj)
 {
-    aos_mutex_unlock(&sobj);
+    krhino_mutex_unlock(&sobj);
 }
 
 #endif
 
-static int get_disk_index(int pdrv)
+static int32_t get_disk_index(int32_t pdrv)
 {
-    int index;
+    int32_t index;
     for (index = 0; index < FF_VOLUMES; index++) {
         if (g_fsid[index].index == pdrv) {
             return index;
@@ -156,7 +142,7 @@ static int get_disk_index(int pdrv)
 
 static char *translate_relative_path(const char *path)
 {
-    int   len, prefix_len;
+    int32_t len, prefix_len;
     char *relpath, *p;
     BYTE  pdrv;
 
@@ -176,7 +162,7 @@ static char *translate_relative_path(const char *path)
         return NULL;
     }
 
-    relpath = (char *)aos_malloc(len + 1);
+    relpath = (char *)krhino_mm_alloc(len + 1);
     if (!relpath) {
         return NULL;
     }
@@ -193,10 +179,11 @@ static char *translate_relative_path(const char *path)
     return relpath;
 }
 
-static int fatfs_mode_conv(int m)
+static int32_t fatfs_mode_conv(int32_t m)
 {
-    int res      = 0;
-    int acc_mode = m & O_ACCMODE;
+    int32_t res      = 0;
+    int32_t acc_mode = m & O_ACCMODE;
+
     if (acc_mode == O_RDONLY) {
         res |= FA_READ;
     } else if (acc_mode == O_WRONLY) {
@@ -228,44 +215,46 @@ static int fatfs_mode_conv(int m)
 }
 
 
-static int fatfs_open(file_t *fp, const char *path, int flags)
+static int32_t fatfs_vfs_open(vfs_file_t *fp, const char *path, int32_t flags)
 {
-    int   ret     = -EPERM;
+    int32_t ret = -EPERM;
+
     FIL  *f       = NULL;
     char *relpath = NULL;
 
-    f = (FIL *)aos_malloc(sizeof(FIL));
+    f = (FIL *)krhino_mm_alloc(sizeof(FIL));
     if (!f) {
         return -ENOMEM;
     }
 
     relpath = translate_relative_path(path);
     if (!relpath) {
-        aos_free(f);
+        krhino_mm_free(f);
         return -EINVAL;
     }
 
     ret = f_open(f, relpath, fatfs_mode_conv(flags));
     if (ret == FR_OK) {
         fp->f_arg = (void *)f;
-        aos_free(relpath);
+        krhino_mm_free(relpath);
         return ret;
     }
 
-    aos_free(relpath);
-    aos_free(f);
+    krhino_mm_free(relpath);
+    krhino_mm_free(f);
     return ret;
 }
 
-static int fatfs_close(file_t *fp)
+static int32_t fatfs_vfs_close(vfs_file_t *fp)
 {
-    int  ret = -EPERM;
-    FIL *f   = (FIL *)(fp->f_arg);
+    int32_t ret = -EPERM;
+
+    FIL *f = (FIL *)(fp->f_arg);
 
     if (f) {
         ret = f_close(f);
         if (ret == FR_OK) {
-            aos_free(f);
+            krhino_mm_free(f);
             fp->f_arg = NULL;
         }
     }
@@ -273,15 +262,15 @@ static int fatfs_close(file_t *fp)
     return ret;
 }
 
-static ssize_t fatfs_read(file_t *fp, char *buf, size_t len)
+static int32_t fatfs_vfs_read(vfs_file_t *fp, char *buf, uint32_t len)
 {
-    ssize_t nbytes;
-    int     ret = -EPERM;
-    FIL    *f   = (FIL *)(fp->f_arg);
+    int32_t nbytes;
+    int32_t ret = -EPERM;
+
+    FIL *f = (FIL *)(fp->f_arg);
 
     if (f) {
-        if ((ret = f_read(f, (void *)buf, (UINT)len, (UINT *)&nbytes)) ==
-            FR_OK) {
+        if ((ret = f_read(f, (void *)buf, (UINT)len, (UINT *)&nbytes)) == FR_OK) {
             return nbytes;
         }
     }
@@ -289,15 +278,15 @@ static ssize_t fatfs_read(file_t *fp, char *buf, size_t len)
     return ret;
 }
 
-static ssize_t fatfs_write(file_t *fp, const char *buf, size_t len)
+static int32_t fatfs_vfs_write(vfs_file_t *fp, const char *buf, uint32_t len)
 {
-    ssize_t nbytes;
-    int     ret = -EPERM;
-    FIL    *f   = (FIL *)(fp->f_arg);
+    int32_t nbytes;
+    int32_t ret = -EPERM;
+
+    FIL *f = (FIL *)(fp->f_arg);
 
     if (f) {
-        if ((ret = f_write(f, (void *)buf, (UINT)len, (UINT *)&nbytes)) ==
-            FR_OK) {
+        if ((ret = f_write(f, (void *)buf, (UINT)len, (UINT *)&nbytes)) == FR_OK) {
             return nbytes;
         }
     }
@@ -305,11 +294,11 @@ static ssize_t fatfs_write(file_t *fp, const char *buf, size_t len)
     return ret;
 }
 
-static int fatfs_access(file_t *fp, const char *path, int amode)
+static int32_t fatfs_vfs_access(vfs_file_t *fp, const char *path, int32_t amode)
 {
     char   *relpath = NULL;
     FILINFO info;
-    int     len, ret;
+    int32_t len, ret;
 
 #if FF_FS_READONLY
     if (amode == W_OK) {
@@ -329,25 +318,29 @@ static int fatfs_access(file_t *fp, const char *path, int amode)
         ret = f_stat(relpath, &info);
     }
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return ret;
 }
 
-static off_t fatfs_lseek(file_t *fp, off_t off, int whence)
+static uint32_t fatfs_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
 {
-    off_t new_pos = 0;
-    int   ret     = -EPERM;
-    FIL  *f       = (FIL *)(fp->f_arg);
+    uint32_t cur_pos, new_pos, size;
+
+    int32_t ret = -EPERM;
+
+    FIL *f = (FIL *)(fp->f_arg);
+
+    new_pos = 0;
 
     if (f) {
         if (whence == SEEK_SET) {
             new_pos = off;
         } else if (whence == SEEK_CUR) {
-            off_t cur_pos = f_tell(f);
-            new_pos       = cur_pos + off;
+            cur_pos = f_tell(f);
+            new_pos = cur_pos + off;
         } else if (whence == SEEK_END) {
-            off_t size = f_size(f);
-            new_pos    = size + off;
+            size    = f_size(f);
+            new_pos = size + off;
         } else {
             return -EINVAL;
         }
@@ -360,10 +353,11 @@ static off_t fatfs_lseek(file_t *fp, off_t off, int whence)
     return new_pos;
 }
 
-static int fatfs_sync(file_t *fp)
+static int32_t fatfs_vfs_sync(vfs_file_t *fp)
 {
-    int  ret = -EPERM;
-    FIL *f   = (FIL *)(fp->f_arg);
+    int32_t ret = -EPERM;
+
+    FIL *f = (FIL *)(fp->f_arg);
 
     if (f) {
         ret = f_sync(f);
@@ -372,11 +366,11 @@ static int fatfs_sync(file_t *fp)
     return ret;
 }
 
-static int fatfs_stat(file_t *fp, const char *path, struct aos_stat *st)
+static int32_t fatfs_vfs_stat(vfs_file_t *fp, const char *path, vfs_stat_t *st)
 {
     char   *relpath = NULL;
     FILINFO info;
-    int     len, ret;
+    int32_t len, ret;
 
     relpath = translate_relative_path(path);
     if (!relpath) {
@@ -397,14 +391,14 @@ static int fatfs_stat(file_t *fp, const char *path, struct aos_stat *st)
         }
     }
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return ret;
 }
 
-static int fatfs_unlink(file_t *fp, const char *path)
+static int32_t fatfs_vfs_unlink(vfs_file_t *fp, const char *path)
 {
-    char *relpath = NULL;
-    int   ret;
+    char    *relpath = NULL;
+    int32_t  ret;
 
     relpath = translate_relative_path(path);
     if (!relpath) {
@@ -413,13 +407,14 @@ static int fatfs_unlink(file_t *fp, const char *path)
 
     ret = f_unlink(relpath);
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return ret;
 }
 
-static int fatfs_rename(file_t *fp, const char *oldpath, const char *newpath)
+static int32_t fatfs_vfs_rename(vfs_file_t *fp, const char *oldpath, const char *newpath)
 {
-    int   ret;
+    int32_t ret;
+
     char *oldname = NULL;
     char *newname = NULL;
 
@@ -430,18 +425,18 @@ static int fatfs_rename(file_t *fp, const char *oldpath, const char *newpath)
 
     newname = translate_relative_path(newpath);
     if (!newname) {
-        aos_free(oldname);
+        krhino_mm_free(oldname);
         return -EINVAL;
     }
 
     ret = f_rename(oldname, newname);
 
-    aos_free(oldname);
-    aos_free(newname);
+    krhino_mm_free(oldname);
+    krhino_mm_free(newname);
     return ret;
 }
 
-static aos_dir_t *fatfs_opendir(file_t *fp, const char *path)
+static vfs_dir_t *fatfs_vfs_opendir(vfs_file_t *fp, const char *path)
 {
     fat_dir_t *dp      = NULL;
     char      *relpath = NULL;
@@ -451,27 +446,27 @@ static aos_dir_t *fatfs_opendir(file_t *fp, const char *path)
         return NULL;
     }
 
-    dp = (fat_dir_t *)aos_malloc(sizeof(fat_dir_t) + MAX_NAME_LEN + 1);
+    dp = (fat_dir_t *)krhino_mm_alloc(sizeof(fat_dir_t) + MAX_NAME_LEN + 1);
     if (!dp) {
-        aos_free(relpath);
+        krhino_mm_free(relpath);
         return NULL;
     }
 
     memset(dp, 0, sizeof(fat_dir_t) + MAX_NAME_LEN + 1);
     if (f_opendir(&dp->ffdir, relpath) == FR_OK) {
-        aos_free(relpath);
-        return (aos_dir_t *)dp;
+        krhino_mm_free(relpath);
+        return (vfs_dir_t *)dp;
     }
 
-    aos_free(relpath);
-    aos_free(dp);
+    krhino_mm_free(relpath);
+    krhino_mm_free(dp);
     return NULL;
 }
 
-static aos_dirent_t *fatfs_readdir(file_t *fp, aos_dir_t *dir)
+static vfs_dirent_t *fatfs_vfs_readdir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     fat_dir_t    *dp = (fat_dir_t *)dir;
-    aos_dirent_t *out_dirent;
+    vfs_dirent_t *out_dirent;
 
     if (!dp) {
         return NULL;
@@ -497,9 +492,9 @@ static aos_dirent_t *fatfs_readdir(file_t *fp, aos_dir_t *dir)
     return out_dirent;
 }
 
-static int fatfs_closedir(file_t *fp, aos_dir_t *dir)
+static int32_t fatfs_vfs_closedir(vfs_file_t *fp, vfs_dir_t *dir)
 {
-    int        ret = -EPERM;
+    int32_t    ret = -EPERM;
     fat_dir_t *dp  = (fat_dir_t *)dir;
 
     if (!dp) {
@@ -508,16 +503,16 @@ static int fatfs_closedir(file_t *fp, aos_dir_t *dir)
 
     ret = f_closedir(&dp->ffdir);
     if (ret == FR_OK) {
-        aos_free(dp);
+        krhino_mm_free(dp);
     }
 
     return ret;
 }
 
-static int fatfs_mkdir(file_t *fp, const char *path)
+static int32_t fatfs_vfs_mkdir(vfs_file_t *fp, const char *path)
 {
-    int   ret     = -EPERM;
-    char *relpath = NULL;
+    int32_t  ret     = -EPERM;
+    char    *relpath = NULL;
 
     relpath = translate_relative_path(path);
     if (!relpath) {
@@ -526,14 +521,14 @@ static int fatfs_mkdir(file_t *fp, const char *path)
 
     ret = f_mkdir(relpath);
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return ret;
 }
 
-static int fatfs_rmdir(file_t *fp, const char *path)
+static int32_t fatfs_vfs_rmdir(vfs_file_t *fp, const char *path)
 {
-    int   ret     = -EPERM;
-    char *relpath = NULL;
+    int32_t  ret     = -EPERM;
+    char    *relpath = NULL;
 
     relpath = translate_relative_path(path);
     if (!relpath) {
@@ -542,12 +537,12 @@ static int fatfs_rmdir(file_t *fp, const char *path)
 
     ret = f_rmdir(relpath);
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
 
     return ret;
 }
 
-static void fatfs_rewinddir(file_t *fp, aos_dir_t *dir)
+static void fatfs_vfs_rewinddir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     fat_dir_t *dp = (fat_dir_t *)dir;
 
@@ -560,7 +555,7 @@ static void fatfs_rewinddir(file_t *fp, aos_dir_t *dir)
     return;
 }
 
-static long fatfs_telldir(file_t *fp, aos_dir_t *dir)
+static int32_t fatfs_vfs_telldir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     fat_dir_t *dp = (fat_dir_t *)dir;
 
@@ -568,10 +563,10 @@ static long fatfs_telldir(file_t *fp, aos_dir_t *dir)
         return -1;
     }
 
-    return (long)(dp->ffdir.dptr);
+    return (int32_t)(dp->ffdir.dptr);
 }
 
-static void fatfs_seekdir(file_t *fp, aos_dir_t *dir, long loc)
+static void fatfs_vfs_seekdir(vfs_file_t *fp, vfs_dir_t *dir, int32_t loc)
 {
     fat_dir_t *dp = (fat_dir_t *)dir;
 
@@ -584,30 +579,32 @@ static void fatfs_seekdir(file_t *fp, aos_dir_t *dir, long loc)
     return;
 }
 
-static const fs_ops_t fatfs_ops = { .open      = &fatfs_open,
-                                    .close     = &fatfs_close,
-                                    .read      = &fatfs_read,
-                                    .write     = &fatfs_write,
-                                    .access    = &fatfs_access,
-                                    .lseek     = &fatfs_lseek,
-                                    .sync      = &fatfs_sync,
-                                    .stat      = &fatfs_stat,
-                                    .unlink    = &fatfs_unlink,
-                                    .rename    = &fatfs_rename,
-                                    .opendir   = &fatfs_opendir,
-                                    .readdir   = &fatfs_readdir,
-                                    .closedir  = &fatfs_closedir,
-                                    .mkdir     = &fatfs_mkdir,
-                                    .rmdir     = &fatfs_rmdir,
-                                    .rewinddir = &fatfs_rewinddir,
-                                    .telldir   = &fatfs_telldir,
-                                    .seekdir   = &fatfs_seekdir,
-                                    .ioctl     = NULL };
+static vfs_filesystem_ops_t fatfs_ops = {
+    .open      = &fatfs_vfs_open,
+    .close     = &fatfs_vfs_close,
+    .read      = &fatfs_vfs_read,
+    .write     = &fatfs_vfs_write,
+    .access    = &fatfs_vfs_access,
+    .lseek     = &fatfs_vfs_lseek,
+    .sync      = &fatfs_vfs_sync,
+    .stat      = &fatfs_vfs_stat,
+    .unlink    = &fatfs_vfs_unlink,
+    .rename    = &fatfs_vfs_rename,
+    .opendir   = &fatfs_vfs_opendir,
+    .readdir   = &fatfs_vfs_readdir,
+    .closedir  = &fatfs_vfs_closedir,
+    .mkdir     = &fatfs_vfs_mkdir,
+    .rmdir     = &fatfs_vfs_rmdir,
+    .rewinddir = &fatfs_vfs_rewinddir,
+    .telldir   = &fatfs_vfs_telldir,
+    .seekdir   = &fatfs_vfs_seekdir,
+    .ioctl     = NULL
+};
 
-static int fatfs_dev_register(int pdrv)
+static int32_t fatfs_dev_register(int32_t pdrv)
 {
-    int    err, index;
-    FATFS *fatfs = NULL;
+    int32_t  err, index;
+    FATFS   *fatfs = NULL;
 
     index = get_disk_index(pdrv);
     if (index < 0) {
@@ -618,7 +615,7 @@ static int fatfs_dev_register(int pdrv)
         return FR_OK;
     }
 
-    fatfs = (FATFS *)aos_malloc(sizeof(FATFS));
+    fatfs = (FATFS *)krhino_mm_alloc(sizeof(FATFS));
     if (!fatfs) {
         return -ENOMEM;
     }
@@ -627,12 +624,12 @@ static int fatfs_dev_register(int pdrv)
 
     if (err == FR_OK) {
         g_fatfs[index] = fatfs;
-        return aos_register_fs(g_fsid[index].root, &fatfs_ops, NULL);
+        return vfs_register_fs(g_fsid[index].root, &fatfs_ops, NULL);
     }
 
 #if FF_USE_MKFS && !FF_FS_READONLY
     if (err == FR_NO_FILESYSTEM) {
-        char *work = (char *)aos_malloc(FF_MAX_SS);
+        char *work = (char *)krhino_mm_alloc(FF_MAX_SS);
         if (!work) {
             err = -ENOMEM;
             goto error;
@@ -642,7 +639,7 @@ static int fatfs_dev_register(int pdrv)
         disk_ioctl(g_fsid[index].index, GET_FORMAT_OPTION, &opt);
 
         err = f_mkfs(g_fsid[index].id, opt, 0, work, FF_MAX_SS);
-        aos_free(work);
+        krhino_mm_free(work);
 
         if (err != FR_OK) {
             goto error;
@@ -653,39 +650,39 @@ static int fatfs_dev_register(int pdrv)
 
         if (err == FR_OK) {
             g_fatfs[index] = fatfs;
-            return aos_register_fs(g_fsid[index].root, &fatfs_ops, NULL);
+            return vfs_register_fs(g_fsid[index].root, &fatfs_ops, NULL);
         }
     }
 error:
 #endif
-    aos_free(fatfs);
+    krhino_mm_free(fatfs);
     return err;
 }
 
 
-static int fatfs_dev_unregister(int pdrv)
+static int32_t fatfs_dev_unregister(int32_t pdrv)
 {
-    int err = FR_OK;
-    int index;
+    int32_t index;
+    int32_t err = FR_OK;
 
     index = get_disk_index(pdrv);
     if (index < 0) {
         return -EINVAL;
     }
 
-    err = aos_unregister_fs(g_fsid[index].root);
+    err = vfs_unregister_fs(g_fsid[index].root);
     if (err == FR_OK) {
         f_mount(NULL, g_fsid[index].id, 1);
-        aos_free(g_fatfs[index]);
+        krhino_mm_free(g_fatfs[index]);
         g_fatfs[index] = NULL;
     }
 
     return err;
 }
 
-int fatfs_register(void)
+int32_t fatfs_register(void)
 {
-    int err = -EINVAL;
+    int32_t err = -EINVAL;
 
 #ifdef CONFIG_AOS_FATFS_SUPPORT_MMC
     if ((err = fatfs_dev_register(DEV_MMC)) != FR_OK) {
@@ -708,9 +705,9 @@ int fatfs_register(void)
     return err;
 }
 
-int fatfs_unregister(void)
+int32_t fatfs_unregister(void)
 {
-    int err = -EINVAL;
+    int32_t err = -EINVAL;
 
 #ifdef CONFIG_AOS_FATFS_SUPPORT_MMC
     if ((err = fatfs_dev_unregister(DEV_MMC)) != FR_OK) {
