@@ -132,6 +132,7 @@ static void handle_socket_data()
     uint32_t len = 0;
     char reader[16] = {0};
     char *recvdata = NULL;
+    char single;
 
     /* Eat the "OCKET," */
     at.read(reader, 6);
@@ -163,15 +164,23 @@ static void handle_socket_data()
         return;
     }
     /* Prepare socket data */
-    recvdata = (char *)aos_malloc(len + 1);
+    recvdata = (char *)aos_malloc(len);
     if (!recvdata) {
         LOGE(TAG, "Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
         return;
     }
 
-    at.read(recvdata, len);
-    recvdata[len] = '\0';
-    LOGD(TAG, "The socket data is %s", recvdata);
+    ret = at.read(recvdata, len);
+    if (ret != len) {
+        LOGE(TAG, "at read error recv %d want %d!\n", ret, len);
+        goto err;
+    }
+
+    at.read(&single, 1);
+    if (single != '\r') {
+        LOGE(TAG, "at fail to read delimiter %d after data %d!\n", '\r', single);
+        goto err;
+    }
 
     if (g_netconn_data_input_cb && (g_link[link_id].fd >= 0)) {
         /* TODO get recv data src ip and port*/
@@ -184,6 +193,7 @@ static void handle_socket_data()
     LOGD(TAG, "%s socket data on link %d with length %d posted to sal\n",
          __func__, link_id, len);
 
+err:
     aos_free(recvdata);
 
 }
