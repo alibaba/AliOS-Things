@@ -137,7 +137,11 @@ void rec_success()
     rec_flag_info.flag = REC_RECOVERY_VERIFY_FLAG;
 #endif
     recovery_set_flag_info(&rec_flag_info);
-    rec_delayms(500);
+    rec_delayms(100);
+#if !defined BOARD_ESP8266 && (AOS_OTA_RECOVERY_TYPE == OTA_RECOVERY_TYPE_ABBOOT)
+    rec_upgrade_reboot();
+#endif
+    rec_delayms(400);
     rec_reboot();
 }
 
