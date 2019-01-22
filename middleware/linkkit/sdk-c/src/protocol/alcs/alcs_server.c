@@ -441,8 +441,14 @@ static secure_resource_cb_item *get_resource_by_path(const char *path)
     CoAPPathMD5_sum(path, strlen(path), path_calc, MAX_PATH_CHECKSUM_LEN);
 
     list_for_each_entry_safe(node, next, &secure_resource_cb_head, lst, secure_resource_cb_item) {
-        if (memcmp(node->path, path_calc, MAX_PATH_CHECKSUM_LEN) == 0) {
-            return node;
+        if (node->path_type == PATH_NORMAL) {
+            if (memcmp(node->path, path_calc, MAX_PATH_CHECKSUM_LEN) == 0) {
+                return node;
+            }
+        } else if (strlen(node->filter_path) > 0) {
+            if (strncmp(node->filter_path, path, strlen(node->filter_path) - 1) == 0) {
+                return node;
+            }
         }
     }
 
@@ -494,16 +500,52 @@ int alcs_resource_register_secure(CoAPContext *context, const char *pk, const ch
 {
     COAP_INFO("alcs_resource_register_secure");
 
-    secure_resource_cb_item *item = (secure_resource_cb_item *)coap_malloc(sizeof(secure_resource_cb_item));
-    item->cb = callback;
-    CoAPPathMD5_sum(path, strlen(path), item->path, MAX_PATH_CHECKSUM_LEN);
-
+    secure_resource_cb_item *node = NULL, *next_node = NULL;;
     char pk_dn[100] = {0};
-    strncpy(pk_dn, pk, sizeof(pk_dn) - 1);
-    strncat(pk_dn, dn, sizeof(pk_dn) - strlen(pk_dn) - 1);
-    CoAPPathMD5_sum(pk_dn, strlen(pk_dn), item->pk_dn, PK_DN_CHECKSUM_LEN);
+    int dup = 0;
+    secure_resource_cb_item *item = (secure_resource_cb_item *)coap_malloc(sizeof(secure_resource_cb_item));
+    if (item == NULL) {
+        return -1;
+    }
+    memset(item, 0, sizeof(secure_resource_cb_item));
+    item->cb = callback;
+    item->path_type = PATH_NORMAL;
+    if (strstr(path, "/#") != NULL) {
+        item->path_type = PATH_FILTER;
+    } else {
+        CoAPPathMD5_sum(path, strlen(path), item->path, MAX_PATH_CHECKSUM_LEN);
+    }
+    list_for_each_entry_safe(node, next_node, &secure_resource_cb_head, lst, secure_resource_cb_item) {
+        if (item->path_type == PATH_NORMAL && node->path_type == PATH_NORMAL) {
+            if (memcmp(node->path, item->path, MAX_PATH_CHECKSUM_LEN) == 0) {
+                dup = 1;
+            }
+        } else if (item->path_type == PATH_FILTER && node->path_type == PATH_FILTER) {
+            if (strncpy(node->filter_path, item->filter_path, strlen(item->filter_path)) == 0) {
+                dup = 1;
+            }
+        }
+    }
+    if (dup == 0) {
+        if (item->path_type == PATH_FILTER) {
+            item->filter_path = coap_malloc(strlen(path) + 1);
+            if (item->filter_path == NULL) {
+                coap_free(item);
+                return -1;
+            }
+            memset(item->filter_path, 0, strlen(path) + 1);
+            strncpy(item->filter_path, path, strlen(path));
+        }
 
-    list_add_tail(&item->lst, &secure_resource_cb_head);
+        strncpy(pk_dn, pk, sizeof(pk_dn) - 1);
+        strncat(pk_dn, dn, sizeof(pk_dn) - strlen(pk_dn) - 1);
+
+        CoAPPathMD5_sum(pk_dn, strlen(pk_dn), item->pk_dn, PK_DN_CHECKSUM_LEN);
+
+        list_add_tail(&item->lst, &secure_resource_cb_head);
+    } else {
+        coap_free(item);
+    }
 
     return CoAPResource_register(context, path, permission, ctype, maxage, &recv_msg_handler);
 }
@@ -514,6 +556,9 @@ void alcs_resource_cb_deinit(void)
 
     list_for_each_entry(del_item, &secure_resource_cb_head, lst, secure_resource_cb_item) {
         list_del(&del_item->lst);
+        if (del_item->path_type == PATH_FILTER) {
+            coap_free(del_item->filter_path);
+        }
         coap_free(del_item);
         del_item = list_entry(&secure_resource_cb_head, secure_resource_cb_item, lst);
     }

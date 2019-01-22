@@ -51,7 +51,10 @@ int CoAPResource_deinit(CoAPContext *context)
 
     HAL_MutexLock(ctx->resource.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->resource.list, reslist, CoAPResource) {
-        list_del(&node->reslist);
+        if (node->path_type == PATH_FILTER && node->filter_path) {
+            coap_free(node->filter_path);
+        }
+        list_del_init(&node->reslist);
         LITE_hexbuf_convert((unsigned char *)node->path, tmpbuf, COAP_MAX_PATH_CHECKSUM_LEN, 0);
         COAP_DEBUG("Release the resource %s", tmpbuf);
         coap_free(node);
@@ -65,7 +68,7 @@ int CoAPResource_deinit(CoAPContext *context)
     return COAP_SUCCESS;
 }
 
-CoAPResource *CoAPResource_create(const char *path, unsigned short           permission,
+CoAPResource *CoAPResource_create(const char *path, path_type_t path_type, unsigned short permission,
                                   unsigned int ctype, unsigned int maxage,
                                   CoAPRecvMsgHandler callback)
 {
@@ -85,8 +88,21 @@ CoAPResource *CoAPResource_create(const char *path, unsigned short           per
     }
 
     memset(resource, 0x00, sizeof(CoAPResource));
-    CoAPPathMD5_sum(path, strlen(path), resource->path, COAP_PATH_DEFAULT_SUM_LEN);
+    if (path_type == PATH_NORMAL) {
+        resource->path_type = PATH_NORMAL;
+        CoAPPathMD5_sum(path, strlen(path), resource->path, COAP_PATH_DEFAULT_SUM_LEN);
+    } else {
+        int len = strlen(path) + 1;
+        resource->filter_path = coap_malloc(len);
+        if (NULL == resource->filter_path) {
+            coap_free(resource);
+            return NULL;
+        }
+        resource->path_type = PATH_FILTER;
+        memset(resource->filter_path, 0, len);
+        strncpy(resource->filter_path, path, strlen(path));
 
+    }
     resource->callback = callback;
     resource->ctype = ctype;
     resource->maxage = maxage;
@@ -103,7 +119,7 @@ int CoAPResource_register(CoAPContext *context, const char *path,
     char path_calc[COAP_PATH_DEFAULT_SUM_LEN] = {0};
     CoAPResource *node = NULL, *newnode = NULL;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
-
+    path_type_t type = PATH_NORMAL;
     ARGUMENT_SANITY_CHECK(context, FAIL_RETURN);
 
     HAL_MutexLock(ctx->resource.list_mutex);
@@ -114,24 +130,42 @@ int CoAPResource_register(CoAPContext *context, const char *path,
         return COAP_ERROR_DATA_SIZE;
     }
 
+    if (strstr(path, "/#") != NULL) {
+        type = PATH_FILTER;
+    } else {
+        CoAPPathMD5_sum(path, strlen(path), path_calc, COAP_PATH_DEFAULT_SUM_LEN);
+    }
 
-    CoAPPathMD5_sum(path, strlen(path), path_calc, COAP_PATH_DEFAULT_SUM_LEN);
     list_for_each_entry(node, &ctx->resource.list, reslist, CoAPResource) {
-        if (0 == memcmp(path_calc, node->path, COAP_PATH_DEFAULT_SUM_LEN)) {
-            /*Alread exist, re-write it*/
-            COAP_INFO("CoAPResource_register:Alread exist");
-            exist = 1;
-            node->callback = callback;
-            node->ctype = ctype;
-            node->maxage = maxage;
-            node->permission = permission;
-            COAP_INFO("The resource %s already exist, re-write it", path);
-            break;
+        if (type == PATH_NORMAL && node->path_type == PATH_NORMAL) {
+            if (0 == memcmp(path_calc, node->path, COAP_PATH_DEFAULT_SUM_LEN)) {
+                /*Alread exist, re-write it*/
+                COAP_INFO("CoAPResource_register:Alread exist");
+                exist = 1;
+                node->callback = callback;
+                node->ctype = ctype;
+                node->maxage = maxage;
+                node->permission = permission;
+                COAP_INFO("The resource %s already exist, re-write it", path);
+                break;
+            }
+        } else if (type == PATH_FILTER && node->path_type == PATH_FILTER) {
+            if (strlen(path) == strlen(node->filter_path) && 0 == strncpy((char *)path, node->filter_path, strlen(path))) {
+                /*Alread exist, re-write it*/
+                COAP_INFO("CoAPResource_register:Alread exist");
+                exist = 1;
+                node->callback = callback;
+                node->ctype = ctype;
+                node->maxage = maxage;
+                node->permission = permission;
+                COAP_INFO("The resource %s already exist, re-write it", path);
+                break;
+            }
         }
     }
 
     if (0 == exist) {
-        newnode = CoAPResource_create(path, permission, ctype, maxage, callback);
+        newnode = CoAPResource_create(path, type, permission, ctype, maxage, callback);
         if (NULL != newnode) {
             COAP_DEBUG("CoAPResource_register, context:%p, new node", ctx);
             list_add_tail(&newnode->reslist, &ctx->resource.list);
@@ -171,11 +205,16 @@ CoAPResource *CoAPResourceByPath_get(CoAPContext *context, const char *path)
     list_for_each_entry(node, &ctx->resource.list, reslist, CoAPResource) {
         if (0 == memcmp(path_calc, node->path, COAP_PATH_DEFAULT_SUM_LEN)) {
             HAL_MutexUnlock(ctx->resource.list_mutex);
-            if (strcmp("/sys/device/info/notify", path)) {
-                COAP_DEBUG("Found the resource: %s", path);
-            }
+            COAP_DEBUG("Found the resource: %s", path);
             return node;
         }
+        if (node->path_type == PATH_FILTER && strlen(node->filter_path) > 0
+            && 0 == strncmp(path, node->filter_path, strlen(node->filter_path) - 1)) {
+            HAL_MutexUnlock(ctx->resource.list_mutex);
+            COAP_DEBUG("Found the resource: %s", path);
+            return node;
+        }
+
     }
     HAL_MutexUnlock(ctx->resource.list_mutex);
 
