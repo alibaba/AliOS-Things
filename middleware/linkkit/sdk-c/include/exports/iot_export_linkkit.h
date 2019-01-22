@@ -43,6 +43,9 @@ typedef enum {
     /* only for slave device, send logout request to cloud */
     ITM_MSG_LOGOUT,
 
+    /* only for slave device, send delete topo request to cloud */
+    ITM_MSG_DELETE_TOPO,
+
     /* query ntp time from cloud */
     ITM_MSG_QUERY_TIMESTAMP,
 
