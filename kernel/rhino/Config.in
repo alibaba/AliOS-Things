@@ -4,7 +4,8 @@ menuconfig AOS_COMP_RHINO
     help
         rhino core
 
-if AOS_COMP_RHINO
+#if AOS_COMP_RHINO
+if 0
 # Configurations for component rhino
 
 config RHINO_CONFIG_SEM
