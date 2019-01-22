@@ -1,6 +1,6 @@
 
-#ifndef __DHCPS_H__
-#define __DHCPS_H__
+#ifndef __RDA59xx_DHCPS_H__
+#define __RDA59xx_DHCPS_H__
 
 #ifdef __cplusplus
 extern "C" {

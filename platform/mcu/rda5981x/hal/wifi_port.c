@@ -6,6 +6,7 @@
 #include "rda59xx_wifi_include.h"
 #include "hal/wifi.h"
 #include "lwip/ip4_addr.h"
+#include "lwip/inet.h"
 
 typedef enum {
     SCAN_NORMAL,
@@ -319,6 +320,32 @@ static void start_monitor(hal_wifi_module_t *m)
     filter_backup = 0x27e77;
 }
 
+static int start_ap(hal_wifi_module_t *m, const char *ssid, const char *passwd, int interval, int hide)
+{
+    rda59xx_ap_info aws_ap_info;
+    memset((void*)&aws_ap_info, 0, sizeof(rda59xx_ap_info));
+
+    strncpy(aws_ap_info.ssid, ssid, sizeof(aws_ap_info.ssid));
+    strncpy(aws_ap_info.pw, passwd, sizeof(aws_ap_info.pw));
+
+    aws_ap_info.channel = 6;
+    aws_ap_info.hidden = hide;
+    aws_ap_info.beacon = interval;
+
+    aws_ap_info.dhcps=inet_addr("10.10.100.1");
+    aws_ap_info.dhcpe=inet_addr("10.10.100.255");
+    aws_ap_info.ip=inet_addr("10.10.100.1");
+    aws_ap_info.gateway=inet_addr("10.10.100.1");
+    aws_ap_info.netmask=inet_addr("255.255.255.0");
+
+    return rda59xx_ap_enable(&aws_ap_info);
+}
+
+static int stop_ap(hal_wifi_module_t *m)
+{
+    return rda59xx_ap_disable();
+}
+
 static void stop_monitor(hal_wifi_module_t *m)
 {
     rda59xx_sniffer_disable();
@@ -366,6 +393,8 @@ hal_wifi_module_t aos_wifi_rda59xx = {
     .get_channel         =  get_channel,
     .start_monitor       =  start_monitor,
     .stop_monitor        =  stop_monitor,
+    .start_ap            =  start_ap,
+    .stop_ap             =  stop_ap,
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame,
