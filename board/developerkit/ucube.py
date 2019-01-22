@@ -90,5 +90,5 @@ component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'developerkit'+'\\"')
 
 component.set_enable_vfp()
 
-linux_only_targets="blink coapapp dk.dk_gui dk.dk_ld dk.dk_qr helloworld http2app linkkit_gateway linkkitapp modbus_demo mqttapp otaapp tinyengine_app tls udataapp yts"
+linux_only_targets="blink coapapp dk.dk_gui dk.dk_ld dk.dk_qr helloworld http2app linkkit_gateway linkkitapp modbus_demo mqttapp otaapp tls udataapp yts"
 windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"
