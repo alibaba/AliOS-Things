@@ -300,12 +300,6 @@ static int thing_prop_changed(const void *thing_id, const char *property, void *
     return 0;
 }
 
-static int linkit_data_arrived(const void *thing_id, const void *params, int len, void *ctx)
-{
-    LINKKIT_PRINTF("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id, len, (const char *)params);
-    return 0;
-}
-
 static linkkit_ops_t alink_ops = {
     .on_connect           = on_connect,
     .on_disconnect        = on_disconnect,
@@ -315,7 +309,7 @@ static linkkit_ops_t alink_ops = {
     .thing_disable        = thing_disable,
     .thing_call_service   = thing_call_service,
     .thing_prop_changed   = thing_prop_changed,
-    .linkit_data_arrived  = linkit_data_arrived,
+    .linkit_data_arrived  = NULL,
 };
 
 #if 0
