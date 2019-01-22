@@ -429,6 +429,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
 
     switch (type) {
         case IOTX_DM_EVENT_CLOUD_CONNECTED:
+        case IOTX_DM_EVENT_CLOUD_RECONNECT: 
         {
             if (linkkit_gateway_ctx->init_params.event_cb) {
                 linkkit_event_t event;

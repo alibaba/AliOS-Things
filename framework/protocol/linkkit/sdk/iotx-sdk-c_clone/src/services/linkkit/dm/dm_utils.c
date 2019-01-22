@@ -254,7 +254,7 @@ int dm_utils_hex_to_str(_IN_ unsigned char *input, _IN_ int input_len, _OU_ char
 		if (iter_char >= 0x00 && iter_char <= 0x09) {
 			iter_char += '0';
 		}else if (iter_char >= 0x0A && iter_char <= 0x0F) {
-			iter_char += 'A';
+			iter_char += 'A' - 0x0A;
 		}
 		(*output)[index*2] = iter_char;
 
@@ -262,7 +262,7 @@ int dm_utils_hex_to_str(_IN_ unsigned char *input, _IN_ int input_len, _OU_ char
 		if (iter_char >= 0x00 && iter_char <= 0x09) {
 			iter_char += '0';
 		}else if (iter_char >= 0x0A && iter_char <= 0x0F) {
-			iter_char += 'A';
+			iter_char += 'A' - 0x0A;
 		}
 		(*output)[index*2 + 1] = iter_char;
 	}
@@ -293,14 +293,14 @@ int dm_utils_str_to_hex(_IN_ char *input, _IN_ int input_len, _OU_ unsigned char
 		if (input[index] >= '0' && input[index] <= '9') {
 			iter_char = input[index] - '0';
 		}else if (input[index] >= 'A' && input[index] <= 'F') {
-			iter_char = input[index] - 'A';
+			iter_char = input[index] - 'A' + 0x0A;
 		}
 		(*output)[index/2] |= (iter_char << 4) & 0xF0;
 		
 		if (input[index+1] >= '0' && input[index+1] <= '9') {
 			iter_char = input[index+1] - '0';
 		}else if (input[index+1] >= 'A' && input[index+1] <= 'F') {
-			iter_char = input[index+1] - 'A';
+			iter_char = input[index+1] - 'A' + 0x0A;
 		}
 		(*output)[index/2] |= (iter_char) & 0x0F;
 	}
