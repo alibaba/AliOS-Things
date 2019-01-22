@@ -21,6 +21,7 @@
 #define TOPIC_AWSS_GET_CONNECTAP_INFO_UCAST  "/sys/%s/%s/awss/device/connectap/info/get"
 #define TOPIC_GETDEVICEINFO_MCAST            "/sys/device/info/get"
 #define TOPIC_GETDEVICEINFO_UCAST            "/sys/%s/%s/device/info/get"
+#define TOPIC_POST_STATIS                    "/sys/%s/%s/thing/log/post"
 #define TOPIC_AWSS_NOTIFY                    "/sys/awss/device/info/notify"
 #define TOPIC_AWSS_CONNECTAP_NOTIFY          "/sys/awss/event/connectap/notify"
 #define TOPIC_NOTIFY                         "/sys/device/info/notify"
@@ -45,12 +46,14 @@
 #define METHOD_EVENT_ZC_CHECKIN              "thing.awss.enrollee.checkin"
 #define METHOD_EVENT_ZC_CIPHER               "thing.cipher.get"
 #define METHOD_MATCH_REPORT                  "thing.awss.enrollee.match"
+#define METHOD_LOG_POST                      "things.log.post"
 
 #define AWSS_ACK_FMT                         "{\"id\":%s,\"code\":%d,\"data\":%s}"
 #define AWSS_REQ_FMT                         "{\"id\":%s,\"version\":\"%s\",\"method\":\"%s\",\"params\":%s}"
 #define AWSS_JSON_PARAM                      "params"
 #define AWSS_JSON_CODE                       "code"
 #define AWSS_JSON_ID                         "id"
+#define AWSS_STATIS_FMT                      "{\"template\":\"timestamp logLevel module traceContext logContent\",\"contents\":[\"%u %s %s %u %s\"]}"
 
 enum {
     AWSS_CMP_PKT_TYPE_REQ = 1,

@@ -11,7 +11,7 @@
 #include "awss_timer.h"
 #include "awss_cmp.h"
 #include "awss_log.h"
-#include "os/platform.h"
+#include "platform.h"
 #include "passwd.h"
 #include "os.h"
 
@@ -32,8 +32,8 @@ struct notify_map_t {
 };
 
 static uint8_t g_notify_id;
-static uint16_t g_notify_msg_id;
 static char awss_notify_resp[AWSS_NOTIFY_TYPE_MAX] = {0};
+static uint16_t g_notify_msg_id[AWSS_NOTIFY_TYPE_MAX] = {0};
 
 #ifdef WIFI_PROVISION_ENABLED
 static void *success_notify_timer = NULL;
@@ -88,7 +88,7 @@ static int awss_dev_bind_notify_resp(void *context, int result,
     if (res == 1) {
         awss_update_token();
 #ifdef DEV_BIND_TEST
-        os_reboot();
+        awss_reboot();
 #endif
     }
     return res;
@@ -199,8 +199,8 @@ int awss_notify_dev_info(int type, int count)
             break;
         }
 
-        buf = os_zalloc(DEV_INFO_LEN_MAX);
-        dev_info = os_zalloc(DEV_INFO_LEN_MAX);
+        buf = awss_zalloc(DEV_INFO_LEN_MAX);
+        dev_info = awss_zalloc(DEV_INFO_LEN_MAX);
         if (buf == NULL || dev_info == NULL) {
             awss_err("alloc mem fail");
             break;
@@ -214,12 +214,13 @@ int awss_notify_dev_info(int type, int count)
 
         HAL_Snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_DEV_NOTIFY_FMT, ++ g_notify_id, method, dev_info);
 
-        awss_flow("topic:%s, %s\n", topic, buf);
+        awss_info("topic:%s\n", topic);
+        awss_debug("payload:%s\n", buf);
         for (i = 0; i < count; i ++) {
-            int ret = awss_cmp_coap_send(buf, strlen(buf), &notify_sa, topic, cb, &g_notify_msg_id);
-            awss_debug("send notify %s", ret == 0 ? "success" : "fail");
+            int ret = awss_cmp_coap_send(buf, strlen(buf), &notify_sa, topic, cb, &g_notify_msg_id[type]);
+            awss_info("send notify %s", ret == 0 ? "success" : "fail");
             if (count > 1) {
-                os_msleep(200 + 100 * i);
+                awss_msleep(200 + 100 * i);
             }
 
             if (awss_notify_resp[type]) {
@@ -229,10 +230,10 @@ int awss_notify_dev_info(int type, int count)
     } while (0);
 
     if (buf) {
-        os_free(buf);
+        awss_free(buf);
     }
     if (dev_info) {
-        os_free(dev_info);
+        awss_free(dev_info);
     }
 
     return awss_notify_resp[type];
@@ -264,12 +265,12 @@ static int awss_process_get_devinfo()
         char req_msg_id[MSG_REQ_ID_LEN];
         struct coap_session_ctx_t *ctx = (struct coap_session_ctx_t *)coap_session_ctx;
 
-        buf = os_zalloc(DEV_INFO_LEN_MAX);
+        buf = awss_zalloc(DEV_INFO_LEN_MAX);
         if (buf == NULL) {
             goto GET_DEV_INFO_ERR;
         }
 
-        dev_info = os_zalloc(DEV_INFO_LEN_MAX);
+        dev_info = awss_zalloc(DEV_INFO_LEN_MAX);
         if (dev_info == NULL) {
             goto GET_DEV_INFO_ERR;
         }
@@ -287,9 +288,9 @@ static int awss_process_get_devinfo()
         HAL_Snprintf(dev_info, DEV_INFO_LEN_MAX - 1, "{%s}", buf);
         memset(buf, 0x00, DEV_INFO_LEN_MAX);
         HAL_Snprintf(buf, DEV_INFO_LEN_MAX - 1, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
-        os_free(dev_info);
+        awss_free(dev_info);
 
-        awss_debug("sending message to app: %s", buf);
+        awss_info("sending message to app: %s", buf);
         char topic[TOPIC_LEN_MAX] = { 0 };
         if (ctx->is_mcast) {
             awss_build_topic((const char *)TOPIC_GETDEVICEINFO_MCAST, topic, TOPIC_LEN_MAX);
@@ -297,16 +298,18 @@ static int awss_process_get_devinfo()
             awss_build_topic((const char *)TOPIC_GETDEVICEINFO_UCAST, topic, TOPIC_LEN_MAX);
         }
 
+        /*before tx to app, clear token suc flag*/
+        awss_update_token();
+
         if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), ctx->remote, topic, ctx->request)) {
             awss_debug("sending failed.");
         }
 
-        os_free(buf);
+        awss_free(buf);
         awss_release_coap_ctx(coap_session_ctx);
         coap_session_ctx = NULL;
         awss_stop_timer(get_devinfo_timer);
         get_devinfo_timer = NULL;
-        awss_update_token();
     } while (0);
 
     return 0;
@@ -318,10 +321,10 @@ GET_DEV_INFO_ERR:
     get_devinfo_timer = NULL;
 
     if (buf) {
-        os_free(buf);
+        awss_free(buf);
     }
     if (dev_info) {
-        os_free(dev_info);
+        awss_free(dev_info);
     }
 
     return -1;
@@ -351,7 +354,7 @@ static int online_get_device_info(void *ctx, void *resource, void *remote,
      */
     coap_session_ctx = awss_cpy_coap_ctx(request, remote, is_mcast);
     if (coap_session_ctx == NULL) {
-        awss_debug("cpy req ctx fail");
+        awss_err("cpy req ctx fail");
         return -1;
     }
 
@@ -424,16 +427,18 @@ static int __awss_dev_bind_notify()
         if (i >= RANDOM_MAX_LEN) {
             produce_random(aes_random, sizeof(aes_random));
         }
-
-        awss_notify_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, 1);
+        if (awss_token_timeout() == 0) {
+            awss_notify_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, 1);
+            dev_bind_interval += 100;
+            dev_bind_cnt ++;
+        }
 #ifdef DEV_BIND_TEST
         if (dev_bind_cnt > 3) {
-            os_reboot();
+            awss_reboot();
         }
 #endif
 
-        dev_bind_interval += 100;
-        if (dev_bind_cnt ++ < AWSS_NOTIFY_CNT_MAX &&
+        if (dev_bind_cnt < AWSS_NOTIFY_CNT_MAX &&
             awss_notify_resp[AWSS_NOTIFY_DEV_BIND_TOKEN] == 0) {
             if (dev_bind_notify_timer == NULL) {
                 dev_bind_notify_timer = HAL_Timer_Create("dev_bind", (void (*)(void *))awss_dev_bind_notify, NULL);
@@ -445,6 +450,8 @@ static int __awss_dev_bind_notify()
         }
     } while (0);
 
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_DEV_BIND_TOKEN]);
+    g_notify_msg_id[AWSS_NOTIFY_DEV_BIND_TOKEN] = 0;
     awss_notify_resp[AWSS_NOTIFY_DEV_BIND_TOKEN] = 0;
     dev_bind_interval = 0;
     dev_bind_cnt = 0;
@@ -485,6 +492,9 @@ int awss_dev_bind_notify_stop()
         awss_stop_timer(dev_bind_notify_timer);
         dev_bind_notify_timer = NULL;
     } while (0);
+
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_DEV_BIND_TOKEN]);
+    g_notify_msg_id[AWSS_NOTIFY_DEV_BIND_TOKEN] = 0;
 
     if (dev_bind_notify_mutex) {
         HAL_MutexUnlock(dev_bind_notify_mutex);
@@ -534,6 +544,9 @@ static int __awss_suc_notify()
         }
     } while (0);
 
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_SUCCESS]);
+    g_notify_msg_id[AWSS_NOTIFY_SUCCESS] = 0;
+
     awss_notify_resp[AWSS_NOTIFY_SUCCESS] = 0;
     suc_interval = 0;
     suc_cnt = 0;
@@ -574,6 +587,9 @@ int awss_suc_notify_stop()
         awss_stop_timer(success_notify_timer);
         success_notify_timer = NULL;
     } while (0);
+
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_SUCCESS]);
+    g_notify_msg_id[AWSS_NOTIFY_SUCCESS] = 0;
 
     if (success_notify_mutex) {
         HAL_MutexUnlock(success_notify_mutex);
@@ -616,6 +632,9 @@ static int __awss_devinfo_notify()
         }
     } while (0);
 
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_DEV_RAND_SIGN]);
+    g_notify_msg_id[AWSS_NOTIFY_DEV_RAND_SIGN] = 0;
+
     awss_notify_resp[AWSS_NOTIFY_DEV_RAND_SIGN] = 0;
     devinfo_interval = 0;
     devinfo_cnt = 0;
@@ -655,6 +674,9 @@ int awss_devinfo_notify_stop()
         awss_stop_timer(devinfo_notify_timer);
         devinfo_notify_timer = NULL;
     } while (0);
+
+    awss_cmp_coap_cancel_packet(g_notify_msg_id[AWSS_NOTIFY_DEV_RAND_SIGN]);
+    g_notify_msg_id[AWSS_NOTIFY_DEV_RAND_SIGN] = 0;
 
     if (devinfo_notify_mutex) {
         HAL_MutexUnlock(devinfo_notify_mutex);

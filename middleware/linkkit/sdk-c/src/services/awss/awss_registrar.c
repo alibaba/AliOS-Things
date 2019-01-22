@@ -94,8 +94,8 @@ int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *reque
         goto CONNECTAP_MONITOR_END;
     }
 
-    dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
-    key = os_zalloc(MAX_PK_LEN + 1);
+    dev_name = awss_zalloc(MAX_DEV_NAME_LEN + 1);
+    key = awss_zalloc(MAX_PK_LEN + 1);
 
     if (!dev_name || !key) {
         goto CONNECTAP_MONITOR_END;
@@ -120,10 +120,10 @@ int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *reque
 
 CONNECTAP_MONITOR_END:
     if (dev_name) {
-        os_free(dev_name);
+        awss_free(dev_name);
     }
     if (key) {
-        os_free(key);
+        awss_free(key);
     }
     return 0;
 }
@@ -149,9 +149,9 @@ void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
         goto CHECKIN_FAIL;
     }
 
-    dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
-    packet = os_zalloc(CHECK_IN_RSP_LEN + 1);
-    key = os_zalloc(MAX_PK_LEN + 1);
+    dev_name = awss_zalloc(MAX_DEV_NAME_LEN + 1);
+    packet = awss_zalloc(CHECK_IN_RSP_LEN + 1);
+    key = awss_zalloc(MAX_PK_LEN + 1);
 
     if (!dev_name || !key || !packet) {
         goto CHECKIN_FAIL;
@@ -182,20 +182,20 @@ void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
     awss_build_topic(TOPIC_ZC_CHECKIN_REPLY, reply, TOPIC_LEN_MAX);
     awss_cmp_mqtt_send(reply, packet, packet_len, 1);
 
-    os_free(dev_name);
-    os_free(packet);
-    os_free(key);
+    awss_free(dev_name);
+    awss_free(packet);
+    awss_free(key);
     return;
 
 CHECKIN_FAIL:
     if (dev_name) {
-        os_free(dev_name);
+        awss_free(dev_name);
     }
     if (packet) {
-        os_free(packet);
+        awss_free(packet);
     }
     if (key) {
-        os_free(key);
+        awss_free(key);
     }
 
     awss_warn("alink checkin failed");
@@ -223,13 +223,13 @@ static int enrollee_enable_somebody_cipher(char *key, char *dev_name, char *ciph
             strlen(key) == enrollee_info[i].pk_len &&
             0 == memcmp(key, enrollee_info[i].pk, enrollee_info[i].pk_len)) {
 
-            uint8_t *key_byte = os_zalloc(MAX_KEY_LEN + 1);
+            uint8_t *key_byte = awss_zalloc(MAX_KEY_LEN + 1);
 
             utils_str_to_hex(cipher, strlen(cipher), key_byte, MAX_KEY_LEN);
 
             memcpy((char *)&enrollee_info[i].key[0], key_byte, AES_KEY_LEN);
 
-            os_free(key_byte);
+            awss_free(key_byte);
 
             awss_debug("enrollee[%d] state %d->%d", i, enrollee_info[i].state,
                        ENR_CHECKIN_CIPHER);
@@ -293,8 +293,8 @@ static int awss_request_cipher_key(int i)
     int packet_len = AWSS_REPORT_PKT_LEN - 1;
     char topic[TOPIC_LEN_MAX] = {0};
 
-    char *param = os_zalloc(AWSS_REPORT_PKT_LEN);
-    char *packet = os_zalloc(AWSS_REPORT_PKT_LEN);
+    char *param = awss_zalloc(AWSS_REPORT_PKT_LEN);
+    char *packet = awss_zalloc(AWSS_REPORT_PKT_LEN);
     if (param == NULL || packet == NULL) {
         goto REQ_CIPHER_ERR;
     }
@@ -308,22 +308,22 @@ static int awss_request_cipher_key(int i)
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_DEV_CIPHER_FMT,
                      AWSS_VER, enrollee_info[i].pk, enrollee_info[i].dev_name, enrollee_info[i].security, rand_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_CIPHER, param, 0, packet, &packet_len);
-        os_free(param);
+        awss_free(param);
     }
 
     awss_build_topic(TOPIC_ZC_CIPHER, topic, TOPIC_LEN_MAX);
     awss_cmp_mqtt_send(topic, packet, packet_len, 1);
 
-    os_free(packet);
+    awss_free(packet);
 
     return 0;
 
 REQ_CIPHER_ERR:
     if (param) {
-        os_free(param);
+        awss_free(param);
     }
     if (packet) {
-        os_free(packet);
+        awss_free(packet);
     }
 
     return -1;
@@ -347,9 +347,9 @@ void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg)
         goto CIPHER_ERR;
     }
 
-    dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
-    cipher = os_zalloc(RANDOM_MAX_LEN * 2 + 1);
-    key = os_zalloc(MAX_PK_LEN + 1);
+    dev_name = awss_zalloc(MAX_DEV_NAME_LEN + 1);
+    cipher = awss_zalloc(RANDOM_MAX_LEN * 2 + 1);
+    key = awss_zalloc(MAX_PK_LEN + 1);
 
     if (!dev_name || !key || !cipher) {
         goto CIPHER_ERR;
@@ -368,20 +368,20 @@ void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg)
 
     enrollee_enable_somebody_cipher(key, dev_name, cipher);
 
-    os_free(dev_name);
-    os_free(cipher);
-    os_free(key);
+    awss_free(dev_name);
+    awss_free(cipher);
+    awss_free(key);
 
     return;
 CIPHER_ERR:
     if (dev_name) {
-        os_free(dev_name);
+        awss_free(dev_name);
     }
     if (cipher) {
-        os_free(cipher);
+        awss_free(cipher);
     }
     if (key) {
-        os_free(key);
+        awss_free(key);
     }
     return;
 }
@@ -553,8 +553,8 @@ void awss_report_enrollee_reply(void *pcontext, void *pclient, void *msg)
     }
 
     awss_debug("found reply:%s\r\n", payload);
-    dev_name = os_zalloc(MAX_DEV_NAME_LEN + 1);
-    key = os_zalloc(MAX_PK_LEN + 1);
+    dev_name = awss_zalloc(MAX_DEV_NAME_LEN + 1);
+    key = awss_zalloc(MAX_PK_LEN + 1);
 
     if (!dev_name || !key) {
         goto REPORT_REPLY_FAIL;
@@ -577,16 +577,16 @@ void awss_report_enrollee_reply(void *pcontext, void *pclient, void *msg)
         awss_report_set_interval(key, dev_name, interval);
     }
 
-    os_free(dev_name);
-    os_free(key);
+    awss_free(dev_name);
+    awss_free(key);
     return;
 
 REPORT_REPLY_FAIL:
     if (dev_name) {
-        os_free(dev_name);
+        awss_free(dev_name);
     }
     if (key) {
-        os_free(key);
+        awss_free(key);
     }
 
     awss_warn("ilop report enrollee failed");
@@ -600,9 +600,9 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
     char *param = NULL, *packet = NULL;
     int packet_len = AWSS_REPORT_PKT_LEN - 1;
 
-    payload_str = os_zalloc(payload_len * 2 + 1);
-    param = os_zalloc(AWSS_REPORT_PKT_LEN);
-    packet = os_zalloc(AWSS_REPORT_PKT_LEN);
+    payload_str = awss_zalloc(payload_len * 2 + 1);
+    param = awss_zalloc(AWSS_REPORT_PKT_LEN);
+    packet = awss_zalloc(AWSS_REPORT_PKT_LEN);
     if (!payload_str || !param || !packet) {
         goto REPORT_FAIL;
     }
@@ -626,9 +626,9 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
 
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_REPORT_PARAM_FMT,
                      AWSS_VER, ssid, bssid_str, rssi > 0 ? rssi - 256 : rssi, payload_str);
-        os_free(payload_str);
+        awss_free(payload_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_ENROLLEE, param, 0, packet, &packet_len);
-        os_free(param);
+        awss_free(param);
     }
 
     char topic[TOPIC_LEN_MAX] = {0};
@@ -637,18 +637,18 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
 
     awss_cmp_mqtt_send(topic, packet, packet_len, 1);
 
-    os_free(packet);
+    awss_free(packet);
     return 0;
 
 REPORT_FAIL:
     if (payload_str) {
-        os_free(payload_str);
+        awss_free(payload_str);
     }
     if (packet) {
-        os_free(packet);
+        awss_free(packet);
     }
     if (param) {
-        os_free(param);
+        awss_free(param);
     }
 
     return -1;
@@ -681,7 +681,7 @@ static void enrollee_report(void)
                 uint16_t idx = 0;
                 uint16_t payload_len = 1 + enrollee->dev_name_len + 1 + enrollee->pk_len +
                                        1 + enrollee->rand_len + 3 + enrollee->sign_len;
-                uint8_t *payload = os_malloc(payload_len + 1);
+                uint8_t *payload = awss_malloc(payload_len + 1);
                 if (payload == NULL) {
                     break;
                 }
@@ -713,7 +713,7 @@ static void enrollee_report(void)
                            ret == 0 ? "success" : "failed",
                            enrollee->interval * 1000);
 
-                os_free(payload);
+                awss_free(payload);
                 break;
             }
             default:
@@ -970,7 +970,7 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
     ie_len = ENROLLEE_SIGN_SIZE + ssid_len + passwd_len + REGISTRAR_IE_FIX_LEN;
     registrar_frame_len = sizeof(probe_req_frame) + ie_len;
 
-    registrar_frame = os_malloc(registrar_frame_len);
+    registrar_frame = awss_malloc(registrar_frame_len);
     if (!registrar_frame) {
         awss_err("error: malloc size %d faild\r\n", registrar_frame_len);
         return;
@@ -1025,7 +1025,7 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
 static void registrar_raw_frame_destroy(void)
 {
     if (registrar_frame_len) {
-        os_free(registrar_frame);
+        awss_free(registrar_frame);
         registrar_frame = NULL;
         registrar_frame_len = 0;
     }
