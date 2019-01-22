@@ -6,7 +6,7 @@
 #define FS_FAT_DISKIO_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "diskio.h"
@@ -27,8 +27,8 @@
 
 
 #ifdef __cplusplus
- }
+}
 #endif
-
  
 #endif
+

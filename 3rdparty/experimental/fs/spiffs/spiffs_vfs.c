@@ -4,20 +4,23 @@
 
 #include <fcntl.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "spiffs_config.h"
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
 
 #include "aos/hal/flash.h"
-#include "aos/errno.h"
-#include "aos/vfs.h"
+
+#include "vfs_api.h"
+
+#define SPIFFS_WAIT_FOREVER 0xFFFFFFFF
 
 static const char *spiffs_mnt_path = "/spiffs";
 
 typedef struct {
     spiffs *fs;
-    aos_mutex_t lock;
+    kmutex_t lock;
     spiffs_config *cfg;
     uint8_t *work;
     uint32_t work_sz;
@@ -30,9 +33,9 @@ typedef struct {
 } spiffs_mgr_t;
 
 typedef struct {
-    aos_dir_t dir;
+    vfs_dir_t dir;
     spiffs_DIR d;
-    aos_dirent_t cur_dirent;
+    vfs_dirent_t cur_dirent;
 } spiffs_dir_t;
 
 static spiffs_mgr_t *g_spiffs_mgr = NULL;
@@ -54,17 +57,18 @@ static int32_t spiffs_hal_erase(uint32_t addr, uint32_t size)
 
 void _spiffs_lock(spiffs *fs)
 {
-    aos_mutex_lock(&(((spiffs_mgr_t *)(fs->user_data))->lock), AOS_WAIT_FOREVER);
+    krhino_mutex_lock(&(((spiffs_mgr_t *)(fs->user_data))->lock), SPIFFS_WAIT_FOREVER);
 }
 
 void _spiffs_unlock(spiffs *fs)
 {
-    aos_mutex_unlock(&(((spiffs_mgr_t *)(fs->user_data))->lock));
+    krhino_mutex_unlock(&(((spiffs_mgr_t *)(fs->user_data))->lock));
 }
 
 static char *translate_relative_path(const char *path)
 {
-    int len, prefix_len;
+    int32_t len, prefix_len;
+
     char *relpath, *p;
 
     if (!path) {
@@ -78,7 +82,7 @@ static char *translate_relative_path(const char *path)
     }
 
     len = len - prefix_len;
-    relpath = (char *)aos_malloc(len + 1);
+    relpath = (char *)krhino_mm_alloc(len + 1);
     if (!relpath) {
         return NULL;
     }
@@ -94,7 +98,7 @@ static char *translate_relative_path(const char *path)
     return relpath;
 }
 
-static int _spiffs_ret_to_err(int ret)
+static int32_t _spiffs_ret_to_err(int32_t ret)
 {
     switch (ret) {
         case SPIFFS_OK:
@@ -120,13 +124,14 @@ static int _spiffs_ret_to_err(int ret)
         case SPIFFS_ERR_RO_ABORTED_OPERATION:
             return -EROFS;
         default:
-            return EIO;
+            return -EIO;
     }
 }
 
-static int _spiffs_mode_conv(int flags)
+static int32_t _spiffs_mode_conv(int32_t flags)
 {
-    int acc_mode, res = 0;
+    int32_t acc_mode, res = 0;
+
     acc_mode = flags & O_ACCMODE;
     if (acc_mode == O_RDONLY) {
         res |= SPIFFS_O_RDONLY;
@@ -146,9 +151,10 @@ static int _spiffs_mode_conv(int flags)
     return res;
 }
 
-static int _spiffs_open(file_t *fp, const char *path, int flags)
+static int32_t spiffs_vfs_open(vfs_file_t *fp, const char *path, int32_t flags)
 {
-    int fd;
+    int32_t fd;
+
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
@@ -165,16 +171,16 @@ static int _spiffs_open(file_t *fp, const char *path, int flags)
         SPIFFS_clearerr(g_spiffs_mgr->fs);
     }
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return fd;
 }
 
-static int _spiffs_close(file_t *fp)
+static int32_t spiffs_vfs_close(vfs_file_t *fp)
 {
-    int fd;
-    int ret = SPIFFS_ERR_FILE_CLOSED;
+    int32_t fd;
+    int32_t ret = SPIFFS_ERR_FILE_CLOSED;
 
-    fd = (int)(fp->f_arg);
+    fd = (int32_t)(fp->f_arg);
     ret = SPIFFS_close(g_spiffs_mgr->fs, fd);
     if (ret < 0) {
         ret = _spiffs_ret_to_err(SPIFFS_errno(g_spiffs_mgr->fs));
@@ -186,12 +192,12 @@ static int _spiffs_close(file_t *fp)
     return ret;
 }
 
-static ssize_t _spiffs_read(file_t *fp, char *buf, size_t len)
+static int32_t spiffs_vfs_read(vfs_file_t *fp, char *buf, uint32_t len)
 {
-    ssize_t nbytes;
-    int fd;
+    int32_t nbytes;
+    int32_t fd;
 
-    fd = (int)(fp->f_arg);
+    fd = (int32_t)(fp->f_arg);
     nbytes = SPIFFS_read(g_spiffs_mgr->fs, fd, buf, len);
     if (nbytes < 0) {
         nbytes = _spiffs_ret_to_err(SPIFFS_errno(g_spiffs_mgr->fs));
@@ -201,12 +207,12 @@ static ssize_t _spiffs_read(file_t *fp, char *buf, size_t len)
     return nbytes;
 }
 
-static ssize_t _spiffs_write(file_t *fp, const char *buf, size_t len)
+static int32_t spiffs_vfs_write(vfs_file_t *fp, const char *buf, uint32_t len)
 {
-    ssize_t nbytes;
-    int fd;
+    int32_t nbytes;
+    int32_t fd;
 
-    fd = (int)(fp->f_arg);
+    fd = (int32_t)(fp->f_arg);
     nbytes = SPIFFS_write(g_spiffs_mgr->fs, fd, (void *)buf, len);
     if (nbytes < 0) {
         nbytes = _spiffs_ret_to_err(SPIFFS_errno(g_spiffs_mgr->fs));
@@ -216,12 +222,12 @@ static ssize_t _spiffs_write(file_t *fp, const char *buf, size_t len)
     return nbytes;
 }
 
-static off_t _spiffs_lseek(file_t *fp, off_t off, int whence)
+static uint32_t spiffs_vfs_lseek(vfs_file_t *fp, uint32_t off, int32_t whence)
 {
-    off_t ret;
-    int fd;
+    uint32_t ret;
+    int32_t  fd;
 
-    fd = (int)(fp->f_arg);
+    fd = (int32_t)(fp->f_arg);
     ret = SPIFFS_lseek(g_spiffs_mgr->fs, fd, off, whence);
     if (ret < 0) {
         ret = _spiffs_ret_to_err(SPIFFS_errno(g_spiffs_mgr->fs));
@@ -231,11 +237,11 @@ static off_t _spiffs_lseek(file_t *fp, off_t off, int whence)
     return ret;
 }
 
-static int _spiffs_sync(file_t *fp)
+static int32_t spiffs_vfs_sync(vfs_file_t *fp)
 {
-    int ret, fd;
+    int32_t ret, fd;
 
-    fd = (int)(fp->f_arg);
+    fd = (int32_t)(fp->f_arg);
     ret = SPIFFS_fflush(g_spiffs_mgr->fs, fd);
     if (ret < 0) {
         ret = _spiffs_ret_to_err(SPIFFS_errno(g_spiffs_mgr->fs));
@@ -247,9 +253,9 @@ static int _spiffs_sync(file_t *fp)
     return ret;
 }
 
-static int _spiffs_stat(file_t *fp, const char *path, struct aos_stat *st)
+static int32_t spiffs_vfs_stat(vfs_file_t *fp, const char *path, vfs_stat_t *st)
 {
-    int ret;
+    int32_t ret;
     spiffs_stat s;
     char *relpath = NULL;
 
@@ -268,13 +274,13 @@ static int _spiffs_stat(file_t *fp, const char *path, struct aos_stat *st)
                       ((s.type == SPIFFS_TYPE_DIR) ? S_IFDIR : S_IFREG);
     }
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return ret;
 }
 
-static int _spiffs_unlink(file_t *fp, const char *path)
+static int32_t spiffs_vfs_unlink(vfs_file_t *fp, const char *path)
 {
-    int ret;
+    int32_t ret;
     char *relpath = NULL;
 
     relpath = translate_relative_path(path);
@@ -288,13 +294,14 @@ static int _spiffs_unlink(file_t *fp, const char *path)
         SPIFFS_clearerr(g_spiffs_mgr->fs);
     }
 
-    aos_free(relpath);
+    krhino_mm_free(relpath);
     return ret;
 }
 
-static int _spiffs_rename(file_t *fp, const char *oldpath, const char *newpath)
+static int32_t spiffs_vfs_rename(vfs_file_t *fp, const char *oldpath, const char *newpath)
 {
-    int ret;
+    int32_t ret;
+
     char *oldname = NULL;
     char *newname = NULL;
 
@@ -305,7 +312,7 @@ static int _spiffs_rename(file_t *fp, const char *oldpath, const char *newpath)
 
     newname = translate_relative_path(newpath);
     if (!newname) {
-        aos_free(oldname);
+        krhino_mm_free(oldname);
         return -EINVAL;
     }
 
@@ -315,12 +322,12 @@ static int _spiffs_rename(file_t *fp, const char *oldpath, const char *newpath)
         SPIFFS_clearerr(g_spiffs_mgr->fs);
     }
 
-    aos_free(oldname);
-    aos_free(newname);
+    krhino_mm_free(oldname);
+    krhino_mm_free(newname);
     return ret;
 }
 
-static aos_dir_t *_spiffs_opendir(file_t *fp, const char *path)
+static vfs_dir_t *spiffs_vfs_opendir(vfs_file_t *fp, const char *path)
 {
     spiffs_dir_t *dp = NULL;
     char *relpath = NULL;
@@ -330,29 +337,29 @@ static aos_dir_t *_spiffs_opendir(file_t *fp, const char *path)
         return NULL;
     }
 
-    dp = (spiffs_dir_t *)aos_malloc(sizeof(spiffs_dir_t) + SPIFFS_OBJ_NAME_LEN);
+    dp = (spiffs_dir_t *)krhino_mm_alloc(sizeof(spiffs_dir_t) + SPIFFS_OBJ_NAME_LEN);
     if (!dp) {
-        aos_free(relpath);
+        krhino_mm_free(relpath);
         return NULL;
     }
 
     memset(dp, 0, sizeof(spiffs_dir_t) + SPIFFS_OBJ_NAME_LEN);
     if (!SPIFFS_opendir(g_spiffs_mgr->fs, relpath, &dp->d)) {
-        aos_free(relpath);
-        aos_free(dp);
+        krhino_mm_free(relpath);
+        krhino_mm_free(dp);
         SPIFFS_clearerr(g_spiffs_mgr->fs);
         return NULL;
     }
 
-    aos_free(relpath);
-    return (aos_dir_t *)dp;
+    krhino_mm_free(relpath);
+    return (vfs_dir_t *)dp;
 }
 
-static aos_dirent_t *_spiffs_readdir(file_t *fp, aos_dir_t *dir)
+static vfs_dirent_t *spiffs_vfs_readdir(vfs_file_t *fp, vfs_dir_t *dir)
 {
     spiffs_dir_t *dp;
     struct spiffs_dirent e;
-    aos_dirent_t *out_dirent;
+    vfs_dirent_t *out_dirent;
 
     dp = (spiffs_dir_t *)dir;
     if (!dp) {
@@ -378,9 +385,9 @@ static aos_dirent_t *_spiffs_readdir(file_t *fp, aos_dir_t *dir)
     return out_dirent;
 }
 
-static int _spiffs_closedir(file_t *fp, aos_dir_t *dir)
+static int32_t spiffs_vfs_closedir(vfs_file_t *fp, vfs_dir_t *dir)
 {
-    int ret;
+    int32_t ret;
     spiffs_dir_t *dp = (spiffs_dir_t *)dir;
 
     if (!dp) {
@@ -393,7 +400,7 @@ static int _spiffs_closedir(file_t *fp, aos_dir_t *dir)
         SPIFFS_clearerr(g_spiffs_mgr->fs);
     }
 
-    aos_free(dp);
+    krhino_mm_free(dp);
     return ret;
 }
 
@@ -405,39 +412,39 @@ static void _spiffs_deinit(void)
 
     if (g_spiffs_mgr->fs) {
         SPIFFS_unmount(g_spiffs_mgr->fs);
-        aos_free(g_spiffs_mgr->fs);
+        krhino_mm_free(g_spiffs_mgr->fs);
     }
 
 #if SPIFFS_CACHE
     if (g_spiffs_mgr->cache) {
-        aos_free(g_spiffs_mgr->cache);
+        krhino_mm_free(g_spiffs_mgr->cache);
     }
 #endif
 
     if (g_spiffs_mgr->fds) {
-        aos_free(g_spiffs_mgr->fds);
+        krhino_mm_free(g_spiffs_mgr->fds);
     }
 
     if (g_spiffs_mgr->work) {
-        aos_free(g_spiffs_mgr->work);
+        krhino_mm_free(g_spiffs_mgr->work);
     }
 
     if (g_spiffs_mgr->cfg) {
-        aos_free(g_spiffs_mgr->cfg);
+        krhino_mm_free(g_spiffs_mgr->cfg);
     }
 
-    aos_mutex_free(&g_spiffs_mgr->lock);
-    aos_free(g_spiffs_mgr);
+    krhino_mutex_del(&g_spiffs_mgr->lock);
+    krhino_mm_free(g_spiffs_mgr);
     g_spiffs_mgr = NULL;
 }
 
-static int _spiffs_init(void)
+static int32_t _spiffs_init(void)
 {
     if (g_spiffs_mgr) {
         return 0;
     }
 
-    g_spiffs_mgr = (spiffs_mgr_t *)aos_malloc(sizeof(spiffs_mgr_t));
+    g_spiffs_mgr = (spiffs_mgr_t *)krhino_mm_alloc(sizeof(spiffs_mgr_t));
     if (!g_spiffs_mgr) {
         return -ENOMEM;
     }
@@ -445,13 +452,13 @@ static int _spiffs_init(void)
     memset(g_spiffs_mgr, 0, sizeof(spiffs_mgr_t));
 
     /* init spiffs lock */
-    if (aos_mutex_new(&g_spiffs_mgr->lock) != 0) {
+    if (krhino_mutex_create(&g_spiffs_mgr->lock, "SPIFFS") != 0) {
         goto err;
     }
 
     /* init spiffs work buffer */
     g_spiffs_mgr->work_sz = CFG_SPIFFS_LOG_PAGE_SZ * 2;
-    g_spiffs_mgr->work = (uint8_t *)aos_malloc(g_spiffs_mgr->work_sz);
+    g_spiffs_mgr->work = (uint8_t *)krhino_mm_alloc(g_spiffs_mgr->work_sz);
     if (g_spiffs_mgr->work == NULL) {
         goto err;
     }
@@ -459,7 +466,7 @@ static int _spiffs_init(void)
 
     /* init spiffs fds */
     g_spiffs_mgr->fds_sz = sizeof(spiffs_fd) * CFG_SPIFFS_MAX_FILES;
-    g_spiffs_mgr->fds = (uint8_t *)aos_malloc(g_spiffs_mgr->fds_sz);
+    g_spiffs_mgr->fds = (uint8_t *)krhino_mm_alloc(g_spiffs_mgr->fds_sz);
     if (g_spiffs_mgr->fds == NULL) {
         goto err;
     }
@@ -469,7 +476,7 @@ static int _spiffs_init(void)
     /* init spiffs cache */
     g_spiffs_mgr->cache_sz = sizeof(spiffs_cache) + CFG_SPIFFS_MAX_FILES *
                              (sizeof(spiffs_cache_page) + CFG_SPIFFS_LOG_PAGE_SZ);
-    g_spiffs_mgr->cache = (uint8_t *)aos_malloc(g_spiffs_mgr->cache_sz);
+    g_spiffs_mgr->cache = (uint8_t *)krhino_mm_alloc(g_spiffs_mgr->cache_sz);
     if (g_spiffs_mgr->cache == NULL) {
         goto err;
     }
@@ -477,7 +484,7 @@ static int _spiffs_init(void)
 #endif
 
     /* init spiffs config */
-    g_spiffs_mgr->cfg = (spiffs_config *)aos_malloc(sizeof(spiffs_config));
+    g_spiffs_mgr->cfg = (spiffs_config *)krhino_mm_alloc(sizeof(spiffs_config));
     if (g_spiffs_mgr->cfg == NULL) {
         goto err;
     }
@@ -500,7 +507,7 @@ static int _spiffs_init(void)
 #endif
 
     /* init spiffs fs struct */
-    g_spiffs_mgr->fs = (spiffs *)aos_malloc(sizeof(spiffs));
+    g_spiffs_mgr->fs = (spiffs *)krhino_mm_alloc(sizeof(spiffs));
     if (g_spiffs_mgr->fs == NULL) {
         goto err;
     }
@@ -515,26 +522,26 @@ err:
     return -1;
 }
 
-static const fs_ops_t spiffs_ops = {
-    .open       = &_spiffs_open,
-    .close      = &_spiffs_close,
-    .read       = &_spiffs_read,
-    .write      = &_spiffs_write,
-    .lseek      = &_spiffs_lseek,
-    .sync       = &_spiffs_sync,
-    .stat       = &_spiffs_stat,
-    .unlink     = &_spiffs_unlink,
-    .rename     = &_spiffs_rename,
-    .opendir    = &_spiffs_opendir,
-    .readdir    = &_spiffs_readdir,
-    .closedir   = &_spiffs_closedir,
+static vfs_filesystem_ops_t spiffs_ops = {
+    .open       = &spiffs_vfs_open,
+    .close      = &spiffs_vfs_close,
+    .read       = &spiffs_vfs_read,
+    .write      = &spiffs_vfs_write,
+    .lseek      = &spiffs_vfs_lseek,
+    .sync       = &spiffs_vfs_sync,
+    .stat       = &spiffs_vfs_stat,
+    .unlink     = &spiffs_vfs_unlink,
+    .rename     = &spiffs_vfs_rename,
+    .opendir    = &spiffs_vfs_opendir,
+    .readdir    = &spiffs_vfs_readdir,
+    .closedir   = &spiffs_vfs_closedir,
     .mkdir      = NULL,
     .ioctl      = NULL
 };
 
-int vfs_spiffs_register(void)
+int32_t vfs_spiffs_register(void)
 {
-    int ret = SPIFFS_OK;
+    int32_t ret = SPIFFS_OK;
 
     ret = _spiffs_init();
     if (ret != SPIFFS_OK) {
@@ -564,16 +571,16 @@ int vfs_spiffs_register(void)
         }
     }
 
-    return aos_register_fs(spiffs_mnt_path, &spiffs_ops, NULL);
+    return vfs_register_fs(spiffs_mnt_path, &spiffs_ops, NULL);
 
 err:
     _spiffs_deinit();
     return ret;
 }
 
-int vfs_spiffs_unregister(void)
+int32_t vfs_spiffs_unregister(void)
 {
     SPIFFS_unmount(g_spiffs_mgr->fs);
     _spiffs_deinit();
-    return aos_unregister_fs(spiffs_mnt_path);
+    return vfs_unregister_fs(spiffs_mnt_path);
 }

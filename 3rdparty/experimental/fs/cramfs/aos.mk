@@ -6,8 +6,11 @@ $(NAME)_SUMMARY    := compress ROM filesystem
 
 $(NAME)_SOURCES += src/cramfs.c \
                    src/uncompress.c \
-                   src/flashio.c \
-                   vfs_cramfs.c
+                   src/flashio.c
+
+ifeq ($(AOS_COMP_VFS), y)
+$(NAME)_SOURCES += cramfs_vfs.c
+endif
 
 #default gcc
 ifeq ($(COMPILER),)

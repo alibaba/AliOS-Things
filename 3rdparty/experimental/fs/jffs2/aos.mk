@@ -4,8 +4,7 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := JFFS2 filesystem
 
-$(NAME)_SOURCES += vfs_jffs2.c \
-                   src/build.c \
+$(NAME)_SOURCES += src/build.c \
                    src/compat-crc32.c \
                    src/compr.c \
                    src/compr_rtime.c \
@@ -24,6 +23,10 @@ $(NAME)_SOURCES += vfs_jffs2.c \
                    src/scan.c \
                    src/write.c \
                    src/rbtree.c
+
+ifeq ($(AOS_COMP_VFS), y)
+$(NAME)_SOURCES += jffs2_vfs.c
+endif
 
 $(NAME)_CFLAGS += -Wno-pointer-sign -Wno-unused-variable -Wno-unused-function
 

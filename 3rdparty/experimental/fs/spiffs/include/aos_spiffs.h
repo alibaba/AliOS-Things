@@ -6,14 +6,14 @@
 #define FS_SPIFFS_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
  
-int vfs_spiffs_register(void);
-int vfs_spiffs_unregister(void);
+int32_t vfs_spiffs_register(void);
+int32_t vfs_spiffs_unregister(void);
  
 #ifdef __cplusplus
- }
+}
 #endif
 
  
