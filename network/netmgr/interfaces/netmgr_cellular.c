@@ -18,7 +18,7 @@
 
 #include "netmgr.h"
 
-#define TAG "netmgr"
+#define TAG "NETMGR_CELLULAR"
 
 typedef struct {
     hal_cellular_module_t *hal_mod;
@@ -99,7 +99,7 @@ static void ensure_different_seed(unsigned int *seed, seed_history_t *history)
         idx = (i + history->start_idx) % SEED_HISTORAY_MAX;
 
         if (history->hist[idx] == *seed) {
-            printf("Same seed found %d\r\n", history->hist[idx]);
+            LOGD(TAG, "Same seed found %d\r\n", history->hist[idx]);
             *seed = *seed + (unsigned int)aos_now();
         }
     }
@@ -135,11 +135,11 @@ static void dump_seed_history(seed_history_t *history)
     }
 
     for (i = 0; i < history->total_num; i++) {
-        printf("%d ",
+        LOGD(TAG, "%d ",
                history->hist[(history->start_idx + i) % SEED_HISTORAY_MAX]);
     }
 
-    printf("\r\n");
+    LOGD(TAG, "\r\n");
 #endif
 }
 #endif /* LOCAL_PORT_ENHANCED_RAND */

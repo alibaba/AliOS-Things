@@ -1042,11 +1042,12 @@ packet_output_hook (struct pbuf*p, struct netif* inp)
 {
 #if 0
     unsigned char *data = (unsigned char*)p->payload;
-    printf("===================dump output data start=========================\n");
-    printf("af_packet_test send data len = %d\n", p->len);
-    for(int j = 0; j <= p->len; j++)
-    printf("%02x", (unsigned char)data[j]);
-    printf("\n====================dump output data end==========================\n");
+    LWIP_DEBUGF(PACKETS_DEBUG, ("===================dump output data start=========================\n"));
+    LWIP_DEBUGF(PACKETS_DEBUG, ("af_packet_test send data len = %d\n", p->len));
+    for(int j = 0; j <= p->len; j++){
+    LWIP_DEBUGF(PACKETS_DEBUG, ("%02x", (unsigned char)data[j]));
+    }
+    LWIP_DEBUGF(PACKETS_DEBUG, ("\n====================dump output data end==========================\n"));
 #endif
     LWIP_DEBUGF(PACKETS_DEBUG, ("packet_output_hook %p/%p\n", (void*)p, (void*)inp));
     packet_input(p, inp, OUTGOING);

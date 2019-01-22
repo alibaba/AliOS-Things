@@ -36,7 +36,7 @@
 #include "lwip/tcp.h"
 #include <stdio.h>
 #include <inttypes.h>
-
+#define TAG "TELNETD"
 /*--------------------------------------------------------------------------------------------------------*/
 /* PRIVATE DEFINES */
 /*--------------------------------------------------------------------------------------------------------*/
@@ -153,7 +153,7 @@ static TelnetServer_t* CreateTelnetServer(void);
  */
 static err_t TelnetAccept(void *arg, struct tcp_pcb *pcb, err_t err) {
 #ifdef TELNET_DEBUG
-	printf("[Telnet Server] Incoming connection requested on Telnet port.\n\r");
+	LOGD(TAG, "[Telnet Server] Incoming connection requested on Telnet port.\n\r");
 #endif
 	err_t ret_err;
 
@@ -165,7 +165,7 @@ static err_t TelnetAccept(void *arg, struct tcp_pcb *pcb, err_t err) {
 		/* There is already a connected client, so refuse this connection with
 		 a message indicating this fact. */
 #ifdef TELNET_DEBUG
-		printf("[Telnet Server] A connection was attempted while an active connection is open.\n\r");
+		LOGD(TAG, "[Telnet Server] A connection was attempted while an active connection is open.\n\r");
 #endif
 		tcp_accepted(pcb);
 		tcp_arg(pcb, NULL);
@@ -181,7 +181,7 @@ static err_t TelnetAccept(void *arg, struct tcp_pcb *pcb, err_t err) {
 
 	CreateTelnetServer();
 #ifdef TELNET_DEBUG
-	printf("[Telnet Server] Initializing telnet server.\n\r");
+	LOGD(TAG, "[Telnet Server] Initializing telnet server.\n\r");
 #endif
 	tcp_nagle_enable(pcb);
 	telnet_server.pcb = pcb;
@@ -195,7 +195,7 @@ static err_t TelnetAccept(void *arg, struct tcp_pcb *pcb, err_t err) {
 	/* Accept this connection. */
 	tcp_accepted(pcb);
 #ifdef TELNET_DEBUG
-	printf("[Telnet Server] An incoming connection was accepted.\n\r");
+	LOGD(TAG, "[Telnet Server] An incoming connection was accepted.\n\r");
 #endif
 
 	/* Setup the TCP callback argument. */
@@ -219,7 +219,7 @@ static err_t TelnetAccept(void *arg, struct tcp_pcb *pcb, err_t err) {
 	/* Do not close the telnet connection until requested. */
 	telnet_server.close = 0;
 #ifdef TELNET_DEBUG
-	printf("[Telnet Server] Writing the init messages\n\r");
+	LOGD(TAG, "[Telnet Server] Writing the init messages\n\r");
 #endif
 	/* Send the telnet initialization string. */
 	tcp_write(pcb, TelnetInit, sizeof(TelnetInit), 1);
@@ -228,7 +228,7 @@ static err_t TelnetAccept(void *arg, struct tcp_pcb *pcb, err_t err) {
 	TelnetWriteDebugMessage("[TELNET] Telnet Server Connected. Welcome.");
 
 #ifdef TELNET_DEBUG
-	printf("[Telnet Server] Telnet Server Connected. Welcome.\n\r");
+	LOGD(TAG, "[Telnet Server] Telnet Server Connected. Welcome.\n\r");
 #endif
 	/* Return a success code. */
 	ret_err = ERR_OK;
@@ -258,7 +258,7 @@ static err_t TelnetReceive(void *arg, struct tcp_pcb *pcb, struct pbuf *p,
 		/* Process the incoming packet. */
 		if ((err == ERR_OK) && (p != NULL)) {
 #ifdef TELNET_DEBUG
-			printf("[Telnet Server] Processing received packet.\n\r");
+			LOGD(TAG, "[Telnet Server] Processing received packet.\n\r");
 #endif
 			/* Accept the packet from TCP. */
 			tcp_recved(pcb, p->tot_len);
@@ -280,7 +280,7 @@ static err_t TelnetReceive(void *arg, struct tcp_pcb *pcb, struct pbuf *p,
 		}
 	} else {
 #ifdef TELNET_DEBUG
-		printf("[Telnet Server] Could not cast receive args to telnet server struct because they were null.\n\r");
+		LOGD(TAG, "[Telnet Server] Could not cast receive args to telnet server struct because they were null.\n\r");
 		return ERR_VAL;
 #endif
 	}
@@ -303,7 +303,7 @@ static err_t TelnetSent(void *arg, struct tcp_pcb *pcb, u16_t len) {
 	if (arg) {
 		TelnetServer_t* server = (TelnetServer_t*) arg;
 #ifdef TELNET_DEBUG
-		printf("[Telnet Server] Sent packet was acknowledged.\n\r");
+		LOGD(TAG, "[Telnet Server] Sent packet was acknowledged.\n\r");
 #endif
 		/* Decrement the count of outstanding bytes. */
 		server->outstanding -= len;
@@ -332,7 +332,7 @@ static err_t TelnetSent(void *arg, struct tcp_pcb *pcb, u16_t len) {
 static void TelnetError(void *arg, err_t err) {
 	LWIP_UNUSED_ARG(err);
 	//#ifdef TELNET_DEBUG
-	printf("[Telnet Server] Telnet error received: %i\n\r", err);
+	LOGD(TAG, "[Telnet Server] Telnet error received: %i\n\r", err);
 	//#endif
 	TelnetServer_t* server;
 	server = (TelnetServer_t*) arg;
@@ -352,7 +352,7 @@ static void TelnetError(void *arg, err_t err) {
  */
 static TelnetServer_t* CreateTelnetServer(void) {
 #ifdef TELNET_DEBUG
-	printf("[Telnet Server] Allocating memory for server.\n\r");
+	LOGD(TAG, "[Telnet Server] Allocating memory for server.\n\r");
 #endif
 	/* Allocate structure server to maintain Telnet connection information */
 	IsConnected = false;
@@ -394,13 +394,13 @@ TelnetStatus_t InitializeTelnetServer(void) {
 	}
 	/* Create a new tcp pcb */
 #ifdef TELNET_DEBUG
-	printf("[Telnet Server] Creating TCP port for Telnet server.\n\r");
+	LOGD(TAG, "[Telnet Server] Creating TCP port for Telnet server.\n\r");
 #endif
 	telnet_pcb = tcp_new();
 
 	if (telnet_pcb != NULL) {
 #ifdef TELNET_DEBUG
-		printf("[Telnet Server] Successfully created Telnet TCP port.\n\r");
+		LOGD(TAG, "[Telnet Server] Successfully created Telnet TCP port.\n\r");
 #endif
 		err_t err;
 		/* Bind telnet to port TELNET_PORT */
@@ -410,7 +410,7 @@ TelnetStatus_t InitializeTelnetServer(void) {
 			/* Start tcp listening for Telnet PCB */
 			telnet_pcb = tcp_listen(telnet_pcb);
 #ifdef TELNET_DEBUG
-			printf("[Telnet Server] Now listening for incoming connections on port %i\n\r", TELNET_PORT);
+			LOGD(TAG, "[Telnet Server] Now listening for incoming connections on port %i\n\r", TELNET_PORT);
 #endif
 			/* Initialize LwIP tcp_accept callback function */
 			tcp_accept(telnet_pcb, TelnetAccept);
@@ -419,13 +419,13 @@ TelnetStatus_t InitializeTelnetServer(void) {
 			/* Deallocate the pcb */
 			memp_free(MEMP_TCP_PCB, telnet_pcb);
 #ifdef TELNET_DEBUG
-			printf("[Telnet Server] Can not bind pcb\n\r");
+			LOGD(TAG, "[Telnet Server] Can not bind pcb\n\r");
 #endif
 			return TELNET_ERR_BIND;
 		}
 	} else {
 #ifdef TELNET_DEBUG
-		printf("[Telnet Server] Can not create new TCP port.\n\r");
+		LOGD(TAG, "[Telnet Server] Can not create new TCP port.\n\r");
 #endif
 		return TELNET_ERR_PCBCREATE;
 	}
@@ -438,7 +438,7 @@ TelnetStatus_t InitializeTelnetServer(void) {
  * @retval none
  */
 void TelnetClose(void) {
-	printf("Closing telnet connection.\n\r");
+	LOGD(TAG, "Closing telnet connection.\n\r");
 	struct tcp_pcb *pcb = telnet_server.pcb;
 
 	/* Remove all callbacks */
@@ -504,14 +504,14 @@ err_t TelnetPoll(void *arg, struct tcp_pcb *tpcb) {
 		 of the final message is not lost). */
 		if (server->pcb && (server->outstanding == 0) && (server->close != 0)) {
 #ifdef TELNET_DEBUG
-			printf("[Telnet Server] Telnet server should be closed.\n\r");
+			LOGD(TAG, "[Telnet Server] Telnet server should be closed.\n\r");
 #endif
 			TelnetClose();
 		}
 		ret_err = ERR_OK;
 	} else {
 #ifdef TELNET_DEBUG
-		printf("[Telnet Server] Cannot process poll request due to null server structure.\n\r");
+		LOGD(TAG, "[Telnet Server] Cannot process poll request due to null server structure.\n\r");
 #endif
 		/* Nothing to be done */
 		tcp_abort(tpcb);
@@ -531,7 +531,7 @@ void TelnetRecvBufferWrite(char character) {
 	/* Ignore this character if it is the NULL character. */
 	if (character == 0) {
 #ifdef TELNET_CHAR_DEBUG
-		printf("[Telnet Server] Ignorning NULL character.\n\r");
+		LOGD(TAG, "[Telnet Server] Ignorning NULL character.\n\r");
 #endif
 		return;
 	}
@@ -551,13 +551,13 @@ void TelnetRecvBufferWrite(char character) {
 				% sizeof(telnet_server.recvBuffer);
 #ifdef TELNET_CHAR_DEBUG
 		for (int i = 0; i <= telnet_server.recvWrite; ++i) {
-			printf("%c", telnet_server.recvBuffer[i]);
+			LOGD(TAG, "%c", telnet_server.recvBuffer[i]);
 		}
-		printf("\n\r");
+		LOGD(TAG, "\n\r");
 #endif
 	} else {
 #ifdef TELNET_DEBUG
-		printf("[Telnet Server] Could not store new character because buffer was full.\n\r");
+		LOGD(TAG, "[Telnet Server] Could not store new character because buffer was full.\n\r");
 #endif
 	}
 
@@ -605,7 +605,7 @@ void TelnetWrite(const char character) {
 	 telnet commands. */
 	while (telnet_server.length > (sizeof(telnet_server.buffer) - 32)) {
 #ifdef TELNET_DEBUG
-		printf("[Telnet Server] Telnet buffer is full!\n\r");
+		LOGD(TAG, "[Telnet Server] Telnet buffer is full!\n\r");
 #endif
 		/* Handle periodic timers for LwIP */
                 aos_msleep(200);
@@ -654,7 +654,7 @@ void TelnetWriteString(char* string) {
 void TelnetProcessWill(char option) {
 	unsigned long ulIdx;
 #ifdef TELNET_CHAR_DEBUG
-	printf("[Telnet Server] Processing WILL command with option: %c/0x%02X\n\r", option, option);
+	LOGD(TAG, "[Telnet Server] Processing WILL command with option: %c/0x%02X\n\r", option, option);
 #endif
 	/* Loop through the known options. */
 	for (ulIdx = 0; ulIdx < (sizeof(TelnetOptions) / sizeof(TelnetOptions[0]));
@@ -697,7 +697,7 @@ void TelnetProcessWill(char option) {
 void TelnetProcessWont(char option) {
 	unsigned long ulIdx;
 #ifdef TELNET_CHAR_DEBUG
-	printf("[Telnet Server] Processing WONT command with option: %c/0x%02X\n\r", option, option);
+	LOGD(TAG, "[Telnet Server] Processing WONT command with option: %c/0x%02X\n\r", option, option);
 #endif
 	/* Loop through the known options. */
 	for (ulIdx = 0; ulIdx < (sizeof(TelnetOptions) / sizeof(TelnetOptions[0]));
@@ -739,7 +739,7 @@ void TelnetProcessWont(char option) {
 void TelnetProcessDo(char option) {
 	unsigned long ulIdx;
 #ifdef TELNET_CHAR_DEBUG
-	printf("[Telnet Server] Processing DO command with option: %c/0x%02X\n\r", option, option);
+	LOGD(TAG, "[Telnet Server] Processing DO command with option: %c/0x%02X\n\r", option, option);
 #endif
 	/* Loop through the known options. */
 	for (ulIdx = 0; ulIdx < (sizeof(TelnetOptions) / sizeof(TelnetOptions[0]));
@@ -781,7 +781,7 @@ void TelnetProcessDo(char option) {
 void TelnetProcessDont(char option) {
 	unsigned long ulIdx;
 #ifdef TELNET_CHAR_DEBUG
-	printf("[Telnet Server] Processing DONT command with option: %c/0x%02X\n\r", option, option);
+	LOGD(TAG, "[Telnet Server] Processing DONT command with option: %c/0x%02X\n\r", option, option);
 #endif
 	/* Loop through the known options. */
 	for (ulIdx = 0; ulIdx < (sizeof(TelnetOptions) / sizeof(TelnetOptions[0]));
@@ -819,7 +819,7 @@ void TelnetProcessDont(char option) {
  */
 void TelnetProcessCharacter(char character) {
 #ifdef TELNET_CHAR_DEBUG
-	printf("[Telnet Server] Processing Character: %c/0x%02X\n\r", character, character);
+	LOGD(TAG, "[Telnet Server] Processing Character: %c/0x%02X\n\r", character, character);
 #endif
 	/* Determine the current state of the telnet command parser. */
 	switch (telnet_server.state) {
