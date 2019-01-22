@@ -16,7 +16,7 @@ GLOBAL_DEFINES += STM32L496xx
 GLOBAL_DEFINES += AOS_OTA_BANK_DUAL
 GLOBAL_DEFINES += VECT_TAB_OFFSET=0x1800
 GLOBAL_DEFINES += USING_FLAT_FLASH
-
+GLOBAL_CFLAGS += -DAOS_OTA_RECOVERY_TYPE=2
 
 GLOBAL_INCLUDES := bootloader           \
                    bootloader/Src       \
@@ -25,18 +25,18 @@ GLOBAL_INCLUDES := bootloader           \
 
 $(NAME)_SOURCES := bootloader/startup_stm32l496xx_boot.s  \
                    bootloader/main.c                      \
-	           bootloader/Src/system_stm32l4xx.c      \
-	           bootloader/Src/stm32l4xx_it.c          \
-		   bootloader/Src/hal_boot_flash.c        \
-		   bootloader/Src/hal_boot_process.c      \
-		   bootloader/Src/hal_boot_uart.c         \
-		   bootloader/Src/hal_boot_wdg.c          \
+                   bootloader/Src/system_stm32l4xx.c      \
+                   bootloader/Src/stm32l4xx_it.c          \
+                   bootloader/Src/hal_boot_flash.c        \
+                   bootloader/Src/hal_boot_process.c      \
+                   bootloader/Src/hal_boot_uart.c         \
+                   bootloader/Src/hal_boot_wdg.c          \
                    bootloader/Src/hal_boot_gpio.c         \
-		   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c        \
-		   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c \
-		   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.c    \
-	           bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c \
-		   aos/board.c                                                        \
+                   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c        \
+                   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_cortex.c \
+                   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc.c    \
+                   bootloader/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rcc_ex.c \
+                   aos/board.c                                                        \
                    aos/flash_partitions.c
 
 GLOBAL_LDFLAGS += -T ./board/developerkit/bootloader/STM32L496VGTx_FLASH_bootloader.ld
@@ -138,8 +138,8 @@ GLOBAL_LDFLAGS += -T board/developerkit/STM32L496VGTx_FLASH_OTA.ld
 GLOBAL_DEFINES += VECT_TAB_OFFSET=0x9000
 GLOBAL_DEFINES += USING_FLAT_FLASH
 GLOBAL_DEFINES += AOS_OTA_BANK_DUAL
-GLOBAL_CFLAGS += -DAOS_OTA_RECOVERY_TYPE=2 
 GLOBAL_CFLAGS += -DAOS_OTA_2BOOT_CLI
+GLOBAL_CFLAGS += -DAOS_OTA_RECOVERY_TYPE=2
 AOS_SDK_2BOOT_SUPPORT := yes
 else
 ifeq ($(MBINS),)
