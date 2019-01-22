@@ -2,7 +2,7 @@ NAME := libawss
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.3.0
-$(NAME)_SUMMARY := Alibaba Wireless Setup service
+$(NAME)_SUMMARY := Alibaba Wireless Setup Service
 
 $(NAME)_DEFINES := USE_LPTHREAD
 
@@ -11,15 +11,26 @@ $(NAME)_SOURCES :=
 $(NAME)_SOURCES += awss.c       awss_aha.c      awss_registrar.c     zconfig_protocol.c       awss_smartconfig.c
 $(NAME)_SOURCES += awss_main.c  awss_wifimgr.c  zconfig_utils.c      zconfig_vendor_common.c  awss_aplist.c
 $(NAME)_SOURCES += awss_crypt.c awss_enrollee.c zconfig_ieee80211.c  awss_adha.c              awss_wps.c
-$(NAME)_SOURCES += awss_ht40.c  awss_info.c
+$(NAME)_SOURCES += awss_ht40.c  awss_info.c     awss_statis.c        awss_dev_ap.c
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 GLOBAL_DEFINES += ESP8266_CONFIG
 endif
 
+ifneq ($(CONFIG_SYSINFO_DEVICE_NAME), DH5021A)
+GLOBAL_DEFINES += AWSS_SUPPORT_STATIS
+endif
+
 $(NAME)_DEFINES += DEBUG
 GLOBAL_DEFINES += CONFIG_YWSS
 #GLOBAL_DEFINES += DEV_BIND_TEST
+
+#
+# If chipset or die set doesn't support device AP solution,
+# or product doesn't need device AP solution, please remove
+# the defination of AWSS_SUPPORT_DEV_AP
+#
+GLOBAL_DEFINES += AWSS_SUPPORT_DEV_AP
 
 #
 # If chipset or die set doesn't support smartconfig with broadcast,

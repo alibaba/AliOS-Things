@@ -81,42 +81,6 @@ uint16_t zconfig_checksum_v3(uint8_t *data, uint8_t len)
     return res;
 }
 
-static const char *zc_auth_str[] = {
-    "open",
-    "shared",
-    "wpa-psk",
-    "wpa-8021x",
-    "wpa2-psk",
-    "wpa2-8021x",
-    "wpa-psk - wpa2-psk",
-};
-
-const char *zconfig_auth_str(uint8_t auth)
-{
-    if (auth <= ZC_AUTH_TYPE_MAX) {
-        return zc_auth_str[auth];
-    } else {
-        return "invalid auth";
-    }
-}
-
-static const char *zc_encry_str[] = {
-    "none",
-    "wep",
-    "tkip",
-    "aes",
-    "tkip-aes"
-};
-
-const char *zconfig_encry_str(uint8_t encry)
-{
-    if (encry <= ZC_ENC_TYPE_MAX) {
-        return zc_encry_str[encry];
-    } else {
-        return "invalid encry";
-    }
-}
-
 char is_utf8(const char *ansi_str, int length)
 {
     int i = 0;

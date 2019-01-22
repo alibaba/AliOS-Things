@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #include "CoAPExport.h"
 #include "CoAPResource.h"
 #include "CoAPObserve.h"

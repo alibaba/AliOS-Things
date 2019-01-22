@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include "os/platform.h"
+#include "platform.h"
 
 /** @defgroup group_product product
  *  @{
@@ -62,6 +62,10 @@ extern "C" {
  * @note None.
  */
 #define device_get_secret(sec) HAL_GetDeviceSecret(sec)
+
+/*
+ * @} end of group_product
+ */
 
 #ifdef __cplusplus
 }

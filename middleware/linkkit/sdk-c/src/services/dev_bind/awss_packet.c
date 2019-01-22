@@ -55,13 +55,13 @@ void *awss_build_dev_info(int type, void *dev_info, int info_len)
         return NULL;
     }
 
-    buf = os_zalloc(DEV_INFO_LEN_MAX);
+    buf = awss_zalloc(DEV_INFO_LEN_MAX);
     if (buf == NULL) {
         return NULL;
     }
 
     len += HAL_Snprintf((char *)dev_info + len, info_len - len - 1, "%s", (char *)awss_get_dev_info(buf, DEV_INFO_LEN_MAX));
-    os_free(buf);
+    awss_free(buf);
     buf = NULL;
 
     switch (type) {
@@ -118,8 +118,8 @@ char *awss_build_sign_src(char *sign_src, int *sign_src_len)
         goto build_sign_src_err;
     }
 
-    pk = os_zalloc(OS_PRODUCT_KEY_LEN + 1);
-    dev_name = os_zalloc(OS_DEVICE_NAME_LEN + 1);
+    pk = awss_zalloc(OS_PRODUCT_KEY_LEN + 1);
+    dev_name = awss_zalloc(OS_DEVICE_NAME_LEN + 1);
     if (pk == NULL || dev_name == NULL) {
         goto build_sign_src_err;
     }
@@ -141,17 +141,17 @@ char *awss_build_sign_src(char *sign_src, int *sign_src_len)
     memcpy(sign_src + RANDOM_MAX_LEN, dev_name, dev_name_len);
     memcpy(sign_src + RANDOM_MAX_LEN + dev_name_len, pk, pk_len);
 
-    os_free(pk);
-    os_free(dev_name);
+    awss_free(pk);
+    awss_free(dev_name);
 
     return sign_src;
 
 build_sign_src_err:
     if (pk) {
-        os_free(pk);
+        awss_free(pk);
     }
     if (dev_name) {
-        os_free(dev_name);
+        awss_free(dev_name);
     }
     return NULL;
 }

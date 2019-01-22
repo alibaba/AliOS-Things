@@ -11,6 +11,7 @@
 #include "awss_log.h"
 #include "awss_timer.h"
 #include "awss_adha.h"
+#include "awss_statis.h"
 #include "awss_aplist.h"
 #include "zconfig_lib.h"
 #include "zconfig_protocol.h"
@@ -87,6 +88,7 @@ int awss_recv_callback_adha_ssid(struct parser_res *res)
     uint8_t tods = res->tods;
     uint8_t channel = res->channel;
 
+    AWSS_UPDATE_STATIS(AWSS_STATIS_ROUTE_IDX, AWSS_STATIS_TYPE_TIME_START);
     awss_debug("found adha ssid: %s\r\n", zc_adha_ssid);
 
     strncpy((char *)zc_ssid, zc_adha_ssid, ZC_MAX_SSID_LEN - 1);
@@ -179,7 +181,7 @@ int awss_init_adha_aplist(void)
     if (adha_aplist) {
         return 0;
     }
-    adha_aplist = (struct adha_info *)os_zalloc(sizeof(struct adha_info));
+    adha_aplist = (struct adha_info *)awss_zalloc(sizeof(struct adha_info));
     if (adha_aplist == NULL) {
         return -1;
     }
@@ -192,7 +194,7 @@ int awss_deinit_adha_aplist(void)
         return 0;
     }
 
-    os_free(adha_aplist);
+    awss_free(adha_aplist);
     adha_aplist = NULL;
     return 0;
 }

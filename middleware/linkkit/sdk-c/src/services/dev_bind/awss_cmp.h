@@ -39,7 +39,7 @@ int awss_update_token();
 int awss_report_token();
 int awss_stop_report_token();
 
-int awss_cmp_coap_loop(void *param);
+int awss_cmp_coap_cancel_packet(uint16_t msgid);
 int awss_cmp_coap_register_cb(char *topic, void *cb);
 int awss_cmp_coap_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb, uint16_t *msgid);
 int awss_cmp_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, void *cb);

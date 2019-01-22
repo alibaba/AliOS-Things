@@ -9,6 +9,7 @@
 #include "awss.h"
 #include "awss_aha.h"
 #include "awss_adha.h"
+#include "awss_statis.h"
 #include "awss_aplist.h"
 #include "awss_main.h"
 #include "awss_timer.h"
@@ -82,6 +83,7 @@ int awss_recv_callback_aha_ssid(struct parser_res *res)
     uint8_t channel = res->channel;
 
     awss_debug("found default ssid: %s\r\n", zc_default_ssid);
+    AWSS_UPDATE_STATIS(AWSS_STATIS_PAP_IDX, AWSS_STATIS_TYPE_TIME_START);
 
     strncpy((char *)zc_ssid, zc_default_ssid, ZC_MAX_SSID_LEN - 1);
     strncpy((char *)zc_passwd, zc_default_passwd, ZC_MAX_PASSWD_LEN - 1);

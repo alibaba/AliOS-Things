@@ -11,6 +11,7 @@
 #include "awss_notify.h"
 #include "awss_timer.h"
 #include "awss_packet.h"
+#include "awss_statis.h"
 #include "awss_event.h"
 #include "awss_adha.h"
 #include "awss_aha.h"
@@ -38,6 +39,7 @@ int awss_success_notify(void)
     awss_suc_notify_stop();
     awss_suc_notify();
     awss_start_connectap_monitor();
+    AWSS_DISP_STATIS();
     return 0;
 }
 
@@ -73,7 +75,7 @@ int awss_start(void)
                     while (!awss_is_ready_switch_next_adha()) {
                         if (awss_stopped)
                             break;
-                        os_msleep(50);
+                        awss_msleep(50);
                     }
                     awss_cmp_local_deinit(0);
                 }
@@ -111,7 +113,7 @@ int awss_start(void)
                     }
                     if (awss_stopped)
                         break;
-                    os_msleep(50);
+                    awss_msleep(50);
                 }
 
                 awss_cmp_local_deinit(0);
@@ -204,8 +206,6 @@ int awss_config_press(void)
         timeout = AWSS_PRESS_TIMEOUT_MS;
     }
     HAL_Timer_Start(press_timer, timeout);
-
-    awss_debug("%s exit", __func__);
 
     return 0;
 }

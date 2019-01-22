@@ -114,17 +114,12 @@ void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd,
                                       uint8_t *bssid, uint8_t auth, uint8_t encry, uint8_t channel)
 {
     if (bssid) {
-        awss_debug("ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %s, %s, %d\r\n",
-                   ssid,
-                   bssid[0], bssid[1], bssid[2],
-                   bssid[3], bssid[4], bssid[5],
-                   zconfig_auth_str(auth), zconfig_encry_str(encry),
-                   channel);
+        awss_debug("ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %d\r\n",
+                   ssid, bssid[0], bssid[1], bssid[2],
+                   bssid[3], bssid[4], bssid[5], channel);
     } else {
-        awss_debug("ssid:%s, bssid:--, %s, %s, %d\r\n",
-                   ssid,
-                   zconfig_auth_str(auth), zconfig_encry_str(encry),
-                   channel);
+        awss_debug("ssid:%s, bssid:--, %d\r\n",
+                   ssid, channel);
     }
 
     memset(aws_result_ssid, 0, sizeof(aws_result_ssid));
@@ -353,15 +348,15 @@ rescanning:
         }
 
         /* 80211 frame handled by callback */
-        os_msleep(interval);
+        awss_msleep(interval);
 #ifndef AWSS_DISABLE_ENROLLEE
         awss_broadcast_enrollee_info();
 #endif
-        os_msleep(interval);
+        awss_msleep(interval);
 #ifdef AWSS_SUPPORT_ADHA
         aws_send_adha_probe_req();
 #endif
-        os_msleep(interval);
+        awss_msleep(interval);
 #ifdef AWSS_SUPPORT_AHA
         aws_send_aha_probe_req();
 #endif
@@ -382,7 +377,7 @@ rescanning:
 
     while (aws_state != AWS_SUCCESS) {
         /* 80211 frame handled by callback */
-        os_msleep(300);
+        awss_msleep(300);
 
         if (aws_stop == AWS_STOPPING)
             goto timeout_recving;
@@ -422,7 +417,7 @@ timeout_recving:
                 HAL_Timer_Stop(rescan_timer);
                 break;
             }
-            os_msleep(200);
+            awss_msleep(200);
         }
         rescan_available = 0;
     } while (0);
@@ -503,7 +498,7 @@ int aws_80211_frame_handler(char *buf, int length, enum AWSS_LINK_TYPE link_type
 
 void aws_start(char *pk, char *dn, char *ds, char *ps)
 {
-    aws_info = os_zalloc(sizeof(struct aws_info));
+    aws_info = awss_zalloc(sizeof(struct aws_info));
     if (!aws_info) {
         return;
     }
@@ -558,10 +553,10 @@ void aws_destroy(void)
     while (aws_stop != AWS_STOPPED) {
         if (aws_state == AWS_SUCCESS)
             break;
-        os_msleep(100);
+        awss_msleep(100);
     }
 
-    os_free(aws_info);
+    awss_free(aws_info);
     aws_info = NULL;
 
 #ifndef AWSS_DISABLE_ENROLLEE
