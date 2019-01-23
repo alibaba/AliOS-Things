@@ -68,7 +68,7 @@ void stm32_soc_init(void)
     MX_SPI1_Init();
 
     MX_CRC_Init();
-    
+
 }
 
 void stm32_soc_peripheral_init(void)
@@ -136,10 +136,10 @@ static void brd_peri_init(void)
     for (i = 0; i < gpcfg_num; ++i) {
         hal_gpio_init(&brd_gpio_table[i]);
     }
-    
+
     hal_i2c_init(&brd_i2c1_dev);
     hal_i2c_init(&brd_i2c2_dev);
-    
+
 }
 /**
 * @brief This function handles System tick timer.
@@ -155,6 +155,7 @@ void SysTick_Handler(void)
   krhino_intrpt_exit();
 }
 
+#if (DEBUG_CONFIG_PANIC != 1)
 void HardFault_Handler(void)
 {
   while (1)
@@ -164,6 +165,7 @@ void HardFault_Handler(void)
    // #endif
   }
 }
+#endif
 
 /**
   * @brief  Retargets the C library printf function to the USART.
@@ -191,7 +193,7 @@ GETCHAR_PROTOTYPE
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
   uint8_t ch = EOF;
   int32_t ret = -1;
-  
+
   uint32_t recv_size;
   ret = hal_uart_recv_II(&uart_0, &ch, 1, &recv_size, HAL_WAIT_FOREVER);
 
