@@ -12,21 +12,21 @@
 #if(AOS_CLI_MINI_SIZE > 0)
 
 /*can config to cut mem size*/
-#define INBUF_SIZE   64
-#define OUTBUF_SIZE  200    /*not use now*/
-#define MAX_COMMANDS 32
+#define INBUF_SIZE              128
+#define OUTBUF_SIZE             200    /*not use now*/
+#define MAX_COMMANDS            32
 
-#define CLI_MAX_ARG_NUM    8
-#define CLI_MAX_ONCECMD_NUM    1
+#define CLI_MAX_ARG_NUM         8
+#define CLI_MAX_ONCECMD_NUM     1
 
 #else
 /*can config to cut mem size*/
-#define MAX_COMMANDS 64
-#define INBUF_SIZE   256
-#define OUTBUF_SIZE  2048
+#define MAX_COMMANDS            64
+#define INBUF_SIZE              256
+#define OUTBUF_SIZE             2048
 
-#define CLI_MAX_ARG_NUM    16
-#define CLI_MAX_ONCECMD_NUM    6
+#define CLI_MAX_ARG_NUM         16
+#define CLI_MAX_ONCECMD_NUM     6
 
 #endif
 
