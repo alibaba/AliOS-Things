@@ -107,11 +107,6 @@
 #define RHINO_CONFIG_USER_HOOK               1
 #endif
 
-/* kernel stats conf */
-#ifndef RHINO_CONFIG_TASK_STACK_CUR_CHECK
-#define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
-#endif
-
 /* kernel workqueue conf */
 #ifndef RHINO_CONFIG_WORKQUEUE
 #define RHINO_CONFIG_WORKQUEUE               1
