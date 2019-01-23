@@ -68,48 +68,10 @@ int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
 #endif
 
-#if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
-size_t soc_get_cur_sp()
-{
-    size_t sp = 0;
-#if defined (__GNUC__)&&!defined(__CC_ARM)
-    asm volatile(
-        "mov %0,sp\n"
-        :"=r"(sp));
-#endif
-    return sp;
-}
-static void soc_print_stack()
-{
-    void    *cur, *end;
-    int      i=0;
-    int     *p;
-    ktask_t * task;
-    task = krhino_cur_task_get();
-    printf("task name %s\r\n", task->task_name);
-    end   = krhino_cur_task_get()->task_stack_base + krhino_cur_task_get()->stack_size;
-    cur = (void *)soc_get_cur_sp();
-    p = (int*)cur;
-    while(p < (int*)end) {
-        if(i%4==0) {
-            printf("\r\n%08x:",(uint32_t)p);
-        }
-        printf("%08x ", *p);
-        i++;
-        p++;
-    }
-    printf("\r\n");
-    return;
-}
-#endif
-
 extern void hal_reboot(void);
 void soc_err_proc(kstat_t err)
 {
     printf("soc_err_proc : %d\n\r", err);
-    #if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
-    soc_print_stack();
-    #endif
     if ( RHINO_NO_MEM == err )
     {
         /* while mem not enought, reboot */

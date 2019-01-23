@@ -38,9 +38,6 @@
 #define RHINO_CONFIG_TIMER                   1
 #endif
 */
-#ifndef RHINO_CONFIG_TASK_STACK_CUR_CHECK
-#define RHINO_CONFIG_TASK_STACK_CUR_CHECK 1
-#endif
 
 /* kernel task conf */
 #ifndef RHINO_CONFIG_TASK_INFO
