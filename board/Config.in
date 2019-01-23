@@ -451,7 +451,7 @@ if AOS_board_eml3047
         default "eml3047"
 
     source "board/eml3047/Config.in"
-    source "platform/mcu/stm32l0xx/stm32l071kb/Config.in"
+    source "platform/mcu/stm32l0xx/Config.in"
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
@@ -739,7 +739,7 @@ if AOS_board_m400
         default "m400"
 
     source "board/m400/Config.in"
-    source "platform/mcu/stm32l0xx/stm32l071kb/Config.in"
+    source "platform/mcu/stm32l0xx/Config.in"
     source "platform/arch/arm/armv6m/Config.in"
 endif
 
