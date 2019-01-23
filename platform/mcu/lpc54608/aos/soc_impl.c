@@ -28,43 +28,9 @@ void soc_intrpt_stack_ovf_check(void)
 }
 #endif
 
-#if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
-size_t soc_get_cur_sp()
-{
-    size_t sp = 0;
-    asm volatile(
-        "mov %0,sp\n"
-        :"=r"(sp));
-    return sp;
-}
-#endif
-static void soc_print_stack()
-{
-
-    uint32_t offset = 0;
-    kstat_t  rst    = RHINO_SUCCESS;
-    void    *cur, *end;
-    int      i=0;
-    int     *p;
-
-    end   = krhino_cur_task_get()->task_stack_base + krhino_cur_task_get()->stack_size;
-    cur = (void*)soc_get_cur_sp();
-    p = (int*)cur;
-    while(p < (int*)end) {
-        if(i%4==0) {
-            printf("\r\n%08x:",(uint32_t)p);
-        }
-        printf("%08x ", *p);
-        i++;
-        p++;
-    }
-    printf("\r\n");
-    return;
-}
 void soc_err_proc(kstat_t err)
 {
     (void)err;
-    soc_print_stack();
     assert(0);
 }
 
