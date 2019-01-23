@@ -174,7 +174,7 @@ int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32
 {
 	DD_HANDLE flash_hdl;
     UINT32 status;
-	uint32_t param = 0;
+	uint32_t param = 2;
 
 	flash_hdl = ddev_open(FLASH_DEV_NAME, &status, 0);
     ASSERT(DD_HANDLE_UNVALID != flash_hdl);

@@ -47,6 +47,7 @@ extern hal_wifi_module_t sim_aos_wifi_beken;
 void hw_start_hal(void)
 {
     printf("start-----------hal\n");
+    hal_flash_dis_secure(0,0,0);
     hal_wifi_register_module(&sim_aos_wifi_beken);
 #ifdef CONFIG_AOS_MESH
     extern void beken_wifi_mesh_register(void);

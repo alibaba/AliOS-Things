@@ -104,6 +104,7 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
 	flash_hdl = ddev_open(FLASH_DEV_NAME, &status, 0);
     hal_wdg_reload(&wdg);
     GLOBAL_INT_DISABLE();
+    printf("start:0x%x len:%d \n",start_addr, in_buf_len);
     ddev_write(flash_hdl, in_buf, in_buf_len, start_addr);
     GLOBAL_INT_RESTORE();
     hal_wdg_reload(&wdg);
@@ -169,7 +170,7 @@ int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32
 {
 	DD_HANDLE flash_hdl;
     UINT32 status;
-	uint32_t param = FLASH_PROTECT_NONE;
+	uint32_t param = FLASH_PROTECT_HALF;
 
 	flash_hdl = ddev_open(FLASH_DEV_NAME, &status, 0);
     ASSERT(DD_HANDLE_UNVALID != flash_hdl);
