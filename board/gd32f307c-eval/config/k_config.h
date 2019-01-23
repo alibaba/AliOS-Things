@@ -42,8 +42,6 @@
 
 #define RHINO_CONFIG_TASK_DEL                1
 
-#define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
-
 #define RHINO_CONFIG_SCHED_RR                0
 
 #define RHINO_CONFIG_TIME_SLICE_DEFAULT      50

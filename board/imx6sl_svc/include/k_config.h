@@ -113,9 +113,6 @@
 #ifndef RHINO_CONFIG_KOBJ_LIST
 #define RHINO_CONFIG_KOBJ_LIST               0
 #endif
-#ifndef RHINO_CONFIG_TASK_STACK_CUR_CHECK
-#define RHINO_CONFIG_TASK_STACK_CUR_CHECK    1
-#endif
 
 /* kernel workqueue conf */
 #ifndef RHINO_CONFIG_WORKQUEUE

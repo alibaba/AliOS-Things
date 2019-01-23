@@ -18,6 +18,7 @@ $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub init netmgr cjson lwip cli
 ################################################################
 GLOBAL_DEFINES += KV_CONFIG_PARTITION=5
 GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=8192
+GLOBAL_DEFINES += DEBUG_CONFIG_ERRDUMP=0
 
 GLOBAL_INCLUDES += . \
                    config/ \
