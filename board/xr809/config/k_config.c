@@ -4,13 +4,6 @@
 
 #include <k_api.h>
 
-#if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
-size_t soc_get_cur_sp(void)
-{
-    volatile size_t dummy = (size_t)&dummy;
-    return dummy;
-}
-#endif
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
 void soc_hw_timer_init(void)
