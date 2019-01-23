@@ -5,13 +5,13 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := breeze provides secure BLE connection to Alibaba IoT cloud and services.
 
-$(NAME)_SOURCES-y += core/core.c
-$(NAME)_SOURCES-y += core/transport.c
-$(NAME)_SOURCES-y += core/ble_service.c
-$(NAME)_SOURCES-y += core/utils.c
-$(NAME)_SOURCES-y += core/extcmd.c
+$(NAME)_SOURCES-y += core/src/core.c
+$(NAME)_SOURCES-y += core/src/transport.c
+$(NAME)_SOURCES-y += core/src/ble_service.c
+$(NAME)_SOURCES-y += core/src/utils.c
+$(NAME)_SOURCES-y += core/src/extcmd.c
 
-GLOBAL_INCLUDES-y += api include hal/include
+GLOBAL_INCLUDES-y += api include core/include 
 
 $(NAME)_COMPONENTS-y := chip_code
 
@@ -22,7 +22,7 @@ endif
 
 bz_model_encry ?= 0
 ifeq ($(bz_model_encry), 1)
-GLOBAL_DEFINES-y += CONFIG_MODEL_SEC
+GLOBAL_DEFINES-y += CONFIG_MODEL_SECURITY
 endif
 
 btstack ?= zephyr
@@ -35,7 +35,7 @@ $(NAME)_SOURCES-y += api/breeze_export.c
 bz_en_auth ?= 1
 ifeq ($(bz_en_auth), 1)
 GLOBAL_DEFINES-y += EN_AUTH
-$(NAME)_SOURCES-y += core/auth.c
+$(NAME)_SOURCES-y += core/src/auth.c
 endif
 
 bz_en_awss ?= 1

@@ -73,7 +73,6 @@ void os_msleep(int ms);
  * @return  elapsed time in mini seconds from system starting.
  */
 long long os_now_ms();
-
 /**
  * Add a new KV pair.
  *
@@ -85,7 +84,6 @@ long long os_now_ms();
  * @return  0 on success, negative error on failure.
  */
 int os_kv_set(const char *key, const void *value, int len, int sync);
-
 /**
  * Get the KV pair's value stored in buffer by its key.
  *
@@ -100,7 +98,6 @@ int os_kv_set(const char *key, const void *value, int len, int sync);
  * @return  0 on success, negative error on failure.
  */
 int os_kv_get(const char *key, void *buffer, int *buffer_len);
-
 /**
  * Delete the KV pair by its key.
  *
