@@ -62,37 +62,6 @@ enum
     PK_PRIVATE = 1
 };
 
-#if 0
-typedef struct _hash_ctx_t
-{
-    uint32_t    magic;
-    uint32_t    status;
-    hash_type_t type;
-
-    union
-    {
-        uint8_t                sym_ctx[1];
-        mbedtls_md5_context    md5_ctx;
-        mbedtls_sha1_context   sha1_ctx;
-        mbedtls_sha256_context sha256_ctx;
-        mbedtls_sha512_context sha512_ctx;
-    };
-} hash_ctx_t;
-
-typedef struct _hmac_ctx_t
-{
-    uint32_t    magic;
-    uint32_t    status;
-    hash_type_t type;
-
-    union
-    {
-        uint8_t                sym_ctx[1];
-        mbedtls_hash_context_t ctx;
-    };
-} hmac_ctx_t;
-#endif
-
 typedef struct _cts_ctx_t
 {
     uint32_t is_ecb;

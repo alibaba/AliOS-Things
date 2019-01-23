@@ -62,9 +62,9 @@ void ble_disconnect(uint8_t reason)
 static void connected(struct bt_conn *conn, uint8_t err)
 {
     if (err) {
-        BZ_LOG_E("Connection failed (err %u)\n", err);
+        BZ_LOG_E("Connection failed (err %u)", err);
     } else {
-        BZ_LOG_I("Connected\n");
+        BZ_LOG_I("Connected");
         g_conn = conn;
         if (bt_init_info && (bt_init_info->on_connected)) {
             bt_init_info->on_connected();
@@ -74,7 +74,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 static void disconnected(struct bt_conn *conn, u8_t reason)
 {
-    BZ_LOG_I("Disconnected (reason %u)\n", reason);
+    BZ_LOG_I("Disconnected (reason %u)", reason);
     g_conn = NULL;
     if (bt_init_info && (bt_init_info->on_disconnected)) {
         bt_init_info->on_disconnected();
@@ -88,11 +88,11 @@ static void ais_nc_ccc_cfg_changed(const struct bt_gatt_attr *attr,
 
     switch (value) {
         case BT_GATT_CCC_NOTIFY:
-            BZ_LOG_I("CCC cfg changed to NOTIFY (%d).", value);
+            BZ_LOG_I("CCC cfg changed to NTF (%d)", value);
             val = AIS_CCC_VALUE_NOTIFY;
             break;
         default:
-            BZ_LOG_I("%s CCC cfg changed to %d.", __func__, value);
+            BZ_LOG_I("%s CCC cfg changed to %d", __func__, value);
             val = AIS_CCC_VALUE_NONE;
             break;
     }
@@ -109,11 +109,11 @@ static void ais_ic_ccc_cfg_changed(const struct bt_gatt_attr *attr,
 
     switch (value) {
         case BT_GATT_CCC_INDICATE:
-            BZ_LOG_D("CCC cfg changed to INDICATE (%d).", value);
+            BZ_LOG_I("CCC cfg changed to IND (%d)", value);
             val = AIS_CCC_VALUE_INDICATE;
             break;
         default:
-            BZ_LOG_D("%s CCC cfg changed to %d.", __func__, value);
+            BZ_LOG_I("%s CCC cfg changed to %d", __func__, value);
             val = AIS_CCC_VALUE_NONE;
             break;
     }
@@ -243,7 +243,7 @@ static int setup_ais_char_attr(struct bt_gatt_attr *attr, struct bt_uuid *uuid,
 
     chrc = (struct bt_gatt_chrc *)aos_malloc(sizeof(struct bt_gatt_chrc));
     if (!chrc) {
-        BZ_LOG_E("%s malloc failed\r\n", __func__);
+        BZ_LOG_E("%s malloc failed", __func__);
         return -1;
     }
 
@@ -278,7 +278,7 @@ static int setup_ais_char_ccc_attr(struct bt_gatt_attr *   attr,
 
     ccc = (struct _bt_gatt_ccc *)aos_malloc(sizeof(struct _bt_gatt_ccc));
     if (!ccc) {
-        BZ_LOG_E("%s malloc failed.\r\n", __func__);
+        BZ_LOG_E("%s malloc failed.", __func__);
         return -1;
     }
 
@@ -320,13 +320,13 @@ static void bt_ready(int err)
     ais_char_init_t *c;
 
     if (err) {
-        BZ_LOG_E("Ble init failed (err %d)\n", err);
+        BZ_LOG_E("Ble not ready (err %d)", err);
         return AIS_ERR_STACK_FAIL;
     }
     size = attr_cnt * sizeof(struct bt_gatt_attr);
     ais_attrs = (struct bt_gatt_attr *)aos_malloc(size);
     if (!ais_attrs) {
-        BZ_LOG_E("%s memory allocate failed.\r\n", __func__);
+        BZ_LOG_E("%s memory allocate failed.", __func__);
         return AIS_ERR_MEM_FAIL;
     }
 
@@ -388,7 +388,6 @@ ais_err_t ble_stack_deinit()
     }
 
     /* Free other memory here when necessary. */
-
     return AIS_ERR_SUCCESS;
 }
 
@@ -402,10 +401,10 @@ ais_err_t ble_stack_init(ais_bt_init_t *info, stack_init_done_t init_done)
     ble_storage_init();
     err = bt_enable(bt_ready);
     if(err){
-        BZ_LOG_E("Bluetooth init failed (err %d) %s", err, __func__);
+        BZ_LOG_E("BLE init failed (err %d) %s", err, __func__);
         return AIS_ERR_STACK_FAIL;
     }
-    BZ_LOG_I("Bluetooth init succeed.");
+    BZ_LOG_I("BLE init succeed.");
     return AIS_ERR_SUCCESS;
 }
 
@@ -494,7 +493,7 @@ ais_err_t ble_advertising_start(ais_adv_init_t *adv)
         flag |= BT_LE_AD_NO_BREDR;
     }
     if (!flag) {
-        BZ_LOG_E("Invalid adv flag.");
+        BZ_LOG_E("Invalid adv flag");
         return AIS_ERR_INVALID_ADV_DATA;
     }
 
@@ -527,7 +526,7 @@ ais_err_t ble_advertising_start(ais_adv_init_t *adv)
     }
 
     if (adv->name.name == NULL) {
-        BZ_LOG_E("Invalid adv device name.");
+        BZ_LOG_E("Invalid adv name.");
         return AIS_ERR_INVALID_ADV_DATA;
     }
 
@@ -536,7 +535,7 @@ ais_err_t ble_advertising_start(ais_adv_init_t *adv)
 
     err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ad_len, sd, sd_len);
     if (err) {
-        BZ_LOG_E("Advertising failed to start (err %d)", err);
+        BZ_LOG_E("Failed to start adv (err %d)", err);
         return AIS_ERR_ADV_FAIL;
     }
 
