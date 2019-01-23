@@ -167,27 +167,6 @@ int breeze_start(struct device_config *dev_conf);
 int breeze_end(void);
 
 /**
- * @brief Initialize breeze awss module.
- *
- * @param[in] cb    The callback to be called by breeze SDK when AP info ready.
- * @param[in] info  The device information required by breeze SDK.
- * @return None.
- * @see None.
- */
-void breeze_awss_init(apinfo_ready_cb cb, breeze_dev_info_t *info);
-
-/**
- * @brief Start breeze awss process.
- *
- * @param None.
- * @return None.
- * @see None.
- *
- * @note When this API is called, do not call breeze_start anymore.
- */
-void breeze_awss_start();
-
-/**
  * @brief Post device status.
  *
  * @param[in] buffer @n Data to post.

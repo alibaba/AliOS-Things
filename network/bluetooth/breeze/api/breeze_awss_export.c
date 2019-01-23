@@ -7,10 +7,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "breeze_export.h"
+#include "breeze_awss_export.h"
 #include "bzopt.h"
-
-extern int awss_success_notify();
 
 static void dev_status_changed_handler(breeze_event_t event)
 {
@@ -72,7 +70,6 @@ void breeze_awss_init
 )
 {
     struct device_config brzinit;
-
     breeze_awss_init_helper(&brzinit, cb, info);
 
     if  (breeze_start(&brzinit) != 0) {
@@ -80,7 +77,7 @@ void breeze_awss_init
     }
 }
 
-void breeze_awss_start()
+void breeze_awss_end()
 {
-    return;
+    breeze_end();
 }

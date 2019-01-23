@@ -7,7 +7,7 @@ if AOS_NETWORK
 
 ## --- Generated Automatically ---
 source "network/bluetooth/breeze/Config.in"
-source "network/bluetooth/breeze/hal/ble/Config.in"
+source "network/bluetooth/breeze/ref-impl/Config.in"
 source "network/bluetooth/bt_host/Config.in"
 source "network/bluetooth/bt_host/bt_common/Config.in"
 source "network/bluetooth/bt_host/profile/Config.in"
