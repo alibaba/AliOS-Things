@@ -4,7 +4,6 @@
 
 export AOS_CONFIG := $(SOURCE_ROOT).config
 export AOS_DEFCONFIG ?= $(SOURCE_ROOT).defconfig
-export TMP_DEFCONFIG := $(SOURCE_ROOT).defconfig
 export AOS_DEFCONFIG_DIR := $(SOURCE_ROOT)build/configs
 export AOS_CONFIG_IN := $(SOURCE_ROOT)build/Config.in
 export AOS_CONFIG_DIR := $(BUILD_DIR)/config
@@ -62,36 +61,25 @@ oldconfig silentoldconfig olddefconfig: $(KCONFIG_CONF)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< --$@ $(AOS_CONFIG_IN)
 
 # Create .defconfig
-$(TMP_DEFCONFIG):
-	$(if $(BOARD_DEFCONFIG),\
-	$(info Reading defconfig from $(BOARD_DEFCONFIG) ...) $(CPDIR) $(BOARD_DEFCONFIG) $(TMP_DEFCONFIG))
-
-	$(if $(BOARD_DEFCONFIG),\
-	$(if $(AOS_APP_TYPE),$(call WRITE_FILE_APPEND,$@,$(AOS_APP_TYPE)=y)),\
-	$(if $(AOS_APP_TYPE),$(call WRITE_FILE_CREATE,$@,$(AOS_APP_TYPE)=y)))
-
-	$(call WRITE_FILE_APPEND,$@,AOS_app_$(AOS_BUILD_APP)=y)
-	$(call WRITE_FILE_APPEND,$@,AOS_board_$(AOS_BUILD_BOARD)=y)
-
-ifneq ($(TMP_DEFCONFIG),$(AOS_DEFCONFIG))
-$(TMP_DEFCONFIG): $(AOS_DEFCONFIG)
-endif
+$(AOS_DEFCONFIG):
+	$(QUIET)$(if $(AOS_APP_TYPE),$(call WRITE_FILE_CREATE,$@,$(AOS_APP_TYPE)=y))
+	$(QUIET)$(call WRITE_FILE_APPEND,$@,AOS_app_$(AOS_BUILD_APP)=y)
+	$(QUIET)$(call WRITE_FILE_APPEND,$@,AOS_board_$(AOS_BUILD_BOARD)=y)
 
 #####################################################################################
-# Macro LOAD_DEFCONFIG load default configs from TMP_DEFCONFIG:
+# Macro LOAD_DEFCONFIG load default configs from AOS_DEFCONFIG:
 # $(1) is command kconfig-conf
-# $(2) is defconfig file
 define LOAD_DEFCONFIG
-$(ECHO) Loading default config from $(2) ...
-$(COMMON_CONFIG_ENV) $(1) --defconfig$(if $(2),=$(2)) $(AOS_CONFIG_IN)
+$(ECHO) Loading default config from $(AOS_DEFCONFIG) ...
+$(COMMON_CONFIG_ENV) $(1) --defconfig$(if $(AOS_DEFCONFIG),=$(AOS_DEFCONFIG)) $(AOS_CONFIG_IN)
 endef
 
 # Create .config
-$(AOS_CONFIG): $(KCONFIG_CONF) $(TMP_DEFCONFIG)
-	$(QUIET)$(call LOAD_DEFCONFIG, $<,$(TMP_DEFCONFIG))
+$(AOS_CONFIG): $(KCONFIG_CONF) $(AOS_DEFCONFIG)
+	$(QUIET)$(call LOAD_DEFCONFIG, $<)
 
 defconfig: $(KCONFIG_CONF)
-	$(QUIET)$(call LOAD_DEFCONFIG, $<,$(AOS_DEFCONFIG))
+	$(QUIET)$(call LOAD_DEFCONFIG, $<)
 
 alldefconfig: $(KCONFIG_CONF)
 	$(COMMON_CONFIG_ENV) $< --alldefconfig $(AOS_CONFIG_IN)
