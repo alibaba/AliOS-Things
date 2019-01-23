@@ -23,4 +23,36 @@ config DEBUG_CONFIG_BACKTRACE
     int "DEBUG_CONFIG_BACKTRACE"
     default 1
 
+menu "BSP SUPPORT FEATURE"
+
+config BSP_SUPPORT_UART
+    bool "BSP_SUPPORT_UART"
+    default y
+
+config BSP_SUPPORT_I2C
+    bool "BSP_SUPPORT_I2C"
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool "BSP_SUPPORT_FLASH"
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool "BSP_SUPPORT_GPIO"
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool "BSP_SUPPORT_TIMER"
+    default y
+
+config BSP_SUPPORT_SPI
+    bool "BSP_SUPPORT_SPI"
+    default y
+
+config BSP_SUPPORT_RTC
+    bool "BSP_SUPPORT_RTC"
+    default y
+
+endmenu
+
 endif
