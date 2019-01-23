@@ -103,7 +103,7 @@ char *strtok(char *str, const char * delim)
     do {
         ch = *str++;
         if (ch == '\0') {
-            return NULL;
+            return ret;
         }
     } while (ch != *delim);
 
@@ -114,15 +114,10 @@ char *strtok(char *str, const char * delim)
 
 int hex2bin(const char *hex, uint8_t *bin, uint16_t bin_length)
 {
-    uint16_t    hex_length = strlen(hex);
-    const char *hex_end    = hex + hex_length;
+    const char *hex_end    = hex + bin_length * 2;
     uint8_t    *cur        = bin;
-    uint8_t     num_chars  = hex_length & 1;
     uint8_t     byte       = 0;
-
-    if ((hex_length + 1) / 2 > bin_length) {
-        return -1;
-    }
+    uint8_t     num_chars  = 0;
 
     while (hex < hex_end) {
         if ('A' <= *hex && *hex <= 'F') {
@@ -135,6 +130,7 @@ int hex2bin(const char *hex, uint8_t *bin, uint16_t bin_length)
             return -1;
         }
         hex++;
+
         num_chars++;
 
         if (num_chars >= 2) {
