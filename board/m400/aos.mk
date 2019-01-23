@@ -7,7 +7,8 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board m400
 MODULE             := 1062
 HOST_ARCH          := Cortex-M0
-HOST_MCU_FAMILY    := mcu_stm32l071kb
+HOST_MCU_FAMILY    := mcu_stm32l0xx
+HOST_MCU_NAME      := stm32l071kb
 SUPPORT_MBINS      := no
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
