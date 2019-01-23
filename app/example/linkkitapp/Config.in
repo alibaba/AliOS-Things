@@ -36,7 +36,4 @@ config LINKKITAPP_CONFIG_PRINT_HEAP
     default 0
     help
 
-config RHINO_CONFIG_WORKQUEUE
-    default 1
-
 endif
