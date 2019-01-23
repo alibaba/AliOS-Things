@@ -17,8 +17,6 @@ GLOBAL_DEFINES += DEVICE_FLASH=1
 GLOBAL_DEFINES += TARGET_FLASH_CMSIS_ALGO=1
 GLOBAL_DEFINES += RDA5991H_HW_VER=4
 
-GLOBAL_DEFINES  += RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
-
 GLOBAL_INCLUDES += include         \
                    startup         \
                    driver          \

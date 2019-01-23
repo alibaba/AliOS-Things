@@ -14,7 +14,6 @@ GLOBAL_CFLAGS += -fno-builtin -ffunction-sections -fdata-sections -fno-common -s
 #GLOBAL_CFLAGS += $(CPU_CFLAGS) -mlittle-endian
 GLOBAL_CFLAGS += -mcpu=cortex-m4 -mlittle-endian -mthumb -mthumb-interwork
 
-GLOBAL_CFLAGS   += -DRHINO_CONFIG_TASK_STACK_CUR_CHECK=1
 GLOBAL_ASMFLAGS += -D__MULTICORE_MASTER -D__MULTICORE_M0SLAVE -DMULTICORE_MASTER_SLAVE_M0SLAVE
 
 GLOBAL_INCLUDES += ./ \

@@ -39,50 +39,11 @@ k_mm_region_t g_mm_region[] = {{(uint8_t*)&heap_start,(size_t)&heap_len}};
 
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 
-#if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
-size_t soc_get_cur_sp()
-{
-    size_t sp = 0;
-#if defined (__GNUC__)&&!defined(__CC_ARM)
-	asm volatile(
-        "mov %0,sp\n"
-        :"=r"(sp));
-#endif
-    return sp;
-}
-#endif
 
-static void soc_print_stack()
-{
-
-    uint32_t offset = 0;
-    kstat_t  rst    = RHINO_SUCCESS;
-    int    cur;
-	void   *end;
-    int      i=0;
-    int     *p;
-
-    end   = krhino_cur_task_get()->task_stack_base + krhino_cur_task_get()->stack_size;
-    cur = soc_get_cur_sp();
-    p = (int*)cur;
-    while(p < (int*)end) {
-        if(i%4==0) {
-            printf("\r\n%08lx:",(uint32_t)p);
-        }
-        printf("%08x ", *p);
-        i++;
-        p++;
-    }
-    printf("\r\n");
-    return;
-}
 void soc_err_proc(kstat_t err)
 {
     (void)err;
     printf("panic %d!\r\n",err);
-    soc_print_stack();
-	dumpsys_task_func(NULL, 0, 1);
-	krhino_backtrace_now();
     assert(0);
 }
 

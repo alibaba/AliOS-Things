@@ -163,7 +163,6 @@ global_ldflags = Split('''
 global_macro = Split('''
         CORE_M4
         SDK_DEBUGCONSOLE=1
-        RHINO_CONFIG_TASK_STACK_CUR_CHECK=1
         A_LITTLE_ENDIAN
         __MULTICORE_MASTER 
         __MULTICORE_M0SLAVE
