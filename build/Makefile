@@ -45,7 +45,7 @@ ifneq ($(BUILD_STRING),)
 components := $(subst @, ,$(BUILD_STRING))
 # get real app name and check if it available
 appdir = $(subst .,/,$(firstword $(components)))
-appmkfile = $(wildcard $(SOURCE_ROOT)app/*/$(appdir)/aos.mk)
+appmkfile = $(wildcard $(SOURCE_ROOT)app/*/$(appdir)/aos.mk $(SOURCE_ROOT)test/develop/$(appdir)/aos.mk)
 $(if $(appmkfile),\
     $(eval include $(appmkfile)) $(eval appname = $(NAME)),\
     $(eval appname = $(notdir $(appdir))))
@@ -58,8 +58,10 @@ endif
 # determine what app type should be enabled: example, profile, test
 ifneq ($(findstring profile,$(appmkfile)),)
 export AOS_APP_TYPE := AOS_APP_PROFILE
-else
+else ifneq ($(findstring example,$(appmkfile)),)
 export AOS_APP_TYPE := AOS_APP_EXAMPLE
+else
+export AOS_APP_TYPE :=
 endif
 
 boardname = $(word 2, $(components))
