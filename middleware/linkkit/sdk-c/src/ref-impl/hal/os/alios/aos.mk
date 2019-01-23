@@ -11,6 +11,8 @@ $(NAME)_SOURCES := HAL_OS_rhino.c \
                    HAL_Crypt_rhino.c \
                    HAL_AWSS_rhino.c
 
+$(NAME)_SOURCES-$(FS_ENABLED) += HAL_FS_rhino.c
+
 $(NAME)_COMPONENTS += ulog activation chip_code netmgr
 
 
