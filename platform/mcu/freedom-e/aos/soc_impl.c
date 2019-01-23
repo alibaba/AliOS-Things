@@ -46,20 +46,6 @@ k_mm_region_t g_mm_region[] = {{(uint8_t *) &_heap_start, (size_t) &heap_len}};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 #endif
 
-#if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
-size_t soc_get_cur_sp()
-{
-    size_t sp = 0;
-
-    return sp;
-}
-static void soc_print_stack()
-{
-    printf("\r\n");
-    return;
-}
-#endif
-
 
 void soc_err_proc(kstat_t err)
 {

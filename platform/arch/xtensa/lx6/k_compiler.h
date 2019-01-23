@@ -13,7 +13,7 @@
 __attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_SP(void)
 {
     void *sp;
-    asm volatile("mov %0, SP\n" : "=r" (sp));
+    asm volatile("mov %0, a1\n" : "=r" (sp));
     return sp;
 }
 /* get the number of leading 0-bits in x

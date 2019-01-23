@@ -61,13 +61,6 @@ void _linux_backtrace()
    free (strings);
 }
 
-#if (RHINO_CONFIG_TASK_STACK_CUR_CHECK > 0)
-size_t soc_get_cur_sp()
-{
-    return 0;
-}
-#endif
-
 void soc_err_proc(kstat_t err)
 {
     printf("kernel panic,err %d!\n",err);
