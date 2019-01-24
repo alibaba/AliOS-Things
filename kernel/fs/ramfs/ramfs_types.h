@@ -5,6 +5,9 @@
 #ifndef RAMFS_TYPES_H
 #define RAMFS_TYPES_H
 
+#include <stdint.h>
+#include <unistd.h>
+
 #define RAMFS_MAGIC  0x890910
 #define RAMFS_LETTER 'U'
 
