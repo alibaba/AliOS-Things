@@ -55,6 +55,15 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef WITH_LWIP_TFTP_FS
+#include <fcntl.h>
+#include "aos/vfs.h"
+/* file description for tftp mount to file system. thread safe is not consider
+   as currently only one session is allowed for tftp */
+static int fd_tftp_fs = -1;
+#endif
+
+
 struct tftp_state {
   const tftp_context_t *ctx;
   void *handle;
@@ -340,6 +349,23 @@ tftp_tmr(void* arg)
 
 static void* tftp_fopen(const char* fname, const char* mode, u8_t write)
 {
+#ifdef WITH_LWIP_TFTP_FS
+    /* mount to the file system if both comp vfs and spiffs exit */
+    /* omit mode of BIN or ASCII */
+    if(write){
+        fd_tftp_fs = aos_open(fname, O_RDWR);
+    }else{
+        fd_tftp_fs = aos_open(fname, O_RDONLY);
+    }
+    if (fd_tftp_fs >= 0) {
+        printf(">>>open fd %d\n", fd_tftp_fs);
+        return &fd_tftp_fs;
+    } else {
+        LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("tftp fs failed: %d",fd_tftp_fs));
+        fd_tftp_fs = -1;
+        return NULL;
+    }
+#else
     FILE *fp = NULL;
 
     if (strncmp(mode, "netascii", 8) == 0) {
@@ -348,18 +374,27 @@ static void* tftp_fopen(const char* fname, const char* mode, u8_t write)
         fp = fopen(fname, write == 0 ? "rb" : "wb");
     }
     return (void*)fp;
+#endif
 }
 
 static void tftp_fclose(void* handle)
 {
+#ifdef WITH_LWIP_TFTP_FS
+    aos_close(*((int*)handle));
+#else
     fclose((FILE*)handle);
+#endif
 }
 
 static int tftp_fread(void* handle, void* buf, int bytes)
 {
+#ifdef WITH_LWIP_TFTP_FS
+    return aos_read(*((int*)handle), buf, bytes);
+#else
     size_t readbytes;
     readbytes = fread(buf, 1, (size_t)bytes, (FILE*)handle);
     return (int)readbytes;
+#endif
 }
 
 static int tftp_fwrite(void* handle, struct pbuf* p)
@@ -367,7 +402,11 @@ static int tftp_fwrite(void* handle, struct pbuf* p)
     char buff[512];
     size_t writebytes = -1;
     pbuf_copy_partial(p, buff, p->tot_len, 0);
+#ifdef WITH_LWIP_TFTP_FS
+    writebytes = aos_write(*((int*)handle), buff, p->tot_len);
+#else
     writebytes = fwrite(buff, 1, p->tot_len, (FILE *)handle);
+#endif
     return (int)writebytes;
 }
 
