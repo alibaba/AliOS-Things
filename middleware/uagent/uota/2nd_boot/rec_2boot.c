@@ -20,7 +20,7 @@ int rec_2boot_cmd_check(void)
 
     while(1) {
         if(uart_recv_byte(&c) && ('w' == c)) {
-            printf("2nd boot cmd:\r\n");
+            printf("Will enter aos 2nd boot cmd ...\r\n");
             return 0;
         }
         i ++;
@@ -54,12 +54,7 @@ void print_usage()
 void rec_2boot_cmd_process()
 {
 #ifdef AOS_OTA_2BOOT_CLI
-    PatchStatus *pstatus;
     unsigned char c = 0;
-
-    pstatus = nbpatch_get_pstatus();
-    read_patch_status(pstatus);
-
     print_usage();
     printf("aos boot# ");
     while(1) {
@@ -79,7 +74,7 @@ void rec_2boot_cmd_process()
                     break;
 
                 case '2' :
-                    printf("Active part B \r\n");
+                    printf("Active backup version \r\n");
                     nbpatch_swap_app2ota(TRUE);
                     rec_reboot();
                     break;
