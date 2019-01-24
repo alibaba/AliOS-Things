@@ -4,16 +4,15 @@
 
 #ifdef DEPRECATED_LINKKIT
 #else
-
 #include "stdio.h"
 #include "iot_export.h"
 #include "iot_import.h"
 #include "app_entry.h"
 
-#define PRODUCT_KEY      "a1ybTpus98a"
+#define PRODUCT_KEY      "a1X2bEnP82z"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "t1_kj"
-#define DEVICE_SECRET    "wQw2zpRCXCY8ymnMrxiUgL1l5V9Q493Y"
+#define DEVICE_NAME      "test_0109_82z_service_kj"
+#define DEVICE_SECRET    "8woc2VehSB8HI3Isd6R9xZXBvBaKfqzV"
 
 #define USE_CUSTOME_DOMAIN              (0)
 
@@ -70,6 +69,60 @@ static int user_cota_event_handler(int type, const char *config_id, int config_s
     return 0;
 }
 
+static int user_master_dev_available(void)
+{
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+
+    if (user_example_ctx->cloud_connected && user_example_ctx->master_initialized) {
+        return 1;
+    }
+
+    return 0;
+}
+
+void user_post_property(void)
+{
+    static int example_index = 0;
+    int res = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+    char *property_payload = "NULL";
+
+    if (example_index == 0) {
+        /* Normal Example */
+        property_payload = "{\"LightSwitch\":1}";
+        example_index++;
+    } else if (example_index == 1) {
+        /* Wrong Property ID */
+        property_payload = "{\"LightSwitchxxxx\":1}";
+        example_index++;
+    } else if (example_index == 2) {
+        /* Wrong Value Format */
+        property_payload = "{\"LightSwitch\":\"test\"}";
+        example_index++;
+    } else if (example_index == 3) {
+        /* Wrong Value Range */
+        property_payload = "{\"LightSwitch\":10}";
+        example_index++;
+    } else if (example_index == 4) {
+        /* Missing Property Item */
+        property_payload = "{\"RGBColor\":{\"Red\":45,\"Green\":30}}";
+        example_index++;
+    } else if (example_index == 5) {
+        /* Wrong Params Format */
+        property_payload = "\"hello world\"";
+        example_index++;
+    } else if (example_index == 6) {
+        /* Wrong Json Format */
+        property_payload = "hello world";
+        example_index = 0;
+    }
+
+    res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
+                             (unsigned char *)property_payload, strlen(property_payload));
+
+    EXAMPLE_TRACE("Post Property Message ID: %d", res);
+}
+
 void set_iotx_info()
 {
     HAL_SetProductKey(PRODUCT_KEY);
@@ -82,6 +135,7 @@ int linkkit_main(void *paras)
 {
 
     int res = 0;
+    uint64_t time_now_sec = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     iotx_linkkit_dev_meta_info_t master_meta_info;
 
@@ -133,6 +187,10 @@ int linkkit_main(void *paras)
     while (1) {
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
         EXAMPLE_TRACE("yield loop\n");
+        /* Post Proprety Example */
+        if (time_now_sec % 11 == 0 && user_master_dev_available()) {
+            user_post_property();
+        }
     }
 
     IOT_Linkkit_Close(user_example_ctx->master_devid);
