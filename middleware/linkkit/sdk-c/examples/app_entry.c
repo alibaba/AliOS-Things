@@ -22,7 +22,6 @@
 static void *awss_suc_semphore = NULL;
 static void *awss_thread_handler = NULL;
 
-void set_iotx_info();
 void LITE_set_loglevel(int);
 
 static void awss_save_router_info()
@@ -46,6 +45,32 @@ static void awss_save_router_info()
     HAL_Kv_Set(KV_KEY_BSSID, bssid, AWSS_BSSID_MAXLEN, 0);
 }
 
+#if !defined(DEVICE_MODEL_ENABLED) && defined(DEV_BIND_ENABLED)
+static void *awss_bind_thread_handler = NULL;
+void *awss_bind_thread_task(void *param)
+{
+    void *handler = awss_bind_thread_handler;
+
+    awss_report_cloud();
+
+    awss_bind_thread_handler = NULL;
+
+    HAL_ThreadDelete(handler);
+
+    return NULL;
+}
+
+static void awss_bind_start_task()
+{
+    hal_os_thread_param_t param = {0};
+
+    if (awss_bind_thread_handler != NULL)
+        return NULL;
+
+    param.stack_size = 4096;
+    HAL_ThreadCreate(&awss_bind_thread_handler, awss_bind_thread_task, NULL, &param, NULL);
+}
+#endif
 /*
  * Note:
  * the linkkit_event_monitor must not block and should run to complete fast
@@ -142,6 +167,9 @@ static void linkkit_event_monitor(int event)
         case IOTX_CONN_CLOUD_SUC: /* Device connects cloud successfully */
             HAL_Printf("IOTX_CONN_CLOUD_SUC");
             /* operate led to indicate user */
+#if !defined(DEVICE_MODEL_ENABLED) && defined(DEV_BIND_ENABLED)
+            awss_bind_start_task();
+#endif
             break;
         case IOTX_RESET: /* Linkkit reset success (just got reset response from
                           * cloud without any other operation) */
@@ -160,8 +188,10 @@ static int awss_valid_bssid(const char *bssid)
 
     if (bssid == NULL)
         return 0;
+
     if (memcmp(bssid, zero, sizeof(zero)) == 0)
         return 0;
+
     if (memcmp(bssid, bcast, sizeof(bcast)) == 0)
         return 0;
 
