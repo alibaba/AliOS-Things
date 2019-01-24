@@ -56,10 +56,22 @@ ifeq (y,$(FEATURE_NETBIOSNS_ENABLED))
 $(NAME)_SOURCES += $(NETBIOSNSFILES)
 endif
 
+
 ifeq (y,$(FEATURE_TFTP_ENABLED))
 use_lwip_tftp := 0
 ifeq ($(use_lwip_tftp), 1)
-GLOBAL_DEFINES += WITH_LWIP_TFPT
+GLOBAL_DEFINES += WITH_LWIP_TFTP
+
+ifeq ($(FEATURE_TFTP_FS), y)
+
+ifneq (,$(filter vfs,$(COMPONENTS)))
+GLOBAL_DEFINES += WITH_LWIP_TFTP_FS
+else
+$(warning ### miss FEATURE_TFTP_FS as no vfs supports)
+endif
+
+endif
+
 $(NAME)_SOURCES += $(TFTPFILES)
 endif
 endif
