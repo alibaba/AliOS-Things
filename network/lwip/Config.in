@@ -28,7 +28,7 @@ config AF_PACKET_ENABLED
 
       Switching to "y" leads to support AF_PACKET socket.
       Switching to "n" leads to not support AF_PACKET socket.
-   
+
 menu "LWIP App Configurations"
     depends on AOS_LWIP_ENABLED
 
@@ -94,6 +94,17 @@ menu "LWIP App Configurations"
 
           Switching to "y" leads to support TFTP module
           Switching to "n" leads to not support TFTP module
+
+if TFTP_ENABLED
+      config TFTP_FS
+        bool "FEATURE_TFTP_FS"
+        default n
+        help
+          Support TFTP from File System
+
+          Switching to "y" leads to support TFTP mount to File System
+          Switching to "n" leads to not support TFTP mount to File System
+endif
 
      config TELNETD_ENABLED
         bool "FEATURE_TELNETD_ENABLED"
