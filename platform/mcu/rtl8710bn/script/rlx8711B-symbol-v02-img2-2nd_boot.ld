@@ -1,4 +1,4 @@
-ENTRY(aos_2boot_entry)
+ENTRY(aos_2boot_Image2)
 
 INCLUDE "platform/mcu/rtl8710bn/script/export-rom_symbol_v01.txt"
 
