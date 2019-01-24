@@ -55,6 +55,7 @@ include $(OUTPUT_DIR)/aos_all_components.mk
 $(if $(filter $(appname),$(REAL_COMPONENTS)),,$(error Unknown component: $(appname)))
 endif
 
+# determine what app type should be enabled: example, profile, test
 ifneq ($(findstring profile,$(appmkfile)),)
 export AOS_APP_TYPE := AOS_APP_PROFILE
 else
@@ -62,6 +63,11 @@ export AOS_APP_TYPE := AOS_APP_EXAMPLE
 endif
 
 boardname = $(word 2, $(components))
+defconfig = $(wildcard $(SOURCE_ROOT)board/$(boardname)/defconfig)
+ifneq ($(defconfig),)
+export BOARD_DEFCONFIG := $(defconfig)
+AOS_DEFCONFIG := $(BOARD_DEFCONFIG)
+endif
 
 ifneq ($(wildcard $(AOS_CONFIG)),)
 include $(AOS_CONFIG)
