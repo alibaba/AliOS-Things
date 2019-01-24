@@ -4,117 +4,100 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.16.0
 $(NAME)_SUMMARY := mbedtls is an implemetation of TLS/SSL protocol and cryptographic algorithms and support code required.
 
-DEBUG := no
-
 GLOBAL_INCLUDES     += aos/include/ include
 
-ifeq ($(DEBUG), yes)
-$(NAME)_DEFINES     += CONFIG_SSL_DEBUG
-endif
+GLOBAL_DEFINES      += MBEDTLS_CONFIG_FILE=\"mbedtls_config.h\"
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 $(NAME)_DEFINES     += XTENSE_MALLOC_IRAM
 endif
 
-ifeq ($(HOST_ARCH),linux)
-CONFIG_MBEDTLS_TLS := y
-else
-ifeq ($(with_lwip),1)
-CONFIG_MBEDTLS_TLS := y
-endif
-endif
-
 # Build crypto
-$(NAME)_SOURCES := library/aes.c
-$(NAME)_SOURCES += library/aesni.c
-$(NAME)_SOURCES += library/arc4.c
-$(NAME)_SOURCES += library/aria.c
-$(NAME)_SOURCES += library/asn1parse.c
-$(NAME)_SOURCES += library/asn1write.c
-$(NAME)_SOURCES += library/base64.c
-$(NAME)_SOURCES += library/bignum.c
-$(NAME)_SOURCES += library/blowfish.c
-$(NAME)_SOURCES += library/camellia.c
-$(NAME)_SOURCES += library/ccm.c
-$(NAME)_SOURCES += library/chacha20.c
-$(NAME)_SOURCES += library/chachapoly.c
-$(NAME)_SOURCES += library/cipher.c
-$(NAME)_SOURCES += library/cipher_wrap.c
-$(NAME)_SOURCES += library/cmac.c
-$(NAME)_SOURCES += library/ctr_drbg.c
-$(NAME)_SOURCES += library/des.c
-$(NAME)_SOURCES += library/dhm.c
-$(NAME)_SOURCES += library/ecdh.c
-$(NAME)_SOURCES += library/ecdsa.c
-$(NAME)_SOURCES += library/ecjpake.c
-$(NAME)_SOURCES += library/ecp.c
-$(NAME)_SOURCES += library/ecp_curves.c
-$(NAME)_SOURCES += library/entropy.c
-$(NAME)_SOURCES += library/entropy_poll.c
-$(NAME)_SOURCES += library/error.c
-$(NAME)_SOURCES += library/gcm.c
-$(NAME)_SOURCES += library/havege.c
-$(NAME)_SOURCES += library/hkdf.c
-$(NAME)_SOURCES += library/hmac_drbg.c
-$(NAME)_SOURCES += library/md.c
-$(NAME)_SOURCES += library/md2.c
-$(NAME)_SOURCES += library/md4.c
-$(NAME)_SOURCES += library/md5.c
-$(NAME)_SOURCES += library/md_wrap.c
-$(NAME)_SOURCES += library/memory_buffer_alloc.c
-$(NAME)_SOURCES += library/nist_kw.c
-$(NAME)_SOURCES += library/oid.c
-$(NAME)_SOURCES += library/padlock.c
-$(NAME)_SOURCES += library/pem.c
-$(NAME)_SOURCES += library/pk.c
-$(NAME)_SOURCES += library/pk_wrap.c
-$(NAME)_SOURCES += library/pkcs12.c
-$(NAME)_SOURCES += library/pkcs5.c
-$(NAME)_SOURCES += library/pkparse.c
-$(NAME)_SOURCES += library/pkwrite.c
-$(NAME)_SOURCES += library/platform.c
-$(NAME)_SOURCES += library/platform_util.c
-$(NAME)_SOURCES += library/poly1305.c
-$(NAME)_SOURCES += library/ripemd160.c
-$(NAME)_SOURCES += library/rsa_internal.c
-$(NAME)_SOURCES += library/rsa.c
-$(NAME)_SOURCES += library/sha1.c
-$(NAME)_SOURCES += library/sha256.c
-$(NAME)_SOURCES += library/sha512.c
-$(NAME)_SOURCES += library/threading.c
-$(NAME)_SOURCES += library/timing.c
-$(NAME)_SOURCES += library/version.c
-$(NAME)_SOURCES += library/version_features.c
-$(NAME)_SOURCES += library/xtea.c
-# Build X509
-$(NAME)_SOURCES += library/certs.c
-$(NAME)_SOURCES += library/pkcs11.c
-$(NAME)_SOURCES += library/x509.c
-$(NAME)_SOURCES += library/x509_create.c
-$(NAME)_SOURCES += library/x509_crl.c
-$(NAME)_SOURCES += library/x509_crt.c
-$(NAME)_SOURCES += library/x509_csr.c
-$(NAME)_SOURCES += library/x509write_crt.c
-$(NAME)_SOURCES += library/x509write_csr.c
-# Build TLS
-ifeq ($(CONFIG_MBEDTLS_TLS),y)
-$(NAME)_SOURCES += library/debug.c
-$(NAME)_SOURCES += library/net_sockets.c
-$(NAME)_SOURCES += library/ssl_cache.c
-$(NAME)_SOURCES += library/ssl_ciphersuites.c
-$(NAME)_SOURCES += library/ssl_cli.c
-$(NAME)_SOURCES += library/ssl_cookie.c
-$(NAME)_SOURCES += library/ssl_srv.c
-$(NAME)_SOURCES += library/ssl_ticket.c
-$(NAME)_SOURCES += library/ssl_tls.c
-endif
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_AES)        := library/aes.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/aesni.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_ARC4)       += library/arc4.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_ARIA)       += library/aria.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/asn1parse.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/asn1write.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/base64.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/bignum.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_BLOWFISH)   += library/blowfish.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_CAMELLIA)   += library/camellia.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_MODE_CCM)   += library/ccm.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_CHACHA20)   += library/chacha20.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_CHACHAPOLY) += library/chachapoly.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/cipher.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/cipher_wrap.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/cmac.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/ctr_drbg.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_DES)        += library/des.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/dhm.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/ecdh.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/ecdsa.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/ecjpake.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/ecp.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/ecp_curves.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/entropy.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/entropy_poll.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_ERROR)             += library/error.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_MODE_GCM)   += library/gcm.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/havege.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/hkdf.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/hmac_drbg.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/md.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/md2.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/md4.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_MD5)        += library/md5.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/md_wrap.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/memory_buffer_alloc.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/nist_kw.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/oid.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/padlock.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/pem.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/pk.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/pk_wrap.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/pkcs12.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/pkcs5.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/pkparse.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/pkwrite.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/platform.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/platform_util.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_POLY1305)   += library/poly1305.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_RIPEMD160)  += library/ripemd160.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/rsa_internal.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/rsa.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_SHA1)       += library/sha1.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_SHA256)     += library/sha256.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_SHA512)     += library/sha512.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/threading.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/timing.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/version.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += library/version_features.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO_XTEA)       += library/xtea.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += aos/library/threading_alt.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_CRYPTO)            += aos/library/platform.c
 
-# Adapt for AliOS Things.
-$(NAME)_SOURCES += aos/library/threading_alt.c
-$(NAME)_SOURCES += aos/library/platform.c
-ifeq ($(CONFIG_MBEDTLS_TLS),y)
-$(NAME)_SOURCES += aos/library/net_sockets.c
-endif
+# Build X509
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_X509) += library/certs.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_X509) += library/pkcs11.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_X509) += library/x509.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_X509) += library/x509_create.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_X509) += library/x509_crl.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_X509) += library/x509_crt.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_X509) += library/x509_csr.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_X509) += library/x509write_crt.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_X509) += library/x509write_csr.c
+
+# Build TLS
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_TLS_DEBUG) += library/debug.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_TLS)       += library/ssl_cache.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_TLS)       += library/ssl_ciphersuites.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_TLS)       += library/ssl_cli.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_TLS)       += library/ssl_cookie.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_TLS)       += library/ssl_srv.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_TLS)       += library/ssl_ticket.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_TLS)       += library/ssl_tls.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_TLS)       += aos/library/net_sockets.c
 
 # Test program
-$(NAME)_SOURCES += programs/test/selftest.c
+$(NAME)_SOURCES-$(MBEDTLS_CONFIG_SELFTEST) += programs/test/selftest.c
