@@ -329,23 +329,23 @@ int ali_algo_md5_self_test(int verbose)
 
     for (i = 0; i < 7; i++) {
         if (verbose != 0)
-            ali_algo_printf("  MD5 test #%d: ", i + 1);
+            osa_printf("  MD5 test #%d: ", i + 1);
 
         ali_algo_md5(md5_test_buf[i], md5_test_buflen[i], md5sum);
 
         if (memcmp(md5sum, md5_test_sum[i], 16) != 0) {
             if (verbose != 0)
-                ali_algo_printf("failed\n");
+                osa_printf("failed\n");
 
             return (1);
         }
 
         if (verbose != 0)
-            ali_algo_printf("passed\n");
+            osa_printf("passed\n");
     }
 
     if (verbose != 0)
-        ali_algo_printf("\n");
+        osa_printf("\n");
 
     return (0);
 }

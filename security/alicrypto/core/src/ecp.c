@@ -31,18 +31,9 @@
 #if defined(ALI_ALGO_ECP_C)
 
 #include "ecp.h"
+#include "osa.h"
 
 #include <string.h>
-
-#if defined(ALI_ALGO_PLATFORM_C)
-#include "platform.h"
-#else
-#include <stdlib.h>
-#include <stdio.h>
-#define ali_algo_printf     printf
-#define ali_algo_calloc    calloc
-#define ali_algo_free       free
-#endif
 
 #if ( defined(__ARMCC_VERSION) || defined(_MSC_VER) ) && \
     !defined(inline) && !defined(__cplusplus)
@@ -329,7 +320,7 @@ void ali_algo_ecp_group_free( ali_algo_ecp_group *grp )
     {
         for( i = 0; i < grp->T_size; i++ )
             ali_algo_ecp_point_free( &grp->T[i] );
-        ali_algo_free( grp->T );
+        osa_free( grp->T );
     }
 
     ali_algo_zeroize( grp, sizeof( ali_algo_ecp_group ) );
@@ -787,7 +778,7 @@ static int ecp_normalize_jac_many( const ali_algo_ecp_group *grp,
     if( t_len < 2 )
         return( ecp_normalize_jac( grp, *T ) );
 
-    if( ( c = ali_algo_calloc( t_len, sizeof( ali_algo_mpi ) ) ) == NULL )
+    if( ( c = osa_calloc( t_len, sizeof( ali_algo_mpi ) ) ) == NULL )
         return( ALI_ALGO_ERR_ECP_ALLOC_FAILED );
 
     ali_algo_mpi_init( &u ); ali_algo_mpi_init( &Zi ); ali_algo_mpi_init( &ZZi );
@@ -849,7 +840,7 @@ cleanup:
     ali_algo_mpi_free( &u ); ali_algo_mpi_free( &Zi ); ali_algo_mpi_free( &ZZi );
     for( i = 0; i < t_len; i++ )
         ali_algo_mpi_free( &c[i] );
-    ali_algo_free( c );
+    osa_free( c );
 
     return( ret );
 }
@@ -1358,7 +1349,7 @@ static int ecp_mul_comb( ali_algo_ecp_group *grp, ali_algo_ecp_point *R,
 
     if( T == NULL )
     {
-        T = ali_algo_calloc( pre_len, sizeof( ali_algo_ecp_point ) );
+        T = osa_calloc( pre_len, sizeof( ali_algo_ecp_point ) );
         if( T == NULL )
         {
             ret = ALI_ALGO_ERR_ECP_ALLOC_FAILED;
@@ -1401,7 +1392,7 @@ cleanup:
     {
         for( i = 0; i < pre_len; i++ )
             ali_algo_ecp_point_free( &T[i] );
-        ali_algo_free( T );
+        osa_free( T );
     }
 
     ali_algo_mpi_free( &M );
@@ -1989,7 +1980,7 @@ int ali_algo_ecp_self_test( int verbose )
 #endif
 
     if( verbose != 0 )
-        ali_algo_printf( "  ECP test #1 (constant op_count, base point G): " );
+        osa_printf( "  ECP test #1 (constant op_count, base point G): " );
 
     /* Do a dummy multiplication first to trigger precomputation */
     ALI_ALGO_MPI_CHK( ali_algo_mpi_lset( &m, 2 ) );
@@ -2018,7 +2009,7 @@ int ali_algo_ecp_self_test( int verbose )
             mul_count != mul_c_prev )
         {
             if( verbose != 0 )
-                ali_algo_printf( "failed (%u)\n", (unsigned int) i );
+                osa_printf( "failed (%u)\n", (unsigned int) i );
 
             ret = 1;
             goto cleanup;
@@ -2026,10 +2017,10 @@ int ali_algo_ecp_self_test( int verbose )
     }
 
     if( verbose != 0 )
-        ali_algo_printf( "passed\n" );
+        osa_printf( "passed\n" );
 
     if( verbose != 0 )
-        ali_algo_printf( "  ECP test #2 (constant op_count, other point): " );
+        osa_printf( "  ECP test #2 (constant op_count, other point): " );
     /* We computed P = 2G last time, use it */
 
     add_count = 0;
@@ -2055,7 +2046,7 @@ int ali_algo_ecp_self_test( int verbose )
             mul_count != mul_c_prev )
         {
             if( verbose != 0 )
-                ali_algo_printf( "failed (%u)\n", (unsigned int) i );
+                osa_printf( "failed (%u)\n", (unsigned int) i );
 
             ret = 1;
             goto cleanup;
@@ -2063,12 +2054,12 @@ int ali_algo_ecp_self_test( int verbose )
     }
 
     if( verbose != 0 )
-        ali_algo_printf( "passed\n" );
+        osa_printf( "passed\n" );
 
 cleanup:
 
     if( ret < 0 && verbose != 0 )
-        ali_algo_printf( "Unexpected error, return code = %08X\n", ret );
+        osa_printf( "Unexpected error, return code = %08X\n", ret );
 
     ali_algo_ecp_group_free( &grp );
     ali_algo_ecp_point_free( &R );
@@ -2076,7 +2067,7 @@ cleanup:
     ali_algo_mpi_free( &m );
 
     if( verbose != 0 )
-        ali_algo_printf( "\n" );
+        osa_printf( "\n" );
 
     return( ret );
 }

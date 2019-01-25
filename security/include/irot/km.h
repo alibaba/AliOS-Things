@@ -5,6 +5,10 @@
 #ifndef _KM_H_
 #define _KM_H_
 
+#if defined(__ARMCC_VERSION)
+#pragma anon_unions
+#endif
+
 #include <stdint.h>
 #include <stddef.h>
 

@@ -26,17 +26,17 @@ void id2_log_hex_dump(const char* name, const uint8_t* in_data, uint32_t in_len)
     memset(buf, 0x00, sizeof(buf));
     while (i < in_len)
     {
-        pos += snprintf(buf + pos, sizeof(buf) - pos, "%02X ", in_data[i]);
+        pos += ls_osa_snprintf(buf + pos, sizeof(buf) - pos, "%02X ", in_data[i]);
         i++;
         if (i % COL_SIZE == 0x00)
         {
-            pos += snprintf(buf + pos, sizeof(buf) - pos, "\n");
+            pos += ls_osa_snprintf(buf + pos, sizeof(buf) - pos, "\n");
             id2_log_debug("%s", buf);
             pos = 0;
         }
         else if (i % COL_SIZE == (COL_SIZE >> 1))
         {
-            pos += snprintf(buf + pos, sizeof(buf) - pos, "  ");
+            pos += ls_osa_snprintf(buf + pos, sizeof(buf) - pos, "  ");
         }
         else
         {

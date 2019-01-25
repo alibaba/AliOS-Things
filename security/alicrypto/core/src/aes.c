@@ -1138,7 +1138,7 @@ int ali_algo_aes_self_test(int verbose)
         v = i & 1;
 
         if (verbose != 0)
-            ali_algo_printf("  AES-ECB-%3d (%s): ", 128 + u * 64,
+            osa_printf("  AES-ECB-%3d (%s): ", 128 + u * 64,
                            (v == ALI_ALGO_AES_DECRYPT) ? "dec" : "enc");
 
         memset(buf, 0, 16);
@@ -1151,7 +1151,7 @@ int ali_algo_aes_self_test(int verbose)
 
             if (memcmp(buf, aes_test_ecb_dec[u], 16) != 0) {
                 if (verbose != 0)
-                    ali_algo_printf("failed\n");
+                    osa_printf("failed\n");
 
                 ret = 1;
                 goto exit;
@@ -1164,7 +1164,7 @@ int ali_algo_aes_self_test(int verbose)
 
             if (memcmp(buf, aes_test_ecb_enc[u], 16) != 0) {
                 if (verbose != 0)
-                    ali_algo_printf("failed\n");
+                    osa_printf("failed\n");
 
                 ret = 1;
                 goto exit;
@@ -1172,11 +1172,11 @@ int ali_algo_aes_self_test(int verbose)
         }
 
         if (verbose != 0)
-            ali_algo_printf("passed\n");
+            osa_printf("passed\n");
     }
 
     if (verbose != 0)
-        ali_algo_printf("\n");
+        osa_printf("\n");
 
 #if defined(ALI_ALGO_CIPHER_MODE_CBC)
     /*
@@ -1187,7 +1187,7 @@ int ali_algo_aes_self_test(int verbose)
         v = i & 1;
 
         if (verbose != 0)
-            ali_algo_printf("  AES-CBC-%3d (%s): ", 128 + u * 64,
+            osa_printf("  AES-CBC-%3d (%s): ", 128 + u * 64,
                            (v == ALI_ALGO_AES_DECRYPT) ? "dec" : "enc");
 
         memset(iv, 0, 16);
@@ -1202,7 +1202,7 @@ int ali_algo_aes_self_test(int verbose)
 
             if (memcmp(buf, aes_test_cbc_dec[u], 16) != 0) {
                 if (verbose != 0)
-                    ali_algo_printf("failed\n");
+                    osa_printf("failed\n");
 
                 ret = 1;
                 goto exit;
@@ -1222,7 +1222,7 @@ int ali_algo_aes_self_test(int verbose)
 
             if (memcmp(prv, aes_test_cbc_enc[u], 16) != 0) {
                 if (verbose != 0)
-                    ali_algo_printf("failed\n");
+                    osa_printf("failed\n");
 
                 ret = 1;
                 goto exit;
@@ -1230,11 +1230,11 @@ int ali_algo_aes_self_test(int verbose)
         }
 
         if (verbose != 0)
-            ali_algo_printf("passed\n");
+            osa_printf("passed\n");
     }
 
     if (verbose != 0)
-        ali_algo_printf("\n");
+        osa_printf("\n");
 #endif /* ALI_ALGO_CIPHER_MODE_CBC */
 
 #if defined(ALI_ALGO_CIPHER_MODE_CFB)
@@ -1246,7 +1246,7 @@ int ali_algo_aes_self_test(int verbose)
         v = i & 1;
 
         if (verbose != 0)
-            ali_algo_printf("  AES-CFB128-%3d (%s): ", 128 + u * 64,
+            osa_printf("  AES-CFB128-%3d (%s): ", 128 + u * 64,
                            (v == ALI_ALGO_AES_DECRYPT) ? "dec" : "enc");
 
         memcpy(iv, aes_test_cfb128_iv, 16);
@@ -1261,7 +1261,7 @@ int ali_algo_aes_self_test(int verbose)
 
             if (memcmp(buf, aes_test_cfb128_pt, 64) != 0) {
                 if (verbose != 0)
-                    ali_algo_printf("failed\n");
+                    osa_printf("failed\n");
 
                 ret = 1;
                 goto exit;
@@ -1272,7 +1272,7 @@ int ali_algo_aes_self_test(int verbose)
 
             if (memcmp(buf, aes_test_cfb128_ct[u], 64) != 0) {
                 if (verbose != 0)
-                    ali_algo_printf("failed\n");
+                    osa_printf("failed\n");
 
                 ret = 1;
                 goto exit;
@@ -1280,11 +1280,11 @@ int ali_algo_aes_self_test(int verbose)
         }
 
         if (verbose != 0)
-            ali_algo_printf("passed\n");
+            osa_printf("passed\n");
     }
 
     if (verbose != 0)
-        ali_algo_printf("\n");
+        osa_printf("\n");
 #endif /* ALI_ALGO_CIPHER_MODE_CFB */
 
 #if defined(ALI_ALGO_CIPHER_MODE_CTR)
@@ -1296,7 +1296,7 @@ int ali_algo_aes_self_test(int verbose)
         v = i & 1;
 
         if (verbose != 0)
-            ali_algo_printf("  AES-CTR-128 (%s): ",
+            osa_printf("  AES-CTR-128 (%s): ",
                            (v == ALI_ALGO_AES_DECRYPT) ? "dec" : "enc");
 
         memcpy(nonce_counter, aes_test_ctr_nonce_counter[u], 16);
@@ -1314,7 +1314,7 @@ int ali_algo_aes_self_test(int verbose)
 
             if (memcmp(buf, aes_test_ctr_pt[u], len) != 0) {
                 if (verbose != 0)
-                    ali_algo_printf("failed\n");
+                    osa_printf("failed\n");
 
                 ret = 1;
                 goto exit;
@@ -1328,7 +1328,7 @@ int ali_algo_aes_self_test(int verbose)
 
             if (memcmp(buf, aes_test_ctr_ct[u], len) != 0) {
                 if (verbose != 0)
-                    ali_algo_printf("failed\n");
+                    osa_printf("failed\n");
 
                 ret = 1;
                 goto exit;
@@ -1336,11 +1336,11 @@ int ali_algo_aes_self_test(int verbose)
         }
 
         if (verbose != 0)
-            ali_algo_printf("passed\n");
+            osa_printf("passed\n");
     }
 
     if (verbose != 0)
-        ali_algo_printf("\n");
+        osa_printf("\n");
 #endif /* ALI_ALGO_CIPHER_MODE_CTR */
 
     ret = 0;

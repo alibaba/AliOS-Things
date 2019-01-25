@@ -29,7 +29,15 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
-#if !defined(MBEDTLS_PLATFORM_ALT)
+#if defined(MBEDTLS_PLATFORM_ALT)
+
+#include "ls_osa.h"
+
+#define mbedtls_snprintf   ls_osa_snprintf
+#define mbedtls_calloc     ls_osa_calloc
+#define mbedtls_free       ls_osa_free
+
+#else /* MBEDTLS_PLATFORM_ALT */
 
 #if defined(MBEDTLS_HAVE_TIME)
 #include "itls/platform_time.h"
@@ -341,10 +349,6 @@ void mbedtls_platform_teardown( mbedtls_platform_context *ctx );
 #ifdef __cplusplus
 }
 #endif
-
-#else  /* MBEDTLS_PLATFORM_ALT */
-
-#include "platform_alt.h"
 
 #endif /* MBEDTLS_PLATFORM_ALT */
 

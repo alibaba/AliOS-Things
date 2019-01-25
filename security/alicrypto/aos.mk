@@ -66,3 +66,5 @@ $(NAME)_SOURCES     += ./plat/oem/hal_rsa.c
 $(NAME)_SOURCES     += ./plat/oem/hal_sm2.c
 $(NAME)_SOURCES     += ./plat/oem/hal_rand.c
 
+$(NAME)_COMPONENTS  := ls_osa
+

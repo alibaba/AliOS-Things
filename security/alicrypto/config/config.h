@@ -43,15 +43,6 @@
 * define for alicrypto_algo
 ********************************************************************/
 
-/* OSA */
-#if defined(CONFIG_PLAT_AOS)
-#define ALI_ALGO_THREADING_ALT
-#else
-#define ALI_ALGO_THREADING_C
-#define ALI_ALGO_THREADING_PTHREAD
-#endif /* CONFIG_PLAT_AOS */
-
-
 /* RSA */
 #ifdef ALI_CRYPTO_RSA
 #define ALI_ALGO_RSA_C
@@ -97,9 +88,6 @@
 #endif
 #ifdef ALI_CRYPTO_AES_CBC
 #define ALI_ALGO_CIPHER_MODE_CBC
-#endif
-#ifdef ALI_CRYPTO_AES_CFB
-#define ALI_ALGO_CIPHER_MODE_CFB
 #endif
 #endif
 

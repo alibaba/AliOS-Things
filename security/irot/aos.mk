@@ -6,13 +6,11 @@ $(NAME)_SUMMARY := root of trust, based on mcu, se or tee
 
 GLOBAL_INCLUDES += ../include/irot
 
-ifeq ($(findstring linuxhost, $(BUILD_STRING)), linuxhost)
-$(NAME)_COMPONENTS := libkm
-else ifeq ($(findstring mk3060, $(BUILD_STRING)), mk3060)
-$(NAME)_COMPONENTS := libkm
-else ifeq ($(findstring mk3080, $(BUILD_STRING)), mk3080)
-$(NAME)_COMPONENTS := libkm
-else ifeq ($(findstring cb2201, $(BUILD_STRING)), cb2201)
+ifeq ($(CONFIG_LS_KM_SE), y)
+$(NAME)_COMPONENTS := libkm_se
+else ifeq ($(CONFIG_LS_KM_TEE), y)
 $(NAME)_COMPONENTS := libkm_tee
+else
+$(NAME)_COMPONENTS := libkm
 endif
 

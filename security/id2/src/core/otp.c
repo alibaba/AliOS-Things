@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
-#include <string.h>
 #include "config.h"
 #include "version.h"
 #include "irot_pal.h"
