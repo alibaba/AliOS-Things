@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_BT
-    bool "Bluetooth Stack"
+    bool "Bluetooth Host Stack"
     default n
     select AOS_COMP_BT_COMMON
     help
