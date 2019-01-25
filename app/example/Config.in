@@ -70,6 +70,10 @@ config AOS_app_itls_client
     bool "itls_client"
     select AOS_APP_ITLS_CLIENT
 
+config AOS_app_das
+    bool "das_client"
+    select AOS_APP_DAS
+
 config AOS_app_linkkit_gateway
     bool "linkkit_gateway"
     select AOS_APP_LINKKIT_GATEWAY
