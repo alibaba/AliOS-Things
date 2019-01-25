@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_MK3166
+config AOS_BOARD_MK3166
     bool "board_mk3166"
     select AOS_MCU_STM32F4XX
     select AOS_COMP_KERNEL_INIT

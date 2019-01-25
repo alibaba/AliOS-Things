@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_MK3060
+config AOS_BOARD_MK3060
     bool "board_mk3060"
     select AOS_MCU_MOC108
     select AOS_COMP_KERNEL_INIT

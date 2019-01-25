@@ -1,8 +1,8 @@
-menuconfig AOS_BOARD_STM32L432KC-NUCLEO
+config AOS_BOARD_STM32L432KC-NUCLEO
     bool "stm32l432kc-nucleo"
     select AOS_MCU_STM32L4XX_CUBE
     select AOS_COMP_KERNEL_INIT
-    select SAL_ENABLED if AOS_NETWORK_SAL
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
     select AOS_COMP_NETMGR if AOS_NETWORK_SAL
     help
 
@@ -13,6 +13,10 @@ if AOS_BOARD_STM32L432KC-NUCLEO
 config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default y
+
+config SAL_MODULE
+    string
+    default "wifi.mk3060"
 
 menu "BSP SUPPORT FEATURE"
 

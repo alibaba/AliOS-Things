@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_M400
+config AOS_BOARD_M400
     bool "board_m400"
     select AOS_MCU_STM32L0XX
     select AOS_COMP_KERNEL_INIT

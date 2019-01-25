@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_XR809
+config AOS_BOARD_XR809
     bool "xr809"
     select AOS_MCU_XR871
     select AOS_COMP_KERNEL_INIT
