@@ -34,14 +34,6 @@ config VFS_CONFIG_MAX_FILE_NUM
         set the maximum of the vfs files.
         default 50 (= 2 * VFS_CONFIG_DEVICE_NODES)
 
-config VFS_CONFIG_STAT_INCLUDE_SIZE
-    int "VFS_CONFIG_STAT_INCLUDE_SIZE"
-    range 0 1
-    default 1
-    help
-        indicate whether the stat structure have 'size' member.
-        default 1 (Depend on C library)
-
 config VFS_CONFIG_CURRENT_DIRECTORY_ENABLE
     int "VFS_CONFIG_CURRENT_DIRECTORY_ENABLE"
     range 0 1
