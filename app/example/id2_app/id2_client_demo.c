@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
+
 #include "error_code.h"
 #include "config.h"
 #include "id2_client.h"
@@ -12,7 +13,8 @@
 
 extern void irot_pal_log(const char* fmt, ...);
 extern irot_result_t basex64_encode(const uint8_t* in, uint32_t in_len, uint8_t* out, uint32_t* out_len);
-#define id2_log_debug irot_pal_log
+
+#define id2_log_debug printf
 
 static void test_id2_client_get_id(void)
 {

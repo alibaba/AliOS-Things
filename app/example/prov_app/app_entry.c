@@ -5,11 +5,11 @@
 #include <stdio.h>
 
 #include "aos/kernel.h"
-#include "ulog/ulog.h"
+#include "aos/yloop.h"
 
-#include <km.h>
-#include <plat_gen.h>
-#include <prov_test_id2.h>
+#include "km.h"
+#include "ls_hal.h"
+#include "prov_test_id2.h"
 
 /*
  * used to save id2 prov data,  which is got from id2 prov sdk.
@@ -40,28 +40,28 @@ static void app_delayed_action(void *arg)
 #endif
 
 #if defined(CONFIG_ERASE_KEY)
-    fd = open_rsvd_part(RO_WRITE);
+    fd = ls_hal_open_rsvd_part(LS_HAL_WRITE);
     if (fd < 0) {
-        LOG("open rsvd partition failed\n");
+        printf("open rsvd partition failed\n");
         return;
     }
 
-    ret = write_rsvd_part(fd, 0, data, 4096);
+    ret = ls_hal_write_rsvd_part(fd, 0, data, 4096);
     if (ret < 0) {
-        LOG("write rsvd partition failed\n");
-        close_rsvd_part(fd);
+        printf("write rsvd partition failed\n");
+        ls_hal_close_rsvd_part(fd);
         return;
     }
 
-    close_rsvd_part(fd);
-    LOG("key has been erased\n");
+    ls_hal_close_rsvd_part(fd);
+    printf("key has been erased\n");
 #else
     ret = prov_test_id2(id2_prov_data, sizeof(id2_prov_data));
     if (ret != 0) {
-        LOG("id2 prov test failed\n");
+        printf("id2 prov test failed\n");
         return;
     } else {
-        LOG("id2 prov test success\n");
+        printf("id2 prov test success\n");
     }
 #endif
 
@@ -70,7 +70,7 @@ static void app_delayed_action(void *arg)
 
 int application_start(int argc, char *argv[])
 {
-    LOG("application started.");
+    printf("application started\n");
     aos_post_delayed_action(1000, app_delayed_action, NULL);
     aos_loop_run();
 
