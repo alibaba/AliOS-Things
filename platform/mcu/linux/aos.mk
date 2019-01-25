@@ -85,10 +85,6 @@ $(NAME)_DEFINES += LINUX_MESH_80211
 $(NAME)_CFLAGS  += -Wno-unused-but-set-variable
 endif
 
-ifneq (,$(filter lwip,$(COMPONENTS)))
-LWIP := 1
-endif
-
 ifeq (1,$(LWIP))
 $(NAME)_SOURCES += csp/lwip/netif/delif.c   \
                    csp/lwip/netif/fifo.c    \
