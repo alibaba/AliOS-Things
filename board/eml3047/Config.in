@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_EML3047
+config AOS_BOARD_EML3047
     bool "board_eml3047"
     select AOS_MCU_STM32L0XX
     select AOS_COMP_KERNEL_INIT

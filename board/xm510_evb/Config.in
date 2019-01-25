@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_XM510
+config AOS_BOARD_XM510
     bool "board_xm510"
     select AOS_MCU_XM510
     select AOS_COMP_KERNEL_INIT

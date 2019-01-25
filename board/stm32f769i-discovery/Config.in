@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_B_F769
+config AOS_BOARD_B_F769
     bool "board_b_f769"
     select AOS_MCU_STM32F7XX
     select AOS_COMP_KERNEL_INIT

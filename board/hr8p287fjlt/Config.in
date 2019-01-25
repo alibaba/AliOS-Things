@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_HR8P287FJLT
+config AOS_BOARD_HR8P287FJLT
     bool "hr8p287fjlt"
     select AOS_MCU_HR8P2XX
     select AOS_COMP_NEWLIB_STUB

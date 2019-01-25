@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_SV6266_EVB
+config AOS_BOARD_SV6266_EVB
     bool "sv6266_evb"
     select AOS_MCU_SV6266
     select AOS_COMP_KERNEL_INIT

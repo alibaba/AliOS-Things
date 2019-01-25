@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_BK7231U
+config AOS_BOARD_BK7231U
     bool "board_bk7231u"
     select AOS_MCU_BK7231U
     select AOS_COMP_KERNEL_INIT
