@@ -26,6 +26,7 @@ GLOBAL_CFLAGS         += -DAOS_OTA_BANK_SINGLE -DAOS_OTA_2BOOT_UPDATE_SUPPORT
 $(NAME)_SOURCES += flash_partitions.c
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES  += STDIO_UART=0 USE_MX1290
+GLOBAL_DEFINES += CLI_CONFIG_STACK_SIZE=4096
 
 # Link Security Config
 CONFIG_LS_DEBUG      := n
@@ -44,3 +45,4 @@ GLOBAL_CFLAGS += -L $($(NAME)_LOCATION)
 # Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/download.mk
 EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk
+
