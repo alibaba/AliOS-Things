@@ -51,13 +51,6 @@ config CLI_CONFIG_MAX_ONCECMD_NUM
         set the limitation of max commands count in one input line.
         default 4
 
-config CLI_CONFIG_STACK_SIZE
-    int "CLI_CONFIG_STACK_SIZE"
-    default 2048
-    help
-        set the task stack size of the CLI task.
-        default 2048
-
 config CLI_CONFIG_TASK_PRIORITY
     int "CLI_CONFIG_TASK_PRIORITY"
     default 60
@@ -70,14 +63,6 @@ config CLI_CONFIG_TELNET_SUPPORT
     default 0
     help
         disable/enable the CLI telnet output support.
-        default 0
-
-config CLI_CONFIG_SUPPORT_BOARD_CMD
-    int "CLI_CONFIG_SUPPORT_BOARD_CMD"
-    default 0
-    help
-        enable/disable to support board specific CLI commands.
-        if enable, user should implement the board_cli_init(void) function.
         default 0
 
 endif
