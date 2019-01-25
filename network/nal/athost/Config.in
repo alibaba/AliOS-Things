@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_ATHOST
+config AOS_COMP_ATHOST
     bool
     default n
     select AOS_COMP_LINKKIT_SDK_C if ATHOST_CONFIG_MQTT || ATHOST_CONFIG_COAP

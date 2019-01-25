@@ -10,17 +10,7 @@ menuconfig AOS_COMP_LWIP
 if AOS_COMP_LWIP
 # Configurations for comp lwip
 
-config AOS_LWIP_ENABLED
-    bool "AOS LWIP"
-    default y
-    help
-      Select aos lwip module or select other platform lwip or tcpip module.
-
-      Switching to "y" leads to select aos lwip module
-      Switching to "n" leads to select other platform lwip or tcpip module.
-
 config AF_PACKET_ENABLED
-    depends on AOS_LWIP_ENABLED
     bool "AF_PACKET Socket"
     default n
     help
@@ -30,8 +20,6 @@ config AF_PACKET_ENABLED
       Switching to "n" leads to not support AF_PACKET socket.
 
 menu "LWIP App Configurations"
-    depends on AOS_LWIP_ENABLED
-
     config SNMP_ENABLED
         bool "SNMP"
         default n

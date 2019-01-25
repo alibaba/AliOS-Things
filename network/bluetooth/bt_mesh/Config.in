@@ -9,16 +9,6 @@ menuconfig AOS_COMP_BT_MESH
 if AOS_COMP_BT_MESH
 # Configurations for comp bt_mesh
 
-config BT_MESH
-	bool "BT_MESH"
-	default y if AOS_COMP_BT_MESH
-	default n
-	help
-
-if BT_MESH
-
-# === Feature selection start ===
-
 # Virtual option enabled whenever Generic Provisioning layer is needed
 config BT_MESH_PROV
 	bool
@@ -570,5 +560,3 @@ config BT_MESH_ADV_PRIO
 	default 41
 
 endif
-
-endif # BT_MESH
