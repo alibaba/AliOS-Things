@@ -368,7 +368,7 @@ int gateway_sample(void)
 int application_start(int argc, char **argv)
 {
     int ret;
-    ret = udata_main();
+    ret = udata_init();
     if (unlikely(ret)) {
         return -1;
     }
