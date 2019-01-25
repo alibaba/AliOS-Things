@@ -177,7 +177,8 @@ const struct awss_cmp_couple awss_local_couple[] = {
     {TOPIC_AWSS_GET_CONNECTAP_INFO_MCAST, awss_process_mcast_get_connectap_info},
     {TOPIC_AWSS_GET_CONNECTAP_INFO_UCAST, awss_process_ucast_get_connectap_info},
 #ifndef AWSS_DISABLE_REGISTRAR
-    {TOPIC_NOTIFY,                        online_dev_bind_monitor},
+    {TOPIC_NOTIFY,                        awss_enrollee_suc_monitor},
+    {TOPIC_AWSS_CONNECTAP_NOTIFY,         awss_enrollee_suc_monitor},
 #endif
 #endif
     {TOPIC_GETDEVICEINFO_MCAST,           online_mcast_get_device_info},

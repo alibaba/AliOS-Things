@@ -325,7 +325,7 @@ int awss_recv_callback_wps(struct parser_res *res)
 
     int ret = get_ssid_passwd_from_w(data, len, res->src, res->bssid);
     if (ret == GOT_CHN_LOCK) {
-        awss_debug("callback for v2:%02x%02x%02x\r\n",
+        awss_debug("cb for v2:%02x%02x%02x\r\n",
                    res->src[0], res->src[1], res->src[2]);
         goto chn_locked;
     } else if (ret == GOT_SSID_PASSWD) {

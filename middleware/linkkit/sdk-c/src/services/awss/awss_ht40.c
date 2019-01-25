@@ -270,7 +270,7 @@ int awss_recv_callback_ht_ctrl(struct parser_res *res)
             pos = zc_group_pos + index;
 
             if (now - ht40_timestamp > time_interval) {
-                awss_debug("\t\t\t\t\ttimestamp = %d, pos:%d, len:%x\r\n",
+                awss_debug("timestamp = %d, pos:%d, len:%x\r\n",
                            now - ht40_timestamp, pos, len);
                 goto drop;
             }
