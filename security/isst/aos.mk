@@ -37,5 +37,5 @@ $(NAME)_SOURCES += src/osa/aos/sst_osa.c \
 		   src/wrapper/km/sst_wrapper.c \
 		   src/sst.c
 
-$(NAME)_COMPONENTS := irot alicrypto kv
+$(NAME)_COMPONENTS := irot alicrypto kv ls_hal
 

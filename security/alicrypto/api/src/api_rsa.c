@@ -3,8 +3,9 @@
  */
 #include "ali_crypto.h"
 #include "impl_crypto.h"
+#include "config.h"
 
- 
+#ifdef ALI_CRYPTO_RSA
 
 ali_crypto_result ali_rsa_get_keypair_size(size_t keybits, size_t *size)
 {
@@ -266,3 +267,4 @@ ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
                                         sig_size, padding, p_result);
     return result;
 }
+#endif /* ALI_CRYPTO_RSA */

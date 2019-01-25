@@ -4,14 +4,21 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.1.0
 $(NAME)_SUMMARY := IoT lightweight SSL/TLS, which implementation is based on mbedtls.
 
-DEBUG := no
-
 GLOBAL_INCLUDES     += ../include
 
-$(NAME)_DEFINES     += CONFIG_PLAT_AOS
+ifeq ($(CONFIG_LS_KM_SE), y)
+else ifeq ($(CONFIG_LS_KM_TEE), y)
+else
+ifeq ($(CONFIG_LS_ID2_OTP), y)
+$(NAME)_DEFINES     := CONFIG_KEY_OTP_ENABLED
+endif
+endif
 
-ifneq ($(HOST_ARCH), ck802)
-$(NAME)_DEFINES     += CONFIG_KEY_OTP_ENABLED
+ifeq ($(CONFIG_LS_DEBUG), y)
+GLOBAL_DEFINES      += CONFIG_SSL_DEBUG
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libitls.a.dbg
+else
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libitls.a
 endif
 
 ifeq ($(HOST_ARCH), linux)
@@ -22,14 +29,8 @@ else
 $(NAME)_DEFINES     += LWIP_ENABLED
 endif
 
-ifeq ($(DEBUG), no)
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libitls.a
-else
-GLOBAL_DEFINES           += CONFIG_SSL_DEBUG
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libitls.a.dbg
-endif
-
-$(NAME)_COMPONENTS  := alicrypto
+$(NAME)_COMPONENTS  := ls_osa
+$(NAME)_COMPONENTS  += alicrypto
 $(NAME)_COMPONENTS  += id2
 $(NAME)_COMPONENTS  += irot
 

@@ -27,7 +27,7 @@
 #define MBEDTLS_CIPHER_H
 
 #if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
+#include "itls/config.h"
 #else
 #include MBEDTLS_CONFIG_FILE
 #endif

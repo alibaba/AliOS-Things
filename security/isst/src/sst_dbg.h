@@ -14,9 +14,9 @@
 #define SST_TAG "SST"
 
 #ifndef PLATFORM_ANDROID
-#define SST_ERR(_f, _a ...) sst_printf("SST %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
+#define SST_ERR(_f, _a ...) ls_osa_print("SST %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
 
-#define SST_VER(_f, _a ...) sst_printf("SST %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
+#define SST_VER(_f, _a ...) ls_osa_print("SST %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
 #else
 #include <android/log.h>
 #define LOG_ERR(...)            __android_log_print(        \

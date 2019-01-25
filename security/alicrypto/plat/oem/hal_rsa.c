@@ -7,7 +7,7 @@
 #include "hal_crypto.h"
 #include "sal_crypto.h"
 
-
+#ifdef ALI_CRYPTO_RSA
 ali_crypto_result hal_rsa_get_keypair_size(size_t keybits, size_t *size)
 {
     UNUSED(keybits);
@@ -156,6 +156,6 @@ ali_crypto_result hal_rsa_verify(const rsa_pubkey_t *pub_key,
 
     return ALI_CRYPTO_SUCCESS;
 }
-
+#endif /* ALI_CRYPTO_RSA */
 
 

@@ -5,6 +5,7 @@
 #include "sal_crypto.h"
 #include "ali_crypto.h"
 
+#ifdef ALI_CRYPTO_SM4
 /* pkcs5 only support 8 bytes block size
  * pcks7 support 8,16 bytes block size, so in sm4 pkcs5 equal pkcs7 */
 /*
@@ -641,4 +642,4 @@ ali_crypto_result sal_sm4_reset(void *context)
     osa_memset(sm4_ctx, 0, sizeof(sm4_ctx_t));
     return ALI_CRYPTO_SUCCESS;
 }
-
+#endif

@@ -5,7 +5,7 @@
 #include "osa.h"
 
 
-#if defined(ALI_ALGO_MD_C)
+#if defined(ALI_CRYPTO_HMAC)
 
 #include "md.h"
 #include "hash.h"
@@ -130,4 +130,4 @@ int ali_algo_hmac_reset(ali_algo_hash_context_t *ctx)
     return (0);
 }
 
-#endif /* defined(ALI_ALGO_MD_C) */
+#endif /* ALI_CRYPTO_HMAC */

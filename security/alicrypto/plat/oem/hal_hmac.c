@@ -7,7 +7,7 @@
 #include "hal_crypto.h"
 #include "sal_crypto.h"
 
-
+#ifdef ALI_CRYPTO_HMAC
 ali_crypto_result hal_hmac_get_ctx_size(hash_type_t type, size_t *size)
 {
     ALI_CRYPTO_DBG_I("%s: aes type(%d)\n", __FUNCTION__, type);
@@ -62,4 +62,4 @@ ali_crypto_result hal_hmac_reset(void *context)
 
 
 
-
+#endif

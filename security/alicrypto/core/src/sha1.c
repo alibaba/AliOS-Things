@@ -356,7 +356,7 @@ int ali_algo_sha1_self_test(int verbose)
      */
     for (i = 0; i < 3; i++) {
         if (verbose != 0)
-            ali_algo_printf("  SHA-1 test #%d: ", i + 1);
+            osa_printf("  SHA-1 test #%d: ", i + 1);
 
         ali_algo_sha1_starts(&ctx);
 
@@ -372,18 +372,18 @@ int ali_algo_sha1_self_test(int verbose)
 
         if (osa_memcmp(sha1sum, sha1_test_sum[i], 20) != 0) {
             if (verbose != 0)
-                ali_algo_printf("failed\n");
+                osa_printf("failed\n");
 
             ret = 1;
             goto exit;
         }
 
         if (verbose != 0)
-            ali_algo_printf("passed\n");
+            osa_printf("passed\n");
     }
 
     if (verbose != 0)
-        ali_algo_printf("\n");
+        osa_printf("\n");
 
 exit:
     ali_algo_sha1_free(&ctx);

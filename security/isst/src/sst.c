@@ -3,8 +3,6 @@
  */
 
 #include <stdlib.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <string.h>
 #include <stdint.h>
 #include "sst_dbg.h"
@@ -96,7 +94,7 @@ uint32_t sst_get_item(const char *name,
 clean:
     if (p_sst) {
         sst_memset(p_sst, 0, obj_len);
-        sst_free(p_sst);
+        ls_osa_free(p_sst);
     }
 
     return ret;

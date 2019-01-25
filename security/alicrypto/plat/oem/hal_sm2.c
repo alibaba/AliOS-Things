@@ -7,6 +7,7 @@
 #include "hal_crypto.h"
 #include "sal_crypto.h"
 
+#ifdef ALI_CRYPTO_SM2
 ali_crypto_result hal_sm2_get_keypair_size(size_t keybits, size_t *size)
 {
 
@@ -141,4 +142,4 @@ ali_crypto_result hal_sm2dh_derive_secret(const uint8_t flag_server,
     ALI_CRYPTO_DBG_I("hal_sm2_derive_secret\n");
     return ALI_CRYPTO_SUCCESS;
 };
-
+#endif
