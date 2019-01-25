@@ -56,7 +56,7 @@ void *awss_cpy_coap_ctx(void *request, void *remote, char mcast);
 char *awss_cmp_get_coap_payload(void *request, int *payload_len);
 uint8_t awss_cmp_get_coap_code(void *request);
 
-int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *request);
+int awss_enrollee_suc_monitor(void *ctx, void *resource, void *remote, void *request);
 
 void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg);
 void awss_online_switchap(void *pcontext, void *pclient, void *msg);
