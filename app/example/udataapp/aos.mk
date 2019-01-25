@@ -9,6 +9,13 @@ $(NAME)_COMPONENTS := cli sensor udata
 
 GLOBAL_INCLUDES += ./
 
+ifeq ($(dtc),linkkit)
+AOS_CONFIG_DTC_LINKKIT = y
+AOS_CONFIG_DTC_ENABLE = y
+else ifeq ($(dtc),mqtt)
+AOS_CONFIG_DTC_MQTT = y
+AOS_CONFIG_DTC_ENABLE = y
+endif
 ifeq ($(AOS_CONFIG_DTC_LINKKIT),y)
 
 $(NAME)_SOURCES += linkkit/app_entry.c

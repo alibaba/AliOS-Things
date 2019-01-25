@@ -290,13 +290,11 @@ int udata_sample(void)
     ret = udata_subscribe(UDATA_SERVICE_HUMI);
     if (unlikely(ret)) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
-        //return -1;
     }
 
     ret = udata_subscribe(UDATA_SERVICE_TEMP);
     if (unlikely(ret)) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
-        //return -1;
     }
 
 
@@ -314,10 +312,7 @@ int application_start(int argc, char **argv)
     cJSON_InitHooks(&cjson_hooks);
 #endif
     
-    ret = udata_main();
-    if (unlikely(ret)) {
-        //return -1;
-    }
+    (void)udata_init();
 
 #if defined DTC_LINKKIT
     linkkit_sample_start();
@@ -329,9 +324,15 @@ int application_start(int argc, char **argv)
 
     (void)udata_sample();
 
+
+#if defined(DTC_MQTT) || defined(DTC_LINKKIT)
+    aos_loop_run();
+#else
     while(1) {
         aos_msleep(1000);
     };
+#endif
+
     return 0;
 }
 
