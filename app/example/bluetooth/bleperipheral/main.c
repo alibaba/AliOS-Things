@@ -167,41 +167,31 @@ static struct bt_conn_auth_cb auth_cb_display = {
 extern int hci_driver_init();
 void ble_sample(void)
 {
-	int err = 0;
+    int err = 0;
 
-        hci_driver_init();
-	err = bt_enable(bt_ready);
-	if (err) {
-		printf("Bluetooth init failed (err %d)\n", err);
-		return;
-	}
+    hci_driver_init();
+    err = bt_enable(bt_ready);
+    if (err) {
+        printf("Bluetooth init failed (err %d)\n", err);
+        return;
+    }
 
 #ifdef CONFIG_BT_SMP
-	bt_conn_auth_cb_register(&auth_cb_display);
+    bt_conn_auth_cb_register(&auth_cb_display);
 #endif
-	bt_conn_cb_register(&conn_callbacks);
+    bt_conn_cb_register(&conn_callbacks);
 
-        while (1) {
-                aos_msleep(1000);
+    while (1) {
+        aos_msleep(1000);
+        hrs_notify();
+        bas_notify();
+    }
 
-                /* Heartrate measurements simulation */
-                hrs_notify();
-
-                /* Battery level simulation */
-                bas_notify();
-        }
-
-	printf("Advertising successfully started\n");
-}
-
-static void app_delayed_action(void *arg)
-{
-    ble_sample();
+    printf("Advertising successfully started\n");
 }
 
 int application_start(int argc, char **argv)
 {
-    aos_post_delayed_action(1000, app_delayed_action, NULL);
-    aos_loop_run();
+    ble_sample();
     return 0;
 }
