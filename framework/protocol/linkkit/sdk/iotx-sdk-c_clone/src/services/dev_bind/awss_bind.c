@@ -47,8 +47,10 @@ int awss_report_cloud()
     awss_registrar_init();
 #endif
     AWSS_DISP_STATIS();
+    AWSS_REPORT_STATIS("RDA5981");
 #endif
     AWSS_DB_DISP_STATIS();
+    AWSS_DB_REPORT_STATIS("RDA5981");
     HAL_MutexUnlock(awss_bind_mutex);
     return 0;
 }
