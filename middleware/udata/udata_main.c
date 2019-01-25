@@ -7,7 +7,7 @@
 #include "udata_queue.h"
 #include "service_data_to_cloud.h"
 
-int udata_main(void)
+int udata_init(void)
 {
     int ret = 0;
 

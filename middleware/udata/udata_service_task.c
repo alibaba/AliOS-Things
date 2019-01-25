@@ -10,9 +10,9 @@
 #include "service_mgr.h"
 
 int g_taskid;
-#define UDATA_TASK_STACK_SIZE 2048 // 2kByte
+#define UDATA_TASK_STACK_SIZE 2048 /* 2kByte */
 #define UDATA_TASK_PRIO \
-    (AOS_DEFAULT_APP_PRI - 2) // higher prio than normal app's
+    (AOS_DEFAULT_APP_PRI - 2)      /* higher prio than normal app's */
 
 void process_example(void *arg)
 {
@@ -27,7 +27,7 @@ void process_example(void *arg)
     uint32_t len;
     
     while (DO_FOREVER) {
-        ret = aos_msg_recv(g_taskid,AOS_WAIT_FOREVER,(void*)buffer,&size);
+        ret = udata_msg_recv(g_taskid,AOS_WAIT_FOREVER,(void*)buffer,&size);
         if (size == 0||unlikely(ret)) {
             aos_msleep(100);
             continue;
@@ -62,7 +62,7 @@ int udata_service_own_task_start(void)
                 UDATA_TASK_STACK_SIZE,UDATA_TASK_PRIO);
     if(g_taskid < 0)
     {
-    	return -1;
+        return -1;
     }
     udata_observe_servicetask_tag(g_taskid,TAG_DEV_HUMI, 0);
     udata_observe_servicetask_tag(g_taskid,TAG_DEV_TEMP, 0);

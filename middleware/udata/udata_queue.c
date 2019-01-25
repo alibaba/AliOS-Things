@@ -15,10 +15,10 @@
 
 #define UDATA_QUEUE_MAXSLOTS 8
 #ifndef UDATA_TASK_STACK_SIZE
-#define UDATA_TASK_STACK_SIZE 4096 // 4kByte
+#define UDATA_TASK_STACK_SIZE 4096 /* 4kByte */
 #endif
 #define UDATA_TASK_PRIO \
-    (AOS_DEFAULT_APP_PRI - 2) // higher prio than normal app's
+    (AOS_DEFAULT_APP_PRI - 2)      /*higher prio than normal app's */
 #define UDATA_QUEUE_MAX_MSG_SIZE (sizeof(sensor_msg_pkg_t))
 #define UDATA_QUEUE_MAX_MSG_COUNT (32)
 #define UDATA_QUEUE_SIZE (UDATA_QUEUE_MAX_MSG_SIZE * UDATA_QUEUE_MAX_MSG_COUNT)
@@ -50,8 +50,8 @@ static void udata_msg_dispatcher(void *arg)
     char data[256];
     uint32_t          size = 0;
     sensor_msg_pkg_t *msg  = NULL;
-    // all the cmd of sensorhub will be sent to be handled here;
-    // the dispatcher will asign the new sub task to the fitted model
+    /* all the cmd of sensorhub will be sent to be handled here;
+       the dispatcher will asign the new sub task to the fitted model */
     while (DO_FOREVER) {
         ret = aos_queue_recv(&g_udata_queue, AOS_WAIT_FOREVER,
                              (void *)data, (unsigned int *)(&size));
@@ -113,7 +113,7 @@ int udata_unregister_msg_handler(int index)
 }
 
 
-int own_task_post_msg(sensor_msg_pkg_t msg)
+void udata_own_task_post_msg(sensor_msg_pkg_t msg)
 {
     for(int i = 0; i < g_udata_own_task_cnt; i++)
     {
@@ -127,7 +127,6 @@ int own_task_post_msg(sensor_msg_pkg_t msg)
         }
     }
 
-    return 0;
 }
 
 
@@ -135,7 +134,7 @@ int udata_post_msg(sensor_msg_pkg_t msg)
 {
     if(msg.cmd == UDATA_MSG_SERVICE_PROCESS)
     {
-        own_task_post_msg(msg);
+        udata_own_task_post_msg(msg);
     }
     aos_queue_send(&g_udata_queue, (void *)&msg, sizeof(msg));
     return 0;
@@ -204,7 +203,7 @@ int udata_observe_servicetask_tag(int taskid,sensor_tag_e tag, uint8_t instance)
 }
 
 
-int aos_msg_recv(int task_id, unsigned int ms, void *msg,
+int udata_msg_recv(int task_id, unsigned int ms, void *msg,
                    unsigned int *size)
 {
     int ret = 0;
