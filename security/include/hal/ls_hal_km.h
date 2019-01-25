@@ -1,16 +1,14 @@
-/**
- * Copyright (C) 2017 The YunOS Project. All rights reserved.
+/*
+ * Copyright (C) 2016-2019 Alibaba Group Holding Limited
  */
 
-#ifndef _PLAT_GEN_H_
-#define _PLAT_GEN_H_
+#ifndef _LS_HAL_KM_H_
+#define _LS_HAL_KM_H_
 
 #include <stdint.h>
 
-typedef enum {
-    RO_READ = 1,
-    RO_WRITE = 2
-} rsvd_part_perm_t;
+#define LS_HAL_READ     1
+#define LS_HAL_WRITE    2
 
 /*
  * get device unique id
@@ -22,19 +20,19 @@ typedef enum {
  *         -1: fail
  *
 */
-int get_dev_id(uint8_t *dev_id, uint32_t *id_len);
+int ls_hal_get_dev_id(uint8_t *dev_id, uint32_t *id_len);
 
 /*
  * open the reserved partition that user has read and write permission
  *
- * parametr: in: flag: RO_READ: user only has read permission
- *                     RO_WRITE: user only has write permission
- *                     RO_READ | RO_WRITE: user has read and write permission
+ * parametr: in: flag: LS_HAL_READ: user only has read permission
+ *                     LS_HAL_WRITE: user only has write permission
+ *                     LS_HAL_READ | LS_HAL_WRITE: user has read and write permission
  *
  * return: the new file descriptor: success
  *         -1: fail
 */
-int open_rsvd_part(int flag);
+int ls_hal_open_rsvd_part(int flag);
 
 /*
  * write reserved  partition
@@ -47,7 +45,7 @@ int open_rsvd_part(int flag);
  * return: 0: success
  *         -1: fail
 */
-int write_rsvd_part(int fd, uint32_t offset, void *data, uint32_t data_len);
+int ls_hal_write_rsvd_part(int fd, uint32_t offset, void *data, uint32_t data_len);
 
 /*
  * read reserved partition
@@ -60,7 +58,7 @@ int write_rsvd_part(int fd, uint32_t offset, void *data, uint32_t data_len);
  * return: 0: success
            -1: fail
  */
-int read_rsvd_part(int fd, uint32_t offset, void *buffer, uint32_t read_len);
+int ls_hal_read_rsvd_part(int fd, uint32_t offset, void *buffer, uint32_t read_len);
 
 /*
  * close the file descriptor of reserved partition, if no file system support, return 0 directly
@@ -71,7 +69,7 @@ int read_rsvd_part(int fd, uint32_t offset, void *buffer, uint32_t read_len);
            -1: fail
  */
 
-int close_rsvd_part(int fd);
+int ls_hal_close_rsvd_part(int fd);
 
-#endif /* _PLAT_GEN_H_ */
+#endif /* _LS_HAL_KM_H_ */
 

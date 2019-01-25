@@ -84,8 +84,8 @@ typedef struct
                                       specified in the ali_algo_md.h header file
                                       for the EME-OAEP and EMSA-PSS
                                       encoding                          */
-#if defined(ALI_ALGO_THREADING_C)
-    osa_mutex_t mutex;    /*!<  Thread-safety mutex       */
+#if (CONFIG_MULTH_SUPPORT)
+    void  *mutex;              /*!<  Thread-safety mutex       */
 #endif
 }
 ali_algo_rsa_context;

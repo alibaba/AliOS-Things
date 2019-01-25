@@ -7,22 +7,16 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include "ls_osa.h"
 
 #define SST_VERSION 0x01000100
 
-//#define sst_malloc malloc
-//#define sst_free   free
 #define sst_memcpy memcpy
 #define sst_memset memset
 #define sst_memcmp memcmp
 #define sst_strlen strlen
 #define sst_strcpy strcpy
 #define sst_strncpy strncpy
-#define sst_printf printf
 
 #define INIT_MIG_MAGIC(a) \
         do { \
@@ -47,16 +41,6 @@ typedef struct _sst_mig_head {
     uint32_t    data_size;
     uint8_t     pt_hash[32];    /*plaintext data hash:sha256*/
 } sst_mig_head;
-
-inline static void sst_free(void *p)
-{
-    free(p);
-}
-
-inline static void *sst_malloc(size_t size)
-{
-    return malloc(size);
-}
 
 uint64_t sst_current_raw_time(void);
 
@@ -88,4 +72,3 @@ uint32_t sst_migration_dec_data(const char *name,
                                );
 
 #endif /* _SST_OSA_H_ */
-

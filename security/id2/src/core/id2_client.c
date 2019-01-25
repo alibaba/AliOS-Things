@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
-#include <string.h>
 #include "config.h"
 #include "version.h"
 #include "irot_pal.h"
@@ -481,7 +479,7 @@ static irot_result_t id2_gen_auth_code(uint8_t auth_code_type, const char* serve
 #if (ID2_LOCAL_TEST)
     memset((uint8_t*)&drandom_array, 0xAB, sizeof(drandom_array));
 #endif
-    if (snprintf(drandom_sbuf, sizeof(drandom_sbuf), "%08X%08X", (unsigned int)drandom_array[0], (unsigned int)drandom_array[1]) < 0)
+    if (ls_osa_snprintf(drandom_sbuf, sizeof(drandom_sbuf), "%08X%08X", (unsigned int)drandom_array[0], (unsigned int)drandom_array[1]) < 0)
     {
         id2_log_error("ERROR: [%s] snprintf error for random buffer.\n", __FUNC_NAME__);
         ret = IROT_ERROR_GENERIC;
@@ -503,7 +501,7 @@ static irot_result_t id2_gen_auth_code(uint8_t auth_code_type, const char* serve
     {
         extra_p = extra;
     }
-    if (snprintf((char*)sign_in, sign_in_len + 1, "%s%s%s%s", id2_sbuf, drandom_sbuf, server_random, (const char*)extra_p) < 0)
+    if (ls_osa_snprintf((char*)sign_in, sign_in_len + 1, "%s%s%s%s", id2_sbuf, drandom_sbuf, server_random, (const char*)extra_p) < 0)
     {
         id2_log_error("ERROR: [%s] snprintf error for signature input data.\n", __FUNC_NAME__);
         ret = IROT_ERROR_GENERIC;
@@ -557,7 +555,7 @@ static irot_result_t id2_gen_auth_code(uint8_t auth_code_type, const char* serve
         ret = IROT_ERROR_SHORT_BUFFER;
         goto EXIT;
     }
-    if (snprintf((char*)auth_code, auth_len + 1, "%d~%d~%s~%s~%s", auth_code_type, ID2_HASH_TYPE_CONFIG, drandom_sbuf, server_random, sign_base64) < 0)
+    if (ls_osa_snprintf((char*)auth_code, auth_len + 1, "%d~%d~%s~%s~%s", auth_code_type, ID2_HASH_TYPE_CONFIG, drandom_sbuf, server_random, sign_base64) < 0)
     {
         id2_log_error("ERROR: [%s] snprintf auth code error.\n", __FUNC_NAME__);
         ret = IROT_ERROR_GENERIC;
@@ -755,7 +753,7 @@ irot_result_t id2_client_get_device_challenge(uint8_t* device_random_buf, uint32
 #if (ID2_LOCAL_TEST)
     memset((uint8_t*)&random_array, 0xAB, sizeof(random_array));
 #endif
-    if (snprintf((char*)device_random_buf, ID2_MAX_DEVICE_RANDOM_LEN + 1, "%08X%08X", (unsigned int)random_array[0], (unsigned int)random_array[1]) < 0)
+    if (ls_osa_snprintf((char*)device_random_buf, ID2_MAX_DEVICE_RANDOM_LEN + 1, "%08X%08X", (unsigned int)random_array[0], (unsigned int)random_array[1]) < 0)
     {
         id2_log_error("ERROR: [%s] snprintf device random error.\n", __FUNC_NAME__);
         ret = IROT_ERROR_GENERIC;

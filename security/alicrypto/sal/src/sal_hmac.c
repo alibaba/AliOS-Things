@@ -5,6 +5,7 @@
 #include "sal_crypto.h"
 #include "ali_crypto.h"
 
+#ifdef ALI_CRYPTO_HMAC
 ali_crypto_result sal_hmac_get_ctx_size(hash_type_t type, size_t *size)
 {
     if (size == NULL) {
@@ -204,4 +205,4 @@ ali_crypto_result sal_hmac_reset(void *context)
     osa_memset(hmac_ctx, 0, sizeof(hmac_ctx_t));
     return ALI_CRYPTO_SUCCESS;
 }
-
+#endif 

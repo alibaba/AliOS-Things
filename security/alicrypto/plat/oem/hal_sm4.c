@@ -7,6 +7,7 @@
 #include "hal_crypto.h"
 #include "sal_crypto.h"
 
+#ifdef ALI_CRYPTO_SM4
 ali_crypto_result hal_sm4_get_ctx_size(sm4_type_t type, size_t *size)
 {
     ALI_CRYPTO_DBG_I("ali_sm4_get_ctx_size: sm4 type(%d)\n", type);
@@ -77,4 +78,4 @@ ali_crypto_result hal_sm4_reset(void *context)
 
     return ALI_CRYPTO_SUCCESS;
 }
-
+#endif
