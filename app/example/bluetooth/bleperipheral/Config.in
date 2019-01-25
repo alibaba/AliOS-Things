@@ -1,4 +1,4 @@
-menuconfig AOS_APP_BLEPERIPHERAL
+config AOS_APP_BLEPERIPHERAL
     bool "bleperipheral"
     select AOS_COMP_BT_HOST
     select AOS_COMP_BT_PROFILE

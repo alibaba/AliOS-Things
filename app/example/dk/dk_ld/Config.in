@@ -1,4 +1,4 @@
-menuconfig AOS_APP_DK_LD
+config AOS_APP_DK_LD
     bool "ldapp"
     select AOS_COMP_CLI
     select AOS_COMP_CJSON

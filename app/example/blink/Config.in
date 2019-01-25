@@ -1,4 +1,4 @@
-menuconfig AOS_APP_BLINK
+config AOS_APP_BLINK
     bool "blink"
     help
         blink

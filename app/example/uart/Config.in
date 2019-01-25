@@ -1,4 +1,4 @@
-menuconfig AOS_APP_UART
+config AOS_APP_UART
     bool "uart"
     select AOS_COMP_UART
     help
