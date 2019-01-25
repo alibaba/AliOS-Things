@@ -1,4 +1,4 @@
-menuconfig AOS_APP_COAPAPP
+config AOS_APP_COAPAPP
     bool "coapapp"
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR

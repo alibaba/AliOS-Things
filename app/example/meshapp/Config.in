@@ -1,10 +1,10 @@
-menuconfig AOS_APP_MESHAPP
+config AOS_APP_MESHAPP
     bool "meshapp"
     select AOS_COMP_UMESH
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
-    select AOS_COMP_ALICRYPTO if AOS_CONFIG_MESHAUTH
-    select AOS_COMP_ID2 if AOS_CONFIG_MESHAUTH
+    select AOS_COMP_ALICRYPTO if MESHAUTH = 1
+    select AOS_COMP_ID2 if MESHAUTH = 1
     select AOS_COMP_LWIP if LWIP != 0
     select AOS_COMP_DDA if AOS_BOARD_LINUXHOST || AOS_BOARD_ARMHFLINUX
     help
@@ -13,13 +13,13 @@ menuconfig AOS_APP_MESHAPP
 if AOS_APP_MESHAPP
 # Configurations for app meshapp
 
-config AOS_CONFIG_MESHAUTH
+config MESHAUTH
     int "mesh auth"
     range 0 1
     default 0
     help
 
-config AOS_CONFIG_IPV6
+config IPV6
     int "use ipv6"
     range 0 1
     default 0
@@ -30,5 +30,10 @@ config MESHAPP_CONFIG_HAL_TEST
     range 0 1
     default 0
     help
+
+config LWIP
+    int "LWIP"
+    range 0 1
+    default 1 
 
 endif

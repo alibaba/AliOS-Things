@@ -1,4 +1,4 @@
-menuconfig AOS_APP_TLS_CLIENT
+config AOS_APP_TLS_CLIENT
     bool "tls_client"
     select AOS_COMP_IMBEDTLS
     select AOS_COMP_NETMGR

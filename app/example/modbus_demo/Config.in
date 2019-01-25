@@ -1,4 +1,4 @@
-menuconfig AOS_APP_MODBUS_DEMO
+config AOS_APP_MODBUS_DEMO
     bool "modbus_demo"
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP

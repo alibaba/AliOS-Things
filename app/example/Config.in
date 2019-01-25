@@ -1,5 +1,5 @@
 # --- Generated Automatically ---
-menuconfig AOS_APP_EXAMPLE
+config AOS_APP_EXAMPLE
     bool "Builtin Examples"
     default n
 if AOS_APP_EXAMPLE

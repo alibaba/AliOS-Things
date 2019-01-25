@@ -1,4 +1,4 @@
-menuconfig AOS_APP_HTTP2APP
+config AOS_APP_HTTP2APP
     bool "http2app"
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
@@ -12,5 +12,4 @@ menuconfig AOS_APP_HTTP2APP
 
 if AOS_APP_HTTP2APP
 # Configurations for app http2app
-
 endif

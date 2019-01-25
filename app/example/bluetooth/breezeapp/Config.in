@@ -1,4 +1,4 @@
-menuconfig AOS_APP_BREEZEAPP
+config AOS_APP_BREEZEAPP
     bool "breezeapp"
     select AOS_COMP_BREEZE
     select AOS_COMP_OTA_BLE if BREEZEAPP_CONFIG_EN_OTA

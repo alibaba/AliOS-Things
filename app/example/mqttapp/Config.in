@@ -1,6 +1,5 @@
-menuconfig AOS_APP_MQTTAPP
+config AOS_APP_MQTTAPP
     bool "mqttapp"
-#    select AOS_COMP_LINKKIT_MQTT
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
     select AOS_COMP_CJSON

@@ -1,4 +1,4 @@
-menuconfig AOS_APP_DK_QR
+config AOS_APP_DK_QR
     bool "dk_qr"
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
