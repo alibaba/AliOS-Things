@@ -1,4 +1,4 @@
-menuconfig AOS_APP_LINKWAN
+config AOS_APP_LINKWAN
     bool "linkwan"
     select AOS_COMP_LORAWAN_4_4_2
     select AOS_COMP_LORAWAN_4_4_0

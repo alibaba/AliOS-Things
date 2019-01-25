@@ -1,4 +1,4 @@
-menuconfig AOS_APP_LINKKITAPP
+config AOS_APP_LINKKITAPP
     bool "linkkitapp"
     select AOS_COMP_CLI if !AOS_BOARD_ESP8266
     select AOS_COMP_NETMGR

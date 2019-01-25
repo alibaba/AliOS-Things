@@ -1,4 +1,4 @@
-menuconfig AOS_APP_ID2_CLIENT
+config AOS_APP_ID2_CLIENT
     bool "id2_client"
     select AOS_COMP_IROT
     select AOS_COMP_ID2

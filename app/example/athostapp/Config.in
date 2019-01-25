@@ -1,4 +1,4 @@
-menuconfig AOS_APP_ATHOSTAPP
+config AOS_APP_ATHOSTAPP
     bool "athostapp"
     select AOS_COMP_NETMGR
     select AOS_COMP_ATPARSER if ATHOSTAPP_CONFIG_ATPARSER

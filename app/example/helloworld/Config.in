@@ -1,4 +1,4 @@
-menuconfig AOS_APP_HELLOWORLD
+config AOS_APP_HELLOWORLD
     bool "helloworld"
     help
         Hello World

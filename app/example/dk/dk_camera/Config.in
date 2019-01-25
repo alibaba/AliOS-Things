@@ -1,4 +1,4 @@
-menuconfig AOS_APP_DK_CAMERA
+config AOS_APP_DK_CAMERA
     bool "dk_camera"
     select AOS_COMP_FATFS
     select AOS_COMP_CLI

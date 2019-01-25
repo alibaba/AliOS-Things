@@ -1,4 +1,4 @@
-menuconfig AOS_APP_ITLS_CLIENT
+config AOS_APP_ITLS_CLIENT
     bool "itls_client"
     select AOS_COMP_CLI
     select AOS_COMP_ALICRYPTO
