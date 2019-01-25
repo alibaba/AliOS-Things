@@ -25,6 +25,10 @@ config BSP_SUPPORT_TIMER
     bool "BSP_SUPPORT_TIMER"
     default y
 
+config BSP_SUPPORT_BLE
+    bool "BSP_SUPPORT_BLE"
+    default y
+
 endmenu
 
 endif

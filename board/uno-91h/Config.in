@@ -29,6 +29,10 @@ config BSP_SUPPORT_PWM
     bool "BSP_SUPPORT_PWM"
     default y
 
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
+    default y
+
 endmenu
 
 endif

@@ -13,4 +13,13 @@ if AOS_BOARD_LINUXHOST
 config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default n
+
+menu "BSP SUPPORT FEATURE"
+
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
+    default y
+
+endmenu
+
 endif

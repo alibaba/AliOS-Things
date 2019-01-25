@@ -17,4 +17,12 @@ config SAL_CONFIG
     help
         0: disable sal; 1: enable sal
 
+menu "BSP SUPPORT FEATURE"
+
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
+    default y
+
+endmenu
+
 endif
