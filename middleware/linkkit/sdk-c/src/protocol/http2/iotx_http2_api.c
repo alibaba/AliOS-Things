@@ -139,7 +139,7 @@ static int on_frame_send_callback(nghttp2_session *session,
             NGHTTP2_DBG("[INFO] C ------> S (RST_STREAM)\n");
             break;
         case NGHTTP2_GOAWAY:
-            NGHTTP2_DBG("[INFO] C -------> S (GOAWAY)\n");
+            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %d\n",frame->goaway.error_code);
             break;
     }
 
@@ -201,7 +201,7 @@ static int on_frame_recv_callback(nghttp2_session *session,
             break;
         case NGHTTP2_GOAWAY:
             connection->status = 0;
-            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY)\n");
+            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %d\n",frame->goaway.error_code);
             break;
         case NGHTTP2_DATA:
             if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
@@ -753,4 +753,25 @@ int iotx_http2_exec_io(http2_connection_t *connection)
         /* } */
     }
     return 0;
+}
+
+int iotx_http2_reset_stream(http2_connection_t *connection, int32_t stream_id)
+{
+    int rv = 0;
+    if(connection == NULL){
+        return -1;
+    }
+    if(!nghttp2_session_get_stream_local_close(connection->session,stream_id)) {
+        rv = nghttp2_submit_rst_stream(connection->session,0, stream_id, NGHTTP2_NO_ERROR);
+    }
+    if (rv < 0) {
+        return rv;
+    }
+
+    rv = nghttp2_session_want_write(connection->session);
+    if (rv) {
+        rv = nghttp2_session_send(connection->session);
+        NGHTTP2_DBG("nghttp2_session_send %d\r\n", rv);
+    }
+    return rv;
 }
