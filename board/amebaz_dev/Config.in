@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_AMEBAZ_DEV
+config AOS_BOARD_AMEBAZ_DEV
     bool "board_amebaz_dev"
     select AOS_MCU_RTL8710BN
     select AOS_COMP_KERNEL_INIT

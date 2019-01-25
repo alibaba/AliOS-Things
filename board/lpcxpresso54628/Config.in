@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_LPCXPRESSO54628
+config AOS_BOARD_LPCXPRESSO54628
     bool "board_lpcxpresso54628"
     select AOS_MCU_LPC54628IMPL
     select AOS_COMP_KERNEL_INIT

@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_WM_W600_KIT
+config AOS_BOARD_WM_W600_KIT
     bool "wm_w600_kit"
     select AOS_MCU_WM_W600
     select AOS_COMP_KERNEL_INIT

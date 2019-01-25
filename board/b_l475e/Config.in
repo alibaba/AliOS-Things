@@ -1,8 +1,8 @@
-menuconfig AOS_BOARD_B_L475E
+config AOS_BOARD_B_L475E
     bool "board_b_l475e"
     select AOS_MCU_STM32L475
     select AOS_COMP_KERNEL_INIT
-    select SAL_ENABLED if AOS_NETWORK_SAL
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
     help
       configuration for board b_l475e
 
@@ -13,6 +13,10 @@ if AOS_BOARD_B_L475E
 config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default y
+
+config SAL_MODULE
+    string
+    default "wifi.mk3060"
 
 menu "BSP SUPPORT FEATURE"
 

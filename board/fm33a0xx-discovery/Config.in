@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_FM33A0XX-DISCOVERY
+config AOS_BOARD_FM33A0XX-DISCOVERY
     bool "fm33a0xx-discovery"
     select AOS_MCU_FM33A0XX
     select AOS_COMP_NEWLIB_STUB

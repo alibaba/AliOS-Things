@@ -1,8 +1,8 @@
-menuconfig AOS_BOARD_LINUXHOST
+config AOS_BOARD_LINUXHOST
     bool "board_linuxhost"
     select AOS_MCU_LINUXIMPL
     select AOS_COMP_KERNEL_INIT
-    select SAL_ENABLED if AOS_NETWORK_SAL
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
     help
       configuration for board linuxhost
 
@@ -23,3 +23,7 @@ config BSP_SUPPORT_WIFI
 endmenu
 
 endif
+
+config SAL_MODULE
+    string
+    default "wifi.mk3060"
