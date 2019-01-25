@@ -1,4 +1,4 @@
-menuconfig AOS_ARCH_ARMV7M_SVC
+config AOS_ARCH_ARMV7M_SVC
     bool "armv7m-svc"
     default n
     help

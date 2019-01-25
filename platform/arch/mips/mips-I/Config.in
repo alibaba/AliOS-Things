@@ -1,4 +1,4 @@
-menuconfig AOS_ARCH_MIPS-I
+config AOS_ARCH_MIPS-I
     bool "mips-I"
     default n
     help

@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_FM33A0XX
+config AOS_MCU_FM33A0XX
     bool "mcu_fm33a0xx"
     default n
     select AOS_ARCH_ARMV6M

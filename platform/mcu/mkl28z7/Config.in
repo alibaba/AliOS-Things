@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_MKL28Z7IMPL
+config AOS_MCU_MKL28Z7IMPL
     bool "mcu_mkl28z7impl"
     default n
     select AOS_ARCH_ARMV6M

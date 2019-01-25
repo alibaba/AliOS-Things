@@ -1,4 +1,4 @@
-menuconfig AOS_ARCH_RISC_V32I
+config AOS_ARCH_RISC_V32I
     bool "risc_v32I"
     default n
     help

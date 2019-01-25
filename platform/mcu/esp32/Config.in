@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_ESP32
+config AOS_MCU_ESP32
     bool "mcu_esp32"
     default n
     select AOS_COMP_LWIP

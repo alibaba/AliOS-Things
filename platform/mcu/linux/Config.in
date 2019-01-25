@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_LINUXIMPL
+config AOS_MCU_LINUXIMPL
     bool "mcu_linuximpl"
     default n
     select AOS_COMP_KERNEL_INIT

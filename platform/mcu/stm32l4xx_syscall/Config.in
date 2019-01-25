@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_STM32L4XX_SYSCALL
+config AOS_MCU_STM32L4XX_SYSCALL
     bool "mcu_stm32l4xx_syscall"
     default n
     select AOS_ARCH_ARMV7M_SVC
