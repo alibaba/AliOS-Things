@@ -2155,6 +2155,7 @@ static void hci_tx_thread(void *p1, void *p2, void *p3)
             if (now < (work->start_ms + work->timeout)) {
                 delayed_ms = work->start_ms + work->timeout - now;
             }
+            delayed_ms = 1;
         }
 
 #ifdef CONFIG_CONTROLLER_IN_ONE_TASK
