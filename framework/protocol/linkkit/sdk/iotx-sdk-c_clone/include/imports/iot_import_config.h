@@ -44,7 +44,7 @@
 #endif
 
 #ifndef CONFIG_BLDTIME_MUTE_DBGLOG
-    #define CONFIG_BLDTIME_MUTE_DBGLOG      (1)
+    #define CONFIG_BLDTIME_MUTE_DBGLOG      (0)
 #endif
 
 #ifndef CONFIG_DISPATCH_QUEUE_MAXLEN
