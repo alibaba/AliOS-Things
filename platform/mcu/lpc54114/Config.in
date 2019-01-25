@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_LPC54114IMPL
+config AOS_MCU_LPC54114IMPL
     bool "mcu_lpc54114impl"
     default n
     select AOS_ARCH_ARMV7M

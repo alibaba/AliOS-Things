@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_STM32L475
+config AOS_MCU_STM32L475
     bool "mcu_stm32l475"
     default n
     select AOS_COMP_NEWLIB_STUB

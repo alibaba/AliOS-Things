@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_BK7231U
+config AOS_MCU_BK7231U
     bool "mcu_bk7231u"
     default n
     select AOS_COMP_LWIP

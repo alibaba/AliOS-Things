@@ -1,4 +1,4 @@
-menuconfig AOS_ARCH_LX6
+config AOS_ARCH_LX6
     bool "arch xtensa-lx6"
     default n
     help

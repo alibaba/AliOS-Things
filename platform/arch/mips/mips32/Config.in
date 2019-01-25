@@ -1,4 +1,4 @@
-menuconfig AOS_ARCH_MIPS32
+config AOS_ARCH_MIPS32
     bool "mips32"
     default n
     help
