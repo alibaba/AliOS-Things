@@ -25,7 +25,7 @@
 #define TEST_CONFIG_MM_ENABLED                  (1)
 #if (TEST_CONFIG_MM_ENABLED > 0)
 #define TEST_CONFIG_MALLOC_MAX_SIZE             (1024)
-#define TEST_CONFIG_MALLOC_FREE_TIMES           (100000)
+#define TEST_CONFIG_MALLOC_FREE_TIMES           (10000)
 #endif
 
 /* task test */
@@ -35,7 +35,7 @@
 #define TEST_CONFIG_STACK_SIZE                  (512)
 #endif
 #define TEST_CONFIG_MAX_TASK_COUNT              (10)
-#define TEST_CONFIG_CREATE_TASK_TIMES           (10000)
+#define TEST_CONFIG_CREATE_TASK_TIMES           (1000)
 #endif
 
 /* task communication test */
@@ -44,7 +44,7 @@
 #ifndef TEST_CONFIG_STACK_SIZE
 #define TEST_CONFIG_STACK_SIZE                  (512)
 #endif
-#define TEST_CONFIG_SYNC_TIMES                  (100000)
+#define TEST_CONFIG_SYNC_TIMES                  (10000)
 #define TEST_CONFIG_QUEUE_BUF_SIZE              (32)
 #endif
 
@@ -53,7 +53,7 @@
 
 /* kv test */
 #ifndef TEST_CONFIG_KV_ENABLED
-#define TEST_CONFIG_KV_ENABLED                  (1)
+#define TEST_CONFIG_KV_ENABLED                  (0)
 #endif
 #if (TEST_CONFIG_KV_ENABLED > 0)
 #define TEST_CONFIG_KV_TIMES                    (10000)
