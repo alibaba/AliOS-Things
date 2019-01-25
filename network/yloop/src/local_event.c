@@ -144,6 +144,11 @@ int aos_register_event_filter(uint16_t type, aos_event_cb cb, void *priv)
 int aos_unregister_event_filter(uint16_t type, aos_event_cb cb, void *priv)
 {
     event_list_node_t *event_node = NULL;
+
+    if (dlist_empty(&g_local_event_list)) {
+        return -EINVAL;
+    }
+
     dlist_for_each_entry(&g_local_event_list, event_node, event_list_node_t, node) {
         if (event_node->type_filter != type) {
             continue;
