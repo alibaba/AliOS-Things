@@ -5,15 +5,15 @@
 #ifndef _ALI_CRYPTO_ALGO_H_
 #define _ALI_CRYPTO_ALGO_H_
 
+#if defined(__ARMCC_VERSION)
+#pragma anon_unions
+#endif
+
 #include "ali_crypto.h"
 #include "ali_crypto_debug.h"
 #include "config.h"
 #include "osa.h"
 
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "aes.h"
 #include "sm4.h"
 #include "sha1.h"

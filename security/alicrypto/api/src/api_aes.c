@@ -59,7 +59,7 @@ ali_crypto_result ali_aes_init(aes_type_t type, bool is_enc,
 
     *(uint32_t*)context = type;
     
-    result = p_aes_impl->ops.aes_init(type, is_enc, key1, key2, keybytes, iv, context + 4);
+    result = p_aes_impl->ops.aes_init(type, is_enc, key1, key2, keybytes, iv,(((uint8_t*) context) + 4));
     return result;
 }
 
@@ -90,7 +90,7 @@ ali_crypto_result ali_aes_process(const uint8_t *src, uint8_t *dst, size_t size,
         PRINT_RET(ALI_CRYPTO_ERROR,  "invalid aes ops\n");
     }
 
-    result = p_aes_impl->ops.aes_process(src, dst, size, context + 4);
+    result = p_aes_impl->ops.aes_process(src, dst, size, (((uint8_t *)context) + 4));
 
     return result;
 }
@@ -121,7 +121,7 @@ ali_crypto_result ali_aes_finish(const uint8_t *src, size_t src_size,
         PRINT_RET(ALI_CRYPTO_ERROR,  "invalid aes ops\n");
     }
 
-    result = p_aes_impl->ops.aes_finish(src, src_size, dst, dst_size, padding, context + 4);
+    result = p_aes_impl->ops.aes_finish(src, src_size, dst, dst_size, padding, (((uint8_t *)context) + 4));
 
     return result;
 }
@@ -148,7 +148,7 @@ ali_crypto_result ali_aes_reset(void *context)
         PRINT_RET(ALI_CRYPTO_ERROR,  "invalid aes ops\n");
     }
 
-    result = p_aes_impl->ops.aes_reset(context + 4);
+    result = p_aes_impl->ops.aes_reset((((uint8_t *)context) + 4));
 
     return result;
 

@@ -24,7 +24,7 @@
 #define MBEDTLS_SSL_H
 
 #if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
+#include "itls/config.h"
 #else
 #include MBEDTLS_CONFIG_FILE
 #endif
@@ -37,7 +37,7 @@
 #include <stdint.h>
 #endif
 
-#include "ssl_ciphersuites.h"
+#include "itls/ssl_ciphersuites.h"
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
 #include "x509_crt.h"
@@ -224,7 +224,7 @@
  * peers are using it too!
  */
 #if !defined(MBEDTLS_SSL_MAX_CONTENT_LEN)
-#define MBEDTLS_SSL_MAX_CONTENT_LEN         1024   /**< Size of the input / output buffer */
+#define MBEDTLS_SSL_MAX_CONTENT_LEN         2048   /**< Size of the input / output buffer */
 #endif
 
 /* \} name SECTION: Module settings */

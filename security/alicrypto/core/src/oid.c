@@ -4,15 +4,9 @@
 #include "config.h"
 
 #if defined(ALI_ALGO_OID_C)
-
+#include "osa.h"
 #include "oid.h"
 #include "rsa.h"
-
-#include <stdio.h>
-#include <string.h>
-
-#define ali_algo_snprintf snprintf
-
 
 /*
  * Macro to automatically add the size of #define'd OIDs
@@ -727,7 +721,7 @@ int ali_algo_oid_get_numeric_string(char *buf, size_t size,
 
     /* First byte contains first two dots */
     if (oid->len > 0) {
-        ret = ali_algo_snprintf(p, n, "%d.%d", oid->p[0] / 40, oid->p[0] % 40);
+        ret = osa_snprintf(p, n, "%d.%d", oid->p[0] / 40, oid->p[0] % 40);
         OID_SAFE_SNPRINTF;
     }
 
@@ -743,7 +737,7 @@ int ali_algo_oid_get_numeric_string(char *buf, size_t size,
 
         if (!(oid->p[i] & 0x80)) {
             /* Last byte */
-            ret = ali_algo_snprintf(p, n, ".%d", value);
+            ret = osa_snprintf(p, n, ".%d", value);
             OID_SAFE_SNPRINTF;
             value = 0;
         }

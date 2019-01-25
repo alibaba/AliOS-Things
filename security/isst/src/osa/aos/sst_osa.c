@@ -4,9 +4,9 @@
 
 #include <stdlib.h>
 #include <errno.h>
+#include "ls_osa.h"
+#include "ls_hal.h"
 #include "sst_dbg.h"
-#include "aos/kv.h"
-#include "aos/kernel.h"
 #include "sst.h"
 #include "sst_wrapper.h"
 
@@ -21,16 +21,16 @@ static uint32_t _kv_to_sst_res(int32_t err)
         case 0:
             ret = SST_SUCCESS;
             break;
-        case -ENOENT:
+        case SST_HAL_ERROR_ITEM_NOT_FOUND:
             ret = SST_ERROR_ITEM_NOT_FOUND;
             break;
-        case -ENOSPC:
+        case SST_HAL_ERROR_STORAGE_NO_SPACE:
             ret = SST_ERROR_STORAGE_NO_SPACE;
             break;
-        case -EINVAL:
+        case SST_HAL_ERROR_BAD_PARAMETERS:
             ret = SST_ERROR_BAD_PARAMETERS;
             break;
-        case -ENOMEM:
+        case SST_HAL_ERROR_OUT_OF_MEMORY:
             ret = SST_ERROR_OUT_OF_MEMORY;
             break;
         default:
@@ -43,7 +43,7 @@ static uint32_t _kv_to_sst_res(int32_t err)
 
 uint64_t sst_current_raw_time(void)
 {
-    return aos_now_ms();
+    return ls_osa_get_time_ms();
 }
 
 uint32_t sst_store_obj(const char *name, void *file_data, uint32_t file_len, uint32_t flag)
@@ -59,7 +59,7 @@ uint32_t sst_store_obj(const char *name, void *file_data, uint32_t file_len, uin
         return ret;
     }
 
-    res = aos_kv_set(item_name, file_data, file_len, 0);
+    res = ls_hal_kv_set(item_name, file_data, file_len, 0);
     ret = _kv_to_sst_res(res);
 
     return ret;
@@ -80,7 +80,7 @@ uint32_t sst_get_obj(const char *name, void **pp_data, uint32_t *p_file_len)
         return ret;
     }
 
-    file_data = sst_malloc(MAX_DATA_LEN);
+    file_data = ls_osa_malloc(MAX_DATA_LEN);
     if (!file_data) {
         SST_ERR("fs malloc error\n");
         *pp_data = NULL;
@@ -88,11 +88,11 @@ uint32_t sst_get_obj(const char *name, void **pp_data, uint32_t *p_file_len)
     }
     sst_memset(file_data, 0, MAX_DATA_LEN);
 
-    res = aos_kv_get(item_name, file_data, (int *)&file_len);
+    res = ls_hal_kv_get(item_name, file_data, (int *)&file_len);
     ret = _kv_to_sst_res(res);
     if (SST_SUCCESS != ret) {
         SST_ERR("fs get file error %x\n", (unsigned int)ret);
-        sst_free(file_data);
+        ls_osa_free(file_data);
         *pp_data = NULL;
         goto _err;
     }
@@ -116,7 +116,7 @@ uint32_t sst_delete_obj(const char *name)
         return ret;
     }
 
-    res = aos_kv_del(item_name);
+    res = ls_hal_kv_del(item_name);
     ret = _kv_to_sst_res(res);
     if (ret) {
         SST_ERR("kv del failed res %d ret %x\n", res, (unsigned int)ret);

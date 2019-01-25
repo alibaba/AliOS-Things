@@ -24,7 +24,7 @@
 #define MBEDTLS_DEBUG_H
 
 #if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
+#include "itls/config.h"
 #else
 #include MBEDTLS_CONFIG_FILE
 #endif
@@ -34,6 +34,11 @@
 #if defined(MBEDTLS_ECP_C)
 #include "ecp.h"
 #endif
+
+#include "ls_osa.h"
+
+#define SSL_DBG_LOG(_f, _a ...)  \
+        ls_osa_print("%s %d: "_f,  __FUNCTION__, __LINE__, ##_a)
 
 #if defined(MBEDTLS_DEBUG_C)
 

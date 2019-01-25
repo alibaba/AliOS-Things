@@ -4,30 +4,34 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.0.1
 $(NAME)_SUMMARY := ID2 client SDK
 
-$(NAME)_CFLAGS  := -DPLATFORM_ALIOS
-
 ################################################################################
-#diffrent config for KM, TEE, SE
+#id2 config
 
-LINUXHOST_ID2_CFLAGS = -DID2_OTP_SUPPORTED=1 -DID2_CRYPTO_TYPE_CONFIG=ID2_CRYPTO_TYPE_AES -DID2_OTP_LOCAL_TEST=1 -DID2_DEBUG=1
-KM_ID2_CFLAGS	     = -DID2_OTP_SUPPORTED=1 -DID2_CRYPTO_TYPE_CONFIG=ID2_CRYPTO_TYPE_AES
-TEE_ID2_CFLAGS	     = -DID2_OTP_SUPPORTED=0 -DID2_CRYPTO_TYPE_CONFIG=ID2_CRYPTO_TYPE_AES
-SE_ID2_CFLAGS	     = -DID2_OTP_SUPPORTED=0 -DID2_CRYPTO_TYPE_CONFIG=ID2_CRYPTO_TYPE_3DES
+ifeq ($(CONFIG_LS_KM_SE), y)
+$(NAME)_DEFINES     += ID2_CRYPTO_TYPE_CONFIG=ID2_CRYPTO_TYPE_3DES
+else ifeq ($(CONFIG_LS_KM_TEE), y)
+$(NAME)_DEFINES     += ID2_CRYPTO_TYPE_CONFIG=ID2_CRYPTO_TYPE_AES
+else
+$(NAME)_DEFINES     += ID2_CRYPTO_TYPE_CONFIG=ID2_CRYPTO_TYPE_AES
 
-ifeq ($(findstring linuxhost, $(BUILD_STRING)), linuxhost)
-	$(NAME)_CFLAGS      += $(LINUXHOST_ID2_CFLAGS)
-else ifeq ($(findstring mk3060, $(BUILD_STRING)), mk3060)
-	$(NAME)_CFLAGS      += $(KM_ID2_CFLAGS)
-else ifeq ($(findstring mk3080, $(BUILD_STRING)), mk3080)
-	$(NAME)_CFLAGS      += $(KM_ID2_CFLAGS)
-else ifeq ($(findstring cb2201, $(BUILD_STRING)), cb2201)
-	$(NAME)_CFLAGS      += $(TEE_ID2_CFLAGS)
+ifeq ($(CONFIG_LS_ID2_OTP), y)
+$(NAME)_DEFINES     += ID2_OTP_SUPPORTED=1
+endif
+endif
+
+ifeq ($(CONFIG_LS_DEBUG), y)
+$(NAME)_DEFINES     += ID2_DEBUG=1
+endif
+
+ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), LINUXHOST)
+$(NAME)_DEFINES     += ID2_OTP_LOCAL_TEST=1
 endif
 
 ################################################################################
 
 GLOBAL_INCLUDES   += ../include/id2
 
+$(NAME)_INCLUDES  += ../include/osa
 $(NAME)_INCLUDES  += ./src
 $(NAME)_INCLUDES  += ../irot/include
 
@@ -42,6 +46,7 @@ $(NAME)_SOURCES   := \
        ./src/util/util.c        \
        ./platform/irot_pal.c
 
+$(NAME)_COMPONENTS := ls_osa
 $(NAME)_COMPONENTS += alicrypto
 $(NAME)_COMPONENTS += irot
 

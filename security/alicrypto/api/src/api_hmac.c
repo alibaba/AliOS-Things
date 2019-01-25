@@ -5,6 +5,7 @@
 #include "impl_crypto.h"
 #include "sal_crypto.h"
 
+#ifdef ALI_CRYPTO_HMAC
 ali_crypto_result ali_hmac_get_ctx_size(hash_type_t type, size_t *size)
 {
     ali_crypto_result result = 0;
@@ -51,7 +52,7 @@ ali_crypto_result ali_hmac_init(hash_type_t type, const uint8_t *key,
 	
     *(uint32_t*)context = type;
     
-    result = p_impl->ops.hmac_init(type, key, keybytes, context + 4);
+    result = p_impl->ops.hmac_init(type, key, keybytes, (((uint8_t *)context) + 4));
     return result;
 }
 
@@ -81,7 +82,7 @@ ali_crypto_result ali_hmac_update(const uint8_t *src, size_t size, void *context
         PRINT_RET(ALI_CRYPTO_ERROR,  "invalid aes ops\n");
     }
 	
-    result = p_impl->ops.hmac_update(src, size, context + 4);
+    result = p_impl->ops.hmac_update(src, size, (((uint8_t *)context) + 4));
 
     return result;
 }
@@ -107,7 +108,7 @@ ali_crypto_result ali_hmac_final(uint8_t *dgst, void *context)
         PRINT_RET(ALI_CRYPTO_ERROR,  "invalid aes ops\n");
     }
 	
-    result = p_impl->ops.hmac_final(dgst, context + 4);
+    result = p_impl->ops.hmac_final(dgst, (((uint8_t *)context) + 4));
 
     return result;
 }
@@ -179,9 +180,9 @@ ali_crypto_result ali_hmac_reset(void *context)
     if(NULL == p_impl->ops.hmac_reset) {
         PRINT_RET(ALI_CRYPTO_ERROR,  "invalid aes ops\n");
     }
-    result = p_impl->ops.hmac_reset(context + 4);
+    result = p_impl->ops.hmac_reset((((uint8_t *)context) + 4));
 
     return result;
 
 }
-
+#endif /* ALI_CRYPTO_HMAC */

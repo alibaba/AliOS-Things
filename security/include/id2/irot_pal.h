@@ -41,14 +41,6 @@ void irot_pal_memory_free(void* ptr);
  */
 irot_result_t irot_pal_get_random(uint8_t* buf, uint32_t len);
 
-/**
- * @brief produce the output according to a format like printf.
- *
- * @param fmt A string like printf to format the output result.
- * @param ...
- */
-void irot_pal_log(const char* fmt, ...);
-
 #ifdef __cplusplus
 }
 #endif

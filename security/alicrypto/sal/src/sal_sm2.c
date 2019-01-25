@@ -3,20 +3,20 @@
  */
 #include "sal_crypto.h"
 #include "ali_crypto.h"
-#include <sys/time.h>
 
+#ifdef ALI_CRYPTO_SM2
 #define SM2_KEY_SIZE      (256)
 
 static int myrand( void *rng_state, unsigned char *output, size_t len )
 {
     int result;
-    struct timeval tv;
+    uint32_t time;
 
     if (rng_state != NULL) {
         ali_seed(rng_state, osa_strlen(rng_state));
     }else{
-        gettimeofday(&tv, NULL);
-        ali_seed((uint8_t *)&tv.tv_usec, sizeof(suseconds_t));
+        time = (uint32_t)ls_osa_get_time_ms();
+        ali_seed((uint8_t *)&time, sizeof(time));
     }
 
     result = ali_rand_gen(output, len);
@@ -205,6 +205,8 @@ ali_crypto_result sal_sm2_sign(const ecc_keypair_t *priv_key,
     ali_algo_ecp_group grp;
     ali_ecc_keypair_t *sm2_keypair;
     ali_crypto_result result = ALI_CRYPTO_SUCCESS;
+    uint32_t seed;
+
     if (priv_key == NULL ||
         src == NULL || src_size == 0 ||
         signature == NULL || (*sig_size) == 0){
@@ -234,7 +236,8 @@ ali_crypto_result sal_sm2_sign(const ecc_keypair_t *priv_key,
         GO_RET(ALI_CRYPTO_INVALID_ARG, "SM2 sign: input secret key is invalid!\n");
     }
 
-    ret = ali_algo_sm2_sign( &grp, r, s, sk, (const unsigned char *)src, src_size, myrand, NULL );    
+    seed = (uint32_t)ls_osa_get_time_ms();
+    ret = ali_algo_sm2_sign( &grp, r, s, sk, (const unsigned char *)src, src_size, myrand, (uint32_t *)&seed );
     if ( 0 != ret) {
         GO_RET(ret, "SM2 sign: failed!\n");
     }
@@ -343,6 +346,7 @@ ali_crypto_result sal_sm2_encrypt(const ecc_pubkey_t *pub_key,
     ali_algo_ecp_point P;
     ali_ecc_pubkey_t *sm2_pubkey;
     ali_crypto_result result = ALI_CRYPTO_SUCCESS;
+    uint32_t seed;
 
     if (pub_key == NULL || plaintext  == NULL || p_size == 0 ||
               (ciphertext == NULL && (*c_size) == 0)){
@@ -361,8 +365,9 @@ ali_crypto_result sal_sm2_encrypt(const ecc_pubkey_t *pub_key,
     ali_algo_mpi_read_binary( &(P.Y), sm2_pubkey->y, sm2_pubkey->y_size );
     ali_algo_mpi_read_binary( &(P.Z), &one, 1 );
 
+    seed = (uint32_t)ls_osa_get_time_ms();
     ret = ali_algo_sm2_encrypt( &grp, ciphertext, c_size, P, plaintext,
-                        p_size, myrand, NULL );
+                        p_size, myrand, (uint32_t *)&seed );
     if ( ret != 0 ) {
         GO_RET(ret, "sal_sm2_encrypt: failed!\n");
     }
@@ -682,3 +687,4 @@ _OUT:
 }
 
 #endif /* ALI_ALGO_SM2_DH_C */
+#endif

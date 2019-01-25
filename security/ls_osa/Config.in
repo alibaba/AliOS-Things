@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_LS_OSA
+    bool "ls_osa"
+    default n
+    help
+
+if AOS_COMP_LS_OSA
+# Configurations for comp ls_osa
+endif

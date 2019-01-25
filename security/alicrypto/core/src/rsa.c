@@ -4,23 +4,14 @@
 #include "config.h"
 #include "osa.h"
 
-
 #if defined(ALI_ALGO_RSA_C)
-
 #include "rsa.h"
 #include "oid.h"
-
-#include <string.h>
 
 #if defined(ALI_ALGO_PKCS1_V21)
 #include "hash.h"
 #include "md.h"
 #endif
-
-#if defined(ALI_ALGO_PKCS1_V15)
-#include <stdlib.h>
-#endif
-
 
 /*
  * Initialize an RSA context
@@ -31,8 +22,8 @@ void ali_algo_rsa_init(ali_algo_rsa_context *ctx, int padding, int hash_id)
 
     ali_algo_rsa_set_padding(ctx, padding, hash_id);
 
-#if defined(ALI_ALGO_THREADING_C)
-    osa_mutex_init(&ctx->mutex);
+#if CONFIG_MULTH_SUPPORT
+    ls_osa_mutex_create(&ctx->mutex);
 #endif
 }
 
@@ -258,11 +249,9 @@ int ali_algo_rsa_public(ali_algo_rsa_context *ctx, const unsigned char *input,
 
     ali_algo_mpi_init(&T);
 
-#if defined(ALI_ALGO_THREADING_C)
-    if ((ret = osa_mutex_lock(&ctx->mutex)) != 0)
-        return (ret);
+#if CONFIG_MULTH_SUPPORT
+    ls_osa_mutex_lock(&ctx->mutex);
 #endif
-
     ALI_ALGO_MPI_CHK(ali_algo_mpi_read_binary(&T, input, ctx->len));
 
     if (ali_algo_mpi_cmp_mpi(&T, &ctx->N) >= 0) {
@@ -275,11 +264,9 @@ int ali_algo_rsa_public(ali_algo_rsa_context *ctx, const unsigned char *input,
     ALI_ALGO_MPI_CHK(ali_algo_mpi_write_binary(&T, output, olen));
 
 cleanup:
-#if defined(ALI_ALGO_THREADING_C)
-    if (osa_mutex_unlock(&ctx->mutex) != 0)
-        return (OSA_ERR_THREADING_MUTEX_ERROR);
+#if CONFIG_MULTH_SUPPORT
+    ls_osa_mutex_unlock(&ctx->mutex);
 #endif
-
     ali_algo_mpi_free(&T);
 
     if (ret != 0)
@@ -355,11 +342,9 @@ int ali_algo_rsa_private(ali_algo_rsa_context *ctx,
     ali_algo_mpi_init(&T1);
     ali_algo_mpi_init(&T2);
 
-#if defined(ALI_ALGO_THREADING_C)
-    if ((ret = osa_mutex_lock(&ctx->mutex)) != 0)
-        return (ret);
+#if CONFIG_MULTH_SUPPORT
+    ls_osa_mutex_lock(&ctx->mutex);
 #endif
-
     ALI_ALGO_MPI_CHK(ali_algo_mpi_read_binary(&T, input, ctx->len));
     if (ali_algo_mpi_cmp_mpi(&T, &ctx->N) >= 0) {
         ret = ALI_ALGO_ERR_MPI_BAD_INPUT_DATA;
@@ -415,11 +400,9 @@ int ali_algo_rsa_private(ali_algo_rsa_context *ctx,
     ALI_ALGO_MPI_CHK(ali_algo_mpi_write_binary(&T, output, olen));
 
 cleanup:
-#if defined(ALI_ALGO_THREADING_C)
-    if (osa_mutex_unlock(&ctx->mutex) != 0)
-        return (OSA_ERR_THREADING_MUTEX_ERROR);
+#if CONFIG_MULTH_SUPPORT
+    ls_osa_mutex_unlock(&ctx->mutex);
 #endif
-
     ali_algo_mpi_free(&T);
     ali_algo_mpi_free(&T1);
     ali_algo_mpi_free(&T2);
@@ -1428,9 +1411,8 @@ void ali_algo_rsa_free(ali_algo_rsa_context *ctx)
     ali_algo_mpi_free(&ctx->D);
     ali_algo_mpi_free(&ctx->E);
     ali_algo_mpi_free(&ctx->N);
-
-#if defined(ALI_ALGO_THREADING_C)
-    osa_mutex_free(&ctx->mutex);
+#if CONFIG_MULTH_SUPPORT
+    ls_osa_mutex_destroy(&ctx->mutex);
 #endif
 }
 
@@ -1543,54 +1525,54 @@ int ali_algo_rsa_self_test(int verbose)
     ALI_ALGO_MPI_CHK(ali_algo_mpi_read_string(&rsa.QP, 16, RSA_QP));
 
     if (verbose != 0)
-        ali_algo_printf("  RSA key validation: ");
+        osa_printf("  RSA key validation: ");
 
     if (ali_algo_rsa_check_pubkey(&rsa) != 0 ||
         ali_algo_rsa_check_privkey(&rsa) != 0) {
         if (verbose != 0)
-            ali_algo_printf("failed\n");
+            osa_printf("failed\n");
 
         return (1);
     }
 
     if (verbose != 0)
-        ali_algo_printf("passed\n  PKCS#1 encryption : ");
+        osa_printf("passed\n  PKCS#1 encryption : ");
 
     memcpy(rsa_plaintext, RSA_PT, PT_LEN);
 
     if (ali_algo_rsa_pkcs1_encrypt(&rsa, myrand, NULL, ALI_ALGO_RSA_PUBLIC,
                                   PT_LEN, rsa_plaintext, rsa_ciphertext) != 0) {
         if (verbose != 0)
-            ali_algo_printf("failed\n");
+            osa_printf("failed\n");
 
         return (1);
     }
 
     if (verbose != 0)
-        ali_algo_printf("passed\n  PKCS#1 decryption : ");
+        osa_printf("passed\n  PKCS#1 decryption : ");
 
     if (ali_algo_rsa_pkcs1_decrypt(&rsa, myrand, NULL, ALI_ALGO_RSA_PRIVATE, &len,
                                   rsa_ciphertext, rsa_decrypted,
                                   sizeof(rsa_decrypted)) != 0) {
         if (verbose != 0)
-            ali_algo_printf("failed\n");
+            osa_printf("failed\n");
 
         return (1);
     }
 
     if (memcmp(rsa_decrypted, rsa_plaintext, len) != 0) {
         if (verbose != 0)
-            ali_algo_printf("failed\n");
+            osa_printf("failed\n");
 
         return (1);
     }
 
     if (verbose != 0)
-        ali_algo_printf("passed\n");
+        osa_printf("passed\n");
 
 #if defined(ALI_ALGO_SHA1_C)
     if (verbose != 0)
-        ali_algo_printf("  PKCS#1 data sign  : ");
+        osa_printf("  PKCS#1 data sign  : ");
 
     ali_algo_sha1(rsa_plaintext, PT_LEN, sha1sum);
 
@@ -1598,29 +1580,29 @@ int ali_algo_rsa_self_test(int verbose)
                                ALI_ALGO_MD_SHA1, 0, sha1sum,
                                rsa_ciphertext) != 0) {
         if (verbose != 0)
-            ali_algo_printf("failed\n");
+            osa_printf("failed\n");
 
         return (1);
     }
 
     if (verbose != 0)
-        ali_algo_printf("passed\n  PKCS#1 sig. verify: ");
+        osa_printf("passed\n  PKCS#1 sig. verify: ");
 
     if (ali_algo_rsa_pkcs1_verify(&rsa, NULL, NULL, ALI_ALGO_RSA_PUBLIC,
                                  ALI_ALGO_MD_SHA1, 0, sha1sum,
                                  rsa_ciphertext) != 0) {
         if (verbose != 0)
-            ali_algo_printf("failed\n");
+            osa_printf("failed\n");
 
         return (1);
     }
 
     if (verbose != 0)
-        ali_algo_printf("passed\n");
+        osa_printf("passed\n");
 #endif /* ALI_ALGO_SHA1_C */
 
     if (verbose != 0)
-        ali_algo_printf("\n");
+        osa_printf("\n");
 
 cleanup:
     ali_algo_rsa_free(&rsa);

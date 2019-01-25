@@ -331,10 +331,10 @@ int ali_algo_sha256_self_test(int verbose)
     unsigned char          sha256sum[32];
     ali_algo_sha256_context ctx;
 
-    buf = ali_algo_calloc(1024, sizeof(unsigned char));
+    buf = osa_calloc(1024, sizeof(unsigned char));
     if (NULL == buf) {
         if (verbose != 0)
-            ali_algo_printf("Buffer allocation failed\n");
+            osa_printf("Buffer allocation failed\n");
 
         return (1);
     }
@@ -346,7 +346,7 @@ int ali_algo_sha256_self_test(int verbose)
         k = i < 3;
 
         if (verbose != 0)
-            ali_algo_printf("  SHA-%d test #%d: ", 256 - k * 32, j + 1);
+            osa_printf("  SHA-%d test #%d: ", 256 - k * 32, j + 1);
 
         ali_algo_sha256_starts(&ctx, k);
 
@@ -363,22 +363,22 @@ int ali_algo_sha256_self_test(int verbose)
 
         if (memcmp(sha256sum, sha256_test_sum[i], 32 - k * 4) != 0) {
             if (verbose != 0)
-                ali_algo_printf("failed\n");
+                osa_printf("failed\n");
 
             ret = 1;
             goto exit;
         }
 
         if (verbose != 0)
-            ali_algo_printf("passed\n");
+            osa_printf("passed\n");
     }
 
     if (verbose != 0)
-        ali_algo_printf("\n");
+        osa_printf("\n");
 
 exit:
     ali_algo_sha256_free(&ctx);
-    ali_algo_free(buf);
+    osa_free(buf);
 
     return (ret);
 }
