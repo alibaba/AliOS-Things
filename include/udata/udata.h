@@ -54,7 +54,7 @@ int udata_subscribe(udata_type_e type);
 
 int udata_unsubscribe(udata_type_e type);
 
-int udata_main(void);
+int udata_init(void);
 
 #ifdef __cplusplus
 }
