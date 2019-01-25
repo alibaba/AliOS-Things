@@ -116,6 +116,7 @@ struct bt_conn {
 	atomic_t		ref;
 
         struct net_buf *tx;
+        bool tx_frag;
 
 	union {
 		struct bt_conn_le	le;

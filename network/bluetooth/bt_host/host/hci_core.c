@@ -209,7 +209,7 @@ int bt_hci_cmd_send(u16_t opcode, struct net_buf *buf)
         }
     }
 
-    BT_DBG("opcode 0x%04x len %u", opcode, buf->len);
+    BT_DBG("%s, opcode 0x%04x len %u", __func__, opcode, buf->len);
 
     /* Host Number of Completed Packets can ignore the ncmd value
      * and does not generate any cmd complete/status events.
@@ -1931,7 +1931,7 @@ static void hci_le_meta_event(struct net_buf *buf)
 {
     struct bt_hci_evt_le_meta_event *evt = (void *)buf->data;
 
-    BT_DBG("subevent 0x%02x", evt->subevent);
+    BT_DBG("%s, subevent 0x%02x", __func__, evt->subevent);
 
     net_buf_pull(buf, sizeof(*evt));
 
@@ -2136,15 +2136,21 @@ static void hci_tx_thread(void *p1, void *p2, void *p3)
     };
 #endif
 
+    struct k_work *work;
+    uint32_t now;
+    int ev_count, err;
+    int delayed_ms = 0;
+
     BT_DBG("Started");
 
     while (1) {
-        int ev_count, err;
-        int delayed_ms = 0;
+        ev_count = 0;
+        err = 0;
+        delayed_ms = 0;
 
-        if (k_queue_is_empty(&g_work_queue) == 0) {
-            struct k_work *work = k_queue_first_entry(&g_work_queue);
-            uint32_t now = (uint32_t)aos_now_ms();
+        if (k_queue_is_empty(&g_work_queue.queue) == 0) {
+            work = k_queue_first_entry(&g_work_queue.queue);
+            now = k_uptime_get_32();
 
             if (now < (work->start_ms + work->timeout)) {
                 delayed_ms = work->start_ms + work->timeout - now;
@@ -2174,12 +2180,12 @@ static void hci_tx_thread(void *p1, void *p2, void *p3)
 
         process_events(events, ev_count);
 
-        if (k_queue_is_empty(&g_work_queue) == 0) {
-            struct k_work *work = k_queue_first_entry(&g_work_queue);
-            uint32_t now = (uint32_t)aos_now_ms();
+        if (k_queue_is_empty(&g_work_queue.queue) == 0) {
+            work = k_queue_first_entry(&g_work_queue.queue);
+            now = k_uptime_get_32();
 
             if (now >= (work->start_ms + work->timeout)) {
-                k_queue_remove(&g_work_queue, work);
+                k_queue_remove(&g_work_queue.queue, work);
                 work->handler(work);
             }
         }
@@ -3452,7 +3458,6 @@ struct net_buf *bt_buf_get_rx(enum bt_buf_type type, s32_t timeout)
         net_buf_reserve(buf, CONFIG_BT_HCI_RESERVE);
         bt_buf_set_type(buf, type);
     }
-
     return buf;
 }
 
