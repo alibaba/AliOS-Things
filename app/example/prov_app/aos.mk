@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := id2 provisioning sample app
 
 $(NAME)_SOURCES := app_entry.c
 
-$(NAME)_COMPONENTS := prov yloop cli
+$(NAME)_COMPONENTS := ls_hal prov yloop cli
 
 PROVAPP_CONFIG_ERASE ?= 0
 ERASE ?= $(PROVAPP_CONFIG_ERASE)
