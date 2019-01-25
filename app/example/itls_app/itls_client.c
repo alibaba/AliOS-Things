@@ -21,7 +21,7 @@
 #include "itls/debug.h"
 #include "itls/ssl.h"
 
-#define DEBUG_LEVEL     3
+#define DEBUG_LEVEL     1
 
 #if defined(ON_DAILY)
 #define SERVER_PORT     "1885"
