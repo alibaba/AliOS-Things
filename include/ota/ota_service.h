@@ -5,7 +5,7 @@
 #ifndef OTA_SERVICE_H
 #define OTA_SERVICE_H
 
-#define UOTA_VERSION    "1.0.0"
+#define OTA_VERSION    "1.0.0"
 #define OTA_MAX_VER_LEN 64
 
 #define OTA_MSG_REPORT_LEN 256
