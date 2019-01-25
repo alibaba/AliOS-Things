@@ -1,7 +1,7 @@
 #include "hal/soc/soc.h"
 //#include "serial_api.h"
 #include <aos/kernel.h>
-
+#include "hfilop/hfilop.h"
 /* Logic partition on flash devices */
 const hal_logic_partition_t hal_partitions[] =
 {
@@ -93,4 +93,12 @@ uart_dev_t uart_0 = {
 void board_init(void)
 {
     hal_uart_init(&uart_0);
+}
+
+void board_init_later(void)
+{
+    hfilop_init_rf_type(MODULE_TYPE);
+    hfilop_assis_task_start();
+    hfilop_check_ota_state();
+    printf("====board_init_later done===\r\n");
 }
