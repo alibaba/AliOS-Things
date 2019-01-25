@@ -13,6 +13,10 @@ config BSP_SUPPORT_FLASH
     bool "BSP_SUPPORT_FLASH"
     default y
 
+config BSP_SUPPORT_CELLULAR
+    bool "BSP_SUPPORT_CELLULAR"
+    default y
+
 endmenu
 
 endif
