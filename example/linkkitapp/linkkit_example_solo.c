@@ -583,19 +583,24 @@ int linkkit_main(void *paras)
     int post_event_reply = 1;
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
-    /* Create Master Device Resources */
-    user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
-    if (user_example_ctx->master_devid < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Open Failed\n");
-        return -1;
-    }
+        /* Create Master Device Resources */
+    do{
+        user_example_ctx->master_devid = IOT_Linkkit_Open(IOTX_LINKKIT_DEV_TYPE_MASTER, &master_meta_info);
+        if (user_example_ctx->master_devid < 0) {
+            EXAMPLE_TRACE("IOT_Linkkit_Open Failed, retry after 5s...\n");
+            HAL_SleepMs(5000);
+        }
+    }while(user_example_ctx->master_devid < 0);
+        /* Start Connect Aliyun Server */
+    do{
+        res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
+        if (res < 0) {
+            EXAMPLE_TRACE("IOT_Linkkit_Connect Failed, retry after 5s...\n");
+            HAL_SleepMs(5000);
+        }
+    }while(res < 0);
 
-    /* Start Connect Aliyun Server */
-    res = IOT_Linkkit_Connect(user_example_ctx->master_devid);
-    if (res < 0) {
-        EXAMPLE_TRACE("IOT_Linkkit_Connect Failed\n");
-        return -1;
-    }
+
 
     time_begin_sec = user_update_sec();
     while (1) {
