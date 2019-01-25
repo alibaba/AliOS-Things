@@ -9,4 +9,5 @@ config AOS_MCU_LINUXIMPL
 
 if AOS_MCU_LINUXIMPL
 # Configurations for mcu linuximpl
+
 endif
