@@ -1,11 +1,11 @@
-menuconfig AOS_MCU_DAHUA
+config AOS_MCU_DAHUA
     bool "mcu_dahua"
     default n
     select AOS_COMP_LWIP if LWIP_CONFIG = 1
-    select SAL_ENABLED if SAL_CONFIG = 1
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
     select AOS_COMP_NETMGR
     select AOS_COMP_RHINO
-    select AOS_COMP_DEVICE_SAL_ESP8266 if SAL_CONFIG = 1
+    select AOS_COMP_DEVICE_SAL_ESP8266 if AOS_NETWORK_SAL
     select AOS_ARCH_CSKYV2_L
     help
       driver & sdk for platform/mcu dahua
@@ -14,13 +14,12 @@ if AOS_MCU_DAHUA
 # Configurations for mcu dahua
 
 config LWIP_CONFIG
-    int "lwip config"
+    int
     range 0 1
     default 1
 
-config SAL_CONFIG
-    int "sal config"
-    range 0 1
-    default 0
+config AOS_NETWORK_SAL
+    bool
+    default n
 
 endif

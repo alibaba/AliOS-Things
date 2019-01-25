@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_GD32F30X
+config AOS_MCU_GD32F30X
     bool "mcu_gd32f30x"
     default n
     select AOS_ARCH_ARMV7M

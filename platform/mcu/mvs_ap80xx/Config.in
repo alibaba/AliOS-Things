@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_MVS_AP80XX
+config AOS_MCU_MVS_AP80XX
     bool "mcu_mvs_ap80xx"
     default n
     select AOS_ARCH_ARMV7M

@@ -1,4 +1,4 @@
-menuconfig AOS_ARCH_LX106
+config AOS_ARCH_LX106
     bool "xtensa lx106"
     default n
     help

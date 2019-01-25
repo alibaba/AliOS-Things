@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_RDA5981X
+config AOS_MCU_RDA5981X
     bool "mcu_RDA5981x"
     default n
     select AOS_COMP_LWIP

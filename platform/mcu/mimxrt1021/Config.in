@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_MIMXRT1021IMPL
+config AOS_MCU_MIMXRT1021IMPL
     bool "mcu_mimxrt1021impl"
     default n
     select AOS_ARCH_ARMV7M

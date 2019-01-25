@@ -1,4 +1,4 @@
-menuconfig AOS_ARCH_LINUX
+config AOS_ARCH_LINUX
     bool "arch_linux"
     default n
     help

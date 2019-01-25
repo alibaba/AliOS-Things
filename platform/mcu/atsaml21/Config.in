@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_ATSAML21
+config AOS_MCU_ATSAML21
     bool "mcu_atsaml21"
     default n
     select AOS_ARCH_ARMV6M

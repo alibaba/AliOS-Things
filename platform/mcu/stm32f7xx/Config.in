@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_STM32F7XX
+config AOS_MCU_STM32F7XX
     bool "mcu_stm32f7xx"
     default n
     select AOS_ARCH_ARMV7M
