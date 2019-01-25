@@ -10,7 +10,9 @@ struct k_work_q g_work_queue;
 
 static void k_work_submit_to_queue(struct k_work_q *work_q, struct k_work *work)
 {
-    k_queue_append(&work_q->queue, work);
+    if (!atomic_test_and_set_bit(work->flags, K_WORK_STATE_PENDING)) {
+        k_queue_append(&work_q->queue, work);
+    }
 }
 
 static void k_work_rm_from_queue(struct k_work_q *work_q, struct k_work *work)
@@ -47,7 +49,7 @@ int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
 {
     int err = 0;
 
-    if (atomic_test_and_set_bit(work->work.flags, K_WORK_STATE_PENDING)) {
+    if (atomic_test_bit(work->work.flags, K_WORK_STATE_PENDING)) {
         err = -EADDRINUSE;
         goto done;
     }
