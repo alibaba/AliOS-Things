@@ -1459,8 +1459,7 @@ static u8_t sc_send_public_key(struct bt_smp *smp)
     struct bt_smp_public_key *req;
     struct net_buf *          req_buf;
 
-    req_buf =
-      smp_create_pdu(smp->chan.chan.conn, BT_SMP_CMD_PUBLIC_KEY, sizeof(*req));
+    req_buf = smp_create_pdu(smp->chan.chan.conn, BT_SMP_CMD_PUBLIC_KEY, sizeof(*req));
     if (!req_buf) {
         return BT_SMP_ERR_UNSPECIFIED;
     }

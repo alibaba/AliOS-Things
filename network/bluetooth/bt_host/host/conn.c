@@ -665,12 +665,19 @@ static bool send_buf(struct bt_conn *conn, struct net_buf *buf)
 {
     struct net_buf *frag;
 
-    BT_DBG("conn %p buf %p len %u", conn, buf, buf->len);
+    BT_DBG("%s, conn %p buf %p len %u", __func__,conn, buf, buf->len);
 
-    /* Send directly if the packet fits the ACL MTU */
-    if ((buf->len <= conn_mtu(conn)) &&
-        (send_frag(conn, buf, BT_ACL_START_NO_FLUSH, false) == false)) {
-        return false;
+    if (buf->len <= conn_mtu(conn)) {
+        conn->tx_frag = false;
+        if (send_frag(conn, buf, BT_ACL_START_NO_FLUSH, false) == false) {
+            return false;
+        }
+    } else if (buf->len > conn_mtu(conn)) {
+        frag = create_frag(conn, buf);
+        if ((frag == NULL) || (send_frag(conn, frag, BT_ACL_START_NO_FLUSH, true) == false)) {
+            return false;
+        }
+        conn->tx_frag = true;
     }
 
     conn->tx = buf;
@@ -742,7 +749,7 @@ void bt_conn_notify_tx_done(struct bt_conn *conn)
 {
     struct net_buf *frag;
 
-    if (conn->tx == NULL || conn->tx->len <= conn_mtu(conn)) {
+    if (conn->tx == NULL || conn->tx_frag == false) {
         goto exit;
     }
 
@@ -759,7 +766,10 @@ void bt_conn_notify_tx_done(struct bt_conn *conn)
     }
 
     if (conn->tx->len) {
-        send_frag(conn, conn->tx, BT_ACL_CONT, false);
+        conn->tx_frag = false;
+        if (!send_frag(conn, conn->tx, BT_ACL_CONT, false)) {
+            goto exit;
+        }
         return;
     }
 

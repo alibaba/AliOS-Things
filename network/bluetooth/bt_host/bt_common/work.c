@@ -10,9 +10,7 @@ struct k_work_q g_work_queue;
 
 static void k_work_submit_to_queue(struct k_work_q *work_q, struct k_work *work)
 {
-    if (!atomic_test_and_set_bit(work->flags, K_WORK_STATE_PENDING)) {
-        k_queue_append(&work_q->queue, work);
-    }
+    k_queue_append(&work_q->queue, work);
 }
 
 static void k_work_rm_from_queue(struct k_work_q *work_q, struct k_work *work)
@@ -54,7 +52,7 @@ int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
         goto done;
     }
 
-    work->work.start_ms = aos_now_ms();
+    work->work.start_ms = k_uptime_get_32();
     work->work.timeout = delay;
     k_work_submit_to_queue(&g_work_queue, (struct k_work *)work);
 
@@ -84,7 +82,7 @@ s32_t k_delayed_work_remaining_get(struct k_delayed_work *work)
         return 0;
     }
 
-    remain = work->work.timeout - (aos_now_ms() - work->work.start_ms);
+    remain = work->work.timeout - (k_uptime_get_32() - work->work.start_ms);
     if (remain < 0) {
         remain = 0;
     }
