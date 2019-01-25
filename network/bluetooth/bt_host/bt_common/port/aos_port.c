@@ -220,7 +220,7 @@ void k_timer_start(k_timer_t *timer, uint32_t timeout)
     ASSERT(timer, "timer is NULL");
     BT_DBG("timer %p,timeout %u", timer, timeout);
     timer->timeout  = timeout;
-    timer->start_ms = aos_now_ms();
+    timer->start_ms = (uint32_t)aos_now_ms();
 
     ret = krhino_timer_stop(&timer->timer);
     if (ret) {

@@ -79,23 +79,25 @@ static void send_cmd_status(u16_t opcode, u8_t status)
 {
     struct bt_hci_evt_cmd_status *evt;
     struct bt_hci_evt_hdr *hdr;
-    struct net_buf *buf;
+    struct net_buf *buf = NULL;
 
     BT_DBG("opcode %x status %x", opcode, status);
 
     buf = bt_buf_get_cmd_complete(K_FOREVER);
-    bt_buf_set_type(buf, BT_BUF_EVT);
+    if (buf) {
+        bt_buf_set_type(buf, BT_BUF_EVT);
 
-    hdr = net_buf_add(buf, sizeof(*hdr));
-    hdr->evt = BT_HCI_EVT_CMD_STATUS;
-    hdr->len = sizeof(*evt);
+        hdr = net_buf_add(buf, sizeof(*hdr));
+        hdr->evt = BT_HCI_EVT_CMD_STATUS;
+        hdr->len = sizeof(*evt);
 
-    evt = net_buf_add(buf, sizeof(*evt));
-    evt->ncmd = 1;
-    evt->opcode = sys_cpu_to_le16(opcode);
-    evt->status = status;
+        evt = net_buf_add(buf, sizeof(*evt));
+        evt->ncmd = 1;
+        evt->opcode = sys_cpu_to_le16(opcode);
+        evt->status = status;
 
-    bt_recv_prio(buf);
+        bt_recv_prio(buf);
+    }
 }
 
 static u8_t generate_keys(void)
