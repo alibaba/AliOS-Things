@@ -27,6 +27,8 @@ endif
 
 GLOBAL_INCLUDES += include/
 GLOBAL_DEFINES  += STDIO_UART=0 MBEDTLS_AES_ROM_TABLES=1
+GLOBAL_DEFINES  += CLI_CONFIG_SUPPORT_BOARD_CMD=1
+GLOBAL_DEFINES  += VFS_CONFIG_STAT_INCLUDE_SIZE=0
 
 
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_CKHOBBIT
@@ -39,3 +41,4 @@ GLOBAL_LDFLAGS += -Wl,-ckmap='cb2201.map' -Wl,-zmax-page-size=1024 -lm
 
 # Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk
+
