@@ -303,7 +303,7 @@ static void test_udata_subscribe_case(void)
 {   
     int ret = 0;
     udata_sensor_init();
-    udata_main();
+    udata_init();
     ret = udata_subscribe(UDATA_SERVICE_BARO);
     YUNIT_ASSERT(ret == UDATA_SUCCES);
 }
