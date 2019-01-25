@@ -8,6 +8,7 @@ $(NAME)_SUMMARY    := driver & sdk for platform/mcu bk7231
 
 $(NAME)_COMPONENTS := arch_armv5
 $(NAME)_COMPONENTS += newlib_stub rhino yloop alicrypto
+LWIP := 1
 $(NAME)_COMPONENTS += lwip umesh netmgr
 $(NAME)_COMPONENTS += libprov
 
