@@ -1,4 +1,4 @@
-menuconfig AOS_ARCH_ARMV5
+config AOS_ARCH_ARMV5
     bool "armv5"
     default n
     help

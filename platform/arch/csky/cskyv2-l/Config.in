@@ -1,4 +1,4 @@
-menuconfig AOS_ARCH_CSKYV2_L
+config AOS_ARCH_CSKYV2_L
     bool "cskyv2-l"
     default n
     help

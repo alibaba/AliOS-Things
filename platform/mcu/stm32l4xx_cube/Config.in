@@ -1,4 +1,4 @@
-menuconfig AOS_MCU_STM32L4XX_CUBE
+config AOS_MCU_STM32L4XX_CUBE
     bool "mcu_stm32l4xx_cube"
     default n
     select AOS_COMP_NEWLIB_STUB
