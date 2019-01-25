@@ -1,7 +1,7 @@
-menuconfig AOS_COMP_LORAWAN_ENABLE
-    bool "LoRaWAN Enable"
+menuconfig AOS_COMP_LORAWAN_STACK
+    bool "LoRaWAN Stack"
     default n
     help
 
-if AOS_COMP_LORAWAN_ENABLE
+if AOS_COMP_LORAWAN_STACK
 endif
