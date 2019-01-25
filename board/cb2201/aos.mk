@@ -11,19 +11,11 @@ HOST_ARCH          := ck802
 HOST_MCU_FAMILY    := mcu_csky
 SUPPORT_MBINS      := no
 
-#$(NAME)_COMPONENTS   :=  tfs
-#CONFIG_LIB_TFS       := y
-#CONFIG_TFS_ID2_RSA   := y
-#CONFIG_TFS_ID2_3DES  := n
-#CONFIG_TFS_EMULATE   := n
-#CONFIG_TFS_ON_LINE   := n
-#CONFIG_TFS_OPENSSL   := n
-#CONFIG_TFS_MBEDTLS   := n
-#CONFIG_TFS_ALICRYPTO := n
-#CONFIG_TFS_DEBUG     := n
-#CONFIG_TFS_TEE       := n
-#CONFIG_TFS_SW        := y
-#CONFIG_TFS_TEST      := n
+# Link Security Config
+CONFIG_LS_DEBUG      := n
+CONFIG_LS_ID2_OTP    := y
+CONFIG_LS_KM_SE      := n
+CONFIG_LS_KM_TEE     := y
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
 
