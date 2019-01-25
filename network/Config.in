@@ -1,9 +1,9 @@
 menu "Network Configuration"
-config AOS_NETWORK
+config AOS_COMP_NETWORK
     bool "Enable Network"
     default y
 
-if AOS_NETWORK
+if AOS_COMP_NETWORK
 
 ## --- Generated Automatically ---
 source "network/bluetooth/breeze/Config.in"
