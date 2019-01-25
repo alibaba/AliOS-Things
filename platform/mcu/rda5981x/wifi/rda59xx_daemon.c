@@ -10,6 +10,7 @@
 #include "dhcps.h"
 #include "rda5981_sys_data.h"
 #include "trng_api.h"
+#include "aos/kernel.h"
 
 #define WIFISTACK_DEBUG
 #ifdef WIFISTACK_DEBUG
@@ -608,7 +609,8 @@ static r_void rda59xx_daemon(r_void *arg)
             case DAEMON_AP_DISABLE:
                 WIFISTACK_PRINT("DAEMON_AP_DISABLE!\r\n");
                 if(!(module_state & STATE_AP)){
-                    WIFISTACK_PRINT("AP has been stoped!\r\n");
+                    WIFISTACK_PRINT("AP has been stoped! shouldn't be running here!! \r\n");
+                    aos_reboot();
                     rda_sem_release((r_void *)msg.arg3);
                     break;
                 }
