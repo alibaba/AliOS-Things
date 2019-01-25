@@ -1,4 +1,4 @@
-menuconfig AOS_APP_OTAAPP
+config AOS_APP_OTAAPP
     bool "otaapp"
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
@@ -12,6 +12,11 @@ menuconfig AOS_APP_OTAAPP
 
 if AOS_APP_OTAAPP
 # Configurations for app otaapp
+
+config LWIP
+    int "LWIP"
+    range 0 1
+    default 0
 
 config OTAAPP_CONFIG_TEST_LOOP
     int "test loop"

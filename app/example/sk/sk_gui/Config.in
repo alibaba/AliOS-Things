@@ -1,4 +1,4 @@
-menuconfig AOS_APP_SK_GUI
+config AOS_APP_SK_GUI
     bool "sk_gui"
     select AOS_COMP_LITTLEVGL
     select AOS_COMP_CLI

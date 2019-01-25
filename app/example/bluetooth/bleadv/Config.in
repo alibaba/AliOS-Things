@@ -1,4 +1,4 @@
-menuconfig AOS_APP_BLEADV
+config AOS_APP_BLEADV
     bool "bleadv"
     select AOS_COMP_BT_HOST
     select AOS_COMP_CLI

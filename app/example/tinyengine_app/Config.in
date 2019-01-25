@@ -1,4 +1,4 @@
-menuconfig AOS_APP_TINYENGINE_APP
+config AOS_APP_TINYENGINE_APP
     bool "tinyengine_app"
     select AOS_COMP_SPIFFS
     select AOS_COMP_LOG

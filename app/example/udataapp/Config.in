@@ -1,4 +1,4 @@
-menuconfig AOS_APP_UDATAAPP
+config AOS_APP_UDATAAPP
     bool "udataapp"
     select AOS_COMP_CLI
     select AOS_COMP_SENSOR
@@ -16,7 +16,12 @@ menuconfig AOS_APP_UDATAAPP
 if AOS_APP_UDATAAPP
 # Configurations for comp udata
 
-  config AOS_CONFIG_DTC_ENABLE
+config LWIP
+    int "LWIP"
+    range 0 1
+    default 1
+
+config AOS_CONFIG_DTC_ENABLE
     bool "data to cloud"
     default n
     help

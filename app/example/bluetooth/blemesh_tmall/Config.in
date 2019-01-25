@@ -1,4 +1,4 @@
-menuconfig AOS_APP_BLEMESH_TMALL
+config AOS_APP_BLEMESH_TMALL
     bool "blemesh_tmall"
     select AOS_COMP_BT_HOST
     select AOS_COMP_BT_TMALL_MODEL
