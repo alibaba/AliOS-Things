@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_M100C
+config AOS_BOARD_M100C
     bool "board_m100c"
     select AOS_MCU_EFM32GXX
     select AOS_COMP_KERNEL_INIT

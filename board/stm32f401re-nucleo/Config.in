@@ -1,7 +1,8 @@
-menuconfig AOS_BOARD_STM32F401RE-NUCLEO
+config AOS_BOARD_STM32F401RE-NUCLEO
     bool "stm32f401re-nucleo"
     select AOS_MCU_STM32F4XX_CUBE
     select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
     select AOS_COMP_NETMGR if AOS_NETWORK_SAL
     help
 
@@ -12,6 +13,10 @@ if AOS_BOARD_STM32F401RE-NUCLEO
 config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default y
+
+config SAL_MODULE
+    string
+    default "wifi.mk3060"
 
 menu "BSP SUPPORT FEATURE"
 

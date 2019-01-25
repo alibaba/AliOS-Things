@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_FRDMKL28Z
+config AOS_BOARD_FRDMKL28Z
     bool "board_frdmkl28z"
     select AOS_MCU_MKL28Z7IMPL
     select AOS_COMP_KERNEL_INIT

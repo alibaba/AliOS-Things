@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_PCA10040E
+config AOS_BOARD_PCA10040E
     bool "board_pca10040e"
     select AOS_MCU_NRF52XXX
     select AOS_COMP_KERNEL_INIT

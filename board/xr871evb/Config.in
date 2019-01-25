@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_XR871EVB
+config AOS_BOARD_XR871EVB
     bool "xr871evb"
     select AOS_MCU_XR871
     select AOS_COMP_KERNEL_INIT

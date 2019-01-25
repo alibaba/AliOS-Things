@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_ESP8266
+config AOS_BOARD_ESP8266
     bool "board_esp8266"
     select AOS_MCU_ESP8266
     select AOS_COMP_KERNEL_INIT
