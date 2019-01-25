@@ -17,7 +17,10 @@ config BSP_SUPPORT_FLASH
     bool "BSP_SUPPORT_FLASH"
     default y
 
-endmenu
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
+    default y
 
+endmenu
 
 endif

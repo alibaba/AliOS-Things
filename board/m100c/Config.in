@@ -24,6 +24,10 @@ config BSP_SUPPORT_FLASH
     bool "BSP_SUPPORT_FLASH"
     default y
 
+config BSP_SUPPORT_LORA
+    bool "BSP_SUPPORT_LORA"
+    default y
+
 endmenu
 
 endif

@@ -54,6 +54,10 @@ config BSP_SUPPORT_RTC
     bool "BSP_SUPPORT_RTC"
     default y
 
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
+    default y
+
 endmenu
 
 endif
