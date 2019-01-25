@@ -1196,6 +1196,10 @@ int IOT_Linkkit_Close(int devid)
 
     if (devid == IOTX_DM_LOCAL_NODE_DEVID) {
         res = _iotx_linkkit_master_close();
+#ifdef DEV_BIND_ENABLED
+        extern int awss_bind_deinit(void);
+        awss_bind_deinit();
+#endif
     } else {
         return FAIL_RETURN;
     }
