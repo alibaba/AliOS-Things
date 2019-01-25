@@ -10,6 +10,10 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       framework/uOTA
 
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_GATEWAY  \
+                 -DWIFI_PROVISION_ENABLED \
+                 -DCONFIG_YWSS \
+                 -DAWSS_SUPPORT_DEV_AP \
+                 -DAWSS_SUPPORT_STATIS  \
                  -DMQTT_DIRECT \
                  -DOTA_ENABLED \
                  -DBUILD_AOS      
