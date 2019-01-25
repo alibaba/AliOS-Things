@@ -77,7 +77,7 @@ void awss_registrar_deinit(void)
     enrollee_report_timer = NULL;
 }
 
-int online_dev_bind_monitor(void *ctx, void *resource, void *remote, void *request)
+int awss_enrollee_suc_monitor(void *ctx, void *resource, void *remote, void *request)
 {
     uint8_t i;
     char *payload = NULL;
