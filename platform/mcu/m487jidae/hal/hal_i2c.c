@@ -24,21 +24,21 @@
 #include "board.h"
 
 struct nu_i2c_var {
-    struct i2c_s *    obj;
-		uint32_t					ref_cnt;
+    struct i2c_s *obj;
+    uint32_t      ref_cnt;
 };
 
 static struct nu_i2c_var i2c0_var = {
-    .obj                =   NULL,
-    .ref_cnt            =   0,	
+    .obj     = NULL,
+    .ref_cnt = 0,  
 };
 static struct nu_i2c_var i2c1_var = {
-    .obj                =   NULL,
-    .ref_cnt            =   0,	
+    .obj     = NULL,
+    .ref_cnt = 0,  
 };
 static struct nu_i2c_var i2c2_var = {
-    .obj                =   NULL,
-    .ref_cnt            =   0,	
+    .obj     = NULL,
+    .ref_cnt = 0,  
 };
 
 static const struct nu_modinit_s i2c_modinit_tab[] = {
@@ -75,7 +75,7 @@ static void platform_i2c_enable_int(struct i2c_s *obj)
 static void platform_i2c_disable_int(struct i2c_s *obj)
 {
     struct nu_modinit_s *modinit = get_modinit(obj->i2c, i2c_modinit_tab);
-	
+    
     // Disable I2C interrupt
     NVIC_DisableIRQ(modinit->irq_n);
     obj->inten = 0;
@@ -120,7 +120,7 @@ static void platform_i2c_fsm_tranfini(struct i2c_s *obj, int lastdatanaked)
 
 static void i2c_irq(struct nu_i2c_var* psNuI2CVar)
 {
-		struct i2c_s *obj = psNuI2CVar->obj;	
+        struct i2c_s *obj = psNuI2CVar->obj;    
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c);
     uint32_t status;
 
@@ -305,7 +305,7 @@ static void i2c_irq(struct nu_i2c_var* psNuI2CVar)
     default:
         platform_i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
     }
-	
+    
 }
 
 void I2C0_IRQHandler (void) { i2c_irq(&i2c0_var); }
@@ -321,14 +321,14 @@ void platform_i2c_frequency(I2CName s_I2cName, int hz)
 
 void platform_i2c_mode(I2CName s_I2cName, int mode)
 {
-	if ( mode == I2C_MODE_SLAVE )
-	{
-		//Switch to slave mode
+    if ( mode == I2C_MODE_SLAVE )
+    {
+        //Switch to slave mode
     I2C_T *i2c_base = (I2C_T *) NU_MODBASE(s_I2cName);
 
     // Switch to not addressed mode
     I2C_SET_CONTROL_REG(i2c_base, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
-	}
+    }
 }
 
 static int platform_i2c_addr2data(int address, int read)
@@ -617,14 +617,14 @@ void platform_i2c_slave_address(struct i2c_s *obj, int idx, uint32_t address, ui
 
 static struct i2c_s* hal_get_i2c_s ( i2c_dev_t *i2c )
 {
-	if ( !(i2c) || (i2c->port >= i32BoardMaxI2CNum) )
-		goto exit_hal_get_i2c_s;
+    if ( !(i2c) || (i2c->port >= i32BoardMaxI2CNum) )
+        goto exit_hal_get_i2c_s;
 
-	// Get UART Private configuration, these setting are defined in board/xxxxx.
-	return (struct i2c_s*)&board_i2c[i2c->port];
+    // Get UART Private configuration, these setting are defined in board/xxxxx.
+    return (struct i2c_s*)&board_i2c[i2c->port];
 
 exit_hal_get_i2c_s:
-	return NULL;
+    return NULL;
 }
 /**
  * Initialises an I2C interface
@@ -636,63 +636,64 @@ exit_hal_get_i2c_s:
  */
 int32_t hal_i2c_init(i2c_dev_t *i2c)
 {
-	struct nu_modinit_s *modinit;
-	struct i2c_s* pi2c_s;
+    struct nu_modinit_s *modinit;
+    struct i2c_s* pi2c_s;
   struct nu_i2c_var *var;
-	I2CName s_I2cName;
-	I2C_T* pI2c;
+    I2CName s_I2cName;
+    I2C_T* pI2c;
 
-	if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
-		goto exit_hal_i2c_init;	
+    if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
+        goto exit_hal_i2c_init; 
 
   uint32_t i2c_sda = pinmap_peripheral(pi2c_s->pin_sda, PinMap_I2C_SDA);
   uint32_t i2c_scl = pinmap_peripheral(pi2c_s->pin_scl, PinMap_I2C_SCL);
   s_I2cName = (I2CName) pinmap_merge(i2c_sda, i2c_scl);
-	
+    
   if ( (int)s_I2cName == NC)  
-		goto exit_hal_i2c_init;
+        goto exit_hal_i2c_init;
 
-	modinit = get_modinit(s_I2cName, i2c_modinit_tab);
+    modinit = get_modinit(s_I2cName, i2c_modinit_tab);
   if ( modinit == NULL || modinit->modname != s_I2cName )  
-		goto exit_hal_i2c_init;
+        goto exit_hal_i2c_init;
 
-	var = (struct nu_uart_var *) modinit->var;
-	if (! var->ref_cnt) {
-		
-		// Reset this module
-		SYS_ResetModule(modinit->rsetidx);
+    var = (struct nu_uart_var *) modinit->var;
+    if (! var->ref_cnt) {
+        
+        // Reset this module
+        SYS_ResetModule(modinit->rsetidx);
 
-		// Enable IP clock
-		CLK_EnableModuleClock(modinit->clkidx);
+        // Enable IP clock
+        CLK_EnableModuleClock(modinit->clkidx);
 
-		pinmap_pinout(pi2c_s->pin_sda, PinMap_I2C_SDA);
-		pinmap_pinout(pi2c_s->pin_scl, PinMap_I2C_SCL);
+        pinmap_pinout(pi2c_s->pin_sda, PinMap_I2C_SDA);
+        pinmap_pinout(pi2c_s->pin_scl, PinMap_I2C_SCL);
 
-    // NOTE: Setting I2C bus clock to 100 KHz is required.
-    I2C_Open((I2C_T *) NU_MODBASE(s_I2cName), 100000);
-		
-    // NOTE: INTEN bit and FSM control bits (STA, STO, SI, AA) are packed in one register CTL0. We cannot control interrupt through
-    //       INTEN bit without impacting FSM control bits. Use NVIC_EnableIRQ/NVIC_DisableIRQ instead for interrupt control.
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(s_I2cName);
-    i2c_base->CTL0 |= (I2C_CTL0_INTEN_Msk | I2C_CTL0_I2CEN_Msk);
-		
-		// Slave mode?
-		platform_i2c_mode(s_I2cName, i2c->config.mode);		
+        // NOTE: Setting I2C bus clock to 100 KHz is required.
+        I2C_Open((I2C_T *) NU_MODBASE(s_I2cName), 100000);
+        
+        // NOTE: INTEN bit and FSM control bits (STA, STO, SI, AA) are packed in one register CTL0. We cannot control interrupt through
+        //       INTEN bit without impacting FSM control bits. Use NVIC_EnableIRQ/NVIC_DisableIRQ instead for interrupt control.
+        I2C_T *i2c_base = (I2C_T *) NU_MODBASE(s_I2cName);
+        i2c_base->CTL0 |= (I2C_CTL0_INTEN_Msk | I2C_CTL0_I2CEN_Msk);
+        
+        // Slave mode?
+        platform_i2c_mode(s_I2cName, i2c->config.mode);     
 
-	} // if (! var->ref_cnt)
-	
-	var->ref_cnt ++;
-	
-	if ( var->ref_cnt ) {
-		// Mark this module to be inited.
-		int i = modinit - i2c_modinit_tab;
-		i2c_modinit_mask |= 1 << i;
-  }
-	
-	return HAL_OK;
-	
+        var->obj = pi2c_s;
+    } // if (! var->ref_cnt)
+    
+    var->ref_cnt ++;
+    
+    if ( var->ref_cnt ) {
+        // Mark this module to be inited.
+        int i = modinit - i2c_modinit_tab;
+        i2c_modinit_mask |= 1 << i;
+    }
+    
+    return HAL_OK;
+    
 exit_hal_i2c_init:
-	return HAL_ERROR;
+    return HAL_ERROR;
 }
 
 
@@ -712,30 +713,30 @@ exit_hal_i2c_init:
 int32_t hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *data,
                             uint16_t size, uint32_t timeout)
 {
-	struct nu_modinit_s *modinit;
-	struct i2c_s* pi2c_s;
+    struct nu_modinit_s *modinit;
+    struct i2c_s* pi2c_s;
   struct nu_i2c_var *var;
 
-	if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
-		goto exit_hal_i2c_master_send;
-	
-	modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
-	/* Valid? */
-	if ( !modinit ) goto exit_hal_i2c_master_send;
-	
-	var = modinit->var;	
-	/* Initialized? */
-	if ( !var->ref_cnt ) goto exit_hal_i2c_master_send;
-	
-	if ( size != platform_i2c_master_write(pi2c_s, dev_addr, data, size, 1) )
-		goto exit_hal_i2c_master_send;
-	
-	return HAL_OK;
+    if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
+        goto exit_hal_i2c_master_send;
+    
+    modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
+    /* Valid? */
+    if ( !modinit ) goto exit_hal_i2c_master_send;
+    
+    var = modinit->var; 
+    /* Initialized? */
+    if ( !var->ref_cnt ) goto exit_hal_i2c_master_send;
+    
+    if ( size != platform_i2c_master_write(pi2c_s, dev_addr, data, size, 1) )
+        goto exit_hal_i2c_master_send;
+    
+    return HAL_OK;
 
-	
+    
 exit_hal_i2c_master_send:
-	
-	return HAL_ERROR;
+    
+    return HAL_ERROR;
 }
 
 /**
@@ -753,29 +754,29 @@ exit_hal_i2c_master_send:
 int32_t hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
                             uint16_t size, uint32_t timeout)
 {
-	struct nu_modinit_s *modinit;
-	struct i2c_s* pi2c_s;
+    struct nu_modinit_s *modinit;
+    struct i2c_s* pi2c_s;
   struct nu_i2c_var *var;
 
-	if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
-		goto exit_hal_i2c_master_recv;
-	
-	modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
-	/* Valid? */
-	if ( !modinit ) goto exit_hal_i2c_master_recv;
-	
-	var = modinit->var;	
-	/* Initialized? */
-	if ( !var->ref_cnt ) goto exit_hal_i2c_master_recv;
-	
-	if ( size != platform_i2c_master_read(pi2c_s, dev_addr, data, size, 1) )
-		goto exit_hal_i2c_master_recv;
-	
-	return HAL_OK;
-	
+    if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
+        goto exit_hal_i2c_master_recv;
+    
+    modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
+    /* Valid? */
+    if ( !modinit ) goto exit_hal_i2c_master_recv;
+    
+    var = modinit->var; 
+    /* Initialized? */
+    if ( !var->ref_cnt ) goto exit_hal_i2c_master_recv;
+    
+    if ( size != platform_i2c_master_read(pi2c_s, dev_addr, data, size, 1) )
+        goto exit_hal_i2c_master_recv;
+    
+    return HAL_OK;
+    
 exit_hal_i2c_master_recv:
-	
-	return HAL_ERROR;}
+    
+    return HAL_ERROR;}
 
 /**
  * I2c slave send
@@ -790,28 +791,28 @@ exit_hal_i2c_master_recv:
  */
 int32_t hal_i2c_slave_send(i2c_dev_t *i2c, const uint8_t *data, uint16_t size, uint32_t timeout)
 {
-	struct nu_modinit_s *modinit;
-	struct i2c_s* pi2c_s;
+    struct nu_modinit_s *modinit;
+    struct i2c_s* pi2c_s;
   struct nu_i2c_var *var;
 
-	if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
-		goto exit_hal_i2c_slave_send;
-	
-	modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
-	/* Valid? */
-	if ( !modinit ) goto exit_hal_i2c_slave_send;
-	
-	var = modinit->var;	
-	/* Initialized? */
-	if ( !var->ref_cnt ) goto exit_hal_i2c_slave_send;
-	
-	if ( size != platform_i2c_slave_write(pi2c_s, data, size) )
-		goto exit_hal_i2c_slave_send;
-	
-	return HAL_OK;
-	
+    if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
+        goto exit_hal_i2c_slave_send;
+    
+    modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
+    /* Valid? */
+    if ( !modinit ) goto exit_hal_i2c_slave_send;
+    
+    var = modinit->var; 
+    /* Initialized? */
+    if ( !var->ref_cnt ) goto exit_hal_i2c_slave_send;
+    
+    if ( size != platform_i2c_slave_write(pi2c_s, data, size) )
+        goto exit_hal_i2c_slave_send;
+    
+    return HAL_OK;
+    
 exit_hal_i2c_slave_send:
-	return HAL_ERROR;
+    return HAL_ERROR;
 }
 
 /**
@@ -827,28 +828,28 @@ exit_hal_i2c_slave_send:
  */
 int32_t hal_i2c_slave_recv(i2c_dev_t *i2c, uint8_t *data, uint16_t size, uint32_t timeout)
 {
-	struct nu_modinit_s *modinit;
-	struct i2c_s* pi2c_s;
+    struct nu_modinit_s *modinit;
+    struct i2c_s* pi2c_s;
   struct nu_i2c_var *var;
 
-	if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
-		goto exit_hal_i2c_slave_recv;
-	
-	modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
-	/* Valid? */
-	if ( !modinit ) goto exit_hal_i2c_slave_recv;
-	
-	var = modinit->var;	
-	/* Initialized? */
-	if ( !var->ref_cnt ) goto exit_hal_i2c_slave_recv;
-	
-	if ( size != platform_i2c_slave_read(pi2c_s, data, size) )
-		goto exit_hal_i2c_slave_recv;
-	
-	return HAL_OK;
-	
+    if ( !(pi2c_s = hal_get_i2c_s ( i2c )) )
+        goto exit_hal_i2c_slave_recv;
+    
+    modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
+    /* Valid? */
+    if ( !modinit ) goto exit_hal_i2c_slave_recv;
+    
+    var = modinit->var; 
+    /* Initialized? */
+    if ( !var->ref_cnt ) goto exit_hal_i2c_slave_recv;
+    
+    if ( size != platform_i2c_slave_read(pi2c_s, data, size) )
+        goto exit_hal_i2c_slave_recv;
+    
+    return HAL_OK;
+    
 exit_hal_i2c_slave_recv:
-	return HAL_ERROR;
+    return HAL_ERROR;
 
 }
 
@@ -870,7 +871,7 @@ int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
                           uint16_t mem_addr_size, const uint8_t *data, uint16_t size,
                           uint32_t timeout)
 {
-	return HAL_OK;
+    return HAL_OK;
 }
 
 /**
@@ -891,7 +892,7 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
                          uint16_t mem_addr_size, uint8_t *data, uint16_t size,
                          uint32_t timeout)
 {
-	return HAL_OK;
+    return HAL_OK;
 }
 
 /**
@@ -903,52 +904,52 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
  */
 int32_t hal_i2c_finalize(i2c_dev_t *i2c)
 {
-	struct i2c_s* pi2c_s;
-	struct nu_modinit_s *modinit;
-	struct nu_i2c_var *var;
-	I2C_T *pI2c;
+    struct i2c_s* pi2c_s;
+    struct nu_modinit_s *modinit;
+    struct nu_i2c_var *var;
+    I2C_T *pI2c;
 
-	pi2c_s = hal_get_i2c_s ( i2c );
-	if ( !pi2c_s )
-		goto exit_hal_i2c_finalize;
+    pi2c_s = hal_get_i2c_s ( i2c );
+    if ( !pi2c_s )
+        goto exit_hal_i2c_finalize;
 
-	modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
-	/* Valid? */
-	if ( !modinit ) goto exit_hal_i2c_finalize;
+    modinit = get_modinit(pi2c_s->i2c, i2c_modinit_tab);
+    /* Valid? */
+    if ( !modinit ) goto exit_hal_i2c_finalize;
 
-	var = (struct nu_i2c_var *)modinit->var;
-	/* Initialized? */
-	if ( !var->ref_cnt ) goto exit_hal_i2c_finalize;
+    var = (struct nu_i2c_var *)modinit->var;
+    /* Initialized? */
+    if ( !var->ref_cnt ) goto exit_hal_i2c_finalize;
 
-	pI2c = (UART_T *) NU_MODBASE(pi2c_s->i2c);
-	
-	var->ref_cnt --;
-	
-	if (! var->ref_cnt) {
-		
-		do {
-					I2C_Close(pI2c);
-			
-					platform_i2c_disable_int(pi2c_s);
+    pI2c = (UART_T *) NU_MODBASE(pi2c_s->i2c);
+    
+    var->ref_cnt --;
+    
+    if (! var->ref_cnt) {
+        
+        do {
+                    I2C_Close(pI2c);
+            
+                    platform_i2c_disable_int(pi2c_s);
 
-					// Disable IP clock
-					CLK_DisableModuleClock(modinit->clkidx);
-			
-		} while (0);
-		
-		/* Unlink parent and children. */
-		var->obj = NULL ;
-	}
+                    // Disable IP clock
+                    CLK_DisableModuleClock(modinit->clkidx);
+            
+        } while (0);
+        
+        /* Unlink parent and children. */
+        var->obj = NULL ;
+    }
 
-	if (! var->ref_cnt) {
-		// Mark this module to be deinited.
-		int i = modinit - i2c_modinit_tab;
-		i2c_modinit_mask &= ~(1 << i);
-	}
+    if (! var->ref_cnt) {
+        // Mark this module to be deinited.
+        int i = modinit - i2c_modinit_tab;
+        i2c_modinit_mask &= ~(1 << i);
+    }
 
-	return HAL_OK;
+    return HAL_OK;
     
 exit_hal_i2c_finalize:
 
-	return HAL_ERROR;
+    return HAL_ERROR;
 }
