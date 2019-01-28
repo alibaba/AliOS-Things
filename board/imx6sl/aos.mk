@@ -9,7 +9,7 @@ HOST_MCU_FAMILY    := mcu_imx6
 HOST_MCU_NAME      := imx6sl
 SUPPORT_MBINS      := no
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
 
 $(NAME)_SOURCES := board.c
 

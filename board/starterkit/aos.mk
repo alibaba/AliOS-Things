@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 ENABLE_VFP         := 1
 HOST_MCU_NAME      := STM32L433CCTx
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
 
 $(NAME)_SOURCES += aos/board.c     \
                    aos/board_cli.c \

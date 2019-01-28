@@ -10,7 +10,7 @@ SUPPORT_MBINS      := no
 HOST_MCU_NAME      := STM32F412ZGTX
 ENABLE_VFP         := 1
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
 
 $(NAME)_SOURCES += aos/board_partition.c \
                    aos/soc_init.c
