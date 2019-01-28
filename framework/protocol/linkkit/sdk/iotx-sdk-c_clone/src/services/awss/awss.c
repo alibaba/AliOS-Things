@@ -36,7 +36,7 @@ int awss_success_notify(void)
     g_user_press = 0;
     awss_press_timeout();
 
-    awss_cmp_local_init();
+    awss_cmp_local_init(AWSS_LC_INIT_SUC);
     awss_suc_notify_stop();
     awss_suc_notify();
     awss_start_connectap_monitor();
@@ -69,7 +69,7 @@ int awss_start(void)
                     break;
 
                 if (os_sys_net_is_ready()) { // skip the adha failed
-                    awss_cmp_local_init();
+                    awss_cmp_local_init(AWSS_LC_INIT_ROUTER);
 
                     awss_open_adha_monitor();
                     while (!awss_is_ready_switch_next_adha()) {
@@ -98,7 +98,7 @@ int awss_start(void)
             if (os_sys_net_is_ready()) {
                 awss_open_aha_monitor();
 
-                awss_cmp_local_init();
+                awss_cmp_local_init(AWSS_LC_INIT_PAP);
                 char dest_ap = 0;
                 while (!awss_aha_monitor_is_timeout()) {
                     memset(ssid, 0, sizeof(ssid));

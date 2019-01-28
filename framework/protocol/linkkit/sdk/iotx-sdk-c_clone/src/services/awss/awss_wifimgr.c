@@ -223,7 +223,7 @@ int wifimgr_process_get_wifilist_request(void *ctx, void *resource, void *remote
     char topic[TOPIC_LEN_MAX] = {0};
     awss_build_topic((const char *)TOPIC_AWSS_WIFILIST, topic, TOPIC_LEN_MAX);
     memcpy(&g_wifimgr_req_sa, remote, sizeof(g_wifimgr_req_sa));
-    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), &g_wifimgr_req_sa, topic, request))
+    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), &g_wifimgr_req_sa, topic, request, NULL, NULL, 0))
         awss_debug("sending failed.");
 
     HAL_Timer_Start(scan_req_timer, 1);
@@ -364,7 +364,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     char topic[TOPIC_LEN_MAX] = {0};
     awss_build_topic((const char *)TOPIC_AWSS_SWITCHAP, topic, TOPIC_LEN_MAX);
     for (i = 0; i < 5; i ++) {
-        if (0 != awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request)) {
+        if (0 != awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request, NULL, NULL, 0)) {
             awss_debug("sending failed.");
         } else {
             awss_debug("sending succeeded.");

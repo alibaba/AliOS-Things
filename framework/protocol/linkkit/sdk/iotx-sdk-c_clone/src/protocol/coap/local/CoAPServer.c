@@ -183,13 +183,11 @@ void CoAPServer_deinit(CoAPContext *context)
         HAL_MutexDestroy(coap_yield_mutex);
         coap_yield_mutex = NULL;
     }
-    //HAL_ThreadDelete(g_coap_thread);
 #endif
     if (NULL != context) {
         CoAPContext_free(context);
         g_context = NULL;
     }
-    //HAL_SleepMs(1000);
 }
 
 int CoAPServer_register(CoAPContext *context, const char *uri, CoAPRecvMsgHandler callback)
@@ -227,7 +225,7 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
     CoAPServerPath_2_option((char *)uri, &message);
     CoAPUintOption_add(&message, COAP_OPTION_CONTENT_FORMAT, COAP_CT_APP_JSON);
     CoAPMessagePayload_set(&message, buff, len);
-    *msgid = message.header.msgid;
+    if (msgid) *msgid = message.header.msgid;
     ret = CoAPMessage_send(context, remote, &message);
 
     CoAPMessage_destory(&message);
@@ -236,7 +234,7 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
 }
 
 int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char *buff, unsigned short len, void *req,
-                        const char *paths)
+                        const char *paths, CoAPSendMsgHandler callback, unsigned short *msgid, char qos)
 {
     int ret = COAP_SUCCESS;
     CoAPMessage response;
@@ -249,10 +247,12 @@ int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char
     }
 
     CoAPMessage_init(&response);
-    CoAPMessageType_set(&response, COAP_MESSAGE_TYPE_NON);
+    CoAPMessageType_set(&response, qos == 0 ? COAP_MESSAGE_TYPE_NON :COAP_MESSAGE_TYPE_CON);
     CoAPMessageCode_set(&response, COAP_MSG_CODE_205_CONTENT);
     CoAPMessageId_set(&response, request->header.msgid);
     CoAPMessageToken_set(&response, request->token, request->header.tokenlen);
+    CoAPMessageHandler_set(&response, callback);
+    if (msgid) *msgid = response.header.msgid;
 
     ret = CoAPUintOption_get(request, COAP_OPTION_OBSERVE, &observe);
     if (COAP_SUCCESS == ret && 0 == observe) {

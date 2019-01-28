@@ -554,6 +554,10 @@ static int CoAPAckMessage_handle(CoAPContext *context, CoAPMessage *message)
     HAL_MutexLock(ctx->sendlist.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->sendlist.list, sendlist, CoAPSendNode) {
         if (node->header.msgid == message->header.msgid) {
+            CoAPSendMsgHandler handler = node->handler;
+            void *user_data = node->user;
+            NetworkAddr remote = {0};
+            memcpy(&remote, &node->remote, sizeof(remote));
             node->acked = 1;
             if (CoAPRespMsg(node->header)) { //CON response message
                 list_del(&node->sendlist);
@@ -563,6 +567,7 @@ static int CoAPAckMessage_handle(CoAPContext *context, CoAPMessage *message)
                 COAP_DEBUG("The CON response message %d receive ACK, remove it", message->header.msgid);
             }
             HAL_MutexUnlock(ctx->sendlist.list_mutex);
+            if (handler) handler(ctx, COAP_RECV_RESP_SUC, user_data, &remote, NULL);
             return COAP_SUCCESS;
         }
     }
@@ -666,7 +671,6 @@ static int CoAPRespMessage_handle(CoAPContext *context, NetworkAddr *remote, CoA
 #endif
             HAL_MutexUnlock(ctx->sendlist.list_mutex);
             COAP_FLOW("Call the response message callback %p", handler);
-            //node->handler(ctx, COAP_REQUEST_SUCCESS, node->user, remote, message);
             handler(ctx, COAP_REQUEST_SUCCESS, message->user, remote, message);
         } else {
             HAL_MutexUnlock(ctx->sendlist.list_mutex);
@@ -884,6 +888,9 @@ int CoAPMessage_retransmit(CoAPContext *context)
                 if ((node->timeout > COAP_MAX_TRANSMISSION_SPAN)
                     || (node->retrans_count >= COAP_MAX_RETRY_COUNT
                         && !node->keep)) {
+                    void *user_data = node->user;
+                    NetworkAddr remote = {0};
+                    memcpy(&remote, &node->remote, sizeof(remote));
                     if (NULL != ctx->notifier) {
                         /* TODO: */
                         /* context->notifier(context, event); */
@@ -898,7 +905,7 @@ int CoAPMessage_retransmit(CoAPContext *context)
 #endif
                     HAL_MutexUnlock(ctx->sendlist.list_mutex);
                     if (NULL != node->handler) {
-                        node->handler(ctx, COAP_RECV_RESP_TIMEOUT, node->user, &node->remote, NULL);
+                        node->handler(ctx, COAP_RECV_RESP_TIMEOUT, user_data, &remote, NULL);
                     }
                     coap_free(node->message);
                     coap_free(node);
