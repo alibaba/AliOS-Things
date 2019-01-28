@@ -72,16 +72,9 @@ done:
 
 int k_delayed_work_cancel(struct k_delayed_work *work)
 {
-    int err = 0;
-
-    if (atomic_test_bit(work->work.flags, K_WORK_STATE_PENDING)) {
-        err = -EINPROGRESS;
-        goto exit;
-    }
+    atomic_clear_bit(work->work.flags, K_WORK_STATE_PENDING);
     k_work_rm_from_queue(&g_work_queue.queue, (struct k_work *)work);
-
-exit:
-    return err;
+    return 0;
 }
 
 s32_t k_delayed_work_remaining_get(struct k_delayed_work *work)
