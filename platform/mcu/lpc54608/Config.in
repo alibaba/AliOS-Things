@@ -5,7 +5,7 @@ menuconfig AOS_MCU_LPC54608IMPL
     select AOS_COMP_NETMGR
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
-    select AOS_COMP_LIBC
+    select AOS_COMP_NEWLIB_STUB
     help
       driver & sdk for platform/mcu lpc54608impl
 
