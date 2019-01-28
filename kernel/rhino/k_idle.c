@@ -29,7 +29,12 @@ void idle_task(void *arg)
             task_del = krhino_list_entry(head->next, ktask_t, task_del_item);
             if (task_del->cur_exc == 0) {
                 klist_rm(&task_del->task_del_item);
-                krhino_task_dyn_del(task_del);
+                if (task_del->mm_alloc_flag == K_OBJ_DYN_ALLOC) {
+                    krhino_task_dyn_del(task_del);
+                }
+                else {
+                    krhino_task_del(task_del);
+                }
             }
         }
         RHINO_CPU_INTRPT_ENABLE();
