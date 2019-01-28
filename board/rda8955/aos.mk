@@ -9,7 +9,7 @@ HOST_ARCH          := MIPS-I
 HOST_MCU_FAMILY    := mcu_RDA8955
 HOST_MCU_NAME      := rda8955
 
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
 
 GLOBAL_INCLUDES += .
 
