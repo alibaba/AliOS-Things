@@ -9,10 +9,9 @@
 
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
+#include "aos/yloop.h"
 
 #include <atparser.h>
-#include <sal_arch.h>
-#include <sal_ipaddr.h>
 #include <sal_import.h>
 
 #define TAG "sim800_gprs_module"
@@ -20,8 +19,8 @@
 #define SIM800_AT_CMD_SUCCESS_RSP "OK"
 #define SIM800_AT_CMD_FAIL_RSP "ERROR"
 
-#define AT_CMD_TEST "AT\r\n"
-#define AT_CMD_TEST_RESULT "\r\nOK\r\n"
+#define AT_CMD_TEST "AT"
+#define AT_CMD_TEST_RESULT "OK\r\n"
 
 #define AT_CMD_ECHO_OFF   "ATE0"
 #define AT_CMD_BAUDRATE_SET "AT+IPR"
@@ -36,7 +35,6 @@
 
 #define AT_CMD_GPRS_PDP_DEACTIVE "AT+CIPSHUT"
 #define AT_CMD_MULTI_IP_CONNECTION "AT+CIPMUX"
-#define AT_CMD_TCPIP_MODE "AT+CIPMODE"
 #define AT_CMD_SEND_DATA_PROMPT_SET "AT+CIPSPRT"
 #define AT_CMD_RECV_DATA_FORMAT_SET "AT+CIPSRIP"
 
@@ -69,6 +67,8 @@
 #define SIM800_DOMAIN_CMD_LEN (sizeof(AT_CMD_DOMAIN_TO_IP) + SIM800_DOMAIN_MAX_LEN + 1)
 
 #define SIM800_CONN_CMD_LEN   (SIM800_DOMAIN_MAX_LEN + SIM800_DEFAULT_CMD_LEN)
+
+#define SIM800_RETRY_MAX          50
 /* Change to include data slink for each link id respectively. <TODO> */
 typedef struct link_s {
     int fd;
@@ -81,10 +81,9 @@ static link_t g_link[SIM800_MAX_LINK_NUM];
 static aos_mutex_t g_link_mutex;
 static aos_mutex_t g_domain_mutex;
 static aos_sem_t   g_domain_sem;
-static char *g_pcdomain_rsp = NULL;
-
+static char  g_pcdomain_rsp[SIM800_DOMAIN_RSP_MAX_LEN];
+static char  g_pccmd[SIM800_CONN_CMD_LEN];
 static netconn_data_input_cb_t g_netconn_data_input_cb;
-
 
 static int fd_to_linkid(int fd)
 {
@@ -112,12 +111,7 @@ static void sim800_gprs_domain_rsp_callback(void *arg, char *rspinfo, int rsplen
         return;
     }
 
-    if (NULL == g_pcdomain_rsp) {
-        LOGE(TAG, "domain rsp is %s but buffer is NULL \r\n", rspinfo);
-        return;
-    }
-
-    printf("get domain rsp %s \r\n", rspinfo);
+    LOGI(TAG, "get domain rsp %s \r\n", rspinfo);
     memcpy(g_pcdomain_rsp, rspinfo, rsplen);
     aos_sem_signal(&g_domain_sem);
     return;
@@ -218,7 +212,6 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
         remoteport = remoteport * 10 + port[j] - '0';
     }
 
-    //printf("link %d get data from %s %s ,len %s \r\n", linkid, ipaddr, port, datalen);
     /* Prepare socket data */
     recvdata = (char *)aos_malloc(len + 1);
     if (!recvdata) {
@@ -242,55 +235,49 @@ static void sim800_gprs_module_socket_data_handle(void *arg, char *rspinfo, int 
     return;
 }
 
-static void at_start_test(void *psttimer, void *command)
+static int sim800_send_with_retry(const char *cmd, int cmdlen, bool delimiter, const char *data,
+                                  int datalen, char *rspbuf, int buflen, const char *expectrsp)
 {
-    int ret = 0;
-    static int flag = 0;
+    int retry = 0;
 
-    if (flag == 0) {
-        printf("send at command %s \r\n", command);
-        flag = 1;
+    if (NULL == cmd || 0 == cmdlen || NULL == rspbuf ||
+        0 == buflen || NULL == expectrsp) {
+        LOGE(TAG, "Invalid input %s %d\r\n", __func__, __LINE__);
+        return -1;
     }
 
-    ret = at_send_no_reply(command, strlen(command), false);
-    if (ret < 0) {
-        LOGE(TAG, "uart send command %s at %s %d failed ret is %d \r\n", command, __FILE__, __LINE__, ret);
+    while(true) {
+        retry++;
+        memset(rspbuf, 0, buflen);
+        at_send_wait_reply(cmd, cmdlen, delimiter, data, datalen, rspbuf, buflen, NULL);
+        if (strstr(rspbuf, expectrsp) == NULL) {
+            if (retry > SIM800_RETRY_MAX) {
+                return -1;
+            }
+
+            LOGE(TAG, "%s %d failed rsp %s retry count %d\r\n", __func__, __LINE__, rspbuf, retry);
+            aos_msleep(50);
+        } else {
+            break;
+        }
     }
 
+    return 0;
 }
 
 int sim800_uart_selfadaption(const char *command, const char *rsp, uint32_t rsplen)
 {
-    char *buffer = NULL;
-    int   ret    = 0;
-    aos_timer_t  test_timer;
+    char buffer[SIM800_DEFAULT_RSP_LEN] = {0};
 
     if (NULL == command || NULL == rsp || 0 == rsplen) {
         LOGE(TAG, "invalid input %s %d\r\n", __FILE__, __LINE__);
         return -1;
     }
 
-    buffer = aos_malloc(rsplen * 3 + 1);
-    if (NULL == buffer) {
-        LOGE(TAG, "fail to malloc memory size %d at %s %d \r\n", rsplen * 3, __FILE__, __LINE__);
+    if (sim800_send_with_retry(command, strlen(command), true, NULL, 0,
+                               buffer, SIM800_DEFAULT_RSP_LEN, rsp) < 0) {
         return -1;
     }
-
-    memset(buffer, 0, rsplen * 3 + 1);
-
-    aos_timer_new(&test_timer, at_start_test, command, 10, 1);
-    aos_timer_start(&test_timer);
-
-    while (true) {
-        ret = at_read(buffer, rsplen * 3);
-
-        if (ret > 0 && (strstr(buffer, rsp) != NULL)) {
-            break;
-        }
-    }
-    aos_timer_stop(&test_timer);
-    aos_timer_free(&test_timer);
-    aos_free(buffer);
 
     return 0;
 }
@@ -354,10 +341,9 @@ static int sim800_gprs_status_check(void)
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
 
     /*sim card status check*/
-    at_send_wait_reply(AT_CMD_SIM_PIN_CHECK, strlen(AT_CMD_SIM_PIN_CHECK), true,
-                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-        LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+    if (sim800_send_with_retry(AT_CMD_SIM_PIN_CHECK, strlen(AT_CMD_SIM_PIN_CHECK), true,
+        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
+        LOGE(TAG, "sim card status check failed\n");
         return -1;
     }
 
@@ -401,10 +387,9 @@ static int sim800_gprs_ip_init(void)
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
 
     /*Deactivate GPRS PDP Context*/
-    at_send_wait_reply(AT_CMD_GPRS_PDP_DEACTIVE, strlen(AT_CMD_GPRS_PDP_DEACTIVE), true,
-                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-        LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+    if (sim800_send_with_retry(AT_CMD_GPRS_PDP_DEACTIVE, strlen(AT_CMD_GPRS_PDP_DEACTIVE), true,
+        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
+        LOGE(TAG, "Deactivate GPRS PDP Context failed\n");
         return -1;
     }
 
@@ -417,17 +402,6 @@ static int sim800_gprs_ip_init(void)
         return -1;
     }
 
-#if 0
-    /*set tcpip mode in normal mode*/
-    memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
-    memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_TCPIP_MODE, 0);
-    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
-        LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
-        return -1;
-    }
-#endif
     /*not prompt echo > when sending data*/
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
@@ -453,7 +427,7 @@ static int sim800_gprs_ip_init(void)
 
 static void sim800_get_ip_delayed_action(void *arg)
 {
-    printf("post got ip event \r\n");
+    LOGD(TAG, "post got ip event \r\n");
     aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0xdeaddead);
 }
 
@@ -464,9 +438,8 @@ static int sim800_gprs_got_ip(void)
     atcmd_config_t atcmd_config = {NULL, AT_RECV_PREFIX, NULL};
 
     /*start gprs stask*/
-    at_send_wait_reply(AT_CMD_START_TASK, strlen(AT_CMD_START_TASK), true,
-                       NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
+    if (sim800_send_with_retry(AT_CMD_START_TASK, strlen(AT_CMD_START_TASK), true,
+        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
@@ -477,20 +450,15 @@ static int sim800_gprs_got_ip(void)
                        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
-        //return -1;
     }
 
     /*try to got ip*/
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
-
     at_send_wait_reply(AT_CMD_GOT_LOCAL_IP, strlen(AT_CMD_GOT_LOCAL_IP), true,
                        NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, &atcmd_config);
     if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
-        //return -1;
     }
-
-    printf("sim800 got ip %s \r\n", rsp);
 
     /*delay 5 seconds to post got ip event*/
     aos_post_delayed_action(5000, sim800_get_ip_delayed_action, NULL);
@@ -518,12 +486,6 @@ int HAL_SAL_Init(void)
     if (inited) {
         LOGI(TAG, "sim800 gprs module have already inited \r\n");
         return 0;
-    }
-
-    g_pcdomain_rsp = aos_malloc(SIM800_DOMAIN_RSP_MAX_LEN);
-    if (NULL == g_pcdomain_rsp) {
-        LOGE(TAG, "%s %d failed \r\n", __func__, __LINE__);
-        goto err;
     }
 
     memset(g_pcdomain_rsp , 0, SIM800_DOMAIN_RSP_MAX_LEN);
@@ -580,11 +542,6 @@ int HAL_SAL_Init(void)
 
     return 0;
 err:
-    if (g_pcdomain_rsp != NULL) {
-        aos_free(g_pcdomain_rsp);
-        g_pcdomain_rsp = NULL;
-    }
-
     if (aos_mutex_is_valid(&g_link_mutex)) {
         aos_mutex_free(&g_link_mutex);
     }
@@ -616,6 +573,7 @@ int HAL_SAL_DomainToIp(char *domain, char ip[16])
     char *pccmd = NULL;
     char *head = NULL;
     char *end = NULL;
+    int count = 0;
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
 
     if (!inited) {
@@ -633,7 +591,7 @@ int HAL_SAL_DomainToIp(char *domain, char ip[16])
         return -1;
     }
 
-    pccmd = aos_malloc(SIM800_DOMAIN_CMD_LEN);
+    pccmd = g_pccmd;
     if (NULL == pccmd) {
         LOGE(TAG, "fail to malloc memory %d at %s \r\n", SIM800_DOMAIN_CMD_LEN, __func__);
         return -1;
@@ -644,6 +602,13 @@ int HAL_SAL_DomainToIp(char *domain, char ip[16])
 
     aos_mutex_lock(&g_domain_mutex, AOS_WAIT_FOREVER);
 restart:
+    count++;
+    if (count > SIM800_RETRY_MAX) {
+        LOGE(TAG,"domain to ip retry failed!\r\n");
+        HAL_MutexUnlock(g_domain_mutex);
+        return -1;
+    }
+
     at_send_wait_reply(pccmd, strlen(pccmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
@@ -680,7 +645,7 @@ restart:
     memset(g_pcdomain_rsp, 0, SIM800_DOMAIN_RSP_MAX_LEN);
     aos_mutex_unlock(&g_domain_mutex);
 
-    printf("domain %s get ip %s \r\n", domain , ip);
+    LOGD(TAG, "domain %s get ip %s \r\n", domain , ip);
     return 0;
 err:
     if (sim800_gprs_get_ip_only() != 0) {
@@ -689,7 +654,6 @@ err:
         goto restart;
     }
 
-    aos_free(pccmd);
     memset(g_pcdomain_rsp, 0, SIM800_DOMAIN_RSP_MAX_LEN);
     aos_mutex_unlock(&g_domain_mutex);
 
@@ -711,16 +675,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
         LOGE(TAG, "%s %d - invalid input \r\n", __func__, __LINE__);
         return -1;
     }
-#if 0
-    /*if input addr is a domain, then turn it into ip addr */
-    if (sim800_gprs_module_domain_to_ip(conn->addr, ipaddr) != 0) {
-        if (strlen(conn->addr) >= sizeof(ipaddr)) {
-            LOGE(TAG, "%s invalid server addr %s \r\n", __func__, conn->addr);
-            return -1;
-        }
-        strcpy(ipaddr, conn->addr);
-    }
-#endif
+
     aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER);
     for (linkid = 0; linkid < SIM800_MAX_LINK_NUM; linkid++) {
         if (g_link[linkid].fd >= 0) {
@@ -736,7 +691,7 @@ int HAL_SAL_Start(sal_conn_t *conn)
         return -1;
     }
 
-    pccmd = aos_malloc(SIM800_CONN_CMD_LEN);
+    pccmd = g_pccmd;
     if (NULL == pccmd) {
         LOGE(TAG, "fail to malloc %d at %s \r\n", SIM800_CONN_CMD_LEN, __func__);
         goto err;
@@ -779,10 +734,8 @@ int HAL_SAL_Start(sal_conn_t *conn)
             goto err;
     }
 
-    aos_free(pccmd);
     return 0;
 err:
-    aos_free(pccmd);
     aos_mutex_lock(&g_link_mutex, AOS_WAIT_FOREVER);
     g_link[linkid].fd = -1;
     aos_mutex_unlock(&g_link_mutex);
@@ -846,9 +799,8 @@ int HAL_SAL_Send(int fd,
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d,%d", AT_CMD_SEND_DATA, linkid, len);
 
     /*TODO data send fail rsp is SEND FAIL*/
-    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)data, len,
-                        rsp, sizeof(rsp), NULL);
-    if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
+    if (sim800_send_with_retry((const char *)cmd, strlen(cmd), true, (const char *)data, len,
+        rsp, sizeof(rsp), SIM800_AT_CMD_SUCCESS_RSP) < 0) {
         LOGE(TAG, "cmd %s rsp %s at %s %d failed \r\n", cmd, rsp, __func__, __LINE__);
         return -1;
     }
