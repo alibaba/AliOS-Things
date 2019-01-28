@@ -16,7 +16,7 @@ ifeq ($(AOS_2BOOT_SUPPORT), yes)
 $(NAME)_LIBSUFFIX := _2boot
 GLOBAL_CFLAGS     += -DAOS_OTA_2BOOT_CLI
 else
-$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) init
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
 
 $(NAME)_SOURCES := board.c
 endif
