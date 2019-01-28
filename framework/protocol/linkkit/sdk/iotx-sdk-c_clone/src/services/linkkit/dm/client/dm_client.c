@@ -95,7 +95,7 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
 #else
     index = 0;
 #endif
-
+    fail_count = 0;
     len = 1;
     HAL_Snprintf(device_key, PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN, "qub_%s%s", product_key, device_name);
     HAL_Kv_Get(device_key, &local_sub, &len);
@@ -116,12 +116,13 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
             index--;
             continue;
         }
+
         res = _dm_client_subscribe_filter(uri, (char *)g_dm_client_uri_map[index].uri_name, product_key, device_name);
         if (res < SUCCESS_RETURN) {
             DM_free(uri);
             continue;
         }
-
+        
         res = dm_client_subscribe(uri, (void *)g_dm_client_uri_map[index].callback, &local_sub);
         if (res < SUCCESS_RETURN) {
             index--;
