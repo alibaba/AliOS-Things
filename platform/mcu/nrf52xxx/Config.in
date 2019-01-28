@@ -1,7 +1,7 @@
 menuconfig AOS_MCU_NRF52XXX
     bool "mcu_nrf52xxx"
     default n
-    select AOS_COMP_LIBC
+    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_BT_HOST
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
