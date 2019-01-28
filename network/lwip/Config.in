@@ -11,7 +11,7 @@ if AOS_COMP_LWIP
 # Configurations for comp lwip
 
 config AOS_LWIP_ENABLED
-    bool "FEATURE_AOS_LWIP_ENABLED"
+    bool "AOS LWIP"
     default y
     help
       Select aos lwip module or select other platform lwip or tcpip module.
@@ -21,7 +21,7 @@ config AOS_LWIP_ENABLED
 
 config AF_PACKET_ENABLED
     depends on AOS_LWIP_ENABLED
-    bool "FEATURE_AF_PACKET_ENABLED"
+    bool "AF_PACKET Socket"
     default n
     help
       support AF_PACKET socket.
@@ -33,7 +33,7 @@ menu "LWIP App Configurations"
     depends on AOS_LWIP_ENABLED
 
     config SNMP_ENABLED
-        bool "FEATURE_SNMP_ENABLED"
+        bool "SNMP"
         default n
         help
           Support SNMP module
@@ -42,7 +42,7 @@ menu "LWIP App Configurations"
           Switching to "n" leads to not support SNMP module
 
     config HTTPD_ENABLED
-        bool "FEATURE_HTTPD_ENABLED"
+        bool "HTTPD"
         default n
         help
           Support HTTPD module
@@ -51,7 +51,7 @@ menu "LWIP App Configurations"
           Switching to "n" leads to not support HTTPD module
 
     config LWIPERF_ENABLED
-        bool "FEATURE_LWIPERF_ENABLED"
+        bool "LWIPERF"
         default n
         help
           Support LWIPERF module
@@ -60,7 +60,7 @@ menu "LWIP App Configurations"
           Switching to "n" leads to not support LWIPERF module
 
     config SNTP_ENABLED
-        bool "FEATURE_SNTP_ENABLED"
+        bool "SNTP"
         default n
         help
           Support SNTP module
@@ -69,7 +69,7 @@ menu "LWIP App Configurations"
           Switching to "n" leads to not support SNTP module
 
     config MDNS_ENABLED
-        bool "FEATURE_MDNS_ENABLED"
+        bool "MDNS"
         default n
         help
           Support MDNS module
@@ -78,7 +78,7 @@ menu "LWIP App Configurations"
           Switching to "n" leads to not use MDNS module.
 
     config NETBIOSNS
-        bool "FEATURE_NETBIOSNS_ENABLED"
+        bool "NETBIOSNS"
         default n
         help
           Support NETBIOSNS module
@@ -87,7 +87,7 @@ menu "LWIP App Configurations"
           Switching to "n" leads to not support NETBIOSNS module
 
      config TFTP_ENABLED
-        bool "FEATURE_TFTP_ENABLED"
+        bool "TFTP"
         default y
         help
           Support TFTP module
@@ -97,7 +97,7 @@ menu "LWIP App Configurations"
 
 if TFTP_ENABLED
       config TFTP_FS
-        bool "FEATURE_TFTP_FS"
+        bool "TFTP_FS"
         default n
         help
           Support TFTP from File System
@@ -107,7 +107,7 @@ if TFTP_ENABLED
 endif
 
      config TELNETD_ENABLED
-        bool "FEATURE_TELNETD_ENABLED"
+        bool "TELNETD"
         default y
         help
           Support TELNETD module
@@ -116,7 +116,7 @@ endif
           Switching to "n" leads to not support TELNETD module
 
      config DHCPD_ENABLED
-        bool "FEATURE_DHCPD_ENABLED"
+        bool "DHCPD"
         default y
         help
           Support SNMP module
