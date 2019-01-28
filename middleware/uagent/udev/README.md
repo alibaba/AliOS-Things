@@ -25,6 +25,7 @@ The `aos ota` command upgrade remote devices quickly:
 
 ![](https://img.alicdn.com/tfs/TB1GINADwTqK1RjSZPhXXXfOFXa-919-571.gif)
 
+> need to update `aos-cube` to 0.3.0 or later.
 
 ##### udev architecture Overview
 
