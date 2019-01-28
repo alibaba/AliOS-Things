@@ -230,7 +230,7 @@ int bt_hci_cmd_send(u16_t opcode, struct net_buf *buf)
     return 0;
 }
 
-static void process_events(struct k_poll_event *ev, int count);
+void process_events(struct k_poll_event *ev, int count);
 int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp)
 {
     int err = 0;
@@ -2064,16 +2064,10 @@ int has_tx_sem(struct k_poll_event *event)
     return 1;
 }
 
-static void process_events(struct k_poll_event *ev, int count)
+void process_events(struct k_poll_event *ev, int count)
 {
-    //BT_DBG("count %d", count);
-
     for (; count; ev++, count--) {
-        //BT_DBG("ev->state %u", ev->state);
-
         switch (ev->state) {
-            case K_POLL_STATE_SIGNALED:
-                break;
             case K_POLL_STATE_FIFO_DATA_AVAILABLE:
                 if (ev->tag == BT_EVENT_CMD_TX) {
                     send_cmd();
@@ -2108,14 +2102,13 @@ static void process_events(struct k_poll_event *ev, int count)
 }
 
 #if defined(CONFIG_BT_CONN)
-/* command FIFO + conn_change signal + MAX_CONN * 2 (tx & tx_notify) */
-#define EV_COUNT (3 + (CONFIG_BT_MAX_CONN * 2))
+/* command FIFO + MAX_CONN * 2 (tx & tx_notify) */
+#define EV_COUNT (2 + (CONFIG_BT_MAX_CONN * 2))
 #else
 /* command FIFO */
 #define EV_COUNT 1
 #endif
 
-extern struct k_work_q g_work_queue;
 static void hci_tx_thread(void *p1, void *p2, void *p3)
 {
 #ifdef CONFIG_CONTROLLER_IN_ONE_TASK
@@ -2136,61 +2129,7 @@ static void hci_tx_thread(void *p1, void *p2, void *p3)
     };
 #endif
 
-    struct k_work *work;
-    uint32_t now;
-    int ev_count, err;
-    int delayed_ms = 0;
-
-    BT_DBG("Started");
-
-    while (1) {
-        ev_count = 0;
-        err = 0;
-        delayed_ms = 0;
-
-        if (k_queue_is_empty(&g_work_queue.queue) == 0) {
-            work = k_queue_first_entry(&g_work_queue.queue);
-            now = k_uptime_get_32();
-
-            if (now < (work->start_ms + work->timeout)) {
-                delayed_ms = work->start_ms + work->timeout - now;
-            }
-            delayed_ms = 1;
-        }
-
-#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
-        events[0].state = K_POLL_STATE_NOT_READY;
-        events[1].state = K_POLL_STATE_NOT_READY;
-        ev_count = 2;
-#else
-        events[0].state = K_POLL_STATE_NOT_READY;
-        ev_count = 1;
-#endif
-
-        if (IS_ENABLED(CONFIG_BT_CONN)) {
-            ev_count += bt_conn_prepare_events(&events[ev_count]);
-        }
-
-        //BT_DBG("Calling k_poll with %d events", ev_count);
-
-        if (delayed_ms == 0) {
-            delayed_ms = 1;
-        }
-        err = k_poll(events, ev_count, delayed_ms);
-        BT_ASSERT(err == 0);
-
-        process_events(events, ev_count);
-
-        if (k_queue_is_empty(&g_work_queue.queue) == 0) {
-            work = k_queue_first_entry(&g_work_queue.queue);
-            now = k_uptime_get_32();
-
-            if (now >= (work->start_ms + work->timeout)) {
-                k_queue_remove(&g_work_queue.queue, work);
-                work->handler(work);
-            }
-        }
-    }
+    scheduler_loop(events);
 }
 
 static void read_local_ver_complete(struct net_buf *buf)
@@ -3114,11 +3053,6 @@ int bt_enable(bt_ready_cb_t cb)
 
     ready_cb = cb;
 
-    /* TX thread */
-    k_thread_create(&tx_thread_data, tx_thread_stack,
-                    K_THREAD_STACK_SIZEOF(tx_thread_stack), hci_tx_thread, NULL,
-                    NULL, NULL, CONFIG_BT_HCI_TX_PRIO, 0, K_NO_WAIT);
-
 #if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
     /* RX thread */
     k_thread_create(&rx_thread_data, rx_thread_stack,
@@ -3142,6 +3076,12 @@ int bt_enable(bt_ready_cb_t cb)
     }
 
     k_work_submit(&bt_dev.init);
+
+    /* TX thread */
+    k_thread_create(&tx_thread_data, tx_thread_stack,
+                    K_THREAD_STACK_SIZEOF(tx_thread_stack), hci_tx_thread, NULL,
+                    NULL, NULL, CONFIG_BT_HCI_TX_PRIO, 0, K_NO_WAIT);
+
     return 0;
 }
 

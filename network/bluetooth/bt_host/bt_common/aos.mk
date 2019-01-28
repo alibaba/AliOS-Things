@@ -10,6 +10,7 @@ $(NAME)_SOURCES-y := ./atomic_c.c \
                      ./buf.c \
                      ./log.c \
                      ./poll.c \
+                     ./event_scheduler.c \
                      ./work.c \
                      ./queue.c \
                      ./tinycrypt/source/cmac_mode.c \
