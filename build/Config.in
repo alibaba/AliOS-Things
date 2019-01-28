@@ -29,10 +29,10 @@ config MBINS
     string
     option env="MBINS"
 
-config LWIP
-    int
-    range 0 1
-    option env="LWIP"
+#config LWIP
+#    int
+#    range 0 1
+#    option env="LWIP"
 
 endmenu
 
