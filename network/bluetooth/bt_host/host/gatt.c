@@ -81,11 +81,10 @@ static void sc_ccc_cfg_changed(const struct bt_gatt_attr *attr,
 }
 
 static struct bt_gatt_attr gatt_attrs[] = {
-	BT_GATT_PRIMARY_SERVICE(BT_UUID_GATT),
-	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_SC, BT_GATT_CHRC_INDICATE),
-	BT_GATT_DESCRIPTOR(BT_UUID_GATT_SC, BT_GATT_PERM_NONE,
-			   NULL, NULL, NULL),
-	BT_GATT_CCC(sc_ccc_cfg, sc_ccc_cfg_changed),
+    BT_GATT_PRIMARY_SERVICE(BT_UUID_GATT),
+    BT_GATT_CHARACTERISTIC(BT_UUID_GATT_SC, BT_GATT_CHRC_INDICATE),
+    BT_GATT_DESCRIPTOR(BT_UUID_GATT_SC, BT_GATT_PERM_NONE, NULL, NULL, NULL),
+    BT_GATT_CCC(sc_ccc_cfg, sc_ccc_cfg_changed),
 };
 
 static struct bt_gatt_service gatt_svc = BT_GATT_SERVICE(gatt_attrs);
@@ -941,7 +940,7 @@ static u8_t disconnected_cb(const struct bt_gatt_attr *attr, void *user_data)
 	/* Reset value while disconnected */
 	memset(&ccc->value, 0, sizeof(ccc->value));
 	if (ccc->cfg_changed) {
-		ccc->cfg_changed(attr, ccc->value);
+            ccc->cfg_changed(attr, ccc->value);
 	}
 
 	BT_DBG("ccc %p reseted", ccc);
