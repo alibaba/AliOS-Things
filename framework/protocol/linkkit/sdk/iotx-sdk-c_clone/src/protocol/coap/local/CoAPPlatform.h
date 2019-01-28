@@ -23,7 +23,7 @@ extern "C" {
 #define COAP_TRC(...)           log_debug("coap_local", __VA_ARGS__)
 #define COAP_DUMP(...)          log_debug("coap_local", __VA_ARGS__)
 #define COAP_DEBUG(...)         log_debug("coap_local", __VA_ARGS__)
-#define COAP_FLOW(...)          log_flow("coap_local", __VA_ARGS__)
+#define COAP_FLOW(...)          log_debug("coap_local", __VA_ARGS__)
 
 int platform_is_multicast(const char *ip_str);
 
