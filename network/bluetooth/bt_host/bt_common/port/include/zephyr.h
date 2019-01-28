@@ -137,7 +137,6 @@ extern "C"
         .mode = event_mode, .unused = 0, { .obj = event_obj },                 \
     }
 
-    extern int  k_poll_signal(struct k_poll_signal *signal, int result);
     extern int  k_poll(struct k_poll_event *events, int num_events,
                        s32_t timeout);
     extern void k_poll_event_init(struct k_poll_event *event, u32_t type,
