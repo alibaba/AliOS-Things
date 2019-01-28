@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_NETMGR
-    bool "network manager"
+    bool "Network Manager"
     default n
     select AOS_COMP_OSAL_AOS
     select AOS_COMP_KV
@@ -10,13 +10,26 @@ menuconfig AOS_COMP_NETMGR
 if AOS_COMP_NETMGR
 # Configurations for comp netmgr
 
-    config AOS_CONFIG_NET
-        string "Config network: wifi/cellular/blank"
-        default "wifi"
+choice
+    prompt "Config Network:"
+    default AOS_NET_WITH_WIFI
+    help
+      Choose right Network
 
-    config AOS_CONFIG_WIFI_SSID
-        bool "If use ssid in wifi network"
-        default n
-        depends on AOS_CONFIG_NET = "wifi"
+    config AOS_NET_WITH_CELLULAR
+        bool "Cellular"
+        help
+        support net with Cellular.
+
+    config AOS_NET_WITH_WIFI
+        bool "Wi-Fi"
+        help
+        support net with Wi-Fi.
+
+    config AOS_NET_WITH_BLANK
+        bool "Blank"
+        help
+        support net with BLANK.
+endchoice
 
 endif
