@@ -10,8 +10,16 @@ struct k_work_q g_work_queue;
 
 static void k_work_submit_to_queue(struct k_work_q *work_q, struct k_work *work)
 {
+    struct k_work *delayed_work = NULL;
+
     if (!atomic_test_and_set_bit(work->flags, K_WORK_STATE_PENDING)) {
-        k_queue_append(&work_q->queue, work);
+        SYS_SLIST_FOR_EACH_NODE(&g_work_queue.queue.data_q, delayed_work) {
+            if (delayed_work->timeout < work->timeout) {
+                break;
+            }
+        }
+
+        sys_slist_insert(&g_work_queue.queue.data_q, delayed_work, work);
     }
 }
 
@@ -37,7 +45,7 @@ int k_work_init(struct k_work *work, k_work_handler_t handler)
 
 void k_work_submit(struct k_work *work)
 {
-    k_work_submit_to_queue(&g_work_queue, work);
+    k_delayed_work_submit(work, 0);
 }
 
 void k_delayed_work_init(struct k_delayed_work *work, k_work_handler_t handler)
@@ -56,7 +64,7 @@ int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
 
     work->work.start_ms = k_uptime_get_32();
     work->work.timeout = delay;
-    k_work_submit_to_queue(&g_work_queue, (struct k_work *)work);
+    k_work_submit_to_queue(&g_work_queue.queue, work);
 
 done:
     return err;
@@ -70,7 +78,7 @@ int k_delayed_work_cancel(struct k_delayed_work *work)
         err = -EINPROGRESS;
         goto exit;
     }
-    k_work_rm_from_queue(&g_work_queue, (struct k_work *)work);
+    k_work_rm_from_queue(&g_work_queue.queue, (struct k_work *)work);
 
 exit:
     return err;
