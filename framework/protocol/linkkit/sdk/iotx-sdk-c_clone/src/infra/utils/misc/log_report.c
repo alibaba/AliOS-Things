@@ -222,6 +222,9 @@ void get_msgid(char *payload, int is_cloud)
         return;
     }
     found = strstr(payload, "{");
+    if (NULL == found) {
+        return;
+    }
     msg_num++;
     dm_msg_request_payload_t request;
     parse_msg_id(found, strlen(found), &request);
