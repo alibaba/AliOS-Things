@@ -3,7 +3,7 @@ menuconfig AOS_MCU_IMX6SL_SVC
     default n
     select AOS_COMP_RHINO
     select AOS_ARCH_ARMV7A_SVC
-    select AOS_COMP_LIBC
+    select AOS_COMP_NEWLIB_STUB
     help
       driver & sdk for platform/mcu imx6sl_svc
 
