@@ -3,7 +3,7 @@ menuconfig AOS_MCU_XM510
     default n
     select AOS_ARCH_ARMV7A
     select AOS_COMP_LWIP
-    select AOS_COMP_LIBC
+    select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_CRAMFS
     select AOS_COMP_JFFS2
     select AOS_COMP_CPLUSPLUS

@@ -1,7 +1,7 @@
 menuconfig AOS_MCU_LPC54102IMPL
     bool "mcu_lpc54102impl"
     default n
-    select AOS_COMP_LIBC
+    select AOS_COMP_NEWLIB_STUB
     select SAL_ENABLED
     select AOS_COMP_NETMGR
     select AOS_ARCH_ARMV7M
