@@ -216,13 +216,13 @@ void get_msgid(char *payload, int is_cloud)
         return;
     }
 
-    const char *interest = "{\"method\":\"thing.service.property.set";
+    const char *interest = "\"method\":\"thing.service.property.set";
     char *found = strstr(payload, interest);
     if (NULL == found) {
         return;
     }
+    found = strstr(payload, "{");
     msg_num++;
-
     dm_msg_request_payload_t request;
     parse_msg_id(found, strlen(found), &request);
     if (RUNNING == g_report_status) {
