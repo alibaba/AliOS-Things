@@ -126,6 +126,10 @@ config AOS_app_udataapp
     bool "udataapp"
     select AOS_APP_UDATAAPP
 
+config AOS_app_udevapp
+    bool "udevapp"
+    select AOS_APP_UDEVAPP
+
 config AOS_app_yts
     bool "yts"
     select AOS_APP_YTS

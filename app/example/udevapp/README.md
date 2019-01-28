@@ -7,6 +7,7 @@ The **udevapp** is a sample code for **udev**. using command: `aos ota udevapp@x
 ![](https://img.alicdn.com/tfs/TB1GINADwTqK1RjSZPhXXXfOFXa-919-571.gif)
 
 > The `productKey` and the `deviceName` will read from kv partition.
+> need to update `aos-cube` to 0.3.0 or later
 
 for more **udev** information, check [udev](../../middleware/uagent/udev).
 
@@ -37,6 +38,8 @@ udevapp
 - mk3080
 
 ### Running
+
+> need to update `aos-cube` to 0.3.0 or later
 
 Before running `aos ota udevapp@xxxx`, you need to set the `productKey` and `deviceName`, typing blow commands in board's console:
 
