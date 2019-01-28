@@ -55,6 +55,7 @@ static int _signal_poll_event(struct k_poll_event *event, u32_t state,
     if (event->type != K_POLL_TYPE_DATA_AVAILABLE || has_tx_sem(event)) {
         set_event_state(event, state);
     }
+    k_sem_give(&g_poll_sem);
     return 0;
 }
 
@@ -215,26 +216,4 @@ exit:
     clear_event_registrations(events, last_registered, key);
     irq_unlock(key);
     return 0;
-}
-
-
-int k_poll_signal(struct k_poll_signal *signal, int result)
-{
-    unsigned int         key = irq_lock();
-    struct k_poll_event *poll_event;
-    int                  must_reschedule;
-
-    signal->result   = result;
-    signal->signaled = 1;
-
-    poll_event = (struct k_poll_event *)sys_dlist_get(&signal->poll_events);
-    if (!poll_event) {
-        irq_unlock(key);
-        return 0;
-    }
-
-    int rc = _signal_poll_event(poll_event, K_POLL_STATE_SIGNALED, &must_reschedule);
-
-    irq_unlock(key);
-    return rc;
 }
