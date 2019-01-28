@@ -312,7 +312,7 @@ static u8_t att_handle_rsp(struct bt_att *att, void *pdu, u16_t len, u8_t err)
     }
 
     /* Reset func so it can be reused by the callback */
-    func           = att->req->func;
+    func = att->req->func;
     att->req->func = NULL;
 
     if (func) {
@@ -1921,7 +1921,7 @@ static void att_timeout(struct k_work *work)
     struct bt_att *att = CONTAINER_OF(work, struct bt_att, timeout_work);
     struct bt_l2cap_le_chan *ch = &att->chan;
 
-    BT_ERR("ATT Timeout");
+    BT_ERR("%s, ATT Timeout", __func__);
 
     /* BLUETOOTH SPECIFICATION Version 4.2 [Vol 3, Part F] page 480:
      *
