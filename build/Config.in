@@ -19,22 +19,9 @@ config AOS_BUILD_APP
     help
       This option holds the name of the application that is going to build.
 
-menu "Build Setup"
-config ENABLE_USPACE
-    int "ENABLE_USPACE"
-    default 1
-    help
-
 config MBINS
     string
     option env="MBINS"
-
-#config LWIP
-#    int
-#    range 0 1
-#    option env="LWIP"
-
-endmenu
 
 ## --- Generated Automatically ---
 source "board/Config.in"
