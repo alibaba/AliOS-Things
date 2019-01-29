@@ -53,9 +53,22 @@ void k_queue_append_list(struct k_queue *queue, void *head, void *tail)
     handle_poll_events(queue, K_POLL_STATE_DATA_AVAILABLE);
 }
 
+extern void wait_for_event_done(int timeout);
 void *k_queue_get(struct k_queue *queue, s32_t timeout)
 {
-    return sys_slist_get(&queue->data_q);
+    void *buf = sys_slist_get(&queue->data_q);
+    uint32_t start_ms = k_uptime_get_32();
+
+    if (timeout == 0) {
+        return buf;
+    }
+
+    while (buf == NULL &&
+           ((timeout > 0 && (timeout >= (k_uptime_get_32() - start_ms))) || (timeout == K_FOREVER))) {
+        wait_for_event_done(timeout);
+        buf = sys_slist_get(&queue->data_q);
+    }
+    return buf;
 }
 
 int k_queue_is_empty(struct k_queue *queue)

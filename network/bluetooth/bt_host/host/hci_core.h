@@ -77,15 +77,6 @@ struct bt_dev_le {
 #endif /* CONFIG_BT_SMP */
 };
 
-#if defined(CONFIG_BT_BREDR)
-struct bt_dev_br {
-	/* Max controller's acceptable ACL packet length */
-	u16_t         mtu;
-	struct k_sem  pkts;
-	u16_t         esco_pkt_type;
-};
-#endif
-
 /* The theoretical max for these is 8 and 64, but there's no point
  * in allocating the full memory if we only support a small subset.
  * These values must be updated whenever the host implementation is

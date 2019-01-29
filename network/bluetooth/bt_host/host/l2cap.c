@@ -459,7 +459,7 @@ void bt_l2cap_send_cb(struct bt_conn *conn, u16_t cid, struct net_buf *buf, bt_c
 
     BT_DBG("%s, conn %p cid %u len %d", __func__, conn, cid, net_buf_frags_len(buf));
 
-    hdr      = net_buf_push(buf, sizeof(*hdr));
+    hdr = net_buf_push(buf, sizeof(*hdr));
     hdr->len = sys_cpu_to_le16(buf->len - sizeof(*hdr));
     hdr->cid = sys_cpu_to_le16(cid);
 
@@ -1484,20 +1484,18 @@ void bt_l2cap_recv(struct bt_conn *conn, struct net_buf *buf)
     net_buf_unref(buf);
 }
 
-int bt_l2cap_update_conn_param(struct bt_conn *               conn,
-                               const struct bt_le_conn_param *param)
+int bt_l2cap_update_conn_param(struct bt_conn *conn, const struct bt_le_conn_param *param)
 {
     struct bt_l2cap_conn_param_req *req;
-    struct net_buf *                buf;
+    struct net_buf *buf;
 
-    buf = l2cap_create_le_sig_pdu(NULL, BT_L2CAP_CONN_PARAM_REQ, get_ident(),
-                                  sizeof(*req));
+    buf = l2cap_create_le_sig_pdu(NULL, BT_L2CAP_CONN_PARAM_REQ, get_ident(), sizeof(*req));
 
-    req               = net_buf_add(buf, sizeof(*req));
+    req = net_buf_add(buf, sizeof(*req));
     req->min_interval = sys_cpu_to_le16(param->interval_min);
     req->max_interval = sys_cpu_to_le16(param->interval_max);
-    req->latency      = sys_cpu_to_le16(param->latency);
-    req->timeout      = sys_cpu_to_le16(param->timeout);
+    req->latency = sys_cpu_to_le16(param->latency);
+    req->timeout = sys_cpu_to_le16(param->timeout);
 
     bt_l2cap_send(conn, BT_L2CAP_CID_LE_SIG, buf);
 
