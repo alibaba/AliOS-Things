@@ -58,3 +58,22 @@ int aos_kv_del_by_prefix(const char *prefix)
 {
     return _kv_to_aos_res(kv_item_delete_by_prefix(prefix));
 }
+
+int aos_kv_secure_set(const char *key, const void *value, int len, int sync)
+{
+#if KV_SECURE_SUPPORT > 0
+    return _kv_to_aos_res(kv_item_secure_set(key, value, len));
+#else
+    return -ENOSYS;
+#endif
+}
+
+int aos_kv_secure_get(const char *key, void *buffer, int *buffer_len)
+{
+#if KV_SECURE_SUPPORT > 0
+    return _kv_to_aos_res(kv_item_secure_get(key, buffer, buffer_len));
+#else
+    return -ENOSYS;
+#endif
+}
+
