@@ -15,7 +15,7 @@
 
 #ifdef CSP_LINUXHOST
 #include <signal.h>
-#endif
+#endif /* CSP_LINUXHOST */
 
 #include "udev.h"
 
@@ -34,8 +34,7 @@ static void udev_app(void *unused)
 
     LOGI("udevapp", "starting udev_init\n");
 
-    if (aos_kv_get("productkey", pk, &pk_len) != 0 || aos_kv_get("devicename", dn, &dn_len) != 0)
-    {
+    if (aos_kv_get("productkey", pk, &pk_len) != 0 || aos_kv_get("devicename", dn, &dn_len) != 0){
         LOGI("udevapp", "found no pk&dn in kv, using default pk: "DEFAULT_PRODUCT_KEY", dn: "DEFAULT_DEVICE_NAME"\r\n");
         udev_init(DEFAULT_PRODUCT_KEY, DEFAULT_DEVICE_NAME);
         return;
@@ -68,11 +67,11 @@ int application_start(int argc, char **argv)
 {
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
-#endif
+#endif /* CSP_LINUXHOST */
 
 #ifdef WITH_SAL
     sal_init();
-#endif
+#endif /* WITH_SAL */
 
     aos_set_log_level(AOS_LL_DEBUG);
 
@@ -82,7 +81,7 @@ int application_start(int argc, char **argv)
 
 #ifdef CSP_LINUXHOST
     aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0xdeaddead);
-#endif
+#endif /* CSP_LINUXHOST */
 
     netmgr_start(false);
 
