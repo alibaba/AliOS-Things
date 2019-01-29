@@ -39,6 +39,9 @@ export OUTPUT_DIR  := $(BUILD_DIR)/$(CLEANED_BUILD_STRING)$(MBINS)
 export CONFIG_FILE := $(OUTPUT_DIR)/config.mk
 export AUTO_COMPONENT_DIR := $(OUTPUT_DIR)/auto_component
 
+# Enable .config/autoconf.h in build
+ifeq ($(NOCONFIG),)
+
 # Get AOS_BUILD_APP, AOS_BUILD_BOARD from BUILD_STRING for creating
 # AOS_CONFIG if it is not existing
 ifneq ($(BUILD_STRING),)
@@ -93,6 +96,7 @@ endif # $(wildcard $(AOS_CONFIG))
 export AOS_BUILD_APP = $(appname)
 export AOS_BUILD_BOARD = $(boardname)
 endif # $(BUILD_STRING)
+endif # $(NOCONFIG)
 
 # prebuild support
 include $(MAKEFILES_PATH)/aos_prebuild.mk
@@ -226,7 +230,10 @@ distclean: clean
 
 ifneq ($(BUILD_STRING),)
 -include $(OUTPUT_DIR)/config.mk
+
+ifeq ($(NOCONFIG),)
 -include $(AOS_CONFIG)
+endif
 
 # Include toolchain
 ifeq ($(IDE),iar)
@@ -262,9 +269,13 @@ $(TEST_COMPONENT_COLLECTION):
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
 
 # Target to create config.mk file
-$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MAKEFILE) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS) $(AOS_CONFIG_DIR)/autoconf.h
+$(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MAKEFILE) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_MAKEFILES),Applying changes made to: $?,Making config file for first time)
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_target_config.mk $(CLEANED_BUILD_STRING)
+
+ifeq ($(NOCONFIG),)
+$(OUTPUT_DIR)/config.mk: $(AOS_CONFIG_DIR)/autoconf.h
+endif
 
 endif # ifneq ($(BUILD_STRING),)
 
@@ -293,7 +304,11 @@ show-build-info:
 	$(QUIET)$(ECHO)
 
 .PHONY: prebuild
-prebuild: show-build-info $(AOS_PRE_BUILD_TARGETS)
+ifeq ($(NOCONFIG),)
+prebuild: show-build-info
+endif
+
+prebuild: $(AOS_PRE_BUILD_TARGETS)
 
 init-build-env: $(OUTPUT_DIR)/config.mk
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/binary)
