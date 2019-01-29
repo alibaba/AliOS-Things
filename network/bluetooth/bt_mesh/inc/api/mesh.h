@@ -10,7 +10,6 @@
 #ifndef __BT_MESH_H
 #define __BT_MESH_H
 
-//#include <zephyr/types.h>
 #include <stddef.h>
 #include <net/buf.h>
 

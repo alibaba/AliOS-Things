@@ -3,6 +3,12 @@
 
 #ifdef CONFIG_BT_MESH
 
+/*
+ * Include user defined options first. Anything not defined in these files
+ * will be set to standard values. Override anything you don't like!
+ */
+#include <bt_mesh_opt.h>
+
 #ifndef CONFIG_BT_MESH_MODEL_KEY_COUNT
 #define CONFIG_BT_MESH_MODEL_KEY_COUNT 2
 #endif
