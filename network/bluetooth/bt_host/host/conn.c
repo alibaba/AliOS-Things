@@ -153,7 +153,7 @@ bool le_param_req(struct bt_conn *conn, struct bt_le_conn_param *param)
 static void le_conn_update(struct k_work *work)
 {
     struct bt_conn_le *le = CONTAINER_OF(work, struct bt_conn_le, update_work);
-    struct bt_conn *   conn = CONTAINER_OF(le, struct bt_conn, le);
+    struct bt_conn *conn = CONTAINER_OF(le, struct bt_conn, le);
     struct bt_le_conn_param *param;
 
     if (IS_ENABLED(CONFIG_BT_CENTRAL) && conn->state == BT_CONN_CONNECT) {
@@ -545,7 +545,7 @@ static bool send_frag(struct bt_conn *conn, struct net_buf *buf, u8_t flags,
     sys_snode_t *          node;
     int                    err;
 
-    BT_DBG("conn %p buf %p len %u flags 0x%02x", conn, buf, buf->len, flags);
+    BT_DBG("%s, conn %p buf %p len %u flags 0x%02x", __func__, conn, buf, buf->len, flags);
 
     notify_tx();
 
@@ -753,10 +753,10 @@ struct bt_conn *bt_conn_add_le(const bt_addr_le_t *peer)
 
     bt_addr_le_copy(&conn->le.dst, peer);
 #if defined(CONFIG_BT_SMP)
-    conn->sec_level          = BT_SECURITY_LOW;
+    conn->sec_level = BT_SECURITY_LOW;
     conn->required_sec_level = BT_SECURITY_LOW;
 #endif /* CONFIG_BT_SMP */
-    conn->type            = BT_CONN_TYPE_LE;
+    conn->type = BT_CONN_TYPE_LE;
     conn->le.interval_min = BT_GAP_INIT_CONN_INT_MIN;
     conn->le.interval_max = BT_GAP_INIT_CONN_INT_MAX;
 
@@ -1244,11 +1244,10 @@ struct bt_conn *bt_conn_create_slave_le(const bt_addr_le_t *          peer,
 }
 #endif /* CONFIG_BT_PERIPHERAL */
 
-int bt_conn_le_conn_update(struct bt_conn *               conn,
-                           const struct bt_le_conn_param *param)
+int bt_conn_le_conn_update(struct bt_conn *conn, const struct bt_le_conn_param *param)
 {
     struct hci_cp_le_conn_update *conn_update;
-    struct net_buf *              buf;
+    struct net_buf *buf;
 
     buf = bt_hci_cmd_create(BT_HCI_OP_LE_CONN_UPDATE, sizeof(*conn_update));
     if (!buf) {
@@ -1268,7 +1267,7 @@ int bt_conn_le_conn_update(struct bt_conn *               conn,
 
 struct net_buf *bt_conn_create_pdu(struct net_buf_pool *pool, size_t reserve)
 {
-    struct net_buf *buf;
+    struct net_buf *buf = NULL;
 
     if (!pool) {
         pool = &acl_tx_pool;
