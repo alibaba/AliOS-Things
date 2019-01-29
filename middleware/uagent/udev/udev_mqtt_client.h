@@ -2,44 +2,43 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef _UDEV_MQTT_CLIENT_H_
-#define _UDEV_MQTT_CLIENT_H_
+#ifndef UDEV_MQTT_CLIENT_H
+#define UDEV_MQTT_CLIENT_H
 
 #include "iotx_mqtt.h"
 
-#define MQTT_RBUF_SIZE   512
-#define MQTT_WBUF_SIZE   512
-#define MAX_MESSAGE_HANDLERS 5
+#define MQTT_RBUF_SIZE          512
+#define MQTT_WBUF_SIZE          512
+#define MAX_MESSAGE_HANDLERS    5
 
-/**
- * @brief The structure of network connection(TCP or SSL).
- *   The user has to allocate memory for this structure.
- */
+typedef MQTTString mc_string_t;
 
-enum QoS { QOS0, QOS1, QOS2, SUBFAIL=0x80 };
-typedef struct MQTTMessage
-{
-    enum QoS qos;
+typedef enum {
+    QOS0,
+    QOS1,
+    QOS2,
+    SUBFAIL=0x80
+}mc_qos_e;
+
+typedef struct {
+    mc_qos_e qos;
     unsigned char retained;
     unsigned char dup;
     unsigned short id;
     void *payload;
     size_t payloadlen;
-} MQTTMessage;
+} mc_message_t;
 
-typedef void (*handler_fun)(MQTTString* topicName, MQTTMessage* message);
+typedef void (*mc_handler_cb)(mc_string_t* topic_name, mc_message_t* message);
 
-typedef struct
-{
-    const char* topicFilter;
-    handler_fun handler;
-} MessageHandlers;
+typedef struct {
+    const char* topic_filter;
+    mc_handler_cb handler;
+} mc_message_handler_t;
 
 
-int udev_mqtt_publish(int fd, const char* topicName, MQTTMessage* message);
-
-int udev_mqtt_subscript(int fd, const char* topicFilter, enum QoS qos, handler_fun handler);
-
+int udev_mqtt_publish(int fd, const char* topic_name, mc_message_t* message);
+int udev_mqtt_subscript(int fd, const char* topic_filter, mc_qos_e qos, mc_handler_cb handler);
 int udev_mqtt_connect(const char *host, unsigned short port, const char *client_id, unsigned int request_timeout);
 
-#endif /* _udev_MQTT_CLIENT_H_ */
+#endif /* UDEV_MQTT_CLIENT_H */
