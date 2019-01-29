@@ -3,8 +3,10 @@ include $(MAKEFILES_PATH)/aos_target_func.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
 # include .config
+ifeq ($(NOCONFIG),)
 $(if $(wildcard $(AOS_CONFIG)), \
     $(eval include $(AOS_CONFIG)), $(warning No such file: $(AOS_CONFIG)))
+endif
 
 # <comp>_LOCATION and <comp>_MAKEFILE defined in aos_all_components.mk
 $(if $(wildcard $(OUTPUT_DIR)/aos_all_components.mk), \
@@ -241,7 +243,7 @@ endef
 define PROCESS_COMPONENT
 AOS_SDK_DEFINES += MCU_FAMILY=\"$(HOST_MCU_FAMILY)\"
 $(info *** All components: $(sort $(REAL_COMPONENTS_LOCS)))
-$(info *** Enabled by config: $(sort $(subst board_,,$(OBJ-y))))
+$(if $(NOCONFIG),,$(info *** Enabled by config: $(sort $(subst board_,,$(OBJ-y)))))
 $(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 
 endef
