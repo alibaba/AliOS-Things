@@ -4,29 +4,32 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := BLE Mesh stack.
 
-$(NAME)_COMPONENTS-y += bt_common bt_port
+$(NAME)_COMPONENTS += bt_common bt_port
 
 $(NAME)_INCLUDES += ./inc/ \
                       ./inc/api/mesh
 
-$(NAME)_SOURCES-y := ./src/access.c \
+$(NAME)_SOURCES := ./src/access.c \
                      ./src/adv.c \
                      ./src/beacon.c \
                      ./src/crypto.c \
                      ./src/cfg_srv.c \
-                     ./src/cfg_cli.c \
                      ./src/health_srv.c \
-                     ./src/health_cli.c \
                      ./src/main.c \
                      ./src/net.c \
                      ./src/prov.c \
-                     ./src/proxy.c \
-                     ./src/transport.c \
-                     ./src/lpn.c \
-                     ./src/friend.c \
-                     ./src/shell.c
+                     ./src/transport.c
 
-GLOBAL_INCLUDES-y += ./inc/ \
-                     ./inc/api
+$(NAME)_SOURCES-$(CONFIG_BT_MESH_FRIEND) += ./src/friend.c
+$(NAME)_SOURCES-$(CONFIG_BT_MESH_LOW_POWER) += ./src/lpn.c
+$(NAME)_SOURCES-$(CONFIG_BT_MESH_PROXY) += ./src/proxy.c
 
-GLOBAL_DEFINES-y += CONFIG_BT_MESH
+$(NAME)_SOURCES-$(CONFIG_BT_MESH_CFG_CLI) += ./src/cfg_cli.c
+$(NAME)_SOURCES-$(CONFIG_BT_MESH_HEALTH_CLI) += ./src/health_cli.c
+
+$(NAME)_SOURCES-$(CONFIG_BT_MESH_SHELL) += ./src/shell.c
+
+GLOBAL_INCLUDES += ./inc/ \
+                   ./inc/api
+
+GLOBAL_DEFINES += CONFIG_BT_MESH
