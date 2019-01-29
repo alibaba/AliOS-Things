@@ -8,6 +8,8 @@
 
 void idle_task(void *arg)
 {
+    uint8_t cpu_num;
+
 #if (RHINO_CONFIG_CPU_NUM > 1)
     CPSR_ALLOC();
     klist_t *head;
@@ -17,6 +19,7 @@ void idle_task(void *arg)
 
     /* avoid warning */
     (void)arg;
+    cpu_num = cpu_cur_get();
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
     krhino_idle_pre_hook();
@@ -40,7 +43,7 @@ void idle_task(void *arg)
         RHINO_CPU_INTRPT_ENABLE();
 #endif
         /* type conversion is used to avoid compiler optimization */
-        *(volatile idle_count_t*)(&g_idle_count[cpu_cur_get()]) = g_idle_count[cpu_cur_get()] + 1;
+        *(volatile idle_count_t*)(&g_idle_count[cpu_num]) = g_idle_count[cpu_num] + 1;
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
         krhino_idle_hook();
