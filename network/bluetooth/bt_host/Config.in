@@ -1,10 +1,10 @@
-menuconfig AOS_COMP_BT
+config AOS_COMP_BT_HOST
     bool "Bluetooth Host Stack"
     default n
     select AOS_COMP_BT_COMMON
     help
 
-if AOS_COMP_BT
+if AOS_COMP_BT_HOST
 # Configurations for comp bt
 
     config AOS_CONFIG_BT_SMP

@@ -1,7 +1,6 @@
 config AOS_COMP_YLOOP
     bool
     default n
-    select AOS_COMP_LOG
     select AOS_COMP_VFS
     help
       AliOS things yloop -- event notifications
