@@ -25,7 +25,7 @@ static kinit_t kinit = {0, NULL, 0};
 static void sys_init(void)
 {
     /* user code start*/
-
+    board_init();
     /*insert driver to enable irq for example: starting to run tick time.
      drivers to trigger irq is forbidden before aos_start, which will start core schedule.
     */
@@ -46,8 +46,6 @@ int main(void)
     Put them in sys_init which will be called after aos_start.
     Irq for task schedule should be enabled here, such as PendSV for cortex-M4.
     */
-    board_init();   //including aos_heap_set();  flash_partition_init();
-
     /*kernel init, malloc can use after this!*/
     krhino_init();
 
