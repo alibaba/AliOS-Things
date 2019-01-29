@@ -53,8 +53,6 @@ extern int linkkit_sample_start(void);
 extern int udata_linkkit_publish(udata_type_e type, void* pdata, uint32_t len);
 #endif
 
-
-
 #if defined( DTC_MQTT ) || defined( DTC_LINKKIT )
 #include "service_data_to_cloud.h"
 #define   DATA_ASSEMBLE(a)  {a,#a}
@@ -114,7 +112,7 @@ void handle_dtc_test_cmd(char *pwbuf, int blen, int argc, char **argv)
     for(i = 0; i < UDATA_MAX_CNT; i++){
         if ((strlen(para1) == strlen(g_sample_service_name[i].type_name))&&(strcmp(para1, g_sample_service_name[i].type_name) == 0)) {
             break;
-        } 
+        }
     }
 
     if(i == UDATA_MAX_CNT){
@@ -141,11 +139,11 @@ void handle_dtc_test_cmd(char *pwbuf, int blen, int argc, char **argv)
     if(unlikely(ret)){
         return;
     }
-    
+
     if ((g_dtc_service_type != type) && (flag == true)){
 
         if (g_dtc_flag == true){
-            ret = service_dtc_publish_set(g_dtc_service_type, false);   
+            ret = service_dtc_publish_set(g_dtc_service_type, false);
             if(unlikely(ret)){
                 return;
             }
@@ -158,13 +156,11 @@ void handle_dtc_test_cmd(char *pwbuf, int blen, int argc, char **argv)
     return;
 }
 
-
 static struct cli_command dtccmd = {
     .name = "dtc",
     .help = "dtc status set",
     .function = handle_dtc_test_cmd
 };
-    
 
 #endif
 int udata_local_publish(udata_type_e type, void* pdata, uint32_t len)
@@ -175,62 +171,62 @@ int udata_local_publish(udata_type_e type, void* pdata, uint32_t len)
     }
 
     switch (type) {
-    
+
          case UDATA_SERVICE_ACC: {
              accel_data_t *acc = (accel_data_t *)pdata;
              UDATA_SHOW_UINT_3(type, (uint32_t)acc->timestamp, acc->data[0], acc->data[1], acc->data[2]);
              break;
          }
-    
-    
+
+
          case UDATA_SERVICE_MAG: {
              mag_data_t *mag = (mag_data_t *)pdata;
              UDATA_SHOW_UINT_3(type, (uint32_t)mag->timestamp, mag->data[0], mag->data[1], mag->data[2]);
              break;
          }
-    
+
          case UDATA_SERVICE_GYRO: {
              gyro_data_t *gyro = (gyro_data_t *)pdata;
              UDATA_SHOW_UINT_3(type, (uint32_t)gyro->timestamp, gyro->data[0], gyro->data[1], gyro->data[2]);
              break;
          }
-    
+
          case UDATA_SERVICE_ALS: {
              als_data_t *als = (als_data_t *)pdata;
              UDATA_SHOW_UINT_1(type, als->timestamp, als->lux);
              break;
          }
-    
+
          case UDATA_SERVICE_PS: {
              proximity_data_t *ps = (proximity_data_t *)pdata;
              UDATA_SHOW_UINT_1(type, ps->timestamp, ps->present);
              break;
          }
-    
+
          case UDATA_SERVICE_BARO: {
              barometer_data_t *baro = (barometer_data_t *)pdata;
              UDATA_SHOW_UINT_1(type, baro->timestamp, baro->p);
              break;
          }
-    
+
          case UDATA_SERVICE_TEMP: {
              temperature_data_t *temp = (temperature_data_t *)pdata;
              UDATA_SHOW_UINT_1(type, temp->timestamp, temp->t);
              break;
          }
-    
+
          case UDATA_SERVICE_UV: {
              uv_data_t *uv = (uv_data_t *)pdata;
              UDATA_SHOW_UINT_1(type, uv->timestamp, uv->uvi);
              break;
          }
-    
+
          case UDATA_SERVICE_HUMI: {
              humidity_data_t *humi = (humidity_data_t *)pdata;
              UDATA_SHOW_UINT_1(type, humi->timestamp, humi->h);
              break;
          }
-    
+
          case UDATA_SERVICE_HALL: {
              hall_data_t *hall = (hall_data_t *)pdata;
              UDATA_SHOW_UINT_1(type, hall->timestamp, hall->hall_level);
@@ -241,13 +237,13 @@ int udata_local_publish(udata_type_e type, void* pdata, uint32_t len)
              UDATA_SHOW_UINT_1(type, heart->timestamp, heart->hear_rate);
              break;
          }
-    
+
          case UDATA_SERVICE_GPS: {
              gps_data_t *gps = (gps_data_t *)pdata;
              UDATA_SHOW_FLOAT_3(type, gps->timestamp, gps->lat, gps->lon, gps->elv);
              break;
          }
-    
+
          default:
              return -1;
      }
@@ -269,7 +265,7 @@ void udata_report_demo(sensor_msg_pkg_t *msg)
         if (ret != 0) {
             return;
         }
-        
+
         ret = udata_local_publish(buf.type,buf.payload,0);
         if (ret != 0) {
             return;
@@ -301,7 +297,6 @@ int udata_sample(void)
     return 0;
 }
 
-
 int application_start(int argc, char **argv)
 {
     int ret;
@@ -311,7 +306,7 @@ int application_start(int argc, char **argv)
     cjson_hooks.free_fn = aos_free;
     cJSON_InitHooks(&cjson_hooks);
 #endif
-    
+
     (void)udata_init();
 
 #if defined DTC_LINKKIT
@@ -323,7 +318,6 @@ int application_start(int argc, char **argv)
 #endif
 
     (void)udata_sample();
-
 
 #if defined(DTC_MQTT) || defined(DTC_LINKKIT)
     aos_loop_run();
