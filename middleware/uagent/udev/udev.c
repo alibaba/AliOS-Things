@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <cJSON.h>
-#include <errno.h>
+#include "cJSON.h"
+#include "errno.h"
 
 #include "aos/kernel.h"
 #include "k_api.h"
@@ -55,8 +55,7 @@ void udev_yield(void *unused)
 {
     (void)unused;
 
-    while(1)
-    {
+    while(1){
         udev_mqtt_yield(udev_mqtt_fd, 1000);
     }
 }
@@ -65,7 +64,7 @@ int udev_publish_progress(unsigned char progress)
 {
     unsigned char payload[32] = {0};
 
-    MQTTMessage message = {
+    mc_message_t message = {
         .qos = QOS0,
         .retained = 0,
         .payload = NULL,
@@ -79,8 +78,7 @@ int udev_publish_progress(unsigned char progress)
     memset(payload, 0, sizeof(payload));
     sprintf(payload, "{\"progress\":%d}", progress);
     message.payloadlen = strlen(payload);
-    if(udev_mqtt_publish(udev_mqtt_fd, udev_topic_progress, &message) != 0)
-    {
+    if(udev_mqtt_publish(udev_mqtt_fd, udev_topic_progress, &message) != 0){
         LOGE("udev", "udev_mqtt_publish failed");
         return -1;
     }
@@ -128,9 +126,9 @@ static void http_gethost_info(char *src, char **web, char **file, int *port)
     }
 #if defined AOS_OTA_TLS || defined AOS_OTA_ITLS
     isHttps = 1;
-#else
+#else /* defined AOS_OTA_TLS || defined AOS_OTA_ITLS */
     isHttps = 0;
-#endif
+#endif /* defined AOS_OTA_TLS || defined AOS_OTA_ITLS */
     pa = strchr(*web, ':');
     if (pa) {
         *pa   = 0;
@@ -347,19 +345,17 @@ void udev_http_download(void *unused)
     ota_http_download();
 }
 
-void udev_upgrade(MQTTString* topicName, MQTTMessage* message)
+void udev_upgrade(mc_string_t* topic_name, mc_message_t* message)
 {
     int ret = 0;
 
     /* LOGD("udev", "udev_upgrade"); */
-    if( message->payloadlen >= sizeof(sub_payload))
-    {
+    if( message->payloadlen >= sizeof(sub_payload)){
         LOGE("udev", "message too large");
         return;
     }
 
-    if(udev_upgrading == 1)
-    {
+    if(udev_upgrading == 1){
         LOGE("udev", "upgrade is in progress\n");
         return;
     }
@@ -380,16 +376,14 @@ void udev_upgrade(MQTTString* topicName, MQTTMessage* message)
 int udev_init(const char *pk, const char *dn)
 {
     static unsigned char udev_inited = 0;
-    if(udev_inited)
-    {
+    if(udev_inited == 1){
         LOGE("udev", "udev already init\n");
         return -1;
     }
     udev_inited = 1;
 
     if (pk == NULL || strlen(pk) == 0 ||
-        dn == NULL || strlen(dn) == 0)
-    {
+        dn == NULL || strlen(dn) == 0){
         LOGE("udev", "udev_init wrong pk/dn/ds\n");
         return -1;
     }
@@ -401,15 +395,13 @@ int udev_init(const char *pk, const char *dn)
     LOGI("udev", "topic_progress: %s\n", udev_topic_progress);
     LOGI("udev", "topic_upgrade: %s\n", udev_topic_upgrade);
 
-    if((udev_mqtt_fd = udev_mqtt_connect(UDEV_BROKER_HOST, UDEV_BROKER_PORT, udev_client_id, 2000)) < 0)
-    {
+    if((udev_mqtt_fd = udev_mqtt_connect(UDEV_BROKER_HOST, UDEV_BROKER_PORT, udev_client_id, 2000)) < 0){
         LOGE("udev", "udev_mqtt_connect failed");
         return -1;
     }
     /* LOGI("udev", "udev_mqtt_connect: ok, fd=%d\n", udev_mqtt_fd); */
 
-    if(udev_mqtt_subscript(udev_mqtt_fd, udev_topic_upgrade, QOS1, udev_upgrade) != 0)
-    {
+    if(udev_mqtt_subscript(udev_mqtt_fd, udev_topic_upgrade, QOS1, udev_upgrade) != 0){
         LOGE("udev", "udev_mqtt_subscript failed");
         return -1;
     }
