@@ -98,7 +98,7 @@ GLOBAL_DEFINES += CONFIG_OS_RHINO
 # 0x00: reserved
 
 # 0x04: xtal
-XTAL := 40
+XTAL := 25
 GLOBAL_DEFINES += XTAL=$(XTAL)
 
 # 0x08: bus clock
