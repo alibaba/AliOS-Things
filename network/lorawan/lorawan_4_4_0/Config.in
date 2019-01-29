@@ -1,9 +1,10 @@
-menuconfig AOS_COMP_LORAWAN
+config AOS_COMP_LORAWAN_4_4_0
     bool "LoRaWAN Version 4.4.0"
     depends on AOS_COMP_LORAWAN_STACK
     default n
+    select AOS_COMP_OSAL_AOS
     help
 
-if AOS_COMP_LORAWAN
+if AOS_COMP_LORAWAN_4_4_0
 # Configurations for comp lorawan
 endif

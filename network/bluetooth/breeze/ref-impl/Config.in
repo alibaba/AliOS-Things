@@ -2,6 +2,8 @@ menuconfig AOS_COMP_BREEZE_HAL
     bool "Breeze HAL APIs"
     default n
     select AOS_COMP_BT_HOST if BREEZEHAL_CONFIG_BLESTACK
+    select AOS_COMP_MBEDTLS if BREEZEHAL_CONFIG_CRYTPO
+    select AOS_COMP_ULOG
     help
 
 if AOS_COMP_BREEZE_HAL
