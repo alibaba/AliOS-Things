@@ -20,18 +20,25 @@ static void GPIO_Init(void);
 void UART0_Init(void);
 void UART0_SendChar(unsigned char temp);
 
-void board_init(void)
+void board_driver_init(void)
 {
+    UART0_Init();
     SystemClock_Config();
     GPIO_Init();
     LED_ON();
+}
+
+void board_init(void)
+{
+    M0P_SYSCTRL->RCH_CR_f.TRIM = (*((volatile uint16_t*) (0x00100C00)));  //24M
+    while(!M0P_SYSCTRL->RCH_CR_f.STABLE );   //wait RCL stable
 }
 
 /** System Clock Configuration
 */
 void SystemClock_Config(void)
 {
-      SystemCoreClock = 24000000;
+    SystemCoreClock = 24000000;
     SysTick_Config(SystemCoreClock/1000U);
     EnableNvic(SysTick_IRQn,0,TRUE);
 }
@@ -39,27 +46,26 @@ void GPIO_Init(void)
 {
     M0P_SYSCTRL->PERI_CLKEN_f.GPIO = 1; 
    
-    //数字端口
     M0P_GPIO->PAADS = 0;
     M0P_GPIO->PBADS = 0;
     M0P_GPIO->PCADS = 0;
     M0P_GPIO->PDADS = 0;
-    //端口方向
+
     M0P_GPIO->PADIR = 0x400;  //PA10 RX
     M0P_GPIO->PBDIR = 0;
     M0P_GPIO->PCDIR = 0;
     M0P_GPIO->PDDIR = 0;
-    //端口电平
+
     M0P_GPIO->PAOUT = 0;
     M0P_GPIO->PBOUT = 0;
     M0P_GPIO->PCOUT = 0;
-    M0P_GPIO->PDOUT = 0x10;  //KEY 暂时不使用
-    //上拉电阻使能
+    M0P_GPIO->PDOUT = 0x10;
+
     M0P_GPIO->PAPU = 0;
     M0P_GPIO->PBPU = 0;
     M0P_GPIO->PCPU = 0;
     M0P_GPIO->PDPU = 0;
-     //下拉电阻使能
+
     M0P_GPIO->PAPD = 0xFF;
     M0P_GPIO->PBPD = 0xFF;
     M0P_GPIO->PCPD = 0xFF;
