@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 extern void board_init(void);
+extern void board_driver_init(void);
 
 #ifndef AOS_BINS
 extern int application_start(int argc, char **argv);
@@ -22,7 +23,7 @@ cpu_stack_t g_main_task_buf[OS_MAIN_TASK_STACK];
 static void sys_init(void)
 {
     /* user code start*/
-
+    board_driver_init();
     /*insert driver to enable irq for example: starting to run tick time.
      drivers to trigger irq is forbidden before aos_start, which will start core schedule.
     */
