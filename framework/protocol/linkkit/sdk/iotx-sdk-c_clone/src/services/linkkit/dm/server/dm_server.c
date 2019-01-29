@@ -128,7 +128,9 @@ void dm_server_thing_service_property_set(CoAPContext *context, const char *path
     }
 #ifdef LOG_REPORT_TO_CLOUD
     extern void send_permance_info(char *input, int input_len, char *comments, int report_format);
-    send_permance_info(request.id.value, request.id.value_length, "2", 1);
+    if (SUCCESS_RETURN == check_target_msg(request.id.value, request.id.value_length)) {
+        send_permance_info(request.id.value, request.id.value_length, "2", 1);
+    }
 #endif
     dm_msg_response(DM_MSG_DEST_LOCAL, &request, &response, "{}", strlen("{}"), (void *)alcs_context);
     dm_server_free_context(alcs_context);

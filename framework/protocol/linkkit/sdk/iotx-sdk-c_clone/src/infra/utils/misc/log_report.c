@@ -180,6 +180,10 @@ void send_permance_info(char *input, int input_len, char *comments, int report_f
 #define LOCAL_POST_LEN (150)
     char data[LOCAL_POST_LEN] = {0};
     const char *format = NULL;
+    if (0 == switch_status) {
+        return;
+    }
+
     switch (report_format) {
         case 0:
             if (NULL == input || input_len <= 0) {
