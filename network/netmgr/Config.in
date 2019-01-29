@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_NETMGR
+config AOS_COMP_NETMGR
     bool "Network Manager"
     default n
     select AOS_COMP_OSAL_AOS
