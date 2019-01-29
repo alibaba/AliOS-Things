@@ -238,8 +238,7 @@ struct bt_att_signed_write_cmd {
 
 void bt_att_init(void);
 u16_t bt_att_get_mtu(struct bt_conn *conn);
-struct net_buf *bt_att_create_pdu(struct bt_conn *conn, u8_t op,
-				  size_t len);
+struct net_buf *bt_att_create_pdu(struct bt_conn *conn, u8_t op, size_t len);
 
 /* Send ATT PDU over a connection */
 int bt_att_send(struct bt_conn *conn, struct net_buf *buf);
