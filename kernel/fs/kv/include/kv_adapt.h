@@ -176,6 +176,24 @@ int32_t kv_secure_encrypt(uint8_t *input, uint8_t *output, uint32_t input_len);
  */
 int32_t kv_secure_decrypt(uint8_t *input, uint8_t *output, uint32_t input_len);
 
+/**
+ * @brief Get the key for encrypt/decrypt algorithm
+ *
+ * @param[in] key_len the length of the key
+ *
+ * @return key buffer pointer, NULL is error
+ */
+uint8_t *kv_secure_get_key(uint32_t key_len);
+
+/**
+ * @brief Get the iv for encrypt/decrypt algorithm
+ *
+ * @param[in] iv_len the length of the iv
+ *
+ * @return iv buffer pointer, NULL is error
+ */
+uint8_t *kv_secure_get_iv(uint32_t iv_len);
+
 #ifdef __cplusplus
 }
 #endif
