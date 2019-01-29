@@ -92,7 +92,7 @@
  * packages range 2 to 255
  */
 #ifndef CONFIG_BT_L2CAP_TX_BUF_COUNT
-#define CONFIG_BT_L2CAP_TX_BUF_COUNT 2
+#define CONFIG_BT_L2CAP_TX_BUF_COUNT 3
 #endif
 
 /**

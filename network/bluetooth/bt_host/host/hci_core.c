@@ -230,11 +230,8 @@ int bt_hci_cmd_send(u16_t opcode, struct net_buf *buf)
     return 0;
 }
 
-void process_events(struct k_poll_event *ev, int count);
-int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp)
+void wait_for_event_done(int timeout)
 {
-    int err = 0;
-    uint32_t time_start;
     uint8_t evt_num = 0;
 #ifdef CONFIG_CONTROLLER_IN_ONE_TASK
     extern struct k_poll_signal g_pkt_recv;
@@ -259,6 +256,17 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp
     events[evt_num++].state = K_POLL_STATE_NOT_READY;
 #endif
 
+    k_poll(events, evt_num, timeout);
+    process_events(events, evt_num);
+
+}
+
+void process_events(struct k_poll_event *ev, int count);
+int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp)
+{
+    int err = 0;
+    uint32_t time_start;
+
     if (!buf) {
         buf = bt_hci_cmd_create(opcode, 0);
         if (!buf) {
@@ -275,8 +283,7 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp
 
     time_start = k_uptime_get_32();
     while(1) {
-        k_poll(events, evt_num, HCI_CMD_TIMEOUT);
-        process_events(events, evt_num);
+        wait_for_event_done(HCI_CMD_TIMEOUT);
         if ((cmd(buf)->sync == SYNC_TX_DONE) ||
             ((k_uptime_get_32() - time_start) >= HCI_CMD_TIMEOUT)) {
             break;
@@ -555,7 +562,7 @@ static void hci_num_completed_packets(struct net_buf *buf)
         while (count--) {
             sys_snode_t *node;
 
-            key  = irq_lock();
+            key = irq_lock();
             node = sys_slist_get(&conn->tx_pending);
             irq_unlock(key);
 
@@ -563,9 +570,8 @@ static void hci_num_completed_packets(struct net_buf *buf)
                 BT_ERR("packets count mismatch");
                 break;
             }
-
-            k_fifo_put(&conn->tx_notify, node);
             bt_conn_notify_tx_done(conn);
+            k_fifo_put(&conn->tx_notify, node);
         }
 
         bt_conn_unref(conn);
@@ -1996,14 +2002,14 @@ static void hci_event(struct net_buf *buf)
             hci_disconn_complete(buf);
             break;
 #endif /* CONFIG_BT_CONN */
-#if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_BREDR)
+#if defined(CONFIG_BT_SMP)
         case BT_HCI_EVT_ENCRYPT_CHANGE:
             hci_encrypt_change(buf);
             break;
         case BT_HCI_EVT_ENCRYPT_KEY_REFRESH_COMPLETE:
             hci_encrypt_key_refresh_complete(buf);
             break;
-#endif /* CONFIG_BT_SMP || CONFIG_BT_BREDR */
+#endif /* CONFIG_BT_SMP */
         case BT_HCI_EVT_LE_META_EVENT:
             hci_le_meta_event(buf);
             break;
