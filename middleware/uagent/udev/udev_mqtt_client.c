@@ -18,8 +18,7 @@
 
 static uint8_t mqtt_rbuf[MQTT_RBUF_SIZE] = {0};
 static uint8_t mqtt_wbuf[MQTT_WBUF_SIZE] = {0};
-static MessageHandlers messageHandlers[MAX_MESSAGE_HANDLERS];
-
+static mc_message_handler_t message_handlers[MAX_MESSAGE_HANDLERS];
 static unsigned int request_timeout_ms = 2000;
 static int package_id = 1;
 static int keepalive_interval = UDEV_KEEPALIVE;
@@ -33,8 +32,7 @@ int keepalive(int fd)
     if (keepalive_interval == 0)
         return 0;
 
-    if (aos_now_ms() >= now + keepalive_interval)
-    {
+    if (aos_now_ms() >= now + keepalive_interval){
         now = aos_now_ms();
 
         if (ping_outtime)
@@ -54,20 +52,19 @@ int keepalive(int fd)
  * # can only be at end
  * + and # can only be next to separator
  */
-static char isTopicMatched(char* topicFilter, MQTTString* topicName)
+static char isTopicMatched(char* topic_filter, mc_string_t* topic_name)
 {
-    char* curf = topicFilter;
-    char* curn = topicName->lenstring.data;
-    char* curn_end = curn + topicName->lenstring.len;
+    char* curf = topic_filter;
+    char* curn = topic_name->lenstring.data;
+    char* curn_end = curn + topic_name->lenstring.len;
 
-    while (*curf && curn < curn_end)
-    {
+    while (*curf && curn < curn_end){
         if (*curn == '/' && *curf != '/')
             break;
         if (*curf != '+' && *curf != '#' && *curf != *curn)
             break;
-        if (*curf == '+')
-        {   /* skip until we meet the next separator, or end of string */
+        if (*curf == '+'){
+            /* skip until we meet the next separator, or end of string */
             char* nextpos = curn + 1;
             while (nextpos < curn_end && *nextpos != '/')
                 nextpos = ++curn + 1;
@@ -81,26 +78,22 @@ static char isTopicMatched(char* topicFilter, MQTTString* topicName)
     return (curn == curn_end) && (*curf == '\0');
 }
 
-int deliverMessage(int fd, MQTTString* topicName, MQTTMessage* message)
+int deliverMessage(int fd, mc_string_t* topic_name, mc_message_t* message)
 {
     int i;
     int rc = -1;
 
-    if(topicName ==NULL || message == NULL)
-    {
+    if(topic_name ==NULL || message == NULL){
         return rc;
     }
 
     /* we have to find the right message handler - indexed by topic */
-    for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i)
-    {
-        /* LOGI("udev", "i:%d, topic:%s", i, (char*)messageHandlers[i].topicFilter); */
-        if (messageHandlers[i].topicFilter != 0 && (MQTTPacket_equals(topicName, (char*)messageHandlers[i].topicFilter) ||
-                isTopicMatched((char*)messageHandlers[i].topicFilter, topicName)))
-        {
-            if (messageHandlers[i].handler != NULL)
-            {
-                messageHandlers[i].handler(topicName, message);
+    for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i){
+        /* LOGI("udev", "i:%d, topic:%s", i, (char*)message_handlers[i].topicFilter); */
+        if (message_handlers[i].topic_filter != 0 && (MQTTPacket_equals(topic_name, (char*)message_handlers[i].topic_filter) ||
+                isTopicMatched((char*)message_handlers[i].topic_filter, topic_name))){
+            if (message_handlers[i].handler != NULL){
+                message_handlers[i].handler(topic_name, message);
                 rc = 0;
             }
         }
@@ -117,12 +110,10 @@ static int decodePacket(int fd, int* value, int timeout)
     const int MAX_NO_OF_REMAINING_LENGTH_BYTES = 4;
 
     *value = 0;
-    do
-    {
+    do{
         int rc = MQTTPACKET_READ_ERROR;
 
-        if (++len > MAX_NO_OF_REMAINING_LENGTH_BYTES)
-        {
+        if (++len > MAX_NO_OF_REMAINING_LENGTH_BYTES){
             rc = MQTTPACKET_READ_ERROR; /* bad data */
             goto exit;
         }
@@ -152,8 +143,7 @@ static int readPacket(int fd, unsigned int timeout)
     decodePacket(fd, &rem_len, timeout);
     len += MQTTPacket_encode(mqtt_rbuf + 1, rem_len); /* put the original remaining length back into the buffer */
 
-    if (rem_len > (MQTT_RBUF_SIZE - len))
-    {
+    if (rem_len > (MQTT_RBUF_SIZE - len)){
         rc = -1;
         goto exit;
     }
@@ -177,8 +167,7 @@ int cycle(int fd, unsigned int timeout)
 
     int packet_type = readPacket(fd, timeout);     /* read the socket, see what work is due */
 
-    switch (packet_type)
-    {
+    switch (packet_type){
         default:
             /* no more data to read, unrecoverable. Or read packet fails due to unexpected network error */
             rc = packet_type;
@@ -191,8 +180,8 @@ int cycle(int fd, unsigned int timeout)
             break;
         case PUBLISH:
         {
-            MQTTString topicName;
-            MQTTMessage msg;
+            mc_string_t topicName;
+            mc_message_t msg;
             int intQoS;
             msg.payloadlen = 0; /* this is a size_t, but deserialize publish sets this as int */
             /* LOGI("udev", "PUBLISH\n"); */
@@ -200,11 +189,10 @@ int cycle(int fd, unsigned int timeout)
                (unsigned char**)&msg.payload, (int*)&msg.payloadlen, mqtt_rbuf, MQTT_RBUF_SIZE) != 1){
                     goto exit;
                }
-            msg.qos = (enum QoS)intQoS;
+            msg.qos = (mc_qos_e)intQoS;
             LOGE("udev", "deliverMessage");
             deliverMessage(fd, &topicName, &msg);
-            if (msg.qos != QOS0)
-            {
+            if (msg.qos != QOS0){
                 if (msg.qos == QOS1)
                     len = MQTTSerialize_ack(mqtt_wbuf, MQTT_WBUF_SIZE, PUBACK, 0, msg.id);
                 else if (msg.qos == QOS2)
@@ -264,8 +252,7 @@ int waitfor(int fd, int packet_type, unsigned int timeout)
     int rc = -1;
     unsigned int now = aos_now_ms() + timeout;
 
-    do
-    {
+    do{
         rc = cycle(fd, timeout);
     }
     while (aos_now_ms() < now && rc != packet_type && rc >= 0);
@@ -273,29 +260,25 @@ int waitfor(int fd, int packet_type, unsigned int timeout)
     return rc;
 }
 
-int MQTTSetMessageHandler(const char* topicFilter, handler_fun handler)
+int MQTTSetMessageHandler(const char* topic_filter, mc_handler_cb handler)
 {
     int rc = 0;
     int i = -1;
 
-    if (handler == NULL)
-    {
+    if (handler == NULL){
         return -1;
     }
 
-    for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i)
-    {
-        if (messageHandlers[i].topicFilter == NULL)
-        {
+    for (i = 0; i < MAX_MESSAGE_HANDLERS; ++i){
+        if (message_handlers[i].topic_filter == NULL){
             rc = 0;
             break;
         }
     }
 
-    if (i < MAX_MESSAGE_HANDLERS)
-    {
-        messageHandlers[i].topicFilter = topicFilter;
-        messageHandlers[i].handler = handler;
+    if (i < MAX_MESSAGE_HANDLERS){
+        message_handlers[i].topic_filter = topic_filter;
+        message_handlers[i].handler = handler;
     }
 
     return rc;
@@ -306,8 +289,7 @@ int udev_mqtt_yield(int fd, int timeout)
     int rc = 0;
     unsigned int now = aos_now_ms() + timeout;
 
-    do
-    {
+    do{
         /* LOGI("udev", "aos_now_ms:%d\n", aos_now_ms); */
         if((rc = cycle(fd, timeout)) < 0)
             break;
@@ -318,12 +300,12 @@ int udev_mqtt_yield(int fd, int timeout)
     return rc;
 }
 
-int udev_mqtt_subscript(int fd, const char* topicFilter, enum QoS qos, handler_fun handler)
+int udev_mqtt_subscript(int fd, const char* topic_filter, mc_qos_e qos, mc_handler_cb handler)
 {
     int rc = -1;
     int len = 0;
-    MQTTString topic = MQTTString_initializer;
-    topic.cstring = (char *)topicFilter;
+    mc_string_t topic = MQTTString_initializer;
+    topic.cstring = (char *)topic_filter;
     unsigned int timeout = request_timeout_ms;
 /** #if defined(MQTT_TASK)
  *      MutexLock(&c->mutex);
@@ -338,15 +320,14 @@ int udev_mqtt_subscript(int fd, const char* topicFilter, enum QoS qos, handler_f
     if ((rc = udev_send_packet(fd, mqtt_rbuf, len, timeout)) != 0) /* send the subscribe packet */
         goto exit;             /* there was a problem */
 
-    if (waitfor(fd, SUBACK, timeout) == SUBACK)      /* wait for suback */
-    {
+    /* wait for suback */
+    if (waitfor(fd, SUBACK, timeout) == SUBACK){
         int count = 0;
         unsigned short mypacketid;
         int grantedQoS = QOS0;
-        if (MQTTDeserialize_suback(&mypacketid, 1, &count, &grantedQoS, mqtt_rbuf, MQTT_RBUF_SIZE) == 1)
-        {
+        if (MQTTDeserialize_suback(&mypacketid, 1, &count, &grantedQoS, mqtt_rbuf, MQTT_RBUF_SIZE) == 1){
             if (grantedQoS != 0x80)
-                rc = MQTTSetMessageHandler(topicFilter, handler);
+                rc = MQTTSetMessageHandler(topic_filter, handler);
         }
     }
     else
@@ -363,16 +344,16 @@ exit:
 }
 
 
-int udev_mqtt_publish(int fd, const char* topicName, MQTTMessage* message)
+int udev_mqtt_publish(int fd, const char* topic_name, mc_message_t* message)
 {
     int rc = -1;
-    MQTTString topic = MQTTString_initializer;
-    topic.cstring = (char *)topicName;
+    mc_string_t topic = MQTTString_initializer;
+    topic.cstring = (char *)topic_name;
     int len = 0;
 
 #if defined(MQTT_TASK)
 	  MutexLock(&c->mutex);
-#endif
+#endif /* defined(MQTT_TASK) */
     if (fd < 0)
         goto exit;
 
@@ -386,10 +367,8 @@ int udev_mqtt_publish(int fd, const char* topicName, MQTTMessage* message)
     if ((rc = udev_send_packet(fd, mqtt_wbuf, len, request_timeout_ms)) != 0) /* send the subscribe packet */
         goto exit; /* there was a problem */
 
-    if (message->qos == QOS1)
-    {
-        if (waitfor(fd, PUBACK, request_timeout_ms) == PUBACK)
-        {
+    if (message->qos == QOS1){
+        if (waitfor(fd, PUBACK, request_timeout_ms) == PUBACK){
             unsigned short mypacketid;
             unsigned char dup, type;
             if (MQTTDeserialize_ack(&type, &dup, &mypacketid, mqtt_rbuf, MQTT_RBUF_SIZE) != 1)
@@ -398,10 +377,8 @@ int udev_mqtt_publish(int fd, const char* topicName, MQTTMessage* message)
         else
             rc = -1;
     }
-    else if (message->qos == QOS2)
-    {
-        if (waitfor(fd, PUBCOMP, request_timeout_ms) == PUBCOMP)
-        {
+    else if (message->qos == QOS2){
+        if (waitfor(fd, PUBCOMP, request_timeout_ms) == PUBCOMP){
             unsigned short mypacketid;
             unsigned char dup, type;
             if (MQTTDeserialize_ack(&type, &dup, &mypacketid, mqtt_rbuf, MQTT_RBUF_SIZE) != 1)
@@ -433,8 +410,7 @@ int udev_mqtt_connect(const char *host, unsigned short port, const char *client_
     connectdata.password.cstring = NULL;
     connectdata.cleansession = 0;
     request_timeout_ms = request_timeout;
-    if((fd = udev_net_connect(host, port)) < 0)
-    {
+    if((fd = udev_net_connect(host, port)) < 0){
         LOGE("udev", "udev_net_connect failed");
         return -1;
     }
@@ -444,21 +420,18 @@ int udev_mqtt_connect(const char *host, unsigned short port, const char *client_
         return -1;
     }
 
-    if(udev_send_packet(fd, mqtt_wbuf, len, request_timeout_ms) != 0)
-    {
+    if(udev_send_packet(fd, mqtt_wbuf, len, request_timeout_ms) != 0){
         LOGE("udev", "udev_send_packet failed");
         return -1;
     }
 
-    if (waitfor(fd, CONNACK, request_timeout_ms) != CONNACK)
-    {
+    if (waitfor(fd, CONNACK, request_timeout_ms) != CONNACK){
         LOGE("udev", "waitfor failed");
         return -1;
     }
     unsigned char rc = 0;
     unsigned char sessionPresent = 0;
-    if (MQTTDeserialize_connack(&sessionPresent, &rc, mqtt_rbuf, MQTT_RBUF_SIZE) != 1)
-    {
+    if (MQTTDeserialize_connack(&sessionPresent, &rc, mqtt_rbuf, MQTT_RBUF_SIZE) != 1){
         LOGE("udev", "MQTTDeserialize_connack failed");
         return -1;
     }
