@@ -29,12 +29,12 @@ static void flash_read_data(UINT8 *buffer, unsigned int address, unsigned int le
     unsigned int start_addr, size, left_off;
     uint8_t *buf = NULL;
     int ret;
- 
+
     start_addr = address;
     left_off = start_addr % FLASH_ALIGN;
-    
+
     size = ((len + left_off) + ~FLASH_ALIGN_MASK) & FLASH_ALIGN_MASK;
-    
+
     if (size > len || left_off > 0) {
         buf = (uint8_t *)malloc(size);
         if (!buf)
@@ -44,15 +44,15 @@ static void flash_read_data(UINT8 *buffer, unsigned int address, unsigned int le
         if(ret != 0)
         {
             printf("spi_flash_read fail 1, addr 0x%x, len 0x%x\n", start_addr, len);
-        }  
+        }
         memcpy(buffer, buf + left_off, len);
         free(buf);
-    } else {        
-        ret = spi_flash_read(start_addr, (unsigned int *)buffer, len); 
+    } else {
+        ret = spi_flash_read(start_addr, (unsigned int *)buffer, len);
         if(ret != 0)
         {
             printf("spi_flash_read fail 2, addr 0x%x, len 0x%x\n", start_addr, len);
-        }       
+        }
     }
 }
 
@@ -66,7 +66,7 @@ static void flash_write_data(UINT8 *buffer, unsigned int address, unsigned int l
 
     left_off = start_addr % FLASH_ALIGN;
     size = ((len + left_off) + ~FLASH_ALIGN_MASK) & FLASH_ALIGN_MASK;
-    
+
     if (size > len || left_off > 0) {
         buf = (uint8_t *)malloc(size);
         if (!buf)
@@ -74,7 +74,7 @@ static void flash_write_data(UINT8 *buffer, unsigned int address, unsigned int l
         memset(buf, 0xff, size);
         memcpy(buf + left_off, buffer, len);
         vPortETSIntrLock();
-        ret = spi_flash_write(start_addr - left_off, (unsigned int *)buf, len);
+        ret = spi_flash_write(start_addr - left_off, (unsigned int *)buf, size);
         vPortETSIntrUnlock();
         if(ret != 0)
         {
@@ -82,8 +82,8 @@ static void flash_write_data(UINT8 *buffer, unsigned int address, unsigned int l
         }
         free(buf);
     } else {
-        vPortETSIntrLock();        
-        ret = spi_flash_write(start_addr, (unsigned int *)buffer, len);        
+        vPortETSIntrLock();
+        ret = spi_flash_write(start_addr, (unsigned int *)buffer, len);
         vPortETSIntrUnlock();
         if(ret != 0)
         {
@@ -109,7 +109,7 @@ void flash_erase_sector(unsigned int offset,  unsigned int size)
         {
             printf("flash_erase_sector fail , addr 0x%x\n", addr);
             return;
-        }            
+        }
     }
 
     return;
@@ -126,8 +126,8 @@ unsigned long rec_flash_addr2ofst(unsigned long addr)
 }
 
 void rec_flash_init(void)
-{    
-    
+{
+
 }
 
 /* offset means physical address */
@@ -139,7 +139,7 @@ void rec_flash_erase(unsigned long offset)
 
 /* offset means physical address */
 void rec_flash_read_data(unsigned char *buffer, unsigned long offset, unsigned long len)
-{    
+{
     flash_read_data((UINT8 *)buffer, offset, len);
 }
 
