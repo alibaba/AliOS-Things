@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_IROT
+config AOS_COMP_IROT
     bool "root of Trust,SE and TEE"
     default n
     select AOS_COMP_LIBKM_TEE if AOS_BOARD_CB2201

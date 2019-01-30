@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_LIBPROV
+config AOS_COMP_LIBPROV
     bool "libprov"
     default n
     select AOS_COMP_IROT

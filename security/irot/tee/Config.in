@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_LIBKM_TEE
+config AOS_COMP_LIBKM_TEE
     bool "libkm_tee"
     default n
     help
