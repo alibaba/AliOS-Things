@@ -68,6 +68,8 @@ static void numicro_userconf_check_rewrite (void)
     if (FMC_ReadConfig(au32Config, 2) < 0)
         goto exit_numicro_userconf_check_rewrite;
 
+	#if 0
+	//Disable LDROM booting.
     printf("FMC User config: 0:%08x, 1:%08x, CBS:%d\n", au32Config[0], au32Config[1], ((au32Config[0]&0xC0)>>6) );
 	if ( (au32Config[0]&0xC0) != 0x0 )	//Boot from LD-IAP mode?
 	{
@@ -95,6 +97,7 @@ static void numicro_userconf_check_rewrite (void)
         /* Reset Chip to reload new CONFIG value */
         SYS->IPRST0 = SYS_IPRST0_CHIPRST_Msk;
     }
+    #endif
     
 exit_numicro_userconf_check_rewrite:   
 
