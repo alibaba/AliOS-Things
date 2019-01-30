@@ -70,9 +70,9 @@ config AOS_app_itls_client
     bool "itls_client"
     select AOS_APP_ITLS_CLIENT
 
-config AOS_app_das
+config AOS_app_das_client
     bool "das_client"
-    select AOS_APP_DAS
+    select AOS_APP_DAS_CLIENT
 
 config AOS_app_linkkit_gateway
     bool "linkkit_gateway"
@@ -246,6 +246,13 @@ if AOS_app_itls_client
         default "itls_client"
 
     source "app/example/itls_app/Config.in"
+endif
+
+if AOS_app_das_client
+    config AOS_BUILD_APP
+        default "das_client"
+
+    source "app/example/das_app/Config.in"
 endif
 
 if AOS_app_linkkit_gateway
