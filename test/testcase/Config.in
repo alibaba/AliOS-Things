@@ -1,9 +1,0 @@
-menuconfig AOS_COMP_TESTCASE
-    bool "testcase"
-    default n
-    select AOS_COMP_YUNIT
-    help
-
-if AOS_COMP_TESTCASE
-# Configurations for comp testcase
-endif
