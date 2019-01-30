@@ -94,11 +94,11 @@ typedef enum node_freq_mode_s
     FREQ_MODE_INTER = 2, // uplink and downlink use different frequencies
 } node_freq_mode_t;
 
-#define LORA_NODE_FREQ_TPYE                          FREQ_MODE_INTER
+#define LORA_NODE_FREQ_TPYE                          FREQ_MODE_INTRA
 
 //#define LORA_JOIN_FREQBAND_MASK                    (0x0003)//Default:0x0003(1A1+1A2),0x000C(2A1+2A2),0x3000(3B1+3B2),0xC000(4B1+4B2).
 #define LORA_CH_MASK_CONTROL_DEFAULT                 (0)//Default:0:1A1+1A2,1:2A1+2A2,2:3B1+3B2,3:4B1+4B2
-#define LORA_CHANNELS_MASK_DEFAULT                   (0x00FF)//chmask:0xFF00 or 0x00FF(0x00FF = FREQBAND_MASK's first FreqGroup,0x00FF = FREQBAND_MASK's second FreqGroup)
+#define LORA_CHANNELS_MASK_DEFAULT                   (0xFF00)//chmask:0xFF00 or 0x00FF(0x00FF = FREQBAND_MASK's first FreqGroup,0x00FF = FREQBAND_MASK's second FreqGroup)
 #define LORA_ENABLE_SCAN_BETWEEN_2_FREQGROUPS        (0)
 
 //===========start radio parameters config==================
