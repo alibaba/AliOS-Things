@@ -12,8 +12,6 @@ $(NAME)_SOURCES += $(wildcard $(SOURCE_ROOT)/$(LINKKIT_MODULE)/*/*.c)
 
 $(NAME)_SOURCES := $(foreach S,$($(NAME)_SOURCES),$(subst $(SOURCE_ROOT)/$(LINKKIT_MODULE),.,$(S)))
 
-$(NAME)_COMPONENTS := 
-
 $(NAME)_INCLUDES := ../../../src/infra/log \
 ./misc \
 ./digest \
