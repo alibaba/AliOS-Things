@@ -1,11 +1,11 @@
-menuconfig AOS_COMP_USER_SPACE
+config AOS_COMP_USPACE
     bool "user space"
     default n
     help
         set to y if you want to enable user space feature in kernel,
         set to n to disable user space feature.
 
-if AOS_COMP_USER_SPACE
+if AOS_COMP_USPACE
 # Configurations for component uspace
 
 endif
