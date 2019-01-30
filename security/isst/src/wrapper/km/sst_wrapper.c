@@ -32,7 +32,7 @@
                                 ('s' == _m[2]) &&   \
                                 ('T' == _m[3]))
 
-#if CONFIG_ID2_SUPPORT
+#if CONFIG_SST_USE_ID2
 #define SST_KEY_NAME        "id2_key"
 #define SST_KEY_NAME_LEN    7
 #else
@@ -72,11 +72,11 @@ static void *_sst_create(uint32_t in_size, uint32_t type)
     INIT_MAGIC(p_sst_obj->magic);
     p_sst_obj->version = SST_VERSION;
     p_sst_obj->type = type;
-#if CONFIG_ID2_SUPPORT
+#if CONFIG_SST_USE_ID2
     sst_memset(p_sst_obj->reserved, 1, SST_HEAD_REV * sizeof(uint32_t));
 #else
     sst_memset(p_sst_obj->reserved, 0, SST_HEAD_REV * sizeof(uint32_t));
-#endif /* CONFIG_ID2_SUPPORT */
+#endif /* CONFIG_SST_USE_ID2 */
 
     time = sst_current_raw_time();
     sst_memcpy(seed, &time, sizeof(uint64_t));
@@ -248,7 +248,7 @@ uint32_t sst_imp_init(void)
 {
     uint32_t ret = SST_SUCCESS;
 
-#if !CONFIG_ID2_SUPPORT
+#if !CONFIG_SST_USE_ID2
     km_sym_gen_param param = {0};
 
     param.key_size = 128;
@@ -259,7 +259,7 @@ uint32_t sst_imp_init(void)
         }
         return SST_ERROR_GENERIC;
     }
-#endif /* !CONFIG_ID2_SUPPORT */
+#endif /* !CONFIG_SST_USE_ID2 */
 
     return ret;
 }

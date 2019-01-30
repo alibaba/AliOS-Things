@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := Secure Storage for AliOS Things.
 SST_DBG := N
 SST_MIGRATION := N
 DATA_MIGRATION := N
-ID2_SUPPORT := Y
+SST_USE_ID2 := Y
 
 ifeq ($(SST_DBG), Y)
 $(NAME)_DEFINES += CONFIG_SST_DBG
@@ -21,8 +21,8 @@ ifeq ($(DATA_MIGRATION), Y)
 $(NAME)_DEFINES += CONFIG_DATA_MIGRATION=1
 endif
 
-ifeq ($(ID2_SUPPORT), Y)
-$(NAME)_DEFINES += CONFIG_ID2_SUPPORT=1
+ifeq ($(SST_USE_ID2), Y)
+$(NAME)_DEFINES += CONFIG_SST_USE_ID2=1
 endif
 
 GLOBAL_INCLUDES  += ../include/isst
