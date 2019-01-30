@@ -205,7 +205,6 @@ static void linkkit_event_monitor(int event)
     }
 }
 
-
 static void awss_close_dev_ap(void *p)
 {
     awss_dev_ap_stop();
@@ -223,14 +222,17 @@ void awss_open_dev_ap(void *p)
     }
     aos_task_exit(0);
 }
+
 static void stop_netmgr(void *p)
 {
     awss_stop();
     LOG("%s\n", __func__);
     aos_task_exit(0);
 }
+
 static void start_netmgr(void *p)
 {
+    aos_msleep(2000);
     iotx_event_regist_cb(linkkit_event_monitor);
     netmgr_start(true);
     aos_task_exit(0);
