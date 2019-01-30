@@ -9,6 +9,7 @@
 
 #include "iot_import.h"
 #include "iot_export.h"
+#include "iot_export_mqtt.h"
 #include "app_entry.h"
 
 #include "das.h"
