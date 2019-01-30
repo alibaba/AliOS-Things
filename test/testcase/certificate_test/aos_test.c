@@ -8,55 +8,94 @@
 #include "cutest/cut.h"
 
 #ifndef SYSINFO_ARCH
-#define SYSINFO_ARCH        ""
+#define SYSINFO_ARCH        "unknown"
 #endif
 #ifndef SYSINFO_MCU
-#define SYSINFO_MCU         ""
+#define SYSINFO_MCU         "unknown"
 #endif
 #ifndef SYSINFO_DEVICE_NAME
-#define SYSINFO_DEVICE_NAME ""
+#define SYSINFO_DEVICE_NAME "unknown"
 #endif
 #ifndef SYSINFO_APP_VERSION
-#define SYSINFO_APP_VERSION ""
+#define SYSINFO_APP_VERSION "unknown"
 #endif
 #define SYSINFO_KERNEL      "AOS"
 
 /* dynamic memory alloc test */
+#ifndef TEST_CONFIG_MM_ENABLED
 #define TEST_CONFIG_MM_ENABLED                  (1)
+#endif
+
 #if (TEST_CONFIG_MM_ENABLED > 0)
+
+#ifndef TEST_CONFIG_MALLOC_MAX_SIZE
 #define TEST_CONFIG_MALLOC_MAX_SIZE             (1024)
-#define TEST_CONFIG_MALLOC_FREE_TIMES           (10000)
+#endif
+
+#ifndef TEST_CONFIG_MALLOC_FREE_TIMES
+#define TEST_CONFIG_MALLOC_FREE_TIMES           (100000)
+#endif
+
 #endif
 
 /* task test */
+#ifndef TEST_CONFIG_TASK_ENABLED
 #define TEST_CONFIG_TASK_ENABLED                (1)
+#endif
+
 #if (TEST_CONFIG_TASK_ENABLED > 0)
+
 #ifndef TEST_CONFIG_STACK_SIZE
 #define TEST_CONFIG_STACK_SIZE                  (512)
 #endif
+
+#ifndef TEST_CONFIG_MAX_TASK_COUNT
 #define TEST_CONFIG_MAX_TASK_COUNT              (10)
-#define TEST_CONFIG_CREATE_TASK_TIMES           (1000)
+#endif
+
+#ifndef TEST_CONFIG_CREATE_TASK_TIMES
+#define TEST_CONFIG_CREATE_TASK_TIMES           (10000)
+#endif
+
 #endif
 
 /* task communication test */
+#ifndef TEST_CONFIG_TASK_COMM_ENABLED
 #define TEST_CONFIG_TASK_COMM_ENABLED           (1)
+#endif
+
 #if (TEST_CONFIG_TASK_COMM_ENABLED > 0)
+
 #ifndef TEST_CONFIG_STACK_SIZE
 #define TEST_CONFIG_STACK_SIZE                  (512)
 #endif
-#define TEST_CONFIG_SYNC_TIMES                  (10000)
+
+#ifndef TEST_CONFIG_SYNC_TIMES
+#define TEST_CONFIG_SYNC_TIMES                  (100000)
+#endif
+
+#ifndef TEST_CONFIG_QUEUE_BUF_SIZE
 #define TEST_CONFIG_QUEUE_BUF_SIZE              (32)
 #endif
 
+#endif
+
 /* timer test */
+#ifndef TEST_CONFIG_TIMER_ENABLED
 #define TEST_CONFIG_TIMER_ENABLED               (1)
+#endif
 
 /* kv test */
 #ifndef TEST_CONFIG_KV_ENABLED
 #define TEST_CONFIG_KV_ENABLED                  (0)
 #endif
+
 #if (TEST_CONFIG_KV_ENABLED > 0)
+
+#ifndef TEST_CONFIG_KV_TIMES
 #define TEST_CONFIG_KV_TIMES                    (10000)
+#endif
+
 #endif
 
 static unsigned int g_var = 0;
