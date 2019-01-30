@@ -48,7 +48,7 @@ aos make menuconfig
 
 ## 依赖
 
-- feature.linkkit-mqtt
+- linkkit_sdk_c
 - cjson
 - ota
 

@@ -6,6 +6,6 @@ $(NAME)_MBINS_TYPE := app
 
 $(NAME)_SOURCES     := udev.c udev_net.c udev_mqtt_client.c
 
-$(NAME)_COMPONENTS := feature.linkkit-mqtt cjson ota
+$(NAME)_COMPONENTS := linkkit_sdk_c cjson ota
 
 GLOBAL_INCLUDES += include
