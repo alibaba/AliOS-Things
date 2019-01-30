@@ -31,8 +31,7 @@
 
 ### Dependencies
 
-- feature.linkkit-mqtt
-- feature.linkkit-coap
+- linkkit_sdk_c
 
 ## API
 
