@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_GD32F307C-EVAL
+config AOS_BOARD_GD32F307C_EVAL
     bool "gd32f307c-eval"
     select AOS_MCU_GD32F30X
     select AOS_COMP_KERNEL_INIT
@@ -6,6 +6,6 @@ menuconfig AOS_BOARD_GD32F307C-EVAL
     select AOS_COMP_NETMGR
     help
 
-if AOS_BOARD_GD32F307C-EVAL
+if AOS_BOARD_GD32F307C_EVAL
 # Configurations for board gd32f307c-eval
 endif

@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_XM510
+config AOS_BOARD_XM510
     bool "board_xm510"
     select AOS_MCU_XM510
     select AOS_COMP_KERNEL_INIT
@@ -17,7 +17,10 @@ config BSP_SUPPORT_FLASH
     bool "BSP_SUPPORT_FLASH"
     default y
 
-endmenu
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
+    default y
 
+endmenu
 
 endif

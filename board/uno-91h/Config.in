@@ -1,10 +1,10 @@
-menuconfig AOS_BOARD_UNO-91H
+config AOS_BOARD_UNO_91H
     bool "board_uno-91h"
     select AOS_MCU_RDA5981X
     select AOS_COMP_KERNEL_INIT
     help
 
-if AOS_BOARD_UNO-91H
+if AOS_BOARD_UNO_91H
 # Configurations for board board_uno-91h
 
 menu "BSP SUPPORT FEATURE"
@@ -27,6 +27,10 @@ config BSP_SUPPORT_SPI
 
 config BSP_SUPPORT_PWM
     bool "BSP_SUPPORT_PWM"
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

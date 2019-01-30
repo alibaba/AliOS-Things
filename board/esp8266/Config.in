@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_ESP8266
+config AOS_BOARD_ESP8266
     bool "board_esp8266"
     select AOS_MCU_ESP8266
     select AOS_COMP_KERNEL_INIT
@@ -6,6 +6,14 @@ menuconfig AOS_BOARD_ESP8266
 
 if AOS_BOARD_ESP8266
 # Configurations for board esp8266
+
+config DEBUG_CONFIG_PANIC
+    int "DEBUG_CONFIG_PANIC"
+    default 1
+
+config DEBUG_CONFIG_BACKTRACE
+    int "DEBUG_CONFIG_BACKTRACE"
+    default 1
 
 menu "BSP SUPPORT FEATURE"
 
@@ -21,13 +29,9 @@ config BSP_SUPPORT_FLASH
     bool "BSP_SUPPORT_FLASH"
     default y
 
-config DEBUG_CONFIG_PANIC
-    int "DEBUG_CONFIG_PANIC"
-    default 1
-
-config DEBUG_CONFIG_BACKTRACE
-    int "DEBUG_CONFIG_BACKTRACE"
-    default 1
+config BSP_SUPPORT_BLE
+    bool "BSP_SUPPORT_BLE"
+    default y
 
 endmenu
 

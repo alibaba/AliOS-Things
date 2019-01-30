@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_DH5021A_EVB
+config AOS_BOARD_DH5021A_EVB
     bool "board_dh5021a_evb"
     select AOS_MCU_DAHUA
     select AOS_COMP_KERNEL_INIT
@@ -15,6 +15,10 @@ config BSP_SUPPORT_UART
 
 config BSP_SUPPORT_FLASH
     bool "BSP_SUPPORT_FLASH"
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

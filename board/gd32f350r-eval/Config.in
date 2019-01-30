@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_GD32F350R-EVAL
+config AOS_BOARD_GD32F350R_EVAL
     bool "gd32f350r-eval"
     select AOS_MCU_GD32F3X0
     select AOS_COMP_KERNEL_INIT
@@ -6,6 +6,6 @@ menuconfig AOS_BOARD_GD32F350R-EVAL
     select AOS_COMP_NEWLIB_STUB
     help
 
-if AOS_BOARD_GD32F350R-EVAL
+if AOS_BOARD_GD32F350R_EVAL
 # Configurations for board gd32f350r-eval
 endif
