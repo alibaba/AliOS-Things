@@ -30,6 +30,9 @@ $(NAME)_SOURCES += Src/stm32f4xx_hal_msp.c \
 $(NAME)_SOURCES += drv/board_drv_led.c
 ywss_support    ?= 0
 
+GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=32768 #32kb
+GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=14 #(1 << 14) = 16kb
+
 #depends on sal module if select sal function via build option "AOS_NETWORK_SAL=y"
 AOS_NETWORK_SAL    ?= n
 ifeq (y,$(AOS_NETWORK_SAL))
@@ -74,5 +77,3 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 $(NAME)_KEIL_VENDOR = STMicroelectronics
 $(NAME)_KEIL_DEVICE = STM32F429ZITx
 
-#GLOBAL_DEFINES += KV_CONFIG_TOTAL_SIZE=32768 #32kb
-#GLOBAL_DEFINES += KV_CONFIG_BLOCK_SIZE_BITS=14 #(1 << 14) = 16kb

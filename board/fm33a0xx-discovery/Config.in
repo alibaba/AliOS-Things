@@ -1,10 +1,10 @@
-menuconfig AOS_BOARD_FM33A0XX-DISCOVERY
+config AOS_BOARD_FM33A0XX_DISCOVERY
     bool "fm33a0xx-discovery"
     select AOS_MCU_FM33A0XX
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_KERNEL_INIT
     help
 
-if AOS_BOARD_FM33A0XX-DISCOVERY
+if AOS_BOARD_FM33A0XX_DISCOVERY
 # Configurations for board fm33a0xx-discovery
 endif

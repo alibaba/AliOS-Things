@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_M100C
+config AOS_BOARD_M100C
     bool "board_m100c"
     select AOS_MCU_EFM32GXX
     select AOS_COMP_KERNEL_INIT
@@ -22,6 +22,10 @@ config BSP_SUPPORT_UART
 
 config BSP_SUPPORT_FLASH
     bool "BSP_SUPPORT_FLASH"
+    default y
+
+config BSP_SUPPORT_LORA
+    bool "BSP_SUPPORT_LORA"
     default y
 
 endmenu

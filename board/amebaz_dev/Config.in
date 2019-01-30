@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_AMEBAZ_DEV
+config AOS_BOARD_AMEBAZ_DEV
     bool "board_amebaz_dev"
     select AOS_MCU_RTL8710BN
     select AOS_COMP_KERNEL_INIT
@@ -28,6 +28,10 @@ config BSP_SUPPORT_TIMER
 
 config BSP_SUPPORT_WDG
     bool "BSP_SUPPORT_WDG"
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
     default y
 
 endmenu

@@ -22,6 +22,7 @@ endif
 
 GLOBAL_INCLUDES += .
 GLOBAL_DEFINES  += STDIO_UART=0
+GLOBAL_DEFINES  += CLI_CONFIG_SUPPORT_BOARD_CMD=1
 
 # Link Security Config
 CONFIG_LS_DEBUG      := n
@@ -52,4 +53,3 @@ GLOBAL_2BOOT_LDS_INCLUDES = $($(NAME)_LOCATION)/memory_2boot.ld.S
 # Extra build target include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $($(HOST_MCU_FAMILY)_LOCATION)/gen_crc_bin.mk
 
-#GLOBAL_DEFINES += CLI_CONFIG_SUPPORT_BOARD_CMD=1
