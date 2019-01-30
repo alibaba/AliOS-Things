@@ -42,8 +42,7 @@ int k_sem_init(struct k_sem *sem, unsigned int initial_count,
         return -EINVAL;
     }
 
-    //ret = krhino_sem_create(&sem->sem, "ble", initial_count);
-    ret = krhino_sem_create(&sem->sem, "ble", limit);
+    ret = krhino_sem_create(&sem->sem, "ble", initial_count);
     sys_dlist_init(&sem->poll_events);
     return ret;
 }
