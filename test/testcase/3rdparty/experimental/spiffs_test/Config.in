@@ -1,9 +1,0 @@
-menuconfig AOS_COMP_SPIFFS_TEST
-    bool "spiffs_test"
-    default n
-    select AOS_COMP_SPIFFS
-    help
-
-if AOS_COMP_SPIFFS_TEST
-# Configurations for comp spiffs_test
-endif
