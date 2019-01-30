@@ -13,7 +13,7 @@ endif
 
 $(NAME)_INCLUDES += include/mbedtls
 
-inter_breeze_crypto ?= 0
+inter_breeze_crypto ?= 1
 ifeq ($(inter_breeze_crypto),0)
 $(NAME)_COMPONENTS-y += mbedtls 
 GLOBAL_DEFINES-y += USE_EXTERNAL_MEBDTLS
