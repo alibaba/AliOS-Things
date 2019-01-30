@@ -1,5 +1,7 @@
-menuconfig AOS_COMP_OTA
+config AOS_COMP_OTA
     bool "OTA"
+    select AOS_COMP_OTA_CORE
+    select AOS_COMP_OTA_HAL
     default n
     help
 
