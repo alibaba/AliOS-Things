@@ -72,14 +72,14 @@ int32_t kv_secure_decrypt(uint8_t *input, uint8_t *output, uint32_t input_len)
     uint8_t *ofb_key = NULL;
     uint8_t *ofb_iv  = NULL;
 
-    ofb_key = kv_secure_getkey(OFB_KEY_LEN);
-    ofb_iv  = kv_secure_getiv(OFB_IV_LEN);
+    ofb_key = kv_secure_get_key(OFB_KEY_LEN);
+    ofb_iv  = kv_secure_get_iv(OFB_IV_LEN);
 
     if ((ofb_key == NULL) || (ofb_iv == NULL)) {
         return KV_ERR_ENCRYPT;
     }
 
-    if (_ofb_encrypt_wrap(input, output, input_len) != KV_OK) {
+    if (_ofb_encrypt_wrap(ofb_key, ofb_iv, input, output, input_len) != KV_OK) {
         return KV_ERR_ENCRYPT;
     }
 
