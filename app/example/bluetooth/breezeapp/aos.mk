@@ -17,7 +17,7 @@ GLOBAL_DEFINES += BUILD_AOS
 
 BREEZEAPP_CONFIG_EN_OTA ?= 0
 bz_en_ota ?= $(BREEZEAPP_CONFIG_EN_OTA)
-ifeq (bz_en_ota,1)
+ifeq ($(bz_en_ota),1)
 ifeq ($(bz_en_auth), 0)
 $(error OTA need authentication, please set "bz_en_auth = 1")
 endif
