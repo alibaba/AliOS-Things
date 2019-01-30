@@ -357,7 +357,7 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
     };
 
     //Default:0x0003(1A1+1A2),0x000C(2A1+2A2),0x3000(3B1+3B2),0xC000(4B1+4B2).
-    uint16_t bandMaskList[4] ={0x0002,0x000C,0x3000,0xC000};
+    uint16_t bandMaskList[4] ={0x0003,0x000C,0x3000,0xC000};
     uint16_t ChMaskCntl = LORA_CH_MASK_CONTROL_DEFAULT;
     uint16_t bandmask = bandMaskList[ChMaskCntl];
 
