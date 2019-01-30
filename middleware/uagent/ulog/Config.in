@@ -1,6 +1,7 @@
-config AOS_COMP_ULOG
+menuconfig AOS_COMP_ULOG
     bool "ulog"
-    default y
+    select AOS_COMP_OSAL_AOS
+    default n
 
 if AOS_COMP_ULOG
 # Configurations for component ulog

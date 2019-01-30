@@ -1,5 +1,5 @@
-menuconfig AOS_COMP_OTA_CORE
-    bool "OTA Core"
+config AOS_COMP_OTA_CORE
+    bool
     default n
     help
 

@@ -1,11 +1,11 @@
-menuconfig AOS_UAGENT
-    bool "uAgent Configuration"
+config AOS_UAGENT
+    bool "uAgent"
     default y
 
 if AOS_UAGENT
 
 ## --- Generated Automatically ---
-source "middleware/uagent/uota/Config.in"
+source "middleware/uagent/ota/Config.in"
 source "middleware/uagent/ulog/Config.in"
 source "middleware/uagent/udev/Config.in"
 ## --- End ---
