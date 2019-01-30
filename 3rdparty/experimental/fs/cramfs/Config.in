@@ -1,5 +1,6 @@
-menuconfig AOS_COMP_CRAMFS
+config AOS_COMP_CRAMFS
     bool "cramfs"
+    select AOS_COMP_ZLIB
     default n
     help
 
