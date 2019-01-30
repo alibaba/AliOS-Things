@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := Link Security Device Attestation example
 
 $(NAME)_SOURCES := app_entry.c
 $(NAME)_SOURCES += mqtt_das_example.c
-$(NAME)_COMPONENTS := feature.linkkit-mqtt netmgr cjson cli das
+$(NAME)_COMPONENTS := linkkit_sdk_c netmgr cjson cli das
 
 MQTTAPP_CONFIG_TEST_LOOP ?= 1
 loop ?= $(MQTTAPP_CONFIG_TEST_LOOP)
@@ -19,6 +19,8 @@ endif
 ifneq ($(loop),0)
 $(NAME)_DEFINES      += TEST_LOOP
 endif
+
+GLOBAL_INCLUDES += ./
 
 #GLOBAL_CFLAGS += -DON_DAILY
 

@@ -1,10 +1,12 @@
-menuconfig AOS_APP_DAS
+menuconfig AOS_APP_DAS_CLIENT
     bool "das_client"
+    select AOS_COMP_DAS
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
     select AOS_COMP_CJSON
-    select AOS_COMP_DAS
     select AOS_COMP_LWIP if LWIP = 1
+    select AOS_COMP_LINKKIT_SDK_C
+    select APP_FEATURE_LINKKIT_MQTT
     help
         das example
 
