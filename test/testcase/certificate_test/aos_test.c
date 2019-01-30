@@ -873,6 +873,43 @@ CASE(test_kv, aos_2_003)
         aos_msleep(1);
     }
 }
+
+#if (KV_CONFIG_SECURE_SUPPORT > 0) && (KV_CONFIG_SECURE_CRYPT_IMPL == 1)
+
+#include "kv_adapt.h"
+
+uint8_t aes_key[32] = {
+        0x86, 0xf6, 0xd2, 0xbe, 0x45, 0xb5, 0xab, 0x9c,
+        0xc7, 0xd5, 0x96, 0xf7, 0xaf, 0x45, 0xfa, 0xf7,
+        0xbe, 0x6a, 0x5d, 0xb0, 0x04, 0xc4, 0xde, 0xb5,
+        0xf5, 0x0c, 0x4f, 0xc3, 0x71, 0x19, 0x3e, 0xe8
+    };
+
+uint8_t aes_iv[16]  = {
+        0xef, 0x80, 0x18, 0xdc, 0xa3, 0x72, 0x72, 0x31,
+        0x99, 0x2e, 0x3a, 0xba, 0x60, 0xf5, 0x0b, 0xd4
+    };
+
+uint8_t* kv_secure_get_key(uint32_t len)
+{
+    if ((len <= 0) || (len > sizeof(aes_key))) {
+        return NULL;
+    }
+
+    return aes_key;
+}
+
+uint8_t* kv_secure_get_iv(uint32_t len)
+{
+    if ((len <= 0) || (len > sizeof(aes_iv))) {
+        return NULL;
+    }
+
+    return aes_iv;
+}
+
+#endif
+
 #endif /* TEST_CONFIG_KV_ENABLED */
 
 /* kv test suite */
