@@ -1,7 +1,7 @@
 config AOS_APP_LINKWAN
     bool "linkwan"
-    select AOS_COMP_LORAWAN_4_4_2
-    select AOS_COMP_LORAWAN_4_4_0
+    select AOS_COMP_LORAWAN_4_4_2 if lorawanback = 0
+    select AOS_COMP_LORAWAN_4_4_0 if lorawanback = 1
     select AOS_COMP_KV
     help
         linkwan
