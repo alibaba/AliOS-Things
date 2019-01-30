@@ -1,9 +1,0 @@
-menuconfig AOS_TEST_REALTIME
-    bool "realtime test"
-    default n
-    select AOS_COMP_RHINO
-    help
-
-if AOS_TEST_REALTIME
-# Configurations for realtime test
-endif
