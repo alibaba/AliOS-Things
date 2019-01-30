@@ -690,7 +690,7 @@ static int hci_le_set_data_len(struct bt_conn *conn)
     u16_t tx_octets, tx_time;
     int err;
 
-    err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_MAX_DATA_LEN, NULL, NULL);
+    err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_READ_MAX_DATA_LEN, NULL, &rsp);
     if (err) {
         return err;
     }
@@ -3010,8 +3010,15 @@ static void hci_rx_thread(void)
     BT_DBG("started");
 
     while (1) {
-        BT_DBG("calling fifo_get_wait");
+#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
         buf = net_buf_get(&bt_dev.rx_queue, K_FOREVER);
+#else
+        buf = net_buf_get(&bt_dev.rx_queue, K_NO_WAIT);
+        if (buf == NULL) {
+            aos_msleep(10);
+            continue;
+        }
+#endif
 
         BT_DBG("buf %p type %u len %u", buf, bt_buf_get_type(buf), buf->len);
 

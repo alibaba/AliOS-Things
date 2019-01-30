@@ -13,7 +13,8 @@
 #endif
 
 #ifndef CONFIG_BT_HCI_RX_STACK_SIZE
-#define CONFIG_BT_HCI_RX_STACK_SIZE 288
+//#define CONFIG_BT_HCI_RX_STACK_SIZE 288
+#define CONFIG_BT_HCI_RX_STACK_SIZE 768
 #endif
 
 /**
@@ -21,7 +22,7 @@
  */
 
 #ifndef CONFIG_BT_RX_PRIO
-#define CONFIG_BT_RX_PRIO 21
+#define CONFIG_BT_RX_PRIO 20
 #endif
 
 /**
@@ -29,14 +30,15 @@
  */
 
 #ifndef CONFIG_BT_HCI_TX_STACK_SIZE
-#define CONFIG_BT_HCI_TX_STACK_SIZE 290
+//#define CONFIG_BT_HCI_TX_STACK_SIZE 290
+#define CONFIG_BT_HCI_TX_STACK_SIZE 512
 #endif
 
 /**
  * CONFIG_BT_HCI_TX_PRIO: tx thread priority
  */
 #ifndef CONFIG_BT_HCI_TX_PRIO
-#define CONFIG_BT_HCI_TX_PRIO 20
+#define CONFIG_BT_HCI_TX_PRIO 21
 #endif
 
 #ifndef CONFIG_BT_CTLR_RX_PRIO
