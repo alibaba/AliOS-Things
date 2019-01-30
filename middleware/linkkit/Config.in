@@ -1,13 +1,13 @@
 menuconfig AOS_COMP_LINKKIT_SDK_C
     bool "Linkkit Configuration"
     # These symbols defined in linkkit Config.in files
-    select AOS_COMP_IOTX-HAL
+    select AOS_COMP_IOTX_HAL
     select AOS_COMP_LIBIOT_CM if DEVICE_MODEL_ENABLED
     select AOS_COMP_LIBIOT_DM if DEVICE_MODEL_ENABLED
     select AOS_COMP_LIBDEV_RESET if DEVICE_MODEL_ENABLED
     select AOS_COMP_LIBIOT_COAP_LOCAL if DEV_BIND_ENABLED
     select AOS_COMP_LIBIOT_COAP_LOCAL if WIFI_PROVISION_ENABLED
-    select AOS_COMP_LIBIOT_HTTP2 if HTTP_COMM_ENABLED
+    select AOS_COMP_LIBIOT_HTTP if HTTP_COMM_ENABLED
     select AOS_COMP_LIBIOT_HTTP2 if HTTP2_COMM_ENABLED
     # These symbols defined below:
     select AOS_COMP_LIBIOT_MAL if MAL_ENABLED
