@@ -1,7 +1,6 @@
 config AOS_APP_PROV_APP
     bool "prov_app"
     select AOS_COMP_LIBPROV
-    select AOS_COMP_LIBPROV_TEST
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help
