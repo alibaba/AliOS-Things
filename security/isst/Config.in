@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_LIBSST
+config AOS_COMP_LIBSST
     bool "libsst"
     default n
     select AOS_COMP_IROT
