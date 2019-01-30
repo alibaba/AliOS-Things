@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_XR809
+config AOS_BOARD_XR809
     bool "xr809"
     select AOS_MCU_XR871
     select AOS_COMP_KERNEL_INIT
@@ -12,4 +12,13 @@ menuconfig AOS_BOARD_XR809
 
 if AOS_BOARD_XR809
 # Configurations for board xr809
+
+menu "BSP SUPPORT FEATURE"
+
+config BSP_SUPPORT_WIFI
+    bool "BSP_SUPPORT_WIFI"
+    default y
+
+endmenu
+
 endif

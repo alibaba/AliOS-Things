@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_NUTINY-EVB-NANO130
+config AOS_BOARD_NUTINY_EVB_NANO130
     bool "nutiny-evb-nano130"
     select AOS_MCU_NANO130KE3BN
     select AOS_COMP_NEWLIB_STUB
@@ -6,6 +6,6 @@ menuconfig AOS_BOARD_NUTINY-EVB-NANO130
     select AOS_COMP_KERNEL_INIT
     help
 
-if AOS_BOARD_NUTINY-EVB-NANO130
+if AOS_BOARD_NUTINY_EVB_NANO130
 # Configurations for board nutiny-evb-nano130
 endif

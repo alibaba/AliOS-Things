@@ -1,6 +1,6 @@
-menuconfig AOS_BOARD_EML3047
+config AOS_BOARD_EML3047
     bool "board_eml3047"
-    select AOS_MCU_STM32L071KB
+    select AOS_MCU_STM32L0XX
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_LORAWAN_4_4_2 if lorawanback = 0
     select AOS_COMP_LORAWAN_4_4_0 if lorawanback = 1
@@ -21,6 +21,10 @@ config BSP_SUPPORT_I2C
 
 config BSP_SUPPORT_FLASH
     bool "BSP_SUPPORT_FLASH"
+    default y
+
+config BSP_SUPPORT_LORA
+    bool "BSP_SUPPORT_LORA"
     default y
 
 endmenu

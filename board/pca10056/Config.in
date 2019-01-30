@@ -1,4 +1,4 @@
-menuconfig AOS_BOARD_PCA10056
+config AOS_BOARD_PCA10056
     bool "board_pca10056"
     select AOS_MCU_NRF52XXX
     select AOS_COMP_KERNEL_INIT
@@ -23,6 +23,10 @@ config BSP_SUPPORT_GPIO
 
 config BSP_SUPPORT_TIMER
     bool "BSP_SUPPORT_TIMER"
+    default y
+
+config BSP_SUPPORT_BLE
+    bool "BSP_SUPPORT_BLE"
     default y
 
 endmenu
