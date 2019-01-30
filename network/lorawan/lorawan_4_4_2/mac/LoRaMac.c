@@ -2893,13 +2893,17 @@ static bool StopRetransmission( void )
 {
     // Increase the current value by 1
     uint32_t fCntUp = 0;
-    if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacGetFCntUp( &fCntUp ) )
-    {
-        return false;
-    }
-    if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacSetFCntUp( ( fCntUp ) ) )
-    {
-        return false;
+
+    if (MacCtx.McpsIndication.Status == LORAMAC_EVENT_INFO_STATUS_OK) {
+        if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacGetFCntUp( &fCntUp ) )
+        {
+            return false;
+        }
+
+        if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacSetFCntUp( ( fCntUp ) ) )
+        {
+            return false;
+        }
     }
 
     if( MacCtx.MacFlags.Bits.McpsInd == 0 )
