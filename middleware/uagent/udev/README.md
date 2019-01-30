@@ -57,7 +57,7 @@ choose：
 
 ## Dependencies
 
-- feature.linkkit-mqtt
+- linkkit_sdk_c
 - cjson
 - ota
 
