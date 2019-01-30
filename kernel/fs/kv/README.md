@@ -45,7 +45,7 @@ uint8_t aes_iv[16]  = {
         0x99, 0x2e, 0x3a, 0xba, 0x60, 0xf5, 0x0b, 0xd4
     };
 
-uint8_t* kv_secure_get_key(uint32_t *len)
+uint8_t* kv_secure_get_key(uint32_t len)
 {
     if ((len <= 0) || (len > sizeof(aes_key))) {
         return NULL;
@@ -54,7 +54,7 @@ uint8_t* kv_secure_get_key(uint32_t *len)
     return aes_key;
 }
 
-uint8_t* kv_secure_get_iv(uint32_t *len)
+uint8_t* kv_secure_get_iv(uint32_t len)
 {
     if ((len <= 0) || (len > sizeof(aes_iv))) {
         return NULL;
