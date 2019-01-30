@@ -1,9 +1,0 @@
-menuconfig AOS_COMP_KV_TEST
-    bool "kv_test"
-    default n
-    select AOS_COMP_KV
-    help
-
-if AOS_COMP_KV_TEST
-# Configurations for comp kv_test
-endif
