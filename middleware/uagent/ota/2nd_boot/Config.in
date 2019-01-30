@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_OTA_2ND_BOOT
+config AOS_COMP_OTA_2ND_BOOT
     bool "ota_2nd_boot"
     default n
     help
