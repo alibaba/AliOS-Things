@@ -239,11 +239,11 @@ LoRaMacFCntHandlerStatus_t LoRaMacGetFCntDown( AddressIdentifier_t addrID, FType
                     *currentDown = previousDown + fCntDiff;
                 }
 
+                return LORAMAC_FCNT_HANDLER_MAX_GAP_FAIL;
             }
         }
     }
 
-    #if 0
     // For LoRaWAN 1.0.X only, check maxFCntGap
     if( lrWanVersion.Fields.Minor == 0 )
     {
@@ -252,7 +252,7 @@ LoRaMacFCntHandlerStatus_t LoRaMacGetFCntDown( AddressIdentifier_t addrID, FType
             return LORAMAC_FCNT_HANDLER_MAX_GAP_FAIL;
         }
     }
-    #endif
+
     return LORAMAC_FCNT_HANDLER_SUCCESS;
 }
 
@@ -364,6 +364,6 @@ LoRaMacFCntHandlerStatus_t LoRaMacResetMulticastFCnts( AddressIdentifier_t addrI
         default:
             return LORAMAC_FCNT_HANDLER_ERROR;
     }
- 
+
     return LORAMAC_FCNT_HANDLER_SUCCESS;
 }
