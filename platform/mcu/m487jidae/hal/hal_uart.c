@@ -22,11 +22,14 @@
 #include <hal/hal.h>
 #include "board.h"
 
-#define MAX_BUF_UART_BYTES		(512)
+#include "hal_uart_event.h"
+
+#define MAX_BUF_UART_BYTES		(8192)
 
 struct nu_uart_var {
     uint32_t    ref_cnt;                // Reference count of the H/W module
     struct serial_s *  obj;
+		uart_dev_t	* uart_dev;
 //		kbuf_queue_t	fifo_queue_tx;
 		char *				fifo_buf;
 		kbuf_queue_t	fifo_queue_rx;	
@@ -79,15 +82,37 @@ static const struct nu_modinit_s uart_modinit_tab[] =
 
 static uint32_t uart_modinit_mask = 0;
 
+static void call_hal_event_cb(uart_dev_t * puart_dev, E_HAL_UART_EVENT eHalUartEvent)
+{
+		if ( puart_dev && puart_dev->priv )
+		{
+			hal_uart_event_cbfun invoke_event_cb = puart_dev->priv;
+			invoke_event_cb ( (int)puart_dev,  eHalUartEvent );
+		}
+}
 
 static void hal_uart_rxbuf_irq ( struct nu_uart_var* psNuUartVar )
 {
 	uint8_t dat;
 	struct serial_s *obj = psNuUartVar->obj;
+	uart_dev_t * puart_dev = psNuUartVar->uart_dev;
 	UART_T *uart_base = (UART_T *) NU_MODBASE(obj->uart);
 	while ( UART_IS_RX_READY(uart_base) ) {
 		dat = (uint8_t)uart_base->DAT;
-		krhino_buf_queue_send(&psNuUartVar->fifo_queue_rx, &dat, 1);
+		if ( krhino_buf_queue_send(&psNuUartVar->fifo_queue_rx, &dat, 1) == RHINO_RINGBUF_FULL )
+		{
+			call_hal_event_cb ( puart_dev, eUART_EVENT_RX_OVERFLOW );
+			break;
+		}
+	}
+	
+	if ( puart_dev && puart_dev->priv )	
+	{
+//		kbuf_queue_info_t info;
+//		memset(&info, 0, sizeof(kbuf_queue_info_t));
+//		krhino_buf_queue_info_get(&psNuUartVar->fifo_queue_rx, &info);
+//		if ( info.cur_num > 15 )
+			call_hal_event_cb ( puart_dev, eUART_EVENT_RECEIVED );
 	}
 }
 
@@ -100,7 +125,7 @@ static void uart_irq(struct nu_uart_var* psNuUartVar)
         // Simulate clear of the interrupt flag. Temporarily disable the interrupt here and to be recovered on next read.
         UART_DISABLE_INT(uart_base, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
         hal_uart_rxbuf_irq ( psNuUartVar );
-		UART_ENABLE_INT ( uart_base, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk) );			
+				UART_ENABLE_INT ( uart_base, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk) );			
     }
 
 #if 0
@@ -361,7 +386,7 @@ exit_hal_get_serial_s:
 
 				/* Link parent and children. */
 				var->obj = pserial_s;
-
+				var->uart_dev = uart;
     } //if (! var->ref_cnt)
    
     var->ref_cnt ++;
@@ -451,6 +476,10 @@ int32_t platform_uart_read(struct nu_uart_var *var, uint8_t pu8RxBuf[], uint32_t
 	while (rx_count < u32ReadBytes) {
 		rev_size = u32ReadBytes - rx_count;
 		ret = krhino_buf_queue_recv(pBuffer_queue, krhino_ms_to_ticks(timeout), &pu8RxBuf[rx_count], &rev_size);
+
+		if ( rev_size > 1 )
+			printf("%s rev_size=%d\r\n", __func__, rev_size);			
+		
 		if ( u32ReadBytes < 1 )
 			printf("%s %d %d %d\r\n", __func__, u32ReadBytes, rx_count, rev_size);			
 		if((ret == 0) && (rev_size == 1)) {
@@ -624,6 +653,7 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
 		
 		/* Unlink parent and children. */
 		var->obj = NULL ;
+		var->uart_dev = NULL;
 	}
 
 	if (! var->ref_cnt) {

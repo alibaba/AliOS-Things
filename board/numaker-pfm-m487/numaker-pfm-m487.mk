@@ -47,10 +47,16 @@ else ifeq ($(WIFI),1)
 SAL := 1
 press_test := 1
 no_with_lwip := 1
+HW_CRYPTO_AES_NUVOTON := 1
 GLOBAL_DEFINES += WITH_SAL
-GLOBAL_DEFINES += DEV_SAL_MK3060
-$(NAME)_COMPONENTS  += sal sal.wifi.mk3060
-module ?= wifi.mk3060
+GLOBAL_DEFINES += DEV_SAL_ESP8266
+#GLOBAL_DEFINES += ESP8266_USE_HARD_RESET
+$(NAME)_COMPONENTS  += netmgr sal sal.wifi.esp8266
+module ?= wifi.esp8266
+#GLOBAL_DEFINES += WITH_SAL
+#GLOBAL_DEFINES += DEV_SAL_MK3060
+#$(NAME)_COMPONENTS  += sal sal.wifi.mk3060
+#module ?= wifi.mk3060
 else
 GLOBAL_DEFINES += CONFIG_NO_TCPIP
 endif

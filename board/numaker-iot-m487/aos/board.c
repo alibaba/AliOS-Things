@@ -17,6 +17,7 @@ struct serial_s board_uart[] = {
 		.pin_cts	= NC
 	},
 #endif	
+#if 0
 	{ /* UART PORT 1, UART TX/RX in UDO IF */
 		.uart 		= UART_1,
 		.pin_tx		= PB_3,
@@ -24,6 +25,15 @@ struct serial_s board_uart[] = {
 		.pin_rts	= NC,
 		.pin_cts	= NC
 	},
+#else
+	{ /* UART PORT 1, UART TX/RX in UDO IF */
+		.uart 		= UART_1,
+		.pin_tx		= PH_8,
+		.pin_rx		= PH_9,
+		.pin_rts	= NC,
+		.pin_cts	= NC
+	},	
+#endif
 };
 const int i32BoardMaxUartNum = sizeof( board_uart ) / sizeof( board_uart[0] );
 
@@ -88,6 +98,7 @@ struct gpio_s board_gpio [] =
 	{ .pin = LED_RED },	
 	{ .pin = LED_YELLOW },
 	{ .pin = LED_GREEN },
+	{ .pin = PH_3 }, //ESP8266 Reset
 };
 const int i32BoardMaxGPIONum  = sizeof( board_gpio ) / sizeof( board_gpio[0] );
 
@@ -187,6 +198,7 @@ gpio_dev_t board_gpio_table[] =
     {18, OUTPUT_PUSH_PULL, NULL},
     {19, OUTPUT_PUSH_PULL, NULL},
     {20, OUTPUT_PUSH_PULL, NULL},
+		{21, OUTPUT_PUSH_PULL, NULL}, //ESP8266 Reset
 };
 
 /* Logic partition on flash devices */
@@ -289,6 +301,11 @@ const hal_logic_partition_t hal_partitions[HAL_PARTITION_MAX] = {
 extern struct hal_ota_module_s numicro_ota_module;
 #endif
 
+#if defined(DEV_SAL_ESP8266)
+extern uart_dev_t uart_wifi_esp8266;
+extern hal_wifi_module_t aos_wifi_module_esp8266;
+#endif
+
 void board_init(void)
 {
     board_cli_init();
@@ -299,6 +316,24 @@ void board_init(void)
 	hal_wifi_init();
 #endif
 
+#if defined(DEV_SAL_ESP8266)
+	uart_wifi_esp8266.port = 1;
+	uart_wifi_esp8266.config.baud_rate	=	115200;
+	uart_wifi_esp8266.config.data_width = DATA_WIDTH_8BIT;
+	uart_wifi_esp8266.config.parity = NO_PARITY;
+	uart_wifi_esp8266.config.stop_bits = STOP_BITS_1;
+	uart_wifi_esp8266.config.flow_control = FLOW_CONTROL_DISABLED;
+	uart_wifi_esp8266.config.mode = MODE_TX_RX;
+	uart_wifi_esp8266.priv = NULL;
+
+	#ifdef ESP8266_USE_HARD_RESET
+	extern gpio_dev_t* esp8266_reset_pin;
+	esp8266_reset_pin = &board_gpio_table[21];
+	#endif
+	hal_wifi_register_module(&aos_wifi_module_esp8266);	
+	hal_wifi_init();
+#endif
+	
 #if defined(WITH_LWIP)    
     extern hal_wifi_module_t numicro_eth_m487;
     extern int lwip_tcpip_init(void);

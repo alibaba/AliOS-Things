@@ -1,3 +1,4 @@
+
 #include <aos/kernel.h>
 #include <aos/aos.h>
 #include <hal/wifi.h>
@@ -296,6 +297,16 @@ void board_init(void)
 #if defined(DEV_SAL_MK3060)
 	extern hal_wifi_module_t aos_wifi_module_mk3060;
 	hal_wifi_register_module(&aos_wifi_module_mk3060);	
+	hal_wifi_init();
+#endif
+
+#if defined(DEV_SAL_ESP8266)
+	extern hal_wifi_module_t aos_wifi_module_esp8266;
+	#ifdef ESP8266_USE_HARD_RESET
+	extern gpio_dev_t* esp8266_reset_pin;
+	esp8266_reset_pin = &board_gpio_table[21];
+	#endif
+	hal_wifi_register_module(&aos_wifi_module_esp8266);	
 	hal_wifi_init();
 #endif
 

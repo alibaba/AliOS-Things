@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <aos/aos.h>
 
-#if defined(WITH_SAL)
+#if defined(WITH_SAL) && !defined(DEV_SAL_ESP8266)
 
 #include <atparser.h>
 

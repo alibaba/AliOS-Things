@@ -13,7 +13,11 @@ GLOBAL_INCLUDES += \
                    Library/StdDriver/inc \
                    hal/misc \
                    hal/common
-                   
+
+ifeq ($(WIFI),1)
+GLOBAL_INCLUDES += ../../../network/sal/wifi/esp8266_aos
+endif
+  
 #ToDo
 #Comment Library/StdDriver/src/crc.c, due to out/helloworld@numaker-pfm-m487/Modules/utility/digest_algorithm/crc.o?
 
@@ -117,11 +121,6 @@ $(NAME)_SOURCES += 	lwIP/netif/ethernetif.c \
                     hal/eth_port.c 
 endif
 
-#ifeq ($(WIFI),1)
-#$(NAME)_SOURCES += hal/wifi_port.c
-#GLOBAL_INCLUDES += ../../../network/sal/wifi/esp8266
-#$(NAME)_SOURCES += cli/uart_config.c
-#endif
 
 ifeq ($(COMPILER),armcc)
 GLOBAL_CFLAGS   += --c99 --cpu=Cortex-M4 --apcs=/hardfp --fpu=vfpv4_sp_d16 -D__MICROLIB -g --split_sections
