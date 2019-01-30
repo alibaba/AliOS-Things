@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_LIBKM
+config AOS_COMP_LIBKM
     bool "libkm"
     default n
     select AOS_COMP_LIBPLAT_GEN

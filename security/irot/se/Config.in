@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_SE
+config AOS_COMP_SE
     bool "se"
     default n
     help

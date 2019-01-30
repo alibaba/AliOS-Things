@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_ID2
+config AOS_COMP_ID2
     bool "id2"
     default n
     select AOS_COMP_IROT
