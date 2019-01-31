@@ -82,8 +82,7 @@ static bt_dh_key_cb_t        dh_key_cb;
 #define SYNC_TX 1
 #define SYNC_TX_DONE 2
 
-struct cmd_data
-{
+struct cmd_data {
     /** BT_BUF_CMD */
     u8_t type;
 
@@ -534,14 +533,14 @@ static void hci_acl(struct net_buf *buf)
 static void hci_num_completed_packets(struct net_buf *buf)
 {
     struct bt_hci_evt_num_completed_packets *evt = (void *)buf->data;
-    int                                      i;
+    int i;
 
     BT_DBG("num_handles %u", evt->num_handles);
 
     for (i = 0; i < evt->num_handles; i++) {
-        u16_t           handle, count;
+        u16_t handle, count;
         struct bt_conn *conn;
-        unsigned int    key;
+        unsigned int key;
 
         handle = sys_le16_to_cpu(evt->h[i].handle);
         count  = sys_le16_to_cpu(evt->h[i].count);
@@ -570,8 +569,8 @@ static void hci_num_completed_packets(struct net_buf *buf)
                 BT_ERR("packets count mismatch");
                 break;
             }
-            bt_conn_notify_tx_done(conn);
             k_fifo_put(&conn->tx_notify, node);
+            bt_conn_notify_tx_done(conn);
         }
 
         bt_conn_unref(conn);
@@ -1990,7 +1989,7 @@ static void hci_event(struct net_buf *buf)
 {
     struct bt_hci_evt_hdr *hdr = (void *)buf->data;
 
-    BT_DBG("event 0x%02x", hdr->evt);
+    BT_DBG("%s, event 0x%02x", __func__, hdr->evt);
 
     BT_ASSERT(!bt_hci_evt_is_prio(hdr->evt));
 
