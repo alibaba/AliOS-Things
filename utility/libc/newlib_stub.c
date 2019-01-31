@@ -141,6 +141,10 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
     int         i   = 0;
     uart_dev_t  uart_stdio;
 
+    if (buf == NULL) {
+        return 0;
+    }
+
     memset(&uart_stdio, 0, sizeof(uart_stdio));
     uart_stdio.port = 0;
 
