@@ -257,7 +257,6 @@ void wait_for_event_done(int timeout)
 
     k_poll(events, evt_num, timeout);
     process_events(events, evt_num);
-
 }
 
 void process_events(struct k_poll_event *ev, int count);
