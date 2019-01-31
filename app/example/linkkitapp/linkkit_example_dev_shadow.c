@@ -13,10 +13,7 @@
 #define USE_CUSTOME_DOMAIN      (0)
 
 #ifdef EN_COMBO_NET
-#define PRODUCT_KEY    "a1pxK8qL50q"
-#define PRODUCT_SECRET "iX6XqAjaCTXBv4h3"
-#define DEVICE_NAME    "testDeviceRemote"
-#define DEVICE_SECRET  "IMIu4BOXoGb2DjWQxu03DKe7nkZbG7ei"
+#include "combo_devinfo.h"
 #else
 #define PRODUCT_KEY    "a1ybTpus98a"
 #define PRODUCT_SECRET "iX6XqAjaCTXBv4h3"
