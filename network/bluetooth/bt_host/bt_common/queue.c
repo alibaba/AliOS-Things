@@ -7,20 +7,31 @@
 #include <misc/dlist.h>
 #include "queue.h"
 
+// TODO: rm this tmp code
+#include "net/buf.h"
+struct cmd_data {
+    u8_t type;
+    u8_t status;
+    u16_t opcode;
+    u8_t sync;
+};
+#define cmd(buf) ((struct cmd_data *)net_buf_user_data(buf))
+extern struct k_sem g_poll_sem;
+
 void k_queue_init(struct k_queue *queue)
 {
     sys_slist_init(&queue->data_q);
     sys_dlist_init(&queue->poll_events);
 }
 
-static inline void handle_poll_events(struct k_queue *queue, u32_t state)
+static inline void handle_poll_events(struct k_queue *queue, u32_t state, uint8_t sync)
 {
-    _handle_obj_poll_events(&queue->poll_events, state);
+    _handle_obj_poll_events(&queue->poll_events, state, sync);
 }
 
 void k_queue_cancel_wait(struct k_queue *queue)
 {
-    handle_poll_events(queue, K_POLL_STATE_NOT_READY);
+    handle_poll_events(queue, K_POLL_STATE_NOT_READY, 0);
 }
 
 static void queue_insert(struct k_queue *queue, void *prev, void *data)
@@ -29,7 +40,7 @@ static void queue_insert(struct k_queue *queue, void *prev, void *data)
 
     node->next = NULL;
     sys_slist_insert(&queue->data_q, prev, data);
-    handle_poll_events(queue, K_POLL_STATE_DATA_AVAILABLE);
+    handle_poll_events(queue, K_POLL_STATE_DATA_AVAILABLE, cmd(data)->sync);
 }
 
 void k_queue_insert(struct k_queue *queue, void *prev, void *data)
@@ -49,8 +60,16 @@ void k_queue_prepend(struct k_queue *queue, void *data)
 
 void k_queue_append_list(struct k_queue *queue, void *head, void *tail)
 {
+    uint8_t sync = cmd(head)->sync;
+
+    if (sync == 0) {
+        sync = 2;
+    }
     sys_slist_append_list(&queue->data_q, head, tail);
-    handle_poll_events(queue, K_POLL_STATE_DATA_AVAILABLE);
+    handle_poll_events(queue, K_POLL_STATE_DATA_AVAILABLE, sync);
+    if (sync == 2) {
+        k_sem_give(&g_poll_sem);
+    }
 }
 
 extern void wait_for_event_done(int timeout);

@@ -49,24 +49,27 @@ static inline void set_event_state(struct k_poll_event *event, u32_t state)
 
 extern int has_tx_sem(struct k_poll_event *event);
 static int _signal_poll_event(struct k_poll_event *event, u32_t state,
-                              int *must_reschedule)
+                              int *must_reschedule, uint8_t sync)
 {
     *must_reschedule = 0;
     if (event->type != K_POLL_TYPE_DATA_AVAILABLE || has_tx_sem(event)) {
         set_event_state(event, state);
     }
-    //k_sem_give(&g_poll_sem);
+
+    if (sync == 0) {
+        k_sem_give(&g_poll_sem);
+    }
     return 0;
 }
 
-void _handle_obj_poll_events(sys_dlist_t *events, u32_t state)
+void _handle_obj_poll_events(sys_dlist_t *events, u32_t state, uint8_t sync)
 {
     struct k_poll_event *poll_event;
     int must_reschedule;
 
     poll_event = (struct k_poll_event *)sys_dlist_get(events);
     if (poll_event) {
-        (void)_signal_poll_event(poll_event, state, &must_reschedule);
+        (void)_signal_poll_event(poll_event, state, &must_reschedule, sync);
     }
 }
 
