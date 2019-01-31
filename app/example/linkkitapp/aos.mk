@@ -59,11 +59,12 @@ else
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
-#en_comboapp := 0
+en_comboapp := 0
 ifeq ($(en_comboapp), 1)
-$(NAME)_COMPONENTS += breeze breeze_hal bt_profile
+$(NAME)_COMPONENTS += breeze breeze_hal
 $(NAME)_SOURCES += combo/combo_net.c
 GLOBAL_DEFINES += EN_COMBO_NET
+GLOBAL_INCLUDES += combo
 bz_en_auth := 1
 bz_en_awss := 1
 ble := 1
