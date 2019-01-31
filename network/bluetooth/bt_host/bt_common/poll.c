@@ -55,7 +55,7 @@ static int _signal_poll_event(struct k_poll_event *event, u32_t state,
     if (event->type != K_POLL_TYPE_DATA_AVAILABLE || has_tx_sem(event)) {
         set_event_state(event, state);
     }
-    k_sem_give(&g_poll_sem);
+    //k_sem_give(&g_poll_sem);
     return 0;
 }
 
