@@ -25,6 +25,7 @@
 struct hci_cmd_send_t {
     struct k_sem send_sem;
     uint8_t cmd_buf[BT_BUF_RX_SIZE];
+    uint16_t buf_len;
 } g_esp32_hci_send;
 
 struct hci_cmd_recv_t {
@@ -210,15 +211,16 @@ static int esp32_hci_driver_send(struct net_buf *buf)
     }
 
     memcpy(g_esp32_hci_send.cmd_buf + 1, buf->data, buf->len);
-
-    net_buf_unref(buf);
+    g_esp32_hci_send.buf_len = buf->len;
 
     BT_DBG("%s", bt_hex(buf->data, buf->len));
+    net_buf_unref(buf);
+
 
     if(0==k_sem_take(&g_esp32_hci_send.send_sem, K_FOREVER)){
         if (esp_vhci_host_check_send_available()) {
             HCI_DRV_D(">>>");
-            esp_vhci_host_send_packet(g_esp32_hci_send.cmd_buf, buf->len + 1);
+            esp_vhci_host_send_packet(g_esp32_hci_send.cmd_buf, g_esp32_hci_send.buf_len + 1);
         }else{
             HCI_DRV_D("VHCI NOT AVA");
         }
@@ -276,5 +278,6 @@ int hci_driver_init()
     HCI_DRV_D("bt_hci_driver_register done");
 
     memset(g_esp32_hci_send.cmd_buf, 0, sizeof(g_esp32_hci_send.cmd_buf));
+    g_esp32_hci_send.buf_len = 0;
     return 0;
 }
