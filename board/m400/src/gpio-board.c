@@ -546,12 +546,14 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj )
 
 void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 {
+    if( obj == NULL )
+    {
+        assert_param( FAIL );
+        return;
+    }
+
     if( obj->pin < IOE_0 )
     {
-        if( obj == NULL )
-        {
-            assert_param( FAIL );
-        }
         // Check if pin is not connected
         if( obj->pin == NC )
         {
@@ -570,13 +572,14 @@ void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 
 void GpioMcuToggle( Gpio_t *obj )
 {
+    if( obj == NULL )
+    {
+        assert_param( FAIL );
+        return;
+    }
+
     if( obj->pin < IOE_0 )
     {
-        if( obj == NULL )
-        {
-            assert_param( FAIL );
-        }
-
         // Check if pin is not connected
         if( obj->pin == NC )
         {
@@ -598,6 +601,7 @@ uint32_t GpioMcuRead( Gpio_t *obj )
     if( obj == NULL )
     {
         assert_param( FAIL );
+        return 0;
     }
 
     if( obj->pin < IOE_0 )
