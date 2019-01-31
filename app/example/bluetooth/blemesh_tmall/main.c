@@ -9,16 +9,23 @@
 #include <ctype.h>
 #include <aos/kernel.h>
 #include <aos/cli.h>
-
 #include <misc/printk.h>
 #include <aos/hal/gpio.h>
-
 #include "tmall_model.h"
 
 // use LED1 on nrf52832 pca10040 dev board for demo
 #define LED1_PIN 17
 
 static gpio_dev_t gpio_led;
+
+#ifdef CONFIG_PRINT_HEAP
+static void print_heap()
+{
+    extern k_mm_head *g_kmm_head;
+    int               free = g_kmm_head->free_size;
+    LOG("============free heap size =%d==========", free);
+}
+#endif
 
 static void prov_complete(u16_t net_idx, u16_t addr)
 {
@@ -101,7 +108,7 @@ static void app_delayed_action(void *arg)
     blemesh_tmall_profile();
 }
 
-#ifdef AOS_COMP_CLI
+#ifdef CONFIG_AOS_CLI
 static void handle_set_mac(char *pwbuf, int blen, int argc, char **argv);
 
 static struct cli_command tmall_cmds[] = {
@@ -154,11 +161,19 @@ static void handle_set_mac(char *pwbuf, int blen, int argc, char **argv)
 
 int application_start(int argc, char **argv)
 {
-#ifdef AOS_COMP_CLI
+#ifdef CONFIG_PRINT_HEAP
+    printf("After kernel init\r\n");
+    print_heap();
+#endif
+#ifdef CONFIG_AOS_CLI
     aos_cli_register_commands(&tmall_cmds[0], sizeof(tmall_cmds) / sizeof(tmall_cmds[0]));
 #endif
     aos_post_delayed_action(1000, app_delayed_action, NULL);
-    //ais_ota_bt_storage_init();
+    ble_storage_init();
+#ifdef CONFIG_PRINT_HEAP
+    printf("After storage init\r\n");
+    print_heap();
+#endif
     aos_loop_run();
     return 0;
 }
