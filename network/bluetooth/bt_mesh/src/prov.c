@@ -495,7 +495,7 @@ static void prov_invite(const u8_t *data)
 {
     struct net_buf_simple *buf = PROV_BUF(12);
 
-    BT_DBG("Attention Duration: %u seconds", data[0]);
+    BT_DBG("%s, Attention Duration: %u seconds", __func__, data[0]);
 
     if (data[0]) {
         bt_mesh_attention(NULL, data[0]);
@@ -905,7 +905,7 @@ static void send_pub_key(void)
 
 static void prov_pub_key(const u8_t *data)
 {
-    BT_DBG("Remote Public Key: %s", bt_hex(data, 64));
+    BT_DBG("%s, Remote Public Key: %s", __func__, bt_hex(data, 64));
 
     memcpy(&link.conf_inputs[17], data, 64);
 
@@ -1439,7 +1439,7 @@ int bt_mesh_pb_gatt_recv(bt_mesh_conn_t conn, struct net_buf_simple *buf)
 {
     u8_t type;
 
-    BT_DBG("%u bytes: %s", buf->len, bt_hex(buf->data, buf->len));
+    BT_DBG("%s, %u bytes: %s", __func__, buf->len, bt_hex(buf->data, buf->len));
 
     if (link.conn != conn) {
         BT_WARN("Data for unexpected connection");

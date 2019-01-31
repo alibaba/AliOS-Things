@@ -314,6 +314,16 @@ struct net_buf *net_buf_slist_get(sys_slist_t *list)
 	return buf;
 }
 
+#define SYNC_TX 1
+struct cmd_data {
+    u8_t type;
+    u8_t status;
+    u16_t opcode;
+    u8_t sync;
+};
+#define cmd(buf) ((struct cmd_data *)net_buf_user_data(buf))
+extern struct k_sem g_poll_sem;
+
 void net_buf_put(struct k_fifo *fifo, struct net_buf *buf)
 {
 	struct net_buf *tail;
@@ -326,6 +336,10 @@ void net_buf_put(struct k_fifo *fifo, struct net_buf *buf)
 	}
 
 	k_fifo_put_list(fifo, buf, tail);
+        // TODO: rm this tmp code
+        if (cmd(buf)->sync == 0) {
+            k_sem_give(&g_poll_sem);
+        }
 }
 
 #if defined(CONFIG_NET_BUF_LOG)
