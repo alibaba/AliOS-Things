@@ -9,10 +9,11 @@
 
 #include "aos/kernel.h"
 #include <aos/yloop.h>
+#include "ulog/ulog.h"
 #include "netmgr.h"
 
-#include <breeze_export.h>
-#include "combo_net_devinfo.h"
+#include <breeze_awss_export.h>
+#include "combo_devinfo.h"
 
 extern char awss_running;
 
@@ -71,7 +72,6 @@ int combo_net_init()
     if (netmgr_start(false) != 1) {
         breeze_awss_init(apinfo_ready_handler, &dinfo);
     }
-    breeze_awss_start();
     return 0;
 }
 
