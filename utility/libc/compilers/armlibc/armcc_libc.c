@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include "k_config.h"
+#include "aos/kernel.h"
 
 #include "aos/hal/uart.h"
 
@@ -95,13 +96,18 @@ char * strdup(const char *s)
     return (char *)memcpy(dup_str, s, len);
 }
 
+#endif
+
 #pragma weak fputc
 int fputc(int ch, FILE *f)
 {
     /* Send data. */
-    return hal_uart_send(&uart_0, (uint8_t *)(&ch), 1, 1000);
+    if (ch == '\n') {
+      hal_uart_send(&uart_0, (void *)"\r", 1, AOS_WAIT_FOREVER);
+    }
+    hal_uart_send(&uart_0, &ch, 1, AOS_WAIT_FOREVER);
+    return ch;
 }
-#endif
 
 //referred from ota_socket.o
 void bzero()
@@ -112,24 +118,25 @@ void bzero()
 //referred from ssl_cli.o
 time_t time(time_t *t)
 {
-	return 0;
+    return 0;
 }
 
 //referred from aos_network.o
 int accept(int sock, long *addr, long *addrlen)
 {
-	return 0;
+    return 0;
 }
 
 int listen(int sock, int backlog)
 {
-	return 0;
+    return 0;
 }
 
 //referred from timing.o
 unsigned int alarm(unsigned int seconds)
 {
-	return 0;
+    return 0;
 }
 
 #endif
+
