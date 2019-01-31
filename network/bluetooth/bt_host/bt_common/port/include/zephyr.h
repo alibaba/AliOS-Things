@@ -141,7 +141,7 @@ extern "C"
                        s32_t timeout);
     extern void k_poll_event_init(struct k_poll_event *event, u32_t type,
                                   int mode, void *obj);
-    extern void _handle_obj_poll_events(sys_dlist_t *events, u32_t state);
+    extern void _handle_obj_poll_events(sys_dlist_t *events, u32_t state, uint8_t sync);
 
     /* public - polling modes */
     enum k_poll_modes
