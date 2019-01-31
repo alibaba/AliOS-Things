@@ -17,10 +17,14 @@ export SYSCONFIG_H := $(SOURCE_ROOT)build/configs/sysconfig.h
 
 ifeq ($(HOST_OS),Linux64)
 KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-linux.git
-else
-ifeq ($(HOST_OS),OSX)
+else ifeq ($(HOST_OS),OSX)
 KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-mac.git
-endif
+else ifeq ($(HOST_OS),Win32)
+export KCONFIG_MCONF := $(subst /,\,$(KCONFIG_MCONF)).bat
+export KCONFIG_CONF := $(subst /,\,$(KCONFIG_CONF)).bat
+export AOS_CONFIG_IN := $(subst ./,,$(AOS_CONFIG_IN))
+export AOS_DEFCONFIG := $(subst ./,,$(AOS_DEFCONFIG))
+KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-win32.git
 endif
 
 # Don't read in .config for these targets
@@ -45,11 +49,15 @@ endif
 INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), $(INCLUDE_OPTS) $(AOS_CONFIG_DIR)/autoconf.h)
 INCLUDE_SYSCONFIG_H = $($(if $(wildcard $(SYSCONFIG_H)), $(INCLUDE_OPTS) $(SYSCONFIG_H)))
 
+ifneq ($(HOST_OS),Win32)
 COMMON_CONFIG_ENV = \
 	KCONFIG_CONFIG=$(AOS_CONFIG) \
 	KCONFIG_AUTOCONFIG=$(AOS_CONFIG_DIR)/auto.conf \
 	KCONFIG_AUTOHEADER=$(AOS_CONFIG_DIR)/autoconf.h \
 	KCONFIG_TRISTATE=$(AOS_CONFIG_DIR)/tristate.conf
+else
+COMMON_CONFIG_ENV =
+endif
 
 $(KCONFIG_MCONF) $(KCONFIG_CONF):
 	$(QUIET)git clone $(KCONFIG_URL) $(KCONFIG_DIR)
