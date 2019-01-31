@@ -327,6 +327,10 @@ config AOS_board_xr871evb
     bool "xr871evb"
     select AOS_BOARD_XR871EVB
 
+config AOS_board_mt7682s
+    bool "mt7682s"
+    select AOS_BOARD_MT7682S
+
 endchoice
 
 if AOS_board_aaboard_demo
@@ -1056,6 +1060,16 @@ if AOS_board_xr871evb
     source "platform/mcu/xr871/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
 endif
+
+if AOS_board_mt7682s
+    config AOS_BUILD_BOARD
+        default "mt7682s"
+
+    source "board/mt7682s/Config.in"
+    source "platform/mcu/mtk7682/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
 endmenu
 
 # --- End ---
