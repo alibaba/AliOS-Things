@@ -1,8 +1,9 @@
 config AOS_COMP_IROT
     bool "root of Trust,SE and TEE"
     default n
-    select AOS_COMP_LIBKM_TEE if AOS_BOARD_CB2201
-    select AOS_COMP_LIBKM if AOS_BOARD_MK3060 || AOS_BOARD_MK3080 || AOS_BOARD_LINUXHOST
+    select AOS_COMP_LIBKM_SE if CONFIG_LS_KM_SE
+    select AOS_COMP_LIBKM_TEE if !CONFIG_LS_KM_SE && CONFIG_LS_KM_TEE
+    select AOS_COMP_LIBKM if !CONFIG_LS_KM_SE && !CONFIG_LS_KM_TEE
     help
 
 if AOS_COMP_IROT
