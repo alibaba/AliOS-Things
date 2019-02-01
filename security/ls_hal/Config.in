@@ -1,8 +1,8 @@
-config AOS_COMP_LS_OSA
-    bool "ls_osa"
+config AOS_COMP_LS_HAL
+    bool "ls_hal"
     default n
     help
 
-if AOS_COMP_LS_OSA
-# Configurations for comp ls_osa
+if AOS_COMP_LS_HAL
+# Configurations for comp ls_hal
 endif
