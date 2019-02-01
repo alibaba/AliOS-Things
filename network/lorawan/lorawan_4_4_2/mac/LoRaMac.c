@@ -2153,6 +2153,8 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                         macCmdPayload[0] = 0;
                     }
                     LoRaMacCommandsAddCmd( MOTE_MAC_BEACON_FREQ_ANS, macCmdPayload, 1 );
+
+                    SetMlmeScheduleUplinkIndication( );
                 }
                 break;
             default:
@@ -4146,6 +4148,26 @@ LoRaMacStatus_t LoRaMacMulticastChannelSet( MulticastChannel_t channel )
 
     EventMacNvmCtxChanged( );
     EventRegionNvmCtxChanged( );
+    return LORAMAC_STATUS_OK;
+}
+
+LoRaMacStatus_t LoRaMacMulticastChannelGet(uint8_t index, MulticastChannel_t * channel)
+{
+    if (index >= LORAMAC_MAX_MC_CTX) {
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
+    }
+
+    if (MacCtx.NvmCtx->MulticastChannelList[index].IsEnabled == false) {
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
+    }
+
+    channel->AddrID      = MacCtx.NvmCtx->MulticastChannelList[index].AddrID;
+    channel->Address     = MacCtx.NvmCtx->MulticastChannelList[index].Address;
+    channel->IsEnabled   = MacCtx.NvmCtx->MulticastChannelList[index].IsEnabled;
+    channel->Frequency   = MacCtx.NvmCtx->MulticastChannelList[index].Frequency;
+    channel->Datarate    = MacCtx.NvmCtx->MulticastChannelList[index].Datarate;
+    channel->Periodicity = MacCtx.NvmCtx->MulticastChannelList[index].Periodicity;
+
     return LORAMAC_STATUS_OK;
 }
 

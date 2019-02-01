@@ -186,4 +186,12 @@ bool lora_tx_data_payload(uint8_t confirm, uint8_t Nbtrials, uint8_t *payload,
                           uint8_t len);
 bool set_lora_app_port(uint8_t port);
 
+void set_classb_ping_period(uint8_t ping_period);
+
+int8_t multicast_add(uint32_t dev_addr, uint32_t frequency, uint8_t  data_rate, uint16_t periodicity, uint8_t *mc_key );
+
+int8_t multicast_delete(uint32_t dev_addr);
+
+uint8_t multicast_get_num(void);
+
 #endif /* LINKWAN_H */
