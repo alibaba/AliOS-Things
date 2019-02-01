@@ -3,7 +3,6 @@ menuconfig AOS_COMP_BREEZE
     default n
     select AOS_COMP_CHIP_CODE
     select AOS_COMP_BREEZE_HAL if AOS_CONFIG_BT_STACK
-    select AOS_COMP_MBEDTLS
     help
       AliOS things Breeze SDK
 
