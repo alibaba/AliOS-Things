@@ -3,7 +3,6 @@ config AOS_APP_BLEPERIPHERAL
     select AOS_COMP_BT_HOST
     select AOS_COMP_BT_PROFILE
     select AOS_COMP_CLI
-    select AOS_COMP_YLOOP
     help
         bleperipheral
 
