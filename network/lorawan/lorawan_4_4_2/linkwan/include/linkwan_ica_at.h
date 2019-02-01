@@ -31,7 +31,7 @@
 #define LORA_AT_CSTATUS "+CSTATUS"  // cstatus
 #define LORA_AT_CJOIN "+CJOIN"  // OTTA join
 
-#define LORA_AT_DTRX "+DTRX"  // tx
+#define LORA_AT_DTX "+DTX"  // tx
 #define LORA_AT_DRX "+DRX"  // rx
 
 #define LORA_AT_CCONFIRM "+CCONFIRM"  //cfm or uncfm

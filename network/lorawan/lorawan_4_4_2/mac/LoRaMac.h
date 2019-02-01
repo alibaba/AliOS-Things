@@ -588,7 +588,7 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS,
     /*!
-     * Dynamic mullticast downlink counter is not minMcFCount â‰?McFCount < maxMcFCount 
+     * Dynamic mullticast downlink counter is not minMcFCount â‰?McFCount < maxMcFCount
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_OUT_OF_COUNTER,
     /*!
@@ -1760,13 +1760,13 @@ typedef union uMibParam
      *
      * Related MIB type: \ref MIB_MC_GEN_APP_KEY
      */
-    uint8_t* McGenAppKey; 
+    uint8_t* McGenAppKey;
         /*!
      * Multicast key generate mckekey
      *
      * Related MIB type: \ref MIB_MC_ROOT_KEY
      */
-    uint8_t* McRootKey ; 
+    uint8_t* McRootKey ;
     /*!
      * Multicast key encryption key
      *
@@ -2631,6 +2631,8 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest );
 LoRaMacState_t GetLoRaMacState(void);
 int32_t LoRaMacGetEventCnt (void);
 uint8_t LoRaMacCheckFreqDr( uint32_t frequency, uint8_t datarate );
+
+uint8_t LoRaMacGetCurrentChannel( void );
 
 /*!
  * Automatically add the Region.h file at the end of LoRaMac.h file.
