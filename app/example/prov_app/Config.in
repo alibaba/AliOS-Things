@@ -3,6 +3,7 @@ config AOS_APP_PROV_APP
     select AOS_COMP_LIBPROV
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
+    select AOS_COMP_LS_HAL
     help
         id2 provisioning sample app
 
