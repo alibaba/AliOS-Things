@@ -52,21 +52,9 @@ void cpu_pwr_down(void)
 
     if ((cpu_pwr_idle_mode == CPU_IDLE_MODE_TICKLESS) &&
         (_func_cpu_tickless_down != NULL)) {
-        krhino_spin_lock_irq_save(&cpu_pwr_spin);
-        cpu_pwr_suspend_devices();
-
         _func_cpu_tickless_down();
-
-        cpu_pwr_resume_devices();
-        krhino_spin_unlock_irq_restore(&cpu_pwr_spin);
     } else if (cpu_pwr_idle_mode == CPU_IDLE_MODE_SLEEP) {
-        krhino_spin_lock_irq_save(&cpu_pwr_spin);
-        cpu_pwr_suspend_devices();
-
         (void)cpu_pwr_c_state_set(CPU_CSTATE_C1);
-
-        cpu_pwr_resume_devices();
-        krhino_spin_unlock_irq_restore(&cpu_pwr_spin);
     } else {
         /* CPU_IDLE_MODE_RUN */
         return;
