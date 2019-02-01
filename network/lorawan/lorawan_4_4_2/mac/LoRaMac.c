@@ -4522,3 +4522,9 @@ uint8_t LoRaMacCheckFreqDr( uint32_t frequency, uint8_t datarate )
 
     return RegionRxParamSetupReq( MacCtx.NvmCtx->Region, &rxParamSetupReq );
 }
+
+uint8_t LoRaMacGetCurrentChannel( void )
+{
+    return MacCtx.NvmCtx->Channel;
+}
+
