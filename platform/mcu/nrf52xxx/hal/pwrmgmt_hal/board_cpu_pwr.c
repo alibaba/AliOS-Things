@@ -144,13 +144,4 @@ pwr_status_t board_cpu_pwr_init(void)
     return retVal;
 }
 
-void cpu_pwr_suspend_devices() {
-    app_uart_close();
-}
-
-void cpu_pwr_resume_devices() {
-    hal_uart_init(NULL);
-}
-
 #endif /* AOS_COMP_PWRMGMT */
-
