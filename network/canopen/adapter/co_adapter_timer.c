@@ -3,7 +3,7 @@
  */
 
 #ifdef AOS_CANOPEN
-#include "adapter.h"
+#include "co_adapter.h"
 #include "canfestival.h"
 
 static timer_dev_t timer_canopen;
