@@ -1,11 +1,11 @@
-config AOS_BOARD_STM32F429ZI_NUCLEO
-    bool "stm32f429zi-nucleo"
+config AOS_BOARD_STM32F429ZI_SYSCALL
+    bool "stm32f429zi-syscall"
     select AOS_MCU_STM32F4XX_SYSCALL
     select AOS_COMP_LWIP
     help
 
-if AOS_BOARD_STM32F429ZI_NUCLEO
-# Configurations for board stm32f429zi-nucleo
+if AOS_BOARD_STM32F429ZI_SYSCALL
+# Configurations for board stm32f429zi-syscall
 
 # Set default value of AOS_NETWORK_SAL
 config AOS_NETWORK_SAL

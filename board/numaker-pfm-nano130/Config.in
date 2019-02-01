@@ -1,4 +1,4 @@
-config AOS_BOARD_NUMAKER-PFM-NANO130
+config AOS_BOARD_NUMAKER_PFM_NANO130
     bool "numaker-pfm-nano130"
     select AOS_MCU_NANO130KE3BN
     select AOS_COMP_KERNEL_INIT
@@ -6,6 +6,6 @@ config AOS_BOARD_NUMAKER-PFM-NANO130
     select AOS_COMP_NETMGR
     help
 
-if AOS_BOARD_NUMAKER-PFM-NANO130
+if AOS_BOARD_NUMAKER_PFM_NANO130
 # Configurations for board numaker-pfm-nano130
 endif

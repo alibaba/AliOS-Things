@@ -35,4 +35,18 @@ config BSP_SUPPORT_WIFI
 
 endmenu
 
+# link security config
+config CONFIG_LS_DEBUG
+    bool
+    default n
+config CONFIG_LS_ID2_OTP
+    bool
+    default y
+config CONFIG_LS_KM_SE
+    bool
+    default n
+config CONFIG_LS_KM_TEE
+    bool
+    default n
+
 endif

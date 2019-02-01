@@ -1,11 +1,12 @@
-config AOS_BOARD_STM32L476RG-NUCLEO
+config AOS_BOARD_STM32L476RG_NUCLEO
     bool "stm32l476rg-nucleo"
     select AOS_MCU_STM32L4XX_CUBE
+    select AOS_COMP_KERNEL_INIT
     select AOS_COMP_SAL if AOS_NETWORK_SAL
     select AOS_COMP_NETMGR if AOS_NETWORK_SAL
     help
 
-if AOS_BOARD_STM32L476RG-NUCLEO
+if AOS_BOARD_STM32L476RG_NUCLEO
 # Configurations for board stm32l476rg-nucleo
 
 # Set default value of AOS_NETWORK_SAL
