@@ -1,5 +1,8 @@
 NAME := das
 
+$(NAME)_VERSION := 1.1.0
+$(NAME)_SUMMARY := Link Security SOC Device Attestation SDK for AliOS Things
+
 DEBUG := Y
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), LINUXHOST)
