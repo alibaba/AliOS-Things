@@ -1,7 +1,6 @@
 config AOS_MCU_STM32F4XX_SYSCALL
     bool "mcu_stm32f4xx_syscall"
     default n
-    select AOS_COMP_ULOG
     select AOS_ARCH_ARMV7M_SVC
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO

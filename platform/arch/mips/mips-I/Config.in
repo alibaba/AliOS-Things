@@ -1,9 +1,9 @@
-config AOS_ARCH_MIPS-I
+config AOS_ARCH_MIPS_I
     bool "mips-I"
     default n
     help
       arch for mips-I
 
-if AOS_ARCH_MIPS-I
+if AOS_ARCH_MIPS_I
 # Configurations for arch mips-I
 endif
