@@ -20,6 +20,10 @@
 #include "hal_can_stm32f4.h"
 #include "hal_timer_stm32f4.h"
 
+#ifdef AOS_CANOPEN
+#include "co_adapter.h"
+#endif
+
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #define GETCHAR_PROTOTYPE int fgetc(FILE *f)
@@ -53,7 +57,9 @@ gpio_dev_t brd_gpio_table[] =
 
 CAN_MAPPING CAN_MAPPING_TABLE[] =
 {
-    { PORT_CAN_CANOPEN, CAN1, NULL, NULL, NULL},
+#ifdef AOS_CANOPEN
+    { PORT_CAN_CANOPEN, CAN1, can_dispatch, NULL, NULL},
+#endif
 };
 
 TIMER_MAPPING TIMER_MAPPING_TABLE[] =
