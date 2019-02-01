@@ -16,7 +16,7 @@ config AOS_SENSOR_MODBUS_ENABLE
         Enable modbus sensor
 
 
-menu "select sensor"
+menu "sensor selection"
     menu "acc sensor"
 	    config AOS_SENSOR_ACC_ADI_ADXL372
             bool "adxl372 sensor"
