@@ -1,6 +1,6 @@
 config AOS_BOARD_GD32F450Z_EVAL
     bool "gd32f450z-eval"
-    select AOS_MCU_GD32F30X
+    select AOS_MCU_GD32F4XX
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_NETMGR
