@@ -1,4 +1,4 @@
-config AOS_BOARD_STM32L433RC-NUCLEO
+config AOS_BOARD_STM32L433RC_NUCLEO
     bool "stm32l433rc-nucleo"
     select AOS_MCU_STM32L4XX_CUBE
     select AOS_COMP_KERNEL_INIT
@@ -6,7 +6,7 @@ config AOS_BOARD_STM32L433RC-NUCLEO
     select AOS_COMP_SAL if AOS_NETWORK_SAL
     help
 
-if AOS_BOARD_STM32L433RC-NUCLEO
+if AOS_BOARD_STM32L433RC_NUCLEO
 # Configurations for board stm32l433rc-nucleo
 
 # Set default value of AOS_NETWORK_SAL

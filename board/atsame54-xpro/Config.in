@@ -1,4 +1,4 @@
-config AOS_BOARD_ATSAME54-XPRO
+config AOS_BOARD_ATSAME54_XPRO
     bool "board_atsame54-xpro"
     select AOS_MCU_ATSAME54
     select AOS_COMP_KERNEL_INIT
@@ -7,7 +7,7 @@ config AOS_BOARD_ATSAME54-XPRO
     help
       configuration for board atsame54-xpro
 
-if AOS_BOARD_ATSAME54-XPRO
+if AOS_BOARD_ATSAME54_XPRO
 # Configurations for board board_atsame54-xpro
 
 # Set default value of AOS_NETWORK_SAL
