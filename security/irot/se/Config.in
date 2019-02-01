@@ -1,8 +1,8 @@
-config AOS_COMP_SE
+config AOS_COMP_LIBKM_SE
     bool "se"
     default n
     help
 
-if AOS_COMP_SE
+if AOS_COMP_LIBKM_SE
 # Configurations for comp se
 endif

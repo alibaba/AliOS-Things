@@ -4,6 +4,7 @@ config AOS_COMP_LIBSST
     select AOS_COMP_IROT
     select AOS_COMP_ALICRYPTO
     select AOS_COMP_KV
+    select AOS_COMP_LS_HAL
     help
 
 if AOS_COMP_LIBSST

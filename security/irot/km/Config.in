@@ -1,7 +1,7 @@
 config AOS_COMP_LIBKM
     bool "libkm"
     default n
-    select AOS_COMP_LIBPLAT_GEN
+    select AOS_COMP_LS_HAL
     select AOS_COMP_ALICRYPTO
     help
 
