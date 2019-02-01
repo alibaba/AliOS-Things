@@ -1,9 +1,9 @@
-config AOS_ARCH_LX106
+config AOS_ARCH_XTENSA_LX106
     bool "xtensa lx106"
     default n
     help
       arch for xtensa lx106
 
-if AOS_ARCH_LX106
+if AOS_ARCH_XTENSA_LX106
 # Configurations for arch xtensa lx106
 endif
