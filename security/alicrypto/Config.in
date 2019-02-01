@@ -1,5 +1,6 @@
 config AOS_COMP_ALICRYPTO
     bool "alicrypto"
+    select AOS_COMP_LS_OSA
     default n
     help
 
