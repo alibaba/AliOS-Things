@@ -17,8 +17,8 @@ $(NAME)_SOURCES     += src/states.c
 $(NAME)_SOURCES     += src/sync.c
 $(NAME)_SOURCES     += src/timer.c
 
-$(NAME)_SOURCES     += adapter/adapter_can.c
-$(NAME)_SOURCES     += adapter/adapter_timer.c
+$(NAME)_SOURCES     += adapter/co_adapter_can.c
+$(NAME)_SOURCES     += adapter/co_adapter_timer.c
 $(NAME)_SOURCES     += api/canopen.c
 
 ifeq ($(HOST_ARCH),linux)
@@ -34,6 +34,6 @@ else ifeq ($(COMPILER),armcc)
 GLOBAL_DEFINES      += __BSD_VISIBLE
 endif
 
-GLOBAL_INCLUDES     += include . api
+GLOBAL_INCLUDES     += include . api adapter
 GLOBAL_DEFINES      += AOS_CANOPEN
 endif

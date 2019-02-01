@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef __ADAPTER_H__
-#define __ADAPTER_H__
+#ifndef __CO_ADAPTER_H__
+#define __CO_ADAPTER_H__
 
 #include "ulog/ulog.h"
 #include "aos/hal/can.h"
@@ -16,6 +16,7 @@
 
 extern uint32_t hal_timer_getcounter(timer_dev_t *tim);
 extern void hal_timer_setcounter(timer_dev_t *tim, uint32_t counter);
+extern void can_dispatch();
 
 int32_t timer_init(uint8_t port);
 int32_t can_init(uint8_t port, uint32_t baud, CO_Data * d);
