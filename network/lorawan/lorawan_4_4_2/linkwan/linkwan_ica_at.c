@@ -10,7 +10,7 @@
 
 
 
-#define ATCMD_SIZE 100
+#define ATCMD_SIZE 256
 #define PORT_LEN   4
 
 
@@ -552,58 +552,65 @@ bool ica_at_nwkskey(uint8_t *at_cmd, int16_t at_cmd_len)
     return ret;
 }
 
-bool ica_at_addmuticast(uint8_t *at_cmd, int16_t at_cmd_len)
+uint8_t g_multicast_mckey[4][16];
+
+void multicast_show(void)
+{
+    uint8_t             i;
+    char                *str;
+    uint8_t             mc_info[256];
+    MulticastChannel_t  multicast_channel;
+
+    str = (char *)mc_info;
+
+    memset(mc_info, '\0', 256);
+
+    for (i = 0; i < LORAMAC_MAX_MC_CTX; i++) {
+        if (LORAMAC_STATUS_OK == LoRaMacMulticastChannelGet(i, &multicast_channel)) {
+            snprintf(str, 256, "%08x,%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X,%d,%d,%d\r\n",
+                                multicast_channel.Address, g_multicast_mckey[i][0], g_multicast_mckey[i][1], g_multicast_mckey[i][2],
+                                g_multicast_mckey[i][3], g_multicast_mckey[i][4], g_multicast_mckey[i][5],
+                                g_multicast_mckey[i][6], g_multicast_mckey[i][7], g_multicast_mckey[i][8],
+                                g_multicast_mckey[i][9], g_multicast_mckey[i][10], g_multicast_mckey[i][11],
+                                g_multicast_mckey[i][12], g_multicast_mckey[i][13], g_multicast_mckey[i][14],
+                                g_multicast_mckey[i][15], multicast_channel.Frequency,
+                                multicast_channel.Datarate, multicast_channel.Periodicity);
+
+            str += strlen(str);
+        }
+    }
+
+    snprintf(atcmd, ATCMD_SIZE, "\r\n%s:%sOK\r\n", LORA_AT_CADDMULTICAST, mc_info);
+}
+
+bool ica_at_addmulticast(uint8_t *at_cmd, int16_t at_cmd_len)
 {
     bool       ret= true;
-    uint8_t    mc_appskey[16];
-    uint8_t    mc_nwkskey[16];
     uint32_t   mc_devaddr;
-    uint8_t    i;
-    uint8_t    mc_number;
     char       *str;
+    uint8_t    mc_key[16];
+    uint32_t   frequency = 0;
+    uint8_t    data_rate = 0;
+    uint8_t    periodicity = 0;
+    int8_t     mc_pos;
 
-    if (at_cmd_len == (strlen(LORA_AT_CADDMUTICAST) + 2) &&
-        strcmp(&at_cmd[strlen(LORA_AT_CADDMUTICAST)], "=?") == 0) {
+    if (at_cmd_len == (strlen(LORA_AT_CADDMULTICAST) + 2) &&
+        strcmp(&at_cmd[strlen(LORA_AT_CADDMULTICAST)], "=?") == 0) {
         snprintf(atcmd, ATCMD_SIZE,
-                 "\r\n%s:\"DevAddr\",\"AppSKey\",\"NwkSKey\"\r\nOK\r\n",
-                 LORA_AT_CADDMUTICAST);
-    } else if (at_cmd_len == (strlen(LORA_AT_CADDMUTICAST) + 1) &&
-               at_cmd[strlen(LORA_AT_CADDMUTICAST)] == '?') {
-        mc_number = get_muticast_num();
+                 "\r\n%s:\"DevAddr\",\"McKey\",\"Frequency\",\"DataRate\",\"Periodicity\"\r\nOK\r\n",
+                 LORA_AT_CADDMULTICAST);
+    } else if (at_cmd_len == (strlen(LORA_AT_CADDMULTICAST) + 1) &&
+        at_cmd[strlen(LORA_AT_CADDMULTICAST)] == '?') {
 
-        if (mc_number > 0) {
-            for (i = 0; i < mc_number; i++) {
-                get_muticast_appskey(i, mc_appskey);
-                get_muticast_nwkskey(i, mc_nwkskey);
-                get_muticast_devaddr(i, &mc_devaddr);
-
-                PRINTF("%08x,%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x,\
-                %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\r\n",
-                        mc_devaddr, mc_appskey[0],
-                        mc_appskey[1], mc_appskey[2],
-                        mc_appskey[3], mc_appskey[4],
-                        mc_appskey[5], mc_appskey[6],
-                        mc_appskey[7], mc_appskey[8],
-                        mc_appskey[9], mc_appskey[10],
-                        mc_appskey[11], mc_appskey[12],
-                        mc_appskey[13], mc_appskey[14],
-                        mc_appskey[15], mc_nwkskey[0],
-                        mc_nwkskey[1], mc_nwkskey[2],
-                        mc_nwkskey[3], mc_nwkskey[4],
-                        mc_nwkskey[5], mc_nwkskey[6],
-                        mc_nwkskey[7], mc_nwkskey[8],
-                        mc_nwkskey[9], mc_nwkskey[10],
-                        mc_nwkskey[11], mc_nwkskey[12],
-                        mc_nwkskey[13], mc_nwkskey[14],
-                        mc_nwkskey[15]);
-            }
+        if (multicast_get_num() > 0) {
+            multicast_show();
         } else {
             snprintf(atcmd, ATCMD_SIZE, "\r\n%s:NO MULTICAST INFO\r\n",
-                     LORA_AT_CADDMUTICAST);
+                     LORA_AT_CADDMULTICAST);
         }
-    } else if (at_cmd_len > (strlen(LORA_AT_CADDMUTICAST) + 1) &&
-               at_cmd[strlen(LORA_AT_CADDMUTICAST)] == '=') {
-        str = strtok(&at_cmd[strlen(LORA_AT_CADDMUTICAST) + 1], ",");
+    } else if (at_cmd_len > (strlen(LORA_AT_CADDMULTICAST) + 1) &&
+               at_cmd[strlen(LORA_AT_CADDMULTICAST)] == '=') {
+        str = strtok(&at_cmd[strlen(LORA_AT_CADDMULTICAST) + 1], ",");
         hex2bin(str, (uint8_t *)&mc_devaddr, 8);
         mc_devaddr = (mc_devaddr << 24) & (0xFF000000) |
                      (mc_devaddr << 8) & (0x00FF0000) |
@@ -611,16 +618,31 @@ bool ica_at_addmuticast(uint8_t *at_cmd, int16_t at_cmd_len)
                      (mc_devaddr >> 24) & (0x000000FF);
 
         str = strtok(NULL, "\,");
-        hex2bin(str, mc_appskey, 32);
+        hex2bin(str, mc_key, 16);
 
         str = strtok(NULL, "\,");
-        hex2bin(str, mc_nwkskey, 32);
 
-        if (false == add_muticast(mc_appskey, mc_nwkskey, mc_devaddr)) {
-            ret = false;
+        if (str) {
+            frequency = strtol(str, NULL, 0);
+        } else {
+            str = strtok(NULL, "\r\n");
+            frequency = strtol(str, NULL, 0);
         }
 
-        snprintf(atcmd, ATCMD_SIZE, "\r\nOK\r\n");
+        str = strtok(NULL, "\,");
+        data_rate = strtol(str, NULL, 0);
+
+        str = strtok(NULL, "\r\n");
+        periodicity = strtol(str, NULL, 0);
+
+        mc_pos = multicast_add(mc_devaddr, frequency, data_rate, periodicity, mc_key);
+
+        if (-1 == mc_pos) {
+            ret = false;
+        } else {
+            memcpy(g_multicast_mckey[mc_pos], mc_key, 16);
+            snprintf(atcmd, ATCMD_SIZE, "\r\nOK\r\n");
+        }
     } else {
         ret = false;
     }
@@ -628,28 +650,36 @@ bool ica_at_addmuticast(uint8_t *at_cmd, int16_t at_cmd_len)
     return ret;
 }
 
-bool ica_at_delmuticast(uint8_t *at_cmd, int16_t at_cmd_len)
+bool ica_at_delmulticast(uint8_t *at_cmd, int16_t at_cmd_len)
 {
-    uint32_t        devAddr;
-    bool            ret = true;
-    char            *str;
+    uint32_t            devAddr;
+    char                *str;
+    bool                ret = true;
+    uint8_t             i;
 
-    if (at_cmd_len == (strlen(LORA_AT_CDELMUTICAST) + 2) &&
-        strcmp(&at_cmd[strlen(LORA_AT_CDELMUTICAST)], "=?") == 0) {
-        snprintf(atcmd, ATCMD_SIZE, "\r\n%s:\"%d,DevAddr\"\r\nOK\r\n",
-                 LORA_AT_CDELMUTICAST);
-    } else if (at_cmd_len > (strlen(LORA_AT_CDELMUTICAST) + 1) &&
-               at_cmd[strlen(LORA_AT_CDELMUTICAST)] == '=') {
+    if (at_cmd_len == (strlen(LORA_AT_CDELMULTICAST) + 2) &&
+        strcmp(&at_cmd[strlen(LORA_AT_CDELMULTICAST)], "=?") == 0) {
+        snprintf(atcmd, ATCMD_SIZE, "\r\n%s:\"DevAddr\"\r\nOK\r\n", LORA_AT_CDELMULTICAST);
+    } else if (at_cmd_len == (strlen(LORA_AT_CDELMULTICAST) + 1) &&
+               at_cmd[strlen(LORA_AT_CDELMULTICAST)] == '?') {
 
-        str = strtok(&at_cmd[strlen(LORA_AT_CADDMUTICAST) + 1], ",");
+        if (multicast_get_num() > 0) {
+            multicast_show();
+        } else {
+            snprintf(atcmd, ATCMD_SIZE, "\r\n%s:NO MULTICAST INFO\r\n", LORA_AT_CADDMULTICAST);
+        }
+    } else if (at_cmd_len > (strlen(LORA_AT_CDELMULTICAST) + 1) &&
+        at_cmd[strlen(LORA_AT_CDELMULTICAST)] == '=') {
+
+        str = strtok(&at_cmd[strlen(LORA_AT_CDELMULTICAST) + 1], ",");
         hex2bin(str, &devAddr, 8);
-        devAddr =
-          (devAddr << 24) & (0xFF000000) | (devAddr << 8) & (0x00FF0000) |
-          (devAddr >> 8) & (0x0000FF00) | (devAddr >> 24) & (0x000000FF);
+        devAddr = (devAddr << 24) & (0xFF000000) | (devAddr << 8) & (0x00FF0000) |
+                  (devAddr >> 8) & (0x0000FF00) | (devAddr >> 24) & (0x000000FF);
 
-        ret = del_muticast(devAddr);
-        if (ret == true) {
+        if (0 == multicast_delete(devAddr)) {
             snprintf(atcmd, ATCMD_SIZE, "\r\nOK\r\n");
+
+            ret = true;
         } else {
             ret = false;
         }
@@ -660,18 +690,17 @@ bool ica_at_delmuticast(uint8_t *at_cmd, int16_t at_cmd_len)
     return ret;
 }
 
-bool ica_at_nummuticast(uint8_t *at_cmd, int16_t at_cmd_len)
+bool ica_at_nummulticast(uint8_t *at_cmd, int16_t at_cmd_len)
 {
     bool     ret = true;
 
-    if (at_cmd_len == (strlen(LORA_AT_CNUMMUTICAST) + 2) &&
-        strcmp(&at_cmd[strlen(LORA_AT_CNUMMUTICAST)], "=?") == 0) {
-        snprintf(atcmd, ATCMD_SIZE, "\r\n%s:\"number\"\r\nOK\r\n",
-                 LORA_AT_CNUMMUTICAST);
-    } else if (at_cmd_len == (strlen(LORA_AT_CDELMUTICAST) + 1) &&
-               at_cmd[strlen(LORA_AT_CDELMUTICAST)] == '?') {
+    if (at_cmd_len == (strlen(LORA_AT_CNUMMULTICAST) + 2) &&
+        strcmp(&at_cmd[strlen(LORA_AT_CNUMMULTICAST)], "=?") == 0) {
+        snprintf(atcmd, ATCMD_SIZE, "\r\n%s:\"number\"\r\nOK\r\n", LORA_AT_CNUMMULTICAST);
+    } else if (at_cmd_len == (strlen(LORA_AT_CDELMULTICAST) + 1) &&
+               at_cmd[strlen(LORA_AT_CDELMULTICAST)] == '?') {
         snprintf(atcmd, ATCMD_SIZE, "\r\n%s:%d\r\nOK\r\n",
-                 LORA_AT_CNUMMUTICAST, get_muticast_num());
+                 LORA_AT_CNUMMULTICAST, multicast_get_num());
     } else {
         ret = false;
     }
@@ -792,6 +821,8 @@ bool ica_at_class(uint8_t *at_cmd, int16_t at_cmd_len)
 {
     bool            ret = true;
     uint8_t         class;
+    uint8_t         branch;
+    uint8_t         ping_period;
 
     if (at_cmd_len == (strlen(LORA_AT_CCLASS) + 2) &&
         strcmp(&at_cmd[strlen(LORA_AT_CCLASS)], "=?") == 0) {
@@ -799,7 +830,7 @@ bool ica_at_class(uint8_t *at_cmd, int16_t at_cmd_len)
                  "\r\n%s:\"class\",\"branch\",\"para1\",\"para2\","
                  "\"para3\",\"para4\"\r\n",
                  LORA_AT_CCLASS);
-    } else if (at_cmd_len == (strlen(LORA_AT_CCLASS) + 1) &&
+    } else if (at_cmd_len >= (strlen(LORA_AT_CCLASS) + 1) &&
                at_cmd[strlen(LORA_AT_CCLASS)] == '?') {
         class = get_lora_class();
         if (class == CLASS_A || class == CLASS_B || class == CLASS_C) {
@@ -808,10 +839,24 @@ bool ica_at_class(uint8_t *at_cmd, int16_t at_cmd_len)
         } else {
             ret = false;
         }
-    } else if (at_cmd_len == (strlen(LORA_AT_CCLASS) + 2) &&
+    } else if (at_cmd_len >= (strlen(LORA_AT_CCLASS) + 2) &&
                at_cmd[strlen(LORA_AT_CCLASS)] == '=') {
         class = strtol(&at_cmd[strlen(LORA_AT_CCLASS) + 1], NULL, 0);
         ret = set_lora_class(class);
+
+        if (class == CLASS_B) {
+            if ((at_cmd[strlen(LORA_AT_CCLASS)+2] == ',')
+                 &&(at_cmd[strlen(LORA_AT_CCLASS)+4] == ',')) {
+                branch = strtol(&at_cmd[strlen(LORA_AT_CCLASS) + 3], NULL, 0);
+                ping_period = strtol(&at_cmd[strlen(LORA_AT_CCLASS) + 5], NULL, 0);
+
+                if (branch == 0) {
+                    set_classb_ping_period(ping_period);
+                } else {
+                    ret = false;
+                }
+            }
+        }
 
         if (true == ret) {
             snprintf(atcmd, ATCMD_SIZE, "\r\nOK\r\n");
@@ -1537,9 +1582,9 @@ struct ica_at_handle   at_handles[] = {
     { LORA_AT_CDEVADDR, strlen(LORA_AT_CDEVADDR), ica_at_devaddr },
     { LORA_AT_CAPPSKEY, strlen(LORA_AT_CAPPSKEY), ica_at_appskey },
     { LORA_AT_CNWKSKEY, strlen(LORA_AT_CNWKSKEY), ica_at_nwkskey },
-    { LORA_AT_CADDMUTICAST, strlen(LORA_AT_CADDMUTICAST), ica_at_addmuticast },
-    { LORA_AT_CDELMUTICAST, strlen(LORA_AT_CDELMUTICAST), ica_at_delmuticast },
-    { LORA_AT_CNUMMUTICAST, strlen(LORA_AT_CNUMMUTICAST), ica_at_nummuticast },
+    { LORA_AT_CADDMULTICAST, strlen(LORA_AT_CADDMULTICAST), ica_at_addmulticast },
+    { LORA_AT_CDELMULTICAST, strlen(LORA_AT_CDELMULTICAST), ica_at_delmulticast },
+    { LORA_AT_CNUMMULTICAST, strlen(LORA_AT_CNUMMULTICAST), ica_at_nummulticast },
     { LORA_AT_CFREQBANDMASK, strlen(LORA_AT_CFREQBANDMASK), ica_at_freqbandmask },
     { LORA_AT_CULDLMODE, strlen(LORA_AT_CULDLMODE), ica_at_uldlmode },
     { LORA_AT_CWORKMODE, strlen(LORA_AT_CWORKMODE), ica_at_workmode },
