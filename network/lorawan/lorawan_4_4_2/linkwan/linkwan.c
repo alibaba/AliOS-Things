@@ -74,7 +74,7 @@ lora_dev_t                    g_lora_dev   = { LORAWAN_DEVICE_EUI,
                           LORAWAN_APPLICATION_KEY,
                           1,
                           DR_2,
-                          CLASS_B,
+                          CLASS_A,
                           NODE_MODE_NORMAL,
                           0xffff,
                           VALID_LORA_CONFIG,
@@ -91,6 +91,10 @@ static uint16_t gJoinInterval = 8;
 static uint8_t  gClassBPingPeriod = LORAWAN_DEFAULT_PING_SLOT_PERIODICITY;
 
 static uint8_t  g_multicast_channels_mask = 0;
+
+static int16_t  g_channel_rssi[8];
+static int8_t   g_channel_snr[8];
+
 
 #define LORA_BANDWIDTH                              0         // [0: 125 kHz]
 #define LORA_SPREADING_FACTOR                       10        // [SF7..SF12]
@@ -530,6 +534,19 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
     // Check RxSlot
     DBG_LINKWAN("rssi = %d, snr = %d, datarate = %d\r\n", mcpsIndication->Rssi,
                 mcpsIndication->Snr, mcpsIndication->RxDatarate);
+
+    // save rssi and snr for at command AT+CRSSI ?
+    uint8_t rssi_index;
+
+    if (mcpsIndication->RxSlot == RX_SLOT_WIN_1) {
+        rssi_index = LoRaMacGetCurrentChannel();
+
+        if (rssi_index > 7) {
+            rssi_index &= 0x07;
+        }
+
+        set_lora_rssi(rssi_index, mcpsIndication->Rssi, mcpsIndication->Snr);
+    }
 
     if ( ComplianceTest.Running == true ) {
         ComplianceTest.DownLinkCounter++;
@@ -1738,11 +1755,20 @@ void tx_lora_mac_req(void)
     }
 }
 
-void get_lora_rssi(uint8_t band, int16_t *channel_rssi)
+void get_lora_rssi(uint8_t band, int16_t *channel_rssi, int8_t *channel_snr)
 {
-    for (uint8_t i = 0; i < 8; i++) {
-        channel_rssi[i] = Radio.Rssi(MODEM_LORA);
+    uint8_t    i;
+
+    for (i = 0; i < 8; i++) {
+        channel_rssi[i] = g_channel_rssi[i];
+        channel_snr[i]  = g_channel_snr[i];
     }
+}
+
+void set_lora_rssi(uint8_t index, int16_t channel_rssi, int8_t channel_snr)
+{
+    g_channel_rssi[index] = channel_rssi;
+    g_channel_snr[index]  = channel_snr;
 }
 
 bool get_lora_report_mode(void)

@@ -170,7 +170,9 @@ lora_AppData_t *get_lora_rx_data(void);
 void            tx_lora_mac_req(void);
 
 int    get_device_status(void);
-void   get_lora_rssi(uint8_t band, int16_t *channel_rssi);
+void   get_lora_rssi(uint8_t band, int16_t *channel_rssi, int8_t *channel_snr);
+void   set_lora_rssi(uint8_t index, int16_t channel_rssi, int8_t channel_snr);
+
 bool   get_lora_report_mode(void);
 bool   set_lora_report_mode(int8_t mode);
 int8_t get_lora_tx_power();

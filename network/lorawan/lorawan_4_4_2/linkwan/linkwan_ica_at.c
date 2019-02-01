@@ -23,23 +23,11 @@ uint16_t atcmd_index = 0;
 
 
 static uint8_t  lora_join_mode = 0;
-static uint8_t  lora_muticast_num = 0;
-static uint8_t  lora_muticast_appskey[4][16];
-static uint8_t  lora_muticast_nwkskey[4][16];
-static uint32_t lora_muticast_devaddr[4];
 static uint8_t  lora_work_mode;
 static uint32_t lora_repeater_freq;
 
-static uint8_t  lora_data_confirm;
-
-static uint8_t  lora_nbtrials[2];
-
 static uint8_t  lora_reportmode;
 static uint32_t lora_report_cycle;
-
-static uint8_t  lora_tx_power;
-
-static uint8_t  lora_adr_enable;
 
 static uint8_t  lora_rx1DRoffset;
 static uint8_t  lora_rx2DataRate;
@@ -79,69 +67,6 @@ static void set_lora_join_mode(uint8_t join_mode)
     lora_join_mode = join_mode;
 }
 
-static bool add_muticast(uint8_t *mc_appskey,
-                             uint8_t *mc_nwkskey,
-                             uint32_t mc_devaddr)
-{
-    if (lora_muticast_num < 4) {
-        memcpy1(lora_muticast_appskey[lora_muticast_num], mc_appskey, 16);
-        memcpy1(lora_muticast_nwkskey[lora_muticast_num], mc_appskey, 16);
-        lora_muticast_devaddr[lora_muticast_num] = mc_devaddr;
-
-        lora_muticast_num++;
-
-        return true;
-    } else {
-        return false;
-    }
-}
-
-static bool del_muticast(uint32_t mc_devaddr)
-{
-    uint8_t     i = 0;
-    uint8_t     j = 0;
-
-    for (i = 0; i < lora_muticast_num; i++) {
-        if (lora_muticast_devaddr[i] == mc_devaddr) {
-            break;
-        }
-    }
-
-    if (i >= lora_muticast_num) {
-        return false;
-    }
-
-    for (j = i; j < (lora_muticast_num - 1); j++) {
-        lora_muticast_devaddr[j] = lora_muticast_devaddr[j+1];
-        memcpy1(lora_muticast_appskey[j], lora_muticast_appskey[j+1], 16);
-        memcpy1(lora_muticast_nwkskey[j], lora_muticast_nwkskey[j+1], 16);
-    }
-
-    lora_muticast_num--;
-
-    return true;
-}
-
-static uint8_t get_muticast_num(void)
-{
-    return lora_muticast_num;
-}
-
-static uint32_t get_muticast_devaddr(uint8_t index, uint32_t *devaddr)
-{
-    *devaddr = lora_muticast_devaddr[index];
-}
-
-static void get_muticast_appskey(uint8_t index, uint8_t *appskey)
-{
-    memcpy1(appskey, lora_muticast_appskey[index], 16);
-}
-
-static void get_muticast_nwkskey(uint8_t index, uint8_t *nwkskey)
-{
-    memcpy1(nwkskey, lora_muticast_nwkskey[index], 16);
-}
-
 static void set_work_mode(uint8_t work_mode)
 {
     lora_work_mode = work_mode;
@@ -162,17 +87,6 @@ static uint32_t get_repeater_freq(void)
     return lora_repeater_freq;
 }
 
-static void get_nbtrials(uint8_t *mtype, uint8_t *nbtrials)
-{
-    *mtype      = lora_data_confirm;
-    *nbtrials   = lora_nbtrials[*mtype];
-}
-
-static void set_nbtrials(uint8_t mtype, uint8_t nbtrials)
-{
-    lora_nbtrials[mtype] = nbtrials;
-}
-
 static uint8_t get_reportmode(void)
 {
     return lora_reportmode;
@@ -191,26 +105,6 @@ static uint32_t get_reportcycle(void)
 static void set_reportcycle(uint32_t report_cycle)
 {
     lora_report_cycle = report_cycle;
-}
-
-static uint8_t get_txpower(void)
-{
-    return lora_tx_power;
-}
-
-static void set_txpower(uint8_t tx_power)
-{
-    lora_tx_power = tx_power;
-}
-
-static uint8_t get_adr_enable(void)
-{
-    return lora_adr_enable;
-}
-
-static void set_adr_enable(uint8_t adr_enable)
-{
-    lora_adr_enable = adr_enable;
 }
 
 static void get_rxparam(uint8_t *rx1DRoffset, uint8_t *rx2DataRate, uint32_t *rx2Frequency)
@@ -946,32 +840,26 @@ bool ica_at_join(uint8_t *at_cmd, int16_t at_cmd_len)
     return ret;
 }
 
-bool ica_at_dtrx(uint8_t *at_cmd, int16_t at_cmd_len)
+bool ica_at_dtx(uint8_t *at_cmd, int16_t at_cmd_len)
 {
     bool            ret = true;
-    uint8_t         confirm;
-    uint8_t         Nbtrials;
     uint8_t         len;
     uint8_t         payload[LORAWAN_APP_DATA_BUFF_SIZE];
 
-    if (at_cmd_len == (strlen(LORA_AT_DTRX) + 2) &&
-        strcmp(&at_cmd[strlen(LORA_AT_DTRX)], "=?") == 0) {
+    if (at_cmd_len == (strlen(LORA_AT_DTX) + 2) &&
+        strcmp(&at_cmd[strlen(LORA_AT_DTX)], "=?") == 0) {
         snprintf(atcmd, ATCMD_SIZE,
                  "\r\n%s:[confirm],[nbtrials],[length],<payload>\r\n",
-                 LORA_AT_DTRX);
-    } else if (at_cmd_len >= (strlen(LORA_AT_DTRX) + 2) &&
-               at_cmd[strlen(LORA_AT_DTRX)] == '=') {
-        char   *str = strtok(&at_cmd[strlen(LORA_AT_DTRX) + 1], ",");
-        confirm     = strtol(str, NULL, 0);
-        str         = strtok(NULL, ",");
-        Nbtrials    = strtol(str, NULL, 0);
-        str         = strtok(NULL, ",");
+                 LORA_AT_DTX);
+    } else if (at_cmd_len >= (strlen(LORA_AT_DTX) + 2) &&
+               at_cmd[strlen(LORA_AT_DTX)] == '=') {
+        char   *str = strtok(&at_cmd[strlen(LORA_AT_DTX) + 1], ",");
         len         = strtol(str, NULL, 0);
         str         = strtok(NULL, ",");
         strcpy(payload, str);
         payload[len] = '\0';
 
-        ret = lora_tx_data_payload(confirm, Nbtrials, payload, len);
+        ret = lora_tx_data_payload(get_lora_tx_cfm_flag(), get_lora_tx_cfm_trials(), payload, len);
         if (ret == true) {
             snprintf(atcmd, ATCMD_SIZE, "\r\nOK+SEND:\r\nOK+SENT:\r\n");
         }
@@ -1102,6 +990,7 @@ bool ica_at_rssi(uint8_t *at_cmd, int16_t at_cmd_len)
     bool            ret = true;
     char            freq_str[4];
     int16_t         channel_rssi[8];
+    int8_t          channel_snr[8];
 
     if (at_cmd_len == (strlen(LORA_AT_CRSSI) + 2) &&
         strcmp(&at_cmd[strlen(LORA_AT_CRSSI)], "=?") == 0) {
@@ -1116,13 +1005,17 @@ bool ica_at_rssi(uint8_t *at_cmd, int16_t at_cmd_len)
             freq_str[at_cmd_len - strlen(LORA_AT_CRSSI) - 2] = '\0';
 
             freq_band = strtol(freq_str, NULL, 0);
-            get_lora_rssi(freq_band, channel_rssi);
+            get_lora_rssi(freq_band, channel_rssi, channel_snr);
             snprintf(atcmd, ATCMD_SIZE,
                      "\r\n%s:\r\n0:%d\r\n1:%d\r\n2:%d\r\n3:%d\r\n4:%d\r\n5:"
-                     "%d\r\n6:%d\r\n7:%d\r\nOK\r\n",
+                     "%d\r\n6:%d\r\n7:%d\r\n0:%d\r\n1:%d\r\n2:%d\r\n3:"
+                     "%d\r\n4:%d\r\n5:%d\r\n6:%d\r\n7:%d\r\nOK\r\n",
                      LORA_AT_CRSSI, channel_rssi[0], channel_rssi[1],
                      channel_rssi[2], channel_rssi[3], channel_rssi[4],
-                     channel_rssi[5], channel_rssi[6], channel_rssi[7]);
+                     channel_rssi[5], channel_rssi[6], channel_rssi[7],
+                     channel_snr[0], channel_snr[1], channel_snr[2],
+                     channel_snr[3], channel_snr[4], channel_snr[5],
+                     channel_snr[6], channel_snr[7]);
             ret = true;
         }
     } else {
@@ -1153,7 +1046,7 @@ bool ica_at_nbtrials(uint8_t *at_cmd, int16_t at_cmd_len)
         m_type = at_cmd[strlen(LORA_AT_CNBTRIALS) + 1] - '0';
         value  = strtol(&at_cmd[strlen(LORA_AT_CNBTRIALS) + 3], NULL, 0);
 
-        if ((m_type == 0 || m_type == 1) && (value >= 1 && value <= 16)) {
+        if ((m_type == 0 || m_type == 1) && (value >= 1 && value <= 15)) {
             set_lora_tx_cfm_flag(m_type);
             set_lora_tx_cfm_trials(value);
         } else {
@@ -1358,7 +1251,7 @@ bool ica_at_freqlist(uint8_t *at_cmd, int16_t at_cmd_len)
     } else if (at_cmd_len > (strlen(LORA_AT_CFREQLIST) + 2) &&
                at_cmd[strlen(LORA_AT_CFREQLIST)] == '=') {
 
-        str         = strtok(&at_cmd[strlen(LORA_AT_DTRX) + 1], ",");
+        str         = strtok(&at_cmd[strlen(LORA_AT_CFREQLIST) + 1], ",");
         uldl_mode   = strtol(str, NULL, 0);
         str         = strtok(NULL, ",");
         method      = strtol(str, NULL, 0);
@@ -1593,7 +1486,7 @@ struct ica_at_handle   at_handles[] = {
     { LORA_AT_CBL, strlen(LORA_AT_CBL), ica_at_batterylevel },
     { LORA_AT_CSTATUS, strlen(LORA_AT_CSTATUS), ica_at_status },
     { LORA_AT_CJOIN, strlen(LORA_AT_CJOIN), ica_at_join },
-    { LORA_AT_DTRX, strlen(LORA_AT_DTRX), ica_at_dtrx },
+    { LORA_AT_DTX, strlen(LORA_AT_DTX), ica_at_dtx },
     { LORA_AT_DRX, strlen(LORA_AT_DRX), ica_at_drx },
     { LORA_AT_CCONFIRM, strlen(LORA_AT_CCONFIRM), ica_at_confirm },
     { LORA_AT_CAPPPORT, strlen(LORA_AT_CAPPPORT), ica_at_appport },
@@ -1647,99 +1540,6 @@ void process_linkwan_at(void)
         }
     }
 
-#if 0
-    if (strncmp(rxcmd, LORA_AT_CJOINMODE, strlen(LORA_AT_CJOINMODE)) == 0) {
-        ret = ica_at_joinmode(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CDEVEUI, strlen(LORA_AT_CDEVEUI)) == 0) {
-        ret = ica_at_deveui(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CAPPEUI, strlen(LORA_AT_CAPPEUI)) == 0) {
-        ret = ica_at_appeui(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CAPPKEY, strlen(LORA_AT_CAPPKEY)) == 0) {
-        ret = ica_at_appkey(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CDEVADDR, strlen(LORA_AT_CDEVADDR)) == 0) {
-        ret = ica_at_devaddr(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CAPPSKEY, strlen(LORA_AT_CAPPSKEY)) == 0) {
-        ret = ica_at_appskey(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CNWKSKEY, strlen(LORA_AT_CNWKSKEY)) == 0) {
-        ret = ica_at_nwkskey(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CADDMUTICAST, strlen(LORA_AT_CADDMUTICAST)) == 0) {
-        ret = ica_at_addmuticast(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CDELMUTICAST, strlen(LORA_AT_CDELMUTICAST)) == 0) {
-        ret = ica_at_delmuticast(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CNUMMUTICAST, strlen(LORA_AT_CNUMMUTICAST)) == 0) {
-        ret = ica_at_nummuticast(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CFREQBANDMASK, strlen(LORA_AT_CFREQBANDMASK)) == 0) {
-        ret = ica_at_freqbandmask(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CULDLMODE, strlen(LORA_AT_CULDLMODE)) == 0) {
-        ret = ica_at_uldlmode(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CWORKMODE, strlen(LORA_AT_CWORKMODE)) == 0){
-        ret = ica_at_workmode(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CREPEATERFREQ, strlen(LORA_AT_CREPEATERFREQ)) == 0) {
-        ret = ica_at_repeaterfreq(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CCLASS, strlen(LORA_AT_CCLASS)) == 0) {
-        ret = ica_at_class(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CBL, strlen(LORA_AT_CBL)) == 0) {
-        ret = ica_at_batterylevel(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CSTATUS, strlen(LORA_AT_CSTATUS)) == 0) {
-        ret = ica_at_status(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CJOIN, strlen(LORA_AT_CJOIN)) == 0) {
-        ret = ica_at_join(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_DTRX, strlen(LORA_AT_DTRX)) == 0) {
-        ret = ica_at_dtrx(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_DRX, strlen(LORA_AT_DRX)) == 0) {
-        ret = ica_at_drx(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CCONFIRM, strlen(LORA_AT_CCONFIRM)) == 0) {
-        ret = ica_at_confirm(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CAPPPORT, strlen(LORA_AT_CAPPPORT)) == 0) {
-        ret = ica_at_appport(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CDATARATE, strlen(LORA_AT_CDATARATE)) == 0) {
-        ret = ica_at_datarate(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CRSSI, strlen(LORA_AT_CRSSI)) == 0) {
-        ret = ica_at_rssi(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CNBTRIALS, strlen(LORA_AT_CNBTRIALS)) == 0) {
-        ret = ica_at_nbtrials(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CRM, strlen(LORA_AT_CRM)) == 0) {
-        ret = ica_at_reportmode(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CTXP, strlen(LORA_AT_CTXP)) == 0) {
-        ret = ica_at_txpower(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CLINKCHECK, strlen(LORA_AT_CLINKCHECK)) == 0) {
-        ret = ica_at_linkcheck(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CADR, strlen(LORA_AT_CADR)) == 0) {
-        ret = ica_at_adr(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CRXP, strlen(LORA_AT_CRXP)) == 0) {
-        ret = ica_at_rxparam(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CFREQLIST, strlen(LORA_AT_CFREQLIST)) == 0) {
-        ret = ica_at_freqlist(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CRX1DELAY, strlen(LORA_AT_CRX1DELAY)) == 0) {
-        ret = ica_at_rx1delay(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CSAVE, strlen(LORA_AT_CSAVE)) == 0) {
-        ret = ica_at_save(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CRESTORE, strlen(LORA_AT_CRESTORE)) == 0) {
-        ret = ica_at_restore(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CREPEATERFILTER, strlen(LORA_AT_CREPEATERFILTER)) == 0) {
-        ret = ica_at_repeater_filter(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CGMI, strlen(LORA_AT_CGMI)) == 0) {
-        ret = ica_at_cgmi(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CGMM, strlen(LORA_AT_CGMM)) == 0) {
-        ret = ica_at_cgmm(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CGMR, strlen(LORA_AT_CGMR)) == 0) {
-        ret = ica_at_cgmr(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CGSN, strlen(LORA_AT_CGSN)) == 0) {
-        ret = ica_at_cgsn(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CGBR, strlen(LORA_AT_CGBR)) == 0) {
-        ret = ica_at_cgbr(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_ILOGLVL, strlen(LORA_AT_ILOGLVL)) == 0) {
-        ret = ica_at_iloglevel(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_IREBOOT, strlen(LORA_AT_IREBOOT)) == 0) {
-        ret = ica_at_ireboot(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_CTEST, strlen(LORA_AT_CTEST)) == 0) {
-        ret = ica_at_complianceTest(rxcmd, rxcmd_index);
-    } else if (strncmp(rxcmd, LORA_AT_IDEFAULT, strlen(LORA_AT_IDEFAULT)) == 0) {
-        ret = ica_at_idefault(rxcmd, rxcmd_index);
-    } else {
-        ret = false;
-    }
-#endif
     if (ret == false) {
         snprintf(atcmd, ATCMD_SIZE, "\r\n%s%x\r\n", AT_ERROR, 1);
     }
