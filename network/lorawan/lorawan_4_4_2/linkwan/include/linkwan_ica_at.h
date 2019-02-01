@@ -18,9 +18,9 @@
 #define LORA_AT_CDEVADDR "+CDEVADDR"  // dev addr (ABP)
 #define LORA_AT_CAPPSKEY "+CAPPSKEY"  // sapp key (ABP)
 #define LORA_AT_CNWKSKEY "+CNWKSKEY"  // nwk skey (ABP)
-#define LORA_AT_CADDMUTICAST "+CADDMUTICAST"  // add mcast
-#define LORA_AT_CDELMUTICAST "+CDELMUTICAST"  // del mcast
-#define LORA_AT_CNUMMUTICAST "+CNUMMUTICAST"  // mcast num
+#define LORA_AT_CADDMULTICAST "+CADDMULTICAST"  // add mcast
+#define LORA_AT_CDELMULTICAST "+CDELMULTICAST"  // del mcast
+#define LORA_AT_CNUMMULTICAST "+CNUMMULTICAST"  // mcast num
 #define LORA_AT_CFREQBANDMASK "+CFREQBANDMASK"  // freqband mask
 #define LORA_AT_CULDLMODE "+CULDLMODE"  // ul and dl
 
