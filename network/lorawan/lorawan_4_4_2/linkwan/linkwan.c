@@ -23,7 +23,7 @@
 #include <k_task.h>
 #include <port.h>
 
-#define LORAWAN_DEFAULT_PING_SLOT_PERIODICITY       2
+#define LORAWAN_DEFAULT_PING_SLOT_PERIODICITY       3
 
 #define LORAWAN_SEND_FAIL_MAX_RETRY                 3
 
@@ -82,35 +82,15 @@ lora_dev_t                    g_lora_dev   = { LORAWAN_DEVICE_EUI,
 lora_abp_id_t g_lora_abp_id = { LORAWAN_DEVICE_ADDRESS, LORAWAN_NWKSKEY,
                                 LORAWAN_APPSKEY, INVALID_LORA_CONFIG };
 
-node_freq_mode_t g_freq_mode = FREQ_MODE_INTER;
+node_freq_mode_t g_freq_mode = FREQ_MODE_INTRA;
 join_method_t    g_join_method;
 
 static uint8_t  gJoinState    = 0;
 static uint8_t  gAutoJoin     = 1;
 static uint16_t gJoinInterval = 8;
+static uint8_t  gClassBPingPeriod = LORAWAN_DEFAULT_PING_SLOT_PERIODICITY;
 
-static uint8_t  g_mc_key_0[16] = {0x7B, 0xE0, 0xC6, 0x0C, 0x84, 0xCC, 0x95, 0x3E,
-                                0xA2, 0xDF, 0xB5, 0x4B, 0x24, 0x01, 0xA4, 0x41};
-
-static uint8_t  g_mc_key_1[16] = {0xE8, 0xDA, 0x78, 0x84, 0x5E, 0x70, 0x8D, 0xD1,
-                                0xD6, 0x7F, 0xF4, 0xD4, 0x1E, 0x23, 0x86, 0x87};
-
-
-static MulticastChannel_t g_multicast_channel_0 = {
-                    MULTICAST_0_ADDR,
-                    0x001984d8,
-                    true,
-                    0,
-                    DR_2,
-                    LORAWAN_DEFAULT_PING_SLOT_PERIODICITY };
-
-static MulticastChannel_t g_multicast_channel_1 = {
-                    MULTICAST_1_ADDR,
-                    0x00303240,
-                    true,
-                    486900000,
-                    DR_2,
-                    LORAWAN_DEFAULT_PING_SLOT_PERIODICITY };
+static uint8_t  g_multicast_channels_mask = 0;
 
 #define LORA_BANDWIDTH                              0         // [0: 125 kHz]
 #define LORA_SPREADING_FACTOR                       10        // [SF7..SF12]
@@ -125,9 +105,9 @@ static MulticastChannel_t g_multicast_channel_1 = {
 
 static void start_dutycycle_timer(void);
 
-void add_multicast_channel(MulticastChannel_t *mc_channel,
-                                  uint8_t *mc_key,
-                                  uint8_t mc_id)
+static int8_t set_multicast_channel(MulticastChannel_t *mc_channel,
+                                    uint8_t *mc_key,
+                                    uint8_t mc_id)
 {
     MibRequestConfirm_t mibReq;
     AddressIdentifier_t mc_addrid;
@@ -159,15 +139,107 @@ void add_multicast_channel(MulticastChannel_t *mc_channel,
 
     if (LORAMAC_STATUS_OK != LoRaMacMibSetRequestConfirm(&mibReq)) {
         DBG_LINKWAN("set mib mc error\r\n");
+
+        return -1;
     }
 
     if (LORAMAC_STATUS_OK != LoRaMacCryptoDeriveMcSessionKeyPair(mc_addrid, mc_channel->Address)) {
         DBG_LINKWAN("derive mc skey error\r\n");
+
+        return -1;
     }
 
-    LoRaMacMulticastChannelSet( *mc_channel );
+    if (LORAMAC_STATUS_OK != LoRaMacMulticastChannelSet( *mc_channel )) {
+        DBG_LINKWAN("set multicast channel error\r\n");
+
+        return -1;
+    }
+
+    return 0;
 }
 
+int8_t multicast_add(uint32_t dev_addr,
+                     uint32_t frequency,
+                     uint8_t  data_rate,
+                     uint16_t periodicity,
+                     uint8_t *mc_key )
+{
+    int8_t              i;
+    int8_t              empty_pos = -1;
+    MulticastChannel_t  mc_channel;
+
+    multicast_delete(dev_addr);
+
+    for (i = LORAMAC_MAX_MC_CTX; i >= 0; i--) {
+        if (0 == (g_multicast_channels_mask & (1 << i))) {
+            empty_pos = i;
+        }
+    }
+
+    if (empty_pos == -1) {
+        return -1;
+    }
+
+    mc_channel.Address      = dev_addr;
+    mc_channel.AddrID       = (AddressIdentifier_t)empty_pos;
+    mc_channel.Datarate     = data_rate;
+    mc_channel.Frequency    = frequency;
+    mc_channel.IsEnabled    = true;
+    mc_channel.Periodicity  = periodicity;
+
+    if (0 == set_multicast_channel(&mc_channel, mc_key, empty_pos)) {
+        g_multicast_channels_mask |= (1 << empty_pos);
+
+        return empty_pos;
+    }
+
+    return -1;
+}
+
+int8_t multicast_delete(uint32_t dev_addr)
+{
+    uint8_t             i;
+    MulticastChannel_t  multicast_channel;
+
+    if (g_multicast_channels_mask == 0) {
+        return -1;
+    } else {
+        for (i = 0; i < LORAMAC_MAX_MC_CTX; i++) {
+            if (g_multicast_channels_mask & (1 << i)) {
+
+                if (LORAMAC_STATUS_OK == LoRaMacMulticastChannelGet(i, &multicast_channel)) {
+
+                    if (multicast_channel.Address == dev_addr) {
+
+                        multicast_channel.IsEnabled = false;
+
+                        if (LORAMAC_STATUS_OK == LoRaMacMulticastChannelSet(multicast_channel)) {
+                            g_multicast_channels_mask &= ~(1 << i);
+
+                            return 0;
+                        }
+                    }
+                }
+            }
+        }
+
+        return -1;
+    }
+}
+
+uint8_t multicast_get_num(void)
+{
+    uint8_t   i;
+    uint8_t   multicast_num = 0;
+
+    for (i = 0; i < LORAMAC_MAX_MC_CTX; i++) {
+        if (g_multicast_channels_mask & (1 << i)) {
+            multicast_num++;
+        }
+    }
+
+    return multicast_num;
+}
 
 static bool send_frame(void)
 {
@@ -1178,9 +1250,6 @@ void lora_fsm(void)
 
                 LoRaMacStart();
 
-                add_multicast_channel(&g_multicast_channel_0, g_mc_key_0, 0);
-                add_multicast_channel(&g_multicast_channel_1, g_mc_key_1, 1);
-
                 device_state = DEVICE_STATE_JOIN;
                 break;
             }
@@ -1288,7 +1357,7 @@ void lora_fsm(void)
                     LoRaMacMlmeRequest(&mlmeReq);
 
                     mlmeReq.Type = MLME_PING_SLOT_INFO;
-                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Periodicity = LORAWAN_DEFAULT_PING_SLOT_PERIODICITY;
+                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Periodicity = gClassBPingPeriod;
                     mlmeReq.Req.PingSlotInfo.PingSlot.Fields.RFU = 0;
 
                     if (LORAMAC_STATUS_OK == LoRaMacMlmeRequest(&mlmeReq)) {
@@ -2003,3 +2072,10 @@ bool lora_tx_data_payload(uint8_t confirm, uint8_t Nbtrials, uint8_t *payload,
     return false;
 }
 
+void set_classb_ping_period(uint8_t ping_period)
+{
+    device_state = DEVICE_STATE_REQ_PINGSLOT_ACK;
+    gClassBPingPeriod = ping_period;
+
+    next_tx = true;
+}
