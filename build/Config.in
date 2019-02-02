@@ -19,9 +19,9 @@ config AOS_BUILD_APP
     help
       This option holds the name of the application that is going to build.
 
-config MBINS
-    string
-    option env="MBINS"
+#config MBINS
+#    string
+#    option env="MBINS"
 
 ## --- Generated Automatically ---
 source "board/Config.in"
