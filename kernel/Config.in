@@ -13,5 +13,4 @@ source "kernel/mbins/umbins/Config.in"
 source "kernel/mm/Config.in"
 source "kernel/pwrmgmt/Config.in"
 source "kernel/rhino/Config.in"
-source "kernel/uspace/Config.in"
 ## --- End ---
