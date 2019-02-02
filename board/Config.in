@@ -102,15 +102,6 @@ if AOS_BOARD_DEVELOPERKIT
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "board/developerkit_syscall/Config.in"
-if AOS_BOARD_DEVELOPERKIT_SYSCALL
-    config AOS_BUILD_BOARD
-        default "board_developerkit_syscall"
-
-    source "platform/mcu/stm32l4xx_syscall/Config.in"
-    source "platform/arch/arm/armv7m-svc/Config.in"
-endif
-
 source "board/dh5021a_evb/Config.in"
 if AOS_BOARD_DH5021A_EVB
     config AOS_BUILD_BOARD
@@ -334,15 +325,6 @@ if AOS_BOARD_IMX6SL
 
     source "platform/mcu/imx6/Config.in"
     source "platform/arch/arm/armv7a/Config.in"
-endif
-
-source "board/imx6sl_svc/Config.in"
-if AOS_BOARD_IMX6SL_SVC
-    config AOS_BUILD_BOARD
-        default "board_imx6sl_svc"
-
-    source "platform/mcu/imx6sl_svc/Config.in"
-    source "platform/arch/arm/armv7a-svc/Config.in"
 endif
 
 source "board/linuxhost/Config.in"
@@ -631,15 +613,6 @@ if AOS_BOARD_STM32F429ZI_NUCLEO
 
     source "platform/mcu/stm32f4xx_cube/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
-endif
-
-source "board/stm32f429zi-syscall/Config.in"
-if AOS_BOARD_STM32F429ZI_SYSCALL
-    config AOS_BUILD_BOARD
-        default "board_stm32f429zi-syscall"
-
-    source "platform/mcu/stm32f4xx_syscall/Config.in"
-    source "platform/arch/arm/armv7m-svc/Config.in"
 endif
 
 source "board/stm32f769i-discovery/Config.in"
