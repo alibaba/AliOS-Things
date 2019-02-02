@@ -64,13 +64,14 @@ extern hal_wifi_module_t aos_wifi_module_mk3060;
 
 void hw_start_hal(void)
 {
-    printf("start-----------hal\n");
+    LOG(">>> start hal");
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 #elif defined DEV_SAL_BK7231
     extern hal_wifi_module_t aos_wifi_module_bk7231;
     hal_wifi_register_module(&aos_wifi_module_bk7231);
 #endif
-
+#ifdef AOS_COMP_NETMGR 
     hal_wifi_init();
+#endif
 }
