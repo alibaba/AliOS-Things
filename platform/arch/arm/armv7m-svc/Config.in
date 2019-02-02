@@ -1,8 +1,0 @@
-config AOS_ARCH_ARMV7M_SVC
-    bool "armv7m-svc"
-    help
-      arch for armv7m-svc
-
-if AOS_ARCH_ARMV7M_SVC
-# Configurations for arch armv7m-svc
-endif
