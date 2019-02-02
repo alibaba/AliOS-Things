@@ -14,4 +14,6 @@ config OSAL_CONFIG
     help
         osal = rhino/posix/freertos/rhino_sxr/rhino_sxr_mutios
 
+comment "osal = rhino/posix/freertos/rhino_sxr/rhino_sxr_mutios"
+
 endif
