@@ -1,6 +1,5 @@
 config AOS_MCU_ATSAML21
     bool "mcu_atsaml21"
-    default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help

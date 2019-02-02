@@ -1,6 +1,5 @@
 config AOS_MCU_DAHUA
     bool "mcu_dahua"
-    default n
     select AOS_COMP_LWIP if LWIP = 1
     select AOS_COMP_SAL if AOS_NETWORK_SAL
     select AOS_COMP_NETMGR

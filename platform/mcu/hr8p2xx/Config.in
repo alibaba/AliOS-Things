@@ -1,6 +1,5 @@
 config AOS_MCU_HR8P2XX
     bool "mcu_hr8p2xx"
-    default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help

@@ -1,6 +1,5 @@
 config AOS_MCU_SV6266
     bool "mcu_sv6266"
-    default n
     select  AOS_COMP_RHINO
     help
       driver & sdk for platform/mcu sv6266

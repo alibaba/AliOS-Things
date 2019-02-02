@@ -1,6 +1,5 @@
 config AOS_MCU_LPC54018IMPL
     bool "mcu_lpc54018impl"
-    default n
     select AOS_ARCH_ARMV7M
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO
