@@ -44,11 +44,7 @@ ifeq ($(osal),rhino)
 GLOBAL_DEFINES     += OSAL_RHINO AOS_HAL
 $(NAME)_COMPONENTS += rhino debug
 
-ifeq ($(MBINS),app)
-$(NAME)_SOURCES += rhino_uspace.c
-else
 $(NAME)_SOURCES += rhino.c
-endif
 
 ifeq ($(AOS_COMP_KV),y)
 $(NAME)_SOURCES += kv.c
