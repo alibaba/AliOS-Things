@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef U_LOG_CONFIG_H_
@@ -30,34 +30,23 @@ extern "C" {
 #endif
 
 /**
-* Module Type, used for distinguish funcion module of whole system, attached in front of TAG in MSG part.
-* The log level can be filter based on the module type. User may pass below enum except MOD_SIZE &
-* MOD_UNKNOWN.
+* syslog management command mark
+* NOT RECOMMEND MODIFY THIS VALUE, READ ONLY!!
 */
-typedef enum{
-    MOD_UNKNOWN,/* log text is "UN" if pass illegal parameter to module type */
-    MOD_OS,     /* Log produced in OS , log string is "OS" */
-    MOD_NET,    /* Log produced in Net, inlude lwip, bluetooth, etc , log string is "NT" */
-    MOD_CLOUD,  /* Log produced in sdk which focus on communication with cloud , log string is "CD" */
-    MOD_APP,    /* Log produced in user app, log string is "AP" */
-    MOD_SIZE
-}MOD_TYPE;
-
-typedef enum{
-    SESSION_DIRECTION,  //default out direction, usually uart for rtos, termial for Linux
-#ifndef CONFIG_NO_TCPIP
-    SESSION_UDP,        //Allow syslog, which support udp, port 514 is default for syslog watcher
-#endif
-
-#if defined (AOS_COMP_SPIFFS) && defined (AOS_COMP_VFS)
-    SESSION_FILE,       //log on local file system
-#endif
-    SESSION_USB,
-
-    SESSION_CNT
-}SESSION_TYPE;
-
 #define ULOG_CMD_PREFIX "#@"
+
+/**
+* syslog protocol, facility local use 0
+* NOT RECOMMEND MODIFY THIS VALUE, READ ONLY!!
+*/
+#define SYSLOG_FACILITY        128
+
+/**
+* Specify the port of syslog watcher
+* NOT RECOMMEND MODIFY THIS VALUE, READ ONLY!!
+*/
+#define SYSLOG_WATCHER_DEFAULT_PORT 514
+
 
 /**
 * If this value is SET then extream log text will be recored, then the log text not support syslog format,
@@ -82,21 +71,15 @@ typedef enum{
 #endif
 
 /**
-* The minimal depth of queue that used to record under aync mode.
-* NOT RECOMMEND MODIFY THIS VALUE, READ ONLY!!
-*/
-#define MIN_SYSLOG_DEPTH        32
-
-/**
-* Default depth of queue that used to record under aync mode.
-* May the trace log miss if this depth was set too small.
+* Default size of buffer queue that used to record log under aync mode.
+* May the trace log miss if this value was set too small.
 * More RAM will be costed if it set too large
 * So consider balance of this value and system resouce
 */
-#ifndef ULOG_CONFIG_DEFAULT_ASYNC_SYSLOG_DEPTH
-#define DEFAULT_ASYNC_SYSLOG_DEPTH    64
+#ifndef ULOG_CONFIG_ASYNC_BUF_SIZE
+#define DEFAULT_ASYNC_BUF_SIZE    6144
 #else
-#define DEFAULT_ASYNC_SYSLOG_DEPTH    ULOG_CONFIG_DEFAULT_ASYNC_SYSLOG_DEPTH
+#define DEFAULT_ASYNC_BUF_SIZE    ULOG_CONFIG_ASYNC_BUF_SIZE
 #endif
 
 /**
@@ -104,7 +87,7 @@ typedef enum{
 * will be abondoned LOG_EMERG will make none log pop out.
 */
 #ifndef ULOG_CONFIG_STOP_FILTER_DEFAULT
-#define STOP_FILTER_DEFAULT   LOG_NOTICE
+#define STOP_FILTER_DEFAULT   LOG_WARNING
 #else
 #define STOP_FILTER_DEFAULT   ULOG_CONFIG_STOP_FILTER_DEFAULT
 #endif
@@ -112,7 +95,6 @@ typedef enum{
 /**
 * Level Stop Filter of udp, any log level qual or lower than this (value higher than it)
 * will be abondoned LOG_EMERG will make none log pop out.
-* please keep this value on "LOG_EMERG" if you have no plan to use udp log
 */
 #ifndef ULOG_CONFIG_STOP_FILTER_UDP
 #define STOP_FILTER_UDP       LOG_WARNING
@@ -121,21 +103,40 @@ typedef enum{
 #endif
 
 /**
-* STACK DEPTH of Log Task, will cost 512 Byte room
+* switch on pop out log into file system
 */
-#ifndef ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
-#define LOG_ROUTINE_TASK_STACK_DEPTH 512
+#ifndef ULOG_CONFIG_POP_FS
+#define ULOG_POP_FS_ENABLE       0
 #else
-#define LOG_ROUTINE_TASK_STACK_DEPTH ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
+#define ULOG_POP_FS_ENABLE ULOG_CONFIG_POP_FS
 #endif
 
 /**
-* Specify the port of syslog watcher
+* switch on pop out log via UDP
 */
-#ifndef ULOG_CONFIG_SYSLOG_WATCHER_PORT
-#define SYSLOG_WATCHER_DEFAULT_PORT 514
+#ifndef ULOG_CONFIG_POP_UDP
+#define ULOG_POP_UDP_ENABLE       0
 #else
-#define SYSLOG_WATCHER_DEFAULT_PORT ULOG_CONFIG_SYSLOG_WATCHER_PORT
+#define ULOG_POP_UDP_ENABLE ULOG_CONFIG_POP_UDP
+#endif
+
+/**
+* Level Stop Filter of File system, any log level qual or lower than this (value higher than it)
+* will be abondoned LOG_EMERG will make none log pop out.
+*/
+#ifndef ULOG_CONFIG_STOP_FILTER_FS
+#define STOP_FILTER_FS       LOG_WARNING
+#else
+#define STOP_FILTER_FS       ULOG_CONFIG_STOP_FILTER_FS
+#endif
+
+/**
+* STACK DEPTH of Log Task, will cost 1024 Byte room
+*/
+#ifndef ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
+#define LOG_ROUTINE_TASK_STACK_DEPTH 1024
+#else
+#define LOG_ROUTINE_TASK_STACK_DEPTH ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
 #endif
 
 /**
@@ -152,9 +153,33 @@ typedef enum{
 * new files will be used to be recored.
 */
 #ifndef ULOG_CONFIG_LOCAL_FILE_SIZE
-#define LOCAL_FILE_SIZE 1024
+#define LOCAL_FILE_SIZE 4096
 #else
-#define LOCAL_FILE_CNT ULOG_CONFIG_LOCAL_FILE_CNT
+#define LOCAL_FILE_SIZE ULOG_CONFIG_LOCAL_FILE_SIZE
+#endif
+
+#if ULOG_POP_FS_ENABLE
+#if !defined (AOS_COMP_VFS)
+#error ("select comp vfs, or disable this function")
+#else
+#if defined (AOS_COMP_SPIFFS)
+#define FS_PATH              "/spiffs/"
+#elif defined (AOS_COMP_FATFS)
+#ifdef CONFIG_AOS_FATFS_SUPPORT_MMC
+#define FS_PATH              "/sdcard/"
+#else
+#define FS_PATH              "/fatfs/"
+#endif /* CONFIG_AOS_FATFS_SUPPORT_MMC */
+#else
+#error ("select comp spiffs or fatfs, or disable this function")
+#endif
+#endif /* !AOS_COMP_VFS  */
+#endif /* ULOG_POP_FS_ENABLE  */
+
+#if ULOG_POP_UDP_ENABLE
+#ifdef CONFIG_NO_TCPIP
+#error ("pop log via udp not support in no tcpip board")
+#endif
 #endif
 
 #ifdef __cplusplus

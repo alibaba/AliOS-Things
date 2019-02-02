@@ -15,45 +15,23 @@ config ULOG_CONFIG_ASYNC
 if ULOG_CONFIG_ASYNC
 # Configurations for ulog async mode
 
-config ULOG_CONFIG_EXTREAM_LOG_TEXT
-    int "record extream log text"
-    range 0 1
-    default 0
-    help
-        If this value is SET then extream log text will be recored, then the log text not support syslog format, only pure message will be loged, syslog format cost about 45 bytes for each log.
-
-config ULOG_CONFIG_SYSLOG_SIZE
-    int "max length of every log"
-    default 128
-    help
-        The max length of every trace log to be recorded, log Content will be trimmed if it's too long.
-
-config ULOG_CONFIG_DEFAULT_ASYNC_SYSLOG_DEPTH
-    int "default depth of queue"
-    default 64
-    help
-        Default depth of queue that used to record under aync mode.
-        May the trace log miss if this depth was set too small.
-        More RAM will be costed if it set too large
-        So consider balance of this value and system resouce
-
 config ULOG_CONFIG_STOP_FILTER_DEFAULT
     int "level Stop Filter of default direction(uart for rtos)"
     range 0 7
-    default 5
+    default 4
     help
         Level Stop Filter of default direction(uart for rtos), any log level qual or lower than this (value higher than it)
         will be abondoned LOG_EMERG will make none log pop out.
 
-config ULOG_CONFIG_STOP_FILTER_UDP
-    int "level Stop Filter of udp"
-    range 0 7
-    default 0
-    help
-        Level Stop Filter of udp, any log level qual or lower than this (value higher than it)
-        will be abondoned LOG_EMERG will make none log pop out.
-        please keep this value on "LOG_EMERG" if you have no plan to use udp log
+config ULOG_CONFIG_POP_FS
+     int "switch on pop out log into file system"
+     range 0 1
+     default 0
+     help
+        switch on/off the function that pop out log file into file system
+        comp vfs and spiffs is necessary if switch on this function
 
+if ULOG_CONFIG_POP_FS=1
 config ULOG_CONFIG_STOP_FILTERFS
     int "level Stop Filter of fs"
     range 0 7
@@ -61,20 +39,7 @@ config ULOG_CONFIG_STOP_FILTERFS
     help
         Level Stop Filter of fs, any log level qual or lower than this (value higher than it)
         will be abondoned LOG_EMERG will make none log pop out.
-        please keep this value on "LOG_EMERG" if you have no plan to use udp fs
-
-config ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
-    int "stack depth of Log Task"
-    default 512
-    help
-        STACK DEPTH of Log Task, will cost 512 Byte room
-
-config ULOG_CONFIG_SYSLOG_WATCHER_PORT
-    int "syslog watcher port"
-    default 514
-    range 20 65000
-    help
-        Specify the port of syslog watcher
+        please keep this value on "LOG_EMERG" if you have no plan to use log out fs
 
 config ULOG_CONFIG_LOCAL_FILE_CNT
     int "max ulog files on file system"
@@ -85,11 +50,62 @@ config ULOG_CONFIG_LOCAL_FILE_CNT
 
 config ULOG_CONFIG_LOCAL_FILE_SIZE
     int "max ulog file size"
-    default 1024
+    default 4096
     range 256 10240
     help
         Max log file size locate in local file system, if the recording file larger than this value, new files will be used to be recored.
 
 endif
 
+config ULOG_CONFIG_POP_UDP
+     int "switch on pop out log via syslog udp"
+     range 0 1
+     default 0
+     help
+        switch on/off the function that pop out log file via syslog udp
+        do not switch on if there is no tcp/ip stack in, or sal module included
+        currently only support in soc.
+
+if ULOG_CONFIG_POP_UDP=1
+config ULOG_CONFIG_STOP_FILTER_UDP
+    int "level Stop Filter of udp"
+    range 0 7
+    default 4
+    help
+        Level Stop Filter of udp, any log level qual or lower than this (value higher than it)
+        will be abondoned LOG_EMERG will make none log pop out.
+        please keep this value on "LOG_EMERG" if you have no plan to use udp log
 endif
+
+config ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
+    int "stack depth of Log Task"
+    default 1024
+    help
+        STACK DEPTH of Log Task, will cost 1024 Byte room
+
+config ULOG_CONFIG_EXTREAM_LOG_TEXT
+    int "record extream log text"
+    range 0 1
+    default 0
+    help
+        If this value is SET then extream log text will be recored, then the log text not support syslog format.
+        only pure message will be loged, syslog format cost about 45 bytes for each log.
+
+config ULOG_CONFIG_ASYNC_BUF_SIZE
+    int "default size of buffer queue"
+    default 6144
+    help
+        Default size of buffer queue that used to record log under aync mode.
+        May the trace log miss if this value was set too small.
+        More RAM will be costed if it set too large
+        So consider balance of this value and system resouce
+
+config ULOG_CONFIG_SYSLOG_SIZE
+    int "max length of every log"
+    default 128
+    help
+        The max length of every trace log to be recorded, log Content will be trimmed if it's too long.
+
+endif
+endif
+

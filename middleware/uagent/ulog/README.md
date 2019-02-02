@@ -6,10 +6,12 @@ ulog
 ├── Config.in
 ├── include
 │   ├── log_impl.h
+│   ├── ulog_api.h
 │   ├── ulog_config.h
 │   └── uring_fifo.h
 ├── log.c
 ├── README.md
+├── session_fs.c
 ├── session_udp.c
 ├── ucube.py
 ├── ulog.c
@@ -28,11 +30,12 @@ ulog is log module of AliOS Things, support both classic syncronized mechanism a
 2. depth of fifo which record the log content ready for pop out can be select via initialization;
 3. dynamically change the stop filter of log level, select the pop out session;
 4. Firmware digital signature verification.
-5. resource cost: ROM-->0.5K~2.2K(0.5K for classic sync mode) RAM: 3K~9K(0.2K static data, 0.5K task depth, 2K~8K fifo depth, user can modify it via SYSLOG_SIZE)
+5. resource cost: ROM-->4K(0.5K for classic sync mode) RAM: 3K~9K(0.2K static data, 1K~3K task depth, 2K~6K fifo depth.
+   user can modify task depth or fifo depth via ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH, ULOG_CONFIG_ASYNC_BUF_SIZE)
 
 ## Dependencies
 
-None, this feature has varified under stm32f4, stm32l4, esp8266, mk3060(pop out log via udp has verified in soc).
+None, this feature has varified under stm32f412ZG-Nucleo, developerkit, esp8266, mk3060, esp32devkitc(pop out log via udp has verified in soc).
 modify log parameter via CLI depends on module cli.
 pop out log via udp via tcpip related(native tcpip stack, lwip, or sal)
 
@@ -44,7 +47,7 @@ User service APIs:
 /*ULOG export service APIs*/
 void ulog_init(const uint8_t host_name[8]);
 void ulog_man(const char* cmd_str);
-ULOG(M, S, F, L, ...);
+ulog(M, S, F, L, ...);
 ULOGOS(S, ...);
 ```
 
@@ -57,10 +60,10 @@ Step 5. Add compiler argument "log_async=1" to build the project, e.g. "aos make
 Step 6. pop log out via udp: You shall notify the ulog the tcpip is ready via "ulog_man("tcpip on=1");" e.g. in wifi_service_event when got ip. You shall specify the syslog watcher's address via "ulog_man("listen ip=192.168.1.100");" or via CLI(ulog a 192.168.1.100).
 REMARK: If the OS crash once the ulog introduced, maybe because the LOG_ROUTINE_TASK_STACK_DEPTH shall be adjusted, default value 512 is fit in most board, except MK3060 for now. So adjust this value to 1024 if you use ulog in MK3060.
 This function only support on SoC for now.
-Step 7. pop log out via local file system. If component vfs and spiffs are builded in, then the pop out via local file system supported. ulog_000.log ~ ulog_XXX.log may produced under this mechanism.
-ulog_000.log is used in save the log cfg, currently only log file index saved in it which help record up-most log file index in file system, so the new log will saved in this index, or new one after system boot-up.
-ulog_001.log ~ ulog_XXX.log will be produced, the XXX is config item ULOG_CONFIG_LOCAL_FILE_CNT, each log size is not larger than ULOG_CONFIG_LOCAL_FILE_SIZE+ULOG_CONFIG_SYSLOG_SIZE.
-Rolling back mechanism also used to make new file: if ulog_XXX is full, than the new log context will be recorded in ulog_001.log.
+Step 7. pop log out via local file system. If component vfs and spiffs are builded in, then the pop out via local file system supported. ulog000.log ~ ulogXXX.log may produced under this mechanism.
+ulog000.log is used in save the log cfg, currently only log file index saved in it which help record up-most log file index in file system, so the new log will saved in this index, or new one after system boot-up.
+ulog001.log ~ ulog_XXX.log will be produced, the XXX is config item ULOG_CONFIG_LOCAL_FILE_CNT, each log size is not larger than ULOG_CONFIG_LOCAL_FILE_SIZE+ULOG_CONFIG_SYSLOG_SIZE.
+Rolling back mechanism also used to make new file: if ulogXXX is full, than the new log context will be recorded in ulog001.log.
 
 ## Other
 
