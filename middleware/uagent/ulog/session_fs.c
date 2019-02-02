@@ -1,19 +1,24 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#if defined (AOS_COMP_SPIFFS) && defined (AOS_COMP_VFS)
-
-#include "include/ulog_config.h"
+#include "ulog_api.h"
+#include "ulog/ulog.h"
 #include <string.h>
+#include <fcntl.h>
+#include <stdlib.h>
+
+#if ULOG_POP_FS_ENABLE
+
 #include "aos/vfs.h"
 #include "aos/errno.h"
-#include <fcntl.h>
-#include "ulog/ulog.h"
 
-#define TRACE_SESSION_FS LOG
 
-#define ULOG_FILE_FORMAT     "/spiffs/ulog_%03d.log"
+#define SESSION_FS_INFO printf
+#define SESSION_FS_DEBUG
+
+
+#define ULOG_FILE_FORMAT     FS_PATH"ulog%03d.log"
 
 #define ULOG_FILE_CFG_IDX    0
 
@@ -28,13 +33,29 @@
 #define LOG_LINE_SEPARATOR '\n'
 #define LOG_LINE_TAIL_STR  "\n"
 static uint16_t operating_file_idx = 0;
+
 /**
 * record the log files operating. Recover(reset or get) in reload_log_argu()
 * used and count in write_log_line()
 */
 static uint32_t operating_file_offset = 0;
 
-static int get_log_line(const int file_instanse, const off_t off, char* buf, const uint16_t buf_len);
+/**
+* indicates if log on fs feature initialized
+*
+*/
+static uint8_t session_fs_init = 0;
+
+static int operating_fd = -1;
+
+/*
+ * get one line from specify fd.
+ *
+ * @param[in]  fd file description.
+ * @param[out]  buf buffer to save the output character.
+ * @param[in]  buf_len buffer room size.
+ */
+static int get_log_line(const int fd, char* buf, const uint16_t buf_len);
 
 /**
 *
@@ -49,10 +70,10 @@ static bool log_file_exist(const uint16_t file_idx)
     char ulog_file_name[32];
     snprintf(ulog_file_name, sizeof(ulog_file_name), ULOG_FILE_FORMAT, file_idx);
 
-    const int fd = aos_open(ulog_file_name, (O_RDWR| O_CREAT | O_EXCL));
-    if ( fd < 0 ) {
-        if (fd==-EEXIST) {
-            TRACE_SESSION_FS("file %s alreay exist\n", ulog_file_name);
+    const int fd = aos_open(ulog_file_name, (O_RDWR | O_CREAT | O_EXCL));
+    if (fd < 0) {
+        if (fd == -EEXIST) {
+            SESSION_FS_DEBUG("file %s alreay exist\n", ulog_file_name);
             rc = true;
         }
     } else {
@@ -66,19 +87,20 @@ static int open_create_log_file(const uint16_t file_idx, const bool keep_open)
     int fd = -1;
     char ulog_file_name[32];
     snprintf(ulog_file_name, sizeof(ulog_file_name), ULOG_FILE_FORMAT, file_idx);
-    TRACE_SESSION_FS("open create log %s\n", ulog_file_name);
+    SESSION_FS_DEBUG("open create log %s\n", ulog_file_name);
     aos_unlink(ulog_file_name);
     fd = aos_open(ulog_file_name, (O_RDWR | O_CREAT | O_TRUNC));
     if (fd >= 0) {
         if (!keep_open) {
             aos_close(fd);
         }
-    }else{
-        TRACE_SESSION_FS("open create file %s fail fd %d %d\n",ulog_file_name,fd,errno);
+    } else {
+        SESSION_FS_INFO("open create file %s fail fd %d\n", ulog_file_name, fd);
     }
     return fd;
 }
 
+/* O_APPEND */
 static int open_log_file(const uint16_t file_idx, int flag, const off_t off)
 {
     int fd = -1;
@@ -87,13 +109,14 @@ static int open_log_file(const uint16_t file_idx, int flag, const off_t off)
     snprintf(ulog_file_name, sizeof(ulog_file_name), ULOG_FILE_FORMAT, file_idx);
     fd = aos_open(ulog_file_name, flag);
     if (fd >= 0) {
-        if (aos_lseek(fd, off, SEEK_SET) == -1) {
-            TRACE_SESSION_FS("seek fail %s\n", ulog_file_name);
+        const int seek_off = aos_lseek(fd, off, SEEK_SET);
+        if (seek_off != off) {
+            SESSION_FS_INFO("seek fail %s %d\n", ulog_file_name, seek_off);
             aos_close(fd);
             fd = -1;
         }
     } else {
-        TRACE_SESSION_FS("open %s fail fd %d err %d\n", ulog_file_name, fd, errno);
+        SESSION_FS_INFO("open %s fail fd %d\n", ulog_file_name, fd);
     }
     return fd;
 }
@@ -112,8 +135,8 @@ static uint32_t get_ulog_config(const char* cfg_key)
         int off = 0;
         int read_len = 0;
         /* log cofig file exist, read it to archive config item */
-        while ((read_len = get_log_line(fd, off, one_cfg_item, sizeof(one_cfg_item))) > 1) {
-            off += ( read_len + ((ULOG_CFG_LINE_MAX_SIZE == read_len)?0:1) );
+        while ((read_len = get_log_line(fd, one_cfg_item, sizeof(one_cfg_item))) > 1) {
+            off += (read_len + ((ULOG_CFG_LINE_MAX_SIZE == read_len) ? 0 : 1));
             char * q = NULL;
             if ((q = strstr(one_cfg_item, cfg_key)) != NULL) {
                 char* val_str = &q[strlen(cfg_key) + 1];
@@ -134,63 +157,51 @@ static uint32_t get_ulog_config(const char* cfg_key)
 * appended at the end of destination.
 *
 * @param  file_instanse file description from aos_open() before
-* @param  off offset which is alse the count has readed for this file before
 * @param  buf local buffer use for saved, ZERO format is not MUST
 * @param  buf_len buffer size
-* @return actual log text length readed and saved in argumenent buf;
-*         '\n','\0' is not count. Expected value: 1~buf_len-1
-*         0 indicates EOF of the file, buf_len indicates the passing value is
+* @return actual log text length readed in argumenent buf;
+*         '\n',' is counted. Expected value: 1~buf_len-1
+*         0 indicates EOF of the file, buf_len indicates the possible passing value is
 *         limited to read the whole line.
 */
-static int get_log_line(const int file_instanse, const off_t off, char* buf, const uint16_t buf_len)
+static int get_log_line(const int fd, char* buf, const uint16_t buf_len)
 {
     int rc = -1;
-    if (file_instanse >= 0 && buf != NULL && buf_len > 0) {
-        int seek_rt = -1;
-        if (-1 != (seek_rt = aos_lseek(file_instanse, off, SEEK_SET))) {
-            int cnt = 0;
-            while ((cnt < buf_len) && (0 < aos_read(file_instanse, &buf[cnt], 1))) {
-                if (buf[cnt++] == LOG_LINE_SEPARATOR) {
-                    break;
-                }
+    if (fd >= 0 && buf != NULL && buf_len > 0) {
+        memset(buf, 0, buf_len);
+        int cnt = 0;
+        while ((cnt < buf_len) && (0 < aos_read(fd, &buf[cnt], 1))) {
+            if (buf[cnt++] == LOG_LINE_SEPARATOR) {
+                break;
             }
+        }
 
-            if (cnt == 0) {
-                /* Nothing read, this is an empty file */
-                rc = 0;
-            }
-            else if (cnt != buf_len) {
-                if (buf[cnt - 1] == LOG_LINE_SEPARATOR) {
-                    rc = cnt - 1;
-                }
-                else {
-                    rc = cnt;
-                }
+        if (cnt == 0) {
+            /* Nothing read, this is an empty file */
+            rc = 0;
+        } else if (cnt != buf_len) {
+            if (buf[cnt - 1] == LOG_LINE_SEPARATOR) {
                 /* replacement/end with null terminated */
-                buf[rc] = 0;
-            }
-            else {/* cnt == buf_len */
-                if (buf[cnt - 1] == LOG_LINE_SEPARATOR) {
-                    /* just fit */
-                    rc = cnt - 1;
-                }
-                else {
-                    /* buffer is not sufficient to save whole line,
-                       return buf_len to indicates customer */
-                    rc = cnt;
-                }
-
-                /* replacement with null terminated */
                 buf[cnt - 1] = 0;
+            } else {
+                buf[cnt] = 0;
             }
+            rc = cnt;
+
+        } else {/* cnt == buf_len */
+            /* two possible result */
+            /* buffer len is just fit */
+            /* buffer is not sufficient to save whole line,
+            last characher will be missed and replace of null-terminated */
+            rc = cnt;
+
+            /* replacement with null terminated */
+            buf[cnt - 1] = 0;
         }
-        else {
-            TRACE_SESSION_FS("seek fail rlt %d err %d\n", seek_rt, errno);
-        }
+
     }
     return rc;
 }
-
 
 /**
 *
@@ -210,13 +221,13 @@ static int write_log_line(const int file_instanse, const char* buf, const bool k
     if (file_instanse >= 0 && buf != NULL) {
         int rc = -1;
         if ((rtn = aos_write(file_instanse, buf, strlen(buf))) > 0) {
-            if( 1 == (rc=aos_write(file_instanse, LOG_LINE_TAIL_STR, 1)) ){
-                rtn ++;
-            }else{
+            if (1 == (rc = aos_write(file_instanse, LOG_LINE_TAIL_STR, 1))) {
+                rtn++;
+            } else {
                 rtn = rc;
             }
         } else {
-            TRACE_SESSION_FS("write fail rc %d\n", rtn);
+            SESSION_FS_INFO("write fail rc %d\n", rtn);
         }
 
         if (!keep_open) {
@@ -267,16 +278,16 @@ static int refresh_ulog_config(const bool init)
             rc = -2;
         }
     } else {
-        TRACE_SESSION_FS("refresh ulog cfg fail fd %d err %d\n", fd, errno);
+        SESSION_FS_INFO("refresh ulog cfg fail fd %d\n", fd);
     }
     return rc;
 }
 
 /**
 *
-* Reload log history arguments from ulog cfg file(ulog_0000.log) in fs,
-* includes operating_file_idx & operating_file_offset. New ulog_0000.log
-* will be created if none ulog_0000.log found or text is illegal.
+* Reload log history arguments from ulog cfg file(ulog_000.log) in fs,
+* includes operating_file_idx & operating_file_offset. New ulog_000.log
+* will be created if none ulog_000.log found or text is illegal.
 * This is vital for ulog pop via fs, ulog pop via fs will be forbidden if
 * this step fail.
 *
@@ -290,7 +301,7 @@ static int reload_log_argu()
         /* ulog cfg exist, try to read it */
         const uint32_t tmp_idx = get_ulog_config(ULOG_FILE_CFG_UP_IDX);
         operating_file_offset = 0;
-        TRACE_SESSION_FS("log file idx %d\n", tmp_idx);
+        SESSION_FS_DEBUG("log file idx %d\n", tmp_idx);
         if (tmp_idx > 0 && tmp_idx <= LOCAL_FILE_CNT) {
             operating_file_idx = tmp_idx;
             if (log_file_exist(operating_file_idx)) {
@@ -300,20 +311,20 @@ static int reload_log_argu()
                     int read_len = 0;
                     char log_buf[SYSLOG_SIZE];
                     /* log file exist, read it to archive operating_file_offset */
-                    while ((read_len = get_log_line(fd, operating_file_offset, log_buf, SYSLOG_SIZE)) > 1) {
-                        operating_file_offset += (read_len + ((read_len == SYSLOG_SIZE) ? 0 : 1));
+                    while ((read_len = get_log_line(fd, log_buf, SYSLOG_SIZE)) > 1) {
+                        operating_file_offset += read_len;
                     }
 
                     close_log_file(fd);
-                    if(operating_file_offset>=LOCAL_FILE_SIZE){
+                    if (operating_file_offset >= LOCAL_FILE_SIZE) {
                         operating_file_idx++;
                         /* operating file is close to full, create new one */
                         rc = refresh_ulog_config(false);
-                    }else{
+                    } else {
                         rc = 0;
                     }
                 } else {
-                    TRACE_SESSION_FS("log file exist buf can not open it\n");
+                    SESSION_FS_INFO("log file exist buf can not open it\n");
                     rc = -2;
                 }
             } else {
@@ -331,6 +342,25 @@ static int reload_log_argu()
     return rc;
 }
 
+void on_show_ulog_file()
+{
+    aos_dir_t *dp;
+    SESSION_FS_INFO("log files in %s\n", FS_PATH);
+    dp = (aos_dir_t *)aos_opendir(FS_PATH);
+
+    if (dp != NULL) {
+        aos_dirent_t *out_dirent;
+        while (1) {
+            out_dirent = (aos_dirent_t *)aos_readdir(dp);
+            if (out_dirent == NULL)
+                break;
+
+            SESSION_FS_INFO("file name is %s\n", out_dirent->d_name);
+        }
+    }
+    aos_closedir(dp);
+}
+
 /**
 * @brief not thread-safe, but only be used in one task(ulog), so not necessary considering mutex
 * @param data
@@ -342,71 +372,87 @@ static int reload_log_argu()
 int32_t pop_out_on_fs(const char* data, const uint16_t len)
 {
     int32_t ret = -1;
+    if (operating_fd >= 0) {
+        const int rc = write_log_line(operating_fd, data, true);
+        if (rc > 0) {
+            operating_file_offset += rc;
+            if (operating_file_offset >= LOCAL_FILE_SIZE) {
+                aos_sync(operating_fd);
+                close_log_file(operating_fd);
+                operating_file_idx++;
+
+                refresh_ulog_config(false);
+                operating_fd = open_log_file(operating_file_idx, O_WRONLY, operating_file_offset);
+            }
+
+        } else {
+            SESSION_FS_INFO("write fail %d\n", rc);
+        }
+    }
     return ret;
+}
+
+
+void on_fs_record_pause(const uint32_t on, const uint32_t off)
+{
+    if (on^off) {
+        SESSION_FS_DEBUG("fs ctrl %d fd %d\n",on,operating_fd);
+        if (on) {
+            if (operating_fd >= 0) {
+                aos_sync(operating_fd);
+                close_log_file(operating_fd);
+                operating_fd = -1;
+            }
+        } else {
+            if (operating_fd < 0) {
+                if (0 == reload_log_argu()) {
+                    SESSION_FS_INFO("reload ulog idx %d off %d\n", operating_file_idx, operating_file_offset);
+                    operating_fd = open_log_file(operating_file_idx, O_WRONLY, operating_file_offset);
+                } else {
+                    SESSION_FS_INFO("restart ulog fs fail\n");
+                }
+            }
+        }
+    }
+}
+
+void fs_control_cli(const char cmd, const char* param)
+{
+    if (param != NULL) {
+        switch (cmd)
+        {
+        case 't': {
+            int control_cmd = strtoul(param, NULL, 10);
+            if (control_cmd) {
+                ulog_man("fspause on=1");
+            } else {
+                ulog_man("fspause off=1");
+            }
+        }
+            break;
+
+        default:
+            break;
+        }
+    }
+}
+
+/**
+* @brief ulog on fs init
+*
+* @return 0 indicates initialized sucessfully, or else fail
+*
+*/
+int32_t ulog_fs_init()
+{
+    int32_t rc = -1;
+    rc = reload_log_argu();
+    if (rc == 0) {
+        SESSION_FS_INFO("reload ulog idx %d off %d\n", operating_file_idx, operating_file_offset);
+        operating_fd = open_log_file(operating_file_idx, O_WRONLY, operating_file_offset);
+    }
+    return rc;
 }
 
 #endif
 
-extern char *syslog_format_time(char *buffer, const int len);
-
-void test_log_process()
-{
-    int fd = open_log_file(operating_file_idx, O_WRONLY, operating_file_offset);
-    if (fd >= 0) {
-        TRACE_SESSION_FS("PREPARE WRITE LOG %d, idx %d off %d\n", fd, operating_file_idx, operating_file_offset);
-
-        char log_buf[64];
-        int rc = -1;
-        while (operating_file_offset < LOCAL_FILE_SIZE) {
-            memset(log_buf, 0, sizeof(log_buf));
-            syslog_format_time(log_buf, sizeof(log_buf));
-            strncat(log_buf, "helloworld", sizeof(log_buf));
-            rc=write_log_line(fd, log_buf, true);
-            if(rc>0){
-                operating_file_offset += rc;
-				TRACE_SESSION_FS("log this line %d total %d\n", rc,operating_file_offset);
-            }else{
-                TRACE_SESSION_FS("write fail %d\n",rc);
-                break;
-            }
-
-            aos_msleep(500);
-        }
-        close_log_file(fd);
-        operating_file_idx++;
-        refresh_ulog_config(false);
-
-        TRACE_SESSION_FS("LOG PROCESS FIN %d\n",operating_file_offset);
-    } else {
-        TRACE_SESSION_FS("FAIL WRITE\n");
-    }
-}
-
-
-int test_log_fs()
-{
-    vfs_spiffs_register();
-    aos_dir_t *dp;
-    dp = (aos_dir_t *)aos_opendir("/spiffs");
-
-    if (dp != NULL) {
-        aos_dirent_t *out_dirent;
-        while(1) {
-            out_dirent = (aos_dirent_t *)aos_readdir(dp);
-            if (out_dirent == NULL)
-                break;
-
-            TRACE_SESSION_FS("file name is %s\n", out_dirent->d_name);
-        }
-    }
-    aos_closedir(dp);
-
-    if (0 == reload_log_argu()) {
-        test_log_process();
-
-        test_log_process();
-    }else{
-        TRACE_SESSION_FS("reload log argu fail\n");
-    }
-    return 0;
-}

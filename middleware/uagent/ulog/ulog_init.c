@@ -1,22 +1,22 @@
+/*
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+ */
+
+#include "ulog/ulog.h"
+#include "ulog_api.h"
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
-#include "ulog/ulog.h"
 #include "k_api.h"
 #include "aos/cli.h"
 
 bool log_init = false;
 
-
 #ifdef AOS_COMP_CLI
 
 #ifdef ULOG_CONFIG_ASYNC
-
-extern void on_filter_level_change(const SESSION_TYPE session, const uint8_t level);
-extern void ulog_async_init(const uint8_t host_name[8]);
-
 
 __attribute__((weak)) void update_net_cli(const char cmd, const char* param)
 {
@@ -26,44 +26,68 @@ __attribute__((weak)) void update_net_cli(const char cmd, const char* param)
     */
 }
 
+__attribute__((weak)) void fs_control_cli(const char cmd, const char* param)
+{
+    /* Will be overwrite in session_fs */
+}
+
+__attribute__((weak)) void on_show_ulog_file()
+{
+    /* Will be overwrite in session_fs */
+}
+
 static void cmd_cli_ulog(char *pwbuf, int blen, int argc, char *argv[])
 {
     bool exit_loop = false;
     uint8_t session = 0xFF;
-    uint8_t level   = 0xFF;
+    uint8_t level = 0xFF;
     uint8_t i;
-	for (i = 1; i < argc && !exit_loop; i+=2)
-	{
-		const char* option = argv[i];
-        const char* param  = argv[i+1];
-        if(option!=NULL && param!=NULL && strlen(option)==1){
-            switch(option[0])
+
+    if (argc == 2) {
+        const char* option = argv[1];
+        switch (option[0])
+        {
+        case 'f':
+            on_show_ulog_file();
+            break;
+        default:
+            break;
+        }
+    }
+    for (i = 1; i < argc && !exit_loop; i += 2)
+    {
+        const char* option = argv[i];
+        const char* param = argv[i + 1];
+        if (option != NULL && param != NULL && strlen(option) == 1) {
+            switch (option[0])
             {
-                case 's'://session
+            case 's':/* session */
                 session = strtoul(param, NULL, 10);
                 break;
 
-                case 'l'://level
+            case 'l':/* level */
                 level = strtoul(param, NULL, 10);
                 break;
 
-                case 'a'://syslog watcher address
-                case 'p'://syslog watcher port
+            case 'a':/* syslog watcher address */
                 update_net_cli(option[0], param);
 
-                    break;
+            case 't':/* terminate record on fs */
+                fs_control_cli(option[0], param);
 
-                default: //unknown option
+                break;
+
+            default: /* unknown option */
                 exit_loop = true;
                 break;
             }
-        }else{//unknown format
+        } else {/* unknown format */
             break;
         }
-	}
+    }
 
-    if( (session<SESSION_CNT) && (level<=LOG_NONE) ){
-        on_filter_level_change(session, level);
+    if ((session < SESSION_CNT) && (level <= LOG_NONE)) {
+        on_filter_level_change((SESSION_TYPE)session, level);
     }
 }
 #endif
@@ -71,8 +95,8 @@ static void cmd_cli_ulog(char *pwbuf, int blen, int argc, char *argv[])
 static void sync_log_cmd(char *buf, int len, int argc, char **argv)
 {
     const char *lvls[] = {
-        [AOS_LL_FATAL] = "fatal", [AOS_LL_ERROR] = "error",
-        [AOS_LL_WARN] = "warn",   [AOS_LL_INFO] = "info",
+        [AOS_LL_FATAL] = "fatal",[AOS_LL_ERROR] = "error",
+        [AOS_LL_WARN] = "warn",[AOS_LL_INFO] = "info",
         [AOS_LL_DEBUG] = "debug",
     };
 
@@ -103,17 +127,16 @@ static struct cli_command ulog_cmd[] = {
 
 #endif /* AOS_COMP_CLI */
 
-void ulog_init(const uint8_t host_name[8])
+void ulog_init(const char host_name[8])
 {
-    if(!log_init){
+    if (!log_init) {
         log_init_mutex();
 #ifdef ULOG_CONFIG_ASYNC
         ulog_async_init(host_name);
 #endif
 #ifdef AOS_COMP_CLI
-        aos_cli_register_commands(&ulog_cmd[0], sizeof(ulog_cmd)/sizeof(struct cli_command));
+        aos_cli_register_commands(&ulog_cmd[0], sizeof(ulog_cmd) / sizeof(struct cli_command));
 #endif
         log_init = true;
     }
 }
-
