@@ -1,6 +1,5 @@
 config AOS_ARCH_ARMV5
     bool "armv5"
-    default n
     help
       arch for armv5
 

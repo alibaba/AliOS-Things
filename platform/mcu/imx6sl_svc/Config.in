@@ -1,6 +1,5 @@
 config AOS_MCU_IMX6SL_SVC
     bool "mcu_imx6sl_svc"
-    default n
     select AOS_COMP_RHINO
     select AOS_ARCH_ARMV7A_SVC
     select AOS_COMP_NEWLIB_STUB

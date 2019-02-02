@@ -1,6 +1,5 @@
 config AOS_MCU_ESP32
     bool "mcu_esp32"
-    default n
     select AOS_COMP_LWIP
     select AOS_COMP_ALICRYPTO
     select AOS_COMP_BT_HOST if BLE_CONFIG = 0

@@ -1,6 +1,5 @@
 config AOS_ARCH_LINUX
     bool "arch_linux"
-    default n
     help
       arch for linux
 

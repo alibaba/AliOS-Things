@@ -1,6 +1,5 @@
 config AOS_MCU_ESP8266
     bool "mcu_esp8266"
-    default n
     select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_ALICRYPTO
@@ -18,6 +17,5 @@ if AOS_MCU_ESP8266
 
 config OSAL_CONFIG
     string "osal config"
-    default rhino
 
 endif

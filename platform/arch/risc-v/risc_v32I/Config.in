@@ -1,6 +1,5 @@
 config AOS_ARCH_RISC_V32I
     bool "risc_v32I"
-    default n
     help
       arch for risc_v32I
 
