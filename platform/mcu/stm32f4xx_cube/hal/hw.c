@@ -70,6 +70,8 @@ void hw_start_hal(void)
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 #endif
-    
+
+#ifdef AOS_COMP_NETMGR    
     hal_wifi_init();
+#endif
 }
