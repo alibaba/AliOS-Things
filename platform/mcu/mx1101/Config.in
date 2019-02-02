@@ -1,6 +1,5 @@
 config AOS_MCU_MX1101
     bool "mcu_MX1101"
-    default n
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help

@@ -1,6 +1,5 @@
 config AOS_MCU_HC32L136
     bool "mcu_hc32l136"
-    default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help

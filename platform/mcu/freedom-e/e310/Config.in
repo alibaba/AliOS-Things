@@ -1,6 +1,5 @@
 config AOS_MCU_E310
     bool "mcu_e310"
-    default n
     select AOS_ARCH_RISC_V32I
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO

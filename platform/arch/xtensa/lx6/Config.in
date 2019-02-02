@@ -1,6 +1,5 @@
 config AOS_ARCH_XTENSA_LX6
     bool "arch xtensa-lx6"
-    default n
     help
       arch for xtensa lx6
 

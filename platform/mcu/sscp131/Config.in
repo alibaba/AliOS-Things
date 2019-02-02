@@ -1,6 +1,5 @@
 config AOS_MCU_SSCP131
     bool "mcu_sscp131"
-    default n
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help

@@ -1,6 +1,5 @@
 config AOS_MCU_M487JIDAE
     bool "mcu_m487jidae"
-    default n
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help

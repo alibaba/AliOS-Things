@@ -1,6 +1,5 @@
 config AOS_MCU_MKL43Z4IMPL
     bool "mcu_mkl43z4impl"
-    default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     select AOS_COMP_NEWLIB_STUB
