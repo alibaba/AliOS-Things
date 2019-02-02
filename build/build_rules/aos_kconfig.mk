@@ -71,6 +71,7 @@ oldconfig silentoldconfig olddefconfig: $(KCONFIG_CONF)
 
 # Create .defconfig
 $(TMP_DEFCONFIG):
+	$(QUIET)$(ECHO) Creating $@ ...
 	$(QUIET)$(if $(BOARD_DEFCONFIG),\
 	$(info Reading defconfig from $(BOARD_DEFCONFIG) ...) $(CPDIR) $(BOARD_DEFCONFIG) $(TMP_DEFCONFIG))
 
@@ -78,8 +79,8 @@ $(TMP_DEFCONFIG):
 	$(if $(AOS_APP_TYPE),$(call WRITE_FILE_APPEND,$@,$(AOS_APP_TYPE)=y)),\
 	$(if $(AOS_APP_TYPE),$(call WRITE_FILE_CREATE,$@,$(AOS_APP_TYPE)=y)))
 
-	$(QUIET)$(call WRITE_FILE_APPEND,$@,AOS_app_$(AOS_BUILD_APP)=y)
-	$(QUIET)$(call WRITE_FILE_APPEND,$@,AOS_board_$(AOS_BUILD_BOARD)=y)
+	$(QUIET)$(call WRITE_FILE_APPEND,$@,AOS_app_$(AOS_APP_CONFIG)=y)
+	$(QUIET)$(call WRITE_FILE_APPEND,$@,$(AOS_BOARD_CONFIG)=y)
 
 ifneq ($(TMP_DEFCONFIG),$(AOS_DEFCONFIG))
 $(TMP_DEFCONFIG): $(AOS_DEFCONFIG)
@@ -90,8 +91,8 @@ endif
 # $(1) is command kconfig-conf
 # $(2) is defconfig file
 define LOAD_DEFCONFIG
-$(ECHO) Loading default config from $(2) ...
-$(COMMON_CONFIG_ENV) $(1) --defconfig$(if $(2),=$(2)) $(AOS_CONFIG_IN)
+$(QUIET)$(ECHO) Creating $(AOS_CONFIG) ...
+$(QUIET)$(COMMON_CONFIG_ENV) $(1) --defconfig$(if $(2),=$(2)) $(AOS_CONFIG_IN)
 endef
 
 # Create .config
@@ -102,7 +103,7 @@ defconfig: $(KCONFIG_CONF)
 	$(QUIET)$(call LOAD_DEFCONFIG, $<,$(AOS_DEFCONFIG))
 
 alldefconfig: $(KCONFIG_CONF)
-	$(COMMON_CONFIG_ENV) $< --alldefconfig $(AOS_CONFIG_IN)
+	$(QUIET)$(COMMON_CONFIG_ENV) $< --alldefconfig $(AOS_CONFIG_IN)
 
 savedefconfig: $(KCONFIG_CONF)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< \
@@ -118,5 +119,7 @@ list-defconfigs:
 	$(QUIET)$(ECHO) "Valid defconfigs:"
 	$(QUIET)$(ECHO) " "$(foreach defconfig,$(wildcard $(AOS_DEFCONFIG_DIR)/*-defconfig),$(call ECHO_DEFCONFIG,$(defconfig)))
 
-$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(AOS_CONFIG) silentoldconfig
-	$(QUIET):
+$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF) $(AOS_CONFIG)
+	$(QUIET)$(ECHO) Creating $@ ...
+	$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
+	$(QUIET)$(COMMON_CONFIG_ENV) $< --silentoldconfig $(AOS_CONFIG_IN)

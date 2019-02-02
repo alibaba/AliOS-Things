@@ -9,6 +9,9 @@ JTAG         ?= jlink_swd
 
 DATE := date
 
+# Python CMDs
+TR = $(TOOLS_ROOT)/cmd/python/TR.py
+
 ifeq ($(HOST_OS),Win32)
 ################
 # Windows settings

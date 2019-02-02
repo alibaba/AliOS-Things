@@ -20,7 +20,9 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 # kconfig support
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
+#
 # Process build strings
+#
 BUILD_SUBTARGETS := .config .compile .image .export-keil .export-iar .defconfig
 export BUILD_STRING ?= $(strip $(filter-out $(MAKEFILE_TARGETS) download run total export_linkkit_sdk restore_linkkit_sdk, $(MAKECMDGOALS)))
 
@@ -39,7 +41,11 @@ export OUTPUT_DIR  := $(BUILD_DIR)/$(CLEANED_BUILD_STRING)$(MBINS)
 export CONFIG_FILE := $(OUTPUT_DIR)/config.mk
 export AUTO_COMPONENT_DIR := $(OUTPUT_DIR)/auto_component
 
-# Enable .config/autoconf.h in build
+#
+# PreCheck for build configs
+#
+
+# Enable .config and autoconf.h in build
 ifeq ($(NOCONFIG),)
 
 # Get AOS_BUILD_APP, AOS_BUILD_BOARD from BUILD_STRING for creating
@@ -67,8 +73,13 @@ else
 export AOS_APP_TYPE :=
 endif
 
-boardname = $(word 2, $(components))
-defconfig = $(wildcard $(SOURCE_ROOT)board/$(boardname)/defconfig)
+boarddir = $(word 2, $(components))
+boardmkfile = $(wildcard $(SOURCE_ROOT)board/$(boarddir)/aos.mk $(SOURCE_ROOT)board/$(boarddir)-*/aos.mk)
+$(if $(boardmkfile),\
+    $(eval include $(boardmkfile)) $(eval boardname = $(NAME)),\
+    $(eval boardname = $(boarddir)))
+
+defconfig = $(wildcard $(SOURCE_ROOT)board/$(boarddir)/defconfig)
 ifneq ($(defconfig),)
 export BOARD_DEFCONFIG := $(defconfig)
 AOS_DEFCONFIG := $(BOARD_DEFCONFIG)
@@ -79,22 +90,27 @@ include $(AOS_CONFIG)
 
 ifneq ($(AOS_BUILD_APP),)
 ifneq ($(AOS_BUILD_APP),"$(appname)")
-$(warning Build config missmatched: $(AOS_BUILD_APP),"$(appname)")
+$(warning Build config missmatched (app): $(AOS_BUILD_APP),"$(appname)")
 CLEAN_CONFIG := yes
 endif
 endif # $(AOS_BUILD_APP)
 
 ifneq ($(AOS_BUILD_BOARD),)
 ifneq ($(AOS_BUILD_BOARD),"$(boardname)")
-$(warning Build config missmatched: $(AOS_BUILD_BOARD),"$(boardname)")
+$(warning Build config missmatched (board): $(AOS_BUILD_BOARD),"$(boardname)")
 CLEAN_CONFIG := yes
 endif
 endif # $(AOS_BUILD_BOARD)
-$(if $(CLEAN_CONFIG), $(info Cleaning existing build configs ...) $(shell rm -rf .config .defconfig out/config),)
+retry = $(AOS_CONFIG).retry
+$(if $(CLEAN_CONFIG),\
+    $(if $(wildcard $(retry)),$(shell rm -f $(retry)) $(error Build config is missmatched!),\
+    $(info Cleaning existing build configs ...) $(shell rm -rf .config .defconfig out/config) $(file >.config.retry,1)),\
+    $(shell rm -f .config.retry))
 endif # $(wildcard $(AOS_CONFIG))
 
-export AOS_BUILD_APP = $(appname)
-export AOS_BUILD_BOARD = $(boardname)
+export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst board_,,$(boardname)))
+export AOS_APP_CONFIG = $(appname)
+
 endif # $(BUILD_STRING)
 endif # $(NOCONFIG)
 
@@ -226,14 +242,14 @@ endif
 	$(QUIET)$(ECHO) Done
 
 distclean: clean
-	$(QUIET)rm -f .config .defconfig
+	$(QUIET)rm -f .config .config.retry .defconfig
 
 ifneq ($(BUILD_STRING),)
--include $(OUTPUT_DIR)/config.mk
+#-include $(OUTPUT_DIR)/config.mk
 
-ifeq ($(NOCONFIG),)
--include $(AOS_CONFIG)
-endif
+#ifeq ($(NOCONFIG),)
+#-include $(AOS_CONFIG)
+#endif
 
 # Include toolchain
 ifeq ($(IDE),iar)
@@ -298,8 +314,8 @@ show-build-info:
 	$(QUIET)$(ECHO)
 	$(QUIET)$(ECHO) Build Configuration:
 	$(QUIET)$(ECHO) ====================
-	$(QUIET)$(ECHO) App:   $(AOS_BUILD_APP)
-	$(QUIET)$(ECHO) Board: $(AOS_BUILD_BOARD)
+	$(QUIET)$(ECHO) App:   $(appname)
+	$(QUIET)$(ECHO) Board: $(boardname)
 	$(QUIET)$(ECHO) ====================
 	$(QUIET)$(ECHO)
 
