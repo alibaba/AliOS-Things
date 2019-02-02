@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_UMBINS
+config AOS_COMP_UMBINS
     bool "umbins"
     default n
     help

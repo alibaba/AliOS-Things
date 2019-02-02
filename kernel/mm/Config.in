@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_MM
+config AOS_COMP_MM
     bool "mm"
     default y
     help

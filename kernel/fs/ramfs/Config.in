@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_RAMFS
+config AOS_COMP_RAMFS
     bool "ramfs"
     default n
     help
