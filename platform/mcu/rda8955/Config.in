@@ -1,6 +1,5 @@
 config AOS_MCU_RDA8955
     bool "mcu_RDA8955"
-    default n
     select AOS_ARCH_MIPS_I
     select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB

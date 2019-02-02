@@ -1,6 +1,5 @@
 config AOS_ARCH_ARMV7M
     bool "armv7m"
-    default n
     help
       arch for armv7m
 

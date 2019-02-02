@@ -1,6 +1,5 @@
 config AOS_MCU_EFM32GXX
     bool "mcu_efm32gxx"
-    default n
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help

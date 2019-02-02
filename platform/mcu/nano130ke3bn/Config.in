@@ -1,6 +1,5 @@
 config AOS_MCU_NANO130KE3BN
     bool "mcu_nano130ke3bn"
-    default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help

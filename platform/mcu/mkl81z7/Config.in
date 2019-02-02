@@ -1,6 +1,5 @@
 config AOS_MCU_MKL81Z7IMPL
     bool "mcu_mkl81z7impl"
-    default n
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     select AOS_COMP_NEWLIB_STUB

@@ -1,6 +1,5 @@
 config AOS_MCU_XR871
     bool "mcu_xr871"
-    default n
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
