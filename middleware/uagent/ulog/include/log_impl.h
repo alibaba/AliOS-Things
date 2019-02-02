@@ -50,11 +50,11 @@ enum log_level_bit {
 
 #include <aos/kernel.h>
 
-extern int log_get_mutex();
+extern int log_get_mutex(void);
 
-extern void log_release_mutex();
+extern void log_release_mutex(void);
 
-extern void log_init_mutex();
+extern void log_init_mutex(void);
 extern int csp_printf(const char *fmt, ...);
 #ifdef CONFIG_LOGMACRO_DETAILS
 #define log_print(CON, MOD, COLOR, LVL, ...)  \
