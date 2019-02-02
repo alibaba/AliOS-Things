@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_KMBINS
+config AOS_COMP_KMBINS
     bool "kmbins"
     default n
     help
