@@ -64,10 +64,27 @@ static void app_pre_init(void)
 }
 #endif
 
-
-
 #ifdef AOS_COMP_CLI
 
+static uint8_t hex(char c)
+{
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'a' && c <= 'z')
+        return c - 'a' + 10;
+    if (c >= 'A' && c <= 'Z')
+        return c - 'A' + 10;
+    return 0;
+}
+
+static void hexstr2bin(const char *macstr, uint8_t *mac, int len)
+{
+    int i;
+    for (i=0;i < len && macstr[2 * i];i++) {
+        mac[i] = hex(macstr[2 * i]) << 4;
+        mac[i] |= hex(macstr[2 * i + 1]);
+    }
+}
 
 #ifndef CONFIG_NO_TCPIP
 static void udp_cmd(char *buf, int len, int argc, char **argv)
@@ -152,31 +169,10 @@ void tcpip_cli_init(void)
 {
     aos_cli_register_commands(&tcpip_cli_cmd[0],sizeof(tcpip_cli_cmd) / sizeof(struct cli_command));
 }
-#endif
 
 void wifi_debug_cmd(char *buf, int len, int argc, char **argv)
 {
     hal_wifi_start_debug_mode(NULL);
-}
-
-static uint8_t hex(char c)
-{
-    if (c >= '0' && c <= '9')
-        return c - '0';
-    if (c >= 'a' && c <= 'z')
-        return c - 'a' + 10;
-    if (c >= 'A' && c <= 'Z')
-        return c - 'A' + 10;
-    return 0;
-}
-
-static void hexstr2bin(const char *macstr, uint8_t *mac, int len)
-{
-    int i;
-    for (i=0;i < len && macstr[2 * i];i++) {
-        mac[i] = hex(macstr[2 * i]) << 4;
-        mac[i] |= hex(macstr[2 * i + 1]);
-    }
 }
 
 void mac_cmd(char *buf, int len, int argc, char **argv)
@@ -212,6 +208,7 @@ void hal_wifi_cli_init(void)
 {
     aos_cli_register_commands(&wifi_cli_cmd[0],sizeof(wifi_cli_cmd) / sizeof(struct cli_command));
 }
+#endif /*!defined CONFIG_NO_TCPIP */
 
 void cli_service_init(kinit_t *kinit)
 {
@@ -224,8 +221,9 @@ void cli_service_init(kinit_t *kinit)
 #endif
 #ifndef CONFIG_NO_TCPIP
         tcpip_cli_init();
-#endif
         hal_wifi_cli_init();
+#endif
+
     }
     return;
 }
