@@ -1,9 +1,0 @@
-config AOS_BOARD_IMX6SL_SVC
-    bool "board_imx6sl_svc"
-    select AOS_MCU_IMX6SL_SVC
-    select AOS_COMP_KERNEL_INIT
-    help
-
-if AOS_BOARD_IMX6SL_SVC
-# Configurations for board imx6sl_svc
-endif
