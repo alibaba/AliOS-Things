@@ -7,44 +7,41 @@ config AOS_BOARD_ESP32DEVKITC
 if AOS_BOARD_ESP32DEVKITC
 # Configurations for board esp32devkitc
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
-    bool "BSP_SUPPORT_UART"
+    bool
     default y
 
 config BSP_SUPPORT_GPIO
-    bool "BSP_SUPPORT_GPIO"
+    bool
     default y
 
 config BSP_SUPPORT_I2C
-    bool "BSP_SUPPORT_I2C"
+    bool
     default y
 
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
 
 config BSP_SUPPORT_ADC
-    bool "BSP_SUPPORT_ADC"
+    bool
     default y
 
 config BSP_SUPPORT_DAC
-    bool "BSP_SUPPORT_DAC"
+    bool
     default y
 
 config BSP_SUPPORT_PWM
-    bool "BSP_SUPPORT_PWM"
+    bool
     default y
 
 config BSP_SUPPORT_RTC
-    bool "BSP_SUPPORT_RTC"
+    bool
     default y
 
 config BSP_SUPPORT_WDG
-    bool "BSP_SUPPORT_WDG"
+    bool
     default y
-
-endmenu
 
 endif

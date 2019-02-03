@@ -8,32 +8,29 @@ config AOS_BOARD_BK7231U
 if AOS_BOARD_BK7231U
 # Configurations for board board_bk7231u
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
-    bool "BSP_SUPPORT_UART"
+    bool
     default y
 
 config BSP_SUPPORT_GPIO
-    bool "BSP_SUPPORT_GPIO"
+    bool
     default y
 
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
 
 config BSP_SUPPORT_TIMER
-    bool "BSP_SUPPORT_TIMER"
+    bool
     default y
 
 config BSP_SUPPORT_WDG
-    bool "BSP_SUPPORT_WDG"
+    bool
     default y
 
 config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
+    bool
     default y
-
-endmenu
 
 endif

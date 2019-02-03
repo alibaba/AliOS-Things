@@ -7,16 +7,13 @@ config AOS_BOARD_EVKMIMXRT1020
 if AOS_BOARD_EVKMIMXRT1020
 # Configurations for board evkmimxrt1020
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
-    bool "BSP_SUPPORT_UART"
+    bool
     default y
 
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
-
-endmenu
 
 endif

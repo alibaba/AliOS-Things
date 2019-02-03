@@ -10,12 +10,9 @@ config AOS_BOARD_WM_W600_KIT
 if AOS_BOARD_WM_W600_KIT
 # Configurations for board wm_w600_kit
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
+    bool
     default y
-
-endmenu
 
 endif

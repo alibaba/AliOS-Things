@@ -7,12 +7,9 @@ config AOS_BOARD_ES8P5088FLLQ
 if AOS_BOARD_ES8P5088FLLQ
 # Configurations for board es8p5088fllq
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
-
-endmenu
 
 endif
