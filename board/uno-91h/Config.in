@@ -7,32 +7,29 @@ config AOS_BOARD_UNO_91H
 if AOS_BOARD_UNO_91H
 # Configurations for board board_uno-91h
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
-    bool "BSP_SUPPORT_UART"
+    bool
     default y
 
 config BSP_SUPPORT_GPIO
-    bool "BSP_SUPPORT_GPIO"
+    bool
     default y
 
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
 
 config BSP_SUPPORT_SPI
-    bool "BSP_SUPPORT_SPI"
+    bool
     default y
 
 config BSP_SUPPORT_PWM
-    bool "BSP_SUPPORT_PWM"
+    bool
     default y
 
 config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
+    bool
     default y
-
-endmenu
 
 endif

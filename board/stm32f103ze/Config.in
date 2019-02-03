@@ -7,12 +7,9 @@ config AOS_BOARD_STM32F103ZE
 if AOS_BOARD_STM32F103ZE
 # Configurations for board stm32f103ze
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
+    bool
     default y
-
-endmenu
 
 endif

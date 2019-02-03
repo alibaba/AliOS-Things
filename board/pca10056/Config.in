@@ -7,28 +7,25 @@ config AOS_BOARD_PCA10056
 if AOS_BOARD_PCA10056
 # Configurations for board board_pca10056
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
-    bool "BSP_SUPPORT_UART"
+    bool
     default y
 
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
 
 config BSP_SUPPORT_GPIO
-    bool "BSP_SUPPORT_GPIO"
+    bool
     default y
 
 config BSP_SUPPORT_TIMER
-    bool "BSP_SUPPORT_TIMER"
+    bool
     default y
 
 config BSP_SUPPORT_BLE
-    bool "BSP_SUPPORT_BLE"
+    bool
     default y
-
-endmenu
 
 endif
