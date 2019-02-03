@@ -7,20 +7,17 @@ config AOS_BOARD_XM510
 if AOS_BOARD_XM510
 # Configurations for board board_xm510
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
-    bool "BSP_SUPPORT_UART"
+    bool
     default y
 
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
 
 config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
+    bool
     default y
-
-endmenu
 
 endif

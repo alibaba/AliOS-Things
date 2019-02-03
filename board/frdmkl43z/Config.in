@@ -7,16 +7,13 @@ config AOS_BOARD_FRDMKL43Z
 if AOS_BOARD_FRDMKL43Z
 # Configurations for board frdmkl43z
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
-    bool "BSP_SUPPORT_UART"
+    bool
     default y
 
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
-
-endmenu
 
 endif

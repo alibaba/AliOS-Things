@@ -8,31 +8,29 @@ config AOS_BOARD_CB2201
 if AOS_BOARD_CB2201
 # Configurations for board board_cb2201
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
-    bool "BSP_SUPPORT_UART"
+    bool
     default y
 
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
 
 config BSP_SUPPORT_I2C
-    bool "BSP_SUPPORT_I2C"
+    bool
     default y
 
 config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
+    bool
     default y
 
-endmenu
 
 config VFS_CONFIG_STAT_INCLUDE_SIZE
     int "VFS_CONFIG_STAT_INCLUDE_SIZE"
     default 0
 
-# link security config 
+# link security config
 config CONFIG_LS_DEBUG
     bool
     default n

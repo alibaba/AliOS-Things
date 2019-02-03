@@ -7,20 +7,17 @@ config AOS_BOARD_B_F769
 if AOS_BOARD_B_F769
 # Configurations for board board_b_f769
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
-    bool "BSP_SUPPORT_UART"
+    bool
     default y
 
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
 
 config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
+    bool
     default y
-
-endmenu
 
 endif
