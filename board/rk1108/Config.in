@@ -7,12 +7,9 @@ config AOS_BOARD_RK1108
 if AOS_BOARD_RK1108
 # Configurations for board board_rk1108
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
+    bool
     default y
-
-endmenu
 
 endif

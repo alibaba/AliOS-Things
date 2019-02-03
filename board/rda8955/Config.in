@@ -7,16 +7,13 @@ config AOS_BOARD_RDA8955
 if AOS_BOARD_RDA8955
 # Configurations for board board_rda8955
 
-menu "BSP SUPPORT FEATURE"
-
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_FLASH
-    bool "BSP_SUPPORT_FLASH"
+    bool
     default y
 
 config BSP_SUPPORT_CELLULAR
-    bool "BSP_SUPPORT_CELLULAR"
+    bool
     default y
-
-endmenu
 
 endif

@@ -14,8 +14,9 @@ config AOS_NETWORK_SAL
     bool "AOS_NETWORK_SAL"
     default n
 
+# "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_WIFI
-    bool "BSP_SUPPORT_WIFI"
+    bool
     default y
 
 config SAL_MODULE
