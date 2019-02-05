@@ -71,7 +71,7 @@ void hw_start_hal(void)
     extern hal_wifi_module_t aos_wifi_module_bk7231;
     hal_wifi_register_module(&aos_wifi_module_bk7231);
 #endif
-#ifdef AOS_COMP_NETMGR 
+#ifdef AOS_COMP_NETMGR
     hal_wifi_init();
 #endif
 }
