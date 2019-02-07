@@ -17,11 +17,14 @@
 #endif
 
 #ifdef AOS_COMP_SPIFFS
-#include <aos_spiffs.h>
+#include "aos_spiffs.h"
 #endif
 
+#ifdef AOS_COMP_FATFS
+#include "fatfs.h"
+#endif
 
-#include <network/network.h>
+#include "network/network.h"
 #ifdef WITH_LWIP_TFTP
 #include "lwip/ip_addr.h"
 #include "lwip/apps/tftp.h"
@@ -261,6 +264,10 @@ int aos_components_init(kinit_t *kinit)
 
 #ifdef AOS_COMP_SPIFFS
     vfs_spiffs_register();
+#endif
+
+#ifdef AOS_COMP_FATFS
+    fatfs_register();
 #endif
 
 #ifdef AOS_COMP_ULOG
