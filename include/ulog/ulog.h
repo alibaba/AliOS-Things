@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef ULOG_H
 #define ULOG_H
 
-#include "uring_fifo.h"
+#include "ulog_config.h"
 #include "log_impl.h"
 
 #ifdef __cplusplus
@@ -106,20 +106,39 @@ void aos_set_log_level(aos_log_level_t log_level);
 #define LOG_NONE    8 /* used in stop filter, all log will pop out */
 
 /**
- * Function prototype for log text
+* Module Type, used for distinguish funcion module of whole system, attached in front of TAG in MSG part.
+* The log level can be filter based on the module type. User may pass below enum except MOD_SIZE &
+* MOD_UNKNOWN.
+*/
+typedef enum{
+    MOD_UNKNOWN,/* log text is "UN" if pass illegal parameter to module type */
+    MOD_OS,     /* Log produced in OS , log string is "OS" */
+    MOD_NET,    /* Log produced in Net, inlude lwip, bluetooth, etc , log string is "NT" */
+    MOD_CLOUD,  /* Log produced in sdk which focus on communication with cloud , log string is "CD" */
+    MOD_APP,    /* Log produced in user app, log string is "AP" */
+    MOD_SIZE
+}MOD_TYPE;
+
+
+/**
+ * Function prototype for log text, Recommed use below brief API instead of this
  *
- * REMARK: Recommed use below brief API instead of this
+ * REMARK: call this function will cost at least 64+ULOG_CONFIG_SYSLOG_SIZE*2 in syslog mode
+ *          64 as normal local variable cost, temp buffer of size ULOG_CONFIG_SYSLOG_SIZE
+ *          is used to format syslog message, another ULOG_CONFIG_SYSLOG_SIZE cost because
+ *          aos message queue used. In future a customized queue will be designed to reduce the cost.
+ *          cost is less if select EXTREAM_LOG_TEXT in the case of same SYSLOG_SIZE as normal local variable cost reduce
  *
- * @param  M    Module type, reference @MOD_TYPE
- * @param  S    Serverity of Log, choose from above value,
- * @param  F    Usually File name
- * @param  L    Usually Line number of comment
- * @param  ...  Variable Parameter, Log text try to log
+ *
+ * @param  m    Module type, reference @MOD_TYPE
+ * @param  s    Serverity of Log, choose from above value,
+ * @param  f    Usually File name
+ * @param  l    Usually Line number of comment
+ * @param  fmt, ...  Variable Parameter, support format print to log
+ * @return  0: success. use type int is align with aos_*
  */
-#define ULOG(M, S, F, L, ...) \
-        if (log_init && S < push_stop_filter_level) { \
-            post_log(M, S, F, L, __VA_ARGS__ );       \
-        }
+int ulog   (const MOD_TYPE m, const unsigned char s, const char* f, const unsigned long l, const char *fmt, ...);
+
 
 /**
 * Function prototype for log on OS related text, abbreviation of ULOG on OS
@@ -129,7 +148,7 @@ void aos_set_log_level(aos_log_level_t log_level);
 * @param  S    Serverity of Log, choose from above value,
 * @param  ...  Variable Parameter, Log text try to log
 */
-#define ULOGOS(S, ...) ULOG(MOD_OS, S, __FILE__, __LINE__, __VA_ARGS__)
+#define ULOGOS(S, ...) ulog(MOD_OS, S, __FILE__, __LINE__, __VA_ARGS__)
 
 /**
 * Function prototype for log on net(ble, CANopen, ...) related text, abbreviation of ULOG on net
@@ -139,7 +158,7 @@ void aos_set_log_level(aos_log_level_t log_level);
 * @param  S    Serverity of Log, choose from above value,
 * @param  ...  Variable Parameter, Log text try to log
 */
-#define ULOGNET(S, ...) ULOG(MOD_NET, S, __FILE__, __LINE__, __VA_ARGS__)
+#define ULOGNET(S, ...) ulog(MOD_NET, S, __FILE__, __LINE__, __VA_ARGS__)
 
 /**
 * Function prototype for log on Cloud related text(e.g. linkkit SDK), abbreviation of ULOG on SDK
@@ -149,7 +168,7 @@ void aos_set_log_level(aos_log_level_t log_level);
 * @param  S    Serverity of Log, choose from above value,
 * @param  ...  Variable Parameter, Log text try to log
 */
-#define ULOGCLOUD(S, ...) ULOG(MOD_CLOUD, S, __FILE__, __LINE__, __VA_ARGS__)
+#define ULOGCLOUD(S, ...) ulog(MOD_CLOUD, S, __FILE__, __LINE__, __VA_ARGS__)
 
 /**
 * Function prototype for log on APP related text, abbreviation of ULOG on APP
@@ -159,14 +178,14 @@ void aos_set_log_level(aos_log_level_t log_level);
 * @param  S    Serverity of Log, choose from above value,
 * @param  ...  Variable Parameter, Log text try to log
 */
-#define ULOGAPP(S, ...) ULOG(MOD_APP, S, __FILE__, __LINE__, __VA_ARGS__)
+#define ULOGAPP(S, ...) ulog(MOD_APP, S, __FILE__, __LINE__, __VA_ARGS__)
 
 /**
  * Function prototype for log init
  *
  * @param host_name host name, like "SOC", character shall no more than 8 to save resouce
  */
-extern void ulog_init(const uint8_t host_name[8]);
+extern void ulog_init(const char host_name[8]);
 
 /**
  * Function prototype for ulog management
