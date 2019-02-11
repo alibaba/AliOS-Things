@@ -1,9 +1,5 @@
-menuconfig AOS_COMP_KERNEL_INIT
-    bool "kernel_init"
+config AOS_COMP_KERNEL_INIT
+    bool "AliOS Things Init"
     default n
     select AOS_COMP_ULOG
     help
-
-if AOS_COMP_KERNEL_INIT
-# Configurations for component kernel_init
-endif
