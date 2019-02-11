@@ -2,6 +2,7 @@ config AOS_COMP_RAMFS
     bool "ramfs"
     default n
     help
+        a RAM file system
 
 if AOS_COMP_RAMFS
 # Configurations for component ramfs
