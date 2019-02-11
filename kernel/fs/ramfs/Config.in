@@ -1,5 +1,5 @@
 config AOS_COMP_RAMFS
-    bool "ramfs"
+    bool "RAM File System"
     default n
     help
         a RAM file system
