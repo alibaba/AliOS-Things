@@ -44,8 +44,8 @@ NET_BUF_POOL_DEFINE(acl_tx_pool, CONFIG_BT_L2CAP_TX_BUF_COUNT,
 #ifdef CONFIG_BLE_LINK_PARAMETERS
 #define  SUP_TO_LIMIT         (400)//limit LSP_TO to 4s
 #define  CONN_SUP_TIMEOUT     (400)//*10, link superversion timeout
-#define  CONN_INTERVAL_MIN    (24)//*1.25 ms,30ms, min connection inverval
-#define  CONN_INTERVAL_MAX    (40)//*1.25 ms,50ms, max connection inverval
+#define  CONN_INTERVAL_MIN    (320)//*1.25 ms,30ms, min connection inverval
+#define  CONN_INTERVAL_MAX    (520)//*1.25 ms,50ms, max connection inverval
 #endif
 
 extern struct net_buf_pool acl_tx_pool;
@@ -440,7 +440,7 @@ void bt_conn_recv(struct bt_conn *conn, struct net_buf *buf, u8_t flags)
         return;
     }
 
-    BT_DBG("Successfully parsed %u byte L2CAP packet", buf->len);
+    BT_DBG("%s, Successfully parsed %u byte L2CAP packet", __func__, buf->len);
 
     bt_l2cap_recv(conn, buf);
 }
@@ -557,7 +557,6 @@ static bool send_frag(struct bt_conn *conn, struct net_buf *buf, u8_t flags,
     hdr = net_buf_push(buf, sizeof(*hdr));
     hdr->handle = sys_cpu_to_le16(bt_acl_handle_pack(conn->handle, flags));
     hdr->len = sys_cpu_to_le16(buf->len - sizeof(*hdr));
-
     cb = conn_tx(buf)->cb;
     bt_buf_set_type(buf, BT_BUF_ACL_OUT);
 
