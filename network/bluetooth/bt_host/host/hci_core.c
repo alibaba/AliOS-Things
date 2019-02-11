@@ -75,9 +75,13 @@ const struct bt_storage *bt_storage;
 
 static bt_le_scan_cb_t *scan_dev_found_cb;
 
-static u8_t                  pub_key[64];
+static u8_t pub_key[64];
 static struct bt_pub_key_cb *pub_key_cb;
-static bt_dh_key_cb_t        dh_key_cb;
+static bt_dh_key_cb_t dh_key_cb;
+
+#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
+struct k_poll_signal g_pkt_recv = K_POLL_SIGNAL_INITIALIZER(g_pkt_recv);
+#endif
 
 #define SYNC_TX 1
 #define SYNC_TX_DONE 2
@@ -121,6 +125,7 @@ NET_BUF_POOL_DEFINE(hci_rx_pool, CONFIG_BT_RX_BUF_COUNT,
                     BT_BUF_RX_SIZE, BT_BUF_USER_DATA_MIN, NULL);
 
 static void process_cmd_done(struct net_buf *buf);
+static void send_cmd(struct net_buf *buf);
 
 #if defined(CONFIG_BT_HCI_ACL_FLOW_CONTROL)
 static void report_completed_packet(struct net_buf *buf)
@@ -229,37 +234,6 @@ int bt_hci_cmd_send(u16_t opcode, struct net_buf *buf)
     return 0;
 }
 
-void wait_for_event_done(int timeout)
-{
-    uint8_t evt_num = 0;
-#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
-    extern struct k_poll_signal g_pkt_recv;
-    static struct k_poll_event events[2] = {
-        K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_DATA_RECV,
-                                        K_POLL_MODE_NOTIFY_ONLY,
-                                        &g_pkt_recv, BT_EVENT_CONN_RX),
-        K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_FIFO_DATA_AVAILABLE,
-                                        K_POLL_MODE_NOTIFY_ONLY,
-                                        &bt_dev.cmd_tx_queue, BT_EVENT_CMD_TX),
-    };
-
-    events[evt_num++].state = K_POLL_STATE_NOT_READY;
-    events[evt_num++].state = K_POLL_STATE_NOT_READY;
-#else
-    static struct k_poll_event events[1] = {
-        K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_FIFO_DATA_AVAILABLE,
-                                        K_POLL_MODE_NOTIFY_ONLY,
-                                        &bt_dev.cmd_tx_queue, BT_EVENT_CMD_TX),
-    };
-
-    events[evt_num++].state = K_POLL_STATE_NOT_READY;
-#endif
-
-    k_poll(events, evt_num, timeout);
-    process_events(events, evt_num);
-}
-
-void process_events(struct k_poll_event *ev, int count);
 int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp)
 {
     int err = 0;
@@ -277,16 +251,8 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp
 
     cmd(buf)->sync = SYNC_TX;
     net_buf_ref(buf);
-    net_buf_put(&bt_dev.cmd_tx_queue, buf);
-
-    time_start = k_uptime_get_32();
-    while(1) {
-        wait_for_event_done(HCI_CMD_TIMEOUT);
-        if ((cmd(buf)->sync == SYNC_TX_DONE) ||
-            ((k_uptime_get_32() - time_start) >= HCI_CMD_TIMEOUT)) {
-            break;
-        }
-    }
+    //net_buf_put(&bt_dev.cmd_tx_queue, buf);
+    send_cmd(buf);
 
     BT_DBG("opcode 0x%04x status 0x%02x", opcode, cmd(buf)->status);
 
@@ -508,7 +474,7 @@ static void hci_acl(struct net_buf *buf)
 
     net_buf_pull(buf, sizeof(*hdr));
 
-    BT_DBG("handle %u len %u flags %u", acl(buf)->handle, len, flags);
+    BT_DBG("%s, handle %u len %u flags %u", __func__, acl(buf)->handle, len, flags);
 
     if (buf->len != len) {
         BT_ERR("ACL data length mismatch (%u != %u)", buf->len, len);
@@ -608,9 +574,6 @@ static void hci_disconn_complete(struct net_buf *buf)
     struct bt_hci_evt_disconn_complete *evt    = (void *)buf->data;
     u16_t                               handle = sys_le16_to_cpu(evt->handle);
     struct bt_conn *                    conn;
-#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
-    extern struct k_poll_signal g_pkt_recv;
-#endif
 
     BT_DBG("status %u handle %u reason %u", evt->status, handle, evt->reason);
 
@@ -2020,17 +1983,9 @@ static void hci_event(struct net_buf *buf)
     net_buf_unref(buf);
 }
 
-static void send_cmd(void)
+static void send_cmd(struct net_buf *buf)
 {
-    struct net_buf *buf;
     int err;
-
-    /* Get next command */
-    BT_DBG("calling net_buf_get");
-    buf = net_buf_get(&bt_dev.cmd_tx_queue, K_NO_WAIT);
-    if (buf == NULL) {
-        return;
-    }
 
     /* Clear out any existing sent command */
     if (bt_dev.sent_cmd) {
@@ -2074,7 +2029,11 @@ void process_events(struct k_poll_event *ev, int count)
         switch (ev->state) {
             case K_POLL_STATE_FIFO_DATA_AVAILABLE:
                 if (ev->tag == BT_EVENT_CMD_TX) {
-                    send_cmd();
+                    struct net_buf *buf;
+                    buf = net_buf_get(&bt_dev.cmd_tx_queue, K_NO_WAIT);
+                    if (buf) {
+                        send_cmd(buf);
+                    }
                 } else if (IS_ENABLED(CONFIG_BT_CONN)) {
                     struct bt_conn *conn;
 
@@ -2116,7 +2075,6 @@ void process_events(struct k_poll_event *ev, int count)
 static void hci_tx_thread(void *p1, void *p2, void *p3)
 {
 #ifdef CONFIG_CONTROLLER_IN_ONE_TASK
-    extern struct k_poll_signal g_pkt_recv;
     static struct k_poll_event events[EV_COUNT] = {
         K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_DATA_RECV,
                                         K_POLL_MODE_NOTIFY_ONLY,
@@ -3059,9 +3017,6 @@ int bt_enable(bt_ready_cb_t cb)
     k_work_init(&bt_dev.init, init_work);
     k_work_q_start();
 
-    extern struct k_sem g_poll_sem;
-    k_sem_init(&g_poll_sem, 0, 1);
-
     ready_cb = cb;
 
 #if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
@@ -3416,10 +3371,10 @@ struct net_buf *bt_buf_get_rx(enum bt_buf_type type, s32_t timeout)
 struct net_buf *bt_buf_get_cmd_complete(s32_t timeout)
 {
     struct net_buf *buf;
-    unsigned int    key;
+    unsigned int key;
 
-    key             = irq_lock();
-    buf             = bt_dev.sent_cmd;
+    key = irq_lock();
+    buf = bt_dev.sent_cmd;
     bt_dev.sent_cmd = NULL;
     irq_unlock(key);
 

@@ -1471,7 +1471,7 @@ void bt_l2cap_recv(struct bt_conn *conn, struct net_buf *buf)
     cid = sys_le16_to_cpu(hdr->cid);
     net_buf_pull(buf, sizeof(*hdr));
 
-    BT_DBG("Packet for CID %u len %u", cid, buf->len);
+    BT_DBG("%s, Packet for CID %u len %u", __func__, cid, buf->len);
 
     chan = bt_l2cap_le_lookup_rx_cid(conn, cid);
     if (!chan) {
