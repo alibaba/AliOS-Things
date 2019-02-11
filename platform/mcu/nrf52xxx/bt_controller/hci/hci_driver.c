@@ -15,7 +15,6 @@
 
 #include <zephyr.h>
 
-//#include <init.h>
 #include <device.h>
 #include <clock_control.h>
 #include <atomic.h>
@@ -49,12 +48,9 @@
 				    hdr.onion.node)
 
 static inline struct net_buf *process_node(struct radio_pdu_node_rx *node_rx);
-struct k_poll_signal g_pkt_recv = K_POLL_SIGNAL_INITIALIZER(g_pkt_recv);
 
 int hci_driver_recv(void)
 {
-    g_pkt_recv.signaled = 0;
-
     while (1) {
         struct radio_pdu_node_rx *node_rx = NULL;
         struct net_buf *buf = NULL;
@@ -187,7 +183,6 @@ static int hci_driver_send(struct net_buf *buf)
 #endif /* CONFIG_BT_CONN */
 	case BT_BUF_CMD:
 		err = cmd_handle(buf);
-        
 		break;
 	default:
 		BT_ERR("Unknown HCI type %u", type);
@@ -195,11 +190,8 @@ static int hci_driver_send(struct net_buf *buf)
 	}
 
 	if (!err) {
-		net_buf_unref(buf);
+            net_buf_unref(buf);
 	}
-    else
-    {
-    }
 
 	BT_DBG("exit: %d", err);
 
@@ -208,14 +200,7 @@ static int hci_driver_send(struct net_buf *buf)
 
 void pkt_recv_callback(void)
 {
-    extern struct k_sem g_poll_sem;
-    unsigned int key;
-
-    key = irq_lock();
-    g_pkt_recv.signaled = 1;
-    irq_unlock(key);
-
-    k_sem_give(&g_poll_sem);
+    event_callback(K_POLL_TYPE_DATA_RECV);
 }
 
 static int hci_driver_open(void)
