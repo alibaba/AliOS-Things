@@ -2,6 +2,7 @@ menuconfig AOS_COMP_VFS
     bool "vfs"
     default n
     help
+        a unified user interface for various files. It is an abstraction layer on top of a more concrete file system.
 
 if AOS_COMP_VFS
 # Configurations for component vfs
