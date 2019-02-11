@@ -31,6 +31,8 @@ source "drivers/Config.in"
 menu "Kernel Configuration"
 source "kernel/Config.in"
 source "osal/aos/Config.in"
+source "osal/posix/Config.in"
+source "osal/cmsis/Config.in"
 endmenu
 
 menu "Middleware Configuration"
