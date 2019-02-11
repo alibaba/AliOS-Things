@@ -4,14 +4,14 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := lightweight tcp/ip stack
 
-#ifeq (y,$(FEATURE_LWIP_ENABLED))
+#ifeq (y,$(LWIP_ENABLED))
 ifneq ($(no_with_lwip),1)
 GLOBAL_DEFINES += WITH_LWIP
 with_lwip := 1
 endif
 #endif
 
-#ifeq (y,$(FEATURE_USE_AOS_LWIP))
+#ifeq (y,$(USE_AOS_LWIP))
 ifneq ($(use_private_lwip),1)
 include network/lwip/Filelists.mk
 
@@ -27,47 +27,47 @@ $(NAME)_SOURCES += $(CORE6FILES)
 $(NAME)_SOURCES += $(APIFILES)
 $(NAME)_SOURCES += $(NETIFFILES)
 
-ifeq (y,$(FEATURE_AF_PACKET_ENABLED))
+ifeq (y,$(AF_PACKET_ENABLED))
 #define LWIP_PACKET  1
 $(NAME)_SOURCES += core/af_packet.c
 endif
 
-ifeq (y,$(FEATURE_SNMP_ENABLED))
+ifeq (y,$(SNMP_ENABLED))
 $(NAME)_SOURCES += $(SNMPFILES)
 endif
 
-ifeq (y,$(FEATURE_HTTPD_ENABLED))
+ifeq (y,$(HTTPD_ENABLED))
 $(NAME)_SOURCES += $(HTTPDFILES)
 endif
 
-ifeq (y,$(FEATURE_LWIPERF_ENABLED))
+ifeq (y,$(LWIPERF_ENABLED))
 $(NAME)_SOURCES += $(LWIPERFFILES)
 endif
 
-ifeq (y,$(FEATURE_SNTP_ENABLED))
+ifeq (y,$(SNTP_ENABLED))
 $(NAME)_SOURCES += $(SNTPFILES)
 endif
 
-ifeq (y,$(FEATURE_MDNS_ENABLED))
+ifeq (y,$(MDNS_ENABLED))
 $(NAME)_SOURCES += $(MDNSFILES)
 endif
 
-ifeq (y,$(FEATURE_NETBIOSNS_ENABLED))
+ifeq (y,$(NETBIOSNS_ENABLED))
 $(NAME)_SOURCES += $(NETBIOSNSFILES)
 endif
 
 
-ifeq (y,$(FEATURE_TFTP_ENABLED))
+ifeq (y,$(TFTP_ENABLED))
 use_lwip_tftp := 0
 ifeq ($(use_lwip_tftp), 1)
 GLOBAL_DEFINES += WITH_LWIP_TFTP
 
-ifeq ($(FEATURE_TFTP_FS), y)
+ifeq ($(TFTP_FS), y)
 
 ifneq (,$(filter vfs,$(COMPONENTS)))
 GLOBAL_DEFINES += WITH_LWIP_TFTP_FS
 else
-$(warning ### miss FEATURE_TFTP_FS as no vfs supports)
+$(warning ### miss TFTP_FS as no vfs supports)
 endif
 
 endif
@@ -76,7 +76,7 @@ $(NAME)_SOURCES += $(TFTPFILES)
 endif
 endif
 
-ifeq (y,$(FEATURE_TELNETD_ENABLED))
+ifeq (y,$(TELNETD_ENABLED))
 use_private_telnetd ?= 1
 ifneq ($(use_private_telnetd), 1)
 GLOBAL_DEFINES += WITH_LWIP_TELNETD
@@ -84,7 +84,7 @@ $(NAME)_SOURCES += $(TELNETDFILES)
 endif
 endif
 
-ifeq (y,$(FEATURE_DHCPD_ENABLED))
+ifeq (y,$(DHCPD_ENABLED))
 #default use the private dhcpd
 use_private_dhcpd := 1
 ifneq ($(use_private_dhcpd), 1)
