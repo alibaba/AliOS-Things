@@ -1,7 +1,8 @@
 menuconfig AOS_COMP_PWRMGMT
-    bool "pwrmgmt"
+    bool "Power Management"
     default n
     help
+        power management
 
 if AOS_COMP_PWRMGMT
 # Configurations for component pwrmgmt
