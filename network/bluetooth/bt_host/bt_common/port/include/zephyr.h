@@ -123,6 +123,7 @@ extern "C"
 #define K_POLL_STATE_DATA_AVAILABLE 4
 #define K_POLL_STATE_FIFO_DATA_AVAILABLE K_POLL_STATE_DATA_AVAILABLE
 #define K_POLL_STATE_DATA_RECV 5
+#define K_POLL_STATE_TX_SYNC_DONE 6
 
 #define K_POLL_TYPE_WORK 0
 #define K_POLL_TYPE_SIGNAL 1
@@ -137,11 +138,9 @@ extern "C"
         .mode = event_mode, .unused = 0, { .obj = event_obj },                 \
     }
 
-    extern int  k_poll(struct k_poll_event *events, int num_events,
-                       s32_t timeout);
-    extern void k_poll_event_init(struct k_poll_event *event, u32_t type,
-                                  int mode, void *obj);
-    extern void _handle_obj_poll_events(sys_dlist_t *events, u32_t state, uint8_t sync);
+    extern int k_poll(struct k_poll_event *events, int num_events, s32_t timeout);
+    extern void k_poll_event_init(struct k_poll_event *event, u32_t type, int mode, void *obj);
+    extern void _handle_obj_poll_events(sys_dlist_t *events, u32_t state);
 
     /* public - polling modes */
     enum k_poll_modes
