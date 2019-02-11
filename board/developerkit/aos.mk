@@ -48,7 +48,7 @@ EXTRA_TARGET_MAKEFILES +=  ./board/developerkit/gen_crc_bin.mk
 
 else
 
-SUPPORT_MBINS        := yes
+SUPPORT_MBINS        := no
 MODULE               := 1062
 ENABLE_VFP           := 1
 ENABLE_USPACE        := 0
