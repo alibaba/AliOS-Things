@@ -1,8 +1,4 @@
-menuconfig AOS_COMP_CPLUSPLUS
-    bool "cplusplus"
+config AOS_COMP_CPLUSPLUS
+    bool "C++ Support"
     default n
     help
-
-if AOS_COMP_CPLUSPLUS
-# Configurations for component cplusplus
-endif
