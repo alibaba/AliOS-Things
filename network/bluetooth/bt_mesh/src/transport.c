@@ -414,7 +414,6 @@ void bt_mesh_app_key_set_manual(u16_t net_idx, u16_t app_idx, uint8_t key_val[16
     struct bt_mesh_app_key *key;
 
     if (app_idx >= ARRAY_SIZE(bt_mesh.app_keys)) {
-        printf("Error: app idx exceeds limit. NOT set!\r\n");
         return;
     }
 

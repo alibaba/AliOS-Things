@@ -322,7 +322,7 @@ void net_buf_put(struct k_fifo *fifo, struct net_buf *buf)
 	NET_BUF_ASSERT(buf);
 
 	for (tail = buf; tail->frags; tail = tail->frags) {
-		tail->flags |= NET_BUF_FRAGS;
+            tail->flags |= NET_BUF_FRAGS;
 	}
 
 	k_fifo_put_list(fifo, buf, tail);
