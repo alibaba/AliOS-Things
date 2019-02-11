@@ -177,16 +177,28 @@ static void iotx_cloud_conn_mqtt_event_handle(void *pcontext, void *pclient, iot
         case IOTX_MQTT_EVENT_PUBLISH_RECEIVED: {
             iotx_mqtt_topic_info_pt topic_info = (iotx_mqtt_topic_info_pt)msg->msg;
             iotx_cm_data_handle_cb topic_handle_func = pcontext;
-
+#ifndef DEVICE_MODEL_ALINK2
+            char *topic = NULL;
+#endif
             if (topic_handle_func == NULL) {    
                 cm_err("sub handle is null!");
                 return;
             }
-            #ifdef DEVICE_MODEL_ALINK2
+#ifdef DEVICE_MODEL_ALINK2
             topic_handle_func(_mqtt_conncection->fd, topic_info->ptopic, topic_info->topic_len, topic_info->payload, topic_info->payload_len, NULL);
-            #else
-            topic_handle_func(_mqtt_conncection->fd, topic_info->ptopic, topic_info->payload, topic_info->payload_len, NULL);
-            #endif
+#else
+            topic = cm_malloc(topic_info->topic_len + 1);
+            if (topic == NULL) {
+                cm_err("topic malloc failed");
+                return;
+            }
+            memset(topic, 0, topic_info->topic_len + 1);
+            memcpy(topic, topic_info->ptopic, topic_info->topic_len);
+
+            topic_handle_func(_mqtt_conncection->fd, topic, topic_info->payload, topic_info->payload_len, NULL);
+
+            cm_free(topic);
+#endif
         }
         break;
 
