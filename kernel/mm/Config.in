@@ -1,7 +1,8 @@
 config AOS_COMP_MM
-    bool "mm"
+    bool "Memory Management Algorithm"
     default y
     help
+        AliOS Things Memory Management Algorithm
 
 if AOS_COMP_MM
 # Configurations for component mm
