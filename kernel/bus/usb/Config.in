@@ -1,8 +1,4 @@
-menuconfig AOS_COMP_USB
-    bool "usb"
+config AOS_COMP_USB
+    bool "USB Support"
     default n
     help
-
-if AOS_COMP_USB
-# Configurations for component usb
-endif
