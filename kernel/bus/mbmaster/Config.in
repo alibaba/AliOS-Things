@@ -1,10 +1,10 @@
 menuconfig AOS_COMP_MBMASTER
-    bool "mbmaster"
+    bool "Modbus Master Support"
     default n
     help
 
 if AOS_COMP_MBMASTER
-# Configurations for component modbus master
+
 config MBMASTER_CONFIG_RTU_ENABLED
     int "MBMASTER_CONFIG_RTU_ENABLED"
         range 0 1
@@ -37,4 +37,5 @@ config MBMASTER_CONFIG_LOG_LEVEL
         help
             set 0 to show information only when error happend. set 1 to show more information(error and debug).
             default 0
+
 endif
