@@ -1,8 +1,0 @@
-config AOS_COMP_UMBINS
-    bool "umbins"
-    default n
-    help
-
-if AOS_COMP_UMBINS
-# Configurations for component umbins
-endif
