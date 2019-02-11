@@ -25,11 +25,6 @@ config BSP_SUPPORT_WIFI
     bool
     default y
 
-
-config VFS_CONFIG_STAT_INCLUDE_SIZE
-    int "VFS_CONFIG_STAT_INCLUDE_SIZE"
-    default 0
-
 # link security config
 config CONFIG_LS_DEBUG
     bool
