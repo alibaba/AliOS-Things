@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_KV
-    bool "kv"
+    bool "Key-value Style Storage"
     select AOS_COMP_MBEDTLS if KV_CONFIG_SECURE_CRYPT_IMPL = 1
     select MBEDTLS_CONFIG_CRYPTO if KV_CONFIG_SECURE_CRYPT_IMPL = 1
     select MBEDTLS_CONFIG_CRYPTO_AES if KV_CONFIG_SECURE_CRYPT_IMPL = 1
