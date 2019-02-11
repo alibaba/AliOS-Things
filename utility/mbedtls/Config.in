@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_MBEDTLS
-    bool "mbedtls"
+    bool "Mbedtls 2.16.0"
     default n
     help
         The mbedtls provides cryptographic algorithms
