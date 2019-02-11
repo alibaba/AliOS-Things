@@ -1,3 +1,5 @@
 config AOS_COMP_CJSON
-    bool "cjson"
+    bool "cJSON library"
     default n
+    help
+        cJSON aims to be the dumbest possible parser that you can get your job done with.
