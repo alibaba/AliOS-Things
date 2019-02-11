@@ -1,8 +1,8 @@
 menuconfig AOS_COMP_RHINO
-    bool "rhino"
+    bool "AliOS Things Kernel Core(rhino)"
     default y
     help
-        rhino core
+        AliOS things kernel core(rhino)
 
 #if AOS_COMP_RHINO
 if 0

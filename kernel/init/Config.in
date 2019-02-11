@@ -1,5 +1,6 @@
 config AOS_COMP_KERNEL_INIT
-    bool "AliOS Things Init"
+    bool "AliOS Things Init Funciton"
     default n
     select AOS_COMP_ULOG
     help
+       AliOS Things initialization function
