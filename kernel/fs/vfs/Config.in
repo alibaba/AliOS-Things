@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_VFS
-    bool "vfs"
+    bool "Virtual File System"
     default n
     help
         a unified user interface for various files. It is an abstraction layer on top of a more concrete file system.
