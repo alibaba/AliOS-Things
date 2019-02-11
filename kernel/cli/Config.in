@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_CLI
-    bool "cli"
+    bool "Command-Line Interface"
     select AOS_COMP_DEBUG
     select AOS_COMP_ULOG
     default n
@@ -7,7 +7,6 @@ menuconfig AOS_COMP_CLI
       command-line interface
 
 if AOS_COMP_CLI
-# Configurations for component cli
 
 config CLI_CONFIG_MINIMUM_MODE
     int "CLI_CONFIG_MINIMUM_MODE"
