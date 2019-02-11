@@ -1,8 +1,0 @@
-config AOS_COMP_KMBINS
-    bool "kmbins"
-    default n
-    help
-
-if AOS_COMP_KMBINS
-# Configurations for component kmbins
-endif
