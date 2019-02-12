@@ -4,10 +4,8 @@ config AOS_UAGENT
 
 if AOS_UAGENT
 
-## --- Generated Automatically ---
 source "middleware/uagent/ota/Config.in"
 source "middleware/uagent/ulog/Config.in"
 source "middleware/uagent/udev/Config.in"
-## --- End ---
 
 endif
