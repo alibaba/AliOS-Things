@@ -61,10 +61,18 @@ static void hal_uart_rxbuf_irq ( struct nu_uart_var* psNuUartVar )
 		uint8_t dat;
 		struct serial_s *obj = psNuUartVar->obj;
 		UART_T *uart_base = (UART_T *) NU_MODBASE(obj->uart);
+	#if 0
 		do {
 				dat = (uint8_t)uart_base->RBR;
 				krhino_buf_queue_send(&psNuUartVar->fifo_queue_rx, &dat, 1);
 		} while (0);// ( (uart_base->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk) != 0 );
+	#else	
+		while ( UART_IS_RX_READY(uart_base) ) {
+			dat = (uint8_t)uart_base->RBR;
+			if ( krhino_buf_queue_send(&psNuUartVar->fifo_queue_rx, &dat, 1) == RHINO_RINGBUF_FULL )
+				break; //Will lose
+		}
+	#endif
 }
 
 static void uart_irq(struct nu_uart_var* psNuUartVar)
@@ -76,7 +84,7 @@ static void uart_irq(struct nu_uart_var* psNuUartVar)
         // Simulate clear of the interrupt flag. Temporarily disable the interrupt here and to be recovered on next read.
         //UART_DISABLE_INT(uart_base, (UART_IER_RDA_IE_Msk | UART_IER_RTO_IE_Msk));
         hal_uart_rxbuf_irq ( psNuUartVar );
-		//UART_ENABLE_INT (uart_base, (UART_IER_RDA_IE_Msk | UART_IER_RTO_IE_Msk));			
+				//UART_ENABLE_INT (uart_base, (UART_IER_RDA_IE_Msk | UART_IER_RTO_IE_Msk));			
     }
 
 #if 0

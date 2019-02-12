@@ -135,16 +135,5 @@ $(NAME)_SOURCES += \
 		hal/hw.c \
 		hal/hal_uart.c \
 		hal/hal_timer.c \
-		hal/hal_flash.c
-		
-#		hal/hal_adc.c \
-#		hal/hal_rtc.c \
-#		hal/hal_spi.c \
-#		hal/hal_timer.c \
-#		hal/hal_wdg.c \
-#		hal/hal_dac.c \
-#		hal/hal_gpio.c \
-#		hal/hal_i2c.c \
-#		hal/hal_pwm.c \
-#		hal/hal_dma.c
-
+		hal/hal_flash.c \
+		hal/hal_dummy.c
