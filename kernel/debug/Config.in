@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_DEBUG
-    bool "AliOS Things Debug Support"
+    bool "Debug & Cpuusage Support"
     depends on AOS_COMP_RHINO
     default n
     help
