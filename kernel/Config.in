@@ -1,4 +1,3 @@
-## --- Generated Automatically ---
 source "kernel/rhino/Config.in"
 source "kernel/init/Config.in"
 source "kernel/cli/Config.in"
@@ -11,4 +10,3 @@ source "kernel/fs/ramfs/Config.in"
 source "kernel/fs/vfs/Config.in"
 source "kernel/bus/mbmaster/Config.in"
 source "kernel/bus/usb/Config.in"
-## --- End ---
