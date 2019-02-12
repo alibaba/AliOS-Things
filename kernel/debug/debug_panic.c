@@ -190,6 +190,7 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     debug_mm_overview(print_str);
 #endif
 
+    print_str("========== Task Info  ==========\r\n");
     debug_task_overview(print_str);
 
 #if (DEBUG_CONFIG_BACKTRACE > 0)

@@ -9,7 +9,7 @@ if AOS_COMP_DEBUG
 # Configurations for component debug
 
 config DEBUG_CONFIG_PANIC
-    int "DEBUG_CONFIG_PANIC"
+    int
         range 0 1
         default 0
         help
@@ -17,7 +17,7 @@ config DEBUG_CONFIG_PANIC
             default 0
 
 config DEBUG_CONFIG_BACKTRACE
-    int "DEBUG_CONFIG_BACKTRACE"
+    int
         range 0 1
         default 0
         help
