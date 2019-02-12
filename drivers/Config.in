@@ -1,7 +1,5 @@
 menu "Drivers Configuration"
 
-## --- Generated Automatically ---
 source "drivers/sensor/Config.in"
-## --- End ---
 
 endmenu
