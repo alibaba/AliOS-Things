@@ -1,0 +1,4 @@
+config AOS_COMP_BASIC_TEST
+    bool "Basic Testcase"
+    default n
+    help

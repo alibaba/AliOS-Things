@@ -1,0 +1,4 @@
+config AOS_COMP_CERTIFICATE_TEST
+    bool "Certificate Testcase"
+    default n
+    help

@@ -1,0 +1,5 @@
+config AOS_COMP_RHINO_TEST
+    bool "Rhino Testcase"
+    select AOS_COMP_RHINO
+    default n
+    help
