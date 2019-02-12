@@ -1,8 +1,4 @@
-menuconfig AOS_COMP_OSAL_POSIX
-    bool "posix"
+config AOS_COMP_OSAL_POSIX
+    bool "POSIX API Support"
     default n
     help
-
-if AOS_COMP_OSAL_POSIX
-# Configurations for comp posix
-endif

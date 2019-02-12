@@ -1,8 +1,4 @@
-menuconfig AOS_COMP_OSAL_CMSIS
-    bool "cmsis"
+config AOS_COMP_OSAL_CMSIS
+    bool "CMSIS API Support"
     default n
     help
-
-if AOS_COMP_OSAL_CMSIS
-# Configurations for comp cmsis
-endif
