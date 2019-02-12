@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-
+#include "aos/kernel.h"
 #include "ulog/ulog.h"
 
 #include "aos/hal/uart.h"
@@ -412,7 +412,7 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
                        const char *data, int datalen,
                        char *replybuf, int bufsize,
                        const atcmd_config_t *atcmdconfig)
-{ 
+{
     int ret = 0;
 
     if (inited == 0) {
