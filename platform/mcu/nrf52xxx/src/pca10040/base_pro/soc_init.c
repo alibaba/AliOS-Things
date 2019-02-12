@@ -306,7 +306,7 @@ __INLINE void cpu_hardfault_handle(void)
 }
 
 
-
+#if (DEBUG_CONFIG_PANIC != 1)
 void HardFault_Handler(void)
 {
   //cpu_hardfault_handle();
@@ -315,7 +315,7 @@ void HardFault_Handler(void)
   {
   }
 }
-
+#endif
 
 
 
