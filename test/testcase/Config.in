@@ -1,0 +1,11 @@
+menu "Testcase Configuration"
+
+## --- Generated Automatically ---
+source "test/testcase/kernel/Config.in"
+source "test/testcase/utility/Config.in"
+source "test/testcase/osal/Config.in"
+source "test/testcase/basic_test/Config.in"
+source "test/testcase/certificate_test/Config.in"
+## --- End ---
+
+endmenu
