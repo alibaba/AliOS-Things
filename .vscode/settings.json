@@ -2,5 +2,6 @@
     "aliosStudio.inner.yosBin": "aos",
     "aliosStudio.hardware.board": "developerkit",
     "aliosStudio.name": "helloworld",
-    "aliosStudio.isAosSource": true
+    "aliosStudio.aosVersion": "2.1.0",
+	"C_Cpp.default.browse.databaseFilename": "${workspaceRoot}/.vscode/.TAGS.AOS.DB",
 }
