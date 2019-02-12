@@ -153,6 +153,7 @@ exit:
 static void adv_thread(void *p1, void *p2, void *p3)
 {
     BT_DBG("started");
+    uint32_t time_start;
 
     while (1) {
         struct net_buf *buf;
@@ -163,9 +164,18 @@ static void adv_thread(void *p1, void *p2, void *p3)
                 s32_t timeout;
 
                 timeout = bt_mesh_proxy_adv_start();
+                time_start = k_uptime_get_32();
                 BT_DBG("Proxy Advertising up to %d ms",
                        timeout);
-                buf = net_buf_get(&adv_queue, timeout);
+                while (buf == NULL) {
+                    buf = net_buf_get(&adv_queue, timeout);
+                    if (buf || timeout == K_NO_WAIT ||
+                        (timeout != -1 && (k_uptime_get_32() - time_start) >= timeout)) {
+                        break;
+                    } else {
+                        aos_msleep(1);
+                    }
+                }
                 bt_mesh_proxy_adv_stop();
             }
         } else {

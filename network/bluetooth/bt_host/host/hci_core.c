@@ -96,7 +96,7 @@ struct cmd_data {
     /** The command OpCode that the buffer contains */
     u16_t opcode;
 
-    u8_t sync;
+    uint8_t sync;
 };
 
 struct acl_data
@@ -251,8 +251,27 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp
 
     cmd(buf)->sync = SYNC_TX;
     net_buf_ref(buf);
-    //net_buf_put(&bt_dev.cmd_tx_queue, buf);
-    send_cmd(buf);
+
+    net_buf_put(&bt_dev.cmd_tx_queue, buf);
+    time_start = k_uptime_get_32();
+
+    while (1) {
+        static struct k_poll_event events[1] = {
+            K_POLL_EVENT_STATIC_INITIALIZER(K_POLL_TYPE_FIFO_DATA_AVAILABLE,
+                                            K_POLL_MODE_NOTIFY_ONLY,
+                                            &bt_dev.cmd_tx_queue, BT_EVENT_CMD_TX),
+        };
+        events[0].state = K_POLL_STATE_NOT_READY;
+        if (!k_queue_is_empty(&bt_dev.cmd_tx_queue)) {
+            events[0].state = K_POLL_STATE_FIFO_DATA_AVAILABLE;
+        }
+
+        process_events(events, 1);
+        if ((cmd(buf)->sync == SYNC_TX_DONE) ||
+            (k_uptime_get_32() - time_start) >= HCI_CMD_TIMEOUT) {
+            break;
+        }
+    }
 
     BT_DBG("opcode 0x%04x status 0x%02x", opcode, cmd(buf)->status);
 

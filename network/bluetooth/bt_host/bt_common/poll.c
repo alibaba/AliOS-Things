@@ -276,6 +276,7 @@ int k_poll(struct k_poll_event *events, int num_events, s32_t timeout)
     polling_events(events, num_events, timeout, &last_registered);
 exit:
     sys_dlist_remove(&eventcb);
+    k_sem_delete(&eventcb.sem);
 
     key = irq_lock();
     clear_event_registrations(events, last_registered, key);
