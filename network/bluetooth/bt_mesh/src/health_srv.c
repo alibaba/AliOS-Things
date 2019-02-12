@@ -14,7 +14,6 @@
 #include <misc/byteorder.h>
 #include <misc/util.h>
 
-#include <bluetooth/bluetooth.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_MODEL)
@@ -26,6 +25,7 @@
 #include "transport.h"
 #include "access.h"
 #include "foundation.h"
+#include "health_srv.h"
 #include "bt_mesh_custom_log.h"
 
 #define HEALTH_TEST_STANDARD 0x00

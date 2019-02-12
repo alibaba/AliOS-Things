@@ -11,9 +11,9 @@
 #include <stdint.h>
 #include <zephyr.h>
 #include <misc/byteorder.h>
+#include <toolchain.h>
 
 #include <net/buf.h>
-#include <bluetooth/bluetooth.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_LOW_POWER)

@@ -11,15 +11,10 @@
 #include <misc/util.h>
 
 #include <net/buf.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/conn.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_ADV)
 #include "common/log.h"
-
-#include "hci_core.h"
 
 #include "adv.h"
 #include "foundation.h"
@@ -27,7 +22,7 @@
 #include "beacon.h"
 #include "prov.h"
 #include "proxy.h"
-#include "bt_mesh_adv.h"
+#include <port/mesh_hal_ble.h>
 //#include "bt_mesh_custom_log.h"
 
 /* Window and Interval are equal for continuous scanning */
@@ -57,9 +52,9 @@ static struct k_thread adv_thread_data;
 static BT_STACK_NOINIT(adv_thread_stack, ADV_STACK_SIZE);
 
 static const u8_t adv_type[] = {
-    [BT_MESH_ADV_PROV]   = BT_DATA_MESH_PROV,
-    [BT_MESH_ADV_DATA]   = BT_DATA_MESH_MESSAGE,
-    [BT_MESH_ADV_BEACON] = BT_DATA_MESH_BEACON,
+    [BT_MESH_ADV_PROV]   = BT_MESH_DATA_MESH_PROV,
+    [BT_MESH_ADV_DATA]   = BT_MESH_DATA_MESH_MESSAGE,
+    [BT_MESH_ADV_BEACON] = BT_MESH_DATA_MESH_BEACON,
 };
 
 NET_BUF_POOL_DEFINE(adv_buf_pool, CONFIG_BT_MESH_ADV_BUF_COUNT,
@@ -89,15 +84,30 @@ static inline void adv_send_end(int err, const struct bt_mesh_send_cb *cb,
     }
 }
 
+/* HCI version from Assigned Numbers */
+#define BT_VERSION_1_0B                     0
+#define BT_VERSION_1_1                      1
+#define BT_VERSION_1_2                      2
+#define BT_VERSION_2_0                      3
+#define BT_VERSION_2_1                      4
+#define BT_VERSION_3_0                      5
+#define BT_VERSION_4_0                      6
+#define BT_VERSION_4_1                      7
+#define BT_VERSION_4_2                      8
+#define BT_VERSION_5_0                      9
+
 static inline void adv_send(struct net_buf *buf)
 {
-    const s32_t adv_int_min = ((bt_dev.hci_version >= BT_HCI_VERSION_5_0) ?
-                               ADV_INT_FAST : ADV_INT_DEFAULT);
+#if (BT_HCI_VERSION >= BT_VERSION_5_0)
+    const s32_t adv_int_min = ADV_INT_FAST;
+#else
+    const s32_t adv_int_min = ADV_INT_DEFAULT;
+#endif
     const struct bt_mesh_send_cb *cb = BT_MESH_ADV(buf)->cb;
     void *cb_data = BT_MESH_ADV(buf)->cb_data;
-    struct bt_le_adv_param param;
+    struct bt_mesh_le_adv_param param;
     u16_t duration, adv_int;
-    struct bt_data ad;
+    struct bt_mesh_data ad;
     int err;
 
     adv_int = max(adv_int_min, BT_MESH_ADV(buf)->adv_int);
@@ -117,7 +127,6 @@ static inline void adv_send(struct net_buf *buf)
     param.interval_max = param.interval_min;
     param.own_addr = NULL;
 
-    //err = bt_le_adv_start(&param, &ad, 1, NULL, 0);
     err = bt_mesh_adv_start(&param, &ad, 1, NULL, 0);
     net_buf_unref(buf);
     adv_send_start(duration, err, cb, cb_data);
@@ -131,7 +140,6 @@ static inline void adv_send(struct net_buf *buf)
     k_sleep(duration);
 
 exit:
-    //err = bt_le_adv_stop();
     err = bt_mesh_adv_stop();
     adv_send_end(err, cb, cb_data);
     if (err) {
@@ -235,10 +243,10 @@ void bt_mesh_adv_send(struct net_buf *buf, const struct bt_mesh_send_cb *cb,
     net_buf_put(&adv_queue, net_buf_ref(buf));
 }
 
-static void bt_mesh_scan_cb(const bt_addr_le_t *addr, s8_t rssi,
+static void bt_mesh_scan_cb(const bt_mesh_addr_le_t *addr, s8_t rssi,
                             u8_t adv_type, struct net_buf_simple *buf)
 {
-    if (adv_type != BT_LE_ADV_NONCONN_IND) {
+    if (adv_type != BT_MESH_LE_ADV_NONCONN_IND) {
         return;
     }
 
@@ -266,15 +274,15 @@ static void bt_mesh_scan_cb(const bt_addr_le_t *addr, s8_t rssi,
         buf->len = len - 1;
 
         switch (type) {
-            case BT_DATA_MESH_MESSAGE:
+            case BT_MESH_DATA_MESH_MESSAGE:
                 bt_mesh_net_recv(buf, rssi, BT_MESH_NET_IF_ADV);
                 break;
 #if defined(CONFIG_BT_MESH_PB_ADV)
-            case BT_DATA_MESH_PROV:
+            case BT_MESH_DATA_MESH_PROV:
                 bt_mesh_pb_adv_recv(buf);
                 break;
 #endif
-            case BT_DATA_MESH_BEACON:
+            case BT_MESH_DATA_MESH_BEACON:
                 bt_mesh_beacon_recv(buf);
                 break;
             default:
@@ -297,16 +305,15 @@ void bt_mesh_adv_init(void)
 
 int bt_mesh_scan_enable(void)
 {
-    struct bt_le_scan_param scan_param = {
-        .type       = BT_HCI_LE_SCAN_PASSIVE,
-        .filter_dup = BT_HCI_LE_SCAN_FILTER_DUP_DISABLE,
+    struct bt_mesh_le_scan_param scan_param = {
+        .type       = BT_MESH_HCI_LE_SCAN_PASSIVE,
+        .filter_dup = BT_MESH_HCI_LE_SCAN_FILTER_DUP_DISABLE,
         .interval   = MESH_SCAN_INTERVAL,
         .window     = MESH_SCAN_WINDOW
     };
 
     BT_DBG("");
 
-    //return bt_le_scan_start(&scan_param, bt_mesh_scan_cb);
     return bt_mesh_scan_start(&scan_param, bt_mesh_scan_cb);
 }
 
@@ -314,6 +321,5 @@ int bt_mesh_scan_disable(void)
 {
     BT_DBG("");
 
-    //return bt_le_scan_stop();
     return bt_mesh_scan_stop();
 }
