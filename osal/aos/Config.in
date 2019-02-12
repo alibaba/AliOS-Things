@@ -1,19 +1,29 @@
 menuconfig AOS_COMP_OSAL_AOS
-    bool "osal_aos"
-    select AOS_COMP_DEBUG if OSAL_CONFIG = rhino
-    select AOS_COMP_RHINO if OSAL_CONFIG = rhino
+    bool "AOS API Supported by other OS"
     default y
     help
-        AliOS things OSAL -- interface adaptation layer
+        AliOS Things API supported by other OS.
 
 if AOS_COMP_OSAL_AOS
 
-config OSAL_CONFIG
-    string "OSAL_CONFIG"
-    default rhino
-    help
-        osal = rhino/posix/freertos/rhino_sxr/rhino_sxr_mutios
+choice
+    prompt "OSAL Selection"
+    default MCU_STM32F429ZI
 
-comment "osal = rhino/posix/freertos/rhino_sxr/rhino_sxr_mutios"
+    config OSAL_RHINO
+        bool "RHINO"
+        select AOS_COMP_DEBUG
+        select AOS_COMP_RHINO
+
+    config OSAL_FREERTOS
+        bool "FREERTOS"
+
+endchoice
+
+config OSAL_CONFIG
+    string
+    default "rhino"    if OSAL_RHINO
+    default "freertos" if OSAL_FREERTOS
+    help
 
 endif
