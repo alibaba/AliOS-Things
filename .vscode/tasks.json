@@ -10,7 +10,7 @@
         "helloworld@developerkit"
       ],
       "presentation": {
-        "panel": "dedicated"
+        "focus": "true"
       }
     },
     {
@@ -22,7 +22,7 @@
         "helloworld@developerkit"
       ],
       "presentation": {
-        "panel": "dedicated"
+        "focus": "true"
       }
     },
     {
@@ -30,10 +30,12 @@
       "type": "shell",
       "command": "aos",
       "args": [
-        "monitor"
+        "monitor",
+        "",
+        ""
       ],
       "presentation": {
-        "panel": "dedicated"
+        "focus": "true"
       }
     },
     {
@@ -45,7 +47,23 @@
         "clean"
       ],
       "presentation": {
-        "panel": "dedicated"
+        "focus": "true"
+      }
+    },
+    {
+      "label": "alios-studio: OTA",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "ota",
+        "helloworld@developerkit",
+        "-d",
+        "",
+        "-p",
+        ""
+      ],
+      "presentation": {
+        "focus": true
       }
     }
   ]
