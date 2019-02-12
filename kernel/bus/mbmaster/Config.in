@@ -2,6 +2,7 @@ menuconfig AOS_COMP_MBMASTER
     bool "Modbus Master Support"
     default n
     help
+        modbus master library support
 
 if AOS_COMP_MBMASTER
 
