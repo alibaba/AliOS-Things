@@ -12,10 +12,10 @@
 #include <sys/types.h>
 #include <misc/util.h>
 #include <misc/byteorder.h>
+#include <toolchain.h>
 
 #include <net/buf.h>
 
-#include <bluetooth/hci.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_TRANS)
@@ -32,7 +32,7 @@
 #include "transport.h"
 #include "bt_mesh_custom_log.h"
 
-#define AID_MASK                    ((u8_t)(BIT_MASK(6)))
+#define AID_MASK                    ((u8_t)(MESH_BIT_MASK(6)))
 
 #define SEG(data)                   ((data)[0] >> 7)
 #define AKF(data)                   (((data)[0] >> 6) & 0x01)
@@ -668,6 +668,38 @@ static struct seg_tx *seg_tx_lookup(u16_t seq_zero, u8_t obo, u16_t addr)
 	return NULL;
 }
 
+#ifdef CONFIG_MESH_STACK_ALONE
+static unsigned int find_msb_set(u32_t data)
+{
+    uint32_t count = 0;
+    uint32_t mask  = 0x80000000;
+
+    if (!data) {
+        return 0;
+    }
+    while ((data & mask) == 0) {
+        count += 1u;
+        mask = mask >> 1u;
+    }
+    return (32 - count);
+}
+
+static unsigned int find_lsb_set(u32_t data)
+{
+    uint32_t count = 1;
+    uint32_t mask  = 0x00000001;
+
+    if (!data) {
+        return 0;
+    }
+    while ((data & mask) == 0) {
+        count += 1u;
+        mask = mask << 1u;
+    }
+    return (count);
+}
+#endif
+
 static int trans_ack(struct bt_mesh_net_rx *rx, u8_t hdr,
 		     struct net_buf_simple *buf, u64_t *seq_auth)
 {
@@ -726,7 +758,7 @@ static int trans_ack(struct bt_mesh_net_rx *rx, u8_t hdr,
 			tx->nack_count--;
 		}
 
-		ack &= ~BIT(bit - 1);
+		ack &= ~MESH_BIT(bit - 1);
 	}
 
 	if (tx->nack_count) {
@@ -1199,7 +1231,7 @@ static int trans_seg(struct net_buf_simple *buf, struct bt_mesh_net_rx *net_rx,
 	rx->obo = net_rx->friend_match;
 
 found_rx:
-	if (BIT(seg_o) & rx->block) {
+	if (MESH_BIT(seg_o) & rx->block) {
 		BT_WARN("Received already received fragment");
 		return -EALREADY;
 	}
@@ -1242,7 +1274,7 @@ found_rx:
 	BT_DBG("Received %u/%u", seg_o, seg_n);
 
 	/* Mark segment as received */
-	rx->block |= BIT(seg_o);
+	rx->block |= MESH_BIT(seg_o);
 
 	if (rx->block != BLOCK_COMPLETE(seg_n)) {
 		*pdu_type = BT_MESH_FRIEND_PDU_PARTIAL;
@@ -1255,7 +1287,7 @@ found_rx:
 		BT_WARN("Replay: src 0x%04x dst 0x%04x seq 0x%06x",
 			net_rx->ctx.addr, net_rx->dst, net_rx->seq);
 		/* Clear the segment's bit */
-		rx->block &= ~BIT(seg_o);
+		rx->block &= ~MESH_BIT(seg_o);
 		return -EINVAL;
 	}
 

@@ -10,15 +10,9 @@
 #ifndef __BT_MESH_ACCESS_H
 #define __BT_MESH_ACCESS_H
 
-#include "mesh_config.h"
+#include <mesh_config.h>
 
-/**
- * @brief Bluetooth Mesh Access Layer
- * @defgroup bt_mesh_access Bluetooth Mesh Access Layer
- * @ingroup bt_mesh
- * @{
- */
-
+/* Group addresses defined in spec V1.0 section 3.4.2.4 */
 #define BT_MESH_ADDR_UNASSIGNED   0x0000
 #define BT_MESH_ADDR_ALL_NODES    0xffff
 #define BT_MESH_ADDR_PROXIES      0xfffc
@@ -27,6 +21,12 @@
 
 #define BT_MESH_KEY_UNUSED        0xffff
 #define BT_MESH_KEY_DEV           0xfffe
+
+/** Special TTL value to request using configured default TTL */
+#define BT_MESH_TTL_DEFAULT 0xff
+
+/** Maximum allowed TTL value */
+#define BT_MESH_TTL_MAX     0x7f
 
 /** Helper to define a mesh element within an array.
  *
@@ -37,29 +37,14 @@
  *  @param _mods      Array of models.
  *  @param _vnd_mods  Array of vendor models.
  */
-#define BT_MESH_ELEM(_loc, _mods, _vnd_mods)        \
-{                                                   \
-	.loc              = (_loc),                 \
-	.model_count      = ARRAY_SIZE(_mods),      \
-	.models           = (_mods),                \
-	.vnd_model_count  = ARRAY_SIZE(_vnd_mods),  \
-	.vnd_models       = (_vnd_mods),            \
+#define BT_MESH_ELEM(_loc, _mods, _vnd_mods)                            \
+{                                                                       \
+	.loc              = (_loc),                                     \
+	.model_count      = sizeof(_mods) / sizeof((_mods)[0]),         \
+	.models           = (_mods),                                    \
+	.vnd_model_count  = sizeof(_vnd_mods) / sizeof((_vnd_mods)[0]), \
+	.vnd_models       = (_vnd_mods),                                \
 }
-
-/** Abstraction that describes a Mesh Element */
-struct bt_mesh_elem {
-	/* Unicast Address. Set at runtime during provisioning. */
-	u16_t addr;
-
-	/* Location Descriptor (GATT Bluetooth Namespace Descriptors) */
-	const u16_t loc;
-
-	const u8_t model_count;
-	const u8_t vnd_model_count;
-
-	struct bt_mesh_model * const models;
-	struct bt_mesh_model * const vnd_models;
-};
 
 /* Foundation Models */
 #define BT_MESH_MODEL_ID_CFG_SRV                   0x0000
@@ -121,6 +106,21 @@ struct bt_mesh_elem {
 #define BT_MESH_MODEL_ID_LIGHT_LC_SETUPSRV         0x1310
 #define BT_MESH_MODEL_ID_LIGHT_LC_CLI              0x1311
 
+/** Abstraction that describes a Mesh Element */
+struct bt_mesh_elem {
+	/* Unicast Address. Set at runtime during provisioning. */
+	u16_t addr;
+
+	/* Location Descriptor (GATT Bluetooth Namespace Descriptors) */
+	const u16_t loc;
+
+	const u8_t model_count;
+	const u8_t vnd_model_count;
+
+	struct bt_mesh_model * const models;
+	struct bt_mesh_model * const vnd_models;
+};
+
 /** Message sending context. */
 struct bt_mesh_msg_ctx {
 	/** NetKey Index of the subnet to send the message on. */
@@ -155,6 +155,7 @@ struct bt_mesh_model_op {
 			   struct net_buf_simple *buf);
 };
 
+/* Operation code generator macro */
 #define BT_MESH_MODEL_OP_1(b0) (b0)
 #define BT_MESH_MODEL_OP_2(b0, b1) (((b0) << 8) | (b1))
 #define BT_MESH_MODEL_OP_3(b0, cid) ((((b0) << 16) | 0xc00000) | (cid))
@@ -191,6 +192,10 @@ struct bt_mesh_model_op {
 	.user_data = _user_data,                                             \
 }
 
+/**
+ * Below are helper macros for defining transmit/retransmit parameters,
+ * spec V1.0 section 4.2.19 and 4.2.20.
+ */
 /** @def BT_MESH_TRANSMIT
  *
  *  @brief Encode transmission count & interval steps.
@@ -212,7 +217,7 @@ struct bt_mesh_model_op {
  *
  *  @return Transmission count (actual transmissions is N + 1).
  */
-#define BT_MESH_TRANSMIT_COUNT(transmit) (((transmit) & (u8_t)BIT_MASK(3)))
+#define BT_MESH_TRANSMIT_COUNT(transmit) (((transmit) & (u8_t)((1 << 3) - 1)))
 
 /** @def BT_MESH_TRANSMIT_INT
  *
@@ -347,12 +352,6 @@ struct bt_mesh_send_cb {
 
 void bt_mesh_model_msg_init(struct net_buf_simple *msg, u32_t opcode);
 
-/** Special TTL value to request using configured default TTL */
-#define BT_MESH_TTL_DEFAULT 0xff
-
-/** Maximum allowed TTL value */
-#define BT_MESH_TTL_MAX     0x7f
-
 /**
  * @brief Send an Access Layer message.
  *
@@ -386,7 +385,7 @@ int bt_mesh_model_send(struct bt_mesh_model *model,
  */
 int bt_mesh_model_publish(struct bt_mesh_model *model);
 
-/** Node Composition */
+/** Node Composition, must be provided to initialize the mesh stack. */
 struct bt_mesh_comp {
 	u16_t cid;
 	u16_t pid;
@@ -395,9 +394,5 @@ struct bt_mesh_comp {
 	size_t elem_count;
 	struct bt_mesh_elem *elem;
 };
-
-/**
- * @}
- */
 
 #endif /* __BT_MESH_ACCESS_H */

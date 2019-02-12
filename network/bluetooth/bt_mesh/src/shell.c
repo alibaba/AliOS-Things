@@ -17,7 +17,6 @@
 #include <misc/printk.h>
 #include "errno.h"
 
-#include <bluetooth/bluetooth.h>
 #include <api/mesh.h>
 
 /* Private includes for raw Network & Transport layer access */
@@ -25,6 +24,7 @@
 #include "net.h"
 #include "transport.h"
 #include "foundation.h"
+#include "health_srv.h"
 
 #define CID_NVAL   0xffff
 #define CID_LOCAL  0x0002
@@ -354,6 +354,8 @@ static const char *bearer2str(bt_mesh_prov_bearer_t bearer)
 		return "PB-ADV";
 	case BT_MESH_PROV_GATT:
 		return "PB-GATT";
+	case BT_MESH_PROV_ADV | BT_MESH_PROV_GATT:
+		return "PB-ADV and PB-GATT";
 	default:
 		return "unknown";
 	}
@@ -548,7 +550,9 @@ static int cmd_init(int argc, char *argv[])
 {
 	int err;
 
+#ifndef CONFIG_MESH_STACK_ALONE
 	err = bt_enable(bt_ready);
+#endif
 	if (err && err != -EALREADY) {
 		printk("Bluetooth init failed (err %d)\n", err);
 		return 0;
@@ -744,6 +748,97 @@ static int cmd_net_send(int argc, char *argv[])
 	}
 
 	return 0;
+}
+
+static bool str_is_digit(char *s)
+{
+	while (*s != '\0') {
+		if (!isdigit(*s)) return false;
+		else s++;
+	}
+
+	return true;
+}
+
+static bool str_is_xdigit(char *s)
+{
+	if (strncmp(s, "0x", strlen("0x")) == 0) {
+		s += strlen("0x");
+	}
+
+	while (*s != '\0') {
+		if (!isxdigit(*s)) return false;
+		else s++;
+	}
+
+	return true;
+}
+
+#define NET_PRESSURE_TEST_STRING "helloworld"
+static int prepare_test_msg(struct net_buf_simple *msg)
+{
+	net_buf_simple_init(msg, 0);
+	memcpy(msg->data, (const void *)NET_PRESSURE_TEST_STRING,
+	       sizeof(NET_PRESSURE_TEST_STRING) - 1);
+	net_buf_simple_add(msg, sizeof(NET_PRESSURE_TEST_STRING) - 1);
+	return 0;
+}
+
+extern long long k_now_ms();
+extern void k_sleep(s32_t ms);
+/* cmd: net-pressure-test <dst> <window> <packets-per-window> <duration> */
+static int cmd_net_pressure_test(int argc, char *argv[])
+{
+	struct net_buf_simple *msg = NET_BUF_SIMPLE(32);
+	struct bt_mesh_msg_ctx ctx = {
+		.send_ttl = BT_MESH_TTL_DEFAULT,
+		.net_idx = net.net_idx,
+		.app_idx = net.app_idx,
+
+	};
+	struct bt_mesh_net_tx tx = {
+		.ctx = &ctx,
+		.src = net.local,
+		.xmit = bt_mesh_net_transmit_get(),
+		.sub = bt_mesh_subnet_get(net.net_idx),
+	};
+	size_t len;
+	int err, window = 0, pkts = 0, dur = 0, i = 0;
+	long long start_time;
+
+	if (argc < 5) {
+		printk("%s failed, invalid argument number.\r\n", __func__);
+		return -EINVAL;
+	}
+
+	if (!str_is_xdigit(argv[1]) || !str_is_digit(argv[2]) ||
+	    !str_is_digit(argv[3]) || !str_is_digit(argv[4])) {
+		printk("%s failed, invalid argument.\r\n", __func__);
+		return -EINVAL;
+	} else {
+		ctx.addr = strtoul(argv[1], NULL, 16);
+		window = strtoul(argv[2], NULL, 0);
+		pkts = strtoul(argv[3], NULL, 0);
+		dur = strtoul(argv[4], NULL, 0);
+	}
+
+	printk("%s started\r\n", argv[0]);
+
+	start_time = k_now_ms();
+	while ((k_now_ms() - start_time) < (dur * 1000)) {
+		prepare_test_msg(msg);
+		err = bt_mesh_trans_send(&tx, msg, NULL, NULL);
+		if (err) {
+			printk("%s failed to send (err %d)\r\n", __func__, err);
+		} else {
+			i++;
+			printk("%s test packet sent (No. %d)\r\n", __func__, i);
+		}
+
+		k_sleep((window * 1000) / pkts);
+	}
+
+	printk("%s ended.\r\n", argv[0]);
 }
 
 #ifdef CONFIG_BT_MESH_BQB
@@ -2016,6 +2111,47 @@ static int cmd_display_help(int argc, char *argv[])
 	return 0;
 }
 
+#ifdef CONFIG_BT_MESH_PROV
+static void cmd_pb2(bt_mesh_prov_bearer_t bearer, const char *s)
+{
+	int err;
+
+        if (str2bool(s)) {
+                err = bt_mesh_prov_enable(bearer);
+                if (err) {
+                        printk("Failed to enable %s (err %d)\n",
+                               bearer2str(bearer), err);
+                } else {
+                        printk("%s enabled\n", bearer2str(bearer));
+                }
+        } else {
+                err = bt_mesh_prov_disable(bearer);
+                if (err) {
+                        printk("Failed to disable %s (err %d)\n",
+                               bearer2str(bearer), err);
+                } else {
+                        printk("%s disabled\n", bearer2str(bearer));
+                }
+        }
+}
+
+static int cmd_bunch_pb_adv(int argc, char *argv[])
+{
+	cmd_uuid(argc, argv);
+	cmd_init(0, NULL);
+	cmd_pb2(BT_MESH_PROV_ADV, "on");
+	return 0;
+}
+
+static int cmd_bunch_pb_gatt(int argc, char *argv[])
+{
+	cmd_uuid(argc, argv);
+	cmd_init(0, NULL);
+	cmd_pb2(BT_MESH_PROV_ADV | BT_MESH_PROV_GATT, "on");
+	return 0;
+}
+#endif
+
 static const struct mesh_shell_cmd mesh_commands[] = {
 	{ "init", cmd_init, NULL },
 	{ "timeout", cmd_timeout, "[timeout in seconds]" },
@@ -2094,6 +2230,13 @@ static const struct mesh_shell_cmd mesh_commands[] = {
 	{ "del-fault", cmd_del_fault, "[Fault ID]" },
 
 	{ "help", cmd_display_help, "[help]"},
+
+#ifdef CONFIG_BT_MESH_PROV
+	{ "hk0", cmd_bunch_pb_adv, "<UUID: 1-16 hex values>"},
+	{ "hk1", cmd_bunch_pb_gatt, "<UUID: 1-16 hex values>"},
+#endif
+
+	{ "net-pressure-test", cmd_net_pressure_test, "<dst> <window(s)> <pkt-per-window> <test duration(s)>"},
 
 	{ NULL, NULL, NULL}
 };

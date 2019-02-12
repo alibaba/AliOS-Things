@@ -13,9 +13,6 @@
 #include <zephyr/types.h>
 #include <misc/util.h>
 #include <misc/byteorder.h>
-
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_MODEL)
@@ -32,7 +29,8 @@
 #include "proxy.h"
 #include "foundation.h"
 #include "friend.h"
-#include "mesh_config.h"
+#include "main.h"
+#include <mesh_config.h>
 #include "bt_mesh_custom_log.h"
 
 #define DEFAULT_TTL 7
@@ -1039,8 +1037,8 @@ static void mod_pub_set(struct bt_mesh_model *model,
 	elem_addr = net_buf_simple_pull_le16(buf);
 	pub_addr = net_buf_simple_pull_le16(buf);
 	pub_app_idx = net_buf_simple_pull_le16(buf);
-	cred_flag = ((pub_app_idx >> 12) & BIT_MASK(1));
-	pub_app_idx &= BIT_MASK(12);
+	cred_flag = ((pub_app_idx >> 12) & MESH_BIT_MASK(1));
+	pub_app_idx &= MESH_BIT_MASK(12);
 
 	pub_ttl = net_buf_simple_pull_u8(buf);
 	if (pub_ttl > BT_MESH_TTL_MAX && pub_ttl != BT_MESH_TTL_DEFAULT) {
@@ -1147,8 +1145,8 @@ static void mod_pub_va_set(struct bt_mesh_model *model,
 	net_buf_simple_pull(buf, 16);
 
 	pub_app_idx = net_buf_simple_pull_le16(buf);
-	cred_flag = ((pub_app_idx >> 12) & BIT_MASK(1));
-	pub_app_idx &= BIT_MASK(12);
+	cred_flag = ((pub_app_idx >> 12) & MESH_BIT_MASK(1));
+	pub_app_idx &= MESH_BIT_MASK(12);
 	pub_ttl = net_buf_simple_pull_u8(buf);
 	if (pub_ttl > BT_MESH_TTL_MAX && pub_ttl != BT_MESH_TTL_DEFAULT) {
 		BT_ERR("Invalid TTL value 0x%02x", pub_ttl);
@@ -2832,8 +2830,9 @@ static void hb_sub_send_status(struct bt_mesh_model *model,
 	u16_t period;
 	s64_t uptime;
 
-	BT_DBG("%s: src 0x%04x status 0x%02x, min_hops: %d", __func__,
-               ctx->addr, status, cfg->hb_sub.min_hops);
+	BT_DBG("%s: src 0x%04x dst: %04x, status 0x%02x, count: %d, logmin_hops: %d",
+               __func__, cfg->hb_sub.src, cfg->hb_sub.dst, status,
+               cfg->hb_sub.count, cfg->hb_sub.min_hops);
 
 	uptime = k_uptime_get();
 	if (uptime > cfg->hb_sub.expiry) {
@@ -2849,15 +2848,19 @@ static void hb_sub_send_status(struct bt_mesh_model *model,
 	net_buf_simple_add_le16(msg, cfg->hb_sub.src);
 	net_buf_simple_add_le16(msg, cfg->hb_sub.dst);
 
-	if (cfg->hb_sub.src == BT_MESH_ADDR_UNASSIGNED ||
-	    cfg->hb_sub.dst == BT_MESH_ADDR_UNASSIGNED) {
-		memset(net_buf_simple_add(msg, 4), 0, 4);
-	} else {
+	//if (cfg->hb_sub.src == BT_MESH_ADDR_UNASSIGNED ||
+	//    cfg->hb_sub.dst == BT_MESH_ADDR_UNASSIGNED) {
+	//	/**
+	//	 * Why set to 0? Mesh/NODE/CFG/HBS/BV-02-C does
+	//	 * not expect it.
+	//	 */
+	//	memset(net_buf_simple_add(msg, 4), 0, 4);
+	//} else {
 		net_buf_simple_add_u8(msg, hb_log(period));
 		net_buf_simple_add_u8(msg, hb_log(cfg->hb_sub.count));
 		net_buf_simple_add_u8(msg, cfg->hb_sub.min_hops);
 		net_buf_simple_add_u8(msg, cfg->hb_sub.max_hops);
-	}
+	//}
 
 	if (bt_mesh_model_send(model, ctx, msg, NULL, NULL)) {
 		BT_ERR("Unable to send Heartbeat Subscription Status");
@@ -2873,8 +2876,9 @@ static void hb_sub_send_status_4set(struct bt_mesh_model *model,
 	u16_t period;
 	s64_t uptime;
 
-	BT_DBG("%s: src 0x%04x status 0x%02x, min_hops: %d", __func__,
-               ctx->addr, status, cfg->hb_sub.min_hops);
+	BT_DBG("%s: src 0x%04x dst: %04x, status 0x%02x, count: %d, logmin_hops: %d", __func__,
+                cfg->hb_sub.src, cfg->hb_sub.dst, status,
+                cfg->hb_sub.count, cfg->hb_sub.min_hops);
 
 	uptime = k_uptime_get();
 	if (uptime > cfg->hb_sub.expiry) {
