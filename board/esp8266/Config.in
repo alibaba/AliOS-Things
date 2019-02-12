@@ -10,10 +10,16 @@ if AOS_BOARD_ESP8266
 config DEBUG_CONFIG_PANIC
     int "DEBUG_CONFIG_PANIC"
     default 1
+    help
+        set to 1 if you want to enable panic debug feature when system crash happened,
+        default 1
 
 config DEBUG_CONFIG_BACKTRACE
     int "DEBUG_CONFIG_BACKTRACE"
     default 1
+    help
+        set to 1 if you want to enable stack backtrace feature when system crash happened,
+        default 1
 
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
