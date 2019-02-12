@@ -1,7 +1,8 @@
-menu "Testcase Configuration"
+menu "Test Configuration"
 
 ## --- Generated Automatically ---
 source "test/develop/Config.in"
+source "test/testcase/Config.in"
 source "test/yunit/Config.in"
 ## --- End ---
 

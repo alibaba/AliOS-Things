@@ -1,0 +1,5 @@
+config AOS_COMP_FATFS_TEST
+    bool "FatFS Testcase"
+    select AOS_COMP_FATFS
+    default n
+    help

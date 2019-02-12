@@ -1,0 +1,5 @@
+config AOS_COMP_CJSON_TEST
+    bool "CJSON Testcase"
+    select AOS_COMP_CJSON
+    default n
+    help

@@ -1,0 +1,5 @@
+config AOS_COMP_VFS_TEST
+    bool "VFS Testcase"
+    select AOS_COMP_VFS
+    default n
+    help
