@@ -13,15 +13,10 @@
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
 #include <api/mesh.h>
-#include <bluetooth/uuid.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_PROV)
 #include "common/log.h"
-
-#include "ecc.h"
 
 #include "mesh_crypto.h"
 #include "adv.h"
@@ -32,7 +27,8 @@
 #include "proxy.h"
 #include "prov.h"
 
-#include "bt_mesh_glue.h"
+#include <mesh_def.h>
+#include <port/mesh_hal_sec.h>
 #include "bt_mesh_custom_log.h"
 
 /* 3 transmissions, 20ms interval */
@@ -244,7 +240,6 @@ static void reset_link(void)
 
     link.rx.prev_id = XACT_NVAL;
 
-    //if (bt_pub_key_get()) {
     if (bt_mesh_pub_key_get()) {
         atomic_set_bit(link.flags, LOCAL_PUB_KEY);
     }
@@ -509,13 +504,13 @@ static void prov_invite(const u8_t *data)
     net_buf_simple_add_u8(buf, bt_mesh_elem_count());
 
     /* Supported algorithms - FIPS P-256 Eliptic Curve */
-    net_buf_simple_add_be16(buf, BIT(PROV_ALG_P256));
+    net_buf_simple_add_be16(buf, MESH_BIT(PROV_ALG_P256));
 
     /* Public Key Type */
     net_buf_simple_add_u8(buf, 0x00);
 
     /* Static OOB Type */
-    net_buf_simple_add_u8(buf, prov->static_val ? BIT(0) : 0x00);
+    net_buf_simple_add_u8(buf, prov->static_val ? MESH_BIT(0) : 0x00);
 
     /* Output OOB Size */
     net_buf_simple_add_u8(buf, prov->output_size);
@@ -637,7 +632,6 @@ static int prov_auth(u8_t method, u8_t action, u8_t size)
                 unsigned char str[9];
                 u8_t i;
 
-                //bt_rand(str, size);
                 bt_mesh_rand(str, size);
 
                 /* Normalize to '0' .. '9' & 'A' .. 'Z' */
@@ -661,7 +655,6 @@ static int prov_auth(u8_t method, u8_t action, u8_t size)
                                };
                 u32_t num;
 
-                //bt_rand(&num, sizeof(num));
                 bt_mesh_rand(&num, sizeof(num));
                 num %= div[size - 1];
 
@@ -754,7 +747,6 @@ static void send_confirm(void)
 
     BT_DBG("ConfirmationKey: %s", bt_hex(link.conf_key, 16));
 
-    //if (bt_rand(link.rand, 16)) {
     if (bt_mesh_rand(link.rand, 16)) {
         BT_ERR("Unable to generate random number");
         close_link(PROV_ERR_UNEXP_ERR, CLOSE_REASON_FAILED);
@@ -866,7 +858,6 @@ static void send_pub_key(void)
     struct net_buf_simple *buf = PROV_BUF(65);
     const u8_t *key;
 
-    //key = bt_pub_key_get();
     key = bt_mesh_pub_key_get();
     if (!key) {
         BT_ERR("No public key available");
@@ -886,14 +877,13 @@ static void send_pub_key(void)
 
     prov_send(buf);
 
-    /* Copy remote key in little-endian for bt_dh_key_gen().
+    /* Copy remote key in little-endian for bt_mesh_dh_key_gen().
      * X and Y halves are swapped independently.
      */
     net_buf_simple_init(buf, 0);
     sys_memcpy_swap(buf->data, &link.conf_inputs[17], 32);
     sys_memcpy_swap(&buf->data[32], &link.conf_inputs[49], 32);
 
-    //if (bt_dh_key_gen(buf->data, prov_dh_key_cb)) {
     if (bt_mesh_dh_key_gen(buf->data, prov_dh_key_cb)) {
         BT_ERR("Failed to generate DHKey");
         close_link(PROV_ERR_UNEXP_ERR, CLOSE_REASON_FAILED);
@@ -1303,7 +1293,7 @@ static void gen_prov_cont(struct prov_rx *rx, struct net_buf_simple *buf)
         }
     }
 
-    if (!(link.rx.seg & BIT(seg))) {
+    if (!(link.rx.seg & MESH_BIT(seg))) {
         BT_WARN("Ignoring already received segment");
         return;
     }
@@ -1480,7 +1470,6 @@ int bt_mesh_pb_gatt_open(bt_mesh_conn_t conn)
         return -EBUSY;
     }
 
-    //link.conn = bt_conn_ref(conn);
     link.conn = bt_mesh_conn_ref(conn);
     link.expect = PROV_INVITE;
 
@@ -1511,7 +1500,6 @@ int bt_mesh_pb_gatt_close(bt_mesh_conn_t conn)
         prov->link_close(BT_MESH_PROV_GATT);
     }
 
-    //bt_conn_unref(link.conn);
     bt_mesh_conn_unref(link.conn);
 
     pub_key = atomic_test_bit(link.flags, LOCAL_PUB_KEY);
@@ -1542,7 +1530,7 @@ bool bt_prov_active(void)
 
 int bt_mesh_prov_init(const struct bt_mesh_prov *prov_info)
 {
-    static struct bt_pub_key_cb pub_key_cb = {
+    static struct bt_mesh_pub_key_cb pub_key_cb = {
         .func = pub_key_ready,
     };
     int err;
@@ -1552,7 +1540,6 @@ int bt_mesh_prov_init(const struct bt_mesh_prov *prov_info)
         return -EINVAL;
     }
 
-    //err = bt_pub_key_gen(&pub_key_cb);
     err = bt_mesh_pub_key_gen(&pub_key_cb);
     if (err) {
         BT_ERR("Failed to generate public key (%d)", err);
@@ -1574,11 +1561,18 @@ int bt_mesh_prov_init(const struct bt_mesh_prov *prov_info)
 
 #endif /* CONFIG_BT_MESH_PB_ADV */
 
+#if 0
     if (IS_ENABLED(CONFIG_BT_DEBUG)) {
-        struct bt_uuid_128 uuid = { .uuid.type = BT_UUID_TYPE_128 };
+        struct bt_mesh_uuid_128 uuid = { .uuid.type = BT_MESH_UUID_TYPE_128 };
         memcpy(uuid.val, prov->uuid, 16);
-        BT_INFO("Device UUID: %s", bt_uuid_str(&uuid.uuid));
+        BT_INFO("Device UUID: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                uuid.val[0], uuid.val[1], uuid.val[2], uuid.val[3],
+                uuid.val[4], uuid.val[5], uuid.val[6], uuid.val[7],
+                uuid.val[8], uuid.val[9], uuid.val[10], uuid.val[11],
+                uuid.val[12], uuid.val[13], uuid.val[14], uuid.val[15],
+               );
     }
+#endif
 
     return 0;
 }

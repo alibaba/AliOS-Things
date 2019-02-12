@@ -10,13 +10,6 @@
 #ifndef __BT_MESH_HEALTH_SRV_H
 #define __BT_MESH_HEALTH_SRV_H
 
-/**
- * @brief Bluetooth Mesh Health Server Model
- * @defgroup bt_mesh_health_srv Bluetooth Mesh Health Server Model
- * @ingroup bt_mesh
- * @{
- */
-
 struct bt_mesh_health_srv_cb {
 	/* Fetch current faults */
 	int (*fault_get_cur)(struct bt_mesh_model *model, u8_t *test_id,
@@ -64,8 +57,6 @@ struct bt_mesh_health_srv {
 	struct k_delayed_work attn_timer;
 };
 
-int bt_mesh_fault_update(struct bt_mesh_elem *elem);
-
 extern const struct bt_mesh_model_op bt_mesh_health_srv_op[];
 
 /** @def BT_MESH_MODEL_HEALTH_SRV
@@ -83,9 +74,5 @@ extern const struct bt_mesh_model_op bt_mesh_health_srv_op[];
 #define BT_MESH_MODEL_HEALTH_SRV(srv, pub)                                   \
 		BT_MESH_MODEL(BT_MESH_MODEL_ID_HEALTH_SRV,                   \
 			      bt_mesh_health_srv_op, pub, srv)
-
-/**
- * @}
- */
 
 #endif /* __BT_MESH_HEALTH_SRV_H */

@@ -11,8 +11,6 @@
 #include <misc/util.h>
 
 #include <net/buf.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_BEACON)
@@ -25,7 +23,7 @@
 #include "mesh_crypto.h"
 #include "beacon.h"
 #include "foundation.h"
-//#include "bt_mesh_custom_log.h"
+#include "bt_mesh_custom_log.h"
 
 #define UNPROVISIONED_INTERVAL     K_SECONDS(5)
 #define PROVISIONED_INTERVAL       K_SECONDS(10)

@@ -12,7 +12,6 @@
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
-#include <bluetooth/bluetooth.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_ACCESS)
@@ -80,22 +79,23 @@ s32_t bt_mesh_model_pub_period_get(struct bt_mesh_model *mod)
 	switch (mod->pub->period >> 6) {
 	case 0x00:
 		/* 1 step is 100 ms */
-		period = K_MSEC((mod->pub->period & BIT_MASK(6)) * 100);
+		period = K_MSEC((mod->pub->period & MESH_BIT_MASK(6)) * 100);
 		break;
 	case 0x01:
 		/* 1 step is 1 second */
-		period = K_SECONDS(mod->pub->period & BIT_MASK(6));
+		period = K_SECONDS(mod->pub->period & MESH_BIT_MASK(6));
 		break;
 	case 0x02:
 		/* 1 step is 10 seconds */
-		period = K_SECONDS((mod->pub->period & BIT_MASK(6)) * 10);
+		period = K_SECONDS((mod->pub->period & MESH_BIT_MASK(6)) * 10);
 		break;
 	case 0x03:
 		/* 1 step is 10 minutes */
-		period = K_MINUTES((mod->pub->period & BIT_MASK(6)) * 10);
+		period = K_MINUTES((mod->pub->period & MESH_BIT_MASK(6)) * 10);
 		break;
 	default:
-		CODE_UNREACHABLE;
+		BT_ERR("Invalid pub_period value (%d)", mod->pub->period);
+                return 0;
 	}
 
 	return period >> mod->pub->period_div;
@@ -449,7 +449,8 @@ static int get_opcode(struct net_buf_simple *buf, u32_t *opcode)
 		return 0;
 	}
 
-	CODE_UNREACHABLE;
+        BT_ERR("%s err (buf_data[0] %d)", __func__, buf->data[0]);
+        return -EINVAL;
 }
 
 bool bt_mesh_fixed_group_match(u16_t addr)

@@ -10,13 +10,6 @@
 #ifndef __BT_MESH_CFG_CLI_H
 #define __BT_MESH_CFG_CLI_H
 
-/**
- * @brief Bluetooth Mesh
- * @defgroup bt_mesh_cfg_cli Bluetooth Mesh Configuration Client Model
- * @ingroup bt_mesh
- * @{
- */
-
 /** Mesh Configuration Client Model Context */
 struct bt_mesh_cfg_cli {
 	struct bt_mesh_model *model;
@@ -28,6 +21,7 @@ struct bt_mesh_cfg_cli {
 
 extern const struct bt_mesh_model_op bt_mesh_cfg_cli_op[];
 
+/* Helper macro to define the Configuration Client Model. */
 #define BT_MESH_MODEL_CFG_CLI(cli_data)                                      \
 		BT_MESH_MODEL(BT_MESH_MODEL_ID_CFG_CLI,                      \
 			      bt_mesh_cfg_cli_op, NULL, cli_data)
@@ -176,9 +170,5 @@ int bt_mesh_cfg_hb_pub_get(u16_t net_idx, u16_t addr,
 
 s32_t bt_mesh_cfg_cli_timeout_get(void);
 void bt_mesh_cfg_cli_timeout_set(s32_t timeout);
-
-/**
- * @}
- */
 
 #endif /* __BT_MESH_CFG_CLI_H */
