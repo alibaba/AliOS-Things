@@ -1,7 +1,6 @@
-# --- Generated Automatically ---
 menu "BSP Configuration"
 choice
-    prompt "Select board"
+    prompt "Board Selection"
 
 source "board/aaboard_demo/Config.in"
 if AOS_BOARD_AABOARD_DEMO
@@ -716,4 +715,3 @@ endif
 endchoice
 
 endmenu
-# --- End ---
