@@ -9,7 +9,6 @@ source "kernel/fs/ramfs/Config.in"
 source "kernel/fs/vfs/Config.in"
 source "kernel/init/Config.in"
 source "kernel/mbins/Config.in"
-source "kernel/mm/Config.in"
 source "kernel/pwrmgmt/Config.in"
 source "kernel/rhino/Config.in"
 ## --- End ---
