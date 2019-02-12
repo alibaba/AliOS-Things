@@ -14,14 +14,13 @@
 #include <misc/util.h>
 #include <misc/byteorder.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
 #include <api/mesh.h>
 #include "api/mesh/cfg_cli.h"
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_MODEL)
 #include "common/log.h"
 
+#include "mesh.h"
 #include "foundation.h"
 #include "bt_mesh_custom_log.h"
 
@@ -325,8 +324,8 @@ static void mod_pub_status(struct bt_mesh_model *model,
 	if (param->pub) {
 		param->pub->addr = net_buf_simple_pull_le16(buf);
 		param->pub->app_idx = net_buf_simple_pull_le16(buf);
-		param->pub->cred_flag = (param->pub->app_idx & BIT(12));
-		param->pub->app_idx &= BIT_MASK(12);
+		param->pub->cred_flag = (param->pub->app_idx & MESH_BIT(12));
+		param->pub->app_idx &= MESH_BIT_MASK(12);
 		param->pub->ttl = net_buf_simple_pull_u8(buf);
 		param->pub->period = net_buf_simple_pull_u8(buf);
 		param->pub->transmit = net_buf_simple_pull_u8(buf);

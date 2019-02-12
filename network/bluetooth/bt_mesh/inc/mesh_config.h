@@ -149,6 +149,40 @@
 
 #endif // BT_MESH_PROXY
 
+#ifdef CONFIG_MESH_STACK_ALONE
+
+/**
+ *  CONFIG_BT_WORK_QUEUE_STACK_SIZE:Work queue stack size.
+ */
+#ifndef CONFIG_BT_WORK_QUEUE_STACK_SIZE
+#define CONFIG_BT_WORK_QUEUE_STACK_SIZE 512
+#endif
+
+/**
+ *  CONFIG_BT_WORK_QUEUE_PRIO:Work queue priority.
+ */
+#ifndef CONFIG_BT_WORK_QUEUE_PRIO
+#define CONFIG_BT_WORK_QUEUE_PRIO 41
+#endif
+
+/**
+ *  CONFIG_BLUETOOTH_MAX_CONN:Maximum number of connections
+ *  range 1 to 128
+ */
+#ifndef CONFIG_BT_MAX_CONN
+#define CONFIG_BT_MAX_CONN 2
+#endif
+
+/**
+ *  CONFIG_BT_DEVICE_NAME:Bluetooth device name. Name can be up
+ *  to 248 bytes long (excluding NULL termination). Can be empty string
+ */
+#ifndef CONFIG_BT_DEVICE_NAME
+#define CONFIG_BT_DEVICE_NAME "aos_bmesh"
+#endif
+
+#endif /* CONFIG_MESH_STACK_ALONE */
+
 #endif /* endof CONFIG_BT_MESH */
 
 #endif

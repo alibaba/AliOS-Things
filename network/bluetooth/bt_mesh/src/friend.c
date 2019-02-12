@@ -13,7 +13,6 @@
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
-#include <bluetooth/bluetooth.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_FRIEND)
@@ -759,10 +758,10 @@ static void enqueue_offer(struct bt_mesh_friend *frnd, s8_t rssi)
 }
 
 #define RECV_WIN                  CONFIG_BT_MESH_FRIEND_RECV_WIN
-#define RSSI_FACT(crit)           (((crit) >> 5) & (u8_t)BIT_MASK(2))
-#define RECV_WIN_FACT(crit)       (((crit) >> 3) & (u8_t)BIT_MASK(2))
-#define MIN_QUEUE_SIZE_LOG(crit)  ((crit) & (u8_t)BIT_MASK(3))
-#define MIN_QUEUE_SIZE(crit)      ((u32_t)BIT(MIN_QUEUE_SIZE_LOG(crit)))
+#define RSSI_FACT(crit)           (((crit) >> 5) & (u8_t)MESH_BIT_MASK(2))
+#define RECV_WIN_FACT(crit)       (((crit) >> 3) & (u8_t)MESH_BIT_MASK(2))
+#define MIN_QUEUE_SIZE_LOG(crit)  ((crit) & (u8_t)MESH_BIT_MASK(3))
+#define MIN_QUEUE_SIZE(crit)      ((u32_t)MESH_BIT(MIN_QUEUE_SIZE_LOG(crit)))
 
 static s32_t offer_delay(struct bt_mesh_friend *frnd, s8_t rssi, u8_t crit)
 {

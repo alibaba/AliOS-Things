@@ -11,8 +11,6 @@
 #include <errno.h>
 
 #include <net/buf.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG)
@@ -193,10 +191,21 @@ int bt_mesh_prov_disable(bt_mesh_prov_bearer_t bearers)
 	return 0;
 }
 
+#ifdef CONFIG_MESH_STACK_ALONE
+static void bt_mesh_prepare()
+{
+        k_work_q_start();
+}
+#endif
+
 int bt_mesh_init(const struct bt_mesh_prov *prov,
 		 const struct bt_mesh_comp *comp)
 {
 	int err;
+
+#ifdef CONFIG_MESH_STACK_ALONE
+        bt_mesh_prepare();
+#endif
 
 	err = bt_mesh_test();
 	if (err) {

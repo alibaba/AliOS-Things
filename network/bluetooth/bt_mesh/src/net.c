@@ -15,8 +15,6 @@
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
 #include <api/mesh.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_NET)
@@ -33,7 +31,8 @@
 #include "access.h"
 #include "foundation.h"
 #include "beacon.h"
-#include "mesh_config.h"
+#include "main.h"
+#include <mesh_config.h>
 #include "bt_mesh_custom_log.h"
 
 /* Minimum valid Mesh Network PDU length. The Network headers

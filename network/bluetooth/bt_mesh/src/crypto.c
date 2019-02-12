@@ -14,49 +14,25 @@
 #include <misc/byteorder.h>
 #include <misc/util.h>
 
+#ifndef CONFIG_MESH_STACK_ALONE
 #include <tinycrypt/constants.h>
 #include <tinycrypt/utils.h>
 #include <tinycrypt/aes.h>
 #include <tinycrypt/cmac_mode.h>
 #include <tinycrypt/ccm_mode.h>
+#endif
 
 #include <api/mesh.h>
-#include <bluetooth/crypto.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_MESH_DEBUG_CRYPTO)
 #include "common/log.h"
 
 #include "mesh.h"
 #include "mesh_crypto.h"
+//#include "bt_mesh_custom_log.h"
 
 #define NET_MIC_LEN(pdu) (((pdu)[1] & 0x80) ? 8 : 4)
 #define APP_MIC_LEN(aszmic) ((aszmic) ? 8 : 4)
-
-#if 0
-int bt_mesh_aes_cmac(const u8_t key[16], struct bt_mesh_sg *sg,
-		     size_t sg_len, u8_t mac[16])
-{
-	struct tc_aes_key_sched_struct sched;
-	struct tc_cmac_struct state;
-
-	if (tc_cmac_setup(&state, key, &sched) == TC_CRYPTO_FAIL) {
-		return -EIO;
-	}
-
-	for (; sg_len; sg_len--, sg++) {
-		if (tc_cmac_update(&state, sg->data,
-				   sg->len) == TC_CRYPTO_FAIL) {
-			return -EIO;
-		}
-	}
-
-	if (tc_cmac_final(mac, &state) == TC_CRYPTO_FAIL) {
-		return -EIO;
-	}
-
-	return 0;
-}
-#endif
 
 int bt_mesh_k1(const u8_t *ikm, size_t ikm_len, const u8_t salt[16],
 	       const char *info, u8_t okm[16])
@@ -185,7 +161,7 @@ int bt_mesh_k4(const u8_t n[16], u8_t out[1])
 		return err;
 	}
 
-	out[0] = tmp[15] & BIT_MASK(6);
+	out[0] = tmp[15] & MESH_BIT_MASK(6);
 
 	return 0;
 }
@@ -223,7 +199,6 @@ static int bt_mesh_ccm_decrypt(const u8_t key[16], u8_t nonce[13],
 	memcpy(pmsg + 1, nonce, 13);
 	sys_put_be16(0x0000, pmsg + 14);
 
-	//err = bt_encrypt_be(key, pmsg, cmic);
 	err = bt_mesh_aes_encrypt(key, pmsg, cmic);
 	if (err) {
 		return err;
@@ -239,7 +214,6 @@ static int bt_mesh_ccm_decrypt(const u8_t key[16], u8_t nonce[13],
 	memcpy(pmsg + 1, nonce, 13);
 	sys_put_be16(msg_len, pmsg + 14);
 
-	//err = bt_encrypt_be(key, pmsg, Xn);
 	err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 	if (err) {
 		return err;
@@ -264,7 +238,6 @@ static int bt_mesh_ccm_decrypt(const u8_t key[16], u8_t nonce[13],
 			aad_len -= 16;
 			i = 0;
 
-			//err = bt_encrypt_be(key, pmsg, Xn);
 			err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 			if (err) {
 				return err;
@@ -279,7 +252,6 @@ static int bt_mesh_ccm_decrypt(const u8_t key[16], u8_t nonce[13],
 			pmsg[i] = Xn[i];
 		}
 
-		//err = bt_encrypt_be(key, pmsg, Xn);
 		err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 		if (err) {
 			return err;
@@ -299,7 +271,6 @@ static int bt_mesh_ccm_decrypt(const u8_t key[16], u8_t nonce[13],
 			memcpy(pmsg + 1, nonce, 13);
 			sys_put_be16(j + 1, pmsg + 14);
 
-			//err = bt_encrypt_be(key, pmsg, cmsg);
 			err = bt_mesh_aes_encrypt(key, pmsg, cmsg);
 			if (err) {
 				return err;
@@ -321,7 +292,6 @@ static int bt_mesh_ccm_decrypt(const u8_t key[16], u8_t nonce[13],
 				pmsg[i] = Xn[i] ^ 0x00;
 			}
 
-			//err = bt_encrypt_be(key, pmsg, Xn);
 			err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 			if (err) {
 				return err;
@@ -337,7 +307,6 @@ static int bt_mesh_ccm_decrypt(const u8_t key[16], u8_t nonce[13],
 			memcpy(pmsg + 1, nonce, 13);
 			sys_put_be16(j + 1, pmsg + 14);
 
-			//err = bt_encrypt_be(key, pmsg, cmsg);
 			err = bt_mesh_aes_encrypt(key, pmsg, cmsg);
 			if (err) {
 				return err;
@@ -355,7 +324,6 @@ static int bt_mesh_ccm_decrypt(const u8_t key[16], u8_t nonce[13],
 				pmsg[i] = Xn[i] ^ msg[i];
 			}
 
-			//err = bt_encrypt_be(key, pmsg, Xn);
 			err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 			if (err) {
 				return err;
@@ -395,7 +363,6 @@ static int bt_mesh_ccm_encrypt(const u8_t key[16], u8_t nonce[13],
 	memcpy(pmsg + 1, nonce, 13);
 	sys_put_be16(0x0000, pmsg + 14);
 
-	//err = bt_encrypt_be(key, pmsg, cmic);
 	err = bt_mesh_aes_encrypt(key, pmsg, cmic);
 	if (err) {
 		return err;
@@ -411,7 +378,6 @@ static int bt_mesh_ccm_encrypt(const u8_t key[16], u8_t nonce[13],
 	memcpy(pmsg + 1, nonce, 13);
 	sys_put_be16(msg_len, pmsg + 14);
 
-	//err = bt_encrypt_be(key, pmsg, Xn);
 	err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 	if (err) {
 		return err;
@@ -436,7 +402,6 @@ static int bt_mesh_ccm_encrypt(const u8_t key[16], u8_t nonce[13],
 			aad_len -= 16;
 			i = 0;
 
-			//err = bt_encrypt_be(key, pmsg, Xn);
 			err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 			if (err) {
 				return err;
@@ -451,7 +416,6 @@ static int bt_mesh_ccm_encrypt(const u8_t key[16], u8_t nonce[13],
 			pmsg[i] = Xn[i];
 		}
 
-		//err = bt_encrypt_be(key, pmsg, Xn);
 		err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 		if (err) {
 			return err;
@@ -474,7 +438,6 @@ static int bt_mesh_ccm_encrypt(const u8_t key[16], u8_t nonce[13],
 				pmsg[i] = Xn[i] ^ 0x00;
 			}
 
-			//err = bt_encrypt_be(key, pmsg, Xn);
 			err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 			if (err) {
 				return err;
@@ -490,7 +453,6 @@ static int bt_mesh_ccm_encrypt(const u8_t key[16], u8_t nonce[13],
 			memcpy(pmsg + 1, nonce, 13);
 			sys_put_be16(j + 1, pmsg + 14);
 
-			//err = bt_encrypt_be(key, pmsg, cmsg);
 			err = bt_mesh_aes_encrypt(key, pmsg, cmsg);
 			if (err) {
 				return err;
@@ -507,7 +469,6 @@ static int bt_mesh_ccm_encrypt(const u8_t key[16], u8_t nonce[13],
 				pmsg[i] = Xn[i] ^ msg[(j * 16) + i];
 			}
 
-			//err = bt_encrypt_be(key, pmsg, Xn);
 			err = bt_mesh_aes_encrypt(key, pmsg, Xn);
 			if (err) {
 				return err;
@@ -518,7 +479,6 @@ static int bt_mesh_ccm_encrypt(const u8_t key[16], u8_t nonce[13],
 			memcpy(pmsg + 1, nonce, 13);
 			sys_put_be16(j + 1, pmsg + 14);
 
-			//err = bt_encrypt_be(key, pmsg, cmsg);
 			err = bt_mesh_aes_encrypt(key, pmsg, cmsg);
 			if (err) {
 				return err;
@@ -606,7 +566,6 @@ int bt_mesh_net_obfuscate(u8_t *pdu, u32_t iv_index,
 
 	BT_DBG("PrivacyRandom %s", bt_hex(priv_rand, 16));
 
-	//err = bt_encrypt_be(privacy_key, priv_rand, tmp);
 	err = bt_mesh_aes_encrypt(privacy_key, priv_rand, tmp);
 	if (err) {
 		return err;
