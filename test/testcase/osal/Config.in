@@ -1,0 +1,9 @@
+menu "OSAL Testcase Configuration"
+
+## --- Generated Automatically ---
+source "test/testcase/osal/aos/Config.in"
+source "test/testcase/osal/posix/Config.in"
+source "test/testcase/osal/cmsis/Config.in"
+## --- End ---
+
+endmenu

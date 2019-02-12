@@ -1,0 +1,6 @@
+config AOS_COMP_OSAL_AOS_TEST
+    bool "OSAL AOS Testcase"
+    select AOS_COMP_RHINO
+    select AOS_COMP_OSAL_AOS
+    default n
+    help

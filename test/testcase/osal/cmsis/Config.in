@@ -1,0 +1,5 @@
+config AOS_COMP_OSAL_CMSIS_TEST
+    bool "OSAL CMSIS Testcase"
+    select AOS_COMP_OSAL_CMSIS
+    default n
+    help

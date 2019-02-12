@@ -1,0 +1,6 @@
+config AOS_COMP_OSAL_POSIX_TEST
+    bool "OSAL POSIX Testcase"
+    select AOS_COMP_RAMFS
+    select AOS_COMP_OSAL_POSIX
+    default n
+    help
