@@ -13,11 +13,12 @@ config AOS_COMP_OTA_MQTT
         select Y to enable MQTT transpor for OTA, or so select CoAP.
 
 if AOS_COMP_OTA_MQTT
-## --- Generated Automatically ---
+
 source "middleware/uagent/ota/2nd_boot/Config.in"
 source "middleware/uagent/ota/hal/Config.in"
 source "middleware/uagent/ota/ota_ble/Config.in"
 source "middleware/uagent/ota/ota_core/Config.in"
-## --- End ---
+
 endif
+
 endif
