@@ -1,4 +1,3 @@
-# --- Generated Automatically ---
 menuconfig AOS_APP_PROFILE
     bool "Builtin Profiles"
     default n
@@ -19,4 +18,4 @@ if AOS_app_gatewayapp
     source "app/profile/gatewayapp/Config.in"
 endif
 
-endif# --- End ---
+endif
