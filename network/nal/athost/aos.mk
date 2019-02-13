@@ -10,28 +10,23 @@ $(NAME)_SOURCES := ./src/athost.c             \
 GLOBAL_INCLUDES += ./                         \
                    ./src
 
-FEATURE_ATHOST_WIFI_MGMT := y
-FEATURE_ATHOST_CIP := y
-FEATURE_ATHOST_MQTT := y
-
-ifeq (y,$(FEATURE_ATHOST_WIFI_MGMT))
+ifeq (y,$(ATHOST_CONFIG_WIFI_MGMT))
 $(NAME)_SOURCES += ./src/atcmd/at_wifi_mgmt.c
 GLOBAL_DEFINES += ATHOST_WIFI_MGMT
 endif
 
-ifeq (y,$(FEATURE_ATHOST_CIP))
+ifeq (y,$(ATHOST_CONFIG_CIP))
 $(NAME)_SOURCES += ./src/atcmd/at_tcp_udp.c
 GLOBAL_DEFINES += ATHOST_CIP
 endif
 
-ifeq (y,$(FEATURE_ATHOST_MQTT))
+ifeq (y,$(ATHOST_CONFIG_MQTT))
 $(NAME)_SOURCES += ./src/atcmd/at_mqtt.c
 $(NAME)_COMPONENTS += linkkit_sdk_c
 GLOBAL_DEFINES +=  MQTT_TEST USE_LPTHREAD
 GLOBAL_DEFINES += ATHOST_MQTT
-endif
-
-ifeq (y,$(FEATURE_ATHOST_COAP))
+else
+ifeq (y,$(ATHOST_CONFIG_COAP))
 CONFIG_COAP_DTLS_SUPPORT := y
 CONFIG_COAP_ONLINE := y
 
@@ -46,4 +41,5 @@ $(NAME)_SOURCES += ./src/atcmd/at_coap.c
 $(NAME)_COMPONENTS += linkkit_sdk_c
 
 GLOBAL_DEFINES += ATHOST_COAP
+endif
 endif
