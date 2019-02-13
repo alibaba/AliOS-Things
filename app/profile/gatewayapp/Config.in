@@ -1,4 +1,4 @@
-menuconfig AOS_APP_GATEWAYAPP
+config AOS_APP_GATEWAYAPP
     bool "gatewayapp"
     select AOS_COMP_SENSOR
     select AOS_COMP_CJSON
