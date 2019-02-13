@@ -3,7 +3,7 @@
  */
 
 #include "aos/kernel.h"
-
+#include "aos/init.h"
 
 #ifdef AOS_BINS
 

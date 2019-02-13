@@ -16,7 +16,7 @@ SYSCALL(SYS_KRHINO_TASK_INFO_SET, krhino_task_info_set)
 SYSCALL(SYS_KRHINO_TASK_INFO_GET, krhino_task_info_get)
 
 #define SYS_KRHINO_TASK_SLEEP (K_TASK_BASE + 3)
-SYSCALL(SYS_KRHINO_TASK_SLEEP, krhino_task_sleep)
+SYSCALL(SYS_KRHINO_TASK_SLEEP, aos_msleep)
 
 #define SYS_KRHINO_TASK_DYN_CREATE (K_TASK_BASE + 4)
 SYSCALL(SYS_KRHINO_TASK_DYN_CREATE, krhino_task_dyn_create)
@@ -90,14 +90,16 @@ SYSCALL(SYS_KRHINO_SEM_GIVE, krhino_sem_give)
 #define K_MM_BASE 30
 
 #define SYS_KRHINO_MM_ALLOC (K_MM_BASE + 0)
-SYSCALL(SYS_KRHINO_MM_ALLOC, krhino_mm_alloc)
+SYSCALL(SYS_KRHINO_MM_ALLOC, aos_malloc)
 
 #define SYS_KRHINO_MM_FREE (K_MM_BASE + 1)
-SYSCALL(SYS_KRHINO_MM_FREE, krhino_mm_free)
+SYSCALL(SYS_KRHINO_MM_FREE, aos_free)
 
 #define SYS_KRHINO_MM_REALLOC (K_MM_BASE + 2)
 SYSCALL(SYS_KRHINO_MM_REALLOC, krhino_mm_realloc)
 
+#define SYS_AOS_ALLOC_TRACE (K_MM_BASE + 3)
+SYSCALL(SYS_AOS_ALLOC_TRACE, aos_alloc_trace)
 /* ----------------k_buf_queue----------------- */
 #define K_BUF_QUEUE_BASE 35
 
@@ -246,7 +248,4 @@ SYSCALL(SYS_VPRINTF, aos_vprintf)
 
 #define SYS_FFLUSH (OTHERS_BASE + 4)
 SYSCALL(SYS_FFLUSH, aos_fflush)
-
-#define SYS_GET_LOG_MUTEX (OTHERS_BASE + 5)
-SYSCALL(SYS_GET_LOG_MUTEX, get_log_mutex)
 
