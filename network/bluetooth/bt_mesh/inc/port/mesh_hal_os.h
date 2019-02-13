@@ -5,13 +5,11 @@
 #ifndef _MESH_HAL_OS_H_
 #define _MESH_HAL_OS_H_
 
-#include <misc/dlist.h>
-
-#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
+#ifdef CONFIG_MESH_STACK_ALONE
 /**
  * Attetion: os_port_def.h file is needed as well as 
  * mesh_hal_os.c when porting to new platform.
@@ -22,92 +20,49 @@
  */
 #include "os_port_def.h"
 
-#define QUEUE_DEF_SIZE 7
-
-struct k_queue
-{
-    _queue_t    _queue;
-    uint8_t     msg_start[QUEUE_DEF_SIZE * (sizeof(void *) + 1)];
-};
-
-/*attention: this is intialied as zero,the queue variable shoule use
- * k_queue_init\k_lifo_init\k_fifo_init again*/
-#define _K_QUEUE_INITIALIZER(obj) \
-    {                             \
-        {                         \
-            {                     \
-                {                 \
-                    0             \
-                }                 \
-            }                     \
-        }                         \
-    }
-#define K_QUEUE_INITIALIZER DEPRECATED_MACRO _K_QUEUE_INITIALIZER
-
-extern void  k_queue_init(struct k_queue *queue);
-extern void  k_queue_uninit(struct k_queue *queue);
-extern void  k_queue_cancel_wait(struct k_queue *queue);
-extern void  k_queue_append(struct k_queue *queue, void *data);
-extern void  k_queue_prepend(struct k_queue *queue, void *data);
-extern void  k_queue_insert(struct k_queue *queue, void *prev, void *data);
-extern void  k_queue_append_list(struct k_queue *queue, void *head, void *tail);
-extern void *k_queue_get(struct k_queue *queue, s32_t timeout);
-extern int   k_queue_is_empty(struct k_queue *queue);
-
-/* lifo define*/
-struct k_lifo
-{
-    struct k_queue _queue;
-};
-
-#define _K_LIFO_INITIALIZER(obj)                   \
-    {                                              \
-        ._queue = _K_QUEUE_INITIALIZER(obj._queue) \
-    }
-
-#define K_LIFO_INITIALIZER DEPRECATED_MACRO _K_LIFO_INITIALIZER
-
-#define k_lifo_init(lifo) k_queue_init((struct k_queue *)lifo)
-
-#define k_lifo_put(lifo, data) k_queue_prepend((struct k_queue *)lifo, data)
-
-#define k_lifo_get(lifo, timeout) k_queue_get((struct k_queue *)lifo, timeout)
-
-#define K_LIFO_DEFINE(name)                                   \
-    struct k_lifo name = \
-      _K_LIFO_INITIALIZER(name)
-
-struct k_fifo
-{
-    struct k_queue _queue;
-};
-
-#define _K_FIFO_INITIALIZER(obj)                   \
-    {                                              \
-        ._queue = _K_QUEUE_INITIALIZER(obj._queue) \
-    }
-#define K_FIFO_INITIALIZER DEPRECATED_MACRO _K_FIFO_INITIALIZER
-
-#define k_fifo_init(fifo) k_queue_init((struct k_queue *)fifo)
-
-#define k_fifo_cancel_wait(fifo) k_queue_cancel_wait((struct k_queue *)fifo)
-
-#define k_fifo_put(fifo, data) k_queue_append((struct k_queue *)fifo, data)
-
-#define k_fifo_put_list(fifo, head, tail) \
-    k_queue_append_list((struct k_queue *)fifo, head, tail)
-
-#define k_fifo_get(fifo, timeout) k_queue_get((struct k_queue *)fifo, timeout)
-
-#define K_FIFO_DEFINE(name)                                   \
-    struct k_fifo name = \
-      _K_FIFO_INITIALIZER(name)
-
 /* sem define*/
 struct k_sem
 {
     _sem_t      sem;
 };
+
+typedef void (*k_timer_handler_t)(void *timer, void *args);
+typedef struct k_timer
+{
+    ktimer_t          timer;
+    k_timer_handler_t handler;
+    void *            args;
+    uint32_t          timeout;
+    uint32_t          start_ms;
+} k_timer_t;
+
+/*time define*/
+#define MSEC_PER_SEC 1000
+#define K_MSEC(ms) (ms)
+#define K_SECONDS(s) K_MSEC((s)*MSEC_PER_SEC)
+#define K_MINUTES(m) K_SECONDS((m)*60)
+#define K_HOURS(h) K_MINUTES((h)*60)
+
+struct k_thread
+{
+    _task_t task;
+};
+
+typedef _stack_element_t k_thread_stack_t;
+
+inline void k_call_stacks_analyze(void) {}
+
+#define K_THREAD_STACK_DEFINE(sym, size) _stack_element_t sym[size]
+#define K_THREAD_STACK_SIZEOF(sym) sizeof(sym)
+
+static inline char *K_THREAD_STACK_BUFFER(k_thread_stack_t *sym)
+{
+    return (char *)sym;
+}
+
+typedef void (*k_thread_entry_t)(void *p1, void *p2, void *p3);
+
+#endif /* #ifdef CONFIG_MESH_STACK_ALONE */
 
 /**
  * @brief Initialize a semaphore.
@@ -184,16 +139,6 @@ int k_sem_delete(struct k_sem *sem);
  */
 unsigned int k_sem_count_get(struct k_sem *sem);
 
-typedef void (*k_timer_handler_t)(void *timer, void *args);
-typedef struct k_timer
-{
-    ktimer_t          timer;
-    k_timer_handler_t handler;
-    void *            args;
-    uint32_t          timeout;
-    uint32_t          start_ms;
-} k_timer_t;
-
 /**
  * @brief Initialize a timer.
  *
@@ -226,13 +171,6 @@ void k_timer_start(k_timer_t *timer, uint32_t timeout);
  */
 void k_timer_stop(k_timer_t *timer);
 
-/*time define*/
-#define MSEC_PER_SEC 1000
-#define K_MSEC(ms) (ms)
-#define K_SECONDS(s) K_MSEC((s)*MSEC_PER_SEC)
-#define K_MINUTES(m) K_SECONDS((m)*60)
-#define K_HOURS(h) K_MINUTES((h)*60)
-
 /**
  * @brief Get time now.
  *
@@ -240,25 +178,6 @@ void k_timer_stop(k_timer_t *timer);
  */
 int64_t k_uptime_get(void);
 u32_t k_uptime_get_32(void);
-
-struct k_thread
-{
-    _task_t task;
-};
-
-typedef _stack_element_t k_thread_stack_t;
-
-inline void k_call_stacks_analyze(void) {}
-
-#define K_THREAD_STACK_DEFINE(sym, size) _stack_element_t sym[size]
-#define K_THREAD_STACK_SIZEOF(sym) sizeof(sym)
-
-static inline char *K_THREAD_STACK_BUFFER(k_thread_stack_t *sym)
-{
-    return (char *)sym;
-}
-
-typedef void (*k_thread_entry_t)(void *p1, void *p2, void *p3);
 /**
  * @brief Spawn a thread.
  *
