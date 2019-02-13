@@ -5,4 +5,4 @@ aos_global_config.add_ld_files('memory.ld.S')
 
 build_types=""
 
-linux_only_targets="athostapp blink coapapp helloworld http2app linkkit_gateway linkkitapp meshapp modbus_demo mqttapp otaapp tls udataapp yts"
+linux_only_targets="athostapp blink coapapp helloworld http2app id2_app itls_app linkkit_gateway linkkitapp meshapp modbus_demo mqttapp otaapp prov_app tls udataapp udevapp yts"
