@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <stddef.h>
 #include <string.h>
+#include <assert.h>
 #include <misc/byteorder.h>
 
 #include <net/buf.h>
