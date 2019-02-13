@@ -44,9 +44,10 @@ if AOS_CONFIG_DTC_ENABLE
 
   endchoice
 endif  
-endif
 
 config AOS_CONFIG_DTC_TYPE
     string
     default "linkkit" if AOS_CONFIG_DTC_LINKKIT
     default "mqtt" if AOS_CONFIG_DTC_MQTT
+
+endif

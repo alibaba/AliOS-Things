@@ -1,21 +1,15 @@
-menuconfig AOS_APP_PROFILE
+config AOS_APP_PROFILE
     bool "Builtin Profiles"
-    default n
+
 if AOS_APP_PROFILE
 choice
     prompt "Select profile"
 
-config AOS_app_gatewayapp
-    bool "gatewayapp"
-    select AOS_APP_GATEWAYAPP
-
-endchoice
-
-if AOS_app_gatewayapp
+source "app/profile/gatewayapp/Config.in"
+if AOS_APP_GATEWAYAPP
     config AOS_BUILD_APP
         default "gatewayapp"
-
-    source "app/profile/gatewayapp/Config.in"
 endif
 
+endchoice
 endif
