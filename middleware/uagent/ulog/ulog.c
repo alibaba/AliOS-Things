@@ -31,7 +31,6 @@ static char g_host_name[10];
 #define TAG_FILE_NAME_MAX_LEN 12
 static char* UNKNOWN_FILE_NAME = "unknown";
 
-static char module_name[MOD_SIZE][4] = { "UN","OS","NT","CD","AP" };
 const char months[][4] = { "Jan", "Feb", "Mar", "Apr", "May",
                        "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
@@ -161,7 +160,7 @@ int ulog(const MOD_TYPE m, const unsigned char s, const char* f, const unsigned 
         when using snprintf strncat vsnprintf */
 #if EXTREAM_LOG_TEXT == 0
         /* PRI */
-        snprintf(p, SYSLOG_SIZE, "<%d>", SYSLOG_FACILITY + s);
+        snprintf(p, SYSLOG_SIZE, "<%d>", m*8 + s);
 
         /* HEADER */
         syslog_format_time(&p[strlen(p)], SYSLOG_SIZE - strlen(p));/* -->Total 23~24 Byte */
@@ -174,8 +173,7 @@ int ulog(const MOD_TYPE m, const unsigned char s, const char* f, const unsigned 
         p += ulog_len;
         int16_t empty_room_size = SYSLOG_SIZE - ulog_len;
 
-        uint16_t len = snprintf(p, empty_room_size, "%s_%s[%d]: ", m < MOD_SIZE ? module_name[m] : module_name[MOD_UNKNOWN],
-            trim_file_path(f), l);
+        uint16_t len = snprintf(p, empty_room_size, "%s[%d]: ", trim_file_path(f), l);
         ulog_len += (len < empty_room_size) ? len : (empty_room_size - 1);
         p += len;
 
@@ -192,11 +190,29 @@ int ulog(const MOD_TYPE m, const unsigned char s, const char* f, const unsigned 
         snprintf(p, SYSLOG_SIZE, "<%d> ", s);
         ulog_len = strlen(p);
 
-        va_list argptr;
-        va_start(argptr, fmt);
-        const int len = vsnprintf(&p[ulog_len], SYSLOG_SIZE - ulog_len, fmt, argptr);
-        ulog_len += (len < (SYSLOG_SIZE - ulog_len)) ? len : (SYSLOG_SIZE - ulog_len - 1);
-        va_end(argptr);
+#if EXTREAM_LOG_BOOT_TIME
+        snprintf(&p[strlen(p)], SYSLOG_SIZE - strlen(p), "%lld ",aos_now_ms());
+        ulog_len = strlen(p);
+#endif
+
+        int16_t empty_room_size = SYSLOG_SIZE - ulog_len;
+
+#if EXTREAM_LOG_TAG
+        if( empty_room_size > 1 ){
+            uint16_t len = snprintf(&p[ulog_len], empty_room_size, "%s[%d]: ",
+                trim_file_path(f), l);
+            ulog_len += (len < empty_room_size) ? len : (empty_room_size - 1);
+        }
+#endif
+        empty_room_size = SYSLOG_SIZE - ulog_len;
+
+        if(empty_room_size>1){
+                va_list argptr;
+                va_start(argptr, fmt);
+                const int len = vsnprintf(&p[ulog_len], SYSLOG_SIZE - ulog_len, fmt, argptr);
+                ulog_len += (len < (SYSLOG_SIZE - ulog_len)) ? len : (SYSLOG_SIZE - ulog_len - 1);
+                va_end(argptr);
+        }
 #endif /*EXTREAM_LOG_TEXT == 0*/
         /* null-terminated also be calculated when saved in message queue */
         ulog_len++;
@@ -251,7 +267,7 @@ static void log_routine(void* para)
     while (1)
     {
         /* PRI      HEADER            MSG */
-        /* <130>Oct 9 22:33:20.111 soc OS_kernel.c[111]: The audit daemon is exiting. */
+        /* <130>Oct 9 22:33:20.111 soc kernel.c[111]: The audit daemon is exiting. */
         uring_fifo_pop_cb(ulog_handler, NULL);
     }
 }
