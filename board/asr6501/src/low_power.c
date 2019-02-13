@@ -109,13 +109,36 @@ uint32_t LowPower_GetState(void)
  * @retval None
  */
 
+#include "radio.h"
+#include "linkwan.h"
+extern DeviceState_t lwan_dev_state_get( void );
+extern void UartDeepsleep();
+
+static void test_enter_stop_mode(void)
+{
+    if (Radio.GetStatus() != RF_IDLE || lwan_dev_state_get() != DEVICE_STATE_SLEEP) {
+        return;
+    } else {
+        CySysTickStop();
+        CySysTickDisableInterrupt();
+        CyGlobalIntDisable;
+        UartDeepsleep();
+        CySysTickInitVar = 0u;
+        CySysTickStart();
+        CyGlobalIntEnable;
+    }
+}
+
 void LowPower_Handler(void)
 {
     CPSR_ALLOC();
     RHINO_CPU_INTRPT_DISABLE();
 
     if (LowPower_State == 0) {
-        aos_lrwan_chg_mode.enter_stop_mode();
+        //printf("deep sleep\r\n");
+        // work around for the stop mode to call function in AsrLib.a
+        test_enter_stop_mode();
+        //aos_lrwan_chg_mode.enter_stop_mode();
         /* mcu dependent. to be implemented by user*/
         aos_lrwan_chg_mode.exit_stop_mode();
         aos_lrwan_time_itf.set_uc_wakeup_time();
