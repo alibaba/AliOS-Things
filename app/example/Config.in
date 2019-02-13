@@ -1,362 +1,195 @@
 config AOS_APP_EXAMPLE
     bool "Builtin Examples"
-    default n
+
 if AOS_APP_EXAMPLE
 choice
     prompt "Select example"
 
-config AOS_app_athostapp
-    bool "athostapp"
-    select AOS_APP_ATHOSTAPP
-
-config AOS_app_blink
-    bool "blink"
-    select AOS_APP_BLINK
-
-config AOS_app_bleadv
-    bool "bleadv"
-    select AOS_APP_BLEADV
-
-config AOS_app_blemesh_tmall
-    bool "blemesh_tmall"
-    select AOS_APP_BLEMESH_TMALL
-
-config AOS_app_bleperipheral
-    bool "bleperipheral"
-    select AOS_APP_BLEPERIPHERAL
-
-config AOS_app_breezeapp
-    bool "breezeapp"
-    select AOS_APP_BREEZEAPP
-
-config AOS_app_coapapp
-    bool "coapapp"
-    select AOS_APP_COAPAPP
-
-config AOS_app_dk_audio
-    bool "dk_audio"
-    select AOS_APP_DK_AUDIO
-
-config AOS_app_dk_camera
-    bool "dk_camera"
-    select AOS_APP_DK_CAMERA
-
-config AOS_app_dk_gui
-    bool "dk_gui"
-    select AOS_APP_DK_GUI
-
-config AOS_app_dk_ld
-    bool "dk_ld"
-    select AOS_APP_DK_LD
-
-config AOS_app_dk_qr
-    bool "dk_qr"
-    select AOS_APP_DK_QR
-
-config AOS_app_helloworld
-    bool "helloworld"
-    select AOS_APP_HELLOWORLD
-
-config AOS_app_http2app
-    bool "http2app"
-    select AOS_APP_HTTP2APP
-
-config AOS_app_id2_client
-    bool "id2_client"
-    select AOS_APP_ID2_CLIENT
-
-config AOS_app_itls_client
-    bool "itls_client"
-    select AOS_APP_ITLS_CLIENT
-
-config AOS_app_das_client
-    bool "das_client"
-    select AOS_APP_DAS_CLIENT
-
-config AOS_app_linkkit_gateway
-    bool "linkkit_gateway"
-    select AOS_APP_LINKKIT_GATEWAY
-
-config AOS_app_linkkitapp
-    bool "linkkitapp"
-    select AOS_APP_LINKKITAPP
-
-config AOS_app_linkwan
-    bool "linkwan"
-    select AOS_APP_LINKWAN
-
-config AOS_app_meshapp
-    bool "meshapp"
-    select AOS_APP_MESHAPP
-
-config AOS_app_modbus_demo
-    bool "modbus_demo"
-    select AOS_APP_MODBUS_DEMO
-
-config AOS_app_mqttapp
-    bool "mqttapp"
-    select AOS_APP_MQTTAPP
-
-config AOS_app_otaapp
-    bool "otaapp"
-    select AOS_APP_OTAAPP
-
-config AOS_app_prov_app
-    bool "prov_app"
-    select AOS_APP_PROV_APP
-
-config AOS_app_sk_gui
-    bool "sk_gui"
-    select AOS_APP_SK_GUI
-
-config AOS_app_tinyengine_app
-    bool "tinyengine_app"
-    select AOS_APP_TINYENGINE_APP
-
-config AOS_app_tls_client
-    bool "tls_client"
-    select AOS_APP_TLS_CLIENT
-
-config AOS_app_uart
-    bool "uart"
-    select AOS_APP_UART
-
-config AOS_app_udataapp
-    bool "udataapp"
-    select AOS_APP_UDATAAPP
-
-config AOS_app_udevapp
-    bool "udevapp"
-    select AOS_APP_UDEVAPP
-
-config AOS_app_yts
-    bool "yts"
-    select AOS_APP_YTS
-
-endchoice
-
-if AOS_app_athostapp
+source "app/example/athostapp/Config.in"
+if AOS_APP_ATHOSTAPP
     config AOS_BUILD_APP
         default "athostapp"
-
-    source "app/example/athostapp/Config.in"
 endif
 
-if AOS_app_blink
+source "app/example/blink/Config.in"
+if AOS_APP_BLINK
     config AOS_BUILD_APP
         default "blink"
-
-    source "app/example/blink/Config.in"
 endif
 
-if AOS_app_bleadv
+source "app/example/bluetooth/bleadv/Config.in"
+if AOS_APP_BLEADV
     config AOS_BUILD_APP
         default "bleadv"
-
-    source "app/example/bluetooth/bleadv/Config.in"
 endif
 
-if AOS_app_blemesh_tmall
+source "app/example/bluetooth/blemesh_tmall/Config.in"
+if AOS_APP_BLEMESH_TMALL
     config AOS_BUILD_APP
         default "blemesh_tmall"
-
-    source "app/example/bluetooth/blemesh_tmall/Config.in"
 endif
 
-if AOS_app_bleperipheral
+source "app/example/bluetooth/bleperipheral/Config.in"
+if AOS_APP_BLEPERIPHERAL
     config AOS_BUILD_APP
         default "bleperipheral"
-
-    source "app/example/bluetooth/bleperipheral/Config.in"
 endif
 
-if AOS_app_breezeapp
+source "app/example/bluetooth/breezeapp/Config.in"
+if AOS_APP_BREEZEAPP
     config AOS_BUILD_APP
         default "breezeapp"
-
-    source "app/example/bluetooth/breezeapp/Config.in"
 endif
 
-if AOS_app_coapapp
+source "app/example/coapapp/Config.in"
+if AOS_APP_COAPAPP
     config AOS_BUILD_APP
         default "coapapp"
-
-    source "app/example/coapapp/Config.in"
 endif
 
-if AOS_app_dk_audio
-    config AOS_BUILD_APP
-        default "dk_audio"
-
-    source "app/example/dk/dk_audio/Config.in"
-endif
-
-if AOS_app_dk_camera
-    config AOS_BUILD_APP
-        default "dk_camera"
-
-    source "app/example/dk/dk_camera/Config.in"
-endif
-
-if AOS_app_dk_gui
-    config AOS_BUILD_APP
-        default "dk_gui"
-
-    source "app/example/dk/dk_gui/Config.in"
-endif
-
-if AOS_app_dk_ld
-    config AOS_BUILD_APP
-        default "dk_ld"
-
-    source "app/example/dk/dk_ld/Config.in"
-endif
-
-if AOS_app_dk_qr
-    config AOS_BUILD_APP
-        default "dk_qr"
-
-    source "app/example/dk/dk_qr/Config.in"
-endif
-
-if AOS_app_helloworld
-    config AOS_BUILD_APP
-        default "helloworld"
-
-    source "app/example/helloworld/Config.in"
-endif
-
-if AOS_app_http2app
-    config AOS_BUILD_APP
-        default "http2app"
-
-    source "app/example/http2app/Config.in"
-endif
-
-if AOS_app_id2_client
-    config AOS_BUILD_APP
-        default "id2_client"
-
-    source "app/example/id2_app/Config.in"
-endif
-
-if AOS_app_itls_client
-    config AOS_BUILD_APP
-        default "itls_client"
-
-    source "app/example/itls_app/Config.in"
-endif
-
-if AOS_app_das_client
+source "app/example/das_app/Config.in"
+if AOS_APP_DAS_CLIENT
     config AOS_BUILD_APP
         default "das_client"
-
-    source "app/example/das_app/Config.in"
 endif
 
-if AOS_app_linkkit_gateway
+source "app/example/dk/dk_audio/Config.in"
+if AOS_APP_DK_AUDIO
+    config AOS_BUILD_APP
+        default "dk_audio"
+endif
+
+source "app/example/dk/dk_camera/Config.in"
+if AOS_APP_DK_CAMERA
+    config AOS_BUILD_APP
+        default "dk_camera"
+endif
+
+source "app/example/dk/dk_gui/Config.in"
+if AOS_APP_DK_GUI
+    config AOS_BUILD_APP
+        default "dk_gui"
+endif
+
+source "app/example/dk/dk_ld/Config.in"
+if AOS_APP_DK_LD
+    config AOS_BUILD_APP
+        default "dk_ld"
+endif
+
+source "app/example/dk/dk_qr/Config.in"
+if AOS_APP_DK_QR
+    config AOS_BUILD_APP
+        default "dk_qr"
+endif
+
+source "app/example/helloworld/Config.in"
+if AOS_APP_HELLOWORLD
+    config AOS_BUILD_APP
+        default "helloworld"
+endif
+
+source "app/example/http2app/Config.in"
+if AOS_APP_HTTP2APP
+    config AOS_BUILD_APP
+        default "http2app"
+endif
+
+source "app/example/id2_app/Config.in"
+if AOS_APP_ID2_CLIENT
+    config AOS_BUILD_APP
+        default "id2_client"
+endif
+
+source "app/example/itls_app/Config.in"
+if AOS_APP_ITLS_CLIENT
+    config AOS_BUILD_APP
+        default "itls_client"
+endif
+
+source "app/example/linkkit_gateway/Config.in"
+if AOS_APP_LINKKIT_GATEWAY
     config AOS_BUILD_APP
         default "linkkit_gateway"
-
-    source "app/example/linkkit_gateway/Config.in"
 endif
 
-if AOS_app_linkkitapp
+source "app/example/linkkitapp/Config.in"
+if AOS_APP_LINKKITAPP
     config AOS_BUILD_APP
         default "linkkitapp"
-
-    source "app/example/linkkitapp/Config.in"
 endif
 
-if AOS_app_linkwan
+source "app/example/lorawan/linkwan/Config.in"
+if AOS_APP_LINKWAN
     config AOS_BUILD_APP
         default "linkwan"
-
-    source "app/example/lorawan/linkwan/Config.in"
 endif
 
-if AOS_app_meshapp
+source "app/example/meshapp/Config.in"
+if AOS_APP_MESHAPP
     config AOS_BUILD_APP
         default "meshapp"
-
-    source "app/example/meshapp/Config.in"
 endif
 
-if AOS_app_modbus_demo
+source "app/example/modbus_demo/Config.in"
+if AOS_APP_MODBUS_DEMO
     config AOS_BUILD_APP
         default "modbus_demo"
-
-    source "app/example/modbus_demo/Config.in"
 endif
 
-if AOS_app_mqttapp
+source "app/example/mqttapp/Config.in"
+if AOS_APP_MQTTAPP
     config AOS_BUILD_APP
         default "mqttapp"
-
-    source "app/example/mqttapp/Config.in"
 endif
 
-if AOS_app_otaapp
+source "app/example/otaapp/Config.in"
+if AOS_APP_OTAAPP
     config AOS_BUILD_APP
         default "otaapp"
-
-    source "app/example/otaapp/Config.in"
 endif
 
-if AOS_app_prov_app
+source "app/example/prov_app/Config.in"
+if AOS_APP_PROV_APP
     config AOS_BUILD_APP
         default "prov_app"
-
-    source "app/example/prov_app/Config.in"
 endif
 
-if AOS_app_sk_gui
+source "app/example/sk/sk_gui/Config.in"
+if AOS_APP_SK_GUI
     config AOS_BUILD_APP
         default "sk_gui"
-
-    source "app/example/sk/sk_gui/Config.in"
 endif
 
-if AOS_app_tinyengine_app
-    config AOS_BUILD_APP
-        default "tinyengine_app"
-
-    source "app/example/tinyengine_app/Config.in"
-endif
-
-if AOS_app_tls_client
+source "app/example/tls/Config.in"
+if AOS_APP_TLS_CLIENT
     config AOS_BUILD_APP
         default "tls_client"
-
-    source "app/example/tls/Config.in"
 endif
 
-if AOS_app_uart
+source "app/example/uart/Config.in"
+if AOS_APP_UART
     config AOS_BUILD_APP
         default "uart"
-
-    source "app/example/uart/Config.in"
 endif
 
-if AOS_app_udataapp
+source "app/example/udataapp/Config.in"
+if AOS_APP_UDATAAPP
     config AOS_BUILD_APP
         default "udataapp"
-
-    source "app/example/udataapp/Config.in"
 endif
 
-if AOS_app_udevapp
+source "app/example/udevapp/Config.in"
+if AOS_APP_UDEVAPP
     config AOS_BUILD_APP
         default "udevapp"
-
-    source "app/example/udevapp/Config.in"
 endif
 
-if AOS_app_yts
+source "app/example/yts/Config.in"
+if AOS_APP_YTS
     config AOS_BUILD_APP
         default "yts"
-
-    source "app/example/yts/Config.in"
 endif
 
+endchoice
 endif
