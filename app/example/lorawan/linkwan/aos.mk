@@ -5,7 +5,7 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := linkwan
 GLOBAL_INCLUDES += .
 
-$(NAME)_SOURCES := linkwan.c
+$(NAME)_SOURCES := main.c
 
 linkwan := 1
 
