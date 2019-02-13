@@ -47,13 +47,10 @@ void SysTick_IRQ(void)
 static void sys_init(void)
 {
     default_UART_Init();
-
+	
     board_init();
     var_init();
-    aos_components_init(&kinit);
-#ifndef AOS_BINS
-    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
-#endif
+    aos_kernel_init(&kinit);   
 }
 
 static void sys_start(void)
@@ -80,6 +77,7 @@ static void sys_start(void)
 int main(void)
 {
     CyGlobalIntEnable; /* Enable global interrupts. */
+	  
     sys_start();
     return 0;
 }
