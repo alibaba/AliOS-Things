@@ -10,7 +10,7 @@ extern "C" {
 
 /* USER CONFIGURABLE: Instance name of the UART component */
 #if(STDIO_UART == 0)
-#define CONSOLE_UART_INSTANCE      SCB0
+#define CONSOLE_UART_INSTANCE      UART_1
 #elif (STDIO_UART == 1)
 #define CONSOLE_UART_INSTANCE      SCB1    
 #elif (STDIO_UART == 2)
@@ -29,6 +29,7 @@ extern "C" {
 #define UART_FLAG_IMPL(a, b)    UART_FLAG_IMPL2(a, b)
 #define UART_FLAG_IMPL2(a, b)   a ## b
 
+#define UART_RX_QUEUE_SIZE  64
 typedef enum {
     UART0 = 0,
     UART1,
@@ -53,7 +54,38 @@ typedef struct {
 } uart_os_t;
 
 int default_UART_Init(void);
+void uart_put_char(int c);
+int32_t aos_uart_recv(void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout);
+int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout);
+struct circ_buf {
+    char *buf;
+    int head;
+    int tail;
+};
 
+/* Return count in buffer.  */
+#define CIRC_CNT(head,tail,size) (((head) - (tail)) & ((size)-1))
+
+/* Return space available, 0..size-1.  We always leave one free char
+   as a completely full buffer has head == tail, which is the same as
+   empty.  */
+#define CIRC_SPACE(head,tail,size) CIRC_CNT((tail),((head)+1),(size))
+
+/* Return count up to the end of the buffer.  Carefully avoid
+   accessing head and tail more than once, so they can change
+   underneath us without returning inconsistent results.  */
+#define CIRC_CNT_TO_END(head,tail,size) \
+    ({int end = (size) - (tail); \
+      int n = ((head) + end) & ((size)-1); \
+      n < end ? n : end;})
+
+/* Return space available up to the end of the buffer.  */
+#define CIRC_SPACE_TO_END(head,tail,size) \
+    ({int end = (size) - 1 - (head); \
+      int n = (end + (tail)) & ((size)-1); \
+      n <= end ? n : end+1;})
+//the size should be 2^
+#define UART_CONSOLE_SIZE 256
 #ifdef __cplusplus
 }
 #endif
