@@ -47,8 +47,16 @@ source "network/Config.in"
 source "security/Config.in"
 
 menu "Application Configuration"
+choice
+    prompt "Select App"
+    default AOS_APP_NULL
+
+config AOS_APP_NULL
+    bool "Null"
+
 source "app/example/Config.in"
 source "app/profile/Config.in"
+endchoice
 endmenu
 
 source "utility/Config.in"

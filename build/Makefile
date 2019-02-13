@@ -51,6 +51,10 @@ ifeq ($(NOCONFIG),)
 # Get AOS_BUILD_APP, AOS_BUILD_BOARD from BUILD_STRING for creating
 # AOS_CONFIG if it is not existing
 ifneq ($(BUILD_STRING),)
+ifeq ($(findstring @,$(BUILD_STRING)),)
+$(error Unknown target $(BUILD_STRING) ...)
+endif
+
 components := $(subst @, ,$(BUILD_STRING))
 # get real app name and check if it available
 appdir = $(subst .,/,$(firstword $(components)))
@@ -109,7 +113,7 @@ $(if $(CLEAN_CONFIG),\
 endif # $(wildcard $(AOS_CONFIG))
 
 export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst board_,,$(boardname))))
-export AOS_APP_CONFIG = $(appname)
+export AOS_APP_CONFIG = AOS_APP_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst app_,,$(appname))))
 
 endif # $(BUILD_STRING)
 endif # $(NOCONFIG)
@@ -245,6 +249,9 @@ distclean: clean
 	$(QUIET)rm -f .config .config.retry .defconfig
 
 ifneq ($(BUILD_STRING),)
+ifeq ($(findstring @,$(BUILD_STRING)),)
+$(error Unknown target $(BUILD_STRING) ...)
+endif
 #-include $(OUTPUT_DIR)/config.mk
 
 #ifeq ($(NOCONFIG),)
@@ -293,7 +300,7 @@ ifeq ($(NOCONFIG),)
 $(OUTPUT_DIR)/config.mk: $(AOS_CONFIG_DIR)/autoconf.h
 endif
 
-endif # ifneq ($(BUILD_STRING),)
+endif # ($(BUILD_STRING),)
 
 ifneq ($(MBINS),)
 ifneq ($(SUPPORT_MBINS),yes)
