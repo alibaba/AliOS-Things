@@ -23,6 +23,7 @@ config ATHOST_CONFIG_MQTT
 
 config ATHOST_CONFIG_COAP
     bool "ATHOST_CONFIG_COAP"
+    depends on !ATHOST_CONFIG_MQTT
     default n
 
 endif
