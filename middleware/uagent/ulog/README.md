@@ -68,6 +68,6 @@ Rolling back mechanism also used to make new file: if ulogXXX is full, than the 
 ## Other
 
 syslog format:
-<131>Jan 01 00:00:01.180 SOC OS_helloworld.c[13]: helloworld
+<131>Jan 01 00:00:01.180 SOC helloworld.c[13]: helloworld
 PRI  |HEADER                 |MSG[TAG+Content]
 more detail please refer as BSD syslog.

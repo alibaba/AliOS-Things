@@ -27,6 +27,15 @@ typedef enum{
 
 extern bool log_init;
 
+int log_get_mutex(void);
+
+void log_release_mutex(void);
+
+void log_init_mutex(void);
+
+void on_sync_filter_level_change(const char level);
+char get_sync_stop_level();
+
 
 int32_t ulog_fs_init(void);
 

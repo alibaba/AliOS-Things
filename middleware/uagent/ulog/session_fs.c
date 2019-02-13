@@ -352,10 +352,11 @@ void on_show_ulog_file()
         aos_dirent_t *out_dirent;
         while (1) {
             out_dirent = (aos_dirent_t *)aos_readdir(dp);
-            if (out_dirent == NULL)
+            if (out_dirent != NULL){
+                SESSION_FS_INFO("file name is %s\n", out_dirent->d_name);
+            }else{
                 break;
-
-            SESSION_FS_INFO("file name is %s\n", out_dirent->d_name);
+            }
         }
     }
     aos_closedir(dp);
