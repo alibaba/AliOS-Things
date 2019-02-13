@@ -1,6 +1,6 @@
 NAME := osal_aos
 
-$(NAME)_MBINS_TYPE := share
+$(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := os interface adaptation layer
 
