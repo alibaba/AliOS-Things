@@ -2,7 +2,7 @@
  * warning: testcase collection code is auto generate, please don't change!!!
  */
 
-#include "aos/kernel.h"
+#include <aos/aos.h>
 
 extern void test_certificate(void);
 
