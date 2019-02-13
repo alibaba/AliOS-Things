@@ -29,6 +29,11 @@ typedef unsigned short uint16_t
 extern "C" {
 #endif
 
+#ifdef NDEBUG
+#define CONFIG_LOGMACRO_SILENT
+#endif
+
+
 /**
 * syslog management command mark
 * NOT RECOMMEND MODIFY THIS VALUE, READ ONLY!!
@@ -57,6 +62,20 @@ extern "C" {
 #else
 #define EXTREAM_LOG_TEXT ULOG_CONFIG_EXTREAM_LOG_TEXT
 #endif
+
+#ifndef ULOG_CONFIG_EXTREAM_LOG_BOOT_TIME
+#define EXTREAM_LOG_BOOT_TIME 0
+#else
+#define EXTREAM_LOG_BOOT_TIME ULOG_CONFIG_EXTREAM_LOG_BOOT_TIME
+#endif
+
+#ifndef ULOG_CONFIG_EXTREAM_LOG_TAG
+#define EXTREAM_LOG_TAG 1
+#else
+#define EXTREAM_LOG_TAG ULOG_CONFIG_EXTREAM_LOG_TAG
+#endif
+
+
 
 /**
 * the max length of every trace log to be recorded, include syslog format(if EXTREAM_LOG_TEXT

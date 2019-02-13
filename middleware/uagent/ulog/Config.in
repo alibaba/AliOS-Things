@@ -91,6 +91,23 @@ config ULOG_CONFIG_EXTREAM_LOG_TEXT
         If this value is SET then extream log text will be recored, then the log text not support syslog format.
         only pure message will be loged, syslog format cost about 45 bytes for each log.
 
+if ULOG_CONFIG_EXTREAM_LOG_TEXT=1
+    config EXTREAM_LOG_BOOT_TIME
+    int "record extream log boot time"
+    range 0 1
+    default 0
+    help
+        If this value is SET then boot time will be recored under extream log.
+	Not recommended switch on this function as this cost over 10 bytes if device boot keep more than 1 years.
+
+    config ULOG_CONFIG_EXTREAM_LOG_TAG
+    int "record extream log tag"
+    range 0 1
+    default 1
+    help
+        If this value is SET then tag will be recored under extream log.
+endif
+
 config ULOG_CONFIG_ASYNC_BUF_SIZE
     int "default size of buffer queue"
     default 6144
@@ -102,6 +119,7 @@ config ULOG_CONFIG_ASYNC_BUF_SIZE
 
 config ULOG_CONFIG_SYSLOG_SIZE
     int "max length of every log"
+    range 36 256
     default 128
     help
         The max length of every trace log to be recorded, log Content will be trimmed if it's too long.

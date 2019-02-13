@@ -94,28 +94,28 @@ static void cmd_cli_ulog(char *pwbuf, int blen, int argc, char *argv[])
 
 static void sync_log_cmd(char *buf, int len, int argc, char **argv)
 {
-    const char *lvls[] = {
-        [AOS_LL_FATAL] = "fatal",[AOS_LL_ERROR] = "error",
-        [AOS_LL_WARN] = "warn",[AOS_LL_INFO] = "info",
-        [AOS_LL_DEBUG] = "debug",
-    };
-
     if (argc < 2) {
-        aos_cli_printf("log level : %02x\r\n", aos_get_log_level());
+        aos_cli_printf("stop filter level : %c\r\n", get_sync_stop_level());
         return;
-    }
+     }else if (argc == 2) {
+        const char* option = argv[1];
+        switch (option[0])
+        {
+        case 'F':
+        case 'E':
+        case 'W':
+        case 'I':
+        case 'D':
+        case 'N': /* none stop filter, i.e. all pass */
+            on_sync_filter_level_change(option[0]);
+            break;
 
-    int i;
-    for (i = 0; i < sizeof(lvls) / sizeof(lvls[0]); i++) {
-        if (strncmp(lvls[i], argv[1], strlen(lvls[i]) + 1) != 0) {
-            continue;
+        default:
+            aos_cli_printf("unknown option %c, only support[fewidn]\r\n", option[0]);
+            break;
         }
-
-        aos_set_log_level((aos_log_level_t)i);
-        aos_cli_printf("set log level success\r\n");
-        return;
     }
-    aos_cli_printf("set log level fail\r\n");
+
 }
 
 static struct cli_command ulog_cmd[] = {
