@@ -294,7 +294,7 @@ int awss_recv_callback_zconfig(struct parser_res *res)
 
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
 
-    AWSS_UPDATE_STATIS(AWSS_STATIS_ROUTE_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+    AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_TIME_SUC);
 
     return PKG_END;
 }
