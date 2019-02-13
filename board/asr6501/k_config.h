@@ -95,7 +95,7 @@
 
 /* kernel timer&tick conf */
 #ifndef RHINO_CONFIG_HW_COUNT
-#define RHINO_CONFIG_HW_COUNT                0
+#define RHINO_CONFIG_HW_COUNT                1
 #endif
 #ifndef RHINO_CONFIG_TICK_TASK
 #define RHINO_CONFIG_TICK_TASK               0
@@ -199,6 +199,10 @@
 
 #ifndef RHINO_CONFIG_CPU_NUM
 #define RHINO_CONFIG_CPU_NUM                 1
+#endif
+
+#ifndef RHINO_CONFIG_SYS_STATS
+#define RHINO_CONFIG_SYS_STATS               1
 #endif
 
 #endif /* K_CONFIG_H */
