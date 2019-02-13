@@ -154,6 +154,7 @@ extern "C"
 #define k_oops()
 
     void k_sleep(s32_t duration);
+    long long k_now_ms();
 
     unsigned int find_msb_set(u32_t op);
     unsigned int find_lsb_set(u32_t op);

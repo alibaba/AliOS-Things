@@ -5,7 +5,6 @@
 #include <k_api.h>
 #include "ulog/ulog.h"
 
-typedef kbuf_queue_t _queue_t;
 typedef ksem_t       _sem_t;
 typedef aos_task_t   _task_t;
 typedef cpu_stack_t  _stack_element_t;

@@ -18,6 +18,7 @@
 #include "errno.h"
 
 #include <api/mesh.h>
+#include <port/mesh_hal_os.h>
 
 /* Private includes for raw Network & Transport layer access */
 #include "mesh.h"
