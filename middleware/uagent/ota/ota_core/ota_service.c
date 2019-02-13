@@ -8,6 +8,7 @@
 #include "ota_verify.h"
 #include "ota_hal_plat.h"
 #include "ota_log.h"
+#include "aos/kernel.h"
 
 extern ota_hal_module_t ota_hal_module;
 const char *ota_to_capital(char *value, int len)
