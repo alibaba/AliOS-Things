@@ -7,4 +7,4 @@ if aos_global_config.get('hci_h4', 0):
 
 
 supported_targets="bluetooth.bleadv bluetooth.bleperipheral bluetooth.breezeapp coapapp helloworld linkkit_gateway linkkitapp mqttapp"
-linux_only_targets="athostapp blink http2app meshapp otaapp tls udataapp yts"
+linux_only_targets="athostapp blink http2app meshapp otaapp tls udataapp udevapp yts"
