@@ -108,7 +108,7 @@ static void app_delayed_action(void *arg)
     blemesh_tmall_profile();
 }
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 static void handle_set_mac(char *pwbuf, int blen, int argc, char **argv);
 
 static struct cli_command tmall_cmds[] = {
@@ -165,7 +165,7 @@ int application_start(int argc, char **argv)
     printf("After kernel init\r\n");
     print_heap();
 #endif
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_register_commands(&tmall_cmds[0], sizeof(tmall_cmds) / sizeof(tmall_cmds[0]));
 #endif
     aos_post_delayed_action(1000, app_delayed_action, NULL);
