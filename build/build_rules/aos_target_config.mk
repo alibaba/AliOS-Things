@@ -338,7 +338,7 @@ COMPONENTS += mm
 COMPONENTS += uspace
 else
 COMPONENTS += mbins.umbins
-AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf, -Wl,-wrap,fflsuh
+AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflsuh -nostartfiles
 endif
 AOS_SDK_DEFINES += BUILD_APP
 AOS_SDK_LDFLAGS += -nostartfiles
