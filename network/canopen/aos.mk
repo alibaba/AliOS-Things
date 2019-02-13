@@ -1,8 +1,7 @@
 NAME := canopen
 
 ifeq ($(CANOPEN),canfestival)
-$(NAME)_TYPE        := network
-$(NAME)_MBINS_TYPE  := network
+$(NAME)_MBINS_TYPE  := kernel
 
 $(NAME)_SOURCES     := src/dcf.c
 $(NAME)_SOURCES     += src/emcy.c
