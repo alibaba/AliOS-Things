@@ -259,6 +259,11 @@ void k_sleep(s32_t duration)
     aos_msleep(duration);
 }
 
+long long k_now_ms()
+{
+    return aos_now_ms();
+}
+
 unsigned int find_msb_set(u32_t data)
 {
     uint32_t count = 0;
