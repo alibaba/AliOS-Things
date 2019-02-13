@@ -10,7 +10,7 @@ menuconfig AOS_APP_DAS_CLIENT
     help
         das example
 
-if AOS_APP_DAS
+if AOS_APP_DAS_CLIENT
 
 config MQTTAPP_CONFIG_TEST_LOOP
     int "test loop"
