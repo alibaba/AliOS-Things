@@ -108,7 +108,7 @@ $(if $(CLEAN_CONFIG),\
     $(shell rm -f .config.retry))
 endif # $(wildcard $(AOS_CONFIG))
 
-export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst board_,,$(boardname)))
+export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst board_,,$(boardname))))
 export AOS_APP_CONFIG = $(appname)
 
 endif # $(BUILD_STRING)
