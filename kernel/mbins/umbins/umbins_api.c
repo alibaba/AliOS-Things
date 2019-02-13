@@ -5,6 +5,7 @@
 #include <umbins_api.h>
 #include <k_api.h>
 #include "aos/kernel.h"
+#include "aos/hal/uart.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -55,19 +56,19 @@ ktask_t *krhino_cur_task_get(void)
 
 kstat_t krhino_task_info_set(ktask_t *task, size_t idx, void *info)
 {
-    return SYS_CALL3(SYS_KRHINO_TASK_INFO_SET, kstat_t, ktask_t *, task, 
+    return SYS_CALL3(SYS_KRHINO_TASK_INFO_SET, kstat_t, ktask_t *, task,
                     size_t, idx, void *, info);
 }
 
 kstat_t krhino_task_info_get(ktask_t *task, size_t idx, void **info)
 {
-    return SYS_CALL3(SYS_KRHINO_TASK_INFO_GET, kstat_t, ktask_t *, task, 
+    return SYS_CALL3(SYS_KRHINO_TASK_INFO_GET, kstat_t, ktask_t *, task,
                     size_t, idx, void **, info);
 }
 
-kstat_t krhino_task_sleep(tick_t dly)
+void aos_msleep(int ms)
 {
-    return SYS_CALL1(SYS_KRHINO_TASK_SLEEP, kstat_t, tick_t, dly);
+    SYS_CALL1(SYS_KRHINO_TASK_SLEEP, void, int, ms);
 }
 
 kstat_t krhino_task_dyn_create(ktask_t **task, const name_t *name, void *arg,
@@ -111,7 +112,7 @@ kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name,
                                 sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run)
 {
     return SYS_CALL7(SYS_KRHINO_TIMER_DYN_CREATE, kstat_t, ktimer_t **, timer, const name_t *, name,
-                        timer_cb_t, cb, sys_time_t, first, sys_time_t, round, void *, arg, 
+                        timer_cb_t, cb, sys_time_t, first, sys_time_t, round, void *, arg,
                             uint8_t, auto_run);
 }
 
@@ -161,7 +162,7 @@ kstat_t krhino_mutex_unlock(kmutex_t *mutex)
 
 kstat_t krhino_sem_create(ksem_t *sem, const name_t *name, sem_count_t count)
 {
-    return SYS_CALL3(SYS_KRHINO_SEM_CREATE, kstat_t, ksem_t *, sem, const name_t *, name, 
+    return SYS_CALL3(SYS_KRHINO_SEM_CREATE, kstat_t, ksem_t *, sem, const name_t *, name,
                     sem_count_t, count);
 
 }
@@ -182,19 +183,24 @@ kstat_t krhino_sem_give(ksem_t *sem)
 }
 
 /* --------------------k_mm-------------------- */
-void *krhino_mm_alloc(size_t size)
+void *aos_malloc(unsigned int size)
 {
-    return SYS_CALL1(SYS_KRHINO_MM_ALLOC, void *, size_t, size);
+    return SYS_CALL1(SYS_KRHINO_MM_ALLOC, void *, unsigned int, size);
 }
 
-void krhino_mm_free(void *ptr)
+void aos_free(void *mem)
 {
-    SYS_CALL1(SYS_KRHINO_MM_FREE, void, void *, ptr);
+    SYS_CALL1(SYS_KRHINO_MM_FREE, void, void *, mem);
 }
 
 void *krhino_mm_realloc(void *oldmem, size_t newsize)
 {
     return SYS_CALL2(SYS_KRHINO_MM_REALLOC, void *, void *, oldmem, size_t, newsize);
+}
+
+void aos_alloc_trace(void *addr, size_t allocator)
+{
+    SYS_CALL2(SYS_AOS_ALLOC_TRACE, void, void *, addr, size_t, allocator);
 }
 
 /* ----------------k_buf_queue----------------- */
@@ -424,11 +430,6 @@ int aos_vprintf(char *format, va_list param)
 int aos_fflush(FILE *stream)
 {
     return SYS_CALL1(SYS_FFLUSH, int, FILE *, stream);
-}
-
-aos_mutex_t* get_log_mutex(void)
-{
-    return SYS_CALL0(SYS_GET_LOG_MUTEX, aos_mutex_t*);
 }
 
 /* -----------------end OTHERS-------------------- */

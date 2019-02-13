@@ -4,6 +4,9 @@
 
 #include <k_api.h>
 #include "aos/kernel.h"
+#include "aos/errno.h"
+#include "aos/vfs.h"
+#include "aos/hal/uart.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -96,12 +99,6 @@ int aos_vprintf(char *format, va_list param)
 int aos_fflush(FILE *stream)
 {
     return fflush(stream);
-}
-
-extern aos_mutex_t log_mutex;
-aos_mutex_t* get_log_mutex(void)
-{
-    return &log_mutex;
 }
 
 #define SYSCALL_MAX 150
