@@ -6,6 +6,7 @@
 #define WORK_H
 #include "atomic.h"
 #include "zephyr.h"
+#include "queue.h"
 
 struct k_work_q {
     struct k_fifo fifo;
