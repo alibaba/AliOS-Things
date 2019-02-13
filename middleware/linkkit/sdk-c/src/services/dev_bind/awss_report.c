@@ -3,6 +3,7 @@
  */
 #include <stdint.h>
 #include "json_parser.h"
+#include "iot_import.h"
 #include "awss_cmp.h"
 #include "awss_timer.h"
 #include "awss_packet.h"
@@ -33,6 +34,7 @@ static void *switchap_timer = NULL;
 
 static uint32_t awss_report_token_time = 0;
 static void *report_token_timer = NULL;
+static void *report_token_mutex = NULL;
 
 static int awss_report_token_to_cloud();
 #ifdef WIFI_PROVISION_ENABLED
@@ -58,6 +60,9 @@ int awss_token_remain_time()
 
 int awss_update_token()
 {
+    if (report_token_mutex)
+        HAL_MutexLock(report_token_mutex);
+
     awss_report_token_time = 0;
     awss_report_token_cnt = 0;
     awss_report_token_suc = 0;
@@ -70,6 +75,10 @@ int awss_update_token()
     awss_info("update token");
 
     produce_random(aes_random, sizeof(aes_random));
+
+    if (report_token_mutex)
+        HAL_MutexUnlock(report_token_mutex);
+
     return 0;
 }
 
@@ -108,10 +117,21 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
     reply_id = atoi(id);
     if (reply_id + 1 < awss_report_id)
         return;
+
+    if (report_token_mutex)
+        HAL_MutexLock(report_token_mutex);
+
     awss_info("%s\r\n", __func__);
     awss_report_token_suc = 1;
     awss_stop_timer(report_token_timer);
     report_token_timer = NULL;
+
+    if (report_token_mutex) {
+        HAL_MutexUnlock(report_token_mutex);
+        HAL_MutexDestroy(report_token_mutex);
+    }
+    report_token_mutex = NULL;
+
     AWSS_DB_UPDATE_STATIS(AWSS_DB_STATIS_SUC);
     AWSS_DB_DISP_STATIS();
     return;
@@ -299,6 +319,15 @@ static int awss_report_token_to_cloud()
     }
     AWSS_DB_UPDATE_STATIS(AWSS_DB_STATIS_START);
 
+    if (report_token_mutex == NULL) {
+        report_token_mutex = HAL_MutexCreate();
+        if (report_token_mutex == NULL) {
+            awss_err("alloc report mutex failed");
+            return -1;
+        }
+    }
+    HAL_MutexLock(report_token_mutex);
+
     /*
      * it is still failed after try to report token MATCH_REPORT_CNT_MAX times
      */
@@ -306,6 +335,11 @@ static int awss_report_token_to_cloud()
         awss_stop_timer(report_token_timer);
         report_token_timer = NULL;
         awss_info("try %d times fail", awss_report_token_cnt);
+
+        HAL_MutexUnlock(report_token_mutex);
+        HAL_MutexDestroy(report_token_mutex);
+        report_token_mutex = NULL;
+
         return -2;
     }
 
@@ -320,6 +354,11 @@ static int awss_report_token_to_cloud()
     char *packet = awss_zalloc(packet_len + 1);
     if (packet == NULL) {
         awss_err("alloc mem(%d) failed", packet_len);
+
+        HAL_MutexUnlock(report_token_mutex);
+        HAL_MutexDestroy(report_token_mutex);
+        report_token_mutex = NULL;
+
         return -1;
     }
 
@@ -347,6 +386,8 @@ static int awss_report_token_to_cloud()
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id_str, ILOP_VER, METHOD_MATCH_REPORT, param, 0, packet, &packet_len);
     } while (0);
 
+    HAL_MutexUnlock(report_token_mutex);
+
     awss_debug("report token:%s\r\n", packet);
     char topic[TOPIC_LEN_MAX] = {0};
     awss_build_topic(TOPIC_MATCH_REPORT, topic, TOPIC_LEN_MAX);
@@ -368,12 +409,21 @@ int awss_report_token()
 
 int awss_stop_report_token()
 {
+    if (report_token_mutex)
+        HAL_MutexLock(report_token_mutex);
+
     if (report_token_timer) {
         awss_stop_timer(report_token_timer);
         report_token_timer = NULL;
     }
 
     memset(aes_random, 0x00, sizeof(aes_random));
+
+    if (report_token_mutex) {
+        HAL_MutexLock(report_token_mutex);
+        HAL_MutexDestroy(report_token_mutex);
+    }
+    report_token_mutex = NULL;
 
     return 0;
 }
