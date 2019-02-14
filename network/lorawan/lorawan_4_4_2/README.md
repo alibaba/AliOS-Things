@@ -130,38 +130,43 @@ This API is called when LoRaWAN Node need to send confirmed or unconfirmed data 
 ## Porting
 When porting LoRaWAN Stack to a new board, interfaces listed as follows must be realized.
 
-### aos_lrwan_time_itf
+### aos_lrwan_chg_mode
 | name | descriptions |
 | --- | --- |
 | enter_stop_mode | to enter stop mode when no work to do |
 | exit_stop_mode |  to exit stop mode when need |
 | enter_sleep_mode | to enter sleep mode when enter low power mode |
 
-### aos_lrwan_time_itf
+### Timer Interface
 | name | descriptions |
 | --- | --- |
-| delay_ms | delay interface, unit is micro second |
-| set_timer_context | record the global RTC counter |
-| get_timer_context | get the recorded global RTC counter |
-| get_delta_context | calculate the difference of the two counters |
-| get_timer_elapsed_time | get the value of RTC counter has elapsed from last time |
-| stop_alarm | stop the alarm |
-| set_alarm | set the alarm |
-| set_uc_wakeup_time | calculate the wake up time between wake up and mcu start |
-| set_timeout | calculate the alarm |
-| compute_elapsed_time | calculate the time elapsed |
-| get_current_time | get the current time |
-| set_timer_val | set RTC timer value |
-| get_temp_compensation | get the temperature compensation for RTC |
+| RtcDelayMs | delay interface, unit is micro second |
+| RtcSetTimerContext | record the global RTC counter |
+| RtcGetTimerContext | get the recorded global RTC counter |
+| RtcGetTimerElapsedTime | get the value of RTC counter has elapsed from last time |
+| RtcStopAlarm | stop the alarm |
+| RtcSetAlarm | set the alarm |
+| RtcSetMcuWakeUpTime | calculate the wake up time between wake up and mcu start |
+| RtcGetTimerValue | get the current time |
+| RtcTempCompensation | get the temperature compensation for RTC |
 
-### aos_lrwan_radio_ctrl
+### GPIO Interfaces
 | name | descriptions |
 | --- | --- |
-|radio_reset | reset radio by gpio |
-| radio_reset_cfg_input | configure radio reset pin as input |
-| radio_rw_en | enable radio data tx/rx |
-| radio_rw_dis | disable radio data tx/rx |
-| radio_rw | write and read radio data |
+| GpioMcuInit | Init GPIOs |
+| GpioMcuSetInterrupt | Set GPIO interrupt properties |
+| GpioMcuRemoveInterrupt | Remove GPIO interrupt properties |
+| GpioMcuWrite | Write GPIO pin data |
+| GpioMcuRead | Read GPIO pin data |
+
+### SPI Interfaces
+| name | descriptions |
+| --- | --- |
+| SpiInit | Init the SPI |
+| SpiDeInit | Deinit the SPI |
+| SpiFormat | Set SPI properties |
+| SpiFrequency | Set SPI frequency |
+| SpiInOut | Read and Write SPI data |
 
 ## Reference
 
