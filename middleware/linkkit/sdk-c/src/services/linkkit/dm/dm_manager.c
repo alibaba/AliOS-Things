@@ -1450,8 +1450,13 @@ int dm_mgr_upstream_thing_service_response(_IN_ int devid, _IN_ char *msgid, _IN
         return FAIL_RETURN;
     }
 
-    dm_log_debug("Current Service Name: %s", service_name);
-    dm_msg_response(DM_MSG_DEST_ALL, &request, &response, payload, payload_len, ctx);
+    dm_log_debug("Current Service Name: %s ctx = %p", service_name ,ctx);
+
+    if (ctx != NULL) {
+        dm_msg_response(DM_MSG_DEST_LOCAL, &request, &response, payload, payload_len, ctx);
+    } else {
+        dm_msg_response(DM_MSG_DEST_CLOUD, &request, &response, payload, payload_len, ctx);
+    }
 
     DM_free(service_name);
     return SUCCESS_RETURN;
