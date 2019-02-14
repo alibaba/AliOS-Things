@@ -56,7 +56,7 @@
  * events,range 2 to 255
  */
 #ifndef CONFIG_BT_RX_BUF_COUNT
-//#define CONFIG_BT_RX_BUF_COUNT 10
+//#define CONFIG_BT_RX_BUF_COUNT 5
 #define CONFIG_BT_RX_BUF_COUNT 2
 #endif
 
@@ -93,7 +93,7 @@
  * packages range 2 to 255
  */
 #ifndef CONFIG_BT_L2CAP_TX_BUF_COUNT
-//#define CONFIG_BT_L2CAP_TX_BUF_COUNT 10
+//#define CONFIG_BT_L2CAP_TX_BUF_COUNT 5
 #define CONFIG_BT_L2CAP_TX_BUF_COUNT 2
 #endif
 
