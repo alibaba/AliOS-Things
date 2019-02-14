@@ -200,6 +200,13 @@ static int hci_driver_send(struct net_buf *buf)
 
 void pkt_recv_callback(void)
 {
+    unsigned int key;
+    extern struct k_poll_signal g_pkt_recv;
+
+    key = irq_lock();
+    g_pkt_recv.signaled = 1;
+    irq_unlock(key);
+
     event_callback(K_POLL_TYPE_DATA_RECV);
 }
 
