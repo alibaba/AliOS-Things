@@ -37,7 +37,17 @@ const uint8_t probe_req_frame[ZC_PROBE_LEN] = {
     0x3F, 0x84, 0x10, 0x9E  /* FCS */
 };
 
-static uint8_t *g_dev_sign; /* pointer to dev_name_len start pos */
+enum {
+    ENROLLEE_ERR_CODE_NO_ERR = 0,
+    ENROLLEE_ERR_CODE_DISABLE,
+    ENROLLEE_ERR_CODE_SSID_ERR,
+    ENROLLEE_ERR_CODE_PASSWD_ERR,
+    ENROLLEE_ERR_CODE_GOT_SSID_PASSWD,
+    ENROLLEE_ERR_CODE_CONN_ROUTER_ERR,
+};
+
+static uint8_t *g_err_code;    /* pointer to error code of enrollee */
+static uint8_t *g_dev_sign;    /* pointer to dev_name_len start pos */
 static uint8_t *g_product_key; /* pointer to model_len start pos */
 static uint8_t *enrollee_frame;
 static uint16_t enrollee_frame_len;
@@ -47,7 +57,12 @@ static int decrypt_ssid_passwd(uint8_t *ie, uint8_t ie_len,
                                uint8_t out_passwd[OS_MAX_PASSWD_LEN],
                                uint8_t out_bssid[ETH_ALEN]);
 
-void awss_init_enrollee_info(void)  /* void enrollee_raw_frame_init(void) */
+void awss_enrollee_connect_router_fail(int reson)
+{
+    if (g_err_code) *g_err_code = ENROLLEE_ERR_CODE_CONN_ROUTER_ERR;
+}
+
+void awss_init_enrollee_info(void)
 {
     char *pk = NULL, *dev_name = NULL, *text = NULL;
     uint8_t sign[ENROLLEE_SIGN_SIZE + 1] = {0};
@@ -119,6 +134,9 @@ void awss_init_enrollee_info(void)  /* void enrollee_raw_frame_init(void) */
     g_dev_sign = &enrollee_frame[len];
     memcpy(&enrollee_frame[len], sign, ENROLLEE_SIGN_SIZE);
     len += ENROLLEE_SIGN_SIZE;
+    g_err_code = &enrollee_frame[len ++];
+    if (awss_get_config_press() == 0)
+        *g_err_code = ENROLLEE_ERR_CODE_DISABLE;
 
     memcpy(&enrollee_frame[len],
            &probe_req_frame[sizeof(probe_req_frame) - FCS_SIZE], FCS_SIZE);
@@ -136,8 +154,9 @@ void awss_destroy_enrollee_info(void)
         awss_free(enrollee_frame);
         enrollee_frame_len = 0;
         enrollee_frame = NULL;
-        g_dev_sign = NULL;
         g_product_key = NULL;
+        g_dev_sign = NULL;
+        g_err_code = NULL;
     }
 }
 
@@ -145,6 +164,12 @@ void awss_broadcast_enrollee_info(void)
 {
     if (enrollee_frame_len == 0 || enrollee_frame == NULL) {
         return;
+    }
+
+    if (awss_get_config_press() == 0) {
+        *g_err_code = ENROLLEE_ERR_CODE_DISABLE;
+    } else if (*g_err_code == ENROLLEE_ERR_CODE_DISABLE) {
+        *g_err_code = ENROLLEE_ERR_CODE_NO_ERR;
     }
 
     os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, enrollee_frame,
@@ -165,7 +190,7 @@ static int decrypt_ssid_passwd(
 #define REGISTRAR_IE_HDR    (6)
     ie += REGISTRAR_IE_HDR;
     if (ie[0] != DEVICE_TYPE_VERSION) {
-        awss_debug("registrar(devtype/ver=%d not supported!", ie[0]);
+        awss_debug("devtype/ver=%d not supported!", ie[0]);
         return -1;
     }
 
@@ -185,24 +210,25 @@ static int decrypt_ssid_passwd(
     ie += ie[0] + 1; /* eating device name sign length & device name sign[n] */
 
     if (ie[0] != REGISTRAR_FRAME_TYPE) {
-        awss_debug("registrar(frametype=%d not supported!", ie[0]);
+        awss_debug("frametype=%d not supported!", ie[0]);
         return -1;
     }
 
     ie ++;  /* eating frame type */
     p_ssid = ie;
     if (ie[0] >= OS_MAX_SSID_LEN) {
-        awss_debug("registrar(ssidlen=%d invalid!", ie[0]);
+        awss_debug("ssidlen=%d invalid!", ie[0]);
+        if (g_err_code) *g_err_code = ENROLLEE_ERR_CODE_SSID_ERR;
         return -1;
     }
     memcpy(tmp_ssid, &p_ssid[1], p_ssid[0]);
-    awss_debug("Registrar ssid:%s", tmp_ssid);
 
     ie += ie[0] + 1; /* eating ssid_len & ssid[n] */
 
     p_passwd = ie;
     if (p_passwd[0] >= OS_MAX_PASSWD_LEN) {
-        awss_debug("registrar(passwdlen=%d invalid!", p_passwd[0]);
+        awss_debug("passwdlen=%d invalid!", p_passwd[0]);
+        if (g_err_code) *g_err_code = ENROLLEE_ERR_CODE_PASSWD_ERR;
         return -1;
     }
 
@@ -216,11 +242,12 @@ static int decrypt_ssid_passwd(
     aes_decrypt_string((char *)p_passwd + 1, (char *)tmp_passwd, p_passwd[0],
             1, os_get_conn_encrypt_type(), 0, (const char *)aes_random); /*aes128 cfb*/
     if (is_utf8((const char *)tmp_passwd, p_passwd[0]) != 1) {
-        awss_debug("registrar(passwd invalid!");
+        awss_debug("passwd invalid!");
         AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
+        if (g_err_code) *g_err_code = ENROLLEE_ERR_CODE_PASSWD_ERR;
         return -1;
     }
-    awss_debug("ssid:%s\r\n", tmp_ssid);
+    awss_trace("enrollee ssid:%s\r\n", tmp_ssid);
 
     strncpy((char *)out_passwd, (const char *)tmp_passwd, OS_MAX_PASSWD_LEN - 1);
     strncpy((char *)out_ssid, (const char *)tmp_ssid, OS_MAX_SSID_LEN - 1);
