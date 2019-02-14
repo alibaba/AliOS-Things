@@ -22,12 +22,12 @@ extern "C" {
 #define LOG_NONE    8 /* used in stop filter, all log will pop out */
 
 typedef enum {
-    AOS_LL_NONE  = LOG_ALERT,  /* disable log */
-    AOS_LL_FATAL = LOG_CRIT, /* fatal log will output */
-    AOS_LL_ERROR = LOG_ERR, /* fatal + error log will output */
-    AOS_LL_WARN  = LOG_WARNING,  /* fatal + warn + error log will output(default level) */
-    AOS_LL_INFO  = LOG_INFO,  /* info + warn + error log will output */
-    AOS_LL_DEBUG = LOG_DEBUG, /* debug + info + warn + error + fatal log will output */
+    AOS_LL_NONE  = LOG_ALERT,   /* disable log */
+    AOS_LL_FATAL = LOG_CRIT,    /* fatal log will output */
+    AOS_LL_ERROR = LOG_ERR,     /* fatal + error log will output */
+    AOS_LL_WARN  = LOG_WARNING, /* fatal + warn + error log will output(default level) */
+    AOS_LL_INFO  = LOG_INFO,    /* info + warn + error log will output */
+    AOS_LL_DEBUG = LOG_DEBUG,   /* debug + info + warn + error + fatal log will output */
 } aos_log_level_t;
 
 /**
@@ -35,13 +35,13 @@ typedef enum {
  *
  */
 typedef enum{
-    MOD_KERNEL   = 0,     /* Log produced in kernel */
-    MOD_SECURITY = 4,     /* Log produced in security and authority  */
-    MOD_SYSLOG   = 5,     /* Log produced in syslog self */
-    MOD_NET      = 7,     /* Log produced in Net, inlude lwip, bluetooth, CANopen, etc  */
-    MOD_MID      = 16,    /* Log produced in middleware, include uagent, udata, linkkit */
-    MOD_USR1         ,    /* Log produced in user app */
-    MOD_USR2         ,    /* Log produced in user app */
+    MOD_KERNEL   = 0,  /* Log produced in kernel */
+    MOD_SECURITY = 4,  /* Log produced in security and authority  */
+    MOD_SYSLOG   = 5,  /* Log produced in syslog self */
+    MOD_NET      = 7,  /* Log produced in Net, inlude lwip, bluetooth, CANopen, etc  */
+    MOD_MID      = 16, /* Log produced in middleware, include uagent, udata, linkkit */
+    MOD_USR1         , /* Log produced in user app */
+    MOD_USR2         , /* Log produced in user app */
 }MOD_TYPE;
 
 #ifdef CONFIG_LOGMACRO_DETAILS
@@ -50,12 +50,12 @@ typedef enum{
  * Function prototype for syncronized log text, Recommed use below brief API instead of this
  *
  *
- * @param  s    Serverity of Log
- * @param  mod    Module name
- * @param  f    Usually File name
- * @param  l    Usually Line number of comment
+ * @param  s         Serverity of Log
+ * @param  mod       Module name
+ * @param  f         Usually File name
+ * @param  l         Usually Line number of comment
  * @param  fmt, ...  Variable Parameter, support format print to log
- * @return  0: success. other: fail
+ * @return  0: success; other: fail.
  */
 int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned long l, const char *fmt, ...);
 
@@ -70,10 +70,9 @@ int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned
 /*
  * Function prototype for syncronized log text, Recommed use below brief API instead of this
  *
- *
- * @param  s    Serverity of Log
+ * @param  s         Serverity of Log
  * @param  fmt, ...  Variable Parameter, support format print to log
- * @return  0: success. other: fail
+ * @return  0: success; other: fail.
  */
 int rt_log(const unsigned char s, const char *fmt, ...);
 
@@ -185,7 +184,6 @@ int rt_log(const unsigned char s, const char *fmt, ...);
 #else
 #define LOGD(mod, ...)
 #endif
-
 
 #endif /* CONFIG_LOGMACRO_DETAILS */
 #endif /* CONFIG_LOGMACRO_SILENT */
