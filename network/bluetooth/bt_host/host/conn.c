@@ -44,8 +44,8 @@ NET_BUF_POOL_DEFINE(acl_tx_pool, CONFIG_BT_L2CAP_TX_BUF_COUNT,
 #ifdef CONFIG_BLE_LINK_PARAMETERS
 #define  SUP_TO_LIMIT         (400)//limit LSP_TO to 4s
 #define  CONN_SUP_TIMEOUT     (400)//*10, link superversion timeout
-#define  CONN_INTERVAL_MIN    (320)//*1.25 ms,30ms, min connection inverval
-#define  CONN_INTERVAL_MAX    (520)//*1.25 ms,50ms, max connection inverval
+#define  CONN_INTERVAL_MIN    (24)//*1.25 ms,30ms, min connection inverval
+#define  CONN_INTERVAL_MAX    (40)//*1.25 ms,50ms, max connection inverval
 #endif
 
 extern struct net_buf_pool acl_tx_pool;
