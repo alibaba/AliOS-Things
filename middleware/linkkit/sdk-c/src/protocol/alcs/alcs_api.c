@@ -311,32 +311,57 @@ int alcs_encrypt(const char *src, int len, const char *key, void *out)
     return ret == 0 ? len2 : 0;
 }
 
-int alcs_decrypt(const char *src, int len, const char *key, void *out)
+int alcs_decrypt (const char* src, int len, const char* key, void* out)
 {
-    COAP_DEBUG("to decrypt len:%d", len);
-    char *iv = "a1b1c1d1e1f1g1h1";
+    COAP_DEBUG ("to decrypt len:%d", len);
+    char* iv = "a1b1c1d1e1f1g1h1";
 
     p_HAL_Aes128_t aes_d_h;
+    int ret = 0;
     int n = len >> 4;
-    if (n > 0) {
-        aes_d_h  = HAL_Aes128_Init((uint8_t *)key, (uint8_t *)iv, HAL_AES_DECRYPTION);
-        HAL_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
+        
+    do {
+        if (n > 1) {
+            aes_d_h  = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_DECRYPTION);
+            if (!aes_d_h) {
+                COAP_ERR ("fail to decrypt init");
+                break;
+            }   
+
+            ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src, n - 1, out);
+            HAL_Aes128_Destroy(aes_d_h);
+
+            if (ret != 0){ 
+                COAP_ERR ("fail to decrypt");
+                break;
+            }   
+        }   
+
+        char* out_c = (char*)out;
+        int offset = n > 0? ((n - 1) << 4) : 0;
+        out_c[offset] = 0;
+
+        aes_d_h  = HAL_Aes128_Init ((uint8_t*)key, (uint8_t*)iv, HAL_AES_DECRYPTION);
+        if (!aes_d_h) {
+            COAP_ERR ("fail to decrypt init");
+            break;
+        }   
+
+        ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src + offset, 1, out_c + offset);
         HAL_Aes128_Destroy(aes_d_h);
-    }
 
+        if (ret != 0) {
+            COAP_ERR ("fail to decrypt remain data");
+            break;
+        }   
 
-    char *out_c = (char *)out;
-    int offset = n > 0 ? ((n - 1) << 4) : 0;
-    out_c[offset] = 0;
-
-    aes_d_h  = HAL_Aes128_Init((uint8_t *)key, (uint8_t *)iv, HAL_AES_DECRYPTION);
-    int ret = HAL_Aes128_Cbc_Decrypt(aes_d_h, src + offset, 1, out_c + offset);
-    HAL_Aes128_Destroy(aes_d_h);
-
-    char pad = out_c[len - 1];
-    out_c[len - pad] = 0;
-    COAP_DEBUG("decrypt data:%s, len:%d", out_c, len - pad);
-    return ret == 0 ? len - pad : 0;
+        char pad = out_c[len - 1]; 
+        out_c[len - pad] = 0;
+        COAP_DEBUG ("decrypt data:%s, len:%d", out_c, len - pad);
+        return len - pad;
+    } while (0);
+    
+    return 0;
 }
 
 bool alcs_is_auth(CoAPContext *ctx, AlcsDeviceKey *devKey)
