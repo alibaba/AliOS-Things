@@ -630,6 +630,16 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
     handler->handle.h_fp = messageHandler;
     handler->handle.pcontext = pcontext;
 
+#if (WITH_MQTT_SUB_LOCAL)
+    if (qos == IOTX_MQTT_QOS3_SUB_LOCAL) {
+        HAL_MutexLock(c->lock_generic);
+        handler->next = c->first_sub_handle;
+        c->first_sub_handle = handler;
+        HAL_MutexUnlock(c->lock_generic);
+        return SUCCESS_RETURN;
+    }
+#endif
+
     HAL_MutexLock(c->lock_write_buf);
 
     if (_alloc_send_buffer(c, strlen(topicFilter)) < 0) {
@@ -3334,12 +3344,22 @@ int IOT_MQTT_Subscribe(void *handle,
     POINTER_SANITY_CHECK(topic_handle_func, NULL_VALUE_ERROR);
     STRING_PTR_SANITY_CHECK(topic_filter, NULL_VALUE_ERROR);
 
+#if (WITH_MQTT_SUB_LOCAL)
+    if (qos > IOTX_MQTT_QOS3_SUB_LOCAL) {
+        mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
+                     qos,
+                     IOTX_MQTT_QOS0, IOTX_MQTT_QOS3_SUB_LOCAL, IOTX_MQTT_QOS0);
+        qos = IOTX_MQTT_QOS0;
+    }
+#else
     if (qos > IOTX_MQTT_QOS2) {
         mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
                      qos,
                      IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
+#endif
+
 #ifdef INSPECT_MQTT_LIST
     mqtt_debug("iotx_mc_subscribe before");
 #endif
@@ -3370,12 +3390,22 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
     if (timeout_ms > SUBSCRIBE_SYNC_TIMEOUT_MAX) {
         timeout_ms = SUBSCRIBE_SYNC_TIMEOUT_MAX;
     }
+#if (WITH_MQTT_SUB_LOCAL)
+    if (qos > IOTX_MQTT_QOS3_SUB_LOCAL) {
+        mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
+                     qos,
+                     IOTX_MQTT_QOS0, IOTX_MQTT_QOS3_SUB_LOCAL, IOTX_MQTT_QOS0);
+        qos = IOTX_MQTT_QOS0;
+    }
+#else
     if (qos > IOTX_MQTT_QOS2) {
         mqtt_warning("Invalid qos(%d) out of [%d, %d], using %d",
                      qos,
                      IOTX_MQTT_QOS0, IOTX_MQTT_QOS2, IOTX_MQTT_QOS0);
         qos = IOTX_MQTT_QOS0;
     }
+#endif
+
 #ifdef INSPECT_MQTT_LIST
     mqtt_debug("iotx_mc_subscribe before");
 #endif
@@ -3392,7 +3422,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
 
         if (ret < 0) {
             ret = iotx_mc_subscribe(client, topic_filter, qos, topic_handle_func, pcontext);
-            if (_is_in_yield_cb() != 0) {
+            if (_is_in_yield_cb() != 0 || qos == IOTX_MQTT_QOS3_SUB_LOCAL) {
                 return ret;
             }
         }
