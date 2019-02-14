@@ -23,15 +23,18 @@
 
 #define LOG_TAG "HAL_TLS"
 
+
+
 #define platform_info(format, ...) LOGI(LOG_TAG, format, ##__VA_ARGS__)
 #define platform_err(format, ...) LOGE(LOG_TAG, format, ##__VA_ARGS__)
 
 #define SEND_TIMEOUT_SECONDS (10)
 
+#define DEBUG_LEVEL 10
+
 static ssl_hooks_t g_ssl_hooks = {HAL_Malloc, HAL_Free};
 
-typedef struct _TLSDataParams
-{
+typedef struct _TLSDataParams {
     mbedtls_ssl_context ssl;     /**< mbed TLS control context. */
     mbedtls_net_context fd;      /**< mbed TLS network context. */
     mbedtls_ssl_config  conf;    /**< mbed TLS configuration context. */
@@ -40,9 +43,78 @@ typedef struct _TLSDataParams
     mbedtls_pk_context  pkey;    /**< mbed TLS Client key. */
 } TLSDataParams_t, *TLSDataParams_pt;
 
+#ifdef TLS_SAVE_TICKET
 
-#define DEBUG_LEVEL 10
+#define TLS_MAX_SESSION_BUF 384
+#define KV_SESSION_KEY  "TLS_SESSION"
+static mbedtls_ssl_session *saved_session = NULL;
 
+static int ssl_serialize_session(const mbedtls_ssl_session *session,
+                                 unsigned char *buf, size_t buf_len,
+                                 size_t *olen)
+{
+    unsigned char *p = buf;
+    size_t left = buf_len;
+
+    if (left < sizeof(mbedtls_ssl_session)) {
+        return (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL);
+    }
+
+    memcpy(p, session, sizeof(mbedtls_ssl_session));
+    p += sizeof(mbedtls_ssl_session);
+    left -= sizeof(mbedtls_ssl_session);
+#if defined(MBEDTLS_SSL_SESSION_TICKETS) && defined(MBEDTLS_SSL_CLI_C)
+    if (left < sizeof(mbedtls_ssl_session)) {
+        return (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL);
+    }
+    memcpy(p, session->ticket, session->ticket_len);
+    p += session->ticket_len;
+    left -= session->ticket_len;
+#endif
+
+    *olen = p - buf;
+
+    return (0);
+}
+
+static int ssl_deserialize_session(mbedtls_ssl_session *session,
+                                   const unsigned char *buf, size_t len)
+{
+    const unsigned char *p = buf;
+    const unsigned char *const end = buf + len;
+
+    if (sizeof(mbedtls_ssl_session) > (size_t)(end - p)) {
+        return (MBEDTLS_ERR_SSL_BAD_INPUT_DATA);
+    }
+
+    memcpy(session, p, sizeof(mbedtls_ssl_session));
+    p += sizeof(mbedtls_ssl_session);
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
+    session->peer_cert = NULL;
+#endif
+
+#if defined(MBEDTLS_SSL_SESSION_TICKETS) && defined(MBEDTLS_SSL_CLI_C)
+    if(session->ticket_len > 0) {
+        if (session->ticket_len > (size_t)(end - p)) {
+            return (MBEDTLS_ERR_SSL_BAD_INPUT_DATA);
+        }
+        session->ticket = aos_malloc(session->ticket_len);
+        if (session->ticket == NULL) {
+            return (MBEDTLS_ERR_SSL_ALLOC_FAILED);
+        }
+        memcpy(session->ticket, p, session->ticket_len);
+        p += session->ticket_len;
+        platform_info("saved ticket len = %d...", session->ticket_len);
+    }
+#endif
+
+    if (p != end) {
+        return (MBEDTLS_ERR_SSL_BAD_INPUT_DATA);
+    }
+
+    return (0);
+}
+#endif
 
 static unsigned int _avRandom()
 {
@@ -106,7 +178,7 @@ static int _real_confirm(int verify_result)
 
 static int _ssl_client_init(mbedtls_ssl_context *ssl,
                             mbedtls_net_context *tcp_fd,
-                            mbedtls_ssl_config * conf,
+                            mbedtls_ssl_config *conf,
                             mbedtls_x509_crt *crt509_ca, const char *ca_crt,
                             size_t ca_len, mbedtls_x509_crt *crt509_cli,
                             const char *cli_crt, size_t cli_len,
@@ -133,7 +205,7 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
     platform_info("Loading the CA root certificate ...");
     if (NULL != ca_crt) {
         if (0 != (ret = mbedtls_x509_crt_parse(
-                    crt509_ca, (const unsigned char *)ca_crt, ca_len))) {
+                                    crt509_ca, (const unsigned char *)ca_crt, ca_len))) {
             platform_err(" failed ! x509parse_crt returned -0x%04x", -ret);
             return ret;
         }
@@ -167,8 +239,8 @@ static int _ssl_client_init(mbedtls_ssl_context *ssl,
 #if defined(MBEDTLS_CERTS_C)
         platform_info("start mbedtls_pk_parse_key[%s]", cli_pwd);
         ret =
-          mbedtls_pk_parse_key(pk_cli, (const unsigned char *)cli_key, key_len,
-                               (const unsigned char *)cli_pwd, pwd_len);
+                    mbedtls_pk_parse_key(pk_cli, (const unsigned char *)cli_key, key_len,
+                                         (const unsigned char *)cli_pwd, pwd_len);
 #else
         {
             ret = 1;
@@ -227,9 +299,9 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx,
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype =
-      proto == MBEDTLS_NET_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
+                proto == MBEDTLS_NET_PROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
     hints.ai_protocol =
-      proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
+                proto == MBEDTLS_NET_PROTO_UDP ? IPPROTO_UDP : IPPROTO_TCP;
     hints.ai_socktype &= ~SOCK_NONBLOCK;
     if (getaddrinfo(host, port, &hints, &addr_list) != 0) {
         return (MBEDTLS_ERR_NET_UNKNOWN_HOST);
@@ -239,7 +311,7 @@ static int mbedtls_net_connect_timeout(mbedtls_net_context *ctx,
     ret = MBEDTLS_ERR_NET_UNKNOWN_HOST;
     for (cur = addr_list; cur != NULL; cur = cur->ai_next) {
         ctx->fd =
-          (int)socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
+                    (int)socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
         if (ctx->fd < 0) {
             ret = MBEDTLS_ERR_NET_SOCKET_FAILED;
             continue;
@@ -316,10 +388,10 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
      * 0. Init
      */
     if (0 != (ret = _ssl_client_init(
-                &(pTlsData->ssl), &(pTlsData->fd), &(pTlsData->conf),
-                &(pTlsData->cacertl), ca_crt, ca_crt_len, &(pTlsData->clicert),
-                client_crt, client_crt_len, &(pTlsData->pkey), client_key,
-                client_key_len, client_pwd, client_pwd_len))) {
+                                &(pTlsData->ssl), &(pTlsData->fd), &(pTlsData->conf),
+                                &(pTlsData->cacertl), ca_crt, ca_crt_len, &(pTlsData->clicert),
+                                client_crt, client_crt_len, &(pTlsData->pkey), client_key,
+                                client_key_len, client_pwd, client_pwd_len))) {
         platform_err(" failed ! ssl_client_init returned -0x%04x", -ret);
         return ret;
     }
@@ -330,8 +402,8 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
     platform_info("Connecting to /%s/%s...", addr, port);
 #if defined(_PLATFORM_IS_LINUX_)
     if (0 != (ret = mbedtls_net_connect_timeout(&(pTlsData->fd), addr, port,
-                                                MBEDTLS_NET_PROTO_TCP,
-                                                SEND_TIMEOUT_SECONDS))) {
+                    MBEDTLS_NET_PROTO_TCP,
+                    SEND_TIMEOUT_SECONDS))) {
         platform_err(" failed ! net_connect returned -0x%04x", -ret);
         return ret;
     }
@@ -349,8 +421,8 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
      */
     platform_info("  . Setting up the SSL/TLS structure...");
     if ((ret = mbedtls_ssl_config_defaults(
-           &(pTlsData->conf), MBEDTLS_SSL_IS_CLIENT,
-           MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT)) != 0) {
+                           &(pTlsData->conf), MBEDTLS_SSL_IS_CLIENT,
+                           MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT)) != 0) {
         platform_err(" failed! mbedtls_ssl_config_defaults returned %d", ret);
         return ret;
     }
@@ -380,7 +452,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
     mbedtls_ssl_conf_ca_chain(&(pTlsData->conf), &(pTlsData->cacertl), NULL);
 
     if ((ret = mbedtls_ssl_conf_own_cert(
-           &(pTlsData->conf), &(pTlsData->clicert), &(pTlsData->pkey))) != 0) {
+                           &(pTlsData->conf), &(pTlsData->clicert), &(pTlsData->pkey))) != 0) {
         platform_err(" failed\n  ! mbedtls_ssl_conf_own_cert returned %d\n",
                      ret);
         return ret;
@@ -398,6 +470,58 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send,
                         mbedtls_net_recv, mbedtls_net_recv_timeout);
 
+#ifdef TLS_SAVE_TICKET
+    if (NULL == saved_session) {
+        do {
+            int len = TLS_MAX_SESSION_BUF;
+            unsigned char *save_buf = aos_malloc(TLS_MAX_SESSION_BUF);
+            if (save_buf ==  NULL) {
+                platform_err(" malloc failed");
+                break;
+            }
+
+            saved_session = aos_malloc(sizeof(mbedtls_ssl_session));
+
+            if (saved_session == NULL) {
+                platform_err(" malloc failed");
+                aos_free(save_buf);
+                save_buf =  NULL;
+                break;
+            }
+
+
+            memset(save_buf, 0x00, TLS_MAX_SESSION_BUF);
+            memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
+
+            ret = HAL_Kv_Get(KV_SESSION_KEY, save_buf, &len);
+
+            if (ret != 0 || len == 0) {
+                platform_info(" kv get failed len=%d,ret = %d", len, ret);
+                aos_free(saved_session);
+                aos_free(save_buf);
+                save_buf = NULL;
+                saved_session = NULL;
+                break;
+            }
+            ret = ssl_deserialize_session(saved_session, save_buf, len);
+            if (ret < 0) {
+                platform_err("ssl_deserialize_session err,ret = %d", ret);
+                aos_free(saved_session);
+                aos_free(save_buf);
+                save_buf = NULL;
+                saved_session = NULL;
+                break;
+            }
+            aos_free(save_buf);
+        } while (0);
+    }
+
+    if (NULL != saved_session) {
+        saved_session->peer_cert = NULL;//for test
+        mbedtls_ssl_set_session(&(pTlsData->ssl), saved_session);
+        platform_info("use saved session!!");
+    }
+#endif
     /*
      * 4. Handshake
      */
@@ -412,12 +536,46 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
         }
     }
     platform_info(" ok");
+
+#ifdef TLS_SAVE_TICKET
+    if (NULL == saved_session) {
+        do {
+            size_t real_session_len = 0;
+            unsigned char *save_buf = aos_malloc(TLS_MAX_SESSION_BUF); //for test
+            if (save_buf ==  NULL) {
+                break;
+            }
+
+            saved_session = aos_malloc(sizeof(mbedtls_ssl_session));
+            if (NULL == saved_session) {
+                aos_free(save_buf);
+                break;
+            }
+            memset(save_buf, 0x00, sizeof(TLS_MAX_SESSION_BUF));
+            memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
+
+            ret = mbedtls_ssl_get_session(&(pTlsData->ssl), saved_session);
+            if (ret != 0) {
+                aos_free(save_buf);
+                aos_free(saved_session);
+                saved_session = NULL;
+                break;
+            }
+            ret = ssl_serialize_session(saved_session, save_buf, TLS_MAX_SESSION_BUF, &real_session_len);
+            platform_info("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, real_session_len);
+            if (ret == 0) {
+                HAL_Kv_Set(KV_SESSION_KEY, (void *)save_buf, real_session_len, 1);
+            }
+            aos_free(save_buf);
+        } while (0);
+    }
+#endif
     /*
      * 5. Verify the server certificate
      */
     platform_info("  . Verifying peer X.509 certificate..");
     if (0 != (ret = _real_confirm(
-                mbedtls_ssl_get_verify_result(&(pTlsData->ssl))))) {
+                                mbedtls_ssl_get_verify_result(&(pTlsData->ssl))))) {
         platform_err(" failed  ! verify result not confirmed.");
         return ret;
     }
