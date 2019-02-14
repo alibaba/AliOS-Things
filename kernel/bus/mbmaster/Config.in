@@ -7,20 +7,18 @@ menuconfig AOS_COMP_MBMASTER
 if AOS_COMP_MBMASTER
 
 config MBMASTER_CONFIG_RTU_ENABLED
-    int "MBMASTER_CONFIG_RTU_ENABLED"
-        range 0 1
-        default 1
+    bool "MBMASTER_CONFIG_RTU_ENABLED"
+        default y
         help
-            set to 1 if you want to use modbus master with rtu.
-            default 1
+            excludes this feature if you want to use modbus master with rtu.
+            default y
 
 config MBMASTER_CONFIG_READ_HOLDING
-    int "MBMASTER_CONFIG_READ_HOLDING"
-        range 0 1
-        default 1
+    bool "MBMASTER_CONFIG_READ_HOLDING"
+        default y
         help
-            set to 1 if you want to use the read holding register function of modbus master.
-            default 1
+            excludes this feature if you want to use the read holding register function of modbus master.
+            default y
 
 config MBMASTER_CONFIG_HANDLER_MAX
     int "MBMASTER_CONFIG_HANDLER_MAX"
