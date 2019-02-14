@@ -7,19 +7,17 @@ menuconfig AOS_COMP_PWRMGMT
 if AOS_COMP_PWRMGMT
 # Configurations for component pwrmgmt
 config PWRMGMT_CONFIG_SHOW
-    int "PWRMGMT_CONFIG_SHOW"
-        range 0 1
-        default 0
+    bool "PWRMGMT_CONFIG_SHOW"
+        default n
         help
-            set to 1 if you want to call state show function:enable cpu_pwr_c_support_print,
+            excludes this feature if you want to call state show function:enable cpu_pwr_c_support_print,
             cpu_pwr_info_show,cpu_pwr_state_show.
-            default 0
+            default n
 
 config PWRMGMT_CONFIG_DEBUG
-    int "PWRMGMT_CONFIG_DEBUG"
-        range 0 1
-        default 0
+    bool "PWRMGMT_CONFIG_DEBUG"
+        default n
         help
-            set to 1 if you want to show debug infomation.
-            default 0
+            excludes this feature if you want to show debug infomation.
+            default n
 endif
