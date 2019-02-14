@@ -7,7 +7,6 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu csky
 
 LWIP := 0
-SAL  := 1
 
 $(NAME)_COMPONENTS += arch_cskyv2-l
 $(NAME)_COMPONENTS += rhino cli
@@ -18,10 +17,10 @@ no_with_lwip       := 0
 GLOBAL_DEFINES     += WITH_LWIP
 endif
 
-ifeq ($(SAL),1)
-$(NAME)_COMPONENTS += device_sal_esp8266
+AOS_NETWORK_SAL    ?= y
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal netmgr
-GLOBAL_DEFINES     += WITH_SAL
+module             ?= wifi.esp8266
 endif
 
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
@@ -58,7 +57,7 @@ $(NAME)_SOURCES += aos/aos.c                                \
                    hal/flash.c                              \
                    libs/posix/time/clock_gettime.c
 
-ifeq ($(SAL),1)
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_SOURCES += hal/wifi_port.c
 GLOBAL_INCLUDES += ../../../drivers/sal/wifi/esp8266
 $(NAME)_SOURCES += cli/uart_config.c
