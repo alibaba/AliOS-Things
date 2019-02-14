@@ -47,12 +47,15 @@ typedef volatile unsigned long  const VUC32;
 typedef volatile unsigned short const VUC16;  
 typedef volatile unsigned char  const VUC8; 
 
+#ifndef HAVE_UTYPES
 typedef unsigned char              u8;
 typedef signed char                s8;
 typedef unsigned short             u16;
 typedef signed short               s16;
 typedef unsigned int               u32;
 typedef signed int                 s32;
+#endif /* HAVE_UTYPES */
+
 typedef unsigned long long         u64;
 typedef long long                  s64;
 

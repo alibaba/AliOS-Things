@@ -99,6 +99,11 @@ static int suspend_soft_ap(hal_wifi_module_t *m)
     return bk_wlan_suspend_softap();
 }
 
+static int get_channel(hal_wifi_module_t *m)
+{
+	return bk_wlan_get_channel();
+}
+
 static int set_channel(hal_wifi_module_t *m, int ch)
 {
     return bk_wlan_set_channel(ch);
@@ -213,6 +218,7 @@ hal_wifi_module_t sim_aos_wifi_beken = {
     .suspend             =  suspend,
     .suspend_station     =  suspend_station,
     .suspend_soft_ap     =  suspend_soft_ap,
+    .get_channel         =  get_channel,
     .set_channel         =  set_channel,
     .start_monitor       =  start_monitor,
     .stop_monitor        =  stop_monitor,

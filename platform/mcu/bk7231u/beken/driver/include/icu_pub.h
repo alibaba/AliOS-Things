@@ -33,22 +33,30 @@ enum
 };
 
 /*CMD_CONF_PCLK*/
-#define PCLK_POSI                                  (0)
+#define PCLK_POSI                            (0)
 #define PCLK_POSI_UART1                      (1 << 0)
 #define PCLK_POSI_UART2                      (1 << 1)
 #define PCLK_POSI_I2C1                       (1 << 2)
 #define PCLK_POSI_IRDA                       (1 << 3)
 #define PCLK_POSI_I2C2                       (1 << 4)
-#define PCLK_POSI_SPI                        (1 << 5)
-#define PCLK_POSI_SARADC                     (1 << 6)
+#define PCLK_POSI_SARADC                     (1 << 5)
+#define PCLK_POSI_SPI                        (1 << 6)
 #define PCLK_POSI_PWMS                       (1 << 7)
 #define PCLK_POSI_SDIO                       (1 << 8)
 #define PCLK_POSI_SARADC_AUD                 (1 << 9)
 
 /*CMD_CONF_PWM_PCLK, CMD_CONF_PWM_LPOCLK*/
+#define PWM_MUX_POSI                                (0)
+#define PWM_MUX_LPO                                 (1)
+#define PWM_MUX_PCLK                                (0)
 // *param = channel_id
 
 /*CMD_CLK_PWR_DOWN CMD_CLK_PWR_UP*/
+#define PWD_JEPG_CLK_BIT                     (1 << 22)
+#if (CFG_SOC_NAME != SOC_BK7231)
+#define PWD_TIMER_32K_CLK_BIT                                  (1 << 21)
+#define PWD_TIMER_26M_CLK_BIT                                  (1 << 20)
+#endif
 #define PWD_FFT_CLK_BIT                      (1 << 19)
 #define PWD_USB_CLK_BIT                      (1 << 18)
 #define PWD_SDIO_CLK_BIT                     (1 << 17)
@@ -91,17 +99,24 @@ enum
 
 /* CMD ICU_TL410_CLK_PWD*/
 #define PWD_TL410_CLK_BIT                    (1 <<  0)
+#define PWD_BLE_CLK_BIT                      (1 <<  1)
 
 /* ICU_JTAG_SELECT */
 #define JTAG_ARM_MODE                            0
 #define JTAG_TL410_MODE                          1
 
 /*CMD_ICU_INT_DISABLE CMD_ICU_INT_ENABLE*/
+#define FIQ_JPEG_DECODER_BIT                 (1 << 29) 
 #define FIQ_DPLL_UNLOCK_BIT                  (1 << 28) 
 #define FIQ_SPI_DMA_BIT                      (1 << 27) 
 #define FIQ_MAC_WAKEUP_BIT                   (1 << 26) 
+#if (CFG_SOC_NAME == SOC_BK7221U)
+#define FIQ_SECURITY_BIT                     (1 << 25) 
+#define FIQ_USB_PLUG_INOUT_BIT               (1 << 24) 
+#else
 #define FIQ_MAILBOX1_BIT                     (1 << 25) 
 #define FIQ_MAILBOX0_BIT                     (1 << 24) 
+#endif // (CFG_SOC_NAME == SOC_BK7221U)
 #define FIQ_SDIO_DMA_BIT                     (1 << 23) 
 #define FIQ_MAC_GENERAL_BIT                  (1 << 22) 
 #define FIQ_MAC_PROT_TRIGGER_BIT             (1 << 21) 
@@ -133,7 +148,16 @@ enum
 
 
 /* CMD_ARM_WAKEUP */
+#if (CFG_SOC_NAME == SOC_BK7231)
+#define TL410_WATCHDOG_ARM_WAKEUP_EN_BIT                (1 << 8)
+#else
+#define TIMER_ARM_WAKEUP_EN_BIT                         (1 << 8)
+#endif
+#define BLE_ARM_WAKEUP_EN_BIT                       	 (1 << 30) 
 #define MAC_ARM_WAKEUP_EN_BIT                       	 (1 << 26) 
+#define MAC_GENERAL_ARM_WAKEUP_EN_BIT                    (1 << 22) 
+#define GENERDMA_ARM_WAKEUP_EN_BIT                      (1 << 15)
+#define AUDIO_ARM_WAKEUP_EN_BIT                         (1 << 10)
 #define GPIO_ARM_WAKEUP_EN_BIT                          (1 << 7)
 #define PWM_ARM_WAKEUP_EN_BIT                           (1 << 9)
 #define UART2_ARM_WAKEUP_EN_BIT                         (1 << 1)
@@ -144,6 +168,7 @@ enum
 *******************************************************************************/
 extern void icu_init(void);
 extern void icu_exit(void);
+extern UINT32 icu_ctrl(UINT32 cmd, void *param);
 
 #endif //_ICU_PUB_H_ 
 

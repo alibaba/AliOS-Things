@@ -5,6 +5,9 @@
 #include "generic.h"
 #include "mem_pub.h"
 #include "mem_pub.h"
+#if CFG_SUPPORT_ALIOS
+#include "ll.h"
+#endif
 
 typedef struct kfifo
 {
@@ -101,7 +104,9 @@ __INLINE unsigned int kfifo_put(struct kfifo *fifo,
 			 unsigned char *buffer, unsigned int len)
 {
 	unsigned int l;
+    GLOBAL_INT_DECLARATION();
 
+    GLOBAL_INT_DISABLE();
 	len = min(len, fifo->size - fifo->in + fifo->out);
 
 	/* first put the data starting from fifo->in to buffer end */
@@ -112,6 +117,7 @@ __INLINE unsigned int kfifo_put(struct kfifo *fifo,
 	os_memcpy(fifo->buffer, buffer + l, len - l);
 
 	fifo->in += len;
+    GLOBAL_INT_RESTORE();
 
 	return len;
 }
@@ -132,7 +138,9 @@ __INLINE unsigned int kfifo_get(struct kfifo *fifo,
 			 unsigned char *buffer, unsigned int len)
 {
 	unsigned int l;
+    GLOBAL_INT_DECLARATION();
 
+    GLOBAL_INT_DISABLE();
 	len = min(len, fifo->in - fifo->out);
 
 	/* first get the data from fifo->out until the end of the buffer */
@@ -143,6 +151,7 @@ __INLINE unsigned int kfifo_get(struct kfifo *fifo,
 	os_memcpy(buffer + l, fifo->buffer, len - l);
 
 	fifo->out += len;
+    GLOBAL_INT_RESTORE();
 
 	return len;
 }

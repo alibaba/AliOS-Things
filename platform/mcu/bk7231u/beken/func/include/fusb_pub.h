@@ -3,7 +3,7 @@
 
 //#define FMSC_TEST
 //#define FHID_TEST
-#define FUVC_TEST
+//#define FUVC_TEST
 
 #define FUSB_FAILURE        ((UINT32)-1)
 #define FUSB_SUCCESS        (0)

@@ -211,5 +211,10 @@
 #define RHINO_CONFIG_TRACE                   0
 #endif
 
+/*kernel power save*/
+#ifndef RHINO_CONFIG_CPU_PWR_MGMT
+#define RHINO_CONFIG_CPU_PWR_MGMT            1
+#endif
+
 #endif /* CONFIG_H */
 

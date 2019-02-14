@@ -22,7 +22,7 @@ GLOBAL_CFLAGS += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
 #GLOBAL_CFLAGS += -DSYSINFO_KERNEL_VERSION=\"$(CONFIG_SYSINFO_KERNEL_VERSION)\"
 #GLOBAL_CFLAGS += -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
 
-GLOBAL_LDS_INCLUDES += $(SOURCE_ROOT)/board/bk7231udevkitc/bk7231udevkitc.ld.S
+GLOBAL_LDFLAGS += -L $(SOURCE_ROOT)/board/bk7231udevkitc
 
 # Extra build target in aos_standard_targets.mk, include bootloader, and copy output file to eclipse debug file (copy_output_for_eclipse)
 EXTRA_TARGET_MAKEFILES +=  $(MAKEFILES_PATH)/aos_standard_targets.mk

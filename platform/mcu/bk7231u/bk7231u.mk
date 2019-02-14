@@ -5,12 +5,19 @@ HOST_OPENOCD := bk7231u
 $(NAME)_TYPE := kernel
 
 $(NAME)_COMPONENTS := platform/arch/arm/armv5
-$(NAME)_COMPONENTS += libc rhino hal yloop rhino.fs.kv alicrypto digest_algorithm
+$(NAME)_COMPONENTS += libc rhino yloop rhino.fs.kv alicrypto digest_algorithm
 $(NAME)_COMPONENTS += network.lwip
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/hal_init
+$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken
+$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/ip
+$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/driver/ble
+$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/alios/entry
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/aos/app_runtime
 $(NAME)_COMPONENTS += prov
+$(NAME)_COMPONENTS += hal
+$(NAME)_COMPONENTS += middleware/uagent/uota/src/recovery
+$(NAME)_COMPONENTS += rhino.pwrmgmt
 
 GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
 GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
@@ -19,6 +26,7 @@ GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=4096
 GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=8192
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
+GLOBAL_DEFINES += CFG_SUPPORT_ALIOS=1
 
 GLOBAL_CFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \
@@ -33,15 +41,17 @@ $(NAME)_CFLAGS  += -Wno-return-type -Wno-unused-function -Wno-unused-but-set-var
 $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 
 
-GLOBAL_INCLUDES += beken/lwip-2.0.2/port \
-                   beken/common \
-                   beken/app/config \
-                   beken/func/include \
-                   beken/os/include \
-                   beken/driver/include \
-                   beken/driver/common \
-                   beken/ip/common \
-                   beken
+GLOBAL_INCLUDES +=  beken/alios/entry \
+					beken/alios/lwip-2.0.2/port \
+					beken/alios/os/include \
+					beken/common \
+					beken/app \
+					beken/app/config \
+					beken/func/include \
+					beken/func/uart_debug \
+					beken/driver/include \
+					beken/driver/common \
+					beken/ip/common 
 
 GLOBAL_LDFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \
@@ -50,8 +60,6 @@ GLOBAL_LDFLAGS += -mcpu=arm968e-s \
                  --specs=nosys.specs \
                  -nostartfiles \
                  $(CLIB_LDFLAGS_NANO_FLOAT)
-
-BINS ?=
 
 GLOBAL_LDS_FILES += platform/mcu/bk7231u/bk7231u.ld.S
 
@@ -66,14 +74,24 @@ $(NAME)_SOURCES	 += hal/gpio.c \
                     hal/hw.c \
                     hal/flash.c \
 					hal/uart.c \
-					hal/ringbuf.c \
                     hal/StringUtils.c \
 					hal/wifi_port.c \
+					hal/pwm.c \
 					hal/beken_rhino.c \
                     port/ota_port.c
 
-#ifneq (,$(filter network.umesh,$(COMPONENTS)))
+ifneq ($(filter network.umesh,$(COMPONENTS)),)
 $(NAME)_SOURCES +=  hal/mesh_wifi_hal.c
-#endif
+endif
 
-$(NAME)_PREBUILT_LIBRARY := beken.a
+ifneq ($(filter platform/mcu/bk7231u/beken/driver/ble,$(COMPONENTS)),)
+GLOBAL_INCLUDES +=  beken/driver/ble/rw_ble/ip/ble/profiles/AIS/api
+$(NAME)_SOURCES += hal/ble.c
+$(NAME)_SOURCES += hal/breeze_hal_os.c
+endif
+
+ifneq ($(filter rhino.pwrmgmt,$(COMPONENTS)),)
+$(NAME)_SOURCES +=  hal/pwrmgmt_hal/board_cpu_pwr.c \
+					hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
+					hal/pwrmgmt_hal/board_cpu_pwr_timer.c
+endif

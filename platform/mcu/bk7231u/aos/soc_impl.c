@@ -107,10 +107,11 @@ UINT32 global_tick = 0;
 extern tick_t	  g_tick_count;
 void krhino_idle_hook(void)
 {
+#if 0//(NX_POWERSAVE)
+
 	UINT32 mcu_ps_tick = 24;
 	UINT32 mcu_miss_tick = 0;
 
-#if (NX_POWERSAVE)
     GLOBAL_INT_DECLARATION();
     CPSR_ALLOC();
 

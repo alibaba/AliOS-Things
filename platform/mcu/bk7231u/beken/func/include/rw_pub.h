@@ -3,6 +3,7 @@
 
 #include "ke_msg.h"
 #include "uart_pub.h"
+#include "rw_ieee80211.h"
 #include "rtos_pub.h"
 #include "rw_ieee80211.h"
 #include "apm_task.h"
@@ -142,6 +143,26 @@ enum nl80211_iftype {
 	NL80211_IFTYPE_MAX = NUM_NL80211_IFTYPES - 1
 };
 
+enum rw_evt_type
+{
+    /* for station mode */
+    RW_EVT_STA_CONNECTED = 0,    /* authentication success */
+    RW_EVT_STA_DISCONNECTED,    /* disconnect with server */
+    RW_EVT_STA_CONNECT_FAILED, /* authentication failed */
+    /* for softap mode */
+    RW_EVT_AP_CONNECTED,          /* a client association success */
+    RW_EVT_AP_DISCONNECTED,    /* a client disconnect */
+    RW_EVT_AP_CONNECT_FAILED, /* a client association failed */
+    RW_EVT_MAX
+};
+
+typedef int (*rw_event_handler)(enum rw_evt_type evt_type, void *data);
+
+struct rw_evt_payload
+{
+    uint8_t mac[6];
+};
+
 struct add_sta_st {
 	u16 aid;
 	u16 capability;
@@ -210,6 +231,14 @@ extern UINT32 rwm_get_rx_valid_node_len(void);
 extern void mhdr_set_station_status(msg_sta_states val);
 extern msg_sta_states mhdr_get_station_status(void);
 
+//
+extern void user_callback_func_register(FUNC_1PARAM_PTR sta_connect_start_func,
+								 FUNC_1PARAM_PTR connection_lost_func,
+								 FUNC_1PARAM_PTR auth_fail_func,
+								 FUNC_1PARAM_PTR assoc_fail_func );
+extern void user_callback_func_unregister(void);
+extern void rw_evt_set_callback(enum rw_evt_type evt_type, rw_event_handler handler);
+
 
 extern int rw_msg_send(const void *msg_params, uint16_t reqid, void *cfm);
 extern int rw_msg_send_reset(void);
@@ -233,12 +262,13 @@ extern int rw_msg_send_connection_loss_ind(u8 vif_index);
 extern int rw_msg_get_bss_info(u8 vif_idx, void *cfm);
 extern int rw_msg_get_channel(void *cfm);
 extern int rw_msg_set_filter(uint32_t filter);
-extern int rw_msg_set_channel(uint32_t channel, void *cfm);
+extern int rw_msg_set_channel(uint32_t channel, uint32_t band_width, void *cfm);
 extern int rw_msg_send_scan_cancel_req(void *cfm);
 extern int rw_msg_send_sm_disconnect_req(DISCONNECT_PARAM_T *param);
 extern int rw_msg_send_sm_connect_req( CONNECT_PARAM_T *sme, void *cfm);
 extern int rw_msg_send_tim_update(u8 vif_idx, u16 aid, u8 tx_status);
 extern int rw_msg_send_apm_stop_req(u8 vif_index);
+extern int rw_msg_set_power(u8 vif_idx, u8 power);
 
 
 

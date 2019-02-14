@@ -396,7 +396,6 @@ OSStatus rtos_init_oneshot_timer( beken_timer_t* timer, uint32_t time_ms, timer_
     return kGeneralErr;
 }
 
-
 OSStatus rtos_start_timer( beken_timer_t* timer )
 {
     kstat_t ret;
