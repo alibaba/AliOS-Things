@@ -18,8 +18,13 @@ config LWIP
     range 0 1
     default 0
 
-config AOS_NETWORK_SAL
+config BSP_SUPPORT_EXTERNAL_MODULE
     bool
     default y
+
+config BSP_EXTERNAL_WIFI_MODULE
+    string
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    default "wifi.esp8266"
 
 endif
