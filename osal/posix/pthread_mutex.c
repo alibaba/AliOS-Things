@@ -8,7 +8,7 @@
 
 int pthread_mutex_init(pthread_mutex_t *p_mutex, const pthread_mutexattr_t *attr)
 {
-    kstat_t ret;
+    kstat_t ret = -1;
 
     ret = krhino_mutex_dyn_create(&p_mutex->mutex, "mutex");
     if (ret == RHINO_SUCCESS) {
@@ -21,7 +21,7 @@ int pthread_mutex_init(pthread_mutex_t *p_mutex, const pthread_mutexattr_t *attr
 
 int pthread_mutex_destroy(pthread_mutex_t *p_mutex)
 {
-    kstat_t ret;
+    kstat_t ret = -1;
 
     ret = krhino_mutex_dyn_del(p_mutex->mutex);
     if (ret == RHINO_SUCCESS) {
@@ -34,7 +34,7 @@ int pthread_mutex_destroy(pthread_mutex_t *p_mutex)
 
 int pthread_mutex_lock(pthread_mutex_t *p_mutex)
 {
-    kstat_t ret;
+    kstat_t ret = -1;
 
     if (p_mutex->initted != PTHREAD_INITIALIZED_OBJ) {
         return -1;
@@ -50,7 +50,7 @@ int pthread_mutex_lock(pthread_mutex_t *p_mutex)
 
 int pthread_mutex_unlock(pthread_mutex_t *p_mutex)
 {
-    kstat_t ret;
+    kstat_t ret = -1;
 
     if (p_mutex->initted != PTHREAD_INITIALIZED_OBJ) {
         return -1;
@@ -66,7 +66,7 @@ int pthread_mutex_unlock(pthread_mutex_t *p_mutex)
 
 int pthread_mutex_trylock(pthread_mutex_t *p_mutex)
 {
-    kstat_t ret;
+    kstat_t ret = -1;
 
     if (p_mutex->initted != PTHREAD_INITIALIZED_OBJ) {
         return -1;
