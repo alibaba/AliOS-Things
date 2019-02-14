@@ -10,15 +10,6 @@ config AOS_BOARD_STARTERKIT
 if AOS_BOARD_STARTERKIT
 # Configurations for board starterkit
 
-# Set default value of AOS_NETWORK_SAL
-config AOS_NETWORK_SAL
-    bool "AOS_NETWORK_SAL"
-    default y
-
-config SAL_MODULE
-    string
-    default "wifi.bk7231"
-
 config DEBUG_CONFIG_PANIC
     int "DEBUG_CONFIG_PANIC"
     default 1
