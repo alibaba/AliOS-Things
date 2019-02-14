@@ -2,6 +2,8 @@ NAME := canopen
 
 ifeq ($(CANOPEN),canfestival)
 $(NAME)_MBINS_TYPE  := kernel
+$(NAME)_VERSION     := 3.0
+$(NAME)_SUMMARY     := canfestival canopen stack
 
 $(NAME)_SOURCES     := src/dcf.c
 $(NAME)_SOURCES     += src/emcy.c
