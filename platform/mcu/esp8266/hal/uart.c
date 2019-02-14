@@ -97,3 +97,9 @@ int32_t uart_receive_buffer_queue(uint8_t *data)
 
     return ret;
 }
+
+#if defined(AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC == 1)
+void uart_reinit()
+{
+}
+#endif

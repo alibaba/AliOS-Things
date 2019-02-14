@@ -353,6 +353,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
         ret = HAL_UART_Transmit(handle, (uint8_t *)data, size, timeout);
         return ret;
     }
+
     /* if  UART Tx DMA Handle is NULL, then start data send in interrupt mode
      * otherwise in DMA mode
      */
@@ -409,6 +410,16 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
         return -1;
     }
     
+    if (g_intrpt_nested_level[cpu_cur_get()] > 0) {
+        ret = HAL_UART_Receive(&stm32_uart[uart->port].hal_uart_handle, (uint8_t *)data, expect_size, timeout);
+        if(HAL_OK == ret)
+            *recv_size = expect_size;
+        else
+            *recv_size = 0;
+        return ret;
+    }
+
+
     if (aos_mutex_lock(&stm32_uart[uart->port].uart_rx_mutex, timeout)) {
         printf("uart port % recv fail to get mutex \r\n", uart->port);
         return -1;
@@ -990,4 +1001,71 @@ static void UartIdleHandler( const USART_TypeDef* ins)
     }
 
 }
+
+#ifdef AOS_COMP_CLI
+int32_t hal_uart_init_block(uart_dev_t *uart)
+{
+    int32_t ret = -1;
+    UART_HandleTypeDef *pstuarthandle = NULL;
+    UART_MAPPING* uartIns = NULL;
+
+    if (uart == NULL) {
+        return -1;
+    }
+    //no found this port in function-physical uartIns, no need initialization
+    uartIns = GetUARTMapping(uart->port);
+    if( NULL== uartIns ){
+        return -1;
+    }
+    memset(&stm32_uart[uart->port],0,sizeof(stm32_uart_t));
+
+    pstuarthandle = &stm32_uart[uart->port].hal_uart_handle;
+    pstuarthandle->Init.BaudRate               = uart->config.baud_rate;
+    ret = uart_dataWidth_transform(uart->config.data_width, &pstuarthandle->Init.WordLength);
+    ret |= uart_parity_transform(uart->config.parity, &pstuarthandle->Init.Parity);
+    ret |= uart_stop_bits_transform(uart->config.stop_bits, &pstuarthandle->Init.StopBits);
+    ret |= uart_flow_control_transform(uart->config.flow_control, &pstuarthandle->Init.HwFlowCtl);
+    ret |= uart_mode_transform(uart->config.mode, &pstuarthandle->Init.Mode);
+    if (ret) {
+        printf("invalid uart data \r\n");
+        memset(pstuarthandle, 0, sizeof(*pstuarthandle));
+        return -1;
+    }
+
+    if(NULL == stm32_uart[uart->port].UartRxBuf){
+        stm32_uart[uart->port].UartRxBuf = aos_malloc(uartIns->attr.max_buf_bytes);
+    }
+
+    if (NULL == stm32_uart[uart->port].UartRxBuf) {
+        printf("Fail to malloc memory size %d at %s %d \r\d", uartIns->attr.max_buf_bytes, __FILE__, __LINE__);
+        return -1;
+    }
+    memset(stm32_uart[uart->port].UartRxBuf, 0, uartIns->attr.max_buf_bytes);
+
+    //uart->priv = pstuarthandle; //priv must not be used in uart driver
+
+    pstuarthandle->Instance = (USART_TypeDef*)uartIns->uartPhyP;
+    pstuarthandle->Init.OverSampling = uartIns->attr.overSampling;
+    pstuarthandle->Init.OneBitSampling         = uartIns->attr.OneBitSampling;
+    pstuarthandle->AdvancedInit.AdvFeatureInit = uartIns->attr.AdvFeatureInit;
+
+    /* init uart */
+    ret = HAL_UART_Init(pstuarthandle);
+    if (ret != HAL_OK) {
+        printf("uart %d init fail \r\n", uart->port);
+        aos_free(stm32_uart[uart->port].UartRxBuf);
+        stm32_uart[uart->port].UartRxBuf = NULL;
+        return ret;
+    }
+
+    aos_mutex_new(&stm32_uart[uart->port].uart_tx_mutex);
+    aos_mutex_new(&stm32_uart[uart->port].uart_rx_mutex);
+    aos_sem_new(&stm32_uart[uart->port].uart_rx_sem, 0);
+    aos_sem_new(&stm32_uart[uart->port].uart_tx_sem, 0);
+
+
+    stm32_uart[uart->port].inited = 1;
+    return ret;
+}
+#endif
 #endif

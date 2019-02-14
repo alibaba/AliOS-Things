@@ -317,5 +317,8 @@ void HardFault_Handler(void)
 }
 #endif
 
-
-
+#if defined(AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC == 1)
+void uart_reinit(void)
+{
+}
+#endif
