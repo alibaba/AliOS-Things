@@ -1,5 +1,5 @@
 config AOS_COMP_OTA_BLE
-    bool
+    bool  "ota ble"
     default n
     select AOS_COMP_OTA_HAL
     help
