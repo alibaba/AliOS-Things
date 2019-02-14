@@ -127,7 +127,7 @@
 /*!
  * Maximum RX window duration
  */
-#define CN470_MAX_RX_WINDOW                         900
+#define CN470_MAX_RX_WINDOW                         3000
 
 /*!
  * Receive delay 1
