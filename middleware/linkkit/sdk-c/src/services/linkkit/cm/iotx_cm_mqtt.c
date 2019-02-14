@@ -383,7 +383,8 @@ static iotx_mqtt_qos_t _get_mqtt_qos(iotx_cm_ack_types_t ack_type)
 
         case IOTX_CM_MESSAGE_NEED_ACK:
             return IOTX_MQTT_QOS1;
-
+        case IOTX_CM_MESSAGE_SUB_LOCAL:
+            return IOTX_MQTT_QOS3_SUB_LOCAL;
         default:
             return IOTX_MQTT_QOS0;
     }
