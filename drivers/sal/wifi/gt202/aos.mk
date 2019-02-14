@@ -1,4 +1,4 @@
-NAME := sal_module_gt202
+NAME := device_sal_gt202
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
