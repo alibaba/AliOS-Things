@@ -15,10 +15,266 @@ config AOS_SENSOR_MODBUS_ENABLE
     help
         Enable modbus sensor
 
+if AOS_SENSOR_MODBUS_ENABLE
+menu "modbus sensor selection"
+    menu "als sensor"
+        config AOS_SENSOR_ALS_KUNLUN_ZD6
+            bool "zd-6 sensor"
+            default n
+            help
+                Enable zd-6 als sensor
 
+        config AOS_SENSOR_ALS_MTM_MSLT100MB
+            bool "mslt100mb als sensor"
+            default n
+            help
+                Enable mslt100mb als sensor
+    endmenu
+
+    menu "baro sensor"
+        config AOS_SENSOR_BARO_KUNLUN_JQYB
+            bool "jqyb sensor"
+            default n
+            help
+                Enable jqyb baro sensor
+
+        config AOS_SENSOR_BARO_MTM_MSP1000MB
+            bool "msp1000mb sensor"
+            default n
+            help
+                Enable msp1000mb baro sensor
+
+    endmenu
+
+    menu "co2 sensor"
+        config AOS_SENSOR_CO2_KUNLUN_JQAW6W1V
+            bool "jqaw-6w1-v sensor"
+            default n
+            help
+                Enable jqaw-6w1-v co2 sensor
+
+        config AOS_SENSOR_CO2_HONEYWELL_HAQEAW
+            bool "haqeaw sensor"
+            default n
+            help
+                Enable haqeaw co2 sensor
+
+        config AOS_SENSOR_CO2_MTM_MSCO2MB
+            bool "msco2mb sensor"
+            default n
+            help
+                Enable msco2mb co2 sensor
+    endmenu
+    menu "tvoc sensor"
+        config AOS_SENSOR_TVOC_HONEYWELL_HAQEAW
+            bool "haqeaw sensor"
+            default n
+            help
+                Enable haqeaw tvoc sensor
+    endmenu
+
+    menu "temp sensor"
+        config AOS_SENSOR_TEMP_KUNLUN_JWSKV
+            bool "jwsk-v sensor"
+            default n
+            help
+                Enable jwsk-v temperature sensor
+
+        config AOS_SENSOR_TEMP_KUNLUN_JTWSAC
+            bool "jtws-ac sensor"
+            default n
+            help
+                Enable jtws-ac temperature sensor
+
+        config AOS_SENSOR_TEMP_HONEYWELL_HAQEAW
+            bool "haqeaw sensor"
+            default n
+            help
+                Enable haqeaw temperature sensor
+
+        config AOS_SENSOR_TEMP_MTM_MSTH1000
+            bool "msth1000 sensor"
+            default n
+            help
+                Enable msth1000 temperature sensor
+        config AOS_SENSOR_TEMP_MTM_MSPH10
+            bool "msph10 sensor"
+            default n
+            help
+                Enable msph10 temperature sensor
+        config AOS_SENSOR_TEMP_MTM_MSEC10
+            bool "msec10 sensor"
+            default n
+            help
+                Enable msec10 temperature sensor
+        config AOS_SENSOR_TEMP_MTM_MLWS10
+            bool "mlws10 sensor"
+            default n
+            help
+                Enable mlws10 temperature sensor
+    endmenu
+
+    menu "humi sensor"
+        config AOS_SENSOR_HUMI_KUNLUN_JWSKV
+            bool "jwsk-v sensor"
+            default n
+            help
+                Enable jwsk-v humidity sensor
+
+        config AOS_SENSOR_HUMI_HONEYWELL_HAQEAW
+            bool "haqeaw sensor"
+            default n
+            help
+                Enable haqeaw humidity sensor
+
+        config AOS_SENSOR_HUMI_MTM_MSTH1000
+            bool "msth1000 sensor"
+            default n
+            help
+                Enable msth1000 humidity sensor
+
+    endmenu
+    menu "noise sensor"
+        config AOS_SENSOR_NOISE_MTM_MSN1000MB
+            bool "msn1000mb sensor"
+            default n
+            help
+                Enable msn1000mb noise sensor
+    endmenu
+    menu "hcho sensor"
+        config AOS_SENSOR_HCHO_MTM_MSF1000MB
+            bool "msf1000mb sensor"
+            default n
+            help
+                Enable msf1000mb sensor
+
+        config AOS_SENSOR_HCHO_HONEYWELL_HAQEAW
+            bool "haqeaw sensor"
+            default n
+            help
+                Enable haqeaw hcho sensor
+    endmenu
+
+    menu "pm2.5 sensor"
+        config AOS_SENSOR_PM25_MTM_MSPM25MB
+            bool "mspm25mb sensor"
+            default n
+            help
+                Enable mspm25mb pm2.5 sensor
+
+        config AOS_SENSOR_PM25_HONEYWELL_HAQEAW
+            bool "haqeaw sensor"
+            default n
+            help
+                Enable haqeaw pm2.5 sensor
+    endmenu
+    menu "pm1 sensor"
+        config AOS_SENSOR_PM1_MTM_MSPM25MB
+            bool "mspm25mb sensor"
+            default n
+            help
+                Enable mspm25mb pm1 sensor
+    endmenu
+    menu "pm10 sensor"
+        config AOS_SENSOR_PM10_MTM_MSPM25MB
+            bool "mspm25mb sensor"
+            default n
+            help
+                Enable mspm25mb pm10 sensor
+    endmenu
+    menu "ph sensor"
+        config AOS_SENSOR_PH_MTM_MSPH10
+            bool "msph10 sensor"
+            default n
+            help
+                Enable msph10 ph sensor
+    endmenu
+
+    menu "vwc sensor"
+        config AOS_SENSOR_VWC_KUNLUN_JTWSAC
+            bool "jtwsac sensor"
+            default n
+            help
+                Enable jtwsac vwc(volumetric water content) sensor
+        config AOS_SENSOR_VWC_MTM_MLWS10
+            bool "mlws10 sensor"
+            default n
+            help
+                Enable mlws10 vwc(volumetric water content) sensor
+        config AOS_SENSOR_VWC_MTM_MSSM10
+            bool "mssm10 sensor"
+            default n
+            help
+                Enable mssm10 vwc(volumetric water content) sensor
+    endmenu
+
+    menu "ec sensor"
+        config AOS_SENSOR_EC_MTM_MSEC10
+            bool "msec10 sensor"
+            default n
+            help
+                Enable msec10 ec(electrical conductivity) sensor
+    endmenu
+
+    menu "salinity sensor"
+        config AOS_SENSOR_SALINITY_MTM_MSEC10
+            bool "msec10 sensor"
+            default n
+            help
+                Enable msec10 salinity sensor
+    endmenu
+
+    menu "tds sensor"
+        config AOS_SENSOR_TDS_MTM_MSEC10
+            bool "msec10 sensor"
+            default n
+            help
+                Enable msec10 tds(total dissolved solids) sensor
+    endmenu
+
+    menu "wind speed sensor"
+        config AOS_SENSOR_WINDSPEED_KUNLUN_JHFSW1
+            bool "jhfsw1 sensor"
+            default n
+            help
+                Enable jhfsw1 wind speed sensor
+    endmenu
+
+    menu "wind direction sensor"
+        config AOS_SENSOR_WINDDIRECTION_KUNLUN_JHFXW1
+            bool "jhfxw1 sensor"
+            default n
+            help
+                Enable jhfxw1 wind direction sensor
+    endmenu
+
+    menu "rainfall sensor"
+        config AOS_SENSOR_CURRENTRAINFALL_KUNLUN_JHYLW1
+            bool "jhylw1 current rainfall sensor"
+            default n
+            help
+                Enable jhylw1 current rainfall sensor
+        config AOS_SENSOR_DAILYRAINFALL_KUNLUN_JHYLW1
+            bool "jhylw1 daily rainfall sensor"
+            default n
+            help
+                Enable jhylw1 daily rainfall sensor
+    endmenu
+
+endmenu
+endif
+
+
+config AOS_SENSOR_MEMS_ENABLE
+    bool "Enable mems sensor"
+    default n
+    help
+        Enable mems sensor
+
+if AOS_SENSOR_MEMS_ENABLE
 menu "sensor selection"
     menu "acc sensor"
-	    config AOS_SENSOR_ACC_ADI_ADXL372
+        config AOS_SENSOR_ACC_ADI_ADXL372
             bool "adxl372 sensor"
             default n
             help
@@ -133,7 +389,7 @@ menu "sensor selection"
             default n
             help
                 Enable lsm303agr sensor
-				
+
         config AOS_SENSOR_ACC_MIR3_DA213B
             bool "da213b sensor"
             default n
@@ -298,7 +554,7 @@ menu "sensor selection"
             help
                 Enable l3gd20h sensor
     endmenu
-	
+
 
     menu "mag sensor"
         config AOS_SENSOR_MAG_BOSCH_BMM150
@@ -316,17 +572,17 @@ menu "sensor selection"
             bool "ak09917 sensor"
             default n
             help
-                Enable ak09917 sensor	
+                Enable ak09917 sensor
         config AOS_SENSOR_MAG_AKM_AK09918
             bool "ak09918 sensor"
             default n
             help
-                Enable ak09918 sensor	
+                Enable ak09918 sensor
         config AOS_SENSOR_MAG_AKM_AK09940
             bool "ak09940 sensor"
             default n
             help
-                Enable ak09940 sensor	
+                Enable ak09940 sensor
 
         config AOS_SENSOR_MAG_ROHM_BM1422A
             bool "bm1422a sensor"
@@ -364,14 +620,14 @@ menu "sensor selection"
             help
                 Enable mmc3680kj sensor
     endmenu
-    
+
     menu "als sensor"
         config AOS_SENSOR_ALS_AMS_TCS3400
             bool "tcs3400 sensor"
             default n
             help
                 Enable tcs3400 sensor
-				
+
         config AOS_SENSOR_ALS_AMS_TMD2725
             bool "tmd2725 sensor"
             default n
@@ -401,22 +657,22 @@ menu "sensor selection"
             default n
             help
                 Enable ltr553 sensor
-				
+
         config AOS_SENSOR_ALS_LITEON_LTR559
             bool "ltr559 sensor"
             default n
             help
                 Enable ltr559 sensor
-				
+
         config AOS_SENSOR_ALS_ROHM_BH1730
             bool "bh1730 sensor"
             default n
             help
                 Enable bh1730 sensor
-				
-				
+
+
     endmenu
-	
+
     menu "ps sensor"
         config AOS_SENSOR_PS_AMS_TMD2725
             bool "tmd2725 sensor"
@@ -435,39 +691,39 @@ menu "sensor selection"
             default n
             help
                 Enable ltr553 sensor
-				
+
         config AOS_SENSOR_PS_LITEON_LTR559
             bool "ltr559 sensor"
             default n
             help
                 Enable ltr559 sensor
-				
+
         config AOS_SENSOR_PS_LITEON_LTR659
             bool "ltr659 sensor"
             default n
             help
                 Enable ltr659 sensor
-				
+
         config AOS_SENSOR_PS_LITEON_LTR690
             bool "ltr690 sensor"
             default n
             help
                 Enable ltr690 sensor
-				
+
         config AOS_SENSOR_PS_LITEON_LTR706
             bool "ltr706 sensor"
             default n
             help
                 Enable ltr706 sensor
     endmenu
-	
+
     menu "baro sensor"
         config AOS_SENSOR_BARO_IFX_DSP310
             bool "dsp310 sensor"
             default n
             help
                 Enable dsp310 sensor
-	
+
         config AOS_SENSOR_BARO_BOSCH_BMP280
             bool "bmp280 sensor"
             default n
@@ -525,7 +781,7 @@ menu "sensor selection"
             default n
             help
                 Enable ak9754 sensor
-    endmenu	
+    endmenu
 
     menu "rgb sensor"
         config AOS_SENSOR_RGB_LITEON_LTR381
@@ -533,7 +789,7 @@ menu "sensor selection"
             default n
             help
                 Enable ltr381 sensor
-    endmenu	
+    endmenu
 
     menu "rtc sensor"
         config AOS_SENSOR_RTC_MAXIM_DS1307
@@ -541,15 +797,15 @@ menu "sensor selection"
             default n
             help
                 Enable ds1307 sensor
-    endmenu	
-	
+    endmenu
+
     menu "uv sensor"
         config AOS_SENSOR_UV_LITEON_LTR390
             bool "ltr390 sensor"
             default n
             help
                 Enable ltr390 sensor
-    endmenu	
+    endmenu
     menu "temp sensor"
         config AOS_SENSOR_TEMP_AMS_ENS210
             bool "ens210 sensor"
@@ -561,7 +817,7 @@ menu "sensor selection"
             default n
             help
                 Enable adt7410 sensor
-				
+
         config AOS_SENSOR_TEMP_BOSCH_BME280
             bool "bme280 sensor"
             default n
@@ -588,8 +844,8 @@ menu "sensor selection"
             default n
             help
                 Enable hts221 sensor
-    endmenu	
-	
+    endmenu
+
     menu "humi sensor"
         config AOS_SENSOR_HUMI_AMS_ENS210
             bool "ens210 sensor"
@@ -622,8 +878,8 @@ menu "sensor selection"
             default n
             help
                 Enable hts221 sensor
-    endmenu	
-	
+    endmenu
+
     menu "gps sensor"
         config AOS_SENSOR_GPS_SIMCOM_SIM868
             bool "sim868 sensor"
@@ -631,7 +887,7 @@ menu "sensor selection"
             help
                 Enable sim868 sensor
     endmenu
-	
+
     menu "co2 sensor"
         config AOS_SENSOR_CO2_SENSIRION_SCD30
             bool "scd30 sensor"
@@ -646,7 +902,7 @@ menu "sensor selection"
             help
                 Enable adpd188gg sensor
     endmenu
-	
+
     menu "tvoc sensor"
         config AOS_SENSOR_TVOC_SENSIRION_SGP30
             bool "sgp30 sensor"
@@ -659,6 +915,8 @@ menu "sensor selection"
             help
                 Enable ccs811 sensor
     endmenu
-	
+
 endmenu
+endif
+
 endif
