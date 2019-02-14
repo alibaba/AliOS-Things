@@ -129,7 +129,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_SYSTEM_STACK_SIZE
-#define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x400
+#define RHINO_CONFIG_SYSTEM_STACK_SIZE       0x800
 #endif
 
 #endif /* K_CONFIG_H */
