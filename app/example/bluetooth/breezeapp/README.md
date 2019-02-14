@@ -32,6 +32,7 @@ breezeapp
 
 - pca10040
 - pca10056
+- esp32devkitc
 
 ## Usage
 
@@ -51,8 +52,7 @@ Use APP to connect and auth BLE device, APPs offers date exchange, OTA functatio
 
 ### Result
 
-Chech the hint and result on APP.
+Check the hint and result on APP.
 
 ## Reference
 
-[蓝牙辅助WiFi配网开发说明](https://github.com/alibaba/AliOS-Things/wiki/%E8%93%9D%E7%89%99%E8%BE%85%E5%8A%A9WiFi%E9%85%8D%E7%BD%91%E5%BC%80%E5%8F%91%E8%AF%B4%E6%98%8E)

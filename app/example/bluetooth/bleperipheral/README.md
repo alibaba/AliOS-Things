@@ -30,6 +30,7 @@ Platform: BLE hardware already support AliOS things BLE stack, take Nordic's nRF
 
 - pca10040
 - pca10056
+- esp32devkitc
 
 ## Usage
 
