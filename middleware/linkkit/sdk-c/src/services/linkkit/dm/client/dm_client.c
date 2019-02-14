@@ -1,24 +1,26 @@
 #include "iotx_dm_internal.h"
 
 static dm_client_uri_map_t g_dm_client_uri_map[] = {
-    {DM_URI_THING_MODEL_DOWN_RAW,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_model_down_raw               },
-    {DM_URI_THING_MODEL_UP_RAW_REPLY,         DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_model_up_raw_reply           },
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
-    {DM_URI_THING_SERVICE_PROPERTY_SET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_property_set         },
-#ifdef DEVICE_MODEL_SHADOW
-    {DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY, DM_URI_SYS_PREFIX,      IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_property_desired_delete_reply},
-    {DM_URI_THING_PROPERTY_DESIRED_GET_REPLY, DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_property_desired_get_reply   },
-    {DM_URI_THING_SERVICE_PROPERTY_GET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_property_get         },
-#endif
-    {DM_URI_THING_SERVICE_REQUEST_WILDCARD,   DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_request              },
     {DM_URI_THING_EVENT_POST_REPLY_WILDCARD,  DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_event_post_reply             },
+    {DM_URI_THING_SERVICE_REQUEST_WILDCARD,   DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_request              },
+    {DM_URI_THING_SERVICE_PROPERTY_SET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_property_set         },
     {DM_URI_THING_DEVICEINFO_UPDATE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_deviceinfo_update_reply      },
     {DM_URI_THING_DEVICEINFO_DELETE_REPLY,    DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_deviceinfo_delete_reply      },
     {DM_URI_THING_DYNAMICTSL_GET_REPLY,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_dynamictsl_get_reply         },
     {DM_URI_RRPC_REQUEST_WILDCARD,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_rrpc_request_wildcard              },
     {DM_URI_NTP_RESPONSE,                     DM_URI_EXT_NTP_PREFIX,     IOTX_DM_DEVICE_ALL, (void *)dm_client_ntp_response                       },
     {NULL,                                    DM_URI_EXT_ERROR_PREFIX,   IOTX_DM_DEVICE_ALL, (void *)dm_client_ext_error                          },
+#ifdef DEVICE_MODEL_SHADOW
+    {DM_URI_THING_PROPERTY_DESIRED_DELETE_REPLY, DM_URI_SYS_PREFIX,      IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_property_desired_delete_reply},
+    {DM_URI_THING_PROPERTY_DESIRED_GET_REPLY, DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_property_desired_get_reply   },
+    {DM_URI_THING_SERVICE_PROPERTY_GET,       DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_service_property_get         },
 #endif
+#else
+    {DM_URI_THING_MODEL_DOWN_RAW,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_model_down_raw               },
+    {DM_URI_THING_MODEL_UP_RAW_REPLY,         DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_ALL, (void *)dm_client_thing_model_up_raw_reply           },
+#endif
+
 #ifdef DEVICE_MODEL_GATEWAY
     {DM_URI_THING_TOPO_ADD_NOTIFY,            DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, (void *)dm_client_thing_topo_add_notify              },
     {DM_URI_THING_GATEWAY_PERMIT,             DM_URI_SYS_PREFIX,         IOTX_DM_DEVICE_GATEWAY, (void *)dm_client_thing_gateway_permit               },
@@ -64,8 +66,43 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
     int res = 0, index = 0, fail_count = 0;
     int number = sizeof(g_dm_client_uri_map) / sizeof(dm_client_uri_map_t);
     char *uri = NULL;
+    char device_key[PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 4] = {0};
+    uint8_t local_sub = 0;
+    int len;
 
-    for (index = 0; index < number; index++) {
+#if !defined(DEVICE_MODEL_RAWDATA_SOLO)
+    for (fail_count = 0; fail_count < IOTX_DM_CLIENT_SUB_RETRY_MAX_COUNTS; fail_count++) {
+
+        res = dm_utils_service_name((char *)g_dm_client_uri_map[0].uri_prefix, (char *)g_dm_client_uri_map[0].uri_name,
+                                    product_key, device_name, &uri);
+        if (res < SUCCESS_RETURN) {
+            continue;
+        }
+        res = _dm_client_subscribe_filter(uri, (char *)g_dm_client_uri_map[0].uri_name, product_key, device_name);
+        if (res < SUCCESS_RETURN) {
+            DM_free(uri);
+            continue;
+        }
+
+        res = dm_client_subscribe(uri, (void *)g_dm_client_uri_map[0].callback, 0);
+        if (res < SUCCESS_RETURN) {
+            DM_free(uri);
+            continue;
+        }
+
+        DM_free(uri);
+        break;
+    }
+    index = 1;
+#else
+    index = 0;
+#endif
+    fail_count = 0;
+    len = 1;
+    HAL_Snprintf(device_key, PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN, "qub_%s%s", product_key, device_name);
+    HAL_Kv_Get(device_key, &local_sub, &len);
+
+    for (; index < number; index++) {
         if ((g_dm_client_uri_map[index].dev_type & dev_type) == 0) {
             continue;
         }
@@ -81,13 +118,14 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
             index--;
             continue;
         }
+
         res = _dm_client_subscribe_filter(uri, (char *)g_dm_client_uri_map[index].uri_name, product_key, device_name);
         if (res < SUCCESS_RETURN) {
             DM_free(uri);
             continue;
         }
-
-        res = dm_client_subscribe(uri, (void *)g_dm_client_uri_map[index].callback, NULL);
+        
+        res = dm_client_subscribe(uri, (void *)g_dm_client_uri_map[index].callback, &local_sub);
         if (res < SUCCESS_RETURN) {
             index--;
             fail_count++;
@@ -98,6 +136,8 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
         fail_count = 0;
         DM_free(uri);
     }
+    local_sub = 1;
+    HAL_Kv_Set(device_key, &local_sub, 1, 1);
 
     return SUCCESS_RETURN;
 }

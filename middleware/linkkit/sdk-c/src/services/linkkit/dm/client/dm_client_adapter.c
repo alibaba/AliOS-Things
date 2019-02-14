@@ -62,13 +62,23 @@ int dm_client_close(void)
 int dm_client_subscribe(char *uri, iotx_cm_data_handle_cb callback, void *context)
 {
     int res = 0;
+    uint8_t local_sub = 0;
     dm_client_ctx_t *ctx = dm_client_get_ctx();
     iotx_cm_ext_params_t sub_params;
 
     memset(&sub_params, 0, sizeof(iotx_cm_ext_params_t));
+    if (context != NULL) {
+        local_sub = *((uint8_t *)context);
+    }
 
-    sub_params.ack_type = IOTX_CM_MESSAGE_NO_ACK;
-    sub_params.sync_mode = IOTX_CM_SYNC;
+    if (local_sub == 1) {
+        sub_params.ack_type = IOTX_CM_MESSAGE_SUB_LOCAL;
+        sub_params.sync_mode = IOTX_CM_ASYNC;
+    } else {
+        sub_params.ack_type = IOTX_CM_MESSAGE_NO_ACK;
+        sub_params.sync_mode = IOTX_CM_SYNC;
+    }
+
     sub_params.sync_timeout = IOTX_DM_CLIENT_SUB_TIMEOUT_MS;
     sub_params.ack_cb = NULL;
 

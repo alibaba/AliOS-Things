@@ -20,6 +20,10 @@ typedef enum {
     /* MQTT: QoS is 1 */
     /* CoAP: CON */
     IOTX_CM_MESSAGE_NEED_ACK,
+    /* non ACK */
+    /* MQTT: QoS is 3 */
+    /* CoAP: NONE*/
+    IOTX_CM_MESSAGE_SUB_LOCAL,
     /* Maximum number of ack type */
     IOTX_CM_MESSAGE_ACK_MAX
 } iotx_cm_ack_types_t;
