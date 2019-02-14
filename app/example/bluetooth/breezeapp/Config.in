@@ -1,7 +1,8 @@
 config AOS_APP_BREEZEAPP
     bool "breezeapp"
     select AOS_COMP_BREEZE
-    select AOS_COMP_OTA_BLE if BREEZEAPP_CONFIG_EN_OTA
+    select AOS_COMP_OTA if BREEZEAPP_CONFIG_EN_OTA = 1
+    select AOS_COMP_OTA_BLE if BREEZEAPP_CONFIG_EN_OTA = 1
     select AOS_COMP_CLI
     help
         breezeapp
@@ -10,8 +11,9 @@ if AOS_APP_BREEZEAPP
 # Configurations for app breezeapp
 
 config BREEZEAPP_CONFIG_EN_OTA
-    bool "enable ble ota"
-    default y
+    int "enable ble ota(0: disable  1: enable)"
+    range 0 1
+    default 0
     help
 
 endif
