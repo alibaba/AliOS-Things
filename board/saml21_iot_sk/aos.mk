@@ -61,8 +61,9 @@ GLOBAL_LDFLAGS  += -T board/saml21_iot_sk/saml21j18b_flash.ld
 
 GLOBAL_INCLUDES += config
 
-sal ?= 0
-ifeq (1,$(sal))
+
+AOS_NETWORK_SAL ?= n
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_COMPONENTS += sal
 module ?= wifi.mk3060
 else
