@@ -10,14 +10,6 @@ config AOS_BOARD_SAML21_IOT_SK
 if AOS_BOARD_SAML21_IOT_SK
 # Configurations for board saml21_iot_sk
 
-config AOS_NETWORK_SAL
-    bool "AOS_NETWORK_SAL"
-    default n
-
-config SAL_MODULE
-    string
-    default "wifi.mk3060"
-
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_WIFI
     bool
