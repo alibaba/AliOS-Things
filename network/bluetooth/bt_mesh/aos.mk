@@ -16,6 +16,13 @@ endif
 
 $(NAME)_COMPONENTS += bluetooth.bt_mesh.ref-impl
 
+ifeq ($(en_mesh_shell),1)
+GLOBAL_DEFINES += CONFIG_BT_MESH_SHELL CONFIG_BT_MESH_CFG_CLI CONFIG_BT_MESH_HEALTH_CLI
+CONFIG_BT_MESH_SHELL := y
+CONFIG_BT_MESH_CFG_CLI := y
+CONFIG_BT_MESH_HEALTH_CLI := y
+endif
+
 $(NAME)_SOURCES := ./src/access.c \
                    ./src/adv.c \
                    ./src/beacon.c \
@@ -25,15 +32,13 @@ $(NAME)_SOURCES := ./src/access.c \
                    ./src/main.c \
                    ./src/net.c \
                    ./src/prov.c \
+                   ./src/proxy.c \
                    ./src/transport.c
 
 $(NAME)_SOURCES-$(CONFIG_BT_MESH_FRIEND) += ./src/friend.c
 $(NAME)_SOURCES-$(CONFIG_BT_MESH_LOW_POWER) += ./src/lpn.c
-$(NAME)_SOURCES-$(CONFIG_BT_MESH_PROXY) += ./src/proxy.c
-
 $(NAME)_SOURCES-$(CONFIG_BT_MESH_CFG_CLI) += ./src/cfg_cli.c
 $(NAME)_SOURCES-$(CONFIG_BT_MESH_HEALTH_CLI) += ./src/health_cli.c
-
 $(NAME)_SOURCES-$(CONFIG_BT_MESH_SHELL) += ./src/shell.c
 
 GLOBAL_DEFINES-$(CONFIG_BT_MESH_PB_GATT) += CONFIG_BT_MESH_PROXY
