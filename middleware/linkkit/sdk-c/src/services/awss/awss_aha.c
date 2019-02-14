@@ -162,7 +162,6 @@ int awss_ieee80211_aha_process(uint8_t *mgmt_header, int len, int link_type, str
 #ifdef AWSS_SUPPORT_APLIST
         memcpy(zc_bssid, zconfig_aplist[ap_idx].mac, ETH_ALEN);
 #endif
-        awss_set_config_press(0);
         return ALINK_DEFAULT_SSID;
     }
     return ALINK_INVALID;
