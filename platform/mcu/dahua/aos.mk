@@ -7,7 +7,6 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu dahua
 
 LWIP := 1
-SAL  := 0
 
 $(NAME)_COMPONENTS += arch_cskyv2-l
 $(NAME)_COMPONENTS += rhino netmgr
@@ -18,9 +17,10 @@ no_with_lwip       := 0
 GLOBAL_DEFINES     += WITH_LWIP
 endif
 
-ifeq ($(SAL),1)
-$(NAME)_COMPONENTS += sal device_sal_esp8266
-GLOBAL_DEFINES     += WITH_SAL
+AOS_NETWORK_SAL    ?= n
+ifeq (y,$(AOS_NETWORK_SAL))
+$(NAME)_COMPONENTS += sal netmgr
+module             ?= wifi.esp8266
 endif
 
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
@@ -59,7 +59,7 @@ $(NAME)_SOURCES += aos/aos.c                                    \
                    libs/posix/time/clock_gettime.c              \
                    hal_init/hal_init.c
 
-ifeq ($(SAL),1)
+ifeq (y,$(AOS_NETWORK_SAL))
 $(NAME)_SOURCES += hal/wifi_port.c
 GLOBAL_INCLUDES += ../../../drivers/sal/wifi/esp8266
 endif
