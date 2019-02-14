@@ -34,9 +34,13 @@ config BSP_SUPPORT_WIFI
     bool
     default y
 
-config BSP_WIFI_MODULE
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool
+    default y
+
+config BSP_EXTERNAL_WIFI_MODULE
     string
-    depends on BSP_SUPPORT_WIFI
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
     default "wifi.mk3060"
 
 endif
