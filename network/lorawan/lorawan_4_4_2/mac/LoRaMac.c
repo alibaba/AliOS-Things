@@ -1349,8 +1349,8 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
             }
             else
             {
-                MacCtx.MacState &= ~LORAMAC_RX;
-                MacCtx.MacFlags.Bits.MacDone = 1;
+                //MacCtx.MacState &= ~LORAMAC_RX;
+                //MacCtx.MacFlags.Bits.MacDone = 1;
             }
         }
         else
