@@ -10,15 +10,6 @@ config AOS_BOARD_STM32F429ZI_NUCLEO
 if AOS_BOARD_STM32F429ZI_NUCLEO
 # Configurations for board stm32f429zi-nucleo
 
-# Set default value of AOS_NETWORK_SAL
-config AOS_NETWORK_SAL
-    bool "AOS_NETWORK_SAL"
-    default n
-
-config SAL_MODULE
-    string
-    default "wifi.mk3060"
-
 config DEBUG_CONFIG_PANIC
     int "DEBUG_CONFIG_PANIC"
     default 1
