@@ -9,11 +9,6 @@ config AOS_BOARD_LINUXHOST
 if AOS_BOARD_LINUXHOST
 # Configurations for board linuxhost
 
-# Set default value of AOS_NETWORK_SAL
-config AOS_NETWORK_SAL
-    bool "AOS_NETWORK_SAL"
-    default n
-
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_WIFI
     bool

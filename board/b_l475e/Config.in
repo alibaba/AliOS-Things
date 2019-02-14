@@ -9,15 +9,6 @@ config AOS_BOARD_B_L475E
 if AOS_BOARD_B_L475E
 # Configurations for board board_b_l475e
 
-# Set default value of AOS_NETWORK_SAL
-config AOS_NETWORK_SAL
-    bool "AOS_NETWORK_SAL"
-    default y
-
-config SAL_MODULE
-    string
-    default "wifi.mk3060"
-
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
     bool
