@@ -42,4 +42,9 @@ config BSP_SUPPORT_WIFI
     bool
     default y
 
+config BSP_WIFI_MODULE
+    string
+    depends on BSP_SUPPORT_WIFI
+    default "wifi.mk3060"
+
 endif

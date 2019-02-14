@@ -14,8 +14,9 @@ config BSP_SUPPORT_WIFI
     bool
     default y
 
-config SAL_MODULE
+config BSP_WIFI_MODULE
     string
+    depends on BSP_SUPPORT_WIFI
     default "wifi.mk3060"
 
 config MESHLOWPOWER
