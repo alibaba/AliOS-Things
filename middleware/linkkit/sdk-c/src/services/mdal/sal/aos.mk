@@ -16,7 +16,7 @@ GLOBAL_INCLUDES += ./                  \
                    ./include
 
 ifeq (wifi.gt202,$(module))
-$(NAME)_COMPONENTS += sal_module_gt202
+$(NAME)_COMPONENTS += device_sal_gt202
 else ifeq (wifi.mk3060,$(module))
 $(NAME)_COMPONENTS += device_sal_mk3060
 else ifeq (wifi.bk7231,$(module))
@@ -26,5 +26,5 @@ $(NAME)_COMPONENTS += device_sal_sim800
 else ifeq (wifi.esp8266,$(module))
 $(NAME)_COMPONENTS += device_sal_esp8266
 else ifeq (wifi.athost,$(module))
-$(NAME)_COMPONENTS += athost
+$(NAME)_COMPONENTS += device_sal_athost
 endif
