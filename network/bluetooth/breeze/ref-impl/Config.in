@@ -10,11 +10,11 @@ if AOS_COMP_BREEZE_HAL
 # Configurations for comp bt_breeze_hal
 
      config BREEZEHAL_CONFIG_BLESTACK
- 	bool "inter_ble_stack"
+ 	bool "Enable built-in BLE stack"
  	default 1
 
      config BREEZEHAL_CONFIG_CRYTPO
-        bool "inter_breeze_crytpo"
+        bool "Enable built-in crypto"
         default 0
 
 endif

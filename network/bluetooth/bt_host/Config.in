@@ -8,7 +8,7 @@ if AOS_COMP_BT_HOST
 # Configurations for comp bt
 
     config AOS_CONFIG_BT_SMP
-        bool "Enable bluetooth Security Manage Protocol"
+        bool "Enable BLE SMP"
         default n
 
 endif
