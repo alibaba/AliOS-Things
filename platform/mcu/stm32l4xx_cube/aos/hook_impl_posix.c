@@ -3,7 +3,9 @@
  */
 
 #include <k_api.h>
-#include "pthread.h"
+#include "posix/pthread.h"
+
+extern pthread_key_list_t pthread_key_list_head;
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
 void krhino_idle_hook(void)
