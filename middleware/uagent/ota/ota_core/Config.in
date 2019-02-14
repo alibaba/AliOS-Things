@@ -1,6 +1,6 @@
 config AOS_COMP_OTA_CORE
-    bool
-    default n
+    bool "ota core"
+    default y
     help
 
 if AOS_COMP_OTA_CORE

@@ -1,6 +1,6 @@
 config AOS_COMP_OTA_HAL
-    bool
-    default n
+    bool "ota hal"
+    default y
     help
 
 if AOS_COMP_OTA_HAL
