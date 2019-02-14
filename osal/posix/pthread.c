@@ -53,9 +53,11 @@ void pthread_cleanup_push(void (*routine)(void *), void *arg)
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                    void *(*start_routine)(void *), void *arg)
 {
-    kstat_t         ret = 0;
-    void           *stack;
-    _pthread_tcb_t *ptcb;
+    kstat_t ret    = 0;
+    void    *stack = NULL;
+
+    _pthread_tcb_t *ptcb = NULL;
+    _pthread_tcb_t *ptcb_c = NULL;
 
     if (thread == NULL) {
         return -1;
@@ -76,9 +78,21 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 
     /* get pthread attr */
     if (attr != NULL) {
-        ptcb->attr = *attr;
+        if (attr->inheritsched == PTHREAD_INHERIT_SCHED) {
+            ptcb_c = _pthread_get_tcb(krhino_cur_task_get());
+            if (ptcb_c != NULL) {
+                ptcb->attr = ptcb_c->attr;
+            } else {
+                ptcb->attr = *attr;
+            }
+        } else {
+            ptcb->attr = *attr;
+        }
     } else {
-        pthread_attr_init(&ptcb->attr);
+        ret = pthread_attr_init(&ptcb->attr);
+        if (ret != 0) {
+            return -1;
+        }
     }
 
     /* get stack addr */
@@ -274,7 +288,7 @@ int pthread_join(pthread_t thread, void **retval)
 
 int pthread_cancel(pthread_t thread)
 {
-    return 0;
+    return -1;
 }
 
 void pthread_testcancel(void)
@@ -284,18 +298,18 @@ void pthread_testcancel(void)
 
 int pthread_setcancelstate(int state, int *oldstate)
 {
-    return 0;
+    return -1;
 }
 
 int pthread_setcanceltype(int type, int *oldtype)
 {
-    return 0;
+    return -1;
 }
 
 int pthread_kill(pthread_t thread, int sig)
 {
     /* This api should not be used, and will not be supported */
-    return 0;
+    return -1;
 }
 
 int pthread_equal(pthread_t t1, pthread_t t2)
@@ -305,30 +319,42 @@ int pthread_equal(pthread_t t1, pthread_t t2)
 
 int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param *param)
 {
-    kstat_t stat = RHINO_SUCCESS;
-    uint8_t old_pri;
+    kstat_t ret     = -1;
+    uint8_t old_pri = 0;
+
+    _pthread_tcb_t *ptcb = NULL;
 
     if (param == NULL) {
         return -1;
     }
 
     if (policy == SCHED_FIFO) {
-        stat = krhino_sched_policy_set((ktask_t *)thread, KSCHED_FIFO);
+        ret = krhino_sched_policy_set((ktask_t *)thread, KSCHED_FIFO);
     } else if (policy == SCHED_RR) {
-        stat = krhino_sched_policy_set((ktask_t *)thread, KSCHED_RR);
+        ret = krhino_sched_policy_set((ktask_t *)thread, KSCHED_RR);
+        if (ret == 0) {
+            ret = krhino_task_time_slice_set((ktask_t *)thread, (param->slice * 1000) / RHINO_CONFIG_TICKS_PER_SECOND);
+        }
     } else {
         return -1;
     }
 
-    if (stat != RHINO_SUCCESS) {
+    if (ret != RHINO_SUCCESS) {
         return -1;
     }
 
     /* change the priority of pthread */
-    stat = krhino_task_pri_change((ktask_t *)thread, PRI_CONVERT_PX_RH(param->sched_priority), &old_pri);
-    if (stat != RHINO_SUCCESS) {
+    ret = krhino_task_pri_change((ktask_t *)thread, PRI_CONVERT_PX_RH(param->sched_priority), &old_pri);
+    if (ret != RHINO_SUCCESS) {
         return -1;
     }
+
+    ptcb = _pthread_get_tcb(thread);
+    if (ptcb == NULL) {
+        return -1;
+    }
+
+    ptcb->attr.schedparam = *param;
 
     return 0;
 }
@@ -336,6 +362,23 @@ int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param
 pthread_t pthread_self(void)
 {
     return krhino_cur_task_get();
+}
+
+int pthread_setschedprio(pthread_t thread, int prio)
+{
+    uint8_t old_pri = 0;
+    int     ret     = -1;
+
+    if (thread == NULL) {
+        return -1;
+    }
+
+    ret = krhino_task_pri_change((ktask_t *)thread, PRI_CONVERT_PX_RH(prio), &old_pri);
+    if (ret != RHINO_SUCCESS) {
+        return -1;
+    }
+
+    return 0;
 }
 
 int pthread_once(pthread_once_t *once_control, void (*init_routine)(void))
@@ -359,6 +402,20 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine)(void))
     krhino_mutex_unlock(&g_pthread_mutex);
 
     return 0;
+}
+
+int pthread_getconcurrency(void)
+{
+    /* User thread and kernel thread are one-to-one correspondence in AliOS Things,
+       so the concurrency is 0  */
+    return 0;
+}
+
+int pthread_setconcurrency(int new_level)
+{
+    /* User thread and kernel thread are one-to-one correspondence in AliOS Things,
+       so the concurrency can not be set  */
+    return -1;
 }
 
 #endif
