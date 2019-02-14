@@ -1,8 +1,8 @@
 config AOS_COMP_SAL
     bool "AOS_COMP_SAL"
     default n
-    select AOS_COMP_SAL_MODULE_gt202 if SAL_MODULE = "wifi.gt202"
-    select AOS_COMP_DEVICE_SAL_MK3060 if SAL_MODULE = "wifi.mk3060"
-    select AOS_COMP_DEVICE_SAL_ESP8266 if SAL_MODULE = "wifi.esp8266"
-    select AOS_COMP_DEVICE_SAL_BK7231 if SAL_MODULE = "wifi.bk7231"
-    select AOS_COMP_DEVICE_SAL_SIM800 if SAL_MODULE = "gprs.sim800"
+    select AOS_COMP_SAL_MODULE_gt202 if BSP_WIFI_MODULE = "wifi.gt202"
+    select AOS_COMP_DEVICE_SAL_MK3060 if BSP_WIFI_MODULE = "wifi.mk3060"
+    select AOS_COMP_DEVICE_SAL_ESP8266 if BSP_WIFI_MODULE = "wifi.esp8266"
+    select AOS_COMP_DEVICE_SAL_BK7231 if BSP_WIFI_MODULE = "wifi.bk7231"
+    select AOS_COMP_DEVICE_SAL_SIM800 if BSP_GPRS_MODULE = "gprs.sim800"
