@@ -102,6 +102,9 @@ int __awss_start(void)
 #endif
             {
                 awss_event_post(AWSS_CONNECT_ROUTER_FAIL);
+#ifndef AWSS_DISABLE_ENROLLEE
+                awss_enrollee_connect_router_fail(0);
+#endif
             }
         }
     } while (0);

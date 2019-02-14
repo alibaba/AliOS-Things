@@ -56,6 +56,7 @@ struct ieee80211_enrollee_alibaba_ie {
 #ifdef __GNUC__
     uint8_t sign[0];        /* sign = hmacsha1(secret, random+dev_name+product_key) */
 #endif
+    uint8_t err_code;
 };
 
 /*  len = 17 + sign[n] + ssid[n] + passwd[n] */
@@ -110,6 +111,8 @@ struct enrollee_info {
     uint8_t sign_len;
     uint8_t sign[ENROLLEE_SIGN_SIZE];
 
+    uint8_t err_code;
+
     signed char rssi;
 
     uint8_t key[MAX_KEY_LEN + 1];  /* aes key */
@@ -153,10 +156,12 @@ extern const uint8_t probe_req_frame[ZC_PROBE_LEN];
 static void awss_init_enrollee_info(void) { }
 static void awss_broadcast_enrollee_info(void) { }
 static void awss_destroy_enrollee_info(void) { }
+static void awss_enrollee_connect_router_fail(int reson) {}
 #else
 void awss_init_enrollee_info(void);
-void awss_broadcast_enrollee_info(void);
 void awss_destroy_enrollee_info(void);
+void awss_broadcast_enrollee_info(void);
+void awss_enrollee_connect_router_fail(int reson);
 int awss_recv_callback_zconfig(struct parser_res *res);
 int awss_ieee80211_zconfig_process(uint8_t *mgmt_header, int len, int link_type,
                                    struct parser_res *res, signed char rssi);
