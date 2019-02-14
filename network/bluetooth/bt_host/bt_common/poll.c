@@ -212,32 +212,17 @@ void event_callback(uint8_t event_type)
     struct event_cb *event_next_save;
     struct k_poll_event *events;
     unsigned int key;
-    extern struct k_poll_signal g_pkt_recv;
-    bool sem_give_flag = false;
 
+    key = irq_lock();
     SYS_DLIST_FOR_EACH_NODE_SAFE(&event_cb_list, event_next, event_next_save) {
-        sem_give_flag = false;
         for (int i = 0; i < event_next->num_events; i++) {
-            switch (event_type) {
-                case K_POLL_TYPE_DATA_RECV:
-                    if (event_next->events[i].type == event_type) {
-#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
-                        key = irq_lock();
-                        g_pkt_recv.signaled = 1;
-                        irq_unlock(key);
-                        sem_give_flag = true;
-#endif
-                    }
-                    break;
-                case K_POLL_TYPE_FIFO_DATA_AVAILABLE:
-                    sem_give_flag = true;
-                    break;
+            if (event_next->events[i].type == event_type) {
+                k_sem_give(&event_next->sem);
+                break;
             }
         }
-        if (sem_give_flag == true) {
-            k_sem_give(&event_next->sem);
-        }
     }
+    irq_unlock(key);
 }
 
 int k_poll(struct k_poll_event *events, int num_events, s32_t timeout)
