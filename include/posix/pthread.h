@@ -19,13 +19,19 @@ extern "C"
 typedef ktask_t *pthread_t;
 typedef int      pthread_once_t;
 
+/* the value of contentionscope in struct pthread_attr_t */
 #define PTHREAD_SCOPE_PROCESS   0
 #define PTHREAD_SCOPE_SYSTEM    1
+
+/* the value of inheritsched in struct pthread_attr_t */
 #define PTHREAD_INHERIT_SCHED   1
 #define PTHREAD_EXPLICIT_SCHED  2
+
+/* the value of detachstate in struct pthread_attr_t */
 #define PTHREAD_CREATE_DETACHED 0
 #define PTHREAD_CREATE_JOINABLE 1
 
+/* the value of scheduling policy */
 #define SCHED_OTHER 0
 #define SCHED_FIFO  1
 #define SCHED_RR    2
@@ -40,6 +46,7 @@ typedef int      pthread_once_t;
 
 #define DEFAULT_THREAD_STACK_SIZE 2048
 #define DEFAULT_THREAD_PRIORITY   30
+#define DEFAULT_THREAD_SLICE      10
 
 enum {
     PTHREAD_CANCEL_ASYNCHRONOUS,
@@ -52,19 +59,22 @@ enum {
 typedef int pid_t;
 
 struct sched_param {
-    int sched_priority; /* Process execution scheduling priority */
+    int    sched_priority; /* process execution scheduling priority */
+    size_t slice;          /* time slice in SCHED_RR mode (ms) */
 };
 
 typedef struct pthread_attr {
-    unsigned char      is_initialized;
-    void              *stackaddr;
-    size_t             stacksize;
-    unsigned char      contentionscope;
-    unsigned char      inheritsched;
-    struct sched_param schedparam;
-    size_t             guardsize;
-    unsigned char      detachstate;
-    size_t             affinitysetsize;
+    unsigned char      is_initialized;  /* if the attr is initialized set to 1, otherwise set to 0 */
+    void              *stackaddr;       /* the start addr of the stack of the pthead */
+    size_t             stacksize;       /* the size of the stack of the pthead */
+    unsigned char      contentionscope; /* the scope of contention, only PTHREAD_SCOPE_SYSTEM is supported */
+    unsigned char      inheritsched;    /* when set to PTHREAD_INHERIT_SCHED, specifies that the thread scheduling attributes
+                                           shall be inherited from the creating thread, and the scheduling attributes in this
+                                           attr argument shall be ignored */
+    unsigned char      schedpolicy;     /* the sched policy of the thread */
+    struct sched_param schedparam;      /* the parameter of the thread scheduling */
+    size_t             guardsize;       /* guardsize is set to protect the stack, not supported */
+    unsigned char      detachstate;     /* when set to PTHREAD_CREATE_JOINABLE, thread will not end untill the creating thread end */
 } pthread_attr_t;
 
 #define PTHREAD_MAGIC 0x11223344
@@ -115,6 +125,24 @@ RHINO_INLINE _pthread_tcb_t *_pthread_get_tcb(pthread_t thread)
     return ptcb;
 }
 
+RHINO_INLINE pid_t _pthread_to_pid(pthread_t thread)
+{
+    if (thread == NULL) {
+        return -1;
+    }
+
+    return (pid_t)thread;
+}
+
+RHINO_INLINE pthread_t _pid_to_pthread(pid_t pid)
+{
+    if (pid == -1) {
+        return NULL;
+    }
+
+    return (pthread_t)pid;
+}
+
 int       pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                          void *(*start_routine)(void *), void *arg);
 void      pthread_exit(void *value_ptr);
@@ -134,7 +162,7 @@ pthread_t pthread_self(void);
 int sched_yield(void);
 int sched_get_priority_min(int policy);
 int sched_get_priority_max(int policy);
-int sched_setscheduler(pid_t pid, int policy);
+int sched_setscheduler(pid_t pid, int policy, const struct sched_param *param);
 
 int pthread_attr_init(pthread_attr_t *attr);
 int pthread_attr_destroy(pthread_attr_t *attr);
