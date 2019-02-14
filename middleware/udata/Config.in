@@ -1,6 +1,7 @@
 config AOS_COMP_UDATA
     bool "udata"
     default n
+    depends on AOS_COMP_SENSOR
     select AOS_COMP_OSAL_AOS
     select AOS_COMP_CJSON if UDATA_CONFIG_CJSON_FORMAT
     help
