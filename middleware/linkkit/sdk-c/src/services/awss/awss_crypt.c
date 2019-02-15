@@ -97,7 +97,7 @@ int aes_decrypt_string(char *cipher, char *plain, int len, int cipher_hex, int s
         }
         default: {
             decrypt = 0;
-            awss_debug("wrong security level: %d\n", sec_lvl);
+            awss_debug("wrong security: %d\n", sec_lvl);
             res = -2;
             break;
         }

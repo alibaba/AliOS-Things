@@ -93,11 +93,9 @@ int ht40_scanning_hint_frame(uint8_t filter, signed char rssi, uint32_t length, 
             for (k = 0; k < 8; k++) {/* group frame */
                 if (zconfig_hint_frame[k] + zconfig_fixed_offset[j][0] + i * 2 == length) {
                     hint_pos = i * 32 + j * 8 + k;
-#if 1
-                    awss_trace("\r\nfilter:%x, rssi:%d, len:%d, Qos:%d, auth:%d, group:%d, %s\r\n",
+                    awss_trace("\nfilter:%x, rssi:%d, len:%d, Qos:%d, auth:%d, group:%d, %s\n",
                                filter, rssi, length, i, j, k,
                                next_loop ? "DUP" : "");
-#endif
                     if (!next_loop) {
                         channel_locked = ht40_lock_channel(channel, filter);
                         if (channel_locked) {
@@ -122,7 +120,7 @@ int ht40_scanning_hint_frame(uint8_t filter, signed char rssi, uint32_t length, 
 
         ht40_filter = filter;
 
-        awss_trace("filter:%x, rssi range:[%d, %d]\r\n",
+        awss_trace("filter:%x, rssi range:[%d, %d]\n",
                    filter, ht40_rssi_low, ht40_rssi_high);
     }
 
