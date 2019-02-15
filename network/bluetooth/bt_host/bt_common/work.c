@@ -11,10 +11,11 @@ struct k_work_q g_work_queue;
 static void k_work_submit_to_queue(struct k_work_q *work_q, struct k_work *work)
 {
     struct k_work *delayed_work = NULL;
+    uint32_t now = k_uptime_get_32();
 
     if (!atomic_test_and_set_bit(work->flags, K_WORK_STATE_PENDING)) {
         SYS_SLIST_FOR_EACH_NODE(&g_work_queue.queue.data_q, delayed_work) {
-            if (delayed_work->timeout < work->timeout) {
+            if ((delayed_work->start_ms + delayed_work->timeout - now) < work->timeout) {
                 break;
             }
         }
