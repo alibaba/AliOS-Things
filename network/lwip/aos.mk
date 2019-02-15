@@ -58,7 +58,7 @@ endif
 
 
 ifeq (y,$(TFTP_ENABLED))
-use_lwip_tftp := 0
+use_lwip_tftp ?= 0
 ifeq ($(use_lwip_tftp), 1)
 GLOBAL_DEFINES += WITH_LWIP_TFTP
 
@@ -86,7 +86,7 @@ endif
 
 ifeq (y,$(DHCPD_ENABLED))
 #default use the private dhcpd
-use_private_dhcpd := 1
+use_private_dhcpd ?= 1
 ifneq ($(use_private_dhcpd), 1)
 $(NAME)_SOURCES += $(DHCPDFILES)
 endif
