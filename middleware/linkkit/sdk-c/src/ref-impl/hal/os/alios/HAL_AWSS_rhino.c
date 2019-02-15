@@ -23,17 +23,18 @@ extern "C"
 /*
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
  *
- * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
+ * @param  mac_str : 用于存放MAC地址字符串的缓冲区数组
  * @return  指向缓冲区数组起始位置的字符指针
+ * @note   基础通用HAL，都需要对接
  */
-char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
+char *HAL_Wifi_Get_Mac(char mac_str[HAL_MAC_LEN])
 {
-    uint8_t mac[6] = { 0 };
+    uint8_t mac[6] = {0};
 
     hal_wifi_get_mac_addr(NULL, mac);
 
     snprintf(mac_str, HAL_MAC_LEN, "%02x:%02x:%02x:%02x:%02x:%02x",
-            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     return mac_str;
 }
@@ -41,15 +42,17 @@ char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
 extern void wifi_get_ip(char ips[16]);
 
 /*
- * @brief   获取Wi-Fi网口的IP地址, 点分十进制格式保存在字符串数组出参,
- * 二进制格式则作为返回值, 并以网络字节序(大端)表达
+ * @brief   获取Wi-Fi网口的IP地址, 点分十进制格式保存在字符串数组,
+ *          二进制格式则作为返回值, 并以网络字节序(大端)表达
  *
- * @param   ifname : 指定Wi-Fi网络接口的名字
+ * @param   ifname : 指定Wi-Fi网络接口的名字，单端口Wi-Fi可以忽略
+ *                   此参数，该参数可能为NULL
  * @param   ip_str : 存放点分十进制格式的IP地址字符串的数组
  * @return  二进制形式的IP地址, 以网络字节序(大端)组织
+ * @note   基础通用HAL，都需要对接
  */
-uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[NETWORK_ADDR_LEN],
-                         _IN_ const char *ifname)
+uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN],
+                         const char *ifname)
 {
     //(void *)ifname;
     wifi_get_ip(ip_str);
@@ -57,10 +60,12 @@ uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[NETWORK_ADDR_LEN],
 }
 
 /*
- * @brief   获取配网服务(`AWSS`)的超时时间长度, 单位是毫秒
+ * @brief   获取配网服务(`AWSS`)扫描的超时时间长度, 单位是毫秒
  *
  * @return  超时时长, 单位是毫秒
- * @note    推荐时长是60,0000毫秒
+ * @note  1）推荐时长是180,000毫秒
+ *        2）厂商可以根据项目需要实现该函数，如天猫项目中都统一设置成了10分钟
+ *        3）除设备热点配网不需要对接外，其他各种配网都需要对接
  */
 int HAL_Awss_Get_Timeout_Interval_Ms(void)
 {
@@ -68,10 +73,14 @@ int HAL_Awss_Get_Timeout_Interval_Ms(void)
 }
 
 /*
- * @brief   获取在每个信道(`channel`)上扫描的时间长度, 单位是毫秒
+ * @brief   获取在每个信道(channel)上扫描的时间长度, 单位是毫秒
  *
  * @return  时间长度, 单位是毫秒
- * @note    推荐时长是200毫秒到400毫秒
+ * @note
+ *     1） 推荐时长是200毫秒到400毫秒，建议250毫秒，各模组或芯片
+ *         厂商可以根据自己模组或芯片质量的好坏决定，模组质量好的，
+ *         可以靠近200ms，模组质量不太好的，建议放大到250ms以上
+ *     2）除设备热点配网不需要对接外，其他各种配网都需要对接
  */
 int HAL_Awss_Get_Channelscan_Interval_Ms(void)
 {
@@ -98,8 +107,7 @@ int HAL_Awss_Get_Channelscan_Interval_Ms(void)
  */
 awss_recv_80211_frame_cb_t g_ieee80211_handler;
 
-static void monitor_data_handler(uint8_t *buf, int len,
-                                 hal_wifi_link_info_t *info)
+static void monitor_data_handler(uint8_t *buf, int len, hal_wifi_link_info_t *info)
 {
     int with_fcs  = 0;
     unsigned char rssi = -1;
@@ -116,7 +124,7 @@ static void monitor_data_handler(uint8_t *buf, int len,
  *
  * @param[in] cb @n A function pointer, called back when wifi receive a frame.
  */
-void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
+void HAL_Awss_Open_Monitor(awss_recv_80211_frame_cb_t cb)
 {
     hal_wifi_module_t *module = hal_wifi_get_default_module();
 
@@ -197,7 +205,6 @@ int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, 
  *       3）Wi-Fi状态机需要切换到初始化状态，因为接下来很可能进行
  *          连接某一个路由器操作；
  */
-
 int HAL_Awss_Close_Ap()
 {
     hal_wifi_module_t *module = hal_wifi_get_default_module();
@@ -209,17 +216,18 @@ int HAL_Awss_Close_Ap()
 }
 
 /*
- * @brief   设置Wi-Fi网卡切换到指定的信道(channel)上
+ * @brief   设置Wi-Fi网卡、模组或芯片切换到指定的信道(channel)上
  *
- * @param[in] primary_channel @n Primary channel.
- * @param[in] secondary_channel @n Auxiliary channel if 40Mhz channel is
- * supported, currently this param is always 0.
- * @param[in] bssid @n A pointer to wifi BSSID on which awss lock the
- * channel, most HAL may ignore it.
+ * @param[in] primary_chan @n 首选信道
+ * @param[in] sec_chan @n 辅助信道（信道带宽为40MHz是才会
+ *                        使用，信道宽度为20MHz时可以忽略该参数）
+ * @param[in] bssid @n 该参数原计划HAL可以根据bssid过滤包，目前大部
+ *                    分模组或芯片厂商都没有实现，已经废弃，可以忽略
+ * @note   除设备热点配网不需要对接外，其他各种配网都需要对接
  */
-void HAL_Awss_Switch_Channel(_IN_ char     primary_channel,
-                             _IN_OPT_ char secondary_channel,
-                             _IN_OPT_ uint8_t bssid[ETH_ALEN])
+void HAL_Awss_Switch_Channel(char primary_channel,
+                             char secondary_channel,
+                             uint8_t bssid[ETH_ALEN])
 {
     hal_wifi_module_t *module = hal_wifi_get_default_module();
 
@@ -230,37 +238,57 @@ void HAL_Awss_Switch_Channel(_IN_ char     primary_channel,
     hal_wifi_set_channel(module, (int)primary_channel);
 }
 
+/*
+ * @brief 检查Wi-Fi网卡、芯片或模组当前的IP地址是否有效，AliOS内部
+ *        已经对接完成
+ *
+ * @param None.
+ * @return, 0: IP地址无效; 1: IP地址有效，可以发起网络连接
+ * @see None.
+ * @note
+ *    1）该API对接有问题，可能导致AWSS一致无法退出，有可能出现设
+ *       备成功连接AP后又重新开始扫描
+ *    2）各种配网都需要对接
+ */
 int HAL_Sys_Net_Is_Ready()
 {
     return netmgr_get_ip_state() == true ? 1 : 0;
 }
 
 /*
- * @brief   要求Wi-Fi网卡连接指定热点(Access Point)的函数
+ * @brief   要求Wi-Fi网卡、模组或芯片连接指定热点(Access Point)的函数
  *
- * @param[in] connection_timeout_ms @n AP connection timeout in ms or HAL_WAIT_INFINITE
- * @param[in] ssid @n AP ssid
- * @param[in] passwd @n AP passwd
- * @param[in] auth @n optional(AWSS_AUTH_TYPE_INVALID), AP auth info
- * @param[in] encry @n optional(AWSS_ENC_TYPE_INVALID), AP encry info
- * @param[in] bssid @n optional(NULL or zero mac address), AP bssid info
- * @param[in] channel @n optional, AP channel info
+ * @param[in] connection_timeout_ms @n 连接AP的超时时间
+ * @param[in] ssid @n 目的AP的SSID
+ * @param[in] passwd @n 目的AP的PASSWD
+ * @param[in] auth @n 目的AP的加密方式，HAL可以忽略
+ * @param[in] encry @n目的AP的认证方式，HAL可以忽略
+ * @param[in] bssid @n 目的AP的BSSID，该字段可能为NULL或设置为全
+ *                     零，如果该字段为NULL或设置为全零，HAL根据
+ *                     SSID和PASSWD匹配热点，如果该字段为有效值，
+ *                     HAL根据SSID、PASSWD、BSSID匹配热点
+ * @param[in] channel @n 目的热点的信道，该字段可以忽略
  * @return
- *      @verbatim
- *        = 0: connect AP & DHCP success
- *        = -1: connect AP or DHCP fail/timeout
- *      @endverbatim
+ *   @verbatim
+ *      = 0: connect AP & DHCP success
+ *      = -1: connect AP or DHCP fail/timeout
+ *    @endverbatim
  * @see None.
  * @note
- *      If the STA connects the old AP, HAL should disconnect from the old AP firstly.
+ *      1）如果芯片或模组当前已经连接到某热点，HAL首先检查当前连接
+ *         的热点是否与目的热点相同（匹配SSID、PASSWD和BSSID（如
+ *         果有效）），如果相同可以直接返回成功；反之，HAL应该先断开
+ *         当前的连接，然后再去连接目的热点；
+ *      2）如果BSSID字段有效，HAL应该根据SSID和BSSID匹配热点；
+ *      3）各种配网都需要对接
  */
-int HAL_Awss_Connect_Ap(_IN_ uint32_t connection_timeout_ms,
-                        _IN_ char     ssid[HAL_MAX_SSID_LEN],
-                        _IN_ char     passwd[HAL_MAX_PASSWD_LEN],
-                        _IN_OPT_ enum AWSS_AUTH_TYPE auth,
-                        _IN_OPT_ enum AWSS_ENC_TYPE  encry,
-                        _IN_OPT_ uint8_t bssid[ETH_ALEN],
-                        _IN_OPT_ uint8_t channel)
+int HAL_Awss_Connect_Ap(uint32_t connection_timeout_ms,
+                        char ssid[HAL_MAX_SSID_LEN],
+                        char passwd[HAL_MAX_PASSWD_LEN],
+                        enum AWSS_AUTH_TYPE auth,
+                        enum AWSS_ENC_TYPE  encry,
+                        uint8_t bssid[ETH_ALEN],
+                        uint8_t channel)
 {
     int ms_cnt = 0;
     netmgr_ap_config_t config = { 0 };
@@ -295,11 +323,11 @@ int HAL_Awss_Connect_Ap(_IN_ uint32_t connection_timeout_ms,
     return -1;
 }
 
-#define FRAME_ACTION_MASK (1 << FRAME_ACTION)
-#define FRAME_BEACON_MASK (1 << FRAME_BEACON)
-#define FRAME_PROBE_REQ_MASK (1 << FRAME_PROBE_REQ)
+#define FRAME_ACTION_MASK     (1 << FRAME_ACTION)
+#define FRAME_BEACON_MASK     (1 << FRAME_BEACON)
+#define FRAME_PROBE_REQ_MASK  (1 << FRAME_PROBE_REQ)
 #define FRAME_PROBE_RESP_MASK (1 << FRAME_PROBE_RESPONSE)
-#define FRAME_DATA_MASK (1 << FRAME_DATA)
+#define FRAME_DATA_MASK       (1 << FRAME_DATA)
 
 /*
  * @brief   在当前信道(channel)上以基本数据速率(1Mbps)发送裸的802.11帧(raw 802.11 frame)
@@ -317,8 +345,8 @@ int HAL_Awss_Connect_Ap(_IN_ uint32_t connection_timeout_ms,
  * @see None.
  * @note awss use this API send raw frame in wifi monitor mode & station mode
  */
-int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
-                                  _IN_ uint8_t *buffer, _IN_ int len)
+int HAL_Wifi_Send_80211_Raw_Frame(enum HAL_Awss_Frame_Type type,
+                                  uint8_t *buffer, int len)
 {
     return hal_wlan_send_80211_raw_frame(NULL, buffer, len);
 }
@@ -335,10 +363,9 @@ int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
  * @see None.
  * @note None.
  */
-typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *   buffer,
-                                          _IN_ int         len,
-                                          _IN_ signed char rssi_dbm,
-                                          _IN_ int         buffer_type);
+typedef void (*awss_wifi_mgmt_frame_cb_t)(uint8_t *buffer, int len,
+                                          signed char rssi_dbm,
+                                          int buffer_type);
 
 static awss_wifi_mgmt_frame_cb_t monitor_cb = NULL;
 static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
@@ -366,9 +393,8 @@ static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
  * @see None.
  * @note awss use this API to filter specific mgnt frame in wifi station mode
  */
-int HAL_Wifi_Enable_Mgmt_Frame_Filter(
-      _IN_ uint32_t filter_mask, _IN_OPT_ uint8_t vendor_oui[3],
-      _IN_ awss_wifi_mgmt_frame_cb_t callback)
+int HAL_Wifi_Enable_Mgmt_Frame_Filter(uint32_t filter_mask, uint8_t vendor_oui[3],
+                                      awss_wifi_mgmt_frame_cb_t callback)
 {
     monitor_cb = callback;
 
@@ -424,7 +450,7 @@ int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
     netmgr_register_wifi_scan_result_callback((netmgr_wifi_scan_result_cb_t)cb);
     hal_wifi_start_scan_adv(NULL);
 
-    while (netmgr_get_scan_cb_finished() != true) { // block
+    while (netmgr_get_scan_cb_finished() != true) {
         aos_msleep(50);
     }
 
@@ -445,11 +471,11 @@ int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
  * @see None.
  * @note None.
  */
-int HAL_Wifi_Get_Ap_Info(_OU_ char ssid[HAL_MAX_SSID_LEN],
-                         _OU_ char passwd[HAL_MAX_PASSWD_LEN],
-                         _OU_ uint8_t bssid[ETH_ALEN])
+int HAL_Wifi_Get_Ap_Info(char ssid[HAL_MAX_SSID_LEN],
+                         char passwd[HAL_MAX_PASSWD_LEN],
+                         uint8_t bssid[ETH_ALEN])
 {
-    netmgr_ap_config_t config = { 0 };
+    netmgr_ap_config_t config = {0};
 
     netmgr_get_ap_config(&config);
     if (ssid) {
@@ -465,11 +491,41 @@ int HAL_Wifi_Get_Ap_Info(_OU_ char ssid[HAL_MAX_SSID_LEN],
     return 0;
 }
 
+/*
+ * @brief   获取smartconfig一键配网的安全等级
+ *
+ * @param None.
+ * @return The security level:
+ *    @verbatim
+ *     0~2: 废弃
+ *     3: 一型一密
+ *     4: 一机一密
+ *    @endverbatim
+ * @Note，1）默认采用一型一密
+ *        2）各种配网都需要对接（基本没有工作量）
+ */
 int HAL_Awss_Get_Encrypt_Type()
 {
     return 3;
 }
 
+/*
+ * @brief    获取零配、手机热点配网和路由器配网的安全等级
+ *
+ * @param None.
+ * @return The security level:
+ *    @verbatim
+ *     3: 一型一密
+ *     4: 一机一密
+ *    @endverbatim
+ * @Note，
+ *     1） 默认采用一机一密，如果设备在飞燕平台创建时选择的安全等级
+ *         是一型一密的，并且设备出厂烧录的信息只包含ProductKey，
+ *         ProductSecret，DeviceName，不包含DeviceSecret，此函数一定
+ *         要返回一型一密，否则第一次零配、热点配网和路由器配网会失
+ *         败，第一个和天猫精灵的语音配网也会失败；
+ *     2） 各种配网都需要对接（基本没有工作量）
+ */
 int HAL_Awss_Get_Conn_Encrypt_Type()
 {
     char invalid_ds[DEVICE_SECRET_LEN + 1] = {0};
