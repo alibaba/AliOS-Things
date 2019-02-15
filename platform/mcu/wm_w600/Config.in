@@ -1,5 +1,5 @@
 config AOS_MCU_WM_W600
-    bool "mcu_wm_w600"
+    bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help

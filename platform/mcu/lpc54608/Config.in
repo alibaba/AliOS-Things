@@ -1,5 +1,5 @@
 config AOS_MCU_LPC54608IMPL
-    bool "mcu_lpc54608impl"
+    bool
     select AOS_COMP_LWIP
     select AOS_COMP_NETMGR
     select AOS_ARCH_ARMV7M

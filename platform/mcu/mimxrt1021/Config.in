@@ -1,5 +1,5 @@
 config AOS_MCU_MIMXRT1021IMPL
-    bool "mcu_mimxrt1021impl"
+    bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     select AOS_COMP_NEWLIB_STUB

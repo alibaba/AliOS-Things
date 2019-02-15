@@ -1,5 +1,5 @@
 config AOS_ARCH_ARMV6M
-    bool "armv6m"
+    bool
     help
       arch for armv6m
 

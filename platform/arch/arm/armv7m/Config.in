@@ -1,5 +1,5 @@
 config AOS_ARCH_ARMV7M
-    bool "armv7m"
+    bool
     help
       arch for armv7m
 
