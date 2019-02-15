@@ -2,7 +2,7 @@ config AOS_COMP_RHINO
     bool "Kernel Core(rhino)"
     default y
     help
-        AliOS things kernel core(rhino)
+        AliOS Things kernel core(rhino)
 
 #if AOS_COMP_RHINO
 if 0
