@@ -18,6 +18,7 @@
 #include "iot_import_product.h"
 #include "utils_sysinfo.h"
 
+
 #define DEFAULT_THREAD_PRI AOS_DEFAULT_APP_PRI
 
 #define _RHINO_SDK_DEMO__ 1
@@ -421,6 +422,49 @@ static int _list_insert(timer_data_t *data)
     return 0;
 }
 
+#include "k_api.h"
+
+#define MS2TICK(ms) krhino_ms_to_ticks(ms)
+static int _timer_change(aos_timer_t *timer, int ms)
+{
+    int ret;
+
+    if (timer == NULL) {
+        return -1;
+    }
+
+    ret = krhino_timer_change(timer->hdl, MS2TICK(ms), 0);
+    return ret;
+}
+
+static timer_data_t *_get_timer_data(aos_timer_t *timer)
+{
+    if (timer == NULL) {
+        PLATFORM_LOG("timer null");
+        return NULL;
+    }
+    if (mutex == NULL) {
+        mutex = HAL_MutexCreate();
+        if (mutex == NULL) {
+            PLATFORM_LOG("mutex create failed");
+            return NULL;
+        }
+    }
+
+    HAL_MutexLock(mutex);
+
+    timer_data_t *cur = data_list;
+    while (cur != NULL) {
+        if (cur->timer == timer) {
+            HAL_MutexUnlock(mutex);
+            return cur;
+        }
+        cur = cur->next;
+    }
+    HAL_MutexUnlock(mutex);
+    return NULL;
+}
+
 static int _list_remove(aos_timer_t  *timer)
 {
     timer_data_t *cur = data_list;
@@ -442,7 +486,7 @@ static int _list_remove(aos_timer_t  *timer)
     while (cur != NULL) {
 
         if (cur->timer == timer) {
-            if (cur == data_list) {
+            if (cur == pre) {
                 data_list = cur->next;
             } else {
                 pre->next = cur->next;
@@ -451,37 +495,12 @@ static int _list_remove(aos_timer_t  *timer)
             aos_free(cur);
             break;
         }
-
-        cur = cur->next;
         pre = cur;
+        cur = cur->next;
     }
     HAL_MutexUnlock(mutex);
     return 0;
 
-}
-
-static timer_data_t *_get_timer_data(aos_timer_t *timer)
-{
-    timer_data_t *cur = data_list;
-
-    if (mutex == NULL) {
-        mutex = HAL_MutexCreate();
-        if (mutex == NULL) {
-            PLATFORM_LOG("mutex create failed");
-            return NULL;
-        }
-    }
-
-    HAL_MutexLock(mutex);
-    while (cur != NULL) {
-        if (cur->timer == timer) {
-            HAL_MutexUnlock(mutex);
-            return cur;
-        }
-        cur = cur->next;
-    }
-    HAL_MutexUnlock(mutex);
-    return NULL;
 }
 
 static void timer_cb(void *timer, void *user)
@@ -501,8 +520,8 @@ static void timer_cb(void *timer, void *user)
     HAL_MutexLock(mutex);
     node->cb(node->user_data);
     HAL_MutexUnlock(mutex);
-
 }
+
 #endif
 void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
 {
@@ -519,12 +538,12 @@ void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
 
     return timer;
 #else
+
     aos_timer_t *timer = (aos_timer_t *)aos_malloc(sizeof(aos_timer_t));
     if (timer == NULL) {
         return NULL;
     }
     memset(timer, 0, sizeof(aos_timer_t));
-
     timer_data_t *node = (timer_data_t *)aos_malloc(sizeof(timer_data_t));
     if (node == NULL) {
         aos_free(timer);
@@ -553,14 +572,13 @@ int HAL_Timer_Start(void *t, int ms)
     return aos_schedule_call(schedule_timer, t);
 #else
     int ret;
-    ret = aos_timer_change(t, ms);
+    ret = _timer_change(t, ms);
     if (ret != 0) {
-        PLATFORM_LOG("aos_timer_change failed %d", ret);
+        PLATFORM_LOG("_timer_change failed %d", ret);
         return -1;
     }
-    ret = aos_timer_start(t);
-    return ret;
 
+    return aos_timer_start(t);
 #endif
 }
 
