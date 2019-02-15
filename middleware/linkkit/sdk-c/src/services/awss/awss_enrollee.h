@@ -27,6 +27,7 @@ extern "C" {
 #define DEVICE_TYPE_VERSION         (1)
 #define ENROLLEE_FRAME_TYPE         (0)
 #define REGISTRAR_FRAME_TYPE        (1)
+#define REGISTRAR_IDLE_DUTY         (1)
 
 struct ieee80211_enrollee_alibaba_ie {
     uint8_t element_id;     /* 221 */
