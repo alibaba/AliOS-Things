@@ -145,7 +145,6 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const s
     return 0;
 }
 
-
 int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 {
     kstat_t retval;
@@ -196,11 +195,26 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 
 int pthread_condattr_init(pthread_condattr_t *attr)
 {
+    if (attr == NULL) {
+        return -1;
+    }
+
+    attr->is_initialized = 1;
+
+    attr->clock   = DEFAULT_COND_CLOCK;
+    attr->pshared = DEFAULT_COND_SHARED;
+
     return 0;
 }
 
 int pthread_condattr_destroy(pthread_condattr_t *attr)
 {
+    if (attr == NULL) {
+        return -1;
+    }
+
+    memset(attr, 0 ,sizeof(pthread_condattr_t));
+
     return 0;
 }
 
