@@ -4,6 +4,9 @@
 #include <stdarg.h>
 #include "debug_api.h"
 #include "aos/cli.h"
+#ifdef AOS_COMP_CLI
+#include "cli_api.h"
+#endif
 
 /* ARMCC and ICCARM do not use heap when printf a string, but gcc dose*/
 #if defined(__CC_ARM)
@@ -156,6 +159,11 @@ void panicHandler(void *context)
             break;
     }
 
+#ifdef AOS_COMP_CLI
+    extern void uart_reinit(void);
+    uart_reinit();
+    cli_main(NULL);
+#endif
     while (1)
         ;
 }

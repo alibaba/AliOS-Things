@@ -670,7 +670,7 @@ static void cli_print_bad_command(char *cmd_string)
  * command lines to CLI.
  *
  */
-static void cli_main(void *data)
+void cli_main(void *data)
 {
     int32_t ret;
 

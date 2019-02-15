@@ -131,6 +131,12 @@ int32_t cli_get_echo_status(void);
  */
 int32_t cli_set_echo_status(int32_t status);
 
+/**
+* @brief CLI task entry
+*
+*/
+void cli_main(void *data);
+
 #ifdef __cplusplus
 }
 #endif
