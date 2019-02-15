@@ -381,7 +381,7 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
             NextAvailableFreqBandIdx = 0; //just get the first FreqBand
             TxFreqBandNum = FreqBandNum[NextAvailableFreqBandIdx];
 
-            if(LORA_NODE_FREQ_TPYE == FREQ_MODE_INTER)
+            if(get_lora_freq_mode() == FREQ_MODE_INTER)
             {
                 if(TxFreqBandNum >7)
                 {
@@ -410,6 +410,12 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
                 NvmCtx.TxChannels[i].DrRange.Value = ( DR_5 << 4 ) | DR_0;
                 NvmCtx.TxChannels[i].Band = 0;
 
+            }
+
+            if (get_lora_freqband_mask() == 0x01) {
+                LoRaChannelsDefaultMask = 0x00FF;
+            } else {
+                LoRaChannelsDefaultMask = 0xFF00;
             }
 
             if(LoRaChannelsDefaultMask == 0xFF00) SecondFreqGroupEnable = 1;
@@ -581,7 +587,7 @@ bool RegionCN470RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 
     if( rxConfig->RxSlot == RX_SLOT_WIN_2 )
     {
-        if (LORA_NODE_FREQ_TPYE == FREQ_MODE_INTER) {
+        if (get_lora_freq_mode() == FREQ_MODE_INTER) {
             frequency = 470300000 + (InterFreqRx2Chan[TxFreqBandNum+SecondFreqGroupEnable]) * 200000;
         } else {
             frequency = 470300000 + (IntraFreqRx2Chan[TxFreqBandNum+SecondFreqGroupEnable]) * 200000;
