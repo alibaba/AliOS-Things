@@ -1,5 +1,5 @@
 config AOS_MCU_XM510
-    bool "mcu_xm510"
+    bool
     select AOS_ARCH_ARMV7A
     select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB

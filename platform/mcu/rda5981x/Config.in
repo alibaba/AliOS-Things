@@ -1,5 +1,5 @@
 config AOS_MCU_RDA5981X
-    bool "mcu_RDA5981x"
+    bool
     select AOS_COMP_LWIP
     select AOS_COMP_CLI
     select AOS_COMP_NETMGR

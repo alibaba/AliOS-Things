@@ -1,5 +1,5 @@
 config AOS_MCU_GD32F4XX
-    bool "mcu_gd32f4xx"
+    bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help

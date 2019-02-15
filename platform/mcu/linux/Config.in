@@ -1,5 +1,5 @@
 config AOS_MCU_LINUXIMPL
-    bool "mcu_linuximpl"
+    bool
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NETMGR
     select AOS_ARCH_LINUX

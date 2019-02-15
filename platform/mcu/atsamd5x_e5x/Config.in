@@ -1,5 +1,5 @@
 config AOS_MCU_ATSAME54
-    bool "mcu_atsame54"
+    bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO

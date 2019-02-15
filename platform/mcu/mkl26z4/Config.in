@@ -1,5 +1,5 @@
 config AOS_MCU_MKL26Z4IMPL
-    bool "mcu_mkl26z4impl"
+    bool
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     select AOS_COMP_NEWLIB_STUB

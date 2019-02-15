@@ -1,5 +1,5 @@
 config AOS_MCU_LPC54102IMPL
-    bool "mcu_lpc54102impl"
+    bool
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_SAL
     select AOS_COMP_NETMGR

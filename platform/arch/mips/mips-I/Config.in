@@ -1,5 +1,5 @@
 config AOS_ARCH_MIPS_I
-    bool "mips-I"
+    bool
     help
       arch for mips-I
 

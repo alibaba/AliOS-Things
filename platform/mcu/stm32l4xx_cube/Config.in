@@ -1,5 +1,5 @@
 config AOS_MCU_STM32L4XX_CUBE
-    bool "mcu_stm32l4xx_cube"
+    bool
     select AOS_COMP_NEWLIB_STUB
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO

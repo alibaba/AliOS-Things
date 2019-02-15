@@ -1,5 +1,5 @@
 config AOS_MCU_MSP432P4XX
-    bool "mcu_msp432p4xx"
+    bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO
