@@ -11,6 +11,20 @@
 
 static pthread_mutex_t mutex;
 
+void posix_mutex_case(void);
+void posix_pthread_mutexattr_init_case(void);
+void posix_pthread_mutexattr_destroy_case(void);
+void posix_pthread_mutexattr_settype_case(void);
+void posix_pthread_mutexattr_gettype_case(void);
+void posix_pthread_mutexattr_setprotocol_case(void);
+void posix_pthread_mutexattr_getprotocol_case(void);
+void posix_pthread_mutex_setprioceiling_case(void);
+void posix_pthread_mutex_getprioceiling_case(void);
+void posix_pthread_mutexattr_setprioceiling_case(void);
+void posix_pthread_mutexattr_getprioceiling_case(void);
+void posix_pthread_mutexattr_setpshared_case(void);
+void posix_pthread_mutexattr_getpshared_case(void);
+
 static void *init_task(void *arg)
 {
     pthread_mutex_init(&mutex, NULL);
@@ -124,4 +138,352 @@ void posix_mutex_case(void)
     pthread_mutex_destroy(&mutex);
 
     LOGI(TAG, "posix_mutex_case end !\n");
+}
+
+/*************************** test pthread_mutexattr_init *****************************/
+void posix_pthread_mutexattr_init_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename = "posix_pthread_mutexattr_init_case";
+    int   flag     = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    pthread_mutexattr_init(&attr);
+
+    if ((attr.type == DEFAULT_MUTEX_TYPE)
+       &&(attr.protocol == DEFAULT_MUTEX_PROCOCOL)
+       &&(attr.prioceiling == DEFAULT_MUTEX_PRIOCEILING)
+       &&(attr.pshared == DEFAULT_MUTEX_PSHARED)
+       &&(attr.is_initialized == 1)) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutexattr_destroy *****************************/
+void posix_pthread_mutexattr_destroy_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename = "posix_pthread_mutexattr_destroy_case";
+    int   flag     = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    pthread_mutexattr_destroy(&attr);
+
+    if ((attr.type == 0)
+       &&(attr.protocol == 0)
+       &&(attr.prioceiling == 0)
+       &&(attr.pshared == 0)
+       &&(attr.is_initialized == 0)) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutexattr_settype *****************************/
+void posix_pthread_mutexattr_settype_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename = "posix_pthread_mutexattr_settype_case";
+    int   flag     = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+
+    if (attr.type == PTHREAD_MUTEX_ERRORCHECK) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutexattr_gettype *****************************/
+void posix_pthread_mutexattr_gettype_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename = "posix_pthread_mutexattr_gettype_case";
+    int   flag     = 0;
+    int   type     = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    attr.type = PTHREAD_MUTEX_ERRORCHECK;
+    pthread_mutexattr_gettype(&attr, &type);
+
+    if (type == PTHREAD_MUTEX_ERRORCHECK) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutexattr_setprotocol *****************************/
+void posix_pthread_mutexattr_setprotocol_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename = "posix_pthread_mutexattr_setprotocol_case";
+    int   flag     = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    pthread_mutexattr_setprotocol(&attr, PTHREAD_PRIO_INHERIT);
+
+    if (attr.protocol == PTHREAD_PRIO_INHERIT) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutexattr_getprotocol *****************************/
+void posix_pthread_mutexattr_getprotocol_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename = "posix_pthread_mutexattr_getprotocol_case";
+    int   flag     = 0;
+    int   protocol = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    attr.protocol = PTHREAD_PRIO_INHERIT;
+    pthread_mutexattr_getprotocol(&attr, &protocol);
+
+    if (protocol == PTHREAD_PRIO_INHERIT) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutex_setprioceiling *****************************/
+void posix_pthread_mutex_setprioceiling_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename        = "posix_pthread_mutex_setprioceiling_case";
+    int   flag            = 0;
+    int   old_prioceiling = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    pthread_mutex_init(&mutex, &attr);
+    pthread_mutex_setprioceiling(&mutex, POSIX_HIGH_PRI, &old_prioceiling);
+    pthread_mutex_destroy(&mutex);
+
+    if (mutex.attr->prioceiling == POSIX_HIGH_PRI) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutex_getprioceiling *****************************/
+void posix_pthread_mutex_getprioceiling_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename    = "posix_pthread_mutex_getprioceiling_case";
+    int   flag        = 0;
+    int   prioceiling = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    attr.prioceiling = POSIX_HIGH_PRI;
+
+    pthread_mutex_init(&mutex, &attr);
+    pthread_mutex_getprioceiling(&mutex, &prioceiling);
+    pthread_mutex_destroy(&mutex);
+
+    if (prioceiling == POSIX_HIGH_PRI) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutexattr_setprioceiling *****************************/
+void posix_pthread_mutexattr_setprioceiling_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename = "posix_pthread_mutexattr_setprioceiling_case";
+    int   flag     = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    pthread_mutexattr_setprioceiling(&attr, POSIX_HIGH_PRI);
+
+    if (attr.prioceiling == POSIX_HIGH_PRI) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutexattr_getprioceiling *****************************/
+void posix_pthread_mutexattr_getprioceiling_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename    = "posix_pthread_mutexattr_getprioceiling_case";
+    int   flag        = 0;
+    int   prioceiling = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    attr.prioceiling = POSIX_HIGH_PRI;
+    pthread_mutexattr_getprioceiling(&attr, &prioceiling);
+
+    if (prioceiling == POSIX_HIGH_PRI) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutexattr_setpshared *****************************/
+void posix_pthread_mutexattr_setpshared_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename = "posix_pthread_mutexattr_setpshared_case";
+    int   flag     = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_PRIVATE);
+
+    if (attr.pshared == PTHREAD_PROCESS_PRIVATE) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
+}
+
+/*************************** test pthread_mutexattr_getpshared *****************************/
+void posix_pthread_mutexattr_getpshared_case(void)
+{
+    pthread_mutexattr_t attr;
+
+    char *casename = "posix_pthread_mutexattr_getpshared_case";
+    int   flag     = 0;
+    int   pshared  = 0;
+
+    LOGI(TAG, "*********** %s start ***********\n", casename);
+
+    attr.pshared = PTHREAD_PROCESS_PRIVATE;
+    pthread_mutexattr_getpshared(&attr, &pshared);
+
+    if (pshared == PTHREAD_PROCESS_PRIVATE) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+
+    if (flag == 1) {
+        LOGI(TAG, "%s succeed !\n", casename);
+    } else {
+        LOGI(TAG, "%s failed !\n", casename);
+    }
+
+    LOGI(TAG, "*********** %s end ***********\n", casename);
 }
