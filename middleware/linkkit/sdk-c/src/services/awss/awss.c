@@ -46,7 +46,7 @@ int awss_success_notify(void)
 int awss_start(void)
 {
     if (awss_stopped == 0) {
-        awss_debug("awss already running\n");
+        awss_warn("awss exist\n");
         return -1;
     }
 
