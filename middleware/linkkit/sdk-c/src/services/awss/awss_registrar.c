@@ -2,7 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
 #include <stdlib.h>
 #include "json_parser.h"
 #include "awss_enrollee.h"
@@ -39,17 +38,45 @@ static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeo
 static int awss_enrollee_get_dev_info(char *payload, int payload_len, char *product_key,
                                       char *dev_name, char *cipher, int *timeout);
 
-/* registrar send pkt interval in ms */
-#define REGISTRAR_TIMEOUT               (60)
+#define REGISTRAR_TIMEOUT       (60)
+/* channel 1, 6, 11, channel 1 ~ 13 */
+#define REGISTRAR_WORK_TIME     (16 * 400)
 
 static struct enrollee_info enrollee_info[MAX_ENROLLEE_NUM];
+static char registrar_sched_cnt = 0;
 static char registrar_inited = 0;
 static char registrar_id = 0;
 
 static void *checkin_timer = NULL;
 static void *enrollee_report_timer = NULL;
+static void *registrar_sched_timer = NULL;
 
-#define ALIBABA_OUI                     {0xD8, 0x96, 0xE0}
+#define ALIBABA_OUI             {0xD8, 0x96, 0xE0}
+
+#ifdef REGISTRAR_IDLE_DUTY
+#if REGISTRAR_IDLE_DUTY > 0
+void registrar_schedule(void *param)
+{
+    uint8_t alibaba_oui[3] = ALIBABA_OUI;
+    char last_open = registrar_sched_cnt & 0x01;
+    unsigned int idle_duty = REGISTRAR_IDLE_DUTY;
+
+    HAL_Timer_Stop(registrar_sched_timer);
+    registrar_sched_cnt ++;
+
+    if (last_open) {  /* need to close */
+        os_wifi_enable_mgnt_frame_filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
+                (uint8_t *)alibaba_oui, NULL);
+        HAL_Timer_Start(registrar_sched_timer, REGISTRAR_WORK_TIME * idle_duty);
+    } else {
+        os_wifi_enable_mgnt_frame_filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
+                (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
+        HAL_Timer_Start(registrar_sched_timer, REGISTRAR_WORK_TIME);
+    }
+}
+#endif
+#endif
+
 void awss_registrar_init(void)
 {
     if (registrar_inited) {
@@ -59,6 +86,21 @@ void awss_registrar_init(void)
     uint8_t alibaba_oui[3] = ALIBABA_OUI;
     memset(enrollee_info, 0, sizeof(enrollee_info));
     registrar_inited = 1;
+
+    /*
+     * if idle duty is zero, don't need to care about power consumption
+     */
+#ifdef REGISTRAR_IDLE_DUTY
+#if REGISTRAR_IDLE_DUTY > 0
+    if (registrar_sched_timer == NULL)
+        registrar_sched_timer = HAL_Timer_Create("sched", (void (*)(void *))registrar_schedule, NULL);
+    if (registrar_sched_timer) {
+        registrar_sched_cnt ++;
+        HAL_Timer_Stop(registrar_sched_timer);
+        HAL_Timer_Start(registrar_sched_timer, REGISTRAR_WORK_TIME);
+    }
+#endif
+#endif
     os_wifi_enable_mgnt_frame_filter(FRAME_BEACON_MASK | FRAME_PROBE_REQ_MASK,
                                      (uint8_t *)alibaba_oui, awss_wifi_mgnt_frame_callback);
 }
@@ -70,11 +112,14 @@ void awss_registrar_deinit(void)
                                      (uint8_t *)alibaba_oui, NULL);
 
     registrar_inited = 0;
+    registrar_sched_cnt = 0;
 
     awss_stop_timer(checkin_timer);
     checkin_timer = NULL;
     awss_stop_timer(enrollee_report_timer);
     enrollee_report_timer = NULL;
+    awss_stop_timer(registrar_sched_timer);
+    registrar_sched_timer = NULL;
 }
 
 int awss_enrollee_suc_monitor(void *ctx, void *resource, void *remote, void *request)
