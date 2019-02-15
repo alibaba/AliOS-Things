@@ -13,6 +13,18 @@
 
 extern int hci_driver_init();
 extern int bt_enable(bt_ready_cb_t cb);
+bool bt_is_ready = false;
+
+static void bt_ready(int err)
+{
+    if (err) {
+        printf("Bluetooth init failed (err %d)\n", err);
+        return;
+    }
+
+    bt_is_ready = true;
+
+}
 
 void ble_sample(void)
 {
@@ -35,7 +47,7 @@ void ble_sample(void)
     printf("Starting Advertiser Demo\n");
 
     hci_driver_init();
-    err = bt_enable(NULL);
+    err = bt_enable(bt_ready);
     if (err) {
         printf("Bluetooth init failed (err %d)\n", err);
         return;
@@ -45,6 +57,9 @@ void ble_sample(void)
 
     do {
         aos_msleep(400);
+        if (bt_is_ready == false) {
+            continue;
+        }
 
         /* Start advertising */
         err = bt_le_adv_start(&adv_param, adv_data, ARRAY_SIZE(adv_data), NULL, 0);
@@ -63,14 +78,8 @@ void ble_sample(void)
     } while (1);
 }
 
-static void app_delayed_action(void *arg)
-{
-    ble_sample();
-}
-
 int application_start(int argc, char **argv)
 {
-    aos_post_delayed_action(1000, app_delayed_action, NULL);
-    aos_loop_run();
+    ble_sample();
     return 0;
 }
