@@ -268,43 +268,6 @@ int zconfig_add_active_channel(int channel)
 }
 
 /*
- * platform like mc300, 雄迈 depend on auth & encry type
- * so keep scanning if auth & encry is incomplete
- */
-int aws_force_scanning(void)
-{
-#ifdef WITH_AUTH_ENCRY
-    int timeout = sizeof(aws_fixed_scanning_channels) / sizeof(uint8_t)
-                  * os_awss_get_timeout_interval_ms() * 2; /* 2 round */
-
-    /* force scanning useful only when aws is success */
-    if (aws_state != AWS_SUCCESS) {
-        return 0;
-    }
-
-    /* channel scanning at most 2 round */
-    if (time_elapsed_ms_since(aws_start_timestamp) >= timeout) {
-        return 0;/* timeout */
-    } else {
-        /*
-         * for platform which need auth & encry, retry to get auth info
-         */
-        int found = zconfig_get_auth_info(aws_result_ssid, aws_result_bssid,
-                                          &aws_result_auth, &aws_result_encry,
-                                          &aws_result_channel);
-        if (found) {
-            return 0;
-        } else {
-            return 1;    /* keep scanning */
-        }
-    }
-#else
-    /* no need scanning a round */
-    return 0;
-#endif
-}
-
-/*
  * channel scanning/re-scanning control
  * Note: 修改该函数时，需考虑到各平台差异
  * 庆科平台：
@@ -323,7 +286,7 @@ void aws_main_thread_func(void)
 rescanning:
     /* start scaning channel */
     memset(zc_bssid, 0, ETH_ALEN);
-    while (aws_amend_dst_chan != 0 || aws_state == AWS_SCANNING || aws_force_scanning()) {
+    while (aws_amend_dst_chan != 0 || aws_state == AWS_SCANNING) {
         switch (aws_is_chnscan_timeout()) {
             case CHNSCAN_ONGOING:
                 break;
@@ -507,8 +470,7 @@ void aws_start(char *pk, char *dn, char *ds, char *ps)
 
     /* start from -1 */
     aws_chn_index = 0xff;
-    memcpy(aws_chn_list, aws_fixed_scanning_channels,
-           sizeof(aws_fixed_scanning_channels));
+    memcpy(aws_chn_list, aws_fixed_scanning_channels, sizeof(aws_fixed_scanning_channels));
 
     memset(aws_result_ssid, 0, sizeof(aws_result_ssid));
     memset(aws_result_passwd, 0, sizeof(aws_result_passwd));
