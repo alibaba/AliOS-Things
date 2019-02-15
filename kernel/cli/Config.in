@@ -9,59 +9,72 @@ menuconfig AOS_COMP_CLI
 if AOS_COMP_CLI
 
 config CLI_CONFIG_MINIMUM_MODE
-    int "CLI_CONFIG_MINIMUM_MODE"
+    int "Minimum Working Mode Support"
+    range 0 1
     default 0
     help
-        disable/enable the cli minimum mode.
-        default 0
+        This option enables the cli minimum working mode support.
+        saying "1" here is enabled the feature.
+        saying "0" here is disabled.
+        the default is "0"
 
 config CLI_CONFIG_INBUF_SIZE
-    int "CLI_CONFIG_INBUF_SIZE"
+    int "Input buffer size (bytes)"
     default 256
     help
-        set the CLI input buffer size.
-        default 256
+        This option sets the input buffer size.
+        the value could be 32, 64, 128, 256, 512, 1024 ...
+        the default is 256.
 
 config CLI_CONFIG_OUTBUF_SIZE
-    int "CLI_CONFIG_OUTBUF_SIZE"
+    int "Output buffer size (bytes)"
     default 512
     help
-        set the CLI output buffer size.
-        default 512
+        This option sets the output buffer size.
+        the value could be 128, 256, 512, 1024, 2048 ...
+        the default is 512.
 
 config CLI_CONFIG_MAX_COMMANDS
-    int "CLI_CONFIG_MAX_COMMANDS"
+    int "The maximum number of commands"
     default 64
     help
-        set the limitation of max supported commands.
-        default 64
+        This option sets the maximum number of CLI commands.
+        the value could be 16, 32, ... 64, 88 ...
+        the default is 64.
 
 config CLI_CONFIG_MAX_ARG_NUM
-    int "CLI_CONFIG_MAX_ARG_NUM"
+    int "The maximum number of command arguments"
     default 16
     help
-        set the limitation of max arguments count in one command.
-        default 16
+        This option sets the maximum number of command arguments.
+        the value could be 4, 6, 8, 16, 20 ...
+        the default is 16.
 
 config CLI_CONFIG_MAX_ONCECMD_NUM
-    int "CLI_CONFIG_MAX_ONCECMD_NUM"
+    int "The maximum number of commands in one line"
     default 4
     help
-        set the limitation of max commands count in one input line.
-        default 4
+        This option sets the maximum number of commands in one line.
+        the value could be 1, 2, 3, 4, 5 ...
+        the default is 4.
 
 config CLI_CONFIG_TASK_PRIORITY
-    int "CLI_CONFIG_TASK_PRIORITY"
+    int "The CLI task priority"
+    range 0 256
     default 60
     help
-        set the task priority of the CLI task.
-        default 60
+        This option sets the CLI task priority.
+        the higher of the value, the lowest of the priority.
+        the default is 60.
 
 config CLI_CONFIG_TELNET_SUPPORT
-    int "CLI_CONFIG_TELNET_SUPPORT"
+    int "Telnet Support"
+    range 0 1
     default 0
     help
-        disable/enable the CLI telnet output support.
-        default 0
+        This option enable the telnel support for Command-Line Interface module.
+        saying "1" here enables the feature.
+        saying "0" is disabled.
+        the default is "0"
 
 endif
