@@ -2,8 +2,14 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef BLE_CONFIG_H
-#define BLE_CONFIG_H
+#ifndef BLE_DEF_CONFIG_H
+#define BLE_DEF_CONFIG_H
+
+#ifndef CONFIG_BLUETOOTH
+#error "CONFIG_BLUETOOTH not defined,this header shoudn't include"
+#endif
+
+#include "ble_config.h"
 
 /**
  * CONFIG_BLUETOOTH: Enable the bluetooh stack
@@ -13,7 +19,7 @@
 #endif
 
 #ifndef CONFIG_BT_HCI_RX_STACK_SIZE
-#define CONFIG_BT_HCI_RX_STACK_SIZE 768  // ESP32
+#define CONFIG_BT_HCI_RX_STACK_SIZE 256
 #endif
 
 /**
@@ -21,7 +27,7 @@
  */
 
 #ifndef CONFIG_BT_RX_PRIO
-#define CONFIG_BT_RX_PRIO 20
+#define CONFIG_BT_RX_PRIO 21
 #endif
 
 /**
@@ -30,18 +36,13 @@
 
 #ifndef CONFIG_BT_HCI_TX_STACK_SIZE
 #define CONFIG_BT_HCI_TX_STACK_SIZE 290
-//#define CONFIG_BT_HCI_TX_STACK_SIZE 512  // ESP32
 #endif
 
 /**
  * CONFIG_BT_HCI_TX_PRIO: tx thread priority
  */
 #ifndef CONFIG_BT_HCI_TX_PRIO
-#define CONFIG_BT_HCI_TX_PRIO 21
-#endif
-
-#ifndef CONFIG_BT_CTLR_RX_PRIO
-#define CONFIG_BT_CTLR_RX_PRIO 19
+#define CONFIG_BT_HCI_TX_PRIO 20
 #endif
 
 /**
@@ -56,8 +57,7 @@
  * events,range 2 to 255
  */
 #ifndef CONFIG_BT_RX_BUF_COUNT
-//#define CONFIG_BT_RX_BUF_COUNT 5
-#define CONFIG_BT_RX_BUF_COUNT 2
+#define CONFIG_BT_RX_BUF_COUNT 5
 #endif
 
 /**
@@ -93,8 +93,7 @@
  * packages range 2 to 255
  */
 #ifndef CONFIG_BT_L2CAP_TX_BUF_COUNT
-//#define CONFIG_BT_L2CAP_TX_BUF_COUNT 5
-#define CONFIG_BT_L2CAP_TX_BUF_COUNT 2
+#define CONFIG_BT_L2CAP_TX_BUF_COUNT 5
 #endif
 
 /**
@@ -248,13 +247,6 @@
 #endif
 
 /**
- *  CONFIG_BT_CONTROLLER_NAME:Bluetooth controller name. default support ESP32.
- */
-#ifndef CONFIG_BT_CONTROLLER_NAME
-#define CONFIG_BT_CONTROLLER_NAME "ESP32"
-#endif
-
-/**
  *  CONFIG_BT_MAX_SCO_CONN:Maximum number of simultaneous SCO connections.
  */
 #ifndef CONFIG_BT_MAX_SCO_CONN
@@ -347,34 +339,8 @@
 #define CONFIG_BT_DEVICE_APPEARANCE 833
 #endif
 
-#ifdef CONFIG_BT_CTLR
-
-#ifndef CONFIG_BT_CTLR_WORKER_PRIO
-#define CONFIG_BT_CTLR_WORKER_PRIO 0
-#endif
-
-#ifndef CONFIG_BT_CTLR_JOB_PRIO
-#define CONFIG_BT_CTLR_JOB_PRIO 0
-#endif
-
-#ifndef CONFIG_BT_CTLR_RX_BUFFERS
-#define CONFIG_BT_CTLR_RX_BUFFERS 1
-#endif
-
-#ifndef CONFIG_BT_CTLR_TX_BUFFERS
-#define CONFIG_BT_CTLR_TX_BUFFERS 1
-#endif
-
-#ifndef CONFIG_BT_CTLR_XTAL_THRESHOLD
-#define CONFIG_BT_CTLR_XTAL_THRESHOLD 5168
-#endif
-
-#define CONFIG_BT_RECV_IS_RX_THREAD
-
-#endif /* endof CONFIG_BT_CTLR */
-
 #if defined(__cplusplus)
 }
 #endif
 
-#endif /* BLE_CONFIG_H */
+#endif /* BLE_DEF_CONFIG_H */

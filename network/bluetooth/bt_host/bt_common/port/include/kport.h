@@ -4,7 +4,7 @@
 
 #ifndef KPORT_H
 #define KPORT_H
-#include "config.h"
+#include "ble_def_config.h"
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 
