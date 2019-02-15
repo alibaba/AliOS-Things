@@ -148,7 +148,7 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
             awss_free(encode_ssid);
         }
     }
-    awss_debug("last_ap:%u\r\n", last_ap);
+    awss_debug("last_ap:%u\n", last_ap);
 
     if (last_ap || WIFI_APINFO_LIST_LEN < msg_len + ONE_AP_INFO_LEN_MAX + strlen(AWSS_ACK_FMT)) {
         if (last_ap)
@@ -189,7 +189,7 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
             HAL_Timer_Stop(scan_tx_wifilist_timer);
             HAL_Timer_Start(scan_tx_wifilist_timer, 1);
         }
-        awss_debug("sending message to app: %s\n", msg_aplist);
+        awss_trace("sending msg to app: %s\n", msg_aplist);
     }
 
     return 0;
@@ -230,12 +230,12 @@ int wifimgr_process_get_wifilist_request(void *ctx, void *resource, void *remote
 
     HAL_Snprintf(buf, DEV_SIMPLE_ACK_LEN - 1, AWSS_ACK_FMT, g_req_msg_id, 200, "\"success\"");
 
-    awss_debug("sending message to app: %s\n", buf);
+    awss_trace("sending msg to app: %s\n", buf);
     char topic[TOPIC_LEN_MAX] = {0};
     awss_build_topic((const char *)TOPIC_AWSS_WIFILIST, topic, TOPIC_LEN_MAX);
     memcpy(&g_wifimgr_req_sa, remote, sizeof(g_wifimgr_req_sa));
     if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), &g_wifimgr_req_sa, topic, request)) {
-        awss_debug("sending failed.");
+        awss_err("sending failed.");
     }
 
     HAL_Timer_Start(scan_req_timer, 1);
@@ -276,7 +276,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     buf = awss_cmp_get_coap_payload(request, &len);
     str = json_get_value_by_name(buf, len, "id", &str_len, 0);
     memcpy(req_msg_id, str, str_len > MSG_REQ_ID_LEN - 1 ? MSG_REQ_ID_LEN - 1 : str_len);
-    awss_debug("switch ap, len:%u, %s\r\n", len, buf);
+    awss_debug("switch ap, len:%u, %s\n", len, buf);
     buf = json_get_value_by_name(buf, len, "params", &len, 0);
 
     do {
@@ -284,7 +284,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
 
         str_len = 0;
         str = json_get_value_by_name(buf, len, "ssid", &str_len, 0);
-        awss_debug("ssid, len:%u, %s\r\n", str_len, str != NULL ? str : "NULL");
+        awss_trace("ssid, len:%u, %s\n", str_len, str != NULL ? str : "NULL");
         if (str && (str_len < PLATFORM_MAX_SSID_LEN)) {
             memcpy(ssid, str, str_len);
             ssid_found = 1;
@@ -373,8 +373,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     awss_devinfo_notify_stop();
     awss_dev_bind_notify_stop();
 
-    awss_debug("Sending message to app: %s", msg);
-    awss_debug("switch to ap: '%s'", ssid);
+    awss_trace("Sending msg to app: %s", msg);
     char topic[TOPIC_LEN_MAX] = {0};
     awss_build_topic((const char *)TOPIC_AWSS_SWITCHAP, topic, TOPIC_LEN_MAX);
     for (i = 0; i < 5; i ++) {
@@ -394,7 +393,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     do {
         struct ap_info *aplist = NULL;
         aplist = zconfig_get_apinfo_by_ssid((uint8_t *)ssid);
-        awss_debug("connect '%s'", ssid);
+        awss_trace("connect '%s'", ssid);
         if (aplist) {
             memcpy(bssid, aplist->mac, ETH_ALEN);
             awss_debug("bssid: %02x:%02x:%02x:%02x:%02x:%02x", \
@@ -403,6 +402,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     } while (0);
 #endif
     AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
+    awss_trace("switch to ap: '%s'", ssid);
     if (0 != os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT,
                                 ssid, passwd,
                                 AWSS_AUTH_TYPE_INVALID,
@@ -426,7 +426,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
 
         produce_random(aes_random, sizeof(aes_random));
     }
-    awss_debug("connect '%s' %s\r\n", ssid, switch_ap_done == 1 ? "success" : "fail");
+    awss_trace("connect '%s' %s\n", ssid, switch_ap_done == 1 ? "success" : "fail");
 
 SWITCH_AP_END:
     switch_ap_parsed = 0;
