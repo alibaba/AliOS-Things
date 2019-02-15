@@ -20,6 +20,7 @@ config AF_PACKET_ENABLED
       Switching to "n" leads to not support AF_PACKET socket.
 
 menu "LWIP App Configurations"
+if 0
     config SNMP_ENABLED
         bool "SNMP"
         default n
@@ -73,7 +74,7 @@ menu "LWIP App Configurations"
 
           Switching to "y" leads to support NETBIOSNS module
           Switching to "n" leads to not support NETBIOSNS module
-
+endif
      config TFTP_ENABLED
         bool "TFTP"
         default y
