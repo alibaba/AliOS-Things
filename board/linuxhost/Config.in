@@ -16,7 +16,7 @@ config BSP_SUPPORT_WIFI
 
 config BSP_SUPPORT_EXTERNAL_MODULE
     bool
-    default y
+    default n
 
 config BSP_EXTERNAL_WIFI_MODULE
     string
