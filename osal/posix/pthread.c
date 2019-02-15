@@ -3,6 +3,7 @@
  */
 
 #include "posix/pthread.h"
+#include "posix/timer.h"
 
 #if (POSIX_CONFIG_PTHREAD_ENABLE > 0)
 
@@ -11,6 +12,12 @@ kmutex_t g_pthread_mutex;
 int pthread_lock_init(void)
 {
     return krhino_mutex_create(&g_pthread_mutex, "g_pthread_mutex");
+}
+
+int pthread_atfork(void (*prepare)(void), void (*parent)(void), void (*child)(void))
+{
+    /* fork is not supported, so pthread_atfork is not supported too */
+    return -1;
 }
 
 void pthread_cleanup_pop(int execute)
@@ -400,6 +407,17 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine)(void))
     }
 
     krhino_mutex_unlock(&g_pthread_mutex);
+
+    return 0;
+}
+
+int pthread_getcpuclockid(pthread_t thread_id, clockid_t *clock_id)
+{
+    if ((thread_id == NULL)||(clock_id == NULL)) {
+        return -1;
+    }
+
+    *clock_id = CLOCK_MONOTONIC;
 
     return 0;
 }
