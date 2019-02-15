@@ -1,5 +1,5 @@
 config AOS_MCU_BK7231
-    bool "mcu_bk7231"
+    bool
     select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_ALICRYPTO

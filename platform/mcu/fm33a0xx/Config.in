@@ -1,5 +1,5 @@
 config AOS_MCU_FM33A0XX
-    bool "mcu_fm33a0xx"
+    bool
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help

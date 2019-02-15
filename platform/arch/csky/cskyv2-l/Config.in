@@ -1,5 +1,5 @@
 config AOS_ARCH_CSKYV2_L
-    bool "cskyv2-l"
+    bool
     help
       arch for cskyv2-l
 

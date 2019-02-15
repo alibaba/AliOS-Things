@@ -1,5 +1,5 @@
 config AOS_ARCH_XTENSA_LX106
-    bool "xtensa lx106"
+    bool
     help
       arch for xtensa lx106
 

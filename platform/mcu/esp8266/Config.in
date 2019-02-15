@@ -1,5 +1,5 @@
 config AOS_MCU_ESP8266
-    bool "mcu_esp8266"
+    bool
     select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_ALICRYPTO

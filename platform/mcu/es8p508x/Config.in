@@ -1,5 +1,5 @@
 config AOS_MCU_ES8P508X
-    bool "mcu_es8p508x"
+    bool
     select AOS_ARCH_ARMV6M
     select AOS_COMP_RHINO
     help

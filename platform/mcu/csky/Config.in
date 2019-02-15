@@ -1,5 +1,5 @@
 config AOS_MCU_CSKY
-    bool "mcu_csky"
+    bool
     select AOS_COMP_CLI
     select AOS_COMP_LWIP if LWIP = 1
     select AOS_COMP_SAL if AOS_NETWORK_SAL

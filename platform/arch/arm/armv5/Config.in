@@ -1,5 +1,5 @@
 config AOS_ARCH_ARMV5
-    bool "armv5"
+    bool
     help
       arch for armv5
 
