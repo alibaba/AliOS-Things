@@ -114,11 +114,11 @@ void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd,
                                       uint8_t *bssid, uint8_t auth, uint8_t encry, uint8_t channel)
 {
     if (bssid) {
-        awss_debug("ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %d\r\n",
+        awss_debug("ssid:%s, bssid:%02x%02x%02x%02x%02x%02x, %d\n",
                    ssid, bssid[0], bssid[1], bssid[2],
                    bssid[3], bssid[4], bssid[5], channel);
     } else {
-        awss_debug("ssid:%s, bssid:--, %d\r\n",
+        awss_debug("ssid:%s, bssid:--, %d\n",
                    ssid, channel);
     }
 
@@ -179,7 +179,7 @@ void aws_switch_channel(void)
         int channel = aws_next_channel();
         aws_chn_timestamp = os_get_time_ms();
         os_awss_switch_channel(channel, 0, NULL);
-        awss_trace("chan %d\r\n", channel);
+        awss_trace("chan %d\n", channel);
     } while (0);
     os_mutex_unlock(zc_mutex);
 }
@@ -227,7 +227,7 @@ static void aws_switch_dst_chan(int channel)
     }
     os_awss_switch_channel(channel, 0, NULL);
 
-    awss_trace("adjust chan %d\r\n", channel);
+    awss_trace("adjust chan %d\n", channel);
 }
 
 enum {
@@ -239,7 +239,7 @@ enum {
 int aws_is_chnscan_timeout(void)
 {
     if (aws_stop == AWS_STOPPING) {
-        awss_debug("aws will stop...\r\n");
+        awss_debug("aws will stop...\n");
         return CHNSCAN_TIMEOUT;
     }
 
@@ -326,7 +326,7 @@ rescanning:
     }
 
     /* channel lock */
-    awss_debug("[channel scanning] %d ms\r\n",
+    awss_trace("[chan scanning] %d ms\n",
                time_elapsed_ms_since(aws_start_timestamp));
 
     /*
@@ -336,7 +336,7 @@ rescanning:
 #ifdef AWSS_SUPPORT_APLIST
     aws_try_adjust_chan();
 #endif
-    awss_debug("final channel %d\r\n", aws_locked_chn);
+    awss_trace("final chan %d\n", aws_locked_chn);
 
     while (aws_state != AWS_SUCCESS) {
         /* 80211 frame handled by callback */
@@ -352,20 +352,20 @@ rescanning:
         }
 
         if (aws_state == AWS_SCANNING) {
-            awss_debug("channel rescanning...\n");
+            awss_trace("chan rescanning...\n");
             goto rescanning;
         }
     }
 
-    awss_debug("[channel recving] %d ms\r\n",
+    awss_trace("[chan recving] %d ms\n",
                time_elapsed_ms_since(aws_start_timestamp));
 
     goto success;
 
 timeout_scanning:
-    awss_debug("aws timeout scanning!\r\n");
+    awss_trace("aws timeout scanning!\n");
 timeout_recving:
-    awss_debug("aws timeout recving!\r\n");
+    awss_trace("aws timeout recving!\n");
     do {
         if (aws_stop == AWS_STOPPING)
             break;
@@ -407,14 +407,7 @@ success:
     /* don't destroy zconfig_data until monitor_cb is finished. */
     os_mutex_lock(zc_mutex);
     os_mutex_unlock(zc_mutex);
-    /*
-     * zconfig_destroy() after os_awss_monitor_close() beacause
-     * zconfig_destroy will release mem/buffer that
-     * zconfig_recv_callback will use
-     *
-     * Note: hiflying will reboot after calling this func, so
-     *    aws_get_ssid_passwd() was called in os_awss_monitor_close()
-     */
+
     if (aws_stop == AWS_STOPPED) {
         zconfig_force_destroy();
     }

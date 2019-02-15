@@ -73,8 +73,8 @@ int __awss_start(void)
 
         ret = os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd,
                                  auth, encry, bssid, channel);
+        awss_trace("awss connect ssid:%s %s", ssid, ret == 0 ? "success" : "fail");
         if (!ret) {
-            awss_debug("awss connect ssid:%s success", ssid);
             awss_event_post(AWSS_GOT_IP);
 
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
@@ -94,7 +94,6 @@ int __awss_start(void)
                 produce_random(aes_random, sizeof(aes_random));
             }
         } else {
-            awss_debug("awss connect ssid:%s fail", ssid);
 #if defined(AWSS_SUPPORT_ADHA) || defined(AWSS_SUPPORT_AHA)
             if (awss_notify_needed == 0) {
                 awss_event_post(adha != 0 ? AWSS_CONNECT_AHA_FAIL : AWSS_CONNECT_ADHA_FAIL);

@@ -97,7 +97,7 @@ int zconfig_get_data_len(void)
     }
 
     if (len && score > score_mid) {
-        /* awss_debug("zconfig_get_data_len = %d\r\n", len); */
+        /* awss_debug("zconfig_get_data_len = %d\n", len); */
         goto out;
     }
 
@@ -135,7 +135,7 @@ int zconfig_recv_completed(uint8_t tods)
     }
 
     if (!len || pkg_score(1) <= score_min) {
-        /* awss_trace("len=%d, pkg_score(1)=%d\r\n", len, pkg_score(1)); */
+        /* awss_trace("len=%d, pkg_score(1)=%d\n", len, pkg_score(1)); */
         return 0;
     }
 
@@ -155,13 +155,13 @@ int zconfig_recv_completed(uint8_t tods)
 
         if (!(flag & SSID_ENCODE_MASK)) {/* ASCLL ssid */
             if ((ssid_len | 0x200) != pkg_len(3)) {
-                awss_warn("ssid len not match! ssid:%s != %d\r\n",
+                awss_warn("ssid len not match! ssid:%s != %d\n",
                           zc_ssid, (pkg_len(3) & ~0x200));
                 zc_ssid_auto_complete_disable = 1;
                 goto skip_ssid_auto_complete;
             }
 
-            awss_trace("ssid auto-complete: %s\r\n", zc_ssid);
+            awss_trace("ssid auto-complete: %s\n", zc_ssid);
             pkg_score(2) = SSID_AUTO_COMPLETE_SCORE;
 
             pkg_len(3) = ssid_len | 0x200;    /* 0x200 is the index 3 */
@@ -190,11 +190,11 @@ int zconfig_recv_completed(uint8_t tods)
 
             buf = awss_zalloc(ssid_encode_len + 1);
             if (buf == NULL) {
-                awss_crit("malloc failed!\r\n");
+                awss_err("malloc failed!\n");
                 return 0;
             }
 
-            awss_trace("chinese ssid auto-complete: %s\r\n", zc_ssid);
+            awss_trace("cn ssid auto-complete: %s\n", zc_ssid);
             encode_chinese(zc_ssid, ssid_len, buf, &buf_len, 6);
 
             pkg_score(2) = SSID_AUTO_COMPLETE_SCORE;
@@ -212,7 +212,7 @@ int zconfig_recv_completed(uint8_t tods)
 #endif
 
 skip_ssid_auto_complete:
-    /* awss_debug("expect len = %d, max len = %d\r\n", len, zc_max_pos); */
+    /* awss_debug("expect len = %d, max len = %d\n", len, zc_max_pos); */
     if (zc_max_pos < len) {
         return 0;    /* receive all the packets */
     }
@@ -249,13 +249,13 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     buf = awss_zalloc(256);
     tmp = awss_zalloc(128);
     if (buf == NULL || tmp == NULL) {
-        awss_crit("malloc failed!\r\n");
+        awss_crit("malloc-gsp failed!\n");
     }
 
     /* package num */
     package_num = pkg_len(1) & PAYLOAD_BITS_MASK;/* total len, include len(1B) & crc(2B) */
 
-    awss_trace("\r\n");
+    awss_trace("\n");
     for (i = 1; i <= package_num; i ++) {
         data = pkg_len(i);
         score = pkg_score(i);
@@ -264,9 +264,9 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     }
 
     dump_hex(&tmp[0], package_num, GROUP_NUMBER);
-    awss_trace("\r\n");
+    awss_trace("\n");
     dump_hex(&buf[0], package_num, GROUP_NUMBER);
-    awss_trace("\r\n");
+    awss_trace("\n");
 
     crc = os_get_unaligned_be16(&buf[package_num - 2]);
 
@@ -278,7 +278,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     passwd_encrypt = (flag & PASSWD_ENCRYPT_MASK) >> PASSWD_ENCRYPT_BIT_OFFSET;
 
     if (passwd_encrypt == PASSWD_ENCRYPT_CIPHER || passwd_encrypt == PASSWD_ENCRYPT_OPEN) {
-        awss_trace("!aes128-cfb is not support: flag 0x%x\r\n", flag);
+        awss_trace("!aes128-cfb is not support: flag 0x%x\n", flag);
         ret = -1;
         goto exit;
     } else {
@@ -286,13 +286,15 @@ int zconfig_get_ssid_passwd(uint8_t tods)
     }
 
     if (crc != cal_crc) {
-        awss_trace("crc error: recv 0x%x != 0x%x\r\n", crc, cal_crc);
+        awss_trace("crc error: recv 0x%x != 0x%x\n", crc, cal_crc);
         /* memset(zconfig_data, 0, sizeof(*zconfig_data)); */
         uint8_t tods_tmp = tods;
         for (tods = 0; tods < 2; tods ++) {
             for (i = 1; i <= package_num; i ++) {
                 score = pkg_score(i);
-                if (score > 0x60) {
+                if (score > 0x64) { /* auto-complete data */
+                    pkg_score(i) = 0x64;
+                } else if (score > 0x60) {
                     pkg_score(i) = 0x60;
                 } else {
                     pkg_score(i) = score >> 1;
@@ -325,12 +327,12 @@ int zconfig_get_ssid_passwd(uint8_t tods)
 
         if (zc_ssid[0] == '\0' || zc_ssid_auto_complete_disable) {
             strncpy((char *)zc_ssid, (const char *)tmp, ZC_MAX_SSID_LEN - 1);
-            awss_trace("SSID0: [%s]\r\n", zc_ssid);
+            awss_trace("SSID0: [%s]\n", zc_ssid);
         } else {
             if (!strncmp((const char *)tmp, (char *)zc_ssid, ZC_MAX_SSID_LEN - 1)) {
-                awss_trace("SSID1: [%s]\r\n", zc_ssid);
+                awss_trace("SSID1: [%s]\n", zc_ssid);
             } else {
-                awss_trace("gbk%s SSID:[%s]\r\n", zc_ssid_is_gbk ? "" : "?", zc_ssid);
+                awss_trace("gbk%s SSID:[%s]\n", zc_ssid_is_gbk ? "" : "?", zc_ssid);
             }
         }
 #ifdef AWSS_SUPPORT_APLIST
@@ -363,7 +365,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         aes_decrypt_string((char *)tmp, (char *)zc_passwd, passwd_len,
                 1, os_get_encrypt_type(), 0, NULL);
         if (is_utf8((const char *)zc_passwd, passwd_len) == 0) {
-            awss_trace("passwd err\r\n");
+            awss_trace("passwd err\n");
             memset(zconfig_data, 0, sizeof(*zconfig_data));
             awss_event_post(AWSS_PASSWD_ERR);
             AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_PASSWD_ERR);
@@ -378,14 +380,14 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         }
         strncpy((char *)zc_passwd, (const char *)tmp, ZC_MAX_PASSWD_LEN - 1);
 
-        awss_trace("encrypt:%d not support\r\n", passwd_encrypt);
+        awss_trace("encrypt:%d not support\n", passwd_encrypt);
         memset(zconfig_data, 0, sizeof(*zconfig_data));
         ret = -1;
         goto exit;
     }
 
 
-    /* awss_debug("PASSWD: [%s]\r\n", zc_passwd); */
+    /* awss_debug("PASSWD: [%s]\n", zc_passwd); */
     pbuf += passwd_len; /* passwd */
     ret = 0;
 exit:
@@ -485,7 +487,7 @@ found_match:
 
         if (memcmp(zc_src_mac, src, ETH_ALEN)) {/* case 1,2 */
             /* someone must be working in aws at the same time */
-            awss_warn("%c interference src:"MAC_FORMAT", bssid:"MAC_FORMAT"\r\n",
+            awss_warn("%c interfere src:"MAC_FORMAT", bssid:"MAC_FORMAT"\n",
                       flag_tods(tods), MAC_VALUE(src), MAC_VALUE(bssid));
             return 0;
         } else {
@@ -497,11 +499,11 @@ found_match:
                     if (zconfig_data->data[0].state_machine == STATE_CHN_LOCKED_BY_BR) { /* zc_state */
                         zconfig_data->data[0].state_machine = STATE_CHN_SCANNING;
                     }
-                    awss_warn("%c WDS! bssid:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\r\n",
+                    awss_warn("%c WDS! bssid:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\n",
                               flag_tods(tods), MAC_VALUE(zc_bssid),
                               MAC_VALUE(bssid));
                 } else {
-                    awss_trace("%c WDS? src:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\r\n",
+                    awss_trace("%c WDS? src:"MAC_FORMAT" -> bssid:"MAC_FORMAT"\n",
                                flag_tods(tods), MAC_VALUE(src),
                                MAC_VALUE(bssid));
                     return 0;
@@ -523,12 +525,12 @@ found_match:
     do {
         struct ap_info *ap_info = zconfig_get_apinfo(bssid);
         if (ap_info && ap_info->encry[tods] > ZC_ENC_TYPE_MAX) {
-            awss_warn("invalid apinfo ssid:%s\r\n", ap_info->ssid);
+            awss_warn("invalid apinfo ssid:%s\n", ap_info->ssid);
         }
 
         if (ap_info && ap_info->encry[tods] == encry && ap_info->channel) {
             if (channel != ap_info->channel) {
-                awss_info("fix channel from %d to %d\r\n", channel, ap_info->channel);
+                awss_info("fix chan from %d to %d\n", channel, ap_info->channel);
                 zc_channel = ap_info->channel;  /* fix by ap_info channel */
                 extern void aws_set_dst_chan(int channel);
                 aws_set_dst_chan(zc_channel);
@@ -668,7 +670,7 @@ retry:
                     match ++;
                     score = (score > pkg_score(i + j)) ? pkg_score(i + j) : score;
                 } else {/* encounter first unmatch */
-                    awss_trace("[%d]=%x, [%d]=%x\r\n", i + j, pkg_len(i + j), j, tmp_len(j));
+                    awss_trace("[%d]=%x, [%d]=%x\n", i + j, pkg_len(i + j), j, tmp_len(j));
                     break;
                 }
             }
@@ -678,7 +680,7 @@ retry:
             match_group = i;
             match_end = j - 1;
             match_score = score;
-            awss_trace("match=%d, match_group=%d, match_end=%d\r\n",
+            awss_trace("match=%d, match_group=%d, match_end=%d\n",
                        match, match_group, match_end);
         }
     }
@@ -742,9 +744,9 @@ retry:
 replace:
     if (final_pos != -1) {
         reason = reason;
-        awss_trace("\tX = %d, score=%d, match=%d, reason=%d\r\n", final_pos, match_score, max_match, reason);
+        awss_trace("\tX = %d, score=%d, match=%d, reason=%d\n", final_pos, match_score, max_match, reason);
         if (match_end != GROUP_NUMBER) {
-            awss_trace("\t match from [1-%d]\r\n", match_end);
+            awss_trace("\t match from [1-%d]\n", match_end);
         }
         for (i = final_pos + 1, j = 1; i <= final_pos + match_end; i++, j++) {
             if (j > GROUP_NUMBER || i >= MAX_PKG_NUMS) {
@@ -754,7 +756,7 @@ replace:
                 pkg_len(i) = tmp_len(j);
                 pkg_score(i) = (match_score > tmp_score(j) - 1) ?
                                (match_score - (tmp_score(j) - 1)) : match_score;/* TODO */
-                awss_trace("\t%d+%d [%d] %c %-3x\r\n", final_pos, j, pkg_score(i), flag_tods(tods), tmp_len(j));
+                awss_trace("\t%d+%d [%d] %c %-3x\n", final_pos, j, pkg_score(i), flag_tods(tods), tmp_len(j));
 
                 zc_replace = 1;
                 if (zc_max_pos < i) {
@@ -907,7 +909,7 @@ int awss_ieee80211_smartconfig_process(uint8_t *ieee80211, int len, int link_typ
     } while (0);
 
     if (encry == ZC_ENC_TYPE_INVALID) {
-        awss_warn("invalid encry type!\r\n");
+        awss_warn("invalid encry type!\n");
     }
     res->u.br.encry_type = encry;
 
@@ -947,7 +949,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
 
     uint16_t pos = 0, index = 0;
 
-    awss_flow("len=%d, %c, sn=%d, enc=%d, chn=%d, src=%02x%02x%02x%02x%02x%02x\r\n",
+    awss_flow("len=%d, %c, sn=%d, enc=%d, chn=%d, src=%02x%02x%02x%02x%02x%02x\n",
                len, flag_tods(tods), sn, encry_type, channel,
                src[0], src[1], src[2], src[3], src[4], src[5]);
     /*
@@ -963,10 +965,10 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                 statis = 1;
                 AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_TIME_START);
             }
-            awss_trace("hint frame: offset:%d, %c, sn:%x\r\n",
+            awss_trace("hint frame: offset:%d, %c, sn:%x\n",
                        zc_frame_offset, flag_tods(tods), sn);
 
-            awss_trace("src:%02x%02x%02x%02x%02x%02x, bssid:%02x%02x%02x%02x%02x%02x\r\n",
+            awss_trace("src:%02x%02x%02x%02x%02x%02x, bssid:%02x%02x%02x%02x%02x%02x\n",
                        src[0], src[1], src[2], src[3], src[4], src[5],
                        bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
@@ -982,7 +984,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                     strncpy((char *)zc_android_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
                 }
                 memcpy(zc_android_bssid, bssid, ETH_ALEN);
-                awss_trace("src %02x%02x%02x match %02x%02x%02x\r\n",
+                awss_trace("src %02x%02x%02x match %02x%02x%02x\n",
                            zc_android_src[0], zc_android_src[1], zc_android_src[2],
                            zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
             }
@@ -997,7 +999,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         }
 
         if (timestamp - zc_timestamp > time_interval) {
-            awss_debug("\t\t\t\t\ttimestamp = %d\r\n", timestamp - zc_timestamp);
+            awss_debug("\t\ttimestamp = %d\n", timestamp - zc_timestamp);
             timeout = 1;
         }
 
@@ -1006,10 +1008,10 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
             zc_timestamp = timestamp;
         }
         if (ret == 0) {
-            awss_debug("drop: %3x == %3x\r\n", sn, zc_prev_sn);/* log level, too many retry pkg */
+            awss_debug("drop: %3x == %3x\n", sn, zc_prev_sn);/* log level, too many retry pkg */
             goto drop;
         } else if (ret < 0 && !timeout) {/* if timeout, goto pos_unsync */
-            awss_debug("drop: %3x < %3x\r\n", sn, zc_prev_sn);/* TODO: better not drop */
+            awss_debug("drop: %3x < %3x\n", sn, zc_prev_sn);/* TODO: better not drop */
             goto update_sn;/* FIXME: update sn??? */
         }
 
@@ -1041,16 +1043,16 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
             if (index < zc_last_index ||
                 (index == zc_last_index && len != zc_last_len) || timeout) {
                 if (zc_pos_unsync) {/* already in pos_unsync state */
-                    awss_trace("\texit try_to_sync_pos: re-enter!\r\n");
+                    awss_trace("exit sync_pos: re-enter!\n");
                     try_to_sync_pos(tods, zc_prev_sn, sn, zc_group_pos, -1);
                 }
                 zc_pos_unsync = 1;/* also a new start */
                 if (index < zc_last_index) {
-                    awss_trace("\tenter try_to_sync_pos: rollback \r\n");
+                    awss_trace("enter sync_pos: rollback \n");
                 } else if (timeout) {
-                    awss_trace("\tenter try_to_sync_pos: timeout \r\n");
+                    awss_trace("enter sync_pos: timeout \n");
                 } else {
-                    awss_trace("\tenter try_to_sync_pos: != \r\n");
+                    awss_trace("enter sync_pos: != \n");
                 }
             }
 pos_unsync:
@@ -1062,14 +1064,14 @@ pos_unsync:
                     tmp_score(index) = (sn - zc_prev_sn);  /* TODO: index? last_tmp_score */
                 }
                 zc_pos_unsync ++; /* unsync pkg counter */
-                awss_trace("\tX+%d [%d] %-3x %c %-3x\r\n", index, tmp_score(index), sn, flag_tods(tods), len);
+                awss_trace("X+%d [%d] %-3x %c %-3x\n", index, tmp_score(index), sn, flag_tods(tods), len);
                 goto update_sn;  /* FIXME: update prev_sn or not? */
             }
 
             /* assert(sn > zc_prev_sn && pos > zc_cur_pos) */
             score = get_data_score(zc_group_sn, sn, zc_prev_sn, pos, zc_cur_pos, tods);
             if (score == score_min) {  /* better not drop any pkg here */
-                awss_trace("\t drop: group_sn:%x, sn:%x-%x=%x, pos:%d-%d, len:%x\r\n",
+                awss_trace("drop: group_sn:%x, sn:%x-%x=%x, pos:%d-%d, len:%x\n",
                            zc_group_sn, sn, zc_prev_sn, sn_minus(sn, zc_group_sn), pos, zc_cur_pos, len);
                 goto update_sn;
             } else {
@@ -1078,14 +1080,14 @@ pos_unsync:
                 }
 
                 zc_group_sn = sn;  /* TODO */
-                awss_trace("%d+%d [%d] %-3x %c %-3x\r\n", zc_group_pos, index, score, sn, flag_tods(tods), len);
+                awss_trace("%d+%d [%d] %-3x %c %-3x\n", zc_group_pos, index, score, sn, flag_tods(tods), len);
             }
         } else {
             if (is_start_frame(len) || is_group_frame(len)) {
                 uint8_t group = get_group_index(len);
 
                 if (zc_pos_unsync) {
-                    awss_trace("\texit try_to_sync_pos: group frame\r\n");
+                    awss_trace("exit sync_pos: group frame\n");
                     try_to_sync_pos(tods, zc_prev_sn, sn, zc_group_pos, group);
                 }
 
@@ -1094,7 +1096,7 @@ pos_unsync:
                 zc_group_sn = sn;
                 zc_score_uplimit = score_max;
 
-                awss_trace("%d+%d [%d] %-3x %c %-3x\r\n", group, 0, zc_score_uplimit, sn, flag_tods(tods), len);
+                awss_trace("%d+%d [%d] %-3x %c %-3x\n", group, 0, zc_score_uplimit, sn, flag_tods(tods), len);
 
                 /* ignore PKG_GROUP_FRAME here */
                 pkg_type = PKG_START_FRAME;
@@ -1108,14 +1110,14 @@ pos_unsync:
                 /* zc_replace may happen in try_to_sync_pos(), so goto is_recv_completed */
                 goto is_recv_completed;
             } else {
-                awss_trace("\t invalid len = %d\r\n", len + zc_frame_offset);
+                awss_trace("invalid len = %d\n", len + zc_frame_offset);
                 goto drop;
             }
         }
 
         /* start from pkg(1), leave pkg(0) for start frame */
         if (pos >= MAX_PKG_NUMS || pos <= 0) {
-            awss_warn("msg index(%d) out of range!\r\n", pos);
+            awss_warn("msg idx(%d) out of range!\n", pos);
             goto drop;
         }
 
@@ -1151,12 +1153,12 @@ pos_unsync:
                 /* not equal */
                 int replace = try_to_replace_same_pos(tods, pos, len);
                 if (replace) {
-                    awss_trace("\t replace @ %d, len=%x\r\n", pos, len);
+                    awss_trace("\t replace @ %d, len=%x\n", pos, len);
                     continue;
                 }
                 pkg_score(pos) /= 2;
                 if (score >= score_mid)  /* better not happen */
-                    awss_warn("xxxxxxxx warn: pos=%d, score=[%d], %x != %x\r\n",
+                    awss_warn("warn: pos=%d, score=[%d], %x != %x\n",
                               pos, score, pkg_len(pos), len);
 
             } else if (tods == res->tods) {  /* pkg_score(pos) > score */
@@ -1165,13 +1167,13 @@ pos_unsync:
                         continue;
                     }
                     zc_pos_unsync = 1;
-                    awss_trace("sync_pos: data mismatch\r\n");
+                    awss_trace("sync_pos: data mismatch\n");
                     tods = res->tods;
                     goto pos_unsync;
                 } else if (zc_score_uplimit >= score_mid && pkg_score(pos) - score < 10) { /* data equal */
                     uint8_t uplimit = (zc_score_uplimit + pkg_score(pos)) / 2;
                     if (zc_score_uplimit != uplimit) {
-                        awss_trace("\t uplimit [%d] -> [%d]\r\n", zc_score_uplimit, uplimit);
+                        awss_trace("uplimit [%d] -> [%d]\n", zc_score_uplimit, uplimit);
                     }
                     zc_score_uplimit = uplimit;
                 }

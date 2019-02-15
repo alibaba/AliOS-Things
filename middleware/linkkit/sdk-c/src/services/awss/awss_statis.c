@@ -107,7 +107,7 @@ int awss_report_statis(const char *module)
         goto STATIS_ERR;
 
     if (awss_build_topic(TOPIC_POST_STATIS, statis_topic, TOPIC_LEN_MAX) == NULL) {
-        awss_err("awss build statis topic fail\n");
+        awss_err("awss statis topic fail\n");
         goto STATIS_ERR;
     }
 
@@ -115,18 +115,18 @@ int awss_report_statis(const char *module)
         HAL_MutexLock(awss_statis_mutex);
 
     if (DROUTE_CNT > 0) {
-        len += HAL_Snprintf(log_buf + len, log_buf_len - len, elem_fmt, "ConnRouter",
+        len += HAL_Snprintf(log_buf + len, log_buf_len - len, elem_fmt, "Router",
                 DROUTE_TMAX, DROUTE_TMIN, DROUTE_TMEAN, DROUTE_CNT, DROUTE_SUC, 0, 0);
     }
 
 #ifdef AWSS_SUPPORT_SMARTCONFIG
     if (SM_CNT > 0) {
-        len += HAL_Snprintf(log_buf + len, log_buf_len - len, elem_fmt, "Smartconfig",
+        len += HAL_Snprintf(log_buf + len, log_buf_len - len, elem_fmt, "SM",
                 SM_TMAX, SM_TMIN, SM_TMEAN, SM_CNT, SM_SUC, SM_CRC_ERR, SM_PW_ERR);
     }
 #ifdef  AWSS_SUPPORT_SMARTCONFIG_WPS
     if (WPS_CNT > 0) {
-        len += HAL_Snprintf(log_buf + len, log_buf_len - len, elem_fmt, "Smartconfig-wps",
+        len += HAL_Snprintf(log_buf + len, log_buf_len - len, elem_fmt, "WPS",
                 0, 0, 0, WPS_CNT, WPS_SUC, WPS_CRC_ERR, WPS_PW_ERR);
     }
 #endif
@@ -197,30 +197,30 @@ void awss_disp_statis()
 
     awss_debug("--------------------------------AWSS STATIS-----------------------------------");
     awss_debug("name\t\tmax\tmin\tmean\tcnt\tsuc\tcrc-err\tpasswd-err");
-    awss_debug("ConnRouter      \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Router      \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
             DROUTE_TMAX, DROUTE_TMIN, DROUTE_TMEAN, DROUTE_CNT, DROUTE_SUC, 0, 0);
 #ifdef AWSS_SUPPORT_SMARTCONFIG
-    awss_debug("Smartconfig     \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("SM          \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
             SM_TMAX, SM_TMIN, SM_TMEAN, SM_CNT, SM_SUC, SM_CRC_ERR, SM_PW_ERR);
 #ifdef  AWSS_SUPPORT_SMARTCONFIG_WPS
-    awss_debug("Smartconfig-wps \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("WPS         \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
             0, 0, 0, WPS_CNT, WPS_SUC, WPS_CRC_ERR, WPS_PW_ERR);
 #endif
 #endif
 #ifdef AWSS_SUPPORT_AHA
-    awss_debug("Aha             \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Aha          \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
             PAP_TMAX, PAP_TMIN, PAP_TMEAN, PAP_CNT, PAP_SUC, 0, PAP_PW_ERR);
 #endif
 #ifdef AWSS_SUPPORT_ADHA
-    awss_debug("Adha            \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Adha          \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
             ROUTE_TMAX, ROUTE_TMIN, ROUTE_TMEAN, ROUTE_CNT, ROUTE_SUC, 0, 0);
 #endif
 #ifndef AWSS_DISABLE_ENROLLEE
-    awss_debug("Zconfig         \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Zconfig       \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
             0, 0, 0, ZC_CNT, ZC_SUC, 0, ZC_PW_ERR);
 #endif
 #ifdef AWSS_SUPPORT_DEV_AP
-    awss_debug("Dev-ap          \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Dev-ap        \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
             DAP_TMAX, DAP_TMIN, DAP_TMEAN, DAP_CNT, DAP_SUC, 0, DAP_PW_ERR);
 #endif
     awss_debug("------------------------------------------------------------------------------");

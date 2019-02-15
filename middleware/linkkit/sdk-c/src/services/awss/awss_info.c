@@ -126,7 +126,7 @@ int process_get_device_info(void *ctx, void *resource, void *remote, void *reque
 
     awss_free(dev_info);
 
-    awss_info("tx msg to app: %s", buf);
+    awss_trace("tx msg to app: %s", buf);
 
     awss_build_topic(topic_fmt, topic, TOPIC_LEN_MAX);
 

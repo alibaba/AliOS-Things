@@ -100,7 +100,7 @@ void decode_chinese(uint8_t *in, uint8_t in_len,
         uint8_t *bit = (uint8_t *)awss_zalloc(in_len * bits);
 
         if (bit == NULL) {
-            awss_crit("decode malloc failed!\r\n");
+            awss_err("decode malloc failed!\n");
             return;
         }
 
@@ -141,7 +141,7 @@ uint8_t is_channel_locked(void)
 uint8_t zconfig_callback_channel_locked(uint8_t channel)
 {
     if (channel != zconfig_channel_locked) {
-        awss_info("channel lock @ %d\r\n", channel);
+        awss_trace("chan lock @ %d\n", channel);
         zconfig_channel_locked = channel;
     }
 
@@ -158,7 +158,7 @@ uint8_t zconfig_callback_over(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid)
 {
     uint8_t auth = ZC_AUTH_TYPE_INVALID, encry = ZC_ENC_TYPE_INVALID, channel = 0;
 
-    awss_info("zconfig done. ssid:%s, mac:%02x%02x%02x%02x%02x%02x\r\n",
+    awss_trace("zconfig done. ssid:%s, mac:%02x%02x%02x%02x%02x%02x\n",
                ssid, bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
     if (zconfig_finished) {
@@ -283,7 +283,7 @@ int zconfig_recv_callback(void *pkt_data, uint32_t pkt_length, uint8_t channel,
 /* init mem & timer */
 void zconfig_init()
 {
-    awss_info("%s\r\n", __func__);
+    awss_info("%s\n", __func__);
 
     zconfig_channel_locked = INVALID_CHANNEL;
     zconfig_finished = 0;
@@ -317,7 +317,7 @@ void zconfig_init()
     return;
 
 ZCONFIG_INIT_FAIL:
-    awss_crit("malloc failed!\r\n");
+    awss_err("malloc failed!\n");
     zconfig_destroy();
 
 #ifdef AWSS_SUPPORT_APLIST

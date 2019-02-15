@@ -179,9 +179,6 @@ static int get_ssid_passwd_from_w(uint8_t *in, int total_len, uint8_t *src, uint
     if (zc_android_src[0] & MAC_LOCAL_ADMINISTERED_BIT) {
         zc_android_src[0] &= ~MAC_LOCAL_ADMINISTERED_BIT;
         /* awss_debug("android src: %02x%02x%02x\r\n", zc_android_src[0], src[1], src[2]); */
-    } else {
-        awss_warn("local administered bit not set: %02x%02x%02x\r\n",
-                  src[0], src[1], src[2]);
     }
 
     in += 1;/* eating ssid_len(1B) */

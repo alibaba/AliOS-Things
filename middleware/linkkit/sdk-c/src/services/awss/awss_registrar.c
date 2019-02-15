@@ -243,7 +243,7 @@ CHECKIN_FAIL:
         awss_free(key);
     }
 
-    awss_warn("alink checkin failed");
+    awss_warn("ilop checkin failed");
     return;
 }
 
