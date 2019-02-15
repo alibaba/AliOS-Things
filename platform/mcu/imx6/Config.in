@@ -1,5 +1,5 @@
 config AOS_MCU_IMX6
-    bool "mcu_imx6"
+    bool
     select AOS_ARCH_ARMV7A
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO

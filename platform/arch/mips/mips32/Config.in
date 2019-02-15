@@ -1,5 +1,5 @@
 config AOS_ARCH_MIPS32
-    bool "mips32"
+    bool
     help
       arch for mips32
 

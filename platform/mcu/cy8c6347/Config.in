@@ -1,5 +1,5 @@
 config AOS_MCU_CY8C6347
-    bool "mcu_cy8c6347"
+    bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_RHINO

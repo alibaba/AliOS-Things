@@ -1,5 +1,5 @@
 config AOS_MCU_HK32F103
-    bool "mcu_hk32f103"
+    bool
     select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
