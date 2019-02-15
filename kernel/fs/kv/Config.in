@@ -12,62 +12,70 @@ if AOS_COMP_KV
 # Configurations for component kv
 
 config KV_CONFIG_TASK_PRIORITY
-    int "KV_CONFIG_TASK_PRIORITY"
+    int "The garbage collection task priority"
+    range 0 256
     default 32
     help
-        set the task priority of the kv garbage collection task.
-        default 32
+        This option sets the garbage collection task priority.
+        the higher of the value, the lower of the priority.
+        the default is 32, the range is from 0 to 256.
 
 config KV_CONFIG_TASK_STACK_SIZE
-    int "KV_CONFIG_TASK_STACK_SIZE"
+    int "The garbage collection task stack size (bytes)"
     default 1024
     help
-        set the task stack size of the kv garbage collection task.
-        default 1024
+        This option sets the garbage collection task stack size.
+        this option is limited by the board memory size.
+        the value could be 1024, 2048, 4096 ...
+        the default is 1024.
 
 config KV_CONFIG_MAX_KEY_LEN
-    int "KV_CONFIG_MAX_KEY_LEN"
+    int "The maximum length of key buffer (bytes)"
     default 128
     help
-        set the maximum of key buffer length.
-        default 128
+        This option sets the maximum length of key buffer.
+        the value could be 32, 64, 128, 256 ...
+        the default is 128.
 
 config KV_CONFIG_MAX_VAL_LEN
-    int "KV_CONFIG_MAX_VAL_LEN"
+    int "The maximum length of value buffer (bytes)"
     default 512
     help
-        set the maximum of value buffer length.
-        default 512
+        This options sets the maximum length of value buffer.
+        the value could be 32, 64, 128, 256, 512, 1024 ...
+        the default is 512.
 
 config KV_CONFIG_SECURE_SUPPORT
-    int "KV_CONFIG_SECURE_SUPPORT"
+    int "Key-value Storage Security Support"
     range 0 1
     default 0
     help
-        disable/enable the kv secure storage feature.
-        0 for disable; 1 for enable
-        default 0
+        This option enables security support for key-vaue storage.
+        saying "1" here enables the feature.
+        saying "0" here is disabled.
+        the default is "0".
 
 if KV_CONFIG_SECURE_SUPPORT = 1
 
 config KV_CONFIG_SECURE_LEVEL
-    int "KV_CONFIG_SECURE_LEVEL"
+    int "Key-value Storage Security Level"
     range 1 2
     default 1
     help
-        select the kv secure level.
-        1 for function level (encrypt store only via kv secure API)
-        2 for all-block level (encrypt store for all kv public APIs)
-        default 1
+        This option sets the key-value storage security level.
+        saying "1" here is for function level (encrypt store only via security API).
+        saying "2" here is for all-block level (encrypt store for all public APIs).
+        the default is "1".
 
 config KV_CONFIG_SECURE_CRYPT_IMPL
-    int "KV_CONFIG_SECURE_CRYPT_IMPL"
-    range 1 3
+    int "Key-value Storage security Implementation"
+    range 1 2
     default 1
     help
-        the crypt interface implementaton.
-        1 for mbedtls SW implementation; 2 for user defined crypt implementation.
-        default 1
+        This option chooses the security implementaton.
+        saying "1" here chooses the encryption implementation of mbedtls.
+        saying "2" here chooses the encryption implementation of user-defined.
+        the default is "1"
 
 endif
 
