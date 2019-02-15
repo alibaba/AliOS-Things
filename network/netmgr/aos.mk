@@ -32,6 +32,10 @@ $(NAME)_SOURCES-y += interfaces/netmgr_net.c
 GLOBAL_INCLUDES-y += ../include/hal/
 endif
 
+ifeq (y,$(pvtest))
+GLOBAL_DEFINES-y += PREVALIDATE_TEST
+endif
+
 $(NAME)_COMPONENTS-y += kv osal_aos yloop
 
 GLOBAL_INCLUDES-y += include

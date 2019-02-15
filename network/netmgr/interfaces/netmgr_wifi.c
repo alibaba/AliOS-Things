@@ -723,14 +723,14 @@ int netmgr_wifi_start(bool autoconfig)
     }
 #endif
 
-#ifndef CI_LINKKIT_TEST
     if (autoconfig) {
+#ifndef PREVALIDATE_TEST
         netmgr_wifi_config_start();
+#endif
         return 0;
     }
 
     start_mesh(false);
-#endif
 
     return -1;
 }
