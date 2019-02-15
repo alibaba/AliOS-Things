@@ -9,7 +9,7 @@ $(NAME)_COMPONENTS += newlib_stub rhino bt_host kv
 
 #$(NAME)_LIBSUFFIX := $(PLATFORM_MCU_BOARD)
 
-GLOBAL_INCLUDES += \
+GLOBAL_INCLUDES +=  .\
                     Drivers \
                     Drivers/device \
                     Drivers/boards \
