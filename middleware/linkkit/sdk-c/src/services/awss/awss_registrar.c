@@ -778,14 +778,14 @@ int process_enrollee_ie(const uint8_t *ie, signed char rssi)
     ie += ENROLLEE_IE_HDR;
 
     if (ie[0] != DEVICE_TYPE_VERSION) {
-        awss_warn("enrollee(devtype/ver=%d not supported!", ie[0]);
+        awss_warn("type/ver=%d not supported!", ie[0]);
         return -1;
     }
     tmp_enrollee.dev_type_ver = ie[0];
     ie ++;/* eating dev_type_ver */
 
     if (ie[0] > MAX_DEV_NAME_LEN) {
-        awss_warn("enrollee(dev_name_len=%d out of range!\r\n", ie[0]);
+        awss_warn("dn_len=%d out of range!\r\n", ie[0]);
         return -1;
     }
     tmp_enrollee.dev_name_len = ie[0];
@@ -793,14 +793,14 @@ int process_enrollee_ie(const uint8_t *ie, signed char rssi)
     ie += ie[0] + 1; /* eating dev_name[n], dev_name_len */
 
     if (ie[0] != ENROLLEE_FRAME_TYPE) {
-        awss_warn("enrollee(frametype=%d invalid!\r\n", ie[0]);
+        awss_warn("frametype=%d invalid!\r\n", ie[0]);
         return -1;
     }
     tmp_enrollee.frame_type = ie[0];
     ie ++;/* eating frame type */
 
     if (ie[0] > MAX_PK_LEN) {
-        awss_warn("enrollee(pk_len=%d invalid!\r\n", ie[0]);
+        awss_warn("pk_len=%d invalid!\r\n", ie[0]);
         return -1;
     }
     tmp_enrollee.pk_len = ie[0];
@@ -808,7 +808,7 @@ int process_enrollee_ie(const uint8_t *ie, signed char rssi)
     ie += ie[0] + 1; /* eating pk[n], pk_len */
 
     if (ie[0] != RANDOM_MAX_LEN) {
-        awss_warn("enrollee(rand_len=%d invalid!\r\n", ie[0]);
+        awss_warn("rand_len=%d invalid!\r\n", ie[0]);
         return -1;
     }
     tmp_enrollee.rand_len = ie[0];
@@ -816,15 +816,15 @@ int process_enrollee_ie(const uint8_t *ie, signed char rssi)
     ie += ie[0] + 1; /* eating random[n], rand_len */
 
     if (ie[0] > 5 || ie[0] < 3) {
-        awss_warn("enrollee(security=%d invalid!\r\n", ie[0]);
+        awss_warn("security=%d invalid!\r\n", ie[0]);
         return -1;
     }
     if (ie[1] > 1) {
-        awss_warn("enrollee(sign_method=%d invalid!\r\n", ie[1]);
+        awss_warn("sign_method=%d invalid!\r\n", ie[1]);
         return -1;
     }
     if (ie[2] != ENROLLEE_SIGN_SIZE) {
-        awss_warn("enrollee(sign_len=%d invalid!\r\n", ie[2]);
+        awss_warn("sign_len=%d invalid!\r\n", ie[2]);
         return -1;
     }
     tmp_enrollee.security = ie[0];
@@ -872,18 +872,20 @@ int enrollee_put(struct enrollee_info *in)
                 0 == memcmp(in->pk, enrollee_info[i].pk, enrollee_info[i].pk_len)) {
                 if (enrollee_info[i].state == ENR_FOUND &&
                     time_elapsed_ms_since(enrollee_info[i].report_timestamp) > enrollee_info[i].interval * 1000) {
+                    /* need to update state of enrollee */
                     if (enrollee_report_timer == NULL) {
                         enrollee_report_timer = HAL_Timer_Create("enrollee", (void (*)(void *))enrollee_report, NULL);
                     }
                     HAL_Timer_Stop(enrollee_report_timer);
                     HAL_Timer_Start(enrollee_report_timer, 1);
                 }
-                if (enrollee_info[i].state != ENR_IN_QUEUE) { /* already reported */
+                if (enrollee_info[i].state != ENR_IN_QUEUE &&
+                    enrollee_info[i].state != ENR_FOUND) { /* doesn't start awss */
                     return 1;
                 }
                 memcpy(&enrollee_info[i], in, ENROLLEE_INFO_HDR_SIZE);
                 enrollee_info[i].rssi = (2 * enrollee_info[i].rssi + in->rssi) / 3;
-                return 1;/* wait for report */
+                return 1;  /* wait for report or awss */
             }
         } else if (enrollee_info[i].state == ENR_FREE && empty_slot >= MAX_ENROLLEE_NUM) {
             empty_slot = i;
