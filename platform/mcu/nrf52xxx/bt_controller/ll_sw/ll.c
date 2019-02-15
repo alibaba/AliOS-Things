@@ -41,6 +41,7 @@
 #include "irq.h"
 #include <arch_isr.h>
 #include "kport.h"
+#include "ctlr_config.h"
 
 /* Global singletons */
 

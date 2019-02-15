@@ -14,7 +14,7 @@
 #include <clock_control.h>
 #include <misc/__assert.h>
 #include "nrf.h"
-#include "config.h"
+#include "ctlr_config.h"
 #include "irq.h"
 #include "misc/util.h"
 #include "errno.h"
