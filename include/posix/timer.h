@@ -20,8 +20,9 @@ extern "C" {
 #define MILLISECONDS_PER_SECOND      1000LL
 #define NANOSECONDS_PER_MICROSECONDS 1000000LL
 
-#define CLOCK_REALTIME  1
-#define CLOCK_MONOTONIC 2
+#define CLOCK_REALTIME  1 /* System-wide realtime clock, can jump forwards and backwards as the system time-of-day clock is changed */
+#define CLOCK_MONOTONIC 2 /* The absolute elapsed wall-clock time since some arbitrary, fixed point in the past. It isn't affected by
+                             changes in the system time-of-day clock */
 
 #define POSIX_TIMER_ID_MIN 1
 
