@@ -36,6 +36,11 @@ int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *rest
         return -1;
     }
 
+    /* only CLOCK_MONOTONIC is supported */
+    if (clockid != CLOCK_MONOTONIC) {
+        return -1;
+    }
+
     /* malloc new timer struct */
     timer_list_m = (timer_list_t *)krhino_mm_alloc(sizeof(timer_list_t));
     if (timer_list_m == NULL) {
@@ -208,12 +213,18 @@ int timer_gettime(timer_t timerid, struct itimerspec *value)
 
 int timer_getoverrun(timer_t timerid)
 {
-    return 0;
+    /* kernel not support */
+    return -1;
 }
 
 int clock_getres(clockid_t clock_id, struct timespec *res)
 {
     if (res == NULL) {
+        return -1;
+    }
+
+    /* only CLOCK_MONOTONIC is supported */
+    if (clock_id != CLOCK_MONOTONIC) {
         return -1;
     }
 
@@ -231,6 +242,11 @@ int clock_gettime(clockid_t clock_id, struct timespec *tp)
         return -1;
     }
 
+    /* only CLOCK_MONOTONIC is supported */
+    if (clock_id != CLOCK_MONOTONIC) {
+        return -1;
+    }
+
     time_ns = (krhino_sys_tick_get() * NANOSECONDS_PER_SECOND) / RHINO_CONFIG_TICKS_PER_SECOND;
     *tp = nanosecond_to_timespec(time_ns);
 
@@ -239,7 +255,8 @@ int clock_gettime(clockid_t clock_id, struct timespec *tp)
 
 int clock_settime(clockid_t clock_id, const struct timespec *tp)
 {
-	return -1;
+    /* only CLOCK_MONOTONIC is supported, time can not be set */
+    return -1;
 }
 
 int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
@@ -263,6 +280,12 @@ int clock_nanosleep(clockid_t clock_id, int flags, const struct timespec *rqtp, 
     int64_t value_ticks = 0;
 
     struct timespec value_spec;
+
+    /* only CLOCK_MONOTONIC is supported */
+    if (clock_id != CLOCK_MONOTONIC) {
+        return -1;
+    }
+
     /* if the time is absolute time transform it to relative time */
     if((flags & TIMER_ABSTIME) == TIMER_ABSTIME) {
         ret = timespec_abs_to_relate(rqtp, &value_spec);
