@@ -40,6 +40,7 @@ udevapp
 ### Running
 
 > need to update `aos-cube` to 0.3.0 or later
+> if using `AliOS Studio`, need to update `AliOS Studio` to 0.10.9 or later.
 
 Before running `aos ota udevapp@xxxx`, you need to set the `productKey` and `deviceName`, typing blow commands in board's console:
 
@@ -64,6 +65,10 @@ Once done, reboot board, running `aos ota udevapp@xxxx -d <devicename> -p <produ
 `aos ota udevapp@xxx` command:
 
 ![](https://img.alicdn.com/tfs/TB1GINADwTqK1RjSZPhXXXfOFXa-919-571.gif)
+
+Or using `AliOS Studio` to update device binary quickly:
+
+![](https://img.alicdn.com/tfs/TB14ROOHbrpK1RjSZTEXXcWAVXa-1140-820.gif)
 
 and device log display like this:
 
