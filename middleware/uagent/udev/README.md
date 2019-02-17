@@ -27,6 +27,12 @@ The `aos ota` command upgrade remote devices quickly:
 
 > need to update `aos-cube` to 0.3.0 or later.
 
+Upgrade remote devices quickly in `AliOS Studio`:
+
+![](https://img.alicdn.com/tfs/TB14ROOHbrpK1RjSZTEXXcWAVXa-1140-820.gif)
+
+> need to update `AliOS Studio` to 0.10.9 or later.
+
 ##### udev architecture Overview
 
 ![](https://img.alicdn.com/tfs/TB1NMk4DlLoK1RjSZFuXXXn0XXa-526-329.png)

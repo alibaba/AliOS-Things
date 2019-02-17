@@ -24,7 +24,13 @@ middleware/uagent/udev/
 
 ![](https://img.alicdn.com/tfs/TB1GINADwTqK1RjSZPhXXXfOFXa-919-571.gif)
 
-> 需要更新`aos-cube`到0.3.0版本以上。
+> 需要更新`aos-cube`到0.3.0版本及以上。
+
+配合`AliOS Studio`一键更新设备固件：
+
+![](https://img.alicdn.com/tfs/TB14ROOHbrpK1RjSZTEXXcWAVXa-1140-820.gif)
+
+> 需要更新`AliOS Studio`到0.10.9版本及以上。
 
 ##### udev 的架构原理
 
