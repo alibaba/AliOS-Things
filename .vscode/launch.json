@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug @ Mac/Linux",
+            "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/out/helloworld@developerkit/binary/helloworld@developerkit.elf",
@@ -19,9 +19,6 @@
                     "text": "cd ${workspaceRoot}"
                 },
                 {
-                    "text": "source .gdbinit"
-                },
-                {
                     "text": "target remote localhost:4242"
                 },
                 {
@@ -33,106 +30,15 @@
             ],
             "customLaunchSetupCommands": [],
             "launchCompleteCommand": "exec-run",
+            "MIMode": "gdb",
             "osx": {
-                "MIMode": "gdb",
                 "miDebuggerPath": "arm-none-eabi-gdb"
             },
             "linux": {
-                "MIMode": "gdb",
                 "miDebuggerPath": "arm-none-eabi-gdb"
             },
             "windows": {
-                "MIMode": "gdb",
                 "miDebuggerPath": "arm-none-eabi-gdb.exe"
-            }
-        },
-        {
-            "name": "Debug @ Windows",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "D:\\work\\AliOS-Things\\out\\helloworld@developerkit\\binary\\helloworld@developerkit.elf",
-            "args": [],
-            "stopAtEntry": true,
-            "cwd": "${workspaceRoot}",
-            "environment": [],
-            "externalConsole": true,
-            "miDebuggerServerAddress": "localhost:4242",
-            "serverLaunchTimeout": 2000,
-            "targetArchitecture": "ARM",
-            "setupCommands": [
-                {
-                    "text": "cd ${workspaceRoot}"
-                },
-                {
-                    "text": "source .gdbinit"
-                },
-                {
-                    "text": "target remote localhost:4242"
-                },
-                {
-                    "text": "file out/helloworld@developerkit/binary/helloworld@developerkit.elf"
-                },
-                {
-                    "text": "break application_start"
-                }
-            ],
-            "customLaunchSetupCommands": [],
-            "launchCompleteCommand": "exec-run",
-            "osx": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "arm-none-eabi-gdb"
-            },
-            "linux": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "arm-none-eabi-gdb"
-            },
-            "windows": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "arm-none-eabi-gdb.exe"
-            }
-        },
-        {
-            "name": "CSKY Debug @ Windows/Linux",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceRoot}\\out\\helloworld@cb2201\\binary\\helloworld@cb2201.elf",
-            "args": [],
-            "stopAtEntry": true,
-            "cwd": "${workspaceRoot}",
-            "environment": [],
-            "externalConsole": true,
-            "miDebuggerServerAddress": "localhost:8888",
-            "serverLaunchTimeout": 2000,
-            "targetArchitecture": "X86_64",
-            "setupCommands": [
-                {
-                    "text": "cd ${workspaceRoot}"
-                },
-                {
-                    "text": "source .gdbinit"
-                },
-                {
-                    "text": "target jtag jtag://localhost:8888"
-                },
-                {
-                    "text": "file out/helloworld@cb2201/binary/helloworld@cb2201.elf"
-                },
-                {
-                    "text": "set debug-in-rom"
-                },
-                {
-                    "text": "hbreak application_start"
-                }
-            ],
-            "customLaunchSetupCommands": [],
-            "launchCompleteCommand": "exec-run",
-            "linux": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "csky-abiv2-elf-gdb"
-            },
-            "windows": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "${workspaceRoot}\\build\\compiler\\gcc-csky-abiv2\\Win32\\bin\\csky-abiv2-elf-gdb.exe"
             }
         }
     ]
