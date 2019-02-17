@@ -11,7 +11,6 @@
 #include "ulog/ulog.h"
 #include "iot_import.h"
 #include "iot_export.h"
-#include "iotx_mqtt.h"
 #include "udev.h"
 #include "udev_net.h"
 #include "udev_mqtt_client.h"
@@ -23,6 +22,7 @@ static unsigned int request_timeout_ms = 2000;
 static int package_id = 1;
 static int keepalive_interval = UDEV_KEEPALIVE;
 static int ping_outtime = 0;
+static char mqtt_token[48] = {0};
 
 int keepalive(int fd)
 {
@@ -190,7 +190,7 @@ int cycle(int fd, unsigned int timeout)
                     goto exit;
                }
             msg.qos = (mc_qos_e)intQoS;
-            LOGE("udev", "deliverMessage");
+            /* LOGE("udev", "deliverMessage"); */
             deliverMessage(fd, &topicName, &msg);
             if (msg.qos != QOS0){
                 if (msg.qos == QOS1)
@@ -398,7 +398,7 @@ exit:
     return rc;
 }
 
-int udev_mqtt_connect(const char *host, unsigned short port, const char *client_id, unsigned int request_timeout)
+int udev_mqtt_connect(const char *host, unsigned short port, const char *client_id, const char *token, unsigned int request_timeout)
 {
     int fd = -1, len = 0;
     MQTTPacket_connectData connectdata = MQTTPacket_connectData_initializer;
@@ -406,9 +406,15 @@ int udev_mqtt_connect(const char *host, unsigned short port, const char *client_
     connectdata.MQTTVersion = 4;
     connectdata.keepAliveInterval = UDEV_KEEPALIVE / 1000;
     connectdata.clientID.cstring = (char *)client_id;
-    connectdata.username.cstring = NULL;
-    connectdata.password.cstring = NULL;
     connectdata.cleansession = 0;
+
+    strncpy(mqtt_token, token, sizeof(mqtt_token));
+    char *delims = strchr(mqtt_token, '|');
+    *delims = '\0';
+    connectdata.username.cstring = mqtt_token;
+    connectdata.password.cstring = delims + 1;
+    /* LOGE("udev", "user:%s[%d], passwd:%s[%d]", connectdata.username.cstring, strlen(connectdata.username.cstring),
+                                                connectdata.password.cstring, strlen(connectdata.password.cstring)); */
     request_timeout_ms = request_timeout;
     if((fd = udev_net_connect(host, port)) < 0){
         LOGE("udev", "udev_net_connect failed");
