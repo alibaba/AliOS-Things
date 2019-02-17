@@ -5,6 +5,7 @@
 #ifndef UDEV_MQTT_CLIENT_H
 #define UDEV_MQTT_CLIENT_H
 
+#include "iot_export_mqtt.h"
 #include "iotx_mqtt.h"
 
 #define MQTT_RBUF_SIZE          512
@@ -39,6 +40,6 @@ typedef struct {
 
 int udev_mqtt_publish(int fd, const char* topic_name, mc_message_t* message);
 int udev_mqtt_subscript(int fd, const char* topic_filter, mc_qos_e qos, mc_handler_cb handler);
-int udev_mqtt_connect(const char *host, unsigned short port, const char *client_id, unsigned int request_timeout);
+int udev_mqtt_connect(const char *host, unsigned short port, const char *client_id, const char *token, unsigned int request_timeout);
 
 #endif /* UDEV_MQTT_CLIENT_H */

@@ -15,13 +15,16 @@
 
 #include "ota_log.h"
 #include "ota_hal_plat.h"
+#include "ota_hal_os.h"
 #include "ota/ota_service.h"
+#include "ota_verify.h"
 
 #include "udev.h"
 #include "udev_net.h"
 #include "udev_mqtt_client.h"
 
 #define OTA_BUFFER_MAX_SIZE 513
+#define MQTT_TOKEN          "QWxpT1MtVGhpbmdzLXVkZXZ8dWRldiFAIyQl"
 
 static aos_task_t udev_download_task = {NULL};
 static aos_task_t udev_yield_task = {NULL};
@@ -48,6 +51,11 @@ Cache-Control: no-cache\r\n\
 Connection: close\r\n\
 Range: bytes=%d-\r\n\
 Host:%s:%d\r\n\r\n"
+
+static char dl_url[125] = {0};
+static int dl_size = 0;
+static char dl_hash[33] = {0};
+static int isHttps = 0;
 
 extern ota_hal_module_t ota_hal_module;
 
@@ -87,10 +95,6 @@ int udev_publish_progress(unsigned char progress)
     return 0;
 }
 
-char dl_url[125] = {0};
-int dl_size = 0;
-
-static int isHttps = 0;
 static void http_gethost_info(char *src, char **web, char **file, int *port)
 {
     char *pa;
@@ -158,6 +162,15 @@ static int ota_parse_json(const char *json)
         }
         strncpy(dl_url, resourceUrl->valuestring, sizeof(dl_url));
 
+        cJSON *hash = cJSON_GetObjectItem(root, "MD5");
+        if (!hash) {
+            ret = -1;
+            goto parse_failed;
+        }
+        strncpy(dl_hash, hash->valuestring, sizeof(dl_hash));
+        dl_hash[32] = '\0';
+        ota_to_capital(dl_hash, strlen(dl_hash));
+
         cJSON *size = cJSON_GetObjectItem(root, "size");
         if (!size) {
             ret = -1;
@@ -166,7 +179,7 @@ static int ota_parse_json(const char *json)
         dl_size = size->valueint;
 
     }
-    OTA_LOG_E("parse size: %d, url:%s \n", dl_size, dl_url);
+    OTA_LOG_I("parse size: %d, url:%s, md5:%s\n", dl_size, dl_url, dl_hash);
     goto parse_success;
 parse_failed:
     OTA_LOG_E("parse failed err:%d",ret);
@@ -194,6 +207,7 @@ static int ota_http_download(void)
     int                  header_found = 0;
     char                *pos          = 0;
     int                  file_size    = 0;
+    ota_hash_param_t    *hash_ctx     = NULL;
     char                *host_file    = NULL;
     char                *host_addr    = NULL;
     char                *http_buffer  = NULL;
@@ -228,8 +242,8 @@ static int ota_http_download(void)
         return ret;
     }
 
-    sockfd = (void *)ota_socket_connect(host_addr, port);
-    if (sockfd < 0) {
+    sockfd = ota_socket_connect(host_addr, port);
+    if ((int)sockfd < 0) {
         ret = OTA_DOWNLOAD_CON_FAIL;
         return ret;
     }
@@ -238,14 +252,30 @@ static int ota_http_download(void)
         ret = OTA_DOWNLOAD_FAIL;
         goto END;
     }
+    ret = ota_malloc_hash_ctx(MD5);
+    if (ret < 0) {
+        ret = OTA_DOWNLOAD_FAIL;
+        goto END;
+    }
+
+    hash_ctx = ota_get_hash_ctx();
+    if (hash_ctx == NULL || hash_ctx->ctx_hash == NULL || hash_ctx->ctx_size == 0) {
+        ret = OTA_DOWNLOAD_FAIL;
+        goto END;;
+    }
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    sprintf(http_buffer, HTTP_HEADER, host_file, host_addr, port);
+    ota_snprintf(http_buffer, OTA_BUFFER_MAX_SIZE-1, HTTP_HEADER, host_file, host_addr, port);
+    if (ota_hash_init(hash_ctx->hash_method, hash_ctx->ctx_hash) < 0) {
+        ret = OTA_VERIFY_HASH_FAIL;
+        goto END;
+    }
+    ota_set_cur_hash(dl_hash);
     send      = 0;
     totalsend = 0;
     nbytes    = strlen(http_buffer);
     OTA_LOG_I("send %s", http_buffer);
     while (totalsend < nbytes) {
-        send = (ota_socket_send(sockfd, http_buffer + totalsend, nbytes - totalsend));
+        send = ota_socket_send(sockfd, http_buffer + totalsend, nbytes - totalsend);
         if (send < 0) {
             ret = OTA_DOWNLOAD_WRITE_FAIL;
             goto END;
@@ -254,7 +284,7 @@ static int ota_http_download(void)
         OTA_LOG_I("%d bytes send.", totalsend);
     }
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    while ((nbytes = (ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1))) != 0) {
+    while ((nbytes = ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1)) != 0) {
         if((nbytes <= 0)&&(retry <= 5)){
              retry++;
              OTA_LOG_I("retry cn:%d",retry);
@@ -288,7 +318,11 @@ static int ota_http_download(void)
                 int len      = pos - http_buffer;
                 header_found = 1;
                 size         = nbytes - len;
-                ret = ota_hal_write(&offset,pos, size);
+                if (ota_hash_update((const unsigned char *)pos, size, hash_ctx->ctx_hash) < 0) {
+                    ret = OTA_VERIFY_HASH_FAIL;
+                    goto END;
+                }
+                ret = ota_hal_write(&ota_param.off_bp, pos, size);
                 OTA_LOG_I("ota_hal_write\r\n");
                 if (ret < 0) {
                     ret = OTA_UPGRADE_FAIL;
@@ -299,6 +333,10 @@ static int ota_http_download(void)
             continue;
         }
         size += nbytes;
+        if (ota_hash_update((const unsigned char *)http_buffer, nbytes, hash_ctx->ctx_hash) < 0) {
+            ret = OTA_VERIFY_HASH_FAIL;
+            goto END;
+        }
         ret = ota_hal_write(NULL,http_buffer, nbytes);
         if (ret < 0) {
             ret = OTA_UPGRADE_FAIL;
@@ -322,16 +360,21 @@ static int ota_http_download(void)
         ret = OTA_DOWNLOAD_FAIL;
     } else if (nbytes == 0) {
         ota_set_break_point(0);
-    } else {
-        ret = OTA_CANCEL;
     }
 END:
     OTA_LOG_I("download finish ret:%d.",ret);
+
     if(http_buffer)
         ota_free(http_buffer);
     if(sockfd)
         ota_socket_close(sockfd);
     if(ret == 0){
+        ret = ota_check_hash(MD5, dl_hash);
+        ota_free_hash_ctx();
+        if (ret < 0) {
+            OTA_LOG_E("hash check error:%d.", ret);
+            return ret;
+        }
         aos_msleep(1000);
         ota_hal_boot(&ota_param);
     }
@@ -376,6 +419,9 @@ void udev_upgrade(mc_string_t* topic_name, mc_message_t* message)
 int udev_init(const char *pk, const char *dn)
 {
     static unsigned char udev_inited = 0;
+    char mqtt_token[48] = {0};
+    int ret = 0, token_len = sizeof(mqtt_token);
+
     if(udev_inited == 1){
         LOGE("udev", "udev already init\n");
         return -1;
@@ -395,7 +441,13 @@ int udev_init(const char *pk, const char *dn)
     LOGI("udev", "topic_progress: %s\n", udev_topic_progress);
     LOGI("udev", "topic_upgrade: %s\n", udev_topic_upgrade);
 
-    if((udev_mqtt_fd = udev_mqtt_connect(UDEV_BROKER_HOST, UDEV_BROKER_PORT, udev_client_id, 2000)) < 0){
+    if((ret = ota_base64_decode(MQTT_TOKEN, sizeof(MQTT_TOKEN) - 1, mqtt_token, &token_len)) < 0)
+    {
+        LOGE("udev", "base64 decode error, ret:%d, token: %d %d\n", ret, token_len, strlen(MQTT_TOKEN) - 1);
+        return -1;
+    }
+
+    if((udev_mqtt_fd = udev_mqtt_connect(UDEV_BROKER_HOST, UDEV_BROKER_PORT, udev_client_id, mqtt_token, 2000)) < 0){
         LOGE("udev", "udev_mqtt_connect failed");
         return -1;
     }

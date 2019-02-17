@@ -10,7 +10,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define UDEV_BROKER_HOST     "116.62.245.240"
-#define UDEV_BROKER_PORT     1883
+#define UDEV_BROKER_PORT     17173
 
 #define UDEV_KEEPALIVE      10000   /* mqtt broker keepalive (ms) */
 
