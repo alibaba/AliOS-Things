@@ -15,13 +15,11 @@ GLOBAL_INCLUDES-y += api include core/include
 
 $(NAME)_COMPONENTS-y := chip_code
 
-bz_secure_adv ?= 0
-ifeq ($(bz_secure_adv), 1)
+ifeq ($(CONFIG_COMP_BZ_SECURE_ADV), y)
 GLOBAL_DEFINES-y += CONFIG_AIS_SECURE_ADV
 endif
 
-bz_model_encry ?= 0
-ifeq ($(bz_model_encry), 1)
+ifeq ($(CONFIG_COMP_BZ_MODEL_SEC), y)
 GLOBAL_DEFINES-y += CONFIG_MODEL_SECURITY
 endif
 
@@ -32,15 +30,13 @@ endif
 
 $(NAME)_SOURCES-y += api/breeze_export.c
 
-bz_en_auth ?= 1
-ifeq ($(bz_en_auth), 1)
+ifeq ($(CONFIG_COMP_BZ_EN_AUTH), y)
 GLOBAL_DEFINES-y += EN_AUTH
 $(NAME)_SOURCES-y += core/src/auth.c
 endif
 
-bz_en_awss ?= 1
-ifeq ($(bz_en_awss), 1)
-ifeq ($(bz_en_auth), 0)
+ifeq ($(CONFIG_COMP_BZ_EN_AWSS), y)
+ifneq ($(CONFIG_COMP_BZ_EN_AUTH), y)
 $(error awss need authentication, please set "bz_en_auth = 1")
 endif
 GLOBAL_DEFINES-y += EN_COMBO_NET
