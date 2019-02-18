@@ -1,5 +1,5 @@
 config AOS_BOARD_STARTERKIT
-    bool "starterkit"
+    bool "StarterKit"
     select AOS_MCU_STM32L4XX_CUBE
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_SAL if AOS_NETWORK_SAL

@@ -1,5 +1,5 @@
 config AOS_BOARD_STM32L496G_DISCOVERY
-    bool "stm32l496g-discovery"
+    bool "STM32L496G_Discovery"
     select AOS_MCU_STM32L4XX_CUBE
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NETMGR if AOS_NETWORK_SAL

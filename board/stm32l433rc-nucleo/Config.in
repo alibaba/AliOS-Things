@@ -1,5 +1,5 @@
 config AOS_BOARD_STM32L433RC_NUCLEO
-    bool "stm32l433rc-nucleo"
+    bool "STM32L433RC_Nucleo"
     select AOS_MCU_STM32L4XX_CUBE
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NETMGR if AOS_NETWORK_SAL

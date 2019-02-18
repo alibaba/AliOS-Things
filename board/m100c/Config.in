@@ -1,5 +1,5 @@
 config AOS_BOARD_M100C
-    bool "board_m100c"
+    bool "M100C"
     select AOS_MCU_EFM32GXX
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_LORAWAN_4_4_2 if lorawanback = 0
