@@ -133,7 +133,7 @@ static void handle_socket_data()
 {
     int link_id = 0;
     int ret = 0;
-    uint32_t len = 0;
+    int len = 0;
     char reader[16] = {0};
     char *recvdata = NULL;
     char single;
@@ -206,7 +206,7 @@ err:
 
 static void handle_udp_broadcast_data()
 {
-    uint32_t len = 0;
+    int len = 0;
     uint32_t remoteport = 0;
     int32_t  linkid = 0;
     int32_t  ret = 0;
@@ -542,22 +542,22 @@ int HAL_SAL_Start(sal_conn_t *c)
     switch (c->type) {
         case TCP_SERVER:
             snprintf(cmd, START_CMD_LEN - 1, "%s=%d,%s,%d,",
-                     START_CMD, link_id, start_cmd_type_str[c->type], c->l_port);
+                     START_CMD, link_id, start_cmd_type_str[c->type], (int)c->l_port);
             break;
         case TCP_CLIENT:
         case SSL_CLIENT:
             snprintf(cmd, START_CMD_LEN - 5 - 1, "%s=%d,%s,%s,%d",
                      START_CMD, link_id, start_cmd_type_str[c->type],
-                     c->addr, c->r_port);
+                     c->addr, (int)c->r_port);
             if (c->l_port >= 0) {
-                snprintf(cmd + strlen(cmd), 7, ",%d", c->l_port);
+                snprintf(cmd + strlen(cmd), 7, ",%d", (int)c->l_port);
             }
             break;
         case UDP_BROADCAST:
         case UDP_UNICAST:
             snprintf(cmd, START_CMD_LEN - 1, "%s=%d,%s,%s,%d,%d",
                      START_CMD, link_id, start_cmd_type_str[c->type],
-                     c->addr, c->r_port, c->l_port);
+                     c->addr, (int)c->r_port, (int)c->l_port);
             break;
         default:
             LOGE(TAG, "Invalid connection type.");
@@ -646,14 +646,14 @@ int HAL_SAL_Send(int fd,
     snprintf(cmd, SEND_CMD_LEN - 1, "%s=%d,", SEND_CMD, link_id);
     /* [remote_port,] */
     if (remote_port >= 0) {
-        snprintf(cmd + strlen(cmd), 7, "%d,", remote_port);
+        snprintf(cmd + strlen(cmd), 7, "%d,", (int)remote_port);
     }
 
     /* data_length */
 #if AT_CHECK_SUM
-    snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len + 1);
+    snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", (int)len + 1);
 #else
-    snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", len);
+    snprintf(cmd + strlen(cmd), DATA_LEN_MAX + 1, "%d", (int)len);
 #endif
 
     LOGD(TAG, "\r\n%s %d - AT cmd to run: %s\r\n", __func__, __LINE__, cmd);

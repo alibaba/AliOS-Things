@@ -443,7 +443,7 @@ int netm_mux_send(int id, const uint8_t *pdata, int len)
     }
 
     if (len <= 0 || len > 1460) {
-        LOGE(TAG, "len(%d) err");
+        LOGE(TAG, "len(%d) err", len);
         return -1;
     }
 
