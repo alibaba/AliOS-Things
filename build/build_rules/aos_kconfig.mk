@@ -96,8 +96,12 @@ $(QUIET)$(COMMON_CONFIG_ENV) $(1) --defconfig$(if $(2),=$(2)) $(AOS_CONFIG_IN)
 endef
 
 # Create .config
-$(AOS_CONFIG): $(KCONFIG_CONF) $(TMP_DEFCONFIG)
+$(AOS_CONFIG): $(KCONFIG_CONF)
 	$(QUIET)$(call LOAD_DEFCONFIG, $<,$(TMP_DEFCONFIG))
+
+ifneq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
+$(AOS_CONFIG): $(TMP_DEFCONFIG)
+endif
 
 defconfig: $(KCONFIG_CONF)
 	$(QUIET)$(call LOAD_DEFCONFIG, $<,$(AOS_DEFCONFIG))
@@ -119,7 +123,7 @@ list-defconfigs:
 	$(QUIET)$(ECHO) "Valid defconfigs:"
 	$(QUIET)$(ECHO) " "$(foreach defconfig,$(wildcard $(AOS_DEFCONFIG_DIR)/*-defconfig),$(call ECHO_DEFCONFIG,$(defconfig)))
 
-$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF) $(AOS_CONFIG)
+$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF)
 	$(QUIET)$(ECHO) Creating $@ ...
 	$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< --silentoldconfig $(AOS_CONFIG_IN)
