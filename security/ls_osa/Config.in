@@ -1,5 +1,5 @@
 config AOS_COMP_LS_OSA
-    bool "ls_osa"
+    bool "Link Secuirty OS Interface"
     default n
     help
 
