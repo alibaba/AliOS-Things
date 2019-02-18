@@ -1,5 +1,5 @@
 config AOS_BOARD_FRDMKL43Z
-    bool "board_frdmkl43z"
+    bool "FRDMKL43Z"
     select AOS_MCU_MKL43Z4IMPL
     select AOS_COMP_KERNEL_INIT
     help

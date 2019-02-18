@@ -1,5 +1,5 @@
 config AOS_BOARD_MSP432P4111LAUNCHPAD
-    bool "msp432p4111launchpad"
+    bool "MSP432P4111LaunchPad"
     select AOS_MCU_MSP432P4XX
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_SAL if AOS_NETWORK_SAL

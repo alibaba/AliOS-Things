@@ -1,5 +1,5 @@
 config AOS_BOARD_STM32F103ZE
-    bool "stm32f103ze"
+    bool "STM32F103ZE"
     select AOS_MCU_STM32F1XX
     select AOS_COMP_KERNEL_INIT
     help

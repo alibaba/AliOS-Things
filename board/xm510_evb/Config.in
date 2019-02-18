@@ -1,5 +1,5 @@
 config AOS_BOARD_XM510
-    bool "board_xm510"
+    bool "XM510"
     select AOS_MCU_XM510
     select AOS_COMP_KERNEL_INIT
     help

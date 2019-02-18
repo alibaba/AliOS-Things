@@ -1,5 +1,5 @@
 config AOS_BOARD_MK3165
-    bool "board_mk3165"
+    bool "MK3165"
     select AOS_MCU_STM32F4XX
     select AOS_COMP_KERNEL_INIT
     help

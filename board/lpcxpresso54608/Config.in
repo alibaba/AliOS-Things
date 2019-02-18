@@ -1,5 +1,5 @@
 config AOS_BOARD_LPCXPRESSO54608
-    bool "board_lpcxpresso54608"
+    bool "LPCXPRESSO54608"
     select AOS_MCU_LPC54608IMPL
     select AOS_COMP_KERNEL_INIT
     help

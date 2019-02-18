@@ -1,5 +1,5 @@
 config AOS_BOARD_DH5021A_EVB
-    bool "board_dh5021a_evb"
+    bool "DH5021A_EVB"
     select AOS_MCU_DAHUA
     select AOS_COMP_KERNEL_INIT
     help

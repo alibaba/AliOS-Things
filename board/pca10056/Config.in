@@ -1,5 +1,5 @@
 config AOS_BOARD_PCA10056
-    bool "board_pca10056"
+    bool "PCA10056"
     select AOS_MCU_NRF52XXX
     select AOS_COMP_KERNEL_INIT
     help
