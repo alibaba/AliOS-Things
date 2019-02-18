@@ -80,6 +80,8 @@ PACK_STRUCT_END
 /* Valid TCP header flags */
 #define TCP_FLAGS 0x3fU
 
+#define TCP_MAX_OPTION_BYTES 40
+
 #define TCPH_HDRLEN(phdr) ((u16_t)(lwip_ntohs((phdr)->_hdrlen_rsvd_flags) >> 12))
 #define TCPH_FLAGS(phdr)  ((u16_t)(lwip_ntohs((phdr)->_hdrlen_rsvd_flags) & TCP_FLAGS))
 
