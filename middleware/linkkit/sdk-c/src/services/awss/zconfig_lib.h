@@ -93,7 +93,6 @@ void zconfig_channel_locked_callback(uint8_t primary_channel,
 /* got ssid&passwd callback */
 void zconfig_got_ssid_passwd_callback(uint8_t *ssid, uint8_t *passwd, uint8_t *bssid,
                                       uint8_t auth, uint8_t encry, uint8_t channel);
-void zconfig_force_rescan(void);
 void aws_set_dst_chan(int channel);
 void aws_switch_channel(void);
 void aws_release_mutex(void);
