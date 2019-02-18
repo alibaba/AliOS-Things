@@ -81,7 +81,7 @@ int __awss_start(void)
             if (awss_notify_needed == 0) {
                 awss_dev_bind_notify_stop();
                 awss_suc_notify_stop();
-                awss_cmp_local_init();
+                awss_cmp_local_init(adha == 0 ? AWSS_LC_INIT_ROUTER : AWSS_LC_INIT_PAP);
                 awss_devinfo_notify();
                 if (adha == 0)
                     AWSS_UPDATE_STATIS(AWSS_STATIS_ROUTE_IDX, AWSS_STATIS_TYPE_TIME_SUC);
@@ -110,7 +110,6 @@ int __awss_start(void)
 
     AWSS_DISP_STATIS();
     awss_finished = 1;
-    /* never reach here */
     return 0;
 }
 

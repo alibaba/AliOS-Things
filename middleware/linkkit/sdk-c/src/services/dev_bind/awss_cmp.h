@@ -18,7 +18,16 @@ typedef struct {
     uint16_t port; /**< udp port or tcp port */
 } platform_netaddr_t;
 
+enum {
+    AWSS_LC_INIT_ROUTER = 0x01,
+    AWSS_LC_INIT_PAP = 0x02,
+    AWSS_LC_INIT_DEV_AP = 0x04,
+    AWSS_LC_INIT_SUC = 0x08,
+    AWSS_LC_INIT_BIND = 0x100,
+};
+
 struct awss_cmp_couple {
+    int init_stage;
     char *topic;
     void *cb;
 };
@@ -29,7 +38,7 @@ struct coap_session_ctx_t {
     char is_mcast;
 };
 
-int awss_cmp_local_init();
+int awss_cmp_local_init(int init_stage);
 int awss_cmp_local_deinit(int force);
 int awss_cmp_online_init();
 int awss_cmp_online_deinit();
@@ -42,7 +51,7 @@ int awss_stop_report_token();
 int awss_cmp_coap_cancel_packet(uint16_t msgid);
 int awss_cmp_coap_register_cb(char *topic, void *cb);
 int awss_cmp_coap_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb, uint16_t *msgid);
-int awss_cmp_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, void *cb);
+int awss_cmp_coap_send_resp(void *buf, uint32_t len, void *sa, const char *uri, void* req, void *cb, uint16_t *msgid, char qos);
 int awss_cmp_coap_ob_send(void *buf, uint32_t len, void *sa, const char *uri, void *cb);
 int awss_cmp_coap_deinit();
 

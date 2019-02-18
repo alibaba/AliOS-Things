@@ -38,8 +38,8 @@ typedef struct {
 NetworkContext *CoAPNetwork_init(const NetworkInit   *p_param);
 
 
-int CoAPNetwork_write(NetworkContext          *p_context,
-                      NetworkAddr   *p_remote,
+int CoAPNetwork_write(NetworkContext       *p_context,
+                      NetworkAddr          *p_remote,
                       const unsigned char  *p_data,
                       unsigned int          datalen,
                       unsigned int          timeout);
@@ -47,8 +47,8 @@ int CoAPNetwork_write(NetworkContext          *p_context,
 int CoAPNetwork_read(NetworkContext *p_context,
                      NetworkAddr    *p_remote,
                      unsigned char  *p_data,
-                     unsigned int datalen,
-                     unsigned int timeout);
+                     unsigned int    datalen,
+                     unsigned int    timeout);
 
 void CoAPNetwork_deinit(NetworkContext *p_context);
 
