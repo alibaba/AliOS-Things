@@ -1,5 +1,5 @@
 config AOS_COMP_LIBPROV
-    bool "libprov"
+    bool "Factory Provisiong Support"
     default n
     select AOS_COMP_IROT
     select AOS_COMP_ALICRYPTO

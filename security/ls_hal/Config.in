@@ -1,5 +1,5 @@
 config AOS_COMP_LS_HAL
-    bool "ls_hal"
+    bool "Link Security Hardware Interface"
     default n
     help
 
