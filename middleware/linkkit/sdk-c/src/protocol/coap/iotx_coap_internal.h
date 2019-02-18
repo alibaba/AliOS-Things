@@ -127,6 +127,7 @@ typedef enum {
 typedef enum {
     COAP_REQUEST_SUCCESS,
     COAP_RECV_RESP_TIMEOUT,
+    COAP_RECV_RESP_SUC,
 } CoAPReqResult;
 
 typedef struct {

@@ -46,8 +46,8 @@ int CoAPNetwork_read(NetworkContext         *p_context,
     return len;
 }
 
-int CoAPNetwork_write(NetworkContext          *p_context,
-                      NetworkAddr   *p_remote,
+int CoAPNetwork_write(NetworkContext       *p_context,
+                      NetworkAddr          *p_remote,
                       const unsigned char  *p_data,
                       unsigned int          datalen,
                       unsigned int          timeout_ms)

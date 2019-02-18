@@ -304,6 +304,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
         tods = tods_tmp;
         ret = -1;
         awss_event_post(AWSS_CS_ERR);
+        AWSS_UPDATE_STATIS(AWSS_STATIS_SM_IDX, AWSS_STATIS_TYPE_CRC_ERR);
         goto exit;
     }
 
