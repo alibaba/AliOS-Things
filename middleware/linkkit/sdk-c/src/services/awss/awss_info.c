@@ -130,7 +130,7 @@ int process_get_device_info(void *ctx, void *resource, void *remote, void *reque
 
     awss_build_topic(topic_fmt, topic, TOPIC_LEN_MAX);
 
-    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request))
+    if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), remote, topic, request, NULL, NULL, 0))
         awss_err("tx dev info rsp fail.");
 
     awss_free(buf);

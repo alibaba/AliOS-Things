@@ -39,14 +39,14 @@ int awss_cmp_mqtt_send(char *topic, void *data, int len, int qos)
 }
 
 const struct awss_cmp_couple awss_online_couple[] = {
-    {TOPIC_MATCH_REPORT_REPLY, awss_report_token_reply},
+    {-1, TOPIC_MATCH_REPORT_REPLY, awss_report_token_reply},
 #ifdef WIFI_PROVISION_ENABLED
 #ifndef AWSS_DISABLE_REGISTRAR
-    {TOPIC_ZC_CHECKIN,         awss_enrollee_checkin},
-    {TOPIC_ZC_ENROLLEE_REPLY,  awss_report_enrollee_reply},
-    {TOPIC_ZC_CIPHER_REPLY,    awss_get_cipher_reply},
+    {-1, TOPIC_ZC_CHECKIN,         awss_enrollee_checkin},
+    {-1, TOPIC_ZC_ENROLLEE_REPLY,  awss_report_enrollee_reply},
+    {-1, TOPIC_ZC_CIPHER_REPLY,    awss_get_cipher_reply},
 #endif
-    {TOPIC_SWITCHAP,           awss_online_switchap}
+    {-1, TOPIC_SWITCHAP,           awss_online_switchap}
 #endif
 };
 
@@ -60,9 +60,11 @@ int awss_cmp_online_init()
     int i;
 
     for (i = 0; i < sizeof(awss_online_couple) / sizeof(awss_online_couple[0]); i ++) {
+        int res = -1;
         memset(topic, 0, sizeof(topic));
         awss_build_topic(awss_online_couple[i].topic, topic, TOPIC_LEN_MAX);
-        awss_cmp_mqtt_register_cb(topic, awss_online_couple[i].cb);
+        res = awss_cmp_mqtt_register_cb(topic, awss_online_couple[i].cb);
+        awss_debug("sub %s %s\n", topic, res < 0 ? "fail" : "success");
     }
 
     online_init = 1;

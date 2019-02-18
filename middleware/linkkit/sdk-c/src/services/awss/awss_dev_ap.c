@@ -23,8 +23,11 @@
 extern "C"
 {
 #endif
+#define AWSS_DEV_AP_WAIT_TIME_MAX_MS    (2000)
+
 static void *g_awss_dev_ap_mutex = NULL;
 static char awss_dev_ap_switchap_done = 0;
+static char awss_dev_ap_switchap_resp_suc = 0;
 static char awss_dev_ap_ongoing = 0;
 
 static int awss_dev_ap_setup()
@@ -54,14 +57,14 @@ int awss_dev_ap_start(void)
     int ret = -1;
 
     if (g_awss_dev_ap_mutex || awss_dev_ap_ongoing) {
-        awss_debug("dev ap exist");
+        awss_warn("dev ap exist");
         return -1;
     }
 
     if (g_awss_dev_ap_mutex == NULL)
         g_awss_dev_ap_mutex = HAL_MutexCreate();
     if (g_awss_dev_ap_mutex == NULL) {
-        awss_debug("awss dev ap start fail");
+        awss_err("awss dev ap start fail");
         goto AWSS_DEV_AP_FAIL;
     }
 
@@ -69,10 +72,11 @@ int awss_dev_ap_start(void)
 
     awss_dev_ap_ongoing = 1;
     awss_dev_ap_switchap_done = 0;
+    awss_dev_ap_switchap_resp_suc = 0;
 
     ret = awss_dev_ap_setup();
     awss_msleep(1000);  /* wait for dev ap to work well */
-    awss_cmp_local_init();
+    awss_cmp_local_init(AWSS_LC_INIT_DEV_AP);
 
     while (awss_dev_ap_ongoing) {
         awss_msleep(200);
@@ -124,9 +128,19 @@ int awss_dev_ap_stop(void)
     }
 
     awss_dev_ap_switchap_done = 0;
+    awss_dev_ap_switchap_resp_suc = 0;
 
     awss_trace("%s exit", __func__);
 
+    return 0;
+}
+
+static int awss_dev_ap_switchap_resp(void *context, int result,
+                                    void *userdata, void *remote,
+                                    void *message) {
+    if (result == 2) { /* success */
+        awss_dev_ap_switchap_resp_suc = 1;
+    }
     return 0;
 }
 
@@ -134,7 +148,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
 {
 #define AWSS_DEV_AP_SWITCHA_RSP_LEN (512)
     char ssid[PLATFORM_MAX_SSID_LEN * 2 + 1] = {0}, passwd[PLATFORM_MAX_PASSWD_LEN + 1] = {0};
-    int str_len = 0, success = 1, i  = 0, len = 0;
+    int str_len = 0, success = 1, len = 0;
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
     char random[RANDOM_MAX_LEN + 1] = {0};
     char *msg = NULL, *dev_info = NULL;
@@ -160,7 +174,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     buf = awss_cmp_get_coap_payload(request, &len);
     str = json_get_value_by_name(buf, len, "id", &str_len, 0);
     memcpy(req_msg_id, str, str_len > MSG_REQ_ID_LEN - 1 ? MSG_REQ_ID_LEN - 1 : str_len);
-    awss_debug("dev ap, len:%u, %s\r\n", len, buf);
+    awss_trace("dev ap, len:%u, %s\r\n", len, buf);
     buf = json_get_value_by_name(buf, len, "params", &len, 0);
     if (buf == NULL)
         goto DEV_AP_SWITCHAP_END;
@@ -175,7 +189,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
 
         str_len = 0;
         str = json_get_value_by_name(buf, len, "ssid", &str_len, 0);
-        awss_debug("ssid, len:%u, %s\r\n", str_len, str != NULL ? str : "NULL");
+        awss_trace("ssid, len:%u, %s\r\n", str_len, str != NULL ? str : "NULL");
         if (str && (str_len < PLATFORM_MAX_SSID_LEN)) {
             memcpy(ssid, str, str_len);
             ssid_found = 1;
@@ -236,22 +250,30 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     awss_trace("Sending msg to app: %s", msg);
 
     char topic[TOPIC_LEN_MAX] = {0};
+    uint16_t msgid = -1;
     awss_build_topic((const char *)TOPIC_AWSS_DEV_AP_SWITCHAP, topic, TOPIC_LEN_MAX);
-    for (i = 0; i < 3; i ++) {
-        int result = awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request);
-        awss_trace("sending %s.", result == 0 ? "success" : "fail");
-        awss_msleep(20);
-    }
+    int result = awss_cmp_coap_send_resp(msg, strlen(msg), remote, topic, request, awss_dev_ap_switchap_resp, &msgid, 1);
+    (void)result;  /* remove complier warnings */
+    awss_trace("sending %s.", result == 0 ? "success" : "fail");
 
     do {
+        int wait_ms = AWSS_DEV_AP_WAIT_TIME_MAX_MS;
         if (!success)
             break;
 
-        awss_msleep(1940);
-        os_awss_close_ap();
+        while (wait_ms > 0 && awss_dev_ap_switchap_resp_suc == 0 && awss_dev_ap_ongoing) {
+            awss_msleep(100);
+            wait_ms -= 100;
+        }
+        awss_cmp_coap_cancel_packet(msgid);
         AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_START);
-        awss_trace("switch to ap: '%s'", ssid);
-        ret = os_awss_connect_ap(30 * 1000, ssid, passwd, 0, 0, (uint8_t *)bssid, 0);
+        if (awss_dev_ap_ongoing == 0) {  /* interrupt by user */
+            ret = -1;
+            goto DEV_AP_SWITCHAP_END;
+        }
+        os_awss_close_ap();
+
+        ret = os_awss_connect_ap(WLAN_CONNECTION_TIMEOUT_MS, ssid, passwd, 0, 0, (uint8_t *)bssid, 0);
         if (ret == 0) {
             AWSS_UPDATE_STATIS(AWSS_STATIS_CONN_ROUTER_IDX, AWSS_STATIS_TYPE_TIME_SUC);
             awss_dev_ap_switchap_done = 1;
