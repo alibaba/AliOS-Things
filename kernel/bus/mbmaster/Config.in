@@ -2,26 +2,26 @@ menuconfig AOS_COMP_MBMASTER
     bool "Modbus Master Support"
     default n
     help
-        modbus master library support
+        modbus master stack. This module is used to communicate with modbus slave devices.
 
 if AOS_COMP_MBMASTER
 
 config MBMASTER_CONFIG_RTU_ENABLED
-    bool "MBMASTER_CONFIG_RTU_ENABLED"
+    bool "Enable the rtu transmission mode"
         default y
         help
             excludes this feature if you want to use modbus master with rtu.
             default y
 
 config MBMASTER_CONFIG_READ_HOLDING
-    bool "MBMASTER_CONFIG_READ_HOLDING"
+    bool "Enable Read Holding Registers function"
         default y
         help
             excludes this feature if you want to use the read holding register function of modbus master.
             default y
 
 config MBMASTER_CONFIG_HANDLER_MAX
-    int "MBMASTER_CONFIG_HANDLER_MAX"
+    int "The max number of handler resources"
         range 0 10
         default 1
         help
@@ -30,7 +30,7 @@ config MBMASTER_CONFIG_HANDLER_MAX
             default 1
 
 config MBMASTER_CONFIG_LOG_LEVEL
-    int "MBMASTER_CONFIG_LOG_LEVEL"
+    int "Set the log level"
         range 0 1
         default 0
         help
