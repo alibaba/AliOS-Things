@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_BREEZE_HAL
+config AOS_COMP_BREEZE_HAL
     bool 
     default n
     select AOS_COMP_BT_HOST if BREEZEHAL_CONFIG_BLESTACK
@@ -10,11 +10,11 @@ if AOS_COMP_BREEZE_HAL
 # Configurations for comp bt_breeze_hal
 
      config BREEZEHAL_CONFIG_BLESTACK
- 	bool "Enable built-in BLE stack"
+ 	#bool "Enable built-in BLE stack"
  	default 1
 
      config BREEZEHAL_CONFIG_CRYTPO
-        bool "Enable built-in crypto"
+        #bool "Enable built-in crypto"
         default 0
 
 endif
