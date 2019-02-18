@@ -1,1 +1,1 @@
-linux_only_targets="helloworld modbus_demo udataapp yts"
+linux_only_targets="coapapp helloworld modbus_demo mqttapp otaapp udataapp udevapp yts"
