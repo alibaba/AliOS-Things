@@ -1,4 +1,4 @@
-default: Help
+default: all
 
 unexport NAME # For compatibility with Windows Subsystem Linux
 
@@ -20,10 +20,17 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 # kconfig support
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
+define NO_CONFIG_ERROR
+$(error Please configure AliOS-Things first: (e.g. "aos make menuconfig")))
+endef
+
+all:
+	$(QUIET)$(if $(wildcard $(AOS_CONFIG)),,$(call NO_CONFIG_ERROR))
+
 #
 # Process build strings
 #
-BUILD_SUBTARGETS := .config .compile .image .export-keil .export-iar .defconfig
+BUILD_SUBTARGETS := .config .menuconfig compile .image .export-keil .export-iar .defconfig
 export BUILD_STRING ?= $(strip $(filter-out $(MAKEFILE_TARGETS) download run total export_linkkit_sdk restore_linkkit_sdk, $(MAKECMDGOALS)))
 
 # Set IDE if export-* is specified
@@ -31,6 +38,20 @@ ifneq ($(filter %.export-keil, $(BUILD_STRING)),)
 export IDE := keil
 else ifneq ($(filter %.export-iar, $(BUILD_STRING)),)
 export IDE := iar
+endif
+
+ifneq ($(filter %.config, $(MAKECMDGOALS)),)
+$(shell rm -rf .config .defconfig out/config)
+endif
+
+ifneq ($(filter menuconfig, $(MAKECMDGOALS)),)
+export BUILD_STRING :=
+else ifeq ($(BUILD_STRING),)
+# Get BUILD_STRING from AOS_CONFIG
+ifneq ($(wildcard $(AOS_CONFIG)),)
+include $(AOS_CONFIG)
+BUILD_STRING = $(strip $(subst @board_,@,$(subst ",,$(AOS_BUILD_APP)@$(AOS_BUILD_BOARD))))
+endif
 endif
 
 # Strip subtargets from BUILD_STRING
@@ -51,17 +72,25 @@ ifeq ($(NOCONFIG),)
 # Get AOS_BUILD_APP, AOS_BUILD_BOARD from BUILD_STRING for creating
 # AOS_CONFIG if it is not existing
 ifneq ($(BUILD_STRING),)
+
+ifeq ($(wildcard $(AOS_CONFIG)),)
+ifeq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
+$(call NO_CONFIG_ERROR)
+endif
+endif
+
 ifeq ($(findstring @,$(BUILD_STRING)),)
 $(error Unknown target $(BUILD_STRING) ...)
 endif
 
 components := $(subst @, ,$(BUILD_STRING))
 # get real app name and check if it available
-appdir = $(subst .,/,$(firstword $(components)))
+appname = $(firstword $(components))
+appdir = $(subst .,/,$(appname))
 appmkfile = $(wildcard $(SOURCE_ROOT)app/*/$(appdir)/aos.mk $(SOURCE_ROOT)test/develop/$(appdir)/aos.mk)
 $(if $(appmkfile),\
-    $(eval include $(appmkfile)) $(eval appname = $(NAME)),\
-    $(eval appname = $(notdir $(appdir))))
+    $(eval include $(appmkfile)) $(eval real_appname = $(NAME)),\
+    $(eval real_appname = $(notdir $(appdir))))
 
 ifneq ($(wildcard $(OUTPUT_DIR)/aos_all_components.mk),)
 include $(OUTPUT_DIR)/aos_all_components.mk
@@ -77,13 +106,13 @@ else
 export AOS_APP_TYPE :=
 endif
 
-boarddir = $(word 2, $(components))
-boardmkfile = $(wildcard $(SOURCE_ROOT)board/$(boarddir)/aos.mk $(SOURCE_ROOT)board/$(boarddir)-*/aos.mk)
+boardname = $(word 2, $(components))
+boardmkfile = $(wildcard $(SOURCE_ROOT)board/$(boardname)/aos.mk $(SOURCE_ROOT)board/$(boardname)-*/aos.mk)
 $(if $(boardmkfile),\
-    $(eval include $(boardmkfile)) $(eval boardname = $(NAME)),\
-    $(eval boardname = $(boarddir)))
+    $(eval include $(boardmkfile)) $(eval real_boardname = $(NAME)),\
+    $(eval real_boardname = $(boardname)))
 
-defconfig = $(wildcard $(SOURCE_ROOT)board/$(boarddir)/defconfig)
+defconfig = $(wildcard $(SOURCE_ROOT)board/$(boardname)/defconfig)
 ifneq ($(defconfig),)
 export BOARD_DEFCONFIG := $(defconfig)
 AOS_DEFCONFIG := $(BOARD_DEFCONFIG)
@@ -94,26 +123,19 @@ include $(AOS_CONFIG)
 
 ifneq ($(AOS_BUILD_APP),)
 ifneq ($(AOS_BUILD_APP),"$(appname)")
-$(warning Build config missmatched (app): $(AOS_BUILD_APP),"$(appname)")
-CLEAN_CONFIG := yes
+$(error App name missmatched: $(AOS_BUILD_APP),"$(appname)")
 endif
 endif # $(AOS_BUILD_APP)
 
 ifneq ($(AOS_BUILD_BOARD),)
 ifneq ($(AOS_BUILD_BOARD),"$(boardname)")
-$(warning Build config missmatched (board): $(AOS_BUILD_BOARD),"$(boardname)")
-CLEAN_CONFIG := yes
+$(error Board name missmatched: $(AOS_BUILD_BOARD),"$(boardname)")
 endif
 endif # $(AOS_BUILD_BOARD)
-retry = $(AOS_CONFIG).retry
-$(if $(CLEAN_CONFIG),\
-    $(if $(wildcard $(retry)),$(shell rm -f $(retry)) $(error Build config is missmatched!),\
-    $(info Cleaning existing build configs ...) $(shell rm -rf .config .defconfig out/config) $(file >.config.retry,1)),\
-    $(shell rm -f .config.retry))
 endif # $(wildcard $(AOS_CONFIG))
 
-export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst board_,,$(boardname))))
-export AOS_APP_CONFIG = AOS_APP_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst app_,,$(appname))))
+export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst board_,,$(real_boardname))))
+export AOS_APP_CONFIG = AOS_APP_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst app_,,$(real_appname))))
 
 endif # $(BUILD_STRING)
 endif # $(NOCONFIG)
@@ -252,11 +274,6 @@ ifneq ($(BUILD_STRING),)
 ifeq ($(findstring @,$(BUILD_STRING)),)
 $(error Unknown target $(BUILD_STRING) ...)
 endif
-#-include $(OUTPUT_DIR)/config.mk
-
-#ifeq ($(NOCONFIG),)
-#-include $(AOS_CONFIG)
-#endif
 
 # Include toolchain
 ifeq ($(IDE),iar)
@@ -307,6 +324,8 @@ ifneq ($(SUPPORT_MBINS),yes)
 MBINS_ERROR := error
 endif
 endif
+
+all: $(BUILD_STRING)
 
 $(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app 2boot
 
@@ -378,8 +397,8 @@ restore_linkkit_sdk:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR))
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/restore_linkkit_sdk.py $(SOURCE_ROOT) $(BUILD_DIR)/export
 
-%.config: $(CONFIG_FILE)
-	$(QUIET)$(ECHO) Build configs complete: $(CONFIG_FILE)
+#%.config: $(CONFIG_FILE)
+#	$(QUIET)$(ECHO) Build configs complete: $(CONFIG_FILE)
 
 %.export-project: $(CONFIG_FILE)
 	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_3rd_project.mk $*
@@ -390,8 +409,14 @@ restore_linkkit_sdk:
 %.export-iar: %.export-project
 	$(QUIET)$(ECHO) Build IAR Project complete
 
-%.compile: %.config
-	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $@
+#%.compile: %.config
+#	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $@
 
 %.defconfig: defconfig
 	$(QUIET)$(ECHO) Create .config complete
+
+%.config: $(AOS_CONFIG)
+	$(QUIET):
+
+%.menuconfig: $(AOS_CONFIG)
+	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_kconfig.mk menuconfig
