@@ -18,8 +18,8 @@ ifeq ($(loop),1)
 $(NAME)_DEFINES     += TEST_LOOP
 endif
 
-ifeq ($(strip $(CONFIG_SYSINFO_DEVICE_NAME)), $(filter $(CONFIG_SYSINFO_DEVICE_NAME), developerkit))
-AOS_DEVELOPERKIT_ENABLE_OTA := 1
-endif
+#ifeq ($(strip $(CONFIG_SYSINFO_DEVICE_NAME)), $(filter $(CONFIG_SYSINFO_DEVICE_NAME), developerkit))
+#AOS_DEVELOPERKIT_ENABLE_OTA := 1
+#endif
 
 GLOBAL_INCLUDES += ./
