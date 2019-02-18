@@ -435,8 +435,8 @@ static void mqtt_handle_event(void *pcontext, void *pclient,
             } else {
                 LOGD(TAG, "topic message arrived but without any related handle: "
                 "topic=%.*s, topic_msg=%.*s ",
-                topic_info->topic_len, topic_info->ptopic,
-                topic_info->payload_len, topic_info->payload);
+                (int)topic_info->topic_len, topic_info->ptopic,
+                (int)topic_info->payload_len, topic_info->payload);
             }
 
             break;
@@ -597,7 +597,7 @@ static void subscribed_msg_arrive_handle(void *pcontext, void *pclient,
     if (ptopic_info->topic_len > MQTT_TOPIC_MAX_LEN ||
         ptopic_info->payload_len > MQTT_MSG_MAX_LEN) {
         LOGE(TAG, "topic len %d msg len %d exceed max limit!",
-             ptopic_info->topic_len, ptopic_info->payload_len);
+             (int)ptopic_info->topic_len, (int)ptopic_info->payload_len);
         return;
     }
 
@@ -1520,10 +1520,10 @@ static int atcmd_imqtt_para()
             offset += snprintf(
               response + offset, MAX_ATCMD_MQTT_MSG_RSP_LEN - offset,
               "%s%s%s%d%s%s%s%d%s%s%s%d%s%s%s\"%s\"%s%s%s%d", mqtt_para_prefix,
-              TAG_PARA_ARRAY[TAG_TIMEOUT], SEPARATOR_STR, m_mqtt_config.timeout / 1000,
+              TAG_PARA_ARRAY[TAG_TIMEOUT], SEPARATOR_STR, (int)m_mqtt_config.timeout / 1000,
               SEPARATOR_STR, TAG_PARA_ARRAY[TAG_CLEAN], SEPARATOR_STR, m_mqtt_config.clean,
               SEPARATOR_STR, TAG_PARA_ARRAY[TAG_KEEPALIVE], SEPARATOR_STR,
-              m_mqtt_config.keepalive / 1000, SEPARATOR_STR, TAG_PARA_ARRAY[TAG_VERSION],
+              (int)m_mqtt_config.keepalive / 1000, SEPARATOR_STR, TAG_PARA_ARRAY[TAG_VERSION],
               SEPARATOR_STR, m_mqtt_config.version, SEPARATOR_STR,
               TAG_PARA_ARRAY[TAG_AUTHMODE], SEPARATOR_STR, m_mqtt_config.authmode);
         } else {

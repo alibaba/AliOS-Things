@@ -157,13 +157,13 @@ int insert_sock_send_msg(int sockfd, uint8_t *dataptr, uint16_t datalen)
 
     if (aos_queue_send(&sock_send_queue, &sock_send_buf,
                        sizeof(sock_send_buf)) != 0) {
-        LOGE(TAG, "Error: sock queue send fail, total fail %d!\r\n",
+        LOGE(TAG, "Error: sock queue send fail, total fail %lu!\r\n",
              ++sock_send_statistic.put_error);
         goto err;
     }
 
     sock_send_statistic.total_byte += datalen;
-    LOGD(TAG, "insert sock send data datalen %d total %d\n", datalen,
+    LOGD(TAG, "insert sock send data datalen %d total %lu\n", (int)datalen,
          sock_send_statistic.total_byte);
 
     return 0;
@@ -265,34 +265,34 @@ void socket_send_task()
         if (ret != 0) {
             LOGE(
               TAG,
-              "Error sock send queue recv, errno %d, total fetch error %d\r\n",
+              "Error sock send queue recv, errno %d, total fetch error %lu\r\n",
               ret, ++sock_send_statistic.fetch_error);
             goto done;
         }
 
         if (size != sizeof(sock_send_info_t)) {
-            LOGE(TAG, "Error sock send recv: msg size %d is not valid\r\n",
+            LOGE(TAG, "Error sock send recv: msg size %lu is not valid\r\n",
                  size);
             goto done;
         }
 
         if ((sent_size = send_over_sock(&msg)) <= 0) {
-            LOGE(TAG, "Error sock send fail, errno %d, total fail %d\n",
-                 ++sock_send_statistic.send_error, errno);
+            LOGE(TAG, "Error sock send fail, errno %d, total fail %lu\n",
+                 errno, ++sock_send_statistic.send_error);
             goto done;
         }
 
     done:
         if (sent_size > 0 && sent_size != msg.datalen) {
-            LOGE(TAG, "Erro send %d datalen %d\n", sent_size, msg.datalen);
+            LOGE(TAG, "Erro send %lu datalen %d\n", sent_size, (int)msg.datalen);
         }
 
         if (sock_send_statistic.total_byte >= msg.datalen) {
             sock_send_statistic.total_byte -= msg.datalen;
-            LOGD(TAG, "sock send queue remain size %d \r\n",
+            LOGD(TAG, "sock send queue remain size %lu \r\n",
                  sock_send_statistic.total_byte);
         } else {
-            LOGE(TAG, "Error: sock send queue remain %d sent %d \r\n",
+            LOGE(TAG, "Error: sock send queue remain %lu sent %lu \r\n",
                  sock_send_statistic.total_byte, sent_size);
 
             sock_send_statistic.total_byte = 0;
@@ -542,7 +542,7 @@ static int notify_cip_data_recv_event(int sockid, char *databuf, int datalen,
     }
 
     if (type == UDP_BROADCAST && !remote) {
-        LOGE(TAG, "Sock %d remote addr missing for udp broadcast %d!\n",
+        LOGE(TAG, "Sock %d remote addr missing for udp broadcast!\n",
              sockid);
         goto err;
     }
@@ -1060,7 +1060,7 @@ int atcmd_cip_start()
     }
 
     if (type == TCP_CLIENT) {
-        LOGD(TAG, "remote addr %u port %u \n", remoteaddr.sin_addr.s_addr,
+        LOGD(TAG, "remote addr %lu port %u \n", remoteaddr.sin_addr.s_addr,
              remoteport);
         if (connect(fd, (struct sockaddr *)&remoteaddr, sizeof(remoteaddr)) !=
             0) {
@@ -1152,7 +1152,7 @@ int atcmd_cip_start()
     }
 
     if (aos_task_new(*tskname, recvtsk, (void *)tskarg, stacksize) != 0) {
-        LOGE(TAG, "Fail to create task %s\r\n", tskname);
+        LOGE(TAG, "Fail to create task %s\r\n", *tskname);
         delete_link_info_by_sockfd(fd);
         goto err;
     }
