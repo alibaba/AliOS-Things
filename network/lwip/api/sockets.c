@@ -2196,6 +2196,7 @@ lwip_getsockopt_impl(int s, int level, int optname, void *optval, socklen_t *opt
 #if SO_REUSE
     case SO_REUSEADDR:
 #endif /* SO_REUSE */
+    case SO_TCPSACK:
       LWIP_SOCKOPT_CHECK_OPTLEN_CONN_PCB(sock, *optlen, int);
       *(int*)optval = ip_get_option(sock->conn->pcb.ip, optname);
       LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_getsockopt(%d, SOL_SOCKET, optname=0x%x, ..) = %s\n",
@@ -2283,6 +2284,14 @@ lwip_getsockopt_impl(int s, int level, int optname, void *optval, socklen_t *opt
       *(int*)optval = (udp_flags(sock->conn->pcb.udp) & UDP_FLAGS_NOCHKSUM) ? 1 : 0;
       break;
 #endif /* LWIP_UDP*/
+    case SO_NONBLOCK:
+      if (netconn_is_nonblocking(sock->conn)) {
+         *(int*)optval = 1;   /* return 1 in val */
+      }
+      else {
+         *(int*)optval = 0;   /* return 0 in val */
+      }
+      break;
     default:
       LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_getsockopt(%d, SOL_SOCKET, UNIMPL: optname=0x%x, ..)\n",
                   s, optname));
@@ -2491,7 +2500,8 @@ lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t opt
     return -1;
   }
 
-  if (NULL == optval) {
+  /* if optname is SO_NBIO or SO_BIO, don't check if optval is null */
+  if ((optname != SO_NBIO) && (optname != SO_BIO) && (NULL == optval)) {
     sock_set_errno(sock, EFAULT);
     return -1;
   }
@@ -2594,6 +2604,7 @@ lwip_setsockopt_impl(int s, int level, int optname, const void *optval, socklen_
 #if SO_REUSE
     case SO_REUSEADDR:
 #endif /* SO_REUSE */
+    case SO_TCPSACK:
       LWIP_SOCKOPT_CHECK_OPTLEN_CONN_PCB(sock, optlen, int);
       if (*(const int*)optval) {
         ip_set_option(sock->conn->pcb.ip, optname);
@@ -2661,6 +2672,41 @@ lwip_setsockopt_impl(int s, int level, int optname, const void *optval, socklen_
       }
       break;
 #endif /* LWIP_UDP */
+    case SO_NBIO:
+      {
+        int val = 1;
+        lwip_ioctl(s, FIONBIO, &val);
+      }
+      break;
+    case SO_BIO:
+      {
+        int val = 0;
+        lwip_ioctl(s, FIONBIO, &val);
+      }
+      break;
+    case SO_NONBLOCK:
+      {
+        int val;
+        /* sanity check the arg parameter */
+        if( NULL == optval )
+        {
+          return EINVAL;
+        }
+        /* if contents of integer addressed by arg are non-zero */
+        if (*(int *) optval)
+        {
+          /* set non-blocking mode */
+          val = 1;
+          lwip_ioctl(s, FIONBIO, &val);
+        }
+        else
+        {
+          /* set blocking mode */
+          val = 0;
+          lwip_ioctl(s, FIONBIO, &val);
+        }
+      }
+      break;
     default:
       LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_setsockopt(%d, SOL_SOCKET, UNIMPL: optname=0x%x, ..)\n",
                   s, optname));

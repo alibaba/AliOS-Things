@@ -181,7 +181,7 @@ struct msghdr {
 #define SO_REUSEADDR   0x0004 /* Allow local address reuse */
 #define SO_KEEPALIVE   0x0008 /* keep connections alive */
 #define SO_BROADCAST   0x0020 /* permit to send and to receive broadcast messages (see IP_SOF_BROADCAST option) */
-
+#define SO_TCPSACK     0x0040 /* Allow TCP SACK (Selective acknowledgment) */
 
 /*
  * Additional options, not kept in so_options.
@@ -189,11 +189,11 @@ struct msghdr {
 #define SO_DEBUG       0x0001 /* Unimplemented: turn on debugging info recording */
 #define SO_ACCEPTCONN  0x0002 /* socket has had listen() */
 #define SO_DONTROUTE   0x0010 /* Unimplemented: just use interface addresses */
-#define SO_USELOOPBACK 0x0040 /* Unimplemented: bypass hardware when possible */
-#define SO_LINGER      0x0080 /* linger on close if data present */
+#define SO_USELOOPBACK 0x0080 /* Unimplemented: bypass hardware when possible */
+#define SO_LINGER      0x0100 /* linger on close if data present */
 #define SO_DONTLINGER  ((int)(~SO_LINGER))
-#define SO_OOBINLINE   0x0100 /* Unimplemented: leave received OOB data in line */
-#define SO_REUSEPORT   0x0200 /* Unimplemented: allow local address & port reuse */
+#define SO_OOBINLINE   0x0200 /* Unimplemented: leave received OOB data in line */
+#define SO_REUSEPORT   0x0400 /* Unimplemented: allow local address & port reuse */
 #define SO_SNDBUF      0x1001 /* Unimplemented: send buffer size */
 #define SO_RCVBUF      0x1002 /* receive buffer size */
 #define SO_SNDLOWAT    0x1003 /* Unimplemented: send low-water mark */
@@ -204,7 +204,9 @@ struct msghdr {
 #define SO_TYPE        0x1008 /* get socket type */
 #define SO_CONTIMEO    0x1009 /* Unimplemented: connect timeout */
 #define SO_NO_CHECK    0x100a /* don't create UDP checksum */
-
+#define SO_BIO         0x100b /* set socket into blocking mode */
+#define SO_NONBLOCK    0x100c /* set/get blocking mode via optval param */
+#define SO_NBIO        0x100d /* set socket into NON-blocking mode */
 
 /*
  * Structure used for manipulating linger option.
