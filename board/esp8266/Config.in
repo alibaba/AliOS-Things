@@ -1,5 +1,5 @@
 config AOS_BOARD_ESP8266
-    bool "board_esp8266"
+    bool "ESP8266"
     select AOS_MCU_ESP8266
     select AOS_COMP_KERNEL_INIT
     help

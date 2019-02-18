@@ -1,5 +1,5 @@
 config AOS_BOARD_AP80A0
-    bool "ap80a0"
+    bool "AP80A0"
     select AOS_MCU_MVS_AP80XX
     select AOS_COMP_NEWLIB_STUB
     help

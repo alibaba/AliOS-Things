@@ -1,5 +1,5 @@
 config AOS_BOARD_HIFIVE1
-    bool "board_hifive1"
+    bool "HIFIVE1"
     select AOS_MCU_E310
     select AOS_COMP_KERNEL_INIT
     help

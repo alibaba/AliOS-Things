@@ -1,5 +1,5 @@
 config AOS_BOARD_STM32L476RG_NUCLEO
-    bool "stm32l476rg-nucleo"
+    bool "STM32L476RG_Nucleo"
     select AOS_MCU_STM32L4XX_CUBE
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_SAL if AOS_NETWORK_SAL

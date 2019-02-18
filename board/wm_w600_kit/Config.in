@@ -1,5 +1,5 @@
 config AOS_BOARD_WM_W600_KIT
-    bool "wm_w600_kit"
+    bool "WM_W600_Kit"
     select AOS_MCU_WM_W600
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_LWIP

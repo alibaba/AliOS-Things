@@ -1,5 +1,5 @@
 config AOS_BOARD_B_F769
-    bool "board_b_f769"
+    bool "STM32F769I-Discovery"
     select AOS_MCU_STM32F7XX
     select AOS_COMP_KERNEL_INIT
     help

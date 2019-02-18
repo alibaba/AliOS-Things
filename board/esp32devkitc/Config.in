@@ -1,5 +1,5 @@
 config AOS_BOARD_ESP32DEVKITC
-    bool "board_esp32devkitc"
+    bool "ESP32DevKitc"
     select AOS_MCU_ESP32
     select AOS_COMP_KERNEL_INIT
     help

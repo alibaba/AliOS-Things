@@ -1,5 +1,5 @@
 config AOS_BOARD_BK7231U
-    bool "board_bk7231u"
+    bool "BK7231U"
     select AOS_MCU_BK7231U
     select AOS_COMP_KERNEL_INIT
     help

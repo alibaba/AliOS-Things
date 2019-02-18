@@ -1,5 +1,5 @@
 config AOS_BOARD_NUMAKER_PFM_M487
-    bool "numaker-pfm-m487"
+    bool "NUMAKER_PFM_M487"
     select AOS_MCU_M487JIDAE
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NEWLIB_STUB

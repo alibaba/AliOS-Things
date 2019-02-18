@@ -1,5 +1,5 @@
 config AOS_BOARD_ES8P5088FLLQ
-    bool "es8p5088fllq"
+    bool "ES8P5088FLLQ"
     select AOS_MCU_ES8P508X
     select AOS_COMP_NEWLIB_STUB
     help

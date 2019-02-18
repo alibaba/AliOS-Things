@@ -1,5 +1,5 @@
 config AOS_BOARD_CB2201
-    bool "board_cb2201"
+    bool "CB2201"
     select AOS_MCU_CSKY
     select AOS_COMP_KERNEL_INIT
     help

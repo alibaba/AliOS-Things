@@ -1,5 +1,5 @@
 config AOS_BOARD_NUTINY_EVB_NANO130
-    bool "nutiny-evb-nano130"
+    bool "NUTINY_EVB_Nano130"
     select AOS_MCU_NANO130KE3BN
     select AOS_COMP_NEWLIB_STUB
     select AOS_COMP_NETMGR

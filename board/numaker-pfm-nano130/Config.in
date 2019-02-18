@@ -1,5 +1,5 @@
 config AOS_BOARD_NUMAKER_PFM_NANO130
-    bool "numaker-pfm-nano130"
+    bool "NUMAKER_PFM_Nano130"
     select AOS_MCU_NANO130KE3BN
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NEWLIB_STUB
