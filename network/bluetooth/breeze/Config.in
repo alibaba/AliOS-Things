@@ -9,20 +9,20 @@ menuconfig AOS_COMP_BREEZE
 if AOS_COMP_BREEZE
 # Configurations for comp breeze
 
-    config CONFIG_AIS_SECURE_ADV
-        bool "Enable secure adv in Breeze"
-        default y
+    config CONFIG_COMP_BZ_SECURE_ADV
+        bool "Enable secure and sequential advertising."
+        default n
 
-    config AOS_CONFIG_BT_STACK
-        bool "If use alios bt stack in Breeze"
-        default y
+    config CONFIG_COMP_BZ_MODEL_SEC
+        bool "Enable auth per product, otherwise auth for per device."
+        default n
 
-    config EN_COMBO_NET
-        bool "Enable AWSS feature in Breeze"
-        default y
+    config CONFIG_COMP_BZ_EN_AWSS
+        bool "Enable AWSS, providing secured ble link for wifi provision."
+        default n
 
-    config EN_AUTH
-        bool "Enable authentication in Breeze"
+    config CONFIG_COMP_BZ_EN_AUTH
+        bool "Enable authentication."
         default y
 
 endif
