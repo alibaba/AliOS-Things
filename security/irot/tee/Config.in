@@ -1,5 +1,5 @@
 config AOS_COMP_LIBKM_TEE
-    bool "libkm_tee"
+    bool "Root of trust, TEE-KM"
     default n
     help
 

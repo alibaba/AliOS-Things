@@ -1,5 +1,5 @@
 config AOS_COMP_LIBKM_SE
-    bool "se"
+    bool "Root of trust, SE-KM"
     default n
     help
 

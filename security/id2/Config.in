@@ -1,5 +1,5 @@
 config AOS_COMP_ID2
-    bool "id2"
+    bool "Link Security ID2"
     default n
     select AOS_COMP_IROT
     select AOS_COMP_ALICRYPTO

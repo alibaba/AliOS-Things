@@ -1,5 +1,5 @@
 config AOS_COMP_ITLS
-    bool "itls"
+    bool "Lightweight TLS Support by ID2"
     default n
     select AOS_COMP_ID2
     select AOS_COMP_ALICRYPTO

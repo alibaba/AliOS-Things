@@ -1,5 +1,5 @@
 config AOS_COMP_LIBSST
-    bool "libsst"
+    bool "Secure Storage"
     default n
     select AOS_COMP_IROT
     select AOS_COMP_ALICRYPTO
