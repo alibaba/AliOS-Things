@@ -301,9 +301,8 @@ static int awss_process_get_devinfo()
         /*before tx to app, clear token suc flag*/
         awss_update_token();
 
-        if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), ctx->remote, topic, ctx->request)) {
-            awss_debug("sending failed.");
-        }
+        if (0 != awss_cmp_coap_send_resp(buf, strlen(buf), ctx->remote, topic, ctx->request, NULL, NULL, 0))
+            awss_err("sending failed.");
 
         awss_free(buf);
         awss_release_coap_ctx(coap_session_ctx);

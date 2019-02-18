@@ -22,6 +22,7 @@ struct awss_statis_dev_bind_t {
 };  /* statistics for token sync */
 
 
+int awss_bind_report_statis(const char *module);
 void awss_bind_update_statis(int type);
 void awss_bind_clear_statis();
 void awss_bind_disp_statis();
@@ -29,9 +30,11 @@ void awss_bind_disp_statis();
 #define AWSS_DB_UPDATE_STATIS(type) awss_bind_update_statis(type)
 #define AWSS_DB_DISP_STATIS()       awss_bind_disp_statis()
 #define AWSS_DB_CLEAR_STATIS()      awss_bind_clear_statis()
+#define AWSS_DB_REPORT_STATIS(m)    awss_bind_report_statis(m)
 #else
 #define AWSS_DB_UPDATE_STATIS(type)
 #define AWSS_DB_DISP_STATIS()
 #define AWSS_DB_CLEAR_STATIS()
+#define AWSS_DB_REPORT_STATIS(m)
 #endif
 #endif

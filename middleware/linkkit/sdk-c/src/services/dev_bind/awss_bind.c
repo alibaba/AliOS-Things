@@ -38,7 +38,7 @@ int awss_report_cloud()
 #endif
     awss_report_token();
 
-    awss_cmp_local_init();
+    awss_cmp_local_init(AWSS_LC_INIT_BIND);
     awss_dev_bind_notify_stop();
     awss_dev_bind_notify();
 #ifdef WIFI_PROVISION_ENABLED
@@ -47,8 +47,10 @@ int awss_report_cloud()
     awss_registrar_init();
 #endif
     AWSS_DISP_STATIS();
+    AWSS_REPORT_STATIS("RDA5981");
 #endif
     AWSS_DB_DISP_STATIS();
+    AWSS_DB_REPORT_STATIS("RDA5981");
     HAL_MutexUnlock(awss_bind_mutex);
     return 0;
 }

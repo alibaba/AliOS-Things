@@ -337,7 +337,7 @@ chn_locked:
     zconfig_set_state(STATE_CHN_LOCKED_BY_P2P, tods, channel);
     return PKG_START_FRAME;
 rcv_done:
-    AWSS_UPDATE_STATIS(AWSS_STATIS_ZCONFIG_IDX, AWSS_STATIS_TYPE_TIME_SUC);
+    AWSS_UPDATE_STATIS(AWSS_STATIS_WPS_IDX, AWSS_STATIS_TYPE_TIME_SUC);
     zconfig_set_state(STATE_RCV_DONE, tods, channel);
     return PKG_END;
 }
