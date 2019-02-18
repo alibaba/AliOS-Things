@@ -5,7 +5,7 @@ include $(MAKEFILES_PATH)/aos_kconfig.mk
 # include .config
 ifeq ($(NOCONFIG),)
 $(if $(wildcard $(AOS_CONFIG)), \
-    $(eval include $(AOS_CONFIG)), $(warning No such file: $(AOS_CONFIG)))
+    $(eval include $(AOS_CONFIG)), $(error No such file: $(AOS_CONFIG)))
 endif
 
 # <comp>_LOCATION and <comp>_MAKEFILE defined in aos_all_components.mk
