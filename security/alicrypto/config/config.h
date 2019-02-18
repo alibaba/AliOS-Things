@@ -89,6 +89,9 @@
 #ifdef ALI_CRYPTO_AES_CBC
 #define ALI_ALGO_CIPHER_MODE_CBC
 #endif
+#ifdef ALI_CRYPTO_AES_CFB
+#define ALI_ALGO_CIPHER_MODE_CFB
+#endif
 #endif
 
 /*SM2*/
