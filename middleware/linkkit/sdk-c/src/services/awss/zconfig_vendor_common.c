@@ -91,13 +91,6 @@ uint8_t zconfig_get_lock_chn(void)
     return aws_locked_chn;
 }
 
-void zconfig_force_rescan(void)
-{
-    if (aws_info) {
-        aws_state = AWS_SCANNING;
-    }
-}
-
 void zconfig_channel_locked_callback(uint8_t primary_channel,
                                      uint8_t secondary_channel, uint8_t *bssid)
 {
