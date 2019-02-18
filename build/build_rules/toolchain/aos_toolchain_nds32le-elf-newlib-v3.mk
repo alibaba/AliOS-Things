@@ -1,16 +1,29 @@
 ifneq ($(filter $(HOST_ARCH), ANDES_N10),)
 
+TOOLCHAIN_PATH ?=
 TOOLCHAIN_PREFIX  := nds32le-elf-
+TOOLCHAIN_DEFAULT_FOLDER := nds32le-elf-newlib-v3
+ifneq (,$(wildcard $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/bin))
+TOOLCHAIN_PATH    := $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/bin/
+endif
 
 BINS ?=
+
 
 ifneq (,$(filter $(HOST_OS),Linux32 Linux64))
 ################
 # Linux 32/64-bit settings
 ################
 
-export PATH       := $(TOOLS_ROOT)/compiler/nds32le-elf-newlib-v3/bin:$(PATH)
-TOOLCHAIN_PATH    ?= $(TOOLS_ROOT)/compiler/nds32le-elf-newlib-v3/bin/
+ifeq (,$(TOOLCHAIN_PATH))
+SYSTEM_GCC_PATH = $(shell which $(TOOLCHAIN_PREFIX)gcc)
+ifneq (,$(findstring $(TOOLCHAIN_PREFIX)gcc,$(SYSTEM_GCC_PATH)))
+TOOLCHAIN_PATH :=
+else
+$(error can not find compiler toolchain, please download toolchain and unzip to $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER) folder)
+endif
+endif
+
 GDB_KILL_OPENOCD   =
 GDBINIT_STRING     = 'shell $(COMMON_TOOLS_PATH)dash -c "trap \\"\\" 2;$(OPENOCD_FULL_NAME) -f $(OPENOCD_CFG_PATH)interface/$(JTAG).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD).cfg -f $(OPENOCD_CFG_PATH)$(HOST_OPENOCD)/$(HOST_OPENOCD)_gdb_jtag.cfg -l $(OPENOCD_LOG_FILE) &"'
 GDB_COMMAND        = "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)gdb"
