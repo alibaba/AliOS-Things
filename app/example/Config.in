@@ -20,25 +20,25 @@ endif
 source "app/example/bluetooth/bleadv/Config.in"
 if AOS_APP_BLEADV
     config AOS_BUILD_APP
-        default "bleadv"
+        default "bluetooth.bleadv"
 endif
 
 source "app/example/bluetooth/blemesh_tmall/Config.in"
 if AOS_APP_BLEMESH_TMALL
     config AOS_BUILD_APP
-        default "blemesh_tmall"
+        default "bluetooth.blemesh_tmall"
 endif
 
 source "app/example/bluetooth/bleperipheral/Config.in"
 if AOS_APP_BLEPERIPHERAL
     config AOS_BUILD_APP
-        default "bleperipheral"
+        default "bluetooth.bleperipheral"
 endif
 
 source "app/example/bluetooth/breezeapp/Config.in"
 if AOS_APP_BREEZEAPP
     config AOS_BUILD_APP
-        default "breezeapp"
+        default "bluetooth.breezeapp"
 endif
 
 source "app/example/coapapp/Config.in"
@@ -50,37 +50,37 @@ endif
 source "app/example/das_app/Config.in"
 if AOS_APP_DAS_CLIENT
     config AOS_BUILD_APP
-        default "das_client"
+        default "das_app"
 endif
 
 source "app/example/dk/dk_audio/Config.in"
 if AOS_APP_DK_AUDIO
     config AOS_BUILD_APP
-        default "dk_audio"
+        default "dk.dk_audio"
 endif
 
 source "app/example/dk/dk_camera/Config.in"
 if AOS_APP_DK_CAMERA
     config AOS_BUILD_APP
-        default "dk_camera"
+        default "dk.dk_camera"
 endif
 
 source "app/example/dk/dk_gui/Config.in"
 if AOS_APP_DK_GUI
     config AOS_BUILD_APP
-        default "dk_gui"
+        default "dk.dk_gui"
 endif
 
 source "app/example/dk/dk_ld/Config.in"
 if AOS_APP_DK_LD
     config AOS_BUILD_APP
-        default "dk_ld"
+        default "dk.dk_ld"
 endif
 
 source "app/example/dk/dk_qr/Config.in"
 if AOS_APP_DK_QR
     config AOS_BUILD_APP
-        default "dk_qr"
+        default "dk.dk_qr"
 endif
 
 source "app/example/helloworld/Config.in"
@@ -98,13 +98,13 @@ endif
 source "app/example/id2_app/Config.in"
 if AOS_APP_ID2_CLIENT
     config AOS_BUILD_APP
-        default "id2_client"
+        default "id2_app"
 endif
 
 source "app/example/itls_app/Config.in"
 if AOS_APP_ITLS_CLIENT
     config AOS_BUILD_APP
-        default "itls_client"
+        default "itls_app"
 endif
 
 source "app/example/linkkit_gateway/Config.in"
@@ -122,7 +122,7 @@ endif
 source "app/example/lorawan/linkwan/Config.in"
 if AOS_APP_LINKWAN
     config AOS_BUILD_APP
-        default "linkwan"
+        default "lorawan.linkwan"
 endif
 
 source "app/example/meshapp/Config.in"
@@ -158,13 +158,13 @@ endif
 source "app/example/sk/sk_gui/Config.in"
 if AOS_APP_SK_GUI
     config AOS_BUILD_APP
-        default "sk_gui"
+        default "sk.sk_gui"
 endif
 
 source "app/example/tls/Config.in"
 if AOS_APP_TLS_CLIENT
     config AOS_BUILD_APP
-        default "tls_client"
+        default "tls"
 endif
 
 source "app/example/uart/Config.in"
