@@ -356,7 +356,7 @@ int ota_service_init(ota_service_t *ctx)
         return ret;
     }
     ret = ctx->h_tr->upgrade(ctx);
-    OTA_LOG_I("ota init success, ver:%s type:%d size:%d", ctx->sys_ver, ctx->dev_type);
+    OTA_LOG_I("ota init success, ver:%s type:%d", ctx->sys_ver, ctx->dev_type);
     ota_hal_rollback(NULL);
     return ret;
 }
