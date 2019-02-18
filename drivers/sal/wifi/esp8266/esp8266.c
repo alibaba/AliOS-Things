@@ -295,7 +295,7 @@ int HAL_SAL_Close(int fd, int32_t remote_port)
     ret = netm_disconnect(linkid);
 
     if (ret < 0) {
-        LOGE(TAG, "conn_close fail %s \r\n", fd, __func__);
+        LOGE(TAG, "conn_close %d fail %s \r\n", fd, __func__);
         return -1;
     }
 
