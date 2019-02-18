@@ -1,5 +1,5 @@
 config AOS_BOARD_HR8P296FLLT
-    bool "hr8p296fllt"
+    bool "HR8P296FLLT"
     select AOS_MCU_HR8P2XX
     select AOS_COMP_NEWLIB_STUB
     help

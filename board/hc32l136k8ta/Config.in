@@ -1,5 +1,5 @@
 config AOS_BOARD_HC32L136K8TA
-    bool "hc32l136k8ta"
+    bool "HC32L136K8TA"
     select AOS_MCU_HC32L136
     select AOS_COMP_NEWLIB_STUB
     help

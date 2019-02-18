@@ -1,5 +1,5 @@
 config AOS_BOARD_UNO_91H
-    bool "board_uno-91h"
+    bool "UNO_91H"
     select AOS_MCU_RDA5981X
     select AOS_COMP_KERNEL_INIT
     help

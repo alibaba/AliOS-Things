@@ -1,5 +1,5 @@
 config AOS_BOARD_M400
-    bool "board_m400"
+    bool "M400"
     select AOS_MCU_STM32L0XX
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_LORAWAN_4_4_2 if lorawanback = 0

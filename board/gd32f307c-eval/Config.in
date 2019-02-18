@@ -1,5 +1,5 @@
 config AOS_BOARD_GD32F307C_EVAL
-    bool "gd32f307c-eval"
+    bool "GD32F307C_EVAL"
     select AOS_MCU_GD32F30X
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NEWLIB_STUB

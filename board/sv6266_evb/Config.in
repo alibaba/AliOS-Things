@@ -1,5 +1,5 @@
 config AOS_BOARD_SV6266_EVB
-    bool "sv6266_evb"
+    bool "SV6266_EVB"
     select AOS_MCU_SV6266
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NEWLIB_STUB
