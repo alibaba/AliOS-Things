@@ -198,7 +198,7 @@ static int uart_send_queue_init()
 
     uart_send_buf = (uart_send_info_t *)aos_malloc(size);
     if (!uart_send_buf) {
-        LOGE(TAG, "uart send buf allocate %u fail!\r\n", size);
+        LOGE(TAG, "uart send buf allocate %lu fail!\r\n", size);
         goto err;
     }
 
@@ -292,8 +292,7 @@ int insert_uart_send_msg(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
         goto err;
     }
 
-    LOGD(TAG, "insert cmd -->%s<-- len %d  addr %x to %x\n", cmdptr, cmdlen,
-         uart_send_buf.cmdptr, uart_send_buf.cmdptr + cmdlen);
+    LOGD(TAG, "insert cmd -->%s<-- vlen %d\n", cmdptr, cmdlen);
     memcpy(uart_send_buf.cmdptr, cmdptr, cmdlen);
     uart_send_buf.cmdptr[cmdlen] = 0;
     uart_send_buf.cmdlen         = cmdlen;
@@ -311,14 +310,12 @@ int insert_uart_send_msg(char *cmdptr, uint8_t *dataptr, uint16_t cmdlen,
 
     if (aos_queue_send(&uart_send_queue, &uart_send_buf,
                        sizeof(uart_send_buf)) != 0) {
-        LOGE(TAG, "Error: Uart queue send fail, total fail %d!\r\n",
+        LOGE(TAG, "Error: Uart queue send fail, total fail %lu!\r\n",
              ++uart_send_statistic.put_error);
         goto err;
     }
 
     uart_send_statistic.total_byte += (cmdlen + datalen);
-    LOGD(TAG, "uart cmdlen %d datalen %d total %d\n", cmdlen, datalen,
-         uart_send_statistic.total_byte);
 
     return 0;
 
@@ -393,19 +390,19 @@ void uart_send_task()
         if (ret != 0) {
             LOGE(TAG,
                  "Error uart send queue recv, error_no %d, total fetch error "
-                 "%d\r\n",
+                 "%lu\r\n",
                  ret, ++uart_send_statistic.fetch_error);
             goto done;
         }
 
         if (size != sizeof(uart_send_info_t)) {
-            LOGE(TAG, "Error uart send recv: msg size %d is not valid\r\n",
+            LOGE(TAG, "Error uart send recv: msg size %lu is not valid\r\n",
                  size);
             goto done;
         }
 
         if ((sent_size = send_over_uart(&msg)) < 0) {
-            LOGE(TAG, "Error uart send fail, total send error %d\t\n",
+            LOGE(TAG, "Error uart send fail, total send error %lu\t\n",
                  ++uart_send_statistic.send_error);
             goto done;
         }
@@ -414,11 +411,11 @@ void uart_send_task()
 
         if (uart_send_statistic.total_byte >= (msg.datalen + msg.cmdlen)) {
             uart_send_statistic.total_byte -= (msg.datalen + msg.cmdlen);
-            LOGD(TAG, "uart send queue remain size %d \r\n",
+            LOGD(TAG, "uart send queue remain size %lu \r\n",
                  uart_send_statistic.total_byte);
         } else {
-            LOGE(TAG, "Error: uart send queue remain %d sent %d \r\n",
-                 uart_send_statistic.total_byte, msg.datalen + msg.cmdlen);
+            LOGE(TAG, "Error: uart send queue remain %lu sent %d \r\n",
+                 uart_send_statistic.total_byte, (int)msg.datalen + msg.cmdlen);
 
             uart_send_statistic.total_byte = 0;
         }
