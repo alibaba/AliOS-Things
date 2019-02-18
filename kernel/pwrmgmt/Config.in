@@ -2,12 +2,12 @@ menuconfig AOS_COMP_PWRMGMT
     bool "Power Management"
     default n
     help
-        power management
+        power management. This module is used to reduce the system power consumption.
 
 if AOS_COMP_PWRMGMT
 # Configurations for component pwrmgmt
 config PWRMGMT_CONFIG_SHOW
-    bool "PWRMGMT_CONFIG_SHOW"
+    bool "Exclude the functions of state show"
         default n
         help
             excludes this feature if you want to call state show function:enable cpu_pwr_c_support_print,
@@ -15,7 +15,7 @@ config PWRMGMT_CONFIG_SHOW
             default n
 
 config PWRMGMT_CONFIG_DEBUG
-    bool "PWRMGMT_CONFIG_DEBUG"
+    bool "Enable to show debug infomation"
         default n
         help
             excludes this feature if you want to show debug infomation.
