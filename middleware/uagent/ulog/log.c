@@ -98,7 +98,7 @@ int rt_log(const unsigned char s, const char *fmt, ...)
     if (log_init && s < stop_filter_level) {
         va_list args;
 
-        printf("[%06d]<%c> ", (unsigned long)aos_now_ms(), serverity_name[s]);
+        printf("[%06d]<%c> ", (int)aos_now_ms(), serverity_name[s]);
         va_start(args, fmt);
         rc = vprintf(fmt, args);
         va_end(args);
