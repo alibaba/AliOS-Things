@@ -91,6 +91,10 @@ static void tcp_parseopt(struct tcp_pcb *pcb);
 static void tcp_listen_input(struct tcp_pcb_listen *pcb);
 static void tcp_timewait_input(struct tcp_pcb *pcb);
 
+#if LWIP_TCP_SACK_OUT
+static void tcp_add_sack(struct tcp_pcb *pcb, u32_t left, u32_t right);
+static void tcp_remove_sacks_lt(struct tcp_pcb *pcb, u32_t seq);
+#endif /* LWIP_TCP_SACK_OUT */
 /**
  * The initial input processing of TCP. It verifies the TCP header, demultiplexes
  * the segment between the PCBs and passes it on to tcp_process(), which implements
@@ -976,6 +980,48 @@ tcp_oos_insert_segment(struct tcp_seg *cseg, struct tcp_seg *next)
 }
 #endif /* TCP_QUEUE_OOSEQ */
 
+/** Remove segments from a list if the incoming ACK acknowledges them */
+static struct tcp_seg *
+tcp_free_acked_segments(struct tcp_pcb *pcb, struct tcp_seg *seg_list, const char *dbg_list_name,
+                        struct tcp_seg *dbg_other_seg_list)
+{
+  struct tcp_seg *next;
+  u16_t clen;
+
+  LWIP_UNUSED_ARG(dbg_list_name);
+  LWIP_UNUSED_ARG(dbg_other_seg_list);
+
+  while (seg_list != NULL &&
+         TCP_SEQ_LEQ(lwip_ntohl(seg_list->tcphdr->seqno) +
+                     TCP_TCPLEN(seg_list), ackno)) {
+    LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_receive: removing %"U32_F":%"U32_F" from pcb->%s\n",
+                                  lwip_ntohl(seg_list->tcphdr->seqno),
+                                  lwip_ntohl(seg_list->tcphdr->seqno) + TCP_TCPLEN(seg_list),
+                                  dbg_list_name));
+
+    next = seg_list;
+    seg_list = seg_list->next;
+
+    clen = pbuf_clen(next->p);
+    LWIP_DEBUGF(TCP_QLEN_DEBUG, ("tcp_receive: queuelen %"TCPWNDSIZE_F" ... ",
+                                 (tcpwnd_size_t)pcb->snd_queuelen));
+    LWIP_ASSERT("pcb->snd_queuelen >= pbuf_clen(next->p)", (pcb->snd_queuelen >= clen));
+
+    pcb->snd_queuelen = (u16_t)(pcb->snd_queuelen - clen);
+    recv_acked = (tcpwnd_size_t)(recv_acked + next->len);
+    tcp_seg_free(next);
+
+    LWIP_DEBUGF(TCP_QLEN_DEBUG, ("%"TCPWNDSIZE_F" (after freeing %s)\n",
+                                 (tcpwnd_size_t)pcb->snd_queuelen,
+                                 dbg_list_name));
+    if (pcb->snd_queuelen != 0) {
+      LWIP_ASSERT("tcp_receive: valid queue length",
+                  seg_list != NULL || dbg_other_seg_list != NULL);
+    }
+  }
+  return seg_list;
+}
+
 /**
  * Called by tcp_process. Checks if the given segment is an ACK for outstanding
  * data, and if so frees the memory of the buffered data. Next, it places the
@@ -1143,30 +1189,14 @@ tcp_receive(struct tcp_pcb *pcb)
 
       /* Remove segment from the unacknowledged list if the incoming
          ACK acknowledges them. */
-      while (pcb->unacked != NULL &&
-             TCP_SEQ_LEQ(lwip_ntohl(pcb->unacked->tcphdr->seqno) +
-                         TCP_TCPLEN(pcb->unacked), ackno)) {
-        LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_receive: removing %"U32_F":%"U32_F" from pcb->unacked\n",
-                                      lwip_ntohl(pcb->unacked->tcphdr->seqno),
-                                      lwip_ntohl(pcb->unacked->tcphdr->seqno) +
-                                      TCP_TCPLEN(pcb->unacked)));
-
-        next = pcb->unacked;
-        pcb->unacked = pcb->unacked->next;
-
-        LWIP_DEBUGF(TCP_QLEN_DEBUG, ("tcp_receive: queuelen %"TCPWNDSIZE_F" ... ", (tcpwnd_size_t)pcb->snd_queuelen));
-        LWIP_ASSERT("pcb->snd_queuelen >= pbuf_clen(next->p)", (pcb->snd_queuelen >= pbuf_clen(next->p)));
-
-        pcb->snd_queuelen -= pbuf_clen(next->p);
-        recv_acked += next->len;
-        tcp_seg_free(next);
-
-        LWIP_DEBUGF(TCP_QLEN_DEBUG, ("%"TCPWNDSIZE_F" (after freeing unacked)\n", (tcpwnd_size_t)pcb->snd_queuelen));
-        if (pcb->snd_queuelen != 0) {
-          LWIP_ASSERT("tcp_receive: valid queue length", pcb->unacked != NULL ||
-                      pcb->unsent != NULL);
-        }
-      }
+      pcb->unacked = tcp_free_acked_segments(pcb, pcb->unacked, "unacked", pcb->unsent);
+      /* We go through the ->unsent list to see if any of the segments
+         on the list are acknowledged by the ACK. This may seem
+         strange since an "unsent" segment shouldn't be acked. The
+         rationale is that lwIP puts all outstanding segments on the
+         ->unsent list after a retransmission, so these segments may
+         in fact have been sent once. */
+      pcb->unsent = tcp_free_acked_segments(pcb, pcb->unsent, "unsent", pcb->unacked);
 
       /* If there's nothing left to acknowledge, stop the retransmit
          timer, otherwise reset it to start again */
@@ -1504,12 +1534,33 @@ tcp_receive(struct tcp_pcb *pcb)
           pcb->ooseq = cseg->next;
           tcp_seg_free(cseg);
         }
+#if LWIP_TCP_SACK_OUT
+        if (ip_get_option(pcb, SOF_TCPSACK) && (pcb->flags & TF_SACK)) {
+          if (pcb->ooseq != NULL) {
+            /* Some segments may have been removed from ooseq, let's remove all SACKs that
+               describe anything before the new beginning of that list. */
+            tcp_remove_sacks_lt(pcb, pcb->ooseq->tcphdr->seqno);
+          } else if (LWIP_TCP_SACK_VALID(pcb, 0)) {
+            /* ooseq has been cleared. Nothing to SACK */
+            memset(pcb->rcv_sacks, 0, sizeof(pcb->rcv_sacks));
+          }
+        }
+#endif /* LWIP_TCP_SACK_OUT */
 #endif /* TCP_QUEUE_OOSEQ */
 
 
         /* Acknowledge the segment(s). */
         tcp_ack(pcb);
 
+#if LWIP_TCP_SACK_OUT
+        if (ip_get_option(pcb, SOF_TCPSACK) && LWIP_TCP_SACK_VALID(pcb, 0)) {
+          /* Normally the ACK for the data received could be piggy-backed on a data packet,
+             but lwIP currently does not support including SACKs in data packets. So we force
+             it to respond with an empty ACK packet (only if there is at least one SACK to be sent).
+             NOTE: tcp_send_empty_ack() on success clears the ACK flags (set by tcp_ack()) */
+          tcp_send_empty_ack(pcb);
+        }
+#endif /* LWIP_TCP_SACK_OUT */
 #if LWIP_IPV6 && LWIP_ND6_TCP_REACHABILITY_HINTS
         if (ip_current_is_v6()) {
           /* Inform neighbor reachability of forward progress. */
@@ -1524,6 +1575,13 @@ tcp_receive(struct tcp_pcb *pcb)
         /* We queue the segment on the ->ooseq queue. */
         if (pcb->ooseq == NULL) {
           pcb->ooseq = tcp_seg_copy(&inseg);
+#if LWIP_TCP_SACK_OUT
+          if (ip_get_option(pcb, SOF_TCPSACK) && (pcb->flags & TF_SACK)) {
+            /* All the SACKs should be invalid, so we can simply store the most recent one: */
+            pcb->rcv_sacks[0].left = seqno;
+            pcb->rcv_sacks[0].right = seqno + inseg.len;
+          }
+#endif /* LWIP_TCP_SACK_OUT */
         } else {
           /* If the queue is not empty, we walk through the queue and
              try to find a place where the sequence number of the
@@ -1536,6 +1594,15 @@ tcp_receive(struct tcp_pcb *pcb)
              If the incoming segment has the same sequence number as a
              segment on the ->ooseq queue, we discard the segment that
              contains less data. */
+
+#if LWIP_TCP_SACK_OUT
+          u32_t sackbeg = NULL;
+          /* This is the left edge of the lowest possible SACK range.
+             It may start before the newly received segment (possibly adjusted below). */
+          if(ip_get_option(pcb, SOF_TCPSACK)) {
+            sackbeg = TCP_SEQ_LT(seqno, pcb->ooseq->tcphdr->seqno) ? seqno : pcb->ooseq->tcphdr->seqno;
+          }
+#endif /* LWIP_TCP_SACK_OUT */
 
           prev = NULL;
           for (next = pcb->ooseq; next != NULL; next = next->next) {
@@ -1600,6 +1667,18 @@ tcp_receive(struct tcp_pcb *pcb)
                   break;
                 }
               }
+#if LWIP_TCP_SACK_OUT
+              /* The new segment goes after the 'next' one. If there is a "hole" in sequence numbers
+                 between 'prev' and the beginning of 'next', we want to move sackbeg. */
+              if (ip_get_option(pcb, SOF_TCPSACK) && prev != NULL && prev->tcphdr->seqno + prev->len != next->tcphdr->seqno) {
+                sackbeg = next->tcphdr->seqno;
+              }
+#endif /* LWIP_TCP_SACK_OUT */
+
+              /* We don't use 'prev' below, so let's set it to current 'next'.
+                 This way even if we break the loop below, 'prev' will be pointing
+                 at the segment right in front of the newly added one. */
+              prev = next;
               /* If the "next" segment is the last segment on the
                  ooseq queue, we add the incoming segment to the end
                  of the list. */
@@ -1638,8 +1717,33 @@ tcp_receive(struct tcp_pcb *pcb)
                 break;
               }
             }
-            prev = next;
           }
+
+#if LWIP_TCP_SACK_OUT
+          if (ip_get_option(pcb, SOF_TCPSACK) && (pcb->flags & TF_SACK)) {
+            if (prev == NULL) {
+              /* The new segment is at the beginning. sackbeg should already be set properly.
+                 We need to find the right edge. */
+              next = pcb->ooseq;
+            } else if (prev->next != NULL) {
+              /* The new segment was added after 'prev'. If there is a "hole" between 'prev' and 'prev->next',
+                 we need to move sackbeg. After that we should find the right edge. */
+              next = prev->next;
+              if (prev->tcphdr->seqno + prev->len != next->tcphdr->seqno) {
+                sackbeg = next->tcphdr->seqno;
+              }
+            } else {
+              next = NULL;
+            }
+            if (next != NULL) {
+              u32_t sackend = next->tcphdr->seqno;
+              for ( ; (next != NULL) && (sackend == next->tcphdr->seqno); next = next->next) {
+                sackend += next->len;
+              }
+              tcp_add_sack(pcb, sackbeg, sackend);
+            }
+          }
+#endif /* LWIP_TCP_SACK_OUT */
         }
 #if TCP_OOSEQ_MAX_BYTES || TCP_OOSEQ_MAX_PBUFS
         /* Check that the data on ooseq doesn't exceed one of the limits
@@ -1667,6 +1771,7 @@ tcp_receive(struct tcp_pcb *pcb)
         }
 #endif /* TCP_OOSEQ_MAX_BYTES || TCP_OOSEQ_MAX_PBUFS */
 #endif /* TCP_QUEUE_OOSEQ */
+        tcp_send_empty_ack(pcb);
       }
     } else {
       /* The incoming segment is not within the window. */
@@ -1787,6 +1892,27 @@ tcp_parseopt(struct tcp_pcb *pcb)
         tcp_optidx += LWIP_TCP_OPT_LEN_TS - 6;
         break;
 #endif
+#if LWIP_TCP_SACK_OUT
+        case LWIP_TCP_OPT_SACK_PERM:
+          LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_parseopt: SACK_PERM\n"));
+
+          if(!ip_get_option(pcb, SOF_TCPSACK)) {
+            LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_parseopt: SACK_PERM is not enabled\n"));
+            return;
+          }
+
+          if (tcp_getoptbyte() != LWIP_TCP_OPT_LEN_SACK_PERM || (tcp_optidx - 2 + LWIP_TCP_OPT_LEN_SACK_PERM) > tcphdr_optlen) {
+            /* Bad length */
+            LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_parseopt: bad length\n"));
+            return;
+          }
+          /* TCP SACK_PERM option with valid length */
+          if (flags & TCP_SYN) {
+            /* We only set it if we receive it in a SYN (or SYN+ACK) packet */
+            pcb->flags |= TF_SACK;
+          }
+          break;
+#endif /* LWIP_TCP_SACK_OUT */
       default:
         LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_parseopt: other\n"));
         data = tcp_getoptbyte();
@@ -1810,4 +1936,105 @@ tcp_trigger_input_pcb_close(void)
   recv_flags |= TF_CLOSED;
 }
 
+#if LWIP_TCP_SACK_OUT
+/**
+ * Called by tcp_receive() to add new SACK entry.
+ *
+ * The new SACK entry will be placed at the beginning of rcv_sacks[], as the newest one.
+ * Existing SACK entries will be "pushed back", to preserve their order.
+ * This is the behavior described in RFC 2018, section 4.
+ *
+ * @param pcb the tcp_pcb for which a segment arrived
+ * @param left the left side of the SACK (the first sequence number)
+ * @param right the right side of the SACK (the first sequence number past this SACK)
+ */
+static void
+tcp_add_sack(struct tcp_pcb *pcb, u32_t left, u32_t right)
+{
+  u8_t i;
+  u8_t unused_idx;
+
+  if ((pcb->flags & TF_SACK) == 0 || !TCP_SEQ_LT(left, right)) {
+    return;
+  }
+
+  /* First, let's remove all SACKs that are no longer needed (because they overlap with the newest one),
+     while moving all other SACKs forward.
+     We run this loop for all entries, until we find the first invalid one.
+     There is no point checking after that. */
+  for (i = unused_idx = 0; (i < LWIP_TCP_MAX_SACK_NUM) && LWIP_TCP_SACK_VALID(pcb, i); ++i) {
+    /* We only want to use SACK at [i] if it doesn't overlap with left:right range.
+       It does not overlap if its right side is before the newly added SACK,
+       or if its left side is after the newly added SACK.
+       NOTE: The equality should not really happen, but it doesn't hurt. */
+    if (TCP_SEQ_LEQ(pcb->rcv_sacks[i].right, left) || TCP_SEQ_LEQ(right, pcb->rcv_sacks[i].left)) {
+      if (unused_idx != i) {
+        /* We don't need to copy if it's already in the right spot */
+        pcb->rcv_sacks[unused_idx] = pcb->rcv_sacks[i];
+      }
+      ++unused_idx;
+    }
+  }
+
+  /* Now 'unused_idx' is the index of the first invalid SACK entry,
+     anywhere between 0 (no valid entries) and LWIP_TCP_MAX_SACK_NUM (all entries are valid).
+     We want to clear this and all following SACKs.
+     However, we will be adding another one in the front (and shifting everything else back).
+     So let's just iterate from the back, and set each entry to the one to the left if it's valid,
+     or to 0 if it is not. */
+  for (i = LWIP_TCP_MAX_SACK_NUM - 1; i > 0; --i) {
+    /* [i] is the index we are setting, and the value should be at index [i-1],
+       or 0 if that index is unused (>= unused_idx). */
+    if (i - 1 >= unused_idx) {
+      /* [i-1] is unused. Let's clear [i]. */
+      pcb->rcv_sacks[i].left = pcb->rcv_sacks[i].right = 0;
+    } else {
+      pcb->rcv_sacks[i] = pcb->rcv_sacks[i - 1];
+    }
+  }
+
+  /* And now we can store the newest SACK */
+  pcb->rcv_sacks[0].left = left;
+  pcb->rcv_sacks[0].right = right;
+}
+
+/**
+ * Called to remove a range of SACKs.
+ *
+ * SACK entries will be removed or adjusted to not acknowledge any sequence
+ * numbers that are less than 'seq' passed. It not only invalidates entries,
+ * but also moves all entries that are still valid to the beginning.
+ *
+ * @param pcb the tcp_pcb to modify
+ * @param seq the lowest sequence number to keep in SACK entries
+ */
+static void
+tcp_remove_sacks_lt(struct tcp_pcb *pcb, u32_t seq)
+{
+  u8_t i;
+  u8_t unused_idx;
+
+  /* We run this loop for all entries, until we find the first invalid one.
+     There is no point checking after that. */
+  for (i = unused_idx = 0; (i < LWIP_TCP_MAX_SACK_NUM) && LWIP_TCP_SACK_VALID(pcb, i); ++i) {
+    /* We only want to use SACK at index [i] if its right side is > 'seq'. */
+    if (TCP_SEQ_GT(pcb->rcv_sacks[i].right, seq)) {
+      if (unused_idx != i) {
+        /* We only copy it if it's not in the right spot already. */
+        pcb->rcv_sacks[unused_idx] = pcb->rcv_sacks[i];
+      }
+      /* NOTE: It is possible that its left side is < 'seq', in which case we should adjust it. */
+      if (TCP_SEQ_LT(pcb->rcv_sacks[unused_idx].left, seq)) {
+        pcb->rcv_sacks[unused_idx].left = seq;
+      }
+      ++unused_idx;
+    }
+  }
+
+  /* We also need to invalidate everything from 'unused_idx' till the end */
+  for (i = unused_idx; i < LWIP_TCP_MAX_SACK_NUM; ++i) {
+    pcb->rcv_sacks[i].left = pcb->rcv_sacks[i].right = 0;
+  }
+}
+#endif /* LWIP_TCP_SACK_OUT */
 #endif /* LWIP_TCP */

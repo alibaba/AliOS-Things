@@ -777,6 +777,13 @@ tcp_enqueue_flags(struct tcp_pcb *pcb, u8_t flags)
       optflags |= TF_SEG_OPTS_WND_SCALE;
     }
 #endif /* LWIP_WND_SCALE */
+#if LWIP_TCP_SACK_OUT
+    if (ip_get_option(pcb, SOF_TCPSACK) && ((pcb->state != SYN_RCVD) || (pcb->flags & TF_SACK))) {
+      /* In a <SYN,ACK> (sent in state SYN_RCVD), the SACK_PERM option may only
+         be sent if we received a SACK_PERM option from the remote host. */
+      optflags |= TF_SEG_OPTS_SACK_PERM;
+    }
+#endif /* LWIP_TCP_SACK_OUT */
   }
 #if LWIP_TCP_TIMESTAMPS
   if ((pcb->flags & TF_TIMESTAMP)) {
@@ -860,6 +867,69 @@ tcp_build_timestamp_option(struct tcp_pcb *pcb, u32_t *opts)
 }
 #endif
 
+#if LWIP_TCP_SACK_OUT
+/**
+ * Calculates the number of SACK entries that should be generated.
+ * It takes into account whether TF_SACK flag is set,
+ * the number of SACK entries in tcp_pcb that are valid,
+ * as well as the available options size.
+ *
+ * @param pcb tcp_pcb
+ * @param optlen the length of other TCP options (in bytes)
+ * @return the number of SACK ranges that can be used
+ */
+static u8_t
+tcp_get_num_sacks(const struct tcp_pcb *pcb, u8_t optlen)
+{
+  u8_t num_sacks = 0;
+
+  LWIP_ASSERT("tcp_get_num_sacks: invalid pcb", pcb != NULL);
+
+  if (pcb->flags & TF_SACK) {
+    u8_t i;
+
+    /* The first SACK takes up 12 bytes (it includes SACK header and two NOP options),
+       each additional one - 8 bytes. */
+    optlen += 12;
+
+    /* Max options size = 40, number of SACK array entries = LWIP_TCP_MAX_SACK_NUM */
+    for (i = 0; (i < LWIP_TCP_MAX_SACK_NUM) && (optlen <= TCP_MAX_OPTION_BYTES) &&
+         LWIP_TCP_SACK_VALID(pcb, i); ++i) {
+      ++num_sacks;
+      optlen += 8;
+    }
+  }
+
+  return num_sacks;
+}
+
+/** Build a SACK option (12 or more bytes long) at the specified options pointer)
+ *
+ * @param pcb tcp_pcb
+ * @param opts option pointer where to store the SACK option
+ * @param num_sacks the number of SACKs to store
+ */
+static void
+tcp_build_sack_option(const struct tcp_pcb *pcb, u32_t *opts, u8_t num_sacks)
+{
+  u8_t i;
+
+  LWIP_ASSERT("tcp_build_sack_option: invalid pcb", pcb != NULL);
+  LWIP_ASSERT("tcp_build_sack_option: invalid opts", opts != NULL);
+
+  /* Pad with two NOP options to make everything nicely aligned.
+     We add the length (of just the SACK option, not the NOPs in front of it),
+     which is 2B of header, plus 8B for each SACK. */
+  *(opts++) = PP_HTONL(0x01010500 + 2 + num_sacks * 8);
+
+  for (i = 0; i < num_sacks; ++i) {
+    *(opts++) = lwip_htonl(pcb->rcv_sacks[i].left);
+    *(opts++) = lwip_htonl(pcb->rcv_sacks[i].right);
+  }
+}
+
+#endif
+
 #if LWIP_WND_SCALE
 /** Build a window scale option (3 bytes long) at the specified options pointer)
  *
@@ -885,13 +955,25 @@ tcp_send_empty_ack(struct tcp_pcb *pcb)
   struct pbuf *p;
   u8_t optlen = 0;
   struct netif *netif;
-#if LWIP_TCP_TIMESTAMPS || CHECKSUM_GEN_TCP
+#if LWIP_TCP_TIMESTAMPS || CHECKSUM_GEN_TCP || LWIP_TCP_SACK_OUT
   struct tcp_hdr *tcphdr;
 #endif /* LWIP_TCP_TIMESTAMPS || CHECKSUM_GEN_TCP */
+  u8_t num_sacks = 0;
+#if LWIP_TCP_SACK_OUT
+  u32_t *opts;
+  u16_t sacks_len = 0;
+#endif
 
 #if LWIP_TCP_TIMESTAMPS
   if (pcb->flags & TF_TIMESTAMP) {
     optlen = LWIP_TCP_OPT_LENGTH(TF_SEG_OPTS_TS);
+  }
+#endif
+
+#if LWIP_TCP_SACK_OUT
+  /* For now, SACKs are only sent with empty ACKs */
+  if ((num_sacks = tcp_get_num_sacks(pcb, optlen)) > 0) {
+    optlen += 4 + num_sacks * 8; /* 4 bytes for header (including 2*NOP), plus 8B for each SACK */
   }
 #endif
 
@@ -902,7 +984,7 @@ tcp_send_empty_ack(struct tcp_pcb *pcb)
     LWIP_DEBUGF(TCP_OUTPUT_DEBUG, ("tcp_output: (ACK) could not allocate pbuf\n"));
     return ERR_BUF;
   }
-#if LWIP_TCP_TIMESTAMPS || CHECKSUM_GEN_TCP
+#if LWIP_TCP_TIMESTAMPS || CHECKSUM_GEN_TCP || LWIP_TCP_SACK_OUT
   tcphdr = (struct tcp_hdr *)p->payload;
 #endif /* LWIP_TCP_TIMESTAMPS || CHECKSUM_GEN_TCP */
   LWIP_DEBUGF(TCP_OUTPUT_DEBUG,
@@ -915,6 +997,19 @@ tcp_send_empty_ack(struct tcp_pcb *pcb)
   if (pcb->flags & TF_TIMESTAMP) {
     tcp_build_timestamp_option(pcb, (u32_t *)(tcphdr + 1));
   }
+#endif
+
+#if LWIP_TCP_SACK_OUT
+  opts = (u32_t *)(void *)(tcphdr + 1);
+
+  if (pcb && (num_sacks > 0)) {
+    tcp_build_sack_option(pcb, opts, num_sacks);
+    /* 1 word for SACKs header (including 2xNOP), and 2 words for each SACK */
+    sacks_len = 1 + num_sacks * 2;
+    opts += sacks_len;
+  }
+#else
+  LWIP_UNUSED_ARG(num_sacks);
 #endif
 
   netif = ip_route(&pcb->local_ip, &pcb->remote_ip);
@@ -1188,6 +1283,16 @@ tcp_output_segment(struct tcp_seg *seg, struct tcp_pcb *pcb, struct netif *netif
   if (seg->flags & TF_SEG_OPTS_WND_SCALE) {
     tcp_build_wnd_scale_option(opts);
     opts += 1;
+  }
+#endif
+#if LWIP_TCP_SACK_OUT
+  if (ip_get_option(pcb, SOF_TCPSACK) && (seg->flags & TF_SEG_OPTS_SACK_PERM)) {
+    /* Pad with two NOP options to make everything nicely aligned
+     * NOTE: When we send both timestamp and SACK_PERM options,
+     * we could use the first two NOPs before the timestamp to store SACK_PERM option,
+     * but that would complicate the code.
+     */
+    *(opts++) = PP_HTONL(0x01010402);
   }
 #endif
 
