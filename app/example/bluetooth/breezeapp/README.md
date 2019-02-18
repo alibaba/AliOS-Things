@@ -24,7 +24,6 @@ breezeapp
 
 ### Dependencies
 
-- yloop
 - breeze
 - CLI
 

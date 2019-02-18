@@ -19,7 +19,6 @@ Platform: BLE hardware already support AliOS things BLE stack, take Nordic's nRF
 
 ### Dependencies
 
-- yloop
 - bt
 - CLI
 
