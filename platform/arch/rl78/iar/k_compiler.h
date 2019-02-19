@@ -11,7 +11,7 @@
 #define RHINO_GET_RA()              (void *)__get_LR()
 /* get the  the value of the stack pointer
    unsigned int __get_SP(void) */
-#define RHINO_GET_SP()              (void *)__return_address()
+#define RHINO_GET_SP()              (void *)__get_SP()
 /* get the value of the stack pointer register
    unsigned int __CLZ(unsigned int) */
 //#define RHINO_BIT_CLZ(x)            __CLZ(x)

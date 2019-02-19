@@ -11,8 +11,12 @@
    unsigned int __return_address(void) */
 #define RHINO_GET_RA()              (void *)__return_address()
 /* get the  the value of the stack pointer
-   unsigned int __return_address(void) */
+   unsigned int __current_sp(void) */
 #define RHINO_GET_SP()              (void *)__current_sp()
+
+#ifndef __WEAK
+#define __WEAK                      __weak
+#endif
 
 #elif defined(__ICCARM__)
 #define RHINO_INLINE                static inline
@@ -21,7 +25,11 @@
 #define RHINO_GET_RA()              (void *)__get_LR()
 /* get the  the value of the stack pointer
    unsigned int __get_SP(void) */
-#define RHINO_GET_SP()              (void *)__return_address()
+#define RHINO_GET_SP()              (void *)__get_SP()
+
+#ifndef __WEAK
+#define __WEAK                      __weak
+#endif
 
 #elif defined(__GNUC__)
 #define RHINO_INLINE                static inline
@@ -35,6 +43,10 @@ __attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_SP(void)
     asm volatile("mov %0, SP\n" : "=r" (sp));
     return sp;
 }
+
+#ifndef __WEAK
+#define __WEAK                      __attribute__((weak))
+#endif
 
 #else
 #error "Unsupported compiler"
