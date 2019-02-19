@@ -45,7 +45,7 @@ extern "C"
 #define DEFAULT_THREAD_PRIORITY   30
 #define DEFAULT_THREAD_SLICE      10
 
-#define PTHREAD_INITIALIZED_OBJ 0xABCDEFEF
+#define PTHREAD_INITIALIZED_OBJ 0XABCDEFEF
 #define PTHREAD_ONCE_INIT       0
 
 enum {
@@ -79,7 +79,7 @@ typedef struct pthread_attr {
     unsigned char      detachstate;     /* when set to PTHREAD_CREATE_JOINABLE, thread will not end untill the creating thread end */
 } pthread_attr_t;
 
-#define PTHREAD_MAGIC 0x11223344
+#define PTHREAD_MAGIC 0X11223344
 
 typedef struct _pthread_cleanup {
     void                    *para;
@@ -90,9 +90,9 @@ typedef struct _pthread_cleanup {
 } _pthread_cleanup_t;
 
 typedef struct _pthread_tcb {
-    unsigned int   magic;
-    pthread_attr_t attr;
-    ktask_t       *tid;
+    unsigned int    magic;
+    pthread_attr_t  attr;
+    ktask_t        *tid;
 
     void *(*thread_entry)(void *para);
     void *thread_para;
@@ -106,7 +106,7 @@ typedef struct _pthread_tcb {
     _pthread_cleanup_t *cleanup;
 
     void **tls;
-    void *return_value;
+    void  *return_value;
 } _pthread_tcb_t;
 
 RHINO_INLINE _pthread_tcb_t *_pthread_get_tcb(pthread_t thread)
@@ -198,6 +198,7 @@ int pthread_attr_getscope(const pthread_attr_t *attr, int *scope);
 
 /* definetion for pthread mutex */
 #define PTHREAD_UNUSED_YET_OBJ -1
+
 #define PTHREAD_MUTEX_INITIALIZER { NULL, PTHREAD_UNUSED_YET_OBJ }
 
 /*
@@ -248,10 +249,10 @@ int pthread_attr_getscope(const pthread_attr_t *attr, int *scope);
 #define PTHREAD_PRIO_INHERIT 1
 #define PTHREAD_PRIO_PROTECT 2
 
-#define DEFAULT_MUTEX_TYPE         PTHREAD_MUTEX_DEFAULT
-#define DEFAULT_MUTEX_PROCOCOL     PTHREAD_PRIO_INHERIT
-#define DEFAULT_MUTEX_PRIOCEILING  POSIX_HIGH_PRI
-#define DEFAULT_MUTEX_PSHARED      PTHREAD_PROCESS_PRIVATE
+#define DEFAULT_MUTEX_TYPE        PTHREAD_MUTEX_DEFAULT
+#define DEFAULT_MUTEX_PROCOCOL    PTHREAD_PRIO_INHERIT
+#define DEFAULT_MUTEX_PRIOCEILING POSIX_HIGH_PRI
+#define DEFAULT_MUTEX_PSHARED     PTHREAD_PROCESS_PRIVATE
 
 typedef struct pthread_mutexattr {
     int is_initialized;
@@ -291,11 +292,12 @@ typedef struct pthread_condattr {
 } pthread_condattr_t;
 
 typedef struct pthread_cond {
-    kmutex_t          *lock;
-    int                waiting;
-    int                signals;
-    ksem_t             *wait_sem;
-    ksem_t             *wait_done;
+    kmutex_t *lock;
+    int       waiting;
+    int       signals;
+    ksem_t   *wait_sem;
+    ksem_t   *wait_done;
+
     pthread_condattr_t *attr;
 } pthread_cond_t;
 
@@ -313,8 +315,8 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex, const s
 typedef int pthread_key_t;
 
 typedef struct key_value {
-    pthread_t thread;
-    uint32_t *value;
+    pthread_t  thread;
+    uint32_t  *value;
 } key_value_t;
 
 typedef struct pthread_key_value {
@@ -347,3 +349,4 @@ int   pthread_key_delete(pthread_key_t key);
 #endif /* __cplusplus */
 
 #endif /* PTHREAD_H */
+
