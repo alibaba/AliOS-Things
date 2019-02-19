@@ -1,5 +1,5 @@
 config AOS_COMP_IROT
-    bool "root of Trust,SE and TEE"
+    bool "Root of Trust - MCU, SE and TEE"
     default n
     select AOS_COMP_LIBKM_SE if CONFIG_LS_KM_SE
     select AOS_COMP_LIBKM_TEE if !CONFIG_LS_KM_SE && CONFIG_LS_KM_TEE
