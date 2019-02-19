@@ -466,7 +466,11 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
         platform_err("failed! mbedtls_ssl_setup returned %d", ret);
         return ret;
     }
+#if defined(ON_PRE) || defined(ON_DAILY)
+    platform_err("SKIPPING mbedtls_ssl_set_hostname() when ON_PRE or ON_DAILY defined!");
+#else
     mbedtls_ssl_set_hostname(&(pTlsData->ssl), addr);
+#endif
     mbedtls_ssl_set_bio(&(pTlsData->ssl), &(pTlsData->fd), mbedtls_net_send,
                         mbedtls_net_recv, mbedtls_net_recv_timeout);
 
