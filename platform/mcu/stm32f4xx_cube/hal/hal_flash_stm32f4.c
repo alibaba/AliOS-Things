@@ -1,13 +1,14 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
-#include "stm32f4xx.h"
+
 #include "stm32f4xx_hal.h"
 #ifdef HAL_FLASH_MODULE_ENABLED
+#include "stm32f4xx.h"
 
 #include "aos/hal/flash.h"
 
-#include <k_api.h>
+#include "k_api.h"
 
 #include "stm32f4xx_hal_flash.h"
 
