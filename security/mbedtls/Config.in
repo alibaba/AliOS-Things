@@ -1,5 +1,5 @@
 config AOS_COMP_IMBEDTLS
-    bool "imbedtls"
+    bool "ARM Mbed TLS Support"
     default n
     select AOS_COMP_ALICRYPTO
     help
