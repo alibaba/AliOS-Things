@@ -6,11 +6,11 @@
 
 AliOS Things发布于[2017年杭州云栖大会](https://yunqi.aliyun.com)， 是 AliOS 家族旗下的、面向IoT领域的、高可伸缩的物联网操作系统，于2017年10月20号宣布在[github](https://github.com/alibaba/AliOS-Things)上开源. 
 
-## 架构总览
+## Architecture Overview
 
 AliOS Things 支持多种CPU架构，包括：ARM，C-Sky，MIPS，rl78，rx600，xtensa等。同时AliOS Things也支持相当多的[开发板](./board).
 
-AliOS Things适配了分层架构和组件架构。包括以下部分：
+从架构的角度来看，AliOS Things适配了分层架构和组件架构。从上到下，AliOS Things包括以下部分：
 
 - BSP: 板级支持包，主要由SoC开发商开发和维护
 - HAL: 硬件适配层，像是WiFi，UART等
@@ -25,21 +25,21 @@ AliOS Things适配了分层架构和组件架构。包括以下部分：
 
 ## 文档
 
-- AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
-- AliOS Things 文档: [开发者社区文档中心](https://dev.iot.aliyun.com/doc) | 基础产品 AliOS Things 专栏
+AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
+AliOS Things 文档: [开发者社区文档中心](https://dev.iot.aliyun.com/doc) | 基础产品 AliOS Things 专栏
 
 ### 贡献代码
 
-请参考：[Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing).
+请参考：[Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing)。
 
 ### 命令行快速上手
 
 使用ubuntu系统，参考 [Quick Start](https://github.com/alibaba/AliOS-Things/wiki/Quick-Start) 可以快速上手AliOS Things
 
-### IDE 快速上手
+### IDE快速上手
 
 AliOS Things使用 [vscode](https://code.visualstudio.com/) 作为IDE，支持Windows/MAC/Linux。
-具体使用步骤请参考：[AliOS Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
+具体使用步骤请参考：[AliOS Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio)。
 
 ### 物联网平台
 
@@ -48,9 +48,7 @@ AliOS Things 能帮助你更加快速地接入[阿里云物联网平台](https:/
 ## 社区
 
 * [技术交流群(钉钉)](https://img.alicdn.com/tfs/TB1X2HOhYPpK1RjSZFFXXa5PpXa-970-1280.png)
-* [技术交流群(微信)](https://img.alicdn.com/tfs/TB1L3zOhYPpK1RjSZFFXXa5PpXa-560-790.jpg)
-* [云栖社区](https://yq.aliyun.com/teams/184)
-* [开发者论坛](https://bbs.aliyun.com/thread/410.html)
+* [阿里云IoT开发者社区](https://dev.iot.aliyun.com/)
 
 ## License
 
