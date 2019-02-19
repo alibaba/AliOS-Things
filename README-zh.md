@@ -25,8 +25,8 @@ AliOS Things适配了分层架构和组件架构。包括以下部分：
 
 ## 文档
 
-AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
-AliOS Things 文档: [开发者社区文档中心](https://dev.iot.aliyun.com/doc) | 基础产品 AliOS Things 专栏
+- AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
+- AliOS Things 文档: [开发者社区文档中心](https://dev.iot.aliyun.com/doc) | 基础产品 AliOS Things 专栏
 
 ### 贡献代码
 

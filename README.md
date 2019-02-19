@@ -25,8 +25,8 @@ All modules have been organized as Components, and each component has its own .m
 
 ## Documentation
 
-AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki).
-AliOS Things documentation: [Alibaba Cloud IoT Documentation](https://dev.iot.aliyun.com/doc) | AliOS Things
+- AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
+- AliOS Things documentation: [Alibaba Cloud IoT Documentation](https://dev.iot.aliyun.com/doc) | AliOS Things
 
 ### How to contribute
 
