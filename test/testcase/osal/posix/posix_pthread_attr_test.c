@@ -28,6 +28,28 @@ void posix_pthread_attr_getinheritsched_case(void);
 void posix_pthread_attr_setscope_case(void);
 void posix_pthread_attr_getscope_case(void);
 
+void posix_pthread_attr_test_case(void)
+{
+    posix_pthread_attr_init_case();
+    posix_pthread_attr_destroy_case();
+    posix_pthread_attr_setdetachstate_case();
+    posix_pthread_attr_getdetachstate_case();
+    posix_pthread_attr_setschedpolicy_case();
+    posix_pthread_attr_getschedpolicy_case();
+    posix_pthread_attr_setschedparam_case();
+    posix_pthread_attr_getschedparam_case();
+    posix_pthread_attr_setstacksize_case();
+    posix_pthread_attr_getstacksize_case();
+    posix_pthread_attr_setstackaddr_case();
+    posix_pthread_attr_getstackaddr_case();
+    posix_pthread_attr_setstack_case();
+    posix_pthread_attr_getstack_case();
+    posix_pthread_attr_setinheritsched_case();
+    posix_pthread_attr_getinheritsched_case();
+    posix_pthread_attr_setscope_case();
+    posix_pthread_attr_getscope_case();
+}
+
 /*************************** test pthread_attr_init *****************************/
 void posix_pthread_attr_init_case(void)
 {

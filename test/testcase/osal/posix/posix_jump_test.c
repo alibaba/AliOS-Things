@@ -19,7 +19,7 @@ void banana(void)
     LOGI(TAG, "you will never see this, because i will longjmp !");
 }
 
-void posix_jump_case(void)
+void posix_jump_test_case(void)
 {
     int ret = -1;
 
