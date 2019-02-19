@@ -23,3 +23,4 @@ $(NAME)_SOURCES-y += aes_mbed.c
 endif
 
 $(NAME)_COMPONENTS-y += ulog 
+ble = 1
