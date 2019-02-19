@@ -1,12 +1,14 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
+
+#include "stm32f4xx_hal.h"
+#ifdef HAL_I2C_MODULE_ENABLED
+#include "hal_i2c_stm32f4.h"
 
 #include "aos/hal/i2c.h"
 #include "k_api.h"
 #include "errno.h"
-#include "hal_i2c_stm32f4.h"
-#ifdef HAL_I2C_MODULE_ENABLED
 
 typedef struct {
     uint8_t   inited;
