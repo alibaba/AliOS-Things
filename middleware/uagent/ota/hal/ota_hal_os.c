@@ -367,6 +367,7 @@ END:
 }
 #endif /*Linux end*/
 
+#if !defined(OTA_DISABLE_NETWORK)
 /*Socket API*/
 void* ota_socket_connect(char *host, int port)
 {
@@ -405,6 +406,7 @@ int ota_ssl_recv(void *ssl, char *buf, int len)
 {
     return HAL_SSL_Read((uintptr_t)ssl, buf, len, OTA_SSL_TIMEOUT);
 }
+#endif
 
 #if !defined (OTA_DEV_BLE)
 /*SHA256*/
