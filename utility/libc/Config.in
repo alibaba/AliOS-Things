@@ -1,5 +1,5 @@
 config AOS_COMP_NEWLIB_STUB
-    bool "Newlib(C-library) adaptation layer"
+    bool "Newlib (C-library) adaptation layer"
     default n
     select AOS_COMP_VFS
     help
