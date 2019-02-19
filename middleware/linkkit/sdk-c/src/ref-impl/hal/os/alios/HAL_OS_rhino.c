@@ -517,9 +517,7 @@ static void timer_cb(void *timer, void *user)
         return;
     }
 
-    HAL_MutexLock(mutex);
     node->cb(node->user_data);
-    HAL_MutexUnlock(mutex);
 }
 
 #endif
