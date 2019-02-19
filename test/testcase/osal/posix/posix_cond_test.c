@@ -24,6 +24,13 @@ void posix_cond_case(void);
 void posix_pthread_condattr_init_case(void);
 void posix_pthread_condattr_destroy_case(void);
 
+void posix_cond_test_case(void)
+{
+    posix_cond_case();
+    posix_pthread_condattr_init_case();
+    posix_pthread_condattr_destroy_case();
+}
+
 static void *demo_task1(void *arg)
 {
     struct timeval  now;

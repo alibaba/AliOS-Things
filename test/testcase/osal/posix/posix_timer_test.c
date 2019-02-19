@@ -15,6 +15,15 @@ struct timespec timer_spec_get_origin;
 struct timespec timer_spec_get_cur;
 struct timespec timer_spec_get_pre;
 
+void posix_timer_case1(void); /* testcase for timer_create/timer_settime/timer_gettime/timer_delete */
+void posix_timer_case2(void); /* testcase for clock_gettime/clock_nanosleep/nanosleep/sleep */
+
+void posix_timer_test_case(void)
+{
+    posix_timer_case1();
+    posix_timer_case2();
+}
+
 void timer1_thread(void)
 {
     int ret = -1;
@@ -198,10 +207,4 @@ void posix_timer_case2(void)
     LOGI(TAG, "posix_timer_case2 test OK !\n");
 
     LOGI(TAG, "*********** posix_timer_case2 end ***********\n\n");
-}
-
-void posix_timer_test(void)
-{
-    posix_timer_case1();
-    posix_timer_case2();
 }
