@@ -20,10 +20,24 @@ void posix_pthread_setschedparam_case1(void);
 void posix_pthread_setschedparam_case2(void);
 void posix_pthread_setschedprio_case(void);
 
-pthread_t thread1;
-pthread_t thread2;
+static pthread_t thread1;
+static pthread_t thread2;
 
-pthread_attr_t attr;
+static pthread_attr_t attr;
+
+void posix_pthread_test_case(void)
+{
+    posix_pthread_create_case();
+    posix_pthread_join_case();
+    posix_pthread_cleanup_case1();
+    posix_pthread_cleanup_case2();
+    posix_pthread_detach_case1();
+    posix_pthread_detach_case2();
+    posix_pthread_once_case();
+    posix_pthread_setschedparam_case1();
+    posix_pthread_setschedparam_case2();
+    posix_pthread_setschedprio_case();
+}
 
 static void *demo_task(void *arg)
 {
@@ -311,7 +325,7 @@ static void *demo_task12(void *arg)
 void posix_pthread_create_case(void)
 {
     pthread_t thread;
-    int       ret = -1;
+    int       ret    = -1;
     void     *status = NULL;
 
     LOGI(TAG, "*********** posix_pthread_create_case start ***********\n");
@@ -339,9 +353,9 @@ void posix_pthread_create_case(void)
 
 void posix_pthread_join_case(void)
 {
-    int ret1 = -1;
-    int ret2 = -1;
-    int ret = -1;
+    int   ret1   = -1;
+    int   ret2   = -1;
+    int   ret    = -1;
     void *status = NULL;
 
     memset(&attr, 0, sizeof(attr));
@@ -376,8 +390,8 @@ void posix_pthread_join_case(void)
 void posix_pthread_cleanup_case1(void)
 {
     pthread_t thread;
-    int ret = -1;
-    void *status = NULL;
+    int       ret    = -1;
+    void     *status = NULL;
 
     LOGI(TAG, "*********** posix_pthread_cleanup_case1 start ***********\n");
 
@@ -405,7 +419,7 @@ void posix_pthread_cleanup_case1(void)
 void posix_pthread_cleanup_case2(void)
 {
     pthread_t thread;
-    int       ret = -1;
+    int       ret     = -1;
     void      *status = NULL;
 
     LOGI(TAG, "*********** posix_pthread_cleanup_case2 start ***********\n");
@@ -434,9 +448,10 @@ void posix_pthread_cleanup_case2(void)
 /*************************** test pthread_detach *****************************/
 void posix_pthread_detach_case1(void)
 {
-    int   ret1 = -1;
-    int   ret2 = -1;
-    int   ret  = -1;
+    int ret1 = -1;
+    int ret2 = -1;
+    int ret  = -1;
+
     void *status = NULL;
 
     memset(&attr, 0, sizeof(attr));
@@ -500,7 +515,7 @@ void posix_pthread_detach_case2(void)
 void posix_pthread_once_case(void)
 {
     pthread_t thread;
-    int       ret = -1;
+    int       ret    = -1;
     void     *status = NULL;
 
     LOGI(TAG, "*********** posix_pthread_once_case start ***********\n");
@@ -530,7 +545,7 @@ void posix_pthread_once_case(void)
 void posix_pthread_setschedparam_case1(void)
 {
     pthread_t thread;
-    int       ret = -1;
+    int       ret    = -1;
     void     *status = NULL;
 
     LOGI(TAG, "*********** posix_pthread_setschedparam_case1 start ***********\n");
@@ -554,7 +569,7 @@ void posix_pthread_setschedparam_case1(void)
 void posix_pthread_setschedparam_case2(void)
 {
     pthread_t thread;
-    int       ret = -1;
+    int       ret    = -1;
     void     *status = NULL;
 
     LOGI(TAG, "*********** posix_pthread_setschedparam_case2 start ***********\n");
@@ -579,7 +594,7 @@ void posix_pthread_setschedparam_case2(void)
 void posix_pthread_setschedprio_case(void)
 {
     pthread_t thread;
-    int       ret = -1;
+    int       ret    = -1;
     void     *status = NULL;
 
     LOGI(TAG, "*********** posix_pthread_setschedprio_case start ***********\n");

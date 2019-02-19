@@ -25,6 +25,23 @@ void posix_pthread_mutexattr_getprioceiling_case(void);
 void posix_pthread_mutexattr_setpshared_case(void);
 void posix_pthread_mutexattr_getpshared_case(void);
 
+void posix_mutex_test_case(void)
+{
+    posix_mutex_case();
+    posix_pthread_mutexattr_init_case();
+    posix_pthread_mutexattr_destroy_case();
+    posix_pthread_mutexattr_settype_case();
+    posix_pthread_mutexattr_gettype_case();
+    posix_pthread_mutexattr_setprotocol_case();
+    posix_pthread_mutexattr_getprotocol_case();
+    posix_pthread_mutex_setprioceiling_case();
+    posix_pthread_mutex_getprioceiling_case();
+    posix_pthread_mutexattr_setprioceiling_case();
+    posix_pthread_mutexattr_getprioceiling_case();
+    posix_pthread_mutexattr_setpshared_case();
+    posix_pthread_mutexattr_getpshared_case();
+}
+
 static void *init_task(void *arg)
 {
     pthread_mutex_init(&mutex, NULL);
