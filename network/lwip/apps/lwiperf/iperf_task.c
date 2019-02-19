@@ -1,9 +1,10 @@
-
-//#include "mico.h"
-#include "mico_socket.h"
-#include "iperf_task.h"
-#include "iperf_debug.h"
-
+#include "ulog/ulog.h"
+#include "lwip/debug.h"
+#include "lwip/sockets.h"
+#include "lwip/apps/iperf_task.h"
+#include "lwip/apps/iperf_debug.h"
+#include <stdio.h>
+#include <stdlib.h>
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -217,7 +218,7 @@ void iperf_udp_run_server( char *parameters[] )
         if ( parameters ) {
             free( parameters );
         }
-        mico_rtos_delete_thread( NULL );
+        aos_task_exit(0);
     }
 
     socklen_t len = sizeof(timeout);
@@ -252,7 +253,7 @@ void iperf_udp_run_server( char *parameters[] )
         if ( parameters ) {
             free( parameters );
         }
-        mico_rtos_delete_thread( NULL );
+        aos_task_exit(0);
     }
 
     cli_len = sizeof(cliaddr);
@@ -424,7 +425,7 @@ void iperf_udp_run_server( char *parameters[] )
     LOGD(TAG, "\r\n UDP server close socket!\r\n" );
     close( sockfd );
 
-    LOG(TAG, "If you want to execute iperf server again, please enter \"iperf -s -u\".\r\n" );
+    LOGD(TAG, "If you want to execute iperf server again, please enter \"iperf -s -u\".\r\n" );
 
     if ( parameters ) {
         free( parameters );
@@ -432,7 +433,7 @@ void iperf_udp_run_server( char *parameters[] )
     free( buffer );
     // For tradeoff mode, task will be deleted in iperf_udp_run_client
     if ( g_iperf_is_tradeoff_test_client == 0 ) {
-        mico_rtos_delete_thread( NULL );
+        aos_task_exit(0);
     }
 }
 
@@ -488,7 +489,7 @@ void iperf_tcp_run_server( char *parameters[] )
         if ( parameters ) {
             free( parameters );
         }
-        mico_rtos_delete_thread( NULL );
+        aos_task_exit(0);
     }
 
     socklen_t len = sizeof(timeout);
@@ -603,8 +604,7 @@ void iperf_tcp_run_server( char *parameters[] )
         free( parameters );
     }
     free( buffer );
-    mico_rtos_delete_thread( NULL );
-
+        aos_task_exit(0);
 }
 
 void iperf_tcp_run_client( char *parameters[] )
@@ -712,7 +712,7 @@ void iperf_tcp_run_client( char *parameters[] )
         if ( parameters ) {
             free( parameters );
         }
-        mico_rtos_delete_thread( NULL );
+        aos_task_exit(0);
     }
 
     if ( setsockopt( sockfd, IPPROTO_IP, IP_TOS, &tos, sizeof(tos) ) < 0 )
@@ -738,7 +738,7 @@ void iperf_tcp_run_client( char *parameters[] )
         if ( parameters ) {
             free( parameters );
         }
-        mico_rtos_delete_thread( NULL );
+        aos_task_exit(0);
     }
 
     iperf_get_current_time( &t1, 0 );
@@ -749,7 +749,7 @@ void iperf_tcp_run_client( char *parameters[] )
 #if defined(MICO_IPERF_DEBUG_ENABLE)
         DBGPRINT_IPERF(IPERF_DEBUG_SEND, ("\r\n[%s:%d] nbytes=%d \r\n", __FUNCTION__, __LINE__, nbytes));
 #endif
-        mico_thread_msleep( pkt_delay );
+        aos_msleep( pkt_delay );
 
         if ( num_tag == 1 )
              {
@@ -787,8 +787,7 @@ void iperf_tcp_run_client( char *parameters[] )
     {
         free( parameters );
     }
-    mico_rtos_delete_thread( NULL );
-
+    aos_task_exit(0);
 }
 
 void iperf_udp_run_client( char *parameters[] )
@@ -904,7 +903,7 @@ void iperf_udp_run_client( char *parameters[] )
         if ( parameters ) {
             free( parameters );
         }
-        mico_rtos_delete_thread( NULL );
+        aos_task_exit(0);
     }
 
     if ( setsockopt( sockfd, IPPROTO_IP, IP_TOS, &tos, sizeof(tos) ) < 0 ) {
@@ -936,7 +935,7 @@ void iperf_udp_run_client( char *parameters[] )
         if ( parameters ) {
             free( parameters );
         }
-        mico_rtos_delete_thread( NULL );
+        aos_task_exit(0);
     }
 
     // Init UDP data header
@@ -981,7 +980,7 @@ void iperf_udp_run_client( char *parameters[] )
         }
 
         if ( (int) current_sleep > 0 ) {
-            mico_thread_msleep( current_sleep );
+            aos_msleep( current_sleep );
         } else {
             current_sleep = 0;
         }
@@ -1051,7 +1050,7 @@ void iperf_udp_run_client( char *parameters[] )
     free( buffer );
     // For tradeoff mode, task will be deleted in iperf_udp_run_server
     if ( g_iperf_is_tradeoff_test_server == 0 ) {
-        mico_rtos_delete_thread( NULL );
+        aos_task_exit(0);
     }
 }
 
@@ -1221,17 +1220,15 @@ count_t iperf_diff_count( count_t pkt_count, count_t tmp_count )
 
 void iperf_get_current_time( uint32_t *s, uint32_t *ms )
 {
-    uint32_t time_ms;
-    mico_time_get_time( &time_ms );
 
     if ( s )
     {
-        *s = time_ms / 1000;
+        *s = aos_now();
     }
 
     if ( ms )
     {
-        *ms = time_ms;
+        *ms = aos_now_ms;
     }
 }
 
