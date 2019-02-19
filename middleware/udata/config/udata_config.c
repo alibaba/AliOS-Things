@@ -79,7 +79,7 @@ udata_tag_para_st g_dev_gps[] = {
 };
 
 udata_tag_para_st g_dev_rtctime[] = {
-{TAG_DEV_GPS, 0, 2000},
+{TAG_DEV_RTC, 0, 2000},
 };
 
 char* g_para_acc[] = {
