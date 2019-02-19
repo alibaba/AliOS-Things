@@ -1,5 +1,5 @@
 config AOS_COMP_RHINO
-    bool "Kernel Core(rhino)"
+    bool "Kernel Core (rhino)"
     default y
     help
         AliOS Things kernel core(rhino)
