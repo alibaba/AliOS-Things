@@ -498,7 +498,7 @@ int MQTTPublish(iotx_mc_client_t *c, const char *topicName, iotx_mqtt_topic_info
                                 (unsigned char *)topic_msg->payload,
                                 topic_msg->payload_len);
     if (len <= 0) {
-        mqtt_err("MQTTSerialize_publish is error, len=%d, buf_size_send=%u, payloadlen=%u",
+        mqtt_err("MQTTSerialize_publish is error, len=%d, buf_size_send=%lu, payloadlen=%lu",
                  len,
                  c->buf_size_send,
                  topic_msg->payload_len);
@@ -1293,7 +1293,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
 
     /* Check if the received data length exceeds mqtt read buffer length */
     if ((rem_len > 0) && ((rem_len + len) > c->buf_size_read)) {
-        mqtt_err("mqtt read buffer is too short, mqttReadBufLen : %u, remainDataLen : %d", c->buf_size_read, rem_len);
+        mqtt_err("mqtt read buffer is too short, mqttReadBufLen : %lu, remainDataLen : %d", c->buf_size_read, rem_len);
         int needReadLen = c->buf_size_read - len;
         left_t = iotx_time_left(timer);
         left_t = (left_t == 0) ? 1 : left_t;
@@ -1704,10 +1704,10 @@ static int iotx_mc_handle_recv_PUBLISH(iotx_mc_client_t *c)
                "Topic Name",
                topicName.lenstring.len,
                topicName.lenstring.data);
-    mqtt_debug("%20s : %d / %d", "Payload Len/Room",
+    mqtt_debug("%20s : %lu / %d", "Payload Len/Room",
                topic_msg.payload_len,
                c->buf_read + c->buf_size_read - topic_msg.payload);
-    mqtt_debug("%20s : %d", "Receive Buflen", c->buf_size_read);
+    mqtt_debug("%20s : %lu", "Receive Buflen", c->buf_size_read);
 
 #if defined(INSPECT_MQTT_FLOW)
     mqtt_debug("%20s : %p", "Payload Buffer", topic_msg.payload);
