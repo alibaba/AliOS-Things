@@ -12,6 +12,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 #include "aos/hal/gpio.h"
 #include "aos/hal/i2c.h"
