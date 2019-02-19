@@ -31,9 +31,9 @@ int sched_setscheduler(pid_t pid, int policy, const struct sched_param *param)
         return -1;
     }
 
-    if (policy == SCHED_FIFO) {
+    if (policy == (int)SCHED_FIFO) {
         ret = krhino_sched_policy_set((ktask_t *)pth, KSCHED_FIFO);
-    } else if (policy == SCHED_RR) {
+    } else if (policy == (int)SCHED_RR) {
         ret = krhino_sched_policy_set((ktask_t *)pth, KSCHED_RR);
         if (ret == 0) {
             ret = krhino_task_time_slice_set((ktask_t *)pth, (param->slice * 1000) / RHINO_CONFIG_TICKS_PER_SECOND);
@@ -64,20 +64,12 @@ int sched_setscheduler(pid_t pid, int policy, const struct sched_param *param)
 
 int sched_get_priority_max(int policy)
 {
-    if (policy == SCHED_FIFO) {
-        return POSIX_HIGH_PRI;
-    } else {
-        return -1;
-    }
+    return POSIX_HIGH_PRI;
 }
 
 int sched_get_priority_min(int policy)
 {
-    if (policy == SCHED_FIFO) {
-        return POSIX_LOW_PRI;
-    } else {
-        return -1;
-    }
+    return POSIX_LOW_PRI;
 }
 
 int sched_rr_get_interval(pid_t pid, struct timespec *interval)
