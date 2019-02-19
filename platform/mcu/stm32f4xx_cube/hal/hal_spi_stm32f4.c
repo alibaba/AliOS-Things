@@ -1,17 +1,17 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
+#include "stm32f4xx_hal.h"
 
-#include <k_api.h>
+#ifdef HAL_SPI_MODULE_ENABLED
+#include "hal_spi_stm32f4.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "k_api.h"
 #include "aos/hal/spi.h"
-#include "stm32f4xx_hal.h"
-#include "hal_spi_stm32f4.h"
 #include "stm32f4xx_hal_spi.h"
 
-#ifdef HAL_SPI_MODULE_ENABLED 
 static int32_t isSPIIRQEnable(IRQn_Type IRQn);
 typedef struct {
 	aos_mutex_t spi_tx_mutex;

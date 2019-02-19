@@ -1,17 +1,16 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include <k_api.h>
+#include "stm32f4xx_hal.h"
+#ifdef HAL_GPIO_MODULE_ENABLED
+#include "hal_gpio_stm32f4.h"
+
+#include "k_api.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "aos/hal/gpio.h"
-
-#include "stm32f4xx_hal.h"
-#include "hal_gpio_stm32f4.h"
-
-#ifdef HAL_GPIO_MODULE_ENABLED
 
 #define  GPIO_IRQ_SLOP_MAX  (16)
 
