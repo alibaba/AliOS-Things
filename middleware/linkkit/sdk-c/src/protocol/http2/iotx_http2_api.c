@@ -51,7 +51,7 @@ static ssize_t send_callback(nghttp2_session *session, const uint8_t *data,
     int rv;
     connection = (http2_connection_t *)user_data;
 
-    NGHTTP2_DBG("send_callback data len %d, session->remote_window_size=%d!\r\n", (int)length,
+    NGHTTP2_DBG("send_callback data len %ld, session->remote_window_size=%ld!\r\n", length,
                 session->remote_window_size);
     if (session->remote_window_size < length * 2) {
         HAL_SleepMs(50);
@@ -128,7 +128,7 @@ static int on_frame_send_callback(nghttp2_session *session,
     switch (frame->hd.type) {
         case NGHTTP2_HEADERS: {
             const nghttp2_nv *nva = frame->headers.nva;
-            NGHTTP2_DBG("[INFO] C --------> S (HEADERS) stream_id [%d]\n", frame->hd.stream_id);
+            NGHTTP2_DBG("[INFO] C --------> S (HEADERS) stream_id [%ld]\n", frame->hd.stream_id);
             for (i = 0; i < frame->headers.nvlen; ++i) {
                 NGHTTP2_DBG("> %s: %s\n", nva[i].name, nva[i].value);
             }
@@ -139,7 +139,7 @@ static int on_frame_send_callback(nghttp2_session *session,
             NGHTTP2_DBG("[INFO] C ------> S (RST_STREAM)\n");
             break;
         case NGHTTP2_GOAWAY:
-            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %d\n",frame->goaway.error_code);
+            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %lu\n",frame->goaway.error_code);
             break;
     }
 
@@ -176,7 +176,7 @@ static int on_frame_recv_callback(nghttp2_session *session,
                                   void *user_data)
 {
     NGHTTP2_DBG("on_frame_recv_callback, type = %d\n", frame->hd.type);
-    NGHTTP2_DBG("on_frame_recv_callback, stream_id = %d\n", frame->hd.stream_id);
+    NGHTTP2_DBG("on_frame_recv_callback, stream_id = %ld\n", frame->hd.stream_id);
     http2_connection_t *connection  = (http2_connection_t *)user_data;
 
     if (connection == NULL) {
@@ -201,7 +201,7 @@ static int on_frame_recv_callback(nghttp2_session *session,
             break;
         case NGHTTP2_GOAWAY:
             connection->status = 0;
-            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %d\n",frame->goaway.error_code);
+            NGHTTP2_DBG("[INFO] C <--------- S (GOAWAY) code = %lu\n",frame->goaway.error_code);
             break;
         case NGHTTP2_DATA:
             if (frame->hd.flags & NGHTTP2_FLAG_END_STREAM) {
@@ -289,7 +289,7 @@ static int on_data_chunk_recv_callback(nghttp2_session *session,
     if (req) {
         NGHTTP2_DBG("stream user data is not exist\n");
     }
-    NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk) stream_id [%d] :: %lu bytes\n", stream_id, (unsigned long int)len);
+    NGHTTP2_DBG("[INFO] C <----------- S (DATA chunk) stream_id [%ld] :: %lu bytes\n", stream_id, (unsigned long int)len);
 
     if (connection->cbs && connection->cbs->on_user_chunk_recv_cb) {
         connection->cbs->on_user_chunk_recv_cb(stream_id, data, len, flags);
