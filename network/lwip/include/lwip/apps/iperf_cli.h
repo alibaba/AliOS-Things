@@ -14,7 +14,7 @@ extern "C" {
   * @param  none.
   * @retval kNoErr is returned on success, otherwise, kXXXErr is returned.
   */
-OSStatus iperf_cli_register( void );
+int iperf_cli_register( void );
 
 #ifdef __cplusplus
 } /*extern "C" */
