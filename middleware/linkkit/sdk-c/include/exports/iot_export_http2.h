@@ -5,6 +5,9 @@
 #ifndef IOT_EXPORT_HTTP2_H
 #define IOT_EXPORT_HTTP2_H
 
+#include <stddef.h>
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -338,12 +338,15 @@ static void *http2_io(void *user_data)
     iotx_time_t timer;
     iotx_time_init(&timer);
     while (handle->init_state) {
-        if (handle->connect_state) {
-            HAL_MutexLock(handle->mutex);
-            rv = iotx_http2_exec_io(handle->http2_connect);
-            HAL_MutexUnlock(handle->mutex);
+        if (handle->http2_connect == NULL) {
+            break;
         }
-        if (utils_time_is_expired(&timer) && handle->connect_state) {
+        HAL_MutexLock(handle->mutex);
+        rv = iotx_http2_exec_io(handle->http2_connect);
+        HAL_MutexUnlock(handle->mutex);
+    
+
+        if (utils_time_is_expired(&timer)) {
             HAL_MutexLock(handle->mutex);
             rv = iotx_http2_client_send_ping(handle->http2_connect);
             HAL_MutexUnlock(handle->mutex);
@@ -360,6 +363,7 @@ static void *http2_io(void *user_data)
                     }
                 }
                 rv = reconnect(handle);
+                HAL_SleepMs(100);
                 continue;
             } else {
                 handle->retry_cnt++;
@@ -372,6 +376,16 @@ static void *http2_io(void *user_data)
                     handle->cbs->on_reconnect_cb();
                 }
             }
+        }
+
+        if(handle->http2_connect->status == 0) {
+            if (handle->connect_state != 0) {
+                handle->connect_state = 0;
+                if (handle->cbs && handle->cbs->on_disconnect_cb) {
+                    handle->cbs->on_disconnect_cb();
+                }
+            }
+            reconnect(handle);
         }
         HAL_SleepMs(100);
     }
@@ -515,6 +529,7 @@ void *IOT_HTTP2_Connect(device_conn_info_t *conn_info, http2_stream_cb_t *user_c
     ret = HAL_ThreadCreate(&stream_handle->rw_thread, http2_io, stream_handle, &thread_parms, NULL);
     if (ret != 0) {
         h2stream_err("thread create error\n");
+        HAL_SemaphorePost(stream_handle->semaphore);
         IOT_HTTP2_Disconnect(stream_handle);
         return NULL;
     }
@@ -657,7 +672,7 @@ int IOT_HTTP2_Stream_Send_Message(void *hd, const char *identify,char *channel_i
         windows_size = iotx_http2_get_available_window_size(handle->http2_connect);
     }
 
-    HAL_Snprintf(data_len_str, sizeof(data_len_str), "%d", data_len);
+    HAL_Snprintf(data_len_str, sizeof(data_len_str), "%lu", data_len);
     HAL_Snprintf(path, sizeof(path), "/stream/send/%s", identify);
     HAL_Snprintf(version, sizeof(version), "%d", get_version_int());
 
@@ -734,7 +749,7 @@ int IOT_HTTP2_Stream_Send(void *hd, stream_data_info_t *info, header_ext_info_t 
         windows_size = iotx_http2_get_available_window_size(handle->http2_connect);
     }
 
-    HAL_Snprintf(data_len_str, sizeof(data_len_str), "%d", info->stream_len);
+    HAL_Snprintf(data_len_str, sizeof(data_len_str), "%lu", info->stream_len);
     HAL_Snprintf(path, sizeof(path), "/stream/send/%s", info->identify);
     if (info->send_len == 0) { /* first send,need header */
         int header_count, header_num;
@@ -1142,7 +1157,7 @@ static void *http_upload_one(void *user)
             h2stream_err("send err %d\n", ret);
             break;
         }
-        h2stream_debug("send len =%d\n", info.send_len);
+        h2stream_debug("send len =%lu\n", info.send_len);
     }
 
     if (user_data->cb) {
