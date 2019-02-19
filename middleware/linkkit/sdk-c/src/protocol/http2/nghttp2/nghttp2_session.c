@@ -3593,7 +3593,7 @@ static int inflate_header_block(nghttp2_session *session, nghttp2_frame *frame,
             rv2 = session_call_error_callback(
                 session, NGHTTP2_ERR_HTTP_HEADER,
                 "Ignoring received invalid HTTP header field: frame type: "
-                "%u, stream: %d, name: [%.*s], value: [%.*s]",
+                "%u, stream: %ld, name: [%.*s], value: [%.*s]",
                 frame->hd.type, frame->hd.stream_id, (int)nv.name->len,
                 nv.name->base, (int)nv.value->len, nv.value->base);
 
@@ -3611,7 +3611,7 @@ static int inflate_header_block(nghttp2_session *session, nghttp2_frame *frame,
           rv = session_call_error_callback(
               session, NGHTTP2_ERR_HTTP_HEADER,
               "Invalid HTTP header field was received: frame type: "
-              "%u, stream: %d, name: [%.*s], value: [%.*s]",
+              "%u, stream: %ld, name: [%.*s], value: [%.*s]",
               frame->hd.type, frame->hd.stream_id, (int)nv.name->len,
               nv.name->base, (int)nv.value->len, nv.value->base);
 
