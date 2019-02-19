@@ -25,7 +25,7 @@ config DEBUG_CONFIG_BACKTRACE
             default 0
 
 config DEBUG_CONFIG_CPU_USAGE_PERIOD
-    int "DEBUG_CONFIG_CPU_USAGE_PERIOD"
+    int "The interval(ms) for CPU usage"
         default 0
         help
             set the interval(ms) for counting cpu usage,
