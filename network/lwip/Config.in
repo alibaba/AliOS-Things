@@ -77,7 +77,7 @@ if 0
 endif
      config TFTP_ENABLED
         bool "TFTP"
-        default y
+        default n
         help
           Support TFTP module
 
@@ -97,7 +97,7 @@ endif
 
      config TELNETD_ENABLED
         bool "TELNETD"
-        default y
+        default n
         help
           Support TELNETD module
 
@@ -106,7 +106,7 @@ endif
 
      config DHCPD_ENABLED
         bool "DHCPD"
-        default y
+        default n
         help
           Support SNMP module
 
