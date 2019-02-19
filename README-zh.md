@@ -24,9 +24,10 @@ AliOS Things 支持多种CPU架构，包括：ARM，C-Sky，MIPS，rl78，rx600�
 所有的模块都作为组件的形式存在，每一个组件都有自己的`.mk`文件，用来描述与其他组件的描述关系，应用程序可以很方便的通过这种形式选择需要的组件。
 
 
-# 文档
+## 文档
 
-AliOS Things文档主要在 [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki).
+AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
+AliOS Things 文档: [开发者社区文档中心](https://dev.iot.aliyun.com/doc) | 基础产品 AliOS Things 专栏
 
 ### 贡献代码
 
@@ -36,18 +37,20 @@ AliOS Things文档主要在 [Github Wiki](https://github.com/alibaba/AliOS-Thing
 
 使用ubuntu系统，参考 [Quick Start](https://github.com/alibaba/AliOS-Things/wiki/Quick-Start) 可以快速上手AliOS Things
 
-### IDE快速上手
+### IDE 快速上手
 
 AliOS Things使用 [vscode](https://code.visualstudio.com/) 作为IDE，支持Windows/MAC/Linux。
-具体使用步骤请参考：[AliOS Things Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
+具体使用步骤请参考：[AliOS Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
 
-# 社区
+### 物联网平台
+
+AliOS Things 能帮助你更加快速地接入[阿里云物联网平台](https://iot.console.aliyun.com/quick_start)。
+
+## 社区
 
 * [技术交流群(钉钉)](https://img.alicdn.com/tfs/TB1X2HOhYPpK1RjSZFFXXa5PpXa-970-1280.png)
-* [技术交流群(微信)](https://img.alicdn.com/tfs/TB1L3zOhYPpK1RjSZFFXXa5PpXa-560-790.jpg)
-* [云栖社区](https://yq.aliyun.com/teams/184)
-* [开发者论坛](https://bbs.aliyun.com/thread/410.html)
+* [阿里云IoT开发者社区](https://dev.iot.aliyun.com/)
 
-# License
+## License
 
   AliOS Things 开源源码遵循 [Apache 2.0 license](LICENSE) 开源协议。
