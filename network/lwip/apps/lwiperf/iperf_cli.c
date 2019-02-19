@@ -1,9 +1,10 @@
-
-#include "mico.h"
-//#include "platform_assert.h"
-#include "iperf_debug.h"
-#include "iperf_task.h"
-
+#include "lwip/debug.h"
+#include "lwip/err.h"
+#include "lwip/apps/iperf_debug.h"
+#include "lwip/apps/iperf_task.h"
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
 /******************************************************
  *                      Macros
  ******************************************************/
@@ -11,7 +12,7 @@
 /******************************************************
  *                    Constants
  ******************************************************/
-
+static aos_task_t   aos_iperf_task;
 
 /******************************************************
  *                   Enumerations
@@ -33,10 +34,10 @@ struct cli_command iperf_test_message_cmd[] = {
 /******************************************************
  *               Function Declarations
  ******************************************************/
-static void iperf_udp_run_server_thread( mico_thread_arg_t arg );
-static void iperf_tcp_run_server_thread( mico_thread_arg_t arg );
-static void iperf_udp_run_client_thread( mico_thread_arg_t arg );
-static void iperf_tcp_run_client_thread( mico_thread_arg_t arg );
+static void iperf_udp_run_server_thread( void* arg );
+static void iperf_tcp_run_server_thread( void* arg );
+static void iperf_udp_run_client_thread( void* arg );
+static void iperf_tcp_run_client_thread( void* arg );
 
 static void _cli_iperf_server_Command( int argc, char **argv );
 static void _cli_iperf_client_Command( int argc, char **argv );
@@ -50,22 +51,22 @@ static void _cli_iperf_help_Command( int argc, char **argv );
  *               Function Definitions
  ******************************************************/
 
-static void iperf_udp_run_server_thread( mico_thread_arg_t arg )
+static void iperf_udp_run_server_thread( void* arg )
 {
     iperf_udp_run_server( (char **) arg );
 }
 
-static void iperf_tcp_run_server_thread( mico_thread_arg_t arg )
+static void iperf_tcp_run_server_thread( void* arg )
 {
     iperf_tcp_run_server( (char **) arg );
 }
 
-static void iperf_udp_run_client_thread( mico_thread_arg_t arg )
+static void iperf_udp_run_client_thread( void* arg )
 {
     iperf_udp_run_client( (char **) arg );
 }
 
-static void iperf_tcp_run_client_thread( mico_thread_arg_t arg )
+static void iperf_tcp_run_client_thread( void* arg )
 {
     iperf_tcp_run_client( (char **) arg );
 }
@@ -97,8 +98,7 @@ static void _cli_iperf_server_Command( int argc, char **argv )
         {
             LOGD(TAG, "Iperf UDP Server: Start!\r\n" );
             LOGD(TAG, "Iperf UDP Server Receive Timeout = 20 (secs)\r\n" );
-            mico_rtos_create_thread( NULL, IPERF_PRIO, IPERF_NAME, iperf_udp_run_server_thread, IPERF_STACKSIZE,
-                                     (mico_thread_arg_t) g_iperf_param );
+            aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_udp_run_server_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
             is_create_task = 1;
             break;
         }
@@ -107,8 +107,7 @@ static void _cli_iperf_server_Command( int argc, char **argv )
     {
         LOGD(TAG, "Iperf TCP Server: Start!\r\n" );
         LOGD(TAG, "Iperf TCP Server Receive Timeout = 20 (secs)\r\n" );
-        mico_rtos_create_thread( NULL, IPERF_PRIO, IPERF_NAME, iperf_tcp_run_server_thread, IPERF_STACKSIZE,
-                                 (mico_thread_arg_t) g_iperf_param );
+        aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_tcp_run_server_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
         is_create_task = 1;
     }
 
@@ -144,8 +143,7 @@ static void _cli_iperf_client_Command( int argc, char **argv )
         if ( strcmp( argv[i], "-u" ) == 0 )
         {
             LOGD(TAG, "Iperf UDP Client: Start!\r\n" );
-            mico_rtos_create_thread( NULL, IPERF_PRIO, IPERF_NAME, iperf_udp_run_client_thread, IPERF_STACKSIZE,
-                                     (mico_thread_arg_t) g_iperf_param );
+            aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_udp_run_client_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
             is_create_task = 1;
             break;
         }
@@ -154,8 +152,7 @@ static void _cli_iperf_client_Command( int argc, char **argv )
     if ( strcmp( argv[i], "-u" ) != 0 )
     {
         LOGD(TAG, "Iperf TCP Client: Start!\r\n" );
-        mico_rtos_create_thread( NULL, IPERF_PRIO, IPERF_NAME, iperf_tcp_run_client_thread, IPERF_STACKSIZE,
-                                 (mico_thread_arg_t) g_iperf_param );
+        aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_tcp_run_client_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
         is_create_task = 1;
     }
 
@@ -243,11 +240,11 @@ void iperf_Command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 }
 
 
-OSStatus iperf_cli_register( void )
+int iperf_cli_register( void )
 {
     if( 0 == cli_register_commands( iperf_test_message_cmd, 1 ) )
-        return kNoErr;
+        return ERR_OK;
     else
-        return kGeneralErr;
+        return ERR_VAL;
 }
 
