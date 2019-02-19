@@ -24,11 +24,10 @@ From an architectural point of view, AliOS Things adapts Layered Architecture an
 
 All modules have been organized as Components, and each component has its own .mk file to describe its dependency with other Components, which enables applications to choose components needed easily.
 
+## Documentation
 
-
-# Documentation
-
-AliOS Things' documentation are mainly hosted at [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki).
+AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki).
+AliOS Things documentation: [Alibaba Cloud IoT Documentation](https://dev.iot.aliyun.com/doc) | AliOS Things
 
 ### How to contribute
 
@@ -40,15 +39,17 @@ Please refer to [Quick Start](https://github.com/alibaba/AliOS-Things/wiki/Quick
 
 ### Quick Start by IDE(supporting Windows/MAC/Linux)
 
-Please refer to [AliOS Things Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
+Please refer to [AliOS Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
 
-# Community
+### IoT Platform
 
-  * [Technical Blog | 云栖社区](https://yq.aliyun.com/teams/184)
-  * [Technical Forum | 开发者论坛](https://bbs.aliyun.com/thread/410.html)
-  * [技术交流群(微信)](http://o7spigzvd.bkt.clouddn.com/qr_wechat_100+.jpeg) - 人数过多，请联系管理员手动拉入
-  * [技术交流群(钉钉)](http://o7spigzvd.bkt.clouddn.com/qr_dingtalk_github.png)
+AliOS Things can help you connect your devices to [Alibaba Cloud IoT platform](https://iot.console.aliyun.com/quick_start) more quickly.
 
-# License
+## Community
+
+* [DingTalk Group](https://img.alicdn.com/tfs/TB1X2HOhYPpK1RjSZFFXXa5PpXa-970-1280.png)
+* [Alibaba Cloud IoT Community](https://dev.iot.aliyun.com/)
+
+## License
 
   AliOS Things is released under the [Apache 2.0 license](LICENSE)
