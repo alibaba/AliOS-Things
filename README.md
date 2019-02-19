@@ -1,4 +1,4 @@
-# <img src="https://img.alicdn.com/tfs/TB1e1U7vyAnBKNjSZFvXXaTKXXa-973-200.png" height="60">
+<img src="https://img.alicdn.com/tfs/TB1e1U7vyAnBKNjSZFvXXaTKXXa-973-200.png" height="60">
 
 [![Join the chat at https://gitter.im/aliosthings/Lobby](https://img.shields.io/gitter/room/aliosthings/Lobby.svg?style=flat-square)](https://gitter.im/aliosthings/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -8,9 +8,9 @@ AliOS Things is Alibaba's IoT version of AliOS Family, it was announced in [The 
 
 ## Architecture Overview
 
-AliOS Things supports multiple architectures, including ARM, C-Sky, MIPS, rl78, rx600 and xtensa, AliOS Things also supports a large number of [boards](./board/README.md).
+AliOS Things supports multiple architectures, including ARM, C-Sky, MIPS, rl78, rx600 and xtensa, AliOS Things also supports a large number of [boards](./board).
 
-From an architectural point of view, AliOS Things adapts Layered Architecture and Component Architecture. From bottom to top, AliOS Things includes:
+AliOS Things adapts Layered Architecture and Component Architecture. includes:
 
 - BSP: Board Support Package mainly developed and maintained by SoC Vendor
 - HAL: Hardware Abstraction Layer, like WiFi, UART
@@ -19,15 +19,14 @@ From an architectural point of view, AliOS Things adapts Layered Architecture an
 - Security: TLS, TFS(Trusted Framework Service), TEE(Trusted Exexcution Environment)
 - AOS API: AliOS Things exposed APIs for Application and Middleware
 - Middleware: Alibaba's value-added and commonly seen IoT components included
-- Examples: hands-on sample codes, and well tested applications such as [linkkitapp](./app/example/linkkitapp)
+- Examples: hands-on sample codes
 
 All modules have been organized as Components, and each component has its own .mk file to describe its dependency with other Components, which enables applications to choose components needed easily.
 
+## Documentation
 
-
-# Documentation
-
-AliOS Things' documentation are mainly hosted at [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki).
+- AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
+- AliOS Things documentation: [Alibaba Cloud IoT Documentation](https://dev.iot.aliyun.com/doc) | AliOS Things
 
 ### How to contribute
 
@@ -37,17 +36,20 @@ Please refer to [Contributing Guideline](https://github.com/alibaba/AliOS-Things
 
 Please refer to [Quick Start](https://github.com/alibaba/AliOS-Things/wiki/Quick-Start).
 
-### Quick Start by IDE(supporting Windows/MAC/Linux)
+### Quick Start by AliOS Studio
 
-Please refer to [AliOS Things Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
+AliOS Things uses [vscode](https://code.visualstudio.com/) as IDE, supporting Windows/MAC/Linux.
+Please refer to [AliOS Studio](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-Studio).
 
-# Community
+### IoT Platform
+
+AliOS Things can help you connect your devices to [Alibaba Cloud IoT platform](https://iot.console.aliyun.com/quick_start) more quickly.
+
+## Community
 
 * [DingTalk Group](https://img.alicdn.com/tfs/TB1X2HOhYPpK1RjSZFFXXa5PpXa-970-1280.png)
-* [WeChat Group](https://img.alicdn.com/tfs/TB1L3zOhYPpK1RjSZFFXXa5PpXa-560-790.jpg)
-* [Technical Blog](https://yq.aliyun.com/teams/184)
-* [Technical Forum](https://bbs.aliyun.com/thread/410.html)
+* [Alibaba Cloud IoT Community](https://dev.iot.aliyun.com/)
 
-# License
+## License
 
   AliOS Things is released under the [Apache 2.0 license](LICENSE)
