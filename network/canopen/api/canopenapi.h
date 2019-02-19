@@ -4,7 +4,22 @@
 
 #ifdef AOS_CANOPEN
 #include "canfestival.h"
+#include "aos/errno.h"
 #include "board.h"
+
+#define MAX_NODE_ID  127
+#define MAX_INDEX    0xFFFF
+#define MAX_SUBINDEX 0xFF
+#define CO_BAUD_125K 125000
+#define CO_BAUD_250K 250000
+#define CO_BAUD_500K 500000
+#define CO_BAUD_1M   1000000
+
+typedef enum canopen_status {
+    CO_SUCCESS = 0u,
+    CO_ODENTRY_REGISTER_ERROR,
+    CO_DRIVER_INIT_FAILED,
+} co_status_t;
 
 typedef uint32_t (*co_objectdict_cb)(CO_Data*, const indextable *, uint8_t);
 
@@ -53,9 +68,9 @@ typedef struct co_register_function_callback
     co_storeODSubIndex_t  store_OD_SubIndex;
 }co_register_function_callback_t;
 
-void canopen_init(PORT_CAN_TYPE can_port, PORT_TIMER_TYPE timer_port, uint32_t baud, CO_Data* d);
-void canopen_od_init(CO_Data* d, co_register_function_callback_t fun_callback);
-uint32_t canopen_od_handler(CO_Data* d, uint16_t index, uint8_t sub_index, co_objectdict_cb od_callback);
-void init_nodes(CO_Data* d, uint32_t id);
+int canopen_init(PORT_CAN_TYPE can_port, PORT_TIMER_TYPE timer_port, uint32_t baud, CO_Data* d);
+int canopen_od_init(CO_Data* d, co_register_function_callback_t* fun_callback);
+int canopen_od_handler(CO_Data* d, uint16_t index, uint8_t sub_index, co_objectdict_cb* od_callback);
+int init_nodes(CO_Data* d, uint8_t id);
 
 #endif    /* AOS_CANOPEN */
