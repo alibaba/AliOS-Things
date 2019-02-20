@@ -1,4 +1,4 @@
-menu "Security Configuration"
+menu "Security    Configuration"
 
 ## --- Generated Automatically ---
 source "security/ls_osa/Config.in"
