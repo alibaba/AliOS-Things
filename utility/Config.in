@@ -1,4 +1,4 @@
-menu "Utility Configuration"
+menu "Utility     Configuration"
 
 source "utility/activation/Config.in"
 source "utility/activation/chip_code/Config.in"
