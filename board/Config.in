@@ -1,4 +1,4 @@
-menu "BSP Configuration"
+menu "BSP         Configuration"
 choice
     prompt "Board Selection"
 
