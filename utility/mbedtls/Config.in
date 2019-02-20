@@ -4,8 +4,7 @@ menuconfig AOS_COMP_MBEDTLS
     help
         The mbedtls provides cryptographic algorithms
         (AES, RSA, MD5/SHA1/SHA256/SHA512 etc.), X.509 certificate and
-        TLS/DTLS protocol support.
-        It's ported from open source mbedtls, for details, please refer to
+        TLS/DTLS protocol support. For details, please refer to
         https://tls.mbed.org/.
 
 if AOS_COMP_MBEDTLS
@@ -26,6 +25,7 @@ config MBEDTLS_CONFIG_USER_FILE
     help
         User custom configuration file to add or override our default
         configurations.
+        You may place the file into utility/mbedtls/aos/include/.
 
 menuconfig MBEDTLS_CONFIG_CRYPTO
     bool "Cryptographic algorithms support"
