@@ -1,4 +1,4 @@
-menu "Test Configuration"
+menu "Test        Configuration"
 
 if AOS_APP_NULL
 source "test/develop/Config.in"
