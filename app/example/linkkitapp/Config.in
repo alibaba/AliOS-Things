@@ -8,34 +8,50 @@ config AOS_APP_LINKKITAPP
     select APP_FEATURE_LINKKIT
     select AOS_COMP_CJSON
     select AOS_COMP_LWIP if LWIP = 1
-    select AOS_COMP_BREEZE if LINKKITAPP_CONFIG_COMBOAPP = 1
-    select AOS_COMP_BREEZE_HAL if LINKKITAPP_CONFIG_COMBOAPP = 1
+    select AOS_COMP_BREEZE if LINKKITAPP_CONFIG_COMBOAPP
+    select AOS_COMP_BREEZE_HAL if LINKKITAPP_CONFIG_COMBOAPP
     help
         linkkitapp
 
 if AOS_APP_LINKKITAPP
 # Configurations for app linkkitapp
 config LINKKITAPP_CONFIG_COMBOAPP
-    int "enable combo"
-    range 0 1
-    default 0
+    bool "enable combo"
+    default n
     help
 
-config LINKKITAPP_CONFIG_CASE
-    string "case, sched or cntdown or left blank(default)"
-    default ""
+choice
+    prompt "Select Case"
     help
+        select case to build
+
+    config LINKKITAPP_CONFIG_CASE_SOLO
+        bool "SOLO"
+        default y
+        help
+            "default case, build linkkit_example_solo.c or deprecated/solo.c(when enable deprecated)"
+
+    config LINKKITAPP_CONFIG_CASE_SCHED
+        bool "sched"
+        default n
+        help
+            "default case, build linkkit_example_sched.c or deprecated/sched.c(when enable deprecated)"
+
+    config LINKKITAPP_CONFIG_CASE_CNTDOWN
+        bool "cntdown"
+        default n
+        help
+            "default case, build linkkit_example_cntdown.c or deprecated/cntdown.c(when enable deprecated)"
+endchoice
 
 config LINKKITAPP_CONFIG_DEPRECATED
-    int "use deprecated api"
-    range 0 1
-    default 0
+    bool "use deprecated api"
+    default n
     help
 
 config LINKKITAPP_CONFIG_PRINT_HEAP
-    int "show free heap duration"
-    range 0 1
-    default 0
+    bool "show free heap duration"
+    default n
     help
 
 endif
