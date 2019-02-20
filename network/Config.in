@@ -1,4 +1,4 @@
-menu "Network Configuration"
+menu "Network     Configuration"
 config AOS_COMP_NETWORK
     bool "Enable Network"
     default y
