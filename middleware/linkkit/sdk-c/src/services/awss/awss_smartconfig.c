@@ -1000,7 +1000,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
         }
 
         if (timestamp - zc_timestamp > time_interval) {
-            awss_debug("\t\ttimestamp = %d\n", timestamp - zc_timestamp);
+            awss_debug("\t\ttimestamp = %lu\n", timestamp - zc_timestamp);
             timeout = 1;
         }
 

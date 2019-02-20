@@ -166,7 +166,7 @@ void awss_online_switchap(void *pcontext, void *pclient, void *msg)
         goto ONLINE_SWITCHAP_FAIL;
     }
 
-    awss_debug("online switchap len:%u, payload:%s\r\n", payload_len, payload);
+    awss_debug("online switchap len:%lu, payload:%s\r\n", payload_len, payload);
     packet = awss_zalloc(packet_len + 1);
     if (packet == NULL) {
         goto ONLINE_SWITCHAP_FAIL;
@@ -380,7 +380,7 @@ static int awss_report_token_to_cloud()
 
         awss_report_token_time = os_get_time_ms();
 
-        HAL_Snprintf(id_str, MSG_REQ_ID_LEN - 1, "\"%u\"", awss_report_id ++);
+        HAL_Snprintf(id_str, MSG_REQ_ID_LEN - 1, "\"%lu\"", awss_report_id ++);
         utils_hex_to_str(aes_random, RANDOM_MAX_LEN, token_str, sizeof(token_str) - 1);
         HAL_Snprintf(param, REPORT_TOKEN_PARAM_LEN - 1, "{\"token\":\"%s\"}", token_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id_str, ILOP_VER, METHOD_MATCH_REPORT, param, 0, packet, &packet_len);
