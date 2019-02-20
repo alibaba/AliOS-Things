@@ -36,7 +36,7 @@ extern int  vfs_device_init(void);
 #include "aos/yloop.h"
 extern aos_loop_t aos_loop_init(void);
 #endif
-extern int  aos_kv_init(void);
+extern int32_t kv_init(void);
 extern void ota_service_init(void);
 extern void dumpsys_cli_init(void);
 extern int  application_start(int argc, char **argv);
@@ -275,7 +275,7 @@ int aos_components_init(kinit_t *kinit)
 #endif
 
 #ifdef AOS_COMP_KV
-    aos_kv_init();
+    kv_init();
 #endif
 
 #ifdef WITH_SAL
