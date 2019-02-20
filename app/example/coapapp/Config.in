@@ -13,7 +13,7 @@ if AOS_APP_COAPAPP
 # Configurations for app coapapp
 
 config COAPAPP_CONFIG_LOOP
-    int "test loop"
+    int "Test Loop"
     range 0 1
     default 0
     help

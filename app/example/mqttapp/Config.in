@@ -12,15 +12,36 @@ config AOS_APP_MQTTAPP
 if AOS_APP_MQTTAPP
 # Configurations for app mqttapp
 
-config MQTTAPP_CONFIG_CASE
-    string "case option: rrpc/multithread/presstest/blank(default)"
-    default ""
+choice
+    prompt "Select Case"
+    default MQTTAPP_CONFIG_CASE_DEFAULT
     help
+        select case to build
+
+    config MQTTAPP_CONFIG_CASE_DEFAULT
+        bool "Default"
+        help
+            default case, build mqtt_example.c
+
+    config MQTTAPP_CONFIG_CASE_RRPC
+        bool "Rrpc"
+        help
+            "case rrpc, build mqtt_example_rrpc.c
+
+    config MQTTAPP_CONFIG_CASE_MULTITHREAD
+        bool "Multithread"
+        help
+            case multithread, build mqtt_example_multithread.c
+
+    config MQTTAPP_CONFIG_CASE_PRESSTEST
+        bool "Presstest"
+        help
+            case presstest, build mqtt_presstest.c
+endchoice
 
 config MQTTAPP_CONFIG_TEST_LOOP
-    int "test loop"
-    range 0 1
-    default 1
+    bool "Test Loop"
+    default y
     help
 
 endif

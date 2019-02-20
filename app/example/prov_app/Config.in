@@ -11,7 +11,7 @@ if AOS_APP_PROV_APP
 # Configurations for app prov_app
 
 config PROVAPP_CONFIG_ERASE
-    int "erase"
+    int "Erase"
     range 0 1
     default 0
     help

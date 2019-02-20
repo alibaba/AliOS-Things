@@ -12,11 +12,11 @@ if AOS_APP_ATHOSTAPP
 # Configurations for app athostapp
 
 config ATHOSTAPP_CONFIG_ATPARSER
-    bool "support atparser"
+    bool "Support ATParser"
     default y
 
 config ATHOSTAPP_CONFIG_MQTTREPORT
-    bool "support mqtt report"
+    bool "Support Mqtt Report"
     default y
 
 source "network/nal/athost/Config.in"

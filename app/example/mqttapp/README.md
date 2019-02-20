@@ -44,26 +44,26 @@ The **mqttapp**  shows mqtt related functions.
 1).mqtt_example.c:
 
 ```sh
-    aos make mqttapp@xxxx
+    aos make mqttapp@xxxx MQTTAPP_CONFIG_CASE_DEFAULT=y
 ```
 
 2).mqtt_example_rrpc.c:
 
 ```sh
-    aos make mqttapp@xxxx case=rrpc
+    aos make mqttapp@xxxx MQTTAPP_CONFIG_CASE_RRPC=y
 ```
 
 3).mqtt_example_multithread.c:
 
 ```sh
-    aos make mqttapp@xxxx case=multithread
+    aos make mqttapp@xxxx MQTTAPP_CONFIG_CASE_MULTITHREAD=y
 ```
 
 3).mqtt_presstest.c:
 > refs: https://github.com/AITC-LinkCertification/AITC-Manual/wiki/Manual-Channel-MQTT
 
 ```sh
-    aos make mqttapp@xxxx case=presstest
+    aos make mqttapp@xxxx MQTTAPP_CONFIG_CASE_PRESSTEST=y
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).

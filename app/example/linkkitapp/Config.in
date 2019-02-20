@@ -16,41 +16,39 @@ config AOS_APP_LINKKITAPP
 if AOS_APP_LINKKITAPP
 # Configurations for app linkkitapp
 config LINKKITAPP_CONFIG_COMBOAPP
-    bool "enable combo"
+    bool "Enable Combo"
     default n
     help
 
 choice
     prompt "Select Case"
+    default LINKKITAPP_CONFIG_CASE_SOLO
     help
         select case to build
 
     config LINKKITAPP_CONFIG_CASE_SOLO
         bool "SOLO"
-        default y
         help
-            "default case, build linkkit_example_solo.c or deprecated/solo.c(when enable deprecated)"
+            default case, build linkkit_example_solo.c or deprecated/solo.c(when enable deprecated)
 
     config LINKKITAPP_CONFIG_CASE_SCHED
-        bool "sched"
-        default n
+        bool "Sched"
         help
-            "default case, build linkkit_example_sched.c or deprecated/sched.c(when enable deprecated)"
+            case sched, build linkkit_example_sched.c or deprecated/sched.c(when enable deprecated)
 
     config LINKKITAPP_CONFIG_CASE_CNTDOWN
-        bool "cntdown"
-        default n
+        bool "Cntdown"
         help
-            "default case, build linkkit_example_cntdown.c or deprecated/cntdown.c(when enable deprecated)"
+            case countdown, build linkkit_example_cntdown.c or deprecated/cntdown.c(when enable deprecated)
 endchoice
 
 config LINKKITAPP_CONFIG_DEPRECATED
-    bool "use deprecated api"
+    bool "Use Deprecated API"
     default n
     help
 
 config LINKKITAPP_CONFIG_PRINT_HEAP
-    bool "show free heap duration"
+    bool "Show Free Heap Duration"
     default n
     help
 
