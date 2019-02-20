@@ -14,19 +14,19 @@ if AOS_APP_MESHAPP
 # Configurations for app meshapp
 
 config MESHAUTH
-    int "mesh auth"
+    int "Mesh Auth"
     range 0 1
     default 0
     help
 
 config IPV6
-    int "use ipv6"
+    int "Use IPV6"
     range 0 1
     default 0
     help
 
 config MESHAPP_CONFIG_HAL_TEST
-    int "mesh hal test"
+    int "Mesh Hal Test"
     range 0 1
     default 0
     help

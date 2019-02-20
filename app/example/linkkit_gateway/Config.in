@@ -14,15 +14,13 @@ if AOS_APP_LINKKIT_GATEWAY
 # Configurations for app linkkit_gateway
 
 config LINKKIT_GATEWAY_CONFIG_DEPRECATED
-    int "use deprecated api"
-    range 0 1
-    default 0
+    bool "Use Deprecated API"
+    default n
     help
 
 config LINKKIT_GATEWAY_CONFIG_PRINT_HEAP
-    int "show free heap duration"
-    range 0 1
-    default 0
+    bool "Show Free Heap Duration"
+    default n
     help
 
 endif

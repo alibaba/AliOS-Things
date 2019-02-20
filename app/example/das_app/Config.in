@@ -1,4 +1,4 @@
-menuconfig AOS_APP_DAS_CLIENT
+config AOS_APP_DAS_CLIENT
     bool "das_client"
     select AOS_COMP_DAS
     select AOS_COMP_NETMGR
@@ -12,10 +12,9 @@ menuconfig AOS_APP_DAS_CLIENT
 
 if AOS_APP_DAS_CLIENT
 
-config MQTTAPP_CONFIG_TEST_LOOP
-    int "test loop"
-    range 0 1
-    default 1
+config DAS_CLIENT_CONFIG_TEST_LOOP
+    bool "Test Loop"
+    default y
     help
 
 endif
