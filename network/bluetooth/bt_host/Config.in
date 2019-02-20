@@ -10,5 +10,7 @@ if AOS_COMP_BT_HOST
     config AOS_CONFIG_BT_SMP
         bool "Enable BLE SMP"
         default n
+    help
+        Enable Security Manager Protocal(SMP) module for BLE pairing.
 
 endif
