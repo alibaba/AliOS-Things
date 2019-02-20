@@ -600,7 +600,10 @@ static void handle_netmgr_cmd(char *pwbuf, int blen, int argc, char **argv)
         if (argc != 4) {
             return;
         }
-
+#ifdef WIFI_PROVISION_ENABLED
+        extern int awss_stop(void);
+        awss_stop();
+#endif
         netmgr_ap_config_t config;
 
         strncpy(config.ssid, argv[2], sizeof(config.ssid) - 1);
