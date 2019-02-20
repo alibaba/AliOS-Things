@@ -16,6 +16,7 @@ if AOS_MCU_ESP8266
 # Configurations for mcu esp8266
 
 config OSAL_CONFIG
-    string "osal config"
+    string
+    default rhino
 
 endif
