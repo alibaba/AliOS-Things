@@ -10,7 +10,7 @@
         "helloworld@developerkit"
       ],
       "presentation": {
-        "focus": "true"
+        "focus": true
       }
     },
     {
@@ -22,7 +22,7 @@
         "helloworld@developerkit"
       ],
       "presentation": {
-        "focus": "true"
+        "focus": true
       }
     },
     {
@@ -35,7 +35,8 @@
         ""
       ],
       "presentation": {
-        "focus": "true"
+        "focus": true,
+        "panel": "dedicated"
       }
     },
     {
@@ -47,7 +48,7 @@
         "clean"
       ],
       "presentation": {
-        "focus": "true"
+        "focus": true
       }
     },
     {
