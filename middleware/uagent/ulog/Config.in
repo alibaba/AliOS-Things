@@ -92,13 +92,13 @@ config ULOG_CONFIG_EXTREAM_LOG_TEXT
         only pure message will be loged, syslog format cost about 45 bytes for each log.
 
 if ULOG_CONFIG_EXTREAM_LOG_TEXT=1
-    config EXTREAM_LOG_BOOT_TIME
-    int "record extream log boot time"
+    config ULOG_CONFIG_EXTREAM_LOG_ELAPSED_MS
+    int "record extream log elapsed ms"
     range 0 1
     default 0
     help
-        If this value is SET then boot time will be recored under extream log.
-	Not recommended switch on this function as this cost over 10 bytes if device boot keep more than 1 years.
+        If this value is SET then elapsed time will be recored under extream log, unit is ms.
+	This value will be rolling back between 0~999999, it's not the boot time, but used for relativity time gap.
 
     config ULOG_CONFIG_EXTREAM_LOG_TAG
     int "record extream log tag"
