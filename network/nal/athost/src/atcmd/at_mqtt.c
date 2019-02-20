@@ -612,10 +612,10 @@ static void subscribed_msg_arrive_handle(void *pcontext, void *pclient,
     m_last_recvpub_msg.valid       = true;
 
     LOG("----");
-    LOG("Topic: '%.*s' (Length: %d)", ptopic_info->topic_len,
-        ptopic_info->ptopic, ptopic_info->topic_len);
-    LOG("Payload: '%.*s' (Length: %d)", ptopic_info->payload_len,
-        ptopic_info->payload, ptopic_info->payload_len);
+    LOG("Topic: '%.*s' (Length: %d)", (int)ptopic_info->topic_len,
+        ptopic_info->ptopic, (int)ptopic_info->topic_len);
+    LOG("Payload: '%.*s' (Length: %d)", (int)ptopic_info->payload_len,
+        ptopic_info->payload, (int)ptopic_info->payload_len);
     LOG("----");
 
     // notfiy
