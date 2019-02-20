@@ -19,33 +19,6 @@ config AOS_BUILD_APP
     help
       This option holds the name of the application that is going to build.
 
-#config MBINS
-#    string
-#    option env="MBINS"
-
-## --- Generated Automatically ---
-source "board/Config.in"
-
-source "drivers/Config.in"
-
-menu "Kernel Configuration"
-source "kernel/Config.in"
-source "osal/aos/Config.in"
-source "osal/posix/Config.in"
-source "osal/cmsis/Config.in"
-endmenu
-
-menu "Middleware Configuration"
-source "middleware/linkkit/Config.in"
-source "middleware/uagent/Config.in"
-source "middleware/udata/Config.in"
-source "middleware/tinyengine/Config.in"
-endmenu
-
-source "network/Config.in"
-
-source "security/Config.in"
-
 menu "Application Configuration"
 choice
     prompt "Select App"
@@ -59,8 +32,25 @@ source "app/profile/Config.in"
 endchoice
 endmenu
 
+source "board/Config.in"
+
+menu "Kernel      Configuration"
+source "kernel/Config.in"
+source "osal/aos/Config.in"
+source "osal/posix/Config.in"
+source "osal/cmsis/Config.in"
+endmenu
+
+source "drivers/Config.in"
+source "network/Config.in"
+
+menu "Middleware  Configuration"
+source "middleware/linkkit/Config.in"
+source "middleware/uagent/Config.in"
+source "middleware/udata/Config.in"
+source "middleware/tinyengine/Config.in"
+endmenu
+
+source "security/Config.in"
 source "utility/Config.in"
-
 source "test/Config.in"
-
-## --- End ---
