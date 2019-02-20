@@ -21,6 +21,16 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
 define NO_CONFIG_ERROR
+$(info Please configure AliOS-Things first:)
+$(info *********************************************************************)
+$(info $$ aos make app@board -c config)
+$(info Or)
+$(info $$ aos make menuconfig)
+$(info *********************************************************************)
+$(error No Config Found!)
+endef
+
+define TARGET_OBSOLATE_ERROR
 $(error Build Target Obsolate!)
 endef
 
@@ -79,15 +89,16 @@ ifeq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
 $(info )
 $(info The command "aos make $(BUILD_STRING)" is obselate!)
 $(info *********************************************************************)
-$(info Please config project first:)
+$(info Step 1: config:)
 $(info $$ aos make $(BUILD_STRING) -c config)
-$(info And run build with:)
+$(info --- more configs can use: $$ aos make menuconfig)
+$(info Step 2: build:)
 $(info $$ aos make [VAR=value])
 $(info )
-$(info Or run config & build with:)
+$(info Or run config & build in oneline:)
 $(info $$ aos make $(BUILD_STRING) -c config && aos make [VAR=value])
 $(info *********************************************************************)
-$(call NO_CONFIG_ERROR)
+$(call TARGET_OBSOLATE_ERROR)
 endif
 endif
 
@@ -100,7 +111,7 @@ $(info *********************************************************************)
 $(info Please run build with:)
 $(info $$ aos make [VAR=value])
 $(info *********************************************************************)
-$(call NO_CONFIG_ERROR)
+$(call TARGET_OBSOLATE_ERROR)
 endif
 endif
 endif
@@ -384,7 +395,7 @@ main_app: prebuild $(OUTPUT_DIR)/config.mk $(YOS_SDK_PRE_APP_BUILDS) $(MAKEFILES
 	$(QUIET)$(ECHO) Build AOS Now
 	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
 	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
-	$(QUIET)$(ECHO) Build complete
+	$(QUIET)$(ECHO) Build complete: $(BUILD_STRING)
 
 ifeq (yes,$(AOS_SDK_2BOOT_SUPPORT))
 $(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MK) $(AOS_SDK_2BOOT_MAKEFILES) $(AUTO_COMPONENT)
@@ -399,7 +410,7 @@ $(OUTPUT_DIR)/config_2boot.mk: $(MAKEFILES_PATH)/aos_target_config_2boot.mk $(MA
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config_2boot.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build_2boot.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS)
-	$(QUIET)$(ECHO) Build 2nd boot complete
+	$(QUIET)$(ECHO) Build 2nd boot complete: $(BUILD_STRING)
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
 else
 2boot:
