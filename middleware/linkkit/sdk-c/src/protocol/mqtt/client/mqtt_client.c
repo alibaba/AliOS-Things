@@ -632,9 +632,23 @@ static int MQTTSubscribe(iotx_mc_client_t *c, const char *topicFilter, iotx_mqtt
 
 #if (WITH_MQTT_SUB_LOCAL)
     if (qos == IOTX_MQTT_QOS3_SUB_LOCAL) {
+        uint8_t dup = 0;
+        iotx_mc_topic_handle_t *h;
         HAL_MutexLock(c->lock_generic);
-        handler->next = c->first_sub_handle;
-        c->first_sub_handle = handler;
+        for (h = c->first_sub_handle; h; h = h->next) {
+            /* If subscribe the same topic and callback function, then ignore */
+            if (0 == iotx_mc_check_handle_is_identical(h, handler)) {
+                mqtt_warning("dup sub,topic = %s", topicFilter);
+                dup = 1;
+            }
+        }
+        if (dup == 0) {
+            handler->next = c->first_sub_handle;
+            c->first_sub_handle = handler;
+        }else {
+            mqtt_free(handler->topic_filter);
+            mqtt_free(handler);
+        }
         HAL_MutexUnlock(c->lock_generic);
         return SUCCESS_RETURN;
     }
