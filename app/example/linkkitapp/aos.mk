@@ -11,36 +11,46 @@ $(NAME)_COMPONENTS += netmgr cjson
 
 $(NAME)_COMPONENTS += ota
 
-LINKKITAPP_CONFIG_DEPRECATED ?= 0
-LINKKITAPP_CONFIG_PRINT_HEAP ?= 0
-LINKKITAPP_CONFIG_CASE ?=
-LINKKITAPP_CONFIG_COMBOAPP ?= 0
+LINKKITAPP_CONFIG_DEPRECATED ?= n
+LINKKITAPP_CONFIG_PRINT_HEAP ?= n
+LINKKITAPP_CONFIG_COMBOAPP ?= n
 
-deprecated ?= $(LINKKITAPP_CONFIG_DEPRECATED)
-print_heap ?= $(LINKKITAPP_CONFIG_PRINT_HEAP)
-case ?= $(LINKKITAPP_CONFIG_CASE)
-en_comboapp ?= $(LINKKITAPP_CONFIG_COMBOAPP)
+# set default case to solo
+ifneq ($(LINKKITAPP_CONFIG_CASE_SOLO),y)
+ifneq ($(LINKKITAPP_CONFIG_CASE_CNTDOWN),y)
+ifneq ($(LINKKITAPP_CONFIG_CASE_SCHED),y)
+LINKKITAPP_CONFIG_CASE_SOLO := y
+endif
+endif
+endif
 
-ifeq ($(case),sched)
-ifeq ($(deprecated),1)
-$(NAME)_SOURCES += deprecated/sched.c
+# case solo
+ifeq ($(LINKKITAPP_CONFIG_CASE_SOLO),y)
+ifeq ($(LINKKITAPP_CONFIG_DEPRECATED),y)
+$(NAME)_SOURCES += deprecated/solo.c
 GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else
-$(NAME)_SOURCES += linkkit_example_sched.c
+$(NAME)_SOURCES += linkkit_example_solo.c
 endif
-else ifeq ($(case),cntdown)
-ifeq ($(deprecated),1)
+endif
+
+#case cntdown
+ifeq ($(LINKKITAPP_CONFIG_CASE_CNTDOWN),y)
+ifeq ($(LINKKITAPP_CONFIG_DEPRECATED),y)
 $(NAME)_SOURCES += deprecated/cntdown.c
 GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else
 $(NAME)_SOURCES += linkkit_example_cntdown.c
 endif
-else
-ifeq ($(deprecated),1)
-$(NAME)_SOURCES += deprecated/solo.c
+endif
+
+#case sched
+ifeq ($(LINKKITAPP_CONFIG_CASE_SCHED),y)
+ifeq ($(LINKKITAPP_CONFIG_DEPRECATED),y)
+$(NAME)_SOURCES += deprecated/sched.c
 GLOBAL_DEFINES += DEPRECATED_LINKKIT
 else
-$(NAME)_SOURCES += linkkit_example_solo.c
+$(NAME)_SOURCES += linkkit_example_sched.c
 endif
 endif
 
@@ -49,7 +59,7 @@ $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
-ifeq ($(print_heap),1)
+ifeq ($(LINKKITAPP_CONFIG_PRINT_HEAP),y)
 $(NAME)_DEFINES += CONFIG_PRINT_HEAP
 endif
 
@@ -59,8 +69,7 @@ else
 GLOBAL_DEFINES += ESP8266_CHIPSET
 endif
 
-en_comboapp := 0
-ifeq ($(en_comboapp), 1)
+ifeq ($(LINKKITAPP_CONFIG_COMBOAPP),y)
 $(NAME)_COMPONENTS += breeze breeze_hal
 $(NAME)_SOURCES += combo/combo_net.c
 GLOBAL_DEFINES += EN_COMBO_NET
