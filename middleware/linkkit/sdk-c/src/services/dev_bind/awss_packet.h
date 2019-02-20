@@ -53,7 +53,7 @@
 #define AWSS_JSON_PARAM                      "params"
 #define AWSS_JSON_CODE                       "code"
 #define AWSS_JSON_ID                         "id"
-#define AWSS_STATIS_FMT                      "{\"template\":\"timestamp logLevel module traceContext logContent\",\"contents\":[\"%u %s %s %u %s\"]}"
+#define AWSS_STATIS_FMT                      "{\"template\":\"timestamp logLevel module traceContext logContent\",\"contents\":[\"%lu %s %s %lu %s\"]}"
 
 enum {
     AWSS_CMP_PKT_TYPE_REQ = 1,

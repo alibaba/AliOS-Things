@@ -202,7 +202,7 @@ void awss_enrollee_checkin(void *pcontext, void *pclient, void *msg)
         goto CHECKIN_FAIL;
     }
 
-    awss_debug("checkin len:%u, payload:%s\r\n", payload_len, payload);
+    awss_debug("checkin len:%lu, payload:%s\r\n", payload_len, payload);
 
     dev_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_PARAM, &dev_info_len, NULL);
     if (dev_info == NULL || dev_info_len == 0) {
@@ -294,14 +294,14 @@ static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeo
 {
     int i;
 
-    awss_debug("key:%s, dev_name:%s, timeout:%u\r\n", key, dev_name, timeout);
+    awss_debug("key:%s, dev_name:%s, timeout:%lu\r\n", key, dev_name, timeout);
     if (strlen(key) > MAX_PK_LEN ||
         strlen(dev_name) > MAX_DEV_NAME_LEN) {
         goto out;
     }
 
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
-        awss_debug("len:%u---%u, name:%s---%s\r\n",
+        awss_debug("len:%lu---%lu, name:%s---%s\r\n",
                    enrollee_info[i].dev_name_len, strlen(dev_name),
                    enrollee_info[i].dev_name, dev_name);
         awss_debug("enrollee[%d] state %d", i, enrollee_info[i].state);
@@ -349,7 +349,7 @@ static int awss_request_cipher_key(int i)
         char rand_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
 
         utils_hex_to_str(enrollee_info[i].random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
-        HAL_Snprintf(id, MSG_REQ_ID_LEN - 1, "\"%u\"", registrar_id ++);
+        HAL_Snprintf(id, MSG_REQ_ID_LEN - 1, "\"%lu\"", registrar_id ++);
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_DEV_CIPHER_FMT,
                      AWSS_VER, enrollee_info[i].pk, enrollee_info[i].dev_name, enrollee_info[i].security, rand_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_CIPHER, param, 0, packet, &packet_len);
@@ -400,7 +400,7 @@ void awss_get_cipher_reply(void *pcontext, void *pclient, void *msg)
         goto CIPHER_ERR;
     }
 
-    awss_debug("cipher len:%u, payload:%s\r\n", payload_len, payload);
+    awss_debug("cipher len:%lu, payload:%s\r\n", payload_len, payload);
 
     dev_info = json_get_value_by_name(payload, payload_len, AWSS_JSON_DEV_LIST, &dev_info_len, NULL);
     if (dev_info == NULL || dev_info_len == 0) {
@@ -506,7 +506,7 @@ int awss_report_set_interval(char *key, char *dev_name, int interval)
 {
     int i;
 
-    awss_debug("key:%s, dev_name:%s, interval:%u\r\n", key, dev_name, interval);
+    awss_debug("key:%s, dev_name:%s, interval:%lu\r\n", key, dev_name, interval);
     if (strlen(key) > MAX_PK_LEN ||
         strlen(dev_name) > MAX_DEV_NAME_LEN) {
         return -1;
@@ -667,7 +667,7 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
 
         payload_str[payload_len * 2] = '\0'; /* sprintf not add '\0' in the end of string in qcom */
 
-        HAL_Snprintf(id, MSG_REQ_ID_LEN - 1, "\"%u\"", registrar_id ++);
+        HAL_Snprintf(id, MSG_REQ_ID_LEN - 1, "\"%lu\"", registrar_id ++);
 
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_REPORT_PARAM_FMT,
                      AWSS_VER, ssid, bssid_str, rssi > 0 ? rssi - 256 : rssi, payload_str);
@@ -754,7 +754,7 @@ static void enrollee_report(void)
                 enrollee->state = ENR_FOUND;
                 enrollee->report_timestamp = os_get_time_ms();
 
-                awss_trace("enrollee report result:%s, period:%dms\n",
+                awss_trace("enrollee report result:%s, period:%lums\n",
                            ret == 0 ? "success" : "failed",
                            enrollee->interval * 1000);
 
@@ -1019,7 +1019,7 @@ static void registrar_raw_frame_init(struct enrollee_info *enr)
 
     registrar_frame = awss_malloc(registrar_frame_len);
     if (!registrar_frame) {
-        awss_err("error: malloc size %d faild\r\n", registrar_frame_len);
+        awss_err("malloc size %d faild\r\n", registrar_frame_len);
         return;
     }
 

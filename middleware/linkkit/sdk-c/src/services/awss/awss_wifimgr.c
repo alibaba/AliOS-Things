@@ -147,7 +147,7 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
             awss_free(encode_ssid);
         }
     }
-    awss_debug("last_ap:%u\n", last_ap);
+    awss_debug("last_ap:%lu\n", last_ap);
 
     if (last_ap || WIFI_APINFO_LIST_LEN < msg_len + ONE_AP_INFO_LEN_MAX + strlen(AWSS_ACK_FMT)) {
         if (last_ap)
@@ -274,7 +274,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
     buf = awss_cmp_get_coap_payload(request, &len);
     str = json_get_value_by_name(buf, len, "id", &str_len, 0);
     memcpy(req_msg_id, str, str_len > MSG_REQ_ID_LEN - 1 ? MSG_REQ_ID_LEN - 1 : str_len);
-    awss_debug("switch ap, len:%u, %s\n", len, buf);
+    awss_debug("switch ap, len:%d, %s\n", len, buf);
     buf = json_get_value_by_name(buf, len, "params", &len, 0);
 
     do {
@@ -282,7 +282,7 @@ int wifimgr_process_switch_ap_request(void *ctx, void *resource, void *remote, v
 
         str_len = 0;
         str = json_get_value_by_name(buf, len, "ssid", &str_len, 0);
-        awss_trace("ssid, len:%u, %s\n", str_len, str != NULL ? str : "NULL");
+        awss_trace("ssid, len:%d, %s\n", str_len, str != NULL ? str : "NULL");
         if (str && (str_len < PLATFORM_MAX_SSID_LEN)) {
             memcpy(ssid, str, str_len);
             ssid_found = 1;

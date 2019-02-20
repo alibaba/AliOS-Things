@@ -49,7 +49,7 @@ void awss_rst_disp_statis()
 {
     log_debug("[RST]", "-------------------------DEV RESET STATIS----------------------------");
     log_debug("[RST]", "name\t\tmax\tmin\tmean\tcnt\tsuc");
-    log_debug("[RST]", "Sync Reset     \t%u\t%u\t%u\t%u\t%u\t",
+    log_debug("[RST]", "Sync Reset     \t%lu\t%lu\t%lu\t%lu\t%lu\t",
             RST_TMAX, RST_TMIN, RST_TMEAN, RST_CNT, RST_SUC);
     log_debug("[RST]", "---------------------------------------------------------------------");
 }
