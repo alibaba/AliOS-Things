@@ -12,7 +12,12 @@ endif
 
 GLOBAL_INCLUDES     += ../include
 
+#default gcc
+ifeq ($(COMPILER),)
 $(NAME)_CFLAGS      += -Wall -Werror
+else ifeq ($(COMPILER),gcc)
+$(NAME)_CFLAGS      += -Wall -Werror
+endif
 $(NAME)_DEFINES     += CONFIG_PLAT_AOS
 
 ifeq ($(DEBUG), yes)
