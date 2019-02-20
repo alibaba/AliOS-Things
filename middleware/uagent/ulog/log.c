@@ -76,9 +76,9 @@ int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned
         long long ms = aos_now_ms();
         if (log_get_mutex()) {
             if ((mod == NULL) || (0 == strlen(mod))) {
-                printf("%s [%4d.%03d]<%c> [%s#%d] : ", log_col_def[s], (int)(ms / 1000), (int)(ms % 1000), serverity_name[s], f, l);
+                printf("%s [%4d.%03d]<%c> [%s#%d] : ", log_col_def[s], (int)(ms / 1000), (int)(ms % 1000), serverity_name[s], f, (int)l);
             } else {
-                printf("%s [%4d.%03d]<%c> %s [%s#%d] : ", log_col_def[s], (int)(ms / 1000), (int)(ms % 1000), serverity_name[s], mod, f, l);
+                printf("%s [%4d.%03d]<%c> %s [%s#%d] : ", log_col_def[s], (int)(ms / 1000), (int)(ms % 1000), serverity_name[s], mod, f, (int)l);
             }
             va_start(args, fmt);
             rc = vprintf(fmt, args);
@@ -102,7 +102,7 @@ int rt_log(const unsigned char s, const char *fmt, ...)
         if (log_get_mutex()) {
             va_list args;
 
-            printf("[%06d]<%c> ", (int)aos_now_ms(), serverity_name[s]);
+            printf("[%06d]<%c> ", (int)(aos_now_ms()%1000000), serverity_name[s]);
             va_start(args, fmt);
             rc = vprintf(fmt, args);
             va_end(args);

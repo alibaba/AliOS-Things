@@ -173,7 +173,7 @@ int ulog(const MOD_TYPE m, const unsigned char s, const char* f, const unsigned 
         p += ulog_len;
         int16_t empty_room_size = SYSLOG_SIZE - ulog_len;
 
-        uint16_t len = snprintf(p, empty_room_size, "%s[%d]: ", trim_file_path(f), l);
+        uint16_t len = snprintf(p, empty_room_size, "%s[%d]: ", trim_file_path(f), (int)l);
         ulog_len += (len < empty_room_size) ? len : (empty_room_size - 1);
         p += len;
 
@@ -187,20 +187,22 @@ int ulog(const MOD_TYPE m, const unsigned char s, const char* f, const unsigned 
         }
 #else
         /* severity */
-        snprintf(p, SYSLOG_SIZE, "<%d> ", s);
-        ulog_len = strlen(p);
+        snprintf(p, SYSLOG_SIZE, "<%d>", s);
 
-#if EXTREAM_LOG_BOOT_TIME
-        snprintf(&p[strlen(p)], SYSLOG_SIZE - strlen(p), "%lld ",aos_now_ms());
-        ulog_len = strlen(p);
+        /* boot time or blank */
+#if EXTREAM_LOG_ELAPSED_MS
+        snprintf(&p[strlen(p)], SYSLOG_SIZE - strlen(p), "%06d ",(int)(aos_now_ms()%1000000));
+#else
+        p[strlen(p)] = ' ';
 #endif
 
+        ulog_len = strlen(p);
         int16_t empty_room_size = SYSLOG_SIZE - ulog_len;
 
 #if EXTREAM_LOG_TAG
         if( empty_room_size > 1 ){
             uint16_t len = snprintf(&p[ulog_len], empty_room_size, "%s[%d]: ",
-                trim_file_path(f), l);
+                trim_file_path(f), (int)l);
             ulog_len += (len < empty_room_size) ? len : (empty_room_size - 1);
         }
 #endif
