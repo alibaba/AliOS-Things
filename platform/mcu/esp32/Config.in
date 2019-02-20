@@ -15,7 +15,7 @@ if AOS_MCU_ESP32
 # Configurations for mcu esp32
 
 config OSAL_CONFIG
-    string "osal config"
+    string
     default rhino
     help
         osal = rhino/freertos
