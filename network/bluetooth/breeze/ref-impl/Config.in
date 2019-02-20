@@ -1,20 +1,20 @@
 config AOS_COMP_BREEZE_HAL
     bool 
     default n
-    select AOS_COMP_BT_HOST if BREEZEHAL_CONFIG_BLESTACK
-    select AOS_COMP_MBEDTLS if BREEZEHAL_CONFIG_CRYTPO
+    select AOS_COMP_BT_HOST if CONFIG_COMP_BZ_HAL_BLESTACK
+    select AOS_COMP_MBEDTLS if CONFIG_COMP_BZ_HAL_CRYPTO_MEBDTLS
     select AOS_COMP_ULOG
     help
 
 if AOS_COMP_BREEZE_HAL
 # Configurations for comp bt_breeze_hal
 
-     config BREEZEHAL_CONFIG_BLESTACK
- 	#bool "Enable built-in BLE stack"
- 	default 1
+     config CONFIG_COMP_BZ_HAL_BLESTACK
+ 	bool #"Enable built-in BLE stack"
+ 	default y
 
-     config BREEZEHAL_CONFIG_CRYTPO
-        #bool "Enable built-in crypto"
-        default 0
+     config CONFIG_COMP_BZ_HAL_CRYPTO_MEBDTLS
+        bool #"Enable built-in crypto"
+        default n
 
 endif
