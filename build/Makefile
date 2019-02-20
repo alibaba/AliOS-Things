@@ -21,7 +21,7 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
 define NO_CONFIG_ERROR
-$(error Please configure AliOS-Things first: (e.g. "aos make menuconfig")))
+$(error Build Target Obsolate!)
 endef
 
 all:
@@ -74,8 +74,34 @@ ifeq ($(NOCONFIG),)
 ifneq ($(BUILD_STRING),)
 
 ifeq ($(wildcard $(AOS_CONFIG)),)
+ifneq ($(findstring @, $(MAKECMDGOALS)),)
 ifeq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
+$(info )
+$(info The command "aos make $(BUILD_STRING)" is obselate!)
+$(info *********************************************************************)
+$(info Please config project first:)
+$(info $$ aos make $(BUILD_STRING) -c config)
+$(info And run build with:)
+$(info $$ aos make [VAR=value])
+$(info )
+$(info Or run config & build with:)
+$(info $$ aos make $(BUILD_STRING) -c config && aos make [VAR=value])
+$(info *********************************************************************)
 $(call NO_CONFIG_ERROR)
+endif
+endif
+
+else
+ifneq ($(findstring @, $(MAKECMDGOALS)),)
+ifeq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
+$(info )
+$(info The command "aos make $(BUILD_STRING)" is obselate!)
+$(info *********************************************************************)
+$(info Please run build with:)
+$(info $$ aos make [VAR=value])
+$(info *********************************************************************)
+$(call NO_CONFIG_ERROR)
+endif
 endif
 endif
 
