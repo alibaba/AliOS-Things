@@ -8,15 +8,14 @@ $(NAME)_SOURCES := app_entry.c
 $(NAME)_SOURCES += mqtt_das_example.c
 $(NAME)_COMPONENTS := linkkit_sdk_c netmgr cjson cli das
 
-MQTTAPP_CONFIG_TEST_LOOP ?= 1
-loop ?= $(MQTTAPP_CONFIG_TEST_LOOP)
+DAS_CLIENT_CONFIG_TEST_LOOP ?= y
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
-ifneq ($(loop),0)
+ifeq ($(DAS_CLIENT_CONFIG_TEST_LOOP),y)
 $(NAME)_DEFINES      += TEST_LOOP
 endif
 

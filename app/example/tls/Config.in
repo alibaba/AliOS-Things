@@ -11,7 +11,7 @@ if AOS_APP_TLS_CLIENT
 # Configurations for app tls_client
 
 config TLS_CLIENT_CONFIG_DTLS_ENABLED
-    bool "enable DTLS"
+    bool "Enable DTLS"
     default n
     help
 

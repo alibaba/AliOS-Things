@@ -19,7 +19,7 @@ config LWIP
     default 0
 
 config OTAAPP_CONFIG_TEST_LOOP
-    int "test loop"
+    int "Test Loop"
     range 0 1
     default 0
     help

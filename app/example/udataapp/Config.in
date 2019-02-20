@@ -22,7 +22,7 @@ config LWIP
     default 1
 
 config AOS_CONFIG_DTC_ENABLE
-    bool "data to cloud"
+    bool "Data to Cloud"
     default n
     help
  

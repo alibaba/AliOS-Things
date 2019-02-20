@@ -7,23 +7,30 @@ $(NAME)_SUMMARY := mqtt examples
 $(NAME)_SOURCES := app_entry.c
 $(NAME)_COMPONENTS := linkkit_sdk_c netmgr cjson cli
 
-ifeq ($(MQTTAPP_CONFIG_CASE),rrpc)
-$(NAME)_SOURCES += mqtt_example_rrpc.c
-else ifeq ($(MQTTAPP_CONFIG_CASE),multithread)
-$(NAME)_SOURCES += mqtt_example_multithread.c
-else ifeq ($(MQTTAPP_CONFIG_CASE),presstest)
-$(NAME)_SOURCES += mqtt_presstest.c
-else
+# MQTTAPP_CONFIG_TEST_LOOP ?= y
+
+ifeq ($(MQTTAPP_CONFIG_CASE_DEFAULT),y)
 $(NAME)_SOURCES += mqtt_example.c
 endif
 
+ifeq ($(MQTTAPP_CONFIG_CASE_RRPC),y)
+$(NAME)_SOURCES += mqtt_example_rrpc.c
+endif
+
+ifeq ($(MQTTAPP_CONFIG_CASE_MULTITHREAD),y)
+$(NAME)_SOURCES += mqtt_example_multithread.c
+endif
+
+ifeq ($(MQTTAPP_CONFIG_CASE_PRESSTEST),y)
+$(NAME)_SOURCES += mqtt_presstest.c
+endif
 
 ifeq ($(LWIP),1)
 $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
-ifneq ($(MQTTAPP_CONFIG_TEST_LOOP),0)
+ifeq ($(MQTTAPP_CONFIG_TEST_LOOP),y)
 $(NAME)_DEFINES      += TEST_LOOP
 endif
 
