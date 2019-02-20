@@ -92,11 +92,6 @@ $(if $(appmkfile),\
     $(eval include $(appmkfile)) $(eval real_appname = $(NAME)),\
     $(eval real_appname = $(notdir $(appdir))))
 
-ifneq ($(wildcard $(OUTPUT_DIR)/aos_all_components.mk),)
-include $(OUTPUT_DIR)/aos_all_components.mk
-$(if $(filter $(appname),$(REAL_COMPONENTS)),,$(error Unknown component: $(appname)))
-endif
-
 # determine what app type should be enabled: example, profile, test
 ifneq ($(findstring profile,$(appmkfile)),)
 export AOS_APP_TYPE := AOS_APP_PROFILE
