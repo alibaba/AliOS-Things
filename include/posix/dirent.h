@@ -98,6 +98,7 @@ int            unlink(const char *path);
 int            remove(const char *filename);
 int            rename(const char *oldname, const char *newname);
 int            fsync(int fd);
+int            fdatasync(int fildes);
 int            mkdir(const char *path, mode_t mode);
 int            rmdir(const char *path);
 void           rewinddir(DIR *dirp);
