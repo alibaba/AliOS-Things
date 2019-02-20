@@ -2,7 +2,7 @@ menuconfig AOS_COMP_BREEZE
     bool "Breeze SDK"
     default n
     select AOS_COMP_CHIP_CODE
-    select AOS_COMP_BREEZE_HAL if AOS_CONFIG_BT_STACK
+    select AOS_COMP_BREEZE_HAL if CONFIG_COMP_BZ_BUILTIN_HAL
     help
       AliOS things Breeze SDK
 
@@ -23,6 +23,10 @@ if AOS_COMP_BREEZE
 
     config CONFIG_COMP_BZ_EN_AUTH
         bool "Enable authentication."
+        default y
+
+    config CONFIG_COMP_BZ_BUILTIN_HAL
+        bool "Enable default built-in HALs:blestack, AliOS Things and crypto."
         default y
 
 endif

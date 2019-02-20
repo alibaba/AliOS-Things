@@ -6,15 +6,12 @@ $(NAME)_SUMMARY := This is an AliOS Things based implementation of Breeze HAP AP
 
 $(NAME)_SOURCES-y := breeze_hal_ble.c breeze_hal_os.c breeze_hal_sec.c  aes.c
 
-inter_ble_stack ?= 1
-ifeq ($(inter_ble_stack),1)
+ifeq ($(CONFIG_COMP_BZ_HAL_BLESTACK), y)
 $(NAME)_COMPONENTS-y := bt_host 
 endif
 
 $(NAME)_INCLUDES += include/mbedtls
-
-inter_breeze_crypto ?= 1
-ifeq ($(inter_breeze_crypto),0)
+ifeq ($(CONFIG_COMP_BZ_HAL_CRYPTO_MEBDTLS), y)
 $(NAME)_COMPONENTS-y += mbedtls 
 GLOBAL_DEFINES-y += USE_EXTERNAL_MEBDTLS
 else
