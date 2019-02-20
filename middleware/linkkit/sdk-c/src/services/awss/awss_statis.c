@@ -90,7 +90,7 @@ static struct awss_statis_t g_awss_statis = {0};
 
 int awss_report_statis(const char *module)
 {
-    const char *elem_fmt = "[%s max:%u min:%u mean:%u cnt:%u suc:%u crc-err:%u pw-err:%u],";
+    const char *elem_fmt = "[%s max:%lu min:%lu mean:%lu cnt:%lu suc:%lu crc-err:%lu pw-err:%lu],";
     int log_buf_len = AWSS_STATIS_BUF_LEN + strlen(AWSS_STATIS_FMT) + 21;
     char statis_topic[TOPIC_LEN_MAX] = {0};
     char *log_content = NULL;
@@ -164,7 +164,7 @@ int awss_report_statis(const char *module)
         HAL_Snprintf(log_content, AWSS_STATIS_BUF_LEN, AWSS_STATIS_FMT, (uint32_t)HAL_UptimeMs(), "AWSS_TRACE",
                 module == NULL ? "default" : module, awss_statis_trace_id, log_buf);
 
-        HAL_Snprintf(id_str, sizeof(id_str), "%u", ++ awss_statis_report_id);
+        HAL_Snprintf(id_str, sizeof(id_str), "%lu", ++ awss_statis_report_id);
 
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id_str, ILOP_VER, METHOD_LOG_POST, log_content, 0,
                 log_buf, &log_buf_len);
@@ -197,30 +197,30 @@ void awss_disp_statis()
 
     awss_debug("--------------------------------AWSS STATIS-----------------------------------");
     awss_debug("name\t\tmax\tmin\tmean\tcnt\tsuc\tcrc-err\tpasswd-err");
-    awss_debug("Router      \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Router      \t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t",
             DROUTE_TMAX, DROUTE_TMIN, DROUTE_TMEAN, DROUTE_CNT, DROUTE_SUC, 0, 0);
 #ifdef AWSS_SUPPORT_SMARTCONFIG
-    awss_debug("SM          \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("SM          \t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t",
             SM_TMAX, SM_TMIN, SM_TMEAN, SM_CNT, SM_SUC, SM_CRC_ERR, SM_PW_ERR);
 #ifdef  AWSS_SUPPORT_SMARTCONFIG_WPS
-    awss_debug("WPS         \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("WPS         \t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t",
             0, 0, 0, WPS_CNT, WPS_SUC, WPS_CRC_ERR, WPS_PW_ERR);
 #endif
 #endif
 #ifdef AWSS_SUPPORT_AHA
-    awss_debug("Aha          \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Aha          \t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t",
             PAP_TMAX, PAP_TMIN, PAP_TMEAN, PAP_CNT, PAP_SUC, 0, PAP_PW_ERR);
 #endif
 #ifdef AWSS_SUPPORT_ADHA
-    awss_debug("Adha          \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Adha          \t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t",
             ROUTE_TMAX, ROUTE_TMIN, ROUTE_TMEAN, ROUTE_CNT, ROUTE_SUC, 0, 0);
 #endif
 #ifndef AWSS_DISABLE_ENROLLEE
-    awss_debug("Zconfig       \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Zconfig       \t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t",
             0, 0, 0, ZC_CNT, ZC_SUC, 0, ZC_PW_ERR);
 #endif
 #ifdef AWSS_SUPPORT_DEV_AP
-    awss_debug("Dev-ap        \t%u\t%u\t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("Dev-ap        \t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t",
             DAP_TMAX, DAP_TMIN, DAP_TMEAN, DAP_CNT, DAP_SUC, 0, DAP_PW_ERR);
 #endif
     awss_debug("------------------------------------------------------------------------------");

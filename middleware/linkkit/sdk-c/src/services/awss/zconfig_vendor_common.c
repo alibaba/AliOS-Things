@@ -319,7 +319,7 @@ rescanning:
     }
 
     /* channel lock */
-    awss_trace("[chan scanning] %d ms\n",
+    awss_trace("[chan scanning] %lu ms\n",
                time_elapsed_ms_since(aws_start_timestamp));
 
     /*

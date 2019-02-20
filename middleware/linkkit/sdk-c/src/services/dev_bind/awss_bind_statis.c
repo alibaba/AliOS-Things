@@ -27,7 +27,7 @@ static void *awss_statis_db_mutex = NULL;
 
 int awss_bind_report_statis(const char *module)
 {
-    const char *elem_fmt = "[%s max:%u min:%u mean:%u cnt:%u suc:%u]";
+    const char *elem_fmt = "[%s max:%lu min:%lu mean:%lu cnt:%lu suc:%lu]";
     int log_buf_len = AWSS_STATIS_DB_BUF_LEN + strlen(AWSS_STATIS_FMT) + 21;
     char statis_topic[TOPIC_LEN_MAX] = {0};
     char *log_content = NULL;
@@ -60,7 +60,7 @@ int awss_bind_report_statis(const char *module)
         HAL_Snprintf(log_content, AWSS_STATIS_DB_BUF_LEN, AWSS_STATIS_FMT, (uint32_t)HAL_UptimeMs(), "BIND_TRACE",
                 module == NULL ? "default" : module, awss_statis_db_trace_id, log_buf);
 
-        HAL_Snprintf(id_str, sizeof(id_str), "%u", ++ awss_statis_db_report_id);
+        HAL_Snprintf(id_str, sizeof(id_str), "%lu", ++ awss_statis_db_report_id);
 
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id_str, ILOP_VER, METHOD_LOG_POST, log_content, 0,
                 log_buf, &log_buf_len);
@@ -153,7 +153,7 @@ void awss_bind_disp_statis()
 
     awss_debug("--------------------------DEV BIND STATIS-----------------------------");
     awss_debug("name\t\tmax\tmin\tmean\tcnt\tsuc");
-    awss_debug("SyncToken      \t%u\t%u\t%u\t%u\t%u\t",
+    awss_debug("SyncToken      \t%lu\t%lu\t%lu\t%lu\t%lu\t",
             DB_TMAX, DB_TMIN, DB_TMEAN, DB_CNT, DB_SUC);
     awss_debug("----------------------------------------------------------------------");
 
