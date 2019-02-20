@@ -304,7 +304,15 @@ EXTRA_CFLAGS := \
 EXTRA_CFLAGS += $(call INCLUDE_AUTOCONF_H) $(call INCLUDE_SYSCONFIG_H)
 
 # Some objects are built from .S files, autoconf macros are needed
+#default gcc
+ifeq ($(COMPILER),)
 EXTRA_ASMFLAGS += $(call INCLUDE_AUTOCONF_H)
+else ifeq ($(COMPILER),gcc)
+EXTRA_ASMFLAGS += $(call INCLUDE_AUTOCONF_H)
+else ifeq ($(COMPILER),armcc)
+EXTRA_ASM_TMP = $(strip $(call INCLUDE_AUTOCONF_CPRE_H))
+EXTRA_ASMFLAGS += --cpreproc --cpreproc_opts=--preinclude,$(EXTRA_ASM_TMP)
+endif
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
 # TODO: repalce with prebuild logic
