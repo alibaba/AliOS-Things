@@ -15,13 +15,16 @@ if [ -f ${HOME}/.bashrc ]; then
 fi
 #echo "PATH=${PATH}"
 
-
-if [ -f ~/.bashrc ]; then
-    . ~/.bashrc
-fi
-
 JNUM=`cat /proc/cpuinfo | grep processor | wc -l`
 JNUM=$((JNUM + 1))
+grep -n "call NO_CONFIG_ERROR" build/Makefile > /dev/null 2>&1
+if [ $? -eq 0 ];then
+    TWO_STEP_BUILD=yes
+else
+    TWO_STEP_BUILD=no
+fi
+echo "TWO_STEP_BUILD=${TWO_STEP_BUILD}"
+
 RET=0
 
 function do_build()
@@ -35,41 +38,44 @@ function do_build()
         echo "warning: ${app_dir} none exist, build ${build_app}@${build_board} ${build_option} skipped"
         return 0
     fi
-    build_cmd_log=$app_$build_board.log
-    build_cmd="aos make JOBS=${JNUM} $build_app@$build_board"
+
+    build_log=${build_app}_${build_board}.log
+    start_time=$(date +%s.%N)
+    rm -rf out .config* .defconfig
+    if [ "${TWO_STEP_BUILD}" = "yes" ]; then
+        ret=0
+        aos make $build_app@$build_board -c config > ${build_log} 2>&1
+        ret=$(($ret+$?))
+        if [ "${build_option}" != "" ]; then
+            aos make JOBS=${JNUM} ${build_option} >> ${build_log} 2>&1
+        else
+            aos make JOBS=${JNUM} >> ${build_log} 2>&1
+        fi
+        ret=$(($ret+$?))
+    else
+        if [ "${build_option}" != "" ]; then
+            aos make $build_app@$build_board JOBS=${JNUM} ${build_option} > $build_log 2>&1
+        else
+            aos make $build_app@$build_board JOBS=${JNUM} > $build_log 2>&1
+        fi
+        ret=$?
+    fi
+    end_time=$(date +%s.%N)
+    elapsed_time=$(python -c "print '{0:0.1f}'.format(${end_time}-${start_time})")
+
+    build_cmd="aos make ${build_app}@${build_board}"
     if [ "${build_option}" != "" ]; then
         build_cmd="${build_cmd} ${build_option}"
     fi
-
-    #remove @release @debug
-    board_without_at=$(echo $build_board | cut -d"@" -f1 )
-    if [ -f build/scons_enabled.py ]; then
-        scons_support=$(grep $board_without_at build/scons_enabled.py)
-    else
-        scons_support=""
-    fi
-    if [ -z "$scons_support" ]; then
-        #echo rm -rf out/$build_app@$build_board
-        rm -rf out/$build_app@$build_board  > /dev/null 2>&1
-    fi
-
-    start_time=$(date +%s.%N)
-
-    #echo $build_cmd
-    $build_cmd > $build_cmd_log 2>&1
-
-    ret=$?; end_time=$(date +%s.%N)
-    elapsed_time=$(python -c "print '{0:0.1f}'.format(${end_time}-${start_time})")
     if [ ${ret} -eq 0 ]; then
         echo -e "$build_cmd succeed in ${elapsed_time}S"
-        rm -f $build_cmd_log
+        rm -f $build_log
     else
         echo -e "$build_cmd failed, log:\n"
-        cat $build_cmd_log
+        cat $build_log
         echo -e "\n$build_cmd failed in ${elapsed_time}S"
-        aos make clean > /dev/null 2>&1
         RET=$((RET+1))
-        #exit 1
+        exit 1
     fi
 }
 
