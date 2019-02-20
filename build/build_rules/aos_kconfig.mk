@@ -99,6 +99,7 @@ endef
 # Create .config
 $(AOS_CONFIG): $(KCONFIG_CONF)
 	$(QUIET)$(call LOAD_DEFCONFIG, $<,$(TMP_DEFCONFIG))
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/aos_check_config.py $(AOS_CONFIG) $(BUILD_STRING)
 
 ifneq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
 $(AOS_CONFIG): $(TMP_DEFCONFIG)
