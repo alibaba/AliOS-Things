@@ -1649,7 +1649,7 @@ static void OnRxWindow1TimerEvent( void )
     RegionRxConfig( MacCtx.NvmCtx->Region, &MacCtx.RxWindow1Config, ( int8_t* ) &MacCtx.McpsIndication.RxDatarate );
     RxWindowSetup( MacCtx.RxWindow1Config.RxContinuous, MacCtx.NvmCtx->MacParams.MaxRxWindow );
 
-    PRINTF("Rx, Freq %d, DR %d, window 1\r\n", MacCtx.RxWindow1Config.Frequency,
+    PRINTF("Rx, Freq %d, DR %d, window 1\r\n", (int32_t)MacCtx.RxWindow1Config.Frequency,
             MacCtx.McpsIndication.RxDatarate);
 
 }
@@ -1680,7 +1680,7 @@ static void OnRxWindow2TimerEvent( void )
         MacCtx.RxSlot = RX_SLOT_WIN_2;
     }
 
-    PRINTF("Rx, Freq %d, DR %d, window 2\r\n", MacCtx.RxWindow2Config.Frequency,
+    PRINTF("Rx, Freq %d, DR %d, window 2\r\n", (int32_t)MacCtx.RxWindow2Config.Frequency,
                 MacCtx.McpsIndication.RxDatarate);
 }
 
