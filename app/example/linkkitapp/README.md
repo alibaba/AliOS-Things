@@ -64,28 +64,28 @@ aos make clean
 
 ```sh
     aos make clean
-    aos make linkkitapp@xxxx case=sched
+    aos make linkkitapp@xxxx LINKKITAPP_CONFIG_CASE_SCHED=y
 ```
 
 3).linkkit_example_cntdown.c:
 
 ```sh
     aos make clean
-    aos make linkkitapp@xxxx case=cntdown
+    aos make linkkitapp@xxxx LINKKITAPP_CONFIG_CASE_CNTDOWN=y
 ```
 
 4).deprecated/solo.c:
 
 ```sh
     aos make clean
-    aos make linkkitapp@xxxx deprecated=1
+    aos make linkkitapp@xxxx LINKKITAPP_CONFIG_DEPRECATED=y
 ```
 
 5).deprecated/cntdown.c:
 
 ```sh
     aos make clean
-    aos make linkkitapp@xxxx deprecated=1  case=cntdown
+    aos make linkkitapp@xxxx LINKKITAPP_CONFIG_DEPRECATED=y LINKKITAPP_CONFIG_CASE_CNTDOWN=y
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).
