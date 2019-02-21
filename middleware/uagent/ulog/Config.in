@@ -17,7 +17,7 @@ if ULOG_CONFIG_ASYNC
 
 config ULOG_CONFIG_STOP_FILTER_DEFAULT
     int "level Stop Filter of default direction(uart for rtos)"
-    range 0 7
+    range 0 8
     default 4
     help
         Level Stop Filter of default direction(uart for rtos), any log level qual or lower than this (value higher than it)
@@ -34,7 +34,7 @@ config ULOG_CONFIG_POP_FS
 if ULOG_CONFIG_POP_FS=1
 config ULOG_CONFIG_STOP_FILTERFS
     int "level Stop Filter of fs"
-    range 0 7
+    range 0 8
     default 4
     help
         Level Stop Filter of fs, any log level qual or lower than this (value higher than it)
@@ -69,7 +69,7 @@ config ULOG_CONFIG_POP_UDP
 if ULOG_CONFIG_POP_UDP=1
 config ULOG_CONFIG_STOP_FILTER_UDP
     int "level Stop Filter of udp"
-    range 0 7
+    range 0 8
     default 4
     help
         Level Stop Filter of udp, any log level qual or lower than this (value higher than it)
