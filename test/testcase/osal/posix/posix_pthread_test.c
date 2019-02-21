@@ -53,7 +53,7 @@ static void *demo_task(void *arg)
         if (count == 10) {
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }
@@ -76,7 +76,7 @@ static void *demo_task1(void *arg)
         if (count == 5) {
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }
@@ -95,7 +95,7 @@ static void *demo_task2(void *arg)
         if (count == 10) {
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }
@@ -154,7 +154,7 @@ static void *demo_task5(void *arg)
             LOGI(TAG, "*********** posix_pthread_detach_case1 end ***********\n");
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }
@@ -175,7 +175,7 @@ static void *demo_task6(void *arg)
             LOGI(TAG, "demo_task6 detach demo_task5 \n");
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }
@@ -194,7 +194,7 @@ static void *demo_task7(void *arg)
         if (count == 5) {
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }
@@ -219,7 +219,7 @@ static void *demo_task8(void *arg)
             LOGI(TAG, "*********** posix_pthread_detach_case2 end ***********\n");
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }
@@ -247,7 +247,7 @@ static void *demo_task9(void *arg)
         if (count == 10) {
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }

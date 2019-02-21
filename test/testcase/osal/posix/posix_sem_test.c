@@ -50,7 +50,7 @@ static void *demo_task1(void *arg)
         if (count == 5) {
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }
@@ -77,7 +77,7 @@ static void *demo_task2(void *arg)
         }
 
         krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
-    };
+    }
 
     return NULL;
 }
@@ -109,7 +109,7 @@ static void *demo_task3(void *arg)
         if (sem_count == 5) {
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }
@@ -129,7 +129,7 @@ static void *demo_task4(void *arg)
         if (sem_count == 5) {
             pthread_exit(status);
         }
-    };
+    }
 
     return NULL;
 }

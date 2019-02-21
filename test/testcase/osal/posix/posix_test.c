@@ -12,6 +12,7 @@ extern void posix_pthread_test_case(void);
 extern void posix_sem_test_case(void);
 extern void posix_timer_test_case(void);
 extern void posix_tsd_test_case(void);
+extern void posix_enviro_test_case(void);
 
 void posix_test_entry(void)
 {
@@ -25,4 +26,5 @@ void posix_test_entry(void)
     posix_sem_test_case();
     posix_timer_test_case();
     posix_tsd_test_case();
+    posix_enviro_test_case();
 }
