@@ -17,11 +17,13 @@ struct timespec timer_spec_get_pre;
 
 void posix_timer_case1(void); /* testcase for timer_create/timer_settime/timer_gettime/timer_delete */
 void posix_timer_case2(void); /* testcase for clock_gettime/clock_nanosleep/nanosleep/sleep */
+void posix_timer_case3(void); /* testcase for clock_settime */
 
 void posix_timer_test_case(void)
 {
     posix_timer_case1();
     posix_timer_case2();
+    posix_timer_case3();
 }
 
 void timer1_thread(void)
@@ -207,4 +209,45 @@ void posix_timer_case2(void)
     LOGI(TAG, "posix_timer_case2 test OK !\n");
 
     LOGI(TAG, "*********** posix_timer_case2 end ***********\n\n");
+}
+
+void posix_timer_case3(void)
+{
+    int ret = -1;
+
+    struct timespec timer_spec_get;
+    struct timespec timer_spec_set;
+
+    timer_spec_set.tv_sec = 100;
+    timer_spec_set.tv_nsec = 0;
+
+    LOGI(TAG, "*********** posix_timer_case3 start ***********\n");
+
+    ret = clock_settime(CLOCK_MONOTONIC, &timer_spec_set);
+    if (ret == 0) {
+        LOGI(TAG, "clock_settime error1 !\n");
+    }
+
+    ret = clock_settime(CLOCK_REALTIME, &timer_spec_set);
+    if (ret != 0) {
+        LOGI(TAG, "clock_settime error2 !\n");
+        return;
+    }
+
+    sleep(2);
+
+    ret = clock_gettime(CLOCK_REALTIME, &timer_spec_get);
+    if (ret != 0) {
+        LOGI(TAG, "clock_settime error3 !\n");
+        return;
+    }
+
+    if (timer_spec_get.tv_sec != 102) {
+        LOGI(TAG, "clock_settime error4 !\n");
+        return;
+    }
+
+    LOGI(TAG, "posix_timer_case3 test OK !\n");
+
+    LOGI(TAG, "*********** posix_timer_case3 end ***********\n\n");
 }
