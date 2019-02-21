@@ -13,9 +13,6 @@ $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
 
-ifeq ($(COAPAPP_CONFIG_LOOP),1)
-$(NAME)_DEFINES      += TEST_LOOP
-endif
 
 GLOBAL_INCLUDES += ./
 
