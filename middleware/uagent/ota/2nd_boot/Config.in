@@ -1,5 +1,5 @@
 config AOS_COMP_OTA_2ND_BOOT
-    bool "ota_2nd_boot"
+    bool "Differential Incremental Upgrade Support"
     default n
     help
 

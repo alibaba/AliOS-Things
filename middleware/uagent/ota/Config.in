@@ -1,24 +1,39 @@
-config AOS_COMP_OTA
-    bool "OTA"
-    select AOS_COMP_OTA_CORE
-    select AOS_COMP_OTA_HAL
-    default n
+menuconfig AOS_COMP_OTA
+    bool "OTA Features"
+    default y
     help
 
 if AOS_COMP_OTA
 config AOS_COMP_OTA_MQTT
-    bool "Enable MQTT transport for OTA"
+    bool "MQTT Support"
+    default y
+    help 
+    select Y to support MQTT transport with Cloud, or so support CoAP.
+
+config AOS_COMP_OTA_TLS
+    bool "TLS HTTPs Support"
+    default n
+    help
+    select Y to support TLS HTTPS download, or so support http.
+
+config AOS_COMP_OTA_ITLS
+    bool "iTLS HTTPs Support"
+    default n
+    help
+    select Y to support iTLS HTTPS download, or so support http.
+
+config AOS_COMP_OTA_RSA
+    bool "RSA Verify Support"
+    default n
+    help
+    select Y to support RSA Verify Support.
+
+config AOS_COMP_OTA_FW_MD5
+    bool "Firmware MD5 Support"
     default y
     help
-        select Y to enable MQTT transpor for OTA, or so select CoAP.
-
-if AOS_COMP_OTA_MQTT
+    select Y to support Firmware MD5 check for OTA.
 
 source "middleware/uagent/ota/2nd_boot/Config.in"
-source "middleware/uagent/ota/hal/Config.in"
 source "middleware/uagent/ota/ota_ble/Config.in"
-source "middleware/uagent/ota/ota_core/Config.in"
-
-endif
-
 endif
