@@ -7,6 +7,8 @@
 
 #if (POSIX_CONFIG_TIMER_ENABLE > 0)
 
+int64_t g_realtime_clock_base = 0;
+
 timer_list_t *timer_list_head;
 
 static int64_t timespec_to_nanosecond(struct timespec *value);
@@ -33,11 +35,6 @@ int timer_create(clockid_t clockid, struct sigevent *restrict evp, timer_t *rest
 
     /* timer function must be none_null */
     if (evp->sigev_notify_function == NULL) {
-        return -1;
-    }
-
-    /* only CLOCK_MONOTONIC is supported */
-    if (clockid != CLOCK_MONOTONIC) {
         return -1;
     }
 
@@ -97,6 +94,11 @@ int timer_delete(timer_t timerid)
         return -1;
     }
 
+    ret = krhino_mutex_lock(&g_timer_mutex, RHINO_WAIT_FOREVER);
+    if (ret != 0) {
+        return -1;
+    }
+
     /* scan the list to find the timer according to timerid */
     timer_list = timer_list_head;
     timer_list_l = timer_list_head;
@@ -110,8 +112,7 @@ int timer_delete(timer_t timerid)
 
     ret = krhino_timer_dyn_del(timer_list->ktimer);
     if (ret == 0) {
-        CPSR_ALLOC();
-        RHINO_CRITICAL_ENTER();
+
         /* delete the timer in the list and free the timer */
         if (timer_list_l == timer_list_head) {
             timer_list_head = timer_list->next;
@@ -119,10 +120,10 @@ int timer_delete(timer_t timerid)
             timer_list_l->next = timer_list->next;
         }
 
-        RHINO_CRITICAL_EXIT();
-
         krhino_mm_free(timer_list);
     }
+
+    krhino_mutex_unlock(&g_timer_mutex);
 
     return ret;
 }
@@ -223,11 +224,6 @@ int clock_getres(clockid_t clock_id, struct timespec *res)
         return -1;
     }
 
-    /* only CLOCK_MONOTONIC is supported */
-    if (clock_id != CLOCK_MONOTONIC) {
-        return -1;
-    }
-
     res->tv_sec = 0;
     res->tv_nsec = NANOSECONDS_PER_SECOND / RHINO_CONFIG_TICKS_PER_SECOND;
 
@@ -242,21 +238,48 @@ int clock_gettime(clockid_t clock_id, struct timespec *tp)
         return -1;
     }
 
-    /* only CLOCK_MONOTONIC is supported */
-    if (clock_id != CLOCK_MONOTONIC) {
+    time_ns = (krhino_sys_tick_get() * NANOSECONDS_PER_SECOND) / RHINO_CONFIG_TICKS_PER_SECOND;
+
+    if (clock_id == CLOCK_MONOTONIC) {
+        *tp = nanosecond_to_timespec(time_ns);
+    } else if (clock_id == CLOCK_REALTIME) {
+        *tp = nanosecond_to_timespec(g_realtime_clock_base + time_ns);
+    } else {
         return -1;
     }
-
-    time_ns = (krhino_sys_tick_get() * NANOSECONDS_PER_SECOND) / RHINO_CONFIG_TICKS_PER_SECOND;
-    *tp = nanosecond_to_timespec(time_ns);
 
     return 0;
 }
 
 int clock_settime(clockid_t clock_id, const struct timespec *tp)
 {
-    /* only CLOCK_MONOTONIC is supported, time can not be set */
-    return -1;
+    int     ret      = -1;
+    int64_t value_ns = 0;
+
+    struct timespec timer_spec_cur;
+
+    /* only CLOCK_REALTIME can be set */
+    if (clock_id != CLOCK_REALTIME) {
+        return -1;
+    }
+
+    ret = clock_gettime(CLOCK_MONOTONIC, &timer_spec_cur);
+    if (ret != 0) {
+        return -1;
+    }
+
+    value_ns = timespec_to_nanosecond(tp) - timespec_to_nanosecond(&timer_spec_cur);
+
+    ret = krhino_mutex_lock(&g_timer_mutex, RHINO_WAIT_FOREVER);
+    if (ret != 0) {
+        return -1;
+    }
+
+    g_realtime_clock_base = value_ns;
+
+    krhino_mutex_unlock(&g_timer_mutex);
+
+    return 0;
 }
 
 int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
@@ -280,11 +303,6 @@ int clock_nanosleep(clockid_t clock_id, int flags, const struct timespec *rqtp, 
     int64_t value_ticks = 0;
 
     struct timespec value_spec;
-
-    /* only CLOCK_MONOTONIC is supported */
-    if (clock_id != CLOCK_MONOTONIC) {
-        return -1;
-    }
 
     /* if the time is absolute time transform it to relative time */
     if((flags & TIMER_ABSTIME) == TIMER_ABSTIME) {
@@ -335,7 +353,7 @@ int timespec_abs_to_relate(struct timespec *time_abs, struct timespec *time_rela
 
     memset(&time,0,sizeof(time));
 
-    ret = clock_gettime(CLOCK_REALTIME, &time);
+    ret = clock_gettime(CLOCK_MONOTONIC, &time);
     if (ret != 0) {
         return -1;
     }
