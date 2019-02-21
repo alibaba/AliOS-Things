@@ -24,7 +24,7 @@ extern "C" {
 
 volatile char awss_report_token_suc = 0;
 volatile char awss_report_token_cnt = 0;
-static char awss_report_id = 0;
+static uint8_t awss_report_id = 0;
 #ifdef WIFI_PROVISION_ENABLED
 static uint8_t switchap_bssid[ETH_ALEN] = {0};
 static char switchap_ssid[OS_MAX_SSID_LEN] = {0};
@@ -380,7 +380,7 @@ static int awss_report_token_to_cloud()
 
         awss_report_token_time = os_get_time_ms();
 
-        HAL_Snprintf(id_str, MSG_REQ_ID_LEN - 1, "\"%lu\"", awss_report_id ++);
+        HAL_Snprintf(id_str, MSG_REQ_ID_LEN - 1, "\"%u\"", awss_report_id ++);
         utils_hex_to_str(aes_random, RANDOM_MAX_LEN, token_str, sizeof(token_str) - 1);
         HAL_Snprintf(param, REPORT_TOKEN_PARAM_LEN - 1, "{\"token\":\"%s\"}", token_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id_str, ILOP_VER, METHOD_MATCH_REPORT, param, 0, packet, &packet_len);
