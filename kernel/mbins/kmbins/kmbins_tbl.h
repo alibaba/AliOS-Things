@@ -96,7 +96,7 @@ SYSCALL(SYS_KRHINO_MM_ALLOC, aos_malloc)
 SYSCALL(SYS_KRHINO_MM_FREE, aos_free)
 
 #define SYS_KRHINO_MM_REALLOC (K_MM_BASE + 2)
-SYSCALL(SYS_KRHINO_MM_REALLOC, krhino_mm_realloc)
+SYSCALL(SYS_KRHINO_MM_REALLOC, aos_realloc)
 
 #define SYS_AOS_ALLOC_TRACE (K_MM_BASE + 3)
 SYSCALL(SYS_AOS_ALLOC_TRACE, aos_alloc_trace)
@@ -212,23 +212,6 @@ SYSCALL(SYS_BT_CONN_CB_REGISTER, bt_conn_cb_register)
 #define SYS_BT_CONN_UNREF (BLE_BASE + 13)
 SYSCALL(SYS_BT_CONN_UNREF, bt_conn_unref)
 
-#define SYS_BT_ALI_RESET (BLE_BASE + 14)
-SYSCALL(SYS_BT_ALI_RESET, ali_reset)
-
-#define SYS_BT_ALI_INIT (BLE_BASE + 15)
-SYSCALL(SYS_BT_ALI_INIT, ali_init)
-
-#define SYS_BT_ALI_SEND_INDICATE (BLE_BASE + 16)
-SYSCALL(SYS_BT_ALI_SEND_INDICATE, ali_send_indicate)
-
-#define SYS_BT_ALI_SEND_NOTIFY (BLE_BASE + 17)
-SYSCALL(SYS_BT_ALI_SEND_NOTIFY, ali_send_notify)
-
-#define SYS_BT_ALI_GET_MANUF_SPEC_ADV_DATA (BLE_BASE + 18)
-SYSCALL(SYS_BT_ALI_GET_MANUF_SPEC_ADV_DATA, ali_get_manuf_spec_adv_data)
-
-#define SYS_BT_FETCH_ALI_CONTEXT (BLE_BASE + 19)
-SYSCALL(SYS_BT_FETCH_ALI_CONTEXT, fetch_ali_context)
 #endif
 
 /* --------------------OTHERS-------------------- */
