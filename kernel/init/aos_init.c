@@ -55,7 +55,7 @@ extern char  app_info_addr;
 extern k_mm_head  *g_kmm_head;
 struct m_app_info_t *app_info = (struct m_app_info_t *) &app_info_addr;
 
-static void app_pre_init(void)
+void app_pre_init(void)
 {
     memcpy((void *)(app_info->data_ram_start), (void *)(app_info->data_flash_begin),
            app_info->data_ram_end - app_info->data_ram_start);

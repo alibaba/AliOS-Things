@@ -30,8 +30,6 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/conn.h>
-#include "ali_common.h"
-#include "ali_core.h"
 #endif
 
 
@@ -193,9 +191,9 @@ void aos_free(void *mem)
     SYS_CALL1(SYS_KRHINO_MM_FREE, void, void *, mem);
 }
 
-void *krhino_mm_realloc(void *oldmem, size_t newsize)
+void *aos_realloc(void *mem, unsigned int size)
 {
-    return SYS_CALL2(SYS_KRHINO_MM_REALLOC, void *, void *, oldmem, size_t, newsize);
+    return SYS_CALL2(SYS_KRHINO_MM_REALLOC, void *, void *, mem, unsigned int, size);
 }
 
 void aos_alloc_trace(void *addr, size_t allocator)
@@ -369,35 +367,6 @@ void bt_conn_unref(struct bt_conn *conn)
     SYS_CALL1(SYS_BT_CONN_UNREF, void, struct bt_conn *, conn);
 }
 
-void ali_reset(void * p_ali)
-{
-    SYS_CALL1(SYS_BT_ALI_RESET, void, void *, p_ali);
-}
-
-ret_code_t ali_init(void * p_ali, ali_init_t const * p_init)
-{
-    return SYS_CALL2(SYS_BT_ALI_INIT, ret_code_t, void *, p_ali, ali_init_t const *, p_init);
-}
-
-ret_code_t ali_send_indicate(void * p_ali, uint8_t * p_data, uint16_t length)
-{
-    return SYS_CALL3(SYS_BT_ALI_SEND_INDICATE, ret_code_t, void *, p_ali, uint8_t *, p_data, uint16_t, length);
-}
-
-ret_code_t ali_send_notify(void * p_ali, uint8_t * p_data, uint16_t length)
-{
-    return SYS_CALL3(SYS_BT_ALI_SEND_NOTIFY, ret_code_t, void *, p_ali, uint8_t *, p_data, uint16_t, length);
-}
-
-ret_code_t ali_get_manuf_spec_adv_data(void * p_ali, uint8_t * p_data, uint16_t * length)
-{
-    return SYS_CALL3(SYS_BT_ALI_GET_MANUF_SPEC_ADV_DATA, ret_code_t, void *, p_ali, uint8_t *, p_data, uint16_t, length);
-}
-
-uint32_t *fetch_ali_context()
-{
-    return SYS_CALL0(SYS_BT_FETCH_ALI_CONTEXT, uint32_t *);
-}
 #endif
 
 
