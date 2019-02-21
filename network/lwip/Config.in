@@ -38,6 +38,7 @@ if 0
 
           Switching to "y" leads to support HTTPD module
           Switching to "n" leads to not support HTTPD module
+endif
 
     config LWIPERF_ENABLED
         bool "LWIPERF"
@@ -47,7 +48,7 @@ if 0
 
           Switching to "y" leads to support LWIPERF module
           Switching to "n" leads to not support LWIPERF module
-
+if 0
     config SNTP_ENABLED
         bool "SNTP"
         default n

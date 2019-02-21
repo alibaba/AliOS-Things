@@ -5,6 +5,6 @@
  *                    Constants
  ******************************************************/
 
-//#define MICO_IPERF_DEBUG_ENABLE
+//#define IPERF_DEBUG_ENABLE
 
 

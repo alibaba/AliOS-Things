@@ -166,7 +166,7 @@ void iperf_udp_run_server( char *parameters[] )
     int mcast_tag = 0; /* the tag of parameter "-B"  */
     int interval_tag = 0; /* the tag of parameter "-i"  */
     char *mcast;
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
     int send_bytes = 0; /* the number of send */
     int tmp = 0;
 #endif
@@ -296,7 +296,7 @@ void iperf_udp_run_server( char *parameters[] )
                     , __FUNCTION__, __LINE__, client_h_trans.flags, client_h_trans.num_threads, client_h_trans.port, client_h_trans.buffer_len, client_h_trans.win_band, client_h_trans.amount));
 #endif
 
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
             if (tmp != nbytes) {
                 DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("\r\n[%s:%d] nbytes=%d \r\n", __FUNCTION__, __LINE__, nbytes));
             } else {
@@ -385,14 +385,14 @@ void iperf_udp_run_server( char *parameters[] )
                     client_h_trans.flags = (int32_t) 0;
 
                     // send the server report to client-side
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
                     send_bytes =
 #endif
                     sendto( sockfd, buffer, nbytes, 0, (struct sockaddr *) &cliaddr, cli_len );
                     client_h_trans.flags = old_flag;
                 }
 
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
                 DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("[%s:%d]send_bytes = %d, nbytes = %d,\r\n", __FUNCTION__, __LINE__, send_bytes, nbytes));
 #endif
 
@@ -416,7 +416,7 @@ void iperf_udp_run_server( char *parameters[] )
             }
         } while ( nbytes > 0 );
 
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
         DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("[%s:%d] Interval = %d.%d (secs)\r\n", __FUNCTION__, __LINE__, t2, t2_h_ms)); //sec.
 #endif
 
@@ -450,7 +450,7 @@ void iperf_tcp_run_server( char *parameters[] )
     int total_rcv = 0; /* the total number of receive  */
     int num_tag = 0; /* the tag of parameter "-n"  */
     int interval_tag = 0; /* the tag of parameter "-i"  */
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
     int tmp = 0;
 #endif
     uint32_t t1, t2, curr_t;
@@ -542,7 +542,7 @@ void iperf_tcp_run_server( char *parameters[] )
                     if ( pkt_count.times == 1 ) {
                         iperf_get_current_time( &t1, 0 );
                     }
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
                     if (tmp != nbytes) {
                         DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, ("\r\n[%s:%d] nbytes=%d \r\n", __FUNCTION__, __LINE__, nbytes));
                     } else {
@@ -746,7 +746,7 @@ void iperf_tcp_run_client( char *parameters[] )
     do {
         nbytes = send( sockfd, buffer, win_size, 0 );
         pkt_count = iperf_calculate_result( nbytes, pkt_count, 0 );
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
         DBGPRINT_IPERF(IPERF_DEBUG_SEND, ("\r\n[%s:%d] nbytes=%d \r\n", __FUNCTION__, __LINE__, nbytes));
 #endif
         aos_msleep( pkt_delay );
@@ -1085,7 +1085,7 @@ void iperf_display_report( char *report_title, unsigned time, unsigned h_ms_time
 {
     unsigned tmp_time = (time * 10) + h_ms_time;
 
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
     DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("\nTransfer in %d.%d seconds: ", time, h_ms_time));
     if (pkt_count.GBytes != 0) {
         DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("%d GBytes ", pkt_count.GBytes));
@@ -1133,7 +1133,7 @@ void iperf_display_report( char *report_title, unsigned time, unsigned h_ms_time
     }
     LOGD(TAG, "%d bits/sec \r\n\r\n", pkt_count.Bytes );
 
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
     DBGPRINT_IPERF(IPERF_DEBUG_REPORT, ("Receive times: %d\n", pkt_count.times));
 #endif
 
