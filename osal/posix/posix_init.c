@@ -7,6 +7,7 @@
 extern int pthread_lock_init(void);
 extern int timer_lock_init(void);
 extern int tmpnam_lock_init(void);
+extern int enviro_lock_init(void);
 
 int ramfs_mount(void);
 
@@ -41,6 +42,13 @@ int posix_init(void)
     }
 
 #endif
+#endif
+
+#if (POSIX_CONFIG_ENVIRO_ENABLE > 0)
+    ret = enviro_lock_init();
+    if (ret != 0) {
+        return -1;
+    }
 #endif
 
     return ret;
