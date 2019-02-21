@@ -253,6 +253,7 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp
     net_buf_ref(buf);
 
     net_buf_put(&bt_dev.cmd_tx_queue, buf);
+
     time_start = k_uptime_get_32();
 
     while (1) {
@@ -2985,15 +2986,11 @@ static void hci_rx_thread(void)
     BT_DBG("started");
 
     while (1) {
-#ifdef CONFIG_CONTROLLER_IN_ONE_TASK
-        buf = net_buf_get(&bt_dev.rx_queue, K_FOREVER);
-#else
         buf = net_buf_get(&bt_dev.rx_queue, K_NO_WAIT);
         if (buf == NULL) {
             aos_msleep(10);
             continue;
         }
-#endif
 
         BT_DBG("buf %p type %u len %u", buf, bt_buf_get_type(buf), buf->len);
 

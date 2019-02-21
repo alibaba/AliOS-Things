@@ -41,8 +41,6 @@ void scheduler_loop(struct k_poll_event *events)
 #else
         events[0].state = K_POLL_STATE_NOT_READY;
         ev_count = 1;
-        // TODO: rm this tmp code
-        delayed_ms = 1;
 #endif
 
         if (IS_ENABLED(CONFIG_BT_CONN)) {

@@ -183,7 +183,6 @@ static inline void clear_event_registrations(struct k_poll_event *events,
 static bool polling_events(struct k_poll_event *events, int num_events,
                            s32_t timeout, int *last_registered)
 {
-    int rc;
     bool polling = true;
     unsigned int key;
 
@@ -194,12 +193,8 @@ static bool polling_events(struct k_poll_event *events, int num_events,
             set_event_state(&events[ii], state);
             polling = false;
         } else if (timeout != K_NO_WAIT && polling) {
-            rc = register_event(&events[ii], NULL);
-            if (rc == 0) {
-                ++(*last_registered);
-            } else {
-                __ASSERT(0, "unexpected return code\n");
-            }
+            register_event(&events[ii], NULL);
+            ++(*last_registered);
         }
         irq_unlock(key);
     }
@@ -258,7 +253,7 @@ int k_poll(struct k_poll_event *events, int num_events, s32_t timeout)
     k_sem_take(&eventcb.sem, timeout);
 
     last_registered = -1;
-    polling_events(events, num_events, timeout, &last_registered);
+    polling_events(events, num_events, K_NO_WAIT, &last_registered);
 exit:
     sys_dlist_remove(&eventcb);
     k_sem_delete(&eventcb.sem);
