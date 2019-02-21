@@ -738,7 +738,11 @@ int iotx_guider_authenticate(iotx_conn_info_t *conn)
 #ifdef SUPPORT_ITLS
                       ",authtype=id2"
 #endif
-                      ",ver=c-sdk-%s"
+#ifdef BUILD_AOS
+                      ",a=aos-r-2.1.0"
+#else
+                      ",a=sdk-c-%s"
+#endif
                       "|"
                       , dev.device_id
                       , secure_mode
