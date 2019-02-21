@@ -1,13 +1,13 @@
 config DEV_BIND_ENABLED
     bool "FEATURE_DEV_BIND_ENABLED"
     depends on MQTT_COMM_ENABLED
-    default y
 
+    select AOS_COMP_LIBIOT_COAP_LOCAL
     select UTILS_JSON_PARSER
     select UTILS_MD5
-
     select HAL_CRYPTO
     select HAL_UDP
 
+    default n
     help
         Enable customers to bind device to current user

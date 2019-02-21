@@ -4,7 +4,7 @@ source "$SRCPATH/src/infra/utils/Config.in"
 
 config DEVICE_MODEL_ENABLED
     bool "FEATURE_DEVICE_MODEL_ENABLED"
-    default y
+    default n
     select AOS_COMP_LIBIOT_CM
     select AOS_COMP_LIBIOT_DM
     select UTILS_LITE_CJSON
