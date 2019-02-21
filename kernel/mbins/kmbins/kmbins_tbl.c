@@ -18,16 +18,9 @@
 #include "hrs.h"
 #include "bas.h"
 #include "dis.h"
-#include "ali_core.h"
-#include <api_export.h>
-#include "ais_ota.h"
 #endif
 
-
-
 extern int hci_driver_init();
-extern uint32_t *fetch_ali_context();
-
 
 
 void *sys_aos_malloc(unsigned int size, size_t allocator)
