@@ -3,11 +3,10 @@ NAME := board_pca10040
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := configuration for board pca10040
-SUPPORT_MBINS      := no
+SUPPORT_MBINS      := yes
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := mcu_nrf52xxx
-SUPPORT_MBINS      := no
 HOST_MCU_NAME      := nrf52832
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
