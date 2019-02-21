@@ -2,7 +2,7 @@
 config WIFI_PROVISION_ENABLED
     bool "FEATURE_WIFI_PROVISION_ENABLED"
     depends on DEV_BIND_ENABLED
-    default y
+    default n
     select UTILS_SHA1
     select UTILS_EVENT
 

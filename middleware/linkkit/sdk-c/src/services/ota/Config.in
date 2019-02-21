@@ -2,7 +2,7 @@
 config OTA_ENABLED
     depends on MQTT_COMM_ENABLED
     bool "FEATURE_OTA_ENABLED"
-    default y
+    default n
     select UTILS_HTTPC
     select UTILS_SHA256
     select UTILS_MD5

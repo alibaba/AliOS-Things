@@ -19,3 +19,19 @@ config COAP_COMM_ENABLED
         Switching to "y" leads to building CoAP related implementation into SDK and COAP_COMM_ENABLED included into CFLAGS
         Switching to "n" leads to keeping CoAP-based cloud connection implementations out of SDK
 
+if COAP_COMM_ENABLED
+menu "COAP COMM SETTING"
+
+depends on SUPPORT_TLS
+config COAP_SUPPORT_DTLS
+    bool "FEATURE_COAP_SUPPORT_DTLS"
+    default n
+    help
+        support mbedtls DTLS 
+
+endmenu
+
+endif
+
+
+

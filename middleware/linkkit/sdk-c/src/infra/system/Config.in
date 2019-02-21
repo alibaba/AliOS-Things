@@ -1,6 +1,6 @@
 config AOS_COMP_LIBIOT_SYSTEM
     bool
-    default n
+    default y
     help
       system tools
 
