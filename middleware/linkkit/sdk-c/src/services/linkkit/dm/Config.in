@@ -10,6 +10,7 @@ config AOS_COMP_LIBIOT_DM
     select AOS_COMP_LIBIOT_LOG 
     select AOS_COMP_LIBIOT_SYSTEM 
     select UTILS_SHA1
+    select AOS_COMP_LIBIOT_CM
     help
       Device Management
 
