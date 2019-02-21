@@ -12,7 +12,7 @@
 #include <string.h>
 #include "ota_hal_os.h"
 #include "ota_log.h"
-#if !defined (OTA_DEV_BLE)
+#if !defined (OTA_BLE)
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
 #include "mbedtls/base64.h"
@@ -408,7 +408,7 @@ int ota_ssl_recv(void *ssl, char *buf, int len)
 }
 #endif
 
-#if !defined (OTA_DEV_BLE)
+#if !defined (OTA_BLE)
 /*SHA256*/
 #if !defined(ESPOS_FOR_ESP32)
 extern void mbedtls_sha256_free_alt(mbedtls_sha256_context* ctx);

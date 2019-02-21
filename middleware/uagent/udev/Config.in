@@ -1,5 +1,5 @@
 config AOS_COMP_UDEV
-    bool "udev"
+    bool "uDevice Support"
     default n
     select AOS_COMP_CJSON
     select AOS_COMP_OTA
