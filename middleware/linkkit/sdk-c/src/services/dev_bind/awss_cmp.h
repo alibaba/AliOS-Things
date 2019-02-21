@@ -23,7 +23,7 @@ enum {
     AWSS_LC_INIT_PAP = 0x02,
     AWSS_LC_INIT_DEV_AP = 0x04,
     AWSS_LC_INIT_SUC = 0x08,
-    AWSS_LC_INIT_BIND = 0x100,
+    AWSS_LC_INIT_BIND = 0x10,
 };
 
 struct awss_cmp_couple {
