@@ -1,7 +1,0 @@
-config AOS_COMP_OTA_CORE
-    bool "ota core"
-    default y
-    help
-
-if AOS_COMP_OTA_CORE
-endif

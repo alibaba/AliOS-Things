@@ -10,13 +10,15 @@ $(NAME)_SOURCES += \
     src/ota_breeze_transport.c \
     src/ota_breeze_plat.c
 
-$(NAME)_COMPONENTS += ota_hal
+$(NAME)_SOURCES += ../hal/ota_hal_module.c \
+                   ../hal/ota_hal_os.c \
+                   ../hal/ota_hal_plat.c
 
 GLOBAL_INCLUDES += . \
                    inc \
-                   ../include
+                   ../include \
+                   ../hal
 
 GLOBAL_DEFINES += OTA_BLE
 GLOBAL_DEFINES += OTA_ALIOS
-GLOBAL_DEFINES += OTA_DEV_BLE
 GLOBAL_DEFINES += OTA_DISABLE_NETWORK

@@ -1,8 +1,0 @@
-config AOS_COMP_OTA_HAL
-    bool "ota hal"
-    default y
-    help
-
-if AOS_COMP_OTA_HAL
-# Configurations for comp ota_hal
-endif
