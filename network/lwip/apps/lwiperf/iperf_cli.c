@@ -199,7 +199,7 @@ static void _cli_iperf_help_Command( int argc, char **argv )
     LOGD(TAG, "Iperf UDP Client: iperf -c <ip> -u -l <datagram size> -t <duration> -p <port>\r\n" );
 }
 
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
 static uint8_t _cli_iperf_debug(int argc, char **argv)
 {
     int debug;
@@ -230,7 +230,7 @@ void iperf_Command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
     {
         _cli_iperf_help_Command( argc - 2, &argv[2] );
     }
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
     else
     if ( strcmp( argv[1], "-d" ) == 0 )
     {
