@@ -14,7 +14,8 @@ extern "C"
 #include <sys/time.h>
 
 #include "k_api.h"
-#include "posix_config.h"
+#include "posix/posix_config.h"
+#include "posix/enviro.h"
 
 /* the value of contentionscope in struct pthread_attr_t */
 #define PTHREAD_SCOPE_PROCESS   0
@@ -104,6 +105,7 @@ typedef struct _pthread_tcb {
     volatile unsigned char canceled;
 
     _pthread_cleanup_t *cleanup;
+    _pthread_environ_t *environ;
 
     void **tls;
     void  *return_value;
