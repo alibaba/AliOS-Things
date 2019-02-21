@@ -4,6 +4,36 @@
 
 #include "iotx_log_internal.h"
 
+
+
+/* 31, red. 32, green. 33, yellow. 34, blue. 35, magenta. 36, cyan. 37, white. */
+char *lvl_color[] = {
+    "[0m", "[1;31m", "[1;31m", "[1;35m", "[1;33m", "[1;36m", "[1;37m"
+};
+
+#ifdef BUILD_AOS 
+#include "ulog/ulog.h"
+
+
+static uint8_t stop_filter_level = LOG_NONE;
+int LITE_get_loglevel(void)
+{
+    return (int)stop_filter_level;
+}
+
+void LITE_set_loglevel(int pri)
+{
+    aos_log_level_t level = (aos_log_level_t)pri;
+    stop_filter_level = (uint8_t)pri;
+    if(pri > 0 && pri < 4) {
+        level += 1;
+    }else if(pri >= 4) {
+        level += 2;
+    }
+    aos_set_log_level(level);
+}
+#else
+
 static log_client logcb = {
     .name       = "linkkit",
     .priority   = LOG_INFO_LEVEL,
@@ -12,11 +42,6 @@ static log_client logcb = {
 
 static char *lvl_names[] = {
     "non", "crt", "err", "wrn", "inf", "dbg", "flw"
-};
-
-/* 31, red. 32, green. 33, yellow. 34, blue. 35, magenta. 36, cyan. 37, white. */
-char *lvl_color[] = {
-    "[0m", "[1;31m", "[1;31m", "[1;35m", "[1;33m", "[1;36m", "[1;37m"
 };
 
 void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params)
@@ -215,4 +240,4 @@ int LITE_hexdump(const char *title, const void *buff, const int len)
 
     return 0;
 }
-
+#endif
