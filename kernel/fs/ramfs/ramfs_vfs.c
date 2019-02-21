@@ -10,7 +10,6 @@
 #include "ramfs_api.h"
 #include "ramfs_adapt.h"
 #include "ramfs_types.h"
-#include "ulog/ulog.h"
 
 #define MAX_RAMFS_FILE_NAME_BYTES 32
 
@@ -366,8 +365,6 @@ static int ramfs_vfs_rmdir(vfs_file_t *fp, const char *path)
 
 static int ramfs_vfs_sync(vfs_file_t *fp)
 {
-    LOGI(TAG, "sync is running !\n");
-
     return 0;
 }
 
