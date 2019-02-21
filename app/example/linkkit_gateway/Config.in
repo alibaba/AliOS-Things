@@ -17,10 +17,12 @@ config LINKKIT_GATEWAY_CONFIG_DEPRECATED
     bool "Use Deprecated API"
     default n
     help
+    use deprecated api,compatible with aos2.0 and earlier, not recommended
 
 config LINKKIT_GATEWAY_CONFIG_PRINT_HEAP
     bool "Show Free Heap Duration"
     default n
     help
+    displays heap space periodically for debug
 
 endif

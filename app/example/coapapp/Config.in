@@ -9,14 +9,4 @@ config AOS_APP_COAPAPP
     help
         coap cloud example
 
-if AOS_APP_COAPAPP
-# Configurations for app coapapp
 
-config COAPAPP_CONFIG_LOOP
-    int "Test Loop"
-    range 0 1
-    default 0
-    help
-        test loop
-
-endif
