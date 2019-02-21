@@ -147,7 +147,7 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
             awss_free(encode_ssid);
         }
     }
-    awss_debug("last_ap:%lu\n", last_ap);
+    awss_debug("last_ap:%d\n", last_ap);
 
     if (last_ap || WIFI_APINFO_LIST_LEN < msg_len + ONE_AP_INFO_LEN_MAX + strlen(AWSS_ACK_FMT)) {
         if (last_ap)

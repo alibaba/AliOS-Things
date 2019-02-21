@@ -174,7 +174,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     buf = awss_cmp_get_coap_payload(request, &len);
     str = json_get_value_by_name(buf, len, "id", &str_len, 0);
     memcpy(req_msg_id, str, str_len > MSG_REQ_ID_LEN - 1 ? MSG_REQ_ID_LEN - 1 : str_len);
-    awss_trace("dev ap, len:%lu, %s\r\n", len, buf);
+    awss_trace("dev ap, len:%d, %s\r\n", len, buf);
     buf = json_get_value_by_name(buf, len, "params", &len, 0);
     if (buf == NULL)
         goto DEV_AP_SWITCHAP_END;
@@ -189,7 +189,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
 
         str_len = 0;
         str = json_get_value_by_name(buf, len, "ssid", &str_len, 0);
-        awss_trace("ssid, len:%lu, %s\r\n", str_len, str != NULL ? str : "NULL");
+        awss_trace("ssid, len:%d, %s\r\n", str_len, str != NULL ? str : "NULL");
         if (str && (str_len < PLATFORM_MAX_SSID_LEN)) {
             memcpy(ssid, str, str_len);
             ssid_found = 1;
