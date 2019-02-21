@@ -20,6 +20,12 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 # kconfig support
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
+define CHECK_UCUBE_VERSION
+$(if $(findstring 0.2,$(shell aos --version)),$(error aos-cube 0.3.x or newer is required, please update your aos-cube first! (eg. $$ aos upgrade)),)
+endef
+
+$(call CHECK_UCUBE_VERSION)
+
 define NO_CONFIG_ERROR
 $(info Please configure AliOS-Things first:)
 $(info *********************************************************************)
