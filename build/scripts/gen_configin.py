@@ -167,6 +167,21 @@ def create_app_config_in(config_file, config_list):
         cf.write("endif\n")
         cf.write("# %s\n" % autogen_end)
 
+def update_top_config_in(top_config_in):
+    """ Extra updates for build/Config.in """
+    contents = []
+    patten = re.compile(r"NULL|Null")
+    with open (top_config_in, "r") as cf:
+        for line in cf.readlines():
+            match = patten.match(line)
+            if match:
+                continue
+            contents += [line]
+
+    with open (top_config_in, "w") as cf:
+        for line in contents:
+            cf.write(line)
+
 def main():
     if not os.path.isfile("build/Makefile"):
         print("Error: %s must be run in Sources Root dir!\n" % sys.argv[0])
@@ -224,6 +239,9 @@ def main():
 
     if profile_config_list:
         create_app_config_in(profile_config_in, profile_config_list)
+
+    # Extra update for build/Config.in
+    update_top_config_in(top_config_in)
 
 if __name__ == "__main__":
     main()

@@ -37,18 +37,13 @@ def main():
                 else:
                     pass
 
-    if not aos_build_board:
-        print ("[ERROR]: Can't get AOS_BUILD_BOARD!")
-    if not aos_build_app:
-        print ("[ERROR]: Can't get AOS_BUILD_APP!")
-
     if appname != aos_build_app:
-        print ("[ERROR]: Check App name Failed! (%s -> %s)" % (appname, aos_build_app))
+        print ("[ERROR]: App name Missmatched! (%s -> %s)" % (appname, aos_build_app))
         print ("- Please make sure \"%s\" is a valid App and config items for it are correct!\n" % appname)
         return 1
 
     if boardname != aos_build_board:
-        print ("[ERROR]: Check Board name Failed! (%s -> %s)" % (boardname, aos_build_board))
+        print ("[ERROR]: Board name Missmatched! (%s -> %s)" % (boardname, aos_build_board))
         print ("- Please make sure \"%s\" is a valid Board and config items for it are correct!\n" % boardname)
         return 1
 

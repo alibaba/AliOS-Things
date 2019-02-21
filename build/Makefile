@@ -127,6 +127,10 @@ $(error Unknown target $(BUILD_STRING) ...)
 endif
 
 components := $(subst @, ,$(BUILD_STRING))
+ifneq ($(words $(components)),2)
+$(error App/Board Unknown, Please check your config!)
+endif
+
 # get real app name and check if it available
 appname = $(firstword $(components))
 appdir = $(subst .,/,$(appname))
