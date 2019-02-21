@@ -85,7 +85,7 @@
 #endif
 
 #define MEM_MAGIC                       (0x1234)
-
+#if WITH_MEM_STATS
 #define LITE_calloc(num, size, ...)     LITE_malloc_internal(__func__, __LINE__, (num * size), ##__VA_ARGS__)
 #define LITE_malloc(size, ...)          LITE_malloc_internal(__func__, __LINE__, size, ##__VA_ARGS__)
 #define LITE_realloc(ptr, size, ...)    LITE_realloc_internal(__func__, __LINE__, ptr, size, ##__VA_ARGS__)
@@ -99,6 +99,14 @@
         LITE_free_internal((void *)ptr); \
         ptr = NULL; \
     } while(0)
+    
+#else
+#define LITE_calloc(num, size, ...)     LITE_malloc_internal(NULL, 0, (num * size))
+#define LITE_malloc(size, ...)          LITE_malloc_internal(NULL, 0, size)
+#define LITE_realloc(ptr, size, ...)    LITE_realloc_internal(NULL, 0, ptr, size)
+#define LITE_free(ptr)                  LITE_free_internal((void *)ptr)
+#endif
+
 
 void       *LITE_malloc_internal(const char *f, const int l, int size, ...);
 void       *LITE_realloc_internal(const char *f, const int l, void *ptr, int size, ...);
