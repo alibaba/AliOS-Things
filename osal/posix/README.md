@@ -19,6 +19,7 @@
 posix
 ├── aos.mk                       # makefile of posix
 ├── dirent.c                     # implement of device IO and file system
+├── enviro.c                     # implement of environ variable
 ├── posix_init.c                 # implement of posix init
 ├── mqueue.c                     # implement of queue
 ├── prctl.h                      # implement of prctl

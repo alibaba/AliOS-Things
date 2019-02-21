@@ -15,6 +15,7 @@ $(NAME)_SOURCES += semaphore.c
 $(NAME)_SOURCES += mqueue.c
 $(NAME)_SOURCES += dirent.c
 $(NAME)_SOURCES += prctl.c
+$(NAME)_SOURCES += enviro.c
 $(NAME)_SOURCES += posix_init.c
 
 #default gcc
