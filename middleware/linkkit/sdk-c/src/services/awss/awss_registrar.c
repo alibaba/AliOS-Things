@@ -45,7 +45,7 @@ static int awss_enrollee_get_dev_info(char *payload, int payload_len, char *prod
 static struct enrollee_info enrollee_info[MAX_ENROLLEE_NUM];
 static char registrar_sched_cnt = 0;
 static char registrar_inited = 0;
-static char registrar_id = 0;
+static uint8_t registrar_id = 0;
 
 static void *checkin_timer = NULL;
 static void *enrollee_report_timer = NULL;
@@ -294,14 +294,14 @@ static int enrollee_enable_somebody_checkin(char *key, char *dev_name, int timeo
 {
     int i;
 
-    awss_debug("key:%s, dev_name:%s, timeout:%lu\r\n", key, dev_name, timeout);
+    awss_debug("key:%s, dev_name:%s, timeout:%d\r\n", key, dev_name, timeout);
     if (strlen(key) > MAX_PK_LEN ||
         strlen(dev_name) > MAX_DEV_NAME_LEN) {
         goto out;
     }
 
     for (i = 0; i < MAX_ENROLLEE_NUM; i++) {
-        awss_debug("len:%lu---%lu, name:%s---%s\r\n",
+        awss_debug("len:%u---%lu, name:%s---%s\r\n",
                    enrollee_info[i].dev_name_len, strlen(dev_name),
                    enrollee_info[i].dev_name, dev_name);
         awss_debug("enrollee[%d] state %d", i, enrollee_info[i].state);
@@ -349,7 +349,7 @@ static int awss_request_cipher_key(int i)
         char rand_str[(RANDOM_MAX_LEN << 1) + 1] = {0};
 
         utils_hex_to_str(enrollee_info[i].random, RANDOM_MAX_LEN, rand_str, sizeof(rand_str));
-        HAL_Snprintf(id, MSG_REQ_ID_LEN - 1, "\"%lu\"", registrar_id ++);
+        HAL_Snprintf(id, MSG_REQ_ID_LEN - 1, "\"%u\"", registrar_id ++);
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_DEV_CIPHER_FMT,
                      AWSS_VER, enrollee_info[i].pk, enrollee_info[i].dev_name, enrollee_info[i].security, rand_str);
         awss_build_packet(AWSS_CMP_PKT_TYPE_REQ, id, ILOP_VER, METHOD_EVENT_ZC_CIPHER, param, 0, packet, &packet_len);
@@ -506,7 +506,7 @@ int awss_report_set_interval(char *key, char *dev_name, int interval)
 {
     int i;
 
-    awss_debug("key:%s, dev_name:%s, interval:%lu\r\n", key, dev_name, interval);
+    awss_debug("key:%s, dev_name:%s, interval:%d\r\n", key, dev_name, interval);
     if (strlen(key) > MAX_PK_LEN ||
         strlen(dev_name) > MAX_DEV_NAME_LEN) {
         return -1;
@@ -667,7 +667,7 @@ int awss_report_enrollee(uint8_t *payload, int payload_len, signed char rssi)
 
         payload_str[payload_len * 2] = '\0'; /* sprintf not add '\0' in the end of string in qcom */
 
-        HAL_Snprintf(id, MSG_REQ_ID_LEN - 1, "\"%lu\"", registrar_id ++);
+        HAL_Snprintf(id, MSG_REQ_ID_LEN - 1, "\"%u\"", registrar_id ++);
 
         HAL_Snprintf(param, AWSS_REPORT_PKT_LEN - 1, AWSS_REPORT_PARAM_FMT,
                      AWSS_VER, ssid, bssid_str, rssi > 0 ? rssi - 256 : rssi, payload_str);
