@@ -30,6 +30,10 @@
 #include "lwip/apps/tftp.h"
 #endif
 
+#ifdef WITH_LWIP_IPERF
+extern int iperf_cli_register(void);
+#endif
+
 extern int  vfs_init(void);
 extern int  vfs_device_init(void);
 #ifdef AOS_LOOP
@@ -225,6 +229,11 @@ void cli_service_init(kinit_t *kinit)
 #ifndef CONFIG_NO_TCPIP
         tcpip_cli_init();
         hal_wifi_cli_init();
+
+#ifdef WITH_LWIP_IPERF
+        iperf_cli_register();
+#endif
+
 #endif
 
     }
