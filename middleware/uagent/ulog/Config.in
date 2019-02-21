@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_ULOG
-    bool "ulog"
+    bool "uLog Support"
     select AOS_COMP_OSAL_AOS
     default n
 
