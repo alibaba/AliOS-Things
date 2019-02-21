@@ -107,7 +107,6 @@ config APP_FEATURE_LINKKIT_COAP
     select COAP_COMM_ENABLED
     select HAL_CRYPTO
     select HTTP_COMM_ENABLED
-    select SUPPORT_TLS
     select UTILS_BASE64
     select UTILS_EVENT
     select UTILS_HTTPC

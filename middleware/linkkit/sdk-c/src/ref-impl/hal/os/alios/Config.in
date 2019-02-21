@@ -1,7 +1,7 @@
 menuconfig AOS_COMP_IOTX-HAL
     default n
-    select AOS_COMP_ITLS if @CONDITION@
-    select AOS_COMP_MBEDTLS if @CONDITION@
+    select AOS_COMP_ITLS if SUPPORT_ITLS = y
+    select AOS_COMP_MBEDTLS if SUPPORT_TLS = y
     help
       HAL for AliOS Things
 
