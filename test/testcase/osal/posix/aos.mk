@@ -15,6 +15,7 @@ $(NAME)_SOURCES := posix_cond_test.c          \
                    posix_tsd_test.c           \
                    posix_timer_test.c         \
                    posix_jump_test.c          \
+                   posix_enviro_test.c        \
                    posix_dirent_test.c
 
 $(NAME)_CFLAGS += -Wall -Werror
