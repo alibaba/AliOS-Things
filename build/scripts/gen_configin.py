@@ -170,7 +170,7 @@ def create_app_config_in(config_file, config_list):
 def update_top_config_in(top_config_in):
     """ Extra updates for build/Config.in """
     contents = []
-    patten = re.compile(r"NULL|Null")
+    patten = re.compile(r".*(NULL|Null).*")
     with open (top_config_in, "r") as cf:
         for line in cf.readlines():
             match = patten.match(line)
