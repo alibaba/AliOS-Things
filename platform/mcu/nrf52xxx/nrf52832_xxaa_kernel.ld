@@ -66,11 +66,11 @@ SECTIONS
     } > FLASH
 
     . = ALIGN(0x8);
-    .syscall_ktbl :
+    .kmbins_tbl :
     {
-        KEEP(*(.syscall_ktbl))
+        KEEP(*(.kmbins_tbl))
     } > FLASH
-    
+
     . = ALIGN(0x8);
     .text :
     {
@@ -123,31 +123,31 @@ SECTIONS
         __data_start__ = .;
         *(vtable)
         *(.data*)
-		
-	    . = ALIGN(8);	
+
+	    . = ALIGN(8);
 		/*DEVICE_INIT_SECTIONS    start*/
 		__device_init_start = .;
-		
-		__device_PRE_KERNEL_1_start = .;			
-		KEEP(*(SORT(.init_PRE_KERNEL_1[0-9])));		
-		KEEP(*(SORT(.init_PRE_KERNEL_1[1-9][0-9])));	
-		
-		__device_PRE_KERNEL_2_start = .;			
-		KEEP(*(SORT(.init_PRE_KERNEL_2[0-9])));		
+
+		__device_PRE_KERNEL_1_start = .;
+		KEEP(*(SORT(.init_PRE_KERNEL_1[0-9])));
+		KEEP(*(SORT(.init_PRE_KERNEL_1[1-9][0-9])));
+
+		__device_PRE_KERNEL_2_start = .;
+		KEEP(*(SORT(.init_PRE_KERNEL_2[0-9])));
 		KEEP(*(SORT(.init_PRE_KERNEL_2[1-9][0-9])));
-		
-		__device_POST_KERNEL_start = .;			
-		KEEP(*(SORT(.init_POST_KERNEL[0-9])));		
+
+		__device_POST_KERNEL_start = .;
+		KEEP(*(SORT(.init_POST_KERNEL[0-9])));
 		KEEP(*(SORT(.init_POST_KERNEL[1-9][0-9])));
-		
-		__device_APPLICATION_start = .;			
-		KEEP(*(SORT(.init_APPLICATION[0-9])));		
+
+		__device_APPLICATION_start = .;
+		KEEP(*(SORT(.init_APPLICATION[0-9])));
 		KEEP(*(SORT(.init_APPLICATION[1-9][0-9])));
-		
+
 		__device_init_end = .;
 		/*DEVICE_INIT_SECTIONS    start*/
-		
-		
+
+
         . = ALIGN(4);
         /* preinit data */
         PROVIDE_HIDDEN (__preinit_array_start = .);
@@ -196,21 +196,21 @@ SECTIONS
 		. = . + 0x200;
 		PROVIDE(__StackEnd = .);
     } > RAM
-	
+
 	__StackLen = __StackEnd - __StackStart;
     PROVIDE(__stack = __StackEnd);
 	PROVIDE(__StackTop = __stack);
 
 	PROVIDE (__HeapBase = __stack);
 	PROVIDE (heap_start = __HeapBase );
-	
+
     __HeapLimit = ORIGIN(RAM) + LENGTH(RAM);
 	PROVIDE (heap_end = __HeapLimit);
 	PROVIDE (heap_len = heap_end - heap_start);
-	
+
     /* Check if data + heap + stack exceeds RAM limit */
     /*ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")*/
-    
+
     /* Check if text sections + data exceeds FLASH limit */
     DataInitFlashUsed = __bss_start__ - __data_start__;
     CodeFlashUsed = __etext - ORIGIN(FLASH);
@@ -223,7 +223,7 @@ SECTIONS
     PROVIDE(ota_download_addr = 0x0);
 
     PROVIDE(kernel_type = 0xCDCDCDCD);
-    
+
 }
 
 GROUP(
