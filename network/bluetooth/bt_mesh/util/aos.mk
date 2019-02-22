@@ -1,6 +1,10 @@
 NAME := mesh_util
 
-$(NAME)_COMPONENTS := bluetooth.bt_mesh.ref-impl
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION := 1.0.0
+$(NAME)_SUMMARY := BLE Mesh util
+
+$(NAME)_COMPONENTS := mesh_hal_ref_impl
 
 $(NAME)_SOURCES := ./atomic_c.c \
                    ./buf.c \
