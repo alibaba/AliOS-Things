@@ -61,15 +61,21 @@ static unsigned int hash_gen(const char *key)
 /* insert or update a value indexed by key */
 static int hash_table_put(kv_file_t *file, const  char *key, void *value, int value_len)
 {
+    int i;
+    int read_size;
+    kv_item_t *kv;
+    int j = 0;
+    kv_item_t *p;
     if (!file || !file->filename ||  !key || !value  || value_len <= 0) {
         hal_err("paras err");
         return -1;
     }
-
-    int i = hash_gen(key);
+    
+    value_len = value_len > ITEM_MAX_VAL_LEN? ITEM_MAX_VAL_LEN:value_len;
+    i = hash_gen(key);
     hal_err("hash i= %d", i);
-    int read_size = ITEM_MAX_LEN * TABLE_ROW_SIZE;
-    kv_item_t *kv = malloc(read_size);
+    read_size = ITEM_MAX_LEN * TABLE_ROW_SIZE;
+    kv = malloc(read_size);
     if (kv == NULL) {
         hal_err("malloc kv err");
         return -1;
@@ -81,9 +87,7 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
         free_kv(kv);
         return -1;
     }
-
-    int j = 0;
-    kv_item_t *p = &kv[j];
+    p = &kv[j];
 
     while (p && p->value_len) { /* if key is already stroed, update its value */
 
@@ -105,7 +109,7 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
     p = &kv[j];
     if (p && !p->value_len) {/* if key has not been stored, then add it */
         //p->next = NULL;
-        strcpy(p->key, key);
+        strncpy(p->key, key, ITEM_MAX_KEY_LEN - 1);
         memcpy(p->value, value, value_len);
         p->value_len = value_len;
     }
@@ -122,17 +126,20 @@ static int hash_table_put(kv_file_t *file, const  char *key, void *value, int va
 /* get a value indexed by key */
 static int hash_table_get(kv_file_t *file, const char *key, void *value, int *len)
 {
-
+    int i;
+    int read_size;
+    kv_item_t *kv;
+    int j = 0;
+    struct kv *p;
     if (!file || !file->filename || !key || !value || !len  || *len <= 0) {
         hal_err("paras err");
         return -1;
     }
+    
+    i = hash_gen(key);
 
-
-    int i = hash_gen(key);
-
-    int read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE;
-    kv_item_t *kv = malloc(read_size);
+    read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE;
+    kv = malloc(read_size);
     if (kv == NULL) {
         hal_err("malloc kv err");
         return -1;
@@ -146,8 +153,7 @@ static int hash_table_get(kv_file_t *file, const char *key, void *value, int *le
     }
 
     // struct kv *p = ht->table[i];
-    int j = 0;
-    struct kv *p = &kv[j];
+    p = &kv[j];
 
     while (p && p->value_len) {
         if (strcmp(key, p->key) == 0) {
@@ -169,12 +175,17 @@ static int hash_table_get(kv_file_t *file, const char *key, void *value, int *le
 /* remove a value indexed by key */
 static int hash_table_rm(kv_file_t *file,  const  char *key)
 {
+    int i;
+    int read_size;
+    kv_item_t *kv;
+    int j = 0;
+    struct kv *p;
     if (!file || !file->filename ||  !key) {
         return -1;
     }
-    int i = hash_gen(key) % TABLE_COL_SIZE;
-    int read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE;
-    kv_item_t *kv = malloc(read_size);
+    i = hash_gen(key) % TABLE_COL_SIZE;
+    read_size = sizeof(kv_item_t) * TABLE_ROW_SIZE;
+    kv = malloc(read_size);
     if (kv == NULL) {
         return -1;
     }
@@ -185,8 +196,7 @@ static int hash_table_rm(kv_file_t *file,  const  char *key)
         return -1;
     }
 
-    int j = 0;
-    struct kv *p = &kv[j];
+    p = &kv[j];
 
     while (p && p->value_len) {
         if (strcmp(key, p->key) == 0) {
@@ -208,13 +218,16 @@ static int hash_table_rm(kv_file_t *file,  const  char *key)
 
 static int read_kv_item(const char *filename, void *buf, int location)
 {
+    struct stat st;
+    int ret = 0;
+    int offset;
     int fd = open(filename, O_RDONLY);
+
     if (fd < 0) {
         hal_err("open err");
         return -1;
     }
-
-    struct stat st;
+    
     if (fstat(fd, &st) < 0) {
         hal_err("fstat err");
         close(fd);
@@ -227,8 +240,13 @@ static int read_kv_item(const char *filename, void *buf, int location)
         return -1;
     }
 
-    int offset =  location * ITEM_MAX_LEN * TABLE_ROW_SIZE;
-    lseek(fd, offset, SEEK_SET);
+    offset =  location * ITEM_MAX_LEN * TABLE_ROW_SIZE;
+    ret = lseek(fd, offset, SEEK_SET);
+    if(ret < 0) {
+        hal_err("lseek err");
+        close(fd);
+        return -1;
+    }
 
     if (read(fd, buf, ITEM_MAX_LEN * TABLE_ROW_SIZE) != ITEM_MAX_LEN * TABLE_ROW_SIZE) {
         hal_err("read err");
@@ -242,12 +260,14 @@ static int read_kv_item(const char *filename, void *buf, int location)
 
 static int write_kv_item(const char *filename, void *data, int location)
 {
+    struct stat st;
+    int offset;
+    int ret;
     int fd = open(filename, O_WRONLY);
     if (fd < 0) {
         return -1;
     }
 
-    struct stat st;
     if (fstat(fd, &st) < 0) {
         hal_err("fstat err");
         close(fd);
@@ -261,8 +281,13 @@ static int write_kv_item(const char *filename, void *data, int location)
         return -1;
     }
 
-    int offset = (location) * ITEM_MAX_LEN * TABLE_ROW_SIZE;
-    lseek(fd, offset, SEEK_SET);
+    offset = (location) * ITEM_MAX_LEN * TABLE_ROW_SIZE;
+    ret = lseek(fd, offset, SEEK_SET);
+    if(ret < 0) {
+        hal_err("lseek err");
+        close(fd);
+        return -1;
+    }
 
     if (write(fd, data, ITEM_MAX_LEN * TABLE_ROW_SIZE) != ITEM_MAX_LEN * TABLE_ROW_SIZE) {
         hal_err("kv write failed");
@@ -279,15 +304,16 @@ static int write_kv_item(const char *filename, void *data, int location)
 static int create_hash_file(kv_file_t *hash_kv)
 {
     int i;
+    int fd;
+    char init_data[ITEM_MAX_LEN * TABLE_ROW_SIZE] = {0};
     if (hash_kv == NULL) {
         return -1;
     }
-    int fd = open(hash_kv->filename, O_CREAT | O_RDWR, 0644);
+    fd = open(hash_kv->filename, O_CREAT | O_RDWR, 0644);
     if (fd < 0) {
         return -1;
     }
 
-    char init_data[ITEM_MAX_LEN * TABLE_ROW_SIZE] = {0};
     for (i = 0; i < TABLE_COL_SIZE ; i++) {
 
         if (write(fd, init_data, ITEM_MAX_LEN * TABLE_ROW_SIZE) != ITEM_MAX_LEN *
@@ -337,12 +363,13 @@ fail:
 
 static int __kv_get(kv_file_t *file, const char *key, void *value, int *value_len)
 {
+    int ret;
     if (!file || !key || !value || !value_len || *value_len <= 0) {
         return -1;
     }
 
     pthread_mutex_lock(&file->lock);
-    int ret = hash_table_get(file, key, value, value_len);
+    ret = hash_table_get(file, key, value, value_len);
     pthread_mutex_unlock(&file->lock);
 
     return ret;
@@ -350,12 +377,13 @@ static int __kv_get(kv_file_t *file, const char *key, void *value, int *value_le
 
 static int __kv_set(kv_file_t *file, const char *key, void *value, int value_len)
 {
+    int ret;
     if (!file || !key || !value || value_len <= 0) {
         return -1;
     }
 
     pthread_mutex_lock(&file->lock);
-    int ret = hash_table_put(file, key, value, value_len);
+    ret = hash_table_put(file, key, value, value_len);
     pthread_mutex_unlock(&file->lock);
 
     return ret;
@@ -363,13 +391,14 @@ static int __kv_set(kv_file_t *file, const char *key, void *value, int value_len
 
 int __kv_del(kv_file_t *file, const  char *key)
 {
+    int ret;
     if (!file || !key) {
         return -1;
     }
 
     /* remove old value if exist */
     pthread_mutex_lock(&file->lock);
-    int ret = hash_table_rm(file, key);
+    ret = hash_table_rm(file, key);
     pthread_mutex_unlock(&file->lock);
 
     return ret;
