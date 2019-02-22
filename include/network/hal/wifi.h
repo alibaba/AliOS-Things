@@ -294,7 +294,7 @@ int hal_wifi_get_ip_stat(hal_wifi_module_t *m,
 int hal_wifi_get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat);
 
 /**
- * scan wifi ap list 
+ * scan wifi ap list
  *
  * @param[in]   m         the wifi instance, NULL if default.
  * @param[out]  out_stat  the place to hold the results.
