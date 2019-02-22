@@ -42,7 +42,7 @@ static void fetch_ip_stat(void *arg)
 void at_wevent_handler(void *arg, char *buf, int buflen)
 {
     hal_wifi_module_t *m;
-    
+
     if (NULL == arg){
         m = hal_wifi_get_default_module();
     } else {
@@ -143,7 +143,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv)
 {
     (void)init_para_adv;
- 
+
     return 0;
 }
 
@@ -247,8 +247,8 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
     /* CURRENTAPINFO */
     char out[128] = {0};
     int res;
-    
-    if (!out_stat) 
+
+    if (!out_stat)
     {
         LOGE(TAG, "%s: line:%d fail\r\n", __func__, __LINE__);
         return -1;
@@ -257,7 +257,7 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
     out_stat->is_connected = 0;
 
     memset(out, 0, sizeof(out));
-    
+
     res = at_send_wait_reply(CURRENTAPINFO, strlen(CURRENTAPINFO), true,
                              NULL, 0, out, sizeof(out), NULL);
 
@@ -270,7 +270,7 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
         LOGE(TAG, "AT command %s failed\r\n", CURRENTAPINFO);
         return -1;
     }
-    
+
     if (strstr(out, AT_RSP_FAIL) || !strstr(out, CURRENTAPINFOPREFIX)) {
         LOGE(TAG, "Command  %s executed with ERROR", CURRENTAPINFO);
         return -1;
@@ -283,16 +283,16 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
 
     sscanf(out, "%*[^:]:%[^,],%[^,],%d,%d",
            tmp_ssid, tmp_bssid, &out_stat->channel, &out_stat->wifi_strength);
-    
+
     strncpy(out_stat->ssid, tmp_ssid, sizeof(out_stat->ssid));
     out_stat->ssid[sizeof(out_stat->ssid) - 1] = 0;
 
-    out_stat->bssid[0] = _char2num(tmp_bssid[0])  * 16 + _char2num(tmp_bssid[1]); 
-    out_stat->bssid[1] = _char2num(tmp_bssid[2])  * 16 + _char2num(tmp_bssid[3]); 
-    out_stat->bssid[2] = _char2num(tmp_bssid[4])  * 16 + _char2num(tmp_bssid[5]); 
-    out_stat->bssid[3] = _char2num(tmp_bssid[6])  * 16 + _char2num(tmp_bssid[7]); 
-    out_stat->bssid[4] = _char2num(tmp_bssid[8])  * 16 + _char2num(tmp_bssid[9]); 
-    out_stat->bssid[5] = _char2num(tmp_bssid[10]) * 16 + _char2num(tmp_bssid[11]); 
+    out_stat->bssid[0] = _char2num(tmp_bssid[0])  * 16 + _char2num(tmp_bssid[1]);
+    out_stat->bssid[1] = _char2num(tmp_bssid[2])  * 16 + _char2num(tmp_bssid[3]);
+    out_stat->bssid[2] = _char2num(tmp_bssid[4])  * 16 + _char2num(tmp_bssid[5]);
+    out_stat->bssid[3] = _char2num(tmp_bssid[6])  * 16 + _char2num(tmp_bssid[7]);
+    out_stat->bssid[4] = _char2num(tmp_bssid[8])  * 16 + _char2num(tmp_bssid[9]);
+    out_stat->bssid[5] = _char2num(tmp_bssid[10]) * 16 + _char2num(tmp_bssid[11]);
 
     return 0;
 
@@ -304,7 +304,7 @@ static char * str_get_line(char **p, char * dest)
     char * old_dest = dest;
 
     //LOGI(TAG, "str_get_line src: %s\n", src);
-    
+
     while (*src && (*src == '\r' || *src == '\n'))
     {
         src++;
@@ -316,21 +316,21 @@ static char * str_get_line(char **p, char * dest)
     }
 
     //LOGI(TAG, "str_get_line dest: %s\n", old_dest);
-    
+
     *p = src;
-    return dest;   
+    return dest;
 }
 
 /*
 int rltv = sscanf(tmp, "%[^,],%[^,],%d,%d,%d",
-                  tmp_ssid, tmp_bssid, &en, &rlt->channel, &rlt->wifi_strength);  
+                  tmp_ssid, tmp_bssid, &en, &rlt->channel, &rlt->wifi_strength);
 
 */
 
-static int scan_one_ap(char * ap_info, 
-                       char * ssid, 
-                       char * bssid, 
-                       int  * channel, 
+static int scan_one_ap(char * ap_info,
+                       char * ssid,
+                       char * bssid,
+                       int  * channel,
                        int  * signal_strength)
 {
     /* HOME_WIFI,0C704AD8D4E4,5,11,-92 */
@@ -362,7 +362,7 @@ static int scan_one_ap(char * ap_info,
     {
         *bssid++ = *p++;
     }
-    
+
     if (*p == ',')
     {
         p++;
@@ -375,7 +375,7 @@ static int scan_one_ap(char * ap_info,
     int en;
 
     sscanf(p, "%d,%d,%d", &en, channel, signal_strength);
-    
+
     return 0;
 }
 
@@ -389,14 +389,14 @@ static int scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, ui
 
     char out[2048] = {0};
     int res;
-    
-    if (!out_stat || !ap_num) 
+
+    if (!out_stat || !ap_num)
     {
         LOGE(TAG, "%s: line:%d fail\r\n", __func__, __LINE__);
         return -1;
-    }   
+    }
 
-    res = at_send_wait_reply(SCANALLINFO, strlen(SCANALLINFO), true, 
+    res = at_send_wait_reply(SCANALLINFO, strlen(SCANALLINFO), true,
                              NULL, 0,
                              out, sizeof(out), NULL);
 
@@ -410,28 +410,28 @@ static int scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, ui
         return -1;
     }
 
-    if (strstr(out, AT_RSP_FAIL)) 
+    if (strstr(out, AT_RSP_FAIL))
     {
         LOGE(TAG, "Command  %s executed with ERROR", SCANALLINFO);
         return -1;
-    }   
+    }
 
-    res = at_send_wait_reply(SCAN, strlen(SCAN), true, 
+    res = at_send_wait_reply(SCAN, strlen(SCAN), true,
                              NULL, 0,
                              out, sizeof(out), NULL);
 
-    if (res == 0)                             
+    if (res == 0)
     {
         LOGI(TAG, "AT command %s succeed, rsp: %s", SCAN, out);
     }
-    else 
+    else
     {
         LOGE(TAG, "AT command %s failed\r\n", SCAN);
         return -1;
-    }        
-                             
+    }
+
     char *p_ap_num = strstr(out, SCANPREFIX);
-    
+
     if (strstr(out, AT_RSP_FAIL) || !p_ap_num)
     {
         LOGE(TAG, "Command  %s executed with ERROR", SCANPREFIX);
@@ -441,7 +441,7 @@ static int scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, ui
     hal_wifi_link_stat_t *rlt = out_stat;
     int rlt_num;
     int scan_rlt_num = 0;
-    
+
     char tmp[64];
     char *p = out;
     memset(tmp, 0, sizeof(tmp));
@@ -451,11 +451,11 @@ static int scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, ui
     scan_rlt_num = scan_rlt_num < *ap_num ? scan_rlt_num : *ap_num;
 
     *ap_num = scan_rlt_num;
-    
+
     //LOGI(TAG, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX scan_rlt_num = %d\n", scan_rlt_num);
 
     int idx = 0;
-    
+
     while (idx < scan_rlt_num)
     {
         /*
@@ -474,7 +474,7 @@ static int scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, ui
         if (strstr(tmp, SCANPREFIX))
         {
             /*
-            sscanf(tmp, "+WSCAN:%d", &rlt_num);      
+            sscanf(tmp, "+WSCAN:%d", &rlt_num);
             rlt_num = rlt_num < *ap_num ? rlt_num : *ap_num;
             */
         }
@@ -485,34 +485,34 @@ static int scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, ui
 
             /*
             int rltv = sscanf(tmp, "%[^,],%[^,],%d,%d,%d",
-                              tmp_ssid, tmp_bssid, &en, &rlt->channel, &rlt->wifi_strength);       
+                              tmp_ssid, tmp_bssid, &en, &rlt->channel, &rlt->wifi_strength);
             */
 
             memset(tmp_ssid,  0, sizeof(tmp_ssid));
             memset(tmp_bssid, 0, sizeof(tmp_bssid));
-            
+
             scan_one_ap(tmp, tmp_ssid, tmp_bssid, &rlt->channel, &rlt->wifi_strength);
-            
+
             strncpy(rlt->ssid, tmp_ssid, sizeof(rlt->ssid));
-            rlt->ssid[sizeof(rlt->ssid) - 1] = 0;    
-            
-            rlt->bssid[0] = _char2num(tmp_bssid[0])  * 16 + _char2num(tmp_bssid[1]); 
-            rlt->bssid[1] = _char2num(tmp_bssid[2])  * 16 + _char2num(tmp_bssid[3]); 
-            rlt->bssid[2] = _char2num(tmp_bssid[4])  * 16 + _char2num(tmp_bssid[5]); 
-            rlt->bssid[3] = _char2num(tmp_bssid[6])  * 16 + _char2num(tmp_bssid[7]); 
-            rlt->bssid[4] = _char2num(tmp_bssid[8])  * 16 + _char2num(tmp_bssid[9]); 
-            rlt->bssid[5] = _char2num(tmp_bssid[10]) * 16 + _char2num(tmp_bssid[11]);             
+            rlt->ssid[sizeof(rlt->ssid) - 1] = 0;
+
+            rlt->bssid[0] = _char2num(tmp_bssid[0])  * 16 + _char2num(tmp_bssid[1]);
+            rlt->bssid[1] = _char2num(tmp_bssid[2])  * 16 + _char2num(tmp_bssid[3]);
+            rlt->bssid[2] = _char2num(tmp_bssid[4])  * 16 + _char2num(tmp_bssid[5]);
+            rlt->bssid[3] = _char2num(tmp_bssid[6])  * 16 + _char2num(tmp_bssid[7]);
+            rlt->bssid[4] = _char2num(tmp_bssid[8])  * 16 + _char2num(tmp_bssid[9]);
+            rlt->bssid[5] = _char2num(tmp_bssid[10]) * 16 + _char2num(tmp_bssid[11]);
 
             //LOGI(TAG, "%s, %s, %d, %d", tmp_ssid, tmp_bssid, rlt->channel, rlt->wifi_strength);
-            
+
             rlt++;
             idx++;
         }
-        
-        memset(tmp, 0, sizeof(tmp));    
-        
+
+        memset(tmp, 0, sizeof(tmp));
+
     }
-    
+
     //LOGI(TAG, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
     LOGI(TAG, "%s", out);
 

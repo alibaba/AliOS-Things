@@ -489,41 +489,41 @@ void sim800_get_gprs_network_info(char * bts, int btslen, char * neighterbts, in
 
     memset(bts,         0, btslen);
     memset(neighterbts, 0, nbtslen);
-    
-    if (!inited) 
+
+    if (!inited)
     {
-        LOGE(TAG, "%s sim800 gprs module haven't init yet \r\n", __func__);        
+        LOGE(TAG, "%s sim800 gprs module haven't init yet \r\n", __func__);
     }
 
     /* set engineering mode to engineering mode with neighbering cell info */
     memset(rsp, 0, sizeof(rsp));
     at_send_wait_reply(AT_CMD_SETENGMODE, strlen(AT_CMD_SETENGMODE), true,
                        NULL, 0, rsp, AT_CMD_GETENGMODE_LEN, NULL);
-    
-    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) 
+
+    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL)
     {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
-    
+
     /* get cell info */
-    
+
     memset(rsp, 0, sizeof(rsp));
     at_send_wait_reply(AT_CMD_GETENGMODE, strlen(AT_CMD_GETENGMODE), true,
                        NULL, 0, rsp, AT_CMD_GETENGMODE_LEN, NULL);
-    
-    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) 
+
+    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL)
     {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
-    
+
     LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
 
     char cellinfo_prefix_buf[64] = {"+CENG: 0,"};
-    
+
     char * p_start = strstr(rsp, cellinfo_prefix_buf);
-    
+
     if (p_start != NULL)
     {
         int cell = -1;
@@ -535,8 +535,8 @@ void sim800_get_gprs_network_info(char * bts, int btslen, char * neighterbts, in
         int rxl;
 
         /* <cell>,<mcc>,<mnc>,<lac>,<cellid>,<bsic>,<rxl> */
-        sscanf(p_start, 
-               "+CENG: %d,\"%d,%d,%x,%x,%d,%d\"", 
+        sscanf(p_start,
+               "+CENG: %d,\"%d,%d,%x,%x,%d,%d\"",
                &cell, &mcc, &mnc, &lac, &cellid, &bsic, &rxl);
 
         if (cell != 0)
@@ -551,7 +551,7 @@ void sim800_get_gprs_network_info(char * bts, int btslen, char * neighterbts, in
         while (mcc != 0)
         {
             signal = rxl - 113; /* signal strength = 2 * rxl - 113 dbm */
-            
+
             /* -113 < signal < 0 */
             signal = signal > 0 ? 0 : (signal < (-113) ? -113 : signal);
 
@@ -574,7 +574,7 @@ void sim800_get_gprs_network_info(char * bts, int btslen, char * neighterbts, in
                     snprintf(neighterbts + strlen(neighterbts), nbtslen - strlen(neighterbts), "|%d,%d,%d,%d,%d", mcc, mnc, lac, cellid, signal);
                 }
             }
-            
+
             memset(cellinfo_prefix_buf, 0, sizeof(cellinfo_prefix_buf));
             sprintf(cellinfo_prefix_buf, "+CENG: %d,", cell + 1);
 
@@ -586,24 +586,24 @@ void sim800_get_gprs_network_info(char * bts, int btslen, char * neighterbts, in
             }
 
             mcc = 0;
-            sscanf(p_start, 
-                   "+CENG: %d,\"%d,%d,%x,%x,%d,%d\"", 
+            sscanf(p_start,
+                   "+CENG: %d,\"%d,%d,%x,%x,%d,%d\"",
                    &cell, &mcc, &mnc, &lac, &cellid, &bsic, &rxl);
         }
-                
+
     }
 
     /* close engineering mode */
     memset(rsp, 0, sizeof(rsp));
     at_send_wait_reply(AT_CMD_CLOSEENGMODE, strlen(AT_CMD_CLOSEENGMODE), true,
                        NULL, 0, rsp, AT_CMD_GETENGMODE_LEN, NULL);
-    
-    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) 
+
+    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL)
     {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
-   
+
     /* restore original engineering mode */
 }
 
@@ -622,16 +622,16 @@ void sim800_get_gprs_network_info(char * bts, int btslen, char * neighterbts, in
 void sim800_get_gps(float * latitude, float * longitude, float * altitude)
 {
     int ret = 0;
-    char rsp[AT_CMD_GPS_DEFAULT_RSP_LEN] = {0};   
+    char rsp[AT_CMD_GPS_DEFAULT_RSP_LEN] = {0};
 
     latitude = 90; /* north pole */
     altitude = 0;
-    
+
     memset(rsp, 0, sizeof(rsp));
     ret = at_send_wait_reply(AT_CMD_GPS_POWER_ON, strlen(AT_CMD_GPS_POWER_ON),
                              true, NULL, 0, rsp, AT_CMD_GPS_DEFAULT_RSP_LEN, NULL);
-    
-    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL)) 
+
+    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL))
     {
         LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -640,8 +640,8 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     memset(rsp, 0, sizeof(rsp));
     ret = at_send_wait_reply(AT_CMD_GPS_LASTPARSE_SET, strlen(AT_CMD_GPS_LASTPARSE_SET),
                              true, NULL, 0, rsp, AT_CMD_GPS_DEFAULT_RSP_LEN, NULL);
-    
-    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL)) 
+
+    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL))
     {
         LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -650,8 +650,8 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     memset(rsp, 0, sizeof(rsp));
     ret = at_send_wait_reply(AT_CMD_GPS_INTERVAL_CLOSE, strlen(AT_CMD_GPS_INTERVAL_CLOSE),
                              true, NULL, 0, rsp, AT_CMD_GPS_DEFAULT_RSP_LEN, NULL);
-    
-    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL)) 
+
+    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL))
     {
         LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -660,8 +660,8 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     memset(rsp, 0, sizeof(rsp));
     ret = at_send_wait_reply(AT_CMD_GPS_POSITION_GET, strlen(AT_CMD_GPS_POSITION_GET),
                              true, NULL, 0, rsp, AT_CMD_GPS_DEFAULT_RSP_LEN, NULL);
-    
-    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL)) 
+
+    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL))
     {
         LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
         return -1;
@@ -670,9 +670,9 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
 
 
-    /* +CGNSINF: <GNSS run status>,<Fix status>, 
+    /* +CGNSINF: <GNSS run status>,<Fix status>,
                  <UTC date & Time>,<Latitude>,<Longitude>, <MSL Altitude>,
-                 <Speed Over Ground>, <Course Over Ground>, 
+                 <Speed Over Ground>, <Course Over Ground>,
                  <Fix Mode>,<Reserved1>,<HDOP>,
                  <PDOP>, <VDOP>,<Reserved2>,
                  <GNSS Satellites in View>, <GNSS Satellites Used>,
@@ -687,7 +687,7 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     memset(tmp_log, 0, sizeof(tmp_log));
     memset(tmp_alt, 0, sizeof(tmp_alt));
 
-    ret = sscanf(rsp, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,]", 
+    ret = sscanf(rsp, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,]",
                  tmp_buf, tmp_buf, tmp_buf, tmp_lat, tmp_log, tmp_alt, tmp_buf);
 
     if (ret < GET_GPS_INFO_MIN_NUM)
