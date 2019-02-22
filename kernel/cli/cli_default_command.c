@@ -89,7 +89,7 @@ static void help_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 static void version_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 {
 #ifdef OSAL_RHINO
-    cli_printf("kernel version :%d\r\n", krhino_version_get());
+    cli_printf("kernel version :%d\r\n", (int32_t)krhino_version_get());
 #else
     cli_printf("kernel version :posix\r\n");
 #endif
@@ -181,7 +181,7 @@ static void pmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
         case 1:
             for (i = 0; i < nunits; i++) {
                 if (i % 16 == 0) {
-                    cli_printf("0x%08x:", addr);
+                    cli_printf("0x%08x:", (uint32_t)addr);
                 }
                 cli_printf(" %02x", *(unsigned char *)addr);
                 addr += 1;
@@ -193,7 +193,7 @@ static void pmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
         case 2:
             for (i = 0; i < nunits; i++) {
                 if (i % 8 == 0) {
-                    cli_printf("0x%08x:", addr);
+                    cli_printf("0x%08x:", (uint32_t)addr);
                 }
                 cli_printf(" %04x", *(unsigned short *)addr);
                 addr += 2;
@@ -205,7 +205,7 @@ static void pmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
         default:
             for (i = 0; i < nunits; i++) {
                 if (i % 4 == 0) {
-                    cli_printf("0x%08x:", addr);
+                    cli_printf("0x%08x:", (uint32_t)addr);
                 }
                 cli_printf(" %08x", *(unsigned int *)addr);
                 addr += 4;
@@ -266,8 +266,8 @@ static void mmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
             new_value = *(uint32_t volatile *)addr;
             break;
     }
-    cli_printf("value on 0x%x change from 0x%x to 0x%x.\r\n", addr,
-                   old_value, new_value);    
+    cli_printf("value on 0x%x change from 0x%x to 0x%x.\r\n", (uint32_t)addr,
+                   old_value, new_value);
 }
 
 #endif

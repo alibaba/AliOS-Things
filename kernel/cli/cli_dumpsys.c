@@ -219,10 +219,10 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
 #else
         cli_printf("%-19s%-9s%-5d%-10d%-12u%-9u%3d.%02d   %-11c \r\n",
                     taskinfoeach->task_name, cpu_stat[taskinfoeach->task_state],
-                    taskinfoeach->task_prio, taskinfoeach->stack_size,
+                    taskinfoeach->task_prio, (int32_t)taskinfoeach->stack_size,
                     taskinfoeach->free_size, (uint32_t)taskinfoeach->time_total,
-                    taskinfoeach->task_cpu_usage / 100,
-                    taskinfoeach->task_cpu_usage % 100,
+                    (int32_t)(taskinfoeach->task_cpu_usage / 100),
+                    (int32_t)(taskinfoeach->task_cpu_usage % 100),
                     taskinfoeach->candidate);
 #endif
     }
