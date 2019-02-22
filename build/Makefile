@@ -56,7 +56,7 @@ else ifneq ($(filter %.export-iar, $(BUILD_STRING)),)
 export IDE := iar
 endif
 
-ifneq ($(filter %.config, $(MAKECMDGOALS)),)
+ifneq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
 $(shell rm -rf .config .defconfig out/config)
 endif
 
@@ -159,22 +159,6 @@ ifneq ($(defconfig),)
 export BOARD_DEFCONFIG := $(defconfig)
 AOS_DEFCONFIG := $(BOARD_DEFCONFIG)
 endif
-
-ifneq ($(wildcard $(AOS_CONFIG)),)
-include $(AOS_CONFIG)
-
-ifneq ($(AOS_BUILD_APP),)
-ifneq ($(AOS_BUILD_APP),"$(appname)")
-$(error App name missmatched: $(AOS_BUILD_APP),"$(appname)")
-endif
-endif # $(AOS_BUILD_APP)
-
-ifneq ($(AOS_BUILD_BOARD),)
-ifneq ($(AOS_BUILD_BOARD),"$(boardname)")
-$(error Board name missmatched: $(AOS_BUILD_BOARD),"$(boardname)")
-endif
-endif # $(AOS_BUILD_BOARD)
-endif # $(wildcard $(AOS_CONFIG))
 
 export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst board_,,$(real_boardname))))
 export AOS_APP_CONFIG = AOS_APP_$(shell $(PYTHON) $(TR) $(subst -,_,$(subst app_,,$(real_appname))))
