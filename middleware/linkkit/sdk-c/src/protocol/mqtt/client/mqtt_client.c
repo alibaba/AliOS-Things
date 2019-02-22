@@ -1202,7 +1202,7 @@ static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_
     while (sent < length && !utils_time_is_expired(time)) {
         left_t = iotx_time_left(time);
         left_t = (left_t == 0) ? 1 : left_t;
-        rc = c->ipstack->write(c->ipstack, &buf[sent], length, left_t);
+        rc = c->ipstack->write(c->ipstack, &buf[sent], length - sent, left_t);
         if (rc < 0) { /* there was an error writing the data */
             break;
         }
