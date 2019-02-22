@@ -37,6 +37,10 @@ def main():
                 else:
                     pass
 
+    if not aos_build_app:
+        print ("[ERROR]: The app name from config is null, please check config file firstly!")
+        return 1
+
     if appname != aos_build_app:
         print ("[ERROR]: App name Missmatched! (%s -> %s)" % (appname, aos_build_app))
         print ("- Please make sure \"%s\" is a valid App and config items for it are correct!\n" % appname)
