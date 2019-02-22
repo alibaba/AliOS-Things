@@ -246,9 +246,19 @@ endef
 # $(1) is the list of components left to process. $(COMP) is set as the first element in the list
 define PROCESS_COMPONENT
 AOS_SDK_DEFINES += MCU_FAMILY=\"$(HOST_MCU_FAMILY)\"
-$(info *** All components: $(sort $(REAL_COMPONENTS_LOCS)))
-$(if $(NOCONFIG),,$(info *** Enabled by config: $(sort $(subst board_,,$(OBJ-y)))))
-$(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
+$(eval CONFIG_IN_COMPONENTS := $(sort $(subst board_,,$(OBJ-y))))
+$(eval ONLY_IN_AOSMK := $(filter-out $(CONFIG_IN_COMPONENTS), $(REAL_COMPONENTS_LOCS)))
+$(eval ONLY_IN_CONFIGIN := $(filter-out $(REAL_COMPONENTS_LOCS), $(CONFIG_IN_COMPONENTS)))
+$(eval ALL_COMPONENTS := $(REAL_COMPONENTS_LOCS) $(ONLY_IN_CONFIGIN))
+$(info *** All Components: $(ALL_COMPONENTS))
+$(if $(DEBUG_CONFIG), \
+    $(info *** MKFile Enabled: $(REAL_COMPONENTS_LOCS)) \
+    $(info *** Config Enabled: $(CONFIG_IN_COMPONENTS)) \
+    $(if $(ONLY_IN_AOSMK), $(info *** MKFile Enabled Only: $(ONLY_IN_AOSMK)),) \
+    $(if $(ONLY_IN_CONFIGIN), $(info *** Config Enabled Only: $(ONLY_IN_CONFIGIN)),), \
+    $(if $(ONLY_IN_CONFIGIN), $(info *** Config Enabled: $(ONLY_IN_CONFIGIN)),) \
+)
+$(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS) $(ONLY_IN_CONFIGIN),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 
 endef
 
@@ -454,6 +464,10 @@ $(MAKECMDGOALS): $(CONFIG_FILE) $(TOOLCHAIN_HOOK_TARGETS)
 
 $(CONFIG_FILE_DIR):
 	$(QUIET)$(call MKDIR, $@)
+
+ifeq ($(NOCONFIG),)
+$(CONFIG_FILE): $(AOS_CONFIG_DIR)/autoconf.h
+endif
 
 # Create config.mk
 $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
