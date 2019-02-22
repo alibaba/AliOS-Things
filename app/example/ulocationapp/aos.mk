@@ -10,7 +10,7 @@ $(NAME)_SOURCES += linkkit_example_solo.c
 $(NAME)_COMPONENTS += linkkit_sdk_c
 
 $(NAME)_COMPONENTS += netmgr cjson 
-$(NAME)_COMPONENTS += middleware/ulocation 
+$(NAME)_COMPONENTS += ulocation
 
 $(NAME)_COMPONENTS += ota
 

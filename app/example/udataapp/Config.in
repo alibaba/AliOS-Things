@@ -16,11 +16,6 @@ config AOS_APP_UDATAAPP
 if AOS_APP_UDATAAPP
 # Configurations for comp udata
 
-config LWIP
-    int "LWIP"
-    range 0 1
-    default 1
-
 config AOS_CONFIG_DTC_ENABLE
     bool "Data to Cloud"
     default n
@@ -43,7 +38,14 @@ if AOS_CONFIG_DTC_ENABLE
               Enable mqtt
 
   endchoice
-endif  
+endif
+
+if AOS_CONFIG_DTC_LINKKIT
+config LWIP
+    int "LWIP"
+    range 0 1
+    default 1
+endif
 
 config AOS_CONFIG_DTC_TYPE
     string
