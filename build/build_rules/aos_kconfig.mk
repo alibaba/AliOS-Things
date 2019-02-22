@@ -125,7 +125,7 @@ list-defconfigs:
 	$(QUIET)$(ECHO) "Valid defconfigs:"
 	$(QUIET)$(ECHO) " "$(foreach defconfig,$(wildcard $(AOS_DEFCONFIG_DIR)/*-defconfig),$(call ECHO_DEFCONFIG,$(defconfig)))
 
-$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF)
+$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF) $(AOS_CONFIG)
 	$(QUIET)$(ECHO) Creating $@ ...
 	$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< --silentoldconfig $(AOS_CONFIG_IN)
