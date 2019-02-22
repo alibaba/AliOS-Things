@@ -17,7 +17,7 @@ int uloc_hal_get_gps(location_t ** gps)
 {
     int rlt = -1;
     *gps = NULL;
-    
+
 #ifdef ULOC_GPS
     static location_t l;
 
@@ -26,9 +26,9 @@ int uloc_hal_get_gps(location_t ** gps)
     sim800_get_gps(&l.outdoor.latitude,
                    &l.outdoor.longitude,
                    &l.outdoor.altitude);
-    
+
     float tmp = (l.outdoor.latitude - NORTHARCTIC_LAT);
-    
+
     if (tmp * tmp < LATDIFF_ARCTIC)
     {
         /* are you inside north arctic ? */

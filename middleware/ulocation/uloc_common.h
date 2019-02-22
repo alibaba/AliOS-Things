@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#ifndef _ULOC_LINKKIT_H_
-#define _ULOC_LINKKIT_H_
+#ifndef ULOC_LINKKIT_H
+#define ULOC_LINKKIT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,5 +16,5 @@ void parse_positioning_info(char * msg_from_cloud);
 }
 #endif  /* extern C */
 
-#endif /* _ULOC_LINKKIT_H_ */
+#endif /* ULOC_LINKKIT_H */
 

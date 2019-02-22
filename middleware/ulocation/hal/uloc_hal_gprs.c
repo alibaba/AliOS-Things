@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
- 
+
 #include "stdio.h"
 #include <ulocation/ulocation.h>
 #include <uloc_hal.h>
@@ -13,7 +13,7 @@
 int uloc_hal_get_gprs(char ** cdma, char ** bts,  char ** nearbts)
 {
     int rlt = -1;
-    
+
 #ifdef ULOC_GPRS
     /* test */
     static char bts_buf[128];
@@ -22,7 +22,7 @@ int uloc_hal_get_gprs(char ** cdma, char ** bts,  char ** nearbts)
     sim800_get_gprs_network_info(bts_buf, sizeof(bts_buf), nbts_buf, sizeof(nbts_buf));
 
     /* currently, only gsm is supported */
-    *cdma = "0";         
+    *cdma = "0";
     *bts     = bts_buf;
     *nearbts = nbts_buf;
 
