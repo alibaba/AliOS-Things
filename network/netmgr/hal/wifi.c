@@ -108,6 +108,15 @@ int  hal_wifi_get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat
     return m->get_link_stat(m, out_stat);
 }
 
+int hal_wifi_scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, uint8_t *ap_num)
+{
+    if (m == NULL) {
+        m = hal_wifi_get_default_module();
+    }
+
+    return m->scan_ap_list(m, out_stat, ap_num);
+}
+
 void hal_wifi_start_scan(hal_wifi_module_t *m)
 {
     if (m == NULL) {
