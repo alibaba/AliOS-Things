@@ -1,0 +1,15 @@
+config AOS_COMP_ULOCATION
+    bool "ulocation"
+    default n
+    help
+    	location service
+
+if AOS_COMP_ULOCATION
+# Configurations for comp ulocation
+config ULOCATION_CONFIG_SELFTASK
+    bool "uLocation Private Task to Update location infor"
+    default n        
+    help
+        Enable uLocation Private Task
+
+endif
