@@ -28,7 +28,7 @@ static void test_spiffs_case(void)
     /* spiffs write test */
     fd = aos_open(g_filepath, O_RDWR | O_CREAT | O_TRUNC);
     YUNIT_ASSERT(fd > 0);
- 
+
     if (fd > 0) {
         ret = aos_write(fd, g_string, strlen(g_string));
         YUNIT_ASSERT(ret > 0);
@@ -48,7 +48,7 @@ static void test_spiffs_case(void)
         ret = memcmp(readBuffer, g_string, strlen(g_string));
         YUNIT_ASSERT(ret == 0);
 
-        aos_close(fd);      
+        aos_close(fd);
     }
 
     /* spiffs readdir test */
@@ -77,7 +77,7 @@ static void test_spiffs_case(void)
             if (out_dirent == NULL)
                 break;
 
-            printf("file name is %s\n", out_dirent->d_name);            
+            printf("file name is %s\n", out_dirent->d_name);
         }
     }
     aos_closedir(dp);
@@ -143,7 +143,7 @@ static yunit_test_suite_t suites[] = {
 };
 
 void test_spiffs(void)
-{    
+{
     yunit_add_test_suites(suites);
 }
 AOS_TESTCASE(test_spiffs);

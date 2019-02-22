@@ -84,7 +84,7 @@ static void iotx_post_data_to_server(void *param)
                                             (char *)devinfo.device_name);
 
     ret = IOT_CoAP_SendMessage(p_ctx, path, &message);
-//    YUNIT_ASSERT(0 == ret); 
+//    YUNIT_ASSERT(0 == ret);
 }
 
 iotx_coap_context_t *p_ctx = NULL;
@@ -95,12 +95,12 @@ static void user_code_start()
 
     iotx_post_data_to_server((void *)p_ctx);
     //ret = IOT_CoAP_Yield(p_ctx);
-    YUNIT_ASSERT(IOTX_SUCCESS == ret); 
+    YUNIT_ASSERT(IOTX_SUCCESS == ret);
     if (m_coap_client_running) {
         aos_post_delayed_action(3000,user_code_start,NULL);
     } else {
         IOT_CoAP_Deinit(&p_ctx);
-        YUNIT_ASSERT(NULL == p_ctx); 
+        YUNIT_ASSERT(NULL == p_ctx);
     }
 }
 
@@ -120,7 +120,7 @@ static void test_coap_start(void)
             config.p_url = url;
         #else
             printf("Online environment must access with DTLS\r\n");
-            YUNIT_ASSERT(false); 
+            YUNIT_ASSERT(false);
         #endif
     #else
         #ifdef COAP_DTLS_SUPPORT
@@ -133,24 +133,24 @@ static void test_coap_start(void)
     config.p_devinfo = &deviceinfo;
 
     p_ctx = IOT_CoAP_Init(&config);
-    YUNIT_ASSERT(NULL != p_ctx); 
+    YUNIT_ASSERT(NULL != p_ctx);
     if(NULL != p_ctx){
         ret = iotx_get_well_known(p_ctx);
         YUNIT_ASSERT(IOTX_SUCCESS == ret);
         ret = IOT_CoAP_DeviceNameAuth(p_ctx);
-        YUNIT_ASSERT(IOTX_SUCCESS == ret); 
+        YUNIT_ASSERT(IOTX_SUCCESS == ret);
         do{
             times ++;
             iotx_post_data_to_server((void *)p_ctx);
             //ret = IOT_CoAP_Yield(p_ctx);
-            YUNIT_ASSERT(IOTX_SUCCESS == ret); 
+            YUNIT_ASSERT(IOTX_SUCCESS == ret);
         }while(times<2);
         IOT_CoAP_Deinit(&p_ctx);
-        YUNIT_ASSERT(NULL == p_ctx); 
+        YUNIT_ASSERT(NULL == p_ctx);
     }
     else{
         printf("IoTx CoAP init failed\r\n");
-        YUNIT_ASSERT(NULL != p_ctx); 
+        YUNIT_ASSERT(NULL != p_ctx);
     }
 
 }
@@ -223,10 +223,10 @@ static void ut_coap_deinit(void)
 
     config.p_url = COAP_URL;
     p_ctx = IOT_CoAP_Init(&config);
-    YUNIT_ASSERT(NULL != p_ctx); 
+    YUNIT_ASSERT(NULL != p_ctx);
 
     IOT_CoAP_Deinit(&p_ctx);
-    YUNIT_ASSERT(NULL == p_ctx); 
+    YUNIT_ASSERT(NULL == p_ctx);
 }
 
 /* IOT_CoAP_DeviceNameAuth: p_context=NULL */
@@ -300,7 +300,7 @@ static yunit_test_suite_t suites[] = {
 };
 
 void test_coap(void)
-{    
+{
     yunit_add_test_suites(suites);
 }
 AOS_TESTCASE(test_coap);
