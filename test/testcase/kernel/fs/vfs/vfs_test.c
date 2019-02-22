@@ -23,7 +23,7 @@ static off_t test_lseek(file_t *fp, off_t off, int whence)
     return -123;
 }
 
-static int test_sync(file_t *fp) 
+static int test_sync(file_t *fp)
 {
     return -123;
 }
@@ -124,7 +124,7 @@ static void test_vfs_fs_case(void)
 
     fd = aos_open(names, 0);
     YUNIT_ASSERT(fd >= 0);
-    
+
     YUNIT_ASSERT(-123 == aos_lseek(fd, 0, 0));
     YUNIT_ASSERT(-123 == aos_sync(fd));
     aos_close(fd);
@@ -481,7 +481,7 @@ static void test_vfs_lseek()
         ret = lseek(fd, tc->off, tc->whence);
         printf("tc->exp_off = %d, ret = %d\n", (int)tc->exp_off, ret);
         YUNIT_ASSERT_EQUAL(tc->exp_off, ret);
-    
+
         memset(read_buf, 0, sizeof(read_buf));
         read(fd, read_buf, tc->exp_size);
         printf("read_buf is %s\n", read_buf);
@@ -495,7 +495,7 @@ static void test_vfs_lseek()
             // 	TFILE, tc->off, tc->wname);
 	    }
     }
-	
+
 }
 
 static char longpathname[256 + 2];
@@ -537,7 +537,7 @@ static void test_vfs_unlink()
             YUNIT_FAIL("errno is not expected ");
         }
     }
-	
+
 }
 */
 

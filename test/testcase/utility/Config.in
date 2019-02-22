@@ -1,7 +1,5 @@
 menu "Utility Testcase Configuration"
 
-## --- Generated Automatically ---
-source "test/testcase/utility/cjson_test/Config.in"
-## --- End ---
+source "test/testcase/utility/cjson/Config.in"
 
 endmenu
