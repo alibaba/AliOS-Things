@@ -2,12 +2,12 @@ config AOS_MCU_ESP32
     bool
     select AOS_COMP_LWIP
     select AOS_COMP_ALICRYPTO
-    select AOS_COMP_BT_HOST if BLE_CONFIG = 0
+    select AOS_COMP_BT_HOST if BLE_CONFIG != 0
     select AOS_COMP_NETMGR
     select AOS_COMP_IMBEDTLS
     select AOS_ARCH_XTENSA_LX6 if OSAL_CONFIG = rhino
     select AOS_COMP_RHINO if OSAL_CONFIG = rhino
-    select AOS_COMP_UMESH if  MESH_CONFIG = 0
+    select AOS_COMP_UMESH if  MESH_CONFIG != 0
     help
       driver & sdk for platform/mcu esp32
 
