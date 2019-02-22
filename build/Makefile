@@ -72,6 +72,8 @@ endif
 
 # Strip subtargets from BUILD_STRING
 $(foreach subtarget, $(BUILD_SUBTARGETS), $(eval BUILD_STRING := $(subst $(subtarget),,$(BUILD_STRING))))
+subtarget := $(lastword $(subst @, ,$(BUILD_STRING)))
+$(if $(findstring .,$(subtarget)),$(error Parameter for "-c" option Unknown "$(lastword $(subst ., ,$(subtarget)))"!),)
 export CLEANED_BUILD_STRING := $(BUILD_STRING)
 
 export OUTPUT_DIR  := $(BUILD_DIR)/$(CLEANED_BUILD_STRING)$(MBINS)
@@ -123,7 +125,7 @@ endif
 endif
 
 ifeq ($(findstring @,$(BUILD_STRING)),)
-$(error Unknown target $(BUILD_STRING) ...)
+$(error Unknown Target "$(BUILD_STRING)"!)
 endif
 
 components := $(subst @, ,$(BUILD_STRING))
@@ -137,7 +139,7 @@ appdir = $(subst .,/,$(appname))
 appmkfile = $(wildcard $(SOURCE_ROOT)app/*/$(appdir)/aos.mk $(SOURCE_ROOT)test/develop/$(appdir)/aos.mk)
 $(if $(appmkfile),\
     $(eval include $(appmkfile)) $(eval real_appname = $(NAME)),\
-    $(eval real_appname = $(notdir $(appdir))))
+    $(error App Unknown, Please make sure the "$(appname)" is existing!))
 
 # determine what app type should be enabled: example, profile, test
 ifneq ($(findstring profile,$(appmkfile)),)
