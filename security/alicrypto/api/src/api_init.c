@@ -8,7 +8,6 @@
 #include "sal_crypto.h"
 #endif
 
-#include "hal_crypto.h"
 
 
 #if CONFIG_CRYPT_ALI_ALGO
@@ -43,7 +42,6 @@ ali_crypto_result ali_crypto_init(void)
         return ret;
     }
 #endif
-    ret = hal_crypto_init();
 
     return ret;
 }
@@ -52,7 +50,6 @@ void ali_crypto_cleanup(void)
 #if CONFIG_CRYPT_ALI_ALGO
     ali_crypto_algo_cleanup();
 #endif
-    hal_crypto_cleanup();
 
     return;
 }

@@ -3,7 +3,6 @@
  */
 #include "sal_crypto.h"
 #include "osa.h"
-
 #include "ali_crypto.h"
 
 #define TEE_MIN_RSA_KEY_SIZE (256)
@@ -42,20 +41,11 @@ typedef struct _sal_rsa_pubkey_t
 static int myrand(void *rng_state, unsigned char *output, size_t len)
 {
     int result;
-    uint32_t time;
-
-    if (rng_state != NULL) {
-        ali_seed(rng_state, osa_strlen(rng_state));
-    }else{
-        time = (uint32_t)ls_osa_get_time_ms();
-        ali_seed((uint8_t *)&time, sizeof(time));
-    }
 
     result = ali_rand_gen(output, len);
     if (result != ALI_CRYPTO_SUCCESS) {
         PRINT_RET(-1, "gen rand fail(%08x)\n", result);
     }
-
     return 0;
 }
 
@@ -423,11 +413,10 @@ ali_crypto_result sal_rsa_init_pubkey(size_t keybits, const uint8_t *n,
 ali_crypto_result sal_rsa_gen_keypair(size_t keybits, const uint8_t *e,
                                       size_t e_size, rsa_keypair_t *keypair)
 {
-    int                 ret;
-    int                 exponent;
+    int                  ret, exponent;
+    uint32_t             seed;
     ali_algo_rsa_context ctx;
-    ali_crypto_result   result;
-    uint32_t seed;
+    ali_crypto_result    result = 0;
 
     if (keypair == NULL) {
         return ALI_CRYPTO_INVALID_ARG;
@@ -435,7 +424,6 @@ ali_crypto_result sal_rsa_gen_keypair(size_t keybits, const uint8_t *e,
 
     if (e && e_size < 3) {
         uint32_t i;
-
         exponent = 0;
         for (i = 0; i < e_size; i++) {
             exponent = exponent * 256 + e[i];
@@ -446,23 +434,25 @@ ali_crypto_result sal_rsa_gen_keypair(size_t keybits, const uint8_t *e,
 
     ali_algo_rsa_init(&ctx, ALI_ALGO_RSA_PKCS_V15, 0);
     seed = (uint32_t)ls_osa_get_time_ms();
-    ret = ali_algo_rsa_gen_key(&ctx, myrand, (uint32_t *)&seed, keybits, exponent);
+    ret = ali_seed((uint8_t *)&seed, 4);
     if (0 != ret) {
-        ali_algo_rsa_free(&ctx);
-        PRINT_RET(ALI_CRYPTO_ERROR, "ali_algo_rsa_gen_key failed %d\n", ret);
+        GO_RET(ALI_CRYPTO_ERROR, "sal_rsa_gen_keypair: set seed failed %d\n", ret);
+    }
+    ret = ali_algo_rsa_gen_key(&ctx, myrand, &seed, keybits, exponent);
+    if (0 != ret) {
+        GO_RET(ALI_CRYPTO_ERROR, "ali_algo_rsa_gen_key failed %d\n", ret);
     }
 
-    result = _sal_rsa_key_encode(PK_PRIVATE, (void *)&ctx, (void *)keypair);
-    if (result != ALI_CRYPTO_SUCCESS) {
-        ali_algo_rsa_free(&ctx);
-        PRINT_RET(ALI_CRYPTO_ERROR, "Gen_keypair: rsa key encode fail(%08x)\n",
-                  result);
+    ret = _sal_rsa_key_encode(PK_PRIVATE, (void *)&ctx, (void *)keypair);
+    if (ret != ALI_CRYPTO_SUCCESS) {
+        GO_RET(ALI_CRYPTO_ERROR, "Gen_keypair: rsa key encode fail(%08x)\n",
+                  ret);
     }
 
     INIT_CTX_MAGIC(((sal_rsa_keypair_t *)keypair)->magic);
+_OUT:
     ali_algo_rsa_free(&ctx);
-
-    return ALI_CRYPTO_SUCCESS;
+    return result;
 }
 
 ali_crypto_result sal_rsa_get_key_attr(rsa_key_attr_t attr,
@@ -657,6 +647,10 @@ ali_crypto_result sal_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
             }
 
             seed = (uint32_t)ls_osa_get_time_ms();
+            ret = ali_seed((uint8_t *)&seed, 4);
+            if (0 != ret) {
+                GO_RET(ALI_CRYPTO_ERROR, "Pub_encrypt: set seed failed %d\n", ret);
+            }
             ret = ali_algo_rsa_pkcs1_encrypt(
               &ctx, myrand, (uint32_t *)&seed, ALI_ALGO_RSA_PUBLIC, src_size,
               (const unsigned char *)src, (unsigned char *)dst);
@@ -703,6 +697,10 @@ ali_crypto_result sal_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
             }
 
             seed = (uint32_t)ls_osa_get_time_ms();
+            ret = ali_seed((uint8_t *)&seed, 4);
+            if (0 != ret) {
+                GO_RET(ALI_CRYPTO_ERROR, "Pub_encrypt: set seed failed %d\n", ret);
+            }
             ret = ali_algo_rsa_pkcs1_encrypt(
               &ctx, myrand, (uint32_t *)&seed, ALI_ALGO_RSA_PUBLIC, src_size,
               (const unsigned char *)src, (unsigned char *)dst);
@@ -822,6 +820,10 @@ ali_crypto_result sal_rsa_private_decrypt(const rsa_keypair_t *priv_key,
             }
 
             seed = (uint32_t)ls_osa_get_time_ms();
+            ret = ali_seed((uint8_t *)&seed, 4);
+            if (0 != ret) {
+                GO_RET(ALI_CRYPTO_ERROR, "Priv_decrypt: set seed failed %d\n", ret);
+            }
             ret = ali_algo_rsa_pkcs1_decrypt(
               &ctx, myrand, (uint32_t *)&seed, ALI_ALGO_RSA_PRIVATE, &tmp_dst_size,
               (const unsigned char *)src, (unsigned char *)tmp_dst,
@@ -883,6 +885,10 @@ ali_crypto_result sal_rsa_private_decrypt(const rsa_keypair_t *priv_key,
             }
 
             seed = (uint32_t)ls_osa_get_time_ms();
+            ret = ali_seed((uint8_t *)&seed, 4);
+            if (0 != ret) {
+                GO_RET(ALI_CRYPTO_ERROR, "Priv_decrypt: set seed failed %d\n", ret);
+            }
             ret = ali_algo_rsa_pkcs1_decrypt(
               &ctx, myrand,(uint32_t *)&seed, ALI_ALGO_RSA_PRIVATE, &tmp_dst_size,
               (const unsigned char *)src, (unsigned char *)tmp_dst,
@@ -996,6 +1002,10 @@ ali_crypto_result sal_rsa_sign(const rsa_keypair_t *priv_key,
     }
 
     seed = (uint32_t)ls_osa_get_time_ms();
+    ret = ali_seed((uint8_t *)&seed, 4);
+    if (0 != ret) {
+        GO_RET(ALI_CRYPTO_ERROR, "Rsa_sign: set seed failed %d\n", ret);
+    }
     ret = ali_algo_rsa_pkcs1_sign(
       &ctx, myrand, (uint32_t *)&seed, ALI_ALGO_RSA_PRIVATE, (ali_algo_md_type_t)hash_type,
       (unsigned int)0, (const unsigned char *)dig, (unsigned char *)sig);
