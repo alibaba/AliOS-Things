@@ -468,7 +468,7 @@ static void *a_thread_func_posix_1_203()
 		// printf(stderr, "pthread_setcancelstate: %s", strerror(err));
 		// goto thread_exit_failure;
 	}
-    
+
 
 	err = pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
     ASSERT_EQ(err, 0);
@@ -1464,7 +1464,7 @@ void *a_thread_func_posix_1_601()
 	return NULL;
 }
 CASE(test_pthread, posix_1_601)
-{   
+{
     pthread_t new_th;
 
 	/* Initializing values */
@@ -1526,7 +1526,7 @@ void *a_thread_func_posix_1_602()
 	return NULL;
 }
 CASE(test_pthread, posix_1_602)
-{ 
+{
     pthread_t new_th;
 
 	/* Initializing values */
@@ -1851,7 +1851,7 @@ CASE(test_sem, posix_2_105)
 	}
 }
 
-/* 
+/*
  * sem_init shall fail if the valueargument exceeds SEM_VALUE_MAX.
  */
 
@@ -3503,9 +3503,6 @@ void *threaded_posix_3_503_A(void *arg)
 		// FAILED("Child first trylock succeeded");
 	}
 
-
-	
-
 	return NULL;
 }
 
@@ -3666,7 +3663,7 @@ SUITE(test_mux) = {
  *   referenced by attr. If attr is NULL, the default condition variable
  *   attributes shall be used; the effect is the same as passing the address
  *   of a default condition variable attributes object.
- */ 
+ */
 CASE(test_cond, posix_4_101)
 {
 	pthread_condattr_t condattr;
