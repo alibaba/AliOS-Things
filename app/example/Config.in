@@ -185,6 +185,12 @@ if AOS_APP_UDEVAPP
         default "udevapp"
 endif
 
+source "app/example/ulocationapp/Config.in"
+if AOS_APP_ULOCATIONAPP
+    config AOS_BUILD_APP
+        default "ulocationapp"
+endif	
+
 source "app/example/yts/Config.in"
 if AOS_APP_YTS
     config AOS_BUILD_APP
