@@ -95,7 +95,7 @@ aos upload linkkitapp@yourboard
 ### Result
 
 ```sh
-             Welcome to AliOS Things           
+             Welcome to AliOS Things
  [   0.000]<I> netmgr [netmgr_ip_got_event#140] : Got ip : 127.0.0.1, gw : 127.0.0.1, mask : 255.255.255.0
  [   0.000]<V> AOS [wifi_service_event#60] : wifi_service_event config.ssid cisco-15A7
 [prt] log level set as: [ 5 ]
@@ -109,7 +109,7 @@ aos upload linkkitapp@yourboard
 [inf] guider_print_dev_guider_info(327): ....................................................
 [inf] guider_print_dev_guider_info(328):        PartnerID Buf : ,partner_id=example.demo.partner-id
 [inf] guider_print_dev_guider_info(329):         ModuleID Buf : ,module_id=example.demo.module-id
-[inf] guider_print_dev_guider_info(330):           Guider URL : 
+[inf] guider_print_dev_guider_info(330):           Guider URL :
 [inf] guider_print_dev_guider_info(332):       Guider SecMode : 2 (TLS + Direct)
 [inf] guider_print_dev_guider_info(334):     Guider Timestamp : 2524608000000
 [inf] guider_print_dev_guider_info(338): ....................................................

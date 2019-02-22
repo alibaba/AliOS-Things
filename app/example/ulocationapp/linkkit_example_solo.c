@@ -415,42 +415,42 @@ void user_post_locationinfoo(void)
     static int example_index = 0;
     int contain_elem_flg     = 0;
     int res                  = 0;
-    
+
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
-    
+
     char property_payload[128];
     char event_payload[512];
-    
+
     location_t * gps;
     char * mmac; char * macs;
     char * cdma; char * bts;   char * nearbts;
-    
+
     char *event_id = "LocationInfo";
 
     example_index++;
-    
+
     memset(property_payload, 0, sizeof(property_payload));
     memset(event_payload,    0, sizeof(event_payload));
 
-    uloc_update_locationinfo(&gps, 
+    uloc_update_locationinfo(&gps,
                              &mmac,
                              &macs,
                              &cdma,
                              &bts,
-                             &nearbts); 
+                             &nearbts);
     if (gps != NULL)
     {
         snprintf(property_payload + strlen(property_payload),
                  sizeof(property_payload) - strlen(property_payload),
-                 "{\"GeoLocation\":{\"value\":{\"longitude\":%f,\"latitude\":%f,\"altitude\":%f,\"CoordinateSystem\":2}}}", 
-                 gps->outdoor.longitude, gps->outdoor.latitude, gps->outdoor.altitude);   
+                 "{\"GeoLocation\":{\"value\":{\"longitude\":%f,\"latitude\":%f,\"altitude\":%f,\"CoordinateSystem\":2}}}",
+                 gps->outdoor.longitude, gps->outdoor.latitude, gps->outdoor.altitude);
 
-        EXAMPLE_TRACE("Post property Message : %s", property_payload);     
+        EXAMPLE_TRACE("Post property Message : %s", property_payload);
         res = IOT_Linkkit_Report(user_example_ctx->master_devid, ITM_MSG_POST_PROPERTY,
-                                 (unsigned char *)property_payload, strlen(property_payload));    
+                                 (unsigned char *)property_payload, strlen(property_payload));
         return;
     }
-    
+
     snprintf(event_payload + strlen(event_payload),
              sizeof(event_payload) - strlen(event_payload),
              "%s", "{");
@@ -458,20 +458,20 @@ void user_post_locationinfoo(void)
     if (cdma != NULL)
     {
         EXAMPLE_TRACE("get cell info: \n cdma: %s: \n bts: %s, \n nbts: %s \n", cdma, bts, nearbts);
-        
+
         contain_elem_flg = 1;
-        
+
         snprintf(event_payload + strlen(event_payload),
                  sizeof(event_payload) - strlen(event_payload),
-                 "\"cdma\":\"%s\",", cdma);        
-        
+                 "\"cdma\":\"%s\",", cdma);
+
         snprintf(event_payload + strlen(event_payload),
                  sizeof(event_payload) - strlen(event_payload),
-                 "\"bts\":\"%s\",", bts);        
-        
+                 "\"bts\":\"%s\",", bts);
+
         snprintf(event_payload + strlen(event_payload),
                  sizeof(event_payload) - strlen(event_payload),
-                 "\"nearbts\":\"%s\"", nearbts);        
+                 "\"nearbts\":\"%s\"", nearbts);
     }
 
     if (mmac != NULL)
@@ -484,16 +484,16 @@ void user_post_locationinfoo(void)
         {
             snprintf(event_payload + strlen(event_payload),
                      sizeof(event_payload) - strlen(event_payload),
-                     "%s", ",");            
+                     "%s", ",");
         }
-        
-        snprintf(event_payload + strlen(event_payload),
-                 sizeof(event_payload) - strlen(event_payload),
-                 "\"mmac\":\"%s\",", mmac);            
 
         snprintf(event_payload + strlen(event_payload),
                  sizeof(event_payload) - strlen(event_payload),
-                 "\"macs\":\"%s\"", macs);            
+                 "\"mmac\":\"%s\",", mmac);
+
+        snprintf(event_payload + strlen(event_payload),
+                 sizeof(event_payload) - strlen(event_payload),
+                 "\"macs\":\"%s\"", macs);
     }
 
     /*
@@ -507,13 +507,13 @@ void user_post_locationinfoo(void)
         {
             snprintf(property_payload + strlen(property_payload),
                      sizeof(property_payload) - strlen(property_payload),
-                     "%s", ",");            
+                     "%s", ",");
         }
-        
+
         snprintf(property_payload + strlen(property_payload),
                  sizeof(property_payload) - strlen(property_payload),
-                 "\"GeoLocation\":{\"value\":{\"Longitude\":%f,\"Latitude\":%f}}", 
-                 gps->outdoor.longitude, gps->outdoor.latitude);         
+                 "\"GeoLocation\":{\"value\":{\"Longitude\":%f,\"Latitude\":%f}}",
+                 gps->outdoor.longitude, gps->outdoor.latitude);
     }
     */
 
@@ -521,7 +521,7 @@ void user_post_locationinfoo(void)
              sizeof(event_payload) - strlen(event_payload),
              "%s", "}");
 
-    EXAMPLE_TRACE("Post event Message : %s", event_payload);             
+    EXAMPLE_TRACE("Post event Message : %s", event_payload);
 
     res = IOT_Linkkit_TriggerEvent(user_example_ctx->master_devid, event_id, strlen(event_id),
                                    event_payload, strlen(event_payload));
@@ -666,7 +666,7 @@ int linkkit_main(void *paras)
     time_begin_sec = user_update_sec();
 
     int loop_num = 0;
-    
+
     while (loop_num < 500) {
         IOT_Linkkit_Yield(USER_EXAMPLE_YIELD_TIMEOUT_MS);
 
@@ -680,7 +680,7 @@ int linkkit_main(void *paras)
         }
 
         /* Post Proprety Example */
-        if (time_now_sec % 2 == 0 && user_master_dev_available()) 
+        if (time_now_sec % 2 == 0 && user_master_dev_available())
         {
             loop_num++;
             EXAMPLE_TRACE("loop_num = %d \n", loop_num);
@@ -688,9 +688,9 @@ int linkkit_main(void *paras)
         }
 
         time_prev_sec = time_now_sec;
-        
+
         aos_msleep(2100);
-        
+
     }
 
     IOT_Linkkit_Close(user_example_ctx->master_devid);
