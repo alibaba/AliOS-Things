@@ -5,6 +5,7 @@ $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := link security SDK hardware abstract layer.
 
 GLOBAL_INCLUDES  += ../include/hal
+GLOBAL_INCLUDES  += ./crypto
 
 $(NAME)_INCLUDES := ./km/inc
 
@@ -32,6 +33,5 @@ $(NAME)_SOURCES  += ./crypto/demo/sha256.c
 $(NAME)_SOURCES  += ./crypto/ls_hal_aes.c
 $(NAME)_SOURCES  += ./crypto/ls_hal_hash.c
 $(NAME)_SOURCES  += ./crypto/ls_hal_rand.c
-$(NAME)_SOURCES  += ./crypto/ls_hal_rsa.c
 endif
 

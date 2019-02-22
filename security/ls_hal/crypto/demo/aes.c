@@ -727,12 +727,10 @@ int hal_aes_crypt_ecb(hal_aes_context *ctx, int mode,
                      const unsigned char input[16],
                      unsigned char       output[16])
 {
-
     if (mode == HAL_AES_ENCRYPT)
         hal_aes_encrypt(ctx, input, output);
     else
         hal_aes_decrypt(ctx, input, output);
-
     return (0);
 }
 

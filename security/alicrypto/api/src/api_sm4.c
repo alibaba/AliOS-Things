@@ -4,7 +4,6 @@
 
 #include "sal_crypto.h"
 #include "ali_crypto.h"
-#include "impl_crypto.h"
 
 #ifdef ALI_CRYPTO_SM4
 

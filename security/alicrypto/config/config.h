@@ -6,7 +6,6 @@
 #ifndef ALI_ALGO_CONFIG_H
 #define ALI_ALGO_CONFIG_H
 
-
 /* ali crypto define*/
 /* AES */
 #define ALI_CRYPTO_AES
@@ -34,6 +33,8 @@
 //#define ALI_CRYPTO_SM4_ECB
 //#define ALI_CRYPTO_SM4_CBC
 
+/* random number */
+// #define ALI_CRYPTO_RAND
 
 /* OEM configure */
 //#define ALI_CRYPTO_PLAT_AOS
