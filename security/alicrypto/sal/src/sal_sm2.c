@@ -10,20 +10,11 @@
 static int myrand( void *rng_state, unsigned char *output, size_t len )
 {
     int result;
-    uint32_t time;
-
-    if (rng_state != NULL) {
-        ali_seed(rng_state, osa_strlen(rng_state));
-    }else{
-        time = (uint32_t)ls_osa_get_time_ms();
-        ali_seed((uint8_t *)&time, sizeof(time));
-    }
 
     result = ali_rand_gen(output, len);
     if (result != ALI_CRYPTO_SUCCESS) {
         PRINT_RET(-1, "gen rand fail(%08x)\n", result);
     }
-
     return 0;
 }
 
@@ -237,6 +228,10 @@ ali_crypto_result sal_sm2_sign(const ecc_keypair_t *priv_key,
     }
 
     seed = (uint32_t)ls_osa_get_time_ms();
+    ret = ali_seed((uint8_t *)&seed, 4);
+    if ( 0 != ret) {
+        GO_RET(ret, "SM2 sign: set seed failed!\n");
+    }
     ret = ali_algo_sm2_sign( &grp, r, s, sk, (const unsigned char *)src, src_size, myrand, (uint32_t *)&seed );
     if ( 0 != ret) {
         GO_RET(ret, "SM2 sign: failed!\n");
@@ -366,6 +361,10 @@ ali_crypto_result sal_sm2_encrypt(const ecc_pubkey_t *pub_key,
     ali_algo_mpi_read_binary( &(P.Z), &one, 1 );
 
     seed = (uint32_t)ls_osa_get_time_ms();
+    ret = ali_seed((uint8_t *)&seed, 4);
+    if ( 0 != ret) {
+        GO_RET(ret, "SM2 sign: set seed failed!\n");
+    }
     ret = ali_algo_sm2_encrypt( &grp, ciphertext, c_size, P, plaintext,
                         p_size, myrand, (uint32_t *)&seed );
     if ( ret != 0 ) {
