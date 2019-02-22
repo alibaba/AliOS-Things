@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
- 
-#include "stdio.h" 
+
+#include "stdio.h"
 #include <hal/wifi.h>
 
 #include <ulocation/ulocation.h>
@@ -50,7 +50,7 @@ static void conver_ap_info_fmt(char * out_str, const hal_wifi_link_stat_t * p_ap
 
     uint8_t * bssid = p_ap_info->bssid;
     char * p_out = out_str;
-    
+
     for (int idx = 0; idx < 6; idx++)
     {
         *p_out++ = _digit2char((bssid[idx]) >> 4);
@@ -87,14 +87,14 @@ int uloc_hal_get_wifi(char ** mmac, char ** macs)
 
     *mmac = mmac_buf;
 
-    static char macs_buf[512];   
+    static char macs_buf[512];
     memset(macs_buf, 0, sizeof(macs_buf));
-    
+
     hal_wifi_link_stat_t out_stat[10];
     int ap_num = 10;
-    hal_wifi_scan_ap_list(NULL, out_stat, &ap_num);  
+    hal_wifi_scan_ap_list(NULL, out_stat, &ap_num);
 
-    ULOCATION_TRACE("hal_wifi_scan_ap_list returns %d aps info\n", ap_num); 
+    ULOCATION_TRACE("hal_wifi_scan_ap_list returns %d aps info\n", ap_num);
 
     for (int idx = 0; idx < ap_num; idx++)
     {
@@ -108,15 +108,15 @@ int uloc_hal_get_wifi(char ** mmac, char ** macs)
                        out_stat[idx].bssid[2],
                        out_stat[idx].bssid[3],
                        out_stat[idx].bssid[4],
-                       out_stat[idx].bssid[5]);    
-        
+                       out_stat[idx].bssid[5]);
+
         if (memcmp(out_stat[idx].bssid, current_ap.bssid, sizeof(current_ap.bssid)) != 0)
         {
             if (idx != 0)
             {
                 snprintf(macs_buf + strlen(macs_buf), sizeof(macs_buf) - strlen(macs_buf), "%s", "|");
-            }         
-            
+            }
+
             char single_ap_buf[128];
             memset(single_ap_buf, 0, sizeof(single_ap_buf));
 
@@ -125,11 +125,11 @@ int uloc_hal_get_wifi(char ** mmac, char ** macs)
 
             snprintf(macs_buf + strlen(macs_buf), sizeof(macs_buf) - strlen(macs_buf), "%s", single_ap_buf);
         }
-        
+
     }
 
     *macs = macs_buf;
-    
+
     rlt = 0;
 #endif
 
