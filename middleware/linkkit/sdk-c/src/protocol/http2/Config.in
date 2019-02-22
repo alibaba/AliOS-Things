@@ -1,6 +1,6 @@
 config AOS_COMP_LIBIOT_HTTP2
     bool
-    default y
+    default n
     select AOS_COMP_LIBIOT_UTILS
     select UTILS_SHA1
 
