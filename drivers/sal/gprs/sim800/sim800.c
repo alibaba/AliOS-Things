@@ -478,6 +478,225 @@ static int sim800_gprs_get_ip_only()
     return 0;
 }
 
+#define AT_CMD_GETENGMODE   "AT+CENG?"
+#define AT_CMD_SETENGMODE   "AT+CENG=3,1"
+#define AT_CMD_CLOSEENGMODE "AT+CENG=0,0"
+
+#define AT_CMD_GETENGMODE_LEN  512
+void sim800_get_gprs_network_info(char * bts, int btslen, char * neighterbts, int nbtslen)
+{
+    char rsp[AT_CMD_GETENGMODE_LEN] = {0};
+
+    memset(bts,         0, btslen);
+    memset(neighterbts, 0, nbtslen);
+    
+    if (!inited) 
+    {
+        LOGE(TAG, "%s sim800 gprs module haven't init yet \r\n", __func__);        
+    }
+
+    /* set engineering mode to engineering mode with neighbering cell info */
+    memset(rsp, 0, sizeof(rsp));
+    at_send_wait_reply(AT_CMD_SETENGMODE, strlen(AT_CMD_SETENGMODE), true,
+                       NULL, 0, rsp, AT_CMD_GETENGMODE_LEN, NULL);
+    
+    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) 
+    {
+        LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        return -1;
+    }
+    
+    /* get cell info */
+    
+    memset(rsp, 0, sizeof(rsp));
+    at_send_wait_reply(AT_CMD_GETENGMODE, strlen(AT_CMD_GETENGMODE), true,
+                       NULL, 0, rsp, AT_CMD_GETENGMODE_LEN, NULL);
+    
+    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) 
+    {
+        LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        return -1;
+    }
+    
+    LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+
+    char cellinfo_prefix_buf[64] = {"+CENG: 0,"};
+    
+    char * p_start = strstr(rsp, cellinfo_prefix_buf);
+    
+    if (p_start != NULL)
+    {
+        int cell = -1;
+        int mcc  = 0;
+        int mnc;
+        int lac;
+        int cellid;
+        int bsic;
+        int rxl;
+
+        /* <cell>,<mcc>,<mnc>,<lac>,<cellid>,<bsic>,<rxl> */
+        sscanf(p_start, 
+               "+CENG: %d,\"%d,%d,%x,%x,%d,%d\"", 
+               &cell, &mcc, &mnc, &lac, &cellid, &bsic, &rxl);
+
+        if (cell != 0)
+        {
+            LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+            return -1;
+        }
+
+        int signal;
+        int first_neighber = 1;
+
+        while (mcc != 0)
+        {
+            signal = rxl - 113; /* signal strength = 2 * rxl - 113 dbm */
+            
+            /* -113 < signal < 0 */
+            signal = signal > 0 ? 0 : (signal < (-113) ? -113 : signal);
+
+            if (cell == 0)
+            {
+                /* mcc,mnc,lac,cellid,signal */
+                snprintf(bts, btslen, "%d,%d,%d,%d,%d", mcc, mnc, lac, cellid, signal);
+            }
+            else
+            {
+                if (first_neighber)
+                {
+                    /* mcc,mnc,lac,cellid,signal */
+                    snprintf(neighterbts, nbtslen, "%d,%d,%d,%d,%d", mcc, mnc, lac, cellid, signal);
+                    first_neighber = 0;
+                }
+                else
+                {
+                    /* mcc,mnc,lac,cellid,signal */
+                    snprintf(neighterbts + strlen(neighterbts), nbtslen - strlen(neighterbts), "|%d,%d,%d,%d,%d", mcc, mnc, lac, cellid, signal);
+                }
+            }
+            
+            memset(cellinfo_prefix_buf, 0, sizeof(cellinfo_prefix_buf));
+            sprintf(cellinfo_prefix_buf, "+CENG: %d,", cell + 1);
+
+            p_start = strstr(p_start, cellinfo_prefix_buf);
+
+            if (p_start == NULL)
+            {
+                break;
+            }
+
+            mcc = 0;
+            sscanf(p_start, 
+                   "+CENG: %d,\"%d,%d,%x,%x,%d,%d\"", 
+                   &cell, &mcc, &mnc, &lac, &cellid, &bsic, &rxl);
+        }
+                
+    }
+
+    /* close engineering mode */
+    memset(rsp, 0, sizeof(rsp));
+    at_send_wait_reply(AT_CMD_CLOSEENGMODE, strlen(AT_CMD_CLOSEENGMODE), true,
+                       NULL, 0, rsp, AT_CMD_GETENGMODE_LEN, NULL);
+    
+    if (strstr(rsp, SIM800_AT_CMD_FAIL_RSP) != NULL) 
+    {
+        LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+        return -1;
+    }
+   
+    /* restore original engineering mode */
+}
+
+#define AT_CMD_GPS_DEFAULT_RSP_LEN         (256)
+#define AT_CMD_GPS_POWER_OFF         "AT+CGNSPWR=0"
+#define AT_CMD_GPS_POWER_ON          "AT+CGNSPWR=1"
+#define AT_CMD_GPS_POWER_CHECK       "AT+CGNSPWR?"
+
+#define AT_CMD_GPS_INTERVAL_CLOSE    "AT+CGNSURC=0"
+
+#define AT_CMD_GPS_LASTPARSE_SET     "AT+CGNSSEQ=\"RMC\""
+#define AT_CMD_GPS_POSITION_GET      "AT+CGNSINF"
+#define GPS_TYPE_NAME_LEN            (16)
+#define GET_GPS_INFO_MIN_NUM         (6)
+
+void sim800_get_gps(float * latitude, float * longitude, float * altitude)
+{
+    int ret = 0;
+    char rsp[AT_CMD_GPS_DEFAULT_RSP_LEN] = {0};   
+
+    latitude = 90; /* north pole */
+    altitude = 0;
+    
+    memset(rsp, 0, sizeof(rsp));
+    ret = at_send_wait_reply(AT_CMD_GPS_POWER_ON, strlen(AT_CMD_GPS_POWER_ON),
+                             true, NULL, 0, rsp, AT_CMD_GPS_DEFAULT_RSP_LEN, NULL);
+    
+    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL)) 
+    {
+        LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
+        return -1;
+    }
+
+    memset(rsp, 0, sizeof(rsp));
+    ret = at_send_wait_reply(AT_CMD_GPS_LASTPARSE_SET, strlen(AT_CMD_GPS_LASTPARSE_SET),
+                             true, NULL, 0, rsp, AT_CMD_GPS_DEFAULT_RSP_LEN, NULL);
+    
+    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL)) 
+    {
+        LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
+        return -1;
+    }
+
+    memset(rsp, 0, sizeof(rsp));
+    ret = at_send_wait_reply(AT_CMD_GPS_INTERVAL_CLOSE, strlen(AT_CMD_GPS_INTERVAL_CLOSE),
+                             true, NULL, 0, rsp, AT_CMD_GPS_DEFAULT_RSP_LEN, NULL);
+    
+    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL)) 
+    {
+        LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
+        return -1;
+    }
+
+    memset(rsp, 0, sizeof(rsp));
+    ret = at_send_wait_reply(AT_CMD_GPS_POSITION_GET, strlen(AT_CMD_GPS_POSITION_GET),
+                             true, NULL, 0, rsp, AT_CMD_GPS_DEFAULT_RSP_LEN, NULL);
+    
+    if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL)) 
+    {
+        LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
+        return -1;
+    }
+
+    LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
+
+
+    /* +CGNSINF: <GNSS run status>,<Fix status>, 
+                 <UTC date & Time>,<Latitude>,<Longitude>, <MSL Altitude>,
+                 <Speed Over Ground>, <Course Over Ground>, 
+                 <Fix Mode>,<Reserved1>,<HDOP>,
+                 <PDOP>, <VDOP>,<Reserved2>,
+                 <GNSS Satellites in View>, <GNSS Satellites Used>,
+                 <GLONASS Satellites Used>,<Reserved3>,<C/N0 max>,<HPA>,<VPA> */
+
+    char tmp_buf[128];
+    char tmp_lat[32];
+    char tmp_log[32];
+    char tmp_alt[32];
+
+    memset(tmp_lat, 0, sizeof(tmp_lat));
+    memset(tmp_log, 0, sizeof(tmp_log));
+    memset(tmp_alt, 0, sizeof(tmp_alt));
+
+    ret = sscanf(rsp, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,]", 
+                 tmp_buf, tmp_buf, tmp_buf, tmp_lat, tmp_log, tmp_alt, tmp_buf);
+
+    if (ret < GET_GPS_INFO_MIN_NUM)
+    {
+        latitude  = atoi(tmp_lat);
+        longitude = atoi(tmp_log);
+        altitude  = atoi(tmp_alt);
+    }
+}
 int HAL_SAL_Init(void)
 {
     int ret = 0;
