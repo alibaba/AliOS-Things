@@ -29,7 +29,7 @@ mb_status_t rtu_assemble(mb_handler_t *handler)
     send_buf[handler->mb_frame_length++] = (uint8_t)(crc_16 & 0xFF);
     send_buf[handler->mb_frame_length++] = (uint8_t)(crc_16 >> 8);
 
-    mb_log(MB_LOG_DEBUG, "start to send data len=%d\n", handler->mb_frame_length);
+    mb_log(MB_LOG_DEBUG, "start to send data len=%u\n", (unsigned int)handler->mb_frame_length);
     for (int i = 0; i < handler->mb_frame_length; i++) {
         mb_log(MB_LOG_DEBUG, "0x%x ", send_buf[i]);
         if (i == handler->mb_frame_length - 1)
@@ -46,7 +46,7 @@ mb_status_t rtu_disassemble(mb_handler_t *handler)
 
     recv_buf = handler->mb_frame_buff;
 
-    mb_log(MB_LOG_DEBUG, "rev data len =%d ,data is :\n", handler->mb_frame_length, recv_buf);
+    mb_log(MB_LOG_DEBUG, "rev data len =%u ,data is :\n", (unsigned int)handler->mb_frame_length);
     for (int i = 0; i < handler->mb_frame_length; i++) {
         mb_log(MB_LOG_DEBUG, "0x%x ", recv_buf[i]);
         if (i == handler->mb_frame_length - 1)
