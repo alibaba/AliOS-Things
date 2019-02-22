@@ -200,6 +200,9 @@ struct hal_wifi_module_s {
     int  (*mesh_disable)(hal_wifi_module_t *m);
     int  (*mesh_radio_sleep)(hal_wifi_module_t *m);
     int  (*mesh_radio_wakeup)(hal_wifi_module_t *m);
+
+    /* added to support wifi based positioning */
+    int  (*scan_ap_list)(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, uint8_t *ap_num);
 };
 
 /**
@@ -289,6 +292,16 @@ int hal_wifi_get_ip_stat(hal_wifi_module_t *m,
  * @return      0 on success, otherwise failure.
  */
 int hal_wifi_get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat);
+
+/**
+ * scan wifi ap list 
+ *
+ * @param[in]   m         the wifi instance, NULL if default.
+ * @param[out]  out_stat  the place to hold the results.
+ *
+ * @return      0 on success, otherwise failure.
+ */
+int hal_wifi_scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, uint8_t *ap_num);
 
 /**
  * Start the scanning of the specified wifi instance.
