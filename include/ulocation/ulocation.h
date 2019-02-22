@@ -2,36 +2,31 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef _U_LOCATION_H_
-#define _U_LOCATION_H_
+#ifndef ULOCATION_H
+#define ULOCATION_H
 
-typedef enum
-{
+typedef enum {
     ULOC_SCENARIO_OUTDOOR = 0,
     ULOC_SCENARIO_INDOOR  = 1,
     ULOC_SCENARIO_COUNT
 } uloc_scenario_e;
 
-typedef struct 
-{
+typedef struct {
     float longitude;
     float latitude;
     float altitude;
 } outdoor_location_t;
 
-typedef struct 
-{
+typedef struct {
     float x;
     float y;
     float z;
 } indoor_location_t;
 
-typedef union
-{
+typedef union {
     indoor_location_t  indoor;
     outdoor_location_t outdoor;
-    struct 
-    {
+    struct {
         float x;
         float y;
         float z;
@@ -45,14 +40,14 @@ extern "C" {
 /*******************************************************************
 *  initial location service
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_init(uloc_scenario_e scen, int update_inv);
 
 /*******************************************************************
 *  terminate locating service
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_deinit();
 
@@ -60,21 +55,21 @@ int uloc_deinit();
 /*******************************************************************
 *  get latitude
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_get_latitude(float * latitude);
 
 /*******************************************************************
 *  get altitude
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_get_altitude(float * altitude);
 
 /*******************************************************************
 *  get longitude
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_get_longitude(float *longitude);
 
@@ -82,45 +77,45 @@ int uloc_get_longitude(float *longitude);
 /*******************************************************************
 *  get x
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_get_x(float * x);
 
 /*******************************************************************
 *  get y
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_get_y(float * y);
 
 /*******************************************************************
 *  get z
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_get_z(float * z);
 
 /*******************************************************************
 *  get location
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_get_location(location_t * rlt);
 
 /*******************************************************************
-*  fetch new location value, this method should be invoked by user 
+*  fetch new location value, this method should be invoked by user
 *  when there is no individual self task.
 *
-*  @return: 
+*  @return:
 *******************************************************************/
-int uloc_update_locationinfo(location_t ** gps, 
+int uloc_update_locationinfo(location_t ** gps,
                              char ** mmac, char ** macs,   /* wifi       */
                              char ** cdma, char ** bts,  char ** nearbts);
 
 /*******************************************************************
 *  uloc_update_gpsinfo
 *
-*  @return: 
+*  @return:
 *******************************************************************/
 int uloc_update_gpsinfo(location_t * lo);
 
