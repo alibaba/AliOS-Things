@@ -189,7 +189,7 @@ source "app/example/ulocationapp/Config.in"
 if AOS_APP_ULOCATIONAPP
     config AOS_BUILD_APP
         default "ulocationapp"
-endif	
+endif
 
 source "app/example/yts/Config.in"
 if AOS_APP_YTS
