@@ -1,6 +1,8 @@
 NAME := ulocation
 
 $(NAME)_TYPE := framework
+$(NAME)_VERSION := 1.0.0
+$(NAME)_SUMMARY := locating framework
 
 $(NAME)_SOURCES += \
 	uloc_north.c \
