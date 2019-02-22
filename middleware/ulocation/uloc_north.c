@@ -28,7 +28,7 @@ void parse_positioning_info(char * msg_from_cloud)
     cJSON *longitude = NULL;
 
     char * tmp;
-    
+
     if (!msg_from_cloud)
     {
         return;
@@ -36,8 +36,8 @@ void parse_positioning_info(char * msg_from_cloud)
 
     /* Parse Root */
     root = cJSON_Parse(msg_from_cloud);
-    
-    if (root == NULL || !cJSON_IsObject(root)) 
+
+    if (root == NULL || !cJSON_IsObject(root))
     {
         ULOCATION_TRACE("JSON Parse Error");
         return;
@@ -49,26 +49,26 @@ void parse_positioning_info(char * msg_from_cloud)
 
     geo_location = cJSON_GetObjectItem(root, "GeoLocation");
 
-    if (geo_location == NULL || !cJSON_IsObject(geo_location)) 
+    if (geo_location == NULL || !cJSON_IsObject(geo_location))
     {
         cJSON_Delete(root);
         ULOCATION_TRACE("JSON Parse Error");
         return;
-    }    
+    }
 
     tmp = cJSON_Print(geo_location);
     ULOCATION_TRACE("parse_positioning_info: geo_location = %s\n", tmp);
     HAL_Free(tmp);
 
     latitude = cJSON_GetObjectItem(geo_location, "latitude");
-    
-    if (latitude == NULL || !cJSON_IsNumber(latitude)) 
+
+    if (latitude == NULL || !cJSON_IsNumber(latitude))
     {
         cJSON_Delete(root);
         ULOCATION_TRACE("JSON Parse Error");
         return;
-    }     
-    
+    }
+
     location.outdoor.latitude = (float)latitude->valuedouble;
 
     tmp = cJSON_Print(latitude);
@@ -77,38 +77,38 @@ void parse_positioning_info(char * msg_from_cloud)
 
     altitude = cJSON_GetObjectItem(geo_location, "altitude");
 
-    if (altitude == NULL || !cJSON_IsNumber(altitude)) 
+    if (altitude == NULL || !cJSON_IsNumber(altitude))
     {
         cJSON_Delete(root);
         ULOCATION_TRACE("JSON Parse Error");
         return;
-    }    
+    }
 
     tmp = cJSON_Print(altitude);
     ULOCATION_TRACE("parse_positioning_info: altitude = %s\n", tmp);
     HAL_Free(tmp);
-    
+
     longitude = cJSON_GetObjectItem(geo_location, "longitude");
 
-    if (longitude == NULL || !cJSON_IsNumber(longitude)) 
+    if (longitude == NULL || !cJSON_IsNumber(longitude))
     {
         cJSON_Delete(root);
-        
+
         ULOCATION_TRACE("JSON Parse Error");
         return;
-    } 
+    }
 
     tmp = cJSON_Print(longitude);
     ULOCATION_TRACE("parse_positioning_info: longitude = %s\n", tmp);
     HAL_Free(tmp);
-    
+
     location.outdoor.longitude = (float)longitude->valuedouble;
-   
+
     ULOCATION_TRACE("parse_positioning_info: latitude: %f %f longitude: %f\n",
                     location.outdoor.latitude, location.outdoor.latitude, location.outdoor.longitude);
-    
+
     set_location(&location);
-    
+
     cJSON_Delete(root);
 }
 

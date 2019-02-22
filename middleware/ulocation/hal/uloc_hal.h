@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
- 
-#ifndef _ULOC_HAL_H_
-#define _ULOC_HAL_H_
+
+#ifndef ULOC_HAL_H
+#define ULOC_HAL_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,5 +17,5 @@ int uloc_hal_get_gps(location_t ** gps);
 }
 #endif
 
-#endif  /* _ULOC_HAL_H_ */
+#endif  /* ULOC_HAL_H */
 
