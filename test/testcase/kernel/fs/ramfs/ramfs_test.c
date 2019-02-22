@@ -38,7 +38,7 @@ static int test_ramfs_case1(void)
         if(ret == 0)
         {
             return 1;
-        }       
+        }
 
         ret = ramfs_open(&test_file[i], file_name[i], RAMFS_MODE_WR|RAMFS_MODE_RD);
 
@@ -52,21 +52,21 @@ static int test_ramfs_case1(void)
         if(ret != 0)
         {
             return 3;
-        }       
+        }
 
         ret = ramfs_access(file_name[i], R_OK);
 
         if(ret != 0)
         {
             return 4;
-        }       
+        }
 
         ret = ramfs_access(file_name[i], W_OK);
 
         if(ret != 0)
         {
             return 5;
-        }               
+        }
 
         for (j = 0; j < 10; j++)
         {
@@ -124,14 +124,14 @@ static int test_ramfs_case1(void)
         }
 
         ret = ramfs_access(file_name[i], F_OK);
-        
+
        if(ret == 0)
         {
             return 13;
         }
     }
 
-/******************** test access open write read close multi files ********************/   
+/******************** test access open write read close multi files ********************/
     for (j = 0; j < 10; j++)
     {
         writeBuf[j] = j;
@@ -140,7 +140,7 @@ static int test_ramfs_case1(void)
     for(i = 0; i < 10; i++)
     {
         ret = ramfs_open(&test_file[i], file_name[i], RAMFS_MODE_WR|RAMFS_MODE_RD);
-        
+
         if(ret != 0)
         {
             return 14;
@@ -150,22 +150,22 @@ static int test_ramfs_case1(void)
     for(i = 0; i < 10; i++)
     {
         ret = ramfs_write(&test_file[i], writeBuf, 10, &bytes_write);
-        
+
         if(ret != 0)
         {
             return 15;
         }
-        
+
         for (j = 0; j < 10; j++)
         {
             writeBuf[j] += 1;
-        }       
+        }
     }
 
     for(i = 0; i < 10; i++)
     {
         ret = ramfs_close(&test_file[i]);
-        
+
         if(ret != 0)
         {
             return 16;
@@ -201,7 +201,7 @@ static int test_ramfs_case1(void)
     for(i = 0; i < 10; i++)
     {
         ret = ramfs_open(&test_file[i], file_name[i], RAMFS_MODE_WR|RAMFS_MODE_RD);
-        
+
         if(ret != 0)
         {
             return 20;
@@ -240,8 +240,8 @@ static int test_ramfs_case1(void)
             return 23;
         }
     }
-/******************** test read access ********************/    
- 
+/******************** test read access ********************/
+
     ret = ramfs_open(&test_file[0], file_name[0], RAMFS_MODE_RD);
 
     if(ret != 0)
@@ -276,8 +276,8 @@ static int test_ramfs_case1(void)
     {
         return 28;
     }
-      
-/******************** test write access ********************/   
+
+/******************** test write access ********************/
     ret = ramfs_open(&test_file[0], file_name[0], RAMFS_MODE_WR);
 
     if(ret != 0)
@@ -297,7 +297,7 @@ static int test_ramfs_case1(void)
     if(ret != 0)
     {
         return 31;
-    }       
+    }
 
     ret = ramfs_read(&test_file[0], readBuf, 10, &bytes_read);
 
@@ -311,7 +311,7 @@ static int test_ramfs_case1(void)
     if(ret != 0)
     {
         return 33;
-    }       
+    }
 
     return 0;
 }
@@ -360,7 +360,7 @@ static yunit_test_suite_t suites[] = {
 };
 
 void test_ramfs(void)
-{    
+{
     yunit_add_test_suites(suites);
 }
 AOS_TESTCASE(test_ramfs);

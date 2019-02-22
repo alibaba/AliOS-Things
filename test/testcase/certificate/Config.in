@@ -1,0 +1,5 @@
+menu "Certificate Testcase Configuration"
+
+source "test/testcase/certificate/certificate_test/Config.in"
+
+endmenu

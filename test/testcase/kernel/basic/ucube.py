@@ -1,5 +1,5 @@
 src = Split('''
-   basic_test.c 
+   basic_test.c
 ''')
 
 component = aos_component('basic_test', src)

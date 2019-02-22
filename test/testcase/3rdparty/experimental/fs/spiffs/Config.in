@@ -1,0 +1,5 @@
+config AOS_COMP_SPIFFS_TEST
+    bool "SPIFFS Testcase"
+    select AOS_COMP_SPIFFS
+    default n
+    help

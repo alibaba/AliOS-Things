@@ -68,7 +68,7 @@ int drv_virtual_sensor_init(void){
     sensor.write = NULL;
     sensor.ioctl = drv_virtual_sensor_ioctl;
     sensor.irq_handle = NULL;
-    
+
     ret = udata_sensor_create_obj(&sensor);
     if(unlikely(ret)){
         return -1;
@@ -82,18 +82,18 @@ int drv_virtual_sensor_init(void){
 static int udata_find_selected_sensor(char* path )
 {
     int i = 0;
-        
+
     if(path == NULL){
         return -1;
     }
-    
+
     for(i = 0; i < g_sensor_cnt; i++){
         if(strncmp(g_sensor_obj[i]->path, path, strlen(path)) == 0){
             return i;
         }
     }
     return -1;
-}    
+}
 static int udata_load_sensor_config(int index )
 {
     int ret = 0;
@@ -101,7 +101,7 @@ static int udata_load_sensor_config(int index )
     if(g_sensor_obj[index] == NULL){
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -112,14 +112,14 @@ static int udata_sensor_obj_register(int index )
     if (ret != 0) {
         return -1;
     }
-    
+
     return 0;
-}    
+}
 
 int udata_sensor_create_obj(sensor_obj_t* sensor)
-{   
+{
     int ret = 0;
-    
+
     g_sensor_obj[g_sensor_cnt] = (sensor_obj_t*)aos_malloc(sizeof(sensor_obj_t));
     if(g_sensor_obj[g_sensor_cnt] == NULL){
         return -1;
@@ -139,7 +139,7 @@ int udata_sensor_create_obj(sensor_obj_t* sensor)
     g_sensor_obj[g_sensor_cnt]->mode       = sensor->mode;
     g_sensor_obj[g_sensor_cnt]->bus        = sensor->bus;
     g_sensor_obj[g_sensor_cnt]->power      = DEV_POWER_OFF; // will update the status later
-    
+
     /* register the sensor object into the irq list and vfs */
     ret = udata_sensor_obj_register(g_sensor_cnt);
     if (ret != 0) {
@@ -159,7 +159,7 @@ static int udata_sensor_hal_get_dev_list(void* buf)
     sensor_list_t* list = buf;
     if(buf == NULL)
         return -1;
-    
+
     /* load the sensor count and tag list here */
     list->cnt = g_sensor_cnt;
     for(int index = 0; index < g_sensor_cnt; index++){
@@ -176,7 +176,7 @@ static int udata_sensor_open(inode_t *node, file_t *file)
     if((node == NULL)||(file == NULL)){
         return -1;
     }
-    
+
 
     /* just open the /dev/sensor node here */
     if(strncmp(sensor_node_path, node->i_name, strlen(node->i_name)) == 0){
@@ -187,7 +187,7 @@ static int udata_sensor_open(inode_t *node, file_t *file)
     if(( g_sensor_obj[index]->open == NULL)||(index < 0)){
         return -1;
     }
-    
+
     g_sensor_obj[index]->open();
     return 0;
 }
@@ -199,8 +199,8 @@ static int udata_sensor_close(file_t *file)
     /* just close the /dev/sensor node here */
     if(strncmp(sensor_node_path, (file->node->i_name), strlen(file->node->i_name)) == 0){
         return 0;
-    }    
-    
+    }
+
     index = udata_find_selected_sensor(file->node->i_name);
     if(( g_sensor_obj[index]->close == NULL)||(index < 0)){
         return -1;
@@ -213,11 +213,11 @@ static ssize_t udata_sensor_read(file_t *f, void *buf, size_t len)
 {
     int index = 0;
     int ret = 0;
-    
+
     if(f == NULL){
         return -1;
     }
-    
+
     index = udata_find_selected_sensor(f->node->i_name);
     if(( g_sensor_obj[index]->read == NULL)||(index < 0)){
         goto error;
@@ -226,14 +226,14 @@ static ssize_t udata_sensor_read(file_t *f, void *buf, size_t len)
     if(buf == NULL){
         goto error;
     }
-    
+
     ret = g_sensor_obj[index]->read(buf, len);
     if(ret != 0){
         goto error;
     }
-    
+
     return len;
-    
+
 error:
     return -1;
 }
@@ -252,7 +252,7 @@ static int udata_sensor_ioctl(file_t *f, int cmd, unsigned long arg)
     if(f == NULL){
         return -1;
     }
-    
+
     if(cmd == SENSOR_IOCTL_GET_SENSOR_LIST){
         ret = udata_sensor_hal_get_dev_list(arg);
         if(ret != 0){
@@ -260,7 +260,7 @@ static int udata_sensor_ioctl(file_t *f, int cmd, unsigned long arg)
         }
         return 0;
     }
-    
+
     index = udata_find_selected_sensor(f->node->i_name);
     if(( g_sensor_obj[index]->ioctl == NULL)||(index < 0)){
         return -1;
@@ -286,9 +286,9 @@ static int udata_sensor_hal_register(void)
 
 int udata_sensor_init(void){
     int ret   = 0;
-    int index = 0; 
+    int index = 0;
     g_sensor_cnt = 0 ;
-    
+
     drv_virtual_sensor_init();
 
     ret = udata_sensor_hal_register();
@@ -300,7 +300,7 @@ int udata_sensor_init(void){
 }
 
 static void test_udata_subscribe_case(void)
-{   
+{
     int ret = 0;
     udata_sensor_init();
     udata_init();
@@ -309,7 +309,7 @@ static void test_udata_subscribe_case(void)
 }
 
 static void test_udata_unsubscribe_case(void)
-{   
+{
     int ret = 0;
     ret = udata_unsubscribe(UDATA_SERVICE_BARO);
     YUNIT_ASSERT(ret == UDATA_SUCCES);

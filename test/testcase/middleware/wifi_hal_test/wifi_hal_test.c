@@ -73,7 +73,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 static int wifi_start_adv(hal_wifi_module_t *m, hal_wifi_init_type_adv_t *init_para_adv)
 {
     (void)init_para_adv;
- 
+
     return 0;
 }
 
@@ -91,7 +91,7 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
 
 static void start_scan(hal_wifi_module_t *m)
 {
-   
+
 }
 
 static void start_scan_adv(hal_wifi_module_t *m)
