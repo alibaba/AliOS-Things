@@ -52,6 +52,23 @@ typedef enum _ali_crypto_result {
 #define DES_BLOCK_SIZE       8
 #define DES_IV_SIZE          8
 
+/* hash constants */
+#if (CONFIG_HAL_SHA512 || CONFIG_SAL_SHA512)
+#define MAX_HASH_SIZE         64  /* longest known is SHA512 */
+#else
+#define MAX_HASH_SIZE         32  /* longest known is SHA256 or less */
+#endif
+
+/* RSA constants */
+#define ALI_CRYPTO_RSA_PUBLIC      0
+#define ALI_CRYPTO_RSA_PRIVATE     1
+
+#define ALI_CRYPTO_RSA_PKCS_V15    0
+#define ALI_CRYPTO_RSA_PKCS_V21    1
+
+#define ALI_CRYPTO_RSA_SIGN        1
+#define ALI_CRYPTO_RSA_CRYPT       2
+
 typedef enum _sym_padding_t {
     SYM_NOPAD       = 0,
     SYM_PKCS5_PAD   = 1,
@@ -80,11 +97,6 @@ typedef enum _des_type_t {
     DES3_CBC    = 3,
 } des_type_t;
 
-typedef enum _authenc_type_t {
-    AES_CCM = 0,
-    AES_GCM = 1,
-} authenc_type_t;
-
 typedef enum _hash_type_t {
     HASH_NONE   = 0,
     SHA1        = 1,
@@ -104,18 +116,7 @@ enum {
     SM3_HASH_SIZE       = 32,
     SHA384_HASH_SIZE    = 48,
     SHA512_HASH_SIZE    = 64,
-    MAX_HASH_SIZE       = 64,
 };
-
-typedef enum _cbcmac_type_t {
-    AESCBCMAC   = 0,
-    DESCBCMAC   = 1,
-    DES3CBCMAC  = 2,
-} cbcmac_type_t;
-
-typedef enum _cmac_type_t {
-    AESCMAC     = 0,
-} cmac_type_t;
 
 typedef enum _rsa_key_attr_t {
     RSA_MODULUS          = 0x130,
@@ -128,23 +129,6 @@ typedef enum _rsa_key_attr_t {
     RSA_COEFFICIENT      = 0x830,
 } rsa_key_attr_t;
 
-typedef enum _dh_key_attr_t {
-    DH_PRIME             = 0x140,
-    DH_BASE              = 0x240,
-    DH_PRIVATE           = 0x340,
-    DH_PUBLIC            = 0x440,
-    DH_SUBPRIME          = 0x540,
-    DH_X_BITS            = 0x640,
-} dh_key_attr_t;
-
-typedef enum _dsa_key_attr_t {
-    DSA_PRIME            = 0x150,
-    DSA_SUBPRIME         = 0x250,
-    DSA_BASE             = 0x350,
-    DSA_PRIVATE          = 0x450,
-    DSA_PUBLIC           = 0x550,
-} dsa_key_attr_t;
-
 typedef enum _rsa_pad_type_t {
     RSA_NOPAD               = 0,
 
@@ -156,12 +140,6 @@ typedef enum _rsa_pad_type_t {
     RSASSA_PKCS1_V1_5       = 20,
     RSASSA_PKCS1_PSS_MGF1   = 21,
 } rsa_pad_type_t;
-
-typedef enum _dsa_padding_t {
-    DSA_SHA1       = 0,
-    DSA_SHA224     = 1,
-    DSA_SHA256     = 2,
-} dsa_padding_t;
 
 enum {
     CRYPTO_STATUS_CLEAN        = 0,

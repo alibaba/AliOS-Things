@@ -27,8 +27,6 @@
 #include "sm2.h"
 #include "hmac.h"
 
-
-
 #define INIT_CTX_MAGIC(m) (m = 0x12345678)
 #define IS_VALID_CTX_MAGIC(m) (0x12345678 == m)
 #define CLEAN_CTX_MAGIC(m) (m = 0x0)
@@ -68,15 +66,17 @@ typedef struct _hmac_ctx_t
     };
 } hmac_ctx_t;
 
-typedef struct _cts_ctx_t
+typedef struct _des_ctx_t
 {
-    uint32_t is_ecb;
-} cts_ctx_t;
-
-typedef struct _xts_ctx_t
-{
-    uint8_t tweak[16];
-} xts_ctx_t;
+    uint32_t   magic;
+    uint32_t   status;
+    des_type_t type;
+    uint32_t   is_enc;
+    union
+    {
+         uint8_t sym_ctx[1];
+     };
+} des_ctx_t;
 
 typedef struct _aes_ctx_t
 {
@@ -107,28 +107,6 @@ typedef struct _sm4_ctx_t {
             ali_algo_sm4_context ctx;
         };
 } sm4_ctx_t;
-
-typedef struct _des_ctx_t
-{
-    uint32_t   magic;
-    uint32_t   status;
-    des_type_t type;
-    uint32_t   is_enc;
-    union
-    {
-        uint8_t sym_ctx[1];
-    };
-} des_ctx_t;
-
-typedef struct _ae_ctx_t
-{
-    uint32_t       magic;
-    uint32_t       status;
-    authenc_type_t type;
-    uint32_t       is_enc;
-    uint32_t       tag_len;
-} ae_ctx_t;
-
 
 
 //aes
@@ -281,7 +259,5 @@ ali_crypto_result sal_sm2dh_derive_secret(const uint8_t flag_server,
 ali_crypto_result sal_rand_gen(uint8_t *buf, size_t len);
 
 ali_crypto_result sal_seed(uint8_t *seed, size_t seed_len);
-
-
 
 #endif /* _ALI_CRYPTO_ALGO_H_ */
