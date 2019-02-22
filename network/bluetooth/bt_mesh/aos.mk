@@ -9,12 +9,12 @@ $(NAME)_INCLUDES := ./src/include/
 
 ifeq ($(bt_mesh_standalone_deploy),1)
 GLOBAL_DEFINES += CONFIG_MESH_STACK_ALONE
-$(NAME)_COMPONENTS += bluetooth.bt_mesh.util
+$(NAME)_COMPONENTS += mesh_util
 else
-$(NAME)_COMPONENTS += bluetooth.bt_host.bt_common
+$(NAME)_COMPONENTS += bt_common
 endif
 
-$(NAME)_COMPONENTS += bluetooth.bt_mesh.ref-impl
+$(NAME)_COMPONENTS += mesh_hal_ref_impl
 
 ifeq ($(en_mesh_shell),1)
 GLOBAL_DEFINES += CONFIG_BT_MESH_SHELL CONFIG_BT_MESH_CFG_CLI CONFIG_BT_MESH_HEALTH_CLI
