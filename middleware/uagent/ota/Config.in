@@ -1,6 +1,6 @@
 menuconfig AOS_COMP_OTA
     bool "OTA Features"
-    default y
+    default n
     help
 
 if AOS_COMP_OTA
