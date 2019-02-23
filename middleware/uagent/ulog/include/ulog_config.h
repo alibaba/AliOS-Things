@@ -52,6 +52,29 @@ extern "C" {
 */
 #define SYSLOG_WATCHER_DEFAULT_PORT 514
 
+/* Specify if details mode used under sync log */
+#ifndef ULOG_CONFIG_SYNC_LOG_DETAILS
+#define SYNC_LOG_DETAILS 0
+#else
+#define SYNC_LOG_DETAILS ULOG_CONFIG_SYNC_LOG_DETAILS
+#endif
+
+/* Specify if the MOD will be recored under sync mode, w/o detail mode */
+#ifndef ULOG_CONFIG_SYNC_LOG_MOD
+#define SYNC_LOG_MOD 0
+#else
+#define SYNC_LOG_MOD ULOG_CONFIG_SYNC_LOG_MOD
+#endif
+
+#if SYNC_LOG_MOD
+#define MOD_MAX_LEN 10
+#endif
+
+#ifndef ULOG_CONFIG_SYNC_DETAIL_COLOR
+#define SYNC_DETAIL_COLOR 0
+#else
+#define SYNC_DETAIL_COLOR ULOG_CONFIG_SYNC_DETAIL_COLOR
+#endif
 
 /**
 * If this value is SET then extream log text will be recored, then the log text not support syslog format,

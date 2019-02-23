@@ -12,10 +12,13 @@
 
 static char serverity_name[LOG_NONE] = { 'V', 'A', 'F', 'E', 'W', 'T', 'I', 'D' };
 
+const char UNKNOWN_BUF[8] = "UNKNOWN";
+
 /* stop filter used in sync log, dedault value LOG_NONE, shall not larger than LOG_NONE */
 static uint8_t stop_filter_level = LOG_NONE;
 
 static aos_mutex_t log_mutex;
+
 
 int log_get_mutex()
 {
@@ -49,7 +52,8 @@ void log_init_mutex(void)
     aos_mutex_new(&log_mutex);
 }
 
-#ifdef CONFIG_LOGMACRO_DETAILS
+#if SYNC_LOG_DETAILS
+#if SYNC_DETAIL_COLOR
 /*
  * color def.
  * see http://stackoverflow.com/questions/3585846/color-text-in-terminal-applications-in-unix
@@ -68,6 +72,8 @@ static char log_col_def[LOG_NONE][12] =
     COL_DEF, COL_RED, COL_RED, COL_RED, COL_BLU, COL_GRE, COL_GRE, COL_WHE
 };
 
+#endif
+
 int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned long l, const char *fmt, ...)
 {
     int rc = -1;
@@ -75,11 +81,20 @@ int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned
         va_list args;
         long long ms = aos_now_ms();
         if (log_get_mutex()) {
+            const char* rpt_mod = NULL;
             if ((mod == NULL) || (0 == strlen(mod))) {
-                printf("%s [%4d.%03d]<%c> [%s#%d] : ", log_col_def[s], (int)(ms / 1000), (int)(ms % 1000), serverity_name[s], f, (int)l);
+                rpt_mod = UNKNOWN_BUF;
             } else {
-                printf("%s [%4d.%03d]<%c> %s [%s#%d] : ", log_col_def[s], (int)(ms / 1000), (int)(ms % 1000), serverity_name[s], mod, f, (int)l);
+                rpt_mod = mod;
             }
+#if SYNC_DETAIL_COLOR
+            printf("%s [%4d.%03d]<%c> %s [%s#%d] : ",
+                log_col_def[s],
+#else
+            printf("[%4d.%03d]<%c> %s [%s#%d] : ",
+#endif
+                (int)(ms / 1000),
+                (int)(ms % 1000), serverity_name[s], rpt_mod, f, (int)l);
             va_start(args, fmt);
             rc = vprintf(fmt, args);
             va_end(args);
@@ -93,16 +108,35 @@ int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned
 }
 
 #else
-
+#if SYNC_LOG_MOD
+int rt_log(const unsigned char s, const char* mod, const char *fmt, ...)
+#else
 int rt_log(const unsigned char s, const char *fmt, ...)
+#endif
 {
     int rc = -1;
     if (log_init && s < stop_filter_level) {
 
         if (log_get_mutex()) {
+
             va_list args;
 
-            printf("[%06d]<%c> ", (int)(aos_now_ms()%1000000), serverity_name[s]);
+            printf("[%06d]<%c> ", (int)(aos_now_ms() % 1000000), serverity_name[s]);
+
+#if SYNC_LOG_MOD
+            uint16_t mod_len = 0;
+            if ((mod == NULL) || (0 == (mod_len = strlen(mod)))) {
+                printf("%s ", UNKNOWN_BUF);
+            } else if (mod_len <= MOD_MAX_LEN) {
+                printf("%s ", mod);
+            } else {
+                char mod_buf[MOD_MAX_LEN + 2];
+                strncpy(mod_buf, mod, 10);
+                mod_buf[MOD_MAX_LEN] = ' ';
+                mod_buf[MOD_MAX_LEN + 1] = '\0';
+                printf("%s", mod_buf);
+            }
+#endif
             va_start(args, fmt);
             rc = vprintf(fmt, args);
             va_end(args);
