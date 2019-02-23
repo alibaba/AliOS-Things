@@ -6,6 +6,27 @@ menuconfig AOS_COMP_ULOG
 if AOS_COMP_ULOG
 # Configurations for component ulog
 
+config ULOG_CONFIG_SYNC_LOG_DETAILS
+    bool "enable rich details for log, DO NOT switch on it under rtos unless necessary"
+    default n
+    help
+        enable rich details for log, includes mod name, file path and line.
+        DO NOT recommend switch this function under rtos.
+
+if ULOG_CONFIG_SYNC_LOG_DETAILS
+config ULOG_CONFIG_SYNC_DETAIL_COLOR
+    bool "enable color font for more details"
+    default n
+    help
+        enable color font for more details
+endif
+
+config ULOG_CONFIG_SYNC_LOG_MOD
+    bool "enable record mod under sync log mode, not work if rich details on"
+    default n
+    help
+        enable record mod under sync log mode. Not work if ULOG_CONFIG_SYNC_LOG_DETAILS selected
+
 config ULOG_CONFIG_ASYNC
     bool "enable ulog async mode"
     default n
