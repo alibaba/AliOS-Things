@@ -126,7 +126,6 @@ void HAL_UART_IRQHandler_User(UART_HandleTypeDef *huart)
     if(((isrflags & USART_SR_ORE) != RESET) && ((cr3its & USART_CR3_EIE) != RESET))
     { 
       huart->ErrorCode |= HAL_UART_ERROR_ORE;
-      __HAL_UART_CLEAR_OREFLAG(huart);
     }
     __HAL_UART_CLEAR_PEFLAG(huart);
     return;
