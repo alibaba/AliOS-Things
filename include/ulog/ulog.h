@@ -44,7 +44,7 @@ typedef enum{
     MOD_USR2         , /* Log produced in user app */
 }MOD_TYPE;
 
-#ifdef CONFIG_LOGMACRO_DETAILS
+#if SYNC_LOG_DETAILS
 
 /*
  * Function prototype for syncronized log text, Recommed use below brief API instead of this
@@ -71,10 +71,15 @@ int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned
  * Function prototype for syncronized log text, Recommed use below brief API instead of this
  *
  * @param  s         Serverity of Log
+ * @param  mod       module name, shall not longer than MOD_MAX_LEN, or else be trimmed
  * @param  fmt, ...  Variable Parameter, support format print to log
  * @return  0: success; other: fail.
  */
+#if SYNC_LOG_MOD
+int rt_log(const unsigned char s, const char* mod, const char *fmt, ...);
+#else
 int rt_log(const unsigned char s, const char *fmt, ...);
+#endif
 
 /*
  * Log at the level set by aos_set_log_level().
@@ -93,7 +98,7 @@ int rt_log(const unsigned char s, const char *fmt, ...);
 #define LOGD(mod, ...)
 #else
 
-#ifdef CONFIG_LOGMACRO_DETAILS
+#if SYNC_LOG_DETAILS
 
 /*
  * Log at fatal level.
@@ -147,7 +152,11 @@ int rt_log(const unsigned char s, const char *fmt, ...);
  * @param[in]  mod  string description of module.
  * @param[in]  fmt  same as printf() usage.
  */
+#if SYNC_LOG_MOD
+#define LOGF(mod, ...) rt_log(LOG_CRIT, mod, __VA_ARGS__)
+#else
 #define LOGF(mod, ...) rt_log(LOG_CRIT, __VA_ARGS__)
+#endif
 
 /*
  * Log at error level.
@@ -155,7 +164,11 @@ int rt_log(const unsigned char s, const char *fmt, ...);
  * @param[in]  mod  string description of module.
  * @param[in]  fmt  same as printf() usage.
  */
+#if SYNC_LOG_MOD
+#define LOGE(mod, ...) rt_log(LOG_ERR, mod, __VA_ARGS__)
+#else
 #define LOGE(mod, ...) rt_log(LOG_ERR, __VA_ARGS__)
+#endif
 
 /*
  * Log at warning level.
@@ -163,7 +176,11 @@ int rt_log(const unsigned char s, const char *fmt, ...);
  * @param[in]  mod  string description of module.
  * @param[in]  fmt  same as printf() usage.
  */
+#if SYNC_LOG_MOD
+#define LOGW(mod, ...) rt_log(LOG_WARNING, mod, __VA_ARGS__)
+#else
 #define LOGW(mod, ...) rt_log(LOG_WARNING, __VA_ARGS__)
+#endif
 
 /*
  * Log at info level.
@@ -171,7 +188,11 @@ int rt_log(const unsigned char s, const char *fmt, ...);
  * @param[in]  mod  string description of module.
  * @param[in]  fmt  same as printf() usage.
  */
+#if SYNC_LOG_MOD
+#define LOGI(mod, ...) rt_log(LOG_INFO, mod, __VA_ARGS__)
+#else
 #define LOGI(mod, ...) rt_log(LOG_INFO, __VA_ARGS__)
+#endif
 
 /*
  * Log at debug level.
@@ -180,7 +201,12 @@ int rt_log(const unsigned char s, const char *fmt, ...);
  * @param[in]  fmt  same as printf() usage.
  */
 #ifdef DEBUG
+#if SYNC_LOG_MOD
+#define LOGD(mod, ...) rt_log(LOG_DEBUG, mod, __VA_ARGS__)
+#else
 #define LOGD(mod, ...) rt_log(LOG_DEBUG, __VA_ARGS__)
+#endif
+
 #else
 #define LOGD(mod, ...)
 #endif
