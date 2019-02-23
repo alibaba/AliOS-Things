@@ -155,9 +155,9 @@ int alcs_decrypt(const char *src, int len, const char *key, void *out);
 int observe_data_encrypt(CoAPContext *ctx, const char *paths, NetworkAddr *addr,
                          CoAPMessage *message, CoAPLenString *src, CoAPLenString *dest);
 
-bool is_networkadd_same(NetworkAddr *addr1, NetworkAddr *addr2);
+int is_networkadd_same(NetworkAddr *addr1, NetworkAddr *addr2);
 void gen_random_key(unsigned char random[], int len);
-bool req_payload_parser(const char *payload, int len, char **seq, int *seqlen, char **data, int *datalen);
+int req_payload_parser(const char *payload, int len, char **seq, int *seqlen, char **data, int *datalen);
 int internal_secure_send(CoAPContext *ctx, session_item *session, NetworkAddr *addr,
                          CoAPMessage *message, char observe, CoAPSendMsgHandler handler);
 

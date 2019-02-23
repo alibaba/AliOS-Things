@@ -275,7 +275,7 @@ void alcs_auth_deinit(void)
 #endif
 }
 
-bool is_networkadd_same(NetworkAddr *addr1, NetworkAddr *addr2)
+int is_networkadd_same(NetworkAddr *addr1, NetworkAddr *addr2)
 {
     if (!addr1 || !addr2) {
         return 0;
@@ -364,7 +364,7 @@ int alcs_decrypt (const char* src, int len, const char* key, void* out)
     return 0;
 }
 
-bool alcs_is_auth(CoAPContext *ctx, AlcsDeviceKey *devKey)
+int alcs_is_auth(CoAPContext *ctx, AlcsDeviceKey *devKey)
 {
     return get_auth_session(ctx, devKey) != NULL;
 }
@@ -535,7 +535,7 @@ int alcs_sendrsp_secure(CoAPContext *ctx, AlcsDeviceKey *devKey, CoAPMessage *me
     return internal_secure_send(ctx, session, &devKey->addr, message, observe, NULL);
 }
 
-bool req_payload_parser(const char *payload, int len, char **seq, int *seqlen, char **data, int *datalen)
+int req_payload_parser(const char *payload, int len, char **seq, int *seqlen, char **data, int *datalen)
 {
     if (!payload || !len || !seq || !seqlen || !datalen || !data) {
         return 0;
