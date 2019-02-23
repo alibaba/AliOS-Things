@@ -42,7 +42,7 @@ static int connect_tcp(utils_network_pt pNetwork)
     }
 
     pNetwork->handle = HAL_TCP_Establish(pNetwork->pHostAddress, pNetwork->port);
-    if (0 == pNetwork->handle) {
+    if (-1 == pNetwork->handle) {
         return -1;
     }
 
