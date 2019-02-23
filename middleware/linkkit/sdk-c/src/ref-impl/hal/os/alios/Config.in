@@ -1,4 +1,4 @@
-menuconfig AOS_COMP_IOTX-HAL
+config AOS_COMP_IOTX-HAL
     default n
     select AOS_COMP_ITLS if SUPPORT_ITLS = y
     select AOS_COMP_MBEDTLS if SUPPORT_TLS = y
@@ -7,4 +7,11 @@ menuconfig AOS_COMP_IOTX-HAL
 
 if AOS_COMP_IOTX-HAL
 # Configurations for comp iotx-hal
+
+config HAL_CRYPTO
+    default n
+    select AOS_COMP_ALICRYPTO
+    help
+      HAL CRYPTO for AliOS Things
+
 endif
