@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "aos/kernel.h"
-
+#include "ulog/ulog.h"
 #include "itls/ssl.h"
 #include "itls/net.h"
 #include "itls/debug.h"
@@ -67,6 +67,9 @@ static void _ssl_debug(void *ctx, int level, const char *file, int line, const c
 }
 
 #if defined(_PLATFORM_IS_LINUX_)
+#include "aos/errno.h"
+extern int errno;
+
 static int net_prepare(void)
 {
 #if ( defined(_WIN32) || defined(_WIN32_WCE) ) && !defined(EFIX64) && \
@@ -304,7 +307,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len, i
 
                 return readLen;
             } else {
-#ifdef CSP_LINUXHOST
+#ifdef _PLATFORM_IS_LINUX_
                 if (MBEDTLS_ERR_SSL_WANT_READ == ret && errno == EINTR) {
                     continue;
                 }
