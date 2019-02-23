@@ -93,7 +93,7 @@ int alcs_auth_init(CoAPContext *context, const char *productKey, const char *dev
 void alcs_auth_subdev_init(CoAPContext *ctx, const char *productKey, const char *deviceName);
 void alcs_auth_deinit(void);
 
-bool alcs_is_auth(CoAPContext *ctx, AlcsDeviceKey *devKey);
+int alcs_is_auth(CoAPContext *ctx, AlcsDeviceKey *devKey);
 int alcs_sendmsg_secure(CoAPContext *ctx, AlcsDeviceKey *devKey, CoAPMessage *message, char observe,
                         CoAPSendMsgHandler handler);
 int alcs_sendrsp_secure(CoAPContext *ctx, AlcsDeviceKey *devKey, CoAPMessage *message, char observe,
