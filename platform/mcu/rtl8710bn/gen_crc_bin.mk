@@ -48,7 +48,7 @@ BOOT_BIN_FILE    := $(OUTPUT_DIR)/binary/boot_all.bin
 BOOT_OFFSET      := 0x0
 
 #application
-SYSTEM_BIN_FILE :=board/mk3080/system.bin
+SYSTEM_BIN_FILE := $(AMEBAZ_DIR)/system.bin
 SYSTEM_OFFSET:= 0x9000
 
 #2boot
@@ -56,7 +56,7 @@ SYSTEM_OFFSET:= 0x9000
 2BOOT_OFFSET:= 0xB000
 
 #ate firmware
-ATE_BIN_FILE := board/mk3080/ate.bin
+ATE_BIN_FILE := $(AMEBAZ_DIR)/ate.bin
 ATE_OFFSET:= 0xD0000
 
 #app
