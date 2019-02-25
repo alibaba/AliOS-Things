@@ -776,7 +776,7 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
                             RadioEventsTest->RxDone = OnRxDone;
 
                             Radio.SetChannel(rf_frequency);
-                            DBG_LINKWAN("radio rx freq %d\r\n", (int32_t)rf_frequency);
+                            DBG_LINKWAN("radio rx freq %d\r\n", (int)rf_frequency);
                             Radio.SetRxConfig(MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
                                               LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
                                               LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
@@ -799,7 +799,7 @@ static void McpsIndication(McpsIndication_t *mcpsIndication)
 
                             set_lora_tx_dutycycle(0);
                             Radio.SetChannel(rf_frequency);
-                            DBG_LINKWAN("radio tx freq %d\r\n", (int32_t)rf_frequency);
+                            DBG_LINKWAN("radio tx freq %d\r\n", (int)rf_frequency);
 
                             Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
                                                LORA_SPREADING_FACTOR, LORA_CODINGRATE,
