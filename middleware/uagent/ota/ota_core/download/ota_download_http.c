@@ -218,14 +218,14 @@ static int ota_download_start(void *pctx)
     while (totalsend < nbytes) {
         send = ((isHttps) ? ota_ssl_send(ssl, (char *)(http_buffer + totalsend), (int)(nbytes - totalsend))
                  :ota_socket_send(sockfd, http_buffer + totalsend, nbytes - totalsend));
-        if (send < 0) {
+        if (send <= 0) {
             ret = OTA_DOWNLOAD_WRITE_FAIL;
             goto END;
         }
         totalsend += send;
         OTA_LOG_I("%d bytes send.", totalsend);
     }
-    memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE); 
+    memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
     while ((nbytes = ((isHttps) ? ota_ssl_recv(ssl, http_buffer, OTA_BUFFER_MAX_SIZE - 1)
           :ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1))) != 0) {
         if((nbytes <= 0)&&(retry <= 5)){
