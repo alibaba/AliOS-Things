@@ -1,5 +1,5 @@
 config AOS_APP_ATHOSTAPP
-    bool "athostapp"
+    bool "AT Command Process Sample"
     select AOS_COMP_NETMGR
     select AOS_COMP_ATPARSER if ATHOSTAPP_CONFIG_ATPARSER
     select AOS_COMP_ATHOST

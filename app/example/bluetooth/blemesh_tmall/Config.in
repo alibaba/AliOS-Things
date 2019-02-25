@@ -1,5 +1,5 @@
 config AOS_APP_BLEMESH_TMALL
-    bool "blemesh_tmall"
+    bool "AliGenie BLE Mesh Network Sample"
     select AOS_COMP_BT_HOST
     select AOS_COMP_TMALL_MODEL
     select AOS_COMP_CLI

@@ -1,11 +1,11 @@
 config AOS_APP_UDEVAPP
-    bool "udevapp"
+    bool "uDev Sample"
     select AOS_COMP_CLI
     select AOS_COMP_KV
     select AOS_COMP_UDEV
     select AOS_COMP_NETMGR
     help
-        udev sample code
+        uDev(Developerment Over-The-Air) sample code
 
 if AOS_APP_UDEVAPP
 # Configurations for comp udev

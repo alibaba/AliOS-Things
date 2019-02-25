@@ -1,10 +1,10 @@
 config AOS_APP_DK_CAMERA
-    bool "dk_camera"
+    bool "DeveloperKit Camera Sample"
     select AOS_COMP_FATFS
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help
-        developer kit camera demo
+        developer kit camera sample
 
 if AOS_APP_DK_CAMERA
 # Configurations for app dk_camera

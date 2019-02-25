@@ -1,5 +1,5 @@
 config AOS_APP_UART
-    bool "uart"
+    bool "Uart Sample"
     help
         this is a uart sample form hal uart.h
 

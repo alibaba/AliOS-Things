@@ -1,5 +1,5 @@
 config AOS_APP_PROV_APP
-    bool "prov_app"
+    bool "ID2 Provisioning Sample"
     select AOS_COMP_LIBPROV
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
