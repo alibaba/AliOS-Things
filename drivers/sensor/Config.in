@@ -1,5 +1,5 @@
 config AOS_COMP_SENSOR
-    bool "sensor"
+    bool "Sensor Drivers Configuration"
     default n
     select AOS_COMP_MBMASTER if AOS_SENSOR_MODBUS_ENABLE
     select AOS_COMP_ATPARSER if AOS_SENSOR_GPS_SIMCOM_SIM868
@@ -9,256 +9,297 @@ config AOS_COMP_SENSOR
 
 if AOS_COMP_SENSOR
 # Configurations for comp sensor
+
 config AOS_SENSOR_MODBUS_ENABLE
-    bool "Enable modbus sensor"
+    bool "Enable Modbus Sensors"
     default n
     help
-        Enable modbus sensor
+        Press <Y> here to add support for the Modbus Sensors, this depend on AOS_COMP_MBMASTER.
 
 if AOS_SENSOR_MODBUS_ENABLE
-menu "modbus sensor selection"
-    menu "als sensor"
+menu "Modbus Sensor Selection"
+    menu "Ambient Light Sensors"
         config AOS_SENSOR_ALS_KUNLUN_ZD6
-            bool "zd-6 sensor"
+            bool "ZD-6"
             default n
             help
-                Enable zd-6 als sensor
+                Press <Y> here to add support for the ZD-6 light sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_ALS_MTM_MSLT100MB
-            bool "mslt100mb als sensor"
+            bool "MSLT100MB"
             default n
             help
-                Enable mslt100mb als sensor
+                Press <Y> here to add support for the MSLT100MB light sensor.
+                This depend on modbus.
     endmenu
 
-    menu "baro sensor"
+    menu "Barometric Pressure Sensors"
         config AOS_SENSOR_BARO_KUNLUN_JQYB
-            bool "jqyb sensor"
+            bool "JQYB"
             default n
             help
-                Enable jqyb baro sensor
+                Press <Y> here to add support for the JQYB barometric pressure sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_BARO_MTM_MSP1000MB
-            bool "msp1000mb sensor"
+            bool "MSP1000MB"
             default n
             help
-                Enable msp1000mb baro sensor
-
+                Press <Y> here to add support for the MSP1000MB barometric pressure sensor.
+                This depend on modbus.
     endmenu
 
-    menu "co2 sensor"
+    menu "CO2 Sensors"
         config AOS_SENSOR_CO2_KUNLUN_JQAW6W1V
-            bool "jqaw-6w1-v sensor"
+            bool "JQAW-6W1-V"
             default n
             help
-                Enable jqaw-6w1-v co2 sensor
+                Press <Y> here to add support for the JQAW-6W1-V CO2 sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_CO2_HONEYWELL_HAQEAW
-            bool "haqeaw sensor"
+            bool "HAQEAW"
             default n
             help
-                Enable haqeaw co2 sensor
+                Press <Y> here to add support for the HAQEAW CO2 sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_CO2_MTM_MSCO2MB
-            bool "msco2mb sensor"
+            bool "MSCO2MB"
             default n
             help
-                Enable msco2mb co2 sensor
+                Press <Y> here to add support for the MSCO2MB CO2 sensor.
+                This depend on modbus.
     endmenu
-    menu "tvoc sensor"
+    menu "TVOC Sensors"
         config AOS_SENSOR_TVOC_HONEYWELL_HAQEAW
-            bool "haqeaw sensor"
+            bool "HAQEAW"
             default n
             help
-                Enable haqeaw tvoc sensor
+                Press <Y> here to add support for the HAQEAW TVOC sensor.
+                This depend on modbus.
     endmenu
 
-    menu "temp sensor"
+    menu "Temperature Sensors"
         config AOS_SENSOR_TEMP_KUNLUN_JWSKV
-            bool "jwsk-v sensor"
+            bool "JWSK-V"
             default n
             help
-                Enable jwsk-v temperature sensor
+                Press <Y> here to add support for the JWSK-V temperature sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_TEMP_KUNLUN_JTWSAC
-            bool "jtws-ac sensor"
+            bool "JTWS-AC"
             default n
             help
-                Enable jtws-ac temperature sensor
+                Press <Y> here to add support for the JTWS-AC temperature sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_TEMP_HONEYWELL_HAQEAW
-            bool "haqeaw sensor"
+            bool "HAQEAW"
             default n
             help
-                Enable haqeaw temperature sensor
+                Press <Y> here to add support for the HAQEAW temperature sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_TEMP_MTM_MSTH1000
-            bool "msth1000 sensor"
+            bool "MSTH1000"
             default n
             help
-                Enable msth1000 temperature sensor
+                Press <Y> here to add support for the MSTH1000 temperature sensor.
+                This depend on modbus.
         config AOS_SENSOR_TEMP_MTM_MSPH10
-            bool "msph10 sensor"
+            bool "MSPH10"
             default n
             help
-                Enable msph10 temperature sensor
+                Press <Y> here to add support for the MSPH10 temperature sensor.
+                This depend on modbus.
+
         config AOS_SENSOR_TEMP_MTM_MSEC10
-            bool "msec10 sensor"
+            bool "MSEC10"
             default n
             help
-                Enable msec10 temperature sensor
+                Press <Y> here to add support for the MSEC10 temperature sensor.
+                This depend on modbus.
+
         config AOS_SENSOR_TEMP_MTM_MLWS10
-            bool "mlws10 sensor"
+            bool "MLWS10"
             default n
             help
-                Enable mlws10 temperature sensor
+                Press <Y> here to add support for the MLWS10 leaf temperature sensor.
+                This depend on modbus.
     endmenu
 
-    menu "humi sensor"
+    menu "Humidity Sensors"
         config AOS_SENSOR_HUMI_KUNLUN_JWSKV
-            bool "jwsk-v sensor"
+            bool "JWSK-V"
             default n
             help
-                Enable jwsk-v humidity sensor
+                Press <Y> here to add support for the JWSK-V humidity sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_HUMI_HONEYWELL_HAQEAW
-            bool "haqeaw sensor"
+            bool "HAQEAW
             default n
             help
-                Enable haqeaw humidity sensor
+                Press <Y> here to add support for the HAQEAW humidity sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_HUMI_MTM_MSTH1000
-            bool "msth1000 sensor"
+            bool "MSTH1000"
             default n
             help
-                Enable msth1000 humidity sensor
+                Press <Y> here to add support for the MSTH1000 humidity sensor.
+                This depend on modbus.
 
     endmenu
-    menu "noise sensor"
+    menu "Noise Sensors"
         config AOS_SENSOR_NOISE_MTM_MSN1000MB
-            bool "msn1000mb sensor"
+            bool "MSN1000MB"
             default n
             help
-                Enable msn1000mb noise sensor
+                Press <Y> here to add support for the MSN1000MB noise sensor.
+                This depend on modbus.
     endmenu
-    menu "hcho sensor"
+    menu "HCHO Sensors"
         config AOS_SENSOR_HCHO_MTM_MSF1000MB
-            bool "msf1000mb sensor"
+            bool "MSF1000MB"
             default n
             help
-                Enable msf1000mb sensor
+                Press <Y> here to add support for the MSF1000MB HCHO sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_HCHO_HONEYWELL_HAQEAW
-            bool "haqeaw sensor"
+            bool "HAQEAW"
             default n
             help
-                Enable haqeaw hcho sensor
+                Press <Y> here to add support for the HAQEAW HCHO sensor.
+                This depend on modbus.
     endmenu
 
-    menu "pm2.5 sensor"
+    menu "PM2.5 Sensors"
         config AOS_SENSOR_PM25_MTM_MSPM25MB
-            bool "mspm25mb sensor"
+            bool "MSPM25MB"
             default n
             help
-                Enable mspm25mb pm2.5 sensor
+                Press <Y> here to add support for the MSPM25MB PM2.5 sensor.
+                This depend on modbus.
 
         config AOS_SENSOR_PM25_HONEYWELL_HAQEAW
-            bool "haqeaw sensor"
+            bool "HAQEAW"
             default n
             help
-                Enable haqeaw pm2.5 sensor
+                Press <Y> here to add support for the HAQEAW PM2.5 sensor.
+                This depend on modbus.
     endmenu
-    menu "pm1 sensor"
+    menu "PM1.0 Sensors"
         config AOS_SENSOR_PM1_MTM_MSPM25MB
-            bool "mspm25mb sensor"
+            bool "MSPM25MB"
             default n
             help
-                Enable mspm25mb pm1 sensor
+                Press <Y> here to add support for the MSPM25MB PM1.0 sensor.
+                This depend on modbus.
     endmenu
-    menu "pm10 sensor"
+    menu "PM10.0 sensor"
         config AOS_SENSOR_PM10_MTM_MSPM25MB
-            bool "mspm25mb sensor"
+            bool "MSPM25MB"
             default n
             help
-                Enable mspm25mb pm10 sensor
+                Press <Y> here to add support for the MSPM25MB PM10.0 sensor.
+                This depend on modbus.
     endmenu
-    menu "ph sensor"
+    menu "PH Sensors"
         config AOS_SENSOR_PH_MTM_MSPH10
-            bool "msph10 sensor"
+            bool "MSPH10"
             default n
             help
-                Enable msph10 ph sensor
+                Press <Y> here to add support for the MSPH10 PH sensor.
+                This depend on modbus.
     endmenu
 
-    menu "vwc sensor"
+    menu "Volumetric Water Content Sensors"
         config AOS_SENSOR_VWC_KUNLUN_JTWSAC
-            bool "jtwsac sensor"
+            bool "JTWS-AC"
             default n
             help
-                Enable jtwsac vwc(volumetric water content) sensor
+                Press <Y> here to add support for the JTWS-AC volumetric water content(VWC) sensor.
+                This depend on modbus.
+
         config AOS_SENSOR_VWC_MTM_MLWS10
-            bool "mlws10 sensor"
+            bool "MLWS10"
             default n
             help
-                Enable mlws10 vwc(volumetric water content) sensor
+                Press <Y> here to add support for the MLWS10 volumetric water content(VWC) sensor.
+                This depend on modbus.
+
         config AOS_SENSOR_VWC_MTM_MSSM10
-            bool "mssm10 sensor"
+            bool "MSSM10"
             default n
             help
-                Enable mssm10 vwc(volumetric water content) sensor
+                Press <Y> here to add support for the MSSM10 volumetric water content(VWC) sensor.
+                This depend on modbus.
     endmenu
 
-    menu "ec sensor"
+    menu "Electrical Conductivity Sensors"
         config AOS_SENSOR_EC_MTM_MSEC10
-            bool "msec10 sensor"
+            bool "MSEC10"
             default n
             help
-                Enable msec10 ec(electrical conductivity) sensor
+                Press <Y> here to add support for the MSEC10 electrical conductivity(EC) sensor.
+                This depend on modbus.
     endmenu
 
-    menu "salinity sensor"
+    menu "Salinity Sensors"
         config AOS_SENSOR_SALINITY_MTM_MSEC10
-            bool "msec10 sensor"
+            bool "MSEC10"
             default n
             help
-                Enable msec10 salinity sensor
+                Press <Y> here to add support for the MSEC10 salinity sensor.
+                This depend on modbus.
     endmenu
 
-    menu "tds sensor"
+    menu "TDS Sensor"
         config AOS_SENSOR_TDS_MTM_MSEC10
-            bool "msec10 sensor"
+            bool "MSEC10"
             default n
             help
-                Enable msec10 tds(total dissolved solids) sensor
+                Press <Y> here to add support for the MSEC10 total dissolved solids(TDS) sensor.
+                This depend on modbus.
     endmenu
 
-    menu "wind speed sensor"
+    menu "Wind Speed Sensors"
         config AOS_SENSOR_WINDSPEED_KUNLUN_JHFSW1
-            bool "jhfsw1 sensor"
+            bool "JHFS-W1"
             default n
             help
-                Enable jhfsw1 wind speed sensor
+                Press <Y> here to add support for the JHFS-W1 wind speed sensor.
+                This depend on modbus.
     endmenu
 
-    menu "wind direction sensor"
+    menu "Wind Direction Sensors"
         config AOS_SENSOR_WINDDIRECTION_KUNLUN_JHFXW1
-            bool "jhfxw1 sensor"
+            bool "JHFX-W1"
             default n
             help
-                Enable jhfxw1 wind direction sensor
+                Press <Y> here to add support for the JHFX-W1 wind direction sensor.
+                This depend on modbus.
     endmenu
 
-    menu "rainfall sensor"
+    menu "Rain Gauge"
         config AOS_SENSOR_CURRENTRAINFALL_KUNLUN_JHYLW1
-            bool "jhylw1 current rainfall sensor"
+            bool "JHYL-W1"
             default n
             help
-                Enable jhylw1 current rainfall sensor
+                Press <Y> here to add support for the JHFX-W1 current rainfall record.
+                This depend on modbus.
+
         config AOS_SENSOR_DAILYRAINFALL_KUNLUN_JHYLW1
-            bool "jhylw1 daily rainfall sensor"
+            bool "JHYL-W1"
             default n
             help
-                Enable jhylw1 daily rainfall sensor
+                Press <Y> here to add support for the JHFX-W1 daily rainfall record.
+                This depend on modbus.
     endmenu
 
 endmenu
@@ -266,654 +307,835 @@ endif
 
 
 config AOS_SENSOR_MEMS_ENABLE
-    bool "Enable mems sensor"
+    bool "Enable MEMS Sensors"
     default n
     help
-        Enable mems sensor
+        Press <Y> here to add support for the MEMS Sensors.
 
 if AOS_SENSOR_MEMS_ENABLE
-menu "sensor selection"
-    menu "acc sensor"
+menu "MEMS Sensor Selection"
+    menu "Accelerometers"
         config AOS_SENSOR_ACC_ADI_ADXL372
-            bool "adxl372 sensor"
+            bool "ADXL372"
             default n
             help
-                Enable adxl372 sensor
+                Press <Y> here to add support for the ADXL372 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ADI_ADXL345
-            bool "adxl345 sensor"
+            bool "ADXL345"
             default n
             help
-                Enable adxl345 sensor
+                Press <Y> here to add support for the ADXL345 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ADI_ADXL355
-            bool "adxl355 sensor"
+            bool "ADXL355"
             default n
             help
-                Enable adxl355 sensor
+                Press <Y> here to add support for the ADXL355 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMA253
-            bool "bma253 sensor"
+            bool "BMA253"
             default n
             help
-                Enable bma253 acc sensor
+                Press <Y> here to add support for the BMA253 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMA280
-            bool "bma280 sensor"
+            bool "BMA280"
             default n
             help
-                Enable bma280 acc sensor
+                Press <Y> here to add support for the BMA280 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMA421
-            bool "bma421 sensor"
+            bool "BMA421"
             default n
             help
-                Enable bma421 acc sensor
+                Press <Y> here to add support for the BMA421 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMA422
-            bool "bma422 sensor"
+            bool "BMA422"
             default n
             help
-                Enable bma422 sensor
+                Press <Y> here to add support for the BMA422 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMA455
-            bool "bma455 sensor"
+            bool "BMA455"
             default n
             help
-                Enable bma455 sensor
+                Press <Y> here to add support for the BMA455 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMA456
-            bool "bma456 sensor"
+            bool "BMA456"
             default n
             help
-                Enable bma456 sensor
+                Press <Y> here to add support for the BMA456 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMI055
-            bool "bmi055 sensor"
+            bool "BMI055"
             default n
             help
-                Enable bmi055 sensor
+                Press <Y> here to add support for the BMI055 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMI088
-            bool "bmI088 sensor"
+            bool "BMI088"
             default n
             help
-                Enable bmI088 sensor
+                Press <Y> here to add support for the BMI088 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMI120
-            bool "bmI120 sensor"
+            bool "BMI120"
             default n
             help
-                Enable bmI120 sensor
+                Press <Y> here to add support for the BMI120 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMI160
-            bool "bmI160 sensor"
+            bool "BMI160"
             default n
             help
-                Enable bmI160 sensor
+                Press <Y> here to add support for the BMI160 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_BOSCH_BMI260
-            bool "bmI260 sensor"
+            bool "BMI260"
             default n
             help
-                Enable bmI260 sensor
+                Press <Y> here to add support for the BMI260 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_SENODIA_SH200L
-            bool "sh200l sensor"
+            bool "SH200L"
             default n
             help
-                Enable sh200l sensor
+                Press <Y> here to add support for the SH200L accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_SENODIA_SH200Q
-            bool "sh200q sensor"
+            bool "SH200Q"
             default n
             help
-                Enable sh200q sensor
+                Press <Y> here to add support for the SH200Q accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LSM6DS3
-            bool "lsm6ds3 sensor"
+            bool "LSM6DS3"
             default n
             help
-                Enable lsm6ds3 sensor
+                Press <Y> here to add support for the LSM6DS3 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LSM6DS3TR_C
-            bool "lsm6ds3tr_c sensor"
+            bool "LSM6DS3TR_C"
             default n
             help
-                Enable lsm6ds3tr_c sensor
+                Press <Y> here to add support for the LSM6DS3TR_C accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LSM6DSL
-            bool "lsm6dsl sensor"
+            bool "LSM6DSL"
             default n
             help
-                Enable lsm6dsl sensor
+                Press <Y> here to add support for the LSM6DSL accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LSM6DSM
-            bool "lsm6dsm sensor"
+            bool "LSM6DSM"
             default n
             help
-                Enable lsm6dsm sensor
+                Press <Y> here to add support for the LSM6DSM accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LSM6DSOQ
-            bool "lsm6dsoq sensor"
+            bool "LSM6DSOQ"
             default n
             help
-                Enable lsm6dsoq sensor
+                Press <Y> here to add support for the LSM6DSOQ accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LSM6DSR
-            bool "lsm6dsr sensor"
+            bool "LSM6DSR"
             default n
             help
-                Enable lsm6dsr sensor
+                Press <Y> here to add support for the LSM6DSR accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LSM303AGR
-            bool "lsm303agr sensor"
+            bool "LSM303AGR"
             default n
             help
-                Enable lsm303agr sensor
+                Press <Y> here to add support for the LSM303AGR accelerometer
+                This depend on I2C Bus.
+
 
         config AOS_SENSOR_ACC_MIR3_DA213B
-            bool "da213b sensor"
+            bool "DA213B"
             default n
             help
-                Enable da213b sensor
+                Press <Y> here to add support for the DA213B accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_MIR3_DA215
-            bool "da215 sensor"
+            bool "DA215"
             default n
             help
-                Enable da215 sensor
+                Press <Y> here to add support for the DA215 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_MIR3_DA217
-            bool "da217 sensor"
+            bool "DA217"
             default n
             help
-                Enable da217 sensor
+                Press <Y> here to add support for the DA217 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_MIR3_DA270
-            bool "da270 sensor"
+            bool "DA270"
             default n
             help
-                Enable da270 sensor
+                Press <Y> here to add support for the DA270 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_MIR3_DA312B
-            bool "da312b sensor"
+            bool "DA312B"
             default n
             help
-                Enable da312b sensor
+                Press <Y> here to add support for the DA312B accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_MIR3_DA380B
-            bool "da380b sensor"
+            bool "DA380B"
             default n
             help
-                Enable da380b sensor
+                Press <Y> here to add support for the DA380B accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_AIS328DQ
-            bool "ais328dq sensor"
+            bool "AIS328DQ"
             default n
             help
-                Enable ais328dq sensor
+                Press <Y> here to add support for the AIS328DQ accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_H3LIS100DL
-            bool "h3lis100dl sensor"
+            bool "H3LIS100DL"
             default n
             help
-                Enable h3lis100dl sensor
+                Press <Y> here to add support for the H3LIS100DL accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_H3LIS331DL
-            bool "h3lis331dl sensor"
+            bool "H3LIS331DL"
             default n
             help
-                Enable h3lis331dl sensor
+                Press <Y> here to add support for the H3LIS331DL accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LIS2DH12
-            bool "lis2dh12 sensor"
+            bool "LIS2DH12"
             default n
             help
-                Enable lis2dh12 sensor
+                Press <Y> here to add support for the LIS2DH12 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LIS2DW12
-            bool "lis2dw12 sensor"
+            bool "LIS2DW12"
             default n
             help
-                Enable lis2dw12 sensor
+                Press <Y> here to add support for the LIS2DW12 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LIS2HH12
-            bool "lis2hh12 sensor"
+            bool "LIS2HH12"
             default n
             help
-                Enable lis2hh12 sensor
+                Press <Y> here to add support for the LIS2HH12 accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LIS3DH
-            bool "lis3dh sensor"
+            bool "LIS3DH"
             default n
             help
-                Enable lis3dh sensor
+                Press <Y> here to add support for the LIS3DH accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_LIS331HH
-            bool "lis331hh sensor"
+            bool "LIS331HH"
             default n
             help
-                Enable lis331hh sensor
+                Press <Y> here to add support for the LIS331HH accelerometer
+                This depend on I2C Bus.
+
         config AOS_SENSOR_ACC_ST_N2DM
-            bool "n2dm sensor"
+            bool "N2DM"
             default n
             help
-                Enable n2dm sensor
+                Press <Y> here to add support for the N2DM accelerometer
+                This depend on I2C Bus.
+
     endmenu
 
-    menu "gyro sensor"
+    menu "Gyroscope Sensors"
         config AOS_SENSOR_GYRO_BOSCH_BMI055
-            bool "bmi055 sensor"
+            bool "BMI055 sensor"
             default n
             help
-                Enable bmi055 sensor
+                Press <Y> here to add support for the BMI055 gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_BOSCH_BMI088
-            bool "bmI088 sensor"
+            bool "BMI088 sensor"
             default n
             help
-                Enable bmI088 sensor
+                Press <Y> here to add support for the BMI088 gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_BOSCH_BMI120
-            bool "bmI120 sensor"
+            bool "BMI120 sensor"
             default n
             help
-                Enable bmI120 sensor
+                Press <Y> here to add support for the BMI120 gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_BOSCH_BMI160
-            bool "bmI160 sensor"
+            bool "BMI160 sensor"
             default n
             help
-                Enable bmI160 sensor
+                Press <Y> here to add support for the BMI160 gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_BOSCH_BMI260
-            bool "bmI260 sensor"
+            bool "BMI260 sensor"
             default n
             help
-                Enable bmI260 sensor
+                Press <Y> here to add support for the BMI260 gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_SENODIA_SH200L
-            bool "sh200l sensor"
+            bool "SH200L sensor"
             default n
             help
-                Enable sh200l sensor
+                Press <Y> here to add support for the SH200L gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_SENODIA_SH200Q
-            bool "sh200q sensor"
+            bool "SH200Q sensor"
             default n
             help
-                Enable sh200q sensor
+                Press <Y> here to add support for the SH200Q gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_ST_LSM6DS3
-            bool "lsm6ds3 sensor"
+            bool "LSM6DS3 sensor"
             default n
             help
-                Enable lsm6ds3 sensor
+                Press <Y> here to add support for the LSM6DS3 gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_ST_LSM6DS3TR_C
-            bool "lsm6ds3tr_c sensor"
+            bool "LSM6DS3TR_C sensor"
             default n
             help
-                Enable lsm6ds3tr_c sensor
+                Press <Y> here to add support for the LSM6DS3TR_C gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_ST_LSM6DSL
-            bool "lsm6dsl sensor"
+            bool "LSM6DSL sensor"
             default n
             help
-                Enable lsm6dsl sensor
+                Press <Y> here to add support for the LSM6DSL gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_ST_LSM6DSM
-            bool "lsm6dsm sensor"
+            bool "LSM6DSM sensor"
             default n
             help
-                Enable lsm6dsm sensor
+                Press <Y> here to add support for the LSM6DSM gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_ST_LSM6DSOQ
-            bool "lsm6dsoq sensor"
+            bool "LSM6DSOQ sensor"
             default n
             help
-                Enable lsm6dsoq sensor
+                Press <Y> here to add support for the LSM6DSOQ gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_ST_LSM6DSR
-            bool "lsm6dsr sensor"
+            bool "LSM6DSR sensor"
             default n
             help
-                Enable lsm6dsr sensor
+                Press <Y> here to add support for the LSM6DSR gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_BOSCH_BMG160
-            bool "bmg160 sensor"
+            bool "BMG160 sensor"
             default n
             help
-                Enable bmg160 sensor
+                Press <Y> here to add support for the BMG160 gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_ST_A3G4250D
-            bool "a3g4250d sensor"
+            bool "A3G4250D sensor"
             default n
             help
-                Enable a3g4250d sensor
+                Press <Y> here to add support for the A3G4250D gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_ST_I3G4250D
-            bool "i3g4250d sensor"
+            bool "I3G4250D sensor"
             default n
             help
-                Enable i3g4250d sensor
+                Press <Y> here to add support for the I3G4250D gyroscope sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_GYRO_ST_L3GD20H
-            bool "l3gd20h sensor"
+            bool "L3GD20H sensor"
             default n
             help
-                Enable l3gd20h sensor
+                Press <Y> here to add support for the L3GD20H gyroscope sensor.
+                This depend on I2C Bus.
+
     endmenu
 
 
-    menu "mag sensor"
+    menu "Magnetic Sensors"
         config AOS_SENSOR_MAG_BOSCH_BMM150
-            bool "bmm150 sensor"
+            bool "BMM150 sensor"
             default n
             help
-                Enable bmm150 sensor
+                Press <Y> here to add support for the BMM150 magnetic sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_MAG_ST_LSM303AGR
-            bool "lsm303agr sensor"
+            bool "LSM303AGR sensor"
             default n
             help
-                Enable lsm303agr sensor
+                Press <Y> here to add support for the LSM303AGR magnetic sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_MAG_AKM_AK09917
-            bool "ak09917 sensor"
+            bool "AK09917 sensor"
             default n
             help
-                Enable ak09917 sensor
+                Press <Y> here to add support for the AK09917 magnetic sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_MAG_AKM_AK09918
-            bool "ak09918 sensor"
+            bool "AK09918 sensor"
             default n
             help
-                Enable ak09918 sensor
+                Press <Y> here to add support for the AK09918 magnetic sensor.
+                This depend on I2C Bus.
+
         config AOS_SENSOR_MAG_AKM_AK09940
-            bool "ak09940 sensor"
+            bool "AK09940 sensor"
             default n
             help
-                Enable ak09940 sensor
+                Press <Y> here to add support for the AK09940 magnetic sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_MAG_ROHM_BM1422A
-            bool "bm1422a sensor"
+            bool "BM1422A sensor"
             default n
             help
-                Enable bm1422a sensor
+                Press <Y> here to add support for the BM1422A magnetic sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_MAG_SENODIA_ST350
-            bool "st350 sensor"
+            bool "ST350 sensor"
             default n
             help
-                Enable st350 sensor
+                Press <Y> here to add support for the ST350 magnetic sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_MAG_SENODIA_ST480
-            bool "st480 sensor"
+            bool "ST480 sensor"
             default n
             help
-                Enable st480 sensor
+                Press <Y> here to add support for the ST480 magnetic sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_MAG_ST_LIS2MDL
-            bool "lis2mdl sensor"
+            bool "LIS2MDL sensor"
             default n
             help
-                Enable lis2mdl sensor
+                Press <Y> here to add support for the LIS2MDL magnetic sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_MAG_ST_LIS3MDL
-            bool "lis3mdl sensor"
+            bool "LIS3MDL sensor"
             default n
             help
-                Enable lis3mdl sensor
+                Press <Y> here to add support for the LIS3MDL magnetic sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_MAG_MEMSIC_MMC3680KJ
-            bool "mmc3680kj sensor"
+            bool "MMC3680KJ sensor"
             default n
             help
-                Enable mmc3680kj sensor
+                Press <Y> here to add support for the MMC3680KJ magnetic sensor.
+                This depend on I2C Bus.
     endmenu
 
-    menu "als sensor"
+    menu "Ambient Light Sensors"
         config AOS_SENSOR_ALS_AMS_TCS3400
-            bool "tcs3400 sensor"
+            bool "TCS3400 sensor"
             default n
             help
-                Enable tcs3400 sensor
+                Press <Y> here to add support for the TCS3400 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_ALS_AMS_TMD2725
-            bool "tmd2725 sensor"
+            bool "TMD2725 sensor"
             default n
             help
-                Enable tmd2725 sensor
+                Press <Y> here to add support for the TMD2725 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_ALS_LITEON_LTR303
-            bool "ltr303 sensor"
+            bool "LTR303 sensor"
             default n
             help
-                Enable ltr303 sensor
+                Press <Y> here to add support for the LTR303 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_ALS_LITEON_LTR568
-            bool "ltr568 sensor"
+            bool "LTR568 sensor"
             default n
             help
-                Enable ltr568 sensor
+                Press <Y> here to add support for the LTR568 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_ALS_LITEON_LTR507
-            bool "ltr507 sensor"
+            bool "LTR507 sensor"
             default n
             help
-                Enable ltr507 sensor
+                Press <Y> here to add support for the LTR507 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_ALS_LITEON_LTR553
-            bool "ltr553 sensor"
+            bool "LTR553 sensor"
             default n
             help
-                Enable ltr553 sensor
+                Press <Y> here to add support for the LTR553 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_ALS_LITEON_LTR559
-            bool "ltr559 sensor"
+            bool "LTR559 sensor"
             default n
             help
-                Enable ltr559 sensor
+                Press <Y> here to add support for the LTR559 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_ALS_ROHM_BH1730
-            bool "bh1730 sensor"
+            bool "BH1730 sensor"
             default n
             help
-                Enable bh1730 sensor
+                Press <Y> here to add support for the BH1730 ambient light sensor.
+                This depend on I2C Bus.
 
 
     endmenu
 
-    menu "ps sensor"
+    menu "Proximity Sensors"
         config AOS_SENSOR_PS_AMS_TMD2725
-            bool "tmd2725 sensor"
+            bool "TMD2725 sensor"
             default n
             help
-                Enable tmd2725 sensor
+                Press <Y> here to add support for the TMD2725 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_PS_LITEON_LTR507
-            bool "ltr507 sensor"
+            bool "LTR507 sensor"
             default n
             help
-                Enable ltr507 sensor
+                Press <Y> here to add support for the LTR507 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_PS_LITEON_LTR553
-            bool "ltr553 sensor"
+            bool "LTR553 sensor"
             default n
             help
-                Enable ltr553 sensor
+                Press <Y> here to add support for the LTR553 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_PS_LITEON_LTR559
-            bool "ltr559 sensor"
+            bool "LTR559 sensor"
             default n
             help
-                Enable ltr559 sensor
+                Press <Y> here to add support for the LTR559 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_PS_LITEON_LTR659
-            bool "ltr659 sensor"
+            bool "LTR659 sensor"
             default n
             help
-                Enable ltr659 sensor
+                Press <Y> here to add support for the LTR659 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_PS_LITEON_LTR690
-            bool "ltr690 sensor"
+            bool "LTR690 sensor"
             default n
             help
-                Enable ltr690 sensor
+                Press <Y> here to add support for the LTR690 ambient light sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_PS_LITEON_LTR706
-            bool "ltr706 sensor"
+            bool "LTR706 sensor"
             default n
             help
-                Enable ltr706 sensor
+                Press <Y> here to add support for the LTR706 ambient light sensor.
+                This depend on I2C Bus.
     endmenu
 
-    menu "baro sensor"
+    menu "Barometric Pressure Sensors"
         config AOS_SENSOR_BARO_IFX_DSP310
-            bool "dsp310 sensor"
+            bool "DSP310 sensor"
             default n
             help
-                Enable dsp310 sensor
+                Press <Y> here to add support for the DSP310 barometric pressure sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_BARO_BOSCH_BMP280
-            bool "bmp280 sensor"
+            bool "BMP280 sensor"
             default n
             help
-                Enable bmp280 sensor
+                Press <Y> here to add support for the BMP280 barometric pressure sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_BARO_BOSCH_BMP380
-            bool "bmp380 sensor"
+            bool "BMP380 sensor"
             default n
             help
-                Enable bmp380 sensor
+                Press <Y> here to add support for the BMP380 barometric pressure sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_BARO_ROHM_BM1383A
-            bool "bm1383a sensor"
+            bool "BM1383A sensor"
             default n
             help
-                Enable bm1383a sensor
+                Press <Y> here to add support for the BM1383A barometric pressure sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_BARO_ST_LPS22HB
-            bool "lps22hb sensor"
+            bool "LPS22HB sensor"
             default n
             help
-                Enable lps22hb sensor
+                Press <Y> here to add support for the LPS22HB barometric pressure sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_BARO_ST_LPS33HB
-            bool "lps33hb sensor"
+            bool "LPS33HB sensor"
             default n
             help
-                Enable lps33hb sensor
+                Press <Y> here to add support for the LPS33HB barometric pressure sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_BARO_ST_LPS35HB
-            bool "lps35hb sensor"
+            bool "LPS35HB sensor"
             default n
             help
-                Enable lps35hb sensor
+                Press <Y> here to add support for the LPS35HB barometric pressure sensor.
+                This depend on I2C Bus.
 
         config AOS_SENSOR_BARO_BOSCH_BME280
-            bool "bme280 sensor"
+            bool "BME280 sensor"
             default n
             help
-                Enable bme280 sensor
+                Press <Y> here to add support for the BME280 barometric pressure sensor.
+                This depend on I2C Bus.
     endmenu
 
-    menu "gesture sensor"
+    menu "Gesture Sensors"
         config AOS_SENSOR_GESTURE_PIXART_PAJ7620
-            bool "paj7620 sensor"
+            bool "PAJ7620 sensor"
             default n
             help
-                Enable paj7620 sensor
+                Press <Y> here to add support for the PAJ7620 gesture sensor.
+                This depend on I2C Bus.
     endmenu
 
-    menu "ir sensor"
+    menu "Infrared Sensors"
         config AOS_SENSOR_IR_AKM_AK9754
-            bool "ak9754 sensor"
+            bool "AK9754 sensor"
             default n
             help
-                Enable ak9754 sensor
+                Press <Y> here to add support for the AK9754 infrared sensor.
+                This depend on I2C Bus.
     endmenu
 
-    menu "rgb sensor"
+    menu "Color Sensors"
         config AOS_SENSOR_RGB_LITEON_LTR381
-            bool "ltr381 sensor"
+            bool "LTR381 sensor"
             default n
             help
-                Enable ltr381 sensor
+                Press <Y> here to add support for the LTR381 color sensor.
+                This depend on I2C Bus.
     endmenu
 
-    menu "rtc sensor"
+    menu "Ultraviolet Sensors"
+        config AOS_SENSOR_UV_LITEON_LTR390
+            bool "LTR390 sensor"
+            default n
+            help
+                Press <Y> here to add support for the LTR390 ultraviolet sensor.
+                This depend on I2C Bus.
+    endmenu
+
+    menu "Temperature Sensors"
+        config AOS_SENSOR_TEMP_AMS_ENS210
+            bool "ENS210 sensor"
+            default n
+            help
+                Press <Y> here to add support for the ENS210 temperature sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_TEMP_ADI_ADT7410
+            bool "ADT7410 sensor"
+            default n
+            help
+                Press <Y> here to add support for the ADT7410 temperature sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_TEMP_BOSCH_BME280
+            bool "BME280 sensor"
+            default n
+            help
+                Press <Y> here to add support for the BME280 temperature sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_TEMP_SENSIRION_SHT30
+            bool "SHT30 sensor"
+            default n
+            help
+                Press <Y> here to add support for the SHT30 temperature sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_TEMP_SENSIRION_SHT31
+            bool "SHT31 sensor"
+            default n
+            help
+                Press <Y> here to add support for the SHT31 temperature sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_TEMP_SENSIRION_SHTC1
+            bool "SHTC1 sensor"
+            default n
+            help
+                Press <Y> here to add support for the SHTC1 temperature sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_TEMP_ST_HTS221
+            bool "HTS221 sensor"
+            default n
+            help
+                Press <Y> here to add support for the HTS221 temperature sensor.
+                This depend on I2C Bus.
+
+    endmenu
+
+    menu "Humidity Sensors"
+        config AOS_SENSOR_HUMI_AMS_ENS210
+            bool "ENS210 sensor"
+            default n
+            help
+                Press <Y> here to add support for the ENS210 humidity sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_HUMI_BOSCH_BME280
+            bool "BME280 sensor"
+            default n
+            help
+                Press <Y> here to add support for the BME280 humidity sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_HUMI_SENSIRION_SHT30
+            bool "SHT30 sensor"
+            default n
+            help
+                Press <Y> here to add support for the SHT30 humidity sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_HUMI_SENSIRION_SHT31
+            bool "SHT31 sensor"
+            default n
+            help
+                Press <Y> here to add support for the SHT31 humidity sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_HUMI_SENSIRION_SHTC1
+            bool "SHTC1 sensor"
+            default n
+            help
+                Press <Y> here to add support for the SHTC1 humidity sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_HUMI_ST_HTS221
+            bool "HTS221 sensor"
+            default n
+            help
+                Press <Y> here to add support for the HTS221 humidity sensor.
+                This depend on I2C Bus.
+    endmenu
+
+    menu "CO2 Sensors"
+        config AOS_SENSOR_CO2_SENSIRION_SCD30
+            bool "SCD30 sensor"
+            default n
+            help
+                Press <Y> here to add support for the SCD30 CO2 sensor.
+                This depend on I2C Bus.
+    endmenu
+
+    menu "Electrocardiogram Sensors "
+        config AOS_SENSOR_ECG_ADI_ADPD188GG
+            bool "ADPD188GG sensor"
+            default n
+            help
+                Press <Y> here to add support for the ADPD188GG electrocardiogram(ECG) sensor.
+                This depend on I2C Bus.
+    endmenu
+
+    menu "TVOC Sensors"
+        config AOS_SENSOR_TVOC_SENSIRION_SGP30
+            bool "SGP30 sensor"
+            default n
+            help
+                Press <Y> here to add support for the SGP30 TVOC sensor.
+                This depend on I2C Bus.
+
+        config AOS_SENSOR_TVOC_AMS_CCS811
+            bool "CCS811 sensor"
+            default n
+            help
+                Press <Y> here to add support for the CCS811 TVOC sensor.
+                This depend on I2C Bus.
+    endmenu
+
+    menu "GPS"
+        config AOS_SENSOR_GPS_SIMCOM_SIM868
+            bool "SIM868"
+            default n
+            help
+                Press <Y> here to add support for the SIM868 GPS function.
+                This depend on UART Bus and SIM800 component AOS_COMP_DEVICE_SAL_SIM800.
+    endmenu
+
+    menu "Real-time Clock"
         config AOS_SENSOR_RTC_MAXIM_DS1307
             bool "ds1307 sensor"
             default n
             help
                 Enable ds1307 sensor
-    endmenu
-
-    menu "uv sensor"
-        config AOS_SENSOR_UV_LITEON_LTR390
-            bool "ltr390 sensor"
-            default n
-            help
-                Enable ltr390 sensor
-    endmenu
-    menu "temp sensor"
-        config AOS_SENSOR_TEMP_AMS_ENS210
-            bool "ens210 sensor"
-            default n
-            help
-                Enable ens210 sensor
-        config AOS_SENSOR_TEMP_ADI_ADT7410
-            bool "adt7410 sensor"
-            default n
-            help
-                Enable adt7410 sensor
-
-        config AOS_SENSOR_TEMP_BOSCH_BME280
-            bool "bme280 sensor"
-            default n
-            help
-                Enable bme280 sensor
-        config AOS_SENSOR_TEMP_SENSIRION_SHT30
-            bool "sht30 sensor"
-            default n
-            help
-                Enable sht30 sensor
-
-        config AOS_SENSOR_TEMP_SENSIRION_SHT31
-            bool "sht31 sensor"
-            default n
-            help
-                Enable sht31 sensor
-        config AOS_SENSOR_TEMP_SENSIRION_SHTC1
-            bool "shtc1 sensor"
-            default n
-            help
-                Enable shtc1 sensor
-        config AOS_SENSOR_TEMP_ST_HTS221
-            bool "hts221 sensor"
-            default n
-            help
-                Enable hts221 sensor
-    endmenu
-
-    menu "humi sensor"
-        config AOS_SENSOR_HUMI_AMS_ENS210
-            bool "ens210 sensor"
-            default n
-            help
-                Enable ens210 sensor
-        config AOS_SENSOR_HUMI_BOSCH_BME280
-            bool "bme280 sensor"
-            default n
-            help
-                Enable bme280 sensor
-        config AOS_SENSOR_HUMI_SENSIRION_SHT30
-            bool "sht30 sensor"
-            default n
-            help
-                Enable sht30 sensor
-
-        config AOS_SENSOR_HUMI_SENSIRION_SHT31
-            bool "sht31 sensor"
-            default n
-            help
-                Enable sht31 sensor
-        config AOS_SENSOR_HUMI_SENSIRION_SHTC1
-            bool "shtc1 sensor"
-            default n
-            help
-                Enable shtc1 sensor
-        config AOS_SENSOR_HUMI_ST_HTS221
-            bool "hts221 sensor"
-            default n
-            help
-                Enable hts221 sensor
-    endmenu
-
-    menu "gps sensor"
-        config AOS_SENSOR_GPS_SIMCOM_SIM868
-            bool "sim868 sensor"
-            default n
-            help
-                Enable sim868 sensor
-    endmenu
-
-    menu "co2 sensor"
-        config AOS_SENSOR_CO2_SENSIRION_SCD30
-            bool "scd30 sensor"
-            default n
-            help
-                Enable scd30 sensor
-    endmenu
-    menu "ecg sensor"
-        config AOS_SENSOR_ECG_ADI_ADPD188GG
-            bool "adpd188gg sensor"
-            default n
-            help
-                Enable adpd188gg sensor
-    endmenu
-
-    menu "tvoc sensor"
-        config AOS_SENSOR_TVOC_SENSIRION_SGP30
-            bool "sgp30 sensor"
-            default n
-            help
-                Enable sgp30 sensor
-        config AOS_SENSOR_TVOC_AMS_CCS811
-            bool "ccs811 sensor"
-            default n
-            help
-                Enable ccs811 sensor
     endmenu
 
 endmenu
