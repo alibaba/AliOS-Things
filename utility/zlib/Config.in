@@ -1,5 +1,5 @@
 config AOS_COMP_ZLIB
-    bool "zlib 1.2.4"
+    bool "ZLib Support (v1.2.4)"
     default n
     help
         zlib is a general purpose data compression library.
