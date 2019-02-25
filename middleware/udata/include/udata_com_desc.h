@@ -15,13 +15,13 @@
 #include <stdbool.h>
 
 #include <aos/kernel.h>
-#include "udata/hal/sensor.h"
+#include "sensor/sensor.h"
 #include "udata/udata.h"
 #include "ulog/ulog.h"
 
 #define UDATA_SENSOR_ALL                (0XFFFFFFFF)
 #define UDATA_DTC_NAME_LEN              (32)
-        
+
 #define UDATA_CONV_DATA_LEN             (64)
 #define UDATA_TYPE_NAME_LEN             (16)
 #define UDATA_ABS_BITMAP_UNIT           (8)
@@ -102,7 +102,7 @@ struct _abs_data_pkg_t
     dev_sensor_full_info_t full_info;
 };
 typedef struct _abs_data_pkg_t abs_data_pkg_t;
-typedef size_t (*SERVICE_PROCESS_CB)(udata_type_e type,uint32_t abs_index, void *pdata,uint32_t len); 
+typedef size_t (*SERVICE_PROCESS_CB)(udata_type_e type,uint32_t abs_index, void *pdata,uint32_t len);
 typedef int (*SERVICE_IOCTL_CB)(udata_type_e type,uint32_t abs_index);
 
 /* sensor service manager layer*/
