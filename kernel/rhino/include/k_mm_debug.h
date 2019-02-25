@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#define AOS_UNSIGNED_INT_MSB        (1u << (sizeof(unsigned int) * 8 - 1))
+#define AOS_UNSIGNED_INT_MSB (1u << (sizeof(unsigned int) * 8 - 1))
 
 void krhino_owner_attach(void *addr, size_t allocator);
 
@@ -28,6 +28,5 @@ uint32_t dumpsys_mm_info_func(uint32_t len);
 
 #endif /* RHINO_CONFIG_MM_DEBUG */
 
-#endif /* YSH_H */
-
+#endif /* RHINO_MM_DEBUG_H */
 

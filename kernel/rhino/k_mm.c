@@ -23,23 +23,23 @@ void k_mm_init(void)
 }
 
 /* init a region, contain 3 mmblk
-   -------------------------------------------------------------------
-   | k_mm_list_t | k_mm_region_info_t | k_mm_list_t | free space |k_mm_list_t|
-   -------------------------------------------------------------------
-
-   "regionaddr" and "len" is aligned by caller */
+ * -------------------------------------------------------------------
+ * | k_mm_list_t | k_mm_region_info_t | k_mm_list_t | free space |k_mm_list_t|
+ * -------------------------------------------------------------------
+ *
+ * "regionaddr" and "len" is aligned by caller
+ */
 RHINO_INLINE k_mm_list_t *init_mm_region(void *regionaddr, size_t len)
 {
     k_mm_list_t        *midblk, *lastblk, *firstblk;
     k_mm_region_info_t *region;
 
-    /* "regionaddr" and "len" is aligned by caller */
-
     /* first mmblk for region info */
-    firstblk = (k_mm_list_t *) regionaddr;
-    firstblk->prev  = NULL;
+    firstblk           = (k_mm_list_t *) regionaddr;
+    firstblk->prev     = NULL;
     firstblk->buf_size = MM_ALIGN_UP(sizeof(k_mm_region_info_t))
                          | RHINO_MM_ALLOCED | RHINO_MM_PREVALLOCED;
+
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
     firstblk->dye   = RHINO_MM_CORRUPT_DYE;
     firstblk->owner = 0;
@@ -50,20 +50,24 @@ RHINO_INLINE k_mm_list_t *init_mm_region(void *regionaddr, size_t len)
 
     /*middle mmblk for heap use */
     midblk = MM_GET_NEXT_BLK(firstblk);
+
     midblk->buf_size = ((char *)lastblk - (char *)midblk->mbinfo.buffer)
                        | RHINO_MM_ALLOCED | RHINO_MM_PREVALLOCED;
+
     midblk->mbinfo.free_ptr.prev = midblk->mbinfo.free_ptr.next = 0;
 
     /*last mmblk for stop merge */
-    lastblk->prev   = midblk;
+    lastblk->prev = midblk;
+
     /* set alloced, can't be merged */
     lastblk->buf_size = 0 | RHINO_MM_ALLOCED | RHINO_MM_PREVFREE;
+
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
     lastblk->dye   = RHINO_MM_CORRUPT_DYE;
     lastblk->owner = 0;
 #endif
 
-    region = (k_mm_region_info_t *)firstblk->mbinfo.buffer;
+    region       = (k_mm_region_info_t *)firstblk->mbinfo.buffer;
     region->next = 0;
     region->end  = lastblk;
 
@@ -82,6 +86,7 @@ static int32_t size_to_level(size_t size)
     if ( cnt > MM_MAX_BIT) {
         return -1;
     }
+
     return cnt - MM_MIN_BIT;
 }
 
@@ -142,11 +147,12 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     NULL_PARA_CHK(ppmmhead);
     NULL_PARA_CHK(addr);
 
-    /*check paramters, addr and len need algin
-      1.  the length at least need RHINO_CONFIG_MM_TLF_BLK_SIZE  for fixed size memory block
-      2.  and also ast least have 1k for user alloced
-    */
+    /* check paramters, addr and len need algin
+     *  1.  the length at least need RHINO_CONFIG_MM_TLF_BLK_SIZE  for fixed size memory block
+     *  2.  and also ast least have 1k for user alloced
+     */
     orig_addr = addr;
+
     addr = (void *) MM_ALIGN_UP((size_t)addr);
     len -= (size_t)addr - (size_t)orig_addr;
     len  = MM_ALIGN_DOWN(len);
@@ -161,6 +167,7 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
 
     /* Zeroing the memory head */
     memset(pmmhead, 0, sizeof(k_mm_head));
+
 #if (RHINO_CONFIG_MM_REGION_MUTEX > 0)
     krhino_mutex_create(&pmmhead->mm_mutex, "mm_mutex");
 #else
@@ -186,18 +193,15 @@ kstat_t krhino_init_mm_head(k_mm_head **ppmmhead, void *addr, size_t len )
     /* release free blk */
     k_mm_free(pmmhead, nextblk->mbinfo.buffer);
 
-    /*after free, we need acess mmhead and nextblk again*/
-
 #if (K_MM_STATISTIC > 0)
-    pmmhead->free_size = MM_GET_BUF_SIZE(nextblk);
-    pmmhead->used_size = len - MM_GET_BUF_SIZE(nextblk);
+    pmmhead->free_size    = MM_GET_BUF_SIZE(nextblk);
+    pmmhead->used_size    = len - MM_GET_BUF_SIZE(nextblk);
     pmmhead->maxused_size = pmmhead->used_size;
 #endif
 
 #if (RHINO_CONFIG_MM_BLK > 0)
     /* note: stats_addsize inside */
-    mmblk_pool = k_mm_alloc(pmmhead,
-                            RHINO_CONFIG_MM_TLF_BLK_SIZE + MM_ALIGN_UP(sizeof(mblk_pool_t)));
+    mmblk_pool = k_mm_alloc(pmmhead, RHINO_CONFIG_MM_TLF_BLK_SIZE + MM_ALIGN_UP(sizeof(mblk_pool_t)));
     if (mmblk_pool) {
         stat = krhino_mblk_pool_init(mmblk_pool, "fixed_mm_blk",
                                      (void *)((size_t)mmblk_pool + MM_ALIGN_UP(sizeof(mblk_pool_t))),
@@ -227,6 +231,7 @@ kstat_t krhino_deinit_mm_head(k_mm_head *mmhead)
 #endif
 
     memset(mmhead, 0, sizeof(k_mm_head));
+
     return RHINO_SUCCESS;
 }
 
@@ -242,6 +247,7 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
     NULL_PARA_CHK(addr);
 
     orig_addr = addr;
+
     addr = (void *) MM_ALIGN_UP((size_t)addr);
     len -= (size_t)addr - (size_t)orig_addr;
     len  = MM_ALIGN_DOWN(len);
@@ -258,8 +264,8 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
     nextblk  = MM_GET_NEXT_BLK(firstblk);
 
     /* Inserting the area in the list of linked areas */
-    region = (k_mm_region_info_t *)firstblk->mbinfo.buffer;
-    region->next = mmhead->regioninfo;
+    region             = (k_mm_region_info_t *)firstblk->mbinfo.buffer;
+    region->next       = mmhead->regioninfo;
     mmhead->regioninfo = region;
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
@@ -269,7 +275,8 @@ kstat_t krhino_add_mm_region(k_mm_head *mmhead, void *addr, size_t len)
 
 #if (K_MM_STATISTIC > 0)
     /* keep "used_size" not changed.
-       change "used_size" here then k_mm_free will decrease it. */
+     * change "used_size" here then k_mm_free will decrease it.
+     */
     mmhead->used_size += MM_GET_BLK_SIZE(nextblk);
 #endif
 
@@ -327,8 +334,6 @@ static void k_mm_freelist_insert(k_mm_head *mmhead, k_mm_list_t *blk)
         return;
     }
 
-    /* free list is LIFO */
-
     blk->mbinfo.free_ptr.prev = NULL;
     blk->mbinfo.free_ptr.next = mmhead->freelist[level];
 
@@ -342,7 +347,6 @@ static void k_mm_freelist_insert(k_mm_head *mmhead, k_mm_list_t *blk)
     mmhead->free_bitmap |= (1 << level);
 }
 
-/* get blk from freelist[level], and clear freebitmap if needed */
 static void k_mm_freelist_delete(k_mm_head *mmhead, k_mm_list_t *blk)
 {
     int32_t level;
@@ -372,7 +376,6 @@ static void k_mm_freelist_delete(k_mm_head *mmhead, k_mm_list_t *blk)
     blk->mbinfo.free_ptr.next = NULL;
 }
 
-/* find a freelist at higher level */
 static k_mm_list_t *find_up_level(k_mm_head *mmhead, int32_t level)
 {
     uint32_t bitmap;
@@ -616,9 +619,7 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
     MM_CRITICAL_ENTER(mmhead);
 
 #if (RHINO_CONFIG_MM_BLK > 0)
-    /*begin of oldmem in mmblk case*/
     if (krhino_mblk_check(mmhead->fix_pool, oldmem)) {
-        /*it's fixed size memory block*/
         if (new_size <= RHINO_CONFIG_MM_BLK_SIZE) {
             ptr_aux = oldmem;
             MM_CRITICAL_EXIT(mmhead);
@@ -632,10 +633,8 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
         }
         return ptr_aux;
     }
-    /*end of mmblk case*/
 #endif
 
-    /*check if there more free block behind oldmem  */
     this_b   = MM_GET_THIS_BLK(oldmem);
     old_size = MM_GET_BUF_SIZE(this_b);
     next_b   = MM_GET_NEXT_BLK(this_b);
@@ -649,23 +648,27 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size)
             /* merge next free */
             k_mm_freelist_delete(mmhead, next_b);
             old_size += MM_GET_BLK_SIZE(next_b);
-            next_b = MM_GET_NEXT_BLK(next_b);
+            next_b    = MM_GET_NEXT_BLK(next_b);
         }
         if (old_size >= new_size + MMLIST_HEAD_SIZE + MM_MIN_SIZE) {
             /* split blk */
             split_size = old_size - new_size - MMLIST_HEAD_SIZE;
 
             this_b->buf_size = new_size | (this_b->buf_size & RHINO_MM_PRESTAT_MASK);
+
             split_b = MM_GET_NEXT_BLK(this_b);
 
-            split_b->prev  = this_b;
+            split_b->prev     = this_b;
             split_b->buf_size = split_size | RHINO_MM_FREE | RHINO_MM_PREVALLOCED;
+
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
             split_b->dye   = RHINO_MM_FREE_DYE;
             split_b->owner = 0;
 #endif
-            next_b->prev = split_b;
+
+            next_b->prev      = split_b;
             next_b->buf_size |= RHINO_MM_PREVFREE;
+
             k_mm_freelist_insert(mmhead, split_b);
         }
         stats_addsize(mmhead, MM_GET_BLK_SIZE(this_b), req_size);
@@ -751,7 +754,7 @@ void krhino_owner_attach(void *addr, size_t allocator)
 
     MM_CRITICAL_ENTER(g_kmm_head);
 
-    blk = MM_GET_THIS_BLK(addr);
+    blk        = MM_GET_THIS_BLK(addr);
     blk->owner = allocator;
 
     MM_CRITICAL_EXIT(g_kmm_head);
@@ -779,15 +782,18 @@ void *krhino_mm_alloc(size_t size)
         int32_t freesize;
 
         freesize = g_kmm_head->free_size;
+
 #if (RHINO_CONFIG_MM_BLK > 0)
         freesize -= ((mblk_pool_t *)g_kmm_head->fix_pool)->blk_avail * RHINO_CONFIG_MM_BLK_SIZE;
 #endif
-        printf("WARNING, malloc failed!!!! need size:%d, but free size:%d\r\n",
-                size, freesize);
+        printf("WARNING, malloc failed!!!! need size:%d, but free size:%d\r\n", size, freesize);
+
         if (dumped) {
             return tmp;
         }
+
         dumped = 1;
+
         dumpsys_mm_info_func(0);
         k_err_proc(RHINO_NO_MEM);
 #endif
