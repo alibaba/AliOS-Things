@@ -4,7 +4,7 @@ config AOS_APP_BLEPERIPHERAL
     select AOS_COMP_BT_PROFILE
     select AOS_COMP_CLI
     help
-        bleperipheral
+        ble peripheral sample
 
 if AOS_APP_BLEPERIPHERAL
 # Configurations for app bleperipheral
