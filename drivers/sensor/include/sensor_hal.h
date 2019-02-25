@@ -8,7 +8,7 @@
 #include <aos/errno.h>
 #include <aos/compiler.h>
 #include "ulog/ulog.h"
-#include "udata/hal/sensor.h"
+#include "sensor/sensor.h"
 
 #define SENSOR_DRV_ADD(func) \
 int __sensor_##func##_func__(void){ \

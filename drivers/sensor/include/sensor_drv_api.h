@@ -9,7 +9,7 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #include "aos/hal/i2c.h"
-#include "udata/hal/sensor.h"
+#include "sensor/sensor.h"
 #include "aos/hal/spi.h"
 
 typedef struct  _sensor_io_dev_t{
@@ -19,6 +19,7 @@ typedef struct  _sensor_io_dev_t{
         spi_dev_t           dev_spi;
     };
 }sensor_io_dev_t;
+
 typedef struct _sensor_io_func_st
 {
     int (*read)(uint16_t reg, uint8_t *data, uint16_t size);

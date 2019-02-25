@@ -17,7 +17,7 @@
 #include "ulog/ulog.h"
 #include "aos/kernel.h"
 #include "network/hal/base.h"
-#include "udata/hal/sensor.h"
+#include "sensor/sensor.h"
 
 #define GPS_RCV_DATA_LEN        (256)
 #define GPS_CONV_DATA_LEN       (64)
@@ -34,8 +34,8 @@
 #define GPS_UTC_SEC_LEN         (2)
 #define GPS_UTC_HSEC_LEN        (3)
 #define GPS_UTC_POINT_LEN       (1)
-    
-    
+
+
 typedef enum{
     GPS_TYPE_UINT8 = 0,
     GPS_TYPE_INT32,
@@ -91,7 +91,7 @@ static inline char* gps_strtok(char* src, char** ret, char c,int len)
             return src;
         }
     }
-    
+
     *ret = str_tmp;
     return src;
 }
@@ -109,7 +109,7 @@ static inline int gps_utc_get(char *str, int len, gps_time_t* res)
             str_tmp += GPS_UTC_MON_LEN;
             res->day = gps_atoi(str_tmp,GPS_UTC_DAY_LEN,10);
             str_tmp += GPS_UTC_DAY_LEN;
-                
+
             res->hour = gps_atoi(str_tmp,GPS_UTC_HOUR_LEN,10);
             str_tmp += GPS_UTC_HOUR_LEN;
             res->min = gps_atoi(str_tmp,GPS_UTC_MIN_LEN,10);
@@ -120,7 +120,7 @@ static inline int gps_utc_get(char *str, int len, gps_time_t* res)
             break;
 
         case (sizeof("hhmmss.sss") - 1):
-                        
+
             str_tmp = str;
             res->hour = gps_atoi(str_tmp,GPS_UTC_HOUR_LEN,10);
             str_tmp += GPS_UTC_HOUR_LEN;
@@ -130,14 +130,14 @@ static inline int gps_utc_get(char *str, int len, gps_time_t* res)
             str_tmp += (GPS_UTC_SEC_LEN + GPS_UTC_POINT_LEN);
             res->hsec = gps_atoi(str_tmp,3,10);
             break;
-            
+
         default:
             LOG("Parse of UTC fail (format error)!");
             return -1;
 
     }
 
-    return 0;        
+    return 0;
 }
 
 
@@ -145,16 +145,16 @@ static inline void gps_data_conv(void* str, int len,void* addr,int type)
 {
     switch(type){
         case GPS_TYPE_FLOAT:
-            *(float*)(addr) = (float)gps_atof(str,len); 
+            *(float*)(addr) = (float)gps_atof(str,len);
             break;
         case GPS_TYPE_INT32:
-            *(int*)(addr) = (int)gps_atoi(str,len,10); 
+            *(int*)(addr) = (int)gps_atoi(str,len,10);
             break;
-        
+
         case GPS_TYPE_UINT8:
             *(char*)(addr) = *(char*)str;
             break;
-            
+
         case GPS_TYPE_STR:
             memcpy(addr, str, len);
             ((char *)addr)[len] = '\0';
