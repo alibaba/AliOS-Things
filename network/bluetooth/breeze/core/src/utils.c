@@ -57,7 +57,7 @@ void get_random(uint8_t *random, uint8_t random_len)
     while (bytes_available < random_len) {
         seed += result;
         seed = seed % 9999;
-        snprintf((char *)byte, sizeof(byte), "%04d", seed);
+        snprintf((char *)byte, sizeof(byte), "%04u", seed);
         bytes_copy = random_len - bytes_available;
         bytes_copy = (bytes_copy > 4) ? 4 : bytes_copy;
         memcpy(random + bytes_available, byte, bytes_copy);
