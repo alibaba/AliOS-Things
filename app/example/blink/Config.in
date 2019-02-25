@@ -2,7 +2,7 @@ config AOS_APP_BLINK
     bool "Blink Sample"
     select AOS_COMP_OSAL_AOS
     help
-        blink
+        blink sample
 
 if AOS_APP_BLINK
 # Configurations for app blink

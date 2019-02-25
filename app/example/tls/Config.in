@@ -1,5 +1,5 @@
 config AOS_APP_TLS_CLIENT
-    bool "Alicrypto TLS Client Sample"
+    bool "Mbed TLS Client Sample"
     select AOS_COMP_IMBEDTLS
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
