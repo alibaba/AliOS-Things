@@ -10,6 +10,7 @@ config MQTT_COMM_ENABLED
     select AOS_COMP_LIBIOT_SYSTEM 
     select AOS_COMP_LIBIOT_UTILS
     select UTILS_SHA256
+    select AOS_COMP_IOTX-HAL
     select UTILS_JSON_PARSER if !MQTT_DIRECT
     select UTILS_HTTPC if !MQTT_DIRECT
 

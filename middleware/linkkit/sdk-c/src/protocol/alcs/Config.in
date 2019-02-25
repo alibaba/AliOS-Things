@@ -9,25 +9,20 @@ config ALCS_ENABLED
     bool "FEATURE_ALCS_ENABLED"
     depends on (DEVICE_MODEL_ENABLED)
     default n
-    select SUPPORT_TLS
-    select UTILS_JSON_PARSER
 
-    select HAL_KV
     select HAL_CRYPTO
-
     select AOS_COMP_LIBIOT_LOG 
     select AOS_COMP_LIBIOT_SYSTEM 
-    select AOS_COMP_LIBIOT_UTILS
-    select AOS_COMP_LIBIOT_UTILS
     select AOS_COMP_LIBIOT_SDK_IMPL
     select AOS_COMP_LIBIOT_COAP_LOCAL
+    select AOS_COMP_LIBIOT_UTILS
+    select UTILS_JSON_PARSER
     select UTILS_BASE64
     select UTILS_SHA1
     select UTILS_MD5
     help
         ALCS(Alibaba Local Communication Service) enable customers communicate with IoT devices from cellphone without Internet
     # FEATURE_ALCS_CLIENT_ENABLED
-    # FEATURE_ALCS_SERVER_ENABLED
             
 menu "ALCS Configurations"
     depends on ALCS_ENABLED

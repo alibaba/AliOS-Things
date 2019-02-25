@@ -12,7 +12,7 @@ $(NAME)_SOURCES := ./CoAPResource.c \
                    ./CoAPMessage.c \
                    ./CoAPExport.c \
 
-$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl libiot_coap_coappack
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl libiot_coap_coappack iotx-hal 
 
 $(NAME)_INCLUDES := ../../../../src/infra \
                     ../../../../src/infra/log \
