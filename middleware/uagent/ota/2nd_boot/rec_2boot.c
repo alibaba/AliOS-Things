@@ -16,7 +16,7 @@ int rec_2boot_cmd_check(void)
     unsigned char c = 0;
     unsigned int  i = 0;
     rec_uart_init();
-    printf("\r\nPress key \'w\' into 2nd boot cmd, Waiting 100ms ... \r\n");
+    printf("\r\nPress key \'w\' into 2nd boot cmd, Waiting 100ms ...\r\n");
 
     while(1) {
         if(uart_recv_byte(&c) && ('w' == c)) {
@@ -27,7 +27,7 @@ int rec_2boot_cmd_check(void)
         if(i >= 100)break;
         rec_delayms(1);
     }
-    printf("Bootup, flag 0x%x, num 0x%x\r\n", rec_flag_info.flag, rec_flag_info.num);
+    printf("Bootup flag 0x%x, num 0x%x\r\n", rec_flag_info.flag, rec_flag_info.num);
 #endif
     rec_flash_init();
     recovery_get_flag_info(&rec_flag_info);
@@ -54,7 +54,8 @@ void print_usage()
 void rec_2boot_cmd_process()
 {
 #ifdef AOS_OTA_2BOOT_CLI
-    unsigned char c = 0;
+    unsigned char c   = 0;
+    unsigned int flag = 0;
     print_usage();
     printf("aos boot# ");
     while(1) {
@@ -74,7 +75,12 @@ void rec_2boot_cmd_process()
                     break;
 
                 case '2' :
-                    printf("Active backup version \r\n");
+                    if(flag == 0) {
+                        printf("Will active backup version, please press key 2 again to confirm(press any other key to abort) \r\n");
+                        flag++;
+                        break;
+                    }
+                    printf("Active backup version begin ...\r\n");
                     nbpatch_swap_app2ota(TRUE);
                     rec_reboot();
                     break;
@@ -89,8 +95,11 @@ void rec_2boot_cmd_process()
                     break;
 
                 default:
-                    printf("Please input 1-3 to select functions\r\n");
+                    print_usage();
                     break;
+            }
+            if(c != '2') {
+                flag = 0;
             }
             printf("\r\naos boot# ");
             rec_delayms(1);
