@@ -13,6 +13,8 @@ $(NAME)_SOURCES += awss_main.c  awss_wifimgr.c  zconfig_utils.c      zconfig_ven
 $(NAME)_SOURCES += awss_crypt.c awss_enrollee.c zconfig_ieee80211.c  awss_adha.c              awss_wps.c
 $(NAME)_SOURCES += awss_ht40.c  awss_info.c     awss_statis.c        awss_dev_ap.c
 
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system iotx-hal libdev_bind
+
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 GLOBAL_DEFINES += ESP8266_CONFIG
 endif
