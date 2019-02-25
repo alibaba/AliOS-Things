@@ -1,5 +1,5 @@
 config AOS_APP_BREEZEAPP
-    bool " Breeze Application Sample"
+    bool "Breeze Application Sample"
     select AOS_COMP_BREEZE
     select AOS_COMP_OTA if CONFIG_COMP_BZ_OTA = y
     select AOS_COMP_OTA_BLE if CONFIG_COMP_BZ_OTA = y
