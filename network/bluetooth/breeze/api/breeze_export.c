@@ -245,8 +245,8 @@ void breeze_restart_advertising()
     if (user_adv.len > 0) {
         size = sizeof(adv_data.vdata.data) - adv_data.vdata.len;
         if (size < user_adv.len) {
-            BREEZE_LOG_ERR("Warning: no space for user adv data (expected %d but"
-                   " only %d left). No user adv data set!!!\r\n",
+            BREEZE_LOG_ERR("Warning: no space for user adv data (expected %u but"
+                   " only %u left). No user adv data set!!!\r\n",
                    user_adv.len, size);
         } else {
             memcpy(adv_data.vdata.data + adv_data.vdata.len,

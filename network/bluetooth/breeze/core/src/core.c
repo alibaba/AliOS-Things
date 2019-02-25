@@ -109,8 +109,8 @@ static void ais_init_done(uint8_t res)
         if (g_ali_init->user_adv_len > 0) {
             size = sizeof(adv_data.vdata.data) - adv_data.vdata.len;
             if (size < g_ali_init->user_adv_len) {
-                BREEZE_LOG_ERR("Warning: no space for user adv data (expected %d but"
-                               " only %d left). No user adv data set!!!\r\n",
+                BREEZE_LOG_ERR("Warning: no space for user adv data (expected %u but"
+                               " only %u left). No user adv data set!!!\r\n",
                                g_ali_init->user_adv_len, size);
             } else {
                 memcpy(adv_data.vdata.data + adv_data.vdata.len,
