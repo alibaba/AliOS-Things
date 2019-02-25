@@ -1225,7 +1225,7 @@ static int iotx_mc_read_packet(iotx_mc_client_t *c, iotx_time_t *timer, unsigned
         HAL_MutexUnlock(c->lock_read_buf);
         return SUCCESS_RETURN;
     } else if (1 != rc) {
-        mqtt_debug("mqtt read error, rc=%d", rc);
+        mqtt_err("mqtt read error, rc=%d", rc);
         HAL_MutexUnlock(c->lock_read_buf);
         return MQTT_NETWORK_ERROR;
     }
@@ -1836,14 +1836,14 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 
     state = iotx_mc_get_client_state(c);
     if (state != IOTX_MC_STATE_CONNECTED) {
-        mqtt_debug("state = %d", state);
+        mqtt_info("state = %d", state);
         return MQTT_STATE_ERROR;
     }
 
     if (IOTX_MC_KEEPALIVE_PROBE_MAX < c->keepalive_probes) {
         iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
         c->keepalive_probes = 0;
-        mqtt_debug("keepalive_probes more than %u, disconnected\n", IOTX_MC_KEEPALIVE_PROBE_MAX);
+        mqtt_warning("keepalive_probes more than %u, disconnected\n", IOTX_MC_KEEPALIVE_PROBE_MAX);
     }
 
     /* read the socket, see what work is due */
@@ -1853,7 +1853,7 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         _reset_recv_buffer(c);
         HAL_MutexUnlock(c->lock_read_buf);
         iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
-        mqtt_debug("readPacket error,result = %d", rc);
+        mqtt_err("readPacket error,result = %d", rc);
         return rc;
     }
 
@@ -2610,7 +2610,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             HAL_MutexUnlock(pClient->lock_generic);
             rc = iotx_mc_handle_reconnect(pClient);
             if (SUCCESS_RETURN != rc) {
-                mqtt_debug("reconnect network fail, rc = %d", rc);
+                mqtt_err("reconnect network fail, rc = %d", rc);
             } else {
                 mqtt_info("network is reconnected!");
                 iotx_mc_reconnect_callback(pClient);
@@ -2868,7 +2868,7 @@ int iotx_mc_disconnect(iotx_mc_client_t *pClient)
 
     if (iotx_mc_check_state_normal(pClient)) {
         rc = MQTTDisconnect(pClient);
-        mqtt_debug("rc = MQTTDisconnect() = %d", rc);
+        mqtt_info("rc = MQTTDisconnect() = %d", rc);
         (void)rc;
     }
 
@@ -3406,7 +3406,7 @@ int IOT_MQTT_Subscribe_Sync(void *handle,
         }
         HAL_MutexUnlock(client->lock_generic);
     } while (!utils_time_is_expired(&timer));
-    mqtt_debug("time out!!");
+    mqtt_warning("sync subscirbe time out!!");
     mqtt_sub_node_t *node = NULL;
     mqtt_sub_node_t *next = NULL;
 
