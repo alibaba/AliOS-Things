@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_YUNIT
-    bool "yunit"
+    bool "Integration Test Framework"
     default n
     help
 
