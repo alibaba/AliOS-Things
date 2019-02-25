@@ -569,10 +569,10 @@ if AOS_BOARD_STARTERKIT
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "board/stm32f103ze/Config.in"
-if AOS_BOARD_STM32F103ZE
+source "board/stm32f103rb-nucleo/Config.in"
+if AOS_BOARD_STM32F103RB_NUCLEO
     config AOS_BUILD_BOARD
-        default "stm32f103ze"
+        default "stm32f103rb-nucleo"
 
     source "platform/mcu/stm32f1xx/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
