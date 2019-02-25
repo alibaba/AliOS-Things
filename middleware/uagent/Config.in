@@ -1,9 +1,5 @@
-menuconfig AOS_COMP_UAGENT
-    bool "uAgent Configuration"
-    default y
-
-if AOS_COMP_UAGENT
+menu "uAgent Configuration"
 source "middleware/uagent/udev/Config.in"
 source "middleware/uagent/ulog/Config.in"
 source "middleware/uagent/ota/Config.in"
-endif
+endmenu
