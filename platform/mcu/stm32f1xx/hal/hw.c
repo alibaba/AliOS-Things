@@ -1,14 +1,23 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
+/**
+  ******************************************************************************
+  * @file    hw.c
+  * @author  MCU China FAE team
+  * @version 1.0
+  * @date    05/01/2019
+  * @brief   aos porting layer
+  ******************************************************************************
+  *
+  * COPYRIGHT(c) 2019 STMicroelectronics
+  *
+  ******************************************************************************
+  */
 
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 
 #include <k_api.h>
-#include <aos/hal/timer.h>
-#include <hal/base.h>
+#include "aos/hal/timer.h"
 
 #include "stm32f1xx_hal.h"
 
@@ -32,14 +41,18 @@ static void _timer_cb(void *timer, void *arg)
 
 int32_t hal_timer_init(timer_dev_t *tim)
 {
+    kstat_t ret;
+
     if (tim->config.reload_mode == TIMER_RELOAD_AUTO) {
-        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+        ret = krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
                                 us2tick(tim->config.period), us2tick(tim->config.period), tim, 0);
     }
     else {
-        krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
+        ret = krhino_timer_dyn_create((ktimer_t **)&tim->priv, "hwtmr", _timer_cb,
                                 us2tick(tim->config.period), 0, tim, 0);
     }
+
+    return ret;
 }
 
 int32_t hal_timer_start(timer_dev_t *tmr)
