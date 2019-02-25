@@ -18,7 +18,7 @@
 #include "linkkit_export.h"
 #include "iot_export_linkkit.h"
 
-#include "udata/hal/sensor.h"
+#include "sensor/sensor.h"
 #include "udata/udata.h"
 
 #include "app_entry.h"
@@ -314,7 +314,7 @@ int udata_cloud_report(void* pdata, uint32_t len)
     ret = IOT_Linkkit_Report(g_device_id, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)pdata, len);
 
-    return ret;  
+    return ret;
 
 }
 

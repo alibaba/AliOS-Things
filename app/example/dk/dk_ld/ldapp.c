@@ -20,7 +20,7 @@
 #include <aos/cli.h>
 
 
-#include "udata/hal/sensor.h"
+#include "sensor/sensor.h"
 
 #ifdef LITTLEVGL_DISPLAY
 #include "sensor_display.h"
@@ -407,7 +407,7 @@ int mqtt_client(void)
         EXAMPLE_TRACE("MQTT construct failed");
         return -1;
     }
-    
+
     IOT_MQTT_Yield(gpclient, 200);
 
     /* Subscribe the specific topic */
@@ -443,7 +443,7 @@ int mqtt_client(void)
     IOT_MQTT_Yield(gpclient, 200);
     IOT_MQTT_Unsubscribe(gpclient, ALINK_TOPIC_PROP_SET);
     IOT_MQTT_Yield(gpclient, 200);
-    
+
     IOT_MQTT_Destroy(&gpclient);
     return 0;
 }
@@ -495,7 +495,7 @@ int application_start(int argc, char *argv[])
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
     sensor_all_open();
-    
+
     netmgr_init();
 #if 0
     memset(&apconfig, 0, sizeof(apconfig));
