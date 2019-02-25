@@ -20,7 +20,7 @@
 #include <aos/cli.h>
 
 
-#include "udata/hal/sensor.h"
+#include "sensor/sensor.h"
 #include "udata/udata.h"
 #include "service_data_to_cloud.h"
 
@@ -196,7 +196,7 @@ static void handle_prop_set(void *pcontext, void *pclient, iotx_mqtt_event_msg_p
     else{
         return;
     }
-    
+
     ret = service_dtc_publish_set(type, g_service_flag[type]);
     if(unlikely(ret)){
         return;
@@ -317,7 +317,7 @@ int mqtt_client(void)
     int rc;
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
-    
+
     HAL_GetProductKey(__product_key);
     HAL_GetDeviceName(__device_name);
     HAL_GetDeviceSecret(__device_secret);
@@ -353,7 +353,7 @@ int mqtt_client(void)
         EXAMPLE_TRACE("MQTT construct failed");
         return -1;
     }
-    
+
     IOT_MQTT_Yield(gpclient, 200);
 
     /* Subscribe the specific topic */
@@ -390,7 +390,7 @@ int mqtt_client(void)
             g_mqtt_con_flag = 1;
         }
     }
-    
+
     while (1) {
         IOT_MQTT_Yield(gpclient, 200);
     }
@@ -398,7 +398,7 @@ int mqtt_client(void)
     IOT_MQTT_Yield(gpclient, 200);
     IOT_MQTT_Unsubscribe(gpclient, ALINK_TOPIC_PROP_SET);
     IOT_MQTT_Yield(gpclient, 200);
-    
+
     IOT_MQTT_Destroy(&gpclient);
     return 0;
 }
@@ -452,7 +452,7 @@ int mqtt_sample_start(void)
     aos_set_log_level(AOS_LL_DEBUG);
 
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
-    
+
     netmgr_init();
     netmgr_start(false);
 
@@ -475,7 +475,7 @@ int udata_cloud_report(void* pdata, uint32_t len)
 
     LOG("mqtt = %s\n",(char*)pdata);
 
-    
+
     if(NULL == gpclient){
         return -1;
     }
@@ -506,7 +506,7 @@ int udata_cloud_report(void* pdata, uint32_t len)
 
     LOG("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
     cnt++;
-    
+
     return 0;
 }
 
