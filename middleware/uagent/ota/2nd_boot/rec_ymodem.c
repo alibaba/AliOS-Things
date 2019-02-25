@@ -5,8 +5,9 @@
 
 #include "rec_pub.h"
 
-#define YMODEM_OK  0
-#define YMODEM_ERR (-1)
+#define YMODEM_OK          0
+#define YMODEM_ERR         (-1)
+#define YMODEM_FILE_TOOBIG (-2)
 
 #define YMODEM_SOH 0x01
 #define YMODEM_STX 0x02
@@ -26,8 +27,12 @@
 #define YMODEM_STATE_WAIT_END  3
 #define YMODEM_STATE_WAIT_NEXT 4
 
-static unsigned int ymodem_flash_addr = 0;
-static unsigned int ymodem_flash_size = 0;
+#define YMODEM_MAX_CHAR_NUM    64
+#define YMODEM_ERR_NAK_NUM     5
+
+static unsigned int ymodem_flash_addr     = 0;
+static unsigned int ymodem_flash_size     = 0;
+static unsigned int ymodem_max_write_size = 0;
 
 static unsigned short cal_crc(void *addr, size_t len)
 {
@@ -131,6 +136,10 @@ int ymodem_data_head_parse(unsigned char data_type)
                 goto err_exit;
             }
             ymodem_flash_size = value;
+            if(value > ymodem_max_write_size) {
+                ret = YMODEM_FILE_TOOBIG;
+                goto err_exit;
+            }
             break;
         }
     }
@@ -204,9 +213,10 @@ err_exit :
 
 int ymodem_recv_file(unsigned int flash_addr)
 {
-    int i     = 0;
-    int ret   = 0;
-    int state = 0;
+    int i        = 0;
+    int ret      = YMODEM_OK;
+    int state    = 0;
+    int end_flag = 0;
     unsigned char c     = 0;
     unsigned int  bytes = 0;
     unsigned int  addr  = flash_addr;
@@ -245,11 +255,18 @@ int ymodem_recv_file(unsigned int flash_addr)
                     /* end */
                     rec_uart_send_byte(YMODEM_ACK);
                     rec_delayms(1000);
-                    return 0;
+                    if(end_flag == 1) {
+                        ret = YMODEM_OK;
+                    } else {
+                        for(i = 0; i < YMODEM_ERR_NAK_NUM; i++) {
+                            rec_uart_send_byte(YMODEM_NAK);
+                        }
+                    }
+                    return ret;
                 }
             } else if (3 == c) {  /* ctrl+c abort ymodem */
-                printf("Abort ymodem file.\n");
-                return 0;
+                printf("Abort\n");
+                return YMODEM_ERR;
             }
 
             break;
@@ -274,33 +291,49 @@ int ymodem_recv_file(unsigned int flash_addr)
                 rec_uart_send_byte(YMODEM_ACK);
                 i     = 0;
                 state = YMODEM_STATE_INIT;
+                end_flag = 1;
             }
             break;
 
         default:
             state = YMODEM_STATE_INIT;
             break;
-
         }
     }
 
-    return 0;
+    return YMODEM_OK;
 }
 
 void rec_ymodem_cmd()
 {
-    unsigned char c = 0;
-    int  i = 0;
+    int    i = 0;
+    int  ret = 0;
+    int flag = 0;
+    unsigned char c   = 0;
     unsigned int addr = 0;
-    char buf[64];
+    char buf[YMODEM_MAX_CHAR_NUM];
+    hal_logic_partition_t *app_part_info;
+    hal_logic_partition_t *ota_part_info;
 
-    printf("\r\nPlease input flash addr: ");
+    app_part_info = rec_flash_get_info(HAL_PARTITION_APPLICATION);
+    ota_part_info = rec_flash_get_info(HAL_PARTITION_OTA_TEMP);
+    if((app_part_info == NULL) || (ota_part_info == NULL)) {
+        printf("\r\nGet Flash info err !\n");
+        return;
+    }
 
-    memset(buf, 0, 64);
+    printf("\r\nOS  partition address 0x%x, length 0x%x\n", app_part_info->partition_start_addr,
+            app_part_info->partition_length);
+    printf("\r\nOTA partition address 0x%x, length 0x%x\n", ota_part_info->partition_start_addr,
+            ota_part_info->partition_length);
+    printf("\r\nOnly the address ranges of partition OS and OTA are allowed to be written\n");
+    printf("\r\nPlease input flash address: ");
+
+    memset(buf, 0, YMODEM_MAX_CHAR_NUM);
     while(1) {
         if(uart_recv_byte(&c)) {
             printf("%c", c);
-            if((c == '\r') || (i >= 64)) {
+            if((c == '\r') || (i >= YMODEM_MAX_CHAR_NUM)) {
                 break;
             }
             buf[i] = c;
@@ -308,15 +341,46 @@ void rec_ymodem_cmd()
         }
     }
 
-    printf("\nflash addr:%s \n", buf);
-    addr = ymodem_str2int(buf, 64);
+    printf("\r\nflash address: %s \n", buf);
+    addr = ymodem_str2int(buf, YMODEM_MAX_CHAR_NUM);
     if(addr == 0) {
-        printf("addr %s is invalid!\n", buf);
+        printf("\r\naddr is invalid!\n");
         return;
     }
 
-    printf("Please start ymodem ... (press ctrl+c to cancel)\n");
+    if((addr >= app_part_info->partition_start_addr) && (addr <= app_part_info->partition_start_addr + app_part_info->partition_length) )
+    {
+        flag = 1;
+        ymodem_max_write_size = app_part_info->partition_length;
+    }
+
+    if((addr >= ota_part_info->partition_start_addr) && (addr <= ota_part_info->partition_start_addr + ota_part_info->partition_length) )
+    {
+        flag = 1;
+        ymodem_max_write_size = ota_part_info->partition_length;
+    }
+
+    if(flag == 0) {
+        printf("\r\naddr 0x%x is err \n", addr);
+        return;
+    }
+
+    printf("\r\nPlease start ymodem ... (press ctrl+c to cancel)\r\n");
     ymodem_flash_addr = addr;
-    ymodem_recv_file(addr);
-    printf("Rece flash addr 0x%x \n", addr);
+    ret = ymodem_recv_file(addr);
+
+    while((1) && (ret != YMODEM_OK)) {
+        if(uart_recv_byte(&c)) {
+            break;
+        }
+    }
+
+    if(ret == YMODEM_OK) {
+        printf("\r\nRecv flash address 0x%x, length 0x%x OK \n", addr, ymodem_flash_size);
+    } else if(ret == YMODEM_FILE_TOOBIG) {
+        printf("\r\nErr: file length 0x%x is too large !!!\n", ymodem_flash_size);
+    } else {
+        printf("\r\nYmodem recv file error %d !\n", ret);
+    }
+
 }
