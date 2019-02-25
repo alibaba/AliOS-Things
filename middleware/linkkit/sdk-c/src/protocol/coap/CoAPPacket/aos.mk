@@ -8,7 +8,7 @@ $(NAME)_SOURCES := ./CoAPDeserialize.c \
                    ./CoAPMessage.c \
                    ./CoAPSerialize.c \
 
-$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl iotx-hal
 
 
 $(NAME)_INCLUDES := ../../../../src/infra \

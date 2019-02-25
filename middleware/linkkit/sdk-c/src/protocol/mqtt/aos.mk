@@ -12,7 +12,8 @@ $(NAME)_SOURCES := ./client/mqtt_client.c \
 ./MQTTPacket/MQTTConnectClient.c \
 ./MQTTPacket/MQTTSerializePublish.c \
  
-$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl iotx-hal 
+
 
 $(NAME)_INCLUDES := ../../../src/infra \
 ../../../src/infra/log \

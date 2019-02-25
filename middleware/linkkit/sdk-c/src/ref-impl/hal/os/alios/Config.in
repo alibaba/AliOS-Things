@@ -2,6 +2,10 @@ config AOS_COMP_IOTX-HAL
     default n
     select AOS_COMP_ITLS if SUPPORT_ITLS = y
     select AOS_COMP_MBEDTLS if SUPPORT_TLS = y
+    select AOS_COMP_ULOG
+    select AOS_COMP_ACTIVATION
+    select AOS_COMP_CHIP_CODE
+    select AOS_COMP_NETMGR
     help
       HAL for AliOS Things
 

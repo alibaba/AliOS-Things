@@ -7,7 +7,7 @@ $(NAME)_SUMMARY := Nghttp2 and its encapsulation
 $(NAME)_SOURCES := ./nghttp2/*.c \
                    ./iotx_http2_api.c \
  
-$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system libiot_sdk_impl iotx-hal 
 
 $(NAME)_INCLUDES := ../../../src/infra/utils \
 ../../../src/infra/utils/misc \

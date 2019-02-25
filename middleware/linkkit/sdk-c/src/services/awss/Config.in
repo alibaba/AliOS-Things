@@ -5,6 +5,10 @@ config WIFI_PROVISION_ENABLED
     default n
     select UTILS_SHA1
     select UTILS_EVENT
+    select AOS_COMP_LIBIOT_UTILS
+    select AOS_COMP_IOTX-HAL
+    select AOS_COMP_LIBIOT_LOG 
+    select AOS_COMP_LIBIOT_SYSTEM 
 
     help
         AWSS(Alibaba Wireless Setup Service) enable customers passing Wi-Fi SSID + Password to embedded devices
