@@ -8,7 +8,7 @@
 #include "lvgl/lvgl.h"
 #include <k_api.h>
 #include "sensor_display.h"
-#include "udata/hal/sensor.h"
+#include "sensor/sensor.h"
 #include "st7789.h"
 
 
@@ -151,7 +151,7 @@ void app_init(void)
     if (fd_acc < 0) {
         printf("acc sensor open failed !\n");
     }
-    
+
     index = 0;
     snprintf(name,SENSOR_NAME_LEN,"%s/%d",dev_als_path,index);
     fd_als = aos_open(name, O_RDWR);
