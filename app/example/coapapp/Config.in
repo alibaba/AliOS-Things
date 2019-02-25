@@ -1,5 +1,5 @@
 config AOS_APP_COAPAPP
-    bool "coapapp"
+    bool "COAP Sample"
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI

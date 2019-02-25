@@ -1,5 +1,5 @@
 config AOS_APP_HELLOWORLD
-    bool "helloworld"
+    bool "HelloWrold"
     select AOS_COMP_OSAL_AOS   
     help
         Hello World

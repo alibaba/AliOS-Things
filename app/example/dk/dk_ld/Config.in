@@ -1,5 +1,5 @@
 config AOS_APP_DK_LD
-    bool "ldapp"
+    bool "DeveloperKit Link To LinkDevelop Sample"
     select AOS_COMP_CLI
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR

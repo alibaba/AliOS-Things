@@ -1,5 +1,5 @@
 config AOS_APP_TINYENGINE_APP
-    bool "tinyengine_app"
+    bool "TinyEngine Application"
     select AOS_COMP_SPIFFS
     select AOS_COMP_LOG
     select AOS_COMP_CJSON

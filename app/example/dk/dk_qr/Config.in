@@ -1,5 +1,5 @@
 config AOS_APP_DK_QR
-    bool "dk_qr"
+    bool "DeveloperKit QR Code Sample"
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help

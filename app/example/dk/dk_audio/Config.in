@@ -1,5 +1,5 @@
 config AOS_APP_DK_AUDIO
-    bool "dk_audio"
+    bool "DeveloperKit Audio Sample"
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help
