@@ -78,13 +78,14 @@ void print_block(k_mm_list_t *b)
         print(" free[%8p,%8p] ", b->mbinfo.free_ptr.prev, b->mbinfo.free_ptr.next);
     }
     print("\r\n");
-
 }
 
 void dump_kmm_free_map(k_mm_head *mmhead)
 {
-    k_mm_list_t *next, *tmp;
-    int         i;
+    int i;
+
+    k_mm_list_t *next;
+    k_mm_list_t *tmp;
 
     if (!mmhead) {
         return;
@@ -97,7 +98,7 @@ void dump_kmm_free_map(k_mm_head *mmhead)
         next = mmhead->freelist[i];
         while (next) {
             print_block(next);
-            tmp = next->mbinfo.free_ptr.next;
+            tmp  = next->mbinfo.free_ptr.next;
             next = tmp;
         }
     }
