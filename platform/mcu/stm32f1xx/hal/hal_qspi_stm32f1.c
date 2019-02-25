@@ -5,7 +5,7 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <aos/hal/qspi.h>
+#include "hal/soc/soc.h"
 #include "stm32f4xx_hal.h"
 #include "hal_qspi_stm32f4.h"
 #include "stm32f4xx_hal_qspi.h"

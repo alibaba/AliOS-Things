@@ -8,7 +8,7 @@
 #include "stm32f4xx_hal.h"
 #include "hal_adc_stm32f4.h"
 #include "stm32f4xx_hal_adc.h"
-#include <aos/hal/adc.h>
+#include "hal/soc/soc.h"
 
 #ifdef HAL_ADC_MODULE_ENABLED
 
