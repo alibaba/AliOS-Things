@@ -4,7 +4,7 @@ config AOS_COMP_UDEV
     select AOS_COMP_CJSON
     select AOS_COMP_OTA
     select AOS_COMP_LINKKIT_SDK_C
-    select FEATURE_APP_LINKKIT_MQTT
+    select MQTT_COMM_ENABLED
     help
         developerment over the air
 
