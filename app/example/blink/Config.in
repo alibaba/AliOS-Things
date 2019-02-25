@@ -1,5 +1,5 @@
 config AOS_APP_BLINK
-    bool "blink"
+    bool "Blink Sample"
     select AOS_COMP_OSAL_AOS
     help
         blink

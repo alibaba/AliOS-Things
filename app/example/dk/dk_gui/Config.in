@@ -1,5 +1,5 @@
 config AOS_APP_DK_GUI
-    bool "dk_gui"
+    bool "DeveloperKit GUI Sample"
     select AOS_COMP_LITTLEVGL
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP

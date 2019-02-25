@@ -1,5 +1,5 @@
 config AOS_APP_DAS_CLIENT
-    bool "das_client"
+    bool "DAS Client Sample"
     select AOS_COMP_DAS
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI

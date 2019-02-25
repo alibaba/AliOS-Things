@@ -1,5 +1,5 @@
 config AOS_APP_ULOCATIONAPP
-    bool "ulocationapp"
+    bool "uLocation sample"
     select AOS_COMP_CLI if AOS_BOARD_ESP8266
     select AOS_COMP_NETMGR
     select AOS_COMP_OTA
