@@ -12,7 +12,7 @@
 #include <string.h>
 #include "ota_hal_os.h"
 #include "ota_log.h"
-#if !defined (OTA_BLE)
+#if !defined (AOS_COMP_OTA_BLE)
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
 #include "mbedtls/base64.h"
@@ -367,7 +367,7 @@ END:
 }
 #endif /*Linux end*/
 
-#if !defined(OTA_DISABLE_NETWORK)
+#if !defined(AOS_COMP_OTA_BLE)
 /*Socket API*/
 void* ota_socket_connect(char *host, int port)
 {
@@ -408,7 +408,7 @@ int ota_ssl_recv(void *ssl, char *buf, int len)
 }
 #endif
 
-#if !defined (OTA_BLE)
+#if !defined (AOS_COMP_OTA_BLE)
 /*SHA256*/
 #if !defined(ESPOS_FOR_ESP32)
 extern void mbedtls_sha256_free_alt(mbedtls_sha256_context* ctx);

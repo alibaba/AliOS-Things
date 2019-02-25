@@ -19,6 +19,4 @@ GLOBAL_INCLUDES += . \
                    ../include \
                    ../hal
 
-GLOBAL_DEFINES += OTA_BLE
-GLOBAL_DEFINES += OTA_ALIOS
-GLOBAL_DEFINES += OTA_DISABLE_NETWORK
+GLOBAL_DEFINES += AOS_COMP_OTA_BLE
