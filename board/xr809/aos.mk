@@ -33,9 +33,9 @@ $(NAME)_ASMFLAGS += -c -x assembler-with-cpp
 
 include $(SOURCE_ROOT)/platform/mcu/xr871/config.mk
 ifneq ($(no_with_xip),1)
-GLOBAL_LDFLAGS += -T board/xr871evb/xr871-xip.ld
+GLOBAL_LDFLAGS += -T board/xr809/xr809-xip.ld
 else
-GLOBAL_LDFLAGS += -T board/xr871evb/xr871.ld
+GLOBAL_LDFLAGS += -T board/xr809/xr809.ld
 endif
 
 GLOBAL_INCLUDES += .    \
@@ -53,11 +53,8 @@ endef
 
 CONFIG_SYSINFO_OS_VERSION := $(call get-os-version)
 
-$(warning $(CONFIG_SYSINFO_OS_VERSION))
-
 CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_XR871
 CONFIG_SYSINFO_DEVICE_NAME := XR871
-$(warning ${CONFIG_SYSINFO_OS_VERSION})
 
 GLOBAL_CFLAGS += -DSYSINFO_OS_VERSION=\"$(CONFIG_SYSINFO_OS_VERSION)\"
 GLOBAL_CFLAGS += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
