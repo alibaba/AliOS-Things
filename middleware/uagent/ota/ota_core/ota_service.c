@@ -256,11 +256,13 @@ static void ota_download_thread(void *hand)
         goto ERR;
     }
     if( ctx->sign_en == OTA_SIGN_ON) {
+#if defined AOS_COMP_OTA_RSA
         ret = ota_verify_download_rsa_sign((unsigned char*)ctx->sign, (const char*)ctx->hash, (OTA_HASH_E)ctx->hash_type);
         if(ret < 0) {
             ctx->upg_status = OTA_VERIFY_RSA_FAIL;
             goto ERR;
         }
+#endif
     }
     if(ota_param->upg_flag != OTA_DIFF){
         ret = ota_check_image(ota_param->len);
