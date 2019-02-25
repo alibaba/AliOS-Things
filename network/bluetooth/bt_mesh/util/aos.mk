@@ -16,4 +16,4 @@ $(NAME)_SOURCES := ./atomic_c.c \
 $(NAME)_INCLUDES := ./include
 
 GLOBAL_INCLUDES += ./include \
-                   ./port/include \
+                   ./port/include
