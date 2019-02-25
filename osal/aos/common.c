@@ -1,6 +1,6 @@
 #include <k_config.h>
 
-const char *sysinfo_kernel_version="AOS-R-2.0.0";
+const char *sysinfo_kernel_version="AOS-R-2.1.0";
 
 extern void hal_reboot(void);
 
