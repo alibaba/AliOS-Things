@@ -1158,9 +1158,7 @@ static int iotx_mc_send_packet(iotx_mc_client_t *c, char *buf, int length, iotx_
     }
     if (sent == length) {
         rc = SUCCESS_RETURN;
-    } else {
-        rc = FAIL_RETURN;
-    }
+    } 
     return rc;
 }
 
@@ -1852,7 +1850,9 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
         HAL_MutexLock(c->lock_read_buf);
         _reset_recv_buffer(c);
         HAL_MutexUnlock(c->lock_read_buf);
-        iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
+        if(rc == MQTT_NETWORK_ERROR) {
+            iotx_mc_set_client_state(c, IOTX_MC_STATE_DISCONNECTED);
+        }
         mqtt_err("readPacket error,result = %d", rc);
         return rc;
     }
