@@ -92,7 +92,15 @@ void task_misc_entry(void *arg)
     krhino_task_stack_min_free(task_misc, NULL);
     krhino_task_stack_min_free(task_misc, &task_free);
 
-    krhino_mutex_create(&mutex, "test");
+    ret = krhino_mutex_create(&mutex, "test");
+    if (ret == RHINO_SUCCESS) {
+        test_case_success++;
+        PRINT_RESULT("krhino_mutex_create", PASS);
+    } else {
+        PRINT_RESULT("krhino_mutex_create", FAIL);
+        test_case_fail++;
+    }
+
     krhino_mutex_lock(&mutex, RHINO_WAIT_FOREVER);
 
     ret = krhino_task_pri_change(task_misc, 15, &old_pri);
