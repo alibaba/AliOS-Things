@@ -19,6 +19,11 @@ mqd_t mq_open(const char *name, int oflag, ...)
     return mq;
 }
 
+int mq_close(mqd_t mqdes)
+{
+    return krhino_buf_queue_dyn_del(mqdes);
+}
+
 ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *msg_prio)
 {
     size_t  msg_size;
