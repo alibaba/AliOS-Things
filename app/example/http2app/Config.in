@@ -1,5 +1,5 @@
 config AOS_APP_HTTP2APP
-    bool "http2app"
+    bool "HTTP2 Stream Sample"
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI

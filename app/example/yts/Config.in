@@ -1,5 +1,5 @@
 config AOS_APP_YTS
-    bool "test suite"
+    bool "Test Suite"
     select AOS_COMP_ULOG
     select AOS_COMP_LWIP if AOS_BOARD_LINUXHOST || AOS_BOARD_ARMHFLINUX
     select AOS_COMP_CLI if !AOS_BOARD_LINUXHOST && !AOS_BOARD_ARMHFLINUX

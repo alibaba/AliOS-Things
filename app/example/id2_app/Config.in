@@ -1,5 +1,5 @@
 config AOS_APP_ID2_CLIENT
-    bool "id2_client"
+    bool "ID2 Client Sample"
     select AOS_COMP_IROT
     select AOS_COMP_ID2
     select AOS_COMP_ALICRYPTO

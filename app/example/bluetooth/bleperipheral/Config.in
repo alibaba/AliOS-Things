@@ -1,5 +1,5 @@
 config AOS_APP_BLEPERIPHERAL
-    bool "bleperipheral"
+    bool "BLE Peripheral Role Sample"
     select AOS_COMP_BT_HOST
     select AOS_COMP_BT_PROFILE
     select AOS_COMP_CLI

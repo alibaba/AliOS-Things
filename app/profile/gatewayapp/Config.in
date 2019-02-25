@@ -1,5 +1,5 @@
 config AOS_APP_GATEWAYAPP
-    bool "gatewayapp"
+    bool "Gateway Profile"
     select AOS_COMP_SENSOR
     select AOS_COMP_CJSON
     select AOS_COMP_NETMGR
