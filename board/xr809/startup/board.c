@@ -109,7 +109,7 @@ static void board_akey_irq_callback(void* arg)
         diff = aos_now_ms() - akey->time;
         // akey up, calc the average voltage
         akey->avg_val = akey->avg_val / akey->sample_count;
-        printf("avg %d, count %d\n", akey->avg_val, akey->sample_count);
+        printf("avg %d, count %lu\n", akey->avg_val, akey->sample_count);
         if (akey->avg_val < AKEY12_DOWN_TOGETHER_VOL) {
             key_code = CODE_ELINK;
         } else if (akey->avg_val < AKEY1_DOWN_VOL) {
