@@ -4,7 +4,7 @@ This is a board demo for consulting, not a true realization.
 
 ## Directories
 ```sh
-stm32f103ze # configuration files for board stm32f103ze
+stm32f103rb-nucleo # configuration files for board stm32f103rb-nucleo
 =============================================================================================================
 Dir\File                                Description                                           Necessary for kernel run
 =============================================================================================================
@@ -20,11 +20,10 @@ Dir\File                                Description                             
 |   |-- startup_gcc.s        # board startup assember for gcc                                       Y
 |   |-- startup_iar.s        # board startup assember for iar                                       Y
 |   |-- startup_keil.s       # board startup assember for keil                                      Y
-|-- stm32f103ze.icf          # linkscript file for iar                                              Y
-|-- stm32f103ze.ld           # linkscript file for gcc                                              Y
-|-- stm32f103ze.sct          # linkscript file for sct                                              Y
+|-- stm32f103xb_flash.icf          # linkscript file for iar                                              Y
+|-- STM32F103RBTx_FLASH.ld           # linkscript file for gcc                                              Y
+|-- stm32f103rb-nucleo.sct          # linkscript file for sct                                              Y
 |-- aos.mk                   # board makefile                                                       Y
-|-- Config.in                # menuconfig component config                                          Y
 |-- ucube.py                 # config for CI autorun app                                            N
 ```
 
