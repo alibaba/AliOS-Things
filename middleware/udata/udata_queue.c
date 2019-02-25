@@ -55,11 +55,11 @@ static void udata_msg_dispatcher(void *arg)
     while (DO_FOREVER) {
         ret = aos_queue_recv(&g_udata_queue, AOS_WAIT_FOREVER,
                              (void *)data, (unsigned int *)(&size));
-        
+
         if (unlikely(ret)) {
             continue;
         }
-                             
+
         if (size == 0) {
             continue;
         }
@@ -149,20 +149,20 @@ int udata_new_servicetask(const char *name, void (*fn)(void *),void *arg,
     if(g_udata_own_task_cnt >= UDATA_MAX_OWN_TASK_NUM) return -1;
     if(name == NULL || fn ==NULL) return -1;
 
-    ret = aos_queue_new(&g_udata_own_task_queue[g_udata_own_task_cnt], (void *)&g_udata_own_task_msg[g_udata_own_task_cnt], 
+    ret = aos_queue_new(&g_udata_own_task_queue[g_udata_own_task_cnt], (void *)&g_udata_own_task_msg[g_udata_own_task_cnt],
             UDATA_QUEUE_SIZE,UDATA_QUEUE_MAX_MSG_SIZE);
-    
+
     if (unlikely(ret)) {
         return -1;
     }
     ret = aos_task_new_ext(&g_udata_own_task[g_udata_own_task_cnt], name, fn,
                        arg, stack_size, prio);
-    
+
     if (unlikely(ret)) {
         LOG("udata_new_servicetask error\n");
         return -1;
     }
-    
+
     g_udata_own_task_cnt++;
     taskid = g_udata_own_task_cnt -1;
     return taskid;
@@ -173,13 +173,13 @@ int udata_observe_servicetask_tag(int taskid,sensor_tag_e tag, uint8_t instance)
     int i = 0;
     int ret;
     uint32_t index;
-    
-    if(taskid >= g_udata_own_task_cnt || taskid < 0) 
+
+    if(taskid >= g_udata_own_task_cnt || taskid < 0)
     {
         return -1;
     }
     int actual_num = g_udata_own_task_tag[taskid].actual_num;
-    if( actual_num >= UDATA_SERVICE_TAG_NUM) 
+    if( actual_num >= UDATA_SERVICE_TAG_NUM)
     {
         return -1;
     }
@@ -187,7 +187,7 @@ int udata_observe_servicetask_tag(int taskid,sensor_tag_e tag, uint8_t instance)
     if(unlikely(ret)){
         return -1;
     }
-    
+
     LOG("udata_set_servicetask_tag taskid=%d,actual_num=%d,tag=%d,g_udata_own_task_cnt=%d\n",taskid,actual_num,tag,g_udata_own_task_cnt);
     for(i=0; i < actual_num; i++)
     {
@@ -201,7 +201,6 @@ int udata_observe_servicetask_tag(int taskid,sensor_tag_e tag, uint8_t instance)
     LOG("udata_set_servicetask_tag sucessfull\n");
     return 0;
 }
-
 
 int udata_msg_recv(int task_id, unsigned int ms, void *msg,
                    unsigned int *size)
