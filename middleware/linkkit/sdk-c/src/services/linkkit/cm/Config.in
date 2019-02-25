@@ -6,7 +6,6 @@ config AOS_COMP_LIBIOT_CM
     default n
     select AOS_COMP_LIBIOT_UTILS
     select AOS_COMP_LIBIOT_LOG
-
     help
       Connection management
 

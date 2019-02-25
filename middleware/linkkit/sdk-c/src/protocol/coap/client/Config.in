@@ -2,6 +2,7 @@
 config COAP_COMM_ENABLED
     bool "FEATURE_COAP_COMM_ENABLED"
     default n
+    select AOS_COMP_IOTX-HAL
     select COAP_PACKET_ENABLED
     select UTILS_LITE_CJSON
     select UTILS_JSON_PARSER
@@ -9,7 +10,6 @@ config COAP_COMM_ENABLED
     select WITH_FAC_JSON_FLOW
     select UTILS_SHA256
     select UTILS_MD5
-
     select HAL_CRYPTO
     select HAL_UDP
 

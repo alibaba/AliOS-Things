@@ -1,0 +1,11 @@
+config AOS_COMP_LIBIOT_COAP_PACK 
+    bool
+    default n
+    select AOS_COMP_LIBIOT_UTILS
+    select AOS_COMP_IOTX-HAL
+    select AOS_COMP_LIBIOT_LOG 
+    select AOS_COMP_LIBIOT_SYSTEM 
+    select AOS_COMP_LIBIOT_UTILS
+
+    help
+      coap common api

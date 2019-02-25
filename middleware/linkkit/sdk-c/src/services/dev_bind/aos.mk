@@ -24,6 +24,8 @@ ifneq ($(CONFIG_SYSINFO_DEVICE_NAME), DH5021A)
 GLOBAL_DEFINES += AWSS_SUPPORT_DEV_BIND_STATIS
 endif
 
+$(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system iotx-hal
+
 ifeq ($(COMPILER),)
 else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration

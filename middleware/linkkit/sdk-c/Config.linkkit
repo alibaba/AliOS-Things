@@ -30,6 +30,7 @@ config APP_FEATURE_LINKKIT
     select UTILS_SHA256
     select UTILS_STRING
     select WIFI_PROVISION_ENABLED
+    select AOS_COMP_IOTX-HAL
     default n
 
 config APP_FEATURE_LINKKIT_HTTP2
@@ -47,6 +48,7 @@ config APP_FEATURE_LINKKIT_HTTP2
     select UTILS_SHA1
     select UTILS_SHA256
     select UTILS_STRING
+    select AOS_COMP_IOTX-HAL
     default n
 
 config APP_FEATURE_LINKKIT_MQTT
@@ -62,6 +64,7 @@ config APP_FEATURE_LINKKIT_MQTT
     select UTILS_SHA1
     select UTILS_SHA256
     select UTILS_STRING
+    select AOS_COMP_IOTX-HAL
     default n
 
 config APP_FEATURE_LINKKIT_COAP
@@ -78,6 +81,7 @@ config APP_FEATURE_LINKKIT_COAP
     select UTILS_SHA1
     select UTILS_SHA256
     select UTILS_STRING
+    select AOS_COMP_IOTX-HAL
     default n
 
 config APP_FEATURE_LINKKIT_GATEWAY
@@ -102,4 +106,5 @@ config APP_FEATURE_LINKKIT_GATEWAY
     select UTILS_SHA256
     select UTILS_STRING
     select WIFI_PROVISION_ENABLED
+    select AOS_COMP_IOTX-HAL
     default n
