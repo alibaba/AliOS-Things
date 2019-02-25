@@ -1,5 +1,5 @@
 config AOS_COMP_OTA_BLE
-    bool  "BLE Support"
+    bool  "BLE OTA Support"
     default n
 
 if AOS_COMP_OTA_BLE

@@ -11,6 +11,8 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
+$(NAME)_COMPONENTS += imbedtls linkkit_sdk_c cjson
+
 $(NAME)_SOURCES := ota_core/ota_service.c \
                    ota_core/download/ota_download_http.c \
                    ota_core/transport/ota_transport_mqtt.c \
@@ -31,5 +33,5 @@ endif
 endif
 
 GLOBAL_INCLUDES += include hal ota_core/verify 2nd_boot
-
+GLOBAL_DEFINES += AOS_COMP_OTA_MQTT AOS_COMP_OTA_FW_MD5 AOS_COMP_OTA_RSA
 GLOBAL_DEFINES += OTA_SIGNAL_CHANNEL=1
