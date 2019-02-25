@@ -25,6 +25,9 @@ def update_config_in(config_file, config_list):
             match = patten.match(line)
             if match:
                 config_tmp = match.group(1)
+                if "linkkit/" in config_file and "$SRCPATH" in config_tmp:
+                    config_tmp = re.sub(r"\$SRCPATH/", "middleware/linkkit/sdk-c/", config_tmp)
+
                 if not re.sub(r'"', "", config_tmp) in config_list:
                     continue
 
@@ -208,6 +211,9 @@ def main():
 
             shutil.copyfile(sourcefile, destfile)
             config_list += [destfile]
+
+    if os.path.isfile("middleware/linkkit/sdk-c/Config.linkkit"):
+        config_list += ["middleware/linkkit/sdk-c/Config.linkkit"]
 
     # Update config files according to installed comps
     for config_file in config_list:
