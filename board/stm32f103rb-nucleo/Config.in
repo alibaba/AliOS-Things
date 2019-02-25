@@ -1,0 +1,11 @@
+config AOS_BOARD_STM32F103RB_NUCLEO
+    bool "STM32F103RB_Nucleo"
+    select AOS_MCU_STM32F1XX
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_OSAL_AOS
+    help
+
+if AOS_BOARD_STM32F103RB_NUCLEO
+# Configurations for board stm32f103rb-nucleo
+
+endif

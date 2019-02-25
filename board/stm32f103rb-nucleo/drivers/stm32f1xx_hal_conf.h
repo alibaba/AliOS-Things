@@ -5,7 +5,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2018 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2019 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -40,7 +40,6 @@
  extern "C" {
 #endif
 
-#include "stm32f1xx_main.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 
@@ -48,11 +47,10 @@
 /**
   * @brief This is the list of modules to be used in the HAL driver
   */
-
 #define HAL_MODULE_ENABLED
 /*#define HAL_ADC_MODULE_ENABLED   */
 /*#define HAL_CRYP_MODULE_ENABLED   */
-#define HAL_CAN_MODULE_ENABLED
+/*#define HAL_CAN_MODULE_ENABLED   */
 /*#define HAL_CEC_MODULE_ENABLED   */
 /*#define HAL_CORTEX_MODULE_ENABLED   */
 /*#define HAL_CRC_MODULE_ENABLED   */
@@ -61,7 +59,7 @@
 /*#define HAL_ETH_MODULE_ENABLED   */
 /*#define HAL_FLASH_MODULE_ENABLED   */
 #define HAL_GPIO_MODULE_ENABLED
-#define HAL_I2C_MODULE_ENABLED
+/*#define HAL_I2C_MODULE_ENABLED   */
 /*#define HAL_I2S_MODULE_ENABLED   */
 /*#define HAL_IRDA_MODULE_ENABLED   */
 /*#define HAL_IWDG_MODULE_ENABLED   */
@@ -77,7 +75,7 @@
 /*#define HAL_MMC_MODULE_ENABLED   */
 /*#define HAL_SDRAM_MODULE_ENABLED   */
 /*#define HAL_SMARTCARD_MODULE_ENABLED   */
-#define HAL_SPI_MODULE_ENABLED
+/*#define HAL_SPI_MODULE_ENABLED   */
 /*#define HAL_SRAM_MODULE_ENABLED   */
 /*#define HAL_TIM_MODULE_ENABLED   */
 #define HAL_UART_MODULE_ENABLED

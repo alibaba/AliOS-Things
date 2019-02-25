@@ -1,6 +1,16 @@
-/*
- * Copyright (C) 2015-2018 Alibaba Group Holding Limited
- */
+/**
+  ******************************************************************************
+  * @file    startup.c
+  * @author  MCU China FAE team
+  * @version 1.0
+  * @date    05/01/2019
+  * @brief   aos porting layer
+  ******************************************************************************
+  *
+  * COPYRIGHT(c) 2019 STMicroelectronics
+  *
+  ******************************************************************************
+  */
 #include "aos/init.h"
 #include "board.h"
 #include <k_api.h>
@@ -21,12 +31,16 @@ main task stask size(byte)
 static kinit_t kinit = {0, NULL, 1};
 static ktask_t *g_main_task;
 
-
 extern void board_init(void);
 
 #ifndef AOS_BINS
 extern int application_start(int argc, char **argv);
 #endif
+
+void trace_start(void)
+{
+    printf("trace config close!!!\r\n");
+}
 
 static void sys_init(void)
 {
