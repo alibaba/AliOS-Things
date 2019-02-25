@@ -49,7 +49,6 @@ source "middleware/linkkit/Config.in"
 source "middleware/uagent/Config.in"
 source "middleware/udata/Config.in"
 source "middleware/ulocation/Config.in"
-source "middleware/tinyengine/Config.in"
 endmenu
 
 source "security/Config.in"
