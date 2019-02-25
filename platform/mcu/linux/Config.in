@@ -3,6 +3,7 @@ config AOS_MCU_LINUXIMPL
     select AOS_COMP_KERNEL_INIT
     select AOS_COMP_NETMGR
     select AOS_ARCH_LINUX
+    select ULOG_CONFIG_SYNC_LOG_DETAILS
     help
       driver & sdk for platform/mcu linuximpl
 
