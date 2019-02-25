@@ -11,6 +11,7 @@ $(NAME)_SOURCES := posix_cond_test.c          \
                    posix_pthread_test.c       \
                    posix_pthread_attr_test.c  \
                    posix_pthread_sched_test.c \
+                   posix_mqueue_test.c        \
                    posix_test.c               \
                    posix_tsd_test.c           \
                    posix_timer_test.c         \
