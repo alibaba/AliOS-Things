@@ -5,7 +5,7 @@ source "$SRCPATH/src/infra/utils/Config.in"
 
 config MQTT_COMM_ENABLED
     bool "FEATURE_MQTT_COMM_ENABLED"
-    default y
+    default n
     select AOS_COMP_LIBIOT_LOG 
     select AOS_COMP_LIBIOT_SYSTEM 
     select AOS_COMP_LIBIOT_UTILS
