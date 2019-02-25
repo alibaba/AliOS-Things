@@ -1,6 +1,6 @@
 NAME := udev
 
-$(NAME)_VERSION := 0.1.0
+$(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := developerment over the air
 $(NAME)_MBINS_TYPE := kernel
 
