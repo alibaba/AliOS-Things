@@ -12,7 +12,7 @@
 
 static char serverity_name[LOG_NONE] = { 'V', 'A', 'F', 'E', 'W', 'T', 'I', 'D' };
 
-const char UNKNOWN_BUF[8] = "UNKNOWN";
+const char UNKNOWN_BUF[8] = "";
 
 /* stop filter used in sync log, dedault value LOG_NONE, shall not larger than LOG_NONE */
 static uint8_t stop_filter_level = LOG_NONE;
@@ -82,19 +82,23 @@ int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned
         long long ms = aos_now_ms();
         if (log_get_mutex()) {
             const char* rpt_mod = NULL;
+            char before_mod[2];
             if ((mod == NULL) || (0 == strlen(mod))) {
                 rpt_mod = UNKNOWN_BUF;
+                before_mod[0] = 0;
             } else {
                 rpt_mod = mod;
+                before_mod[0] =' ';
+                before_mod[1] = 0;
             }
 #if SYNC_DETAIL_COLOR
-            printf("%s [%4d.%03d]<%c> %s [%s#%d] : ",
+            printf("%s [%4d.%03d]<%c>%s%s [%s#%d] : ",
                 log_col_def[s],
 #else
-            printf("[%4d.%03d]<%c> %s [%s#%d] : ",
+            printf("[%4d.%03d]<%c>%s%s [%s#%d] : ",
 #endif
                 (int)(ms / 1000),
-                (int)(ms % 1000), serverity_name[s], rpt_mod, f, (int)l);
+                (int)(ms % 1000), serverity_name[s], before_mod, rpt_mod, f, (int)l);
             va_start(args, fmt);
             rc = vprintf(fmt, args);
             va_end(args);
@@ -126,7 +130,7 @@ int rt_log(const unsigned char s, const char *fmt, ...)
 #if SYNC_LOG_MOD
             uint16_t mod_len = 0;
             if ((mod == NULL) || (0 == (mod_len = strlen(mod)))) {
-                printf("%s ", UNKNOWN_BUF);
+                /* not record any mode name */
             } else if (mod_len <= MOD_MAX_LEN) {
                 printf("%s ", mod);
             } else {
