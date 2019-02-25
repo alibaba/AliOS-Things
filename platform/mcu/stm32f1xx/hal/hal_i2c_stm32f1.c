@@ -3,7 +3,7 @@
  */
 #include "k_api.h"
 #include "errno.h"
-#include <aos/hal/i2c.h>
+#include "aos/hal/i2c.h"
 #include "board.h"
 #include "hal_i2c_stm32f1.h"
 

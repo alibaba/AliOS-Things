@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "stm32f1xx_hal.h"
 #include "hal_gpio_stm32f1.h"
-#include <aos/hal/gpio.h>
+#include "aos/hal/gpio.h"
 #ifdef HAL_GPIO_MODULE_ENABLED
 
 #define  GPIO_IRQ_SLOP_MAX  (16)
