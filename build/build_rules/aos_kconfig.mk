@@ -29,7 +29,7 @@ endif
 
 # Don't read in .config for these targets
 noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \
-    defconfig savedefconfig %-defconfig list-defconfigs alldefconfig
+    defconfig savedefconfig %_defconfig list-defconfig alldefconfig
 
 .PHONY: $(noconfig_targets)
 
@@ -116,14 +116,14 @@ savedefconfig: $(KCONFIG_CONF)
 		--savedefconfig=$(if $(AOS_DEFCONFIG),$(AOS_DEFCONFIG),$(AOS_CONFIG_DIR)/defconfig) \
 		$(AOS_CONFIG_IN)
 
-%-defconfig: $(KCONFIG_CONF)
+%_defconfig: $(KCONFIG_CONF)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< --defconfig=$(AOS_DEFCONFIG_DIR)/$@ $(AOS_CONFIG_IN)
 
 ECHO_DEFCONFIG = " $(notdir $(1)):\tBuild for $(subst -defconfig,,$(notdir $(1)))\n"
-list-defconfigs:
+list-defconfig:
 	$(QUIET)$(ECHO) ""
 	$(QUIET)$(ECHO) "Valid defconfigs:"
-	$(QUIET)$(ECHO) " "$(foreach defconfig,$(wildcard $(AOS_DEFCONFIG_DIR)/*-defconfig),$(call ECHO_DEFCONFIG,$(defconfig)))
+	$(QUIET)$(ECHO) " "$(foreach defconfig,$(wildcard $(AOS_DEFCONFIG_DIR)/*_defconfig),$(call ECHO_DEFCONFIG,$(defconfig)))
 
 $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF) $(AOS_CONFIG)
 	$(QUIET)$(ECHO) Creating $@ ...

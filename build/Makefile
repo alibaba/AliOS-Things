@@ -296,7 +296,7 @@ endif
 	$(QUIET)$(ECHO) Done
 
 distclean: clean
-	$(QUIET)rm -f .config .config.retry .defconfig
+	$(QUIET)rm -f .config .config.retry .config.old .config.cmd .defconfig
 
 ifneq ($(BUILD_STRING),)
 ifeq ($(findstring @,$(BUILD_STRING)),)
