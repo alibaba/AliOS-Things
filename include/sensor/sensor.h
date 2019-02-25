@@ -16,7 +16,6 @@ extern "C" {
 
 #include "aos/hal/gpio.h"
 #include "aos/hal/i2c.h"
-
 #include "network/hal/base.h"
 
 #ifndef UNUSED
@@ -472,7 +471,6 @@ typedef struct _dev_gps_data_t {
     float      elv;
 } gps_data_t;
 
-int     sensor_init(void);
 int     sensor_hal_init(void);
 int     sensor_hal_open(sensor_tag_e tag, uint8_t instance);
 int     sensor_hal_close(sensor_tag_e tag, uint8_t instance);
