@@ -1,6 +1,16 @@
-/*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- */
+/**
+  ******************************************************************************
+  * @file    hal_uart_stm32f1.h
+  * @author  MCU China FAE team
+  * @version 1.0
+  * @date    05/01/2019
+  * @brief   aos porting layer
+  ******************************************************************************
+  *
+  * COPYRIGHT(c) 2019 STMicroelectronics
+  *
+  ******************************************************************************
+  */
 
 #ifndef __HAL_UART_STM32F1_H
 #define __HAL_UART_STM32F1_H

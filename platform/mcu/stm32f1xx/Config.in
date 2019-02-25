@@ -1,10 +1,10 @@
 config AOS_MCU_STM32F1XX
     bool
-    select AOS_ARCH_ARMV7M
     select AOS_COMP_NEWLIB_STUB
+    select AOS_ARCH_ARMV7M
     select AOS_COMP_RHINO
     help
-      driver & sdk for platform/mcu stm32l4xx
+      driver & sdk for platform/mcu stm32f1xx
 
 if AOS_MCU_STM32F1XX
 # Configurations for mcu stm32f1xx
