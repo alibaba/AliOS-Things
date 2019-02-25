@@ -4,7 +4,7 @@ config AOS_APP_BLEADV
     select AOS_COMP_CLI
     select AOS_COMP_YLOOP
     help
-        Ble adv example.
+        Ble Broadcaster Role example.
 
 if AOS_APP_BLEADV
 # Configurations for app bleadv

@@ -8,7 +8,7 @@ config AOS_APP_DAS_CLIENT
     select AOS_COMP_LINKKIT_SDK_C
     select APP_FEATURE_LINKKIT_MQTT
     help
-        das example
+        das(Device Attestation) example
 
 if AOS_APP_DAS_CLIENT
 
