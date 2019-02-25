@@ -86,7 +86,11 @@ int rt_log(const unsigned char s, const char *fmt, ...);
  *
  * @param[in]  fmt  same as printf() usage.
  */
-#define LOG(...) rt_log(LOG_EMERG,__VA_ARGS__)
+#if SYNC_LOG_MOD
+#define LOG(...) rt_log(LOG_EMERG, "", __VA_ARGS__)
+#else
+#define LOG(...) rt_log(LOG_EMERG, __VA_ARGS__)
+#endif
 
 #endif
 
@@ -143,7 +147,6 @@ int rt_log(const unsigned char s, const char *fmt, ...);
 #else
 #define LOGD(mod, ...)
 #endif
-
 #else
 
 /*
