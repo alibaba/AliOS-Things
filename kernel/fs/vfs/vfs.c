@@ -815,7 +815,7 @@ int32_t vfs_telldir(vfs_dir_t *dir)
 
     if (INODE_IS_FS(node)) {
         if ((node->ops.i_fops->telldir) != NULL) {
-            (node->ops.i_fops->telldir)(f, dir);
+            ret = (node->ops.i_fops->telldir)(f, dir);
         }
     }
 
