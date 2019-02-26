@@ -523,6 +523,7 @@ void alcs_rec_heart_beat(CoAPContext *ctx, const char *path, NetworkAddr *remote
         msg.header.tokenlen = request->header.tokenlen;
         memcpy (&msg.token, request->token, request->header.tokenlen);
         internal_secure_send (ctx, session, remote, &msg, 1, NULL);
+        alcs_msg_deinit(&msg);
     } else {
         CoAPLenString token = {request->header.tokenlen, request->token};
         alcs_sendrsp (ctx, remote, &msg, 1, request->header.msgid, &token);
