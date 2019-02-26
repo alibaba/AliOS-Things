@@ -181,44 +181,49 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     int            ret, err_code;
     uint32_t       len_recv;
     uint64_t       t_end, t_left;
+    fd_set         sets;
     struct timeval timeout;
 
     t_end    = HAL_UptimeMs() + timeout_ms;
     len_recv = 0;
     err_code = 0;
 
-    timeout.tv_sec  = timeout_ms / 1000;
-    timeout.tv_usec = (timeout_ms % 1000) * 1000;
-    ret = setsockopt(fd,SOL_SOCKET,SO_RCVTIMEO,&timeout,sizeof(timeout));
-    if(ret < 0) {
-        PLATFORM_LOG_E("setsockopt failed");
-        return ret;
-    }
     do {
-        ret = recv(fd, buf + len_recv, len - len_recv, 0);
+        t_left = aliot_platform_time_left(t_end, HAL_UptimeMs());
+        if (0 == t_left) {
+            break;
+        }
+        FD_ZERO(&sets);
+        FD_SET(fd, &sets);
+
+        timeout.tv_sec  = t_left / 1000;
+        timeout.tv_usec = (t_left % 1000) * 1000;
+
+        ret = select(fd + 1, &sets, NULL, NULL, &timeout);
         if (ret > 0) {
-            len_recv += ret;
+            ret = recv(fd, buf + len_recv, len - len_recv, 0);
+            if (ret > 0) {
+                len_recv += ret;
+            } else if (0 == ret) {
+                PLATFORM_LOG_E("connection is closed");
+                err_code = -1;
+                break;
+            } else {
+                if (EINTR == errno) {
+                    continue;
+                }
+                PLATFORM_LOG_E("send fail");
+                err_code = -2;
+                break;
+            }
         } else if (0 == ret) {
-            PLATFORM_LOG_E("connection is closed");
-            err_code = -1;
             break;
         } else {
             if (EINTR == errno) {
-                PLATFORM_LOG_D("EINTR be caught");
                 continue;
             }
-
-            if (EWOULDBLOCK == errno) {
-                err_code = 0;
-                break;
-            }
-            PLATFORM_LOG_E("read fail");
+            PLATFORM_LOG_E("select-recv fail errno=%d",errno);
             err_code = -2;
-            break;
-        }
-
-        t_left = aliot_platform_time_left(t_end, HAL_UptimeMs());
-        if (0 == t_left) {
             break;
         }
     } while ((len_recv < len));
