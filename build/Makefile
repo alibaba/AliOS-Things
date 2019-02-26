@@ -27,17 +27,16 @@ endef
 $(call CHECK_UCUBE_VERSION)
 
 define NO_CONFIG_ERROR
-$(info Please configure AliOS-Things first:)
+$(info Please configure first:)
 $(info *********************************************************************)
-$(info $$ aos make app@board -c config)
-$(info Or)
-$(info $$ aos make menuconfig)
+$(info $$ aos make <app>@<board> -c config)
+$(info ---> Or more config: $$ aos make menuconfig)
 $(info *********************************************************************)
 $(error No Config Found!)
 endef
 
-define TARGET_OBSOLATE_ERROR
-$(error Build Target Obsolate!)
+define TARGET_DEPRECATED_ERROR
+$(error Build Target Deprecated!)
 endef
 
 all:
@@ -95,18 +94,19 @@ ifeq ($(wildcard $(AOS_CONFIG)),)
 ifneq ($(findstring @, $(MAKECMDGOALS)),)
 ifeq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
 $(info )
-$(info The command "aos make $(BUILD_STRING)" is obselate!)
+$(info Build command updated, please follow steps:)
 $(info *********************************************************************)
 $(info Step 1: config:)
 $(info $$ aos make $(BUILD_STRING) -c config)
-$(info --- more configs can use: $$ aos make menuconfig)
-$(info Step 2: build:)
-$(info $$ aos make [VAR=value])
+$(info ---> Or more config: $$ aos make menuconfig)
 $(info )
-$(info Or run config & build in oneline:)
-$(info $$ aos make $(BUILD_STRING) -c config && aos make [VAR=value])
+$(info Step 2: build:)
+$(info $$ aos make    # VAR=value if needed)
+$(info )
+$(info ---> Or oneline command for config and build:)
+$(info $$ aos make $(BUILD_STRING) -c config && aos make)
 $(info *********************************************************************)
-$(call TARGET_OBSOLATE_ERROR)
+$(call TARGET_DEPRECATED_ERROR)
 endif
 endif
 
@@ -114,12 +114,9 @@ else
 ifneq ($(findstring @, $(MAKECMDGOALS)),)
 ifeq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
 $(info )
-$(info The command "aos make $(BUILD_STRING)" is obselate!)
-$(info *********************************************************************)
-$(info Please run build with:)
-$(info $$ aos make [VAR=value])
-$(info *********************************************************************)
-$(call TARGET_OBSOLATE_ERROR)
+$(info Config completed, please run build directly: $$ aos make)
+$(info )
+$(call TARGET_DEPRECATED_ERROR)
 endif
 endif
 endif
