@@ -1,0 +1,11 @@
+config AOS_MCU_STM32F0XX
+    bool
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_ARCH_ARMV6M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu stm32f0xx
+
+if AOS_MCU_STM32F0XX
+# Configurations for mcu stm32f0xx
+endif
