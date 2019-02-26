@@ -32,7 +32,7 @@ ktask_t *g_radio_init;
 static void ssvradio_init_task(void *pdata)
 {
     PBUF_Init();
-    NETSTACK_RADIO.init();    
+    NETSTACK_RADIO.init();
     drv_sec_init();
     netstack_init(NULL);
     OS_TaskDelete(NULL);
@@ -41,7 +41,7 @@ static void ssvradio_init_task(void *pdata)
 extern uint32_t SAVED_PC;
 extern void dump_ir();
 static void aos_wdt_process() {
-	printf("IPC:%xh\n", SAVED_PC);
+    printf("IPC:%lxh\n", SAVED_PC);
     //ktask_t *cur = krhino_cur_task_get();
     ktask_t *task = g_active_task[0];
     printf("TP:%xh\n", task);
@@ -144,10 +144,10 @@ void APP_Init(void)
 
     drv_gpio_register_isr(GPIO_12, isr_gpio_12);
     drv_gpio_register_isr(GPIO_11, isr_gpio_11);
-    
+
     OS_TaskCreate(ssvradio_init_task, "ssvradio_init", 512, NULL, 1, NULL);
     OS_TaskCreate(temperature_compensation_task, "rf temperature compensation", 256+128, NULL, 15, NULL);
     krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)system_init, 1);
-    
+
     OS_StartScheduler();
 }
