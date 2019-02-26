@@ -9,19 +9,16 @@ $(NAME)_SOURCES     := main.c
 $(NAME)_COMPONENTS  += umesh cli netmgr
 GLOBAL_DEFINES      += TAPIF_DEFAULT_OFF DEBUG
 
-ipv6 ?= IPV6
-mesh_hal_test ?= MESHAPP_CONFIG_HAL_TEST
-
-ifeq ($(MESHAUTH), 1)
+ifeq ($(MESHAPP_CONFIG_MESHAUTH), y)
 $(NAME)_COMPONENTS  += alicrypto id2
 endif
 
-LWIP ?=1
-ifeq ($(LWIP), 1)
+MESHAPP_CONFIG_USE_LWIP ?=y
+ifeq ($(MESHAPP_CONFIG_USE_LWIP), y)
 $(NAME)_COMPONENTS  += lwip
 endif
 
-ifeq ($(ipv6),0)
+ifeq ($(MESHAPP_CONFIG_IPV6),n)
 GLOBAL_DEFINES += LWIP_IPV6=0
 endif
 
@@ -42,7 +39,7 @@ ifneq (,$(filter EMW3060,$(MODULE)))
 GLOBAL_DEFINES += MESHAPP_LIGHT_ENABLED
 endif
 
-ifeq ($(mesh_hal_test),1)
+ifeq ($(MESHAPP_CONFIG_HAL_TEST),y)
 GLOBAL_DEFINES += MESH_HAL_TEST_ENABLED
 endif
 

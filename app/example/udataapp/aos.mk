@@ -24,8 +24,8 @@ $(NAME)_SOURCES += linkkit/linkkit_example_solo.c
 $(NAME)_COMPONENTS += linkkit_sdk_c yloop netmgr cjson
 
 
-LWIP ?= 1
-ifeq ($(LWIP),1)
+AOS_CONFIG_DTC_USE_LWIP ?= y
+ifeq ($(AOS_CONFIG_DTC_USE_LWIP),y)
 $(NAME)_COMPONENTS  += lwip
 no_with_lwip := 0
 endif
