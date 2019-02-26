@@ -7,28 +7,30 @@ if AOS_COMP_ULOG
 # Configurations for component ulog
 
 config ULOG_CONFIG_SYNC_LOG_DETAILS
-    bool "enable rich details for log, DO NOT switch on it under rtos unless necessary"
+    bool "Enable Rich Details for Log"
     default n
     help
         enable rich details for log, includes mod name, file path and line.
         DO NOT recommend switch this function under rtos.
+comment "DO NOT switch on it under rtos unless necessary"
 
 if ULOG_CONFIG_SYNC_LOG_DETAILS
 config ULOG_CONFIG_SYNC_DETAIL_COLOR
-    bool "enable color font for more details"
+    bool "Enable Color Font for More Details"
     default n
     help
         enable color font for more details
 endif
 
 config ULOG_CONFIG_SYNC_LOG_MOD
-    bool "enable record mod under sync log mode, not work if rich details on"
+    bool "Enable Record Mode under Sync Log Mode"
+    depends on !ULOG_CONFIG_SYNC_LOG_DETAILS
     default n
     help
         enable record mod under sync log mode. Not work if ULOG_CONFIG_SYNC_LOG_DETAILS selected
 
 config ULOG_CONFIG_ASYNC
-    bool "enable ulog async mode"
+    bool "Enable uLog Async Mode"
     default n
     help
         enable ulog async mode
@@ -37,7 +39,7 @@ if ULOG_CONFIG_ASYNC
 # Configurations for ulog async mode
 
 config ULOG_CONFIG_STOP_FILTER_DEFAULT
-    int "level Stop Filter of default direction(uart for rtos)"
+    int "Level Stop Filter of Default Direction(UART for RTOS)"
     range 0 8
     default 4
     help
@@ -45,7 +47,7 @@ config ULOG_CONFIG_STOP_FILTER_DEFAULT
         will be abondoned LOG_EMERG will make none log pop out.
 
 config ULOG_CONFIG_POP_FS
-     int "switch on pop out log into file system"
+     int "Switch on Pop Out Log Into File System"
      range 0 1
      default 0
      help
@@ -54,7 +56,7 @@ config ULOG_CONFIG_POP_FS
 
 if ULOG_CONFIG_POP_FS=1
 config ULOG_CONFIG_STOP_FILTERFS
-    int "level Stop Filter of fs"
+    int "Level Stop Filter of FS"
     range 0 8
     default 4
     help
@@ -63,14 +65,14 @@ config ULOG_CONFIG_STOP_FILTERFS
         please keep this value on "LOG_EMERG" if you have no plan to use log out fs
 
 config ULOG_CONFIG_LOCAL_FILE_CNT
-    int "max ulog files on file system"
+    int "Max uLog Files on File System"
     default 5
     range 1 256
     help
         Max log files support in fs, if the recording file more than this value, rolling back mechanism trigged.
 
 config ULOG_CONFIG_LOCAL_FILE_SIZE
-    int "max ulog file size"
+    int "Max uLog File Size"
     default 4096
     range 256 10240
     help
@@ -79,7 +81,7 @@ config ULOG_CONFIG_LOCAL_FILE_SIZE
 endif
 
 config ULOG_CONFIG_POP_UDP
-     int "switch on pop out log via syslog udp"
+     int "Switch on Pop Out Log via Syslog UDP"
      range 0 1
      default 0
      help
@@ -89,7 +91,7 @@ config ULOG_CONFIG_POP_UDP
 
 if ULOG_CONFIG_POP_UDP=1
 config ULOG_CONFIG_STOP_FILTER_UDP
-    int "level Stop Filter of udp"
+    int "Level Stop Filter of UDP"
     range 0 8
     default 4
     help
@@ -99,13 +101,13 @@ config ULOG_CONFIG_STOP_FILTER_UDP
 endif
 
 config ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
-    int "stack depth of Log Task"
+    int "Stack Depth of Log Task"
     default 1024
     help
         STACK DEPTH of Log Task, will cost 1024 Byte room
 
 config ULOG_CONFIG_EXTREAM_LOG_TEXT
-    int "record extream log text"
+    int "Record Extream Log Text"
     range 0 1
     default 0
     help
@@ -114,7 +116,7 @@ config ULOG_CONFIG_EXTREAM_LOG_TEXT
 
 if ULOG_CONFIG_EXTREAM_LOG_TEXT=1
     config ULOG_CONFIG_EXTREAM_LOG_ELAPSED_MS
-    int "record extream log elapsed ms"
+    int "Record Extream Log Elapsed ms"
     range 0 1
     default 0
     help
@@ -122,7 +124,7 @@ if ULOG_CONFIG_EXTREAM_LOG_TEXT=1
 	This value will be rolling back between 0~999999, it's not the boot time, but used for relativity time gap.
 
     config ULOG_CONFIG_EXTREAM_LOG_TAG
-    int "record extream log tag"
+    int "Record Extream Log Tag"
     range 0 1
     default 1
     help
@@ -130,7 +132,7 @@ if ULOG_CONFIG_EXTREAM_LOG_TEXT=1
 endif
 
 config ULOG_CONFIG_ASYNC_BUF_SIZE
-    int "default size of buffer queue"
+    int "Default Size of Buffer Queue"
     default 6144
     help
         Default size of buffer queue that used to record log under aync mode.
@@ -139,7 +141,7 @@ config ULOG_CONFIG_ASYNC_BUF_SIZE
         So consider balance of this value and system resouce
 
 config ULOG_CONFIG_SYSLOG_SIZE
-    int "max length of every log"
+    int "Max Length of Every Log"
     range 36 256
     default 128
     help
