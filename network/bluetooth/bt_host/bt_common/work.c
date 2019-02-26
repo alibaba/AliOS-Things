@@ -11,16 +11,23 @@ struct k_work_q g_work_queue;
 static void k_work_submit_to_queue(struct k_work_q *work_q, struct k_work *work)
 {
     struct k_work *delayed_work = NULL;
+    struct k_work *prev_delayed_work = NULL;
     uint32_t now = k_uptime_get_32();
 
     if (!atomic_test_and_set_bit(work->flags, K_WORK_STATE_PENDING)) {
         SYS_SLIST_FOR_EACH_NODE(&g_work_queue.queue.data_q, delayed_work) {
-            if ((delayed_work->start_ms + delayed_work->timeout - now) < work->timeout) {
+            if ((work->timeout + work->start_ms) < (delayed_work->start_ms + delayed_work->timeout)) {
                 break;
             }
+            prev_delayed_work = delayed_work;
         }
 
-        sys_slist_insert(&g_work_queue.queue.data_q, delayed_work, work);
+        delayed_work = k_queue_first_entry(&g_work_queue.queue);
+        sys_slist_insert(&g_work_queue.queue.data_q, prev_delayed_work, work);
+
+        if (work->start_ms + work->timeout < delayed_work->start_ms + delayed_work->timeout) {
+            event_callback(K_POLL_TYPE_EARLIER_WORK);
+        }
     }
 }
 
@@ -57,10 +64,10 @@ void k_delayed_work_init(struct k_delayed_work *work, k_work_handler_t handler)
 int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
 {
     int err = 0;
+    int key = irq_lock();
 
     if (atomic_test_bit(work->work.flags, K_WORK_STATE_PENDING)) {
-        err = -EADDRINUSE;
-        goto done;
+        k_delayed_work_cancel(work);
     }
 
     work->work.start_ms = k_uptime_get_32();
@@ -68,13 +75,16 @@ int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
     k_work_submit_to_queue(&g_work_queue.queue, work);
 
 done:
+    irq_unlock(key);
     return err;
 }
 
 int k_delayed_work_cancel(struct k_delayed_work *work)
 {
+    int key = irq_lock();
     atomic_clear_bit(work->work.flags, K_WORK_STATE_PENDING);
     k_work_rm_from_queue(&g_work_queue.queue, (struct k_work *)work);
+    irq_unlock(key);
     return 0;
 }
 

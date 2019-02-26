@@ -83,6 +83,10 @@ static bt_dh_key_cb_t dh_key_cb;
 struct k_poll_signal g_pkt_recv = K_POLL_SIGNAL_INITIALIZER(g_pkt_recv);
 #endif
 
+#if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
+static K_SEM_DEFINE(sem_rx_queue, 0, UINT_MAX);
+#endif
+
 #define SYNC_TX 1
 #define SYNC_TX_DONE 2
 
@@ -271,6 +275,8 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp
         if ((cmd(buf)->sync == SYNC_TX_DONE) ||
             (k_uptime_get_32() - time_start) >= HCI_CMD_TIMEOUT) {
             break;
+        } else {
+            k_sleep(1);
         }
     }
 
@@ -2830,6 +2836,7 @@ int bt_recv(struct net_buf *buf)
             hci_acl(buf);
 #else
             net_buf_put(&bt_dev.rx_queue, buf);
+            k_sem_give(&sem_rx_queue);
 #endif
             return 0;
 #endif /* BT_CONN */
@@ -2838,6 +2845,7 @@ int bt_recv(struct net_buf *buf)
             hci_event(buf);
 #else
             net_buf_put(&bt_dev.rx_queue, buf);
+            k_sem_give(&sem_rx_queue);
 #endif
             return 0;
         default:
@@ -2988,8 +2996,8 @@ static void hci_rx_thread(void)
     while (1) {
         buf = net_buf_get(&bt_dev.rx_queue, K_NO_WAIT);
         if (buf == NULL) {
-            aos_msleep(10);
-            continue;
+            k_sem_take(&sem_rx_queue, K_FOREVER);
+            buf = net_buf_get(&bt_dev.rx_queue, K_NO_WAIT);
         }
 
         BT_DBG("buf %p type %u len %u", buf, bt_buf_get_type(buf), buf->len);
@@ -3036,7 +3044,7 @@ int bt_enable(bt_ready_cb_t cb)
     ready_cb = cb;
 
 #if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
-    /* RX thread */
+    k_sem_init(&sem_rx_queue, 0, UINT_MAX);
     k_thread_create(&rx_thread_data, rx_thread_stack,
                     K_THREAD_STACK_SIZEOF(rx_thread_stack),
                     (k_thread_entry_t)hci_rx_thread, NULL, NULL, NULL,
