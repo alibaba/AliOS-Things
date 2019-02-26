@@ -6,7 +6,10 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
 #include "aos/kernel.h"
+#include "aos/vfs.h"
+
 #include <yunit.h>
 #include <yts.h>
 #include <aos_spiffs.h>
