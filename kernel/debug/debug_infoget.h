@@ -15,9 +15,9 @@ extern "C" {
 ktask_t *debug_task_find(char *name);
 
 /**
- * This function will return true if task is ready.
+ * This function will return true if task is running.
  */
-int debug_task_is_ready(ktask_t *task);
+int debug_task_is_running(ktask_t *task);
 
 /**
  * This function will get the bottom of task stack
