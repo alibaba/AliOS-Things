@@ -116,8 +116,8 @@ int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
         return 0;
     }
 
-    if (debug_task_is_ready(task)) {
-        print_func("Status of task \"%s\" is 'Ready', Can not backtrace!\n",
+    if (debug_task_is_running(task)) {
+        print_func("Status of task \"%s\" is 'Running', Can not backtrace!\n",
                    taskname);
         return 0;
     }

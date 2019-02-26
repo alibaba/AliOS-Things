@@ -103,6 +103,8 @@ int backtraceFromStack(int **pSP, char **pPC,
     unsigned short ins16;
     unsigned int   ins32;
     unsigned int   framesize = 0;
+    unsigned int   shift = 0;
+    unsigned int   sub = 0;
     unsigned int   offset    = 1;
 
     if (SP == debug_task_stack_bottom(NULL)) {
@@ -114,7 +116,7 @@ int backtraceFromStack(int **pSP, char **pPC,
 
     /* func call ways:
        1. "stmdb sp!, ..." or "push ..." to open stack frame and save LR
-       2. "sub  sp, ..." to open stack more
+       2. "sub  sp, ..." or "sub.w  sp, ..." to open stack more
        3. call
        */
 
@@ -157,7 +159,7 @@ int backtraceFromStack(int **pSP, char **pPC,
         return -1;
     }
 
-    /* 2. scan code, find frame size from "sub" */
+    /* 2. scan code, find frame size from "sub" or "sub.w" */
     for (i = 2; i < FUNC_SIZE_LIMIT; i += 2) {
         if (PC - i < CodeAddr) {
             break;
@@ -166,6 +168,19 @@ int backtraceFromStack(int **pSP, char **pPC,
         ins16 = *(unsigned short *)(PC - i);
         if ((ins16 & 0xff80) == 0xb080) {
             framesize += (ins16 & 0x7f);
+            break;
+        }
+
+        /* find "sub.w	sp, sp, ..." */
+        ins32 = *(unsigned short *)(PC - i);
+        ins32 <<= 16;
+        ins32 |= *(unsigned short *)(PC - i + 2);
+        if ((ins32 & 0xFBFF8F00) == 0xF1AD0D00) {
+            sub = 128 + (ins32 & 0x7f);
+            shift  = (ins32 >> 7) & 0x1;
+            shift += ((ins32 >> 12) & 0x7) << 1;
+            shift += ((ins32 >> 26) & 0x1) << 4;
+            framesize += sub<<(30 - shift);
             break;
         }
     }
@@ -310,8 +325,8 @@ int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
         return 0;
     }
 
-    if (debug_task_is_ready(task)) {
-        print_func("Status of task \"%s\" is 'Ready', Can not backtrace!\n",
+    if (debug_task_is_running(task)) {
+        print_func("Status of task \"%s\" is 'Running', Can not backtrace!\n",
                    taskname);
         return 0;
     }
