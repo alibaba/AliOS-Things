@@ -1228,7 +1228,7 @@ void iperf_get_current_time( uint32_t *s, uint32_t *ms )
 
     if ( ms )
     {
-        *ms = aos_now_ms;
+        *ms = aos_now_ms();
     }
 }
 
