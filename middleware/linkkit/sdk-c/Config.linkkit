@@ -1,7 +1,6 @@
 source "$SRCPATH/src/protocol/mqtt/Config.in"
 source "$SRCPATH/src/services/linkkit/Config.in"
 source "$SRCPATH/src/protocol/coap/client/Config.in"
-source "$SRCPATH/src/services/ota/Config.in"
 source "$SRCPATH/src/protocol/http/Config.in"
 source "$SRCPATH/src/sdk-impl/Config.in"
 source "$SRCPATH/src/services/mdal/Config.in"
@@ -17,7 +16,6 @@ config APP_FEATURE_LINKKIT
     select HAL_CRYPTO
     select MQTT_COMM_ENABLED
 #    select MQTT_DIRECT
-    select OTA_ENABLED
 #    select SUPPORT_TLS
     select UTILS_BASE64
     select UTILS_EVENT
@@ -92,7 +90,6 @@ config APP_FEATURE_LINKKIT_GATEWAY
     select HTTP_COMM_ENABLED
     select MQTT_COMM_ENABLED
 #    select MQTT_DIRECT
-    select OTA_ENABLED
     select SUBDEVICE_ENABLED
 #    select SUPPORT_TLS
     select UTILS_BASE64
