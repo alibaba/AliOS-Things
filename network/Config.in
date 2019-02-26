@@ -1,9 +1,4 @@
 menu "Network     Configuration"
-config AOS_COMP_NETWORK
-    bool "Enable Network"
-    default y
-
-if AOS_COMP_NETWORK
 
 source "network/bluetooth/breeze/Config.in"
 source "network/bluetooth/breeze/ref-impl/Config.in"
@@ -14,12 +9,9 @@ source "network/bluetooth/bt_mesh/Config.in"
 source "network/bluetooth/bt_mesh/port/Config.in"
 source "network/bluetooth/tmall_model/Config.in"
 source "network/lorawan/Config.in"
-source "network/lorawan/lorawan_4_4_0/Config.in"
-source "network/lorawan/lorawan_4_4_2/Config.in"
 source "network/lwip/Config.in"
 source "network/netmgr/Config.in"
 source "network/umesh/Config.in"
 source "network/yloop/Config.in"
 
-endif
 endmenu
