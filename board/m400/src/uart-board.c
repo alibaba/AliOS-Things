@@ -387,7 +387,7 @@ static void receive( char rx )
     {
         /* force the end of a command in case of overflow so that we can process it */
         uart_context.buffRx[uart_context.rx_idx_free] = '\r';
-        PRINTF("uart_context.buffRx buffer overflow %d\r\n")
+        PRINTF("uart_context.buffRx buffer overflow\r\n")
         ;
     }
 }
