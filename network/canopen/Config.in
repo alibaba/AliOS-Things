@@ -1,0 +1,22 @@
+menuconfig AOS_COMP_CANOPEN
+    bool "CANopen"
+    default n
+    help
+      Support CANOPEN protocol stack.
+
+      Switch to "y" leads to support CANOPEN protocol stack.
+      Switch to "n" leads to not support CANOPEN protocol stacks.
+
+if AOS_COMP_CANOPEN
+
+config CANFESTIVAL_ENABLED
+    bool "canfestival"
+    default n
+    help
+      support canfestival library.
+
+      Switching to "y" leads to support canfestival library.
+      Switching to "n" leads to not support canfestival library.
+
+# Configurations for comp canopen
+endif
