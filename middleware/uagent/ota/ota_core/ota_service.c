@@ -296,7 +296,11 @@ int ota_upgrade_cb(void* pctx, char *json)
         int is_ota = strncmp(ctx->ota_ver, ctx->sys_ver, strlen(ctx->ota_ver));
         if(is_ota > 0) {
             void *thread = NULL;
-            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 4096);
+#if defined(AOS_COMP_OTA_TLS)
+            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024*6);
+#else
+            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024*4);
+#endif
         } else {
             OTA_LOG_E("ota version is too old, discard it.");
             ctx->upg_status = OTA_INIT_VER_FAIL;
