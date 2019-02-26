@@ -16,10 +16,17 @@
 #include "combo_devinfo.h"
 #else
 // for demo only
+#ifndef AWSS_SUPPORT_DEV_AP
 #define PRODUCT_KEY      "a1X2bEnP82z"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
 #define DEVICE_NAME      "example1"
 #define DEVICE_SECRET    "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
+#else
+#define PRODUCT_KEY      "a1PcArcq23G"
+#define PRODUCT_SECRET   "0sfrKE4XYeO4yLLa"
+#define DEVICE_NAME      "ada_2nd_test02"
+#define DEVICE_SECRET    "35UOZZWzlBNG3bCm78e9eniAyV0txh4R"
+#endif
 #endif
 
 #if USE_CUSTOME_DOMAIN
