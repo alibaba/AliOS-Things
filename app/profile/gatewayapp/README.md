@@ -24,22 +24,9 @@ Depends on device profile:
 ### Build
 
 ```sh
-aos make gatewayapp@stm32f429zi-nucleo dtc=1 GW_LINKEDGE_WS=1 SAL=1 PT_SCANNER=1
+aos make menuconfig
+aos make
 ```
-
-**compile vars:**
-* Network module
-    * default: Ethernet
-    * sal=1: AT WIFI
-    * sal=1 module=gprs.sim800: AT GPRS
-
-* Device model
-    * PT_SCANNER=1: Scanner 
-    * PT_SENSOR=1: MODBUS/CAN sensors
-
-* Cloud link method
-    * dtc=1: directly cloud link
-    * dtc=1 GW_LINKEDGE_WS=1: link via linkedge server
 
 ### Run
 
