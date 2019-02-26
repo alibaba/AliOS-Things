@@ -84,11 +84,11 @@ tls_os_status_t tls_os_task_create(tls_os_task_t *task,
     u8 error;
     tls_os_status_t os_status;
 
-    if (((u32)stk_start >= TASK_STACK_USING_MEM_UPPER_RANGE) 
+    if (((u32)stk_start >= TASK_STACK_USING_MEM_UPPER_RANGE)
 		||(((u32)stk_start + stk_size) >= TASK_STACK_USING_MEM_UPPER_RANGE))
     {
         printf("\nCurrent Stack [0x%8x, 0x%8x) is NOT in VALID STACK range [0x20000000,0x20028000)\n",
-               (unsigned int)stk_start, stk_start + stk_size);
+               (unsigned int)stk_start, (unsigned int)stk_start + stk_size);
         printf("Please refer to APIs' manul and modify task stack position!!!\n");
     	return TLS_OS_ERROR;
     }
