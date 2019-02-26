@@ -1,0 +1,11 @@
+config AOS_BOARD_STM32F091RC_NUCLEO
+    bool "STM32F091RC_Nucleo"
+    select AOS_MCU_STM32F0XX
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_OSAL_AOS
+    help
+
+if AOS_BOARD_STM32F091RC_NUCLEO
+# Configurations for board stm32f091rc-nucleo
+
+endif

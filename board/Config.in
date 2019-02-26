@@ -569,6 +569,16 @@ if AOS_BOARD_STARTERKIT
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
+source "board/stm32f091rc-nucleo/Config.in"
+if AOS_BOARD_STM32F091RC_NUCLEO
+    config AOS_BUILD_BOARD
+        default "stm32f091rc-nucleo"
+
+    source "platform/mcu/stm32f0xx/Config.in"
+    source "platform/arch/arm/armv6m/Config.in"
+endif
+
+
 source "board/stm32f103rb-nucleo/Config.in"
 if AOS_BOARD_STM32F103RB_NUCLEO
     config AOS_BUILD_BOARD
