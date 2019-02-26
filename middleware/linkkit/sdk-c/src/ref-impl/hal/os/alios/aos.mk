@@ -42,3 +42,7 @@ GLOBAL_DEFINES += COAP_DTLS_SUPPORT
 endif
 endif
 endif
+
+ifeq (y,$(strip $(TLS_SAVE_TICKET)))
+$(NAME)_DEFINES += TLS_SAVE_TICKET
+endif
