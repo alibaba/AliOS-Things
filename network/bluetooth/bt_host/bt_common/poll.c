@@ -61,8 +61,8 @@ static int _signal_poll_event(struct k_poll_event *event, u32_t state, int *must
     *must_reschedule = 0;
     if (event->type != K_POLL_TYPE_DATA_AVAILABLE || has_tx_sem(event)) {
         set_event_state(event, state);
+        event_callback(K_POLL_TYPE_FIFO_DATA_AVAILABLE);
     }
-    event_callback(K_POLL_TYPE_FIFO_DATA_AVAILABLE);
 
     return 0;
 }
@@ -211,7 +211,8 @@ void event_callback(uint8_t event_type)
     key = irq_lock();
     SYS_DLIST_FOR_EACH_NODE_SAFE(&event_cb_list, event_next, event_next_save) {
         for (int i = 0; i < event_next->num_events; i++) {
-            if (event_next->events[i].type == event_type) {
+            if (event_next->events[i].type == event_type ||
+                event_type == K_POLL_TYPE_EARLIER_WORK) {
                 k_sem_give(&event_next->sem);
                 break;
             }

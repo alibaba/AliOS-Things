@@ -130,6 +130,7 @@ extern "C"
 #define K_POLL_TYPE_DATA_AVAILABLE 3
 #define K_POLL_TYPE_FIFO_DATA_AVAILABLE K_POLL_TYPE_DATA_AVAILABLE
 #define K_POLL_TYPE_DATA_RECV 5
+#define K_POLL_TYPE_EARLIER_WORK 6
 
 #define K_POLL_EVENT_STATIC_INITIALIZER(event_type, event_mode, event_obj,     \
                                         event_tag)                             \
