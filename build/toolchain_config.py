@@ -121,4 +121,5 @@ boards = {
     'xr871evb':[toolchains['arm-none-eabi']],
     'rk1108':[toolchains['arm-rockchip-linux-gnueabihf']],
     'uno-91h':[toolchains['arm-none-eabi']],
+    'xr809':[toolchains['arm-none-eabi']],
 }
