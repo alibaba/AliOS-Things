@@ -7,6 +7,9 @@
 #include "hal/wifi.h"
 #include "lwip/ip4_addr.h"
 #include "lwip/inet.h"
+#ifndef DELETE_HFILOP_CODE
+#include "ota_hal_plat.h"
+#endif
 
 typedef enum {
     SCAN_NORMAL,
@@ -19,7 +22,7 @@ unsigned int filter_backup = 0;
 void wifi_event_cb(WIFI_EVENT evt, void* info)
 {
     hal_wifi_module_t *m = hal_wifi_get_default_module();
-    
+
     rda59xx_bss_info bss_info;
     switch (evt) {
         case EVENT_STA_GOT_IP: {
@@ -156,8 +159,32 @@ static int wifi_init(hal_wifi_module_t *m)
         return 0;
     inited = 1;
 
+#ifndef DELETE_HFILOP_CODE
+    extern int hfilop_config_init(void);
+    hfilop_config_init();
+#endif
     rda59xx_wifi_init();
     rda59xx_wifi_set_event_cb(wifi_event_cb);
+
+#ifndef DELETE_HFILOP_CODE
+  //  extern struct hal_ota_module_s rda59xx_ota_module;
+ //   hal_ota_register_module(&rda59xx_ota_module);
+	extern ota_hal_module_t ota_hal_module;
+	ota_hal_register_module(&ota_hal_module);
+
+    extern void hfilop_ota_auto_upgrade(char *ssid, char *pwd);
+    hfilop_ota_auto_upgrade(NULL, NULL);
+
+    extern int hfilop_mac_key_is_valid(void);
+    if(!hfilop_mac_key_is_valid())
+    {
+        extern void hfilop_uart_task_start(void *);
+        hfilop_uart_task_start(NULL);
+        while(1)
+            aos_msleep(1000);
+    }
+#endif
+
     return 0;
 };
 
@@ -174,19 +201,26 @@ static void wifi_set_mac_addr(hal_wifi_module_t *m, const uint8_t *mac)
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
     rda59xx_sta_info sta_info;
-    
+
     memset(&sta_info, 0, sizeof(rda59xx_sta_info));
     memcpy(sta_info.ssid, init_para->wifi_ssid, 32+1);
     memcpy(sta_info.pw, init_para->wifi_key, 64+1);
     if(init_para->dhcp_mode){
-        sta_info.dhcp = 1;       
+        sta_info.dhcp = 1;
     }else{
-        sta_info.dhcp = 0;   
+        sta_info.dhcp = 0;
         ip4addr_aton((const char *)(init_para->local_ip_addr), (ip4_addr_t*)&(sta_info.ip));
         ip4addr_aton((const char *)(init_para->net_mask), (ip4_addr_t*)&(sta_info.netmask));
         ip4addr_aton((const char *)(init_para->gateway_ip_addr), (ip4_addr_t*)&(sta_info.gateway));
     }
 
+#ifndef DELETE_HFILOP_CODE
+    if(init_para->reserved[0] == 1){
+        extern r_s32 rda59xx_sta_connect_ex(rda59xx_sta_info *sta_info);
+         rda59xx_sta_connect_ex(&sta_info);
+    }
+    else
+#endif
     rda59xx_sta_connect(&sta_info);
     return 0;
 }
@@ -205,12 +239,15 @@ static int get_ip_stat(hal_wifi_module_t *m,
     rda59xx_bss_info bss_info;
     unsigned int state = 0;
     state = rda59xx_get_module_state();
-    if ((wifi_type == HAL_WIFI_MODE_STATION) && (state & STATE_STA)){
+    if ((wifi_type == STATION) && (state & STATE_STA)){
         rda59xx_sta_get_bss_info(&bss_info);
-        ip4addr_aton(out_net_para->ip, &(bss_info.ipaddr));
-        ip4addr_aton(out_net_para->mask, &(bss_info.mask));
-        ip4addr_aton(out_net_para->gate, &(bss_info.gateway));
-        ip4addr_aton(out_net_para->dns, &(bss_info.dns1));
+        strcpy(out_net_para->ip, ip4addr_ntoa(&bss_info.ipaddr));
+        strcpy(out_net_para->mask, ip4addr_ntoa(&bss_info.mask));
+        strcpy(out_net_para->gate, ip4addr_ntoa(&bss_info.gateway));
+        strcpy(out_net_para->dns, ip4addr_ntoa(&bss_info.dns1));
+        r_u32 broadcastip;
+        broadcastip = (bss_info.mask&bss_info.ipaddr)|(~bss_info.mask);
+        strcpy(out_net_para->broadcastip, ip4addr_ntoa(&broadcastip));
         snprintf(out_net_para->mac, 12, "%02x%02x%02x%02x%02x%02x",
                 bss_info.bssid[0], bss_info.bssid[1], bss_info.bssid[2], bss_info.bssid[3], bss_info.bssid[4], bss_info.bssid[5]);
     }
@@ -223,7 +260,8 @@ static int get_link_stat(hal_wifi_module_t *m,
     rda59xx_bss_info bss_info;
     unsigned int state = 0;
     state = rda59xx_get_module_state();
-    
+
+    out_stat->is_connected = 0;
     if(state & STATE_STA){
         rda59xx_sta_get_bss_info(&bss_info);
         out_stat->is_connected = 1;
@@ -234,6 +272,66 @@ static int get_link_stat(hal_wifi_module_t *m,
     }
     return 0;
 }
+
+#ifndef DELETE_HFILOP_CODE
+typedef int (*wifi_scan_callback_t)(ap_list_adv_t *);
+static int transform_rssi(int rssi_dbm)
+{
+	int ret;
+	ret = (rssi_dbm+95)*2;
+
+	if (ret < 70)
+		ret = ret -(15 - ret/5);
+
+	if(ret < 0)
+		ret = 0;
+	else if(ret >100)
+		ret = 100;
+
+	return ret;
+}
+
+int hfilop_wifi_scan(wifi_scan_callback_t cb)
+{
+	rda59xx_scan_info scan_info;
+	memset(&scan_info, 0, sizeof(rda59xx_scan_info));
+	scan_info.scan_mode = 1;
+	scan_info.scan_time = 3;
+	rda59xx_scan(&scan_info);
+
+	int ap_num = 0, i;
+	if(cb != NULL)
+	{
+		ap_list_adv_t ap_info;
+		rda59xx_scan_result *ap_records;
+		ap_num = rda59xx_get_scan_num();
+		if (ap_num > 50)
+			ap_num = 50;
+
+		ap_records = aos_malloc(ap_num * sizeof(*ap_records));
+		if (!ap_records)
+			return 0;
+
+		rda59xx_get_scan_result(ap_records, ap_num);
+
+		for (i = 0; i < ap_num; i++)
+		{
+			rda59xx_scan_result *r = ap_records + i;
+			memset(&ap_info, 0, sizeof(ap_info));
+			memcpy(ap_info.bssid, r->BSSID, sizeof(ap_info.bssid));
+			memcpy(ap_info.ssid, r->SSID, r->SSID_len);
+			ap_info.ap_power = transform_rssi(r->RSSI);
+			ap_info.channel = r->channel;
+			ap_info.security = r->secure_type;
+
+			cb(&ap_info);
+		}
+		if (ap_records)
+			aos_free(ap_records);
+	}
+	return ap_num;
+}
+#endif
 
 static void wifi_scan(hal_wifi_module_t *m)
 {
@@ -294,7 +392,7 @@ static int get_channel(hal_wifi_module_t *m)
 {
     rda59xx_bss_info bss_info;
     unsigned int state = 0;
-    
+
     if(state & STATE_STA){
         rda59xx_sta_get_bss_info(&bss_info);
         return bss_info.channel;
@@ -332,13 +430,13 @@ static int start_ap(hal_wifi_module_t *m, const char *ssid, const char *passwd, 
     aws_ap_info.hidden = hide;
     aws_ap_info.beacon = interval;
 
-    aws_ap_info.dhcps=inet_addr("10.10.100.1");
-    aws_ap_info.dhcpe=inet_addr("10.10.100.255");
-    aws_ap_info.ip=inet_addr("10.10.100.1");
-    aws_ap_info.gateway=inet_addr("10.10.100.1");
-    aws_ap_info.netmask=inet_addr("255.255.255.0");
+	aws_ap_info.dhcps=inet_addr("10.10.100.1");
+	aws_ap_info.dhcpe=inet_addr("10.10.100.255");
+	aws_ap_info.ip=inet_addr("10.10.100.1");
+	aws_ap_info.gateway=inet_addr("10.10.100.1");
+	aws_ap_info.netmask=inet_addr("255.255.255.0");
 
-    return rda59xx_ap_enable(&aws_ap_info);
+	return rda59xx_ap_enable(&aws_ap_info);
 }
 
 static int stop_ap(hal_wifi_module_t *m)
