@@ -140,7 +140,7 @@ menu "Modbus Sensor Selection"
                 This depend on modbus.
 
         config AOS_SENSOR_HUMI_HONEYWELL_HAQEAW
-            bool "HAQEAW
+            bool "HAQEAW"
             default n
             help
                 Press <Y> here to add support for the HAQEAW humidity sensor.
