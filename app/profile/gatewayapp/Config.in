@@ -6,34 +6,27 @@ config AOS_APP_GATEWAYAPP
     select AOS_COMP_UDATA
     select AOS_COMP_MBMASTER
     select AOS_COMP_LINKKIT_SDK_C
-    select APP_FEATURE_LINKKIT_NOAWSS if APP_GATEWAYAPP_CONFIG_DTC
-    select AOS_COMP_LWIP if LWIP = 1 && APP_GATEWAYAPP_CONFIG_DTC
-    select AOS_COMP_CLI if AOS_BOARD_ESP8266 && APP_GATEWAYAPP_CONFIG_DTC
-#    select AOS_UNKNOWN_WEBSOCKETS if APP_GATEWAYAPP_CONFIG_GW_LINKED && APP_GATEWAYAPP_CONFIG_DT 
+    select AOS_COMP_LIBIOT_MQTT
+    select DEVICE_MODEL_ENABLED
+    select AOS_COMP_LWIP if GATEWAYAPP_CONFIG_DTC
+    select AOS_COMP_CLI if AOS_BOARD_ESP8266 && GATEWAYAPP_CONFIG_DTC
     help
       gateway profile
 
 if AOS_APP_GATEWAYAPP
 # Configurations for app gatewayapp
 
-config LWIP
-    int "LWIP"
-    range 0 1
-    default 0
-
-config APP_GATEWAYAPP_CONFIG_PT_SCANNER
-    int "Device model: scanner"
-    range 0 1
-    default 1
+config GATEWAYAPP_CONFIG_PT_SCANNER
+    bool "Device model: scanner"
+    default y
     help
 
-config APP_GATEWAYAPP_CONFIG_PT_SENSOR
-    int "Device model: MODBUS/CAN sensors"
-    range 0 1
-    default 0
+config GATEWAYAPP_CONFIG_PT_SENSOR
+    bool "Device model: MODBUS/CAN sensors"
+    default n
     help
 
-config AOS_CONFIG_DTC_ENABLE
+config GATEWAYAPP_CONFIG_DTC_ENABLE
     bool "data to cloud"
     default n
     help
