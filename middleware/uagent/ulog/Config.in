@@ -47,14 +47,13 @@ config ULOG_CONFIG_STOP_FILTER_DEFAULT
         will be abondoned LOG_EMERG will make none log pop out.
 
 config ULOG_CONFIG_POP_FS
-     int "Switch on Pop Out Log Into File System"
-     range 0 1
-     default 0
+     bool "Switch on Pop Out Log Into File System"
+     default n
      help
         switch on/off the function that pop out log file into file system
         comp vfs and spiffs is necessary if switch on this function
 
-if ULOG_CONFIG_POP_FS=1
+if ULOG_CONFIG_POP_FS
 config ULOG_CONFIG_STOP_FILTERFS
     int "Level Stop Filter of FS"
     range 0 8
@@ -81,15 +80,14 @@ config ULOG_CONFIG_LOCAL_FILE_SIZE
 endif
 
 config ULOG_CONFIG_POP_UDP
-     int "Switch on Pop Out Log via Syslog UDP"
-     range 0 1
-     default 0
+     bool "Switch on Pop Out Log via Syslog UDP"
+     default n
      help
         switch on/off the function that pop out log file via syslog udp
         do not switch on if there is no tcp/ip stack in, or sal module included
         currently only support in soc.
 
-if ULOG_CONFIG_POP_UDP=1
+if ULOG_CONFIG_POP_UDP
 config ULOG_CONFIG_STOP_FILTER_UDP
     int "Level Stop Filter of UDP"
     range 0 8
@@ -107,26 +105,23 @@ config ULOG_CONFIG_LOG_ROUTINE_TASK_STACK_DEPTH
         STACK DEPTH of Log Task, will cost 1024 Byte room
 
 config ULOG_CONFIG_EXTREAM_LOG_TEXT
-    int "Record Extream Log Text"
-    range 0 1
-    default 0
+    bool "Record Extream Log Text"
+    default n
     help
         If this value is SET then extream log text will be recored, then the log text not support syslog format.
         only pure message will be loged, syslog format cost about 45 bytes for each log.
 
-if ULOG_CONFIG_EXTREAM_LOG_TEXT=1
+if ULOG_CONFIG_EXTREAM_LOG_TEXT
     config ULOG_CONFIG_EXTREAM_LOG_ELAPSED_MS
-    int "Record Extream Log Elapsed ms"
-    range 0 1
-    default 0
+    bool "Record Extream Log Elapsed ms"
+    default n
     help
         If this value is SET then elapsed time will be recored under extream log, unit is ms.
 	This value will be rolling back between 0~999999, it's not the boot time, but used for relativity time gap.
 
     config ULOG_CONFIG_EXTREAM_LOG_TAG
-    int "Record Extream Log Tag"
-    range 0 1
-    default 1
+    bool "Record Extream Log Tag"
+    default y
     help
         If this value is SET then tag will be recored under extream log.
 endif
