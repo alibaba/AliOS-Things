@@ -81,7 +81,7 @@ mb_status_t mb_serial_frame_recv(mb_handler_t *handler)
     int32_t ret;
 
     uart_dev_t *uart = (mb_handler_t *)handler->private;
-    mb_log(MB_LOG_DEBUG, "waiting %d ms for rev frame\n", handler->respond_timeout);
+    mb_log(MB_LOG_DEBUG, "waiting %ld ms for rev frame\n", handler->respond_timeout);
     ret = hal_uart_recv_II(uart, handler->mb_frame_buff, ADU_BUF_MAX_LENGTH, &handler->mb_frame_length, handler->respond_timeout);
     if (ret == 0) {
         return MB_SUCCESS;
