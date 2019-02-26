@@ -256,6 +256,16 @@ void alcs_auth_deinit(void)
 {
 	alcs_resource_cb_deinit();
     alcs_auth_list_deinit();
+#ifndef SUPPORT_MULTI_DEVICES
+    struct list_head* head = get_svr_session_list(NULL);
+    if (head) {
+        session_item *node = NULL, *next = NULL;
+        list_for_each_entry_safe(node, next, head, lst, session_item) {
+            list_del(&node->lst);
+            coap_free(node);
+        }
+    }
+#endif
 }
 
 bool is_networkadd_same (NetworkAddr* addr1, NetworkAddr* addr2)
