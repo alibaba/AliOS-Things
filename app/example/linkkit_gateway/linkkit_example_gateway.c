@@ -19,7 +19,7 @@
     #include "simulate_subdev/testcmd.h"
 #endif
 
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+#if defined(ENABLE_AOS_OTA) 
 #include "ota/ota_service.h"
 #endif
 
@@ -330,7 +330,7 @@ static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
         return FAIL_RETURN;
     }
     EXAMPLE_TRACE("subdev open susseed, devid = %d\n", devid);
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+#if defined(ENABLE_AOS_OTA) 
     static ota_service_t ctx = {0};
     memset(&ctx, 0, sizeof(ota_service_t));
     strncpy(ctx.pk, meta_info->product_key, sizeof(ctx.pk)-1);
