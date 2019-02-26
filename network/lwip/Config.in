@@ -1,5 +1,5 @@
 menuconfig AOS_COMP_LWIP
-    bool "A Lightweight TCP/IP Stack(LwIP)"
+    bool "Lightweight TCP/IP Stack(LwIP)"
     default n
     help
       Support LWIP protocol stack.
@@ -44,7 +44,7 @@ endif
         bool "IPERF Support"
         default n
         help
-          Support LWIPERF module
+          Support IPERF module.
 
           Switching to "y" leads to support LWIPERF module
           Switching to "n" leads to not support LWIPERF module
