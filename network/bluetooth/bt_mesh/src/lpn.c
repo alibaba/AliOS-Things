@@ -44,19 +44,21 @@
 #define FRIEND_REQ_RETRY_TIMEOUT  K_SECONDS(CONFIG_BT_MESH_LPN_RETRY_TIMEOUT)
 
 #define FRIEND_REQ_WAIT           K_MSEC(100)
-#define FRIEND_REQ_SCAN           K_SECONDS(1)
+#define FRIEND_REQ_SCAN           K_SECONDS(3)
 #define FRIEND_REQ_TIMEOUT        (FRIEND_REQ_WAIT + FRIEND_REQ_SCAN)
 
-#define POLL_RETRY_TIMEOUT        K_MSEC(100)
+#define POLL_RETRY_TIMEOUT        K_MSEC(200)
 
-#define REQ_RETRY_DURATION(lpn)  (4 * (LPN_RECV_DELAY + (lpn)->adv_duration + \
+#define REQ_RETRY_TIMES_MAX  16
+
+#define REQ_RETRY_DURATION(lpn)  (REQ_RETRY_TIMES_MAX * (LPN_RECV_DELAY + (lpn)->adv_duration + \
 				       (lpn)->recv_win + POLL_RETRY_TIMEOUT))
 
 #define POLL_TIMEOUT_INIT     (CONFIG_BT_MESH_LPN_INIT_POLL_TIMEOUT * 100)
 #define POLL_TIMEOUT_MAX(lpn) ((CONFIG_BT_MESH_LPN_POLL_TIMEOUT * 100) - \
 			       REQ_RETRY_DURATION(lpn))
 
-#define REQ_ATTEMPTS(lpn)     (POLL_TIMEOUT_MAX(lpn) < K_SECONDS(3) ? 2 : 4)
+#define REQ_ATTEMPTS(lpn)     (POLL_TIMEOUT_MAX(lpn) < K_SECONDS(3) ? 2 : REQ_RETRY_TIMES_MAX)
 
 #define CLEAR_ATTEMPTS        2
 
