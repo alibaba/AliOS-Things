@@ -357,7 +357,7 @@ r_s32 rda5981_flash_write_mac_addr(r_u8 *mac_addr)
 }
 #endif
 
-#define HAL_PARTITION_SYS_DATA HAL_PARTITION_MAX
+#define HAL_PARTITION_SYS_DATA      HAL_PARTITION_CUSTOM_1
 
 r_s32 rda5981_init_sys_data()
 {

@@ -19,8 +19,26 @@ int32_t hal_pwm_init(pwm_dev_t *pwm){
 	if(pwm->port >= PWM_NUM){
 		return -1;
 	}
+
+#ifndef DELETE_HFILOP_CODE
+	if(pwm->config.freq > 1000000 || pwm->config.freq < 200)
+		return -1;
+	if(pwm->config.duty_cycle > 1 || pwm->config.duty_cycle < 0)
+		return -1;
+#endif
+
 	pwm->priv = &PWM_OBJ[pwm->port];
 	pwmout_init(pwm->priv, PWM_MAP[pwm->port]);
+
+#ifndef DELETE_HFILOP_CODE
+	static int init_clk = 0;
+	if(!init_clk)
+	{
+		pwmout_clk_set(pwm->priv, 1, 0);
+		init_clk = 1;
+	}
+#endif
+
 	return 0;
 }
 
@@ -58,7 +76,13 @@ int32_t hal_pwm_sync_write(pwm_dev_t *pwm, float percent, uint8_t duty_sel){
 }
 
 int32_t hal_pwm_start(pwm_dev_t *pwm){
+#ifndef DELETE_HFILOP_CODE
+	int us = 1000000/pwm->config.freq;
+	pwmout_period_us(pwm->priv, us);
+	pwmout_write(pwm->priv, pwm->config.duty_cycle);
+#else
 	pwmout_start(pwm->priv);
+#endif
 	return 0;
 }
 
