@@ -6,6 +6,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+ */
+
 #ifdef CONFIG_BT_MESH_LOW_POWER
 
 #include <stdint.h>
@@ -44,15 +48,16 @@
 #define FRIEND_REQ_RETRY_TIMEOUT  K_SECONDS(CONFIG_BT_MESH_LPN_RETRY_TIMEOUT)
 
 #define FRIEND_REQ_WAIT           K_MSEC(100)
-#define FRIEND_REQ_SCAN           K_SECONDS(3)
+#define FRIEND_REQ_SCAN           K_SECONDS(1)
 #define FRIEND_REQ_TIMEOUT        (FRIEND_REQ_WAIT + FRIEND_REQ_SCAN)
 
-#define POLL_RETRY_TIMEOUT        K_MSEC(200)
+#define REQ_RETRY_TIMES_MAX  12  // should not < 8
 
-#define REQ_RETRY_TIMES_MAX  16
+#define POLL_RETRY_TIMEOUT        K_MSEC(100)
+#define POLL_RETRY_TIMEOUT_MAX    K_MSEC(800)
 
 #define REQ_RETRY_DURATION(lpn)  (REQ_RETRY_TIMES_MAX * (LPN_RECV_DELAY + (lpn)->adv_duration + \
-				       (lpn)->recv_win + POLL_RETRY_TIMEOUT))
+				  (lpn)->recv_win) + 36 * POLL_RETRY_TIMEOUT +  (REQ_RETRY_TIMES_MAX - 8) * POLL_RETRY_TIMEOUT_MAX)
 
 #define POLL_TIMEOUT_INIT     (CONFIG_BT_MESH_LPN_INIT_POLL_TIMEOUT * 100)
 #define POLL_TIMEOUT_MAX(lpn) ((CONFIG_BT_MESH_LPN_POLL_TIMEOUT * 100) - \
@@ -60,7 +65,7 @@
 
 #define REQ_ATTEMPTS(lpn)     (POLL_TIMEOUT_MAX(lpn) < K_SECONDS(3) ? 2 : REQ_RETRY_TIMES_MAX)
 
-#define CLEAR_ATTEMPTS        2
+#define CLEAR_ATTEMPTS        16
 
 #define LPN_CRITERIA ((CONFIG_BT_MESH_LPN_MIN_QUEUE_SIZE) | \
 		      (CONFIG_BT_MESH_LPN_RSSI_FACTOR << 3) | \
@@ -69,8 +74,8 @@
 #define POLL_TO(to) { (u8_t)((to) >> 16), (u8_t)((to) >> 8), (u8_t)(to) }
 #define LPN_POLL_TO POLL_TO(CONFIG_BT_MESH_LPN_POLL_TIMEOUT)
 
-/* 2 transmissions, 20ms interval */
-#define POLL_XMIT BT_MESH_TRANSMIT(1, 20)
+/* 3 transmissions, 20ms interval */
+#define POLL_XMIT BT_MESH_TRANSMIT(2, 20)
 
 static void (*lpn_cb)(u16_t friend_addr, bool established);
 
@@ -720,16 +725,22 @@ static bool sub_update(u8_t op)
 static void update_timeout(struct bt_mesh_lpn *lpn)
 {
 	if (lpn->established) {
+                int delay_timeout;
+
 		BT_WARN("No response from Friend during ReceiveWindow");
 		bt_mesh_scan_disable();
 		lpn_set_state(BT_MESH_LPN_ESTABLISHED);
-		k_delayed_work_submit(&lpn->timer, POLL_RETRY_TIMEOUT);
+                delay_timeout = (lpn->req_attempts + 1) * POLL_RETRY_TIMEOUT;
+                if (delay_timeout > POLL_RETRY_TIMEOUT_MAX) {
+                    delay_timeout = POLL_RETRY_TIMEOUT_MAX;
+                }
+		k_delayed_work_submit(&lpn->timer, delay_timeout);
 	} else {
 		if (IS_ENABLED(CONFIG_BT_MESH_LPN_ESTABLISHMENT)) {
 			bt_mesh_scan_disable();
 		}
 
-		if (lpn->req_attempts < 6) {
+		if (lpn->req_attempts < REQ_RETRY_TIMES_MAX * 2) {
 			BT_WARN("Retrying first Friend Poll");
 			lpn->sent_req = 0;
 			if (send_friend_poll() == 0) {
