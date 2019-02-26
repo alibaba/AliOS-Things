@@ -43,6 +43,15 @@ static inline bool bt_mesh_lpn_waiting_update(void)
 #endif
 }
 
+static inline bool bt_mesh_lpn_clear_ongoing(void)
+{
+#if defined(CONFIG_BT_MESH_LOW_POWER)
+	return (bt_mesh.lpn.state == BT_MESH_LPN_CLEAR);
+#else
+	return false;
+#endif
+}
+
 static inline bool bt_mesh_lpn_timer(void)
 {
 #if defined(CONFIG_BT_MESH_LPN_AUTO)
