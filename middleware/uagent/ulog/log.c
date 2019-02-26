@@ -12,7 +12,7 @@
 
 static char serverity_name[LOG_NONE] = { 'V', 'A', 'F', 'E', 'W', 'T', 'I', 'D' };
 
-const char UNKNOWN_BUF[8] = "";
+const char UNKNOWN_BUF[2] = "";
 
 /* stop filter used in sync log, dedault value LOG_NONE, shall not larger than LOG_NONE */
 static uint8_t stop_filter_level = LOG_NONE;
@@ -84,12 +84,12 @@ int rt_log(const unsigned char s, const char* mod, const char* f, const unsigned
             const char* rpt_mod = NULL;
             char before_mod[2];
             if ((mod == NULL) || (0 == strlen(mod))) {
-                rpt_mod = UNKNOWN_BUF;
                 before_mod[0] = 0;
+                rpt_mod = UNKNOWN_BUF;
             } else {
-                rpt_mod = mod;
                 before_mod[0] =' ';
                 before_mod[1] = 0;
+                rpt_mod = mod;
             }
 #if SYNC_DETAIL_COLOR
             printf("%s [%4d.%03d]<%c>%s%s [%s#%d] : ",
