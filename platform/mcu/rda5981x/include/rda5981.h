@@ -510,7 +510,7 @@ typedef struct
 #define RDA_FLASH_BASE        (0x14000000UL)
 #define RDA_ICACHE_BASE       (0x18000000UL)
 #if (0 == RDA_PARTITION_INDEX)
-#define RDA_PADDR_OFST        (0x00001000UL)//(0x00004000UL)
+#define RDA_PADDR_OFST        (0x00004000UL)
 #elif (1 == RDA_PARTITION_INDEX)
 #define RDA_PADDR_OFST        (0x0007E000UL)
 #else

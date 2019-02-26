@@ -1,22 +1,22 @@
-/* Linker script for Alios-Things RDA5981 */
+/* Linker script for Alios-Things RDA5981A*/
 
 /* Linker script to configure memory regions. */
 MEMORY
 {
     /* If ICache is enable, use virtual flash base address */
     /* Use partition index: 0 */
-    FLASH (rx)      : ORIGIN = 0x18001000, LENGTH = 2000K
+    FLASH (rx)      : ORIGIN = 0x18004000, LENGTH = 900K
     /* Use partition index: 1 */
-    /* FLASH (rx)      : ORIGIN = 0x181F5000, LENGTH = 2000K */
+    /* FLASH (rx)      : ORIGIN = 0x1807E000, LENGTH = 500K */
 
     /* If ICache is disable, use real flash base address. Depends on macro: RDA_ICACHE_DISABLE */
     /* Use partition index: 0 */
-    /* FLASH (rx)      : ORIGIN = 0x14001000, LENGTH = 2000K */
+    /* FLASH (rx)      : ORIGIN = 0x14001000, LENGTH = 500K */
     /* Use partition index: 1 */
-    /* FLASH (rx)      : ORIGIN = 0x141F5000, LENGTH = 2000K */
+    /* FLASH (rx)      : ORIGIN = 0x1407E000, LENGTH = 500K */
 
     IRAM (rwx)            : ORIGIN = 0x00100080, LENGTH = (128K - 0x80)
-    DRAM (rwx)            : ORIGIN = 0x00180000, LENGTH = 160K
+    DRAM (rwx)            : ORIGIN = 0x00180000, LENGTH = 96K
     MACLIB_RAM(rwx)       : ORIGIN = 0x40100000, LENGTH = 99K
     AES_RAM(rwx)          : ORIGIN = 0x40118C00, LENGTH = 1K
     WLAN_RAM(rwx)         : ORIGIN = 0x40119000, LENGTH = 28K
@@ -137,6 +137,9 @@ SECTIONS
         __bss_end__ = .;
     } > IRAM
 
+    . = ALIGN(16);
+    __IramLeft = .;
+
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
      * values to stack symbols later */
@@ -154,7 +157,8 @@ SECTIONS
     /* Check if data + stack exceeds RAM limit */
     ASSERT(__StackLimit >= __bss_end__, "region IRAM overflowed with stack")
 
-
+    __IramLeftLen = __StackLimit - __IramLeft;
+	
     .heap :
     {
         __end__ = .;
@@ -178,7 +182,9 @@ SECTIONS
     {
         *(SECTIONRESERVED1)
     } > MACLIB_RAM
-
+	
+	__SmemLeft = ORIGIN(AES_RAM);
+	
     .AHB1SMEM0 (NOLOAD):
     {
         *(AHB1SMEM0)
@@ -188,4 +194,6 @@ SECTIONS
     {
         *(AHB1SMEM1)
     } > WLAN_RAM
+	
+	__SmemLeftLen = ORIGIN(WLAN_RAM) + LENGTH(WLAN_RAM) - __SmemLeft;
 }

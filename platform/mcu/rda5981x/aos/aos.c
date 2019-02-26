@@ -21,6 +21,7 @@ void hal_init()
     board_init();
 }
 
+extern void board_init_later() __attribute__((weak));
 static void sys_init(void)
 {
     LOG("sys_init.");
@@ -47,6 +48,11 @@ static void sys_init(void)
 #ifdef AOS_FOTA
     ota_service_init();
 #endif
+
+#ifndef DELETE_HFILOP_CODE
+    board_init_later();
+#endif
+
     application_start(0, NULL);
 #endif
 }

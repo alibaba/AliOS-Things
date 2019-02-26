@@ -220,6 +220,7 @@ int flash_write(unsigned int addr, char *buf, unsigned int len)
 int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
                         const void *in_buf, uint32_t in_buf_len)
 {
+    int32_t ret = 0;
     hal_logic_partition_t *partition_info;
 
     uint32_t page_size = get_page_size();
@@ -261,7 +262,9 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
         ((uint32_t)*off_set + in_buf_len > flash_get_size(&flash_obj))){
         return -1;
     }
-    return flash_write(start_address, (const uint8_t *)in_buf, in_buf_len);
+    ret = flash_write(start_address, (const uint8_t *)in_buf, in_buf_len);
+    *off_set += in_buf_len;
+    return ret;
 #endif
 }
 
