@@ -6,7 +6,7 @@ $(NAME)_SUMMARY := linkkit gateway examples
 
 $(NAME)_SOURCES := app_entry.c 
 
-$(NAME)_COMPONENTS := netmgr ota cjson
+$(NAME)_COMPONENTS := netmgr cjson
 $(NAME)_COMPONENTS += linkkit_sdk_c
 
 GLOBAL_CFLAGS += -DMQTT_DIRECT
@@ -14,6 +14,10 @@ GLOBAL_CFLAGS += -DMQTT_DIRECT
 # LINKKIT_GATEWAY_CONFIG_DEPRECATED ?= n
 
 # LINKKIT_GATEWAY_CONFIG_PRINT_HEAP ?= n
+ifeq ($(AOS_COMP_OTA),y)
+$(NAME)_COMPONENTS += ota
+GLOBAL_DEFINES += ENABLE_AOS_OTA
+endif
 
 ifeq ($(LINKKIT_GATEWAY_CONFIG_DEPRECATED),y)
 $(NAME)_SOURCES += deprecated/gateway.c

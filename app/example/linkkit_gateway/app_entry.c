@@ -26,7 +26,7 @@
 #include "simulate_subdev/testcmd.h"
 #endif
 
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+#if defined(ENABLE_AOS_OTA) 
 #include "ota/ota_service.h"
 #endif
 
@@ -320,7 +320,7 @@ static void duration_work(void *p)
 static int mqtt_connected_event_handler(void)
 {
     LOG("MQTT Construct  OTA start");
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
+#if defined(ENABLE_AOS_OTA) 
     char product_key[PRODUCT_KEY_LEN + 1] = {0};
     char device_name[DEVICE_NAME_LEN + 1] = {0};
     char device_secret[DEVICE_SECRET_LEN + 1] = {0};
