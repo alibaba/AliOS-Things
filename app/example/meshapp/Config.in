@@ -3,9 +3,9 @@ config AOS_APP_MESHAPP
     select AOS_COMP_UMESH
     select AOS_COMP_NETMGR
     select AOS_COMP_CLI
-    select AOS_COMP_ALICRYPTO if MESHAUTH = 1
-    select AOS_COMP_ID2 if MESHAUTH = 1
-    select AOS_COMP_LWIP if LWIP != 0
+    select AOS_COMP_ALICRYPTO if MESHAPP_CONFIG_MESHAUTH
+    select AOS_COMP_ID2 if MESHAPP_CONFIG_MESHAUTH
+    select AOS_COMP_LWIP if MESHAPP_CONFIG_USE_LWIP
     select AOS_COMP_DDA if AOS_BOARD_LINUXHOST || AOS_BOARD_ARMHFLINUX
     help
         uMesh sample application
@@ -13,27 +13,23 @@ config AOS_APP_MESHAPP
 if AOS_APP_MESHAPP
 # Configurations for app meshapp
 
-config MESHAUTH
-    int "Mesh Auth"
-    range 0 1
-    default 0
+config MESHAPP_CONFIG_MESHAUTH
+    bool "Mesh Auth"
+    default n
     help
 
-config IPV6
-    int "Use IPV6"
-    range 0 1
-    default 0
+config MESHAPP_CONFIG_IPV6
+    bool "Use IPV6"
+    default n
     help
 
 config MESHAPP_CONFIG_HAL_TEST
-    int "Mesh Hal Test"
-    range 0 1
-    default 0
+    bool "Mesh Hal Test"
+    default n
     help
 
-config LWIP
-    int "LWIP"
-    range 0 1
-    default 1 
+config MESHAPP_CONFIG_USE_LWIP
+    bool "Use lwip"
+    default y
 
 endif

@@ -1,7 +1,7 @@
 config AOS_APP_BREEZEAPP
     bool "Breeze Application Sample"
     select AOS_COMP_BREEZE
-    select AOS_COMP_OTA_BLE if CONFIG_COMP_BZ_OTA = y
+    select AOS_COMP_OTA_BLE if CONFIG_COMP_BZ_OTA
     select AOS_COMP_CLI
     help
         Breeze application demo, prioviding secure BLE link to Alibaba IoT cloud and service.
@@ -11,7 +11,7 @@ if AOS_APP_BREEZEAPP
 
 config CONFIG_COMP_BZ_OTA
     bool "Enable OTA With Breeze Link."
-    default n
+    default y
     help
 
 endif
