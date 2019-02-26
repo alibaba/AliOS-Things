@@ -417,7 +417,7 @@ static void tcpip_dhcpc_cb(struct netif *pstnetif)
             ip4_addr_set(&eth_ip_info.ip, ip_2_ip4(&pstnetif->ip_addr));
             ip4_addr_set(&eth_ip_info.netmask, ip_2_ip4(&pstnetif->netmask));
             ip4_addr_set(&eth_ip_info.gw, ip_2_ip4(&pstnetif->gw));
-            printf("post got ip event ,ip is 0x%x \r\n", eth_ip_info.ip.addr);
+            printf("post got ip event ,ip is 0x%x \r\n", (unsigned int)eth_ip_info.ip.addr);
             aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0xdeaddead);
         }
     }
