@@ -9,13 +9,19 @@ $(NAME)_COMPONENTS += linkkit_sdk_c
 
 $(NAME)_COMPONENTS += netmgr cjson
 
-$(NAME)_COMPONENTS += ota
+
 
 # LINKKITAPP_CONFIG_DEPRECATED ?= n
 # LINKKITAPP_CONFIG_PRINT_HEAP ?= n
 # LINKKITAPP_CONFIG_COMBOAPP ?= n
 
-# case solo
+
+ifeq ($(AOS_COMP_OTA),y)
+$(NAME)_COMPONENTS += ota
+GLOBAL_DEFINES += ENABLE_AOS_OTA
+endif
+
+
 ifeq ($(LINKKITAPP_CONFIG_CASE_SOLO),y)
 ifeq ($(LINKKITAPP_CONFIG_DEPRECATED),y)
 $(NAME)_SOURCES += deprecated/solo.c
