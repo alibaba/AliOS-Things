@@ -4,7 +4,7 @@ config AOS_APP_OTAAPP
     select AOS_COMP_CLI
     select AOS_COMP_OTA
     select AOS_COMP_CJSON
-    select AOS_COMP_LWIP if LWIP = 1
+    select AOS_COMP_LWIP if OTAAPP_CONFIG_USE_LWIP
     select AOS_COMP_LINKKIT_SDK_C
     select APP_FEATURE_LINKKIT_MQTT
     help
@@ -13,15 +13,14 @@ config AOS_APP_OTAAPP
 if AOS_APP_OTAAPP
 # Configurations for app otaapp
 
-config LWIP
-    int "LWIP"
-    range 0 1
-    default 0
+config OTAAPP_CONFIG_USE_LWIP
+    bool "Use lwip"
+    default n
+    help
 
 config OTAAPP_CONFIG_TEST_LOOP
-    int "Test Loop"
-    range 0 1
-    default 0
+    bool "Test Loop"
+    default n
     help
 
 endif
