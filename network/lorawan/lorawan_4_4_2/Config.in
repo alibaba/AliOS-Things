@@ -1,7 +1,5 @@
 config AOS_COMP_LORAWAN_4_4_2
-    bool "Enable LoRaWAN Version 4.4.2"
-    depends on AOS_COMP_LORAWAN_STACK
-    default n
+    bool "4.4.2"
     select AOS_COMP_OSAL_AOS
     help
 
