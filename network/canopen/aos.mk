@@ -1,6 +1,6 @@
 NAME := canopen
 
-ifeq ($(CANOPEN),canfestival)
+ifeq ($(CANFESTIVAL_ENABLED),y)
 $(NAME)_MBINS_TYPE  := kernel
 $(NAME)_VERSION     := 1.0.0
 $(NAME)_SUMMARY     := canfestival canopen stack
