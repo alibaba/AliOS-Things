@@ -160,7 +160,7 @@ mx_status emh_ali_stop_provision(void)
 
 mx_status emh_alisds_set_cloud_atts(emh_arg_alisds_format_t format, uint8_t *data, int32_t len)
 {
-	if (ATCmdParser_send("AT+ALINKSEND=%d", len)
+	if (ATCmdParser_send("AT+ALINKSEND=%d", (int)len)
 	 && ATCmdParser_recv(">")
 	 && ATCmdParser_write((char *)data, len) == len
 	 && ATCmdParser_recv("OK\r\n")) {
