@@ -13,8 +13,6 @@
 #define CONFIG_BT_HCI_TX_STACK_SIZE 290
 #endif
 
-#define CONFIG_BT_RECV_IS_RX_THREAD
-
 #if defined(__cplusplus)
 }
 #endif
