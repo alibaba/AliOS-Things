@@ -14,7 +14,7 @@
 #endif
 
 #ifndef CONFIG_BT_HCI_RX_STACK_SIZE
-#define CONFIG_BT_HCI_RX_STACK_SIZE 768
+#define CONFIG_BT_HCI_RX_STACK_SIZE 1024
 #endif
 
 #if defined(__cplusplus)
