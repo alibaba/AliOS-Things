@@ -201,6 +201,12 @@ def main():
 
     print 'Making iar project '+buildstring
     gen_project(projectPath, Projects, buildstring)
+
+    # copy out/config/autoconf.h to project dir
+    autoconf_h = "out/config/autoconf.h"
+    if os.path.isfile(autoconf_h):
+        shutil.copyfile(autoconf_h, os.path.join(os.path.dirname(projectPath), "autoconf.h"))
+
     print 'iar project: '+ projectPath + ' has generated over'
 
 if __name__ == "__main__":
