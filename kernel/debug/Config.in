@@ -9,20 +9,18 @@ if AOS_COMP_DEBUG
 # Configurations for component debug
 
 config DEBUG_CONFIG_PANIC
-    int
-        range 0 1
-        default 0
+    bool
+        default n
         help
-            set to 1 if you want to enable panic feature when system crash happened,
-            default 0
+            set to y if you want to enable panic feature when system crash happened,
+            default n
 
 config DEBUG_CONFIG_BACKTRACE
-    int
-        range 0 1
-        default 0
+    bool
+        default n
         help
-            set to 1 if you want to enable stack backtrace when system crash happened,
-            default 0
+            set to y if you want to enable stack backtrace when system crash happened,
+            default n
 
 config DEBUG_CONFIG_CPU_USAGE_PERIOD
     int "The interval(ms) for CPU usage"
