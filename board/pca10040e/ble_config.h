@@ -10,7 +10,7 @@
  */
 
 #ifndef CONFIG_BT_HCI_TX_STACK_SIZE
-#define CONFIG_BT_HCI_TX_STACK_SIZE 290
+#define CONFIG_BT_HCI_TX_STACK_SIZE 256
 #endif
 
 #ifndef CONFIG_BT_L2CAP_TX_BUF_COUNT
@@ -24,8 +24,6 @@
 #ifndef CONFIG_BT_MAX_CONN
 #define CONFIG_BT_MAX_CONN 1
 #endif
-
-#define CONFIG_BT_RECV_IS_RX_THREAD
 
 #if defined(__cplusplus)
 }
