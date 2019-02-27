@@ -120,10 +120,6 @@ struct bt_hci_driver {
 	 * return until the transport is ready for operation, meaning it
 	 * is safe to start calling the send() handler.
 	 *
-	 * If the driver uses its own RX thread, i.e.
-	 * CONFIG_BT_RECV_IS_RX_THREAD is set, then this
-	 * function is expected to start that thread.
-	 *
 	 * @return 0 on success or negative error number on failure.
 	 */
 	int (*open)(void);
