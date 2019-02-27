@@ -10,11 +10,6 @@ $(NAME)_COMPONENTS := linkkit_sdk_c netmgr cjson cli das
 
 DAS_CLIENT_CONFIG_TEST_LOOP ?= y
 
-ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS  += lwip
-no_with_lwip := 0
-endif
-
 ifeq ($(DAS_CLIENT_CONFIG_TEST_LOOP),y)
 $(NAME)_DEFINES      += TEST_LOOP
 endif

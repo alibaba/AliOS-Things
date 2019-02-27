@@ -25,11 +25,6 @@ ifeq ($(MQTTAPP_CONFIG_CASE_PRESSTEST),y)
 $(NAME)_SOURCES += mqtt_presstest.c
 endif
 
-ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS  += lwip
-no_with_lwip := 0
-endif
-
 ifeq ($(MQTTAPP_CONFIG_TEST_LOOP),y)
 $(NAME)_DEFINES      += TEST_LOOP
 endif

@@ -5,7 +5,6 @@ config AOS_APP_ITLS_CLIENT
     select AOS_COMP_NETMGR
     select AOS_COMP_ID2
     select AOS_COMP_ITLS
-    select AOS_COMP_LWIP if LWIP = 1
     help
         itls sample app
 
