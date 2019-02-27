@@ -1,17 +1,11 @@
-## Overview
-
-## Feature of Board
-
-## Directories
+## Contents
 
 ```sh
 sv6266 # configuration files for platform/mcu sv6266
 ```
 
-## Board Hardware Resources
+## Overview
 
-## Update log
+## Resources
 
 ## Reference
-
-
