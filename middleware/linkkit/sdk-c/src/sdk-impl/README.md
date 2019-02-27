@@ -1,5 +1,3 @@
-# README.md: sdk-impl
-
 ## Contents
 
 ```shell

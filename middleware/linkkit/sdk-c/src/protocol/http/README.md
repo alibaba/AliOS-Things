@@ -1,5 +1,3 @@
-# README.md: http
-
 ## Contents
 
 ```shell

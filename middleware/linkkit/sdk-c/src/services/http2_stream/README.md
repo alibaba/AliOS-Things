@@ -1,5 +1,3 @@
-# README.md: http2_stream
-
 ## Contents
 
 ```shell

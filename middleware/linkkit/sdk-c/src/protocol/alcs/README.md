@@ -1,4 +1,3 @@
-# README.md: alcs
 
 ## Contents
 

@@ -1,5 +1,3 @@
-# README.md: awss
-
 ## Contents
 
 ```shell
