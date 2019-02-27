@@ -1,5 +1,3 @@
-# README.md: device_sal_esp8266
-
 ## Contents
 
 ```shell

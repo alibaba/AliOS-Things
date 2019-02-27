@@ -1,5 +1,3 @@
-# README.md: device_sal_mk3060
-
 ## Contents
 
 ```shell

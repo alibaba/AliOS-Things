@@ -1,5 +1,3 @@
-# README.md: sensor
-
 ## Introduction
 This module is a hardware abstract layer for sensors.It's convenient to develop sensor driver, by provide unified I2C and SPI bus drivers. More than 100 sensors driver have been integrated.
 

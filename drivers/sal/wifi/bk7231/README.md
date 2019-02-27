@@ -1,5 +1,3 @@
-# README.md: device_sal_bk7231
-
 ## Contents
 
 ```shell
