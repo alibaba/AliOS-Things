@@ -27,10 +27,6 @@ global_macros =Split('''
 for i in global_macros:
     component.add_global_macros(i)
 
-if aos_global_config.get('LWIP') == 1:
-    component.add_comp_deps("kernel/protocols/net")
-    aos_global_config.set('no_with_lwip', 0)
-
 if aos_global_config.get('print_heap') == 1:
     component.add_global_macros('CONFIG_PRINT_HEAP')
 

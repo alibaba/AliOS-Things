@@ -26,11 +26,6 @@ else
 $(NAME)_SOURCES += linkkit_example_gateway.c
 endif
 
-ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS  += lwip
-no_with_lwip := 0
-endif
-
 ifeq ($(LINKKIT_GATEWAY_CONFIG_PRINT_HEAP),y)
 $(NAME)_DEFINES += CONFIG_PRINT_HEAP
 endif
