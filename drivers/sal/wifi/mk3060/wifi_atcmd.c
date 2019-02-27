@@ -326,7 +326,7 @@ int rltv = sscanf(tmp, "%[^,],%[^,],%d,%d,%d",
                   tmp_ssid, tmp_bssid, &en, &rlt->channel, &rlt->wifi_strength);
 
 */
-
+#define COMANUM 4
 static int scan_one_ap(char * ap_info,
                        char * ssid,
                        char * bssid,
@@ -340,12 +340,31 @@ static int scan_one_ap(char * ap_info,
         return -1;
     }
 
+    /*find reverse 4th , */
+
+    int len = strlen(ap_info);
+    int coma_num = 0;
+    char * findcoma = ap_info + len;
+
+    while (coma_num < COMANUM && (findcoma != ap_info)) {
+        findcoma--;
+
+        if (*findcoma == ',') {
+            coma_num++;
+        }
+    }
+
     char *p = ap_info;
 
     /* get ssid */
-    while (*p && *p != ',')
-    {
-        *ssid++ = *p++;
+    while (*p && p != findcoma) {
+        if (*p == '\"') {
+            *ssid++ = '\\';
+            *ssid++ = '\"';
+            p++;
+        } else {
+            *ssid++ = *p++;
+        }
     }
 
     if (*p == ',')
@@ -384,9 +403,6 @@ static int scan_one_ap(char * ap_info,
 #define SCANPREFIX    "+WSCAN:"
 static int scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, uint8_t *ap_num)
 {
-
-    printf("\n################### xiaolong wanglu ################### \r\n");
-
     char out[2048] = {0};
     int res;
 
