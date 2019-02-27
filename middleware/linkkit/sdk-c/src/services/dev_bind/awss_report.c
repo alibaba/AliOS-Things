@@ -100,7 +100,7 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
     int ret, len;
     char *payload;
     char *id = NULL;
-    char reply_id = 0;
+    uint8_t reply_id = 0;
     uint32_t payload_len;
 
     ret = awss_cmp_mqtt_get_payload(msg, &payload, &payload_len);
@@ -114,7 +114,7 @@ void awss_report_token_reply(void *pcontext, void *pclient, void *msg)
 
     if (id == NULL)
         return;
-    reply_id = atoi(id);
+    reply_id = (uint8_t)atoi(id);
     if (reply_id + 1 < awss_report_id)
         return;
 
