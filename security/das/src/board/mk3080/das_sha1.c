@@ -33,7 +33,7 @@ void das_sha1_start(das_sha1_context_t *ctx)
 
     ctx->context = aos_malloc(ctx->size);
     if (!ctx->context) {
-        printf("malloc %d fail\n", ctx->size);
+        printf("malloc %d fail\n", (int)ctx->size);
         DAS_SHA1_ASSERT(0);
     }
 

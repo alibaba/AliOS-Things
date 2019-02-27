@@ -159,7 +159,7 @@ int mbedtls_write_key_id_ext(
         }
 
         if (key_id_len < ID2_ID_LEN) {
-            SSL_DBG_LOG("key id short buffer, %d\n", key_id_len);
+            SSL_DBG_LOG("key id short buffer, %d\n", (int)key_id_len);
             return -1;
         } else {
             key_id_len = ID2_ID_LEN;
@@ -174,7 +174,7 @@ int mbedtls_write_key_id_ext(
                 ssl->handshake->key_otp = 1;
                 memset(key_id + 4, 'F', key_id_len);
             } else {
-                SSL_DBG_LOG("key provisioning (time:%d) exceed the allowed times!\n", otp_time);
+                SSL_DBG_LOG("key provisioning (time:%d) exceed the allowed times!\n", (int)otp_time);
                 return -1;
             }
         }
@@ -190,7 +190,7 @@ int mbedtls_write_key_id_ext(
     }
 
     if (key_id_len > MBEDTLS_KEY_ID_MAX_LEN) {
-        SSL_DBG_LOG("bad key id len, %d\n", key_id_len);
+        SSL_DBG_LOG("bad key id len, %d\n", (int)key_id_len);
         return -1;
     }
 
@@ -447,7 +447,7 @@ int mbedtls_parse_pre_master_secret_ext(
     }
 
     if (pms_len != 48) {
-        SSL_DBG_LOG("invalid premaster secret len: %d\n", pms_len);
+        SSL_DBG_LOG("invalid premaster secret len: %d\n", (int)pms_len);
         ret = -1;
         goto _out;
     } else {

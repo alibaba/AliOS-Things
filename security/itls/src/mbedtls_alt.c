@@ -129,7 +129,7 @@ int mbedtls_aes_crypt_cbc_alt( mbedtls_aes_context *ctx,
     }
 
     if (length % 16) {
-        SSL_DBG_LOG("invalid input length - %d\n", (uint32_t)length);
+        SSL_DBG_LOG("invalid input length - %d\n", (int)length);
         return -1;
     }
 
@@ -142,7 +142,7 @@ int mbedtls_aes_crypt_cbc_alt( mbedtls_aes_context *ctx,
 
         ctx->ali_ctx = mbedtls_calloc(1, ctx_size);
         if (ctx->ali_ctx == NULL) {
-            SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (uint32_t)ctx_size);
+            SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (int)ctx_size);
             return -1;
         } else {
             memset(ctx->ali_ctx, 0, ctx_size);
@@ -211,7 +211,7 @@ void mbedtls_sha1_clone_alt(mbedtls_sha1_context *dst,
 {
     dst->ali_ctx = mbedtls_calloc(1, src->size);
     if (dst->ali_ctx == NULL) {
-        SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (uint32_t)src->size);
+        SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (int)src->size);
         MBEDTLS_ALT_ASSERT(0);
     }
 
@@ -235,7 +235,7 @@ void mbedtls_sha1_starts_alt(mbedtls_sha1_context *ctx)
         ctx->size = ctx_size;
         ctx->ali_ctx = mbedtls_calloc(1, ctx_size);
         if (ctx->ali_ctx == NULL) {
-            SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (uint32_t)ctx_size);
+            SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (int)ctx_size);
             MBEDTLS_ALT_ASSERT(0);
         } else {
             memset(ctx->ali_ctx, 0, ctx_size);
@@ -313,7 +313,7 @@ void mbedtls_sha256_clone_alt(mbedtls_sha256_context *dst,
 {
     dst->ali_ctx = mbedtls_calloc(1, src->size);
     if (dst->ali_ctx == NULL) {
-        SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (uint32_t)src->size);
+        SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (int)src->size);
         MBEDTLS_ALT_ASSERT(0);
     }
 
@@ -343,7 +343,7 @@ void mbedtls_sha256_starts_alt(mbedtls_sha256_context *ctx, int is224)
         ctx->size = ctx_size;
         ctx->ali_ctx = mbedtls_calloc(1, ctx_size);
         if (ctx->ali_ctx == NULL) {
-            SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (uint32_t)ctx_size);
+            SSL_DBG_LOG("mbedtls_calloc(%d) fail\n", (int)ctx_size);
             MBEDTLS_ALT_ASSERT(0);
         } else {
             memset(ctx->ali_ctx, 0, ctx_size);
