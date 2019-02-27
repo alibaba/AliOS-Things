@@ -11,7 +11,18 @@ import json
 #   { 'board name': [ debug_config_file ], }
 #
 registry_board = {
-    'developerkit': ['stm32l4x.json'],
+    "ALLOTHERS": [
+        "stm32_stlink.json"
+    ],
+    "developerkit": [
+        "stm32_stlink.json"
+    ],
+    "stm32f412zg-nucleo": [
+        "stm32f412zg-nucleo.json"
+    ],
+    "pca10040": [
+        "pca10040.json"
+    ]
 }
 
 #
@@ -35,33 +46,53 @@ registry_board = {
 #
 debug_configs = {}
 
-# Debug configs for stm32l4xx
-stm32l4x = {
-'start_server': [
-    {
-        'Linux64': {
-            'cmd': '@AOSROOT@/build/openocd_master/bin/openocd_linux',
-            'url': 'https://gdb-archive.oss-cn-shanghai.aliyuncs.com/openocd_linux.tar.gz', },
-        'OSX': {
-            'cmd': '@AOSROOT@/build/openocd_master/bin/openocd_osx',
-            'url': 'https://gdb-archive.oss-cn-shanghai.aliyuncs.com/openocd_osx.tar.gz', },
-    },
-    '-f',
-    '@AOSROOT@/build/openocd_master/share/openocd/scripts/board/stm32l4discovery.cfg',
-],
-'start_client': [
-    {
-        'Linux64': {
-            'cmd': '@AOSROOT@/build/compiler/gcc-arm-none-eabi/Linux64/bin/arm-none-eabi-gdb',
-            'url': 'https://gdb-archive.oss-cn-shanghai.aliyuncs.com/arm-none-eabi-gdb-linux64.tar.gz', },
-        'OSX': {
-            'cmd': '@AOSROOT@/build/compiler/gcc-arm-none-eabi/OSX/bin/arm-none-eabi-gdb',
-            'url': 'https://gdb-archive.oss-cn-shanghai.aliyuncs.com/gdb-arm-none-eabi-osx.tar.gz', },
-    },
-    '@AOSROOT@/out/@TARGET@/binary/@TARGET@.elf'
-]
+# Debug configs for default config
+stm32_stlink = {
+    "prompt": "",
+    "port": 4242,
+    "cmd": [
+        {
+            "Linux64": "@AOSROOT@/build/cmd/linux64/st-util",
+            "OSX": "@AOSROOT@/build/cmd/osx/st-util",
+            "Win32": "@AOSROOT@/build/cmd/win32/st-util.exe"
+        }
+    ]
 }
-debug_configs['stm32l4x'] = stm32l4x
+debug_configs['stm32_stlink'] = stm32_stlink
+
+# Debug configs for pca10040
+pca10040 = {
+    "prompt": "Please INSTALL Jlink Software Package, and ADD JLink to PATH environment, check: www.github.com/alibaba/AliOS-Things/wiki/debug",
+    "port": 2331,
+    "upload": True,
+    "cmd": [
+        {
+            "Linux64": "JLinkGDBServerCLExe", 
+            "OSX": "JLinkGDBServerCLExe",
+            "Win32": "JLinkGDBServerCL.exe"
+        }, 
+        "-if", 
+        "swd",
+        "-device",
+        "nRF52840_xxAA"
+    ]
+}
+debug_configs['pca10040'] = pca10040
+
+# Debug configs for default config
+stm32f412zg_nucleo = {
+    "prompt": "",
+    "port": 4242,
+    "upload": True,
+    "cmd": [
+        {
+            "Linux64": "@AOSROOT@/build/cmd/linux64/st-util",
+            "OSX": "@AOSROOT@/build/cmd/osx/st-util",
+            "Win32": "@AOSROOT@/build/cmd/win32/st-util.exe"
+        }
+    ]
+}
+debug_configs['stm32f412zg-nucleo'] = stm32f412zg_nucleo
 
 def main():
     # Write debug configs
