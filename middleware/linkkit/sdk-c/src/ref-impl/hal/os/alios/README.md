@@ -1,5 +1,3 @@
-# README.md: hal alios
-
 ## Contents
 
 ```shell

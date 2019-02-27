@@ -1,5 +1,3 @@
-# README.md: dev_reset
-
 ## Contents
 
 ```shell

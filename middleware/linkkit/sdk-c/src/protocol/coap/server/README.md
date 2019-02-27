@@ -1,4 +1,3 @@
-# README.md: coap local
 
 ## Contents
 
