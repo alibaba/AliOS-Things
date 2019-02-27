@@ -42,7 +42,7 @@ MAKEFILE_TARGETS += $(noconfig_targets)
 
 # Use -include for GCC and --preinclude for other ARM compilers
 INCLUDE_OPTS = -include
-ifneq (, $(filter iar keil rvct, $(IDE)))
+ifneq (, $(filter iar armcc rvct, $(COMPILER)))
 INCLUDE_OPTS = --preinclude            #armcc icc
 INCLUDE_AUTOCONF_CPRE_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), $(AOS_CONFIG_DIR)/autoconf.h )      #armasm
 endif
