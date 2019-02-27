@@ -101,4 +101,10 @@ int32_t hal_uart_finalize(aos_uart_dev_t *uart)
     return 0;
 }
 
+#if defined(AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC == 1)
+void uart_reinit(void)
+{
+}
+#endif
+
 
