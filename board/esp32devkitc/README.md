@@ -1,4 +1,4 @@
-## Over View
+## Overview
 
 ## Feature of Board
 support one core with no sram;

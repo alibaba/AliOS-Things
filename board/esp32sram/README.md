@@ -1,4 +1,4 @@
-## Over View
+## Overview
 
 ## Feature of Board
 support two cores with sram;
