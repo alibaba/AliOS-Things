@@ -44,7 +44,7 @@ static void aos_wdt_process() {
     printf("IPC:%lxh\n", SAVED_PC);
     //ktask_t *cur = krhino_cur_task_get();
     ktask_t *task = g_active_task[0];
-    printf("TP:%xh\n", task);
+    printf("TP:%xh\n", (uint32_t)task);
     printf("TN:%s\n", task->task_name);
     printf("g_intrpt_nested_level[0]=%d\n", g_intrpt_nested_level[0]);
     dump_ir();
