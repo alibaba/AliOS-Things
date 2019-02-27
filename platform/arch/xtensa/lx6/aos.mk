@@ -11,7 +11,10 @@ $(NAME)_SOURCES := \
                    xtensa_context.S  \
                    xtensa_intr_asm.S \
                    xtensa_intr.c     \
-                   xtensa_init.c
+                   xtensa_init.c     \
+                   xtensa_panic.S    \
+                   panic.c           \
+                   backtrace.c
 
 $(NAME)_INCLUDES := \
                     ../../mcu/esp32/espidf/components/freertos/include  \
