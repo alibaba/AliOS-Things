@@ -1,5 +1,3 @@
-# README.md: dm
-
 ## Contents
 
 ```shell

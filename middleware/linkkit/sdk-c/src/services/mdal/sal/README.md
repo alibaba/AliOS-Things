@@ -1,5 +1,3 @@
-# README.md: sal
-
 ## Contents
 
 ```shell

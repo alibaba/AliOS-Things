@@ -1,5 +1,3 @@
-# README.md: coap cloud
-
 ## Contents
 
 ```shell
