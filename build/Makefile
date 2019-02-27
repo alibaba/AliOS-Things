@@ -45,13 +45,14 @@ all:
 #
 # Process build strings
 #
-BUILD_SUBTARGETS := .config .menuconfig compile .image .export-keil .export-iar .defconfig
-export BUILD_STRING ?= $(strip $(filter-out $(MAKEFILE_TARGETS) download run total export_linkkit_sdk restore_linkkit_sdk, $(MAKECMDGOALS)))
+BUILD_SUBTARGETS := .config .menuconfig
+MAKEFILE_TARGETS += export_linkkit_sdk restore_linkkit_sdk export-keil export-iar
+export BUILD_STRING ?= $(strip $(filter-out $(MAKEFILE_TARGETS), $(MAKECMDGOALS)))
 
 # Set IDE if export-* is specified
-ifneq ($(filter %.export-keil, $(BUILD_STRING)),)
+ifneq ($(filter export-keil, $(MAKECMDGOALS)),)
 export IDE := keil
-else ifneq ($(filter %.export-iar, $(BUILD_STRING)),)
+else ifneq ($(filter export-iar, $(MAKECMDGOALS)),)
 export IDE := iar
 endif
 
@@ -355,9 +356,9 @@ all: $(BUILD_STRING)
 $(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS) main_app 2boot
 
 ifeq ($(IDE),keil)
-main_app: $(addsuffix .export-keil, $(BUILD_STRING))
+main_app: export-keil
 else ifeq ($(IDE),iar)
-main_app: $(addsuffix .export-iar, $(BUILD_STRING))
+main_app: export-iar
 endif
 
 .PHONY: show-build-info
@@ -425,20 +426,14 @@ restore_linkkit_sdk:
 #%.config: $(CONFIG_FILE)
 #	$(QUIET)$(ECHO) Build configs complete: $(CONFIG_FILE)
 
-%.export-project: $(CONFIG_FILE)
-	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_3rd_project.mk $*
+export-project: $(CONFIG_FILE)
+	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_3rd_project.mk $(BUILD_STRING)
 
-%.export-keil: %.export-project
+export-keil: export-project
 	$(QUIET)$(ECHO) Build Keil project complete
 
-%.export-iar: %.export-project
+export-iar: export-project
 	$(QUIET)$(ECHO) Build IAR Project complete
-
-#%.compile: %.config
-#	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $@
-
-%.defconfig: defconfig
-	$(QUIET)$(ECHO) Create .config complete
 
 %.config: $(AOS_CONFIG)
 	$(QUIET):
