@@ -1,0 +1,11 @@
+{
+    "cmd": [
+        {
+            "Linux64": "@AOSROOT@/build/cmd/linux64/st-util", 
+            "OSX": "@AOSROOT@/build/cmd/osx/st-util", 
+            "Win32": "@AOSROOT@/build/cmd/win32/st-util.exe"
+        }
+    ], 
+    "port": 4242, 
+    "prompt": ""
+}

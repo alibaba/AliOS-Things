@@ -1,0 +1,16 @@
+{
+    "cmd": [
+        {
+            "Linux64": "JLinkGDBServerCLExe", 
+            "OSX": "JLinkGDBServerCLExe", 
+            "Win32": "JLinkGDBServerCL.exe"
+        }, 
+        "-if", 
+        "swd", 
+        "-device", 
+        "nRF52840_xxAA"
+    ], 
+    "port": 2331, 
+    "prompt": "Please INSTALL Jlink Software Package, and ADD JLink to PATH environment, check: www.github.com/alibaba/AliOS-Things/wiki/debug", 
+    "upload": true
+}
