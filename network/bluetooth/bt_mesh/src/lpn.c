@@ -349,6 +349,7 @@ static void req_sent(u16_t duration, int err, void *user_data)
 		k_delayed_work_submit(&lpn->timer,
 				      LPN_RECV_DELAY - SCAN_LATENCY);
 	} else {
+		lpn_set_state(BT_MESH_LPN_WAIT_UPDATE);
 		k_delayed_work_submit(&lpn->timer,
 				      LPN_RECV_DELAY + duration +
 				      lpn->recv_win);
@@ -385,7 +386,6 @@ static int send_friend_poll(void)
 		if (lpn->sent_req != TRANS_CTL_OP_FRIEND_POLL) {
 			lpn->pending_poll = 1;
 		}
-
 		return 0;
 	}
 
