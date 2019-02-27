@@ -40,12 +40,11 @@ config VFS_CONFIG_MAX_FILE_NUM
         the default is 50.
 
 config VFS_CONFIG_CURRENT_DIRECTORY_ENABLE
-    int "Current Directory Recording Support"
-    range 0 1
-    default 0
+    bool "Current Directory Recording Support"
+    default n
     help
         This option enables the current working directory recording support.
-        saying "1" here enables the feature, saying "0" here is disabled.
-        the default is "0"
+        saying "y" here enables the feature, saying "n" here is disabled.
+        the default is "n"
 
 endif

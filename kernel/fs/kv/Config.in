@@ -46,16 +46,15 @@ config KV_CONFIG_MAX_VAL_LEN
         the default is 512.
 
 config KV_CONFIG_SECURE_SUPPORT
-    int "Key-value Storage Security Support"
-    range 0 1
-    default 0
+    bool "Key-value Storage Security Support"
+    default n
     help
         This option enables security support for key-vaue storage.
-        saying "1" here enables the feature.
-        saying "0" here is disabled.
-        the default is "0".
+        saying "y" here enables the feature.
+        saying "n" here is disabled.
+        the default is "n".
 
-if KV_CONFIG_SECURE_SUPPORT = 1
+if KV_CONFIG_SECURE_SUPPORT = y
 
 config KV_CONFIG_SECURE_LEVEL
     int "Key-value Storage Security Level"
