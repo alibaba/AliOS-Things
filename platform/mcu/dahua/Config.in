@@ -1,6 +1,6 @@
 config AOS_MCU_DAHUA
     bool
-    select AOS_COMP_LWIP if LWIP = 1
+    select AOS_COMP_LWIP if MCU_DAHUA_CONFIG_LWIP = y
     select AOS_COMP_SAL if AOS_NETWORK_SAL
     select AOS_COMP_NETMGR
     select AOS_COMP_RHINO
@@ -12,10 +12,9 @@ config AOS_MCU_DAHUA
 if AOS_MCU_DAHUA
 # Configurations for mcu dahua
 
-config LWIP
-    int
-    range 0 1
-    default 1
+config MCU_DAHUA_CONFIG_LWIP
+    bool
+    default y
 
 config BSP_SUPPORT_EXTERNAL_MODULE
     bool
