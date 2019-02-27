@@ -8,11 +8,5 @@ $(NAME)_SOURCES := app_entry.c \
 
 $(NAME)_COMPONENTS += linkkit_sdk_c netmgr cjson cli
 
-ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS  += lwip
-no_with_lwip := 0
-endif
-
-
 GLOBAL_INCLUDES += ./
 

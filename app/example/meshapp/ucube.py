@@ -27,11 +27,6 @@ if aos_global_config.get('MESHAUTH') == 1:
     ''')
     component.add_comp_deps(*dependencis) 
 
-if aos_global_config.get("LWIP") == None:
-    aos_global_config.set("LWIP",1)
-if aos_global_config.get("LWIP") == 1:
-    component.add_comp_deps("network/lwip") 
-
 if aos_global_config.get("ipv6") == 0:
     component.add_global_macros("LWIP_IPV6=0")
 
