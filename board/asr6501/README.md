@@ -5,11 +5,9 @@
 ## Directories
 
 ```sh
-pca10040e # configuration files for board pca10040e
+asr6510 # configuration files for board asr6510
 ```
 
 ## Board Hardware Resources
 
 ## Update log
-
-## Reference

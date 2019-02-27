@@ -1,3 +1,7 @@
+## Overview
+
+## Feature of Board
+
 ## Steps to download and run the binary
 
 1. Download the [flash loader](https://www.nxp.com/webapp/Download?colCode=IMX-RT1050-FLASHLOADER&appType=license)

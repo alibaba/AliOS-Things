@@ -5,7 +5,7 @@
 ## Directories
 
 ```sh
-pca10040e # configuration files for board pca10040e
+stm32l073rz-nucleo # configuration files for board stm32l073rz-nucleo
 ```
 
 ## Board Hardware Resources

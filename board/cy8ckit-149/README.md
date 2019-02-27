@@ -5,11 +5,9 @@
 ## Directories
 
 ```sh
-pca10040e # configuration files for board pca10040e
+cy8ckit-149 # configuration files for board cy8ckit-149
 ```
 
 ## Board Hardware Resources
 
 ## Update log
-
-## Reference
