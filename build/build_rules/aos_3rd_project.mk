@@ -57,13 +57,16 @@ $(eval AS_OPTS_KEIL :=)
 $(eval C_OPTS := $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $(COMPILER_UNI_CFLAGS) $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES))
 $(eval C_OPTS_IAR := $(subst =\",="\",$(C_OPTS) ) )
 $(eval C_OPTS_IAR := $(subst \" ,\"" ,$(C_OPTS_IAR) ) )
-$(eval C_OPTS_IAR := $(filter-out -I% --cpu=% --endian% --dlib_config%,$(C_OPTS_IAR)) )
+$(eval C_OPTS_IAR := $(filter-out -I% --cpu=% --endian% --dlib_config%,$(C_OPTS_IAR)))
+$(eval C_OPTS_IAR := $(subst out/config/autoconf.h,autoconf.h,$(C_OPTS_IAR)))
 $(eval C_OPTS_KEIL := $(subst -I.,-I../../../../.,$(C_OPTS)) )
+$(eval C_OPTS_KEIL := $(subst out/config/autoconf.h,autoconf.h,$(C_OPTS_KEIL)))
 
 $(if $(strip $(findstring arch_,$(1)) $(findstring board_,$(1))),
 $(eval AS_OPTS = $(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES)) \
 $(eval AS_OPTS_IAR := $(filter-out --cpu Cortex-M4, $(AS_OPTS) ) ) \
-$(eval AS_OPTS_KEIL := $(subst -I.,-I../../../../., $(AS_OPTS) ) ),)
+$(eval AS_OPTS_KEIL := $(subst -I.,-I../../../../., $(AS_OPTS) ) ) \
+$(eval AS_OPTS_KEIL := $(subst out/config/autoconf.h,autoconf.h,$(AS_OPTS_KEIL) ) ),)
 
 endef
 
