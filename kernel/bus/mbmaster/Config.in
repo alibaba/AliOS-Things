@@ -30,11 +30,10 @@ config MBMASTER_CONFIG_HANDLER_MAX
             default 1
 
 config MBMASTER_CONFIG_LOG_LEVEL
-    int "Set the log level"
-        range 0 1
-        default 0
+    bool "Set the log level"
+        default n
         help
-            set 0 to show information only when error happend. set 1 to show more information(error and debug).
-            default 0
+            set n to show information only when error happend. set y to show more information(error and debug).
+            default n
 
 endif

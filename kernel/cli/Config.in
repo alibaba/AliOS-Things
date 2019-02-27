@@ -9,14 +9,13 @@ menuconfig AOS_COMP_CLI
 if AOS_COMP_CLI
 
 config CLI_CONFIG_MINIMUM_MODE
-    int "Minimum Working Mode Support"
-    range 0 1
-    default 0
+    bool "Minimum Working Mode Support"
+    default n
     help
         This option enables the cli minimum working mode support.
-        saying "1" here is enabled the feature.
-        saying "0" here is disabled.
-        the default is "0"
+        saying "y" here is enabled the feature.
+        saying "n" here is disabled.
+        the default is "n"
 
 config CLI_CONFIG_INBUF_SIZE
     int "Input buffer size (bytes)"
@@ -68,13 +67,12 @@ config CLI_CONFIG_TASK_PRIORITY
         the default is 60.
 
 config CLI_CONFIG_TELNET_SUPPORT
-    int "Telnet Support"
-    range 0 1
-    default 0
+    bool "Telnet Support"
+    default n
     help
         This option enable the telnel support for Command-Line Interface module.
-        saying "1" here enables the feature.
-        saying "0" is disabled.
-        the default is "0"
+        saying "y" here enables the feature.
+        saying "n" is disabled.
+        the default is "n"
 
 endif
