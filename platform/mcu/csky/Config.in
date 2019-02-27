@@ -1,9 +1,9 @@
 config AOS_MCU_CSKY
     bool
     select AOS_COMP_CLI
-    select AOS_COMP_LWIP if LWIP = 1
+    select AOS_COMP_LWIP if MCU_CSKY_CONFIG_LWIP = y
     select AOS_COMP_SAL if AOS_NETWORK_SAL
-    select AOS_COMP_NETMGR if AOS_NETWORK_SAL || LWIP = 1
+    select AOS_COMP_NETMGR if AOS_NETWORK_SAL || MCU_CSKY_CONFIG_LWIP = y
     select AOS_COMP_RHINO
     select AOS_COMP_DEVICE_SAL_ESP8266 if AOS_NETWORK_SAL
     select AOS_ARCH_CSKYV2_L
@@ -13,10 +13,9 @@ config AOS_MCU_CSKY
 if AOS_MCU_CSKY
 # Configurations for mcu csky
 
-config LWIP
-    int
-    range 0 1
-    default 0
+config MCU_CSKY_CONFIG_LWIP
+    bool
+    default n
 
 config BSP_SUPPORT_EXTERNAL_MODULE
     bool
