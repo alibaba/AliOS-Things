@@ -16,6 +16,7 @@
     PUBLIC cpu_task_switch
     PUBLIC cpu_intrpt_switch
     PUBLIC cpu_first_task_start
+    PUBLIC _first_task_restore
 
     PUBLIC PendSV_Handler
 
