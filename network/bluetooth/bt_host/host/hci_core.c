@@ -51,8 +51,7 @@
 
 #define HCI_CMD_TIMEOUT K_SECONDS(10)
 
-/* Stacks for the threads */
-#if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
+#if defined(CONFIG_BT_HOST_RX_THREAD)
 static struct k_thread rx_thread_data;
 static BT_STACK_NOINIT(rx_thread_stack, CONFIG_BT_HCI_RX_STACK_SIZE);
 #endif
@@ -64,7 +63,7 @@ static void init_work(struct k_work *work);
 struct bt_dev bt_dev = {
     .init = _K_WORK_INITIALIZER(init_work),
     .cmd_tx_queue = K_FIFO_INITIALIZER(bt_dev.cmd_tx_queue),
-#if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
+#if defined(CONFIG_BT_HOST_RX_THREAD)
     .rx_queue = K_FIFO_INITIALIZER(bt_dev.rx_queue),
 #endif
 };
@@ -83,7 +82,7 @@ static bt_dh_key_cb_t dh_key_cb;
 struct k_poll_signal g_pkt_recv = K_POLL_SIGNAL_INITIALIZER(g_pkt_recv);
 #endif
 
-#if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
+#if defined(CONFIG_BT_HOST_RX_THREAD)
 static K_SEM_DEFINE(sem_rx_queue, 0, UINT_MAX);
 #endif
 
@@ -617,7 +616,7 @@ static void hci_disconn_complete(struct net_buf *buf)
 
     /* Check stacks usage (no-ops if not enabled) */
     k_call_stacks_analyze();
-#if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
+#if defined(CONFIG_BT_HOST_RX_THREAD)
     STACK_ANALYZE("rx stack", rx_thread_stack);
 #endif
     STACK_ANALYZE("tx stack", tx_thread_stack);
@@ -2832,20 +2831,20 @@ int bt_recv(struct net_buf *buf)
     switch (bt_buf_get_type(buf)) {
 #if defined(CONFIG_BT_CONN)
         case BT_BUF_ACL_IN:
-#if defined(CONFIG_BT_RECV_IS_RX_THREAD)
-            hci_acl(buf);
-#else
+#if defined(CONFIG_BT_HOST_RX_THREAD)
             net_buf_put(&bt_dev.rx_queue, buf);
             k_sem_give(&sem_rx_queue);
+#else
+            hci_acl(buf);
 #endif
             return 0;
 #endif /* BT_CONN */
         case BT_BUF_EVT:
-#if defined(CONFIG_BT_RECV_IS_RX_THREAD)
-            hci_event(buf);
-#else
+#if defined(CONFIG_BT_HOST_RX_THREAD)
             net_buf_put(&bt_dev.rx_queue, buf);
             k_sem_give(&sem_rx_queue);
+#else
+            hci_event(buf);
 #endif
             return 0;
         default:
@@ -2986,7 +2985,7 @@ static void init_work(struct k_work *work)
     }
 }
 
-#if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
+#if defined(CONFIG_BT_HOST_RX_THREAD)
 static void hci_rx_thread(void)
 {
     struct net_buf *buf;
@@ -3023,7 +3022,7 @@ static void hci_rx_thread(void)
         k_yield();
     }
 }
-#endif /* !CONFIG_BT_RECV_IS_RX_THREAD */
+#endif /* CONFIG_BT_HOST_RX_THREAD */
 
 int bt_enable(bt_ready_cb_t cb)
 {
@@ -3043,7 +3042,7 @@ int bt_enable(bt_ready_cb_t cb)
 
     ready_cb = cb;
 
-#if !defined(CONFIG_BT_RECV_IS_RX_THREAD)
+#if defined(CONFIG_BT_HOST_RX_THREAD)
     k_sem_init(&sem_rx_queue, 0, UINT_MAX);
     k_thread_create(&rx_thread_data, rx_thread_stack,
                     K_THREAD_STACK_SIZEOF(rx_thread_stack),
