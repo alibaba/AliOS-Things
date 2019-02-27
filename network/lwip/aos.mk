@@ -4,14 +4,11 @@ $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := lightweight tcp/ip stack
 
-#ifeq (y,$(LWIP_ENABLED))
 ifneq ($(no_with_lwip),1)
 GLOBAL_DEFINES += WITH_LWIP
 with_lwip := 1
 endif
-#endif
 
-#ifeq (y,$(USE_AOS_LWIP))
 ifneq ($(use_private_lwip),1)
 include network/lwip/Filelists.mk
 
@@ -94,7 +91,4 @@ endif
 endif
 $(NAME)_SOURCES += port/sys_arch.c
 
-
 endif
-#endif
-
