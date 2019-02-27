@@ -16,11 +16,6 @@ $(NAME)_COMPONENTS += ota
 
 # GLOBAL_DEFINES += ON_PRE
 
-ifeq ($(LWIP),1)
-$(NAME)_COMPONENTS  += lwip
-no_with_lwip := 0
-endif
-
 ifeq ($(print_heap),1)
 $(NAME)_DEFINES += CONFIG_PRINT_HEAP
 endif
