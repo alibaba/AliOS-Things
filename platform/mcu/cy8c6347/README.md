@@ -1,15 +1,11 @@
-## Over View
-
-## Feature of Board
-
-## Directories
+## Contents
 
 ```sh
 cy8c6347 # configuration files for platform/mcu cy8c6347
 ```
 
-## Board Hardware Resources
+## Overview
 
-## Update log
+## Resources
 
 ## Reference

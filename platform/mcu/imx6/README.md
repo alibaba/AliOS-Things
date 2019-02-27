@@ -1,15 +1,11 @@
-## Overview
-
-## Feature of Board
-
-## Directories
+## Contents
 
 ```sh
 msp432p4xx # configuration files for platform/mcu imx6
 ```
 
-## Board Hardware Resources
+## Overview
 
-## Update log
+## Resources
 
 ## Reference

@@ -1,15 +1,11 @@
-## Over View
-
-## Feature of Board
-
-## Directories
+## Contents
 
 ```sh
 bk7231u # configuration files for platform/mcu bk7231u
 ```
 
-## Board Hardware Resources
+## Overview
 
-## Update log
+## Resources
 
 ## Reference
