@@ -1,5 +1,9 @@
+## Contents
+
 This is a mcu demo for consuling, not a true realization.
 Directory structure:
+
+```
 Dir\File                          Description                       Necessary for kernel run
 ============================================================================================
 |-- drivers                 # board peripheral driver                           Y
@@ -8,5 +12,12 @@ Dir\File                          Description                       Necessary fo
 |-- Config.in                # menuconfig component config                      Y
 |-- ucube.py                # aos build system file(for scons)                  N
 |-- README.md                                                                   Y
+```
 
 Attention: If there are several mcu types here, use independent sub mk file to put different config.
+
+## Overview
+
+## Resources
+
+## Reference
