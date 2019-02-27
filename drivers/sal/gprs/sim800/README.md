@@ -1,5 +1,3 @@
-# README.md: device_sal_sim800
-
 ## Contents
 
 ```shell
