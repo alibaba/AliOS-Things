@@ -70,12 +70,15 @@
 #ifdef ALI_CRYPTO_HASH_MD5
 #define ALI_ALGO_MD_C
 #define ALI_ALGO_MD5_C
+#define CONFIG_SAL_MD5 1
 #endif
 #ifdef ALI_CRYPTO_HASH_SHA1
 #define ALI_ALGO_SHA1_C
+#define CONFIG_SAL_SHA1 1
 #endif
 #ifdef ALI_CRYPTO_HASH_SHA256
 #define ALI_ALGO_SHA256_C
+#define CONFIG_SAL_SHA256 1
 #endif
 #ifdef ALI_CRYPTO_HASH_SM3
 #define ALI_ALGO_SM3_C
@@ -89,9 +92,11 @@
 #endif
 #ifdef ALI_CRYPTO_AES_CBC
 #define ALI_ALGO_CIPHER_MODE_CBC
+#define CONFIG_SAL_AES_CBC 1
 #endif
 #ifdef ALI_CRYPTO_AES_CFB
 #define ALI_ALGO_CIPHER_MODE_CFB
+#define CONFIG_SAL_AES_CFB 1
 #endif
 #endif
 
