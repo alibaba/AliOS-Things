@@ -1,4 +1,4 @@
-## Over View
+## Overview
 
 The FRDM-KL43Z is an ultra-low-cost development platform for Kinetis® L families KL43, KL33, KL27, KL17 and KL13 MCUs built on Arm® Cortex®-M0+ processor running at 48 MHz.
 

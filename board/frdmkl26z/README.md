@@ -1,4 +1,4 @@
-## Over View
+## Overview
 
 The Freedom KL26Z is an ultra-low-cost development platform for Kinetis® L series KL16 and KL26 MCUs (up to 128 KB Flash and up to 64-pin packages) built on Arm® Cortex®-M0+ processor.
 
