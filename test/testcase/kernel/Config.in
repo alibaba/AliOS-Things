@@ -1,7 +1,6 @@
 menu "Kernel Testcase Configuration"
 
 source "test/testcase/kernel/rhino/Config.in"
-source "test/testcase/kernel/realtime/Config.in"
 source "test/testcase/kernel/fs/kv/Config.in"
 source "test/testcase/kernel/fs/ramfs/Config.in"
 source "test/testcase/kernel/fs/vfs/Config.in"

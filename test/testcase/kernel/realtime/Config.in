@@ -1,5 +1,0 @@
-config AOS_COMP_REALTIME_TEST
-    bool "Realtime Testcase"
-    select AOS_COMP_RHINO
-    default n
-    help
