@@ -2,16 +2,15 @@ config AOS_BOARD_EML3047
     bool "EML3047"
     select AOS_MCU_STM32L0XX
     select AOS_COMP_KERNEL_INIT
-    select AOS_COMP_LORAWAN_4_4_2 if lorawanback = 0
-    select AOS_COMP_LORAWAN_4_4_0 if lorawanback = 1
+    select AOS_COMP_LORAWAN_4_4_2 if lorawanback = n
+    select AOS_COMP_LORAWAN_4_4_0 if lorawanback = y
     help
 
 if AOS_BOARD_EML3047
 # Configurations for board eml3047
 config lorawanback
-    int "lorawanback"
-    range 0 1
-    default 0
+    bool "lorawanback"
+    default n
 
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_I2C

@@ -24,9 +24,8 @@ config BSP_EXTERNAL_WIFI_MODULE
     default "wifi.mk3060"
 
 config MESHLOWPOWER
-    int
-    range 0 1
-    default 1
+    bool
+    default y
 
 # link security config
 config CONFIG_LS_DEBUG
