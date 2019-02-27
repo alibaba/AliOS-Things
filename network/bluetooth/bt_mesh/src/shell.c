@@ -513,11 +513,11 @@ static int cmd_poll(int argc, char *argv[])
 static void lpn_cb(u16_t friend_addr, bool established)
 {
 	if (established) {
-		printk("Friendship (as LPN) established to Friend 0x%04x\n",
-		       friend_addr);
+		printk("Friendship (as LPN) established to Friend 0x%04x, at %d\n",
+		       friend_addr, k_uptime_get_32());
 	} else {
-		printk("Friendship (as LPN) lost with Friend 0x%04x\n",
-		       friend_addr);
+		printk("Friendship (as LPN) lost with Friend 0x%04x, at %d\n",
+		       friend_addr, k_uptime_get_32());
 	}
 }
 
