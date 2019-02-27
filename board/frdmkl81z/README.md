@@ -1,4 +1,4 @@
-## Over View
+## Overview
 
 The board FRDM-KL81Z is produced by NXP semiconductor, it supports a power supply voltage range of 1.71 to 3.6 V. It features a KL81Z, a device boasting up to 128 KB flash and 96 KB SRAM, and numerous analog and digital peripherals. In addition, the FRDM-KL81Z offers a QSPI interface to expand program memory and USB 2.0 Full Speed without requiring an external crystal.
 
