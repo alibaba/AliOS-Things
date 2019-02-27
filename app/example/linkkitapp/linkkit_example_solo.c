@@ -16,7 +16,7 @@
 #include "combo_devinfo.h"
 #else
 // for demo only
-#ifndef AWSS_SUPPORT_DEV_AP
+#ifndef SUPPORT_DEV_AP
 #define PRODUCT_KEY      "a1X2bEnP82z"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
 #define DEVICE_NAME      "example1"
