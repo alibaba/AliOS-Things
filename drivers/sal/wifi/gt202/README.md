@@ -1,5 +1,3 @@
-# README.md: sal_modulue_gt202
-
 ## Contents
 
 ```shell
