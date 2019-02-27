@@ -1,18 +1,21 @@
 from scons_util import *
 import subprocess
 import urllib
+from collections import OrderedDict
+from scons_upload import aos_upload
 
 def process_cmd(cmd_data, host_os, aos_path, target, program_path=None, bin_dir=None):
     """ Replace hardcode strings from commands """
 
     exec_cmd = []
-    url = ""
+    port = 4242
+    # url = ""
     for item in cmd_data:
         if type(item) == dict:
             if host_os in item:
-                tmp = item[host_os]
-                item = tmp['cmd']
-                url = tmp['url']
+                item = item[host_os]
+                # item = tmp['cmd']
+                # url = tmp['url']
             else:
                 error("Debug command is not defined for %s!" % host_os)
 
@@ -31,7 +34,7 @@ def process_cmd(cmd_data, host_os, aos_path, target, program_path=None, bin_dir=
                 binname = os.path.basename(value)
                 exec_cmd[index] = os.path.join(bin_dir, binname)
 
-    return (exec_cmd, url)
+    return exec_cmd
 
 def un_tar(filename, path):
     """ Extract files from tarball """
@@ -79,6 +82,75 @@ def download_tool(tool, url):
     if not os.path.isfile(tool):
         error("Can't find tool %s" % tool)
 
+def update_launch(aos_path, target, port):
+    host_os = get_host_os()
+    downloads = []
+
+    toolchain_config = os.path.join(aos_path, 'build', 'toolchain_config.py')
+    if os.path.exists(toolchain_config) == False:
+        error("Can't get toolchain config, missing %s" % toolchain_config)
+    from toolchain_config import boards
+
+    (app, board) = target.split('@')
+    if board in boards:
+        for toolchain in boards[board]:
+            # name = toolchain['name']
+            command = toolchain['command'].replace('gcc', 'gdb')
+            if toolchain.has_key('path_specific'):
+                gdb_path = '{}/bin/{}'.format(toolchain['path'], command)
+            else:
+                gdb_path = '{}/{}/bin/{}'.format(toolchain['path'], host_os, command)
+
+    gdb_path = os.path.join(aos_path, '', gdb_path)
+    if host_os == 'Win32':
+        gdb_path = '%s.exe' % gdb_path
+    
+    if os.path.isfile(gdb_path) == False:
+        # toolchain not exist, using gdb name
+        log("[WARNING] gdb not EXIST: %s" % gdb_path)
+        gdb_path = command
+        if host_os == 'Win32':
+            gdb_path = '%s.exe' % gdb_path
+    
+    launch_path = os.path.join(aos_path, '.vscode', 'launch.json')
+    try:
+        with open(launch_path, 'r') as f:
+            launch_file = json.load(f, object_pairs_hook=OrderedDict)
+    except IOError, e:
+        error(e)
+    
+    new_launch = {}
+    #print new_launch
+    new_launch['version'] = launch_file['version']
+    #print new_launch
+    new_launch['configurations'] = []
+    #print new_launch
+    for c in launch_file['configurations']:
+        if c['name'] != 'Debug':
+            return
+
+        c['program'] = '${workspaceRoot}/out/%s/binary/%s.elf' % (target, target)
+        c['miDebuggerServerAddress'] = 'localhost:%d' % port
+        c['setupCommands'][1]['text'] = 'target remote localhost:%d' % port
+        c['setupCommands'][2]['text'] = 'file out/%s/binary/%s.elf' % (target, target)
+
+        if host_os == 'Win32':
+            c['windows']['miDebuggerPath'] = gdb_path
+        elif host_os == 'Linux32' or host_os == 'Linux64':
+            c['linux']['miDebuggerPath'] = gdb_path
+        elif host_os == 'OSX':
+            c['osx']['miDebuggerPath'] = gdb_path
+        
+        new_launch['configurations'].append(c)
+        #print new_launch
+    # print new_launch
+    
+    try:
+        write_json(launch_path, new_launch)
+    except IOError, e:
+        error(e)
+
+
 def _run_debug_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None, startclient=False, gdb_args=None):
     """ Run the command from cmd file """
     ret = 0
@@ -92,23 +164,22 @@ def _run_debug_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None, 
     if not configs:
         error("Can not read flash configs from %s" % cmd_file)
 
-    (start_server, surl) = process_cmd(configs['start_server'], host_os, aos_path, target, program_path, bin_dir)
-    (start_client, curl) = process_cmd(configs['start_client'], host_os, aos_path, target, program_path, bin_dir)
-
-    if not os.path.isfile(start_server[0]):
-        download_tool(start_server[0], surl)
-
-    if not os.path.isfile(start_client[0]):
-        download_tool(start_client[0], curl)
+    if not configs.has_key('port'):
+        error("need PORT in debug config file: %s" % cmd_file)
+    
+    # upload firmware first
+    if configs.has_key('upload') and configs['upload'] == True:
+        if aos_upload(target, aos_path):
+            error("Upload firmware error")
+    
+    update_launch(aos_path, target, configs['port'])
+    start_server = process_cmd(configs['cmd'], host_os, aos_path, target, program_path, bin_dir)
 
     args_list = []
     if gdb_args:
         args_list = gdb_args.split(' ')
 
-    if startclient:
-        start_cmd = start_client + args_list
-    else:
-        start_cmd = start_server
+    start_cmd = start_server
 
     info("Running cmd:\n\t'%s'\n" % ' '.join(start_cmd))
 
@@ -117,6 +188,9 @@ def _run_debug_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None, 
     else:
         ret = subprocess.call(start_cmd, stdout=sys.stdout, stderr=sys.stderr)
 
+    if ret != 0 and configs['prompt']:
+        info("%s" % configs['prompt'])
+    
     return ret
 
 def _debug_app(target, aos_path, registry_file, program_path=None, bin_dir=None, startclient=False, gdb_args=None):
@@ -126,6 +200,11 @@ def _debug_app(target, aos_path, registry_file, program_path=None, bin_dir=None,
     cmd_files = None
     ret = 0
 
+    # Check elf exist
+    elf_file = os.path.join(aos_path, "out", target, "binary", "%s.elf" % target)
+    if not os.path.exists(elf_file):
+        error("Please build target[%s] first" % target)
+    
     # Get valid board from registry file
     registry_board = read_json(registry_file)
 
@@ -163,7 +242,7 @@ def aos_debug(target, work_path=None, bin_dir=None, startclient=False, gdb_args=
     if work_path:
         aos_path = work_path
     else:
-        if os.path.isdir('./kernel/rhino'):
+        if os.path.isdir('./kernel/rhino') or os.path.isdir('./include/aos'):
             info("Currently in aos_sdk_path: '%s'\n" % os.getcwd())
             aos_path = os.getcwd()
         else:
