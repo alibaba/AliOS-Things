@@ -2,7 +2,7 @@
 This profile defines BLE Mesh basics and sample to join AliGenie (https://open.bot.tmall.com/) BLE Mesh network.
 
 ### Application
-- bleadv
+- blemesh_tmall
 
 ### Boards Supported
 - pca10040
