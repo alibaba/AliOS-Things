@@ -6,16 +6,15 @@ config AOS_BOARD_NUMAKER_PFM_M487
     select AOS_COMP_NETMGR
     select AOS_COMP_SAL if WIFI = 1
     select AOS_COMP_DEVICE_SAL_MK3060 if WIFI = 1
-    select AOS_COMP_LWIP if ETHERNET = 1
-    select AOS_COMP_YLOOP if ETHERNET = 1
+    select AOS_COMP_LWIP if ETHERNET = y
+    select AOS_COMP_YLOOP if ETHERNET = y
     help
 
 if AOS_BOARD_NUMAKER_PFM_M487
 # Configurations for board numaker-pfm-m487
 
 config ETHERNET
-    int "ETHERNET"
-    range 0 1
-    default 1
+    bool "ETHERNET"
+    default y
 
 endif
