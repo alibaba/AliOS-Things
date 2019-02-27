@@ -35,20 +35,16 @@ noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \
 
 MAKEFILE_TARGETS += $(noconfig_targets)
 
-# Pull in user's configuration file
-#ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
-#-include $(AOS_CONFIG)
-#endif
-
 # Use -include for GCC and --preinclude for other ARM compilers
-INCLUDE_OPTS = -include
-ifneq (, $(filter iar armcc rvct, $(COMPILER)))
-INCLUDE_OPTS = --preinclude            #armcc icc
-INCLUDE_AUTOCONF_CPRE_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), $(AOS_CONFIG_DIR)/autoconf.h )      #armasm
-endif
+GCC_INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), -include $(AOS_CONFIG_DIR)/autoconf.h)
+ARMCC_INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), --preinclude $(AOS_CONFIG_DIR)/autoconf.h)
+# Use --cpreproc --cpreproc_opts=--preinclude,autoconf.h for armasm
+ARMASM_INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), --cpreproc --cpreproc_opts=--preinclude$(COMMA)$(AOS_CONFIG_DIR)/autoconf.h)
+# Use -Dsymbol=\"value\" for iasmarm
+IASMARM_INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), $(shell $(PYTHON) $(SCRIPTS_PATH)/aos_autoconf_convert.py $(AOS_CONFIG_DIR)/autoconf.h))
 
-INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), $(INCLUDE_OPTS) $(AOS_CONFIG_DIR)/autoconf.h)
-INCLUDE_SYSCONFIG_H = $($(if $(wildcard $(SYSCONFIG_H)), $(INCLUDE_OPTS) $(SYSCONFIG_H)))
+GCC_INCLUDE_SYSCONFIG_H = $($(if $(wildcard $(SYSCONFIG_H)), -include $(SYSCONFIG_H)))
+ARMCC_INCLUDE_SYSCONFIG_H = $($(if $(wildcard $(SYSCONFIG_H)), --preinclude $(SYSCONFIG_H)))
 
 ifneq ($(HOST_OS),Win32)
 COMMON_CONFIG_ENV = \

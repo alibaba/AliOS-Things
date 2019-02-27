@@ -309,19 +309,20 @@ EXTRA_CFLAGS := \
                 -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END) \
                 -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
 
-# Append "-include/--preinclude auto.h" to EXTRA_CFLAGS
-# TODO: fix auto.h path for Keil/IAR project
-EXTRA_CFLAGS += $(call INCLUDE_AUTOCONF_H) $(call INCLUDE_SYSCONFIG_H)
+# Append "-include/--preinclude autoconf.h" to EXTRA_CFLAGS
+ifneq ($(filter armcc iar rvct, $(COMPILER)),)
+EXTRA_CFLAGS += $(call ARMCC_INCLUDE_AUTOCONF_H) $(call ARMCC_INCLUDE_SYSCONFIG_H)
+else
+EXTRA_CFLAGS += $(call GCC_INCLUDE_AUTOCONF_H) $(call GCC_INCLUDE_SYSCONFIG_H)
+endif
 
-# Some objects are built from .S files, autoconf macros are needed
-#default gcc
-ifeq ($(COMPILER),)
-EXTRA_ASMFLAGS += $(call INCLUDE_AUTOCONF_H)
-else ifeq ($(COMPILER),gcc)
-EXTRA_ASMFLAGS += $(call INCLUDE_AUTOCONF_H)
-else ifeq ($(COMPILER),armcc)
-EXTRA_ASM_TMP = $(strip $(call INCLUDE_AUTOCONF_CPRE_H))
-EXTRA_ASMFLAGS += --cpreproc --cpreproc_opts=--preinclude,$(EXTRA_ASM_TMP)
+# For .S files that used macros defined by autoconf.h
+ifneq ($(filter armcc rvct, $(COMPILER)),)
+EXTRA_ASMFLAGS += $(call ARMASM_INCLUDE_AUTOCONF_H)
+else ifeq ($(COMPILER),iar)
+EXTRA_ASMFLAGS += $(call IASMARM_INCLUDE_AUTOCONF_H)
+else
+EXTRA_ASMFLAGS += $(call GCC_INCLUDE_AUTOCONF_H)
 endif
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles

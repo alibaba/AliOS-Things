@@ -1,7 +1,7 @@
 import os
 import sys
 import string
-import re
+import re, shutil
 
 import xml.etree.ElementTree as etree
 import config_mk
@@ -231,6 +231,11 @@ def main():
 
     # create uvoptx file
     gen_optxfile(optx_tree, optx_file, buildstring)
+
+    # copy out/config/autoconf.h to project dir
+    autoconf_h = "out/config/autoconf.h"
+    if os.path.isfile(autoconf_h):
+        shutil.copyfile(autoconf_h, os.path.join(os.path.dirname(projx_file), "autoconf.h"))
 
     print "Keil project created at %s" % (projx_file)
 
