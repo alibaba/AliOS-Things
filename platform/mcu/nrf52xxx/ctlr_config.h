@@ -21,8 +21,6 @@
 #define CONFIG_BT_CTLR_XTAL_THRESHOLD 5168
 #endif
 
-#define CONFIG_BT_RECV_IS_RX_THREAD
-
 #if defined(__cplusplus)
 }
 #endif
