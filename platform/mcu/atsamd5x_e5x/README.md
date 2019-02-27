@@ -1,15 +1,11 @@
-## Over View
-
-## Feature of Board
-
-## Directories
+## Contents
 
 ```sh
 atsamd5x_e5x # configuration files for platform/mcu atsamd5x_e5x
 ```
 
-## Board Hardware Resources
+## Overview
 
-## Update log
+## Resources
 
 ## Reference

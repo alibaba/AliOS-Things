@@ -1,15 +1,11 @@
-## Over View
-
-## Feature of Board
-
-## Directories
+## Contents
 
 ```sh
 xm510 # configuration files for platform/mcu xm510
 ```
 
-## Board Hardware Resources
+## Overview
 
-## Update log
+## Resources
 
 ## Reference

@@ -1,17 +1,11 @@
-## Overview
-
-## Feature of Board
-
-## Directories
+## Contents
 
 ```sh
 xr871 # configuration files for platform/mcu xr871
 ```
 
-## Board Hardware Resources
+## Overview
 
-## Update log
+## Resources
 
 ## Reference
-
-

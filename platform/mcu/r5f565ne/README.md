@@ -1,7 +1,7 @@
 ## Contents
 
 ```sh
-m487jidae # configuration files for platform/mcu m487jidae
+r5f565ne # configuration files for platform/mcu r5f565ne
 ```
 
 ## Overview

@@ -1,17 +1,11 @@
-## Overview
-
-## Feature of Board
-
-## Directories
+## Contents
 
 ```sh
 wm_w600 # configuration files for platform/mcu wm_w600
 ```
 
-## Board Hardware Resources
+## Overview
 
-## Update log
+## Resources
 
 ## Reference
-
-

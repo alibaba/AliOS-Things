@@ -1,17 +1,11 @@
-## Overview
-
-## Feature of Board
-
-## Directories
+## Contents
 
 ```sh
 hk32f103 # configuration files for platform/mcu hk32f103
 ```
 
-## Board Hardware Resources
+## Overview
 
-## Update log
+## Resources
 
 ## Reference
-
-
