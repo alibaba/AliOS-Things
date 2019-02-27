@@ -9,38 +9,34 @@ if 0
 # Configurations for component rhino
 
 config RHINO_CONFIG_SEM
-    int "RHINO_CONFIG_SEM"
-    range 0 1
-    default 1
+    bool "RHINO_CONFIG_SEM"
+    default y
     help
-       set to 1 if you want to enable sem, set to 0 to disable sem,
-       default 1
+       set to y if you want to enable sem, set to n to disable sem,
+       default y
 
 config RHINO_CONFIG_QUEUE
-    int "RHINO_CONFIG_QUEUE"
-    range 0 1
-    default 1
+    bool "RHINO_CONFIG_QUEUE"
+    default y
     help
-       set to 1 if you want to enable queue, set to 0 to disable queue,
-       default 1
+       set to y if you want to enable queue, set to n to disable queue,
+       default y
 
 config RHINO_CONFIG_BUF_QUEUE
-    int "RHINO_CONFIG_BUF_QUEUE"
-    range 0 1
-    default 1
+    bool "RHINO_CONFIG_BUF_QUEUE"
+    default y
     help
-       set to 1 if you want to enable buf_queue, set to 0 to disable buf_queue,
-       default 1
+       set to y if you want to enable buf_queue, set to n to disable buf_queue,
+       default y
 
 config RHINO_CONFIG_WORKQUEUE
-    int "RHINO_CONFIG_WORKQUEUE"
-    range 0 1
-    default 0
+    bool "RHINO_CONFIG_WORKQUEUE"
+    default n
     help
-       set to 1 if you want to enable workqueue, set to 0 to disable workqueue,
-       default 0
+       set to y if you want to enable workqueue, set to n to disable workqueue,
+       default n
 
-if RHINO_CONFIG_WORKQUEUE = 1
+if RHINO_CONFIG_WORKQUEUE = y
 
 config RHINO_CONFIG_WORKQUEUE_STACK_SIZE
     int "RHINO_CONFIG_WORKQUEUE_STACK_SIZE"
@@ -58,13 +54,12 @@ config RHINO_CONFIG_WORKQUEUE_TASK_PRIO
 endif
 
 config RHINO_CONFIG_TIMER
-    int "RHINO_CONFIG_TIMER"
-    range 0 1
-    default 1
+    bool "RHINO_CONFIG_TIMER"
+    default y
     help
-       set to 1 if you want to enable timer, set to 0 to disable timer, default 1
+       set to y if you want to enable timer, set to n to disable timer, default y
 
-if RHINO_CONFIG_TIMER = 1
+if RHINO_CONFIG_TIMER = y
 
 config RHINO_CONFIG_TIMER_TASK_STACK_SIZE
     int "RHINO_CONFIG_TIMER_TASK_STACK_SIZE"
@@ -83,34 +78,31 @@ config RHINO_CONFIG_TIMER_TASK_PRI
 endif
 
 config RHINO_CONFIG_MM_TLF
-    int "RHINO_CONFIG_MM_TLF"
-    range 0 1
-    default 1
+    bool "RHINO_CONFIG_MM_TLF"
+    default y
     help
-       set to 1 if you want to enable mm tlf, set to 0 to disable mm tlf,
-       default 1
+       set to y if you want to enable mm tlf, set to n to disable mm tlf,
+       default y
 
-if RHINO_CONFIG_MM_TLF = 1
+if RHINO_CONFIG_MM_TLF = y
 
 config RHINO_CONFIG_MM_DEBUG
-    int "RHINO_CONFIG_MM_DEBUG"
-    range 0 1
-    default 0
+    bool "RHINO_CONFIG_MM_DEBUG"
+    default n
     help
-       set to 1 if you want to enable mm debug, set to 0 to disable debug,
-       default 0
+       set to y if you want to enable mm debug, set to n to disable debug,
+       default n
 
 endif
 
 config RHINO_CONFIG_SCHED_RR
-    int "RHINO_CONFIG_SCHED_RR"
-    range 0 1
-    default 1
+    bool "RHINO_CONFIG_SCHED_RR"
+    default y
     help
-       set to 1 if you want to enable round robin, set to 0 to disable round robin,
-       default 1
+       set to y if you want to enable round robin, set to n to disable round robin,
+       default y
 
-if RHINO_CONFIG_SCHED_RR = 1
+if RHINO_CONFIG_SCHED_RR = y
 
 config RHINO_CONFIG_TIME_SLICE_DEFAULT
     int "RHINO_CONFIG_TIME_SLICE_DEFAULT"
@@ -135,12 +127,11 @@ config RHINO_CONFIG_PRI_MAX
        the higher of the value, the lower of the priority
 
 config RHINO_CONFIG_TASK_STACK_OVF_CHECK
-    int "RHINO_CONFIG_TASK_STACK_OVF_CHECK"
-    range 0 1
-    default 1
+    bool "RHINO_CONFIG_TASK_STACK_OVF_CHECK"
+    default y
     help
-       set to 1 if you want to enable stack overflow check,
-       set to 0 to disable stack overflow check, default 1
+       set to y if you want to enable stack overflow check,
+       set to n to disable stack overflow check, default y
 
 config RHINO_CONFIG_IDLE_TASK_STACK_SIZE
     int "RHINO_CONFIG_IDLE_TASK_STACK_SIZE"
