@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
@@ -624,8 +625,12 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     int ret = 0;
     char rsp[AT_CMD_GPS_DEFAULT_RSP_LEN] = {0};
 
-    latitude = 90; /* north pole */
-    altitude = 0;
+    *latitude = 90; /* north pole */
+    *altitude = 0;
+
+    if (!inited) {
+        return;
+    }
 
     memset(rsp, 0, sizeof(rsp));
     ret = at_send_wait_reply(AT_CMD_GPS_POWER_ON, strlen(AT_CMD_GPS_POWER_ON),
@@ -634,7 +639,7 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL))
     {
         LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
-        return -1;
+        return;
     }
 
     memset(rsp, 0, sizeof(rsp));
@@ -644,7 +649,7 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL))
     {
         LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
-        return -1;
+        return;
     }
 
     memset(rsp, 0, sizeof(rsp));
@@ -654,7 +659,7 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL))
     {
         LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
-        return -1;
+        return;
     }
 
     memset(rsp, 0, sizeof(rsp));
@@ -664,10 +669,10 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     if ((0 != ret) || (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL))
     {
         LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
-        return -1;
+        return;
     }
 
-    LOGE(TAG, "%s %d failed rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
+    LOGI(TAG, "%s %d rsp %s errno %d\r\n", __func__, __LINE__, rsp,ret);
 
 
     /* +CGNSINF: <GNSS run status>,<Fix status>,
@@ -690,11 +695,12 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     ret = sscanf(rsp, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,]",
                  tmp_buf, tmp_buf, tmp_buf, tmp_lat, tmp_log, tmp_alt, tmp_buf);
 
-    if (ret < GET_GPS_INFO_MIN_NUM)
+    if (ret >= GET_GPS_INFO_MIN_NUM)
     {
-        latitude  = atoi(tmp_lat);
-        longitude = atoi(tmp_log);
-        altitude  = atoi(tmp_alt);
+        *latitude  = (float)atof(tmp_lat);
+        *longitude = (float)atof(tmp_log);
+        *altitude  = (float)atof(tmp_alt);
+        *altitude = *altitude > 0 ? *altitude : 0;
     }
 }
 int HAL_SAL_Init(void)
