@@ -13,7 +13,8 @@ GLOBAL_INCLUDES += drivers/        \
                    drivers/library/Include \
                    drivers/cmsis
 
-$(NAME)_SOURCES += hal/hw.c
+$(NAME)_SOURCES += hal/hw.c \
+	           hal/hal_uart.c 
 
 # The library is built by Keil4 (source file is under driver directory)
 ifeq ($(HOST_MCU_NAME), HR8P296)
