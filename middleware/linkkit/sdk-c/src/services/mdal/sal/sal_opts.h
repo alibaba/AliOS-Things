@@ -15,7 +15,7 @@
 #define SAL_UDP_CLIENT_ENABLED        SAL_OPT_ENABLED
 
 /* asynchronized send mode support. */
-#define SAL_PACKET_SEND_MODE_ASYNC    SAL_OPT_ENABLED
+#define SAL_PACKET_SEND_MODE_ASYNC    SAL_OPT_DISABLED
 
 /* debug, assert, error log support */
 #define SAL_USE_DEBUG                 SAL_OPT_DISABLED
