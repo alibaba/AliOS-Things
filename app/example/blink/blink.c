@@ -44,7 +44,7 @@ static void gpio_isr_handler(void* arg)
     uint32_t value = 0;
     hal_gpio_input_get(&input, &value);
     hal_gpio_output_toggle(&led);
-    LOG("GPIO[%d] intr, val: %d\n", gpio_num, value);
+    LOG("GPIO[%u] intr, val: %u\n", gpio_num, value);
 } 
 
 static void app_trigger_low_action(void *arg)
