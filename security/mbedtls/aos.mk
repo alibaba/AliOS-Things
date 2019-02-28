@@ -3,6 +3,8 @@ NAME := imbedtls
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.0.1
 $(NAME)_SUMMARY := Mbed Transport Layer Security on Embedded Devices for AliOS Things
+#if component's header files under another directory, add RPM_INCLUDE_DIR to indicate where the header file folder is located
+RPM_INCLUDE_DIR := ../include/mbedtls
 
 DEBUG := no
 

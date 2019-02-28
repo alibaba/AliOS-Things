@@ -3,6 +3,8 @@ NAME := irot
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 1.0.0
 $(NAME)_SUMMARY := root of trust, based on mcu, se or tee
+#if component's header files under another directory, add RPM_INCLUDE_DIR to indicate where the header file folder is located
+RPM_INCLUDE_DIR := ../include/irot
 
 GLOBAL_INCLUDES += ../include/irot
 
