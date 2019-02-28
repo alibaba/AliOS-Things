@@ -39,6 +39,15 @@ define TARGET_DEPRECATED_ERROR
 $(error Build Target Deprecated!)
 endef
 
+define BUILD_INCOMPATIBLE_ERROR
+$(info *********************************************************************)
+$(info The $(1) is incompatible with "aos make")
+$(info )
+$(info Please refer to its README and build it with proper tools)
+$(info *********************************************************************)
+$(error Build Incompatible!)
+endef
+
 all:
 	$(QUIET)$(if $(wildcard $(AOS_CONFIG)),,$(call NO_CONFIG_ERROR))
 
@@ -154,6 +163,7 @@ $(if $(boardmkfile),\
     $(eval include $(boardmkfile)) $(eval real_boardname = $(NAME)),\
     $(eval real_boardname = $(boardname)))
 
+$(if $(filter no,$(AOS_BUILD_COMPATIBLE)), $(call BUILD_INCOMPATIBLE_ERROR,$(boardname)))
 defconfig = $(wildcard $(SOURCE_ROOT)board/$(boardname)/defconfig)
 ifneq ($(defconfig),)
 export BOARD_DEFCONFIG := $(defconfig)
