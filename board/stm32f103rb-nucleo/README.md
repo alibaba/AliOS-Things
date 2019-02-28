@@ -1,6 +1,6 @@
 ## Overview
-This is a board demo for consulting, not a true realization.
-## Feature of Board
+
+**The Stm32f103rb-nucleo** performance line microcontroller incorporates the high-performance ARM® Cortex™-M3 32-bit RISC core operating at a 72 MHz frequency, high-speed embedded memories, and an extensive range of enhanced I/Os and peripherals connected to two APB buses. The STM32F103RC offers three 12-bit ADCs, four general-purpose 16- bit timers plus two PWM timers, as well as standard and advanced communication interfaces: up to two I2Cs, three SPIs, two I2Ss, one SDIO, five USARTs, an USB and a CAN.
 
 ## Directories
 ```sh
@@ -28,6 +28,10 @@ Dir\File                                Description                             
 ```
 
 ## Board Hardware Resources
+
+* CPU: ARM Cortex M3
+* Flash: 128 KB
+* RAM: 20 KB
 
 ## Pin Mapping
 
