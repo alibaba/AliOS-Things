@@ -88,7 +88,7 @@ static void handle_diff_cmd(char *pwbuf, int blen, int argc, char **argv)
         ota_info.splict_size = splict_size;
         ota_info.upg_flag = OTA_DIFF;
         ota_info.res_type = OTA_FINISH;
-        LOG("%s %d %d %p\n", rtype, ota_size, splict_size, &ota_info);
+        LOG("%s %u %u %p\n", rtype, ota_size, splict_size, &ota_info);
         ota_hal_boot(&ota_info);
         //hal_ota_switch_to_new_fw(&ota_info);
     }
