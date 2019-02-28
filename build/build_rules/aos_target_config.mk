@@ -269,7 +269,7 @@ BUILD_TYPE_LIST := debug \
                    release
 
 # Filter out the BUILD_TYPE from COMPONENTS
-BUILD_TYPE          := $(if $(filter $(BUILD_TYPE_LIST),$(COMPONENTS)),$(firstword $(filter $(BUILD_TYPE_LIST),$(COMPONENTS))),release_log)
+BUILD_TYPE          := $(if $(filter $(BUILD_TYPE_LIST),$(BUILD_TYPE)),$(firstword $(filter $(BUILD_TYPE_LIST),$(BUILD_TYPE))),release_log)
 COMPONENTS          := $(filter-out $(BUILD_TYPE_LIST), $(COMPONENTS))
 
 # Set LDFLAGS according to BUILD_TYPE
