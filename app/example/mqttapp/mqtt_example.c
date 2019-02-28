@@ -235,7 +235,7 @@ int mqtt_client(void)
         if (rc < 0) {
             EXAMPLE_TRACE("error occur when publish");
         }
-        EXAMPLE_TRACE("packet-id=%u, publish topic msg=%s", (uint32_t)rc, msg_pub);
+        EXAMPLE_TRACE("packet-id=%lu, publish topic msg=%s", (uint32_t)rc, msg_pub);
 
         /* handle the MQTT packet received from TCP or SSL connection */
         IOT_MQTT_Yield(pclient, 200);
