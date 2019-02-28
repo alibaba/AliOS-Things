@@ -152,7 +152,9 @@ void stm32_peripheral_init(void)
     /*i2c bus 1 init*/
     I2C1_init();
     /*default can init*/
-    //CAN_init();
+    #ifdef PT_SENSOR
+    CAN_init();
+    #endif
 }
 
 static void stduart_init(void)
