@@ -109,19 +109,19 @@ static const char UPLOAD_STRING[] =
 static void on_header(uint32_t stream_id, char *channel_id,int cat,const uint8_t *name,uint32_t namelen, 
                               const uint8_t *value,uint32_t valuelen, uint8_t flags ,void *user_data)
 {
-    EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, name = %s, value = %s, flag = %d user_data =%p\n", stream_id,channel_id,name,value,flags ,user_data);
+    EXAMPLE_TRACE("~~~~~stream_id = %lu, channel_id=%s, name = %s, value = %s, flag = %d user_data =%p\n", stream_id,channel_id,name,value,flags ,user_data);
 }
 
 static void on_chunk_recv(uint32_t stream_id, char *channel_id,const uint8_t *data, uint32_t len,uint8_t flags,void *user_data)
 {
-     EXAMPLE_TRACE("~~~~~stream_id = %d, channel_id=%s, data = %.*s, len = %d flag = %d\n", stream_id, channel_id, len, data, len, flags);
+     EXAMPLE_TRACE("~~~~~stream_id = %lu, channel_id=%s, data = %.*s, len = %lu flag = %d\n", stream_id, channel_id, len, data, len, flags);
 }
 static void on_stream_close(uint32_t stream_id, char *channel_id,uint32_t error_code,void *user_data)
 {
-     EXAMPLE_TRACE("~~~~~stream_id = %d channel_id=%s, error_code = %d\n", stream_id,channel_id,error_code);
+     EXAMPLE_TRACE("~~~~~stream_id = %lu channel_id=%s, error_code = %lu\n", stream_id,channel_id,error_code);
 }
 static void on_stream_frame_send(uint32_t stream_id, char *channel_id, int type, uint8_t flags,void *user_data){
-    EXAMPLE_TRACE("~~~~~stream_id = %d user_data =%p, type = %d\n", stream_id,user_data,type);
+    EXAMPLE_TRACE("~~~~~stream_id = %lu user_data =%p, type = %d\n", stream_id,user_data,type);
 }
 
 static http2_stream_cb_t my_cb = {
@@ -208,7 +208,7 @@ static int http2_stream_test()
             EXAMPLE_TRACE("send err, ret = %d\n",ret);
             break;
         }
-        EXAMPLE_TRACE("iotx_http2_stream_send info_upload.send_len =%d ret = %d\n", info_upload.send_len,ret);
+        EXAMPLE_TRACE("iotx_http2_stream_send info_upload.send_len =%lu ret = %d\n", info_upload.send_len,ret);
     }
 
     //send request 2
