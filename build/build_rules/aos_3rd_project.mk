@@ -47,8 +47,6 @@ endef
 ###############################################################################
 # MACRO: PROCESS_COMPONENT_OPTS
 # $(1): Component name
-# TODO:
-#   Get all the options from config.mk instead of aos_target_config.mk runtime
 define PROCESS_COMPONENT_OPTS
 
 $(eval AS_OPTS_IAR :=)
