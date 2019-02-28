@@ -36,7 +36,9 @@ GLOBAL_DEFINES += CONFIG_YWSS
 # or product doesn't need device AP solution, please remove
 # the defination of AWSS_SUPPORT_DEV_AP
 #
+ifeq ($(AWSS_SUPPORT_DEV_AP), y)
 GLOBAL_DEFINES += AWSS_SUPPORT_DEV_AP
+endif
 
 #
 # If chipset or die set doesn't support smartconfig with broadcast,
@@ -47,7 +49,10 @@ GLOBAL_DEFINES += AWSS_SUPPORT_DEV_AP
 #  AWSS_SUPPORT_SMARTCONFIG is depend on AWSS_SUPPORT_APLIST
 #  AWSS_SUPPORT_SMARTCONFIG cann't work without AWSS_SUPPORT_APLIST
 #
+
+ifeq ($(AWSS_SUPPORT_SMARTCONFIG), y)
 GLOBAL_DEFINES += AWSS_SUPPORT_SMARTCONFIG
+endif
 
 #
 # If chipset or die set doesn't support smartconfig with wps,
@@ -58,7 +63,19 @@ GLOBAL_DEFINES += AWSS_SUPPORT_SMARTCONFIG
 #  AWSS_SUPPORT_SMARTCONFIG_WPS is depend on AWSS_SUPPORT_SMARTCONFIG and AWSS_SUPPORT_APLIST
 #  AWSS_SUPPORT_SMARTCONFIG_WPS can't work without AWSS_SUPPORT_SMARTCONFIG and AWSS_SUPPOrt_APLIST
 #
+ifeq ($(AWSS_SUPPORT_SMARTCONFIG), y)
 GLOBAL_DEFINES += AWSS_SUPPORT_SMARTCONFIG_WPS
+endif
+
+#
+# If chipset or die set doesn't support smartconfig with ht40, or product doesn't
+# need smartconfig with ht40, please remove the defination of AWSS_SUPPORT_HT40
+#
+#Note:
+#  Most of chipset or die set doesn't suport HT40, so we close HT40 defaultly.
+#ifeq ($(AWSS_SUPPORT_SMARTCONFIG), y)
+#GLOBAL_DEFINES += AWSS_SUPPORT_HT40
+#endif
 
 #
 # If chipset or die set doesn't suppor AWSS with types of phone ap or router,
@@ -68,7 +85,9 @@ GLOBAL_DEFINES += AWSS_SUPPORT_SMARTCONFIG_WPS
 #  AWSS_SUPPORT_AHA is depend on AWSS_SUPPORT_APLIST
 #  AWSS_SUPPORT_AHA cann't work without AWSS_SUPPORT_APLIST
 #
+ifeq ($(AWSS_SUPPORT_PHONEASAP), y)
 GLOBAL_DEFINES += AWSS_SUPPORT_AHA
+endif
 
 #
 # If chipset or die set doesn't suppor AWSS with type of router, or product
@@ -78,7 +97,10 @@ GLOBAL_DEFINES += AWSS_SUPPORT_AHA
 #  AWSS_SUPPORT_ADHA is depend on AWSS_SUPPORT_AHA and AWSS_SUPPORT_APLIST
 #  AWSS_SUPPORT_ADHA can't work without AWSS_SUPPORT_AHA and AwSS_SUPPOrT_APLIST
 #
+
+ifeq ($(AWSS_SUPPORT_ROUTER), y)
 GLOBAL_DEFINES += AWSS_SUPPORT_ADHA
+endif
 
 #
 # If chipset or die set doesn't suppor AWSS with aplist, or product doesn't need
@@ -91,19 +113,13 @@ GLOBAL_DEFINES += AWSS_SUPPORT_ADHA
 GLOBAL_DEFINES += AWSS_SUPPORT_APLIST
 
 #
-# If chipset or die set doesn't support smartconfig with ht40, or product doesn't
-# need smartconfig with ht40, please remove the defination of AWSS_SUPPORT_HT40
-#
-#Note:
-#  Most of chipset or die set doesn't suport HT40, so we close HT40 defaultly.
-#GLOBAL_DEFINES += AWSS_SUPPORT_HT40
-
-#
 # If chipset or die set doesn't support zconfig working as registrar,
 # or product doesn't need to work as register, please define AWSS_DISABLE_REGISTRAR
 # to disable registrar as follows:
-#
-# GLOBAL_DEFINES += AWSS_DISABLE_REGISTRAR
+
+ifneq ($(AWSS_SUPPORT_ZEROCONFIG), y)
+GLOBAL_DEFINES += AWSS_DISABLE_REGISTRAR
+else
 #
 # ESP8266 and MK3165 don't support registrar, so we define AWSS_DISABLE_REGISTRAR defaultly.
 #
@@ -113,6 +129,7 @@ endif
 
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), MK3165)
 GLOBAL_DEFINES += AWSS_DISABLE_REGISTRAR
+endif
 endif
 
 ifeq ($(COMPILER),)
