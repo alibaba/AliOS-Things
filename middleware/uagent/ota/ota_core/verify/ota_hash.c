@@ -371,7 +371,7 @@ void ota_destroy_bin_md5_context()
 int ota_check_image(unsigned int size)
 {
     int ret = 0;
-#if defined (AOS_COMP_OTA_FW_MD5)
+#if defined (OTA_CONFIG_FW_MD5)
     int i = 0;
     int off_set = 0;
     char image_md5_value[33] = {0};
@@ -381,7 +381,7 @@ int ota_check_image(unsigned int size)
     char test_buf[33] = { 0 };
     int bin_size = size;
     ota_image_t ota_image_identity = { 0};
-   
+
     if(size <= sizeof(ota_image_t)){
         ret = OTA_VERIFY_HASH_FAIL;
         return ret;
