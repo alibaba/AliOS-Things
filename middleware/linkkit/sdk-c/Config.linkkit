@@ -15,8 +15,6 @@ config APP_FEATURE_LINKKIT
     select DEVICE_MODEL_ENABLED
     select HAL_CRYPTO
     select MQTT_COMM_ENABLED
-#    select MQTT_DIRECT
-#    select SUPPORT_TLS
     select UTILS_BASE64
     select UTILS_EVENT
     select UTILS_HTTPC
@@ -28,14 +26,13 @@ config APP_FEATURE_LINKKIT
     select UTILS_STRING
     select WIFI_PROVISION_ENABLED
     select AOS_COMP_IOTX_HAL
+    select AOS_COMP_LIBIOT_UTILS
     default n
 
 config APP_FEATURE_LINKKIT_HTTP2
     bool
     select HAL_CRYPTO
     select HTTP2_COMM_ENABLED
-#    select HTTP_COMM_ENABLED
-#    select SUPPORT_TLS
     select UTILS_BASE64
     select UTILS_EVENT
     select UTILS_HTTPC
@@ -46,14 +43,13 @@ config APP_FEATURE_LINKKIT_HTTP2
     select UTILS_SHA256
     select UTILS_STRING
     select AOS_COMP_IOTX_HAL
+    select AOS_COMP_LIBIOT_UTILS
     default n
 
 config APP_FEATURE_LINKKIT_MQTT
     bool
     select HAL_CRYPTO
     select MQTT_COMM_ENABLED
-#    select MQTT_DIRECT
-#    select SUPPORT_TLS
     select UTILS_BASE64
     select UTILS_EVENT
     select UTILS_HTTPC
@@ -62,6 +58,7 @@ config APP_FEATURE_LINKKIT_MQTT
     select UTILS_SHA256
     select UTILS_STRING
     select AOS_COMP_IOTX_HAL
+    select AOS_COMP_LIBIOT_UTILS
     default n
 
 config APP_FEATURE_LINKKIT_COAP
@@ -79,6 +76,7 @@ config APP_FEATURE_LINKKIT_COAP
     select UTILS_SHA256
     select UTILS_STRING
     select AOS_COMP_IOTX_HAL
+    select AOS_COMP_LIBIOT_UTILS
     default n
 
 config APP_FEATURE_LINKKIT_GATEWAY
@@ -87,11 +85,8 @@ config APP_FEATURE_LINKKIT_GATEWAY
     select DEVICE_MODEL_ENABLED
     select DEVICE_MODEL_GATEWAY
     select HAL_CRYPTO
-    select HTTP_COMM_ENABLED
     select MQTT_COMM_ENABLED
-#    select MQTT_DIRECT
     select SUBDEVICE_ENABLED
-#    select SUPPORT_TLS
     select UTILS_BASE64
     select UTILS_EVENT
     select UTILS_HTTPC
@@ -103,4 +98,24 @@ config APP_FEATURE_LINKKIT_GATEWAY
     select UTILS_STRING
     select WIFI_PROVISION_ENABLED
     select AOS_COMP_IOTX_HAL
+    select AOS_COMP_LIBIOT_UTILS
+
+    default n
+
+config APP_FEATURE_LINKKIT_TESTSUITES
+    bool
+    select HAL_CRYPTO
+    select UTILS_BASE64
+    select UTILS_EVENT
+    select UTILS_HTTPC
+    select UTILS_MD5
+    select UTILS_SHA1
+    select UTILS_SHA256
+    select UTILS_STRING
+    select UTILS_JSON_PARSER
+    select UTILS_LITE_CJSON
+    select AOS_COMP_IOTX_HAL
+    select AOS_COMP_LIBIOT_UTILS
+    select AOS_COMP_LIBIOT_LOG
+    select AOS_COMP_LIBIOT_SDK_IMPL
     default n
