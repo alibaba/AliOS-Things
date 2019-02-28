@@ -256,7 +256,7 @@ static void ota_download_thread(void *hand)
         goto ERR;
     }
     if( ctx->sign_en == OTA_SIGN_ON) {
-#if defined AOS_COMP_OTA_RSA
+#if defined OTA_CONFIG_RSA
         ret = ota_verify_download_rsa_sign((unsigned char*)ctx->sign, (const char*)ctx->hash, (OTA_HASH_E)ctx->hash_type);
         if(ret < 0) {
             ctx->upg_status = OTA_VERIFY_RSA_FAIL;
@@ -296,7 +296,7 @@ int ota_upgrade_cb(void* pctx, char *json)
         int is_ota = strncmp(ctx->ota_ver, ctx->sys_ver, strlen(ctx->ota_ver));
         if(is_ota > 0) {
             void *thread = NULL;
-#if defined(AOS_COMP_OTA_TLS)
+#if defined(OTA_CONFIG_TLS)
             ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024*6);
 #else
             ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024*4);

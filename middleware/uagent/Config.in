@@ -3,4 +3,5 @@ source "middleware/uagent/udev/Config.in"
 source "middleware/uagent/ulog/Config.in"
 source "middleware/uagent/ota/Config.in"
 source "middleware/uagent/ota/ota_ble/Config.in"
+source "middleware/uagent/ota/2nd_boot/Config.in"
 endmenu
