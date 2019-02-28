@@ -25,7 +25,8 @@ static void k_work_submit_to_queue(struct k_work_q *work_q, struct k_work *work)
         delayed_work = k_queue_first_entry(&g_work_queue.queue);
         sys_slist_insert(&g_work_queue.queue.data_q, prev_delayed_work, work);
 
-        if (work->start_ms + work->timeout < delayed_work->start_ms + delayed_work->timeout) {
+        if (delayed_work &&
+            work->start_ms + work->timeout < delayed_work->start_ms + delayed_work->timeout) {
             event_callback(K_POLL_TYPE_EARLIER_WORK);
         }
     }
