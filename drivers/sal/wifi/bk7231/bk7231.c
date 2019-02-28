@@ -168,7 +168,7 @@ static void handle_socket_data()
         return;
     }
     /* Prepare socket data */
-    recvdata = (char *)aos_malloc(len + 1);
+    recvdata = (char *)aos_malloc(len);
     if (!recvdata) {
         LOGE(TAG, "Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
         return;
@@ -180,14 +180,12 @@ static void handle_socket_data()
         goto err;
     }
 
-    at_read(&single, 1);
-    if (single != '\r') {
-        LOGE(TAG, "at fail to read delimiter %d after data %d!\n", '\r', single);
+    memset(reader, 0, sizeof(reader));
+    at_read(reader, 2);
+    if (strncmp(reader, AT_RECV_PREFIX, 2) != 0) {
+        LOGE(TAG, "at fail to read delimiter %s after data %s!\n", AT_RECV_PREFIX, reader);
         goto err;
     }
-
-    recvdata[len] = '\0';
-    LOGD(TAG, "The socket data is %s", recvdata);
 
     if (g_netconn_data_input_cb && (g_link[link_id].fd >= 0)) {
         /* TODO get recv data src ip and port*/
@@ -264,14 +262,13 @@ static void handle_udp_broadcast_data()
     }
 
     /* Prepare socket data */
-    recvdata = (char *)aos_malloc(len + 1);
+    recvdata = (char *)aos_malloc(len);
     if (!recvdata) {
         LOGE(TAG, "Error: %s %d out of memory, len is %d. \r\n", __func__, __LINE__, len);
         return;
     }
 
     at_read(recvdata, len);
-    recvdata[len] = '\0';
 
     if (strcmp(ipaddr, localipaddr) != 0) {
         if (g_netconn_data_input_cb && (g_link[linkid].fd >= 0)) {
@@ -414,9 +411,9 @@ static void net_event_handler(void *arg, char *buf, int buflen)
 
     LOGD(TAG, "%s exit.", __func__);
 }
-// turn off AT echo
 
-static void mk3060_uart_echo_off()
+// turn off AT echo
+static void bk7231_uart_echo_off()
 {
     char out[64] = {0};
 
@@ -467,6 +464,8 @@ int HAL_SAL_Init(void)
             LOGI(TAG, "%s %d no found any wifi fw version!", __func__, __LINE__);
         }
     }
+
+    bk7231_uart_echo_off();
 
     at_register_callback(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
     at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, 0, bk7231wifi_event_handler, NULL);
