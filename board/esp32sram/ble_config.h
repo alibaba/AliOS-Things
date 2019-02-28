@@ -17,6 +17,8 @@
 #define CONFIG_BT_HCI_RX_STACK_SIZE 1024
 #endif
 
+#define CONFIG_BT_HOST_RX_THREAD
+
 #if defined(__cplusplus)
 }
 #endif
