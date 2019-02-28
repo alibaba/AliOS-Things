@@ -128,11 +128,11 @@ static void http_gethost_info(char *src, char **web, char **file, int *port)
     } else {
         (*web)[strlen(pa)] = 0;
     }
-#if defined AOS_COMP_OTA_TLS || defined AOS_COMP_OTA_ITLS
+#if defined OTA_CONFIG_TLS || defined OTA_CONFIG_ITLS
     isHttps = 1;
-#else /* defined AOS_COMP_OTA_TLS || defined AOS_COMP_OTA_ITLS */
+#else /* defined OTA_CONFIG_TLS || defined OTA_CONFIG_ITLS */
     isHttps = 0;
-#endif /* defined AOS_COMP_OTA_TLS || defined AOS_COMP_OTA_ITLS */
+#endif /* defined OTA_CONFIG_TLS || defined OTA_CONFIG_ITLS */
     pa = strchr(*web, ':');
     if (pa) {
         *pa   = 0;
