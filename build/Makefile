@@ -13,7 +13,7 @@ ifeq (,$(SUB_BUILD))
 JOBSNO := -j$(JOBS)
 endif
 
-MAKEFILE_TARGETS := clean distclean Help # targets used by makefile
+MAKEFILE_TARGETS := clean distclean Help help # targets used by makefile
 
 # define commands on different hosts
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
@@ -217,29 +217,16 @@ BIN2BOOTTYPE_LOWER := .2boot
 
 # Define help message
 define USAGE_TEXT
-Aborting due to invalid targets
 
-Usage: make <target> [download] [run | debug] [JTAG=xxx] [total] [VERBOSE=1] [MBINS=app/kernel]
-       make run
+Usage: aos make <target> -c <[config|menuconfig]>
+       aos make menuconfig
+       aos make [VERBOSE=1] [MBINS=app|kernel] [BUILD_TYPE=debug|release|release_log]
+                [clean|distclean] [export-keil|export-iar] ...
 
   <target>
-    One each of the following mandatory [and optional] components separated by '@'
-      * Application (apps in example)
-      * Board ($(filter-out common  include README.txt,$(notdir $(wildcard board/*))))
-      * [debug | release] Building for debug or release configurations
-
-  [download]
-    Download firmware image to target platform
-
-  [run]
-    Reset and run an application on the target hardware
-
-  [total]
-    Build all targets related to this application and board
-
-  [JTAG=xxx]
-    JTAG interface configuration file from the tools/OpenOCD dirctory
-    Default option is jlink_swd
+    One each of the following mandatory components separated by '@'
+      * Application (apps in app/example/, app/profile/ ...)
+      * Board (boards in board/)
 
   [VERBOSE=1]
     Shows the commands as they are being executed
@@ -247,32 +234,37 @@ Usage: make <target> [download] [run | debug] [JTAG=xxx] [total] [VERBOSE=1] [MB
   [MBINS=app/kernel]
     Build bins: app or kernel
 
+  [BUILD_TYPE=debug|release|release_log]
+    Build for debug, release or release_log (optimize but log enable) configurations
+
   Notes
     * Component names are case sensitive
-    * 'rhino' and 'debug' are reserved component names
     * Component names MUST NOT include space or '@' characters
-    * Building for debug is assumed unless '@release' is appended to the target
+    * BUILD_TYPE is set as release_log by default
 
-  Example Usage
-    Build for Debug
-      $> make helloworld@mk3060
+  Example Usage:
+    Configure and build with default configs:
+      $> aos make helloworld@mk3060 -c config
+      $> aos make
 
-    Build, Download and Run using the default USB-JTAG programming interface
-      $> make helloworld@mk3060 download run
+    Configure and build with customize configs:
+      $> aos make menuconfig
+      $> aos make
 
-    Build for Release
-      $> make helloworld@mk3060@release
+    Customize configs from default and build:
+      $> aos make helloworld@mk3060 -c menuconfig
+      $> aos make
 
-    Reset and run an application on the target hardware
-      $> make run
-
-    Clean output directory
+    Clean output directory (without configs)
       $> make clean
+
+    Clean output directory and configs
+      $> aos make distclean
 endef
 
 ############################
 # Extra options:
-#                CHECK_HEADERS=1 : builds header files to test for their completeness
+#   CHECK_HEADERS=1 : builds header files to test for their completeness
 ############################
 
 OPENOCD_LOG_FILE ?= $(BUILD_DIR)/openocd.log
@@ -288,11 +280,11 @@ COMPONENT_DEPENDENCY_SCRIPT := $(SCRIPTS_PATH)/component_dependencies.py
 COMPONENT_DEPENDENCY = $(PYTHON) $(COMPONENT_DEPENDENCY_SCRIPT)
 export COMPONENT_DEPENDENCY
 
-.PHONY: $(BUILD_STRING) main_app bootloader clean Help download total run download_bootloader export_linkkit_sdk restore_linkkit_sdk
+.PHONY: $(BUILD_STRING) main_app clean Help help export_linkkit_sdk restore_linkkit_sdk
 
-Help:
-	$(TOOLCHAIN_HOOK_TARGETS)
-	$(error $(USAGE_TEXT))
+Help help:
+	$(info $(USAGE_TEXT))
+	$(QUIET)$(ECHO)
 
 clean:
 	$(QUIET)$(ECHO) Cleaning...
