@@ -90,6 +90,10 @@ typedef struct
 #define AT_UART_TIMEOUT_MS     1000
 #endif
 
+#ifndef AT_SEND_DATA_DELAY_MS
+#define AT_SEND_DATA_DELAY_MS  0
+#endif
+
 void *atpsr_malloc(uint32_t size);
 void atpsr_free(void *ptr);
 void *atpsr_mutex_new(void);

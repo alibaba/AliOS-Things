@@ -361,6 +361,9 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     }
 
     if (data && datalen) {
+        if (AT_SEND_DATA_DELAY_MS > 0)
+            aos_msleep(AT_SEND_DATA_DELAY_MS);
+
         if (at_send_no_reply(data, datalen, false) < 0) {
             return -1;
         }
@@ -482,6 +485,9 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     }
 
     if (data && datalen > 0) {
+        if (AT_SEND_DATA_DELAY_MS > 0)
+            aos_msleep(AT_SEND_DATA_DELAY_MS);
+
         if ((ret = at_sendto_lower(at._pstuart, (void *)data, datalen, at._timeout, true)) != 0) {
             atpsr_err("uart send delimiter failed");
             goto end;
