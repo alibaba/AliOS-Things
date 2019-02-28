@@ -14,6 +14,7 @@ GLOBAL_INCLUDES += drivers/        \
                    drivers/cmsis
 
 $(NAME)_SOURCES += hal/hw.c \
+	           hal/hal_uart.c \
                    drivers/library/Source/lib_aes.c \
                    drivers/library/Source/lib_crc.c \
                    drivers/library/Source/lib_dma.c \
