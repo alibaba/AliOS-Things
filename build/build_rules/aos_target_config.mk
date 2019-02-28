@@ -1,5 +1,4 @@
 include $(MAKEFILES_PATH)/aos_host_cmd.mk
-include $(MAKEFILES_PATH)/aos_target_func.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
 # include .config
@@ -16,8 +15,6 @@ $(if $(wildcard $(OUTPUT_DIR)/aos_all_components.mk), \
 APPDIR ?=
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
 CONFIG_FILE := $(CONFIG_FILE_DIR)/config.mk
-FEATURE_DIR := $(SOURCE_ROOT)build/configs
-DEFCONFIG_LIST :=
 DEPENDENCY_DICT :=
 
 COMPONENT_DIRECTORIES := . \
@@ -57,16 +54,13 @@ $(eval COMPONENTS += $(TEST_COMPONENTS)))
 endef
 
 #####################################################################################
-# Macro FIND_VARIOUS_COMPONENT use breadth traversal to search features/components
-# $(1) is the list of features/components left to process.
+# Macro FIND_VARIOUS_COMPONENT use breadth traversal to search components
+# $(1) is the list of components left to process.
 # $(COMP) is set as the first element in the list
 define FIND_VARIOUS_COMPONENT
 
 $(eval COMP := $(word 1,$(1)))
-$(if $(findstring feature, $(COMP)), \
-    $(info Processing feature: $(COMP)) \
-    $(call PARSE_FEATURE, $(COMP), COMPONENTS, DEFCONFIG_LIST), \
-    $(call FIND_ONE_COMPONENT, $(COMP)))
+$(call FIND_ONE_COMPONENT, $(COMP))
 
 $(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
 $(if $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
@@ -88,13 +82,13 @@ $(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 $(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(if $(APPDIR),$(APPDIR),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk $(dir)/$(COMP_LOCATION)/aos.mk)))))
 # Check if component makefile was found - if not try downloading it and re-doing the makefile search
 $(if $(TEMP_MAKEFILE),,\
-    $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk or aos.mk) \
+    $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains aos.mk) \
     $(info Below is a list of valid local components (Some are internal): ) \
     $(call FIND_VALID_COMPONENTS, VALID_COMPONENT_LIST,$(COMPONENT_DIRECTORIES)) \
      $(foreach comp,$(VALID_COMPONENT_LIST),$(info $(comp))) \
      $(info Below is a list of valid components from the internet: ) \
      $(info $(call DOWNLOAD_COMPONENT_LIST)) \
-     $(error Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains $(COMP_MAKEFILE_NAME).mk or aos.mk))
+     $(error Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains aos.mk))
 $(eval TEMP_MAKEFILE := $(if $(filter %aos.mk,$(TEMP_MAKEFILE)),$(filter %aos.mk,$(TEMP_MAKEFILE)),$(TEMP_MAKEFILE)))
 $(if $(filter 1,$(words $(TEMP_MAKEFILE))),,$(error More than one component with the name "$(COMP)". See $(TEMP_MAKEFILE)))
 
@@ -286,11 +280,9 @@ AOS_SDK_LDFLAGS  += $(COMPILER_SPECIFIC_DEBUG_LDFLAGS)
 endif
 
 # Check if there are any unknown components; output error if so.
-# TODO: replace with prebuild logic
 $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) $(REAL_COMPONENTS)),,$(error Unknown component: $(comp))))
 
 # Find the matching platform and application from the build string components
-# TODO: repace with prebuild logic
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
 
 APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)app/profile/$(comp) $(SOURCE_ROOT)$(comp) $(SOURCE_ROOT)test/develop/$(comp)),$(comp),)))
@@ -326,7 +318,6 @@ EXTRA_ASMFLAGS += $(call GCC_INCLUDE_AUTOCONF_H)
 endif
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
-# TODO: repalce with prebuild logic
 $(eval CURDIR := $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/)
 
 include $(SOURCE_ROOT)board/$(PLATFORM_DIRECTORY)/aos.mk
@@ -336,7 +327,6 @@ include $($(HOST_MCU_FAMILY)_LOCATION)/aos.mk
 MAIN_COMPONENT_PROCESSING :=1
 
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
-# TODO: remove the duplicate include for toolchain makefile
 CC :=
 
 ifeq ($(COMPILER),armcc)
@@ -354,7 +344,6 @@ $(error No matching toolchain found for architecture $(HOST_ARCH))
 endif
 
 # MBINS build support
-# TODO: Move to MBINS support makefile
 ifeq ($(MBINS),app)
 ifeq ($(ENABLE_USPACE),1)
 COMPONENTS += mm
@@ -377,7 +366,6 @@ AOS_SDK_DEFINES += BUILD_BIN
 endif
 
 # Process component metadata
-# TODO: Move to prebuild target
 ALL_MAKEFILES :=
 CURDIR :=
 $(info processing components: $(COMPONENTS))
@@ -385,13 +373,6 @@ $(eval $(call FIND_VARIOUS_COMPONENT, $(COMPONENTS)))
 $(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
-# Include feature defconfig files
-# TODO: disable features support, replace with menuconfig
-reverse = $(if $(1),$(call reverse,$(wordlist 2,$(words $(1)),$(1)))) $(firstword $(1))
-$(foreach defconfig, $(call reverse,$(DEFCONFIG_LIST)), $(eval include $(defconfig)))
-
-## Workaround for fixing build failures that can't find headers.
-## Should be cleaned up after the failures fixed from components side
 AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)include \
                     -I$(SOURCE_ROOT)include/hal \
                     -I$(SOURCE_ROOT)include/hal/soc \
@@ -400,7 +381,6 @@ AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)include \
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
 # Make sure the user has specified a component from each category
-# TODO: disable after single comp build supported
 $(if $(PLATFORM),,$(error No platform specified. Options are: $(notdir $(wildcard board/*))))
 $(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard app/example/*))))
 
@@ -410,7 +390,6 @@ $(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard 
 #$(if $(WLAN_CHIP_FAMILY),,$(error No WLAN_CHIP_FAMILY has been defined))
 $(if $(HOST_OPENOCD),,$(error No HOST_OPENOCD has been defined))
 
-# TODO: replace with prebuild logic
 VALID_PLATFORMS :=
 INVALID_PLATFORMS :=
 

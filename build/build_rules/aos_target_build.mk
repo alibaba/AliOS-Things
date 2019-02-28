@@ -29,7 +29,6 @@ STRIPPED_LINK_OUTPUT_FILE_XIP2 :=$(LINK_OUTPUT_FILE_XIP2:$(LINK_OUTPUT_SUFFIX)=.
 BIN_OUTPUT_FILE_XIP2      :=$(BIN_OUTPUT_FILE:$(BIN_OUTPUT_SUFFIX)=.xip2$(BIN_OUTPUT_SUFFIX))
 endif
 
-# TODO: cleanup if download support is not needed
 OPENOCD_LOG_FILE          ?= $(OUTPUT_DIR)/openocd_log.txt
 
 LIBS_DIR                  := $(OUTPUT_DIR)/libraries
@@ -39,7 +38,6 @@ LINT_OPTS_FILE            := $(OUTPUT_DIR)/binary/lint$(UNDERLINE)$(MBINSTYPE_LO
 
 LDS_FILE_DIR              := $(OUTPUT_DIR)/ld
 
-# TODO: remove duplicate includes of EXTRA_TARGET_MAKEFILES
 ifeq (,$(SUB_BUILD))
 ifneq (,$(EXTRA_TARGET_MAKEFILES))
 $(foreach makefile_name,$(EXTRA_TARGET_MAKEFILES),$(eval include $(makefile_name)))
