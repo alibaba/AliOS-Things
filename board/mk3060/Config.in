@@ -3,6 +3,7 @@ config AOS_BOARD_MK3060
     select AOS_MCU_MOC108
     select AOS_COMP_KERNEL_INIT
     help
+        MK3060's mcu is MOC108. The MOC108 is a highly integrated, high-performance, low-power IoT WiFi SOC.
 
 if AOS_BOARD_MK3060
 # Configurations for board board_mk3060
