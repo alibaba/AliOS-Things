@@ -46,7 +46,7 @@ typedef struct _TLSDataParams {
 #ifdef TLS_SAVE_TICKET
 
 #define TLS_MAX_SESSION_BUF 384
-#define KV_SESSION_KEY  "TLS_SESSION"
+#define KV_SESSION_KEY  "TLS_%s_%s"
 static mbedtls_ssl_session *saved_session = NULL;
 
 static int ssl_serialize_session(const mbedtls_ssl_session *session,
@@ -478,6 +478,9 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
     if (NULL == saved_session) {
         do {
             int len = TLS_MAX_SESSION_BUF;
+            char device_key[PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 6] = {0};
+            char _product_key[PRODUCT_KEY_LEN + 1] = {0};
+            char _device_name[DEVICE_NAME_LEN + 1] = {0};
             unsigned char *save_buf = aos_malloc(TLS_MAX_SESSION_BUF);
             if (save_buf ==  NULL) {
                 platform_err(" malloc failed");
@@ -497,7 +500,10 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
             memset(save_buf, 0x00, TLS_MAX_SESSION_BUF);
             memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
 
-            ret = HAL_Kv_Get(KV_SESSION_KEY, save_buf, &len);
+            HAL_GetProductKey(_product_key);
+            HAL_GetDeviceName(_device_name);
+            HAL_Snprintf(device_key, PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 5, KV_SESSION_KEY, _product_key, _device_name);
+            ret = HAL_Kv_Get(device_key, save_buf, &len);
 
             if (ret != 0 || len == 0) {
                 platform_info(" kv get failed len=%d,ret = %d", len, ret);
@@ -568,7 +574,14 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
             ret = ssl_serialize_session(saved_session, save_buf, TLS_MAX_SESSION_BUF, &real_session_len);
             platform_info("mbedtls_ssl_get_session_session return 0x%04x real_len=%d\r\n", ret, real_session_len);
             if (ret == 0) {
-                HAL_Kv_Set(KV_SESSION_KEY, (void *)save_buf, real_session_len, 1);
+                char device_key[PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN + 6] = {0};
+                char _product_key[PRODUCT_KEY_LEN + 1] = {0};
+                char _device_name[DEVICE_NAME_LEN + 1] = {0};
+
+                HAL_GetProductKey(_product_key);
+                HAL_GetDeviceName(_device_name);
+                HAL_Snprintf(device_key, PRODUCT_KEY_MAXLEN + DEVICE_NAME_MAXLEN +5, KV_SESSION_KEY, _product_key, _device_name);
+                HAL_Kv_Set(device_key, (void *)save_buf, real_session_len, 1);
             }
             aos_free(save_buf);
         } while (0);
