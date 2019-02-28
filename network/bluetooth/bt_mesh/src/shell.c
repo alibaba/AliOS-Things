@@ -74,6 +74,11 @@ static u8_t reg_faults[CUR_FAULTS_MAX * 2];
 
 struct mesh_shell_cmd *bt_mesh_get_shell_cmd_list();
 
+#ifdef CONFIG_BT_MESH_PROV
+static bt_mesh_prov_bearer_t prov_bear;
+static void cmd_pb2(bt_mesh_prov_bearer_t bearer, const char *s);
+#endif
+
 static void get_faults(u8_t *faults, u8_t faults_size, u8_t *dst, u8_t *count)
 {
 	u8_t i, limit = *count;
@@ -545,37 +550,20 @@ static void bt_ready(int err)
 #if IS_ENABLED(CONFIG_BT_MESH_LOW_POWER)
         bt_mesh_lpn_set_cb(lpn_cb);
 #endif
+
+#ifdef CONFIG_BT_MESH_PROV
+	cmd_pb2(prov_bear, "on");
+#endif
 }
 
 static int cmd_init(int argc, char *argv[])
 {
-	int err;
+	int err = 0;
 
 #ifndef CONFIG_MESH_STACK_ALONE
 	err = bt_enable(bt_ready);
 #endif
-	if (err && err != -EALREADY) {
-		printk("Bluetooth init failed (err %d)\n", err);
-		return 0;
-	} else if (!err) {
-		printk("Bluetooth initialized\n");
-	}
-
-#if 0
-	err = bt_mesh_init(&prov, &comp);
-	if (err) {
-		printk("Mesh initialization failed (err %d)\n", err);
-	}
-
-	printk("Mesh initialized\n");
-	printk("Use \"pb-adv on\" or \"pb-gatt on\" to enable advertising\n");
-
-#if IS_ENABLED(CONFIG_BT_MESH_LOW_POWER)
-	bt_mesh_lpn_set_cb(lpn_cb);
-#endif
-#endif
-
-	return 0;
+        return err;
 }
 
 #if defined(CONFIG_BT_MESH_GATT_PROXY)
@@ -2140,7 +2128,7 @@ static int cmd_bunch_pb_adv(int argc, char *argv[])
 {
 	cmd_uuid(argc, argv);
 	cmd_init(0, NULL);
-	cmd_pb2(BT_MESH_PROV_ADV, "on");
+        prov_bear = BT_MESH_PROV_ADV;
 	return 0;
 }
 
@@ -2148,7 +2136,7 @@ static int cmd_bunch_pb_gatt(int argc, char *argv[])
 {
 	cmd_uuid(argc, argv);
 	cmd_init(0, NULL);
-	cmd_pb2(BT_MESH_PROV_ADV | BT_MESH_PROV_GATT, "on");
+        prov_bear = BT_MESH_PROV_ADV | BT_MESH_PROV_GATT;
 	return 0;
 }
 #endif
