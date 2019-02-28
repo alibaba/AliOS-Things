@@ -18,6 +18,7 @@
     EXPORT cpu_first_task_start
 
     EXPORT PendSV_Handler
+    EXPORT _first_task_restore
 
 ;******************************************************************************
 ;                                 EQUATES
