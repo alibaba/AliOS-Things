@@ -81,7 +81,7 @@ int uloc_init(uloc_scenario_e scen, int update_inv)
     aos_task_t  task;
 
     if (aos_task_new_ext(&task, "uloc_tsk", uloc_tsk,
-                         NULL, 1024, AOS_DEFAULT_APP_PRI) != 0)
+                         NULL, 1024 * 2, AOS_DEFAULT_APP_PRI) != 0)
     {
         return -1;
     }
