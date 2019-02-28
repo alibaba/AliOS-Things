@@ -4,6 +4,8 @@ NAME := alicrypto
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.0.1
 $(NAME)_SUMMARY := Crypto algorithms and APIs for AliOS Things.
+#if component's header files under another directory, add RPM_INCLUDE_DIR to indicate where the header file folder is located
+RPM_INCLUDE_DIR    := ../include/icrypto
 
 GLOBAL_INCLUDES     += ../include/icrypto
 

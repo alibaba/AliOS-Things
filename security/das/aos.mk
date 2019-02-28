@@ -2,6 +2,8 @@ NAME := das
 
 $(NAME)_VERSION := 1.1.0
 $(NAME)_SUMMARY := Link Security SOC Device Attestation SDK for AliOS Things
+#if component's header files under another directory, add RPM_INCLUDE_DIR to indicate where the header file folder is located
+RPM_INCLUDE_DIR := ../include/das
 
 DEBUG := Y
 
