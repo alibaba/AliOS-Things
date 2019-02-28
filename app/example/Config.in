@@ -71,12 +71,6 @@ if AOS_APP_DK_GUI
         default "dk.dk_gui"
 endif
 
-source "app/example/dk/dk_ld/Config.in"
-if AOS_APP_DK_LD
-    config AOS_BUILD_APP
-        default "dk.dk_ld"
-endif
-
 source "app/example/dk/dk_qr/Config.in"
 if AOS_APP_DK_QR
     config AOS_BUILD_APP
