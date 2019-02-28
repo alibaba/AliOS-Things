@@ -19,7 +19,7 @@
 static int32_t timer3_init(timer_dev_t *tim);
 static int32_t timer0_init(timer_dev_t *tim);
 /* function used to transform hal para to stm32l4 para */
-/*int32_t timer_reload_mode_transform(uint8_t reload_mode_hal, uint8_t *reload_mode_stm32l4);*/
+/* int32_t timer_reload_mode_transform(uint8_t reload_mode_hal, uint8_t *reload_mode_stm32l4); */
 
 /* handle for adc */
 TIM_HandleTypeDef timer3_handle;
@@ -32,10 +32,10 @@ typedef struct {
     TIM_HandleTypeDef      hal_timer_handle;
 }stm32_timer_t;
 
-//will be initialized in hal_can_init
+/* will be initialized in hal_can_init */
 static stm32_timer_t stm32_timer[PORT_TIMER_SIZE];
 
-//Get TIMER Instanse & attribute from Logical Port
+/* Get TIMER Instanse & attribute from Logical Port */
 TIMER_MAPPING* get_timer_list_logical(const PORT_TIMER_TYPE port)
 {
     int8_t i = 0;
@@ -76,6 +76,10 @@ int32_t hal_timer_init(timer_dev_t *tim)
        return -1;
     }
 
+    if (stm32_timer[tim->port].inited == 1){
+        return 0;
+    }
+
     TIMER_MAPPING* timerIns = get_timer_list_logical(tim->port);
     if (timerIns != NULL)
     {
@@ -111,6 +115,7 @@ static int32_t timer0_init(timer_dev_t *tim)
 static int32_t timer3_init(timer_dev_t *tim)
 {
     int32_t ret = -1;
+
     TIM_HandleTypeDef * const psttimhandle = &stm32_timer[tim->port].hal_timer_handle;
     pFun_timer3 = tim->config.cb;
     arg_timer3 = tim->config.arg;
