@@ -3,7 +3,7 @@ config AOS_BOARD_AMEBAZ_DEV
     select AOS_MCU_RTL8710BN
     select AOS_COMP_KERNEL_INIT
     help
-      configuration for board amabaz_dev
+        **Amebaz-dev** is a highly integrated single-chip low power 802.11n Wireless LAN (WLAN) network controller.
 
 if AOS_BOARD_AMEBAZ_DEV
 # Configurations for board board_amebaz_dev

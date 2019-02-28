@@ -3,6 +3,7 @@ config AOS_BOARD_PCA10040
     select AOS_MCU_NRF52XXX
     select AOS_COMP_KERNEL_INIT
     help
+        The Pca10040's mcu is nRF52832. The nRF52832 is the mid-range member of the nRF52 Series SoC family. It meets the challenges of a broad range of applications that need Bluetooth 5 feature sets, protocol concurrency and a rich and varied set of peripherals and features. In addition, it offers generous memory availability for both Flash and RAM.
 
 if AOS_BOARD_PCA10040
 # Configurations for board board_pca10040
