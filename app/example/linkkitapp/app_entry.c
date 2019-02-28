@@ -293,7 +293,7 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
     if (eventinfo->type != EV_KEY) {
         return;
     }
-    LOG("awss config press %d\n", eventinfo->value);
+    LOG("awss config press %u\n", eventinfo->value);
 
     if (eventinfo->code == CODE_BOOT) {
         if (eventinfo->value == VALUE_KEY_CLICK) {
