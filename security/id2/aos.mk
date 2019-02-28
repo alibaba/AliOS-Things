@@ -3,6 +3,8 @@ NAME := id2
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION := 2.0.1
 $(NAME)_SUMMARY := ID2 client SDK
+#if component's header files under another directory, add RPM_INCLUDE_DIR to indicate where the header file folder is located
+RPM_INCLUDE_DIR := ../include/id2
 
 ################################################################################
 #id2 config
