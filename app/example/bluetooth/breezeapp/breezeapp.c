@@ -60,7 +60,7 @@ static void dev_status_changed_handler(breeze_event_t event)
 /* @brief Data handler for control command 0x00. */
 static void set_dev_status_handler(uint8_t *buffer, uint32_t length)
 {
-    printf("%s command (len: %d) received.\r\n", __func__, length);
+    printf("%s command (len: %u) received.\r\n", __func__, length);
 }
 
 /* @brief Data handler for query command 0x02. */
