@@ -22,4 +22,4 @@ unsigned int ota_breeze_send_bytes_received(void);
 unsigned int ota_breeze_is_in_check_status(void);
 unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, unsigned char num_frames);
 
-#endif
+#endif /*OTA_BREEZE_TRANSPORT_H*/
