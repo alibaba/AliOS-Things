@@ -135,4 +135,5 @@ void ota_breeze_set_task_active_flag(volatile unsigned char flag);
 volatile unsigned char ota_breeze_get_task_active_flag(void);
 void ota_breeze_set_task_active_ctrl(volatile unsigned char is_enable);
 volatile unsigned char ota_breeze_get_task_active_ctrl_status(void);
-#endif
+#endif /*OTA_BREEZE_H*/
+
