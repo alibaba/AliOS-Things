@@ -61,7 +61,7 @@ int bt_mesh_conn_disconnect(bt_mesh_conn_t conn, uint8_t reason)
 
 struct svc_paire_node {
     struct bt_mesh_gatt_service *msvc;
-    struct bt_gatt_service *svc;
+    struct bt_gatt_service svc;
 } _svc_paire[SVC_ENTRY_MAX] = {{0}};
 
 /* TODO: manage the services in linked list. */
@@ -85,15 +85,10 @@ int bt_mesh_gatt_service_register(struct bt_mesh_gatt_service *svc)
     }
 
     node->msvc = svc;
-    node->svc = (struct bt_gatt_service *)malloc(sizeof(struct bt_gatt_service));
-    if (node->svc == NULL) {
-        return -1;
-    }
+    node->svc.attrs = (struct bt_gatt_attr *)svc->attrs;
+    node->svc.attr_count = svc->attr_count;
 
-    node->svc->attrs = (struct bt_gatt_attr *)svc->attrs;
-    node->svc->attr_count = svc->attr_count;
-
-    return bt_gatt_service_register(node->svc);
+    return bt_gatt_service_register(&(node->svc));
 }
 
 int bt_mesh_gatt_service_unregister(struct bt_mesh_gatt_service *svc)
@@ -114,8 +109,7 @@ int bt_mesh_gatt_service_unregister(struct bt_mesh_gatt_service *svc)
         return 0;
     }
 
-    ret = bt_gatt_service_unregister(node->svc);
-    free(node->svc);
+    ret = bt_gatt_service_unregister(&(node->svc));
 
     return ret;
 }
