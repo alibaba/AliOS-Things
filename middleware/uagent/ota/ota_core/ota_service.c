@@ -241,6 +241,8 @@ static void ota_download_thread(void *hand)
     ctx->h_tr->status(0, ctx);
     ret = ctx->h_dl->start((void*)ctx);
     if (ret < 0) {
+        ota_param->res_type = OTA_BREAKPOINT;
+        ret = ota_hal_boot((void *)(ota_param));
         ctx->upg_status = OTA_DOWNLOAD_FAIL;
         goto ERR;
     }
