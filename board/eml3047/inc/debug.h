@@ -73,7 +73,7 @@ extern "C" {
 #ifdef LORA_TRACE
 #include "rtc-board.h"
 
-#define DBG_PRINTF(format, ...)    do {DBG_Send("[%d][%s:%4d] " format "", RtcGetTimerValue(), __FILE__, __LINE__, ##__VA_ARGS__);}while(0==1)//DBG_Send(__VA_ARGS__)//vcom_Send(__VA_ARGS__)
+#define DBG_PRINTF(format, ...)    do {DBG_Send("[%ul][%s:%4d] " format "", RtcGetTimerValue(), __FILE__, __LINE__, ##__VA_ARGS__);}while(0==1)//DBG_Send(__VA_ARGS__)//vcom_Send(__VA_ARGS__)
 
 #define LOG_PRINTF(format, ...) do {DBG_Send(format, HW_RTC_GetTimerValue(), ##__VA_ARGS__);}while(0==1)
 
