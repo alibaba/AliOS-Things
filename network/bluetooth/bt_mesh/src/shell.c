@@ -28,7 +28,7 @@
 #include "health_srv.h"
 
 #define CID_NVAL   0xffff
-#define CID_LOCAL  0x0002
+#define CID_LOCAL  0x01a8
 
 /* Default net, app & dev key values, unless otherwise specified */
 static const u8_t default_key[16] = {
