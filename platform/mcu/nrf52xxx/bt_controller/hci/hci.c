@@ -12,7 +12,7 @@
 
 
 #include <toolchain.h>
-#include <errno.h>
+#include "aos/errno.h"
 #include <atomic.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_vs.h>
