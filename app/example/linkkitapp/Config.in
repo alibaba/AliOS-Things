@@ -15,10 +15,10 @@ config AOS_APP_LINKKITAPP
 if AOS_APP_LINKKITAPP
 # Configurations for app linkkitapp
 config LINKKITAPP_CONFIG_COMBOAPP
-    bool "Enable Combo"
+    bool "Enable Breeze AWSS "
     default n
     help 
-    enable ble config
+        Providing secured ble link for wifi provision.
 
 choice
     prompt "Select Case"
