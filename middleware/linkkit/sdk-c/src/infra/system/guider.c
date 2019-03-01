@@ -62,7 +62,7 @@ const char *domain_http_auth_pre[] = {
 #define GUIDER_DIRECT_DOMAIN_ITLS_DAILY  "10.125.7.82"
 #define GUIDER_DIRECT_DOMAIN_ITLS_PRE    "106.15.166.168"
 
-#define GUIDER_DIRECT_DOMAIN_DAILY       "10.125.3.189"
+#define GUIDER_DIRECT_DOMAIN_DAILY       "11.160.112.156"
 #define GUIDER_DIRECT_DOMAIN_PRE         "100.67.80.75"
 static int iotx_guider_region = 0;
 char iotx_domain_custom[GUIDER_DOMAIN_MAX][CUSTOME_DOMAIN_LEN_MAX] = {{0}};
