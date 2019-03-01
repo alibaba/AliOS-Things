@@ -502,66 +502,66 @@ int ota_ssl_recv(void *ssl, char *buf, int len)
 
 #if !defined (AOS_OTA_RSA)
 /*SHA256*/
-extern void mbedtls_sha256_free_alt(mbedtls_sha256_context* ctx);
-extern void mbedtls_sha256_init_alt(mbedtls_sha256_context*ctx);
-extern void mbedtls_sha256_starts_alt(mbedtls_sha256_context*ctx, int is224);
-extern void mbedtls_sha256_update_alt(mbedtls_sha256_context*ctx, const unsigned char *input, unsigned int ilen);
-extern void mbedtls_sha256_finish_alt(mbedtls_sha256_context*ctx, unsigned char output[32]);
+extern void mbedtls_sha256_free(mbedtls_sha256_context* ctx);
+extern void mbedtls_sha256_init(mbedtls_sha256_context*ctx);
+extern void mbedtls_sha256_starts(mbedtls_sha256_context*ctx, int is224);
+extern void mbedtls_sha256_update(mbedtls_sha256_context*ctx, const unsigned char *input, unsigned int ilen);
+extern void mbedtls_sha256_finish(mbedtls_sha256_context*ctx, unsigned char output[32]);
 
 void ota_sha256_free(ota_sha256_context *ctx)
 {
-    mbedtls_sha256_free_alt((mbedtls_sha256_context*)ctx);
+    mbedtls_sha256_free((mbedtls_sha256_context*)ctx);
 }
 
 void ota_sha256_init(ota_sha256_context *ctx)
 {
-    mbedtls_sha256_init_alt((mbedtls_sha256_context*)ctx);
+    mbedtls_sha256_init((mbedtls_sha256_context*)ctx);
 }
 
 void ota_sha256_starts(ota_sha256_context *ctx, int is224)
 {
-    mbedtls_sha256_starts_alt((mbedtls_sha256_context*)ctx, is224);
+    mbedtls_sha256_starts((mbedtls_sha256_context*)ctx, is224);
 }
 
 void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input, unsigned int ilen)
 {
-    mbedtls_sha256_update_alt((mbedtls_sha256_context*)ctx, input, ilen);
+    mbedtls_sha256_update((mbedtls_sha256_context*)ctx, input, ilen);
 }
 
 void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32])
 {
-    mbedtls_sha256_finish_alt((mbedtls_sha256_context*)ctx, output);
+    mbedtls_sha256_finish((mbedtls_sha256_context*)ctx, output);
 }
 /*MD5*/
-extern void mbedtls_md5_free_alt(mbedtls_md5_context*ctx);
-extern void mbedtls_md5_init_alt(mbedtls_md5_context*ctx);
-extern void mbedtls_md5_starts_alt(mbedtls_md5_context*ctx);
-extern void mbedtls_md5_update_alt(mbedtls_md5_context*ctx, const unsigned char *input, unsigned int ilen);
-extern void mbedtls_md5_finish_alt(mbedtls_md5_context*ctx, unsigned char output[32]);
+extern void mbedtls_md5_free(mbedtls_md5_context*ctx);
+extern void mbedtls_md5_init(mbedtls_md5_context*ctx);
+extern void mbedtls_md5_starts(mbedtls_md5_context*ctx);
+extern void mbedtls_md5_update(mbedtls_md5_context*ctx, const unsigned char *input, unsigned int ilen);
+extern void mbedtls_md5_finish(mbedtls_md5_context*ctx, unsigned char output[32]);
 
 void ota_md5_free(ota_md5_context *ctx)
 {
-    mbedtls_md5_free_alt((mbedtls_md5_context*)ctx);
+    mbedtls_md5_free((mbedtls_md5_context*)ctx);
 }
 
 void ota_md5_init(ota_md5_context *ctx)
 {
-    mbedtls_md5_init_alt((mbedtls_md5_context*)ctx);
+    mbedtls_md5_init((mbedtls_md5_context*)ctx);
 }
 
 void ota_md5_starts(ota_md5_context *ctx)
 {
-    mbedtls_md5_starts_alt((mbedtls_md5_context*)ctx);
+    mbedtls_md5_starts((mbedtls_md5_context*)ctx);
 }
 
 void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen)
 {
-    mbedtls_md5_update_alt((mbedtls_md5_context*)ctx, input, ilen);
+    mbedtls_md5_update((mbedtls_md5_context*)ctx, input, ilen);
 }
 
 void ota_md5_finish(ota_md5_context *ctx, unsigned char output[16])
 {
-    mbedtls_md5_finish_alt((mbedtls_md5_context*)ctx, output);
+    mbedtls_md5_finish((mbedtls_md5_context*)ctx, output);
 }
 /*RSA*/
 extern int ali_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size);
