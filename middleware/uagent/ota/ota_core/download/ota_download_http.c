@@ -175,7 +175,7 @@ static int ota_download_start(void *pctx)
         len += strlen(pkps + len + 1) + 2;
         ssl = ota_ssl_connect(host_addr, port, pkps,len);
 #elif defined OTA_CONFIG_TLS
-        ssl = ota_ssl_connect(host_addr, port, ca, strlen(ca)+1);
+        ssl = ota_ssl_connect(host_addr, port, ca, strlen(ca) + 1);
 #endif
         if (ssl == NULL) {
             ret = OTA_DOWNLOAD_CON_FAIL;
@@ -230,10 +230,10 @@ static int ota_download_start(void *pctx)
           :ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1))) != 0) {
         if((nbytes <= 0)&&(retry <= 5)){
              retry++;
-             OTA_LOG_I("retry cn:%d",retry);
+             OTA_LOG_I("retry cn:%d", retry);
              continue;
         } else {
-             retry=0;
+             retry = 0;
         }
         if (nbytes < 0) {
             if (errno != EINTR) {
@@ -260,7 +260,7 @@ static int ota_download_start(void *pctx)
                 header_found = 1;
                 size         = nbytes - len;
                 if (ota_hash_update((const unsigned char *)pos, size, hash_ctx->ctx_hash) < 0) {
-		    ota_set_break_point(0);
+                    ota_set_break_point(0);
                     ret = OTA_VERIFY_HASH_FAIL;
                     goto END;
                 }
@@ -275,11 +275,11 @@ static int ota_download_start(void *pctx)
         }
         size += nbytes;
         if (ota_hash_update((const unsigned char *)http_buffer, nbytes, hash_ctx->ctx_hash) < 0) {
-	    ota_set_break_point(0);
+            ota_set_break_point(0);
             ret = OTA_VERIFY_HASH_FAIL;
             goto END;
         }
-        ret = ota_hal_write(NULL,http_buffer, nbytes);
+        ret = ota_hal_write(NULL, http_buffer, nbytes);
         if (ret < 0) {
             ret = OTA_UPGRADE_FAIL;
             goto END;
@@ -291,7 +291,7 @@ static int ota_download_start(void *pctx)
 #if (!defined BOARD_ESP8266)
                 ctx->h_tr->status(ota_percent, ctx);
 #endif
-                OTA_LOG_I("s:%d %d per:%d",size,nbytes,ota_percent);
+                OTA_LOG_I("s:%d %d per:%d", size, nbytes, ota_percent);
             }
         }
         if (size == file_size) {
@@ -313,7 +313,7 @@ static int ota_download_start(void *pctx)
         ret = OTA_CANCEL;
     }
 END:
-    OTA_LOG_I("download finish ret:%d.",ret);
+    OTA_LOG_I("download finish ret:%d.", ret);
     if(http_buffer)
         ota_free(http_buffer);
     if(sockfd)
