@@ -1,23 +1,21 @@
-#include "ota_breeze_transport.h"
 #include "ota_breeze.h"
-#include "ota_hal_os.h"
-#include "ota_log.h"
-#include "ota_breeze_plat.h"
+#include "ota_breeze_os.h"
+#include "ota_breeze_transport.h"
 
 static unsigned char ota_breeze_new_fw = 0;
 #define EXTRACT_U16(d) (*((unsigned char *)(d)) | (*((unsigned char *)(d) + 1) << 8))
-#define EXTRACT_U32(d)                                     \
+#define EXTRACT_U32(d)                                              \
     (*((unsigned char *)(d)) | (*((unsigned char *)(d) + 1) << 8) | \
     (*((unsigned char *)(d) + 2) << 16) | (*((unsigned char *)(d) + 3) << 24))
 
-#define ENCODE_U16(d, val)                           \
-{                                                \
+#define ENCODE_U16(d, val)                             \
+{                                                      \
     *((unsigned char *)(d))     = (val)&0xFF;          \
     *((unsigned char *)(d) + 1) = ((val) >> 8) & 0xFF; \
 }
 
-#define ENCODE_U32(d, val)                            \
-{                                                 \
+#define ENCODE_U32(d, val)                              \
+{                                                       \
     *((unsigned char *)(d))     = (val)&0xFF;           \
     *((unsigned char *)(d) + 1) = ((val) >> 8) & 0xFF;  \
     *((unsigned char *)(d) + 2) = ((val) >> 16) & 0xFF; \
@@ -40,7 +38,7 @@ void ota_breeze_send_error()
 
     err_code = breeze_post_ext(OTA_BREEZE_CMD_ERROR, NULL, 0);
     if (err_code != OTA_BREEZE_SUCCESS) {
-        OTA_LOG_E("send err failed\r\n");
+        OTA_BREEZE_LOG_E("send err failed\r\n");
     }
 }
 
@@ -61,14 +59,14 @@ int ota_breeze_split_sw_ver(char *data, unsigned int *v0, unsigned int *v1, unsi
 static unsigned int ota_breeze_check_upgrade_fw_version(ota_breeze_version_t *version, unsigned char *p_data, unsigned char length)
 {
     unsigned int v_old[3], v_new[3];
-    unsigned char  l_data_old[OTA_BREEZE_FW_VER_LEN + 1]; // +1 for trailing zero
-    unsigned char  l_data_new[OTA_BREEZE_FW_VER_LEN + 1]; // +1 for trailing zero
+    unsigned char  l_data_old[OTA_BREEZE_FW_VER_LEN + 1]; /* +1 for trailing zero */
+    unsigned char  l_data_new[OTA_BREEZE_FW_VER_LEN + 1]; /* +1 for trailing zero */
     unsigned char  l_len;
 
     if((version == NULL) || (p_data == NULL) || (length == 0)) {
         return OTA_BREEZE_ERROR_INVALID_PARAM;
     }
-    // Copy to stack variable as trailing zero is required.
+    /*Copy to stack variable as trailing zero is required.*/
     memcpy(l_data_old, version->fw_ver, version->fw_ver_len);
     l_data_old[version->fw_ver_len] = 0;
 
@@ -76,7 +74,7 @@ static unsigned int ota_breeze_check_upgrade_fw_version(ota_breeze_version_t *ve
     memcpy(l_data_new, p_data, l_len);
     l_data_new[l_len] = 0;
 
-    // Split SW version into 3 parts.
+    /* Split SW version into 3 parts.*/
     if(ota_breeze_split_sw_ver((char *)l_data_old, v_old, v_old + 1, v_old + 2) < 0) {
         return OTA_BREEZE_ERROR_INVALID_DATA;
     }
@@ -85,7 +83,7 @@ static unsigned int ota_breeze_check_upgrade_fw_version(ota_breeze_version_t *ve
         return OTA_BREEZE_ERROR_INVALID_DATA;
     }
 
-    // Try to reconstruct the version string.
+    /*Try to reconstruct the version string.*/
     memset(l_data_new, 0, sizeof(l_data_new));
     sprintf((char *)l_data_new, "%d.%d.%d", (int)v_new[0], (int)v_new[1],
             (int)v_new[2]);
@@ -93,20 +91,20 @@ static unsigned int ota_breeze_check_upgrade_fw_version(ota_breeze_version_t *ve
         return OTA_BREEZE_ERROR_FORBIDDEN;
     }
 
-    // Check digits in software version
-    if (v_new[0] > v_old[0]) { // x
+    /* Check digits in software version */
+    if (v_new[0] > v_old[0]) { /*x*/
         return 0;
     } else if (v_new[0] < v_old[0]) {
         return OTA_BREEZE_ERROR_FORBIDDEN;
     }
 
-    if (v_new[1] > v_old[1]) { // y
+    if (v_new[1] > v_old[1]) { /*y*/
         return 0;
     } else if (v_new[1] < v_old[1]) {
         return OTA_BREEZE_ERROR_FORBIDDEN;
     }
 
-    if (v_new[2] <= v_old[2]) { // z
+    if (v_new[2] <= v_old[2]) { /*z*/
         return OTA_BREEZE_ERROR_FORBIDDEN;
     }
     return OTA_BREEZE_SUCCESS;
@@ -117,7 +115,7 @@ unsigned int ota_breeze_align_to_page(unsigned int val, unsigned int page_size)
     return ((val + page_size - 1) & ~(page_size - 1));
 }
 
-/**@brief Send firmware upgrade response. */
+/*@brief Send firmware upgrade response. */
 unsigned int ota_breeze_send_fw_upgrade_rsp(unsigned char allow_upgrade)
 {
     unsigned char ack = 0;
@@ -132,7 +130,7 @@ unsigned int ota_breeze_send_fwup_success()
     return breeze_post_ext(OTA_BREEZE_CMD_FW_UPDATE_PROCESS, &fwup_success, 1);
 }
 
-/**@brief Send number of bytes of firmware received. */
+/*@brief Send number of bytes of firmware received. */
 unsigned int ota_breeze_send_bytes_received()
 {
     unsigned int err_code;
@@ -147,12 +145,12 @@ unsigned int ota_breeze_send_bytes_received()
 
     err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_BYTES_RECEIVED, tx_buff, sizeof(unsigned short) + sizeof(unsigned int));
     if (err_code != OTA_BREEZE_SUCCESS) {
-        OTA_LOG_E("send rec err\r\n");
+        OTA_BREEZE_LOG_E("send rec err\r\n");
     }
     return err_code;
 }
 
-/**@brief Send the result of CRC check. */
+/*@brief Send the result of CRC check. */
 unsigned int ota_breeze_send_crc_result(unsigned char crc_ok)
 {
     unsigned char ack = 0;
@@ -204,12 +202,12 @@ unsigned int ota_breeze_on_fw_upgrade_req(unsigned char *buffer, unsigned int le
         p_ota->rx_fw_size = EXTRACT_U32(buffer + l_len);
         p_ota->frames_recvd = 0;
         p_ota->crc = EXTRACT_U16(buffer + l_len + sizeof(unsigned int));
-        if(p_ota->rx_fw_size > sizeof(ota_image_t)) {
-            p_ota->valid_fw_size = p_ota->rx_fw_size - sizeof(ota_image_t);
+        if(p_ota->rx_fw_size > sizeof(ota_breeze_image_t)) {
+            p_ota->valid_fw_size = p_ota->rx_fw_size - sizeof(ota_breeze_image_t);
             ret = ota_breeze_breakpoint_process(p_ota->valid_fw_size, &p_ota->valid_bytes_recvd, resume);
             if(ret == 0) {
                 if(p_ota->valid_bytes_recvd > 0) {
-                    p_ota->bytes_recvd = p_ota->valid_bytes_recvd + sizeof(ota_image_t);
+                    p_ota->bytes_recvd = p_ota->valid_bytes_recvd + sizeof(ota_breeze_image_t);
                 }
             }
             else {
@@ -228,7 +226,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
     unsigned int           err_code = OTA_BREEZE_SUCCESS;
     unsigned int           i = 0;
     unsigned int           bin_info_len = 0;
-    ota_image_t            bin_info;
+    ota_breeze_image_t     bin_info;
     ota_breeze_bin_type_t  bin_type;
     static unsigned short  last_percent = 0;
     unsigned short         percent;
@@ -247,13 +245,13 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
         err_code = OTA_BREEZE_ERROR_INVALID_PARAM;
         goto OTA_BREEZE_TRANS_ERRO;
     }
-    bin_info_len = sizeof(ota_image_t);
+    bin_info_len = sizeof(ota_breeze_image_t);
     if (p_ota->valid_bytes_recvd == OTA_IMAGE_MAGIC_OFFSET) {
         if(length >= bin_info_len) {
             memcpy(&bin_info, buffer, bin_info_len);
             bin_type = ota_breeze_get_image_type(bin_info.image_magic);
             if(bin_type == OTA_BIN_TYPE_INVALID) {
-                OTA_LOG_E("magic error\r\n");
+                OTA_BREEZE_LOG_E("magic error\r\n");
                 err_code = OTA_BREEZE_ERROR_NOT_SUPPORTED;
                 goto OTA_BREEZE_TRANS_ERRO;
             }
@@ -290,7 +288,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
         last_percent = 0;
     }
     if ((percent - last_percent) >= 5) {
-        OTA_LOG_I("===>%dB\t%d%% ...\r\n", p_ota->bytes_recvd, percent);
+        OTA_BREEZE_LOG_I("===>%dB\t%d%% ...\r\n", p_ota->bytes_recvd, percent);
         last_percent = percent;
         if(ota_breeze_save_breakpoint(p_ota->valid_bytes_recvd) !=0 ) {
             err_code = OTA_BREEZE_ERROR_SETTINGS_FAIL;
@@ -319,7 +317,7 @@ void ota_breeze_reset()
     if(p_ota == NULL) {
         return;
     }
-    OTA_LOG_I("discnt\r\n");
+    OTA_BREEZE_LOG_I("discnt\r\n");
     /* Reset state machine. */
     p_ota->ota_breeze_status = OTA_BREEZE_STATE_OFF;
     p_ota->rx_fw_size   = 0;
@@ -328,7 +326,7 @@ void ota_breeze_reset()
     p_ota->crc          = 0;
     p_ota->valid_bytes_recvd = 0;
     if (ota_breeze_new_fw) {
-        ota_reboot();
+        ota_breeze_reboot();
     }
 }
 
@@ -369,7 +367,7 @@ void ota_breeze_on_auth(unsigned char is_authenticated)
         if(ota_breeze_send_fwup_success() != OTA_BREEZE_SUCCESS) {
             goto OTA_BREEZE_AUTH_OVER;
         }
-        OTA_LOG_I("OTA OK!\r\n");
+        OTA_BREEZE_LOG_I("OTA OK!\r\n");
     }
     if (!is_authenticated) {
         goto OTA_BREEZE_AUTH_OVER;
@@ -380,10 +378,10 @@ void ota_breeze_on_auth(unsigned char is_authenticated)
         }
     }
     else {
-        OTA_LOG_E("err stus\r\n");
+        OTA_BREEZE_LOG_E("err stus\r\n");
     }
 OTA_BREEZE_AUTH_OVER:
-    OTA_LOG_I("auth over");
+    OTA_BREEZE_LOG_I("auth over");
     return;
 }
 
@@ -396,6 +394,6 @@ void ota_breeze_on_discontinuous_frame()
     if (p_ota->ota_breeze_status == OTA_BREEZE_STATE_RECEIVE) {
         p_ota->ota_breeze_status = OTA_BREEZE_STATE_RECEIVE_ERR;
     }
-    ota_reboot();
+    ota_breeze_reboot();
 }
 
