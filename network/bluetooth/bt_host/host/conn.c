@@ -12,7 +12,6 @@
 
 #include <zephyr.h>
 #include <string.h>
-#include <errno.h>
 #include <stdbool.h>
 #include <atomic.h>
 #include <misc/byteorder.h>
@@ -26,6 +25,7 @@
 #include <bluetooth/conn.h>
 #include <bluetooth/hci_driver.h>
 #include <bluetooth/att.h>
+#include <bluetooth/errno.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_CONN)
 #include "common/log.h"
