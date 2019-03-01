@@ -8,7 +8,7 @@
 
 #include <debug.h>
 #include "hal/rand.h"
-#include <errno.h>
+#include "aos/errno.h"
 
 #include "common/log.h"
 #include "hal/debug.h"
