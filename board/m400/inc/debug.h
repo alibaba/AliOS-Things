@@ -86,7 +86,7 @@ extern "C"{
 #include "rtc-board.h"
 
 #define DBG_PRINTF(format, ...)     do{ \
-                                        vcom_Send( "[%d][%s:%4d] " format "", \
+                                        vcom_Send( "[%ul][%s:%4d] " format "", \
                                         RtcGetTimerValue(), \
                                         __FILE__, \
                                         __LINE__, \
@@ -99,7 +99,7 @@ extern "C"{
         { \
             break; \
         } \
-        vcom_Send( "[%u][%s:%4d] " format "", \
+        vcom_Send( "[%ul][%s:%4d] " format "", \
         HW_RTC_GetTimerMs(), \
         __FUNCTION__,\
         __LINE__, \
