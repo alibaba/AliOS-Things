@@ -86,6 +86,8 @@ static char  g_pcdomain_rsp[SIM800_DOMAIN_RSP_MAX_LEN];
 static char  g_pccmd[SIM800_CONN_CMD_LEN];
 static netconn_data_input_cb_t g_netconn_data_input_cb;
 
+static int getgpsinfo(const char * src, char * dest, int idx, int destbufsize);
+
 static int fd_to_linkid(int fd)
 {
     int link_id;
@@ -519,7 +521,7 @@ void sim800_get_gprs_network_info(char * bts, int btslen, char * neighterbts, in
         return -1;
     }
 
-    LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
+    LOGI(TAG, "%s %d rsp %s\r\n", __func__, __LINE__, rsp);
 
     char cellinfo_prefix_buf[64] = {"+CENG: 0,"};
 
@@ -619,7 +621,8 @@ void sim800_get_gprs_network_info(char * bts, int btslen, char * neighterbts, in
 #define AT_CMD_GPS_POSITION_GET      "AT+CGNSINF"
 #define GPS_TYPE_NAME_LEN            (16)
 #define GET_GPS_INFO_MIN_NUM         (6)
-
+#define SATELLITESINVIEWIDX 14
+#define SATELLITESUSEDIDX   15
 void sim800_get_gps(float * latitude, float * longitude, float * altitude)
 {
     int ret = 0;
@@ -687,15 +690,29 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
     char tmp_lat[32];
     char tmp_log[32];
     char tmp_alt[32];
+    char tmp_gnssrunstatus[32];
+    char tmp_satellites_used[32];
+    char tmp_satellites_inview[32];
 
     memset(tmp_lat, 0, sizeof(tmp_lat));
     memset(tmp_log, 0, sizeof(tmp_log));
     memset(tmp_alt, 0, sizeof(tmp_alt));
+    memset(tmp_gnssrunstatus, 0, sizeof(tmp_gnssrunstatus));
+    memset(tmp_satellites_used, 0, sizeof(tmp_satellites_used));
+    memset(tmp_satellites_inview, 0, sizeof(tmp_satellites_inview));
 
-    ret = sscanf(rsp, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,]",
-                 tmp_buf, tmp_buf, tmp_buf, tmp_lat, tmp_log, tmp_alt, tmp_buf);
+    ret = sscanf(rsp, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,]",
+                 tmp_gnssrunstatus, tmp_buf, tmp_buf, tmp_lat, tmp_log, tmp_alt, tmp_buf,  /* <Speed Over Ground>*/
+                 tmp_buf, tmp_buf, tmp_buf, tmp_buf, tmp_buf, tmp_buf, tmp_buf,
+                 tmp_satellites_inview, tmp_satellites_used, tmp_buf, tmp_buf, tmp_buf, tmp_buf, tmp_buf);
 
-    if (ret >= GET_GPS_INFO_MIN_NUM)
+    getgpsinfo(rsp, tmp_satellites_inview, SATELLITESINVIEWIDX, sizeof(tmp_satellites_inview));
+    getgpsinfo(rsp, tmp_satellites_used,   SATELLITESUSEDIDX,   sizeof(tmp_satellites_used));
+
+    int satellitesinview = atoi(tmp_satellites_inview);
+    int satellitesused   = atoi(tmp_satellites_used);
+
+    if (ret >= GET_GPS_INFO_MIN_NUM && satellitesinview && satellitesused)
     {
         *latitude  = (float)atof(tmp_lat);
         *longitude = (float)atof(tmp_log);
@@ -703,6 +720,36 @@ void sim800_get_gps(float * latitude, float * longitude, float * altitude)
         *altitude = *altitude > 0 ? *altitude : 0;
     }
 }
+
+static int getgpsinfo(const char * src, char * dest, int idx, int destbufsize)
+{
+    int srclen = strlen(src);
+    int roopidx = 0;
+    int cnt = 0;
+    int bufcnt = 0;
+    char * start;
+
+    while (roopidx < srclen) {
+        if (src[roopidx] == ',') {
+            cnt++;
+            if (cnt == idx) {
+                break;
+            }
+        }
+        roopidx++;
+    }
+
+    roopidx++;
+
+    while ((src[roopidx] != ',') && (bufcnt < destbufsize)) {
+        *dest++ = src[roopidx];
+        roopidx++;
+        bufcnt++;
+    }
+
+    return 0;
+}
+
 int HAL_SAL_Init(void)
 {
     int ret = 0;
