@@ -1,6 +1,6 @@
 #include "ota_breeze.h"
-#include "ota_hal_os.h"
-#include "ota_log.h"
+#include "ota_breeze_os.h"
+#include "ota_breeze_plat.h"
 
 static ota_breeze_rec_t* ota_breeze_queue = NULL;
 static unsigned char ota_breeze_queue_ptr_in = 0;
@@ -11,7 +11,7 @@ static unsigned int ota_breeze_creat_receive_buf()
     if(ota_breeze_queue != NULL) {
         return OTA_BREEZE_ERROR_INVALID_PARAM;
     }
-    ota_breeze_queue = ota_malloc(OTA_BREEZE_RECEIVE_BUF_NUMB * sizeof(ota_breeze_rec_t));
+    ota_breeze_queue = ota_breeze_malloc(OTA_BREEZE_RECEIVE_BUF_NUMB * sizeof(ota_breeze_rec_t));
     if(ota_breeze_queue == NULL) {
         return OTA_BREEZE_ERROR_NULL;
     }
@@ -22,7 +22,7 @@ static unsigned int ota_breeze_creat_receive_buf()
 static void ota_breeze_destroy_receive_buf()
 {
     if(ota_breeze_queue != NULL) {
-        ota_free(ota_breeze_queue);
+        ota_breeze_free(ota_breeze_queue);
     }
     ota_breeze_queue = NULL;
 }
@@ -102,7 +102,7 @@ static unsigned int ota_breeze_start()
         }
         if(ota_breeze_receive_data_consume(&tmp_queue) == OTA_BREEZE_SUCCESS) {
             if ((tmp_queue.cmd & OTA_BREEZE_CMD_TYPE_MASK) != OTA_BREEZE_CMD_TYPE_FW_UPGRADE) {
-                OTA_LOG_E("cmd err\r\n");
+                OTA_BREEZE_LOG_E("cmd err\r\n");
             }
             else {
                 cur_breeze_status = ota_breeze_get_status();
@@ -113,7 +113,7 @@ static unsigned int ota_breeze_start()
                             tmp_verion = ota_breeze_get_version();
                             error_code = ota_breeze_send_fw_version_rsp(OTA_BREEZE_CMD_FW_VERSION_RSP, tmp_verion->fw_ver, tmp_verion->fw_ver_len);
                             if(error_code != OTA_BREEZE_SUCCESS) {
-                                OTA_LOG_E("send ver failed\r\n");
+                                OTA_BREEZE_LOG_E("send ver failed\r\n");
                                 goto OTA_BREEZE_OVER;
                             }
                             send_err = false;
@@ -148,7 +148,7 @@ static unsigned int ota_breeze_start()
                                 }
                             }
                             else {
-                                OTA_LOG_E("rece data failed\r\n");
+                                OTA_BREEZE_LOG_E("rece data failed\r\n");
                             }
                         }
                         else if (tmp_queue.cmd == OTA_BREEZE_CMD_FW_GET_INIT_FW_SIZE) { // cmd=0x27
@@ -165,10 +165,10 @@ static unsigned int ota_breeze_start()
                         send_err = true;
                         if (tmp_queue.cmd == OTA_BREEZE_CMD_FW_XFER_FINISH) { // cmd=0x28
                             if(ota_breeze_set_boot() == 0) {
-                                ota_msleep(2000);
+                                ota_breeze_msleep(2000);
                                 ota_breeze_send_crc_result(true);
                                 ota_breeze_set_status(OTA_BREEZE_STATE_RESET_PREPARE);
-                                OTA_LOG_I("setboot over\r\n");
+                                OTA_BREEZE_LOG_I("setboot over\r\n");
                                 send_err = false;
                             }
                             else {
@@ -176,7 +176,7 @@ static unsigned int ota_breeze_start()
                                 if (error_code == OTA_BREEZE_SUCCESS) {
                                     ota_breeze_set_status(OTA_BREEZE_STATE_IDLE);
                                 }
-                                OTA_LOG_E("setboot failed\r\n");
+                                OTA_BREEZE_LOG_E("setboot failed\r\n");
                             }
                         }
                         break;
@@ -189,15 +189,15 @@ static unsigned int ota_breeze_start()
                 }
                 if(send_err) {
                     ota_breeze_send_error();
-                    OTA_LOG_E("send err report\r\n");
+                    OTA_BREEZE_LOG_E("send err report\r\n");
                     goto OTA_BREEZE_OVER;
                 }
             }
         }
-        ota_msleep(1);
+        ota_breeze_msleep(1);
     }
 OTA_BREEZE_OVER:
-    OTA_LOG_I("task over!\r\n");
+    OTA_BREEZE_LOG_I("task over!\r\n");
     ota_breeze_destroy_receive_buf();
     ota_breeze_set_task_active_flag(false);
     ota_breeze_set_status(OTA_BREEZE_STATE_IDLE);
@@ -209,9 +209,9 @@ static unsigned int ota_breeze_start_task()
     int ret = 0;
     unsigned int error_code = 0;
     void *thread = NULL;
-    ret = ota_thread_create(&thread, (void *)ota_breeze_start, (void *)NULL, NULL, 2048);
+    ret = ota_breeze_thread_create(&thread, (void *)ota_breeze_start, (void *)NULL, NULL, 2048);
     if (ret != 0) {
-        OTA_LOG_E("creat task failed\r\n");
+        OTA_BREEZE_LOG_E("creat task failed\r\n");
         error_code = OTA_BREEZE_ERROR_BUSY;
     }
     return error_code;
@@ -225,9 +225,9 @@ void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigne
             ota_breeze_set_task_active_ctrl(false);
             while(ota_breeze_get_task_active_flag() == true) {
                 ota_breeze_set_task_active_ctrl(false);
-                ota_msleep(1);
+                ota_breeze_msleep(1);
                 if(tm_cnt > 2) {
-                    OTA_LOG_E("last task over failed\r\n");
+                    OTA_BREEZE_LOG_E("last task over failed\r\n");
                     return;
                 }
                 tm_cnt++;
@@ -241,7 +241,7 @@ void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigne
 
         ota_breeze_receive_data_product(ota_cmd, num_frame, buffer, length);
         if(ota_breeze_start_task() != OTA_BREEZE_SUCCESS) {
-            OTA_LOG_E("ota task creat failed\r\n");
+            OTA_BREEZE_LOG_E("ota task creat failed\r\n");
             return;
         }
     }
@@ -251,7 +251,7 @@ void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigne
     else {
         ota_breeze_set_task_active_ctrl(false);
         ota_breeze_set_status(OTA_BREEZE_STATE_IDLE);
-        OTA_LOG_E("ota stus err\r\n");
+        OTA_BREEZE_LOG_E("ota stus err\r\n");
     }
 
 }
@@ -266,15 +266,15 @@ void ota_breeze_relate_event(unsigned char event_type, unsigned char sub_status)
             ota_breeze_on_tx_done(sub_status);
             break;
         case ALI_OTA_ON_DISCONNECTED:
-            ota_msleep(1000);
+            ota_breeze_msleep(1000);
             ota_breeze_set_task_active_ctrl(false);
-            ota_msleep(1000);
+            ota_breeze_msleep(1000);
             ota_breeze_reset();
             break;
         case ALI_OTA_ON_DISCONTINUE_ERR:
-            ota_msleep(1000);
+            ota_breeze_msleep(1000);
             ota_breeze_set_task_active_ctrl(false);
-            ota_msleep(1000);
+            ota_breeze_msleep(1000);
             ota_breeze_on_discontinuous_frame();
             break;
         default:

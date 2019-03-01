@@ -1,7 +1,8 @@
 #include "ota_breeze.h"
-#include "ota_breeze_export.h"
-#include "ota_log.h"
+#include "ota_breeze_os.h"
 #include "breeze_export.h"
+#include "ota_breeze_plat.h"
+#include "ota_breeze_export.h"
 
 static _ota_ble_global_dat_t g_ctx;
 
@@ -84,7 +85,7 @@ ota_breeze_version_t* ota_breeze_get_version()
 void ota_breeze_disconnect()
 {
     /* still have data feedback to app, so do disconnection after a * while */
-    ota_msleep(2000);
+    ota_breeze_msleep(2000);
     breeze_disconnect_ble();
 }
 
@@ -107,12 +108,12 @@ int ota_breeze_service_init(ota_breeze_service_manage_t* ota_manage)
         return -1;
     }
     if(ota_breeze_parse_firmware_version(ota_manage->verison.fw_ver, ota_manage->verison.fw_ver_len) < 0) {
-        OTA_LOG_E("ver parse failed\r\n");
+        OTA_BREEZE_LOG_E("ver parse failed\r\n");
         return -1;
     }
     memset(&g_ctx, 0x00, sizeof(_ota_ble_global_dat_t));
     if(ota_breeze_set_version(ota_manage->verison.fw_ver, ota_manage->verison.fw_ver_len) < 0) {
-        OTA_LOG_E("ver set failed");
+        OTA_BREEZE_LOG_E("ver set failed");
         return -1;
     }
     g_ctx.feature_enable = ota_manage->is_ota_enable;
