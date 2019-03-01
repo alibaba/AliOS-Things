@@ -21,4 +21,4 @@ typedef struct _ota_ble_service_dat{
 
 int ota_breeze_service_init(ota_breeze_service_manage_t* ota_manage);
 
-#endif
+#endif /*OTA_BREEZE_EXPORT_H*/

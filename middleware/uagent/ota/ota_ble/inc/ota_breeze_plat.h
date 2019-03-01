@@ -80,4 +80,5 @@ int ota_breeze_read(unsigned int* off, char* out_buf, int out_buf_len);
 int ota_breeze_save_breakpoint(unsigned int break_point);
 int ota_breeze_set_boot(void);
 int ota_breeze_rollback(void);
-#endif
+#endif /*OTA_BREEZE_PLAT_H*/
+
