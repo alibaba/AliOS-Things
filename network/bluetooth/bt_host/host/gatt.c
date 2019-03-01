@@ -89,6 +89,7 @@ static struct bt_gatt_attr gatt_attrs[] = {
 
 static struct bt_gatt_service gatt_svc = BT_GATT_SERVICE(gatt_attrs);
 
+// We must make that is this function is running on one thread to guarantee handles' uniqueness
 static int gatt_register(struct bt_gatt_service *svc)
 {
 	struct bt_gatt_service *last;
@@ -168,7 +169,7 @@ static void sc_process(struct k_work *work)
 	__ASSERT(!atomic_test_bit(sc->flags, SC_INDICATE_PENDING),
 		 "Indicate already pending");
 
-	BT_DBG("start 0x%04x end 0x%04x", sc->start, sc->end);
+	BT_DBG("%s, start 0x%04x end 0x%04x\r\n", __func__, sc->start, sc->end);
 
 	sc_range[0] = sys_cpu_to_le16(sc->start);
 	sc_range[1] = sys_cpu_to_le16(sc->end);
