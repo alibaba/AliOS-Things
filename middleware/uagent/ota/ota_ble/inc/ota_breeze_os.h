@@ -32,4 +32,4 @@ void ota_breeze_msleep(int ms);
 void ota_breeze_reboot(void);
 void *ota_breeze_malloc(int size);
 void ota_breeze_free(void *ptr);
-#endif
+#endif /*OTA_BREEZE_OS_H*/
