@@ -490,7 +490,7 @@ static u8_t att_find_info_req(struct bt_att *att, struct net_buf *buf)
     start_handle = sys_le16_to_cpu(req->start_handle);
     end_handle   = sys_le16_to_cpu(req->end_handle);
 
-    BT_DBG("start_handle 0x%04x end_handle 0x%04x", start_handle, end_handle);
+    BT_DBG("%s, start_handle 0x%04x end_handle 0x%04x\r\n", __func__, start_handle, end_handle);
 
     if (!range_is_valid(start_handle, end_handle, &err_handle)) {
         send_err_rsp(conn, BT_ATT_OP_FIND_INFO_REQ, err_handle,
@@ -1045,7 +1045,7 @@ static u8_t read_group_cb(const struct bt_gatt_attr *attr, void *user_data)
         return BT_GATT_ITER_CONTINUE;
     }
 
-    BT_DBG("handle 0x%04x", attr->handle);
+    BT_DBG("%s, handle 0x%04x\r\n", __func__, attr->handle);
 
     /* Stop if there is no space left */
     if (data->rsp->len && att->chan.tx.mtu - data->buf->len < data->rsp->len) {
@@ -1143,7 +1143,7 @@ static u8_t att_read_group_req(struct bt_att *att, struct net_buf *buf)
         return BT_ATT_ERR_UNLIKELY;
     }
 
-    BT_DBG("start_handle 0x%04x end_handle 0x%04x type %s", start_handle,
+    BT_DBG("%s, start_handle 0x%04x end_handle 0x%04x type %s", __func__, start_handle,
            end_handle, bt_uuid_str(&u.uuid));
 
     if (!range_is_valid(start_handle, end_handle, &err_handle)) {
