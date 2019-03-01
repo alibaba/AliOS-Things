@@ -220,7 +220,7 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 		memcpy(alink_wifi_config.password, wifi_info.password, strlen(wifi_info.password));
 	}
 	while (connect_retry) {
-		DBG_8195A("\r\nwifi_connect to ssid: %s, type %d, password %s\r\n", wifi_info.ssid.val, wifi_info.security_type, wifi_info.password);
+		//DBG_8195A("\r\nwifi_connect to ssid: %s, type %d, password %s\r\n", wifi_info.ssid.val, wifi_info.security_type, wifi_info.password);
 		ret = wifi_connect(wifi_info.ssid.val, wifi_info.security_type, 
 				   wifi_info.password, wifi_info.ssid.len, 
 				   wifi_info.password_len,
@@ -281,7 +281,7 @@ void wifi_connect_task(void *arg)
 		DBG_8195A("init_para == NULL");
         return;
     }
-	DBG_8195A("init_para->wifi_ssid =%s,init_para->wifi_key=%s\n",init_para->wifi_ssid,init_para->wifi_key);
+	//DBG_8195A("init_para->wifi_ssid =%s,init_para->wifi_key=%s\n",init_para->wifi_ssid,init_para->wifi_key);
     ret = alink_connect_to_ap(init_para->wifi_ssid, strlen(init_para->wifi_ssid), 
         init_para->wifi_key, strlen(init_para->wifi_key));
 
@@ -385,7 +385,7 @@ int wifi_start_softap(hal_wifi_init_type_t *init_para)
 
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
-    DBG_8195A("wifi_start ssid %s, key %s \r\n", init_para->wifi_ssid, init_para->wifi_key);
+    //DBG_8195A("wifi_start ssid %s, key %s \r\n", init_para->wifi_ssid, init_para->wifi_key);
     if (NULL == m || NULL == init_para) {
         DBG_8195A("wifi_start: invalid parameter\n");
         return -1;
@@ -394,7 +394,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     hal_wifi_init_type_t * init_para_ptr = rtw_malloc(sizeof(hal_wifi_init_type_t));
     strcpy(init_para_ptr->wifi_ssid, init_para->wifi_ssid);
     strcpy(init_para_ptr->wifi_key, init_para->wifi_key);
-    DBG_8195A("wifi_ssid =%s,wifi_key=%s\n",init_para_ptr->wifi_ssid,init_para_ptr->wifi_key);
+    //DBG_8195A("wifi_ssid =%s,wifi_key=%s\n",init_para_ptr->wifi_ssid,init_para_ptr->wifi_key);
     if(init_para->wifi_mode == STATION) {
         DBG_8195A("wifi_mode == STATION \n");
         aos_task_new("wifi_connect", wifi_connect_task, init_para_ptr, 4096);
