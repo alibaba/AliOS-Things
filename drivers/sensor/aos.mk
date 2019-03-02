@@ -147,7 +147,7 @@ SENSOR_ALL_FILE=$(notdir $(wildcard drivers/sensor/drv/*.c))
 FILTER_FILE=$(foreach defines_var,$(1),$(filter $(defines_var),$(2)))
 SENSOR_SRC_FILE=$(call FILTER_FILE,$(CONFIG_SENSOR),$(SENSOR_ALL_FILE))
 
-$(NAME)_SOURCES += $(addprefix drv/,$(SENSOR_SRC_FILE)) 
+$(NAME)_SOURCES += $(addprefix drv/,$(SENSOR_SRC_FILE))
 
 CONFIG_DRV_SET = $(word 1,$(CONFIG_SENSOR_DRV_NAME))
 
@@ -176,6 +176,20 @@ $(NAME)_COMPONENTS  += mbmaster
 GLOBAL_DEFINES += UDATA_MODBUS
 endif
 
+ifeq ($(AOS_SENSOR_INT_ENABLE),y)
+GLOBAL_DEFINES += SENSOR_INT_ENABLE
+endif
+
+ifeq ($(AOS_SENSOR_IO_I2C_ENABLE),y)
+GLOBAL_DEFINES += UDATA_MEMS
+GLOBAL_DEFINES += SENSOR_I2C_ENABLE
+endif
+
+ifeq ($(AOS_SENSOR_IO_SPI_ENABLE),y)
+GLOBAL_DEFINES += UDATA_MEMS
+GLOBAL_DEFINES += SENSOR_SPI_ENABLE
+endif
+
 ifeq ($(AOS_SENSOR_GPS_SIMCOM_SIM868),y)
 $(NAME)_COMPONENTS += atparser device_sal_sim800
 $(NAME)_SOURCES += drv/drv_gps_simcom_sim868.c
@@ -192,6 +206,7 @@ GLOBAL_INCLUDES +=  ./include
 GLOBAL_DEFINES      += AOS_SENSOR
 include $(SOURCE_ROOT)/drivers/sensor/drv.mk
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 #GLOBAL_DEFINES      += AOS_SENSOR_HUMI_BOSCH_BME280
 #GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA253
@@ -299,3 +314,5 @@ GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA4XY
 >>>>>>> 0cac3b6d8 (BugID:17115375: sensor driver initialize dynamically)
 
 >>>>>>> 24c274278 (BugID:16179547: optimize industry gateway canbus sensor receive data mode)
+=======
+>>>>>>> cce10f460 (BugID:19137880:change driver init config)
