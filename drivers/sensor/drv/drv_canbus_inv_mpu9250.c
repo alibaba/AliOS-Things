@@ -22,7 +22,7 @@ extern void CAN1_dataReceive(void* rxDataBuffer, uint8_t dataLen);
 
 
 static int drv_canbus_acc_inv_mpu9250_open(void)
-{ 
+{
     return 0;
 }
 
@@ -45,13 +45,13 @@ static int drv_canbus_acc_inv_mpu9250_read(void *buf, size_t len)
     accel->data[DATA_AXIS_X] = rxAccData[0];
     accel->data[DATA_AXIS_Y] = rxAccData[1];
     accel->data[DATA_AXIS_Z] = rxAccData[2];
-    
+
     if(cur_acc_factor != 0){
         accel->data[DATA_AXIS_X] = (accel->data[DATA_AXIS_X] * cur_acc_factor)/LSM6DSL_ACC_MUL;
         accel->data[DATA_AXIS_Y] = (accel->data[DATA_AXIS_Y] * cur_acc_factor)/LSM6DSL_ACC_MUL;
         accel->data[DATA_AXIS_Z] = (accel->data[DATA_AXIS_Z] * cur_acc_factor)/LSM6DSL_ACC_MUL;
     }
-    
+
     accel->timestamp = aos_now_ms();
 
     return (int)size;
@@ -76,8 +76,8 @@ int drv_canbus_acc_inv_mpu9250_init(void){
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)){
         return -1;
-    }   
-    
+    }
+
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
@@ -86,7 +86,7 @@ int drv_canbus_acc_inv_mpu9250_init(void){
 
 //gyro
 static int drv_canbus_gyro_inv_mpu9250_open(void)
-{ 
+{
     return 0;
 }
 
@@ -115,9 +115,9 @@ static int drv_canbus_gyro_inv_mpu9250_read(void *buf, size_t len)
          gyro->data[DATA_AXIS_Y] = (gyro->data[DATA_AXIS_Y] * cur_gyro_factor);
          gyro->data[DATA_AXIS_Z] = (gyro->data[DATA_AXIS_Z] * cur_gyro_factor);
      }
-    
+
     gyro->timestamp = aos_now_ms();
-    
+
     return (int)size;
 }
 
@@ -140,11 +140,13 @@ int drv_canbus_gyro_inv_mpu9250_init(void){
     ret = sensor_create_obj(&sensor);
     if(unlikely(ret)){
         return -1;
-    }   
-    
+    }
+
     LOG("%s %s successfully \n", SENSOR_STR, __func__);
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_canbus_acc_inv_mpu9250_init);
 SENSOR_DRV_ADD(drv_canbus_gyro_inv_mpu9250_init);
+
 
