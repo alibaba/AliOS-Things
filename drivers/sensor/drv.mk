@@ -599,3 +599,38 @@ endif
 ifeq ($(AOS_SENSOR_DAILYRAINFALL_KUNLUN_JHYLW1),y)
 GLOBAL_DEFINES += AOS_CONFIG_DAILYRAINFALL_KUNLUN_JHYLW1
 endif
+
+ifeq ($(AOS_SENSOR_HUMI_BME280_SPI),y)
+$(NAME)_SOURCES += drv/drv_temp_humi_baro_bosch_bme280.c
+GLOBAL_DEFINES += AOS_CONFIG_HUMI_BOSCH_BME280
+GLOBAL_DEFINES += BME280_SPI_ENABLE
+endif
+
+ifeq ($(AOS_SENSOR_BARO_BME280_SPI),y)
+$(NAME)_SOURCES += drv/drv_temp_humi_baro_bosch_bme280.c
+GLOBAL_DEFINES += AOS_CONFIG_BARO_BOSCH_BME280
+GLOBAL_DEFINES += BME280_SPI_ENABLE
+endif
+
+ifeq ($(AOS_SENSOR_TEMP_BME280_SPI),y)
+$(NAME)_SOURCES += drv/drv_temp_humi_baro_bosch_bme280.c
+GLOBAL_DEFINES += AOS_CONFIG_TEMP_BOSCH_BME280
+GLOBAL_DEFINES += BME280_SPI_ENABLE
+endif
+
+ifeq ($(AOS_SENSOR_CANBUS_INV_MPU9250),y)
+$(NAME)_SOURCES += drv/drv_canbus_inv_mpu9250.c
+GLOBAL_DEFINES += AOS_CONFIG_CANBUS_INV_MPU9250
+endif
+
+ifeq ($(AOS_SENSOR_PS_ST_VL53L0X),y)
+$(NAME)_SOURCES += drv/drv_ps_st_vl53l0x/drv_ps_st_vl53l0x.c
+$(NAME)_SOURCES += drv/drv_ps_st_vl53l0x/vl53l0x_platform.c
+$(NAME)_SOURCES += drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api.c
+$(NAME)_SOURCES += drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api_calibration.c
+$(NAME)_SOURCES += drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api_core.c
+$(NAME)_SOURCES += drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api_ranging.c
+$(NAME)_SOURCES += drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api_strings.c
+$(NAME)_SOURCES += drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_platform_log.c
+GLOBAL_DEFINES += AOS_CONFIG_PS_ST_VL53L0X
+endif

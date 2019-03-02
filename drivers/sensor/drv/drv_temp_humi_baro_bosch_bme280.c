@@ -152,6 +152,11 @@
     ((reg_data & (bitname##_MSK)) >> (bitname##_POS))
 #define BME280_GET_BITS_POS_0(reg_data, bitname) (reg_data & (bitname##_MSK))
 
+#ifdef BME280_SPI_ENABLE
+#define  BME280_IO_PORT SPI_PORT
+#else
+#define  BME280_IO_PORT I2C_PORT
+#endif
 
 #define BMA280_REG_ADDR(n) ((n) << 8)
 #define BMA280_SPI_REG_INDX (1)
@@ -496,7 +501,7 @@ static int drv_bosch_bme280_set_work_mode(bme280_type_e type, uint8_t mode)
         default:
             return -1;
     }
-    
+
     value = 0;
     ret   = bme280_io_read(BME280_PWR_CTRL_ADDR, &value, I2C_DATA_LEN);
     if (unlikely(ret)) {
@@ -511,7 +516,7 @@ static int drv_bosch_bme280_set_work_mode(bme280_type_e type, uint8_t mode)
     }
 
 
-    if(type == bme_280_humi){  
+    if(type == bme_280_humi){
         value = 0;
         ret = bme280_io_read(BME280_CTRL_HUM_ADDR, &value, I2C_DATA_LEN);
         if (unlikely(ret)) {
@@ -526,7 +531,7 @@ static int drv_bosch_bme280_set_work_mode(bme280_type_e type, uint8_t mode)
         }
     }
 
-    if(type == bme_280_baro){  
+    if(type == bme_280_baro){
         value = 0;
         ret   = bme280_io_read(BME280_PWR_CTRL_ADDR, &value, I2C_DATA_LEN);
         if (unlikely(ret)) {
@@ -626,7 +631,7 @@ static int drv_bosch_bme280_set_default_config(void)
     if (unlikely(ret)) {
         return ret;
     }
-    
+
     ret = drv_bosch_bme280_set_odr(BME280_DEFAULT_ODR_1HZ);
     if (unlikely(ret)) {
         return ret;
@@ -643,7 +648,7 @@ static int drv_bosch_bme280_comp_temp(bme280_raw_data_t* rawdata,bme280_comp_dat
     int32_t temperature;
     int32_t temperature_min = -4000;
     int32_t temperature_max = 8500;
-    
+
     if(rawdata == NULL){
         return -1;
     }
@@ -679,7 +684,7 @@ static int drv_bosch_bme280_comp_humi(bme280_raw_data_t* rawdata, bme280_comp_da
     int32_t  var5         = 0;
     uint32_t humidity     = 0;
     uint32_t humidity_max = 100000;
-    
+
     if(rawdata == NULL){
         return -1;
     }
@@ -722,7 +727,7 @@ static int drv_bosch_bme280_comp_baro(bme280_raw_data_t* rawdata, bme280_comp_da
     uint32_t pressure     = 0;
     uint32_t pressure_min = 30000;
     uint32_t pressure_max = 110000;
-    
+
     if(rawdata == NULL){
         return -1;
     }
@@ -764,7 +769,7 @@ static int drv_bosch_bme280_comp_baro(bme280_raw_data_t* rawdata, bme280_comp_da
         pressure = pressure_min;
     }
     compdata->comp_p = pressure ;
-    
+
     return 0;
 }
 
@@ -776,7 +781,7 @@ static int drv_bosch_bme280_comp(bme280_type_e type, bme280_raw_data_t* rawdata,
     if(type >= bme_280_max){
         return -1;
     }
-    
+
     if(rawdata == NULL){
         return -1;
     }
@@ -796,7 +801,7 @@ static int drv_bosch_bme280_comp(bme280_type_e type, bme280_raw_data_t* rawdata,
             return ret;
         }
     }
-    
+
     if(type == bme_280_baro){
         ret = drv_bosch_bme280_comp_baro(rawdata,compdata);
         if (unlikely(ret)) {
@@ -823,16 +828,16 @@ static int drv_bosch_bme280_read_rawdata(bme280_type_e type, bme280_raw_data_t* 
     rawdata->raw_t = 0;
     rawdata->raw_h = 0;
     rawdata->raw_p = 0;
-    
+
     ret = bme280_io_read(BME280_TEMP_DATA_ADDR, data, BME280_TEMP_DATA_LEN);
     if (unlikely(ret)) {
         return ret;
     }
-    
+
     rawdata->raw_t = (uint32_t)((uint32_t)data[0] << BME280_SHIFT_BY_12_BITS) |
              ((uint32_t)data[1] << BME280_SHIFT_BY_04_BITS) |
              ((uint32_t)data[2] >> BME280_SHIFT_BY_04_BITS);
-    
+
     if(type == bme_280_humi){
         ret = bme280_io_read(BME280_HUMI_DATA_ADDR, data, BME280_HUMI_DATA_LEN);
         if (unlikely(ret)) {
@@ -840,13 +845,13 @@ static int drv_bosch_bme280_read_rawdata(bme280_type_e type, bme280_raw_data_t* 
         }
         rawdata->raw_h = ((uint32_t)data[0] << BME280_SHIFT_BY_08_BITS) | ((uint32_t)data[1]);
     }
-    
+
     if(type == bme_280_baro){
         ret = bme280_io_read(BME280_BARO_DATA_ADDR, data, BME280_BARO_DATA_LEN);
         if (unlikely(ret)) {
             return ret;
         }
-        rawdata->raw_p = ((uint32_t)data[0] << BME280_SHIFT_BY_12_BITS) | 
+        rawdata->raw_p = ((uint32_t)data[0] << BME280_SHIFT_BY_12_BITS) |
                         ((uint32_t)data[1] << BME280_SHIFT_BY_04_BITS) |
                         ((uint32_t)data[2] >> BME280_SHIFT_BY_04_BITS) ;
     }
@@ -866,7 +871,7 @@ static int drv_humi_bosch_bme280_open(void)
     if (unlikely(ret)) {
         return -1;
     }
-    
+
     ret = drv_bosch_bme280_set_work_mode(bme_280_humi,BME280_STANDARD_RESOLUTION_MODE);
     if (unlikely(ret)) {
         return -1;
@@ -876,7 +881,7 @@ static int drv_humi_bosch_bme280_open(void)
     if (unlikely(ret)) {
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -919,10 +924,10 @@ static int drv_humi_bosch_bme280_read(void *buf, size_t len)
     if (unlikely(ret)) {
         return -1;
     }
-    
+
     pdata->h = comp_data.comp_h;
     pdata->timestamp = aos_now_ms();
-    
+
     return (int)size;
 }
 
@@ -968,7 +973,7 @@ int drv_humi_bosch_bme280_init(void)
     memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
-    sensor.io_port    = SPI_PORT;
+    sensor.io_port    = BME280_IO_PORT;
     sensor.tag        = TAG_DEV_HUMI;
     sensor.path       = dev_humi_path;
     sensor.open       = drv_humi_bosch_bme280_open;
@@ -1030,25 +1035,25 @@ static int drv_temp_bosch_bme280_open(void)
     if (unlikely(ret)) {
         return -1;
     }
-    
+
 
     ret = drv_bosch_bme280_set_work_mode(bme_280_temp,BME280_STANDARD_RESOLUTION_MODE);
     if (unlikely(ret)) {
         return -1;
     }
-    
+
     ret = drv_bosch_bme280_set_power_mode(DEV_POWER_ON);
     if (unlikely(ret)) {
         return -1;
     }
-    
+
     return 0;
 }
 
 static int drv_temp_bosch_bme280_close(void)
 {
     int ret = 0;
-    
+
     g_bme280_open_flag--;
     if(!g_bme280_open_flag){
         ret     = drv_bosch_bme280_set_power_mode(DEV_POWER_OFF);
@@ -1084,7 +1089,7 @@ static int drv_temp_bosch_bme280_read(void *buf, size_t len)
     if (unlikely(ret)) {
         return -1;
     }
-    
+
     pdata->t = comp_data.comp_t;
     pdata->timestamp = aos_now_ms();
     return (int)size;
@@ -1132,7 +1137,7 @@ int drv_temp_bosch_bme280_init(void)
     memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
-    sensor.io_port    = SPI_PORT;
+    sensor.io_port    = BME280_IO_PORT;
     sensor.tag        = TAG_DEV_TEMP;
     sensor.path       = dev_temp_path;
     sensor.open       = drv_temp_bosch_bme280_open;
@@ -1173,7 +1178,7 @@ int drv_temp_bosch_bme280_init(void)
         if (unlikely(ret)) {
             return -1;
         }
-        
+
         g_bme280_init_flag = 1;
     }
 
@@ -1251,10 +1256,10 @@ static int drv_baro_bosch_bme280_read(void *buf, size_t len)
     if (unlikely(ret)) {
         return -1;
     }
-    
+
     pdata->p = comp_data.comp_p;
     pdata->timestamp = aos_now_ms();
-    
+
     return (int)size;
 }
 
@@ -1299,7 +1304,7 @@ int drv_baro_bosch_bme280_init(void)
     memset(&sensor, 0, sizeof(sensor));
 
     /* fill the sensor obj parameters here */
-    sensor.io_port    = SPI_PORT;
+    sensor.io_port    = BME280_IO_PORT;
     sensor.tag        = TAG_DEV_BARO;
     sensor.path       = dev_baro_path;
     sensor.open       = drv_baro_bosch_bme280_open;
@@ -1341,7 +1346,7 @@ int drv_baro_bosch_bme280_init(void)
         if (unlikely(ret)) {
             return -1;
         }
-        
+
         g_bme280_init_flag = 1;
     }
     /* update the phy sensor info to sensor hal */
@@ -1349,5 +1354,8 @@ int drv_baro_bosch_bme280_init(void)
     return 0;
 }
 
+SENSOR_DRV_ADD(drv_temp_bosch_bme280_init);
 SENSOR_DRV_ADD(drv_humi_bosch_bme280_init);
+SENSOR_DRV_ADD(drv_baro_bosch_bme280_init);
+
 
