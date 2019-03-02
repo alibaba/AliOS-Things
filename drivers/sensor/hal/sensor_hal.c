@@ -73,7 +73,7 @@ static int sensor_get_sensor_mode_config(uint32_t index, dev_sensor_config_t *co
     return 0;
 }
 
-static void sensor_irq_handle(void *arg)
+void sensor_irq_handle(void *arg)
 {
     uint32_t index = (uint32_t)arg;
 
@@ -99,19 +99,20 @@ static void sensor_irq_handle(void *arg)
 
 static int  sensor_register_irq(int index )
 {
-    int ret;
+    int ret = -1;
 
     if (0 == g_sensor_obj[index]->data_len) {
         return -1;
     }
-
+#ifdef SENSOR_INT_ENABLE
     ret =
       hal_gpio_enable_irq(&(g_sensor_obj[index]->gpio), *(gpio_irq_trigger_t*)(g_sensor_obj[index]->gpio.priv),
                           sensor_irq_handle, (void *)index);
     if (unlikely(ret)) {
         return -1;
     }
-    return 0;
+#endif
+    return ret;
 }
 
 static int find_selected_sensor(char *path, sensor_tag_e* ptag, uint8_t* pinstance)
@@ -120,11 +121,11 @@ static int find_selected_sensor(char *path, sensor_tag_e* ptag, uint8_t* pinstan
     if (path == NULL) {
         return -1;
     }
-    
+
     if (ptag == NULL) {
         return -1;
     }
-    
+
     if (pinstance == NULL) {
         return -1;
     }
@@ -143,7 +144,7 @@ static int find_selected_sensor(char *path, sensor_tag_e* ptag, uint8_t* pinstan
 
     *ptag = g_sensor_obj[i]->tag;
     *pinstance = g_sensor_obj[i]->instance;
-    
+
     return 0;
 }
 
@@ -208,7 +209,7 @@ int sensor_create_obj(sensor_obj_t* sensor)
     if(ret == 0){
         goto error;
     }
-    
+
     g_sensor_obj[index]->io_port    = sensor->io_port;
     g_sensor_obj[index]->tag        = sensor->tag;
     g_sensor_obj[index]->instance   = sensor->instance;
@@ -276,7 +277,7 @@ static int sensor_hal_get_dev_list(void* buf)
 static int sensor_obj_get(sensor_tag_e tag, uint8_t instance,uint32_t* pindex)
 {
     uint32_t i;
-    
+
     if (tag >= TAG_DEV_SENSOR_NUM_MAX){
         return -1;
     }
@@ -294,9 +295,9 @@ static int sensor_obj_get(sensor_tag_e tag, uint8_t instance,uint32_t* pindex)
     if (i >= g_sensor_cnt){
         return -1;
     }
-    
+
     *pindex = i;
-    
+
     return 0;
 }
 
@@ -304,7 +305,7 @@ int sensor_hal_open(sensor_tag_e tag, uint8_t instance)
 {
     int ret;
     uint32_t index;
-    
+
     if (tag >= TAG_DEV_SENSOR_NUM_MAX){
         return -1;
     }
@@ -313,7 +314,7 @@ int sensor_hal_open(sensor_tag_e tag, uint8_t instance)
     if (unlikely(ret)){
         return -1;
     }
-    
+
     if( g_sensor_obj[index]->open == NULL){
         return -1;
     }
@@ -334,7 +335,7 @@ int sensor_hal_close(sensor_tag_e tag, uint8_t instance)
 {
     int ret;
     uint32_t index;
-    
+
     if (tag >= TAG_DEV_SENSOR_NUM_MAX){
         return -1;
     }
@@ -343,7 +344,7 @@ int sensor_hal_close(sensor_tag_e tag, uint8_t instance)
     if (unlikely(ret)){
         return -1;
     }
-    
+
     if( g_sensor_obj[index]->close == NULL){
         return -1;
     }
@@ -366,7 +367,7 @@ ssize_t sensor_hal_read(sensor_tag_e tag, uint8_t instance, void *buf, size_t le
 {
     int ret;
     uint32_t index;
-    
+
     if (tag >= TAG_DEV_SENSOR_NUM_MAX){
         goto error;
     }
@@ -379,7 +380,7 @@ ssize_t sensor_hal_read(sensor_tag_e tag, uint8_t instance, void *buf, size_t le
 #ifdef UDATA_MODBUS
     if(g_sensor_obj[index]->io_port == MODBUS_PORT){
         int* index_data = (int *)buf;
-        *index_data = g_sensor_obj[index]->drv_index;    
+        *index_data = g_sensor_obj[index]->drv_index;
         if(*index_data < 0)
         {
             goto error;
@@ -418,7 +419,7 @@ int sensor_hal_ioctl(sensor_tag_e tag, uint8_t instance, sensor_cmd_type cmd, un
     uint32_t             index = 0;
     unsigned long        value = arg;
     dev_sensor_config_t *config;
-    
+
     if (tag >= TAG_DEV_SENSOR_NUM_MAX){
         return -1;
     }
@@ -431,7 +432,7 @@ int sensor_hal_ioctl(sensor_tag_e tag, uint8_t instance, sensor_cmd_type cmd, un
     switch (cmd){
         case SENSOR_IOCTL_GET_SENSOR_LIST:
             return -1;
-        
+
         case SENSOR_IOCTL_SET_SENSOR_IRQ_CB: {
             config = (dev_sensor_config_t *)value;
             if (NULL == config) {
@@ -471,7 +472,7 @@ int sensor_hal_ioctl(sensor_tag_e tag, uint8_t instance, sensor_cmd_type cmd, un
     if (g_sensor_obj[index]->ioctl) {
         g_sensor_obj[index]->ioctl(cmd, value);
     }
-    
+
     LOGD(SENSOR_STR, "%s successfully \n", __func__);
     return 0;
 }
@@ -482,7 +483,7 @@ int sensor_hal_init(void)
     if(g_sensor_init_flag != false){
         return 0;
     }
-    
+
     g_sensor_cnt = 0;
 
     if(g_sensor_drv_num > SENSOR_MAX_NUM){
@@ -508,10 +509,10 @@ int sensor_hal_init(void)
 }
 static int sensor_open(inode_t *node, file_t *file)
 {
-    int ret;    
+    int ret;
     sensor_tag_e  tag;
     uint8_t       instance;
-    
+
     if ((node == NULL) || (file == NULL)) {
         return -1;
     }
@@ -531,10 +532,10 @@ static int sensor_open(inode_t *node, file_t *file)
 
 static int sensor_close(file_t *file)
 {
-    int ret;    
+    int ret;
     sensor_tag_e  tag;
     uint8_t       instance;
-    
+
     if (file == NULL) {
         return -1;
     }
@@ -551,14 +552,14 @@ static int sensor_close(file_t *file)
     if (unlikely(ret)){
         return -1;
     }
-    
+
     return sensor_hal_close(tag, instance);
 }
 
 
 static ssize_t sensor_read(file_t *f, void *buf, size_t len)
 {
-    int ret;    
+    int ret;
     sensor_tag_e  tag;
     uint8_t       instance;
 
@@ -568,7 +569,7 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len)
     if (f->node == NULL) {
         return 0;
     }
-    
+
     if (buf == NULL) {
         return 0;
     }
@@ -584,17 +585,17 @@ static ssize_t sensor_read(file_t *f, void *buf, size_t len)
 
 static ssize_t sensor_write(file_t *f, const void *buf, size_t len)
 {
-    int ret;    
+    int ret;
     sensor_tag_e  tag;
     uint8_t       instance;
-    
+
     if (f == NULL) {
         return 0;
     }
     if (f->node == NULL) {
         return 0;
     }
-    
+
     if (buf == NULL) {
         return 0;
     }
@@ -617,10 +618,10 @@ static int sensor_ioctl(file_t *f, int cmd, unsigned long arg)
         LOGD("%s %s fail line: %d\n", SENSOR_STR, __func__, __LINE__);
         return -1;
     }
-    
+
     if (cmd >= SENSOR_IOCTL_MAX) {
         return -1;
-    }    
+    }
 
     if (cmd == SENSOR_IOCTL_GET_SENSOR_LIST) {
         ret = sensor_hal_get_dev_list((void *)arg);
@@ -663,6 +664,7 @@ static int sensor_hal_register(void)
 int sensor_init(void)
 {
     int ret      = 0;
+<<<<<<< HEAD
 <<<<<<< HEAD
     g_sensor_cnt = 0;
 <<<<<<< HEAD
@@ -901,6 +903,9 @@ int sensor_init(void)
     if(g_sensor_drv_num > SENSOR_MAX_NUM){
 =======
     
+=======
+
+>>>>>>> cce10f460 (BugID:19137880:change driver init config)
     ret = sensor_hal_init();
     if(unlikely(ret)){
 >>>>>>> 2e0acce2d (BugID: 18200622:support simple sensor api)
