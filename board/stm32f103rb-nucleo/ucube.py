@@ -1,2 +1,1 @@
-linux_only_targets="helloworld"
-windows_only_targets=""
+linux_only_targets="blink helloworld modbus_demo yts"
