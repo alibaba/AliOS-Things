@@ -21,5 +21,5 @@ if aos_global_config.get('sal', 1) == 1:
 
 component.set_enable_vfp()
 
-linux_only_targets="blink coapapp helloworld http2app modbus_demo mqttapp otaapp tls udataapp udevapp yts"
+linux_only_targets="blink coapapp helloworld http2app modbus_demo mqttapp otaapp tls udataapp udevapp ulocationapp yts"
 windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"
