@@ -257,12 +257,14 @@ static void stop_netmgr(void *p)
 void do_awss_dev_ap()
 {
     aos_task_new("netmgr_stop", stop_netmgr, NULL, 4096);
+    netmgr_clear_ap_config();
     aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
 }
 
 void do_awss()
 {
     aos_task_new("dap_close", awss_close_dev_ap, NULL, 2048);
+    netmgr_clear_ap_config();
     aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
 }
 #endif
