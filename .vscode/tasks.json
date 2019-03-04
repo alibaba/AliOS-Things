@@ -7,7 +7,11 @@
       "command": "aos",
       "args": [
         "make",
-        "helloworld@developerkit"
+        "helloworld@developerkit",
+        "-c",
+        "config;",
+        "aos",
+        "make"
       ],
       "presentation": {
         "focus": true
@@ -19,6 +23,18 @@
       "command": "aos",
       "args": [
         "upload",
+        "helloworld@developerkit"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: Debug",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "debug",
         "helloworld@developerkit"
       ],
       "presentation": {
