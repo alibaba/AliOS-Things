@@ -37,7 +37,9 @@ breeze_apinfo_t comboinfo;
 #define CLIENTID_STR "clientId"
 #define DEVICE_NAME_STR "deviceName"
 #define DEVICE_SECRET_STR "deviceSecret"
+#define PRODUCT_SECRET_STR "productSecret"
 #define PRODUCT_KEY_STR "productKey"
+extern uint8_t product_secret[PRODUCT_SECRET_LEN];
 
 const static char m_sdk_version[] = ":" BZ_VERSION;
 
@@ -152,18 +154,21 @@ static void network_signature_calculate(uint8_t *p_buff)
     SHA256_CTX context;
     uint8_t cli_id[4];
 
-    SET_U32_LE(cli_id, g_extcmd.model_id);
+    SET_U32_BE(cli_id, g_extcmd.model_id);
     hex2string(cli_id, sizeof(cli_id), str_id);
     sec_sha256_init(&context);
 
     sec_sha256_update(&context, CLIENTID_STR, strlen(CLIENTID_STR));
     sec_sha256_update(&context, str_id, sizeof(str_id));
 
-#ifndef CONFIG_MODEL_SECURITY
     sec_sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR)); /* "deviceName" */
     sec_sha256_update(&context, g_extcmd.p_device_name, g_extcmd.device_name_len);
 
+#ifndef CONFIG_MODEL_SECURITY
     sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR)); /* "deviceSecret" */
+    sec_sha256_update(&context, g_extcmd.p_secret, g_extcmd.secret_len);
+#else
+    sec_sha256_update(&context, PRODUCT_SECRET_STR, strlen(PRODUCT_SECRET_STR)); /* "productSecret" */
     sec_sha256_update(&context, g_extcmd.p_secret, g_extcmd.secret_len);
 #endif
 
