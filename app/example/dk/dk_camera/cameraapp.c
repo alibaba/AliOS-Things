@@ -1,14 +1,16 @@
 /*
- * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
+#include <fcntl.h>
 #include <k_api.h>
 #include "aos/kernel.h"
 #include "fatfs.h"
-#include "st7789.h" // LCD
-#include "gc0329.h" // camera
+#include "st7789.h" /* LCD */
+#include "gc0329.h" /* camera */
 #include "camera_demo.h"
 #include "fatfs.h"
-
+#include "aos/vfs.h"
+#include "ulog/ulog.h"
 uint8_t g_sd_valid = 0;
 static uint8_t keyB = 0;
 uint16_t pBuffer[ST7789_WIDTH * ST7789_HEIGHT];
@@ -48,10 +50,10 @@ void init_dcmi_dir(void)
     aos_dir_t *dp = (aos_dir_t *)aos_opendir("/sdcard/DCMI");
     if (!dp) {
         ret = aos_mkdir("/sdcard/DCMI");
-        printf("aos_mkdir , ret = %d\n", ret);
+        LOGI("CAMERA", "aos_mkdir , ret = %d\n", ret);
     } else {
         ret = aos_closedir(dp);
-        printf("aos_closedir , ret = %d\n", ret);
+        LOGI("CAMERA", "aos_closedir , ret = %d\n", ret);
     }
 }
 
@@ -85,7 +87,7 @@ static uint8_t SavePicture(void)
     uint8_t str[30];
     int fd, ret = HAL_OK;
 
-    bm = 0x4d42; //"BM"
+    bm = 0x4d42; /* "BM" */
     bmpheaher.imageSize = nHeigh * nHeigh * 3 + 54;
     bmpheaher.blank = 0;
     bmpheaher.startPosition = 54;
@@ -107,26 +109,26 @@ static uint8_t SavePicture(void)
 
     fd = aos_open((const char *)str, O_RDWR | O_CREAT | O_TRUNC);
     if (fd < 0) {
-        printf("aos_open %s failed\n", str);
+        LOGI("CAMERA", "aos_open %s failed\n", str);
         return HAL_ERROR;
 
     }
     ret = aos_write(fd, &bm, sizeof(bm));
     if (ret != sizeof(bm)) {
-        printf("aos_write bm failed\n");
+        LOGI("CAMERA", "aos_write bm failed\n");
         ret = HAL_ERROR;
         goto end;
     }
 
     ret = aos_write(fd, &bmpheaher, sizeof(bmpheaher));
     if (ret != sizeof(bmpheaher)) {
-        printf("aos_write bmpheaher failed\n");
+        LOGI("CAMERA", "aos_write bmpheaher failed\n");
         ret = HAL_ERROR;
         goto end;
     }
     ret = aos_write(fd, &infoheader, sizeof(infoheader));
     if (ret != sizeof(infoheader)) {
-        printf("aos_write infoheader failed\n");
+        LOGI("CAMERA", "aos_write infoheader failed\n");
         ret = HAL_ERROR;
         goto end;
     }
@@ -141,13 +143,13 @@ static uint8_t SavePicture(void)
         }
         ret = aos_write(fd, pBuffer_t, sizeof(pBuffer_t));
         if (ret != sizeof(pBuffer_t)) {
-            //printf("aos_write nHeigh = %d  failed\n", x);
+            /* LOGI("CAMERA","aos_write nHeigh = %d  failed\n", x); */
             ret = HAL_ERROR;
             goto end;
         }
     }
     ret = HAL_OK;
-    LOG("image_%lu.bmp saved ok\n", counter);
+    LOGI("CAMERA", "image_%lu.bmp saved ok\n", counter);
     counter++;
 
 end:
@@ -189,14 +191,14 @@ static void app_delayed_action(void *arg)
         return;
     }
     if (keyB) {
-      LOG("Button B pressed, begin to store image\n");
-      hal_gpio_output_low(&brd_gpio_table[GPIO_LED_2]);
-      ret = camera_to_sd();
-      if (ret == HAL_OK) {
-        hal_gpio_output_high(&brd_gpio_table[GPIO_LED_2]);
-        LOG("Image stored.\n");
-      }
-      keyB = 0;
+        LOG("Button B pressed, begin to store image\n");
+        hal_gpio_output_low(&brd_gpio_table[GPIO_LED_2]);
+        ret = camera_to_sd();
+        if (ret == HAL_OK) {
+            hal_gpio_output_high(&brd_gpio_table[GPIO_LED_2]);
+            LOG("Image stored.\n");
+        }
+        keyB = 0;
     }
     aos_post_delayed_action(500, app_delayed_action, NULL);
 }
@@ -206,7 +208,7 @@ int application_start(int argc, char *argv[])
     int ret;
     LOG("camera application started.");
 
-    ret = fatfs_register(); // check SD card storage is ready or not
+    ret = fatfs_register(); /* check SD card storage is ready or not */
     if (ret == 0) {
         g_sd_valid = 1;
         init_dcmi_dir();
@@ -217,7 +219,7 @@ int application_start(int argc, char *argv[])
     if (ret != 0) {
         LOG("hal_gpio_enable_irq key return failed.\n");
     }
-    st7789_init(); // init LCD
+    st7789_init(); /* init LCD */
     enable_camera_display(1);
     CameraDEMO_Init(pBuffer, sizeof(pBuffer));
     aos_post_delayed_action(500, app_delayed_action, NULL);
@@ -225,4 +227,3 @@ int application_start(int argc, char *argv[])
 
     return 0;
 }
-
