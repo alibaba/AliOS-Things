@@ -15,10 +15,13 @@ registry_board = {
         "stm32_stlink.json"
     ],
     "developerkit": [
-        "stm32_stlink.json"
+        "developerkit.json"
     ],
     "stm32f412zg-nucleo": [
         "stm32f412zg-nucleo.json"
+    ],
+    "stm32f429zi-nucleo": [
+        "stm32f429zi-nucleo.json"
     ],
     "pca10040": [
         "pca10040.json"
@@ -56,30 +59,33 @@ stm32_stlink = {
             "OSX": "@AOSROOT@/build/cmd/osx/st-util",
             "Win32": "@AOSROOT@/build/cmd/win32/st-util.exe"
         }
-    ]
+    ],
+    "upload": True
 }
 debug_configs['stm32_stlink'] = stm32_stlink
 
 # Debug configs for pca10040
 pca10040 = {
     "prompt": "Please INSTALL Jlink Software Package, and ADD JLink to PATH environment, check: www.github.com/alibaba/AliOS-Things/wiki/debug",
-    "port": 2331,
+    "port": 4242,
     "upload": True,
     "cmd": [
         {
-            "Linux64": "JLinkGDBServerCLExe", 
+            "Linux64": "JLinkGDBServerCLExe",
             "OSX": "JLinkGDBServerCLExe",
             "Win32": "JLinkGDBServerCL.exe"
-        }, 
-        "-if", 
+        },
+        "-if",
         "swd",
         "-device",
-        "nRF52840_xxAA"
+        "nRF52840_xxAA",
+        "-port",
+        "4242"
     ]
 }
 debug_configs['pca10040'] = pca10040
 
-# Debug configs for default config
+# Debug configs for stm32f412zg_nucleo config
 stm32f412zg_nucleo = {
     "prompt": "",
     "port": 4242,
@@ -93,6 +99,35 @@ stm32f412zg_nucleo = {
     ]
 }
 debug_configs['stm32f412zg-nucleo'] = stm32f412zg_nucleo
+
+# Debug configs for stm32f429zi_nucleo config
+stm32f429zi_nucleo = {
+    "prompt": "",
+    "port": 4242,
+    "upload": True,
+    "cmd": [
+        {
+            "Linux64": "@AOSROOT@/build/cmd/linux64/st-util",
+            "OSX": "@AOSROOT@/build/cmd/osx/st-util",
+            "Win32": "@AOSROOT@/build/cmd/win32/st-util.exe"
+        }
+    ]
+}
+debug_configs['stm32f429zi-nucleo'] = stm32f429zi_nucleo
+
+# Debug configs for developerkit config
+developerkit = {
+    "prompt": "",
+    "port": 4242,
+    "cmd": [
+        {
+            "Linux64": "@AOSROOT@/build/cmd/linux64/st-util",
+            "OSX": "@AOSROOT@/build/cmd/osx/st-util",
+            "Win32": "@AOSROOT@/build/cmd/win32/st-util.exe"
+        }
+    ]
+}
+debug_configs['developerkit'] = developerkit
 
 def main():
     # Write debug configs

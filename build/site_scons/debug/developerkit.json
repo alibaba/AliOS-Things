@@ -5,8 +5,7 @@
             "OSX": "@AOSROOT@/build/cmd/osx/st-util", 
             "Win32": "@AOSROOT@/build/cmd/win32/st-util.exe"
         }
-    ],
+    ], 
     "port": 4242, 
-    "prompt": "", 
-    "upload": true
+    "prompt": ""
 }
