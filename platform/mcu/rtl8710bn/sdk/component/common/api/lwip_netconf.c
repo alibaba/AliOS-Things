@@ -91,7 +91,7 @@
 #endif
 
 /* Private define ------------------------------------------------------------*/
-#define MAX_DHCP_TRIES 5
+#define MAX_DHCP_TRIES 10
 
 
 
