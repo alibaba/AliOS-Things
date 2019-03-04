@@ -40,8 +40,14 @@ in `blink.c` need to redefine the following macro:
 ### Build
 
 ```sh
-aos make clean
-aos make blink@yourboard
+# generate blink@developerkit default config
+aos make blink@developerkit -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).

@@ -64,9 +64,16 @@ int ota_service_deinit(ota_service_t* ctx);
 
 for sample code please check [otaapp](../../../app/example/otaapp/).
 ## RTOS build
+
 ```sh
-cd ROOT DIR;
-aos make otaapp@board;
+# generate otaapp@esp8266 default config
+aos make otaapp@esp8266 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 ## run CLI CMDs
