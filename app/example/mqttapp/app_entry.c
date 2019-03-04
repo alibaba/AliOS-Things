@@ -61,7 +61,7 @@ int application_start(int argc, char **argv)
 #ifdef TEST_LOOP
     argc = 2;
     argv = (char **)input_data;
-#endif    
+#endif
     entry_paras.argc = argc;
     entry_paras.argv = argv;
 
@@ -80,7 +80,9 @@ int application_start(int argc, char **argv)
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
     netmgr_start(false);
-
+#if defined (CSP_LINUXHOST) && !defined (WITH_SAL)
+    aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP,0);
+#endif
     aos_loop_run();
 
     return 0;
