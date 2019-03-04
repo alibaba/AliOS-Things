@@ -532,7 +532,7 @@ int CoAPMessage_process(CoAPContext *context, unsigned int timeout)
 {
     int len = 0;
     NetworkAddr remote;
-    char ip_addr[17] = {0};
+    char ip_addr[16] = {0};
     CoAPIntContext *ctx = (CoAPIntContext *)context;
 
     if (NULL == context) {
