@@ -30,6 +30,7 @@
             ],
             "customLaunchSetupCommands": [],
             "launchCompleteCommand": "exec-run",
+            "preLaunchTask": "alios-studio: Debug",
             "MIMode": "gdb",
             "osx": {
                 "miDebuggerPath": "arm-none-eabi-gdb"
