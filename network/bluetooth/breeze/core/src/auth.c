@@ -14,14 +14,15 @@
 
 
 static uint8_t device_secret[MAX_SECRET_LEN] = { 0 };
-static uint8_t product_secret[PRODUCT_SECRET_LEN]  = { 0 };
+uint8_t product_secret[PRODUCT_SECRET_LEN]  = { 0 };
 static uint16_t device_secret_len = 0;
 static uint16_t product_secret_len = 0;
 
 #define SEQUENCE_STR "sequence"
 #define DEVICE_NAME_STR "deviceName"
-#define PRODUCT_KEY_STR "productKey"
 #define DEVICE_SECRET_STR "deviceSecret"
+#define PRODUCT_KEY_STR "productKey"
+#define PRODUCT_SECRET_STR "productSecret"
 
 #define HI_SERVER_STR "Hi,Server"
 #define HI_CLIENT_STR "Hi,Client"
@@ -59,20 +60,15 @@ ret_code_t auth_init(ali_init_t const *p_init, tx_func_t tx_func)
     g_auth.state = AUTH_STATE_IDLE;
     g_auth.tx_func = tx_func;
 
-#ifndef CONFIG_MODEL_SECURITY
-    if (p_init->product_key.length == PRODUCT_KEY_LEN &&
-        p_init->device_key.length != 0 &&
-        p_init->secret.length == DEVICE_SECRET_LEN) {
+    if(p_init->product_key.length == PRODUCT_KEY_LEN &&
+         p_init->device_key.length != 0){
         memcpy(g_auth.product_key, p_init->product_key.p_data, PRODUCT_KEY_LEN);
-        memcpy(g_auth.secret, p_init->secret.p_data, DEVICE_SECRET_LEN);
         memcpy(g_auth.device_name, p_init->device_key.p_data, p_init->device_key.length);
         g_auth.device_name_len = p_init->device_key.length;
     }
-#else
-    if(p_init->product_key.length == PRODUCT_KEY_LEN ){
-        memcpy(g_auth.product_key, p_init->product_key.p_data, PRODUCT_KEY_LEN);
-    }
-#endif
+    if(p_init->secret.length == DEVICE_SECRET_LEN){
+        memcpy(g_auth.secret, p_init->secret.p_data, DEVICE_SECRET_LEN);
+    } 
     g_auth.key_len = p_init->device_key.length;
     if(g_auth.key_len > 0){
         memcpy(g_auth.key, p_init->device_key.p_data, g_auth.key_len);
@@ -275,12 +271,15 @@ int auth_calc_adv_sign(uint32_t seq, uint8_t *sign)
     make_seq_le(&seq);
     sec_sha256_init(&context);
 
-#ifndef CONFIG_MODEL_SECURITY
     sec_sha256_update(&context, DEVICE_NAME_STR, strlen(DEVICE_NAME_STR));
     sec_sha256_update(&context, g_auth.device_name, g_auth.device_name_len);
 
+#ifndef CONFIG_MODEL_SECURITY
     sec_sha256_update(&context, DEVICE_SECRET_STR, strlen(DEVICE_SECRET_STR));
     sec_sha256_update(&context, g_auth.secret, DEVICE_SECRET_LEN);
+#else
+    sec_sha256_update(&context, PRODUCT_SECRET_STR, strlen(PRODUCT_SECRET_STR));
+    sec_sha256_update(&context, product_secret, PRODUCT_SECRET_LEN);
 #endif
 
     sec_sha256_update(&context, PRODUCT_KEY_STR, strlen(PRODUCT_KEY_STR));
