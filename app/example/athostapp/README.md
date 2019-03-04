@@ -14,7 +14,14 @@
 Compile command example:
 
 ```sh
-aos make athostapp@mk3080
+# generate athostapp@mk3080 default config
+aos make athostapp@mk3080 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 ### Features

@@ -39,9 +39,17 @@ Please read [AliOS Things certification process](https://github.com/alibaba/AliO
 ### Build & Flash
 
 ```sh
-aos make clean
-aos make yts@developerkit
-aos upload yts@developerkit
+# generate yts@developerkit default config
+aos make yts@developerkit -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
+
+# upload
+aos upload
 ```
 
 ### Result

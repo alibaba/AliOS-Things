@@ -37,6 +37,22 @@ udevapp
 - mk3060
 - mk3080
 
+### Build & Flash
+
+```sh
+# generate udevapp@esp8266 default config
+aos make udevapp@esp8266 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
+
+# upload
+aos upload
+```
+
 ### Running
 
 > need to update `aos-cube` to 0.3.0 or later

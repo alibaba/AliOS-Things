@@ -26,8 +26,14 @@ The **Lorawan.linkwan** example will run lorawan app, the example is the entranc
 ### Build
 
 ```sh
-aos make clean
-aos make lorawan.linkwan@yourboard
+# generate lorawan.linkwan@m400 default config
+aos make lorawan.linkwan@m400 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).

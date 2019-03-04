@@ -35,6 +35,22 @@ udataapp
 
 - developerkit
 
+### Build & Flash
+
+```sh
+# generate udataapp@developerkit default config
+aos make udataapp@developerkit -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
+
+# upload
+aos upload
+```
+
 ### Others
 
 When the data links to cloud, it's recommended to use the linkdevelop platform which is designed for developers.

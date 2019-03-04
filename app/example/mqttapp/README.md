@@ -33,35 +33,43 @@ The **mqttapp**  shows mqtt related functions.
 
 ### Build
 
-
-
 > Notice: Please be sure to use git bash when build on Windows! Otherwise may resulting in run problem for linkkit. git bash download url https://git-scm.com/download/win
 
 ```sh
-    aos make clean
+# generate mqttapp@mk3060 default config
+aos make mqttapp@mk3060 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
-1).mqtt_example.c:
+1).mqtt_example.c (default):
 
 ```sh
-    aos make mqttapp@xxxx MQTTAPP_CONFIG_CASE_DEFAULT=y
+    aos make
 ```
 
 2).mqtt_example_rrpc.c:
 
+Set `Select Case` to `Rrpc` in menuconfig, or run this command:
 ```sh
-    aos make mqttapp@xxxx MQTTAPP_CONFIG_CASE_RRPC=y
+    aos make MQTTAPP_CONFIG_CASE_RRPC=y
 ```
 
 3).mqtt_example_multithread.c:
 
+Set `Select Case` to `Multithread` in menuconfig, or run this command:
 ```sh
-    aos make mqttapp@xxxx MQTTAPP_CONFIG_CASE_MULTITHREAD=y
+    aos make MQTTAPP_CONFIG_CASE_MULTITHREAD=y
 ```
 
 3).mqtt_presstest.c:
 > refs: https://github.com/AITC-LinkCertification/AITC-Manual/wiki/Manual-Channel-MQTT
 
+Enable `Test Loop` in menuconfig, or run this command:
 ```sh
     aos make mqttapp@xxxx MQTTAPP_CONFIG_CASE_PRESSTEST=y
 ```
@@ -71,7 +79,7 @@ The **mqttapp**  shows mqtt related functions.
 ### Install
 
 ```sh
-aos upload mqtt_examplexxx@yourboard
+aos upload
 ```
 
 > if you are not sure is the`aos upload` command supports your board, check [aos upload](../../../build/site_scons/upload).
