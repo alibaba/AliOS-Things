@@ -10,19 +10,19 @@ config AOS_COMP_ATHOST
 if AOS_COMP_ATHOST
 # Configurations for comp athost
 config ATHOST_CONFIG_WIFI_MGMT
-    bool "ATHOST_CONFIG_WIFI_MGMT"
+    bool "Support WIFI connect AT"
     default y
 
 config ATHOST_CONFIG_CIP
-    bool "ATHOST_CONFIG_CIP"
+    bool "Support TCP AT"
     default y
 
 config ATHOST_CONFIG_MQTT
-    bool "ATHOST_CONFIG_MQTT"
+    bool "Support ICA MQTT AT"
     default y
 
 config ATHOST_CONFIG_COAP
-    bool "ATHOST_CONFIG_COAP"
+    bool "Support ICA COAP AT"
     depends on !ATHOST_CONFIG_MQTT
     default n
 
