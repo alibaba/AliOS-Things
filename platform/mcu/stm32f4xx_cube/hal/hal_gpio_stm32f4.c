@@ -136,7 +136,7 @@ int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 
     ret = get_gpio_group(gpio, &GPIOx);
     if (ret == 0) {
-        pin = gpio->port % PINS_IN_GROUP;
+         pin = get_gpio_pin(gpio->port);
         *value = HAL_GPIO_ReadPin(GPIOx, pin);
     };
 
