@@ -35,7 +35,14 @@ using [aos-cube](https://github.com/alibaba/AliOS-Things/wiki/AliOS-Things-uCube
 More details for [Environment Setup](https://linkdevelop.aliyun.com/device-doc#dev-prepare.html)  
 
 ```sh
-aos make developerkitaudio@developerkit
+# generate dk.dk_audio@developerkit default config
+aos make dk.dk_audio@developerkit -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 ### Prepare and Flash

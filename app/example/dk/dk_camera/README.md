@@ -29,8 +29,14 @@ LCD also will show images which capturing by camera with real time. Of course, t
 * Build and flash cameraapp image for developerkit, e.g.:  
 
 ```sh
-aos make cameraapp@developerkit
-aos upload cameraapp@developerkit
+# generate dk.dk_camera@developerkit default config
+aos make dk.dk_camera@developerkit -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 ### Run

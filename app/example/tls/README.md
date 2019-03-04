@@ -45,9 +45,17 @@ netmgr connect <wifi-name>  <wifi-passwd>
 ### Build & Flash
 
 ```sh
-aos make clean
-aos make tinyengine_app@developerkit
-aos upload tinyengine_app@developerkit
+# generate tls@mk3060 default config
+aos make tls@mk3060 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
+
+# upload
+aos upload
 ```
 
 ### Result

@@ -45,9 +45,17 @@ more TinyEngine features please check [TinyEngine Github](https://github.com/ali
 ### Build & Flash
 
 ```sh
-aos make clean
-aos make tinyengine_app@developerkit
-aos upload tinyengine_app@developerkit
+# generate tinyengine_app@developerkit default config
+aos make tinyengine_app@developerkit -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
+
+# upload
+aos upload
 ```
 
 ### Result

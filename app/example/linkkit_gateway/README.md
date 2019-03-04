@@ -39,22 +39,24 @@ The **http2app**  shows linkkit gateway related functions.
 ### Build
 
 ```sh
-aos make clean
-aos make linkkit_gateway@yourboard
+# generate linkkit_gateway@mk3060 default config
+aos make linkkit_gateway@mk3060 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
-you can add params print_heap=1 to show free heap duration, or add deprecated=1 to use deprecated api
-
-```sh
-aos make linkkit_gateway@yourboard print_heap=1  deprecated=1 
-```
+In menuconfig, you can enable `Show Free Heap Duration` to show free heap duration, or enable `Use Deprecated API` to use deprecated api.
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).
 
 ### Install
 
 ```sh
-aos upload linkkit_gateway@yourboard
+aos upload
 ```
 
 > if you are not sure is the`aos upload` command supports your board, check [aos upload](../../../build/site_scons/upload).
