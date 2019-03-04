@@ -131,14 +131,14 @@ static void alink_work(void *arg)
 
     init_bzlink.product_key_len = strlen(PRODUCT_KEY);
     memcpy(init_bzlink.product_key, PRODUCT_KEY, init_bzlink.product_key_len);
-#ifndef CONFIG_MODEL_SECURITY
+    
     init_bzlink.device_key_len = strlen(DEVICE_NAME);
     memcpy(init_bzlink.device_key, DEVICE_NAME, init_bzlink.device_key_len);
 
+#ifndef CONFIG_MODEL_SECURITY
     init_bzlink.secret_len = strlen(DEVICE_SECRET);
     memcpy(init_bzlink.secret, DEVICE_SECRET, init_bzlink.secret_len);
 #else
-    init_bzlink.device_key_len = 0;
     init_bzlink.secret_len = 0;
 #endif
 
