@@ -8,9 +8,11 @@
         "-if", 
         "swd", 
         "-device", 
-        "nRF52840_xxAA"
+        "nRF52840_xxAA", 
+        "-port", 
+        "4242"
     ], 
-    "port": 2331, 
+    "port": 4242, 
     "prompt": "Please INSTALL Jlink Software Package, and ADD JLink to PATH environment, check: www.github.com/alibaba/AliOS-Things/wiki/debug", 
     "upload": true
 }
