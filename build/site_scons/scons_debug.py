@@ -4,6 +4,19 @@ import urllib
 from collections import OrderedDict
 from scons_upload import aos_upload
 
+def taskkill(host_os, aos_path, exec_name):
+    info("Killing %s\n" % exec_name)
+
+    ret = 0
+    if host_os == "Win32":
+        # Don't display taskkill.exe output
+        proc = subprocess.Popen("%s /F /IM %s" % (os.path.join(aos_path, "build", "cmd", "win32", "taskkill.exe"), exec_name), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.wait()
+    else:
+        ret = subprocess.call("killall %s" % exec_name, shell=True, stdout=None, stderr=None)
+
+    return ret
+
 def process_cmd(cmd_data, host_os, aos_path, target, program_path=None, bin_dir=None):
     """ Replace hardcode strings from commands """
 
@@ -26,6 +39,7 @@ def process_cmd(cmd_data, host_os, aos_path, target, program_path=None, bin_dir=
         item = item.replace('@AOSROOT@', aos_path)
         item = item.replace('@TARGET@', target)
         exec_cmd += [item]
+    exec_name = os.path.basename(exec_cmd[0])
 
     # Support user defined dir
     if bin_dir and os.path.isdir(bin_dir):
@@ -34,7 +48,7 @@ def process_cmd(cmd_data, host_os, aos_path, target, program_path=None, bin_dir=
                 binname = os.path.basename(value)
                 exec_cmd[index] = os.path.join(bin_dir, binname)
 
-    return exec_cmd
+    return exec_cmd, exec_name
 
 def un_tar(filename, path):
     """ Extract files from tarball """
@@ -85,7 +99,8 @@ def download_tool(tool, url):
 def update_launch(aos_path, target, port):
     host_os = get_host_os()
     downloads = []
-
+    gdb_path = ''
+    command = 'arm-none-eabi-gdb'
     toolchain_config = os.path.join(aos_path, 'build', 'toolchain_config.py')
     if os.path.exists(toolchain_config) == False:
         error("Can't get toolchain config, missing %s" % toolchain_config)
@@ -140,16 +155,12 @@ def update_launch(aos_path, target, port):
             c['linux']['miDebuggerPath'] = gdb_path
         elif host_os == 'OSX':
             c['osx']['miDebuggerPath'] = gdb_path
-        
         new_launch['configurations'].append(c)
-        #print new_launch
-    # print new_launch
-    
+
     try:
         write_json(launch_path, new_launch)
     except IOError, e:
         error(e)
-
 
 def _run_debug_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None, startclient=False, gdb_args=None):
     """ Run the command from cmd file """
@@ -166,31 +177,26 @@ def _run_debug_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None, 
 
     if not configs.has_key('port'):
         error("need PORT in debug config file: %s" % cmd_file)
-    
+
     # upload firmware first
     if configs.has_key('upload') and configs['upload'] == True:
         if aos_upload(target, aos_path):
             error("Upload firmware error")
-    
+
     update_launch(aos_path, target, configs['port'])
-    start_server = process_cmd(configs['cmd'], host_os, aos_path, target, program_path, bin_dir)
+    start_server,exec_name = process_cmd(configs['cmd'], host_os, aos_path, target, program_path, bin_dir)
+    info("Running cmd:\n\t'%s', Exec: %s\n" % (' '.join(start_server), exec_name))
 
-    args_list = []
-    if gdb_args:
-        args_list = gdb_args.split(' ')
-
-    start_cmd = start_server
-
-    info("Running cmd:\n\t'%s'\n" % ' '.join(start_cmd))
+    taskkill(host_os, aos_path, exec_name)
 
     if host_os == 'Win32':
-        ret = subprocess.call(start_cmd, shell=True)
+        ret = subprocess.Popen(start_server, shell=True,stdout=sys.stdout, stderr=sys.stderr, creationflags=subprocess.CREATE_NEW_CONSOLE)
     else:
-        ret = subprocess.call(start_cmd, stdout=sys.stdout, stderr=sys.stderr)
+        ret = subprocess.Popen(start_server, stdout=sys.stdout, stderr=sys.stderr, preexec_fn=os.setsid)
 
     if ret != 0 and configs['prompt']:
         info("%s" % configs['prompt'])
-    
+
     return ret
 
 def _debug_app(target, aos_path, registry_file, program_path=None, bin_dir=None, startclient=False, gdb_args=None):
