@@ -39,7 +39,16 @@ Breezeapp demonstrate usage of breeze SDK functionalities.
 
 ### Build
 
-aos make bluetooth.breezeapp@pca10056
+```sh
+# generate bluetooth.breezeapp@pca10056 default config
+aos make bluetooth.breezeapp@pca10056 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
+```
 
 ### Install
 

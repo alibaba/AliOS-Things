@@ -30,8 +30,14 @@ The **coapapp**  shows how to connect and send data to the iot platform with coa
 ### Build
 
 ```sh
-aos make clean
-aos make coapapp@yourboard
+# generate coapapp@mk3060 default config
+aos make coapapp@mk3060 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).

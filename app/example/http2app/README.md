@@ -29,8 +29,14 @@ The **http2app**  shows how to connect and send/request data to the iot platform
 ### Build
 
 ```sh
-aos make clean
-aos make http2app@yourboard
+# generate http2app@mk3060 default config
+aos make http2app@mk3060 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).
@@ -38,7 +44,7 @@ aos make http2app@yourboard
 ### Install
 
 ```sh
-aos upload http2app@yourboard
+aos upload
 ```
 
 > if you are not sure is the`aos upload` command supports your board, check [aos upload](../../../build/site_scons/upload).

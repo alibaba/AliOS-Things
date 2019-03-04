@@ -25,8 +25,14 @@ The **helloworld** example will print `hello world` and other information every 
 ### Build
 
 ```sh
-aos make clean
-aos make helloworld@yourboard
+# generate helloworld@developerkit default config
+aos make helloworld@developerkit -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).
@@ -34,7 +40,7 @@ aos make helloworld@yourboard
 ### Install
 
 ```sh
-aos upload helloworld@yourboard
+aos upload
 ```
 
 > if you are not sure is the`aos upload` command supports your board, check [aos upload](../../../build/site_scons/upload).

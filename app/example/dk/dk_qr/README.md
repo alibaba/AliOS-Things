@@ -17,7 +17,7 @@ devkit.dk_qr
 	└── version_db.c
 ```
 ### Overview
-The ***dk_qr* is a **QR** scan example based on developerkit board.
+The **dk_qr** is a **QR** scan example based on developerkit board.
 
 ### Supported Boards
 
@@ -26,8 +26,14 @@ The ***dk_qr* is a **QR** scan example based on developerkit board.
 ### Build and Flash
 
 ```sh
-aos make devkit.dk_qr@developerkit
-aos upload devkit.dk_qr@developerkit
+# generate dk.dk_qr@developerkit default config
+aos make dk.dk_qr@developerkit -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 ### Run

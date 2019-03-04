@@ -32,7 +32,16 @@ Platform: BLE hardware already support AliOS things BLE stack, take Nordic's nRF
 
 ### Build
 
-aos make bluetooth.bleadv@pca10056
+```sh
+# generate bluetooth.bleadv@pca10056 default config
+aos make bluetooth.bleadv@pca10056 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
+```
 
 ### Install
 

@@ -50,42 +50,49 @@ The **linkkitapp**  shows linkkit related functions.
 > Notice: Please be sure to use **git bash** when build on Windows! Otherwise may resulting in run problem for linkkit. git bash download url https://git-scm.com/download/win
 
 ```sh
-aos make clean
+# generate linkkitapp@mk3060 default config
+aos make linkkitapp@mk3060 -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
 ```
 
 1).linkkit_example_solo.c(default):
 
+Run this command:
 ```sh
-    aos make clean
-    aos make linkkitapp@xxxx
+    aos make
 ```
 
 2).linkkit_example_sched.c:
 
+Set `Select Case` to `Sched` in menuconfig, or run this command:
 ```sh
-    aos make clean
-    aos make linkkitapp@xxxx LINKKITAPP_CONFIG_CASE_SCHED=y
+    aos make LINKKITAPP_CONFIG_CASE_SCHED=y
 ```
 
 3).linkkit_example_cntdown.c:
 
+Set `Select Case` to `Cntdown` in menuconfig, or run this command:
 ```sh
-    aos make clean
-    aos make linkkitapp@xxxx LINKKITAPP_CONFIG_CASE_CNTDOWN=y
+    aos make LINKKITAPP_CONFIG_CASE_CNTDOWN=y
 ```
 
 4).deprecated/solo.c:
 
+Enable `Use Deprecated API` in menuconfig, or run this command:
 ```sh
-    aos make clean
-    aos make linkkitapp@xxxx LINKKITAPP_CONFIG_DEPRECATED=y
+    aos make LINKKITAPP_CONFIG_DEPRECATED=y
 ```
 
 5).deprecated/cntdown.c:
 
+Set `Select Case` to `Cntdown` and enable `Use Deprecated API` in menuconfig, or run this command:
 ```sh
-    aos make clean
-    aos make linkkitapp@xxxx LINKKITAPP_CONFIG_DEPRECATED=y LINKKITAPP_CONFIG_CASE_CNTDOWN=y
+    aos make LINKKITAPP_CONFIG_DEPRECATED=y LINKKITAPP_CONFIG_CASE_CNTDOWN=y
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).
@@ -93,7 +100,7 @@ aos make clean
 ### Install
 
 ```sh
-aos upload linkkitapp@yourboard
+aos upload
 ```
 
 > if you are not sure is the`aos upload` command supports your board, check [aos upload](../../../build/site_scons/upload).
