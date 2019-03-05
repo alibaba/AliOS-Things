@@ -99,7 +99,7 @@ void stm32_soc_peripheral_init(void)
 
 }
 
-#if defined(AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC == 1)
+#if defined(AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC_CLI > 0)
 /*use in debug_panic*/
 void uart_reinit(void)
 {
