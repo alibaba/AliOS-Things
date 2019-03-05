@@ -71,7 +71,7 @@ Set `Select Case` to `Multithread` in menuconfig, or run this command:
 
 Enable `Test Loop` in menuconfig, or run this command:
 ```sh
-    aos make mqttapp@xxxx MQTTAPP_CONFIG_CASE_PRESSTEST=y
+    aos make MQTTAPP_CONFIG_CASE_PRESSTEST=y
 ```
 
 > if you want to see AliOS-Things supports boards, click [board](../../../board).
