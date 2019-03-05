@@ -142,6 +142,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
 
     serial_baud(uart->priv, uart->config.baud_rate);
     serial_format(uart->priv, (uart->config.data_width + 5), uart->config.parity, (uart->config.stop_bits + 1));
+
     if(1 == uart->port)
     {
 	 aos_sem_new(&serial_cfg[uart->port].rx_wait_event, 0);
@@ -152,10 +153,11 @@ int32_t hal_uart_init(uart_dev_t *uart)
         serial_irq_set(uart->priv, RxIrq, 1);
         serial_irq_set(uart->priv, TxIrq, 0);
     } else {
+#if (DEBUG_CONFIG_PANIC_CLI == 0)
         serial_irq_handler(uart->priv, console_irq_handler, (uint32_t)1);
         serial_irq_set(uart->priv, RxIrq, 1);
+#endif
     }
-
     if (FLOW_CONTROL_CTS_RTS == uart->config.flow_control) {
         serial_set_flow_control(uart->priv, FLOW_CONTROL_CTS_RTS, RDA_UART1_RTS, RDA_UART1_CTS);
     }
@@ -216,6 +218,17 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 	    uint8_t *recv_data = (char *)data;
         uint8_t queue_data;
 
+#if (DEBUG_CONFIG_PANIC_CLI > 0)
+        while (rx_count < expect_size) {
+            while(serial_readable(&serial_obj[0])){
+                recv_data[rx_count++] =  serial_getc(&serial_obj[0]);
+                if(rx_count == expect_size)
+                    break;
+            }
+            if(rx_count == expect_size)
+                break;
+        }
+#else
         uart = &uart_0;
         if(uart_recv_buf_queue[uart->port] == NULL){
             mbed_error_printf("uart_%d_recv_buf_queue create failed\r\n",uart->port);
@@ -230,7 +243,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
             } else
                 break;
         }
-
+#endif
         if(rx_count != expect_size)
             printf("uart recv error:expect=%d recv=%d\r\n",expect_size,rx_count);
 
@@ -300,3 +313,9 @@ static void console_irq_handler(uint32_t index, SerialIrq event){
         }
     }
 }
+
+#if (DEBUG_CONFIG_PANIC_CLI > 0)
+void uart_reinit()
+{
+}
+#endif

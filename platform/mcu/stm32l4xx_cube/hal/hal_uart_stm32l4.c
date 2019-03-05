@@ -1002,7 +1002,7 @@ static void UartIdleHandler( const USART_TypeDef* ins)
 
 }
 
-#ifdef AOS_COMP_CLI
+#if (DEBUG_CONFIG_PANIC_CLI > 0)
 int32_t hal_uart_init_block(uart_dev_t *uart)
 {
     int32_t ret = -1;
