@@ -229,15 +229,16 @@ static int wifi_set_mode(hal_wifi_module_t *m, hal_wifi_mode_t mode)
 static int wifi_connect_prepare(hal_wifi_module_t *m, char *ssid, char *password)
 {
     int ret = -1;
-    wifi_config_t config = {};
+    wifi_config_t config;
+    memset(&config, 0, sizeof(wifi_config_t));
 
     /* Out of limit */
     if (strlen(ssid) > sizeof(config.sta.ssid))
         goto err;
     if (strlen(password) > sizeof(config.sta.password))
         goto err;
-    strncpy((char *)(config.sta.ssid), ssid, sizeof(config.sta.ssid));
-    strncpy((char *)(config.sta.password), password, sizeof(config.sta.password));
+    strncpy((char *)(config.sta.ssid), ssid, sizeof(config.sta.ssid) - 1);
+    strncpy((char *)(config.sta.password), password, sizeof(config.sta.password) - 1);
     /* Do connect */
     ret = esp_wifi_set_mode(WIFI_MODE_STA);
     ret = esp_wifi_set_config(WIFI_IF_STA, &config);
