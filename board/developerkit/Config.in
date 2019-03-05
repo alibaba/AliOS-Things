@@ -25,6 +25,13 @@ config DEBUG_CONFIG_BACKTRACE
         set to y if you want to enable stack backtrace feature when system crash happened,
         default y
 
+config DEBUG_CONFIG_PANIC_CLI
+    bool "Enable cli after panic"
+    default y
+    help
+        set to y if you want to enable cli feature after system crash,
+        default y
+
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
     bool
