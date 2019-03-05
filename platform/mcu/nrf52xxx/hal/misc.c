@@ -3,7 +3,7 @@
  */
 
 #include <stdio.h>
-#include <stdint.h>
+
 uint32_t sd_nvic_SystemReset(void);
 
 void hal_reboot(void)
