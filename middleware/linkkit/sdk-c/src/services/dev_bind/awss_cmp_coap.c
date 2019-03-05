@@ -178,11 +178,11 @@ const struct awss_cmp_couple awss_local_couple[] = {
     {AWSS_LC_INIT_SUC,                       TOPIC_AWSS_GET_CONNECTAP_INFO_UCAST, awss_process_ucast_get_connectap_info},
 #ifndef AWSS_DISABLE_REGISTRAR
     {AWSS_LC_INIT_BIND,                      TOPIC_NOTIFY,                        awss_enrollee_suc_monitor},
-    {AWSS_LC_INIT_BIND,                      TOPIC_NOTIFY,                        awss_enrollee_suc_monitor},
+    {AWSS_LC_INIT_BIND,                      TOPIC_AWSS_CONNECTAP_NOTIFY,         awss_enrollee_suc_monitor},
 #endif
 #endif
-    {AWSS_LC_INIT_SUC,                       TOPIC_GETDEVICEINFO_MCAST,           online_mcast_get_device_info},
-    {AWSS_LC_INIT_SUC,                       TOPIC_GETDEVICEINFO_UCAST,           online_ucast_get_device_info}
+    {AWSS_LC_INIT_BIND,                      TOPIC_GETDEVICEINFO_MCAST,           online_mcast_get_device_info},
+    {AWSS_LC_INIT_BIND,                      TOPIC_GETDEVICEINFO_UCAST,           online_ucast_get_device_info}
 };
 
 int awss_cmp_local_init(int init_stage)
@@ -195,6 +195,7 @@ int awss_cmp_local_init(int init_stage)
             continue;
         memset(topic, 0, sizeof(topic));
         awss_build_topic(awss_local_couple[i].topic, topic, TOPIC_LEN_MAX);
+        HAL_Printf("awss register %s\n", topic);
         awss_cmp_coap_register_cb(topic, awss_local_couple[i].cb);
     }
 
