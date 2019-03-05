@@ -279,6 +279,7 @@ void UsageFault_Handler_C(struct pt_regs *pt_regs)
     panic();
 }
 
+#if (DEBUG_CONFIG_PANIC != 1)
 #if defined (__CC_ARM)
 
 __asm void HardFault_Handler(void)
@@ -355,5 +356,6 @@ void UsageFault_Handler(void)
         "b UsageFault_Handler_C\n");
 }
 
+#endif
 #endif
 
