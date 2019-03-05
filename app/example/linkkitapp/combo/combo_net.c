@@ -38,6 +38,7 @@ static void apinfo_ready_handler(breeze_apinfo_t *ap)
 static void linkkit_work(breeze_apinfo_t *info)
 {
     netmgr_ap_config_t config;
+    memset(&config, 0, sizeof(netmgr_ap_config_t));
 
     if (!info)
         return;
