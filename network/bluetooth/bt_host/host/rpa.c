@@ -12,6 +12,7 @@
 
 #include <zephyr.h>
 #include <stddef.h>
+#include <errno.h>
 #include <string.h>
 #include <atomic.h>
 #include <misc/util.h>
@@ -22,8 +23,6 @@
 #include <tinycrypt/aes.h>
 #include <tinycrypt/utils.h>
 #include <tinycrypt/cmac_mode.h>
-
-#include <bluetooth/errno.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_RPA)
 #include "common/log.h"

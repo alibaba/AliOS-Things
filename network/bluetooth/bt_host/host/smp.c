@@ -16,6 +16,7 @@
 
 #include <zephyr.h>
 #include <stddef.h>
+#include <errno.h>
 #include <string.h>
 #include <atomic.h>
 #include <misc/util.h>
@@ -27,7 +28,6 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
 #include <bluetooth/buf.h>
-#include <bluetooth/errno.h>
 
 #include <tinycrypt/constants.h>
 #include <tinycrypt/aes.h>
