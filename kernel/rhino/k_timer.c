@@ -7,13 +7,15 @@
 #if (RHINO_CONFIG_TIMER > 0)
 static void timer_list_pri_insert(klist_t *head, ktimer_t *timer)
 {
-    sys_time_t val;
-    klist_t   *q;
-    klist_t   *start;
-    klist_t   *end;
-    ktimer_t  *task_iter_temp;
+    sys_time_t  val;
+    klist_t    *q;
+    klist_t    *start;
+    klist_t    *end;
+    ktimer_t   *task_iter_temp;
 
-    start = end = head;
+    start = head;
+    end   = head;
+
     val = timer->remain;
 
     for (q = start->next; q != end; q = q->next) {

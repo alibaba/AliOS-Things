@@ -36,7 +36,9 @@ void print_block(k_mm_list_t *b)
     if (!b) {
         return;
     }
+
     print("%p ", b);
+
     if (b->buf_size & RHINO_MM_FREE) {
 
 #if (RHINO_CONFIG_MM_DEBUG > 0u)
@@ -57,6 +59,7 @@ void print_block(k_mm_list_t *b)
 #endif
         print("used ");
     }
+
     if (MM_GET_BUF_SIZE(b)) {
         print(" %6lu ", (unsigned long)MM_GET_BUF_SIZE(b));
     } else {

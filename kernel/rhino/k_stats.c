@@ -82,7 +82,7 @@ void krhino_task_sched_stats_reset(void)
     uint32_t   i;
 
     g_cur_intrpt_disable_max_time = 0;
-    g_cur_sched_disable_max_time = 0;
+    g_cur_sched_disable_max_time  = 0;
 
     /* system first task starting time should be measured otherwise not correct */
     cur_time = (lr_timer_t)LR_COUNT_GET();
@@ -121,8 +121,8 @@ void krhino_task_sched_stats_get(void)
     g_preferred_ready_task[cpu_cur_get()]->task_ctx_switch_times++;
     g_sys_ctx_switch_times++;
 
-    cur_time   = (lr_timer_t)LR_COUNT_GET();
-    exec_time  = cur_time - g_active_task[cpu_cur_get()]->task_time_start;
+    cur_time  = (lr_timer_t)LR_COUNT_GET();
+    exec_time = cur_time - g_active_task[cpu_cur_get()]->task_time_start;
 
     g_active_task[cpu_cur_get()]->task_time_total_run += (sys_time_t)exec_time;
 

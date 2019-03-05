@@ -5,8 +5,7 @@
 #include "k_api.h"
 
 #if (RHINO_CONFIG_EVENT_FLAG > 0)
-static kstat_t event_create(kevent_t *event, const name_t *name, uint32_t flags,
-                            uint8_t mm_alloc_flag)
+static kstat_t event_create(kevent_t *event, const name_t *name, uint32_t flags, uint8_t mm_alloc_flag)
 {
     CPSR_ALLOC();
 
@@ -84,8 +83,7 @@ kstat_t krhino_event_del(kevent_t *event)
 }
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
-kstat_t krhino_event_dyn_create(kevent_t **event, const name_t *name,
-                                uint32_t flags)
+kstat_t krhino_event_dyn_create(kevent_t **event, const name_t *name, uint32_t flags)
 {
     kstat_t   stat;
     kevent_t *event_obj;
@@ -278,11 +276,13 @@ static kstat_t event_set(kevent_t *event, uint32_t flags, uint8_t opt)
     }
 
     cur_event_flags = event->flags;
+
     iter = event_head->next;
 
     /* if list is not empty */
     while (iter != event_head) {
         task = krhino_list_entry(iter, ktask_t, task_list);
+
         iter_temp = iter->next;
 
         if (task->pend_option & RHINO_FLAGS_AND_MASK) {
@@ -331,5 +331,6 @@ kstat_t krhino_event_set(kevent_t *event, uint32_t flags, uint8_t opt)
 
     return event_set(event, flags, opt);
 }
+
 #endif /* RHINO_CONFIG_EVENT_FLAG */
 

@@ -18,21 +18,21 @@ static void res_user_free(ktask_t *task)
     kevent_t     *event;
     klist_t      *head, *end, *tmp;
 
-    /*mutex res exit*/
+    /* mutex res exit */
     head = &(task->kobj_list.mutex_head);
-    end = head;
-    tmp = head->next;
+    end  = head;
+    tmp  = head->next;
 
     while (tmp != end) {
         mutex = krhino_list_entry(tmp, kmutex_t, blk_obj.obj_list);
-        tmp = tmp->next;
+        tmp   = tmp->next;
         krhino_mutex_dyn_del(mutex);
     }
 
-    /*sem res exit*/
+    /* sem res exit */
     head = &(task->kobj_list.sem_head);
-    end = head;
-    tmp = head->next;
+    end  = head;
+    tmp  = head->next;
 
     while (tmp != end) {
         sem = krhino_list_entry(tmp, ksem_t, blk_obj.obj_list);
@@ -40,25 +40,25 @@ static void res_user_free(ktask_t *task)
         krhino_sem_dyn_del(sem);
     }
 
-    /*queue res exit*/
+    /* queue res exit */
     head = &(task->kobj_list.queue_head);
-    end = head;
-    tmp = head->next;
+    end  = head;
+    tmp  = head->next;
 
     while (tmp != end) {
         queue = krhino_list_entry(tmp, kqueue_t, blk_obj.obj_list);
-        tmp = tmp->next;
+        tmp   = tmp->next;
         krhino_queue_dyn_del(queue);
     }
 
-    /*buf queue res exit*/
+    /* buf queue res exit */
     head = &(task->kobj_list.buf_queue_head);
-    end = head;
-    tmp = head->next;
+    end  = head;
+    tmp  = head->next;
 
     while (tmp != end) {
         buf_queue = krhino_list_entry(tmp, kbuf_queue_t, blk_obj.obj_list);
-        tmp = tmp->next;
+        tmp       = tmp->next;
         krhino_buf_queue_dyn_del(buf_queue);
     }
 }
@@ -67,17 +67,15 @@ static void proc_free(ktask_t *task)
 {
     CPSR_ALLOC();
 
-    ktask_t        *proc;
+    ktask_t        *proc = task->proc_addr;
     kqueue_t       *res_q;
     klist_t        *head = &task->task_head;
     static klist_t *head_tmp;
 
-    proc = task->proc_addr;
-
     if (task->is_proc == 1u) {
         res_q = proc->res_q;
 
-        /*save task_head before utask delete*/
+        /* save task_head before utask delete */
         head_tmp = head;
 
         RHINO_CRITICAL_ENTER();
@@ -93,7 +91,7 @@ static void proc_free(ktask_t *task)
             klist_rm(&task->task_user);
 
             if (head_tmp->next == head_tmp) {
-                /*for next process exit*/
+                /* for next process exit */
                 head_tmp = head;
 
                 RHINO_CRITICAL_EXIT();
@@ -149,8 +147,8 @@ void dyn_mem_proc_task(void *arg)
 void dyn_mem_proc_task_start(void)
 {
     krhino_task_create(&g_dyn_task, "dyn_mem_proc_task", 0, RHINO_CONFIG_K_DYN_MEM_TASK_PRI,
-                        0, g_dyn_task_stack, RHINO_CONFIG_K_DYN_TASK_STACK,
-                        dyn_mem_proc_task, 1);
+                       0, g_dyn_task_stack, RHINO_CONFIG_K_DYN_TASK_STACK, dyn_mem_proc_task, 1);
 }
+
 #endif
 

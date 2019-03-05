@@ -101,11 +101,11 @@ kstat_t ringbuf_push(k_ringbuf_t *p_ringbuf, void *data, size_t len)
 
 kstat_t ringbuf_pop(k_ringbuf_t *p_ringbuf, void *pdata, size_t *plen)
 {
-    size_t   split_len = 0;
-    uint8_t *data      = pdata;
-    size_t   len       = 0;
+    size_t   split_len           = 0;
+    uint8_t *data                = pdata;
+    size_t   len                 = 0;
     uint8_t  c_len[RING_BUF_LEN] = {0};
-    size_t   len_bytes = 0;
+    size_t   len_bytes           = 0;
 
     if (p_ringbuf->type == RINGBUF_TYPE_FIX) {
         if (p_ringbuf->head == p_ringbuf->end) {
@@ -193,12 +193,11 @@ uint8_t ringbuf_is_empty(k_ringbuf_t *p_ringbuf)
 
     return 0;
 }
-/*external api*/
 
 kstat_t ringbuf_reset(k_ringbuf_t *p_ringbuf)
 {
-    p_ringbuf->head = p_ringbuf->buf;
-    p_ringbuf->tail = p_ringbuf->buf;
+    p_ringbuf->head     = p_ringbuf->buf;
+    p_ringbuf->tail     = p_ringbuf->buf;
     p_ringbuf->freesize = p_ringbuf->end - p_ringbuf->buf;
 
     return RHINO_SUCCESS;
