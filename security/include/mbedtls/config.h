@@ -157,7 +157,7 @@
 #define MBEDTLS_THREADING_PTHREAD
 #endif /* CONFIG_PLAT_AOS */
 
-#if defined(AOS_COMP_OTA_TLS)
+#if defined(OTA_CONFIG_TLS)
 #define MBEDTLS_SSL_MAX_CONTENT_LEN    (8 * 1024)    /* Size of the input / output buffer */
 #else
 #define MBEDTLS_SSL_MAX_CONTENT_LEN    (4 * 1024)    /* Size of the input / output buffer */
