@@ -6,8 +6,8 @@
 
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
 
-static kstat_t buf_queue_create(kbuf_queue_t *queue, const name_t *name,
-                                void *buf, size_t size, size_t max_msg, uint8_t mm_alloc_flag, size_t type)
+static kstat_t buf_queue_create(kbuf_queue_t *queue, const name_t *name, void *buf, size_t size,
+                                size_t max_msg, uint8_t mm_alloc_flag, size_t type)
 {
     CPSR_ALLOC();
 
@@ -110,7 +110,7 @@ kstat_t krhino_buf_queue_del(kbuf_queue_t *queue)
 static kstat_t buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
                                     size_t size, size_t max_msg, uint8_t type)
 {
-    kstat_t      stat;
+    kstat_t       stat;
     kbuf_queue_t *queue_obj;
 
     NULL_PARA_CHK(queue);
@@ -129,6 +129,7 @@ static kstat_t buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
 
     if (queue_obj->buf == NULL) {
         krhino_mm_free(queue_obj);
+
         return RHINO_NO_MEM;
     }
 
@@ -138,6 +139,7 @@ static kstat_t buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
     if (stat != RHINO_SUCCESS) {
         krhino_mm_free(queue_obj->buf);
         krhino_mm_free(queue_obj);
+
         return stat;
     }
 
@@ -147,16 +149,15 @@ static kstat_t buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
 }
 
 kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
-                                                size_t size, size_t max_msg)
+                                    size_t size, size_t max_msg)
 {
     return buf_queue_dyn_create(queue, name, size, max_msg, RINGBUF_TYPE_DYN);
 }
 
 kstat_t krhino_fix_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
-                                                      size_t msg_size, size_t msg_num)
+                                        size_t msg_size, size_t msg_num)
 {
-    return buf_queue_dyn_create(queue, name, msg_size * msg_num,
-                                msg_size, RINGBUF_TYPE_FIX);
+    return buf_queue_dyn_create(queue, name, msg_size * msg_num, msg_size, RINGBUF_TYPE_FIX);
 }
 
 kstat_t krhino_buf_queue_dyn_del(kbuf_queue_t *queue)
@@ -209,7 +210,6 @@ static kstat_t buf_queue_send(kbuf_queue_t *queue, void *msg, size_t msg_size)
     klist_t *head;
     ktask_t *task;
     kstat_t  err;
-
     uint8_t  cur_cpu_num;
 
     RHINO_CRITICAL_ENTER();
@@ -261,6 +261,7 @@ static kstat_t buf_queue_send(kbuf_queue_t *queue, void *msg, size_t msg_size)
         TRACE_BUF_QUEUE_POST(g_active_task[cur_cpu_num], queue, msg, msg_size);
 
         RHINO_CRITICAL_EXIT();
+
         return RHINO_SUCCESS;
     }
 
@@ -285,8 +286,7 @@ kstat_t krhino_buf_queue_send(kbuf_queue_t *queue, void *msg, size_t size)
     return buf_queue_send(queue, msg, size);
 }
 
-kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg,
-                              size_t *size)
+kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg, size_t *size)
 {
     CPSR_ALLOC();
 

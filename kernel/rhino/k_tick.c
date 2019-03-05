@@ -15,9 +15,11 @@ RHINO_INLINE void tick_list_pri_insert(klist_t *head, ktask_t *task)
     klist_t *q;
     klist_t *list_start;
     klist_t *list_end;
-    ktask_t  *task_iter_temp;
+    ktask_t *task_iter_temp;
 
-    list_start = list_end = head;
+    list_start = head;
+    list_end   = head;
+
     val = task->tick_remain;
 
     for (q = list_start->next; q != list_end; q = q->next) {
@@ -58,11 +60,11 @@ void tick_list_update(tick_i_t ticks)
 {
     CPSR_ALLOC();
 
-    klist_t *tick_head_ptr;
+    klist_t  *tick_head_ptr;
     ktask_t  *p_tcb;
-    klist_t *iter;
-    klist_t *iter_temp;
-    tick_i_t delta;
+    klist_t  *iter;
+    klist_t  *iter_temp;
+    tick_i_t  delta;
 
     RHINO_CRITICAL_ENTER();
 

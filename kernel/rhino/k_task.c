@@ -57,7 +57,7 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
 #endif
 
     if (autorun > 0u) {
-        task->task_state    = K_RDY;
+        task->task_state = K_RDY;
     } else {
         task->task_state    = K_SUSPENDED;
         task->suspend_count = 1u;
@@ -82,11 +82,12 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     task->task_ustack_base = 0;
     task->proc_addr        = 0;
 #endif
-    cpu_binded          = cpu_binded;
-    i                   = i;
+
+    cpu_binded = cpu_binded;
+    i = i;
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
-    task->cpu_binded    = cpu_binded;
+    task->cpu_binded = cpu_binded;
 #endif
 
 #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
