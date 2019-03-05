@@ -159,12 +159,13 @@ void panicHandler(void *context)
             break;
     }
 
-#ifdef AOS_COMP_CLI
+#if (defined AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC_CLI > 0)
     extern void uart_reinit(void);
     uart_reinit();
     cli_main(NULL);
-#endif
+#else
     while (1)
+#endif
         ;
 }
 #endif
