@@ -24,9 +24,6 @@ $(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr.c
 $(NAME)_SOURCES  += hal/flash.c
 $(NAME)_SOURCES  += hal/gpio.c
 
-ifeq ($(COMPILER), armcc)
-else ifeq ($(COMPILER), iar)
-else
 #GLOBAL_CFLAGS += -O3 -g3
 GLOBAL_CFLAGS += -DNRF52832_XXAA
 GLOBAL_CFLAGS += -DBOARD_PCA10040
@@ -53,7 +50,6 @@ GLOBAL_ASMFLAGS += -DNRF52_PAN_74
 #GLOBAL_ASMFLAGS += -mcpu=cortex-m4
 #GLOBAL_ASMFLAGS += -mthumb -mabi=aapcs
 #GLOBAL_ASMFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16                   
-endif
 
 ifeq ($(COMPILER), armcc)
 $(NAME)_SOURCES += Drivers/toolchain/arm/arm_startup_nrf52.s
@@ -66,11 +62,9 @@ $(NAME)_SOURCES += Drivers/toolchain/gcc/gcc_startup_nrf52.S
 endif
      
 ifeq ($(COMPILER),armcc)
-GLOBAL_LDFLAGS += -L --scatter=platform/mcu/nrf52xxx/Drivers/toolchain/arm/nrf52832.sct
-GLOBAL_CFLAGS += -DNRF_DFU_SETTINGS_VERSION=0
-GLOBAL_DEFINES += NRF52
+GLOBAL_LDFLAGS += -L --scatter=platform/mcu/nrf52xxx/Drivers/toolchain/arm/
 else ifeq ($(COMPILER),iar)
-GLOBAL_LDFLAGS += --config platform/mcu/nrf52xxx/Drivers/toolchain/iar/iar_nrf51_blank_xxaa.icf
+GLOBAL_LDFLAGS += --config platform/mcu/stm32l4xx/src/STM32L433RC-Nucleo/STM32L433.icf
 else
 
 ifeq ($(MBINS),)
