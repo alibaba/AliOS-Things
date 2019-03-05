@@ -45,7 +45,7 @@ aos make
 ### Install
 
 ```sh
-aos upload http2app@yourboard
+aos upload
 ```
 
 > if you are not sure is the`aos upload` command supports your board, check [aos upload](../../../build/site_scons/upload).

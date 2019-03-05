@@ -29,7 +29,17 @@ starterkit/sk_gui
 ### Buid and Flash
 
 ```sh
-aos make startkit.sk_gui@starterkit
-aos upload startkit.sk_gui@starterkit
+# generate sk.sk_gui@starterkit default config
+aos make sk.sk_gui@starterkit -c config
+
+# or customize config manually
+aos make menuconfig
+
+# build
+aos make
+
+#upload
+aos upload
 ```
+
 ## Reference

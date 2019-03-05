@@ -24,7 +24,13 @@ Depends on device profile:
 ### Build
 
 ```sh
+# generate gatewayapp@stm32f429zi-nucleo default config
+aos make gatewayapp@stm32f429zi-nucleo -c config
+
+# or customize config manually
 aos make menuconfig
+
+# build
 aos make
 ```
 
