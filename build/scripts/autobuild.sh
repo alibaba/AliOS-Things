@@ -33,9 +33,9 @@ function do_build()
     build_board=$2
     build_option=$3
 
-    app_dir="app/example/$(sed 's/\./\//g' <<< ${build_app})"
-    if [ ! -d ${app_dir} ]; then
-        echo "warning: ${app_dir} none exist, build ${build_app}@${build_board} ${build_option} skipped"
+    app_mkfile="app/example/$(sed 's/\./\//g' <<< ${build_app})/aos.mk"
+    if [ ! -f ${app_mkfile} ]; then
+        echo "warning: ${app_mkfile} none exist, build ${build_app}@${build_board} ${build_option} skipped"
         return 0
     fi
 
