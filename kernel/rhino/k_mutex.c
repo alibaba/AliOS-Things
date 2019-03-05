@@ -107,7 +107,7 @@ kstat_t krhino_mutex_del(kmutex_t *mutex)
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
 kstat_t krhino_mutex_dyn_create(kmutex_t **mutex, const name_t *name)
 {
-    kstat_t  stat;
+    kstat_t   stat;
     kmutex_t *mutex_obj;
 
     if (mutex == NULL) {
@@ -189,9 +189,9 @@ uint8_t mutex_pri_limit(ktask_t *task, uint8_t pri)
 {
 #if (RHINO_CONFIG_MUTEX_INHERIT > 0)
     kmutex_t *mutex_tmp;
-    uint8_t  high_pri;
+    uint8_t   high_pri;
     ktask_t  *first_blk_task;
-    klist_t *blk_list_head;
+    klist_t  *blk_list_head;
 
     high_pri = pri;
 
@@ -221,10 +221,10 @@ uint8_t mutex_pri_look(ktask_t *task, kmutex_t *mutex_rel)
 #if (RHINO_CONFIG_MUTEX_INHERIT > 0)
     kmutex_t  *mutex_tmp;
     kmutex_t **prev;
-    uint8_t   new_pri;
-    uint8_t   pri;
-    ktask_t  *first_blk_task;
-    klist_t  *blk_list_head;
+    uint8_t    new_pri;
+    uint8_t    pri;
+    ktask_t   *first_blk_task;
+    klist_t   *blk_list_head;
 
     /* the base prio of task */
     new_pri = task->b_prio;
@@ -263,7 +263,7 @@ void mutex_task_pri_reset(ktask_t *task)
 {
 #if (RHINO_CONFIG_MUTEX_INHERIT > 0)
     kmutex_t *mutex_tmp;
-    ktask_t *mutex_task;
+    ktask_t  *mutex_task;
 
     if (task->blk_obj->obj_type == RHINO_MUTEX_OBJ_TYPE) {
         mutex_tmp = (kmutex_t *)(task->blk_obj);

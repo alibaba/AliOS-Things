@@ -87,7 +87,7 @@ kstat_t krhino_sem_del(ksem_t *sem)
 kstat_t krhino_sem_dyn_create(ksem_t **sem, const name_t *name,
                               sem_count_t count)
 {
-    kstat_t stat;
+    kstat_t  stat;
     ksem_t  *sem_obj;
 
     NULL_PARA_CHK(sem);
@@ -236,8 +236,8 @@ kstat_t krhino_sem_take(ksem_t *sem, tick_t ticks)
 {
     CPSR_ALLOC();
 
-    uint8_t  cur_cpu_num;
-    kstat_t  stat;
+    uint8_t cur_cpu_num;
+    kstat_t stat;
 
     NULL_PARA_CHK(sem);
 
