@@ -14,6 +14,7 @@
 #include <zephyr.h>
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 #include <atomic.h>
 #include <misc/util.h>
 #include <misc/slist.h>
@@ -28,7 +29,6 @@
 #include <bluetooth/hci_vs.h>
 #include <bluetooth/hci_driver.h>
 #include <bluetooth/storage.h>
-#include <bluetooth/errno.h>
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BT_DEBUG_HCI_CORE)
 #include "common/log.h"
