@@ -1,6 +1,6 @@
 #include "xtensa_rtos.h"
 
-    .global panicHandler, usr_int_stack_top
+    .global panicHandler, port_IntStackTop
 
     .global     _xt_ext_panic
     .type       _xt_ext_panic, @function
@@ -8,24 +8,24 @@
     .literal_position
 _xt_ext_panic:
     /* Allocate exception frame and save minimal context. */
+    movi    a0, port_IntStackTop
+    sub     a0, a0, sp
+    srli    a0, a0, 8
+    bgeui   a0, (configISR_STACK_SIZE*portNUM_PROCESSORS)>>8, _switch_sp
     mov     a0, sp
-    //movi    sp, usr_int_stack_top
+    j       _dump
+_switch_sp:
+    mov     a0, sp
+    movi    sp, port_IntStackTop
+_dump:
     addi    sp, sp, -XT_STK_FRMSZ
     s32i    a0, sp, XT_STK_A1
-    #if XCHAL_HAVE_WINDOWED
-    s32e    a0, sp, -12                     /* for debug backtrace */
-    #endif
     rsr     a0, PS                          /* save interruptee's PS */
     s32i    a0, sp, XT_STK_PS
     rsr     a0, EPC_1                       /* save interruptee's PC */
     s32i    a0, sp, XT_STK_PC
-    #if XCHAL_HAVE_WINDOWED
-    s32e    a0, sp, -16                     /* for debug backtrace */
-    #endif
     s32i    a12, sp, XT_STK_A12             /* _xt_context_save requires A12- */
     s32i    a13, sp, XT_STK_A13             /* A13 to have already been saved */
-    s32i    a14, sp, XT_STK_A14
-    s32i    a15, sp, XT_STK_A15
     call0   _xt_context_save
 
     /* Save exc cause and vaddr into exception frame */
@@ -44,6 +44,5 @@ _xt_ext_panic:
     wsr     a0, PS
 
     //Call panic handler
-    mov     a2, sp
-    movi    a0, xtensaPanic
-    callx0  a0
+    mov     a6, sp
+    call4   xtensaPanic
