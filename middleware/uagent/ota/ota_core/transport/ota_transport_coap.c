@@ -3,15 +3,16 @@
  */
 #include <string.h>
 #include <stdlib.h>
-
 #include "ota_log.h"
 #include "ota/ota_service.h"
 #include "ota_verify.h"
 #include "ota_hal_os.h"
 
-// Generate topic name according to @ota_topic_type, @product_key, @device_name
-// and then copy to @buf.
-// 0, successful; -1, failed
+/*
+* Generate topic name according to @ota_topic_type, @product_key, @device_name
+* and then copy to @buf.
+* 0, successful; -1, failed
+*/
 static int otacoap_GenTopicName(char *buf, int len, char *topic, char *pk, char *dn)
 {
     int ret = 0;
@@ -25,9 +26,11 @@ static int otacoap_GenTopicName(char *buf, int len, char *topic, char *pk, char 
     return 0;
 }
 
-// Generate firmware information according to @id, @version
-// and then copy to @buf.
-// 0, successful; -1, failed
+/*
+* Generate firmware information according to @id, @version
+* and then copy to @buf.
+* 0, successful; -1, failed
+*/
 static int otalib_GenReqMsg(char *buf, int len, int id, const char *ver)
 {
     int ret = 0;
@@ -38,9 +41,11 @@ static int otalib_GenReqMsg(char *buf, int len, int id, const char *ver)
     return 0;
 }
 
-// Generate report information according to @id, @msg
-// and then copy to @buf.
-// 0, successful; -1, failed
+/*
+* Generate report information according to @id, @msg
+* and then copy to @buf.
+* 0, successful; -1, failed
+*/
 static int otalib_GenReportMsg(char *buf, int len, int id, int progress, const char *msg)
 {
     int ret = 0;
@@ -69,7 +74,7 @@ static void otacoap_response_handler(void *arg, void *p_response)
     }
 }
 
-// report progress of OTA
+/* report progress of OTA*/
 static int otacoap_Publish(char *topic, char *msg, void* pctx)
 {
     int ret = 0;

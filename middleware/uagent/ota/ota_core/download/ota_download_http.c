@@ -7,7 +7,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
-
 #include "ota/ota_service.h"
 #include "ota_log.h"
 #include "ota_hal_os.h"
@@ -200,11 +199,11 @@ static int ota_download_start(void *pctx)
     }
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
     if (ota_param->off_bp) {
-        ota_snprintf(http_buffer, OTA_BUFFER_MAX_SIZE-1, HTTP_HEADER_RESUME, host_file, ota_param->off_bp, host_addr, port);
+        ota_snprintf(http_buffer, OTA_BUFFER_MAX_SIZE - 1, HTTP_HEADER_RESUME, host_file, ota_param->off_bp, host_addr, port);
         ota_get_last_hash_ctx(hash_ctx);
     } else {
         ota_param->off_bp = 0;
-        ota_snprintf(http_buffer, OTA_BUFFER_MAX_SIZE-1, HTTP_HEADER, host_file, host_addr, port);
+        ota_snprintf(http_buffer, OTA_BUFFER_MAX_SIZE - 1, HTTP_HEADER, host_file, host_addr, port);
         if (ota_hash_init(hash_ctx->hash_method, hash_ctx->ctx_hash) < 0) {
             ret = OTA_VERIFY_HASH_FAIL;
             goto END;
@@ -264,7 +263,7 @@ static int ota_download_start(void *pctx)
                     ret = OTA_VERIFY_HASH_FAIL;
                     goto END;
                 }
-                ret = ota_hal_write(&ota_param->off_bp,pos, size);
+                ret = ota_hal_write(&ota_param->off_bp, pos, size);
                 if (ret < 0) {
                     ret = OTA_UPGRADE_FAIL;
                     goto END;

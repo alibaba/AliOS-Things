@@ -1,5 +1,5 @@
-#ifndef __OTA_BREEZE_OS_H
-#define __OTA_BREEZE_OS_H
+#ifndef OTA_BREEZE_OS_H
+#define OTA_BREEZE_OS_H
 #include <stdarg.h>
 #include <stdio.h>
 #include "ulog/ulog.h"

@@ -7,7 +7,6 @@
 #include "ota_public_key_config.h"
 #include "ota_verify.h"
 
-
 static char ota_get_sign_hash_method(void)
 {
     return SHA256;
@@ -158,6 +157,7 @@ int ota_verify_download_rsa_sign(unsigned char* sign_dat, const char* src_hash_d
     char tmp_buf[32] = {0};
     int sign_bitnumb = 0;
     int src_dat_len = 0;
+
     if((NULL == sign_dat) || (NULL == src_hash_dat)) {
         OTA_LOG_E("ota verify download sign input parameter NULL");
         return -1;
@@ -173,6 +173,7 @@ int ota_verify_download_rsa_sign(unsigned char* sign_dat, const char* src_hash_d
             OTA_LOG_E("ota rsa sign input hash type error!");
             return -1;
     }
+
     if(ota_hex_str2buf(src_hash_dat, tmp_buf, sizeof(tmp_buf)) < 0) {
         OTA_LOG_E("rsa verify:str2buf translate failed!");
         return -1;

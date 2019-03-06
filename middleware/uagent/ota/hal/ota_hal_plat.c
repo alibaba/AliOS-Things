@@ -34,7 +34,7 @@ uint32_t ota_receive_total_len = 0;
 static int boot_part = HAL_PARTITION_OTA_TEMP;
 static unsigned int _offset = 0;
 static ota_crc16_ctx ctx = {0};
-const char ota_board_string[] = "board "SYSINFO_PRODUCT_MODEL;  //don't delete it, used for ota diff recovery
+const char ota_board_string[] = "board "SYSINFO_PRODUCT_MODEL;  /*don't delete it, used for ota diff recovery*/
 
 unsigned short ota_get_crc16(void)
 {
@@ -96,12 +96,12 @@ static int ota_init(void *something)
     else {
         ctx.crc=ota_get_crc16();
     }
-    OTA_LOG_I("ota init off:0x%08x part:%d len:%d crc:0x%04x\n",param->off_bp,boot_part,param->len,ctx.crc);
+    OTA_LOG_I("ota init off:0x%08x part:%d len:%d crc:0x%04x\n", param->off_bp, boot_part, param->len, ctx.crc);
     OTA_LOG_I("ota init %s success!\n", ota_board_string);
     return ret;
 }
 
-static int ota_write(int* off, char* in_buf ,int in_buf_len)
+static int ota_write(int* off, char* in_buf, int in_buf_len)
 {
     int ret = 0;
 #if defined (STM32L496xx)
@@ -201,7 +201,7 @@ static int ota_boot(void *something)
                  return ret;
             }
             OTA_LOG_I("diff dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x pcrc:0x%04x splict:%d.\r\n",
-                        ota_param_r.dst_adr,ota_param_r.src_adr, ota_param_r.rec_size, ota_param_r.crc,
+                        ota_param_r.dst_adr, ota_param_r.src_adr, ota_param_r.rec_size, ota_param_r.crc,
                         ota_param_r.patch_crc, ota_param_r.splict_size);
 #endif
         }
@@ -216,7 +216,7 @@ static int ota_boot(void *something)
             hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
 #ifndef AOS_OTA_2BOOT_UPDATE_SUPPORT
             param->src_adr = part_info->partition_start_addr;
-            param->dst_adr = (param->upg_flag == OTA_APP)? (int)&app_download_addr : (int)&kernel_download_addr;
+            param->dst_adr = (param->upg_flag == OTA_APP) ? (int)&app_download_addr : (int)&kernel_download_addr;
 #else
             param->src_adr  = 0;
             param->dst_adr  = 0;
