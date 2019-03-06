@@ -180,12 +180,12 @@ ifeq ($(AOS_SENSOR_INT_ENABLE),y)
 GLOBAL_DEFINES += SENSOR_INT_ENABLE
 endif
 
-ifeq ($(AOS_SENSOR_IO_I2C_ENABLE),y)
+ifeq ($(AOS_SENSOR_I2C_ENABLE),y)
 GLOBAL_DEFINES += UDATA_MEMS
 GLOBAL_DEFINES += SENSOR_I2C_ENABLE
 endif
 
-ifeq ($(AOS_SENSOR_IO_SPI_ENABLE),y)
+ifeq ($(AOS_SENSOR_SPI_ENABLE),y)
 GLOBAL_DEFINES += UDATA_MEMS
 GLOBAL_DEFINES += SENSOR_SPI_ENABLE
 endif
@@ -205,6 +205,7 @@ endif
 GLOBAL_INCLUDES +=  ./include
 GLOBAL_DEFINES      += AOS_SENSOR
 include $(SOURCE_ROOT)/drivers/sensor/drv.mk
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -316,3 +317,5 @@ GLOBAL_DEFINES      += AOS_SENSOR_ACC_BOSCH_BMA4XY
 >>>>>>> 24c274278 (BugID:16179547: optimize industry gateway canbus sensor receive data mode)
 =======
 >>>>>>> cce10f460 (BugID:19137880:change driver init config)
+=======
+>>>>>>> 17aa01077 (BugID:19137880:change the config name)
