@@ -6,7 +6,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-
 #include <errno.h>
 #include "ota_log.h"
 #include "ota_hal_plat.h"
@@ -25,17 +24,17 @@ static int boot_part_in = 5;
 
 int getCmdVal(const char *cmd)
 {
-    char ps[1024]={0};
+    char ps[1024] = {0};
     FILE *ptr = NULL;
     char *sstr = NULL;
-    if((ptr=popen(cmd, "r"))!=NULL)
+    if((ptr=popen(cmd, "r")) != NULL)
     {
-        while(fgets(ps, 1024, ptr)!=NULL)
+        while(fgets(ps, 1024, ptr) != NULL)
         {
         }
         pclose(ptr);
         ptr = NULL;
-        OTA_LOG_I("ret:%s\n",ps);
+        OTA_LOG_I("ret:%s\n", ps);
     }
     else
     {
@@ -47,19 +46,24 @@ int getCmdVal(const char *cmd)
         OTA_LOG_I("mender_boot_part:%d \n", boot_part);
     }
 #if defined PLAT_RASPBERRY
-    if(boot_part == 3) {
+    if(boot_part == 3)
+    {
         boot_part_in = 2;
-    } else {
+    }
+    else
+    {
         boot_part_in = 3;
     }
 #else
     if(boot_part == 5) {
-        boot_part_in = 4; 
-    } else {
+        boot_part_in = 4;
+    }
+    else
+    {
         boot_part_in = 5;
     }
 #endif
-    OTA_LOG_I("ota init:%d  boot_part_in:%d\n", boot_part,boot_part_in);
+    OTA_LOG_I("ota init:%d  boot_part_in:%d\n", boot_part, boot_part_in);
     return 0;
 }
 
@@ -69,26 +73,33 @@ static int ota_init(void *something)
     int ret = 0;
     ota_boot_param_t * param = (ota_boot_param_t*)something;
     getCmdVal("fw_printenv mender_boot_part");
-    snprintf(path,sizeof(path),"%s%d",OTA_IMAGE_FILE,boot_part_in);
-    offset= param->off_bp;
+    snprintf(path,sizeof(path), "%s%d", OTA_IMAGE_FILE,boot_part_in);
+    offset = param->off_bp;
     OTA_LOG_I("init off: %d size:0x%x \n", offset,param->len);
-    if(param->len == 0) {
+    if(param->len == 0)
+    {
         OTA_LOG_E("ota init size error:");
         return -1;
     }
 #if !defined PLAT_RASPBERRY
-    if(param->len > 0x3100000){
+    if(param->len > 0x3100000)
+    {
         OTA_LOG_E("firmware size is too big.\n");
         return -1;
     }
 #endif
-    if(offset!=0){ /*breakpoint resume*/
-        if(ota_fd==NULL){
-            if((ota_fd = fopen(path, "a+"))==NULL) {
+    /* breakpoint resume*/
+    if(offset != 0)
+    {
+        if(ota_fd == NULL)
+        {
+            if((ota_fd = fopen(path, "a+")) == NULL)
+            {
                 OTA_LOG_E("init err: %d, %s\n", ret, strerror(errno));
                 return -1;
             }
-            if(ftell(ota_fd)<=0){
+            if(ftell(ota_fd) <= 0)
+            {
                 OTA_LOG_E("init error: %d, %s\n", ret, strerror(errno));
                 return -1;
             }
@@ -100,10 +111,10 @@ static int ota_init(void *something)
 int ota_write(int *off_set, char *in_buf, int in_buf_len)
 {
     int ret = 0;
-    if(ota_fd == NULL) 
+    if(ota_fd == NULL)
     {
         char path[64] = {0};
-        snprintf(path,sizeof(path),"%s%d",OTA_IMAGE_FILE,boot_part_in);
+        snprintf(path, sizeof(path), "%s%d", OTA_IMAGE_FILE, boot_part_in);
         ota_fd = fopen(path, "w");
     }
     ret = fwrite(in_buf, in_buf_len, 1, ota_fd);
@@ -117,7 +128,8 @@ int ota_write(int *off_set, char *in_buf, int in_buf_len)
 
 static int ota_read(int *off_set, char *out_buf, int out_buf_len)
 {
-    if (ota_fd != NULL) {
+    if (ota_fd != NULL)
+    {
         fflush(ota_fd);
         fclose(ota_fd);
         ota_fd = NULL;
@@ -126,13 +138,13 @@ static int ota_read(int *off_set, char *out_buf, int out_buf_len)
     if(ota_fd == NULL)
     {
         char path[64] = {0};
-        snprintf(path,sizeof(path),"%s%d",OTA_IMAGE_FILE,boot_part_in);
+        snprintf(path, sizeof(path), "%s%d", OTA_IMAGE_FILE, boot_part_in);
         ota_fd = fopen(path, "r");
     }
     ret = fseek(ota_fd, *off_set, SEEK_SET);
     ret = fread(out_buf, out_buf_len, 1, ota_fd);
     if (ret != 1) {
-        OTA_LOG_E("read err: %d, %d ,%s\n", ret, out_buf_len, strerror(errno));
+        OTA_LOG_E("read err: %d, %d, %s\n", ret, out_buf_len, strerror(errno));
         return -1;
     }
     fclose(ota_fd);
@@ -144,37 +156,43 @@ static int ota_read(int *off_set, char *out_buf, int out_buf_len)
 static int ota_boot(void *something)
 {
    int ret = 0;
-   if (ota_fd != NULL) {
+   if (ota_fd != NULL)
+   {
        fflush(ota_fd);
        fclose(ota_fd);
        ota_fd = NULL;
    }
    char cmd1[64] = { 0 };
    ota_boot_param_t *param = (ota_boot_param_t *)something;
-   if (param==NULL){
+   if (param == NULL)
+   {
        OTA_LOG_E("boot err\n");
        return -1;
    }
-   if (param->res_type==OTA_FINISH) {
-       sprintf(cmd1, "fw_setenv mender_boot_part %d",boot_part_in);
+   if (param->res_type == OTA_FINISH)
+   {
+       sprintf(cmd1, "fw_setenv mender_boot_part %d", boot_part_in);
        ret = system(cmd1);
-       if(ret < 0) {
+       if(ret < 0)
+       {
            OTA_LOG_E("set boot part err.\n");
            return -1;
        }
-       OTA_LOG_E("boot:%s \n",cmd1);
-       memset(cmd1,0x00,sizeof(cmd1));
+       OTA_LOG_E("boot:%s \n", cmd1);
+       memset(cmd1, 0x00, sizeof(cmd1));
        sprintf(cmd1, "fw_setenv upgrade_available 1");
        ret = system(cmd1);
-       if(ret < 0) {
+       if(ret < 0)
+       {
            OTA_LOG_E("upgrade_available err\n");
            return -1;
        }
-       OTA_LOG_E("boot:%s \n",cmd1);
-       memset(cmd1,0x00,sizeof(cmd1));
+       OTA_LOG_E("boot:%s \n", cmd1);
+       memset(cmd1, 0x00, sizeof(cmd1));
        sprintf(cmd1, "sync;reboot");
        ret = system(cmd1);
-       if(ret < 0) {
+       if(ret < 0)
+       {
            OTA_LOG_E("sync err\n");
            return -1;
        }
@@ -189,19 +207,23 @@ static int ota_rollback(void *something)
     int ret = 0;
     sprintf(cmd1, "fw_setenv upgrade_available 0; fw_setenv bootcount 0; sync");
     ret = system(cmd1);
-    if(ret < 0) {
+    if(ret < 0)
+    {
         OTA_LOG_E("roll system fail .");
     }
-    OTA_LOG_I("roll:%s \n",cmd1);
+    OTA_LOG_I("roll:%s \n", cmd1);
     return 0;
 }
 
 static const char *ota_get_version(unsigned char dev_type)
 {
-    if(dev_type) {
-        return "v1.0.0-20180101-1000";//SYSINFO_APP_VERSION;
-    } else {
-        return "app-1.0.0-20181206.2318";//SYSINFO_APP_VERSION;
+    if(dev_type)
+    {
+        return "v1.0.0-20180101-1000"; /*SYSINFO_APP_VERSION;*/
+    }
+    else
+    {
+        return "app-1.0.0-20181206.2318"; /*SYSINFO_APP_VERSION;*/
     }
 }
 

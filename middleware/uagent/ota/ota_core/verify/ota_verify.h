@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#ifndef _OTA_VERIFY_H_
-#define _OTA_VERIFY_H_
+#ifndef OTA_VERIFY_H_
+#define OTA_VERIFY_H_
 #include "ota_hal_os.h"
 #include "stdint.h"
 
@@ -11,21 +11,21 @@
 #define AOS_APP_TAG    (0xefefefef)
 
 typedef enum {
-    OTA_CRYPTO_ERROR = (int)0xffff0000, 
-    OTA_CRYPTO_NOSUPPORT,               
-    OTA_CRYPTO_INVALID_KEY,             
-    OTA_CRYPTO_INVALID_TYPE,            
-    OTA_CRYPTO_INVALID_CONTEXT,         
-    OTA_CRYPTO_INVALID_PADDING,         
-    OTA_CRYPTO_INVALID_AUTHENTICATION,  
-    OTA_CRYPTO_INVALID_ARG,             
-    OTA_CRYPTO_INVALID_PACKET,          
-    OTA_CRYPTO_LENGTH_ERR,              
-    OTA_CRYPTO_OUTOFMEM,                
-    OTA_CRYPTO_SHORT_BUFFER,            
-    OTA_CRYPTO_NULL,                    
-    OTA_CRYPTO_ERR_STATE,               
-    OTA_CRYPTO_SUCCESS = 0,            
+    OTA_CRYPTO_ERROR = (int)0xffff0000,
+    OTA_CRYPTO_NOSUPPORT,
+    OTA_CRYPTO_INVALID_KEY,
+    OTA_CRYPTO_INVALID_TYPE,
+    OTA_CRYPTO_INVALID_CONTEXT,
+    OTA_CRYPTO_INVALID_PADDING,
+    OTA_CRYPTO_INVALID_AUTHENTICATION,
+    OTA_CRYPTO_INVALID_ARG,
+    OTA_CRYPTO_INVALID_PACKET,
+    OTA_CRYPTO_LENGTH_ERR,
+    OTA_CRYPTO_OUTOFMEM,
+    OTA_CRYPTO_SHORT_BUFFER,
+    OTA_CRYPTO_NULL,
+    OTA_CRYPTO_ERR_STATE,
+    OTA_CRYPTO_SUCCESS = 0,
 } OTA_VERIFY_E;
 
 typedef enum {
@@ -61,12 +61,12 @@ typedef struct {
     };
 } ota_hash_ctx_t;
 
-enum {
-    CRYPTO_STATUS_CLEAN        = 0,
-    CRYPTO_STATUS_INITIALIZED  = 1,
-    CRYPTO_STATUS_PROCESSING   = 2,
-    CRYPTO_STATUS_FINISHED     = 3,
-};
+typedef enum {
+    OTA_CRYPTO_STATUS_CLEAN        = 0,
+    OTA_CRYPTO_STATUS_INITIALIZED  = 1,
+    OTA_CRYPTO_STATUS_PROCESSING   = 2,
+    OTA_CRYPTO_STATUS_FINISHED     = 3,
+} OTA_CRYPTO_STATUS_E;
 
 #define INIT_CTX_MAGIC(m)         (m = 0x12345678)
 #define IS_VALID_CTX_MAGIC(m)     (0x12345678 == m)
@@ -95,4 +95,5 @@ int  ota_verify_download_rsa_sign(unsigned char* sign_dat, const char* src_hash_
 ota_hash_param_t *ota_get_hash_ctx(void);
 unsigned char    *ota_get_identity_image_md5_strvalue(void);
 int  ota_check_image(unsigned int size);
-#endif
+#endif /* OTA_VERIFY_H*/
+

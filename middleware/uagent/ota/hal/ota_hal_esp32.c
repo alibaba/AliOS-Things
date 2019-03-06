@@ -3,7 +3,6 @@
 #include "ota_hal_plat.h"
 #include <string.h>
 #include <malloc.h>
-
 #include "esp_spi_flash.h"
 #include "rom/spi_flash.h"
 #include "aos/hal/flash.h"
@@ -13,6 +12,7 @@ static esp_ota_handle_t out_handle;
 static esp_err_t esp_write_error;
 
 extern void esp_restart(void);
+extern const char *aos_get_app_version(void);
 
 bool esp_ota_prepare()
 {
@@ -66,19 +66,19 @@ static int ota_init(void *something)
 {
     ota_boot_param_t *param = (ota_boot_param_t *)something;
     uint32_t offset = param->off_bp;
-    OTA_LOG_I("ota_init off:0x%x \n",offset);
-    if(offset==0) {
+    OTA_LOG_I("ota_init off:0x%x \n", offset);
+    if(offset == 0) {
         /* prepare to os update  */
-        if (esp_ota_prepare() != true) { 
-            return -1; 
+        if (esp_ota_prepare() != true) {
+            return -1;
         }
     }
     return 0;
 }
 
-static int ota_write(int* off, char* buf ,int buf_len)
+static int ota_write(int* off, char* buf, int buf_len)
 {
-    esp_err_t         err = ESP_OK;
+    esp_err_t err = ESP_OK;
     err = esp_ota_write(out_handle, (const void *)buf, (size_t)buf_len);
     if (err != ESP_OK) {
         esp_write_error = err;
@@ -90,7 +90,7 @@ static int ota_write(int* off, char* buf ,int buf_len)
 
 static int ota_boot(void *something)
 {
-    esp_err_t         err = ESP_OK;
+    esp_err_t err = ESP_OK;
     ota_boot_param_t *param = (ota_boot_param_t *)something;
     if (param == NULL) {
         return -1;
@@ -101,7 +101,7 @@ static int ota_boot(void *something)
             return -1;
         }
         if(esp_write_error )  {
-            OTA_LOG_E("write_error %d!",esp_write_error);
+            OTA_LOG_E("write_error %d!", esp_write_error);
             return -1;
         }
         err = esp_ota_set_boot_partition(&operate_partition);
@@ -122,7 +122,6 @@ static int ota_boot(void *something)
     return 0;
 }
 
-
 static int ota_read(int* off, char* out_buf, int out_buf_len)
 {
     return hal_flash_read(HAL_PARTITION_OTA_TEMP, (uint32_t*)off, out_buf, out_buf_len);
@@ -133,7 +132,6 @@ static int ota_rollback(void *something)
     return 0;
 }
 
-const char   *aos_get_app_version(void);
 static const char *ota_get_version(unsigned char dev_type)
 {
     if(dev_type) {

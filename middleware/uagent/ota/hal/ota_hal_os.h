@@ -170,4 +170,5 @@ int ota_coap_get_payload(void *p_message, const char **pp_payload, int *p_len);
 int ota_coap_get_code(void *p_message, void *p_resp_code);
 int ota_coap_init(void);
 int ota_coap_deinit(void);
-#endif
+#endif /*OTA_PLATFORM_OS_H*/
+

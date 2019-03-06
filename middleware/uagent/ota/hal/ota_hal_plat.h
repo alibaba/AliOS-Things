@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef HAL_OTA_H
-#define HAL_OTA_H
+#ifndef OTA_HAL_PLAT_H
+#define OTA_HAL_PLAT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +30,7 @@ typedef struct  {
     unsigned char boot_count;
     unsigned int  rec_size;
     unsigned int  splict_size;
-    int off_bp;   /*Break point offset*/
+    int off_bp;               /*Break point offset*/
     OTA_RES_TYPE_E  res_type; /*result type: OTA_FINISH, OTA_BREAKPOINT*/
     unsigned short param_crc; /*Parameter crc*/
 } __attribute__((packed)) ota_boot_param_t;
@@ -71,7 +71,7 @@ int ota_hal_init(void *something);
  *
  * @return  0 : On success, 1 : If an error occurred with any step
  */
-int ota_hal_write(int *off_set,char *in_buf , int in_buf_len);
+int ota_hal_write(int *off_set, char *in_buf, int in_buf_len);
 
 /**
  * Read data from an area on ota Flash to data buffer in RAM
@@ -85,7 +85,7 @@ int ota_hal_write(int *off_set,char *in_buf , int in_buf_len);
  *
  * @return  0 : On success, 1 : If an error occurred with any step
  */
-int ota_hal_read(int *off_set,char *out_buf, int out_buf_len);
+int ota_hal_read(int *off_set, char *out_buf, int out_buf_len);
 
 /**
  * Set boot options when ota reboot
@@ -117,5 +117,5 @@ const char *ota_hal_get_version(unsigned char dev_type);
 #ifdef __cplusplus
 }
 #endif
-#endif /* HAL_OTA_H */
+#endif /* OTA_HAL_PLATFORM_H */
 
