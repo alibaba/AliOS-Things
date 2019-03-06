@@ -19,22 +19,26 @@ static int ota_gen_info_msg(char *buf, int len, int id, const char *ver)
     return 0;
 }
 
-// Generate report information according to @id, @msg
-// and then copy to @buf.
-// 0, successful; -1, failed
+/*
+* Generate report information according to @id, @msg
+* and then copy to @buf.
+* 0, successful; -1, failed
+*/
 static int ota_gen_report_msg(char *buf, int len, int id, int progress, const char *msg)
 {
     int ret = 0;
-    ret = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}", id, progress, msg?msg:NULL);
+    ret = ota_snprintf(buf, len, "{\"id\":%d,\"params\":{\"step\": \"%d\",\"desc\":\"%s\"}}", id, progress, msg ? msg : NULL);
     if (ret < 0) {
         return -1;
     }
     return 0;
 }
 
-// Generate topic name according to @ota_topic_type, @product_key, @device_name
-// and then copy to @buf.
-// 0, successful; -1, failed
+/*
+* Generate topic name according to @ota_topic_type, @product_key, @device_name
+* and then copy to @buf.
+* 0, successful; -1, failed
+*/
 static int ota_mqtt_gen_topic_name(char *buf, int len, const char *topic, char *pk, char *dn)
 {
     int ret = 0;
@@ -121,7 +125,7 @@ static int ota_trans_upgrade(void* pctx)
     if (ret < 0) {
         return -1;
     }
-    OTA_LOG_I("upgrade:%s",name);
+    OTA_LOG_I("upgrade:%s", name);
     ret = ota_hal_mqtt_subscribe(name, ota_mqtt_sub_cb, pctx);
     if (ret < 0) {
         return OTA_TRANSPORT_FAIL;

@@ -43,8 +43,8 @@ int ota_hash_init(OTA_HASH_E type, void *context)
 
     hash_ctx = (ota_hash_ctx_t *)context;
     if ((IS_VALID_CTX_MAGIC(hash_ctx->magic) &&
-         hash_ctx->status != CRYPTO_STATUS_FINISHED) &&
-         hash_ctx->status != CRYPTO_STATUS_CLEAN) {
+         hash_ctx->status != OTA_CRYPTO_STATUS_FINISHED) &&
+         hash_ctx->status != OTA_CRYPTO_STATUS_CLEAN) {
          OTA_LOG_E("bad:%d", (int)hash_ctx->status);
          return OTA_CRYPTO_ERR_STATE;
     }
@@ -66,7 +66,7 @@ int ota_hash_init(OTA_HASH_E type, void *context)
     }
 
     hash_ctx->type = type;
-    hash_ctx->status = CRYPTO_STATUS_INITIALIZED;
+    hash_ctx->status = OTA_CRYPTO_STATUS_INITIALIZED;
     INIT_CTX_MAGIC(hash_ctx->magic);
     return OTA_CRYPTO_SUCCESS;
 }
@@ -86,8 +86,8 @@ int ota_hash_update(const unsigned char *src, unsigned int size, void *context)
     if (!IS_VALID_CTX_MAGIC(hash_ctx->magic)) {
         return OTA_CRYPTO_INVALID_CONTEXT;
     }
-    if ((hash_ctx->status != CRYPTO_STATUS_INITIALIZED) &&
-        (hash_ctx->status != CRYPTO_STATUS_PROCESSING)) {
+    if ((hash_ctx->status != OTA_CRYPTO_STATUS_INITIALIZED) &&
+        (hash_ctx->status != OTA_CRYPTO_STATUS_PROCESSING)) {
          OTA_LOG_E("bad :%d", (int)hash_ctx->status);
          return OTA_CRYPTO_ERR_STATE;
     }
@@ -107,7 +107,7 @@ int ota_hash_update(const unsigned char *src, unsigned int size, void *context)
             return OTA_CRYPTO_INVALID_TYPE;
     }
 
-    hash_ctx->status = CRYPTO_STATUS_PROCESSING;
+    hash_ctx->status = OTA_CRYPTO_STATUS_PROCESSING;
     return OTA_CRYPTO_SUCCESS;
 }
 
@@ -124,8 +124,8 @@ int ota_hash_final(unsigned char *dgst, void *context)
     if (!IS_VALID_CTX_MAGIC(hash_ctx->magic)) {
         return OTA_CRYPTO_INVALID_CONTEXT;
     }
-    if ((hash_ctx->status != CRYPTO_STATUS_INITIALIZED) &&
-        (hash_ctx->status != CRYPTO_STATUS_PROCESSING)) {
+    if ((hash_ctx->status != OTA_CRYPTO_STATUS_INITIALIZED) &&
+        (hash_ctx->status != OTA_CRYPTO_STATUS_PROCESSING)) {
          OTA_LOG_E("bad :%d", (int)hash_ctx->status);
          return OTA_CRYPTO_ERR_STATE;
     }
@@ -146,7 +146,7 @@ int ota_hash_final(unsigned char *dgst, void *context)
     }
 
     CLEAN_CTX_MAGIC(hash_ctx->magic);
-    hash_ctx->status = CRYPTO_STATUS_FINISHED;
+    hash_ctx->status = OTA_CRYPTO_STATUS_FINISHED;
     return OTA_CRYPTO_SUCCESS;
 }
 
@@ -321,7 +321,7 @@ int ota_check_hash(OTA_HASH_E hash_type, char* hash)
     }
     int ret = -1;
     unsigned char digest[64] = { 0 };
-    ota_hash_param_t *hash_ctx      = ota_get_hash_ctx();
+    ota_hash_param_t *hash_ctx = ota_get_hash_ctx();
     if (OTA_CRYPTO_SUCCESS != ota_hash_final(digest, hash_ctx->ctx_hash)) {
         return -1;
     }
@@ -340,7 +340,7 @@ int ota_check_hash(OTA_HASH_E hash_type, char* hash)
     return ret;
 }
 
-// below is about check image
+/* below is about check image*/
 int ota_init_bin_md5_context()
 {
     image_md5_ctx.hash_method = MD5;

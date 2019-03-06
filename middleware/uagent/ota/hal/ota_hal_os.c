@@ -588,7 +588,7 @@ int ota_hal_mqtt_deinit(void)
 int ota_hal_mqtt_init(void)
 {
     #if (OTA_SIGNAL_CHANNEL) == 1
-    return (IOT_MQTT_Construct(NULL) == NULL)? -1 : 0;
+    return (IOT_MQTT_Construct(NULL) == NULL) ? -1 : 0;
     #else
     return 0;
     #endif

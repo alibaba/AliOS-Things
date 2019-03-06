@@ -1,5 +1,5 @@
-#ifndef _OTA_BREEZE_H
-#define _OTA_BREEZE_H
+#ifndef OTA_BREEZE_H
+#define OTA_BREEZE_H
 
 #include "ota_breeze_export.h"
 

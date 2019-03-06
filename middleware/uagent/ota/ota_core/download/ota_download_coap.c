@@ -54,7 +54,7 @@ static int ota_download_start(void *pctx)
         block_cur_num = 0;
     }
     coap_client_running = 1;
-    sem_send  = ota_semaphore_create();
+    sem_send = ota_semaphore_create();
     while (coap_client_running && block_more) {
         iotx_message_t message;
         message.p_payload = NULL;
@@ -92,7 +92,7 @@ static void iotx_response_block_handler(void *arg, void *p_response)
     if (resp_code == 0x45) {
         ota_coap_get_payload(p_response, (const char**)&p_payload, &len);
         if (ota_coap_parse_block(p_response, COAP_OPTION_BLOCK2, &cur_num, &more, &size)) {
-            OTA_LOG_I("num: %d, more: %d,size: %d", cur_num, more, size);
+            OTA_LOG_I("num: %d, more: %d, size: %d", cur_num, more, size);
             block_size = size;
             if (cur_num == block_cur_num) {
                 if (more == 0) {
@@ -101,7 +101,6 @@ static void iotx_response_block_handler(void *arg, void *p_response)
                     block_cur_num++;
                 }
                 total_size += len;
-                // OTA_LOG_I("size:%d, n:%d", size, nbytes);
                 int ret = 0;
                 ret = ota_hal_write(&breakpoint, p_payload, len);
                 if (ret < 0) {
