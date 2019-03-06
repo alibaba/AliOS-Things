@@ -261,7 +261,7 @@ int uloc_update_gpsinfo(location_t * lo)
     int rlt = -1;
     rlt = uloc_hal_get_gps(&lo);
 
-    if (is_same_spot(&inv_loc, lo))
+    if (lo == NULL || is_same_spot(&inv_loc, lo))
     {
         return -1;
     }
