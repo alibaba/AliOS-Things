@@ -58,7 +58,7 @@ static int windowed_register_backtrace(uint32_t pc, uint32_t sp,
 
     while (lvl++ < BACK_TRACE_LIMIT) {
         psp = backtrace_sp;
-        if ((backtrace_sp > 0x3fffffff0UL) || ((backtrace_sp & 0xf) != 0))
+        if ((backtrace_sp > 0x3ffffff0UL) || ((backtrace_sp & 0xf) != 0))
             break;
 
         backtrace_sp = *((uint32_t*) (backtrace_sp - 0x10 + 4));
@@ -69,7 +69,7 @@ static int windowed_register_backtrace(uint32_t pc, uint32_t sp,
         if (backtrace_pc < 0x40000000)
             break;
 
-        if (backtrace_pc == (char *)krhino_task_deathbed) {
+        if (backtrace_pc == (uint32_t)krhino_task_deathbed) {
             print_func("backtrace : ^task entry^\n");
             break;
         }
@@ -94,8 +94,8 @@ int backtraceContext(char *PC, char *LR, int *SP,
 
     print_func(prtbuff);
 
-    backtrace_pc = LR;
-    backtrace_sp = SP;
+    backtrace_pc = (uint32_t)LR;
+    backtrace_sp = (uint32_t)SP;
 
     lvl = windowed_register_backtrace(backtrace_pc, backtrace_sp, print_func);
     print_func("======== Call stack End ========\n");
@@ -119,7 +119,7 @@ int backtrace_now(int (*print_func)(const char *fmt, ...))
 
     print_func("======= Call stack Begin =======\n");
 
-    backtrace_pc = PC;
+    backtrace_pc = (uint32_t)PC;
     backtrace_sp = (uint32_t)SP + 32; /*call getPCnSP result to sp -32*/
 
     lvl = windowed_register_backtrace(backtrace_pc, backtrace_sp, print_func);
@@ -154,7 +154,7 @@ int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
     SP = task->task_stack;
 
     backtrace_pc = *((uint32_t *) (SP - 0x10));
-    backtrace_sp = SP;
+    backtrace_sp = (uint32_t)SP;
 
     lvl = windowed_register_backtrace(backtrace_pc, backtrace_sp, print_func);
     print_func("======== Call stack End ========\n");
