@@ -3,6 +3,7 @@
 #include "debug_api.h"
 #include "backtrace.h"
 #include "frxt/xtensa_api.h"
+#include "espos_scheduler.h"
 
 //#define PANIC_PRINT     ets_printf
 #define PANIC_PRINT     printf
@@ -82,7 +83,7 @@ int panicBacktraceCallee(char *PC, int *SP, char *LR,
 
 void xtensaPanic(void *context)
 {
-    esp_panic_wdt_close();
+    //esp_panic_wdt_close();
     _espos_enter_critical(NULL);
     krhino_sched_disable();
 
