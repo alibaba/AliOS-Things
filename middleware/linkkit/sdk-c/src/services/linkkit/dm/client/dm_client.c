@@ -147,7 +147,11 @@ static void _dm_client_event_cloud_connected_handle(void)
     dm_log_info("IOTX_CM_EVENT_CLOUD_CONNECTED");
 
 #ifdef DEV_BIND_ENABLED
-    awss_report_cloud();
+    static char sync_token = 0;
+    if (sync_token == 0) {
+        sync_token = 1;
+        awss_report_cloud();
+    }
 #endif
     dm_msg_cloud_connected();
 }
