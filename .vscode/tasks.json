@@ -2,15 +2,24 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "alios-studio: Make",
+      "label": "alios-studio: Config",
       "type": "shell",
       "command": "aos",
       "args": [
         "make",
         "helloworld@developerkit",
         "-c",
-        "config;",
-        "aos",
+        "config"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: Make",
+      "type": "shell",
+      "command": "aos",
+      "args": [
         "make"
       ],
       "presentation": {
