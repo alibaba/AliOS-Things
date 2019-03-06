@@ -764,6 +764,7 @@ ali_crypto_result ali_aes_finish(const uint8_t *src, size_t src_size,
             result = _aes_ecb_final(src, src_size, dst, dst_size, padding, &(ctx->hal_ctx));
 #else
             result = _aes_ecb_final(src, src_size, dst, dst_size, padding, &(ctx->sal_ctx));
+            ctx->sal_ctx.status = CRYPTO_STATUS_FINISHED;
 #endif
             break;
 #endif
@@ -773,6 +774,7 @@ ali_crypto_result ali_aes_finish(const uint8_t *src, size_t src_size,
             result = _aes_cbc_final(src, src_size, dst, dst_size, padding, &(ctx->hal_ctx));
 #else
             result = _aes_cbc_final(src, src_size, dst, dst_size, padding, &(ctx->sal_ctx));
+            ctx->sal_ctx.status = CRYPTO_STATUS_FINISHED;
 #endif
             break;
 #endif
@@ -782,6 +784,7 @@ ali_crypto_result ali_aes_finish(const uint8_t *src, size_t src_size,
             result = _aes_ctr_final(src, src_size, dst, dst_size, &(ctx->hal_ctx));
 #else
             result = _aes_ctr_final(src, src_size, dst, dst_size, &(ctx->sal_ctx));
+            ctx->sal_ctx.status = CRYPTO_STATUS_FINISHED;
 #endif
             break;
 #endif
@@ -791,12 +794,14 @@ ali_crypto_result ali_aes_finish(const uint8_t *src, size_t src_size,
             result = _aes_cfb_final(src, src_size, dst, dst_size, &(ctx->hal_ctx));
 #else
             result = _aes_cfb_final(src, src_size, dst, dst_size, &(ctx->sal_ctx));
+            ctx->sal_ctx.status = CRYPTO_STATUS_FINISHED;
 #endif
             break;
 #endif
 #if (CONFIG_SAL_AES_CFB)
         case AES_CFB128:
             result = _aes_cfb_final(src, src_size, dst, dst_size, &(ctx->sal_ctx));
+            ctx->sal_ctx.status = CRYPTO_STATUS_FINISHED;
             break;
 #endif
         default:
