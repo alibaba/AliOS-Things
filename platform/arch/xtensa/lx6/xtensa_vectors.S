@@ -34,14 +34,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   medium level interrupts, by calling xt_set_interrupt_handler(). These
   handlers can be written in C, and must obey C calling convention. The
   handler table is indexed by the interrupt number. Each handler may be
-  provided with an argument. 
+  provided with an argument.
 
   Note that the system timer interrupt is handled specially, and is
   dispatched to the RTOS-specific handler. This timer cannot be hooked
   by application code.
 
-  Optional hooks are also provided to install a handler per level at 
-  run-time, made available by compiling this source file with 
+  Optional hooks are also provided to install a handler per level at
+  run-time, made available by compiling this source file with
   '-DXT_INTEXC_HOOKS' (useful for automated testing).
 
 !!  This file is a template that usually needs to be modified to handle       !!
@@ -81,10 +81,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       This allows more flexibility in locating code without the performance
       overhead of the 'l32r' literal data load in cases where the destination
       is in range of 'call0'. There is an additional benefit in that 'call0'
-      has a longer range than 'j' due to the target being word-aligned, so 
+      has a longer range than 'j' due to the target being word-aligned, so
       the 'l32r' sequence is less likely needed.
-   3. The use of 'call0' with -mlongcalls requires that register a0 not be 
-      live at the time of the call, which is always the case for a function 
+   3. The use of 'call0' with -mlongcalls requires that register a0 not be
+      live at the time of the call, which is always the case for a function
       call but needs to be ensured if 'call0' is used as a jump in lieu of 'j'.
    4. This use of 'call0' is independent of the C function call ABI.
 
@@ -347,7 +347,7 @@ panic_print_hex_a:
 panic_print_hex_ok:
     s32i a5,a3,0
     slli a2,a2,4
-    
+
     addi a4,a4,-1
     bnei a4,0,panic_print_hex_loop
     movi a5,' '
@@ -366,12 +366,12 @@ panic_print_hex_ok:
 --------------------------------------------------------------------------------
     Hooks to dynamically install handlers for exceptions and interrupts.
     Allows automated regression frameworks to install handlers per test.
-    Consists of an array of function pointers indexed by interrupt level, 
+    Consists of an array of function pointers indexed by interrupt level,
     with index 0 containing the entry for user exceptions.
     Initialized with all 0s, meaning no handler is installed at each level.
     See comment in xtensa_rtos.h for more details.
 
-    *WARNING*  This array is for all CPUs, that is, installing a hook for 
+    *WARNING*  This array is for all CPUs, that is, installing a hook for
     one CPU will install it for all others as well!
 --------------------------------------------------------------------------------
 */
@@ -401,7 +401,7 @@ _xt_intexc_hooks:
   the appropriate stack frame, saves a few vector-specific registers and
   calls XT_RTOS_INT_ENTER to save the rest of the interrupted context
   and enter the RTOS, then sets up a C environment. It then calls the
-  user's interrupt handler code (which may be coded in C) and finally 
+  user's interrupt handler code (which may be coded in C) and finally
   calls XT_RTOS_INT_EXIT to transfer control to the RTOS for scheduling.
 
   While XT_RTOS_INT_EXIT does not return directly to the interruptee,
@@ -441,9 +441,9 @@ _DebugExceptionVector:
     jx      a3
     #else
     wsr     a0, EXCSAVE+XCHAL_DEBUGLEVEL    /* save original a0 somewhere */
-    movi    a0,PANIC_RSN_DEBUGEXCEPTION
-    wsr     a0,EXCCAUSE
-    call0   _xt_ext_panic                       /* does not return */
+    movi    a0, PANIC_RSN_DEBUGEXCEPTION
+    wsr     a0, EXCCAUSE
+    call0   _xt_ext_panic                   /* does not return */
     rfi     XCHAL_DEBUGLEVEL                /* make a0 point here not later */
     #endif
 
@@ -470,9 +470,10 @@ _DoubleExceptionVector:
     #if XCHAL_HAVE_DEBUG
     break   1, 4                            /* unhandled double exception */
     #endif
-    movi    a0,PANIC_RSN_DOUBLEEXCEPTION
-    wsr     a0,EXCCAUSE
-    call0   _xt_ext_panic                       /* does not return */
+    wsr     a0, EXCSAVE_1                   /* preserve a0 */
+    movi    a0, PANIC_RSN_DOUBLEEXCEPTION
+    wsr     a0, EXCCAUSE
+    call0   _xt_ext_panic                   /* does not return */
     rfde                                    /* make a0 point here not later */
 
     .end        literal_prefix
@@ -491,10 +492,8 @@ Kernel Exception (including Level 1 Interrupt from kernel mode).
     .align      4
 
 _KernelExceptionVector:
-
     wsr     a0, EXCSAVE_1                   /* preserve a0 */
-    call0    _xt_ext_panic
-    /*call0   _xt_kernel_exc*/                  /* kernel exception handler */
+    call0   _xt_kernel_exc                  /* kernel exception handler */
     /* never returns here - call0 is used as a jump (see note at top) */
 
     .end        literal_prefix
@@ -506,9 +505,9 @@ _xt_kernel_exc:
     #if XCHAL_HAVE_DEBUG
     break   1, 0                            /* unhandled kernel exception */
     #endif
-    movi    a0,PANIC_RSN_KERNELEXCEPTION
-    wsr     a0,EXCCAUSE
-    call0   _xt_ext_panic                       /* does not return */
+    movi    a0, PANIC_RSN_KERNELEXCEPTION
+    wsr     a0, EXCCAUSE
+    call0   _xt_ext_panic                   /* does not return */
     rfe                                     /* make a0 point here not there */
 
 
@@ -790,7 +789,7 @@ _xt_syscall_exc:
 --------------------------------------------------------------------------------
 Co-Processor Exception Handler (jumped to from User Exception Handler).
 These exceptions are generated by co-processor instructions, which are only
-allowed in thread code (not in interrupts or kernel code). This restriction is 
+allowed in thread code (not in interrupts or kernel code). This restriction is
 deliberately imposed to reduce the burden of state-save/restore in interrupts.
 --------------------------------------------------------------------------------
 */
@@ -947,8 +946,8 @@ _xt_coproc_exc:
 
     /*
     The config-specific HAL macro invoked below destroys a2-5, preserves a0-1.
-    It is theoretically possible for Xtensa processor designers to write TIE 
-    that causes more address registers to be affected, but it is generally 
+    It is theoretically possible for Xtensa processor designers to write TIE
+    that causes more address registers to be affected, but it is generally
     unlikely. If that ever happens, more registers needs to be saved/restored
     around this macro invocation, and the value in a15 needs to be recomputed.
     */
@@ -973,8 +972,8 @@ _xt_coproc_exc:
 
     /*
     The config-specific HAL macro invoked below destroys a2-5, preserves a0-1.
-    It is theoretically possible for Xtensa processor designers to write TIE 
-    that causes more address registers to be affected, but it is generally 
+    It is theoretically possible for Xtensa processor designers to write TIE
+    that causes more address registers to be affected, but it is generally
     unlikely. If that ever happens, more registers needs to be saved/restored
     around this macro invocation.
     */
@@ -1048,12 +1047,12 @@ _xt_lowint1:
     /* Save rest of interrupt context and enter RTOS. */
     call0   XT_RTOS_INT_ENTER               /* common RTOS interrupt entry */
 
-    /* !! We are now on the RTOS system stack !! */ 
+    /* !! We are now on the RTOS system stack !! */
 
     /* Set up PS for C, enable interrupts above this level and clear EXCM. */
     #ifdef __XTENSA_CALL0_ABI__
     movi    a0, PS_INTLEVEL(1) | PS_UM
-    #else 
+    #else
     movi    a0, PS_INTLEVEL(1) | PS_UM | PS_WOE
     #endif
     wsr     a0, PS
@@ -1085,7 +1084,7 @@ _xt_lowint1:
   the appropriate stack frame, saves a few vector-specific registers and
   calls XT_RTOS_INT_ENTER to save the rest of the interrupted context
   and enter the RTOS, then sets up a C environment. It then calls the
-  user's interrupt handler code (which may be coded in C) and finally 
+  user's interrupt handler code (which may be coded in C) and finally
   calls XT_RTOS_INT_EXIT to transfer control to the RTOS for scheduling.
 
   While XT_RTOS_INT_EXIT does not return directly to the interruptee,
@@ -1467,7 +1466,7 @@ and used for purposes requiring very short service times.
 
 Here are templates for high priority (level 2+) interrupt vectors.
 They assume only one interrupt per level to avoid the burden of identifying
-which interrupts at this level are pending and enabled. This allows for 
+which interrupts at this level are pending and enabled. This allows for
 minimum latency and avoids having to save/restore a2 in addition to a0.
 If more than one interrupt per high priority level is configured, this burden
 is on the handler which in any case must provide a way to save and restore
@@ -1825,12 +1824,12 @@ _xt_nmi:
 
 WINDOW OVERFLOW AND UNDERFLOW EXCEPTION VECTORS AND ALLOCA EXCEPTION HANDLER
 
-Here is the code for each window overflow/underflow exception vector and 
+Here is the code for each window overflow/underflow exception vector and
 (interspersed) efficient code for handling the alloca exception cause.
 Window exceptions are handled entirely in the vector area and are very
-tight for performance. The alloca exception is also handled entirely in 
+tight for performance. The alloca exception is also handled entirely in
 the window vector area so comes at essentially no cost in code size.
-Users should never need to modify them and Cadence Design Systems recommends 
+Users should never need to modify them and Cadence Design Systems recommends
 they do not.
 
 Window handlers go at predetermined vector locations according to the
