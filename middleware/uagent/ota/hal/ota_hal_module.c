@@ -25,7 +25,7 @@ int ota_hal_init(void *something)
     return 0;
 }
 
-int ota_hal_write(int *off_set, char *in_buf , int in_buf_len)
+int ota_hal_write(int *off_set, char *in_buf, int in_buf_len)
 {
     if (ota_module == NULL) {
         return -1;
@@ -85,6 +85,6 @@ const char *ota_hal_get_version(unsigned char dev_type)
 
     if (ota_module != NULL && ota_module->version != NULL) {
         return ota_module->version(dev_type);
-    } 
+    }
     return NULL;
 }

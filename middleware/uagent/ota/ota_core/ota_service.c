@@ -94,8 +94,8 @@ static int ota_parse(void* pctx, const char *json)
             ret = OTA_PARSE_FAIL;
             goto parse_failed;
         }
-        strncpy(ctx->ota_ver,version->valuestring,sizeof(ctx->ota_ver));
-        strncpy(url, resourceUrl->valuestring, OTA_URL_LEN-1);
+        strncpy(ctx->ota_ver, version->valuestring, sizeof(ctx->ota_ver));
+        strncpy(url, resourceUrl->valuestring, OTA_URL_LEN - 1);
         cJSON *signMethod = cJSON_GetObjectItem(json_obj, "signMethod");
         if (signMethod) {
             memset(hash, 0x00, OTA_HASH_LEN);
@@ -124,7 +124,7 @@ static int ota_parse(void* pctx, const char *json)
                 ret = OTA_PARSE_FAIL;
                 goto parse_failed;
             }
-        } else { // old protocol
+        } else { /* old protocol*/
             memset(hash, 0x00, OTA_HASH_LEN);
             cJSON *md5 = cJSON_GetObjectItem(json_obj, "md5");
             if (!md5) {
@@ -299,9 +299,9 @@ int ota_upgrade_cb(void* pctx, char *json)
         if(is_ota > 0) {
             void *thread = NULL;
 #if defined(OTA_CONFIG_TLS)
-            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024*6);
+            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024 * 6);
 #else
-            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024*4);
+            ota_thread_create(&thread, (void *)ota_download_thread, (void *)ctx, NULL, 1024 * 4);
 #endif
         } else {
             OTA_LOG_E("ota version is too old, discard it.");

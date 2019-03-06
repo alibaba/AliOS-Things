@@ -1,5 +1,5 @@
-#ifndef __HAL_OTA_BREEZE_PLAT_H
-#define __HAL_OTA_BREEZE_PLAT_H
+#ifndef OTA_BREEZE_PLAT_H
+#define OTA_BREEZE_PLAT_H
 
 #define BREEZE_OTA_INFO_CMD_LEN     (256)
 
