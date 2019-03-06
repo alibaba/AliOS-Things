@@ -27,49 +27,6 @@
 #define AKM_EAP		0x00000001
 #define AKM_PSK		0x00000002
 
-/* EAPOL - key information */
-/** Key descriptor version, indicating WPA or WPA2 */
-#define EAPOL_KEY_INFO_VERSION	0x0007
-
-/** Key type bit, indicating pairwise or group */
-#define EAPOL_KEY_INFO_TYPE		0x0008
-
-/** Key install bit; set on message 3 except when legacy hacks are used */
-#define EAPOL_KEY_INFO_INSTALL		0x0040
-
-/** Key ACK bit; set when a response is required, on all messages except #4 */
-#define EAPOL_KEY_INFO_KEY_ACK	0x0080
-
-/** Key MIC bit; set when the MIC field is valid, on messages 3 and 4 */
-#define EAPOL_KEY_INFO_KEY_MIC	0x0100
-
-/** Secure bit; set when both sides have both keys, on messages 3 and 4 */
-#define EAPOL_KEY_INFO_SECURE		0x0200
-
-/** Error bit; set on a MIC failure for TKIP */
-#define EAPOL_KEY_INFO_ERROR		0x0400
-
-/** Request bit; set when authentication is initiated by the Peer (unusual) */
-#define EAPOL_KEY_INFO_REQUEST	0x0800
-
-/** Key Encrypted bit; set when the Key Data field is encrypted */
-#define EAPOL_KEY_INFO_KEY_ENC	0x1000
-
-/** SMC Message bit; set when this frame is part of an IBSS SMK handshake */
-#define EAPOL_KEY_INFO_SMC_MESS	0x2000
-
-/** Key descriptor version field value for WPA (TKIP) */
-#define EAPOL_KEY_VERSION_WPA		1
-
-/** Key descriptor version field value for WPA2 (CCMP) */
-#define EAPOL_KEY_VERSION_WPA2	2
-
-/** Key type field value for a PTK (pairwise) key handshake */
-#define EAPOL_KEY_TYPE_PTK			0x0008
-
-/** Key type field value for a GTK (group) key handshake */
-#define EAPOL_KEY_TYPE_GTK			0x0000
-
 /** Length of a nonce */
 #define WPA_NONCE_LEN		32
 
@@ -188,50 +145,36 @@ typedef enum {
 	EAP_TYPE_EXPANDED = 254 /* RFC 3748 */
 } EapType;
 
-/** Structure of the Temporal Key for TKIP encryption */
-struct tkip_tk
+struct sv_tkip_tk
 {
-	/** Main key: input to TKIP Phase 1 and Phase 2 key mixing functions */
 	u8 key[WPA_TKIP_KEY_LEN];
 
-	/** Michael MIC keys */
 	struct {
-		/** MIC key for packets from the AP */
 		u8 rx[WPA_TKIP_MIC_KEY_LEN];
 
-		/** MIC key for packets to the AP */
 		u8 tx[WPA_TKIP_MIC_KEY_LEN];
 	} __attribute__ (( packed )) mic;
 } __attribute__ (( packed ));
 
-/** Structure of a generic Temporal Key */
-union wpa_tk
+union sv_wpa_tk
 {
-	/** CCMP key */
 	u8 ccmp[WPA_CCMP_KEY_LEN];
 
-	/** TKIP keys */
-	struct tkip_tk tkip;
+	struct sv_tkip_tk tkip;
 };
 
-/** Structure of the Pairwise Transient Key */
-struct wpa_ptk
+struct sv_wpa_ptk
 {
-	/** EAPOL-Key Key Confirmation Key (KCK) */
 	u8 kck[WPA_KCK_LEN];
 
-	/** EAPOL-Key Key Encryption Key (KEK) */
 	u8 kek[WPA_KEK_LEN];
 
-	/** Temporal key */
-	union wpa_tk tk;
+	union sv_wpa_tk tk;
 } __attribute__ (( packed ));
 
-/** Structure of the Group Transient Key */
-struct wpa_gtk
+struct sv_wpa_gtk
 {
-	/** Temporal key */
-	union wpa_tk tk;
+	union sv_wpa_tk tk;
 } __attribute__ (( packed ));
 
 struct ieee80211_ie_rsn {
@@ -273,85 +216,40 @@ struct ieee80211_wpa {
 	u32 akm_list;		/**< OUI and vendor-specific type byte */
 } __attribute__ ((packed));
 
-/** Common context for WPA security handshaking
- *
- * Any implementor of a particular handshaking type (e.g. PSK or EAP)
- * must include this structure at the very beginning of their private
- * data context structure, to allow the EAPOL-Key handling code to
- * work. When the preliminary authentication is done, it is necessary
- * to call wpa_start(), passing the PMK (derived from PSK or EAP MSK)
- * as an argument. The handshaker can use its @a step function to
- * monitor @a state in this wpa_ctx structure for success or
- * failure. On success, the keys will be available in @a ptk and @a
- * gtk according to the state of the @a valid bitmask.
- *
- * After an initial success, the parent handshaker does not need to
- * concern itself with rekeying; the WPA common code takes care of
- * that.
- */
 struct wpa_common_ctx
 {
-	/** The Pairwise Master Key to use in handshaking
-	 *
-	 * This is set either by running the PBKDF2 algorithm on a
-	 * passphrase with the SSID as salt to generate a pre-shared
-	 * key, or by copying the first 32 bytes of the EAP Master
-	 * Session Key in 802.1X-served authentication.
-	 */
 	u8 pmk[WPA_PMK_LEN];
 
-	/** Length of the Pairwise Master Key
-	 *
-	 * This is always 32 except with one EAP method which only
-	 * gives 16 bytes.
-	 */
 	int pmk_len;
 
-	/** State of EAPOL-Key handshaking */
 	enum wpa_state state;
 
-	/** Replay counter for this association
-	 *
-	 * This stores the replay counter value for the most recent
-	 * packet we've accepted. It is initially initialised to ~0 to
-	 * show we'll accept anything.
-	 */
 	u64 replay;
 
     u32 rxgroup_pn_lo;
     u32 rxgroup_pn_hi;
     u16 keyinfo;
     
-	/** The cipher to use for unicast RX and all TX */
 	enum net80211_crypto_alg crypt;
 
-	/** The cipher to use for broadcast and multicast RX */
 	enum net80211_crypto_alg gcrypt;
 
-	/** The Pairwise Transient Key derived from the handshake */
-	struct wpa_ptk ptk;
+	struct sv_wpa_ptk ptk;
 
-	/** The Group Transient Key derived from the handshake */
-	struct wpa_gtk gtk;
+	struct sv_wpa_gtk gtk;
 
-	/** Authenticator-provided nonce */
 	u8 Anonce[WPA_NONCE_LEN];
 
-	/** Supplicant-generated nonce (that's us) */
 	u8 Snonce[WPA_NONCE_LEN];
 
-	/** MAC address of the access point most recently associated */
 	u8 bssid[6];
 
-	/** Supplicant-generated nonce (that's us) */
 	u8 lmac[6];
 	
 	struct ieee80211_ie_rsn rsn_ie;
 
 	struct ieee80211_wpa wpa_ie;
-	/** Whether @a ap_rsn_ie is an RSN IE (as opposed to old WPA) */
 	int ap_rsn_is_rsn;
- 	/** Whether @a ap_ie_is_wpa is an WPA IE (as opposed is not support WPA) */
 	int ap_ie_is_wpa;
     
     u8 gtkid;

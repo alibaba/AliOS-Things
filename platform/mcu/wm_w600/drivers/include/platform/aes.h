@@ -50,43 +50,6 @@ x = ((unsigned long)((y)[0] & 255)<<24) | \
 #define psTraceCrypto(x) 
 
 /******************************************************************************/
-/*
-	Universal return codes
-*/
-#define PS_SUCCESS			0
-#define PS_FAILURE			-1	
-
-/*	NOTE: Failure return codes MUST be < 0 */
-/*	NOTE: The range for core error codes should be between -2 and -29 */
-#define PS_ARG_FAIL			-6	/* Failure due to bad function param */
-#define PS_PLATFORM_FAIL	-7	/* Failure as a result of system call error */
-#define PS_MEM_FAIL			-8	/* Failure to allocate requested memory */	
-#define PS_LIMIT_FAIL		-9	/* Failure on sanity/limit tests */	
-#define PS_UNSUPPORTED_FAIL	-10 /* Unimplemented feature error */	
-#define PS_DISABLED_FEATURE_FAIL -11 /* Incorrect #define toggle for feature */
-#define PS_PROTOCOL_FAIL	-12 /* A protocol error occurred */
-#define PS_TIMEOUT_FAIL		-13 /* A timeout occurred and MAY be an error */
-#define PS_INTERRUPT_FAIL	-14 /* An interrupt occurred and MAY be an error */
-#define PS_PENDING			-15 /* In process. Not necessarily an error */ 
-#define PS_EAGAIN			-16 /* Try again later. Not necessarily an error */ 
-
-#define	PS_TRUE		1
-#define	PS_FALSE 	0	
-
-//typedef int  int32;	//µ÷ÓÃwm_type_def.h
-//typedef unsigned int  uint32;
-//typedef short  int16;
-//typedef unsigned short  uint16;
-//typedef unsigned char uint8;
-
-//typedef long long int64;
-//typedef unsigned long long uint64;
-//#if (GCC_COMPILE==0)
-//typedef unsigned int size_t;
-//#endif
-
-
-/******************************************************************************/
 #ifdef USE_AES
 /******************************************************************************/
 
