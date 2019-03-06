@@ -98,6 +98,12 @@ static void sys_start(void)
     kstat_t stat;    
     aos_init();
 
+    stat = krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
+    if(stat != RHINO_SUCCESS)
+    {
+        return;
+    }
+
     SpiInit();
      /* Configure SysTick timer to generate interrupt every 1 ms */
     CySysTickStart();
@@ -108,11 +114,6 @@ static void sys_start(void)
     /* set wco */
     Asr_Timer_Init();
     RtcInit();
-    stat = krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
-    if(stat != RHINO_SUCCESS)
-    {
-        return;
-    }
        
     aos_start();
 }
