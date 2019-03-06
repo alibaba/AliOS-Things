@@ -2105,3 +2105,17 @@ void set_classb_ping_period(uint8_t ping_period)
 
     next_tx = true;
 }
+
+DeviceState_t lwan_dev_state_get( void )
+{
+    return device_state;
+}
+
+void lwan_dev_state_set(DeviceState_t state)
+{
+    if (device_state == DEVICE_STATE_SLEEP) {
+        TimerStop(&TxNextPacketTimer);
+    }
+    device_state = state;
+}
+
