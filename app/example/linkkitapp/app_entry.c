@@ -240,7 +240,7 @@ void awss_open_dev_ap(void *p)
 {
     iotx_event_regist_cb(linkkit_event_monitor);
     LOG("%s\n", __func__);
-    if (netmgr_start(false) != 0) {
+    if (netmgr_start(false) < 0) {
         aos_msleep(2000);
         awss_dev_ap_start();
     }
@@ -410,8 +410,7 @@ int application_start(int argc, char **argv)
 #endif
 #endif
     set_iotx_info();
-    extern void LITE_set_loglevel(int);
-    LITE_set_loglevel(5);
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
 
 #ifdef EN_COMBO_NET
     combo_net_init();
