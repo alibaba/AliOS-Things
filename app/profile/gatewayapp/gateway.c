@@ -167,7 +167,7 @@ int gateway_cloud_publish(udata_type_e type, void* pdata, uint32_t len)
     }
 
     switch (type) {
-
+         #ifdef PT_SENSOR
          case UDATA_SERVICE_ACC: {
              accel_data_t *acc = (accel_data_t *)pdata;
              ret = sprintf(param, PROP_POST_FORMAT_ACC, ((float)acc->data[0]/1000), ((float)acc->data[1]/1000), ((float)acc->data[2]/1000));
@@ -198,7 +198,7 @@ int gateway_cloud_publish(udata_type_e type, void* pdata, uint32_t len)
                            rtc->hours, rtc->minutes, rtc->seconds);
              break;
          }
-
+         #endif
          default:
              return -1;
      }
@@ -242,7 +242,7 @@ int gateway_sample(void)
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
         return ret;
     }
-
+    #ifdef PT_SENSOR
     ret = udata_subscribe(UDATA_SERVICE_ACC);
     if (unlikely(ret != 0)) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
@@ -267,7 +267,7 @@ int gateway_sample(void)
     if (unlikely(ret != 0)) {
         LOG("%s %s %s %d\n", uDATA_STR, __func__, ERROR_LINE, __LINE__);
     }
-
+    #endif
     return 0;
 }
 
