@@ -2,18 +2,25 @@ config AOS_APP_LOCALAPP
     bool "Local Applications"
 
 if AOS_APP_LOCALAPP
-choice
-    prompt "Select application"
 
+### Sample for user's application:
+### The app's Config.in must be there before "source" it
 #
-## Sample for user application:
+# choice
+#     prompt "Select application"
 #
-# source "app/myapp/Config.in"
-# if AOS_APP_MYAPP
+# source "app/myapp1/Config.in"
+# if AOS_APP_MYAPP1
 #     config AOS_BUILD_APP
-#         default "myapp"
+#         default "myapp1"
 # endif
 #
+# source "app/myapp2/Config.in"
+# if AOS_APP_MYAPP2
+#     config AOS_BUILD_APP
+#         default "myapp2"
+# endif
+#
+# endchoice
 
-endchoice
 endif
