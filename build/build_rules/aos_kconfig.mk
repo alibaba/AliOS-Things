@@ -115,7 +115,7 @@ savedefconfig: $(KCONFIG_CONF)
 %_defconfig: $(KCONFIG_CONF)
 	$(QUIET)$(COMMON_CONFIG_ENV) $< --defconfig=$(AOS_DEFCONFIG_DIR)/$@ $(AOS_CONFIG_IN)
 
-ECHO_DEFCONFIG = " $(notdir $(1)):\tBuild for $(subst -defconfig,,$(notdir $(1)))\n"
+ECHO_DEFCONFIG = " $(notdir $(1))\n"
 list-defconfig:
 	$(QUIET)$(ECHO) ""
 	$(QUIET)$(ECHO) "Valid defconfigs:"
