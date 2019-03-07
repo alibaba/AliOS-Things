@@ -53,6 +53,12 @@ def get_app_name(mkfile):
     if match:
         name = match.group(2).replace("/", ".")
 
+    if not name:
+        patten = re.compile(r".*/app/(\w*/)?(.*)/aos.mk")
+        match = patten.match(mkfile)
+        if match:
+            name = match.group(2).replace("/", ".")
+
     return name
 
 def get_board_name(mkfile):
@@ -113,8 +119,14 @@ def write_config_file(source_root, config_file, mklist):
                 f.write("OBJ-$(%s) += %s\n" % (optname, compname))
 
         for key in config_keys:
-            f.write("%s_MAKEFILE := %s\n" % (key, conf_dict[key]["mkfile"]))
-            f.write("%s_LOCATION := %s\n" % (key, os.path.dirname(conf_dict[key]["mkfile"])))
+            mkfile = conf_dict[key]["mkfile"]
+            location = os.path.dirname(mkfile)
+            aliasname = conf_dict[key]["aliasname"]
+            f.write("%s_MAKEFILE := %s\n" % (key, mkfile))
+            f.write("%s_LOCATION := %s\n" % (key, location))
+            if aliasname and aliasname != key:
+                f.write("%s_MAKEFILE := %s\n" % (aliasname, mkfile))
+                f.write("%s_LOCATION := %s\n" % (aliasname, location))
 
 def main(argv):
     if len(argv) < 3:

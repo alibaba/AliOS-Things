@@ -143,18 +143,20 @@ endif
 # get real app name and check if it available
 appname = $(firstword $(components))
 appdir = $(subst .,/,$(appname))
-appmkfile = $(wildcard $(SOURCE_ROOT)app/*/$(appdir)/aos.mk $(SOURCE_ROOT)test/develop/$(appdir)/aos.mk)
+appmkfile = $(wildcard $(SOURCE_ROOT)app/*/$(appdir)/aos.mk $(SOURCE_ROOT)app/$(appdir)/aos.mk $(SOURCE_ROOT)test/develop/$(appdir)/aos.mk)
 $(if $(appmkfile),\
     $(eval include $(appmkfile)) $(eval real_appname = $(NAME)),\
     $(error App Unknown, Please make sure the "$(appname)" is existing!))
 
 # determine what app type should be enabled: example, profile, test
-ifneq ($(findstring profile,$(appmkfile)),)
+ifneq ($(findstring profile/,$(appmkfile)),)
 export AOS_APP_TYPE := AOS_APP_PROFILE
-else ifneq ($(findstring example,$(appmkfile)),)
+else ifneq ($(findstring example/,$(appmkfile)),)
 export AOS_APP_TYPE := AOS_APP_EXAMPLE
-else
+else ifneq ($(findstring develop/,$(appmkfile)),)
 export AOS_APP_TYPE :=
+else
+export AOS_APP_TYPE := AOS_APP_LOCALAPP
 endif
 
 boardname = $(word 2, $(components))
