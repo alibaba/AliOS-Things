@@ -29,6 +29,7 @@ config AOS_APP_NULL
 
 source "app/example/Config.in"
 source "app/profile/Config.in"
+source "app/Config.in"
 endchoice
 endmenu
 
