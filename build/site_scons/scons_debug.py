@@ -183,7 +183,7 @@ def _run_debug_cmd(target, aos_path, cmd_file, program_path=None, bin_dir=None, 
         if aos_upload(target, aos_path):
             error("Upload firmware error")
 
-    update_launch(aos_path, target, configs['port'])
+    # update_launch(aos_path, target, configs['port'])
     start_server,exec_name = process_cmd(configs['cmd'], host_os, aos_path, target, program_path, bin_dir)
     info("Running cmd:\n\t'%s', Exec: %s\n" % (' '.join(start_server), exec_name))
 
