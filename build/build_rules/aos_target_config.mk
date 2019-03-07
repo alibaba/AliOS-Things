@@ -95,6 +95,7 @@ $(if $(filter 1,$(words $(TEMP_MAKEFILE))),,$(error More than one component with
 $(eval TEMP_MAKEFILE := $(subst ././,./,$(TEMP_MAKEFILE)))
 $(eval include $(TEMP_MAKEFILE))
 $(eval deps :=)
+$(eval NAME := $(strip $(NAME)))
 $(eval $(NAME)_COMPONENTS += $($(NAME)_COMPONENTS-y))
 $(eval deps_src := $($(NAME)_COMPONENTS))
 $(eval components_cube := $(subst .,/,$(COMPONENTS)))
@@ -280,12 +281,12 @@ AOS_SDK_LDFLAGS  += $(COMPILER_SPECIFIC_DEBUG_LDFLAGS)
 endif
 
 # Check if there are any unknown components; output error if so.
-$(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) $(REAL_COMPONENTS)),,$(error Unknown component: $(comp))))
+$(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) $($(comp)_LOCATION)),,$(error Unknown component: $(comp))))
 
 # Find the matching platform and application from the build string components
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
 
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)app/profile/$(comp) $(SOURCE_ROOT)$(comp) $(SOURCE_ROOT)test/develop/$(comp)),$(comp),)))
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/$(comp) $(SOURCE_ROOT)app/*/$(comp) $(SOURCE_ROOT)$(comp) $(SOURCE_ROOT)test/develop/$(comp)),$(comp),)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 APP         :=$(notdir $(APP_FULL))
