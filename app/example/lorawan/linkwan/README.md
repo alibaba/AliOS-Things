@@ -22,7 +22,7 @@ The **Lorawan.linkwan** example will run lorawan app, the example is the entranc
 - eml3047
 - m100c
 - m400
-- ASR6501
+- asr6501
 
 ### Build
 
