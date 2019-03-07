@@ -44,10 +44,12 @@ The **linkkitapp**  shows linkkit related functions.
 - mk3060
 - mk3080
 - esp8266
+- esp32devkitc
+- uno-91h
+- bk7231
+- stm32f429zi-nucleo
 
 ### Build
-
-> Notice: Please be sure to use **git bash** when build on Windows! Otherwise may resulting in run problem for linkkit. git bash download url https://git-scm.com/download/win
 
 ```sh
 # generate linkkitapp@mk3060 default config
