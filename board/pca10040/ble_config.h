@@ -13,6 +13,10 @@
 #define CONFIG_BT_HCI_TX_STACK_SIZE 512
 #endif
 
+#ifndef CONFIG_BT_HCI_CMD_COUNT
+#define CONFIG_BT_HCI_CMD_COUNT 16
+#endif
+
 #if defined(__cplusplus)
 }
 #endif
