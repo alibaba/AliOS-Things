@@ -1,0 +1,19 @@
+config AOS_APP_LOCALAPP
+    bool "Local Applications"
+
+if AOS_APP_LOCALAPP
+choice
+    prompt "Select application"
+
+#
+## Sample for user application:
+#
+# source "app/myapp/Config.in"
+# if AOS_APP_MYAPP
+#     config AOS_BUILD_APP
+#         default "myapp"
+# endif
+#
+
+endchoice
+endif
