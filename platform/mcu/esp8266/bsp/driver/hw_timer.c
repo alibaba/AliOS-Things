@@ -23,6 +23,7 @@
  */
 
 #include "esp_common.h"
+#include "hw_timer.h"
 
 #define US_TO_RTC_TIMER_TICKS(t)          \
     ((t) ?          \
@@ -47,7 +48,8 @@ typedef enum {          // timer interrupt mode
 
 #define RTC_REG_WRITE(addr, val)    WRITE_PERI_REG(addr, val)
 
-static void (* user_hw_timer_cb)(void) = NULL;
+static void (* user_hw_timer_cb)(void *) = NULL;
+static void *cb_para = NULL;
 
 bool frc1_auto_load = false;
 
@@ -59,13 +61,13 @@ static void hw_timer_isr_cb(void *arg)
     }
 
     if (user_hw_timer_cb != NULL) {
-        (*(user_hw_timer_cb))();
+        (*(user_hw_timer_cb))(cb_para);
     }
 }
 
 void hw_timer_disarm(void)
 {
-    RTC_REG_WRITE(FRC1_CTRL_ADDRESS,0);
+    RTC_REG_WRITE(FRC1_CTRL_ADDRESS, 0);
 }
 
 void hw_timer_arm(uint32 val ,bool req)
@@ -73,67 +75,34 @@ void hw_timer_arm(uint32 val ,bool req)
     frc1_auto_load = req;
     if (frc1_auto_load == true) {
         RTC_REG_WRITE(FRC1_CTRL_ADDRESS,
-                      FRC1_AUTO_LOAD | DIVDED_BY_16 | FRC1_ENABLE_TIMER | TM_EDGE_INT);
+                      FRC1_AUTO_LOAD | DIVDED_BY_16 | TM_EDGE_INT);
     } else {
         RTC_REG_WRITE(FRC1_CTRL_ADDRESS,
-                      DIVDED_BY_16 | FRC1_ENABLE_TIMER | TM_EDGE_INT);
+                      DIVDED_BY_16 | TM_EDGE_INT);
     }
 
-    RTC_REG_WRITE(FRC1_LOAD_ADDRESS, US_TO_RTC_TIMER_TICKS(val));
+    RTC_REG_WRITE(FRC1_LOAD_ADDRESS, ((APB_CLK_FREQ >> frc1.ctrl.div) / 1000000) * val);
 }
 
-void hw_timer_set_func(void (* user_hw_timer_cb_set)(void))
+void hw_timer_set_func(void (* user_hw_timer_cb_set)(void *), void *para)
 {
     user_hw_timer_cb = user_hw_timer_cb_set;
+    cb_para = para;
+}
+
+void hw_timer_enable(bool en)
+{
+    if (true == en) {
+        frc1.ctrl.en = 0x01;
+    } else {
+        frc1.ctrl.en = 0x00;
+    }
 }
 
 void hw_timer_init(void)
 {
-#if 0
-    if (req == 1) {
-        RTC_REG_WRITE(FRC1_CTRL_ADDRESS,
-                      FRC1_AUTO_LOAD | DIVDED_BY_16 | FRC1_ENABLE_TIMER | TM_EDGE_INT);
-    } else {
-        RTC_REG_WRITE(FRC1_CTRL_ADDRESS,
-                      DIVDED_BY_16 | FRC1_ENABLE_TIMER | TM_EDGE_INT);
-    }
-
-#endif
     _xt_isr_attach(ETS_FRC_TIMER1_INUM, hw_timer_isr_cb, NULL);
 
     TM1_EDGE_INT_ENABLE();
     _xt_isr_unmask(1 << ETS_FRC_TIMER1_INUM);
 }
-
-//-------------------------------Test Code Below--------------------------------------
-#if 0
-#include "hw_timer.h"
-
-#define REG_WRITE(_r,_v)    (*(volatile uint32 *)(_r)) = (_v)
-#define REG_READ(_r)        (*(volatile uint32 *)(_r))
-#define WDEV_NOW()          REG_READ(0x3ff20c00)
-
-uint32 tick_now2 = 0;
-void hw_test_timer_cb(void)
-{
-    static uint16 j = 0;
-    j++;
-
-    if ((WDEV_NOW() - tick_now2) >= 1000000) {
-        static uint32 idx = 1;
-        tick_now2 = WDEV_NOW();
-        os_printf("b%u:%d\n", idx++, j);
-        j = 0;
-    }
-
-    //hw_timer_arm(50);
-}
-
-void user_init(void)
-{
-    hw_timer_init();
-    hw_timer_set_func(hw_test_timer_cb,1);
-    hw_timer_arm(100);
-}
-#endif
-

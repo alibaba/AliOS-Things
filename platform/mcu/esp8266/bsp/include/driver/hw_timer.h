@@ -29,6 +29,8 @@
 extern "C" {
 #endif
 
+#include "c_types.h"
+
 /** \defgroup HW_Timer_APIs Hardware timer APIs
   * @brief Hardware timer APIs
   *
@@ -40,6 +42,44 @@ extern "C" {
   * @{
   */
 
+typedef struct {
+    union {
+        struct {
+            uint32_t data:        23;
+            uint32_t reserved23:   9;
+        };
+        uint32_t val;
+    } load;
+
+    union {
+        struct {
+            uint32_t data:        23;
+            uint32_t reserved23:   9;
+        };
+        uint32_t val;
+    } count;
+
+    union {
+        struct {
+            uint32_t div:          6;
+            uint32_t reload:       1;
+            uint32_t en:           1;
+            uint32_t intr_type:    1;
+            uint32_t reserved24:  23;
+        };
+        uint32_t val;
+    } ctrl;
+
+    union {
+        struct {
+            uint32_t clr:          1;
+            uint32_t reserved1:   31;
+        };
+        uint32_t val;
+    } intr;
+} frc1_struct_t;
+
+extern volatile frc1_struct_t frc1;
 
 /**
   * @brief   Initialize the hardware ISR timer.
@@ -83,7 +123,7 @@ void hw_timer_disarm(void);
   *
   * @return  null
   */
-void hw_timer_set_func(void (* user_hw_timer_cb_set)(void));
+void hw_timer_set_func(void (* user_hw_timer_cb_set)(void *), void *para);
 
 /**
   * @}
