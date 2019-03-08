@@ -5,6 +5,7 @@
 #include "aos/kernel.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include <breeze_export.h>
 
 #ifdef CONFIG_AIS_OTA
