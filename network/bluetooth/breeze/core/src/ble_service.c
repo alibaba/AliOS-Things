@@ -2,6 +2,8 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#include <string.h>
+
 #include "breeze_hal_ble.h"
 #include "ble_service.h"
 #include "common.h"

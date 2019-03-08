@@ -228,7 +228,7 @@ static void trans_rx_dispatcher(void)
         rx_cmd_post.frame_seq = g_transport.rx.frame_seq + 1;
         rx_cmd_post.p_rx_buf =  g_transport.rx.buff;
         rx_cmd_post.buf_sz = g_transport.rx.bytes_received;
-        event_notify(BZ_CMD_CTX_INFO, &rx_cmd_post, sizeof(rx_cmd_post));
+        event_notify(BZ_CMD_CTX_INFO, (uint8_t *)&rx_cmd_post, sizeof(rx_cmd_post));
     }
 }
 

@@ -15,7 +15,7 @@ extern "C"
 {
 #endif
 
-typedef enum {
+enum {
     TX_NOTIFICATION,
     TX_INDICATION,
 };

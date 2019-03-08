@@ -56,6 +56,7 @@ static inline void set_event_state(struct k_poll_event *event, u32_t state)
 }
 
 extern int has_tx_sem(struct k_poll_event *event);
+extern void event_callback(uint8_t event_type);
 static int _signal_poll_event(struct k_poll_event *event, u32_t state, int *must_reschedule)
 {
     *must_reschedule = 0;
@@ -203,17 +204,17 @@ static bool polling_events(struct k_poll_event *events, int num_events,
 
 void event_callback(uint8_t event_type)
 {
-    struct event_cb *event_next;
-    struct event_cb *event_next_save;
+    sys_dnode_t *event_next;
+    sys_dnode_t *event_next_save;
     struct k_poll_event *events;
     unsigned int key;
 
     key = irq_lock();
     SYS_DLIST_FOR_EACH_NODE_SAFE(&event_cb_list, event_next, event_next_save) {
-        for (int i = 0; i < event_next->num_events; i++) {
-            if (event_next->events[i].type == event_type ||
+        for (int i = 0; i < ((struct event_cb *)event_next)->num_events; i++) {
+            if (((struct event_cb *)event_next)->events[i].type == event_type ||
                 event_type == K_POLL_TYPE_EARLIER_WORK) {
-                k_sem_give(&event_next->sem);
+                k_sem_give(&((struct event_cb *)event_next)->sem);
                 break;
             }
         }
@@ -242,7 +243,7 @@ int k_poll(struct k_poll_event *events, int num_events, s32_t timeout)
 
     k_sem_init(&eventcb.sem, 0, 1);
 
-    sys_dlist_append(&event_cb_list, &eventcb);
+    sys_dlist_append(&event_cb_list, (sys_dnode_t *)&eventcb);
     event_cb_counter++;
 
     polling = polling_events(events, num_events, timeout, &last_registered);
@@ -256,7 +257,7 @@ int k_poll(struct k_poll_event *events, int num_events, s32_t timeout)
     last_registered = -1;
     polling_events(events, num_events, K_NO_WAIT, &last_registered);
 exit:
-    sys_dlist_remove(&eventcb);
+    sys_dlist_remove((sys_dnode_t *)&eventcb);
     k_sem_delete(&eventcb.sem);
 
     key = irq_lock();

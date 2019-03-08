@@ -9,6 +9,7 @@
 
 extern struct k_work_q g_work_queue;
 extern void process_events(struct k_poll_event *ev, int count);
+extern int bt_conn_prepare_events(struct k_poll_event events[]);
 void scheduler_loop(struct k_poll_event *events)
 {
     struct k_work *work;

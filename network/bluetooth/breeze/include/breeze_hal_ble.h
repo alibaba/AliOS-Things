@@ -181,7 +181,7 @@ typedef enum
 typedef void (*connected_callback_t)();
 typedef void (*disconnected_callback_t)();
 typedef size_t (*on_char_read_t)(void *buf, uint16_t len);
-typedef size_t (*on_char_write_t)(void *buf, uint16_t len);
+typedef size_t (*on_char_write_t)(const void *buf, uint16_t len);
 typedef void (*on_char_ccc_change_t)(ais_ccc_value_t value);
 
 typedef struct
