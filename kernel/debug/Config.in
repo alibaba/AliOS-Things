@@ -9,14 +9,14 @@ if AOS_COMP_DEBUG
 # Configurations for component debug
 
 config DEBUG_CONFIG_PANIC
-    bool
+    bool "Enable debug panic feature"
         default n
         help
             set to y if you want to enable panic feature when system crash happened,
             default n
 
 config DEBUG_CONFIG_BACKTRACE
-    bool
+    bool "Enable stack backtrace feature"
         default n
         help
             set to y if you want to enable stack backtrace when system crash happened,
