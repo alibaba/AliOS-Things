@@ -321,36 +321,36 @@ static void bt_ready(int err)
 
     if (err) {
         BZ_LOG_E("Ble not ready (err %d)", err);
-        return AIS_ERR_STACK_FAIL;
+        return;
     }
     size = attr_cnt * sizeof(struct bt_gatt_attr);
     ais_attrs = (struct bt_gatt_attr *)aos_malloc(size);
     if (!ais_attrs) {
         BZ_LOG_E("%s memory allocate failed.", __func__);
-        return AIS_ERR_MEM_FAIL;
+        return;
     }
 
     memset(ais_attrs, 0, size);
 
     /* AIS primary service */
-    setup_ais_service_attr(&ais_attrs[SVC_ATTR_IDX], bt_init_info->uuid_svc);
+    setup_ais_service_attr(&ais_attrs[SVC_ATTR_IDX], (struct bt_uuid *)bt_init_info->uuid_svc);
 
     /* rc */
     c = &(bt_init_info->rc);
-    setup_ais_char_attr(&ais_attrs[RC_CHRC_ATTR_IDX], c->uuid, c->prop);
-    setup_ais_char_desc_attr(&ais_attrs[RC_DESC_ATTR_IDX], c->uuid, c->perm,
+    setup_ais_char_attr(&ais_attrs[RC_CHRC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->prop);
+    setup_ais_char_desc_attr(&ais_attrs[RC_DESC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->perm,
                              read_ais_rc, NULL, NULL);
 
     /* wc */
     c = &(bt_init_info->wc);
-    setup_ais_char_attr(&ais_attrs[WC_CHRC_ATTR_IDX], c->uuid, c->prop);
-    setup_ais_char_desc_attr(&ais_attrs[WC_DESC_ATTR_IDX], c->uuid, c->perm,
+    setup_ais_char_attr(&ais_attrs[WC_CHRC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->prop);
+    setup_ais_char_desc_attr(&ais_attrs[WC_DESC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->perm,
                              read_ais_wc, write_ais_wc, NULL);
 
     /* ic */
     c = &(bt_init_info->ic);
-    setup_ais_char_attr(&ais_attrs[IC_CHRC_ATTR_IDX], c->uuid, c->prop);
-    setup_ais_char_desc_attr(&ais_attrs[IC_DESC_ATTR_IDX], c->uuid, c->perm,
+    setup_ais_char_attr(&ais_attrs[IC_CHRC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->prop);
+    setup_ais_char_desc_attr(&ais_attrs[IC_DESC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->perm,
                              read_ais_ic, NULL, NULL);
     setup_ais_char_ccc_attr(&ais_attrs[IC_CCC_ATTR_IDX], ais_ic_ccc_cfg,
                             sizeof(ais_ic_ccc_cfg) / sizeof(ais_ic_ccc_cfg[0]),
@@ -358,14 +358,14 @@ static void bt_ready(int err)
 
     /* wwnrc */
     c = &(bt_init_info->wwnrc);
-    setup_ais_char_attr(&ais_attrs[WWNRC_CHRC_ATTR_IDX], c->uuid, c->prop);
-    setup_ais_char_desc_attr(&ais_attrs[WWNRC_DESC_ATTR_IDX], c->uuid, c->perm,
+    setup_ais_char_attr(&ais_attrs[WWNRC_CHRC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->prop);
+    setup_ais_char_desc_attr(&ais_attrs[WWNRC_DESC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->perm,
                              read_ais_wwnrc, write_ais_wwnrc, NULL);
 
     /* nc */
     c = &(bt_init_info->nc);
-    setup_ais_char_attr(&ais_attrs[NC_CHRC_ATTR_IDX], c->uuid, c->prop);
-    setup_ais_char_desc_attr(&ais_attrs[NC_DESC_ATTR_IDX], c->uuid, c->perm,
+    setup_ais_char_attr(&ais_attrs[NC_CHRC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->prop);
+    setup_ais_char_desc_attr(&ais_attrs[NC_DESC_ATTR_IDX], (struct bt_uuid *)c->uuid, c->perm,
                              read_ais_nc, NULL, NULL);
     setup_ais_char_ccc_attr(&ais_attrs[NC_CCC_ATTR_IDX], ais_nc_ccc_cfg,
                             sizeof(ais_nc_ccc_cfg) / sizeof(ais_nc_ccc_cfg[0]),
@@ -378,7 +378,6 @@ static void bt_ready(int err)
     bt_conn_cb_register(&conn_callbacks);
     bt_gatt_service_register(&ais_svc);
     stack_init_done(0);
-    return AIS_ERR_SUCCESS;
 }
 
 ais_err_t ble_stack_deinit()
@@ -391,6 +390,8 @@ ais_err_t ble_stack_deinit()
     return AIS_ERR_SUCCESS;
 }
 
+extern int hci_driver_init(void);
+extern int ble_storage_init(void);
 ais_err_t ble_stack_init(ais_bt_init_t *info, stack_init_done_t init_done)
 {
     int err;
@@ -554,6 +555,7 @@ ais_err_t ble_get_mac(uint8_t *mac)
     ais_err_t    err;
     bt_addr_le_t laddr;
 
+    extern int bt_mac_addr_get(bt_addr_le_t *addr);
     err = bt_mac_addr_get(&laddr);
     if (err != AIS_ERR_SUCCESS) {
         BZ_LOG_E("Failed to get local addr.");

@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 #include <breeze_hal_sec.h>
 
 #include "aos/kernel.h"
@@ -75,12 +76,20 @@ static int platform_aes128_encrypt_decrypt(void *aes_ctx, const void *src,
     in_len <<= 4;
     dlen = in_len;
 
+    extern ali_crypto_result breeze_aes_init(aes_type_t type, bool is_enc,
+                               const uint8_t *key1, const uint8_t *key2,
+                               size_t keybytes, const uint8_t *iv,
+                               void *context);
+
     result = breeze_aes_init(AES_CBC, is_enc, key, NULL, KEY_LEN, iv, aes_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         LOGE("aos_awss", "breeze_aes_init fail(%08x)", result);
         return 0;
     }
 
+    extern ali_crypto_result breeze_aes_finish(const uint8_t *src, size_t src_size,
+                                 uint8_t *dst, size_t *dst_size,
+                                 sym_padding_t padding, void *context);
     result = breeze_aes_finish(src, in_len, dst, &dlen, SYM_NOPAD, aes_ctx);
     if (result != ALI_CRYPTO_SUCCESS) {
         LOGE("aos_awss", "aes_finish fail(%08x)", result);
@@ -108,6 +117,7 @@ void sec_sha256_init(SHA256_CTX *ctx)
     mbedtls_sha256_init(ctx);
     mbedtls_sha256_starts_ret(ctx, 0);
 #else
+    extern void __sha256_init(SHA256_CTX *ctx);
     __sha256_init(ctx);
 #endif
 }
@@ -117,6 +127,7 @@ void sec_sha256_update(SHA256_CTX *ctx, const BYTE data[], size_t len)
 #ifdef USE_EXTERNAL_MEBDTLS
     mbedtls_sha256_update_ret(ctx, data, len);
 #else
+    extern void __sha256_update(SHA256_CTX *ctx, const BYTE data[], size_t len);
     __sha256_update(ctx, data, len);
 #endif
 }
@@ -126,6 +137,7 @@ void sec_sha256_final(SHA256_CTX *ctx, BYTE hash[])
 #ifdef USE_EXTERNAL_MEBDTLS
     mbedtls_sha256_finish_ret(ctx, hash);
 #else
+   extern void __sha256_final(SHA256_CTX *ctx, BYTE hash[]);
    __sha256_final(ctx, hash);
 #endif
 }

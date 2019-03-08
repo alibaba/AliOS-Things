@@ -708,7 +708,7 @@ void bt_conn_notify_tx_done(struct bt_conn *conn)
 
     if (conn->tx->len) {
         conn->tx_frag = false;
-        if (!send_frag(conn, conn->tx, BT_ACL_CONT, false)) {
+        if (!send_frag(conn, conn->tx, BT_ACL_CONT, true)) {
             goto exit;
         }
         return;
