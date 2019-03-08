@@ -41,13 +41,6 @@ NET_BUF_POOL_DEFINE(acl_tx_pool, CONFIG_BT_L2CAP_TX_BUF_COUNT,
                     BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU),
                     BT_BUF_USER_DATA_MIN, NULL);
 
-#ifdef CONFIG_BLE_LINK_PARAMETERS
-#define  SUP_TO_LIMIT         (400)//limit LSP_TO to 4s
-#define  CONN_SUP_TIMEOUT     (400)//*10, link superversion timeout
-#define  CONN_INTERVAL_MIN    (24)//*1.25 ms,30ms, min connection inverval
-#define  CONN_INTERVAL_MAX    (40)//*1.25 ms,50ms, max connection inverval
-#endif
-
 extern struct net_buf_pool acl_tx_pool;
 
 /* How long until we cancel HCI_LE_Create_Connection */
@@ -68,6 +61,39 @@ struct conn_tx_cb {
 
 static struct bt_conn_tx conn_tx[CONFIG_BT_CONN_TX_MAX];
 static sys_slist_t free_tx = SYS_SLIST_STATIC_INIT(&free_tx);
+
+enum {
+    SEND_FRAG_SUCCESS,
+    SEND_FRAG_NO_PKTS,
+    SEND_FRAG_FAIL,
+};
+
+enum {
+    SEND_BUF_ONE,
+    SEND_BUF_HEAD,
+    SEND_BUF_CONT,
+    SEND_BUF_TAIL,
+};
+
+int8_t bt_conn_get_pkts(struct bt_conn *conn)
+{
+    return bt_dev.le.pkts;
+}
+
+int8_t bt_conn_take_pkts(struct bt_conn *conn)
+{
+    if (bt_dev.le.pkts > 0) {
+        bt_dev.le.pkts--;
+        return 0;
+    }
+    return -1;
+}
+
+int8_t bt_conn_give_pkts(struct bt_conn *conn)
+{
+    bt_dev.le.pkts++;
+    return 0;
+}
 
 static inline const char *state2str(bt_conn_state_t state)
 {
@@ -537,7 +563,7 @@ static void remove_pending_tx(struct bt_conn *conn, sys_snode_t *node)
     tx_free(CONTAINER_OF(node, struct bt_conn_tx, node));
 }
 
-static bool send_frag(struct bt_conn *conn, struct net_buf *buf, u8_t flags,
+static u8_t send_frag(struct bt_conn *conn, struct net_buf *buf, u8_t flags,
                       bool always_consume)
 {
     struct bt_hci_acl_hdr *hdr;
@@ -546,6 +572,13 @@ static bool send_frag(struct bt_conn *conn, struct net_buf *buf, u8_t flags,
     int                    err;
 
     BT_DBG("%s, conn %p buf %p len %u flags 0x%02x", __func__, conn, buf, buf->len, flags);
+
+    if (bt_conn_take_pkts(conn) != 0) {
+        if (always_consume) {
+            net_buf_unref(buf);
+        }
+        return SEND_FRAG_NO_PKTS;
+    }
 
     notify_tx();
 
@@ -569,13 +602,14 @@ static bool send_frag(struct bt_conn *conn, struct net_buf *buf, u8_t flags,
         goto fail;
     }
 
-    return true;
+    return SEND_FRAG_SUCCESS;
 
 fail:
+    bt_conn_give_pkts(conn);
     if (always_consume) {
         net_buf_unref(buf);
     }
-    return false;
+    return SEND_FRAG_FAIL;
 }
 
 static inline u16_t conn_mtu(struct bt_conn *conn)
@@ -612,23 +646,58 @@ static struct net_buf *create_frag(struct bt_conn *conn, struct net_buf *buf)
 static bool send_buf(struct bt_conn *conn, struct net_buf *buf)
 {
     struct net_buf *frag;
+    int8_t ret;
 
     BT_DBG("%s, conn %p buf %p len %u", __func__,conn, buf, buf->len);
 
+    conn->tx = buf;
+
     if (buf->len <= conn_mtu(conn)) {
-        conn->tx_frag = false;
-        if (send_frag(conn, buf, BT_ACL_START_NO_FLUSH, false) == false) {
-            return false;
-        }
-    } else if (buf->len > conn_mtu(conn)) {
-        frag = create_frag(conn, buf);
-        if ((frag == NULL) || (send_frag(conn, frag, BT_ACL_START_NO_FLUSH, true) == false)) {
-            return false;
-        }
-        conn->tx_frag = true;
+        conn->tx_flag = SEND_BUF_ONE;
+        ret = send_frag(conn, buf, BT_ACL_START_NO_FLUSH, false);
+        goto exit;
     }
 
-    conn->tx = buf;
+    frag = create_frag(conn, buf);
+    if (frag == NULL) {
+        ret = SEND_FRAG_FAIL;
+        goto exit;
+    }
+
+
+    conn->tx_flag = SEND_BUF_HEAD;
+    ret = send_frag(conn, frag, BT_ACL_START_NO_FLUSH, true);
+    if (ret != SEND_FRAG_SUCCESS) {
+        goto exit;
+    }
+
+    while (buf->len > conn_mtu(conn)) {
+        conn->tx_flag = SEND_BUF_CONT;
+        frag = create_frag(conn, buf);
+        if (frag == NULL) {
+            ret = SEND_FRAG_FAIL;
+            goto exit;
+        }
+
+        ret = send_frag(conn, frag, BT_ACL_CONT, true);
+        if (ret != SEND_FRAG_SUCCESS) {
+            goto exit;
+        }
+    }
+
+    conn->tx_flag = SEND_BUF_TAIL;
+    ret = send_frag(conn, buf, BT_ACL_CONT, false);
+
+exit:
+    if (ret == SEND_FRAG_FAIL) {
+        conn->tx = NULL;
+        return false;
+    }
+
+    if (conn->tx_flag == SEND_BUF_TAIL || conn->tx_flag == SEND_BUF_ONE) {
+        conn->tx = NULL;
+    }
+
     return true;
 }
 
@@ -689,35 +758,39 @@ int bt_conn_prepare_events(struct k_poll_event events[])
 void bt_conn_notify_tx_done(struct bt_conn *conn)
 {
     struct net_buf *frag;
+    int8_t ret = SEND_FRAG_SUCCESS;
 
-    if (conn->tx == NULL || conn->tx_frag == false) {
+    bt_conn_give_pkts(conn);
+
+    if (conn->tx == NULL) {
         goto exit;
     }
 
-    if (conn->tx->len > conn_mtu(conn)) {
+    while (conn->tx->len > conn_mtu(conn)) {
+        conn->tx_flag = SEND_BUF_CONT;
         frag = create_frag(conn, conn->tx);
         if (!frag) {
-            net_buf_unref(conn->tx);
+            ret = SEND_FRAG_FAIL;
             goto exit;
         }
 
-        if (!send_frag(conn, frag, BT_ACL_CONT, true)) {
-            net_buf_unref(conn->tx);
+        ret = send_frag(conn, frag, BT_ACL_CONT, true);
+        if (ret != SEND_FRAG_SUCCESS) {
             goto exit;
         }
-        return;
     }
 
-    if (conn->tx->len) {
-        conn->tx_frag = false;
-        if (!send_frag(conn, conn->tx, BT_ACL_CONT, true)) {
-            goto exit;
-        }
-        return;
-    }
+    conn->tx_flag = SEND_BUF_TAIL;
+    ret = send_frag(conn, conn->tx, BT_ACL_CONT, false);
 
 exit:
-    conn->tx = NULL;
+    if (ret == SEND_FRAG_FAIL) {
+        net_buf_unref(conn->tx);
+        conn->tx = NULL;
+    }
+    if (conn->tx_flag == SEND_BUF_TAIL || conn->tx_flag == SEND_BUF_ONE) {
+        conn->tx = NULL;
+    }
 }
 
 void bt_conn_process_tx(struct bt_conn *conn)
@@ -730,10 +803,6 @@ void bt_conn_process_tx(struct bt_conn *conn)
         atomic_test_and_clear_bit(conn->flags, BT_CONN_CLEANUP)) {
         BT_DBG("handle %u disconnected - cleaning up", conn->handle);
         conn_cleanup(conn);
-        return;
-    }
-
-    if (conn->tx) {
         return;
     }
 
@@ -828,7 +897,6 @@ void bt_conn_set_state(struct bt_conn *conn, bt_conn_state_t state)
             }
             k_fifo_init(&conn->tx_queue);
             k_fifo_init(&conn->tx_notify);
-
             sys_slist_init(&conn->channels);
 
             bt_l2cap_connected(conn);
@@ -1074,10 +1142,10 @@ int bt_conn_le_param_update(struct bt_conn *conn, struct bt_le_conn_param *param
            param->latency, param->timeout);
 
 #ifdef CONFIG_BLE_LINK_PARAMETERS
-    if(param->timeout > SUP_TO_LIMIT){
-       param->timeout = CONN_SUP_TIMEOUT;
-       param->interval_min = CONN_INTERVAL_MIN;
-       param->interval_max = CONN_INTERVAL_MAX;
+    if(param->timeout > CONFIG_SUP_TO_LIMIT){
+       param->timeout = CONFIG_CONN_SUP_TIMEOUT;
+       param->interval_min = CONFIG_CONN_INTERVAL_MIN;
+       param->interval_max = CONFIG_CONN_INTERVAL_MAX;
     }
 #endif
 

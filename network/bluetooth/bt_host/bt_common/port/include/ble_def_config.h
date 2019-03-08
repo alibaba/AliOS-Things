@@ -86,6 +86,24 @@
 #define CONFIG_BT_CONN 1
 #endif
 
+#ifdef CONFIG_BLE_LINK_PARAMETERS
+#ifndef CONFIG_SUP_TO_LIMIT
+#define  CONFIG_SUP_TO_LIMIT 400  //limit LSP_TO to 4s
+#endif
+
+#ifndef CONFIG_CONN_SUP_TIMEOUT
+#define  CONFIG_CONN_SUP_TIMEOUT 400  //*10, link superversion timeout
+#endif
+
+#ifndef CONFIG_CONN_INTERVAL_MIN
+#define  CONFIG_CONN_INTERVAL_MIN 24   //*1.25 ms,30ms, min connection inverval
+#endif
+
+#ifndef CONFIG_CONN_INTERVAL_MAX
+#define  CONFIG_CONN_INTERVAL_MAX 40   //*1.25 ms,50ms, max connection inverval
+#endif
+#endif
+
 #ifdef CONFIG_BT_CONN
 
 /**
@@ -121,7 +139,6 @@
  *  (SMP), making it possible to pair devices over LE
  */
 #ifdef CONFIG_BT_SMP
-
 #define CONFIG_BT_SMP 1
 
 /**
@@ -332,7 +349,7 @@
 #endif
 
 #ifndef CONFIG_BT_CONN_TX_MAX
-#define CONFIG_BT_CONN_TX_MAX 1
+#define CONFIG_BT_CONN_TX_MAX 5
 #endif
 
 #ifndef CONFIG_BT_DEVICE_APPEARANCE
