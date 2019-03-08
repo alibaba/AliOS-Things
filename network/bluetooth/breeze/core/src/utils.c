@@ -2,7 +2,11 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "utils.h"
 
 uint8_t hex2ascii(uint8_t digit)
@@ -43,6 +47,7 @@ void utf8_to_pw(uint8_t *data, uint8_t len, char *pw)
     utf8_to_str(data, len, pw);
 }
 
+extern long long os_now_ms();
 void get_random(uint8_t *random, uint8_t random_len)
 {
     uint8_t bytes_available = 0;

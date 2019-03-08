@@ -234,6 +234,7 @@ int bt_hci_cmd_send(u16_t opcode, struct net_buf *buf)
     return 0;
 }
 
+void process_events(struct k_poll_event *ev, int count);
 int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp)
 {
     int err = 0;
@@ -263,7 +264,7 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf, struct net_buf **rsp
                                             &bt_dev.cmd_tx_queue, BT_EVENT_CMD_TX),
         };
         events[0].state = K_POLL_STATE_NOT_READY;
-        if (!k_queue_is_empty(&bt_dev.cmd_tx_queue)) {
+        if (!k_queue_is_empty((struct k_queue *)&bt_dev.cmd_tx_queue)) {
             events[0].state = K_POLL_STATE_FIFO_DATA_AVAILABLE;
         }
 
@@ -517,6 +518,7 @@ static void hci_acl(struct net_buf *buf)
     bt_conn_unref(conn);
 }
 
+extern void bt_conn_notify_tx_done(struct bt_conn *conn);
 static void hci_num_completed_packets(struct net_buf *buf)
 {
     struct bt_hci_evt_num_completed_packets *evt = (void *)buf->data;
@@ -2094,6 +2096,7 @@ void process_events(struct k_poll_event *ev, int count)
 #define EV_COUNT 1
 #endif
 
+extern void scheduler_loop(struct k_poll_event *events);
 static void hci_tx_thread(void *p1, void *p2, void *p3)
 {
 #ifdef CONFIG_CONTROLLER_IN_ONE_TASK
