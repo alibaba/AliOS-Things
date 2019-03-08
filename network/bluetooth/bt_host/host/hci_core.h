@@ -65,6 +65,7 @@ struct bt_dev_le {
 #if defined(CONFIG_BT_CONN)
 	/* Controller buffer information */
 	u16_t			mtu;
+        u8_t pkts;
 #endif /* CONFIG_BT_CONN */
 
 #if defined(CONFIG_BT_SMP)
