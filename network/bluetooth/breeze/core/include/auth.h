@@ -26,7 +26,7 @@ extern "C"
 
 #define MAX_DEVICE_NAME_LEN 32
 
-typedef enum {
+enum {
     AUTH_STATE_IDLE,
     AUTH_STATE_CONNECTED,
     AUTH_STATE_SVC_ENABLED,

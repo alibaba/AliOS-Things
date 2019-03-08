@@ -27,6 +27,10 @@
 #define UTF8_MAX_SSID     32
 #define UTF8_MAX_PASSWORD 64
 
+#ifdef BUILD_AOS
+#include "aos/kernel.h"
+#endif
+
 enum {
     BLE_AWSS_CTYPE_SSID     = 0x01,
     BLE_AWSS_CTYPE_PASSWORD = 0x02,
@@ -319,7 +323,7 @@ static void get_os_info(void)
     char t_os_info[20] = { 0 };
 
 #ifdef BUILD_AOS
-    strcpy(t_os_info, aos_version_get());
+    strcpy(t_os_info, (const char *)aos_version_get());
     char *m_os_type = strtok(t_os_info, "-");
     if (strcmp(aostype, m_os_type) == 0) {
         m_os_type = strtok(NULL, "-");

@@ -8,14 +8,17 @@
 
 struct k_work_q g_work_queue;
 
+extern void event_callback(uint8_t event_type);
 static void k_work_submit_to_queue(struct k_work_q *work_q, struct k_work *work)
 {
+    sys_snode_t *node = NULL;
     struct k_work *delayed_work = NULL;
     struct k_work *prev_delayed_work = NULL;
     uint32_t now = k_uptime_get_32();
 
     if (!atomic_test_and_set_bit(work->flags, K_WORK_STATE_PENDING)) {
-        SYS_SLIST_FOR_EACH_NODE(&g_work_queue.queue.data_q, delayed_work) {
+        SYS_SLIST_FOR_EACH_NODE(&g_work_queue.queue.data_q, node) {
+            delayed_work = (struct k_work *)node;
             if ((work->timeout + work->start_ms) < (delayed_work->start_ms + delayed_work->timeout)) {
                 break;
             }
@@ -23,7 +26,8 @@ static void k_work_submit_to_queue(struct k_work_q *work_q, struct k_work *work)
         }
 
         delayed_work = k_queue_first_entry(&g_work_queue.queue);
-        sys_slist_insert(&g_work_queue.queue.data_q, prev_delayed_work, work);
+        sys_slist_insert(&g_work_queue.queue.data_q,
+                         (sys_snode_t *)prev_delayed_work, (sys_snode_t *)work);
 
         if (delayed_work &&
             work->start_ms + work->timeout < delayed_work->start_ms + delayed_work->timeout) {
@@ -54,7 +58,7 @@ int k_work_init(struct k_work *work, k_work_handler_t handler)
 
 void k_work_submit(struct k_work *work)
 {
-    k_delayed_work_submit(work, 0);
+    k_delayed_work_submit((struct k_delayed_work *)work, 0);
 }
 
 void k_delayed_work_init(struct k_delayed_work *work, k_work_handler_t handler)
@@ -73,7 +77,7 @@ int k_delayed_work_submit(struct k_delayed_work *work, uint32_t delay)
 
     work->work.start_ms = k_uptime_get_32();
     work->work.timeout = delay;
-    k_work_submit_to_queue(&g_work_queue.queue, work);
+    k_work_submit_to_queue(&g_work_queue, (struct k_work *)work);
 
 done:
     irq_unlock(key);
@@ -84,7 +88,7 @@ int k_delayed_work_cancel(struct k_delayed_work *work)
 {
     int key = irq_lock();
     atomic_clear_bit(work->work.flags, K_WORK_STATE_PENDING);
-    k_work_rm_from_queue(&g_work_queue.queue, (struct k_work *)work);
+    k_work_rm_from_queue(&g_work_queue, (struct k_work *)work);
     irq_unlock(key);
     return 0;
 }

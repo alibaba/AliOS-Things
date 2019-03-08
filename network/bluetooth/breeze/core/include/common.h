@@ -92,7 +92,7 @@ typedef uint8_t ret_code_t;
 
 #define BLE_MAC_LEN 6
 
-typedef enum {
+enum {
     BZ_EVENT_CONNECTED,
     BZ_EVENT_DISCONNECTED,
     BZ_EVENT_AUTHENTICATED,
