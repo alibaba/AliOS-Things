@@ -25,6 +25,8 @@
 #ifndef __ETS_SYS_H__
 #define __ETS_SYS_H__
 
+#include "c_types.h"
+
 /* interrupt related */
 #define ETS_SPI_INUM        2
 #define ETS_GPIO_INUM       4

@@ -23,3 +23,7 @@ MEMORY
 INCLUDE "../ld/eagle.app.v6.common.ld"
 
 _heap_size = 0x40000000 - _heap_start;
+
+PROVIDE ( ets_isr_mask = 0x40000f98 );
+PROVIDE ( ets_isr_unmask = 0x40000fa8 );
+PROVIDE ( frc1 = 0x60000600 );
