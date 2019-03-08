@@ -2043,7 +2043,7 @@ int has_tx_sem(struct k_poll_event *event)
         if (event->tag == BT_EVENT_CONN_TX_QUEUE) {
             conn = CONTAINER_OF(event->fifo, struct bt_conn, tx_queue);
         }
-        if (conn && conn->tx) {
+        if (conn && (conn->tx || bt_conn_get_pkts(conn) == 0)) {
             return 0;
         }
     }
@@ -2158,6 +2158,7 @@ static void read_le_features_complete(struct net_buf *buf)
 static void le_read_buffer_size_complete(struct net_buf *buf)
 {
     struct bt_hci_rp_le_read_buffer_size *rp = (void *)buf->data;
+    u16_t pkts;
 
     BT_DBG("%s, status %u", __func__, rp->status);
 
@@ -2167,6 +2168,8 @@ static void le_read_buffer_size_complete(struct net_buf *buf)
     }
 
     BT_DBG("ACL LE buffers: pkts %u mtu %u", rp->le_max_num, bt_dev.le.mtu);
+
+    bt_dev.le.pkts = min(rp->le_max_num, CONFIG_BT_CONN_TX_MAX);
 }
 #endif
 
