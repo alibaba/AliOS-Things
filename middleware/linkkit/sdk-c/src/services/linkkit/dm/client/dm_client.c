@@ -81,7 +81,7 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
         res = _dm_client_subscribe_filter(uri, (char *)g_dm_client_uri_map[0].uri_name, product_key, device_name);
         if (res < SUCCESS_RETURN) {
             DM_free(uri);
-            continue;
+            break;
         }
 
         res = dm_client_subscribe(uri, (void *)g_dm_client_uri_map[0].callback, 0);
@@ -116,12 +116,6 @@ int dm_client_subscribe_all(char product_key[PRODUCT_KEY_MAXLEN], char device_na
                                     product_key, device_name, &uri);
         if (res < SUCCESS_RETURN) {
             index--;
-            continue;
-        }
-
-        res = _dm_client_subscribe_filter(uri, (char *)g_dm_client_uri_map[index].uri_name, product_key, device_name);
-        if (res < SUCCESS_RETURN) {
-            DM_free(uri);
             continue;
         }
         
