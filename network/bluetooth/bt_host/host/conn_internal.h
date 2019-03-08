@@ -116,14 +116,10 @@ struct bt_conn {
 	atomic_t		ref;
 
         struct net_buf *tx;
-        bool tx_frag;
+        int8_t tx_flag;
 
 	union {
-		struct bt_conn_le	le;
-#if defined(CONFIG_BT_BREDR)
-		struct bt_conn_br	br;
-		struct bt_conn_sco	sco;
-#endif
+            struct bt_conn_le le;
 	};
 };
 
