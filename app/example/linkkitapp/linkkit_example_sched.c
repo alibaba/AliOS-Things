@@ -482,7 +482,7 @@ int linkkit_main(void *paras)
     IOT_Ioctl(IOTX_IOCTL_SET_DYNAMIC_REGISTER, (void *)&dynamic_register);
 
     /* Choose Whether You Need Post Property/Event Reply */
-    int post_event_reply = 1;
+    int post_event_reply = 0;
     IOT_Ioctl(IOTX_IOCTL_RECV_EVENT_REPLY, (void *)&post_event_reply);
 
     /* Start Connect Aliyun Server */
