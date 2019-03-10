@@ -323,7 +323,7 @@ static void get_os_info(void)
     char t_os_info[20] = { 0 };
 
 #ifdef BUILD_AOS
-    strcpy(t_os_info, (const char *)aos_version_get());
+    strncpy(t_os_info, (const char *)aos_version_get(), sizeof(t_os_info) - 1);
     char *m_os_type = strtok(t_os_info, "-");
     if (strcmp(aostype, m_os_type) == 0) {
         m_os_type = strtok(NULL, "-");
