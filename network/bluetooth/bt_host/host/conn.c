@@ -697,10 +697,12 @@ void bt_conn_notify_tx_done(struct bt_conn *conn)
     if (conn->tx->len > conn_mtu(conn)) {
         frag = create_frag(conn, conn->tx);
         if (!frag) {
+            net_buf_unref(conn->tx);
             goto exit;
         }
 
         if (!send_frag(conn, frag, BT_ACL_CONT, true)) {
+            net_buf_unref(conn->tx);
             goto exit;
         }
         return;
