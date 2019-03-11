@@ -1,1 +1,0 @@
-encrypt.exe rwnx_fmac.bin 00000000
