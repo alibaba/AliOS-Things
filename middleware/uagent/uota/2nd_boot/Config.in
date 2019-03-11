@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_OTA_2ND_BOOT
-    bool "ota_2nd_boot"
-    default n
-    help
-
-if AOS_COMP_OTA_2ND_BOOT
-# Configurations for comp ota_2nd_boot
-endif

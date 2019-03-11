@@ -1,7 +1,0 @@
-menuconfig AOS_COMP_OTA_CORE
-    bool "OTA Core"
-    default n
-    help
-
-if AOS_COMP_OTA_CORE
-endif

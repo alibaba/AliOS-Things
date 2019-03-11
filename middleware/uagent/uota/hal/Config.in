@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_OTA_HAL
-    bool "ota_hal"
-    default n
-    help
-
-if AOS_COMP_OTA_HAL
-# Configurations for comp ota_hal
-endif
