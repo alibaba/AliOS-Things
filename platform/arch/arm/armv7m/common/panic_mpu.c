@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "panic_mpu.h"
+#include "k_compiler.h"
 
 typedef struct {
     unsigned long start;
@@ -24,9 +25,9 @@ static void mpu_enable(void)
     /* Enable memory manage fault */
     *(SHCSR_M) |= (1<<16);
 
-    __asm__ ("dsb 0xf\t\n"
-             "isb\t\n"
-             :::"memory");
+    OS_DSB();
+    OS_ISB();
+    OS_DMB();
 }
 
 static void enable_region(mem_region_t *region, int rng_no,
@@ -73,9 +74,9 @@ static void mpu_config_region(MPU_Region_Init_t *init)
         MPU->rasr = 0;
     }
 
-    __asm__("dsb 0xf\t\n"
-            "isb\t\n"
-            :::"memory");
+    OS_DSB();
+    OS_ISB();
+    OS_DMB();
 }
 
 static unsigned int size_to_mpusize(unsigned int size)
