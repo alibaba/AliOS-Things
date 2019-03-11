@@ -1,10 +1,13 @@
+#include <string.h>
 #include "ota_breeze.h"
 #include "ota_breeze_os.h"
 #include "breeze_export.h"
 #include "ota_breeze_plat.h"
 #include "ota_breeze_export.h"
+#include "ota_breeze_transport.h"
 
 static _ota_ble_global_dat_t g_ctx;
+extern void breeze_disconnect_ble(void);
 
 _ota_ble_global_dat_t* ota_breeze_get_global_data_center()
 {

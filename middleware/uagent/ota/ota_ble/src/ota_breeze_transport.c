@@ -1,5 +1,7 @@
+#include <string.h>
 #include "ota_breeze.h"
 #include "ota_breeze_os.h"
+#include "ota_breeze_plat.h"
 #include "ota_breeze_transport.h"
 
 static unsigned char ota_breeze_new_fw = 0;
