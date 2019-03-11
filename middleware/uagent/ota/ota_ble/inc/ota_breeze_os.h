@@ -28,8 +28,9 @@ int ota_breeze_thread_create(
     void *arg,
     void *param,
     int  stack_size);
-void ota_breeze_msleep(int ms);
+
 void ota_breeze_reboot(void);
-void *ota_breeze_malloc(int size);
+void ota_breeze_msleep(int ms);
 void ota_breeze_free(void *ptr);
+void *ota_breeze_malloc(int size);
 #endif /*OTA_BREEZE_OS_H*/

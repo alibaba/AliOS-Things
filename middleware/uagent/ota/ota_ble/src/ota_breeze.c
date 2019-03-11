@@ -1,6 +1,8 @@
+#include <string.h>
 #include "ota_breeze.h"
 #include "ota_breeze_os.h"
 #include "ota_breeze_plat.h"
+#include "ota_breeze_transport.h"
 
 static ota_breeze_rec_t* ota_breeze_queue = NULL;
 static unsigned char ota_breeze_queue_ptr_in = 0;
