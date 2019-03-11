@@ -32,7 +32,7 @@ static void usage(void)
            "  $3, Device Secret.\n"
            "  $4, Product Secret.\n"
            "\n",
-           UOTA_VERSION);
+           OTA_VERSION);
 }
 
 static void ota_work(void *ctx)
@@ -43,9 +43,6 @@ static void ota_work(void *ctx)
 #endif
     /*Main device*/
     ota_service_init(ctx);
-#ifdef OTA_WITH_LINKKIT
-    IOT_CloseLog();
-#endif
     while (1) {
         IOT_MQTT_Yield(NULL,200);
         aos_msleep(1000);
@@ -90,7 +87,6 @@ static void handle_diff_cmd(char *pwbuf, int blen, int argc, char **argv)
         ota_info.res_type = OTA_FINISH;
         LOG("%s %u %u %p\n", rtype, ota_size, splict_size, &ota_info);
         ota_hal_boot(&ota_info);
-        //hal_ota_switch_to_new_fw(&ota_info);
     }
 }
 

@@ -5,7 +5,6 @@
 #include "aos/kernel.h"
 #include "lvgl/lvgl.h"
 #include <k_api.h>
-#include <aos/version.h>
 #include "st7789.h"
 
 LV_IMG_DECLARE(AliOS_Things_logo);
@@ -35,7 +34,6 @@ static void sensor_refresh_task(void *arg)
     static lv_obj_t *img_src;
     static lv_obj_t *label1;
     static lv_style_t style;
-    char *version = NULL;
 
     if (task1_count == 0) {
 
@@ -47,8 +45,6 @@ static void sensor_refresh_task(void *arg)
         lv_obj_set_drag(img_src, true);
 
         label1 = lv_label_create(scr, NULL);
-        version = aos_version_get();
-        lv_label_set_text(label1, version);
         lv_style_copy(&style, &lv_style_plain);
         style.text.color = LV_COLOR_PURPLE;
         lv_label_set_style(label1, &style);
