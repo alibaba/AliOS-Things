@@ -178,10 +178,11 @@ const struct awss_cmp_couple awss_local_couple[] = {
     {AWSS_LC_INIT_SUC,                       TOPIC_AWSS_GET_CONNECTAP_INFO_UCAST, awss_process_ucast_get_connectap_info},
 #ifndef AWSS_DISABLE_REGISTRAR
     {AWSS_LC_INIT_BIND,                      TOPIC_NOTIFY,                        online_dev_bind_monitor},
+    {AWSS_LC_INIT_BIND,                      TOPIC_AWSS_CONNECTAP_NOTIFY,         online_dev_bind_monitor},
 #endif
 #endif
-    {AWSS_LC_INIT_SUC,                       TOPIC_GETDEVICEINFO_MCAST,           online_mcast_get_device_info},
-    {AWSS_LC_INIT_SUC,                       TOPIC_GETDEVICEINFO_UCAST,           online_ucast_get_device_info}
+    {AWSS_LC_INIT_BIND,                      TOPIC_GETDEVICEINFO_MCAST,           online_mcast_get_device_info},
+    {AWSS_LC_INIT_BIND,                      TOPIC_GETDEVICEINFO_UCAST,           online_ucast_get_device_info}
 };
 
 int awss_cmp_local_init(int init_stage)
