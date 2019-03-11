@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-
-<flash_board>
-  <pass>
-    <loader>$TOOLKIT_DIR$\config\flashloader\Atmel\saml21g16b\saml21g16b-flash.flash</loader>
-    <range>CODE 0x00000000 0xFFFF</range>
-    <rel_offset>0x0</rel_offset>
-  </pass>
-</flash_board>
