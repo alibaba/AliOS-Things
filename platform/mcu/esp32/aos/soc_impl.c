@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 extern void ets_printf(char *format, ...);
+extern void hal_reboot(void);
 
 size_t soc_get_cur_sp()
 {
@@ -34,7 +35,7 @@ int g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 void soc_err_proc(kstat_t err)
 {
     printf("kernel panic,err %d!\n",err);
-    assert(0);
+    hal_reboot();
 }
 
 krhino_err_proc_t g_err_proc = soc_err_proc;
