@@ -29,15 +29,6 @@ if AOS_BOARD_AP80A0
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
-source "board/armhflinux/Config.in"
-if AOS_BOARD_ARMHFLINUX
-    config AOS_BUILD_BOARD
-        default "armhflinux"
-
-    source "platform/mcu/linux/Config.in"
-    source "platform/arch/linux/Config.in"
-endif
-
 source "board/atsame54-xpro/Config.in"
 if AOS_BOARD_ATSAME54_XPRO
     config AOS_BUILD_BOARD
@@ -458,15 +449,6 @@ if AOS_BOARD_MSP432P4111LAUNCHPAD
         default "msp432p4111launchpad"
 
     source "platform/mcu/msp432p4xx/Config.in"
-    source "platform/arch/arm/armv7m/Config.in"
-endif
-
-source "board/mt7682s/Config.in"
-if AOS_BOARD_MT7682S
-    config AOS_BUILD_BOARD
-        default "mt7682s"
-
-    source "platform/mcu/mtk7682/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
 endif
 

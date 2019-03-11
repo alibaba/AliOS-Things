@@ -84,7 +84,7 @@ $(NAME)_DEFINES += LINUX_MESH_80211
 $(NAME)_CFLAGS  += -Wno-unused-but-set-variable
 endif
 
-ifeq (1,$(LWIP))
+ifeq ($(AOS_COMP_LWIP),y)
 $(NAME)_SOURCES += csp/lwip/netif/delif.c   \
                    csp/lwip/netif/fifo.c    \
                    csp/lwip/netif/tapif.c   \
