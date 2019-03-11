@@ -11,8 +11,7 @@ import json
 #   { 'board name': [cmdfile1, cmdfile2, ...], }
 #
 registry_board = {
-    'atsame54': ['atsame54.json'],
-    'saml21': ['atsamL21.json'],
+    'atsame54': ['atsam.json'],
     'esp32': ['esp32.json'],
     'esp8266': ['esp8266.json'],
     'mk3060': ['mk3060.json'],
