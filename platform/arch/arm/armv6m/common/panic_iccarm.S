@@ -43,7 +43,7 @@ UsageFault_Handler:
     BL      panicRestoreCheck
     POP     {R1, R2}
     MOV     LR, R2
-    CMP     R0, #0
+    CMP     R0, 0
     BEQ     unrecoverable_crash
     BL     _first_task_restore
 
