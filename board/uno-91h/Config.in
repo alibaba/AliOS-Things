@@ -24,10 +24,10 @@ config DEBUG_CONFIG_BACKTRACE
 
 config DEBUG_CONFIG_PANIC_CLI
     bool "Enable cli after panic"
-    default y
+    default n
     help
         set to y if you want to enable cli feature after system crash,
-        default y
+        default n
 
 # "BSP SUPPORT FEATURE"
 config BSP_SUPPORT_UART
