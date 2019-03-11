@@ -1,7 +1,0 @@
-{
-    "port":1,
-    "address_width":7,
-    "freq":100000,
-    "mode":1,
-    "dev_addr":70
-}
