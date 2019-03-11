@@ -9,6 +9,8 @@
 
 #include "aos/hal/uart.h"
 
+extern void hal_reboot(void);
+
 #if (RHINO_CONFIG_HW_COUNT > 0)
 void soc_hw_timer_init(void)
 {
@@ -65,8 +67,7 @@ int           g_region_num  = sizeof(g_mm_region) / sizeof(k_mm_region_t);
 void soc_err_proc(kstat_t err)
 {
     (void)err;
-
-    assert(0);
+    hal_reboot();
 }
 
 krhino_err_proc_t g_err_proc = soc_err_proc;
