@@ -108,6 +108,14 @@ typedef void (*set_dev_status_cb)(uint8_t *buffer, uint32_t length);
  */
 typedef void (*get_dev_status_cb)(uint8_t *buffer, uint32_t length);
 
+/**
+ * @brief Callback when there is AWSS info to get.
+ *
+ * @param[out] buffer @n The data struct of AP info.
+ * @return None.
+ * @see None.
+ * @note This API should be implemented by user and will be called by SDK.
+ */
 typedef void (*apinfo_ready_cb)(breeze_apinfo_t *ap);
 
 /**
