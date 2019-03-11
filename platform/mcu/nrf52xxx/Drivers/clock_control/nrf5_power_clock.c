@@ -333,6 +333,20 @@ static void _power_clock_isr(void *arg)
     krhino_intrpt_exit();
 }
 
+#ifdef CONFIG_MESH_STACK_ALONE
+void _arch_irq_enable(unsigned int irq)
+{
+}
+
+void _arch_irq_disable(unsigned int irq)
+{
+}
+
+void _irq_priority_set(unsigned int irq, unsigned int prio, u32_t flags)
+{
+}
+#endif
+
 static int _clock_control_init(struct device *dev)
 {
 	/* TODO: Initialization will be called twice, once for 32KHz and then

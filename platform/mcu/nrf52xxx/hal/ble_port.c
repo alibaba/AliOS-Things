@@ -2,9 +2,11 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
+#ifndef CONFIG_MESH_STACK_ALONE
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/storage.h>
 #include <bluetooth/hci.h>
+#endif
 
 #include <aos/kernel.h>
 #include <aos/hal/flash.h>
@@ -14,6 +16,7 @@
 
 #ifndef AOS_COMP_KV
 #define MAX_REMOTE_DEV_SIZE (5)
+#ifndef CONFIG_MESH_STACK_ALONE
 typedef struct{
     uint8_t mac[6];
     bt_addr_le_t local_mac;
@@ -23,9 +26,10 @@ typedef struct{
     struct bt_storage_ltk LTK;
     struct bt_storage_ltk slave_LTK;
 } bt_storage_t;
-
+#endif
 #endif
 
+#ifndef CONFIG_MESH_STACK_ALONE
 static ssize_t storage_read(const bt_addr_le_t *addr, u16_t key, void *data,
                             size_t length)
 {
@@ -106,9 +110,11 @@ static int storage_clear(const bt_addr_le_t *addr)
 {
     return 0;
 }
+#endif
 
 int ble_storage_init(void)
 {
+#ifndef CONFIG_MESH_STACK_ALONE
         static const struct bt_storage storage = {
                 .read  = storage_read,
                 .write = storage_write,
@@ -116,6 +122,7 @@ int ble_storage_init(void)
         };
         //TBD:should check lower flash APIs
         bt_storage_register(&storage);
+#endif
 
         return 0;
 }
