@@ -4,15 +4,18 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "aos/kernel.h"
+#include <aos/kernel.h>
 
 #include <misc/printk.h>
 #include <misc/byteorder.h>
 
 #include <api/mesh.h>
-#include <bluetooth/bluetooth.h>
+
+#ifndef CONFIG_MESH_STACK_ALONE
 #include <tinycrypt/sha256.h>
 #include <tinycrypt/constants.h>
+#endif
+
 #include <aos/hal/gpio.h>
 
 #include "tmall_model.h"
@@ -22,6 +25,15 @@
 #define DEVICE_NAME_LEN 6
 #define STATIC_VALUE_LEN 100
 
+#ifdef CONFIG_PRINT_HEAP
+static void print_heap()
+{
+    extern k_mm_head *g_kmm_head;
+    int               free = g_kmm_head->free_size;
+    LOG("============free heap size =%d==========", free);
+}
+#endif
+
 static struct bt_mesh_prov prov;
 static struct bt_mesh_comp comp;
 
@@ -30,7 +42,9 @@ static struct bt_mesh_model_pub lightness_srv_pub;
 static struct bt_mesh_model_pub lightness_setup_srv_pub;
 
 static gpio_dev_t gpio_led1;
+#ifndef CONFIG_MESH_STACK_ALONE
 static struct tc_sha256_state_struct sha256_ctx;
+#endif
 
 static char static_value[STATIC_VALUE_LEN] = { 0x00 }; // pid + ',' + mac + ',' + secret
 
@@ -387,6 +401,7 @@ void bt_mesh_profile_calculate_digest(const uint8_t *digest, const uint8_t *pid,
 
     printk("static oob: %s\n", static_value);
 
+#ifndef CONFIG_MESH_STACK_ALONE
     /* calculate the sha256 of oob info and
      * fetch the top 16 bytes as static value
      */
@@ -413,6 +428,8 @@ void bt_mesh_profile_calculate_digest(const uint8_t *digest, const uint8_t *pid,
         printk("\n");
     }
 #endif
+#endif /* CONFIG_MESH_STACK_ALONE */
+
     return;
 }
 
@@ -450,6 +467,11 @@ static void bt_mesh_ready(int err)
 {
     int ret;
 
+#ifdef CONFIG_PRINT_HEAP
+    printk("After bt init\r\n");
+    print_heap();
+#endif
+
     if (err) {
         printk("Bluetooth init failed (err %d)\n", err);
         return;
@@ -461,21 +483,40 @@ static void bt_mesh_ready(int err)
         return;
     }
 
+#ifdef CONFIG_PRINT_HEAP
+    printk("After bt_mesh init\r\n");
+    print_heap();
+#endif
+
     bt_mesh_prov_enable(BT_MESH_PROV_GATT | BT_MESH_PROV_ADV);
 
     printk("Bluetooth Mesh initialized\n");
+
+#ifdef CONFIG_PRINT_HEAP
+    printk("After bt_mesh_prov_enable init\r\n");
+    print_heap();
+#endif
 }
 
 int bt_mesh_profile_start(void)
 {
     int ret = 0;
 
+#ifndef CONFIG_MESH_STACK_ALONE
     hci_driver_init();
+
+#ifdef CONFIG_PRINT_HEAP
+    printk("After hci driver init\r\n");
+    print_heap();
+#endif
 
     ret = bt_enable(bt_mesh_ready);
     if (ret) {
         printk("Bluetooth init failed (err %d)\n", ret);
     }
+#else // CONFIG_MESH_STACK_ALONE
+    bt_mesh_ready(0);
+#endif
 
     return ret;
 }
