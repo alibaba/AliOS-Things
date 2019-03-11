@@ -388,7 +388,7 @@ err_t sys_mbox_new(sys_mbox_t *mb, int size)
     err_t ret = ERR_MEM;
     size_t ptr_size = sizeof(void *);
 
-    msg_start = (void*)malloc(size * ptr_size);
+    msg_start = malloc(size * ptr_size);
     if (msg_start == NULL) {
         return ERR_MEM;
     }

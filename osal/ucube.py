@@ -3,7 +3,7 @@ src = []
 component = aos_component('osal', src)
 component.add_global_includes('mico/include', 'include')
 
-component.add_comp_deps('middleware/common', "middleware/alink/cloud")
+component.add_comp_deps("middleware/alink/cloud")
 if aos_global_config.arch == 'ARM968E-S':
     component.add_cflags('-marm')
 
