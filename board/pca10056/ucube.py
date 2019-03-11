@@ -1,1 +1,1 @@
-supported_targets="bluetooth.bleperipheral bluetooth.breezepapp"
+supported_targets="bluetooth.bleperipheral"
