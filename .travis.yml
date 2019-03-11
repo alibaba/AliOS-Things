@@ -15,9 +15,7 @@ env:
     ESP8266_BINDIR="${TOOLCHAIN_DIR}/xtensa-lx106-elf/bin"
     ESP32_TOOLCHAIN_URL="https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-61-gab8375a-5.2.0.tar.gz"
     ESP32_BINDIR="${TOOLCHAIN_DIR}/xtensa-esp32-elf/bin"
-    CSKY_TOOLCHAIN_URL="https://github.com/aliosthings/gcc-csky-abiv2-linux.git"
-    CSKY_BINDIR="${TOOLCHAIN_DIR}/gcc-csky-abiv2-elf/main/bin"
-    PATH="${PATH}:${ARM_BINDIR}:${ESP8266_BINDIR}:${ESP32_BINDIR}:${CSKY_BINDIR}"
+    PATH="${PATH}:${ARM_BINDIR}:${ESP8266_BINDIR}:${ESP32_BINDIR}"
   global:
   - secure: h4xzPrWIwRbdOTxq1jTzAd8aFM7LLrmCvGyDcQqbccBbGkVOvTJ7+CC936G4OkkouO/m6bPKrTlK8DVBQI/b1mvKHFQYAnjyZeo9dl6ofNgHYMfYxnuhBSjQHzDYnsuS+Qa2xVIwOXgeyxZJh68YLRRvDWbtQ/3seWacSDNEVY6ZN+KmPn3CFIFozDdj5x+lN1mOBbvdQ1rtgSSak2ykiCCj9fqquGEJjo0a3C5C389B+dYW+AQergci8/NM505ggNi/tkFolriFo+swP9jDv+yGFiNB8icXvwJjI6KIKaVn6D/9Ueapg5JOrRfHslILQjNd6pHIcPFxAf9MEL10xlfkqC8PQu8AlrKH/Px2JQxEHQX6sygS2n2HdDyA9aXudBDbtBi4ldC17BV3hFKEuZuOyBauqWRJ5WhMXfu3iWUj1Hs5YjUDQL3k41m7QeKOFDJIzZ3UuMKXxA92PfdRY1T5YHutgQM/t5+QWUzJ8X3YffMSFHurgwGEJiW+WimneAn0BMtzSQwitzSwPQe8H+IQhkETelvbVx1c9kzncccE5JdDqwJSqHqFPJ289McO+IKLn0EXcOpRJFeD2I6+s3h573OK8RSGPiP+WJVph5Mccq4ZBtTt+4py969hnQsakMLbmVxR/rsVwjvJ6eRmeuyxK44qP9utLgPYZBLX4Vk=
   - secure: RF26URENpnNmbf1yK7/wzoeiROtFUIQSHILPtiWmPRk21nRah05bPGsWt00ayL4kn2rh+QAd4yKj+nfMl3JgKKxVCoLV4DNYBQ4m8RJYBVysVT7DGpQc6Kb9womoMovDlFSG2/vPf/INz/xaPIymGDW37JigJqtA/nwRMrX7cnxJVsaSLGAf9l+EW31d+VMR4nKAf9JVDfScWPej27mpQFzFSaIGr/8xGNWatknaaMD+4x0gJHdlZ6mLraY1qW8fiGPtyTrK3v4WCykLzRySzUsezBKd+fHuAado8TcKvY8xRXYor8xDKFd0tEPnF6aHgx5ZHzohrHpsq1xGhm2RVDz/ROC8OWTE962IVu3k07rBT85vd6wdWfudnR5pwgP7iLt8jSYSBV6nOpKJhJ9iFbZ+SYTn0sEOyfKuCithgmrVTHsQObtl2tPE96eM6WOCc3iLxm85cVXNdzZnBH4MOEGHkCZuUgsuFmUdsGiTXdb3ROtB0zGkrD+Enj9/BB08v7bZNCX/kKoqE2frB/wXHu6K2O3GAYgcztIh+ueU3yu/LflPuKB8e6HkoG0K9Jggs1M7NFJGBI9lYTuVmGGLPhCpf2cG6GKEOTOa3KHknV2UvGTDPRO5TlnD2KQ6n9Bm/0BN2O8qgFIYLboRVTePz4MZQIzCu9uBuPm437IzNAc=
@@ -40,8 +38,9 @@ install:
 - tar xaf linux64-xtensa-lx106-elf.tar.gz -C ${TOOLCHAIN_DIR}
 - wget ${ESP32_TOOLCHAIN_URL} -O xtensa-esp32-elf-linux64.tar.gz
 - tar xaf xtensa-esp32-elf-linux64.tar.gz -C ${TOOLCHAIN_DIR}
-- git clone ${CSKY_TOOLCHAIN_URL} ${TOOLCHAIN_DIR}/gcc-csky-abiv2-elf
 - pip install aos-cube
+- cd ${TRAVIS_BUILD_DIR}
+- git clone https://github.com/Cheng-SG/kconfig-frontends-linux.git build/kconfig
 before_script:
 - cd ${TRAVIS_BUILD_DIR}
 - echo "export PATH=""${PATH}" >> ~/.bashrc
@@ -49,7 +48,8 @@ before_script:
 - echo ${TRAVIS_PULL_REQUEST}
 - echo ${TRAVIS_JOB_NUMBER}
 script:
-- bash ./build/scripts/autobuild.sh
+- echo -e "stm32f103rb-nucleo\nstm32f429zi-nucleo\nmk3080\nesp32devkitc\nesp8266\npca10040" > boards.txt
+- bash ./build/scripts/autobuild.sh boards.txt
 after_success:
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then DIRNAME=push MARK=push; else DIRNAME=pr
   MARK=${TRAVIS_PULL_REQUEST}; fi
