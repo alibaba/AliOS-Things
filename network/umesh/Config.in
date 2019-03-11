@@ -1,0 +1,6 @@
+config AOS_COMP_UMESH
+    bool "uMesh"
+    default n
+    select AOS_COMP_YLOOP
+    help
+        AliOS Things uMesh network protocol

@@ -10,12 +10,14 @@
 #define ATTACH_REQUEST_RETRY_TIMES 2
 #define ATTACH_REQUEST_INTERVAL 1000
 
+#ifdef CONFIG_AOS_MESH_BCAST
 #define KEEP_ALIVE_COUNT 3               /* maximum retransmission count of keep alive msg */
 #define KEEP_ALIVE_SHORT_TIMEOUT 3000    /* keep alive short interval in case that leader exists */
 #define KEEP_ALIVE_LONG_TIMEOUT 10000    /* keep alive long interval during leader recover */
 
-#define LEADER_RECOVER_COUNT 3           /* double check if leader has recovered really*/
-#define LEADER_RECOVER_TIMEOUT 3000      /* leader recover timer timeout */
+#define LEADER_RECOVER_COUNT 5           /* double check if leader has recovered really*/
+#define LEADER_RECOVER_TIMEOUT 2000      /* leader recover timer timeout */
+#endif
 
 #ifdef CONFIG_AOS_MESH_LOWPOWER
 #define SCHEDULE_SLOTS_SIZE 3
