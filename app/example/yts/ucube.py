@@ -16,11 +16,10 @@ if aos_global_config.board == 'linuxhost':
     component.add_comp_deps('network/lwip')
     component.add_comp_deps('network/netmgr')
     component.add_comp_deps('3rdparty/experimental/fs/fatfs')
-    component.add_comp_deps('middleware/common')
     component.add_global_macros('CONFIG_AOS_MESHYTS')
     component.add_global_macros('DEBUG')
     component.add_global_macros('YTS_LINUX')
 else:
-    component.add_comp_deps('tools/cli')
+    component.add_comp_deps('kernel/cli')
 
 
