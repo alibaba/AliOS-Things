@@ -72,13 +72,16 @@ typedef struct
     unsigned char reserved_buf3[RESERVED_SIZE3];
 } ota_settings_t;
 
-void ota_breeze_set_image_info_crc16(unsigned char* data, unsigned int len);
-void ota_breeze_set_bin_type(unsigned char type);
-int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int* break_point, bool breakpoint_valid);
-int ota_breeze_write(unsigned int* off, char* in_buf ,int in_buf_len);
-int ota_breeze_read(unsigned int* off, char* out_buf, int out_buf_len);
-int ota_breeze_save_breakpoint(unsigned int break_point);
 int ota_breeze_set_boot(void);
 int ota_breeze_rollback(void);
+void ota_breeze_set_bin_type(unsigned char type);
+int ota_breeze_get_image_info(ota_settings_t* tmp_info);
+int ota_breeze_save_breakpoint(unsigned int break_point);
+int ota_breeze_write(unsigned int* off, char* in_buf ,int in_buf_len);
+int ota_breeze_read(unsigned int* off, char* out_buf, int out_buf_len);
+void ota_breeze_set_image_info_crc16(unsigned char* data, unsigned int len);
+bool ota_breeze_check_if_resume(unsigned char* p_data, unsigned short length);
+void ota_breeze_update_fw_version(unsigned char* p_data, unsigned short length);
+int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int* break_point, bool breakpoint_valid);
 #endif /*OTA_BREEZE_PLAT_H*/
 

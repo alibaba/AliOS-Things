@@ -1,3 +1,4 @@
+#include <string.h>
 #include "ota_breeze.h"
 #include "ota_breeze_os.h"
 #include <aos/hal/flash.h>
@@ -8,6 +9,8 @@ static unsigned int total_erase_page_numbs = 0;
 static unsigned int erase_sector_size = 0;
 static int ota_part = HAL_PARTITION_OTA_TEMP;
 static ota_settings_t breeze_ota_settings;
+
+extern uint32_t hal_flash_erase_sector_size(void);
 
 static unsigned short ota_breeze_crc16_calculate(unsigned char const* p_data, unsigned int size, unsigned short const* p_crc)
 {
@@ -105,7 +108,7 @@ bool ota_breeze_check_if_resume(unsigned char * p_data, unsigned short length)
     return ret;
 }
 
-void ota_breeze_update_fw_version(unsigned char * p_data, unsigned short length)
+void ota_breeze_update_fw_version(unsigned char* p_data, unsigned short length)
 {
     memcpy(breeze_ota_settings.version_store_buf, p_data, length);
 }

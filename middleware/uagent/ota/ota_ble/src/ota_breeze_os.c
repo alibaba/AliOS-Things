@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "ota_breeze_plat.h"
 #include "aos/kernel.h"
 
