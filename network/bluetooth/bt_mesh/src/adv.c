@@ -44,7 +44,7 @@
 #if defined(CONFIG_BT_HOST_CRYPTO)
 #define ADV_STACK_SIZE 768
 #else
-#define ADV_STACK_SIZE 256
+#define ADV_STACK_SIZE 200
 #endif
 
 static K_FIFO_DEFINE(adv_queue);
@@ -173,7 +173,7 @@ static void adv_thread(void *p1, void *p2, void *p3)
                         (timeout != -1 && (k_uptime_get_32() - time_start) >= timeout)) {
                         break;
                     } else {
-                        aos_msleep(1);
+                        k_sleep(1);
                     }
                 }
                 bt_mesh_proxy_adv_stop();

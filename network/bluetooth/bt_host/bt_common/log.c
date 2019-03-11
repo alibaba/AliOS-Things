@@ -19,6 +19,7 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 
+#if /*defined(CONFIG_BT_DEBUG) && */defined(USE_BT_MESH_CUSTOM_LOG)
 const char *bt_hex(const void *buf, size_t len)
 {
 	static const char hex[] = "0123456789abcdef";
@@ -45,6 +46,13 @@ const char *bt_hex(const void *buf, size_t len)
 
 	return str;
 }
+#else
+const char *bt_hex(const void *buf, size_t len)
+{
+	static const char hint_str[] = "N/A";
+	return hint_str;
+}
+#endif
 
 #if defined(CONFIG_BT_DEBUG)
 const char *bt_addr_str(const bt_addr_t *addr)

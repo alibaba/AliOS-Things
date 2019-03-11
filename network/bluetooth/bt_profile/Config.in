@@ -1,8 +1,0 @@
-menuconfig AOS_COMP_BT_PROFILE
-    bool "bt_profile"
-    default n
-    help
-
-if AOS_COMP_BT_PROFILE
-# Configurations for comp bt_profile
-endif
