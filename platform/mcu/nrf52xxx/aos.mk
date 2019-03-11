@@ -5,7 +5,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk &ble controller for platform/mcu nrf52810 nrf52832 or nrf52840
 
 $(NAME)_COMPONENTS += arch_armv7m
-$(NAME)_COMPONENTS += newlib_stub rhino bt_host kv
+$(NAME)_COMPONENTS += newlib_stub rhino kv
 
 #$(NAME)_LIBSUFFIX := $(PLATFORM_MCU_BOARD)
 
@@ -132,7 +132,9 @@ endif
 
 include $($(NAME)_LOCATION)/$(HOST_MCU_NAME).mk
 
+ifneq ($(bt_mesh_standalone_deploy),1)
+$(NAME)_COMPONENTS += bt_host
 include $($(NAME)_LOCATION)/bt_controller/bt_controller.mk
-#$(NAME)_COMPONENTS += bt_controller
+endif
 
 GLOBAL_DEFINES-y += MBEDTLS_AES_ROM_TABLES

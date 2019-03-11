@@ -131,7 +131,9 @@ endif
 
 ble                      ?= 0
 ifneq ($(ble),0)
+ifneq ($(bt_mesh_standalone_deploy),1)
 $(NAME)_COMPONENTS       += bt_host
+endif
 GLOBAL_INCLUDES          += $(ESP_INC_PATH)/bt/include
 ifneq ($(hci_h4),1)
 $(NAME)_SOURCES          += ble_hci_driver/hci_driver.c
