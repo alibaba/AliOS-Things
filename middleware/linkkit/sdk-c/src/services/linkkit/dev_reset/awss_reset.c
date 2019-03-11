@@ -24,7 +24,7 @@ static uint8_t awss_report_reset_suc = 0;
 static uint16_t awss_report_reset_id = 0;
 static void *report_reset_timer = NULL;
 
-static int awss_report_reset_to_cloud();
+int awss_report_reset_to_cloud();
 
 void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
 {
@@ -60,9 +60,14 @@ void awss_report_reset_reply(void *pcontext, void *pclient, void *mesg)
     } while (0);
 
     AWSS_RST_DISP_STATIS();
+
+#ifdef DEV_BIND_ENABLED
+    extern int awss_start_bind();
+    awss_start_bind();
+#endif
 }
 
-static int awss_report_reset_to_cloud()
+int awss_report_reset_to_cloud()
 {
     int ret = -1;
     int final_len = 0;
@@ -140,9 +145,8 @@ int awss_report_reset()
     char rst = 0x01;
 
     awss_report_reset_suc = 0;
-
+   
     HAL_Kv_Set(AWSS_KV_RST, &rst, sizeof(rst), 0);
-
     return awss_report_reset_to_cloud();
 }
 
@@ -157,10 +161,10 @@ int awss_check_reset()
         log_debug("[RST]", "no rst\r\n");
         return 0;
     }
-
+    log_debug("[RST]", "need report rst\r\n");
     awss_report_reset_suc = 0;
 
-    return awss_report_reset_to_cloud();
+    return 1;
 }
 
 int awss_stop_report_reset()
