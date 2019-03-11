@@ -21,6 +21,15 @@
 #define __WEAK                      __weak
 #endif
 
+/* Instruction Synchronization Barrier */
+#define OS_ISB()    __isb(15)   /* Full system  Any-Any */
+
+/* Data Memory Barrier */
+#define OS_DMB()    __dmb(15)   /* Full system  Any-Any */
+
+/* Data Synchronization Barrier */
+#define OS_DSB()    __dsb(15)   /* Full system  Any-Any */
+
 #elif defined(__ICCARM__)
 #define RHINO_INLINE                static inline
 /* get the return address of the current function
@@ -36,6 +45,15 @@
 #ifndef __WEAK
 #define __WEAK                      __weak
 #endif
+
+/* Instruction Synchronization Barrier */
+#define OS_ISB()    __isb(15)   /* Full system  Any-Any */
+
+/* Data Memory Barrier */
+#define OS_DMB()    __dmb(15)   /* Full system  Any-Any */
+
+/* Data Synchronization Barrier */
+#define OS_DSB()    __dsb(15)   /* Full system  Any-Any */
 
 #elif defined(__GNUC__)
 #define RHINO_INLINE                static inline
@@ -62,6 +80,18 @@ __attribute__((always_inline)) RHINO_INLINE unsigned char RHINO_BIT_CLZ_(unsigne
 #ifndef __WEAK
 #define __WEAK                      __attribute__((weak))
 #endif
+
+/* Instruction Synchronization Barrier */
+#define OS_ISB() \
+    __asm volatile ("isb sy":::"memory")
+
+/* Data Memory Barrier */
+#define OS_DMB() \
+    __asm volatile ("dmb sy":::"memory")
+
+/* Data Synchronization Barrier */
+#define OS_DSB() \
+    __asm volatile ("dsb sy":::"memory")
 
 #else
 #error "Unsupported compiler"
