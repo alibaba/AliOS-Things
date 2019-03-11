@@ -49,9 +49,7 @@ before_script:
 - echo ${TRAVIS_PULL_REQUEST}
 - echo ${TRAVIS_JOB_NUMBER}
 script:
-- bash ./build/autobuild.sh
-- bash ./tools/ci/pvbuild.sh
-- ls -lh ./prebuild
+- bash ./build/scripts/autobuild.sh
 after_success:
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then DIRNAME=push MARK=push; else DIRNAME=pr
   MARK=${TRAVIS_PULL_REQUEST}; fi
