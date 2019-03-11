@@ -1811,7 +1811,10 @@ static int start_le_scan(u8_t scan_type, u16_t interval, u16_t window)
 
     net_buf_add_mem(buf, &set_param, sizeof(set_param));
 
-    bt_hci_cmd_send(BT_HCI_OP_LE_SET_SCAN_PARAM, buf);
+    err = bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_SCAN_PARAM, buf, NULL);
+    if (err) {
+        return err;
+    }
 
     err = set_le_scan_enable(BT_HCI_LE_SCAN_ENABLE);
     if (err) {

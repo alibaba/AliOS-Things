@@ -17,6 +17,7 @@
 #include <zephyr.h>
 #include <misc/util.h>
 
+#if /*defined(CONFIG_BT_DEBUG) && */defined(USE_BT_MESH_CUSTOM_LOG)
 const char *bt_hex(const void *buf, size_t len)
 {
 	static const char hex[] = "0123456789abcdef";
@@ -43,3 +44,10 @@ const char *bt_hex(const void *buf, size_t len)
 
 	return str;
 }
+#else
+const char *bt_hex(const void *buf, size_t len)
+{
+        static const char hint_str[] = "N/A";
+        return hint_str;
+}
+#endif
