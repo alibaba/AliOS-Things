@@ -128,12 +128,15 @@ typedef struct {
     unsigned int magic;
 } ota_breeze_bin_info_t;
 
-_ota_ble_global_dat_t* ota_breeze_get_global_data_center(void);
-void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigned char *buffer, unsigned int length);
-void ota_breeze_relate_event(unsigned char event_type, unsigned char sub_status);
-void ota_breeze_set_task_active_flag(volatile unsigned char flag);
+ota_breeze_state_t ota_breeze_get_status(void);
+ota_breeze_version_t* ota_breeze_get_version(void);
+void ota_breeze_set_status(ota_breeze_state_t status);
 volatile unsigned char ota_breeze_get_task_active_flag(void);
-void ota_breeze_set_task_active_ctrl(volatile unsigned char is_enable);
+_ota_ble_global_dat_t* ota_breeze_get_global_data_center(void);
+void ota_breeze_set_task_active_flag(volatile unsigned char flag);
 volatile unsigned char ota_breeze_get_task_active_ctrl_status(void);
+void ota_breeze_set_task_active_ctrl(volatile unsigned char is_enable);
+void ota_breeze_relate_event(unsigned char event_type, unsigned char sub_status);
+void ota_breeze_get_data(unsigned char ota_cmd, unsigned char num_frame, unsigned char *buffer, unsigned int length);
 #endif /*OTA_BREEZE_H*/
 
