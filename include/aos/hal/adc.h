@@ -14,7 +14,7 @@ extern "C" {
 #define HAL_WAIT_FOREVER 0xFFFFFFFFU
 
 typedef struct {
-    uint32_t sampling_cycle;  /* sampling period in number of ADC clock cycles */
+    uint32_t sampling_cycle; /* sampling period in number of ADC clock cycles */
 } adc_config_t;
 
 typedef struct {
@@ -54,6 +54,7 @@ int32_t hal_adc_finalize(adc_dev_t *adc);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_ADC_H */
+

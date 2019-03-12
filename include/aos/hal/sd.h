@@ -36,9 +36,9 @@ typedef struct {
 } sd_config_t;
 
 typedef struct {
-    uint8_t     port;   /* sd port */
-    sd_config_t config; /* sd config */
-    void       *priv;   /* priv data */
+    uint8_t      port;   /* sd port */
+    sd_config_t  config; /* sd config */
+    void        *priv;   /* priv data */
 } sd_dev_t;
 
 /**
@@ -120,6 +120,7 @@ int32_t hal_sd_finalize(sd_dev_t *sd);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_SD_H */
+

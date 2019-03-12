@@ -17,14 +17,13 @@ typedef struct {
 } pwm_config_t;
 
 typedef struct {
-    uint8_t      port;   /* pwm port */
-    pwm_config_t config; /* spi config */
-    void        *priv;   /* priv data */
+    uint8_t       port;   /* pwm port */
+    pwm_config_t  config; /* spi config */
+    void         *priv;   /* priv data */
 } pwm_dev_t;
 
 /**
  * Initialises a PWM pin
- *
  *
  * @param[in]  pwm  the PWM device
  *
@@ -53,8 +52,8 @@ int32_t hal_pwm_stop(pwm_dev_t *pwm);
 /**
  * change the para of pwm
  *
- * @param[in]  pwm  the PWM device
- * @param[in]  para the para of pwm
+ * @param[in]  pwm   the PWM device
+ * @param[in]  para  the para of pwm
  *
  * @return  0 : on success, EIO : if an error occurred with any step
  */
@@ -71,6 +70,7 @@ int32_t hal_pwm_finalize(pwm_dev_t *pwm);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_PWM_H */
+

@@ -73,9 +73,9 @@ typedef struct {
 } uart_config_t;
 
 typedef struct {
-    uint8_t       port;   /* uart port */
-    uart_config_t config; /* uart config */
-    void         *priv;   /* priv data */
+    uint8_t        port;   /* uart port */
+    uart_config_t  config; /* uart config */
+    void          *priv;   /* priv data */
 } uart_dev_t;
 
 /**
@@ -140,6 +140,7 @@ int32_t hal_uart_finalize(uart_dev_t *uart);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_UART_H */
+
