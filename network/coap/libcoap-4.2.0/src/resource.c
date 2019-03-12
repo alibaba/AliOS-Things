@@ -10,13 +10,13 @@
 #include "coap_config.h"
 #include "coap.h"
 #include "coap_debug.h"
-#include "mem.h"
-#include "net.h"
+#include "../coap2/mem.h"
+#include "../coap2/net.h"
 #include "resource.h"
 #include "subscribe.h"
 #include "utlist.h"
 
-#if defined(WITH_LWIP)
+#if defined(WITH_LWIP_LIBCOAP)
 /* mem.h is only needed for the string free calls for
  * COAP_ATTR_FLAGS_RELEASE_NAME / COAP_ATTR_FLAGS_RELEASE_VALUE /
  * COAP_RESOURCE_FLAGS_RELEASE_URI. not sure what those lines should actually
@@ -411,10 +411,10 @@ coap_delete_attr(coap_attr_t *attr) {
     coap_delete_str_const(attr->value);
   }
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
   memp_free(MEMP_COAP_RESOURCEATTR, attr);
 #endif
-#ifndef WITH_LWIP
+#ifndef WITH_LWIP_LIBCOAP
   coap_free_type(COAP_RESOURCEATTR, attr);
 #endif
 }
@@ -440,10 +440,10 @@ coap_free_resource(coap_resource_t *resource) {
     COAP_FREE_TYPE( subscription, obs );
   }
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
   memp_free(MEMP_COAP_RESOURCE, resource);
 #endif
-#ifndef WITH_LWIP
+#ifndef WITH_LWIP_LIBCOAP
   coap_free_type(COAP_RESOURCE, resource);
 #endif /* WITH_CONTIKI */
 }

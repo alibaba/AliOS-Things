@@ -45,7 +45,7 @@ contiki_prng_impl(unsigned char *buf, size_t len) {
 
 #define prng(Buf,Length) contiki_prng_impl((Buf), (Length))
 #define prng_init(Value) random_init((uint16_t)(Value))
-#elif defined(WITH_LWIP) && defined(LWIP_RAND)
+#elif defined(WITH_LWIP_LIBCOAP) && defined(LWIP_RAND)
 COAP_STATIC_INLINE int
 lwip_prng_impl(unsigned char *buf, size_t len) {
   u32_t v = LWIP_RAND();

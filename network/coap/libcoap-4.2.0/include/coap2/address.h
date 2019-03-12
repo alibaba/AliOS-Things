@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include "libcoap.h"
 
-#if defined(WITH_LWIP)
+#if defined(WITH_LWIP_LIBCOAP)
 
 #include <lwip/ip_addr.h>
 
@@ -56,7 +56,7 @@ typedef struct coap_address_t {
 
 #define _coap_is_mcast_impl(Address) uip_is_addr_mcast(&((Address)->addr))
 
-#else /* WITH_LWIP || WITH_CONTIKI */
+#else /* WITH_LWIP_LIBCOAP || WITH_CONTIKI */
 
  /** multi-purpose address abstraction */
 typedef struct coap_address_t {
@@ -64,7 +64,9 @@ typedef struct coap_address_t {
   union {
     struct sockaddr         sa;
     struct sockaddr_in      sin;
+#ifdef IPV6_SUPPORT_LIBCOAP
     struct sockaddr_in6     sin6;
+#endif
   } addr;
 } coap_address_t;
 
@@ -81,17 +83,19 @@ _coap_address_isany_impl(const coap_address_t *a) {
   switch (a->addr.sa.sa_family) {
   case AF_INET:
     return a->addr.sin.sin_addr.s_addr == INADDR_ANY;
+#ifdef IPV6_SUPPORT_LIBCOAP
   case AF_INET6:
     return memcmp(&in6addr_any,
                   &a->addr.sin6.sin6_addr,
                   sizeof(in6addr_any)) == 0;
+#endif
   default:
     ;
   }
 
   return 0;
 }
-#endif /* WITH_LWIP || WITH_CONTIKI */
+#endif /* WITH_LWIP_LIBCOAP || WITH_CONTIKI */
 
 /**
  * Resets the given coap_address_t object @p addr to its default values. In
@@ -104,7 +108,7 @@ COAP_STATIC_INLINE void
 coap_address_init(coap_address_t *addr) {
   assert(addr);
   memset(addr, 0, sizeof(coap_address_t));
-#if !defined(WITH_LWIP) && !defined(WITH_CONTIKI)
+#if !defined(WITH_LWIP_LIBCOAP) && !defined(WITH_CONTIKI)
   /* lwip and Contiki have constant address sizes and doesn't need the .size part */
   addr->size = sizeof(addr->addr);
 #endif
@@ -114,17 +118,20 @@ coap_address_init(coap_address_t *addr) {
 
 COAP_STATIC_INLINE void
 coap_address_copy( coap_address_t *dst, const coap_address_t *src ) {
-#if defined(WITH_LWIP) || defined(WITH_CONTIKI)
+#if defined(WITH_LWIP_LIBCOAP) || defined(WITH_CONTIKI)
   memcpy( dst, src, sizeof( coap_address_t ) );
 #else
   memset( dst, 0, sizeof( coap_address_t ) );
   dst->size = src->size;
+#ifdef IPV6_SUPPORT_LIBCOAP
   if ( src->addr.sa.sa_family == AF_INET6 ) {
     dst->addr.sin6.sin6_family = src->addr.sin6.sin6_family;
     dst->addr.sin6.sin6_addr = src->addr.sin6.sin6_addr;
     dst->addr.sin6.sin6_port = src->addr.sin6.sin6_port;
     dst->addr.sin6.sin6_scope_id = src->addr.sin6.sin6_scope_id;
-  } else if ( src->addr.sa.sa_family == AF_INET ) {
+  } else
+#endif
+  if ( src->addr.sa.sa_family == AF_INET ) {
     dst->addr.sin = src->addr.sin;
   } else {
     memcpy( &dst->addr, &src->addr, src->size );
@@ -132,7 +139,7 @@ coap_address_copy( coap_address_t *dst, const coap_address_t *src ) {
 #endif
 }
 
-#if defined(WITH_LWIP) || defined(WITH_CONTIKI)
+#if defined(WITH_LWIP_LIBCOAP) || defined(WITH_CONTIKI)
 /**
  * Compares given address objects @p a and @p b. This function returns @c 1 if
  * addresses are equal, @c 0 otherwise. The parameters @p a and @p b must not be
@@ -156,14 +163,14 @@ coap_address_isany(const coap_address_t *a) {
   return _coap_address_isany_impl(a);
 }
 
-#if !defined(WITH_LWIP) && !defined(WITH_CONTIKI)
+#if !defined(WITH_LWIP_LIBCOAP) && !defined(WITH_CONTIKI)
 
 /**
  * Checks if given address @p a denotes a multicast address. This function
  * returns @c 1 if @p a is multicast, @c 0 otherwise.
  */
 int coap_is_mcast(const coap_address_t *a);
-#else /* !WITH_LWIP && !WITH_CONTIKI */
+#else /* !WITH_LWIP_LIBCOAP && !WITH_CONTIKI */
 /**
  * Checks if given address @p a denotes a multicast address. This function
  * returns @c 1 if @p a is multicast, @c 0 otherwise.
@@ -172,6 +179,6 @@ COAP_STATIC_INLINE int
 coap_is_mcast(const coap_address_t *a) {
   return a && _coap_is_mcast_impl(a);
 }
-#endif /* !WITH_LWIP && !WITH_CONTIKI */
+#endif /* !WITH_LWIP_LIBCOAP && !WITH_CONTIKI */
 
 #endif /* COAP_ADDRESS_H_ */

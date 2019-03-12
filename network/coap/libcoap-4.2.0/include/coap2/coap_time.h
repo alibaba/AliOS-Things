@@ -21,7 +21,7 @@
  * @{
  */
 
-#if defined(WITH_LWIP)
+#if defined(WITH_LWIP_LIBCOAP)
 
 #include <stdint.h>
 #include <lwip/sys.h>

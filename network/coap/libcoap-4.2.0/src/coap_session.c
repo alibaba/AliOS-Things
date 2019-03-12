@@ -13,9 +13,9 @@
 #include "coap_config.h"
 #include "coap_io.h"
 #include "coap_session.h"
-#include "net.h"
+#include "../coap2/net.h"
 #include "coap_debug.h"
-#include "mem.h"
+#include "../coap2/mem.h"
 #include "resource.h"
 #include "utlist.h"
 #include "encode.h"
@@ -204,7 +204,7 @@ size_t coap_session_max_pdu_size(const coap_session_t *session) {
 }
 
 void coap_session_set_mtu(coap_session_t *session, unsigned mtu) {
-#if defined(WITH_CONTIKI) || defined(WITH_LWIP)
+#if defined(WITH_CONTIKI) || defined(WITH_LWIP_LIBCOAP)
   if (mtu > COAP_MAX_MESSAGE_SIZE_TCP16 + 4)
     mtu = COAP_MAX_MESSAGE_SIZE_TCP16 + 4;
 #endif
@@ -805,7 +805,7 @@ error:
   return NULL;
 }
 
-#ifndef WITH_LWIP
+#ifndef WITH_LWIP_LIBCOAP
 coap_endpoint_t *
 coap_new_endpoint(coap_context_t *context, const coap_address_t *listen_addr, coap_proto_t proto) {
   struct coap_endpoint_t *ep = NULL;
@@ -917,7 +917,7 @@ coap_free_endpoint(coap_endpoint_t *ep) {
     coap_mfree_endpoint(ep);
   }
 }
-#endif /* WITH_LWIP */
+#endif /* WITH_LWIP_LIBCOAP */
 
 coap_session_t *
 coap_session_get_by_peer(coap_context_t *ctx,
