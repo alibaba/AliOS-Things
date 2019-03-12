@@ -12,6 +12,10 @@
 
 #include "ble_port.h"
 
+#ifdef AOS_COMP_KV
+#include <aos/kv.h>
+#endif
+
 #ifndef AOS_COMP_KV
 #define MAX_REMOTE_DEV_SIZE (5)
 typedef struct{
@@ -34,7 +38,7 @@ static ssize_t storage_read(const bt_addr_le_t *addr, u16_t key, void *data,
     uint8_t s[20];
     sprintf(s ,"BT_STORAGE_%02x", key);
 #ifdef AOS_COMP_KV
-     err_code = aos_kv_get(s, data, length, 1);
+     err_code = aos_kv_get(s, data, &length);
 #else
     unsigned int off = 0;
     bt_storage_t local_storage;

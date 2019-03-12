@@ -13,11 +13,15 @@
 #include "esp_event_loop.h"
 #include "esp_timer.h"
 #include "nvs.h"
+#include "nvs_flash.h"
 
 typedef enum {
     SCAN_NORMAL,
     SCAN_ADV
 } scan_type_t;
+
+extern esp_err_t esp_wifi_set_promiscous_autoack(bool, uint8_t *);
+extern esp_err_t esp_wifi_set_auto_connect(bool c);
 
 /**
     @brief Wifi scan ready
@@ -301,7 +305,7 @@ static int wifi_getset_ops(hal_wifi_module_t *m, hal_wifi_getset_cmd_t cmd, ...)
         va_start(args, cmd);
         c = va_arg(args, int);
         /* Reconnect after power on */
-        ESP_ERROR_CHECK(esp_wifi_set_auto_connect(c));
+        ESP_ERROR_CHECK(esp_wifi_set_auto_connect((bool)c));
         va_end(args);
         break;
     }
