@@ -2035,6 +2035,7 @@ static void send_cmd(struct net_buf *buf)
     }
 }
 
+extern int8_t bt_conn_get_pkts(struct bt_conn *conn);
 int has_tx_sem(struct k_poll_event *event)
 {
     struct bt_conn *conn = NULL;
