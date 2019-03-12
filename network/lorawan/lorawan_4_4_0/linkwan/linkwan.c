@@ -1828,3 +1828,16 @@ bool lora_tx_data_payload(uint8_t confirm, uint8_t Nbtrials, uint8_t *payload,
     }
     return false;
 }
+
+DeviceState_t lwan_dev_state_get( void )
+{
+    return device_state;
+}
+
+void lwan_dev_state_set(DeviceState_t state)
+{
+    if (device_state == DEVICE_STATE_SLEEP) {
+        TimerStop(&TxNextPacketTimer);
+    }
+    device_state = state;
+}
