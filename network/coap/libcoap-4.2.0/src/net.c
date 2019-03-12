@@ -35,7 +35,7 @@
 #include <ws2tcpip.h>
 #endif
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 #include <lwip/pbuf.h>
 #include <lwip/udp.h>
 #include <lwip/timeouts.h>
@@ -44,14 +44,14 @@
 #include "libcoap.h"
 #include "utlist.h"
 #include "coap_debug.h"
-#include "mem.h"
+#include "../coap2/mem.h"
 #include "str.h"
 #include "async.h"
 #include "resource.h"
 #include "option.h"
 #include "encode.h"
 #include "block.h"
-#include "net.h"
+#include "../coap2/net.h"
 #include "utlist.h"
 
 #ifndef min
@@ -85,7 +85,7 @@
 /** creates a Qx.FRAC_BITS from session's 'ack_timeout' */
 #define ACK_TIMEOUT Q(FRAC_BITS, session->ack_timeout)
 
-#if !defined(WITH_LWIP) && !defined(WITH_CONTIKI)
+#if !defined(WITH_LWIP_LIBCOAP) && !defined(WITH_CONTIKI)
 
 COAP_STATIC_INLINE coap_queue_t *
 coap_malloc_node(void) {
@@ -96,11 +96,11 @@ COAP_STATIC_INLINE void
 coap_free_node(coap_queue_t *node) {
   coap_free_type(COAP_NODE, node);
 }
-#endif /* !defined(WITH_LWIP) && !defined(WITH_CONTIKI) */
+#endif /* !defined(WITH_LWIP_LIBCOAP) && !defined(WITH_CONTIKI) */
 
 void coap_free_endpoint(coap_endpoint_t *ep);
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 
 #include <lwip/memp.h>
 
@@ -117,7 +117,7 @@ coap_free_node(coap_queue_t *node) {
   memp_free(MEMP_COAP_NODE, node);
 }
 
-#endif /* WITH_LWIP */
+#endif /* WITH_LWIP_LIBCOAP */
 #ifdef WITH_CONTIKI
 # ifndef DEBUG
 #  define DEBUG DEBUG_PRINT
@@ -474,7 +474,7 @@ coap_new_context(
     }
   }
 
-#if !defined(WITH_LWIP)
+#if !defined(WITH_LWIP_LIBCOAP)
   c->network_send = coap_network_send;
   c->network_read = coap_network_read;
 #endif
@@ -524,7 +524,7 @@ coap_free_context(coap_context_t *context) {
 
   coap_delete_all(context->sendqueue);
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
   context->sendqueue = NULL;
   coap_retransmittimer_restart(context);
 #endif
@@ -655,7 +655,7 @@ static ssize_t
 coap_send_pdu(coap_session_t *session, coap_pdu_t *pdu, coap_queue_t *node) {
   ssize_t bytes_written;
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 
   coap_socket_t *sock = &session->sock;
   if (sock->flags == COAP_SOCKET_EMPTY) {
@@ -744,8 +744,7 @@ coap_send_pdu(coap_session_t *session, coap_pdu_t *pdu, coap_queue_t *node) {
     session->con_active++;
 
   bytes_written = coap_session_send_pdu(session, pdu);
-
-#endif /* WITH_LWIP */
+#endif /* WITH_LWIP_LIBCOAP */
 
   return bytes_written;
 }
@@ -846,7 +845,7 @@ coap_wait_ack(coap_context_t *context, coap_session_t *session,
 
   coap_insert_node(&context->sendqueue, node);
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
   if (node == context->sendqueue) /* don't bother with timer stuff if there are earlier retransmits */
     coap_retransmittimer_restart(context);
 #endif
@@ -947,7 +946,7 @@ coap_retransmit(coap_context_t *context, coap_queue_t *node) {
       node->t = (now - context->sendqueue_basetime) + (node->timeout << node->retransmit_cnt);
     }
     coap_insert_node(&context->sendqueue, node);
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
     if (node == context->sendqueue) /* don't bother with timer stuff if there are earlier retransmits */
       coap_retransmittimer_restart(context);
 #endif
@@ -1012,13 +1011,13 @@ coap_retransmit(coap_context_t *context, coap_queue_t *node) {
   return COAP_INVALID_TID;
 }
 
-#ifdef WITH_LWIP
-/* WITH_LWIP, this is handled by coap_recv in a different way */
+#ifdef WITH_LWIP_LIBCOAP
+/* WITH_LWIP_LIBCOAP, this is handled by coap_recv in a different way */
 void
 coap_read(coap_context_t *ctx, coap_tick_t now) {
   return;
 }
-#else /* WITH_LWIP */
+#else /* WITH_LWIP_LIBCOAP */
 
 static int
 coap_handle_dgram_for_proto(coap_context_t *ctx, coap_session_t *session, coap_packet_t *packet) {
@@ -1391,7 +1390,7 @@ error:
   coap_delete_pdu(pdu);
   return -1;
 }
-#endif /* not WITH_LWIP */
+#endif /* not WITH_LWIP_LIBCOAP */
 
 int
 coap_remove_from_queue(coap_queue_t **queue, coap_session_t *session, coap_tid_t id, coap_queue_t **node) {
@@ -2350,7 +2349,7 @@ void coap_startup(void) {
   WSAStartup(wVersionRequested, &wsaData);
 #endif
   coap_clock_init();
-#if defined(WITH_LWIP)
+#if defined(WITH_LWIP_LIBCOAP)
   prng_init(LWIP_RAND());
 #elif defined(WITH_CONTIKI)
   prng_init(0);
@@ -2411,7 +2410,7 @@ PROCESS_THREAD(coap_retransmit_process, ev, data) {
 
 #endif /* WITH_CONTIKI */
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 /* FIXME: retransmits that are not required any more due to incoming packages
  * do *not* get cleared at the moment, the wakeup when the transmission is due
  * is silently accepted. this is mainly due to the fact that the required

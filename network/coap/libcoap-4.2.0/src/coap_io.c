@@ -47,12 +47,18 @@
 
 #include "libcoap.h"
 #include "coap_debug.h"
-#include "mem.h"
-#include "net.h"
+#include "../coap2/mem.h"
+#include "../coap2/net.h"
 #include "coap_io.h"
 #include "pdu.h"
 #include "utlist.h"
 #include "resource.h"
+
+#ifdef WITH_LWIP
+# define OPTVAL_T(t)         (t)
+# define OPTVAL_GT(t)        (t)
+#define GEN_IP_PKTINFO        1  /*FIXME*/
+#endif
 
 #if !defined(WITH_CONTIKI)
  /* define generic PKTINFO for IPv4 */
@@ -61,9 +67,12 @@
 #elif defined(IP_RECVDSTADDR)
 #  define GEN_IP_PKTINFO IP_RECVDSTADDR
 #else
+#ifndef WITH_LWIP
 #  error "Need IP_PKTINFO or IP_RECVDSTADDR to request ancillary data from OS."
+#endif
 #endif /* IP_PKTINFO */
 
+#ifdef IPV6_SUPPORT_LIBCOAP
 /* define generic KTINFO for IPv6 */
 #ifdef IPV6_RECVPKTINFO
 #  define GEN_IPV6_PKTINFO IPV6_RECVPKTINFO
@@ -72,6 +81,7 @@
 #else
 #  error "Need IPV6_PKTINFO or IPV6_RECVPKTINFO to request ancillary data from OS."
 #endif /* IPV6_RECVPKTINFO */
+#endif
 #endif
 
 void coap_free_endpoint(coap_endpoint_t *ep);
@@ -226,6 +236,7 @@ coap_socket_bind_udp(coap_socket_t *sock,
                "coap_socket_bind_udp: setsockopt IP_PKTINFO: %s\n",
                 coap_socket_strerror());
     break;
+#ifdef  IPV6_SUPPORT_LIBCOAP
   case AF_INET6:
     /* Configure the socket as dual-stacked */
     if (setsockopt(sock->fd, IPPROTO_IPV6, IPV6_V6ONLY, OPTVAL_T(&off), sizeof(off)) == COAP_SOCKET_ERROR)
@@ -238,6 +249,7 @@ coap_socket_bind_udp(coap_socket_t *sock,
                 coap_socket_strerror());
     setsockopt(sock->fd, IPPROTO_IP, GEN_IP_PKTINFO, OPTVAL_T(&on), sizeof(on)); /* ignore error, because the likely cause is that IPv4 is disabled at the os level */
     break;
+#endif
   default:
     coap_log(LOG_ALERT, "coap_socket_bind_udp: unsupported sa_family\n");
     break;
@@ -303,6 +315,7 @@ coap_socket_connect_tcp1(coap_socket_t *sock,
     if (connect_addr.addr.sin.sin_port == 0)
       connect_addr.addr.sin.sin_port = htons(default_port);
     break;
+#ifdef IPV6_SUPPORT_LIBCOAP
   case AF_INET6:
     if (connect_addr.addr.sin6.sin6_port == 0)
       connect_addr.addr.sin6.sin6_port = htons(default_port);
@@ -312,6 +325,7 @@ coap_socket_connect_tcp1(coap_socket_t *sock,
                "coap_socket_connect_tcp1: setsockopt IPV6_V6ONLY: %s\n",
                coap_socket_strerror());
     break;
+#endif
   default:
     coap_log(LOG_ALERT, "coap_socket_connect_tcp1: unsupported sa_family\n");
     break;
@@ -449,6 +463,7 @@ coap_socket_bind_tcp(coap_socket_t *sock,
   switch (listen_addr->addr.sa.sa_family) {
   case AF_INET:
     break;
+#ifdef IPV6_SUPPORT_LIBCOAP
   case AF_INET6:
     /* Configure the socket as dual-stacked */
     if (setsockopt(sock->fd, IPPROTO_IPV6, IPV6_V6ONLY, OPTVAL_T(&off), sizeof(off)) == COAP_SOCKET_ERROR)
@@ -456,6 +471,7 @@ coap_socket_bind_tcp(coap_socket_t *sock,
                "coap_socket_bind_tcp: setsockopt IPV6_V6ONLY: %s\n",
                coap_socket_strerror());
     break;
+#endif
   default:
     coap_log(LOG_ALERT, "coap_socket_bind_tcp: unsupported sa_family\n");
   }
@@ -561,6 +577,7 @@ coap_socket_connect_udp(coap_socket_t *sock,
     if (connect_addr.addr.sin.sin_port == 0)
       connect_addr.addr.sin.sin_port = htons(default_port);
     break;
+#ifdef IPV6_SUPPORT_LIBCOAP
   case AF_INET6:
     if (connect_addr.addr.sin6.sin6_port == 0)
       connect_addr.addr.sin6.sin6_port = htons(default_port);
@@ -570,6 +587,7 @@ coap_socket_connect_udp(coap_socket_t *sock,
                "coap_socket_connect_udp: setsockopt IPV6_V6ONLY: %s\n",
                coap_socket_strerror());
     break;
+#endif
   default:
     coap_log(LOG_ALERT, "coap_socket_connect_udp: unsupported sa_family\n");
     break;
@@ -709,10 +727,12 @@ coap_socket_read(coap_socket_t *sock, uint8_t *data, size_t data_len) {
 /* define struct in6_pktinfo and struct in_pktinfo if not available
    FIXME: check with configure
 */
+#ifdef IPV6_SUPPORT_LIBCOAP
 struct in6_pktinfo {
   struct in6_addr ipi6_addr;        /* src/dst IPv6 address */
   unsigned int ipi6_ifindex;        /* send/recv interface index */
 };
+#endif
 
 struct in_pktinfo {
   int ipi_ifindex;
@@ -769,6 +789,7 @@ coap_network_send(coap_socket_t *sock, const coap_session_t *session, const uint
 #endif
 #endif
   } else {
+#ifdef SEND_RECV_MSG_SUPPORT_LIBCOAP
 #ifndef WITH_CONTIKI
     /* a buffer large enough to hold all packet info types, ipv6 is the largest */
     char buf[CMSG_SPACE(sizeof(struct in6_pktinfo))];
@@ -795,6 +816,7 @@ coap_network_send(coap_socket_t *sock, const coap_session_t *session, const uint
     mhdr.msg_iovlen = 1;
 
     if (!coap_address_isany(&session->local_addr) && !coap_is_mcast(&session->local_addr)) switch (session->local_addr.addr.sa.sa_family) {
+#ifdef IPV6_SUPPORT_LIBCOAP
     case AF_INET6:
     {
       struct cmsghdr *cmsg;
@@ -842,6 +864,7 @@ coap_network_send(coap_socket_t *sock, const coap_session_t *session, const uint
       }
       break;
     }
+#endif/*IPV6_SUPPORT_LIBCOAP*/
     case AF_INET:
     {
 #if defined(IP_PKTINFO)
@@ -898,6 +921,10 @@ coap_network_send(coap_socket_t *sock, const coap_session_t *session, const uint
       &session->remote_addr.addr, session->remote_addr.port);
     bytes_written = datalen;
 #endif /* WITH_CONTIKI */
+#else /*SEND_RECV_MSG_SUPPORT_LIBCOAP*/
+    bytes_written = sendto(sock->fd, data, datalen, 0, (const struct sockaddr *)&session->remote_addr.addr, 
+                           sizeof(session->remote_addr.addr));
+#endif
   }
 
   if (bytes_written < 0)
@@ -957,6 +984,8 @@ coap_network_read(coap_socket_t *sock, coap_packet_t *packet) {
     }
   } else {
 #endif /* WITH_CONTIKI */
+
+#ifdef SEND_RECV_MSG_SUPPORT_LIBCOAP
 #if defined(_WIN32)
     DWORD dwNumberOfBytesRecvd = 0;
     int r;
@@ -1018,6 +1047,7 @@ coap_network_read(coap_socket_t *sock, coap_packet_t *packet) {
        * is found where the data was received. */
       for (cmsg = CMSG_FIRSTHDR(&mhdr); cmsg; cmsg = CMSG_NXTHDR(&mhdr, cmsg)) {
 
+#ifdef IPV6_SUPPORT_LIBCOAP
         /* get the local interface for IPv6 */
         if (cmsg->cmsg_level == IPPROTO_IPV6 && cmsg->cmsg_type == IPV6_PKTINFO) {
           union {
@@ -1029,6 +1059,7 @@ coap_network_read(coap_socket_t *sock, coap_packet_t *packet) {
           memcpy(&packet->dst.addr.sin6.sin6_addr, &u.p->ipi6_addr, sizeof(struct in6_addr));
           break;
         }
+#endif
 
         /* local interface for IPv4 */
 #if defined(IP_PKTINFO)
@@ -1099,6 +1130,10 @@ coap_network_read(coap_socket_t *sock, coap_packet_t *packet) {
 #undef UIP_IP_BUF
 #undef UIP_UDP_BUF
 #endif /* WITH_CONTIKI */
+#else 
+    len = recv(sock->fd, packet->payload, COAP_RXBUFFER_SIZE, 0);
+#endif /*SEND_RECV_MSG_SUPPORT_LIBCOAP*/
+
 #ifndef WITH_CONTIKI
   }
 #endif /* WITH_CONTIKI */
