@@ -12,8 +12,8 @@ extern "C" {
 #include <stdint.h>
 
 typedef struct {
-    uint8_t port; /* random device port */
-    void   *priv; /* priv data */
+    uint8_t  port; /* random device port */
+    void    *priv; /* priv data */
 } random_dev_t;
 
 /**
@@ -30,6 +30,7 @@ int32_t hal_random_num_read(random_dev_t random, void *buf, int32_t bytes);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_RNG_H */
+

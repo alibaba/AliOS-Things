@@ -36,9 +36,9 @@ typedef enum {
  * GPIO dev struct
  */
 typedef struct {
-    uint8_t       port;   /* gpio port */
-    gpio_config_t config; /* gpio config */
-    void         *priv;   /* priv data */
+    uint8_t        port;   /* gpio port */
+    gpio_config_t  config; /* gpio config */
+    void          *priv;   /* priv data */
 } gpio_dev_t;
 
 /*
@@ -169,6 +169,7 @@ int32_t hal_gpio_finalize(gpio_dev_t *gpio);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_GPIO_H */
+

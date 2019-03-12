@@ -61,12 +61,12 @@ union inode_ops_t {
 };
 
 typedef struct {
-    union inode_ops_t ops;     /* inode operations */
-    void             *i_arg;   /* per inode private data */
-    char             *i_name;  /* name of inode */
-    int               i_flags; /* flags for inode */
-    uint8_t           type;    /* type for inode */
-    uint8_t           refs;    /* refs for inode */
+    union inode_ops_t  ops;     /* inode operations */
+    void              *i_arg;   /* per inode private data */
+    char              *i_name;  /* name of inode */
+    int                i_flags; /* flags for inode */
+    uint8_t            type;    /* type for inode */
+    uint8_t            refs;    /* refs for inode */
 } inode_t;
 
 typedef struct {
@@ -185,11 +185,11 @@ int aos_ioctl(int fd, int cmd, unsigned long arg);
 /**
  * @brief This is a wildcard API for executing the particular poll by fd
  *
- * @param[in] fd     the file descriptor of the file or device
- * @param[in] flag   the flag of the polling
- * @param[in] notify the polling notify callback
- * @param[in] fds    a pointer to the array of pollfd
- * @param[in] arg    the arguments of the polling
+ * @param[in]  fd      the file descriptor of the file or device
+ * @param[in]  flag    the flag of the polling
+ * @param[in]  notify  the polling notify callback
+ * @param[in]  fds     a pointer to the array of pollfd
+ * @param[in]  arg     the arguments of the polling
  *
  * @return 0 on success, negative error on failure
  *
@@ -235,8 +235,8 @@ int aos_stat(const char *path, struct aos_stat *st);
 /**
  * Store information about the file in a vfs_stat structure
  *
- * @param[in]  fh the fh of the file to find information about
- * @param[out] st the vfs_stat buffer to write to
+ * @param[in]   fh  the fh of the file to find information about
+ * @param[out]  st  the vfs_stat buffer to write to
  *
  * @return 0 on success, negative error on failure
  *
@@ -246,8 +246,8 @@ int aos_fstat(int fh, struct aos_stat *st);
 /**
  * @brief link path2 to path1
  *
- * @param[in] path1 the path to be linked
- * @param[in] path2 the path to link
+ * @param[in]  path1  the path to be linked
+ * @param[in]  path2  the path to link
  *
  * @return 0 on success, negative error on failure
  *
@@ -370,7 +370,7 @@ void aos_seekdir(aos_dir_t *dir, long loc);
  * Store information about the file system in a statfs structure.
  *
  * @param[in]   path  The path of the file system to find information about.
- * @param[out]  buf    The statfs buffer to write to.
+ * @param[out]  buf   The statfs buffer to write to.
  *
  * @return  0 on success, negative error code on failure.
  *
@@ -380,8 +380,8 @@ int aos_statfs(const char *path, struct aos_statfs *buf);
 /**
  * get access info.
  *
- * @param path The path of the file.
- * @param mode the info to get.
+ * @param  path  The path of the file.
+ * @param  mode  the info to get.
  *
  * @return  0 on success, negative error code on failure.
  *
@@ -391,7 +391,7 @@ int aos_access(const char *path, int amode);
 /**
  * set the pathname of the current working directory
  *
- * @param path The path to set.
+ * @param  path  The path to set.
  *
  * @return  0 on success, negative error code on failure.
  *
@@ -401,8 +401,8 @@ int aos_chdir(const char *path);
 /**
  * get the pathname of the current working directory.
  *
- * @param buf  The buffer to save the current working directory.
- * @param size The size of buffer.
+ * @param  buf   The buffer to save the current working directory.
+ * @param  size  The size of buffer.
  *
  * @return  NULL if error occured, buf if succeed.
  *
@@ -412,8 +412,8 @@ char *aos_getcwd(char *buf, size_t size);
 /**
  * @brief Get path conf
  *
- * @param[in] path the path conf to get from
- * @param[in] name the kind of path conf to get
+ * @param[in]  path  the path conf to get from
+ * @param[in]  name  the kind of path conf to get
  *
  * @return value of path info
  */
@@ -422,7 +422,7 @@ long aos_pathconf(const char *path, int name);
 /**
  * @brief Get path info
  *
- * @param[in]  name the path info to get
+ * @param[in]  name  the path info to get
  *
  * @return value of path info
  */
@@ -431,8 +431,8 @@ long aos_fpathconf(int fd, int name);
 /**
  * @brief Set the access and modification times
  *
- * @param[in] path the path conf to get from
- * @param[in] times the buffer to store time info
+ * @param[in]  path   the path conf to get from
+ * @param[in]  times  the buffer to store time info
  *
  * @return 0 on success, negative error code on failure
  */
@@ -449,9 +449,9 @@ int aos_vfs_fd_offset_get(void);
 /**
  * @brief Bind driver to the file or device
  *
- * @param[in] path the path of the file or device
- * @param[in] ops the driver operations to bind
- * @param[in] arg  the arguments of the driver operations
+ * @param[in]  path  the path of the file or device
+ * @param[in]  ops   the driver operations to bind
+ * @param[in]  arg   the arguments of the driver operations
  *
  * @return 0 on success, negative error on failure
  *
@@ -461,7 +461,7 @@ int aos_register_driver(const char *path, file_ops_t *ops, void *arg);
 /**
  * @brief Unbind driver from the file or device
  *
- * @param[in] path the path of the file or device
+ * @param[in]  path  the path of the file or device
  *
  * @return 0 on success, negative error on failure
  *
@@ -471,9 +471,9 @@ int aos_unregister_driver(const char *path);
 /**
  * @brief Mount filesystem to the path
  *
- * @param[in] path the mount point path
- * @param[in] ops the filesystem operations
- * @param[in] arg  the arguments of the filesystem operations
+ * @param[in]  path  the mount point path
+ * @param[in]  ops   the filesystem operations
+ * @param[in]  arg   the arguments of the filesystem operations
  *
  * @return 0 on success, negative error on failure
  *
@@ -483,7 +483,7 @@ int aos_register_fs(const char *path, fs_ops_t* ops, void *arg);
 /**
  * @brief Unmount the filesystem
  *
- * @param[in] path the mount point path
+ * @param[in]  path  the mount point path
  *
  * @return 0 on success, negative error on failure
  *
