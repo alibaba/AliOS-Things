@@ -75,7 +75,7 @@ static void sys_init(void)
 #ifndef CERTIFICATION
 #ifdef CONFIG_LINKWAN_AT
 #else
-    aos_cli_init();
+//    aos_cli_init();
 #endif
 #ifdef VCALL_RHINO
     dumpsys_cli_init();
