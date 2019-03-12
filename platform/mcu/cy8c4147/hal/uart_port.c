@@ -42,7 +42,9 @@ void UART_API(_customISR)(void)
 #endif  
 
         if(isprint(ch) || ch == '\r' || ch == '\n') {            
-            linkwan_serial_input(ch);   
+#ifdef CONFIG_LINKWAN_AT
+        linkwan_serial_input(ch);
+#endif
 #ifndef CONFIG_PRINT_ECHO_DISABLE            
             UART_API(_UartPutChar(ch));
 #endif            
