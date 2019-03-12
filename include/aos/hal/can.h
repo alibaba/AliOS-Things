@@ -105,6 +105,7 @@ int32_t hal_can_finalize(can_dev_t *can);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_CAN_H */
+

@@ -26,9 +26,9 @@ typedef struct {
 } nand_addr_t;
 
 typedef struct {
-    uint32_t      base_addr;
-    nand_config_t config;
-    void         *priv;
+    uint32_t       base_addr;
+    nand_config_t  config;
+    void          *priv;
 } nand_dev_t;
 
 /**
@@ -111,6 +111,7 @@ int32_t hal_nand_erase_block(nand_dev_t *nand, nand_addr_t *addr);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_NAND_H */
+

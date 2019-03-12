@@ -37,9 +37,9 @@ typedef struct {
 } i2c_config_t;
 
 typedef struct {
-    uint8_t      port;   /* i2c port */
-    i2c_config_t config; /* i2c config */
-    void        *priv;   /* priv data */
+    uint8_t       port;   /* i2c port */
+    i2c_config_t  config; /* i2c config */
+    void         *priv;   /* priv data */
 } i2c_dev_t;
 
 /**
@@ -155,6 +155,7 @@ int32_t hal_i2c_finalize(i2c_dev_t *i2c);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_I2C_H */
+

@@ -54,11 +54,11 @@ typedef enum {
 } hal_flash_t;
 
 typedef struct {
-    hal_flash_t partition_owner;
-    const char *partition_description;
-    uint32_t    partition_start_addr;
-    uint32_t    partition_length;
-    uint32_t    partition_options;
+    hal_flash_t  partition_owner;
+    const char  *partition_description;
+    uint32_t     partition_start_addr;
+    uint32_t     partition_length;
+    uint32_t     partition_options;
 } hal_logic_partition_t;
 
 /**
@@ -175,6 +175,7 @@ int32_t hal_flash_addr2offset(hal_partition_t *in_partition, uint32_t *off_set, 
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_FLASH_H */
+

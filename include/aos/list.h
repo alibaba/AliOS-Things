@@ -118,7 +118,7 @@ static inline int dlist_empty(const dlist_t *head)
  * @param[in]  n     another &struct dlist_t to use as temporary storage.
  * @param[in]  head  he head for your list.
  */
-#define dlist_for_each_safe(pos, n, head)                      \
+#define dlist_for_each_safe(pos, n, head) \
         for (pos = (head)->next, n = pos->next; pos != (head); pos = n, n = pos->next)
 
 /*

@@ -12,8 +12,8 @@ extern "C" {
 #include <stdint.h>
 
 typedef struct {
-    uint8_t port;   /* dac port */
-    void   *priv;   /* priv data */
+    uint8_t  port; /* dac port */
+    void    *priv; /* priv data */
 } dac_dev_t;
 
 /**
@@ -77,6 +77,7 @@ int32_t hal_dac_finalize(dac_dev_t *dac);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_DAC_H */
+

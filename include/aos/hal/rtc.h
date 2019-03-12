@@ -15,13 +15,13 @@ extern "C" {
 #define HAL_RTC_FORMAT_BCD 2
 
 typedef struct {
-    uint8_t  format; /* time formart DEC or BCD */
+    uint8_t format; /* time formart DEC or BCD */
 } rtc_config_t;
 
 typedef struct {
-    uint8_t port;        /* rtc port */
-    rtc_config_t config; /* rtc config */
-    void   *priv;        /* priv data */
+    uint8_t       port;   /* rtc port */
+    rtc_config_t  config; /* rtc config */
+    void         *priv;   /* priv data */
 } rtc_dev_t;
 
 /*
@@ -78,6 +78,7 @@ int32_t hal_rtc_finalize(rtc_dev_t *rtc);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_RTC_H */
+
