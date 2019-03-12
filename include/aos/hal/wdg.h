@@ -16,9 +16,9 @@ typedef struct {
 } wdg_config_t;
 
 typedef struct {
-    uint8_t      port;   /* wdg port */
-    wdg_config_t config; /* wdg config */
-    void        *priv;   /* priv data */
+    uint8_t       port;   /* wdg port */
+    wdg_config_t  config; /* wdg config */
+    void         *priv;   /* priv data */
 } wdg_dev_t;
 
 /**
@@ -48,6 +48,7 @@ int32_t hal_wdg_finalize(wdg_dev_t *wdg);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_WDG_H */
+

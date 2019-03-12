@@ -17,16 +17,16 @@ extern "C" {
 typedef void (*hal_timer_cb_t)(void *arg);
 
 typedef struct {
-    uint32_t       period; /* us */
-    uint8_t        reload_mode;
-    hal_timer_cb_t cb;
-    void          *arg;
+    uint32_t        period; /* us */
+    uint8_t         reload_mode;
+    hal_timer_cb_t  cb;
+    void           *arg;
 } timer_config_t;
 
 typedef struct {
-    int8_t         port;   /* timer port */
-    timer_config_t config; /* timer config */
-    void          *priv;   /* priv data */
+    int8_t          port;   /* timer port */
+    timer_config_t  config; /* timer config */
+    void           *priv;   /* priv data */
 } timer_dev_t;
 
 /**
@@ -77,6 +77,7 @@ int32_t hal_timer_finalize(timer_dev_t *tim);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_TIMER_H */
+

@@ -96,3 +96,4 @@ int aos_cli_unregister_commands(const struct cli_command *cmds, int num);
 #endif
 
 #endif /* AOS_CLI_H */
+

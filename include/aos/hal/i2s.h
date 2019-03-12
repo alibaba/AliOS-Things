@@ -58,9 +58,9 @@ typedef struct {
  * I2S device description
  */
 typedef struct {
-    uint8_t      port;   /* i2s port */
-    i2s_config_t config; /* i2s config */
-    void        *priv;   /* priv data */
+    uint8_t       port;   /* i2s port */
+    i2s_config_t  config; /* i2s config */
+    void         *priv;   /* priv data */
 } i2s_dev_t;
 
 /**
@@ -136,6 +136,7 @@ int32_t hal_i2s_finalize(i2s_dev_t *i2s);
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
 #endif /* HAL_I2S_H */
+
