@@ -19,7 +19,7 @@
 
 struct coap_session_t;
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 #include <lwip/pbuf.h>
 #endif
 
@@ -44,7 +44,7 @@ struct coap_session_t;
 #define COAP_MAX_MESSAGE_SIZE_TCP32 (COAP_MESSAGE_SIZE_OFFSET_TCP32+0xFFFFFFFF)
 
 #ifndef COAP_DEFAULT_MAX_PDU_RX_SIZE
-#if defined(WITH_CONTIKI) || defined(WITH_LWIP)
+#if defined(WITH_CONTIKI) || defined(WITH_LWIP_LIBCOAP)
 #define COAP_DEFAULT_MAX_PDU_RX_SIZE (COAP_MAX_MESSAGE_SIZE_TCP16+4)
 #else
 /* 8 MiB max-message-size plus some space for options */
@@ -53,12 +53,12 @@ struct coap_session_t;
 #endif /* COAP_DEFAULT_MAX_PDU_RX_SIZE */
 
 #ifndef COAP_DEBUG_BUF_SIZE
-#if defined(WITH_CONTIKI) || defined(WITH_LWIP)
+#if defined(WITH_CONTIKI) || defined(WITH_LWIP_LIBCOAP)
 #define COAP_DEBUG_BUF_SIZE 128
-#else /* defined(WITH_CONTIKI) || defined(WITH_LWIP) */
+#else /* defined(WITH_CONTIKI) || defined(WITH_LWIP_LIBCOAP) */
 /* 1024 derived from RFC7252 4.6.  Message Size max payload */
 #define COAP_DEBUG_BUF_SIZE (8 + 1024 * 2)
-#endif /* defined(WITH_CONTIKI) || defined(WITH_LWIP) */
+#endif /* defined(WITH_CONTIKI) || defined(WITH_LWIP_LIBCOAP) */
 #endif /* COAP_DEBUG_BUF_SIZE */
 
 #define COAP_DEFAULT_VERSION      1 /* version of CoAP supported */
@@ -297,7 +297,7 @@ typedef struct coap_pdu_t {
   size_t max_size;          /**< maximum size for token, options and payload, or zero for variable size pdu */
   uint8_t *token;           /**< first byte of token, if any, or options */
   uint8_t *data;            /**< first byte of payload, if any */
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
   struct pbuf *pbuf;        /**< lwIP PBUF. The package data will always reside
                              *   inside the pbuf's payload, but this pointer
                              *   has to be kept because no exact offset can be
@@ -317,7 +317,7 @@ typedef struct coap_pdu_t {
 #define COAP_PDU_MAX_UDP_HEADER_SIZE 4
 #define COAP_PDU_MAX_TCP_HEADER_SIZE 6
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 /**
  * Creates a CoAP PDU from an lwIP @p pbuf, whose reference is passed on to this
  * function.

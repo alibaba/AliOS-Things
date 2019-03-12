@@ -17,7 +17,7 @@
 #include "coap.h"
 #include "async.h"
 #include "coap_debug.h"
-#include "mem.h"
+#include "../coap2/mem.h"
 #include "utlist.h"
 
 /* utlist-style macros for searching pairs in linked lists */

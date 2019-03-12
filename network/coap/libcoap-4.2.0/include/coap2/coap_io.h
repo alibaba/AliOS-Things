@@ -38,13 +38,13 @@ struct coap_pdu_t;
 typedef uint16_t coap_socket_flags_t;
 
 typedef struct coap_socket_t {
-#if defined(WITH_LWIP)
+#if defined(WITH_LWIP_LIBCOAP)
   struct udp_pcb *pcb;
 #elif defined(WITH_CONTIKI)
   void *conn;
 #else
   coap_fd_t fd;
-#endif /* WITH_LWIP */
+#endif /* WITH_LWIP_LIBCOAP */
   coap_socket_flags_t flags;
 } coap_socket_t;
 
@@ -117,7 +117,7 @@ coap_socket_write(coap_socket_t *sock, const uint8_t *data, size_t data_len);
 ssize_t
 coap_socket_read(coap_socket_t *sock, uint8_t *data, size_t data_len);
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 ssize_t
 coap_socket_send_pdu( coap_socket_t *sock, struct coap_session_t *session,
                       struct coap_pdu_t *pdu );
@@ -167,7 +167,7 @@ void coap_packet_get_memmapped(struct coap_packet_t *packet,
 void coap_packet_set_addr( struct coap_packet_t *packet, const coap_address_t *src,
                            const coap_address_t *dst );
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 /**
  * Get the pbuf of a packet. The caller takes over responsibility for freeing
  * the pbuf.
@@ -175,7 +175,7 @@ void coap_packet_set_addr( struct coap_packet_t *packet, const coap_address_t *s
 struct pbuf *coap_packet_extract_pbuf(struct coap_packet_t *packet);
 #endif
 
-#if defined(WITH_LWIP)
+#if defined(WITH_LWIP_LIBCOAP)
 /*
  * This is only included in coap_io.h instead of .c in order to be available for
  * sizeof in lwippools.h.

@@ -24,8 +24,16 @@
 typedef SSIZE_T ssize_t;
 typedef USHORT in_port_t;
 #elif !defined (CONTIKI)
+#ifdef WITH_LWIP
+#include <lwip/def.h>
+#include <lwip/netdb.h>
+#include <lwip/ip_addr.h>
+#include <lwip/sockets.h>
+#else
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <netdb.h>
+#endif
 #endif /* CONTIKI */
 
 #ifndef COAP_STATIC_INLINE

@@ -18,7 +18,7 @@
 #endif
 #include <time.h>
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 #include <lwip/ip_addr.h>
 #endif
 
@@ -172,11 +172,11 @@ typedef struct coap_context_t {
   struct etimer notify_timer;     /**< used to check resources periodically */
 #endif /* WITH_CONTIKI */
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
   uint8_t timer_configured;       /**< Set to 1 when a retransmission is
                                    *   scheduled using lwIP timers for this
                                    *   context, otherwise 0. */
-#endif /* WITH_LWIP */
+#endif /* WITH_LWIP_LIBCOAP */
 
   /**
    * The last message id that was used is stored in this field. The initial

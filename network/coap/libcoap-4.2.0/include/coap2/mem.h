@@ -12,14 +12,14 @@
 
 #include <stdlib.h>
 
-#ifndef WITH_LWIP
+#ifndef WITH_LWIP_LIBCOAP
 /**
  * Initializes libcoap's memory management.
  * This function must be called once before coap_malloc() can be used on
  * constrained devices.
  */
 void coap_memory_init(void);
-#endif /* WITH_LWIP */
+#endif /* WITH_LWIP_LIBCOAP */
 
 /**
  * Type specifiers for coap_malloc_type(). Memory objects can be typed to
@@ -45,7 +45,7 @@ typedef enum {
   COAP_OPTLIST,
 } coap_memory_tag_t;
 
-#ifndef WITH_LWIP
+#ifndef WITH_LWIP_LIBCOAP
 
 /**
  * Allocates a chunk of @p size bytes and returns a pointer to the newly
@@ -83,9 +83,9 @@ COAP_STATIC_INLINE void coap_free(void *object) {
   coap_free_type(COAP_STRING, object);
 }
 
-#endif /* not WITH_LWIP */
+#endif /* not WITH_LWIP_LIBCOAP */
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 
 #include <lwip/memp.h>
 
@@ -111,6 +111,6 @@ COAP_STATIC_INLINE void coap_free(void *pointer) {
   LWIP_ASSERT("coap_free must not be used in lwIP", 0);
 }
 
-#endif /* WITH_LWIP */
+#endif /* WITH_LWIP_LIBCOAP */
 
 #endif /* COAP_MEM_H_ */
