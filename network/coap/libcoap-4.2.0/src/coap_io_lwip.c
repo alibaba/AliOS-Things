@@ -8,7 +8,7 @@
  */
 
 #include "coap_config.h"
-#include "mem.h"
+#include "../coap2/mem.h"
 #include "coap_io.h"
 #include <lwip/udp.h>
 

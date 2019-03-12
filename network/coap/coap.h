@@ -8,8 +8,8 @@
  * of use.
  */
 
-#ifndef COAP_H_
-#define COAP_H_
+#ifndef _COAP_H_
+#define _COAP_H_
 
 /* Define the address where bug reports for libcoap should be sent. */
 #define LIBCOAP_PACKAGE_BUGREPORT "@PACKAGE_BUGREPORT@"
@@ -42,8 +42,8 @@ extern "C" {
 #include "coap_time.h"
 #include "coap_debug.h"
 #include "encode.h"
-#include "mem.h"
-#include "net.h"
+#include "../coap2/mem.h"
+#include "../coap2/net.h"
 #include "option.h"
 #include "pdu.h"
 #include "prng.h"
@@ -56,4 +56,4 @@ extern "C" {
 }
 #endif
 
-#endif /* COAP_H_ */
+#endif /* _COAP_H_ */

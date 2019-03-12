@@ -40,8 +40,8 @@
  * have additional run time checks.
  *
  */
-#include "net.h"
-#include "mem.h"
+#include "../coap2/net.h"
+#include "../coap2/mem.h"
 #include "coap_debug.h"
 #include "prng.h"
 #include <openssl/ssl.h>
