@@ -4,6 +4,7 @@
 
 #include "aos/kernel.h"
 #include <k_api.h>
+#include <debug_api.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -70,7 +71,7 @@ static void hal_wlan_init()
 	//setup reconnection flag
 	wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
 #endif
-	printf("\n\r%s(%d), Available heap 0x%x", __FUNCTION__, __LINE__, rtw_getFreeHeapSize());	
+	printf("\n\r%s(%d), Available heap 0x%x", __FUNCTION__, __LINE__, rtw_getFreeHeapSize());
 #endif
 }
 
@@ -103,7 +104,7 @@ static void board_mode_check(void)
     hal_gpio_init(&gpio_key_boot);
     uint32_t boot;
     hal_gpio_input_get(&gpio_key_boot, &boot);
-    
+
     gpio_dev_t gpio_key_elink;
     gpio_key_elink.port = KEY_ELINK;
     gpio_key_elink.config = INPUT_PULL_UP;
@@ -147,7 +148,6 @@ void sys_init_func(void)
 
     hal_wlan_init();
 
-        
     board_cli_init();
 
 #ifdef USE_MX1290
@@ -162,14 +162,32 @@ void sys_init_func(void)
     krhino_task_dyn_del(NULL);
 }
 
+#if (DEBUG_CONFIG_PANIC == 1)
+typedef void (*HAL_VECTOR_FUN) (void );
+extern HAL_VECTOR_FUN  NewVectorTable[];
+extern void HardFault_Handler(void);
+#endif
+
 void main(void)
 {
     hal_wdg_finalize(0);
 
     aos_init();
 
+#if (DEBUG_CONFIG_PANIC == 1)
+    /* AliOS-Things taking over the exception */
+    /* replace HardFault Vector */
+    NewVectorTable[3] = HardFault_Handler;
+    /* replace MemManage Vector */
+    NewVectorTable[4] = HardFault_Handler;
+    /* replace BusFault Vector */
+    NewVectorTable[5] = HardFault_Handler;
+    /* replace UsageFault Vector */
+    NewVectorTable[6] = HardFault_Handler;
+#endif
+
     krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI , 0, AOS_START_STACK, (task_entry_t)sys_init_func, 1);
-    
+
     SysTick_Config(SystemCoreClock/RHINO_CONFIG_TICKS_PER_SECOND);
 
     aos_start();
