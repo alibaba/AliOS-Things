@@ -30,6 +30,4 @@ testcases = Split('''
 component.set_global_testcases(testcases)
 aos_global_config.set('MESHLOWPOWER',1)
 
-build_types=""
-
-linux_only_targets="helloworld linuxapp meshapp tls linkkitapp acapp mqttapp id2_app hdlcapp.hdlcclient linkkit_gateway linkkit_sched nano alinkapp networkapp helloworld_nocli itls_app wifihalapp hdlcapp.hdlcserver coapapp sst_app smpapp prov_app netmgrapp yts"
+linux_only_targets="helloworld linuxapp meshapp tls linkkitapp acapp mqttapp id2_app hdlcapp.hdlcclient linkkit_gateway nano networkapp helloworld_nocli itls_app wifihalapp hdlcapp.hdlcserver coapapp smpapp prov_app netmgrapp yts"

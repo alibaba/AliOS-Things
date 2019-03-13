@@ -35,7 +35,7 @@ function do_build()
         echo "warning: ${app_dir} none exist, build ${build_app}@${build_board} ${build_option} skipped"
         return 0
     fi
-    build_cmd_log=$app_$build_board.log
+    build_cmd_log=${build_app}-${build_board}.log
     build_cmd="aos make JOBS=${JNUM} $build_app@$build_board"
     if [ "${build_option}" != "" ]; then
         build_cmd="${build_cmd} ${build_option}"
