@@ -3,6 +3,7 @@
  */
 
 #include "http_client_api.h"
+#include "http_string.h"
 
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
@@ -19,7 +20,7 @@ typedef struct httpc_s {
     uint8_t index;
     uint32_t flags;
     char server_name[CONFIG_HTTPC_SERVER_NAME_SIZE + 2];
-    httpc_recv_fun recv_fn;
+    httpc_recv_fn recv_fn;
     uint16_t rx_state;
     uint16_t port;
 
@@ -35,5 +36,7 @@ typedef struct httpc_param_s {
     char *param;
     uint16_t len;
 } httpc_param_t;
+
+void httpc_log(const char *fmt, ...);
 
 #endif

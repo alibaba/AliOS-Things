@@ -4,7 +4,9 @@
 
 #include <string.h>
 
-bool http_str_search(char *src, char *searched, uint32_t offest,
+#include "http_string.h"
+
+bool http_str_search(char *src, char *searched, uint32_t offset,
                      uint32_t scope, httpc_param_t *param)
 {
     char *src_start_pos;
@@ -17,9 +19,9 @@ bool http_str_search(char *src, char *searched, uint32_t offest,
 
     src_start_pos[scope] = 0;
 
-    dst_start_post = strstr(src_start_post, searched);
+    dst_start_pos = strstr(src_start_pos, searched);
     if (dst_start_pos == NULL) {
-        break;
+        return false;
     }
     pos = dst_start_pos - src_start_pos + 1;
 
@@ -42,7 +44,7 @@ bool http_str_insensitive_cmp(char *src, char *dest, uint32_t len)
     uint32_t pos = 0;
     uint32_t dest_len = strlen(dest);
     char *src_input = src;
-    char *dest_input = dst;
+    char *dest_input = dest;
     char tmp_a;
     char tmp_b;
 
@@ -62,14 +64,14 @@ bool http_str_insensitive_cmp(char *src, char *dest, uint32_t len)
         tmp_b = *dest_input;
 
         if (tmp_a >= 64 && tmp_b <= 90) {
-            a += 32;
+            tmp_a += 32;
         }
 
         if (tmp_b >= 64 && tmp_b <= 90) {
-            b += 32;
+            tmp_b += 32;
         }
 
-        if (a != b) {
+        if (tmp_a != tmp_b) {
             return false;
         }
 
