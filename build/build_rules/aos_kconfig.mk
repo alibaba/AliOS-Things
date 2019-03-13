@@ -9,11 +9,28 @@ export AOS_DEFCONFIG_DIR := $(SOURCE_ROOT)build/configs
 export AOS_CONFIG_IN := $(SOURCE_ROOT)build/Config.in
 export AOS_CONFIG_DIR := $(BUILD_DIR)/config
 
-export KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig
-export KCONFIG_MCONF := $(KCONFIG_DIR)/kconfig-mconf
-export KCONFIG_CONF := $(KCONFIG_DIR)/kconfig-conf
+KCONFIG_TOOLPATH ?=
+KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig/
 
-export SYSCONFIG_H := $(SOURCE_ROOT)build/configs/sysconfig.h
+ifneq (,$(wildcard $(KCONFIG_DIR)COPYING))
+KCONFIG_TOOLPATH := $(KCONFIG_DIR)
+endif
+
+ifeq (,$(KCONFIG_TOOLPATH))
+ifeq ($(HOST_OS),Win32)
+SYSTEM_KCONFIG_TOOLPATH = $(shell where kconfig-mconf.exe)
+else
+SYSTEM_KCONFIG_TOOLPATH = $(shell which kconfig-mconf)
+endif
+
+ifeq (,$(findstring kconfig-mconf,$(SYSTEM_KCONFIG_TOOLPATH)))
+KCONFIG_TOOLPATH := $(KCONFIG_DIR)
+DOWNLOAD_KCONFIG = yes
+endif
+endif
+
+KCONFIG_MCONF := $(KCONFIG_TOOLPATH)kconfig-mconf
+KCONFIG_CONF := $(KCONFIG_TOOLPATH)kconfig-conf
 
 ifeq ($(HOST_OS),Linux64)
 KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-linux.git
@@ -24,8 +41,11 @@ export KCONFIG_MCONF := $(subst /,\,$(KCONFIG_MCONF)).bat
 export KCONFIG_CONF := $(subst /,\,$(KCONFIG_CONF)).bat
 export AOS_CONFIG_IN := $(subst ./,,$(AOS_CONFIG_IN))
 export AOS_DEFCONFIG := $(subst ./,,$(AOS_DEFCONFIG))
+export TMP_DEFCONFIG := $(subst ./,,$(TMP_DEFCONFIG))
 KCONFIG_URL := https://gitee.com/alios-things/kconfig-frontends-win32.git
 endif
+
+export SYSCONFIG_H := $(SOURCE_ROOT)build/configs/sysconfig.h
 
 # Don't read in .config for these targets
 noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \
@@ -34,6 +54,13 @@ noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \
 .PHONY: $(noconfig_targets)
 
 MAKEFILE_TARGETS += $(noconfig_targets)
+
+ifeq (yes,$(DOWNLOAD_KCONFIG))
+menuconfig: $(KCONFIG_MCONF)
+%_defconfig: $(KCONFIG_CONF)
+$(filter-out menuocnfig %_defconfig, $(noconfig_targets)): $(KCONFIG_CONF)
+$(AOS_CONFIG) $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF)
+endif
 
 # Use -include for GCC and --preinclude for other ARM compilers
 GCC_INCLUDE_AUTOCONF_H = $(if $(wildcard $(AOS_CONFIG_DIR)/autoconf.h), -include $(AOS_CONFIG_DIR)/autoconf.h)
@@ -57,14 +84,14 @@ COMMON_CONFIG_ENV =
 endif
 
 $(KCONFIG_MCONF) $(KCONFIG_CONF):
-	$(QUIET)git clone $(KCONFIG_URL) $(KCONFIG_DIR)
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/aos_download_tools.py $(KCONFIG_URL) $(KCONFIG_DIR)
 
-menuconfig: $(KCONFIG_MCONF)
-	$(QUIET)$(COMMON_CONFIG_ENV) $< $(AOS_CONFIG_IN)
+menuconfig:
+	$(QUIET)$(COMMON_CONFIG_ENV) $(KCONFIG_MCONF) $(AOS_CONFIG_IN)
 
-oldconfig silentoldconfig olddefconfig: $(KCONFIG_CONF)
+oldconfig silentoldconfig olddefconfig:
 	$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
-	$(QUIET)$(COMMON_CONFIG_ENV) $< --$@ $(AOS_CONFIG_IN)
+	$(QUIET)$(COMMON_CONFIG_ENV) $(KCONFIG_CONF) --$@ $(AOS_CONFIG_IN)
 
 # Create .defconfig
 $(TMP_DEFCONFIG):
@@ -93,27 +120,27 @@ $(QUIET)$(COMMON_CONFIG_ENV) $(1) --defconfig$(if $(2),=$(2)) $(AOS_CONFIG_IN)
 endef
 
 # Create .config
-$(AOS_CONFIG): $(KCONFIG_CONF)
-	$(QUIET)$(call LOAD_DEFCONFIG, $<,$(TMP_DEFCONFIG))
+$(AOS_CONFIG):
+	$(QUIET)$(call LOAD_DEFCONFIG,$(KCONFIG_CONF),$(TMP_DEFCONFIG))
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/aos_check_config.py $(AOS_CONFIG) $(BUILD_STRING)
 
 ifneq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
 $(AOS_CONFIG): $(TMP_DEFCONFIG)
 endif
 
-defconfig: $(KCONFIG_CONF)
-	$(QUIET)$(call LOAD_DEFCONFIG, $<,$(AOS_DEFCONFIG))
+defconfig:
+	$(QUIET)$(call LOAD_DEFCONFIG,$(KCONFIG_CONF),$(AOS_DEFCONFIG))
 
-alldefconfig: $(KCONFIG_CONF)
-	$(QUIET)$(COMMON_CONFIG_ENV) $< --alldefconfig $(AOS_CONFIG_IN)
+alldefconfig:
+	$(QUIET)$(COMMON_CONFIG_ENV) $(KCONFIG_CONF) --alldefconfig $(AOS_CONFIG_IN)
 
-savedefconfig: $(KCONFIG_CONF)
-	$(QUIET)$(COMMON_CONFIG_ENV) $< \
+savedefconfig:
+	$(QUIET)$(COMMON_CONFIG_ENV) $(KCONFIG_CONF) \
 		--savedefconfig=$(if $(AOS_DEFCONFIG),$(AOS_DEFCONFIG),$(AOS_CONFIG_DIR)/defconfig) \
 		$(AOS_CONFIG_IN)
 
-%_defconfig: $(KCONFIG_CONF)
-	$(QUIET)$(COMMON_CONFIG_ENV) $< --defconfig=$(AOS_DEFCONFIG_DIR)/$@ $(AOS_CONFIG_IN)
+%_defconfig:
+	$(QUIET)$(COMMON_CONFIG_ENV) $(KCONFIG_CONF) --defconfig=$(AOS_DEFCONFIG_DIR)/$@ $(AOS_CONFIG_IN)
 
 ECHO_DEFCONFIG = " $(notdir $(1))\n"
 list-defconfig:
@@ -121,7 +148,7 @@ list-defconfig:
 	$(QUIET)$(ECHO) "Valid defconfigs:"
 	$(QUIET)$(ECHO) " "$(foreach defconfig,$(wildcard $(AOS_DEFCONFIG_DIR)/*_defconfig),$(call ECHO_DEFCONFIG,$(defconfig)))
 
-$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF) $(AOS_CONFIG)
+$(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(AOS_CONFIG)
 	$(QUIET)$(ECHO) Creating $@ ...
 	$(QUIET)$(call MKDIR, $(BUILD_DIR)/config)
-	$(QUIET)$(COMMON_CONFIG_ENV) $< --silentoldconfig $(AOS_CONFIG_IN)
+	$(QUIET)$(COMMON_CONFIG_ENV) $(KCONFIG_CONF) --silentoldconfig $(AOS_CONFIG_IN)
