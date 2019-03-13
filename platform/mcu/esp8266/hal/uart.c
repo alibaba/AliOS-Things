@@ -8,6 +8,7 @@
 #include "k_api.h"
 #include "driver/uart.h"
 
+extern void uart0_write_char(char c);
 int32_t uart_receive_buffer_queue(uint8_t *data);
 #define UART0_BUF_QUEUE_BYTES 128
 
