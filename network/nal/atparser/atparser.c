@@ -467,6 +467,7 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     tsk->command = (char *)cmd;
     tsk->rsp     = replybuf;
     tsk->rsp_len = bufsize;
+    tsk->rsp_state = AT_RSP_PENDING;
 
     at_worker_task_add(tsk);
 
@@ -627,8 +628,8 @@ static void at_scan_for_callback(char c, char *buf, int *index)
     return;
 }
 
-#if ATPSR_SINGLE_TASK
 static char at_rx_buf[RECV_BUFFER_SIZE];
+#if ATPSR_SINGLE_TASK
 int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
              int timeout_ms)
 {
@@ -741,28 +742,144 @@ int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
     return -1;
 }
 #else
+static int at_scan_for_response(char c, char *buf, int *index)
+{
+    int        rsp_prefix_len          = 0;
+    int        rsp_success_postfix_len = 0;
+    int        rsp_fail_postfix_len    = 0;
+    at_task_t *tsk                = NULL;
+    char      *rsp_prefix          = NULL;
+    char      *rsp_success_postfix = NULL;
+    char      *rsp_fail_postfix    = NULL;
+    slist_t   *cur                 = NULL;
+    int       offset               = *index;
+    int       memcpy_size          = 0;
+
+    if (!buf || offset < 0) {
+        return 0;
+    }
+
+    atpsr_mutex_lock(at.task_mutex);
+    slist_for_each_entry_safe(&at.task_l, cur, tsk, at_task_t, next) {
+    if (tsk->rsp_state == AT_RSP_PENDING ||
+        tsk->rsp_state == AT_RSP_PROCESSING)
+        break;
+    }
+
+    /* if no task, continue recv */
+    if (NULL == tsk) {
+        atpsr_debug("No task in queue");
+        atpsr_mutex_unlock(at.task_mutex);
+        return 0;
+    }
+
+    if (NULL != tsk->rsp_prefix && 0 != tsk->rsp_prefix_len) {
+        rsp_prefix     = tsk->rsp_prefix;
+        rsp_prefix_len = tsk->rsp_prefix_len;
+    } else {
+        rsp_prefix     = at._default_recv_prefix;
+        rsp_prefix_len = at._recv_prefix_len;
+    }
+
+    if (NULL != tsk->rsp_success_postfix &&
+        0 != tsk->rsp_success_postfix_len) {
+        rsp_success_postfix     = tsk->rsp_success_postfix;
+        rsp_success_postfix_len = tsk->rsp_success_postfix_len;
+    } else {
+        rsp_success_postfix     = at._default_recv_success_postfix;
+        rsp_success_postfix_len = at._recv_success_postfix_len;
+    }
+
+    if (NULL != tsk->rsp_fail_postfix && 0 != tsk->rsp_fail_postfix_len) {
+        rsp_fail_postfix     = tsk->rsp_fail_postfix;
+        rsp_fail_postfix_len = tsk->rsp_fail_postfix_len;
+    } else {
+        rsp_fail_postfix     = at._default_recv_fail_postfix;
+        rsp_fail_postfix_len = at._recv_fail_postfix_len;
+    }
+
+    if (offset < rsp_prefix_len && tsk->rsp_state == AT_RSP_PROCESSING) {
+        tsk->rsp_state = AT_RSP_PENDING;
+        memset(tsk->rsp, 0, tsk->rsp_len);
+        tsk->rsp_offset = 0;
+    }
+
+    if (offset >= rsp_prefix_len && tsk->rsp_state == AT_RSP_PENDING &&
+        (strncmp(buf + offset - rsp_prefix_len, rsp_prefix,
+                 rsp_prefix_len) == 0)) {
+        tsk->rsp_state = AT_RSP_PROCESSING;
+    }
+
+    if (tsk->rsp_state == AT_RSP_PROCESSING) {
+        if (tsk->rsp_offset < tsk->rsp_len) {
+            tsk->rsp[tsk->rsp_offset] = c;
+            tsk->rsp_offset++;
+
+            if ((tsk->rsp_offset >= rsp_success_postfix_len &&
+                strncmp(tsk->rsp + tsk->rsp_offset - rsp_success_postfix_len,
+                        rsp_success_postfix, rsp_success_postfix_len) == 0) ||
+                (tsk->rsp_offset >= rsp_fail_postfix_len &&
+                strncmp(tsk->rsp + tsk->rsp_offset - rsp_fail_postfix_len,
+                        rsp_fail_postfix, rsp_fail_postfix_len) == 0)) {
+                atpsr_sem_signal(tsk->smpr);
+                tsk->rsp_state = AT_RSP_PROCESSED;
+                tsk = NULL;
+                memset(buf, 0, offset);
+                offset = 0;
+            }
+        } else {
+            memset(tsk->rsp, 0, tsk->rsp_len);
+            tsk->rsp_state = AT_RSP_PENDING;
+        }
+    }
+    atpsr_mutex_unlock(at.task_mutex);
+
+    *index = offset;
+
+    /* for buffer check */
+    memcpy_size = rsp_prefix_len > rsp_success_postfix_len
+                            ? rsp_prefix_len
+                            : rsp_success_postfix_len;
+
+    memcpy_size = memcpy_size > rsp_fail_postfix_len
+                            ? memcpy_size
+                            : rsp_fail_postfix_len;
+
+    return memcpy_size;
+}
+
+static void at_scan_check_buffer(char *buf, int *index, int copy_size)
+{
+    int offset = *index;
+
+    if (!buf || offset < 0 || copy_size < 0 ||
+        copy_size >= RECV_BUFFER_SIZE) {
+        return;
+    }
+
+    if (offset > (RECV_BUFFER_SIZE - 2)) {
+        atpsr_err("buffer full\r\n");
+        memcpy(buf, buf + offset - copy_size, copy_size);
+        memset(buf + copy_size, 0, offset - copy_size);
+        offset = copy_size;
+    }
+
+    *index = offset;
+}
+
 static void at_worker(void *arg)
 {
     int        offset                  = 0;
     int        ret                     = 0;
-    int        at_task_empty           = 0;
-    int        at_task_reponse_begin   = 0;
     int        memcpy_size             = 0;
-    int        rsp_prefix_len          = 0;
-    int        rsp_success_postfix_len = 0;
-    int        rsp_fail_postfix_len    = 0;
     char       c                       = 0;
-    at_task_t *tsk                 = NULL;
-    char      *buf                 = NULL;
-    char      *rsp_prefix          = NULL;
-    char      *rsp_success_postfix = NULL;
-    char      *rsp_fail_postfix    = NULL;
+    char      *buf                     = NULL;
 
     atpsr_debug("at_work started.");
 
-    buf = atpsr_malloc(RECV_BUFFER_SIZE);
+    buf = at_rx_buf;
     if (NULL == buf) {
-        atpsr_err("AT worker fail to malloc ,task exist \r\n");
+        atpsr_err("AT worker fail to allocate buffer, task exit\r\n");
         return;
     }
 
@@ -783,94 +900,15 @@ static void at_worker(void *arg)
         buf[offset++] = c;
         buf[offset]   = 0;
 
+        /* STEP 1: check whether there is a prefix of resgistered callback */
         at_scan_for_callback(c, buf, &offset);
 
-        atpsr_mutex_lock(at.task_mutex);
-        at_task_empty = slist_empty(&at.task_l);
-        tsk = NULL;
+        /* STEP 2: check whether there is a response for AT cmd sent */
+        memcpy_size = at_scan_for_response(c, buf, &offset);
 
-        if (!at_task_empty) {
-            tsk = slist_first_entry(&at.task_l, at_task_t, next);
-        }
-        atpsr_mutex_unlock(at.task_mutex);
-
-        // if no task, continue recv
-        if (at_task_empty || NULL == tsk) {
-            atpsr_debug("No task in queue");
-            goto check_buffer;
-        }
-
-        if (NULL != tsk->rsp_prefix && 0 != tsk->rsp_prefix_len) {
-            rsp_prefix     = tsk->rsp_prefix;
-            rsp_prefix_len = tsk->rsp_prefix_len;
-        } else {
-            rsp_prefix     = at._default_recv_prefix;
-            rsp_prefix_len = at._recv_prefix_len;
-        }
-
-        if (NULL != tsk->rsp_success_postfix &&
-            0 != tsk->rsp_success_postfix_len) {
-            rsp_success_postfix     = tsk->rsp_success_postfix;
-            rsp_success_postfix_len = tsk->rsp_success_postfix_len;
-        } else {
-            rsp_success_postfix     = at._default_recv_success_postfix;
-            rsp_success_postfix_len = at._recv_success_postfix_len;
-        }
-
-        if (NULL != tsk->rsp_fail_postfix && 0 != tsk->rsp_fail_postfix_len) {
-            rsp_fail_postfix     = tsk->rsp_fail_postfix;
-            rsp_fail_postfix_len = tsk->rsp_fail_postfix_len;
-        } else {
-            rsp_fail_postfix     = at._default_recv_fail_postfix;
-            rsp_fail_postfix_len = at._recv_fail_postfix_len;
-        }
-
-        if (offset >= rsp_prefix_len && at_task_reponse_begin == 0 &&
-            (strncmp(buf + offset - rsp_prefix_len, rsp_prefix,
-                     rsp_prefix_len) == 0)) {
-            at_task_reponse_begin = 1;
-        }
-
-        if (at_task_reponse_begin == 1) {
-            if (tsk->rsp_offset < tsk->rsp_len) {
-                tsk->rsp[tsk->rsp_offset] = c;
-                tsk->rsp_offset++;
-
-                if ((tsk->rsp_offset >= rsp_success_postfix_len &&
-                     strncmp(
-                       tsk->rsp + tsk->rsp_offset - rsp_success_postfix_len,
-                       rsp_success_postfix, rsp_success_postfix_len) == 0) ||
-                    (tsk->rsp_offset >= rsp_fail_postfix_len &&
-                     strncmp(tsk->rsp + tsk->rsp_offset - rsp_fail_postfix_len,
-                             rsp_fail_postfix, rsp_fail_postfix_len) == 0)) {
-                    atpsr_sem_signal(tsk->smpr);
-                    at_task_reponse_begin = 0;
-                    memset(buf, 0, offset);
-                    offset = 0;
-                }
-            } else {
-                memset(tsk->rsp, 0, tsk->rsp_len);
-                strcpy(tsk->rsp, rsp_fail_postfix);
-                atpsr_sem_signal(tsk->smpr);
-                at_task_reponse_begin = 0;
-                memset(buf, 0, offset);
-                offset = 0;
-            }
-        }
-    check_buffer:
-        // in case buffer is full
-        if (offset > (RECV_BUFFER_SIZE - 2)) {
-            printf("buffer full \r\n");
-            memcpy_size = rsp_prefix_len > rsp_success_postfix_len
-                            ? rsp_prefix_len
-                            : rsp_success_postfix_len;
-            memcpy_size = memcpy_size > rsp_fail_postfix_len
-                            ? memcpy_size
-                            : rsp_fail_postfix_len;
-            memcpy(buf, buf + offset - memcpy_size, memcpy_size);
-            memset(buf + memcpy_size, 0, offset - memcpy_size);
-            offset = memcpy_size;
-        }
+        /* STEP 3: check and clear buffer when it is full */
+check_buffer:
+        at_scan_check_buffer(buf, &offset, memcpy_size);
     }
 
     return;
