@@ -95,6 +95,7 @@ enum ELEMENTID_T{
     ICTEXT        = 16,  /* Challenge Text           */
     IERPINFO      = 42,  /* ERP Information          */
     IEXSUPRATES   = 50,  /* Extended Supported Rates */
+    HTPARAMS      = 61,  /* HT Info Element          */
     IWAPI         = 68
 };
 
@@ -102,7 +103,8 @@ enum COUNTRY_CODE_T
 {
     JP = 0,
     NA = 1,
-    EU = 2
+    EU = 2,
+    CHONE = 0x10
 };
 
 /* Scan type parameter for scan request */
