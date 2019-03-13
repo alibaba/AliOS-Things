@@ -5,6 +5,8 @@
 #ifndef HAL_WDG_H
 #define HAL_WDG_H
 
+#include <stdint.h>
+
 typedef struct {
     uint32_t timeout;  /* Watchdag timeout */
 } wdg_config_t;

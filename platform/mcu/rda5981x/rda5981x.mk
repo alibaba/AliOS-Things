@@ -72,7 +72,12 @@ $(NAME)_SOURCES := startup/soc_init.c \
                    hal/wifi_port.c \
                    hal/ota_port.c \
                    hal/hal_pwm.c \
-                   hal/trng_api.c
+                   hal/trng_api.c \
+                   hal/wdg.c \
+                   hal/timer.c \
+                   hal/timer_isr.c \
+                   hal/rtc.c \
+                   hal/adc.c
 
 $(NAME)_SOURCES += cmsis/cmsis_nvic.c \
                    driver/serial_api.c \
