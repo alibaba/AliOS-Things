@@ -12,6 +12,13 @@
 
 #define OOB_MAX 5
 
+typedef enum {
+    AT_RSP_PENDING = 0,
+    AT_RSP_PROCESSING,
+    AT_RSP_PROCESSED,
+    AT_RSP_INVALID,
+} at_rsp_state_t;
+
 typedef struct oob_s
 {
     char *     prefix;
@@ -35,18 +42,19 @@ typedef struct oob_s
  */
 typedef struct at_task_s
 {
-    slist_t   next;
-    void *    smpr;
-    char *    command;
-    char *    rsp;
-    char *    rsp_prefix;
-    char *    rsp_success_postfix;
-    char *    rsp_fail_postfix;
-    uint32_t  rsp_prefix_len;
-    uint32_t  rsp_success_postfix_len;
-    uint32_t  rsp_fail_postfix_len;
-    uint32_t  rsp_offset;
-    uint32_t  rsp_len;
+    slist_t        next;
+    void *         smpr;
+    char *         command;
+    char *         rsp;
+    char *         rsp_prefix;
+    char *         rsp_success_postfix;
+    char *         rsp_fail_postfix;
+    uint32_t       rsp_prefix_len;
+    uint32_t       rsp_success_postfix_len;
+    uint32_t       rsp_fail_postfix_len;
+    uint32_t       rsp_offset;
+    uint32_t       rsp_len;
+    at_rsp_state_t rsp_state;
 } at_task_t;
 #endif
 
