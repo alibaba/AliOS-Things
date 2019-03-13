@@ -5,6 +5,8 @@
 #ifndef HAL_ADC_H
 #define HAL_ADC_H
 
+#include <stdint.h>
+
 typedef struct {
     uint32_t sampling_cycle;  /* sampling period in number of ADC clock cycles */
 } adc_config_t;
