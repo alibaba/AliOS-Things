@@ -9,7 +9,3 @@ $(NAME)_SOURCES += \
                     espos/platform/rhino/espos_task.c      \
                     espos/platform/rhino/espos_time.c      \
                     espos/platform/rhino/espos_timer.c
-
-ifeq ($(HOST_MCU_FAMILY),mcu_esp8266)
-$(NAME)_SOURCES += espos/platform/rhino/espos_spinlock.c
-endif
