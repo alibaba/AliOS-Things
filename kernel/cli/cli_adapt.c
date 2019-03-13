@@ -10,6 +10,12 @@
 #include "cli_adapt.h"
 #include "cli_err.h"
 
+#ifndef STDIO_UART
+#define CLI_UART 0
+#else
+#define CLI_UART STDIO_UART
+#endif
+
 int32_t cli_task_create(const char *name, void (*fn)(void *), void *arg,
                         uint32_t stack, uint32_t priority)
 {
@@ -32,7 +38,7 @@ int32_t cli_getchar(char *inbuf)
     uint32_t recv_size = 0;
 
     memset(&uart_stdio, 0, sizeof(uart_dev_t));
-    uart_stdio.port = 0;
+    uart_stdio.port = CLI_UART;
 
     ret = hal_uart_recv_II(&uart_stdio, inbuf, 1, &recv_size, HAL_WAIT_FOREVER);
 
@@ -48,7 +54,7 @@ int32_t cli_putstr(char *msg)
     uart_dev_t uart_stdio;
 
     memset(&uart_stdio, 0, sizeof(uart_dev_t));
-    uart_stdio.port = 0;
+    uart_stdio.port = CLI_UART;
 
     if (msg[0] != 0) {
 
