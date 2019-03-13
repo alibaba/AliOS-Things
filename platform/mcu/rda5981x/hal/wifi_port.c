@@ -6,6 +6,7 @@
 #include "rda59xx_wifi_include.h"
 #include "hal/wifi.h"
 #include "lwip/ip4_addr.h"
+#include "lwip/inet.h"
 
 typedef enum {
     SCAN_NORMAL,
@@ -204,7 +205,7 @@ static int get_ip_stat(hal_wifi_module_t *m,
     rda59xx_bss_info bss_info;
     unsigned int state = 0;
     state = rda59xx_get_module_state();
-    if ((wifi_type == HAL_WIFI_MODE_STATION) && (state & STATE_STA)){
+    if ((wifi_type == STATION) && (state & STATE_STA)){
         rda59xx_sta_get_bss_info(&bss_info);
         ip4addr_aton(out_net_para->ip, &(bss_info.ipaddr));
         ip4addr_aton(out_net_para->mask, &(bss_info.mask));
@@ -317,6 +318,32 @@ static void start_monitor(hal_wifi_module_t *m)
     rda59xx_sniffer_enable(sniffer_cb);
     rda59xx_sniffer_set_filter(1, 1, 0x27e77);
     filter_backup = 0x27e77;
+}
+
+static int start_ap(hal_wifi_module_t *m, const char *ssid, const char *passwd, int interval, int hide)
+{
+    rda59xx_ap_info aws_ap_info;
+    memset((void*)&aws_ap_info, 0, sizeof(rda59xx_ap_info));
+
+    strncpy(aws_ap_info.ssid, ssid, sizeof(aws_ap_info.ssid));
+    strncpy(aws_ap_info.pw, passwd, sizeof(aws_ap_info.pw));
+
+    aws_ap_info.channel = 6;
+    aws_ap_info.hidden = hide;
+    aws_ap_info.beacon = interval;
+
+	aws_ap_info.dhcps=inet_addr("10.10.100.1");
+	aws_ap_info.dhcpe=inet_addr("10.10.100.255");
+	aws_ap_info.ip=inet_addr("10.10.100.1");
+	aws_ap_info.gateway=inet_addr("10.10.100.1");
+	aws_ap_info.netmask=inet_addr("255.255.255.0");
+
+	return rda59xx_ap_enable(&aws_ap_info);
+}
+
+static int stop_ap(hal_wifi_module_t *m)
+{
+    return rda59xx_ap_disable();
 }
 
 static void stop_monitor(hal_wifi_module_t *m)
