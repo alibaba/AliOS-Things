@@ -5,6 +5,8 @@
 #ifndef HAL_RTC_H
 #define HAL_RTC_H
 
+#include <stdint.h>
+
 #define HAL_RTC_FORMAT_DEC  1
 #define HAL_RTC_FORMAT_BCD  2
 
