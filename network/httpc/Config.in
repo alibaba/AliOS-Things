@@ -1,0 +1,6 @@
+
+config AOS_COMP_HTTPC
+    bool "httpc"
+    default n
+    help
+        AliOS THings http client
