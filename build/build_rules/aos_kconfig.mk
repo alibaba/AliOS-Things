@@ -10,7 +10,7 @@ export AOS_CONFIG_IN := $(SOURCE_ROOT)build/Config.in
 export AOS_CONFIG_DIR := $(BUILD_DIR)/config
 
 KCONFIG_TOOLPATH ?=
-KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig/$(HOST_OS)/
+KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig/
 
 ifneq (,$(wildcard $(KCONFIG_DIR)COPYING))
 KCONFIG_TOOLPATH := $(KCONFIG_DIR)
@@ -67,6 +67,13 @@ menuconfig: $(KCONFIG_MCONF)
 $(filter-out menuocnfig %_defconfig, $(noconfig_targets)): $(KCONFIG_CONF)
 $(AOS_CONFIG) $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: | $(KCONFIG_CONF)
 $(DEFCONFIG_FILES): | $(KCONFIG_CONF)
+endif
+
+ifeq (yes,$(DOWNLOAD_KCONFIG))
+menuconfig: $(KCONFIG_MCONF)
+%_defconfig: $(KCONFIG_CONF)
+$(filter-out menuocnfig %_defconfig, $(noconfig_targets)): $(KCONFIG_CONF)
+$(AOS_CONFIG) $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF)
 endif
 
 # Use -include for GCC and --preinclude for other ARM compilers
