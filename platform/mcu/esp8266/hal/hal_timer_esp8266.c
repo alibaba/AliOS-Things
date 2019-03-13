@@ -7,6 +7,8 @@
 #include "aos/hal/timer.h"
 #include "driver/hw_timer.h"
 
+extern void hw_timer_enable(bool en);
+
 int32_t hal_timer_init(timer_dev_t *tim)
 {
     bool reload = 0;
@@ -33,7 +35,7 @@ void hal_timer_stop(timer_dev_t *tim)
 {
     hw_timer_enable(false);
 
-    return 0;
+    return;
 }
 
 int32_t hal_timer_start(timer_dev_t *tim)
