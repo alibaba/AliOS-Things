@@ -447,12 +447,25 @@ int bt_mesh_trans_send(struct bt_mesh_net_tx *tx, struct net_buf_simple *msg,
 	BT_DBG("len %u: %s", msg->len, bt_hex(msg->data, msg->len));
 
 	if (tx->ctx->app_idx == BT_MESH_KEY_DEV) {
+	#if CONFIG_BT_MESH_PROVISIONER
+		if (bt_mesh_is_provisioner_en()) {
+			key = provisioner_get_device_key(tx->ctx->addr);
+		} else {
+			key = bt_mesh.dev_key;
+		}
+	#else
 		key = bt_mesh.dev_key;
+	#endif
 		tx->aid = 0;
 	} else {
 		struct bt_mesh_app_key *app_key;
-
+	#if CONFIG_BT_MESH_PROVISIONER
+		if (bt_mesh_is_provisioner_en()) {
+			app_key = provisioner_app_key_find(tx->ctx->app_idx);
+		}
+	#else
 		app_key = bt_mesh_app_key_find(tx->ctx->app_idx);
+	#endif
 		if (!app_key) {
 			return -EINVAL;
 		}
@@ -583,8 +596,23 @@ static int sdu_recv(struct bt_mesh_net_rx *rx, u8_t hdr, u8_t aszmic,
 	buf->len -= APP_MIC_LEN(aszmic);
 
 	if (!AKF(&hdr)) {
+		u8_t *dev_key = NULL;
 		net_buf_simple_init(sdu, 0);
-		err = bt_mesh_app_decrypt(bt_mesh.dev_key, true, aszmic, buf,
+
+	#if CONFIG_BT_MESH_PROVISIONER
+		if (bt_mesh_is_provisioner_en()) {
+			dev_key = provisioner_get_device_key(rx->ctx.addr);
+		}
+	#else
+		dev_key = bt_mesh.dev_key;
+	#endif
+
+		if (!dev_key) {
+			BT_DBG("%s: get NULL dev_key", __func__);
+			return -EINVAL;
+		}
+
+		err = bt_mesh_app_decrypt(dev_key, true, aszmic, buf,
 					  sdu, ad, rx->ctx.addr, rx->dst,
 					  rx->seq, BT_MESH_NET_IVI_RX(rx));
 		if (err) {
@@ -597,9 +625,23 @@ static int sdu_recv(struct bt_mesh_net_rx *rx, u8_t hdr, u8_t aszmic,
 		return 0;
 	}
 
-	for (i = 0; i < ARRAY_SIZE(bt_mesh.app_keys); i++) {
-		struct bt_mesh_app_key *key = &bt_mesh.app_keys[i];
+	u32_t array_size = 0;
+
+#if CONFIG_BT_MESH_PROVISIONER
+	array_size = ARRAY_SIZE(bt_mesh.p_app_keys);
+#else
+	array_size = ARRAY_SIZE(bt_mesh.app_keys);
+#endif
+
+	for (i = 0; i < array_size; i++) {
+		struct bt_mesh_app_key *key;
 		struct bt_mesh_app_keys *keys;
+
+	#if CONFIG_BT_MESH_PROVISIONER
+		key = &bt_mesh.p_app_keys[i];
+	#else
+		key = &bt_mesh.app_keys[i];
+	#endif
 
 		/* Check that this AppKey matches received net_idx */
 		if (key->net_idx != rx->sub->net_idx) {

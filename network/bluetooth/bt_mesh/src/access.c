@@ -577,6 +577,17 @@ static int model_send(struct bt_mesh_model *model,
 		return -EAGAIN;
 	}
 
+	#if CONFIG_BT_MESH_PROVISIONER
+		if (!bt_mesh_is_provisioner_en()) {
+	#endif
+			if (!bt_mesh_is_provisioned()) {
+				BT_ERR("Local node is not yet provisioned");
+				return -EAGAIN;
+			}
+	#if CONFIG_BT_MESH_PROVISIONER
+		}
+	#endif
+
 	if (net_buf_simple_tailroom(msg) < 4) {
 		BT_ERR("Not enough tailroom for TransMIC");
 		return -EINVAL;
