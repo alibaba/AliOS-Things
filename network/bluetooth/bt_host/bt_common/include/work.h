@@ -27,6 +27,7 @@ struct k_work {
     atomic_t flags[1];
     uint32_t start_ms;
     uint32_t timeout;
+    int      index;
 };
 
 #define _K_WORK_INITIALIZER(work_handler) \
