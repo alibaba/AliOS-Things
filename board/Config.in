@@ -609,7 +609,7 @@ endif
 source "board/stm32f769i-discovery/Config.in"
 if AOS_BOARD_B_F769
     config AOS_BUILD_BOARD
-        default "b_f769"
+        default "stm32f769i-discovery"
 
     source "platform/mcu/stm32f7xx/Config.in"
     source "platform/arch/arm/armv7m/Config.in"
