@@ -29,8 +29,8 @@
 #define AT_RECV_FAIL_POSTFIX "ERROR\r\n"
 #define AT_SEND_DELIMITER "\r"
 
-// send delay
-#define AT_SEND_DATA_DELAY_MS 50
+// send wait prompt default '>'
+#define AT_SEND_DATA_WAIT_PROMPT 1
 
 // AT event
 #define AT_EVENT_ENET_DATA "+ENETEVENT:"
