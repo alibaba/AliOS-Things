@@ -389,14 +389,14 @@ static int sim800_gprs_ip_init(void)
     char cmd[SIM800_DEFAULT_CMD_LEN] = {0};
     char rsp[SIM800_DEFAULT_RSP_LEN] = {0};
 
-    /*Deactivate GPRS PDP Context*/
+    /* Deactivate GPRS PDP Context */
     if (sim800_send_with_retry(AT_CMD_GPRS_PDP_DEACTIVE, strlen(AT_CMD_GPRS_PDP_DEACTIVE), true,
         NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, SIM800_AT_CMD_SUCCESS_RSP) < 0) {
         LOGE(TAG, "Deactivate GPRS PDP Context failed\n");
         return -1;
     }
 
-    /*set multi ip connection mode*/
+    /* set multi ip connection mode */
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_MULTI_IP_CONNECTION, 1);
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
@@ -405,17 +405,17 @@ static int sim800_gprs_ip_init(void)
         return -1;
     }
 
-    /*not prompt echo > when sending data*/
+    /* do prompt echo > when sending data */
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
-    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_SEND_DATA_PROMPT_SET, 0);
+    snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_SEND_DATA_PROMPT_SET, 1);
     at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, rsp, SIM800_DEFAULT_RSP_LEN, NULL);
     if (strstr(rsp, SIM800_AT_CMD_SUCCESS_RSP) == NULL) {
         LOGE(TAG, "%s %d failed rsp %s\r\n", __func__, __LINE__, rsp);
         return -1;
     }
 
-    /*Show Remote ip and port when receive data*/
+    /* Show Remote ip and port when receive data */
     memset(rsp, 0, SIM800_DEFAULT_RSP_LEN);
     memset(cmd, 0, SIM800_DEFAULT_CMD_LEN);
     snprintf(cmd, SIM800_DEFAULT_CMD_LEN - 1, "%s=%d", AT_CMD_RECV_DATA_FORMAT_SET, 1);
