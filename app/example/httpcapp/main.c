@@ -14,7 +14,9 @@
 #include "http_client_api.h"
 
 bool httpc_running = false;
+HTTPC_METHOD_TYPE_T method;
 httpc_handle_t httpc_handle = 0;
+char server_name[32] = "http://httpie.org/";
 
 static int httpc_recv_fun(httpc_handle_t httpc, uint8_t *body_buf, uint16_t body_len, int8_t err)
 {
@@ -24,15 +26,12 @@ static int httpc_recv_fun(httpc_handle_t httpc, uint8_t *body_buf, uint16_t body
 
 static void httpc_delayed_action(void *arg)
 {
-    HTTPC_METHOD_TYPE_T method = (HTTPC_METHOD_TYPE_T)(*(HTTPC_METHOD_TYPE_T *)arg);
-
-    if (httpc_handle == 0) {
+    if (httpc_handle == 0 || httpc_running == false) {
         httpc_running = false;
-        return;
+        goto exit;
     }
 
     LOG("http session %x method %d at %d\n", httpc_handle, method, (uint32_t)aos_now_ms());
-printf("%s,%d\r\n",__func__,__LINE__);
     switch (method) {
         case GET:
             httpc_send_request(httpc_handle, GET, NULL, NULL, 0);
@@ -41,17 +40,15 @@ printf("%s,%d\r\n",__func__,__LINE__);
             break;
     }
 
-    if (httpc_running == true) {
-        aos_post_delayed_action(100, httpc_delayed_action, (void *)(long)method);
-    }
+exit:
+    aos_post_delayed_action(100, httpc_delayed_action, (void *)(long)method);
 }
 
 static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
 {
     const char *type = argc > 1? argv[1]: "";
-    HTTPC_METHOD_TYPE_T method;
     httpc_connection_t settings;
-    int socket;
+    int fd;
 
     if (strncmp(type, "stop", strlen("stop")) == 0) {
         httpc_running = false;
@@ -59,14 +56,15 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
     }
 
     if (httpc_running == false) {
-        socket = socket(AF_INET, SOCK_STREAM, 0);
-        if (socket < 0) {
+        fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (fd < 0) {
             LOG("alloc socket fd fail\n");
             return;
         }
         memset(&settings, 0, sizeof(settings));
-        settings.socket = socket;
+        settings.socket = fd;
         settings.recv_fn = httpc_recv_fun;
+        settings.server_name = server_name;
         httpc_handle = httpc_init(&settings);
         if (httpc_handle == 0) {
             LOG("http session init fail\n");
@@ -77,10 +75,6 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
     if (strncmp(type, "GET", strlen("GET")) == 0) {
         method = GET;
         httpc_running = true;
-    }
-
-    if (httpc_running == true) {
-        aos_post_delayed_action(100, httpc_delayed_action, (void *)(long)method);
     }
 }
 
@@ -97,5 +91,7 @@ int application_start(int argc, char *argv[])
     netmgr_start(false);
     aos_cli_register_command(&httpc_cmd);
     http_client_intialize();
+    aos_post_delayed_action(100, httpc_delayed_action, NULL);
     aos_loop_run();
+    return 0;
 }
