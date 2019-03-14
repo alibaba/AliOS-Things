@@ -43,7 +43,7 @@ static void httpc_recv_thread(void *arg)
     httpc_t *httpc_sessions = (httpc_t *)arg;
     fd_set sets;
     uint8_t index = 0;
-    uint16_t max_fd = 0;
+    int max_fd = -1;
     int ret;
     uint8_t buf[CONFIG_HTTPC_RX_BUF_SIZE];
 
@@ -51,7 +51,7 @@ static void httpc_recv_thread(void *arg)
     while (1) {
         FD_ZERO(&sets);
         for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
-            if (httpc_sessions[index].socket >= 0) {
+            if (httpc_sessions[index].socket < 0) {
                 continue;
             }
             if (max_fd < httpc_sessions[index].socket) {
@@ -59,10 +59,14 @@ static void httpc_recv_thread(void *arg)
             }
             FD_SET(httpc_sessions[index].socket, &sets);
         }
-        ret = select(max_fd + 1, NULL, &sets, NULL, NULL);
+        if (max_fd == -1) {
+            aos_msleep(1);
+            continue;
+        }
+        ret = select(max_fd + 1, &sets, NULL, NULL, NULL);
         if (ret > 0) {
             for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
-                if (httpc_sessions[index].socket >= 0) {
+                if (httpc_sessions[index].socket < 0) {
                     continue;
                 }
                 if (FD_ISSET(httpc_sessions[index].socket, &sets)) {
