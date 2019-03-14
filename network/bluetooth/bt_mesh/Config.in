@@ -51,4 +51,10 @@ config CONFIG_BT_MESH_HEALTH_CLI
 	help
 	  Enable support for the health client model.
 
+config CONFIG_BT_MESH_PROVISIONER
+	bool "Enable Provisioner"
+	default n
+	help
+	  ENable support for Provisioner Service.
+
 endif

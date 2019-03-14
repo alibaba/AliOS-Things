@@ -33,6 +33,8 @@
 
 static bool provisioned;
 
+static volatile bool provisioner_en;
+
 int bt_mesh_provision(const u8_t net_key[16], u16_t net_idx,
 		      u8_t flags, u32_t iv_index, u32_t seq,
 		      u16_t addr, const u8_t dev_key[16])
@@ -191,6 +193,71 @@ int bt_mesh_prov_disable(bt_mesh_prov_bearer_t bearers)
 	return 0;
 }
 
+#if CONFIG_BT_MESH_PROVISIONER
+
+bool bt_mesh_is_provisioner_en(void)
+{
+	return provisioner_en;
+}
+
+int bt_mesh_provisioner_enable(bt_mesh_prov_bearer_t bearers)
+{
+	int err;
+
+	if (bt_mesh_is_provisioner_en()) {
+		BT_ERR("Provisioner already enabled");
+		return -EALREADY;
+	}
+
+	err = provisioner_upper_init();
+	if (err) {
+		BT_ERR("%s: provisioner_upper_init fail", __func__);
+		return err;
+	}
+
+	if ((IS_ENABLED(CONFIG_BT_MESH_PB_ADV) &&
+			(bearers & BT_MESH_PROV_ADV)) ||
+			(IS_ENABLED(CONFIG_BT_MESH_PB_GATT) &&
+			(bearers & BT_MESH_PROV_GATT))) {
+		bt_mesh_scan_enable();
+	}
+
+	if (IS_ENABLED(CONFIG_BT_MESH_PB_GATT) &&
+			(bearers & BT_MESH_PROV_GATT)) {
+		provisioner_pb_gatt_enable();
+	}
+
+	provisioner_en = true;
+
+	return 0;
+}
+
+int bt_mesh_provisioner_disable(bt_mesh_prov_bearer_t bearers)
+{
+	if (!bt_mesh_is_provisioner_en()) {
+		BT_ERR("Provisioner already disabled");
+		return -EALREADY;
+	}
+
+	if (IS_ENABLED(CONFIG_BT_MESH_PB_GATT) &&
+			(bearers & BT_MESH_PROV_GATT)) {
+		provisioner_pb_gatt_disable();
+	}
+
+	if ((IS_ENABLED(CONFIG_BT_MESH_PB_ADV) &&
+			(bearers & BT_MESH_PROV_ADV)) &&
+			(IS_ENABLED(CONFIG_BT_MESH_PB_GATT) &&
+			(bearers & BT_MESH_PROV_GATT))) {
+		bt_mesh_scan_disable();
+	}
+
+	provisioner_en = false;
+
+	return 0;
+}
+
+#endif /* CONFIG_BT_MESH_PROVISIONER */
+
 #ifdef CONFIG_MESH_STACK_ALONE
 static void bt_mesh_prepare()
 {
@@ -199,7 +266,8 @@ static void bt_mesh_prepare()
 #endif
 
 int bt_mesh_init(const struct bt_mesh_prov *prov,
-		 const struct bt_mesh_comp *comp)
+					const struct bt_mesh_comp *comp,
+					const struct bt_mesh_provisioner *provisioner)
 {
 	int err;
 
@@ -224,13 +292,24 @@ int bt_mesh_init(const struct bt_mesh_prov *prov,
 		}
 	}
 
+	#if CONFIG_BT_MESH_PROVISIONER
+		err = provisioner_prov_init(provisioner);
+		if (err) {
+			return err;
+		}
+	#endif
+
 	bt_mesh_net_init();
 	bt_mesh_trans_init();
 	bt_mesh_beacon_init();
 	bt_mesh_adv_init();
 
 	if (IS_ENABLED(CONFIG_BT_MESH_PROXY)) {
+#if CONFIG_BT_MESH_PROVISIONER
+	//	provisioner_proxy_init();
+#else
 		bt_mesh_proxy_init();
+#endif
 	}
 
 	return 0;

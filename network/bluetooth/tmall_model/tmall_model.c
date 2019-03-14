@@ -36,6 +36,7 @@ static void print_heap()
 
 static struct bt_mesh_prov prov;
 static struct bt_mesh_comp comp;
+static struct bt_mesh_provisioner provisioner;
 
 static struct bt_mesh_model_pub gen_level_pub;
 static struct bt_mesh_model_pub lightness_srv_pub;
@@ -477,7 +478,7 @@ static void bt_mesh_ready(int err)
         return;
     }
 
-    ret = bt_mesh_init(&prov, &comp);
+    ret = bt_mesh_init(&prov, &comp, &provisioner);
     if (ret) {
         printk("Initializing mesh failed (err %d)\n", ret);
         return;

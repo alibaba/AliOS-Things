@@ -172,6 +172,120 @@ struct bt_mesh_prov {
     void        (*reset)(void);
 };
 
+struct bt_mesh_provisioner {
+    /* Provisioner device uuid */
+    const u8_t *prov_uuid;
+
+    /*
+     * Primary element address of the provisioner, for
+     * temporary provisioner no need to initialize it.
+     */
+    const u16_t prov_unicast_addr;
+
+    /*
+     * Starting unicast address going to assigned, for
+     * temporary provisioner no need to initialize it.
+     */
+    u16_t prov_start_address;
+
+    /* Attention timer contained in Provisioning Invite */
+    u8_t  prov_attention;
+
+    /* Provisioner provisioning Algorithm */
+    u8_t  prov_algorithm;
+
+    /* Provisioner public key oob */
+    u8_t  prov_pub_key_oob;
+
+    /** @brief Input is requested.
+     *
+     *  This callback notifies the application that it should
+     *  read device's public key with OOB
+     *
+     *  @param remote_pub_key Public key pointer of the device.
+     *
+     *  @return Zero on success or negative error code otherwise
+     */
+    int  (*prov_pub_key_oob_cb)(u8_t remote_pub_key[64]);
+
+    /* Provisioner static oob value */
+    u8_t *prov_static_oob_val;
+
+    /* Provisioner static oob value length */
+    u8_t  prov_static_oob_len;
+
+    /** @brief Provisioner input a number read from device output
+     *
+     *  This callback notifies the application that it should
+     *  input the number given by the device.
+     *
+     *  @param act:  The output action of the device
+     *  @param size: The output size of the device
+     *
+     *  @return Zero on success or negative error code otherwise
+     */
+    int  (*prov_input_num)(bt_mesh_output_action_t act, u8_t size);
+
+    /** @brief Provisioner output a number to the device
+     *
+     *  This callback notifies the application that it should
+     *  output the number to the device.
+     *
+     *  @param act:  The input action of the device
+     *  @param size: The input size of the device
+     *
+     *  @return Zero on success or negative error code otherwise
+     */
+    int  (*prov_output_num)(bt_mesh_input_action_t act, u8_t size);
+
+    /*
+     * Key refresh and IV update flag, for temporary provisioner no
+     * need to initialize it.
+     */
+    u8_t  flags;
+
+    /*
+     * IV index, for temporary provisioner no need to initialize it.
+     */
+    u32_t iv_index;
+
+    /** @brief Provisioner has opened a provisioning link.
+     *
+     *  This callback notifies the application that a provisioning
+     *  link has been opened on the given provisioning bearer.
+     *
+     *  @param bearer Provisioning bearer.
+     */
+    void (*prov_link_open)(bt_mesh_prov_bearer_t bearer);
+
+    /** @brief Provisioner has closed a provisioning link.
+     *
+     *  This callback notifies the application that a provisioning
+     *  link has been closed on the given provisioning bearer.
+     *
+     *  @param bearer Provisioning bearer.
+     *  @param reason Provisioning link close reason(disconnect reason)
+     *                0xFF: disconnect due to provisioner_pb_gatt_disable()
+     */
+    void (*prov_link_close)(bt_mesh_prov_bearer_t bearer, u8_t reason);
+
+    /** @brief Provision one device is complete.
+     *
+     *  This callback notifies the application that provisioner has
+     *  successfully provisioned a device, and the node has been assigned
+     *  with the specified NetKeyIndex and primary element address.
+     *
+     *  @param node_idx     Node index within the node(provisioned device) queue.
+     *  @param device_uuid  Provisioned device device uuid pointer.
+     *  @param unicast_addr Provisioned device assigned unicast address.
+     *  @param element_num  Provisioned device element number.
+     *  @param netkey_idx   Provisioned device assigned netkey index.
+     */
+    void (*prov_complete)(int node_idx, const u8_t device_uuid[16],
+                          u16_t unicast_addr, u8_t element_num,
+                          u16_t netkey_idx);
+};
+
 /** @brief Initialize Mesh support
  *
  *  After calling this API, the node will not automatically advertise as
@@ -184,7 +298,8 @@ struct bt_mesh_prov {
  *  @return Zero on success or (negative) error code otherwise.
  */
 int bt_mesh_init(const struct bt_mesh_prov *prov,
-                 const struct bt_mesh_comp *comp);
+                 const struct bt_mesh_comp *comp,
+                 const struct bt_mesh_provisioner *provisioner);
 
 /** @brief Reset the state of the local Mesh node.
  *
