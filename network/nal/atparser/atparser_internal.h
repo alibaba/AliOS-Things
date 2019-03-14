@@ -13,7 +13,8 @@
 #define OOB_MAX 5
 
 typedef enum {
-    AT_RSP_PENDING = 0,
+    AT_RSP_WAITPROMPT = 0,
+    AT_RSP_PENDING,
     AT_RSP_PROCESSING,
     AT_RSP_PROCESSED,
     AT_RSP_INVALID,
@@ -100,6 +101,14 @@ typedef struct
 
 #ifndef AT_SEND_DATA_DELAY_MS
 #define AT_SEND_DATA_DELAY_MS  0
+#endif
+
+#ifndef AT_SEND_DATA_WAIT_PROMPT
+#define AT_SEND_DATA_WAIT_PROMPT 0
+#endif
+
+#ifndef AT_SEND_DATA_PROMPT
+#define AT_SEND_DATA_PROMPT ">"
 #endif
 
 void *atpsr_malloc(uint32_t size);
