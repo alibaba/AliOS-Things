@@ -361,8 +361,12 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     }
 
     if (data && datalen) {
-        if (AT_SEND_DATA_DELAY_MS > 0)
-            aos_msleep(AT_SEND_DATA_DELAY_MS);
+        if (AT_SEND_DATA_WAIT_PROMPT) {
+            atcmd_config_t prompt = {NULL, AT_SEND_DATA_PROMPT, NULL};
+            if (at_yield(NULL, 0, &prompt, at._timeout) <  0) {
+                return -1;
+            }
+        }
 
         if (at_send_no_reply(data, datalen, false) < 0) {
             return -1;
@@ -467,7 +471,10 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     tsk->command = (char *)cmd;
     tsk->rsp     = replybuf;
     tsk->rsp_len = bufsize;
-    tsk->rsp_state = AT_RSP_PENDING;
+    if (AT_SEND_DATA_WAIT_PROMPT && data != NULL && datalen > 0)
+       tsk->rsp_state = AT_RSP_WAITPROMPT;
+    else
+       tsk->rsp_state = AT_RSP_PENDING;
 
     at_worker_task_add(tsk);
 
@@ -485,9 +492,13 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
         }
     }
 
-    if (data && datalen > 0) {
-        if (AT_SEND_DATA_DELAY_MS > 0)
-            aos_msleep(AT_SEND_DATA_DELAY_MS);
+    if (data != NULL && datalen > 0) {
+        if (AT_SEND_DATA_WAIT_PROMPT) {
+            if ((ret = atpsr_sem_wait(tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
+                atpsr_err("sem_wait failed");
+                goto end;
+            }
+        }
 
         if ((ret = at_sendto_lower(at._pstuart, (void *)data, datalen, at._timeout, true)) != 0) {
             atpsr_err("uart send delimiter failed");
@@ -681,6 +692,17 @@ int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
 
         at_scan_for_callback(c, buf, &offset);
 
+        if (AT_SEND_DATA_WAIT_PROMPT && atcmdconfig &&
+            atcmdconfig->reply_success_postfix &&
+            strncmp(atcmdconfig->reply_success_postfix,
+                    AT_SEND_DATA_PROMPT, strlen(AT_SEND_DATA_PROMPT)) == 0) {
+            if (offset >= strlen(AT_SEND_DATA_PROMPT) &&
+                 strncmp(buf + offset - strlen(AT_SEND_DATA_PROMPT),
+                         AT_SEND_DATA_PROMPT, strlen(AT_SEND_DATA_PROMPT)) == 0) {
+                return 0;
+            }
+        }
+
         if (replybuf == NULL || bufsize <= 0) {
             // if no task, continue recv
             continue;
@@ -747,7 +769,7 @@ static int at_scan_for_response(char c, char *buf, int *index)
     int        rsp_prefix_len          = 0;
     int        rsp_success_postfix_len = 0;
     int        rsp_fail_postfix_len    = 0;
-    at_task_t *tsk                = NULL;
+    at_task_t *tsk                 = NULL;
     char      *rsp_prefix          = NULL;
     char      *rsp_success_postfix = NULL;
     char      *rsp_fail_postfix    = NULL;
@@ -761,7 +783,8 @@ static int at_scan_for_response(char c, char *buf, int *index)
 
     atpsr_mutex_lock(at.task_mutex);
     slist_for_each_entry_safe(&at.task_l, cur, tsk, at_task_t, next) {
-    if (tsk->rsp_state == AT_RSP_PENDING ||
+    if (tsk->rsp_state == AT_RSP_WAITPROMPT ||
+        tsk->rsp_state == AT_RSP_PENDING ||
         tsk->rsp_state == AT_RSP_PROCESSING)
         break;
     }
@@ -769,6 +792,23 @@ static int at_scan_for_response(char c, char *buf, int *index)
     /* if no task, continue recv */
     if (NULL == tsk) {
         atpsr_debug("No task in queue");
+        atpsr_mutex_unlock(at.task_mutex);
+        return 0;
+    }
+
+    if (AT_SEND_DATA_WAIT_PROMPT &&
+        tsk->rsp_state == AT_RSP_WAITPROMPT &&
+        offset >= strlen(AT_SEND_DATA_PROMPT)) {
+        if (strncmp(buf + offset - strlen(AT_SEND_DATA_PROMPT),
+                    AT_SEND_DATA_PROMPT,
+                    strlen(AT_SEND_DATA_PROMPT)) == 0) {
+            tsk->rsp_state = AT_RSP_PENDING;
+            atpsr_sem_signal(tsk->smpr);
+            memset(buf, 0, offset);
+            offset = 0;
+        }
+
+        *index = offset;
         atpsr_mutex_unlock(at.task_mutex);
         return 0;
     }
@@ -832,9 +872,8 @@ static int at_scan_for_response(char c, char *buf, int *index)
             tsk->rsp_state = AT_RSP_PENDING;
         }
     }
-    atpsr_mutex_unlock(at.task_mutex);
-
     *index = offset;
+    atpsr_mutex_unlock(at.task_mutex);
 
     /* for buffer check */
     memcpy_size = rsp_prefix_len > rsp_success_postfix_len
