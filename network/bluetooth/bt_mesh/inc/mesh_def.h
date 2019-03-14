@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+typedef uint8_t esp_ble_mesh_dev_add_flag_t;
+#define ADD_DEV_RM_AFTER_PROV_FLAG  BIT(0)
+#define ADD_DEV_START_PROV_NOW_FLAG BIT(1)
+#define ADD_DEV_FLUSHABLE_DEV_FLAG  BIT(2)
+
 /* Error codes for Error response PDU */
 #define BT_MESH_ATT_ERR_INVALID_HANDLE               0x01
 #define BT_MESH_ATT_ERR_READ_NOT_PERMITTED           0x02

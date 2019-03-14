@@ -396,6 +396,128 @@ static struct bt_mesh_prov prov = {
 	.input = input,
 };
 
+static void provisioner_link_open(bt_mesh_prov_bearer_t bearer)
+{
+	printk("Provisioner link opened on %s\n", bearer2str(bearer));
+}
+
+static void provisioner_link_close(bt_mesh_prov_bearer_t bearer)
+{
+	printk("Provisioner link closed on %s\n", bearer2str(bearer));
+}
+
+static void provisioner_complete(int node_idx, const u8_t device_uuid[16],
+										u16_t unicast_addr, u8_t element_num,
+										u16_t netkey_idx)
+{
+	printk("provisioner_complete\r\n");
+	printk("node_idx: %d\r\n", node_idx);
+	printk("device_uuid: %02x, %02x, %02x, %02x, %02x, %02x\r\n",
+				device_uuid[0], device_uuid[1], device_uuid[2], 
+				device_uuid[3], device_uuid[4], device_uuid[5]);
+	printk("unicast_addr: %u\r\n", unicast_addr);
+	printk("element_num: %u\r\n", element_num);
+	printk("netkey_idx: %u\r\n", netkey_idx);
+}
+
+int provisioner_input_num(bt_mesh_output_action_t act, u8_t size)
+{
+    bool    input_num_flag;
+
+	if (BT_MESH_DISPLAY_NUMBER == output) {
+		input_num_flag = true;
+	} else if (BT_MESH_DISPLAY_STRING == output) {
+		input_num_flag = false;
+	}
+
+	k_sem_take(&prov_input_sem, K_FOREVER);
+
+	printk("xxxxxxxxxxxx: %s", prov_input);
+	printk("get input ");
+	printk("xxxxxxxxxxxx: %u", prov_input_size);
+
+	bt_mesh_prov_input_data(prov_input, prov_input_size, input_num_flag);
+
+	return 0;
+}
+
+int provisioner_output_num(bt_mesh_input_action_t act, u8_t size)
+{
+	u32_t div[8]	= { 10, 100, 1000, 10000, 100000,
+						1000000, 10000000, 100000000 };
+	u32_t num		= 0;
+	u8_t  temp[8];
+	u8_t  i;
+    bool  output_num_flag;
+
+	if (BT_MESH_ENTER_NUMBER == input) {
+
+		output_num_flag = true;
+
+		bt_mesh_rand(&num, size);
+
+		num %= div[size - 1];
+
+		printk("===================");
+		printk("input number %06u in the device", num);
+		printk("===================");
+	
+		memset(temp, 0, sizeof(temp));
+	
+		for (i = size; i > 0; i--) {
+			temp[i - 1] = num & 0xFF;
+			num >>= 8;
+	
+			if (num == 0) {
+				break;
+			}
+		}
+	} else if (BT_MESH_ENTER_STRING == input) {
+		output_num_flag = false;
+	
+		bt_mesh_rand(temp, size);
+	
+		/* Normalize to '0' .. '9' & 'A' .. 'Z' */
+		for (i = 0; i < size; i++) {
+			temp[i] %= 36;
+			if (temp[i] < 10) {
+				temp[i] += '0';
+			} else {
+				temp[i] += 'A' - 10;
+			}
+		}
+		temp[size] = '\0';
+	
+		printk("===================");
+		printk("input string %s in the device", temp);
+		printk("===================");
+	}
+	
+	bt_mesh_prov_output_data(temp, size, output_num_flag);
+	
+	return 0;
+
+}
+
+static struct bt_mesh_provisioner provisioner = {
+	.prov_uuid              = 0,
+	.prov_unicast_addr      = 0,
+	.prov_start_address     = 1,
+	.prov_attention         = 0,
+	.prov_algorithm         = 0,
+	.prov_pub_key_oob       = 0,
+	.prov_pub_key_oob_cb    = 0,
+	.prov_static_oob_val    = 0,
+	.prov_static_oob_len    = 0,
+	.prov_input_num         = provisioner_input_num,
+	.prov_output_num        = provisioner_output_num,
+	.flags                  = 0,
+	.iv_index               = 0,
+	.prov_link_open         = provisioner_link_open,
+	.prov_link_close        = provisioner_link_close,
+	.prov_complete          = 0,
+};
+
 static int cmd_static_oob(int argc, char *argv[])
 {
 	if (argc < 2) {
@@ -539,7 +661,7 @@ static void bt_ready(int err)
 
         printk("Bluetooth initialized\n");
 
-        ret = bt_mesh_init(&prov, &comp);
+        ret = bt_mesh_init(&prov, &comp, &provisioner);
         if (ret) {
                 printk("Mesh initialization failed (err %d)\n", ret);
         }
@@ -1668,14 +1790,20 @@ static int cmd_pb(bt_mesh_prov_bearer_t bearer, int argc, char *argv[])
 #if defined(CONFIG_BT_MESH_PB_ADV)
 static int cmd_pb_adv(int argc, char *argv[])
 {
+#if defined(CONFIG_BT_MESH_PROV)
 	return cmd_pb(BT_MESH_PROV_ADV, argc, argv);
+#endif
+	return 0;
 }
 #endif /* CONFIG_BT_MESH_PB_ADV */
 
 #if defined(CONFIG_BT_MESH_PB_GATT)
 static int cmd_pb_gatt(int argc, char *argv[])
 {
+#if defined(CONFIG_BT_MESH_PROV)
 	return cmd_pb(BT_MESH_PROV_GATT, argc, argv);
+#endif
+	return 0;
 }
 #endif /* CONFIG_BT_MESH_PB_GATT */
 
@@ -2053,6 +2181,14 @@ static int cmd_del_fault(int argc, char *argv[])
 	return 0;
 }
 
+#if defined (CONFIG_BT_MESH_PROVISIONER)
+static int cmd_provisioner(int argc, char *argv[])
+{
+	printk("start provisioner");
+	bt_mesh_provisioner_enable(BT_MESH_PROV_ADV);
+}
+#endif
+
 static void print_all_help(struct mesh_shell_cmd *cmds)
 {
 	while (cmds->cmd_name != NULL) {
@@ -2141,6 +2277,36 @@ static int cmd_bunch_pb_gatt(int argc, char *argv[])
 }
 #endif
 
+extern struct k_sem prov_input_sem;
+extern u8_t   prov_input[8];
+extern u8_t   prov_input_size;
+
+static int cmd_provisioner_input_str(int argc, char *argv[])
+{
+	prov_input_size = strlen(argv[1]);
+
+	memcpy(prov_input, argv[1], prov_input_size);
+
+	k_sem_give(&prov_input_sem);
+}
+
+static int cmd_provisioner_input_num(int argc, char *argv[])
+{
+	u32_t   num = 0;
+	u8_t    i;
+
+	num = strtoul(argv[1], NULL, 0);
+
+	memset(prov_input, 0, sizeof(prov_input));
+
+	for (i = prov_input_size; i > 0; i--) {
+		prov_input[i - 1] = num & 0xFF;
+		num >>= 8;
+	}
+
+	k_sem_give(&prov_input_sem);
+}
+
 static const struct mesh_shell_cmd mesh_commands[] = {
 	{ "init", cmd_init, NULL },
 	{ "timeout", cmd_timeout, "[timeout in seconds]" },
@@ -2226,6 +2392,12 @@ static const struct mesh_shell_cmd mesh_commands[] = {
 #endif
 
 	{ "net-pressure-test", cmd_net_pressure_test, "<dst> <window(s)> <pkt-per-window> <test duration(s)>"},
+
+#if defined (CONFIG_BT_MESH_PROVISIONER)
+	{ "provisioner", cmd_provisioner, NULL },
+	{ "pinput-str", cmd_provisioner_input_str, "<string>" },
+	{ "pinput-num", cmd_provisioner_input_num, "<number>" },
+#endif
 
 	{ NULL, NULL, NULL}
 };
