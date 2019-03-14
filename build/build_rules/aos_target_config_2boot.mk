@@ -240,7 +240,7 @@ $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)
 # Find the matching platform and application from the build string components
 PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(BUILD_APP)),$(if $(wildcard $(SOURCE_ROOT)board/$(comp)),$(comp),)))
 $(info PLATFORM_FULL $(PLATFORM_FULL))
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(BUILD_APP)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/example/$(comp) $(SOURCE_ROOT)app/profile/$(comp) $(SOURCE_ROOT)$(comp) $(SOURCE_ROOT)test/develop/$(comp)),$(comp),)))
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(BUILD_APP)),$(if $(wildcard $(APPDIR)/$(comp) $(SOURCE_ROOT)app/*/$(comp) $(SOURCE_ROOT)app/$(comp) $(SOURCE_ROOT)$(comp) $(SOURCE_ROOT)test/develop/$(comp)),$(comp),)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 APP         :=$(notdir $(APP_FULL))
