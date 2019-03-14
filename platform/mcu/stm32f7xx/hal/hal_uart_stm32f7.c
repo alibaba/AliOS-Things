@@ -10,7 +10,7 @@
 
 #include "stm32f7xx_hal.h"
 #include "hal_uart_stm32f7.h"
-#include "aos\hal\uart.h"
+#include "aos/hal/uart.h"
 
 UART_HandleTypeDef huart1;
 
@@ -29,7 +29,7 @@ static int32_t uart1_init(uart_dev_t *uart)
   huart1.Init.OverSampling = UART_OVERSAMPLING_16;
   huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  
+
   if (HAL_UART_Init(&huart1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -88,7 +88,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
     for (i = 0; i < expect_size; i++)
     {
-        ret = HAL_UART_Receive_IT_Buf_Queue_1byte((UART_HandleTypeDef *)uart->priv, &pdata[i], timeout); 
+        ret = HAL_UART_Receive_IT_Buf_Queue_1byte((UART_HandleTypeDef *)uart->priv, &pdata[i], timeout);
         if (ret == 0) {
             rx_count++;
         } else {
