@@ -18,7 +18,7 @@ endif
 
 ifeq ($(CONFIG_LS_DEBUG), y)
 GLOBAL_DEFINES      += CONFIG_SSL_DEBUG
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libitls.a.dbg
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libitls_dbg.a
 else
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libitls.a
 endif

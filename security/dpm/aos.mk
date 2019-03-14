@@ -15,7 +15,7 @@ $(NAME)_DEFINES  += CONFIG_PLAT_AOS
 ifeq ($(CONFIG_LS_DEBUG), n)
 $(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libdpm.a
 else
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libdpm.a.dbg
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libdpm_dbg.a
 endif
 
 $(NAME)_COMPONENTS  := id2
