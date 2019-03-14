@@ -660,10 +660,6 @@
 #error "MBEDTLS_THREADING_PTHREAD and MBEDTLS_THREADING_ALT can not be defined simultaneously"
 #endif
 
-#if defined(MBEDTLS_PK_ALT)
-#undef MBEDTLS_BIGNUM_C
-#endif
-
 /*
  * Avoid warning from -pedantic. This is a convenient place for this
  * workaround since this is included by every single file before the
