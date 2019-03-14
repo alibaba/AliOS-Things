@@ -10,7 +10,7 @@ export AOS_CONFIG_IN := $(SOURCE_ROOT)build/Config.in
 export AOS_CONFIG_DIR := $(BUILD_DIR)/config
 
 KCONFIG_TOOLPATH ?=
-KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig/
+KCONFIG_DIR := $(SOURCE_ROOT)build/kconfig/$(HOST_OS)/
 
 ifneq (,$(wildcard $(KCONFIG_DIR)COPYING))
 KCONFIG_TOOLPATH := $(KCONFIG_DIR)
