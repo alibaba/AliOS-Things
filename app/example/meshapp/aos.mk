@@ -22,19 +22,6 @@ ifeq ($(MESHAPP_CONFIG_IPV6),n)
 GLOBAL_DEFINES += LWIP_IPV6=0
 endif
 
-ifneq (,$(filter linuxhost,$(COMPONENTS)))
-DDA ?= 1
-endif
-
-ifneq (,$(filter armhflinux,$(COMPONENTS)))
-DDA ?= 1
-endif
-
-ifeq ($(DDA),1)
-GLOBAL_LDFLAGS += -lreadline -lncurses
-$(NAME)_COMPONENTS  += dda
-endif
-
 ifneq (,$(filter EMW3060,$(MODULE)))
 GLOBAL_DEFINES += MESHAPP_LIGHT_ENABLED
 endif
