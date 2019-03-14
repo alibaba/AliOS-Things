@@ -23,6 +23,7 @@ typedef struct httpc_s {
     httpc_recv_fn recv_fn;
     uint16_t rx_state;
     uint16_t port;
+    bool connection;
 
     char header[CONFIG_HTTPC_HEADER_SIZE + 1];
     uint16_t header_len;

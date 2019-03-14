@@ -33,6 +33,7 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
         return 0;
     }
 
+    memset(&httpc_sessions[index], 0, sizeof(httpc_sessions[index]));
     if (settings->server_name == NULL ||
         strlen(settings->server_name) > CONFIG_HTTPC_SERVER_NAME_SIZE) {
         httpc_log("%s, server name is NULL or too long (max %d)", __func__, CONFIG_HTTPC_SERVER_NAME_SIZE);
@@ -45,8 +46,7 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
     }
 
     server_name_len = strlen(settings->server_name);
-    ret = http_str_search(httpc_sessions[index].server_name, ":", 0,
-                          strlen(httpc_sessions[index].server_name), &param);
+    ret = http_str_search(settings->server_name, ":", 0, strlen(settings->server_name), &param);
     if (ret == false) {
         httpc_log("%s, no : in server name", __func__);
         return 0;
@@ -57,23 +57,22 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
     // check https or http
     if (http_str_insensitive_cmp(param.param, "https", param.len) == true) {
         httpc_sessions[index].flags |= HTTP_CLIENT_FLAG_SECURE;
-    } else if (http_str_insensitive_cmp(param.param, "http", param.len) == true) {
+    } else if (http_str_insensitive_cmp(param.param, "http", param.len) == false) {
         httpc_log("%s, no http or https in server name", __func__);
         return 0;
     }
 
-    if (http_str_search(httpc_sessions[index].server_name, "://",
-                        server_name_offset, 3, NULL) == false) {
+    if (http_str_search(settings->server_name, "://", server_name_offset, 3, NULL) == false) {
         httpc_log("%s, server name format error", __func__);
         return 0;
     }
     server_name_offset += 3;
 
     // get host name
-    if (http_str_search(httpc_sessions[index].server_name, "/",
+    if (http_str_search(settings->server_name, "/",
                         server_name_offset, server_name_len - server_name_offset, &param) == false) {
-        httpc_sessions[index].server_name[server_name_len] = '/';
-        if (http_str_search(httpc_sessions[index].server_name, "/",
+        settings->server_name[server_name_len] = '/';
+        if (http_str_search(settings->server_name, "/",
                             server_name_offset, server_name_len - server_name_offset, &param) == false) {
             httpc_log("%s, server name format error", __func__);
             return 0;
@@ -195,6 +194,7 @@ static int8_t httpc_add_method(httpc_handle_t httpc, HTTPC_METHOD_TYPE_T method)
     httpc_t *http_session = (httpc_t *)httpc;
     char *hdr_ptr;
     int16_t free_space;
+    int8_t ret;
 
     if (http_session == NULL) {
         return HTTPC_FAIL;
@@ -205,38 +205,44 @@ static int8_t httpc_add_method(httpc_handle_t httpc, HTTPC_METHOD_TYPE_T method)
 
     switch (method) {
         case GET:
-            if (free_space < 4) {
+            if (free_space < 3) {
                 return HTTPC_FAIL;
             }
-            strncpy(hdr_ptr, "GET", 4);
-            http_session->header_len += 4;
+            strncpy(hdr_ptr, "GET", 3);
+            http_session->header_len += 3;
             break;
         case PUT:
+            if (free_space < 3) {
+                return HTTPC_FAIL;
+            }
+            strncpy(hdr_ptr, "PUT", 3);
+            http_session->header_len += 3;
+            break;
+        case POST:
             if (free_space < 4) {
                 return HTTPC_FAIL;
             }
-            strncpy(hdr_ptr, "PUT", 4);
+            strncpy(hdr_ptr, "POST", 4);
             http_session->header_len += 4;
-            break;
-        case POST:
-            if (free_space < 5) {
-                return HTTPC_FAIL;
-            }
-            strncpy(hdr_ptr, "POST", 5);
-            http_session->header_len += 5;
             break;
         default:
             return HTTPC_FAIL;
     }
 
-    return HTTPC_SUCCESS;
+    ret = httpc_add_space(httpc);
+    return ret;
 }
 
-static int8_t httpc_add_uri(httpc_handle_t httpc,const char *uri)
+static int8_t httpc_add_uri(httpc_handle_t httpc, const char *uri)
 {
     httpc_t *http_session = (httpc_t *)httpc;
     char *hdr_ptr;
     int16_t free_space;
+    int8_t ret;
+
+    if (uri == NULL) {
+        return HTTPC_SUCCESS;
+    }
 
     if (http_session == NULL) {
         return HTTPC_FAIL;
@@ -250,7 +256,8 @@ static int8_t httpc_add_uri(httpc_handle_t httpc,const char *uri)
     hdr_ptr = http_session->header + http_session->header_len;
     strncpy(hdr_ptr, uri, strlen(uri));
     http_session->header_len += strlen(uri);
-    return HTTPC_SUCCESS;
+    ret = httpc_add_space(httpc);
+    return ret;
 }
 
 static int8_t httpc_add_version(httpc_handle_t httpc)
@@ -264,14 +271,15 @@ static int8_t httpc_add_version(httpc_handle_t httpc)
     }
 
     free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
-    if ((strlen(HTTPC_VERSION) + 2) > free_space) {
+    if ((strlen(HTTPC_VERSION) + strlen(HTTPC_CRLF)) > free_space) {
         return HTTPC_FAIL;
     }
 
     hdr_ptr = http_session->header + http_session->header_len;
     strncpy(hdr_ptr, HTTPC_VERSION, strlen(HTTPC_VERSION));
+    hdr_ptr += strlen(HTTPC_VERSION);
     strncpy(hdr_ptr, HTTPC_CRLF, strlen(HTTPC_CRLF));
-    http_session->header_len += (strlen(HTTPC_VERSION) + strlen(HTTPC_VERSION));
+    http_session->header_len += (strlen(HTTPC_VERSION) + strlen(HTTPC_CRLF));
     return HTTPC_SUCCESS;
 }
 
@@ -280,6 +288,7 @@ int8_t httpc_send_request(httpc_handle_t httpc, HTTPC_METHOD_TYPE_T method,
 {
     httpc_t *http_session = (httpc_t *)httpc;
     int8_t ret = HTTPC_SUCCESS;
+    int socket_res;
     char *hdr_ptr;
 
     if (is_valid_method(method) == false) {
@@ -290,22 +299,14 @@ int8_t httpc_send_request(httpc_handle_t httpc, HTTPC_METHOD_TYPE_T method,
         return HTTPC_FAIL;
     }
 
+    memset(http_session->header, 0, sizeof(http_session->header));
+    http_session->header_len = 0;
     ret = httpc_add_method(httpc, method);
     if (ret != HTTPC_SUCCESS) {
         goto exit;
     }
 
-    ret = httpc_add_space(httpc);
-    if (ret != HTTPC_SUCCESS) {
-        goto exit;
-    }
-
     ret = httpc_add_uri(httpc, uri);
-    if (ret != HTTPC_SUCCESS) {
-        goto exit;
-    }
-
-    ret = httpc_add_space(httpc);
     if (ret != HTTPC_SUCCESS) {
         goto exit;
     }
@@ -327,14 +328,64 @@ int8_t httpc_send_request(httpc_handle_t httpc, HTTPC_METHOD_TYPE_T method,
         }
     }
 
+    ret = httpc_add_request_header(httpc, "Host", http_session->server_name);
+    if (ret != HTTPC_SUCCESS) {
+        goto exit;
+    }
+
     if ((http_session->flags & HTTP_CLIENT_FLAG_KEEP_ALIVE) == HTTP_CLIENT_FLAG_KEEP_ALIVE) {
         ret = httpc_add_request_header(httpc, "Connection", "Keep-Alive");
     } else {
         ret = httpc_add_request_header(httpc, "Connection", "close");
     }
+
     if (ret != HTTPC_SUCCESS) {
         goto exit;
     }
+
+    httpc_log("%s, send request header %s, socket %d, strlen %d, len %d\r\n",
+              __func__, http_session->header, http_session->socket, strlen(http_session->header), http_session->header_len);
+
+    if (http_session->connection == false) {
+        struct hostent *host_entry;
+        struct sockaddr_in addr;
+
+        memset(&addr, 0, sizeof(struct sockaddr_in));
+        host_entry = httpc_wrapper_gethostbyname(http_session->server_name);
+        if (host_entry == NULL) {
+            httpc_log("%s, get host name fail\r\n", __func__);
+            ret = HTTPC_FAIL;
+            goto exit;
+        }
+        addr.sin_family = AF_INET;
+        // addr.sin_port = htons(http_session->port);
+        addr.sin_port = htons(80);
+        addr.sin_addr.s_addr = *(uint32_t *)(host_entry->h_addr);
+        if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
+            httpc_log("not support https\r\n");
+        } else {
+            socket_res = httpc_wrapper_connect(http_session->socket, (const struct sockaddr *)&addr, sizeof(addr));
+        }
+        httpc_log("%s, connect %d\r\n", __func__, socket_res);
+        if (socket_res == 0) {
+            http_session->connection = true;
+        } else {
+            ret = HTTPC_FAIL;
+            goto exit;
+        }
+    }
+
+    if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
+        httpc_log("not support https\r\n");
+    } else {
+        socket_res = httpc_wrapper_send(http_session->socket, http_session->header, strlen(http_session->header), 0);
+    }
+
+    if (socket_res < 0) {
+        ret = HTTPC_FAIL;
+    }
+
+    httpc_log("%s, send %d, send res %d\r\n", __func__, strlen(http_session->header), socket_res);
 
 exit:
     return ret;
@@ -344,6 +395,7 @@ int32_t http_parser(httpc_t *http_session, void *data, uint16_t len)
 {
     int32_t parsed = 0;
 
+    //http_session->recv_fn(http_session->socket, data, len, HTTPC_SUCCESS);
     return parsed;
 }
 
@@ -353,9 +405,10 @@ static int http_client_recv(httpc_t *http_session, void *data, uint16_t len)
 
     httpc_log("%s, http session %x recv %d bytes data",
               __func__, (httpc_handle_t)http_session, len);
+    httpc_log("%s", data);
+
     http_parser(http_session, data, len);
 
-    http_session->recv_fn(http_session->socket, data, len, HTTPC_SUCCESS);
 }
 
 int8_t http_client_intialize(void)
