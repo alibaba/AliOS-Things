@@ -21,7 +21,8 @@
 #define WM_WIFI_WPS_BUSY		   -3
 /** scan is busing */
 #define WM_WIFI_SCANNING_BUSY	   -4
-
+/** station is connecting */
+#define WM_WIFI_STA_BUSY	       -5
 
 /* error number definition */
 /** no error */
@@ -329,6 +330,30 @@ void tls_wifi_set_listen_mode(u8 enable);
  * @note           None
  */
 u8 tls_wifi_get_listen_mode(void);
+
+/**
+ * @brief          This function is used to enable/disable special listen mode
+ *
+ * @param[in]      enable:non-zero, disable: 0
+ *
+ * @return         None
+ *
+ * @note           This function used when special oneshot start.
+ */
+void tls_wifi_set_special_mode(u8 enable);
+
+/**
+ * @brief          This function is used to get special listen mode
+ *
+ * @param          None
+ *
+ * @retval         0        		normal mode
+ * @retval         non-zero 	special listen mode
+ *
+ * @note           None
+ */
+u8 tls_wifi_get_special_mode(void);
+
 
 /**
 * @brief          This function is used to filter multicast frames
@@ -963,6 +988,12 @@ u8 tls_wifi_get_opmode(void);
  * @note           None
  */
 int tls_wifi_mem_cfg(u32 startmem, u8 txcnt, u8 rxcnt);
+
+/**
+ * @}
+ */
+int tls_wl_get_isr_count(void);
+
 
 #endif /* TLS_WIFI_FUNC_H */
 
