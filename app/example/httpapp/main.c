@@ -11,7 +11,7 @@
 #include <network/network.h>
 #include "ulog/ulog.h"
 #include "netmgr.h"
-#include "http_client_api.h"
+#include "http_api.h"
 
 bool httpc_running = false;
 HTTPC_METHOD_TYPE_T method;
