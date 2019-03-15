@@ -2,7 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "hal/soc/soc.h"
+#include "aos/hal/flash.h"
+#include "aos/hal/wdg.h"
 #include "rtos_pub.h"
 #include "drv_model_pub.h"
 #include "flash_pub.h"
@@ -48,15 +49,6 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
 	uint32_t status;
     DD_HANDLE flash_hdl;
 
-#ifdef CONFIG_AOS_KV_MULTIPTN_MODE
-    if (in_partition == CONFIG_AOS_KV_PTN) {
-        if (off_set >= CONFIG_AOS_KV_PTN_SIZE) {
-            in_partition = CONFIG_AOS_KV_SECOND_PTN;
-            off_set -= CONFIG_AOS_KV_PTN_SIZE;
-        }
-    }
-#endif
-
     GLOBAL_INT_DECLARATION();
 
     partition_info = hal_flash_get_info( in_partition );
@@ -88,15 +80,6 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
 	uint32_t status;
     DD_HANDLE flash_hdl;
 
-#ifdef CONFIG_AOS_KV_MULTIPTN_MODE
-    if (in_partition == CONFIG_AOS_KV_PTN) {
-        if ((*off_set) >= CONFIG_AOS_KV_PTN_SIZE) {
-            in_partition = CONFIG_AOS_KV_SECOND_PTN;
-            *off_set = (*off_set) - CONFIG_AOS_KV_PTN_SIZE;
-        }
-    }
-#endif
-
     GLOBAL_INT_DECLARATION();
 
     partition_info = hal_flash_get_info( in_partition );
@@ -125,15 +108,6 @@ int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *ou
     hal_logic_partition_t *partition_info;
 	uint32_t status;
     DD_HANDLE flash_hdl;
-
-#ifdef CONFIG_AOS_KV_MULTIPTN_MODE
-    if (in_partition == CONFIG_AOS_KV_PTN) {
-        if ((*off_set) >=  CONFIG_AOS_KV_PTN_SIZE) {
-            in_partition = CONFIG_AOS_KV_SECOND_PTN;
-            *off_set = (*off_set) - CONFIG_AOS_KV_PTN_SIZE;
-        }
-    }
-#endif
 
     GLOBAL_INT_DECLARATION();
 

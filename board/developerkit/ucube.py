@@ -36,11 +36,11 @@ else:
 aos_global_config.set('MODULE', '1062')
 aos_global_config.set('HOST_ARCH', 'Cortex-M4')
 aos_global_config.set('HOST_MCU_FAMILY', 'stm32l4xx_cube')
-aos_global_config.set('SUPPORT_BINS', 'no')
+aos_global_config.set('SUPPORT_MBINS', 'no')
 aos_global_config.set('HOST_MCU_NAME', 'STM32L496VGTx')
 
 dependencis =Split('''
-    device/sensor
+    drivers/sensor
 ''')
 for i in dependencis:
     component.add_comp_deps(i)
@@ -56,7 +56,6 @@ for i in global_includes:
 global_macros =Split('''
     STM32L496xx
     STDIO_UART=0
-    CONFIG_AOS_CLI_BOARD
     AOS_SENSOR_BARO_BOSCH_BMP280
     AOS_SENSOR_ALS_LITEON_LTR553
     AOS_SENSOR_PS_LITEON_LTR553
@@ -84,13 +83,11 @@ print('>>> Include Module %s'%aos_global_config.get('module'))
 aos_global_config.set('CONFIG_SYSINFO_PRODUCT_MODEL', 'ALI_AOS_developerkit')
 aos_global_config.set('CONFIG_SYSINFO_DEVICE_NAME','developerkit')
 
-CONFIG_SYSINFO_OS_VERSION = aos_global_config.get('CONFIG_SYSINFO_OS_VERSION')
 
-component.add_global_macros('SYSINFO_OS_VERSION=\\"'+str(CONFIG_SYSINFO_OS_VERSION)+'\\"')
 component.add_global_macros('SYSINFO_PRODUCT_MODEL=\\"'+'ALI_AOS_developerkit'+'\\"')
 component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'developerkit'+'\\"')
 
 component.set_enable_vfp()
 
-linux_only_targets="helloworld mqttapp acapp uDataapp tls netmgrapp networkapp linkkit_gateway littlevgl_developerkit linuxapp cameraapp linkkit_sched hdlcapp.hdlcclient developerkitgui alinkapp blink linkkitapp hdlcapp.hdlcserver qr coapapp vflashdemo littlevgl_starterkit emwinapp atapp wifihalapp helloworld_nocli modbus_test"
-windows_only_targets="helloworld|COMPILER=armcc acapp|COMPILER=armcc helloworld|COMPILER=iar acapp|COMPILER=iar linkkitapp|COMPILER=armcc linkkitapp|COMPILER=iar linkkit_gateway|COMPILER=armcc linkkit_gateway|COMPILER=iar"
+linux_only_targets="blink coapapp dk.dk_gui dk.dk_qr helloworld http2app linkkit_gateway linkkitapp modbus_demo mqttapp otaapp tls udataapp udevapp ulocationapp yts"
+windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"

@@ -1,0 +1,13 @@
+menuconfig AOS_COMP_LORAWAN_STACK
+    bool "LoRaWAN Stack"
+    default n
+    help
+
+if AOS_COMP_LORAWAN_STACK
+choice
+    prompt "Enable LoRaWAN Version"
+
+source "network/lorawan/lorawan_4_4_0/Config.in"
+source "network/lorawan/lorawan_4_4_2/Config.in"
+endchoice
+endif

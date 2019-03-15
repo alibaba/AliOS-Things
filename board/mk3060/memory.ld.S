@@ -72,8 +72,6 @@
 /* Split memory into area for vectors and ram */
 MEMORY
 {
-   flash_rec_text (rx) : ORIGIN = 0x12000, LENGTH = 0x3A00
-   flash_rec_data (rx) : ORIGIN = 0x15C00, LENGTH = 0xC00
-   flash  (rx) : ORIGIN = 0x16c00, LENGTH = 928K
+   flash  (rx) : ORIGIN = 0x1a5c0, LENGTH = 892K
    ram   (rwx): ORIGIN = 0x00400020, LENGTH = 256k-32
 }

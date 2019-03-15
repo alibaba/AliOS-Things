@@ -75,7 +75,9 @@
 #include "lwip/dhcp.h"
 #include "lwip/prot/dhcp.h"
 #if USE_RTOS && defined(FSL_RTOS_AOS)
-#include "aos/aos.h"
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
+#include "aos/yloop.h"
 #endif
 
 #include "ethernetif.h"
@@ -1194,6 +1196,7 @@ err_t tcpip_dhcpc_start(struct netif *pstnetif)
     }
 
     netif_set_status_callback(pstnetif, tcpip_dhcpc_cb);
+    return 0;
 }
 
 static void tcpip_init_done(void *arg) {

@@ -473,6 +473,10 @@ void i2c_setup_interrupt(uint32_t instance, void (*irq_subroutine)(void), bool s
 {
     uint32_t irq_id = I2C_IRQS(instance);
 
+    if (irq_id == 0xFFFFFFFF) {
+        return;
+    }
+
     if (state) {
         // register the IRQ sub-routine 
         register_interrupt_routine(irq_id, irq_subroutine);

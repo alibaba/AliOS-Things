@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-
+#include "project.h"
 #include <k_api.h>
 #include <assert.h>
 #include <stdio.h>
@@ -107,7 +107,7 @@ extern uint32_t __cy_heap_end[];
 
 k_mm_region_t g_mm_region[] = {
 {
-   (uint8_t *)__cy_heap_start, (uint32_t)0x2f00},
+   (uint8_t *)__cy_heap_start, (uint32_t)CYDEV_HEAP_SIZE},
 };
 #elif defined (__CC_ARM)
 extern uint32_t Image$$ARM_LIB_HEAP$$ZI$$Base[];

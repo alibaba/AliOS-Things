@@ -104,7 +104,11 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
 	/* loguart may close here */
 	Pinmux_Config(pin, PINMUX_FUNCTION_PWM);
-	
+
+    if (pwm_chan >= sizeof(ch_start)) {
+        return;
+    }
+
 	ch_start[pwm_chan] = 1;
 	obj->pwm_idx = pwm_chan;
 	obj->period = 0x10000 * (prescaler + 1) / 40;

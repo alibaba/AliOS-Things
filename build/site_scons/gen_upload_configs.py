@@ -11,8 +11,7 @@ import json
 #   { 'board name': [cmdfile1, cmdfile2, ...], }
 #
 registry_board = {
-    'atsame54': ['atsame54.json'],
-    'saml21': ['atsamL21.json'],
+    'atsame54': ['atsam.json'],
     'esp32': ['esp32.json'],
     'esp8266': ['esp8266.json'],
     'mk3060': ['mk3060.json'],
@@ -70,7 +69,12 @@ flash_configs['atsam'] = atsam
 # Flash configs for esp32* board
 esp32 = {
 'cmd': [
-    'esptool.py',
+    {
+        "Linux32": "esptool.py",
+        "Linux64": "esptool.py",
+        "OSX": "esptool.py",
+        "Win32": "esptool.exe"
+    },
     '--chip',
     'esp32',
     '--port', '@PORT@',
@@ -95,7 +99,12 @@ flash_configs['esp32'] = esp32
 # Flash configs for esp8266 board
 esp8266 = {
 'cmd': [
-    'esptool.py',
+    {
+        "Linux32": "esptool.py",
+        "Linux64": "esptool.py",
+        "OSX": "esptool.py",
+        "Win32": "esptool.exe"
+    },
     '--chip', 'esp8266',
     '--port', '@PORT@',
     '--baud', '921600',
@@ -113,7 +122,7 @@ flash_configs['esp8266'] = esp8266
 # Flash configs for esp8266 board
 mk3060 = {
 'cmd': [
-    '@AOSROOT@/build/aos_firmware_update.py',
+    '@AOSROOT@/build/scripts/aos_firmware_update.py',
     '@PORT@',
     '0x13200',
     '@AOSROOT@/out/@TARGET@/binary/@TARGET@.bin'

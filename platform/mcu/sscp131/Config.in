@@ -1,0 +1,10 @@
+config AOS_MCU_SSCP131
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu Eastsoft p131
+
+if AOS_MCU_SSCP131
+# Configurations for mcu sscp131
+endif

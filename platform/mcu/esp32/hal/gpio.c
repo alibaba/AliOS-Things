@@ -4,11 +4,11 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #define gpio_dev_t aos_gpio_dev_t
 #define gpio_config_t aos_gpio_config_t
-#include <hal/soc/gpio.h>
+#include <aos/hal/gpio.h>
 #undef gpio_dev_t
 #undef gpio_config_t
 
@@ -117,7 +117,7 @@ int32_t hal_gpio_enable_irq(aos_gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
                                      gpio_irq_handler_t handler, void *arg)
 {
     int32_t ret = -1;
-    if (gpio == NULL || arg == NULL)
+    if (gpio == NULL)
     {
         return -1;
     }

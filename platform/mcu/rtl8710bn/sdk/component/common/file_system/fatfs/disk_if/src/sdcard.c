@@ -11,7 +11,7 @@
 
 #if	FATFS_DISK_SD
 
-#include "sd.h" // sd card driver with sdio interface
+#include "aos/hal/sd.h" // sd card driver with sdio interface
 
 #define SD_BLOCK_SIZE	512
 

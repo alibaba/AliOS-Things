@@ -2,8 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __IOT_IMPORT_AWSS_H__
 #define __IOT_IMPORT_AWSS_H__
 
@@ -11,12 +9,6 @@
 extern "C" {
 #endif
 
-#ifndef _IN_
-#define _IN_
-#endif
-#ifndef _OU_
-#define _OU_
-#endif
 #ifndef _IN_OPT_
 #define _IN_OPT_
 #endif
@@ -27,89 +19,7 @@ extern "C" {
 #endif
 #define HAL_MAX_SSID_LEN                (32 + 1)    /* ssid: 32 octets at most, include the NULL-terminated */
 #define HAL_MAX_PASSWD_LEN              (64 + 1)    /* password: 8-63 ascii */
-#define HAL_MAC_LEN                     (17 + 1)
-
-
-#define HAL_CONFIG_SIZE                 (2048)
-
-/**
- * @brief   在设备的持久化外部存储器比如Flash上, 从配置区域起始位置读取数据到指定的内存缓冲区中
- *
- * @param   buffer : 存放读取配置信息的缓冲区起始地址
- * @param   length : 将要读取的数据长度, 单位是字节(Byte)
- * @retval  -1 : 读取失败
- * @retval  0 : 读取成功
- */
-int HAL_Config_Read(_IN_ char *buffer, _IN_ int length);
-
-/**
- * @brief   在设备的持久化外部存储器比如Flash上, 把指定的内存缓冲区向配置区域起始位置写入
- *
- * @param   buffer : 存放要写到外存的数据的缓冲区
- * @param   length : 将要写入的数据长度, 单位是字节(Byte)
- * @retval  -1 : 写入失败
- * @retval  0 : 写入成功
- */
-int HAL_Config_Write(_IN_ const char *buffer, _IN_ int length);
-
-/**
- * @brief   获取Wi-Fi的接受信号强度(`RSSI`)
- *
- * @return  信号强度数值, 单位是dBm
- */
-int HAL_Wifi_Get_Rssi_Dbm(void);
-
-/**
- * @brief   使WiFi模组进入省电模式, 并持续一段时间
- *
- * @param   指定在多长时间内, WiFi模组都处于省电模式, 单位是毫秒
- * @retval  0 : 设置成功
- * @retval  -1 : 设置失败
- *
- * @note sample code
- * int HAL_Wifi_Low_Power(int timeout_ms)
- * {
- *      wifi_enter_power_saving_mode();
- *      msleep(timeout_ms);
- *      wifi_exit_power_saving_mode();
- *
- *      return 0;
- * }
- */
-int HAL_Wifi_Low_Power(_IN_ int timeout_ms);
-
-/**
- * @brief   获取RF433的接收信号强度(`RSSI`)
- *
- * @return  信号强度数值, 单位是dBm
- */
-int HAL_RF433_Get_Rssi_Dbm(void);
-
-/**
- * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"
- *
- * @param   mac_str : 用于存放MAC地址字符串的缓冲区数组
- * @return  指向缓冲区数组起始位置的字符指针
- */
-char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN]);
-
-#define HAL_IP_LEN    (15 + 1)
-/**
- * @brief   获取Wi-Fi网口的IP地址, 点分十进制格式保存在字符串数组出参, 二进制格式则作为返回值, 并以网络字节序(大端)表达
- *
- * @param   ifname : 指定Wi-Fi网络接口的名字
- * @param   ip_str : 存放点分十进制格式的IP地址字符串的数组
- * @return  二进制形式的IP地址, 以网络字节序(大端)组织
- */
-uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[HAL_IP_LEN], _IN_ const char *ifname);
-
-/**
- * @brief   获取Wi-Fi模块上的操作系统版本字符串
- *
- * @param   version_str : 存放版本字符串的缓冲区数组
- * @return  指向缓冲区数组的起始地址
- */
-char *HAL_Wifi_Get_Os_Version(_OU_ char version_str[STR_SHORT_LEN]);
+#define WLAN_CONNECTION_TIMEOUT_MS      (30 * 1000)
 
 /**
  * @brief   获取配网服务(`AWSS`)的超时时间长度, 单位是毫秒
@@ -117,15 +27,7 @@ char *HAL_Wifi_Get_Os_Version(_OU_ char version_str[STR_SHORT_LEN]);
  * @return  超时时长, 单位是毫秒
  * @note    推荐时长是60,0000毫秒
  */
-int HAL_Awss_Get_Timeout_Interval_Ms(void);
-
-/**
- * @brief   获取配网服务(`AWSS`)超时时长到达之后, 去连接默认SSID时的超时时长, 单位是毫秒
- *
- * @return  超时时长, 单位是毫秒
- * @note    推荐时长是0毫秒, 含义是永远持续
- */
-int HAL_Awss_Get_Connect_Default_Ssid_Timeout_Interval_Ms(void);
+DLL_HAL_API int HAL_Awss_Get_Timeout_Interval_Ms(void);
 
 /**
  * @brief   获取在每个信道(`channel`)上扫描的时间长度, 单位是毫秒
@@ -133,7 +35,7 @@ int HAL_Awss_Get_Connect_Default_Ssid_Timeout_Interval_Ms(void);
  * @return  时间长度, 单位是毫秒
  * @note    推荐时长是200毫秒到400毫秒
  */
-int HAL_Awss_Get_Channelscan_Interval_Ms(void);
+DLL_HAL_API int HAL_Awss_Get_Channelscan_Interval_Ms(void);
 
 /* link type */
 enum AWSS_LINK_TYPE {
@@ -179,12 +81,58 @@ typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
  *
  * @param[in] cb @n A function pointer, called back when wifi receive a frame.
  */
-void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb);
+DLL_HAL_API void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb);
 
 /**
  * @brief   设置Wi-Fi网卡离开监听(Monitor)模式, 并开始以站点(Station)模式工作
  */
-void HAL_Awss_Close_Monitor(void);
+DLL_HAL_API void HAL_Awss_Close_Monitor(void);
+
+/**
+  * @brief   开启设备热点（SoftAP模式）
+  *
+  * @param[in] ssid @n 热点的ssid字符；
+  * @param[in] passwd @n 热点的passwd字符；
+  * @param[in] beacon_interval @n 热点的Beacon广播周期（广播间隔）；
+  * @param[in] hide @n 是否是隐藏热点，hide:0, 非隐藏, 其它值：隐藏；
+  * @return，
+ @verbatim
+    = 0: success
+    = -1: unsupported
+    = -2: failure with system error
+    = -3: failure with no memory
+    = -4: failure with invalid parameters
+ @endverbatim
+  * @Note:
+  *       1）ssid和passwd都是以'\0'结尾的字符串，如果passwd字符串的
+  *          长度为0，表示该热点采用Open模式（不加密）；
+  *       2）beacon_interval表示热点的Beacon广播间隔（或周期），单
+  *          位为毫秒，一般会采用默认100ms；
+  *       3）hide表示创建的热点是否是隐藏热点，hide=0表示非隐藏热
+  *         点，其他值表示隐藏热点；
+  */
+
+DLL_HAL_API int HAL_Awss_Open_Ap(const char *ssid, const char *passwd, int beacon_interval, int hide);
+
+/**
+  * @brief   关闭当前设备热点，并把设备由SoftAP模式切换到Station模式
+  *
+  * @return，
+ @verbatim
+    = 0: success
+    = -1: unsupported
+    = -2: failure
+ @endverbatim
+  * @Note:
+  *       1）如果当前设备已经开启热点，关闭当前热点，如果当前设备正
+  *          在开热点，取消开热点的操作；
+  *       2）如果当前设备不是以Station模式（包括Station+SoftAP模式和
+  *          SoftAP模式）工作，设备必须切换到Station模式；
+  *       3）Wi-Fi状态机需要切换到初始化状态，因为接下来很可能进行
+  *          连接某一个路由器操作；
+  */
+
+DLL_HAL_API int HAL_Awss_Close_Ap();
 
 /**
  * @brief   设置Wi-Fi网卡切换到指定的信道(channel)上
@@ -195,7 +143,7 @@ void HAL_Awss_Close_Monitor(void);
  * @param[in] bssid @n A pointer to wifi BSSID on which awss lock the channel, most HAL
  *              may ignore it.
  */
-void HAL_Awss_Switch_Channel(
+DLL_HAL_API void HAL_Awss_Switch_Channel(
             _IN_ char primary_channel,
             _IN_OPT_ char secondary_channel,
             _IN_OPT_ uint8_t bssid[ETH_ALEN]);
@@ -244,7 +192,7 @@ enum AWSS_ENC_TYPE {
  *      If the STA connects the old AP, HAL should disconnect from the old AP firstly.
  *      If bssid specifies the dest AP, HAL should use bssid to connect dest AP.
  */
-int HAL_Awss_Connect_Ap(
+DLL_HAL_API int HAL_Awss_Connect_Ap(
             _IN_ uint32_t connection_timeout_ms,
             _IN_ char ssid[HAL_MAX_SSID_LEN],
             _IN_ char passwd[HAL_MAX_PASSWD_LEN],
@@ -252,16 +200,6 @@ int HAL_Awss_Connect_Ap(
             _IN_OPT_ enum AWSS_ENC_TYPE encry,
             _IN_OPT_ uint8_t bssid[ETH_ALEN],
             _IN_OPT_ uint8_t channel);
-
-/**
- * @brief check system network is ready(get ip address) or not.
- *
- * @param None.
- * @return 0, net is not ready; 1, net is ready.
- * @see None.
- * @note None.
- */
-int HAL_Sys_Net_Is_Ready();
 
 /* 80211 frame type */
 typedef enum HAL_Awss_Frame_Type {
@@ -294,8 +232,8 @@ typedef enum HAL_Awss_Frame_Type {
  * @see None.
  * @note awss use this API send raw frame in wifi monitor mode & station mode
  */
-int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
-                                  _IN_ uint8_t *buffer, _IN_ int len);
+DLL_HAL_API int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
+        _IN_ uint8_t *buffer, _IN_ int len);
 
 /**
  * @brief   管理帧的处理回调函数
@@ -330,7 +268,7 @@ typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *buffer, _IN_ int len,
  * @see None.
  * @note awss use this API to filter specific mgnt frame in wifi station mode
  */
-int HAL_Wifi_Enable_Mgmt_Frame_Filter(
+DLL_HAL_API int HAL_Wifi_Enable_Mgmt_Frame_Filter(
             _IN_ uint32_t filter_mask,
             _IN_OPT_ uint8_t vendor_oui[3],
             _IN_ awss_wifi_mgmt_frame_cb_t callback);
@@ -383,7 +321,7 @@ typedef int (*awss_wifi_scan_result_cb_t)(
  *      ...
  *      HAL_Wifi_Scan() exit...
  */
-int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);
+DLL_HAL_API int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);
 
 /**
  * @brief   获取所连接的热点(Access Point)的信息
@@ -400,7 +338,7 @@ int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb);
  * @note
  *     If the STA dosen't connect AP successfully, HAL should return -1 and not touch the ssid/passwd/bssid buffer.
  */
-int HAL_Wifi_Get_Ap_Info(
+DLL_HAL_API int HAL_Wifi_Get_Ap_Info(
             _OU_ char ssid[HAL_MAX_SSID_LEN],
             _OU_ char passwd[HAL_MAX_PASSWD_LEN],
             _OU_ uint8_t bssid[ETH_ALEN]);
@@ -421,7 +359,7 @@ int HAL_Wifi_Get_Ap_Info(
    @endverbatim
  * @see None.
  */
-int HAL_Awss_Get_Encrypt_Type();
+DLL_HAL_API int HAL_Awss_Get_Encrypt_Type(void);
 
 /**
  * @brief    Get Security level for wifi configuration with connection.
@@ -437,8 +375,7 @@ int HAL_Awss_Get_Encrypt_Type();
    @endverbatim
  * @see None.
  */
-int HAL_Awss_Get_Conn_Encrypt_Type();
-
+DLL_HAL_API int HAL_Awss_Get_Conn_Encrypt_Type(void);
 
 #ifdef __cplusplus
 }

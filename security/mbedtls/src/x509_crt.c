@@ -218,7 +218,6 @@ static int x509_profile_check_key( const mbedtls_x509_crt_profile *profile,
     return( -1 );
 }
 
-#if defined(MBEDTLS_IOT_SPECIFIC)
 static int x509_skip_parse( unsigned char **p,
                             const unsigned char *end,
                             int tag )
@@ -240,7 +239,6 @@ static int x509_skip_parse( unsigned char **p,
 
     return( 0 );
 }
-#endif
 
 /*
  *  Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }

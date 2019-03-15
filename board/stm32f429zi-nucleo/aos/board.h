@@ -9,6 +9,11 @@
 #define STDIO_UART_BUADRATE 115200
 #endif
 
+#define SOC_PACKAGE_PIN_MAX      144
+#define TOTAL_GPIO_NUM            3
+
+#define MAX_I2C_BUS_NUM          3
+
 typedef enum{
     PORT_UART_STD,
     PORT_UART_AT,
@@ -18,6 +23,27 @@ typedef enum{
     PORT_UART_SIZE,
     PORT_UART_INVALID = 255,
 }PORT_UART_TYPE;
+
+typedef enum{
+    PORT_SPI_1,
+    PORT_SPI_2,
+    PORT_SPI_SIZE,
+    PORT_SPI_INVALID =255,
+}PORT_SPI_TYPE;
+
+typedef enum{
+    PORT_CAN_NORMAL,
+    PORT_CAN_CANOPEN,
+    PORT_CAN_SIZE,
+    PORT_CAN_INVALID = 255,
+}PORT_CAN_TYPE;
+
+typedef enum{
+    PORT_TIMER_CANOPEN,
+    PORT_TIMER_PWM,
+    PORT_TIMER_SIZE,
+    PORT_TIMER_INVALID = 255,
+}PORT_TIMER_TYPE;
 
 #endif /*__BOARD__H_*/
 

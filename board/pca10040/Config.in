@@ -1,0 +1,46 @@
+config AOS_BOARD_PCA10040
+    bool "PCA10040"
+    select AOS_MCU_NRF52XXX
+    select AOS_COMP_KERNEL_INIT
+    help
+        The Pca10040's mcu is nRF52832. The nRF52832 is the mid-range member of the nRF52 Series SoC family. It meets the challenges of a broad range of applications that need Bluetooth 5 feature sets, protocol concurrency and a rich and varied set of peripherals and features. In addition, it offers generous memory availability for both Flash and RAM.
+
+if AOS_BOARD_PCA10040
+# Configurations for board board_pca10040
+
+config DEBUG_CONFIG_PANIC
+    bool "Enable debug panic feature"
+    default y
+    help
+        set to y if you want to enable panic debug feature when system crash happened,
+        default y
+
+config DEBUG_CONFIG_BACKTRACE
+    bool "Enable stack backtrace feature"
+    default y
+    help
+        set to y if you want to enable stack backtrace feature when system crash happened,
+        default y
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_BLE
+    bool
+    default y
+
+endif

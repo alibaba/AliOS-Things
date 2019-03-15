@@ -49,7 +49,7 @@ void _aes_intr(int32_t irq)
  *********************************************************************/
 static int32_t _aes_set_data(uint32_t *pdata)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
     int32_t    i   = 0;
 
     if (_g_aes_big_endian) {
@@ -75,7 +75,7 @@ static int32_t _aes_set_data(uint32_t *pdata)
  *****************************************************/
 static int32_t _aes_set_key(uint32_t *pkey, aes_keylength_t keylength)
 {
-    paes_reg_t ptr    = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr    = (paes_reg_t)PLATFORM_AES_ADDRBASE;
     uint32_t   length = keylength ? ((keylength & 0x1) ? 6 : 8) : 4;
     int32_t    i      = 0;
 
@@ -95,7 +95,7 @@ static int32_t _aes_set_key(uint32_t *pkey, aes_keylength_t keylength)
 
 static int32_t _aes_set_iv(uint32_t *piv)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
     int32_t    i   = 0;
 
     if (_g_aes_big_endian) {
@@ -122,7 +122,7 @@ static int32_t _aes_set_endian(aes_endian_t endian)
 {
     _g_aes_big_endian = ((endian == AES_ENDIAN_BIG) ? (true) : (false));
 
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /*****  Endian Control bit is bit 8 in CTRL register ******/
     ptr->CTRL = ((_g_aes_big_endian == false) ? (ptr->CTRL | 0x100)
@@ -143,7 +143,7 @@ static int32_t _aes_set_endian(aes_endian_t endian)
  **********************************************************/
 static int32_t _aes_set_opcode(aes_opcode_t opcode)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /****** Opcode Control bits is bit[7:6] *******/
     ptr->CTRL &= ~0x00C0;       // clear bit[7:6]
@@ -164,7 +164,7 @@ static int32_t _aes_set_opcode(aes_opcode_t opcode)
  **************************************************************/
 static int32_t _aes_set_keylen(aes_keylength_t keylength)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /******* Key Length control bit is bit[5:4] *****/
     ptr->CTRL &= ~0x0030;          // clear bit[5:4]
@@ -184,7 +184,7 @@ static int32_t _aes_set_keylen(aes_keylength_t keylength)
  *****************************************************/
 static int32_t _aes_set_mode(aes_mode_t mode)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /******* Mode control bit is bit 3 ********/
     ptr->CTRL &= ~0x0008;     // clear bit 3
@@ -203,7 +203,7 @@ static int32_t _aes_set_mode(aes_mode_t mode)
  *****************************************************/
 static void _aes_enable_data_intr(void)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /****** Interrupt Control bit is bit 2 ********/
     ptr->CTRL |= (1 << 2);
@@ -218,7 +218,7 @@ static void _aes_enable_data_intr(void)
  *****************************************************/
 static void _aes_disable_data_intr(void)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /****** Interrupt Control bit is bit 2 ********/
     ptr->CTRL &= ~(1 << 2);
@@ -234,7 +234,7 @@ static void _aes_disable_data_intr(void)
  *****************************************************/
 static void _aes_enable_key_intr(void)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /****** Interrupt Control bit is bit 2 ********/
     ptr->CTRL |= (1 << 1);
@@ -250,7 +250,7 @@ static void _aes_enable_key_intr(void)
  *****************************************************/
 static void _aes_disable_key_intr(void)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /****** Interrupt Control bit is bit 2 ********/
     ptr->CTRL &= ~(1 << 1);
@@ -265,7 +265,7 @@ static void _aes_disable_key_intr(void)
  *****************************************************/
 static void _aes_enable(void)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /****** AES Control bit is bit 2 ********/
     ptr->CTRL |= (1 << 0);
@@ -280,7 +280,7 @@ static void _aes_enable(void)
  *****************************************************/
 static void _aes_disable(void)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /****** AES Control bit is bit 2 ********/
     ptr->CTRL &= ~(1 << 0);
@@ -299,7 +299,7 @@ static void _aes_disable(void)
  *****************************************************/
 static bool _aes_get_intr_status(uint32_t AES_IT)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /**** if AES_IT hava been set, it return true ******/
     return (ptr->STATE & AES_IT) ? true : false;
@@ -318,7 +318,7 @@ static bool _aes_get_intr_status(uint32_t AES_IT)
  *****************************************************/
 static void _aes_clear_intr_status(uint32_t AES_IT)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     /***** write 1 to AES_IT's bit , it will clear Interrupter ***/
     ptr->STATE &= ~AES_IT;
@@ -332,7 +332,7 @@ static void _aes_clear_intr_status(uint32_t AES_IT)
  ******************************************************************************/
 static uint32_t *_aes_get_data(uint32_t *data)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
     int32_t    i   = 0;
 
 #ifdef INTERRUPT_SUPPORT
@@ -381,7 +381,7 @@ int32_t aes_drv_resume(dev_t *dev)
 
 uint32_t _aes_save_context(uint32_t *buf)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
 
     uint32_t i, sz;
     sz = (sizeof(aes_reg_t) >> 2);
@@ -393,7 +393,7 @@ uint32_t _aes_save_context(uint32_t *buf)
 
 uint32_t _aes_restore_context(uint32_t *buf)
 {
-    paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
+    volatile paes_reg_t ptr = (paes_reg_t)PLATFORM_AES_ADDRBASE;
     uint32_t   i, sz;
     sz = (sizeof(aes_reg_t) >> 2);
     for (i = 0; i < sz; i++) {
@@ -456,8 +456,8 @@ int32_t aes_drv_init(void *arg)
 
     if (!is_enc) {
         _aes_set_opcode(AES_OPCODE_KEYEXPAND);
-        while (_aes_get_intr_status(AES_IT_KEYINT))
-            ;
+        _aes_enable();
+        while (_aes_get_intr_status(AES_IT_KEYINT));
 
         _aes_set_opcode(AES_OPCODE_DECRYPT);
     } else {

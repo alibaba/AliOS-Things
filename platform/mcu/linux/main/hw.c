@@ -20,12 +20,14 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <aos/aos.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
+#include "aos/kernel.h"
+
+#include "aos/hal/timer.h"
+#include "aos/hal/flash.h"
+#include "aos/hal/uart.h"
+
+#include "network/hal/base.h"
 #include <hal/wifi.h>
-#include <hal/ota.h>
 #include <arg_options.h>
 
 #define TAG "hw"
@@ -232,7 +234,6 @@ extern hal_wifi_module_t aos_wifi_module_athost;
 #else
 extern hal_wifi_module_t sim_aos_wifi_linux;
 #endif
-extern struct hal_ota_module_s linuxhost_ota_module;
 uart_dev_t uart_0;
 
 void linux_wifi_register(void);
@@ -247,20 +248,17 @@ void hw_start_hal(options_t *poptions)
 
     per_pid_flash = poptions->flash.per_pid;
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     if (poptions->cli.enable)
         hal_uart_init(&uart_0);
 #endif
 
-#ifdef AOS_HAL
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 #elif defined(DEV_SAL_ATHOST)
     hal_wifi_register_module(&aos_wifi_module_athost);
 #else
     hal_wifi_register_module(&sim_aos_wifi_linux);
-#endif
-    hal_ota_register_module(&linuxhost_ota_module);
 #endif
 
 #ifdef LINUX_MESH_80211

@@ -1,0 +1,46 @@
+config AOS_APP_MQTTAPP
+    bool "MQTT Sample"
+    select AOS_COMP_NETMGR
+    select AOS_COMP_CLI
+    select AOS_COMP_CJSON
+    select AOS_COMP_LINKKIT_SDK_C
+    select APP_FEATURE_LINKKIT_MQTT
+    help
+        mqtt examples
+
+if AOS_APP_MQTTAPP
+# Configurations for app mqttapp
+
+choice
+    prompt "Select Case"
+    default MQTTAPP_CONFIG_CASE_DEFAULT
+    help
+        select case to build
+
+    config MQTTAPP_CONFIG_CASE_DEFAULT
+        bool "Default"
+        help
+            default case, build mqtt_example.c
+
+    config MQTTAPP_CONFIG_CASE_RRPC
+        bool "Rrpc"
+        help
+            "case rrpc, build mqtt_example_rrpc.c
+
+    config MQTTAPP_CONFIG_CASE_MULTITHREAD
+        bool "Multithread"
+        help
+            case multithread, build mqtt_example_multithread.c
+
+    config MQTTAPP_CONFIG_CASE_PRESSTEST
+        bool "Presstest"
+        help
+            case presstest, build mqtt_presstest.c
+endchoice
+
+config MQTTAPP_CONFIG_TEST_LOOP
+    bool "Test Loop"
+    default y
+    help
+    n: run the full life cycle; y:do publish endless
+endif

@@ -1,0 +1,37 @@
+
+config COAP_COMM_ENABLED
+    bool "FEATURE_COAP_COMM_ENABLED"
+    default n
+    select AOS_COMP_IOTX-HAL
+    select COAP_PACKET_ENABLED
+    select UTILS_LITE_CJSON
+    select UTILS_JSON_PARSER
+    select UTILS_HTTPC
+    select WITH_FAC_JSON_FLOW
+    select UTILS_SHA256
+    select UTILS_MD5
+    select HAL_CRYPTO
+    select HAL_UDP
+
+    help
+        Establish non-persistent connection with AliCloud via CoAP-based protocol
+
+        Switching to "y" leads to building CoAP related implementation into SDK and COAP_COMM_ENABLED included into CFLAGS
+        Switching to "n" leads to keeping CoAP-based cloud connection implementations out of SDK
+
+if COAP_COMM_ENABLED
+menu "COAP COMM SETTING"
+
+depends on SUPPORT_TLS
+config COAP_SUPPORT_DTLS
+    bool "FEATURE_COAP_SUPPORT_DTLS"
+    default n
+    help
+        support mbedtls DTLS 
+
+endmenu
+
+endif
+
+
+

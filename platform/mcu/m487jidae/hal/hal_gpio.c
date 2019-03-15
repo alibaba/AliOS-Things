@@ -19,7 +19,8 @@
 #include "nu_bitutil.h"
 #include "hal_status.h"
 #include <k_api.h>
-#include <hal/hal.h>
+
+#include "aos/hal/gpio.h"
 #include "board.h"
 
 #define NU_MAX_PIN_PER_PORT     16

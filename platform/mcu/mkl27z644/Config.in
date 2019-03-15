@@ -1,0 +1,11 @@
+config AOS_MCU_MKL27Z644IMPL
+    bool
+    select AOS_ARCH_ARMV6M
+    select AOS_COMP_RHINO
+    select AOS_COMP_NEWLIB_STUB
+    help
+      driver & sdk for platform/mcu mkl27z644impl
+
+if AOS_MCU_MKL27Z644IMPL
+# Configurations for mcu mkl27z644impl
+endif

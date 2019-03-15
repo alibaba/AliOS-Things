@@ -33,7 +33,7 @@
 #include "ff.h"
 #include "diskio.h"
 #include "usb_host_msd_ufi.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 
 /* User-defined macros */
 #define DIR_OPERATION 1

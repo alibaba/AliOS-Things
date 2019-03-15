@@ -1,0 +1,8 @@
+config AOS_ARCH_MIPS_I
+    bool
+    help
+      arch for mips-I
+
+if AOS_ARCH_MIPS_I
+# Configurations for arch mips-I
+endif

@@ -27,7 +27,6 @@
 #include "ck_rtc.h"
 #include "csi_core.h"
 #include "drv_rtc.h"
-#include "soc.h"
 
 #define ERR_RTC(errno) (CSI_DRV_ERRNO_RTC_BASE | errno)
 
@@ -647,7 +646,7 @@ int32_t csi_rtc_set_alarm(rtc_handle_t handle, const struct tm *rtctime)
 #ifdef CONFIG_CHIP_HOBBIT1_2
     settime = (mktime((struct tm *)rtctime) - mktime(&current_time));
 #else
-    settime = (mktime((struct tm *)rtctime) - mktime(&current_time)) * 1000;
+    settime = (mktime((struct tm *)rtctime) - mktime(&current_time)) * (int64_t)1000;
 #endif
 
     if (settime < 0) {

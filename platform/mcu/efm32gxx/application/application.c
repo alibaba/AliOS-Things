@@ -3,12 +3,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <k_api.h>
-#include <aos/log.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
-#include <aos/aos.h>
-#include <hal/hal.h>
+#include "ulog/ulog.h"
+
+#include "aos/hal/timer.h"
+#include "network/hal/base.h"
+#include "aos/kernel.h"
+
 #include "board.h"
 
 #include "port_mcu.h"

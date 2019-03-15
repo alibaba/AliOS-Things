@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/include/imports)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/log)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/system/facility)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/digest)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/infra/utils/misc)
@@ -12,14 +13,18 @@ INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/MQTTPacket)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/protocol/mqtt/client)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/sdk-impl/deprecated_linkkit)
 INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/)
-INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/example)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/client)
+INCLUDE_DIRECTORIES (${PROJECT_SOURCE_DIR}/src/services/linkkit/dm/server)
+
+FILE (GLOB src_sdk-impl_SRCS
+    ${PROJECT_SOURCE_DIR}/src/sdk-impl/*.c
+    ${PROJECT_SOURCE_DIR}/src/sdk-impl/deprecated_linkkit/*.c
+)
 
 ADD_LIBRARY (sdk_impl OBJECT
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/sdk-impl.c
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_linkkit.c
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_logpost.c
-    ${PROJECT_SOURCE_DIR}/src/sdk-impl/impl_dynreg.c
+    ${src_sdk-impl_SRCS}
     ${EXTRA_C_SOURCES}
 )
 

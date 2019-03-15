@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
+#ifdef UTILS_BASE64
 
 
 #include <stdint.h>
@@ -141,3 +141,4 @@ iotx_err_t utils_base64decode(const uint8_t *data, uint32_t inputLength, uint32_
     return SUCCESS_RETURN;
 }
 
+#endif

@@ -23,12 +23,12 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "drv_usart.h"
-#include "soc.h"
+
 #include <csi_core.h>
 #include <csi_config.h>
 #include "pin.h"
 
-#include "hal/soc/soc.h"
+#include <aos/hal/flash.h>
 #include <aos/kernel.h>
 
 extern usart_handle_t console_handle;
@@ -120,7 +120,7 @@ void __attribute__((weak)) board_init(void)
     hal_partitions[6].partition_owner            = HAL_FLASH_EMBEDDED;
     hal_partitions[6].partition_description      = "KV";
     hal_partitions[6].partition_start_addr       = 0x1003D800;
-    hal_partitions[6].partition_length           = 0x800;    //4K bytes
+    hal_partitions[6].partition_length           = 0x800;    //2K bytes
     hal_partitions[6].partition_options          = PAR_OPT_READ_EN | PAR_OPT_WRITE_EN;
 #endif
 

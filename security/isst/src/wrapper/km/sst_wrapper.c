@@ -2,13 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 #include <stdlib.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <string.h>
 #include <stdint.h>
+#include "ls_osa.h"
 #include "sst.h"
 #include "sst_dbg.h"
 #include "sst_osa.h"
@@ -36,7 +32,7 @@
                                 ('s' == _m[2]) &&   \
                                 ('T' == _m[3]))
 
-#if CONFIG_ID2_SUPPORT
+#if CONFIG_SST_USE_ID2
 #define SST_KEY_NAME        "id2_key"
 #define SST_KEY_NAME_LEN    7
 #else
@@ -69,27 +65,29 @@ static void *_sst_create(uint32_t in_size, uint32_t type)
     uint64_t time = 0;
     ali_crypto_result result = 0;
 
-    p_sst_obj = sst_malloc(sizeof(sst_head) + in_size);
+    p_sst_obj = ls_osa_malloc(sizeof(sst_head) + in_size);
     if (!p_sst_obj) {
         return NULL;
     }
     INIT_MAGIC(p_sst_obj->magic);
     p_sst_obj->version = SST_VERSION;
     p_sst_obj->type = type;
-#if CONFIG_ID2_SUPPORT
+#if CONFIG_SST_USE_ID2
     sst_memset(p_sst_obj->reserved, 1, SST_HEAD_REV * sizeof(uint32_t));
 #else
     sst_memset(p_sst_obj->reserved, 0, SST_HEAD_REV * sizeof(uint32_t));
-#endif /* CONFIG_ID2_SUPPORT */
+#endif /* CONFIG_SST_USE_ID2 */
 
     time = sst_current_raw_time();
     sst_memcpy(seed, &time, sizeof(uint64_t));
     result = ali_seed(seed, seed_len);
     if (result != ALI_CRYPTO_SUCCESS) {
+        ls_osa_free(p_sst_obj);
         return NULL;
     }
     result = ali_rand_gen(rand_buf, rand_len);
     if (result != ALI_CRYPTO_SUCCESS) {
+        ls_osa_free(p_sst_obj);
         return NULL;
     }
     sst_memcpy(p_sst_obj->iv, rand_buf, sizeof(p_sst_obj->iv));
@@ -130,7 +128,7 @@ static uint32_t _sst_enc_data(void *p_sst, const uint8_t *data_in)
         return SST_ERROR_GENERIC;
     }
 
-    p_data = p_sst + sizeof(sst_head);
+    p_data = (uint8_t *)p_sst + sizeof(sst_head);
     /* generate subkey*/
     ret = km_envelope_begin(&envelope_ctx, SST_KEY_NAME, SST_KEY_NAME_LEN,
                             p_sst_obj->iv, sizeof(p_sst_obj->iv),
@@ -143,7 +141,7 @@ static uint32_t _sst_enc_data(void *p_sst, const uint8_t *data_in)
     /* enc data */
     ret = km_envelope_finish(envelope_ctx, (uint8_t *)data_in, data_len, p_data, &data_len);
     if (ret || data_len != p_sst_obj->data_size) {
-        SST_ERR("envelope finish failed 0x%x\n", ret);
+        SST_ERR("envelope finish failed 0x%x\n", (unsigned int)ret);
         return SST_ERROR_GENERIC;
     }
 
@@ -172,7 +170,7 @@ static uint32_t _sst_dec_data(void *p_sst, uint8_t *data_out)
 
     /* decrypt get subkey*/
     if (p_sst_obj->key_size != 16) {
-        SST_ERR("key size error key_size = %d\n", p_sst_obj->key_size);
+        SST_ERR("key size error key_size = %d\n", (unsigned int)p_sst_obj->key_size);
         return SST_ERROR_GENERIC;
     }
 
@@ -187,7 +185,7 @@ static uint32_t _sst_dec_data(void *p_sst, uint8_t *data_out)
     data_len = p_sst_obj->data_size;
     sst_memset(data_out, 0, data_len);
     /* dec data */
-    ret = km_envelope_finish(envelope_ctx, p_sst + sizeof(sst_head), data_len, data_out, &data_len);
+    ret = km_envelope_finish(envelope_ctx, (uint8_t *)p_sst + sizeof(sst_head), data_len, data_out, &data_len);
     if (data_len != p_sst_obj->data_size) {
         SST_ERR("the pt data len != ct data len\n");
         return SST_ERROR_GENERIC;
@@ -237,11 +235,11 @@ uint32_t sst_imp_set_obj_name(const char *item_name, char *obj_name)
         return SST_ERROR_GENERIC;
     } else {
         for (i = 0; i < SHA256_HASH_SIZE; i++) {
-            sprintf(obj_name + 2 * i, "%02X", hash_dst[i]);
+            ls_osa_snprintf(obj_name + 2 * i, SHA256_HASH_SIZE + SHA256_HASH_SIZE, "%02X", hash_dst[i]);
         }
     }
 
-    obj_name[2 * SHA256_HASH_SIZE + 1] = '\0';
+    obj_name[2 * SHA256_HASH_SIZE] = '\0';
 
     return SST_SUCCESS;
 }
@@ -250,7 +248,7 @@ uint32_t sst_imp_init(void)
 {
     uint32_t ret = SST_SUCCESS;
 
-#if !CONFIG_ID2_SUPPORT
+#if !CONFIG_SST_USE_ID2
     km_sym_gen_param param = {0};
 
     param.key_size = 128;
@@ -261,7 +259,7 @@ uint32_t sst_imp_init(void)
         }
         return SST_ERROR_GENERIC;
     }
-#endif /* !CONFIG_ID2_SUPPORT */
+#endif /* !CONFIG_SST_USE_ID2 */
 
     return ret;
 }
@@ -361,7 +359,7 @@ void sst_imp_destroy_obj(void *p_sst)
     }
 
     sst_memset(p_sst, 0, sizeof(sst_head));
-    sst_free(p_sst);
+    ls_osa_free(p_sst);
 }
 
 #if CONFIG_SST_MIGRATION || CONFIG_DATA_MIGRATION
@@ -427,7 +425,7 @@ uint32_t sst_imp_enc_mig_data(uint32_t type,
         goto _err;
 
     }
-    ctx = sst_malloc(ctx_size);
+    ctx = ls_osa_malloc(ctx_size);
     if (!ctx) {
         SST_ERR("malloc ctx fail\n");
         ret = SST_ERROR_OUT_OF_MEMORY;
@@ -453,7 +451,7 @@ uint32_t sst_imp_enc_mig_data(uint32_t type,
 
 _err:
     if (ctx) {
-        sst_free(ctx);
+        ls_osa_free(ctx);
     }
 
     return ret;
@@ -491,7 +489,7 @@ uint32_t sst_imp_dec_mig_data(uint32_t *type,
         return SST_ERROR_BAD_PARAMETERS;
     }
 
-    pt_data = sst_malloc(p_sst_mig_head->data_size);
+    pt_data = ls_osa_malloc(p_sst_mig_head->data_size);
     if (!pt_data) {
         return SST_ERROR_OUT_OF_MEMORY;
     }
@@ -504,7 +502,7 @@ uint32_t sst_imp_dec_mig_data(uint32_t *type,
         SST_ERR("get ctx fail(%08x)\n", result);
         return SST_ERROR_GENERIC;
     }
-    ctx = sst_malloc(ctx_size);
+    ctx = ls_osa_malloc(ctx_size);
     if (!ctx) {
         SST_ERR("malloc ctx fail\n");
         return SST_ERROR_OUT_OF_MEMORY;
@@ -519,7 +517,7 @@ uint32_t sst_imp_dec_mig_data(uint32_t *type,
         goto _err;
     }
     tmp_len = p_sst_mig_head->data_size;
-    ct_data = (uint8_t *)(p_sst_mig + sizeof(sst_mig_head));
+    ct_data = (uint8_t *)((uint8_t *)p_sst_mig + sizeof(sst_mig_head));
 
     result = ali_aes_finish(ct_data, p_sst_mig_head->data_size,
                             pt_data, (size_t *)&tmp_len, SYM_NOPAD, ctx);
@@ -547,7 +545,7 @@ uint32_t sst_imp_dec_mig_data(uint32_t *type,
 
 _err:
     if (ctx) {
-        sst_free(ctx);
+        ls_osa_free(ctx);
         ctx = NULL;
     }
 

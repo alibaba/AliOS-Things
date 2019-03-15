@@ -1,0 +1,19 @@
+config AOS_BOARD_FRDMKL81Z
+    bool "FRDMKL81Z"
+    select AOS_MCU_MKL81Z7IMPL
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_FRDMKL81Z
+# Configurations for board frdmkl81z
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+endif

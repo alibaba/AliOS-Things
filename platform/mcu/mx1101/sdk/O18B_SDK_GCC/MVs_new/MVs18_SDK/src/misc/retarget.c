@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include "type.h"
-#include "uart.h"
+#include "aos/hal/uart.h"
 
 
 #pragma import(__use_no_semihosting_swi)

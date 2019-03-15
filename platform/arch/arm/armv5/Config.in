@@ -1,0 +1,8 @@
+config AOS_ARCH_ARMV5
+    bool
+    help
+      arch for armv5
+
+if AOS_ARCH_ARMV5
+# Configurations for arch armv5
+endif

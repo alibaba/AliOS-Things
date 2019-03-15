@@ -17,11 +17,6 @@ global_macro = Split('''
         CONFIG_NO_TCPIP
         RHINO_CONFIG_TICK_TASK=0 
         RHINO_CONFIG_WORKQUEUE=0
-        CONFIG_AOS_KV_MULTIPTN_MODE
-        CONFIG_AOS_KV_PTN=5
-        CONFIG_AOS_KV_SECOND_PTN=6
-        CONFIG_AOS_KV_PTN_SIZE=4096
-        CONFIG_AOS_KV_BUFFER_SIZE=8192
         SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_MX1101\\" 
         SYSINFO_DEVICE_NAME=\\"MX1101\\"
 ''')
@@ -31,7 +26,6 @@ global_cflags = Split('''
         -mcpu=cortex-m3
         -mthumb
         -mfloat-abi=soft
-        -march=armv7-m
         -mthumb -mthumb-interwork
         -mlittle-endian
         -w

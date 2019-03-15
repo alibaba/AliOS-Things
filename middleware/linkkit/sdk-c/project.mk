@@ -13,4 +13,4 @@ FINAL_DIR       := $(DIST_DIR)/release
 
 # Settings of project info
 PRJ_NAME        := iotkit-embedded
-PRJ_VERSION     := V2.2.1
+PRJ_VERSION     := V2.3.0

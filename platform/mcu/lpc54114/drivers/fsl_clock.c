@@ -496,7 +496,7 @@ uint32_t CLOCK_SetFRGClock(uint32_t freq)
     uint32_t input = CLOCK_GetFRGInputClock();
     uint32_t mul;
 
-    if ((freq > 48000000) || (freq > input) || (input / freq >= 2))
+    if ((freq == 0) || (freq > 48000000) || (freq > input) || (input / freq >= 2))
     {
         /* FRG output frequency should be less than equal to 48MHz */
         return 0;

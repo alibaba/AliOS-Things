@@ -1,7 +1,6 @@
-NAME := irda_hal
 
-$(NAME)_SOURCES := irda.c
+$(NAME)_SOURCES += ./irda_hal/irda.c
 
-GLOBAL_INCLUDES += include
+GLOBAL_INCLUDES += ./irda_hal/include
 
 GLOBAL_DEFINES += DEVELOPERKIT_IRDA

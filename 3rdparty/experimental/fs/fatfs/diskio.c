@@ -5,8 +5,10 @@
 #include "fatfs_diskio.h"
 #include "ff.h"
 
+#define FATFS_WAIT_FOREVER 0xFFFFFFFF
+
 #ifdef CONFIG_AOS_FATFS_SUPPORT_MMC
-#include <hal/soc/sd.h>
+#include "aos/hal/sd.h"
 
 static sd_dev_t sdmmc;
 static DSTATUS  SDMMC_initialize()
@@ -36,7 +38,7 @@ static DRESULT SDMMC_read(BYTE *buff, DWORD sector, UINT count)
 {
     DRESULT res = RES_OK;
 
-    if (hal_sd_blks_read(&sdmmc, buff, sector, count, AOS_WAIT_FOREVER) != 0) {
+    if (hal_sd_blks_read(&sdmmc, buff, sector, count, FATFS_WAIT_FOREVER) != 0) {
         res = RES_ERROR;
     }
 
@@ -47,7 +49,7 @@ static DRESULT SDMMC_write(BYTE *buff, DWORD sector, UINT count)
 {
     DRESULT res = RES_OK;
 
-    if (hal_sd_blks_write(&sdmmc, buff, sector, count, AOS_WAIT_FOREVER) != 0) {
+    if (hal_sd_blks_write(&sdmmc, buff, sector, count, FATFS_WAIT_FOREVER) != 0) {
         res = RES_ERROR;
     }
 

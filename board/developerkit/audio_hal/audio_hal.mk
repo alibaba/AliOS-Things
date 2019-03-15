@@ -1,9 +1,8 @@
-NAME := audio_hal
 
-$(NAME)_SOURCES := isd9160.c audio.c crc16.c
+$(NAME)_SOURCES += ./audio_hal/isd9160.c ./audio_hal/audio.c ./audio_hal/crc16.c
 
-$(NAME)_COMPONENTS := 3rdparty.experimental.fs.fatfs
+$(NAME)_COMPONENTS += fatfs
 
-GLOBAL_INCLUDES += include
+GLOBAL_INCLUDES += ./audio_hal/include
 
 GLOBAL_DEFINES += DEVELOPERKIT_AUDIO CONFIG_AOS_FATFS_SUPPORT_MMC

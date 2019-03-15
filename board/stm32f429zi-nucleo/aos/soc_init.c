@@ -3,13 +3,26 @@
  */
 
 #include <stdint.h>
-#include "hal/hal.h"
+
 #include "k_config.h"
 #include "board.h"
 
-#define main st_main
-#include "hal_uart_stm32f4.h"
+#include "aos/hal/uart.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/i2c.h"
+#include "aos/hal/can.h"
+#include "aos/hal/timer.h"
+
 #include "stm32f4xx_hal.h"
+
+#include "hal_uart_stm32f4.h"
+#include "hal_gpio_stm32f4.h"
+#include "hal_can_stm32f4.h"
+#include "hal_timer_stm32f4.h"
+
+#ifdef AOS_CANOPEN
+#include "co_adapter.h"
+#endif
 
 #if defined (__CC_ARM) && defined(__MICROLIB)
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
@@ -28,17 +41,81 @@ size_t g_iram1_total_size = 0x00030000;
 
 uart_dev_t uart_0;
 
-UART_MAPPING UART_MAPPING_TABLE[] =
+const gpio_mapping_t gpio_mapping_table[TOTAL_GPIO_NUM] =
 {
-    { PORT_UART_STD,     USART3, { USART3_IRQn,  0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_AT,      USART6,  { USART6_IRQn , 0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_RS485,   UART7, { UART7_IRQn, 0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_SCANNER, UART4,  { UART4_IRQn,   0, 1,UART_OVERSAMPLING_16 } },
-    { PORT_UART_LORA,    UART5,  { UART5_IRQn,   0, 1,UART_OVERSAMPLING_16 } },
+    {ON_BOARD_LED01, GPIOB, GPIO_PIN_0,  /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW},
+    {ON_BOARD_LED02, GPIOB, GPIO_PIN_7,  /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW},
+    {ON_BOARD_LED03, GPIOB, GPIO_PIN_14, /*IRQ_NULL,*/GPIO_PULLUP, GPIO_SPEED_FREQ_LOW}
 };
 
-static void stduart_init(void);
+gpio_dev_t brd_gpio_table[] =
+{
+    {ON_BOARD_LED01, OUTPUT_PUSH_PULL, NULL},
+    {ON_BOARD_LED02, OUTPUT_PUSH_PULL, NULL},
+    {ON_BOARD_LED03, OUTPUT_PUSH_PULL, NULL},
+};
 
+CAN_MAPPING CAN_MAPPING_TABLE[] =
+{
+#ifdef AOS_CANOPEN
+    { PORT_CAN_CANOPEN, CAN1, can_dispatch, NULL, NULL},
+#endif
+    { PORT_CAN_CANOPEN, NULL, NULL, NULL, NULL},
+};
+
+TIMER_MAPPING TIMER_MAPPING_TABLE[] =
+{
+    {PORT_TIMER_CANOPEN, TIM3},
+};
+
+UART_MAPPING UART_MAPPING_TABLE[] =
+{
+    { PORT_UART_STD,     USART3, { UART_OVERSAMPLING_16, 1024} },
+    { PORT_UART_AT,      USART6,  { UART_OVERSAMPLING_16, 2048} },
+    { PORT_UART_RS485,   UART7, { UART_OVERSAMPLING_16, 512} },
+    { PORT_UART_SCANNER, UART4,  { UART_OVERSAMPLING_16, 512} },
+    { PORT_UART_LORA,    UART5,  { UART_OVERSAMPLING_16, 512} },
+};
+
+void* i2c_mapping_table[] = { I2C1, I2C2, I2C3};
+
+static void stduart_init(void);
+static void I2C1_init();
+
+uint32_t hal_timer_getcounter(timer_dev_t *tim)
+{
+    uint32_t counter = 0;
+    if (tim != NULL)
+    {
+         counter =  __HAL_TIM_GET_COUNTER((TIM_HandleTypeDef *)tim->priv);
+    }
+    return counter;
+}
+
+void hal_timer_setcounter(timer_dev_t *tim, uint32_t counter)
+{
+    if (tim != NULL)
+    {
+        __HAL_TIM_SET_COUNTER((TIM_HandleTypeDef *)tim->priv, counter);
+        __HAL_TIM_ENABLE((TIM_HandleTypeDef *)tim->priv);
+    }
+}
+
+static int32_t brd_gpio_init(void)
+{
+    int32_t i;
+    int32_t ret = 0;
+
+    for (i = 0; i < TOTAL_GPIO_NUM; ++i) {
+        ret = hal_gpio_init(&brd_gpio_table[i]);
+        if (ret) {
+            printf("gpio %d in gpio table init fail \r\n", i);
+        }
+    }
+
+    return ret;
+
+}
 
 void stm32_soc_init(void)
 {
@@ -47,20 +124,37 @@ void stm32_soc_init(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /**Configure the Systick interrupt time 
+    /**Configure the Systick interrupt time
     */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
 
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
-    MX_GPIO_Init();
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOG_CLK_ENABLE();
 
+    MX_DMA_Init();
+
+}
+
+void stm32_peripheral_init(void)
+{
     /*default uart init*/
     stduart_init();
-#ifdef CONFIG_NET_LWIP
-    /*ethernet if init*/
-    lwip_tcpip_init();
-#endif
+    /*gpio init*/
+    brd_gpio_init();
+    /*i2c pre init*/
+    hal_i2c_pre_init();
+    /*i2c bus 1 init*/
+    I2C1_init();
+    /*default can init*/
+    #ifdef PT_SENSOR
+    CAN_init();
+    #endif
 }
 
 static void stduart_init(void)
@@ -75,6 +169,21 @@ static void stduart_init(void)
 
     hal_uart_init(&uart_0);
 }
+
+static void I2C1_init()
+{
+    i2c_dev_t i2c_1 = {
+        .port                 = 1,
+        .config.address_width = I2C_HAL_ADDRESS_WIDTH_7BIT,
+        .config.freq          = I2C_BUS_BIT_RATES_100K,
+        .config.mode          = I2C_MODE_MASTER,
+    };
+
+    if (hal_i2c_init(&i2c_1)) {
+        printf("i2c bus 1 init fail \r\n");
+    }
+}
+
 
 /**
 * @brief This function handles System tick timer.
@@ -113,7 +222,7 @@ GETCHAR_PROTOTYPE
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
   uint8_t ch = EOF;
   int32_t ret = -1;
-  
+
   uint32_t recv_size;
   ret = hal_uart_recv_II(&uart_0, &ch, 1, &recv_size, HAL_WAIT_FOREVER);
 
@@ -124,4 +233,8 @@ GETCHAR_PROTOTYPE
   }
 }
 
-
+#if defined(AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC == 1)
+void uart_reinit(void)
+{
+}
+#endif

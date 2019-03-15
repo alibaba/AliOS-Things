@@ -497,6 +497,7 @@ A_STATUS Api_SockResponseEventRx(void *pCxt, uint8_t devId, uint8_t *datap, uint
                 /*unlock the thread*/
                 unblock_flag = 1;
             }
+            break;
         case SOCK_DNS_SRVR_CFG_ADDR:
             index = GLOBAL_SOCK_INDEX;
             /*Check if a socket is waiting on the response*/
@@ -2443,10 +2444,20 @@ int32_t Api_httpc_method(void *pCxt, uint32_t command, uint8_t *url, uint8_t *da
     memset(&httpc, 0, sizeof(httpc));
 
     httpc.command = A_CPU2LE32(command);
-    if (url)
+    if (url){
+		if(strlen((const char *)url) > sizeof(httpc.url)){
+			return A_ERROR;
+	    }
+		
         A_MEMCPY(httpc.url, url, strlen((const char *)url));
-    if (data)
-        A_MEMCPY(httpc.data, data, strlen((const char *)data));
+    }	
+    if (data){
+		if(strlen((const char *)data) > sizeof(httpc.data)){
+			return A_ERROR;
+	    }
+
+		A_MEMCPY(httpc.data, data, strlen((const char *)data));
+    }	
 
     SOCK_EV_MASK_SET(ath_sock_context[index], SOCK_HTTPC);
     if (wmi_socket_cmd(pDCxt->pWmiCxt, SOCK_HTTPC, (void *)(&httpc), sizeof(SOCK_HTTPC_T)) != A_OK)
@@ -2749,7 +2760,7 @@ int32_t Api_ip_sntp_srvr_addr(void *pCxt, int32_t command, char *sntp_srvr_addr)
     {
         return A_ERROR;
     }
-    strcpy(sock_ip_sntp_srvr_addr.addr, sntp_srvr_addr);
+    strncpy(sock_ip_sntp_srvr_addr.addr, sntp_srvr_addr, sizeof(sock_ip_sntp_srvr_addr.addr));
     sock_ip_sntp_srvr_addr.command = A_CPU2LE32(command);
     if (wmi_socket_cmd(pDCxt->pWmiCxt, SOCK_IP_SNTP_SRVR_ADDR, (void *)(&sock_ip_sntp_srvr_addr),
                        sizeof(SOCK_IP_CFG_SNTP_SRVR_ADDR)) != A_OK)
@@ -3128,6 +3139,10 @@ int32_t Api_ota_upgrade(void *pCxt,
     }
     A_MEMZERO(&sock_ota_upgrade, sizeof(SOCK_OTA_UPGRADE_T));
     sock_ota_upgrade.ipaddress = addr;
+	if(strlen(filename) > sizeof(sock_ota_upgrade.filename)){
+        return A_ERROR;
+    }
+	
     A_MEMCPY(sock_ota_upgrade.filename, filename, strlen(filename));
     sock_ota_upgrade.mode = mode;
     sock_ota_upgrade.preserve_last = preserve_last;

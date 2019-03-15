@@ -1,0 +1,18 @@
+config AOS_APP_PROV_APP
+    bool "ID2 Provisioning Sample"
+    select AOS_COMP_LIBPROV
+    select AOS_COMP_CLI
+    select AOS_COMP_YLOOP
+    select AOS_COMP_LS_HAL
+    help
+        id2 provisioning sample app
+
+if AOS_APP_PROV_APP
+# Configurations for app prov_app
+
+config PROVAPP_CONFIG_ERASE
+    bool "Erase"
+    default n
+    help
+
+endif

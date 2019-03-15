@@ -10,8 +10,9 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#include <aos/network.h>
-#include <aos/aos.h>
+#include <network/network.h>
+#include "aos/kernel.h"
+#include "aos/yloop.h"
 #include <netmgr.h>
 
 #include "ali_crypto.h"
@@ -20,18 +21,18 @@
 #include "itls/debug.h"
 #include "itls/ssl.h"
 
-#define DEBUG_LEVEL     2
+#define DEBUG_LEVEL     1
 
 #if defined(ON_DAILY)
 #define SERVER_PORT     "1885"
 #define SERVER_NAME     "11.160.112.156"
-#define PRODUCT_KEY     "a1IPeFfzBtU"
-#define PRODUCT_SECRET  "i11dp3nlaBIQ68mWoYi8860DDC7C5BC0"
+#define PRODUCT_KEY     "a1V2WSinkfc"
+#define PRODUCT_SECRET  "i11fSJmDtgUTCRUahfv5D9BC64FA62B2"
 #else
 #define SERVER_PORT     "1883"
 #define SERVER_NAME     "itls.cn-shanghai.aliyuncs.com"
-#define PRODUCT_KEY     "a16E4IcVRBf"
-#define PRODUCT_SECRET  "i11fqFvpJWardIZikyFE3A3F485FFFFF"
+#define PRODUCT_KEY     "a1WO4Z9qHRw"
+#define PRODUCT_SECRET  "i113nbRWjxX67YY6L8GF20CD0BDDFFFF"
 #endif
 
 struct cookie {
@@ -271,10 +272,10 @@ static void handle_event(input_event_t *event, void *arg)
     aos_post_delayed_action(1000, app_delayed_action, arg);
 }
 
-int application_start(void)
+int application_start(int argc, char **argv)
 {
     struct cookie *cookie = aos_malloc(sizeof(*cookie));
-    bzero(cookie, sizeof(*cookie));
+    memset(cookie, 0, sizeof(*cookie));
 
 #ifdef WITH_SAL
     sal_init();

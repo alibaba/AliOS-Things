@@ -4,11 +4,7 @@
 #ifndef __APP_ENTRY_H__
 #define __APP_ENTRY_H__
 
-#include <aos/aos.h>
-
-#ifdef OTA_ALIOS 
-#include "ota_service.h"
-#endif
+#include "aos/kernel.h"
 
 typedef struct {
     int argc;

@@ -26,7 +26,6 @@
 #include <string.h>
 #include "drv_usart.h"
 #include "dw_usart.h"
-#include "soc.h"
 #include "csi_core.h"
 
 #define ERR_USART(errno) (CSI_DRV_ERRNO_USART_BASE | errno)

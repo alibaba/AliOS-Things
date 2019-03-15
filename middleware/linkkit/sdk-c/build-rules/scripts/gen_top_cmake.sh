@@ -28,7 +28,7 @@ PROJECT (${PRJ_NAME}-${PRJ_VERSION} C)
 
 SET (EXECUTABLE_OUTPUT_PATH \${PROJECT_BINARY_DIR}/bin)
 SET (LIBRARY_OUTPUT_PATH \${PROJECT_BINARY_DIR}/lib)
-SET (CMAKE_C_FLAGS "${REM_CFLAGS}")
+SET (CMAKE_C_FLAGS "${REM_CFLAGS} -fPIC")
 
 IF (WIN32)
     SET (CMAKE_EXE_LINKER_FLAGS "-L\${PROJECT_SOURCE_DIR}/${W32_LIBSD}")
@@ -53,6 +53,7 @@ ELSE (WIN32)
 ENDIF (WIN32)
 MESSAGE ("---------------------------------------------------------------------")
 
+ADD_DEFINITIONS (-DDLL_IOT_EXPORTS)
 $(for i in $(grep 'PKG_SOURCE' \
                 $(find ${TOP_DIR} -name ${MAKE_SEGMENT} -not -path "*.O*") \
                     | ${SED} "s:${TOP_DIR}/\(.*\)/${MAKE_SEGMENT}.*= *\(.*\):\1~\2:g"); do
@@ -89,13 +90,16 @@ $(for i in ${SUBDIRS}; do
     if echo ${COMP_LIB_COMPONENTS} | grep -qw ${i}; then
         continue
     fi
+    if [ "$i" = "tests" ]; then
+        continue
+    fi
     echo "ADD_SUBDIRECTORY (${i})"
 done)
 
 EOB
 
 cat << EOB >> ${TARGET_FILE}
-ADD_LIBRARY (${COMP_LIB_NAME} STATIC
+ADD_LIBRARY (${COMP_LIB_NAME} SHARED
 $(for i in ${SEP_LIBS}; do
     j=${i%.a}
     j=${j#lib}
@@ -106,5 +110,8 @@ if(WIN32)
     TARGET_LINK_LIBRARIES (${COMP_LIB_NAME} ws2_32)
 endif(WIN32)
 
+TARGET_LINK_LIBRARIES (${COMP_LIB_NAME} iot_hal)
+
+SET (LIBRARY_OUTPUT_PATH ./out)
 EOB
 fi

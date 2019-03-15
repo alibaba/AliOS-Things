@@ -1,7 +1,7 @@
 /**
  * \file
  *
- * \brief UART HAL related functionality implementation.
+ * \brief Timer HAL related functionality implementation.
  *
  * Copyright (c) 2018 Microchip Technology Inc. and its subsidiaries.
  *
@@ -26,10 +26,13 @@
  * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
  *
  */
+
 #include <atmel_start.h>
-#include <hal/soc/soc.h>
+
 #include <string.h>
-#include <aos/errno.h>
+
+#include "aos/hal/uart.h"
+#include "aos/errno.h"
 
 int32_t hal_uart_init(uart_dev_t *uart)
 {
@@ -63,7 +66,8 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
-    if (uart->priv == NULL) { /* USART_2 is used for STDIO */
+
+    if (uart->port == NULL) { /* USART_2 is used for STDIO */
         uart->priv = &USART_2;
     }
 
@@ -80,8 +84,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
     if ((uart == NULL) || (data == NULL)) {
         return -1;
     }
-
-    if (uart->priv == NULL) { /* USART_2 is used for STDIO */
+    if (uart->port == NULL) { /* USART_2 is used for STDIO */
         uart->priv = &USART_2;
     }
 

@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <soc.h>
+#include "soc.h"
 #include "zx29_efc.h"
 //#include <io.h>
 #include <drv_eflash.h>

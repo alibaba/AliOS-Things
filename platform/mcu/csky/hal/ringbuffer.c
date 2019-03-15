@@ -16,7 +16,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 #include "ringbuffer.h"
 
@@ -28,7 +28,7 @@ int ringbuffer_create(ringbuffer_t *ringbuffer, char *buffer, int length)
         return -1;
     }
 
-    memset(buffer, 0, sizeof(buffer));
+    memset(buffer, 0, length);
 
     ringbuffer->length = length - 1;
     ringbuffer->head = 0;
@@ -40,9 +40,9 @@ int ringbuffer_create(ringbuffer_t *ringbuffer, char *buffer, int length)
 
 void ringbuffer_destroy(ringbuffer_t *ringbuffer)
 {
+    memset(ringbuffer->buffer, 0, ringbuffer->length + 1);
     ringbuffer->length = 0;
     ringbuffer->head = ringbuffer->tail = 0;
-    memset(ringbuffer->buffer, 0, sizeof(ringbuffer->buffer));
 }
 
 int ringbuffer_available_read_space(ringbuffer_t *buffer)

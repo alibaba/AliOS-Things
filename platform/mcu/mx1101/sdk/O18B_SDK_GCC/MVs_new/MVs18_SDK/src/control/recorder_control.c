@@ -23,7 +23,7 @@
  */
 #include "type.h"
 #include "clk.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "presearch.h"
 #include "app_config.h"
 #include "fat_file.h"

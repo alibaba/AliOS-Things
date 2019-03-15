@@ -7,11 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include "hal/soc/soc.h"
+#include "soc.h"
 #include "drv_usart.h"
 #include "pin.h"
 #include "ringbuffer.h"
-#include "soc.h"
+#include "aos/hal/uart.h"
 #include "aos/kernel.h"
 
 #define MAX_UART_NUM 3
@@ -88,6 +88,10 @@ static void usart_event_cb_fun(int32_t idx, usart_event_e event)
 #endif
             ret = csi_usart_receive_query(handle, data, 16);
 
+            if (ret < 0) {
+                return;
+            }
+
             if (usart_dev->stat_rxmit != STAT_XMIT_READ) {
                 return;
             }
@@ -141,7 +145,7 @@ static int32_t usart_config(uart_dev_t *uart)
     }
 
     /* config stop bit attribute */
-    usart_stop_bits_e stopbits;
+    usart_stop_bits_e stopbits = 0;
 
     switch (uart->config.stop_bits) {
         case STOP_BITS_1:

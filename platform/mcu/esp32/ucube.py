@@ -6,7 +6,6 @@ src = Split('''
         hal/uart.c
         hal/flash.c
         hal/wifi_port.c
-        hal/ota_port.c
         hal/ais_ota_port.c
         hal/misc.c
         hal/i2c.c
@@ -83,8 +82,6 @@ prebuild_libs = Split('''
 ''')
 
 global_macro = Split('''
-        CONFIG_AOS_KV_BUFFER_SIZE=8192
-        CONFIG_AOS_CLI_BOARD
         SYSINFO_PRODUCT_MODEL=\\"ALI_AOS_ESP32\\"
         SYSINFO_DEVICE_NAME=\\"ESP32\\"
 ''')
@@ -93,7 +90,7 @@ dependencis = Split('''
         kernel/hal
         osal
         kernel/init
-        kernel/rhino/fs/kv
+        kernel/fs/kv
         network/lwip 
         security/alicrypto
 ''')
@@ -126,7 +123,6 @@ else:
     dependencis.append('platform/arch/xtensa/lx6')
     src.append('aos/hook_impl.c')
     src.append('aos/soc_impl.c')
-    src.append('aos/trace_impl.c')
     src.append('aos/heap_wrapper.c')
 
 if aos_global_config.get('mesh'):

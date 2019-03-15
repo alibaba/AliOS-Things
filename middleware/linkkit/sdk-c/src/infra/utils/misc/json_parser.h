@@ -8,7 +8,7 @@
 #ifndef __JSON_PARSER_H__
 #define __JSON_PARSER_H__
 
-//#include "iotx_utils_internal.h"
+/* #include "iotx_utils_internal.h" */
 
 typedef struct JSON_NV {
     int         nLen;

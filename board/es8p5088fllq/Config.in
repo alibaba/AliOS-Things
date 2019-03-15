@@ -1,0 +1,15 @@
+config AOS_BOARD_ES8P5088FLLQ
+    bool "ES8P5088FLLQ"
+    select AOS_MCU_ES8P508X
+    select AOS_COMP_NEWLIB_STUB
+    help
+
+if AOS_BOARD_ES8P5088FLLQ
+# Configurations for board es8p5088fllq
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+endif

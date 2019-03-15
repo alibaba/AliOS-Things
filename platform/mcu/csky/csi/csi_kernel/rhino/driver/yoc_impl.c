@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <k_api.h>
 #include <drv_timer.h>
-#include <soc.h>
+#include "soc.h"
 #include <csi_core.h>
 
 #define THIS_MODULE MODULE_NONE
@@ -27,10 +27,6 @@
 /* auto define heap size */
 extern size_t __heap_start;
 extern size_t __heap_end;
-
-#ifndef RHINO_CONFIG_STD_MALLOC
-static k_mm_region_head_t hobbit_mm_region_head;
-#endif
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
 void soc_hw_timer_init(void)
@@ -53,20 +49,6 @@ k_mm_region_t g_mm_region[] = {
     {(uint8_t *)&__heap_start, (size_t)0},
 };
 int g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
-
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-void soc_intrpt_guard(void)
-{
-    return;
-}
-#endif
-
-#if (RHINO_CONFIG_INTRPT_STACK_REMAIN_GET > 0)
-size_t soc_intrpt_stack_remain_get(void)
-{
-    return 0;
-}
-#endif
 
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void)

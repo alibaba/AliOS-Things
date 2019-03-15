@@ -1,4 +1,4 @@
-// Copyright 2010-2017 Espressif Systems (Shanghai) PTE LTD
+// Copyright 2010-2018 Espressif Systems (Shanghai) PTE LTD
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ extern "C"
 
 #define SPI_SLAVE_TXBIT_LSBFIRST          (1<<0)  ///< Transmit command/address/data LSB first instead of the default MSB first
 #define SPI_SLAVE_RXBIT_LSBFIRST          (1<<1)  ///< Receive data LSB first instead of the default MSB first
-#define SPI_SLAVE_BIT_LSBFIRST            (SPI_TXBIT_LSBFIRST|SPI_RXBIT_LSBFIRST); ///< Transmit and receive LSB first
+#define SPI_SLAVE_BIT_LSBFIRST            (SPI_SLAVE_TXBIT_LSBFIRST|SPI_SLAVE_RXBIT_LSBFIRST) ///< Transmit and receive LSB first
 
 
 typedef struct spi_slave_transaction_t spi_slave_transaction_t;
@@ -53,6 +53,7 @@ typedef struct {
  */
 struct spi_slave_transaction_t {
     size_t length;                  ///< Total data length, in bits
+    size_t trans_len;               ///< Transaction data length, in bits
     const void *tx_buffer;          ///< Pointer to transmit buffer, or NULL for no MOSI phase
     void *rx_buffer;                ///< Pointer to receive buffer, or NULL for no MISO phase
     void *user;                     ///< User-defined variable. Can be used to store eg transaction ID.

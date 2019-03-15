@@ -4,8 +4,9 @@
 
 #include <umbins_api.h>
 #include <k_api.h>
-#include <aos/aos.h>
-#include <hal/hal.h>
+#include "aos/kernel.h"
+#include "aos/hal/uart.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -22,15 +23,13 @@
 #include <kmbins_tbl.h>
 
 #ifdef WITH_LWIP
-#include <aos/network.h>
+#include <network/network.h>
 #endif
 
 #ifdef AOS_BT
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/conn.h>
-#include "ali_common.h"
-#include "ali_core.h"
 #endif
 
 
@@ -55,19 +54,19 @@ ktask_t *krhino_cur_task_get(void)
 
 kstat_t krhino_task_info_set(ktask_t *task, size_t idx, void *info)
 {
-    return SYS_CALL3(SYS_KRHINO_TASK_INFO_SET, kstat_t, ktask_t *, task, 
+    return SYS_CALL3(SYS_KRHINO_TASK_INFO_SET, kstat_t, ktask_t *, task,
                     size_t, idx, void *, info);
 }
 
 kstat_t krhino_task_info_get(ktask_t *task, size_t idx, void **info)
 {
-    return SYS_CALL3(SYS_KRHINO_TASK_INFO_GET, kstat_t, ktask_t *, task, 
+    return SYS_CALL3(SYS_KRHINO_TASK_INFO_GET, kstat_t, ktask_t *, task,
                     size_t, idx, void **, info);
 }
 
-kstat_t krhino_task_sleep(tick_t dly)
+void aos_msleep(int ms)
 {
-    return SYS_CALL1(SYS_KRHINO_TASK_SLEEP, kstat_t, tick_t, dly);
+    SYS_CALL1(SYS_KRHINO_TASK_SLEEP, void, int, ms);
 }
 
 kstat_t krhino_task_dyn_create(ktask_t **task, const name_t *name, void *arg,
@@ -111,7 +110,7 @@ kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name,
                                 sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run)
 {
     return SYS_CALL7(SYS_KRHINO_TIMER_DYN_CREATE, kstat_t, ktimer_t **, timer, const name_t *, name,
-                        timer_cb_t, cb, sys_time_t, first, sys_time_t, round, void *, arg, 
+                        timer_cb_t, cb, sys_time_t, first, sys_time_t, round, void *, arg,
                             uint8_t, auto_run);
 }
 
@@ -161,7 +160,7 @@ kstat_t krhino_mutex_unlock(kmutex_t *mutex)
 
 kstat_t krhino_sem_create(ksem_t *sem, const name_t *name, sem_count_t count)
 {
-    return SYS_CALL3(SYS_KRHINO_SEM_CREATE, kstat_t, ksem_t *, sem, const name_t *, name, 
+    return SYS_CALL3(SYS_KRHINO_SEM_CREATE, kstat_t, ksem_t *, sem, const name_t *, name,
                     sem_count_t, count);
 
 }
@@ -182,19 +181,24 @@ kstat_t krhino_sem_give(ksem_t *sem)
 }
 
 /* --------------------k_mm-------------------- */
-void *krhino_mm_alloc(size_t size)
+void *aos_malloc(unsigned int size)
 {
-    return SYS_CALL1(SYS_KRHINO_MM_ALLOC, void *, size_t, size);
+    return SYS_CALL1(SYS_KRHINO_MM_ALLOC, void *, unsigned int, size);
 }
 
-void krhino_mm_free(void *ptr)
+void aos_free(void *mem)
 {
-    SYS_CALL1(SYS_KRHINO_MM_FREE, void, void *, ptr);
+    SYS_CALL1(SYS_KRHINO_MM_FREE, void, void *, mem);
 }
 
-void *krhino_mm_realloc(void *oldmem, size_t newsize)
+void *aos_realloc(void *mem, unsigned int size)
 {
-    return SYS_CALL2(SYS_KRHINO_MM_REALLOC, void *, void *, oldmem, size_t, newsize);
+    return SYS_CALL2(SYS_KRHINO_MM_REALLOC, void *, void *, mem, unsigned int, size);
+}
+
+void aos_alloc_trace(void *addr, size_t allocator)
+{
+    SYS_CALL2(SYS_AOS_ALLOC_TRACE, void, void *, addr, size_t, allocator);
 }
 
 /* ----------------k_buf_queue----------------- */
@@ -246,104 +250,6 @@ ssize_t aos_write(int fd, const void *buf, size_t nbytes)
 }
 
 /* --------------------Framework-------------------- */
-typedef void (*aos_event_cb)(input_event_t *event, void *private_data);
-typedef void (*aos_call_t)(void *arg);
-typedef void (*aos_poll_call_t)(int fd, void *arg);
-
-int aos_register_event_filter(uint16_t type, aos_event_cb cb, void *priv)
-{
-    return SYS_CALL3(SYS_REGISTER_EVENT_FILTER, int, uint16_t, type,
-                     aos_event_cb, cb, void *, priv);
-}
-
-int aos_unregister_event_filter(uint16_t type, aos_event_cb cb, void *priv)
-{
-    return SYS_CALL3(SYS_UNREGISTER_EVENT_FILTER, int, uint16_t, type,
-                     aos_event_cb, cb, void *, priv);
-}
-
-int aos_post_event(uint16_t type, uint16_t code, unsigned long value)
-{
-    return SYS_CALL3(SYS_POST_EVENT, int, uint16_t, type, uint16_t, code,
-                     unsigned long, value);
-}
-
-int aos_poll_read_fd(int fd, aos_poll_call_t action, void *param)
-{
-    return SYS_CALL3(SYS_POLL_READ_FD, int, int, fd, aos_poll_call_t, action,
-                     void *, param);
-}
-
-void aos_cancel_poll_read_fd(int fd, aos_poll_call_t action, void *param)
-{
-    return SYS_CALL3(SYS_CANCEL_POLL_READ_FD, void, int, fd,
-                     aos_poll_call_t, action, void *, param);
-}
-
-int aos_post_delayed_action(int ms, aos_call_t action, void *arg)
-{
-    return SYS_CALL3(SYS_POST_DELAYED_ACTION, int, int, ms, aos_call_t, action,
-                     void *, arg);
-}
-
-void aos_cancel_delayed_action(int ms, aos_call_t action, void *arg)
-{
-    return SYS_CALL3(SYS_CANCEL_DELAYED_ACTION, void, int, ms,
-                     aos_call_t, action, void *, arg);
-}
-
-int aos_schedule_call(aos_call_t action, void *arg)
-{
-    return SYS_CALL2(SYS_SCHEDULE_CALL, int, aos_call_t, action, void *, arg);
-}
-
-typedef void *aos_loop_t;
-
-aos_loop_t aos_loop_init(void)
-{
-    return SYS_CALL0(SYS_LOOP_INIT, aos_loop_t);
-}
-
-aos_loop_t aos_current_loop(void)
-{
-    return SYS_CALL0(SYS_CURRENT_LOOP, aos_loop_t);
-}
-
-void aos_loop_run(void)
-{
-    return SYS_CALL0(SYS_LOOP_RUN, void);
-}
-
-void aos_loop_exit(void)
-{
-    return SYS_CALL0(SYS_LOOP_EXIT, void);
-}
-
-void aos_loop_destroy(void)
-{
-    return SYS_CALL0(SYS_LOOP_DESTROY, void);
-}
-
-int aos_loop_schedule_call(aos_loop_t *loop, aos_call_t action, void *arg)
-{
-    return SYS_CALL3(SYS_LOOP_SCHEDULE_CALL, int, aos_loop_t *, loop,
-                     aos_call_t, action, void *, arg);
-}
-
-void *aos_loop_schedule_work(int ms, aos_call_t action, void *arg1,
-                             aos_call_t fini_cb, void *arg2)
-{
-    return SYS_CALL5(SYS_LOOP_SCHEDULE_WORK, void *, int, ms,
-                     aos_call_t, action, void *, arg1, aos_call_t, fini_cb,
-                     void *, arg2);
-}
-
-void aos_cancel_work(void *work, aos_call_t action, void *arg1)
-{
-    return SYS_CALL3(SYS_CANCEL_WORK, void, void *, work, aos_call_t, action,
-                     void *, arg1);
-}
-
 
 /* --------------------OTA-------------------- */
 #ifdef AOS_OTA
@@ -461,35 +367,6 @@ void bt_conn_unref(struct bt_conn *conn)
     SYS_CALL1(SYS_BT_CONN_UNREF, void, struct bt_conn *, conn);
 }
 
-void ali_reset(void * p_ali)
-{
-    SYS_CALL1(SYS_BT_ALI_RESET, void, void *, p_ali);
-}
-
-ret_code_t ali_init(void * p_ali, ali_init_t const * p_init)
-{
-    return SYS_CALL2(SYS_BT_ALI_INIT, ret_code_t, void *, p_ali, ali_init_t const *, p_init);
-}
-
-ret_code_t ali_send_indicate(void * p_ali, uint8_t * p_data, uint16_t length)
-{
-    return SYS_CALL3(SYS_BT_ALI_SEND_INDICATE, ret_code_t, void *, p_ali, uint8_t *, p_data, uint16_t, length);
-}
-
-ret_code_t ali_send_notify(void * p_ali, uint8_t * p_data, uint16_t length)
-{
-    return SYS_CALL3(SYS_BT_ALI_SEND_NOTIFY, ret_code_t, void *, p_ali, uint8_t *, p_data, uint16_t, length);
-}
-
-ret_code_t ali_get_manuf_spec_adv_data(void * p_ali, uint8_t * p_data, uint16_t * length)
-{
-    return SYS_CALL3(SYS_BT_ALI_GET_MANUF_SPEC_ADV_DATA, ret_code_t, void *, p_ali, uint8_t *, p_data, uint16_t, length);
-}
-
-uint32_t *fetch_ali_context()
-{
-    return SYS_CALL0(SYS_BT_FETCH_ALI_CONTEXT, uint32_t *);
-}
 #endif
 
 
@@ -523,31 +400,6 @@ int aos_fflush(FILE *stream)
 {
     return SYS_CALL1(SYS_FFLUSH, int, FILE *, stream);
 }
-
-aos_mutex_t* get_log_mutex(void)
-{
-    return SYS_CALL0(SYS_GET_LOG_MUTEX, aos_mutex_t*);
-}
-
-__attribute__((weak)) int csp_printf(const char *fmt, ...)
-{
-    va_list args;
-    int     ret;
-
-    ret = aos_mutex_lock(get_log_mutex(), AOS_WAIT_FOREVER);
-    if (ret == 0) {
-        va_start(args, fmt);
-        ret = vprintf(fmt, args);
-        va_end(args);
-
-        fflush(stdout);
-    }
-
-    aos_mutex_unlock(get_log_mutex());
-
-    return ret;
-}
-
 
 /* -----------------end OTHERS-------------------- */
 

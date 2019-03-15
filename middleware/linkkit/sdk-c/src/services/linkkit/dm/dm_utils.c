@@ -6,82 +6,15 @@
 
 #include "iotx_dm_internal.h"
 
-//Constant Log
-const char DM_UTILS_LOG_INVALID_PARAMETER[]                              DM_READ_ONLY = "Invalid Parameter";
-const char DM_UTILS_LOG_MEMORY_NOT_ENOUGH[]                              DM_READ_ONLY = "Memory Not Enough";
-const char DM_UTILS_LOG_SIGN_METHOD_NOT_FOUND[]                          DM_READ_ONLY = "Sign Method Not Found";
-const char DM_UTILS_LOG_DATA_TYPE_NOT_EXIST[]                            DM_READ_ONLY = "Data Type Not Exist";
-const char DM_UTILS_LOG_GET_INVALID_DEV_ID[]                             DM_READ_ONLY = "get device id fail";
-const char DM_UTILS_LOG_OPERATOR_RES[]                                   DM_READ_ONLY = "OP %d: Res:%d";
-const char DM_UTILS_LOG_DATA_TYPE_INVALID[]                              DM_READ_ONLY = "Data Type Invalid: %.*s";
-const char DM_UTILS_LOG_DATA_TYPE_HAS_NO_PARSE_FUNC[]                    DM_READ_ONLY =
-            "Data Type Has No Parse Func: %.*s";
-const char DM_UTILS_LOG_DATA_TYPE_HAS_NO_SET_FUNC[]                      DM_READ_ONLY =
-            "Data Type Has No Set Func: %.*s";
-const char DM_UTILS_LOG_JSON_PARSE_FAILED[]                              DM_READ_ONLY = "JSON Parse Failed: %.*s";
-const char DM_UTILS_LOG_JSON_PARSE_INDEX_FAILED[]                        DM_READ_ONLY = "JSON Parse Failed, Index: %d";
-const char DM_UTILS_LOG_TSL_KEY_ID_INVALID[]                             DM_READ_ONLY = "TSL Key ID Invalid: %.*s";
-const char DM_UTILS_LOG_TSL_PROPERTY_NOT_EXIST[]                         DM_READ_ONLY = "TSL Property Not Exist: %.*s";
-const char DM_UTILS_LOG_TSL_EVENT_NOT_EXIST[]                            DM_READ_ONLY = "TSL Event Not Exist: %.*s";
-const char DM_UTILS_LOG_TSL_EVENT_DATA_NOT_EXIST[]                       DM_READ_ONLY = "TSL Event Data Not Exist";
-const char DM_UTILS_LOG_TSL_SERIVCE_NOT_EXIST[]                          DM_READ_ONLY = "TSL Service Not Exist";
-const char DM_UTILS_LOG_TSL_IDENTIFIER_NOT_EXIST[]                       DM_READ_ONLY =
-            "TSL Identifier Not Exist: %.*s";
-const char DM_UTILS_LOG_TSL_PROPERTY_SET_FAILED[]                        DM_READ_ONLY = "TSL Property Set Failed: %.*s";
-const char DM_UTILS_LOG_TSL_PROPERTY_GET_FAILED[]                        DM_READ_ONLY = "TSL Property Get Failed: %.*s";
-const char DM_UTILS_LOG_TSL_PROPERTY_ASSEMBLE_FAILED[]                   DM_READ_ONLY =
-            "TSL Property Assemble Failed: %.*s";
-const char DM_UTILS_LOG_TSL_EVENT_SET_FAILED[]                           DM_READ_ONLY = "TSL Event Set Failed: %.*s";
-const char DM_UTILS_LOG_TSL_EVENT_GET_FAILED[]                           DM_READ_ONLY = "TSL Event Get Failed: %.*s";
-const char DM_UTILS_LOG_TSL_EVENT_OUTPUT_ASSEMBLE_FAILED[]               DM_READ_ONLY =
-            "TSL Event Output Assemble Failed: %.*s";
-const char DM_UTILS_LOG_DM_INIT_FAILED[]                                 DM_READ_ONLY = "DM Init Failed";
-const char DM_UTILS_LOG_CM_EVENT_UNKNOWN[]                               DM_READ_ONLY = "DM CM Event Unknown: %d";
-const char DM_UTILS_LOG_CM_INIT_FAILED[]                                 DM_READ_ONLY = "DM CM Init Failed";
-const char DM_UTILS_LOG_CM_CLOUD_CONNECTIVITY_CREATE_FAILED[]            DM_READ_ONLY =
-            "DM CM Cloud Connectivity Create Failed";
-const char DM_UTILS_LOG_CM_CLOUD_CONNECTIVITY_CONNECT_FAILED[]           DM_READ_ONLY =
-            "DM CM Cloud Connectivity Connect Failed";
-const char DM_UTILS_LOG_CM_CLOUD_CONNECTIVITY_NOT_EXIST[]                DM_READ_ONLY =
-            "DM CM Cloud Connectivity Not Exist";
-const char DM_UTILS_LOG_CM_LOCAL_CONNECTIVITY_CREATE_FAILED[]            DM_READ_ONLY =
-            "DM CM Local Connectivity Create Failed";
-const char DM_UTILS_LOG_CM_LOCAL_CONNECTIVITY_CONNECT_FAILED[]           DM_READ_ONLY =
-            "DM CM Local Connectivity Connect Failed";
-const char DM_UTILS_LOG_CM_LOCAL_CONNECTIVITY_NOT_EXIST[]                DM_READ_ONLY =
-            "DM CM Local Connectivity Not Exist";
-const char DM_UTILS_LOG_CM_SEND_MESSAGE_FAILED[]                         DM_READ_ONLY = "DM CM Send Message Failed";
-const char DM_UTILS_LOG_CM_SEND_RESULT[]                                 DM_READ_ONLY = "DM CM Send Result: %d";
-const char DM_UTILS_LOG_DMGR_INIT_FAILED[]                               DM_READ_ONLY = "DM Manager Module Init Failed";
-const char DM_UTILS_LOG_DMGR_SERVICE_CLOUD_REGISTER_FAILED[]             DM_READ_ONLY =
-            "Dmgr Service Cloud Register Failed: %.*s";
-const char DM_UTILS_LOG_DMGR_SERVICE_LOCAL_REGISTER_FAILED[]             DM_READ_ONLY =
-            "Dmgr Service Local Register Failed: %.*s";
-const char DM_UTILS_LOG_DMGR_UNSUPPORT_DEVICE_TYPE[]                     DM_READ_ONLY = "Dmgr Device Type Unknown: %d";
-const char DM_UTILS_LOG_DMGR_DEVICE_NOT_FOUND[]                          DM_READ_ONLY = "DM Device Not Found: %d";
-const char DM_UTILS_LOG_DMGR_DELETE_DEVICE_ITSELF[]                      DM_READ_ONLY = "DM Delete Device Itself";
-const char DM_UTILS_LOG_IPC_MESSAGE_LIST_FULL[]                          DM_READ_ONLY = "DM IPC Message List is Full";
-const char DM_UTILS_LOG_MESSAGE_INIT_FAILED[]                            DM_READ_ONLY = "DM Message Module Init Failed";
-const char DM_UTILS_LOG_MESSAGE_CACHE_INIT_FAILED[]                      DM_READ_ONLY =
-            "DM Message Cache Module Init Failed";
-const char DM_UTILS_LOG_IPC_INIT_FAILED[]                                DM_READ_ONLY = "DM IPC Module Init Failed";
-const char DM_UTILS_LOG_DOPT_UNKNOWN_OPT[]                               DM_READ_ONLY = "DM Option Unknown: %d";
-const char DM_UTILS_LOG_OTA_INIT_FAILED[]                                DM_READ_ONLY = "DM OTA Init Failed";
-const char DM_UTILS_LOG_COTA_INIT_FAILED[]                               DM_READ_ONLY = "DM Config OTA Init Failed";
-const char DM_UTILS_LOG_FOTA_INIT_FAILED[]                               DM_READ_ONLY = "DM Firmware OTA Init Failed";
-const char DM_UTILS_LOG_OTA_FETCH_FAILED[]                               DM_READ_ONLY = "DM OTA Fetch Failed";
-
 int dm_utils_copy_direct(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
 {
     if (input == NULL || output == NULL || *output != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
-    *output = malloc(output_len);
+    *output = HAL_Malloc(output_len);
     if (*output == NULL) {
-        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(*output, 0, output_len);
     memcpy(*output, input, input_len);
@@ -92,14 +25,12 @@ int dm_utils_copy_direct(_IN_ void *input, _IN_ int input_len, _OU_ void **outpu
 int dm_utils_copy(_IN_ void *input, _IN_ int input_len, _OU_ void **output, _IN_ int output_len)
 {
     if (input == NULL || output == NULL || *output != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     *output = DM_malloc(output_len);
     if (*output == NULL) {
-        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(*output, 0, output_len);
     memcpy(*output, input, input_len);
@@ -111,8 +42,7 @@ int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
                           _OU_ int *partial_input_len, _OU_ int *array_input_len, _OU_ int *array_index)
 {
     if (input == NULL || input_len <= 1 || array_index == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     int index = 0;
@@ -159,7 +89,7 @@ int dm_utils_strarr_index(_IN_ char *input, _IN_ int input_len,
             *array_input_len = bracket_suf - input + 1;
         }
 
-        //Get Index
+        /* Get Index */
         memcpy(array_index_str, bracket_pre + 1, bracket_suf - bracket_pre - 1);
         *array_index = atoi(array_index_str);
         return SUCCESS_RETURN;
@@ -174,8 +104,7 @@ int dm_utils_itoa_direct(_IN_ int input, _OU_ char **output)
     char temp_output[10 + 1] = {0};
 
     if (output == NULL || *output != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     res = HAL_Snprintf(temp_output, 10, "%d", input);
@@ -183,10 +112,9 @@ int dm_utils_itoa_direct(_IN_ int input, _OU_ char **output)
         return FAIL_RETURN;
     }
 
-    *output = malloc(strlen(temp_output) + 1);
+    *output = HAL_Malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
-        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(*output, 0, strlen(temp_output) + 1);
     memcpy(*output, temp_output, strlen(temp_output));
@@ -200,8 +128,7 @@ int dm_utils_itoa(_IN_ int input, _OU_ char **output)
     char temp_output[10 + 1] = {0};
 
     if (output == NULL || *output != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     res = HAL_Snprintf(temp_output, 10, "%d", input);
@@ -211,8 +138,7 @@ int dm_utils_itoa(_IN_ int input, _OU_ char **output)
 
     *output = DM_malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
-        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(*output, 0, strlen(temp_output) + 1);
     memcpy(*output, temp_output, strlen(temp_output));
@@ -226,8 +152,7 @@ int dm_utils_ftoa_direct(_IN_ double input, _OU_ char **output)
     char temp_output[30 + 1] = {0};
 
     if (output == NULL || *output != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     res = HAL_Snprintf(temp_output, 30, "%f", input);
@@ -235,10 +160,9 @@ int dm_utils_ftoa_direct(_IN_ double input, _OU_ char **output)
         return FAIL_RETURN;
     }
 
-    *output = malloc(strlen(temp_output) + 1);
+    *output = HAL_Malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
-        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(*output, 0, strlen(temp_output) + 1);
     memcpy(*output, temp_output, strlen(temp_output));
@@ -252,8 +176,7 @@ int dm_utils_ftoa(_IN_ double input, _OU_ char **output)
     char temp_output[30 + 1] = {0};
 
     if (output == NULL || *output != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     res = HAL_Snprintf(temp_output, 30, "%f", input);
@@ -263,8 +186,7 @@ int dm_utils_ftoa(_IN_ double input, _OU_ char **output)
 
     *output = DM_malloc(strlen(temp_output) + 1);
     if (*output == NULL) {
-        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(*output, 0, strlen(temp_output) + 1);
     memcpy(*output, temp_output, strlen(temp_output));
@@ -278,15 +200,13 @@ int dm_utils_hex_to_str(_IN_ unsigned char *input, _IN_ int input_len, _OU_ char
     unsigned char iter_char = 0;
 
     if (input == NULL || input_len <= 0 || output == NULL || *output != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     output_len = input_len * 2;
     *output = DM_malloc(output_len + 1);
     if (*output == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(*output, 0, output_len + 1);
 
@@ -318,15 +238,13 @@ int dm_utils_str_to_hex(_IN_ char *input, _IN_ int input_len, _OU_ unsigned char
 
     if (input == NULL || input_len <= 0 || input_len % 2 != 0 ||
         output == NULL || *output != NULL || output_len == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     *output_len = input_len / 2;
     *output = DM_malloc(*output_len);
     if (*output == NULL) {
-        dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(*output, 0, *output_len);
 
@@ -355,8 +273,7 @@ int dm_utils_memtok(_IN_ char *input, _IN_ int input_len, _IN_ char delimiter, _
     int count = 0;
 
     if (input == NULL || input_len <= 0 || offset == NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     for (item_index = 0; item_index < input_len; item_index++) {
@@ -377,8 +294,7 @@ int dm_utils_replace_char(_IN_ char *input, _IN_ int input_len, _IN_ char src, _
     int index = 0;
 
     if (input == NULL || input_len <= 0) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
     for (index = 0; index < input_len; index++) {
@@ -394,25 +310,111 @@ int dm_utils_service_name(_IN_ const char *prefix, _IN_ const char *name, _IN_ c
                           _IN_ char device_name[DEVICE_NAME_MAXLEN], _OU_ char **service_name)
 {
     int prefix_len = (prefix == NULL) ? (0) : (strlen(prefix));
+    int name_len = (name == NULL) ? (0) : (strlen(name));
     int service_name_len = 0;
-    if (name == NULL || product_key == NULL || device_name == NULL ||
+    if ((prefix == NULL && name == NULL) || product_key == NULL || device_name == NULL ||
         service_name == NULL || *service_name != NULL) {
-        dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
-        return FAIL_RETURN;
+        return DM_INVALID_PARAMETER;
     }
 
-    service_name_len = prefix_len + strlen(name) + strlen(product_key) + strlen(device_name) + 1;
+    service_name_len = prefix_len + name_len + strlen(product_key) + strlen(device_name) + 1;
     *service_name = DM_malloc(service_name_len);
     if (*service_name == NULL) {
-        dm_log_warning(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
-        return FAIL_RETURN;
+        return DM_MEMORY_NOT_ENOUGH;
     }
     memset(*service_name, 0, service_name_len);
 
     if (prefix != NULL) {
         HAL_Snprintf(*service_name, service_name_len, prefix, product_key, device_name);
     }
-    memcpy(*service_name + strlen(*service_name), name, strlen(name));
+
+    if (name != NULL) {
+        memcpy(*service_name + strlen(*service_name), name, name_len);
+    }
 
     return SUCCESS_RETURN;
+}
+
+int dm_utils_uri_add_prefix(_IN_ const char *prefix, _IN_ char *uri, _OU_ char **new_uri)
+{
+    int new_uri_len = 0;
+
+    if (prefix == NULL || uri == NULL || new_uri == NULL || *new_uri != NULL) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    new_uri_len = strlen(prefix) + strlen(uri) + 1;
+    *new_uri = DM_malloc(new_uri_len);
+    if (*new_uri == NULL) {
+        return DM_MEMORY_NOT_ENOUGH;
+    }
+    memset(*new_uri, 0, new_uri_len);
+
+    memcpy(*new_uri, prefix, strlen(prefix));
+    memcpy(*new_uri + strlen(*new_uri), uri, strlen(uri));
+
+    return SUCCESS_RETURN;
+}
+
+int dm_utils_json_parse(_IN_ const char *payload, _IN_ int payload_len, _IN_ int type, _OU_ lite_cjson_t *lite)
+{
+    int res = 0;
+
+    if (payload == NULL || payload_len <= 0 || type < 0 || lite == NULL) {
+        return DM_INVALID_PARAMETER;
+    }
+    memset(lite, 0, sizeof(lite_cjson_t));
+
+    res = lite_cjson_parse(payload, payload_len, lite);
+    if (res != SUCCESS_RETURN) {
+        memset(lite, 0, sizeof(lite_cjson_t));
+        return FAIL_RETURN;
+    }
+
+    if (type != cJSON_Invalid && lite->type != type) {
+        memset(lite, 0, sizeof(lite_cjson_t));
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+int dm_utils_json_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN_ int key_len, _IN_ int type,
+                              _OU_ lite_cjson_t *lite_item)
+{
+    int res = 0;
+
+    if (lite == NULL || lite->type != cJSON_Object || key == NULL || key_len <= 0 || type < 0 || lite_item == NULL) {
+        return DM_INVALID_PARAMETER;
+    }
+
+    if (lite->type != cJSON_Object) {
+        dm_log_err("lite->type != cJSON_Object, %d", lite->type);
+    }
+
+    memset(lite_item, 0, sizeof(lite_cjson_t));
+
+    res = lite_cjson_object_item(lite, key, key_len, lite_item);
+    if (res != SUCCESS_RETURN) {
+        /* dm_log_err(DM_UTILS_LOG_JSON_PARSE_FAILED, lite->value_length, lite->value); */
+        memset(lite_item, 0, sizeof(lite_cjson_t));
+        return FAIL_RETURN;
+    }
+
+    if (type != cJSON_Invalid && lite_item->type != type) {
+        memset(lite_item, 0, sizeof(lite_cjson_t));
+        return FAIL_RETURN;
+    }
+
+    return SUCCESS_RETURN;
+}
+
+void *dm_utils_malloc(unsigned int size)
+{
+    return LITE_malloc(size, MEM_MAGIC, "lite_cjson");
+}
+
+void dm_utils_free(void *ptr)
+{
+    LITE_free(ptr);
 }

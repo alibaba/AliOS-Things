@@ -4,6 +4,7 @@
 #if defined(HAL_SD_MODULE_ENABLED)
 #if !defined(STM32L432xx)
 
+#include "aos/hal/sd.h"
 #include "hal_sd_stm32f4.h"
 
 static SD_HandleTypeDef sd_handle;

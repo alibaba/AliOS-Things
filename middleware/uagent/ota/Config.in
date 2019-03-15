@@ -1,0 +1,41 @@
+menuconfig AOS_COMP_OTA
+    bool "OTA Features"
+    select AOS_COMP_IMBEDTLS
+    select AOS_COMP_CJSON
+    select AOS_COMP_LINKKIT_SDK_C
+    select FEATURE_APP_LINKKIT_MQTT
+    default n
+    help
+
+if AOS_COMP_OTA
+config OTA_CONFIG_MQTT
+    bool "MQTT Support"
+    default y
+    help
+    select Y to support MQTT transport with Cloud, or so support CoAP.
+
+config OTA_CONFIG_TLS
+    bool "TLS HTTPs Support"
+    default n
+    help
+    select Y to support TLS HTTPS download, or so support http.
+
+config OTA_CONFIG_ITLS
+    bool "iTLS HTTPs Support"
+    default n
+    help
+    select Y to support iTLS HTTPS download, or so support http.
+
+config OTA_CONFIG_RSA
+    bool "RSA Verify Support"
+    default y
+    help
+    select Y to support RSA Verify Support.
+
+config OTA_CONFIG_FW_MD5
+    bool "Firmware MD5 Support"
+    default y
+    help
+    select Y to support Firmware MD5 check for OTA.
+
+endif

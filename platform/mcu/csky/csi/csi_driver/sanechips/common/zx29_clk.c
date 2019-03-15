@@ -28,7 +28,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <addrspace.h>
-#include <soc.h>
+#include "soc.h"
 #include <csi_core.h>
 #include <drv_clk.h>
 #include <errno.h>

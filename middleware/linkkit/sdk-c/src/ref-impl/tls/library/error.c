@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -691,3 +689,4 @@ void mbedtls_strerror( int ret, char *buf, size_t buflen )
 #endif /* MBEDTLS_ERROR_STRERROR_DUMMY */
 
 #endif /* MBEDTLS_ERROR_C */
+#endif

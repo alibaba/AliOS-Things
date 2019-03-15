@@ -23,12 +23,14 @@ bool       umesh_is_initialized(void);
 ur_error_t umesh_stop(void);
 ur_error_t umesh_register_callback(ur_adapter_callback_t *callback);
 
+#ifdef CONFIG_AOS_MESH_BCAST
 /* provide broadcast transmit capability within the scope of overall
  * mesh network in the case that leader has been offline.
  */
 typedef void (* umesh_bcast_recv_t)(uint8_t *buf, uint32_t len);
 ur_error_t umesh_register_bcast_callback(umesh_bcast_recv_t callback);
 ur_error_t umesh_bcast_send(uint8_t *buf, uint32_t len);
+#endif
 
 /* per device API */
 uint8_t umesh_get_device_state(void);

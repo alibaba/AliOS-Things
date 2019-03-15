@@ -2397,7 +2397,7 @@ A_STATUS qcom_p2p_func_join(uint8_t device_id, P2P_WPS_METHOD wps_method, uint8_
 
     if (wps_method != (uint8_t)WPS_PBC)
     {
-        strcpy(p2p_info.wps_pin, ppin);
+        strncpy(p2p_info.wps_pin, ppin, sizeof(p2p_info.wps_pin));
         wmi_save_key_info(&p2p_info);
     }
 

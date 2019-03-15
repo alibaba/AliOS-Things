@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arg_options.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 static void shift_argv(options_t *options, int i)
 {

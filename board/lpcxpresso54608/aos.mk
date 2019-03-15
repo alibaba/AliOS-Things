@@ -1,0 +1,30 @@
+NAME := board_lpcxpresso54608
+
+$(NAME)_MBINS_TYPE := kernel
+$(NAME)_VERSION    := 1.0.0
+$(NAME)_SUMMARY    := configuration for board lpcxpresso54608
+
+MODULE          := 1062
+HOST_ARCH       := Cortex-M4
+HOST_MCU_FAMILY := mcu_lpc54608impl
+
+$(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) kernel_init
+
+CONFIG_SYSINFO_PRODUCT_MODEL := ALI_AOS_LPC54608
+CONFIG_SYSINFO_DEVICE_NAME   := LPC54608
+GLOBAL_CFLAGS                += -DSYSINFO_PRODUCT_MODEL=\"$(CONFIG_SYSINFO_PRODUCT_MODEL)\"
+GLOBAL_CFLAGS                += -DSYSINFO_DEVICE_NAME=\"$(CONFIG_SYSINFO_DEVICE_NAME)\"
+GLOBAL_CFLAGS                += -DCPU_LPC54608J512ET180
+GLOBAL_CFLAGS                += -D__USE_CMSIS -D__MULTICORE_MASTER
+GLOBAL_CFLAGS                += -D__NEWLIB__
+
+GLOBAL_LDFLAGS +=
+
+GLOBAL_INCLUDES += .
+
+$(NAME)_SOURCES :=
+$(NAME)_SOURCES += ./board.c
+$(NAME)_SOURCES += ./clock_config.c
+$(NAME)_SOURCES += ./pin_mux.c
+$(NAME)_SOURCES += ./fsl_phy.c
+

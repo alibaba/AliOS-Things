@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "iot_import_dtls.h"
+#include "iot_import.h"
 #ifdef COAP_DTLS_SUPPORT
 #include "mbedtls/ssl.h"
 #include "mbedtls/platform.h"
@@ -22,8 +22,15 @@
 #include "mbedtls/net_sockets.h"
 #include "iotx_hal_internal.h"
 
+#define DTLS_TRC(...)    HAL_Printf("[trc] "), HAL_Printf(__VA_ARGS__)
+#define DTLS_DUMP(...)   HAL_Printf("[dump] "), HAL_Printf(__VA_ARGS__)
+#define DTLS_DEBUG(...)  HAL_Printf("[dbg] "), HAL_Printf(__VA_ARGS__)
+#define DTLS_INFO(...)   HAL_Printf("[inf] "), HAL_Printf(__VA_ARGS__)
+#define DTLS_ERR(...)    HAL_Printf("[err] "), HAL_Printf(__VA_ARGS__)
+
+
 #ifdef DTLS_SESSION_SAVE
-mbedtls_ssl_session *saved_session = NULL;
+    mbedtls_ssl_session *saved_session = NULL;
 #endif
 
 typedef struct {
@@ -47,13 +54,14 @@ typedef struct {
 
 static unsigned int mbedtls_mem_used = 0;
 static unsigned int mbedtls_max_mem_used = 0;
+static dtls_hooks_t g_dtls_hooks = {HAL_Malloc, HAL_Free};
 
 typedef struct {
     int magic;
     int size;
 } mbedtls_mem_info_t;
 
-void *_DTLSCalloc_wrapper( size_t n, size_t size )
+void *_DTLSCalloc_wrapper(size_t n, size_t size)
 {
     void *buf = NULL;
     mbedtls_mem_info_t *mem_info = NULL;
@@ -62,7 +70,7 @@ void *_DTLSCalloc_wrapper( size_t n, size_t size )
         return NULL;
     }
 
-    buf = malloc(n * size + sizeof(mbedtls_mem_info_t));
+    buf = g_dtls_hooks.malloc(n * size + sizeof(mbedtls_mem_info_t));
     if (NULL == buf) {
         return NULL;
     } else {
@@ -85,7 +93,7 @@ void *_DTLSCalloc_wrapper( size_t n, size_t size )
     return buf;
 }
 
-void _DTLSFree_wrapper( void *ptr )
+void _DTLSFree_wrapper(void *ptr)
 {
     mbedtls_mem_info_t *mem_info = NULL;
     if (NULL == ptr) {
@@ -102,7 +110,7 @@ void _DTLSFree_wrapper( void *ptr )
     /* DTLS_TRC("INFO mbedtls free: %p %d  total used: %d  max used: %d\r\n",
                        ptr, mem_info->size, mbedtls_mem_used, mbedtls_max_mem_used);*/
 
-    free(mem_info);
+    g_dtls_hooks.free(mem_info);
 }
 
 #else
@@ -110,7 +118,7 @@ static  void *_DTLSCalloc_wrapper(size_t n, size_t s)
 {
     void *ptr = NULL;
     size_t len = n * s;
-    ptr = coap_malloc(len);
+    ptr = HAL_Malloc(len);
     if (NULL != ptr) {
         memset(ptr, 0x00, len);
     }
@@ -120,16 +128,16 @@ static  void *_DTLSCalloc_wrapper(size_t n, size_t s)
 static  void _DTLSFree_wrapper(void *ptr)
 {
     if (NULL != ptr) {
-        coap_free(ptr);
+        HAL_Free(ptr);
         ptr = NULL;
     }
 }
 #endif
 
 #ifdef DTLS_SESSION_SAVE
-static int _DTLSSession_save( const mbedtls_ssl_session *session,
+static int _DTLSSession_save(const mbedtls_ssl_session *session,
                              unsigned char *buf, size_t buf_len,
-                             size_t *olen )
+                             size_t *olen)
 {
     unsigned char *p = buf;
     size_t left = buf_len;
@@ -137,51 +145,54 @@ static int _DTLSSession_save( const mbedtls_ssl_session *session,
     size_t cert_len;
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
 
-    if( left < sizeof( mbedtls_ssl_session ) )
-        return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
+    if (left < sizeof(mbedtls_ssl_session)) {
+        return (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL);
+    }
 
-    memcpy( p, session, sizeof( mbedtls_ssl_session ) );
-    p += sizeof( mbedtls_ssl_session );
-    left -= sizeof( mbedtls_ssl_session );
+    memcpy(p, session, sizeof(mbedtls_ssl_session));
+    p += sizeof(mbedtls_ssl_session);
+    left -= sizeof(mbedtls_ssl_session);
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
-    if( session->peer_cert == NULL )
+    if (session->peer_cert == NULL) {
         cert_len = 0;
-    else
+    } else {
         cert_len = session->peer_cert->raw.len;
+    }
 
-    if( left < 3 + cert_len )
-        return( MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL );
+    if (left < 3 + cert_len) {
+        return (MBEDTLS_ERR_SSL_BUFFER_TOO_SMALL);
+    }
 
-    *p++ = (unsigned char)( cert_len >> 16 & 0xFF );
-    *p++ = (unsigned char)( cert_len >>  8 & 0xFF );
-    *p++ = (unsigned char)( cert_len       & 0xFF );
+    *p++ = (unsigned char)(cert_len >> 16 & 0xFF);
+    *p++ = (unsigned char)(cert_len >>  8 & 0xFF);
+    *p++ = (unsigned char)(cert_len       & 0xFF);
 
-    if( session->peer_cert != NULL )
-        memcpy( p, session->peer_cert->raw.p, cert_len );
+    if (session->peer_cert != NULL) {
+        memcpy(p, session->peer_cert->raw.p, cert_len);
+    }
 
     p += cert_len;
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
 
     *olen = p - buf;
 
-    return( 0 );
+    return (0);
 }
 #endif
 
-static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session,
-        unsigned char    *p_ca_cert_pem)
+static unsigned int _DTLSVerifyOptions_set(dtls_session_t *p_dtls_session, unsigned char *p_ca_cert_pem, char *host)
 {
     int result;
     unsigned int err_code = DTLS_SUCCESS;
 
 #ifdef MBEDTLS_X509_CRT_PARSE_C
     if (p_ca_cert_pem != NULL) {
-#ifndef TEST_COAP_DAILY
         mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_REQUIRED);
-#else
-        mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
-#endif
+        if (strstr(host, "pre.iot-as-coap")) {
+            DTLS_TRC("host = '%s' so verify server OPTIONAL\r\n", host);
+            mbedtls_ssl_conf_authmode(&p_dtls_session->conf, MBEDTLS_SSL_VERIFY_OPTIONAL);
+        }
         DTLS_TRC("Call mbedtls_ssl_conf_authmode\r\n");
 
         DTLS_TRC("x509 ca cert pem len %d\r\n%s\r\n", (int)strlen((char *)p_ca_cert_pem) + 1, p_ca_cert_pem);
@@ -210,7 +221,7 @@ static void _DTLSLog_wrapper(void        *p_ctx, int level,
     DTLS_INFO("[mbedTLS]:[%s]:[%d]: %s\r\n", p_file, line, p_str);
 }
 
-static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_options_t  *p_options)
+static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls_options_t *p_options)
 {
     int   result = 0;
 
@@ -239,7 +250,7 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
         DTLS_TRC("mbedtls_ssl_set_bio result 0x%04x\r\n", result);
 
 #ifdef DTLS_SESSION_SAVE
-        if(NULL != saved_session){
+        if (NULL != saved_session) {
             result = mbedtls_ssl_set_session(&p_dtls_session->context, saved_session);
             DTLS_TRC("mbedtls_ssl_set_session return 0x%04x\r\n", result);
         }
@@ -252,15 +263,15 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
         DTLS_TRC("mbedtls_ssl_handshake result 0x%04x\r\n", result);
 #ifdef MBEDTLS_MEM_TEST
         DTLS_TRC("mbedtls handshake memory total used: %d  max used: %d\r\n",
-                                 mbedtls_mem_used, mbedtls_max_mem_used);
+                 mbedtls_mem_used, mbedtls_max_mem_used);
 #endif
 
 #ifdef DTLS_SESSION_SAVE
-        if(0 == result){
-            if(NULL == saved_session){
-                saved_session = coap_malloc(sizeof(mbedtls_ssl_session));
+        if (0 == result) {
+            if (NULL == saved_session) {
+                saved_session = HAL_Malloc(sizeof(mbedtls_ssl_session));
             }
-            if(NULL != saved_session){
+            if (NULL != saved_session) {
                 memset(saved_session, 0x00, sizeof(mbedtls_ssl_session));
                 result = mbedtls_ssl_get_session(&p_dtls_session->context, saved_session);
                 DTLS_TRC("mbedtls_ssl_get_session return 0x%04x\r\n", result);
@@ -275,7 +286,7 @@ static unsigned int _DTLSContext_setup(dtls_session_t *p_dtls_session, coap_dtls
 dtls_session_t *_DTLSSession_init()
 {
     dtls_session_t *p_dtls_session = NULL;
-    p_dtls_session = coap_malloc(sizeof(dtls_session_t));
+    p_dtls_session = HAL_Malloc(sizeof(dtls_session_t));
 
     mbedtls_debug_set_threshold(0);
 #ifdef MBEDTLS_MEM_TEST
@@ -322,13 +333,25 @@ unsigned int _DTLSSession_deinit(dtls_session_t *p_dtls_session)
 
         mbedtls_ctr_drbg_free(&p_dtls_session->ctr_drbg);
         mbedtls_entropy_free(&p_dtls_session->entropy);
-        coap_free(p_dtls_session);
+        HAL_Free(p_dtls_session);
     }
 
     return DTLS_SUCCESS;
 }
 
-DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
+DLL_HAL_API int HAL_DTLSHooks_set(dtls_hooks_t *hooks)
+{
+    if (hooks == NULL || hooks->malloc == NULL || hooks->free == NULL) {
+        return DTLS_INVALID_PARAM;
+    }
+
+    g_dtls_hooks.malloc = hooks->malloc;
+    g_dtls_hooks.free = hooks->free;
+
+    return DTLS_SUCCESS;
+}
+
+DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t *p_options)
 {
     char port[6] = {0};
     int result = 0;
@@ -366,7 +389,7 @@ DTLSContext *HAL_DTLSSession_create(coap_dtls_options_t            *p_options)
                                       mbedtls_ssl_cookie_check, &p_dtls_session->cookie_ctx);
 #endif
 
-        result = _DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem);
+        result = _DTLSVerifyOptions_set(p_dtls_session, p_options->p_ca_cert_pem, p_options->p_host);
 
         if (DTLS_SUCCESS != result) {
             DTLS_ERR("DTLSVerifyOptions_set result 0x%04x\r\n", result);
@@ -412,8 +435,8 @@ error:
 }
 
 unsigned int HAL_DTLSSession_write(DTLSContext *context,
-                                   const unsigned char   *p_data,
-                                   unsigned int    *p_datalen)
+                                   const unsigned char *p_data,
+                                   unsigned int *p_datalen)
 {
     int len  = 0;
     unsigned int err_code = DTLS_SUCCESS;

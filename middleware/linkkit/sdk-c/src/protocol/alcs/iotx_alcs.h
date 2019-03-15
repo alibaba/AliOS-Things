@@ -148,6 +148,7 @@ typedef struct iotx_alcs_res_st {
     iotx_alcs_message_perm_t msg_perm;
     iotx_alcs_message_content_type_t msg_ct;
     uint32_t maxage;  /*0~60*/
+    CoAPRecvMsgHandler callback;
 } iotx_alcs_res_t, *iotx_alcs_res_pt;
 
 /**

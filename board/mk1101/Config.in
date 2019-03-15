@@ -1,0 +1,22 @@
+config AOS_BOARD_MK1101
+    bool "MK1101"
+    select AOS_MCU_MX1101
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_MK1101
+# Configurations for board board_mk1101
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config SAL_MODULE
+    string
+    default ""
+endif

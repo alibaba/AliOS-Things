@@ -91,7 +91,6 @@ src = Split('''
         Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_ll_utils.c
         Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/system_stm32l4xx.c
         aos/soc_impl.c
-        aos/trace_impl.c
         aos/hook_impl.c       
         aos/aos.c
         aos/rttest_impl.c
@@ -107,7 +106,6 @@ src = Split('''
         hal/hal_nand_stm32l4.c
         hal/hal_nor_stm32l4.c
         hal/hal_flash_stm32l4.c
-        hal/ota_port.c
 ''')
 
 deps = Split('''
@@ -115,19 +113,13 @@ deps = Split('''
         utility/libc
         kernel/rhino
         kernel/hal
-        kernel/rhino/vfs
-        utility/digest_algorithm
+        kernel/fs/vfs
         osal
         kernel/init
-        kernel/modules/fs/kv
+        kernel/fs/kv
 ''')
 
 global_macros = Split('''
-        CONFIG_AOS_KV_MULTIPTN_MODE
-        CONFIG_AOS_KV_PTN=6
-        CONFIG_AOS_KV_SECOND_PTN=7
-        CONFIG_AOS_KV_PTN_SIZE=4096
-        CONFIG_AOS_KV_BUFFER_SIZE=8192
         STDIO_UART=2
         
 ''')
@@ -189,7 +181,6 @@ elif aos_global_config.compiler == "iar":
 else:
     global_cflags = Split('''
         -mcpu=cortex-m4
-        -march=armv7-m 
         -mlittle-endian
         -mthumb -mthumb-interwork
         -mfloat-abi=hard

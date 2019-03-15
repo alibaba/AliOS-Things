@@ -38,8 +38,8 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "sai.h"
-
-#include "gpio.h"
+#include "stm32l4xx_hal.h"
+#include "aos/hal/gpio.h"
 #include "dma.h"
 
 /* USER CODE BEGIN 0 */
@@ -117,7 +117,7 @@ void HAL_SAI_MspInit(SAI_HandleTypeDef* hsai)
 
     /* Peripheral DMA init*/
     
-    hdma_sai2_a.Instance = DMA1_Channel6;
+    hdma_sai2_a.Instance = DMA2_Channel3;
     hdma_sai2_a.Init.Request = DMA_REQUEST_1;
     hdma_sai2_a.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_sai2_a.Init.PeriphInc = DMA_PINC_DISABLE;

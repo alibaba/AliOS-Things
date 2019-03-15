@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include "tsl_file.h"
+#include "iot_import.h"
 
 long tsl_file_get_size(FILE *fp)
 {
@@ -69,13 +70,13 @@ char *tsl_read_from_file(const char *filename, int *buf_size)
         goto do_exit;
     }
 
-    buf = (char *)calloc(file_size + 1, 1);
+    buf = (char *)HAL_Calloc(file_size + 1, 1);
     if (!buf) {
         goto do_exit;
     }
 
     if (tsl_file_read(buf, fp, file_size)) {
-        free(buf);
+        HAL_Free(buf);
         goto do_exit;
     }
     buf[file_size] = '\0';

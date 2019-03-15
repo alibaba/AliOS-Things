@@ -19,18 +19,15 @@
 
 static uint32_t trng_data_get(void)
 {
-    uint32_t data = 0;
-    int      cnt  = 200;
+    uint32_t data;
 
     trng_enable();
-
-    do {
-        if (*(volatile uint32_t *)(TRNG_BASEADDR + TRNG_TCR) & 0x1) {
-            data = *(volatile uint32_t *)(TRNG_BASEADDR + TRNG_TDR);
-            break;
-        }
-    } while (cnt--);
-
+    // FIXME: for cb2201 platform, the 1st time for rand
+    // data ready is slow, however while loop may cause
+    // TEE stuck here if trng is not working for some reason
+    while(!trng_data_ready_status());
+    data = *(volatile uint32_t *)(TRNG_BASEADDR + TRNG_TDR);
+	
     trng_disable();
 
     return data;

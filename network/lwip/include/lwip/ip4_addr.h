@@ -39,7 +39,7 @@
 
 #include "lwip/opt.h"
 #include "lwip/def.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 
 #if LWIP_IPV4

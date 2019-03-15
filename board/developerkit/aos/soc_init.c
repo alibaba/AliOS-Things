@@ -3,9 +3,13 @@
  */
 
 #include <stdint.h>
-#include "hal/hal.h"
+
+#include "debug_api.h"
 #include "k_config.h"
 #include "soc_init.h"
+
+#include "stm32l4xx_hal.h"
+#include "hal_uart_stm32l4.h"
 
 #include "Inc/adc.h"
 #include "Inc/crc.h"
@@ -40,6 +44,13 @@ static void brd_peri_init(void);
 
 extern void SystemClock_Config(void);
 
+UART_MAPPING UART_MAPPING_TABLE[] =
+{
+    { PORT_UART_STD,     LPUART1, { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 1024} },
+    { PORT_UART_AT,      USART3,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} },
+    { PORT_UART_ARDUINO, USART2,  { UART_OVERSAMPLING_16, UART_ONE_BIT_SAMPLE_DISABLE, UART_ADVFEATURE_NO_INIT, 2048} }
+};
+
 void stm32_soc_init(void)
 {
     HAL_Init();
@@ -47,11 +58,9 @@ void stm32_soc_init(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /**Configure the Systick interrupt time 
-    */
+    /**Configure the Systick interrupt time */
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/RHINO_CONFIG_TICKS_PER_SECOND);
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0x0f, 0);
+
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -59,15 +68,12 @@ void stm32_soc_init(void)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
-    /*default uart init*/
-    stduart_init();
-    brd_peri_init();
-    //sufficient time to make the initial GPIO level works, especially wifi reset
-    aos_msleep(50);
-    hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
+
     MX_DMA_Init();
     MX_ADC3_Init();
+#ifndef ARDUINO_SPI_I2C_ENABLED
     MX_DCMI_Init();
+#endif
     MX_SAI2_Init();
     MX_SPI1_Init();
     MX_USB_OTG_FS_USB_Init();
@@ -76,11 +82,40 @@ void stm32_soc_init(void)
     MX_TIM17_Init();
     MX_TIM16_Init();
     MX_IRTIM_Init();
+}
+
+void stm32_soc_peripheral_init(void)
+{
+    /*default uart init*/
+    stduart_init();
+    brd_peri_init();
+    //sufficient time to make the initial GPIO level works, especially wifi reset
+    aos_msleep(50);
+    hal_gpio_output_high(&brd_gpio_table[GPIO_WIFI_RST]);
 
 #ifdef DEVELOPERKIT_IRDA
     irda_init();
 #endif
+
 }
+
+#if defined(AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC == 1)
+/*use in debug_panic*/
+void uart_reinit(void)
+{
+    hal_uart_finalize(&uart_0);
+
+    uart_0.port = 0;
+    uart_0.config.baud_rate = 115200;
+    uart_0.config.data_width = DATA_WIDTH_8BIT;
+    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
+    uart_0.config.mode = MODE_TX_RX;
+    uart_0.config.parity = NO_PARITY;
+    uart_0.config.stop_bits = STOP_BITS_1;
+
+    hal_uart_init_block(&uart_0);
+}
+#endif
 
 static void stduart_init(void)
 {
@@ -132,6 +167,9 @@ gpio_dev_t brd_gpio_table[] = {
 i2c_dev_t brd_i2c2_dev = {AOS_PORT_I2C2, {0}, NULL};
 i2c_dev_t brd_i2c3_dev = {AOS_PORT_I2C3, {0}, NULL};
 i2c_dev_t brd_i2c4_dev = {AOS_PORT_I2C4, {0}, NULL};
+#ifdef ARDUINO_SPI_I2C_ENABLED
+spi_dev_t brd_spi2_dev = {PORT_SPI2, {0}, NULL};
+#endif
 
 static void brd_peri_init(void)
 {
@@ -139,11 +177,14 @@ static void brd_peri_init(void)
     int gpcfg_num = sizeof(brd_gpio_table) / sizeof(brd_gpio_table[0]);
 
     for (i = 0; i < gpcfg_num; ++i) {
-    	hal_gpio_init(&brd_gpio_table[i]);
+        hal_gpio_init(&brd_gpio_table[i]);
     }
     hal_i2c_init(&brd_i2c2_dev);
     hal_i2c_init(&brd_i2c3_dev);
     hal_i2c_init(&brd_i2c4_dev);
+#ifdef ARDUINO_SPI_I2C_ENABLED
+    hal_spi_init(&brd_spi2_dev);
+#endif
 }
 /**
 * @brief This function handles System tick timer.
@@ -162,7 +203,7 @@ void SysTick_Handler(void)
     krhino_intrpt_exit();
 }
 
-#if (RHINO_CONFIG_PANIC != 1)
+#if (DEBUG_CONFIG_PANIC != 1)
 void HardFault_Handler(void)
 {
   while (1)
@@ -173,42 +214,3 @@ void HardFault_Handler(void)
   }
 }
 #endif
-
-/**
-  * @brief  Retargets the C library printf function to the USART.
-  * @param  None
-  * @retval None
-  */
-PUTCHAR_PROTOTYPE
-{
-  if (ch == '\n') {
-    //hal_uart_send(&console_uart, (void *)"\r", 1, 30000);
-    hal_uart_send(&uart_0, (void *)"\r", 1, 30000);
-  }
-  hal_uart_send(&uart_0, &ch, 1, 30000);
-  return ch;
-}
-
-/**
-  * @brief  Retargets the C library scanf function to the USART.
-  * @param  None
-  * @retval None
-  */
-GETCHAR_PROTOTYPE
-{
-  /* Place your implementation of fgetc here */
-  /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
-  uint8_t ch = EOF;
-  int32_t ret = -1;
-  
-  uint32_t recv_size;
-  ret = hal_uart_recv_II(&uart_0, &ch, 1, &recv_size, HAL_WAIT_FOREVER);
-
-  if (ret == 0) {
-      return ch;
-  } else {
-      return -1;
-  }
-}
-
-

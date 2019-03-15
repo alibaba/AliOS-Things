@@ -1,3 +1,12 @@
+define Append_Conditional
+$(if $(strip $(foreach V,$(4),$(filter -D$(V),$(CFLAGS)))),, \
+    $(if \
+        $(findstring $(foreach U,$(3),-D$(U)),$(foreach U,$(3),$(filter -D$(U),$(CFLAGS)))), \
+            $(eval $(strip $(1)) += $(2)) \
+    ) \
+)
+endef
+
 define Dump_Var
 	NUM=`echo "$(strip $($(1)))"|awk '{ print NF }'`; \
 	if (( $${NUM} \> 1 )); then \
@@ -45,7 +54,9 @@ define Brief_Log
 	elif [ "$1" = "ST" ]; then \
 	    COLOR_MARK="\033[0;33m"; \
 	fi; \
-    echo -ne "$${COLOR_MARK}"; \
+	if [ "$(PLAIN_LOG)" != "1" ]; then \
+	    echo -ne "$${COLOR_MARK}"; \
+	fi; \
 	if [ "$2" = "" ]; then \
 	    FIRST_DEP="$(firstword $(filter-out FORCE,$?))"; \
 	    SPACE_BAR="                                   "; \
@@ -56,12 +67,16 @@ define Brief_Log
 	else \
 	    printf "\r%-40s%s%s$(3)\n" "[$1] $$(echo -n "$(2)" | cut -c1-28)" "<= $${FIRST_DEP} $${SPACE_BAR}"; \
 	fi; \
-	for i in $(wordlist 2,150,$(filter-out FORCE,$?)); do \
-	    if [ "$$(echo $${i}|cut -c1)" != "/" ]; then \
-	        printf "%-40s%s$(3)\n" "" "   $$(basename $${i})"; \
-	    fi \
-	done; \
-	echo -ne "\033[0m"; \
+	if [ "$3" != "..." ]; then \
+	    for i in $(wordlist 2,150,$(filter-out FORCE,$?)); do \
+	        if [ "$$(echo $${i}|cut -c1)" != "/" ]; then \
+	            printf "%-40s%s$(3)\n" "" "   $$(basename $${i})"; \
+	        fi \
+	    done; \
+	fi; \
+	if [ "$(PLAIN_LOG)" != "1" ]; then \
+	    echo -ne "\033[0m"; \
+	fi; \
 )
 endef
 
@@ -194,3 +209,51 @@ define Gitrepo_TcPath
 )
 endef
 
+define CompLib_Map
+$(eval \
+    COMP_LIB_COMPONENTS += \
+        $(if \
+            $(filter y,$($(strip $(1)))),$(foreach M,$(strip $(2)),$(if $(filter $(strip $(M)),$(COMP_LIB_COMPONENTS)),,$(strip $(M)))) \
+        ) \
+)
+endef
+
+OMIT_GOALS := distclean clean env help config reconfig menuconfig
+
+ifeq (,$(filter $(OMIT_GOALS),$(MAKECMDGOALS)))
+define Conflict_Relation
+$(if $(filter y,$($(strip $(1)))), \
+    $(if $(filter y,$($(strip $(2)))), \
+        $(error INVALID CONFIG: '$(strip $(1)) = $($(strip $(1)))' conflicts with '$(strip $(2)) = $($(strip $(2)))' at same time!), \
+    ), \
+)
+endef
+
+define Present1_Relation
+$(if $(filter n,$($(strip $(1)))), \
+    $(if $(filter n,$($(strip $(2)))), \
+        $(error INVALID CONFIG: '$(strip $(1)) = $($(strip $(1)))' conflicts with '$(strip $(2)) = $($(strip $(2)))' at same time!), \
+    ), \
+)
+endef
+
+define Requires_Relation
+$(if $(filter y,$($(strip $(1)))), \
+    $(if $(filter y,$($(strip $(2)))),, \
+        $(error INVALID CONFIG: '$(strip $(2)) = $($(strip $(2)))' breaks dependency since '$(strip $(1)) = $($(strip $(1)))'!), \
+    ), \
+)
+endef
+
+else    # ifeq (,$(filter $(OMIT_GOALS),$(MAKECMDGOALS)))
+
+define Conflict_Relation
+endef
+
+define Present1_Relation
+endef
+
+define Requires_Relation
+endef
+
+endif   # ifeq (,$(filter $(OMIT_GOALS),$(MAKECMDGOALS)))

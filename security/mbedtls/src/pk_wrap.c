@@ -97,7 +97,6 @@ static int rsa_verify_wrap( void *ctx, mbedtls_md_type_t md_alg,
     return( 0 );
 }
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
 static int rsa_sign_wrap( void *ctx, mbedtls_md_type_t md_alg,
                    const unsigned char *hash, size_t hash_len,
                    unsigned char *sig, size_t *sig_len,
@@ -126,8 +125,6 @@ static int rsa_decrypt_wrap( void *ctx,
                 MBEDTLS_RSA_PRIVATE, olen, input, output, osize ) );
 }
 
-#endif /* MBEDTLS_RSA_PRIV_ENABLED */
-
 static int rsa_encrypt_wrap( void *ctx,
                     const unsigned char *input, size_t ilen,
                     unsigned char *output, size_t *olen, size_t osize,
@@ -142,13 +139,11 @@ static int rsa_encrypt_wrap( void *ctx,
                 f_rng, p_rng, MBEDTLS_RSA_PUBLIC, ilen, input, output ) );
 }
 
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
 static int rsa_check_pair_wrap( const void *pub, const void *prv )
 {
     return( mbedtls_rsa_check_pub_priv( (const mbedtls_rsa_context *) pub,
                                 (const mbedtls_rsa_context *) prv ) );
 }
-#endif /* MBEDTLS_RSA_PRIV_ENABLED */
 
 static void *rsa_alloc_wrap( void )
 {
@@ -185,19 +180,10 @@ const mbedtls_pk_info_t mbedtls_rsa_info = {
     rsa_get_bitlen,
     rsa_can_do,
     rsa_verify_wrap,
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     rsa_sign_wrap,
     rsa_decrypt_wrap,
-#else
-    NULL,
-    NULL,
-#endif
     rsa_encrypt_wrap,
-#if defined(MBEDTLS_RSA_PRIV_ENABLED)
     rsa_check_pair_wrap,
-#else
-    NULL,
-#endif
     rsa_alloc_wrap,
     rsa_free_wrap,
     rsa_debug,

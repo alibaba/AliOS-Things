@@ -181,7 +181,7 @@ struct msghdr {
 #define SO_REUSEADDR   0x0004 /* Allow local address reuse */
 #define SO_KEEPALIVE   0x0008 /* keep connections alive */
 #define SO_BROADCAST   0x0020 /* permit to send and to receive broadcast messages (see IP_SOF_BROADCAST option) */
-
+#define SO_TCPSACK     0x0040 /* Allow TCP SACK (Selective acknowledgment) */
 
 /*
  * Additional options, not kept in so_options.
@@ -189,11 +189,11 @@ struct msghdr {
 #define SO_DEBUG       0x0001 /* Unimplemented: turn on debugging info recording */
 #define SO_ACCEPTCONN  0x0002 /* socket has had listen() */
 #define SO_DONTROUTE   0x0010 /* Unimplemented: just use interface addresses */
-#define SO_USELOOPBACK 0x0040 /* Unimplemented: bypass hardware when possible */
-#define SO_LINGER      0x0080 /* linger on close if data present */
+#define SO_USELOOPBACK 0x0080 /* Unimplemented: bypass hardware when possible */
+#define SO_LINGER      0x0100 /* linger on close if data present */
 #define SO_DONTLINGER  ((int)(~SO_LINGER))
-#define SO_OOBINLINE   0x0100 /* Unimplemented: leave received OOB data in line */
-#define SO_REUSEPORT   0x0200 /* Unimplemented: allow local address & port reuse */
+#define SO_OOBINLINE   0x0200 /* Unimplemented: leave received OOB data in line */
+#define SO_REUSEPORT   0x0400 /* Unimplemented: allow local address & port reuse */
 #define SO_SNDBUF      0x1001 /* Unimplemented: send buffer size */
 #define SO_RCVBUF      0x1002 /* receive buffer size */
 #define SO_SNDLOWAT    0x1003 /* Unimplemented: send low-water mark */
@@ -204,7 +204,9 @@ struct msghdr {
 #define SO_TYPE        0x1008 /* get socket type */
 #define SO_CONTIMEO    0x1009 /* Unimplemented: connect timeout */
 #define SO_NO_CHECK    0x100a /* don't create UDP checksum */
-
+#define SO_BIO         0x100b /* set socket into blocking mode */
+#define SO_NONBLOCK    0x100c /* set/get blocking mode via optval param */
+#define SO_NBIO        0x100d /* set socket into NON-blocking mode */
 
 /*
  * Structure used for manipulating linger option.
@@ -637,6 +639,98 @@ int lwip_try_wakeup(int s, int rcvevent, int sendevent, int errevent);
 
 #if LWIP_COMPAT_SOCKETS
 #if LWIP_COMPAT_SOCKETS != 2
+
+#ifdef POSIX_DEVICE_IO_NEED
+static inline int accept(int s, struct sockaddr *addr, socklen_t *addrlen)
+{
+	return lwip_accept(s, addr, addrlen);
+}
+
+static inline int bind(int s, const struct sockaddr *name, socklen_t namelen)
+{
+	return lwip_bind(s, name, namelen);
+}
+
+static inline int shutdown(int s, int how)
+{
+	return lwip_shutdown(s, how);
+}
+
+static inline int getpeername (int s, struct sockaddr *name, socklen_t *namelen)
+{
+	return lwip_getpeername(s, name, namelen);
+}
+static inline int getsockname (int s, struct sockaddr *name, socklen_t *namelen)
+{
+	return lwip_getsockname(s, name, namelen);
+}
+
+static inline int getsockopt (int s, int level, int optname, void *optval, socklen_t *optlen)
+{
+	return lwip_getsockopt(s, level, optname, optval, optlen);
+}
+
+static inline int setsockopt (int s, int level, int optname, const void *optval, socklen_t optlen)
+{
+	return lwip_setsockopt(s, level, optname, optval, optlen);
+}
+
+static inline int connect(int s, const struct sockaddr *name, socklen_t namelen)
+{
+	return lwip_connect(s, name, namelen);
+}
+
+static inline int listen(int s, int backlog)
+{
+	return lwip_listen(s, backlog);
+}
+
+static inline int recv(int s, void *mem, size_t len, int flags)
+{
+	return lwip_recv(s, mem, len, flags);
+}
+
+static inline int recvfrom(int s, void *mem, size_t len, int flags,struct sockaddr *from, socklen_t *fromlen)
+{
+	return lwip_recvfrom(s, mem, len, flags, from, fromlen);
+}
+
+static inline int send(int s, const void *dataptr, size_t size, int flags)
+{
+	return lwip_send(s, dataptr, size, flags);
+}
+
+static inline int sendmsg(int s, const struct msghdr *message, int flags)
+{
+	return lwip_sendmsg(s, message, flags);
+}
+
+static inline int sendto(int s, const void *dataptr, size_t size, int flags,	const struct sockaddr *to, socklen_t tolen)
+{
+	return lwip_sendto(s, dataptr, size, flags, to, tolen);
+}
+
+static inline int socket(int domain, int type, int protocol)
+{
+	return lwip_socket(domain, type, protocol);
+}
+
+static inline int writev(int s, const struct iovec *iov, int iovcnt)
+{
+	return lwip_writev(s, iov, iovcnt);
+}
+
+static inline int eventfd(unsigned int initval, int flags)
+{
+	return lwip_eventfd(initval, flags);
+}
+
+/** @ingroup socket */
+#define select(maxfdp1,readset,writeset,exceptset,timeout)     lwip_select(maxfdp1,readset,writeset,exceptset,timeout)
+/** @ingroup socket */
+#define ioctlsocket(s,cmd,argp)                   lwip_ioctl(s,cmd,argp)
+
+#else
 /** @ingroup socket */
 #define accept(s,addr,addrlen)                    lwip_accept(s,addr,addrlen)
 /** @ingroup socket */
@@ -673,8 +767,6 @@ int lwip_try_wakeup(int s, int rcvevent, int sendevent, int errevent);
 #define select(maxfdp1,readset,writeset,exceptset,timeout)     lwip_select(maxfdp1,readset,writeset,exceptset,timeout)
 /** @ingroup socket */
 #define ioctlsocket(s,cmd,argp)                   lwip_ioctl(s,cmd,argp)
-
-#ifndef POSIX_DEVICE_IO_NEED
 #if LWIP_POSIX_SOCKETS_IO_NAMES
 /** @ingroup socket */
 #define read(s,mem,len)                           lwip_read(s,mem,len)
@@ -690,8 +782,8 @@ int lwip_try_wakeup(int s, int rcvevent, int sendevent, int errevent);
 /** @ingroup socket */
 #define fcntl(s,cmd,val)                          lwip_fcntl(s,cmd,val)
 #endif /* LWIP_POSIX_SOCKETS_IO_NAMES */
-#endif /* LWIP_COMPAT_SOCKETS != 2 */
 #endif /* POSIX_DEVICE_IO_NEED */
+#endif /* LWIP_COMPAT_SOCKETS != 2 */
 
 #if LWIP_IPV4 && LWIP_IPV6
 /** @ingroup socket */

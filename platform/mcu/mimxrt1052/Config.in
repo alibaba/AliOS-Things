@@ -1,0 +1,11 @@
+config AOS_MCU_MIMXRT1052IMPL
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    select AOS_COMP_NEWLIB_STUB
+    help
+      driver & sdk for platform/mcu mimxrt1052impl
+
+if AOS_MCU_MIMXRT1052IMPL
+# Configurations for mcu mimxrt1052impl
+endif

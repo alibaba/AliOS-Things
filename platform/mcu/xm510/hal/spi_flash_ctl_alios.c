@@ -2,7 +2,7 @@
 #include "hal_timer.h"
 #include "board.h"
 #include "spi_flash_ctl_alios.h"
-#include <hal/soc/nor.h>
+#include "aos/hal/nor.h"
 #include <stdio.h>
 
 static struct spi_flash flash_spi;

@@ -26,7 +26,7 @@
 *END************************************************************************/
 #include "psptypes.h"
 #include "derivative.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "audio.h"
 #include "kbi.h"
 #include "cmt.h"

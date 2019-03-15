@@ -1,0 +1,11 @@
+config AOS_MCU_MSP432P4XX
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu msp432p4xx
+
+if AOS_MCU_MSP432P4XX
+# Configurations for mcu msp432p4xx
+endif

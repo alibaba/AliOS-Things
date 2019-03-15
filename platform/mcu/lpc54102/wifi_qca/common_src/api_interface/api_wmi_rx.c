@@ -541,7 +541,7 @@ void Api_HostDsetReadbackEvent(void *pCxt, uint8_t devId, uint8_t *datap, int32_
 {
     HOST_DSET *pDset;
     uint32_t msgLength;
-    uint32_t strrcl_offset;
+    uint32_t strrcl_offset = 0;
     uint32_t offset, length;
     //    WMI_STORERECALL_RECALL_DSET *pRecallDset;
 

@@ -1,0 +1,11 @@
+config AOS_MCU_STM32L4XX_CUBE
+    bool
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu stm32l4xx_cube
+
+if AOS_MCU_STM32L4XX_CUBE
+# Configurations for mcu stm32l4xx_cube
+endif

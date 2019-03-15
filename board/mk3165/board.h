@@ -1,5 +1,7 @@
 #pragma once
 
+#include "aos/hal/flash.h"
+
 #define HARDWARE_REVISION   "V1.0"
 #define MODEL               "STM32F411"
 

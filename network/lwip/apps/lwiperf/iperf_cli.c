@@ -1,17 +1,18 @@
-
-#include "mico.h"
-//#include "platform_assert.h"
-#include "iperf_debug.h"
-#include "iperf_task.h"
-
+#include "lwip/debug.h"
+#include "lwip/err.h"
+#include "lwip/apps/iperf_debug.h"
+#include "lwip/apps/iperf_task.h"
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
 /******************************************************
  *                      Macros
  ******************************************************/
-
+#define TAG "IPERF_CLI"
 /******************************************************
  *                    Constants
  ******************************************************/
-
+static aos_task_t   aos_iperf_task;
 
 /******************************************************
  *                   Enumerations
@@ -33,10 +34,10 @@ struct cli_command iperf_test_message_cmd[] = {
 /******************************************************
  *               Function Declarations
  ******************************************************/
-static void iperf_udp_run_server_thread( mico_thread_arg_t arg );
-static void iperf_tcp_run_server_thread( mico_thread_arg_t arg );
-static void iperf_udp_run_client_thread( mico_thread_arg_t arg );
-static void iperf_tcp_run_client_thread( mico_thread_arg_t arg );
+static void iperf_udp_run_server_thread( void* arg );
+static void iperf_tcp_run_server_thread( void* arg );
+static void iperf_udp_run_client_thread( void* arg );
+static void iperf_tcp_run_client_thread( void* arg );
 
 static void _cli_iperf_server_Command( int argc, char **argv );
 static void _cli_iperf_client_Command( int argc, char **argv );
@@ -50,22 +51,22 @@ static void _cli_iperf_help_Command( int argc, char **argv );
  *               Function Definitions
  ******************************************************/
 
-static void iperf_udp_run_server_thread( mico_thread_arg_t arg )
+static void iperf_udp_run_server_thread( void* arg )
 {
     iperf_udp_run_server( (char **) arg );
 }
 
-static void iperf_tcp_run_server_thread( mico_thread_arg_t arg )
+static void iperf_tcp_run_server_thread( void* arg )
 {
     iperf_tcp_run_server( (char **) arg );
 }
 
-static void iperf_udp_run_client_thread( mico_thread_arg_t arg )
+static void iperf_udp_run_client_thread( void* arg )
 {
     iperf_udp_run_client( (char **) arg );
 }
 
-static void iperf_tcp_run_client_thread( mico_thread_arg_t arg )
+static void iperf_tcp_run_client_thread( void* arg )
 {
     iperf_tcp_run_client( (char **) arg );
 }
@@ -79,7 +80,7 @@ static void _cli_iperf_server_Command( int argc, char **argv )
     g_iperf_param = malloc( IPERF_COMMAND_BUFFER_NUM * IPERF_COMMAND_BUFFER_SIZE );
     if ( g_iperf_param == NULL )
     {
-        printf( "Warning: No enough memory to running iperf.\r\n" );
+        LOGD(TAG, "Warning: No enough memory to running iperf.\r\n" );
     }
     memset( g_iperf_param, 0, IPERF_COMMAND_BUFFER_NUM * IPERF_COMMAND_BUFFER_SIZE );
 
@@ -87,7 +88,7 @@ static void _cli_iperf_server_Command( int argc, char **argv )
     {
         strcpy( (char *) &g_iperf_param[i * offset], argv[i] );
 #if defined(IPERF_DEBUG_INTERNAL)
-        printf("_cli_iperf_client, g_iperf_param[%d] is \"%s\"\r\n", i, (char *)&g_iperf_param[i * offset]);
+        LOGD(TAG, "_cli_iperf_client, g_iperf_param[%d] is \"%s\"\r\n", i, (char *)&g_iperf_param[i * offset]);
 #endif
     }
 
@@ -95,20 +96,18 @@ static void _cli_iperf_server_Command( int argc, char **argv )
     {
         if ( strcmp( argv[i], "-u" ) == 0 )
         {
-            printf( "Iperf UDP Server: Start!\r\n" );
-            printf( "Iperf UDP Server Receive Timeout = 20 (secs)\r\n" );
-            mico_rtos_create_thread( NULL, IPERF_PRIO, IPERF_NAME, iperf_udp_run_server_thread, IPERF_STACKSIZE,
-                                     (mico_thread_arg_t) g_iperf_param );
+            LOGD(TAG, "Iperf UDP Server: Start!\r\n" );
+            LOGD(TAG, "Iperf UDP Server Receive Timeout = 20 (secs)\r\n" );
+            aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_udp_run_server_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
             is_create_task = 1;
             break;
         }
     }
     if ( strcmp( argv[i], "-u" ) != 0 )
     {
-        printf( "Iperf TCP Server: Start!\r\n" );
-        printf( "Iperf TCP Server Receive Timeout = 20 (secs)\r\n" );
-        mico_rtos_create_thread( NULL, IPERF_PRIO, IPERF_NAME, iperf_tcp_run_server_thread, IPERF_STACKSIZE,
-                                 (mico_thread_arg_t) g_iperf_param );
+        LOGD(TAG, "Iperf TCP Server: Start!\r\n" );
+        LOGD(TAG, "Iperf TCP Server Receive Timeout = 20 (secs)\r\n" );
+        aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_tcp_run_server_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
         is_create_task = 1;
     }
 
@@ -128,14 +127,14 @@ static void _cli_iperf_client_Command( int argc, char **argv )
     g_iperf_param = malloc( IPERF_COMMAND_BUFFER_NUM * IPERF_COMMAND_BUFFER_SIZE );
     if ( g_iperf_param == NULL )
     {
-        printf( "Warning: No enough memory to running iperf.\r\n" );
+        LOGD(TAG, "Warning: No enough memory to running iperf.\r\n" );
     }
     memset( g_iperf_param, 0, IPERF_COMMAND_BUFFER_NUM * IPERF_COMMAND_BUFFER_SIZE );
     for ( i = 0; i < argc; i++ )
     {
         strcpy( (char *) &g_iperf_param[i * offset], argv[i] );
 #if defined(IPERF_DEBUG_INTERNAL)
-        printf("_cli_iperf_client, g_iperf_param[%d] is \"%s\"\r\n", i, (char *)&g_iperf_param[i * offset]);
+        LOGD(TAG, "_cli_iperf_client, g_iperf_param[%d] is \"%s\"\r\n", i, (char *)&g_iperf_param[i * offset]);
 #endif
     }
 
@@ -143,9 +142,8 @@ static void _cli_iperf_client_Command( int argc, char **argv )
     {
         if ( strcmp( argv[i], "-u" ) == 0 )
         {
-            printf( "Iperf UDP Client: Start!\r\n" );
-            mico_rtos_create_thread( NULL, IPERF_PRIO, IPERF_NAME, iperf_udp_run_client_thread, IPERF_STACKSIZE,
-                                     (mico_thread_arg_t) g_iperf_param );
+            LOGD(TAG, "Iperf UDP Client: Start!\r\n" );
+            aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_udp_run_client_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
             is_create_task = 1;
             break;
         }
@@ -153,9 +151,8 @@ static void _cli_iperf_client_Command( int argc, char **argv )
 
     if ( strcmp( argv[i], "-u" ) != 0 )
     {
-        printf( "Iperf TCP Client: Start!\r\n" );
-        mico_rtos_create_thread( NULL, IPERF_PRIO, IPERF_NAME, iperf_tcp_run_client_thread, IPERF_STACKSIZE,
-                                 (mico_thread_arg_t) g_iperf_param );
+        LOGD(TAG, "Iperf TCP Client: Start!\r\n" );
+        aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_tcp_run_client_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
         is_create_task = 1;
     }
 
@@ -167,47 +164,47 @@ static void _cli_iperf_client_Command( int argc, char **argv )
 
 static void _cli_iperf_help_Command( int argc, char **argv )
 {
-    printf( "Usage: iperf [-s|-c] [options]\r\n" );
-    printf( "       iperf [-h]\r\n\n" );
-    printf( "Client/Server:\r\n" );
-    printf( "  -u,        use UDP rather than TCP\r\n" );
-    printf( "  -p,        #server port to listen on/connect to (default 5001)\r\n" );
-    printf( "  -n,        #[kmKM]    number of bytes to transmit \r\n" );
-    printf( "  -b,        #[kmKM]    for UDP, bandwidth to send at in bits/sec\r\n" );
-    printf( "  -i,        10 seconds between periodic bandwidth reports \r\n\n" );
-    printf( "Server specific:\r\n" );
-    printf( "  -s,        run in server mode\r\n" );
-    printf( "  -B,        <ip>    bind to <ip>, and join to a multicast group (only Support UDP)\r\n" );
-    printf( "  -r,        for UDP, run iperf in tradeoff testing mode, connecting back to client\r\n\n" );
-    printf( "Client specific:\r\n" );
-    printf( "  -c,        <ip>run in client mode, connecting to <ip>\r\n" );
-    printf( "  -w,        #[kmKM]    TCP window size\r\n" );
-    printf( "  -l,        #[kmKM]    UDP datagram size\r\n" );
-    printf( "  -t,        #time in seconds to transmit for (default 10 secs)\r\n" );
-    printf( "  -S,        #the type-of-service of outgoing packets\r\n\n" );
-    printf( "Miscellaneous:\r\n" );
-    printf( "  -h,        print this message and quit\r\n\n" );
-    printf( "[kmKM] Indicates options that support a k/K or m/M suffix for kilo- or mega-\r\n\n" );
-    printf( "TOS options for -S parameter:\r\n" );
-    printf( "BE: -S 0\r\n" );
-    printf( "BK: -S 32\r\n" );
-    printf( "VI: -S 160\r\n" );
-    printf( "VO: -S 224\r\n\n" );
-    printf( "Tradeoff Testing Mode:\r\n" );
-    printf( "Command: iperf -s -u -n <bits/bytes> -r \r\n\n" );
-    printf( "Example:\r\n" );
-    printf( "Iperf TCP Server: iperf -s\r\n" );
-    printf( "Iperf UDP Server: iperf -s -u\r\n" );
-    printf( "Iperf TCP Client: iperf -c <ip> -w <window size> -t <duration> -p <port> \r\n" );
-    printf( "Iperf UDP Client: iperf -c <ip> -u -l <datagram size> -t <duration> -p <port>\r\n" );
+    LOGD(TAG, "Usage: iperf [-s|-c] [options]\r\n" );
+    LOGD(TAG, "       iperf [-h]\r\n\n" );
+    LOGD(TAG, "Client/Server:\r\n" );
+    LOGD(TAG, "  -u,        use UDP rather than TCP\r\n" );
+    LOGD(TAG, "  -p,        #server port to listen on/connect to (default 5001)\r\n" );
+    LOGD(TAG, "  -n,        #[kmKM]    number of bytes to transmit \r\n" );
+    LOGD(TAG, "  -b,        #[kmKM]    for UDP, bandwidth to send at in bits/sec\r\n" );
+    LOGD(TAG, "  -i,        10 seconds between periodic bandwidth reports \r\n\n" );
+    LOGD(TAG, "Server specific:\r\n" );
+    LOGD(TAG, "  -s,        run in server mode\r\n" );
+    LOGD(TAG, "  -B,        <ip>    bind to <ip>, and join to a multicast group (only Support UDP)\r\n" );
+    LOGD(TAG, "  -r,        for UDP, run iperf in tradeoff testing mode, connecting back to client\r\n\n" );
+    LOGD(TAG, "Client specific:\r\n" );
+    LOGD(TAG, "  -c,        <ip>run in client mode, connecting to <ip>\r\n" );
+    LOGD(TAG, "  -w,        #[kmKM]    TCP window size\r\n" );
+    LOGD(TAG, "  -l,        #[kmKM]    UDP datagram size\r\n" );
+    LOGD(TAG, "  -t,        #time in seconds to transmit for (default 10 secs)\r\n" );
+    LOGD(TAG, "  -S,        #the type-of-service of outgoing packets\r\n\n" );
+    LOGD(TAG, "Miscellaneous:\r\n" );
+    LOGD(TAG, "  -h,        print this message and quit\r\n\n" );
+    LOGD(TAG, "[kmKM] Indicates options that support a k/K or m/M suffix for kilo- or mega-\r\n\n" );
+    LOGD(TAG, "TOS options for -S parameter:\r\n" );
+    LOGD(TAG, "BE: -S 0\r\n" );
+    LOGD(TAG, "BK: -S 32\r\n" );
+    LOGD(TAG, "VI: -S 160\r\n" );
+    LOGD(TAG, "VO: -S 224\r\n\n" );
+    LOGD(TAG, "Tradeoff Testing Mode:\r\n" );
+    LOGD(TAG, "Command: iperf -s -u -n <bits/bytes> -r \r\n\n" );
+    LOGD(TAG, "Example:\r\n" );
+    LOGD(TAG, "Iperf TCP Server: iperf -s\r\n" );
+    LOGD(TAG, "Iperf UDP Server: iperf -s -u\r\n" );
+    LOGD(TAG, "Iperf TCP Client: iperf -c <ip> -w <window size> -t <duration> -p <port> \r\n" );
+    LOGD(TAG, "Iperf UDP Client: iperf -c <ip> -u -l <datagram size> -t <duration> -p <port>\r\n" );
 }
 
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
 static uint8_t _cli_iperf_debug(int argc, char **argv)
 {
     int debug;
     debug = atoi(argv[0]);
-    printf("Set iperf debug to %d(0x%x)\r\n", debug, debug);
+    LOGD(TAG, "Set iperf debug to %d(0x%x)\r\n", debug, debug);
     iperf_set_debug_mode(debug);
     return 0;
 }
@@ -217,7 +214,7 @@ void iperf_Command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 {
     if ( argc < 2 )
     {
-        printf( "Invalid command\r\n" );
+        LOGD(TAG, "Invalid command\r\n" );
     }
     if ( strcmp( argv[1], "-s" ) == 0 )
     {
@@ -233,7 +230,7 @@ void iperf_Command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
     {
         _cli_iperf_help_Command( argc - 2, &argv[2] );
     }
-#if defined(MICO_IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE)
     else
     if ( strcmp( argv[1], "-d" ) == 0 )
     {
@@ -243,11 +240,11 @@ void iperf_Command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 }
 
 
-OSStatus iperf_cli_register( void )
+int iperf_cli_register( void )
 {
     if( 0 == cli_register_commands( iperf_test_message_cmd, 1 ) )
-        return kNoErr;
+        return ERR_OK;
     else
-        return kGeneralErr;
+        return ERR_VAL;
 }
 

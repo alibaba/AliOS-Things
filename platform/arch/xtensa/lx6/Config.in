@@ -1,0 +1,8 @@
+config AOS_ARCH_XTENSA_LX6
+    bool
+    help
+      arch for xtensa lx6
+
+if AOS_ARCH_XTENSA_LX6
+# Configurations for arch xtensa-lx6
+endif

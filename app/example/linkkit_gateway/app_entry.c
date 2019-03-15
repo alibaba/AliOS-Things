@@ -7,14 +7,15 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include <aos/aos.h>
-#include <aos/yloop.h>
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
+#include "aos/yloop.h"
+
 #include "netmgr.h"
 #include "iot_export.h"
+#include "iot_import.h"
 
-#ifdef AOS_ATCMD
-#include <atparser.h>
-#endif
 #ifdef CSP_LINUXHOST
 #include <signal.h>
 #endif
@@ -23,6 +24,10 @@
 
 #ifdef LINKKIT_GATEWAY_TEST_CMD
 #include "simulate_subdev/testcmd.h"
+#endif
+
+#if defined(ENABLE_AOS_OTA) 
+#include "ota/ota_service.h"
 #endif
 
 static char linkkit_started = 0;
@@ -102,12 +107,11 @@ static void cloud_service_event(input_event_t *event, void *priv_data)
 static void linkkit_event_monitor(int event)
 {
     switch (event) {
-        case IOTX_AWSS_START: // AWSS start without enbale, just supports device
-                              // discover
+        case IOTX_AWSS_START: // AWSS start without enbale, just supports device discover
             // operate led to indicate user
             LOG("IOTX_AWSS_START");
             break;
-        case IOTX_AWSS_ENABLE: // AWSS enable
+        case IOTX_AWSS_ENABLE: // AWSS enable, AWSS doesn't parse awss packet until AWSS is enabled.
             LOG("IOTX_AWSS_ENABLE");
             // operate led to indicate user
             break;
@@ -169,6 +173,11 @@ static void linkkit_event_monitor(int event)
             LOG("IOTX_AWSS_BIND_NOTIFY");
             // operate led to indicate user
             break;
+        case IOTX_AWSS_ENABLE_TIMEOUT: // AWSS enable timeout
+                                       // user needs to enable awss again to support get ssid & passwd of router
+            LOG("IOTX_AWSS_ENALBE_TIMEOUT");
+            // operate led to indicate user
+            break;
         case IOTX_CONN_CLOUD: // Device try to connect cloud
             LOG("IOTX_CONN_CLOUD");
             // operate led to indicate user
@@ -203,7 +212,7 @@ void do_awss_active()
 {
     LOG("do_awss_active %d\n", awss_running);
     awss_running = 1;
-    #ifdef WIFI_AWSS_ENABLED
+    #ifdef WIFI_PROVISION_ENABLED
     extern int awss_config_press();
     awss_config_press();
     #endif
@@ -212,13 +221,13 @@ void do_awss_active()
 static void linkkit_reset(void *p)
 {
     netmgr_clear_ap_config();
-    HAL_Sys_reboot();
+    HAL_Reboot();
 }
 
 extern int  awss_report_reset();
 static void do_awss_reset()
 {
-#ifdef WIFI_AWSS_ENABLED
+#ifdef WIFI_PROVISION_ENABLED
     aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 2048);
 #endif
     aos_post_delayed_action(2000, linkkit_reset, NULL);
@@ -229,7 +238,7 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
     if (eventinfo->type != EV_KEY) {
         return;
     }
-    LOG("awss config press %d\n", eventinfo->value);
+    LOG("awss config press %u\n", eventinfo->value);
 
     if (eventinfo->code == CODE_BOOT) {
         if (eventinfo->value == VALUE_KEY_CLICK) {
@@ -239,13 +248,11 @@ void linkkit_key_process(input_event_t *eventinfo, void *priv_data)
         }
     }
 }
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 static void handle_gw_mm_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
-    int loglevel_bakups =  LITE_get_loglevel();
-    LITE_set_loglevel(LOG_DEBUG_LEVEL);
-    LITE_dump_malloc_free_stats(LOG_DEBUG_LEVEL);
-    LITE_set_loglevel(loglevel_bakups);
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
+    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
 }
 static struct cli_command gw_mm = {
     .name = "gw_mm",
@@ -310,10 +317,30 @@ static void duration_work(void *p)
 }
 #endif
 
+static int mqtt_connected_event_handler(void)
+{
+    LOG("MQTT Construct  OTA start");
+#if defined(ENABLE_AOS_OTA) 
+    char product_key[PRODUCT_KEY_LEN + 1] = {0};
+    char device_name[DEVICE_NAME_LEN + 1] = {0};
+    char device_secret[DEVICE_SECRET_LEN + 1] = {0};
+    HAL_GetProductKey(product_key);
+    HAL_GetDeviceName(device_name);
+    HAL_GetDeviceSecret(device_secret);
+    static ota_service_t ctx = {0};
+    memset(&ctx, 0, sizeof(ota_service_t));
+    strncpy(ctx.pk, product_key, sizeof(ctx.pk)-1);
+    strncpy(ctx.dn, device_name, sizeof(ctx.dn)-1);
+    strncpy(ctx.ds, device_secret, sizeof(ctx.ds)-1);
+    ctx.trans_protcol = 0;
+    ctx.dl_protcol = 3;
+    ota_service_init(&ctx);
+#endif
+    return 0;
+}
+
 int application_start(int argc, char **argv)
 {
-
-
 #ifdef CONFIG_PRINT_HEAP
     print_heap();
     aos_post_delayed_action(5000, duration_work, NULL);
@@ -321,11 +348,6 @@ int application_start(int argc, char **argv)
 
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
-#endif
-#if AOS_ATCMD
-    at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
-            AT_SEND_DELIMITER, 1000);
 #endif
 
 #ifdef WITH_SAL
@@ -339,8 +361,9 @@ int application_start(int argc, char **argv)
     aos_register_event_filter(EV_KEY, linkkit_key_process, NULL);
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
     aos_register_event_filter(EV_YUNIO, cloud_service_event, NULL);
+    IOT_RegisterCallback(ITE_MQTT_CONNECT_SUCC,mqtt_connected_event_handler);
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_register_command(&resetcmd);
     aos_cli_register_command(&ncmd);
     aos_cli_register_command(&gw_start);
@@ -351,6 +374,7 @@ int application_start(int argc, char **argv)
 #endif /* LINKKIT_GATEWAY_TEST_CMD */    
 #endif
     set_iotx_info();
+    IOT_SetLogLevel(IOT_LOG_DEBUG);
     aos_task_new("netmgr", start_netmgr, NULL, 4096);
 
     aos_loop_run();

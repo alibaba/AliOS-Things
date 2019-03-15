@@ -262,6 +262,11 @@ void dw_gpio_irqhandler(int idx)
         pin_idx += gpio_handle[i].pin_num;
     }
 
+    if (pin_idx >= CONFIG_GPIO_PIN_NUM)
+    {
+        return;
+    }
+
     dw_gpio_pin_priv_t *gpio_pin_priv = (dw_gpio_pin_priv_t *)&gpio_pin_handle[pin_idx];
 
     /* execute the callback function */
@@ -288,7 +293,7 @@ gpio_port_handle_t csi_gpio_port_initialize(int32_t port)
     uint32_t irq;
     uint32_t idx = target_gpio_port_init(port, &base, &irq, &pin_num);
 
-    if (idx < 0 || idx >= CONFIG_GPIO_NUM) {
+    if (idx >= CONFIG_GPIO_NUM) {
         return NULL;
     }
 
@@ -337,10 +342,6 @@ int32_t csi_gpio_port_uninitialize(gpio_port_handle_t handle)
 */
 int32_t csi_gpio_port_config(gpio_port_handle_t handle, uint32_t mask, gpio_mode_e mode, gpio_direction_e dir)
 {
-    if (mask < 0) {
-        return ERR_GPIO(DRV_ERROR_PARAMETER);
-    }
-
     GPIO_NULL_PARAM_CHK(handle);
 
     dw_gpio_priv_t *gpio_priv = handle;
@@ -377,10 +378,6 @@ int32_t csi_gpio_port_config(gpio_port_handle_t handle, uint32_t mask, gpio_mode
 */
 int32_t csi_gpio_port_write(gpio_port_handle_t handle, uint32_t mask, uint32_t value)
 {
-    if (mask < 0 || value < 0) {
-        return ERR_GPIO(DRV_ERROR_PARAMETER);
-    }
-
     GPIO_NULL_PARAM_CHK(handle);
 
     uint32_t port_value = mask & value;
@@ -402,10 +399,6 @@ int32_t csi_gpio_port_write(gpio_port_handle_t handle, uint32_t mask, uint32_t v
 */
 int32_t csi_gpio_port_read(gpio_port_handle_t handle, uint32_t mask, uint32_t *value)
 {
-    if (mask < 0) {
-        return ERR_GPIO(DRV_ERROR_PARAMETER);
-    }
-
     GPIO_NULL_PARAM_CHK(handle);
     GPIO_NULL_PARAM_CHK(value);
 
@@ -446,6 +439,11 @@ gpio_pin_handle_t csi_gpio_pin_initialize(int32_t gpio_pin, gpio_event_cb_t cb_e
 
     for (i = 0; i < port_idx; i++) {
         idx += (gpio_handle[i].pin_num);
+    }
+
+    if (idx >= CONFIG_GPIO_PIN_NUM)
+    {
+        return NULL;
     }
 
     dw_gpio_pin_priv_t *gpio_pin_priv = &(gpio_pin_handle[idx]);
@@ -559,10 +557,6 @@ int32_t csi_gpio_pin_write(gpio_pin_handle_t handle, bool value)
 {
     GPIO_NULL_PARAM_CHK(handle);
 
-    if ((int32_t)value < 0) {
-        return ERR_GPIO(DRV_ERROR_PARAMETER);
-    }
-
     dw_gpio_pin_priv_t *gpio_pin_priv = handle;
 
     /* convert portidx to port handle */
@@ -588,7 +582,7 @@ int32_t csi_gpio_pin_read(gpio_pin_handle_t handle, bool *value)
 {
     GPIO_NULL_PARAM_CHK(handle);
 
-    if (value <= 0) {
+    if (value == NULL) {
         return ERR_GPIO(DRV_ERROR_PARAMETER);
     }
 

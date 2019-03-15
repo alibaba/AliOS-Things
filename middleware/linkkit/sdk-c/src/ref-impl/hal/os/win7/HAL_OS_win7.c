@@ -2,10 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -20,7 +16,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <memory.h>
-#include <pthread.h>
 #include "iotx_hal_internal.h"
 
 #define __DEMO__
@@ -81,11 +76,6 @@ void *HAL_Calloc(_IN_ uint32_t nmemb, _IN_ uint32_t size)
 void HAL_Free(_IN_ void *ptr)
 {
     free(ptr);
-}
-
-void HAL_Reboot(void)
-{
-    reboot(0);
 }
 
 uint64_t HAL_UptimeMs(void)
@@ -187,17 +177,6 @@ char *HAL_GetChipID(_OU_ char *cid_str)
     cid_str[HAL_CID_LEN - 1] = '\0';
 #endif
     return cid_str;
-}
-
-int HAL_GetDeviceID(_OU_ char *device_id)
-{
-    memset(device_id, 0x0, DEVICE_ID_LEN);
-#ifdef __DEMO__
-    HAL_Snprintf(device_id, DEVICE_ID_LEN, "%s.%s", _product_key, _device_name);
-    device_id[DEVICE_ID_LEN - 1] = '\0';
-#endif
-
-    return strlen(device_id);
 }
 
 int HAL_SetProductKey(_IN_ char *product_key)
@@ -303,7 +282,7 @@ int HAL_GetDeviceSecret(_OU_ char *device_secret)
     return len;
 }
 
-int HAL_GetFirmwareVesion(_OU_ char *version)
+int HAL_GetFirmwareVersion(_OU_ char *version)
 {
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
 #ifdef __DEMO__
@@ -314,62 +293,33 @@ int HAL_GetFirmwareVesion(_OU_ char *version)
     return strlen(version);
 }
 
-#if 0
+#if 1
+
 void *HAL_SemaphoreCreate(void)
 {
-    sem_t *sem = (sem_t *)malloc(sizeof(sem_t));
-    if (NULL == sem) {
-        return NULL;
-    }
-
-    if (0 != sem_init(sem, 0, 0)) {
-        free(sem);
-        return NULL;
-    }
-
-    return sem;
+    return CreateSemaphore(NULL, 0, 1, NULL);
 }
 
 void HAL_SemaphoreDestroy(_IN_ void *sem)
 {
-    sem_destroy((sem_t *)sem);
-    free(sem);
+    CloseHandle(sem);
 }
 
 void HAL_SemaphorePost(_IN_ void *sem)
 {
-    sem_post((sem_t *)sem);
+    ReleaseSemaphore(sem, 1, NULL);
+
 }
 
 int HAL_SemaphoreWait(_IN_ void *sem, _IN_ uint32_t timeout_ms)
 {
-    if (PLATFORM_WAIT_INFINITE == timeout_ms) {
-        sem_wait(sem);
-        return 0;
-    } else {
-        struct timespec ts;
-        int s;
-        /* Restart if interrupted by handler */
-        do {
-            if (clock_gettime(CLOCK_REALTIME, &ts) == -1) {
-                return -1;
-            }
-
-            s = 0;
-            ts.tv_nsec += (timeout_ms % 1000) * 1000000;
-            if (ts.tv_nsec >= 1000000000) {
-                ts.tv_nsec -= 1000000000;
-                s = 1;
-            }
-
-            ts.tv_sec += timeout_ms / 1000 + s;
-
-        } while (((s = sem_timedwait(sem, &ts)) != 0) && errno == EINTR);
-
-        return (s == 0) ? 0 : -1;
+    uint32_t timeout = timeout_ms;
+    if (timeout == (uint32_t) - 1) {
+        timeout = INFINITE;
     }
+    return WaitForSingleObject(sem, timeout);
 }
-
+#define DEFAULT_THREAD_SIZE 4096
 int HAL_ThreadCreate(
             _OU_ void **thread_handle,
             _IN_ void *(*work_routine)(void *),
@@ -377,29 +327,31 @@ int HAL_ThreadCreate(
             _IN_ hal_os_thread_param_t *hal_os_thread_param,
             _OU_ int *stack_used)
 {
-    int ret = -1;
-    if (stack_used) {
-        *stack_used = 0;
+    SIZE_T stack_size;
+    (void)stack_used;
+
+    if (!hal_os_thread_param || hal_os_thread_param->stack_size == 0) {
+        stack_size = DEFAULT_THREAD_SIZE;
+    } else {
+        stack_size = hal_os_thread_param->stack_size;
     }
-
-    ret = pthread_create((pthread_t *)thread_handle, NULL, work_routine, arg);
-
-    return ret;
+    thread_handle = CreateThread(NULL, stack_size,
+                                 (LPTHREAD_START_ROUTINE)work_routine,
+                                 arg, 0, NULL);
+    if (thread_handle == NULL) {
+        return -1;
+    }
+    return 0;
 }
 
 void HAL_ThreadDetach(_IN_ void *thread_handle)
 {
-    pthread_detach((pthread_t)thread_handle);
+    (void)thread_handle;
 }
 
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
-    if (NULL == thread_handle) {
-        pthread_exit(0);
-    } else {
-        /*main thread delete child thread*/
-        pthread_cancel((pthread_t)thread_handle);
-    }
+    CloseHandle(thread_handle);
 }
 #endif  /* #if 0 */
 
@@ -464,3 +416,241 @@ int64_t HAL_UTC_Get(void)
     return 0;
 }
 
+int HAL_GetNetifInfo(char *nif_str)
+{
+    memset(nif_str, 0x0, NIF_STRLEN_MAX);
+#ifdef __DEMO__
+    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    const char *net_info = "WiFi|03ACDEFF0032";
+    strncpy(nif_str, net_info, strlen(net_info));
+    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
+    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
+#endif
+    return strlen(nif_str);
+}
+
+uint32_t HAL_Wifi_Get_IP(_OU_ char ip_str[NETWORK_ADDR_LEN], _IN_ const char *ifname)
+{
+    return 0;
+}
+
+void   *HAL_Timer_Create(const char *name, void(*func)(void *), void *user_data)
+{
+    return 0;
+}
+
+int     HAL_Timer_Start(void *t, int ms)
+{
+    return 0;
+}
+
+
+int     HAL_Timer_Stop(void *t)
+{
+    return 0;
+}
+
+int     HAL_Timer_Delete(void *timer)
+{
+    return 0;
+}
+
+intptr_t HAL_UDP_create_without_connect(_IN_ const char *host, _IN_ unsigned short port)
+{
+    return 0;
+}
+
+int HAL_UDP_sendto(_IN_ intptr_t sockfd,
+                   _IN_ const NetworkAddr *p_remote,
+                   _IN_ const unsigned char *p_data,
+                   _IN_ unsigned int datalen,
+                   _IN_ unsigned int timeout_ms)
+{
+    return 0;
+}
+
+int HAL_UDP_recvfrom(_IN_ intptr_t sockfd,
+                     _OU_ NetworkAddr *p_remote,
+                     _OU_ unsigned char *p_data,
+                     _IN_ unsigned int datalen,
+                     _IN_ unsigned int timeout_ms)
+{
+    return 0;
+}
+
+int HAL_UDP_joinmulticast(_IN_ intptr_t sockfd,
+                          _IN_ char *p_group)
+{
+    return 0;
+}
+
+int HAL_UDP_close_without_connect(_IN_ intptr_t sockfd)
+{
+    return 0;
+}
+
+int HAL_Awss_Connect_Ap(
+            _IN_ uint32_t connection_timeout_ms,
+            _IN_ char ssid[HAL_MAX_SSID_LEN],
+            _IN_ char passwd[HAL_MAX_PASSWD_LEN],
+            _IN_OPT_ enum AWSS_AUTH_TYPE auth,
+            _IN_OPT_ enum AWSS_ENC_TYPE encry,
+            _IN_OPT_ uint8_t bssid[ETH_ALEN],
+            _IN_OPT_ uint8_t channel)
+{
+    return 0;
+}
+
+int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
+{
+    return 0;
+}
+
+int HAL_Wifi_Get_Ap_Info(
+            _OU_ char ssid[HAL_MAX_SSID_LEN],
+            _OU_ char passwd[HAL_MAX_PASSWD_LEN],
+            _OU_ uint8_t bssid[ETH_ALEN])
+{
+    return 0;
+}
+
+int HAL_Awss_Get_Conn_Encrypt_Type(void)
+{
+    return 0;
+}
+
+
+int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
+                                  _IN_ uint8_t *buffer, _IN_ int len)
+{
+    return 0;
+}
+
+int HAL_Awss_Get_Encrypt_Type(void)
+{
+    return 0;
+}
+
+int HAL_Awss_Get_Timeout_Interval_Ms(void)
+{
+    return 0;
+}
+
+int HAL_Awss_Get_Channelscan_Interval_Ms(void)
+{
+    return 0;
+}
+
+void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
+{
+    return;
+}
+
+void HAL_Awss_Switch_Channel(
+            _IN_ char primary_channel,
+            _IN_OPT_ char secondary_channel,
+            _IN_OPT_ uint8_t bssid[ETH_ALEN])
+{
+    return;
+}
+
+void HAL_Awss_Close_Monitor(void)
+{
+    return;
+}
+
+int HAL_Sys_Net_Is_Ready()
+{
+    return 0;
+}
+
+#if defined(ALCS_ENABLED) || defined(COAP_COMM_ENABLED) || defined(DEV_BIND_ENABLED)
+
+p_HAL_Aes128_t HAL_Aes128_Init(
+            _IN_ const uint8_t *key,
+            _IN_ const uint8_t *iv,
+            _IN_ AES_DIR_t dir)
+{
+    return 0;
+}
+
+int HAL_Aes128_Destroy(_IN_ p_HAL_Aes128_t aes)
+{
+    return 0;
+}
+
+int HAL_Aes128_Cbc_Decrypt(
+            _IN_ p_HAL_Aes128_t aes,
+            _IN_ const void *src,
+            _IN_ size_t blockNum,
+            _OU_ void *dst)
+{
+    return 0;
+}
+
+
+int HAL_Aes128_Cfb_Decrypt(
+            _IN_ p_HAL_Aes128_t aes,
+            _IN_ const void *src,
+            _IN_ size_t length,
+            _OU_ void *dst)
+
+{
+    return 0;
+}
+
+int HAL_Aes128_Cbc_Encrypt(
+            _IN_ p_HAL_Aes128_t aes,
+            _IN_ const void *src,
+            _IN_ size_t blockNum,
+            _OU_ void *dst)
+{
+    return 0;
+}
+#endif
+
+void    HAL_Reboot(void)
+{
+    return;
+}
+
+char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
+{
+    return 0;
+}
+
+int     HAL_Kv_Del(const char *key)
+{
+    return 0;
+}
+
+void *HAL_Fopen(const char *path, const char *mode)
+{
+    return (void *)fopen(path, mode);
+}
+
+uint32_t HAL_Fread(void *buff, uint32_t size, uint32_t count, void *stream)
+{
+    return fread(buff, size, count, (FILE *)stream);
+}
+
+uint32_t HAL_Fwrite(const void *ptr, uint32_t size, uint32_t count, void *stream)
+{
+    return fwrite(ptr, size, count, (FILE *)stream);
+}
+
+int HAL_Fseek(void *stream, long offset, int framewhere)
+{
+    return fseek((FILE *)stream, offset, framewhere);
+}
+
+int HAL_Fclose(void *stream)
+{
+    return fclose((FILE *)stream);
+}
+
+long HAL_Ftell(void *stream)
+{
+    return ftell((FILE *)stream);
+}

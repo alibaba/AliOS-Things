@@ -140,11 +140,11 @@ static void ready_to_send(SAI_datatype *data, uint32_t data_num)
 /**
 * @brief This function handles DMA2 channel1 global interrupt.
 */
-void DMA1_Channel6_IRQHandler(void)
+void DMA2_Channel3_IRQHandler(void)
 {
-	krhino_intrpt_enter();
-	HAL_DMA_IRQHandler(&HANDLE_DMA);
-	krhino_intrpt_exit();
+    krhino_intrpt_enter();
+    HAL_DMA_IRQHandler(&HANDLE_DMA);
+    krhino_intrpt_exit();
 }
 
 /**

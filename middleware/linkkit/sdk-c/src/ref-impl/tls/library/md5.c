@@ -9,6 +9,7 @@
  *
  *  http://www.ietf.org/rfc/rfc1321.txt
  */
+#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -388,3 +389,4 @@ int mbedtls_md5_self_test( int verbose )
 #endif /* MBEDTLS_SELF_TEST */
 
 #endif /* MBEDTLS_MD5_C */
+#endif

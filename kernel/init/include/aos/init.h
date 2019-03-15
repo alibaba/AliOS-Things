@@ -15,16 +15,17 @@ typedef struct {
     bool cli_enable;
 } kinit_t;
 
-extern int aos_kernel_init(kinit_t *kinit);
+extern int aos_components_init(kinit_t *kinit);
+
+#ifndef AOS_BINS
+extern int application_start(int argc, char **argv);
+#endif
 
 #ifdef AOS_BINS
 #include <k_api.h>
+
 struct app_info_t {
-#if (RHINO_CONFIG_USER_SPACE > 0)
-     void (*app_entry)(int argc, char *argv[]);
-#else
      void (*app_entry)(void *ksyscall_tbl, void *fsyscall_tbl, int argc, char *argv[]);
-#endif
      unsigned int data_ram_start;
      unsigned int data_ram_end;
      unsigned int data_flash_begin;
@@ -46,11 +47,7 @@ struct framework_info_t {
 };
 
 struct m_app_info_t {
-#if (RHINO_CONFIG_USER_SPACE > 0)
-     void (*app_entry)(int argc, char *argv[]);
-#else
      void (*app_entry)(void *ksyscall_tbl, int argc, char *argv[]);
-#endif
      unsigned int data_ram_start;
      unsigned int data_ram_end;
      unsigned int data_flash_begin;

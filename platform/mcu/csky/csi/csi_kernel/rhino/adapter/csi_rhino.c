@@ -26,9 +26,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <csi_config.h>
-#include <soc.h>
-
-extern uint32_t dump_mmleak(void);
+#include "soc.h"
 
 #define AUTORUN  1
 #define TMR_ONE_SHOT_DLY             10
@@ -308,7 +306,7 @@ k_status_t csi_kernel_task_yield(void)
 
 uint32_t csi_kernel_task_get_count(void)
 {
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t *taskhead;
     klist_t *taskend;
     klist_t *tmp;
@@ -361,7 +359,7 @@ uint32_t csi_kernel_task_list(k_task_handle_t *task_array, uint32_t array_items)
     }
 
     uint32_t real_tsk_num = 0;
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+#if (RHINO_CONFIG_KOBJ_LIST > 0)
     klist_t *taskhead;
     klist_t *taskend;
     klist_t *tmp;
@@ -424,7 +422,7 @@ uint32_t csi_kernel_task_list(k_task_handle_t *task_array, uint32_t array_items)
     cpu_intrpt_restore(irq_flags);
 
 #endif /* CONFIG_BACKTRACE */
-#endif /* RHINO_CONFIG_SYSTEM_STATS */
+#endif /* RHINO_CONFIG_KOBJ_LIST */
 
     return real_tsk_num;
 }
@@ -572,7 +570,7 @@ k_timer_handle_t csi_kernel_timer_new(k_timer_cb_t func, k_timer_type_t type, vo
     if (handle_ad == NULL) {
         return NULL;
     }
-    
+
     get_arg = (tmr_arg_t *)malloc(sizeof(tmr_arg_t));
     if (get_arg == NULL) {
         free(handle_ad);
@@ -1178,13 +1176,13 @@ k_status_t csi_kernel_msgq_put(k_msgq_handle_t mq_handle, const void *msg_ptr, u
 
         if (ret == RHINO_SUCCESS) {
             return 0;
-        } 
+        }
     } else if (front_or_back == 1) {
         kstat_t ret = krhino_buf_queue_send(handle->buf_q, (void *)msg_ptr, handle->msg_size);
 
         if (ret == RHINO_SUCCESS) {
             return 0;
-        } 
+        }
     }
 
     return -EPERM;

@@ -7,16 +7,20 @@
 #include "fsl_gpio.h"
 
 #include "pin_mux.h"
- 
-#include <aos/aos.h>
+
+#include "aos/hal/i2c.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/spi.h"
+
+#include "aos/init.h"
+#include "aos/kernel.h"
+
 #include <k_api.h>
-#include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <hal/soc/soc.h>
+
 #include "hal/wifi.h"
-#include "hal/ota.h"
 
 #define AOS_START_STACK 1536
 
@@ -24,14 +28,21 @@
 
 ktask_t *g_aos_init;
 ktask_t *g_aos_app = NULL;
+static kinit_t kinit;
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 
 extern hal_wifi_module_t qca_4002_wmi;
 
 #ifdef DEV_SAL_MK3060
 extern hal_wifi_module_t aos_wifi_module_mk3060;
 #endif
+
+static void var_init()
+{
+    kinit.argc = 0;
+    kinit.argv = NULL;
+    kinit.cli_enable = 1;
+}
 
 static int init_wifi()
 {
@@ -50,6 +61,14 @@ static int init_wifi()
 
 extern void hw_start_hal(void);
 extern int sensor_init(void);
+#if defined(AOS_SENSOR_TEMP_SENSIRION_HTS221) || defined(AOS_SENSOR_HUMI_SENSIRION_HTS221)
+extern i2c_dev_t HTS221_ctx;
+#endif
+
+void trace_start(void)
+{
+    printf("trace config close!!!\r\n");
+}
 
 static void sys_init(void)
 {
@@ -57,40 +76,19 @@ static void sys_init(void)
 
     init_wifi();
 
+    var_init();
 #ifdef BOOTLOADER
 
 #else
-#ifdef AOS_VFS
-    vfs_init();
-    vfs_device_init();
+#if defined(AOS_SENSOR_TEMP_SENSIRION_HTS221) || defined(AOS_SENSOR_HUMI_SENSIRION_HTS221)
+    HTS221_ctx.port = 0;
 #endif
 
-#ifdef CONFIG_AOS_CLI
-    aos_cli_init();
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
 #endif
 
-#ifdef AOS_KV
-    aos_kv_init();
-#endif
-
-#ifdef WITH_SAL
-    sal_device_init();
-#endif
-
-#ifdef AOS_LOOP
-    aos_loop_init();
-#endif
-
-#ifdef AOS_UOTA 
-    ota_service_init();
-#endif
-
-#ifdef AOS_SENSOR
-    sensor_init();
-#endif
-
-    aos_framework_init();
-    application_start(0, NULL);	
 #endif
 }
 
@@ -110,7 +108,6 @@ static int spi_init(void)
     return 0;
 }
 
-extern struct hal_ota_module_s hal_lpc54102_ota_module;
 static void platform_init(void)
 {
     uint32_t port_state = 0;
@@ -137,10 +134,6 @@ static void platform_init(void)
                                 More details please refer to user manual and errata. */
     BOARD_InitDebugConsole();	
 
-#ifdef AOS_UOTA
-    hal_ota_register_module(&hal_lpc54102_ota_module);
-#endif
-
     i2c_init();
     spi_init();
     board_led_init();
@@ -157,18 +150,16 @@ static void platform_init(void)
 #include <unistd.h>
 
 #include <k_api.h>
-#include <aos/log.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
+#include "ulog/ulog.h"
+
+#include "aos/hal/timer.h"
+#include "network/hal/base.h"
 #include <hal/wifi.h>
-#include <hal/ota.h>
 
 #define TAG "hw"
 
 #define us2tick(us) \
     ((us * RHINO_CONFIG_TICKS_PER_SECOND + 999999) / 1000000)
-
 
 void hal_reboot(void)
 {
@@ -212,19 +203,18 @@ void hw_start_hal(void)
     PRINTF("start-----------hal\n");
 }
 
-
 int main(void)
 {
-   uint32_t core_frequency = 0;
-   platform_init();
-	
-   aos_init();
-   krhino_task_dyn_create(&g_aos_app, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
-   core_frequency = CLOCK_GetCoreClkFreq();
+    uint32_t core_frequency = 0;
+    platform_init();
 
-   SysTick_Config(core_frequency / 100); //10ms
-   aos_start();
-   return 0;
+    core_frequency = CLOCK_GetCoreClkFreq();
+
+    SysTick_Config(core_frequency / RHINO_CONFIG_TICKS_PER_SECOND); //10ms
+    
+    aos_init();
+    krhino_task_dyn_create(&g_aos_app, "aos-init", 0, AOS_DEFAULT_APP_PRI, 0, AOS_START_STACK, (task_entry_t)sys_init, 1);
+    aos_start();
+    return 0;
 }
-
 

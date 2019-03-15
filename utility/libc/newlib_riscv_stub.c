@@ -8,13 +8,13 @@
 #include <sys/time.h>
 #include <stdarg.h>
 #include <k_api.h>
-#include <aos/aos.h>
-#include "hal/soc/soc.h"
-#include "vfs_conf.h"
-#include "aos/network.h"
+#include "aos/kernel.h"
 
-#define FD_VFS_START AOS_CONFIG_VFS_FD_OFFSET
-#define FD_VFS_END (FD_VFS_START + MAX_FILE_NUM - 1)
+#include "vfs_conf.h"
+#include "network/network.h"
+
+#define FD_VFS_START VFS_FD_OFFSET
+#define FD_VFS_END (FD_VFS_START + VFS_MAX_FILE_NUM - 1)
 
 #ifdef POSIX_DEVICE_IO_NEED
 #ifdef WITH_LWIP
@@ -171,8 +171,8 @@ int ioctl(int fildes, int request, ... /* arg */)
 
     va_start(args, request);
 
-    if ((fildes >= AOS_CONFIG_VFS_FD_OFFSET) &&
-        (fildes <= (AOS_CONFIG_VFS_FD_OFFSET + MAX_FILE_NUM - 1))) {
+    if ((fildes >= VFS_FD_OFFSET) &&
+        (fildes <= (VFS_FD_OFFSET + VFS_MAX_FILE_NUM - 1))) {
         arg = va_arg(args, int);
         return aos_ioctl(fildes, request, arg);
 #ifdef WITH_LWIP
@@ -239,7 +239,7 @@ void *_malloc_r(struct _reent *ptr, size_t size)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_malloc(size | AOS_UNSIGNED_INT_MSB);
     aos_alloc_trace(mem, (size_t)__builtin_return_address(0));
 #else
@@ -253,7 +253,7 @@ void *_realloc_r(struct _reent *ptr, void *old, size_t newlen)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_realloc(old, newlen | AOS_UNSIGNED_INT_MSB);
     aos_alloc_trace(mem, (size_t)__builtin_return_address(0));
 #else
@@ -267,7 +267,7 @@ void *_calloc_r(struct _reent *ptr, size_t size, size_t len)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     mem = aos_malloc((size * len) | AOS_UNSIGNED_INT_MSB);
     aos_alloc_trace(mem, (size_t)__builtin_return_address(0));
 #else

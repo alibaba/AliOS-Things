@@ -2,10 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -30,7 +26,6 @@
 
 #include "iot_import.h"
 #include "iotx_hal_internal.h"
-#include "kv.h"
 
 #define __DEMO__
 
@@ -77,7 +72,7 @@ void HAL_MutexLock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_lock((pthread_mutex_t *)mutex))) {
-        hal_err("lock mutex failed: '%s' (%d)", strerror(err_num), err_num);
+        hal_err("lock mutex failed: - '%s' (%d)", strerror(err_num), err_num);
     }
 }
 
@@ -85,7 +80,7 @@ void HAL_MutexUnlock(_IN_ void *mutex)
 {
     int err_num;
     if (0 != (err_num = pthread_mutex_unlock((pthread_mutex_t *)mutex))) {
-        hal_err("unlock mutex failed- '%s' (%d)", strerror(err_num), err_num);
+        hal_err("unlock mutex failed - '%s' (%d)", strerror(err_num), err_num);
     }
 }
 
@@ -131,25 +126,6 @@ uint64_t HAL_UptimeMs(void)
     time_ms = ((uint64_t)ts.tv_sec * (uint64_t)1000) + (ts.tv_nsec / 1000 / 1000);
 
     return time_ms;
-}
-
-char *HAL_GetTimeStr(_IN_ char *buf, _IN_ int len)
-{
-    struct timeval tv;
-    struct tm      tm;
-    int str_len    = 0;
-
-    if (buf == NULL || len < 28) {
-        return NULL;
-    }
-    gettimeofday(&tv, NULL);
-    localtime_r(&tv.tv_sec, &tm);
-    strftime(buf, 28, "%m-%d %H:%M:%S", &tm);
-    str_len = strlen(buf);
-    if (str_len + 3 < len) {
-        snprintf(buf + str_len, len, ".%3.3d", (int)(tv.tv_usec) / 1000);
-    }
-    return buf;
 }
 #endif
 
@@ -223,18 +199,6 @@ char *HAL_GetChipID(_OU_ char *cid_str)
     cid_str[HAL_CID_LEN - 1] = '\0';
 #endif
     return cid_str;
-}
-
-
-int HAL_GetDeviceID(_OU_ char *device_id)
-{
-    memset(device_id, 0x0, DEVICE_ID_LEN);
-#ifdef __DEMO__
-    HAL_Snprintf(device_id, DEVICE_ID_LEN, "%s.%s", _product_key, _device_name);
-    device_id[DEVICE_ID_LEN - 1] = '\0';
-#endif
-
-    return strlen(device_id);
 }
 
 int HAL_SetProductKey(_IN_ char *product_key)
@@ -348,7 +312,7 @@ int HAL_GetDeviceSecret(_OU_ char *device_secret)
     #endif
  *
  */
-int HAL_GetFirmwareVesion(_OU_ char *version)
+int HAL_GetFirmwareVersion(_OU_ char *version)
 {
     char *ver = "app-1.0.0-20180101.1000";
     int len = strlen(ver);
@@ -534,10 +498,10 @@ int HAL_Config_Read(char *buffer, int length)
 }
 
 #define REBOOT_CMD "reboot"
-void HAL_Sys_reboot(void)
+void HAL_Reboot(void)
 {
     if (system(REBOOT_CMD)) {
-        perror("HAL_Sys_reboot failed");
+        perror("HAL_Reboot failed");
     }
 }
 
@@ -624,44 +588,6 @@ uint32_t HAL_Wifi_Get_IP(char ip_str[NETWORK_ADDR_LEN], const char *ifname)
             NETWORK_ADDR_LEN);
 
     return ((struct sockaddr_in *)&ifreq.ifr_addr)->sin_addr.s_addr;
-}
-
-static kv_file_t *kvfile = NULL;
-
-int HAL_Kv_Set(const char *key, const void *val, int len, int sync)
-{
-    if (!kvfile) {
-        kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile) {
-            return -1;
-        }
-    }
-
-    return kv_set_blob(kvfile, (char *)key, (char *)val, len);
-}
-
-int HAL_Kv_Get(const char *key, void *buffer, int *buffer_len)
-{
-    if (!kvfile) {
-        kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile) {
-            return -1;
-        }
-    }
-
-    return kv_get_blob(kvfile, (char *)key, buffer, buffer_len);
-}
-
-int HAL_Kv_Del(const char *key)
-{
-    if (!kvfile) {
-        kvfile = kv_open("/tmp/kvfile.db");
-        if (!kvfile) {
-            return -1;
-        }
-    }
-
-    return kv_del(kvfile, (char *)key);
 }
 
 static long long os_time_get(void)
@@ -772,9 +698,17 @@ int HAL_Timer_Delete(void *timer)
     return ret;
 }
 
-void HAL_Reboot(void)
+int HAL_GetNetifInfo(char *nif_str)
 {
-    reboot(0);
+    memset(nif_str, 0x0, NIF_STRLEN_MAX);
+#ifdef __DEMO__
+    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    const char *net_info = "WiFi|03ACDEFF0032";
+    strncpy(nif_str, net_info, strlen(net_info));
+    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
+    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
+#endif
+    return strlen(nif_str);
 }
-
 

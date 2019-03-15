@@ -6,7 +6,6 @@ src = Split('''
     main/main.c
     main/hw.c
     main/wifi_port.c
-    main/ota_port.c
     main/nand.c
     main/vfs_trap.c
 ''')
@@ -93,7 +92,6 @@ else:
 	src_tmp = Split('''
 		soc/soc_impl.c
 		soc/hook_impl.c
-		soc/trace_impl.c
 	''')
 	for s in src_tmp:
 		component.add_sources(s)

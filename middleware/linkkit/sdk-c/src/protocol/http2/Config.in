@@ -1,0 +1,14 @@
+config AOS_COMP_LIBIOT_HTTP2
+    bool
+    default n
+    select AOS_COMP_LIBIOT_UTILS
+    select UTILS_SHA1
+    select AOS_COMP_IOTX-HAL
+    select AOS_COMP_LIBIOT_LOG 
+    select AOS_COMP_LIBIOT_SYSTEM 
+    help
+      Nghttp2 and its encapsulation
+
+if AOS_COMP_LIBIOT_HTTP2
+# Configurations for comp libiot_http2
+endif

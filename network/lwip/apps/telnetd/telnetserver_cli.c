@@ -7,9 +7,9 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
-#include <aos/aos.h>
-#include <hal/hal.h>
-#include <aos/network.h>
+#include "aos/kernel.h"
+
+#include <network/network.h>
 #include "lwip/apps/telnetserver.h"
 
 #define MAX_COMMANDLINE_LENGTH 512U

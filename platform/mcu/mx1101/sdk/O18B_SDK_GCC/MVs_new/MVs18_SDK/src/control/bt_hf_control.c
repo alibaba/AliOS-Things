@@ -15,7 +15,7 @@
 #include "pcm_fifo.h"
 #include "dev_detect_driver.h"
 #include "sd_card.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "pcm_sync.h"
 #include "sys_vol.h"
 #include "recorder_control.h"

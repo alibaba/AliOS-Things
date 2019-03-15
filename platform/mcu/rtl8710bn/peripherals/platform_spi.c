@@ -33,6 +33,7 @@
 //#include "MICORTOS.h"
 //#include "MICOPlatform.h"
 
+#include "aos_debug.h"
 #include "board.h"
 //#include "platform_config.h"
 #include "platform_peripheral.h"

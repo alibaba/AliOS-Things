@@ -8,12 +8,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <k_api.h>
-#include <aos/log.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
-#include <aos/aos.h>
-#include <hal/hal.h>
+#include "ulog/ulog.h"
+
+#include "aos/hal/timer.h"
+#include "aos/hal/uart.h"
+
+#include "network/hal/base.h"
+#include "aos/kernel.h"
+
 #include "board.h"
 #include "fsl_gpio.h"
 #include "pin_mux.h"
@@ -35,7 +37,14 @@ static void sys_init(void)
     aos_loop_init();
 #endif
 
+#ifdef AOS_COMP_CLI
     aos_cli_init();
+#endif
+
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
+
     application_start(0, NULL);	
 }
 

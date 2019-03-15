@@ -16,7 +16,7 @@ SYSCALL(SYS_KRHINO_TASK_INFO_SET, krhino_task_info_set)
 SYSCALL(SYS_KRHINO_TASK_INFO_GET, krhino_task_info_get)
 
 #define SYS_KRHINO_TASK_SLEEP (K_TASK_BASE + 3)
-SYSCALL(SYS_KRHINO_TASK_SLEEP, krhino_task_sleep)
+SYSCALL(SYS_KRHINO_TASK_SLEEP, aos_msleep)
 
 #define SYS_KRHINO_TASK_DYN_CREATE (K_TASK_BASE + 4)
 SYSCALL(SYS_KRHINO_TASK_DYN_CREATE, krhino_task_dyn_create)
@@ -90,14 +90,16 @@ SYSCALL(SYS_KRHINO_SEM_GIVE, krhino_sem_give)
 #define K_MM_BASE 30
 
 #define SYS_KRHINO_MM_ALLOC (K_MM_BASE + 0)
-SYSCALL(SYS_KRHINO_MM_ALLOC, krhino_mm_alloc)
+SYSCALL(SYS_KRHINO_MM_ALLOC, aos_malloc)
 
 #define SYS_KRHINO_MM_FREE (K_MM_BASE + 1)
-SYSCALL(SYS_KRHINO_MM_FREE, krhino_mm_free)
+SYSCALL(SYS_KRHINO_MM_FREE, aos_free)
 
 #define SYS_KRHINO_MM_REALLOC (K_MM_BASE + 2)
-SYSCALL(SYS_KRHINO_MM_REALLOC, krhino_mm_realloc)
+SYSCALL(SYS_KRHINO_MM_REALLOC, aos_realloc)
 
+#define SYS_AOS_ALLOC_TRACE (K_MM_BASE + 3)
+SYSCALL(SYS_AOS_ALLOC_TRACE, aos_alloc_trace)
 /* ----------------k_buf_queue----------------- */
 #define K_BUF_QUEUE_BASE 35
 
@@ -129,57 +131,10 @@ SYSCALL(SYS_AOS_READ, aos_read)
 #define SYS_AOS_WRITE (VFS_BASE + 3)
 SYSCALL(SYS_AOS_WRITE, aos_write)
 
-/* --------------------yloop-------------------- */
-#define YLOOP_BASE 60
+/* --------------------asynchronous-------------------- */
+#define ASYNCHRONOUS_BASE 60
 
-#define SYS_REGISTER_EVENT_FILTER (YLOOP_BASE + 0)
-SYSCALL(SYS_REGISTER_EVENT_FILTER, aos_register_event_filter)
-
-#define SYS_UNREGISTER_EVENT_FILTER (YLOOP_BASE + 1)
-SYSCALL(SYS_UNREGISTER_EVENT_FILTER, aos_unregister_event_filter)
-
-#define SYS_POST_EVENT (YLOOP_BASE + 2)
-SYSCALL(SYS_POST_EVENT, aos_post_event)
-
-#define SYS_POLL_READ_FD (YLOOP_BASE + 3)
-SYSCALL(SYS_POLL_READ_FD, aos_poll_read_fd)
-
-#define SYS_CANCEL_POLL_READ_FD (YLOOP_BASE + 4)
-SYSCALL(SYS_CANCEL_POLL_READ_FD, aos_cancel_poll_read_fd)
-
-#define SYS_POST_DELAYED_ACTION (YLOOP_BASE + 5)
-SYSCALL(SYS_POST_DELAYED_ACTION, aos_post_delayed_action)
-
-#define SYS_CANCEL_DELAYED_ACTION (YLOOP_BASE + 6)
-SYSCALL(SYS_CANCEL_DELAYED_ACTION, aos_cancel_delayed_action)
-
-#define SYS_SCHEDULE_CALL (YLOOP_BASE + 7)
-SYSCALL(SYS_SCHEDULE_CALL, aos_schedule_call)
-
-#define SYS_LOOP_INIT (YLOOP_BASE + 8)
-SYSCALL(SYS_LOOP_INIT, aos_loop_init)
-
-#define SYS_CURRENT_LOOP (YLOOP_BASE + 9)
-SYSCALL(SYS_CURRENT_LOOP, aos_current_loop)
-
-#define SYS_LOOP_RUN (YLOOP_BASE + 10)
-SYSCALL(SYS_LOOP_RUN, aos_loop_run)
-
-#define SYS_LOOP_EXIT (YLOOP_BASE + 11)
-SYSCALL(SYS_LOOP_EXIT, aos_loop_exit)
-
-#define SYS_LOOP_DESTROY (YLOOP_BASE + 12)
-SYSCALL(SYS_LOOP_DESTROY, aos_loop_destroy)
-
-#define SYS_LOOP_SCHEDULE_CALL (YLOOP_BASE + 13)
-SYSCALL(SYS_LOOP_SCHEDULE_CALL, aos_loop_schedule_call)
-
-#define SYS_LOOP_SCHEDULE_WORK (YLOOP_BASE + 14)
-SYSCALL(SYS_LOOP_SCHEDULE_WORK, aos_loop_schedule_work)
-
-#define SYS_CANCEL_WORK (YLOOP_BASE + 15)
-SYSCALL(SYS_CANCEL_WORK, aos_cancel_work)
-/* ----------------end YLOOP------------------ */
+/* ----------------end asynchronous------------------ */
 
 /* ------------------ALINK---------------------- */
 #ifdef AOS_OTA
@@ -257,23 +212,6 @@ SYSCALL(SYS_BT_CONN_CB_REGISTER, bt_conn_cb_register)
 #define SYS_BT_CONN_UNREF (BLE_BASE + 13)
 SYSCALL(SYS_BT_CONN_UNREF, bt_conn_unref)
 
-#define SYS_BT_ALI_RESET (BLE_BASE + 14)
-SYSCALL(SYS_BT_ALI_RESET, ali_reset)
-
-#define SYS_BT_ALI_INIT (BLE_BASE + 15)
-SYSCALL(SYS_BT_ALI_INIT, ali_init)
-
-#define SYS_BT_ALI_SEND_INDICATE (BLE_BASE + 16)
-SYSCALL(SYS_BT_ALI_SEND_INDICATE, ali_send_indicate)
-
-#define SYS_BT_ALI_SEND_NOTIFY (BLE_BASE + 17)
-SYSCALL(SYS_BT_ALI_SEND_NOTIFY, ali_send_notify)
-
-#define SYS_BT_ALI_GET_MANUF_SPEC_ADV_DATA (BLE_BASE + 18)
-SYSCALL(SYS_BT_ALI_GET_MANUF_SPEC_ADV_DATA, ali_get_manuf_spec_adv_data)
-
-#define SYS_BT_FETCH_ALI_CONTEXT (BLE_BASE + 19)
-SYSCALL(SYS_BT_FETCH_ALI_CONTEXT, fetch_ali_context)
 #endif
 
 /* --------------------OTHERS-------------------- */
@@ -293,7 +231,4 @@ SYSCALL(SYS_VPRINTF, aos_vprintf)
 
 #define SYS_FFLUSH (OTHERS_BASE + 4)
 SYSCALL(SYS_FFLUSH, aos_fflush)
-
-#define SYS_GET_LOG_MUTEX (OTHERS_BASE + 5)
-SYSCALL(SYS_GET_LOG_MUTEX, get_log_mutex)
 

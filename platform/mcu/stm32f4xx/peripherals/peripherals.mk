@@ -1,20 +1,15 @@
-NAME = STM32F4xx_Peripheral_Drivers
 
-GLOBAL_INCLUDES := .
+GLOBAL_INCLUDES += ./peripherals
 
-# Include STM32F2xx Standard Peripheral Libraries
-$(NAME)_COMPONENTS += mcu/stm32f4xx/peripherals/libraries
-
-$(NAME)_SOURCES := platform_adc.c \
-                   platform_rtc.c \
-                   platform_gpio.c \
-                   platform_i2c.c \
-                   platform_rng.c \
-                   platform_mcu_powersave.c \
-                   platform_pwm.c \
-                   platform_flash.c \
-                   platform_spi.c \
-                   platform_uart.c \
-                   platform_watchdog.c \
-                   RingBufferUtils.c
-                   
+$(NAME)_SOURCES += peripherals/platform_adc.c           \
+                   peripherals/platform_rtc.c           \
+                   peripherals/platform_gpio.c          \
+                   peripherals/platform_i2c.c           \
+                   peripherals/platform_rng.c           \
+                   peripherals/platform_mcu_powersave.c \
+                   peripherals/platform_pwm.c           \
+                   peripherals/platform_flash.c         \
+                   peripherals/platform_spi.c           \
+                   peripherals/platform_uart.c          \
+                   peripherals/platform_watchdog.c      \
+                   peripherals/RingBufferUtils.c

@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 #include <bsp/yunos_bsp_errno.h>
-#include <i2c.h>
+#include "aos/hal/i2c.h"
 
 typedef enum {
     DRV_I2C_INT_TYPE_RX_OVER         , ///< receive buffer was completely filled

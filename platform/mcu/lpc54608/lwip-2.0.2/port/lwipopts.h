@@ -307,7 +307,7 @@ Some MCU allow computing and verifying the IP, UDP, TCP and ICMP checksums by ha
    ------------------------------------
 */
 
-#define LWIP_DEBUG 0
+//#define LWIP_DEBUG 1
 
 #ifdef LWIP_DEBUG
 #define U8_F "c"

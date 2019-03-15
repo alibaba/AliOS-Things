@@ -297,7 +297,7 @@ static int irda_classify_feature_code(void)
 			++feature_freq[ret];
 		} else {
 			if (feature_found + 1 > IR_feature_max) {
-				KIDS_A10_PRT("Overflow feature time is %u\n", rcv_data[i].time_data_s);
+				KIDS_A10_PRT("Overflow feature time is %u\n", (unsigned int)rcv_data[i].time_data_s);
 				ir_dbg();
 				return -1;
 			}
@@ -317,7 +317,7 @@ static int irda_classify_feature_code(void)
 			++feature_freq[ret];
 		} else {
 			if (feature_found + 1 > IR_feature_max) {
-				KIDS_A10_PRT("Overflow feature time is %u\n", rcv_data[i].time_data_e);
+				KIDS_A10_PRT("Overflow feature time is %u\n", (unsigned int)rcv_data[i].time_data_e);
 				ir_dbg();
 				return -1;
 			}

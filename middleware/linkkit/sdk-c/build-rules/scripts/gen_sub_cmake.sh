@@ -3,6 +3,10 @@ TARGET_FILE=$1
 SRC_LIST=$(for i in ${LIB_SRCS}; do
     echo ${i}|${SED} "s:${TOP_DIR}:    \${PROJECT_SOURCE_DIR}:g"
 done)
+DIR_LIST=$(for i in ${LIB_SRCS}; do
+    dirname ${i}|sed "s:${TOP_DIR}/*::g"
+done|sort -u)
+MOD_NAME=$(echo ${MODULE_NAME}|sed 's:/:_:g')
 
 rm -f ${TARGET_FILE}
 
@@ -18,10 +22,10 @@ done)
 
 EOB
 
-if echo ${COMP_LIB_COMPONENTS} | grep -qw ${MODULE_NAME}; then
-    TYPE="OBJECT"
+if echo ${CMAKE_EXPORT_LIBS} | grep -qw ${MODULE_NAME}; then
+    TYPE="SHARED"
 else
-    TYPE="STATIC"
+    TYPE="OBJECT"
 fi
 
 if [ "${LIBA_TARGET}" != "" ]; then
@@ -29,8 +33,12 @@ if [ "${LIBA_TARGET}" != "" ]; then
     LNAME=${LNAME%.a}
 
     cat << EOB >> ${TARGET_FILE}
+FILE (GLOB ${MOD_NAME}_SRCS
+$(for i in ${DIR_LIST}; do echo "    \${PROJECT_SOURCE_DIR}/${i}/*.c"; done)
+)
+
 ADD_LIBRARY (${LNAME} ${TYPE}
-${SRC_LIST}
+    \${${MOD_NAME}_SRCS}
     \${EXTRA_C_SOURCES}
 )
 
@@ -59,9 +67,9 @@ done)
 
 $(for i in \
     $(echo ${LDFLAGS} | grep -o '\-l[^ ]*' | sort -u | sed 's:^-l::g'); do
-        if [ "${i}" = "pthread" ]; then echo "IF (NOT MSVC)"; fi
+        if [ "${i}" = "pthread" -o "${i}" = "rt" ]; then echo "IF (NOT MSVC)"; fi
         echo "TARGET_LINK_LIBRARIES (${TARGET} ${i})"
-        if [ "${i}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
+        if [ "${i}" = "pthread" -o "${i}" = "rt" ]; then echo "ENDIF (NOT MSVC)"; fi
 done)
 EOB
     if grep -qw ${TARGET} <<< ${WIN32_CMAKE_SKIP}; then
@@ -96,9 +104,9 @@ $(for i in ${TARGET}; do
     fi
     echo "TARGET_LINK_LIBRARIES (${i} ${COMP_LIB_NAME})"
     for j in $(echo ${LDFLAGS} | grep -o '\-l[^ ]*' | sort -u | sed 's:^-l::g' | grep -vw ${COMP_LIB_NAME}); do
-        if [ "${j}" = "pthread" ]; then echo "IF (NOT MSVC)"; fi
+        if [ "${j}" = "pthread" -o "${j}" = "rt" ]; then echo "IF (NOT MSVC)"; fi
         echo "TARGET_LINK_LIBRARIES (${i} ${j})"
-        if [ "${j}" = "pthread" ]; then echo "ENDIF (NOT MSVC)"; fi
+        if [ "${j}" = "pthread" -o "${j}" = "rt" ]; then echo "ENDIF (NOT MSVC)"; fi
     done
     if echo ${WIN32_CMAKE_SKIP} | grep -qw ${i}; then
         echo "ENDIF (NOT WIN32)"
@@ -106,6 +114,7 @@ $(for i in ${TARGET}; do
     echo ""
 done)
 
+SET (EXECUTABLE_OUTPUT_PATH ../out)
 EOB
 
 fi

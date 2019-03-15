@@ -1,0 +1,42 @@
+config AOS_BOARD_MSP432P4111LAUNCHPAD
+    bool "MSP432P4111LaunchPad"
+    select AOS_MCU_MSP432P4XX
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    select AOS_COMP_NETMGR if AOS_NETWORK_SAL
+    help
+
+if AOS_BOARD_MSP432P4111LAUNCHPAD
+# Configurations for board msp432p4111launchpad
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool
+    default y
+
+config BSP_EXTERNAL_WIFI_MODULE
+    string
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    default "wifi.mk3060"
+
+endif

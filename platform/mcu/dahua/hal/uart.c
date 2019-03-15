@@ -7,11 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include "hal/soc/soc.h"
+
 #include "drv_usart.h"
 #include "pin.h"
 #include "ringbuffer.h"
 #include "soc.h"
+#include "aos/hal/uart.h"
 #include "aos/kernel.h"
 
 #define MAX_UART_NUM 3
@@ -286,7 +287,8 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
 
     ret = ringbuffer_read(usart_dev->read_buffer, data, expect_size);
 
-    recv_size = (uint32_t *)&ret;
+    *recv_size = ret;
+
     /* flow ctrl */
 #if 0
 

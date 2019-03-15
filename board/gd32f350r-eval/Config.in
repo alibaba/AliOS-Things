@@ -1,0 +1,11 @@
+config AOS_BOARD_GD32F350R_EVAL
+    bool "GD32F350R_EVAL"
+    select AOS_MCU_GD32F3X0
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_NETMGR
+    select AOS_COMP_NEWLIB_STUB
+    help
+
+if AOS_BOARD_GD32F350R_EVAL
+# Configurations for board gd32f350r-eval
+endif

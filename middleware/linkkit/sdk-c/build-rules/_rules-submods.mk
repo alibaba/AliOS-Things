@@ -8,7 +8,13 @@ sub-mods: toolchain
 	    JOBS_NUM=32; \
 	    if [ "$${CORE_NUM}" != "" ]; then JOBS_NUM=$${CORE_NUM}; fi; \
 	    if [ "$(Q)" != "@" ]; then JOBS_NUM=0; fi; \
-	    $(MAKE) --no-print-directory clean && \
+	    rm -rf $(OUTPUT_DIR)${bindir}/* && \
+	    if [ -f $(STAMP_LCOV) ] && [ "$(WITH_LCOV)" != "1" ]; then \
+	        $(MAKE) --no-print-directory clean; \
+	    fi && \
+	    if ([ ! -f $(STAMP_LCOV) ] && [ "$(WITH_LCOV)" = "1" ]) || [ $(TOP_DIR)/make.settings -nt $(DIST_DIR) ]; then \
+	        $(MAKE) --no-print-directory clean; \
+	    fi && \
 	    $(MAKE) --no-print-directory -j$$((JOBS_NUM + 1)) -f $(STAMP_ONE_MK) && \
 	    TMPD=$$(mktemp -d) && \
 	    rm -rf $(LIBOBJ_TMPDIR) $${TMPD} && \
@@ -19,7 +25,6 @@ sub-mods: toolchain
 	    if [ -f $(STAMP_PRJ_CFG) ]; then true; else \
 	        set -o pipefail; \
 	        for i in \
-	            $$(echo $(IMPORT_DIR)|$(SED) 's,$(TOP_DIR)/*,,g')/$(CONFIG_VENDOR)/platform \
 	            $(SUBDIRS); do \
 	                if [ ! -d $${i} ]; then continue; fi; \
 	                $(MAKE) --no-print-directory Q=$(Q) $${i} 2>&1 $(SUB_LOG_OPTION); \

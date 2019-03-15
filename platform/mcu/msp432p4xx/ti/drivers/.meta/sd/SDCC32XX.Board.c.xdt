@@ -1,0 +1,176 @@
+%%{
+    let instances = args[0].$instances;
+    let fatIndex = 0;
+    let hostCount = 0;
+    let sdSPICount = 0;
+
+    if (instances.length == 0) return;
+
+    /* Reorder instances such that FATFS indices are first.
+       Count the number of SDHost and SDSPI instances. */
+    if (instances[0].useFATFS === true) {
+        fatIndex = 1;
+    }
+
+    if (instances[0].interfaceType === "SD Host") {
+        hostCount++;
+    }
+    else {
+        sdSPICount++;
+    }
+
+    for (let index = 1; index < instances.length; index++) {
+
+        if (instances[index].useFATFS === true) {
+            if (index != fatIndex) {
+                let copy = instances[index];
+                instances[index] = instances[fatIndex];
+                instances[fatIndex] = copy;
+            }
+            fatIndex++;
+        }
+
+        if (instances[index].interfaceType === "SD Host") {
+            hostCount++;
+        }
+        else {
+            sdSPICount++;
+        }
+    }
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* insert leading '0' for pin numbers less than 10 */
+    function addLeadingZero(pin)
+    {
+        if (pin.length == 1) {
+            pin = "0" + pin;
+        }
+        return (pin);
+    }
+%%}
+/*
+ *  =============================== SD ===============================
+ */
+#include <ti/drivers/SD.h>
+% if (hostCount > 0) {
+#include <ti/drivers/sd/SDHostCC32XX.h>
+% }
+% if (sdSPICount > 0) {
+#include <ti/drivers/sd/SDSPI.h>
+% }
+% if (fatIndex > 0) {
+#include <ti/drivers/SDFatFS.h>
+% }
+
+% if (hostCount > 0) {
+#include <ti/devices/cc32xx/inc/hw_ints.h>
+% }
+#include <ti/devices/cc32xx/inc/hw_memmap.h>
+
+% if (fatIndex > 0) {
+SDFatFS_Object sdfatfsObjects[`fatIndex`];
+% }
+% if (hostCount > 0) {
+SDHostCC32XX_Object sdhostObjects[`hostCount`];
+% }
+% if (sdSPICount > 0) {
+SDSPI_Object sdspiObjects[`sdSPICount`];
+% }
+% if (fatIndex > 0) {
+
+const SDFatFS_Config SDFatFS_config[`fatIndex`] = {
+% console.log(fatIndex);
+% for (let i = 0; i < fatIndex; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    {
+        .object = &sdfatfsObjects[`inst.$name`]
+    },
+% }
+};
+
+const uint_least8_t SDFatFS_count = `fatIndex`;
+% } // if (fatIndex > 0)
+% if (hostCount > 0) {
+
+const SDHostCC32XX_HWAttrsV1 sdhostHWattrs[`hostCount`] = {
+% let i = 0;
+% while (i < hostCount) {
+    % if (instances[i].interfaceType != "SD Host") {
+    %    i++;
+    %    continue;
+    % }
+    % let inst = instances[i];
+    % i++;
+    % let sdHost = inst.sdHost;
+    % let clkPin = addLeadingZero(sdHost.clkPin.$solution.packagePinName);
+    % let cmdPin = addLeadingZero(sdHost.cmdPin.$solution.packagePinName);
+    % let dataPin = addLeadingZero(sdHost.dataPin.$solution.packagePinName);
+    % let rdmach = sdHost.dmaRxChannel.$solution.devicePinName.substring(7); /* UDMA_CHXX */
+    % let tdmach = sdHost.dmaTxChannel.$solution.devicePinName.substring(7); /* UDMA_CHXX */
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .clkRate = `inst.clockRate`,
+        .intPriority = `Common.intPriority2Hex(inst.intPriority)`,
+        .baseAddr = SDHOST_BASE,
+        .rxChIdx = UDMA_CH`rdmach`_SDHOST_RX,
+        .txChIdx = UDMA_CH`tdmach`_SDHOST_TX,
+        .dataPin = SDHostCC32XX_PIN_`dataPin`_SDCARD_DATA,
+        .cmdPin = SDHostCC32XX_PIN_`cmdPin`_SDCARD_CMD,
+        .clkPin  = SDHostCC32XX_PIN_`clkPin`_SDCARD_CLK
+    },
+% }
+};
+% } // if (hostCount > 0)
+% if (sdSPICount > 0) {
+
+const SDSPI_HWAttrs sdspiHWattrs[`sdSPICount`] = {
+% let i = 0;
+% while (i < sdSPICount) {
+    % if (instances[i].interfaceType != "SD SPI") {
+    %    i++;
+    %    continue;
+    % }
+    % let inst = instances[i];
+    % i++;
+    /* `inst.$name` */
+    {
+        .spiIndex = `inst.spiInstance.$name`,
+        .spiCsGpioIndex = `inst.spiCsGpioInstance.$name`
+    },
+% }
+};
+% } // if (sdSPICount > 0)
+
+const SD_Config SD_config[`instances.length`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+    % if (inst.interfaceType == "SD Host") {
+        .fxnTablePtr = &sdHostCC32XX_fxnTable,
+        .object = &sdhostObjects[`inst.$name`],
+        .hwAttrs = &sdhostHWattrs[`inst.$name`]
+    % }
+    % else {
+        .fxnTablePtr = &SDSPI_fxnTable,
+        .object = &sdspiObjects[`inst.$name`],
+        .hwAttrs = &sdspiHWattrs[`inst.$name`]
+    % }
+    },
+% }
+};
+
+const uint_least8_t SD_count = `instances.length`;

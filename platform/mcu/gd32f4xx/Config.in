@@ -1,0 +1,10 @@
+config AOS_MCU_GD32F4XX
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu gd32f30x
+
+if AOS_MCU_GD32F4XX
+# Configurations for mcu gd32f4xx
+endif

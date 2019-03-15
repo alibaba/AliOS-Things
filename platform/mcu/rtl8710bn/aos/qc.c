@@ -1,8 +1,11 @@
 #include <sys/unistd.h>
 #include <sys/errno.h>
-#include "hal/soc/soc.h"
+
 #include <stdarg.h>
-#include <hal/hal.h>
+
+#include "aos/hal/flash.h"
+#include "aos/hal/uart.h"
+#include "network/hal/wifi.h"
 #include "CheckSumUtils.h"
 #include "platform_toolchain.h"
 

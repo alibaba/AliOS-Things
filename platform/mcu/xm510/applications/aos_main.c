@@ -29,19 +29,14 @@ static void sys_init(void *arg)
 {
     int ret = 0;
 
-	xm_driver_init();
-	xm_cli_init();
+    xm_driver_init();
+    xm_cli_init();
 
-#if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
-    krhino_task_cpu_stats_start();
-#endif
-
-	//test_certificate();
-	application_start(kinit.argc, kinit.argv);
-
+    //test_certificate();
+    application_start(kinit.argc, kinit.argv);
 
     while(1) {
-		aos_msleep(20000);
+        aos_msleep(20000);
     }
 }
 
@@ -49,7 +44,7 @@ void sys_start(void)
 {
     mmu_init();
 
-    k_cpu_vectable_set();
+    k_vectable_set();
 
     os_hw_interrupt_init();
 
@@ -61,23 +56,29 @@ void sys_start(void)
 
     soc_driver_init();
 
-    //aos_kernel_init(&kinit);
+    //aos_components_init(&kinit);
     tcpip_init(NULL, NULL);
 
     vfs_init();
-    vfs_device_init();
+#ifdef AOS_COMP_CLI
     aos_cli_init();
+#endif
+
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
     dumpsys_cli_init();
 
-#ifdef AOS_KV
+#ifdef AOS_COMP_KV
     aos_kv_init();
 #endif
 
 #ifdef AOS_LOOP
+    vfs_device_init();
     aos_loop_init();
 #endif
 
     krhino_task_dyn_create(&g_aos_init, "aos-init", 0, 50, 0, AOS_START_STACK, sys_init, 1);
 
-	aos_start();
+    aos_start();
 }

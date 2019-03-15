@@ -1,0 +1,9 @@
+config AOS_COMP_DAS
+    bool "das"
+    default n
+    select AOS_COMP_ALICRYPTO
+    help
+
+if AOS_COMP_DAS
+# Configurations for comp DAS
+endif

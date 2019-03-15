@@ -1,0 +1,22 @@
+Bluetooth Mesh implementation tasks
+===================================
+
+ * Persistent storage support
+
+ * Configuration & Health Clients (Configuration is partially done)
+
+ * Provisioner support
+
+ * Any generally useful models from the Model Specification
+
+ * Find a way to overlay provisioning memory with network memory
+   (linker magic?)
+
+ * friend and low power supoort
+
+ * os layer porting move to here
+
+ * port (crypto/gatt/conn) encapsulation (Done)
+
+ * name: ble_mesh -> bt_mesh; mesh_profile -> bt_mesh_profile (Done)
+

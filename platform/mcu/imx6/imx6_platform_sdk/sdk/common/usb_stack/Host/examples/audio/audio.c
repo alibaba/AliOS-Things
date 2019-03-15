@@ -36,7 +36,7 @@
 #include "hidef.h" /* for EnableInterrupts macro */
 #include "audio.h"
 #include "usb_host_audio.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "usb_host_hub_sm.h"
 #include "usbprv_host.h"
 

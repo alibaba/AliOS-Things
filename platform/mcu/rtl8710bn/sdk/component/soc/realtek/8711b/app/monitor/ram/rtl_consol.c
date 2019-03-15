@@ -265,7 +265,7 @@ u32 console_cmd_exec(u8  argc, u8  **argv)
 #if SUPPORT_LOG_SERVICE
 	rtw_up_sema((_sema *)&log_rx_interrupt_sema);
 #endif
-	ArrayInitialize(argv[0], sizeof(argv[0]) ,0);
+	ArrayInitialize((u8 *)argv[0], (u8)sizeof(argv[0]) ,0);
 	
 	//(*pUartLogBuf).BufCount = 0;
 	//ArrayInitialize(&(*pUartLogBuf).UARTLogBuf[0], UART_LOG_CMD_BUFLEN, '\0');
@@ -294,7 +294,7 @@ UartLogCmdExecuteRam(
 		if (cmd_handler != NULL) {
 			StrUpr(argv[0]);
 			cmd_handler((argc-1) , (argv+1));
-			ArrayInitialize(argv[0], sizeof(argv[0]) ,0);
+			ArrayInitialize((u8 *)argv[0], (u8)sizeof(argv[0]) ,0);
 			return TRUE;
 		}
 	}

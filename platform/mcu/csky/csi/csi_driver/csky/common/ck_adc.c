@@ -21,7 +21,6 @@
  * @date     16. October 2017
  ******************************************************************************/
 #include <csi_config.h>
-#include <soc.h>
 #include <csi_core.h>
 #include <drv_adc.h>
 #include <ck_adc.h>
@@ -402,9 +401,7 @@ int32_t drv_adc_read(adc_handle_t handle, uint32_t *data, uint32_t num)
         } else {
             return -ADC_DATA_OVERFLOW;
         }
-    } else {
-        return -ADC_MODE_ERROR;
-    }
+    } 
 
     return -ADC_MODE_ERROR;
 }

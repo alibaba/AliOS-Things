@@ -217,7 +217,7 @@ static inline void uart_irq(uint32_t iir, uint32_t index, RDA_UART_TypeDef *puar
 
     if (uart_data[index].serial_irq_id != 0)
         if ((irq_type != RxIrq) || (uart_data[index].rx_irq_set_api))
-            (irq_handler[index])(uart_data[index].serial_irq_id, irq_type);
+            (irq_handler[index])(index, irq_type);
 }
 
 void uart0_irq() {uart_irq((RDA_UART0->IIR & 0x0FUL), 0, (RDA_UART_TypeDef*)RDA_UART0);}

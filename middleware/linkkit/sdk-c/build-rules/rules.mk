@@ -1,12 +1,11 @@
 include  $(RULE_DIR)/settings.mk
 sinclude $(CONFIG_TPL)
-include  $(RULE_DIR)/funcs.mk
 
 export PATH := $(PATH):$(TOOLCHAIN_DLDIR)/main/bin
 unexport VERBOSE
 unexport DEBUG
 
-TOPDIR_NAME     := $(shell $(SHELL_DBG) basename $(TOP_DIR)|grep -m 1 -o \[-_a-zA-Z\]*[a-zA-Z])
+TOPDIR_NAME     := $(shell $(SHELL_DBG) basename $(TOP_DIR))
 LIBOBJ_TMPDIR   := $(OUTPUT_DIR)/lib$(TOPDIR_NAME).objs
 
 SYSROOT_BIN     := $(OUTPUT_DIR)${bindir}
@@ -55,19 +54,20 @@ SHOW_ENV_VARS   := \
     MODULE_NAME SUBDIRS PKG_NAME PKG_RPATH PKG_SOURCE PKG_SWITCH_V PKG_SWITCH \
     HOST_ARCH_BITS PREBUILT_LIBDIR RPATH_CFLAGS EXTRA_INCLUDE_DIRS \
     CROSS_PREFIX DEPENDS CFLAGS CCLD LDFLAGS \
-    CC LD AR STRIP OBJCOPY COMP_LIB COMP_LIB_COMPONENTS \
-    MAKE_ENV_VARS DEFAULT_BLD \
+    CC LD AR STRIP OBJCOPY COMP_LIB ALL_SUB_DIRS LIBOBJ_TMPDIR \
+    MAKE_ENV_VARS DEFAULT_BLD EXTRA_CFLAGS \
     LIBA_TARGET LIBSO_TARGET TARGET KMOD_TARGET \
     SRCS OBJS LIB_SRCS LIB_OBJS LIB_HDRS_DIR LIB_HEADERS EXTRA_SRCS \
     $(foreach M,$(LIBA_TARGET),LIB_SRCS_$(subst .a,,$(subst lib,,$(M)))) \
-    INTERNAL_INCLUDES TOP_DIR PRJ_NAME PRJ_VERSION ALL_SUB_DIRS \
+    INTERNAL_INCLUDES TOP_DIR PRJ_NAME PRJ_VERSION COMP_LIB_COMPONENTS \
     IMPORT_DIR IMPORT_VDRDIR CONFIG_DIR PACKAGE_DIR EXTERNAL_INCLUDES \
     CONFIG_LIB_EXPORT OBJCOPY_FLAGS CONFIG_VENDOR COVERAGE_PROGS COVERAGE_CMD \
 
 INFO_ENV_VARS   := $(SHOW_ENV_VARS) \
     ALL_SUB_DIRS SED RULE_DIR OUTPUT_DIR MAKE_SEGMENT COMP_LIB_NAME LIBOBJ_TMPDIR \
-    COMP_LIB_FILES STAMP_BLD_ENV STAMP_BLD_VAR EXTRA_INSTALL_HDRS \
+    COMP_LIB_FILES STAMP_BLD_ENV STAMP_BLD_VAR EXTRA_INSTALL_HDRS DIST_DIR \
     WIN32_CMAKE_SKIP EXTRA_INCLUDE_DIRS NOEXEC_CMAKE_DIRS COMP_LIB \
+    WITH_LCOV LCOV_DIR UTEST_PROG COVERAGE_CMD STAMP_LCOV CMAKE_EXPORT_LIBS \
 
 INFO_ENV_VARS   := $(filter-out CFLAGS,$(INFO_ENV_VARS))
 
@@ -127,7 +127,7 @@ ifeq (gcc,$(strip $(CC)))
 export STRIP    := strip
 endif
 
-ifneq (y,$(shell which $(CC) > /dev/null && echo 'y'))
+ifneq (y,$(shell which $(CC) > /dev/null 2>&1 && echo 'y'))
 LOCAL_TCDIR     := $(TOOLCHAIN_DLDIR)/$(shell $(call Relative_TcPath,$(CC)))
 export CC       := $(LOCAL_TCDIR)/$(CC)
 export AR       := $(LOCAL_TCDIR)/$(AR)
@@ -146,11 +146,12 @@ include $(RULE_DIR)/_rules-complib.mk
 include $(RULE_DIR)/_rules-submods.mk
 
 env:
-	$(Q)echo ""
-	$(Q)printf -- "-----------------------------------------------------------------\n"
-	$(Q)$(foreach var,$(SHOW_ENV_VARS),$(call Dump_Var,$(var)))
-	$(Q)printf -- "-----------------------------------------------------------------\n"
-	$(Q)echo ""
+	$(TOP_Q)echo ""
+	$(TOP_Q)printf -- "-----------------------------------------------------------------\n"
+	$(TOP_Q)$(foreach var,$(SHOW_ENV_VARS),$(call Dump_Var,$(var)))
+	$(TOP_Q)printf -- "-----------------------------------------------------------------\n"
+	$(TOP_Q)echo ""
+	$(TOP_Q)$(call $(POST_ENV_HOOK))
 
 else    # ifdef SUBDIRS
 
@@ -191,6 +192,6 @@ sinclude $(STAMP_POST_RULE)
 
 ifdef UTEST_PROG
 COVERAGE_LIST += \"./$(strip $(UTEST_PROG) --list)\"
-COVERAGE_LIST += \"./$(strip $(UTEST_PROG))\"
+COVERAGE_LIST += \"./$(strip $(UTEST_PROG) --verbose=4)\"
 include $(RULE_DIR)/_rules-coverage.mk
 endif

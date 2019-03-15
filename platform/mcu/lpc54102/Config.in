@@ -1,0 +1,14 @@
+config AOS_MCU_LPC54102IMPL
+    bool
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_SAL
+    select AOS_COMP_NETMGR
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    select AOS_COMP_IMBEDTLS
+    help
+      driver & sdk for platform/mcu lpc54102impl
+
+if AOS_MCU_LPC54102IMPL
+# Configurations for mcu lpc54102impl
+endif

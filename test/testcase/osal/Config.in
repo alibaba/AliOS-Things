@@ -1,0 +1,7 @@
+menu "OSAL Testcase Configuration"
+
+source "test/testcase/osal/aos/Config.in"
+source "test/testcase/osal/posix/Config.in"
+source "test/testcase/osal/cmsis/Config.in"
+
+endmenu

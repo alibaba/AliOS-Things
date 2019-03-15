@@ -7,12 +7,11 @@
 #include <string.h>
 
 #include <k_api.h>
-#include <aos/log.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
+#include "ulog/ulog.h"
+
+#include "aos/hal/timer.h"
+#include "network/hal/base.h"
 #include <hal/wifi.h>
-#include <hal/ota.h>
 
 #include "stm32l4xx_hal.h"
 
@@ -62,18 +61,17 @@ void hal_timer_stop(timer_dev_t *tmr)
 #if defined(DEV_SAL_MK3060)
 extern hal_wifi_module_t aos_wifi_module_mk3060;
 #endif
-extern struct hal_ota_module_s stm32l4xx_ota_module;
 
 void hw_start_hal(void)
 {
-    printf("start-----------hal\n");
+    LOG(">>> start hal");
 #if defined(DEV_SAL_MK3060)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
 #elif defined DEV_SAL_BK7231
     extern hal_wifi_module_t aos_wifi_module_bk7231;
     hal_wifi_register_module(&aos_wifi_module_bk7231);
 #endif
-
-    hal_ota_register_module(&stm32l4xx_ota_module);
+#ifdef AOS_COMP_NETMGR
     hal_wifi_init();
+#endif
 }

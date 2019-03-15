@@ -44,13 +44,11 @@ src     = Split('''
        Drivers/BSP/Components/vl53l0x/vl53l0x_api_strings.c 
        Drivers/BSP/Components/vl53l0x/vl53l0x_platform_log.c 
        aos/soc_impl.c                
-       aos/trace_impl.c             
        src/B-L475E-IOT01/runapp/aos.c                    
        src/common/csp/wifi/src/es_wifi_io.c        
        src/common/csp/wifi/src/wifi.c              
        src/B-L475E-IOT01/hal/hw.c                     
        src/B-L475E-IOT01/hal/flash_port.c              
-       src/B-L475E-IOT01/hal/ota_port.c              
        src/B-L475E-IOT01/hal/hal_i2c_stm32l4.c       
        src/B-L475E-IOT01/sensor/vl53l0x_platform.c 
        src/B-L475E-IOT01/sensor/vl53l0x_proximity.c 
@@ -87,9 +85,8 @@ component.add_comp_deps('kernel/rhino')
 component.add_comp_deps('osal')
 component.add_comp_deps('kernel/init')
 component.add_comp_deps('kernel/hal')
-component.add_comp_deps('kernel/rhino/fs/kv')
+component.add_comp_deps('kernel/fs/kv')
 component.add_comp_deps('kernel/vfs')
-component.add_comp_deps('utility/digest_algorithm')
 
 component.set_global_arch('Cortex-M4')
 
@@ -117,11 +114,6 @@ for i in include_tmp:
     component.add_global_includes(i)
     
 macro_tmp = Split('''
-   CONFIG_AOS_KV_MULTIPTN_MODE
-   CONFIG_AOS_KV_PTN=6
-   CONFIG_AOS_KV_SECOND_PTN=7
-   CONFIG_AOS_KV_PTN_SIZE=4096
-   CONFIG_AOS_KV_BUFFER_SIZE=8192
    STM32L475xx
    RHINO_CONFIG_WORKQUEUE=1
 ''') 
@@ -147,7 +139,6 @@ elif aos_global_config.compiler == 'iar':
 else:    
     cflags_tmp = Split('''
         -mcpu=cortex-m4
-        -march=armv7-m  
         -mlittle-endian 
         -mthumb
         -mthumb-interwork
@@ -173,7 +164,6 @@ elif aos_global_config.compiler == 'iar':
 else:
     asflags_tmp = Split('''
         -mcpu=cortex-m4 
-        -march=armv7-m   
         -mlittle-endian 
         -mthumb 
         -mthumb-interwork 

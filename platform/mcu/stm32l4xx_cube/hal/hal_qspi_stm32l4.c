@@ -5,7 +5,9 @@
 #include <k_api.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "hal/hal.h"
+
+#include "aos/hal/qspi.h"
+
 #include "stm32l4xx_hal.h"
 #include "hal_qspi_stm32l4.h"
 #include "stm32l4xx_hal_qspi.h"
@@ -76,6 +78,7 @@ int32_t hal_qspi_command(qspi_dev_t *qspi, qspi_cmd_t *cmd, uint32_t timeout)
 {
     int32_t ret = -1;
     QSPI_CommandTypeDef sCommand;
+    memset(&sCommand, 0, sizeof(QSPI_CommandTypeDef));
 
     if (qspi == NULL) {
         return -1;

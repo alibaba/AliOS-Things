@@ -4,8 +4,10 @@
 @                            EXTERN SYMBOLS
 @******************************************************************************
 .extern g_active_task
+.extern g_sys_stat
 .extern g_preferred_ready_task
 .extern krhino_stack_ovf_check
+.extern krhino_task_sched_stats_get
 .extern sys_stack_top
 .extern exceptionHandler
 .extern cpu_interrupt_handler
@@ -49,19 +51,29 @@
 @******************************************************************************
 @                        MACRO DEFINED
 @******************************************************************************
-@ ortex-A5, ARMv7 VFPv4-D16
+@ Cortex-A5, ARMv7 VFPv4-D16
 .macro POP_FP_REG reg
     POP     {\reg}
     VMSR    FPEXC, \reg                                 @ Pop FPEXC.
-    VPOP    {D0-D15}
     POP     {\reg}
     VMSR    FPSCR, \reg                                 @ Pop FPSCR.
+#ifdef __ARM_NEON
+    VPOP    {Q0-Q7}
+    VPOP    {Q8-Q15}
+#else
+    VPOP    {D0-D15}
+#endif
 .endm
 
 .macro PUSH_FP_REG reg
+#ifdef __ARM_NEON
+    VPUSH   {Q8-Q15}
+    VPUSH   {Q0-Q7}
+#else
+    VPUSH   {D0-D15}
+#endif
     VMRS    \reg, FPSCR                                 @ Save FPSCR.
     PUSH    {\reg}                                      @ Save floating-point registers.
-    VPUSH   {D0-D15}
     VMRS    \reg, FPEXC                                 @ Save FPEXC.
     PUSH    {\reg}
 .endm
@@ -79,7 +91,7 @@ cpu_intrpt_save:
 
 cpu_intrpt_restore:
     DSB                                                 @ no need dsb here?
-    MSR     CPSR, R0
+    MSR     CPSR_c, R0
     BX      LR
 
 @******************************************************************************
@@ -116,7 +128,7 @@ cpu_task_switch:
     BL      krhino_stack_ovf_check
     #endif
 
-    #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    #if (RHINO_CONFIG_SYS_STATS > 0)
     BL      krhino_task_sched_stats_get
     #endif
 
@@ -133,7 +145,7 @@ cpu_intrpt_switch:
     BL      krhino_stack_ovf_check
     #endif
 
-    #if (RHINO_CONFIG_TASK_SCHED_STATS > 0)
+    #if (RHINO_CONFIG_SYS_STATS > 0)
     BL      krhino_task_sched_stats_get
     #endif
 
@@ -142,7 +154,7 @@ cpu_intrpt_switch:
     LDR     R2, [R1]
     STR     R2, [R0]
 
-    POP     {FP, LR}
+    POP     {FP, PC}
 
 @******************************************************************************
 @ _task_restore
@@ -217,7 +229,7 @@ _interrupt_while_init:
     ADD     SP, SP, R1
 
     BL      _context_restore
- 
+
 _panic_handler:
     @ change to SVC mode & disable interruptions.
     MSR     CPSR_c, #(CPSR_INT_DIS | CPSR_Mode_SVC)

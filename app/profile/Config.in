@@ -1,0 +1,15 @@
+config AOS_APP_PROFILE
+    bool "Builtin Profiles"
+
+if AOS_APP_PROFILE
+choice
+    prompt "Select profile"
+
+source "app/profile/gatewayapp/Config.in"
+if AOS_APP_GATEWAYAPP
+    config AOS_BUILD_APP
+        default "gatewayapp"
+endif
+
+endchoice
+endif

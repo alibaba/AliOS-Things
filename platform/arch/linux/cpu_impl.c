@@ -14,7 +14,8 @@
 #include <pthread.h>
 #include <errno.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "aos/list.h"
 
 #include <cpu_event.h>
 #include <k_api.h>
@@ -107,7 +108,7 @@ void syscall_error_label(void)
     assert(0);
 }
 
-void unlock_spin(void)
+void os_unlock_sys_spin(void)
 {
     int ret;
     ret = pthread_mutex_unlock(&spin_lock);
@@ -201,7 +202,6 @@ static inline int in_signal(void)
 sigset_t cpu_intrpt_save(void)
 {
     sigset_t    oldset = {0};
-    int ret;
 
     sigprocmask(SIG_BLOCK, &cpu_sig_set, &oldset);
 
@@ -221,8 +221,6 @@ sigset_t cpu_intrpt_save(void)
 
 void cpu_intrpt_restore(sigset_t cpsr)
 {
-    int ret;
-
     if (!in_signal()) {
         if (g_active_task[cpu_cur_get()]) {
             task_ext_t *tcb_ext = (task_ext_t *)g_active_task[cpu_cur_get()]->task_stack;

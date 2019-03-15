@@ -62,7 +62,7 @@
 #include "hw.h"
 #include "eml3047_it.h"
 #include "low_power.h"
-#include "vcom.h"
+#include "uart-board.h"
 
 #include <k_api.h>
 
@@ -72,39 +72,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Functions Definition ------------------------------------------------------*/
-
-void RTC_IRQHandler( void )
-{
-    HW_RTC_IrqHandler( );
-}
-
-void EXTI0_1_IRQHandler( void )
-{
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_0 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_1 );
-}
-
-void EXTI2_3_IRQHandler( void )
-{
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_2 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_3 );
-}
-
-void EXTI4_15_IRQHandler( void )
-{
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_4 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_5 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_6 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_7 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_8 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_9 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_10 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_11 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_12 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_13 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_14 );
-    HW_GPIO_EXTI_IRQHandler( GPIO_PIN_15 );
-}
 
 void UARTX_IRQHandler( void )
 {

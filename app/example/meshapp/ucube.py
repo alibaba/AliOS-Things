@@ -6,7 +6,7 @@ aos_global_config.set('no_with_lwip', 0)
 
 dependencis =Split(''' 
     network/umesh
-    tools/cli
+    kernel/cli
     network/netmgr
 ''')
 for i in dependencis:
@@ -23,15 +23,9 @@ for i in global_macros:
 if aos_global_config.get('MESHAUTH') == 1:
     dependencis=Split(''' 
         utility/base64
-        utility/digest_algorithm
         security/alicrypto
     ''')
     component.add_comp_deps(*dependencis) 
-
-if aos_global_config.get("LWIP") == None:
-    aos_global_config.set("LWIP",1)
-if aos_global_config.get("LWIP") == 1:
-    component.add_comp_deps("network/lwip") 
 
 if aos_global_config.get("ipv6") == 0:
     component.add_global_macros("LWIP_IPV6=0")

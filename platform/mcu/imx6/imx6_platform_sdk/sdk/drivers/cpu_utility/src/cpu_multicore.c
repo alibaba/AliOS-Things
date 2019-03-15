@@ -51,7 +51,7 @@ typedef struct _core_startup_info {
 // Externs
 ////////////////////////////////////////////////////////////////////////////////
 
-extern void _start(void);    // entry function, startup routine, defined in startup.s
+extern void _vector_table(void);    // entry function, startup routine, defined in startup.s
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -90,6 +90,8 @@ void cpu_start_secondary(uint8_t coreNumber, cpu_entry_point_t entryPoint, void 
     assert(coreNumber < MAX_CORE_COUNT);
     s_core_info[coreNumber].entry = entryPoint;
     s_core_info[coreNumber].arg = arg;
+
+    k_dcache_clean_all();
     
     // Prepare pointers for ROM code. The entry point is always _start, which does some
     // basic preparatory work and then calls the common_cpu_entry function, which itself
@@ -98,7 +100,7 @@ void cpu_start_secondary(uint8_t coreNumber, cpu_entry_point_t entryPoint, void 
     {
 #if defined(CHIP_MX6DQ) || defined(CHIP_MX6SDL)
         case 1:
-            HW_SRC_GPR3_WR((uint32_t) & _start);
+            HW_SRC_GPR3_WR((uint32_t) &_vector_table);
             HW_SRC_GPR4_WR((uint32_t) common_cpu_entry);
 
             HW_SRC_SCR.B.CORE1_ENABLE = 1;
@@ -106,14 +108,14 @@ void cpu_start_secondary(uint8_t coreNumber, cpu_entry_point_t entryPoint, void 
 
 #if defined(CHIP_MX6DQ)
         case 2:
-            HW_SRC_GPR5_WR((uint32_t) & _start);
+            HW_SRC_GPR5_WR((uint32_t) &_vector_table);
             HW_SRC_GPR6_WR((uint32_t) common_cpu_entry);
 
             HW_SRC_SCR.B.CORE2_ENABLE = 1;
             break;
     
         case 3:
-            HW_SRC_GPR7_WR((uint32_t) & _start);
+            HW_SRC_GPR7_WR((uint32_t) &_vector_table);
             HW_SRC_GPR8_WR((uint32_t) common_cpu_entry);
 
             HW_SRC_SCR.B.CORE3_ENABLE = 1;

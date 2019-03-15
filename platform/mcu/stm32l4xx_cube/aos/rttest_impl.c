@@ -12,11 +12,14 @@
 #include <stm32l496xx.h>
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_hal_tim.h"
-#include "real_time_test.h"
+#include "stm32l4xx_hal_rcc.h"
+#include "test_realtime.h"
 
 float soc_cpu_clock_freq_mhz(void)
 {
-    return 80.0;
+   uint32_t hclk;
+   hclk = HAL_RCC_GetHCLKFreq();
+   return hclk/1000000.0;
 }
 
 void hal_rttest_intrpt_init() {

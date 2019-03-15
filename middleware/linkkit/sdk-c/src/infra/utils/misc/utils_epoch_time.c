@@ -2,14 +2,11 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
+#if WITH_UDP_NTP_CLIENT
 #include <stdint.h>
 #include "utils_epoch_time.h"
 #include "iotx_utils_internal.h"
 
-#define HTTP_RESP_CONTENT_LEN   (64)
 #define ALIYUN_NTP_SERVER       "ntp%d.aliyun.com"
 #define ALIYUN_NTP_PORT         (123)
 
@@ -231,3 +228,4 @@ uint64_t utils_get_epoch_time_from_ntp(char copy[], int len)
 
     return time_in_ms;
 }
+#endif  /* #if WITH_UDP_NTP_CLIENT */

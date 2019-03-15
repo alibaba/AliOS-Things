@@ -1,0 +1,19 @@
+config AOS_BOARD_FRDMKL26Z
+    bool "FRDMKL26Z"
+    select AOS_MCU_MKL26Z4IMPL
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_FRDMKL26Z
+# Configurations for board frdmkl26z
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+endif

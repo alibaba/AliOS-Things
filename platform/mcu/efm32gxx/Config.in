@@ -1,0 +1,10 @@
+config AOS_MCU_EFM32GXX
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu efm32gxx
+
+if AOS_MCU_EFM32GXX
+# Configurations for mcu efm32gxx
+endif

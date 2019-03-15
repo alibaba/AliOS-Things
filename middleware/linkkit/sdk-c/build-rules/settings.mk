@@ -53,6 +53,7 @@ TOP_MAKEFILE    := makefile
 STAMP_PRJ_CFG   := $(OUTPUT_DIR)/.just.configured
 STAMP_BLD_ENV   := $(OUTPUT_DIR)/.sub-build.env
 STAMP_BLD_VAR   := $(OUTPUT_DIR)/.sub-build.vars
+STAMP_LCOV      := $(OUTPUT_DIR)/.coverage.done
 STAMP_UNPACK    := .unpack.done
 STAMP_CONFIG    := .config.done
 STAMP_CMAKE     := .cmake_section
@@ -79,6 +80,8 @@ ifdef DEBUG_SHELL
 SHELL_DBG       := set -x;
 endif
 
+BUILD_LITE_SDK_MQTT :=
+
 # Setting of downloading toolchains
 TOOLCHAIN_DLDIR := $(OUTPUT_DIR)/compiler
 
@@ -87,3 +90,11 @@ TOOLCHAIN_DLDIR := $(OUTPUT_DIR)/compiler
 export INSTALL_DIR     = $(OUTPUT_DIR)/usr
 export INSTALL_BIN_DIR = $(INSTALL_DIR)/bin
 export INSTALL_LIB_DIR = $(INSTALL_DIR)/lib
+
+# Setting of cmake auto-generation
+#
+CMAKE_EXPORT_LIBS   := \
+    src/ref-impl/hal \
+    src/ref-impl/tls \
+
+include  $(RULE_DIR)/funcs.mk

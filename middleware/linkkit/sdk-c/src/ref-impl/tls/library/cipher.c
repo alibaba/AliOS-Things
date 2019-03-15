@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -897,3 +895,4 @@ int mbedtls_cipher_auth_decrypt( mbedtls_cipher_context_t *ctx,
 #endif /* MBEDTLS_CIPHER_MODE_AEAD */
 
 #endif /* MBEDTLS_CIPHER_C */
+#endif

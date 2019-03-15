@@ -42,7 +42,7 @@ enum msgTypes
 typedef union
 {
 	unsigned char byte;	                /**< the whole byte */
-#if defined(REVERSED)
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 	struct
 	{
 		unsigned int type : 4;			/**< message type nibble */
@@ -100,8 +100,6 @@ int readMQTTLenString(MQTTString* mqttstring, unsigned char** pptr, unsigned cha
 void writeCString(unsigned char** pptr, const char* string);
 void writeMQTTString(unsigned char** pptr, MQTTString mqttstring);
 
-DLLExport int MQTTPacket_read(unsigned char* buf, int buflen, int (*getfn)(unsigned char*, int));
-
 typedef struct {
 	int (*getfn)(void *, unsigned char*, int); /* must return -1 for error, 0 for call again, or the number of bytes read */
 	void *sck;	/* pointer to whatever the system may use to identify the transport */
@@ -110,8 +108,6 @@ typedef struct {
 	int len;
 	char state;
 }MQTTTransport;
-
-int MQTTPacket_readnb(unsigned char* buf, int buflen, MQTTTransport *trp);
 
 #ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
 }

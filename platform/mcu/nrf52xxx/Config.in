@@ -1,0 +1,13 @@
+config AOS_MCU_NRF52XXX
+    bool
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_BT_HOST
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    select AOS_COMP_KV
+    help
+      driver & sdk &ble controller for platform/mcu nrf52810 nrf52832 or nrf52840
+
+if AOS_MCU_NRF52XXX
+# Configurations for mcu nrf52xxx
+endif

@@ -3,8 +3,11 @@
  */
 
 #include <k_api.h>
-#include <aos/aos.h>
-#include <hal/hal.h>
+#include "aos/kernel.h"
+#include "aos/errno.h"
+#include "aos/vfs.h"
+#include "aos/hal/uart.h"
+
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -15,16 +18,9 @@
 #include "hrs.h"
 #include "bas.h"
 #include "dis.h"
-#include "ali_core.h"
-#include <api_export.h>
-#include <hal/ais_ota.h>
 #endif
 
-
-
 extern int hci_driver_init();
-extern uint32_t *fetch_ali_context();
-
 
 
 void *sys_aos_malloc(unsigned int size, size_t allocator)
@@ -35,9 +31,9 @@ void *sys_aos_malloc(unsigned int size, size_t allocator)
         return NULL;
     }
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if ((size & AOS_UNSIGNED_INT_MSB) == 0) {
-        krhino_owner_attach(g_kmm_head, tmp, allocator);
+        krhino_owner_attach(tmp, allocator);
     }
 #endif
 
@@ -52,9 +48,9 @@ void *sys_aos_realloc(void *mem, unsigned int size, size_t allocator)
         return NULL;
     }
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if ((size & AOS_UNSIGNED_INT_MSB) == 0) {
-        krhino_owner_attach(g_kmm_head, tmp, allocator);
+        krhino_owner_attach(tmp, allocator);
     }
 #endif
 
@@ -69,9 +65,9 @@ void *sys_aos_zalloc(unsigned int size, size_t allocator)
         return NULL;
     }
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
+#if (RHINO_CONFIG_MM_DEBUG > 0u)
     if ((size & AOS_UNSIGNED_INT_MSB) == 0) {
-        krhino_owner_attach(g_kmm_head, tmp, allocator);
+        krhino_owner_attach(tmp, allocator);
     }
 #endif
 
@@ -96,12 +92,6 @@ int aos_vprintf(char *format, va_list param)
 int aos_fflush(FILE *stream)
 {
     return fflush(stream);
-}
-
-extern aos_mutex_t log_mutex;
-aos_mutex_t* get_log_mutex(void)
-{
-    return &log_mutex;
 }
 
 #define SYSCALL_MAX 150

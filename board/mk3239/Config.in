@@ -1,0 +1,31 @@
+config AOS_BOARD_MK3239
+    bool "MK3239"
+    select AOS_MCU_STM32F4XX
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_MK3239
+# Configurations for board board_mk3239
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+endif

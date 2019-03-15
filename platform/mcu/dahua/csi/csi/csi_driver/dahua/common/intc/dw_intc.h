@@ -25,7 +25,7 @@
 #define __DW_INTC_H
 
 #include <stdint.h>
-//#include <soc.h>
+//#include "soc.h"
 
 #ifdef CONFIG_CHIP_DH5010M
 

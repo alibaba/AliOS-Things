@@ -1,4 +1,4 @@
-#include "hal/soc/soc.h"
+#include "aos/hal/flash.h"
 #include "esp_spi_flash.h"
 
 #define ROUND_DOWN(a,b) (((a) / (b)) * (b))
@@ -68,6 +68,11 @@ int32_t hal_flash_erase(hal_partition_t pno, uint32_t off_set,
     }
 
     return 0;
+}
+
+uint32_t hal_flash_erase_sector_size()
+{
+    return SPI_FLASH_SEC_SIZE;
 }
 
 int32_t hal_flash_enable_secure(hal_partition_t partition, uint32_t off_set, uint32_t size)

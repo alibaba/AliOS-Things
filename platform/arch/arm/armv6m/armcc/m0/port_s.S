@@ -1,28 +1,28 @@
+#include <k_config.h>
+
 ;******************************************************************************
 ;                            EXTERN PARAMETERS
 ;******************************************************************************
-
-    IMPORT  g_active_task
-    IMPORT  g_preferred_ready_task
-    IMPORT  krhino_stack_ovf_check
+    EXTERN g_active_task
+    EXTERN g_preferred_ready_task
+    EXTERN krhino_stack_ovf_check
+    EXTERN krhino_task_sched_stats_get
 
 ;******************************************************************************
 ;                            EXPORT FUNCTIONS
 ;******************************************************************************
+    EXPORT cpu_intrpt_save
+    EXPORT cpu_intrpt_restore
+    EXPORT cpu_task_switch
+    EXPORT cpu_intrpt_switch
+    EXPORT cpu_first_task_start
 
-    EXPORT  cpu_intrpt_save    
-    EXPORT  cpu_intrpt_restore
-    EXPORT  cpu_task_switch
-    EXPORT  cpu_intrpt_switch
-    EXPORT  cpu_first_task_start
-
-    EXPORT  PendSV_Handler
-    EXPORT  _first_task_restore
+    EXPORT PendSV_Handler
+    EXPORT _first_task_restore
 
 ;******************************************************************************
 ;                                 EQUATES
 ;******************************************************************************
-
 SCB_ICSR              EQU      0xE000ED04 ; Interrupt Control and State Register.
 SCB_VTOR              EQU      0xE000ED08 ; Vector Table Offset Register.
 ICSR_PENDSVSET        EQU      0x10000000 ; Value to trigger PendSV exception.
@@ -75,7 +75,7 @@ cpu_intrpt_switch
 ;******************************************************************************
 cpu_first_task_start
     ;set PendSV prority to the lowest
-    LDR     R0, =SHPR3_PRI_14_15                   
+    LDR     R0, =SHPR3_PRI_14_15
     LDR     R2, [R0]
     LDR     R1, =SHPR3_PRI_LVL
     ORRS    R2, R1
@@ -110,7 +110,7 @@ PendSV_Handler
     ;save context
     SUBS    R0, R0, #0x20
     STMIA   R0!, {R4 - R7}
-    MOV     R4, R8                
+    MOV     R4, R8
     MOV     R5, R9
     MOV     R6, R10
     MOV     R7, R11
@@ -124,7 +124,12 @@ PendSV_Handler
 
     ;save and restore LR
     MOV     R4, LR
-    bl      krhino_stack_ovf_check
+#if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
+    BL      krhino_stack_ovf_check
+#endif
+#if (RHINO_CONFIG_SYS_STATS > 0)
+    BL      krhino_task_sched_stats_get
+#endif
     MOV     LR, R4
 
 _pendsv_handler_nosave
@@ -136,13 +141,13 @@ _pendsv_handler_nosave
     LDR     R0, [R2]
 
     ;restore context
-    LDMIA   R0!, {R4 - R7}          
-    LDMIA   R0!, {R2 - R3}          
-    MOV     R8,  R2                 
-    MOV     R9,  R3                 
-    LDMIA   R0!, {R2 - R3}          
-    MOV     R10,  R2                 
-    MOV     R11,  R3                 
+    LDMIA   R0!, {R4 - R7}
+    LDMIA   R0!, {R2 - R3}
+    MOV     R8,  R2
+    MOV     R9,  R3
+    LDMIA   R0!, {R2 - R3}
+    MOV     R10,  R2
+    MOV     R11,  R3
 
     ;return stack = PSP
     MSR     PSP, R0

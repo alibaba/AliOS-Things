@@ -2,9 +2,9 @@
 EXTRA_POST_BUILD_TARGETS += mkimage
 
 SOURCE_BIN = $(SOURCE_ROOT)out/$(CLEANED_BUILD_STRING)/binary/$(CLEANED_BUILD_STRING).bin
-SECBOOT_IMG = $(SOURCE_ROOT)platform/mcu/$(HOST_MCU_FAMILY)/tools/secboot.img
-VERSION_TXT = $(SOURCE_ROOT)platform/mcu/$(HOST_MCU_FAMILY)/tools/version.txt
-TOOLS_DIR = $(SOURCE_ROOT)platform/mcu/$(HOST_MCU_FAMILY)/tools
+SECBOOT_IMG = $(SOURCE_ROOT)/$($(HOST_MCU_FAMILY)_LOCATION)/drivers/tools/secboot.img
+VERSION_TXT = $(SOURCE_ROOT)/$($(HOST_MCU_FAMILY)_LOCATION)/drivers/tools/version.txt
+TOOLS_DIR = $(SOURCE_ROOT)/$($(HOST_MCU_FAMILY)_LOCATION)/drivers/tools
 OUT_DIR = $(SOURCE_ROOT)out/$(CLEANED_BUILD_STRING)/binary/
 
 

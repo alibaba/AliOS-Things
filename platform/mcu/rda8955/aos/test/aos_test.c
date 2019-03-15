@@ -3,7 +3,6 @@
  */
 
 #include <aos/kernel.h>
-//#include <aos/types.h>
 #include "cut.h"
 
 #ifndef SYSINFO_ARCH
@@ -96,7 +95,7 @@ static int dump_test_config(void)
         PRINT_CONFIG(SYSINFO_MCU);
         PRINT_CONFIG(SYSINFO_DEVICE_NAME);
         PRINT_CONFIG(SYSINFO_KERNEL);
-        PRINT_CONFIG(SYSINFO_KERNEL_VERSION);
+        PRINT_CONFIG(aos_version_get());
         PRINT_CONFIG(SYSINFO_APP_VERSION);
     }
 

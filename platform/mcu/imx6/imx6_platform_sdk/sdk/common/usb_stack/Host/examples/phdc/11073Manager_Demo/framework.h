@@ -44,7 +44,7 @@
 #include "derivative.h"   /* include peripheral declarations */
 #include "usb.h"
 #include "khci.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "sci.h"
 
 #define fw_event_set(event, eventname)  _usb_event_set((event), (eventname))

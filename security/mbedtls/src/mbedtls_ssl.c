@@ -1,22 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <aos/aos.h>
-#include <aos/network.h>
+#include "aos/kernel.h"
+#include <network/network.h>
 #include <sys/time.h>
 
-#include "ali_crypto.h"
 #include "mbedtls/config.h"
 #include "mbedtls/debug.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/x509_crt.h"
 #include "mbedtls/net_sockets.h"
 
+#if defined(MBEDTLS_AES_ALT)
+#include "ali_crypto.h"
+#endif
+
 #if defined(MBEDTLS_THREADING_ALT)
 #include "mbedtls/threading.h"
 #endif
 
-#define SSL_DEBUG_LEVEL    1
+#define SSL_DEBUG_LEVEL    3
 
 #define SSL_PARAM_MAGIC    0x54321212
 
@@ -36,8 +39,17 @@ static int ssl_random(void *prng, unsigned char *output, size_t output_len)
     (void)prng;
 
     gettimeofday(&tv, NULL);
+
+#if defined(MBEDTLS_AES_ALT)
     ali_seed((uint8_t *)&tv.tv_usec, sizeof(suseconds_t));
     ali_rand_gen(output, output_len);
+#else
+    srandom((unsigned int)tv.tv_usec);
+    while(output_len > 0) {
+        output[output_len - 1] = random() & 0xFF;
+        output_len--;
+    }
+#endif
 
     return 0;
 }

@@ -19,6 +19,7 @@ THE SOFTWARE.
 
 /* cJSON */
 /* JSON parser in C. */
+#if defined(DYNAMIC_REGISTER) || defined(ALCS_ENABLED) || defined(WIFI_PROVISION_ENABLED)
 
 #ifdef __GNUC__
     #pragma GCC visibility push(default)
@@ -89,12 +90,14 @@ static int case_insensitive_strcmp(const unsigned char *string1, const unsigned 
 }
 
 typedef struct internal_hooks {
-    void *(*allocate)(size_t size);
+    void *(*allocate)(uint32_t size);
     void(*deallocate)(void *pointer);
     void *(*reallocate)(void *pointer, size_t size);
 } internal_hooks;
 
-static internal_hooks global_hooks = { malloc, free, realloc };
+extern void *HAL_Malloc(uint32_t size);
+extern void HAL_Free(void *ptr);
+static internal_hooks global_hooks = { HAL_Malloc, HAL_Free, realloc };
 
 static unsigned char *cJSON_strdup(const unsigned char *string, const internal_hooks *const hooks)
 {
@@ -112,33 +115,6 @@ static unsigned char *cJSON_strdup(const unsigned char *string, const internal_h
     memcpy(copy, string, length);
 
     return copy;
-}
-
-CJSON_PUBLIC(void) cJSON_InitHooks(cJSON_Hooks *hooks)
-{
-    if (hooks == NULL) {
-        /* Reset hooks */
-        global_hooks.allocate = malloc;
-        global_hooks.deallocate = free;
-        global_hooks.reallocate = realloc;
-        return;
-    }
-
-    global_hooks.allocate = malloc;
-    if (hooks->malloc_fn != NULL) {
-        global_hooks.allocate = (void *(*)(size_t))hooks->malloc_fn;
-    }
-
-    global_hooks.deallocate = free;
-    if (hooks->free_fn != NULL) {
-        global_hooks.deallocate = hooks->free_fn;
-    }
-
-    /* use realloc only if both free and malloc are used */
-    global_hooks.reallocate = NULL;
-    if ((global_hooks.allocate == malloc) && (global_hooks.deallocate == free)) {
-        global_hooks.reallocate = realloc;
-    }
 }
 
 /* Internal constructor. */
@@ -931,9 +907,11 @@ fail:
         hooks->deallocate(buffer->buffer);
     }
 
+#if 0
     if (printed != NULL) {
         hooks->deallocate(printed);
     }
+#endif
 
     return NULL;
 }
@@ -2290,3 +2268,4 @@ CJSON_PUBLIC(void) cJSON_free(void *object)
 {
     global_hooks.deallocate(object);
 }
+#endif

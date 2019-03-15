@@ -48,7 +48,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "board.h"
 #include "soc_init.h"
-#include "hal/soc/soc.h"
+
+#include "aos/hal/gpio.h"
+#include "aos/hal/spi.h"
+#include "aos/hal/uart.h"
 #include "aos/kernel.h"
 #include "k_api.h"
 #include "errno.h"
@@ -178,6 +181,13 @@ static void SystemClock_Config(void)
   PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_PCLK1;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   PeriphClkInit.RngClockSelection = RCC_RNGCLKSOURCE_MSI;
+
+#ifdef AOS_USB_DEVICE
+  /* Select MSI output as USB clock source */
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_MSI;
+#endif /* AOS_USB_DEVICE */
+
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -607,4 +617,44 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
 {
     return 0;
 }
+
+extern int32_t hal_spi_init(spi_dev_t *spi);
+int32_t hal_spi_init(spi_dev_t *spi) {
+}
+
+extern int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t timeout) {
+}
+extern int32_t hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_t timeout) {
+}
+
+extern int32_t hal_spi_finalize(spi_dev_t *spi);
+int32_t hal_spi_finalize(spi_dev_t *spi) {
+}
+
+extern int32_t hal_gpio_init(gpio_dev_t *gpio);
+int32_t hal_gpio_init(gpio_dev_t *gpio) {
+}
+
+extern int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value);
+int32_t hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value) {
+};
+
+extern int32_t hal_gpio_output_high(gpio_dev_t *gpio);
+int32_t hal_gpio_output_high(gpio_dev_t *gpio) {
+}
+
+extern int32_t hal_gpio_output_low(gpio_dev_t *gpio);
+int32_t hal_gpio_output_low(gpio_dev_t *gpio) {
+}
+
+extern int32_t hal_gpio_output_toggle(gpio_dev_t *gpio);
+int32_t hal_gpio_output_toggle(gpio_dev_t *gpio) {
+}
+
+extern int32_t hal_gpio_finalize(gpio_dev_t *gpio);
+int32_t hal_gpio_finalize(gpio_dev_t *gpio) {
+}
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

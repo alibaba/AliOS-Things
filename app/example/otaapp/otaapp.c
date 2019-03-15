@@ -8,18 +8,20 @@
 
 #include "iot_import.h"
 #include "iot_export.h"
-#include "aos/log.h"
+#include "ulog/ulog.h"
 #include "aos/yloop.h"
-#include "aos/network.h"
+#include "network/network.h"
 #include <netmgr.h>
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 #include <aos/cli.h>
 #endif
 
-#include <hal/ota.h>
-#include "mqtt_instance.h"
-#include "ota_service.h"
+#include "ota/ota_service.h"
+#include "ota_hal_plat.h"
+#include "ota_hal_os.h"
+
+static ota_service_t ctx = {0};
 
 static void usage(void)
 {
@@ -30,7 +32,7 @@ static void usage(void)
            "  $3, Device Secret.\n"
            "  $4, Product Secret.\n"
            "\n",
-           UOTA_VERSION);
+           OTA_VERSION);
 }
 
 static void ota_work(void *ctx)
@@ -39,44 +41,35 @@ static void ota_work(void *ctx)
     IOT_OpenLog("mqtt");
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 #endif
+    /*Main device*/
     ota_service_init(ctx);
-#ifdef OTA_WITH_LINKKIT
-    IOT_CloseLog();
-#endif
     while (1) {
-        IOT_MQTT_Yield((void *)mqtt_get_instance(), 200);
+        IOT_MQTT_Yield(NULL,200);
         aos_msleep(1000);
     }
 }
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
 static void handle_ota_cmd(char *buf, int blen, int argc, char **argv)
 {
     if (argc <= 3) {
         usage();
         return;
     }
-    ota_service_manager ctx = { 0 };
+    memset(&ctx, 0, sizeof(ota_service_t));
     strncpy(ctx.pk, argv[1], sizeof(ctx.pk)-1);
     strncpy(ctx.dn, argv[2], sizeof(ctx.dn)-1);
     strncpy(ctx.ds, argv[3], sizeof(ctx.ds)-1);
     strncpy(ctx.ps, argv[4], sizeof(ctx.ps)-1);
+    HAL_SetProductKey(ctx.pk);
+    HAL_SetDeviceName(ctx.dn);
+    HAL_SetDeviceSecret(ctx.ds);
     HAL_SetProductSecret(ctx.ps);
     ctx.trans_protcol = 0;
     ctx.dl_protcol = 3;
     printf("Hello OTA.\n");
     aos_task_new("ota_example", ota_work, &ctx, 1024 * 6);
 }
-
-typedef struct
-{
-    uint32_t ota_len;
-    uint32_t ota_crc;
-    uint32_t ota_type;
-    uint32_t update_type;
-    uint32_t splict_size;
-    uint8_t  diff_version;
-} ota_reboot_info_t;
 
 static void handle_diff_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
@@ -87,14 +80,13 @@ static void handle_diff_cmd(char *pwbuf, int blen, int argc, char **argv)
         }
         uint32_t ota_size = atoi(argv[1]);
         uint32_t splict_size = atoi(argv[2]);
-        ota_reboot_info_t ota_info;
-        ota_info.ota_len = ota_size;
-        ota_info.ota_type = OTA_DIFF;
-        ota_info.update_type = OTA_ALL;
-        ota_info.diff_version = 1;
+        ota_boot_param_t ota_info;
+        ota_info.rec_size = ota_size;
         ota_info.splict_size = splict_size;
-        LOG("%s %d %d %p\n", rtype, ota_size, splict_size,&ota_info);
-        //hal_ota_switch_to_new_fw(&ota_info);
+        ota_info.upg_flag = OTA_DIFF;
+        ota_info.res_type = OTA_FINISH;
+        LOG("%s %u %u %p\n", rtype, ota_size, splict_size, &ota_info);
+        ota_hal_boot(&ota_info);
     }
 }
 
@@ -111,10 +103,13 @@ static struct cli_command otacmd = { .name     = "OTA_APP",
 #endif
 int application_start(int argc, char *argv[])
 {
+#ifdef WITH_SAL
+    sal_init();
+#endif
     aos_set_log_level(AOS_LL_DEBUG);
     netmgr_init();
     netmgr_start(true);
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_register_command(&otacmd);
     aos_cli_register_command(&diffcmd);
 #endif

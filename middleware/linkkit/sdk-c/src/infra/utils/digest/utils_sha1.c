@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
+#ifdef UTILS_SHA1
 
 
 #include <stdlib.h>
@@ -326,3 +326,4 @@ void utils_sha1(const unsigned char *input, size_t ilen, unsigned char output[20
     utils_sha1_free(&ctx);
 }
 
+#endif

@@ -70,12 +70,11 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 #include "hw_conf.h"
-#include "hw_gpio.h"
-#include "hw_spi.h"
-#include "hw_rtc.h"
+#include "gpio-board.h"
+#include "rtc-board.h"
 #include "hw_msp.h"
 #include "debug.h"
-#include "vcom.h"
+#include "uart-board.h"
 
 typedef enum
 {

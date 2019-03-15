@@ -6,8 +6,6 @@
 #ifndef NGHTTP2_H
 #define NGHTTP2_H
 
-#include "iot_export_http2.h"
-
 
 #ifdef IOTX_HTTP2_DEBUG
 #define DEBUGBUILD
@@ -16,6 +14,7 @@
    libcurl) */
 #if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32)
 #define WIN32
+#define ssize_t unsigned int
 #endif
 
 #ifdef __cplusplus
@@ -34,7 +33,7 @@ extern "C" {
 #include <sys/types.h>
 #include <stdarg.h>
 
-#include <nghttp2/nghttp2ver.h>
+#include <nghttp2ver.h>
 
 #ifdef NGHTTP2_STATICLIB
 #define NGHTTP2_EXTERN
@@ -117,6 +116,9 @@ typedef struct nghttp2_session nghttp2_session;
  */
 #define NGHTTP2_VERSION_AGE 1
 
+#ifndef HTTP2_RECV_BUFFER_LENGHT
+#define HTTP2_RECV_BUFFER_LENGHT 16384
+#endif
 /**
  * @struct
  *
@@ -179,13 +181,13 @@ typedef struct {
  *
  * The initial window size for stream level flow control.
  */
-#define NGHTTP2_INITIAL_WINDOW_SIZE ((1 << 16) - 1)
+#define NGHTTP2_INITIAL_WINDOW_SIZE ((1 << 24) - 1)
 /**
  * @macro
  *
  * The initial window size for connection level flow control.
  */
-#define NGHTTP2_INITIAL_CONNECTION_WINDOW_SIZE ((1 << 16) - 1)
+#define NGHTTP2_INITIAL_CONNECTION_WINDOW_SIZE ((1 << 24) - 1)
 
 /**
  * @macro

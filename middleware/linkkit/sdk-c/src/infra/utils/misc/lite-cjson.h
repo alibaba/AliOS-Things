@@ -2,9 +2,6 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
-
 #ifndef __LITE_CJSON_H__
 #define __LITE_CJSON_H__
 
@@ -58,14 +55,19 @@ int lite_cjson_is_array(_IN_ lite_cjson_t *lite);
 int lite_cjson_is_object(_IN_ lite_cjson_t *lite);
 
 int lite_cjson_array_item(_IN_ lite_cjson_t *lite, _IN_ int index, _OU_ lite_cjson_t *lite_item);
-int lite_cjson_object_item(_IN_ lite_cjson_t *lite, _IN_ const char *key, _IN_ int key_len,
-                           _OU_ lite_cjson_t *lite_item);
-int lite_cjson_object_item_by_index(_IN_ lite_cjson_t *lite, _IN_ int index, _OU_ lite_cjson_t *lite_item_key,
-                                    _OU_ lite_cjson_t *lite_item_value);
+int lite_cjson_object_item(
+            _IN_ lite_cjson_t *lite,
+            _IN_ const char *key,
+            _IN_ int key_len,
+            _OU_ lite_cjson_t *lite_item);
+int lite_cjson_object_item_by_index(
+            _IN_ lite_cjson_t *lite,
+            _IN_ int index,
+            _OU_ lite_cjson_t *lite_item_key,
+            _OU_ lite_cjson_t *lite_item_value);
 
 
 /*** lite_cjson create, add and print ***/
-
 typedef int cJSON_bool;
 
 #define cJSON_IsReference 256
@@ -128,5 +130,4 @@ lite_cjson_item_t *lite_cjson_create_stringArray(const char **strings, int count
 #define lite_cjson_add_bool_to_object(object,name,b)        lite_cjson_add_item_to_object(object, name, lite_cjson_create_bool(b))
 #define lite_cjson_add_number_to_object(object,name,n)      lite_cjson_add_item_to_object(object, name, lite_cjson_create_number(n))
 #define lite_cjson_add_string_to_object(object,name,s)      lite_cjson_add_item_to_object(object, name, lite_cjson_create_string(s))
-
 #endif

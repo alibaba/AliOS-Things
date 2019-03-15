@@ -6,14 +6,15 @@
  */
 #include "k_api.h"
 
-#include <soc.h>
+
 //#include <errno.h>
+#include <stdbool.h>
 #include <atomic.h>
 #include <device.h>
 #include <clock_control.h>
 #include <misc/__assert.h>
 #include "nrf.h"
-#include "config.h"
+#include "ctlr_config.h"
 #include "irq.h"
 #include "misc/util.h"
 #include "errno.h"
@@ -331,6 +332,20 @@ static void _power_clock_isr(void *arg)
     
     krhino_intrpt_exit();
 }
+
+#ifdef CONFIG_MESH_STACK_ALONE
+void _arch_irq_enable(unsigned int irq)
+{
+}
+
+void _arch_irq_disable(unsigned int irq)
+{
+}
+
+void _irq_priority_set(unsigned int irq, unsigned int prio, u32_t flags)
+{
+}
+#endif
 
 static int _clock_control_init(struct device *dev)
 {

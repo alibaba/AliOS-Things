@@ -1,7 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : main.hpp
-  * Description        : This file contains the common defines of the application
+  * @file           : main.h
+  * @brief          : Header for main.c file.
+  *                   This file contains the common defines of the application.
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -35,12 +36,13 @@
   *
   ******************************************************************************
   */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
-  /* Includes ------------------------------------------------------------------*/
+#ifndef __MAIN_H__
+#define __MAIN_H__
 
 /* Includes ------------------------------------------------------------------*/
+
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -55,16 +57,16 @@
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
-#define LD4_Pin GPIO_PIN_5
-#define LD4_GPIO_Port GPIOA
-#define SMPS_EN_Pin GPIO_PIN_12
-#define SMPS_EN_GPIO_Port GPIOB
-#define SMPS_V1_Pin GPIO_PIN_13
-#define SMPS_V1_GPIO_Port GPIOB
-#define SMPS_PG_Pin GPIO_PIN_14
-#define SMPS_PG_GPIO_Port GPIOB
-#define SPMS_SW_Pin GPIO_PIN_15
-#define SPMS_SW_GPIO_Port GPIOB
+#define SMPS_EN_Pin GPIO_PIN_4
+#define SMPS_EN_GPIO_Port GPIOA
+#define SMPS_V1_Pin GPIO_PIN_5
+#define SMPS_V1_GPIO_Port GPIOA
+#define SMPS_PG_Pin GPIO_PIN_6
+#define SMPS_PG_GPIO_Port GPIOA
+#define SMPS_SW_Pin GPIO_PIN_7
+#define SMPS_SW_GPIO_Port GPIOA
+#define LD4_Pin GPIO_PIN_13
+#define LD4_GPIO_Port GPIOB
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
@@ -93,13 +95,6 @@ void _Error_Handler(char *, int);
 }
 #endif
 
-/**
-  * @}
-  */ 
+#endif /* __MAIN_H__ */
 
-/**
-  * @}
-*/ 
-
-#endif /* __MAIN_H */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

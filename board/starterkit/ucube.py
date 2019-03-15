@@ -18,11 +18,11 @@ else:
 aos_global_config.set('MODULE', '1062')
 aos_global_config.set('HOST_ARCH', 'Cortex-M4')
 aos_global_config.set('HOST_MCU_FAMILY', 'stm32l4xx_cube')
-aos_global_config.set('SUPPORT_BINS', 'no')
+aos_global_config.set('SUPPORT_MBINS', 'no')
 aos_global_config.set('HOST_MCU_NAME', 'STM32L433CCTx')
 
 dependencis =Split('''
-    device/sensor
+    drivers/sensor
 ''')
 for i in dependencis:
     component.add_comp_deps(i)
@@ -38,7 +38,6 @@ for i in global_includes:
 global_macros =Split('''
     STM32L433xx
     STDIO_UART=0
-    CONFIG_AOS_CLI_BOARD
     AOS_SENSOR_ACC_MIR3_DA217
     AOS_SENSOR_ALS_LITEON_LTR553
     AOS_SENSOR_PS_LITEON_LTR553
@@ -64,13 +63,11 @@ if aos_global_config.get('sal') == 1:
 aos_global_config.set('CONFIG_SYSINFO_PRODUCT_MODEL', 'ALI_AOS_starterkit')
 aos_global_config.set('CONFIG_SYSINFO_DEVICE_NAME','starterkit')
 
-CONFIG_SYSINFO_OS_VERSION = aos_global_config.get('CONFIG_SYSINFO_OS_VERSION')
 
-component.add_global_macros('SYSINFO_OS_VERSION=\\"'+str(CONFIG_SYSINFO_OS_VERSION)+'\\"')
 component.add_global_macros('SYSINFO_PRODUCT_MODEL=\\"'+'ALI_AOS_starterkit'+'\\"')
 component.add_global_macros('SYSINFO_DEVICE_NAME=\\"'+'starterkit'+'\\"')
 
 component.set_enable_vfp()
 
-linux_only_targets="helloworld mqttapp acapp nano tls alinkapp coapapp hdlcapp.hdlcserver uDataapp networkapp littlevgl_starterkit wifihalapp hdlcapp.hdlcclient atapp linuxapp helloworld_nocli vflashdemo netmgrapp emwinapp blink"
-windows_only_targets="helloworld|COMPILER=armcc acapp|COMPILER=armcc helloworld|COMPILER=iar acapp|COMPILER=iar mqttapp|COMPILER=armcc mqttapp|COMPILER=iar"
+linux_only_targets="blink coapapp helloworld http2app modbus_demo mqttapp otaapp sk.sk_gui tls udataapp udevapp ulocationapp yts"
+windows_only_targets="helloworld|COMPILER=armcc helloworld|COMPILER=iar"

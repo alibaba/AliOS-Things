@@ -2,10 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __IOTX_COAP_API_H__
 #define __IOTX_COAP_API_H__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #define IOTX_PRODUCT_KEY_LEN     (20)   /* IoTx product key length  */
 #define IOTX_DEVICE_NAME_LEN     (32)   /* IoTx device name length */
@@ -37,6 +39,8 @@ typedef enum {
 typedef enum {
     IOTX_MESSAGE_CON  = 0,       /* confirmable message */
     IOTX_MESSAGE_NON  = 1,       /* non-confirmable message */
+    IOTX_MESSAGE_ACK  = 2,       /* acknowledgement message */
+    IOTX_MESSAGE_RST  = 3,       /* reset message */
 } iotx_msg_type_t;
 
 /* IoTx events to notify application */
@@ -125,7 +129,7 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config);
  * @return None.
  * @see None.
  */
-void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
+DLL_IOT_API void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
 
 
 /**
@@ -138,7 +142,7 @@ void IOT_CoAP_Deinit(iotx_coap_context_t **p_context);
  * @retval IOTX_ERR_AUTH_FAILED     : Authenticate failed or timeout.
  * @see iotx_ret_code_t.
  */
-int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
+DLL_IOT_API int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
 
 
 /**
@@ -150,7 +154,7 @@ int  IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context);
  * @return status.
  * @see iotx_ret_code_t.
  */
-int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
+DLL_IOT_API int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
 
 
 /**
@@ -166,7 +170,7 @@ int  IOT_CoAP_Yield(iotx_coap_context_t *p_context);
  * @retval IOTX_ERR_NOT_AUTHED      : The client hasn't authenticated with server
  * @see iotx_ret_code_t.
  */
-int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_message_t *p_message);
+DLL_IOT_API int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_message_t *p_message);
 
 /**
 * @brief Retrieves the length and payload pointer of specified message.
@@ -179,7 +183,7 @@ int  IOT_CoAP_SendMessage(iotx_coap_context_t *p_context,   char *p_path, iotx_m
 * @retval IOTX_ERR_INVALID_PARAM    : Can't get the payload due to invalid parameter.
 * @see iotx_ret_code_t.
 **/
-int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
+DLL_IOT_API int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int *p_len);
 
 /**
 * @brief Get the response code from a CoAP message.
@@ -192,9 +196,12 @@ int  IOT_CoAP_GetMessagePayload(void *p_message, unsigned char **pp_payload, int
 * @retval  IOTX_ERR_INVALID_PARAM   : Pointer to the message is NULL.
 * @see iotx_ret_code_t.
 **/
-int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code);
+DLL_IOT_API int  IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code);
 
 /** @} */ /* end of api_coap */
 /** @} */ /* end of api */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

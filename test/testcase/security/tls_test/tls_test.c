@@ -8,10 +8,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <aos/errno.h>
-#include <aos/network.h>
 
-#include <aos/mbedtls_ssl.h>
+#include <aos/errno.h>
+
+#include <network/network.h>
+
+#include <mbedtls/mbedtls_ssl.h>
 
 const char *mbedtls_real_ca_pem = "-----BEGIN CERTIFICATE-----\n"   \
                                   "MIIDtzCCAp+gAwIBAgIJAOxbLdldR1+SMA0GCSqGSIb3DQEBBQUAMHIxCzAJBgNV\n"\

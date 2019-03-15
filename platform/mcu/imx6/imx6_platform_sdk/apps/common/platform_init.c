@@ -33,6 +33,8 @@
 #include "platform_init.h"
 #include "core/cortex_a9.h"
 #include "core/mmu.h"
+#include "k_api.h"
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Code
@@ -40,43 +42,43 @@
 
 void platform_init(void)
 {
+    mmu_init();
     enable_neon_fpu();
     disable_strict_align_check();
-    mmu_init();
 
-    // Map some SDRAM for DMA
+    if(0 == cpu_cur_get())
+    {
+        // Map some SDRAM for DMA
 #if defined(BOARD_EVB)
-    mmu_map_l1_range(0x30000000, 0x30000000, 0x70000000, kNoncacheable, kShareable, kRWAccess);
+        mmu_map_l1_range(0x30000000, 0x30000000, 0x70000000, kNoncacheable, kShareable, kRWAccess);
 #elif defined(BOARD_SMART_DEVICE)
-    mmu_map_l1_range(0x20000000, 0x20000000, 0x30000000, kNoncacheable, kShareable, kRWAccess);
+        mmu_map_l1_range(0x20000000, 0x20000000, 0x30000000, kNoncacheable, kShareable, kRWAccess);
 #endif
+    }
 
     // Enable interrupts. Until this point, the startup code has left interrupts disabled.
     gic_init();
     arm_set_interrupt_state(true);
+
+    /*first core to init out regs*/
+    if(0 == cpu_cur_get()){
     
-    // Initialize clock sources, dividers, ... 
-    ccm_init();
+        // Initialize clock sources, dividers, ... 
+        ccm_init();
 
-    //BSP_ClockInit();
+        //BSP_ClockInit();
+        // Configure the EPIT timer used for system delay function. 
+        //system_time_init();
+        
+        // Initialize the debug/console UART 
+        //uart_init(g_debug_uart_port, 115200, PARITY_NONE, STOPBITS_ONE, EIGHTBITS, FLOWCTRL_OFF);
+        
+        //hal_uart_init(NULL);
 
+        // Some init for the board 
+        board_ioexpander_init();
 
-    
-    // Configure the EPIT timer used for system delay function. 
-    //system_time_init();
-
-    
-    // Initialize the debug/console UART 
-    uart_init(g_debug_uart_port, 115200, PARITY_NONE, STOPBITS_ONE, EIGHTBITS, FLOWCTRL_OFF);
-
-    // flush UART RX FIFO 
-    uint8_t c;
-    do {
-        c = uart_getchar(g_debug_uart_port);
-    } while (c != NONE_CHAR);
-
-    // Some init for the board 
-    board_ioexpander_init();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

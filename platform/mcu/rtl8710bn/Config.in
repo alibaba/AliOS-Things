@@ -1,0 +1,13 @@
+config AOS_MCU_RTL8710BN
+    bool
+    select AOS_COMP_LWIP
+    select AOS_COMP_NETMGR
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    select AOS_COMP_NEWLIB_STUB
+    help
+      driver & sdk for platform/mcu rtl8710bn
+
+if AOS_MCU_RTL8710BN
+# Configurations for mcu rtl8710bn
+endif

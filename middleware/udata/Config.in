@@ -1,0 +1,19 @@
+config AOS_COMP_UDATA
+    bool "uData Configuration"
+    default n
+    depends on AOS_COMP_SENSOR
+    select AOS_COMP_OSAL_AOS
+    select AOS_COMP_CJSON if UDATA_CONFIG_CJSON_FORMAT
+    help
+
+if AOS_COMP_UDATA
+# Configurations for comp udata
+
+config UDATA_CONFIG_CJSON_FORMAT
+    bool "uData Services cJSON Configuration"
+    default n
+    help
+        Press <Y> here to add support for uData Services cJSON Configuration.
+        This depend on cJSON component.
+
+endif

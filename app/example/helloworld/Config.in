@@ -1,0 +1,9 @@
+config AOS_APP_HELLOWORLD
+    bool "HelloWorld"
+    select AOS_COMP_OSAL_AOS
+    help
+        Hello World
+
+if AOS_APP_HELLOWORLD
+# Configurations for app helloworld
+endif

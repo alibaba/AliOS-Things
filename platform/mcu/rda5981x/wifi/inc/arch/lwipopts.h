@@ -29,8 +29,8 @@
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
-#ifndef __LWIPOPTS_H__
-#define __LWIPOPTS_H__
+#ifndef __RDA59XX_LWIPOPTS_H__
+#define __RDA59XX_LWIPOPTS_H__
 #include "lwip/arch.h"
 
 /**
@@ -51,8 +51,8 @@
 /* Disable lwIP asserts */
 #define LWIP_NOASSERT                   1
 
-#define LWIP_DEBUG                      0
-#define LWIP_DEBUG_TRACE                0
+//#define LWIP_DEBUG                    1
+//#define LWIP_DEBUG_TRACE              1
 #define SOCKETS_DEBUG                   LWIP_DBG_OFF // | LWIP_DBG_MASK_LEVEL
 
 #define IP_DEBUG                        LWIP_DBG_OFF

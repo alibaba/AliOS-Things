@@ -1,0 +1,44 @@
+config AOS_BOARD_LINUXHOST
+    bool "LinuxHost"
+    select AOS_MCU_LINUXIMPL
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    help
+      configuration for board linuxhost
+
+if AOS_BOARD_LINUXHOST
+# Configurations for board linuxhost
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool
+    default n
+
+config BSP_EXTERNAL_WIFI_MODULE
+    string
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    default "wifi.mk3060"
+
+config MESHLOWPOWER
+    bool
+    default y
+
+# link security config
+config CONFIG_LS_DEBUG
+    bool
+    default y
+config CONFIG_LS_ID2_OTP
+    bool
+    default y
+config CONFIG_LS_KM_SE
+    bool
+    default n
+config CONFIG_LS_KM_TEE
+    bool
+    default n
+
+endif #AOS_BOARD_LINUXHOST

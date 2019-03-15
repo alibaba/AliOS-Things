@@ -2,8 +2,8 @@
     "ALLOTHERS": [
         "stm32_stlink.json"
     ], 
-    "atsame54-xpro": [
-        "atsame54.json"
+    "atsame54": [
+        "atsam.json"
     ], 
     "b_l475e": [
         "stm32_stlink.json"
@@ -37,9 +37,6 @@
     ], 
     "pca10040": [
         "pca10040.json"
-    ], 
-    "saml21_iot_sk": [
-        "atsamL21.json"
     ], 
     "starterkit": [
         "starterkit_erase.json", 

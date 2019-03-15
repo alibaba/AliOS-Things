@@ -238,10 +238,10 @@
             <wLevel>1</wLevel>
             <uThumb>1</uThumb>
             <VariousControls>
-              <MiscControls>-mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -DSYSINFO_APP_VERSION=\"APP-1.0.0-20171214.1512\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_MK3060\" -DSYSINFO_DEVICE_NAME=\"MK3060\" -DSYSINFO_KERNEL_VERSION=\"AOS-R-2.0.0\"</MiscControls>
+              <MiscControls>-mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -DSYSINFO_APP_VERSION=\"APP-1.0.0-20171214.1512\" -DSYSINFO_PRODUCT_MODEL=\"ALI_AOS_MK3060\" -DSYSINFO_DEVICE_NAME=\"MK3060\" </MiscControls>
               <Define>USE_STDPERIPH_DRIVER,GD32F450,WITH_LWIP,AOS_ATCMD,AOS_AT_ADAPTER,AOS_LOOP,AOS_KV,AOS_VFS,CONFIG_AOS_CLI,OSAL_RHINO,AOS_FRAMEWORK_COMMON,BUILD_BIN</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\platform\mcu\gd32f4xx\driver\Firmware\CMSIS;..\..\..\..\platform\mcu\gd32f4xx\driver\Firmware\CMSIS\GD\GD32F4xx\Include;..\..\..\..\platform\mcu\gd32f4xx\driver\Firmware\GD32F4xx_standard_peripheral\Include;..\..\..\..\platform\mcu\gd32f4xx\driver\Utilities;..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv7m\armcc\m4;..\..\..\..\osal\aos;..\..\..\..\kernel\protocols\net\include;..\..\..\..\kernel\protocols\net\port\include;..\..\..\..\kernel\modules\fs\kv\include;..\..\..\..\kernel\vfs\include;..\..\..\..\platform\mcu\gd32f4xx\lwip-2.0.2\port;..\..\..\..\security\alicrypto\libalicrypto\inc;..\..\..\..\security\mbedtls\include;..\..\..\..\framework\protocol\alink\os;..\..\..\..\framework\protocol\alink;..\..\..\..\framework\protocol\alink\system;..\..\..\..\framework\protocol\alink\accs;..\..\..\..\framework\connectivity\wsf;..\..\..\..\framework\protocol\alink\json;..\..\..\..\framework\protocol\alink\cota;..\..\..\..\framework\netmgr\include;..\..\..\..\framework\atparser;..\..\..\..\tools\at_adapter;..\..\..\..\utility\cjson\include;..\..\..\..\utility\digest_algorithm;..\..\..\..\platform\mcu\gd32f4xx\include;..\..\..\..\platform\mcu\gd32f4xx\hal;..\..\..\..\platform\mcu\gd32f4xx\src\alink_sample;..\..\..\..\framework\ywss;..\..\..\..\device\sal\wifi\mk3060</IncludePath>
+              <IncludePath>..\..\..\..\platform\mcu\gd32f4xx\driver\Firmware\CMSIS;..\..\..\..\platform\mcu\gd32f4xx\driver\Firmware\CMSIS\GD\GD32F4xx\Include;..\..\..\..\platform\mcu\gd32f4xx\driver\Firmware\GD32F4xx_standard_peripheral\Include;..\..\..\..\platform\mcu\gd32f4xx\driver\Utilities;..\..\..\..\include;..\..\..\..\kernel\rhino\core\include;..\..\..\..\platform\arch\arm\armv7m\armcc\m4;..\..\..\..\osal\aos;..\..\..\..\kernel\protocols\net\include;..\..\..\..\kernel\protocols\net\port\include;..\..\..\..\kernel\rhino\fs\kv\include;..\..\..\..\kernel\vfs\include;..\..\..\..\platform\mcu\gd32f4xx\lwip-2.0.2\port;..\..\..\..\security\alicrypto\libalicrypto\inc;..\..\..\..\security\mbedtls\include;..\..\..\..\framework\protocol\alink\os;..\..\..\..\framework\protocol\alink;..\..\..\..\framework\protocol\alink\system;..\..\..\..\framework\protocol\alink\accs;..\..\..\..\framework\connectivity\wsf;..\..\..\..\framework\protocol\alink\json;..\..\..\..\framework\protocol\alink\cota;..\..\..\..\framework\netmgr\include;..\..\..\..\framework\atparser;..\..\..\..\tools\at_adapter;..\..\..\..\utility\cjson\include;..\..\..\..\utility\digest_algorithm;..\..\..\..\platform\mcu\gd32f4xx\include;..\..\..\..\platform\mcu\gd32f4xx\hal;..\..\..\..\platform\mcu\gd32f4xx\src\alink_sample;..\..\..\..\framework\ywss;..\..\..\..\device\sal\wifi\mk3060</IncludePath>
             </VariousControls>
           </Carm>
           <Aarm>
@@ -1212,7 +1212,12 @@
             <File>
               <FileName>kvmgr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\kernel\modules\fs\kv\kvmgr.c</FilePath>
+              <FilePath>..\..\..\..\kernel\rhino\fs\kv\kvmgr.c</FilePath>
+            </File>
+            <File>
+              <FileName>kv_osal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\kernel\rhino\fs\kv\kv_osal.c</FilePath>
             </File>
           </Files>
         </Group>

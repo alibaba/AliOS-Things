@@ -3,25 +3,48 @@
  */
 
 #include <string.h>
-#include <aos/aos.h>
-#include <aos/kernel.h>
-#include <hal/wifi.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-#include <aos/network.h>
-#ifdef CONFIG_NET_LWIP
+#include "aos/init.h"
+#include "aos/cli.h"
+#include "ulog/ulog.h"
+#include "aos/kernel.h"
+#include "hal/wifi.h"
+
+#ifdef AOS_COMP_PWRMGMT
+#include <pwrmgmt_api.h>
+#endif
+
+#ifdef AOS_COMP_SPIFFS
+#include "aos_spiffs.h"
+#endif
+
+#ifdef AOS_COMP_FATFS
+#include "fatfs.h"
+#endif
+
+#include "network/network.h"
+#ifdef WITH_LWIP_TFTP
 #include "lwip/ip_addr.h"
 #include "lwip/apps/tftp.h"
-#endif /* CONFIG_NET_LWIP */
+#endif
 
-extern int vfs_init(void);
-extern int vfs_device_init(void);
-extern int aos_kv_init(void);
+#ifdef WITH_LWIP_IPERF
+extern int iperf_cli_register(void);
+#endif
+
+extern int  vfs_init(void);
+extern int  vfs_device_init(void);
+#ifdef AOS_LOOP
+#include "aos/yloop.h"
+extern aos_loop_t aos_loop_init(void);
+#endif
+extern int32_t kv_init(void);
 extern void ota_service_init(void);
-extern int aos_framework_init(void);
-extern void trace_start(void);
 extern void dumpsys_cli_init(void);
-extern int application_start(int argc, char **argv);
-//extern void aos_components_init(void);
+extern int  application_start(int argc, char **argv);
+/* extern void aos_components_init(void); */
 
 #ifdef WITH_SAL
 extern int sal_device_init(void);
@@ -36,7 +59,7 @@ extern char  app_info_addr;
 extern k_mm_head  *g_kmm_head;
 struct m_app_info_t *app_info = (struct m_app_info_t *) &app_info_addr;
 
-static void app_pre_init(void)
+void app_pre_init(void)
 {
     memcpy((void *)(app_info->data_ram_start), (void *)(app_info->data_flash_begin),
            app_info->data_ram_end - app_info->data_ram_start);
@@ -45,19 +68,30 @@ static void app_pre_init(void)
 
     krhino_add_mm_region(g_kmm_head, (void *)(app_info->heap_start),
                          app_info->heap_end - app_info->heap_start);
-
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0)
-    krhino_mm_leak_region_init((void *)(app_info->data_ram_start), (void *)(app_info->data_ram_end));
-    krhino_mm_leak_region_init((void *)(app_info->bss_start), (void *)(app_info->bss_end));
-#endif
-
 }
 #endif
 
+#ifdef AOS_COMP_CLI
 
+static uint8_t hex(char c)
+{
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'a' && c <= 'z')
+        return c - 'a' + 10;
+    if (c >= 'A' && c <= 'Z')
+        return c - 'A' + 10;
+    return 0;
+}
 
-#ifdef CONFIG_AOS_CLI
-
+static void hexstr2bin(const char *macstr, uint8_t *mac, int len)
+{
+    int i;
+    for (i=0;i < len && macstr[2 * i];i++) {
+        mac[i] = hex(macstr[2 * i]) << 4;
+        mac[i] |= hex(macstr[2 * i + 1]);
+    }
+}
 
 #ifndef CONFIG_NO_TCPIP
 static void udp_cmd(char *buf, int len, int argc, char **argv)
@@ -88,7 +122,7 @@ static void udp_cmd(char *buf, int len, int argc, char **argv)
     close(sockfd);
 }
 
-#ifdef CONFIG_NET_LWIP
+#ifdef WITH_LWIP_TFTP
 static void tftp_get_done(int error, int len)
 {
     if (error == 0) {
@@ -99,7 +133,6 @@ static void tftp_get_done(int error, int len)
 }
 
 extern tftp_context_t client_ctx;
-extern tftp_context_t ota_ctx;
 void ota_get_done(int error, int len);
 static void tftp_cmd(char *buf, int len, int argc, char **argv)
 {
@@ -123,25 +156,19 @@ static void tftp_cmd(char *buf, int len, int argc, char **argv)
         ipaddr_aton(argc == 4 ? argv[2] : "10.0.0.2", &dst_addr);
         tftp_client_get(&dst_addr, argv[argc - 1], &client_ctx, tftp_get_done);
         return;
-    } else if (strncmp(argv[1], "ota", 3) == 0) {
-        ip_addr_t dst_addr;
-        uint8_t   gw_ip[4] = {10, 0 , 0, 2};
-        memcpy(&dst_addr, gw_ip, 4);
-        tftp_client_get(&dst_addr, argv[2], &ota_ctx, ota_get_done);
-        return;
     }
 
 tftp_print_usage:
     aos_cli_printf("Usage: tftp server start/stop\r\n");
     aos_cli_printf("       tftp get path/to/file\r\n");
 }
-#endif /* CONFIG_NET_LWIP */
+#endif /* WITH_LWIP_TFTP */
 
 struct cli_command  tcpip_cli_cmd[] = {
     /* net */
-#ifdef CONFIG_NET_LWIP
+#ifdef WITH_LWIP_TFTP
     {"tftp",        "tftp server/client control", tftp_cmd},
-#endif /* CONFIG_NET_LWIP */
+#endif /* WITH_LWIP_TFTP */
     {"udp",         "[ip] [port] [string data] send udp data", udp_cmd},
 };
 
@@ -149,31 +176,10 @@ void tcpip_cli_init(void)
 {
     aos_cli_register_commands(&tcpip_cli_cmd[0],sizeof(tcpip_cli_cmd) / sizeof(struct cli_command));
 }
-#endif
 
 void wifi_debug_cmd(char *buf, int len, int argc, char **argv)
 {
     hal_wifi_start_debug_mode(NULL);
-}
-
-static uint8_t hex(char c)
-{
-    if (c >= '0' && c <= '9')
-        return c - '0';
-    if (c >= 'a' && c <= 'z')
-        return c - 'a' + 10;
-    if (c >= 'A' && c <= 'Z')
-        return c - 'A' + 10;
-    return 0;
-}
-
-static void hexstr2bin(const char *macstr, uint8_t *mac, int len)
-{
-    int i;
-    for (i=0;i < len && macstr[2 * i];i++) {
-        mac[i] = hex(macstr[2 * i]) << 4;
-        mac[i] |= hex(macstr[2 * i + 1]);
-    }
 }
 
 void mac_cmd(char *buf, int len, int argc, char **argv)
@@ -209,7 +215,7 @@ void hal_wifi_cli_init(void)
 {
     aos_cli_register_commands(&wifi_cli_cmd[0],sizeof(wifi_cli_cmd) / sizeof(struct cli_command));
 }
-
+#endif /*!defined CONFIG_NO_TCPIP */
 
 void cli_service_init(kinit_t *kinit)
 {
@@ -222,30 +228,63 @@ void cli_service_init(kinit_t *kinit)
 #endif
 #ifndef CONFIG_NO_TCPIP
         tcpip_cli_init();
-#endif
         hal_wifi_cli_init();
+
+#ifdef WITH_LWIP_IPERF
+        iperf_cli_register();
+#endif
+
+#endif
+
     }
     return;
 }
 
 #endif
 
-int aos_kernel_init(kinit_t *kinit)
+void aos_show_welcome(void)
 {
-#ifdef AOS_VFS
+    puts("             Welcome to AliOS Things           ");
+#ifdef CONFIG_AOS_INIT_WELCOME
+    puts("       ¨€¨€¨€¨€¨€¨[ ¨€¨€¨[     ¨€¨€¨[ ¨€¨€¨€¨€¨€¨€¨[ ¨€¨€¨€¨€¨€¨€¨€¨[     ");
+    puts("      ¨€¨€¨X¨T¨T¨€¨€¨[¨€¨€¨U     ¨€¨€¨U¨€¨€¨X¨T¨T¨T¨€¨€¨[¨€¨€¨X¨T¨T¨T¨T¨a     ");
+    puts("      ¨€¨€¨€¨€¨€¨€¨€¨U¨€¨€¨U     ¨€¨€¨U¨€¨€¨U   ¨€¨€¨U¨€¨€¨€¨€¨€¨€¨€¨[     ");
+    puts("      ¨€¨€¨X¨T¨T¨€¨€¨U¨€¨€¨U     ¨€¨€¨U¨€¨€¨U   ¨€¨€¨U¨^¨T¨T¨T¨T¨€¨€¨U     ");
+    puts("      ¨€¨€¨U  ¨€¨€¨U¨€¨€¨€¨€¨€¨€¨€¨[¨€¨€¨U¨^¨€¨€¨€¨€¨€¨€¨X¨a¨€¨€¨€¨€¨€¨€¨€¨U     ");
+    puts("      ¨^¨T¨a  ¨^¨T¨a¨^¨T¨T¨T¨T¨T¨T¨a¨^¨T¨a ¨^¨T¨T¨T¨T¨T¨a ¨^¨T¨T¨T¨T¨T¨T¨a     ");
+    puts("¨€¨€¨€¨€¨€¨€¨€¨€¨[¨€¨€¨[  ¨€¨€¨[¨€¨€¨[¨€¨€¨€¨[   ¨€¨€¨[ ¨€¨€¨€¨€¨€¨€¨[ ¨€¨€¨€¨€¨€¨€¨€¨[");
+    puts("¨^¨T¨T¨€¨€¨X¨T¨T¨a¨€¨€¨U  ¨€¨€¨U¨€¨€¨U¨€¨€¨€¨€¨[  ¨€¨€¨U¨€¨€¨X¨T¨T¨T¨T¨a ¨€¨€¨X¨T¨T¨T¨T¨a");
+    puts("   ¨€¨€¨U   ¨€¨€¨€¨€¨€¨€¨€¨U¨€¨€¨U¨€¨€¨X¨€¨€¨[ ¨€¨€¨U¨€¨€¨U  ¨€¨€¨€¨[¨€¨€¨€¨€¨€¨€¨€¨[");
+    puts("   ¨€¨€¨U   ¨€¨€¨X¨T¨T¨€¨€¨U¨€¨€¨U¨€¨€¨U¨^¨€¨€¨[¨€¨€¨U¨€¨€¨U   ¨€¨€¨U¨^¨T¨T¨T¨T¨€¨€¨U");
+    puts("   ¨€¨€¨U   ¨€¨€¨U  ¨€¨€¨U¨€¨€¨U¨€¨€¨U ¨^¨€¨€¨€¨€¨U¨^¨€¨€¨€¨€¨€¨€¨X¨a¨€¨€¨€¨€¨€¨€¨€¨U");
+    puts("   ¨^¨T¨a   ¨^¨T¨a  ¨^¨T¨a¨^¨T¨a¨^¨T¨a  ¨^¨T¨T¨T¨a ¨^¨T¨T¨T¨T¨T¨a ¨^¨T¨T¨T¨T¨T¨T¨a");
+#endif
+}
+
+int aos_components_init(kinit_t *kinit)
+{
+#ifdef AOS_COMP_VFS
     vfs_init();
-    vfs_device_init();
 #endif
-    
-#ifdef CONFIG_AOS_CLI
+
+#ifdef AOS_COMP_CLI
     cli_service_init(kinit);
-#else
-    extern void log_no_cli_init(void);
-    log_no_cli_init();
 #endif
-    
-#ifdef AOS_KV
-    aos_kv_init();
+
+#ifdef AOS_COMP_SPIFFS
+    vfs_spiffs_register();
+#endif
+
+#ifdef AOS_COMP_FATFS
+    fatfs_register();
+#endif
+
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
+
+#ifdef AOS_COMP_KV
+    kv_init();
 #endif
 
 #ifdef WITH_SAL
@@ -253,14 +292,11 @@ int aos_kernel_init(kinit_t *kinit)
 #endif
 
 #ifdef AOS_LOOP
+    vfs_device_init();
     aos_loop_init();
 #endif
 
-#ifdef OSAL_RHINO
-    trace_start();
-#endif
-
-#ifdef AOS_UOTA 
+#ifdef AOS_UOTA
     ota_service_init();
 #endif
 
@@ -272,40 +308,24 @@ int aos_kernel_init(kinit_t *kinit)
     gps_init();
 #endif
 
-
-// auto_component generated by the compiler system, now gcc support
+/* auto_component generated by the compiler system, now gcc support */
 #if defined (__GNUC__) && !defined (__CC_ARM)
-    //aos_components_init();
+    /* aos_components_init(); */
+#endif
+
+    aos_show_welcome();
+
+#ifdef AOS_COMP_PWRMGMT
+    cpu_pwrmgmt_init();
 #endif
 
 #ifdef AOS_BINS
     app_pre_init();
 
-#ifdef AOS_FRAMEWORK_COMMON
-        aos_framework_init();
-#endif
-
     if (app_info->app_entry) {
-#if (RHINO_CONFIG_USER_SPACE > 0)
-        app_info->app_entry(0, NULL);
-#else
         app_info->app_entry((void *)kmbins_tbl, 0, NULL);
-#endif
     }
-#else
-
-#ifdef AOS_FRAMEWORK_COMMON
-    aos_framework_init();
-#endif
-
-#if (RHINO_CONFIG_CPU_USAGE_PERIOD > 0)
-    krhino_task_cpu_usage_init();
-#endif
-
-    application_start(kinit->argc, kinit->argv);
 #endif
 
     return 0;
 }
-
-

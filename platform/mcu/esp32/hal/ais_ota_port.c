@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <hal/ais_ota.h>
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 static flash_event_handler_t flash_handler;
 static settings_event_handler_t settings_hanlder;

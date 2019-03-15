@@ -40,6 +40,11 @@ def read_json(json_file):
 
     return data
 
+def write_json(json_file, data):
+    """ Write data to json file """
+    with open(json_file, 'w') as f:
+        f.write(json.dumps(data, indent=4, separators=(',', ': ')))
+
 def get_config_value(keyword):
     """ Get predefined value for keyword from .aos """
     value = None

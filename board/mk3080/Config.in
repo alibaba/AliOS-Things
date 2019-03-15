@@ -1,0 +1,49 @@
+config AOS_BOARD_MK3080
+    bool "MK3080"
+    select AOS_MCU_RTL8710BN
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_MK3080
+# Configurations for board board_mk3080
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_WDG
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+# link security config
+config CONFIG_LS_DEBUG
+    bool
+    default n
+config CONFIG_LS_ID2_OTP
+    bool
+    default y
+config CONFIG_LS_KM_SE
+    bool
+    default n
+config CONFIG_LS_KM_TEE
+    bool
+    default n
+
+endif

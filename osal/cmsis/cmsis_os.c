@@ -52,18 +52,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
-/**
- ******************************************************************************
- * @file    cmsis_os.c
- * @author  AliOS-Things Team
- * @date    10-Mar-2018
- * @brief   CMSIS-RTOS API implementation for AliOS-Things
+/*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
- ******************************************************************************
  */
 
 #include <string.h>
-#include <cmsis_os.h>
+#include "cmsis/cmsis_os.h"
 
 /*
  * ARM Compiler 4/5
@@ -271,15 +265,11 @@ osStatus osThreadYield (void)
 */
 osStatus osThreadSetPriority (osThreadId thread_id, osPriority priority)
 {
-#if (RHINO_CONFIG_TASK_PRI_CHG > 0)
     if (RHINO_SUCCESS == task_pri_change((ktask_t *)thread_id, makeRhinoPriority(priority))) {
         return osOK;
     } else {
         return osErrorOS;
     }
-#else
-    return osErrorOS;
-#endif
 }
 
 /**
@@ -901,4 +891,3 @@ osStatus osMailFree (osMailQId queue_id, void *mail)
     return osErrorOS;
 }
 #endif  /* Use Mail Queues */
-

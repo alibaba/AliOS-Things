@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_JFFS2
+    bool "jffs2"
+    default n
+    help
+
+if AOS_COMP_JFFS2
+# Configurations for component jffs2
+endif

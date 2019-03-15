@@ -3,9 +3,11 @@
  */
 
 //#include "platform_peripheral.h"
-#include "hal/soc/soc.h"
+
+#include "aos/hal/flash.h"
 #include "board.h"
 #include "flash_api.h"
+#include "hal_platform.h"
 
 #define SPI_FLASH_SEC_SIZE  4096    /**< SPI Flash sector size */
 
@@ -14,6 +16,7 @@
 flash_t flash_obj;
 
 extern const hal_logic_partition_t hal_partitions[];
+extern size_t hal_partitions_amount;
 
 hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition)
 {
@@ -99,3 +102,29 @@ int32_t hal_flash_dis_secure(hal_partition_t in_partition, uint32_t off_set, uin
     return 0;
 }
 
+int32_t hal_flash_addr2offset(hal_partition_t *in_partition, uint32_t *off_set, uint32_t addr)
+{
+    int32_t i;
+    uint32_t logic_addr, start_addr, end_addr;
+    hal_logic_partition_t *partition_info;
+
+    if (addr < SPI_FLASH_BASE) {
+        return -1;
+    }
+
+    logic_addr = addr - SPI_FLASH_BASE;
+
+    for (i = 0; i < hal_partitions_amount; i++) {
+        partition_info = hal_flash_get_info(i);
+        start_addr = partition_info->partition_start_addr;
+        end_addr = start_addr + partition_info->partition_length;
+
+        if ((logic_addr >= start_addr) && (logic_addr < end_addr)) {
+            *in_partition = i;
+            *off_set = logic_addr - start_addr;
+            return 0;
+        }
+    }
+
+    return -1;
+}

@@ -1,0 +1,8 @@
+config AOS_ARCH_LINUX
+    bool
+    help
+      arch for linux
+
+if AOS_ARCH_LINUX
+# Configurations for arch arch_linux
+endif

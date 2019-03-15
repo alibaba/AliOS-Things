@@ -29,7 +29,7 @@
 #if defined CONFIG_CHIP_SH810 || defined CONFIG_CHIP_SH807 || defined CONFIG_CHIP_SH610 || defined CONFIG_CHIP_SH610M
 #include <drv_intc.h>
 #endif
-#include "soc.h"
+
 #include "csi_core.h"
 
 #define ERR_USART(errno) (CSI_DRV_ERRNO_USART_BASE | errno)
@@ -779,8 +779,9 @@ usart_status_t csi_usart_get_status(usart_handle_t handle)
 {
     usart_status_t usart_status;
 
+    memset(&usart_status, 0, sizeof(usart_status_t));
+
     if (handle == NULL) {
-        memset(&usart_status, 0, sizeof(usart_status_t));
         return usart_status;
     }
 

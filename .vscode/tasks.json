@@ -2,15 +2,28 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "alios-studio: Make",
+      "label": "alios-studio: Config",
       "type": "shell",
       "command": "aos",
       "args": [
         "make",
-        "helloworld@developerkit"
+        "helloworld@developerkit",
+        "-c",
+        "config"
       ],
       "presentation": {
-        "panel": "dedicated"
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: Make",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "make"
+      ],
+      "presentation": {
+        "focus": true
       }
     },
     {
@@ -22,7 +35,19 @@
         "helloworld@developerkit"
       ],
       "presentation": {
-        "panel": "dedicated"
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: Debug",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "debug",
+        "helloworld@developerkit"
+      ],
+      "presentation": {
+        "focus": true
       }
     },
     {
@@ -30,9 +55,12 @@
       "type": "shell",
       "command": "aos",
       "args": [
-        "monitor"
+        "monitor",
+        "",
+        ""
       ],
       "presentation": {
+        "focus": true,
         "panel": "dedicated"
       }
     },
@@ -45,7 +73,23 @@
         "clean"
       ],
       "presentation": {
-        "panel": "dedicated"
+        "focus": true
+      }
+    },
+    {
+      "label": "alios-studio: OTA",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "ota",
+        "helloworld@developerkit",
+        "-d",
+        "",
+        "-p",
+        ""
+      ],
+      "presentation": {
+        "focus": true
       }
     }
   ]

@@ -8,10 +8,12 @@
 #define __IOTX_MQTT_H__
 
 #include "iotx_mqtt_config.h"
-#include "utils_net.h"
-#include "utils_list.h"
-#include "utils_timer.h"
+#include "iotx_utils.h"
+#ifdef BUILD_AOS
 #include "MQTTPacket/MQTTPacket.h"
+#else
+#include "MQTTPacket.h"
+#endif
 
 typedef enum {
     IOTX_MC_CONNECTION_ACCEPTED = 0,
@@ -36,12 +38,27 @@ typedef enum MQTT_NODE_STATE {
     IOTX_MC_NODE_STATE_INVALID,
 } iotx_mc_node_t;
 
+typedef enum {
+    TOPIC_NAME_TYPE = 0,
+    TOPIC_FILTER_TYPE
+} iotx_mc_topic_type_t;
+
 /* Handle structure of subscribed topic */
 typedef struct iotx_mc_topic_handle_s {
     const char *topic_filter;
+    iotx_mc_topic_type_t topic_type;
     iotx_mqtt_event_handle_t handle;
     struct iotx_mc_topic_handle_s *next;
 } iotx_mc_topic_handle_t;
+
+/* Handle structure of subscribed topic */
+typedef struct  {
+    char *topic_filter;
+    iotx_mqtt_event_handle_func_fpt handle;
+    void *user_data;
+    iotx_mqtt_qos_t qos;
+    struct list_head linked_list;
+} iotx_mc_offline_subs_t;
 
 /* Information structure of subscribed topic */
 typedef struct SUBSCRIBE_INFO {
@@ -52,9 +69,10 @@ typedef struct SUBSCRIBE_INFO {
     iotx_mc_topic_handle_t     *handler;            /* handle of topic subscribed(unsubcribed) */
     uint16_t                    len;                /* length of subscribe message */
     unsigned char              *buf;                /* subscribe message */
+    struct list_head            linked_list;
 } iotx_mc_subsribe_info_t, *iotx_mc_subsribe_info_pt;
 
-
+#if !WITH_MQTT_ONLY_QOS0
 /* Information structure of published topic */
 typedef struct REPUBLISH_INFO {
     iotx_time_t                 pub_start_time;     /* start time of publish request */
@@ -62,13 +80,9 @@ typedef struct REPUBLISH_INFO {
     uint16_t                    msg_id;             /* packet id of publish */
     uint32_t                    len;                /* length of publish message */
     unsigned char              *buf;                /* publish message */
+    struct list_head            linked_list;
 } iotx_mc_pub_info_t, *iotx_mc_pub_info_pt;
-
-typedef enum {
-    TOPIC_NAME_TYPE = 0,
-    TOPIC_FILTER_TYPE
-} iotx_mc_topic_type_t;
-
+#endif
 /* Reconnected parameter of MQTT client */
 typedef struct {
     iotx_time_t         reconnect_next_time;        /* the next time point of reconnect */
@@ -81,6 +95,10 @@ typedef struct Client {
     uint32_t                        packet_id;                                  /* packet id */
     uint32_t                        request_timeout_ms;                         /* request timeout in millisecond */
     uint32_t                        buf_size_send;                              /* send buffer size in byte */
+#if WITH_MQTT_DYN_BUF
+    uint32_t                        buf_size_send_max;                          /* send buffer size max limit in byte */
+    uint32_t                        buf_size_read_max;                          /* recv buffer size max limit in byte */
+#endif
     uint32_t                        buf_size_read;                              /* read buffer size in byte */
     uint8_t                         keepalive_probes;                           /* keepalive probes */
     char                           *buf_send;                                   /* pointer of send buffer */
@@ -92,13 +110,16 @@ typedef struct Client {
     iotx_mc_state_t                 client_state;                               /* state of MQTT client */
     iotx_mc_reconnect_param_t       reconnect_param;                            /* reconnect parameter */
     MQTTPacket_connectData          connect_data;                               /* connection parameter */
-    list_t                         *list_pub_wait_ack;                          /* list of wait publish ack */
-    list_t                         *list_sub_wait_ack;                          /* list of subscribe or unsubscribe ack */
+#if !WITH_MQTT_ONLY_QOS0
+    struct list_head                list_pub_wait_ack;                          /* list of wait publish ack */
+#endif
+    struct list_head                list_sub_wait_ack;                          /* list of subscribe or unsubscribe ack */
     void                           *lock_list_pub;                              /* lock for list of QoS1 pub */
     void                           *lock_list_sub;                              /* lock for list of sub/unsub */
     void                           *lock_write_buf;                             /* lock of write */
+    void                           *lock_read_buf;                             /* lock of write */
+    void                           *lock_yield;
     iotx_mqtt_event_handle_t        handle_event;                               /* event handle */
-    int (*mqtt_auth)(void);
 } iotx_mc_client_t, *iotx_mc_client_pt;
 
 /* Information structure of mutli-subscribe */
@@ -108,13 +129,17 @@ typedef struct {
     iotx_mqtt_event_handle_func_fpt                messageHandler;
 } iotx_mutli_sub_info_t, *iotx_mutli_sub_info_pt;
 
+typedef struct {
+    struct list_head offline_sub_list;
+    void *mutex;
+} offline_sub_list_t;
+
 int iotx_mc_init(iotx_mc_client_t *pClient, iotx_mqtt_param_t *pInitParams);
 int iotx_mc_connect(iotx_mc_client_t *pClient);
 int iotx_mc_disconnect(iotx_mc_client_t *pClient);
 int iotx_mc_attempt_reconnect(iotx_mc_client_t *pClient);
 int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient);
 
-int iotx_mc_batchsub(void *handle, iotx_mutli_sub_info_pt *sub_list, int list_size, void *pcontext);
 int iotx_mc_unsubscribe(iotx_mc_client_t *c, const char *topicFilter);
 int iotx_mc_subscribe(iotx_mc_client_t *c,
                       const char *topicFilter,

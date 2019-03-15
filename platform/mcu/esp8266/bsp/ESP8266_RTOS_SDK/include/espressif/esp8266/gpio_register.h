@@ -22,12 +22,8 @@
  *
  */
 
-
-
-
 #ifndef _GPIO_REGISTER_H_
 #define _GPIO_REGISTER_H_
-
 
 #include "esp8266/eagle_soc.h"
 

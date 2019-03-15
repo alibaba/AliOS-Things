@@ -3,7 +3,7 @@
  */
 
 
-
+#if defined(DEPRECATED_LINKKIT)
 #ifndef _DM_SHADOW_H_
 #define _DM_SHADOW_H_
 
@@ -38,7 +38,7 @@
 #define DM_SHW_KEY_SIZE                       "size"
 #define DM_SHW_KEY_ITEM                       "item"
 
-//Special Service And Event
+/* Special Service And Event */
 #define DM_SHW_SPECIAL_SERVICE_SET_IDENTIFIER "set"
 #define DM_SHW_SPECIAL_SERVICE_SET_METHOD     "thing.service.property.set"
 #define DM_SHW_SPECIAL_SERVICE_GET_IDENTIFIER "get"
@@ -48,76 +48,75 @@
 
 #define DM_SHW_KEY_DELIMITER                  '.'
 
-typedef struct {
-	char product_key[PRODUCT_KEY_MAXLEN];
-	char device_name[DEVICE_NAME_MAXLEN];
-}dm_shw_profile_t;
+typedef enum {
+    DM_SHW_DATA_TYPE_NONE,                    /* none */
+    DM_SHW_DATA_TYPE_INT,                     /* int */
+    DM_SHW_DATA_TYPE_FLOAT,                   /* float */
+    DM_SHW_DATA_TYPE_DOUBLE,                  /* double */
+    DM_SHW_DATA_TYPE_TEXT,                    /* string */
+    DM_SHW_DATA_TYPE_ENUM,                    /* int */
+    DM_SHW_DATA_TYPE_DATE,                    /* string */
+    DM_SHW_DATA_TYPE_BOOL,                    /* bool,0 or 1 */
+    DM_SHW_DATA_TYPE_ARRAY,                   /* support int, float, double, text */
+    DM_SHW_DATA_TYPE_STRUCT,                  /* support above 8 data types */
+} dm_shw_data_type_e;
 
 typedef enum {
-	DM_SHW_DATA_TYPE_NONE,                    //none
-	DM_SHW_DATA_TYPE_INT,                     //int
-	DM_SHW_DATA_TYPE_FLOAT,                   //float
-	DM_SHW_DATA_TYPE_DOUBLE,                  //double
-	DM_SHW_DATA_TYPE_TEXT,                    //string
-	DM_SHW_DATA_TYPE_ENUM,                    //int
-	DM_SHW_DATA_TYPE_DATE,                    //string
-	DM_SHW_DATA_TYPE_BOOL,                    //bool,0 or 1
-	DM_SHW_DATA_TYPE_ARRAY,                   //support int, float, double, text
-	DM_SHW_DATA_TYPE_STRUCT,                  //support above 8 data types
-}dm_shw_data_type_e;
+    DM_SHW_DATA_TARGET_SERVICE_INPUT_DATA,
+    DM_SHW_DATA_TARGET_SERVICE_OUTPUT_DATA
+} dm_shw_data_target_e;
 
 typedef struct {
-	dm_shw_data_type_e type;
-	int size;
-	void *value;
-}dm_shw_data_value_complex_t;
+    dm_shw_data_type_e type;
+    int size;
+    void *value;
+} dm_shw_data_value_complex_t;
 
 typedef struct {
-	dm_shw_data_type_e type;
-	union {
-		int value_int;
-		float value_float;
-		double value_double;
-		void *value;                             //string or complex type accroding to data type
-	};
-}dm_shw_data_value_t;
+    dm_shw_data_type_e type;
+    union {
+        int value_int;
+        float value_float;
+        double value_double;
+        void *value;                             /* string or complex type accroding to data type */
+    };
+} dm_shw_data_value_t;
 
 typedef struct {
-	dm_shw_data_type_e type;
-	int specs_number;                            //used when type is enum and struct
-	void *specs;                                 //nerver be used by struct
-}dm_shw_data_type_t;
+    dm_shw_data_type_e type;
+    int specs_number;                            /* used when type is enum and struct */
+    void *specs;                                 /* nerver be used by struct */
+} dm_shw_data_type_t;
 
 typedef struct {
-	char *identifier;
-	dm_shw_data_value_t data_value;
-}dm_shw_data_t;
+    char *identifier;
+    dm_shw_data_value_t data_value;
+} dm_shw_data_t;
 
 typedef struct {
-	char *identifier;
-	int input_data_number;                       //input_data Number
-	dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
-	int output_data_number;                      //ouput_data Number
-	dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
-}dm_shw_event_t;
+    char *identifier;
+    int input_data_number;                       /* input_data Number */
+    dm_shw_data_t *input_datas;               /* input_data array, type is dm_shw_data_t */
+    int output_data_number;                      /* ouput_data Number */
+    dm_shw_data_t *output_datas;              /* output_data array, type is dm_shw_data_t */
+} dm_shw_event_t;
 
 typedef struct {
-	char *identifier;                            //synchronized or asynchronized
-	int input_data_number;                       //input_data_number
-	dm_shw_data_t *input_datas;               //input_data array, type is dm_shw_data_t
-	int output_data_number;                      //ouput_data Number
-	dm_shw_data_t *output_datas;              //output_data array, type is dm_shw_data_t
-}dm_shw_service_t;
+    char *identifier;                            /* synchronized or asynchronized */
+    int input_data_number;                       /* input_data_number */
+    dm_shw_data_t *input_datas;               /* input_data array, type is dm_shw_data_t */
+    int output_data_number;                      /* ouput_data Number */
+    dm_shw_data_t *output_datas;              /* output_data array, type is dm_shw_data_t */
+} dm_shw_service_t;
 
 typedef struct {
-	dm_shw_profile_t profile;
-	int property_number;
-	dm_shw_data_t *properties;                //property array, type is dm_shw_data_t
-	int event_number;
-	dm_shw_event_t *events;                   //event array, type is dm_shw_event_t
-	int service_number;
-	dm_shw_service_t *services;               //service array, type is dm_shw_service_t
-}dm_shw_t;
+    int property_number;
+    dm_shw_data_t *properties;                /* property array, type is dm_shw_data_t */
+    int event_number;
+    dm_shw_event_t *events;                   /* event array, type is dm_shw_event_t */
+    int service_number;
+    dm_shw_service_t *services;               /* service array, type is dm_shw_service_t */
+} dm_shw_t;
 
 /**
  * @brief Create TSL struct from TSL string.
@@ -134,37 +133,13 @@ typedef struct {
 int dm_shw_create(_IN_ iotx_dm_tsl_type_t type, _IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **shadow);
 
 /**
- * @brief Get product key from TSL struct.
- *        This function used to get product key from TSL struct.
- *
- * @param shadow. The pointer of TSL Struct.
- * @param product_key. The product key in TSL Struct.
- *
- * @return success or fail.
- *
- */
-int dm_shw_get_product_key(_IN_ dm_shw_t *shadow, _OU_ char product_key[PRODUCT_KEY_MAXLEN]);
-
-/**
- * @brief Get device name from TSL struct.
- *        This function used to get device name from TSL struct.
- *
- * @param shadow. The pointer of TSL Struct.
- * @param device name. The device name in TSL Struct.
- *
- * @return success or fail.
- *
- */
-int dm_shw_get_device_name(_IN_ dm_shw_t *shadow, _OU_ char device_name[DEVICE_NAME_MAXLEN]);
-
-/**
  * @brief Get property from TSL struct.
  *        This function used to get property from TSL struct.
  *
  * @param shadow. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
+ *        array type: property_id(array)[index]
  *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
  *
  * @param key_len. The length of key.
@@ -175,41 +150,8 @@ int dm_shw_get_device_name(_IN_ dm_shw_t *shadow, _OU_ char device_name[DEVICE_N
  */
 int dm_shw_get_property_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
 
-/**
- * @brief Get service data from TSL struct.
- *        This function used to get property from TSL struct.
- *
- * @param shadow. The pointer of TSL Struct.
- * @param key. The property compound string, format decided by data type of property as follows:
- *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
- *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
- *
- * @param key_len. The length of key.
- * @param property. The property in TSL Struct.
- *
- * @return success or fail.
- *
- */
-int dm_shw_get_service_input_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
-
-/**
- * @brief Get service output data from TSL struct.
- *        This function used to get service output data from TSL struct.
- *
- * @param shadow. The pointer of TSL Struct.
- * @param key. The property compound string, format decided by data type of property as follows:
- *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
- *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
- *
- * @param key_len. The length of key.
- * @param property. The property in TSL Struct.
- *
- * @return success or fail.
- *
- */
-int dm_shw_get_service_output_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _OU_ void **data);
+int dm_shw_get_service_input_output_data(_IN_ dm_shw_data_target_e type, _IN_ dm_shw_t *shadow, _IN_ char *key,
+        _IN_ int key_len, _OU_ void **data);
 
 /**
  * @brief Get event output data from TSL struct.
@@ -218,7 +160,7 @@ int dm_shw_get_service_output_data(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ i
  * @param shadow. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
+ *        array type: property_id(array)[index]
  *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
  *
  * @param key_len. The length of key.
@@ -284,7 +226,7 @@ int dm_shw_get_service(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, 
  * @return success or fail.
  *
  */
-int dm_shw_get_property_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
+int dm_shw_get_property_number(_IN_ dm_shw_t *shadow, _OU_ int *number);
 
 /**
  * @brief Get service number from TSL struct.
@@ -296,7 +238,7 @@ int dm_shw_get_property_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
  * @return success or fail.
  *
  */
-int dm_shw_get_service_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
+int dm_shw_get_service_number(_IN_ dm_shw_t *shadow, _OU_ int *number);
 
 /**
  * @brief Get event number from TSL struct.
@@ -308,7 +250,7 @@ int dm_shw_get_service_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
  * @return success or fail.
  *
  */
-int dm_shw_get_event_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
+int dm_shw_get_event_number(_IN_ dm_shw_t *shadow, _OU_ int *number);
 
 /**
  * @brief Get property reference from TSL struct by index.
@@ -321,7 +263,7 @@ int dm_shw_get_event_number(_IN_ dm_shw_t * shadow,_OU_ int *number);
  * @return success or fail.
  *
  */
-int dm_shw_get_property_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void **property);
+int dm_shw_get_property_by_index(_IN_ dm_shw_t *shadow, _IN_ int index, _OU_ void **property);
 
 /**
  * @brief Get service reference from TSL struct by index.
@@ -334,7 +276,7 @@ int dm_shw_get_property_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void 
  * @return success or fail.
  *
  */
-int dm_shw_get_service_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void **service);
+int dm_shw_get_service_by_index(_IN_ dm_shw_t *shadow, _IN_ int index, _OU_ void **service);
 
 /**
  * @brief Get event reference from TSL struct by index.
@@ -347,7 +289,7 @@ int dm_shw_get_service_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void *
  * @return success or fail.
  *
  */
-int dm_shw_get_event_by_index(_IN_ dm_shw_t *shadow,_IN_ int index,_OU_ void **event);
+int dm_shw_get_event_by_index(_IN_ dm_shw_t *shadow, _IN_ int index, _OU_ void **event);
 
 /**
  * @brief Get service reference from TSL struct by identifier.
@@ -418,7 +360,7 @@ int dm_shw_get_event_method(_IN_ void *event, _OU_ char **method);
  * @param tsl. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
+ *        array type: property_id(array)[index]
  *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
  *
  * @param key_len. The length of key
@@ -431,7 +373,8 @@ int dm_shw_get_event_method(_IN_ void *event, _OU_ char **method);
  * @return success or fail.
  *
  */
-int dm_shw_set_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_set_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+                              _IN_ int value_len);
 
 /**
  * @brief Get Property Value From TSL Struct.
@@ -440,7 +383,7 @@ int dm_shw_set_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int ke
  * @param tsl. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: property_id
- *		  array type: property_id(array)[index]
+ *        array type: property_id(array)[index]
  *        struct type: property_id(struct).property_id or property_id(struct).property_id[index]
  *
  * @param key_len. The length of key
@@ -464,7 +407,7 @@ int dm_shw_get_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int ke
  * @param tsl. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: event_id.event_data_id
- *		  array type: event_id.event_data_id(array)[index]
+ *        array type: event_id.event_data_id(array)[index]
  *        struct type: event_id.event_data_id(struct).property_id
  *                     or event_id.event_data_id(struct).property_id[index]
  *
@@ -478,7 +421,8 @@ int dm_shw_get_property_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int ke
  * @return success or fail.
  *
  */
-int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value,
+                                  _IN_ int value_len);
 
 /**
  * @brief Get event output value from TSL struct.
@@ -487,7 +431,7 @@ int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
  * @param tsl. The pointer of TSL Struct.
  * @param key. The property compound string, format decided by data type of property as follows:
  *        int,float,double,text,enum,date,bool type: event_id.event_data_id
- *		  array type: event_id.event_data_id(array)[index]
+ *        array type: event_id.event_data_id(array)[index]
  *        struct type: event_id.event_data_id(struct).property_id
  *                     or event_id.event_data_id(struct).property_id[index]
  *
@@ -505,105 +449,10 @@ int dm_shw_set_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ in
  */
 int dm_shw_get_event_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
 
-/**
- * @brief Set service input value from TSL struct.
- *        This function used to set service input value from TSL struct.
- *
- * @param tsl. The pointer of TSL Struct.
- * @param key. The property compound string, format decided by data type of property as follows:
- *        int,float,double,text,enum,date,bool type: event_id.event_data_id
- *		  array type: event_id.event_data_id(array)[index]
- *        struct type: event_id.event_data_id(struct).property_id
- *                     or event_id.event_data_id(struct).property_id[index]
- *
- * @param key_len. The length of key
- * @param value. The variable to store value, data type decided by data type of property as follows:
- *        int: int*, float: float*, double: double*,
- *        text: char**, enum: int*, date: char**, bool: int*
- *        attention! value can not be NULL
- *
- * @warning if data type is text or date, *value well be end with '\0'.
- *          the memory allocated to *value must be free by user.
- *
- * @return success or fail.
- *
- */
-int dm_shw_set_service_input_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
-
-/**
- * @brief Get service input value from TSL struct.
- *        This function used to get service input value from TSL struct.
- *
- * @param tsl. The pointer of TSL Struct.
- * @param key. The property compound string, format decided by data type of property as follows:
- *        int,float,double,text,enum,date,bool type: event_id.event_data_id
- *		  array type: event_id.event_data_id(array)[index]
- *        struct type: event_id.event_data_id(struct).property_id
- *                     or event_id.event_data_id(struct).property_id[index]
- *
- * @param key_len. The length of key
- * @param value. The variable to store value, data type decided by data type of property as follows:
- *        int: int*, float: float*, double: double*,
- *        text: char**, enum: int*, date: char**, bool: int*
- *        attention! value can not be NULL
- *
- * @warning if data type is text or date, *value well be end with '\0'.
- *          the memory allocated to *value must be free by user.
- *
- * @return success or fail.
- *
- */
-int dm_shw_get_service_input_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
-
-/**
- * @brief Set service output value from TSL struct.
- *        This function used to set service output value from TSL struct.
- *
- * @param tsl. The pointer of TSL Struct.
- * @param key. The property compound string, format decided by data type of property as follows:
- *        int,float,double,text,enum,date,bool type: event_id.event_data_id
- *		  array type: event_id.event_data_id(array)[index]
- *        struct type: event_id.event_data_id(struct).property_id
- *                     or event_id.event_data_id(struct).property_id[index]
- *
- * @param key_len. The length of key
- * @param value. The variable to store value, data type decided by data type of property as follows:
- *        int: int*, float: float*, double: double*,
- *        text: char**, enum: int*, date: char**, bool: int*
- *        attention! value can not be NULL
- *
- * @warning if data type is text or date, *value well be end with '\0'.
- *          the memory allocated to *value must be free by user.
- *
- * @return success or fail.
- *
- */
-int dm_shw_set_service_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
-
-/**
- * @brief Get service output value from TSL struct.
- *        This function used to get service output value from TSL struct.
- *
- * @param tsl. The pointer of TSL Struct.
- * @param key. The property compound string, format decided by data type of property as follows:
- *        int,float,double,text,enum,date,bool type: event_id.event_data_id
- *		  array type: event_id.event_data_id(array)[index]
- *        struct type: event_id.event_data_id(struct).property_id
- *                     or event_id.event_data_id(struct).property_id[index]
- *
- * @param key_len. The length of key
- * @param value. The variable to store value, data type decided by data type of property as follows:
- *        int: int*, float: float*, double: double*,
- *        text: char**, enum: int*, date: char**, bool: int*
- *        attention! value can not be NULL
- *
- * @warning if data type is text or date, *value well be end with '\0'.
- *          the memory allocated to *value must be free by user.
- *
- * @return success or fail.
- *
- */
-int dm_shw_get_service_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ int key_len, _IN_ void *value);
+int dm_shw_set_service_input_output_value(_IN_ dm_shw_data_target_e type, _IN_ dm_shw_t *shadow, _IN_ char *key,
+        _IN_ int key_len, _IN_ void *value, _IN_ int value_len);
+int dm_shw_get_service_input_output_value(_IN_ dm_shw_data_target_e type, _IN_ dm_shw_t *shadow, _IN_ char *key,
+        _IN_ int key_len, _IN_ void *value);
 
 /**
  * @brief Get property payload from TSL struct.
@@ -619,7 +468,8 @@ int dm_shw_get_service_output_value(_IN_ dm_shw_t *shadow, _IN_ char *key, _IN_ 
  * @return success or fail.
  *
  */
-int dm_shw_assemble_property(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int dm_shw_assemble_property(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len,
+                             _IN_ lite_cjson_item_t *lite);
 
 /**
  * @brief Get event output payload from TSL struct.
@@ -635,7 +485,8 @@ int dm_shw_assemble_property(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ 
  * @return success or fail.
  *
  */
-int dm_shw_assemble_event_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int dm_shw_assemble_event_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len,
+                                 _IN_ lite_cjson_item_t *lite);
 
 /**
  * @brief Get service output payload from TSL struct.
@@ -651,7 +502,8 @@ int dm_shw_assemble_event_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _
  * @return success or fail.
  *
  */
-int dm_shw_assemble_service_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len, _IN_ lite_cjson_item_t *lite);
+int dm_shw_assemble_service_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier, _IN_ int identifier_len,
+                                   _IN_ lite_cjson_item_t *lite);
 
 /**
  * @brief Free TSL struct.
@@ -664,15 +516,18 @@ int dm_shw_assemble_service_output(_IN_ dm_shw_t *shadow, _IN_ char *identifier,
  */
 void dm_shw_destroy(_IN_ dm_shw_t **shadow);
 
-/**
- * @brief Print detailed information of TSL struct.
- *        This function used to print detailed information of TSL struct.
- *
- * @param shadow. The pointer of TSL Struct.
- *
- * @return success or fail.
- *
- */
-void dm_shw_print(_IN_ dm_shw_t *shadow);
+#if 0
+    /**
+    * @brief Print detailed information of TSL struct.
+    *        This function used to print detailed information of TSL struct.
+    *
+    * @param shadow. The pointer of TSL Struct.
+    *
+    * @return success or fail.
+    *
+    */
+    void dm_shw_print(_IN_ dm_shw_t *shadow);
+#endif
 
+#endif
 #endif

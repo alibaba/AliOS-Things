@@ -1,0 +1,8 @@
+config AOS_COMP_LS_OSA
+    bool "Link Secuirty OS Interface"
+    default n
+    help
+
+if AOS_COMP_LS_OSA
+# Configurations for comp ls_osa
+endif

@@ -46,7 +46,7 @@
 #include "khci.h"
 #include "usb_bsp.h"
 #include "sci.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "string.h"
 #include "poll.h"
 #include "mem_util.h"

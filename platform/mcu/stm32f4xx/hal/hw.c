@@ -7,12 +7,12 @@
 #include <string.h>
 
 #include <k_api.h>
-#include <aos/log.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
+#include "ulog/ulog.h"
+
+#include "aos/hal/timer.h"
+#include "aos/hal/uart.h"
+#include "network/hal/base.h"
 #include <hal/wifi.h>
-#include <hal/ota.h>
 #include "board.h"
 
 #define TAG "hw"
@@ -58,12 +58,9 @@ void hal_timer_stop(timer_dev_t *tmr)
     tmr->priv = NULL;
 }
 
-extern struct hal_ota_module_s stm32f4xx_ota_module;
 void hw_start_hal(void)
 {
-    
     //hal_wifi_register_module(&sim_aos_wifi_stm23l475);
-    //hal_ota_register_module(&stm32l475_ota_module);
     uart_0.port                = STDIO_UART;
     uart_0.config.baud_rate    = STDIO_UART_BUADRATE;
     uart_0.config.data_width   = DATA_WIDTH_8BIT;
@@ -74,7 +71,6 @@ void hw_start_hal(void)
     hal_uart_init(&uart_0);
     printf("start-----------hal\n");
     hal_wifi_register_module(&sim_aos_wifi_mico);
-    hal_ota_register_module(&stm32f4xx_ota_module);
     hal_wifi_init(); 
 }
 

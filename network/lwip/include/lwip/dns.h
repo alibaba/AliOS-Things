@@ -102,7 +102,12 @@ err_t            dns_gethostbyname(const char *hostname, ip_addr_t *addr,
 err_t            dns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr,
                                    dns_found_callback found, void *callback_arg,
                                    u8_t dns_addrtype);
-
+#ifdef CELLULAR_SUPPORT
+void
+dns_setserver_if(u8_t numdns, const ip_addr_t *dnsserver, struct netif* netif);
+const ip_addr_t *
+dns_getserver_if(u8_t numdns, struct netif* netif);
+#endif
 
 #if DNS_LOCAL_HOSTLIST && DNS_LOCAL_HOSTLIST_IS_DYNAMIC
 int            dns_local_removehost(const char *hostname, const ip_addr_t *addr);

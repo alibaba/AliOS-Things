@@ -9,12 +9,12 @@
 #include "Fat_file.h"
 #include "msgq.h"
 #include "app_msg.h"
-#include "adc.h"
+#include "aos/hal/adc.h"
 #include "Pwm.h"
 #include "eq.h"
 #include "eq_params.h"
 #include "radio_control.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "wakeup.h"
 #include "task_decoder.h"
 #include "player_control.h"
@@ -167,7 +167,7 @@ uint32_t UserProcSppData(void);
 //----------------------------------------------
 #include <string.h>
 #include "type.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 #include "TimeOut.h"
 
 #define MAX_CMD_DATA_LEN	32						//命令数据域最大长度

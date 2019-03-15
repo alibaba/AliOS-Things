@@ -21,7 +21,7 @@
  ******************************************************************************/
 
 #include <stdint.h>
-#include <soc.h>
+#include "soc.h"
 #include <ck_sys_freq.h>
 
 void ck_set_sys_freq (clk_gen_t source, clk_val_t val)

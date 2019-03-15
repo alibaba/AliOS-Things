@@ -14,8 +14,10 @@
  */
 
 
-#include <aos/aos.h>
-#include <hal/soc/uart.h>
+#include "aos/kernel.h"
+
+#include "hal/soc/uart.h"
+
 #include "driver/uart.h"
 
 #define HAL_WAIT_FOREVER 0xFFFFFFFFU

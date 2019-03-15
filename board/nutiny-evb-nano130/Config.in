@@ -1,0 +1,11 @@
+config AOS_BOARD_NUTINY_EVB_NANO130
+    bool "NUTINY_EVB_Nano130"
+    select AOS_MCU_NANO130KE3BN
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_NETMGR
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_NUTINY_EVB_NANO130
+# Configurations for board nutiny-evb-nano130
+endif

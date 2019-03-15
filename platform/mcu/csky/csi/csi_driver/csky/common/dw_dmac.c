@@ -24,7 +24,6 @@
 #include "dw_dmac.h"
 #include "csi_core.h"
 #include "drv_dmac.h"
-#include "soc.h"
 #include <string.h>
 
 #define ERR_DMA(errno) (CSI_DRV_ERRNO_DMA_BASE | errno)

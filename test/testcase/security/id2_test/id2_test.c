@@ -6,7 +6,8 @@
 #include <yts.h>
 #include <id2_client.h>
 #include <stdio.h>
-#include "aos/aos.h"
+
+#include "aos/kernel.h"
 
 #define MAX_AUTH_LEN   256
 #define MAX_CRYPTO_LEN 4096

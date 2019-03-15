@@ -2,8 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_api.h>
+#include "aos/init.h"
 #include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,7 +57,10 @@ void sys_init_func(void)
     //test_case_task_start();
     hal_init();
     board_cli_init();
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 }
 
 int main(void)

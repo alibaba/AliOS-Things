@@ -8,8 +8,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <aos/aos.h>
 #include <arg_options.h>
+
+#include "aos/init.h"
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
 
 #ifndef CONFIG_OSAL_POSIX
 #include <k_api.h>
@@ -27,10 +30,7 @@ extern void __gcov_flush(void);
 extern void rl_free_line_state(void);
 extern void rl_cleanup_after_signal(void);
 extern void hw_start_hal(options_t *poptions);
-extern void trace_start();
 extern void netmgr_init(void);
-extern int  aos_framework_init(void);
-extern int  aos_cli_init(void);
 extern void cpu_tmr_sync(void);
 
 static options_t options = { 0 };
@@ -66,7 +66,10 @@ static void app_entry(void *arg)
 #endif
     hw_start_hal(&options);
 
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 }
 
 static void start_app(void)

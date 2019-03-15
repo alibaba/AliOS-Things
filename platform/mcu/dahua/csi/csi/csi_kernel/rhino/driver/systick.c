@@ -16,7 +16,7 @@
 
 #include <k_api.h>
 #include <csi_config.h>
-#include <soc.h>
+#include "soc.h"
 #include <drv_timer.h>
 
 uint64_t g_sys_tick_count;

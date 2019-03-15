@@ -110,6 +110,83 @@ void mmu_disable()
 
 void mmu_init()
 {
+    
+    k_icache_invalidate_all();
+
+    if(0 == cpu_get_current()){
+        k_dcache_clean_invalidate_all();
+    }
+    else{
+        //k_dcache_invalidate_all();
+    }
+    
+    k_dcache_disable();
+    k_icache_disable();
+    k_mmu_disable();
+
+    // Get the L1 page table base address.
+    uint32_t * table = (uint32_t *)&__l1_page_table_start;
+    uint32_t share_attr = kShareable;
+
+    //k_mmu_ttb_set(table);
+    // write table address to TTBR0
+    _ARM_MCR(15, 0, table, 2, 0, 0);
+
+    if(0 == cpu_get_current())
+    {
+        // Clear the L1 table.
+        bzero(table, MMU_L1_PAGE_TABLE_SIZE);
+        
+        mmu_map_l1_range(0x00000000, 0x00000000, 0x00900000, kStronglyOrdered, kShareable, kRWAccess); // ROM and peripherals
+        mmu_map_l1_range(0x00900000, 0x00900000, 0x00100000, kStronglyOrdered, kShareable, kRWAccess); // OCRAM
+        mmu_map_l1_range(0x00a00000, 0x00a00000, 0x0f600000, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+        mmu_map_l1_range(0x40000000, 0x40000000, 0x3FFFFFF, kOuterInner_WB_WA, kShareable, kRWAccess); // More peripherals
+    
+        mmu_map_l1_range(0x20000000, 0x20000000, 0xFFFFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+        mmu_map_l1_range(0x10000000, 0x10000000, 0xFFFFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+        mmu_map_l1_range(0x50000000, 0x50000000, 0xFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+        mmu_map_l1_range(0x50010000, 0x50010000, 0xFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+       
+        // Check whether SMP is enabled. If it is not, then we don't want to make SDRAM shareable.
+        uint32_t actlr = 0x0;
+        _ARM_MRC(15, 0, actlr, 1, 0, 1);
+        if (actlr & BM_ACTLR_SMP)
+        {
+            share_attr = kShareable;
+        }
+        else
+        {
+            share_attr = kNonshareable;
+        }
+    
+#if defined(CHIP_MX6DQ) || defined(CHIP_MX6SDL)
+        mmu_map_l1_range(0x10000000, 0x10000000, 0x80000000, kOuterInner_WB_WA, share_attr, kRWAccess); // 2GB DDR
+#elif defined(CHIP_MX6SL)
+        mmu_map_l1_range(0x80000000, 0x80000000, 0x40000000, kOuterInner_WB_WA, share_attr, kRWAccess); // 1GB DDR
+#else
+#error Unknown chip type!
+#endif
+    }
+
+	k_mmu_enable();
+
+    
+#if (RHINO_CONFIG_CPU_NUM > 1)
+
+    scu_enable();
+    
+    configure_cpu(cpu_get_current());
+#endif    
+    
+	k_icache_enable();
+	k_dcache_enable();
+
+}
+
+
+#if 0
+void mmu_init()
+{
 
     arm_dcache_disable();
     arm_icache_disable();
@@ -126,40 +203,43 @@ void mmu_init()
     uint32_t dacr = 0xffffffff; 
     _ARM_MCR(15, 0, dacr, 3, 0, 0); // MCR p15, 0, <Rd>, c3, c0, 0 ; Write DACR
 
-    // Clear the L1 table.
-    bzero(table, MMU_L1_PAGE_TABLE_SIZE);
+
+    if(0 == cpu_get_current())
+    {
+        // Clear the L1 table.
+        bzero(table, MMU_L1_PAGE_TABLE_SIZE);
+        
+        // Create default mappings.
+        mmu_map_l1_range(0x00000000, 0x00000000, 0x00900000, kStronglyOrdered, kShareable, kRWAccess); // ROM and peripherals
+        mmu_map_l1_range(0x00900000, 0x00900000, 0x00100000, kStronglyOrdered, kShareable, kRWAccess); // OCRAM
+        mmu_map_l1_range(0x00a00000, 0x00a00000, 0x0f600000, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+        mmu_map_l1_range(0x40000000, 0x40000000, 0x3FFFFFF, kOuterInner_WB_WA, kShareable, kRWAccess); // More peripherals
     
-    // Create default mappings.
-    mmu_map_l1_range(0x00000000, 0x00000000, 0x00900000, kStronglyOrdered, kShareable, kRWAccess); // ROM and peripherals
-    mmu_map_l1_range(0x00900000, 0x00900000, 0x00100000, kStronglyOrdered, kShareable, kRWAccess); // OCRAM
-    mmu_map_l1_range(0x00a00000, 0x00a00000, 0x0f600000, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
-    mmu_map_l1_range(0x40000000, 0x40000000, 0x3FFFFFF, kOuterInner_WB_WA, kShareable, kRWAccess); // More peripherals
-
-    mmu_map_l1_range(0x20000000, 0x20000000, 0xFFFFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
-    mmu_map_l1_range(0x10000000, 0x10000000, 0xFFFFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
-    mmu_map_l1_range(0x50000000, 0x50000000, 0xFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
-    mmu_map_l1_range(0x50010000, 0x50010000, 0xFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
-   
-   
-    // Check whether SMP is enabled. If it is not, then we don't want to make SDRAM shareable.
-    uint32_t actlr = 0x0;
-    _ARM_MRC(15, 0, actlr, 1, 0, 1);
-    if (actlr & BM_ACTLR_SMP)
-    {
-        share_attr = kShareable;
-    }
-    else
-    {
-        share_attr = kNonshareable;
-    }
-
+        mmu_map_l1_range(0x20000000, 0x20000000, 0xFFFFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+        mmu_map_l1_range(0x10000000, 0x10000000, 0xFFFFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+        mmu_map_l1_range(0x50000000, 0x50000000, 0xFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+        mmu_map_l1_range(0x50010000, 0x50010000, 0xFFFF, kStronglyOrdered, kShareable, kRWAccess); // More peripherals
+       
+        // Check whether SMP is enabled. If it is not, then we don't want to make SDRAM shareable.
+        uint32_t actlr = 0x0;
+        _ARM_MRC(15, 0, actlr, 1, 0, 1);
+        if (actlr & BM_ACTLR_SMP)
+        {
+            share_attr = kShareable;
+        }
+        else
+        {
+            share_attr = kNonshareable;
+        }
+    
 #if defined(CHIP_MX6DQ) || defined(CHIP_MX6SDL)
-    mmu_map_l1_range(0x10000000, 0x10000000, 0x80000000, kOuterInner_WB_WA, share_attr, kRWAccess); // 2GB DDR
+        mmu_map_l1_range(0x10000000, 0x10000000, 0x80000000, kOuterInner_WB_WA, share_attr, kRWAccess); // 2GB DDR
 #elif defined(CHIP_MX6SL)
-    mmu_map_l1_range(0x80000000, 0x80000000, 0x40000000, kOuterInner_WB_WA, share_attr, kRWAccess); // 1GB DDR
+        mmu_map_l1_range(0x80000000, 0x80000000, 0x40000000, kOuterInner_WB_WA, share_attr, kRWAccess); // 1GB DDR
 #else
 #error Unknown chip type!
 #endif
+    }
 
     mmu_enable();
 
@@ -168,6 +248,7 @@ void mmu_init()
     arm_dcache_enable();   
 
 }
+#endif
 
 void mmu_map_l1_range(uint32_t pa, uint32_t va, uint32_t length, mmu_memory_type_t memoryType, mmu_shareability_t isShareable, mmu_access_t access)
 {

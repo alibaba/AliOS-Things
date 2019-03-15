@@ -23,8 +23,8 @@
 #endif
 
 #include "radio.h"
-#include "gpio.h"
-#include "dac.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/dac.h"
 #include "clk.h"
 #include "audio_adc.h"
 #include "sys_app.h"

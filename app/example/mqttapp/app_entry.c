@@ -7,14 +7,13 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include <aos/aos.h>
-#include <aos/yloop.h>
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
+#include "aos/yloop.h"
+
 #include "netmgr.h"
 #include "app_entry.h"
 
-#ifdef AOS_ATCMD
-#include <atparser.h>
-#endif
 #ifdef CSP_LINUXHOST
 #include <signal.h>
 #endif
@@ -58,34 +57,32 @@ int application_start(int argc, char **argv)
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
-#if AOS_ATCMD
-    at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
-            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
-#endif
- 
 
 #ifdef TEST_LOOP
     argc = 2;
     argv = (char **)input_data;
-#endif    
+#endif
     entry_paras.argc = argc;
     entry_paras.argv = argv;
 
 #ifdef WITH_SAL
     sal_init();
 #endif
+
+#ifdef MDAL_MAL_ICA_TEST
+    HAL_MDAL_MAL_Init();
+#endif
+
     aos_set_log_level(AOS_LL_DEBUG);
 
     netmgr_init();
 
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
-#ifdef CONFIG_AOS_CLI
-
-#endif
     netmgr_start(false);
-
+#if defined (CSP_LINUXHOST) && !defined (WITH_SAL)
+    aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP,0);
+#endif
     aos_loop_run();
 
     return 0;

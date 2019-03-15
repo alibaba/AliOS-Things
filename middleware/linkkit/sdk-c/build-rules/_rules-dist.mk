@@ -1,5 +1,6 @@
 
 final-out: sub-mods
+ifneq (1,$(WITH_LCOV))
 ifneq (,$(COMP_LIB_NAME))
 	$(TOP_Q) \
 	if  [ ! -f $(SYSROOT_LIB)/lib$(COMP_LIB_NAME).a ] && \
@@ -24,12 +25,17 @@ endif
 	fi
 
 	$(TOP_Q) \
+	if [ "$$(ls $(FINAL_DIR)/lib/*.a 2>/dev/null)" != "" ]; then \
+	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.a 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.a failed!" || true); \
+	fi
+
+	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/bin/ 2>/dev/null)" != "" ]; then \
-	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" && exit 1); \
+	    $(STRIP) $(FINAL_DIR)/bin/* 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/bin/* failed!" || true); \
 	fi
 	$(TOP_Q) \
 	if [ "$$(ls $(FINAL_DIR)/lib/*.so 2>/dev/null)" != "" ]; then \
-	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.so 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.so failed!" && exit 1); \
+	    $(STRIP) $(STRIP_DBGOPT) $(FINAL_DIR)/lib/*.so 2>/dev/null || (echo "$(STRIP) $(FINAL_DIR)/lib/*.so failed!" || true); \
 	fi
 
 ifeq ($(strip $(HAS_POST_HOOK)), 1)
@@ -40,5 +46,6 @@ ifneq (,$(filter all,$(strip $(MAKECMDGOALS))))
 endif
 
 	$(TOP_Q)$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") \
-	    CFLAGS=$(CFLAGS) \
+	    CFLAGS=$(CFLAGS) SED=$(SED) \
 	    bash $(RULE_DIR)/scripts/gen_rom_stats.sh
+endif

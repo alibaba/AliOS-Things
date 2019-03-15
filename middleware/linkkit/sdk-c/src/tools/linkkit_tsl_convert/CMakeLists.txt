@@ -18,6 +18,8 @@ ADD_EXECUTABLE (linkkit_tsl_convert
 IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (linkkit_tsl_convert pthread)
 ENDIF (NOT MSVC)
+IF (NOT MSVC)
 TARGET_LINK_LIBRARIES (linkkit_tsl_convert rt)
+ENDIF (NOT MSVC)
 ENDIF (NOT WIN32)
 

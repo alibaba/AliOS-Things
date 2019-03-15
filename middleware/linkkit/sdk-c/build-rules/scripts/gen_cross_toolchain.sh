@@ -37,9 +37,15 @@ LOCAL_AR=${TOOLCHAIN_DLDIR}/${RELPATH}/${AR}
 # echo "[RELPATH]: ${RELPATH}"
 # echo "[GITPATH]: ${GITPATH}"
 
-which ${CC} > /dev/null
+which ${CC} > /dev/null 2>&1
 
 if [ $? != 0 ] && [ ! -f ${LOCAL_CC} ]; then
+
+    if [ "${GITPATH}" = "" ]; then
+        echo "Unable to find available toolchain of [${CC}] from local ENV or Internet. Abort!" | grep --color ".*"
+        echo ""
+        exit 1
+    fi
 
     echo -n "${GIT_PREFIX}/${GITPATH} -> "
     echo -n "$(basename ${OUTPUT_DIR})/$(basename ${TOOLCHAIN_DLDIR})/"
@@ -52,4 +58,5 @@ if [ $? != 0 ] && [ ! -f ${LOCAL_CC} ]; then
 
     waiting "$!" "downloading toolchain for ${CC}"
     cd ${OLDPWD}
+
 fi

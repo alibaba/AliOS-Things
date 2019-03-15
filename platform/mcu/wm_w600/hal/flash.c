@@ -3,7 +3,7 @@
  */
 
 //#include "platform_peripheral.h"
-#include "hal/soc/soc.h"
+#include "aos/hal/flash.h"
 #include "board.h"
 #include "wm_osal.h"
 #include "wm_internal_flash.h"

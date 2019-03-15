@@ -1,0 +1,31 @@
+config AOS_BOARD_PCA10056
+    bool "PCA10056"
+    select AOS_MCU_NRF52XXX
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_PCA10056
+# Configurations for board board_pca10056
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_BLE
+    bool
+    default y
+
+endif

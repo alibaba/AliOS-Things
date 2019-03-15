@@ -1,0 +1,10 @@
+config AOS_BOARD_FM33A0XX_DISCOVERY
+    bool "FM33A0XX_Discovery"
+    select AOS_MCU_FM33A0XX
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_FM33A0XX_DISCOVERY
+# Configurations for board fm33a0xx-discovery
+endif

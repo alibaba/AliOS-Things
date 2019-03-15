@@ -1,0 +1,10 @@
+config AOS_MCU_XR871
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu xr871
+
+if AOS_MCU_XR871
+# Configurations for mcu xr871
+endif

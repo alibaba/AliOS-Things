@@ -8,21 +8,19 @@
 #include "fsl_enet.h"
 #include "pin_mux.h"
  
-#include <aos/aos.h>
+#include "aos/kernel.h"
 #include <k_api.h>
 #include <aos/kernel.h>
-#include <aos/network.h>
+#include <network/network.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "hal/ota.h"
 
 #define AOS_START_STACK 1536
 
 ktask_t *g_aos_init;
 ktask_t *g_aos_app = NULL;
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 
 
 extern void hw_start_hal(void);
@@ -31,19 +29,19 @@ static void sys_init(void)
 {
     int i = 0;
 
-#ifdef BOOTLOADER
-
-#else
-#ifdef AOS_VFS
+#ifdef AOS_COMP_VFS
     vfs_init();
-    vfs_device_init();
 #endif
 
-#ifdef CONFIG_AOS_CLI
+#ifdef AOS_COMP_CLI
     aos_cli_init();
 #endif
 
-#ifdef AOS_KV
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
+
+#ifdef AOS_COMP_KV
     aos_kv_init();
 #endif
 
@@ -52,19 +50,13 @@ static void sys_init(void)
 #endif
 
 #ifdef AOS_LOOP
+    vfs_device_init();
     aos_loop_init();
 #endif
 
-#ifdef AOS_UOTA 
-    ota_service_init();
-#endif
-
-    aos_framework_init();
 	lwip_tcpip_init();
     application_start(0, NULL);	
-#endif
 }
-extern struct hal_ota_module_s hal_lpc54608_ota_module;
 static void platform_init(void)
 {
     uint32_t port_state = 0;
@@ -90,10 +82,6 @@ static void platform_init(void)
                                 DEVICE_ID1 register in SYSCON shows the device version.
                                 More details please refer to user manual and errata. */
     BOARD_InitDebugConsole();	
-#ifdef AOS_UOTA
-    hal_ota_register_module(&hal_lpc54608_ota_module);
-#endif
-	
 }
 
 
@@ -107,11 +95,10 @@ static void platform_init(void)
 #include <unistd.h>
 
 #include <k_api.h>
-#include <aos/log.h>
-#include <hal/soc/soc.h>
-#include <hal/soc/timer.h>
-#include <hal/base.h>
-#include <hal/ota.h>
+#include "ulog/ulog.h"
+
+#include "aos/hal/timer.h"
+#include "network/hal/base.h"
 
 #define TAG "hw"
 

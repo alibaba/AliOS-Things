@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <hal/base.h>
+#include "network/hal/base.h"
 #include <hal/wifi.h>
 #include <stdio.h>
 #include <sdio/mmcsd_card.h>
@@ -15,7 +15,7 @@
 #include "lwip/udp.h"
 #include "pthread.h"
 #include <fcntl.h>
-#include <sys/prctl.h>
+#include "posix_prctl.h"
 
 extern int sdio_wifi_init(unsigned int power_io);
 extern int32_t sdio_wifi_probe(struct rt_mmcsd_card *card);

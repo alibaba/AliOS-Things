@@ -1,0 +1,2 @@
+source "$SRCPATH/src/services/mdal/mal/Config.in"
+source "$SRCPATH/src/services/mdal/sal/Config.in"

@@ -54,6 +54,7 @@ SECTIONS
         LONG(LOADADDR(.data_RAM3));
         LONG(    ADDR(.data_RAM3));
         LONG(  SIZEOF(.data_RAM3));
+		. = ALIGN(4) ;
         __data_section_table_end = .;
         __bss_section_table = .;
         LONG(    ADDR(.bss));

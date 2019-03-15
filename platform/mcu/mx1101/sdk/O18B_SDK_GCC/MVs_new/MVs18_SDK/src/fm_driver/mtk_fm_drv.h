@@ -16,9 +16,9 @@ extern "C" {
 #include <string.h>
 #include "type.h"
 #include "app_config.h"
-#include "i2c.h"
+#include "aos/hal/i2c.h"
 #include "clk.h"
-#include "gpio.h"
+#include "aos/hal/gpio.h"
 #include "dev_detect_driver.h"
 
 typedef uint16_t uint16;

@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
+#ifdef UTILS_MD5
 
 
 #include <stdlib.h>
@@ -295,31 +295,4 @@ void utils_md5(const unsigned char *input, size_t ilen, unsigned char output[16]
     utils_md5_free(&ctx);
 }
 
-int8_t utils_hb2hex(uint8_t hb)
-{
-    hb = hb & 0xF;
-    return (int8_t)(hb < 10 ? '0' + hb : hb - 10 + 'a');
-}
-
-
-void utils_md5_hexstr(unsigned char input[16], unsigned char output[32])
-{
-    unsigned char idx = 0;
-    unsigned char output_char = 0;
-
-    for (idx = 0; idx < 16; idx++) {
-        if (((input[idx] >> 4) & 0x0F) <= 0x09) {
-            output_char = ((input[idx] >> 4) & 0x0F) + '0';
-        } else if (((input[idx] >> 4) & 0x0F) >= 0x0A) {
-            output_char = ((input[idx] >> 4) & 0x0F) + 'a' - 0x0A;
-        }
-        output[2 * idx] = output_char;
-
-        if (((input[idx]) & 0x0F) <= 0x09) {
-            output_char = ((input[idx]) & 0x0F) + '0';
-        } else if (((input[idx]) & 0x0F) >= 0x0A) {
-            output_char = ((input[idx]) & 0x0F) + 'a' - 0x0A;
-        }
-        output[2 * idx + 1] = output_char;
-    }
-}
+#endif

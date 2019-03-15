@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <timer.h>
+#include "aos/hal/timer.h"
 #include <bsp/yunos_bsp_errno.h>
 
 /**

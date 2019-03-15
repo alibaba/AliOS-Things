@@ -2,9 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
+#include "aos/init.h"
+#include "aos/kernel.h"
 #include <k_api.h>
-#include <aos/kernel.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "stm32f4xx.h"
@@ -18,7 +19,6 @@ ktask_t *g_aos_init;
 static kinit_t kinit;
 
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 extern void board_init(void);
 
 
@@ -49,7 +49,10 @@ static void sys_init(void)
     hw_start_hal();
 
     var_init();
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 #endif
 }
 

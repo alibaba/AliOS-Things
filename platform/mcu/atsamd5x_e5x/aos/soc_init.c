@@ -73,3 +73,18 @@ GETCHAR_PROTOTYPE
         return -1;
     }
 }
+
+/**
+ * @}
+ */ 
+
+/**
+ * @}
+ */ 
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+void stm32_soc_init(void)
+{
+}
+

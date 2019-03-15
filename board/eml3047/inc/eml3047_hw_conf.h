@@ -72,61 +72,45 @@ extern "C" {
 
 /* LORA I/O definition */
 
-#define RADIO_RESET_PORT                          GPIOB
-#define RADIO_RESET_PIN                           GPIO_PIN_0
+#define RADIO_RESET                               PB_0
 
-#define RADIO_MOSI_PORT                           GPIOB
-#define RADIO_MOSI_PIN                            GPIO_PIN_5
+#define RADIO_MOSI                                PB_5
 
-#define RADIO_MISO_PORT                           GPIOB
-#define RADIO_MISO_PIN                            GPIO_PIN_4
+#define RADIO_MISO                                PB_4
 
-#define RADIO_SCLK_PORT                           GPIOA
-#define RADIO_SCLK_PIN                            GPIO_PIN_5
+#define RADIO_SCLK                                PA_5
 
-#define RADIO_NSS_PORT                            GPIOA
-#define RADIO_NSS_PIN                             GPIO_PIN_4
+#define RADIO_NSS                                 PA_4
 
-#define RADIO_DIO_0_PORT                          GPIOB
-#define RADIO_DIO_0_PIN                           GPIO_PIN_6
+#define RADIO_DIO_0                               PB_6
 
-#define RADIO_DIO_1_PORT                          GPIOA
-#define RADIO_DIO_1_PIN                           GPIO_PIN_12
+#define RADIO_DIO_1                               PA_12
 
-#define RADIO_DIO_2_PORT                          GPIOA
-#define RADIO_DIO_2_PIN                           GPIO_PIN_11
+#define RADIO_DIO_2                               PA_11
 
-#define RADIO_DIO_3_PORT                          GPIOA
-#define RADIO_DIO_3_PIN                           GPIO_PIN_8
+#define RADIO_DIO_3                               PA_8
 
-#ifdef RADIO_DIO_4 
-#define RADIO_DIO_4_PORT                          GPIOA
-#define RADIO_DIO_4_PIN                           GPIO_PIN_9
+#ifdef RADIO_DIO_4
+#define RADIO_DIO_4                               PA_9
 #endif
 
-#ifdef RADIO_DIO_5 
-#define RADIO_DIO_5_PORT                          GPIOC
-#define RADIO_DIO_5_PIN                           GPIO_PIN_7
+#ifdef RADIO_DIO_5
+#define RADIO_DIO_5                               PC_7
 #endif
 
-//#define RADIO_TCXO_VCC_PORT                       GPIOA
-//#define RADIO_TCXO_VCC_PIN                        GPIO_PIN_12
 
-#define RADIO_ANT_SWITCH_PORT                     GPIOA
-#define RADIO_ANT_SWITCH_PIN                      GPIO_PIN_7
+#define RADIO_ANT_SWITCH                          PA_7
 
-#define BAT_LEVEL_PORT                            GPIOA
-#define BAT_LEVEL_PIN                             GPIO_PIN_4
+#define BAT_LEVEL                                 PA_4
 /*  SPI MACRO redefinition */
 
 #define SPI_CLK_ENABLE()                __HAL_RCC_SPI1_CLK_ENABLE()
 
-#define SPI1_AF                          GPIO_AF0_SPI1  
+#define SPI1_AF                          GPIO_AF0_SPI1
 
 /* ADC MACRO redefinition */
 
-#define BAT_LEVEL_PORT  GPIOA //CRF2
-#define BAT_LEVEL_PIN  GPIO_PIN_4
+#define BAT_LEVEL_PORT  PA_4 //CRF2
 #define ADC_READ_CHANNEL                 ADC_CHANNEL_4
 #define ADCCLK_ENABLE()                 __HAL_RCC_ADC1_CLK_ENABLE();
 #define ADCCLK_DISABLE()                __HAL_RCC_ADC1_CLK_DISABLE();
@@ -149,11 +133,9 @@ extern "C" {
 #define UARTX_FORCE_RESET()             LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_LPUART1)
 #define UARTX_RELEASE_RESET()           LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_LPUART1)
 
-#define UARTX_TX_PIN                    GPIO_PIN_2
-#define UARTX_TX_GPIO_PORT              GPIOA
+#define UARTX_TX_GPIO                   PA_0
 #define UARTX_TX_AF                     GPIO_AF6_LPUART1
-#define UARTX_RX_PIN                    GPIO_PIN_3
-#define UARTX_RX_GPIO_PORT              GPIOA
+#define UARTX_RX_GPIO                   PA_1
 #define UARTX_RX_AF                     GPIO_AF6_LPUART1
 
 /* Definition for USARTx's NVIC */

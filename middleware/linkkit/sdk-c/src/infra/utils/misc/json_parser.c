@@ -1,9 +1,7 @@
 /*
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
-
-
-
+#ifdef UTILS_JSON_PARSER
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -84,7 +82,7 @@ char *json_get_next_object(int type, char *str, char *str_end, char **key, int *
     }
 
     while (p_cPos && *p_cPos && p_cPos < str_end && iValueType > JNONE) {
-        if (iValueType == JBOOLEAN) {
+        if (iValueType == JBOOLEAN && NULL != p_cValue) {
             int     len = strlen(p_cValue);
 
             if ((*p_cValue == 't' || *p_cValue == 'T') && len >= 4
@@ -254,3 +252,4 @@ char *json_get_value_by_name_len(char *p_cJsonStr, int iStrLen, char *p_cName, i
     }
     return stNV.pV;
 }
+#endif

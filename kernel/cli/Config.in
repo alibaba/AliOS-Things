@@ -1,0 +1,78 @@
+menuconfig AOS_COMP_CLI
+    bool "Command-Line Interface"
+    select AOS_COMP_DEBUG
+    select AOS_COMP_ULOG
+    default n
+    help
+      command-line interface
+
+if AOS_COMP_CLI
+
+config CLI_CONFIG_MINIMUM_MODE
+    bool "Minimum Working Mode Support"
+    default n
+    help
+        This option enables the cli minimum working mode support.
+        saying "y" here is enabled the feature.
+        saying "n" here is disabled.
+        the default is "n"
+
+config CLI_CONFIG_INBUF_SIZE
+    int "Input buffer size (bytes)"
+    default 256
+    help
+        This option sets the input buffer size.
+        the value could be 32, 64, 128, 256, 512, 1024 ...
+        the default is 256.
+
+config CLI_CONFIG_OUTBUF_SIZE
+    int "Output buffer size (bytes)"
+    default 512
+    help
+        This option sets the output buffer size.
+        the value could be 128, 256, 512, 1024, 2048 ...
+        the default is 512.
+
+config CLI_CONFIG_MAX_COMMANDS
+    int "The maximum number of commands"
+    default 64
+    help
+        This option sets the maximum number of CLI commands.
+        the value could be 16, 32, ... 64, 88 ...
+        the default is 64.
+
+config CLI_CONFIG_MAX_ARG_NUM
+    int "The maximum number of command arguments"
+    default 16
+    help
+        This option sets the maximum number of command arguments.
+        the value could be 4, 6, 8, 16, 20 ...
+        the default is 16.
+
+config CLI_CONFIG_MAX_ONCECMD_NUM
+    int "The maximum number of commands in one line"
+    default 4
+    help
+        This option sets the maximum number of commands in one line.
+        the value could be 1, 2, 3, 4, 5 ...
+        the default is 4.
+
+config CLI_CONFIG_TASK_PRIORITY
+    int "The CLI task priority"
+    range 0 256
+    default 60
+    help
+        This option sets the CLI task priority.
+        the higher of the value, the lowest of the priority.
+        the default is 60.
+
+config CLI_CONFIG_TELNET_SUPPORT
+    bool "Telnet Support"
+    default n
+    help
+        This option enable the telnel support for Command-Line Interface module.
+        saying "y" here enables the feature.
+        saying "n" is disabled.
+        the default is "n"
+
+endif

@@ -2,7 +2,7 @@
 #include "aos/kernel.h"
 #include "k_api.h"
 #include "errno.h"
-#include "hal/soc/uart.h"
+#include "aos/hal/uart.h"
 #include "app_uart.h"
 #include "app_error.h"
 #include "nrf.h"
@@ -306,7 +306,7 @@ __INLINE void cpu_hardfault_handle(void)
 }
 
 
-
+#if (DEBUG_CONFIG_PANIC != 1)
 void HardFault_Handler(void)
 {
   //cpu_hardfault_handle();
@@ -315,7 +315,10 @@ void HardFault_Handler(void)
   {
   }
 }
+#endif
 
-
-
-
+#if defined(AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC == 1)
+void uart_reinit(void)
+{
+}
+#endif

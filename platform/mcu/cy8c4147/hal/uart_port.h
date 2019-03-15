@@ -10,7 +10,7 @@ extern "C" {
 
 /* USER CONFIGURABLE: Instance name of the UART component */
 #if(STDIO_UART == 0)
-#define CONSOLE_UART_INSTANCE      SCB0
+#define CONSOLE_UART_INSTANCE      UART_1
 #elif (STDIO_UART == 1)
 #define CONSOLE_UART_INSTANCE      SCB1    
 #elif (STDIO_UART == 2)
@@ -29,6 +29,7 @@ extern "C" {
 #define UART_FLAG_IMPL(a, b)    UART_FLAG_IMPL2(a, b)
 #define UART_FLAG_IMPL2(a, b)   a ## b
 
+#define UART_RX_QUEUE_SIZE  64
 typedef enum {
     UART0 = 0,
     UART1,
@@ -53,7 +54,10 @@ typedef struct {
 } uart_os_t;
 
 int default_UART_Init(void);
-
+void uart_put_char(int c);
+int32_t aos_uart_recv(void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout);
+int32_t aos_uart_send(void *data, uint32_t size, uint32_t timeout);
+#define UART_CONSOLE_SIZE 256
 #ifdef __cplusplus
 }
 #endif

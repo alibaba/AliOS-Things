@@ -138,7 +138,7 @@
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state>STM32L475VG	ST STM32L475VG</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>FPU2</name>

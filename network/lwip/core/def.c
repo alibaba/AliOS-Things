@@ -56,7 +56,7 @@
 
 #include "lwip/opt.h"
 #include "lwip/def.h"
-#include <aos/aos.h>
+#include "aos/kernel.h"
 
 
 #include <string.h>

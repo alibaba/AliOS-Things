@@ -1,14 +1,27 @@
-#include "k_dbg_api.h"
+#include <stdio.h>
+#include "k_api.h"
+#include "debug_api.h"
 #include "backtrace.h"
 #include "frxt/xtensa_api.h"
 
-extern int               ets_printf(const char *fmt, ...);
+//#define PANIC_PRINT     ets_printf
+#define PANIC_PRINT     printf
+
+extern int printf(const char *fmt, ...);
+extern int ets_printf(const char *fmt, ...);
+#if (DEBUG_CONFIG_PANIC > 0)
 extern volatile uint32_t g_crash_steps;
+#endif
 
 int print_str(const char *fmt, ...)
 {
     /* panic print do not need fmt parse(like %d etg) */
-    return ets_printf(fmt);
+    char prt_info[128];
+
+    strncpy(prt_info, fmt, sizeof(prt_info));
+    prt_info[127] = '\0';
+    
+    return PANIC_PRINT(prt_info);
 }
 
 void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
@@ -37,11 +50,11 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
                       "EXCCAUSE 0x        \n"
                       "EXCVADDR 0x        \n";
 
-    ets_printf("========== Regs info  ==========\n");
+    print_func("========== Regs info  ==========\n");
     for (x = 0; x < 21; x++) {
         k_int2str(regs[x + 1], &prt_info[20 * x + 11]);
     }
-    ets_printf(prt_info);
+    PANIC_PRINT(prt_info);
 }
 
 void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP)
@@ -69,20 +82,22 @@ int panicBacktraceCallee(char *PC, int *SP, char *LR,
 void xtensaPanic(void *context)
 {
     vPortETSIntrLock();
+    krhino_sched_disable();
+
+#if (DEBUG_CONFIG_PANIC > 0)
     if(g_crash_steps == 0x87654321) {
         while (1);
     }
 
     g_crash_steps++;
     if (g_crash_steps > 1) {
-        ets_printf("double exception occur!\n");
+        print_str("double exception occur!\n");
         context = NULL;
     }
 
-#if (RHINO_CONFIG_PANIC > 0)
     panicHandler(context);
 #else
-    ets_printf("exception occur!\n");
+    print_str("exception occur!\n");
     while (1)
         ;
 #endif

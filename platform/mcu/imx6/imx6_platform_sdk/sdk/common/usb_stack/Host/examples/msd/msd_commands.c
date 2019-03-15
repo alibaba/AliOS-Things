@@ -47,7 +47,7 @@ Include the USB stack header files.
 #include "usbevent.h"
 #include "msd_commands.h"
 #include "sci.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "poll.h"
 #include "hidef.h"
 #include "usb_host_msd_bo.h"

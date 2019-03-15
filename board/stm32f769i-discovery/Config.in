@@ -1,0 +1,23 @@
+config AOS_BOARD_B_F769
+    bool "STM32F769I-Discovery"
+    select AOS_MCU_STM32F7XX
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_B_F769
+# Configurations for board board_b_f769
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+endif

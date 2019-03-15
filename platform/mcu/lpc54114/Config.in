@@ -1,0 +1,11 @@
+config AOS_MCU_LPC54114IMPL
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu lpc54114impl
+
+if AOS_MCU_LPC54114IMPL
+# Configurations for mcu lpc54114impl
+endif

@@ -1,0 +1,10 @@
+config AOS_MCU_MX1101
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu MX1101
+
+if AOS_MCU_MX1101
+# Configurations for mcu MX1101
+endif

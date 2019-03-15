@@ -4,8 +4,14 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <aos/aos.h>
-#include <aos/network.h>
+
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
+#include "aos/yloop.h"
+
+#include "aos/hal/gpio.h"
+
+#include <network/network.h>
 #ifdef CONFIG_AOS_DDA
 #include <stdlib.h>
 #include <dda.h>
@@ -17,7 +23,7 @@
 
 #include "umesh.h"
 #include "umesh_hal.h"
-#include <hal/soc/soc.h>
+
 
 #ifdef MESHAPP_LIGHT_ENABLED
 static gpio_dev_t gpio_led;

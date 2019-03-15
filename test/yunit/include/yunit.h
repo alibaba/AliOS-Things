@@ -13,6 +13,18 @@ extern "C"
 {
 #endif
 
+#ifndef AOS_EXPORTX
+#define AOS_EXPORT(ret, fun, ...)
+#endif
+
+#ifndef AOS_COMPONENT_INIT
+#define AOS_COMPONENT_INIT(fun, ...)
+#endif
+
+#ifndef AOS_TESTCASE
+#define AOS_TESTCASE(fun, ...)
+#endif
+
 typedef void (*yunit_test_case_proc)(void);
 
 typedef struct {

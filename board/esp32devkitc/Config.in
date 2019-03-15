@@ -1,0 +1,62 @@
+config AOS_BOARD_ESP32DEVKITC
+    bool "ESP32DevKitc"
+    select AOS_MCU_ESP32
+    select AOS_COMP_KERNEL_INIT
+    help
+        **ESP32** is a single 2.4 GHz Wi-Fi-and-Bluetooth combo chip designed with the TSMC ultra-low-power 40 nm technology. It is designed to achieve the best power and RF performance, showing robustness, versatility and reliability in a wide variety of applications and power scenarios.
+
+if AOS_BOARD_ESP32DEVKITC
+# Configurations for board esp32devkitc
+
+config DEBUG_CONFIG_PANIC
+    bool "Enable debug panic feature"
+    default y
+    help
+        set to y if you want to enable panic debug feature when system crash happened,
+        default y
+
+config DEBUG_CONFIG_BACKTRACE
+    bool "Enable stack backtrace feature"
+    default y
+    help
+        set to y if you want to enable stack backtrace feature when system crash happened,
+        default y
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_ADC
+    bool
+    default y
+
+config BSP_SUPPORT_DAC
+    bool
+    default y
+
+config BSP_SUPPORT_PWM
+    bool
+    default y
+
+config BSP_SUPPORT_RTC
+    bool
+    default y
+
+config BSP_SUPPORT_WDG
+    bool
+    default y
+
+endif

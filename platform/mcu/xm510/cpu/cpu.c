@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <aos/types.h>
 #include <board.h>
 
 /**

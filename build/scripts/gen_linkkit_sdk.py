@@ -3,38 +3,33 @@
 
 import sys, os
 import shutil
+import re
+
+from copy_map import copy_map
 
 SDKNAME = "linkkit-sdk-c"
 
-compdirs = [
-    ['middleware/linkkit/sdk-c', ''],
-    ['middleware/uagent/uota', 'src/services/uota'],
-    ['utility/libc/compilers/armlibc', 'src/infra/stdc/armlibc'],
-    ['utility/libc/compilers/iar', 'src/infra/stdc/iarlibc'],
-]
+targetFilename= './out/export/linkkit-sdk-c/src/infra/system/guider.c'
+new_ip='10.10.10.10'
+replace_ip_rules = {
+    '10.125.3.189': new_ip,
+    '100.67.80.75': new_ip,
+    '106.15.166.168': new_ip,
+    '10.125.7.82': new_ip,
+}
 
-# Example file list
-examples = ['linkkitapp', 'linkkit_gateway', 'mqttapp', 'coapapp']
-example_files = []
+def replace(filename, replace_dict):
+        tmp_str = ""
+        with open(filename, 'r') as f:
+            for line in f:
+                for key in replace_dict:
+                    value = replace_dict[key]
+                    if re.search(key, line):
+                        line=re.sub(key, value, line)
+                tmp_str+=line
 
-for example in examples:
-    if example.startswith('linkkit'):
-        dist_example_dir = "linkkit"
-    elif example.startswith('mqtt'):
-        dist_example_dir = "mqtt"
-    elif example.startswith('coap'):
-        dist_example_dir = "coap"  
-
-    for filename in os.listdir('app/example/' + example):
-        if (filename.find('example') != -1 and filename.endswith('.c')):
-            src = os.path.join('app/example', example, filename)
-            dest = os.path.join('examples', dist_example_dir, filename)
-            example_files += [[src, dest]]
-        elif filename == "newapi" or filename == "data":
-	    for filename2 in os.listdir('app/example/' + example +"/" +filename):
-                src = os.path.join('app/example', example, filename, filename2)
-                dest = os.path.join('examples', dist_example_dir, filename, filename2)
-                example_files += [[src, dest]]
+        with open(filename, 'w') as of:
+            of.write(tmp_str)
 
 def main(argv):
     source_dir = os.path.abspath(sys.argv[1])
@@ -46,7 +41,7 @@ def main(argv):
         shutil.rmtree(sdk_dir)
 
     # Copy components to linkkit sdk dir
-    for src, dest in compdirs + example_files:
+    for src, dest in copy_map:
         tmp_src = os.path.join(source_dir, src)
         if dest:
             tmp_dest = os.path.join(build_dir, SDKNAME, dest)
@@ -62,6 +57,14 @@ def main(argv):
             shutil.copytree(tmp_src, tmp_dest)
         else:
             shutil.copyfile(tmp_src, tmp_dest)
+
+    # replace ip address
+    print("[INFO]: replace test information")
+    replace(targetFilename, replace_ip_rules)
+
+    # remove tests directory
+    print("[INFO]: remove %s" % os.path.join(build_dir, SDKNAME, "tests"))
+    shutil.rmtree(os.path.join(build_dir, SDKNAME, "tests"))
 
     # Generate tarball
     root_dir = build_dir

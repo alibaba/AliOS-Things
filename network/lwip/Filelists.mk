@@ -46,8 +46,7 @@ COREFILES=core/init.c \
 	core/tcp_in.c \
 	core/tcp_out.c \
 	core/timeouts.c \
-	core/udp.c \
-        core/af_packet.c
+	core/udp.c
 
 CORE4FILES=core/ipv4/autoip.c \
 	core/ipv4/dhcp.c \
@@ -154,7 +153,8 @@ HTTPDFILES=apps/httpd/fs.c \
 	apps/httpd/httpd.c
 
 # LWIPERFFILES: IPERF server
-LWIPERFFILES=apps/lwiperf/lwiperf.c
+LWIPERFFILES=apps/lwiperf/iperf_task.c \
+             apps/lwiperf/iperf_cli.c
 
 # SNTPFILES: SNTP client
 SNTPFILES=apps/sntp/sntp.c

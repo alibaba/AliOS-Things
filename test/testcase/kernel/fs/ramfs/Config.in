@@ -1,0 +1,5 @@
+config AOS_COMP_RAMFS_TEST
+    bool "RAMFS Testcase"
+    select AOS_COMP_RAMFS
+    default n
+    help

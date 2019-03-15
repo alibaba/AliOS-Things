@@ -1,0 +1,10 @@
+config AOS_MCU_MVS_AP80XX
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu mvs_ap80xx
+
+if AOS_MCU_MVS_AP80XX
+# Configurations for mcu mvs_ap80xx
+endif

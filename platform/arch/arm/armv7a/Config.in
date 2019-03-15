@@ -1,0 +1,8 @@
+config AOS_ARCH_ARMV7A
+    bool
+    help
+      arch for armv7a
+
+if AOS_ARCH_ARMV7A
+# Configurations for arch armv7a
+endif

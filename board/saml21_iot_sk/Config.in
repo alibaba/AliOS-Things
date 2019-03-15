@@ -1,0 +1,27 @@
+config AOS_BOARD_SAML21_IOT_SK
+    bool "SAML21_IOT_SK"
+    select AOS_MCU_ATSAML21
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_NETMGR
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    help
+
+if AOS_BOARD_SAML21_IOT_SK
+# Configurations for board saml21_iot_sk
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool
+    default y
+
+config BSP_EXTERNAL_WIFI_MODULE
+    string
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    default "wifi.mk3060"
+
+endif

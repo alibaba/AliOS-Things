@@ -1,0 +1,5 @@
+menu "Drivers     Configuration"
+
+source "drivers/sensor/Config.in"
+
+endmenu

@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <hal/base.h>
+#include "network/hal/base.h"
 #include <hal/wifi.h>
+
+#include "ulog/ulog.h"
 
 #include <stddef.h>
 #include "espressif/c_types.h"
@@ -240,9 +242,9 @@ bool ICACHE_FLASH_ATTR start_wifi_station(const char * ssid, const char * pass){
     }
     struct station_config config;
     memset(&config, 0, sizeof(struct station_config));
-    strcpy(config.ssid, ssid);
+    strncpy(config.ssid, ssid, sizeof(config.ssid));
     if(pass){
-        strcpy(config.password, pass);
+        strncpy(config.password, pass, sizeof(config.password));
     }
     if(!wifi_station_set_config(&config)){
         printf("Failed to set Station config!\n");

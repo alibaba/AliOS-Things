@@ -6,9 +6,15 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <aos/aos.h>
-#include <aos/network.h>
-#include <hal/hal.h>
+
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "aos/kv.h"
+#include "ulog/ulog.h"
+#include "aos/yloop.h"
+
+#include "network/network.h"
+#include "network/hal/wifi.h"
 
 #ifdef WITH_LWIP
 #include <lwip/priv/tcp_priv.h>
@@ -25,7 +31,7 @@
 #include "umesh.h"
 #endif
 
-#define TAG "netmgr"
+#define TAG "NETMGR_WIFI"
 
 #ifndef WIFI_SSID
 #define DEMO_AP_SSID "cisco-15A7"
@@ -55,7 +61,7 @@ typedef struct
     bool                         wifi_scan_complete_cb_finished;
 } netmgr_cxt_t;
 
-extern autoconfig_plugin_t g_alink_smartconfig;
+autoconfig_plugin_t g_alink_smartconfig;
 
 static netmgr_cxt_t g_netmgr_cxt;
 #ifndef WITH_SAL
@@ -78,7 +84,7 @@ static void format_ip(uint32_t ip, char *buf)
 {
     int i = 0;
 
-    unsigned char octet[4] = { 0, 0, 0, 0 };
+    uint8_t octet[4] = { 0, 0, 0, 0 };
 
     for (i = 0; i < 4; i++) {
         octet[i] = (ip >> ((3 - i) * 8)) & 0xFF;
@@ -174,7 +180,7 @@ static void ensure_different_seed(unsigned int *seed, seed_history_t *history)
         idx = (i + history->start_idx) % SEED_HISTORAY_MAX;
 
         if (history->hist[idx] == *seed) {
-            printf("Same seed found %d\r\n", history->hist[idx]);
+            LOGD(TAG, "Same seed found %d\r\n", history->hist[idx]);
             *seed = *seed + (unsigned int)aos_now();
         }
     }
@@ -210,11 +216,11 @@ static void dump_seed_history(seed_history_t *history)
     }
 
     for (i = 0; i < history->total_num; i++) {
-        printf("%d ",
+        LOGD(TAG, "%d ",
                history->hist[(history->start_idx + i) % SEED_HISTORAY_MAX]);
     }
 
-    printf("\r\n");
+    LOGD(TAG, "\r\n");
 #endif
 }
 #endif /* LOCAL_PORT_ENHANCED_RAND */
@@ -584,6 +590,7 @@ static void read_persistent_conf(void)
     get_wifi_ssid();
 }
 
+#ifdef AOS_COMP_CLI
 static void handle_netmgr_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     const char *rtype = argc > 1 ? argv[1] : "";
@@ -593,7 +600,10 @@ static void handle_netmgr_cmd(char *pwbuf, int blen, int argc, char **argv)
         if (argc != 4) {
             return;
         }
-
+#ifdef WIFI_PROVISION_ENABLED
+        extern int awss_stop(void);
+        awss_stop();
+#endif
         netmgr_ap_config_t config;
 
         strncpy(config.ssid, argv[2], sizeof(config.ssid) - 1);
@@ -610,6 +620,7 @@ static struct cli_command ncmd = {
     .help     = "netmgr [start|clear|connect ssid password]",
     .function = handle_netmgr_cmd,
 };
+#endif
 
 bool netmgr_get_ip_state()
 {
@@ -666,7 +677,10 @@ int netmgr_wifi_init(void)
     hal_wifi_module_t *module;
 
     aos_register_event_filter(EV_WIFI, netmgr_events_executor, NULL);
+
+#ifdef AOS_COMP_CLI
     aos_cli_register_command(&ncmd);
+#endif
 
     module = hal_wifi_get_default_module();
     memset(&g_netmgr_cxt, 0, sizeof(g_netmgr_cxt));
@@ -712,14 +726,50 @@ int netmgr_wifi_start(bool autoconfig)
     }
 #endif
 
-#ifndef CI_LINKKIT_TEST
     if (autoconfig) {
+#ifndef PREVALIDATE_TEST
         netmgr_wifi_config_start();
+#endif
         return 0;
     }
 
     start_mesh(false);
-#endif
 
     return -1;
 }
+
+#ifdef CONFIG_YWSS
+    static int smart_config_start(void)
+    {
+        extern int awss_start();
+        awss_start();
+        return 0;
+    }
+
+    static void smart_config_stop(void)
+    {
+        netmgr_ap_config_t config;
+        memset(&config, 0, sizeof(netmgr_ap_config_t));
+        netmgr_get_ap_config(&config);
+
+        if (strcmp(config.ssid, "adha") == 0 ||
+            strcmp(config.ssid, "aha") == 0) {
+            return;
+        }
+
+        LOGD(TAG, "%s %d\r\n", __func__, __LINE__);
+        // awss_stop();
+    }
+
+    static void smart_config_result_cb(int result, uint32_t ip)
+    {
+        aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0u);
+    }
+
+    autoconfig_plugin_t g_alink_smartconfig = {
+        .description      = "alink_smartconfig",
+        .autoconfig_start = smart_config_start,
+        .autoconfig_stop  = smart_config_stop,
+        .config_result_cb = smart_config_result_cb
+    };
+#endif

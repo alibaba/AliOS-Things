@@ -6,9 +6,11 @@
 #include <stdio.h>
 #include <errno.h>
 #include <k_api.h>
-#include <aos/aos.h>
-#include "hal/hal.h"
-#include "hal/soc/soc.h"
+
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
+
+#include "aos/hal/spi.h"
 
 #include "fsl_device_registers.h"
 #include "fsl_common.h"
@@ -24,10 +26,11 @@ int32_t hal_spi_init(spi_dev_t *spi)
 {
 	spi_master_config_t config;
 
-    if (!spi)
+    if (!spi) {
         return -ENODEV;
+    }
 
-	memset(&config, 0, sizeof(spi_master_config_t));
+    memset(&config, 0, sizeof(spi_master_config_t));
 
 	SPI_MasterGetDefaultConfig(&config);
 	config.phase = kSPI_ClockPhaseSecondEdge;

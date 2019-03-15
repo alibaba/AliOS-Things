@@ -54,26 +54,24 @@ unzip: config $(STAMP_BLD_VAR)
 	@echo ""
 
 cmake:
-	@$(MAKE) -s distclean
-	@$(MAKE) -s DEFAULT_BLD=$(RULE_DIR)/misc/config.generic.cmake config
-	@$(foreach V,$(filter-out CFLAGS,$(INFO_ENV_VARS)),$(V)="$($(V))") \
+	$(TOP_Q)$(MAKE) -s distclean
+	$(TOP_Q)$(MAKE) -s DEFAULT_BLD=$(RULE_DIR)/misc/config.generic.cmake config
+	$(TOP_Q)$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") CFLAGS=$(CFLAGS) \
 	    SEP_LIBS="$$(grep -m 1 '^COMP_LIB_FILES' $(STAMP_BLD_ENV) | cut -d' ' -f3-)" \
-	    CFLAGS=$(CFLAGS) \
-	    bash $(RULE_DIR)/scripts/gen_top_cmake.sh $(TOP_DIR)/CMakeLists.txt
-	@for D in $(ALL_SUB_DIRS); do \
+	    bash $(if $(TOP_Q),,-x) $(RULE_DIR)/scripts/gen_top_cmake.sh $(TOP_DIR)/CMakeLists.txt
+	$(TOP_Q)for D in $(ALL_SUB_DIRS); do \
 	    echo "+ $${D}"; \
 	    $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$${D} cmake; \
 	done
-	@echo ""
+	$(TOP_Q)echo ""
 
 one: COMP_LIB_OBJS = $(foreach V,$(COMP_LIB_COMPONENTS),$(foreach U,$(LIB_OBJS_$(V)),$(V)/$(U)))
 one:
-	@$(foreach V,$(filter-out CFLAGS,$(INFO_ENV_VARS)),$(V)="$($(V))") \
+	@$(foreach V,$(INFO_ENV_VARS),$(V)="$($(V))") CFLAGS=$(CFLAGS) \
 	    ALL_LIBS="$(strip $(foreach V,$(SUBDIRS),$(LIBA_TARGET_$(V))))" \
 	    ALL_PROG="$(strip $(foreach V,$(SUBDIRS),$(TARGET_$(V))))" \
-	    COMP_LIB_OBJS="$(foreach V,$(COMP_LIB_OBJS),$(OUTPUT_DIR)/$(V))" \
-	    CFLAGS=$(CFLAGS) \
-	    bash $(RULE_DIR)/scripts/gen_one_makefile.sh $(STAMP_ONE_MK)
+	    COMP_LIB_OBJS="$(COMP_LIB_OBJS)" \
+	    bash $(RULE_DIR)/scripts/gen_one_makefile.sh
 
 config:
 
@@ -139,42 +137,9 @@ toolchain:
 	@$(foreach V,$(DL_TOOLCHAIN_VARS),$(V)=$($(V))) \
 	    CC=$(shell basename $(CC)) \
 	    AR=$(shell basename $(AR)) \
-	    RELPATH=$$( $(call Relative_TcPath,$(shell basename $(CC))) ) \
-	    GITPATH=$$( $(call Gitrepo_TcPath,$(shell basename $(CC))) ) \
+	    RELPATH=` $(call Relative_TcPath,$(shell basename $(CC))) ` \
+	    GITPATH=` $(call Gitrepo_TcPath,$(shell basename $(CC))) ` \
 	    bash $(RULE_DIR)/scripts/gen_cross_toolchain.sh
-
-# toolchain: VSP_TARBALL = $(shell $(SHELL_DBG) basename $(CONFIG_TOOLCHAIN_RPATH))
-# toolchain: config
-# ifneq ($(CONFIG_TOOLCHAIN_NAME),)
-# ifeq (,$(CONFIG_TOOLCHAIN_RPATH))
-# 	@echo "Error! CONFIG_TOOLCHAIN_NAME defined, but CONFIG_TOOLCHAIN_RPATH undefined!" && exit 1
-# else
-# 	$(TOP_Q) \
-# ( \
-# 	if [ -e $(OUTPUT_DIR)/$(CONFIG_TOOLCHAIN_NAME) ]; then \
-# 	    exit 0; \
-# 	fi; \
-# \
-# 	if [ ! -d /tmp/$(CONFIG_TOOLCHAIN_NAME) -a -f /tmp/$(VSP_TARBALL) ]; then \
-# 	    echo "De-compressing Cached ToolChain ..." && \
-# 	    tar xf /tmp/$(VSP_TARBALL) -C /tmp; \
-# 	fi; \
-# 	if [ -d /tmp/$(CONFIG_TOOLCHAIN_NAME) ]; then \
-# 	    echo "Using Cached ToolChain ..." && \
-# 	    ln -sf /tmp/$(CONFIG_TOOLCHAIN_NAME) $(OUTPUT_DIR)/$(CONFIG_TOOLCHAIN_NAME); \
-# 	    exit 0; \
-# 	fi; \
-# \
-# 	echo "Downloading ToolChain ..." && \
-# 	wget -O $(OUTPUT_DIR)/$(VSP_TARBALL) $(CONFIG_VSP_WEBSITE)/$(CONFIG_TOOLCHAIN_RPATH) && \
-# 	echo "De-compressing ToolChain ..." && \
-# 	tar xf $(OUTPUT_DIR)/$(VSP_TARBALL) -C $(OUTPUT_DIR); \
-# 	cp -f $(OUTPUT_DIR)/$(VSP_TARBALL) /tmp; \
-# 	rm -rf /tmp/$(CONFIG_TOOLCHAIN_NAME); \
-# 	tar xf /tmp/$(VSP_TARBALL) -C /tmp; \
-# )
-# endif
-# endif
 
 reconfig: distclean
 	$(TOP_Q)+( \
@@ -185,13 +150,6 @@ reconfig: distclean
 	fi)
 	$(TOP_Q)rm -f $(STAMP_PRJ_CFG)
 
-
-#	for i in $(SUBDIRS) $(COMP_LIB_COMPONENTS); do \
-#	    if [ -d $(OUTPUT_DIR)/$${i} ]; then \
-#	        $(MAKE) --no-print-directory -C $(OUTPUT_DIR)/$${i} clean; \
-#	    fi \
-#	done
-
 clean:
 	$(TOP_Q) \
 
@@ -201,6 +159,7 @@ clean:
 	        $(COMPILE_LOG) \
 	        $(DIST_DIR)/* \
 	        $(STAMP_DIR) \
+	        $(STAMP_LCOV) \
 	        $(SYSROOT_INC)/* $(SYSROOT_LIB)/* $(SYSROOT_LIB)/../bin/* \
 	        $(shell $(SHELL_DBG) find $(OUTPUT_DIR) -name "$(COMPILE_LOG)" \
 	                             -or -name "$(WARNING_LOG)" \
@@ -212,14 +171,15 @@ clean:
 	                             -or -name "*.o" \
 	                             -or -name "*.d" \
 	                             -or -name "*.gc*" \
+	                             | grep -v '$(OUTPUT_DIR)/compiler' \
 	        2>/dev/null)
 
 distclean:
 	$(TOP_Q) \
 	rm -rf \
 	    $(CONFIG_TPL) $(COMPILE_LOG) \
-	    $(STAMP_PRJ_CFG) $(STAMP_BLD_ENV) $(STAMP_BLD_VAR) $(STAMP_POST_RULE) \
-	    $(DIST_DIR) $(STAMP_DIR) \
+	    $(STAMP_PRJ_CFG) $(STAMP_BLD_ENV) $(STAMP_BLD_VAR) $(STAMP_POST_RULE) $(STAMP_LCOV) \
+	    $(DIST_DIR) $(STAMP_DIR) *.gcda \
 
 	$(TOP_Q) \
 	if [ -d $(OUTPUT_DIR) ]; then \
@@ -231,3 +191,28 @@ distclean:
 	    fi \
 	fi
 
+
+COMMON_CONFIG_ENV = \
+    KCONFIG_CONFIG=mconf.config \
+    KCONFIG_AUTOCONFIG=$(OUTPUT_DIR)/auto.conf \
+    KCONFIG_AUTOHEADER=$(OUTPUT_DIR)/autoconf.h \
+
+menuconfig: prebuilt/ubuntu/bin/kconfig-mconf
+	$(TOP_Q)$(COMMON_CONFIG_ENV) $^ -s $(TOP_DIR)/Config.in $(if $(TOP_Q),2>/dev/null)
+	$(TOP_Q) \
+( \
+    if [ ! -f mconf.config ]; then exit 0; fi; \
+    \
+    sed -i 's:^CONFIG_:FEATURE_:g' mconf.config; \
+	sed -i 's:^# CONFIG_:# FEATURE_:g' mconf.config; \
+	cp -Lf mconf.config make.settings; \
+	rm -f mconf.config*; \
+)
+
+litesdk:
+	$(TOP_Q) \
+		$(MAKE) --no-print-directory distclean
+	$(TOP_Q) \
+		cp -f $(TOP_DIR)/build-rules/misc/config.mqtt.make $(TOP_DIR)/make.settings
+	$(TOP_Q) \
+		$(MAKE) --no-print-directory BUILD_LITE_SDK_MQTT=1

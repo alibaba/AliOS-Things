@@ -11,12 +11,13 @@
 // ----------- 8< ------------
 // Following includes are for the linux test build of spiffs
 // These may/should/must be removed/altered/replaced in your target
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
 #include <unistd.h>
-#include <aos/aos.h>
+#include "k_api.h"
 
 // ----------- >8 ------------
 
@@ -62,11 +63,11 @@ extern void _spiffs_unlock(struct spiffs_t *fs);
 //gravity lite use 512k for fs
 
 #if defined (CONFIG_MX108)
-#define CFG_SPIFFS_PHYS_SZ        (1024 * 256)
+#define CFG_SPIFFS_PHYS_SZ (1024 * 256)
 #elif defined(STM32L496xx)
-#define CFG_SPIFFS_PHYS_SZ (1024 * 128)
+#define CFG_SPIFFS_PHYS_SZ (1024 * 256)
 #else
-#define CFG_SPIFFS_PHYS_SZ        (1024 * 512)
+#define CFG_SPIFFS_PHYS_SZ (1024 * 512)
 #endif
 
 #endif
@@ -187,7 +188,7 @@ extern void _spiffs_unlock(struct spiffs_t *fs);
 // Enables/disable memory read caching of nucleus file system operations.
 // If enabled, memory area must be provided for cache in SPIFFS_mount.
 #ifndef  SPIFFS_CACHE
-#define SPIFFS_CACHE                    0
+#define SPIFFS_CACHE                    1
 #endif
 #if SPIFFS_CACHE
 // Enables memory write caching for file descriptors in hydrogen

@@ -11,7 +11,6 @@ src = Split('''
         hal/flash.c
         hal/misc.c
         hal/wifi_port.c
-        hal/ota_port.c
         hal/upgrade_lib.c
         bsp/driver/gpio.c
         bsp/driver/hw_timer.c
@@ -33,8 +32,7 @@ global_includes = Split('''
 local_includes = []
 
 dependencis = Split('''
-        middleware/common 
-        kernel/rhino/fs/kv 
+        kernel/fs/kv 
         utility/libc
         network/lwip
         security/alicrypto
@@ -71,7 +69,6 @@ global_ldflags = Split('''
 ''')
 
 global_macro = Split('''
-        CONFIG_AOS_KV_BUFFER_SIZE=8192
         CONFIG_ESP_LWIP
         XT_USE_THREAD_SAFE_CLIB=0
 ''')
@@ -105,7 +102,6 @@ else:
     dependencis.append('platform/arch/xtensa/lx106')
     src.append('aos/hook_impl.c')
     src.append('aos/soc_impl.c')
-    src.append('aos/trace_impl.c')
 
 component = aos_mcu_component('esp8266', 'xtensa-lx106-elf-', src)
 component.add_comp_deps(*dependencis)

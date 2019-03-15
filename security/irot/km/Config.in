@@ -1,0 +1,10 @@
+config AOS_COMP_LIBKM
+    bool "Root of trust, Soft-KM"
+    default n
+    select AOS_COMP_LS_HAL
+    select AOS_COMP_ALICRYPTO
+    help
+
+if AOS_COMP_LIBKM
+# Configurations for comp libkm
+endif

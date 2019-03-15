@@ -1,0 +1,11 @@
+config AOS_MCU_E310
+    bool
+    select AOS_ARCH_RISC_V32I
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu e310
+
+if AOS_MCU_E310
+# Configurations for mcu e310
+endif

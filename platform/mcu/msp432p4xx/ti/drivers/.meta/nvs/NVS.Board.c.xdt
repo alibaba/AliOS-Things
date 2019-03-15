@@ -1,0 +1,25 @@
+%%{
+    let NVS = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+    let Common = system.getScript("/ti/drivers/Common.js");
+    let family = Common.device2Family(system.deviceData);
+    let instances   = NVS.$instances;
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = NVS.defaultInstanceName + "COUNT";
+    let nvsIntBoardAttrs = system.getTemplate("NVS" + family + ".Board.attrs.xdt");
+    let nvsExtBoardAttrs = system.getTemplate("NVSSPI25X.Board.attrs.xdt");
+    let nvsRamBoardAttrs = system.getTemplate("NVSRAM.Board.attrs.xdt");
+    let nvsIntBoardConfig = system.getTemplate("NVS" + family + ".Board.config.xdt");
+    let nvsExtBoardConfig = system.getTemplate("NVSSPI25X.Board.config.xdt");
+    let nvsRamBoardConfig = system.getTemplate("NVSRAM.Board.config.xdt");
+%%}
+/*
+ *  =============================== NVS ===============================
+ */
+
+#include <ti/drivers/NVS.h>`nvsIntBoardAttrs(NVS)``nvsExtBoardAttrs(NVS)``nvsRamBoardAttrs(NVS)`
+#define `countDef` `instances.length`
+
+const NVS_Config NVS_config[`countDef`] = {
+`nvsIntBoardConfig(NVS)``nvsExtBoardConfig(NVS)``nvsRamBoardConfig(NVS)`};
+
+const uint_least8_t NVS_count = `countDef`;

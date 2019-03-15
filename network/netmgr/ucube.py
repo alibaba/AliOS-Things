@@ -4,7 +4,7 @@ src = Split('''
 component = aos_component('netmgr', src)
 
 dependencis = Split('''
-    kernel/rhino/fs/kv
+    kernel/fs/kv
     kernel/yloop
     kernel/hal
 ''')

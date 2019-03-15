@@ -8,11 +8,15 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <aos/network.h>
-#include <aos/aos.h>
+#include <network/network.h>
+
+#include "aos/errno.h"
+#include "aos/kernel.h"
+#include "aos/yloop.h"
+
 #include <netmgr.h>
 
-#include <aos/mbedtls_ssl.h>
+#include "mbedtls/mbedtls_ssl.h"
 #include "mbedtls/net_sockets.h"
 
 struct cookie {
@@ -232,7 +236,7 @@ static void handle_event(input_event_t *event, void *arg)
     aos_post_delayed_action(1000, app_delayed_action, arg);
 }
 
-int application_start(void)
+int application_start(int argc, char **argv)
 {
     struct cookie *cookie = aos_malloc(sizeof(*cookie));
     bzero(cookie, sizeof(*cookie));

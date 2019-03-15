@@ -85,6 +85,9 @@ static ip6_addr_t multicast_address;
 
 /* Static buffer to parse RA packet options (size of a prefix option, biggest option) */
 static u8_t nd6_ra_buffer[sizeof(struct prefix_option)];
+#ifdef CELLULAR_SUPPORT
+static u32_t nd6_tmr_count = 0;
+#endif
 
 /* Forward declarations. */
 static s8_t nd6_find_neighbor_cache_entry(const ip6_addr_t *ip6addr);
@@ -404,6 +407,13 @@ nd6_input(struct pbuf *p, struct netif *inp)
 
     /* If we are sending RS messages, stop. */
 #if LWIP_IPV6_SEND_ROUTER_SOLICIT
+#ifdef CELLULAR_SUPPORT
+    if(!ip6_addr_ismulticast(ip6_current_dest_addr()))
+    {
+        inp->rs_count = 0;
+    }
+    else
+#endif /* CELLULAR_SUPPORT */
     /* ensure at least one solicitation is sent */
     if ((inp->rs_count < LWIP_ND6_MAX_MULTICAST_SOLICIT) ||
         (nd6_send_rs(inp) == ERR_OK)) {
@@ -430,10 +440,16 @@ nd6_input(struct pbuf *p, struct netif *inp)
 
     /* Re-set default timer values. */
 #if LWIP_ND6_ALLOW_RA_UPDATES
-    if (ra_hdr->retrans_timer > 0) {
+#ifndef CELLULAR_SUPPORT
+    if (ra_hdr->retrans_timer > 0)
+#endif /* CELLULAR_SUPPORT */
+    {
       retrans_timer = lwip_htonl(ra_hdr->retrans_timer);
     }
-    if (ra_hdr->reachable_time > 0) {
+#ifndef CELLULAR_SUPPORT
+    if (ra_hdr->reachable_time > 0)
+#endif /* CELLULAR_SUPPORT */
+    {
       reachable_time = lwip_htonl(ra_hdr->reachable_time);
     }
 #endif /* LWIP_ND6_ALLOW_RA_UPDATES */
@@ -697,12 +713,18 @@ nd6_tmr(void)
       if (neighbor_cache[i].q != NULL) {
         nd6_send_q(i);
       }
+#ifdef CELLULAR_SUPPORT
+      if(neighbor_cache[i].counter.reachable_time != 0) {
+#endif /* CELLULAR_SUPPORT */
       if (neighbor_cache[i].counter.reachable_time <= ND6_TMR_INTERVAL) {
         /* Change to stale state. */
         neighbor_cache[i].state = ND6_STALE;
         neighbor_cache[i].counter.stale_time = 0;
       } else {
         neighbor_cache[i].counter.reachable_time -= ND6_TMR_INTERVAL;
+#ifdef CELLULAR_SUPPORT
+      }
+#endif /* CELLULAR_SUPPORT */
       }
       break;
     case ND6_STALE:
@@ -824,6 +846,7 @@ nd6_tmr(void)
     for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; ++i) {
       u8_t addr_state = netif_ip6_addr_state(netif, i);
       if (ip6_addr_istentative(addr_state)) {
+#ifndef CELLULAR_SUPPORT
         if ((addr_state & IP6_ADDR_TENTATIVE_COUNT_MASK) >= LWIP_IPV6_DUP_DETECT_ATTEMPTS) {
           /* No NA received in response. Mark address as valid. */
           netif_ip6_addr_set_state(netif, i, IP6_ADDR_PREFERRED);
@@ -843,6 +866,9 @@ nd6_tmr(void)
           /* @todo send max 1 NS per tmr call? enable return*/
           /*return;*/
         }
+#else
+          netif_ip6_addr_set_state(netif, i, IP6_ADDR_PREFERRED);
+#endif
       }
     }
   }
@@ -852,11 +878,18 @@ nd6_tmr(void)
   for (netif = netif_list; netif != NULL; netif = netif->next) {
     if ((netif->rs_count > 0) && (netif->flags & NETIF_FLAG_UP) &&
         (!ip6_addr_isinvalid(netif_ip6_addr_state(netif, 0)))) {
+#ifdef CELLULAR_SUPPORT
+      if(nd6_tmr_count % 8 != 0)
+        continue;
+#endif /* CELLULAR_SUPPORT */
       if (nd6_send_rs(netif) == ERR_OK) {
         netif->rs_count--;
       }
     }
   }
+#ifdef CELLULAR_SUPPORT
+  nd6_tmr_count++;
+#endif /* CELLULAR_SUPPORT */
 #endif /* LWIP_IPV6_SEND_ROUTER_SOLICIT */
 
 }
@@ -1029,12 +1062,16 @@ nd6_send_rs(struct netif *netif)
   err_t err;
   u16_t lladdr_opt_len = 0;
 
+#ifdef CELLULAR_SUPPORT
+    src_addr = netif_ip6_addr(netif, 0);
+#else
   /* Link-local source address, or unspecified address? */
   if (ip6_addr_isvalid(netif_ip6_addr_state(netif, 0))) {
     src_addr = netif_ip6_addr(netif, 0);
   } else {
     src_addr = IP6_ADDR_ANY6;
   }
+#endif
 
   /* Generate the all routers target address. */
   ip6_addr_set_allrouters_linklocal(&multicast_address);
@@ -1430,9 +1467,16 @@ nd6_new_router(const ip6_addr_t *router_addr, struct netif *netif)
     ip6_addr_set(&(neighbor_cache[neighbor_index].next_hop_address), router_addr);
     neighbor_cache[neighbor_index].netif = netif;
     neighbor_cache[neighbor_index].q = NULL;
+#ifdef CELLULAR_SUPPORT
+    neighbor_cache[neighbor_index].state = ND6_REACHABLE;
+    neighbor_cache[neighbor_index].counter.reachable_time = reachable_time;
+#else
     neighbor_cache[neighbor_index].state = ND6_INCOMPLETE;
+#endif /* CELLULAR_SUPPORT */
     neighbor_cache[neighbor_index].counter.probes_sent = 1;
+#ifndef CELLULAR_SUPPORT
     nd6_send_neighbor_cache_probe(&neighbor_cache[neighbor_index], ND6_SEND_FLAG_MULTICAST_DEST);
+#endif /* CELLULAR_SUPPORT */
   }
 
   /* Mark neighbor as router. */

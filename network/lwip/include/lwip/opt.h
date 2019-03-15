@@ -1157,6 +1157,27 @@
 #endif
 
 /**
+ * LWIP_TCP_SACK_OUT==1: TCP will support sending selective acknowledgements (SACKs).
+ */
+#if !defined LWIP_TCP_SACK_OUT || defined __DOXYGEN__
+#define LWIP_TCP_SACK_OUT               0
+#endif
+
+/**
+ * LWIP_TCP_MAX_SACK_NUM: The maximum number of SACK values to include in TCP segments.
+ * Must be at least 1, but is only used if LWIP_TCP_SACK_OUT is enabled.
+ * NOTE: Even though we never send more than 3 or 4 SACK ranges in a single segment
+ * (depending on other options), setting this option to values greater than 4 is not pointless.
+ * This is basically the max number of SACK ranges we want to keep track of.
+ * As new data is delivered, some of the SACK ranges may be removed or merged.
+ * In that case some of those older SACK ranges may be used again.
+ * The amount of memory used to store SACK ranges is LWIP_TCP_MAX_SACK_NUM * 8 bytes for each TCP PCB.
+ */
+#if !defined LWIP_TCP_MAX_SACK_NUM || defined __DOXYGEN__
+#define LWIP_TCP_MAX_SACK_NUM           4
+#endif
+
+/**
  * TCP_MSS: TCP Maximum segment size. (default is 536, a conservative default,
  * you might want to increase this.)
  * For the receive side, this MSS is advertised to the remote side
@@ -1805,7 +1826,11 @@
  * If LWIP_SO_RCVBUF is used, this is the default value for recv_bufsize.
  */
 #if !defined RECV_BUFSIZE_DEFAULT || defined __DOXYGEN__
+#ifdef CELLULAR_SUPPORT
+#define RECV_BUFSIZE_DEFAULT            0x7fffffff
+#else
 #define RECV_BUFSIZE_DEFAULT            INT_MAX
+#endif /* CELLULAR_SUPPORT */
 #endif
 
 /**
@@ -2191,7 +2216,9 @@
  * LWIP_IPV6_DUP_DETECT_ATTEMPTS=[0..7]: Number of duplicate address detection attempts.
  */
 #if !defined LWIP_IPV6_DUP_DETECT_ATTEMPTS || defined __DOXYGEN__
+#ifndef CELLULAR_SUPPORT
 #define LWIP_IPV6_DUP_DETECT_ATTEMPTS   1
+#endif
 #endif
 /**
  * @}
@@ -2302,7 +2329,11 @@
  * (neighbor solicit and router solicit)
  */
 #if !defined LWIP_ND6_MAX_MULTICAST_SOLICIT || defined __DOXYGEN__
+#ifdef CELLULAR_SUPPORT
+#define LWIP_ND6_MAX_MULTICAST_SOLICIT  6
+#else
 #define LWIP_ND6_MAX_MULTICAST_SOLICIT  3
+#endif /* CELLULAR_SUPPORT */
 #endif
 
 /**

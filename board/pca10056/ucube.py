@@ -24,5 +24,4 @@ global_macros =Split('''
 for i in global_macros:
     component.add_global_macros(i)
 
-supported_targets="helloworld"
-linux_only_targets="bluetooth.ble_bqb bluetooth.blemesh_srv hdlcapp.hdlcserver bluetooth.breezeapp bluetooth.bleadv bluetooth.blemesh helloworld_nocli wifihalapp bluetooth.blemesh_cli acapp nano bluetooth.bleperipheral"
+linux_only_targets="blink bluetooth.bleadv bluetooth.blemesh_tmall bluetooth.bleperipheral bluetooth.breezeapp helloworld modbus_demo udataapp yts"

@@ -24,7 +24,6 @@
 #include <csi_config.h>
 #include "drv_iic.h"
 #include "dw_iic.h"
-#include "soc.h"
 #include "csi_core.h"
 #include "string.h"
 

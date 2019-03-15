@@ -1,0 +1,19 @@
+config AOS_MCU_XM510
+    bool
+    select AOS_ARCH_ARMV7A
+    select AOS_COMP_LWIP
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_CRAMFS
+    select AOS_COMP_JFFS2
+    select AOS_COMP_CPLUSPLUS
+    select AOS_COMP_RAMFS
+    select AOS_COMP_RHINO
+    select AOS_COMP_OSAL_POSIX
+    select AOS_COMP_FATFS
+    select AOS_COMP_VFS
+    help
+      driver & sdk for platform/mcu xm510
+
+if AOS_MCU_XM510
+# Configurations for mcu xm510
+endif

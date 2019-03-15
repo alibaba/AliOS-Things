@@ -15,18 +15,19 @@
 #define SHA1_DIGEST_SIZE      (20)
 #define SHA256_DIGEST_SIZE    (32)
 
+#ifdef UTILS_MD5
 void utils_hmac_md5(const char *msg, int msg_len, char *digest, const char *key, int key_len);
+#endif
 
+#ifdef UTILS_SHA1
 void utils_hmac_sha1(const char *msg, int msg_len, char *digest, const char *key, int key_len);
 
 void utils_hmac_sha1_hex(const char *msg, int msg_len, char *digest, const char *key, int key_len);
+#endif
 
-void utils_hmac_sha1_raw(const char *msg, int msg_len, char *digest, const char *key, int key_len);
-
-void utils_hmac_sha1_base64(const char *msg, int msg_len, const char *key, int key_len, char *digest, int *digest_len);
-
-
+#ifdef UTILS_SHA256
 void utils_hmac_sha256(const char *msg, int msg_len, char *digest, const char *key, int key_len);
+#endif
 
 #endif
 

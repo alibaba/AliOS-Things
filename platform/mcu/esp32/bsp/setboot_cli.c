@@ -1,7 +1,12 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#include "aos/aos.h"
+
+#ifdef AOS_COMP_CLI
+
+#include "aos/cli.h"
+#include "aos/kernel.h"
+
 #include "esp_ota_ops.h"
 #include "esp_log.h"
 #include <string.h>
@@ -102,6 +107,9 @@ static int set_boot(int which)
 };
 
 int board_cli_init(void)
-{ 
+{
     return aos_cli_register_command(&boot_from_cmd);
 }
+
+#endif
+

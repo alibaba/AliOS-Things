@@ -4,7 +4,7 @@
 #ifndef RHINO_SMP_PORT_H
 #define RHINO_SMP_PORT_H
 
-
+#include "k_config.h"
 #if (RHINO_CONFIG_CPU_NUM > 1)
 #if (RHINO_CONFIG_USER_HOOK <= 0)
 #error RHINO_CONFIG_USER_HOOK > 0 is needed in smp for cpu_flag use in krhino_idle_pre_hook
@@ -21,13 +21,14 @@ extern void os_crosscore_int_init();
 
 /*smp sync*/
 /*wait all cores started*/
-void os_wait_allcore(void);
+//void k_wait_allcores(void);
 /*spin lock*/
 
+/*
 void cpu_spin_lock(kspinlock_t *lock);
-int32_t cpu_spin_unlock(kspinlock_t *lock);
-
-void unlock_spin(void);
+void cpu_spin_unlock(kspinlock_t *lock);
+*/
+void os_unlock_sys_spin(void);
 
 /*load other cores*/
 void os_load_slavecpu(void);

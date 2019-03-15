@@ -197,6 +197,7 @@ SECTIONS
 
 	PROVIDE (__HeapBase = __stack);
 	PROVIDE (heap_start = __HeapBase );
+	PROVIDE (end = heap_start );
 	
     __HeapLimit = ORIGIN(RAM) + LENGTH(RAM);
 	PROVIDE (heap_end = __HeapLimit);

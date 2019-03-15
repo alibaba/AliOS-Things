@@ -1,0 +1,23 @@
+config AOS_BOARD_XM510
+    bool "XM510"
+    select AOS_MCU_XM510
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_XM510
+# Configurations for board board_xm510
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+endif

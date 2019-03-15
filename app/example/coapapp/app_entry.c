@@ -7,14 +7,13 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include <aos/aos.h>
-#include <aos/yloop.h>
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
+#include "aos/yloop.h"
+
 #include "netmgr.h"
 #include "app_entry.h"
 
-#ifdef AOS_ATCMD
-#include <atparser.h>
-#endif
 #ifdef CSP_LINUXHOST
 #include <signal.h>
 #endif
@@ -56,12 +55,6 @@ int application_start(int argc, char **argv)
 #ifdef CSP_LINUXHOST
     signal(SIGPIPE, SIG_IGN);
 #endif
-#if AOS_ATCMD
-    at.set_mode(ASYN);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX,
-            AT_RECV_FAIL_POSTFIX, AT_SEND_DELIMITER, 1000);
-#endif
- 
 
 #ifdef TEST_LOOP
     argc = 6;
@@ -79,9 +72,6 @@ int application_start(int argc, char **argv)
 
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
-#ifdef CONFIG_AOS_CLI
-
-#endif
     netmgr_start(false);
 
     aos_loop_run();

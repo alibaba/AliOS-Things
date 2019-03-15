@@ -2,57 +2,76 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
+
 #ifdef AOS_ATCMD
 #include <atparser.h>
 #endif
 
-#include "athost_io.h"
-#include "athost.h"
+#include "athost_export.h"
+#include "athost_import.h"
 
 #define TAG "athostapp"
 
-static int at_read(char *outbuf, uint32_t len)
+int HAL_Athost_Read(char *outbuf, uint32_t len)
 {
     int ret = 0;
 
 #ifdef AOS_ATCMD
-    ret = at.parse(outbuf, len);
+    ret = at_read(outbuf, len);
 #endif
     return ret;
 }
 
-static int at_write(const char *header, const uint8_t *data, uint32_t len,
-                    const char *tailer)
+int HAL_Athost_Write(const char *header, const uint8_t *data, uint32_t len,
+                     const char *tailer)
 {
     int ret = 0;
 
 #ifdef AOS_ATCMD
-    ret = at.send_data_3stage_no_rsp(header, data, len, tailer);
+    if (!header) {
+        LOGE(TAG, "Invalid null header\n");
+        return -1;
+    }
+
+    if ((ret = at_send_no_reply(header, strlen(header), false)) != 0) {
+        LOGE(TAG, "uart send packet header failed");
+        return -1;
+    }
+
+    if (data && len) {
+        if ((ret = at_send_no_reply((char *)data, len, false)) != 0) {
+            LOGE(TAG, "uart send packet failed");
+            return -1;
+        }
+    }
+
+    if (tailer) {
+        if ((ret = at_send_no_reply(tailer, strlen(tailer), false)) != 0) {
+            LOGE(TAG, "uart send packet tailer failed");
+            return -1;
+        }
+    }
 #endif
 
     return ret;
 }
 
-static int at_handle_register_cb(const char              *prefix,
-                                 athost_atcmd_handle_cb_t fn)
+int HAL_Athost_HandleRegisterCb(const char              *prefix,
+                                athost_atcmd_handle_cb_t fn)
 {
     int ret = 0;
 
 #ifdef AOS_ATCMD
-    at.oob(prefix, NULL, 0, fn, NULL);
+    at_register_callback(prefix, NULL, 0, fn, NULL);
 #endif
 
     return ret;
 }
-
-athost_io_t athost_io = { .at_read               = at_read,
-                          .at_write              = at_write,
-                          .at_handle_register_cb = at_handle_register_cb };
 
 static void app_delayed_action(void *arg)
 {
@@ -64,14 +83,9 @@ static void app_delayed_action(void *arg)
 int application_start(int argc, char *argv[])
 {
 #ifdef AOS_ATCMD
-    at.set_mode(ASYN);
-    // mk3060: 4096 mk3165: 1024
-    at.set_worker_stack_size(4096);
-    at.init(AT_RECV_PREFIX, AT_RECV_SUCCESS_POSTFIX, AT_RECV_FAIL_POSTFIX,
-            AT_SEND_DELIMITER, 1000);
+    at_init();
 #endif
 
-    athost_io_register(&athost_io);
     athost_instance_init();
 
     LOG("NEW AT host server start!\n");

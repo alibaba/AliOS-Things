@@ -1,0 +1,19 @@
+config AOS_BOARD_LPCXPRESSO54018
+    bool "LPCXPRESSO54018"
+    select AOS_MCU_LPC54018IMPL
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_LPCXPRESSO54018
+# Configurations for board board_lpcxpresso54018
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+endif

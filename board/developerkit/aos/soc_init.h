@@ -43,41 +43,49 @@
 /* Includes ------------------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "hal/hal.h"
+#include "aos/hal/i2c.h"
+#include "aos/hal/gpio.h"
+#include "aos/hal/spi.h"
+#include "aos/hal/uart.h"
+
 #include "hal/hal_gpio_stm32l4.h"
 #include "hal/hal_i2c_stm32l4.h"
 #include "hal/hal_uart_stm32l4.h"
+
+#ifdef ARDUINO_SPI_I2C_ENABLED
+#include "hal/hal_spi_stm32l4.h"
+#endif
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
 
 typedef enum {
-	GPIO_ALS_INT,
-	GPIO_AUDIO_CTL,
-	GPIO_AUDIO_RST,
-	GPIO_AUDIO_WU,
-	GPIO_CAM_PD,
-	GPIO_CAM_RST,
-	GPIO_LED_1,
-	GPIO_LED_2,
-	GPIO_LED_3,
-	GPIO_KEY_1,
-	GPIO_KEY_2,
-	GPIO_KEY_3,
-	GPIO_LCD_DCX,
-	GPIO_LCD_PWR,
-	GPIO_LCD_RST,
-	GPIO_PCIE_RST,
-	GPIO_SECURE_CLK,
-	GPIO_SECURE_IO,
-	GPIO_SECURE_RST,
-	GPIO_SIM_DET,
-	GPIO_USB_PCIE_SW,
-	GPIO_WIFI_RST,
-	GPIO_WIFI_WU,
-	GPIO_ZIGBEE_INT,
-	GPIO_ZIGBEE_RST,
-	MAX_GPIO_NUM
+    GPIO_ALS_INT,
+    GPIO_AUDIO_CTL,
+    GPIO_AUDIO_RST,
+    GPIO_AUDIO_WU,
+    GPIO_CAM_PD,
+    GPIO_CAM_RST,
+    GPIO_LED_1,
+    GPIO_LED_2,
+    GPIO_LED_3,
+    GPIO_KEY_1,
+    GPIO_KEY_2,
+    GPIO_KEY_3,
+    GPIO_LCD_DCX,
+    GPIO_LCD_PWR,
+    GPIO_LCD_RST,
+    GPIO_PCIE_RST,
+    GPIO_SECURE_CLK,
+    GPIO_SECURE_IO,
+    GPIO_SECURE_RST,
+    GPIO_SIM_DET,
+    GPIO_USB_PCIE_SW,
+    GPIO_WIFI_RST,
+    GPIO_WIFI_WU,
+    GPIO_ZIGBEE_INT,
+    GPIO_ZIGBEE_RST,
+    MAX_GPIO_NUM
 } BOARD_GPIO;
 
 extern gpio_dev_t brd_gpio_table[];

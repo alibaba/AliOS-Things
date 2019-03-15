@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "aos/kernel.h"
-#include "hal/hal.h"
+
 
 #define PORT_UART0 0
 #define PORT_UART1 1
@@ -125,4 +125,4 @@
 }
 #endif
 
-#endif /* HAL_UART_START_H */
+#endif /* __HAL_UART_START_H */

@@ -281,6 +281,10 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 	obj->I2Cx = I2C_DEV_TABLE[i2c_idx].I2Cx;
 	
 	/* Set I2C Device Number */
+    if (obj->i2c_idx >= (sizeof(I2CInitDat)/sizeof(I2C_InitTypeDef))) {
+        return;
+    }
+
 	I2CInitDat[obj->i2c_idx].I2CIdx = i2c_idx;
 
 	/* Load I2C default value */
@@ -652,7 +656,7 @@ void i2c_reset(i2c_t *obj)
   */
 void i2c_restart_enable(i2c_t *obj)
 {
-    uint32_t i2cen;
+    uint32_t i2cen = 0;
 
 	if (obj->I2Cx->IC_ENABLE & BIT_CTRL_IC_ENABLE) {
 		I2C_Cmd(obj->I2Cx, DISABLE);
@@ -675,7 +679,7 @@ void i2c_restart_enable(i2c_t *obj)
   */
 void i2c_restart_disable(i2c_t *obj)
 {
-    uint32_t i2cen;
+    uint32_t i2cen = 0;
 
 	if (obj->I2Cx->IC_ENABLE & BIT_CTRL_IC_ENABLE) {
 		I2C_Cmd(obj->I2Cx, DISABLE);

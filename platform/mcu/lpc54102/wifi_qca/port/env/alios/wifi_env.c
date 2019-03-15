@@ -63,14 +63,14 @@ void *a_malloc(int32_t size, uint8_t id)
 A_STATUS a_mutex_init(A_MUTEX_T *pMutex)
 {
     assert(pMutex);
-    krhino_mutex_create(pMutex, "mutex");
-    if (NULL == pMutex)
+
+    if (krhino_mutex_create(pMutex, "mutex") == RHINO_SUCCESS)
     {
-        return A_ERROR;
+        return A_OK;
     }
     else
     {
-        return A_OK;
+        return A_ERROR;
     }
 }
 
@@ -106,8 +106,7 @@ A_STATUS a_mutex_release(A_MUTEX_T *pMutex)
 boolean a_is_mutex_valid(A_MUTEX_T *pMutex)
 {
     // FIXME: check owner of mutex
-    aos_mutex_is_valid(pMutex);
-    return true;
+    return aos_mutex_is_valid(pMutex);
 }
 
 A_STATUS a_mutex_delete(A_MUTEX_T *pMutex)
@@ -138,7 +137,9 @@ A_STATUS a_event_init(A_EVENT *pEvent, osa_event_clear_mode_t clearMode)
 
 A_STATUS a_event_clear(A_EVENT *pEvent, A_EVENT_FLAGS flagsToClear)
 {
+	A_STATUS ret = A_OK;
     assert(pEvent);
+	(void)ret;
 #if 0
     A_EVENT_FLAGS actl_flags = flagsToClear;
     if (pEvent->clearMode == kEventAutoClear) {
@@ -147,19 +148,28 @@ A_STATUS a_event_clear(A_EVENT *pEvent, A_EVENT_FLAGS flagsToClear)
         krhino_event_get(&pEvent->event, flagsToClear, RHINO_OR, &actl_flags, RHINO_NO_WAIT);
     }
 #else
+
     A_EVENT_FLAGS flag = ~flagsToClear;
-    krhino_event_set(&pEvent->event, flag, RHINO_AND);
+    ret = (A_STATUS)krhino_event_set(&pEvent->event, flag, RHINO_AND);
 #endif
-    return A_OK;
+	if(ret == A_OK){
+		return A_OK;
+	}
+
+    return A_ERROR;
 }
 
 A_STATUS a_event_set(A_EVENT *pEvent, A_EVENT_FLAGS flagsToSet)
 {
+	A_STATUS ret = A_OK;
     assert(pEvent);
 
-    krhino_event_set(&pEvent->event, flagsToSet, RHINO_OR);
+    ret = (A_STATUS)krhino_event_set(&pEvent->event, flagsToSet, RHINO_OR);
+	if(ret == A_OK){
+		return A_OK;
+	}
 
-    return A_OK;
+    return A_ERROR;
 }
 
 A_STATUS a_event_wait(

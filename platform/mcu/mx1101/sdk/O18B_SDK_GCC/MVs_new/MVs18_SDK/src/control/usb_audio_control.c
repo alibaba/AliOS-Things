@@ -17,7 +17,7 @@
 #include "nvm.h"
 #include "host_hcd.h"
 #include "dev_detect_driver.h"
-#include "dac.h"
+#include "aos/hal/dac.h"
 #include "audio_path.h"
 #include "clk.h"
 #include "pcm_fifo.h"

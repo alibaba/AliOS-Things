@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include <hal/soc/soc.h>
+#include "aos/hal/uart.h"
 #include <hal/wifi.h>
-#include <hal/ota.h>
-#include <aos/aos.h>
+
+#include "aos/init.h"
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
+
 #include <sdkconfig.h>
 
 #include <xtensa_api.h>
@@ -22,7 +25,10 @@ static kinit_t kinit = {
 
 static void app_entry(void *arg)
 {
-    aos_kernel_init(&kinit);
+    aos_components_init(&kinit);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 }
 
 #ifdef ENABLE_WIFI
@@ -47,7 +53,7 @@ static void initialise_wifi(void)
 #else
 static void initialise_wifi(void)
 {
-    
+
 }
 #endif
 
@@ -55,9 +61,8 @@ extern uart_dev_t uart_0;
 extern struct hal_ota_module_s esp32_yos_ota_module;
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
-extern void esp_dport_access_int_init(void);
+extern void dport_access_init_core_aos();
 extern void os_crosscore_int_init(void);
-extern void os_dport_access_int_init(void);
 /*wait another core start*/
 extern void os_load_slavecpu(void);
 extern void  rtc_isr(void *arg);
@@ -71,23 +76,17 @@ extern void os_set_int_muticore(int n);
 
 void app_main(void)
 {
-    
-    initialise_wifi();
-	hal_uart_init(&uart_0);
-
+    hal_uart_init(&uart_0);
     #if (RHINO_CONFIG_CPU_NUM > 1)
-    //esp_dport_access_int_init();
-    os_dport_access_int_init();
-    os_crosscore_int_init();
-
     /*modify all int vector in cpu0 for 2 cpu*/
-
     os_modify_int_handle(24,os_crosscore_isr);
-    
+
     /*wait another core start*/
     os_load_slavecpu();
-    
     #endif
+
+    initialise_wifi();
+
 #ifdef HCI_H4_NRF51822
     extern void nrf51822_h4_set_uart_config();
     nrf51822_h4_set_uart_config();
@@ -100,23 +99,10 @@ void app_main(void)
     extern void esp_bt_mesh_register(void);
     esp_bt_mesh_register();
 #endif
-    hal_ota_register_module(&esp32_yos_ota_module);
-    
-    #if (RHINO_CONFIG_CPU_NUM > 1)
 
-    aos_cli_init();
-    
-#ifdef OSAL_RHINO
-    extern void dumpsys_cli_init(void);
-    dumpsys_cli_init();
-#endif
-
-    #else
 #ifdef TINY_ENGINE
     aos_task_new("main", app_entry, 0, 8192+4096+2048);
 #else
     aos_task_new("main", app_entry, 0, 8192);
 #endif
-    #endif    
-
 }

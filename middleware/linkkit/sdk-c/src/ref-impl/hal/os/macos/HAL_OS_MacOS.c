@@ -109,11 +109,6 @@ void HAL_Free(_IN_ void *ptr)
     free(ptr);
 }
 
-void HAL_Reboot(void)
-{
-    reboot(0);
-}
-
 #if defined(__MACH__) && !defined(CLOCK_REALTIME)
 
 #include <sys/time.h>
@@ -231,12 +226,6 @@ char *HAL_GetChipID(_OU_ char cid_str[HAL_CID_LEN])
     return cid_str;
 }
 
-int HAL_GetDeviceID(_OU_ char device_id[DEVICE_ID_MAXLEN])
-{
-    HAL_Snprintf(device_id, DEVICE_ID_MAXLEN, "%s.%s", DEMO_CASE_PRODUCT_KEY, DEMO_CASE_DEVICE_NAME);
-    return strlen(device_id);
-}
-
 int HAL_GetDeviceName(_OU_ char device_name[DEVICE_NAME_MAXLEN])
 {
     HAL_Snprintf(device_name, DEVICE_NAME_MAXLEN, "%s", DEMO_CASE_DEVICE_NAME);
@@ -261,7 +250,7 @@ int HAL_SetDeviceSecret(_IN_ char device_secret[DEVICE_SECRET_MAXLEN])
     return strlen(DEMO_CASE_DEVICE_SECRET);
 }
 
-int HAL_GetFirmwareVesion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
+int HAL_GetFirmwareVersion(_OU_ char version[FIRMWARE_VERSION_MAXLEN])
 {
     memset(version, 0x0, FIRMWARE_VERSION_MAXLEN);
     strncpy(version, "1.0", FIRMWARE_VERSION_MAXLEN);
@@ -294,6 +283,11 @@ int HAL_SetProductSecret(_IN_ char product_secret[PRODUCT_SECRET_MAXLEN])
     strncpy(DEMO_CASE_PRODUCT_SECRET, product_secret, PRODUCT_SECRET_MAXLEN - 1);
     DEMO_CASE_PRODUCT_SECRET[PRODUCT_SECRET_MAXLEN - 1] = '\0';
     return strlen(DEMO_CASE_PRODUCT_SECRET);
+}
+
+int HAL_Awss_Get_Conn_Encrypt_Type()
+{
+    return 4;
 }
 
 
@@ -484,10 +478,10 @@ int HAL_Config_Read(char *buffer, int length)
 }
 
 #define REBOOT_CMD "reboot"
-void HAL_Sys_reboot(void)
+void HAL_Reboot(void)
 {
     if (system(REBOOT_CMD)) {
-        perror("HAL_Sys_reboot failed");
+        perror("HAL_Reboot failed");
     }
 }
 
@@ -650,5 +644,39 @@ void HAL_UTC_Set(long long ms)
 long long HAL_UTC_Get(void)
 {
     return 0;
+}
+
+void *HAL_Timer_Create(const char *name, void (*func)(void *), void *user_data)
+{
+    return NULL;
+}
+
+int HAL_Timer_Start(void *timer, int ms)
+{
+    return 0;
+}
+
+int HAL_Timer_Stop(void *timer)
+{
+    return 0;
+}
+
+int HAL_Timer_Delete(void *timer)
+{
+    return 0;
+}
+
+int HAL_GetNetifInfo(char *nif_str)
+{
+    memset(nif_str, 0x0, NIF_STRLEN_MAX);
+#ifdef __DEMO__
+    /* if the device have only WIFI, then list as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    const char *net_info = "WiFi|03ACDEFF0032";
+    strncpy(nif_str, net_info, strlen(net_info));
+    /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
+    // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
+    // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
+#endif
+    return strlen(nif_str);
 }
 

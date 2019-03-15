@@ -6,10 +6,14 @@
 * Update date: 2018-9-8 
 */
 
-#include <aos/aos.h>
+#include <stdint.h>
+
+#include "aos/errno.h"
+#include "aos/kernel.h"
+
 #define gpio_dev_t aos_gpio_dev_t
 #define gpio_config_t aos_gpio_config_t
-#include <hal/soc/gpio.h>
+#include "aos/hal/gpio.h"
 #undef gpio_dev_t
 #undef gpio_config_t
 

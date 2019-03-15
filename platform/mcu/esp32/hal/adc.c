@@ -4,11 +4,10 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <aos/aos.h>
-#include <hal/soc/adc.h>
+#include "aos/kernel.h"
+#include "aos/hal/adc.h"
 #include "driver/adc.h"
 #include "soc/soc.h"
-
 
 typedef struct adc_obj{
 	uint32_t port;

@@ -22,11 +22,12 @@
  * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
  *
  */
-#include <aos/aos.h>
-#include <aos/kernel.h>
+
+#include "aos/init.h"
+#include "aos/kernel.h"
 #include "atmel_start.h"
 #include <k_api.h>
-#include <hal/soc/soc.h>
+
 #include <hal/wifi.h>
 
 #define AOS_START_STACK 1536
@@ -55,12 +56,11 @@ static void sys_init(void)
     hal_wifi_register_module(&aos_wifi_module_mk3060);
     hal_wifi_init();
 #endif
+    aos_components_init(&kinit);
 
-    hal_ota_register_module(&aos_ota_module_atsamd5x_e5x);
-
-    aos_kernel_init(&kinit);
-
-    application_start(0, NULL);
+#ifndef AOS_BINS
+    application_start(kinit.argc, kinit.argv);  /* jump to app/example entry */
+#endif
 }
 
 int main(void)

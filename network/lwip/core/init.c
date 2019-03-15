@@ -167,6 +167,12 @@ PACK_STRUCT_END
 #if (LWIP_TCP && TCP_LISTEN_BACKLOG && ((TCP_DEFAULT_LISTEN_BACKLOG < 0) || (TCP_DEFAULT_LISTEN_BACKLOG > 0xff)))
   #error "If you want to use TCP backlog, TCP_DEFAULT_LISTEN_BACKLOG must fit into an u8_t"
 #endif
+#if (LWIP_TCP && LWIP_TCP_SACK_OUT && !TCP_QUEUE_OOSEQ)
+#error "To use LWIP_TCP_SACK_OUT, TCP_QUEUE_OOSEQ needs to be enabled"
+#endif
+#if (LWIP_TCP && LWIP_TCP_SACK_OUT && (LWIP_TCP_MAX_SACK_NUM < 1))
+#error "LWIP_TCP_MAX_SACK_NUM must be greater than 0"
+#endif
 #if (LWIP_NETIF_API && (NO_SYS==1))
   #error "If you want to use NETIF API, you have to define NO_SYS=0 in your lwipopts.h"
 #endif

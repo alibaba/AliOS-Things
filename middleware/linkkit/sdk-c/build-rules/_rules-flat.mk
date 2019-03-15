@@ -42,7 +42,7 @@ ifeq (dynamic,$(strip $(CONFIG_LIB_EXPORT)))
 CFLAGS  += -fPIC
 endif
 
-# CFLAGS  := $(sort $(strip $(CFLAGS)))
+#CFLAGS  := $(sort $(strip $(CFLAGS)))
 
 LDFLAGS += -L$(SYSROOT_LIB)
 ifeq (y,$(shell [ -e $(TOP_DIR)/$(IMPORT_VDRDIR)/$(PREBUILT_LIBDIR) ] && echo y))

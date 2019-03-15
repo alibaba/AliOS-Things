@@ -3,26 +3,24 @@
  * This file is part of RT-Thread RTOS
  * COPYRIGHT (C) 2006, RT-Thread Development Team
  *
- *  This program is aos_free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the aos_free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the License); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the aos_free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include <k_api.h>
 #include <aos/kernel.h>
 #include <assert.h>
 #include "mmcsd_core.h"
-#include "sd.h"
+#include "aos/hal/sd.h"
 #include "mmc.h"
 #include "sdio.h"
 
@@ -542,7 +540,7 @@ uint32_t mmcsd_select_voltage(struct rt_mmcsd_host *host, uint32_t ocr)
 
 static void mmcsd_power_up(struct rt_mmcsd_host *host)
 {
-    int bit = fls(host->valid_ocr) - 1;
+    int bit = find_last_bit(host->valid_ocr) - 1;
 
     host->io_cfg.vdd = bit;
     if (controller_is_spi(host))

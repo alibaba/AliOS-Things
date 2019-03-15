@@ -44,9 +44,10 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-#include "aos/aos.h"
+#include "aos/kernel.h"
+#include "aos/yloop.h"
 #include <k_api.h>
-#include "aos/network.h"
+#include "network/network.h"
 #include <lwip/tcpip.h>
 #include "netif/etharp.h"
 
@@ -66,11 +67,6 @@
 #define IFNAME0 's'
 #define IFNAME1 't'
 
-typedef struct {
-    ip4_addr_t ip;
-    ip4_addr_t netmask;
-    ip4_addr_t gw;
-} tcpip_ip_info_t;
 
 
 /* Private macro -------------------------------------------------------------*/
@@ -460,6 +456,19 @@ err_t ethernetif_init(struct netif *netif)
   return ERR_OK;
 }
 
+void post_ip_addr(tcpip_ip_info_t ip)
+{
+    /* post ip, mask and gateway in dhcp mode */
+    printf("************************************************** \r\n");
+    printf("DHCP Enable \r\n");
+    printf("ip = %s \r\n", ip4addr_ntoa(&eth_ip_info.ip));
+    printf("mask = %s \r\n", ip4addr_ntoa(&eth_ip_info.netmask));
+    printf("gateway = %s \r\n", ip4addr_ntoa(&eth_ip_info.gw));
+    printf("************************************************** \r\n");
+
+}
+
+
 static void tcpip_dhcpc_cb(struct netif *pstnetif)
 {
     long long ts = aos_now();
@@ -475,8 +484,13 @@ static void tcpip_dhcpc_cb(struct netif *pstnetif)
             ip4_addr_set(&eth_ip_info.ip, ip_2_ip4(&pstnetif->ip_addr));
             ip4_addr_set(&eth_ip_info.netmask, ip_2_ip4(&pstnetif->netmask));
             ip4_addr_set(&eth_ip_info.gw, ip_2_ip4(&pstnetif->gw));
-            printf("post got ip event ,ip is 0x%x \r\n", eth_ip_info.ip.addr);
+
+            /* post the dhcp ip address */
+            post_ip_addr(eth_ip_info);
+
+#ifdef AOS_LOOP
             aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0xdeaddead);
+#endif
         }
     }
     return;
@@ -498,6 +512,7 @@ err_t tcpip_dhcpc_start(struct netif *pstnetif)
     }
 
     netif_set_status_callback(pstnetif, tcpip_dhcpc_cb);
+    return 0;
 }
 
 static void tcpip_init_done(void *arg)
@@ -521,13 +536,12 @@ static void tcpip_init_done(void *arg)
     netif_set_default(&lwip_netif);
     netif_set_up(&lwip_netif);
     tcpip_dhcpc_start(&lwip_netif);
+    LOG("TCP/IP initialized.");
 }
 
 int lwip_tcpip_init(void)
 {
-    tcpip_init(NULL, NULL);
-    tcpip_init_done(NULL);
-    LOG("TCP/IP initialized.");
+    tcpip_init(tcpip_init_done, NULL);
 
     return 0;
 }

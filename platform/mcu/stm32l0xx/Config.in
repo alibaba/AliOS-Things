@@ -1,0 +1,10 @@
+config AOS_MCU_STM32L0XX
+    bool
+    select AOS_ARCH_ARMV6M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu stm32l0xx
+
+if AOS_MCU_STM32L0XX
+# Configurations for mcu stm32l0xx
+endif

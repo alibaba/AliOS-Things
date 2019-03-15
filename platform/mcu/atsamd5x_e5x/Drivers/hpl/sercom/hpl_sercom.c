@@ -1125,14 +1125,19 @@ int32_t _i2c_m_async_disable(struct _i2c_m_async_device *const i2c_dev)
 int32_t _i2c_m_async_set_baudrate(struct _i2c_m_async_device *const i2c_dev, uint32_t clkrate, uint32_t baudrate)
 {
 	uint32_t tmp;
+    int8_t idx = 0;
 	void *   hw = i2c_dev->hw;
 
 	if (hri_sercomi2cm_get_CTRLA_ENABLE_bit(hw)) {
 		return ERR_DENIED;
 	}
 
-	tmp     = _get_i2cm_index(hw);
-	clkrate = _i2cms[tmp].clk / 1000;
+	idx     = _get_i2cm_index(hw);
+    if (idx < 0) {
+        return ERR_INVALID_ARG;
+    }
+
+	clkrate = _i2cms[idx].clk / 1000;
 
 	if (i2c_dev->service.mode == I2C_STANDARD_MODE) {
 		tmp = (uint32_t)((clkrate - 10 * baudrate - baudrate * clkrate * (i2c_dev->service.trise * 0.000000001))
@@ -1414,14 +1419,19 @@ int32_t _i2c_m_sync_disable(struct _i2c_m_sync_device *const i2c_dev)
 int32_t _i2c_m_sync_set_baudrate(struct _i2c_m_sync_device *const i2c_dev, uint32_t clkrate, uint32_t baudrate)
 {
 	uint32_t tmp;
+    int8_t idx = 0;
 	void *   hw = i2c_dev->hw;
 
 	if (hri_sercomi2cm_get_CTRLA_ENABLE_bit(hw)) {
 		return ERR_DENIED;
 	}
 
-	tmp     = _get_i2cm_index(hw);
-	clkrate = _i2cms[tmp].clk / 1000;
+	idx     = _get_i2cm_index(hw);
+    if (idx < 0) {
+        return ERR_INVALID_ARG;
+    }
+
+	clkrate = _i2cms[idx].clk / 1000;
 
 	if (i2c_dev->service.mode == I2C_STANDARD_MODE) {
 		tmp = (uint32_t)((clkrate - 10 * baudrate - baudrate * clkrate * (i2c_dev->service.trise * 0.000000001))
@@ -1604,7 +1614,11 @@ static inline void _i2c_m_enable_implementation(void *const hw)
 
 static int32_t _i2c_m_sync_init_impl(struct _i2c_m_service *const service, void *const hw)
 {
-	uint8_t i = _get_i2cm_index(hw);
+	int8_t i = _get_i2cm_index(hw);
+
+    if (i < 0) {
+        return -1;
+    }
 
 	if (!hri_sercomi2cm_is_syncing(hw, SERCOM_I2CM_SYNCBUSY_SWRST)) {
 		uint32_t mode = _i2cms[i].ctrl_a & SERCOM_I2CM_CTRLA_MODE_Msk;

@@ -308,8 +308,8 @@ class base_process_impl(process):
         aos_global_config.aos_env.Append(CPPDEFINES='BUILD_BIN')
         
         #temporarily add include path aos.h need
-        aos_global_config.component_includes.append('#kernel/rhino/fs/kv/include')
-        aos_global_config.component_includes.append('#kernel/yloop/include')
+        aos_global_config.component_includes.append('#kernel/fs/kv/include')
+        aos_global_config.component_includes.append('#network/yloop/include')
         aos_global_config.component_includes.append('#network/include')
 
 def pre_config(config):
@@ -396,7 +396,7 @@ class dependency_process_impl(process):
 
         testcase_file = os.path.join(auto_component_dir,'testcase_register.c')
         source_codes = "/*\n * warning: testcase collection code is auto generate, please don't change!!!\n */\n\n"
-        source_codes += "#include <aos/aos.h>\n\n"
+        source_codes += "#include \"aos/kernel.h\"\n\n"
 
         for function_name in test_function:
             source_codes +=  "extern void %s(void);\n"%(function_name)
@@ -530,7 +530,14 @@ class ide_transfer_process_impl(process):
             exit(-1)
 
         buildstring = self.config.app + '@' + self.config.board
-        proj_gen_dir = 'projects/autogen/'+buildstring+'/'+self.config.ide+'_project'
+
+        if self.config.ide == 'iar':
+            proj_gen_dir = 'projects/IAR/'+buildstring+'/'+self.config.ide+'_project'
+        elif self.config.ide == 'keil':
+            proj_gen_dir = 'projects/Keil/'+buildstring+'/'+self.config.ide+'_project'
+        else:
+            pass
+
         transfer_cmd = 'python build/scripts/'+self.config.ide+'.py ' + buildstring
         opts_dir = proj_gen_dir+'/opts'
 

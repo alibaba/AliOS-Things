@@ -1,0 +1,11 @@
+config AOS_MCU_MKL28Z7IMPL
+    bool
+    select AOS_ARCH_ARMV6M
+    select AOS_COMP_RHINO
+    select AOS_COMP_NEWLIB_STUB
+    help
+      driver & sdk for platform/mcu mkl28z7impl
+
+if AOS_MCU_MKL28Z7IMPL
+# Configurations for mcu mkl28z7impl
+endif

@@ -4,9 +4,44 @@
 
 #include "iotx_log_internal.h"
 
-static log_client   logcb;
-static char *       lvl_names[] = {
-    "emg", "crt", "err", "wrn", "inf", "dbg",
+
+
+/* 31, red. 32, green. 33, yellow. 34, blue. 35, magenta. 36, cyan. 37, white. */
+char *lvl_color[] = {
+    "[0m", "[1;31m", "[1;31m", "[1;35m", "[1;33m", "[1;36m", "[1;37m"
+};
+
+#ifdef BUILD_AOS 
+#include "ulog/ulog.h"
+
+
+static uint8_t stop_filter_level = LOG_NONE;
+int LITE_get_loglevel(void)
+{
+    return (int)stop_filter_level;
+}
+
+void LITE_set_loglevel(int pri)
+{
+    aos_log_level_t level = (aos_log_level_t)pri;
+    stop_filter_level = (uint8_t)pri;
+    if(pri > 0 && pri < 4) {
+        level += 1;
+    }else if(pri >= 4) {
+        level += 2;
+    }
+    aos_set_log_level(level);
+}
+#else
+
+static log_client logcb = {
+    .name       = "linkkit",
+    .priority   = LOG_INFO_LEVEL,
+    .text_buf   = {0}
+};
+
+static char *lvl_names[] = {
+    "non", "crt", "err", "wrn", "inf", "dbg", "flw"
 };
 
 void LITE_syslog_routine(char *m, const char *f, const int l, const int level, const char *fmt, va_list *params)
@@ -15,11 +50,14 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
     char       *o = tmpbuf;
     int         truncated = 0;
 
-    if (LITE_get_loglevel() < level || level < LOG_EMERG_LEVEL) {
+    if (LITE_get_loglevel() < level || level < LOG_NONE_LEVEL) {
         return;
     }
 
+#if !defined(_WIN32)
+    LITE_printf("%s%s", "\033", lvl_color[level]);
     LITE_printf(LOG_PREFIX_FMT, lvl_names[level], f, l);
+#endif  /* #if !defined(_WIN32) */
 
     memset(tmpbuf, 0, sizeof(logcb.text_buf));
 
@@ -43,6 +81,9 @@ void LITE_syslog_routine(char *m, const char *f, const int l, const int level, c
         LITE_printf("\r\n");
     }
 
+#if !defined(_WIN32)
+    LITE_printf("%s", "\033[0m");
+#endif  /* #if !defined(_WIN32) */
     return;
 }
 
@@ -55,20 +96,6 @@ void LITE_syslog(char *m, const char *f, const int l, const int level, const cha
     va_end(ap);
 }
 
-void LITE_openlog(const char *ident)
-{
-    strncpy(logcb.name, ident, LOG_MOD_NAME_LEN);
-    logcb.name[LOG_MOD_NAME_LEN] = 0;
-    logcb.priority = 0;
-}
-
-void LITE_closelog(void)
-{
-    strncpy(logcb.name, "", LOG_MOD_NAME_LEN);
-    logcb.name[LOG_MOD_NAME_LEN] = 0;
-    logcb.priority = 0;
-}
-
 int LITE_get_loglevel(void)
 {
     return logcb.priority;
@@ -77,6 +104,22 @@ int LITE_get_loglevel(void)
 void LITE_set_loglevel(int pri)
 {
     logcb.priority = pri;
+
+#if WITH_MEM_STATS
+    void **mutex = LITE_get_mem_mutex();
+    if (pri != LOG_NONE_LEVEL) {
+        if (*mutex == NULL) {
+            *mutex = HAL_MutexCreate();
+            if (*mutex == NULL) {
+                LITE_printf("\nCreate memStats mutex error\n");
+            }
+        }
+    }
+    else if (*mutex != NULL){
+        HAL_MutexDestroy(*mutex);
+        *mutex = NULL;
+    }
+#endif
 }
 
 void LITE_rich_hexdump(const char *f, const int l,
@@ -89,10 +132,12 @@ void LITE_rich_hexdump(const char *f, const int l,
         return;
     }
 
+    LITE_printf("%s%s", "\033", lvl_color[level]);
     LITE_printf(LOG_PREFIX_FMT, lvl_names[level], f, l);
     LITE_printf("HEXDUMP %s @ %p[%d]\r\n", buf_str, buf_ptr, buf_len);
     LITE_hexdump(buf_str, buf_ptr, buf_len);
 
+    LITE_printf("%s", "\033[0m");
     return;
 }
 
@@ -195,4 +240,4 @@ int LITE_hexdump(const char *title, const void *buff, const int len)
 
     return 0;
 }
-
+#endif

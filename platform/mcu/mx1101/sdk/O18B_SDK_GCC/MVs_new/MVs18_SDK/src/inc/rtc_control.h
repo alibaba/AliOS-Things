@@ -14,7 +14,7 @@ extern "C" {
 #endif//__cplusplus
 
 #include "app_config.h"
-#include "rtc.h"
+#include "aos/hal/rtc.h"
 #include "breakpoint.h"
 //// ÁåÉùÀàĞÍ
 //#define INTER_RING_TYPE 0 // ÄÚÖÃÁåÉù

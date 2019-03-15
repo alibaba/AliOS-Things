@@ -1,0 +1,46 @@
+config AOS_BOARD_B_L475E
+    bool "B_L475E"
+    select AOS_MCU_STM32L475
+    select AOS_COMP_KERNEL_INIT
+    select AOS_COMP_SAL if AOS_NETWORK_SAL
+    help
+      configuration for board b_l475e
+
+if AOS_BOARD_B_L475E
+# Configurations for board board_b_l475e
+
+# "BSP SUPPORT FEATURE"
+config BSP_SUPPORT_UART
+    bool
+    default y
+
+config BSP_SUPPORT_GPIO
+    bool
+    default y
+
+config BSP_SUPPORT_FLASH
+    bool
+    default y
+
+config BSP_SUPPORT_TIMER
+    bool
+    default y
+
+config BSP_SUPPORT_I2C
+    bool
+    default y
+
+config BSP_SUPPORT_WIFI
+    bool
+    default y
+
+config BSP_SUPPORT_EXTERNAL_MODULE
+    bool
+    default y
+
+config BSP_EXTERNAL_WIFI_MODULE
+    string
+    depends on BSP_SUPPORT_EXTERNAL_MODULE
+    default "wifi.mk3060"
+
+endif

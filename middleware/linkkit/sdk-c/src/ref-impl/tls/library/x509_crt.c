@@ -14,6 +14,7 @@
  *  http://www.itu.int/ITU-T/studygroups/com17/languages/X.680-0207.pdf
  *  http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
  */
+#ifdef SUPPORT_TLS
 
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
@@ -2387,3 +2388,4 @@ void mbedtls_x509_crt_free( mbedtls_x509_crt *crt )
 }
 
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
+#endif

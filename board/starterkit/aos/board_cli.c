@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <aos/aos.h>
+
+#include "aos/cli.h"
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
+
 #include <atparser.h>
 
+#include "aos/yloop.h"
 
 #define STARTERKIT_WIFI_MODULE_FOTA "AT+FOTA"
 #define FOTA_OOB_PREFIX "+FOTAEVENT:"
@@ -94,7 +99,8 @@ static int wifi_module_fota(char *pcsize, char *pcversion, char *pcurl, char *pc
         goto end;
     }
 
-    ret = at.send_raw(pcatcmd, out, sizeof(out));
+    ret = at_send_wait_reply(pcatcmd, strlen(pcatcmd), true,
+                             NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, AT_RECV_FAIL_POSTFIX) != NULL || ret != 0) {
         printf("%s %d failed", __func__, __LINE__);
@@ -113,6 +119,7 @@ end:
     return ret;
 }
 
+#ifdef AOS_COMP_CLI
 static void handle_module_fota_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
     int ret = 0;
@@ -169,6 +176,7 @@ struct cli_command module_ota_cli_cmd[] = {
         .function = handle_module_fota_cmd
     }
 };
+#endif
 
 void fota_event_handler(void *arg, char *buf, int buflen)
 {
@@ -195,8 +203,10 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
         return;
     
     if (event->code == CODE_WIFI_ON_GOT_IP){
-        at.oob(FOTA_OOB_PREFIX, FOTA_OOB_POSTFIX, 64, fota_event_handler, NULL);
+        at_register_callback(FOTA_OOB_PREFIX, FOTA_OOB_POSTFIX, 64, fota_event_handler, NULL);
+#ifdef AOS_COMP_CLI
         aos_cli_register_commands(&module_ota_cli_cmd[0],sizeof(module_ota_cli_cmd) / sizeof(struct cli_command));
+#endif
         LOG("Hello, WiFi GOT_IP event! at %s %d\r\n", __FILE__, __LINE__);
     }
 }

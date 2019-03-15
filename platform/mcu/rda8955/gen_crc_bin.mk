@@ -1,25 +1,25 @@
 
 ifeq ($(HOST_OS),Win32)
-ENCRYPT := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/encrypt_win.exe"
-BOOT := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/uboot-bk7231-aos.bin"
-WIFI_TOOL := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/wifi.exe"
+ENCRYPT := "$($(HOST_MCU_FAMILY)_LOCATION)/encrypt_win.exe"
+BOOT := "$($(HOST_MCU_FAMILY)_LOCATION)/uboot-bk7231-aos.bin"
+WIFI_TOOL := "$($(HOST_MCU_FAMILY)_LOCATION)/wifi.exe"
 else  # Win32
 ifeq ($(HOST_OS),Linux32)
-ENCRYPT := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/encrypt_linux"
+ENCRYPT := "$($(HOST_MCU_FAMILY)_LOCATION)/encrypt_linux"
 XZ := /usr/bin/xz	
 XZ_CMD = if [ -f $(XZ) ]; then $(XZ) -f --lzma2=dict=32KiB --check=crc32 -k $(OTA_BIN_OUTPUT_FILE); else echo "xz need be installed"; fi
 else # Linux32
 ifeq ($(HOST_OS),Linux64)
 
-SRECMAP := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/build/srecmap"
-SRECMAP_CFG := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/build/8955_map_cfg"
-TARGETGEN := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/build/targetgen"
-LODMERGE := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/build/dual_boot_merge.py"
-LODBOOT := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/build/blfota_8955_modem_test_debug_flash.lod"
+SRECMAP := "$($(HOST_MCU_FAMILY)_LOCATION)/build/srecmap"
+SRECMAP_CFG := "$($(HOST_MCU_FAMILY)_LOCATION)/build/8955_map_cfg"
+TARGETGEN := "$($(HOST_MCU_FAMILY)_LOCATION)/build/targetgen"
+LODMERGE := "$($(HOST_MCU_FAMILY)_LOCATION)/build/dual_boot_merge.py"
+LODBOOT := "$($(HOST_MCU_FAMILY)_LOCATION)/build/blfota_8955_modem_test_debug_flash.lod"
 
 else # Linux64
 ifeq ($(HOST_OS),OSX)
-ENCRYPT := "$(SOURCE_ROOT)/platform/mcu/$(HOST_MCU_FAMILY)/encrypt_osx"
+ENCRYPT := "$($(HOST_MCU_FAMILY)_LOCATION)/encrypt_osx"
 else # OSX
 $(error not surport for $(HOST_OS))
 endif # OSX

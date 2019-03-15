@@ -29,7 +29,7 @@
 #ifdef CONFIG_SPI_DMA
 #include "ck_dmac.h"
 #endif
-#include "soc.h"   /*CONFIG_SPI_NUM*/
+
 #include "csi_core.h"
 
 #define ERR_SPI(errno) (CSI_DRV_ERRNO_SPI_BASE | errno)
@@ -1450,7 +1450,7 @@ int32_t csi_spi_ss_control(spi_handle_t handle, spi_ss_stat_e stat)
     SPI_NULL_PARAM_CHK(handle);
     dw_spi_priv_t *spi_priv = handle;
 
-    if ((stat != SPI_SS_INACTIVE) || (stat != SPI_SS_ACTIVE)) {
+    if ((stat != SPI_SS_INACTIVE) && (stat != SPI_SS_ACTIVE)) {
         return ERR_SPI(DRV_ERROR_PARAMETER);
     }
 

@@ -2,10 +2,12 @@
  * Copyright (C) 2015-2018 Alibaba Group Holding Limited
  */
 
-
-
 #ifndef __SHADOW_EXPORT_H__
 #define __SHADOW_EXPORT_H__
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* From shadow.h */
 #include <sys/types.h>
@@ -89,7 +91,7 @@ typedef struct {
  * @retval NOT_NULL : Construct success.
  * @see None.
  */
-void *IOT_Shadow_Construct(iotx_shadow_para_pt pparam);
+DLL_IOT_API void *IOT_Shadow_Construct(iotx_shadow_para_pt pparam);
 
 /**
  * @brief Deconstruct the specific device shadow.
@@ -109,7 +111,7 @@ iotx_err_t IOT_Shadow_Destroy(void *handle);
  * @return None.
  * @see None.
  */
-void IOT_Shadow_Yield(void *handle, uint32_t timeout_ms);
+DLL_IOT_API void IOT_Shadow_Yield(void *handle, uint32_t timeout_ms);
 
 /**
  * @brief Create a data type registered to the server.
@@ -206,7 +208,7 @@ iotx_err_t IOT_Shadow_Push(
  * @retval          other : See iotx_err_t.
  * @see None.
  */
-int IOT_Shadow_Push_Async(
+DLL_IOT_API int IOT_Shadow_Push_Async(
             void *handle,
             char *data,
             unsigned int data_len,
@@ -229,4 +231,7 @@ iotx_err_t IOT_Shadow_Pull(void *handle);
 /** @} */ /* end of api_shadow */
 /** @} */ /* end of api */
 
+#if defined(__cplusplus)
+}
+#endif
 #endif /* __SHADOW_EXPORT_H__ */

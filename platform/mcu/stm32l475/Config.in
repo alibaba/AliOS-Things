@@ -1,0 +1,12 @@
+config AOS_MCU_STM32L475
+    bool
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_NETMGR
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu stm32l475
+
+if AOS_MCU_STM32L475
+# Configurations for mcu stm32l475
+endif

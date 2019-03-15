@@ -24,46 +24,9 @@ lr_timer_t soc_lr_hw_cnt_get(void)
 }
 #endif /* RHINO_CONFIG_HW_COUNT */
 
-#if (RHINO_CONFIG_INTRPT_GUARD > 0)
-void soc_intrpt_guard(void)
-{
-}
-#endif
-
-#if (RHINO_CONFIG_INTRPT_STACK_REMAIN_GET > 0)
-size_t soc_intrpt_stack_remain_get(void)
-{
-    return 0;
-}
-#endif
-
 #if (RHINO_CONFIG_INTRPT_STACK_OVF_CHECK > 0)
 void soc_intrpt_stack_ovf_check(void)
 {
-}
-#endif
-#if (RHINO_CONFIG_MM_LEAKCHECK > 0 )
-
-extern int __bss_start__, __bss_end__, _sdata, _edata;
-
-void aos_mm_leak_region_init(void)
-{
-#if (RHINO_CONFIG_MM_DEBUG > 0)
-    krhino_mm_leak_region_init(&__bss_start__, &__bss_end__);
-    krhino_mm_leak_region_init(&_sdata, &_edata);
-#endif
-}
-
-#endif
-
-#if (RHINO_CONFIG_DYNTICKLESS > 0)
-void soc_tick_interrupt_set(tick_t next_ticks,tick_t elapsed_ticks)
-{
-}
-
-tick_t soc_elapsed_ticks_get(void)
-{
-    return 0;
 }
 #endif
 
@@ -112,6 +75,21 @@ void soc_err_proc(kstat_t err)
 krhino_err_proc_t g_err_proc = soc_err_proc;
 
 #include "k_api.h"
+
+#if defined (__CC_ARM) /* Keil / armcc */
+#define HEAP_BUFFER_SIZE 1024*60
+uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
+k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}, {(uint8_t *)0x10000000, 0x8000}};
+#elif defined (__ICCARM__) /* IAR */
+#define HEAP_BUFFER_SIZE 1024*20
+uint8_t g_heap_buf[HEAP_BUFFER_SIZE];
+k_mm_region_t g_mm_region[] = {{g_heap_buf, HEAP_BUFFER_SIZE}};
+void aos_heap_set()
+{
+    g_mm_region[0].start = g_heap_buf;
+    g_mm_region[0].len   = HEAP_BUFFER_SIZE;
+}
+#else
 extern void *__HeapBase;
 extern void *__HeapLimit;
 extern void *__Heap2Base;
@@ -119,6 +97,7 @@ k_mm_region_t g_mm_region[] = {
 {(uint8_t *)&__HeapBase, (uint32_t)0x8000},
 {(uint8_t *)&__Heap2Base, (uint32_t)0x8000}
 };
+#endif
 
 int g_region_num = sizeof(g_mm_region)/sizeof(k_mm_region_t);
 

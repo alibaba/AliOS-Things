@@ -1,0 +1,8 @@
+config AOS_ARCH_MIPS32
+    bool
+    help
+      arch for mips32
+
+if AOS_ARCH_MIPS32
+# Configurations for arch mips32
+endif

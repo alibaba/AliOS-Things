@@ -2,6 +2,9 @@
 
 struct cut_runtime cut;
 
+static char suite_pattern[64];
+static char case_pattern[64];
+
 static void _filter(int argc, char **argv)
 {
     int i = 0;
@@ -12,10 +15,13 @@ static void _filter(int argc, char **argv)
 
     for (i = 0; i < cut.ccnt_total; i++) {
         c = cut.clist[i];
-        if ((argc == 2 && (NULL == strstr(c->sname, argv[1]))) ||
-            (argc == 3 && (NULL == strstr(c->sname, argv[1]) || NULL == strstr(c->cname, argv[2])))) {
-            cut.clist[i]->skip = 1;
-            cut.ccnt_skip++;
+        if ((argc == 2 && (0 != strcmp(c->sname, argv[1]))) ||
+            (argc == 3 && (0 != strcmp(c->sname, argv[1]) || 0 != strcmp(c->cname, argv[2])))) {
+
+            if (!(argc == 2 && strlen(suite_pattern) && strstr(c->sname, suite_pattern))) {
+                cut.clist[i]->skip = 1;
+                cut.ccnt_skip++;
+            }
         }
     }
 }
@@ -24,7 +30,7 @@ static void _usage(const char *me)
 {
     cut_printf("Usage: %s [OPTION] S-FILTER [C-FILTER]\n\n" \
                "OPTION:\n" \
-               "  --debug:      debug into cases\n" \
+               "  --verbose:    verbose when exec cases\n" \
                "  --list:       list cases\n" \
                "  --count:      print case count\n" \
                "\n" \
@@ -32,7 +38,7 @@ static void _usage(const char *me)
                "C-FILTER:    case name filter\n", me, me);
 }
 
-static int _debug_opt = 0;
+static int _verbose_opt = 0;
 static int _parse_arg(int argc, char **argv)
 {
     if (argc >= 2) {
@@ -43,8 +49,11 @@ static int _parse_arg(int argc, char **argv)
                 struct cut_case *c = cut.clist[i];
                 if (argc == 2 ||
                     (argc == 3 && 0 == strcmp(argv[2], "all")) ||
-                    (argc == 3 && NULL != strstr(c->sname, argv[2])) ||
-                    (argc == 4 && NULL != strstr(c->sname, argv[2]) && NULL != strstr(c->cname, argv[3]))) {
+                    (argc == 3 && 0 == strcmp(c->sname, argv[2])) ||
+                    (argc == 3 && strlen(suite_pattern) && strstr(c->sname, suite_pattern)) ||
+                    (argc == 4 && strlen(suite_pattern) && strlen(case_pattern) && strstr(c->sname, suite_pattern)
+                     && strstr(c->cname, case_pattern)) ||
+                    (argc == 4 && 0 == strcmp(c->sname, argv[2]) && 0 == strcmp(c->cname, argv[3]))) {
                     cut_printf("  [%02d] %s.%s\n", ++cnt, c->sname, c->cname);
                 }
             }
@@ -72,12 +81,35 @@ int cut_main(int argc, char **argv)
     char        tmpbuf[128];
     char       *pos;
 
+    if (argc >= 2) {
+
+        int         idx = 1;
+        char        *q = NULL;
+
+        if (!strcmp(argv[1], "--list") || !strncmp(argv[1], "--verbose", strlen("--verbose"))) {
+            idx += 1;
+        }
+
+        if (idx < argc) {
+
+            if ((q = strchr(argv[idx], '%')) != NULL) {
+                strncpy(suite_pattern, argv[idx], q - argv[idx]);
+            }
+            idx += 1;
+            if (idx < argc) {
+                if ((q = strchr(argv[idx], '%')) != NULL) {
+                    strncpy(case_pattern, argv[idx], q - argv[idx]);
+                }
+            }
+        }
+    }
+
     if (0 == _parse_arg(argc, argv)) {
         return 0;
     }
 
-    if (argc >= 2 && !strcmp(argv[1], "--debug")) {
-        _debug_opt = 1;
+    if (argc >= 2 && !strncmp(argv[1], "--verbose", strlen("--verbose"))) {
+        _verbose_opt = 1;
         argc --;
         argv ++;
     }
@@ -103,7 +135,7 @@ int cut_main(int argc, char **argv)
         for (j = 80 - strlen(tmpbuf); j >= 0; --j) {
             pos += sprintf(pos, "%s", ".");
         }
-        if (_debug_opt) {
+        if (_verbose_opt) {
             pos += sprintf(pos, " [%sEXEC%s]\n", COL_YEL, COL_DEF);
             cut_printf("%s", tmpbuf);
             pos -= 19;
@@ -111,9 +143,9 @@ int cut_main(int argc, char **argv)
         TRY {
             if (cut.ccur->setup)
             {
-                cut.ccur->setup(cut.ccur->data);
+                cut.ccur->setup(cut.ccur->data, cut.ccur);
             }
-            cut.ccur->run((struct cut_case *)(cut.ccur->data));
+            cut.ccur->run(cut.ccur->data, (struct cut_case *)cut.ccur);
             if (cut.ccur->teardown)
             {
                 cut.ccur->teardown(cut.ccur->data);
@@ -135,6 +167,7 @@ int cut_main(int argc, char **argv)
         }
     }
 
+    cut_printf("\n");
     cut_printf("===========================================================================\n");
     if (cut.ccnt_fail > 0) {
         cut_printf("FAIL LIST:\n");

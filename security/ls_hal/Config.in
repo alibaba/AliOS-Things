@@ -1,0 +1,8 @@
+config AOS_COMP_LS_HAL
+    bool "Link Security Hardware Interface"
+    default n
+    help
+
+if AOS_COMP_LS_HAL
+# Configurations for comp ls_hal
+endif

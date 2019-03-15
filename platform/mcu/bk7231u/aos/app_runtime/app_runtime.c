@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <aos/aos.h>
-#include "hal/soc/soc.h"
+#include "aos/kernel.h"
+
 
 #ifdef AOS_BINS
 const int *syscall_ktbl = NULL;

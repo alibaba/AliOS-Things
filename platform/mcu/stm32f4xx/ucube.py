@@ -6,7 +6,6 @@ src = Split('''
         wifi/wifi_port.c 
         GCC/platform_unhandled_isr.c
         aos/soc_impl.c               
-        aos/trace_impl.c            
         aos/aos.c                   
         hal/i2c.c                   
         hal/hw.c 
@@ -20,11 +19,9 @@ deps = Split('''
         kernel/rhino
         kernel/hal
         network/netmgr
-        middleware/common
         security/mbedtls
         utility/cjson
-        tools/cli
-        utility/digest_algorithm
+        kernel/cli
         osal
         kernel/init
         platform/mcu/stm32f4xx/spi_flash
@@ -33,11 +30,6 @@ deps = Split('''
 ''')
 
 global_macros = Split('''
-        CONFIG_AOS_KV_MULTIPTN_MODE
-        CONFIG_AOS_KV_PTN=6
-        CONFIG_AOS_KV_SECOND_PTN=7
-        CONFIG_AOS_KV_PTN_SIZE=4096
-        CONFIG_AOS_KV_BUFFER_SIZE=8192
         USE_STDPERIPH_DRIVER
         _STM3x_
         _STM32x_
@@ -66,7 +58,6 @@ elif mcu_variant == 'STM32F446':
 
 global_cflags = Split('''
         -mcpu=cortex-m4
-        -march=armv7-m
         -mthumb -mthumb-interwork
         -mlittle-endian
         -w
@@ -148,7 +139,6 @@ elif aos_global_config.compiler == "iar":
 else:
     asflags = Split('''
            -mcpu=cortex-m4
-           -march=armv7-m 
            -mlittle-endian
            -mthumb -mthumb-interwork
            -w

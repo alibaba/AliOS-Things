@@ -5,13 +5,14 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <aos/network.h>
+#include <network/network.h>
 #include "hal/wifi.h"
 #include "esp_smartconfig.h"
 #include "esp_wifi_types.h"
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
 #include "esp_timer.h"
+#include "nvs.h"
 
 typedef enum {
     SCAN_NORMAL,
@@ -154,7 +155,7 @@ static esp_err_t handle_event_cb(void *ctx, system_event_t *evt)
     switch (eid) {
         case SYSTEM_EVENT_STA_START:
             wifi_status.wifi_started = 1;
-            ESP_ERROR_CHECK(esp_wifi_connect());
+            //ESP_ERROR_CHECK(esp_wifi_connect());
             break;
         case SYSTEM_EVENT_STA_GOT_IP: {
             memcpy(_ip_stat.ip,
@@ -228,15 +229,16 @@ static int wifi_set_mode(hal_wifi_module_t *m, hal_wifi_mode_t mode)
 static int wifi_connect_prepare(hal_wifi_module_t *m, char *ssid, char *password)
 {
     int ret = -1;
-    wifi_config_t config = {};
+    wifi_config_t config;
+    memset(&config, 0, sizeof(wifi_config_t));
 
     /* Out of limit */
     if (strlen(ssid) > sizeof(config.sta.ssid))
         goto err;
     if (strlen(password) > sizeof(config.sta.password))
         goto err;
-    strncpy((char *)(config.sta.ssid), ssid, sizeof(config.sta.ssid));
-    strncpy((char *)(config.sta.password), password, sizeof(config.sta.password));
+    strncpy((char *)(config.sta.ssid), ssid, sizeof(config.sta.ssid) - 1);
+    strncpy((char *)(config.sta.password), password, sizeof(config.sta.password) - 1);
     /* Do connect */
     ret = esp_wifi_set_mode(WIFI_MODE_STA);
     ret = esp_wifi_set_config(WIFI_IF_STA, &config);
@@ -337,15 +339,25 @@ static int wifi_getset_ops(hal_wifi_module_t *m, hal_wifi_getset_cmd_t cmd, ...)
 static int wifi_init(hal_wifi_module_t *m)
 {
     static int inited;
+    int ret;
     if (inited)
         return 0;
     inited = 1;
 
+    /* nvs flash initialization, this function may not used in aos, kv is similar function compared with nvs */
+    ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
     /* Hook Event */
-    int ret = esp_event_loop_init(handle_event_cb, NULL);
-    printf("%s:%d %d\n", __func__, __LINE__, ret);
+    ret = esp_event_loop_init(handle_event_cb, NULL);
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
+    esp_wifi_set_mode(WIFI_MODE_STA);
+    esp_wifi_start();
     return 0;
 };
 
@@ -491,8 +503,7 @@ static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m,
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m,
                                      uint8_t *buf, int len)
 {
-    extern esp_err_t esp_wifi_80211_tx(wifi_interface_t ifx, const void *buffer, int len);
-    ESP_ERROR_CHECK(esp_wifi_80211_tx(ESP_IF_WIFI_STA, buf, len));
+    ESP_ERROR_CHECK(esp_wifi_80211_tx(ESP_IF_WIFI_STA, buf, len, 1));
 
     return 0;
 }

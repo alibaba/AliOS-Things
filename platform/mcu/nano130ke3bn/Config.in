@@ -1,0 +1,10 @@
+config AOS_MCU_NANO130KE3BN
+    bool
+    select AOS_ARCH_ARMV6M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu nano130ke3bn
+
+if AOS_MCU_NANO130KE3BN
+# Configurations for mcu nano130ke3bn
+endif

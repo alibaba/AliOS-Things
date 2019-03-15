@@ -1,0 +1,5 @@
+menu "Utility Testcase Configuration"
+
+source "test/testcase/utility/cjson/Config.in"
+
+endmenu

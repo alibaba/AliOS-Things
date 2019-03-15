@@ -1,0 +1,174 @@
+%%{
+    let ADCBuf = args[0]; /* passed by /ti/drivers/templates/Board.c.xdt */
+
+    /* get ti/drivers common utility functions */
+    let Common = system.getScript("/ti/drivers/Common.js");
+
+    /* shorthand names for some common references in template below */
+    let getPort = Common.getPort;
+    let instances = ADCBuf.$instances;
+
+    /* Board_XXXCOUNT string, derived from defaultInstanceName */
+    let countDef = ADCBuf.defaultInstanceName + "COUNT";
+
+    let SEQUENCER_COUNT = 4;
+
+    let configMap = {
+        "External Pin" : "ADCBufMSP432E4_INTERNAL_SOURCE_MODE_OFF",
+        "Internal Temperature" : "ADCBufMSP432E4_TEMPERATURE_MODE",
+        "Differential" : "ADCBufMSP432E4_DIFFERENTIAL",
+        "Non Differential" : "ADCBufMSP432E4_SINGLE_ENDED"
+    };
+%%}
+/*
+ *  =============================== ADCBuf ===============================
+ */
+
+#include <ti/drivers/ADCBuf.h>
+#include <ti/drivers/adcbuf/ADCBufMSP432E4.h>
+
+#include <ti/devices/msp432e4/inc/msp432.h>
+
+#define `countDef` `instances.length`
+
+/*
+ *  ======== adcbufMSP432E4Objects ========
+ */
+ADCBufMSP432E4_Object adcbufMSP432E4Objects[`countDef`];
+
+/*
+ *  ======== ADCBuf Channels ========
+ */
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    %
+ADCBufMSP432E4_Channels adcBuf`i`MSP432E4Channels[`inst.numChans`] = {
+    % for (let j in inst.sequencers) {
+    %   let sequencer = inst["sequence" + inst.sequencers[j]];
+    %   if (sequencer === undefined) {continue;}
+    %   for (let k = 0; k < sequencer.channels; k++) {
+        %   let chan = sequencer["chan" + k];
+        %   let adcPin = "ADCBufMSP432E4_PIN_NONE";
+        %   let diffPin = "ADCBufMSP432E4_PIN_NONE";
+        %   if (chan.adc.adcPin) {
+        %       let adcChan = chan.adc.adcPin.$solution.peripheralPinName;
+        %       adcChan = adcChan.substring(3);
+        %       adcPin = chan.adc.adcPin.$solution.devicePinName;
+        %       adcPin = adcPin.substring(0, 2) + "_" + adcPin.substring(2);
+        %       adcPin = "ADCBufMSP432E4_" + adcPin + "_A" + adcChan;
+        %   }
+        %   if (chan.adc.adcDiffPin) {
+        %       let adcChan = chan.adc.adcDiffPin.$solution.peripheralPinName;
+        %       adcChan = adcChan.substring(3);
+        %       diffPin = chan.adc.adcDiffPin.$solution.devicePinName;
+        %       diffPin = "ADCBufMSP432E4_" + diffPin + "_A" + adcChan;
+        %   }
+    /* Board_ADCBUFCHANNEL`j` */
+    {
+        .adcPin = `adcPin`,
+        .adcSequence = ADCBufMSP432E4_Seq_`sequencer.number`,
+        .adcInputMode = `configMap[chan.inputMode]`,
+        .adcDifferentialPin = `diffPin`,
+        .adcInternalSource = `configMap[chan.inputSource]`,
+        .refVoltage = `chan.refVoltage`
+    },
+        % }
+    % }
+};
+
+% } // for instances.length
+/*
+ *  ======== ADCBuf Seqeunce Priorities ========
+ */
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    %
+static ADCBufMSP432E4_SequencePriorities seqPriorities`i`[ADCBufMSP432E4_SEQUENCER_COUNT] = {
+    % for (let j = 0; j < SEQUENCER_COUNT; j++) {
+    %   let sequence = inst["sequence" +j];
+    %   let priority = "ADCBufMSP432E4_Seq_Disable";
+    %
+    %   if (sequence) {
+    %       priority = sequence.priority;
+    %   }
+    %
+    /* Sequencer `j` */
+    `priority`,
+    % }
+};
+
+% }
+/*
+ *  ======== ADCBuf Seqeunce Trigger Sources ========
+ */
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    %
+static ADCBufMSP432E4_TriggerSource triggerSource`i`[ADCBufMSP432E4_SEQUENCER_COUNT] = {
+    % for (let j = 0; j < SEQUENCER_COUNT; j++) {
+    %   let sequence = inst["sequence" +j];
+    %   let triggerSource = "ADCBufMSP432E4_SOFTWARE_AUTOMATIC_TRIGGER";
+    %   if (sequence) {
+    %       triggerSource = sequence.triggerSource;
+    %   }
+    /* Sequencer `j` trigger source */
+    `triggerSource`,
+    % }
+};
+
+% }
+/*
+ *  ======== adcbufMSP432E4HWAttrs ========
+ */
+const ADCBufMSP432E4_HWAttrsV1 adcbufMSP432E4HWAttrs[`countDef`] = {
+    % for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    % let adcbase = inst.adc.$solution.peripheralName + "_BASE";
+    % let timerBase = "NULL";
+    %
+    % if (inst.timer) {
+    %     timerBase = inst.timer.$solution.peripheralName;
+    %     timerBase = "TIMER" + timerBase.substring(5) + "_BASE";
+    % }
+    %
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .intPriority = `Common.intPriority2Hex(inst.intPriority)`,
+        .adcBase = `adcbase`,
+        .channelSetting = adcBuf`i`MSP432E4Channels,
+        .sequencePriority = seqPriorities`i`,
+        .adcTriggerSource = triggerSource`i`,
+        .modulePhase =  `inst.modulePhase`,
+        .refSource = `inst.refSource`,
+        .useDMA = `inst.useDMA | 0`,
+        .adcTimerSource = `timerBase`
+    },
+    % }
+};
+
+/*
+ *  ======== ADCBuf_config ========
+ */
+const ADCBuf_Config ADCBuf_config[`countDef`] = {
+% for (let i = 0; i < instances.length; i++) {
+    % let inst = instances[i];
+    /* `inst.$name` */
+    % if (inst.$hardware) {
+    %    if (inst.$hardware.displayName) {
+    /* `inst.$hardware.displayName` */
+    %    }
+    % }
+    {
+        .fxnTablePtr = &ADCBufMSP432E4_fxnTable,
+        .object = &adcbufMSP432E4Objects[`inst.$name`],
+        .hwAttrs = &adcbufMSP432E4HWAttrs[`inst.$name`]
+    },
+% }
+};
+
+const uint_least8_t ADCBuf_count = `countDef`;

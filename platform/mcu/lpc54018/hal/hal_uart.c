@@ -62,10 +62,13 @@
  */
 #include <stdarg.h>
 #include <stdio.h>
-#include <errno.h>
-#include <aos/aos.h>
-#include <k_api.h>
-#include "hal/soc/uart.h"
+
+#include "k_api.h"
+
+#include "aos/errno.h"
+#include "aos/kernel.h"
+#include "aos/hal/uart.h"
+
 #include "fsl_common.h"
 #include "fsl_clock.h"
 #include "fsl_usart.h"

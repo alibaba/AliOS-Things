@@ -1,9 +1,9 @@
 /**
  * File : aos.c
  */
-#include <aos/aos.h>
+#include "aos/kernel.h"
+#include "ulog/ulog.h"
 #include <k_api.h>
-#include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
 #define AOS_START_STACK 2048
@@ -13,7 +13,6 @@
 ktask_t *g_aos_init;
 
 extern int application_start(int argc, char **argv);
-extern int aos_framework_init(void);
 
 extern void hw_start_hal(void);
 
@@ -22,6 +21,7 @@ void hal_init()
     board_init();
 }
 
+extern void board_init_later() __attribute__((weak));
 static void sys_init(void)
 {
     LOG("sys_init.");
@@ -35,14 +35,24 @@ static void sys_init(void)
     hw_start_hal();
     vfs_init();
     vfs_device_init();
+#ifdef AOS_COMP_CLI
     aos_cli_init();
+#endif
+
+#ifdef AOS_COMP_ULOG
+    ulog_init("A");
+#endif
     aos_kv_init();
     aos_loop_init();
-    aos_framework_init();
     dumpsys_cli_init();
 #ifdef AOS_FOTA
     ota_service_init();
 #endif
+
+#ifndef DELETE_HFILOP_CODE
+    board_init_later();
+#endif
+
     application_start(0, NULL);
 #endif
 }

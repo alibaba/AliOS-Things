@@ -1,9 +1,8 @@
 #include <board.h>
 
 #include "hal_uart.h"
-#include <aos/types.h>
 #include <k_api.h>
-#include "hal/soc/soc.h"
+
 
 #define DIV_ROUND_CLOSEST(x, divisor)(			\
 {							\

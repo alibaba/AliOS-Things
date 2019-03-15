@@ -1,0 +1,11 @@
+config AOS_MCU_CY8C6347
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu cy8c6347
+
+if AOS_MCU_CY8C6347
+# Configurations for mcu cy8c6347
+endif
