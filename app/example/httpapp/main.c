@@ -14,13 +14,15 @@
 #include "http_api.h"
 
 bool httpc_running = false;
-HTTPC_METHOD_TYPE_T method;
+int method;
 httpc_handle_t httpc_handle = 0;
 char server_name[32] = "http://httpie.org/";
 
-static int httpc_recv_fun(httpc_handle_t httpc, uint8_t *body_buf, uint16_t body_len, int8_t err)
+static int httpc_recv_fun(httpc_handle_t httpc, uint8_t *buf, int32_t buf_size,
+                          int32_t data_len, bool is_final)
 {
-    LOG("http session %x recv %d bytes data,err %d \n", httpc, body_len, err);
+    LOG("http session %x, buf size %d bytes, recv %d bytes data, is_final %d\n",
+         httpc, buf_size, data_len, is_final);
     return 0;
 }
 
@@ -33,8 +35,8 @@ static void httpc_delayed_action(void *arg)
 
     LOG("http session %x method %d at %d\n", httpc_handle, method, (uint32_t)aos_now_ms());
     switch (method) {
-        case GET:
-            httpc_send_request(httpc_handle, GET, NULL, NULL, 0);
+        case HTTP_GET:
+            httpc_send_request(httpc_handle, HTTP_GET, NULL, NULL, 0);
             break;
         default:
             break;
@@ -44,6 +46,8 @@ exit:
     aos_post_delayed_action(100, httpc_delayed_action, (void *)(long)method);
 }
 
+#define RSP_BUF_SIZE 2000
+uint8_t rsp_buf[RSP_BUF_SIZE];
 static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
 {
     const char *type = argc > 1? argv[1]: "";
@@ -65,6 +69,8 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
         settings.socket = fd;
         settings.recv_fn = httpc_recv_fun;
         settings.server_name = server_name;
+        settings.rsp_buf = rsp_buf;
+        settings.rsp_buf_size = RSP_BUF_SIZE;
         httpc_handle = httpc_init(&settings);
         if (httpc_handle == 0) {
             LOG("http session init fail\n");
@@ -73,7 +79,7 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
     }
 
     if (strncmp(type, "GET", strlen("GET")) == 0) {
-        method = GET;
+        method = HTTP_GET;
         httpc_running = true;
     }
 }
