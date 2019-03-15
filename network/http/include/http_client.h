@@ -4,6 +4,7 @@
 
 #include "http_api.h"
 #include "http_string.h"
+#include "http_parser.h"
 
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
@@ -14,19 +15,44 @@
 #define HTTP_CLIENT_FLAG_SECURE 0x00000010
 #define HTTP_CLIENT_FLAG_PORT 0x00000020
 
+#define INT32T_MAX 0x7fffffff
+#define INT16T_MAX 0x7fff
+#define INT32T_MIN (-INT32T_MAX - 1)
+#define INT16T_MIN (-INT16T_MAX - 1)
+
 /* http client connection handle */
 typedef struct httpc_s {
     int socket;
     uint8_t index;
     uint32_t flags;
     char server_name[CONFIG_HTTPC_SERVER_NAME_SIZE + 2];
-    httpc_recv_fn recv_fn;
     uint16_t rx_state;
     uint16_t port;
     bool connection;
 
+    struct {
+        int method;
+    } req;
     char header[CONFIG_HTTPC_HEADER_SIZE + 1];
     uint16_t header_len;
+
+    struct {
+        httpc_recv_fn recv_fn;
+        uint8_t *buf;
+        int32_t buf_size;
+        int32_t data_len;
+        uint8_t *body_start;
+        int32_t processed;
+
+        int32_t content_len;
+        char http_status[CONFIG_HTTP_STATUS_SIZE];
+
+        uint8_t content_len_present:1;
+        uint8_t body_present:1;
+    } rsp;
+
+    struct http_parser parser;
+    struct http_parser_settings parser_settings;
 } httpc_t;
 
 #define HTTPC_VERSION "HTTP/1.1"
@@ -38,6 +64,6 @@ typedef struct httpc_param_s {
     uint16_t len;
 } httpc_param_t;
 
-void httpc_log(const char *fmt, ...);
+void http_log(const char *fmt, ...);
 
 #endif

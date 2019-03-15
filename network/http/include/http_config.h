@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef HTTP_CLIENT_CONFIG_H
-#define HTTP_CLIENT_CONFIG_H
+#ifndef HTTP_CONFIG_H
+#define HTTP_CONFIG_H
 
 #ifndef CONFIG_HTTPC_SESSION_NUM
 #define CONFIG_HTTPC_SESSION_NUM 1
@@ -20,5 +20,11 @@
 #ifndef CONFIG_HTTPC_DEFAULT_CLIENT
 #define CONFIG_HTTPC_DEFAULT_CLIENT "AliOS Things/ 2.1"
 #endif
+
+#ifndef CONFIG_HTTP_STATUS_SIZE
+#define CONFIG_HTTP_STATUS_SIZE 32
+#endif
+
+#define CONFIG_HTTP_DEBUG
 
 #endif

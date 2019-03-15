@@ -5,18 +5,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "http_config.h"
+#include "http_parser.h"
 
-#ifndef HTTP_CLIENT_API_H
-#define HTTP_CLIENT_API_H
-
-typedef enum {
-    GET,
-    POST,
-    PUT,
-    DELETE,  // not support
-    HEAD,  // not support
-    OPTIONS,  // not support
-} HTTPC_METHOD_TYPE_T;
+#ifndef HTTP_API_H
+#define HTTP_API_H
 
 enum {
     HTTPC_SUCCESS = 0,
@@ -25,24 +17,28 @@ enum {
 
 typedef int32_t httpc_handle_t;
 
-typedef int (* httpc_recv_fn)(httpc_handle_t httpc, uint8_t *body_buf, uint16_t body_len, int8_t err);
+typedef int (* httpc_recv_fn)(httpc_handle_t httpc, uint8_t *buf, int32_t buf_size,
+                              int32_t data_len, bool is_final);
 
 /* http client connection settings */
 typedef struct httpc_connection_s {
     int socket;  // one socket per http session, not support multiple http sessions on one socket
     bool keep_alive;  // keep alive http connection or not
     // boot use_proxy;  // not support in this version
-    httpc_recv_fn recv_fn;
     int timeout;
-    char *server_name;
+    char *server_name;  // pointer to server name
     int port;
+
+    httpc_recv_fn recv_fn;
+    char *rsp_buf;  // pointer to response buffer
+    int32_t rsp_buf_size;  // response buffer size
 } httpc_connection_t;
 
 int8_t http_client_intialize(void);
 
 httpc_handle_t httpc_init(httpc_connection_t *settings);
 
-int8_t httpc_send_request(httpc_handle_t httpc, HTTPC_METHOD_TYPE_T method,
+int8_t httpc_send_request(httpc_handle_t httpc, int method,
                           const char *uri, char *param, uint16_t param_len);
 
 int8_t httpc_deinit(httpc_handle_t httpc);
