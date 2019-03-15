@@ -2,7 +2,7 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "http_client_api.h"
+#include "http_api.h"
 #include "http_string.h"
 
 #ifndef HTTP_CLIENT_H

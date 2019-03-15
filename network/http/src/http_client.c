@@ -8,8 +8,8 @@
 #include <string.h>
 
 #include "http_client.h"
-#include "http_client_wrapper.h"
-#include "http_client_config.h"
+#include "http_wrapper.h"
+#include "http_config.h"
 
 httpc_t httpc_sessions[CONFIG_HTTPC_SESSION_NUM];
 

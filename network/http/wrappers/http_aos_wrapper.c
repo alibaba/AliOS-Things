@@ -8,7 +8,7 @@
 
 #include <aos/kernel.h>
 #include <network/network.h>
-#include "http_client_wrapper.h"
+#include "http_wrapper.h"
 
 httpc_wrapper_recv_fn_t g_recv_fn;
 
