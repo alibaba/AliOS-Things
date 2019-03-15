@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "http_client_config.h"
+#include "http_config.h"
 
 #ifndef HTTP_CLIENT_API_H
 #define HTTP_CLIENT_API_H
