@@ -2,8 +2,8 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef HTTP_CLIENT_STRING_H
-#define HTTP_CLIENT_STRING_H
+#ifndef HTTP_STRING_H
+#define HTTP_STRING_H
 
 #include "http_client.h"
 
