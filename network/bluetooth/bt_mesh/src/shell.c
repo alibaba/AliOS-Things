@@ -72,6 +72,10 @@ static struct bt_mesh_cfg_srv cfg_srv = {
 static u8_t cur_faults[CUR_FAULTS_MAX];
 static u8_t reg_faults[CUR_FAULTS_MAX * 2];
 
+extern struct k_sem prov_input_sem;
+extern u8_t   prov_input[8];
+extern u8_t   prov_input_size;
+
 struct mesh_shell_cmd *bt_mesh_get_shell_cmd_list();
 
 #ifdef CONFIG_BT_MESH_PROV
@@ -407,8 +411,8 @@ static void provisioner_link_close(bt_mesh_prov_bearer_t bearer)
 }
 
 static void provisioner_complete(int node_idx, const u8_t device_uuid[16],
-										u16_t unicast_addr, u8_t element_num,
-										u16_t netkey_idx)
+                                 u16_t unicast_addr, u8_t element_num,
+                                 u16_t netkey_idx)
 {
 	printk("provisioner_complete\r\n");
 	printk("node_idx: %d\r\n", node_idx);
@@ -420,13 +424,13 @@ static void provisioner_complete(int node_idx, const u8_t device_uuid[16],
 	printk("netkey_idx: %u\r\n", netkey_idx);
 }
 
-int provisioner_input_num(bt_mesh_output_action_t act, u8_t size)
+static int provisioner_input_num(bt_mesh_output_action_t act, u8_t size)
 {
     bool    input_num_flag;
 
-	if (BT_MESH_DISPLAY_NUMBER == output) {
+	if (BT_MESH_DISPLAY_NUMBER == act) {
 		input_num_flag = true;
-	} else if (BT_MESH_DISPLAY_STRING == output) {
+	} else if (BT_MESH_DISPLAY_STRING == act) {
 		input_num_flag = false;
 	}
 
@@ -441,7 +445,7 @@ int provisioner_input_num(bt_mesh_output_action_t act, u8_t size)
 	return 0;
 }
 
-int provisioner_output_num(bt_mesh_input_action_t act, u8_t size)
+static int provisioner_output_num(bt_mesh_input_action_t act, u8_t size)
 {
 	u32_t div[8]	= { 10, 100, 1000, 10000, 100000,
 						1000000, 10000000, 100000000 };
@@ -450,7 +454,7 @@ int provisioner_output_num(bt_mesh_input_action_t act, u8_t size)
 	u8_t  i;
     bool  output_num_flag;
 
-	if (BT_MESH_ENTER_NUMBER == input) {
+	if (BT_MESH_ENTER_NUMBER == act) {
 
 		output_num_flag = true;
 
@@ -472,7 +476,7 @@ int provisioner_output_num(bt_mesh_input_action_t act, u8_t size)
 				break;
 			}
 		}
-	} else if (BT_MESH_ENTER_STRING == input) {
+	} else if (BT_MESH_ENTER_STRING == act) {
 		output_num_flag = false;
 	
 		bt_mesh_rand(temp, size);
@@ -502,7 +506,7 @@ int provisioner_output_num(bt_mesh_input_action_t act, u8_t size)
 static struct bt_mesh_provisioner provisioner = {
 	.prov_uuid              = 0,
 	.prov_unicast_addr      = 0,
-	.prov_start_address     = 1,
+	.prov_start_address     = 2,
 	.prov_attention         = 0,
 	.prov_algorithm         = 0,
 	.prov_pub_key_oob       = 0,
@@ -515,7 +519,7 @@ static struct bt_mesh_provisioner provisioner = {
 	.iv_index               = 0,
 	.prov_link_open         = provisioner_link_open,
 	.prov_link_close        = provisioner_link_close,
-	.prov_complete          = 0,
+	.prov_complete          = provisioner_complete,
 };
 
 static int cmd_static_oob(int argc, char *argv[])
@@ -2276,10 +2280,6 @@ static int cmd_bunch_pb_gatt(int argc, char *argv[])
 	return 0;
 }
 #endif
-
-extern struct k_sem prov_input_sem;
-extern u8_t   prov_input[8];
-extern u8_t   prov_input_size;
 
 static int cmd_provisioner_input_str(int argc, char *argv[])
 {

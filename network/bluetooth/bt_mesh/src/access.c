@@ -572,20 +572,15 @@ static int model_send(struct bt_mesh_model *model,
 	       tx->ctx->app_idx, tx->ctx->addr);
 	BT_DBG("len %u: %s", msg->len, bt_hex(msg->data, msg->len));
 
-	if (!bt_mesh_is_provisioned()) {
-		BT_ERR("Local node is not yet provisioned");
-		return -EAGAIN;
-	}
-
 	#if CONFIG_BT_MESH_PROVISIONER
-		if (!bt_mesh_is_provisioner_en()) {
+	if (!bt_mesh_is_provisioner_en()) {
 	#endif
-			if (!bt_mesh_is_provisioned()) {
-				BT_ERR("Local node is not yet provisioned");
-				return -EAGAIN;
-			}
-	#if CONFIG_BT_MESH_PROVISIONER
+		if (!bt_mesh_is_provisioned()) {
+			BT_ERR("Local node is not yet provisioned");
+			return -EAGAIN;
 		}
+	#if CONFIG_BT_MESH_PROVISIONER
+	}
 	#endif
 
 	if (net_buf_simple_tailroom(msg) < 4) {
