@@ -399,7 +399,7 @@ static int _TLSConnectNetwork(TLSDataParams_t *pTlsData, const char *addr,
      * 4. Handshake
      */
     platform_info("Performing the SSL/TLS handshake...");
-
+    mbedtls_ssl_conf_read_timeout(&(pTlsData->conf), 10000);
     while ((ret = mbedtls_ssl_handshake(&(pTlsData->ssl))) != 0) {
         if ((ret != MBEDTLS_ERR_SSL_WANT_READ) &&
             (ret != MBEDTLS_ERR_SSL_WANT_WRITE)) {
