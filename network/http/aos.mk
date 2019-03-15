@@ -8,6 +8,7 @@ GLOBAL_INCLUDES += include
 GLOBAL_DEFINES += CONFIG_AOS_HTTP
 
 $(NAME)_SOURCES := src/http_client.c \
-                   src/http_string.c
+                   src/http_string.c \
+                   src/http_parser.c
 
 include $($(NAME)_LOCATION)/wrappers/http_wrapper.mk
