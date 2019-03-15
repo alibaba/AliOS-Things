@@ -216,10 +216,10 @@ if AOS_APP_UDATA_CLOUD_DEMO
         default "udata_demo.udata_cloud_demo"
 endif
 
-source "app/example/httpcapp/Config.in"
-if AOS_APP_HTTPCAPP
+source "app/example/httpapp/Config.in"
+if AOS_APP_HTTPAPP
     config AOS_BUILD_APP
-        default "httpcapp"
+        default "httpapp"
 endif
 
 endchoice
