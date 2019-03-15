@@ -288,8 +288,7 @@ void HAL_ThreadDetach(_IN_ void *thread_handle)
 void HAL_ThreadDelete(_IN_ void *thread_handle)
 {
     if (thread_handle) {
-        aos_free(thread_handle);
-        thread_handle = NULL;
+       /*can`t delete other task*/
     } else {
         aos_task_exit(0);
     }
