@@ -1,12 +1,12 @@
-config AOS_APP_HTTPCAPP
+config AOS_APP_HTTPAPP
     bool "HTTP Client Sample"
-    select AOS_COMP_HTTPC
+    select AOS_COMP_HTTP
     select AOS_COMP_NETMGR
     select AOS_COMP_LWIP
     select AOS_COMP_CLI
     help
         HTTP Client app
 
-if AOS_APP_HTTPCAPP
+if AOS_APP_HTTPAPP
 
 endif
