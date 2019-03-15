@@ -34,7 +34,7 @@
 #include "provisioner_main.h"
 #include "mesh_bt_uuid.h"
 
-#include "bt_mesh_custom_log.h"
+//#include "bt_mesh_custom_log.h"
 
 #if CONFIG_BT_MESH_PROVISIONER
 
@@ -1621,7 +1621,7 @@ static int prov_auth(u8_t method, u8_t action, u8_t size)
         if (!output) {
             return -EINVAL;
         }
-        return prov->prov_input_num(output, size);
+        return provisioner->prov_input_num(output, size);
     }
 
     case AUTH_METHOD_INPUT: {
@@ -1630,7 +1630,7 @@ static int prov_auth(u8_t method, u8_t action, u8_t size)
         if (!input) {
             return -EINVAL;
         }
-		return prov->prov_output_num(input, size);
+	return provisioner->prov_output_num(input, size);
     }
 
     default:
