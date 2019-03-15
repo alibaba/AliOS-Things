@@ -77,7 +77,7 @@ static void httpc_recv_thread(void *arg)
                         ret = recv(httpc_sessions[index].socket, buf, CONFIG_HTTPC_RX_BUF_SIZE, 0);
                     }
                     if (ret > 0) {
-                        g_recv_fn(&httpc_sessions[index], buf, ret);
+                        g_recv_fn(&httpc_sessions[index], buf, (int32_t)ret);
                     }
                 }
             }
@@ -92,7 +92,7 @@ int httpc_wrapper_register_recv(httpc_t *httpc, httpc_wrapper_recv_fn_t recv_fn)
     return HTTPC_SUCCESS;
 }
 
-void httpc_log(const char *fmt, ...)
+void http_log(const char *fmt, ...)
 {
     va_list args;
 
