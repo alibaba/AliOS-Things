@@ -578,20 +578,26 @@ exit:
 
 static int http_client_recv(httpc_t *http_session, void *data, int32_t len)
 {
-    int32_t copy_len = len;
-    int32_t start = http_session->rsp.data_len;
-    int32_t free_space;
+    int32_t copy_len = 0;
+    int32_t start = 0;
+    int32_t free_space = 0;
 
-    free_space = http_session->rsp.buf_size - http_session->rsp.data_len;
-    if (copy_len > free_space) {
-        copy_len = free_space;
+    while (len) {
+        copy_len = len;
+        start = http_session->rsp.data_len;
+        free_space = http_session->rsp.buf_size - http_session->rsp.data_len;
+        if (copy_len > free_space) {
+            copy_len = free_space;
+        }
+
+        memcpy(http_session->rsp.buf + start, data, copy_len);
+        http_session->rsp.data_len += copy_len;
+        http_parser_execute(&http_session->parser, &http_session->parser_settings,
+                            (const char *)http_session->rsp.buf + start, copy_len);
+        len -= copy_len;
+        data += copy_len;
+        http_session->rsp.data_len = 0;
     }
-
-    memcpy(http_session->rsp.buf + start, data, copy_len);
-    http_session->rsp.data_len = len;
-    http_parser_execute(&http_session->parser, &http_session->parser_settings,
-                        (const char *)http_session->rsp.buf + start, copy_len);
-    http_session->rsp.data_len = 0;
     return 0;
 }
 
