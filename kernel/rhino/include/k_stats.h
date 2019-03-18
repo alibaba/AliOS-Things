@@ -21,11 +21,11 @@ void krhino_stack_ovf_check(void);
  * This function will reset task schedule stats
  */
 void krhino_task_sched_stats_reset(void);
+
 /**
  * This function will get task statistic data
  */
 void krhino_task_sched_stats_get(void);
-
 #endif
 
 #if (RHINO_CONFIG_HW_COUNT > 0)
