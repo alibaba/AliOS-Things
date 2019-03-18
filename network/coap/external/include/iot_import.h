@@ -521,9 +521,9 @@ DLL_HAL_API int HAL_Fclose(void *stream);
 DLL_HAL_API long HAL_Ftell(void *stream);
 
 #include "iot_export.h"
-#include "iot_import_config.h"
+/* #include "iot_import_config.h" */
 #include "iot_import_product.h"
-#include "iot_import_tcp.h"
+/* #include "iot_import_tcp.h" */
 
 #if defined(DEV_BIND_ENABLED)
 #include "iot_import_awss.h"
@@ -534,7 +534,7 @@ DLL_HAL_API long HAL_Ftell(void *stream);
 #endif
 
 #if defined(WITH_UDP_NTP_CLIENT) || defined(COAP_COMM_ENABLED) || defined(ALCS_ENABLED) || defined(DEV_BIND_ENABLED)
-#include "iot_import_udp.h"
+/* #include "iot_import_udp.h" */
 #endif
 
 #if defined(HAL_CRYPTO)
@@ -542,10 +542,10 @@ DLL_HAL_API long HAL_Ftell(void *stream);
 #endif
 
 #if defined(COAP_COMM_ENABLED) || defined(COAP_DTLS_SUPPORT)
-#include "iot_import_dtls.h"
+/* #include "iot_import_dtls.h" */
 #endif
 
-#include "iot_import_tls.h"
+/* #include "iot_import_tls.h" */
 
 #endif  /* SIM7000C_DAM */
 #if defined(__cplusplus)
