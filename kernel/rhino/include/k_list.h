@@ -55,6 +55,5 @@ RHINO_INLINE void klist_rm_init(klist_t *element)
     element->next = element->prev = element;
 }
 
-
 #endif /* K_LIST_H */
 
