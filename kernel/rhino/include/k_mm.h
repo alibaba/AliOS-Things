@@ -77,8 +77,7 @@ typedef struct k_mm_list_struct {
     /* bit 0 indicates whether the block is used and */
     /* bit 1 allows to know whether the previous block is free */
     size_t buf_size;
-    union
-    {
+    union {
         struct free_ptr_struct free_ptr;
         uint8_t                buffer[1];
     } mbinfo;
@@ -106,8 +105,7 @@ typedef struct {
     size_t used_size;
     size_t maxused_size;
     size_t free_size;
-    /* number of times for each TLF level */
-    size_t alloc_times[MM_BIT_LEVEL];
+    size_t alloc_times[MM_BIT_LEVEL]; /* number of times for each TLF level */
 #endif
     /* msb (MM_BIT_LEVEL-1) <-> lsb 0, one bit match one freelist */
     uint32_t free_bitmap;
@@ -127,23 +125,22 @@ void *k_mm_realloc(k_mm_head *mmhead, void *oldmem, size_t new_size);
 
 /*
  * This function is wrapper of mm allocation
- * @param[in]       size        size of the mem to malloc
+ * @param[in]  size  size of the mem to malloc
  * @return  the operation status, NULL is error, others is memory address
  */
 void *krhino_mm_alloc(size_t size);
 
 /*
  * This function is wrapper of mm free
- * @param[in]       ptr        address point of the mem
+ * @param[in]  ptr  address point of the mem
  */
 void krhino_mm_free(void *ptr);
 
 /*
  * This function is wrapper of mm rallocation
- * @param[in]       oldmem      oldmem address
- * @param[in]       size        size of the mem to malloc
- * @return  the operation status, NULL is error, others is realloced memory
- * address
+ * @param[in]  oldmem  oldmem address
+ * @param[in]  size    size of the mem to malloc
+ * @return  the operation status, NULL is error, others is realloced memory address
  */
 void *krhino_mm_realloc(void *oldmem, size_t newsize);
 

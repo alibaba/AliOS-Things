@@ -5,14 +5,14 @@
 #ifndef K_QUEUE_H
 #define K_QUEUE_H
 
-#define WAKE_ONE_TASK      0u
-#define WAKE_ALL_TASK      1u
+#define WAKE_ONE_TASK 0u
+#define WAKE_ALL_TASK 1u
 
 typedef struct {
-    void  **queue_start;
-    size_t  size;
-    size_t  cur_num;
-    size_t  peak_num;
+    void   **queue_start;
+    size_t   size;
+    size_t   cur_num;
+    size_t   peak_num;
 } msg_q_t;
 
 typedef struct {
@@ -38,8 +38,7 @@ typedef struct queue_s {
  * @param[in]  msg_num  num of the msg
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t krhino_queue_create(kqueue_t *queue, const name_t *name, void **start,
-                            size_t msg_num);
+kstat_t krhino_queue_create(kqueue_t *queue, const name_t *name, void **start, size_t msg_num);
 
 /**
  * This function will delete a queue
@@ -56,8 +55,7 @@ kstat_t krhino_queue_del(kqueue_t *queue);
  * @param[in]  msg_num  num of the msg
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t krhino_queue_dyn_create(kqueue_t **queue, const name_t *name,
-                                size_t msg_num);
+kstat_t krhino_queue_dyn_create(kqueue_t **queue, const name_t *name, size_t msg_num);
 
 /**
  * This function will delete a dyn created queue

@@ -11,13 +11,13 @@
 typedef void (*work_handle_t)(void *arg);
 
 typedef struct {
-    klist_t       work_node;
-    work_handle_t handle;
-    void         *arg;
-    tick_t        dly;
-    ktimer_t     *timer;
-    void         *wq;
-    uint8_t       work_exit;
+    klist_t        work_node;
+    work_handle_t  handle;
+    void          *arg;
+    tick_t         dly;
+    ktimer_t      *timer;
+    void          *wq;
+    uint8_t        work_exit;
 } kwork_t;
 
 typedef struct {
@@ -49,8 +49,7 @@ kstat_t krhino_workqueue_create(kworkqueue_t *workqueue, const name_t *name,
  * @param[in]  dly     the ticks to delay before run
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t krhino_work_init(kwork_t *work, work_handle_t handle, void *arg,
-                         tick_t dly);
+kstat_t krhino_work_init(kwork_t *work, work_handle_t handle, void *arg, tick_t dly);
 
 /**
  * This function will run a work on a workqueue

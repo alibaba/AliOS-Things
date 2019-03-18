@@ -29,8 +29,7 @@ typedef struct {
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_mblk_pool_init(mblk_pool_t *pool, const name_t *name,
-                              void *pool_start,
-                              size_t blk_size, size_t pool_size);
+                              void *pool_start, size_t blk_size, size_t pool_size);
 
 /**
  * This function will alloc a blk-pool

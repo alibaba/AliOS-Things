@@ -6,20 +6,20 @@
 #define K_BUF_QUEUE_H
 
 typedef struct {
-    blk_obj_t      blk_obj;
-    void          *buf;
-    k_ringbuf_t    ringbuf;
-    size_t         max_msg_size;
-    size_t         cur_num;
-    size_t         peak_num;
-    size_t         min_free_buf_size;
+    blk_obj_t    blk_obj;
+    void        *buf;
+    k_ringbuf_t  ringbuf;
+    size_t       max_msg_size;
+    size_t       cur_num;
+    size_t       peak_num;
+    size_t       min_free_buf_size;
 #if (RHINO_CONFIG_KOBJ_LIST > 0)
-    klist_t        buf_queue_item;
+    klist_t      buf_queue_item;
 #endif
 #if (RHINO_CONFIG_USER_SPACE > 0)
-    uint32_t       key;
+    uint32_t     key;
 #endif
-    uint8_t        mm_alloc_flag;
+    uint8_t      mm_alloc_flag;
 } kbuf_queue_t;
 
 typedef struct {
@@ -41,16 +41,15 @@ typedef struct {
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_buf_queue_create(kbuf_queue_t *queue, const name_t *name,
-                                void *buf,
-                                size_t size, size_t max_msg);
+                                void *buf, size_t size, size_t max_msg);
 
 /**
  * This function will create a fix buf-queue
- * @param[in]  queue    pointer to the queue(the space is provided by user)
- * @param[in]  name     name of the queue
- * @param[in]  buf      pointer to the buf
- * @param[in]  msg_size size of the msg
- * @param[in]  msg_num  number of msg
+ * @param[in]  queue     pointer to the queue(the space is provided by user)
+ * @param[in]  name      name of the queue
+ * @param[in]  buf       pointer to the buf
+ * @param[in]  msg_size  size of the msg
+ * @param[in]  msg_num   number of msg
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_fix_buf_queue_create(kbuf_queue_t *queue, const name_t *name,
@@ -77,15 +76,15 @@ kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
 
 /**
  * This function will create a dyn fix buf-queue
- * @param[in]  queue    pointer to the queue(the space is provided by user)
- * @param[in]  name     name of the queue
- * @param[in]  buf      pointer to the buf
- * @param[in]  msg_size size of the msg
- * @param[in]  msg_num  number of msg
+ * @param[in]  queue     pointer to the queue(the space is provided by user)
+ * @param[in]  name      name of the queue
+ * @param[in]  buf       pointer to the buf
+ * @param[in]  msg_size  size of the msg
+ * @param[in]  msg_num   number of msg
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_fix_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
-                                                      size_t msg_size, size_t msg_num);
+                                        size_t msg_size, size_t msg_num);
 
 /**
  * This function will delete a dyn-queue
@@ -113,8 +112,7 @@ kstat_t krhino_buf_queue_send(kbuf_queue_t *queue, void *msg, size_t size);
  * @param[out]  size   size of received msg
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg,
-                              size_t *size);
+kstat_t krhino_buf_queue_recv(kbuf_queue_t *queue, tick_t ticks, void *msg, size_t *size);
 
 /**
  * This function will reset queue

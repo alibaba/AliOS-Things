@@ -30,12 +30,12 @@ typedef enum {
 } kobj_type_t;
 
 typedef struct blk_obj {
-    klist_t          blk_list;
-    const name_t    *name;
-    blk_policy_t     blk_policy;
-    kobj_type_t      obj_type;
+    klist_t       blk_list;
+    const name_t *name;
+    blk_policy_t  blk_policy;
+    kobj_type_t   obj_type;
 #if (RHINO_CONFIG_USER_SPACE > 0)
-    klist_t          obj_list;
+    klist_t       obj_list;
 #endif
 } blk_obj_t;
 
