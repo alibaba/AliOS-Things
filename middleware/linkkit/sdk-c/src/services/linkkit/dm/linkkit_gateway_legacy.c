@@ -934,6 +934,8 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             linkkit_gateway_dev_callback_node_t *node = NULL;
             lite_cjson_t lite, lite_item_devid, lite_item_rawdata;
             char *output = NULL;
+            unsigned char *raw_data = NULL;
+            int raw_data_len = 0;
 
             if (payload == NULL) {
                 return;
@@ -962,7 +964,13 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             if (res != SUCCESS_RETURN) {
                 return;
             }
-            dm_log_debug("Current Raw Data: %.*s", lite_item_rawdata.value_length, lite_item_rawdata.value);
+
+            res = dm_utils_str_to_hex(lite_item_rawdata.value, lite_item_rawdata.value_length, &raw_data, &raw_data_len);
+            if (res != SUCCESS_RETURN) {
+                dm_log_err(DM_UTILS_LOG_MEMORY_NOT_ENOUGH);
+                return;
+            }
+            HEXDUMP_DEBUG(raw_data, raw_data_len);
 
             output = DM_malloc(linkkit_gateway_ctx->init_params.maxMsgSize + 1);
             if (output == NULL) {
@@ -976,7 +984,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             _linkkit_gateway_upstream_mutex_unlock();
             if (res == SUCCESS_RETURN) {
                 if (node->callback->down_rawdata) {
-                    res = node->callback->down_rawdata(lite_item_rawdata.value, lite_item_rawdata.value_length, output,
+                    res = node->callback->down_rawdata(raw_data, raw_data_len, output,
                                                        linkkit_gateway_ctx->init_params.maxMsgSize, node->callback_ctx);
                     if (res > 0) {
                         iotx_dm_post_rawdata(lite_item_devid.value_int, output, res);
@@ -985,6 +993,7 @@ static void _linkkit_gateway_event_callback(iotx_dm_event_types_t type, char *pa
             }
 
             DM_free(output);
+            DM_free(raw_data);
         }
         break;
         case IOTX_DM_EVENT_MODEL_UP_RAW_REPLY: {
@@ -2501,3 +2510,4 @@ int linkkit_gateway_get_num_devices(void)
     return dev_nums;
 }
 #endif
+

@@ -190,8 +190,7 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
     }
 
     switch (type) {
-        case IOTX_DM_EVENT_CLOUD_CONNECTED:
-        case IOTX_DM_EVENT_CLOUD_RECONNECT: {
+        case IOTX_DM_EVENT_CLOUD_CONNECTED: {
             if (linkkit_solo_ctx->user_callback->on_connect) {
                 linkkit_solo_ctx->user_callback->on_connect(linkkit_solo_ctx->user_context);
             }
