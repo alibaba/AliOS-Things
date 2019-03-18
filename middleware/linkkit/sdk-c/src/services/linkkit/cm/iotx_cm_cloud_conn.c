@@ -368,7 +368,7 @@ static int iotx_cm_cloud_conn_response_callback(void *_cm_ctx, iotx_connection_m
                 msg_info->payload = CM_malloc(msg->payload_length + 1);
                 if (msg_info->payload)
                 {
-                    strncpy(msg_info->payload, msg->payload, msg->payload_length);
+                    memcpy(msg_info->payload, msg->payload, msg->payload_length);
                 } else
                 {
                     CM_ERR(cm_log_error_memory);
