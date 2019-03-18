@@ -12,8 +12,7 @@
 #include <ota_breeze_export.h>
 #endif
 
-#define SOFTWARE_VERSION "0.2.0"
-#define SOFTWARE_VERSION_LEN 5
+#define SOFTWARE_VERSION "xxxxxxxx"
 
 #ifndef CONFIG_MODEL_SECURITY
 #define PRODUCT_ID     850958
@@ -146,8 +145,8 @@ static void alink_work(void *arg)
 #ifdef CONFIG_AIS_OTA
     ota_module.is_ota_enable = true;
     ota_module.verison.fw_ver_len = strlen(SOFTWARE_VERSION);
-    if(ota_module.verison.fw_ver_len > 8) {
-        printf("breeze version too long, make sure < 8 bytes");
+    if(ota_module.verison.fw_ver_len > sizeof(ota_module.verison.fw_ver)) {
+        printf("breeze version too long");
         return;
     }
     memcpy(ota_module.verison.fw_ver, SOFTWARE_VERSION, ota_module.verison.fw_ver_len);
