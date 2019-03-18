@@ -509,7 +509,6 @@ int iotx_calc_sign(const char *p_device_secret, const char *p_client_id,
 
 
 #define IOTX_AUTH_STR      "auth"
-#define APP_JASON_STR      "2"
 int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
 {
     int len = 0;
@@ -521,6 +520,7 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
     unsigned char    *p_payload  = NULL;
     unsigned char     token[8] = {0};
     char sign[IOTX_SIGN_LENGTH]   = {0};
+    unsigned char buf[4] = {0};
 
     p_iotx_coap = (iotx_coap_t *)p_context;
     if (NULL == p_iotx_coap || (NULL != p_iotx_coap && (NULL == p_iotx_coap->p_auth_token ||
@@ -556,10 +556,14 @@ int IOT_CoAP_DeviceNameAuth(iotx_coap_context_t *p_context)
                     (const uint8_t *)p_iotx_coap->uri);
     coap_add_option(pdu, COAP_OPTION_URI_PATH, strlen(IOTX_AUTH_STR),
                     (const uint8_t *)IOTX_AUTH_STR);
-    coap_add_option(pdu, COAP_OPTION_CONTENT_FORMAT, strlen(APP_JASON_STR),
-                    (const uint8_t *)APP_JASON_STR);
-    coap_add_option(pdu, COAP_OPTION_ACCEPT, strlen(APP_JASON_STR),
-                    (const uint8_t *)APP_JASON_STR);
+    coap_add_option(pdu, COAP_OPTION_CONTENT_FORMAT,
+                    coap_encode_var_safe(buf, sizeof(buf),
+                                         COAP_CT_APP_JSON),
+                    buf);
+    coap_add_option(pdu, COAP_OPTION_ACCEPT,
+                    coap_encode_var_safe(buf, sizeof(buf),
+                                         COAP_CT_APP_JSON),
+                    buf);
 
     if (add_coap_msg_callback(p_context, pdu->tid,
                               iotx_device_name_auth_callback) != 0) {
@@ -791,6 +795,7 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
     unsigned char    token[8] = {0};
     unsigned char    *payload  = NULL;
     coap_session_t   *p_session  =  NULL;
+    unsigned char buf[4] = {0};
 
     p_iotx_coap = (iotx_coap_t *)p_context;
     if (NULL == p_context || NULL == p_path || NULL == p_message ||
@@ -842,16 +847,23 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
 
         iotx_split_path_2_option(p_path, pdu);
         if (IOTX_CONTENT_TYPE_CBOR == p_message->content_type) {
-            /*TODO update */
-            coap_add_option(pdu, COAP_OPTION_CONTENT_FORMAT, strlen(APP_JASON_STR),
-                            (const uint8_t *)APP_JASON_STR);
-            coap_add_option(pdu, COAP_OPTION_ACCEPT, strlen(APP_JASON_STR),
-                            (const uint8_t *)APP_JASON_STR);     
+            coap_add_option(pdu, COAP_OPTION_CONTENT_FORMAT,
+                            coap_encode_var_safe(buf, sizeof(buf),
+                                                 COAP_CT_APP_CBOR),
+                            buf);
+            coap_add_option(pdu, COAP_OPTION_ACCEPT,
+                            coap_encode_var_safe(buf, sizeof(buf),
+                                                 COAP_CT_APP_CBOR),
+                            buf);
         } else {
-            coap_add_option(pdu, COAP_OPTION_CONTENT_FORMAT, strlen(APP_JASON_STR),
-                            (const uint8_t *)APP_JASON_STR);
-            coap_add_option(pdu, COAP_OPTION_ACCEPT, strlen(APP_JASON_STR),
-                            (const uint8_t *)APP_JASON_STR);     
+            coap_add_option(pdu, COAP_OPTION_CONTENT_FORMAT,
+                            coap_encode_var_safe(buf, sizeof(buf),
+                                                 COAP_CT_APP_JSON),
+                            buf);
+            coap_add_option(pdu, COAP_OPTION_ACCEPT,
+                            coap_encode_var_safe(buf, sizeof(buf),
+                                                 COAP_CT_APP_JSON),
+                            buf);
         }
 
         coap_add_option(pdu, COAP_OPTION_AUTH_TOKEN, strlen(p_iotx_coap->p_auth_token),
