@@ -2,7 +2,7 @@
 #define OTA_BREEZE_EXPORT_H
 #include "breeze_export.h"
 
-#define OTA_BREEZE_FW_VER_LEN              (8)
+#define OTA_BREEZE_FW_VER_LEN              (32)
 
 
 typedef void (*ota_breeze_get_data_t) (breeze_otainfo_t* breeze_info);

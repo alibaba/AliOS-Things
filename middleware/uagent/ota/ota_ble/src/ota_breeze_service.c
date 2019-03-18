@@ -45,30 +45,6 @@ ota_breeze_state_t ota_breeze_get_status()
     return g_ctx.ota_breeze_status;
 }
 
-static int ota_breeze_parse_firmware_version(unsigned char *data, unsigned char len)
-{
-    int err_code = 0;
-    unsigned int v[3];
-    unsigned char  l_data[OTA_BREEZE_FW_VER_LEN + 1]; // +1 for trailing zero
-    if ((data == NULL) || (len == 0)) {
-        return -1;
-    }
-    memcpy(l_data, data, len);
-    l_data[len] = 0;
-
-    if(ota_breeze_split_sw_ver((char *)l_data, v, v + 1, v + 2) < 0) {
-        return -1;
-    }
-    memset(l_data, 0, sizeof(l_data));
-    sprintf((char *)l_data, "%d.%d.%d", (int)v[0], (int)v[1], (int)v[2]);
-
-    if (memcmp(l_data, data, len) == 0) {
-        return 0;
-    } else {
-        return -1;
-    }
-}
-
 static int ota_breeze_set_version(unsigned char* fw_ver, unsigned char fw_ver_len)
 {
     memset(&g_ctx.verison, 0x00, sizeof(ota_breeze_version_t));
@@ -108,10 +84,6 @@ void ota_breeze_process_message(breeze_otainfo_t* breeze_info)
 int ota_breeze_service_init(ota_breeze_service_manage_t* ota_manage)
 {
     if(ota_manage == NULL) {
-        return -1;
-    }
-    if(ota_breeze_parse_firmware_version(ota_manage->verison.fw_ver, ota_manage->verison.fw_ver_len) < 0) {
-        OTA_BREEZE_LOG_E("ver parse failed\r\n");
         return -1;
     }
     memset(&g_ctx, 0x00, sizeof(_ota_ble_global_dat_t));

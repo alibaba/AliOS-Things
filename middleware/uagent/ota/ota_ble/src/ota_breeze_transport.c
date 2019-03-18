@@ -52,64 +52,33 @@ unsigned int ota_breeze_send_fw_version_rsp(unsigned char ota_cmd, unsigned char
     return breeze_post_ext(OTA_BREEZE_CMD_FW_VERSION_RSP, buffer, length);
 }
 
-int ota_breeze_split_sw_ver(char *data, unsigned int *v0, unsigned int *v1, unsigned int *v2)
-{
-    int i = sscanf(data, "%d.%d.%d", (int *)v0, (int *)v1, (int *)v2);
-    return ((i == 3) ? 0 : -1);
-}
-
 static unsigned int ota_breeze_check_upgrade_fw_version(ota_breeze_version_t *version, unsigned char *p_data, unsigned char length)
 {
-    unsigned int v_old[3], v_new[3];
-    unsigned char  l_data_old[OTA_BREEZE_FW_VER_LEN + 1]; /* +1 for trailing zero */
+    unsigned ret = 0;
+    int version_result = 0;
     unsigned char  l_data_new[OTA_BREEZE_FW_VER_LEN + 1]; /* +1 for trailing zero */
     unsigned char  l_len;
 
     if((version == NULL) || (p_data == NULL) || (length == 0)) {
-        return OTA_BREEZE_ERROR_INVALID_PARAM;
+        ret = OTA_BREEZE_ERROR_INVALID_PARAM;
+        goto VER_ERRO;
     }
-    /*Copy to stack variable as trailing zero is required.*/
-    memcpy(l_data_old, version->fw_ver, version->fw_ver_len);
-    l_data_old[version->fw_ver_len] = 0;
 
     l_len = length - sizeof(unsigned int) - sizeof(unsigned short) - 1;
+    if(l_len > OTA_BREEZE_FW_VER_LEN) {
+        OTA_BREEZE_LOG_E("ver length too long");
+        ret = OTA_BREEZE_ERROR_DATA_SIZE;
+        goto VER_ERRO;
+    }
     memcpy(l_data_new, p_data, l_len);
     l_data_new[l_len] = 0;
-
-    /* Split SW version into 3 parts.*/
-    if(ota_breeze_split_sw_ver((char *)l_data_old, v_old, v_old + 1, v_old + 2) < 0) {
-        return OTA_BREEZE_ERROR_INVALID_DATA;
+    version_result = strncmp(version->fw_ver, l_data_new, l_len);
+    if (version_result == 0) {
+        ret = OTA_BREEZE_ERROR_INVALID_VERSION;
+        OTA_BREEZE_LOG_E("ver same err!");
     }
-
-    if(ota_breeze_split_sw_ver((char *)l_data_new, v_new, v_new + 1, v_new + 2) < 0) {
-        return OTA_BREEZE_ERROR_INVALID_DATA;
-    }
-
-    /*Try to reconstruct the version string.*/
-    memset(l_data_new, 0, sizeof(l_data_new));
-    sprintf((char *)l_data_new, "%d.%d.%d", (int)v_new[0], (int)v_new[1],
-            (int)v_new[2]);
-    if (memcmp(l_data_new, p_data, l_len) != 0) {
-        return OTA_BREEZE_ERROR_FORBIDDEN;
-    }
-
-    /* Check digits in software version */
-    if (v_new[0] > v_old[0]) { /*x*/
-        return 0;
-    } else if (v_new[0] < v_old[0]) {
-        return OTA_BREEZE_ERROR_FORBIDDEN;
-    }
-
-    if (v_new[1] > v_old[1]) { /*y*/
-        return 0;
-    } else if (v_new[1] < v_old[1]) {
-        return OTA_BREEZE_ERROR_FORBIDDEN;
-    }
-
-    if (v_new[2] <= v_old[2]) { /*z*/
-        return OTA_BREEZE_ERROR_FORBIDDEN;
-    }
-    return OTA_BREEZE_SUCCESS;
+VER_ERRO:
+    return ret;
 }
 
 unsigned int ota_breeze_align_to_page(unsigned int val, unsigned int page_size)
