@@ -247,7 +247,7 @@ DLL_IOT_API int IOT_Ioctl(int option, void *data);
 
 /** @} */ /* end of api */
 
-#include "iot_export_compat.h"
+/* #include "iot_export_compat.h" */
 #include "iot_export_errno.h"
 
 #if defined(DEV_BIND_ENABLED)

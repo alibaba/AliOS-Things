@@ -26,20 +26,17 @@ $(NAME)_SOURCES := $(LIBCOAP_SRC_PATH)/option.c \
                    ./coap_debug.c           \
                    ./coap_mbeddtls.c        \
                    ./mem.c                  \
-                   ./sdk-c/utils/digest/*.c \
-                   ./sdk-c/utils/misc/*.c   \
-                   ./sdk-c/log/*.c          \
-                   ./sdk-c/hal_impl.c
+                   ./external/utils/digest/*.c \
+                   ./external/utils/misc/*.c   \
+                   ./external/log/*.c          \
+                   ./external/hal_impl.c
 
 GLOBAL_INCLUDES += ./libcoap-4.2.0/include/coap2/  \
-                   ./sdk-c/include/                \
-                   ./sdk-c/include/exports/        \
-                   ./sdk-c/include/imports/        \
-                   ./sdk-c/utils/digest/           \
-                   ./sdk-c/utils/misc/             \
-                   ./sdk-c/utils/                  \
-                   ./sdk-c/log/                    \
-                   ./sdk-c/
+                   ./external/include/                \
+                   ./external/utils/digest/           \
+                   ./external/utils/misc/             \
+                   ./external/utils/                  \
+                   ./external/log/
 
 
 GLOBAL_DEFINES += COAP_COMM_ENABLED UTILS_MD5 UTILS_STRING UTILS_JSON_PARSER
