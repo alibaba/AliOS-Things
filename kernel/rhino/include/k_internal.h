@@ -23,8 +23,7 @@ extern ktask_t *g_active_task[RHINO_CONFIG_CPU_NUM];
 /* idle attribute */
 extern ktask_t      g_idle_task[RHINO_CONFIG_CPU_NUM];
 extern idle_count_t g_idle_count[RHINO_CONFIG_CPU_NUM];
-extern cpu_stack_t  g_idle_task_stack[RHINO_CONFIG_CPU_NUM]
-                                    [RHINO_CONFIG_IDLE_TASK_STACK_SIZE];
+extern cpu_stack_t  g_idle_task_stack[RHINO_CONFIG_CPU_NUM][RHINO_CONFIG_IDLE_TASK_STACK_SIZE];
 
 /* tick attribute */
 extern tick_t  g_tick_count;
@@ -103,9 +102,9 @@ extern klist_t     task_del_head;
 
 typedef struct
 {
-    size_t  cnt;
-    void *  res[RES_FREE_NUM];
-    klist_t res_list;
+    size_t   cnt;
+    void    *res[RES_FREE_NUM];
+    klist_t  res_list;
 } res_free_t;
 
 ktask_t *preferred_cpu_ready_task_get(runqueue_t *rq, uint8_t cpu_num);
@@ -129,7 +128,7 @@ void pend_task_rm(ktask_t *task);
 
 kstat_t pend_state_end_proc(ktask_t *task);
 
-void         idle_task(void *p_arg);
+void idle_task(void *p_arg);
 
 void tick_list_init(void);
 void tick_task_start(void);
@@ -149,8 +148,7 @@ void intrpt_disable_measure_start(void);
 void intrpt_disable_measure_stop(void);
 void dyn_mem_proc_task_start(void);
 
-kstat_t ringbuf_init(k_ringbuf_t *p_ringbuf, void *buf, size_t len, size_t type,
-                     size_t block_size);
+kstat_t ringbuf_init(k_ringbuf_t *p_ringbuf, void *buf, size_t len, size_t type,size_t block_size);
 kstat_t ringbuf_reset(k_ringbuf_t *p_ringbuf);
 kstat_t ringbuf_push(k_ringbuf_t *p_ringbuf, void *data, size_t len);
 kstat_t ringbuf_head_push(k_ringbuf_t *p_ringbuf, void *data, size_t len);
@@ -166,3 +164,4 @@ void cpu_pwr_up(void);
 #endif
 
 #endif /* K_INTERNAL_H */
+

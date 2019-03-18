@@ -46,5 +46,5 @@ RHINO_INLINE kstat_t ringbuf_queue_pop(k_ringbuf_t *p_ringbuf, void *pdata, size
     return RHINO_SUCCESS;
 }
 
-#endif
+#endif /* K_RINGBUF_H */
 

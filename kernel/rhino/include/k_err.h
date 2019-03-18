@@ -95,3 +95,4 @@ extern void k_err_proc_debug(kstat_t err, char *file, int line);
 #define k_err_proc(err) k_err_proc_debug(err, __FILE__, __LINE__)
 
 #endif /* K_ERR_H */
+

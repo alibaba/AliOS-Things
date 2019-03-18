@@ -35,12 +35,13 @@ typedef struct {
 } ktimer_t;
 
 typedef struct {
-    ktimer_t  *timer;
-    uint8_t    cb_num;
-    sys_time_t first;
+    ktimer_t   *timer;
+    uint8_t     cb_num;
+    sys_time_t  first;
+
     union {
-        sys_time_t round;
-        void      *arg;
+        sys_time_t  round;
+        void       *arg;
     } u;
 } k_timer_queue_cb;
 
@@ -82,8 +83,7 @@ kstat_t krhino_timer_del(ktimer_t *timer);
  * @param[in]  auto_run  auto run or not when the timer is created
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name,
-                                timer_cb_t cb,
+kstat_t krhino_timer_dyn_create(ktimer_t **timer, const name_t *name, timer_cb_t cb,
                                 sys_time_t first, sys_time_t round, void *arg, uint8_t auto_run);
 /**
  * This function will delete a dyn-timer
@@ -113,7 +113,7 @@ kstat_t krhino_timer_stop(ktimer_t *timer);
  * @param[in]  first  ticks of the first timer triger
  * @param[in]  round  ticks of the normal timer triger
  *
- * @note change the timer attributes should follow 
+ * @note change the timer attributes should follow
  *       the sequence as timer_stop->timer_change->timer_start
  *
  * @return  the operation status, RHINO_SUCCESS is OK, others is error

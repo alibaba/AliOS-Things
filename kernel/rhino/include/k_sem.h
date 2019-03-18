@@ -42,8 +42,7 @@ kstat_t krhino_sem_del(ksem_t *sem);
  * @param[in]   count  the init count of the semaphore
  * @return  the operation status, RHINO_SUCCESS is OK, others is error
  */
-kstat_t krhino_sem_dyn_create(ksem_t **sem, const name_t *name,
-                              sem_count_t count);
+kstat_t krhino_sem_dyn_create(ksem_t **sem, const name_t *name, sem_count_t count);
 
 /**
  * This function will delete a dyn-semaphore
