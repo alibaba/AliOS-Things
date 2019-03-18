@@ -66,7 +66,7 @@ typedef enum {
 #define OTA_BREEZE_ERROR_BINS_UPGRADE_NOT_SUPPORTED     (20)
 #define OTA_BREEZE_ERROR_SAVE_BREAKPOINT_FAIL           (21)
 #define OTA_BREEZE_ERROR_GET_BREAKPOINT_FAIL            (22)
-
+#define OTA_BREEZE_ERROR_INVALID_VERSION                (23)
 
 #define OTA_BREEZE_CMD_TYPE_GENERIC                     0x00                /**< Command type: generic */
 #define OTA_BREEZE_CMD_ERROR         (OTA_BREEZE_CMD_TYPE_GENERIC | 0xF)    /**< Error notification from peripheral to central. */
