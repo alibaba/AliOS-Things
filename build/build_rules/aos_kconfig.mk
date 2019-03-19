@@ -71,9 +71,9 @@ endif
 
 ifeq (yes,$(DOWNLOAD_KCONFIG))
 menuconfig: $(KCONFIG_MCONF)
-%_defconfig: $(KCONFIG_CONF)
 $(filter-out menuocnfig %_defconfig, $(noconfig_targets)): $(KCONFIG_CONF)
-$(AOS_CONFIG) $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF)
+$(AOS_CONFIG) $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: | $(KCONFIG_CONF)
+$(DEFCONFIG_FILES): | $(KCONFIG_CONF)
 endif
 
 # Use -include for GCC and --preinclude for other ARM compilers
