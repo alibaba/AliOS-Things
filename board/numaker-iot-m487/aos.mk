@@ -1,8 +1,8 @@
-NAME := board_numaker-pfm-m487
+NAME := board_numaker-iot-m487
 
 $(NAME)_MBINS_TYPE := kernel
 $(NAME)_VERSION    := 1.0.0
-$(NAME)_SUMMARY    := configuration for board numaker-pfm-m487
+$(NAME)_SUMMARY    := configuration for board numaker-iot-m487
 MODULE             := 1062
 HOST_ARCH          := Cortex-M4
 HOST_MCU_FAMILY    := mcu_m487jidae
@@ -12,7 +12,7 @@ ENABLE_VFP         := 1
 
 $(NAME)_COMPONENTS += $(HOST_MCU_FAMILY) newlib_stub kernel_init netmgr
 
-GLOBAL_DEFINES += NUMAKER_PFM_M487=1 STDIO_UART=0 STDIO_UART_BUADRATE=115200
+GLOBAL_DEFINES += NUMAKER_IOT_M487=1 STDIO_UART=0 STDIO_UART_BUADRATE=115200
 GLOBAL_DEFINES += CLI_CONFIG_SUPPORT_BOARD_CMD=1
 GLOBAL_DEFINES += KV_CONFIG_PARTITION=5
 
@@ -25,7 +25,7 @@ $(NAME)_SOURCES += config/k_config.c \
 $(NAME)_SOURCES += startup/startup_M480_gcc.c
 
 
-GLOBAL_LDFLAGS  += -T board/numaker-pfm-m487/M487.ld
+GLOBAL_LDFLAGS  += -T board/numaker-iot-m487/M487.ld
 
 GLOBAL_INCLUDES += .    \
                    config/   \
