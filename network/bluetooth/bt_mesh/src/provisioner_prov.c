@@ -2268,8 +2268,6 @@ static void prov_complete(const u8_t *data)
         BT_WARN("%s: Remove device from queue failed", __func__);
     }
 
-    BT_DBG("XXXXXXXX==========XXXXXXXXXXX");
-
     close_link(i, CLOSE_REASON_SUCCESS);
 }
 
