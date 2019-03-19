@@ -3,5 +3,5 @@
     "aliosStudio.hardware.board": "developerkit",
     "aliosStudio.name": "helloworld",
     "aliosStudio.aosVersion": "2.1.0",
-	"C_Cpp.default.browse.databaseFilename": "${workspaceRoot}/.vscode/.TAGS.AOS.DB",
+    "C_Cpp.default.browse.databaseFilename": "${workspaceRoot}/.vscode/.TAGS.AOS.DB",
 }
