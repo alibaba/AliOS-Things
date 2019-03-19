@@ -29,6 +29,8 @@ OTA_BIN_OUTPUT_FILE := $(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.ota$(BIN_OUTPUT
 EXTRA_POST_BUILD_TARGETS += gen_crc_bin
 gen_crc_bin:
 	$(eval OUT_MSG := $(shell $(ENCRYPT) $(BIN_OUTPUT_FILE) 0 0 0 0))
+ifeq ($(HOST_OS),Win32)
 	$(eval OUT_MSG := $(shell $(WIFI_TOOL) $(CRC_BIN_OUTPUT_FILE) $(BOOT)))
+endif
 	$(QUIET)$(CP) $(CRC_BIN_OUTPUT_FILE) $(OTA_BIN_OUTPUT_FILE)
-	@$(XZ_CMD)
+	$(QUIET)$(XZ_CMD)
