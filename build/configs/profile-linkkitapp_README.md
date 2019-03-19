@@ -8,6 +8,10 @@ This profile defines basic components and configurations for a device to connect
 - mk3060
 - mk3080
 - esp8266
+- esp32devkitc
+- uno-91h
+- bk7231
+- stm32f429zi-nucleo
 
 ### Usage
 Refer to app/example/linkkitapp/README.md.
