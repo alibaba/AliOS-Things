@@ -27,6 +27,12 @@ ifeq (,$(findstring kconfig-mconf,$(SYSTEM_KCONFIG_TOOLPATH)))
 KCONFIG_TOOLPATH := $(KCONFIG_DIR)
 DOWNLOAD_KCONFIG = yes
 endif
+
+# Fix for which output: "no kconfig-mconf in ..."
+ifneq (,$(findstring no kconfig-mconf in,$(SYSTEM_KCONFIG_TOOLPATH)))
+KCONFIG_TOOLPATH := $(KCONFIG_DIR)
+DOWNLOAD_KCONFIG = yes
+endif
 endif
 
 KCONFIG_MCONF := $(KCONFIG_TOOLPATH)kconfig-mconf
@@ -54,12 +60,13 @@ noconfig_targets := menuconfig oldconfig silentoldconfig olddefconfig \
 .PHONY: $(noconfig_targets)
 
 MAKEFILE_TARGETS += $(noconfig_targets)
+DEFCONFIG_FILES := $(notdir $(wildcard $(AOS_DEFCONFIG_DIR)/*_defconfig))
 
 ifeq (yes,$(DOWNLOAD_KCONFIG))
 menuconfig: $(KCONFIG_MCONF)
-%_defconfig: $(KCONFIG_CONF)
 $(filter-out menuocnfig %_defconfig, $(noconfig_targets)): $(KCONFIG_CONF)
-$(AOS_CONFIG) $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(KCONFIG_CONF)
+$(AOS_CONFIG) $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: | $(KCONFIG_CONF)
+$(DEFCONFIG_FILES): | $(KCONFIG_CONF)
 endif
 
 # Use -include for GCC and --preinclude for other ARM compilers
@@ -139,14 +146,14 @@ savedefconfig:
 		--savedefconfig=$(if $(AOS_DEFCONFIG),$(AOS_DEFCONFIG),$(AOS_CONFIG_DIR)/defconfig) \
 		$(AOS_CONFIG_IN)
 
-%_defconfig:
+$(DEFCONFIG_FILES):
 	$(QUIET)$(COMMON_CONFIG_ENV) $(KCONFIG_CONF) --defconfig=$(AOS_DEFCONFIG_DIR)/$@ $(AOS_CONFIG_IN)
 
-ECHO_DEFCONFIG = " $(notdir $(1))\n"
+ECHO_DEFCONFIG = " $(1)\n"
 list-defconfig:
 	$(QUIET)$(ECHO) ""
 	$(QUIET)$(ECHO) "Valid defconfigs:"
-	$(QUIET)$(ECHO) " "$(foreach defconfig,$(wildcard $(AOS_DEFCONFIG_DIR)/*_defconfig),$(call ECHO_DEFCONFIG,$(defconfig)))
+	$(QUIET)$(ECHO) " "$(foreach defconfig,$(DEFCONFIG_FILES),$(call ECHO_DEFCONFIG,$(defconfig)))
 
 $(AOS_CONFIG_DIR)/auto.conf $(AOS_CONFIG_DIR)/autoconf.h: $(AOS_CONFIG)
 	$(QUIET)$(ECHO) Creating $@ ...
