@@ -26,6 +26,12 @@
                 },
                 {
                     "text": "break application_start"
+                },
+                {
+                    "text": "monitor reset"
+                },
+                {
+                    "text": "load"
                 }
             ],
             "customLaunchSetupCommands": [],
