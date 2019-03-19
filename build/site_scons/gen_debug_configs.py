@@ -59,8 +59,7 @@ stm32_stlink = {
             "OSX": "@AOSROOT@/build/cmd/osx/st-util",
             "Win32": "@AOSROOT@/build/cmd/win32/st-util.exe"
         }
-    ],
-    "upload": True
+    ]
 }
 debug_configs['stm32_stlink'] = stm32_stlink
 
@@ -68,7 +67,6 @@ debug_configs['stm32_stlink'] = stm32_stlink
 pca10040 = {
     "prompt": "Please INSTALL Jlink Software Package, and ADD JLink to PATH environment, check: www.github.com/alibaba/AliOS-Things/wiki/debug",
     "port": 4242,
-    "upload": True,
     "cmd": [
         {
             "Linux64": "JLinkGDBServerCLExe",
@@ -78,7 +76,7 @@ pca10040 = {
         "-if",
         "swd",
         "-device",
-        "nRF52840_xxAA",
+        "nRF52832_xxAA",
         "-port",
         "4242"
     ]
@@ -89,7 +87,6 @@ debug_configs['pca10040'] = pca10040
 stm32f412zg_nucleo = {
     "prompt": "",
     "port": 4242,
-    "upload": True,
     "cmd": [
         {
             "Linux64": "@AOSROOT@/build/cmd/linux64/st-util",
@@ -104,7 +101,6 @@ debug_configs['stm32f412zg-nucleo'] = stm32f412zg_nucleo
 stm32f429zi_nucleo = {
     "prompt": "",
     "port": 4242,
-    "upload": True,
     "cmd": [
         {
             "Linux64": "@AOSROOT@/build/cmd/linux64/st-util",
@@ -133,11 +129,11 @@ def main():
     # Write debug configs
     for key in debug_configs:
         with open('debug/' + key + '.json', 'w') as f:
-            json.dump(debug_configs[key], f, sort_keys=True, indent=4)
+            json.dump(debug_configs[key], f, sort_keys=True, indent=4, separators=(',',': '))
 
     # Write registered boards
     with open('debug/registry_board.json', 'w') as f:
-        json.dump(registry_board, f, sort_keys=True, indent=4)
+        json.dump(registry_board, f, sort_keys=True, indent=4, separators=(',',': '))
 
 if __name__ == "__main__":
     main()

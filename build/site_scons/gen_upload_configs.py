@@ -182,10 +182,10 @@ pca10040 = {
 'cmd': [
     'python',
     '@AOSROOT@/build/site_scons/jlink.py',
-    '-d', 'nRF52840_xxAA',
+    '-d', 'nRF52832_xxAA',
     '-i', 'swd',
     '-f', '@AOSROOT@/out/@TARGET@/binary/@TARGET@.bin',
-    '-p', '0x00010000'
+    '-p', '0x00000000'
 ],
 }
 flash_configs['pca10040'] = pca10040
@@ -194,11 +194,11 @@ def main():
     # Write flash commands to json file
     for key in flash_configs:
         with open('upload/' + key + '.json', 'w') as f:
-            json.dump(flash_configs[key], f, sort_keys=True, indent=4)
+            json.dump(flash_configs[key], f, sort_keys=True, indent=4, separators=(',',': '))
 
     # Write registered boards to json file
     with open('upload/registry_board.json', 'w') as f:
-        json.dump(registry_board, f, sort_keys=True, indent=4)
+        json.dump(registry_board, f, sort_keys=True, indent=4, separators=(',',': '))
 
 if __name__ == "__main__":
     main()
