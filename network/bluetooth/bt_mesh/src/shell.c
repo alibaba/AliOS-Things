@@ -400,6 +400,7 @@ static struct bt_mesh_prov prov = {
 	.input = input,
 };
 
+#if CONFIG_BT_MESH_PROVISIONER
 static void provisioner_link_open(bt_mesh_prov_bearer_t bearer)
 {
 	printk("Provisioner link opened on %s\n", bearer2str(bearer));
@@ -521,6 +522,7 @@ static struct bt_mesh_provisioner provisioner = {
 	.prov_link_close        = provisioner_link_close,
 	.prov_complete          = provisioner_complete,
 };
+#endif
 
 static int cmd_static_oob(int argc, char *argv[])
 {
@@ -665,7 +667,11 @@ static void bt_ready(int err)
 
         printk("Bluetooth initialized\n");
 
+#if CONFIG_BT_MESH_PROVISIONER
         ret = bt_mesh_init(&prov, &comp, &provisioner);
+#else
+        ret = bt_mesh_init(&prov, &comp, NULL);
+#endif
         if (ret) {
                 printk("Mesh initialization failed (err %d)\n", ret);
         }
