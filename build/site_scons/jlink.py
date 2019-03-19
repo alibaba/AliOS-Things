@@ -80,10 +80,10 @@ def check_args():
     if not os.path.isfile(loadfile):
         print "loadfile is not exist"
         sys.exit(2)
-    
+
 def getopts():
 
-    global device, interface, speed, loadfile
+    global device, interface, speed, address, loadfile
     try:
         opts, args = getopt.getopt(sys.argv[1:],"vhd:i:s:f:p:",["version", "help", "device=","if=","speed=","loadfile=","addr="])
     except getopt.GetoptError as err:
@@ -93,7 +93,7 @@ def getopts():
         sys.exit(2)
 
     verbose = False
-    #print opts 
+    #print opts
     for o, a in opts:
         #print o, a
         if o in ("-v", "--version"):
