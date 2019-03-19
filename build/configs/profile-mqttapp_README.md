@@ -8,6 +8,9 @@ This profile defines basic components and configurations for connecting to Aliba
 - mk3060
 - mk3080
 - esp8266
-
+- esp32devkitc
+- uno-91h
+- bk7231
+- stm32f429zi-nucleo
 ### Usage
 Refer to app/example/mqttapp/README.md.
