@@ -30,13 +30,12 @@ void aos_2boot_os_entry()
 	os_entry_section_addr[1] = *(uint32_t *)(&buf[0x24]);
 	bd_len = *(uint32_t *)(&buf[0x8]);
 
-	//printf("app bd addr 0x%x, len 0x%x\n", bd_addr, bd_len);
 	printf("os entry section addr 0x%x, 0x%x\n", os_entry_section_addr[0], os_entry_section_addr[1]);
 
-	//拷贝OS数据到BD_RAM地址0x10005000
+	/* copy OS data section to BD_RAM 0x10005000 */
 	rec_flash_read_data(0x10005000, bd_addr + 0x20, bd_len);
 
-	//跳转到OS入口
+	/* jump to OS entry */
 	RamStartFun = os_entry_section_addr[0];
 	RamStartFun();
 	return;
@@ -44,7 +43,7 @@ void aos_2boot_os_entry()
 
 void aos_2boot_Image2()
 {
-	//BSS清0
+	/* clear BSS */
 	uint32_t BssLen = (__bss_end__ - __bss_start__);
 	_memset((void *) __bss_start__, 0, BssLen);
 
@@ -59,7 +58,7 @@ void aos_2boot_Image2()
 	if(!rec_2boot_cmd_check()) {
 		rec_2boot_cmd_process();
 	}
-	// normal start
+	/* normal start */
 	printf("os image start\r\n");
 
 	aos_2boot_os_entry();
@@ -67,7 +66,34 @@ void aos_2boot_Image2()
 
 void aos_2boot_wakeup()
 {
-	
+	uint8_t  buf[0x30];
+	uint32_t bd_addr = 0;
+	uint32_t bd_len = 0;
+	uint32_t partition_start_addr;
+	uint32_t os_entry_section_addr[2] = {0, 0};
+	hal_logic_partition_t *app_logic_partition = NULL;
+
+	VOID (*RamStartFun) (VOID);
+
+	app_logic_partition = rec_flash_get_info(HAL_PARTITION_APPLICATION);
+	if(NULL == app_logic_partition) {
+		return;
+	}
+	partition_start_addr = app_logic_partition->partition_start_addr;
+
+	rec_flash_read_data(buf, partition_start_addr, 16);
+	bd_addr = partition_start_addr + *(uint32_t *)&buf[8] + 0x20;
+
+	rec_flash_read_data(buf, bd_addr, 0x30);
+
+	os_entry_section_addr[0] = *(uint32_t *)(&buf[0x20]);
+	os_entry_section_addr[1] = *(uint32_t *)(&buf[0x24]);
+	bd_len = *(uint32_t *)(&buf[0x8]);
+
+	/* Jump to wakeup function */
+	RamStartFun = os_entry_section_addr[1];
+	RamStartFun();
+	return;
 }
 
 IMAGE2_VALID_PATTEN_SECTION
