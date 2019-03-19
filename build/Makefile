@@ -160,7 +160,7 @@ export AOS_APP_TYPE := AOS_APP_LOCALAPP
 endif
 
 boardname = $(word 2, $(components))
-boardmkfile = $(wildcard $(SOURCE_ROOT)board/$(boardname)/aos.mk $(SOURCE_ROOT)board/$(boardname)-*/aos.mk)
+boardmkfile = $(wildcard $(SOURCE_ROOT)board/$(boardname)/aos.mk)
 $(if $(boardmkfile),\
     $(eval include $(boardmkfile)) $(eval real_boardname = $(NAME)),\
     $(eval real_boardname = $(boardname)))
