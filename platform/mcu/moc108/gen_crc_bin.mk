@@ -1,8 +1,8 @@
 
 ifeq ($(HOST_OS),Win32)
 ENCRYPT := "$($(HOST_MCU_FAMILY)_LOCATION)/encrypt_win.exe"
-DD_CMD = $(TOOLS_ROOT)/cmd/win32/dd.exe if=/dev/zero of=$(TMP_BIN_OUTPUT_FILE) bs=28 count=1
-CAT_CMD= $(TOOLS_ROOT)/cmd/win32/cat.exe $(TMP_BIN_OUTPUT_FILE) $(BIN_OUTPUT_FILE) > $(PAD_BIN_OUTPUT_FILE)
+DD_CMD = $(PYTHON) "$($(HOST_MCU_FAMILY)_LOCATION)/padzero.py" $(BIN_OUTPUT_FILE) 28 $(PAD_BIN_OUTPUT_FILE)
+CAT_CMD = $(ECHO)
 else  # Win32
 ifeq ($(HOST_OS),Linux32)
 ENCRYPT := "$($(HOST_MCU_FAMILY)_LOCATION)/encrypt_linux"
