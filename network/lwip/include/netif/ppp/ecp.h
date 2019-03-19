@@ -28,7 +28,7 @@
  * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * $Id: ecp.h,v 1.2 2003/01/10 07:12:36 fcusack Exp $
+ * $Id: //components/rel/aos/alios_things.alios/1.0/network/lwip/include/netif/ppp/ecp.h#2 $
  */
 
 #include "netif/ppp/ppp_opts.h"

@@ -4,7 +4,7 @@
 
 #include <k_api.h>
 
-kstat_t      g_sys_stat;
+kstat_t      g_sys_stat = RHINO_STOPPED;
 uint8_t      g_idle_task_spawned[RHINO_CONFIG_CPU_NUM];
 
 runqueue_t   g_ready_queue;
@@ -29,7 +29,22 @@ tick_t       g_tick_count;
 klist_t      g_tick_head;
 
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
-kobj_list_t  g_kobj_list;
+kobj_list_t  g_kobj_list = {
+    {&g_kobj_list.task_head, &g_kobj_list.task_head},
+    {&g_kobj_list.mutex_head, &g_kobj_list.mutex_head},
+#if (RHINO_CONFIG_SEM > 0)
+    {&g_kobj_list.sem_head, &g_kobj_list.sem_head},
+#endif
+#if (RHINO_CONFIG_QUEUE > 0)
+    {&g_kobj_list.queue_head, &g_kobj_list.queue_head},
+#endif
+#if (RHINO_CONFIG_EVENT_FLAG > 0)
+    {&g_kobj_list.event_head, &g_kobj_list.event_head},
+#endif
+#if (RHINO_CONFIG_BUF_QUEUE > 0)
+    {&g_kobj_list.buf_queue_head, &g_kobj_list.buf_queue_head}
+#endif
+};
 #endif
 
 #if (RHINO_CONFIG_TIMER > 0)

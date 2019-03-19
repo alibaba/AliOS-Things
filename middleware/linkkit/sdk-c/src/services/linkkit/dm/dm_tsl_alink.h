@@ -22,3 +22,4 @@
 int dm_tsl_alink_create(_IN_ const char *tsl, _IN_ int tsl_len, _OU_ dm_shw_t **shadow);
 
 #endif
+

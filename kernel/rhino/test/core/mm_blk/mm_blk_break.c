@@ -10,7 +10,6 @@
 
 static uint8_t mm_blk_break_case1(void)
 {
-    void   *ptr;
     kstat_t ret;
 
     ret = krhino_mblk_pool_init(&mblk_pool_test, MODULE_NAME, (void *)mblk_pool,

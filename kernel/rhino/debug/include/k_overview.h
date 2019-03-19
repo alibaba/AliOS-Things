@@ -55,12 +55,19 @@ extern "C"
      */
     void krhino_sem_overview(int (*print_func)(const char *fmt, ...));
 
+     /**
+     * This function print the overview of event
+     * @param[in]   print_func    function to output information, NULL for
+     * "printf"
+     */
+    void krhino_event_overview(int (*print_func)(const char *fmt, ...));
+
     /**
      * This function print the overview of all
      * @param[in]   print_func    function to output information, NULL for
      * "printf"
      */
-    void krhino_overview();
+    void krhino_overview(void);
 
 #ifdef __cplusplus
 }

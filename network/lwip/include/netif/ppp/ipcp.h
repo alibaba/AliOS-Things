@@ -39,7 +39,7 @@
  * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * $Id: ipcp.h,v 1.14 2002/12/04 23:03:32 paulus Exp $
+ * $Id: //components/rel/aos/alios_things.alios/1.0/network/lwip/include/netif/ppp/ipcp.h#2 $
  */
 
 #include "netif/ppp/ppp_opts.h"

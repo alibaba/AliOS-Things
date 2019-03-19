@@ -18,3 +18,4 @@ int dm_ota_deinit(void);
 int dm_ota_get_ota_handle(void** handle);
 
 #endif
+

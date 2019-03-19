@@ -101,10 +101,10 @@ int aws_get_ssid_passwd(char ssid[32 + 1], char passwd[64 + 1], unsigned char bs
 //发送广播通知APP，配网成功。
 //默认会广播2min, 广播过程中收到APP应答后，提前终止
 //about 122.5 seconds.
-int awss_connectap_notify_stop();
-int awss_devinfo_notify();
-int awss_devinfo_notify_stop();
-int awss_connectap_notify();
+int awss_connectap_notify_stop(void);
+int awss_devinfo_notify(void);
+int awss_devinfo_notify_stop(void);
+int awss_connectap_notify(void);
 
 //配网结束（成功或失败）后，调用该函数，释放配网库占用的资源
 void aws_destroy(void);

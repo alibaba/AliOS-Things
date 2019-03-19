@@ -50,14 +50,24 @@ enum log_level_bit {
 
 #include <aos/kernel.h>
 extern int csp_printf(const char *fmt, ...);
+extern int log_file_printf(const char *fmt, ...);
+
+#if (CONFIG_LOG_FILE > 0)
+#define log_printf  log_file_printf
+#else
+#define log_printf  csp_printf
+#endif
+
+#define CONFIG_LOGMACRO_DETAILS   1
+
 #ifdef CONFIG_LOGMACRO_DETAILS
 #define log_print(CON, MOD, COLOR, LVL, ...) \
     do {                                          \
         if (CON) {                                \
             long long ms = aos_now_ms();;         \
-            csp_printf(COLOR " [%4d.%03d]<%s> %s [%s#%d] : ", (int)(ms/1000), (int)(ms%1000), LVL, MOD, __FUNCTION__, __LINE__); \
-            csp_printf(__VA_ARGS__); \
-            csp_printf("\r\n"); \
+            log_printf(COLOR " [%4d.%03d]<%s> %s [%s#%d] : ", (int)(ms/1000), (int)(ms%1000), LVL, MOD, __FUNCTION__, __LINE__); \
+            log_printf(__VA_ARGS__); \
+            log_printf("\r\n"); \
         } \
     } while (0)
 
@@ -65,9 +75,9 @@ extern int csp_printf(const char *fmt, ...);
 #define log_print(CON, MOD, COLOR, LVL, ...) \
     do { \
         if (CON) { \
-            csp_printf("[%06d]<" LVL "> ", (unsigned)aos_now_ms(), __VA_ARGS__); \
-            csp_printf(__VA_ARGS__); \
-            csp_printf("\r\n"); \
+            log_printf("[%06d]<" LVL "> ", (unsigned)aos_now_ms(), __VA_ARGS__); \
+            log_printf(__VA_ARGS__); \
+            log_printf("\r\n"); \
         } \
     } while (0)
 

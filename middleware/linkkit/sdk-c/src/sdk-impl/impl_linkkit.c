@@ -723,8 +723,8 @@ static int _iotx_linkkit_master_start(void)
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
     IOT_Ioctl(IOTX_IOCTL_GET_DOMAIN, &domain_type);
     IOT_Ioctl(IOTX_IOCTL_GET_DYNAMIC_REGISTER, &dynamic_register);
-    dm_init_params.domain_type = domain_type;
-    dm_init_params.secret_type = dynamic_register;
+    dm_init_params.domain_type = (iotx_dm_cloud_domain_types_t)domain_type;
+    dm_init_params.secret_type = (iotx_dm_device_secret_types_t)dynamic_register;
     dm_init_params.event_callback = _iotx_linkkit_event_callback;
 
     res = iotx_dm_start(&dm_init_params);
@@ -772,7 +772,7 @@ int IOT_Linkkit_Open(iotx_linkkit_dev_type_t dev_type, iotx_linkkit_dev_meta_inf
 {
     int res = 0;
 
-    if (dev_type < 0 || dev_type >= IOTX_LINKKIT_DEV_TYPE_MAX || meta_info == NULL) {
+    if ((int)dev_type < 0 || dev_type >= IOTX_LINKKIT_DEV_TYPE_MAX || meta_info == NULL) {
         sdk_err("Invalid Parameter");
         return FAIL_RETURN;
     }
@@ -803,7 +803,7 @@ int IOT_Linkkit_Ioctl(int devid, iotx_linkkit_ioctl_cmd_t cmd, void *arg)
     int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
-    if (devid < 0 || cmd < 0 || cmd >= IOTX_LINKKIT_CMD_MAX) {
+    if (devid < 0 || (int)cmd < 0 || cmd >= IOTX_LINKKIT_CMD_MAX) {
         sdk_err("Invalid Parameter");
         return FAIL_RETURN;
     }
@@ -897,7 +897,7 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char 
     int res = 0;
     iotx_linkkit_ctx_t *ctx = _iotx_linkkit_get_ctx();
 
-    if (devid < 0 || msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX || payload == NULL || payload_len <= 0) {
+    if (devid < 0 || (int)msg_type < 0 || msg_type >= IOTX_LINKKIT_MSG_MAX || payload == NULL || payload_len <= 0) {
         sdk_err("Invalid Parameter");
         return FAIL_RETURN;
     }
@@ -956,3 +956,4 @@ int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *pa
 }
 
 #endif
+

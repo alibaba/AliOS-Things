@@ -11,8 +11,6 @@ static ktask_t  task_misc2;
 static ktask_t *task_misc3;
 static ktask_t *task_misc4;
 
-static ksem_t *sem;
-static ksem_t *sem2;
 static ksem_t *sem3;
 
 static ksem_t       *sem4;
@@ -69,7 +67,6 @@ void task_misc_entry(void *arg)
     cpu_stack_t *task_misc2_stack;
     ktask_t       tmp;
 
-    CPSR_ALLOC();
 
     krhino_task_resume(task_misc3);
     krhino_task_del(task_misc3);

@@ -111,3 +111,4 @@ int platform_is_multicast(const char *ip_str)
     addr_in = platform_aton(ip_str);
     return (addr_in>0xE00000FF && addr_in<=0xEFFFFFFF);
 }
+

@@ -39,7 +39,7 @@
  * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * $Id: magic.h,v 1.5 2003/06/11 23:56:26 paulus Exp $
+ * $Id: //components/rel/aos/alios_things.alios/1.0/network/lwip/include/netif/ppp/magic.h#2 $
  */
 /*****************************************************************************
 * randm.h - Random number generator header file.

@@ -1,0 +1,155 @@
+
+import os
+
+env = Environment(ENV = os.environ)
+
+env['CC']  = 'arm-none-eabi-gcc'
+env['CXX'] = 'arm-none-eabi-g++'
+
+env['CCFLAGS'] = ['-ggdb',
+                  '-Os',
+                  '-w',
+                  '-Wall',
+                  '-Werror',
+                  '-Wfatal-errors',
+                  '-fsigned-char',
+                  '-ffunction-sections',
+                  '-fdata-sections',
+                  '-fno-common',
+                  '-std=gnu11',
+                  '-mcpu=cortex-a9',
+                  '-march=armv7-a',
+                  '-mfpu=vfpv3',
+                  '-mfloat-abi=softfp',
+                  '-mthumb-interwork',
+                  '-mlittle-endian',
+                  '-DBUILD_APP',
+                  '-DAOS_HAL',
+                  '-DSTDIO_UART=0',
+                  '-DCONFIG_NO_TCPIP',
+                  '-DCHIP_MX6SL',
+                  '-DBOARD_EVK',
+                  '-DBOARD_REV_A',
+                  '-DAOS_VFS',
+                  '-DAOS_BINS',
+                  '-DCONFIG_CLOUD',
+                  '-DAOS_FRAMEWORK_COMMON',
+                  '-DOSAL_RHINO',
+                  '-DCONFIG_ARM',
+                  '-DAOS_USPACE',
+                  '-DUSPACE_DYN',
+                  '-DDEPRECATED_LINKKIT',
+                  '-DMCU_FAMILY=\\"' + "MDM9607" + '\\"'
+                  ]
+
+env['LINKFLAGS'] = [
+                    '--static',
+                    '-Wl,-static',
+                    '-Wl,--warn-common',
+                    '-Wl,-no-whole-archive',
+                    '-Wl,--gc-sections',
+                    '-nostartfiles',
+                    '-mcpu=cortex-a9',
+                    '-mthumb-interwork',
+                    '-mlittle-endian',
+                    '--specs=nosys.specs',
+                    '-usystem_vectors',
+                    '-n',
+                    '-Tscripts/app1.ld',
+                   ]
+
+env['CPPPATH'] = [
+                  '../core/kernel/rtos/rhino_porting/mdm9607/board/include',
+                  'board/imx6sl_svc/include',
+                  'platform/arch/arm/armv7a/armcc/include',
+                  'platform/arch/arm/armv7a/armcc/a7',
+                  'platform/arch/arm/armv7a/common',
+                  'kernel/rhino/vfs/include',
+                  'kernel/rhino/fs/kv/include',
+                  'kernel/yloop/include',
+                  'kernel/init/include',
+                  'kernel/hal/include',
+                  'kernel/rhino',
+                  'kernel/rhino/core/include',
+                  'kernel/rhino/mm/tlsf',
+                  'kernel/uspace/include',
+                  'kernel/uspace/syscall/include',
+                  'middleware/alink/cloud/include',
+                  'middleware/common/include',
+                  'middleware/linkkit/sdk-c/include',
+                  'middleware/linkkit/sdk-c/src/infra/log',
+                  'middleware/linkkit/sdk-c/include/exports',
+                  'middleware/linkkit/sdk-c/include/imports',
+                  'middleware/linkkit/sdk-c/src/infra/utils/misc',
+                  'network/lwip/include',
+                  'network/lwip/port/include',
+                  'tools/cli/include',
+                  'tools/activation',
+                  'osal/include',
+                  'osal/aos',
+                  'utility/log/include',
+                  'utility/chip_code',
+                  'network/include',
+                  'app/example/uapp1',
+                  'app/example/uapp1/libcore',
+                  'app/example/uapp1/test',
+                  'app/example/uapp1/include',
+                  'app/example/linkkitapp',
+                ]
+
+sources = Split("""
+                kernel/rhino/mm/tlsf/tlsf.c
+                kernel/uspace/u_res_task.c
+                kernel/uspace/u_timer.c
+                kernel/uspace/u_mm.c
+		kernel/uspace/u_callback_task.c
+		kernel/uspace/u_cli_task.c
+                osal/aos/aos_rhino_uspace.c
+                kernel/uspace/syscall/usyscall/hal_adc_usyscall.c
+                kernel/uspace/syscall/usyscall/hal_flash_usyscall.c
+                kernel/uspace/syscall/usyscall/hal_gpio_usyscall.c
+                kernel/uspace/syscall/usyscall/hal_i2c_usyscall.c
+                kernel/uspace/syscall/usyscall/hal_rtc_usyscall.c
+                kernel/uspace/syscall/usyscall/hal_spi_usyscall.c
+                kernel/uspace/syscall/usyscall/hal_uart_usyscall.c
+                kernel/uspace/syscall/usyscall/cli_usyscall.c
+                kernel/uspace/syscall/usyscall/lwip_usyscall.c
+                kernel/uspace/syscall/usyscall/rhino_usyscall.c
+		kernel/uspace/syscall/usyscall/linkkit_usyscall.c
+                utility/libc/newlib_stub_uspace.c
+                utility/chip_code/chip_code.c
+                middleware/linkkit/hal/HAL_PRODUCT_rhino.c
+                middleware/linkkit/hal/HAL_OS_rhino.c
+                app/example/uapp1/libcore/task.c
+                app/example/uapp1/libcore/mutex.c
+                app/example/uapp1/libcore/semaphore.c
+                app/example/uapp1/libcore/systime.c
+                app/example/uapp1/libcore/timer.c
+                app/example/uapp1/src/entry.c
+                app/example/uapp1/src/app.c
+		app/example/uapp1/src/log.c
+                app/example/uapp1/src/ucli.c
+                app/example/uapp1/test/aos_uspace_test.c
+                app/example/uapp1/test/buf_queue_test.c
+                app/example/uapp1/test/cut.c
+                app/example/uapp1/test/mutex_test.c
+                app/example/uapp1/test/semaphore_test.c
+                app/example/uapp1/test/task_test.c
+                app/example/uapp1/test/test.c
+                app/example/uapp1/test/time_test.c
+                app/example/uapp1/test/timer_test.c
+                app/example/uapp1/test/lwip/http_download_new.c
+                app/example/uapp1/test/lwip/lwip_gethost.c
+		app/example/uapp1/test/lwip/lwip_tcp_client.c
+		app/example/uapp1/test/lwip/udp_client.c
+		app/example/uapp1/test/lwip/linkkit_example_solo.c
+		app/example/uapp1/test/aos_hal_dry_test.c
+		app/example/uapp1/net/lwip/core/def.c
+		app/example/uapp1/net/lwip/core/ip4_addr.c
+		app/example/uapp1/net/lwip/core/ip6_addr.c
+                """)
+
+object_list = env.Object(source = sources)
+
+env.Program(target = 'uapp1.elf', source = object_list)
+

@@ -46,7 +46,7 @@ static uint8_t mm_param_case2(void)
     MYASSERT(ptr == NULL);
 
     ptr = k_mm_alloc(pmmhead, 64);
-    MYASSERT((ptr > (void *)mm_pool) && (ptr < ((void *)mm_pool + MM_POOL_SIZE)));
+    MYASSERT(((unsigned long)ptr > (unsigned long)mm_pool) && ((unsigned long)ptr < ((unsigned long)mm_pool + MM_POOL_SIZE)));
     k_mm_free(pmmhead, ptr);
 
     ptr = k_mm_alloc(pmmhead, 16);

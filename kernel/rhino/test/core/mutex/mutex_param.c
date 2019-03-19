@@ -99,7 +99,6 @@ static uint8_t mutex_param_case1(void)
 static uint8_t mutex_param_case2(void)
 {
     kstat_t     ret;
-    CPSR_ALLOC();
 
     ret = krhino_mutex_create(&test_mutex, MODULE_NAME);
     MYASSERT(ret == RHINO_SUCCESS);

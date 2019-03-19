@@ -83,7 +83,7 @@ struct ap_info *zconfig_get_apinfo_by_ssid_suffix(u8 *ssid_suffix);
 
 /* add channel to scanning channel list */
 int zconfig_add_active_channel(int channel);
-uint8_t zconfig_get_press_status();
+uint8_t zconfig_get_press_status(void);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

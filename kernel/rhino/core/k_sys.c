@@ -29,15 +29,13 @@ kstat_t krhino_init(void)
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
     krhino_spin_lock_init(&g_sys_lock);
+    klist_init(&task_del_head);
 #endif
 
     runqueue_init(&g_ready_queue);
 
     tick_list_init();
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
-    kobj_list_init();
-#endif
 
 #if (RHINO_CONFIG_MM_TLF > 0)
     k_mm_init();

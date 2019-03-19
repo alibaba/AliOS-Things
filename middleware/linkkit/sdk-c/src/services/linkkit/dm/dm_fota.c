@@ -192,3 +192,4 @@ int dm_fota_status_check(void)
 #endif
     return SUCCESS_RETURN;
 }
+

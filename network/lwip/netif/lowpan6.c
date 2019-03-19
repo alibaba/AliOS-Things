@@ -109,7 +109,7 @@ lowpan6_tmr(void)
     if ((--lrh->timer) == 0) {
       dequeue_datagram(lrh);
       pbuf_free(lrh->pbuf);
-      mem_free(lrh);
+      lwip_mem_free(lrh);
     }
     lrh = lrh_temp;
   }
@@ -1043,7 +1043,7 @@ lowpan6_input(struct pbuf * p, struct netif *netif)
           lrh_temp = lrh->next_packet;
           dequeue_datagram(lrh);
           pbuf_free(lrh->pbuf);
-          mem_free(lrh);
+          lwip_mem_free(lrh);
 
           /* Check next datagram in queue. */
           lrh = lrh_temp;
@@ -1056,7 +1056,7 @@ lowpan6_input(struct pbuf * p, struct netif *netif)
 
     pbuf_header(p, -4); /* hide frag1 dispatch */
 
-    lrh = (struct lowpan6_reass_helper *) mem_malloc(sizeof(struct lowpan6_reass_helper));
+    lrh = (struct lowpan6_reass_helper *) lwip_mem_malloc(sizeof(struct lowpan6_reass_helper));
     if (lrh == NULL) {
       MIB2_STATS_NETIF_INC(netif, ifindiscards);
       pbuf_free(p);
@@ -1106,7 +1106,7 @@ lowpan6_input(struct pbuf * p, struct netif *netif)
       /* We have missed a fragment. Delete whole reassembly. */
       dequeue_datagram(lrh);
       pbuf_free(lrh->pbuf);
-      mem_free(lrh);
+      lwip_mem_free(lrh);
       pbuf_free(p);
       return ERR_OK;
     }
@@ -1122,7 +1122,7 @@ lowpan6_input(struct pbuf * p, struct netif *netif)
       p = lrh->pbuf;
 
       /* release helper */
-      mem_free(lrh);
+      lwip_mem_free(lrh);
     } else {
       return ERR_OK;
     }

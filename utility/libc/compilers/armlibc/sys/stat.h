@@ -4,7 +4,7 @@
 
 #ifndef _SYS_STAT_H__
 #define _SYS_STAT_H__
-
+#if 0
 #define S_IFMT               00170000
 #define S_IFSOCK             0140000
 #define S_IFLNK              0120000
@@ -39,7 +39,7 @@
 #define S_IROTH              00004
 #define S_IWOTH              00002
 #define S_IXOTH              00001
-
+#endif
 /* stat structure */
 #include <stdint.h>
 #include <time.h>

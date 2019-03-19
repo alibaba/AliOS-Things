@@ -128,6 +128,11 @@ struct nd6_q_entry {
 /** 1 second period */
 #define ND6_TMR_INTERVAL 1000
 
+/* two hours, expressed in number of seconds */
+#define ND6_2HRS 7200 
+/* maximum hop limit, required in all ND packets */
+#define ND6_HOPLIM 255 
+
 /* Router tables. */
 /* @todo make these static? and entries accessible through API? */
 extern struct nd6_neighbor_cache_entry neighbor_cache[];

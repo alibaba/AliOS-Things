@@ -1,6 +1,9 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
+#if defined(__ICCARM__) || defined(__CC_ARM)
+#include <sys/select.h>
+#endif
 
 #include <aos/aos.h>
 #include <aos/network.h>
@@ -12,10 +15,6 @@
 #include <limits.h>
 #include <string.h>
 #include <vfs_file.h>
-
-#if defined(__ICCARM__) || defined(__CC_ARM)
-#include <sys/select.h>
-#endif
 
 #ifdef IO_NEED_TRAP
 #include <vfs_trap.h>

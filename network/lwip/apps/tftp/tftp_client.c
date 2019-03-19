@@ -97,6 +97,7 @@ static void recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_
     pstate->last_tick = pstate->tick;
     uint16_t opcode = PP_NTOHS(sbuf[0]);
     uint16_t blknum, blklen;
+    int wlen;
     switch (opcode) {
         case TFTP_DATA:
             blknum = PP_NTOHS(sbuf[1]);
@@ -121,7 +122,7 @@ static void recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_
             LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE,
                     ("received new block '%d', len='%u'\n", blknum, blklen));
             pbuf_header(p, -TFTP_HEADER_LENGTH);
-            int wlen = pstate->ctx->write(pstate->handle, p);
+            wlen = pstate->ctx->write(pstate->handle, p);
             if (wlen != blklen) {
                 tftp_send_error(pstate->upcb, addr, port, TFTP_ERROR_DISK_FULL, "disk full");
                 LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE, ("write block failed\n"));
@@ -143,8 +144,10 @@ static void recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_
             }
             break;
         case TFTP_ERROR:
+#if 0
             LWIP_DEBUGF(TFTP_DEBUG | LWIP_DBG_STATE,
                     ("sever return error '%d', msg: '%s'\n", PP_NTOHS(sbuf[1]), &sbuf[2]));
+#endif
             close_handle(-1);
             break;
         default:
@@ -180,7 +183,7 @@ static int tftp_fread(void* handle, void* buf, int bytes)
 static int tftp_fwrite(void* handle, struct pbuf* p)
 {
     char buff[512];
-    size_t writebytes = -1;
+    int writebytes = -1;
     pbuf_copy_partial(p, buff, p->tot_len, 0);
     /* writebytes = fwrite(buff, 1, p->tot_len, (FILE *)handle); */
     writebytes = p->tot_len;

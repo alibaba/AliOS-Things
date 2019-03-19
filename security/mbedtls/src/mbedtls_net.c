@@ -383,6 +383,7 @@ int mbedtls_net_send(void *ctx, const unsigned char *buf, size_t len)
 int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
                              uint32_t timeout )
 {
+#if 0
     int ret;
     struct timeval tv;
     fd_set read_fds;
@@ -410,8 +411,9 @@ int mbedtls_net_recv_timeout(void *ctx, unsigned char *buf, size_t len,
 
         return MBEDTLS_ERR_NET_RECV_FAILED;
     }
-
+#endif
     return mbedtls_net_recv(ctx, buf, len);
+
 }
 
 void mbedtls_net_free(mbedtls_net_context *ctx)

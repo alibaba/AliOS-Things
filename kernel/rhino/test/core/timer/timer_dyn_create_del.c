@@ -67,7 +67,7 @@ static void timer_dyn_del_param_test(void)
 
 static void task_timer0_entry(void *arg)
 {
-    kstat_t ret = 0;
+    kstat_t ret = RHINO_SUCCESS;
 
     while (1) {
         /* check krhino_timer_dyn_create param */
@@ -122,6 +122,6 @@ kstat_t task_timer_dyn_create_del_test(void)
                                  0, TASK_TEST_STACK_SIZE, task_timer0_entry, 1);
     TIMER_VAL_CHK((ret == RHINO_SUCCESS) || (ret == RHINO_STOPPED));
 
-    return 0;
+    return RHINO_SUCCESS;
 }
 

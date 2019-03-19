@@ -5,6 +5,102 @@
 #include <k_api.h>
 
 #if (RHINO_CONFIG_KOBJ_DYN_ALLOC > 0)
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+
+#include <u_task.h>
+#include <u_res.h>
+
+static void free_user_res(task_group_t *group)
+{
+    klist_t      *listnode;
+    kmutex_t     *mutex;
+    ksem_t       *sem;
+    kqueue_t     *queue;
+    kbuf_queue_t *buf_queue;
+    kevent_t     *event;
+    klist_t      *head, *iter;
+
+    /*mutex res exit*/
+    head = &(group->kobj_list.mutex_head);
+    iter = head->next;
+
+    while (iter != head) {
+        mutex = krhino_list_entry(iter, kmutex_t, blk_obj.obj_list);
+        iter = iter->next;
+        krhino_mutex_dyn_del(mutex);
+    }
+
+    /*sem res exit*/
+    head = &(group->kobj_list.sem_head);
+    iter = head->next;
+
+    while (iter != head) {
+        sem = krhino_list_entry(iter, ksem_t, blk_obj.obj_list);
+        iter = iter->next;
+        krhino_sem_dyn_del(sem);
+    }
+
+    /*queue res exit*/
+    head = &(group->kobj_list.queue_head);
+    iter = head->next;
+
+    while (iter != head) {
+        queue = krhino_list_entry(iter, kqueue_t, blk_obj.obj_list);
+        iter = iter->next;
+        krhino_queue_dyn_del(queue);
+    }
+
+    /*buf queue res exit*/
+    head = &(group->kobj_list.buf_queue_head);
+    iter = head->next;
+
+    while (iter != head) {
+        buf_queue = krhino_list_entry(iter, kbuf_queue_t, blk_obj.obj_list);
+        iter = iter->next;
+        krhino_buf_queue_dyn_del(buf_queue);
+    }
+
+    /* event res exit*/
+    head = &(group->kobj_list.event_head);
+    iter = head->next;
+
+    while (iter != head) {
+        event = krhino_list_entry(iter, kevent_t, blk_obj.obj_list);
+        iter = iter->next;
+        krhino_event_dyn_del(event);
+    }
+}
+
+static void proc_free(ktask_t *task)
+{
+    CPSR_ALLOC();
+
+    kqueue_t     *res_q;
+    task_group_t *group;
+    int           pid;
+
+    #include <stdio.h>
+    printf("proc_free task %s\r\n", task->task_name);
+
+    group = task->task_group;
+    if (NULL == group) {
+        return;
+    }
+
+    if (group->task_cnt > 0) {
+        if (group->state == TGS_NORMAL) {
+            u_res_free(group->pid, task->task_ustack_base);
+        }
+    } else {
+        pid = group->pid;
+        free_user_res(group);
+        task_group_release(group);
+        k_proc_unload(pid);
+    }
+}
+#endif
+
 void dyn_mem_proc_task(void *arg)
 {
     CPSR_ALLOC();
@@ -28,6 +124,9 @@ void dyn_mem_proc_task(void *arg)
                 res_free = krhino_list_entry(g_res_list.next, res_free_t, res_list);
                 klist_rm(&res_free->res_list);
                 RHINO_CRITICAL_EXIT();
+#if (RHINO_CONFIG_USER_SPACE > 0)
+                proc_free((ktask_t *)(res_free->res[1]));
+#endif
                 memcpy(&tmp, res_free, sizeof(res_free_t));
                 for (i = 0; i < tmp.cnt; i++) {
                     krhino_mm_free(tmp.res[i]);

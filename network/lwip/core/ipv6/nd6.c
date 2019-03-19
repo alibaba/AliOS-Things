@@ -84,7 +84,19 @@ static u8_t nd6_cached_destination_index;
 static ip6_addr_t multicast_address;
 
 /* Static buffer to parse RA packet options (size of a prefix option, biggest option) */
-static u8_t nd6_ra_buffer[sizeof(struct prefix_option)];
+union ra_options {
+  struct lladdr_option  lladdr;
+  struct mtu_option     mtu;
+  struct prefix_option  prefix;
+#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
+  struct rdnss_option   rdnss;
+#endif
+};
+static union ra_options nd6_ra_buffer;
+static u8_t timer_stoped=0;
+#ifdef CELLULAR_SUPPORT
+static u32_t nd6_tmr_count = 0;
+#endif
 
 /* Forward declarations. */
 static s8_t nd6_find_neighbor_cache_entry(const ip6_addr_t *ip6addr);
@@ -100,6 +112,7 @@ static s8_t nd6_new_onlink_prefix(ip6_addr_t *prefix, struct netif *netif);
 
 #define ND6_SEND_FLAG_MULTICAST_DEST 0x01
 #define ND6_SEND_FLAG_ALLNODES_DEST 0x02
+#define ND6_SEND_FLAG_ANY_SRC 0x04
 static void nd6_send_ns(struct netif *netif, const ip6_addr_t *target_addr, u8_t flags);
 static void nd6_send_na(struct netif *netif, const ip6_addr_t *target_addr, u8_t flags);
 static void nd6_send_neighbor_cache_probe(struct nd6_neighbor_cache_entry *entry, u8_t flags);
@@ -113,7 +126,6 @@ static void nd6_free_q(struct nd6_q_entry *q);
 #define nd6_free_q(q) pbuf_free(q)
 #endif /* LWIP_ND6_QUEUEING */
 static void nd6_send_q(s8_t i);
-
 
 /**
  * Process an incoming neighbor discovery message
@@ -390,6 +402,10 @@ nd6_input(struct pbuf *p, struct netif *inp)
     struct ra_header *ra_hdr;
     u8_t *buffer; /* Used to copy options. */
     u16_t offset;
+#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
+    /* There can be multiple RDNSS options per RA */
+    u8_t rdnss_server_idx = 0;
+#endif /* LWIP_ND6_RDNSS_MAX_DNS_SERVERS */
 
     /* Check that RA header fits in packet. */
     if (p->len < sizeof(struct ra_header)) {
@@ -402,8 +418,28 @@ nd6_input(struct pbuf *p, struct netif *inp)
 
     ra_hdr = (struct ra_header *)p->payload;
 
+    /* Check a subset of the other RFC 4861 Sec. 6.1.2 requirements. */
+    if (!ip6_addr_islinklocal(ip6_current_src_addr()) ||
+        IP6H_HOPLIM(ip6_current_header()) != ND6_HOPLIM || ra_hdr->code != 0) {
+      pbuf_free(p);
+      ND6_STATS_INC(nd6.proterr);
+      ND6_STATS_INC(nd6.drop);
+      return;
+    }
+
+    /* @todo RFC MUST: all included options have a length greater than zero */
+
     /* If we are sending RS messages, stop. */
 #if LWIP_IPV6_SEND_ROUTER_SOLICIT
+#ifdef CELLULAR_SUPPORT
+    /*if dest addr isn't multicast addr, this RA must be responded to RS which be sent by UE initially.
+    so it could be stopped sending the next RS packet, this may be reduce nbiot radio bearer consuming*/
+    if(!ip6_addr_ismulticast(ip6_current_dest_addr()))
+    {
+        inp->rs_count = 0;
+    }
+    else
+#endif /* CELLULAR_SUPPORT */
     /* ensure at least one solicitation is sent */
     if ((inp->rs_count < LWIP_ND6_MAX_MULTICAST_SOLICIT) ||
         (nd6_send_rs(inp) == ERR_OK)) {
@@ -430,10 +466,16 @@ nd6_input(struct pbuf *p, struct netif *inp)
 
     /* Re-set default timer values. */
 #if LWIP_ND6_ALLOW_RA_UPDATES
-    if (ra_hdr->retrans_timer > 0) {
+#ifndef CELLULAR_SUPPORT
+    if (ra_hdr->retrans_timer > 0)
+#endif /* CELLULAR_SUPPORT */
+    {
       retrans_timer = lwip_htonl(ra_hdr->retrans_timer);
     }
-    if (ra_hdr->reachable_time > 0) {
+#ifndef CELLULAR_SUPPORT
+    if (ra_hdr->reachable_time > 0)
+#endif /* CELLULAR_SUPPORT */
+    {
       reachable_time = lwip_htonl(ra_hdr->reachable_time);
     }
 #endif /* LWIP_ND6_ALLOW_RA_UPDATES */
@@ -448,30 +490,44 @@ nd6_input(struct pbuf *p, struct netif *inp)
     offset = sizeof(struct ra_header);
 
     /* Process each option. */
-    while ((p->tot_len - offset) > 0) {
+    while ((p->tot_len - offset) >= 2) {
+      u8_t option_type;
+      u16_t option_len;
+      int option_len8 = pbuf_try_get_at(p, offset + 1);
+      if (option_len8 <= 0) {
+        /* read beyond end or zero length */
+        goto lenerr_drop_free_return;
+      }
+      option_len = ((u8_t)option_len8) << 3;
+      if (option_len > p->tot_len - offset) {
+        /* short packet (option does not fit in) */
+        goto lenerr_drop_free_return;
+      }
       if (p->len == p->tot_len) {
         /* no need to copy from contiguous pbuf */
         buffer = &((u8_t*)p->payload)[offset];
       } else {
-        buffer = nd6_ra_buffer;
-        if (pbuf_copy_partial(p, buffer, sizeof(struct prefix_option), offset) != sizeof(struct prefix_option)) {
-          pbuf_free(p);
-          ND6_STATS_INC(nd6.lenerr);
-          ND6_STATS_INC(nd6.drop);
-          return;
+        /* check if this option fits into our buffer */
+        if (option_len > sizeof(nd6_ra_buffer)) {
+          option_type = pbuf_get_at(p, offset);
+          /* invalid option length */
+          if (option_type != ND6_OPTION_TYPE_RDNSS) {
+            goto lenerr_drop_free_return;
         }
+          /* we allow RDNSS option to be longer - we'll just drop some servers */
+          option_len = sizeof(nd6_ra_buffer);
+        }
+        buffer = (u8_t*)&nd6_ra_buffer;
+        option_len = pbuf_copy_partial(p, &nd6_ra_buffer, option_len, offset);
       }
-      if (buffer[1] == 0) {
-        /* zero-length extension. drop packet */
-        pbuf_free(p);
-        ND6_STATS_INC(nd6.lenerr);
-        ND6_STATS_INC(nd6.drop);
-        return;
-      }
-      switch (buffer[0]) {
+      option_type = buffer[0];
+      switch (option_type) {
       case ND6_OPTION_TYPE_SOURCE_LLADDR:
       {
         struct lladdr_option *lladdr_opt;
+        if (option_len < sizeof(struct lladdr_option)) {
+          goto lenerr_drop_free_return;
+        }
         lladdr_opt = (struct lladdr_option *)buffer;
         if ((default_router_list[i].neighbor_entry != NULL) &&
             (default_router_list[i].neighbor_entry->state == ND6_INCOMPLETE)) {
@@ -484,6 +540,9 @@ nd6_input(struct pbuf *p, struct netif *inp)
       case ND6_OPTION_TYPE_MTU:
       {
         struct mtu_option *mtu_opt;
+        if (option_len < sizeof(struct mtu_option)) {
+          goto lenerr_drop_free_return;
+        }
         mtu_opt = (struct mtu_option *)buffer;
         if (lwip_htonl(mtu_opt->mtu) >= 1280) {
 #if LWIP_ND6_ALLOW_RA_UPDATES
@@ -495,6 +554,10 @@ nd6_input(struct pbuf *p, struct netif *inp)
       case ND6_OPTION_TYPE_PREFIX_INFO:
       {
         struct prefix_option *prefix_opt;
+        ip6_addr_t prefix_addr;
+        if (option_len < sizeof(struct prefix_option)) {
+          goto lenerr_drop_free_return;
+        }
         prefix_opt = (struct prefix_option *)buffer;
 
         if ((prefix_opt->flags & ND6_PREFIX_FLAG_ON_LINK) &&
@@ -534,6 +597,52 @@ nd6_input(struct pbuf *p, struct netif *inp)
         route_opt = (struct route_option *)buffer;*/
 
         break;
+#if LWIP_ND6_RDNSS_MAX_DNS_SERVERS
+      case ND6_OPTION_TYPE_RDNSS:
+      {
+        u8_t num, n;
+        u16_t copy_offset = offset + SIZEOF_RDNSS_OPTION_BASE;
+        struct rdnss_option * rdnss_opt;
+        if (option_len < SIZEOF_RDNSS_OPTION_BASE) {
+          goto lenerr_drop_free_return;
+        }
+
+        rdnss_opt = (struct rdnss_option *)buffer;
+        num = (rdnss_opt->length - 1) / 2;
+        for (n = 0; (rdnss_server_idx < DNS_MAX_SERVERS) && (n < num); n++) {
+          ip_addr_t rdnss_address;
+
+          /* Copy directly from pbuf to get an aligned, zoned copy of the prefix. */
+          if (pbuf_copy_partial(p, &rdnss_address, sizeof(ip6_addr_p_t), copy_offset) == sizeof(ip6_addr_p_t)) {
+            IP_SET_TYPE_VAL(rdnss_address, IPADDR_TYPE_V6);
+            ip6_addr_assign_zone(ip_2_ip6(&rdnss_address), IP6_UNKNOWN, inp);
+
+            if (htonl(rdnss_opt->lifetime) > 0) {
+              /* TODO implement Lifetime > 0 */
+#ifdef CELLULAR_SUPPORT
+              dns_setserver_if(rdnss_server_idx++, &rdnss_address, inp);
+#else
+              dns_setserver(rdnss_server_idx++, &rdnss_address);
+#endif
+            } else {
+              /* TODO implement DNS removal in dns.c */
+              u8_t s;
+              for (s = 0; s < DNS_MAX_SERVERS; s++) {
+                const ip_addr_t *addr = dns_getserver(s);
+                if(ip_addr_cmp(addr, &rdnss_address)) {
+#ifdef CELLULAR_SUPPORT
+                  dns_setserver_if(s, NULL, inp);
+#else
+                  dns_setserver(s, NULL);
+#endif
+                }
+              }
+            }
+          }
+        }
+        break;
+      }
+#endif /* LWIP_ND6_RDNSS_MAX_DNS_SERVERS */
       default:
         /* Unrecognized option, abort. */
         ND6_STATS_INC(nd6.proterr);
@@ -660,6 +769,11 @@ nd6_input(struct pbuf *p, struct netif *inp)
   }
 
   pbuf_free(p);
+  return;
+lenerr_drop_free_return:
+  ND6_STATS_INC(nd6.lenerr);
+  ND6_STATS_INC(nd6.drop);
+  pbuf_free(p);
 }
 
 
@@ -697,12 +811,18 @@ nd6_tmr(void)
       if (neighbor_cache[i].q != NULL) {
         nd6_send_q(i);
       }
+#ifdef CELLULAR_SUPPORT
+      if(neighbor_cache[i].counter.reachable_time != 0) {
+#endif /* CELLULAR_SUPPORT */
       if (neighbor_cache[i].counter.reachable_time <= ND6_TMR_INTERVAL) {
         /* Change to stale state. */
         neighbor_cache[i].state = ND6_STALE;
         neighbor_cache[i].counter.stale_time = 0;
       } else {
         neighbor_cache[i].counter.reachable_time -= ND6_TMR_INTERVAL;
+#ifdef CELLULAR_SUPPORT
+      }
+#endif /* CELLULAR_SUPPORT */
       }
       break;
     case ND6_STALE:
@@ -824,6 +944,7 @@ nd6_tmr(void)
     for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; ++i) {
       u8_t addr_state = netif_ip6_addr_state(netif, i);
       if (ip6_addr_istentative(addr_state)) {
+#ifndef CELLULAR_SUPPORT
         if ((addr_state & IP6_ADDR_TENTATIVE_COUNT_MASK) >= LWIP_IPV6_DUP_DETECT_ATTEMPTS) {
           /* No NA received in response. Mark address as valid. */
           netif_ip6_addr_set_state(netif, i, IP6_ADDR_PREFERRED);
@@ -838,11 +959,14 @@ nd6_tmr(void)
 #endif /* LWIP_IPV6_MLD */
           /* Send a NS for this address. */
           nd6_send_ns(netif, netif_ip6_addr(netif, i), ND6_SEND_FLAG_MULTICAST_DEST);
-          /* tentative: set next state by increasing by one */
+	  /* tentative: set next state by increasing by one */
           netif_ip6_addr_set_state(netif, i, addr_state + 1);
           /* @todo send max 1 NS per tmr call? enable return*/
           /*return;*/
         }
+#else
+          netif_ip6_addr_set_state(netif, i, IP6_ADDR_PREFERRED);
+#endif
       }
     }
   }
@@ -852,11 +976,18 @@ nd6_tmr(void)
   for (netif = netif_list; netif != NULL; netif = netif->next) {
     if ((netif->rs_count > 0) && (netif->flags & NETIF_FLAG_UP) &&
         (!ip6_addr_isinvalid(netif_ip6_addr_state(netif, 0)))) {
+#ifdef CELLULAR_SUPPORT
+      if(nd6_tmr_count % 8 != 0)
+        continue;
+#endif /* CELLULAR_SUPPORT */
       if (nd6_send_rs(netif) == ERR_OK) {
         netif->rs_count--;
       }
     }
   }
+#ifdef CELLULAR_SUPPORT
+  nd6_tmr_count++;
+#endif /* CELLULAR_SUPPORT */
 #endif /* LWIP_IPV6_SEND_ROUTER_SOLICIT */
 
 }
@@ -887,7 +1018,8 @@ nd6_send_ns(struct netif *netif, const ip6_addr_t *target_addr, u8_t flags)
   const ip6_addr_t *src_addr;
   u16_t lladdr_opt_len;
 
-  if (ip6_addr_isvalid(netif_ip6_addr_state(netif,0))) {
+  if (!(flags & ND6_SEND_FLAG_ANY_SRC) &&
+      ip6_addr_isvalid(netif_ip6_addr_state(netif,0))) {
     /* Use link-local address as source address. */
     src_addr = netif_ip6_addr(netif, 0);
     /* calculate option length (in 8-byte-blocks) */
@@ -1029,12 +1161,16 @@ nd6_send_rs(struct netif *netif)
   err_t err;
   u16_t lladdr_opt_len = 0;
 
+#ifdef CELLULAR_SUPPORT
+    src_addr = netif_ip6_addr(netif, 0);
+#else
   /* Link-local source address, or unspecified address? */
   if (ip6_addr_isvalid(netif_ip6_addr_state(netif, 0))) {
     src_addr = netif_ip6_addr(netif, 0);
   } else {
     src_addr = IP6_ADDR_ANY6;
   }
+#endif
 
   /* Generate the all routers target address. */
   ip6_addr_set_allrouters_linklocal(&multicast_address);
@@ -1430,9 +1566,16 @@ nd6_new_router(const ip6_addr_t *router_addr, struct netif *netif)
     ip6_addr_set(&(neighbor_cache[neighbor_index].next_hop_address), router_addr);
     neighbor_cache[neighbor_index].netif = netif;
     neighbor_cache[neighbor_index].q = NULL;
+#ifdef CELLULAR_SUPPORT
+    neighbor_cache[neighbor_index].state = ND6_REACHABLE;
+    neighbor_cache[neighbor_index].counter.reachable_time = reachable_time;
+#else
     neighbor_cache[neighbor_index].state = ND6_INCOMPLETE;
+#endif /* CELLULAR_SUPPORT */
     neighbor_cache[neighbor_index].counter.probes_sent = 1;
+#ifndef CELLULAR_SUPPORT
     nd6_send_neighbor_cache_probe(&neighbor_cache[neighbor_index], ND6_SEND_FLAG_MULTICAST_DEST);
+#endif /* CELLULAR_SUPPORT */
   }
 
   /* Mark neighbor as router. */

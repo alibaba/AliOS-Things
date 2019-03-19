@@ -1876,7 +1876,7 @@ mdns_resp_add_netif(struct netif *netif, const char *hostname, u32_t dns_ttl)
   LWIP_ERROR("mdns_resp_add_netif: Hostname too long", (strlen(hostname) <= MDNS_LABEL_MAXLEN), return ERR_VAL);
 
   LWIP_ASSERT("mdns_resp_add_netif: Double add", NETIF_TO_HOST(netif) == NULL);
-  mdns = (struct mdns_host *) mem_malloc(sizeof(struct mdns_host));
+  mdns = (struct mdns_host *) lwip_mem_malloc(sizeof(struct mdns_host));
   LWIP_ERROR("mdns_resp_add_netif: Alloc failed", (mdns != NULL), return ERR_MEM);
 
   netif_set_client_data(netif, mdns_netif_client_id, mdns);
@@ -1903,7 +1903,7 @@ mdns_resp_add_netif(struct netif *netif, const char *hostname, u32_t dns_ttl)
   return ERR_OK;
 
 cleanup:
-  mem_free(mdns);
+  lwip_mem_free(mdns);
   netif_set_client_data(netif, mdns_netif_client_id, NULL);
   return res;
 }
@@ -1928,7 +1928,7 @@ mdns_resp_remove_netif(struct netif *netif)
   for (i = 0; i < MDNS_MAX_SERVICES; i++) {
     struct mdns_service *service = mdns->services[i];
     if (service) {
-      mem_free(service);
+      lwip_mem_free(service);
     }
   }
 
@@ -1940,7 +1940,7 @@ mdns_resp_remove_netif(struct netif *netif)
   mld6_leavegroup_netif(netif, ip_2_ip6(&v6group));
 #endif
 
-  mem_free(mdns);
+  lwip_mem_free(mdns);
   netif_set_client_data(netif, mdns_netif_client_id, NULL);
   return ERR_OK;
 }
@@ -1984,7 +1984,7 @@ mdns_resp_add_service(struct netif *netif, const char *name, const char *service
   }
   LWIP_ERROR("mdns_resp_add_service: Service list full (increase MDNS_MAX_SERVICES)", (slot >= 0), return ERR_MEM);
 
-  srv = (struct mdns_service*)mem_malloc(sizeof(struct mdns_service));
+  srv = (struct mdns_service*)lwip_mem_malloc(sizeof(struct mdns_service));
   LWIP_ERROR("mdns_resp_add_service: Alloc failed", (srv != NULL), return ERR_MEM);
 
   memset(srv, 0, sizeof(struct mdns_service));

@@ -136,7 +136,7 @@ int awss_cmp_coap_ob_send(void *buf, unsigned int len, void *sa, const char *uri
 {
     if (g_coap_ctx == NULL) g_coap_ctx = (void *)CoAPServer_init();
 
-    return CoAPObsServer_notify(g_coap_ctx, uri, (unsigned char *)buf, (unsigned short)len, cb);
+    return CoAPObsServer_notify(g_coap_ctx, uri, (unsigned char *)buf, (unsigned short)len, (CoAPDataEncrypt)cb);
 }
 
 int awss_cmp_coap_deinit()

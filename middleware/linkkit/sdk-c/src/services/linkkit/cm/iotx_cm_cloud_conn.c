@@ -834,7 +834,7 @@ int iotx_cm_cloud_conn_send(void *handler,
 {
     iotx_cm_connectivity_t *connectivity = (iotx_cm_connectivity_t *)_connectivity;
     iotx_cm_connection_t *connection = NULL;
-    iotx_connection_msg_t msg = {0};
+    iotx_connection_msg_t msg;
 
     connection = (iotx_cm_connection_t *)connectivity->context;
 
@@ -842,6 +842,7 @@ int iotx_cm_cloud_conn_send(void *handler,
         return FAIL_RETURN;
     }
 
+    memset(&msg, 0, sizeof (iotx_connection_msg_t));
     msg.type = IOTX_CONNECTION_MESSAGE_TYPE_SEND;
     msg.ack_type = ack_type;
     msg.URI = (char *)topic_filter;

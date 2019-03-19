@@ -92,6 +92,6 @@ kstat_t task_queue_nowait_recv_test(void)
                                  0, TASK_TEST_STACK_SIZE, task_queue0_entry, 1);
     QUEUE_VAL_CHK((ret == RHINO_SUCCESS) || (ret == RHINO_STOPPED));
 
-    return 0;
+    return RHINO_SUCCESS;
 }
 

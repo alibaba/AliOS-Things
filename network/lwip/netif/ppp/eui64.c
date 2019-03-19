@@ -32,7 +32,7 @@
  * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * $Id: eui64.c,v 1.6 2002/12/04 23:03:32 paulus Exp $
+ * $Id: //components/rel/aos/alios_things.alios/1.0/network/lwip/netif/ppp/eui64.c#2 $
  */
 
 #include "netif/ppp/ppp_opts.h"

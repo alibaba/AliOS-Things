@@ -18,3 +18,4 @@ int dm_cota_get_config(const char* config_scope, const char* get_type, const cha
 int dm_cota_status_check(void);
 
 #endif
+

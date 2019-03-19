@@ -47,7 +47,7 @@ uintptr_t HAL_TCP_Establish(_IN_ const char *host, _IN_ uint16_t port)
 
     if ((rc = getaddrinfo(host, service, &hints, &addrInfoList)) != 0) {
         PLATFORM_LOG_E("getaddrinfo error");
-        return -1;
+        return (uintptr_t)-1;
     }
     for (cur = addrInfoList; cur != NULL; cur = cur->ai_next) {
 
@@ -181,7 +181,9 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     int            ret, err_code;
     uint32_t       len_recv;
     uint64_t       t_end, t_left;
+#if 0
     fd_set         sets;
+#endif
     struct timeval timeout;
 
     t_end    = HAL_UptimeMs() + timeout_ms;

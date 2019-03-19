@@ -34,15 +34,14 @@ typedef struct blk_obj {
     const name_t    *name;
     blk_policy_t     blk_policy;
     kobj_type_t      obj_type;
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    klist_t          obj_list;
+#endif
 } blk_obj_t;
 
 typedef struct {
     klist_t task_head;
     klist_t mutex_head;
-
-#if (RHINO_CONFIG_MM_BLK > 0)
-    klist_t mblkpool_head;
-#endif
 
 #if (RHINO_CONFIG_SEM > 0)
     klist_t sem_head;

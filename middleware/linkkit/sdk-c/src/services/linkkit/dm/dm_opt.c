@@ -16,7 +16,7 @@ int dm_opt_set(dm_opt_t opt, void *data)
 	int res = SUCCESS_RETURN;
 
 	if (data == NULL) {return FAIL_RETURN;}
-	
+
 	switch (opt) {
 		case DM_OPT_DOWNSTREAM_PROPERTY_POST_REPLY: {
 			int opt = *(int *)(data);
@@ -46,7 +46,7 @@ int dm_opt_set(dm_opt_t opt, void *data)
 int dm_opt_get(dm_opt_t opt, void *data)
 {
 	int res = SUCCESS_RETURN;
-	
+
 	if (data == NULL) {return FAIL_RETURN;}
 
 	switch (opt) {
@@ -71,3 +71,4 @@ int dm_opt_get(dm_opt_t opt, void *data)
 
 	return res;
 }
+

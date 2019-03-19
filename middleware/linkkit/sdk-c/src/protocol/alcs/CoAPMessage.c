@@ -236,7 +236,7 @@ int CoAPMessageCode_get(CoAPMessage *message, CoAPMessageCode *code)
     if (NULL == message || NULL == code) {
         return COAP_ERROR_NULL;
     }
-    *code = message->header.code;
+    *code = (CoAPMessageCode)message->header.code;
     return COAP_SUCCESS;
 }
 
@@ -610,7 +610,7 @@ static int CoAPErrRespMessage_send(CoAPContext *context, NetworkAddr *remote, Co
     CoAPIntContext *ctx =  (CoAPIntContext *)context;
 
     CoAPMessage_init(&response);
-    CoAPMessageCode_set(&response, err_code);
+    CoAPMessageCode_set(&response, (CoAPMessageCode)err_code);
     CoAPMessageId_set(&response, message->header.msgid);
     CoAPMessageToken_set(&response, message->token, message->header.tokenlen);
     if (COAP_MESSAGE_TYPE_CON == message->header.type) {

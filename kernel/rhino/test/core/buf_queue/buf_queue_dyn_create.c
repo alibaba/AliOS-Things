@@ -63,7 +63,7 @@ static void task_queue0_entry(void *arg)
 {
     int     i;
     size_t  size;
-    kstat_t ret = 0;
+    kstat_t ret = RHINO_SUCCESS;
 
     while (1) {
         /* check krhino_buf_queue_dyn_create param */
@@ -123,6 +123,6 @@ kstat_t task_buf_queue_dyn_create_test(void)
                                  0, TASK_TEST_STACK_SIZE, task_queue1_entry, 1);
     BUFQUEUE_VAL_CHK(ret == RHINO_SUCCESS);
 
-    return 0;
+    return RHINO_SUCCESS;
 }
 

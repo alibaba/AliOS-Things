@@ -46,6 +46,7 @@
 
 #if LWIP_IPV6  /* don't build if not configured for use in lwipopts.h */
 
+#include "lwip/ip6_zone.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -262,6 +263,7 @@ Little-endian version, stored in network order (no lwip_htonl). */
 #define IP6_ADDR_VALID        0x10 /* This bit marks an address as valid (preferred or deprecated) */
 #define IP6_ADDR_PREFERRED    0x30
 #define IP6_ADDR_DEPRECATED   0x10 /* Same as VALID (valid but not preferred) */
+#define IP6_ADDR_DUPLICATED   0x40 /* Failed DAD test, not valid */
 
 #define IP6_ADDR_TENTATIVE_COUNT_MASK 0x07 /* 1-7 probes sent */
 
@@ -270,6 +272,14 @@ Little-endian version, stored in network order (no lwip_htonl). */
 #define ip6_addr_isvalid(addr_state) (addr_state & IP6_ADDR_VALID) /* Include valid, preferred, and deprecated. */
 #define ip6_addr_ispreferred(addr_state) (addr_state == IP6_ADDR_PREFERRED)
 #define ip6_addr_isdeprecated(addr_state) (addr_state == IP6_ADDR_DEPRECATED)
+#define ip6_addr_isduplicated(addr_state) (addr_state == IP6_ADDR_DUPLICATED)
+
+#define IP6_ADDR_LIFE_STATIC   (0)
+#if LWIP_IPV6_ADDRESS_LIFETIMES
+#define IP6_ADDR_LIFE_INFINITE (0xffffffffUL)
+#define ip6_addr_life_isstatic(addr_life) ((addr_life) == IP6_ADDR_LIFE_STATIC)
+#define ip6_addr_life_isinfinite(addr_life) ((addr_life) == IP6_ADDR_LIFE_INFINITE)
+#endif /* LWIP_IPV6_ADDRESS_LIFETIMES */
 
 #define ip6_addr_debug_print_parts(debug, a, b, c, d, e, f, g, h) \
   LWIP_DEBUGF(debug, ("%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F, \

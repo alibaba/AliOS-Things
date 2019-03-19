@@ -19,6 +19,7 @@
 #include "alcs_adapter.h"
 #include "alcs_mqtt.h"
 #include "CoAPPlatform.h"
+#include "iotx_utils.h"
 
 static iotx_alcs_adapter_t g_alcs_adapter;
 

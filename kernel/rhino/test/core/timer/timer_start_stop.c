@@ -15,7 +15,6 @@
 static ktask_t  *task_0_test;
 static ktimer_t  timer_0_test;
 static ksem_t    sem_0_test;
-static uint32_t timer_0_count;
 
 static void timer_0_func(void *timer, void *arg)
 {
@@ -40,11 +39,8 @@ static void timer_stop_param_test()
 
 static void task_timer0_entry(void *arg)
 {
-    kstat_t ret = 0;
-
+    kstat_t ret = RHINO_SUCCESS; 
     while (1) {
-        timer_0_count = 0;
-
         /* check krhino_timer_start param */
         timer_start_param_test();
 
@@ -84,6 +80,5 @@ kstat_t task_timer_start_stop_test(void)
                                  0, TASK_TEST_STACK_SIZE, task_timer0_entry, 1);
     TIMER_VAL_CHK((ret == RHINO_SUCCESS) || (ret == RHINO_STOPPED));
 
-    return 0;
-}
-
+    return RHINO_SUCCESS;
+} 

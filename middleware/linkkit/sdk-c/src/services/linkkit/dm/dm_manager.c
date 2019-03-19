@@ -1859,7 +1859,7 @@ int dm_mgr_deprecated_set_tsl_source(_IN_ int devid, _IN_ iotx_dm_tsl_source_t t
     int res = 0;
     dm_mgr_dev_node_t *node = NULL;
 
-    if (devid < 0 || tsl_source < 0) {
+    if (devid < 0 || (int)tsl_source < 0) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         return FAIL_RETURN;
     }
@@ -2549,3 +2549,4 @@ int dm_mgr_deprecated_assemble_service_output(_IN_ int devid, _IN_ char *identif
     return SUCCESS_RETURN;
 }
 #endif
+

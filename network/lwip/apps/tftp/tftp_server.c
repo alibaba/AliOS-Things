@@ -365,7 +365,7 @@ static int tftp_fread(void* handle, void* buf, int bytes)
 static int tftp_fwrite(void* handle, struct pbuf* p)
 {
     char buff[512];
-    size_t writebytes = -1;
+    int writebytes = -1;
     pbuf_copy_partial(p, buff, p->tot_len, 0);
     writebytes = fwrite(buff, 1, p->tot_len, (FILE *)handle);
     return (int)writebytes;

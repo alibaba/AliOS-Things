@@ -39,7 +39,7 @@
  * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * $Id: upap.h,v 1.8 2002/12/04 23:03:33 paulus Exp $
+ * $Id: //components/rel/aos/alios_things.alios/1.0/network/lwip/include/netif/ppp/upap.h#2 $
  */
 
 #include "netif/ppp/ppp_opts.h"

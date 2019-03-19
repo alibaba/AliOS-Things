@@ -985,8 +985,6 @@ static int pk_parse_key_pkcs8_unencrypted_der(
     } else
 #endif /* MBEDTLS_ECP_C */
         return( MBEDTLS_ERR_PK_UNKNOWN_PK_ALG );
-
-    return( 0 );
 }
 
 /*

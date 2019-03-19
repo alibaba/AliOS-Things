@@ -261,7 +261,7 @@ int HAL_Awss_Connect_Ap(
  * @see None.
  * @note None.
  */
-int HAL_Sys_Net_Is_Ready();
+int HAL_Sys_Net_Is_Ready(void);
 
 /* 80211 frame type */
 typedef enum HAL_Awss_Frame_Type {
@@ -421,7 +421,7 @@ int HAL_Wifi_Get_Ap_Info(
    @endverbatim
  * @see None.
  */
-int HAL_Awss_Get_Encrypt_Type();
+int HAL_Awss_Get_Encrypt_Type(void);
 
 /**
  * @brief    Get Security level for wifi configuration with connection.
@@ -437,7 +437,7 @@ int HAL_Awss_Get_Encrypt_Type();
    @endverbatim
  * @see None.
  */
-int HAL_Awss_Get_Conn_Encrypt_Type();
+int HAL_Awss_Get_Conn_Encrypt_Type(void);
 
 
 #ifdef __cplusplus

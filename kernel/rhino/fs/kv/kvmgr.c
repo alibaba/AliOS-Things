@@ -4,6 +4,7 @@
 
 #include "kvmgr.h"
 #include "kv_defs.h"
+#include "aos/aos.h"
 
 static kv_mgr_t g_kv_mgr;
 static void kv_gc_task(void *arg);
@@ -684,11 +685,10 @@ static int kv_init(void)
  */
 static void kv_gc_task(void *arg)
 {
-    int res;
     kv_size_t origin_pos;
     uint8_t i, gc_idx, gc_copy = 0;
 
-    if ((res = kv_os_mutex_lock(&(g_kv_mgr.mutex), KV_WAIT_FOREVER)) != RES_OK) {
+    if (RES_OK != kv_os_mutex_lock(&(g_kv_mgr.mutex), KV_WAIT_FOREVER)) {
         goto exit;
     }
 
@@ -772,9 +772,9 @@ int aos_kv_del(const char *key)
 
 int aos_kv_del_by_prefix(const char *prefix)
 {
-    int i, res;
+    int i;
 
-    if ((res = kv_os_mutex_lock(&(g_kv_mgr.mutex), KV_WAIT_FOREVER)) != RES_OK) {
+    if (RES_OK != kv_os_mutex_lock(&(g_kv_mgr.mutex), KV_WAIT_FOREVER)) {
         return RES_MUTEX_ERR;
     }
 
@@ -819,14 +819,13 @@ int aos_kv_set(const char *key, const void *val, int len, int sync)
 
 int aos_kv_get(const char *key, void *buffer, int *buffer_len)
 {
-    int res;
     kv_item_t *item = NULL;
 
     if (!key || !buffer || !buffer_len || (*buffer_len <= 0)) {
         return RES_INVALID_PARAM;
     }
 
-    if ((res = kv_os_mutex_lock(&(g_kv_mgr.mutex), KV_WAIT_FOREVER)) != RES_OK) {
+    if (RES_OK != kv_os_mutex_lock(&(g_kv_mgr.mutex), KV_WAIT_FOREVER)) {
         return RES_MUTEX_ERR;
     }
 

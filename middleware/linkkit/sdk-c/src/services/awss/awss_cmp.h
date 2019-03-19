@@ -85,23 +85,23 @@ enum {
     AWSS_CMP_PKT_TYPE_RSP,
 };
 
-int awss_cmp_local_init();
-int awss_cmp_local_deinit();
-int awss_cmp_online_init();
-int awss_cmp_online_deinit();
-int awss_token_remain_time();
-int awss_token_timeout();
-int awss_update_token();
-int awss_report_token();
-int awss_report_reset();
-int awss_check_reset();
+int awss_cmp_local_init(void);
+int awss_cmp_local_deinit(void);
+int awss_cmp_online_init(void);
+int awss_cmp_online_deinit(void);
+int awss_token_remain_time(void);
+int awss_token_timeout(void);
+int awss_update_token(void);
+int awss_report_token(void);
+int awss_report_reset(void);
+int awss_check_reset(void);
 
 int awss_cmp_coap_loop(void *param);
 int awss_cmp_coap_register_cb(char *topic, void *cb);
 int awss_cmp_coap_send(void *buf, unsigned int len, void *sa, const char *uri, void *cb, unsigned short *msgid);
 int awss_cmp_coap_send_resp(void *buf, unsigned int len, void *sa, const char *uri, void *cb);
 int awss_cmp_coap_ob_send(void *buf, unsigned int len, void *sa, const char *uri, void *cb);
-int awss_cmp_coap_deinit();
+int awss_cmp_coap_deinit(void);
 
 int awss_cmp_mqtt_register_cb(char *topic, void *cb);
 int awss_cmp_mqtt_unregister_cb(char *topic);

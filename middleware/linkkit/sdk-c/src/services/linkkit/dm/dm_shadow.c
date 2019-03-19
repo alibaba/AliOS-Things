@@ -148,7 +148,7 @@ static int _dm_shw_data_array_search(_IN_ dm_shw_data_t *input, _IN_ int input_i
 				if (output_index) {*output_index = input_index;}
 				return SUCCESS_RETURN;
 			}
-			break;
+//			break;
 		case DM_SHW_DATA_TYPE_STRUCT:
 			{
 				dm_shw_data_t *search_data = NULL;
@@ -156,7 +156,7 @@ static int _dm_shw_data_array_search(_IN_ dm_shw_data_t *input, _IN_ int input_i
 				search_data = (dm_shw_data_t *)complex_struct->value + input_index;
 				return _dm_shw_data_struct_search(search_data,key,deli_offset,output,output_index);
 			}
-			break;
+//			break;
 		default:
 			dm_log_err("Unknown Data Type: %d",complex_struct->type);
 			break;
@@ -206,7 +206,7 @@ static int _dm_shw_data_struct_search(_IN_ dm_shw_data_t *input,_IN_ char *key,
 					if (output) {*output = data_item;}
 					return SUCCESS_RETURN;
 				}
-				break;
+//				break;
 			case DM_SHW_DATA_TYPE_ARRAY:
 				{
 					int key_offset = (deli_offset == key_len)?(deli_offset - 1):(deli_offset+1);
@@ -272,7 +272,7 @@ static int _dm_shw_data_search(_IN_ dm_shw_data_t *input,_IN_ char *key,
 				if (output) {*output = input;}
 				return SUCCESS_RETURN;
 			}
-			break;
+//			break;
 		case DM_SHW_DATA_TYPE_ARRAY:
 			{
 				int key_offset = (deli_offset == key_len)?(deli_offset - 1):(deli_offset+1);
@@ -281,14 +281,14 @@ static int _dm_shw_data_search(_IN_ dm_shw_data_t *input,_IN_ char *key,
 				if (partial_input_len == 0) {return FAIL_RETURN;}
 				return _dm_shw_data_array_search(input,array_index,key+key_offset,key_len-key_len_offset,output,index);
 			}
-			break;
+//			break;
 		case DM_SHW_DATA_TYPE_STRUCT:
 			{
 				if (deli_offset == key_len) {if (output) {*output = input;} return SUCCESS_RETURN;}
 				if (partial_input_len != 0) {return FAIL_RETURN;}
 				return _dm_shw_data_struct_search(input,key+deli_offset+1,key_len-deli_offset-1,output,index);
 			}
-			break;
+//			break;
 		default:
 			dm_log_warning("Unknow Data Type");
 			break;
@@ -2631,3 +2631,4 @@ void dm_shw_print(_IN_ dm_shw_t *shadow)
 }
 
 #endif
+

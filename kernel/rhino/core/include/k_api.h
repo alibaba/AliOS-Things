@@ -22,11 +22,11 @@ extern "C" {
 #include <k_list.h>
 #include <k_obj.h>
 #include <k_sched.h>
+#include <k_sem.h>
 #include <k_task.h>
 #include <k_ringbuf.h>
 #include <k_queue.h>
 #include <k_buf_queue.h>
-#include <k_sem.h>
 #include <k_task_sem.h>
 #include <k_mutex.h>
 #include <k_timer.h>

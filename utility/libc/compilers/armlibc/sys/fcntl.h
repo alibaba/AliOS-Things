@@ -4,7 +4,7 @@
 
 #ifndef LIBC_FCNTL_H__
 #define LIBC_FCNTL_H__
-
+#if 0
 #define O_RDONLY         00
 #define O_WRONLY         01
 #define O_RDWR           02
@@ -55,6 +55,6 @@
 #define F_GETOWN_EX 16
 
 #define F_GETOWNER_UIDS 17
-
+#endif
 #endif
 

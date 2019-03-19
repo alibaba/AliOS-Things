@@ -26,9 +26,7 @@ void test_case_task_entry(void *arg)
     printf("all test finished, successed test case %d, failed test case %d\n",
            (int)test_case_success, (int)test_case_fail);
 
-    while (1) {
-        krhino_task_sleep(RHINO_CONFIG_TICKS_PER_SECOND);
-    }
+    krhino_task_del(NULL);
 }
 
 void test_case_task_start(void)

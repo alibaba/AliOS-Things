@@ -1,0 +1,16 @@
+
+APP_REGION 0x90000000 0x100000 {
+    APP_TEXT 0x90000000 0x100000 {
+        *.o (.preamble, +First)
+        ;*(InRoot$$Sections)
+        .ANY (+RO)
+    }
+
+    APP_DATA AlignExpr(+0, 32) {
+        .ANY (+RW)
+    }
+
+    APP_ZERO AlignExpr(+0, 32) {
+        .ANY (+ZI)
+    }
+}

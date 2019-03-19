@@ -20,7 +20,7 @@
 static iotx_cm_conntext_t *g_cm_ctx = NULL;
 
 #ifdef CONFIG_CM_VIA_CLOUD_CONN
-    extern iotx_cm_send_peer_t *iotx_cm_cloud_conn_get_target();
+    extern iotx_cm_send_peer_t *iotx_cm_cloud_conn_get_target(void);
 #endif /* CONFIG_CM_VIA_CLOUD_CONN */
 
 
@@ -191,11 +191,11 @@ void *iotx_cm_get_protocol_handle(void *connectivity)
 
             return mqtt_ctx->mqtt_handler;
         }
-        break;
+//        break;
         case IOTX_CM_CONNECTIVITY_TYPE_LOCAL: {
             return connection_ptr->context;
         }
-        break;
+//        break;
         default:
             break;
     }

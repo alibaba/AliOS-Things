@@ -80,3 +80,4 @@ int dm_ota_get_ota_handle(void** handle)
 #endif
     return SUCCESS_RETURN;
 }
+

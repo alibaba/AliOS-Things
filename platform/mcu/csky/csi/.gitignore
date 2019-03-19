@@ -1,9 +1,0 @@
-!.gitignore
-out
-include/csi_config.h
-.config.old
-tools/output/
-.config
-*.o
-*.d
-.*.swp

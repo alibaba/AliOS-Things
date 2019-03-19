@@ -68,11 +68,11 @@ typedef u16_t mem_size_t;
 #endif /* MEM_SIZE > 64000 */
 #endif
 
-void  mem_init(void);
-void *mem_trim(void *mem, mem_size_t size);
-void *mem_malloc(mem_size_t size);
-void *mem_calloc(mem_size_t count, mem_size_t size);
-void  mem_free(void *mem);
+void  lwip_mem_init(void);
+void *lwip_mem_trim(void *mem, mem_size_t size);
+void *lwip_mem_malloc(mem_size_t size);
+void *lwip_mem_calloc(mem_size_t count, mem_size_t size);
+void  lwip_mem_free(void *mem);
 
 #ifdef __cplusplus
 }

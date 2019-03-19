@@ -11,7 +11,7 @@
 
 /* If AliOS task over the Exception/Fatal Error */
 #ifndef RHINO_CONFIG_PANIC
-#define RHINO_CONFIG_PANIC 0
+#define RHINO_CONFIG_PANIC 1
 #endif
 
 #if (RHINO_CONFIG_PANIC > 0)

@@ -8,7 +8,7 @@
 
 #define MODULE_NAME    "time_opr"
 #define MODULE_NAME_CO "time_coopr"
-
+#if 0
 void gettaskinfo(void)
 {
     klist_t *taskhead = &g_kobj_list.task_head;
@@ -27,7 +27,7 @@ void gettaskinfo(void)
     }
     printf("---------------------------------------------\n");
 }
-
+#endif
 static uint8_t time_opr_case(void)
 {
     tick_t     ticks;

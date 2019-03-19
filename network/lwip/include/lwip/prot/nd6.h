@@ -246,6 +246,8 @@ PACK_STRUCT_END
 #  include "arch/epstruct.h"
 #endif
 
+/** Recursive DNS Server Option. */
+#define ND6_OPTION_TYPE_RDNSS (25)
 #ifdef __cplusplus
 }
 #endif

@@ -17,3 +17,4 @@ int dm_fota_perform_sync(_OU_ char *output, _IN_ int output_len);
 int dm_fota_status_check(void);
 
 #endif
+

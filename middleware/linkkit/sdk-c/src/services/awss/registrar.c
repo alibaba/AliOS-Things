@@ -135,6 +135,9 @@ int awss_enrollee_checkin(char *topic, int topic_len, void *payload, int payload
     int len = 0, timeout = 0;
     int packet_len = CHECK_IN_RSP_LEN, dev_info_len = 0;
     char *key = NULL, *dev_name = NULL, *dev_info = NULL;
+    char *id = NULL;
+    char id_str[MSG_REQ_ID_LEN] = {0};
+    char reply[TOPIC_LEN_MAX] = {0};
 
     if (payload == NULL || payload_len == 0) {
         goto CHECKIN_FAIL;
@@ -162,14 +165,11 @@ int awss_enrollee_checkin(char *topic, int topic_len, void *payload, int payload
     enrollee_enable_somebody_checkin(key, dev_name, timeout);
 
     {
-        char *id = NULL;
-        char id_str[MSG_REQ_ID_LEN] = {0};
         id = json_get_value_by_name(payload, payload_len, AWSS_JSON_ID, &len, NULL);
         memcpy(id_str, id, len > MSG_REQ_ID_LEN - 1 ? MSG_REQ_ID_LEN - 1 : len);
         awss_build_packet(AWSS_CMP_PKT_TYPE_RSP, id_str, ILOP_VER, METHOD_EVENT_ZC_CHECKIN, "{}", 200, packet, &packet_len);
     }
 
-    char reply[TOPIC_LEN_MAX] = {0};
     awss_build_topic(TOPIC_ZC_CHECKIN_REPLY, reply, TOPIC_LEN_MAX);
     awss_cmp_mqtt_send(reply, packet, packet_len, 1);
 
@@ -566,6 +566,11 @@ int awss_report_enrollee(unsigned char *payload, int payload_len, signed char rs
     char *payload_str = NULL;
     char *param = NULL, *packet = NULL;
     int packet_len = AWSS_REPORT_PKT_LEN - 1;
+    char id[MSG_REQ_ID_LEN] = {0};
+    uint8_t bssid[OS_ETH_ALEN] = {0};
+    char ssid[OS_MAX_SSID_LEN + 1] = {0};
+    char bssid_str[OS_ETH_ALEN * 2 + 6] = {0};
+    char topic[TOPIC_LEN_MAX] = {0};
 
     payload_str = os_zalloc(payload_len * 2 + 1);
     param = os_zalloc(AWSS_REPORT_PKT_LEN);
@@ -575,11 +580,6 @@ int awss_report_enrollee(unsigned char *payload, int payload_len, signed char rs
     }
 
     {
-        char id[MSG_REQ_ID_LEN] = {0};
-        uint8_t bssid[OS_ETH_ALEN] = {0};
-        char ssid[OS_MAX_SSID_LEN + 1] = {0};
-        char bssid_str[OS_ETH_ALEN * 2 + 6] = {0};
-
         os_wifi_get_ap_info(ssid, NULL, bssid);
         sprintf(bssid_str, "%02X:%02X:%02X:%02X:%02X:%02X", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
 
@@ -597,7 +597,6 @@ int awss_report_enrollee(unsigned char *payload, int payload_len, signed char rs
         os_free(param);
     }
 
-    char topic[TOPIC_LEN_MAX] = {0};
     awss_build_topic(TOPIC_ZC_ENROLLEE, topic, TOPIC_LEN_MAX);
     awss_debug("topic:%s, packet:%s, method:%s\r\n", topic, packet, METHOD_EVENT_ZC_ENROLLEE);
 
@@ -884,7 +883,7 @@ void awss_wifi_mgnt_frame_callback(uint8_t *buffer, int length, signed char rssi
             buffer += len;
             length -= len;
             goto find_ie;
-            break;
+//            break;
         case MGMT_PROBE_REQ:
             //log_trace("probe req\n");
             buffer += MGMT_HDR_LEN;

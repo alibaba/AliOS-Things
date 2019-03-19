@@ -93,10 +93,14 @@ static void *CoAPServer_yield(void *param)
 }
 
 typedef void (*func_v_v)(void*);
+#if 0
 static func_v_v coapserver_timer = NULL;
+#endif
 void CoAPServer_add_timer (void (*on_timer)(void*))
 {
+#if 0
     coapserver_timer = on_timer;
+#endif
 }
 
 

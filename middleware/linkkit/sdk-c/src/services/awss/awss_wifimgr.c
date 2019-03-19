@@ -37,8 +37,8 @@ static platform_netaddr_t g_wifimgr_req_sa;
 static void *scan_req_timer = NULL;
 static void *scan_tx_wifilist_timer = NULL;
 
-static void wifimgr_scan_request();
-static void wifimgr_scan_tx_wifilist();
+static void wifimgr_scan_request(void);
+static void wifimgr_scan_tx_wifilist(void);
 
 static char wifi_scan_runninng = 0;
 static void *g_scan_mutex;
@@ -61,7 +61,7 @@ int wifimgr_scan_init(void)
     return 0;
 }
 
-static void wifimgr_scan_tx_wifilist()
+static void wifimgr_scan_tx_wifilist(void)
 {
     scan_list_t *item =  NULL, *next = NULL;
 
@@ -181,7 +181,7 @@ static int awss_scan_cb(const char ssid[PLATFORM_MAX_SSID_LEN],
     return 0;
 }
 
-static void wifimgr_scan_request()
+static void wifimgr_scan_request(void)
 {
     wifimgr_scan_init();
     os_wifi_scan(&awss_scan_cb);
@@ -233,6 +233,7 @@ static int wifimgr_process_get_device_info(void *ctx, void *resource, void *remo
     int len = 0, id_len = 0;
     char *msg = NULL, *id = NULL;
     char req_msg_id[MSG_REQ_ID_LEN] = {0};
+    char topic[TOPIC_LEN_MAX] = {0};
 
     buf = os_zalloc(DEV_INFO_LEN_MAX);
     if (!buf) {
@@ -258,7 +259,6 @@ static int wifimgr_process_get_device_info(void *ctx, void *resource, void *remo
     os_free(dev_info);
 
     awss_debug("sending message to app: %s", buf);
-    char topic[TOPIC_LEN_MAX] = {0};
     if (is_mcast) {
         awss_build_topic((const char *)TOPIC_AWSS_GETDEVICEINFO_MCAST, topic, TOPIC_LEN_MAX);
     } else {

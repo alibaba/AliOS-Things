@@ -26,8 +26,9 @@ static const char *_get_domain_region(void)
         sdk_err("Unknown Region Type");
         return NULL;
     }
-
+#if 0
     return NULL;
+#endif
 }
 
 static int _calc_dynreg_sign(

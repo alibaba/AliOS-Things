@@ -61,16 +61,16 @@ int alcs_resource_need_auth (CoAPContext *context, const char *path);
 
 
 //init
-void alcs_init ();
-void alcs_deinit();
+void alcs_init(void);
+void alcs_deinit(void);
 
 #ifdef SUPPORT_MULTI_DEVICES
 CoAPContext* alcs_context_create(CoAPInitParam *param);
 void alcs_context_free(CoAPContext *ctx);
 #else
 CoAPContext* alcs_context_init(CoAPInitParam *param);
-void alcs_context_deinit();
-CoAPContext * alcs_get_context();
+void alcs_context_deinit(void);
+CoAPContext * alcs_get_context(void);
 #endif
 
 //option 
@@ -80,7 +80,7 @@ extern int CoAPStrOption_add(CoAPMessage *message, unsigned short optnum,
                 unsigned char *data, unsigned short datalen);
 extern int CoAPMessage_cancel(CoAPContext *context, CoAPMessage *message);
 
-uint32_t getToken ();
+uint32_t getToken(void);
 
 //
 #ifdef __cplusplus

@@ -21,6 +21,7 @@ typedef enum _IOT_LogLevel {
     IOT_LOG_WARNING,
     IOT_LOG_INFO,
     IOT_LOG_DEBUG,
+    IOT_LOG_LEVEL_MAXI = 0x7FFFFFFF,
 } IOT_LogLevel;
 
 /* domain type */

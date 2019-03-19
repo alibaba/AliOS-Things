@@ -86,14 +86,14 @@ void    LITE_rich_hexdump(const char *f, const int l,
                           const int level,
                           const char *buf_str,
                           const void *buf_ptr,
-                          const int buf_len
+                          int buf_len
                          );
 
 #define HEXDUMP_DEBUG(buf, len) \
-    LITE_rich_hexdump(__func__, __LINE__, LOG_DEBUG_LEVEL, #buf, (const void *)buf, (const int)len)
+    LITE_rich_hexdump(__func__, __LINE__, LOG_DEBUG_LEVEL, #buf, (const void *)buf, len)
 
 #define HEXDUMP_INFO(buf, len)      \
-    LITE_rich_hexdump(__func__, __LINE__, LOG_INFO_LEVEL, #buf, (const void *)buf, (const int)len)
+    LITE_rich_hexdump(__func__, __LINE__, LOG_INFO_LEVEL, #buf, (const void *)buf, len)
 
 #if defined(__cplusplus)
 }

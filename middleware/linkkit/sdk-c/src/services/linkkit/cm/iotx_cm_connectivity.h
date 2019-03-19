@@ -106,7 +106,7 @@ typedef struct _iotx_cm_event_cb_usr_ctx {
 } iotx_cm_event_cb_usr_ctx_t;
 
 
-int iotx_cm_get_connectivity_id();
+int iotx_cm_get_connectivity_id(void);
 
 iotx_cm_connectivity_status_t iotx_cm_get_connectivity_status(iotx_cm_connectivity_t *connectivity);
 

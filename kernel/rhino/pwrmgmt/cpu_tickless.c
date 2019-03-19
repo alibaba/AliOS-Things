@@ -36,7 +36,7 @@ static int          is_current_tickless = FALSE;
 
 static uint32_t          cStateConfig[CPUS_NUM_MAX];
 static uint32_t          cStateLatency[CPUS_NUM_MAX][CPU_CSTATE_MAX + 1];
-static one_shot_timer_t *cStateOneShotTimer[CPU_CSTATE_MAX];
+static one_shot_timer_t *cStateOneShotTimer[CPU_CSTATE_MAX + 1];
 
 /*
  * tickless_live_cpu_set, after tickless module is initialized,
@@ -293,7 +293,7 @@ static void tickless_enter_check(uint32_t cpu_idx, uint32_t cstate_cfg,
     if ((cStateOneShotTimer[cpu_c_state] != NULL) &&
         (cStateOneShotTimer[cpu_c_state]->one_shot_seconds_max != NULL)) {
         one_shot_max_us_support =
-          1000000 * cStateOneShotTimer[cpu_c_state]->one_shot_seconds_max();
+          1000000 * (uint64_t)cStateOneShotTimer[cpu_c_state]->one_shot_seconds_max();
     }
 
     /* if request sleeptime is longer than support, cut it down

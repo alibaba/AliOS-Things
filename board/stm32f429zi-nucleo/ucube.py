@@ -1,1 +1,0 @@
-linux_only_targets="helloworld netmgrapp helloworld_nocli tls hdlcapp.hdlcserver hdlcapp.hdlcclient mqttapp meshapp linkkitapp coapapp networkapp acapp wifihalapp linkkit_gateway linuxapp uDataapp wifimonitor athostapp"

@@ -63,6 +63,11 @@ extern "C" {
 #define NETIF_MAX_HWADDR_LEN 6U
 #endif
 
+/** The size of a fully constructed netif name which the
+ * netif can be identified by in APIs. Composed of
+ * 2 chars, 3 (max) digits, and 1 \0
+ */
+#define NETIF_NAMESIZE 6
 /**
  * @defgroup netif_flags Flags
  * @ingroup netif
@@ -311,6 +316,9 @@ struct netif {
   char name[2];
   /** number of this interface */
   u8_t num;
+#ifdef CELLULAR_SUPPORT
+  ip_addr_t dns_srv[DNS_MAX_SERVERS];
+#endif
 #if MIB2_STATS
   /** link type (from "snmp_ifType" enum from snmp_mib2.h) */
   u8_t link_type;
@@ -353,8 +361,13 @@ struct netif {
 #define IF__NETIF_CHECKSUM_ENABLED(netif, chksumflag)
 #endif /* LWIP_CHECKSUM_CTRL_PER_NETIF */
 
+#if LWIP_SINGLE_NETIF
+#define NETIF_FOREACH(netif) if (((netif) = netif_default) != NULL)
+#else /* LWIP_SINGLE_NETIF */
 /** The list of network interfaces. */
 extern struct netif *netif_list;
+#define NETIF_FOREACH(netif) for (netif = netif_list; netif != NULL; netif = netif->next)
+#endif /* LWIP_SINGLE_NETIF */
 /** The default network interface. */
 extern struct netif *netif_default;
 
@@ -460,6 +473,15 @@ void netif_ip6_addr_set_parts(struct netif *netif, s8_t addr_idx, u32_t i0, u32_
 #define netif_ip6_addr_state(netif, i)  ((netif)->ip6_addr_state[i])
 void netif_ip6_addr_set_state(struct netif* netif, s8_t addr_idx, u8_t state);
 s8_t netif_get_ip6_addr_match(struct netif *netif, const ip6_addr_t *ip6addr);
+
+#define netif_ip6_addr_isstatic(netif, i)    (0)
+#define netif_ip6_addr_valid_life(netif, i)  (1)
+void netif_ip6_addr_set_valid_life(struct netif *netif, s8_t addr_idx, u32_t valid_life);
+void netif_ip6_addr_set_pref_life(struct netif *netif, s8_t i, u32_t pref_life);
+
+#ifdef CELLULAR_SUPPORT
+void netif_create_ip6_linklocal_address_from_if_id(struct netif *netif, u8_t *if_id);
+#endif /* CELLULAR_SUPPORT */
 void netif_create_ip6_linklocal_address(struct netif *netif, u8_t from_mac_48bit);
 err_t netif_add_ip6_address(struct netif *netif, const ip6_addr_t *ip6addr, s8_t *chosen_idx);
 #define netif_set_ip6_autoconfig_enabled(netif, action) do { if(netif) { (netif)->ip6_autoconfig_enabled = (action); }}while(0)
@@ -470,6 +492,15 @@ err_t netif_add_ip6_address(struct netif *netif, const ip6_addr_t *ip6addr, s8_t
 #else /* LWIP_NETIF_HWADDRHINT */
 #define NETIF_SET_HWADDRHINT(netif, hint)
 #endif /* LWIP_NETIF_HWADDRHINT */
+
+u8_t netif_name_to_index(const char *name);
+char * netif_index_to_name(u8_t idx, char *name);
+struct netif* netif_get_by_index(u8_t idx);
+struct netif* netif_get_by_cid(u8_t sim_cid);
+
+/* Interface indexes always start at 1 per RFC 3493, section 4, num starts at 0 (internal index is 0..254)*/
+#define netif_get_index(netif)      ((u8_t)((netif)->num + 1))
+#define NETIF_NO_INDEX              (0)
 
 #if LWIP_PACKET
 struct netif* netif_find_by_index(int index);

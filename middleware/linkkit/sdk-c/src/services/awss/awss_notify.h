@@ -23,12 +23,12 @@ int online_mcast_get_device_info(void *ctx, void *resource, void *remote, void *
 int online_ucast_get_device_info(void *ctx, void *resource, void *remote, void *request);
 
 int awss_notify_dev_info(int type, int count);
-int awss_devinfo_notify();
-int awss_suc_notify();
-int awss_connectap_notify();
-int awss_devinfo_notify_stop();
-int awss_suc_notify_stop();
-int awss_connectap_notify_stop();
+int awss_devinfo_notify(void);
+int awss_suc_notify(void);
+int awss_connectap_notify(void);
+int awss_devinfo_notify_stop(void);
+int awss_suc_notify_stop(void);
+int awss_connectap_notify_stop(void);
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 }

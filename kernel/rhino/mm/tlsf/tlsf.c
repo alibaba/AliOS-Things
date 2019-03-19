@@ -209,7 +209,7 @@ enum tlsf_public
 	** values require more memory in the control structure. Values of
 	** 4 or 5 are typical.
 	*/
-	SL_INDEX_COUNT_LOG2 = 5,
+	SL_INDEX_COUNT_LOG2 = 4,
 };
 
 /* Private constants: do not modify. */
@@ -242,7 +242,7 @@ enum tlsf_private
 	*/
 	FL_INDEX_MAX = 32,
 #else
-	FL_INDEX_MAX = 30,
+	FL_INDEX_MAX = 20,
 #endif
 	SL_INDEX_COUNT = (1 << SL_INDEX_COUNT_LOG2),
 	FL_INDEX_SHIFT = (SL_INDEX_COUNT_LOG2 + ALIGN_SIZE_LOG2),
@@ -250,6 +250,19 @@ enum tlsf_private
 
 	SMALL_BLOCK_SIZE = (1 << FL_INDEX_SHIFT),
 };
+
+
+#if defined (TLSF_STAT)
+typedef struct {
+    size_t total_size;
+    size_t total_free_size;
+    size_t total_used_size;
+    size_t max_free_block_size;
+} tlsf_stat_t;
+
+static tlsf_stat_t tlsf_stat;
+
+#endif
 
 /*
 ** Cast and min/max macros.
@@ -789,6 +802,11 @@ static void* block_prepare_used(control_t* control, block_header_t* block, size_
 		tlsf_assert(size && "size must be non-zero");
 		block_trim_free(control, block, size);
 		block_mark_as_used(block);
+
+#ifdef TLSF_STAT
+        tlsf_update_free_block_stat(tlsf_cast(tlsf_t, control));
+        tlsf_stat.total_used_size += block_size(block);
+#endif
 		p = block_to_ptr(block);
 	}
 	return p;
@@ -906,7 +924,7 @@ void tlsf_walk_pool(pool_t pool, tlsf_walker walker, void* user)
 {
 	tlsf_walker pool_walker = walker ? walker : default_walker;
 	block_header_t* block =
-		offset_to_block(pool, -(int)block_header_overhead);
+		offset_to_block(pool, (size_t)( -(int)block_header_overhead));
 
 	while (block && !block_is_last(block))
 	{
@@ -938,6 +956,73 @@ int tlsf_check_pool(pool_t pool)
 
 	return integ.status;
 }
+
+#if defined (TLSF_STAT)
+void tlsf_update_free_block_stat(tlsf_t tlsf)
+{
+    int i, j;
+    control_t *control = tlsf_cast(control_t*, tlsf);
+    int fl_map;
+    int sl_list;
+    int sl_map;
+    block_header_t *block;
+    size_t size;
+    size_t free_size = 0;
+    size_t max_size = 0;
+
+    for (i = 0; i < FL_INDEX_COUNT; i++) {
+        for (j = 0; j < SL_INDEX_COUNT; j++) {
+            fl_map = control->fl_bitmap & (1 << i);
+            sl_list = control->sl_bitmap[i];
+            sl_map = sl_list & (1 << j);
+            block = control->blocks[i][j];
+
+            if (!fl_map || ! sl_map) {
+                continue;
+            }
+
+            while (block != &control->block_null) {
+                if (block_is_free(block)) {
+                    size = block_size(block);
+                    if (size > max_size) {
+                        max_size = size;
+                    }
+                    free_size += size;
+                }
+
+                block = block->next_free;
+            }
+        }
+    }
+
+    tlsf_stat.max_free_block_size = max_size;
+    tlsf_stat.total_free_size = free_size;
+}
+
+size_t tlsf_get_total_size(void)
+{
+    return tlsf_stat.total_size;
+}
+
+/** total free size of the heap */
+size_t tlsf_get_free_size(void)
+{
+    return tlsf_stat.total_free_size;
+}
+
+size_t tlsf_get_used_size(void)
+{
+    return tlsf_stat.total_used_size;
+}
+
+/* Once the max free block size is less than the requested,
+ * the alloaction will fail
+ */
+size_t tlsf_get_max_free_block_size(void)
+{
+    return tlsf_stat.max_free_block_size;
+}
+#endif
 
 /*
 ** Size of the TLSF structures in a given memory block passed to
@@ -1012,7 +1097,7 @@ pool_t tlsf_add_pool(tlsf_t tlsf, void* mem, size_t bytes)
 	** so that the prev_phys_block field falls outside of the pool -
 	** it will never be used.
 	*/
-	block = offset_to_block(mem, -(tlsfptr_t)block_header_overhead);
+	block = offset_to_block(mem, (size_t)(-(tlsfptr_t)block_header_overhead));
 	block_set_size(block, pool_bytes);
 	block_set_free(block);
 	block_set_prev_used(block);
@@ -1024,13 +1109,18 @@ pool_t tlsf_add_pool(tlsf_t tlsf, void* mem, size_t bytes)
 	block_set_used(next);
 	block_set_prev_free(next);
 
+#if defined (TLSF_STAT)
+    tlsf_update_free_block_stat(tlsf);
+    tlsf_stat.total_size += pool_bytes;
+#endif
+
 	return mem;
 }
 
 void tlsf_remove_pool(tlsf_t tlsf, pool_t pool)
 {
 	control_t* control = tlsf_cast(control_t*, tlsf);
-	block_header_t* block = offset_to_block(pool, -(int)block_header_overhead);
+	block_header_t* block = offset_to_block(pool, (size_t)(-(int)block_header_overhead));
 
 	int fl = 0, sl = 0;
 
@@ -1038,8 +1128,16 @@ void tlsf_remove_pool(tlsf_t tlsf, pool_t pool)
 	tlsf_assert(!block_is_free(block_next(block)) && "next block should not be free");
 	tlsf_assert(block_size(block_next(block)) == 0 && "next block size should be zero");
 
+#if defined (TLSF_STAT)
+    tlsf_stat.total_size -= block_size(block);
+#endif
+
 	mapping_insert(block_size(block), &fl, &sl);
 	remove_free_block(control, block, fl, sl);
+
+#if defined (TLSF_STAT)
+    tlsf_update_free_block_stat(tlsf);
+#endif
 }
 
 /*
@@ -1089,6 +1187,10 @@ tlsf_t tlsf_create(void* mem)
 			(unsigned int)ALIGN_SIZE);
 		return 0;
 	}
+
+#if defined (TLSF_STAT)
+    memset(&tlsf_stat, 0, sizeof(tlsf_stat_t));
+#endif
 
 	control_construct(tlsf_cast(control_t*, mem));
 
@@ -1185,11 +1287,17 @@ void tlsf_free(tlsf_t tlsf, void* ptr)
 	{
 		control_t* control = tlsf_cast(control_t*, tlsf);
 		block_header_t* block = block_from_ptr(ptr);
+#if defined (TLSF_STAT)
+        tlsf_stat.total_used_size -= block_size(block);
+#endif
 		tlsf_assert(!block_is_free(block) && "block already marked as free");
 		block_mark_as_free(block);
 		block = block_merge_prev(control, block);
 		block = block_merge_next(control, block);
 		block_insert(control, block);
+#if defined (TLSF_STAT)
+        tlsf_update_free_block_stat(tlsf_cast(tlsf_t, control));
+#endif
 	}
 }
 
@@ -1257,6 +1365,10 @@ void* tlsf_realloc(tlsf_t tlsf, void* ptr, size_t size)
 
 			/* Trim the resulting block and return the original pointer. */
 			block_trim_used(control, block, adjust);
+#if defined (TLSF_STAT)
+            tlsf_stat.total_used_size += block_size(block) - cursize;
+            tlsf_update_free_block_stat(tlsf);
+#endif
 			p = ptr;
 		}
 	}

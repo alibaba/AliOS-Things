@@ -2715,6 +2715,7 @@ static int iotx_mc_keepalive_sub(iotx_mc_client_t *pClient)
 
     /* if in disabled state, without having to send ping packets */
     if (!iotx_mc_check_state_normal(pClient)) {
+        printf("%s: iotx_mc_check_state_normal return\r\n", __func__);
         return SUCCESS_RETURN;
     }
 

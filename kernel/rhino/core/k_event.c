@@ -8,10 +8,14 @@
 static kstat_t event_create(kevent_t *event, const name_t *name, uint32_t flags,
                             uint8_t mm_alloc_flag)
 {
+#if (RHINO_CONFIG_SYSTEM_STATS > 0)
     CPSR_ALLOC();
+#endif
 
     NULL_PARA_CHK(event);
     NULL_PARA_CHK(name);
+
+    memset(event, 0, sizeof(kevent_t));
 
     /* init the list */
     klist_init(&event->blk_obj.blk_list);

@@ -6,59 +6,47 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include "k_config.h"
+
+#ifdef AOS_USPACE
+
+#include <u_mm.h>
 #include <hal/hal.h>
 
-int errno;
-extern uart_dev_t uart_0;
+#if defined(__CC_ARM)
 
-#if defined (__CC_ARM) && defined(__MICROLIB)
+unsigned long __stack_chk_guard __attribute__((weak)) = 0xDEADDEAD;
+
+void __attribute__((weak)) __stack_chk_fail(void)
+{
+    return;
+}
+
 void __aeabi_assert(const char *expr, const char *file, int line)
 {
     while (1);
 }
-extern uint64_t krhino_sys_time_get(void);
-int gettimeofday(struct timeval *tv, void *tzp)
-{
-    uint64_t t = krhino_sys_time_get();
-    tv->tv_sec = t / 1000;
-    tv->tv_usec = (t % 1000) * 1000;
-    return 0;
-}
 
-#if (RHINO_CONFIG_MM_TLF > 0)
-#define AOS_UNSIGNED_INT_MSB (1u << (sizeof(unsigned int) * 8 - 1))
-extern void *aos_malloc(unsigned int size);
-extern void aos_alloc_trace(void *addr, size_t allocator);
-extern void aos_free(void *mem);
-extern void *aos_realloc(void *mem, unsigned int size);
+#endif
 
 void *malloc(size_t size)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
-    mem = aos_malloc(size | AOS_UNSIGNED_INT_MSB);
-#else
-    mem = aos_malloc(size);
-#endif
+    mem = umm_malloc(size);
 
     return mem;
 }
 
 void free(void *mem)
 {
-    aos_free(mem);
+    umm_free(mem);
 }
 
 void *realloc(void *old, size_t newlen)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
-    mem = aos_realloc(old, newlen | AOS_UNSIGNED_INT_MSB);
-#else
-    mem = aos_realloc(old, newlen);
-#endif
+    mem = umm_realloc(old, newlen);
 
     return mem;
 }
@@ -67,11 +55,7 @@ void *calloc(size_t len, size_t elsize)
 {
     void *mem;
 
-#if (RHINO_CONFIG_MM_DEBUG > 0u && RHINO_CONFIG_GCC_RETADDR > 0u)
-    mem = aos_malloc((elsize * len) | AOS_UNSIGNED_INT_MSB);
-#else
-    mem = aos_malloc(elsize * len);
-#endif
+    mem = umm_malloc(elsize * len);
 
     if (mem) {
         memset(mem, 0, elsize * len);
@@ -80,50 +64,79 @@ void *calloc(size_t len, size_t elsize)
     return mem;
 }
 
-char * strdup(const char *s)
+char *strdup(const char *s)
 {
     size_t  len = strlen(s) +1;
-    void *dup_str = aos_malloc(len);
+    void *dup_str = umm_malloc(len);
+
     if (dup_str == NULL)
         return NULL;
+
     return (char *)memcpy(dup_str, s, len);
 }
 
-#pragma weak fputc
 int fputc(int ch, FILE *f)
 {
-    /* Send data. */
-    return hal_uart_send(&uart_0, (uint8_t *)(&ch), 1, 1000);
+	static uint8_t print_buf[64];
+	static int print_count = 0;
+
+	if (print_count > 64) {
+		print_count = 0;
+	}
+
+	print_buf[print_count++] = ch;
+	if (print_count >= 64) {
+		hal_uart_send(NULL, print_buf, print_count, 1000);
+		print_count = 0;
+	}
+
+	if (ch == '\n') {
+		print_buf[print_count++] = '\r';
+		hal_uart_send(NULL, print_buf, print_count, 1000);
+		print_count = 0;
+	}
+
+	return 0;
 }
+
 #endif
 
-//referred from ota_socket.o
-void bzero()
-{
+extern uint64_t krhino_sys_time_get(void);
 
+int gettimeofday(struct timeval *tv, void *tzp)
+{
+    uint64_t t = krhino_sys_time_get();
+
+    tv->tv_sec = t / 1000;
+    tv->tv_usec = (t % 1000) * 1000;
+
+    return 0;
 }
+
+//referred from ota_socket.o
+void bzero(void)
+{}
 
 //referred from ssl_cli.o
 time_t time(time_t *t)
 {
-	return 0;
+    return 0;
 }
 
 //referred from aos_network.o
 int accept(int sock, long *addr, long *addrlen)
 {
-	return 0;
+    return 0;
 }
 
 int listen(int sock, int backlog)
 {
-	return 0;
+    return 0;
 }
 
 //referred from timing.o
 unsigned int alarm(unsigned int seconds)
 {
-	return 0;
+    return 0;
 }
 
-#endif

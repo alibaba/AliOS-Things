@@ -286,11 +286,11 @@ LWIP_MEMPOOL_DECLARE(HTTPD_SSI_STATE, MEMP_NUM_PARALLEL_HTTPD_SSI_CONNS, sizeof(
 #define HTTP_ALLOC_HTTP_STATE() (struct http_state *)LWIP_MEMPOOL_ALLOC(HTTPD_STATE)
 #define HTTP_FREE_HTTP_STATE(x) LWIP_MEMPOOL_FREE(HTTPD_STATE, (x))
 #else /* HTTPD_USE_MEM_POOL */
-#define HTTP_ALLOC_HTTP_STATE() (struct http_state *)mem_malloc(sizeof(struct http_state))
-#define HTTP_FREE_HTTP_STATE(x) mem_free(x)
+#define HTTP_ALLOC_HTTP_STATE() (struct http_state *)lwip_mem_malloc(sizeof(struct http_state))
+#define HTTP_FREE_HTTP_STATE(x) lwip_mem_free(x)
 #if LWIP_HTTPD_SSI
-#define HTTP_ALLOC_SSI_STATE()  (struct http_ssi_state *)mem_malloc(sizeof(struct http_ssi_state))
-#define HTTP_FREE_SSI_STATE(x)  mem_free(x)
+#define HTTP_ALLOC_SSI_STATE()  (struct http_ssi_state *)lwip_mem_malloc(sizeof(struct http_ssi_state))
+#define HTTP_FREE_SSI_STATE(x)  lwip_mem_free(x)
 #endif /* LWIP_HTTPD_SSI */
 #endif /* HTTPD_USE_MEM_POOL */
 
@@ -455,7 +455,7 @@ http_state_eof(struct http_state *hs)
   }
 #if LWIP_HTTPD_DYNAMIC_FILE_READ
   if (hs->buf != NULL) {
-    mem_free(hs->buf);
+    lwip_mem_free(hs->buf);
     hs->buf = NULL;
   }
 #endif /* LWIP_HTTPD_DYNAMIC_FILE_READ */
@@ -1099,7 +1099,7 @@ http_check_eof(struct tcp_pcb *pcb, struct http_state *hs)
     }
 #endif /* HTTPD_MAX_WRITE_LEN */
     do {
-      hs->buf = (char*)mem_malloc((mem_size_t)count);
+      hs->buf = (char*)lwip_mem_malloc((mem_size_t)count);
       if (hs->buf != NULL) {
         hs->buf_len = count;
         break;

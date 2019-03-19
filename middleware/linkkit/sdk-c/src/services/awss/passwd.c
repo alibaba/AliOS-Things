@@ -64,7 +64,7 @@ int produce_signature(unsigned char *sign, unsigned char *txt,
 
 int aes_decrypt_string(char *cipher, char *plain, int len, int sec_lvl, char cbc)
 {
-    char res = 0;
+    int res = 0;
     char decrypt = 1;
     uint8_t iv[AES128_KEY_LEN] = {0};
     uint8_t key[AES128_KEY_LEN] = {0};
