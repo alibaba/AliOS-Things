@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #if defined (__GNUC__)
-#include <sys/wait.h>
+//#include <sys/wait.h>
 #endif
 
 #include <aos/kernel.h>
@@ -22,7 +22,7 @@ int yts_get_args(const char ***argv)
     *argv = (const char **)yts_argv;
     return yts_argc;
 }
-
+extern void test_api(void);
 void yts_run(int argc, char **argv)
 {
     yts_argc = argc;
@@ -32,8 +32,8 @@ void yts_run(int argc, char **argv)
 
     yunit_test_init();
 
-    add_test();
-
+//    add_test();
+	test_api();
     int ret = 0;
 
     if (argc > 1) {

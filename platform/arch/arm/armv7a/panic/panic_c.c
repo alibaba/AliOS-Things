@@ -2,7 +2,9 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <k_dbg_api.h>
+#ifdef AOS_DEBUG_PANIC
+#include <debug_api.h>
+#endif
 
 #if (RHINO_CONFIG_BACKTRACE > 0)
 
@@ -66,7 +68,7 @@ static void backtrace_stack(int (*print_func)(const char *fmt, ...),
     }
 }
 
-void backtraceNow(int (*print_func)(const char *fmt, ...))
+void backtrace_now(int (*print_func)(const char *fmt, ...))
 {
     static int     processing_backtrace = 0;
     unsigned long *fp;

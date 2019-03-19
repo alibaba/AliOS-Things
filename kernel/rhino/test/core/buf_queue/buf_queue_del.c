@@ -13,7 +13,6 @@
 #define TEST_BUFQUEUE_MSG_MAX   8
 
 static ktask_t     *task_0_test;
-static char         g_test_recv_msg0[TEST_BUFQUEUE_MSG0_SIZE];
 static char         g_test_bufqueue_buf0[TEST_BUFQUEUE_MSG0_SIZE];
 static kbuf_queue_t g_test_bufqueue0;
 
@@ -59,7 +58,6 @@ static void buf_queue_del_param_test(void)
 static void task_queue0_entry(void *arg)
 {
     kstat_t ret;
-    size_t  size;
 
     while (1) {
         ret = krhino_buf_queue_create(&g_test_bufqueue0, "test_bufqueue0",
@@ -91,6 +89,6 @@ kstat_t task_buf_queue_del_test(void)
                                  0, TASK_TEST_STACK_SIZE, task_queue0_entry, 1);
     BUFQUEUE_VAL_CHK((ret == RHINO_SUCCESS) || (ret == RHINO_STOPPED));
 
-    return 0;
+    return RHINO_SUCCESS;
 }
 

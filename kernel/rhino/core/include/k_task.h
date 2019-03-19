@@ -31,19 +31,21 @@ typedef struct {
 #endif
 
 #if (RHINO_CONFIG_USER_SPACE > 0)
-    void            *utask_stack;
+    void            *task_ustack;
     uint32_t         ustack_size;
-    task_entry_t     entry;
+    uint32_t         pid;
     uint8_t          mode;
+    uint8_t          is_proc;
+    cpu_stack_t     *task_ustack_base;
+    klist_t          task_user;
+    void            *task_group;
 #endif
 
     cpu_stack_t     *task_stack_base;
     uint32_t         stack_size;
     klist_t          task_list;
 
-#if (RHINO_CONFIG_TASK_SUSPEND > 0)
     suspend_nested_t suspend_count;
-#endif
 
     struct mutex_s  *mutex_list;
 
@@ -110,6 +112,7 @@ typedef struct {
 #if (RHINO_CONFIG_CPU_NUM > 1)
     uint8_t          cpu_binded;
     uint8_t          cur_exc;
+    klist_t          task_del_item;
 #endif
 
     /* current prio */
@@ -209,7 +212,6 @@ kstat_t krhino_task_yield(void);
  */
 ktask_t *krhino_cur_task_get(void);
 
-#if (RHINO_CONFIG_TASK_SUSPEND > 0)
 /**
  * This function will suspend a task
  * @param[in]  task  the task to be suspended
@@ -223,7 +225,6 @@ kstat_t krhino_task_suspend(ktask_t *task);
  * @return the operation status, RHINO_SUCCESS is OK, others is error
  */
 kstat_t krhino_task_resume(ktask_t *task);
-#endif
 
 /**
  * This function will get min free stack size in the total runtime

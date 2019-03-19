@@ -1058,7 +1058,6 @@ int dm_msg_ntp_response(char *payload, int payload_len)
 
     memcpy(uint64_str, lite_item_server_send_time.value, lite_item_server_send_time.value_length);
     utc = atoll(uint64_str);
-
     dm_log_debug("NTP Time In Number: %lld", utc);
 
     HAL_UTC_Set(utc);
@@ -1946,6 +1945,7 @@ int dm_msg_cloud_disconnect(void)
 
 int dm_msg_cloud_reconnect(void)
 {
+    /* Send To User */
     return _dm_msg_send_to_user(IOTX_DM_EVENT_CLOUD_RECONNECT, NULL);
 }
 

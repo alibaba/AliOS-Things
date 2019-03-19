@@ -29,12 +29,10 @@ typedef struct {
 
 static netmgr_cxt_t g_netmgr_cxt;
 
-static int32_t has_valid_ap(void);
-
 #if defined(WITH_LWIP) || defined(WITH_VENDOR_LWIP)
-static void randomize_tcp_local_port();
+static void randomize_tcp_local_port(void);
 #endif
-
+/*
 static void format_ip(uint32_t ip, char *buf)
 {
     int i = 0;
@@ -52,6 +50,7 @@ static int32_t translate_addr(char *str)
 {
     int32_t a, b, c, d;
     int32_t address = 0;
+    ERROR!
     sscanf(str, "%d.%d.%d.%d", &a, &b, &c, &d);
     address |= d << 24;
     address |= c << 16;
@@ -60,6 +59,7 @@ static int32_t translate_addr(char *str)
 
     return address;
 }
+*/
 
 static void netmgr_ip_got_event(hal_net_module_t *m, hal_ip_stat_t *pnet,
                                 void *arg)
@@ -71,7 +71,8 @@ static void netmgr_ip_got_event(hal_net_module_t *m, hal_ip_stat_t *pnet,
     randomize_tcp_local_port();
 #endif
 
-    g_netmgr_cxt.ipv4_owned   = translate_addr(pnet->ip);
+    //g_netmgr_cxt.ipv4_owned   = translate_addr(pnet->ip);
+    inet_pton(AF_INET, pnet->ip, &(g_netmgr_cxt.ipv4_owned));
     g_netmgr_cxt.ip_available = true;
     aos_post_event(EV_NETWORK, CODE_ON_GOT_IP, 0u);
 }
@@ -146,7 +147,7 @@ static void dump_seed_history(seed_history_t *history)
 }
 #endif /* LOCAL_PORT_ENHANCED_RAND */
 
-static void randomize_tcp_local_port()
+static void randomize_tcp_local_port(void)
 {
     unsigned int   ts        = (unsigned int)aos_now();
     static uint8_t rand_flag = 0;

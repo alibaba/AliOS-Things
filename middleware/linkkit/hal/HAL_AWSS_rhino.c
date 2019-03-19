@@ -15,8 +15,10 @@ extern "C"
 #include <netmgr.h>
 #include "iot_import.h"
 #include "ali_crypto.h"
-
+#include "netmgr_wifi.h"
+#if 0
     autoconfig_plugin_t g_alink_smartconfig;
+#endif
 
 
     /**
@@ -73,6 +75,7 @@ extern "C"
      */
     char *HAL_Wifi_Get_Mac(_OU_ char mac_str[HAL_MAC_LEN])
     {
+#if 0
         uint8_t mac[6] = { 0 };
 
         hal_wifi_get_mac_addr(NULL, mac);
@@ -81,9 +84,13 @@ extern "C"
                  mac[1], mac[2], mac[3], mac[4], mac[5]);
 
         return mac_str;
+#else
+	return NULL;
+#endif
     }
-
+#if 0
     extern void wifi_get_ip(char ips[16]);
+#endif
 
 #define HAL_IP_LEN (15 + 1)
     /**
@@ -97,8 +104,10 @@ extern "C"
     uint32_t HAL_Wifi_Get_IP(_OU_ char        ip_str[HAL_IP_LEN],
                              _IN_ const char *ifname)
     {
+#if 0
         //(void *)ifname;
         wifi_get_ip(ip_str);
+#endif
         return 0;
     }
 
@@ -110,8 +119,12 @@ extern "C"
      */
     char *HAL_Wifi_Get_Os_Version(_OU_ char version_str[STR_SHORT_LEN])
     {
+#if 0
         strncpy(version_str, aos_version_get(), FIRMWARE_VERSION_MAXLEN - 1);
         return version_str;
+#else
+	return NULL;
+#endif
     }
 
     /**
@@ -166,20 +179,23 @@ extern "C"
      * @param[in] with_fcs @n 80211 frame buffer include fcs(4 byte) or not
      * @param[in] rssi @n rssi of packet
      */
+#if 0
     typedef int (*awss_recv_80211_frame_cb_t)(char *buf, int length,
                                               enum AWSS_LINK_TYPE link_type,
                                               int with_fcs, signed char rssi);
 
     awss_recv_80211_frame_cb_t g_ieee80211_handler;
-
+#endif
     static void monitor_data_handler(uint8_t *buf, int len,
                                      hal_wifi_link_info_t *info)
     {
+#if 0
         int with_fcs  = 0;
         int link_type = AWSS_LINK_TYPE_NONE;
 
         (*g_ieee80211_handler)((char *)buf, len, link_type, with_fcs,
                                info->rssi);
+#endif
     }
 
     /**
@@ -191,6 +207,7 @@ extern "C"
      */
     void HAL_Awss_Open_Monitor(_IN_ awss_recv_80211_frame_cb_t cb)
     {
+#if 0
         hal_wifi_module_t *module = hal_wifi_get_default_module();
 
         if (module == NULL) {
@@ -201,6 +218,7 @@ extern "C"
         hal_wifi_register_monitor_cb(module, monitor_data_handler);
         hal_wifi_start_wifi_monitor(module);
         HAL_Awss_Switch_Channel(6, 0, NULL);
+#endif
     }
 
     /**
@@ -209,6 +227,7 @@ extern "C"
      */
     void HAL_Awss_Close_Monitor(void)
     {
+#if 0
         hal_wifi_module_t *module;
 
         module = hal_wifi_get_default_module();
@@ -218,6 +237,7 @@ extern "C"
 
         hal_wifi_register_monitor_cb(module, NULL);
         hal_wifi_stop_wifi_monitor(module);
+#endif
     }
 
     /**
@@ -233,6 +253,7 @@ extern "C"
                                  _IN_OPT_ char secondary_channel,
                                  _IN_OPT_ uint8_t bssid[ETH_ALEN])
     {
+#if 0
         hal_wifi_module_t *module;
 
         module = hal_wifi_get_default_module();
@@ -241,11 +262,16 @@ extern "C"
         }
 
         hal_wifi_set_channel(module, (int)primary_channel);
+#endif
     }
 
     int HAL_Sys_Net_Is_Ready()
     {
+#if 0
         return netmgr_get_ip_state() == true ? 1 : 0;
+#else
+	return 0;
+#endif
     }
 
     /**
@@ -277,6 +303,7 @@ extern "C"
                             _IN_OPT_ uint8_t bssid[ETH_ALEN],
                             _IN_OPT_ uint8_t channel)
     {
+#if 0
         int                ms_cnt = 0;
         netmgr_ap_config_t config = { 0 };
         if (ssid != NULL) {
@@ -308,6 +335,9 @@ extern "C"
         }
 
         return -1;
+#else
+	return -1;
+#endif
     }
 
 #define FRAME_ACTION_MASK (1 << FRAME_ACTION)
@@ -339,7 +369,11 @@ extern "C"
     int HAL_Wifi_Send_80211_Raw_Frame(_IN_ enum HAL_Awss_Frame_Type type,
                                       _IN_ uint8_t *buffer, _IN_ int len)
     {
+#if 0
         return hal_wlan_send_80211_raw_frame(NULL, buffer, len);
+#else
+	return -1;
+#endif
     }
 
     /**
@@ -354,17 +388,21 @@ extern "C"
      * @see None.
      * @note None.
      */
+#if 0
     typedef void (*awss_wifi_mgmt_frame_cb_t)(_IN_ uint8_t *   buffer,
                                               _IN_ int         len,
                                               _IN_ signed char rssi_dbm,
                                               _IN_ int         buffer_type);
 
     static awss_wifi_mgmt_frame_cb_t monitor_cb = NULL;
+#endif
     static void mgnt_rx_cb(uint8_t *data, int len, hal_wifi_link_info_t *info)
     {
+#if 0
         if (monitor_cb) {
             monitor_cb(data, len, info->rssi, 0);
         }
+#endif
     }
 
     /**
@@ -392,6 +430,7 @@ extern "C"
       _IN_ uint32_t filter_mask, _IN_OPT_ uint8_t vendor_oui[3],
       _IN_ awss_wifi_mgmt_frame_cb_t callback)
     {
+#if 0
         monitor_cb = callback;
 
         if (callback != NULL) {
@@ -399,7 +438,7 @@ extern "C"
         } else {
             hal_wlan_register_mgnt_monitor_cb(NULL, NULL);
         }
-
+#endif
         return 0;
     }
 
@@ -418,13 +457,14 @@ extern "C"
      * @see None.
      * @note None.
      */
+#if 1
     typedef int (*awss_wifi_scan_result_cb_t)(const char ssid[HAL_MAX_SSID_LEN],
                                               const uint8_t bssid[ETH_ALEN],
                                               enum AWSS_AUTH_TYPE auth,
                                               enum AWSS_ENC_TYPE  encry,
                                               uint8_t channel, signed char rssi,
                                               int is_last_ap);
-
+#endif
     /**
      * @brief   启动一次Wi-Fi的空中扫描(Scan)
      *
@@ -444,6 +484,7 @@ extern "C"
      */
     int HAL_Wifi_Scan(awss_wifi_scan_result_cb_t cb)
     {
+#if 0
         netmgr_register_wifi_scan_result_callback(
           (netmgr_wifi_scan_result_cb_t)cb);
         hal_wifi_start_scan_adv(NULL);
@@ -451,7 +492,7 @@ extern "C"
         while (netmgr_get_scan_cb_finished() != true) { // block
             aos_msleep(50);
         }
-
+#endif
         return 0;
     }
 
@@ -476,6 +517,7 @@ extern "C"
                              _OU_ char passwd[HAL_MAX_PASSWD_LEN],
                              _OU_ uint8_t bssid[ETH_ALEN])
     {
+#if 0
         netmgr_ap_config_t config = { 0 };
 
         netmgr_get_ap_config(&config);
@@ -488,7 +530,7 @@ extern "C"
         if (bssid) {
             memcpy(bssid, config.bssid, ETH_ALEN);
         }
-
+#endif
         return 0;
     }
 
@@ -526,13 +568,16 @@ int platform_sys_net_is_ready(void)
 #ifdef CONFIG_YWSS
     static int smart_config_start(void)
     {
+#if 0
         extern int awss_start();
         awss_start();
+#endif
         return 0;
     }
 
     static void smart_config_stop(void)
     {
+#if 0
         netmgr_ap_config_t config;
         memset(&config, 0, sizeof(netmgr_ap_config_t));
         netmgr_get_ap_config(&config);
@@ -544,19 +589,21 @@ int platform_sys_net_is_ready(void)
 
         printf("%s %d\r\n", __func__, __LINE__);
         // awss_stop();
+#endif
     }
 
     static void smart_config_result_cb(int result, uint32_t ip)
     {
         aos_post_event(EV_WIFI, CODE_WIFI_ON_GOT_IP, 0u);
     }
-
+#if 0
     autoconfig_plugin_t g_alink_smartconfig = {
         .description      = "alink_smartconfig",
         .autoconfig_start = smart_config_start,
         .autoconfig_stop  = smart_config_stop,
         .config_result_cb = smart_config_result_cb
     };
+#endif
 #endif
 
 #ifdef __cplusplus

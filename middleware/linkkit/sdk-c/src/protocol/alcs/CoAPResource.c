@@ -12,6 +12,7 @@
 #include "CoAPInternal.h"
 #include "lite-list.h"
 #include "utils_md5.h"
+#include "iotx_utils.h"
 
 #define COAP_PATH_DEFAULT_SUM_LEN (5)
 

@@ -11,7 +11,6 @@
 #define TEST_QUEUE_MSG0_SIZE 1
 
 static ktask_t  *task_0_test;
-static void    *queue_recv_msg = (void *)1;
 static void    *g_test_queue_msg0[TEST_QUEUE_MSG0_SIZE];
 static kqueue_t g_test_queue0;
 
@@ -60,6 +59,6 @@ kstat_t task_queue_del_test(void)
                                  0, TASK_TEST_STACK_SIZE, task_queue0_entry, 1);
     QUEUE_VAL_CHK((ret == RHINO_SUCCESS) || (ret == RHINO_STOPPED));
 
-    return 0;
+    return RHINO_SUCCESS;
 }
 

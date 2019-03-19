@@ -297,18 +297,23 @@ unsigned long mbedtls_timing_get_timer( struct mbedtls_timing_hr_time *val, int 
 
     return( delta );
 }
-
+#if 0
 static void sighandler( int signum )
 {
     mbedtls_timing_alarmed = 1;
+#if 0
     signal( signum, sighandler );
+#endif
 }
+#endif
 
 void mbedtls_set_alarm( int seconds )
 {
     mbedtls_timing_alarmed = 0;
+#if 0
     signal( SIGALRM, sighandler );
     alarm( seconds );
+#endif
 }
 
 #endif /* _WIN32 && !EFIX64 && !EFI32 */

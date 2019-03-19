@@ -222,3 +222,4 @@ int dm_cota_status_check(void)
 #endif
     return SUCCESS_RETURN;
 }
+

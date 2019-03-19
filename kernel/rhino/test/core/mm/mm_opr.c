@@ -16,7 +16,6 @@ static uint8_t mm_opr_case1(void)
 {
     char   *ptr;
     kstat_t ret;
-    char    tmp;
 
     ret = krhino_init_mm_head(&pmmhead, (void *)mm_pool, MM_POOL_SIZE);
     MYASSERT(ret == RHINO_SUCCESS);

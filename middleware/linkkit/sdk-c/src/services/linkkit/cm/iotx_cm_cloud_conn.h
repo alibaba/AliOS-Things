@@ -38,7 +38,7 @@ int iotx_cm_cloud_conn_init_second(void *handler, void *connectivity);
 int iotx_cm_cloud_conn_yield(void *handler, void *connectivity, int timeout_ms);
 int iotx_cm_cloud_conn_deinit(void *handler, void *connectivity);
 int iotx_cm_cloud_conn_check_target(iotx_cm_send_peer_t *peer);
-iotx_cm_send_peer_t *iotx_cm_cloud_conn_get_target();
+iotx_cm_send_peer_t *iotx_cm_cloud_conn_get_target(void);
 #if (CONFIG_SDK_THREAD_COST == 1)
 int iotx_cm_cloud_conn_add_send(void *handler,
                                 iotx_cm_send_peer_t *target,

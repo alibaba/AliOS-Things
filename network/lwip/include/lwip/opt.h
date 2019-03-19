@@ -227,7 +227,7 @@
 #endif
 
 /**
- * MEMP_MEM_MALLOC==1: Use mem_malloc/mem_free instead of the lwip pool allocator.
+ * MEMP_MEM_MALLOC==1: Use lwip_mem_malloc/lwip_mem_free instead of the lwip pool allocator.
  * Especially useful with MEM_LIBC_MALLOC but handle with care regarding execution
  * speed (heap alloc can be much slower than pool alloc) and usage from interrupts
  * (especially if your netif driver allocates PBUF_POOL pbufs for received frames
@@ -279,7 +279,7 @@
 
 /**
  * MEM_USE_POOLS==1: Use an alternative to malloc() by allocating from a set
- * of memory pools of various sizes. When mem_malloc is called, an element of
+ * of memory pools of various sizes. When lwip_mem_malloc is called, an element of
  * the smallest pool that can provide the length needed is returned.
  * To use this, MEMP_USE_CUSTOM_POOLS also has to be enabled.
  */
@@ -306,15 +306,15 @@
 #endif
 
 /**
- * Set this to 1 if you want to free PBUF_RAM pbufs (or call mem_free()) from
+ * Set this to 1 if you want to free PBUF_RAM pbufs (or call lwip_mem_free()) from
  * interrupt context (or another context that doesn't allow waiting for a
  * semaphore).
- * If set to 1, mem_malloc will be protected by a semaphore and SYS_ARCH_PROTECT,
- * while mem_free will only use SYS_ARCH_PROTECT. mem_malloc SYS_ARCH_UNPROTECTs
- * with each loop so that mem_free can run.
+ * If set to 1, lwip_mem_malloc will be protected by a semaphore and SYS_ARCH_PROTECT,
+ * while lwip_mem_free will only use SYS_ARCH_PROTECT. lwip_mem_malloc SYS_ARCH_UNPROTECTs
+ * with each loop so that lwip_mem_free can run.
  *
  * ATTENTION: As you can see from the above description, this leads to dis-/
- * enabling interrupts often, which can be slow! Also, on low memory, mem_malloc
+ * enabling interrupts often, which can be slow! Also, on low memory, lwip_mem_malloc
  * can need longer.
  *
  * If you don't want that, at least for NO_SYS=0, you can still use the following
@@ -539,7 +539,7 @@
  * LWIP_ARP==1: Enable ARP functionality.
  */
 #if !defined LWIP_ARP || defined __DOXYGEN__
-#define LWIP_ARP                        1
+#define LWIP_ARP                        0
 #endif
 
 /**
@@ -1004,7 +1004,7 @@
 
 /** DNS maximum number of entries to maintain locally. */
 #if !defined DNS_TABLE_SIZE || defined __DOXYGEN__
-#define DNS_TABLE_SIZE                  4
+#define DNS_TABLE_SIZE                  16
 #endif
 
 /** DNS maximum host name length supported in the name table. */
@@ -1017,7 +1017,7 @@
  * DNS_SERVER_ADDRESS(ipaddr), where 'ipaddr' is an 'ip_addr_t*'
  */
 #if !defined DNS_MAX_SERVERS || defined __DOXYGEN__
-#define DNS_MAX_SERVERS                 2
+#define DNS_MAX_SERVERS                 4
 #endif
 
 /** DNS do a name checking between the query and the response. */
@@ -1154,6 +1154,27 @@
  */
 #if !defined TCP_QUEUE_OOSEQ || defined __DOXYGEN__
 #define TCP_QUEUE_OOSEQ                 (LWIP_TCP)
+#endif
+
+/**
+ * LWIP_TCP_SACK_OUT==1: TCP will support sending selective acknowledgements (SACKs).
+ */
+#if !defined LWIP_TCP_SACK_OUT || defined __DOXYGEN__
+#define LWIP_TCP_SACK_OUT               1
+#endif
+
+/**
+ * LWIP_TCP_MAX_SACK_NUM: The maximum number of SACK values to include in TCP segments.
+ * Must be at least 1, but is only used if LWIP_TCP_SACK_OUT is enabled.
+ * NOTE: Even though we never send more than 3 or 4 SACK ranges in a single segment
+ * (depending on other options), setting this option to values greater than 4 is not pointless.
+ * This is basically the max number of SACK ranges we want to keep track of.
+ * As new data is delivered, some of the SACK ranges may be removed or merged.
+ * In that case some of those older SACK ranges may be used again.
+ * The amount of memory used to store SACK ranges is LWIP_TCP_MAX_SACK_NUM * 8 bytes for each TCP PCB.
+ */
+#if !defined LWIP_TCP_MAX_SACK_NUM || defined __DOXYGEN__
+#define LWIP_TCP_MAX_SACK_NUM           4
 #endif
 
 /**
@@ -1805,7 +1826,11 @@
  * If LWIP_SO_RCVBUF is used, this is the default value for recv_bufsize.
  */
 #if !defined RECV_BUFSIZE_DEFAULT || defined __DOXYGEN__
+#ifdef CELLULAR_SUPPORT
+#define RECV_BUFSIZE_DEFAULT            0x7fffffff
+#else
 #define RECV_BUFSIZE_DEFAULT            INT_MAX
+#endif /* CELLULAR_SUPPORT */
 #endif
 
 /**
@@ -2191,7 +2216,9 @@
  * LWIP_IPV6_DUP_DETECT_ATTEMPTS=[0..7]: Number of duplicate address detection attempts.
  */
 #if !defined LWIP_IPV6_DUP_DETECT_ATTEMPTS || defined __DOXYGEN__
+#ifndef CELLULAR_SUPPORT
 #define LWIP_IPV6_DUP_DETECT_ATTEMPTS   1
+#endif
 #endif
 /**
  * @}
@@ -2302,7 +2329,11 @@
  * (neighbor solicit and router solicit)
  */
 #if !defined LWIP_ND6_MAX_MULTICAST_SOLICIT || defined __DOXYGEN__
+#ifdef CELLULAR_SUPPORT
+#define LWIP_ND6_MAX_MULTICAST_SOLICIT  6
+#else
 #define LWIP_ND6_MAX_MULTICAST_SOLICIT  3
+#endif /* CELLULAR_SUPPORT */
 #endif
 
 /**

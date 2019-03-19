@@ -38,7 +38,7 @@ const uint8_t probe_req_frame[ZC_PROBE_LEN] = {
 };
 
 static uint8_t *g_dev_sign; /* pointer to dev_name_len start pos */
-static uint8_t *g_product_key; /* pointer to model_len start pos */
+//static uint8_t *g_product_key; /* pointer to model_len start pos */
 static uint8_t *enrollee_frame;
 static uint16_t enrollee_frame_len;
 
@@ -104,7 +104,7 @@ void awss_init_enrollee_info(void)// void enrollee_raw_frame_init(void)
 
     enrollee_frame[len ++] = ENROLLEE_FRAME_TYPE;/* frame type */
 
-    g_product_key = &enrollee_frame[len]; /* pointer to pk len, see decrypt func */
+//    g_product_key = &enrollee_frame[len]; /* pointer to pk len, see decrypt func */
     enrollee_frame[len ++] = pk_len;
     memcpy(&enrollee_frame[len], pk, pk_len);
     len += pk_len;
@@ -139,7 +139,7 @@ void awss_destroy_enrollee_info(void)
         enrollee_frame_len = 0;
         enrollee_frame = NULL;
         g_dev_sign = NULL;
-        g_product_key = NULL;
+//        g_product_key = NULL;
     }
 }
 

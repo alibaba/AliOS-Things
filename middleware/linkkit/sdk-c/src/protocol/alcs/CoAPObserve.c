@@ -89,7 +89,7 @@ int CoAPObsServer_add(CoAPContext *context, const char *path, NetworkAddr *remot
         }
 
         memset(obs, 0x00, sizeof(CoapObserver));
-        obs->msg_type = request->header.type;
+        obs->msg_type = (CoAPMessageCode)request->header.type;
         obs->p_resource_of_interest = resource;
         memcpy(&obs->remote, remote, sizeof(NetworkAddr));
         memcpy(obs->token, request->token, request->header.tokenlen);

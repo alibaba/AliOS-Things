@@ -7,7 +7,7 @@
 
 static AOS_DLIST_HEAD(g_net_module);
 
-hal_net_module_t *hal_net_default_module(void)
+hal_net_module_t *hal_net_get_default_module(void)
 {
     hal_net_module_t *m = 0;
 
@@ -50,4 +50,11 @@ int hal_net_get_mac_addr(hal_net_module_t *m, uint8_t *mac)
     }
 
     return -1;
+}
+
+void hal_net_install_event(hal_net_module_t *m, const hal_net_event_cb_t *cb)
+{
+    if (NULL == m)
+        return;
+    m->ev_cb = cb;
 }

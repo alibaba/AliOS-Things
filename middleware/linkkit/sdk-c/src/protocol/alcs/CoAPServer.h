@@ -14,7 +14,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-CoAPContext *CoAPServer_init();
+CoAPContext *CoAPServer_init(void);
 
 void CoAPServer_add_timer (void (*on_timer)(void*));
 void CoAPServer_loop(CoAPContext *context);
@@ -28,7 +28,7 @@ int CoAPServerMultiCast_send(CoAPContext *context, NetworkAddr *remote, const ch
 
 int CoAPServerResp_send(CoAPContext *context, NetworkAddr *remote, unsigned char *buff, unsigned short len, void *req, const char *paths);
 
-void CoAPServer_thread_leave();
+void CoAPServer_thread_leave(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

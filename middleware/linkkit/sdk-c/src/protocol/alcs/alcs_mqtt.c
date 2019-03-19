@@ -488,7 +488,7 @@ alcs_mqtt_status_e alcs_mqtt_blacklist_update(void *ctx)
     int blacklist_len = ALCS_MQTT_BLACK_MAX_LEN;
 
     if (NULL == context) {
-        return -1;
+        return ALCS_MQTT_STATUS_ERROR;
     }
 
     if (ALCS_MQTT_STATUS_SUCCESS == __alcs_mqtt_kv_get(ALCS_MQTT_JSON_KEY_BLACK, blacklist, &blacklist_len)) {

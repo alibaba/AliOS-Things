@@ -98,7 +98,7 @@ struct memp {
 #endif /* !MEMP_MEM_MALLOC || MEMP_OVERFLOW_CHECK */
 
 #if MEM_USE_POOLS && MEMP_USE_CUSTOM_POOLS
-/* Use a helper type to get the start and end of the user "memory pools" for mem_malloc */
+/* Use a helper type to get the start and end of the user "memory pools" for lwip_mem_malloc */
 typedef enum {
     /* Get the first (via:
        MEMP_POOL_HELPER_START = ((u8_t) 1*MEMP_POOL_A + 0*MEMP_POOL_B + 0*MEMP_POOL_C + 0)*/

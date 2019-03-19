@@ -24,3 +24,4 @@ void dm_conn_set_local_conn_state(int connected);
 int dm_conn_get_local_conn_state(void);
 
 #endif
+

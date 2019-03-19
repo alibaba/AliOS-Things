@@ -6,10 +6,14 @@
 
 kstat_t mutex_create(kmutex_t *mutex, const name_t *name, uint8_t mm_alloc_flag)
 {
+#if (RHINO_CONFIG_SYSTEM_STATS > 0)
     CPSR_ALLOC();
+#endif
 
     NULL_PARA_CHK(mutex);
     NULL_PARA_CHK(name);
+
+    memset(mutex, 0, sizeof(kmutex_t));
 
     /* init the list */
     klist_init(&mutex->blk_obj.blk_list);

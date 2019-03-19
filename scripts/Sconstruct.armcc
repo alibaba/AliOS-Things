@@ -1,0 +1,114 @@
+
+import os
+
+env = Environment(ENV = os.environ)
+
+env['CC']   = 'armcc'
+env['LINK'] = 'armlink'
+
+env['CCFLAGS'] = ['-g',
+                  '-O2',
+                  '--c99',
+                  '--cpu=Cortex-A7',
+                  '-D__CC_ARM',
+                  '-D__MICROLIB',
+                  '-DBUILD_APP',
+                  '-DAOS_HAL',
+                  '-DSTDIO_UART=0',
+                  '-DCONFIG_NO_TCPIP',
+                  '-DCHIP_MX6SL',
+                  '-DBOARD_EVK',
+                  '-DBOARD_REV_A',
+                  '-DAOS_VFS',
+                  '-DAOS_BINS',
+                  '-DCONFIG_CLOUD',
+                  '-DAOS_FRAMEWORK_COMMON',
+                  '-DOSAL_RHINO',
+                  '-DCONFIG_ARM',
+                  '-DAOS_USPACE',
+                  '-DDEPRECATED_LINKKIT',
+                  '-DUSPACE_DYN',
+                  ]
+
+env['LINKFLAGS'] = [
+                    '--cpu=Cortex-A7',
+                    '--library_type=microlib',
+                    '--strict',
+                    '--autoat',
+                    '--entry=app_entry',
+                    '--scatter="scripts/app1.sct"',
+                   ]
+
+env['CPPPATH'] = [
+                  'board/imx6sl_svc/include',
+                  'platform/arch/arm/armv7a/armcc/include',
+                  'platform/arch/arm/armv7a/armcc/a7',
+                  'platform/arch/arm/armv7a/common',
+                  'kernel/rhino/vfs/include',
+                  'kernel/init/include',
+                  'kernel/yloop/include',
+                  'kernel/hal/include',
+                  'kernel/rhino',
+                  'kernel/rhino/core/include',
+                  'kernel/rhino/mm/tlsf',
+                  'kernel/uspace/include',
+                  'kernel/uspace/syscall/include',
+                  'middleware/alink/cloud/include',
+                  'middleware/common/include',
+                  'middleware/linkkit/sdk-c/include',
+                  'middleware/linkkit/sdk-c/src/infra/log/',
+                  'middleware/linkkit/sdk-c/include/exports',
+                  'app/example/linkkitapp',
+                  'network/lwip/include',
+                  'network/lwip/port/include',
+                  'tools/cli/include',
+                  'osal/include',
+                  'kernel/rhino/fs/kv/include',
+                  'osal/aos',
+                  'utility/libc/compilers/armlibc',
+                  'utility/log/include',
+                  'network/include',
+                  'app/example/uapp1',
+                  'app/example/uapp1/libcore',
+                  'app/example/uapp1/test',
+                  'app/example/uapp1/include',
+                ]
+
+sources = Split("""
+                kernel/rhino/mm/tlsf/tlsf.c
+                kernel/uspace/u_res_task.c
+                kernel/uspace/u_callback_task.c
+                kernel/uspace/u_timer.c
+                kernel/uspace/u_mm.c
+                kernel/uspace/syscall/usyscall/hal_uart_usyscall.c
+                kernel/uspace/syscall/usyscall/lwip_usyscall.c
+                kernel/uspace/syscall/usyscall/rhino_usyscall.c
+                kernel/uspace/syscall/usyscall/linkkit_usyscall.c
+                utility/libc/compilers/armlibc/armcc_libc.c
+                app/example/uapp1/libcore/task.c
+                app/example/uapp1/libcore/mutex.c
+                app/example/uapp1/libcore/semaphore.c
+                app/example/uapp1/libcore/systime.c
+                app/example/uapp1/libcore/timer.c
+                osal/aos/aos_rhino_uspace.c
+                app/example/uapp1/src/entry.c
+                app/example/uapp1/src/app.c
+                app/example/uapp1/src/ucli.c
+                app/example/uapp1/src/log.c
+                app/example/uapp1/test/aos_uspace_test.c
+                app/example/uapp1/test/buf_queue_test.c
+                app/example/uapp1/test/cut.c
+                app/example/uapp1/test/mutex_test.c
+                app/example/uapp1/test/semaphore_test.c
+                app/example/uapp1/test/task_test.c
+                app/example/uapp1/test/test.c
+                app/example/uapp1/test/time_test.c
+                app/example/uapp1/test/timer_test.c
+                app/example/uapp1/test/lwip/linkkit_example_solo.c
+                """)
+
+
+object_list = env.Object(source = sources)
+
+env.Program(target = 'app1.elf', source = object_list)
+

@@ -113,8 +113,13 @@ static uint32_t check_if_in_stack(void **p)
 uint32_t scan_region(void *start, void *end, void *adress)
 {
     void **p = (void **)((uint32_t)start & ~(sizeof(size_t) - 1));
+
+    if (p == NULL) {
+        return 0;
+    }
+
     while ((void *)p < end) {
-        if (NULL != p && adress  == *p) {
+        if (adress  == *p) {
             g_leak_match = p;
             return 1;
         }
@@ -153,10 +158,14 @@ static uint32_t recheck(void *start, void *end)
 {
     void **p    = (void **)((uint32_t)start & ~(sizeof(size_t) - 1));
 
+    if (p == NULL) {
+        return 0;
+    }
+
     g_recheck_flag = 1;
 
     while ((void *)p <= end) {
-        if (NULL != p && 1 == if_adress_is_valid(*p)) {
+        if (1 == if_adress_is_valid(*p)) {
             if ( 1 == check_mm_leak(*p)) {
                 g_recheck_flag = 0;
                 return 1;

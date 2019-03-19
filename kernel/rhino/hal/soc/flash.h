@@ -22,6 +22,10 @@ typedef enum {
     HAL_PARTITION_APPLICATION,
     HAL_PARTITION_ATE,
     HAL_PARTITION_OTA_TEMP,
+    HAL_PARTITION_APP,
+    HAL_PARTITION_CACHE_APP,
+    HAL_PARTITION_MPSS,
+    HAL_PARTITION_CACHE_MPSS,
     HAL_PARTITION_RF_FIRMWARE,
     HAL_PARTITION_PARAMETER_1,
     HAL_PARTITION_PARAMETER_2,
@@ -57,9 +61,9 @@ typedef struct {
  *
  * @param[in]  in_partition  The target flash logical partition
  *
- * @return     HAL_logi_partition struct
+ * @return     the size of the partition success readed
  */
-hal_logic_partition_t *hal_flash_get_info(hal_partition_t in_partition);
+int32_t hal_flash_get_info(hal_partition_t in_partition, hal_logic_partition_t *pt);
 
 /**
  * Erase an area on a Flash logical partition

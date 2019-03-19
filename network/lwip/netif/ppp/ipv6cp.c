@@ -135,7 +135,7 @@
  * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * $Id: ipv6cp.c,v 1.21 2005/08/25 23:59:34 paulus Exp $ 
+ * $Id: //components/rel/aos/alios_things.alios/1.0/network/lwip/netif/ppp/ipv6cp.c#2 $ 
  */
 
 /*

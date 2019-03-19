@@ -94,7 +94,6 @@ static void buf_queue_send_param_test(void)
 static void task_queue1_entry(void *arg)
 {
     kstat_t ret;
-    kbuf_queue_info_t info;
 
     while (1) {
         memset(g_test_send_msg0, 'y', TEST_BUFQUEUE_MSG_MAX);
@@ -228,7 +227,7 @@ static void task_queue0_entry(void *arg)
         BUFQUEUE_VAL_CHK(ret == RHINO_SUCCESS);
 
         memset(g_test_send_msg0, send_char[count], TEST_BUFQUEUE_MSG_MAX);
-        ret = memcmp(g_test_send_msg0, g_test_recv_msg0, size);
+        ret = (kstat_t)memcmp(g_test_send_msg0, g_test_recv_msg0, size);
         count ++;
     } while (count <  TEST_BUFQUEUE_MSG_NUM);
 
@@ -249,7 +248,7 @@ static void task_queue0_entry(void *arg)
         BUFQUEUE_VAL_CHK(ret == RHINO_SUCCESS);
 
         memset(g_test_send_msg1, send_char[count], TEST_BUFQUEUE_MSG_MAX);
-        ret = memcmp(g_test_send_msg1, g_test_recv_msg0, size);
+        ret = (kstat_t)memcmp(g_test_send_msg1, g_test_recv_msg0, size);
         count ++;
     } while (count <  TEST_BUFQUEUE_MSG_NUM);
 
@@ -276,6 +275,6 @@ kstat_t task_buf_queue_recv_test(void)
                                  0, TASK_TEST_STACK_SIZE, task_queue0_entry, 1);
     BUFQUEUE_VAL_CHK(ret == RHINO_SUCCESS);
 
-    return 0;
+    return RHINO_SUCCESS;
 }
 

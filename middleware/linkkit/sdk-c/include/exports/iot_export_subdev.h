@@ -145,7 +145,7 @@ typedef struct {
  *
  * @return Message id.
  */
-uint32_t IOT_Gateway_Generate_Message_ID();
+uint32_t IOT_Gateway_Generate_Message_ID(void);
 
 
 /**

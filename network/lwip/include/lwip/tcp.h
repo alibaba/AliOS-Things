@@ -164,6 +164,16 @@ enum tcp_state {
   LAST_ACK    = 9,
   TIME_WAIT   = 10
 };
+#if LWIP_TCP_SACK_OUT
+/** SACK ranges to include in ACK packets.
+ * SACK entry is invalid if left==right. */
+struct tcp_sack_range {
+  /** Left edge of the SACK: the first acknowledged sequence number. */
+  u32_t left;
+  /** Right edge of the SACK: the last acknowledged sequence number +1 (so first NOT acknowledged). */
+  u32_t right;
+};
+#endif /* LWIP_TCP_SACK_OUT */
 
 /**
  * members common to struct tcp_pcb and struct tcp_listen_pcb
@@ -221,6 +231,9 @@ struct tcp_pcb {
 #if TCP_LISTEN_BACKLOG
 #define TF_BACKLOGPEND 0x0200U /* If this is set, a connection pcb has increased the backlog on its listener */
 #endif
+#if LWIP_TCP_SACK_OUT
+#define TF_SACK        0x1000U /* Selective ACKs enabled */
+#endif
 
   /* the rest of the fields are in host byte order
      as we have to do some math with them */
@@ -235,6 +248,12 @@ struct tcp_pcb {
   tcpwnd_size_t rcv_wnd;   /* receiver window available */
   tcpwnd_size_t rcv_ann_wnd; /* receiver window to announce */
   u32_t rcv_ann_right_edge; /* announced right edge of window */
+
+#if LWIP_TCP_SACK_OUT
+  /* SACK ranges to include in ACK packets (entry is invalid if left==right) */
+  struct tcp_sack_range rcv_sacks[LWIP_TCP_MAX_SACK_NUM];
+#define LWIP_TCP_SACK_VALID(pcb, idx) ((pcb)->rcv_sacks[idx].left != (pcb)->rcv_sacks[idx].right)
+#endif /* LWIP_TCP_SACK_OUT */
 
   /* Retransmission timer. */
   s16_t rtime;

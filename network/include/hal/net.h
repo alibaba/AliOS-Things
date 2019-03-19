@@ -76,4 +76,6 @@ int hal_net_init(void);
  */
 int hal_net_get_mac_addr(hal_net_module_t *m, uint8_t *mac);
 
+void hal_net_install_event(hal_net_module_t *m, const hal_net_event_cb_t *cb);
+
 #endif  /* HAL_NET_H */

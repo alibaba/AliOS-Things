@@ -1,7 +1,7 @@
 /*
  * Definitions for tcp compression routines.
  *
- * $Id: vj.h,v 1.7 2010/02/22 17:52:09 goldsimon Exp $
+ * $Id: //components/rel/aos/alios_things.alios/1.0/network/lwip/include/netif/ppp/vj.h#2 $
  *
  * Copyright (c) 1989 Regents of the University of California.
  * All rights reserved.

@@ -16,6 +16,9 @@ typedef struct {
 #if (RHINO_CONFIG_SYSTEM_STATS > 0)
     klist_t        buf_queue_item;
 #endif
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    uint32_t       key;
+#endif
     uint8_t        mm_alloc_flag;
 } kbuf_queue_t;
 
@@ -71,6 +74,18 @@ kstat_t krhino_buf_queue_del(kbuf_queue_t *queue);
  */
 kstat_t krhino_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
                                     size_t size, size_t max_msg);
+
+/**
+ * This function will create a dyn fix buf-queue
+ * @param[in]  queue    pointer to the queue(the space is provided by user)
+ * @param[in]  name     name of the queue
+ * @param[in]  buf      pointer to the buf
+ * @param[in]  msg_size size of the msg
+ * @param[in]  msg_num  number of msg
+ * @return  the operation status, RHINO_SUCCESS is OK, others is error
+ */
+kstat_t krhino_fix_buf_queue_dyn_create(kbuf_queue_t **queue, const name_t *name,
+                                        size_t msg_size, size_t msg_num);
 
 /**
  * This function will delete a dyn-queue

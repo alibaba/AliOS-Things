@@ -366,7 +366,7 @@ slipif_init(struct netif *netif)
   LWIP_DEBUGF(SLIP_DEBUG, ("slipif_init: netif->num=%"U16_F"\n", (u16_t)netif->num));
 
   /* Allocate private data */
-  priv = (struct slipif_priv *)mem_malloc(sizeof(struct slipif_priv));
+  priv = (struct slipif_priv *)lwip_mem_malloc(sizeof(struct slipif_priv));
   if (!priv) {
     return ERR_MEM;
   }
@@ -391,7 +391,7 @@ slipif_init(struct netif *netif)
   priv->sd = sio_open(sio_num);
   if (!priv->sd) {
     /* Opening the serial port failed. */
-    mem_free(priv);
+    lwip_mem_free(priv);
     return ERR_IF;
   }
 

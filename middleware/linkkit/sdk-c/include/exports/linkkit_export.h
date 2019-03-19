@@ -89,7 +89,7 @@ typedef enum {
  *
  * @return none
  */
-void deprecated linkkit_try_leave();
+void deprecated linkkit_try_leave(void);
 
 /**
  * @brief get leave signal.
@@ -97,7 +97,7 @@ void deprecated linkkit_try_leave();
  *
  * @return int,0 no leave signal, 1 get a leave signal
  */
-int deprecated linkkit_is_try_leave();
+int deprecated linkkit_is_try_leave(void);
 
 /**
  * @brief get linkkit running state.
@@ -105,7 +105,7 @@ int deprecated linkkit_is_try_leave();
  *
  * @return int, 0 running,1 end;
  */
-int deprecated linkkit_is_end();
+int deprecated linkkit_is_end(void);
 
 /**
  * @brief start linkkit routines, and install callback funstions(async type for cloud connecting).

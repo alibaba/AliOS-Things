@@ -23,3 +23,4 @@ int dm_opt_set(dm_opt_t opt, void *data);
 int dm_opt_get(dm_opt_t opt, void *data);
 
 #endif
+

@@ -83,6 +83,10 @@ LWIP_DECLARE_HOOK
 struct netif *
 ip6_route(const ip6_addr_t *src, const ip6_addr_t *dest)
 {
+#if LWIP_SINGLE_NETIF
+  LWIP_UNUSED_ARG(src);
+  LWIP_UNUSED_ARG(dest);
+#else /* LWIP_SINGLE_NETIF */
   struct netif *netif;
   s8_t i;
 
@@ -176,7 +180,7 @@ ip6_route(const ip6_addr_t *src, const ip6_addr_t *dest)
   /* loopif is disabled, loopback traffic is passed through any netif */
   if (ip6_addr_isloopback(dest)) {
     /* don't check for link on loopback traffic */
-    if (netif_is_up(netif_default)) {
+    if (netif_default != NULL && netif_is_up(netif_default)) {
       return netif_default;
     }
     /* default netif is not up, just use any netif for loopback traffic */
@@ -187,6 +191,7 @@ ip6_route(const ip6_addr_t *src, const ip6_addr_t *dest)
     }
     return NULL;
   }
+#endif /* LWIP_NETIF_LOOPBACK && !LWIP_HAVE_LOOPIF */
 #endif /* LWIP_NETIF_LOOPBACK && !LWIP_HAVE_LOOPIF */
 
   /* no matching netif found, use default netif, if up */
@@ -713,7 +718,6 @@ netif_found:
     }
     default:
       goto options_done;
-      break;
     }
   }
 options_done:

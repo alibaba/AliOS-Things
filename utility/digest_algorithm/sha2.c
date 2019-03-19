@@ -29,7 +29,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: sha2.c,v 1.1 2001/11/08 00:01:51 adg Exp adg $
+ * $Id: //components/rel/aos/alios_things.alios/1.0/utility/digest_algorithm/sha2.c#2 $
  */
 #include <stdint.h>
 #include <string.h>

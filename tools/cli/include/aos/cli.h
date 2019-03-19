@@ -5,6 +5,12 @@
 #ifndef AOS_CLI_H
 #define AOS_CLI_H
 
+#include <k_api.h>
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+#include <preamble.h>
+#endif
+
 #ifndef AOS_CLI_MINI_SIZE
 #define AOS_CLI_MINI_SIZE       0
 #endif
@@ -24,7 +30,7 @@
 /*can config to cut mem size*/
 #define INBUF_SIZE   256
 #define OUTBUF_SIZE  512
-#define MAX_COMMANDS 64
+#define MAX_COMMANDS 512
 
 #define CLI_MAX_ARG_NUM    16
 #define CLI_MAX_ONCECMD_NUM    4
@@ -41,6 +47,11 @@
 typedef void (*FUNCPTR)(void);
 #endif
 
+#include <k_config.h>
+#if (RHINO_CONFIG_USER_SPACE > 0)
+#include <aos/list.h>
+#endif
+
 /* Structure for registering CLI commands */
 struct cli_command {
     const char *name;
@@ -55,6 +66,10 @@ struct cli_st {
 
     const struct cli_command *commands[MAX_COMMANDS];
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    dlist_t ucmd_list_head;
+#endif
+
     unsigned int num_commands;
     unsigned int bp; /* buffer pointer */
 
@@ -67,6 +82,18 @@ struct cli_st {
     char history[INBUF_SIZE];
 #endif
 };
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+#define UCLI_MSG_MAGIC 0x12345678
+
+typedef struct {
+    int magic;
+    int argc;
+    char **argv;
+    void *func;
+} ucli_msg_t;
+#endif
+
 
 #define CLI_ARGS char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv
 
@@ -132,8 +159,10 @@ int aos_cli_unregister_commands(const struct cli_command *commands, int num_comm
 /* SINGLEBIN or KERNEL */
 int aos_cli_printf(const char *buff, ...);
 #else
+#include <stdio.h>
 /* FRAMWORK or APP */
-#define aos_cli_printf(fmt, ...) csp_printf("%s" fmt, aos_cli_get_tag(), ##__VA_ARGS__)
+//#define aos_cli_printf(fmt, ...) csp_printf("%s" fmt, aos_cli_get_tag(), ##__VA_ARGS__)
+#define aos_cli_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #endif
 
 /**

@@ -9,8 +9,6 @@ kstat_t krhino_mblk_pool_init(mblk_pool_t *pool, const name_t *name,
                               void *pool_start,
                               size_t blk_size, size_t pool_size)
 {
-    CPSR_ALLOC();
-
     uint32_t blks;            /* max blocks mem pool offers */
     uint8_t *blk_cur;         /* block pointer for traversing */
     uint8_t *blk_next;        /* next block pointe for traversing */
@@ -70,12 +68,6 @@ kstat_t krhino_mblk_pool_init(mblk_pool_t *pool, const name_t *name,
     pool->blk_avail  = blks;
     pool->blk_size   = blk_size;
     pool->avail_list = (uint8_t *)pool_start;
-
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
-    RHINO_CRITICAL_ENTER();
-    klist_insert(&(g_kobj_list.mblkpool_head), &pool->mblkpool_stats_item);
-    RHINO_CRITICAL_EXIT();
-#endif
 
     TRACE_MBLK_POOL_CREATE(krhino_cur_task_get(), pool);
 

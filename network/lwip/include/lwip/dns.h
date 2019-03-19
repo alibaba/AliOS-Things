@@ -50,7 +50,7 @@ extern "C" {
 #endif
 
 /** DNS timer period */
-#define DNS_TMR_INTERVAL          1000
+#define DNS_TMR_INTERVAL          3000
 
 /* DNS resolve types: */
 #define LWIP_DNS_ADDRTYPE_IPV4      0
@@ -96,6 +96,8 @@ typedef void (*dns_found_callback)(const char *name, const ip_addr_t *ipaddr, vo
 void             dns_init(void);
 void             dns_tmr(void);
 void             dns_setserver(u8_t numdns, const ip_addr_t *dnsserver);
+void             dns_setserver_if(u8_t numdns, const ip_addr_t *dnsserver,  struct netif* netif);
+const ip_addr_t* dns_getserver_if(u8_t numdns, struct netif* netif);
 const ip_addr_t* dns_getserver(u8_t numdns);
 err_t            dns_gethostbyname(const char *hostname, ip_addr_t *addr,
                                    dns_found_callback found, void *callback_arg);

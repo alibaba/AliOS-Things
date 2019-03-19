@@ -100,7 +100,7 @@ static void autoip_start_probing(struct netif *netif);
 /**
  * @ingroup autoip 
  * Set a statically allocated struct autoip to work with.
- * Using this prevents autoip_start to allocate it using mem_malloc.
+ * Using this prevents autoip_start to allocate it using lwip_mem_malloc.
  *
  * @param netif the netif for which to set the struct autoip
  * @param autoip (uninitialised) autoip struct allocated by the application
@@ -273,7 +273,7 @@ autoip_start(struct netif *netif)
     /* no AutoIP client attached yet? */
     LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE,
       ("autoip_start(): starting new AUTOIP client\n"));
-    autoip = (struct autoip *)mem_malloc(sizeof(struct autoip));
+    autoip = (struct autoip *)lwip_mem_malloc(sizeof(struct autoip));
     if (autoip == NULL) {
       LWIP_DEBUGF(AUTOIP_DEBUG | LWIP_DBG_TRACE,
         ("autoip_start(): could not allocate autoip\n"));

@@ -380,3 +380,4 @@ int HAL_UDP_readTimeout(intptr_t p_socket, unsigned char *p_data,
     /* This call will not block */
     return HAL_UDP_read(p_socket, p_data, datalen);
 }
+

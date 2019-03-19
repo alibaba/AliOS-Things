@@ -2501,3 +2501,4 @@ int linkkit_gateway_get_num_devices(void)
     return dev_nums;
 }
 #endif
+

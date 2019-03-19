@@ -12,6 +12,7 @@
 #include "awss_cmp.h"
 #include "passwd.h"
 #include "utils.h"
+#include "iot_import.h"
 
 #if defined(__cplusplus)  /* If this is a C++ compiler, use C linkage */
 extern "C"
@@ -37,12 +38,12 @@ static void *report_reset_timer = NULL;
 static void *report_token_timer = NULL;
 static void *switchap_timer = NULL;
 
-static int awss_report_token_to_cloud();
-static int awss_report_reset_to_cloud();
-static int awss_switch_ap_online();
-static int awss_reboot_system();
+static int awss_report_token_to_cloud(void);
+static int awss_report_reset_to_cloud(void);
+static int awss_switch_ap_online(void);
+static int awss_reboot_system(void);
 
-int awss_token_remain_time()
+int awss_token_remain_time(void)
 {
     int remain = 0;
     uint32_t cur = os_get_time_ms();
@@ -52,7 +53,7 @@ int awss_token_remain_time()
     return remain;
 }
 
-int awss_update_token()
+int awss_update_token(void)
 {
     awss_report_token_time = 0;
     awss_report_token_cnt = 0;
@@ -67,7 +68,7 @@ int awss_update_token()
     return 0;
 }
 
-int awss_token_timeout()
+int awss_token_timeout(void)
 {
     if (awss_report_token_time == 0)
         return 1;
@@ -308,7 +309,7 @@ static int awss_reboot_system()
 {
     os_reboot();
     while (1);
-    return 0;
+//    return 0;
 }
 
 static int awss_report_reset_to_cloud()

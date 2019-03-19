@@ -65,6 +65,12 @@ extern "C" {
 #define CODE_UDATA_REPORT_PUBLISH          11
 #define CODE_UDATA_DATA_PUBLISH            12
 #define CODE_UDATA_DATA_SUBSCRIB           13
+
+/* Cellular Event*/
+#define EV_CELLULAR                        0x0005
+#define  CODE_CELLULAR_ON_DISCONNECT  1
+#define  CODE_CELLULAR_ON_GOT_IP      2
+
 #endif
 
 typedef struct {

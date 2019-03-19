@@ -16,11 +16,27 @@
 #define PROMPT   "# "
 #define EXIT_MSG "exit"
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+#include <aos/list.h>
+#include <k_api.h>
+#include <u_task.h>
+#include <u_res.h>
+
+struct ucli_command {
+    dlist_t node;
+    const struct cli_command *cmd;
+    /* where the command should be pushed into */
+    kbuf_queue_t *push_queue;
+    int owner_pid;
+};
+#endif
+
 #if (AOS_CLI_MINI_SIZE > 0)
 char *cli_mini_support_cmds[] = { "netmgr", "help", "sysver",
                                   "reboot", "time", "ota" };
 #endif
 
+static aos_mutex_t cli_mutex;
 static struct cli_st *cli     = NULL;
 static int volatile cliexit   = 0;
 char              esc_tag[64] = { 0 };
@@ -73,6 +89,31 @@ static const struct cli_command *lookup_command(char *name, int len)
     return NULL;
 }
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+static const struct ucli_command* lookup_user_command(char *name, int len)
+{
+    dlist_t *head;
+    struct ucli_command *ucmd_iter;
+
+    head = &cli->ucmd_list_head;
+    /* check whether the cmd has been registered */
+    if (!dlist_empty(head)) {
+        dlist_for_each_entry(head, ucmd_iter, struct ucli_command, node) {
+            if (len) {
+                if (!strncmp(ucmd_iter->cmd->name, name, len)) {
+                    return ucmd_iter;
+                }
+            } else {
+                if (!strcmp(ucmd_iter->cmd->name, name)) {
+                    return ucmd_iter;
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+#endif
 
 /*proc one cli cmd and to run the according funtion
 * Returns: 0 on success:
@@ -83,6 +124,19 @@ int proc_onecmd(int argc, char *argv[])
     int                       i = 0;
     const char               *p;
     const struct cli_command *command = NULL;
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    uint32_t  pid;
+    kqueue_t *cli_q;
+    const struct ucli_command *ucmd;
+    task_group_t *group;
+    void *user_ptr;
+    char **argv_ptr;
+    char *ptr;
+    size_t size;
+    size_t str_len;
+    int arg_cnt;
+    ucli_msg_t ucli_msg;
+#endif
 
     if (argc < 1) {
         return 0;
@@ -101,7 +155,45 @@ int proc_onecmd(int argc, char *argv[])
 
     command = lookup_command(argv[0], i);
     if (command == NULL) {
+#if (RHINO_CONFIG_USER_SPACE > 0)
+        ucmd = lookup_user_command(argv[0], i);
+        if (ucmd != NULL) {
+            if (argc > 0) {
+                size = 0;
+                for (arg_cnt = 0; arg_cnt < argc; arg_cnt++) {
+                     size += strlen(argv[arg_cnt]) + 1;
+                }
+                size += arg_cnt * sizeof(void*);
+                group = get_task_group_by_pid(ucmd->owner_pid);
+                user_ptr = u_res_malloc(group->pid, size);
+                if (user_ptr) {
+                    memset(user_ptr, 0, size);
+                    argv_ptr = (char**)user_ptr;
+                    ptr = (char*)user_ptr + argc * sizeof(void*);
+                    for (arg_cnt = 0; arg_cnt < argc; arg_cnt++) {
+                        str_len = strlen(argv[arg_cnt]);
+                        memcpy(ptr, argv[arg_cnt], str_len);
+                        argv_ptr[arg_cnt] = ptr;
+                        ptr += str_len + 1;
+                    }
+                    ucli_msg.argc = argc;
+                    ucli_msg.argv = argv_ptr;
+                }
+            }else {
+                ucli_msg.argc = 0;
+                ucli_msg.argv = NULL;
+            }
+
+            ucli_msg.magic = UCLI_MSG_MAGIC;
+            ucli_msg.func = (void*)ucmd->cmd->function;
+            krhino_buf_queue_send(ucmd->push_queue, (void*)&ucli_msg, sizeof(ucli_msg_t));
+            return 0;
+        }
+
         return 1;
+#else
+	return 0;
+#endif
     }
 
     cli->outbuf = aos_malloc(OUTBUF_SIZE);
@@ -393,6 +485,8 @@ static int get_input(char *inbuf, unsigned int *bp)
 {
     char c;
     int  esc = 0, key1 = -1, key2 = -1;
+    char backspace_print[4] = {0x08, ' ', 0x08, 0x00};
+
     if (inbuf == NULL) {
         aos_cli_printf("inbuf_null\r\n");
         return 0;
@@ -513,7 +607,7 @@ static int get_input(char *inbuf, unsigned int *bp)
             if (*bp > 0) {
                 (*bp)--;
                 if (!cli->echo_disabled) {
-                    csp_printf("%c %c", 0x08, 0x08);
+	            hal_uart_send(NULL, backspace_print, 3, HAL_WAIT_FOREVER);
                     fflush(stdout);
                 }
             }
@@ -527,7 +621,7 @@ static int get_input(char *inbuf, unsigned int *bp)
         }
 
         if (!cli->echo_disabled) {
-            csp_printf("%c", c);
+	    hal_uart_send(NULL, &c, 1, HAL_WAIT_FOREVER);
             fflush(stdout);
         }
 
@@ -617,6 +711,12 @@ static void reboot_cmd(char *buf, int len, int argc, char **argv);
 static void uptime_cmd(char *buf, int len, int argc, char **argv);
 static void ota_cmd(char *buf, int len, int argc, char **argv);
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+static void process_info_cmd(char *buf, int len, int argc, char **argv);
+static void kill_process_cmd(char *buf, int len, int argc, char **argv);
+
+#endif
+
 static const struct cli_command built_ins[] = {
     /*cli self*/
     { "help", "print this", help_cmd },
@@ -637,6 +737,11 @@ static const struct cli_command built_ins[] = {
     /*aos_rhino*/
     { "time", "system time", uptime_cmd },
     { "ota", "system ota", ota_cmd },
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    { "process", "process info", process_info_cmd },
+    { "kill", "kill process", kill_process_cmd },
+#endif
 };
 
 /* Built-in "help" command: prints all registered commands and their help
@@ -646,6 +751,10 @@ static void help_cmd(char *buf, int len, int argc, char **argv)
 {
     int      i, n;
     uint32_t build_in_count = sizeof(built_ins) / sizeof(built_ins[0]);
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    dlist_t *head;
+    struct ucli_command *ucmd;
+#endif
 
     aos_cli_printf("====Build-in Commands====\r\n");
     aos_cli_printf("====Support %d cmds once, seperate by ; ====\r\n",
@@ -663,6 +772,20 @@ static void help_cmd(char *buf, int len, int argc, char **argv)
             }
         }
     }
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    aos_cli_printf("====User app Commands====\r\n");
+    head = &cli->ucmd_list_head;
+    if (!dlist_empty(head)) {
+        dlist_for_each_entry(head, ucmd, struct ucli_command, node) {
+            if (ucmd->cmd->name) {
+                aos_cli_printf("%-10s: %s\r\n", ucmd->cmd->name,
+                               ucmd->cmd->help ? ucmd->cmd->help: "");
+
+            }
+        }
+    }
+#endif
+
 }
 
 
@@ -850,11 +973,66 @@ static void ota_cmd(char *buf, int len, int argc, char **argv)
     aos_task_new("LOCAL OTA", tftp_ota_thread, 0, 4096);
 }
 
+#if (RHINO_CONFIG_USER_SPACE > 0)
+extern klist_t group_info_head;
+void process_info_cmd(char *buf, int len, int argc, char **argv)
+{
+    klist_t *head;
+    klist_t *iter;
+    task_group_t *group;
+
+    head  = &group_info_head;
+
+    if (!is_klist_empty(head)) {
+        aos_cli_printf("============ process info ============\r\n");
+        aos_cli_printf("Name                pid       tasks\r\n");
+        for (iter  = head->next; iter != head; iter = iter->next) {
+            group = group_info_entry(iter, task_group_t, node);
+            aos_cli_printf("%-20s%-10d%-10d\r\n",group->pname, group->pid, group->task_cnt);
+        }
+    }
+}
+
+void kill_process_cmd(char *buf, int len, int argc, char **argv)
+{
+    int pid;
+    int forth = 0;
+
+    printf("argc %d\r\n", argc);
+    if ((argc != 2) && (argc != 3)) {
+        aos_cli_printf("Usage: kill pid [f]\r\n");
+        aos_cli_printf("       f: forth kill, it's dangerous\r\n");
+        return;
+    }
+
+    pid = atoi(argv[1]);
+    if ((argc == 3) && (strncmp(argv[2], "f", 1) == 0)) {
+        forth = 1;
+    }
+
+    if (pid > 0) {
+        if (forth) {
+            krhino_uprocess_kill_force(pid);
+        } else {
+            krhino_uprocess_kill(pid);
+        }
+    }
+}
+#endif
+
 /* ------------------------------------------------------------------------- */
 
 int aos_cli_register_command(const struct cli_command *cmd)
 {
     int i;
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    int index;
+    dlist_t *head;
+    struct ucli_command *ucmd;
+    struct ucli_command *ucmd_iter;
+    ktask_t  *cur_task;
+    task_group_t *group;
+#endif
 
     if (!cli) {
         return EPERM;
@@ -869,13 +1047,50 @@ int aos_cli_register_command(const struct cli_command *cmd)
     }
 
     /* Check if the command has already been registered.
-     * Return 0, if it has been registered.
+     * Return EEXIST, if it has been registered.
      */
     for (i = 0; i < cli->num_commands; i++) {
-        if (cli->commands[i] == cmd) {
-            return 0;
+        if (!strcmp(cli->commands[i]->name, cmd->name)) {
+            aos_cli_printf("Warning: cmd %s is already registered\r\n",
+                           cmd->name);
+            return EEXIST;
         }
     }
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+        cur_task = krhino_cur_task_get();
+        group = cur_task->task_group;
+        if (group == NULL) {
+            goto regiseter_kernel_cmd;
+        }
+
+        head = &cli->ucmd_list_head;
+        /* check whether the cmd has been registered */
+        if (!dlist_empty(head)) {
+            dlist_for_each_entry(head, ucmd_iter, struct ucli_command, node) {
+                if (!strcmp(ucmd_iter->cmd->name, cmd->name)) {
+                    aos_cli_printf("Warning: user cmd %s is already registered\r\n",
+                                   cmd->name);
+                    return EEXIST;
+                }
+            }
+        }
+
+        ucmd = (struct ucli_command*)aos_malloc(sizeof(struct ucli_command));
+        if (NULL == ucmd) {
+            return ENOMEM;
+        }
+
+        ucmd->cmd = cmd;
+        ucmd->push_queue = group->cli_q;
+        ucmd->owner_pid = group->pid;
+        aos_mutex_lock(&cli_mutex, AOS_WAIT_FOREVER);
+        dlist_add_tail(&ucmd->node, head);
+        aos_mutex_unlock(&cli_mutex);
+        return 0;
+
+regiseter_kernel_cmd:
+#endif
 
 #if (AOS_CLI_MINI_SIZE > 0)
     for (i = 0; i < sizeof(cli_mini_support_cmds) / sizeof(char *); i++) {
@@ -899,10 +1114,35 @@ int aos_cli_unregister_command(const struct cli_command *cmd)
 {
     int i;
     int remaining_cmds;
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    struct ucli_command *ucmd;
+    dlist_t *head;
+    dlist_t *temp_node;
+#endif
 
     if (!cmd->name || !cmd->function) {
         return EINVAL;
     }
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+        aos_mutex_lock(&cli_mutex, AOS_WAIT_FOREVER);
+
+        /* traverse all the list to see if the @cmd is user command */
+        head = &cli->ucmd_list_head;
+        if (!dlist_empty(head)) {
+            dlist_for_each_entry_safe(head, temp_node, ucmd, struct ucli_command, node){
+                if (ucmd->cmd == cmd) {
+                    printf("%s: unregister ucmd %s\r\n", __func__, ucmd->cmd->name);
+                    dlist_del(&ucmd->node);
+                    aos_free(ucmd);
+                    aos_mutex_unlock(&cli_mutex);
+                    return 0;
+                }
+            }
+        }
+
+        aos_mutex_unlock(&cli_mutex);
+#endif
 
     for (i = 0; i < cli->num_commands; i++) {
         if (cli->commands[i] == cmd) {
@@ -917,8 +1157,36 @@ int aos_cli_unregister_command(const struct cli_command *cmd)
         }
     }
 
+    aos_cli_printf("cmd %s not found\r\n", cmd->name? cmd->name :"");
+
     return -ENOMEM;
 }
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+int aos_cli_process_exit(int pid)
+{
+    dlist_t *head;
+    dlist_t *temp_node;
+    struct ucli_command *ucmd;
+
+    head = &cli->ucmd_list_head;
+
+    aos_mutex_lock(&cli_mutex, AOS_WAIT_FOREVER);
+
+    if (!dlist_empty(head)) {
+        dlist_for_each_entry_safe(head, temp_node, ucmd, struct ucli_command, node){
+            if (ucmd->owner_pid == pid) {
+                dlist_del(&ucmd->node);
+                aos_free(ucmd);
+            }
+        }
+    }
+
+    aos_mutex_unlock(&cli_mutex);
+
+    return 0;
+}
+#endif
 
 int aos_cli_register_commands(const struct cli_command *cmds, int num_cmds)
 {
@@ -968,12 +1236,20 @@ int aos_cli_task_create(void)
 {
     return aos_task_new_ext(&cli_task, "cli", cli_main, 0,
                             CONFIG_AOS_CLI_STACK_SIZE,
-                            RHINO_CONFIG_USER_PRI_MAX);
+                            60);
 }
 
 int aos_cli_init(void)
 {
     int ret;
+#if (RHINO_CONFIG_USER_SPACE > 0)
+    int i;
+#endif
+
+    ret= aos_mutex_new(&cli_mutex);
+    if (ret) {
+        return ret;
+    }
 
     cli = (struct cli_st *)aos_malloc(sizeof(struct cli_st));
     if (cli == NULL) {
@@ -981,6 +1257,10 @@ int aos_cli_init(void)
     }
 
     memset((void *)cli, 0, sizeof(struct cli_st));
+
+#if (RHINO_CONFIG_USER_SPACE > 0)
+        dlist_init(&cli->ucmd_list_head);
+#endif
 
     /* add our built-in commands */
     if ((ret = aos_cli_register_commands(
@@ -1011,6 +1291,8 @@ init_general_err:
         cli = NULL;
     }
 
+    aos_mutex_free(&cli_mutex);
+
     return ret;
 }
 
@@ -1020,7 +1302,7 @@ const char *aos_cli_get_tag(void)
 }
 
 #if defined BUILD_BIN || defined BUILD_KERNEL
-int                              aos_cli_printf(const char *msg, ...)
+int aos_cli_printf(const char *msg, ...)
 {
     va_list ap;
 

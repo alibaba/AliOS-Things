@@ -651,7 +651,7 @@ dhcp_handle_ack(struct netif *netif)
 /**
  * @ingroup dhcp4
  * Set a statically allocated struct dhcp to work with.
- * Using this prevents dhcp_start to allocate it using mem_malloc.
+ * Using this prevents dhcp_start to allocate it using lwip_mem_malloc.
  *
  * @param netif the netif for which to set the struct dhcp
  * @param dhcp (uninitialised) dhcp struct allocated by the application
@@ -683,7 +683,7 @@ void dhcp_cleanup(struct netif *netif)
   LWIP_ASSERT("netif != NULL", netif != NULL);
 
   if (netif_dhcp_data(netif) != NULL) {
-    mem_free(netif_dhcp_data(netif));
+    lwip_mem_free(netif_dhcp_data(netif));
     netif_set_client_data(netif, LWIP_NETIF_CLIENT_DATA_INDEX_DHCP, NULL);
   }
 }
@@ -721,7 +721,7 @@ dhcp_start(struct netif *netif)
   /* no DHCP client attached yet? */
   if (dhcp == NULL) {
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_start(): starting new DHCP client\n"));
-    dhcp = (struct dhcp *)mem_malloc(sizeof(struct dhcp));
+    dhcp = (struct dhcp *)lwip_mem_malloc(sizeof(struct dhcp));
     if (dhcp == NULL) {
       LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_start(): could not allocate dhcp\n"));
       return ERR_MEM;

@@ -632,7 +632,7 @@ static void cm_connectivity_iterator_action_handler(void *list_node, va_list *pa
     cm_iterator_action_t action;
 
     cm_ctx = va_arg(*params, iotx_cm_conntext_t *);
-    action = va_arg(*params, int);
+    action = (cm_iterator_action_t)va_arg(*params, int);
 
     assert(cm_ctx && action < cm_iterator_action_max);
 
@@ -652,7 +652,7 @@ static void cm_connectivity_iterator_action_handler(void *list_node, va_list *pa
 
             case cm_iterator_action_add_service:
                 uri = va_arg(*params, char *);
-                auth_type = va_arg(*params, int);
+                auth_type = (iotx_cm_message_auth_types_t)va_arg(*params, int);
                 connectivity->add_service_func(cm_ctx, connectivity, uri, auth_type);
                 break;
 
@@ -871,7 +871,7 @@ static void cm_connectivity_iterator_send_data_handler(void *list_node, va_list 
     target_connectivity = va_arg(*params, void *);
     target = va_arg(*params, void *);
     uri = va_arg(*params, char *);
-    ack_type = va_arg(*params, int);
+    ack_type = (iotx_cm_message_ack_types_t)va_arg(*params, int);
     payload = va_arg(*params, void *);
     payload_length = va_arg(*params, int);
     context = va_arg(*params, void *);

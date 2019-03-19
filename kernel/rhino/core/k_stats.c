@@ -3,34 +3,7 @@
  */
 
 #include <k_api.h>
-
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
-void kobj_list_init(void)
-{
-    klist_init(&(g_kobj_list.task_head));
-    klist_init(&(g_kobj_list.mutex_head));
-
-#if (RHINO_CONFIG_MM_BLK > 0)
-    klist_init(&(g_kobj_list.mblkpool_head));
-#endif
-
-#if (RHINO_CONFIG_SEM > 0)
-    klist_init(&(g_kobj_list.sem_head));
-#endif
-
-#if (RHINO_CONFIG_QUEUE > 0)
-    klist_init(&(g_kobj_list.queue_head));
-#endif
-
-#if (RHINO_CONFIG_BUF_QUEUE > 0)
-    klist_init(&(g_kobj_list.buf_queue_head));
-#endif
-
-#if (RHINO_CONFIG_EVENT_FLAG > 0)
-    klist_init(&(g_kobj_list.event_head));
-#endif
-}
-#endif
+#include <stdio.h>
 
 #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
 #if (RHINO_CONFIG_CPU_STACK_DOWN > 0)
@@ -242,12 +215,12 @@ void krhino_total_cpu_usage_show()
         task = krhino_list_entry(tmp, ktask_t, task_stats_item);
 
         if (task->task_name != NULL) {
-            task_name = task->task_name;
+            task_name = (char *)task->task_name;
         } else {
             task_name = "anonym";
         }
         task_cpu_usage = krhino_task_cpu_usage_get(task);
-        printf("%-19s%3d.%02d\n", task_name, task_cpu_usage/100, task_cpu_usage%100);
+        printf("%-19s%3llud.%02llud\n", task_name, task_cpu_usage/100, task_cpu_usage%100);
     }
     printf("-----------------------\n");
     krhino_sched_enable();

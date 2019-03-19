@@ -2,7 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "k_dbg_api.h"
+#ifdef AOS_DEBUG_PANIC
+#include "debug_api.h"
+#endif
+
 #include "k_arch.h"
 
 #if (RHINO_CONFIG_BACKTRACE > 0)
@@ -58,7 +61,7 @@ static void getRLfromCtx(void *context, int **FP, int **LR)
 }
 
 /* printf call stack */
-int backtraceNow(int (*print_func)(const char *fmt, ...))
+int backtrace_now(int (*print_func)(const char *fmt, ...))
 {
     int  lvl;
     int *FP;
@@ -98,7 +101,7 @@ int backtraceNow(int (*print_func)(const char *fmt, ...))
     return lvl;
 }
 
-int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...))
+int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
 {
     int  lvl;
     int *FP;
@@ -110,13 +113,13 @@ int backtraceTask(char *taskname, int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    task = krhino_task_find(taskname);
+    task = debug_task_find(taskname);
     if (task == NULL) {
         print_func("Task not found : %s\n", taskname);
         return 0;
     }
 
-    if (krhino_is_task_ready(task)) {
+    if (debug_task_is_ready(task)) {
         print_func("Status of task \"%s\" is 'Ready', Can not backtrace!\n",
                    taskname);
         return 0;
@@ -197,7 +200,11 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
                          ;
     /* fault_context_t map to s_panic_ctx */
 #ifdef FPU_AVL
+#ifdef __ARM_NEON
+    char aMap[] = {66,65,0,51,52,53,54,55,56,57,58,59,60,61,62,63,64};
+#else
     char aMap[] = {50,49,0,35,36,37,38,39,40,41,42,43,44,45,46,47,48};
+#endif
 #else
     char aMap[] = {16,15,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14};
 #endif
@@ -220,6 +227,9 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
 
         case ARM_EXCEPT_DATA_ABORT :
             print_func("Exception Type: Data Abort\r\n");
+            break;
+	case ARM_EXCEPT_SWI :
+            print_func("Exception Type: SWI\r\n");
             break;
 
         default:
@@ -316,4 +326,138 @@ int panicBacktraceCallee(char *PC, int *SP, char *LR,
 }
 #endif
 
+#else   /*#if (RHINO_CONFIG_PANIC > 0)*/
+
+#include <stdio.h>
+#include <string.h>
+static char *k_int2str(int num, char *str)
+{
+    char         index[] = "0123456789ABCDEF";
+    unsigned int usnum   = (unsigned int)num;
+
+    str[7] = index[usnum % 16];
+    usnum /= 16;
+    str[6] = index[usnum % 16];
+    usnum /= 16;
+    str[5] = index[usnum % 16];
+    usnum /= 16;
+    str[4] = index[usnum % 16];
+    usnum /= 16;
+    str[3] = index[usnum % 16];
+    usnum /= 16;
+    str[2] = index[usnum % 16];
+    usnum /= 16;
+    str[1] = index[usnum % 16];
+    usnum /= 16;
+    str[0] = index[usnum % 16];
+    usnum /= 16;
+
+    return str;
+}
+
+
+void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
+{
+#define REG_NAME_WIDTH 7
+    int  x, index;
+    fault_context_t *flt_ctx = (fault_context_t *)context;
+    long *regs;
+    char s_panic_regs[REG_NAME_WIDTH + 14];
+    /* PANIC_CONTEXT */
+    char s_panic_ctx[] = "PC     "
+                         "LR     "
+                         "SP     "
+                         "CPSR   "
+                         "R0     "
+                         "R1     "
+                         "R2     "
+                         "R3     "
+                         "R4     "
+                         "R5     "
+                         "R6     "
+                         "R7     "
+                         "R8     "
+                         "R9     "
+                         "R10    "
+                         "R11    "
+                         "R12    "
+                         ;
+    /* fault_context_t map to s_panic_ctx */
+#ifdef FPU_AVL
+#ifdef __ARM_NEON
+    char aMap[] = {66,65,0,51,52,53,54,55,56,57,58,59,60,61,62,63,64};
+#else
+    char aMap[] = {50,49,0,35,36,37,38,39,40,41,42,43,44,45,46,47,48};
+#endif
+#else
+    char aMap[] = {16,15,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14};
+#endif
+
+    if (context == NULL) {
+        return;
+    }
+
+    print_func("========== Regs info  ==========\r\n");
+
+    switch ( flt_ctx->exc_type )
+    {
+        case ARM_EXCEPT_UNDEF_INSTR :
+            print_func("Exception Type: Undefined Instruction\r\n");
+            break;
+
+        case ARM_EXCEPT_PREFETCH_ABORT :
+            print_func("Exception Type: Prefetch Abort\r\n");
+            break;
+
+        case ARM_EXCEPT_DATA_ABORT :
+            print_func("Exception Type: Data Abort\r\n");
+            break;
+
+	case ARM_EXCEPT_SWI :
+            print_func("Exception Type: SWI\r\n");
+            break;
+
+        default:
+            print_func("Exception Type: Unknown\r\n");
+            break;
+    }
+    
+    regs = &flt_ctx->SP;
+    /* show PANIC_CONTEXT */
+    for (x = 0; x < sizeof(s_panic_ctx) / REG_NAME_WIDTH; x++) {
+        index = aMap[x];
+        memcpy(&s_panic_regs[0], &s_panic_ctx[x * REG_NAME_WIDTH],
+               REG_NAME_WIDTH);
+        memcpy(&s_panic_regs[REG_NAME_WIDTH], " 0x", 3);
+        k_int2str(regs[index], &s_panic_regs[REG_NAME_WIDTH + 3]);
+        s_panic_regs[REG_NAME_WIDTH + 11] = '\r';
+        s_panic_regs[REG_NAME_WIDTH + 12] = '\n';
+        s_panic_regs[REG_NAME_WIDTH + 13] = 0;
+        print_func(s_panic_regs);
+    }
+}
+
+static fault_context_t *s_fcontext;
+void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP)
+{
+    if ( context != NULL )
+    {
+        s_fcontext = (fault_context_t *)context;
+    }
+
+    *pSP = (int *)s_fcontext->SP;
+    *pPC = (char *)s_fcontext->cntx.PC;
+    *pLR = (char *)s_fcontext->cntx.LR;
+}
+
+
+void exceptionHandler(void *context)
+{
+    char *pPC, *pLR;
+    int *pSP;
+
+    panicGetCtx(context, &pPC, &pLR, &pSP);
+    panicShowRegs(context, printf);
+    while(1);
+}
 #endif

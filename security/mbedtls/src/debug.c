@@ -48,6 +48,8 @@
 
 #define DEBUG_BUF_SIZE      512
 
+#if defined(MBEDTLS_DEBUG_C)
+
 static int debug_threshold = 0;
 
 void mbedtls_debug_set_threshold( int threshold )
@@ -55,7 +57,6 @@ void mbedtls_debug_set_threshold( int threshold )
     debug_threshold = threshold;
 }
 
-#if defined(MBEDTLS_DEBUG_C)
 
 /*
  * All calls to f_dbg must be made via this function
@@ -86,7 +87,8 @@ void mbedtls_debug_print_msg( const mbedtls_ssl_context *ssl, int level,
     char str[DEBUG_BUF_SIZE];
     int ret;
 
-    if( NULL == ssl || NULL == ssl->conf || NULL == ssl->conf->f_dbg || level > debug_threshold )
+    //if( NULL == ssl || NULL == ssl->conf || NULL == ssl->conf->f_dbg || level > debug_threshold )
+    if( NULL == ssl || NULL == ssl->conf || NULL == ssl->conf->f_dbg )
         return;
 
     va_start( argp, format );

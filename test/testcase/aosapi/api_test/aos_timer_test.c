@@ -15,7 +15,7 @@ static aos_timer_t g_timer;
 static aos_sem_t   sync_sem;
 static int         timer_trigger_count = 0;
 
-static void TIMER_aosapi_kernel_timer_param() {}
+static void TIMER_aosapi_kernel_timer_param(void *param1, void *param2) {}
 static void CASE_aosapi_kernel_timer_param()
 {
     int ret;
@@ -51,7 +51,7 @@ static void CASE_aosapi_kernel_timer_param()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-static void TIMER_aosapi_kernel_timer_norepeat()
+static void TIMER_aosapi_kernel_timer_norepeat(void *param1, void *param2)
 {
     timer_trigger_count++;
     aos_timer_stop(&g_timer);
@@ -74,7 +74,7 @@ static void CASE_aosapi_kernel_timer_norepeat()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-static void TIMER_aosapi_kernel_timer_repeat()
+static void TIMER_aosapi_kernel_timer_repeat(void *param1, void *param2)
 {
     timer_trigger_count++;
     if (timer_trigger_count == 10) {

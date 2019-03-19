@@ -262,3 +262,4 @@ int IOT_Linkkit_Post(int devid, iotx_linkkit_msg_type_t msg_type, unsigned char 
 int IOT_Linkkit_TriggerEvent(int devid, char *eventid, int eventid_len, char *payload, int payload_len);
 
 #endif
+

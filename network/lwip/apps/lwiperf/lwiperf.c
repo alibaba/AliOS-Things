@@ -66,8 +66,8 @@
 /* File internal memory allocation (struct lwiperf_*): this defaults to
    the heap */
 #ifndef LWIPERF_ALLOC
-#define LWIPERF_ALLOC(type)         mem_malloc(sizeof(type))
-#define LWIPERF_FREE(type, item)    mem_free(item)
+#define LWIPERF_ALLOC(type)         lwip_mem_malloc(sizeof(type))
+#define LWIPERF_FREE(type, item)    lwip_mem_free(item)
 #endif
 
 /** If this is 1, check that received data has the correct format */

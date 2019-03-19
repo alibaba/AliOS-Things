@@ -19,8 +19,9 @@ static void *mqtt_client = NULL;
 
 static void *mqtt_rbuf = NULL;
 static void *mqtt_wbuf = NULL;
-
+#if 0
 static int abort_request = 0;
+#endif
 
 typedef struct mqtt_instance_event_s {
     void (*event_cb)(int event, void *ctx);
@@ -163,7 +164,9 @@ fail:
 
 int mqtt_deinit_instance(void)
 {
+#if 0
     abort_request = 1;
+#endif
 
     if (mqtt_rbuf) {
         LITE_free(mqtt_rbuf);
@@ -188,8 +191,9 @@ int mqtt_deinit_instance(void)
     }
 
     first_event = NULL;
-
+#if 0
     abort_request = 0;
+#endif
 
     return 0;
 }

@@ -302,10 +302,10 @@ pppoe_destroy(ppp_pcb *ppp, void *ctx)
 
 #ifdef PPPOE_TODO
   if (sc->sc_concentrator_name) {
-    mem_free(sc->sc_concentrator_name);
+    lwip_mem_free(sc->sc_concentrator_name);
   }
   if (sc->sc_service_name) {
-    mem_free(sc->sc_service_name);
+    lwip_mem_free(sc->sc_service_name);
   }
 #endif /* PPPOE_TODO */
   LWIP_MEMPOOL_FREE(PPPOE_IF, sc);
@@ -527,9 +527,9 @@ breakbreak:;
       }
       if (hunique) {
         if (sc->sc_hunique) {
-          mem_free(sc->sc_hunique);
+          lwip_mem_free(sc->sc_hunique);
         }
-        sc->sc_hunique = mem_malloc(hunique_len);
+        sc->sc_hunique = lwip_mem_malloc(hunique_len);
         if (sc->sc_hunique == NULL) {
           goto done;
         }
@@ -565,9 +565,9 @@ breakbreak:;
       }
       if (hunique) {
         if (sc->sc_hunique) {
-          mem_free(sc->sc_hunique);
+          lwip_mem_free(sc->sc_hunique);
         }
-        sc->sc_hunique = mem_malloc(hunique_len);
+        sc->sc_hunique = lwip_mem_malloc(hunique_len);
         if (sc->sc_hunique == NULL) {
           goto done;
         }
@@ -953,7 +953,7 @@ pppoe_disconnect(ppp_pcb *ppp, void *ctx)
   sc->sc_state = PPPOE_STATE_INITIAL;
 #ifdef PPPOE_SERVER
   if (sc->sc_hunique) {
-    mem_free(sc->sc_hunique);
+    lwip_mem_free(sc->sc_hunique);
     sc->sc_hunique = NULL; /* probably not necessary, if state is initial we shouldn't have to access hunique anyway  */
   }
   sc->sc_hunique_len = 0; /* probably not necessary, if state is initial we shouldn't have to access hunique anyway  */

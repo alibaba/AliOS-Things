@@ -12,6 +12,7 @@
 #include "awss_notify.h"
 #include "enrollee.h"
 #include "utils.h"
+#include "iot_import_awss.h"
 
 #define AWSS_DEV_RAND_FMT       ",\"random\":\"%s\",\"signMethod\":%d,\"sign\":\"%s\""
 #define AWSS_DEV_TOKEN_FMT      ",\"token\":\"%s\",\"remainTime\":%d,\"type\":%d"

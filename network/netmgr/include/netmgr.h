@@ -14,6 +14,8 @@ extern "C"
 
 #ifdef NET_WITH_WIFI
 #include "netmgr_wifi.h"
+#elif defined(NET_WITH_CELLULAR)
+#include "netmgr_cellular.h"
 #endif
 
 int netmgr_init(void);

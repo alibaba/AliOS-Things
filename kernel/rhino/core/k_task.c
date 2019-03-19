@@ -76,7 +76,10 @@ static kstat_t task_create(ktask_t *task, const name_t *name, void *arg,
     task->mm_alloc_flag = mm_alloc_flag;
     task->cpu_num       = cpu_num;
 #if (RHINO_CONFIG_USER_SPACE > 0)
-    task->mode          = 0;
+    task->mode             = 0;
+    task->pid              = 0;
+    task->is_proc          = 0;
+    task->task_ustack_base = 0;
 #endif
     cpu_binded          = cpu_binded;
     i                   = i;
@@ -316,7 +319,6 @@ kstat_t task_suspend(ktask_t *task)
     RHINO_CRITICAL_ENTER();
 
     cur_cpu_num = cpu_cur_get();
-
 #if (RHINO_CONFIG_CPU_NUM > 1)
     if (task->cpu_num != cur_cpu_num) {
         if (task->cur_exc == 1) {
@@ -506,7 +508,6 @@ kstat_t krhino_task_stack_cur_free(ktask_t *task, size_t *free)
 }
 #endif
 
-#if (RHINO_CONFIG_TASK_PRI_CHG > 0)
 kstat_t task_pri_change(ktask_t *task, uint8_t new_pri)
 {
     uint8_t  old_pri;
@@ -630,7 +631,6 @@ kstat_t krhino_task_pri_change(ktask_t *task, uint8_t pri, uint8_t *old_pri)
 
     return RHINO_SUCCESS;
 }
-#endif
 
 #if (RHINO_CONFIG_TASK_WAIT_ABORT > 0)
 kstat_t krhino_task_wait_abort(ktask_t *task)
@@ -853,8 +853,9 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
 #if (RHINO_CONFIG_CPU_NUM > 1)
     if (task->cpu_num != cur_cpu_num) {
         if (task->cur_exc == 1) {
+            klist_insert(&task_del_head, &task->task_del_item);
             RHINO_CRITICAL_EXIT();
-            return RHINO_TRY_AGAIN;
+            return RHINO_SUCCESS;
         }
     }
 #endif

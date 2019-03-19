@@ -611,7 +611,7 @@ ali_crypto_result ali_aes_init(aes_type_t type, bool is_enc,
         case AES_XTS:
             PRINT_RET(ALI_CRYPTO_NOSUPPORT,
                       "ali_aes_init: not support aes type(%d)\n", type);
-            break;
+//            break;
         default:
             PRINT_RET(ALI_CRYPTO_INVALID_TYPE,
                       "ali_aes_init: invalid aes type(%d)\n", type);

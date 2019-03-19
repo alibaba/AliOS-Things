@@ -418,9 +418,9 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
   case PBUF_RAM:
     /* If pbuf is to be allocated in RAM, allocate memory for it. */
 #if LWIP_XR_EXT_MBUF_SUPPORT
-    p = (struct pbuf*)mem_malloc(LWIP_MEM_ALIGN_SIZE(SIZEOF_STRUCT_PBUF + offset) + LWIP_MEM_ALIGN_SIZE(length) + tail_space);
+    p = (struct pbuf*)lwip_mem_malloc(LWIP_MEM_ALIGN_SIZE(SIZEOF_STRUCT_PBUF + offset) + LWIP_MEM_ALIGN_SIZE(length) + tail_space);
 #else
-    p = (struct pbuf*)mem_malloc(LWIP_MEM_ALIGN_SIZE(SIZEOF_STRUCT_PBUF + offset) + LWIP_MEM_ALIGN_SIZE(length));
+    p = (struct pbuf*)lwip_mem_malloc(LWIP_MEM_ALIGN_SIZE(SIZEOF_STRUCT_PBUF + offset) + LWIP_MEM_ALIGN_SIZE(length));
 #endif
     if (p == NULL) {
       return NULL;
@@ -607,11 +607,11 @@ pbuf_realloc(struct pbuf *p, u16_t new_len)
 #if LWIP_XR_EXT_MBUF_SUPPORT
 	/* reserve tail space if (q->mb_flags & PBUF_FLAG_MBUF_SPACE) */
     u8_t tail_space = (q->mb_flags & PBUF_FLAG_MBUF_SPACE) ? LWIP_XR_EXT_MBUF_TAIL_SPACE : 0;
-    q = (struct pbuf *)mem_trim(q, (u16_t)((u8_t *)q->payload - (u8_t *)q) + rem_len + tail_space);
+    q = (struct pbuf *)lwip_mem_trim(q, (u16_t)((u8_t *)q->payload - (u8_t *)q) + rem_len + tail_space);
 #else /* LWIP_XR_EXT_MBUF_SUPPORT */
-    q = (struct pbuf *)mem_trim(q, (u16_t)((u8_t *)q->payload - (u8_t *)q) + rem_len);
+    q = (struct pbuf *)lwip_mem_trim(q, (u16_t)((u8_t *)q->payload - (u8_t *)q) + rem_len);
 #endif /* LWIP_XR_EXT_MBUF_SUPPORT */
-    LWIP_ASSERT("mem_trim returned q == NULL", q != NULL);
+    LWIP_ASSERT("lwip_mem_trim returned q == NULL", q != NULL);
   }
   /* adjust length fields for new last pbuf */
   q->len = rem_len;
@@ -868,7 +868,7 @@ pbuf_free(struct pbuf *p)
           memp_free(MEMP_PBUF, p);
         /* type == PBUF_RAM */
         } else {
-          mem_free(p);
+          lwip_mem_free(p);
         }
       }
       count++;
@@ -1319,6 +1319,7 @@ pbuf_take_at(struct pbuf *buf, const void *dataptr, u16_t len, u16_t offset)
 struct pbuf*
 pbuf_coalesce(struct pbuf *p, pbuf_layer layer)
 {
+#if 0
   struct pbuf *q;
   err_t err;
   if (p->next == NULL) {
@@ -1332,6 +1333,21 @@ pbuf_coalesce(struct pbuf *p, pbuf_layer layer)
   err = pbuf_copy(q, p);
   LWIP_ASSERT("pbuf_copy failed", err == ERR_OK);
   pbuf_free(p);
+#else
+  struct pbuf *q;
+  if (p->next == NULL) {
+    return p;
+  }
+  q = pbuf_alloc(layer, p->tot_len, PBUF_RAM);
+  if (q == NULL) {
+    /* @todo: what do we do now? */
+    return p;
+  }
+
+  pbuf_copy(q, p);
+
+  pbuf_free(p);
+#endif
   return q;
 }
 

@@ -14,7 +14,9 @@ RHINO_INLINE void task_msg_recv(ktask_t *task, void *msg)
 static kstat_t queue_create(kqueue_t *queue, const name_t *name, void **start,
                             size_t msg_num, uint8_t mm_alloc_flag)
 {
+#if (RHINO_CONFIG_SYSTEM_STATS > 0)
     CPSR_ALLOC();
+#endif
 
     NULL_PARA_CHK(queue);
     NULL_PARA_CHK(start);
@@ -23,6 +25,8 @@ static kstat_t queue_create(kqueue_t *queue, const name_t *name, void **start,
     if (msg_num == 0u) {
         return RHINO_INV_PARAM;
     }
+
+    memset(queue, 0, sizeof(kqueue_t));
 
     /* init the queue blocked list */
     klist_init(&queue->blk_obj.blk_list);

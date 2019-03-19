@@ -79,7 +79,7 @@ static uint8_t sem_param_case2(void)
 
     RHINO_CRITICAL_ENTER();
     count_old = test_sem->count;
-    test_sem->count = -1;
+    test_sem->count = (unsigned int)-1;
     RHINO_CRITICAL_EXIT();
     ret = krhino_sem_give(test_sem);
     MYASSERT(ret == RHINO_SEM_OVF);

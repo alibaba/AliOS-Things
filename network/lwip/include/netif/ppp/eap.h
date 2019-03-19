@@ -17,7 +17,7 @@
  *
  * Original version by James Carlson
  *
- * $Id: eap.h,v 1.2 2003/06/11 23:56:26 paulus Exp $
+ * $Id: //components/rel/aos/alios_things.alios/1.0/network/lwip/include/netif/ppp/eap.h#2 $
  */
 
 #include "netif/ppp/ppp_opts.h"

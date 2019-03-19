@@ -49,14 +49,14 @@ perf_print(unsigned long c1l, unsigned long c1h,
   fprintf(f, "%s: %.8lu%.8lu\n", key, sub_ms, sub_ls);
   fflush(NULL);
 }
-
+#if 0
 void
 perf_print_times(struct tms *start, struct tms *end, char *key)
 {
   fprintf(f, "%s: %lu\n", key, end->tms_stime - start->tms_stime);
   fflush(NULL);  
 }
-
+#endif
 void
 perf_init(char *fname)
 {

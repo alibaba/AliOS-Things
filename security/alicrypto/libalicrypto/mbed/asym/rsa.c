@@ -48,12 +48,16 @@ static int myrand(void *rng_state, unsigned char *output, size_t len)
 
     if (rng_state != NULL) {
         ali_seed(rng_state, OSA_strlen(rng_state));
+#if 1
+    }
+#else
     }else{
         gettimeofday(&tv, NULL);
         tmp =tv.tv_sec*1000 + tv.tv_usec/1000;
         seed = (uint8_t *)&tmp;
         ali_seed(seed, sizeof(tmp));
     }
+#endif
 
     result = ali_rand_gen(output, len);
     if (result != ALI_CRYPTO_SUCCESS) {

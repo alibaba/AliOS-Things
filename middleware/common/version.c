@@ -89,7 +89,7 @@ static struct cli_command versioncmd = {
 
 #define KEY_APP_VER  "app_version"
 
-void version_init(void)
+void aos_version_init(void)
 {
     aos_cli_register_command(&versioncmd);
     const char *app_version = aos_get_app_version();

@@ -41,3 +41,4 @@ typedef struct {
 }linkkit_solo_legacy_ctx_t;
 
 #endif
+

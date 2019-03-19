@@ -13,24 +13,34 @@
 #include "iot_import.h"
 #include "iot_export.h"
 #include "linkkit_export.h"
-#include "app_entry.h"
+#include "linkkit_ioctl.h"
 #if defined(OTA_ENABLED)
 #include "ota_service.h"
 #endif
+
+#include <u_task.h>
 /*
  * please modify this string follow as product's TSL.
  */
 #include "data/solo_tsl.data"
 
+#define HAL_Printf printf
+
 #define EVENT_ERROR_IDENTIFIER "Error"
 #define EVENT_ERROR_OUTPUT_INFO_IDENTIFIER "ErrorCode"
 
-// for demo only
-#define PRODUCT_KEY     "a1X2bEnP82z"
-#define PRODUCT_SECRET  "7jluWm1zql7bt8qK"
-#define DEVICE_NAME     "test_06"
-#define DEVICE_SECRET   "wQ1xOzFH3kLdjCTLfi8Xbw4otRz0lHoq"
+#define PRODUCT_KEY     "a1cmW6YFgXp"
+#define PRODUCT_SECRET  "oQojguA65COEO63d"
+#define DEVICE_NAME     "Linkkit_Device1"
+#define DEVICE_SECRET   "iwF0yhFvpuG0K71f9eQAGrM3BPzL2qEq"
 
+static void set_iotx_info(void)
+{
+    linkkit_ioctl(IOCTL_SET_PRODUCT_KEY, PRODUCT_KEY);
+    linkkit_ioctl(IOCTL_SET_PRODUCT_SECRET, PRODUCT_SECRET);
+    linkkit_ioctl(IOCTL_SET_DEVICE_NAME, DEVICE_NAME);
+    linkkit_ioctl(IOCTL_SET_DEVICE_SECRET, DEVICE_SECRET);
+}
 
 #define EXAMPLE_TRACE(fmt, ...)                        \
     do {                                               \
@@ -237,21 +247,23 @@ static int handle_service_custom(sample_context_t *_sample_ctx,
     /*
      * please follow TSL modify the value type
      */
-    int transparency_value;
-    int contrastratio_value;
-
+    char *value_text = NULL;
     /*
      * get iutput value.
      * compare the service identifier
      * please follow user's TSL modify the "transparency".
      */
     snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier,
-             "transparency");
+             "TimeReset");
     linkkit_get_value(linkkit_method_get_service_input_value, thing, identifier,
-                      &transparency_value, NULL);
+                      NULL, &value_text);
 
-    EXAMPLE_TRACE("identifier: %s value is %d.\n", identifier,
-                  transparency_value);
+    EXAMPLE_TRACE("identifier: %s value is %s.\n", identifier,
+                  value_text);
+    if (value_text) {
+        free(value_text);
+	value_text = NULL;
+    }
 
     /*
      * set output value according to user's process result.
@@ -269,10 +281,12 @@ static int handle_service_custom(sample_context_t *_sample_ctx,
      * please follow user's TSL modify the "transparency".
      */
     snprintf(identifier, sizeof(identifier), "%s.%s", service_identifier,
-             "Contrastratio");
-    contrastratio_value = transparency_value + 1;
+             "TimeReset");
+    //contrastratio_value = transparency_value + 1;
+    EXAMPLE_TRACE("ready to sent now: %s value is %s.\n", identifier,
+                  value_text);
     linkkit_set_value(linkkit_method_set_service_output_value, thing,
-                      identifier, &contrastratio_value, NULL);
+                      identifier, NULL, "TimeReset");
 #ifdef RRPC_ENABLED
     linkkit_answer_service(thing, service_identifier, request_id, 200, rrpc);
 #else
@@ -301,7 +315,7 @@ static int thing_call_service(const void *thing_id, const char *service,
                   service, thing_id, request_id);
 
     /* please follow TSL modify the idendifier --- Custom */
-    if (strcmp(service, "Custom") == 0) {
+    if (strcmp(service, "TimeReset") == 0) {
 #ifdef RRPC_ENABLED
         handle_service_custom(sample_ctx, thing_id, service, request_id, rrpc);
 #else
@@ -423,6 +437,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         /* generate property identifier RGBColor.Red */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Red");
         /* get value by linkkit_get_value */
+	EXAMPLE_TRACE("property_buf : %s", property_buf);
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &red, &value_str);
         if (value_str) {
@@ -434,6 +449,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property,
                  "Green");
         /* get value by linkkit_get_value */
+	EXAMPLE_TRACE("property_buf : %s", property_buf);
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &green, &value_str);
         if (value_str) {
@@ -444,6 +460,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
         /* generate property identifier RGBColor.Blue */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Blue");
         /* get value by linkkit_get_value */
+	EXAMPLE_TRACE("property_buf : %s", property_buf);
         linkkit_get_value(linkkit_method_get_property_value, thing_id,
                           property_buf, &blue, &value_str);
         if (value_str) {
@@ -453,6 +470,20 @@ static int thing_prop_changed(const void *thing_id, const char *property,
 
         EXAMPLE_TRACE("property(%s), Red:%d, Green:%d, Blue:%d\n", property,
                       red, green, blue);
+    } else if (strstr(property, "LightStatus") != 0) {
+	int light;
+         /* generate property identifier LightStatus 1 */
+        snprintf(property_buf, sizeof(property_buf), "%s", property);
+        /* get value by linkkit_get_value */
+        linkkit_get_value(linkkit_method_get_property_value, thing_id,
+                          property_buf, &light, &value_str);
+        if (value_str) {
+	    printf("%s: %s value is %d\r\n", __func__, value_str, light);
+            free(value_str);
+            value_str = NULL;
+        }
+
+        EXAMPLE_TRACE("property(%s), %d\n", property, light);
     }
 
     /* post property
@@ -463,6 +494,22 @@ static int thing_prop_changed(const void *thing_id, const char *property,
 
     EXAMPLE_TRACE("post property(%s) response id: %d\n", property, response_id);
 
+    return 0;
+}
+
+
+/* there is some data transparent transmission by linkkit */
+static int linkit_data_arrived(const void *thing_id, const void *params,
+                               int len, void *ctx)
+{
+    EXAMPLE_TRACE("thing@%p: masterdev_linkkit_data(%d byte): %s\n", thing_id,
+                  len, (const char *)params);
+
+    /* do user's data arrived process logical here. */
+
+    /* ............................... */
+
+    /* user's data arrived process logical complete */
     return 0;
 }
 
@@ -618,27 +665,28 @@ int trigger_event(sample_context_t *sample)
                                  post_property_cb);
 
     /* please modify the event_id by TSL */
-    return linkkit_trigger_event(sample->thing, "TemperatureAlarm",
-                                 post_property_cb);
+    //return linkkit_trigger_event(sample->thing, "TemperatureAlarm",
+    //                             post_property_cb);
 }
 
-#ifdef EXTENDED_INFO_ENABLED
+//#ifdef EXTENDED_INFO_ENABLED
 int trigger_deviceinfo(sample_context_t *sample)
 {
+    char *params="[{\"attrKey\":\"device_info\",\"attrValue\":\"21\"}]";
     /* please modify the parameter */
-    return linkkit_trigger_extended_info_operate(
-                       sample->thing, "[{device_info : 21}]",
-                       linkkit_extended_info_operate_update);
+    return linkkit_trigger_extended_info_operate(sample->thing, params,
+					         linkkit_extended_info_operate_update);
 }
-#endif
+//#endif
 
 int linkkit_example()
 {
     sample_context_t sample_ctx = { 0 };
-    // int execution_time = 20;
+    //int execution_time = 200;
     int                exit     = 0;
     unsigned long long now      = 0;
     unsigned long long prev_sec = 0;
+    int property_post_reply     = 1;
     int                get_tsl_from_cloud =
                 0; /* the param of whether it is get tsl from cloud */
     linkkit_ops_t linkkit_ops = {
@@ -651,7 +699,8 @@ int linkkit_example()
         .thing_call_service =
         thing_call_service, /* self-defined service handler */
         .thing_prop_changed = thing_prop_changed, /* property set handler */
-        .linkit_data_arrived = NULL,
+        .linkit_data_arrived =
+        linkit_data_arrived, /* transparent transmission data handler */
     };
 
     EXAMPLE_TRACE("linkkit start");
@@ -663,7 +712,10 @@ int linkkit_example()
      * if get_tsl_from_cloud = 0, it will use the default tsl [TSL_STRING]; if
      * get_tsl_from_cloud =1, it will get tsl from cloud.
      */
-    if (-1 == linkkit_start(16, get_tsl_from_cloud, linkkit_loglevel_debug,
+
+    linkkit_set_opt(linkkit_opt_property_post_reply, &property_post_reply);
+
+    if (-1 == linkkit_start(16, get_tsl_from_cloud, linkkit_loglevel_warning,
                             &linkkit_ops, linkkit_cloud_domain_shanghai,
                             &sample_ctx)) {
         EXAMPLE_TRACE("linkkit start fail");
@@ -680,6 +732,9 @@ int linkkit_example()
 
     EXAMPLE_TRACE("linkkit enter loop");
     while (!linkkit_is_try_leave()) {
+        if (krhino_uprocess_is_try_exit()) {
+            break;
+	}
         /*
          * if linkkit is support Multi-thread, the linkkit_dispatch and
          * linkkit_yield with callback by linkkit, else it need user to call
@@ -717,18 +772,20 @@ int linkkit_example()
         }
 #endif
         if (now % 30 == 0 && is_active(&sample_ctx)) {
+            EXAMPLE_TRACE("linkkit app post_all_prop");
             post_all_prop(&sample_ctx);
         }
 
         if (now % 45 == 0 && is_active(&sample_ctx)) {
+            EXAMPLE_TRACE("linkkitapp trigfer_event");
             trigger_event(&sample_ctx);
         }
 
-#ifdef EXTENDED_INFO_ENABLED
+//#ifdef EXTENDED_INFO_ENABLED
         if (now % 50 == 0 && is_active(&sample_ctx)) {
             trigger_deviceinfo(&sample_ctx);
         }
-#endif
+//#endif
 
         if (exit) {
             break;
@@ -736,47 +793,47 @@ int linkkit_example()
 
         /* after all, this is an sample, give a chance to return... */
         /* modify this value for this sample executaion time period */
-        // if (now > 60 * execution_time) {
-        //     exit = 1;
-        // }
+//         if (now > 5 * execution_time) {
+//             printf("linkkit try leave\r\n");
+//             linkkit_try_leave();
+//             //exit = 1;
+//         }
 
         prev_sec = now;
     }
 
     /* linkkit end */
     linkkit_end();
+
+    if (linkkit_is_end()) {
+        printf("linkkit is end, goodbye !!!\r\n");
+    } else {
+        printf("linkkit isn't ended\r\n");
+    }
+
     return 0;
 }
 
-void set_iotx_info()
-{
-    HAL_SetProductKey(PRODUCT_KEY);
-    HAL_SetProductSecret(PRODUCT_SECRET);
-    HAL_SetDeviceName(DEVICE_NAME);
-    HAL_SetDeviceSecret(DEVICE_SECRET);
-}
-
+/* SET product key in kernel */
 int linkkit_main(void *paras)
 {
-#ifndef WIFI_AWSS_ENABLED
-    set_iotx_info();
-#endif
-
-    IOT_OpenLog("linkkit");
-    IOT_SetLogLevel(IOT_LOG_INFO);
-
+   // IOT_OpenLog("linkkit");
+   // IOT_SetLogLevel(IOT_LOG_INFO);
     EXAMPLE_TRACE("start!\n");
     /*
      * linkkit dome
      * please check document: https://help.aliyun.com/document_detail/73708.html
      *         API introduce: https://help.aliyun.com/document_detail/68687.html
      */
+    set_iotx_info();
     linkkit_example();
 
-    IOT_DumpMemoryStats(IOT_LOG_DEBUG);
-    IOT_CloseLog();
+   // IOT_DumpMemoryStats(IOT_LOG_DEBUG);
+   // IOT_CloseLog();
 
     EXAMPLE_TRACE("out of sample!\n");
+
+    krhino_uprocess_exit();
 
     return 0;
 }

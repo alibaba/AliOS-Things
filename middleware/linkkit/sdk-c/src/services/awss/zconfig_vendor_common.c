@@ -69,9 +69,9 @@ static const u8 aws_fixed_scanning_channels[] = {
 
 static void *rescan_timer = NULL;
 
-static void rescan_monitor();
-static void clr_aplist_monitor();
-static void aws_try_adjust_chan();
+static void rescan_monitor(void);
+static void clr_aplist_monitor(void);
+static void aws_try_adjust_chan(void);
 
 #define RESCAN_MONITOR_TIMEOUT_MS     (5 * 60 * 1000)
 #define CLR_APLIST_MONITOR_TIMEOUT_MS (24 * 60 *60 * 1000)
@@ -186,7 +186,7 @@ const uint8_t aha_probe_req_frame[AHA_PROBE_PKT_LEN] = {
     0x3F, 0x84, 0x10, 0x9E  // FCS
 };
 
-void aws_send_adha_probe_req()
+void aws_send_adha_probe_req(void)
 {
     uint8_t probe[ADHA_PROBE_PKT_LEN];
     memcpy(probe, adha_probe_req_frame, sizeof(probe));
@@ -194,7 +194,7 @@ void aws_send_adha_probe_req()
     os_wifi_send_80211_raw_frame(FRAME_PROBE_REQ, probe, sizeof(probe));
 }
 
-void aws_send_aha_probe_req()
+void aws_send_aha_probe_req(void)
 {
     uint8_t probe[AHA_PROBE_PKT_LEN];
     memcpy(probe, aha_probe_req_frame, sizeof(probe));
@@ -332,7 +332,7 @@ int aws_force_scanning(void)
 #endif
 }
 
-static void aws_try_adjust_chan()
+static void aws_try_adjust_chan(void)
 {
     struct ap_info *ap = NULL;
     char ssid[ZC_MAX_SSID_LEN] = {0};
@@ -486,12 +486,12 @@ success:
     }
 }
 
-static void rescan_monitor()
+static void rescan_monitor(void)
 {
     rescan_available = 1;
 }
 
-static void clr_aplist_monitor()
+static void clr_aplist_monitor(void)
 {
     clr_aplist = 1;
     HAL_Timer_Start(clr_aplist_timer, CLR_APLIST_MONITOR_TIMEOUT_MS);

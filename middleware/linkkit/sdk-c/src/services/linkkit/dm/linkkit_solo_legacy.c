@@ -10,6 +10,10 @@
 #ifdef DEPRECATED_LINKKIT
 linkkit_solo_legacy_ctx_t g_linkkit_solo_legacy_ctx = {0};
 
+void *linkkit_solo_get_user_contex(void)
+{
+    return g_linkkit_solo_legacy_ctx.user_context;
+}
 static deprecated linkkit_solo_legacy_ctx_t *_linkkit_solo_legacy_get_ctx(void)
 {
     return &g_linkkit_solo_legacy_ctx;
@@ -181,6 +185,9 @@ int deprecated linkkit_set_opt(linkkit_opt_t opt, void *data)
 }
 
 #ifdef DEPRECATED_LINKKIT
+
+extern int linkkit_invoke_uspace_post_cb(void *f, const void *thing_id, int respons_id, int code,
+                                  const char *response_message, void *ctx);
 static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *payload)
 {
     linkkit_solo_legacy_ctx_t *linkkit_solo_ctx = _linkkit_solo_legacy_get_ctx();
@@ -538,7 +545,12 @@ static void _linkkit_solo_event_callback(iotx_dm_event_types_t type, char *paylo
             _linkkit_solo_upstream_mutex_unlock();
             if (res == SUCCESS_RETURN) {
                 if (callback) {
-                    callback(thing_id, lite_item_id.value_int, lite_item_code.value_int, NULL, linkkit_solo_ctx->user_context);
+                    linkkit_invoke_uspace_post_cb((void*)callback, thing_id,
+                                                  lite_item_id.value_int,
+                                                  lite_item_code.value_int,
+                                                  NULL,
+                                                  linkkit_solo_ctx->user_context);
+                    //callback(thing_id, lite_item_id.value_int, lite_item_code.value_int, NULL, linkkit_solo_ctx->user_context);
                 }
                 _linkkit_solo_upstream_mutex_lock();
                 _linkkit_solo_upstream_callback_list_remove(lite_item_id.value_int);
@@ -817,7 +829,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     linkkit_solo_ctx->is_started = 1;
 
     if (max_buffered_msg <= 0 || ops == NULL || log_level > LOG_DEBUG_LEVEL ||
-        domain_type < 0 || domain_type >= linkkit_cloud_domain_max) {
+        (int)domain_type < 0 || domain_type >= linkkit_cloud_domain_max) {
         dm_log_err(DM_UTILS_LOG_INVALID_PARAMETER);
         linkkit_solo_ctx->is_started = 0;
         return FAIL_RETURN;
@@ -845,7 +857,7 @@ int deprecated linkkit_start(int max_buffered_msg, int get_tsl_from_cloud, linkk
     /* Initialize Device Manager */
     memset(&dm_init_params, 0, sizeof(iotx_dm_init_params_t));
     dm_init_params.secret_type = IOTX_DM_DEVICE_SECRET_DEVICE;
-    dm_init_params.domain_type = domain_type;
+    dm_init_params.domain_type = (iotx_dm_cloud_domain_types_t)domain_type;
     dm_init_params.event_callback = _linkkit_solo_event_callback;
 
     res = iotx_dm_deprecated_construct(&dm_init_params);

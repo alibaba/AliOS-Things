@@ -105,18 +105,17 @@ void krhino_task_overview(int (*print_func)(const char *fmt, ...))
                          "PEND_SUS", "SLP", "SLP_SUS", "DEL" };
     const name_t *task_name;
     char s_task_overview[] = "                              0x         0x      "
-                             "   0x        (0x        )\r\n";
-
+                             "   0x        (0x        )(0x        )\r\n";
     if (print_func == NULL) {
         print_func = printf;
     }
 
     print_func("---------------------------------------------------------------"
-               "-----------\r\n");
+               "------------------------------\r\n");
     print_func("TaskName             State    Prio       Stack      StackSize "
-               "(MinFree)\r\n");
+               "(MinFree)     (runcount)\r\n");
     print_func("---------------------------------------------------------------"
-               "-----------\r\n");
+               "------------------------------\r\n");
 
     for (listnode = g_kobj_list.task_head.next;
          listnode != &g_kobj_list.task_head; listnode = listnode->next) {
@@ -161,7 +160,7 @@ void krhino_task_overview(int (*print_func)(const char *fmt, ...))
         k_int2str((int)task->stack_size * sizeof(cpu_stack_t),
                   &s_task_overview[54]);
         k_int2str((int)free_size, &s_task_overview[65]);
-
+        k_int2str((int)task->task_time_total_run, &s_task_overview[76]);
         /* print */
         print_func(s_task_overview);
     }
@@ -393,7 +392,78 @@ void krhino_sem_overview(int (*print_func)(const char *fmt, ...))
 #endif
 #endif /* RHINO_CONFIG_SEM */
 
-void krhino_overview()
+#if (RHINO_CONFIG_EVENT_FLAG > 0)
+#if (RHINO_CONFIG_SYSTEM_STATS > 0)
+void krhino_event_overview(int (*print_func)(const char *fmt, ...))
+{
+    int           i;
+    kevent_t       *event;
+    ktask_t      *task;
+    klist_t      *listnode;
+    klist_t      *blk_list_head;
+    const name_t *task_name;
+    char          s_event_overview[] =
+      "0x         0x         0x                             \r\n";
+
+    if (print_func == NULL) {
+        print_func = printf;
+    }
+
+    print_func("--------------------------------------------\r\n");
+    print_func("EventAddr    Flags      PeakCount  TaskWaiting\r\n");
+    print_func("--------------------------------------------\r\n");
+
+    for (listnode = g_kobj_list.event_head.next;
+         listnode != &g_kobj_list.event_head; listnode = listnode->next) {
+
+        event = krhino_list_entry(listnode, kevent_t, event_item);
+        if (event->blk_obj.obj_type != RHINO_EVENT_OBJ_TYPE) {
+            print_func("event Type error!\r\n");
+            break;
+        }
+
+        /* set event information */
+        k_int2str((int)event, &s_event_overview[2]);
+        k_int2str((int)event->flags, &s_event_overview[13]);
+        k_int2str((int)0, &s_event_overview[24]);
+
+        /* set pending task name */
+        blk_list_head = &event->blk_obj.blk_list;
+        if (is_klist_empty(blk_list_head)) {
+            task_name = " ";
+        } else {
+            task = krhino_list_entry(blk_list_head->next, ktask_t, task_list);
+            task_name = task->task_name == NULL ? "anonym" : task->task_name;
+        }
+
+        for (i = 0; i < 20; i++) {
+            s_event_overview[33 + i] = ' ';
+        }
+        for (i = 0; i < 20; i++) {
+            if (task_name[i] == '\0') {
+                break;
+            }
+            s_event_overview[33 + i] = task_name[i];
+        }
+
+        /* print */
+        print_func(s_event_overview);
+    }
+}
+#else
+void krhino_event_overview(int (*print_func)(const char *fmt, ...))
+{
+    if (print_func == NULL) {
+        print_func = printf;
+    }
+
+    print_func("RHINO_CONFIG_SYSTEM_STATS in k_config.h is closed!\r\n");
+}
+#endif
+#endif /* RHINO_CONFIG_SEM */
+
+
+void krhino_overview(void)
 {
     int (*print_func)(const char *fmt, ...);
 

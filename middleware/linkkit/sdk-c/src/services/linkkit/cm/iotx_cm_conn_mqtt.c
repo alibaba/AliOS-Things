@@ -102,18 +102,16 @@ static int _delete_topic(iotx_cloud_conn_mqtt_t *mqtt_ctx, unsigned int packet_i
 static char *_find_topic(iotx_cloud_conn_mqtt_t *mqtt_ctx, unsigned int packet_id)
 {
     iotx_connection_topic_t *current = NULL;
-    iotx_connection_topic_t *pre = NULL;
 
     ARGUMENT_SANITY_CHECK(mqtt_ctx, NULL);
     ARGUMENT_SANITY_CHECK(mqtt_ctx->topic_list, NULL);
 
-    current = pre = mqtt_ctx->topic_list;
+    current = mqtt_ctx->topic_list;
 
     while (current) {
         if (current->packet_id == packet_id) {
             return current->topic;
         }
-        pre = current;
         current = current->next;
     }
 

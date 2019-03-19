@@ -5,10 +5,6 @@
 #ifndef K_STATS_H
 #define K_STATS_H
 
-#if (RHINO_CONFIG_SYSTEM_STATS > 0)
-void kobj_list_init(void);
-#endif
-
 #if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
 /**
  * This function will check task stack overflow
@@ -34,8 +30,8 @@ uint32_t krhino_task_cpu_usage(ktask_t *task);
 */
 uint32_t krhino_total_cpu_usage_get(void);
 uint32_t krhino_task_cpu_usage_get(ktask_t *task);
-void krhino_total_cpu_usage_show();
-kstat_t krhino_task_cpu_usage_init();
+void krhino_total_cpu_usage_show(void);
+kstat_t krhino_task_cpu_usage_init(void);
 
 #endif
 

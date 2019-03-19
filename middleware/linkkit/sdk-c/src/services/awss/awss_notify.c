@@ -61,10 +61,10 @@ extern "C"
                                            void *userdata, void *remote,
                                            void *message);
     static int        awss_notify_response(int type, int result, void *message);
-    static int        awss_process_get_devinfo();
-    int               awss_connectap_notify();
-    int               awss_devinfo_notify();
-    int               awss_suc_notify();
+    static int        awss_process_get_devinfo(void);
+    int               awss_connectap_notify(void);
+    int               awss_devinfo_notify(void);
+    int               awss_suc_notify(void);
 
     static bool       awss_notify_running = false;
 
@@ -242,8 +242,17 @@ extern "C"
 
     static void *coap_session_ctx = NULL;
 
-    static int awss_process_get_devinfo()
+    static int awss_process_get_devinfo(void)
     {
+        char *                     buf      = NULL;
+        char *                     dev_info = NULL;
+        int                        len = 0, id_len = 0;
+        char *                     msg = NULL, *id = NULL;
+        char                       req_msg_id[MSG_REQ_ID_LEN];
+        struct coap_session_ctx_t *ctx =
+          (struct coap_session_ctx_t *)coap_session_ctx;
+        char topic[TOPIC_LEN_MAX] = { 0 };
+
         if (awss_report_token_suc == 0) {
             HAL_Timer_Start(get_devinfo_timer, AWSS_CHECK_RESP_TIME);
             return 0;
@@ -253,18 +262,12 @@ extern "C"
             return -1;
         }
 
-        char *                     buf      = NULL;
-        char *                     dev_info = NULL;
-        int                        len = 0, id_len = 0;
-        char *                     msg = NULL, *id = NULL;
-        char                       req_msg_id[MSG_REQ_ID_LEN];
-        struct coap_session_ctx_t *ctx =
-          (struct coap_session_ctx_t *)coap_session_ctx;
 
         buf = os_zalloc(DEV_INFO_LEN_MAX);
         if (buf == NULL) {
             goto GET_DEV_INFO_ERR;
         }
+
         dev_info = os_zalloc(DEV_INFO_LEN_MAX);
         if (dev_info == NULL) {
             goto GET_DEV_INFO_ERR;
@@ -285,7 +288,6 @@ extern "C"
         os_free(dev_info);
 
         awss_debug("sending message to app: %s", buf);
-        char topic[TOPIC_LEN_MAX] = { 0 };
         if (ctx->is_mcast) {
             awss_build_topic((const char *)TOPIC_GETDEVICEINFO_MCAST, topic,
                              TOPIC_LEN_MAX);

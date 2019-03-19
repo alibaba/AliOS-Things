@@ -31,6 +31,9 @@ int linkkit_ntp_time_reply(char *topic, int topic_len, void *payload, int payloa
     char *elem = NULL;
     char server_rx_time[NTP_TIME_STR_MAX_LEN + 1] = {0};
     char server_tx_time[NTP_TIME_STR_MAX_LEN + 1] = {0};
+    uint32_t tx = 0;
+    uint32_t rx;
+    uint32_t diff;
 
     memset(g_ntp_time, 0, sizeof(g_ntp_time));
 
@@ -63,14 +66,14 @@ int linkkit_ntp_time_reply(char *topic, int topic_len, void *payload, int payloa
      * atoi fails to convert string to integer
      * so we convert manully
      */
-    uint32_t tx = 0;
     while (len -- > 0) {
         tx *= 10;
         tx += elem[0] - '0';
         elem ++;
     }
-    uint32_t rx = os_get_time_ms();
-    uint32_t diff = (rx - tx) >> 1;
+
+    rx = os_get_time_ms();
+    diff = (rx - tx) >> 1;
     if (diff >= 1000000) {
         goto NTP_FAIL;
     }

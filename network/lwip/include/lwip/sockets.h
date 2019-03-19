@@ -95,7 +95,7 @@ struct sockaddr_in6 {
 struct sockaddr {
   u8_t        sa_len;
   sa_family_t sa_family;
-#if LWIP_PACKET
+#if LWIP_PACKET || LWIP_IPV6
 /* increase sa_data length from 14 to 26(same size with in6)*/
   char        sa_data[26];
 #else
@@ -181,7 +181,7 @@ struct msghdr {
 #define SO_REUSEADDR   0x0004 /* Allow local address reuse */
 #define SO_KEEPALIVE   0x0008 /* keep connections alive */
 #define SO_BROADCAST   0x0020 /* permit to send and to receive broadcast messages (see IP_SOF_BROADCAST option) */
-
+#define SO_TCPSACK     0x0040 /* Allow TCP SACK (Selective acknowledgment) */
 
 /*
  * Additional options, not kept in so_options.
@@ -204,7 +204,9 @@ struct msghdr {
 #define SO_TYPE        0x1008 /* get socket type */
 #define SO_CONTIMEO    0x1009 /* Unimplemented: connect timeout */
 #define SO_NO_CHECK    0x100a /* don't create UDP checksum */
-
+#define SO_BIO         0x100b /* set socket into blocking mode */
+#define SO_NONBLOCK    0x100c /* set/get blocking mode via optval param */
+#define SO_NBIO        0x100d /* set socket into NON-blocking mode */
 
 /*
  * Structure used for manipulating linger option.

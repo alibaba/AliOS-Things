@@ -537,3 +537,4 @@ int dm_sub_deprecated_shadow_create(int devid)
     return SUCCESS_RETURN;
 }
 #endif
+
