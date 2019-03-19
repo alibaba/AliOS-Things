@@ -1,16 +1,16 @@
 {
     "ALLOTHERS": [
         "stm32_stlink.json"
-    ], 
+    ],
     "developerkit": [
         "developerkit.json"
-    ], 
+    ],
     "pca10040": [
         "pca10040.json"
-    ], 
+    ],
     "stm32f412zg-nucleo": [
         "stm32f412zg-nucleo.json"
-    ], 
+    ],
     "stm32f429zi-nucleo": [
         "stm32f429zi-nucleo.json"
     ]
