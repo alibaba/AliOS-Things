@@ -142,8 +142,13 @@ typedef enum {
     LED3 = LED_GREEN,
     LED4 = LED1,    // No real LED. Just for passing ATS.
     // Button naming
+#if NUMAKER_PFM_M487
     SW2 = PG_15,
     SW3 = PF_11,
+#elif NUMAKER_IOT_M487
+    SW2 = PF_11,
+    SW3 = PG_5,
+#endif
     
 } PinName;
 
