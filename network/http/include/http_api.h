@@ -27,6 +27,9 @@ typedef struct httpc_connection_s {
     // boot use_proxy;  // not support in this version
     int timeout;
     char *server_name;  // pointer to server name
+#if CONFIG_HTTP_SECURE
+    const char *ca_cert;  // pointer to ca certificate
+#endif
     int port;
 
     httpc_recv_fn recv_fn;
