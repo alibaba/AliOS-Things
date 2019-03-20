@@ -47,8 +47,8 @@ struct serial_s board_uart[] = {
 #endif  
     { /* UART PORT 1, UART TX/RX in UDO IF */
         .uart       = UART_1,
-        .pin_tx     = PH_8,
-        .pin_rx     = PH_9,
+        .pin_tx     = PB_3,
+        .pin_rx     = PB_2,
         .pin_rts    = NC,
         .pin_cts    = NC
     },
@@ -116,7 +116,6 @@ struct gpio_s board_gpio [] =
     { .pin = LED_RED }, 
     { .pin = LED_YELLOW },
     { .pin = LED_GREEN },
-    { .pin = PH_3 }, /* ESP8266 Reset */
 };
 const int i32BoardMaxGPIONum  = sizeof( board_gpio ) / sizeof( board_gpio[0] );
 
