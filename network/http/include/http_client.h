@@ -6,6 +6,10 @@
 #include "http_string.h"
 #include "http_parser.h"
 
+#if CONFIG_HTTP_SECURE
+#include "mbedtls/ssl.h"
+#endif
+
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
 
@@ -53,6 +57,18 @@ typedef struct httpc_s {
 
     struct http_parser parser;
     struct http_parser_settings parser_settings;
+
+#if CONFIG_HTTP_SECURE
+    struct {
+        bool is_inited;
+        struct {
+            mbedtls_ssl_context context;
+            mbedtls_ssl_config conf;
+            mbedtls_x509_crt ca_cert;
+            const char *ca_cert_c;
+        } ssl;
+    } https;
+#endif
 } httpc_t;
 
 #define HTTPC_VERSION "HTTP/1.1"

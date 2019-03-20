@@ -221,11 +221,21 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
 
     // check https or http
     if (http_str_insensitive_cmp(param.param, "https", param.len) == true) {
+#if CONFIG_HTTP_SECURE
         http_sessions[index].flags |= HTTP_CLIENT_FLAG_SECURE;
+        if (settings->ca_cert == NULL) {
+            http_log("%s, no ca cert", __func__);
+        }
+        http_sessions[index].https.ssl.ca_cert_c = settings->ca_cert;
+#else
+        http_log("%s, https not available", __func__);
+        return 0;
+#endif
     } else if (http_str_insensitive_cmp(param.param, "http", param.len) == false) {
         http_log("%s, no http or https in server name", __func__);
         return 0;
     }
+
 
     if (http_str_search(settings->server_name, "://", server_name_offset, 3, NULL) == false) {
         http_log("%s, server name format error", __func__);
@@ -544,11 +554,18 @@ int8_t httpc_send_request(httpc_handle_t httpc, int method,
         }
         addr.sin_family = AF_INET;
         // addr.sin_port = htons(http_session->port);
-        addr.sin_port = htons(80);
         addr.sin_addr.s_addr = *(uint32_t *)(host_entry->h_addr);
         if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
-            http_log("not support https");
+#if CONFIG_HTTP_SECURE
+            addr.sin_port = htons(443);
+            socket_res = httpc_wrapper_ssl_connect(http_session->socket, (const struct sockaddr *)&addr, sizeof(addr));
+#else
+            http_log("%s, https not available", __func__);
+            ret = HTTPC_FAIL;
+            goto exit;
+#endif
         } else {
+            addr.sin_port = htons(80);
             socket_res = httpc_wrapper_connect(http_session->socket, (const struct sockaddr *)&addr, sizeof(addr));
         }
         http_log("%s, connect %d", __func__, socket_res);
@@ -561,7 +578,11 @@ int8_t httpc_send_request(httpc_handle_t httpc, int method,
     }
 
     if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
-        http_log("not support https");
+#if CONFIG_HTTP_SECURE
+        socket_res = httpc_wrapper_ssl_send(http_session->socket, http_session->header, strlen(http_session->header), 0);
+#else
+        socket_res = -1;
+#endif
     } else {
         socket_res = httpc_wrapper_send(http_session->socket, http_session->header, strlen(http_session->header), 0);
     }
