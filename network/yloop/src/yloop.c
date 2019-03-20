@@ -82,6 +82,10 @@ aos_loop_t aos_loop_init(void)
     }
 
     ctx = aos_zalloc(sizeof(*g_main_ctx));
+    if (ctx == NULL) {
+        return ctx;
+    }
+
     if (!g_main_ctx) {
         g_main_ctx = ctx;
     }
