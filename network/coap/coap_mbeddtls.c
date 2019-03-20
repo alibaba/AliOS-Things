@@ -227,9 +227,6 @@ static int coap_dtls_session_config(coap_mbeddtls_session_t *p_session)
     }
 
     mbedtls_ssl_conf_rng(&p_session->config, ssl_random, NULL);
-#if defined(MBEDTLS_DEBUG_C)
-    //mbedtls_ssl_conf_dbg(&p_session->config, ssl_debug, NULL);
-#endif
 
 #ifdef MBEDTLS_ENTROPY_C
     ret = mbedtls_ssl_cookie_setup(&p_session->cookie_ctx, mbedtls_ctr_drbg_random,
@@ -320,8 +317,8 @@ coap_dgram_read_timeout(void *context, unsigned char *buf, size_t len,
         FD_SET (c_session->sock.fd, &writefds);
         FD_SET (c_session->sock.fd, &exceptfds);
         /* Polling */    
-       // tv.tv_sec  = timeout / 1000;
-       //tv.tv_usec = ( timeout % 1000 ) * 1000;
+        tv.tv_sec  = timeout / 1000;
+        tv.tv_usec = ( timeout % 1000 ) * 1000;
 
         return select(nfds, &readfds, &writefds, &exceptfds, &tv);
      }
@@ -361,10 +358,7 @@ static int coap_dtls_session_setup(coap_session_t *c_session,
             mbedtls_ssl_set_session(&p_session->context, saved_session);
         }
 
-        //do {
-            ret = mbedtls_ssl_handshake(&p_session->context);
-        //} while (ret == MBEDTLS_ERR_SSL_WANT_READ ||
-        //       ret == MBEDTLS_ERR_SSL_WANT_WRITE);
+        ret = mbedtls_ssl_handshake(&p_session->context);
         coap_log(LOG_INFO, "mbedtls_ssl_handshake result 0x%04x\r\n", ret);
         if (0 == ret) {
             if (NULL == saved_session) {
@@ -458,9 +452,8 @@ void *coap_dtls_new_client_session(coap_session_t *c_session) {
     int ret;
     coap_mbeddtls_session_t *p_session = NULL;
     //FIXME
-    coap_dtls_options_t  options = {NULL, "b1Ryy87GP79.coap.cn-shanghai.link.aliyuncs.com", 5684 };
+    coap_dtls_options_t  options = {NULL, "", 5684 };
     coap_dtls_options_t  *p_options = &options; 
-    char port[6] = {0};
 
     p_session = coap_dtls_session_init();
     if (NULL == p_session) {
@@ -499,11 +492,6 @@ void *coap_dtls_new_client_session(coap_session_t *c_session) {
     if (0 == ret) {
         p_session->established = 1;
     }
-
-    /*if (0 != ret) {
-        coap_log(LOG_ERR, "coap_dtls_session_setup result %d\r\n", ret);
-        goto err;
-    }*/
     
     return p_session;
 err:
@@ -526,7 +514,6 @@ int coap_dtls_send(coap_session_t *c_session,
                    const uint8_t *data, size_t data_len) {
     int ret = 0;
     coap_mbeddtls_session_t *p_session = NULL;
-    coap_mbedtls_data *ssl_data = NULL;
 
     if (NULL == c_session || NULL == data || data_len == 0) {
         return -1;
@@ -543,16 +530,7 @@ int coap_dtls_send(coap_session_t *c_session,
 
     if (ret <= 0) {
       switch (ret) {
-  #if 0
-      case GNUTLS_E_AGAIN:
-        ret = 0;
-        break;
-      case GNUTLS_E_FATAL_ALERT_RECEIVED:
-        log_last_alert(g_env->g_session);
-        c_session->dtls_event = COAP_EVENT_DTLS_ERROR;
-        ret = -1;
-        break;
-  #endif
+       /* TODO: Add EGAIN handle */
       default:
         ret = -1;
         break;
