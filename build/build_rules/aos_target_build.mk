@@ -323,7 +323,7 @@ endif
 # $(info Prebuild targets:$(EXTRA_PRE_BUILD_TARGETS))
 # $(info $(BIN_OUTPUT_FILE))
 ifeq ($(PING_PONG_OTA),1)
-$(BIN_OUTPUT_FILE_XIP2): $(BIN_OUTPUT_FILE)
+$(BIN_OUTPUT_FILE_XIP2): $(BIN_OUTPUT_FILE_TMP)
 build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_XIP2) $(HEX_OUTPUT_FILE) display_map_summary
 else
 build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_TMP) $(HEX_OUTPUT_FILE) display_map_summary
