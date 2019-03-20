@@ -1431,7 +1431,7 @@ static void prov_capabilities(const u8_t *data)
 
     /* Provisioner select output action */
     if (output_size) {
-        for (j = 0; j < 5; j++) {
+        for (j = OUTPUT_OOB_NUMBER; j < 5; j++) {
             if (output_action & BIT(j)) {
                 //output_action = BIT(j);
                 output_action = j;
@@ -1461,7 +1461,7 @@ static void prov_capabilities(const u8_t *data)
 
     /* Provisioner select input action */
     if (input_size) {
-        for (j = 0; j < 4; j++) {
+        for (j = INPUT_OOB_NUMBER; j < 4; j++) {
             if (input_action & BIT(j)) {
                 //input_action = BIT(j);
                 input_action = j;
@@ -1491,10 +1491,9 @@ static void prov_capabilities(const u8_t *data)
         }
     }
 
-    auth_method = AUTH_METHOD_OUTPUT;
-    auth_action = (u8_t)OUTPUT_OOB_NUMBER;
-    auth_size   = 4;
-    prov_input_size = auth_size;
+    if ((auth_method == AUTH_METHOD_OUTPUT) && (auth_action == OUTPUT_OOB_NUMBER)) {
+        prov_input_size = auth_size;
+    }
 
     /* Store provisioning capbilities value in conf_inputs */
     memcpy(&link[i].conf_inputs[1], data, 11);
