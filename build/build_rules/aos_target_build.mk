@@ -336,8 +336,7 @@ display_map_summary: $(LINK_OUTPUT_FILE) $(AOS_SDK_CONVERTER_OUTPUT_FILE) $(AOS_
 # $(info $(BIN_OUTPUT_FILE))
 ifeq ($(PING_PONG_OTA),1)
 $(BIN_OUTPUT_FILE_XIP2): $(BIN_OUTPUT_FILE_TMP)
-build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_TMP) $(HEX_OUTPUT_FILE) display_map_summary
-build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_XIP2) $(HEX_OUTPUT_FILE_XIP2) display_map_summary_XIP2
+build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_XIP2) $(HEX_OUTPUT_FILE) display_map_summary
 else
 build_done: $(EXTRA_PRE_BUILD_TARGETS) $(BIN_OUTPUT_FILE_TMP) $(HEX_OUTPUT_FILE) display_map_summary
 endif
