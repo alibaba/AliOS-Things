@@ -8,6 +8,7 @@
 
 #include "coap_config.h"
 
+#ifndef WITH_LWIP
 #ifdef HAVE_TIME_H
 #include <time.h>
 #ifdef HAVE_SYS_TIME_H
@@ -134,4 +135,4 @@ COAP_STATIC_INLINE void dummy(void)
 }
 
 #endif /* not HAVE_TIME_H */
-
+#endif /* not WITH_LWIP */
