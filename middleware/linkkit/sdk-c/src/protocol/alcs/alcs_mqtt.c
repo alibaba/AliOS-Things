@@ -238,13 +238,11 @@ static void __alcs_mqtt_subscribe_callback(char *topic, int topic_len, void *pay
              alcs_mqtt_ctx->product_key, alcs_mqtt_ctx->device_name);
 
     COAP_INFO("Receivce Message, Topic: %.*s\n", topic_len, topic);
-    COAP_INFO("Receivce Message, Payload: %.*s\n", payload_len, payload);
 
     if ((strlen(topic_compare) == topic_len) && (strncmp(topic_compare, topic, topic_len) == 0)) {
         int data_len = 0, prefix_len = 0, secret_len = 0, productKey_len = 0, deviceName_len = 0;
         char *data = NULL, *prefix = NULL, *secret = NULL, *productKey = NULL, *deviceName = NULL;
         data = json_get_value_by_name((char *)payload, payload_len, "data", &data_len, NULL);
-        COAP_INFO("Data: %.*s\n", data_len, data);
 
         if (NULL != data && 0 != data_len) {
             char back1, back2;
