@@ -106,6 +106,7 @@ $(NAME)_SOURCES += drivers/common/pinmap_common.c \
 
 ifeq ($(ETHERNET),1)
 $(NAME)_SOURCES += drivers/lwIP/netif/m480_eth.c
+$(NAME)_SOURCES += hal/eth_port.c
 endif
 
 ifeq ($(COMPILER),armcc)
