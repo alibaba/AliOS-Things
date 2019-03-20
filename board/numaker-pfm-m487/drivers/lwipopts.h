@@ -88,6 +88,8 @@
 #define MEMP_NUM_TCPIP_MSG_INPKT        12
 #define PBUF_POOL_SIZE                  12
 
+#define LWIP_NETIF_API                  1
+
 /*
    ---------- ARP options ----------
 */
