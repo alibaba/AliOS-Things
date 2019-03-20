@@ -40,6 +40,8 @@ extern void ethernetif_loopback_input(struct pbuf *p);
 #define DEFAULT_INC    0xD7
 #endif
 
+volatile int EMAC_plugged=0; 
+
 extern void EMAC_Rx_Callback(void);
 
 static void mdio_write(u8_t addr, u8_t reg, u16_t val)
@@ -92,12 +94,15 @@ static int reset_phy(void)
     reg = mdio_read(CONFIG_PHY_ADDR, MII_BMCR);
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, reg | BMCR_ANRESTART);
 
-    delay = 200000;
-    while(delay-- > 0)
+    delay = 50000;
+    while (delay-- > 0)
     {
         if((mdio_read(CONFIG_PHY_ADDR, MII_BMSR) & (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
                 == (BMSR_ANEGCOMPLETE | BMSR_LSTATUS))
+        {
+            EMAC_plugged=1;
             break;
+        }
     }
 
     if(delay == 0)
@@ -106,7 +111,7 @@ static int reset_phy(void)
         EMAC->CTL |= (EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         return(-1);
     }
-    else
+    else if ( EMAC_plugged )
     {
         reg = mdio_read(CONFIG_PHY_ADDR, MII_LPA);
 
@@ -135,6 +140,30 @@ static int reset_phy(void)
     return(0);
 }
 
+void EMAC_CheckLink(void)
+{
+    unsigned int reg;
+    reg = mdio_read(CONFIG_PHY_ADDR, MII_BMSR);
+    if ( reg & (BMSR_ANEGCOMPLETE | BMSR_LSTATUS ) )
+    {
+        if (!EMAC_plugged) {
+            printf("plugged!!\r\n");
+            EMAC_plugged=1;
+            reset_phy();
+            NVIC_EnableIRQ(EMAC_TX_IRQn);
+            NVIC_EnableIRQ(EMAC_RX_IRQn);
+        }
+    } else {
+        
+        if ( EMAC_plugged )
+        {
+            printf("unplugged!!\r\n");
+            EMAC_plugged=0;
+            NVIC_DisableIRQ(EMAC_TX_IRQn);
+            NVIC_DisableIRQ(EMAC_RX_IRQn);          
+        }
+    }
+}
 
 static void init_tx_desc(void)
 {
