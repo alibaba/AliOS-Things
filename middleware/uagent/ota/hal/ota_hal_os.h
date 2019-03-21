@@ -46,7 +46,7 @@ void ota_free(void *ptr);
 
 /*Semaphore*/
 void *ota_semaphore_create(void);
-int ota_semaphore_wait(void *sem, int ms);
+int  ota_semaphore_wait(void *sem, int ms);
 void ota_semaphore_post(void *sem);
 void ota_semaphore_destroy(void *sem);
 
@@ -68,29 +68,29 @@ int ota_kv_get(const char *key, void *buffer, int *len);
 void ota_reboot(void);
 
 /*Socket API*/
-void* ota_socket_connect(char *host, int port);
-int ota_socket_send(void* fd,  char *buf, int len);
-int ota_socket_recv(void* fd,  char *buf, int len);
-void ota_socket_close(void* fd);
+void *ota_socket_connect(char *host, int port);
+int  ota_socket_send(void *fd,  char *buf, int len);
+int  ota_socket_recv(void *fd,  char *buf, int len);
+void ota_socket_close(void *fd);
 
 /*SSL*/
-void* ota_ssl_connect(const char *host, unsigned short port, const char *ca, int len);
-int ota_ssl_send(void* ssl,  char *buf, int len);
-int ota_ssl_recv(void* ssl,  char *buf, int len);
+void *ota_ssl_connect(const char *host, unsigned short port, const char *ca, int len);
+int ota_ssl_send(void *ssl,  char *buf, int len);
+int ota_ssl_recv(void *ssl,  char *buf, int len);
 
 /*Verify API*/
 typedef struct
 {
-    unsigned int total[2];
-    unsigned int state[4];
+    unsigned int  total[2];
+    unsigned int  state[4];
     unsigned char buffer[64];
-}ota_md5_context;
+} ota_md5_context;
 typedef struct {
-    unsigned int total[2];
-    unsigned int state[8];
+    unsigned int  total[2];
+    unsigned int  state[8];
     unsigned char buffer[64];
     int is224;
-}ota_sha256_context;
+} ota_sha256_context;
 /*SHA256*/
 void ota_sha256_free(ota_sha256_context *ctx);
 void ota_sha256_init(ota_sha256_context *ctx);
@@ -123,7 +123,7 @@ typedef enum {
     MD5         = 6,
 } OTA_HASH_E;
 typedef enum {
-    RSASSA_PKCS1_V1_5       = 20,
+    RSASSA_PKCS1_V1_5 = 20,
 } ota_rsa_pad_type_t;
 
 typedef struct{
@@ -146,9 +146,9 @@ typedef struct{
 #define TEE_MAX_RSA_KEY_SIZE      (2048)
 
 typedef struct{
-    unsigned int magic;
-    unsigned int n_size;
-    unsigned int e_size;
+    unsigned int  magic;
+    unsigned int  n_size;
+    unsigned int  e_size;
     unsigned char n[(TEE_MAX_RSA_KEY_SIZE >> 3)];
     unsigned char e[(TEE_MAX_RSA_KEY_SIZE >> 3)];
 } ota_rsa_pubkey_t;
