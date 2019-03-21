@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-
 #include "utils_md5.h"
 #include "ota/ota_service.h"
 #include "ota_log.h"
@@ -20,23 +19,23 @@
 
 #define DOWNLOAD_PATH "/topic/ota/device/download/%s/%s"
 
-static int block_cur_num = 0;
-static int block_more = 1;
-static int block_size = OTA_COAP_BLOCK_SIZE;
-static int total_size = 0;
+static int block_cur_num       = 0;
+static int block_more          = 1;
+static int block_size          = OTA_COAP_BLOCK_SIZE;
+static int total_size          = 0;
 static int coap_client_running = 0;
-static int retry_cnt = 5;
-
+static int retry_cnt           = 5;
 static void *sem_send;
+
 static void  iotx_response_block_handler(void *arg, void *p_response);
 
 static int ota_download_start(void *pctx)
 {
-    int ret = 0;
+    int ret        = 0;
     int breakpoint = 0;
     char path[128] = {0};
     ota_service_t* ctx = pctx;
-    if (!ctx || !(ctx->h_ch)) {
+    if ((ctx == NULL) || (ctx->h_ch == NULL)) {
         return -1;
     }
 
@@ -81,16 +80,16 @@ static int ota_download_start(void *pctx)
 
 static void iotx_response_block_handler(void *arg, void *p_response)
 {
-    int len = 0;
-    int cur_num = 0;
-    int more = 0;
-    int size = 0;
-    int breakpoint = 0;
+    int len         = 0;
+    int cur_num     = 0;
+    int more        = 0;
+    int size        = 0;
+    int breakpoint  = 0;
     char *p_payload = NULL;
     iotx_coap_resp_code_t resp_code;
     ota_coap_get_code(p_response, &resp_code);
     if (resp_code == 0x45) {
-        ota_coap_get_payload(p_response, (const char**)&p_payload, &len);
+        ota_coap_get_payload(p_response, (const char **)&p_payload, &len);
         if (ota_coap_parse_block(p_response, COAP_OPTION_BLOCK2, &cur_num, &more, &size)) {
             OTA_LOG_I("num: %d, more: %d, size: %d", cur_num, more, size);
             block_size = size;
@@ -104,7 +103,7 @@ static void iotx_response_block_handler(void *arg, void *p_response)
                 int ret = 0;
                 ret = ota_hal_write(&breakpoint, p_payload, len);
                 if (ret < 0) {
-                      OTA_LOG_E("write err:%d\n", ret);
+                      OTA_LOG_E("write err:%d", ret);
                       return;
                 }
             }

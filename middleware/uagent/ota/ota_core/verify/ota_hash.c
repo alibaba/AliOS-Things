@@ -50,16 +50,14 @@ int ota_hash_init(OTA_HASH_E type, void *context)
     }
 
     switch(type) {
-        case SHA256: {
+        case SHA256:
             ota_sha256_init(&hash_ctx->sha256_ctx);
             ota_sha256_starts(&hash_ctx->sha256_ctx, 0);
             break;
-        }
-        case MD5: {
+        case MD5:
             ota_md5_init(&hash_ctx->md5_ctx);
             ota_md5_starts(&hash_ctx->md5_ctx);
             break;
-        }
         default:
             OTA_LOG_E("invalid type:%d", type);
             return OTA_CRYPTO_INVALID_TYPE;
@@ -92,16 +90,14 @@ int ota_hash_update(const unsigned char *src, unsigned int size, void *context)
          return OTA_CRYPTO_ERR_STATE;
     }
     switch(hash_ctx->type) {
-        case SHA256: {
+        case SHA256:
             ota_sha256_update(&hash_ctx->sha256_ctx,
                     (const unsigned char *)src, size);
             break;
-        }
-        case MD5: {
+        case MD5:
             ota_md5_update(&hash_ctx->md5_ctx,
                     (const unsigned char *)src, size);
             break;
-        }
         default:
             OTA_LOG_E("invalid:%d", hash_ctx->type);
             return OTA_CRYPTO_INVALID_TYPE;
@@ -184,7 +180,7 @@ int ota_hash_digest(OTA_HASH_E type, const unsigned char *src, unsigned int size
 int ota_malloc_hash_ctx(OTA_HASH_E type)
 {
     g_ctx.hash_method = type;
-    ota_hash_get_ctx_size(type, (unsigned int*)&g_ctx.ctx_size);
+    ota_hash_get_ctx_size(type, (unsigned int *)&g_ctx.ctx_size);
     if (g_ctx.ctx_hash == NULL) {
         g_ctx.ctx_hash = (void *)ota_malloc(g_ctx.ctx_size);
     }
@@ -222,7 +218,7 @@ void ota_save_state(int breakpoint, ota_hash_param_t *hash_ctx)
 int ota_get_break_point(void)
 {
     uint32_t offset = 0;
-    int len = 4;
+    int      len    = 4;
     if (ota_kv_get(KEY_OTA_BREAKPOINT, &offset, &len)) {
         offset = 0;
     }
@@ -285,7 +281,7 @@ static int ota_check_md5(const unsigned char *cur_hash, const char *download_has
         return -1;
     }
     char digest_str[33] = {0};
-    int  i = 0;
+    int  i              = 0;
     for (; i < 16; i++) {
         ota_snprintf(digest_str + i * 2, 2 + 1, "%02X", cur_hash[i]);
     }
@@ -302,7 +298,7 @@ static int ota_check_sha256(const unsigned char *cur_hash, const char *download_
         return -1;
     }
     char digest_str[65] = {0};
-    int  i = 0;
+    int  i              = 0;
     for (; i < 32; i++) {
         ota_snprintf(digest_str + i * 2, 2 + 1, "%02X", cur_hash[i]);
     }
@@ -314,12 +310,12 @@ static int ota_check_sha256(const unsigned char *cur_hash, const char *download_
     return 0;
 }
 
-int ota_check_hash(OTA_HASH_E hash_type, char* hash)
+int ota_check_hash(OTA_HASH_E hash_type, char *hash)
 {
     if (hash == NULL) {
         return -1;
     }
-    int ret = -1;
+    int           ret        = -1;
     unsigned char digest[64] = { 0 };
     ota_hash_param_t *hash_ctx = ota_get_hash_ctx();
     if (OTA_CRYPTO_SUCCESS != ota_hash_final(digest, hash_ctx->ctx_hash)) {
@@ -344,7 +340,7 @@ int ota_check_hash(OTA_HASH_E hash_type, char* hash)
 int ota_init_bin_md5_context()
 {
     image_md5_ctx.hash_method = MD5;
-    ota_hash_get_ctx_size(MD5, (unsigned int*)&image_md5_ctx.ctx_size);
+    ota_hash_get_ctx_size(MD5, (unsigned int *)&image_md5_ctx.ctx_size);
     if (image_md5_ctx.ctx_hash == NULL) {
         image_md5_ctx.ctx_hash = (void *)ota_malloc(image_md5_ctx.ctx_size);
     }
@@ -370,25 +366,25 @@ void ota_destroy_bin_md5_context()
 
 int ota_check_image(unsigned int size)
 {
-    int ret = 0;
+    int ret                         = 0;
 #if defined (OTA_CONFIG_FW_MD5)
     int i = 0;
-    int off_set = 0;
-    char image_md5_value[33] = {0};
+    int off_set                     = 0;
+    char image_md5_value[33]        = {0};
     char download_md5_str_value[33] = {0};
-    unsigned int read_size = 0;
-    char *rd_buf = NULL;
-    char test_buf[33] = { 0 };
-    int bin_size = size;
-    ota_image_t ota_image_identity = { 0};
+    unsigned int read_size          = 0;
+    char *rd_buf                    = NULL;
+    char test_buf[33]               = { 0 };
+    int bin_size                    = size;
+    ota_image_t ota_image_identity  = { 0};
 
-    if(size <= sizeof(ota_image_t)){
+    if (size <= sizeof(ota_image_t)) {
         ret = OTA_VERIFY_HASH_FAIL;
         return ret;
     }
     off_set = bin_size - sizeof(ota_image_t);
     OTA_LOG_I("bin s:%d off:%d", bin_size, off_set);
-    if (ota_hal_read(&off_set, (char*)&ota_image_identity, sizeof(ota_image_t)) < 0) {
+    if (ota_hal_read(&off_set, (char *)&ota_image_identity, sizeof(ota_image_t)) < 0) {
         ret = OTA_VERIFY_HASH_FAIL;
         return ret;
     }
@@ -415,19 +411,19 @@ int ota_check_image(unsigned int size)
     }
     ret = ota_hash_init(image_md5_ctx.hash_method, image_md5_ctx.ctx_hash);
     if (ret < 0) {
-        OTA_LOG_I("hash init.\n");
+        OTA_LOG_I("hash init.");
         goto err;
     }
     off_set = 0;
     while (off_set < bin_size) {
-        (bin_size - off_set >= OTA_BUF_VERIFY) ? (read_size = OTA_BUF_VERIFY):(read_size = bin_size - off_set);
+        (bin_size - off_set >= OTA_BUF_VERIFY) ? (read_size = OTA_BUF_VERIFY) : (read_size = bin_size - off_set);
         if (ota_hal_read(&off_set, rd_buf, read_size) < 0) {
             ret = OTA_UPGRADE_FAIL;
             goto err;
         }
         ret = ota_hash_update((const uint8_t *)rd_buf, read_size, image_md5_ctx.ctx_hash);
         if (ret < 0) {
-            OTA_LOG_E("hash update err.\n");
+            OTA_LOG_E("hash update err.");
             goto err;
         }
     }
@@ -435,7 +431,7 @@ int ota_check_image(unsigned int size)
     memset(image_md5_value, 0x00, sizeof(image_md5_value));
     ret = ota_hash_final((unsigned char *)image_md5_value, image_md5_ctx.ctx_hash);
     if (ret < 0) {
-        OTA_LOG_E("hash final err.\n");
+        OTA_LOG_E("hash final err.");
         goto err;
     }
     memset(download_md5_str_value, 0x00, sizeof(download_md5_str_value));
@@ -448,7 +444,7 @@ int ota_check_image(unsigned int size)
         goto err;
     }
 err:
-    OTA_LOG_I("OTA md5 ret:%d",ret);
+    OTA_LOG_I("OTA md5 ret:%d", ret);
     if(rd_buf) {
        ota_free(rd_buf);
        rd_buf = NULL;

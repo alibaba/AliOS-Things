@@ -75,8 +75,8 @@ static void http_gethost_info(char *src, char **web, char **file, int *port)
     char *pa;
     char *pb;
     isHttps = 0;
-    if (!src || strlen(src) == 0) {
-        OTA_LOG_E("http_gethost_info parms error!\n");
+    if ((src == NULL) || (strlen(src) == 0)) {
+        OTA_LOG_E("http_gethost_info parms error!");
         return;
     }
     *port = 0;
@@ -140,22 +140,22 @@ static int ota_download_start(void *pctx)
     char                *host_addr    = NULL;
     char                *http_buffer  = NULL;
     void                *ssl          = NULL;
-    char                retry = 0;
-    unsigned int        ota_percent = 0;
-    unsigned int        divisor     = 10;
+    char                retry         = 0;
+    unsigned int        ota_percent   = 0;
+    unsigned int        divisor       = 10;
     ota_service_t* ctx = (ota_service_t*)pctx;
-    if (!ctx) {
+    if (ctx == NULL) {
         ret = OTA_PARAM_FAIL;
         return ret;
     }
     ota_boot_param_t *ota_param = (ota_boot_param_t *)ctx->boot_param;
-    if (!ctx->boot_param) {
+    if (ctx->boot_param == NULL) {
         ret = OTA_PARAM_FAIL;
         return ret;
     }
 
-    char* url = ctx->url;
-    if (!url || strlen(url) == 0) {
+    char *url = ctx->url;
+    if ((url == NULL) || (strlen(url) == 0)) {
         ret = OTA_PARAM_FAIL;
         return ret;
     }

@@ -4,15 +4,15 @@
 #include <aos/hal/flash.h>
 #include "ota_breeze_plat.h"
 
-static unsigned int has_erase_page_numbs = 0;
+static unsigned int has_erase_page_numbs   = 0;
 static unsigned int total_erase_page_numbs = 0;
-static unsigned int erase_sector_size = 0;
-static int ota_part = HAL_PARTITION_OTA_TEMP;
+static unsigned int erase_sector_size      = 0;
+static int ota_part                        = HAL_PARTITION_OTA_TEMP;
 static ota_settings_t breeze_ota_settings;
 
 extern uint32_t hal_flash_erase_sector_size(void);
 
-static unsigned short ota_breeze_crc16_calculate(unsigned char const* p_data, unsigned int size, unsigned short const* p_crc)
+static unsigned short ota_breeze_crc16_calculate(unsigned char const *p_data, unsigned int size, unsigned short const *p_crc)
 {
     unsigned short crc = (p_crc == NULL) ? 0xFFFF : *p_crc;
     for (unsigned int i = 0; i < size; i++) {
@@ -24,7 +24,8 @@ static unsigned short ota_breeze_crc16_calculate(unsigned char const* p_data, un
     }
     return crc;
 }
-static unsigned int ota_breeze_crc32_calculate(unsigned char const* p_data, unsigned int size, unsigned int const* p_crc)
+
+static unsigned int ota_breeze_crc32_calculate(unsigned char const *p_data, unsigned int size, unsigned int const *p_crc)
 {
     unsigned int crc;
     crc = (p_crc == NULL) ? 0xFFFFFFFF : ~(*p_crc);
@@ -36,21 +37,24 @@ static unsigned int ota_breeze_crc32_calculate(unsigned char const* p_data, unsi
     }
     return ~crc;
 }
-void ota_breeze_set_image_info_crc16(unsigned char* data, unsigned int len)
+
+void ota_breeze_set_image_info_crc16(unsigned char *data, unsigned int len)
 {
     breeze_ota_settings.image_info_crc16 = ota_breeze_crc16_calculate(data, len, NULL);
 }
+
 static unsigned short ota_breeze_get_image_info_crc16()
 {
     return breeze_ota_settings.image_info_crc16;
 }
+
 static unsigned short ota_breeze_get_image_crc16()
 {
     unsigned int   tmp_offset = 0;
     unsigned char  tmp_buf[32];
-    unsigned int   read_len = 0;
-    unsigned short crc = 0xFFFF;
-    _ota_ble_global_dat_t* p_ota = ota_breeze_get_global_data_center();
+    unsigned int   read_len   = 0;
+    unsigned short crc        = 0xFFFF;
+    _ota_ble_global_dat_t *p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         return crc;
     }
@@ -74,9 +78,9 @@ static unsigned int ota_breeze_get_image_crc32()
 {
     unsigned int  tmp_offset = 0;
     unsigned char tmp_buf[32];
-    unsigned int  read_len = 0;
-    unsigned int  crc = 0xFFFFFFFF;
-    _ota_ble_global_dat_t* p_ota = ota_breeze_get_global_data_center();
+    unsigned int  read_len   = 0;
+    unsigned int  crc        = 0xFFFFFFFF;
+    _ota_ble_global_dat_t *p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         return crc;
     }
@@ -96,7 +100,7 @@ static unsigned int ota_breeze_get_image_crc32()
     return crc;
 }
 
-bool ota_breeze_check_if_resume(unsigned char * p_data, unsigned short length)
+bool ota_breeze_check_if_resume(unsigned char *p_data, unsigned short length)
 {
     bool ret = false;
     int i;
@@ -108,7 +112,7 @@ bool ota_breeze_check_if_resume(unsigned char * p_data, unsigned short length)
     return ret;
 }
 
-void ota_breeze_update_fw_version(unsigned char* p_data, unsigned short length)
+void ota_breeze_update_fw_version(unsigned char *p_data, unsigned short length)
 {
     memcpy(breeze_ota_settings.version_store_buf, p_data, length);
 }
@@ -147,17 +151,17 @@ static int ota_breeze_get_parttion_id(unsigned char bin_type)
 }
 
 
-int ota_breeze_get_image_info(ota_settings_t* tmp_info)
+int ota_breeze_get_image_info(ota_settings_t *tmp_info)
 {
-    int ret = 0;
-    unsigned int off = 0;
+    int ret              = 0;
+    unsigned int off     = 0;
     unsigned int tmp_crc = 0;
     if(tmp_info == NULL) {
         return -1;
     }
-    ret = hal_flash_read(HAL_PARTITION_PARAMETER_1, (unsigned int*)&off, (void*)tmp_info, sizeof(ota_settings_t));
+    ret = hal_flash_read(HAL_PARTITION_PARAMETER_1, (unsigned int *)&off, (void *)tmp_info, sizeof(ota_settings_t));
     if(ret == 0) {
-        tmp_crc = ota_breeze_crc32_calculate((unsigned char*)tmp_info + 4, sizeof(ota_settings_t)  - 4, NULL);
+        tmp_crc = ota_breeze_crc32_calculate((unsigned char *)tmp_info + 4, sizeof(ota_settings_t)  - 4, NULL);
         if(tmp_crc == tmp_info->settings_crc32) {
             ret = 0;
         }
@@ -169,17 +173,17 @@ int ota_breeze_get_image_info(ota_settings_t* tmp_info)
 
 }
 
-static int ota_breeze_save_image_info(ota_settings_t* tmp_info)
+static int ota_breeze_save_image_info(ota_settings_t *tmp_info)
 {
-    int ret = -1;
+    int ret          = -1;
     unsigned int off = 0;
     if(tmp_info == NULL) {
         return -1;
     }
-    tmp_info->settings_crc32 = ota_breeze_crc32_calculate((unsigned char*)tmp_info + 4, sizeof(ota_settings_t)  - 4, NULL);
+    tmp_info->settings_crc32 = ota_breeze_crc32_calculate((unsigned char *)tmp_info + 4, sizeof(ota_settings_t)  - 4, NULL);
     ret = hal_flash_erase(HAL_PARTITION_PARAMETER_1, 0x00, erase_sector_size);
     if(ret == 0) {
-        ret = hal_flash_write(HAL_PARTITION_PARAMETER_1, &off, (void*)tmp_info, sizeof(ota_settings_t));
+        ret = hal_flash_write(HAL_PARTITION_PARAMETER_1, &off, (void *)tmp_info, sizeof(ota_settings_t));
     }
     return ret;
 }
@@ -189,11 +193,11 @@ static unsigned int ota_breeze_align_to_page(unsigned int val, unsigned int page
     return ((val + page_size - 1) & ~(page_size - 1));
 }
 
-int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int* break_point, bool breakpoint_valid)
+int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int *break_point, bool breakpoint_valid)
 {
-    int ret = 0;
+    int ret                = 0;
     unsigned int num_pages = 0;
-    int err_code = 0;
+    int err_code           = 0;
     if(iamge_size == 0 || break_point == NULL) {
         ret = -1;
         goto OTA_BREEZE_PROCESS_BREAKPOINT_OVER;
@@ -216,11 +220,11 @@ int ota_breeze_breakpoint_process(unsigned int iamge_size, unsigned int* break_p
         goto OTA_BREEZE_PROCESS_BREAKPOINT_OVER;
     }
     else {
-        has_erase_page_numbs = *break_point / erase_sector_size;
+        has_erase_page_numbs   = *break_point / erase_sector_size;
         total_erase_page_numbs = num_pages + has_erase_page_numbs;
         err_code = hal_flash_erase(ota_part, *break_point, erase_sector_size);
         if (err_code != 0) {
-            OTA_BREEZE_LOG_E(" f-erase failed\r\n");
+            OTA_BREEZE_LOG_E(" f-erase failed");
             ret = -1;
             goto OTA_BREEZE_PROCESS_BREAKPOINT_OVER;
         }
@@ -237,7 +241,7 @@ int ota_breeze_save_breakpoint(unsigned int break_point)
     return ota_breeze_save_image_info(&breeze_ota_settings);
 }
 
-int ota_breeze_write(unsigned int* off, char* in_buf ,int in_buf_len)
+int ota_breeze_write(unsigned int *off, char *in_buf ,int in_buf_len)
 {
     int ret = 0;
     if((has_erase_page_numbs <= total_erase_page_numbs) && (*off % erase_sector_size + in_buf_len >= erase_sector_size)) {
@@ -252,19 +256,19 @@ int ota_breeze_write(unsigned int* off, char* in_buf ,int in_buf_len)
     return ret;
 }
 
-int ota_breeze_read(unsigned int* off, char* out_buf, int out_buf_len)
+int ota_breeze_read(unsigned int *off, char *out_buf, int out_buf_len)
 {
-    return hal_flash_read(ota_part, (unsigned int*)off, out_buf, out_buf_len);
+    return hal_flash_read(ota_part, (unsigned int *)off, out_buf, out_buf_len);
 }
 
 
 int ota_breeze_set_boot()
 {
-    int ret = 0;
-    unsigned short crc = 0;
-    unsigned int img_crc = 0;
+    int ret                 = 0;
+    unsigned short crc      = 0;
+    unsigned int img_crc    = 0;
     unsigned int tmp_offset = 0;
-    int dest_part = 0;
+    int dest_part           = 0;
     hal_logic_partition_t *dest_part_info = NULL;
     hal_logic_partition_t *ota_part_info = hal_flash_get_info(ota_part);
     dest_part = ota_breeze_get_parttion_id(ota_breeze_get_bin_type());
@@ -294,7 +298,7 @@ int ota_breeze_set_boot()
         breeze_ota_settings.dest_addr  = dest_part_info->partition_start_addr;
         breeze_ota_settings.src_addr = ota_part_info->partition_start_addr;
         breeze_ota_settings.image_has_copy_len = 0;
-        breeze_ota_settings.settings_crc32 = ota_breeze_crc32_calculate((unsigned char*)&breeze_ota_settings + 4, sizeof(breeze_ota_settings)  - 4, NULL);
+        breeze_ota_settings.settings_crc32 = ota_breeze_crc32_calculate((unsigned char *)&breeze_ota_settings + 4, sizeof(breeze_ota_settings)  - 4, NULL);
         ret = hal_flash_erase(HAL_PARTITION_PARAMETER_1, 0x00, erase_sector_size);
         if(ret == 0) {
             ret = hal_flash_write(HAL_PARTITION_PARAMETER_1, &tmp_offset, &breeze_ota_settings, sizeof(breeze_ota_settings));
@@ -315,16 +319,16 @@ OTA_BREEZE_SET_BOOT_OVER:
 
 int ota_breeze_rollback()
 {
-    unsigned int tmp_crc = 0;
+    unsigned int tmp_crc    = 0;
     unsigned int tmp_offset = 0;
-    int ret = -1;
+    int ret                 = -1;
     erase_sector_size = hal_flash_erase_sector_size();
     memset(&breeze_ota_settings, 0x00, sizeof(ota_settings_t));
     if(hal_flash_read(HAL_PARTITION_PARAMETER_1, &tmp_offset, &breeze_ota_settings, sizeof(ota_settings_t)) != 0) {
         ret = -1;
         goto OTA_BREEZE_ROLLBACK_OVER;
     }
-    tmp_crc = ota_breeze_crc32_calculate((unsigned char*)&breeze_ota_settings + 4, sizeof(breeze_ota_settings)  - 4, NULL);
+    tmp_crc = ota_breeze_crc32_calculate((unsigned char *)&breeze_ota_settings + 4, sizeof(breeze_ota_settings)  - 4, NULL);
     if(breeze_ota_settings.settings_crc32 == tmp_crc) {
         if(breeze_ota_settings.ota_flag == OTA_UPGRADE_FW_SUCC) {
             breeze_ota_settings.ota_flag = OTA_UPGRADE_FINISH;
@@ -332,7 +336,7 @@ int ota_breeze_rollback()
             breeze_ota_settings.image_info_crc16 = 0;
             breeze_ota_settings.bin_type = 0xff;
             memset(breeze_ota_settings.version_store_buf, 0x00, sizeof(breeze_ota_settings.version_store_buf));
-            breeze_ota_settings.settings_crc32 = ota_breeze_crc32_calculate((unsigned char*)&breeze_ota_settings + 4, sizeof(breeze_ota_settings)  - 4, NULL);
+            breeze_ota_settings.settings_crc32 = ota_breeze_crc32_calculate((unsigned char *)&breeze_ota_settings + 4, sizeof(breeze_ota_settings)  - 4, NULL);
             ret = hal_flash_erase(HAL_PARTITION_PARAMETER_1, 0x00, erase_sector_size);
             if(ret == 0) {
                 ret = hal_flash_write(HAL_PARTITION_PARAMETER_1, &tmp_offset, &breeze_ota_settings, sizeof(breeze_ota_settings));

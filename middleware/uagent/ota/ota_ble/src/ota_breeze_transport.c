@@ -37,10 +37,9 @@ bool ota_breeze_check_if_bins_supported()
 void ota_breeze_send_error()
 {
     unsigned int err_code = 0;
-
     err_code = breeze_post_ext(OTA_BREEZE_CMD_ERROR, NULL, 0);
     if (err_code != OTA_BREEZE_SUCCESS) {
-        OTA_BREEZE_LOG_E("send err failed\r\n");
+        OTA_BREEZE_LOG_E("send err failed");
     }
 }
 
@@ -106,7 +105,7 @@ unsigned int ota_breeze_send_bytes_received()
 {
     unsigned int err_code;
     unsigned char tx_buff[16];
-    _ota_ble_global_dat_t* p_ota = ota_breeze_get_global_data_center();
+    _ota_ble_global_dat_t *p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         return OTA_BREEZE_ERROR_INVALID_PARAM;
     }
@@ -116,7 +115,7 @@ unsigned int ota_breeze_send_bytes_received()
 
     err_code = breeze_post_ext(OTA_BREEZE_CMD_FW_BYTES_RECEIVED, tx_buff, sizeof(unsigned short) + sizeof(unsigned int));
     if (err_code != OTA_BREEZE_SUCCESS) {
-        OTA_BREEZE_LOG_E("send rec err\r\n");
+        OTA_BREEZE_LOG_E("send rec err");
     }
     return err_code;
 }
@@ -153,11 +152,11 @@ ota_breeze_bin_type_t ota_breeze_get_image_type(unsigned int image_magic)
 
 unsigned int ota_breeze_on_fw_upgrade_req(unsigned char *buffer, unsigned int length)
 {
-    unsigned int err_code = 0;
-    unsigned char l_len = 0;
-    unsigned char resume = false;
-    int ret = 0;
-    _ota_ble_global_dat_t* p_ota = NULL;
+             int  ret      = 0;
+    unsigned int  err_code = 0;
+    unsigned char l_len    = 0;
+    unsigned char resume   = false;
+    _ota_ble_global_dat_t *p_ota = NULL;
     if((buffer == NULL) || (length <  sizeof(unsigned int) + sizeof(unsigned short))) {
         return OTA_BREEZE_ERROR_INVALID_PARAM;
     }
@@ -201,7 +200,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
     ota_breeze_bin_type_t  bin_type;
     static unsigned short  last_percent = 0;
     unsigned short         percent;
-    _ota_ble_global_dat_t* p_ota = NULL;
+    _ota_ble_global_dat_t  *p_ota = NULL;
     if((buffer == NULL) || (length == 0)) {
         err_code = OTA_BREEZE_ERROR_INVALID_PARAM;
         goto OTA_BREEZE_TRANS_ERRO;
@@ -222,7 +221,7 @@ unsigned int ota_breeze_on_fw_data(unsigned char *buffer, unsigned int length, u
             memcpy(&bin_info, buffer, bin_info_len);
             bin_type = ota_breeze_get_image_type(bin_info.image_magic);
             if(bin_type == OTA_BIN_TYPE_INVALID) {
-                OTA_BREEZE_LOG_E("magic error\r\n");
+                OTA_BREEZE_LOG_E("magic error");
                 err_code = OTA_BREEZE_ERROR_NOT_SUPPORTED;
                 goto OTA_BREEZE_TRANS_ERRO;
             }
@@ -272,7 +271,7 @@ OTA_BREEZE_TRANS_ERRO:
 unsigned int ota_breeze_is_in_check_status()
 {
     unsigned int status = OTA_BREEZE_ERROR_INVALID_STATE;
-    _ota_ble_global_dat_t* p_ota = ota_breeze_get_global_data_center();
+    _ota_ble_global_dat_t *p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         return OTA_BREEZE_ERROR_INVALID_PARAM;
     }
@@ -284,7 +283,7 @@ unsigned int ota_breeze_is_in_check_status()
 
 void ota_breeze_reset()
 {
-    _ota_ble_global_dat_t* p_ota = ota_breeze_get_global_data_center();
+    _ota_ble_global_dat_t *p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         return;
     }
@@ -303,7 +302,7 @@ void ota_breeze_reset()
 
 void ota_breeze_on_tx_done(unsigned char cmd)
 {
-    _ota_ble_global_dat_t* p_ota = ota_breeze_get_global_data_center();
+    _ota_ble_global_dat_t *p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         return;
     }
@@ -330,7 +329,7 @@ void ota_breeze_on_tx_done(unsigned char cmd)
 void ota_breeze_on_auth(unsigned char is_authenticated)
 {
     unsigned int err_code;
-    _ota_ble_global_dat_t* p_ota = ota_breeze_get_global_data_center();
+    _ota_ble_global_dat_t *p_ota = ota_breeze_get_global_data_center();
     if(p_ota == NULL) {
         goto OTA_BREEZE_AUTH_OVER;
     }
@@ -338,7 +337,7 @@ void ota_breeze_on_auth(unsigned char is_authenticated)
         if(ota_breeze_send_fwup_success() != OTA_BREEZE_SUCCESS) {
             goto OTA_BREEZE_AUTH_OVER;
         }
-        OTA_BREEZE_LOG_I("OTA OK!\r\n");
+        OTA_BREEZE_LOG_I("OTA OK!");
     }
     if (!is_authenticated) {
         goto OTA_BREEZE_AUTH_OVER;
@@ -349,7 +348,7 @@ void ota_breeze_on_auth(unsigned char is_authenticated)
         }
     }
     else {
-        OTA_BREEZE_LOG_E("err stus\r\n");
+        OTA_BREEZE_LOG_E("err status");
     }
 OTA_BREEZE_AUTH_OVER:
     OTA_BREEZE_LOG_I("auth over");

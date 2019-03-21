@@ -45,7 +45,7 @@ ota_breeze_state_t ota_breeze_get_status()
     return g_ctx.ota_breeze_status;
 }
 
-static int ota_breeze_set_version(unsigned char* fw_ver, unsigned char fw_ver_len)
+static int ota_breeze_set_version(unsigned char *fw_ver, unsigned char fw_ver_len)
 {
     memset(&g_ctx.verison, 0x00, sizeof(ota_breeze_version_t));
     if (fw_ver_len == 0 || fw_ver_len > OTA_BREEZE_FW_VER_LEN) {
@@ -56,7 +56,7 @@ static int ota_breeze_set_version(unsigned char* fw_ver, unsigned char fw_ver_le
     return 0;
 }
 
-ota_breeze_version_t* ota_breeze_get_version()
+ota_breeze_version_t *ota_breeze_get_version()
 {
     return &g_ctx.verison;
 }
@@ -68,7 +68,7 @@ void ota_breeze_disconnect()
     breeze_disconnect_ble();
 }
 
-void ota_breeze_process_message(breeze_otainfo_t* breeze_info)
+void ota_breeze_process_message(breeze_otainfo_t *breeze_info)
 {
     if(breeze_info != NULL) {
         if(breeze_info->type == OTA_CMD) {
@@ -81,7 +81,7 @@ void ota_breeze_process_message(breeze_otainfo_t* breeze_info)
     }
 }
 
-int ota_breeze_service_init(ota_breeze_service_manage_t* ota_manage)
+int ota_breeze_service_init(ota_breeze_service_manage_t *ota_manage)
 {
     if(ota_manage == NULL) {
         return -1;
