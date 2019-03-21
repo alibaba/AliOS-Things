@@ -1,5 +1,6 @@
 #include "k_config.h"
 #include "debug_config.h"
+#include "debug_dft_config.h"
 
 ;******************************************************************************
 ;                                 EQUATES
