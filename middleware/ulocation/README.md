@@ -25,9 +25,8 @@ There are mainly 3 layers in uLocation framework, on the bottom is hardware adap
     ├── uloc_common.h
     ├── uloc_main.c
     ├── uloc_north.c
-    ├── uloc_south.c
-    └── UnitTest
-        └── _uloc_test.c
+    └── uloc_south.c
+
 
 ```
 
