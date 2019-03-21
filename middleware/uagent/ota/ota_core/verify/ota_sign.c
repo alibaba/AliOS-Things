@@ -29,7 +29,7 @@ int ota_get_public_key_bitnumb(void)
     return ota_rsabitnumb;
 }
 
-int ota_make_public_key(unsigned char* pub_key)
+int ota_make_public_key(unsigned char *pub_key)
 {
     int pubkey_n_size = 0;
     int pubkey_e_size = 0;
@@ -45,17 +45,17 @@ int ota_make_public_key(unsigned char* pub_key)
     return ota_rsa_init_pubkey(bitnumb, pubkey_n, pubkey_n_size, pubkey_e, pubkey_e_size, (ota_rsa_pubkey_t *)pub_key);
 }
 
-int ota_make_rsa_verify_dig_data(unsigned char* src_data, int src_len, unsigned char* dig_data, unsigned char hash_type)
+int ota_make_rsa_verify_dig_data(unsigned char *src_data, int src_len, unsigned char *dig_data, unsigned char hash_type)
 {
     int ret = 0;
     unsigned int ctx_size = 0;
-    void* hash_ctx = NULL;
+    void *hash_ctx = NULL;
 
     if((NULL == src_data) || (0 == src_len) || (NULL == dig_data) || ((hash_type != SHA256) && (hash_type != MD5))) {
         return -1;
     }
 
-    ota_hash_get_ctx_size(hash_type, (unsigned int*)&ctx_size);
+    ota_hash_get_ctx_size(hash_type, (unsigned int *)&ctx_size);
     hash_ctx = ota_malloc(ctx_size);
     if(NULL == hash_ctx) {
         return -1;
@@ -70,7 +70,7 @@ int ota_make_rsa_verify_dig_data(unsigned char* src_data, int src_len, unsigned 
         goto OTA_DIG_OVER;
     }
     if(OTA_CRYPTO_SUCCESS != ota_hash_final(dig_data, hash_ctx)) {
-        OTA_LOG_E("ota verify rsa hash final fail\n ");
+        OTA_LOG_E("ota verify rsa hash final fail");
         ret = -1;
         goto OTA_DIG_OVER;
     }
@@ -80,21 +80,21 @@ OTA_DIG_OVER:
     return ret;
 }
 
-static int ota_verify_rsa_sign(unsigned char* src_value, int src_len, int rsabitnumb, unsigned char* signature_value)
+static int ota_verify_rsa_sign(unsigned char *src_value, int src_len, int rsabitnumb, unsigned char *signature_value)
 {
     if((rsabitnumb < 2048) || (NULL == src_value) ||
         (src_len == 0) || (NULL == signature_value)) {
         OTA_LOG_E("ota verify rsa sign: input parameters error ");
         return -1;
     }
-    int ret = 0;
-    OTA_HASH_E hash_method;
-    bool result = false;
+    int           ret           = 0;
+    OTA_HASH_E    hash_method;
+    bool          result        = false;
     ota_rsa_padding_t rsa_padding;
-    unsigned int pub_key_len = 0;
-    int dig_value_len = 0;
-    unsigned char *pubkey = NULL;
-    unsigned char *dig_value = NULL;
+    unsigned int  pub_key_len   = 0;
+    int           dig_value_len = 0;
+    unsigned char *pubkey       = NULL;
+    unsigned char *dig_value    = NULL;
 
     ret = ota_rsa_get_pubkey_size(rsabitnumb, &pub_key_len);
     if (ret != OTA_CRYPTO_SUCCESS) {
@@ -143,20 +143,20 @@ static int ota_verify_rsa_sign(unsigned char* src_value, int src_len, int rsabit
     rsa_padding.type = RSASSA_PKCS1_V1_5;
     rsa_padding.pad.rsassa_v1_5.type = hash_method;
 
-    ret = ota_rsa_verify((ota_rsa_pubkey_t *)pubkey, dig_value, dig_value_len,
+    ret = ota_rsa_verify((ota_rsa_pubkey_t*)pubkey, dig_value, dig_value_len,
                              signature_value, rsabitnumb >> 3, rsa_padding, &result);
 OTA_RSA_OVER:
     ota_free(pubkey);
     ota_free(dig_value);
-    OTA_LOG_I("rsa verify OK:%d res:%d",ret, result);
+    OTA_LOG_I("rsa verify OK:%d res:%d", ret, result);
     return ret;
 }
 
-int ota_verify_download_rsa_sign(unsigned char* sign_dat, const char* src_hash_dat, OTA_HASH_E src_hash_method)
+int ota_verify_download_rsa_sign(unsigned char *sign_dat, const char *src_hash_dat, OTA_HASH_E src_hash_method)
 {
-    char tmp_buf[32] = {0};
-    int sign_bitnumb = 0;
-    int src_dat_len = 0;
+    char tmp_buf[32]  = {0};
+    int  sign_bitnumb = 0;
+    int  src_dat_len  = 0;
 
     if((NULL == sign_dat) || (NULL == src_hash_dat)) {
         OTA_LOG_E("ota verify download sign input parameter NULL");
@@ -179,7 +179,7 @@ int ota_verify_download_rsa_sign(unsigned char* sign_dat, const char* src_hash_d
         return -1;
     }
     sign_bitnumb = ota_get_public_key_bitnumb();
-    return ota_verify_rsa_sign((unsigned char*)tmp_buf, src_dat_len, sign_bitnumb, sign_dat);
+    return ota_verify_rsa_sign((unsigned char *)tmp_buf, src_dat_len, sign_bitnumb, sign_dat);
 }
 
 
