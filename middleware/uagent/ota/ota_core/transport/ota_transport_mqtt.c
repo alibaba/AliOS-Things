@@ -68,13 +68,13 @@ static int ota_mqtt_publish(const char *topic, const char *msg, char *pk, char *
     return 0;
 }
 
-static void ota_mqtt_sub_cb(void *pcontext, void *pclient, void* msg)
+static void ota_mqtt_sub_cb(void *pcontext, void *pclient, void *msg)
 {
     char *payload = NULL;
     if (msg == NULL) {
         return;
     }
-    ota_mqtt_msg_t *mqtt_msg = (ota_mqtt_msg_t*)msg;
+    ota_mqtt_msg_t *mqtt_msg = (ota_mqtt_msg_t *)msg;
     switch (mqtt_msg->event) {
         case OTA_MQTT_EVENT_PUB_RECEIVED:
             payload = (char *)mqtt_msg->topic->payload;
@@ -86,20 +86,20 @@ static void ota_mqtt_sub_cb(void *pcontext, void *pclient, void* msg)
         OTA_LOG_E("payload is null");
         return;
     }
-    ota_service_t* ctx = (ota_service_t*)pcontext;
+    ota_service_t *ctx = (ota_service_t*)pcontext;
     OTA_LOG_I("mqtt cb evt:%d %s", mqtt_msg->event, payload);
-    if ((!ctx)||!(ctx->upgrade_cb)) {
+    if ((NULL == ctx)||(NULL == ctx->upgrade_cb)) {
         return;
     }
     ctx->upgrade_cb(ctx, payload);
 }
 
-static int ota_trans_inform(void* pctx)
+static int ota_trans_inform(void *pctx)
 {
-    int  ret = 0;
+    int  ret                     = 0;
     char msg[OTA_MSG_INFORM_LEN] = {0};
-    ota_service_t* ctx = pctx;
-    if (!ctx) {
+    ota_service_t *ctx           = pctx;
+    if (NULL == ctx) {
         return -1;
     }
     ret = ota_gen_info_msg(msg, OTA_MSG_INFORM_LEN, 0, ctx->sys_ver);
@@ -113,12 +113,12 @@ static int ota_trans_inform(void* pctx)
     return ret;
 }
 
-static int ota_trans_upgrade(void* pctx)
+static int ota_trans_upgrade(void *pctx)
 {
-    int   ret = 0;
-    char  name[OTA_MQTT_TOPIC_LEN] = {0};
-    ota_service_t* ctx = pctx;
-    if (!ctx) {
+    int  ret                      = 0;
+    char name[OTA_MQTT_TOPIC_LEN] = {0};
+    ota_service_t *ctx            = pctx;
+    if (NULL == ctx) {
         return -1;
     }
     ret = ota_mqtt_gen_topic_name(name, OTA_MQTT_TOPIC_LEN, "upgrade", ctx->pk, ctx->dn);
@@ -133,16 +133,16 @@ static int ota_trans_upgrade(void* pctx)
     return ret;
 }
 
-static int ota_trans_status(int progress, void* pctx)
+static int ota_trans_status(int progress, void *pctx)
 {
-    int  ret = -1;
+    int  ret                     = -1;
     char msg[OTA_MSG_REPORT_LEN] = {0};
-    char err[OTA_MAX_VER_LEN] = {0};
-    ota_service_t* ctx = pctx;
-    if (!ctx) {
+    char err[OTA_MAX_VER_LEN]    = {0};
+    ota_service_t *ctx           = pctx;
+    if (NULL == ctx) {
         return -1;
     }
-    int  status = ctx->upg_status;
+    int status = ctx->upg_status;
     memset(err, 0x00, sizeof(err));
     if (status < 0) {
         progress = status;

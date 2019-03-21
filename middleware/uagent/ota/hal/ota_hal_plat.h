@@ -10,10 +10,10 @@ extern "C" {
 #endif
 
 typedef enum {
-    OTA_RAW = 0,
-    OTA_DIFF = 1,
+    OTA_RAW    = 0,
+    OTA_DIFF   = 1,
     OTA_KERNEL = 2,
-    OTA_APP = 4,
+    OTA_APP    = 4,
 } OTA_UPD_TYPE_E;
 
 typedef enum {
@@ -22,16 +22,16 @@ typedef enum {
 } OTA_RES_TYPE_E;
 
 typedef struct  {
-    unsigned int dst_adr;
-    unsigned int src_adr;
-    unsigned int len;
+    unsigned int   dst_adr;
+    unsigned int   src_adr;
+    unsigned int   len;
     unsigned short crc;
-    unsigned int  upg_flag;
-    unsigned char boot_count;
-    unsigned int  rec_size;
-    unsigned int  splict_size;
-    int off_bp;               /*Break point offset*/
-    OTA_RES_TYPE_E  res_type; /*result type: OTA_FINISH, OTA_BREAKPOINT*/
+    unsigned int   upg_flag;
+    unsigned char  boot_count;
+    unsigned int   rec_size;
+    unsigned int   splict_size;
+    int            off_bp;               /*Break point offset*/
+    OTA_RES_TYPE_E res_type; /*result type: OTA_FINISH, OTA_BREAKPOINT*/
     unsigned short param_crc; /*Parameter crc*/
 } __attribute__((packed)) ota_boot_param_t;
 

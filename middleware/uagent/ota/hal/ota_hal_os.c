@@ -124,7 +124,7 @@ void ota_semaphore_post(void *sem)
 #if !defined OTA_LINUX
     aos_sem_signal((aos_sem_t *)sem);
 #else
-    sem_post((sem_t *)sem);
+    sem_post((sem_t*)sem);
 #endif
 }
 
@@ -155,19 +155,20 @@ typedef struct
 {
     aos_task_t task;
     int       detached;
-    void *     arg;
-    void *(*routine)(void *arg);
+    void      *arg;
+    void      *(*routine)(void *arg);
 } task_context_t;
 
 static void task_wrapper(void *arg)
 {
     task_context_t *task = arg;
+    if(task != NULL) {
+        task->routine(task->arg);
 
-    task->routine(task->arg);
-
-    if (task) {
-        aos_free(task);
-        task = NULL;
+        if (task != NULL) {
+            aos_free(task);
+            task = NULL;
+        }
     }
 }
 #endif
@@ -235,8 +236,8 @@ typedef struct
 
 typedef struct
 {
-    char key[ITEM_MAX_KEY_LEN];
-    char val[ITEM_MAX_VAL_LEN];
+    char       key[ITEM_MAX_KEY_LEN];
+    char       val[ITEM_MAX_VAL_LEN];
     kv_state_t state;
 } kv_t;
 
@@ -369,7 +370,7 @@ END:
 
 #if !defined(AOS_COMP_OTA_BLE)
 /*Socket API*/
-void* ota_socket_connect(char *host, int port)
+void *ota_socket_connect(char *host, int port)
 {
    return (void*)HAL_TCP_Establish(host, port);
 }
@@ -379,12 +380,12 @@ int ota_socket_send(void* fd, char *buf, int len)
    return HAL_TCP_Write((uintptr_t)fd, buf, len, OTA_SSL_TIMEOUT);
 }
 
-int ota_socket_recv(void* fd, char *buf, int len)
+int ota_socket_recv(void *fd, char *buf, int len)
 {
    return HAL_TCP_Read((uintptr_t)fd, buf, len, OTA_SSL_TIMEOUT);
 }
 
-void ota_socket_close(void* fd)
+void ota_socket_close(void *fd)
 {
    HAL_TCP_Destroy((uintptr_t)fd);
 }
@@ -411,76 +412,76 @@ int ota_ssl_recv(void *ssl, char *buf, int len)
 #if !defined (AOS_COMP_OTA_BLE)
 /*SHA256*/
 #if !defined(ESPOS_FOR_ESP32)
-extern void mbedtls_sha256_free_alt(mbedtls_sha256_context* ctx);
-extern void mbedtls_sha256_init_alt(mbedtls_sha256_context*ctx);
-extern void mbedtls_sha256_starts_alt(mbedtls_sha256_context*ctx, int is224);
-extern void mbedtls_sha256_update_alt(mbedtls_sha256_context*ctx, const unsigned char *input, unsigned int ilen);
-extern void mbedtls_sha256_finish_alt(mbedtls_sha256_context*ctx, unsigned char output[32]);
+extern void mbedtls_sha256_free_alt(mbedtls_sha256_context *ctx);
+extern void mbedtls_sha256_init_alt(mbedtls_sha256_context *ctx);
+extern void mbedtls_sha256_starts_alt(mbedtls_sha256_context *ctx, int is224);
+extern void mbedtls_sha256_update_alt(mbedtls_sha256_context *ctx, const unsigned char *input, unsigned int ilen);
+extern void mbedtls_sha256_finish_alt(mbedtls_sha256_context *ctx, unsigned char output[32]);
 #endif
 void ota_sha256_free(ota_sha256_context *ctx)
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_free_alt((mbedtls_sha256_context*)ctx);
+    mbedtls_sha256_free_alt((mbedtls_sha256_context *)ctx);
 #endif
 }
 
 void ota_sha256_init(ota_sha256_context *ctx)
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_init_alt((mbedtls_sha256_context*)ctx);
+    mbedtls_sha256_init_alt((mbedtls_sha256_context *)ctx);
 #endif
 }
 
 void ota_sha256_starts(ota_sha256_context *ctx, int is224)
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_starts_alt((mbedtls_sha256_context*)ctx, is224);
+    mbedtls_sha256_starts_alt((mbedtls_sha256_context *)ctx, is224);
 #endif
 }
 
 void ota_sha256_update(ota_sha256_context *ctx, const unsigned char *input, unsigned int ilen)
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_update_alt((mbedtls_sha256_context*)ctx, input, ilen);
+    mbedtls_sha256_update_alt((mbedtls_sha256_context *)ctx, input, ilen);
 #endif
 }
 
 void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32])
 {
 #if !defined(ESPOS_FOR_ESP32)
-    mbedtls_sha256_finish_alt((mbedtls_sha256_context*)ctx, output);
+    mbedtls_sha256_finish_alt((mbedtls_sha256_context *)ctx, output);
 #endif
 }
 /*MD5*/
-extern void mbedtls_md5_free_alt(mbedtls_md5_context*ctx);
-extern void mbedtls_md5_init_alt(mbedtls_md5_context*ctx);
-extern void mbedtls_md5_starts_alt(mbedtls_md5_context*ctx);
-extern void mbedtls_md5_update_alt(mbedtls_md5_context*ctx, const unsigned char *input, unsigned int ilen);
-extern void mbedtls_md5_finish_alt(mbedtls_md5_context*ctx, unsigned char output[32]);
+extern void mbedtls_md5_free_alt(mbedtls_md5_context *ctx);
+extern void mbedtls_md5_init_alt(mbedtls_md5_context *ctx);
+extern void mbedtls_md5_starts_alt(mbedtls_md5_context *ctx);
+extern void mbedtls_md5_update_alt(mbedtls_md5_context *ctx, const unsigned char *input, unsigned int ilen);
+extern void mbedtls_md5_finish_alt(mbedtls_md5_context *ctx, unsigned char output[32]);
 
 void ota_md5_free(ota_md5_context *ctx)
 {
-    mbedtls_md5_free_alt((mbedtls_md5_context*)ctx);
+    mbedtls_md5_free_alt((mbedtls_md5_context *)ctx);
 }
 
 void ota_md5_init(ota_md5_context *ctx)
 {
-    mbedtls_md5_init_alt((mbedtls_md5_context*)ctx);
+    mbedtls_md5_init_alt((mbedtls_md5_context *)ctx);
 }
 
 void ota_md5_starts(ota_md5_context *ctx)
 {
-    mbedtls_md5_starts_alt((mbedtls_md5_context*)ctx);
+    mbedtls_md5_starts_alt((mbedtls_md5_context *)ctx);
 }
 
 void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen)
 {
-    mbedtls_md5_update_alt((mbedtls_md5_context*)ctx, input, ilen);
+    mbedtls_md5_update_alt((mbedtls_md5_context *)ctx, input, ilen);
 }
 
 void ota_md5_finish(ota_md5_context *ctx, unsigned char output[16])
 {
-    mbedtls_md5_finish_alt((mbedtls_md5_context*)ctx, output);
+    mbedtls_md5_finish_alt((mbedtls_md5_context *)ctx, output);
 }
 /*RSA*/
 extern int ali_rsa_get_pubkey_size(unsigned int keybits, unsigned int *size);
@@ -502,7 +503,7 @@ int ota_rsa_init_pubkey(unsigned int keybits, const unsigned char *n, unsigned i
 int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, unsigned int dig_size,
                       const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result)
 {
-    return ali_rsa_verify(pub_key,dig,dig_size,sig,sig_size,padding,p_result);
+    return ali_rsa_verify(pub_key, dig, dig_size, sig, sig_size, padding, p_result);
 }
 /*base64*/
 int ota_base64_decode(const unsigned char *src, unsigned int slen, unsigned char *dst, unsigned int *dlen)
@@ -649,15 +650,15 @@ int ota_coap_init(void)
     iotx_device_info_t   dev;
     memset(&config, 0, sizeof(config));
     memset(&dev, 0, sizeof(dev));
-    strncpy(dev.device_id, get_ota_service()->ps, sizeof(dev.device_id)-1);
-    strncpy(dev.product_key, get_ota_service()->pk, sizeof(dev.product_key)-1);
-    strncpy(dev.device_name, get_ota_service()->dn, sizeof(dev.device_name)-1);
-    strncpy(dev.device_secret, get_ota_service()->ds, sizeof(dev.device_secret)-1);
+    strncpy(dev.device_id, get_ota_service()->ps, sizeof(dev.device_id) - 1);
+    strncpy(dev.product_key, get_ota_service()->pk, sizeof(dev.product_key) - 1);
+    strncpy(dev.device_name, get_ota_service()->dn, sizeof(dev.device_name) - 1);
+    strncpy(dev.device_secret, get_ota_service()->ds, sizeof(dev.device_secret) - 1);
     config.p_devinfo = &dev;
     char url[256] = { 0 };
-    ota_snprintf(url, sizeof(url), COAP_ONLINE_DTLS_SERVER_URL,get_ota_service()->pk);
+    ota_snprintf(url, sizeof(url), COAP_ONLINE_DTLS_SERVER_URL, get_ota_service()->pk);
     config.p_url = url;
-    get_ota_service()->h_ch = (void *)ota_IOT_CoAP_Init(&config);
+    get_ota_service()->h_ch = (void*)ota_IOT_CoAP_Init(&config);
     if (get_ota_service()->h_ch) {
         ret = ota_IOT_CoAP_DeviceNameAuth(get_ota_service()->h_ch);
         if (ret < 0) {

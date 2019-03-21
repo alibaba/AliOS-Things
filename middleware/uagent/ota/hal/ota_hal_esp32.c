@@ -76,7 +76,7 @@ static int ota_init(void *something)
     return 0;
 }
 
-static int ota_write(int* off, char* buf, int buf_len)
+static int ota_write(int *off, char *buf, int buf_len)
 {
     esp_err_t err = ESP_OK;
     err = esp_ota_write(out_handle, (const void *)buf, (size_t)buf_len);
@@ -100,7 +100,7 @@ static int ota_boot(void *something)
             OTA_LOG_E("end failed!");
             return -1;
         }
-        if(esp_write_error )  {
+        if(esp_write_error > 0)  {
             OTA_LOG_E("write_error %d!", esp_write_error);
             return -1;
         }
@@ -112,7 +112,7 @@ static int ota_boot(void *something)
         OTA_LOG_I("restart system!");
         esp_restart();
     }
-    else if (param->res_type==OTA_BREAKPOINT) {
+    else if (param->res_type == OTA_BREAKPOINT) {
 
     }
     else {
@@ -122,9 +122,9 @@ static int ota_boot(void *something)
     return 0;
 }
 
-static int ota_read(int* off, char* out_buf, int out_buf_len)
+static int ota_read(int *off, char *out_buf, int out_buf_len)
 {
-    return hal_flash_read(HAL_PARTITION_OTA_TEMP, (uint32_t*)off, out_buf, out_buf_len);
+    return hal_flash_read(HAL_PARTITION_OTA_TEMP, (uint32_t *)off, out_buf, out_buf_len);
 }
 
 static int ota_rollback(void *something)
@@ -134,7 +134,7 @@ static int ota_rollback(void *something)
 
 static const char *ota_get_version(unsigned char dev_type)
 {
-    if(dev_type) {
+    if(dev_type > 0) {
         return "v1.0.0-20180101-1000";//SYSINFO_APP_VERSION;
     } else {
         return SYSINFO_APP_VERSION;

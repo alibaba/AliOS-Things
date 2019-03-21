@@ -47,7 +47,7 @@ typedef struct
 typedef struct
 {
     OTA_HASH_E hash_method;
-    int         ctx_size;
+    int        ctx_size;
     void       *ctx_hash;
 } ota_hash_param_t;
 
@@ -91,7 +91,7 @@ int  ota_verify_hash_value(ota_hash_t last_hash, ota_hash_t cur_hash);
 int  ota_get_public_key_bitnumb(void);
 int  ota_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, unsigned int dig_size,
                       const unsigned char *sig, unsigned int sig_size, ota_rsa_padding_t padding, bool *p_result);
-int  ota_verify_download_rsa_sign(unsigned char* sign_dat, const char* src_hash_dat, OTA_HASH_E src_hash_method);
+int  ota_verify_download_rsa_sign(unsigned char *sign_dat, const char *src_hash_dat, OTA_HASH_E src_hash_method);
 ota_hash_param_t *ota_get_hash_ctx(void);
 unsigned char    *ota_get_identity_image_md5_strvalue(void);
 int  ota_check_image(unsigned int size);

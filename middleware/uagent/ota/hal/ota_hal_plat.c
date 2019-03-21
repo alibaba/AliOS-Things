@@ -2,14 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-
 #include <errno.h>
-
 #include "aos/kernel.h"
 #include "aos/kv.h"
-
 #include "aos/hal/flash.h"
-
 #include "ota_hal_plat.h"
 #include "ota_hal_os.h"
 #include "ota_log.h"
@@ -22,18 +18,18 @@
 #include "esp_system.h"
 #include "upgrade.h"
 #elif defined (STM32L496xx)
-#define OTA_CACHE_SIZE       2048
-uint8_t *ota_cache = NULL;
-uint8_t *ota_cache_actual = NULL;
-uint32_t ota_cache_len = 0;
-uint32_t ota_fw_size = 0;
+#define OTA_CACHE_SIZE         2048
+uint8_t  *ota_cache            = NULL;
+uint8_t  *ota_cache_actual     = NULL;
+uint32_t ota_cache_len         = 0;
+uint32_t ota_fw_size           = 0;
 uint32_t ota_receive_total_len = 0;
 #endif
 
 #define OTA_CRC16  "ota_file_crc16"
-static int boot_part = HAL_PARTITION_OTA_TEMP;
-static unsigned int _offset = 0;
-static ota_crc16_ctx ctx = {0};
+static int boot_part          = HAL_PARTITION_OTA_TEMP;
+static unsigned int _offset   = 0;
+static ota_crc16_ctx ctx      = {0};
 const char ota_board_string[] = "board "SYSINFO_PRODUCT_MODEL;  /*don't delete it, used for ota diff recovery*/
 
 unsigned short ota_get_crc16(void)
@@ -101,7 +97,7 @@ static int ota_init(void *something)
     return ret;
 }
 
-static int ota_write(int* off, char* in_buf, int in_buf_len)
+static int ota_write(int *off, char *in_buf, int in_buf_len)
 {
     int ret = 0;
 #if defined (STM32L496xx)
@@ -147,7 +143,7 @@ static int ota_write(int* off, char* in_buf, int in_buf_len)
     return ret;
 }
 
-static int ota_read(int* off, char* out_buf, int out_buf_len)
+static int ota_read(int *off, char *out_buf, int out_buf_len)
 {
     return hal_flash_read(boot_part, (uint32_t*)off, out_buf, out_buf_len);
 }
@@ -155,7 +151,7 @@ static int ota_read(int* off, char* out_buf, int out_buf_len)
 static int ota_boot(void *something)
 {
     int ret = 0;
-    ota_boot_param_t *param = (ota_boot_param_t *)something;
+    ota_boot_param_t *param = (ota_boot_param_t*)something;
     if (param == NULL) {
         ret = OTA_REBOOT_FAIL;
         return ret;
@@ -231,10 +227,10 @@ static int ota_boot(void *something)
             offset = 0x00;
             hal_flash_erase(param_part, offset, sizeof(ota_boot_param_t)); //PARTITION_BACKUP_PARAM
             offset = 0x00;
-            hal_flash_write(param_part, (uint32_t*)&offset, param, sizeof(ota_boot_param_t));
+            hal_flash_write(param_part, (uint32_t *)&offset, param, sizeof(ota_boot_param_t));
             offset = 0x00;
             memset(&param_r, 0, sizeof(ota_boot_param_t));
-            hal_flash_read(param_part, (uint32_t*)&offset, &param_r, sizeof(ota_boot_param_t));
+            hal_flash_read(param_part, (uint32_t *)&offset, &param_r, sizeof(ota_boot_param_t));
             if(memcmp(param, &param_r, sizeof(ota_boot_param_t)) != 0) {
                  ret = OTA_REBOOT_FAIL;
                  return ret;
@@ -292,7 +288,7 @@ static int ota_rollback(void *something)
     int param_part = HAL_PARTITION_PARAMETER_1;
     ota_boot_param_t param_w, param_r;
     memset(&param_w, 0, sizeof(ota_boot_param_t));
-    hal_flash_read(param_part, (uint32_t*)&offset, &param_w, sizeof(ota_boot_param_t));
+    hal_flash_read(param_part, (uint32_t *)&offset, &param_w, sizeof(ota_boot_param_t));
     if((param_w.boot_count != 0) && (param_w.boot_count != 0xff)) {
         ota_crc16_ctx ctx1;
         unsigned short crc;
@@ -305,10 +301,10 @@ static int ota_rollback(void *something)
         offset = 0x00;
         hal_flash_erase(param_part, offset, sizeof(ota_boot_param_t));
         offset = 0x00;
-        hal_flash_write(param_part, (uint32_t*)&offset, &param_w, sizeof(ota_boot_param_t));
+        hal_flash_write(param_part, (uint32_t *)&offset, &param_w, sizeof(ota_boot_param_t));
         offset = 0x00;
         memset(&param_r, 0, sizeof(ota_boot_param_t));
-        hal_flash_read(param_part, (uint32_t*)&offset, &param_r, sizeof(ota_boot_param_t));
+        hal_flash_read(param_part, (uint32_t *)&offset, &param_r, sizeof(ota_boot_param_t));
         if(memcmp(&param_w, &param_r, sizeof(ota_boot_param_t)) != 0) {
             OTA_LOG_E("rollback failed\n");
             return -1;
@@ -319,7 +315,7 @@ static int ota_rollback(void *something)
 
 static const char *ota_get_version(unsigned char dev_type)
 {
-    if(dev_type) {
+    if(dev_type > 0) {
         return "v1.0.0-20180101-1000";//SYSINFO_APP_VERSION;
     } else {
         return SYSINFO_APP_VERSION;
