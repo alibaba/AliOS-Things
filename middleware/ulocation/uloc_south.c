@@ -6,9 +6,9 @@
 #include <ulocation/ulocation.h>
 #include <uloc_hal.h>
 
-int uloc_update_locationinfo(location_t ** gps,
-                             char ** mmac, char ** macs,                   /* wifi       */
-                             char ** cdma, char ** bts,  char ** nearbts)  /* 2g network */
+int uloc_update_locationinfo(location_t **gps,
+                             char **mmac, char **macs,                   /* wifi       */
+                             char **cdma, char **bts,  char **nearbts)  /* 2g network */
 {
     *gps  = NULL;
     *mmac = NULL;  *macs = NULL;
