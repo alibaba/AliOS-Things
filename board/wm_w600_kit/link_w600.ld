@@ -1,5 +1,5 @@
-/* Linker script to configure memory regions. 
- * Need modifying for a specific board. 
+/* Linker script to configure memory regions.
+ * Need modifying for a specific board.
  *   FLASH.ORIGIN: starting address of flash
  *   FLASH.LENGTH: length of flash
  *   RAM.ORIGIN: starting address of RAM bank 0
@@ -8,14 +8,14 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x800e000, LENGTH = 480K /*  */
-  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x3C000 /*  */
+  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x28000 /*  */
 }
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
  *   Reset_Handler : Entry of reset handler
- * 
+ *
  * It defines following symbols, which code can use without definition:
  *   __exidx_start
  *   __exidx_end
@@ -145,15 +145,15 @@ SECTIONS
 		__end__ = .;
 		PROVIDE(end = .);
 		PROVIDE(heap_start = .);
-		*(.heap*)
-		__HeapLimit = .;
-	} > RAM	
+        *(.heap*)
+        __HeapLimit = .;
+    } > RAM
 
-	__StackTop = __stack_end__;
-	__StackLimit = __StackTop - SIZEOF(.stack_dummy);
-	PROVIDE(__stack = __StackTop);	
-	
-	heap_len = SIZEOF(.heap);
-	
-	ASSERT(__StackTop <= 0x20028000, "error : stack address must below 0x20028000")
+    __StackTop = __stack_end__;
+    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    PROVIDE(__stack = __StackTop);
+
+    heap_len = SIZEOF(.heap);
+
+    ASSERT(__HeapLimit <= 0x20028000, "error : stack address must below 0x20028000")
 }
