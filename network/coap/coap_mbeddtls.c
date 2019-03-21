@@ -576,12 +576,13 @@ coap_tick_t coap_dtls_get_timeout(coap_session_t *session) {
 void coap_dtls_handle_timeout(coap_session_t *session ) {
 }
 
+static uint8_t recv_pdu[COAP_RXBUFFER_SIZE];
 int coap_dtls_receive(coap_session_t *c_session,
                       const uint8_t *data,
                       size_t data_len)
 {
     int ret = 0;
-    uint8_t pdu[COAP_RXBUFFER_SIZE];
+
     coap_mbeddtls_session_t *p_session = NULL;
     coap_mbedtls_data *ssl_data = NULL;
 
@@ -613,9 +614,9 @@ int coap_dtls_receive(coap_session_t *c_session,
                           c_session);
         coap_session_connected(c_session);
     }
-    ret = mbedtls_ssl_read(&p_session->context, pdu, sizeof(pdu));
+    ret = mbedtls_ssl_read(&p_session->context, recv_pdu, sizeof(recv_pdu));
     if (ret > 0) {
-      return coap_handle_dgram(c_session->context, c_session, pdu, (size_t)ret);
+      return coap_handle_dgram(c_session->context, c_session, recv_pdu, (size_t)ret);
     }
     else if (ret == 0) {
       c_session->dtls_event = COAP_EVENT_DTLS_CLOSED;
