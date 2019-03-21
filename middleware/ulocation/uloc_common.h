@@ -9,8 +9,8 @@
 extern "C" {
 #endif
 
-char * compose_msg_to_report();
-void parse_positioning_info(char * msg_from_cloud);
+char *compose_msg_to_report();
+void parse_positioning_info(char *msg_from_cloud);
 
 #ifdef __cplusplus
 }
