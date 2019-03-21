@@ -142,6 +142,19 @@ static iotx_response_callback_t obtain_coap_msg_callback(iotx_coap_t *p_context,
     return NULL;
 }
 
+static void free_coap_msg_callback(iotx_coap_t *p_context)
+{
+    coap_resp_cb_t *p_next = NULL;
+    coap_resp_cb_t *p_prev = NULL;
+
+    p_prev = p_next = p_context->cb_list;
+    while (p_next) {
+        p_prev = p_next;
+        p_next = p_next->next;
+        coap_free(p_prev);
+    }
+}
+
 static int check_token(coap_pdu_t *send, coap_pdu_t *received) {
     return  received->token_length == send->token_length &&
             memcmp(received->token, send->token, send->token_length) == 0;
@@ -660,10 +673,6 @@ iotx_coap_context_t *IOT_CoAP_Init(iotx_coap_config_t *p_config)
         coap_log(LOG_ERR, "Invalid paramter p_config %p", p_config);
         return NULL;
     }
-    if (NULL == p_config->p_devinfo) {
-        coap_log(LOG_ERR, "Invalid paramter p_devinfo %p", p_config->p_devinfo);
-        return NULL;
-    }
 
     p_iotx_coap = coap_malloc(sizeof(iotx_coap_t));
     if (NULL == p_iotx_coap) {
@@ -923,12 +932,12 @@ int IOT_CoAP_SendMessage(iotx_coap_context_t *p_context, char *p_path, iotx_mess
     }
 }
 
-
+#define DEFAULT_COAP_YIELD_TIMEOUT_MS 200
 int IOT_CoAP_Yield(iotx_coap_context_t *p_context)
 {
     iotx_coap_t *p_iotx_coap = NULL;
     p_iotx_coap = (iotx_coap_t *)p_context;
-    unsigned int timeout_ms = 0;
+    unsigned int timeout_ms = DEFAULT_COAP_YIELD_TIMEOUT_MS;
 
     if (NULL == p_iotx_coap || (NULL != p_iotx_coap && NULL == p_iotx_coap->p_coap_ctx)) {
         coap_log(LOG_ERR, "Invalid paramter");
@@ -997,3 +1006,40 @@ int IOT_CoAP_GetMessageCode(void *p_message, iotx_coap_resp_code_t *p_resp_code)
     return IOTX_SUCCESS;
 }
 
+void IOT_CoAP_Deinit(iotx_coap_context_t **pp_context)
+{
+    iotx_coap_t *p_iotx_coap = NULL;
+
+    if (NULL != pp_context && NULL != *pp_context) {
+        p_iotx_coap = (iotx_coap_t *)*pp_context;
+        p_iotx_coap->is_authed = IOT_FALSE;
+        p_iotx_coap->auth_token_len = 0;
+        p_iotx_coap->coap_token = IOTX_COAP_INIT_TOKEN;
+
+        if (NULL != p_iotx_coap->p_auth_token) {
+            coap_free(p_iotx_coap->p_auth_token);
+            p_iotx_coap->p_auth_token = NULL;
+        }
+
+        if (NULL != p_iotx_coap->p_devinfo) {
+            coap_free(p_iotx_coap->p_devinfo);
+            p_iotx_coap->p_devinfo = NULL;
+        }
+
+      if (NULL != p_iotx_coap->cb_list) {
+            free_coap_msg_callback(p_iotx_coap);
+            p_iotx_coap->cb_list_size = 0;
+        }
+
+        if (NULL != p_iotx_coap->p_coap_ctx) {
+            coap_free_context(p_iotx_coap->p_coap_ctx);
+            coap_cleanup();
+            p_iotx_coap->p_coap_ctx = NULL;
+        }
+
+        coap_free(p_iotx_coap);
+
+        *pp_context = NULL;
+        g_coap_context = NULL;
+    }
+}
