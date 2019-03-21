@@ -13,7 +13,7 @@
 #define NORTHARCTIC_LAT 90
 #define LATDIFF_ARCTIC  10
 
-int uloc_hal_get_gps(location_t ** gps)
+int uloc_hal_get_gps(location_t **gps)
 {
     int rlt = -1;
     *gps = NULL;
@@ -29,13 +29,10 @@ int uloc_hal_get_gps(location_t ** gps)
 
     float tmp = (l.outdoor.latitude - NORTHARCTIC_LAT);
 
-    if (tmp * tmp < LATDIFF_ARCTIC)
-    {
+    if (tmp * tmp < LATDIFF_ARCTIC){
         /* are you inside north arctic ? */
         rlt = -1;
-    }
-    else
-    {
+    }else{
         set_location(&l);
         *gps = &l;
         rlt = 0;

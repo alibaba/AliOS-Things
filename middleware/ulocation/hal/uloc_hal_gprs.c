@@ -10,7 +10,7 @@
 #define ULOC_GPRS
 #endif
 
-int uloc_hal_get_gprs(char ** cdma, char ** bts,  char ** nearbts)
+int uloc_hal_get_gprs(char **cdma, char **bts, char **nearbts)
 {
     int rlt = -1;
 

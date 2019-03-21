@@ -17,28 +17,26 @@
         HAL_Printf("\033[0m\r\n");                               \
     } while (0)
 
-void parse_positioning_info(char * msg_from_cloud)
+void parse_positioning_info(char *msg_from_cloud)
 {
     location_t location;
 
-    cJSON *root = NULL;
+    cJSON *root         = NULL;
     cJSON *geo_location = NULL;
-    cJSON *latitude  = NULL;
-    cJSON *altitude  = NULL;
-    cJSON *longitude = NULL;
+    cJSON *latitude     = NULL;
+    cJSON *altitude     = NULL;
+    cJSON *longitude    = NULL;
 
-    char * tmp;
+    char *tmp;
 
-    if (!msg_from_cloud)
-    {
+    if (msg_from_cloud == NULL){
         return;
     }
 
     /* Parse Root */
     root = cJSON_Parse(msg_from_cloud);
 
-    if (root == NULL || !cJSON_IsObject(root))
-    {
+    if (root == NULL || !cJSON_IsObject(root)){
         ULOCATION_TRACE("JSON Parse Error");
         return;
     }
@@ -49,8 +47,7 @@ void parse_positioning_info(char * msg_from_cloud)
 
     geo_location = cJSON_GetObjectItem(root, "GeoLocation");
 
-    if (geo_location == NULL || !cJSON_IsObject(geo_location))
-    {
+    if (geo_location == NULL || !cJSON_IsObject(geo_location)){
         cJSON_Delete(root);
         ULOCATION_TRACE("JSON Parse Error");
         return;
@@ -62,8 +59,7 @@ void parse_positioning_info(char * msg_from_cloud)
 
     latitude = cJSON_GetObjectItem(geo_location, "latitude");
 
-    if (latitude == NULL || !cJSON_IsNumber(latitude))
-    {
+    if (latitude == NULL || !cJSON_IsNumber(latitude)){
         cJSON_Delete(root);
         ULOCATION_TRACE("JSON Parse Error");
         return;
@@ -77,8 +73,7 @@ void parse_positioning_info(char * msg_from_cloud)
 
     altitude = cJSON_GetObjectItem(geo_location, "altitude");
 
-    if (altitude == NULL || !cJSON_IsNumber(altitude))
-    {
+    if (altitude == NULL || !cJSON_IsNumber(altitude)){
         cJSON_Delete(root);
         ULOCATION_TRACE("JSON Parse Error");
         return;
@@ -90,8 +85,7 @@ void parse_positioning_info(char * msg_from_cloud)
 
     longitude = cJSON_GetObjectItem(geo_location, "longitude");
 
-    if (longitude == NULL || !cJSON_IsNumber(longitude))
-    {
+    if (longitude == NULL || !cJSON_IsNumber(longitude)){
         cJSON_Delete(root);
 
         ULOCATION_TRACE("JSON Parse Error");
