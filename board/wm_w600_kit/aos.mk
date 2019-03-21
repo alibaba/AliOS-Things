@@ -19,7 +19,8 @@ $(NAME)_SOURCES += config/k_config.c \
 				   config/partition_conf.c \
                    startup/board.c   \
                    startup/startup.c  \
-                   startup/wm_osal_alios.c
+                   startup/wm_osal_alios.c \
+                   drivers/heap_dram.c
 
 $(NAME)_SOURCES += startup/startup_gcc.s
 
