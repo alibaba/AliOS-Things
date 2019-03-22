@@ -50,8 +50,6 @@ struct k_thread
 
 typedef _stack_element_t k_thread_stack_t;
 
-inline void k_call_stacks_analyze(void) {}
-
 #define K_THREAD_STACK_DEFINE(sym, size) _stack_element_t sym[size]
 #define K_THREAD_STACK_SIZEOF(sym) sizeof(sym)
 
