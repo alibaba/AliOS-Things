@@ -1,0 +1,10 @@
+config AOS_MCU_SWM320
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    help
+      driver & sdk for platform/mcu swm320
+
+if AOS_MCU_SWM320
+# Configurations for mcu swm320
+endif
