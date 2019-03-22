@@ -1,0 +1,10 @@
+config AOS_BOARD_SWM320EVB
+    bool "SWM320EVB"
+    select AOS_MCU_SWM320
+    select AOS_COMP_NEWLIB_STUB
+    select AOS_COMP_KERNEL_INIT
+    help
+
+if AOS_BOARD_SWM320EVB
+# Configurations for board swm320evb
+endif

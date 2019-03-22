@@ -1,0 +1,5 @@
+Dir:board/**/startup
+=================================
+To Add Peripheral Driver here!
+startup.c: standard example for main function. Functions' name like board_init,aos_init,aos_task_new,aos_start,sys_init and aos_kernel_init should be used.
+startup_gcc.s\startup_iar.s\startup_keil.s: Put your startup.s to cover.

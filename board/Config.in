@@ -668,6 +668,15 @@ if AOS_BOARD_SV6266_EVB
     source "platform/mcu/sv6266/Config.in"
 endif
 
+source "board/swm320evb/Config.in"
+if AOS_BOARD_SWM320EVB
+    config AOS_BUILD_BOARD
+        default "swm320evb"
+
+    source "platform/mcu/swm320/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
 source "board/uno-91h/Config.in"
 if AOS_BOARD_UNO_91H
     config AOS_BUILD_BOARD
