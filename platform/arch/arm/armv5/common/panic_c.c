@@ -112,6 +112,8 @@ int backtraceFromStack(int **pSP, char **pPC,
     unsigned short ins16;
     unsigned int   ins32;
     unsigned int   framesize = 0;
+    unsigned int   shift = 0;
+    unsigned int   sub = 0;
     unsigned int   offset    = 1;
 
     if (SP == debug_task_stack_bottom(NULL)) {
@@ -123,7 +125,7 @@ int backtraceFromStack(int **pSP, char **pPC,
 
     /* func call ways:
        1. "stmdb sp!, ..." or "push ..." to open stack frame and save LR
-       2. "sub  sp, ..." to open stack more
+       2. "sub  sp, ..." or "sub.w  sp, ..." to open stack more
        3. call
        */
 
@@ -166,7 +168,7 @@ int backtraceFromStack(int **pSP, char **pPC,
         return -1;
     }
 
-    /* 2. scan code, find frame size from "sub" */
+    /* 2. scan code, find frame size from "sub" or "sub.w" */
     for (i = 2; i < FUNC_SIZE_LIMIT; i += 2) {
         if (PC - i < CodeAddr) {
             break;
@@ -175,6 +177,19 @@ int backtraceFromStack(int **pSP, char **pPC,
         ins16 = *(unsigned short *)(PC - i);
         if ((ins16 & 0xff80) == 0xb080) {
             framesize += (ins16 & 0x7f);
+            break;
+        }
+
+        /* find "sub.w	sp, sp, ..." */
+        ins32 = *(unsigned short *)(PC - i);
+        ins32 <<= 16;
+        ins32 |= *(unsigned short *)(PC - i + 2);
+        if ((ins32 & 0xFBFF8F00) == 0xF1AD0D00) {
+            sub = 128 + (ins32 & 0x7f);
+            shift  = (ins32 >> 7) & 0x1;
+            shift += ((ins32 >> 12) & 0x7) << 1;
+            shift += ((ins32 >> 26) & 0x1) << 4;
+            framesize += sub<<(30 - shift);
             break;
         }
     }
@@ -268,7 +283,6 @@ int backtraceFromLR(int **pSP, char **pPC, char *LR,
 /* printf call stack */
 int backtrace_now(int (*print_func)(const char *fmt, ...))
 {
-    char *LR;
     char *PC;
     int  *SP;
     int   lvl;
@@ -278,31 +292,18 @@ int backtrace_now(int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    /* find PC when 'backtrace_now' is called */
     /* compiler specific */
 #if defined(__CC_ARM)
-    LR = (char *)__return_address();
+    SP = (int *)__current_sp();
+    PC = (char *)__current_pc();
 #elif defined(__ICCARM__)
-    LR = (char *)__get_LR();
+    asm volatile("mov %0, sp\n" : "=r"(SP));
+    asm volatile("mov %0, pc\n" : "=r"(PC));
 #elif defined(__GNUC__)
-    LR = (char *)__builtin_return_address(0);
+    __asm__ volatile("mov %0, sp\n" : "=r"(SP));
+    __asm__ volatile("mov %0, pc\n" : "=r"(PC));
 #endif
 
-    PC = LR_2_ADDR(LR);
-
-    /* find SP when 'backtrace_now' is called */
-    for (lvl = 1; lvl < 32; lvl++) {
-        if ((&LR)[lvl] == LR) {
-            SP = &(&LR)[lvl + 1];
-            break;
-        }
-    }
-    if (lvl == 32) {
-        print_func("Backtrace Fail, PC %p\r\n", PC);
-        return 0;
-    }
-
-    /* backtrace */
     print_func("========== Call stack ==========\r\n");
     for (lvl = 0; lvl < BACK_TRACE_LIMIT; lvl++) {
         ret = backtraceFromStack(&SP, &PC, print_func);
