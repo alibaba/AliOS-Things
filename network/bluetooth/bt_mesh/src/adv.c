@@ -196,7 +196,6 @@ static void adv_thread(void *p1, void *p2, void *p3)
         }
 
         STACK_ANALYZE("adv stack", adv_thread_stack);
-        k_call_stacks_analyze();
 
         /* Give other threads a chance to run */
         k_yield();
