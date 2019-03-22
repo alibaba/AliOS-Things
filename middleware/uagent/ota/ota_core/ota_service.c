@@ -354,6 +354,10 @@ int ota_service_init(ota_service_t *ctx)
         ret = OTA_INIT_FAIL;
         return ret;
     }
+    if(ota_hal_get_version(ctx->dev_type) == NULL) {
+        ret = OTA_INIT_FAIL;
+        return ret;
+    }
     strncpy(ctx->sys_ver, ota_hal_get_version(ctx->dev_type), sizeof(ctx->sys_ver) - 1);
     memset(ctx->sign, 0, OTA_SIGN_LEN);
     ctx->h_tr = ota_get_transport();
