@@ -12,6 +12,7 @@
 #include "cli_api.h"
 #include "cli_adapt.h"
 
+#define TOSTR(s) #s
 #define OTA_THREAD_PRIORITY 32
 
 extern void hal_reboot(void);
@@ -134,7 +135,7 @@ static void echo_cmd(char *buf, int32_t len, int32_t argc, char **argv)
     } else if (!strcmp(argv[1], "off")) {
         cli_printf("Disable echo\r\n");
         cli_set_echo_status(1);
-    }    
+    }
 }
 
 static void exit_cmd(char *buf, int32_t len, int32_t argc, char **argv)
@@ -144,7 +145,7 @@ static void exit_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 
 static void devname_cmd(char *buf, int32_t len, int32_t argc, char **argv)
 {
-    cli_printf("device name: %s\r\n", SYSINFO_DEVICE_NAME);
+    cli_printf("device name: %s\r\n", TOSTR(SYSINFO_DEVICE_NAME));
 }
 
 static void pmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
