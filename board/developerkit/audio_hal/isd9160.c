@@ -4,6 +4,7 @@
 #include "crc16.h"
 #include "audio.h"
 #include <string.h>
+#include <fcntl.h>
 
 #define ISD9160_I2C_ADDR                (0x15 << 1)
 #define ISD9160_I2C_TIMEOUT             AOS_WAIT_FOREVER
