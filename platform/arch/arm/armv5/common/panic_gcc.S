@@ -86,6 +86,12 @@ _exc_handler:
     MOV     R0, R3
     CMP     R1, #1
     MOVNE   R0, #0
+#if (DEBUG_CONFIG_PANIC_PRT_INT > 0)
+    @printf use interrupt, so here enable it
+    MRS     R1, CPSR            @ Set IRQ and FIQ bits in CPSR to disable all interrupts
+    ORR     R1, R1, #0xC0
+    MSR     CPSR_c, R1
+#endif
     BL      panicHandler
 
 #endif

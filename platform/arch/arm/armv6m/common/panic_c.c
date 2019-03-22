@@ -41,9 +41,9 @@ void getPLSfromCtx(void *context, char **PC, char **LR, int **SP)
     int *ptr = context;
 
     /* reference to cpu_task_stack_init */
-    *PC = (char *)ptr[15];
-    *LR = (char *)ptr[14];
-    *SP = ptr + 17;
+    *PC = (char *)ptr[14];
+    *LR = (char *)ptr[13];
+    *SP = ptr + 16;
 }
 
 /* get "blx" or "bl" before LR, return offset */
