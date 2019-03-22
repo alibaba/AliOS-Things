@@ -157,8 +157,8 @@ uint32_t dumpsys_task_func(char *buf, uint32_t len, int32_t detail)
                       : task->task_state;
         taskinfoeach->task_state = taskstate;
         taskinfoeach->task_prio = task->prio;
-        taskinfoeach->stack_size = task->stack_size;
-        taskinfoeach->free_size = free_size;
+        taskinfoeach->stack_size = task->stack_size * sizeof(cpu_stack_t);
+        taskinfoeach->free_size = free_size * sizeof(cpu_stack_t);
         taskinfoeach->time_total = time_total;
         taskinfoeach->task_cpu_usage = task_cpu_usage;
         taskinfoeach->candidate = yes;
