@@ -318,11 +318,11 @@ int ota_service_init(ota_service_t *ctx)
     int ret = 0;
     if (NULL == ctx) {
         ctx = ota_malloc(sizeof(ota_service_t));
-        memset(ctx, 0, sizeof(ota_service_t));
-    }
-    if(NULL == ctx) {
-        ret = OTA_INIT_FAIL;
-        return ret;
+        if(NULL == ctx) {
+            ret = OTA_INIT_FAIL;
+            return ret;
+        }
+        memset(ctx, 0x00, sizeof(ota_service_t));
     }
     ota_hal_register_module(&ota_hal_module);
     ctx->upgrade_cb = ota_upgrade_cb;

@@ -124,7 +124,7 @@ void ota_semaphore_post(void *sem)
 #if !defined OTA_LINUX
     aos_sem_signal((aos_sem_t *)sem);
 #else
-    sem_post((sem_t*)sem);
+    sem_post((sem_t *)sem);
 #endif
 }
 
