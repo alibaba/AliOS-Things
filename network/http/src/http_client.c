@@ -81,7 +81,7 @@ static int on_headers_complete(struct http_parser *parser)
         return 1;
     }
 
-    http_log("%s, header complete", __func__);
+    http_log("%s, headers complete", __func__);
     return 0;
 }
 
@@ -89,7 +89,7 @@ static int on_header_field(struct http_parser *parser, const char *at, size_t le
 {
     char *content_len = "Content-Length";
     httpc_t *http_session;
-    u16_t len;
+    uint16_t len;
 
     http_session = CONTAINER_OF(parser, httpc_t, parser);
 
@@ -318,7 +318,7 @@ int8_t httpc_deinit(httpc_handle_t httpc)
     return HTTPC_SUCCESS;
 }
 
-int8_t httpc_add_request_header(httpc_handle_t httpc, char *hdr_name, char *hdr_data)
+int8_t httpc_add_request_header(httpc_handle_t httpc, const char *hdr_name, const char *hdr_data)
 {
     httpc_t *http_session = (httpc_t *)httpc;
     uint16_t hdr_len;
@@ -457,6 +457,59 @@ static int8_t httpc_add_version(httpc_handle_t httpc)
     return HTTPC_SUCCESS;
 }
 
+static int8_t httpc_add_header_field(httpc_handle_t httpc, const char *hdr, uint16_t size)
+{
+    httpc_t *http_session = (httpc_t *)httpc;
+    char *hdr_ptr;
+    int16_t free_space;
+
+    if (http_session == NULL) {
+        return HTTPC_FAIL;
+    }
+
+    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    if (size > free_space) {
+        return HTTPC_FAIL;
+    }
+
+    hdr_ptr = http_session->header + http_session->header_len;
+    strncpy(hdr_ptr, hdr, size);
+    hdr_ptr += size;
+    http_session->header_len += size;
+    return HTTPC_SUCCESS;
+}
+
+static int8_t httpc_add_payload(httpc_handle_t httpc, const char *param, uint16_t param_len)
+{
+    httpc_t *http_session = (httpc_t *)httpc;
+    char *hdr_ptr;
+    int16_t free_space;
+    int8_t ret = HTTPC_SUCCESS;
+    char content_len_str[HTTP_CONTENT_LEN_SIZE];
+
+    if (http_session == NULL) {
+        return HTTPC_FAIL;
+    }
+
+    memset(content_len_str, 0, HTTP_CONTENT_LEN_SIZE);
+    snprintf(content_len_str, HTTP_CONTENT_LEN_SIZE, "%d", param_len);
+    ret = httpc_add_request_header(httpc, "Content-Length", content_len_str);
+    if (ret != HTTPC_SUCCESS) {
+        return HTTPC_FAIL;
+    }
+
+    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    if (param_len > free_space) {
+        return HTTPC_FAIL;
+    }
+
+    hdr_ptr = http_session->header + http_session->header_len;
+    strncpy(hdr_ptr, param, param_len);
+    http_session->header_len += param_len;
+    return HTTPC_SUCCESS;
+
+}
+
 static int8_t httpc_reset(httpc_t *http_session)
 {
     http_parser_init(&http_session->parser, HTTP_RESPONSE);
@@ -475,13 +528,12 @@ static int8_t httpc_reset(httpc_t *http_session)
     return HTTPC_SUCCESS;
 }
 
-int8_t httpc_send_request(httpc_handle_t httpc, int method,
-                          const char *uri, char *param, uint16_t param_len)
+int8_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
+                          const char *hdr, const char *content_type, const char *param, uint16_t param_len)
 {
     httpc_t *http_session = (httpc_t *)httpc;
     int8_t ret = HTTPC_SUCCESS;
     int socket_res;
-    char *hdr_ptr;
 
     if (is_valid_method(method) == false) {
         return HTTPC_FAIL;
@@ -536,6 +588,27 @@ int8_t httpc_send_request(httpc_handle_t httpc, int method,
 
     if (ret != HTTPC_SUCCESS) {
         goto exit;
+    }
+
+    if (hdr) {
+        ret = httpc_add_header_field(httpc, hdr, strlen(hdr));
+        if (ret != HTTPC_SUCCESS) {
+            goto exit;
+        }
+    }
+
+    if (content_type) {
+        ret = httpc_add_request_header(httpc, "Content-Type", content_type);
+        if (ret != HTTPC_SUCCESS) {
+            goto exit;
+        }
+    }
+
+    if (param && param_len > 0) {
+        ret = httpc_add_payload(httpc, param, param_len);
+        if (ret != HTTPC_SUCCESS) {
+            goto exit;
+        }
     }
 
     http_log("%s, send request header %s, socket %d, strlen %d, len %d",
