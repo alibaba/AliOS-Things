@@ -24,6 +24,8 @@
 #define INT32T_MIN (-INT32T_MAX - 1)
 #define INT16T_MIN (-INT16T_MAX - 1)
 
+#define HTTP_CONTENT_LEN_SIZE 6
+
 /* http client connection handle */
 typedef struct httpc_s {
     int socket;
