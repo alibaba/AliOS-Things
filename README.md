@@ -36,6 +36,12 @@ All modules have been organized as Components, Configuring via menuconfig, which
 - AliOS Things wiki: [Github Wiki](https://github.com/alibaba/AliOS-Things/wiki)
 - AliOS Things documentation: [Alibaba Cloud IoT Documentation](https://dev.iot.aliyun.com/doc) | AliOS Things
 
+### How to get code
+
+1. Read code here
+2. Use [Component Tool](https://aliosthings.iot.aliyun.com/aos/download) to get minimal code to local
+3. Clone all code from github to local: git clone https://github.com/alibaba/AliOS-Things.git -b <branch_name>
+
 ### How to contribute
 
 Please refer to [Contributing Guideline](https://github.com/alibaba/AliOS-Things/wiki/contributing).
