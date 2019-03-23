@@ -42,11 +42,17 @@ bool http_str_search(char *src, char *searched, uint32_t offset,
 bool http_str_insensitive_cmp(char *src, char *dest, uint32_t len)
 {
     uint32_t pos = 0;
-    uint32_t dest_len = strlen(dest);
+    uint32_t dest_len = 0;
     char *src_input = src;
     char *dest_input = dest;
     char tmp_a;
     char tmp_b;
+
+    if (src == NULL || dest == NULL) {
+        return false;
+    }
+
+    dest_len = strlen(dest);
 
     if (src == NULL || dest == NULL) {
         return false;
@@ -60,7 +66,7 @@ bool http_str_insensitive_cmp(char *src, char *dest, uint32_t len)
         return false;
     }
 
-    while (src_input || dest_input) {
+    while (src_input) {
         if (len > 0 && pos == len) {
             return true;
         }
