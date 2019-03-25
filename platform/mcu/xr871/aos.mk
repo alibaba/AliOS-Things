@@ -33,9 +33,6 @@ $(NAME)_SOURCES += hal/soc/adc.c \
                    hal/wifi_port.c \
                    hal/wifi.c \
                    hal/hal.c \
-                   cli_ext/cli_ext.c \
-                   cli_ext/cli_mem.c \
-                   cli_ext/cli_upgrade.c \
 
 include $(SOURCE_ROOT)/platform/mcu/xr871/sdk_files.mk
 
