@@ -4,9 +4,12 @@
 #include <stdarg.h>
 #include "debug_api.h"
 #include "aos/cli.h"
+#include "aos/kernel.h"
 #ifdef AOS_COMP_CLI
 #include "cli_api.h"
 #endif
+
+extern void hal_reboot(void);
 
 /* ARMCC and ICCARM do not use heap when printf a string, but gcc dose*/
 #if defined(__CC_ARM)
@@ -27,6 +30,7 @@ __attribute__((weak)) int print_str(const char *fmt, ...)
     fflush(stdout);
     return ret;
 }
+
 /* on some platform, the libc printf use the heap, while the heap maybe corrupt
    when panic.
    Redefining a new print_str without using heap is advised on these platform.
@@ -48,6 +52,41 @@ extern int  panicBacktraceCallee(char *PC, int *SP, char *LR,
 
 /* how many steps has finished when crash */
 volatile uint32_t g_crash_steps = 0;
+
+#if defined (DEBUG)
+static void panic_debug(void)
+{
+#if (defined (AOS_COMP_CLI) && (RHINO_CONFIG_KOBJ_LIST > 0))
+
+    klist_t      *listnode;
+    ktask_t      *task;
+
+    extern void panic_cli_board_config(void);
+    panic_cli_board_config();
+
+    for (listnode = g_kobj_list.task_head.next;
+         listnode != &g_kobj_list.task_head; listnode = listnode->next) {
+        task = krhino_list_entry(listnode, ktask_t, task_stats_item);
+        if (0 != strcmp("cli", task->task_name)) {
+            krhino_task_suspend(task);
+        }
+    }
+
+    krhino_sched_enable();
+
+    debug_task_overview(print_str);
+
+    /*suspend current task*/
+    task = g_active_task[cpu_cur_get()];
+    if (0 != strcmp("cli", task->task_name)) {
+        krhino_task_suspend(task);
+    }
+#else
+    while (1);
+#endif
+}
+#endif
+
 
 /* should exeception be restored?
    reture 1 YES, 0 NO*/
@@ -72,7 +111,7 @@ void panicHandler(void *context)
     static char *PC = NULL;
     static char *LR = NULL;
 
-    g_intrpt_nested_level[cpu_cur_get()]++;
+    krhino_sched_disable();
 
     if (context != NULL) {
         panicGetCtx(context, &PC, &LR, &SP);
@@ -159,14 +198,11 @@ void panicHandler(void *context)
             break;
     }
 
-#if (defined AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC_CLI > 0)
-    extern void uart_reinit(void);
-    uart_reinit();
-    cli_main(NULL);
+#if defined (DEBUG)
+    panic_debug(); /*debug version*/
 #else
-    while (1)
+    hal_reboot();  /*release version*/
 #endif
-        ;
 }
 #endif
 
