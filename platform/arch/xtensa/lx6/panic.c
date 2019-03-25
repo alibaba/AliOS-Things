@@ -83,9 +83,13 @@ int panicBacktraceCallee(char *PC, int *SP, char *LR,
 
 void xtensaPanic(void *context)
 {
-    //esp_panic_wdt_close();
+#if defined (AOS_COMP_CLI)
+    esp_panic_wdt_close();
+#endif
+    /*
     _espos_enter_critical(NULL);
     krhino_sched_disable();
+    */
 
 #if (DEBUG_CONFIG_PANIC > 0)
     if(g_crash_steps == 0x87654321) {

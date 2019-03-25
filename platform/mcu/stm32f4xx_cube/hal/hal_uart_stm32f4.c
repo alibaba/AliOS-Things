@@ -318,10 +318,6 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
         return -1;
     }
 
-    if (g_intrpt_nested_level[cpu_cur_get()] > 0) {
-        ret = HAL_UART_Transmit(handle, (uint8_t *)data, size, timeout);
-        return ret;
-    }
     /* if  UART Tx DMA Handle is NULL, then start data send in interrupt mode
      * otherwise in DMA mode
      */
