@@ -172,12 +172,27 @@ $(eval $(NAME)_BUILD_TYPE := $(BUILD_TYPE))
 $(eval $(NAME)_BUILD_TYPE := $(if $($(NAME)_NEVER_OPTIMISE),  debug,   $($(NAME)_BUILD_TYPE)))
 $(eval $(NAME)_BUILD_TYPE := $(if $($(NAME)_ALWAYS_OPTIMISE), release, $($(NAME)_BUILD_TYPE)))
 
-$(NAME)_ASMFLAGS += $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_ASFLAGS),  $(COMPILER_SPECIFIC_RELEASE_ASFLAGS))
-$(NAME)_LDFLAGS  += $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_LDFLAGS),  $(COMPILER_SPECIFIC_RELEASE_LDFLAGS))
-
-$(NAME)_OPTIM_CFLAGS   ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_CFLAGS), $(if $(findstring release_log,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_RELEASE_LOG_CFLAGS), $(COMPILER_SPECIFIC_RELEASE_CFLAGS)))
-
-$(NAME)_OPTIM_CXXFLAGS ?= $(if $(findstring debug,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_DEBUG_CXXFLAGS), $(if $(findstring release_log,$($(NAME)_BUILD_TYPE)), $(COMPILER_SPECIFIC_RELEASE_LOG_CXXFLAGS), $(COMPILER_SPECIFIC_RELEASE_CXXFLAGS)))
+ifeq ($($(NAME)_BUILD_TYPE),debug)
+$(NAME)_ASMFLAGS += $(COMPILER_SPECIFIC_DEBUG_ASFLAGS) $($(NAME)_ASMFLAGS-y)
+$(NAME)_LDFLAGS  += $(COMPILER_SPECIFIC_DEBUG_LDFLAGS) $($(NAME)_LDFLAGS-y)
+$(NAME)_OPTIM_CFLAGS ?= $(COMPILER_SPECIFIC_DEBUG_CFLAGS) $($(NAME)_OPTIM_CFLAGS-y)
+$(NAME)_OPTIM_CXXFLAGS ?= $(COMPILER_SPECIFIC_DEBUG_CXXFLAGS) $($(NAME)_OPTIM_CXXFLAGS-y)
+else ifeq ($($(NAME)_BUILD_TYPE),inspect)
+$(NAME)_ASMFLAGS += $(COMPILER_SPECIFIC_INSPECT_ASFLAGS) $($(NAME)_ASMFLAGS-y)
+$(NAME)_LDFLAGS  += $(COMPILER_SPECIFIC_INSPECT_LDFLAGS) $($(NAME)_LDFLAGS-y)
+$(NAME)_OPTIM_CFLAGS ?= $(COMPILER_SPECIFIC_INSPECT_CFLAGS) $($(NAME)_OPTIM_CFLAGS-y)
+$(NAME)_OPTIM_CXXFLAGS ?= $(COMPILER_SPECIFIC_INSPECT_CXXFLAGS) $($(NAME)_OPTIM_CXXFLAGS-y)
+else ifeq ($($(NAME)_BUILD_TYPE),release)
+$(NAME)_ASMFLAGS += $(COMPILER_SPECIFIC_RELEASE_ASFLAGS) $($(NAME)_ASMFLAGS-y)
+$(NAME)_LDFLAGS  += $(COMPILER_SPECIFIC_RELEASE_LDFLAGS) $($(NAME)_LDFLAGS-y)
+$(NAME)_OPTIM_CFLAGS ?= $(COMPILER_SPECIFIC_RELEASE_CFLAGS) $($(NAME)_OPTIM_CFLAGS-y)
+$(NAME)_OPTIM_CXXFLAGS ?= $(COMPILER_SPECIFIC_RELEASE_CXXFLAGS) $($(NAME)_OPTIM_CXXFLAGS-y)
+else ifeq ($($(NAME)_BUILD_TYPE),silence)
+$(NAME)_ASMFLAGS += $(COMPILER_SPECIFIC_SILENCE_ASFLAGS) $($(NAME)_ASMFLAGS-y)
+$(NAME)_LDFLAGS  += $(COMPILER_SPECIFIC_SILENCE_LDFLAGS) $($(NAME)_LDFLAGS-y)
+$(NAME)_OPTIM_CFLAGS ?= $(COMPILER_SPECIFIC_SILENCE_CFLAGS) $($(NAME)_OPTIM_CFLAGS-y)
+$(NAME)_OPTIM_CXXFLAGS ?= $(COMPILER_SPECIFIC_SILENCE_CXXFLAGS) $($(NAME)_OPTIM_CXXFLAGS-y)
+endif
 
 AOS_SDK_INCLUDES           +=$(addprefix -I$($(NAME)_LOCATION),$(GLOBAL_INCLUDES))
 AOS_SDK_LINK_SCRIPT        +=$(if $(GLOBAL_LINK_SCRIPT),$(GLOBAL_LINK_SCRIPT),)
@@ -218,22 +233,28 @@ BUILD_APP := $(subst @, ,$(MAKECMDGOALS))
 #Dependency python dict start
 DEPENDENCY := "{
 
-BUILD_TYPE_LIST := debug \
-                   release_log \
-                   release
+BUILD_TYPE_LIST := debug inspect release silence
+
+ifeq ($(BUILD_TYPE),)
+BUILD_TYPE := release
+else
+$(if $(filter $(BUILD_TYPE_LIST),$(BUILD_TYPE)),,$(error BUILD_TYPE Unknown: "$(BUILD_TYPE)"! Please choice one from: "$(BUILD_TYPE_LIST)"))
+endif
 
 # Extract out: the debug/release option, OTA option, and the lint option
-BUILD_TYPE          := $(if $(filter $(BUILD_TYPE_LIST),$(BUILD_APP)),$(firstword $(filter $(BUILD_TYPE_LIST),$(BUILD_APP))),release_log)
 BUILD_APP          := $(filter-out $(BUILD_TYPE_LIST), $(BUILD_APP))
 COMPONENTS          :=
 
 # Set debug/release specific options
 ifeq ($(BUILD_TYPE),release)
 AOS_SDK_LDFLAGS  += $(COMPILER_SPECIFIC_RELEASE_LDFLAGS)
-else
+else ifeq ($(BUILD_TYPE),debug)
 AOS_SDK_LDFLAGS  += $(COMPILER_SPECIFIC_DEBUG_LDFLAGS)
+else ifeq ($(BUILD_TYPE),inspect)
+AOS_SDK_LDFLAGS  += $(COMPILER_SPECIFIC_INSPECT_LDFLAGS)
+else ifeq ($(BUILD_TYPE),silence)
+AOS_SDK_LDFLAGS  += $(COMPILER_SPECIFIC_SILENCE_LDFLAGS)
 endif
-
 
 # Check if there are any unknown components; output error if so.
 $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/$(comp) $(CUBE_AOS_DIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT),$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) $(REAL_COMPONENTS)),,$(error Unknown component: $(comp))))
