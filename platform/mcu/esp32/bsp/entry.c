@@ -106,3 +106,11 @@ void app_main(void)
     aos_task_new("main", app_entry, 0, 8192);
 #endif
 }
+
+#if defined (AOS_COMP_CLI)
+/*use in panic*/
+
+void panic_cli_board_config(void)
+{
+}
+#endif

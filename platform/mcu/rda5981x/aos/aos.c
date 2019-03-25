@@ -69,3 +69,12 @@ void entry_main(void)
 {
     sys_start();
 }
+
+
+#if defined (AOS_COMP_CLI)
+/*use in panic*/
+
+void panic_cli_board_config(void)
+{
+}
+#endif
