@@ -75,7 +75,7 @@ static klist_t g_event_list = { &g_event_list, &g_event_list };
 static klist_t g_recycle_list = { &g_recycle_list, &g_recycle_list };
 static dlist_t g_io_list = AOS_DLIST_INIT(g_io_list);
 static int cpu_event_inited;
-extern volatile uint64_t cpu_flag;
+extern volatile uint64_t g_cpu_flag;
 
 typedef struct {
     dlist_t node;
@@ -274,17 +274,17 @@ void cpu_tmr_sync(void)
     while (loop) {
         switch (RHINO_CONFIG_CPU_NUM) {
             case 2:
-                if (cpu_flag == 2u) {
+                if (g_cpu_flag == 2u) {
                     loop = 0;
                 }
                 break;
             case 3:
-                if (cpu_flag == 6u) {
+                if (g_cpu_flag == 6u) {
                     loop = 0;
                 }
                 break;
             case 4:
-                if (cpu_flag == 14u) {
+                if (g_cpu_flag == 14u) {
                     loop = 0;
                 }
                 break;

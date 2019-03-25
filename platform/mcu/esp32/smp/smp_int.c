@@ -130,8 +130,8 @@ void  os_crosscore_int_send_yield(int coreId) {
 
 void cpu_signal(uint8_t cpu_num)
 {
-     extern uint64_t cpu_flag;
-     if(cpu_flag & (1UL << cpu_num))
+     extern uint64_t g_cpu_flag;
+     if(g_cpu_flag & (1UL << cpu_num))
      {
          os_crosscore_int_send_yield((int)cpu_num);
      }

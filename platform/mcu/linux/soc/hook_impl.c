@@ -5,16 +5,20 @@
 #include <k_api.h>
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
-volatile uint64_t cpu_flag;
+#if (RHINO_CONFIG_CPU_NUM > 1)
+extern volatile uint64_t g_cpu_flag;
+#endif
 void krhino_idle_pre_hook(void)
 {
+    #if (RHINO_CONFIG_CPU_NUM > 1)
     CPSR_ALLOC();
     uint8_t cpu;
 
     RHINO_CPU_INTRPT_DISABLE();
     cpu = cpu_cur_get();
-    cpu_flag |= (1 << cpu);
+    g_cpu_flag |= (1 << cpu);
     RHINO_CPU_INTRPT_ENABLE();
+    #endif
 }
 
 void krhino_idle_hook(void)

@@ -34,8 +34,8 @@ void os_crosscore_int_init() {
 
 void cpu_signal(uint8_t cpu_num)
 {
-    extern volatile uint64_t cpu_flag;
-     if(cpu_flag & (1UL << cpu_num))
+    extern volatile uint64_t g_cpu_flag;
+     if(g_cpu_flag & (1UL << cpu_num))
      {
          gic_send_sgi(OS_SMP_CROSSCORE_INTNO, 1UL << cpu_num, kGicSgiFilter_UseTargetList);
      }
