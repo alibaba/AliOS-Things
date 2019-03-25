@@ -14,7 +14,7 @@ void idle_task(void *arg)
     CPSR_ALLOC();
     klist_t *head;
     ktask_t *task_del;
-    head =  &task_del_head;
+    head =  &g_task_del_head;
 #endif
 
     /* avoid warning */
