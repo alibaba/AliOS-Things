@@ -77,7 +77,7 @@ extern k_mm_head *g_kmm_head;
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
 extern kspinlock_t g_sys_lock;
-extern klist_t     task_del_head;
+extern klist_t     g_task_del_head;
 #endif
 
 #define K_OBJ_STATIC_ALLOC 1u

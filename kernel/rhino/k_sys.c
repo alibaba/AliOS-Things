@@ -29,7 +29,7 @@ kstat_t krhino_init(void)
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
     krhino_spin_lock_init(&g_sys_lock);
-    klist_init(&task_del_head);
+    klist_init(&g_task_del_head);
 #endif
 
     runqueue_init(&g_ready_queue);

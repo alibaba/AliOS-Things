@@ -722,7 +722,7 @@ kstat_t krhino_task_del(ktask_t *task)
 #if (RHINO_CONFIG_CPU_NUM > 1)
     if (task->cpu_num != cur_cpu_num) {
         if (task->cur_exc == 1) {
-            klist_insert(&task_del_head, &task->task_del_item);
+            klist_insert(&g_task_del_head, &task->task_del_item);
             RHINO_CRITICAL_EXIT();
             return RHINO_TRY_AGAIN;
         }
@@ -821,7 +821,7 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
 #if (RHINO_CONFIG_CPU_NUM > 1)
     if (task->cpu_num != cur_cpu_num) {
         if (task->cur_exc == 1) {
-            klist_insert(&task_del_head, &task->task_del_item);
+            klist_insert(&g_task_del_head, &task->task_del_item);
             RHINO_CRITICAL_EXIT();
             return RHINO_SUCCESS;
         }
