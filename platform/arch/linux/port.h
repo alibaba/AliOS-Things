@@ -21,7 +21,7 @@ void   cpu_task_switch(void);
 #define RHINO_CPU_INTRPT_ENABLE()   \
         do{krhino_spin_unlock(&g_sys_lock);cpu_intrpt_restore(cpsr);}while(0)
 
-static inline void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
+static inline void cpu_atomic_compare_set(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
 {
 	return ;
 }

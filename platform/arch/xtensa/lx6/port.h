@@ -54,7 +54,7 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
     return xPortGetCoreID();
 }
 
-static inline void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, uint32_t *set) {
+static inline void cpu_atomic_compare_set(volatile uint32_t *addr, uint32_t compare, uint32_t *set) {
     __asm__ __volatile__(
         "WSR 	    %2,SCOMPARE1 \n"
         "ISYNC      \n"
