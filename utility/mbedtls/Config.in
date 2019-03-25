@@ -235,7 +235,7 @@ config MBEDTLS_CONFIG_X509
 menuconfig MBEDTLS_CONFIG_TLS
     bool "TLS/DTLS protocol support"
     default y
-    depends on AOS_ARCH_LINUX || AOS_COMP_LWIP
+    depends on AOS_ARCH_LINUX || AOS_COMP_LWIP || AOS_COMP_SAL || AOS_COMP_NETMGR
     select MBEDTLS_CONFIG_X509
     select MBEDTLS_CONFIG_CRYPTO
     help
