@@ -6,7 +6,7 @@
 
 #include "espos_aos_vcall.h"
 
-extern volatile uint64_t cpu_flag;
+extern volatile uint64_t g_cpu_flag;
 extern kstat_t   g_sys_stat;
 extern uint8_t   g_intrpt_nested_level[];
 

@@ -11,7 +11,7 @@ void soc_hw_timer_init()
 
 #if (RHINO_CONFIG_USER_HOOK > 0)
 #if (RHINO_CONFIG_CPU_NUM > 1)
-volatile uint64_t cpu_flag = 0;
+extern volatile uint64_t g_cpu_flag;
 #endif
 void krhino_idle_pre_hook(void)
 {
@@ -21,7 +21,7 @@ void krhino_idle_pre_hook(void)
 
     RHINO_CPU_INTRPT_DISABLE();
     cpu = cpu_cur_get();
-    cpu_flag |= (1UL << cpu);
+    g_cpu_flag |= (1UL << cpu);
     
     RHINO_CPU_INTRPT_ENABLE();
     #endif

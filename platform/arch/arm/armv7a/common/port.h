@@ -27,7 +27,7 @@ void  *cpu_task_stack_init(cpu_stack_t *base, size_t size, void *arg, task_entry
 void cpu_signal(uint8_t cpu_num);
 
 #if defined(__CC_ARM)
-RHINO_INLINE void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
+RHINO_INLINE void cpu_atomic_compare_set(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
 {
 	uint32_t oldval, newval;
 	uint32_t res;
@@ -48,7 +48,7 @@ RHINO_INLINE void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, ui
 	return ;
 }
 #elif defined(__GNUC__)
-RHINO_INLINE void osPortCompareSet(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
+RHINO_INLINE void cpu_atomic_compare_set(volatile uint32_t *addr, uint32_t compare, uint32_t *set)
 {
 	uint32_t oldval, newval;
 	uint32_t res;
