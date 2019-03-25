@@ -76,6 +76,7 @@ k_mm_head *g_kmm_head;
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
 kspinlock_t g_sys_lock;
-klist_t     task_del_head;
+klist_t     g_task_del_head;
+volatile uint64_t g_cpu_flag;
 #endif
 
