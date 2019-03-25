@@ -2,7 +2,6 @@ config AOS_MCU_ESP8266
     bool
     select AOS_COMP_LWIP
     select AOS_COMP_NEWLIB_STUB
-    select AOS_COMP_ALICRYPTO
     select AOS_COMP_NETMGR
     select AOS_COMP_OTA_2ND_BOOT
     select AOS_COMP_RHINO if OSAL_CONFIG = rhino
