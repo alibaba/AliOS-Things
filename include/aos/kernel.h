@@ -514,6 +514,20 @@ char *aos_now_time_str(char *buffer, const int len);
 void aos_msleep(int ms);
 
 /**
+ * srand function.
+ *
+ * @param[in]  seed  The seed number to use to generate the random sequence.
+ */
+void aos_srand(unsigned int seed);
+
+/**
+ * rand function.
+ *
+ * @return  random value.
+ */
+int aos_rand(void);
+
+/**
  * Initialize system
  */
 void aos_init(void);
