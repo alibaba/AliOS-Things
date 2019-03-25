@@ -1859,7 +1859,6 @@ static int iotx_mc_cycle(iotx_mc_client_t *c, iotx_time_t *timer)
 
     iotx_mc_state_t state = iotx_mc_get_client_state(c);
     if (state != IOTX_MC_STATE_CONNECTED) {
-        mqtt_debug("state = %d", state);
         return MQTT_STATE_ERROR;
     }
 
@@ -2641,7 +2640,7 @@ static void iotx_mc_keepalive(iotx_mc_client_t *pClient)
             HAL_MutexUnlock(pClient->lock_generic);
             rc = iotx_mc_handle_reconnect(pClient);
             if (SUCCESS_RETURN != rc) {
-                mqtt_debug("reconnect network fail, rc = %d", rc);
+                /*mqtt_debug("reconnect network fail, rc = %d", rc);*/
             } else {
                 mqtt_info("network is reconnected!");
                 iotx_mc_reconnect_callback(pClient);
@@ -2822,7 +2821,6 @@ int iotx_mc_handle_reconnect(iotx_mc_client_t *pClient)
     if (NULL == pClient) {
         return NULL_VALUE_ERROR;
     }
-    mqtt_info("Waiting to reconnect...");
     if (!utils_time_is_expired(&(pClient->reconnect_param.reconnect_next_time))) {
         /* Timer has not expired. Not time to attempt reconnect yet. Return attempting reconnect */
         HAL_SleepMs(100);

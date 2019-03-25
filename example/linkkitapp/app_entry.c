@@ -74,11 +74,7 @@ static void wifi_service_event(input_event_t *event, void *priv_data)
 #ifdef CONFIG_PRINT_HEAP
         print_heap();
 #endif
-#ifdef MQTT_DIRECT
-        aos_task_new("linkkit", (void (*)(void *))linkkit_main, NULL, 1024 * 6);
-#else
         aos_task_new("linkkit", (void (*)(void *))linkkit_main, NULL, 1024 * 8);
-#endif
         linkkit_started = 1;
     }
 }
@@ -271,11 +267,7 @@ extern int  awss_report_reset();
 static void do_awss_reset()
 {
 #ifdef WIFI_PROVISION_ENABLED
-#if defined(SUPPORT_ITLS)
     aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 4096);  // stack taken by iTLS is more than taken by TLS.
-#else
-    aos_task_new("reset", (void (*)(void *))awss_report_reset, NULL, 2048);
-#endif
 #endif
     aos_post_delayed_action(2000, linkkit_reset, NULL);
 }
