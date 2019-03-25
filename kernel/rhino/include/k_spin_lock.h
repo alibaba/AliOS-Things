@@ -61,7 +61,7 @@ extern void k_wait_allcores(void);
                                              } while (0)
 
 #define krhino_spin_lock_init(lock)
-#endif
+#endif  /* RHINO_CONFIG_CPU_NUM > 1 */
 
-#endif
+#endif  /* K_SPIN_LOCK_H */
 

@@ -7,9 +7,9 @@
 
 #if (RHINO_CONFIG_CPU_NUM > 1)
 
-/*not use for linuxhost*/
+/* not use for linuxhost */
 
-extern int printf(const char *fmt, ...);
+#define DBG_PRINTF(...)             //printf(__VA_ARGS__)
 
 #define KRHINO_SPINLOCK_FREE_VAL    0xB33FFFFFu
 #define KRHINO_SPINLOCK_MAGIC_VAL   0xB33F0000u
@@ -28,27 +28,30 @@ void k_cpu_spin_lock(kspinlock_t *lock)
 {
     uint32_t res;
     uint32_t recCnt;
-    uint32_t cnt = (1<<16);
+    uint32_t cnt = (1 << 16);
 
     if ((lock->owner & KRHINO_SPINLOCK_MAGIC_MASK) != KRHINO_SPINLOCK_MAGIC_VAL) {
-        /*printf("ERROR: k_cpu_spin_lock: spinlock %p is uninitialized (0x%X)! Called from %s line %d.\n", lock, lock->owner, fnName, line);*/
         lock->owner = KRHINO_SPINLOCK_FREE_VAL;
     }
 
     do {
-        /*Lock mux if it's currently unlocked*/
-        res = (cpu_cur_get()<<KRHINO_SPINLOCK_VAL_SHIFT)|KRHINO_SPINLOCK_MAGIC_VAL;
-        osPortCompareSet(&lock->owner, KRHINO_SPINLOCK_FREE_VAL, &res);
-        /*If it wasn't free and we're the owner of the lock, we are locking recursively.*/
-        if ((res != KRHINO_SPINLOCK_FREE_VAL) && (((res&KRHINO_SPINLOCK_VAL_MASK)>>KRHINO_SPINLOCK_VAL_SHIFT) == cpu_cur_get())) {
-            /*Mux was already locked by us. Just bump the recurse count by one.*/
-            recCnt = (res&KRHINO_SPINLOCK_CNT_MASK)>>KRHINO_SPINLOCK_CNT_SHIFT;
+        /* Lock mux if it's currently unlocked */
+        res = (cpu_cur_get() << KRHINO_SPINLOCK_VAL_SHIFT) | KRHINO_SPINLOCK_MAGIC_VAL;
+        cpu_atomic_compare_set(&lock->owner, KRHINO_SPINLOCK_FREE_VAL, &res);
+
+        /* If it wasn't free and we're the owner of the lock, we are locking recursively. */
+        if ((res != KRHINO_SPINLOCK_FREE_VAL) && (((res & KRHINO_SPINLOCK_VAL_MASK) >>
+                                KRHINO_SPINLOCK_VAL_SHIFT) == cpu_cur_get())) {
+            /* Mux was already locked by us. Just increase count by one. */
+            recCnt = (res & KRHINO_SPINLOCK_CNT_MASK) >> KRHINO_SPINLOCK_CNT_SHIFT;
             recCnt++;
 
             #ifdef RHINO_CONFIG_SPINLOCK_DEBUG
-            /*printf("Recursive lock: recCnt=%d last non-recursive lock %s line %d, curr %s line %d\n", recCnt, lock->last_lockfile, lock->last_lockline, fnName, line);*/
+            /* DBG_PRINTF("Recursive lock: recCnt=%d last non-recursive lock %s line %d,curr %s line %d\n",
+                            recCnt, lock->last_lockfile, lock->last_lockline, fnName, line); */
             #endif
-            lock->owner = KRHINO_SPINLOCK_MAGIC_VAL|(recCnt<<KRHINO_SPINLOCK_CNT_SHIFT)|(cpu_cur_get()<<KRHINO_SPINLOCK_VAL_SHIFT);
+            lock->owner = KRHINO_SPINLOCK_MAGIC_VAL | (recCnt << KRHINO_SPINLOCK_CNT_SHIFT) |
+                                                (cpu_cur_get() << KRHINO_SPINLOCK_VAL_SHIFT);
             break;
         }
 
@@ -56,9 +59,11 @@ void k_cpu_spin_lock(kspinlock_t *lock)
 
         if (cnt == 0) {
             #ifdef RHINO_CONFIG_SPINLOCK_DEBUG
-            printf("Timeout on mux! last non-recursive lock %s line %d, curr %s line %d\n", lock->last_lockfile, lock->last_lockline, fnName, line);
+            /* DBG_PRINTF("Error! Timeout on mux! last non-recursive lock %s line %d, curr %s line %d\n",
+                           lock->last_lockfile, lock->last_lockline, fnName, line); */
             #endif
-            printf("lock value %X,cpu_cur_get():%d\r\n", lock->owner,cpu_cur_get());
+            DBG_PRINTF("Error! Timeout on mux! lock value %X,cpu_cur_get():%d\r\n",
+                                                        lock->owner, cpu_cur_get());
         }
     } while (res != KRHINO_SPINLOCK_FREE_VAL);
 
@@ -87,31 +92,36 @@ void k_cpu_spin_unlock(kspinlock_t *lock)
 #endif
 
     if ((lock->owner & KRHINO_SPINLOCK_MAGIC_MASK) != KRHINO_SPINLOCK_MAGIC_VAL) {
-        printf("ERROR: k_cpu_spin_unlock: spinlock %p is uninitialized (0x%X)!\n", lock, lock->owner);
+        DBG_PRINTF("ERROR: k_cpu_spin_unlock: spinlock %p is uninitialized (0x%X)!\n",
+                                                                   lock, lock->owner);
     }
-    /* Unlock if it's currently locked with a recurse count of 0*/
+    /* Unlock if it's currently locked with a recurse count of 0 */
     res = KRHINO_SPINLOCK_FREE_VAL;
-    osPortCompareSet(&lock->owner, (cpu_cur_get() << KRHINO_SPINLOCK_VAL_SHIFT) | KRHINO_SPINLOCK_MAGIC_VAL, &res);
+    cpu_atomic_compare_set(&lock->owner, (cpu_cur_get() << KRHINO_SPINLOCK_VAL_SHIFT)
+                                                    | KRHINO_SPINLOCK_MAGIC_VAL, &res);
 
-    if ( ((res&KRHINO_SPINLOCK_VAL_MASK) >> KRHINO_SPINLOCK_VAL_SHIFT) == cpu_cur_get() ) {
-        /* Lock is valid, we can return safely. Just need to check if it's a recursive lock; if so we need to decrease the refcount.*/
-         if ( ((res&KRHINO_SPINLOCK_CNT_MASK)>>KRHINO_SPINLOCK_CNT_SHIFT)!=0) {
-            /* We locked this, but the reccount isn't zero. Decrease refcount and continue.*/
-            recCnt = (res&KRHINO_SPINLOCK_CNT_MASK)>>KRHINO_SPINLOCK_CNT_SHIFT;
+    if ( ((res & KRHINO_SPINLOCK_VAL_MASK) >> KRHINO_SPINLOCK_VAL_SHIFT) == cpu_cur_get() ) {
+         if ( ((res & KRHINO_SPINLOCK_CNT_MASK) >> KRHINO_SPINLOCK_CNT_SHIFT) != 0) {
+            /* We locked this, but the reccount isn't zero. Decrease refcount and continue. */
+            recCnt = (res & KRHINO_SPINLOCK_CNT_MASK) >> KRHINO_SPINLOCK_CNT_SHIFT;
             recCnt--;
 
-            lock->owner = KRHINO_SPINLOCK_MAGIC_VAL | (recCnt << KRHINO_SPINLOCK_CNT_SHIFT) | (cpu_cur_get()<<KRHINO_SPINLOCK_VAL_SHIFT);
+            lock->owner = KRHINO_SPINLOCK_MAGIC_VAL | (recCnt << KRHINO_SPINLOCK_CNT_SHIFT)
+                                            | (cpu_cur_get() << KRHINO_SPINLOCK_VAL_SHIFT);
         }
     } else if ( res == KRHINO_SPINLOCK_FREE_VAL ) {
-        printf("ERROR: cpu_spin_unlock: lock %p was already unlocked!\n", lock);
+        DBG_PRINTF("ERROR: k_cpu_spin_unlock: lock %p was already unlocked!\n", lock);
     } else {
-        printf("ERROR: cpu_spin_unlock: lock %p wasn't locked by this core (%d) but by core %d (ret=%x, lock=%x).\n", lock, cpu_cur_get(), ((res&KRHINO_SPINLOCK_VAL_MASK)>>KRHINO_SPINLOCK_VAL_SHIFT), res, lock->owner);
+        DBG_PRINTF("ERROR: k_cpu_spin_unlock: lock %p wasn't locked by this core (%d)   \
+                        but by core %d (ret=%x, lock=%x).\n", lock, cpu_cur_get(),      \
+                        ((res & KRHINO_SPINLOCK_VAL_MASK) >> KRHINO_SPINLOCK_VAL_SHIFT),\
+                        res, lock->owner);
     }
     return;
 
 }
 
-extern volatile uint64_t cpu_flag;
+extern volatile uint64_t g_cpu_flag;
 
 void k_wait_allcores(void)
 {
@@ -120,26 +130,26 @@ void k_wait_allcores(void)
     while (loop) {
         switch (RHINO_CONFIG_CPU_NUM) {
             case 2:
-                if (cpu_flag == 2u) {
+                if (g_cpu_flag == 2u) {
                     loop = 0;
                 }
                 break;
             case 3:
-                if (cpu_flag == 6u) {
+                if (g_cpu_flag == 6u) {
                     loop = 0;
                 }
                 break;
             case 4:
-                if (cpu_flag == 14u) {
+                if (g_cpu_flag == 14u) {
                     loop = 0;
                 }
                 break;
             default:
-                printf("too many cpus!!!\n");
+                DBG_PRINTF("too many cpus!!!\n");
                 break;
         }
     }
 }
 
-#endif
+#endif /* RHINO_CONFIG_CPU_NUM > 1 */
 
