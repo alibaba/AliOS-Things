@@ -13,10 +13,6 @@ $(NAME)_SOURCES += src/pca10040/base_pro/soc_init.c \
                     Drivers/drivers_nrf/power/nrf_drv_power.c \
                     Drivers/drivers_nrf/rtc/nrf_drv_rtc.c
 
-ifeq ($(ble),1)
-$(NAME)_SOURCES  += hal/ais_ota_port.c
-endif
-
 $(NAME)_SOURCES  += hal/misc.c
 $(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_rtc.c
 $(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_systick.c

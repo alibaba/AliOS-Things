@@ -12,10 +12,6 @@ $(NAME)_SOURCES +=  src/pca10040e/base_pro/soc_init.c \
                     Drivers/toolchain/system_nrf52.c
 
 
-ifeq ($(ble),1)
-$(NAME)_SOURCES  += hal/ais_ota_port.c
-endif
-
 $(NAME)_SOURCES  += hal/misc.c
 $(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_rtc.c
 $(NAME)_SOURCES  += hal/pwrmgmt_hal/board_cpu_pwr_systick.c
