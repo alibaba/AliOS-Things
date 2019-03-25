@@ -18,7 +18,7 @@
 #include <aos/kernel.h>
 
 #if defined(MBEDTLS_PLATFORM_MEMORY)
-#if defined(XTENSA_MALLOC_IRAM)
+#if defined(XTENSE_MALLOC_IRAM)
 extern void *iram_heap_malloc( size_t xWantedSize );
 extern void  iram_heap_free( void *pv );
 extern int   iram_heap_check_addr( void *addr );
