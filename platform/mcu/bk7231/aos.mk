@@ -7,7 +7,7 @@ $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := driver & sdk for platform/mcu bk7231
 
 $(NAME)_COMPONENTS := arch_armv5
-$(NAME)_COMPONENTS += newlib_stub rhino yloop alicrypto
+$(NAME)_COMPONENTS += newlib_stub rhino yloop
 LWIP := 1
 $(NAME)_COMPONENTS += lwip umesh netmgr
 $(NAME)_COMPONENTS += libprov
