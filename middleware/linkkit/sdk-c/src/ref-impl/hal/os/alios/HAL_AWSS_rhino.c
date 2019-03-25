@@ -18,7 +18,6 @@ extern "C"
 
 #include <netmgr.h>
 #include "iot_import.h"
-#include "ali_crypto.h"
 
 /*
  * @brief   获取Wi-Fi网口的MAC地址, 格式应当是"XX:XX:XX:XX:XX:XX"

@@ -11,7 +11,6 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 
-#include "mbedtls/config.h"
 #include "mbedtls/error.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/net.h"
