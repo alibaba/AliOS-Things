@@ -149,7 +149,7 @@ static void _cli_iperf_client_Command( int argc, char **argv )
         }
     }
 
-    if ( strcmp( argv[i], "-u" ) != 0 )
+    if ( i == argc )
     {
         LOGD(TAG, "Iperf TCP Client: Start!\r\n" );
         aos_task_new_ext(&aos_iperf_task, IPERF_NAME, iperf_tcp_run_client_thread, (void*)g_iperf_param, IPERF_STACKSIZE, IPERF_PRIO);
