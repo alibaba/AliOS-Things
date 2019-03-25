@@ -94,7 +94,7 @@ static int ota_init(void *something)
             }
         }
     }
-    return 0;
+    return ret;
 }
 
 int ota_write(int *off_set, char *in_buf, int in_buf_len)
