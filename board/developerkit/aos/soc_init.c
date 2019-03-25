@@ -99,24 +99,6 @@ void stm32_soc_peripheral_init(void)
 
 }
 
-#if defined(AOS_COMP_CLI) && (DEBUG_CONFIG_PANIC_CLI > 0)
-/*use in debug_panic*/
-void uart_reinit(void)
-{
-    hal_uart_finalize(&uart_0);
-
-    uart_0.port = 0;
-    uart_0.config.baud_rate = 115200;
-    uart_0.config.data_width = DATA_WIDTH_8BIT;
-    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
-    uart_0.config.mode = MODE_TX_RX;
-    uart_0.config.parity = NO_PARITY;
-    uart_0.config.stop_bits = STOP_BITS_1;
-
-    hal_uart_init_block(&uart_0);
-}
-#endif
-
 static void stduart_init(void)
 {
     uart_0.port = 0;
@@ -214,3 +196,12 @@ void HardFault_Handler(void)
   }
 }
 #endif
+
+#if defined (AOS_COMP_CLI)
+/*use in _panic*/
+
+void panic_cli_board_config(void)
+{
+}
+#endif
+
