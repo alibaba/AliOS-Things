@@ -8,6 +8,7 @@
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
 #include "iot_import.h"
+#include "iot_import_crypt.h"
 
 #if !defined(USE_PUBLIC_MBEDTLS)
 #include "ali_crypto.h"

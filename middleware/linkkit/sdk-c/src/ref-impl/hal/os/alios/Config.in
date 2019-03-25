@@ -14,7 +14,7 @@ depends on AOS_COMP_IOTX_HAL
 config SUPPORT_TLS
     bool "support TLS"
     depends on AOS_COMP_IOTX_HAL
-    select AOS_COMP_IMBEDTLS 
+    select AOS_COMP_MBEDTLS 
     default y 
     help
         This option is mutually exclusive with SUPPORT_ITLS, only less than one of them can be switched to "y"
@@ -30,7 +30,7 @@ config SUPPORT_ITLS
 config HAL_CRYPTO
     default n
     bool "support cypto"
-    select AOS_COMP_ALICRYPTO
+    select MBEDTLS_CONFIG_CRYPTO_MODE_CFB
     help
       HAL CRYPTO for AliOS Things
 
