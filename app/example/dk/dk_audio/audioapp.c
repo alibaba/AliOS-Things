@@ -6,6 +6,7 @@
 #include "aos/kernel.h"
 #include "soc_init.h"
 #include "isd9160.h"
+#include "ulog/ulog.h"
 
 #define AUDIO_FILE_SDCARD       "audio.data"
 #define FIRMWARE_FILE_SDCARD    "isd9160_fw.bin"
@@ -107,7 +108,7 @@ static void blink_led(BOARD_GPIO led, INDICATE_ENUM indicate)
             hal_gpio_output_high(&brd_gpio_table[led]);
             break;
         default:
-            printf("blink_led parameters is invalid.\n");
+            LOG("blink_led parameters is invalid.\n");
     }
 }
 
@@ -119,9 +120,9 @@ static void isd9160_loop(void *arg)
     if (key_flag == 1) {
         stop_flag = 0;
         blink_led(RECORD_LED, INDICATE_START);
-        printf("handle_record begin, press the same key again to stop it\n");
+        LOG("-->Begin to record voice, press button M to stop if finished!\n");
         ret = handle_record(AUDIO_FILE_SDCARD, &stop_flag);
-        printf("handle_record return %d\n", ret);
+        LOG("<--Recording Done, please press A to plackback. status:%d!\n", ret);
         if (ret == 0) {
             blink_led(RECORD_LED, INDICATE_SUCCESS);
         } else {
@@ -130,24 +131,25 @@ static void isd9160_loop(void *arg)
         key_flag = 0;
     } else if (key_flag == 2) {
         blink_led(PLAYBACK_LED, INDICATE_START);
-        printf("handle_playback begin\n");
+        LOG("-->Begin to replay voice!\n");
         ret = handle_playback(AUDIO_FILE_SDCARD);
-        printf("handle_playback return %d\n", ret);
         if (ret == 0) {
             blink_led(PLAYBACK_LED, INDICATE_SUCCESS);
+            LOG("<---Replay done!\n");
         } else {
             blink_led(PLAYBACK_LED, INDICATE_FAILED);
         }
         key_flag = 0;
     } else if (key_flag == 3) {
         blink_led(UPGRADE_LED, INDICATE_START);
-        printf("handle_upgrade begin\n");
+        LOG("-->Try to upgrade firmware, check version...\n");
         ret = handle_upgrade(FIRMWARE_FILE_SDCARD);
-        printf("handle_upgrade return %d\n", ret);
         if (ret == 0) {
             blink_led(UPGRADE_LED, INDICATE_SUCCESS);
+            LOG("<--Firmware upgraded Done!\n");
         } else {
             blink_led(UPGRADE_LED, INDICATE_FAILED);
+            LOG("<--Firmware upgraded Failed!\n");
         }
         key_flag = 0;
     }
@@ -214,7 +216,7 @@ void isd9160_vr_handle(const char *sw_ver, int cmd_id)
     int ret = 0;
 
     if (cmd_id < 0 || cmd_id >= vrcmd_num) {
-        printf("Received unknow VRCMD %d.", cmd_id);
+        LOG("Received unknow VRCMD %d.", cmd_id);
         return;
     }
     if (cmd_id == 0) {
@@ -228,7 +230,7 @@ void isd9160_vr_handle(const char *sw_ver, int cmd_id)
         hal_gpio_output_low(&brd_gpio_table[VRCMD_INDICATOR_LED]);
         aos_post_delayed_action(g_vri_data.interval, indicator_delayed_action, NULL);
     }
-    printf("Received VRCMD: %s\n", g_vrcmd_list[cmd_id]);
+    LOG("Received VRCMD: %s\n", g_vrcmd_list[cmd_id]);
 }
 
 void isd9160_bootup(const char *sw_ver)
@@ -241,19 +243,29 @@ void isd9160_bootup(const char *sw_ver)
         ret |= hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_2],
                 IRQ_TRIGGER_RISING_EDGE, key2_handle, NULL);
         if (ret != 0) {
-            printf("hal_gpio_enable_irq key return failed.\n");
+            LOG("hal_gpio_enable_irq key return failed.\n");
         }
-        printf("Ready for record and playback.\n");
+        LOG("=============Recording/Playback Mode======================\n");
+        LOG("--Press Button M to record voice and store into TF card!--\n");
+        LOG("--Press Button A to playback which is from TF card!-----\n");
+        LOG("--Press Button B to upgrade firmware!-----\n");
+        LOG("----------------------------------------------------------\n");
     } else if (is_vr_version(sw_ver)) {
         ret |= hal_gpio_disable_irq(&brd_gpio_table[GPIO_KEY_1]);
         ret |= hal_gpio_disable_irq(&brd_gpio_table[GPIO_KEY_2]);
         if (ret != 0) {
-            printf("hal_gpio_enable_irq key return failed.\n");
+            LOG("hal_gpio_enable_irq key return failed.\n");
         }
         register_vrcmd_callback(isd9160_vr_handle);
-        printf("Ready for voice recognition.\n");
+        LOG("=============Voice Recognition  Mode======================\n");
+        LOG("--Wakeup Commands: Xiao Te Xiao Te\n");
+        LOG("--Recognition Commands List:\n"
+               "拍照, 扫一扫, 音乐播放, 音乐暂停, 上一首, 下一首, 音量增大,\n"
+               "音量减小, 当前温度, 当前湿度, 请开灯, 请关灯--------------\n");
+        LOG("--Press Button B to upgrade firmware!-----\n");
+        LOG("----------------------------------------------------------\n");
     } else {
-        printf("Unknow version %s\n", sw_ver);
+        LOG("Unknow version %s\n", sw_ver);
     }
 }
 
@@ -271,7 +283,7 @@ int application_start(int argc, char *argv[])
     ret = hal_gpio_enable_irq(&brd_gpio_table[GPIO_KEY_3],
             IRQ_TRIGGER_RISING_EDGE, key3_handle, NULL);
     if (ret != 0) {
-        printf("hal_gpio_enable_irq key return failed.\n");
+        LOG("hal_gpio_enable_irq key return failed.\n");
     }
     register_swver_callback(isd9160_bootup);
     aos_post_delayed_action(1000, isd9160_loop, NULL);
