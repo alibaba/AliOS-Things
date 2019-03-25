@@ -1,8 +1,17 @@
-#include <k_config.h>
+/*
+ * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ */
 
-const char *sysinfo_kernel_version="AOS-R-2.1.0";
+#include <stdlib.h>
+
+#include "aos/kv.h"
+#include "k_config.h"
+
+#define SEED_MAGIC 0x123
 
 extern void hal_reboot(void);
+
+const char *sysinfo_kernel_version="AOS-R-2.1.0";
 
 void aos_reboot(void)
 {
@@ -18,3 +27,32 @@ const char *aos_version_get(void)
 {
     return sysinfo_kernel_version;
 }
+
+void aos_srand(unsigned int seed)
+{
+#if !defined (ENABLE_RNG) && defined (AOS_COMP_KV)
+    int           ret        = 0;
+    int           seed_len   = 0;
+    unsigned int  seed_val   = 0;
+    static char  *g_seed_key = "seed_key";
+
+    seed_len = sizeof(seed_val);
+    ret = aos_kv_get(g_seed_key, &seed_val, &seed_len);
+    if (ret) {
+        seed_val = SEED_MAGIC;
+    }
+    seed_val += seed;
+    srand(seed_val);
+
+    seed_val = rand();
+    aos_kv_set(g_seed_key, &seed_val, sizeof(seed_val), 1);
+#else
+    srand(seed);
+#endif
+}
+
+int aos_rand(void)
+{
+    return rand();
+}
+
