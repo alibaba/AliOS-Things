@@ -15,12 +15,14 @@
 
 bool httpc_running = false;
 int method;
+
 httpc_handle_t httpc_handle = 0;
 #if CONFIG_HTTP_SECURE
 char server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "https://iot-as-http.cn-shanghai.aliyuncs.com/";
 #else
 char server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://httpie.org/";
 #endif
+
 #if CONFIG_HTTP_SECURE
 static const char *ca_cert = \
 {
@@ -67,7 +69,7 @@ static void httpc_delayed_action(void *arg)
     LOG("http session %x method %d at %d\n", httpc_handle, method, (uint32_t)aos_now_ms());
     switch (method) {
         case HTTP_GET:
-            httpc_send_request(httpc_handle, HTTP_GET, NULL, NULL, 0);
+            httpc_send_request(httpc_handle, HTTP_GET, NULL, NULL, NULL, NULL, 0);
             httpc_running = false;
             break;
         default:
