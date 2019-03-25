@@ -54,7 +54,7 @@ static int ota_parse(void *pctx, const char *json)
     ota_service_t *ctx = pctx;
     if(NULL == ctx) {
         ret = OTA_PARAM_FAIL;
-        goto parse_failed;
+        goto parse_end;
     }
     char          *url  = ctx->url;
     char          *hash = ctx->hash;
@@ -62,37 +62,37 @@ static int ota_parse(void *pctx, const char *json)
     ota_boot_param_t *ota_param = (ota_boot_param_t *)ctx->boot_param;
     if((NULL == url) || (NULL == hash) || (NULL == ota_param)) {
         ret = OTA_PARAM_FAIL;
-        goto parse_failed;
+        goto parse_end;
     }
 
     root = cJSON_Parse(json);
     if (NULL == root) {
         ret = OTA_PARAM_FAIL;
-        goto parse_failed;
+        goto parse_end;
     } else {
         cJSON *message = cJSON_GetObjectItem(root, "message");
         if (NULL == message) {
             ret = OTA_PARSE_FAIL;
-            goto parse_failed;
+            goto parse_end;
         }
         if ((strncmp(message->valuestring, "success", strlen("success")))) {
             ret = OTA_PARSE_FAIL;
-            goto parse_failed;
+            goto parse_end;
         }
         cJSON *json_obj = cJSON_GetObjectItem(root, "data");
         if (NULL == json_obj) {
             ret = OTA_PARSE_FAIL;
-            goto parse_failed;
+            goto parse_end;
         }
         cJSON *resourceUrl = cJSON_GetObjectItem(json_obj, "url");
         if (NULL == resourceUrl) {
             ret = OTA_PARSE_FAIL;
-            goto parse_failed;
+            goto parse_end;
         }
         cJSON *version = cJSON_GetObjectItem(json_obj, "version");
         if (NULL == version) {
             ret = OTA_PARSE_FAIL;
-            goto parse_failed;
+            goto parse_end;
         }
         strncpy(ctx->ota_ver, version->valuestring, sizeof(ctx->ota_ver));
         strncpy(url, resourceUrl->valuestring, OTA_URL_LEN - 1);
@@ -104,7 +104,7 @@ static int ota_parse(void *pctx, const char *json)
                 cJSON *md5 = cJSON_GetObjectItem(json_obj, "sign");
                 if (NULL == md5) {
                     ret = OTA_PARSE_FAIL;
-                    goto parse_failed;
+                    goto parse_end;
                 }
                 ctx->hash_type = MD5;
                 strncpy(hash, md5->valuestring, strlen(md5->valuestring) + 1);
@@ -114,7 +114,7 @@ static int ota_parse(void *pctx, const char *json)
                 cJSON *sha256 = cJSON_GetObjectItem(json_obj, "sign");
                 if (NULL == sha256) {
                     ret = OTA_PARSE_FAIL;
-                    goto parse_failed;
+                    goto parse_end;
                 }
                 ctx->hash_type = SHA256;
                 strncpy(hash, sha256->valuestring, strlen(sha256->valuestring) + 1);
@@ -122,14 +122,14 @@ static int ota_parse(void *pctx, const char *json)
                 ota_to_capital(hash, strlen(hash));
             } else {
                 ret = OTA_PARSE_FAIL;
-                goto parse_failed;
+                goto parse_end;
             }
         } else { /* old protocol*/
             memset(hash, 0x00, OTA_HASH_LEN);
             cJSON *md5 = cJSON_GetObjectItem(json_obj, "md5");
             if (NULL == md5) {
                 ret = OTA_PARSE_FAIL;
-                goto parse_failed;
+                goto parse_end;
             }
             ctx->hash_type = MD5;
             strncpy(hash, md5->valuestring, strlen(md5->valuestring) + 1);
@@ -139,7 +139,7 @@ static int ota_parse(void *pctx, const char *json)
         cJSON *size = cJSON_GetObjectItem(json_obj, "size");
         if (NULL == size) {
             ret = OTA_PARSE_FAIL;
-            goto parse_failed;
+            goto parse_end;
         }
         ota_param->len = size->valueint;
         ota_param->upg_flag = OTA_RAW;
@@ -162,29 +162,23 @@ static int ota_parse(void *pctx, const char *json)
            ctx->sign_len = OTA_SIGN_LEN;
            if(ota_base64_decode((const unsigned char *)digestSign->valuestring, strlen(digestSign->valuestring), sign, &ctx->sign_len) != 0 ) {
                 ret = OTA_PARSE_FAIL;
-                goto parse_failed;
+                goto parse_end;
             }
             else if(ctx->sign_len != OTA_SIGN_LEN) {
                 ret = OTA_PARSE_FAIL;
-                goto parse_failed;
+                goto parse_end;
             }
         } else {
            ctx->sign_en = OTA_SIGN_OFF;
         }
     }
-    goto parse_success;
-parse_failed:
-    OTA_LOG_E("parse failed err:%d", ret);
-    if (root != NULL) {
-        cJSON_Delete(root);
-    }
-    return -1;
 
-parse_success:
+parse_end:
+    OTA_LOG_E("parse end ret:%d", ret);
     if (root != NULL) {
         cJSON_Delete(root);
     }
-    return 0;
+    return ret;
 }
 
 static void ota_download_thread(void *hand)
