@@ -50,3 +50,10 @@ void sys_start(void)
     aos_start();
 }
 
+#if defined (AOS_COMP_CLI)
+/*use in panic*/
+
+void panic_cli_board_config(void)
+{
+}
+#endif
