@@ -6,7 +6,6 @@ $(NAME)_SUMMARY := coap client
 
 $(NAME)_SOURCES := ./iotx_coap_api.c \
                    ./CoAPNetwork.c \
-                   ./iotx_ca_cert.c \
                    ./CoAPMessage.c \
                    ./CoAPExport.c \
 
