@@ -71,7 +71,7 @@ static int wifi_init(hal_wifi_module_t *m)
 // str: char[12], mac: hex[6]
 static void mac_str_to_hex(char *str, uint8_t *mac)
 {
-    int i;
+    int i, k;
     char c;
     uint8_t j;
 
@@ -80,8 +80,11 @@ static void mac_str_to_hex(char *str, uint8_t *mac)
     }
 
     memset(mac, 0, MAC_STR_LEN >> 1);
-    for (i = 0; i < MAC_STR_LEN; i++) {
-        c = str[i];
+    for (k = 0, i = 0; k < strlen(str); k++) {
+        c = str[k];
+        if (c == ':')
+           continue;
+
         if (c >= '0' && c <= '9') {
             j = c - '0';
         } else if (c >= 'A' && c <= 'F') {
@@ -93,6 +96,8 @@ static void mac_str_to_hex(char *str, uint8_t *mac)
         }
         j <<= i & 1 ? 0 : 4;
         mac[i >> 1] |= j;
+
+        i++;
     }
 }
 
@@ -178,7 +183,7 @@ static int get_mac_helper(char *mac)
         return -1;
     }
 
-    sscanf(out, "%*[^:]:%[^\r]", mac);
+    sscanf(out, "%*[^:]:\"%[^\"]\"", mac);
     LOGI(TAG, "mac result: %s\r\n", mac);
 
     return 0;
