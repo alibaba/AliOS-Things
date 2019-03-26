@@ -10,7 +10,9 @@ extern "C" {
 #endif
 
 int uloc_hal_get_wifi(char **mmac, char **macs);
+
 int uloc_hal_get_gprs(char **cdma, char **bts, char **nearbts);
+
 int uloc_hal_get_gps(location_t **gps);
 
 #ifdef __cplusplus
