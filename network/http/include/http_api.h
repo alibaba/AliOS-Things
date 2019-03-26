@@ -43,6 +43,7 @@ httpc_handle_t httpc_init(httpc_connection_t *settings);
 
 int8_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
                           const char *hdr, const char *content_type, const char *param, uint16_t param_len);
+int32_t httpc_construct_header(char *buf, uint16_t buf_size, const char *name, const char *data);
 
 int8_t httpc_deinit(httpc_handle_t httpc);
 

@@ -219,7 +219,6 @@ static void httpc_recv_thread(void *arg)
                         HTTP_CLIENT_FLAG_SECURE) {
                         ret = mbedtls_ssl_read(&httpc_sessions[index].https.ssl.context,
                                                buf, CONFIG_HTTPC_RX_BUF_SIZE);
-printf("%s,%d,ret %d\r\n",__func__,__LINE__,ret);
                     } else
 #endif
                     {
@@ -227,6 +226,10 @@ printf("%s,%d,ret %d\r\n",__func__,__LINE__,ret);
                     }
                     if (ret > 0) {
                         g_recv_fn(&httpc_sessions[index], buf, (int32_t)ret);
+                    } else if (ret == 0) {
+                        // TODO: add exceptional logics
+                    } else {
+                        // TODO: add exceptional logics
                     }
                 }
             }
