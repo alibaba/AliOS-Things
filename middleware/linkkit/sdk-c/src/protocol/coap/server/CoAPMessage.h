@@ -16,7 +16,7 @@ typedef struct
     CoAPMsgHeader            header;
     unsigned char            retrans_count;
     unsigned char            token[COAP_MSG_MAX_TOKEN_LEN];
-    unsigned short           timeout;
+    unsigned long long       timeout;
     unsigned short           timeout_val;
     unsigned int             msglen;
     CoAPSendMsgHandler       handler;
