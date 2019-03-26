@@ -254,18 +254,16 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
         }
     }
     memset(http_sessions[index].server_name, 0, sizeof(http_sessions[index].server_name));
-    strncpy(http_sessions[index].server_name, param.param, param.len);
+    strncpy(http_sessions[index].server_name, param.param, param.len + 1);
 
-    server_name_offset += param.len;
-    if (http_str_search(http_sessions[index].server_name, ":", server_name_offset - param.len,
-                        param.len, &param) == true) {
+    if (http_str_search(http_sessions[index].server_name, ":", 0, param.len, &param) == true) {
         if ((strlen(http_sessions[index].server_name) - param.len) < 10) {
             param.param += (param.len + 1);
             port_ptr = param.param;
             while (*port_ptr && port_ptr++) {
                 if (*port_ptr == '/') {
                     *port_ptr = 0;
-                    http_sessions[index].port = (uint16_t)atol(port_ptr);
+                    http_sessions[index].port = (uint16_t)atol(param.param);
                     http_sessions[index].flags |= HTTP_CLIENT_FLAG_PORT;
                     break;
                 }
@@ -274,6 +272,10 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
             http_log("%s, server name port too large", __func__);
             return 0;
         }
+        memset(http_sessions[index].server_name + param.len, 0, strlen(http_sessions[index].server_name) - param.len);
+    } else {
+        memset(http_sessions[index].server_name, 0, sizeof(http_sessions[index].server_name));
+        strncpy(http_sessions[index].server_name, param.param, param.len);
     }
 
     http_sessions[index].index = index;
@@ -318,36 +320,56 @@ int8_t httpc_deinit(httpc_handle_t httpc)
     return HTTPC_SUCCESS;
 }
 
-int8_t httpc_add_request_header(httpc_handle_t httpc, const char *hdr_name, const char *hdr_data)
+int32_t httpc_construct_header(char *buf, uint16_t buf_size, const char *name, const char *data)
 {
-    httpc_t *http_session = (httpc_t *)httpc;
     uint16_t hdr_len;
     uint16_t hdr_data_len;
-    char *hdr_ptr;
     uint16_t hdr_length;
+
+    if (buf == NULL || buf_size == 0 || name == NULL || data == NULL) {
+        return HTTPC_FAIL;
+    }
+
+    hdr_len = strlen(name);
+    hdr_data_len = strlen(data);
+    hdr_length = hdr_len + hdr_data_len + 4;
+
+    if (hdr_length > buf_size) {
+        return HTTPC_FAIL;
+    }
+
+    memcpy(buf, name, hdr_len);
+    buf += hdr_len;
+    memcpy(buf, ": ", 2);
+    buf += 2;
+    memcpy(buf, data, hdr_data_len);
+    buf += hdr_data_len;
+    memcpy(buf, HTTPC_CRLF, 2);
+
+    return (int32_t)hdr_length;
+}
+
+static int8_t httpc_add_request_header(httpc_handle_t httpc, const char *hdr_name, const char *hdr_data)
+{
+    httpc_t *http_session = (httpc_t *)httpc;
+    char *buf;
+    uint16_t buf_size;
+    int32_t hdr_length;
 
     if (http_session == NULL) {
         return HTTPC_FAIL;
     }
 
-    hdr_len = strlen(hdr_name);
-    hdr_data_len = strlen(hdr_data);
-    hdr_length = hdr_len + hdr_data_len + 4;
-
     if ((http_session->header_len + hdr_length) > CONFIG_HTTPC_HEADER_SIZE) {
         return HTTPC_FAIL;
     }
 
-    hdr_ptr = http_session->header + http_session->header_len;
-    memcpy(hdr_ptr, hdr_name, hdr_len);
-    hdr_ptr += hdr_len;
-    memcpy(hdr_ptr, ": ", 2);
-    hdr_ptr += 2;
-    memcpy(hdr_ptr, hdr_data, hdr_data_len);
-    hdr_ptr += hdr_data_len;
-    memcpy(hdr_ptr, HTTPC_CRLF, 2);
-    hdr_ptr += 2;
-
+    buf = http_session->header + http_session->header_len;
+    buf_size = CONFIG_HTTPC_HEADER_SIZE - (http_session->header_len + hdr_length);
+    hdr_length = httpc_construct_header(buf, buf_size, hdr_name, hdr_data);
+    if (hdr_length < 0) {
+        return HTTPC_FAIL;
+    }
     http_session->header_len += hdr_length;
 
     return HTTPC_SUCCESS;
@@ -372,7 +394,7 @@ static int8_t httpc_add_space(httpc_handle_t httpc)
 
 static bool is_valid_method(int method)
 {
-    if (method == HTTP_GET) {
+    if (method == HTTP_GET || method == HTTP_POST || method == HTTP_PUT) {
         return true;
     }
 
@@ -404,6 +426,7 @@ static int8_t httpc_add_method(httpc_handle_t httpc, int method)
     }
 
     strncpy(hdr_ptr, method_str, strlen(method_str));
+    http_session->header_len += strlen(method_str);
     return httpc_add_space(httpc);
 }
 
@@ -499,6 +522,14 @@ static int8_t httpc_add_payload(httpc_handle_t httpc, const char *param, uint16_
     }
 
     free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    if (2 > free_space) {
+        return HTTPC_FAIL;
+    }
+    hdr_ptr = http_session->header + http_session->header_len;
+    memcpy(hdr_ptr, HTTPC_CRLF, 2);
+    http_session->header_len += 2;
+
+    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
     if (param_len > free_space) {
         return HTTPC_FAIL;
     }
@@ -534,6 +565,7 @@ int8_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
     httpc_t *http_session = (httpc_t *)httpc;
     int8_t ret = HTTPC_SUCCESS;
     int socket_res;
+    char *hdr_ptr;
 
     if (is_valid_method(method) == false) {
         return HTTPC_FAIL;
@@ -575,17 +607,17 @@ int8_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
         }
     }
 
-    ret = httpc_add_request_header(httpc, "Host", http_session->server_name);
-    if (ret != HTTPC_SUCCESS) {
-        goto exit;
-    }
-
     if ((http_session->flags & HTTP_CLIENT_FLAG_KEEP_ALIVE) == HTTP_CLIENT_FLAG_KEEP_ALIVE) {
         ret = httpc_add_request_header(httpc, "Connection", "Keep-Alive");
     } else {
         ret = httpc_add_request_header(httpc, "Connection", "close");
     }
 
+    if (ret != HTTPC_SUCCESS) {
+        goto exit;
+    }
+
+    ret = httpc_add_request_header(httpc, "Host", http_session->server_name);
     if (ret != HTTPC_SUCCESS) {
         goto exit;
     }
@@ -609,9 +641,13 @@ int8_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
         if (ret != HTTPC_SUCCESS) {
             goto exit;
         }
+    } else {
+        hdr_ptr = http_session->header + http_session->header_len;
+        memcpy(hdr_ptr, HTTPC_CRLF, 2);
+        http_session->header_len += 2;
     }
 
-    http_log("%s, send request header %s, socket %d, strlen %d, len %d",
+    http_log("%s, send request header\r\n%s\r\nsocket %d, strlen %d, len %d",
               __func__, http_session->header, http_session->socket, strlen(http_session->header), http_session->header_len);
 
     if (http_session->connection == false) {
@@ -626,11 +662,14 @@ int8_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
             goto exit;
         }
         addr.sin_family = AF_INET;
-        // addr.sin_port = htons(http_session->port);
         addr.sin_addr.s_addr = *(uint32_t *)(host_entry->h_addr);
         if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
 #if CONFIG_HTTP_SECURE
-            addr.sin_port = htons(443);
+            if ((http_session->flags & HTTP_CLIENT_FLAG_PORT) == HTTP_CLIENT_FLAG_PORT) {
+                addr.sin_port = htons(http_session->port);
+            } else {
+                addr.sin_port = htons(443);
+            }
             socket_res = httpc_wrapper_ssl_connect(http_session->socket, (const struct sockaddr *)&addr, sizeof(addr));
 #else
             http_log("%s, https not available", __func__);
@@ -638,7 +677,11 @@ int8_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
             goto exit;
 #endif
         } else {
-            addr.sin_port = htons(80);
+            if ((http_session->flags & HTTP_CLIENT_FLAG_PORT) == HTTP_CLIENT_FLAG_PORT) {
+                addr.sin_port = htons(http_session->port);
+            } else {
+                addr.sin_port = htons(80);
+            }
             socket_res = httpc_wrapper_connect(http_session->socket, (const struct sockaddr *)&addr, sizeof(addr));
         }
         http_log("%s, connect %d", __func__, socket_res);
