@@ -37,91 +37,66 @@ typedef union {
 extern "C" {
 #endif
 
-/*******************************************************************
-*  initial location service
-*
-*  @return:
-*******************************************************************/
+/**
+ * Initial location service
+ */
 int uloc_init(uloc_scenario_e scen, int update_inv);
 
-/*******************************************************************
-*  terminate locating service
-*
-*  @return:
-*******************************************************************/
-int uloc_deinit();
+/**
+ * Terminate locating service
+ */
+int uloc_deinit(void);
 
-/* OUTDOOR */
-/*******************************************************************
-*  get latitude
-*
-*  @return:
-*******************************************************************/
-int uloc_get_latitude(float * latitude);
+/**
+ * Get latitude
+ */
+int uloc_get_latitude(float *latitude);
 
-/*******************************************************************
-*  get altitude
-*
-*  @return:
-*******************************************************************/
-int uloc_get_altitude(float * altitude);
+/**
+ * Get altitude
+ */
+int uloc_get_altitude(float *altitude);
 
-/*******************************************************************
-*  get longitude
-*
-*  @return:
-*******************************************************************/
+/**
+ * Get longitude
+ */
 int uloc_get_longitude(float *longitude);
 
-/* INDOOR */
-/*******************************************************************
-*  get x
-*
-*  @return:
-*******************************************************************/
-int uloc_get_x(float * x);
+/**
+ * Get x
+ */
+int uloc_get_x(float *x);
 
-/*******************************************************************
-*  get y
-*
-*  @return:
-*******************************************************************/
-int uloc_get_y(float * y);
+/**
+ * Get y
+ */
+int uloc_get_y(float *y);
 
-/*******************************************************************
-*  get z
-*
-*  @return:
-*******************************************************************/
-int uloc_get_z(float * z);
+/**
+ * Get z
+ */
+int uloc_get_z(float *z);
 
-/*******************************************************************
-*  get location
-*
-*  @return:
-*******************************************************************/
-int uloc_get_location(location_t * rlt);
+/**
+ * Get location
+ */
+int uloc_get_location(location_t *rlt);
 
-/*******************************************************************
-*  fetch new location value, this method should be invoked by user
-*  when there is no individual self task.
-*
-*  @return:
-*******************************************************************/
-int uloc_update_locationinfo(location_t ** gps,
-                             char ** mmac, char ** macs,   /* wifi       */
-                             char ** cdma, char ** bts,  char ** nearbts);
+/**
+ * Fetch new location value, this method should be invoked by user
+ * when there is no individual self task.
+ */
+int uloc_update_locationinfo(location_t **gps, char **mmac, char **macs, /* wifi */
+                             char **cdma, char **bts, char **nearbts);
 
-/*******************************************************************
-*  uloc_update_gpsinfo
-*
-*  @return:
-*******************************************************************/
-int uloc_update_gpsinfo(location_t * lo);
+/**
+ * uloc_update_gpsinfo
+ */
+int uloc_update_gpsinfo(location_t *lo);
 
 #ifdef __cplusplus
 }
-#endif /* extern c */
+#endif
 
-#endif /* _U_LOCATION_H_ */
+#endif /* ULOCATION_H */
 
