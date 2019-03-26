@@ -222,7 +222,7 @@ define USAGE_TEXT
 
 Usage: aos make <target> -c <[config|menuconfig]>
        aos make menuconfig
-       aos make [VERBOSE=1] [MBINS=app|kernel] [BUILD_TYPE=debug|inspect|release|silence]
+       aos make [VERBOSE=1] [MBINS=app|kernel] [BUILD_TYPE=debug|inspect|release_log|release]
                 [clean|distclean] [export-keil|export-iar] ...
 
   <target>
@@ -236,13 +236,13 @@ Usage: aos make <target> -c <[config|menuconfig]>
   [MBINS=app/kernel]
     Build bins: app or kernel
 
-  [BUILD_TYPE=debug|inspect|release|silence]
-    Build for debug, inspect, release or silence configurations
+  [BUILD_TYPE=debug|inspect|release_log|release]
+    Build for debug, inspect, release_log or release configurations
 
   Notes
     * Component names are case sensitive
     * Component names MUST NOT include space or '@' characters
-    * BUILD_TYPE is set as release by default
+    * BUILD_TYPE is set as release_log by default
 
   Example Usage:
     Configure and build with default configs:
