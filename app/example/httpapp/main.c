@@ -9,19 +9,39 @@
 #include <aos/cli.h>
 #include <aos/yloop.h>
 #include <network/network.h>
+#include "http_api.h"
+#if CONFIG_HTTP_SECURE
+#include "mbedtls/sha256.h"
+#include "mbedtls/sha1.h"
+#endif
 #include "ulog/ulog.h"
 #include "netmgr.h"
-#include "http_api.h"
 
 bool httpc_running = false;
-int method;
+int command;
+
+#if 1
+#define PRODUCT_KEY             "a1cXH4Sgvdu"
+#define PRODUCT_SECRET          "7PCG4aRnzdetZaIH"
+#define DEVICE_NAME             "alios_net_test_1_1"
+#define DEVICE_SECRET           "UgMue4eixCAKyGnhMjde51Bbs07c3tdW"
+#else
+#define PRODUCT_KEY             "a1MZxOdcBnO"
+#define PRODUCT_SECRET          "h4I4dneEFp7EImTv"
+#define DEVICE_NAME             "test_01"
+#define DEVICE_SECRET           "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
+#endif
+
+enum {
+    HTTP_AUTH,
+    HTTP_OTA,
+};
 
 httpc_handle_t httpc_handle = 0;
 #if CONFIG_HTTP_SECURE
-char server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "https://iot-as-http.cn-shanghai.aliyuncs.com/";
-#else
-char server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://httpie.org/";
+char auth_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "https://iot-auth.cn-shanghai.aliyuncs.com/";
 #endif
+char ota_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://mjfile-test.smartmidea.net:80/";
 
 #if CONFIG_HTTP_SECURE
 static const char *ca_cert = \
@@ -56,28 +76,191 @@ static int httpc_recv_fun(httpc_handle_t httpc, uint8_t *buf, int32_t buf_size,
 {
     LOG("http session %x, buf size %d bytes, recv %d bytes data, is_final %d\n",
          httpc, buf_size, data_len, is_final);
+    if (data_len > 0) {
+        LOG("%s", buf);
+    }
     return 0;
+}
+
+#if CONFIG_HTTP_SECURE
+static int8_t hb2hex(uint8_t hb)
+{
+    hb = hb & 0xf;
+    return (int8_t)(hb < 10 ? '0' + hb : hb - 10 + 'a');
+}
+
+#define KEY_IOPAD_SIZE 64
+#define SHA256_DIGEST_SIZE 32
+static void hmac_sha256(char *sign, const char *msg, int msg_len,
+                        const char *key, int key_len)
+{
+    mbedtls_sha256_context context;
+    unsigned char k_ipad[KEY_IOPAD_SIZE];
+    unsigned char k_opad[KEY_IOPAD_SIZE];
+    unsigned char out[SHA256_DIGEST_SIZE];
+    int32_t index;
+
+    memset(k_ipad, 0, sizeof(k_ipad));
+    memset(k_opad, 0, sizeof(k_opad));
+    strncpy(k_ipad, key, key_len);
+    strncpy(k_opad, key, key_len);
+
+    for (index = 0; index < KEY_IOPAD_SIZE; index++) {
+        k_ipad[index] ^= 0x36;
+        k_opad[index] ^= 0x5c;
+    }
+
+    mbedtls_sha256_init(&context);
+    mbedtls_sha256_starts(&context, 0);
+    mbedtls_sha256_update(&context, k_ipad, KEY_IOPAD_SIZE);
+    mbedtls_sha256_update(&context, (unsigned char *)msg, msg_len);
+    mbedtls_sha256_finish(&context, out);
+
+    mbedtls_sha256_init(&context);
+    mbedtls_sha256_starts(&context, 0);
+    mbedtls_sha256_update(&context, k_opad, KEY_IOPAD_SIZE);
+    mbedtls_sha256_update(&context, (unsigned char *)msg, msg_len);
+    mbedtls_sha256_finish(&context, out);
+
+    for (index = 0; index < SHA256_DIGEST_SIZE; ++index) {
+        sign[index * 2] = hb2hex(out[index] >> 4);
+        sign[index * 2 + 1] = hb2hex(out[index]);
+    }
+}
+
+#define SHA1_DIGEST_SIZE 20
+static void hmac_sha1(char *sign, const char *msg, int msg_len,
+                      const char *key, int key_len)
+{
+    mbedtls_sha1_context context;
+    unsigned char k_ipad[KEY_IOPAD_SIZE];
+    unsigned char k_opad[KEY_IOPAD_SIZE];
+    unsigned char out[SHA1_DIGEST_SIZE];
+    int index;
+
+    memset(k_ipad, 0, sizeof(k_ipad));
+    memset(k_opad, 0, sizeof(k_opad));
+    memcpy(k_ipad, key, key_len);
+    memcpy(k_opad, key, key_len);
+    memset(out, 0, SHA1_DIGEST_SIZE);
+
+    for (index = 0; index < KEY_IOPAD_SIZE; index++) {
+        k_ipad[index] ^= 0x36;
+        k_opad[index] ^= 0x5c;
+    }
+
+    mbedtls_sha1_init(&context);
+    mbedtls_sha1_starts(&context);
+    mbedtls_sha1_update(&context, k_ipad, KEY_IOPAD_SIZE);
+    mbedtls_sha1_update(&context, (unsigned char *)msg, msg_len);
+    mbedtls_sha1_finish(&context, out);
+
+    mbedtls_sha1_init(&context);
+    mbedtls_sha1_starts(&context);
+    mbedtls_sha1_update(&context, k_opad, KEY_IOPAD_SIZE);
+    mbedtls_sha1_update(&context, out, SHA1_DIGEST_SIZE);
+    mbedtls_sha1_finish(&context, out);
+
+    for (index = 0; index < SHA1_DIGEST_SIZE; ++index) {
+        sign[index * 2] = hb2hex(out[index] >> 4);
+        sign[index * 2 + 1] = hb2hex(out[index]);
+    }
+}
+
+static int32_t calc_sign(char *sign, const char *device_id, const char *product_key,
+                         const char *device_name, const char *device_secret,
+                         const char *timestamp)
+{
+    char hmac_source[512] = {0};
+
+    snprintf(hmac_source, sizeof(hmac_source),
+             "clientId%s" "deviceName%s" "productKey%s" "timestamp%s",
+             device_id, device_name, product_key, timestamp);
+
+    hmac_sha1(sign, hmac_source, strlen(hmac_source),
+              device_secret, strlen(device_secret));
+    return HTTPC_SUCCESS;
+}
+
+#define HTTP_AUTH_HDR_SIZE 128
+#define HTTP_AUTH_DATA_SIZE 512
+#define HTTP_AUTH_SIGN_SIZE 66
+#define HTTP_AUTH_TS_SIZE 16
+static void httpc_auth(const char *device_id, const char *product_key,
+                       const char *device_name, const char *device_secret)
+{
+    int32_t ret;
+    char hdr[HTTP_AUTH_HDR_SIZE] = {0};
+    char data[HTTP_AUTH_DATA_SIZE] = {0};
+    char sign[HTTP_AUTH_SIGN_SIZE] = {0};
+    char timestamp[HTTP_AUTH_TS_SIZE] = {"2524608000000"};
+
+    ret = httpc_construct_header(hdr, HTTP_AUTH_HDR_SIZE, "Accept",
+                                "text/xml,text/javascript,text/html,application/json");
+    if (ret < 0) {
+        LOG("http construct header fail\n");
+        return;
+    }
+
+    calc_sign(sign, device_id, product_key, device_name, device_secret, timestamp);
+    ret = snprintf(data, HTTP_AUTH_DATA_SIZE,
+                   "productKey=%s&" "deviceName=%s&" "signmethod=%s&" "sign=%s&"
+                   "version=default&" "clientId=%s&" "timestamp=%s&" "resources=mqtt",
+                   product_key, device_name, "hmacsha1", sign, device_id, timestamp);
+
+    if (ret < 0) {
+        LOG("http construct data payload fail\n");
+        return;
+    }
+
+    httpc_send_request(httpc_handle, HTTP_POST, "/auth/devicename", hdr,
+                       "application/x-www-form-urlencoded;charset=utf-8", data, ret);
+}
+#endif
+
+#define HTTP_OTA_HDR_SIZE 64
+void httpc_ota(const char *uri)
+{
+    char hdr[HTTP_OTA_HDR_SIZE] = {0};
+    int ret;
+
+    ret = httpc_construct_header(hdr, HTTP_OTA_HDR_SIZE, "Accept", "*/*");
+    if (ret < 0) {
+        LOG("http construct header fail\n");
+        return;
+    }
+    if (uri) {
+        httpc_send_request(httpc_handle, HTTP_GET, uri, hdr, NULL, NULL, 0);
+    }
 }
 
 static void httpc_delayed_action(void *arg)
 {
+    char device_id[64];
+
     if (httpc_handle == 0 || httpc_running == false) {
-        httpc_running = false;
         goto exit;
     }
 
-    LOG("http session %x method %d at %d\n", httpc_handle, method, (uint32_t)aos_now_ms());
-    switch (method) {
-        case HTTP_GET:
-            httpc_send_request(httpc_handle, HTTP_GET, NULL, NULL, NULL, NULL, 0);
-            httpc_running = false;
+    LOG("http session %x command %d at %d\n", httpc_handle, command, (uint32_t)aos_now_ms());
+    switch (command) {
+        case HTTP_AUTH:
+#if CONFIG_HTTP_SECURE
+            memset(device_id, 0, 64);
+            snprintf(device_id, 64, "%s.%s", PRODUCT_KEY, DEVICE_NAME);
+            httpc_auth(device_id, PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET);
+#endif
+            break;
+        case HTTP_OTA:
+            httpc_ota("/050509031881.bin");
             break;
         default:
             break;
     }
 
 exit:
-    aos_post_delayed_action(100, httpc_delayed_action, (void *)(long)method);
+    httpc_running = false;
+    aos_post_delayed_action(100, httpc_delayed_action, (void *)(long)command);
 }
 
 #define RSP_BUF_SIZE 2000
@@ -94,6 +277,20 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
     }
 
     if (httpc_running == false) {
+#if CONFIG_HTTP_SECURE
+        if (strncmp(type, "auth", strlen("auth")) == 0) {
+            command = HTTP_AUTH;
+            httpc_running = true;
+        } else
+#endif
+        if (strncmp(type, "ota", strlen("ota")) == 0) {
+            command = HTTP_OTA;
+            httpc_running = true;
+        } else {
+            LOG("unkown command\n");
+            return;
+        }
+
         fd = socket(AF_INET, SOCK_STREAM, 0);
         if (fd < 0) {
             LOG("alloc socket fd fail\n");
@@ -102,7 +299,18 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
         memset(&settings, 0, sizeof(settings));
         settings.socket = fd;
         settings.recv_fn = httpc_recv_fun;
-        settings.server_name = server_name;
+#if CONFIG_HTTP_SECURE
+        if (command == HTTP_AUTH) {
+            settings.server_name = auth_server_name;
+        } else
+#endif
+        if (command == HTTP_OTA) {
+            settings.server_name = ota_server_name;
+        } else {
+            close(fd);
+            return;
+        }
+        //settings.keep_alive = true;
 #if CONFIG_HTTP_SECURE
         settings.ca_cert = ca_cert;
 #endif
@@ -111,19 +319,15 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
         httpc_handle = httpc_init(&settings);
         if (httpc_handle == 0) {
             LOG("http session init fail\n");
+            close(fd);
             return;
         }
-    }
-
-    if (strncmp(type, "GET", strlen("GET")) == 0) {
-        method = HTTP_GET;
-        httpc_running = true;
     }
 }
 
 static struct cli_command httpc_cmd = {
     .name = "httpc",
-    .help = "httpc GET | stop",
+    .help = "httpc auth | ota | stop",
     .function = httpc_cmd_handle
 };
 
