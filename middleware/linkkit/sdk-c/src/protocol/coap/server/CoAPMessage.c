@@ -35,13 +35,14 @@
     ((1 <= header.code) && (32 > header.code))
 
 
+#define NOKEEP 0
+#define KEEPING 1
+#define TOREMOVEKEEP 2
 #define COAP_CUR_VERSION        1
-#define COAP_WAIT_TIME_MS       2000
 #define COAP_MAX_MESSAGE_ID     65535
-#define COAP_MAX_RETRY_COUNT    4
-#define COAP_ACK_TIMEOUT        2
+#define COAP_MAX_RETRY_COUNT    8
+#define COAP_ACK_TIMEOUT        600
 #define COAP_ACK_RANDOM_FACTOR  1
-#define COAP_MAX_TRANSMISSION_SPAN   10
 
 unsigned short CoAPMessageId_gen(CoAPContext *context)
 {
@@ -70,6 +71,7 @@ static int CoAPMessageList_add(CoAPContext *context, NetworkAddr *remote,
 {
     CoAPIntContext *ctx = (CoAPIntContext *)context;
     CoAPSendNode *node = NULL;
+    uint64_t tick;
     node = coap_malloc(sizeof(CoAPSendNode));
 
     if (NULL != node) {
@@ -88,14 +90,16 @@ static int CoAPMessageList_add(CoAPContext *context, NetworkAddr *remote,
         } else {
             node->keep = 0;
         }
+        tick = HAL_UptimeMs ();
 
         if (COAP_MESSAGE_TYPE_CON == message->header.type) {
-            node->timeout       = node->timeout_val;
-            node->retrans_count = 0;
-        } else {
-            node->timeout       = COAP_MAX_TRANSMISSION_SPAN;
+            node->timeout = node->timeout_val + tick;
             node->retrans_count = COAP_MAX_RETRY_COUNT;
+        } else {
+            node->timeout = node->timeout_val * 4 + tick;
+            node->retrans_count = 0;
         }
+
         memcpy(node->token, message->token, message->header.tokenlen);
 
         HAL_MutexLock(ctx->sendlist.list_mutex);
@@ -566,79 +570,85 @@ int CoAPMessage_process(CoAPContext *context, unsigned int timeout)
     }
 }
 
-int CoAPMessage_retransmit(CoAPContext *context)
+static void Check_timeout (void *context)
 {
-    unsigned int ret = 0;
+    CoAPIntContext *ctx = (CoAPIntContext *)context;
+    CoAPSendNode *node = NULL, *next = NULL, *timeout_node = NULL;
+    uint64_t tick = HAL_UptimeMs ();
+    do {
+        timeout_node = NULL;
+        HAL_MutexLock(ctx->sendlist.list_mutex);
+        list_for_each_entry_safe(node, next, &ctx->sendlist.list, sendlist, CoAPSendNode) {
+
+            if (node->keep != NOKEEP) {
+                continue;
+            }
+            if ((node->retrans_count > 0) || (node->timeout >= tick)) {
+                continue;
+            }
+
+            /*Remove the node from the list*/
+            list_del_init(&node->sendlist);
+            ctx->sendlist.count--;
+            COAP_INFO("Retransmit timeout,remove the message id %d count %d",
+                              node->header.msgid, ctx->sendlist.count);
+            #ifndef COAP_OBSERVE_SERVER_DISABLE
+                CoapObsServerAll_delete(ctx, &node->remote);
+            #endif
+            timeout_node = node;
+            break;
+        }
+        HAL_MutexUnlock(ctx->sendlist.list_mutex);
+
+        if (timeout_node) {
+            if(NULL != timeout_node->handler){
+                timeout_node->handler(ctx, COAP_RECV_RESP_TIMEOUT, timeout_node->user, &timeout_node->remote, NULL);
+            }
+            coap_free(timeout_node->message);
+            coap_free(timeout_node);
+        }
+    } while (timeout_node);
+}
+
+static void Retansmit (void *context)
+{
     CoAPIntContext *ctx = (CoAPIntContext *)context;
     CoAPSendNode *node = NULL, *next = NULL;
+    unsigned int ret = 0;
 
-    if (NULL == context) {
-        return COAP_ERROR_INVALID_PARAM;
-    }
+    uint64_t tick = HAL_UptimeMs (); 
     HAL_MutexLock(ctx->sendlist.list_mutex);
     list_for_each_entry_safe(node, next, &ctx->sendlist.list, sendlist, CoAPSendNode) {
-        if (NULL != node) {
-            if (node->timeout == 0) {
-                if (node->retrans_count < COAP_MAX_RETRY_COUNT) {
-                    node->timeout     = node->timeout_val * 2;
-                    node->timeout_val = node->timeout;
-                    node->retrans_count++;
+        if (NULL == node || node->timeout > tick ) {
+            continue;
+        }    
 
-                    /*If has received ack message, don't resend the message*/
-                    if (0 == node->acked) {
-                        COAP_DEBUG("Retansmit the message id %d len %d", node->header.msgid, node->msglen);
-                        ret = CoAPNetwork_write(ctx->p_network, &node->remote, node->message, node->msglen, ctx->waittime);
-                        if (ret != COAP_SUCCESS) {
-                            if (NULL != ctx->notifier) {
-                                /* TODO: */
-                                /* context->notifier(context, event); */
-                            }
-                        }
-                    }
-                }
-
-                if ((node->timeout > COAP_MAX_TRANSMISSION_SPAN)
-                    || (node->retrans_count >= COAP_MAX_RETRY_COUNT
-                        && !node->keep)) {
-                    void *user_data = node->user;
-                    NetworkAddr remote = {0};
-                    memcpy(&remote, &node->remote, sizeof(remote));
-                    if (NULL != ctx->notifier) {
-                        /* TODO: */
-                        /* context->notifier(context, event); */
-                    }
-                    /*Remove the node from the list*/
-                    list_del(&node->sendlist);
-                    ctx->sendlist.count--;
-                    COAP_INFO("Retransmit timeout,remove the message id %d count %d",
-                              node->header.msgid, ctx->sendlist.count);
-#ifndef COAP_OBSERVE_SERVER_DISABLE
-                    CoapObsServerAll_delete(ctx, &node->remote);
-#endif
-                    HAL_MutexUnlock(ctx->sendlist.list_mutex);
-                    if (NULL != node->handler) {
-                        node->handler(ctx, COAP_RECV_RESP_TIMEOUT, user_data, &remote, NULL);
-                    }
-                    coap_free(node->message);
-                    coap_free(node);
-
-                    HAL_MutexLock(ctx->sendlist.list_mutex);
-                }
-            } else {
-                node->timeout--;
+        if (node->retrans_count > 0) {
+            /*If has received ack message, don't resend the message*/
+            if(0 == node->acked){
+                COAP_DEBUG("Retansmit the message id %d len %d", node->header.msgid, node->msglen);
+                ret = CoAPNetwork_write(ctx->p_network, &node->remote, node->message, node->msglen, ctx->waittime);
+                if (ret != COAP_SUCCESS) {
+                }    
             }
+            node->timeout_val = node->timeout_val * 3 / 2;
+            -- node->retrans_count;
+            if (node->retrans_count == 0) {
+                node->timeout = tick + COAP_ACK_TIMEOUT;
+            } else {
+                node->timeout = tick + node->timeout_val;
+            }
+
+            COAP_FLOW("node->timeout_val = %d , node->timeout=%d ,tick=%d", node->timeout_val,node->timeout,tick);
         }
     }
-
     HAL_MutexUnlock(ctx->sendlist.list_mutex);
-    return COAP_SUCCESS;
 }
 
 extern void *coap_yield_mutex;
 
 int CoAPMessage_cycle(CoAPContext *context)
 {
-    unsigned int ret = 0;
     int res = 0;
 
     CoAPIntContext *ctx = (CoAPIntContext *)context;
@@ -652,7 +662,8 @@ int CoAPMessage_cycle(CoAPContext *context)
     }
 
     res = CoAPMessage_process(ctx, ctx->waittime);
-    ret = CoAPMessage_retransmit(ctx);
+    Retansmit (ctx);
+    Check_timeout (ctx);
 
     if (coap_yield_mutex != NULL) {
         HAL_MutexUnlock(coap_yield_mutex);
@@ -662,6 +673,6 @@ int CoAPMessage_cycle(CoAPContext *context)
         HAL_SleepMs(20);
     }
 
-    return ret;
+    return res;
 }
 
