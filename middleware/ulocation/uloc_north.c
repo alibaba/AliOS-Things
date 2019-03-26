@@ -2,23 +2,25 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "stdio.h"
-#include "cJSON.h"
+#include <stdio.h>
+#include <cJSON.h>
 
-#include <hal/wifi.h>
-#include <ulocation/ulocation.h>
-#include <uloc_common.h>
+#include "hal/wifi.h"
 #include "iot_export_linkkit.h"
+#include "ulocation/ulocation.h"
+#include "uloc_common.h"
 
-#define ULOCATION_TRACE(...)                                     \
-    do {                                                         \
-        HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__);  \
-        HAL_Printf(__VA_ARGS__);                                 \
-        HAL_Printf("\033[0m\r\n");                               \
+#define ULOCATION_TRACE(...)                                    \
+    do {                                                        \
+        HAL_Printf("\033[1;32;40m%s.%d: ", __func__, __LINE__); \
+        HAL_Printf(__VA_ARGS__);                                \
+        HAL_Printf("\033[0m\r\n");                              \
     } while (0)
 
 void parse_positioning_info(char *msg_from_cloud)
 {
+    char *tmp;
+
     location_t location;
 
     cJSON *root         = NULL;
@@ -27,16 +29,14 @@ void parse_positioning_info(char *msg_from_cloud)
     cJSON *altitude     = NULL;
     cJSON *longitude    = NULL;
 
-    char *tmp;
-
-    if (msg_from_cloud == NULL){
+    if (msg_from_cloud == NULL) {
         return;
     }
 
     /* Parse Root */
     root = cJSON_Parse(msg_from_cloud);
 
-    if (root == NULL || !cJSON_IsObject(root)){
+    if (root == NULL || !cJSON_IsObject(root)) {
         ULOCATION_TRACE("JSON Parse Error");
         return;
     }
@@ -47,7 +47,7 @@ void parse_positioning_info(char *msg_from_cloud)
 
     geo_location = cJSON_GetObjectItem(root, "GeoLocation");
 
-    if (geo_location == NULL || !cJSON_IsObject(geo_location)){
+    if (geo_location == NULL || !cJSON_IsObject(geo_location)) {
         cJSON_Delete(root);
         ULOCATION_TRACE("JSON Parse Error");
         return;
@@ -59,7 +59,7 @@ void parse_positioning_info(char *msg_from_cloud)
 
     latitude = cJSON_GetObjectItem(geo_location, "latitude");
 
-    if (latitude == NULL || !cJSON_IsNumber(latitude)){
+    if (latitude == NULL || !cJSON_IsNumber(latitude)) {
         cJSON_Delete(root);
         ULOCATION_TRACE("JSON Parse Error");
         return;
@@ -105,5 +105,4 @@ void parse_positioning_info(char *msg_from_cloud)
 
     cJSON_Delete(root);
 }
-
 

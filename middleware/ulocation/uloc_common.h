@@ -9,12 +9,13 @@
 extern "C" {
 #endif
 
-char *compose_msg_to_report();
+char *compose_msg_to_report(void);
+
 void parse_positioning_info(char *msg_from_cloud);
 
 #ifdef __cplusplus
 }
-#endif  /* extern C */
+#endif
 
 #endif /* ULOC_LINKKIT_H */
 
