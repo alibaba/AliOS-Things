@@ -9,7 +9,6 @@
 #include <unistd.h>
 #include "aos/kernel.h"
 #include "ulog/ulog.h"
-#include <k_err.h>
 #include <yunit.h>
 #include <yts.h>
 #include "iot_import.h"
