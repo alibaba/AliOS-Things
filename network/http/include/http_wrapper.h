@@ -16,6 +16,7 @@ struct hostent *httpc_wrapper_gethostbyname(const char *name);
 
 #if CONFIG_HTTP_SECURE
 int httpc_wrapper_ssl_connect(int socket, const struct sockaddr *name, socklen_t namelen);
+int httpc_wrapper_ssl_destroy(int socket);
 int httpc_wrapper_ssl_send(int socket, const void *data, uint16_t size, int flags);
 #endif
 

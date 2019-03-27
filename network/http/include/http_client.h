@@ -7,6 +7,7 @@
 #include "http_parser.h"
 
 #if CONFIG_HTTP_SECURE
+#include "mbedtls/x509_crt.h"
 #include "mbedtls/ssl.h"
 #endif
 
