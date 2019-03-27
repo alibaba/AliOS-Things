@@ -12,6 +12,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <limits.h>
 
 #include "k_config.h"
 #include "k_default_config.h"

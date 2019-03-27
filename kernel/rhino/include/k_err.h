@@ -83,7 +83,7 @@ typedef enum
     RHINO_TASK_STACK_OVF = 1200u,
     RHINO_INTRPT_STACK_OVF,
 
-    RHINO_STATE_ALIGN = 0x10000000u /* keep enum 4 bytes */
+    RHINO_STATE_ALIGN = INT_MAX /* keep enum 4 bytes at 32bit machine */
 } kstat_t;
 
 typedef void (*krhino_err_proc_t)(kstat_t err);
