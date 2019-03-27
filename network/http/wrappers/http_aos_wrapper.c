@@ -149,6 +149,31 @@ exit:
     return ret;
 }
 
+int httpc_wrapper_ssl_destroy(int socket)
+{
+    httpc_t *http_session = NULL;
+    uint8_t index = 0;
+    int ret = 0;
+
+    for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
+        if (g_httpc_sessions[index].socket == socket) {
+             break;
+        }
+    }
+    if (index == CONFIG_HTTPC_SESSION_NUM) {
+        return -1;
+    }
+    http_session = &g_httpc_sessions[index];
+
+    http_session->https.is_inited = false;
+
+    mbedtls_ssl_close_notify(&(http_session->https.ssl.context));
+    mbedtls_x509_crt_free(&(http_session->https.ssl.ca_cert));
+    mbedtls_ssl_free(&(http_session->https.ssl.context));
+    mbedtls_ssl_config_free(&(http_session->https.ssl.conf));
+    return 0;
+}
+
 int httpc_wrapper_ssl_send(int socket, const void *data, uint16_t size, int flags)
 {
     int ret = -1;
@@ -194,6 +219,7 @@ static void httpc_recv_thread(void *arg)
     // TODO: support multiple http sessions
     while (1) {
         FD_ZERO(&sets);
+        max_fd = -1;
         for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
             if (httpc_sessions[index].socket < 0) {
                 continue;
