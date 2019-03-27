@@ -3,15 +3,11 @@
  */
 
 #include <stdint.h>
-#include "k_config.h"
+#include "k_api.h"
 #include "board.h"
 
 #include "aos/kernel.h"
 #include "aos/hal/uart.h"
-
-#include "k_err.h"
-#include "k_sys.h"
-#include "k_time.h"
 
 #include "HK32f1xx_hal.h"
 #include "HK32f1xx_hal_uart.h"
@@ -44,17 +40,17 @@ void board_init(void)
 #endif
 
     HAL_Init();
-    
+
     /* Configure the system clock */
     SystemClk_Config();
-    
-    
+
+
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     stduart_init();
 
      /* USER CODE BEGIN  */
-    
+
      /* USER CODE END  */
 
 }
@@ -83,7 +79,7 @@ GETCHAR_PROTOTYPE
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
   uint8_t ch = EOF;
   int32_t ret = -1;
-  
+
   uint32_t recv_size;
   ret = hal_uart_recv_II(&uart_0, &ch, 1, &recv_size, HAL_WAIT_FOREVER);
 
@@ -102,7 +98,7 @@ static void SystemClk_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -116,7 +112,7 @@ static void SystemClk_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -130,11 +126,11 @@ static void SystemClk_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure the Systick interrupt time 
+    /**Configure the Systick interrupt time
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
-    /**Configure the Systick 
+    /**Configure the Systick
     */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
@@ -181,7 +177,7 @@ void _Error_Handler(char *file, int line)
 #ifdef  USE_FULL_ASSERT
 /*Reports the name of the source file and the source line number  */
 void assert_failed(uint8_t* file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
