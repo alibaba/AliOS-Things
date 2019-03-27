@@ -4,8 +4,7 @@
 
 #include <stdio.h>
 #include "esp_system.h"
-
-#include "k_err.h"
+#include "k_api.h"
 
 extern void vPortETSIntrLock(void);
 extern void aos_msleep(int ms);
