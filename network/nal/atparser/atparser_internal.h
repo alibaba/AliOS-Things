@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2015-2018 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
 #ifndef _ATPARSER_INTERNAL_H_
 #define _ATPARSER_INTERNAL_H_
 
-
-#include "aos/hal/uart.h"
+#include "atparser.h"
 
 #include "atparser_opts.h"
 
@@ -57,6 +56,14 @@ typedef struct at_task_s
     uint32_t       rsp_len;
     at_rsp_state_t rsp_state;
 } at_task_t;
+
+typedef struct {
+    int   fd;
+    char *buf;
+    int   buf_size;
+} at_task_para_t;
+
+#define AT_TASK_NAME_MAX_LEN  15
 #endif
 
 /**
@@ -64,52 +71,35 @@ typedef struct at_task_s
  */
 typedef struct
 {
-    /// used only internally
-    uart_dev_t *_pstuart;
-    int         _timeout;
-    char *      _default_recv_prefix;
-    char *      _default_recv_success_postfix;
-    char *      _default_recv_fail_postfix;
-    char *      _send_delimiter;
-    int         _recv_prefix_len;
-    int         _recv_success_postfix_len;
-    int         _recv_fail_postfix_len;
-    int         _send_delim_size;
-    oob_t       _oobs[OOB_MAX];
-    int         _oobs_num;
-    void       *at_uart_recv_mutex;
-    void       *at_uart_send_mutex;
-    void       *task_mutex;
+    uint8_t         _inited;
+    uint8_t         _port;
+    at_dev_type_t   _type;
+    void           *_dev;
+    uint32_t        _timeout_ms;
+    char           *_default_recv_prefix;
+    char           *_default_recv_success_postfix;
+    char           *_default_recv_fail_postfix;
+    char           *_send_delimiter;
+    uint8_t         _wait_prompt;
+    int             _recv_prefix_len;
+    int             _recv_success_postfix_len;
+    int             _recv_fail_postfix_len;
+    int             _send_delim_size;
+    oob_t           _oobs[OOB_MAX];
+    int             _oobs_num;
+    void           *_recv_mutex;
+    void           *_send_mutex;
 #if !ATPSR_SINGLE_TASK
-    slist_t task_l;
+    int             _recv_task_prio;
+    int             _recv_task_stacksize;
+    void           *_task_mutex;
+    char            _task_name[AT_TASK_NAME_MAX_LEN];
+    at_task_para_t *_task_para;
+    void           *_task_start_sem;
+    void           *_task_exit_sem;
+    slist_t         _task_l;
 #endif
-} at_parser_t;
-
-#define TASK_DEFAULT_WAIT_TIME 5000
-
-#ifndef AT_WORKER_STACK_SIZE
-#define AT_WORKER_STACK_SIZE   1024
-#endif
-
-#ifndef AT_WORKER_PRIORITY
-#define AT_WORKER_PRIORITY     AOS_DEFAULT_APP_PRI
-#endif
-
-#ifndef AT_UART_TIMEOUT_MS
-#define AT_UART_TIMEOUT_MS     1000
-#endif
-
-#ifndef AT_SEND_DATA_DELAY_MS
-#define AT_SEND_DATA_DELAY_MS  0
-#endif
-
-#ifndef AT_SEND_DATA_WAIT_PROMPT
-#define AT_SEND_DATA_WAIT_PROMPT 0
-#endif
-
-#ifndef AT_SEND_DATA_PROMPT
-#define AT_SEND_DATA_PROMPT ">"
-#endif
+} at_dev_t;
 
 void *atpsr_malloc(uint32_t size);
 void atpsr_free(void *ptr);
@@ -123,4 +113,15 @@ void atpsr_sem_signal(void *sem);
 int atpsr_sem_wait(void *sem, uint32_t timeout_ms);
 int atpsr_task_new_ext(void *task, char *name, void (*fn)(void *),
                        void *arg, int stack_size, int prio);
+
+typedef struct {
+   at_dev_type_t type;
+   int (*init)(void *dev);
+   int (*recv)(void *dev, void *data, uint32_t expect_size,
+               uint32_t *recv_size, uint32_t timeout);
+   int (*send)(void *dev, void *data, uint32_t size,
+               uint32_t timeout);
+   int (*deinit)(void *dev);
+} at_dev_ops_t;
+
 #endif
