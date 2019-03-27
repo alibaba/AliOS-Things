@@ -14,14 +14,7 @@
 #include <assert.h>
 #include <aos/kv.h>
 #endif
-#include <k_config.h>
-#include <k_types.h>
-#include <k_err.h>
-#include <k_sys.h>
-#include <k_list.h>
-#include <k_obj.h>
-#include <k_task.h>
-#include <port.h>
+#include "k_api.h"
 
 #define LORAWAN_DEFAULT_PING_SLOT_PERIODICITY       3
 
