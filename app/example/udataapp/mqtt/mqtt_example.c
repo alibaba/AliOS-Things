@@ -15,7 +15,6 @@
 #include "network/network.h"
 #include <netmgr.h>
 #include <aos/kernel.h>
-#include <k_err.h>
 #include <netmgr.h>
 #include <aos/cli.h>
 
