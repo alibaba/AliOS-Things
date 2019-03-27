@@ -1,15 +1,13 @@
 /* Includes*/
 #include "HK32f1xx_hal.h"
-#include "k_err.h"
-#include "k_sys.h"
-#include "k_time.h"
+#include "k_api.h"
 #include "hk32f1xx_it.h"
 
 
 extern UART_HandleTypeDef huart1;
 
 /******************************************************************************/
-/*            Cortex-M3 Processor Interruption and Exception Handlers         */ 
+/*            Cortex-M3 Processor Interruption and Exception Handlers         */
 /******************************************************************************/
 
 /*This function handles Non maskable interrupt.*/
