@@ -14,14 +14,7 @@
 #include <assert.h>
 #include <aos/kv.h>
 #endif
-#include <k_config.h>
-#include <k_types.h>
-#include <k_err.h>
-#include <k_sys.h>
-#include <k_list.h>
-#include <k_obj.h>
-#include <k_task.h>
-#include <port.h>
+#include "k_api.h"
 
 static uint8_t        tx_buf[LORAWAN_APP_DATA_BUFF_SIZE];
 static lora_AppData_t tx_data = { tx_buf, 1, 0 };
