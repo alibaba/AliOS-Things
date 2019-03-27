@@ -1,5 +1,10 @@
+/*
+ * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+ */
+
 #include <stdint.h>
 #include "aos/kernel.h"
+#include "atparser_opts.h"
 
 void *atpsr_malloc(uint32_t size)
 {
@@ -11,6 +16,47 @@ void atpsr_free(void *ptr)
     aos_free(ptr);
 }
 
+#if ATPSR_SINGLE_TASK
+void *atpsr_mutex_new(void)
+{
+    return (void*)1;
+}
+
+void atpsr_mutex_free(void *mutex)
+{
+    return;
+}
+
+void atpsr_mutex_lock(void *mutex)
+{
+    return;
+}
+
+void atpsr_mutex_unlock(void *mutex)
+{
+    return;
+}
+
+void *atpsr_sem_new(void)
+{
+    return (void*)1;
+}
+
+void atpsr_sem_free(void *sem)
+{
+    return;
+}
+
+void atpsr_sem_signal(void *sem)
+{
+    return;
+}
+
+int atpsr_sem_wait(void *sem, uint32_t timeout_ms)
+{
+    return 0;
+}
+#else
 void *atpsr_mutex_new(void)
 {
     aos_mutex_t mutex;
@@ -77,3 +123,4 @@ int atpsr_task_new_ext(void *task, char *name, void (*fn)(void *),
     return aos_task_new_ext((aos_task_t *)&task, name, fn, arg, stack_size,
                             prio);
 }
+#endif
