@@ -9,9 +9,6 @@
 extern "C"
 {
 #endif
-
-#include <k_err.h>
-
 #include "pwrmgmt_state.h"
 
 #define CPU_PWR_NODE_NAME_LEN 64
