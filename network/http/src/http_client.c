@@ -315,6 +315,9 @@ int8_t httpc_deinit(httpc_handle_t httpc)
         return HTTPC_FAIL;
     }
 
+#if CONFIG_HTTP_SECURE
+    httpc_wrapper_ssl_destroy(http_session->socket);
+#endif
     memset(http_session, 0, sizeof(httpc_t));
     http_session->socket = -1;
     return HTTPC_SUCCESS;
