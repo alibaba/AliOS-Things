@@ -17,8 +17,15 @@
 #include "ulog/ulog.h"
 #include "netmgr.h"
 
+enum {
+    HTTP_AUTH,
+    HTTP_OTA,
+    HTTP_INVALID,
+};
+
 bool httpc_running = false;
-int command;
+int command = HTTP_INVALID;
+httpc_connection_t settings;
 
 #if 1
 #define PRODUCT_KEY             "a1cXH4Sgvdu"
@@ -32,16 +39,14 @@ int command;
 #define DEVICE_SECRET           "t9GmMf2jb3LgWfXBaZD2r3aJrfVWBv56"
 #endif
 
-enum {
-    HTTP_AUTH,
-    HTTP_OTA,
-};
-
 httpc_handle_t httpc_handle = 0;
 #if CONFIG_HTTP_SECURE
 char auth_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "https://iot-auth.cn-shanghai.aliyuncs.com/";
 #endif
 char ota_server_name[CONFIG_HTTPC_SERVER_NAME_SIZE] = "http://mjfile-test.smartmidea.net:80/";
+
+uint32_t auth_req_times = 0;
+uint32_t auth_rsp_times = 0;
 
 #if CONFIG_HTTP_SECURE
 static const char *ca_cert = \
@@ -74,10 +79,27 @@ static const char *ca_cert = \
 static int httpc_recv_fun(httpc_handle_t httpc, uint8_t *buf, int32_t buf_size,
                           int32_t data_len, bool is_final)
 {
-    LOG("http session %x, buf size %d bytes, recv %d bytes data, is_final %d\n",
-         httpc, buf_size, data_len, is_final);
-    if (data_len > 0) {
-        LOG("%s", buf);
+    if (command == HTTP_INVALID) {
+        return 0;
+    }
+
+    if (command == HTTP_AUTH) {
+        LOG("http session %x, buf size %d bytes, recv %d bytes data, is_final %d\n",
+            httpc, buf_size, data_len, is_final);
+        if (data_len > 0) {
+            LOG("%s", buf);
+        }
+
+        if (is_final) {
+            close(settings.socket);
+            httpc_deinit(httpc);
+            ++auth_rsp_times;
+            httpc_running = true;
+            httpc_handle = 0;
+            LOG("auth_req_times %d, auth_rsp_times %d\r\n", auth_req_times, auth_rsp_times);
+        }
+    } else if (command == HTTP_OTA) {
+
     }
     return 0;
 }
@@ -213,6 +235,7 @@ static void httpc_auth(const char *device_id, const char *product_key,
         return;
     }
 
+    ++auth_req_times;
     httpc_send_request(httpc_handle, HTTP_POST, "/auth/devicename", hdr,
                        "application/x-www-form-urlencoded;charset=utf-8", data, ret);
 }
@@ -234,11 +257,46 @@ void httpc_ota(const char *uri)
     }
 }
 
+#define RSP_BUF_SIZE 2000
+uint8_t rsp_buf[RSP_BUF_SIZE];
 static void httpc_delayed_action(void *arg)
 {
     char device_id[64];
+    int fd;
 
-    if (httpc_handle == 0 || httpc_running == false) {
+    if (httpc_running == false) {
+        goto exit;
+    }
+
+    fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
+        LOG("alloc socket fd fail\n");
+        goto exit;
+    }
+    memset(&settings, 0, sizeof(settings));
+    settings.socket = fd;
+    settings.recv_fn = httpc_recv_fun;
+#if CONFIG_HTTP_SECURE
+    if (command == HTTP_AUTH) {
+        settings.server_name = auth_server_name;
+    } else
+#endif
+    if (command == HTTP_OTA) {
+        settings.server_name = ota_server_name;
+    } else {
+        close(fd);
+        goto exit;
+    }
+    //settings.keep_alive = true;
+#if CONFIG_HTTP_SECURE
+    settings.ca_cert = ca_cert;
+#endif
+    settings.rsp_buf = rsp_buf;
+    settings.rsp_buf_size = RSP_BUF_SIZE;
+    httpc_handle = httpc_init(&settings);
+    if (httpc_handle == 0) {
+        LOG("http session init fail\n");
+        close(fd);
         goto exit;
     }
 
@@ -260,16 +318,12 @@ static void httpc_delayed_action(void *arg)
 
 exit:
     httpc_running = false;
-    aos_post_delayed_action(100, httpc_delayed_action, (void *)(long)command);
+    aos_post_delayed_action(500, httpc_delayed_action, (void *)(long)command);
 }
 
-#define RSP_BUF_SIZE 2000
-uint8_t rsp_buf[RSP_BUF_SIZE];
 static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
 {
     const char *type = argc > 1? argv[1]: "";
-    httpc_connection_t settings;
-    int fd;
 
     if (strncmp(type, "stop", strlen("stop")) == 0) {
         httpc_running = false;
@@ -288,38 +342,6 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
             httpc_running = true;
         } else {
             LOG("unkown command\n");
-            return;
-        }
-
-        fd = socket(AF_INET, SOCK_STREAM, 0);
-        if (fd < 0) {
-            LOG("alloc socket fd fail\n");
-            return;
-        }
-        memset(&settings, 0, sizeof(settings));
-        settings.socket = fd;
-        settings.recv_fn = httpc_recv_fun;
-#if CONFIG_HTTP_SECURE
-        if (command == HTTP_AUTH) {
-            settings.server_name = auth_server_name;
-        } else
-#endif
-        if (command == HTTP_OTA) {
-            settings.server_name = ota_server_name;
-        } else {
-            close(fd);
-            return;
-        }
-        //settings.keep_alive = true;
-#if CONFIG_HTTP_SECURE
-        settings.ca_cert = ca_cert;
-#endif
-        settings.rsp_buf = rsp_buf;
-        settings.rsp_buf_size = RSP_BUF_SIZE;
-        httpc_handle = httpc_init(&settings);
-        if (httpc_handle == 0) {
-            LOG("http session init fail\n");
-            close(fd);
             return;
         }
     }
