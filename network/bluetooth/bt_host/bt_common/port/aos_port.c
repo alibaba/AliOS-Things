@@ -18,19 +18,7 @@
 #include "atomic.h"
 
 #ifdef OSAL_RHINO
-#include <k_default_config.h>
-#include <k_types.h>
-#include <k_err.h>
-#include <k_sys.h>
-#include <k_list.h>
-#include <k_ringbuf.h>
-#include <k_obj.h>
-#include <k_sem.h>
-#include <k_buf_queue.h>
-#include <k_stats.h>
-#include <k_time.h>
-#include <k_task.h>
-#include <port.h>
+#include "k_api.h"
 #endif
 
 int k_sem_init(struct k_sem *sem, unsigned int initial_count,
