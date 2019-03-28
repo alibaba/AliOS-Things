@@ -54,10 +54,6 @@ bool http_str_insensitive_cmp(char *src, char *dest, uint32_t len)
 
     dest_len = strlen(dest);
 
-    if (src == NULL || dest == NULL) {
-        return false;
-    }
-
     if (len == 0) {
         len = strlen(src);
     }

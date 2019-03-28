@@ -39,7 +39,7 @@ static int on_body(struct http_parser *parser, const char *at, size_t length)
     http_session->rsp.body_present = 1;
     http_session->rsp.processed += length;
 
-    http_log("%s, processed %d, len %d", __func__, http_session->rsp.processed, length);
+    //http_log("%s, processed %d, len %d", __func__, http_session->rsp.processed, length);
 
     if (http_session->rsp.body_start == NULL) {
         http_session->rsp.body_start = (uint8_t *)at;
@@ -47,7 +47,7 @@ static int on_body(struct http_parser *parser, const char *at, size_t length)
 
     if (http_session->rsp.recv_fn) {
         http_session->rsp.recv_fn((httpc_handle_t)http_session, http_session->rsp.buf,
-                                   http_session->rsp.buf_size, http_session->rsp.data_len, false);
+                                   http_session->rsp.buf_size, http_session->rsp.data_len, RX_CONTINUE);
         http_session->rsp.data_len = 0;
     }
 
@@ -142,7 +142,7 @@ static int on_message_begin(struct http_parser *parser)
     return 0;
 }
 
-static int on_message_complete(struct http_parser *parser) 
+static int on_message_complete(struct http_parser *parser)
 {
     httpc_t *http_session = CONTAINER_OF(parser, httpc_t, parser);
 
@@ -150,7 +150,7 @@ static int on_message_complete(struct http_parser *parser)
 
     if (http_session->rsp.recv_fn) {
         http_session->rsp.recv_fn((httpc_handle_t)http_session, http_session->rsp.buf,
-                                   http_session->rsp.buf_size, http_session->rsp.data_len, true);
+                                   http_session->rsp.buf_size, http_session->rsp.data_len, RX_FINAL);
     }
 
     return 0;
@@ -207,6 +207,11 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
 
     if (settings->socket < 0) {
         http_log("%s, invalid socket for httpc connection", __func__);
+        return 0;
+    }
+
+    if (settings->timeout < 0) {
+        http_log("%s, invalid timeout for httpc connection", __func__);
         return 0;
     }
 
@@ -281,6 +286,7 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
     http_sessions[index].index = index;
     http_sessions[index].socket = settings->socket;
     http_sessions[index].rsp.recv_fn = settings->recv_fn;
+    http_sessions[index].rsp.timeout = settings->timeout;
 
     if (settings->keep_alive) {
         http_sessions[index].flags |= HTTP_CLIENT_FLAG_KEEP_ALIVE;
@@ -316,7 +322,10 @@ int8_t httpc_deinit(httpc_handle_t httpc)
     }
 
 #if CONFIG_HTTP_SECURE
-    httpc_wrapper_ssl_destroy(http_session->socket);
+    if (http_session->connection == true &&
+        (http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
+        httpc_wrapper_ssl_destroy(http_session->socket);
+    }
 #endif
     memset(http_session, 0, sizeof(httpc_t));
     http_session->socket = -1;
@@ -363,12 +372,8 @@ static int8_t httpc_add_request_header(httpc_handle_t httpc, const char *hdr_nam
         return HTTPC_FAIL;
     }
 
-    if ((http_session->header_len + hdr_length) > CONFIG_HTTPC_HEADER_SIZE) {
-        return HTTPC_FAIL;
-    }
-
     buf = http_session->header + http_session->header_len;
-    buf_size = CONFIG_HTTPC_HEADER_SIZE - (http_session->header_len + hdr_length);
+    buf_size = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
     hdr_length = httpc_construct_header(buf, buf_size, hdr_name, hdr_data);
     if (hdr_length < 0) {
         return HTTPC_FAIL;
@@ -562,8 +567,8 @@ static int8_t httpc_reset(httpc_t *http_session)
     return HTTPC_SUCCESS;
 }
 
-int8_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
-                          const char *hdr, const char *content_type, const char *param, uint16_t param_len)
+int32_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
+                           const char *hdr, const char *content_type, const char *param, uint16_t param_len)
 {
     httpc_t *http_session = (httpc_t *)httpc;
     int8_t ret = HTTPC_SUCCESS;
@@ -721,6 +726,15 @@ static int http_client_recv(httpc_t *http_session, void *data, int32_t len)
     int32_t copy_len = 0;
     int32_t start = 0;
     int32_t free_space = 0;
+
+    if (len <= 0) {
+        if (http_session->rsp.recv_fn) {
+            http_session->rsp.recv_fn((httpc_handle_t)http_session, http_session->rsp.buf,
+                                      http_session->rsp.buf_size, 0, len);
+            http_session->rsp.data_len = 0;
+        }
+        return -1;
+    }
 
     while (len) {
         copy_len = len;

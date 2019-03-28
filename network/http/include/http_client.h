@@ -45,6 +45,7 @@ typedef struct httpc_s {
 
     struct {
         httpc_recv_fn recv_fn;
+        int32_t timeout;
         uint8_t *buf;
         int32_t buf_size;
         int32_t data_len;
