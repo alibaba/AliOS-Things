@@ -58,19 +58,6 @@ typedef enum
     /* Add more AIS error code hereafter */
 } ble_err_t;
 
-typedef enum
-{
-    ADV_NAME_SHORT = 0x8,
-    ADV_NAME_FULL
-} adv_name_type_t;
-
-typedef enum
-{
-    AD_LIMITED  = ABIT(0), /* Limited Discoverable */
-    AD_GENERAL  = ABIT(1), /* General Discoverable */
-    AD_NO_BREDR = ABIT(2)  /* BR/EDR not supported */
-} adv_flag_t;
-
 typedef struct
 {
     uint8 advData[MAX_ADV_DATA_LEN];
@@ -107,6 +94,9 @@ extern adv_info_t adv_info;
 extern uint8_t ble_init_over;
 extern uint8_t ble_deep_sleep;
 
+typedef void (*txdone)(uint8_t res);
+extern txdone txdone_cb;
+
 void ble_init(void);
 void ble_exit(void);
 void ble_activate(char *ble_name);
@@ -131,6 +121,7 @@ void rf_wifi_used_set(void);
 UINT32 if_rf_wifi_used(void );
 void rf_not_share_for_ble(void);
 void rf_can_share_for_ble(void);
+void ble_ps_dump(void);
 
 
 typedef struct temp_message 

@@ -42,15 +42,6 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
 	uint32_t status;
     DD_HANDLE flash_hdl;
 
-#ifdef CONFIG_AOS_KV_MULTIPTN_MODE
-    if (in_partition == CONFIG_AOS_KV_PTN) {
-        if (off_set >= CONFIG_AOS_KV_PTN_SIZE) {
-            in_partition = CONFIG_AOS_KV_SECOND_PTN;
-            off_set -= CONFIG_AOS_KV_PTN_SIZE;
-        }
-    }
-#endif
-
     GLOBAL_INT_DECLARATION();
 
     partition_info = hal_flash_get_info( in_partition );
@@ -83,15 +74,6 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
 	uint32_t status;
     DD_HANDLE flash_hdl;
 
-#ifdef CONFIG_AOS_KV_MULTIPTN_MODE
-    if (in_partition == CONFIG_AOS_KV_PTN) {
-        if ((*off_set) >= CONFIG_AOS_KV_PTN_SIZE) {
-            in_partition = CONFIG_AOS_KV_SECOND_PTN;
-            *off_set = (*off_set) - CONFIG_AOS_KV_PTN_SIZE;
-        }
-    }
-#endif
-
     GLOBAL_INT_DECLARATION();
 
     partition_info = hal_flash_get_info( in_partition );
@@ -104,7 +86,6 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
 	flash_hdl = ddev_open(FLASH_DEV_NAME, &status, 0);
     hal_wdg_reload(&wdg);
     GLOBAL_INT_DISABLE();
-    printf("start:0x%x len:%d \n",start_addr, in_buf_len);
     ddev_write(flash_hdl, in_buf, in_buf_len, start_addr);
     GLOBAL_INT_RESTORE();
     hal_wdg_reload(&wdg);
@@ -121,15 +102,6 @@ int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *ou
     hal_logic_partition_t *partition_info;
 	uint32_t status;
     DD_HANDLE flash_hdl;
-
-#ifdef CONFIG_AOS_KV_MULTIPTN_MODE
-    if (in_partition == CONFIG_AOS_KV_PTN) {
-        if ((*off_set) >=  CONFIG_AOS_KV_PTN_SIZE) {
-            in_partition = CONFIG_AOS_KV_SECOND_PTN;
-            *off_set = (*off_set) - CONFIG_AOS_KV_PTN_SIZE;
-        }
-    }
-#endif
 
     GLOBAL_INT_DECLARATION();
 
@@ -170,7 +142,7 @@ int32_t hal_flash_dis_secure(hal_partition_t partition, uint32_t off_set, uint32
 {
 	DD_HANDLE flash_hdl;
     UINT32 status;
-	uint32_t param = FLASH_PROTECT_HALF;
+	uint32_t param = FLASH_PROTECT_NONE;
 
 	flash_hdl = ddev_open(FLASH_DEV_NAME, &status, 0);
     ASSERT(DD_HANDLE_UNVALID != flash_hdl);

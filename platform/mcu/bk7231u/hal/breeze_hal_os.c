@@ -3,7 +3,7 @@
  */
 
 #include <aos/aos.h>
-#include <breeze_hal_os.h>
+#include "breeze_hal_os.h"
 
 int os_timer_new(os_timer_t *timer, os_timer_cb_t cb, void *arg, int ms)
 {

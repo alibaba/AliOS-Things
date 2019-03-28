@@ -77,9 +77,8 @@ typedef struct
     disconnected_callback_t on_disconnected;
 } ais_bt_init_t;
 
-typedef void (*txdone)(uint8_t res);
+typedef void(*txdone)(uint8_t res);
 extern txdone txdone_cb;
-
 extern ais_bt_init_t ais_bt_init_info;
 
 #endif

@@ -15,7 +15,6 @@ ais_err_t ble_stack_init(ais_bt_init_t *ais_init)
     memcpy((uint8_t *)&ais_bt_init_info,(uint8_t *)ais_init,sizeof(ais_bt_init_t));
     
     ble_activate(NULL);
-    aos_msleep(500);
     return AIS_ERR_SUCCESS;
 }
 

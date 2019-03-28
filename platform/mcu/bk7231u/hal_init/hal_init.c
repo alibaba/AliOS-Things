@@ -5,34 +5,18 @@
 
 extern int errno;
 wdg_dev_t  wdg;
-uart_dev_t uart_1;   ///uart1 
-uart_dev_t uart_0;   ///uart2
+uart_dev_t uart_0;
 
 void hal_init(void)
 {
-	uart_0.port 			   = STDIO_UART;
-	uart_0.config.baud_rate    = STDIO_UART_BUADRATE;
-	uart_0.config.data_width   = DATA_WIDTH_8BIT;
-	uart_0.config.parity	   = NO_PARITY;
-	uart_0.config.stop_bits    = STOP_BITS_1;
-	uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
+    uart_0.port 			   = STDIO_UART;
+    uart_0.config.baud_rate    = STDIO_UART_BUADRATE;
+    uart_0.config.data_width   = DATA_WIDTH_8BIT;
+    uart_0.config.parity	   = NO_PARITY;
+    uart_0.config.stop_bits    = STOP_BITS_1;
+    uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
 
-	hal_uart_init(&uart_0);
-
-	uart_1.port 			   = BK_UART1;
-	uart_1.config.baud_rate    = BK_UART1_BUADRATE;
-	uart_1.config.data_width   = DATA_WIDTH_8BIT;
-	uart_1.config.parity	   = NO_PARITY;
-	uart_1.config.stop_bits    = STOP_BITS_1;
-	uart_1.config.flow_control = FLOW_CONTROL_DISABLED;
-
-	hal_uart_init(&uart_1);
-
-#ifdef BOOTLOADER
-    /* init for bootloader */
-#else
-    /* init for application */
-#endif
+    hal_uart_init(&uart_0);
 }
 
 void hal_boot(hal_partition_t partition)
@@ -51,5 +35,7 @@ void hal_reboot(void)
     wdg.config.timeout = 1;
 
     hal_wdg_init(&wdg);
+
+    while(1);
 }
 

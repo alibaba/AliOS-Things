@@ -8,31 +8,24 @@ $(NAME)_COMPONENTS := platform/arch/arm/armv5
 $(NAME)_COMPONENTS += libc rhino yloop modules.fs.kv alicrypto digest_algorithm
 $(NAME)_COMPONENTS += protocols.net
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/hal_init
-#$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken
-#$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/ip
-#$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/driver/ble
-#$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/alios/entry
+$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken
+$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/ip
+$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/driver/ble
+$(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/alios/entry
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/aos/app_runtime
 $(NAME)_COMPONENTS += prov
 $(NAME)_COMPONENTS += hal
 
-GLOBAL_DEFINES += CONFIG_AOS_KV_MULTIPTN_MODE
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN=6
-GLOBAL_DEFINES += CONFIG_AOS_KV_SECOND_PTN=7
-GLOBAL_DEFINES += CONFIG_AOS_KV_PTN_SIZE=8192
-GLOBAL_DEFINES += CONFIG_AOS_KV_BUFFER_SIZE=12288
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
-GLOBAL_DEFINES += CONFIG_AOS_FOTA_BREAKPOINT
+GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 GLOBAL_DEFINES += CFG_SUPPORT_ALIOS=1
-GLOBAL_DEFINES += CFG_SUPPORT_BLE=1
 
 GLOBAL_CFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \
                  -mthumb -mthumb-interwork \
                  -mlittle-endian
 
-GLOBAL_CFLAGS += -DBLE_4_2
 GLOBAL_CFLAGS += -w
 
 $(NAME)_CFLAGS  += -Wall -Werror -Wno-unused-variable -Wno-unused-parameter -Wno-implicit-function-declaration
@@ -51,8 +44,7 @@ GLOBAL_INCLUDES +=  beken/alios/entry \
 					beken/func/uart_debug \
 					beken/driver/include \
 					beken/driver/common \
-					beken/ip/common \
-					beken/driver/ble/rw_ble/ip/ble/profiles/AIS/api
+					beken/ip/common 
 
 GLOBAL_LDFLAGS += -mcpu=arm968e-s \
                  -march=armv5te \
@@ -62,12 +54,9 @@ GLOBAL_LDFLAGS += -mcpu=arm968e-s \
                  -nostartfiles \
                  $(CLIB_LDFLAGS_NANO_FLOAT)
 
-BINS ?=
-
 GLOBAL_LDS_FILES += platform/mcu/bk7231u/bk7231u.ld.S
 
 $(NAME)_INCLUDES += aos
-$(NAME)_INCLUDES += hal
 
 $(NAME)_SOURCES :=  aos/aos_main.c
 $(NAME)_SOURCES +=  aos/soc_impl.c \
@@ -81,12 +70,17 @@ $(NAME)_SOURCES	 += hal/gpio.c \
                     hal/StringUtils.c \
 					hal/wifi_port.c \
 					hal/pwm.c \
-					hal/rhino_hal/beken_rhino.c \
-					hal/ble.c \
-					hal/breeze_hal_os.c \
+					hal/beken_rhino.c \
+                    port/ota_port.c
 
-ifneq ($(filter protocols.mesh,$(COMPONENTS)),)
+ifneq ($(filter network.umesh,$(COMPONENTS)),)
 $(NAME)_SOURCES +=  hal/mesh_wifi_hal.c
+endif
+
+ifneq ($(filter platform/mcu/bk7231u/beken/driver/ble,$(COMPONENTS)),)
+GLOBAL_INCLUDES +=  beken/driver/ble/rw_ble/ip/ble/profiles/AIS/api
+$(NAME)_SOURCES += hal/ble.c
+$(NAME)_SOURCES += hal/breeze_hal_os.c
 endif
 
 ifneq ($(filter pwrmgmt,$(COMPONENTS)),)
@@ -94,9 +88,3 @@ $(NAME)_SOURCES +=  hal/pwrmgmt_hal/board_cpu_pwr.c \
 					hal/pwrmgmt_hal/board_cpu_pwr_systick.c \
 					hal/pwrmgmt_hal/board_cpu_pwr_timer.c
 endif
-
-$(NAME)_PREBUILT_LIBRARY := beken.a
-$(NAME)_PREBUILT_LIBRARY += ip.a
-$(NAME)_PREBUILT_LIBRARY += ble.a
-$(NAME)_PREBUILT_LIBRARY += entry.a
-

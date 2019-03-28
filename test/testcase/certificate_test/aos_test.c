@@ -7,16 +7,16 @@
 #include "cutest/cut.h"
 
 #ifndef SYSINFO_ARCH
-#define SYSINFO_ARCH        ""
+#define SYSINFO_ARCH        "unknown"
 #endif
 #ifndef SYSINFO_MCU
-#define SYSINFO_MCU         ""
+#define SYSINFO_MCU         "unknown"
 #endif
 #ifndef SYSINFO_DEVICE_NAME
-#define SYSINFO_DEVICE_NAME ""
+#define SYSINFO_DEVICE_NAME "unknown"
 #endif
 #ifndef SYSINFO_APP_VERSION
-#define SYSINFO_APP_VERSION ""
+#define SYSINFO_APP_VERSION "unknown"
 #endif
 #define SYSINFO_KERNEL      "AOS"
 
