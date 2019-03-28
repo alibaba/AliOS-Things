@@ -7,12 +7,15 @@
 #include "ulog/ulog.h"
 #include "aos/yloop.h"
 
+#include <atcmd_config_module.h>
 #include <atparser.h>
-
 
 #define STARTERKIT_WIFI_MODULE_FOTA "AT+FOTA"
 #define FOTA_OOB_PREFIX "+FOTAEVENT:"
 #define FOTA_OOB_POSTFIX "\r\n"
+#define FOTA_OOB_BUF_SIZE 64
+extern int at_dev_fd;
+static char fota_oob_buf[FOTA_OOB_BUF_SIZE];
 
 typedef struct modulefotastatus {
     int ret;
@@ -99,7 +102,7 @@ static int wifi_module_fota(char *pcsize, char *pcversion, char *pcurl, char *pc
         goto end;
     }
 
-    ret = at_send_wait_reply(pcatcmd, strlen(pcatcmd), true,
+    ret = at_send_wait_reply(at_dev_fd, pcatcmd, strlen(pcatcmd), true,
                              NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, AT_RECV_FAIL_POSTFIX) != NULL || ret != 0) {
@@ -203,7 +206,7 @@ static void wifi_event_handler(input_event_t *event, void *priv_data)
         return;
     
     if (event->code == CODE_WIFI_ON_GOT_IP){
-        at_register_callback(FOTA_OOB_PREFIX, FOTA_OOB_POSTFIX, 64, fota_event_handler, NULL);
+        at_register_callback(at_dev_fd, FOTA_OOB_PREFIX, FOTA_OOB_POSTFIX, fota_oob_buf, FOTA_OOB_BUF_SIZE, fota_event_handler, NULL);
 #ifdef AOS_COMP_CLI
         aos_cli_register_commands(&module_ota_cli_cmd[0],sizeof(module_ota_cli_cmd) / sizeof(struct cli_command));
 #endif
