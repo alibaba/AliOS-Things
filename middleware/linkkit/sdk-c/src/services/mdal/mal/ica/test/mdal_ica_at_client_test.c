@@ -7,33 +7,23 @@
 #include "mdal_mal_import.h"
 
 #define TAG "mdal_ica_at_client"
+extern int at_dev_fd;
 
 int HAL_MDAL_MAL_ICA_Init()
 {
 /* At module initialization has done when mk3060 boot.
    If at module is not initialized when system is booting up,
    initialize at module here. */
-#if 0
-    int ret;
-    ret = at_init();
-
-    if(ret != 0)
-    {
-        return ret;
-    }
-
-    return 0;
-#endif
 }
 
-int HAL_MDAL_MAL_ICA_InputCb(const char *prefix, const char *postfix, int maxlen,
-                             at_recv_cb cb, void *arg)
+int HAL_MDAL_MAL_ICA_InputCb(const char *prefix, const char *postfix,
+                             char buf, int buf_size, at_recv_cb cb, void *arg)
 {
-    at_register_callback(prefix, postfix, maxlen, cb, arg);
+    at_register_callback(at_dev_fd, prefix, postfix, buf, buf_size, cb, arg);
     return 0;
 }
 
 int HAL_MDAL_MAL_ICA_Write(const char* at_cmd)
 {
-    return at_send_no_reply(at_cmd, strlen(at_cmd), false);
+    return at_send_no_reply(at_dev_fd, at_cmd, strlen(at_cmd), false);
 }
