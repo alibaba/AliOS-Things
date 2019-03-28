@@ -78,3 +78,8 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
     }
     return 0;
 }
+
+int32_t hal_uart_finalize(uart_dev_t *uart)
+{
+   return 0;
+}
