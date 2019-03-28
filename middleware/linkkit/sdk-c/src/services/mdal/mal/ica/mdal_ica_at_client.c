@@ -40,6 +40,8 @@ int at_ica_mqtt_client_conn(char *proKey, char *devName, char *devSecret, int tl
 int at_ica_mqtt_client_auth(char *proKey, char *devName, char *devSecret, int tlsEnable);
 int at_ica_mqtt_client_disconn(void);
 
+static char mqtt_cmd_buffer[AT_MQTT_CMD_MAX_LEN];
+
 int HAL_MDAL_MAL_Init()
 {
 #ifdef MAL_ICA_ENABLED
@@ -762,18 +764,21 @@ int at_ica_mqtt_client_init(void)
 
     HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTRCV,
                              AT_ICA_MQTT_POSTFIX,
+                             mqtt_cmd_buffer,
                              AT_MQTT_CMD_MAX_LEN,
                              at_ica_mqtt_client_rsp_callback,
                              NULL);
 
     HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTERROR,
                              AT_ICA_MQTT_POSTFIX,
+                             mqtt_cmd_buffer,
                              AT_MQTT_CMD_MAX_LEN,
                              at_ica_mqtt_client_rsp_callback,
                              NULL);
 
     HAL_MDAL_MAL_ICA_InputCb(AT_ICA_MQTT_MQTTOK,
                              AT_ICA_MQTT_POSTFIX,
+                             mqtt_cmd_buffer,
                              AT_MQTT_CMD_MAX_LEN,
                              at_ica_mqtt_client_rsp_callback,
                              NULL);
