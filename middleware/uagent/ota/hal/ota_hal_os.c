@@ -415,7 +415,7 @@ int ota_ssl_recv(void *ssl, char *buf, int len)
 extern void mbedtls_sha256_free_alt(mbedtls_sha256_context *ctx);
 extern void mbedtls_sha256_init_alt(mbedtls_sha256_context *ctx);
 extern void mbedtls_sha256_starts_alt(mbedtls_sha256_context *ctx, int is224);
-extern void mbedtls_sha256_update_alt(mbedtls_sha256_context *ctx, const unsigned char *input, unsigned int ilen);
+extern void mbedtls_sha256_update_alt(mbedtls_sha256_context*ctx, const unsigned char *input, size_t ilen);
 extern void mbedtls_sha256_finish_alt(mbedtls_sha256_context *ctx, unsigned char output[32]);
 #endif
 void ota_sha256_free(ota_sha256_context *ctx)
@@ -456,7 +456,7 @@ void ota_sha256_finish(ota_sha256_context *ctx, unsigned char output[32])
 extern void mbedtls_md5_free_alt(mbedtls_md5_context *ctx);
 extern void mbedtls_md5_init_alt(mbedtls_md5_context *ctx);
 extern void mbedtls_md5_starts_alt(mbedtls_md5_context *ctx);
-extern void mbedtls_md5_update_alt(mbedtls_md5_context *ctx, const unsigned char *input, unsigned int ilen);
+extern void mbedtls_md5_update_alt(mbedtls_md5_context*ctx, const unsigned char *input, size_t ilen);
 extern void mbedtls_md5_finish_alt(mbedtls_md5_context *ctx, unsigned char output[32]);
 
 void ota_md5_free(ota_md5_context *ctx)
@@ -542,7 +542,7 @@ void ota_crc16_init(ota_crc16_ctx *inCtx)
 }
 
 
-void ota_crc16_update(ota_crc16_ctx *inCtx, const void *inSrc, size_t inLen)
+void ota_crc16_update(ota_crc16_ctx *inCtx, const void *inSrc, unsigned int inLen)
 {
     const unsigned char *src = (const unsigned char *) inSrc;
     const unsigned char *srcEnd = src + inLen;
