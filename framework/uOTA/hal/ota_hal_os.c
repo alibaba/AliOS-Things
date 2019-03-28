@@ -13,9 +13,15 @@
 #include "ota_hal_os.h"
 #include "ota_log.h"
 #if !defined (AOS_OTA_RSA)
+#if defined AOS_OTA_ITLS
+#include "itls/sha256.h"
+#include "itls/md5.h"
+#include "itls/base64.h"
+#else
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
 #include "mbedtls/base64.h"
+#endif
 #endif
 #if (OTA_SIGNAL_CHANNEL) == 1
 #include "iot_export.h"
@@ -587,16 +593,86 @@ int ota_rsa_verify(const ota_rsa_pubkey_t *pub_key, const unsigned char *dig, un
 }
 #endif
 
-/*base64*/
+
+static const unsigned char base64_dec_map[128] =
+{
+    127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
+    127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
+    127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
+    127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
+    127, 127, 127,  62, 127, 127, 127,  63,  52,  53,
+     54,  55,  56,  57,  58,  59,  60,  61, 127, 127,
+    127,  64, 127, 127, 127,   0,   1,   2,   3,   4,
+      5,   6,   7,   8,   9,  10,  11,  12,  13,  14,
+     15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
+     25, 127, 127, 127, 127, 127, 127,  26,  27,  28,
+     29,  30,  31,  32,  33,  34,  35,  36,  37,  38,
+     39,  40,  41,  42,  43,  44,  45,  46,  47,  48,
+     49,  50,  51, 127, 127, 127, 127, 127
+};
+
+
 int ota_base64_decode(const unsigned char *src, int slen, unsigned char *dst, int *dlen)
 {
-    unsigned int len = 0;
-    if(mbedtls_base64_decode(dst, *dlen, (unsigned int*)&len, src, (unsigned int)slen) != 0) {
-        return -1;
+    unsigned int i, n;
+    unsigned int j, x;
+    unsigned char *p;
+
+    for( i = n = j = 0; i < slen; i++ )
+    {
+        if( ( slen - i ) >= 2 &&
+            src[i] == '\r' && src[i + 1] == '\n' )
+            continue;
+
+        if( src[i] == '\n' )
+            continue;
+
+        if( src[i] == '=' && ++j > 2 )
+            return -1;
+
+        if( src[i] > 127 || base64_dec_map[src[i]] == 127 )
+            return -1;
+
+        if( base64_dec_map[src[i]] < 64 && j != 0 )
+            return -1;
+
+        n++;
     }
-    *dlen = len;
+
+    if( n == 0 )
+        return 0;
+
+    n = ( ( n * 6 ) + 7 ) >> 3;
+    n -= j;
+
+    if( dst == 0 || *dlen < n )
+    {
+        *dlen = n;
+        return -2;
+    }
+
+   for( j = 3, n = x = 0, p = dst; i > 0; i--, src++ )
+   {
+        if( *src == '\r' || *src == '\n' )
+            continue;
+
+        j -= ( base64_dec_map[*src] == 64 );
+        x  = ( x << 6 ) | ( base64_dec_map[*src] & 0x3F );
+
+        if( ++n == 4 )
+        {
+            n = 0;
+            if( j > 0 ) *p++ = (unsigned char)( x >> 16 );
+            if( j > 1 ) *p++ = (unsigned char)( x >>  8 );
+            if( j > 2 ) *p++ = (unsigned char)( x       );
+        }
+    }
+
+    *dlen = p - dst;
+
     return 0;
 }
+
 /*CRC16*/
 static unsigned short update_crc16(unsigned short crcIn, unsigned char byte)
 {

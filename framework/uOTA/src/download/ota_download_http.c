@@ -168,7 +168,7 @@ static int ota_download_start(void *pctx)
 
     if (isHttps) {
 #if defined AOS_OTA_ITLS
-        char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN] = {0};
+        char pkps[128] = {0};
         int len = strlen(ctx->pk);
         strncpy(pkps, ctx->pk, len);
         HAL_GetProductSecret(pkps + len + 1);
