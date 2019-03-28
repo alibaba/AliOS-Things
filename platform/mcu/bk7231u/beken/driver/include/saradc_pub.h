@@ -16,17 +16,23 @@ enum
     SARADC_CMD_SET_VALID_MODE,
     SARADC_CMD_CLEAR_INT,
     SARADC_CMD_SET_CLK_RATE,
-    SARADC_CMD_RUN_OR_STOP_ADC
+    SARADC_CMD_RUN_OR_STOP_ADC,
+    SARADC_CMD_SET_CAL_VAL
 };
 
+typedef enum
+{
+    SARADC_CALIBRATE_LOW,
+    SARADC_CALIBRATE_HIGH
+} SARADC_MODE;
 
 #define ADC_CONFIG_MODE_SLEEP           (0x00UL)
 #define ADC_CONFIG_MODE_STEP            (0x01UL)
 #define ADC_CONFIG_MODE_SOFT_CTRL       (0x02UL)
 #define ADC_CONFIG_MODE_CONTINUE        (0x03UL)
 
-#define ADC_CONFIG_MODE_36DIV           (0x00UL)
-#define ADC_CONFIG_MODE_18DIV           (0x01UL)
+#define ADC_CONFIG_MODE_4CLK_DELAY      (0x0UL)
+#define ADC_CONFIG_MODE_8CLK_DELAY      (0x1UL)
 
 typedef struct
 {
@@ -42,15 +48,16 @@ typedef struct
      *          01:  ADC one-step mode
      *          10:  ADC software control mode
      *          11:  ADC continuous mode
-     * bit[3:2]: ADC sample rate selection
-     *          00: adc_clk/36
-     *          01: adc_clk/18
-     *          10: Reserved
-     *          11: Reserved
-     * bit[7:4]: reserved
+     * bit[2:2]: delay clk(adc setting)
+     *           0: delay 4 clk
+     *           1: delay 8 clk
+     * bit[7:3]: reserved
      */
     UINT8 mode;
     void (*p_Int_Handler)(void);
+    unsigned char pre_div;					// ADC pre-divide clk
+    unsigned char samp_rate;				// ADC sample rate
+    unsigned char filter;                   //ADC filter
 } saradc_desc_t;
 
 typedef struct
@@ -59,6 +66,18 @@ typedef struct
     UINT8 channel;
 } saradc_chan_t;
 
+typedef struct 
+{
+    unsigned short val;
+    SARADC_MODE mode;
+} saradc_cal_val_t;
+
+typedef struct _saradc_calibrate_val_
+{
+    unsigned short low;
+    unsigned short high;
+} saradc_calibrate_val;
+
 
 /*******************************************************************************
 * Function Declarations
@@ -66,4 +85,8 @@ typedef struct
 void saradc_init(void);
 void saradc_exit(void);
 void saradc_isr(void);
+float saradc_calculate(UINT16 adc_val);
+void saradc_config_param_init(saradc_desc_t * adc_config);
+
+extern saradc_calibrate_val saradc_val;
 #endif //_SARADC_PUB_H_

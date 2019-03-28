@@ -24,9 +24,9 @@
 
 typedef struct fast_connect_param
 {
-	uint8_t bssid[6];
-	uint8_t chann;
-}fast_connect_param_t;
+    uint8_t bssid[6];
+    uint8_t chann;
+} fast_connect_param_t;
 
 typedef struct general_param
 {
@@ -44,7 +44,7 @@ typedef struct ap_param
     uint8_t chann;
     uint8_t cipher_suite;
     uint8_t key[65];
-	uint8_t key_len;
+    uint8_t key_len;
 } ap_param_t;
 
 typedef struct sta_param
@@ -53,9 +53,9 @@ typedef struct sta_param
     struct mac_ssid ssid;
     uint8_t cipher_suite;
     uint8_t key[65];
-	uint8_t key_len;
-	uint8_t fast_connect_set;
-	fast_connect_param_t fast_connect;
+    uint8_t key_len;
+    uint8_t fast_connect_set;
+    fast_connect_param_t fast_connect;
 } sta_param_t;
 
 extern general_param_t *g_wlan_general_param;
@@ -63,8 +63,15 @@ extern ap_param_t *g_ap_param_ptr;
 extern sta_param_t *g_sta_param_ptr;
 extern uint8_t system_mac[6];
 
+void cfg_load_mac(u8 *mac);
 uint32_t cfg_param_init(void);
+
 void wifi_get_mac_address(char *mac, u8 type);
 int wifi_set_mac_address(char *mac);
+int wifi_set_mac_address_to_efuse(UINT8 *mac);
+int wifi_get_mac_address_from_efuse(UINT8 *mac);
+
+int wifi_write_efuse(UINT8 addr, UINT8 data);
+UINT8 wifi_read_efuse(UINT8 addr);
 
 #endif

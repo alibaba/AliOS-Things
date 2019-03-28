@@ -37,6 +37,8 @@ enum
     CMD_SCTRL_MAC_POWERUP,
     CMD_SCTRL_MODEM_POWERDOWN,
     CMD_SCTRL_MODEM_POWERUP,
+    CMD_SCTRL_BLE_POWERDOWN,
+    CMD_SCTRL_BLE_POWERUP,
 
     CMD_SCTRL_CALI_DPLL,
 
@@ -55,7 +57,31 @@ enum
     CMD_SCTRL_RTOS_IDLE_SLEEP,
     CMD_SCTRL_RTOS_IDLE_WAKEUP,
     CMD_SCTRL_RTOS_DEEP_SLEEP,
-	
+
+    #if (CFG_SOC_NAME != SOC_BK7231)
+    CMD_SCTRL_SET_XTALH_CTUNE,
+    CMD_SCTRL_GET_XTALH_CTUNE,
+    CMD_BLE_RF_BIT_SET,
+    CMD_BLE_RF_BIT_CLR,
+
+    CMD_EFUSE_WRITE_BYTE,
+    CMD_EFUSE_READ_BYTE,
+	#endif // (CFG_SOC_NAME != SOC_BK7231)
+
+    #if (CFG_SOC_NAME == SOC_BK7221U)
+    CMD_SCTRL_OPEN_DAC_ANALOG,
+    CMD_SCTRL_CLOSE_DAC_ANALOG,
+    CMD_SCTRL_OPEN_ADC_MIC_ANALOG,
+    CMD_SCTRL_CLOSE_ADC_MIC_ANALOG,
+    CMD_SCTRL_ENALBLE_ADC_LINE_IN,
+    CMD_SCTRL_DISALBLE_ADC_LINE_IN,
+    CMD_SCTRL_SET_DAC_VOLUME_ANALOG,
+    CMD_SCTRL_SET_LINEIN_VOLUME_ANALOG,    
+    CMD_SCTRL_SET_VOLUME_PORT,
+    CMD_SCTRL_SET_AUD_DAC_MUTE,
+	#endif // (CFG_SOC_NAME == SOC_BK7221)
+    CMD_SCTRL_SET_LOW_PWR_CLK,
+
 };
 
 /*CMD_SCTRL_MCLK_SELECT*/
@@ -70,7 +96,7 @@ enum
 #define BLK_BIT_MIC_L_CHANNEL                    (1 << 17)
 #define BLK_BIT_AUDIO_R_CHANNEL                  (1 << 16)
 #define BLK_BIT_AUDIO_L_CHANNEL                  (1 << 15)
-#define BLK_BIT_NC1                              (1 << 14)
+#define BLK_BIT_USB                              (1 << 14)
 #define BLK_BIT_SARADC                           (1 << 13)
 #define BLK_BIT_TEMPRATURE_SENSOR                (1 << 12)
 #define BLK_BIT_26M_XTAL_LOW_POWER               (1 << 11)
@@ -113,6 +139,23 @@ enum
 #define PARAM_VSEL_SYS_LDO_POSI                  (27)
 #define PARAM_VSEL_SYS_LDO_MASK                  (0x3)
 
+#if (CFG_SOC_NAME == SOC_BK7231U)
+#define DEFAULT_TXID_XTAL                        (0x19)
+#elif (CFG_SOC_NAME == SOC_BK7221U)
+#define DEFAULT_TXID_XTAL                        (0x08)
+#endif // (CFG_SOC_NAME == SOC_BK7231U)
+
+#if (CFG_SOC_NAME != SOC_BK7231)
+#define PARAM_XTALH_CTUNE_MASK                   (0x3F)
+
+#define PARAM_AUD_DAC_GAIN_MASK                  (0x1F)
+#endif // (CFG_SOC_NAME != SOC_BK7231)
+
+/*CMD_SCTRL_SET_LOW_PWR_CLK*/
+#define LPO_SELECT_ROSC                             (0x0)
+#define LPO_SELECT_32K_XTAL                         (0x1)
+#define LPO_SELECT_32K_DIV                          (0x2)
+
 typedef union
 {
     UINT32 val;
@@ -131,6 +174,39 @@ typedef union
     } bits;
 } SYS_CTRL_U;
 
+typedef struct efuse_oper_st
+{
+    UINT8 addr;
+    UINT8 data;    
+} EFUSE_OPER_ST, *EFUSE_OPER_PTR;
+
+#define AUDIO_DAC_VOL_DIFF_MODE                      (0)
+#define AUDIO_DAC_VOL_SINGLE_MODE                    (1)
+
+#define AUDIO_DAC_ANALOG_UNMUTE                      (0)
+#define AUDIO_DAC_ANALOG_MUTE                        (1)
+
+#define EFUSE_ENCRYPT_WORD_ADDR                      (0)
+#define EFUSE_ENCRYPT_WORD_LEN                       (16)
+#define EFUSE_UID_ADDR                               (16)
+#define EFUSE_UID_LEN                                (8)
+#define EFUSE_MAC_START_ADDR                         (24)
+#define EFUSE_MAC_LEN                                (6)
+#define EFUSE_USER_AREA_ADDR                         (30)
+#define EFUSE_USER_AREA_LEN                          (1)
+#define EFUSE_CTRL_ADDR                              (31)
+#define EFUSE_USER_AREA_LEN                          (1)
+#define EFUSE_INIT_VAL                               (0x0)
+
+#define EFUSE_CTRL_JTAG_DISABLE                      (1 << 7)
+#define EFUSE_CTRL_FLASH_DOWNLOAD_DISABLE            (1 << 6)
+#define EFUSE_CTRL_ENCRYPT_EN                        (1 << 5)
+#define EFUSE_CTRL_ENCRYPT_DISABLE_READ              (1 << 4)
+#define EFUSE_CTRL_ENCRYPT_DISABLE_WRITE             (1 << 3)
+#define EFUSE_CTRL_UID_DISABLE_WRITE                 (1 << 2)
+#define EFUSE_CTRL_MAC_DISABLE_WRITE                 (1 << 1)
+#define EFUSE_CTRL_ALL_AREA_DISABLE_WRITE            (1 << 0)
+
 /*******************************************************************************
 * Function Declarations
 *******************************************************************************/
@@ -144,7 +220,10 @@ extern void sctrl_mcu_init(void);
 extern void sctrl_mcu_sleep(UINT32 );
 extern UINT32 sctrl_mcu_wakeup(void);
 extern void sctrl_ps_dump();
-extern void sctrl_rf_sleep(void);
-extern void sctrl_rf_wakeup(void);
+extern void sctrl_sta_rf_sleep(void);
+extern void sctrl_sta_rf_wakeup(void);
+extern void sctrl_sta_ps_init(void);
 extern void sctrl_flash_select_dco(void);
+extern UINT8 sctrl_if_rf_sleep(void);
+
 #endif // _SCTRL_PUB_H_

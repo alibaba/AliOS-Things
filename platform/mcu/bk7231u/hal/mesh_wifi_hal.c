@@ -11,7 +11,6 @@
 #include "umesh_hal.h"
 #include <umesh_80211.h>
 #include <hal/wifi.h>
-#include "param_config.h"
 
 static inline uint8_t nxmac_dsss_max_pwr_level_getf(void)
 {
@@ -151,7 +150,7 @@ static int beken_wifi_mesh_init(umesh_hal_module_t *module, void *config)
     mesh_hal_priv_t *priv = module->base.priv_dev;
 
     g_hal_priv = priv;
-    wifi_get_mac_address(priv->macaddr, CONFIG_ROLE_STA);
+    bk_wifi_get_mac_address(priv->macaddr);
     return 0;
 }
 

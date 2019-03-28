@@ -29,13 +29,21 @@ enum
     UCMD_UVC_GET_CONNECT_STATUS,
     UCMD_UVC_RECEIVE_VSTREAM,
     UCMD_UVC_ENABLE_MJPEG,
-    UCMD_UVC_ENABLE_H264
+    UCMD_UVC_ENABLE_H264,
+
+	UCMD_USB_CONNECTED_REGISTER_CB
 };
 
 /*UCMD_UVC_SET_PARAM*/
 #define UVC_MUX_PARAM(resolution_id, fps)           (fps + (resolution_id << 16))
 #define UVC_DEMUX_FPS(param)                         (param & 0xffff)
 #define UVC_DEMUX_ID(param)                         ((param >> 16) & 0xffff)
+
+typedef enum 
+{
+    USB_HOST_MODE   = 0,
+    USB_DEVICE_MODE = 1
+} USB_MODE;
 
 /*
  * The value is defined in field wWidth and wHeight in 'Video Streaming MJPEG
@@ -75,6 +83,20 @@ typedef enum
     FPS_10 = 10,
     FPS_5  = 5,
 } E_FRAME_RATE_ID;
+	
+/*
+* Finish DRC interrupt processing
+*/
+enum
+{
+	BSR_NONE_EVENT = 0,
+	BSR_ERROR_EVENT,
+	BSR_CONNECT_EVENT,
+	BSR_CONNECTED_EVENT,
+	
+	BSR_DISCONNECT_EVENT,
+	BSR_READ_OK_EVENT
+};
 
 /*******************************************************************************
 * Function Declarations
@@ -87,5 +109,17 @@ extern uint32_t MUSB_HfiWrite( uint32_t first_block, uint32_t block_num, uint8_t
                                *dest);
 extern void MGC_RegisterCBTransferComplete(FUNCPTR func);
 extern uint8_t MUSB_GetConnect_Flag(void);
+
+#if (CFG_SOC_NAME == SOC_BK7221U)
+#define USB_PLUG_FAILURE                (1)
+#define USB_PLUG_SUCCESS                (0)
+
+#define USB_PLUG_DEV_NAME               "usb_plug"
+#include "gpio_pub.h"
+
+void usb_plug_inout_init(void);
+void usb_plug_inout_exit(void);
+#endif // (CFG_SOC_NAME == SOC_BK7221U)
+
 #endif //_USB_PUB_H_ 
 
