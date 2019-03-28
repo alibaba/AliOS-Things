@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include <aos/kernel.h>
 #include <network/network.h>
@@ -115,7 +116,7 @@ int httpc_wrapper_ssl_connect(int socket, const struct sockaddr *name, socklen_t
 
         mbedtls_ssl_conf_rng(&http_session->https.ssl.conf, ssl_random, NULL);
         ret = mbedtls_ssl_setup(&http_session->https.ssl.context, &http_session->https.ssl.conf);
-        if (ret != 0) {
+        if (ret < 0) {
             http_log("%s, mbedtls_ssl_setup err -0x%x", __func__, -ret);
             goto exit;
         }
@@ -124,7 +125,7 @@ int httpc_wrapper_ssl_connect(int socket, const struct sockaddr *name, socklen_t
     }
 
     ret = connect(socket, name, namelen);
-    if (ret != 0) {
+    if (ret < 0) {
         goto exit;
     }
 
@@ -214,51 +215,54 @@ static void httpc_recv_thread(void *arg)
     uint8_t index = 0;
     int max_fd = -1;
     int ret;
-    uint8_t buf[CONFIG_HTTPC_RX_BUF_SIZE];
+    struct timeval timeout;
+    int32_t min_timeout = 0;
+    uint8_t http_rx_buf[CONFIG_HTTPC_RX_BUF_SIZE];
 
     // TODO: support multiple http sessions
     while (1) {
         FD_ZERO(&sets);
         max_fd = -1;
+        min_timeout = 0;
         for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
-            if (httpc_sessions[index].socket < 0) {
+            if (httpc_sessions[index].socket < 0 || httpc_sessions[index].connection == false) {
                 continue;
             }
             if (max_fd < httpc_sessions[index].socket) {
                 max_fd = httpc_sessions[index].socket;
             }
             FD_SET(httpc_sessions[index].socket, &sets);
+            if (min_timeout == 0 || httpc_sessions[index].rsp.timeout < min_timeout) {
+                min_timeout = httpc_sessions[index].rsp.timeout;
+            }
         }
         if (max_fd == -1) {
             aos_msleep(1);
             continue;
         }
-        ret = select(max_fd + 1, &sets, NULL, NULL, NULL);
-        if (ret > 0) {
-            for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
-                if (httpc_sessions[index].socket < 0) {
-                    continue;
-                }
-                if (FD_ISSET(httpc_sessions[index].socket, &sets)) {
-#if CONFIG_HTTP_SECURE
-                    if ((httpc_sessions[index].flags & HTTP_CLIENT_FLAG_SECURE) ==
-                        HTTP_CLIENT_FLAG_SECURE) {
-                        ret = mbedtls_ssl_read(&httpc_sessions[index].https.ssl.context,
-                                               buf, CONFIG_HTTPC_RX_BUF_SIZE);
-                    } else
-#endif
-                    {
-                        ret = recv(httpc_sessions[index].socket, buf, CONFIG_HTTPC_RX_BUF_SIZE, 0);
-                    }
-                    if (ret > 0) {
-                        g_recv_fn(&httpc_sessions[index], buf, (int32_t)ret);
-                    } else if (ret == 0) {
-                        // TODO: add exceptional logics
-                    } else {
-                        // TODO: add exceptional logics
-                    }
-                }
+        timeout.tv_sec = min_timeout / 1000;
+        timeout.tv_usec = (min_timeout % 1000) * 1000;
+        ret = select(max_fd + 1, &sets, NULL, NULL, (min_timeout == 0)? NULL: &timeout);
+        for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
+            if (httpc_sessions[index].socket < 0 || httpc_sessions[index].connection == false) {
+                continue;
             }
+            if (FD_ISSET(httpc_sessions[index].socket, &sets)) {
+#if CONFIG_HTTP_SECURE
+                if ((httpc_sessions[index].flags & HTTP_CLIENT_FLAG_SECURE) ==
+                    HTTP_CLIENT_FLAG_SECURE) {
+                    ret = mbedtls_ssl_read(&httpc_sessions[index].https.ssl.context,
+                                           http_rx_buf, CONFIG_HTTPC_RX_BUF_SIZE);
+                } else
+#endif
+                {
+                    ret = recv(httpc_sessions[index].socket, http_rx_buf, CONFIG_HTTPC_RX_BUF_SIZE, 0);
+                }
+            } else {
+                ret = -1;
+            }
+            assert(g_recv_fn);
+            g_recv_fn(&httpc_sessions[index], http_rx_buf, (int32_t)ret);
         }
     }
 }
@@ -267,7 +271,7 @@ int httpc_wrapper_register_recv(httpc_t *httpc, httpc_wrapper_recv_fn_t recv_fn)
 {
     g_recv_fn = recv_fn;
     g_httpc_sessions = httpc;
-    aos_task_new("httpc_recv", httpc_recv_thread, httpc, 4096);
+    aos_task_new("httpc_recv", httpc_recv_thread, httpc, 1024 * 6);
     return HTTPC_SUCCESS;
 }
 
