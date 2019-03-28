@@ -43,10 +43,6 @@
     #define CONFIG_RUNTIME_LOG_LEVEL        (2)
 #endif
 
-#ifndef CONFIG_BLDTIME_MUTE_DBGLOG
-    #define CONFIG_BLDTIME_MUTE_DBGLOG      (1)
-#endif
-
 #ifndef CONFIG_DISPATCH_QUEUE_MAXLEN
     #define CONFIG_DISPATCH_QUEUE_MAXLEN    (50)
 #endif
