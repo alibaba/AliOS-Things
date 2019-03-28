@@ -17,6 +17,7 @@
 #define AT_RSP_SUCCESS "OK"
 #define AT_RSP_FAIL "ERROR"
 
+extern int at_dev_fd;
 static int get_mac_helper(char *mac);
 static int get_ip_stat_helper(hal_wifi_ip_stat_t *result);
 
@@ -132,7 +133,7 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 
     LOGI(TAG, "Will connect via at cmd: %s\r\n", in);
 
-    if (at_send_wait_reply(in, strlen(in), true, NULL, 0, out, sizeof(out), NULL) == 0)
+    if (at_send_wait_reply(at_dev_fd, in, strlen(in), true, NULL, 0, out, sizeof(out), NULL) == 0)
         LOGI(TAG, "AT command %s succeed, rsp: %s\r\n", in, out);
     else
         LOGE(TAG, "AT command %s failed\r\n", in);
@@ -162,7 +163,7 @@ static int get_mac_helper(char *mac)
 
     if (!mac) return -1;
 
-    if (at_send_wait_reply(at_mac_str, strlen(at_mac_str), true,
+    if (at_send_wait_reply(at_dev_fd, at_mac_str, strlen(at_mac_str), true,
                            NULL, 0, out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_MAC, out);
     } else {
@@ -191,7 +192,7 @@ static int get_ip_stat_helper(hal_wifi_ip_stat_t *result)
 
     if (!result) return -1;
 
-    if (at_send_wait_reply(at_ip_str, strlen(at_ip_str), true,
+    if (at_send_wait_reply(at_dev_fd, at_ip_str, strlen(at_ip_str), true,
                            NULL, 0, out, sizeof(out), NULL) == 0) {
         LOGI(TAG, "AT command %s succeed, rsp: %s", AT_CMD_OBTAIN_IP, out);
     } else {
@@ -263,7 +264,7 @@ static int get_link_stat(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat)
 
     memset(out, 0, sizeof(out));
 
-    res = at_send_wait_reply(CURRENTAPINFO, strlen(CURRENTAPINFO), true,
+    res = at_send_wait_reply(at_dev_fd, CURRENTAPINFO, strlen(CURRENTAPINFO), true,
                              NULL, 0, out, sizeof(out), NULL);
 
     if (res == 0)
@@ -417,7 +418,7 @@ static int scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, ui
         return -1;
     }
 
-    res = at_send_wait_reply(SCANALLINFO, strlen(SCANALLINFO), true,
+    res = at_send_wait_reply(at_dev_fd, SCANALLINFO, strlen(SCANALLINFO), true,
                              NULL, 0,
                              out, sizeof(out), NULL);
 
@@ -437,7 +438,7 @@ static int scan_ap_list(hal_wifi_module_t *m, hal_wifi_link_stat_t *out_stat, ui
         return -1;
     }
 
-    res = at_send_wait_reply(SCAN, strlen(SCAN), true,
+    res = at_send_wait_reply(at_dev_fd, SCAN, strlen(SCAN), true,
                              NULL, 0,
                              out, sizeof(out), NULL);
 

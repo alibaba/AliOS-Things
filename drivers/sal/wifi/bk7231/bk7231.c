@@ -10,6 +10,10 @@
 #include "ulog/ulog.h"
 
 #include "network/hal/wifi.h"
+
+#include <atcmd_config_platform.h>
+#include <atcmd_config_module.h>
+
 #include <atparser.h>
 #include <sal_import.h>
 
@@ -32,9 +36,7 @@
 
 #define FWVER_CMD "AT+FWVER?\r"
 #define FWVER_CMD_LEN (sizeof(FWVER_CMD) - 1)
-
-
-#define AT_RESET_CMD "AT"
+#define AT_CMD_EHCO_OFF "AT+UARTE=OFF"
 
 typedef int (*at_data_check_cb_t)(char data);
 
@@ -49,12 +51,14 @@ static link_t g_link[LINK_ID_MAX];
 static aos_mutex_t g_link_mutex;
 static netconn_data_input_cb_t g_netconn_data_input_cb;
 static char localipaddr[16];
+static uart_dev_t uart_dev;
+int at_dev_fd = -1;
 
 static void handle_tcp_udp_client_conn_state(uint8_t link_id)
 {
     char s[32] = {0};
 
-    at_read(s, 6);
+    at_read(at_dev_fd, s, 6);
     if (strstr(s, "CLOSED") != NULL) {
         LOGI(TAG, "Server closed event.");
         if (aos_sem_is_valid(&g_link[link_id].sem_close)) {
@@ -64,14 +68,14 @@ static void handle_tcp_udp_client_conn_state(uint8_t link_id)
         LOGI(TAG, "Server conn (%d) closed.", link_id);
     } else if (strstr(s, "CONNEC") != NULL) {
         LOGI(TAG, "Server conn (%d) successful.", link_id);
-        at_read(s, 3);
+        at_read(at_dev_fd, s, 3);
         if (aos_sem_is_valid(&g_link[link_id].sem_start)) {
             LOGD(TAG, "sem is going to be waked up: 0x%x", &g_link[link_id].sem_start);
             aos_sem_signal(&g_link[link_id].sem_start); // wakeup send task
         }
     } else if (strstr(s, "DISCON") != NULL) {
         LOGI(TAG, "Server conn (%d) disconnected.", link_id);
-        at_read(s, 6);
+        at_read(at_dev_fd, s, 6);
     } else {
         LOGW(TAG, "No one handle this unkown event!!!");
     }
@@ -108,7 +112,7 @@ static int socket_data_info_get(char *buf, uint32_t buflen, at_data_check_cb_t v
     }
 
     do {
-        at_read(&buf[i], 1);
+        at_read(at_dev_fd, &buf[i], 1);
         if (buf[i] == ',') {
             buf[i] = 0;
             break;
@@ -139,7 +143,7 @@ static void handle_socket_data()
     char single;
 
     /* Eat the "OCKET," */
-    at_read(reader, 6);
+    at_read(at_dev_fd, reader, 6);
     if (memcmp(reader, "OCKET,", strlen("OCKET,")) != 0) {
         LOGE(TAG, "0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x invalid event format!!!\r\n",
              reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
@@ -174,14 +178,14 @@ static void handle_socket_data()
         return;
     }
 
-    ret = at_read(recvdata, len);
+    ret = at_read(at_dev_fd, recvdata, len);
     if (ret != len) {
         LOGE(TAG, "at read error recv %d want %d!\n", ret, len);
         goto err;
     }
 
     memset(reader, 0, sizeof(reader));
-    at_read(reader, 2);
+    at_read(at_dev_fd, reader, 2);
     if (strncmp(reader, AT_RECV_PREFIX, 2) != 0) {
         LOGE(TAG, "at fail to read delimiter %s after data %s!\n", AT_RECV_PREFIX, reader);
         goto err;
@@ -213,7 +217,7 @@ static void handle_udp_broadcast_data()
     char *recvdata = NULL;
 
     /* Eat the "DP_BROADCAST," */
-    at_read(reader, 13);
+    at_read(at_dev_fd, reader, 13);
     if (memcmp(reader, "DP_BROADCAST,", strlen("DP_BROADCAST,")) != 0) {
         LOGE(TAG, "%s invalid event format!!!\r\n",
              reader[0], reader[1], reader[2], reader[3], reader[4], reader[5]);
@@ -268,7 +272,7 @@ static void handle_udp_broadcast_data()
         return;
     }
 
-    at_read(recvdata, len);
+    at_read(at_dev_fd, recvdata, len);
 
     if (strcmp(ipaddr, localipaddr) != 0) {
         if (g_netconn_data_input_cb && (g_link[linkid].fd >= 0)) {
@@ -312,26 +316,26 @@ static void bk7231wifi_event_handler(void *arg, char *buf, int buflen)
     char eventhead[4] = {0};
     char eventotal[16] = {0};
 
-    at_read(eventhead, 3);
+    at_read(at_dev_fd, eventhead, 3);
     if (strcmp(eventhead, "AP_") == 0) {
-        at_read(eventotal, 2);
+        at_read(at_dev_fd, eventotal, 2);
         if (strcmp(eventotal, "UP") == 0) {
 
         } else if (strcmp(eventotal, "DO") == 0) {
             /*eat WN*/
-            at_read(eventotal, 2);
+            at_read(at_dev_fd, eventotal, 2);
 
         } else {
             LOGE(TAG, "!!!Error: wrong WEVENT AP string received. %s\r\n", eventotal);
             return;
         }
     } else if (strcmp(eventhead, "STA") == 0) {
-        at_read(eventotal, 7);
+        at_read(at_dev_fd, eventotal, 7);
         if (strcmp(eventotal, "TION_UP") == 0) {
             aos_loop_schedule_call(NULL, bk7231_get_local_ip_addr, NULL);
         } else if (strcmp(eventotal, "TION_DO") == 0) {
             /*eat WN*/
-            at_read(eventotal, 2);
+            at_read(at_dev_fd, eventotal, 2);
             memset(localipaddr, 0, sizeof(localipaddr));
         } else {
             LOGE(TAG, "!!!Error: wrong WEVENT STATION string received. %s\r\n", eventotal);
@@ -363,19 +367,19 @@ static void net_event_handler(void *arg, char *buf, int buflen)
     char s[32] = {0};
     LOGD(TAG, "%s entry.", __func__);
 
-    at_read(&c, 1);
+    at_read(at_dev_fd, &c, 1);
     if (c >= '0' && c < ('0' + LINK_ID_MAX)) {
         int link_id = c - '0';
-        at_read(&c, 1);
+        at_read(at_dev_fd, &c, 1);
         if (c != ',') {
             LOGE(TAG, "!!!Error: wrong CIPEVENT string. 0x%02x\r\n", c);
             return;
         }
-        at_read(&c, 1);
+        at_read(at_dev_fd, &c, 1);
         if (c == 'S') {
             LOGD(TAG, "%s server conn state event, linkid: %d.", __func__, link_id);
             /* Eat the "ERVER," */
-            at_read(s, 6);
+            at_read(at_dev_fd, s, 6);
             if (memcmp(s, "ERVER,", strlen("ERVER,")) != 0) {
                 LOGE(TAG, "invalid event format 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x",
                      s[0], s[1], s[2], s[3], s[4], s[5]);
@@ -385,7 +389,7 @@ static void net_event_handler(void *arg, char *buf, int buflen)
         } else if (c == 'U') {
             LOGD(TAG, "%s UDP conn state event.", __func__);
             /* Eat the "DP," */
-            at_read(s, 3);
+            at_read(at_dev_fd, s, 3);
             if (memcmp(s, "DP,", strlen("DP,")) != 0) {
                 LOGE(TAG, "%s invalid event format 0x%02x 0x%02x 0x%02x \r\n", __FUNCTION__, s[0], s[1], s[2]);
                 return;
@@ -417,7 +421,7 @@ static void bk7231_uart_echo_off()
 {
     char out[64] = {0};
 
-    at_send_wait_reply(AT_CMD_EHCO_OFF, strlen(AT_CMD_EHCO_OFF), true,
+    at_send_wait_reply(at_dev_fd, AT_CMD_EHCO_OFF, strlen(AT_CMD_EHCO_OFF), true,
                        NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
@@ -454,7 +458,7 @@ int HAL_SAL_Init(void)
     aos_msleep(2000);
     /*wifi module fw version print */
     snprintf(cmd, FWVER_CMD_LEN, "%s", FWVER_CMD);
-    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
+    at_send_wait_reply(at_dev_fd, cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed, out:%s", __func__, __LINE__, out);
     } else {
@@ -467,8 +471,8 @@ int HAL_SAL_Init(void)
 
     bk7231_uart_echo_off();
 
-    at_register_callback(NET_OOB_PREFIX, NULL, 0, net_event_handler, NULL);
-    at_register_callback(WIFIEVENT_OOB_PREFIX, NULL, 0, bk7231wifi_event_handler, NULL);
+    at_register_callback(at_dev_fd, NET_OOB_PREFIX, NULL, NULL, 0, net_event_handler, NULL);
+    at_register_callback(at_dev_fd, WIFIEVENT_OOB_PREFIX, NULL, NULL, 0, bk7231wifi_event_handler, NULL);
     inited = 1;
 
     return 0;
@@ -565,7 +569,7 @@ int HAL_SAL_Start(sal_conn_t *c)
 
     LOGD(TAG, "\r\n%s %d - AT cmd to run: %s \r\n", __func__, __LINE__, cmd);
 
-    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
+    at_send_wait_reply(at_dev_fd, cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -671,11 +675,11 @@ int HAL_SAL_Send(int fd,
     }
     outdata[len] = checksum;
 
-    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)outdata, len + 1, out, sizeof(out)
+    at_send_wait_reply(at_dev_fd, (const char *)cmd, strlen(cmd), true, (const char *)outdata, len + 1, out, sizeof(out)
                                NULL);
     aos_free(outdata);
 #else
-    at_send_wait_reply((const char *)cmd, strlen(cmd), true, (const char *)data, len, out, sizeof(out),
+    at_send_wait_reply(at_dev_fd, (const char *)cmd, strlen(cmd), true, (const char *)data, len, out, sizeof(out),
                                NULL);
 #endif
     LOGD(TAG, "\r\nThe AT response is: %s\r\n", out);
@@ -699,7 +703,7 @@ int HAL_SAL_DomainToIp(char *domain, char ip[16])
     snprintf(cmd, DOMAIN_CMD_LEN - 1, "%s=%s", DOMAIN_CMD, domain);
     LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
+    at_send_wait_reply(at_dev_fd, cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, AT_RECV_SUCCESS_POSTFIX) == NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -768,7 +772,7 @@ int HAL_SAL_Close(int fd,
     snprintf(cmd, STOP_CMD_LEN - 1, "%s=%d", STOP_CMD, link_id);
     LOGD(TAG, "%s %d - AT cmd to run: %s", __func__, __LINE__, cmd);
 
-    at_send_wait_reply(cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
+    at_send_wait_reply(at_dev_fd, cmd, strlen(cmd), true, NULL, 0, out, sizeof(out), NULL);
     LOGD(TAG, "The AT response is: %s", out);
     if (strstr(out, CMD_FAIL_RSP) != NULL) {
         LOGE(TAG, "%s %d failed", __func__, __LINE__);
@@ -810,7 +814,32 @@ int HAL_SAL_RegisterNetconnDataInputCb(netconn_data_input_cb_t cb)
 
 int sal_device_init(void)
 {
+    at_config_t at_config = { 0 };
+
     at_init();
+
+    /* uart_dev should be maintained in whole life cycle */
+    uart_dev.port                = AT_UART_PORT;
+    uart_dev.config.baud_rate    = AT_UART_BAUDRATE;
+    uart_dev.config.data_width   = AT_UART_DATA_WIDTH;
+    uart_dev.config.parity       = AT_UART_PARITY;
+    uart_dev.config.stop_bits    = AT_UART_STOP_BITS;
+    uart_dev.config.flow_control = AT_UART_FLOW_CONTROL;
+    uart_dev.config.mode         = AT_UART_MODE;
+
+    /* configure and add one uart dev */
+    at_config.type                             = AT_DEV_UART;
+    at_config.port                             = AT_UART_PORT;
+    at_config.dev_cfg                          = &uart_dev;
+    at_config.send_delimiter                   = AT_SEND_DELIMITER;
+    at_config.reply_cfg.reply_prefix           = AT_RECV_PREFIX;
+    at_config.reply_cfg.reply_success_postfix  = AT_RECV_SUCCESS_POSTFIX;
+    at_config.reply_cfg.reply_fail_postfix     = AT_RECV_FAIL_POSTFIX;
+
+    if ((at_dev_fd = at_add_dev(&at_config)) < 0) {
+        LOGE(TAG, "AT parser device add failed!\n");
+        return -1;
+    }
+
     return 0;
 }
-
