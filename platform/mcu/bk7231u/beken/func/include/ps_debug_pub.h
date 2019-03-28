@@ -1,22 +1,34 @@
-#include "rtos_pub.h"
-#include "uart_pub.h"
+#ifndef _PS_DEBUG_H_
+#define _PS_DEBUG_H_
 #include "arm_arch.h"
-#include "param_config.h"
-#include "rw_pub.h"
-#include "target_util_pub.h"
-
 
 #define PS_USE_GPIO_TRACE           0
 #define PS_NO_USE_GPIO_WAKE         1
 #define PS_NO_USE_UART1_WAKE        0
 
+#if (CFG_SOC_NAME == SOC_BK7231)
 
-#define PS_CK_GPIO   (0x0802800 +(10*4))
-#define PS_UP_GPIO   (0x0802800 +(14*4))
-#define PS_RX_GPIO     (0x0802800 +(15*4))
-#define PS_BCN_GPIO   (0x0802800 +(11*4))
-#define PS_DOWN_GPIO   (0x0802800 +(17*4))
-#define PS_PWM_GPIO   (0x0802800 +(16*4))
+#define PS_CK_GPIO                 (0x0802800 +(10*4))
+#define PS_UP_GPIO                 (0x0802800 +(14*4))
+#define PS_RX_GPIO                 (0x0802800 +(15*4))
+#define PS_BCN_GPIO                (0x0802800 +(11*4))
+#define PS_DOWN_GPIO               (0x0802800 +(17*4))
+#define PS_PWM_GPIO                (0x0802800 +(16*4))
+#elif (CFG_SOC_NAME == SOC_BK7231U)
+#define PS_CK_GPIO                 (0x0802800 +(8*4))
+#define PS_UP_GPIO                 (0x0802800 +(22*4))
+#define PS_RX_GPIO                 (0x0802800 +(23*4))
+#define PS_BCN_GPIO                (0x0802800 +(9*4))
+#define PS_DOWN_GPIO               (0x0802800 +(20*4))
+#define PS_PWM_GPIO                (0x0802800 +(21*4))
+#elif (CFG_SOC_NAME == SOC_BK7221U)
+#define PS_CK_GPIO                 (0x0802800 +(21*4))
+#define PS_UP_GPIO                 (0x0802800 +(20*4))
+#define PS_RX_GPIO                 (0x0802800 +(6*4))
+#define PS_BCN_GPIO                (0x0802800 +(22*4))
+#define PS_DOWN_GPIO               (0x0802800 +(23*4))
+#define PS_PWM_GPIO                (0x0802800 +(7*4))
+#endif
 
 #if PS_USE_GPIO_TRACE
 #if PS_NO_USE_GPIO_WAKE
@@ -74,5 +86,9 @@
 #define PS_DEBUG_DOWN_TRIGER 	
 #define PS_DEBUG_PWM_TRIGER 	
 #endif
+
+#endif // _PS_DEBUG_H_
+// eof
+
 
 

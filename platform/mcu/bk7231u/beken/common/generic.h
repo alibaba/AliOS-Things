@@ -17,6 +17,54 @@ extern void bk_printf(const char *fmt, ...);
 
 
 #if (0 == CFG_RELEASE_FIRMWARE)
+#define ASSERT_EQ(a, b)                             \
+{                                                   \
+    if ((a) != (b))                                 \
+    {                                               \
+        bk_printf("%s:%d %d!=%d\r\n",__FUNCTION__,__LINE__, (a), (b)); \
+        while(1);                                   \
+    }                                               \
+}
+#define ASSERT_NE(a, b)                             \
+{                                                   \
+    if ((a) == (b))                                 \
+    {                                               \
+        bk_printf("%s:%d %d==%d\r\n",__FUNCTION__,__LINE__, (a), (b)); \
+        while(1);                                   \
+    }                                               \
+}
+#define ASSERT_GT(a, b)                             \
+{                                                   \
+    if ((a) <= (b))                                 \
+    {                                               \
+        bk_printf("%s:%d %d<=%d\r\n",__FUNCTION__,__LINE__, (a), (b)); \
+        while(1);                                   \
+    }                                               \
+}
+#define ASSERT_GE(a, b)                             \
+{                                                   \
+    if ((a) < (b))                                 \
+    {                                               \
+        bk_printf("%s:%d %d<%d\r\n",__FUNCTION__,__LINE__, (a), (b)); \
+        while(1);                                   \
+    }                                               \
+}
+#define ASSERT_LT(a, b)                             \
+{                                                   \
+    if ((a) >= (b))                                 \
+    {                                               \
+        bk_printf("%s:%d %d>=%d\r\n",__FUNCTION__,__LINE__, (a), (b)); \
+        while(1);                                   \
+    }                                               \
+}
+#define ASSERT_LE(a, b)                             \
+{                                                   \
+    if ((a) > (b))                                 \
+    {                                               \
+        bk_printf("%s:%d %d>%d\r\n",__FUNCTION__,__LINE__, (a), (b)); \
+        while(1);                                   \
+    }                                               \
+}
 #define ASSERT(exp)                                 \
 {                                                   \
     if ( !(exp) )                                   \
@@ -26,6 +74,12 @@ extern void bk_printf(const char *fmt, ...);
     }                                               \
 } 
 #else
+#define ASSERT_EQ(exp)
+#define ASSERT_NE(exp)
+#define ASSERT_GT(exp)
+#define ASSERT_GE(exp)
+#define ASSERT_LT(exp)
+#define ASSERT_LE(exp)
 #define ASSERT(exp)
 #endif
 
@@ -86,10 +140,12 @@ static inline __uint64_t __bswap64(__uint64_t _x)
 #define ___ntohl(x) __be32_to_cpu(x)
 #define ___ntohs(x) __be16_to_cpu(x)
 
+#if (!CFG_SUPPORT_RTT)
 #define htons(x) __htons(x)
 #define ntohs(x) __ntohs(x)
 #define htonl(x) __htonl(x)
 #define ntohl(x) __ntohl(x)
+#endif
 
 #endif // _GENERIC_H_
 

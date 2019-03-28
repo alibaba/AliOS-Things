@@ -7,18 +7,17 @@
  */
 
 /* Include memory map */
-INCLUDE bk7231udevkitc.ld
+INCLUDE bk7231udevkitc.ld.S
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_vector_start);
-_vector_start = 0x00000000;
+_vector_start = 0x00008000;
 
 SECTIONS
 {
 /* vectors go to vectors region */
-	. = 0x00000000;
-	.vectors :
+	.vectors 0x00008000 :
 	{
       KEEP(*(*.vectors))
 	} > flash
@@ -93,7 +92,7 @@ SECTIONS
 	PROVIDE(end    	  = .);
 	PROVIDE(heap_start    	  = .);
 
-    PROVIDE(kernel_download_addr = 0x0011000);
+    PROVIDE(kernel_download_addr = 0x0008800);
     PROVIDE(framework_download_addr = 0xffffffff);
     PROVIDE(app_download_addr = 0xffffffff);
 

@@ -45,5 +45,6 @@ void hal_reboot(void)
     wdg.config.timeout = 1;
 
     hal_wdg_init(&wdg);
+    while(1);
 }
 
