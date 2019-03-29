@@ -123,28 +123,35 @@ static int httpc_recv_fun(httpc_handle_t httpc, uint8_t *buf, int32_t buf_size,
             ota_header_found = false;
             ota_file_size = 0;
             ota_rx_size = 0;
+            LOG("ota_req_times %d, ota_rsp_times %d, ota_req_fail_times %d\r\n",
+                 ota_req_times, ota_rsp_times, ota_req_fail_times);
         }
 
         if (ret == RX_CONTINUE || ret == RX_FINAL) {
             LOG("http session %x, buf size %d bytes, recv %d bytes data, ret %d\n",
                 httpc, buf_size, data_len, ret);
-            if (ota_header_found == false && ota_file_size == 0) {
-                content = strstr(buf, "Content-Length");
-                if (content) {
-                    ret = sscanf(content, "%*[^ ]%d", &ota_file_size);
-                    if (ret < 0) {
-                        LOG("http session fail to get ota header\r\n");
+            if (ota_header_found == false) {
+                if (ota_file_size == 0) {
+                    content = strstr(buf, "Content-Length");
+                    if (content) {
+                        ret = sscanf(content, "%*[^ ]%d", &ota_file_size);
+                        if (ret < 0) {
+                            LOG("http session fail to get ota header\r\n");
+                            return 0;
+                        }
+                        ota_header_found = true;
+                        LOG("ota file size %d\r\n", ota_file_size);
+                    } else {
                         return 0;
                     }
-                    LOG("ota file size %d\r\n", ota_file_size);
-                } else {
-                    return 0;
                 }
                 content = strstr(buf, "\r\n\r\n");
                 if (content) {
                     content += 4;
                     ota_rx_size = data_len - ((uint8_t *)content - buf);
+                    LOG("ota (%d/%d) \r\n", ota_rx_size, ota_file_size);
                 }
+                return 0;
             }
             ota_rx_size += data_len;
             LOG("ota (%d/%d) \r\n", ota_rx_size, ota_file_size);
@@ -340,7 +347,7 @@ static int32_t httpc_ota(const char *uri)
     return ret;
 }
 
-#define RSP_BUF_SIZE 2000
+#define RSP_BUF_SIZE 2048
 uint8_t rsp_buf[RSP_BUF_SIZE];
 static void httpc_delayed_action(void *arg)
 {
