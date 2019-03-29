@@ -172,13 +172,13 @@ typedef struct {
 
 #if (DEBUG_CONFIG_PANIC > 0)
 /**
- * set mpu region for debug
+ * set mpu region for memory unauthorized access check
  *
  * @param[in]  addr_start   monitor start addr
  * @param[in]  addr_size    monitor size
- * @param[in]  mode         prohibit access or read only
+ * @param[in]  mode         prohibit access(0) or read only(>0)
  */
-void debug_mpu_region_set(unsigned long addr_start, unsigned long addr_size, unsigned int mode);
+void debug_memory_access_err_check(unsigned long addr_start, unsigned long addr_size, unsigned int mode);
 #endif
 
 #endif // MPU_H

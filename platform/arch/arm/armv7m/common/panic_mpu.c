@@ -15,8 +15,19 @@ typedef struct {
 #if (DEBUG_CONFIG_PANIC > 0)
 
 static void mpu_enable(void);
+static void mpu_disable(void);
 static void mpu_config_region(MPU_Region_Init_t *init);
 static unsigned int size_to_mpusize(unsigned int size);
+
+/*
+ * Func: mpu is valid in mcu
+ * IN  : none
+ * Out : 0 -- valid; 1 -- invalid
+ * */
+static unsigned int mpu_is_valid(void)
+{
+    return ((MPU->type) & MPU_TYPE_DREGION_MASK == 0) ? 1: 0;
+}
 
 static void mpu_enable(void)
 {
@@ -24,6 +35,15 @@ static void mpu_enable(void)
 
     /* Enable memory manage fault */
     *(SHCSR_M) |= (1<<16);
+
+    OS_DSB();
+    OS_ISB();
+    OS_DMB();
+}
+
+static void mpu_disable(void)
+{
+    MPU->ctrl = 0U;
 
     OS_DSB();
     OS_ISB();
@@ -50,7 +70,6 @@ static void enable_region(mem_region_t *region, int rng_no,
     init.enable            = 1;
 
     mpu_config_region(&init);
-
 }
 
 
@@ -114,32 +133,58 @@ static unsigned int size_to_mpusize(unsigned int size)
     }
 }
 
-void debug_mpu_region_set(unsigned long addr_start, unsigned long addr_size, unsigned int mode)
+static void mpu_set(unsigned long addr, unsigned long size, unsigned int mode)
 {
     mem_region_t region;
 
-    unsigned int mpu_region_type = 0;
+    region.start   = addr;
+    region.size    = size;
+    region.mpusize = size_to_mpusize(region.size);
 
-    if ((addr_size < 0x20) || (addr_size > 0x100000000)) {
+    mpu_disable();
+
+    enable_region(&region, 0, 0, 0, mode, 0, 0, 1, 1);
+
+    mpu_enable();
+}
+
+static unsigned int mpu_check(unsigned long addr, unsigned long size)
+{
+    if ((size < 0x20) || (size > 0x80000000)) {
         printf("mpu region size error\r\n");
-        return;
+        return 1;
     }
 
-    if ((addr_start % addr_size) != 0) {
-        printf("error:mpu start addr should be compatible for size\r\n");
-        return;
+    if (mpu_is_valid() != 0) {
+        printf("error:no mpu in mcu\r\n");
+        return 1;
     }
+
+    return 0;
+}
+
+/**
+ * set mpu region for memory unauthorized access check
+ *
+ * @param[in]  addr_start   monitor start addr
+ * @param[in]  addr_size    monitor size
+ * @param[in]  mode         prohibit access (0) or read only(>0)
+ */
+void debug_memory_access_err_check(unsigned long addr_start, unsigned long addr_size, unsigned int mode)
+{
+    unsigned int mpu_region_type;
+
+    if (mpu_check(addr_start, addr_size) != 0)
+        return;
+
+    if ((addr_start % addr_size) != 0)
+        addr_start = (addr_start + (addr_size - 1)) & ~(addr_size - 1);
 
     if (mode > 0) {
         mpu_region_type = MPU_AP_RO_NA;
-    }
+    } else
+        mpu_region_type = MPU_AP_NA_NA;
 
-    mpu_enable();
-
-    region.start   = addr_start;
-    region.size    = addr_size;
-    region.mpusize = size_to_mpusize(region.size);
-
-    enable_region(&region, 0, 0, 0, mpu_region_type, 0, 0, 1, 1);
+    mpu_set(addr_start, addr_size, mpu_region_type);
 }
 #endif
