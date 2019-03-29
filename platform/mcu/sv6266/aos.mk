@@ -98,7 +98,7 @@ GLOBAL_DEFINES += CONFIG_OS_RHINO
 # 0x00: reserved
 
 # 0x04: xtal
-XTAL := 25
+XTAL := 40
 GLOBAL_DEFINES += XTAL=$(XTAL)
 
 # 0x08: bus clock
@@ -109,6 +109,7 @@ endif
 ifeq ($(strip $(SYS_BUS_CLK)), 40M)
 GLOBAL_DEFINES += SYS_BUS_SPEED=40
 endif
+$(info $(GLOBAL_DEFINES))
 
 # 0x0c: xip bit
 XIP_BIT := 4
