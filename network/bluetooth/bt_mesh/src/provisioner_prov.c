@@ -2243,7 +2243,7 @@ static void prov_complete(const u8_t *data)
 
     err = provisioner_node_provision(j, node[j].uuid, node[j].oob_info, node[j].unicast_addr,
                                      node[j].element_num, node[j].net_idx, node[j].flags,
-                                     node[j].iv_index, device_key);
+                                     node[j].iv_index, device_key, node[j].addr.a.val);
     if (err) {
         BT_ERR("Provisioner store node info in upper layers fail");
         close_link(i, CLOSE_REASON_FAILED);
@@ -2308,7 +2308,7 @@ static void close_link(int i, u8_t reason)
 #if defined(CONFIG_BT_MESH_PB_GATT)
         conn = link[i].conn;
         if (conn) {
-            bt_mesh_pb_gatt_close(conn);
+            //provisioner_pb_gatt_close(conn, reason);
         }
 #endif
     } else {

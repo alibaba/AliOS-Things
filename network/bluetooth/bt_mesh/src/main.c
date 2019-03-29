@@ -306,7 +306,7 @@ int bt_mesh_init(const struct bt_mesh_prov *prov,
 
 	if (IS_ENABLED(CONFIG_BT_MESH_PROXY)) {
 #if CONFIG_BT_MESH_PROVISIONER
-	//	provisioner_proxy_init();
+		provisioner_proxy_init();
 #else
 		bt_mesh_proxy_init();
 #endif
