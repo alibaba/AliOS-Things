@@ -32,13 +32,14 @@ struct bt_mesh_node_t {
     u32_t iv_index;                     /* Node IV Index */
     u8_t  dev_key[16];                  /* Node device key */
     bool  node_active;
+    u8_t  addr_val[6];
 } __packed;
 
 /* The following APIs are for key init, node provision & node reset. */
 
 int provisioner_node_provision(int node_index, const u8_t uuid[16], u16_t oob_info,
                                u16_t unicast_addr, u8_t element_num, u16_t net_idx,
-                               u8_t flags, u32_t iv_index, const u8_t dev_key[16]);
+                               u8_t flags, u32_t iv_index, const u8_t dev_key[16], u8_t *dev_addr);
 
 int provisioner_node_reset(int node_index);
 
@@ -109,6 +110,8 @@ int bt_mesh_temp_prov_net_idx_set(const u8_t net_key[16], u16_t *net_idx, u8_t *
 
 /* Set the app_idx to be assigned for the added appkey */
 int bt_mesh_temp_prov_app_idx_set(const u8_t app_key[16], u16_t net_idx, u16_t *app_idx, u8_t *status);
+
+bool provisioner_is_node_provisioned(u8_t *dev_addr);
 
 #endif /* CONFIG_BT_MESH_PROVISIONER */
 
