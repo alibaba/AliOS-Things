@@ -228,11 +228,10 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set,
     partition_info = hal_flash_get_info( in_partition );
     uint32_t start_address = partition_info->partition_start_addr + *off_set;
     uint32_t partition_end = partition_info->partition_start_addr + partition_info->partition_length;
-    printf("hal_flash_write start address is 0x%x, offset is 0x%x %d\r\n", start_address, *off_set, in_partition);
     if(start_address >= partition_end){
         printf("flash over write\r\n");
         return -1;
-    }    
+    }
     if((start_address + in_buf_len) > partition_end){
         in_buf_len = partition_end - start_address;
         printf("flash over write, new len is %d\r\n", in_buf_len);
@@ -301,8 +300,8 @@ int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set,
         return -1;
     }
 
-    //printf("hal_flash_read offset is 0x%x , in_buf_len %d , start_add is 0x%x\r\n",
-        //*off_set, in_buf_len, start_address);
+    *off_set += in_buf_len;
+
     return rda5981_read_flash(start_address, (const uint8_t *)out_buf, in_buf_len);
     #if 0
     //uint32_t start_address = flash_get_start_address(&flash_obj);
