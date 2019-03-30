@@ -21,8 +21,7 @@ LOG_DOWNLOAD   = 'LGDL'
 FILE_BEGIN     = 'FBGN'
 FILE_DATA      = 'FDTA'
 FILE_END       = 'FEND'
-CMD_DONE       = 'CMDD'
-CMD_ERROR      = 'CMDE'
+RESPONSE       = 'RSPN'
 HEARTBEAT      = 'HTBT'
 TYPE_NONE      = 'NONE'
 CLIENT_UUID    = 'CUID'
@@ -38,9 +37,7 @@ def is_valid_type(type):
         return True
     if type == DEVICE_CMD:
         return True
-    if type == CMD_DONE:
-        return True
-    if type == CMD_ERROR:
+    if type == RESPONSE:
         return True
     if type == DEVICE_ERASE:
         return True
