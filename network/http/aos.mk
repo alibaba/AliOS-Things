@@ -12,3 +12,4 @@ $(NAME)_SOURCES := src/http_client.c \
                    src/http_parser.c
 
 include $($(NAME)_LOCATION)/wrappers/http_wrapper.mk
+#$(NAME)_COMPONENTS += http_wrapper
