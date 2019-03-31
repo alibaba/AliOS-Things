@@ -348,10 +348,14 @@ static int32_t httpc_ota(const char *uri)
 }
 
 #define RSP_BUF_SIZE 2048
+#define REQ_BUF_SIZE 1024
 uint8_t rsp_buf[RSP_BUF_SIZE];
+uint8_t req_buf[REQ_BUF_SIZE];
 static void httpc_delayed_action(void *arg)
 {
+#if CONFIG_HTTP_SECURE
     char device_id[64];
+#endif
     int fd;
     int32_t ret = HTTPC_FAIL;
 
@@ -385,6 +389,8 @@ static void httpc_delayed_action(void *arg)
 #endif
     settings.rsp_buf = rsp_buf;
     settings.rsp_buf_size = RSP_BUF_SIZE;
+    settings.req_buf = req_buf;
+    settings.req_buf_size = REQ_BUF_SIZE;
     httpc_handle = httpc_init(&settings);
     if (httpc_handle == 0) {
         LOG("http session init fail\n");
