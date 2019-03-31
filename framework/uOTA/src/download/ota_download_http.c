@@ -231,6 +231,7 @@ static int ota_download_start(void *pctx)
         if((nbytes <= 0)&&(retry <= 5)){
              retry++;
              OTA_LOG_I("retry cn:%d",retry);
+             ota_msleep(500);
              continue;
         } else {
              retry=0;

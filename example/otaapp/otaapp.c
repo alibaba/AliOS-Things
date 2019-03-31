@@ -41,9 +41,6 @@ static void ota_work(void *ctx)
 #endif
     /*Main device*/
     ota_service_init(ctx);
-#ifdef OTA_WITH_LINKKIT
-    IOT_CloseLog();
-#endif
     while (1) {
         IOT_MQTT_Yield(NULL,200);
         aos_msleep(1000);
