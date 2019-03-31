@@ -51,7 +51,7 @@ void ota_reboot_bank(void)
     system_upgrade_init();
     system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
     system_upgrade_reboot();
-#elif defined (STM32L496xx)
+#elif defined (STM32L496xx) || defined (SV6266)
     extern int flash_sw_bank(void);
     flash_sw_bank();
 #endif
@@ -203,6 +203,7 @@ static int ota_boot(void *something)
         }
         else {
 #ifdef AOS_OTA_BANK_SINGLE
+            #ifndef SV6266
             int offset = 0x00;
             ota_crc16_ctx ctx1;
             unsigned short crc;
@@ -210,15 +211,15 @@ static int ota_boot(void *something)
             extern int app_download_addr;
             extern int kernel_download_addr;
             hal_logic_partition_t *part_info = hal_flash_get_info(boot_part);
-#ifndef AOS_OTA_2BOOT_UPDATE_SUPPORT
+            #ifndef AOS_OTA_2BOOT_UPDATE_SUPPORT
             param->src_adr = part_info->partition_start_addr;
             param->dst_adr = (param->upg_flag == OTA_APP) ? (int)&app_download_addr : (int)&kernel_download_addr;
-#else
+            #else
             param->src_adr  = 0;
             param->dst_adr  = 0;
             param->len      = 0;
             param->upg_flag = REC_SWAP_UPDATE_FLAG;
-#endif
+            #endif
             ota_crc16_init(&ctx1);
             ota_crc16_update(&ctx1, param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
             ota_crc16_final(&ctx1, &crc);
@@ -236,6 +237,10 @@ static int ota_boot(void *something)
                  return ret;
             }
             OTA_LOG_I("OTA finish dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x.\r\n", param_r.dst_adr, param_r.src_adr, param_r.len, param_r.crc);
+            #else
+            ota_reboot_bank();
+            OTA_LOG_I("OTA finish, boot para self defined!");
+            #endif
 #elif defined  AOS_OTA_BANK_DUAL
             int offset = 0x00;
             ota_crc16_ctx tmp_ctx;
