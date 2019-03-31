@@ -13,11 +13,16 @@
 #include "ota_hal_os.h"
 #include "ota_log.h"
 #if !defined (AOS_COMP_OTA_BLE)
+#if defined OTA_CONFIG_ITLS
+#include "itls/sha256.h"
+#include "itls/md5.h"
+#include "itls/base64.h"
+#else
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
 #include "mbedtls/base64.h"
 #endif
-
+#endif
 #if (OTA_SIGNAL_CHANNEL) == 1
 #include "iot_export.h"
 #include "iot_import.h"

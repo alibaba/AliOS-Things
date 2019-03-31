@@ -11,7 +11,7 @@ else ifeq ($(COMPILER),gcc)
 $(NAME)_CFLAGS      += -Wall -Werror
 endif
 
-$(NAME)_COMPONENTS += imbedtls linkkit_sdk_c cjson
+$(NAME)_COMPONENTS += linkkit_sdk_c cjson
 
 $(NAME)_SOURCES := ota_core/ota_service.c \
                    ota_core/download/ota_download_http.c \
@@ -34,6 +34,13 @@ else
 $(NAME)_SOURCES += hal/ota_hal_plat.c
 endif
 endif
+endif
+
+ifeq ($(FEATURE_SUPPORT_ITLS),y)
+GLOBAL_DEFINES += OTA_CONFIG_ITLS
+$(NAME)_COMPONENTS += itls
+else
+$(NAME)_COMPONENTS += imbedtls
 endif
 
 GLOBAL_INCLUDES += include hal ota_core/verify 2nd_boot
