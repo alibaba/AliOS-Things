@@ -167,7 +167,7 @@ static int ota_download_start(void *pctx)
 
     if (isHttps) {
 #if defined OTA_CONFIG_ITLS
-        char pkps[PRODUCT_KEY_LEN + PRODUCT_SECRET_LEN] = {0};
+        char pkps[128] = {0};
         int len = strlen(ctx->pk);
         strncpy(pkps, ctx->pk, len);
         HAL_GetProductSecret(pkps + len + 1);
@@ -230,6 +230,7 @@ static int ota_download_start(void *pctx)
         if((nbytes <= 0)&&(retry <= 5)){
              retry++;
              OTA_LOG_I("retry cn:%d", retry);
+             ota_msleep(500);
              continue;
         } else {
              retry = 0;

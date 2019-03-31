@@ -274,6 +274,10 @@ static void ota_download_thread(void *hand)
     ota_set_break_point(0);
 ERR:
     OTA_LOG_E("upgrade over err:%d", ret);
+#if defined (RDA5981x) || defined (RDA5981A)
+    OTA_LOG_I("clear ota part. \n");
+    ota_hal_init((void *)(ota_param));
+#endif
 #if (!defined BOARD_ESP8266)
     ctx->h_tr->status(100, ctx);
 #endif
