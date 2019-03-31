@@ -40,6 +40,8 @@ typedef struct httpc_connection_s {
     httpc_recv_fn recv_fn;
     uint8_t *rsp_buf;  // pointer to response buffer
     int32_t rsp_buf_size;  // response buffer size
+    uint8_t *req_buf;  // pointer to request buffer
+    int32_t req_buf_size; // request buffer size
 } httpc_connection_t;
 
 int8_t http_client_intialize(void);
