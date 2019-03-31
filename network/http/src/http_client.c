@@ -298,6 +298,9 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
     // response buffer
     http_sessions[index].rsp.buf = settings->rsp_buf;
     http_sessions[index].rsp.buf_size = settings->rsp_buf_size;
+    // request buffer
+    http_sessions[index].req.buf = settings->req_buf;
+    http_sessions[index].req.buf_size = settings->req_buf_size;
 
     http_sessions[index].parser_settings.on_body = on_body;
     http_sessions[index].parser_settings.on_chunk_complete = on_chunk_complete;
@@ -372,13 +375,13 @@ static int8_t httpc_add_request_header(httpc_handle_t httpc, const char *hdr_nam
         return HTTPC_FAIL;
     }
 
-    buf = http_session->header + http_session->header_len;
-    buf_size = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    buf = (char *)http_session->req.buf + http_session->req.data_len;
+    buf_size = http_session->req.buf_size - http_session->req.data_len;
     hdr_length = httpc_construct_header(buf, buf_size, hdr_name, hdr_data);
     if (hdr_length < 0) {
         return HTTPC_FAIL;
     }
-    http_session->header_len += hdr_length;
+    http_session->req.data_len += hdr_length;
 
     return HTTPC_SUCCESS;
 }
@@ -389,14 +392,14 @@ static int8_t httpc_add_space(httpc_handle_t httpc)
     char *hdr_ptr;
     int16_t free_space;
 
-    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    free_space = http_session->req.buf_size - http_session->req.data_len;
     if (free_space < 1) {
         return HTTPC_FAIL;
     }
 
-    hdr_ptr = http_session->header + http_session->header_len;
+    hdr_ptr = (char *)http_session->req.buf + http_session->req.data_len;
     *hdr_ptr = ' ';
-    http_session->header_len += 1;
+    http_session->req.data_len += 1;
     return HTTPC_SUCCESS;
 }
 
@@ -420,8 +423,8 @@ static int8_t httpc_add_method(httpc_handle_t httpc, int method)
         return HTTPC_FAIL;
     }
 
-    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
-    hdr_ptr = http_session->header + http_session->header_len;
+    free_space = http_session->req.buf_size - http_session->req.data_len;
+    hdr_ptr = http_session->req.buf + http_session->req.data_len;
 
     method_str = http_method_str(method);
 
@@ -434,7 +437,7 @@ static int8_t httpc_add_method(httpc_handle_t httpc, int method)
     }
 
     strncpy(hdr_ptr, method_str, strlen(method_str));
-    http_session->header_len += strlen(method_str);
+    http_session->req.data_len += strlen(method_str);
     return httpc_add_space(httpc);
 }
 
@@ -453,14 +456,14 @@ static int8_t httpc_add_uri(httpc_handle_t httpc, const char *uri)
         return HTTPC_FAIL;
     }
 
-    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    free_space = http_session->req.buf_size - http_session->req.data_len;
     if (strlen(uri) > free_space) {
         return HTTPC_FAIL;
     }
 
-    hdr_ptr = http_session->header + http_session->header_len;
+    hdr_ptr = (char *)http_session->req.buf + http_session->req.data_len;
     strncpy(hdr_ptr, uri, strlen(uri));
-    http_session->header_len += strlen(uri);
+    http_session->req.data_len += strlen(uri);
     ret = httpc_add_space(httpc);
     return ret;
 }
@@ -475,16 +478,16 @@ static int8_t httpc_add_version(httpc_handle_t httpc)
         return HTTPC_FAIL;
     }
 
-    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    free_space = http_session->req.buf_size - http_session->req.data_len;
     if ((strlen(HTTPC_VERSION) + strlen(HTTPC_CRLF)) > free_space) {
         return HTTPC_FAIL;
     }
 
-    hdr_ptr = http_session->header + http_session->header_len;
+    hdr_ptr = http_session->req.buf + http_session->req.data_len;
     strncpy(hdr_ptr, HTTPC_VERSION, strlen(HTTPC_VERSION));
     hdr_ptr += strlen(HTTPC_VERSION);
     strncpy(hdr_ptr, HTTPC_CRLF, strlen(HTTPC_CRLF));
-    http_session->header_len += (strlen(HTTPC_VERSION) + strlen(HTTPC_CRLF));
+    http_session->req.data_len += (strlen(HTTPC_VERSION) + strlen(HTTPC_CRLF));
     return HTTPC_SUCCESS;
 }
 
@@ -498,15 +501,15 @@ static int8_t httpc_add_header_field(httpc_handle_t httpc, const char *hdr, uint
         return HTTPC_FAIL;
     }
 
-    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    free_space = http_session->req.buf_size - http_session->req.data_len;
     if (size > free_space) {
         return HTTPC_FAIL;
     }
 
-    hdr_ptr = http_session->header + http_session->header_len;
+    hdr_ptr = (char *)http_session->req.buf + http_session->req.data_len;
     strncpy(hdr_ptr, hdr, size);
     hdr_ptr += size;
-    http_session->header_len += size;
+    http_session->req.data_len += size;
     return HTTPC_SUCCESS;
 }
 
@@ -529,32 +532,28 @@ static int8_t httpc_add_payload(httpc_handle_t httpc, const char *param, uint16_
         return HTTPC_FAIL;
     }
 
-    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    free_space = http_session->req.buf_size - http_session->req.data_len;
     if (2 > free_space) {
         return HTTPC_FAIL;
     }
-    hdr_ptr = http_session->header + http_session->header_len;
+    hdr_ptr = (char *)http_session->req.buf + http_session->req.data_len;
     memcpy(hdr_ptr, HTTPC_CRLF, 2);
-    http_session->header_len += 2;
+    http_session->req.data_len += 2;
 
-    free_space = CONFIG_HTTPC_HEADER_SIZE - http_session->header_len;
+    free_space = http_session->req.buf_size - http_session->req.data_len;
     if (param_len > free_space) {
         return HTTPC_FAIL;
     }
 
-    hdr_ptr = http_session->header + http_session->header_len;
+    hdr_ptr = (char *)http_session->req.buf + http_session->req.data_len;
     strncpy(hdr_ptr, param, param_len);
-    http_session->header_len += param_len;
+    http_session->req.data_len += param_len;
     return HTTPC_SUCCESS;
-
 }
 
 static int8_t httpc_reset(httpc_t *http_session)
 {
     http_parser_init(&http_session->parser, HTTP_RESPONSE);
-
-    memset(http_session->header, 0, sizeof(http_session->header));
-    http_session->header_len = 0;
 
     http_session->rsp.content_len_present = 0;
     http_session->rsp.content_len = 0;
@@ -563,6 +562,9 @@ static int8_t httpc_reset(httpc_t *http_session)
 
     memset(http_session->rsp.buf, 0, http_session->rsp.buf_size);
     http_session->rsp.data_len = 0;
+
+    memset(http_session->req.buf, 0, http_session->req.buf_size);
+    http_session->req.data_len = 0;
 
     return HTTPC_SUCCESS;
 }
@@ -650,13 +652,14 @@ int32_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
             goto exit;
         }
     } else {
-        hdr_ptr = http_session->header + http_session->header_len;
+        hdr_ptr = (char *)http_session->req.buf + http_session->req.data_len;
         memcpy(hdr_ptr, HTTPC_CRLF, 2);
-        http_session->header_len += 2;
+        http_session->req.data_len += 2;
     }
 
     http_log("%s, send request header\r\n%s\r\nsocket %d, strlen %d, len %d",
-              __func__, http_session->header, http_session->socket, strlen(http_session->header), http_session->header_len);
+              __func__, http_session->req.buf, http_session->socket,
+              strlen((const char *)http_session->req.buf), http_session->req.data_len);
 
     if (http_session->connection == false) {
         struct hostent *host_entry;
@@ -703,19 +706,20 @@ int32_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
 
     if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
 #if CONFIG_HTTP_SECURE
-        socket_res = httpc_wrapper_ssl_send(http_session->socket, http_session->header, strlen(http_session->header), 0);
+        socket_res = httpc_wrapper_ssl_send(http_session->socket, http_session->req.buf,
+                                            strlen((const char *)http_session->req.buf), 0);
 #else
         socket_res = -1;
 #endif
     } else {
-        socket_res = httpc_wrapper_send(http_session->socket, http_session->header, strlen(http_session->header), 0);
+        socket_res = httpc_wrapper_send(http_session->socket, http_session->req.buf, strlen((const char *)http_session->req.buf), 0);
     }
 
     if (socket_res < 0) {
         ret = HTTPC_FAIL;
     }
 
-    http_log("%s, send %d, send res %d", __func__, strlen(http_session->header), socket_res);
+    http_log("%s, send %d, send res %d", __func__, strlen((const char *)http_session->req.buf), socket_res);
 
 exit:
     return ret;

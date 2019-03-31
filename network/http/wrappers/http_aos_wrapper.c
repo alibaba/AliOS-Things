@@ -271,7 +271,7 @@ int httpc_wrapper_register_recv(httpc_t *httpc, httpc_wrapper_recv_fn_t recv_fn)
 {
     g_recv_fn = recv_fn;
     g_httpc_sessions = httpc;
-    aos_task_new("httpc_recv", httpc_recv_thread, httpc, 1024 * 6);
+    aos_task_new("httpc_recv", httpc_recv_thread, httpc, 1024 * 4);
     return HTTPC_SUCCESS;
 }
 
