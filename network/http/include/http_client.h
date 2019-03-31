@@ -39,9 +39,10 @@ typedef struct httpc_s {
 
     struct {
         int method;
+        uint8_t *buf;
+        uint32_t buf_size;
+        uint32_t data_len;
     } req;
-    char header[CONFIG_HTTPC_HEADER_SIZE + 1];
-    uint16_t header_len;
 
     struct {
         httpc_recv_fn recv_fn;
