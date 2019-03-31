@@ -283,7 +283,7 @@
  * peers are using it too!
  */
 #if !defined(MBEDTLS_SSL_MAX_CONTENT_LEN)
-#ifdef HTTPS_DOWNLOAD
+#ifdef AOS_OTA_TLS
 #define MBEDTLS_SSL_MAX_CONTENT_LEN (8 * 1024)
 #else
 #define MBEDTLS_SSL_MAX_CONTENT_LEN (4 * 1024)
