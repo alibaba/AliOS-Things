@@ -28,12 +28,16 @@ else
 ifneq (,$(filter mcu_esp32,$(HOST_MCU_FAMILY)))
 $(NAME)_SOURCES += hal/ota_hal_esp32.c
 else
+ifneq (,$(filter mcu_bk7231u,$(HOST_MCU_FAMILY)))
+$(NAME)_SOURCES += hal/ota_hal_bk7231u.c
+else
 $(NAME)_SOURCES += hal/ota_hal_plat.c
+endif
 endif
 endif
 
 GLOBAL_INCLUDES += include hal ota_core/verify 2nd_boot
-GLOBAL_DEFINES += OTA_CONFIG_MQTT OTA_CONFIG_FW_MD5 OTA_CONFIG_RSA
+GLOBAL_DEFINES += OTA_CONFIG_MQTT OTA_CONFIG_RSA
 ifeq ($(HTTPS_DL),1)
 GLOBAL_DEFINES +=OTA_CONFIG_TLS
 endif
