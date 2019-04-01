@@ -1,0 +1,36 @@
+MEMORY
+{
+    SRAM_ILM    (RWX)   : ORIGIN = 0x00000000, LENGTH = (64K-3K)
+    OTA_ILM		(RWX)	: ORIGIN = (0x00010000-3K), LENGTH = 3K
+#if defined(FPGAv3) || defined(ASICv2)
+    #if defined(NO_ROM)
+        SRAM_DLM    (RW)    : ORIGIN = 0x00100000, LENGTH = 128K
+    #else
+        SRAM_DLM    (RW)    : ORIGIN = 0x00100000, LENGTH = (128K-10K)
+    #endif
+#else
+/*    SRAM        (RWX)   : ORIGIN = 0x000F8000, LENGTH = 32K*/
+    #if defined(NO_ROM)
+        SRAM_DLM    (RW)    : ORIGIN = 0x000f8000, LENGTH = 64K + 32K
+    #else
+        SRAM_DLM    (RW)    : ORIGIN = 0x00100000, LENGTH = (64K-10K)
+    #endif
+#endif
+    RENT_SRAM   (RWX)   : ORIGIN = 0x00200000, LENGTH = 8K
+#if !defined(LDS_FLASH_SIZE)
+#define LDS_FLASH_SIZE     (512K)
+#endif
+    FLASH       (RX)    : ORIGIN = 0x30000000, LENGTH = SETTING_FLASH_TOTAL_SIZE
+}
+
+REGION_ALIAS("REGION_TEXT_FAST" , SRAM_ILM);
+REGION_ALIAS("REGION_OTA_FAST" , OTA_ILM);
+REGION_ALIAS("REGION_TEXT_SLOW" , FLASH);
+REGION_ALIAS("REGION_BURN", FLASH);
+REGION_ALIAS("REGION_DATA"      , SRAM_DLM);
+#if !defined(FPGAv3) && !defined(ASICv2)
+/*REGION_ALIAS("REGION_DATA_SLOW"      , SRAM);*/
+#endif
+REGION_ALIAS("REGION_DATA_FAST"      , SRAM_DLM);
+REGION_ALIAS("REGION_BSS"       , SRAM_DLM);
+REGION_ALIAS("REGION_LPRAM"     , RENT_SRAM);
