@@ -28,10 +28,6 @@ $(error can not find compiler toolchain, please download $(TOOLCHIAN_FILE) from 
 endif
 endif
 
-GDB_KILL_OPENOCD   = shell $(TOOLS_ROOT)/cmd/win32/taskkill /F /IM st-util.exe
-GDBINIT_STRING     = shell start /B $(TOOLS_ROOT)/cmd/win32/st-util.exe
-GDB_COMMAND        = $(call CONV_SLASHES, $(TOOLCHAIN_PATH))$(TOOLCHAIN_PREFIX)gdb$(EXECUTABLE_SUFFIX)
-
 else  # Win32
 ifneq (,$(filter $(HOST_OS),Linux32 Linux64))
 ################
