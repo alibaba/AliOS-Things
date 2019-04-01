@@ -325,8 +325,7 @@ int8_t httpc_deinit(httpc_handle_t httpc)
     }
 
 #if CONFIG_HTTP_SECURE
-    if (http_session->connection == true &&
-        (http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
+    if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
         httpc_wrapper_ssl_destroy(http_session->socket);
     }
 #endif
