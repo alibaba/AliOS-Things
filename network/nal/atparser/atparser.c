@@ -71,7 +71,7 @@ static void at_scan_for_callback(int fd, char c, char  *buf, int buf_size, int *
     }
 
     if (!check_fd_valid(fd) || !check_dev_ready(fd))
-        return -1;
+        return;
 
     dev = obtain_dev_by_fd(fd);
     for (k = 0; k < dev->_oobs_num; k++) {
