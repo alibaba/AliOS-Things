@@ -34,6 +34,8 @@
 
 #include "stdio.h"
 #include "stdlib.h"    
+#include "k_api.h"
+#include <stdint.h>
 #include <sys/time.h>
 #include "arch/perf.h"
 

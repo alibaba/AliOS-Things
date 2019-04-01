@@ -16,26 +16,23 @@ int32_t os_phymm_init(kphymm_info_t *info, uintptr_t paddr, size_t len)
     }
 
     info->phy_addr      = paddr;
-	info->total_size    = len;
-	info->free_size     = len;
-	info->free_size_min = len;
-	info->freelist.next = NULL;
-	info->freelist.paddr_start = 0;
-	info->freelist.paddr_end   = 0;
+    info->total_size    = len;
+    info->free_size     = len;
+    info->free_size_min = len;
+    info->freelist.next = NULL;
+    info->freelist.paddr_start = 0;
+    info->freelist.paddr_end   = 0;
 
     /* Only one block when init. */
     blk_free = (kphymm_blk_t *)krhino_mm_alloc(sizeof(kphymm_blk_t));
-    if ( info == NULL )
-    {
-        return -__LINE__;
-    }
-	blk_free->next      = NULL;
-	blk_free->paddr_start  = paddr;
-	blk_free->paddr_end = paddr + len;
 
-	info->freelist.next = blk_free;
+    blk_free->next      = NULL;
+    blk_free->paddr_start  = paddr;
+    blk_free->paddr_end = paddr + len;
 
-	return 0;
+    info->freelist.next = blk_free;
+
+    return 0;
 }
 
 /* remove the block from freelist */
@@ -48,36 +45,36 @@ int32_t os_phymm_remove(kphymm_info_t *info, uintptr_t paddr_remove, size_t remo
     if ( info == NULL || info->freelist.next == NULL )
     {
         return -__LINE__;
-    } 
+    }
 
-	if ( paddr_remove - info->phy_addr > info->total_size
-	  || paddr_remove + remove_size - info->phy_addr > info->total_size )
+    if ( paddr_remove - info->phy_addr > info->total_size
+      || paddr_remove + remove_size - info->phy_addr > info->total_size )
     {
         return -__LINE__;
     }
 
     /* find a free block bigger than paddr_remove */
-	blk_prev = &(info->freelist);
+    blk_prev = &(info->freelist);
     blk_find = blk_prev->next;
-	while (blk_find != NULL)
-	{
-	    if ( paddr_remove >= blk_find->paddr_start
-	      && paddr_remove + remove_size <= blk_find->paddr_end )
-	    {
-	        /* find success */
-	        break;
-	    }
-    	blk_prev = blk_find;
-    	blk_find = blk_prev->next;
-	}
-	if (blk_find == NULL)
+    while (blk_find != NULL)
+    {
+        if ( paddr_remove >= blk_find->paddr_start
+          && paddr_remove + remove_size <= blk_find->paddr_end )
+        {
+            /* find success */
+            break;
+        }
+        blk_prev = blk_find;
+        blk_find = blk_prev->next;
+    }
+    if (blk_find == NULL)
     {
         return -__LINE__;
     }
 
-	if (paddr_remove == blk_find->paddr_start)
-	{
-    	if ( paddr_remove + remove_size == blk_find->paddr_end )
+    if (paddr_remove == blk_find->paddr_start)
+    {
+        if ( paddr_remove + remove_size == blk_find->paddr_end )
         {
             /* delete blk_find from freelist */
             blk_prev->next = blk_find->next;
@@ -102,24 +99,24 @@ int32_t os_phymm_remove(kphymm_info_t *info, uintptr_t paddr_remove, size_t remo
             }
             blk_left->paddr_start = paddr_remove + remove_size;
             blk_left->paddr_end   = blk_find->paddr_end;
-        
+
             /* insert blk_left to freelist */
             blk_left->next = blk_find->next;
             blk_find->next = blk_left;
         }
 
         /* split the begin part of blk_find */
-    	blk_find->paddr_end = paddr_remove;
+        blk_find->paddr_end = paddr_remove;
     }
 
     /* update statistic */
-	info->free_size -= remove_size;
-	if (info->free_size < info->free_size_min)
+    info->free_size -= remove_size;
+    if (info->free_size < info->free_size_min)
     {
-    	info->free_size_min = info->free_size;
+        info->free_size_min = info->free_size;
     }
 
-	return 0;	
+    return 0;
 }
 
 /* alloc block from freelist, physical address is aligned
@@ -147,7 +144,7 @@ uintptr_t os_phymm_malloc(kphymm_info_t *info, size_t alloc_size, size_t align_s
     }
 
     /* find a free block bigger than alloc_size */
-	blk_prev = &(info->freelist);
+    blk_prev = &(info->freelist);
     blk_find = blk_prev->next;
     while (blk_find != NULL)
     {
@@ -193,26 +190,26 @@ uintptr_t os_phymm_malloc(kphymm_info_t *info, size_t alloc_size, size_t align_s
             }
             blk_left->paddr_start = paddr_alloc + alloc_size;
             blk_left->paddr_end   = blk_find->paddr_end;
-        
+
             /* insert blk_left to freelist */
             blk_left->next = blk_find->next;
             blk_find->next = blk_left;
         }
 
         /* split the begin part of blk_find */
-    	blk_find->paddr_end = paddr_alloc;
+        blk_find->paddr_end = paddr_alloc;
     }
 
     /* update statistic */
-	info->free_size -= alloc_size;
-	if (info->free_size < info->free_size_min)
+    info->free_size -= alloc_size;
+    if (info->free_size < info->free_size_min)
     {
-    	info->free_size_min = info->free_size;
+        info->free_size_min = info->free_size;
     }
 
     //printf("[os_phymm_malloc] out: %p\n", paddr_alloc);
 
-	return paddr_alloc;
+    return paddr_alloc;
 }
 
 /* free block */
@@ -239,15 +236,15 @@ int32_t os_phymm_free(kphymm_info_t *info, uintptr_t paddr_free, size_t free_siz
         blk_free->next      = NULL;
         blk_free->paddr_start  = paddr_free;
         blk_free->paddr_end = paddr_free + free_size;
-        
+
         info->freelist.next = blk_free;
 
         info->free_size += free_size;
         return 0;
-    } 
+    }
 
-	if ( paddr_free - info->phy_addr > info->total_size
-	  || paddr_free + free_size - info->phy_addr > info->total_size )
+    if ( paddr_free - info->phy_addr > info->total_size
+      || paddr_free + free_size - info->phy_addr > info->total_size )
     {
         return -__LINE__;
     }
@@ -267,11 +264,11 @@ int32_t os_phymm_free(kphymm_info_t *info, uintptr_t paddr_free, size_t free_siz
 
     /* now: blk_before->paddr_start < paddr_free < blk_after->paddr_start */
 
-	if (blk_before->paddr_end == paddr_free)
+    if (blk_before->paddr_end == paddr_free)
     {
         /* merge blk_before and paddr_free */
-    	blk_before->paddr_end = paddr_free + free_size;
-        
+        blk_before->paddr_end = paddr_free + free_size;
+
         if (blk_after != NULL &&
             blk_before->paddr_end == blk_after->paddr_start)
         {
@@ -305,7 +302,7 @@ int32_t os_phymm_free(kphymm_info_t *info, uintptr_t paddr_free, size_t free_siz
         }
     }
 
-	info->free_size += free_size;
+    info->free_size += free_size;
 
     //printf("[os_phymm_free] out\n");
     return 0;

@@ -19,12 +19,10 @@
 #include "lwip_ksyscall.h"
 #include "linkkit_ksyscall.h"
 
-extern int qapi_system_call_kernel_handler(void *arg);
 /**************************************************************
  *   syscall table
  *************************************************************/
 void *syscall_tbl[] = {
-    [QAPI_SYSTEM_CALL]        = qapi_system_call_kernel_handler,
     /* ------------------- task ----------------------*/
     [SYS_KRHINO_CUR_TASK_GET]    = sys_krhino_cur_task_get_stub,
     [SYS_KRHINO_TASK_SLEEP]      = sys_krhino_task_sleep_stub,

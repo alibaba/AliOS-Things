@@ -55,5 +55,5 @@ void k_proc_show(void);
 
 kproc_app_t *proc_info_get(int pid);
 int proc_address_access(int pid, unsigned long addr, unsigned long size);
-
+void krhino_breakpoint_set(int asid, uint32_t addr);
 #endif /* K_PROC_H */
