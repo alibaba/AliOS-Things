@@ -1,8 +1,11 @@
 #include <sys/unistd.h>
 #include <sys/errno.h>
+
 #include "hal/soc/soc.h"
+
 #include "board.h"
 
+extern hal_flash_init();
 extern int errno;
 wdg_dev_t  wdg;
 uart_dev_t uart_0;
@@ -17,6 +20,7 @@ void hal_init(void)
     uart_0.config.flow_control = FLOW_CONTROL_DISABLED;
 
     hal_uart_init(&uart_0);
+    hal_flash_init();
 }
 
 void hal_boot(hal_partition_t partition)
