@@ -269,14 +269,9 @@ endef
 #   CHECK_HEADERS=1 : builds header files to test for their completeness
 ############################
 
-OPENOCD_LOG_FILE ?= $(BUILD_DIR)/openocd.log
-DOWNLOAD_LOG := >> $(OPENOCD_LOG_FILE)
-
-BOOTLOADER_LOG_FILE ?= $(BUILD_DIR)/bootloader.log
 export HOST_OS
 export VERBOSE
 export SUB_BUILD
-export OPENOCD_LOG_FILE
 
 COMPONENT_DEPENDENCY_SCRIPT := $(SCRIPTS_PATH)/component_dependencies.py
 COMPONENT_DEPENDENCY = $(PYTHON) $(COMPONENT_DEPENDENCY_SCRIPT)

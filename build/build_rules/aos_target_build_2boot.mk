@@ -38,8 +38,6 @@ MAP_CSV_OUTPUT_FILE       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=_map.csv)
 # out/helloworld@xx/binary/helloworld@xx_map.csv
 BIN_OUTPUT_FILE_TMP       :=$(LINK_OUTPUT_FILE:$(LINK_OUTPUT_SUFFIX)=.tmptmp.bin)
 
-OPENOCD_LOG_FILE          ?= $(OUTPUT_DIR)/openocd_log.txt
-
 LIBS_DIR                  := $(OUTPUT_DIR)/libraries
 LINK_OPTS_FILE            := $(OUTPUT_DIR)/binary/link$(UNDERLINE)$(BIN2BOOTTYPE_LOWER).opts
 
