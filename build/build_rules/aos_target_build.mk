@@ -32,8 +32,6 @@ MAP_OUTPUT_FILE_XIP2            :=$(LINK_OUTPUT_FILE_XIP2:$(LINK_OUTPUT_SUFFIX)=
 MAP_CSV_OUTPUT_FILE_XIP2        :=$(LINK_OUTPUT_FILE_XIP2:$(LINK_OUTPUT_SUFFIX)=_map.csv)
 endif
 
-OPENOCD_LOG_FILE          ?= $(OUTPUT_DIR)/openocd_log.txt
-
 LIBS_DIR                  := $(OUTPUT_DIR)/libraries
 LINK_OPTS_FILE            := $(OUTPUT_DIR)/binary/link$(UNDERLINE)$(MBINSTYPE_LOWER).opts
 
