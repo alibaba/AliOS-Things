@@ -458,7 +458,7 @@ CASE(test_task_comm, aos_1_015)
     ret = krhino_sem_give(&g_sem);
     ASSERT_EQ(ret, RHINO_SUCCESS);
 
-    ret = krhino_sem_take(&g_sem, 0);
+    ret = krhino_sem_take(&g_sem, RHINO_CONFIG_NEXT_INTRPT_TICKS);
     ASSERT_EQ(ret, RHINO_SUCCESS);
 
     ret = krhino_sem_del(&g_sem);
@@ -706,6 +706,7 @@ void test_task(void *arg)
 /*extern void sdk_init(void);*/
 void test_certificate(void)
 {
+    krhino_init();
     krhino_task_create(&test_task_obj, "test_task", 0, 20, 50,
                        test_task_buf, TEST_TASK_STACKSIZE, test_task, 1);
 

@@ -10,6 +10,8 @@
     IMPORT _interrupt_handler
     IMPORT SVC_Handler
     IMPORT _panic_handler
+    IMPORT svc_mode5_handle
+    IMPORT svc_mode6_handle
 
 ;******************************************************************************
 ;                            EXPORT SYMBOLS
@@ -211,6 +213,14 @@ vector_undef
     B       _panic_handler
 
 vector_swi
+    STMFD   SP!, {R0-R3}
+    LDR     R0, [LR, #-4]
+    BIC     R0, R0, #0xFF000000
+    CMP     R0, #5
+    BEQ     svc_mode5_handle
+    CMP     R0, #6
+    BEQ     svc_mode6_handle
+    LDMFD   SP!, {R0-R3}
     B       SVC_Handler
 
 vector_pabt

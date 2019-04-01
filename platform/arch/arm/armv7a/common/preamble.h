@@ -24,6 +24,7 @@ typedef struct {
     unsigned int ustack_size;
     unsigned int kstack_size;
     unsigned int priority;
+    unsigned int debug_mode;
 } preamble_t;
 
 #endif /* PREAMBLE */

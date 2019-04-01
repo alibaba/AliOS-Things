@@ -6,8 +6,7 @@
 #define SYSCALL_NO_H
 
 /* ------------------- task --------------------*/
-#define QAPI_SYSTEM_CALL (0)
-#define K_TASK_BASE (1)
+#define K_TASK_BASE (0)
 
 #define SYS_KRHINO_CUR_TASK_GET    (K_TASK_BASE + 0)
 #define SYS_KRHINO_TASK_SLEEP      (K_TASK_BASE + 1)
@@ -102,8 +101,24 @@
 
 #define U_PROC_MSG_END (SYS_KRHINO_MSG_RECV)
 
+/* ------------ reserved for user --------------*/
+#define SYS_USER_DEFINE_BASE (U_PROC_MSG_END + 1)
+
+#define SYS_USER_DEFINE0    (SYS_USER_DEFINE_BASE + 0)
+#define SYS_USER_DEFINE1    (SYS_USER_DEFINE_BASE + 1)
+#define SYS_USER_DEFINE2    (SYS_USER_DEFINE_BASE + 2)
+#define SYS_USER_DEFINE3    (SYS_USER_DEFINE_BASE + 3)
+#define SYS_USER_DEFINE4    (SYS_USER_DEFINE_BASE + 4)
+#define SYS_USER_DEFINE5    (SYS_USER_DEFINE_BASE + 5)
+#define SYS_USER_DEFINE6    (SYS_USER_DEFINE_BASE + 6)
+#define SYS_USER_DEFINE7    (SYS_USER_DEFINE_BASE + 7)
+#define SYS_USER_DEFINE8    (SYS_USER_DEFINE_BASE + 8)
+#define SYS_USER_DEFINE9    (SYS_USER_DEFINE_BASE + 9)
+
+#define SYS_USER_DEFINE_END (SYS_USER_DEFINE9)
+
 /* ----------------- hal uart -----------------*/
-#define HAL_UART_BASE (U_PROC_MSG_END + 1)
+#define HAL_UART_BASE (SYS_USER_DEFINE_END + 1)
 
 #define SYS_HAL_UART_INIT     (HAL_UART_BASE + 0)
 #define SYS_HAL_UART_SEND     (HAL_UART_BASE + 1)
