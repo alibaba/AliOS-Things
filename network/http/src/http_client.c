@@ -9,7 +9,7 @@
 
 #include "http_client.h"
 #include "http_wrapper.h"
-#include "http_config.h"
+#include "http_def_config.h"
 #include "http_parser.h"
 
 httpc_t http_sessions[CONFIG_HTTPC_SESSION_NUM];

@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "http_config.h"
+#include "http_def_config.h"
 #include "http_parser.h"
 
 #ifndef HTTP_API_H
