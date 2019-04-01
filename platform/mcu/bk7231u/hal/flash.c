@@ -4,6 +4,8 @@
 
 #include "aos/hal/flash.h"
 #include "aos/hal/wdg.h"
+#include "aos/kernel.h"
+
 #include "rtos_pub.h"
 #include "drv_model_pub.h"
 #include "flash_pub.h"
@@ -15,14 +17,38 @@ extern wdg_dev_t wdg;
 
 extern const hal_logic_partition_t hal_partitions[];
 
-static void delay1ms(INT32 num)
+struct flash_context
 {
-    volatile INT32 i, j;
+    aos_mutex_t lock;
+    int         initialized;
+};
+static struct flash_context g_flash_context;
 
-    for(i = 0; i < num; i ++)
+void hal_flash_init()
     {
-        for(j = 0; j < 10000; j ++)
-            ;
+    if (g_flash_context.initialized)
+    {
+        return;
+    }
+    if (0 == aos_mutex_new(&g_flash_context.lock))
+    {
+        g_flash_context.initialized = 1;
+    }
+}
+
+static void hal_flash_lock()
+{
+    if (g_flash_context.initialized)
+    {
+        aos_mutex_lock(&g_flash_context.lock, AOS_WAIT_FOREVER);
+    }
+}
+
+static void hal_flash_unlock()
+{
+    if (g_flash_context.initialized)
+    {
+        aos_mutex_unlock(&g_flash_context.lock);
     }
 }
 
@@ -43,7 +69,7 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
 	uint32_t status;
     DD_HANDLE flash_hdl;
 
-    GLOBAL_INT_DECLARATION();
+    //GLOBAL_INT_DECLARATION();
 
     partition_info = hal_flash_get_info( in_partition );
 
@@ -57,10 +83,11 @@ int32_t hal_flash_erase(hal_partition_t in_partition, uint32_t off_set, uint32_t
     for(addr = start_addr; addr <= end_addr; addr += SECTOR_SIZE)
     {
         hal_wdg_reload(&wdg);
-        GLOBAL_INT_DISABLE();
+        //GLOBAL_INT_DISABLE();
+        hal_flash_lock();
         ddev_control(flash_hdl, CMD_FLASH_ERASE_SECTOR, (void *)&addr);
-        GLOBAL_INT_RESTORE();
-		delay1ms(100);
+        //GLOBAL_INT_RESTORE();
+        hal_flash_unlock();
     }
     hal_wdg_reload(&wdg);
 	ddev_close(flash_hdl);
@@ -75,7 +102,7 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
 	uint32_t status;
     DD_HANDLE flash_hdl;
 
-    GLOBAL_INT_DECLARATION();
+    //GLOBAL_INT_DECLARATION();
 
     partition_info = hal_flash_get_info( in_partition );
 
@@ -86,9 +113,11 @@ int32_t hal_flash_write(hal_partition_t in_partition, uint32_t *off_set, const v
 
 	flash_hdl = ddev_open(FLASH_DEV_NAME, &status, 0);
     hal_wdg_reload(&wdg);
-    GLOBAL_INT_DISABLE();
+    //GLOBAL_INT_DISABLE();
+    hal_flash_lock();
     ddev_write(flash_hdl, in_buf, in_buf_len, start_addr);
-    GLOBAL_INT_RESTORE();
+    //GLOBAL_INT_RESTORE();
+    hal_flash_unlock();
     hal_wdg_reload(&wdg);
 	ddev_close(flash_hdl);
 
@@ -104,7 +133,7 @@ int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *ou
 	uint32_t status;
     DD_HANDLE flash_hdl;
 
-    GLOBAL_INT_DECLARATION();
+    //GLOBAL_INT_DECLARATION();
 
     partition_info = hal_flash_get_info( in_partition );
 
@@ -115,9 +144,11 @@ int32_t hal_flash_read(hal_partition_t in_partition, uint32_t *off_set, void *ou
 
 	flash_hdl = ddev_open(FLASH_DEV_NAME, &status, 0);
     hal_wdg_reload(&wdg);
-    GLOBAL_INT_DISABLE();
+    //GLOBAL_INT_DISABLE();
+    hal_flash_lock();
     ddev_read(flash_hdl, out_buf, out_buf_len, start_addr);
-    GLOBAL_INT_RESTORE();
+    //GLOBAL_INT_RESTORE();
+    hal_flash_unlock();
     hal_wdg_reload(&wdg);
 	ddev_close(flash_hdl);
 
