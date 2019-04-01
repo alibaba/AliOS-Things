@@ -104,6 +104,7 @@ int recovery_flag_update()
             flag = REC_RECOVERY_START;
             break;
         case REC_SWAP_UPDATE_FLAG :
+            rec_flag_set.flag = REC_SWAP_UPDATE_FLAG;
             flag = REC_SWAP_UPDATE_START;
             break;
         case REC_ROLLBACK_FLAG :
