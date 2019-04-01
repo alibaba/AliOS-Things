@@ -10,6 +10,7 @@
 
 #include <u_task.h>
 #include "mmu_adapt.h"
+#include "aos/log.h"
 
 /* alloc form physical mem pool, block size is size, and align to size
    return virtual address in kernel space*/
@@ -26,6 +27,86 @@
 
 kproc_info_t g_proc_info;
 kproc_app_t *g_proc_now = NULL;
+
+int32_t os_proc_mmap_free(uintptr_t vaddr_start,
+                          uintptr_t vaddr_end,
+                          uint32_t  pid)
+{
+    uintptr_t paddr_once;
+    uintptr_t vaddr_once;
+    uintptr_t vaddr_map_start;
+    uintptr_t vaddr_map_end;
+    uintptr_t paddr_start, paddr_end;
+    size_t    len_once;
+
+    vaddr_map_start = ALIGN_DOWN(vaddr_start, K_MMU_PAGE_ALIGN);
+    vaddr_map_end   = ALIGN_UP(vaddr_end, K_MMU_PAGE_ALIGN);
+
+    for ( vaddr_once = vaddr_map_start; vaddr_once < vaddr_map_end; vaddr_once += len_once )
+    {
+        len_once   = 0;
+
+        paddr_start = os_lookup_physaddr(vaddr_once);
+        /* try supersection */
+        if ( len_once == 0
+          && vaddr_once % MMU_SUPERSECTION_SIZE == 0
+          && vaddr_once + MMU_SUPERSECTION_SIZE <= vaddr_map_end)
+        {
+            paddr_end = os_lookup_physaddr(vaddr_once + MMU_SUPERSECTION_SIZE - MMU_SMALLPAGE_SIZE);
+            if (paddr_end - paddr_start == (MMU_SUPERSECTION_SIZE - MMU_SMALLPAGE_SIZE))
+            {
+                len_once = MMU_SUPERSECTION_SIZE;
+            }
+        }
+
+        /* try section */
+        if ( len_once == 0
+          && vaddr_once % MMU_SECTION_SIZE == 0
+          && vaddr_once + MMU_SECTION_SIZE <= vaddr_map_end)
+        {
+            paddr_end = os_lookup_physaddr(vaddr_once + MMU_SECTION_SIZE - MMU_SMALLPAGE_SIZE);
+            if (paddr_end - paddr_start == (MMU_SECTION_SIZE - MMU_SMALLPAGE_SIZE))
+            {
+                len_once = MMU_SECTION_SIZE;
+            }
+        }
+
+        /* try large page */
+        if ( len_once == 0
+          && vaddr_once % MMU_LARGEPAGE_SIZE == 0
+          && vaddr_once + MMU_LARGEPAGE_SIZE <= vaddr_map_end)
+        {
+            paddr_end = os_lookup_physaddr(vaddr_once + MMU_LARGEPAGE_SIZE - MMU_SMALLPAGE_SIZE);
+            if (paddr_end - paddr_start == (MMU_LARGEPAGE_SIZE - MMU_SMALLPAGE_SIZE)) {
+                len_once = MMU_LARGEPAGE_SIZE;
+            }
+        }
+
+        /* try small page */
+        if ( len_once == 0
+          && vaddr_once % MMU_SMALLPAGE_SIZE == 0
+          && vaddr_once + MMU_SMALLPAGE_SIZE <= vaddr_map_end)
+        {
+            len_once = MMU_SMALLPAGE_SIZE;
+        }
+
+        if (len_once)
+        {
+            paddr_start = os_lookup_physaddr(vaddr_once);
+            os_phymem_free(paddr_start, len_once);
+            LOGD("k_proc", "pid %d unmap v 0x%x-0x%x -> p 0x%x-0x%x, size 0x%x\r\n",
+                   pid, vaddr_once, vaddr_once + len_once,
+                   paddr_start, paddr_start + len_once, len_once);
+            os_proc_remove_mapping(vaddr_once, paddr_start, len_once, pid);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return 0;
+}
 
 /*
 attach a physical memory for proc:
@@ -114,8 +195,9 @@ int32_t os_proc_mmap_copy(uintptr_t  vaddr_start,
             goto free_phymem;
         }
 
-	printf("### pid %d map v 0x%x -> p 0x%x, size 0x%x\r\n",
-		g_proc_now->pid, vaddr_once, paddr_once, len_once);
+        LOGD("k_proc", "pid %d map v 0x%x-0x%x -> p 0x%x-0x%x, size 0x%x\r\n",
+             g_proc_now->pid, vaddr_once, vaddr_once + len_once,
+             paddr_once, paddr_once + len_once, len_once);
 
         ret = os_proc_create_mapping(vaddr_once, paddr_once, len_once,
                                      seg_type, g_proc_now->pid);
@@ -148,53 +230,7 @@ int32_t os_proc_mmap_copy(uintptr_t  vaddr_start,
     return 0;
 
 free_phymem:
-    for ( vaddr_once = vaddr_map_start; vaddr_once < vaddr_map_end; vaddr_once += len_once )
-    {
-        len_once   = 0;
-        paddr_once = 0;
-
-        /* try supersection */
-        if ( len_once == 0
-          && vaddr_once % MMU_SUPERSECTION_SIZE == 0
-          && vaddr_once + MMU_SUPERSECTION_SIZE <= vaddr_map_end)
-        {
-            len_once = MMU_SUPERSECTION_SIZE;
-        }
-
-        /* try section */
-        if ( len_once == 0
-          && vaddr_once % MMU_SECTION_SIZE == 0
-          && vaddr_once + MMU_SECTION_SIZE <= vaddr_map_end)
-        {
-            len_once = MMU_SECTION_SIZE;
-        }
-
-        /* try large page */
-        if ( len_once == 0
-          && vaddr_once % MMU_LARGEPAGE_SIZE == 0
-          && vaddr_once + MMU_LARGEPAGE_SIZE <= vaddr_map_end)
-        {
-            len_once = MMU_LARGEPAGE_SIZE;
-        }
-
-        /* try small page */
-        if ( len_once == 0
-          && vaddr_once % MMU_SMALLPAGE_SIZE == 0
-          && vaddr_once + MMU_SMALLPAGE_SIZE <= vaddr_map_end)
-        {
-            len_once = MMU_SMALLPAGE_SIZE;
-        }
-
-        if (len_once)
-        {
-            paddr_once = os_lookup_physaddr(vaddr_once);
-            os_phymem_free(paddr_once, len_once);
-            os_proc_remove_mapping(vaddr_once, paddr_once, len_once, g_proc_now->pid);
-        } else {
-            break;
-       }
-    }
-
+    os_proc_mmap_free(vaddr_map_start, vaddr_map_end, g_proc_now->pid);
     return -__LINE__;
 }
 
@@ -203,8 +239,8 @@ void *os_proc_file2ram(const char *path)
 #if (K_CONFIG_RAM_LOAD == 1)
     return (void *)path;
 #else
-    uint32_t toread, readlen = 0,read_count = 0;
-    int fd, filelen = 0;
+    uint32_t read_len = 0,read_count = 0;
+    int fd, file_len = 0;
     void *pbuff;
 
     fd = fs_open(path, 0, 0);
@@ -213,47 +249,31 @@ void *os_proc_file2ram(const char *path)
         return NULL;
     }
 
-    filelen = fs_lseek(fd, 0, SEEK_END);
+    file_len = fs_lseek(fd, 0, SEEK_END);
     fs_lseek(fd, 0, SEEK_SET);
 
-    if (filelen == 0)
+    if (file_len == 0)
     {
         fs_close(fd);
         return NULL;
     }
 
-    pbuff = krhino_mm_alloc(filelen);
+    pbuff = krhino_mm_alloc(file_len);
     if (pbuff == NULL)
     {
         fs_close(fd);
         return NULL;
     }
-#if 0
+
     do{
-        readlen = fs_read(fd, pbuff + readlen, file_len)
-        read_count += readlen;
-    }while (readlen > 0);
+        read_len = fs_read(fd, (void *)((uint32_t)pbuff + (uint32_t)read_len), file_len);
+        read_count += read_len;
+    } while (read_len > 0);
     fs_close(fd);
-    if(read_count != file_len){
+    if (read_count != file_len)
+    {
         return NULL;
     }
-#endif
-#if 1
-    while (readlen < filelen) {
-        if (filelen - readlen > 0x10000) {
-         toread = 0x10000;
-    } else {
-             toread = filelen - readlen;
-    }
-
-        if (fs_read(fd,(void *)((uint32_t)pbuff + (uint32_t)readlen), toread) != toread) {
-             fs_close(fd);
-             return NULL;
-    }
-
-    readlen += toread;
-    }
-#endif
 
     fs_close(fd);
     fd = -1;
@@ -354,30 +374,31 @@ int32_t os_proc_check_overlap(Elf32_Ehdr *ehdr)
     for (i = 1; i < ARM_MAX_ASIDS; i++)
     {
         proc = &g_proc_info.procs[i];
-	if (proc->name == NULL)
+    if (proc->name == NULL)
             continue;
 
-	text_start = (uintptr_t)proc->preamble.text_start;
-	text_end   = (uintptr_t)proc->preamble.text_end;
-	data_start = (uintptr_t)proc->preamble.data_start;
-	data_end   = (uintptr_t)proc->preamble.data_end;
-	zero_start = (uintptr_t)proc->preamble.zero_start;
-	zero_end   = (uintptr_t)proc->preamble.zero_end;
+    text_start = (uintptr_t)proc->preamble.text_start;
+    text_end   = (uintptr_t)proc->preamble.text_end;
+    data_start = (uintptr_t)proc->preamble.data_start;
+    data_end   = (uintptr_t)proc->preamble.data_end;
+    zero_start = (uintptr_t)proc->preamble.zero_start;
+    zero_end   = (uintptr_t)proc->preamble.zero_end;
 
-	temp_min = (text_start < data_start)? text_start: data_start;
-	temp_min = (temp_min < zero_start)? temp_min: zero_start;
-	temp_max = (text_end > data_end)? text_end: data_end;
-	temp_max = (temp_max > zero_end)? temp_max: zero_end;
+    temp_min = (text_start < data_start)? text_start: data_start;
+    temp_min = (temp_min < zero_start)? temp_min: zero_start;
+    temp_max = (text_end > data_end)? text_end: data_end;
+    temp_max = (temp_max > zero_end)? temp_max: zero_end;
 
-	if ((cur_min >= temp_min && cur_min <= temp_max)
+    if ((cur_min >= temp_min && cur_min <= temp_max)
             || (cur_max >= temp_min && cur_max <= temp_max))
-	{
+    {
             return -__LINE__;
         }
     }
 
     return 0;
 }
+
 
 int32_t os_proc_load(kproc_app_t *proc, Elf32_Ehdr *ehdr)
 {
@@ -496,9 +517,6 @@ int32_t os_proc_unload(kproc_app_t *proc)
 {
     preamble_t *preamble;
     uintptr_t vaddr_start, vaddr_end;
-    uintptr_t paddr, vaddr;
-    uintptr_t vaddr_map_start, vaddr_map_end;
-    uintptr_t paddr_map;
     size_t   size;
 
     if ( proc == NULL )
@@ -517,46 +535,19 @@ int32_t os_proc_unload(kproc_app_t *proc)
              ((uintptr_t)preamble->data_start) / K_MMU_PAGE_ALIGN ) {
             vaddr_start = (uintptr_t)preamble->text_start;
             vaddr_end   = (uintptr_t)preamble->zero_end;
-            vaddr_map_start = ALIGN_DOWN(vaddr_start, K_MMU_PAGE_ALIGN);
-            vaddr_map_end   = ALIGN_UP(vaddr_end, K_MMU_PAGE_ALIGN);
-            size  = vaddr_map_end - vaddr_map_start;
-            paddr = os_lookup_physaddr(vaddr_map_start);
-            if (paddr != 0) {
-		printf("$$$ pid %d unmap v 0x%x -> p 0x%x, size 0x%x\r\n",
-			proc->pid, vaddr_map_start, paddr, size);
-                os_proc_remove_mapping(vaddr_map_start, paddr, size, proc->pid);
-                os_phymem_free(paddr, size);
-            }
+            os_proc_mmap_free(vaddr_start, vaddr_end, proc->pid);
         } else {
             // 1. text segment
             vaddr_start = (uintptr_t)preamble->text_start;
             vaddr_end   = (uintptr_t)preamble->text_end;
-            vaddr_map_start = ALIGN_DOWN(vaddr_start, K_MMU_PAGE_ALIGN);
-            vaddr_map_end   = ALIGN_UP(vaddr_end, K_MMU_PAGE_ALIGN);
-            size  = vaddr_map_end - vaddr_map_start;
-            paddr = os_lookup_physaddr(vaddr_map_start);
-            if (paddr != 0) {
-		printf("$$$ pid %d unmap v 0x%x -> p 0x%x, size 0x%x\r\n",
-			proc->pid, vaddr_map_start, paddr, size);
-                os_proc_remove_mapping(vaddr_map_start, paddr, size, proc->pid);
-                os_phymem_free(paddr, size);
-        }
-        // 2. data segment
+            os_proc_mmap_free(vaddr_start, vaddr_end, proc->pid);
+            // 2. data segment
             vaddr_start = (uintptr_t)preamble->data_start;
             vaddr_end   = (uintptr_t)preamble->zero_end;
-            vaddr_map_start = ALIGN_DOWN(vaddr_start, K_MMU_PAGE_ALIGN);
-            vaddr_map_end   = ALIGN_UP(vaddr_end, K_MMU_PAGE_ALIGN);
-            size  = vaddr_map_end - vaddr_map_start;
-            paddr = os_lookup_physaddr(vaddr_map_start);
-            if (paddr != 0) {
-		printf("$$$ pid %d unmap v 0x%x -> p 0x%x, size 0x%x\r\n",
-			proc->pid, vaddr_map_start, paddr, size);
-                os_proc_remove_mapping(vaddr_map_start, paddr, size, proc->pid);
-                os_phymem_free(paddr, size);
-            }
+            os_proc_mmap_free(vaddr_start, vaddr_end, proc->pid);
         }
 
-	printf("free pid %d\r\n", proc->pid);
+        LOGI("k_proc", "free pid %d\r\n", proc->pid);
         os_dealloc_asid(proc->pid);
         proc->name = NULL;
     }
@@ -624,22 +615,22 @@ int32_t k_proc_load(const char *file, const char *name)
     if ( ehdr == NULL )
     {
         ret = -__LINE__;
-        goto _exit;
+        goto _exit1;
     }
 
     /* 2. iamge check */
     if ( os_proc_check(ehdr) != 0 )
     {
-	printf("ehdr check faile\r\n");
+        LOGD("k_proc", "ehdr check faile\r\n");
         ret = -__LINE__;
-        goto _exit;
+        goto _exit1;
     }
 
     if ( os_proc_check_overlap(ehdr) != 0 )
     {
-        printf("proc overlap\r\n");
-	    ret = -__LINE__;
-	    goto _exit;
+        LOGD("k_proc", "proc overlap\r\n");
+        ret = -__LINE__;
+        goto _exit1;
     }
 
     /* 3. alloc a proc info */
@@ -648,7 +639,7 @@ int32_t k_proc_load(const char *file, const char *name)
     if (pid >= ARM_MAX_ASIDS) {
         os_dealloc_asid(pid);
         ret = -__LINE__;
-        goto _exit;
+        goto _exit1;
     }
     proc = &g_proc_info.procs[pid];
     proc->entry = (void *)ehdr->e_entry;
@@ -662,7 +653,7 @@ int32_t k_proc_load(const char *file, const char *name)
     if  ( ret != 0 )
     {
         ret = -__LINE__;
-        goto _exit;
+        goto _exit1;
     }
 
     RHINO_CRITICAL_ENTER();
@@ -679,10 +670,10 @@ int32_t k_proc_load(const char *file, const char *name)
             ret = os_proc_load(proc, ehdr);
             if ( ret != 0 )
             {
-                printf("os_proc_load failed\r\n");
+                LOGD("k_proc", "os_proc_load failed\r\n");
                 proc->name = NULL;
                 os_dealloc_asid(proc->pid);
-                goto _exit;
+                goto _exit2;
             }
             break;
         case ET_REL :
@@ -690,14 +681,18 @@ int32_t k_proc_load(const char *file, const char *name)
         default:
             /* error type */
             ret = -__LINE__;
-            goto _exit;
+            goto _exit2;
     }
 
     /* 6. user tasks create */
     if ( proc->entry != NULL )
     {
+        if (proc->preamble.debug_mode == 1) {
+            krhino_breakpoint_set(proc->pid, (uint32_t)proc->preamble.app_entry);
+        }
+
         state = krhino_uprocess_create((const name_t*)proc->preamble.app_name,
-                                       proc->preamble.task_struct, "utask", 0,
+                                       proc->preamble.task_struct, "utask_entry", 0,
                                        proc->preamble.priority, (tick_t)0,
                                        proc->preamble.ustack,
                                        proc->preamble.ustack_size, // ustasck size
@@ -705,13 +700,12 @@ int32_t k_proc_load(const char *file, const char *name)
                                        (task_entry_t)proc->preamble.app_entry,
                                        proc->pid, 1);
 
-        // 1. new process post hook
-        // 2. resume the new task
-
         if (state != RHINO_SUCCESS) {
             ret = __LINE__;
-            goto _exit;
+            goto _exit2;
         }
+    } else {
+        LOGD("k_proc", "Invalid ELF format\r\n");
     }
 
     k_proc_switch(cur_pid);
@@ -726,15 +720,14 @@ int32_t k_proc_load(const char *file, const char *name)
 
     return pid;
 
-_exit:
+_exit2:
     k_proc_switch(cur_pid);
 
-    if (g_sched_lock[cpu_cur_get()] > 0) {
-        RHINO_CRITICAL_ENTER();
-        g_sched_lock[cpu_cur_get()]--;
-        RHINO_CRITICAL_EXIT();
-    }
+    RHINO_CRITICAL_ENTER();
+    g_sched_lock[cpu_cur_get()]--;
+    RHINO_CRITICAL_EXIT();
 
+_exit1:
     if ( ehdr != NULL )
     {
 #if (K_CONFIG_RAM_LOAD != 1)
@@ -797,23 +790,22 @@ void k_proc_show(void)
     int32_t pid;
 
     pmm = &g_proc_info.phymem.info;
-    printf("[k_proc_show] Physical Memory Pool:\n");
-    printf("    phy_addr      = 0x%x\n", pmm->phy_addr);
-    printf("    total_size    = 0x%x\n", pmm->total_size);
-    printf("    free_size     = 0x%x\n", pmm->free_size);
-    printf("    free_size_min = 0x%x\n", pmm->free_size_min);
+    LOGI("k_proc", "[k_proc_show] Physical Memory Pool:\n");
+    LOGI("k_proc", "    phy_addr      = 0x%x\n", pmm->phy_addr);
+    LOGI("k_proc", "    total_size    = 0x%x\n", pmm->total_size);
+    LOGI("k_proc", "    free_size     = 0x%x\n", pmm->free_size);
+    LOGI("k_proc", "    free_size_min = 0x%x\n", pmm->free_size_min);
 
-    printf("[k_proc_show] Process Info:\n");
+    LOGI("k_proc", "[k_proc_show] Process Info:\n");
     for ( pid = 0 ; pid < ARM_MAX_ASIDS ; pid++ )
     {
         papp = &g_proc_info.procs[pid];
         if ( papp->name != NULL )
         {
-            printf("  PID (%d %s):\n", papp->pid, papp->name);
-            printf("    Entry = 0x%x\n", papp->entry);
+            LOGI("k_proc", "  PID (%d %s):\n", papp->pid, papp->name);
+            LOGI("k_proc", "    Entry = 0x%x\n", papp->entry);
         }
     }
-
 }
 
 kproc_app_t *kproc_app_get(int pid)
@@ -845,5 +837,4 @@ int proc_address_access(int pid, unsigned long addr, unsigned long size)
 
     return 0;
 }
-
 

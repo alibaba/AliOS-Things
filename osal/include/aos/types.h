@@ -7,8 +7,6 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <unistd.h>
-#include <fcntl.h>
 
 #if defined(WITH_LWIP) || defined(CONFIG_NO_TCPIP) || defined(WITH_SAL)
 #define POLLIN  0x1
