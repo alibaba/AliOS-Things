@@ -7,4 +7,6 @@ $(NAME)_SUMMARY := HTTP Client app
 $(NAME)_SOURCES := main.c
 $(NAME)_COMPONENTS := http netmgr cli
 
+GLOBAL_INCLUDES += .
+
 GLOBAL_DEFINES += BUILD_AOS
