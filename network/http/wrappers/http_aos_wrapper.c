@@ -232,7 +232,11 @@ static void httpc_recv_thread(void *arg)
                 max_fd = httpc_sessions[index].socket;
             }
             FD_SET(httpc_sessions[index].socket, &sets);
+#if (CONFIG_HTTPC_SESSION_NUM > 1)
             if (min_timeout == 0 || httpc_sessions[index].rsp.timeout < min_timeout) {
+#else
+            if (httpc_sessions[index].rsp.timeout < min_timeout) {
+#endif
                 min_timeout = httpc_sessions[index].rsp.timeout;
             }
         }
