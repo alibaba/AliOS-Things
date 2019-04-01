@@ -81,9 +81,11 @@ int httpc_wrapper_ssl_connect(int socket, const struct sockaddr *name, socklen_t
              break;
         }
     }
+
     if (index == CONFIG_HTTPC_SESSION_NUM) {
         return -1;
     }
+
     http_session = &g_httpc_sessions[index];
     if (http_session->https.is_inited == false) {
         mbedtls_ssl_init(&http_session->https.ssl.context);
