@@ -54,7 +54,13 @@ GLOBAL_LDFLAGS += -mcpu=arm968e-s \
                  -nostartfiles \
                  $(CLIB_LDFLAGS_NANO_FLOAT)
 
+PING_PONG_OTA := 1
+ifeq ($(PING_PONG_OTA),1)
+AOS_IMG1_XIP1_LD_FILE += platform/mcu/bk7231u/bk7231u.ld.S
+AOS_IMG2_XIP2_LD_FILE += platform/mcu/bk7231u/bk7231u_ex.ld.S
+else
 GLOBAL_LDS_FILES += platform/mcu/bk7231u/bk7231u.ld.S
+endif
 
 $(NAME)_INCLUDES += aos
 

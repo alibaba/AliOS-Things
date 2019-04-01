@@ -12,12 +12,12 @@ INCLUDE board/bk7231udevkitc/bk7231udevkitc.ld.S
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_vector_start);
-_vector_start = 0x00008000;
+_vector_start = 0x000F0000;
 
 SECTIONS
 {
 /* vectors go to vectors region */
-	.vectors 0x00008000 :
+	.vectors 0x000F0000 :
 	{
       KEEP(*(*.vectors))
 	} > flash

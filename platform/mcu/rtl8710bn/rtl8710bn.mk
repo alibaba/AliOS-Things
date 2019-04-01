@@ -192,3 +192,9 @@ $(NAME)_SOURCES := aos/soc_impl.c          \
 #$(NAME)_COMPONENTS += platform/mcu/rtl8710bn/peripherals
 
 PING_PONG_OTA := 1
+ifeq ($(PING_PONG_OTA),1)
+AOS_IMG1_XIP1_LD_FILE += platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld
+AOS_IMG2_XIP2_LD_FILE += platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip2.ld
+else
+GLOBAL_LDS_FILES += platform/mcu/rtl8710bn/script/rlx8711B-symbol-v02-img2_xip1.ld
+endif
