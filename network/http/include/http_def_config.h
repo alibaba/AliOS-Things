@@ -2,8 +2,10 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#ifndef HTTP_CONFIG_H
-#define HTTP_CONFIG_H
+#ifndef HTTP_DEF_CONFIG_H
+#define HTTP_DEF_CONFIG_H
+
+#include "http_config.h"
 
 #ifndef CONFIG_HTTPC_SESSION_NUM
 #define CONFIG_HTTPC_SESSION_NUM 1
@@ -14,7 +16,7 @@
 #endif
 
 #ifndef CONFIG_HTTPC_DEFAULT_CLIENT
-#define CONFIG_HTTPC_DEFAULT_CLIENT "Mozilla/5.0"
+#define CONFIG_HTTPC_DEFAULT_CLIENT "AliOS-HTTP-Client/2.1"
 #endif
 
 #ifndef CONFIG_HTTP_STATUS_SIZE

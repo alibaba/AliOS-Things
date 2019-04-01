@@ -62,10 +62,7 @@ bool http_str_insensitive_cmp(char *src, char *dest, uint32_t len)
         return false;
     }
 
-    while (src_input) {
-        if (len > 0 && pos == len) {
-            return true;
-        }
+    for (pos = 0; pos < len; pos++) {
         tmp_a = *src_input;
         tmp_b = *dest_input;
 
@@ -83,7 +80,6 @@ bool http_str_insensitive_cmp(char *src, char *dest, uint32_t len)
 
         src_input++;
         dest_input++;
-        pos++;
     }
 
     return true;
