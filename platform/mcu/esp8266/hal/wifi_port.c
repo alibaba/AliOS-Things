@@ -248,7 +248,7 @@ bool ICACHE_FLASH_ATTR start_wifi_station(const char * ssid, const char * pass){
         printf("Failed to set Station config!\n");
         return false;
     }
-
+    //wifi_set_phy_mode(PHY_MODE_11G);
     if(!wifi_station_dhcpc_status()){
         printf("DHCP is not started. Starting it...\n");
         if(!wifi_station_dhcpc_start()){
@@ -650,7 +650,11 @@ void ICACHE_FLASH_ATTR sniffer_wifi_promiscuous_rx(uint8_t *buf, uint16_t buf_le
 
         if (sniffer->cnt == 1) {
             data_len = sniffer->ampdu_info[0].length - 4;
-            data_cb(data, data_len, &info);
+            if(data_cb) {
+                data_cb(data, data_len, &info);
+            } else {
+                printf("[%s]%d, sniffer callback is NULL\n", __func__, __LINE__);
+            }
         } else {
             int i;
             for (i = 1; i < sniffer->cnt; i++) {
@@ -658,7 +662,12 @@ void ICACHE_FLASH_ATTR sniffer_wifi_promiscuous_rx(uint8_t *buf, uint16_t buf_le
                 memcpy(&hdr->addr3, sniffer->ampdu_info[i].address3, 6);
 
                 data_len = sniffer->ampdu_info[i].length - 4;
-                data_cb(data, data_len, &info);
+                if (data_cb) {
+                    data_cb(data, data_len, &info);
+                } else {
+                    printf("[%s]%d, sniffer callback is NULL\n", __func__, __LINE__);
+                    break;                    
+                }
             }
         }
     }
@@ -686,15 +695,27 @@ static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
     data_cb = fn;
 }
 
+monitor_data_cb_t   g_mgnt_filter_callback = NULL;
+hal_wifi_link_info_t    g_mgnt_link_info;
+
+static void  esp_mgmt_filter(const uint8_t *buf, int buf_len, int rssi)
+{
+    g_mgnt_link_info.rssi = (int8_t)rssi;
+        /* only deal with Probe Request*/
+    if(g_mgnt_filter_callback && buf[0] == 0x40) {
+        g_mgnt_filter_callback((u8*)buf, buf_len, &g_mgnt_link_info);
+     }
+}
+
 static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-    #if 0
-    mngt_data_cb = fn;
-    /* Workaround for zero config */
-    wifi_promiscuous_enable(0);
-    hal_wifi_register_monitor_cb(NULL, NULL);
-    hal_wifi_start_wifi_monitor(NULL);
-    #endif
+    g_mgnt_link_info.rssi = 0;
+    g_mgnt_filter_callback = fn;
+    if (g_mgnt_filter_callback) {
+        wifi_set_sta_rx_probe_req(esp_mgmt_filter);
+    } else{
+        wifi_set_sta_rx_probe_req(NULL);
+    }
 }
 
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
@@ -703,7 +724,22 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
     return 0;
 }
 
-hal_wifi_module_t aos_wifi_esp8266 = {
+static int start_ap(hal_wifi_module_t *m, const char *ssid, const char *passwd, int interval, int hide)
+{
+    printf("ESP8266 start_ap ssid:%s,pwd:%s\n",ssid,passwd);
+
+    return start_wifi_ap(ssid,passwd);
+}
+
+static int stop_ap(hal_wifi_module_t *m)
+{
+    printf("ESP8266 stop_ap\n");
+    stop_wifi_ap();
+    return 0;
+}
+
+hal_wifi_module_t aos_wifi_esp8266 =
+{
     .base.name           = "aos_wifi_esp8266",
     .init                =  wifi_init,
     .get_mac_addr        =  wifi_get_mac_addr,
@@ -721,6 +757,10 @@ hal_wifi_module_t aos_wifi_esp8266 = {
     .set_channel         =  set_channel,
     .start_monitor       =  start_monitor,
     .stop_monitor        =  stop_monitor,
+
+    .start_ap            =  start_ap,
+    .stop_ap             =  stop_ap,
+
     .register_monitor_cb =  register_monitor_cb,
     .register_wlan_mgnt_monitor_cb = register_wlan_mgnt_monitor_cb,
     .wlan_send_80211_raw_frame = wlan_send_80211_raw_frame
