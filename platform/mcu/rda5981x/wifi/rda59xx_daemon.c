@@ -477,7 +477,11 @@ static r_void rda59xx_daemon(r_void *arg)
     r_u32 stop_reconnect = 0, monitor_restore = 0;
 
     while(1){
-        rda_queue_recv(daemon_queue, (r_u32)&msg, RDA_WAIT_FOREVER);
+        r_memset(&msg, 0, sizeof(msg));
+        if (0 != rda_queue_recv(daemon_queue, (r_u32)&msg, RDA_WAIT_FOREVER)) {
+            WIFISTACK_PRINT("drop invalid msg\r\n");
+            continue;
+        }
         WIFISTACK_PRINT("daemon_q=%d,daemon_queue_msg_type=%d,module_state=0x%x\r\n",daemon_queue,msg.type,module_state);
         if((msg.type != DAEMON_SCAN) && (msg.type != DAEMON_STA_RECONNECT) && (module_state & STATE_STA_RC) && \
             !((msg.type == DAEMON_STA_DISCONNECT) && (msg.arg1 == DISCONNECT_PASSIVE))){
