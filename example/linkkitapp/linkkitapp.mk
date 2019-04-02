@@ -8,9 +8,9 @@ $(NAME)_COMPONENTS += framework/protocol/linkkit/sdk \
                       utility/cjson \
                       framework/uOTA
 
-$(NAME)_INCLUDES += ../../framework/protocol/linkkit/include \
-                    ../../framework/protocol/linkkit/include/imports \
-                    ../../framework/protocol/linkkit/include/exports \
+GLOBAL_INCLUDES += ../../../../framework/protocol/linkkit/include \
+                    ../../../../framework/protocol/linkkit/include/imports \
+                    ../../../../framework/protocol/linkkit/include/exports \
 
 GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE  \
                  -DMQTT_DIRECT \
