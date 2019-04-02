@@ -1164,14 +1164,17 @@ coap_write(coap_context_t *ctx,
 
   *num_sockets = 0;
 
+#ifndef WITHOUT_OBSERVE
   /* Check to see if we need to send off any Observe requests */
   coap_check_notify(ctx);
+#endif
 
   if (ctx->session_timeout > 0)
     session_timeout = ctx->session_timeout * COAP_TICKS_PER_SECOND;
   else
     session_timeout = COAP_DEFAULT_SESSION_TIMEOUT * COAP_TICKS_PER_SECOND;
 
+#ifdef LIBCOAP_SERVER_SUPPORT
   LL_FOREACH(ctx->endpoint, ep) {
     if (ep->sock.flags & (COAP_SOCKET_WANT_READ | COAP_SOCKET_WANT_WRITE | COAP_SOCKET_WANT_ACCEPT)) {
       if (*num_sockets < max_sockets)
@@ -1196,7 +1199,10 @@ coap_write(coap_context_t *ctx,
       }
     }
   }
+#endif
+
   LL_FOREACH_SAFE(ctx->sessions, s, tmp) {
+#ifdef LIBCOAP_RELIABLE_CONNECT
     if (
         s->type == COAP_SESSION_TYPE_CLIENT
      && COAP_PROTO_RELIABLE(s->proto)
@@ -1242,6 +1248,7 @@ coap_write(coap_context_t *ctx,
       if (timeout == 0 || s_timeout < timeout)
         timeout = s_timeout;
     }
+#endif
 
     if (s->sock.flags & (COAP_SOCKET_WANT_READ | COAP_SOCKET_WANT_WRITE | COAP_SOCKET_WANT_CONNECT)) {
       if (*num_sockets < max_sockets)
@@ -1271,6 +1278,7 @@ coap_write(coap_context_t *ctx,
           timeout = tls_timeout - now;
       }
     } else {
+#ifdef LIBCOAP_SERVER_SUPPORT
       LL_FOREACH(ctx->endpoint, ep) {
         if (ep->proto == COAP_PROTO_DTLS) {
           LL_FOREACH(ep->sessions, s) {
@@ -1293,6 +1301,7 @@ coap_write(coap_context_t *ctx,
           }
         }
       }
+#endif
       LL_FOREACH(ctx->sessions, s) {
         if (s->proto == COAP_PROTO_DTLS && s->tls) {
           coap_tick_t tls_timeout = coap_dtls_get_timeout(s);
