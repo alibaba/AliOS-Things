@@ -100,4 +100,3 @@ int32_t hal_uart_finalize(aos_uart_dev_t *uart)
 {
     return 0;
 }
-

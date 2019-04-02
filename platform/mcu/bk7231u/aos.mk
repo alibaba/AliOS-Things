@@ -82,3 +82,7 @@ $(NAME)_SOURCES +=  hal/pwrmgmt_hal/board_cpu_pwr.c \
                     hal/pwrmgmt_hal/board_cpu_pwr_timer.c
 endif
 
+GLOBAL_LDFLAGS += -Wl,--wrap=boot_undefined
+GLOBAL_LDFLAGS += -Wl,--wrap=boot_pabort
+GLOBAL_LDFLAGS += -Wl,--wrap=boot_dabort
+
