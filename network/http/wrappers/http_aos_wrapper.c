@@ -16,7 +16,6 @@
 #include "mbedtls/debug.h"
 #endif
 
-httpc_wrapper_recv_fn_t g_recv_fn = 0;
 httpc_t *g_httpc_sessions = NULL;
 
 struct hostent *httpc_wrapper_gethostbyname(const char *name)
@@ -70,23 +69,12 @@ static void ssl_debug(void *ctx, int level, const char *file,
     http_log("%s:%d, %s", file, line, str);
 }
 
-int httpc_wrapper_ssl_connect(int socket, const struct sockaddr *name, socklen_t namelen)
+int32_t httpc_wrapper_ssl_connect(httpc_handle_t httpc,
+                              const struct sockaddr *name, socklen_t namelen)
 {
-    httpc_t *http_session = NULL;
-    uint8_t index = 0;
-    int ret = 0;
+    httpc_t *http_session = (httpc_t *)httpc;
+    int32_t ret = 0;
 
-    for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
-        if (g_httpc_sessions[index].socket == socket) {
-             break;
-        }
-    }
-
-    if (index == CONFIG_HTTPC_SESSION_NUM) {
-        return -1;
-    }
-
-    http_session = &g_httpc_sessions[index];
     if (http_session->https.is_inited == false) {
         mbedtls_ssl_init(&http_session->https.ssl.context);
         mbedtls_ssl_config_init(&http_session->https.ssl.conf);
@@ -101,8 +89,7 @@ int httpc_wrapper_ssl_connect(int socket, const struct sockaddr *name, socklen_t
             }
         }
 
-        mbedtls_ssl_conf_ca_chain(&http_session->https.ssl.conf,
-                                  &http_session->https.ssl.ca_cert, NULL);
+        mbedtls_ssl_conf_ca_chain(&http_session->https.ssl.conf, &http_session->https.ssl.ca_cert, NULL);
         mbedtls_ssl_conf_authmode(&http_session->https.ssl.conf, MBEDTLS_SSL_VERIFY_REQUIRED);
 
         ret = mbedtls_ssl_config_defaults(&http_session->https.ssl.conf,
@@ -126,7 +113,7 @@ int httpc_wrapper_ssl_connect(int socket, const struct sockaddr *name, socklen_t
         http_session->https.is_inited = true;
     }
 
-    ret = connect(socket, name, namelen);
+    ret = connect(http_session->socket, name, namelen);
     if (ret < 0) {
         goto exit;
     }
@@ -152,24 +139,12 @@ exit:
     return ret;
 }
 
-int httpc_wrapper_ssl_destroy(int socket)
+int32_t httpc_wrapper_ssl_destroy(httpc_handle_t httpc)
 {
-    httpc_t *http_session = NULL;
-    uint8_t index = 0;
+    httpc_t *http_session = (httpc_t *)httpc;
     int ret = 0;
 
-    for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
-        if (g_httpc_sessions[index].socket == socket) {
-             break;
-        }
-    }
-    if (index == CONFIG_HTTPC_SESSION_NUM) {
-        return -1;
-    }
-    http_session = &g_httpc_sessions[index];
-
     http_session->https.is_inited = false;
-
     mbedtls_ssl_close_notify(&(http_session->https.ssl.context));
     mbedtls_x509_crt_free(&(http_session->https.ssl.ca_cert));
     mbedtls_ssl_free(&(http_session->https.ssl.context));
@@ -177,108 +152,65 @@ int httpc_wrapper_ssl_destroy(int socket)
     return 0;
 }
 
-int httpc_wrapper_ssl_send(int socket, const void *data, uint16_t size, int flags)
+int32_t httpc_wrapper_ssl_send(httpc_handle_t httpc, const void *data, uint16_t size, int flags)
 {
-    int ret = -1;
-    uint8_t index = 0;
-    httpc_t *httpc_sessions = g_httpc_sessions;
+    httpc_t *http_session = (httpc_t *)httpc;
+    return mbedtls_ssl_write(&http_session->https.ssl.context, data, size);
+}
 
-    for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
-        if (httpc_sessions[index].socket == socket) {
-            break;
-        }
+int32_t httpc_wrapper_ssl_recv(httpc_handle_t httpc,
+                               uint8_t *data, int32_t size, int32_t timeout)
+{
+    httpc_t *http_session = (httpc_t *)httpc;
+    struct timeval tv;
+    fd_set sets;
+    int32_t ret;
+
+    FD_ZERO(&sets);
+    FD_SET(http_session->socket, &sets);
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+    select(http_session->socket + 1, &sets, NULL, NULL, (timeout == 0)? NULL: &tv);
+
+    if (FD_ISSET(http_session->socket, &sets)) {
+       ret = mbedtls_ssl_read(&http_session->https.ssl.context, data, size);
+    } else {
+       ret = -1;
     }
 
-    if (index == CONFIG_HTTPC_SESSION_NUM) {
-        return -1;
-    }
-
-    ret = mbedtls_ssl_write(&httpc_sessions[index].https.ssl.context, data, size);
     return ret;
 }
 
 #endif
 
-int httpc_wrapper_connect(int socket, const struct sockaddr *name, socklen_t namelen)
+int32_t httpc_wrapper_connect(int socket, const struct sockaddr *name, socklen_t namelen)
 {
     return connect(socket, name, namelen);
 }
 
-int httpc_wrapper_send(int socket, const void *data, uint16_t size, int flags)
+int32_t httpc_wrapper_send(int socket, const void *data, uint16_t size, int flags)
 {
     return send(socket, data, size, flags);
 }
 
-#define CONFIG_HTTPC_RX_BUF_SIZE 2048
-static void httpc_recv_thread(void *arg)
+int32_t httpc_wrapper_recv(int32_t socket, uint8_t *data, uint32_t size, uint32_t timeout)
 {
-    httpc_t *httpc_sessions = (httpc_t *)arg;
+    struct timeval tv;
     fd_set sets;
-    uint8_t index = 0;
-    int max_fd = -1;
-    int ret;
-    struct timeval timeout;
-    int32_t min_timeout = 0;
-    uint8_t http_rx_buf[CONFIG_HTTPC_RX_BUF_SIZE];
+    int32_t ret;
 
-    // TODO: support multiple http sessions
-    while (1) {
-        FD_ZERO(&sets);
-        max_fd = -1;
-        min_timeout = 0;
-        for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
-            if (httpc_sessions[index].socket < 0 || httpc_sessions[index].connection == false) {
-                continue;
-            }
-            if (max_fd < httpc_sessions[index].socket) {
-                max_fd = httpc_sessions[index].socket;
-            }
-            FD_SET(httpc_sessions[index].socket, &sets);
-#if (CONFIG_HTTPC_SESSION_NUM > 1)
-            if (min_timeout == 0 || httpc_sessions[index].rsp.timeout < min_timeout) {
-#else
-            if (httpc_sessions[index].rsp.timeout < min_timeout) {
-#endif
-                min_timeout = httpc_sessions[index].rsp.timeout;
-            }
-        }
-        if (max_fd == -1) {
-            aos_msleep(1);
-            continue;
-        }
-        timeout.tv_sec = min_timeout / 1000;
-        timeout.tv_usec = (min_timeout % 1000) * 1000;
-        ret = select(max_fd + 1, &sets, NULL, NULL, (min_timeout == 0)? NULL: &timeout);
-        for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
-            if (httpc_sessions[index].socket < 0 || httpc_sessions[index].connection == false) {
-                continue;
-            }
-            if (FD_ISSET(httpc_sessions[index].socket, &sets)) {
-#if CONFIG_HTTP_SECURE
-                if ((httpc_sessions[index].flags & HTTP_CLIENT_FLAG_SECURE) ==
-                    HTTP_CLIENT_FLAG_SECURE) {
-                    ret = mbedtls_ssl_read(&httpc_sessions[index].https.ssl.context,
-                                           http_rx_buf, CONFIG_HTTPC_RX_BUF_SIZE);
-                } else
-#endif
-                {
-                    ret = recv(httpc_sessions[index].socket, http_rx_buf, CONFIG_HTTPC_RX_BUF_SIZE, 0);
-                }
-            } else {
-                ret = -1;
-            }
-            assert(g_recv_fn);
-            g_recv_fn(&httpc_sessions[index], http_rx_buf, (int32_t)ret);
-        }
+    FD_ZERO(&sets);
+    FD_SET(socket, &sets);
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+    select(socket + 1, &sets, NULL, NULL, (timeout == 0)? NULL: &tv);
+
+    if (FD_ISSET(socket, &sets)) {
+       ret = recv(socket, data, size, 0);
+    } else {
+       ret = -1;
     }
-}
-
-int httpc_wrapper_register_recv(httpc_t *httpc, httpc_wrapper_recv_fn_t recv_fn)
-{
-    g_recv_fn = recv_fn;
-    g_httpc_sessions = httpc;
-    aos_task_new("httpc_recv", httpc_recv_thread, httpc, 1024 * 4);
-    return HTTPC_SUCCESS;
+    return ret;
 }
 
 void http_log(const char *fmt, ...)
