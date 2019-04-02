@@ -33,6 +33,9 @@ r_u32 rda_hut_dump = 0;
 #define SCAN_TIMES          10
 #define RECONN_TIMES        3
 #define DAEMON_MAILQ_SIZE   10
+
+#define AOS_MACLIB_APP_PRI  16
+
 static bool rda_lwip_tcpip_init_flag = false;
 static sys_sem_t rda_lwip_tcpip_inited;
 r_void *daemon_queue = NULL;
@@ -638,7 +641,7 @@ r_s32 rda59xx_wifi_init()
     //tcpip_init(NULL, NULL);
     //maclib_init();
     if(thread_init_flag == 0){
-    rda_thread_new("maclib_thread", maclib_task, NULL, 512*8, AOS_DEFAULT_APP_PRI);
+    rda_thread_new("maclib_thread", maclib_task, NULL, 512*8, AOS_MACLIB_APP_PRI);
     rda_thread_new("wland_thread", rda59xx_wland_task, NULL, 512*8, AOS_DEFAULT_APP_PRI);
     rda_thread_new("daemon_thread", rda59xx_daemon, NULL, 512*5, AOS_DEFAULT_APP_PRI);
         /* Allow the PHY task to detect the initial link state and set up the proper flags */
