@@ -118,6 +118,10 @@
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
+/* #define WITHOUT_ASYNC 1 SHOULD NOT defined */
+#define WITHOUT_OBSERVE 1
+#define WITHOUT_QUERY_FILTER 1
+
 #ifndef WITH_LWIP
 /* Define to 1 if you have the <netinet/in.h> header file. */
 /* #undef HAVE_NETINET_IN_H 0 x*/
