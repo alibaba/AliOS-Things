@@ -467,12 +467,14 @@ coap_new_context(
   /* initialize message id */
   prng((unsigned char *)&c->message_id, sizeof(uint16_t));
 
+#ifdef LIBCOAP_SERVER_SUPPORT
   if (listen_addr) {
     coap_endpoint_t *endpoint = coap_new_endpoint(c, listen_addr, COAP_PROTO_UDP);
     if (endpoint == NULL) {
       goto onerror;
     }
   }
+#endif
 
 #if !defined(WITH_LWIP_LIBCOAP)
   c->network_send = coap_network_send;
@@ -531,9 +533,11 @@ coap_free_context(coap_context_t *context) {
 
   coap_delete_all_resources(context);
 
+#ifdef LIBCOAP_SERVER_SUPPORT
   LL_FOREACH_SAFE(context->endpoint, ep, tmp) {
     coap_free_endpoint(ep);
   }
+#endif
 
   LL_FOREACH_SAFE(context->sessions, sp, stmp) {
     coap_session_release(sp);
@@ -636,6 +640,7 @@ coap_session_send_pdu(coap_session_t *session, coap_pdu_t *pdu) {
       bytes_written = coap_dtls_send(session, pdu->token - pdu->hdr_size,
                                      pdu->used_size + pdu->hdr_size);
       break;
+#ifdef LIBCOAP_RELIABLE_CONNECT
     case COAP_PROTO_TCP:
       bytes_written = coap_session_write(session, pdu->token - pdu->hdr_size,
                                          pdu->used_size + pdu->hdr_size);
@@ -644,6 +649,7 @@ coap_session_send_pdu(coap_session_t *session, coap_pdu_t *pdu) {
       bytes_written = coap_tls_write(session, pdu->token - pdu->hdr_size,
                                      pdu->used_size + pdu->hdr_size);
       break;
+#endif
     default:
       break;
   }
@@ -691,7 +697,9 @@ coap_send_pdu(coap_session_t *session, coap_pdu_t *pdu, coap_queue_t *node) {
       }
       coap_handle_event(session->context, COAP_EVENT_DTLS_ERROR, session);
       return -1;
-    } else if(COAP_PROTO_RELIABLE(session->proto)) {
+    }
+#ifdef LIBCOAP_RELIABLE_CONNECT
+    else if(COAP_PROTO_RELIABLE(session->proto)) {
       if (!coap_socket_connect_tcp1(
         &session->sock, &session->local_if, &session->remote_addr,
         session->proto == COAP_PROTO_TLS ? COAPS_DEFAULT_PORT : COAP_DEFAULT_PORT,
@@ -726,7 +734,9 @@ coap_send_pdu(coap_session_t *session, coap_pdu_t *pdu, coap_queue_t *node) {
       } else {
         coap_session_send_csm(session);
       }
-    } else {
+    }
+#endif
+    else {
       return -1;
     }
   }
@@ -892,6 +902,7 @@ coap_send(coap_session_t *session, coap_pdu_t *pdu) {
     return (coap_tid_t)bytes_written;
   }
 
+#ifdef LIBCOAP_RELIABLE_CONNECT
   if (COAP_PROTO_RELIABLE(session->proto) &&
     (size_t)bytes_written < pdu->used_size + pdu->hdr_size) {
     if (coap_session_delay_pdu(session, pdu, NULL) == COAP_PDU_DELAYED) {
@@ -902,6 +913,7 @@ coap_send(coap_session_t *session, coap_pdu_t *pdu) {
       goto error;
     }
   }
+#endif
 
   if (pdu->type != COAP_MESSAGE_CON || COAP_PROTO_RELIABLE(session->proto)) {
     coap_tid_t id = pdu->tid;
@@ -1153,7 +1165,9 @@ coap_read_session(coap_context_t *ctx, coap_session_t *session, coap_tick_t now)
       coap_packet_set_addr(packet, &session->remote_addr, &session->local_addr);
       coap_handle_dgram_for_proto(ctx, session, packet);
     }
-  } else {
+  }
+#ifdef LIBCOAP_RELIABLE_CONNECT
+  else {
     ssize_t bytes_read = 0;
     const uint8_t *p;
     int retry;
@@ -1244,6 +1258,7 @@ coap_read_session(coap_context_t *ctx, coap_session_t *session, coap_tick_t now)
     if (bytes_read < 0)
       coap_session_disconnected(session, COAP_NACK_NOT_DELIVERABLE);
   }
+#endif
 
 #ifdef WITH_CONTIKI
   if ( packet )
@@ -1316,9 +1331,10 @@ coap_accept_endpoint(coap_context_t *ctx, coap_endpoint_t *endpoint,
 
 void
 coap_read(coap_context_t *ctx, coap_tick_t now) {
-  coap_endpoint_t *ep, *tmp;
   coap_session_t *s, *tmp_s;
 
+#ifdef LIBCOAP_SERVER_SUPPORT
+  coap_endpoint_t *ep, *tmp;
   LL_FOREACH_SAFE(ctx->endpoint, ep, tmp) {
     if ((ep->sock.flags & COAP_SOCKET_CAN_READ) != 0)
       coap_read_endpoint(ctx, ep, now);
@@ -1341,26 +1357,31 @@ coap_read(coap_context_t *ctx, coap_tick_t now) {
       }
     }
   }
+#endif
 
   LL_FOREACH_SAFE(ctx->sessions, s, tmp_s) {
+#ifdef LIBCOAP_RELIABLE_CONNECT
     if ((s->sock.flags & COAP_SOCKET_CAN_CONNECT) != 0) {
       /* Make sure the session object is not deleted in one of the callbacks  */
       coap_session_reference(s);
       coap_connect_session(ctx, s, now);
       coap_session_release( s );
     }
+#endif
     if ((s->sock.flags & COAP_SOCKET_CAN_READ) != 0) {
       /* Make sure the session object is not deleted in one of the callbacks  */
       coap_session_reference(s);
       coap_read_session(ctx, s, now);
       coap_session_release(s);
     }
+#ifdef LIBCOAP_RELIABLE_CONNECT
     if ((s->sock.flags & COAP_SOCKET_CAN_WRITE) != 0) {
       /* Make sure the session object is not deleted in one of the callbacks  */
       coap_session_reference(s);
       coap_write_session(ctx, s, now);
       coap_session_release( s );
     }
+#endif
   }
 }
 
@@ -2204,6 +2225,7 @@ coap_dispatch(coap_context_t *context, coap_session_t *session,
       if (pdu->code == 0)
         goto cleanup;
 
+#ifndef WITHOUT_OBSERVE
       /* if sent code was >= 64 the message might have been a
        * notification. Then, we must flag the observer to be alive
        * by setting obs->fail_cnt = 0. */
@@ -2212,6 +2234,7 @@ coap_dispatch(coap_context_t *context, coap_session_t *session,
         { sent->pdu->token_length, sent->pdu->token };
         coap_touch_observer(context, sent->session, &token);
       }
+#endif
       break;
 
     case COAP_MESSAGE_RST:
@@ -2267,11 +2290,14 @@ coap_dispatch(coap_context_t *context, coap_session_t *session,
 
   /* Pass message to upper layer if a specific handler was
     * registered for a request that should be handled locally. */
+#ifdef LIBCOAP_SERVER_SUPPORT
   if (COAP_PDU_IS_SIGNALING(pdu))
     handle_signaling(context, session, pdu);
   else if (COAP_PDU_IS_REQUEST(pdu))
     handle_request(context, session, pdu);
-  else if (COAP_PDU_IS_RESPONSE(pdu))
+  else 
+#endif
+  if (COAP_PDU_IS_RESPONSE(pdu))
     handle_response(context, session, sent ? sent->pdu : NULL, pdu);
   else {
     if (COAP_PDU_IS_EMPTY(pdu)) {
@@ -2324,12 +2350,14 @@ coap_can_exit(coap_context_t *context) {
     return 1;
   if (context->sendqueue)
     return 0;
+#ifdef LIBCOAP_SERVER_SUPPORT
   LL_FOREACH(context->endpoint, ep) {
     LL_FOREACH(ep->sessions, s) {
       if (s->delayqueue)
         return 0;
     }
   }
+#endif
   LL_FOREACH(context->sessions, s) {
     if (s->delayqueue)
       return 0;

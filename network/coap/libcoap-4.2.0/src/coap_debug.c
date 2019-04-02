@@ -1,6 +1,6 @@
 /* debug.c -- debug utilities
  *
- * Copyright (C) 2010--2012,2014--2019 Olaf Bergmann <bergmann@tzi.org> and others
+ * Copyright (C) 2010--2012,2014--2015 Olaf Bergmann <bergmann@tzi.org>
  *
  * This file is part of the CoAP library libcoap. Please see
  * README for terms of use.
@@ -36,9 +36,9 @@
 #include "block.h"
 #include "coap_debug.h"
 #include "encode.h"
-#include "net.h"
+#include "../coap2/net.h"
 
-#ifdef WITH_LWIP
+#ifdef WITH_LWIP_LIBCOAP
 # define fprintf(fd, ...) LWIP_PLATFORM_DIAG((__VA_ARGS__))
 # define fflush(...)
 #endif
@@ -745,12 +745,12 @@ void coap_set_log_handler(coap_log_handler_t handler) {
 
 void
 coap_log_impl(coap_log_t level, const char *format, ...) {
-
+#if 0
   if (maxlog < level)
     return;
 
   if (log_handler) {
-#if defined(WITH_CONTIKI) || defined(WITH_LWIP)
+#if defined(WITH_CONTIKI) || defined(WITH_LWIP_LIBCOAP)
     char message[128];
 #else
     char message[8 + 1024 * 2]; /* O/H + Max packet payload size * 2 */
@@ -780,6 +780,7 @@ coap_log_impl(coap_log_t level, const char *format, ...) {
     va_end(ap);
     fflush(log_fd);
   }
+#endif
 }
 
 static struct packet_num_interval {

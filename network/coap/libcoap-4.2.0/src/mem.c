@@ -20,6 +20,7 @@
 
 #ifdef HAVE_MALLOC
 #include <stdlib.h>
+#include <aos/kernel.h>
 
 void
 coap_memory_init(void) {
@@ -34,13 +35,15 @@ coap_memory_init(void) {
 void *
 coap_malloc_type(coap_memory_tag_t type, size_t size) {
   (void)type;
-  return malloc(size);
+  //return malloc(size);
+  return aos_malloc(size);
 }
 
 void
 coap_free_type(coap_memory_tag_t type, void *p) {
   (void)type;
-  free(p);
+  //free(p);
+  aos_free(p);
 }
 
 #else /* HAVE_MALLOC */

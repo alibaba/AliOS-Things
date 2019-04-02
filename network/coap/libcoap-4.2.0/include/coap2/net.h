@@ -163,7 +163,9 @@ typedef struct coap_context_t {
    * to sendqueue_basetime. */
   coap_tick_t sendqueue_basetime;
   coap_queue_t *sendqueue;
+#ifdef LIBCOAP_SERVER_SUPPORT
   coap_endpoint_t *endpoint;      /**< the endpoints used for listening  */
+#endif
   coap_session_t *sessions;       /**< client sessions */
 
 #ifdef WITH_CONTIKI
