@@ -45,11 +45,6 @@ typedef struct httpc_s {
     } req;
 
     struct {
-        httpc_recv_fn recv_fn;
-        int32_t timeout;
-        uint8_t *buf;
-        int32_t buf_size;
-        int32_t data_len;
         uint8_t *body_start;
         int32_t processed;
 
@@ -58,11 +53,11 @@ typedef struct httpc_s {
 
         uint8_t content_len_present:1;
         uint8_t body_present:1;
+        uint8_t message_complete:1;
     } rsp;
 
     struct http_parser parser;
     struct http_parser_settings parser_settings;
-
 #if CONFIG_HTTP_SECURE
     struct {
         bool is_inited;
