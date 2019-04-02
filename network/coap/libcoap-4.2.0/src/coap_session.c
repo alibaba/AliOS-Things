@@ -428,6 +428,7 @@ void coap_session_disconnected(coap_session_t *session, coap_nack_reason_t reaso
     if (q)
       coap_delete_node(q);
   }
+#ifdef LIBCOAP_RELIABLE_CONNECT
   if ( COAP_PROTO_RELIABLE(session->proto) ) {
     if (session->sock.flags != COAP_SOCKET_EMPTY) {
       coap_socket_close(&session->sock);
@@ -441,6 +442,7 @@ void coap_session_disconnected(coap_session_t *session, coap_nack_reason_t reaso
         COAP_EVENT_SESSION_CLOSED : COAP_EVENT_SESSION_FAILED, session);
     }
   }
+#endif
 }
 
 coap_session_t *
@@ -571,13 +573,16 @@ coap_session_create_client(
       &session->local_addr, &session->remote_addr)) {
       goto error;
     }
-  } else if (proto == COAP_PROTO_TCP || proto == COAP_PROTO_TLS) {
+  }
+#ifdef LIBCOAP_RELIABLE_CONNECT
+  else if (proto == COAP_PROTO_TCP || proto == COAP_PROTO_TLS) {
     if (!coap_socket_connect_tcp1(&session->sock, &session->local_if, server,
       proto == COAP_PROTO_TLS ? COAPS_DEFAULT_PORT : COAP_DEFAULT_PORT,
       &session->local_addr, &session->remote_addr)) {
       goto error;
     }
   }
+#endif
 
   session->sock.flags |= COAP_SOCKET_NOT_EMPTY | COAP_SOCKET_WANT_READ;
   if (local_if)
@@ -607,7 +612,9 @@ coap_session_connect(coap_session_t *session) {
       coap_session_release(session);
       return NULL;
     }
-  } else if (session->proto == COAP_PROTO_TCP || session->proto == COAP_PROTO_TLS) {
+  }
+#ifdef LIBCOAP_RELIABLE_CONNECT
+  else if (session->proto == COAP_PROTO_TCP || session->proto == COAP_PROTO_TLS) {
     if (session->sock.flags & COAP_SOCKET_WANT_CONNECT) {
       session->state = COAP_SESSION_STATE_CONNECTING;
     } else if (session->proto == COAP_PROTO_TLS) {
@@ -630,6 +637,7 @@ coap_session_connect(coap_session_t *session) {
       coap_session_send_csm(session);
     }
   }
+#endif
   coap_ticks(&session->last_rx_tx);
   return session;
 }
@@ -806,6 +814,7 @@ error:
 }
 
 #ifndef WITH_LWIP_LIBCOAP
+#ifdef LIBCOAP_SERVER_SUPPORT
 coap_endpoint_t *
 coap_new_endpoint(coap_context_t *context, const coap_address_t *listen_addr, coap_proto_t proto) {
   struct coap_endpoint_t *ep = NULL;
@@ -892,6 +901,7 @@ error:
   coap_free_endpoint(ep);
   return NULL;
 }
+#endif
 
 void coap_endpoint_set_default_mtu(coap_endpoint_t *ep, unsigned mtu) {
   ep->default_mtu = (uint16_t)mtu;
@@ -929,6 +939,7 @@ coap_session_get_by_peer(coap_context_t *ctx,
     if (s->ifindex == ifindex && coap_address_equals(&s->remote_addr, remote_addr))
       return s;
   }
+#ifdef LIBCOAP_SERVER_SUPPORT
   LL_FOREACH(ctx->endpoint, ep) {
     if (ep->hello.ifindex == ifindex && coap_address_equals(&ep->hello.remote_addr, remote_addr))
       return &ep->hello;
@@ -937,6 +948,7 @@ coap_session_get_by_peer(coap_context_t *ctx,
         return s;
     }
   }
+#endif
   return NULL;
 }
 
