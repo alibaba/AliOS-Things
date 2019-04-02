@@ -73,3 +73,7 @@ GLOBAL_LDFLAGS += -Wl,--wrap=boot_undefined
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_pabort
 GLOBAL_LDFLAGS += -Wl,--wrap=boot_dabort
 
+GLOBAL_LDFLAGS += -Wl,--wrap=boot_undefined
+GLOBAL_LDFLAGS += -Wl,--wrap=boot_pabort
+GLOBAL_LDFLAGS += -Wl,--wrap=boot_dabort
+
