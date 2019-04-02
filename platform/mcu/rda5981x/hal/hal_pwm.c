@@ -1,12 +1,12 @@
 
-#include "peripheralnames.h"
+#include "PeripheralNames.h"
 #include "pwmout_api.h"
-
+#include "aos/hal/pwm.h"
 #define PWM_NUM 8
 static pwmout_t PWM_OBJ[PWM_NUM];
 static PinName PWM_MAP[PWM_NUM] = {
     [0] = PD_0,
-    [1] = PC_1,
+    [1] = PC_1, /* alternate PD_1 works */
     [2] = PB_0,
     [3] = PD_3,
     [4] = PB_3,
