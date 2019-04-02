@@ -12,6 +12,7 @@
 httpc
 ├── src       # source code
 ├── include   # header files
+├── wrapper   # wrapper files
 ```
 
 ### Dependencies
