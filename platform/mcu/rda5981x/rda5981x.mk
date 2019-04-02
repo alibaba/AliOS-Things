@@ -69,6 +69,7 @@ $(NAME)_SOURCES := startup/soc_init.c \
                    hal/gpio.c \
                    hal/spi.c \
                    hal/flash.c \
+                   hal/wdg.c \
                    hal/rda_trng_api.c \
                    hal/wifi_port.c \
                    hal/hal_pwm.c \
