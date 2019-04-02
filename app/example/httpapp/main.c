@@ -17,6 +17,8 @@
 #include "ulog/ulog.h"
 #include "netmgr.h"
 
+#define CONFIG_HTTP_CONTINUE_TEST 0
+
 enum {
     HTTP_AUTH,
     HTTP_OTA,
@@ -82,95 +84,8 @@ static const char *ca_cert = \
 };
 #endif
 
-static int httpc_recv_fun(httpc_handle_t httpc, uint8_t *buf, int32_t buf_size,
-                          int32_t data_len, int32_t ret)
-{
-    char *content;
-
-    if (command == HTTP_INVALID) {
-        return 0;
-    }
-
-    if (command == HTTP_AUTH) {
-#if CONFIG_HTTP_SECURE
-        LOG("http session %x, buf size %d bytes, recv %d bytes data, ret %d\n",
-            httpc, buf_size, data_len, ret);
-        if (data_len > 0) {
-            LOG("%s", buf);
-        }
-
-        if (ret <= 0 || ret == RX_FINAL) {
-            close(settings.socket);
-            httpc_deinit(httpc);
-            httpc_running = true;
-            httpc_handle = 0;
-            if (ret == RX_FINAL) {
-                ++auth_rsp_times;
-            } else {
-                ++auth_req_fail_times;
-            }
-            LOG("auth_req_times %d, auth_rsp_times %d, auth_req_fail_times %d\r\n",
-                 auth_req_times, auth_rsp_times, auth_req_fail_times);
-        }
-#endif
-    } else if (command == HTTP_OTA) {
-        if (ret <= 0) {
-            close(settings.socket);
-            httpc_deinit(httpc);
-            httpc_running = true;
-            httpc_handle = 0;
-            ++ota_req_fail_times;
-            ota_header_found = false;
-            ota_file_size = 0;
-            ota_rx_size = 0;
-            LOG("ota_req_times %d, ota_rsp_times %d, ota_req_fail_times %d\r\n",
-                 ota_req_times, ota_rsp_times, ota_req_fail_times);
-        }
-
-        if (ret == RX_CONTINUE || ret == RX_FINAL) {
-            LOG("http session %x, buf size %d bytes, recv %d bytes data, ret %d\n",
-                httpc, buf_size, data_len, ret);
-            if (ota_header_found == false) {
-                if (ota_file_size == 0) {
-                    content = strstr(buf, "Content-Length");
-                    if (content) {
-                        ret = sscanf(content, "%*[^ ]%d", &ota_file_size);
-                        if (ret < 0) {
-                            LOG("http session fail to get ota header\r\n");
-                            return 0;
-                        }
-                        ota_header_found = true;
-                        LOG("ota file size %d\r\n", ota_file_size);
-                    } else {
-                        return 0;
-                    }
-                }
-                content = strstr(buf, "\r\n\r\n");
-                if (content) {
-                    content += 4;
-                    ota_rx_size = data_len - ((uint8_t *)content - buf);
-                    LOG("ota (%d/%d) \r\n", ota_rx_size, ota_file_size);
-                }
-                return 0;
-            }
-            ota_rx_size += data_len;
-            LOG("ota (%d/%d) \r\n", ota_rx_size, ota_file_size);
-            if (ota_rx_size >= ota_file_size && ret == RX_FINAL) {
-                close(settings.socket);
-                httpc_deinit(httpc);
-                httpc_running = true;
-                httpc_handle = 0;
-                ++ota_rsp_times;
-                ota_header_found = false;
-                ota_file_size = 0;
-                ota_rx_size = 0;
-                LOG("ota_req_times %d, ota_rsp_times %d, ota_req_fail_times %d\r\n",
-                     ota_req_times, ota_rsp_times, ota_req_fail_times);
-            }
-        }
-    }
-    return 0;
-}
+#define RSP_BUF_SIZE 2048
+uint8_t rsp_buf[RSP_BUF_SIZE];
 
 #if CONFIG_HTTP_SECURE
 static int8_t hb2hex(uint8_t hb)
@@ -284,6 +199,7 @@ static int32_t httpc_auth(const char *device_id, const char *product_key,
     char data[HTTP_AUTH_DATA_SIZE] = {0};
     char sign[HTTP_AUTH_SIGN_SIZE] = {0};
     char timestamp[HTTP_AUTH_TS_SIZE] = {"2524608000000"};
+    http_rsp_info_t rsp_info;
 
     ret = httpc_construct_header(hdr, HTTP_AUTH_HDR_SIZE, "Accept",
                                 "text/xml,text/javascript,text/html,application/json");
@@ -305,15 +221,36 @@ static int32_t httpc_auth(const char *device_id, const char *product_key,
 
     ret = httpc_send_request(httpc_handle, HTTP_POST, "/auth/devicename", hdr,
                        "application/x-www-form-urlencoded;charset=utf-8", data, ret);
-    if (ret == HTTPC_SUCCESS) {
-        ++auth_req_times;
-    } else {
-        close(settings.socket);
-        httpc_deinit(httpc_handle);
-        httpc_running = true;
-        httpc_handle = 0;
+    ++auth_req_times;
+    if (ret != HTTPC_SUCCESS) {
         ++auth_req_fail_times;
+        goto exit;
     }
+
+    ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
+    if (ret < 0) {
+        ++auth_req_fail_times;
+    } else {
+        LOG("http session %x, buf size %d bytes, recv %d bytes data\n",
+            httpc_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
+        if (rsp_info.rsp_len > 0) {
+            LOG("%s", rsp_buf);
+        }
+
+        if (rsp_info.message_complete) {
+            ++auth_rsp_times;
+        }
+    }
+
+exit:
+    LOG("auth_req_times %d, auth_rsp_times %d, auth_req_fail_times %d\r\n",
+         auth_req_times, auth_rsp_times, auth_req_fail_times);
+    close(settings.socket);
+    httpc_deinit(httpc_handle);
+#if CONFIG_HTTP_CONTINUE_TEST > 0
+    httpc_running = true;
+#endif
+    httpc_handle = 0;
     return ret;
 }
 #endif
@@ -323,6 +260,8 @@ static int32_t httpc_ota(const char *uri)
 {
     char hdr[HTTP_OTA_HDR_SIZE] = {0};
     int ret;
+    http_rsp_info_t rsp_info;
+    char *content;
 
     if (uri == NULL) {
         return HTTPC_FAIL;
@@ -335,21 +274,71 @@ static int32_t httpc_ota(const char *uri)
     }
 
     ret = httpc_send_request(httpc_handle, HTTP_GET, uri, hdr, NULL, NULL, 0);
-    if (ret == HTTPC_SUCCESS) {
-        ++ota_req_times;
-    } else {
-        close(settings.socket);
-        httpc_deinit(httpc_handle);
-        httpc_running = true;
-        httpc_handle = 0;
+    ++ota_req_times;
+    if (ret != HTTPC_SUCCESS) {
         ++ota_req_fail_times;
+        goto exit;
     }
+
+    while (ota_file_size == 0 || ota_rx_size < ota_file_size) {
+        ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
+        if (ret < 0) {
+            ++ota_req_fail_times;
+            break;
+        } else {
+            if (rsp_info.body_present || rsp_info.message_complete) {
+                LOG("http session %x, buf size %d bytes, recv %d bytes data\n",
+                    httpc_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
+                if (ota_header_found == false) {
+                    if (ota_file_size == 0) {
+                        content = strstr(rsp_buf, "Content-Length");
+                        if (content) {
+                            ret = sscanf(content, "%*[^ ]%d", &ota_file_size);
+                            if (ret < 0) {
+                                LOG("http session fail to get ota header\r\n");
+                                ++ota_req_fail_times;
+                                break;
+                            }
+                            ota_header_found = true;
+                            LOG("ota file size %d\r\n", ota_file_size);
+                        } else {
+                            continue;
+                        }
+                    }
+                    content = strstr(rsp_buf, "\r\n\r\n");
+                    if (content) {
+                        content += 4;
+                        ota_rx_size = rsp_info.rsp_len - ((uint8_t *)content - rsp_buf);
+                        LOG("ota (%d/%d) \r\n", ota_rx_size, ota_file_size);
+                    }
+                    continue;
+                }
+                ota_rx_size += rsp_info.rsp_len;
+                LOG("ota (%d/%d) \r\n", ota_rx_size, ota_file_size);
+            }
+        }
+    }
+
+    if (ota_rx_size >= ota_file_size && rsp_info.message_complete) {
+        ++ota_rsp_times;
+    }
+
+exit:
+    close(settings.socket);
+    httpc_deinit(httpc_handle);
+#if CONFIG_HTTP_CONTINUE_TEST > 0
+    httpc_running = true;
+#endif
+    httpc_handle = 0;
+    ota_header_found = false;
+    ota_file_size = 0;
+    ota_rx_size = 0;
+    LOG("ota_req_times %d, ota_rsp_times %d, ota_req_fail_times %d\r\n",
+         ota_req_times, ota_rsp_times, ota_req_fail_times);
     return ret;
 }
 
-#define RSP_BUF_SIZE 2048
 #define REQ_BUF_SIZE 1024
-uint8_t rsp_buf[RSP_BUF_SIZE];
 uint8_t req_buf[REQ_BUF_SIZE];
 static void httpc_delayed_action(void *arg)
 {
@@ -357,7 +346,6 @@ static void httpc_delayed_action(void *arg)
     char device_id[64];
 #endif
     int fd;
-    int32_t ret = HTTPC_FAIL;
 
     if (httpc_running == false) {
         goto exit;
@@ -371,8 +359,6 @@ static void httpc_delayed_action(void *arg)
     memset(&settings, 0, sizeof(settings));
     settings.socket = fd;
     //settings.keep_alive = true;
-    settings.timeout = 10000;  // 10000ms for testing
-    settings.recv_fn = httpc_recv_fun;
 #if CONFIG_HTTP_SECURE
     if (command == HTTP_AUTH) {
         settings.server_name = auth_server_name;
@@ -387,8 +373,6 @@ static void httpc_delayed_action(void *arg)
 #if CONFIG_HTTP_SECURE
     settings.ca_cert = ca_cert;
 #endif
-    settings.rsp_buf = rsp_buf;
-    settings.rsp_buf_size = RSP_BUF_SIZE;
     settings.req_buf = req_buf;
     settings.req_buf_size = REQ_BUF_SIZE;
     httpc_handle = httpc_init(&settings);
@@ -404,20 +388,17 @@ static void httpc_delayed_action(void *arg)
 #if CONFIG_HTTP_SECURE
             memset(device_id, 0, 64);
             snprintf(device_id, 64, "%s.%s", PRODUCT_KEY, DEVICE_NAME);
-            ret = httpc_auth(device_id, PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET);
+            httpc_auth(device_id, PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET);
 #endif
             break;
         case HTTP_OTA:
-            ret = httpc_ota("/050509031881.bin");
+            httpc_ota("/050509031881.bin");
             break;
         default:
             break;
     }
 
 exit:
-    if (ret == HTTPC_SUCCESS) {
-        httpc_running = false;
-    }
     aos_post_delayed_action(500, httpc_delayed_action, (void *)(long)command);
 }
 
@@ -459,7 +440,7 @@ int application_start(int argc, char *argv[])
     netmgr_init();
     netmgr_start(false);
     aos_cli_register_command(&httpc_cmd);
-    http_client_intialize();
+    http_client_initialize();
     aos_post_delayed_action(100, httpc_delayed_action, NULL);
     aos_loop_run();
     return 0;
