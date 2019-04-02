@@ -76,7 +76,7 @@ static PinName PWM_SYNC_CHN[PWM_SYNC_CHN_NUM]= {0UL};
 extern gpio_t gpio_p1;
 
 static uint8_t is_pwmout_started(pwmout_t* obj);
-static void pwmout_start(pwmout_t* obj);
+void pwmout_start(pwmout_t* obj);
 static void pwmout_stop(pwmout_t* obj);
 static void pwmout_update_cfgreg(pwmout_t* obj);
 static void pwmout_cfgreg(pwmout_t* obj);
@@ -650,7 +650,7 @@ static uint8_t is_pwmout_started(pwmout_t* obj)
     return retVal;
 }
 
-static void pwmout_start(pwmout_t* obj)
+void pwmout_start(pwmout_t* obj)
 {
     MBED_ASSERT(PWM_7 >= (PWMName)(obj->channel));
 
@@ -736,11 +736,11 @@ static void pwmout_update_cfgreg(pwmout_t* obj)
         *(obj->CFGR) = reg_val | lpg_field_ontime | lpg_field_period;
     } else if(PWM_6 == (PWMName)(obj->channel)){
         uint32_t reg_val = *(obj->CFGR) & ~(0xFF);
-        *(obj->CFGR) = reg_val | (obj->pulsewidth_ticks);//1~254 
+        *(obj->CFGR) = reg_val | (obj->pulsewidth_ticks);//1~254
     } else{
         //PWM_7
         uint32_t reg_val = *(obj->CFGR) & ~(0xFF);
-        *(obj->CFGR) = reg_val | (obj->pulsewidth_ticks);//1~254 
+        *(obj->CFGR) = reg_val | (obj->pulsewidth_ticks);//1~254
     }
 }
 static void pwmout_cfgreg(pwmout_t* obj)
@@ -766,11 +766,11 @@ static void pwmout_cfgreg(pwmout_t* obj)
         *(obj->CFGR) = reg_val | lpg_field_ontime | lpg_field_period;
     } else if(PWM_6 == (PWMName)(obj->channel)){
         uint32_t reg_val = *(obj->CFGR) & ~(0xFF);
-        *(obj->CFGR) = reg_val | (obj->pulsewidth_ticks);//1~254 
+        *(obj->CFGR) = reg_val | (obj->pulsewidth_ticks);//1~254
     } else{
         //PWM_7
         uint32_t reg_val = *(obj->CFGR) & ~(0xFF);
-        *(obj->CFGR) = reg_val | (obj->pulsewidth_ticks);//1~254 
+        *(obj->CFGR) = reg_val | (obj->pulsewidth_ticks);//1~254
     }
 }
 
