@@ -99,7 +99,7 @@ GLOBAL_CFLAGS += -mcpu=cortex-m4           \
                  -mlittle-endian           \
                  -DCONFIG_PLATFORM_8711B   \
                  -DM3                      \
-                 -DHardFault_Handler=Ali_HardFault_Handler
+				 -DHardFault_Handler=Ali_HardFault_Handler
 
 GLOBAL_ASMFLAGS += -DHardFault_Handler=Ali_HardFault_Handler
 
