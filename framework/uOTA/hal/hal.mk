@@ -25,9 +25,13 @@ GLOBAL_DEFINES += AOS_OTA_BANK_DUAL
 GLOBAL_DEFINES += AOS_OTA_DISABLE_MD5
 $(NAME)_SOURCES += ota_hal_$(HOST_MCU_FAMILY).c
 else
+ifneq (,$(filter rtl8710bn,$(HOST_MCU_FAMILY)))
+else
 $(NAME)_SOURCES += ota_hal_plat.c
 endif
 endif
+endif
+
 ifneq (,$(filter rtl8710bn esp8266,$(HOST_MCU_FAMILY)))
 GLOBAL_DEFINES += AOS_OTA_BANK_DUAL
 GLOBAL_DEFINES += AOS_OTA_DISABLE_MD5
