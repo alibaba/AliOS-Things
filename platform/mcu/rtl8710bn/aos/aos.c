@@ -4,6 +4,7 @@
 
 #include <aos/aos.h>
 #include <k_api.h>
+#include <k_dbg_api.h>
 #include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -143,9 +144,27 @@ static void board_mode_check(void)
     krhino_task_dyn_del(NULL);
 }
 
+#if (RHINO_CONFIG_PANIC == 1)
+typedef void (*HAL_VECTOR_FUN) (void );
+extern HAL_VECTOR_FUN  NewVectorTable[];
+extern void HardFault_Handler(void);
+#endif
+
 void main(void)
 {
     aos_init();
+
+#if (RHINO_CONFIG_PANIC == 1)
+    /* AliOS-Things taking over the exception */
+    /* replace HardFault Vector */
+    NewVectorTable[3] = HardFault_Handler;
+    /* replace MemManage Vector */
+    NewVectorTable[4] = HardFault_Handler;
+    /* replace BusFault Vector */
+    NewVectorTable[5] = HardFault_Handler;
+    /* replace UsageFault Vector */
+    NewVectorTable[6] = HardFault_Handler;
+#endif
 
     krhino_task_dyn_create(&g_aos_init, "aos-init", 0, AOS_DEFAULT_APP_PRI , 0, AOS_START_STACK, (task_entry_t)sys_init_func, 1);
     

@@ -5,7 +5,7 @@ $(NAME)_MBINS_TYPE := kernel
 
 $(NAME)_COMPONENTS += rhino
 
-GLOBAL_INCLUDES += core/include
+GLOBAL_INCLUDES +=  core/include uspace/include debug/include hal/soc ./
 
 #default gcc
 ifeq ($(COMPILER),)
@@ -42,5 +42,9 @@ $(NAME)_SOURCES := core/k_err.c          \
                    core/k_task.c         \
                    core/k_time.c         \
                    common/k_fifo.c       \
-                   common/k_trace.c
+                   common/k_trace.c      \
+                   debug/k_overview.c    \
+                   debug/k_panic.c       \
+                   debug/k_backtrace.c   \
+                   debug/k_infoget.c
 

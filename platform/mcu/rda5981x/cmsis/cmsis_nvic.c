@@ -29,6 +29,7 @@
  *******************************************************************************
  */
 #include "cmsis_nvic.h"
+#include "k_dbg_api.h"
 
 #define NVIC_RAM_VECTOR_ADDRESS   (RDA_IRAM_BASE)   // Location of vectors in RAM
 #define NVIC_FLASH_VECTOR_ADDRESS (RDA_CODE_BASE)   // Initial vector position in flash
@@ -317,7 +318,7 @@ __asm void UsageFault_Handler(void)
     B __cpp(UsageFault_Handler_C)
 }
 
-#elif defined (__GNUC__)
+#elif defined (__GNUC__) && (RHINO_CONFIG_PANIC == 0)
 
 void HardFault_Handler(void)
 {

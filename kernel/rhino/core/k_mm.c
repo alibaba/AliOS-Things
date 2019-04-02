@@ -866,17 +866,4 @@ void *krhino_mm_realloc(void *oldmem, size_t newsize)
     return tmp;
 }
 
-#if (K_MM_STATISTIC > 0)
-static char s_heap_overview[] =
-  "free = 0x         | used = 0x         | max used = 0x        \r\n";
-void krhino_mm_overview(int (*print_func)(const char *fmt, ...))
-{
-    k_int2str(g_kmm_head->free_size, &s_heap_overview[9]);
-    k_int2str(g_kmm_head->used_size, &s_heap_overview[29]);
-    k_int2str(g_kmm_head->maxused_size, &s_heap_overview[53]);
-
-    print_func(s_heap_overview);
-}
-#endif
-
 #endif

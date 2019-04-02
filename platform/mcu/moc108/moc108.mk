@@ -83,3 +83,7 @@ $(NAME)_SOURCES +=  hal/mesh_wifi_hal.c
 #endif
 
 $(NAME)_PREBUILT_LIBRARY := libmoc108.a
+
+GLOBAL_LDFLAGS += -Wl,--wrap=boot_undefined
+GLOBAL_LDFLAGS += -Wl,--wrap=boot_pabort
+GLOBAL_LDFLAGS += -Wl,--wrap=boot_dabort

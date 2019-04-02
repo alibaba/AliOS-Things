@@ -1,28 +1,30 @@
+#include <k_config.h>
+
 ;******************************************************************************
 ;                            EXTERN PARAMETERS
 ;******************************************************************************
-
-    IMPORT  g_active_task
-    IMPORT  g_preferred_ready_task
-    IMPORT  krhino_stack_ovf_check
+    EXTERN g_active_task
+    EXTERN g_preferred_ready_task
+    EXTERN krhino_stack_ovf_check
+    EXTERN krhino_task_sched_stats_get
 
 ;******************************************************************************
 ;                            EXPORT FUNCTIONS
 ;******************************************************************************
+    PUBLIC cpu_intrpt_save
+    PUBLIC cpu_intrpt_restore
+    PUBLIC cpu_task_switch
+    PUBLIC cpu_intrpt_switch
+    PUBLIC cpu_first_task_start
+    PUBLIC _first_task_restore
 
-    PUBLIC  cpu_intrpt_save
-    PUBLIC  cpu_intrpt_restore
-    PUBLIC  cpu_task_switch
-    PUBLIC  cpu_intrpt_switch
-    PUBLIC  cpu_first_task_start
-
-    PUBLIC  PendSV_Handler
+    PUBLIC PendSV_Handler
 
 ;******************************************************************************
 ;                                 EQUATES
 ;******************************************************************************
-
 SCB_ICSR              EQU      0xE000ED04 ; Interrupt Control and State Register.
+SCB_VTOR              EQU      0xE000ED08 ; Vector Table Offset Register.
 ICSR_PENDSVSET        EQU      0x10000000 ; Value to trigger PendSV exception.
 
 SHPR3_PRI_14          EQU      0xE000ED22 ; System Handler Priority Register 3 (PendSV).
@@ -78,7 +80,7 @@ cpu_first_task_start:
     LDR     R0, =SHPR3_PRI_14
     LDR     R1, =PRI_LVL_PENDSV
     STRB    R1, [R0]
-    
+
     ;set Systick prority to the lowest
     LDR     R0, =SHPR3_PRI_15
     LDR     R1, =PRI_LVL_SYSTICK
@@ -87,12 +89,6 @@ cpu_first_task_start:
     ;indicate PendSV_Handler branch to _pendsv_handler_nosave
     MOVS    R0, #0
     MSR     PSP, R0
-
-    ;align MSP to 8 byte
-    MRS     R0, MSP
-    LSRS    R0, R0, #3
-    LSLS    R0, R0, #3
-    MSR     MSP, R0
 
     ;make PendSV exception pending
     LDR     R0, =SCB_ICSR
@@ -111,7 +107,8 @@ PendSV_Handler:
     CPSID   I
     MRS     R0, PSP
     ;branch if cpu_first_task_start
-    CBZ     R0, _pendsv_handler_nosave
+    CMP     R0, #0
+    BEQ     _first_task_restore
 
     ;hardware saved R0~R3,R12,LR,PC,xPSR
 
@@ -124,7 +121,12 @@ PendSV_Handler:
     LDR     R1, [R1]
     STR     R0, [R1]
 
-    bl      krhino_stack_ovf_check
+#if (RHINO_CONFIG_TASK_STACK_OVF_CHECK > 0)
+    BL      krhino_stack_ovf_check
+#endif
+#if (RHINO_CONFIG_SYS_STATS > 0)
+    BL      krhino_task_sched_stats_get
+#endif
 
 _pendsv_handler_nosave:
     LDR     R0, =g_active_task
@@ -141,12 +143,18 @@ _pendsv_handler_nosave:
     ;return stack = PSP
     MSR     PSP, R0
 
-    ;after exception return: stack = PSP
-    ORR     LR, LR, #0x04
-    
     CPSIE   I
     ;hardware restore R0~R3,R12,LR,PC,xPSR
     BX      LR
+
+_first_task_restore:
+    ;set MSP to the base of system stack
+    LDR     R0, =SCB_VTOR
+    LDR     R0, [R0]
+    LDR     R0, [R0]
+    MSR     MSP, R0
+
+    B       _pendsv_handler_nosave
 
     END
 

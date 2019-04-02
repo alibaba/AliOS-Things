@@ -56,8 +56,10 @@ $(NAME)_CFLAGS  += -Wno-unused-value -Wno-strict-aliasing
 #GLOBAL_LDFLAGS += -T platform/mcu/rda5981x/rda5981x.ld
 
 $(NAME)_SOURCES := startup/soc_init.c \
-                   ../../arch/arm/armv7m/gcc/m4/port_c.c \
+                   ../../arch/arm/armv7m/common/port_c.c \
                    ../../arch/arm/armv7m/gcc/m4/port_s.S \
+				   ../../arch/arm/armv7m/common/panic_c.c \
+				   ../../arch/arm/armv7m/common/panic_gcc.S \
                    aos/aos.c \
                    aos/soc_impl.c \
                    hal/system_rda5981x.c \
