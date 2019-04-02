@@ -8,6 +8,11 @@
 #include <stdint.h>
 #include <signal.h>
 
+static inline void *RHINO_GET_SP(void)
+{
+    return NULL;
+}
+
 /* Be very careful here, you can modyfy the following code, if only you understand what yor are doing! */
 
 #define RHINO_TASK_STACK_OVF_MAGIC   0xdeadbeafu     /* 32 bit or 64 bit stack overflow magic value */

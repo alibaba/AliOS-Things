@@ -198,7 +198,7 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     char prt_stack[] =
       "stack(0x        ): 0x         0x         0x         0x         \r\n";
     int  x;
-    int *SP = RHINO_GET_SP();
+    int *SP = (int *)RHINO_GET_SP();
 
     printf("!!!!!!!!!! Fatal Error !!!!!!!!!!\r\n");
     printf("errno:%d , file:%s, line:%d\r\n", err, file, line);
