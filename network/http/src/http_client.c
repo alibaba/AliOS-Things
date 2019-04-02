@@ -45,12 +45,6 @@ static int on_body(struct http_parser *parser, const char *at, size_t length)
         http_session->rsp.body_start = (uint8_t *)at;
     }
 
-    if (http_session->rsp.recv_fn) {
-        http_session->rsp.recv_fn((httpc_handle_t)http_session, http_session->rsp.buf,
-                                   http_session->rsp.buf_size, http_session->rsp.data_len, RX_CONTINUE);
-        http_session->rsp.data_len = 0;
-    }
-
     return 0;
 }
 
@@ -147,12 +141,7 @@ static int on_message_complete(struct http_parser *parser)
     httpc_t *http_session = CONTAINER_OF(parser, httpc_t, parser);
 
     http_log("%s, HTTP %s response (complete)", __func__, http_method_str(http_session->req.method));
-
-    if (http_session->rsp.recv_fn) {
-        http_session->rsp.recv_fn((httpc_handle_t)http_session, http_session->rsp.buf,
-                                   http_session->rsp.buf_size, http_session->rsp.data_len, RX_FINAL);
-    }
-
+    http_session->rsp.message_complete = 1;
     return 0;
 }
 
@@ -207,11 +196,6 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
 
     if (settings->socket < 0) {
         http_log("%s, invalid socket for httpc connection", __func__);
-        return 0;
-    }
-
-    if (settings->timeout < 0) {
-        http_log("%s, invalid timeout for httpc connection", __func__);
         return 0;
     }
 
@@ -285,8 +269,6 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
 
     http_sessions[index].index = index;
     http_sessions[index].socket = settings->socket;
-    http_sessions[index].rsp.recv_fn = settings->recv_fn;
-    http_sessions[index].rsp.timeout = settings->timeout;
 
     if (settings->keep_alive) {
         http_sessions[index].flags |= HTTP_CLIENT_FLAG_KEEP_ALIVE;
@@ -295,9 +277,6 @@ httpc_handle_t httpc_init(httpc_connection_t *settings)
     // default no cache
     http_sessions[index].flags |= HTTP_CLIENT_FLAG_NO_CACHE;
 
-    // response buffer
-    http_sessions[index].rsp.buf = settings->rsp_buf;
-    http_sessions[index].rsp.buf_size = settings->rsp_buf_size;
     // request buffer
     http_sessions[index].req.buf = settings->req_buf;
     http_sessions[index].req.buf_size = settings->req_buf_size;
@@ -326,7 +305,7 @@ int8_t httpc_deinit(httpc_handle_t httpc)
 
 #if CONFIG_HTTP_SECURE
     if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
-        httpc_wrapper_ssl_destroy(http_session->socket);
+        httpc_wrapper_ssl_destroy((httpc_handle_t)http_session);
     }
 #endif
     memset(http_session, 0, sizeof(httpc_t));
@@ -558,9 +537,8 @@ static int8_t httpc_reset(httpc_t *http_session)
     http_session->rsp.content_len = 0;
     http_session->rsp.body_start = NULL;
     http_session->rsp.processed = 0;
-
-    memset(http_session->rsp.buf, 0, http_session->rsp.buf_size);
-    http_session->rsp.data_len = 0;
+    http_session->rsp.body_present = 0;
+    http_session->rsp.message_complete = 0;
 
     memset(http_session->req.buf, 0, http_session->req.buf_size);
     http_session->req.data_len = 0;
@@ -568,7 +546,7 @@ static int8_t httpc_reset(httpc_t *http_session)
     return HTTPC_SUCCESS;
 }
 
-int32_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
+int32_t httpc_send_request(httpc_handle_t httpc, int32_t method, const char *uri,
                            const char *hdr, const char *content_type, const char *param, uint16_t param_len)
 {
     httpc_t *http_session = (httpc_t *)httpc;
@@ -680,7 +658,7 @@ int32_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
             } else {
                 addr.sin_port = htons(443);
             }
-            socket_res = httpc_wrapper_ssl_connect(http_session->socket, (const struct sockaddr *)&addr, sizeof(addr));
+            socket_res = httpc_wrapper_ssl_connect(httpc, (const struct sockaddr *)&addr, sizeof(addr));
 #else
             http_log("%s, https not available", __func__);
             ret = HTTPC_FAIL;
@@ -705,7 +683,7 @@ int32_t httpc_send_request(httpc_handle_t httpc, int method, const char *uri,
 
     if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
 #if CONFIG_HTTP_SECURE
-        socket_res = httpc_wrapper_ssl_send(http_session->socket, http_session->req.buf,
+        socket_res = httpc_wrapper_ssl_send((httpc_handle_t)http_session, http_session->req.buf,
                                             strlen((const char *)http_session->req.buf), 0);
 #else
         socket_res = -1;
@@ -724,41 +702,44 @@ exit:
     return ret;
 }
 
-static int http_client_recv(httpc_t *http_session, void *data, int32_t len)
+int32_t httpc_recv_response(httpc_handle_t httpc, uint8_t *rsp, uint32_t rsp_size,
+                            http_rsp_info_t *info, uint32_t timeout)
 {
-    int32_t copy_len = 0;
-    int32_t start = 0;
-    int32_t free_space = 0;
+    httpc_t *http_session = (httpc_t *)httpc;
+    int32_t ret;
 
-    if (len <= 0) {
-        if (http_session->rsp.recv_fn) {
-            http_session->rsp.recv_fn((httpc_handle_t)http_session, http_session->rsp.buf,
-                                      http_session->rsp.buf_size, 0, len);
-            http_session->rsp.data_len = 0;
-        }
-        return -1;
+    if (http_session == NULL || rsp == NULL || rsp_size == 0) {
+        return HTTPC_FAIL;
     }
 
-    while (len) {
-        copy_len = len;
-        start = http_session->rsp.data_len;
-        free_space = http_session->rsp.buf_size - http_session->rsp.data_len;
-        if (copy_len > free_space) {
-            copy_len = free_space;
-        }
-
-        memcpy(http_session->rsp.buf + start, data, copy_len);
-        http_session->rsp.data_len += copy_len;
-        http_parser_execute(&http_session->parser, &http_session->parser_settings,
-                            (const char *)http_session->rsp.buf + start, copy_len);
-        len -= copy_len;
-        data += copy_len;
-        http_session->rsp.data_len = 0;
+#if CONFIG_HTTP_SECURE
+    if ((http_session->flags & HTTP_CLIENT_FLAG_SECURE) == HTTP_CLIENT_FLAG_SECURE) {
+        ret = httpc_wrapper_ssl_recv((httpc_handle_t)http_session, rsp, rsp_size, timeout);
+    } else
+#endif
+    {
+        ret = httpc_wrapper_recv(http_session->socket, rsp, rsp_size, timeout);
     }
-    return 0;
+
+    if (ret <= 0) {
+        http_log("%s, recv %d, recv res %d", __func__, rsp_size, ret);
+        return HTTPC_FAIL;
+    }
+
+    http_parser_execute(&http_session->parser, &http_session->parser_settings, (const char *)rsp, ret);
+
+    if (info) {
+        info->rsp_len = ret;
+        info->content_len_present = http_session->rsp.content_len_present;
+        info->body_present = http_session->rsp.body_present;
+        info->body_start = http_session->rsp.body_start;
+        info->message_complete = http_session->rsp.message_complete;
+    }
+
+    return HTTPC_SUCCESS;
 }
 
-int8_t http_client_intialize(void)
+int8_t http_client_initialize(void)
 {
     uint8_t index;
 
@@ -766,8 +747,6 @@ int8_t http_client_intialize(void)
     for (index = 0; index < CONFIG_HTTPC_SESSION_NUM; index++) {
         http_sessions[index].socket = -1;
     }
-
-    httpc_wrapper_register_recv(http_sessions, http_client_recv);
 
     return HTTPC_SUCCESS;
 }
