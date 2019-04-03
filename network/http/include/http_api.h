@@ -38,6 +38,7 @@ typedef struct http_rsp_info_s {
     uint8_t body_present:1;
     uint8_t *body_start;
     uint8_t message_complete:1;
+    uint8_t headers_complete:1;
 } http_rsp_info_t;
 
 int8_t http_client_initialize(void);

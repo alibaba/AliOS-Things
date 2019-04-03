@@ -64,13 +64,14 @@ static int on_headers_complete(struct http_parser *parser)
 {
     httpc_t *http_session = CONTAINER_OF(parser, httpc_t, parser);
 
+    http_session->rsp.headers_complete = 1;
+
     if (parser->status_code >= 500 && parser->status_code < 600) {
         http_log("%s, status %d, skipping body", parser->status_code);
         return 1;
     }
 
-    if ((http_session->req.method == HTTP_HEAD || http_session->req.method == HTTP_OPTIONS) &&
-        http_session->rsp.content_len > 0) {
+    if (http_session->req.method == HTTP_OPTIONS && http_session->rsp.content_len > 0) {
         http_log("%s, no body expected", __func__);
         return 1;
     }
@@ -383,7 +384,7 @@ static int8_t httpc_add_space(httpc_handle_t httpc)
 
 static bool is_valid_method(int method)
 {
-    if (method == HTTP_GET || method == HTTP_POST || method == HTTP_PUT) {
+    if (method == HTTP_GET || method == HTTP_POST || method == HTTP_PUT || method == HTTP_HEAD) {
         return true;
     }
 
@@ -539,6 +540,7 @@ static int8_t httpc_reset(httpc_t *http_session)
     http_session->rsp.processed = 0;
     http_session->rsp.body_present = 0;
     http_session->rsp.message_complete = 0;
+    http_session->rsp.headers_complete = 0;
 
     memset(http_session->req.buf, 0, http_session->req.buf_size);
     http_session->req.data_len = 0;
@@ -734,6 +736,7 @@ int32_t httpc_recv_response(httpc_handle_t httpc, uint8_t *rsp, uint32_t rsp_siz
         info->body_present = http_session->rsp.body_present;
         info->body_start = http_session->rsp.body_start;
         info->message_complete = http_session->rsp.message_complete;
+        info->headers_complete = http_session->rsp.headers_complete;
     }
 
     return HTTPC_SUCCESS;

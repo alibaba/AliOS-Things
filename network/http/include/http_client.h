@@ -54,6 +54,7 @@ typedef struct httpc_s {
         uint8_t content_len_present:1;
         uint8_t body_present:1;
         uint8_t message_complete:1;
+        uint8_t headers_complete:1;
     } rsp;
 
     struct http_parser parser;
