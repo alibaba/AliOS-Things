@@ -169,6 +169,7 @@ print_readable( const uint8_t *data, size_t len,
 
 size_t
 coap_print_addr(const struct coap_address_t *addr, unsigned char *buf, size_t len) {
+#ifdef WITH_LIBCOAP_DEBUG
 #if defined( HAVE_ARPA_INET_H ) || defined( HAVE_WS2TCPIP_H )
   const void *addrptr = NULL;
   in_port_t port;
@@ -256,6 +257,8 @@ coap_print_addr(const struct coap_address_t *addr, unsigned char *buf, size_t le
 # endif /* WITH_CONTIKI */
   return 0;
 #endif
+#endif /* WITH_LIBCOAP_DEBUG */
+   return 0;
 }
 
 #ifdef WITH_CONTIKI
@@ -459,6 +462,7 @@ is_binary(int content_format) {
 
 void
 coap_show_pdu(coap_log_t level, const coap_pdu_t *pdu) {
+#ifdef WITH_LIBCOAP_DEBUG
   unsigned char buf[1024]; /* need some space for output creation */
   size_t buf_len = 0; /* takes the number of bytes written to buf */
   int encode = 0, have_options = 0, i;
@@ -646,6 +650,7 @@ coap_show_pdu(coap_log_t level, const coap_pdu_t *pdu) {
   outbuflen = strlen(outbuf);
   snprintf(&outbuf[outbuflen], sizeof(outbuf)-outbuflen,  "\n");
   COAP_DO_SHOW_OUTPUT_LINE;
+#endif
 }
 
 void coap_show_tls_version(coap_log_t level)
@@ -745,7 +750,7 @@ void coap_set_log_handler(coap_log_handler_t handler) {
 
 void
 coap_log_impl(coap_log_t level, const char *format, ...) {
-#if 0
+#ifdef WITH_LIBCOAP_DEBUG
   if (maxlog < level)
     return;
 
@@ -832,6 +837,7 @@ int coap_debug_set_packet_loss(const char *loss_level) {
 }
 
 int coap_debug_send_packet(void) {
+#ifdef WITH_LIBCOAP_DEBUG
   ++send_packet_count;
   if (num_packet_loss_intervals > 0) {
     int i;
@@ -847,5 +853,6 @@ int coap_debug_send_packet(void) {
     if ( r < packet_loss_level )
       return 0;
   }
+#endif
   return 1;
 }
