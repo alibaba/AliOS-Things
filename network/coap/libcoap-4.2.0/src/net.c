@@ -2262,6 +2262,7 @@ coap_dispatch(coap_context_t *context, coap_session_t *session,
       }
       goto cleanup;
 
+#ifdef LIBCOAP_SERVER_SUPPORT
     case COAP_MESSAGE_NON:        /* check for unknown critical options */
       if (coap_option_check_critical(context, pdu, opt_filter) == 0)
         goto cleanup;
@@ -2285,6 +2286,7 @@ coap_dispatch(coap_context_t *context, coap_session_t *session,
 
         goto cleanup;
       }
+#endif
     default: break;
   }
 
