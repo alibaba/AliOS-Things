@@ -29,7 +29,7 @@
 
 #include <mesh_def.h>
 #include <port/mesh_hal_sec.h>
-#include "bt_mesh_custom_log.h"
+//#include "bt_mesh_custom_log.h"
 
 /* 3 transmissions, 20ms interval */
 #define PROV_XMIT_COUNT        2

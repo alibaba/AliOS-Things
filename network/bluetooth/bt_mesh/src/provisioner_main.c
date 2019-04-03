@@ -37,7 +37,7 @@
 #include "provisioner_proxy.h"
 #include "provisioner_main.h"
 
-#include "bt_mesh_custom_log.h"
+//#include "bt_mesh_custom_log.h"
 
 #if CONFIG_BT_MESH_PROVISIONER
 
@@ -101,9 +101,28 @@ static int provisioner_index_check(int node_index)
     return 0;
 }
 
+bool provisioner_is_node_provisioned(u8_t *dev_addr)
+{
+    int i;
+    struct bt_mesh_node_t *node = NULL;
+
+    for (i = 0; i < ARRAY_SIZE(mesh_nodes); i++) {
+        node = &mesh_nodes[i];
+        if (!node->node_active || !BT_MESH_ADDR_IS_UNICAST(node->unicast_addr)) {
+            continue;
+        }
+
+        if (!memcmp(dev_addr, node->addr_val, 6)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int provisioner_node_provision(int node_index, const u8_t uuid[16], u16_t oob_info,
                                u16_t unicast_addr, u8_t element_num, u16_t net_idx,
-                               u8_t flags, u32_t iv_index, const u8_t dev_key[16])
+                               u8_t flags, u32_t iv_index, const u8_t dev_key[16], u8_t *dev_addr)
 {
     struct bt_mesh_node_t *node = NULL;
 
@@ -142,6 +161,7 @@ int provisioner_node_provision(int node_index, const u8_t uuid[16], u16_t oob_in
     node->flags        = flags;
     node->iv_index     = iv_index;
     memcpy(node->dev_key, dev_key, 16);
+    memcpy(node->addr_val, dev_addr, 6);
     node->node_active  = true;
 
     mesh_node_count++;

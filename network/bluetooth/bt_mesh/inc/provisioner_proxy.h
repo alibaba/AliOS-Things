@@ -16,6 +16,8 @@
 #define _PROVISIONER_PROXY_H_
 
 #include <net/buf.h>
+#include "mesh_def.h"
+#include "port/mesh_hal_ble.h"
 
 #define BT_MESH_PROXY_NET_PDU   0x00
 #define BT_MESH_PROXY_BEACON    0x01
@@ -31,7 +33,7 @@
  *
  * @return Zero-success, other-fail
  */
-int provisioner_proxy_send(struct bt_conn *conn, u8_t type, struct net_buf_simple *msg);
+int provisioner_proxy_send(bt_mesh_conn_t conn, u8_t type, struct net_buf_simple *msg);
 
 /**
  * @brief This function is called to parse received node identity and net
@@ -41,7 +43,7 @@ int provisioner_proxy_send(struct bt_conn *conn, u8_t type, struct net_buf_simpl
  *
  * @return None
  */
-void provisioner_proxy_srv_data_recv(struct net_buf_simple *buf);
+void provisioner_proxy_srv_data_recv(struct net_buf_simple *buf, const bt_mesh_addr_le_t *addr);
 
 /**
  * @brief This function is called to initialize proxy provisioner structure
