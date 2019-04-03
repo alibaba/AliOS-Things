@@ -18,7 +18,7 @@ static bool is_enable_handler = FALSE;
 void watchdog_irq_handler(uint32_t callback_id) 
 {	
 	printf("watchdog_irq_handler, callback_id: %d\n", callback_id);
-//	sys_reset( ) ;	
+	sys_reset( ) ;	
 }
 void watchdog_irq_set(void)
 {
