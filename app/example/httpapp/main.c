@@ -22,6 +22,7 @@
 enum {
     HTTP_AUTH,
     HTTP_OTA,
+    HTTP_OTA_HEAD,
     HTTP_INVALID,
 };
 
@@ -55,6 +56,10 @@ uint32_t ota_rsp_times = 0;
 bool ota_header_found = false;
 int32_t ota_file_size = 0;
 int32_t ota_rx_size = 0;
+
+uint32_t ota_head_req_times = 0;
+uint32_t ota_head_req_fail_times = 0;
+uint32_t ota_head_rsp_times = 0;
 
 #if CONFIG_HTTP_SECURE
 static const char *ca_cert = \
@@ -338,6 +343,57 @@ exit:
     return ret;
 }
 
+static int32_t httpc_ota_head(const char *uri)
+{
+    char hdr[HTTP_OTA_HDR_SIZE] = {0};
+    int ret;
+    http_rsp_info_t rsp_info;
+    char *content;
+
+    if (uri == NULL) {
+        return HTTPC_FAIL;
+    }
+
+    ret = httpc_construct_header(hdr, HTTP_OTA_HDR_SIZE, "Accept", "*/*");
+    if (ret < 0) {
+        LOG("http construct header fail\n");
+        return ret;
+    }
+
+    ret = httpc_send_request(httpc_handle, HTTP_HEAD, uri, hdr, NULL, NULL, 0);
+    ++ota_head_req_times;
+    if (ret != HTTPC_SUCCESS) {
+        ++ota_head_req_fail_times;
+        goto exit;
+    }
+
+    ret = httpc_recv_response(httpc_handle, rsp_buf, RSP_BUF_SIZE, &rsp_info, 10000);
+    if (ret < 0) {
+        ++ota_head_req_fail_times;
+    } else {
+        LOG("http session %x, buf size %d bytes, recv %d bytes data\n",
+            httpc_handle, RSP_BUF_SIZE, rsp_info.rsp_len);
+        if (rsp_info.rsp_len > 0) {
+            LOG("%s", rsp_buf);
+        }
+
+        if (rsp_info.headers_complete) {
+            ++ota_head_rsp_times;
+        }
+    }
+
+exit:
+    LOG("ota_head_req_times %d, ota_head_rsp_times %d, ota_head_req_fail_times %d\r\n",
+         ota_head_req_times, ota_head_rsp_times, ota_head_req_fail_times);
+    close(settings.socket);
+    httpc_deinit(httpc_handle);
+#if CONFIG_HTTP_CONTINUE_TEST > 0
+    httpc_running = true;
+#endif
+    httpc_handle = 0;
+    return ret;
+}
+
 #define REQ_BUF_SIZE 1024
 uint8_t req_buf[REQ_BUF_SIZE];
 static void httpc_delayed_action(void *arg)
@@ -364,7 +420,7 @@ static void httpc_delayed_action(void *arg)
         settings.server_name = auth_server_name;
     } else
 #endif
-    if (command == HTTP_OTA) {
+    if (command == HTTP_OTA || command == HTTP_OTA_HEAD) {
         settings.server_name = ota_server_name;
     } else {
         close(fd);
@@ -382,6 +438,7 @@ static void httpc_delayed_action(void *arg)
         goto exit;
     }
 
+    httpc_running = false;
     LOG("http session %x command %d at %d\n", httpc_handle, command, (uint32_t)aos_now_ms());
     switch (command) {
         case HTTP_AUTH:
@@ -393,6 +450,9 @@ static void httpc_delayed_action(void *arg)
             break;
         case HTTP_OTA:
             httpc_ota("/050509031881.bin");
+            break;
+        case HTTP_OTA_HEAD:
+            httpc_ota_head("/050509031881.bin");
             break;
         default:
             break;
@@ -413,13 +473,16 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
 
     if (httpc_running == false) {
 #if CONFIG_HTTP_SECURE
-        if (strncmp(type, "auth", strlen("auth")) == 0) {
+        if (strncmp(type, "auth", strlen(type)) == 0) {
             command = HTTP_AUTH;
             httpc_running = true;
         } else
 #endif
-        if (strncmp(type, "ota", strlen("ota")) == 0) {
+        if (strncmp(type, "ota", strlen(type)) == 0) {
             command = HTTP_OTA;
+            httpc_running = true;
+        } else if (strncmp(type, "ota_head", strlen(type)) == 0) {
+            command = HTTP_OTA_HEAD;
             httpc_running = true;
         } else {
             LOG("unknown command\n");
@@ -430,7 +493,7 @@ static void httpc_cmd_handle(char *buf, int blen, int argc, char **argv)
 
 static struct cli_command httpc_cmd = {
     .name = "httpc",
-    .help = "httpc auth | ota | stop",
+    .help = "httpc auth | ota | ota_head | stop",
     .function = httpc_cmd_handle
 };
 
