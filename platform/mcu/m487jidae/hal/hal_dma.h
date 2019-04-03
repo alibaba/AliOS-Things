@@ -29,8 +29,12 @@ extern "C" {
 #define DMA_EVENT_ALL               (DMA_EVENT_ABORT | DMA_EVENT_TRANSFER_DONE | DMA_EVENT_TIMEOUT)
 #define DMA_EVENT_MASK              DMA_EVENT_ALL
 
+int hal_dma_channel_allocate(uint32_t capabilities);
+int hal_dma_channel_free(int channelid);
 int hal_dma_set_handler(int channelid, uint32_t handler, uint32_t id, uint32_t event);
-PDMA_T *hal_dma_modbase(void);
+int hal_dma_fill_description(int channelid, uint32_t u32Peripheral, uint32_t data_width, uint32_t addr_src, uint32_t addr_dst, int32_t length, uint32_t timeout );
+
+//PDMA_T *hal_dma_modbase(void);
 
 #ifdef __cplusplus
 }

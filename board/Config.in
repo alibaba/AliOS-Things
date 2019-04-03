@@ -461,6 +461,15 @@ if AOS_BOARD_NUMAKER_PFM_M487
     source "platform/arch/arm/armv7m/Config.in"
 endif
 
+source "board/numaker-iot-m487/Config.in"
+if AOS_BOARD_NUMAKER_IOT_M487
+    config AOS_BUILD_BOARD
+        default "numaker-iot-m487"
+
+    source "platform/mcu/m487jidae/Config.in"
+    source "platform/arch/arm/armv7m/Config.in"
+endif
+
 source "board/numaker-pfm-nano130/Config.in"
 if AOS_BOARD_NUMAKER_PFM_NANO130
     config AOS_BUILD_BOARD

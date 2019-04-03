@@ -102,7 +102,8 @@ $(NAME)_SOURCES += drivers/common/pinmap_common.c \
                    hal/hal_pwm.c \
                    hal/hal_flash.c \
                    hal/hal_qspi.c \
-                   hal/hal_dma.c
+                   hal/hal_dma.c \
+		   hal/eth_port.c
 
 ifeq ($(ETHERNET),1)
 $(NAME)_SOURCES += drivers/lwIP/netif/m480_eth.c
