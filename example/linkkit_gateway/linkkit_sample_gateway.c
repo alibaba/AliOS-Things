@@ -207,6 +207,10 @@ static int user_disconnected_event_handler(void)
     return 0;
 }
 
+static int user_property_cloud_error_handler(const int code, const char *data, const char *detail)
+{
+        EXAMPLE_TRACE("code =%d ,data=%s, detail=%s", code, data,detail);
+}
 static int user_property_set_event_handler(const int devid, const char *request, const int request_len)
 {
     int res = 0;
@@ -273,6 +277,16 @@ void user_post_property(void)
                              (unsigned char *)property_payload, strlen(property_payload));
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
 }
+void user_post_sub_property(int id)
+{
+    int res = 0;
+    user_example_ctx_t *user_example_ctx = user_example_get_ctx();
+    char *property_payload = "{\"LightSwitch\":1}";
+
+    res = IOT_Linkkit_Report(id, ITM_MSG_POST_PROPERTY,
+                             (unsigned char *)property_payload, strlen(property_payload));
+    EXAMPLE_TRACE("Post Property Message ID: %d", res);
+}
 
 void user_deviceinfo_update(void)
 {
@@ -324,17 +338,7 @@ static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
         return FAIL_RETURN;
     }
     EXAMPLE_TRACE("subdev open susseed, devid = %d\n", devid);
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
-    static ota_service_t ctx = {0};
-    memset(&ctx, 0, sizeof(ota_service_t));
-    strncpy(ctx.pk, meta_info->product_key, sizeof(ctx.pk)-1);
-    strncpy(ctx.dn, meta_info->device_name, sizeof(ctx.dn)-1);
-    strncpy(ctx.ds, meta_info->product_secret, sizeof(ctx.ds)-1);
-    ctx.trans_protcol = 0;
-    ctx.dl_protcol = 3;
-    ctx.dev_type = 1;
-    ota_service_init(&ctx);
-#endif
+
     res = IOT_Linkkit_Connect(devid);
     if (res == FAIL_RETURN) {
         EXAMPLE_TRACE("subdev connect Failed\n");
@@ -347,6 +351,18 @@ static int example_add_subdev(iotx_linkkit_dev_meta_info_t *meta_info)
         EXAMPLE_TRACE("subdev login Failed\n");
         return res;
     }
+    #if defined(OTA_ENABLED) && defined(BUILD_AOS)
+    static ota_service_t ctx = {0};
+    memset(&ctx, 0, sizeof(ota_service_t));
+    strncpy(ctx.pk, meta_info->product_key, sizeof(ctx.pk)-1);
+    strncpy(ctx.dn, meta_info->device_name, sizeof(ctx.dn)-1);
+    strncpy(ctx.ds, meta_info->product_secret, sizeof(ctx.ds)-1);
+    ctx.trans_protcol = 0;
+    ctx.dl_protcol = 3;
+    ctx.dev_type = 1;
+    ota_service_init(&ctx);
+#endif
+
     EXAMPLE_TRACE("subdev login success: devid = %d\n", devid);
     return res;
 }
@@ -380,9 +396,7 @@ int linkkit_main(void *paras)
     uint64_t time_prev_sec = 0, time_now_sec = 0, time_begin_sec = 0;
     user_example_ctx_t *user_example_ctx = user_example_get_ctx();
     iotx_linkkit_dev_meta_info_t master_meta_info;
-
     memset(user_example_ctx, 0, sizeof(user_example_ctx_t));
-
 #if defined(__UBUNTU_SDK_DEMO__)
     int                             argc = ((app_main_paras_t *)paras)->argc;
     char                          **argv = ((app_main_paras_t *)paras)->argv;
@@ -420,6 +434,7 @@ int linkkit_main(void *paras)
     IOT_RegisterCallback(ITE_TIMESTAMP_REPLY, user_timestamp_reply_event_handler);
     IOT_RegisterCallback(ITE_INITIALIZE_COMPLETED, user_initialized);
     IOT_RegisterCallback(ITE_PERMIT_JOIN, user_permit_join_event_handler);
+    IOT_RegisterCallback(ITE_CLOUD_ERROR, user_property_cloud_error_handler);
 
     memset(&master_meta_info, 0, sizeof(iotx_linkkit_dev_meta_info_t));
     memcpy(master_meta_info.product_key, PRODUCT_KEY, strlen(PRODUCT_KEY));
@@ -492,6 +507,7 @@ int linkkit_main(void *paras)
         /* Post Proprety Example */
         if (time_now_sec % 11 == 0 && user_master_dev_available()) {
             user_post_property();
+            user_post_sub_property(user_example_ctx->subdev_index);
         }
 
         /* Device Info Update Example */

@@ -35,6 +35,9 @@
 #define IOTX_LINKKIT_KEY_TOPO        "topo"
 #define IOTX_LINKKIT_KEY_PRODUCT_KEY "productKey"
 #define IOTX_LINKKIT_KEY_TIME        "time"
+#define IOTX_LINKKIT_KEY_DATA        "data"
+#define IOTX_LINKKIT_KEY_MESSAGE     "message"
+
 
 #define IOTX_LINKKIT_SYNC_DEFAULT_TIMEOUT_MS 10000
 
@@ -227,7 +230,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
     lite_cjson_t lite_item_code, lite_item_eventid, lite_item_utc, lite_item_rrpcid, lite_item_topo;
     lite_cjson_t lite_item_pk, lite_item_time;
     lite_cjson_t lite_item_version, lite_item_configid, lite_item_configsize, lite_item_gettype, lite_item_sign,
-                 lite_item_signmethod, lite_item_url;
+                 lite_item_signmethod, lite_item_url, lite_item_data, lite_item_message;
 
     sdk_info("Receive Message Type: %d", type);
     if (payload) {
@@ -273,7 +276,10 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                                   &lite_item_signmethod);
         dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_URL, strlen(IOTX_LINKKIT_KEY_URL), cJSON_Invalid,
                                   &lite_item_url);
-
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_DATA, strlen(IOTX_LINKKIT_KEY_DATA), cJSON_Invalid,
+                                  &lite_item_data);
+        dm_utils_json_object_item(&lite, IOTX_LINKKIT_KEY_MESSAGE, strlen(IOTX_LINKKIT_KEY_MESSAGE), cJSON_Invalid,
+                                  &lite_item_message);
     }
 
     switch (type) {
@@ -614,6 +620,44 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
             IMPL_LINKKIT_FREE(utc_payload);
         }
         break;
+        case IOTX_DM_EVENT_CLOUD_ERROR: {
+            char *err_data = NULL;
+            char *err_detail = NULL;
+
+            if (payload == NULL) {
+                return;
+            }
+            if (payload == NULL || lite_item_code.type != cJSON_Number) {
+                return;
+            }
+
+            err_data = IMPL_LINKKIT_MALLOC(lite_item_data.value_length + 1);
+            if (err_data == NULL) {
+                sdk_err("Not Enough Memory");
+                return;
+            }
+
+            memset(err_data, 0, lite_item_data.value_length + 1);
+            memcpy(err_data, lite_item_data.value, lite_item_data.value_length);
+
+            err_detail = IMPL_LINKKIT_MALLOC(lite_item_message.value_length + 1);
+            if (err_detail == NULL) {
+                sdk_err("Not Enough Memory");
+                IMPL_LINKKIT_FREE(err_data);
+                return;
+            }
+
+            memset(err_detail, 0, lite_item_message.value_length + 1);
+            memcpy(err_detail, lite_item_message.value, lite_item_message.value_length);
+
+            callback = iotx_event_callback(ITE_CLOUD_ERROR);
+            if (callback) {
+                ((int (*)(int ,const char *,const char *))callback)(lite_item_code.value_int, err_data, err_detail);
+            }
+            IMPL_LINKKIT_FREE(err_data);
+            IMPL_LINKKIT_FREE(err_detail);
+        }
+        break;
         case IOTX_DM_EVENT_RRPC_REQUEST: {
             int rrpc_response_len = 0;
             char *rrpc_request = NULL, *rrpc_response = NULL;
@@ -650,7 +694,7 @@ static void _iotx_linkkit_event_callback(iotx_dm_event_types_t type, char *paylo
                                                lite_item_rrpcid.value,
                                                lite_item_rrpcid.value_length,
                                                rrpc_response, rrpc_response_len);
-                    HAL_Free(rrpc_response);
+                    IMPL_LINKKIT_FREE(rrpc_response);
                 }
             }
 
@@ -951,44 +995,6 @@ static int _iotx_linkkit_slave_connect(int devid)
         sdk_err("devid invalid");
         return FAIL_RETURN;
     }
-
-    /* Subdev Delete Topo */
-    res = iotx_dm_subdev_topo_del(devid);
-    if (res < SUCCESS_RETURN) {
-        return FAIL_RETURN;
-    }
-    msgid = res;
-
-    semaphore = HAL_SemaphoreCreate();
-    if (semaphore == NULL) {
-        return FAIL_RETURN;
-    }
-
-    _iotx_linkkit_upstream_mutex_lock();
-    res = _iotx_linkkit_upstream_sync_callback_list_insert(msgid, semaphore, &node);
-    if (res != SUCCESS_RETURN) {
-        HAL_SemaphoreDestroy(semaphore);
-        _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
-    }
-    _iotx_linkkit_upstream_mutex_unlock();
-
-    res = HAL_SemaphoreWait(semaphore, IOTX_LINKKIT_SYNC_DEFAULT_TIMEOUT_MS);
-    if (res < SUCCESS_RETURN) {
-        _iotx_linkkit_upstream_mutex_lock();
-        _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
-        _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
-    }
-
-    _iotx_linkkit_upstream_mutex_lock();
-    code = node->code;
-    _iotx_linkkit_upstream_sync_callback_list_remove(msgid);
-    if (code != SUCCESS_RETURN) {
-        _iotx_linkkit_upstream_mutex_unlock();
-        return FAIL_RETURN;
-    }
-    _iotx_linkkit_upstream_mutex_unlock();
 
     /* Subdev Register */
     res = iotx_dm_subdev_register(devid);
