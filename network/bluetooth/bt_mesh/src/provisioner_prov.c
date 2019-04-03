@@ -2202,6 +2202,7 @@ static void prov_complete(const u8_t *data)
     u8_t device_key[16];
     int i = prov_get_pb_index(), j;
     int err, rm = 0;
+    bool gatt_flag;
 
     /* Make sure received pdu is ok and cancel the timeout timer */
     if (atomic_test_and_clear_bit(link[i].flags, TIMEOUT_START)) {
@@ -2250,9 +2251,15 @@ static void prov_complete(const u8_t *data)
         return;
     }
 
+    if (i >= CONFIG_BT_MESH_PBG_SAME_TIME) {
+        gatt_flag = true;
+    } else {
+        gatt_flag = false;
+    }
+
     if (provisioner->prov_complete) {
         provisioner->prov_complete(j, node[j].uuid, node[j].unicast_addr,
-                            node[j].element_num, node[j].net_idx);
+                            node[j].element_num, node[j].net_idx, gatt_flag);
     }
 
     err = provisioner_dev_find(&link[i].addr, link[i].uuid, &rm);
@@ -2308,7 +2315,7 @@ static void close_link(int i, u8_t reason)
 #if defined(CONFIG_BT_MESH_PB_GATT)
         conn = link[i].conn;
         if (conn) {
-            //provisioner_pb_gatt_close(conn, reason);
+            bt_conn_disconnect(conn, reason);
         }
 #endif
     } else {
@@ -3137,7 +3144,7 @@ void provisioner_srv_data_recv(struct net_buf_simple *buf, const bt_addr_le_t *a
             return;
         }
         BT_DBG("Start to deal with proxy service adv data");
-        provisioner_proxy_srv_data_recv(buf);
+        provisioner_proxy_srv_data_recv(buf, addr);
         break;
 
     default:
