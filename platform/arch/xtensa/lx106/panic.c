@@ -93,6 +93,9 @@ void xtensaPanic(void *context)
     if (g_crash_steps > 1) {
         print_str("double exception occur!\n");
         context = NULL;
+        vPortETSIntrLock();
+        krhino_sched_disable();
+        while(1);
     }
 
     panicHandler(context);
