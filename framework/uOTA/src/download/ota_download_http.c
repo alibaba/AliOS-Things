@@ -314,7 +314,7 @@ static int ota_download_start(void *pctx)
         ret = OTA_CANCEL;
     }
 END:
-    OTA_LOG_I("download finish ret:%d.", ret);
+    OTA_LOG_I("download finish ret:%d err:%d.", ret, errno);
     if(http_buffer)
         ota_free(http_buffer);
     if(sockfd)
