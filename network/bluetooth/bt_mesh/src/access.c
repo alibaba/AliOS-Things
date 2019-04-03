@@ -24,7 +24,7 @@
 #include "transport.h"
 #include "access.h"
 #include "foundation.h"
-#include "bt_mesh_custom_log.h"
+//#include "bt_mesh_custom_log.h"
 
 static const struct bt_mesh_comp *dev_comp;
 static u16_t dev_primary_addr;
