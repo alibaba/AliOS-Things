@@ -33,7 +33,7 @@
 #include "beacon.h"
 #include "main.h"
 #include <mesh_config.h>
-#include "bt_mesh_custom_log.h"
+//#include "bt_mesh_custom_log.h"
 
 /* Minimum valid Mesh Network PDU length. The Network headers
  * themselves take up 9 bytes. After that there is a minumum of 1 byte
@@ -889,6 +889,14 @@ int bt_mesh_net_send(struct bt_mesh_net_tx *tx, struct net_buf *buf,
 	 * "The output filter of the interface connected to advertising or
 	 * GATT bearers shall drop all messages with TTL value set to 1."
 	 */
+
+#if CONFIG_BT_MESH_PROVISIONER
+    if (IS_ENABLED(CONFIG_BT_MESH_GATT_PROXY) && bt_mesh_is_provisioner_en()) {
+        if (0 == provisioner_proxy_pdu_send(&buf->b)) {
+        	goto done;
+		}
+    }
+#else
 	if (IS_ENABLED(CONFIG_BT_MESH_GATT_PROXY) &&
 	    tx->ctx->send_ttl != 1) {
 		if (bt_mesh_proxy_relay(&buf->b, tx->ctx->addr) &&
@@ -910,6 +918,7 @@ int bt_mesh_net_send(struct bt_mesh_net_tx *tx, struct net_buf *buf,
 			goto done;
 		}
 	}
+#endif
 
 	/* Deliver to local network interface if necessary */
 	if (bt_mesh_fixed_group_match(tx->ctx->addr) ||

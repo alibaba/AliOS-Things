@@ -391,10 +391,14 @@ static struct bt_mesh_prov prov = {
 	.reset = prov_reset,
 	//.static_val = NULL,
 	//.static_val_len = 0,
+	//.output_size = 0,
+	//.output_actions = 0,
 	.output_size = 6,
 	.output_actions = (BT_MESH_DISPLAY_NUMBER | BT_MESH_DISPLAY_STRING),
 	.output_number = output_number,
 	.output_string = output_string,
+	//.input_size = 0,
+	//.input_actions = 0,
 	.input_size = 6,
 	.input_actions = (BT_MESH_ENTER_NUMBER | BT_MESH_ENTER_STRING),
 	.input = input,
@@ -413,7 +417,7 @@ static void provisioner_link_close(bt_mesh_prov_bearer_t bearer)
 
 static void provisioner_complete(int node_idx, const u8_t device_uuid[16],
                                  u16_t unicast_addr, u8_t element_num,
-                                 u16_t netkey_idx)
+                                 u16_t netkey_idx, bool gatt_flag)
 {
 	printk("provisioner_complete\r\n");
 	printk("node_idx: %d\r\n", node_idx);
@@ -423,6 +427,7 @@ static void provisioner_complete(int node_idx, const u8_t device_uuid[16],
 	printk("unicast_addr: %u\r\n", unicast_addr);
 	printk("element_num: %u\r\n", element_num);
 	printk("netkey_idx: %u\r\n", netkey_idx);
+	printk("gatt_flag: %u\r\n", gatt_flag);
 }
 
 static int provisioner_input_num(bt_mesh_output_action_t act, u8_t size)
@@ -2281,7 +2286,7 @@ static int cmd_bunch_pb_adv(int argc, char *argv[])
 static int cmd_bunch_pb_gatt(int argc, char *argv[])
 {
 	cmd_uuid(argc, argv);
-        prov_bear = BT_MESH_PROV_ADV | BT_MESH_PROV_GATT;
+        prov_bear = BT_MESH_PROV_GATT;
 	cmd_init(0, NULL);
 	return 0;
 }

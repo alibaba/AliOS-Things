@@ -283,7 +283,7 @@ struct bt_mesh_provisioner {
      */
     void (*prov_complete)(int node_idx, const u8_t device_uuid[16],
                           u16_t unicast_addr, u8_t element_num,
-                          u16_t netkey_idx);
+                          u16_t netkey_idx, bool gatt_flag);
 };
 
 /** @brief Initialize Mesh support
