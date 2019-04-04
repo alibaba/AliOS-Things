@@ -197,11 +197,4 @@ void HardFault_Handler(void)
 }
 #endif
 
-#if defined (AOS_COMP_CLI)
-/*use in _panic*/
-
-void panic_cli_board_config(void)
-{
-}
-#endif
 
