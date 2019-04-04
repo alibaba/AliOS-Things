@@ -12,7 +12,8 @@ GLOBAL_CFLAGS += -DCONFIG_DM_DEVTYPE_SINGLE  \
                  -DMQTT_DIRECT \
                  -DCONFIG_YWSS \
                  -DWIFI_PROVISION_ENABLED \
-                 -DAWSS_SUPPORT_DEV_AP
+                 -DAWSS_SUPPORT_DEV_AP \
+                 -DBUILD_AOS
 
 
 ifeq ($(case),sched)
