@@ -32,7 +32,7 @@ void watchdog_irq_set(void)
 
 int32_t hal_wdg_init(wdg_dev_t *wdg)
 {
-	uint32_t msecs = wdg->config.timeout;
+	uint32_t msecs = wdg->config.timeout/2;
 	printf("hal_wdg_init, set timeout:%d ms\n", msecs);
 	watchdog_init(msecs);
 	watchdog_irq_set();
