@@ -1,18 +1,15 @@
 NAME := libprov
 
-DEBUG := no
+GLOBAL_INCLUDES += ../include/prov
 
-ifneq (,$(BINS))
-ifeq ($(MBEDTLS_SHARE),1)
-$(NAME)_TYPE := framework&kernel
+$(NAME)_COMPONENTS := alicrypto
+$(NAME)_COMPONENTS += irot
+
+ifeq ($(HOST_ARCH), linux)
+HOST_NAME := $(HOST_ARCH)
 else
-$(NAME)_TYPE := kernel
+HOST_NAME := $(shell echo $(CONFIG_SYSINFO_DEVICE_NAME)|tr A-Z a-z)
 endif
-endif
 
-GLOBAL_INCLUDES     += include
-
-$(NAME)_COMPONENTS := alicrypto irot
-
-$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/libprov.a
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_NAME)/libprov.a
 

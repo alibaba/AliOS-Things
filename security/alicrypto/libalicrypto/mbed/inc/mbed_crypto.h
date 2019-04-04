@@ -26,17 +26,10 @@
 #include "hmac.h"
 
 #if CONFIG_DBG_CRYPT
-#if defined(LOG_SIMPLE)
-#define MBED_DBG_E(_f, ...) \
-        printf("Crypto E file %s, line %d\n\r", __FILE__, __LINE__, ##__VA_ARGS__)
+#define MBED_DBG_E(_f, _a ...) \
+        printf("E %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
 #define MBED_DBG_I(_f, ...) \
-        printf("Crypto I file %s, line %d\n\r", __FILE__, __LINE__, ##__VA_ARGS__)
-#else
-#define MBED_DBG_E(_f, ...) \
-        printf("E %s %d: "_f, __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define MBED_DBG_I(_f, ...) \
-        printf("I %s %d: "_f, __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#endif
+        printf("I %s %d: "_f, __FUNCTION__, __LINE__, ##_a)
 #else
 #define MBED_DBG_E(_f, _a...)
 #define MBED_DBG_I(_f, _a...)
