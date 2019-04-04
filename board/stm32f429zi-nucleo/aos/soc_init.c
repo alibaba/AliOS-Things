@@ -233,9 +233,3 @@ GETCHAR_PROTOTYPE
   }
 }
 
-#if defined (AOS_COMP_CLI)
-
-void panic_cli_board_config(void)
-{
-}
-#endif
