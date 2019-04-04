@@ -14,7 +14,6 @@ $(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/driver/ble
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/beken/alios/entry
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/aos/framework_runtime
 $(NAME)_COMPONENTS += platform/mcu/bk7231u/aos/app_runtime
-$(NAME)_COMPONENTS += prov
 $(NAME)_COMPONENTS += hal
 
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
