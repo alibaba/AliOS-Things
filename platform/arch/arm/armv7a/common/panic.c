@@ -250,7 +250,6 @@ void exceptionHandler(void *context)
 {
     g_crash_steps++;
     if (g_crash_steps > 1) {
-        printf("double exception occur!\n");
         context = NULL;
     }
 

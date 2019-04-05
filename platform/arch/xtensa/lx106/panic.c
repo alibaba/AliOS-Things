@@ -20,7 +20,7 @@ int print_str(const char *fmt, ...)
 
     strncpy(prt_info, fmt, sizeof(prt_info));
     prt_info[127] = '\0';
-    
+
     return PANIC_PRINT(prt_info);
 }
 
@@ -91,7 +91,6 @@ void xtensaPanic(void *context)
 
     g_crash_steps++;
     if (g_crash_steps > 1) {
-        print_str("double exception occur!\n");
         context = NULL;
     }
 

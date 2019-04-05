@@ -71,10 +71,3 @@ void entry_main(void)
 }
 
 
-#if defined (AOS_COMP_CLI)
-/*use in panic*/
-
-void panic_cli_board_config(void)
-{
-}
-#endif

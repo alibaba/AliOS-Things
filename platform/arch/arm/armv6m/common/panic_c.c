@@ -448,7 +448,7 @@ int panicBacktraceCaller(char *PC, int *SP,
     }
 
     bt_sp = SP;
-    bt_pc = PC;
+    bt_pc = LR_2_ADDR(PC);
     ret   = -1;
     for (lvl = 0; lvl < BACK_TRACE_LIMIT; lvl++) {
         ret = backtraceFromStack(&bt_sp, &bt_pc, NULL);
