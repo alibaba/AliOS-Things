@@ -386,7 +386,7 @@ int wifi_start_softap(hal_wifi_init_type_t *init_para)
 
 static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
 {
-    DBG_8195A("wifi_start ssid %s, key %s \r\n", init_para->wifi_ssid, init_para->wifi_key);
+    DBG_8195A("wifi_start ssid %s\r\n", init_para->wifi_ssid);
     if (NULL == m || NULL == init_para) {
         DBG_8195A("wifi_start: invalid parameter\n");
         return -1;
@@ -395,7 +395,8 @@ static int wifi_start(hal_wifi_module_t *m, hal_wifi_init_type_t *init_para)
     hal_wifi_init_type_t * init_para_ptr = rtw_malloc(sizeof(hal_wifi_init_type_t));
     strcpy(init_para_ptr->wifi_ssid, init_para->wifi_ssid);
     strcpy(init_para_ptr->wifi_key, init_para->wifi_key);
-    DBG_8195A("wifi_ssid =%s,wifi_key=%s\n",init_para_ptr->wifi_ssid,init_para_ptr->wifi_key);
+    DBG_8195A("wifi_ssid =%s, wifi_mode %d\n",
+              init_para_ptr->wifi_ssid, init_para_ptr->wifi_mode);
     if(init_para->wifi_mode == STATION) {
         DBG_8195A("wifi_mode == STATION \n");
         aos_task_new("wifi_connect", wifi_connect_task, init_para_ptr, 4096);
@@ -507,6 +508,16 @@ static int get_channel(hal_wifi_module_t *m)
     return ch;
 }
 
+monitor_data_cb_t g_monitor_cb = NULL;
+monitor_data_cb_t g_monitor_cb_handler = NULL;
+
+void monitor_rx_handle(unsigned char* data, unsigned int len, void *info)
+{
+    if (g_monitor_cb_handler) {
+        g_monitor_cb_handler(data, len, info);
+    }
+}
+
 static void start_monitor(hal_wifi_module_t *m)
 {
     DBG_8195A("start_monitor\r\n");
@@ -514,7 +525,8 @@ static void start_monitor(hal_wifi_module_t *m)
 #if CONFIG_AUTO_RECONNECT
     wifi_set_autoreconnect(RTW_AUTORECONNECT_DISABLE);
 #endif
-    
+
+    g_monitor_cb_handler = g_monitor_cb;
     wifi_enter_promisc_mode();
 
     return;
@@ -524,9 +536,10 @@ static void stop_monitor(hal_wifi_module_t *m)
 {
     DBG_8195A("stop_monitor\r\n");
 
+    g_monitor_cb_handler = NULL;
 //    wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
 // #if CONFIG_AUTO_RECONNECT
-//     wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
+//    wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
 // #endif
    
     return;
@@ -542,8 +555,10 @@ static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
     wifi_on(RTW_MODE_PROMISC);
     wifi_disable_powersave();   
 
+    g_monitor_cb = fn;
+
     DBG_8195A("register_monitor_cb\r\n");
-    wifi_set_promisc(RTW_PROMISC_ENABLE_2, fn, 0);
+    wifi_set_promisc(RTW_PROMISC_ENABLE_2, monitor_rx_handle, 0);
     return;
 }
 
