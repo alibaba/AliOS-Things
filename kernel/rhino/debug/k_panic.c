@@ -6,6 +6,8 @@
 #include "aos/cli.h"
 
 
+#define DEBUG_PANIC_STEP_MAX    32
+
 /* ARMCC and ICCARM do not use heap when printf a string, but gcc dose*/
 #if defined(__CC_ARM)
 #define print_str printf
@@ -25,6 +27,7 @@ __attribute__((weak)) int print_str(const char *fmt, ...)
     fflush(stdout);
     return ret;
 }
+
 /* on some platform, the libc printf use the heap, while the heap maybe corrupt
    when panic.
    Redefining a new print_str without using heap is advised on these platform.
@@ -45,10 +48,10 @@ extern int  panicBacktraceCallee(char *PC, int *SP, char *LR,
 /* how many steps has finished when crash */
 volatile uint32_t g_crash_steps = 0;
 
-
-static void panic_debug(void)
+static void panic_goto_cli(void)
 {
-#ifdef CONFIG_AOS_CLI
+#if (defined (AOS_COMP_CLI) && (RHINO_CONFIG_KOBJ_LIST > 0))
+
     klist_t      *listnode;
     ktask_t      *task;
 
@@ -69,10 +72,9 @@ static void panic_debug(void)
     if (0 != strcmp("cli", task->task_name)) {
         krhino_task_suspend(task);
     }
-#else
-    while(1);
 #endif
 }
+
 
 /* should exeception be restored?
    reture 1 YES, 0 NO*/
@@ -97,21 +99,19 @@ void panicHandler(void *context)
     static char *PC = NULL;
     static char *LR = NULL;
 
-
     krhino_sched_disable();
 
-    if (context != NULL) {
-        panicGetCtx(context, &PC, &LR, &SP);
-    }
-
     /* g_crash_steps++ before panicHandler */
-    if (g_crash_steps > 1) {
+    if (g_crash_steps > 1 && g_crash_steps < DEBUG_PANIC_STEP_MAX) {
         print_str("......\r\n");
     }
 
     switch (g_crash_steps) {
         case 1:
             print_str("!!!!!!!!!! Exception  !!!!!!!!!!\r\n");
+            if (context != NULL) {
+                panicGetCtx(context, &PC, &LR, &SP);
+            }
             panicShowRegs(context, print_str);
             g_crash_steps++;
         case 2:
@@ -127,67 +127,88 @@ void panicHandler(void *context)
                 }
             }
             g_crash_steps++;
-        case 3:
 #if (RHINO_CONFIG_BACKTRACE > 0)
-            /* Backtrace: assume ReturnAddr is saved in stack when exception */
+        /* 3 steps, 3 ways to try backtrace */
+        case 3:
+            /* Backtrace 1st try: assume ReturnAddr is saved in stack when exception */
             if (SP != NULL) {
                 print_str("========== Call stack ==========\r\n");
                 lvl = panicBacktraceCaller(PC, SP, print_str);
                 if (lvl > 0) {
-                    /* trace success, jumpover next step */
-                    g_crash_steps++;
+                    /* backtrace success, do not try other way */
+                    g_crash_steps += 2;
                 }
+                /* else, backtrace fail, try another way */
             }
-#endif
             g_crash_steps++;
         case 4:
             if (g_crash_steps == 4) {
-#if (RHINO_CONFIG_BACKTRACE > 0)
-                /* Backtrace: assume ReturnAddr is saved in LR when exception */
+                /* Backtrace 2nd try: assume ReturnAddr is saved in LR when exception */
                 if (SP != NULL) {
-                    (void)panicBacktraceCallee(PC, SP, LR, print_str);
+                    lvl = panicBacktraceCallee(PC, SP, LR, print_str);
+                    if (lvl > 0) {
+                        /* backtrace success, do not try other way */
+                        g_crash_steps += 1;
+                    }
+                    /* else, backtrace fail, try another way */
                 }
-#endif
                 g_crash_steps++;
             }
-#if (RHINO_CONFIG_PANIC_OVERVIEW > 0)
         case 5:
+            if (g_crash_steps == 5) {
+                /* Backtrace 3rd try: assume PC is invalalb, backtrace from LR */
+                if (SP != NULL) {
+                    (void)panicBacktraceCaller(LR, SP, print_str);
+                }
+                g_crash_steps++;
+            }
+#else
+            g_crash_steps = 6;
+#endif
+#if (RHINO_CONFIG_PANIC_OVERVIEW > 0)
+        case 6:
 #if (RHINO_CONFIG_MM_TLF > 0)
             print_str("========== Heap Info  ==========\r\n");
             krhino_mm_overview(print_str);
 #endif
             g_crash_steps++;
-        case 6:
+        case 7:
             print_str("========== Task Info  ==========\r\n");
             krhino_task_overview(print_str);
             g_crash_steps++;
-        case 7:
+        case 8:
 #if (RHINO_CONFIG_QUEUE > 0)
             print_str("========== Queue Info ==========\r\n");
             krhino_queue_overview(print_str);
 #endif
             g_crash_steps++;
-        case 8:
+        case 9:
 #if (RHINO_CONFIG_BUF_QUEUE > 0)
             print_str("======== Buf Queue Info ========\r\n");
             krhino_buf_queue_overview(print_str);
 #endif
             g_crash_steps++;
-        case 9:
+        case 10:
 #if (RHINO_CONFIG_SEM > 0)
             print_str("=========== Sem Info ===========\r\n");
             krhino_sem_overview(print_str);
 #endif
             g_crash_steps++;
-        case 10:
+#else
+            g_crash_steps = 11;
 #endif
+        case 11:
             print_str("!!!!!!!!!! dump end   !!!!!!!!!!\r\n");
+            g_crash_steps++;
+        /* for debug version, last step is CLI */
+        case 12:
+            panic_goto_cli();
             g_crash_steps++;
         default:
             break;
     }
 
-    panic_debug();
+    while (1);
 }
 
 #endif
