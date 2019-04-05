@@ -220,7 +220,8 @@ int alink_connect_to_ap(unsigned char *ssid, unsigned char ssid_len, unsigned ch
 		memcpy(alink_wifi_config.password, wifi_info.password, strlen(wifi_info.password));
 	}
 	while (connect_retry) {
-		DBG_8195A("\r\nwifi_connect to ssid: %s, type %d, password %s\r\n", wifi_info.ssid.val, wifi_info.security_type, wifi_info.password);
+		//DBG_8195A("\r\nwifi_connect to ssid: %s, type %d, password %s\r\n", wifi_info.ssid.val, wifi_info.security_type, wifi_info.password);
+		DBG_8195A("\r\nwifi_connect to ssid: %s\r\n", wifi_info.ssid.val);
 		ret = wifi_connect(wifi_info.ssid.val, wifi_info.security_type, 
 				   wifi_info.password, wifi_info.ssid.len, 
 				   wifi_info.password_len,
@@ -281,9 +282,9 @@ void wifi_connect_task(void *arg)
 		DBG_8195A("init_para == NULL");
         return;
     }
-	DBG_8195A("init_para->wifi_ssid =%s,init_para->wifi_key=%s\n",init_para->wifi_ssid,init_para->wifi_key);
+    //DBG_8195A("init_para->wifi_ssid =%s,init_para->wifi_key=%s\n",init_para->wifi_ssid,init_para->wifi_key);
     ret = alink_connect_to_ap(init_para->wifi_ssid, strlen(init_para->wifi_ssid), 
-        init_para->wifi_key, strlen(init_para->wifi_key));
+    init_para->wifi_key, strlen(init_para->wifi_key));
 
     rtw_free(init_para);
     aos_task_exit(0);
