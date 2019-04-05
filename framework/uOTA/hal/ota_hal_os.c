@@ -228,15 +228,24 @@ static void task_wrapper(void *arg)
     }
 }
 #endif
+
 #define OTA_THREAD_NAME "OTA_Thread"
-#define OTA_THREAD_SIZE 4096
+#if defined AOS_OTA_TLS
+#define OTA_THREAD_SIZE (8 * 1024)
+#else
+#define OTA_THREAD_SIZE (4 * 1024)
+#endif
 #define OTA_THREAD_PRI 30
+
 /*Thread create*/
 int ota_thread_create(void **thread_handle, void *(*work_routine)(void *), void *arg, void *pm, int stack_size)
 {
     int ret = -1;
 #if defined OTA_WITH_LINKKIT
-    ret = HAL_ThreadCreate(thread_handle, work_routine, arg, NULL, 0);
+    hal_os_thread_param_t task_parms;
+    task_parms.stack_size = OTA_THREAD_SIZE;
+    task_parms.name       = OTA_THREAD_NAME;
+    ret = HAL_ThreadCreate(thread_handle, work_routine, arg, &task_parms, 0);
 #elif !defined OTA_LINUX
     char * tname = OTA_THREAD_NAME;
     if(stack_size <= 0) {
