@@ -21,6 +21,7 @@
 #include <time.h>
 #include <ucontext.h>
 #include <sys/syscall.h>
+#include "k_dbg_api.h"
 
 #ifdef HAVE_VALGRIND_H
 #include <valgrind.h>
@@ -731,3 +732,19 @@ void cpu_sig_handler(int signo, siginfo_t *si, void *ucontext)
     leave_signal(signo);
 }
 
+#if (RHINO_CONFIG_PANIC > 0)
+void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
+{
+    context = NULL;
+    return;
+}
+void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP)
+{
+    context = NULL;
+    return;
+}
+int  panicBacktraceCaller(char *PC, int *SP, int (*print_func)(const char *fmt, ...)) {return 0;}
+int  panicBacktraceCallee(char *PC, int *SP, char *LR, int (*print_func)(const char *fmt, ...)) {return 0;}
+int  backtrace_now(int (*print_func)(const char *fmt, ...)) {return 0;}
+int  backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...)) {return 0;}
+#endif

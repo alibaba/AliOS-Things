@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include "k_dbg_api.h"
 #include "aos/cli.h"
+#include "k_compiler.h"
 
 
 #define DEBUG_PANIC_STEP_MAX    32

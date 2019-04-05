@@ -11,9 +11,10 @@ extern "C"
 #endif
 
 #if (RHINO_CONFIG_PANIC > 0)
-    /* fault/exception entry
-       notice: this function maybe reentried by double exception */
-    void panicHandler(void *context);
+/* fault/exception entry
+    notice: this function maybe reentried by double exception */
+void panicHandler(void *context);
+void debug_fatal_error(kstat_t err, char *file, int line);
 #endif
 
 #ifdef __cplusplus

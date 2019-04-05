@@ -3,6 +3,7 @@
  */
 
 #include <k_api.h>
+#include <k_dbg_api.h>
 
 void k_err_proc(kstat_t err)
 {

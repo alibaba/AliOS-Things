@@ -7,18 +7,17 @@
 #if (RHINO_CONFIG_BACKTRACE > 0)
 
 /* follow functions should defined by arch\...\backtrace.c */
-extern int backtraceNow(int (*print_func)(const char *fmt, ...));
-extern int backtraceTask(char *taskname,
-                         int (*print_func)(const char *fmt, ...));
+extern int backtrace_now(int (*print_func)(const char *fmt, ...));
+extern int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...));
 
 void krhino_backtrace_now()
 {
-    backtraceNow(printf);
+    backtrace_now(printf);
 }
 
 void krhino_backtrace_task(char *taskname)
 {
-    backtraceTask(taskname, printf);
+    backtrace_task(taskname, printf);
 }
 
 #endif
