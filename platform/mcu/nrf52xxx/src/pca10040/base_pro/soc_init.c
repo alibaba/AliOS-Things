@@ -21,7 +21,7 @@ uart_dev_t uart_0;
 void uart_handler(app_uart_evt_t * p_event)
 {
     /*
-    switch (p_event->evt_type) 
+    switch (p_event->evt_type)
     {
         case APP_UART_DATA_READY:
         {
@@ -37,12 +37,12 @@ void uart_handler(app_uart_evt_t * p_event)
             {
                 printf("Exit!\r\n");
             }
-            else 
+            else
             {
                 app_uart_put(byte);
             }
         } break;
-        
+
         case APP_UART_TX_EMPTY:
         {
             // TX complete
@@ -131,7 +131,7 @@ GETCHAR_PROTOTYPE
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
   uint8_t ch = EOF;
   int32_t ret = -1;
-  
+
   ret = hal_uart_recv(&uart_0, &ch, 1, HAL_WAIT_FOREVER);
 
   if (ret == 0) {
@@ -150,7 +150,7 @@ void os_hwi_set_handler(uint32_t irq, void *func, uint32_t param)
 	(void)param;
 	irgfun = (uint32_t *)&__isr_vector + ( 16 + irq);
 	*irgfun = func;
-	
+
 }
 
 
@@ -178,7 +178,7 @@ int g_msp_value,g_psp_value;
 int g_hardfault_num = 0;
 
 
-typedef struct task_context_s 
+typedef struct task_context_s
 {
     uint32_t R0;
     uint32_t R1;
@@ -195,7 +195,7 @@ typedef struct task_context_s
     uint32_t S3;
     uint32_t S4;
     uint32_t S5;
-    uint32_t S6;    
+    uint32_t S6;
     uint32_t S7;
     uint32_t S8;
     uint32_t S9;
@@ -203,7 +203,7 @@ typedef struct task_context_s
     uint32_t S11;
     uint32_t S12;
     uint32_t S13;
-    uint32_t S14;    
+    uint32_t S14;
     uint32_t S15;
     uint32_t FSCR;
 #endif
@@ -236,7 +236,7 @@ void print_stack_mem(void* addr,int len)
     }
     printf("\r\n");
     return;
-    
+
 }
 
 
@@ -246,7 +246,7 @@ void print_sys_reg(void)
 
     ASM_MRS(PSR,val);
     printf("\r\nPSR:0x%x",val);
-    
+
     ASM_MRS(IPSR,val);
     printf("\r\nIPSR:0x%x",val);
 
@@ -270,7 +270,7 @@ void print_sys_reg(void)
 void print_sys_variable(void)
 {
     uint8_t cur_cpu_num;
-    
+
     cur_cpu_num = cpu_cur_get();
     printf("\r\ng_sys_stat:0x%x",g_sys_stat);
     printf("\r\ng_sched_lock:%d",g_sched_lock[cur_cpu_num]);
@@ -282,7 +282,7 @@ __INLINE void cpu_hardfault_handle(void)
 {
     /*msp\psp get and print*/
     ASM_MRS(msp,g_msp_value);
-    
+
     ASM_MRS(psp,g_psp_value);
 
     print_stack_context((kcontext_t *)g_msp_value,sizeof(kcontext_t));
@@ -300,8 +300,8 @@ __INLINE void cpu_hardfault_handle(void)
     //print_sys_variable();
 
     /*trace info can be get by cli cmd below*/
-    
-    /*cli*/ 
+
+    /*cli*/
     //cli_main(NULL);
 }
 
@@ -317,9 +317,3 @@ void HardFault_Handler(void)
 }
 #endif
 
-#if defined (AOS_COMP_CLI)
-
-void panic_cli_board_config(void)
-{
-}
-#endif
