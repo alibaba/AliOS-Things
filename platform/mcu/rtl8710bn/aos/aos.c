@@ -195,10 +195,3 @@ void main(void)
     return;
 }
 
-#if defined (AOS_COMP_CLI)
-/*use in panic*/
-
-void panic_cli_board_config(void)
-{
-}
-#endif
