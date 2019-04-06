@@ -222,6 +222,9 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     int  x;
     int *SP = (int *)RHINO_GET_SP();
 
+    klist_t      *listnode;
+    ktask_t      *task;
+
     printf("!!!!!!!!!! Fatal Error !!!!!!!!!!\r\n");
     printf("errno:%d , file:%s, line:%d\r\n", err, file, line);
 
@@ -247,4 +250,21 @@ void debug_fatal_error(kstat_t err, char *file, int line)
 #if (RHINO_CONFIG_BACKTRACE > 0)
     krhino_backtrace_now();
 #endif
+    for (listnode = g_kobj_list.task_head.next;
+         listnode != &g_kobj_list.task_head; listnode = listnode->next) {
+        task = krhino_list_entry(listnode, ktask_t, task_stats_item);
+        if (0 != strcmp("cli", task->task_name)) {
+            krhino_task_suspend(task);
+        }
+    }
+
+    krhino_sched_enable();
+
+    krhino_task_overview(print_str);
+
+    /*suspend current task*/
+    task = g_active_task[cpu_cur_get()];
+    if (0 != strcmp("cli", task->task_name)) {
+        krhino_task_suspend(task);
+    }
 }
