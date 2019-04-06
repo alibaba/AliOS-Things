@@ -118,63 +118,68 @@ error:
 	return FALSE;
 }
 
-bool rtl8710bn_ota_prepare()
-{
-    alink_size = 0;
-    aliota_total_len = 0, aliota_flag = 1, aliota_count = 0;
-    aliota_address = 0;
-    aliota_RemainBytes = 0;	
-    aliota_ota_exit = 0;
-    aliota_ota_flag = 1;
-    aliota_tick1 = 0, aliota_tick2 = 0;
-    aliota_OtaFg = 0;
-    aliota_SigCnt = 0;
-    aliota_end_sig = 0;
-    uint32_t part = HAL_PARTITION_OTA_TEMP;
-    alink_ota_target_index = check_ota_index();
-    if(prepare_ota_address(alink_ota_target_index, &alinknewImg2Addr) != TRUE){
-	    printf("get addr failed\n");
-	    return FALSE;
-    }
-
-    if(alink_ota_target_index == OTA_INDEX_1) {
-	    part = HAL_PARTITION_APPLICATION;
-    }else if(alink_ota_target_index == OTA_INDEX_2) {
-	    part = HAL_PARTITION_OTA_TEMP;
-    }else {
-	    printf("flash failed\n");
-	    return FALSE;
-    }
-
-    partition_info = hal_flash_get_info(part);
-    if(partition_info == NULL) {
-	    printf("flash info failed\n");
-	    return FALSE;
-    }
-
-    /*-------------------erase flash space for new firmware--------------*/
-    erase_ota_target_flash(alinknewImg2Addr, partition_info->partition_length);
-    DBG_INFO_MSG_OFF(_DBG_SPI_FLASH_);
-    HeadBuffer = rtw_malloc(OTA_HEADER_BUF_SIZE);
-    if (HeadBuffer == NULL) {
-	    printf("malloc head failed\n");
-	    return FALSE;
-    }
-    return TRUE;
-}
-
 static int ota_init(void *something)
-{    
+{   
+    int ret = 0;
     ota_boot_param_t *param = (ota_boot_param_t *)something;
+    uint32_t part = HAL_PARTITION_OTA_TEMP;
     uint32_t offset = param->off_bp;
     printf("ota_init off:0x%x \n",offset);
-    if(offset==0) {
-        /* prepare to os update  */
-        if (rtl8710bn_ota_prepare() != TRUE) {
-                return -1;
-        }
+    alink_ota_target_index = check_ota_index();
+    if(prepare_ota_address(alink_ota_target_index, &alinknewImg2Addr) != TRUE){
+        printf("get addr failed\n");
+        ret = -1;
+        goto RTL8710BN_INIT_ERRO;
     }
-    return 0;
+    if(alink_ota_target_index == OTA_INDEX_1) {
+        part = HAL_PARTITION_APPLICATION;
+    }
+    else if(alink_ota_target_index == OTA_INDEX_2) {
+         part = HAL_PARTITION_OTA_TEMP;
+    }
+    else {
+         printf("flash failed\n");
+         ret = -1;
+         goto RTL8710BN_INIT_ERRO;
+    }
+    partition_info = hal_flash_get_info(part);
+    if(partition_info == NULL) {
+        printf("flash info failed\n");
+        ret = -1;
+        goto RTL8710BN_INIT_ERRO;
+    }
+    /**dual image pack size + info head(asume 512bytes)**/
+    if((partition_info->partition_length * 2 + 512) < param->len || param->len == 0) {
+        ret = -17;
+        goto RTL8710BN_INIT_ERRO;
+    }
+    if(offset == 0) {
+          alink_size = 0;
+          aliota_total_len = 0;
+          aliota_flag = 1;
+          aliota_count = 0;
+          aliota_address = 0;
+          aliota_RemainBytes = 0;	
+          aliota_ota_exit = 0;
+          aliota_ota_flag = 1;
+          aliota_tick1 = 0;
+          aliota_tick2 = 0;
+          aliota_OtaFg = 0;
+          aliota_SigCnt = 0;
+          aliota_end_sig = 0;
+          /*-------------------erase flash space for new firmware--------------*/
+          erase_ota_target_flash(alinknewImg2Addr, partition_info->partition_length);
+          DBG_INFO_MSG_OFF(_DBG_SPI_FLASH_);
+          HeadBuffer = rtw_malloc(OTA_HEADER_BUF_SIZE);
+          if (HeadBuffer == NULL) {
+              printf("malloc head failed\n");
+              ret = -1;
+              goto RTL8710BN_INIT_ERRO;
+          }
+    }
+RTL8710BN_INIT_ERRO:
+    printf("ota init over!\r\n");
+    return ret;
 }
 
 static int ota_write(int* off_set,char *buffer,int len)
