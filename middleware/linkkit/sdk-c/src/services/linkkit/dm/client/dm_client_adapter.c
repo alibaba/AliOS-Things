@@ -41,8 +41,16 @@ int dm_client_open(void)
 
 int dm_client_connect(int timeout_ms)
 {
-    int res = 0;
+    int res = SUCCESS_RETURN;
     dm_client_ctx_t *ctx = dm_client_get_ctx();
+
+    if (ctx->fd == -1) {
+        res = dm_client_open();
+    }
+
+    if (res != SUCCESS_RETURN) {
+        return res;
+    }
 
     res = iotx_cm_connect(ctx->fd, timeout_ms);
     if (res < SUCCESS_RETURN) {
@@ -54,9 +62,16 @@ int dm_client_connect(int timeout_ms)
 
 int dm_client_close(void)
 {
+    int ret;
+
     dm_client_ctx_t *ctx = dm_client_get_ctx();
 
-    return iotx_cm_close(ctx->fd);
+    ret = iotx_cm_close(ctx->fd);
+    if (ret == 0) {
+        ctx->fd = -1;
+    }
+
+    return ret;
 }
 
 int dm_client_subscribe(char *uri, iotx_cm_data_handle_cb callback, void *context)
