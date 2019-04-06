@@ -336,6 +336,13 @@ static void duration_work(void *p)
 
 static int mqtt_connected_event_handler(void)
 {
+    static ota_service_inited = false;
+
+    if (ota_service_inited == true) {
+        return 0;
+    }
+
+    ota_service_inited = true;
     LOG("MQTT Construct  OTA start");
 #if defined(OTA_ENABLED) && defined(BUILD_AOS)
     char product_key[PRODUCT_KEY_LEN + 1] = {0};
