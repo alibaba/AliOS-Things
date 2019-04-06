@@ -119,11 +119,11 @@ error:
 }
 
 static int ota_init(void *something)
-{   
+{
     int ret = 0;
     ota_boot_param_t *param = (ota_boot_param_t *)something;
     uint32_t part = HAL_PARTITION_OTA_TEMP;
-    uint32_t offset = param->off_bp;
+    uint32_t offset = 0;
     printf("ota_init off:0x%x \n",offset);
     alink_ota_target_index = check_ota_index();
     if(prepare_ota_address(alink_ota_target_index, &alinknewImg2Addr) != TRUE){
@@ -159,7 +159,7 @@ static int ota_init(void *something)
           aliota_flag = 1;
           aliota_count = 0;
           aliota_address = 0;
-          aliota_RemainBytes = 0;	
+          aliota_RemainBytes = 0;
           aliota_ota_exit = 0;
           aliota_ota_flag = 1;
           aliota_tick1 = 0;
