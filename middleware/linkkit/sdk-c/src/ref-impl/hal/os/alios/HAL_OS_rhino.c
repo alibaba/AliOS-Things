@@ -701,6 +701,12 @@ int HAL_GetNetifInfo(char *nif_str)
     /* if the device have ETH, WIFI, GSM connections, then list all of them as follow, note that the len MUST NOT exceed NIF_STRLEN_MAX */
     // const char *multi_net_info = "ETH|0123456789abcde|WiFi|03ACDEFF0032|Cellular|imei_0123456789abcde|iccid_0123456789abcdef01234|imsi_0123456789abcde|msisdn_86123456789ab");
     // strncpy(nif_str, multi_net_info, strlen(multi_net_info));
+#else
+    uint8_t mac[6];
+
+    memset(mac, 0x0, 6);
+    hal_wifi_get_mac_addr(NULL, mac);
+    snprintf(nif_str, NIF_STRLEN_MAX, "WiFi|%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 #endif
     return strlen(nif_str);
 }
