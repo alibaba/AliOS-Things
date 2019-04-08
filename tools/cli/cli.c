@@ -607,6 +607,8 @@ static void devname_cmd(char *buf, int len, int argc, char **argv);
 static void reboot_cmd(char *buf, int len, int argc, char **argv);
 static void uptime_cmd(char *buf, int len, int argc, char **argv);
 static void ota_cmd(char *buf, int len, int argc, char **argv);
+static void pmem_cmd(char *buf, int32_t len, int32_t argc, char **argv);
+static void mmem_cmd(char *buf, int32_t len, int32_t argc, char **argv);
 
 static const struct cli_command built_ins[] = {
     /*cli self*/
@@ -625,6 +627,8 @@ static const struct cli_command built_ins[] = {
     /*aos_rhino*/
     {"time",        "system time",       uptime_cmd},
     {"ota",         "system ota",        ota_cmd},
+    { "p", "print memory", pmem_cmd },
+    { "m", "modify memory", mmem_cmd },
 
 };
 
@@ -725,6 +729,130 @@ static void ota_cmd(char *buf, int len, int argc, char **argv)
 }
 
 /* ------------------------------------------------------------------------- */
+
+
+static void pmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
+{
+    int32_t i;
+    int32_t nunits = 16;
+    int32_t width  = 4;
+
+    char *pos    = NULL;
+    char *addr   = NULL;
+
+    switch (argc) {
+        case 4:
+            width = strtoul(argv[3], NULL, 0);
+        case 3:
+            nunits = strtoul(argv[2], NULL, 0);
+            nunits = nunits > 0x400 ? 0x400 : nunits;
+        case 2:
+            addr = (char *)strtoul(argv[1], &pos, 0);
+            break;
+        default:
+            break;
+    }
+
+    if (pos == NULL || pos == argv[1] || nunits > 0x1000 || addr == NULL) {
+        aos_cli_printf("p <addr> <nunits> <width>\r\n"
+                   "addr  : address to display\r\n"
+                   "nunits: number of units to display (default is 16)\r\n"
+                   "width : width of unit, 1/2/4 (default is 4)\r\n");
+        return;
+    }
+
+    switch (width) {
+        case 1:
+            for (i = 0; i < nunits; i++) {
+                if (i % 16 == 0) {
+                    aos_cli_printf("0x%08x:", (uint32_t)addr);
+                }
+                aos_cli_printf(" %02x", *(unsigned char *)addr);
+                addr += 1;
+                if (i % 16 == 15) {
+                    aos_cli_printf("\r\n");
+                }
+            }
+            break;
+        case 2:
+            for (i = 0; i < nunits; i++) {
+                if (i % 8 == 0) {
+                    aos_cli_printf("0x%08x:", (uint32_t)addr);
+                }
+                aos_cli_printf(" %04x", *(unsigned short *)addr);
+                addr += 2;
+                if (i % 8 == 7) {
+                    aos_cli_printf("\r\n");
+                }
+            }
+            break;
+        default:
+            for (i = 0; i < nunits; i++) {
+                if (i % 4 == 0) {
+                    aos_cli_printf("0x%08x:", (uint32_t)addr);
+                }
+                aos_cli_printf(" %08x", *(unsigned int *)addr);
+                addr += 4;
+                if (i % 4 == 3) {
+                    aos_cli_printf("\r\n");
+                }
+            }
+            break;
+    }
+}
+
+static void mmem_cmd(char *buf, int32_t len, int32_t argc, char **argv)
+{
+    void *addr  = NULL;
+
+    int32_t  width = 4;
+    uint32_t value = 0;
+
+    uint32_t old_value;
+    uint32_t new_value;
+
+    switch (argc) {
+        case 4:
+            width = strtoul(argv[3], NULL, 0);
+        case 3:
+            value = strtoul(argv[2], NULL, 0);
+        case 2:
+            addr = (void *)strtoul(argv[1], NULL, 0);
+            break;
+        default:
+            addr = NULL;
+            break;
+    }
+
+    if (addr == NULL) {
+        aos_cli_printf("m <addr> <value> <width>\r\n"
+                   "addr  : address to modify\r\n"
+                   "value : new value (default is 0)\r\n"
+                   "width : width of unit, 1/2/4 (default is 4)\r\n");
+        return;
+    }
+
+    switch (width) {
+        case 1:
+            old_value = (uint32_t)(*(uint8_t volatile *)addr);
+            *(uint8_t volatile *)addr = (uint8_t)value;
+            new_value = (uint32_t)(*(uint8_t volatile *)addr);
+            break;
+        case 2:
+            old_value = (uint32_t)(*(unsigned short volatile *)addr);
+            *(unsigned short volatile *)addr = (unsigned short)value;
+            new_value = (uint32_t)(*(unsigned short volatile *)addr);
+            break;
+        case 4:
+        default:
+            old_value = *(uint32_t volatile *)addr;
+            *(uint32_t volatile *)addr = (uint32_t)value;
+            new_value = *(uint32_t volatile *)addr;
+            break;
+    }
+    aos_cli_printf("value on 0x%x change from 0x%x to 0x%x.\r\n", (uint32_t)addr,
+                   old_value, new_value);
+}
 
 int aos_cli_register_command(const struct cli_command *cmd)
 {
