@@ -339,6 +339,7 @@ int zconfig_get_ssid_passwd(uint8_t tods)
 #ifdef AWSS_SUPPORT_APLIST
         do {  /* amend SSID automatically */
             struct ap_info *ap = NULL;
+            int ssid_len = ZC_MAX_SSID_LEN - 1;
             ap = zconfig_get_apinfo(zc_bssid);
             if (ap == NULL || ap->ssid[0] == '\0')
                 break;
@@ -349,7 +350,9 @@ int zconfig_get_ssid_passwd(uint8_t tods)
                 break;
             }
 #endif
-            strncpy((char *)zc_ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
+            ssid_len = strlen((const char *)ap->ssid) > ssid_len ? ssid_len : strlen((const char *)ap->ssid);
+            if (is_utf8((const char *)ap->ssid, ssid_len) == 0)
+                strncpy((char *)zc_ssid, (const char *)ap->ssid, ZC_MAX_SSID_LEN - 1);
         } while (0);
 #endif
     } else {
@@ -985,7 +988,7 @@ int awss_recv_callback_smartconfig(struct parser_res *res)
                     strncpy((char *)zc_android_ssid, (const char *)ap_info->ssid, ZC_MAX_SSID_LEN - 1);
                 }
                 memcpy(zc_android_bssid, bssid, ETH_ALEN);
-                awss_trace("src %02x%02x%02x match %02x%02x%02x\n",
+                awss_trace("p2p src %02x%02x%02x match %02x%02x%02x\n",
                            zc_android_src[0], zc_android_src[1], zc_android_src[2],
                            zc_android_bssid[0], zc_android_bssid[1], zc_android_bssid[2]);
             }
