@@ -1927,7 +1927,7 @@ static void wifi_autoreconnect_thread(void *param)
 		}
 	}else
 	{
-        	DBG_8195A("\n\rauto reconnect failed...\n");
+        	DBG_8195A("\n\rauto reconnect failed, ret %d\n", ret);
         }
 #endif //#if CONFIG_LWIP_LAYER
 	aos_task_exit(0);
