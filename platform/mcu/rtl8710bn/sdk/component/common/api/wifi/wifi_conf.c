@@ -57,8 +57,6 @@ extern int inic_stop(void);
 
 extern struct netif xnetif[NET_IF_NUM];
 
-unsigned char enable_softap_adjust_phy = 0;
-
 /******************************************************
  *               Variables Definitions
  ******************************************************/
@@ -1922,7 +1920,7 @@ static void wifi_autoreconnect_thread(void *param)
 		}
 	}else
 	{
-        	DBG_8195A("\n\rauto reconnect failed...\n");
+        	DBG_8195A("\n\rauto reconnect failed, ret %d\n", ret);
         }
 #endif //#if CONFIG_LWIP_LAYER
 	aos_task_exit(0);
@@ -2106,11 +2104,5 @@ int wifi_get_antenna_info(unsigned char *antenna)
 	return ret;
 }
 #endif
-
-int promisc_recv_lens_func(void *padapter, u8 *payload, u8 plen)
-{
-    return 0;
-}
-
 //----------------------------------------------------------------------------//
 #endif	//#if CONFIG_WLAN
