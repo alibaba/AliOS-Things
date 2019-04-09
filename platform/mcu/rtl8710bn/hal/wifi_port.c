@@ -548,21 +548,30 @@ static void start_monitor(hal_wifi_module_t *m)
     return;
 }
 
+void wifi_stop_monitor_task(void *arg)
+{
+    DBG_8195A("stop_monitor task create\r\n");
+    wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
+#if CONFIG_AUTO_RECONNECT
+    wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
+#endif
+    aos_task_exit(0);
+}
+
 static void stop_monitor(hal_wifi_module_t *m)
 {
     DBG_8195A("stop_monitor\r\n");
 
-    //wifi_set_promisc(RTW_PROMISC_DISABLE, NULL, 0);
-#if CONFIG_AUTO_RECONNECT
-    //wifi_set_autoreconnect(RTW_AUTORECONNECT_INFINITE);
-#endif   
+    aos_task_new("wifi", wifi_stop_monitor_task, NULL, 1024);
+    g_promisc_callback = NULL;
+
     return;
 }
 
 
 static void register_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_t fn)
 {
-	g_promisc_callback = fn;
+    g_promisc_callback = fn;
     DBG_8195A("register_monitor_cb, fn 0x%x\r\n", fn);
     return;
 }
