@@ -332,13 +332,16 @@ static int add_svr_key(CoAPContext *ctx, const char *keyprefix, const char *secr
         HAL_MutexUnlock(lst->list_mutex);
         return COAP_ERROR_MALLOC;
     }
-
+    
+    memset(item, 0, sizeof(svr_key_item));
     item->keyInfo.secret = (char *) coap_malloc(strlen(secret) + 1);
     if (!item->keyInfo.secret) {
         HAL_MutexUnlock(lst->list_mutex);
         coap_free(item);
         return COAP_ERROR_MALLOC;
     }
+    
+    memset(item->keyInfo.secret, 0, strlen(secret) + 1);
     strcpy(item->keyInfo.secret, secret);
     strcpy(item->keyInfo.keyprefix, keyprefix);
     item->keyInfo.priority = priority;
