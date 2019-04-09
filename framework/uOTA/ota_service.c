@@ -202,10 +202,6 @@ static void ota_download_thread(void *hand)
     }
 #if (defined BOARD_ESP8266)
     ktask_t* h = NULL;
-    h = krhino_task_find("linkkit");
-    if(h)
-    krhino_task_dyn_del(h);
-    ota_msleep(500);
     #ifdef WIFI_PROVISION_ENABLED
        extern int awss_suc_notify_stop(void);
        awss_suc_notify_stop();
@@ -214,6 +210,16 @@ static void ota_download_thread(void *hand)
     extern int awss_dev_bind_notify_stop(void);
     awss_dev_bind_notify_stop();
     #endif
+    h = krhino_task_find("linkkit");
+    if(h)
+    krhino_task_dyn_del(h);
+    ota_msleep(500);
+    h = krhino_task_find("netmgr_start");
+    if(h)
+    krhino_task_dyn_del(h);
+    ota_msleep(500);
+    h = krhino_task_find("reset");
+    ota_msleep(500);
     OTA_LOG_I("awss_notify stop.");
     h = krhino_task_find("event_task");
     if(h)

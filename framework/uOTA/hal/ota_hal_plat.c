@@ -21,6 +21,7 @@
 #if defined (BOARD_ESP8266)
 #include "esp_system.h"
 #include "upgrade.h"
+#include "esp_wifi.h"
 #elif defined (STM32L496xx)
 #define OTA_CACHE_SIZE       2048
 uint8_t *ota_cache = NULL;
@@ -51,6 +52,8 @@ void  ota_set_crc16(unsigned short crc16)
 void ota_reboot_bank(void)
 {
 #if defined (BOARD_ESP8266)
+    wifi_set_sleep_type(NONE_SLEEP_T);
+    ota_msleep(300);
     system_upgrade_init();
     system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
     system_upgrade_reboot();
@@ -271,6 +274,7 @@ static int ota_boot(void *something)
             #endif
 #endif
         }
+        ota_msleep(1500);
         ota_reboot();
     }
     else if(param->res_type == OTA_BREAKPOINT) {

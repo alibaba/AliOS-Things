@@ -475,7 +475,7 @@ static int _network_ssl_read(TLSDataParams_t *pTlsData, char *buffer, int len,
         }
     }
 
-    return (readLen > 0) ? readLen : net_status;
+    return (readLen >= 0) ? readLen : net_status;
 }
 
 static int _network_ssl_write(TLSDataParams_t *pTlsData, const char *buffer,

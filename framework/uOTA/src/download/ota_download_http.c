@@ -165,7 +165,6 @@ static int ota_download_start(void *pctx)
         ret = OTA_DOWNLOAD_IP_FAIL;
         return ret;
     }
-
     if (isHttps) {
 #if defined AOS_OTA_ITLS
         char pkps[128] = {0};
@@ -226,9 +225,12 @@ static int ota_download_start(void *pctx)
         OTA_LOG_I("%d bytes send.", totalsend);
     }
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    while ((nbytes = ((isHttps) ? ota_ssl_recv(ssl, http_buffer, OTA_BUFFER_MAX_SIZE - 1)
-          :ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1))) != 0) {
-        if((nbytes <= 0)&&(retry <= 5)){
+    while (1) {
+        nbytes = ((isHttps) ? ota_ssl_recv(ssl, http_buffer, OTA_BUFFER_MAX_SIZE - 1):ota_socket_recv(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1));
+        if(retry > 5) {
+             OTA_LOG_I("retry complete:%d",nbytes);
+             break;
+        } else if((nbytes <= 0)&&(retry <= 5)){
              retry++;
              OTA_LOG_I("retry cn:%d",retry);
              ota_msleep(500);
@@ -274,7 +276,6 @@ static int ota_download_start(void *pctx)
             memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
             continue;
         }
-        size += nbytes;
         if (ota_hash_update((const unsigned char *)http_buffer, nbytes, hash_ctx->ctx_hash) < 0) {
             ota_set_break_point(0);
             ret = OTA_VERIFY_HASH_FAIL;
@@ -285,6 +286,7 @@ static int ota_download_start(void *pctx)
             ret = OTA_UPGRADE_FAIL;
             goto END;
         }
+        size += nbytes;
         if(file_size) {
             ota_percent = ((long long)size * 100) / (long long)file_size;
             if(ota_percent / divisor) {
