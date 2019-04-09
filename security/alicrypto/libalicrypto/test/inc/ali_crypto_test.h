@@ -15,8 +15,15 @@
 #define CRYPT_INF(_f, ...) \
     printf("I %s %d: "_f, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define CRYPT_MALLOC malloc
-#define CRYPT_FREE free
+#ifdef MBEDTLS_IOT_PLAT_AOS
+#include <aos/kernel.h>
+#define CRYPT_MALLOC          aos_malloc
+#define CRYPT_FREE            aos_free
+#else
+#define CRYPT_MALLOC          malloc
+#define CRYPT_FREE            free
+#endif
+
 #define CRYPT_MEMSET memset
 #define CRYPT_MEMCPY memcpy
 #define CRYPT_MEMCMP memcmp

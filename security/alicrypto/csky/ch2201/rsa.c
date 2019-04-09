@@ -639,11 +639,12 @@ ali_crypto_result ali_rsa_public_encrypt(const rsa_pubkey_t *pub_key,
             }
 
             key_size = mbedtls_mpi_size(&ctx.N);
-            key      = (unsigned char *)mbedtls_calloc(1, key_size * 2);
+            key      = (unsigned char *)mbedtls_malloc(key_size * 2);
 
             if (!key) {
                 return MBEDTLS_ERR_RSA_PUBLIC_FAILED;
             }
+            OSA_memset(key, 0, key_size * 2);
 
             mbedtls_mpi_write_binary(&ctx.N, key, key_size);
             mbedtls_mpi_write_binary(&ctx.E, key + key_size, key_size);
@@ -800,11 +801,12 @@ ali_crypto_result ali_rsa_private_decrypt(const rsa_keypair_t *priv_key,
             }
 
             key_size = mbedtls_mpi_size(&ctx.N);
-            key      = (unsigned char *)mbedtls_calloc(1, key_size * 3);
+            key      = (unsigned char *)mbedtls_malloc(key_size * 3);
 
             if (!key) {
                 return MBEDTLS_ERR_RSA_PUBLIC_FAILED;
             }
+			OSA_memset(key, 0, key_size * 3);
 
             mbedtls_mpi_write_binary(&ctx.N, key, key_size);
             mbedtls_mpi_write_binary(&ctx.E, key + key_size, key_size);
@@ -985,11 +987,12 @@ ali_crypto_result ali_rsa_sign(const rsa_keypair_t *priv_key,
     }
 
     key_size = mbedtls_mpi_size(&ctx.N);
-    key      = (unsigned char *)mbedtls_calloc(1, key_size * 3);
+    key      = (unsigned char *)mbedtls_malloc(key_size * 3);
 
     if (!key) {
         return MBEDTLS_ERR_RSA_PUBLIC_FAILED;
     }
+	OSA_memset(key, 0, key_size * 3);
 
     mbedtls_mpi_write_binary(&ctx.N, key, key_size);
     mbedtls_mpi_write_binary(&ctx.E, key + key_size, key_size);
@@ -1110,11 +1113,12 @@ ali_crypto_result ali_rsa_verify(const rsa_pubkey_t *pub_key,
     }
 
     key_size = mbedtls_mpi_size(&ctx.N);
-    key      = (unsigned char *)mbedtls_calloc(1, key_size * 2);
+    key      = (unsigned char *)mbedtls_malloc(key_size * 2);
 
     if (!key) {
         return MBEDTLS_ERR_RSA_PUBLIC_FAILED;
     }
+	OSA_memset(key, 0, key_size * 2);
 
     mbedtls_mpi_write_binary(&ctx.N, key, key_size);
     mbedtls_mpi_write_binary(&ctx.E, key + key_size, key_size);

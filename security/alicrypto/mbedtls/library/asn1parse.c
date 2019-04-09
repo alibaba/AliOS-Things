@@ -39,8 +39,14 @@
 #include "mbedtls/platform.h"
 #else
 #include <stdlib.h>
-#define mbedtls_calloc    calloc
-#define mbedtls_free       free
+#ifdef MBEDTLS_IOT_PLAT_AOS
+#include <aos/kernel.h>
+#define mbedtls_malloc   aos_malloc
+#define mbedtls_free     aos_free
+#else
+#define mbedtls_malloc malloc
+#define mbedtls_free free
+#endif  /* MBEDTLS_IOT_PLAT_AOS */
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
@@ -269,12 +275,10 @@ int mbedtls_asn1_get_sequence_of( unsigned char **p,
         /* Allocate and assign next pointer */
         if( *p < end )
         {
-            cur->next = (mbedtls_asn1_sequence*)mbedtls_calloc( 1,
-                                            sizeof( mbedtls_asn1_sequence ) );
-
+            cur->next = (mbedtls_asn1_sequence*)mbedtls_malloc( sizeof( mbedtls_asn1_sequence ) );
             if( cur->next == NULL )
                 return( MBEDTLS_ERR_ASN1_ALLOC_FAILED );
-
+            memset(cur->next, 0, sizeof(mbedtls_asn1_sequence));
             cur = cur->next;
         }
     }

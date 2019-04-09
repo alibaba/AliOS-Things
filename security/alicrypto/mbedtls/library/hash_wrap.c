@@ -58,8 +58,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #define mbedtls_printf printf
-#define mbedtls_calloc calloc
+#ifdef MBEDTLS_IOT_PLAT_AOS
+#include <aos/kernel.h>
+#define mbedtls_malloc   aos_malloc
+#define mbedtls_free     aos_free
+#else
+#define mbedtls_malloc malloc
 #define mbedtls_free free
+#endif /* MBEDTLS_IOT_PLAT_AOS */
 #endif
 
 #include <string.h>
@@ -181,7 +187,11 @@ static void *_md5_ctx_alloc(void)
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc(1, len);
+    ctx = mbedtls_malloc(len);
+    if (ctx == NULL) {
+        return NULL;
+    }
+	memset(ctx, 0, len);
 
     return (ctx);
 }
@@ -203,7 +213,11 @@ static void *sha1_ctx_alloc(void)
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc(1, len);
+    ctx = mbedtls_malloc(len);
+    if (ctx == NULL) {
+        return NULL;
+    }
+	memset(ctx, 0, len);
 
     return (ctx);
 }
@@ -225,7 +239,11 @@ static void *_sha224_ctx_alloc(void)
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc(1, len);
+    ctx = mbedtls_malloc(len);
+    if (ctx == NULL) {
+        return NULL;
+    }
+	memset(ctx, 0, len);
 
     return (ctx);
 }
@@ -245,7 +263,11 @@ static void *_sha256_ctx_alloc(void)
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc(1, len);
+    ctx = mbedtls_malloc(len);
+    if (ctx == NULL) {
+        return NULL;
+    }
+	memset(ctx, 0, len);
 
     return (ctx);
 }
@@ -267,7 +289,11 @@ static void *_sha384_ctx_alloc(void)
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc(1, len);
+    ctx = mbedtls_malloc(len);
+    if (ctx == NULL) {
+        return NULL;
+    }
+	memset(ctx, 0, len);
 
     return (ctx);
 }
@@ -287,7 +313,11 @@ static void *_sha512_ctx_alloc(void)
     if (0 != ret) {
         return NULL;
     }
-    ctx = mbedtls_calloc(1, len);
+    ctx = mbedtls_malloc(len);
+    if (ctx == NULL) {
+        return NULL;
+    }
+	memset(ctx, 0, len);
 
     return (ctx);
 }
@@ -479,12 +509,13 @@ int mbedtls_hash_setup(mbedtls_hash_context_t * ctx,
     }
 
     if (hmac != 0) {
-        ctx->hmac_ctx = mbedtls_calloc(2, md_info->block_size);
+        ctx->hmac_ctx = mbedtls_malloc(2 * md_info->block_size);
         if (ctx->hmac_ctx == NULL) {
             md_info->ctx_free_func(ctx->md_ctx);
             ctx->md_ctx = NULL;
             return (MBEDTLS_ERR_MD_ALLOC_FAILED);
         }
+		memset(ctx->hmac_ctx, 0, 2 * md_info->block_size);
     }
 
     ctx->md_info = md_info;

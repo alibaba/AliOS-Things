@@ -80,6 +80,14 @@
 //#define MBEDTLS_PK_ALT
 //#define MBEDTLS_AES_ALT
 
+#define MBEDTLS_IOT_PLAT_AOS
+
+#if defined(MBEDTLS_IOT_PLAT_AOS)
+#define MBEDTLS_THREADING_ALT
+#else
+#define MBEDTLS_THREADING_PTHREAD
+#endif /* MBEDTLS_IOT_PLAT_AOS */
+
 #include "check_config.h"
 
 #endif /* MBEDTLS_CONFIG_H */

@@ -43,8 +43,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define mbedtls_printf printf
-#define mbedtls_calloc    calloc
-#define mbedtls_free       free
+#ifdef MBEDTLS_IOT_PLAT_AOS
+#include <aos/kernel.h>
+#define mbedtls_malloc   aos_malloc
+#define mbedtls_free     aos_free
+#else
+#define mbedtls_malloc malloc
+#define mbedtls_free free
+#endif /* MBEDTLS_IOT_PLAT_AOS */
 #endif /* MBEDTLS_PLATFORM_C */
 #endif /* MBEDTLS_SELF_TEST */
 
@@ -396,7 +402,7 @@ int mbedtls_sha256_self_test( int verbose )
     unsigned char sha256sum[32];
     mbedtls_sha256_context ctx;
 
-    buf = mbedtls_calloc( 1024, sizeof(unsigned char) );
+    buf = mbedtls_malloc( 1024 * sizeof(unsigned char) );
     if( NULL == buf )
     {
         if( verbose != 0 )
@@ -404,6 +410,7 @@ int mbedtls_sha256_self_test( int verbose )
 
         return( 1 );
     }
+	memset(buf, 0, 1024 * sizeof(unsigned char));
 
     mbedtls_sha256_init( &ctx );
 

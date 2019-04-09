@@ -58,8 +58,14 @@
 #else
 #include <stdio.h>
 #define mbedtls_printf printf
-#define mbedtls_calloc calloc
-#define mbedtls_free   free
+#ifdef MBEDTLS_IOT_PLAT_AOS
+#include <aos/kernel.h>
+#define mbedtls_malloc   aos_malloc
+#define mbedtls_free     aos_free
+#else
+#define mbedtls_malloc malloc
+#define mbedtls_free free
+#endif /* MBEDTLS_IOT_PLAT_AOS */
 #endif
 
 /*
@@ -1117,16 +1123,17 @@ int mbedtls_rsa_rsassa_pkcs1_v15_sign( mbedtls_rsa_context *ctx,
      * In order to prevent Lenstra's attack, make the signature in a
      * temporary buffer and check it before returning it.
      */
-    sig_try = mbedtls_calloc( 1, ctx->len );
+    sig_try = mbedtls_malloc( ctx->len );
     if( sig_try == NULL )
         return( MBEDTLS_ERR_MPI_ALLOC_FAILED );
-
-    verif   = mbedtls_calloc( 1, ctx->len );
+    memset(sig_try, 0, ctx->len);
+    verif   = mbedtls_malloc( ctx->len );
     if( verif == NULL )
     {
         mbedtls_free( sig_try );
         return( MBEDTLS_ERR_MPI_ALLOC_FAILED );
     }
+    memset(verif, 0, ctx->len);
 
     MBEDTLS_MPI_CHK( mbedtls_rsa_private( ctx, f_rng, p_rng, sig, sig_try ) );
     MBEDTLS_MPI_CHK( mbedtls_rsa_public( ctx, sig_try, verif ) );

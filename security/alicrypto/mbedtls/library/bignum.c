@@ -54,8 +54,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define mbedtls_printf printf
-#define mbedtls_calloc calloc
+#ifdef MBEDTLS_IOT_PLAT_AOS
+#include <aos/kernel.h>
+#define mbedtls_malloc   aos_malloc
+#define mbedtls_free     aos_free
+#else
+#define mbedtls_malloc malloc
 #define mbedtls_free free
+#endif /* MBEDTLS_IOT_PLAT_AOS */
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
@@ -125,9 +131,10 @@ int mbedtls_mpi_grow(mbedtls_mpi *X, size_t nblimbs)
     }
 
     if (X->n < nblimbs) {
-        if ((p = (mbedtls_mpi_uint *)mbedtls_calloc(nblimbs, ciL)) == NULL) {
+        if ((p = (mbedtls_mpi_uint *)mbedtls_malloc(nblimbs * ciL)) == NULL) {
             return (MBEDTLS_ERR_MPI_ALLOC_FAILED);
         }
+		memset(p, 0, nblimbs * ciL);
 
         if (X->p != NULL) {
             memcpy(p, X->p, X->n * ciL);
@@ -166,9 +173,10 @@ int mbedtls_mpi_shrink(mbedtls_mpi *X, size_t nblimbs)
         i = nblimbs;
     }
 
-    if ((p = (mbedtls_mpi_uint *)mbedtls_calloc(i, ciL)) == NULL) {
+    if ((p = (mbedtls_mpi_uint *)mbedtls_malloc(i * ciL)) == NULL) {
         return (MBEDTLS_ERR_MPI_ALLOC_FAILED);
     }
+	memset(p, 0, i * ciL);
 
     if (X->p != NULL) {
         memcpy(p, X->p, i * ciL);
