@@ -652,10 +652,6 @@
 #error "MBEDTLS_X509_CSR_WRITE_C defined, but not all prerequisites"
 #endif
 
-#if !defined(MBEDTLS_THREADING_PTHREAD) && !defined(MBEDTLS_THREADING_ALT)
-#error "MBEDTLS_THREADING_C defined, but no threads are active"
-#endif
-
 #if defined(MBEDTLS_THREADING_PTHREAD) && defined(MBEDTLS_THREADING_ALT)
 #error "MBEDTLS_THREADING_PTHREAD and MBEDTLS_THREADING_ALT can not be defined simultaneously"
 #endif
