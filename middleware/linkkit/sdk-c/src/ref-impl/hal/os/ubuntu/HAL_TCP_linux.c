@@ -125,6 +125,9 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
     uint64_t t_end, t_left;
     fd_set sets;
 
+    if (fd >= FD_SETSIZE) {
+        return -1;
+    }
     t_end = _linux_get_time_ms() + timeout_ms;
     len_sent = 0;
     ret = 1; /* send one time if timeout_ms is value 0 */
@@ -198,7 +201,10 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
     uint64_t t_end, t_left;
     fd_set sets;
     struct timeval timeout;
-
+    
+    if (fd >= FD_SETSIZE) {
+        return -1;
+    }
     t_end = _linux_get_time_ms() + timeout_ms;
     len_recv = 0;
     err_code = 0;
