@@ -93,7 +93,6 @@
 #define MBEDTLS_PKCS1_V15
 #define MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
 #define MBEDTLS_SSL_PROTO_TLS1_2
-#define MBEDTLS_THREADING_C
 
 /* mbed TLS modules */
 #define MBEDTLS_AES_C
@@ -151,10 +150,7 @@
 #endif /* CONFIG_MBEDTLS_ORIG */
 
 #if defined(CONFIG_PLAT_AOS)
-#define MBEDTLS_THREADING_ALT
 #define MBEDTLS_NET_ALT
-#else
-#define MBEDTLS_THREADING_PTHREAD
 #endif /* CONFIG_PLAT_AOS */
 
 #if defined(OTA_CONFIG_TLS)
