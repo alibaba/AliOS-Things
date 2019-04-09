@@ -58,7 +58,6 @@ $(NAME)_SOURCES     += ./core/src/rsa.c
 $(NAME)_SOURCES     += ./core/src/sm2.c
 $(NAME)_SOURCES     += ./core/src/asn1parse.c
 $(NAME)_SOURCES     += ./core/src/hmac.c
-$(NAME)_SOURCES     += ./core/src/threading.c
 $(NAME)_SOURCES     += ./sal/src/sal_aes.c
 $(NAME)_SOURCES     += ./sal/src/sal_sm4.c
 $(NAME)_SOURCES     += ./sal/src/sal_hash.c
@@ -74,14 +73,6 @@ $(NAME)_SOURCES     += ./api/src/api_hmac.c
 $(NAME)_SOURCES     += ./api/src/api_rsa.c
 $(NAME)_SOURCES     += ./api/src/api_sm2.c
 $(NAME)_SOURCES     += ./api/src/api_rand.c
-$(NAME)_SOURCES     += ./plat/oem/hal_init.c
-$(NAME)_SOURCES     += ./plat/oem/hal_aes.c
-$(NAME)_SOURCES     += ./plat/oem/hal_sm4.c
-$(NAME)_SOURCES     += ./plat/oem/hal_hash.c
-$(NAME)_SOURCES     += ./plat/oem/hal_hmac.c
-$(NAME)_SOURCES     += ./plat/oem/hal_rsa.c
-$(NAME)_SOURCES     += ./plat/oem/hal_sm2.c
-$(NAME)_SOURCES     += ./plat/oem/hal_rand.c
 
 $(NAME)_COMPONENTS  := ls_osa
 
