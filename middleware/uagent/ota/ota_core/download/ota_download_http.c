@@ -182,7 +182,7 @@ static int ota_download_start(void *pctx)
         }
     } else {
         sockfd = ota_socket_connect(host_addr, port);
-        if (sockfd < 0) {
+        if ((intptr_t)sockfd < 0) {
             ret = OTA_DOWNLOAD_CON_FAIL;
             return ret;
         }
