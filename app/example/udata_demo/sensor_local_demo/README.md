@@ -33,7 +33,7 @@ sensor_local_demo
 
 ```sh
 # generate udata_demo.sensor_local_demo@developerkit default config
-aos make udata_demo.sensor_local_demo@developerkit -c config
+aos make udata_demo.sensor_local_demoudataapp@developerkit -c config
 
 # or customize config manually
 aos make menuconfig
