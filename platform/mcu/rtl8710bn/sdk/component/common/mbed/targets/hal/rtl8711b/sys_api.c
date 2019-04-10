@@ -1,7 +1,7 @@
 /** mbed Microcontroller Library
   ******************************************************************************
   * @file    sys_api.c
-  * @author 
+  * @author
   * @version V1.0.0
   * @date    2016-08-01
   * @brief   This file provides following mbed system API:
@@ -16,7 +16,7 @@
   * possession or use of this module requires written permission of RealTek.
   *
   * Copyright(c) 2016, Realtek Semiconductor Corporation. All rights reserved.
-  ****************************************************************************** 
+  ******************************************************************************
   */
 
 #include "cmsis.h"
@@ -33,7 +33,7 @@ void rtc_backup_timeinfo(void);
 
 /**
   * @brief  Turn off the JTAG function
-  * @retval none  
+  * @retval none
   */
 void sys_jtag_off(void)
 {
@@ -61,15 +61,15 @@ void sys_clear_ota_signature(void)
 	}
 
 	printf("\n\rOTA ota1_signature = %s \n", signature);
-	
+
 	flash_stream_read(&flash, FLASH_SYSTEM_DATA_ADDR, 4, (u8*)&part2_offset);
 	flash_stream_read(&flash, (part2_offset -SPI_FLASH_BASE) , OTA_Signature_len, signature);
 	if(!_memcmp((char const*)signature, OTA_Signature, OTA_Signature_len)){
 		ota2_valid = 1;
 	}
-	
+
 	printf("\n\rOTA ota2_signature = %s \n", signature);
-	
+
 	printf("\n\rOTA ota1_valid = 0x%08X ota2_valid = 0x%08X \n", ota1_valid, ota2_valid);
 
 	if ((ota1_valid == 1) && (ota2_valid == 1)) {
@@ -80,7 +80,7 @@ void sys_clear_ota_signature(void)
 			FLASH_EreaseDwordsXIP((FLASH_SYSTEM_DATA_ADDR + 4), 1);
 			ValidIMG2 = 0xFFFFFFFF;
 		}
-		
+
 		for (BitIdx = 0; BitIdx <= 31; BitIdx++) {
 			if ((ValidIMG2 & BIT(BitIdx)) != 0) {
 				break;
@@ -143,7 +143,7 @@ void sys_log_uart_off(void)
 
 
 /**
-  * @brief  store or load adc calibration parameter 
+  * @brief  store or load adc calibration parameter
   * @param  write:  this parameter can be one of the following values:
   *		@arg 0: load adc calibration parameter offset & gain from flash system data region
   *		@arg 1: store adc calibration parameter offset & gain to flash system data region
@@ -158,7 +158,7 @@ void sys_adc_calibration(u8 write, u16 *offset, u16 *gain)
 
 	flash_data = (u32)*offset;
 	flash_data |= (u32)((*gain) << 16);
-		
+
 	if(write){
 		FLASH_EreaseDwordsXIP((FLASH_SYSTEM_DATA_ADDR + FLASH_ADC_PARA_OFFSET), 1);
 		FLASH_TxData12BXIP((FLASH_SYSTEM_DATA_ADDR + FLASH_ADC_PARA_OFFSET), 4, (u8*)&flash_data);
@@ -177,21 +177,24 @@ void sys_adc_calibration(u8 write, u16 *offset, u16 *gain)
   */
 void sys_reset(void)
 {
-	rtc_backup_timeinfo();
+    while(1) {
+        rtc_backup_timeinfo();
 
-	/* Set processor clock to default(2: 31.25MHz) before system reset */
-	HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_CLK_CTRL1, 0x00000021);
-	DelayUs(100*1000);
+        /* Set processor clock to default(2: 31.25MHz) before system reset */
+        HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_CLK_CTRL1, 0x00000021);
+        DelayUs(100*1000);
 
-	/*  Cortex-M3 SCB->AIRCR */
-	SCB->AIRCR  = ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |	// VECTKEY
-		(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |		// PRIGROUP
-		SCB_AIRCR_SYSRESETREQ_Msk);					// SYSRESETREQ
+        /*  Cortex-M3 SCB->AIRCR */
+        SCB->AIRCR  = ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |    // VECTKEY
+            (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |          // PRIGROUP
+            SCB_AIRCR_SYSRESETREQ_Msk);                      // SYSRESETREQ
+        DelayUs(100*1000);
+    }
 }
 
 
 /**
-  * @brief vector reset 
+  * @brief vector reset
   * @retval none
   */
 void sys_cpu_reset(void)
@@ -212,7 +215,7 @@ void sys_cpu_reset(void)
 	/* Keep priority group unchanged */
 	SCB->AIRCR  = ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |
 		(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
-		SCB_AIRCR_VECTRESET_Pos | SCB_AIRCR_VECTCLRACTIVE_Pos); 
+		SCB_AIRCR_VECTRESET_Pos | SCB_AIRCR_VECTCLRACTIVE_Pos);
 
 	/* Ensure completion of memory access */
 	__DSB();
