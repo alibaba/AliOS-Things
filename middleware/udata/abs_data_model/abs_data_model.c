@@ -368,7 +368,7 @@ static int abs_data_timer_update(uint32_t abs_index, int interval)
             return -1;
         }
     }
-    cur_interval = interval;
+    cur_interval = value;
     return 0;
 }
 
