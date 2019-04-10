@@ -442,6 +442,8 @@ static int __awss_dev_bind_notify()
             awss_notify_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, 1);
             dev_bind_interval += 100;
             dev_bind_cnt ++;
+        } else {
+            awss_update_token();
         }
 #ifdef DEV_BIND_TEST
         if (dev_bind_cnt > 3) {
@@ -455,7 +457,7 @@ static int __awss_dev_bind_notify()
                 dev_bind_notify_timer = HAL_Timer_Create("dev_bind", (void (*)(void *))awss_dev_bind_notify, NULL);
             }
             HAL_Timer_Stop(dev_bind_notify_timer);
-            HAL_Timer_Start(dev_bind_notify_timer, dev_bind_interval);
+            HAL_Timer_Start(dev_bind_notify_timer, awss_report_token_suc == 0 ? AWSS_CHECK_RESP_TIME : dev_bind_interval);
             HAL_MutexUnlock(dev_bind_notify_mutex);
             return 0;
         }
