@@ -1,0 +1,16 @@
+config AOS_APP_SENSOR_CLOUD_DEMO
+    bool "Sensor Cloud Demo"
+    select AOS_COMP_CLI
+    select AOS_COMP_SENSOR
+    select AOS_COMP_NETMGR
+    select AOS_COMP_YLOOP
+    select AOS_COMP_CJSON
+    select AOS_COMP_LINKKIT_SDK_C
+    select APP_FEATURE_LINKKIT
+    help
+        sensor cloud demo
+
+if AOS_APP_SENSOR_CLOUD_DEMO
+# Configurations for comp sensor hal
+
+endif

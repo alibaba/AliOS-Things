@@ -1,0 +1,11 @@
+config AOS_APP_UDATA_LOCAL_DEMO
+    bool "uData Local Demo"
+    select AOS_COMP_CLI
+    select AOS_COMP_UDATA
+    help
+        uData local demo
+
+if AOS_APP_UDATA_LOCAL_DEMO
+# Configurations for comp udata
+
+endif
