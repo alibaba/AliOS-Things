@@ -1,0 +1,10 @@
+config AOS_APP_SENSOR_LOCAL_DEMO
+    bool "Sensor Local Demo"
+    select AOS_COMP_CLI
+    select AOS_COMP_SENSOR
+    help
+        sensor local demo
+
+if AOS_APP_SENSOR_LOCAL_DEMO
+# Configurations for comp sensor hal
+endif
