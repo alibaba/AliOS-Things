@@ -336,22 +336,30 @@ static void duration_work(void *p)
 
 static int mqtt_connected_event_handler(void)
 {
+#if defined(OTA_ENABLED) && defined(BUILD_AOS)
     static ota_service_inited = false;
+    static ota_service_t ctx = {0};
 
     if (ota_service_inited == true) {
-        return 0;
+        int ret = 0;
+
+        LOG("MQTT reconnected, let's redo OTA upgrade");
+        if ((ctx.h_tr) && (ctx.h_tr->upgrade)) {
+            LOG("Redoing OTA upgrade");
+            ret = ctx.h_tr->upgrade(&ctx);
+            if (ret < 0) LOG("Failed to do OTA upgrade");
+        }
+
+        return ret;
     }
 
-    ota_service_inited = true;
     LOG("MQTT Construct  OTA start");
-#if defined(OTA_ENABLED) && defined(BUILD_AOS)
     char product_key[PRODUCT_KEY_LEN + 1] = {0};
     char device_name[DEVICE_NAME_LEN + 1] = {0};
     char device_secret[DEVICE_SECRET_LEN + 1] = {0};
     HAL_GetProductKey(product_key);
     HAL_GetDeviceName(device_name);
     HAL_GetDeviceSecret(device_secret);
-    static ota_service_t ctx = {0};
     memset(&ctx, 0, sizeof(ota_service_t));
     strncpy(ctx.pk, product_key, sizeof(ctx.pk)-1);
     strncpy(ctx.dn, device_name, sizeof(ctx.dn)-1);
@@ -359,6 +367,7 @@ static int mqtt_connected_event_handler(void)
     ctx.trans_protcol = 0;
     ctx.dl_protcol = 3;
     ota_service_init(&ctx);
+    ota_service_inited = true;
 #endif
     return 0;
 }
