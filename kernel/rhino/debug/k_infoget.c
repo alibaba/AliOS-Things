@@ -22,6 +22,17 @@ ktask_t *krhino_task_find(char *name)
 }
 #endif
 
+int krhino_task_is_running(ktask_t *task)
+{
+    if (  g_active_task[cpu_cur_get()] == task
+       && g_intrpt_nested_level[cpu_cur_get()] == 0 ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
 int krhino_is_task_ready(ktask_t *task)
 {
     return (task->task_state == K_RDY);

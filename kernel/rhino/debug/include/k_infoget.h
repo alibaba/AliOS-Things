@@ -10,22 +10,27 @@ extern "C"
 {
 #endif
 
-    /**
-     * This function will get task handle by its name.
-     */
-    ktask_t *krhino_task_find(char *name);
+/**
+ * This function will get task handle by its name.
+ */
+ktask_t *krhino_task_find(char *name);
 
-    /**
-     * This function will return true if task is ready.
-     */
-    int krhino_is_task_ready(ktask_t *task);
+/**
+ * This function will return true if task is ready.
+ */
+int krhino_is_task_ready(ktask_t *task);
 
-    /**
-     * This function will get the bottom of task stack
-     * @param[in]  task  NULL for active task
-     * @return  the bottom of stack
-     */
-    void *krhino_task_stack_bottom(ktask_t *task);
+/**
+ * This function will return true if task is running.
+ */
+int krhino_task_is_running(ktask_t *task);
+
+/**
+ * This function will get the bottom of task stack
+ * @param[in]  task  NULL for active task
+ * @return  the bottom of stack
+ */
+void *krhino_task_stack_bottom(ktask_t *task);
 
 #ifdef __cplusplus
 }

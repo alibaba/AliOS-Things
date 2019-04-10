@@ -328,13 +328,13 @@ int backtrace_task(char *taskname, int (*print_func)(const char *fmt, ...))
         print_func = printf;
     }
 
-    task = debug_task_find(taskname);
+    task = krhino_task_find(taskname);
     if (task == NULL) {
         print_func("Task not found : %s\n", taskname);
         return 0;
     }
 
-    if (debug_task_is_running(task)) {
+    if (krhino_task_is_running(task)) {
         print_func("Status of task \"%s\" is 'Running', Can not backtrace!\n",
                    taskname);
         return 0;
