@@ -32,7 +32,13 @@ else #Some Linux version
 fi
 find ${BIN_DIR}/ -name "*.axf" | xargs rm -rf
 find ${BIN_DIR}/ -name "*.map" | xargs rm -rf
-cp ${outputdir}/${outputname}.elf ${BIN_DIR}/${outputname}.axf
+
+if [ "${ota_idx}" = "1" ]; then
+    cp ${outputdir}/${outputname}.elf ${BIN_DIR}/${outputname}.axf
+else
+    cp ${outputdir}/${outputname}.xip2.elf ${BIN_DIR}/${outputname}.axf
+fi
+
 arm-none-eabi-nm ${BIN_DIR}/${outputname}.axf | sort > ${BIN_DIR}/${outputname}.nmap
 arm-none-eabi-objcopy -j .ram_image2.entry -j .ram_image2.data -j .ram_image2.text -j .ram_image2.bss -j .ram_image2.skb.bss -j .ram_heap.data -Obinary ${BIN_DIR}/${outputname}.axf ${BIN_DIR}/ram_2.r.bin
 arm-none-eabi-objcopy -j .xip_image2.text -Obinary ${BIN_DIR}/${outputname}.axf ${BIN_DIR}/xip_image2.bin
