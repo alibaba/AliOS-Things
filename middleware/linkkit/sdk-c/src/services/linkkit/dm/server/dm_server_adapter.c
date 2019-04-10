@@ -66,7 +66,7 @@ int dm_server_send(char *uri, unsigned char *payload, int payload_len, void *con
     alcs_msg.port = alcs_context ? alcs_context->port : 0;
     alcs_msg.msg_code = (alcs_context && alcs_context->token_len
                          && alcs_context->token) ? ITOX_ALCS_COAP_MSG_CODE_205_CONTENT : ITOX_ALCS_COAP_MSG_CODE_GET;
-    alcs_msg.msg_type = IOTX_ALCS_MESSAGE_TYPE_CON;
+    alcs_msg.msg_type = IOTX_ALCS_MESSAGE_TYPE_NON;
     alcs_msg.uri = uri;
     alcs_msg.payload = payload;
     alcs_msg.payload_len = payload_len;
