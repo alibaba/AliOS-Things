@@ -111,6 +111,7 @@ static int CoAPMessageList_add(CoAPContext *context, NetworkAddr *remote,
         } else {
             list_add_tail(&node->sendlist, &ctx->sendlist.list);
             ctx->sendlist.count ++;
+            COAP_INFO("sendlist.count:%d\n", ctx->sendlist.count);
             HAL_MutexUnlock(ctx->sendlist.list_mutex);
             return COAP_SUCCESS;
         }
@@ -266,7 +267,7 @@ int CoAPMessageId_cancel(CoAPContext *context, unsigned short msgid)
             if (node->header.msgid == msgid) {
                 list_del(&node->sendlist);
                 ctx->sendlist.count--;
-                COAP_FLOW("Cancel message %d from list, cur count %d",
+                COAP_FLOW("Cancel message id %d from list, cur count %d",
                           node->header.msgid, ctx->sendlist.count);
                 coap_free(node->message);
                 coap_free(node);
@@ -296,7 +297,8 @@ static int CoAPAckMessage_handle(CoAPContext *context, CoAPMessage *message)
                 coap_free(node->message);
                 coap_free(node);
                 ctx->sendlist.count --;
-                COAP_DEBUG("The CON response message %d receive ACK, remove it", message->header.msgid);
+                COAP_DEBUG("The CON response message %d receive ACK, remove it, cur:%d",
+                        message->header.msgid, ctx->sendlist.count);
             }
             HAL_MutexUnlock(ctx->sendlist.list_mutex);
             if (handler) handler(ctx, COAP_RECV_RESP_SUC, user_data, &remote, NULL);
@@ -376,9 +378,9 @@ static int CoAPRespMessage_handle(CoAPContext *context, NetworkAddr *remote, CoA
             if (!node->keep) {
                 list_del(&node->sendlist);
                 ctx->sendlist.count--;
-                COAP_FLOW("Remove the message id %d from list", node->header.msgid);
+                COAP_FLOW("Remove the message id %d from list, cur:%d", node->header.msgid, ctx->sendlist.count);
             } else {
-                COAP_FLOW("Find the message id %d, It need keep", node->header.msgid);
+                COAP_FLOW("Find the message id %d, It need keep, cur:%d", node->header.msgid, ctx->sendlist.count);
             }
             found = 1;
 
