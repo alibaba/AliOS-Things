@@ -227,6 +227,8 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     int  x;
     int *SP = RHINO_GET_SP();
 
+    krhino_sched_disable();
+
     printf("!!!!!!!!!! Fatal Error !!!!!!!!!!\r\n");
     printf("errno:%d , file:%s, line:%d\r\n", err, file, line);
 
@@ -255,22 +257,7 @@ void debug_fatal_error(kstat_t err, char *file, int line)
     debug_backtrace_now();
 #endif
 
-#if 0
-#if (RHINO_CONFIG_QUEUE > 0)
-    print_str("========== Queue Info ==========\r\n");
-    debug_queue_overview(print_str);
-#endif
-
-#if (RHINO_CONFIG_BUF_QUEUE > 0)
-    print_str("======== Buf Queue Info ========\r\n");
-    debug_buf_queue_overview(print_str);
-#endif
-
-#if (RHINO_CONFIG_SEM > 0)
-    print_str("=========== Sem Info ===========\r\n");
-    debug_sem_overview(print_str);
-#endif
-#endif
+    panic_goto_cli();
 }
 #endif
 
