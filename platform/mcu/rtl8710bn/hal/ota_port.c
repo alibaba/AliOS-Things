@@ -124,7 +124,8 @@ static int ota_init(void *something)
     ota_boot_param_t *param = (ota_boot_param_t *)something;
     uint32_t part = HAL_PARTITION_OTA_TEMP;
     uint32_t offset = 0;
-    printf("ota_init off:0x%x \n",offset);
+    param->off_bp = 0;
+    printf("ota_init off:0x%x \n", offset);
     alink_ota_target_index = check_ota_index();
     if(prepare_ota_address(alink_ota_target_index, &alinknewImg2Addr) != TRUE){
         printf("get addr failed\n");
