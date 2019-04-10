@@ -253,7 +253,7 @@ static void alcs_service_cb_setup(CoAPContext *context, const char *paths, Netwo
     memset(&rsp_msg, 0, sizeof(iotx_alcs_msg_t));
 
     rsp_msg.msg_code = ITOX_ALCS_COAP_MSG_CODE_205_CONTENT;
-    rsp_msg.msg_type = IOTX_ALCS_MESSAGE_TYPE_CON;
+    rsp_msg.msg_type = IOTX_ALCS_MESSAGE_TYPE_NON;
     rsp_msg.payload = (unsigned char *)payload;
     rsp_msg.payload_len = strlen(payload);
     rsp_msg.ip = (char *)(remote ? remote->addr : NULL);
