@@ -379,8 +379,8 @@ static int CoAPMessageList_add(CoAPContext *context, NetworkAddr *remote,
         if (ctx->sendlist.count >= ctx->sendlist.maxcount) {
             coap_free(node);
             COAP_INFO("The send list is full");
-            HAL_MutexUnlock(ctx->sendlist.list_mutex);
             CoAPMessage_print_sendlist(context);
+            HAL_MutexUnlock(ctx->sendlist.list_mutex);
             return COAP_ERROR_DATA_SIZE;
         } else {
             list_add_tail(&node->sendlist, &ctx->sendlist.list);
@@ -530,6 +530,7 @@ int CoAPMessage_cancel(CoAPContext *context, CoAPMessage *message)
 
 int CoAPMessage_print_sendlist(CoAPContext *context)
 {
+#ifdef ALCS_COAP_SENDLIST_DEBUG
     CoAPSendNode *node = NULL, *next = NULL;
     CoAPIntContext *ctx = (CoAPIntContext *)context;
 
@@ -549,7 +550,7 @@ int CoAPMessage_print_sendlist(CoAPContext *context)
     }
     COAP_INFO("-------------------------------------");
     //HAL_MutexUnlock(ctx->sendlist.list_mutex);
-
+#endif
     return COAP_SUCCESS;
 }
 
