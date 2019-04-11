@@ -693,6 +693,7 @@ static int CoAPRespMessage_handle(CoAPContext *context, NetworkAddr *remote, CoA
 
     if (found && NULL != node) {
         message->user  = node->user;
+        CoAPSendMsgHandler handler = NULL;
         // TODO: comment it
         /*
         if (COAP_MSG_CODE_400_BAD_REQUEST <= message->header.code) {
@@ -702,15 +703,11 @@ static int CoAPRespMessage_handle(CoAPContext *context, NetworkAddr *remote, CoA
         }
         */
         if (NULL != node->handler) {
-            CoAPSendMsgHandler handler = node->handler;
+            handler = node->handler;
 #ifndef COAP_OBSERVE_CLIENT_DISABLE
             CoAPObsClient_add(ctx, message, remote, node);
 #endif
-            HAL_MutexUnlock(ctx->sendlist.list_mutex);
             COAP_FLOW("Call the response message callback %p", handler);
-            handler(ctx, COAP_REQUEST_SUCCESS, message->user, remote, message);
-        } else {
-            HAL_MutexUnlock(ctx->sendlist.list_mutex);
         }
 
         if (!node->keep) {
@@ -720,6 +717,9 @@ static int CoAPRespMessage_handle(CoAPContext *context, NetworkAddr *remote, CoA
             coap_free(node);
             COAP_DEBUG("The message needless keep, free it");
         }
+        HAL_MutexUnlock(ctx->sendlist.list_mutex);
+
+        if (handler) handler(ctx, COAP_REQUEST_SUCCESS, message->user, remote, message);
     } else {
         HAL_MutexUnlock(ctx->sendlist.list_mutex);
 #ifndef COAP_OBSERVE_CLIENT_DISABLE
