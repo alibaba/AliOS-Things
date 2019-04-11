@@ -163,7 +163,11 @@ coap_add_data_blocked_response(coap_resource_t *resource,
   unsigned char buf[4];
   coap_block_t block2 = { 0, 0, 0 };
   int block2_requested = 0;
-  coap_subscription_t *subscription = coap_find_observer(resource, session, token);
+  coap_subscription_t *subscription = NULL;
+
+#ifndef WITHOUT_OBSERVE
+  subscription =  coap_find_observer(resource, session, token);
+#endif
 
   /*
    * Need to check that a valid block is getting asked for so that the
