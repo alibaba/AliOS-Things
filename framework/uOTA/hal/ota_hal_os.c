@@ -16,11 +16,9 @@
 #if defined AOS_OTA_ITLS
 #include "itls/sha256.h"
 #include "itls/md5.h"
-#include "itls/base64.h"
 #else
 #include "mbedtls/sha256.h"
 #include "mbedtls/md5.h"
-#include "mbedtls/base64.h"
 #endif
 #endif
 #if (OTA_SIGNAL_CHANNEL) == 1
