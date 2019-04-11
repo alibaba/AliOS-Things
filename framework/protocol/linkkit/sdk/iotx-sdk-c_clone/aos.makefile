@@ -73,32 +73,53 @@ IFLAGS  := \
     -Isrc/ref-impl/hal/ssl/mbedtls \
 
 CFLAGS  := \
-     \
     -DALCS_ENABLED \
-    -DAWSS_SUPPORT_ADHA \
     -DAWSS_SUPPORT_AHA \
     -DAWSS_SUPPORT_APLIST \
     -DAWSS_SUPPORT_DEV_AP \
     -DAWSS_SUPPORT_PHONEASAP \
-    -DAWSS_SUPPORT_ROUTER \
     -DAWSS_SUPPORT_SMARTCONFIG \
     -DAWSS_SUPPORT_SMARTCONFIG_WPS \
+    -DAWSS_SUPPORT_STATIS \
     -DAWSS_SUPPORT_ZEROCONFIG \
+    -DBUILD_AOS \
     -DCOAP_SERV_MULTITHREAD \
-    -DCONFIG_SDK_THREAD_COST=1 \
+    -DCONFIG_DM_DEVTYPE_SINGLE \
+    -DCONFIG_PLATFORM_8711B \
+    -DCONFIG_YWSS \
     -DDEVICE_MODEL_ENABLED \
-    -DDEVICE_MODEL_GATEWAY \
     -DDEV_BIND_ENABLED \
     -DFORCE_SSL_VERIFY \
+    -DHardFault_Handler=Ali_HardFault_Handler \
     -DLOG_REPORT_TO_CLOUD \
+    -DLOG_SIMPLE \
+    -DM3 \
     -DMQTT_COMM_ENABLED \
     -DMQTT_DIRECT \
+    -DOTA_ENABLED \
     -DSUPPORT_TLS \
+    -DSYSINFO_APP_VERSION=app-1.0.0-20190411.0443 \
+    -DSYSINFO_DEVICE_NAME=MK3080 \
+    -DSYSINFO_KERNEL_VERSION=AOS-R-1.3.4 \
+    -DSYSINFO_PRODUCT_MODEL=ALI_AOS_MK3080 \
     -DWIFI_PROVISION_ENABLED \
+    -DWITH_MQTT_DYN_BUF=1 \
+    -DWITH_MQTT_SUB_SHORTCUT=1 \
+    -DWITH_MQTT_ZIP_TOPIC=1 \
     -Iexamples \
     -Iexamples/linkkit \
     -Itests \
-
+    -Os \
+    -Werror \
+    -fdata-sections \
+    -ffunction-sections \
+    -fno-short-enums \
+    -march=armv7-m \
+    -mcpu=cortex-m4 \
+    -mlittle-endian \
+    -mthumb \
+    -mthumb-interwork \
+    -w \
 
 STAMP_LCOV  := .O/.coverage.done
 
