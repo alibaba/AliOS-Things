@@ -395,6 +395,7 @@ int online_ucast_get_device_info(void *ctx, void *resource, void *remote, void *
 }
 
 static int dev_bind_interval = 0;
+static char dev_sync_token = 0;
 static char dev_bind_cnt = 0;
 static int __awss_dev_bind_notify()
 {
@@ -442,8 +443,12 @@ static int __awss_dev_bind_notify()
             awss_notify_dev_info(AWSS_NOTIFY_DEV_BIND_TOKEN, 1);
             dev_bind_interval += 100;
             dev_bind_cnt ++;
-        } else {
+            dev_sync_token = 0;
+        } else if (dev_sync_token == 0) {
+            dev_sync_token ++;
             awss_update_token();
+            if (dev_bind_cnt == 0)
+                dev_bind_cnt ++;
         }
 #ifdef DEV_BIND_TEST
         if (dev_bind_cnt > 3) {
@@ -483,6 +488,7 @@ static int __awss_dev_bind_notify()
 int awss_dev_bind_notify()
 {
     dev_bind_cnt = 0;
+    dev_sync_token = 0;
     dev_bind_interval = 0;
     awss_notify_resp[AWSS_NOTIFY_DEV_BIND_TOKEN] = 0;
 
@@ -496,6 +502,7 @@ int awss_dev_bind_notify_stop()
     }
 
     do {
+        dev_sync_token = 0;
         awss_notify_resp[AWSS_NOTIFY_DEV_BIND_TOKEN] = 1;
         dev_bind_cnt = AWSS_NOTIFY_CNT_MAX;
         if (dev_bind_notify_timer == NULL) {
