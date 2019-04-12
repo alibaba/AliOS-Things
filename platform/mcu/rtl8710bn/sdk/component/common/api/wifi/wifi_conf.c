@@ -73,6 +73,8 @@ uint32_t rtw_join_status;
 extern unsigned char dhcp_mode_sta;
 #endif
 
+unsigned char enable_softap_adjust_phy = 0;
+
 /******************************************************
  *               Variables Definitions
  ******************************************************/
@@ -1880,6 +1882,7 @@ static void wifi_autoreconnect_thread(void *param)
 
     
 	DBG_8195A("\n\rauto reconnect ...\n");
+	DBG_8195A("\n\r  ssid: %s ...\n", reconnect_param->ssid);
 	ret = wifi_connect(reconnect_param->ssid, reconnect_param->security_type, reconnect_param->password,
 	                   reconnect_param->ssid_len, reconnect_param->password_len, reconnect_param->key_id, NULL);
 #if CONFIG_LWIP_LAYER
@@ -2104,5 +2107,11 @@ int wifi_get_antenna_info(unsigned char *antenna)
 	return ret;
 }
 #endif
+
+int promisc_recv_lens_func(void *padapter, u8 *payload, u8 plen)
+{
+    return 0;
+}
+
 //----------------------------------------------------------------------------//
 #endif	//#if CONFIG_WLAN
