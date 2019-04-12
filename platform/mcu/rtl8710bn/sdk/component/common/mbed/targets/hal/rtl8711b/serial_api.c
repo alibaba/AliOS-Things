@@ -22,6 +22,9 @@
 
 typedef VOID (*UARTCB_FUN)(VOID *);
 
+int uart1_inited = 0;
+int uart0_inited = 0;
+
 typedef struct {
 	int	TxCount;     // how many byte to TX
 	int	RxCount;     // how many bytes to RX

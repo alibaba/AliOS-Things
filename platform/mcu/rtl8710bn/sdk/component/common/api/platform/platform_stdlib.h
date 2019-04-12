@@ -199,7 +199,7 @@ extern void vPortFree( void *pv );
         extern int buffered_printf(const char* fmt, ...);
         #define printf				buffered_printf
 #else
-	#define printf				rtl_printf
+	#define printf				DiagPrintf
 #endif
 	#define sprintf				rtl_sprintf
 	#define snprintf				rtl_snprintf
