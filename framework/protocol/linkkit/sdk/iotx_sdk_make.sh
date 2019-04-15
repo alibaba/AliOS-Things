@@ -49,7 +49,7 @@ if [ $? -ne 0 ]; then
 fi
 
 
-$MAKE -j4 -f .O/.one_makefile
+make -j4 -f .O/.one_makefile
 if [ $? -ne 0 ]; then
     echo "make fail!"
     exit 1
