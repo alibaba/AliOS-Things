@@ -516,7 +516,7 @@ int alcs_resource_register_secure(CoAPContext *context, const char *pk, const ch
                 dup = 1;
             }
         } else if (item->path_type == PATH_FILTER && node->path_type == PATH_FILTER) {
-            if (strncpy(node->filter_path, item->filter_path, strlen(item->filter_path)) == 0) {
+            if (strncpy(node->filter_path, path, strlen(path)) == 0) {
                 dup = 1;
             }
         }
