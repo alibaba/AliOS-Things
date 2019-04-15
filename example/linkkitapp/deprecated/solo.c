@@ -334,7 +334,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
     /* if the proprety id is %s.%s, please follow this code */
     /* get new property value */
     if (strstr(property, "HSVColor") != 0) {
-        int hue, saturation, value;
+        double hue, saturation, value;
 
         /* generate property identifier HSVColor.Hue */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
@@ -368,10 +368,10 @@ static int thing_prop_changed(const void *thing_id, const char *property,
             value_str = NULL;
         }
 
-        EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Value:%d\n",
+        EXAMPLE_TRACE("property(%s), Hue:%f, Saturation:%f, Value:%f\n",
                       property, hue, saturation, value);
     } else if (strstr(property, "HSLColor") != 0) {
-        int hue, saturation, lightness;
+        double hue, saturation, lightness;
 
         /* generate property identifier HSLColor.Hue */
         snprintf(property_buf, sizeof(property_buf), "%s.%s", property, "Hue");
@@ -405,7 +405,7 @@ static int thing_prop_changed(const void *thing_id, const char *property,
             value_str = NULL;
         }
 
-        EXAMPLE_TRACE("property(%s), Hue:%d, Saturation:%d, Lightness:%d\n",
+        EXAMPLE_TRACE("property(%s), Hue:%f, Saturation:%f, Lightness:%f\n",
                       property, hue, saturation, lightness);
     } else if (strstr(property, "RGBColor") != 0) {
         int red, green, blue;
